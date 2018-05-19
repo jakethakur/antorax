@@ -6,9 +6,19 @@
 </head>
 <body>
 	<canvas id="game" width="600" height="600"></canvas>
-		
-	<div id="chat"></div>
-
+	<div id="chat">
+	</div>
+		<div id="inventory" hidden>
+		<div id="information" hidden></div>
+		<div id="helm"onmouseover="displayInformation('10px')"onmouseleave="hideInformation()"onclick="changeNum(helmArray,helmNum,'helm')"></div>
+		<div id="chest"onmouseover="displayInformation('80px')"onmouseleave="hideInformation()"onclick="changeNum(chestArray,chestNum,'chest')"></div>
+		<div id="greaves"onmouseover="displayInformation('150px')"onmouseleave="hideInformation()"onclick="changeNum(greavesArray,greavesNum,'greaves')"></div>
+		<div id="boots"onmouseover="displayInformation('220px')"onmouseleave="hideInformation()"onclick="changeNum(bootsArray,bootsNum,'boots')"></div>
+		<div id="weapon"onmouseover="displayInformation('305px')"onmouseleave="hideInformation()"onclick="changeNum(weaponArray,weaponNum,'weapon')"></div>
+		<div id="gold"></div>
+	</div>
+	<div id="changeChat" onclick="nextChat()"</div>
 	<script src="main.js"></script>
+	<script src="dom.js"></script>
 </body>
 </html>
