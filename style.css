@@ -24,7 +24,6 @@ font-family: 'MedievalSharp', serif;
         border: 1px solid black;
         width: 500px;
         height: 600px;
-        overflow-y: scroll;
         padding-left: 10px;
         padding-right: 10px;
         font-family: sans-serif;
@@ -59,10 +58,13 @@ border: 5px solid #886622;
 float: right;
 margin-top: 10px;
 }
-#changeChat{
-margin-top:10px;
-background-color: #000000;
-width: 100px;
-height: 100px;
+#changeChat, #changeInventory{
+position: relative;
+top: 601px;
+right: 522px;
+margin:10px;
+width: 50px;
+height: 200px;
 float: left;
+}
 }

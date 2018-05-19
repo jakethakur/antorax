@@ -8,7 +8,7 @@
 	<canvas id="game" width="600" height="600"></canvas>
 	<div id="chat">
 	</div>
-		<div id="inventory" hidden>
+	<div id="inventory" hidden>
 		<div id="information" hidden></div>
 		<div id="helm"onmouseover="displayInformation('10px')"onmouseleave="hideInformation()"onclick="changeNum(helmArray,helmNum,'helm')"></div>
 		<div id="chest"onmouseover="displayInformation('80px')"onmouseleave="hideInformation()"onclick="changeNum(chestArray,chestNum,'chest')"></div>
@@ -17,7 +17,14 @@
 		<div id="weapon"onmouseover="displayInformation('305px')"onmouseleave="hideInformation()"onclick="changeNum(weaponArray,weaponNum,'weapon')"></div>
 		<div id="gold"></div>
 	</div>
-	<div id="changeChat" onclick="nextChat()"</div>
+	<svg height="600" width="600" id="changeChat" onclick="changeBook(chat)">
+		<polygon points="0,0 50,0 50,100 25,130 0,100" style="fill:blue;stroke:black;stroke-width:1" />
+		Sorry, your browser does not support inline SVG.
+	</svg>
+	<svg height="1000" width="1000" id="changeInventory" onclick="changeBook(inventory)">
+		<polygon points="0,0 50,0 50, 100 25,130, 0,100" style="fill:red;stroke:black;stroke-width:1" />
+		Sorry, your browser does not support inline SVG.
+	</svg>
 	<script src="main.js"></script>
 	<script src="dom.js"></script>
 </body>

@@ -48,20 +48,17 @@ function purgeChat() {
 	chatlength = 1;
 }
 
-function nextChat() {
-	if (chat.hidden == false) {
-		chat.hidden = true;
-		inventory.hidden = false;
-	}
-	else {
-		chat.hidden = false;
-		inventory.hidden = true;
-	}
+function changeBook(page) {
+	chat.hidden = true;
+	inventory.hidden = true;
+	page.hidden = false;
 }
+
 function displayInformation(y){
 	information.hidden = false;
 	document.getElementById("information").style.marginTop = y;
 }
+
 function hideInformation(){
 	information.hidden = true;
 }
