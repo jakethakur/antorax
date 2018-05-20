@@ -164,7 +164,16 @@ var map = {
     },
     getY: function (row) {
         return row * this.tsize;
-    }
+    },
+	isWaterAtXY: function (x, y) {
+        var col = Math.floor(x / this.tsize);
+        var row = Math.floor(y / this.tsize);
+
+        // check first layer only and return TRUE if any tile is fully water (26-29)
+        var tile = this.getTile(0, col, row);
+        var isWater = tile === 26 || tile === 27 || tile === 28 || tile === 29;
+		return isWater;
+	},
 };
 
 function Camera(map, width, height) {
@@ -219,7 +228,9 @@ function Hero(map, x, y) {
     this.image = Loader.getImage('hero');
 }
 
-Hero.speed = 256; // pixels per second
+Hero.baseSpeed = 172; // base pixels per second
+Hero.waterSpeed = 64; // speed when in water
+Hero.speed = Hero.baseSpeed; //current speed
 
 Hero.prototype.move = function (delta, dirx, diry) {
     // move hero
@@ -251,6 +262,18 @@ Hero.prototype._collide = function (dirx, diry) {
         this.map.isSolidTileAtXY(right, top) ||
         this.map.isSolidTileAtXY(right, bottom) ||
         this.map.isSolidTileAtXY(left, bottom);
+	
+	//test for water
+	//make this controlled by a status effect instead maybe?
+	if (this.map.isWaterAtXY(this.x, this.y)) {
+		if(Hero.speed === Hero.baseSpeed) {
+			Hero.speed = Hero.waterSpeed;
+		}
+	}
+	else if (Hero.speed  === Hero.waterSpeed) {
+		Hero.speed = Hero.baseSpeed;
+	}
+	
     if (!collision) { return; }
 
     if (diry > 0) {
@@ -294,9 +317,9 @@ Game.update = function (delta) {
     var dirx = 0;
     var diry = 0;
     if (Keyboard.isDown(Keyboard.LEFT)) { dirx = -1; }
-    else if (Keyboard.isDown(Keyboard.RIGHT)) { dirx = 1; }
-    else if (Keyboard.isDown(Keyboard.UP)) { diry = -1; }
-    else if (Keyboard.isDown(Keyboard.DOWN)) { diry = 1; }
+    if (Keyboard.isDown(Keyboard.RIGHT)) { dirx = 1; }
+    if (Keyboard.isDown(Keyboard.UP)) { diry = -1; }
+    if (Keyboard.isDown(Keyboard.DOWN)) { diry = 1; }
 
 	if (dirx !== 0 || diry !== 0) {
         this.hero.move(delta, dirx, diry);
