@@ -66,7 +66,7 @@ height: 50px;
 margin-top: 25px;
 }
 #gold{
-background-image: url("assets/icons/gold.png");
+background-image: url("./assets/icons/gold.png");
 margin-top: 25px;
 width: 60px;
 height: 60px;
