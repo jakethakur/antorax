@@ -1,7 +1,6 @@
 //create game
 
 var canvas = document.getElementById("game");
-var ctx = canvas.getContext("2d");
 
 //https://developer.mozilla.org/en-US/docs/Games/Techniques/Tilemaps
 
@@ -121,7 +120,7 @@ Game.tick = function (elapsed) {
 //
 
 window.onload = function () {
-    var context = document.getElementById('game').getContext('2d');
+    var context = canvas.getContext('2d');
     Game.run(context);
 };
 
@@ -294,6 +293,27 @@ Hero.prototype._collide = function (dirx, diry) {
     }
 };
 
+//
+// npcs
+//
+
+var characters = {};
+
+function questNPC(properties) {
+    this.properties.x = x;
+    this.properties.y = y;
+    this.properties.width = width;
+    this.properties.height = height;
+
+    this.properties.image = Loader.getImage('hero');
+	
+	//this.properties.speak = function;
+}
+
+//
+// load game
+//
+
 Game.load = function () {
     return [
         Loader.loadImage('tiles', './assets/tilemap/tilemap.png'),
@@ -306,9 +326,9 @@ Game.init = function () {
         [Keyboard.LEFT, Keyboard.RIGHT, Keyboard.UP, Keyboard.DOWN]);
     this.tileAtlas = Loader.getImage('tiles');
 
-    this.hero = new Hero(map, 160, 160);
+    this.hero = new Hero(map, 1700, 270); //create the player at its start x and y positions
     this.camera = new Camera(map, canvas.width, canvas.height);
-    this.camera = new Camera(map, canvas.width, canvas.height);
+    //this.camera = new Camera(map, canvas.width, canvas.height);
     this.camera.follow(this.hero);
 };
 
