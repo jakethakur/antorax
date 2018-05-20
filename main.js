@@ -217,98 +217,103 @@ Camera.prototype.update = function () {
     }
 };
 
-function Hero(map, x, y) {
-    this.map = map;
-    this.x = x;
-    this.y = y;
-    this.width = map.tsize;
-    this.height = map.tsize;
+class Character {
+	constructor(properties) {
+		this.map = properties.map;
+		this.x = properties.x;
+		this.y = properties.y;
+		this.width = properties.width;
+		this.height = properties.height;
 
-    this.image = Loader.getImage('hero');
+		this.image = Loader.getImage(properties.image);
+	}
 }
 
-Hero.baseSpeed = 172; // base pixels per second
-Hero.waterSpeed = 64; // speed when in water
-Hero.speed = Hero.baseSpeed; //current speed
-
-Hero.prototype.move = function (delta, dirx, diry) {
-    // move hero
-    this.x += dirx * Hero.speed * delta;
-    this.y += diry * Hero.speed * delta;
-
-    // check if we walked into a non-walkable tile
-    this._collide(dirx, diry);
-
-    // clamp values
-    var maxX = this.map.cols * this.map.tsize;
-    var maxY = this.map.rows * this.map.tsize;
-    this.x = Math.max(0, Math.min(this.x, maxX));
-    this.y = Math.max(0, Math.min(this.y, maxY));
-};
-
-Hero.prototype._collide = function (dirx, diry) {
-    var row, col;
-    // -1 in right and bottom is because image ranges from 0..63
-    // and not up to 64
-    var left = this.x - this.width / 2;
-    var right = this.x + this.width / 2 - 1;
-    var top = this.y - this.height / 2;
-    var bottom = this.y + this.height / 2 - 1;
-
-    // check for collisions on sprite sides
-    var collision =
-        this.map.isSolidTileAtXY(left, top) ||
-        this.map.isSolidTileAtXY(right, top) ||
-        this.map.isSolidTileAtXY(right, bottom) ||
-        this.map.isSolidTileAtXY(left, bottom);
+class Hero extends Character {
+	constructor(properties) {
+		super(properties);
+		this.baseSpeed = properties.baseSpeed;
+		this.waterSpeed = properties.waterSpeed;
+		this.speed = properties.baseSpeed;
+	}
 	
-	//test for water
-	//make this controlled by a status effect instead maybe?
-	if (this.map.isWaterAtXY(this.x, this.y)) {
-		if(Hero.speed === Hero.baseSpeed) {
-			Hero.speed = Hero.waterSpeed;
+	move(delta, dirx, diry) {
+		// move hero
+		this.x += dirx * this.speed * delta;
+		this.y += diry * this.speed * delta;
+
+		// check if we walked into a non-walkable tile
+		this._collide(dirx, diry);
+
+		// clamp values
+		var maxX = this.map.cols * this.map.tsize;
+		var maxY = this.map.rows * this.map.tsize;
+		this.x = Math.max(0, Math.min(this.x, maxX));
+		this.y = Math.max(0, Math.min(this.y, maxY));
+	}
+	
+	_collide(dirx, diry) {
+		var row, col;
+		// -1 in right and bottom is because image ranges from 0..63
+		// and not up to 64
+		var left = this.x - this.width / 2;
+		var right = this.x + this.width / 2 - 1;
+		var top = this.y - this.height / 2;
+		var bottom = this.y + this.height / 2 - 1;
+
+		// check for collisions on sprite sides
+		var collision =
+			this.map.isSolidTileAtXY(left, top) ||
+			this.map.isSolidTileAtXY(right, top) ||
+			this.map.isSolidTileAtXY(right, bottom) ||
+			this.map.isSolidTileAtXY(left, bottom);
+		
+		//test for water
+		//make this controlled by a status effect instead maybe?
+		if (this.map.isWaterAtXY(this.x, this.y)) {
+			if(this.speed === this.baseSpeed) {
+				this.speed = this.waterSpeed;
+			}
+		}
+		else if (this.speed  === this.waterSpeed) {
+			this.speed = this.baseSpeed;
+		}
+		
+		if (!collision) { return; }
+
+		if (diry > 0) {
+			row = this.map.getRow(bottom);
+			this.y = -this.height / 2 + this.map.getY(row);
+		}
+		else if (diry < 0) {
+			row = this.map.getRow(top);
+			this.y = this.height / 2 + this.map.getY(row + 1);
+		}
+		else if (dirx > 0) {
+			col = this.map.getCol(right);
+			this.x = -this.width / 2 + this.map.getX(col);
+		}
+		else if (dirx < 0) {
+			col = this.map.getCol(left);
+			this.x = this.width / 2 + this.map.getX(col + 1);
 		}
 	}
-	else if (Hero.speed  === Hero.waterSpeed) {
-		Hero.speed = Hero.baseSpeed;
-	}
-	
-    if (!collision) { return; }
-
-    if (diry > 0) {
-        row = this.map.getRow(bottom);
-        this.y = -this.height / 2 + this.map.getY(row);
-    }
-    else if (diry < 0) {
-        row = this.map.getRow(top);
-        this.y = this.height / 2 + this.map.getY(row + 1);
-    }
-    else if (dirx > 0) {
-        col = this.map.getCol(right);
-        this.x = -this.width / 2 + this.map.getX(col);
-    }
-    else if (dirx < 0) {
-        col = this.map.getCol(left);
-        this.x = this.width / 2 + this.map.getX(col + 1);
-    }
-};
+}
 
 //
 // npcs
 //
 
-var characters = {};
+var Game.characters = {};
 
-function questNPC(properties) {
-    this.properties.x = x;
-    this.properties.y = y;
-    this.properties.width = width;
-    this.properties.height = height;
-
-    this.properties.image = Loader.getImage('hero');
-	
-	//this.properties.speak = function;
+class questNPC extends Character {
+	constructor(properties) {
+		super(properties);
+		this.quest = properties.quest; //quest id, to be read from quests.json file
+	}
 }
+
+//characters.push new questNPC(
 
 //
 // load game
@@ -326,7 +331,18 @@ Game.init = function () {
         [Keyboard.LEFT, Keyboard.RIGHT, Keyboard.UP, Keyboard.DOWN]);
     this.tileAtlas = Loader.getImage('tiles');
 
-    this.hero = new Hero(map, 1700, 270); //create the player at its start x and y positions
+    //this.hero = new Hero(map, 1700, 270); //create the player at its start x and y positions
+	this.hero = new Hero({ //create the player at its start x and y positions
+		map: map,
+		x: 1700,
+		y: 270,
+		width: 60,
+		height: 60,
+		image: "hero",
+		baseSpeed: 172, // base pixels per second
+		waterSpeed: 64, // speed when in water
+	});
+	//console.log(this.hero);
     this.camera = new Camera(map, canvas.width, canvas.height);
     //this.camera = new Camera(map, canvas.width, canvas.height);
     this.camera.follow(this.hero);
@@ -415,7 +431,14 @@ Game.render = function () {
     this.ctx.drawImage(
         this.hero.image,
         this.hero.screenX - this.hero.width / 2,
-        this.hero.screenY - this.hero.height / 2);
+        this.hero.screenY - this.hero.height / 2
+	);
+	
+	//draw npc
+	/*
+	this.ctx.drawImage(
+		this.
+	);*/
 
     // draw map top layer
     //this._drawLayer(1);
