@@ -28,6 +28,9 @@ function changeNum(array,num,string){
 }
 
 document.getElementById("gold").innerText = gold;
+document.getElementById("activeQuests").innerText = "Active Quests";
+document.getElementById("possibleQuests").innerText = "Possible Quests";
+document.getElementById("allQuests").innerText = "All Quests";
 
 //insert text in chat box
 function insertChat(text, delay) {
@@ -51,6 +54,7 @@ function purgeChat() {
 function changeBook(page) {
 	chat.hidden = true;
 	inventory.hidden = true;
+	quests.hidden = true;
 	page.hidden = false;
 }
 
@@ -61,4 +65,13 @@ function displayInformation(y){
 
 function hideInformation(){
 	information.hidden = true;
+}
+
+function expand(block){
+	block = document.getElementById(block);
+	if(block.hidden == true){
+		block.hidden = false;
+	}else{
+		block.hidden = true;
+	}
 }
