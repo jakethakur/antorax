@@ -2,15 +2,13 @@
 body{
 font-family: 'MedievalSharp', serif;
 }
-#game, #chat, #inventory {
+#game, #chat, #inventory, #quests {
         float: left;
         margin: 10px;
 }
-
 #game {
         border: 1px solid black;
 }
-
 #chat {
         border: 1px solid black;
         width: 500px;
@@ -29,6 +27,34 @@ font-family: 'MedievalSharp', serif;
         font-family: sans-serif;
 		background-color: #f9f9d0;
 }
+#quests {
+        border: 1px solid black;
+		border-top: 5px solid black;
+        width: 500px;
+        height: 596px;
+        padding-left: 10px;
+        padding-right: 10px;
+        font-family: sans-serif;
+}
+#activeQuests, #possibleQuests, #allQuests {
+text-align: center;
+line-height:50px;
+vertical-align: middle;
+font-size: 20px;
+font-family: 'MedievalSharp', serif;
+}
+#activeQuestBox, #possibleQuestBox, #allQuestBox {
+	
+}
+#activeQuestBox, #possibleQuestBox, #allQuestBox, #activeQuests, #possibleQuests, #allQuests {
+	position: relative;
+	width: 511px;
+	height: 50px;
+	border-left: 5px solid black;
+	border-right: 5px solid black;
+	border-bottom: 5px solid black;
+	right: 10px;
+}
 #helm, #chest, #greaves, #boots, #weapon{
 margin-top: 10px;
 border: 5px solid #886622;
@@ -40,7 +66,7 @@ height: 50px;
 margin-top: 25px;
 }
 #gold{
-background-image: url("assets/gold.png");
+background-image: url("assets/icons/gold.png");
 margin-top: 25px;
 width: 60px;
 height: 60px;
@@ -58,7 +84,7 @@ border: 5px solid #886622;
 float: right;
 margin-top: 10px;
 }
-#changeChat, #changeInventory{
+#changeChat, #changeInventory, #changeQuests{
 position: relative;
 top: 601px;
 right: 522px;
