@@ -80,7 +80,7 @@ function polygonPoints(){
 	return ("0,0 0,50 100,50 130,25 100,0");
 }
 
-if(screen.height >= 864){
+if(screen.height > 864){
 	const css = document.createElement( 'style' );
 	css.textContent = `
 	#changeChat, #changeInventory, #changeQuests {
@@ -101,13 +101,13 @@ if(screen.height >= 864){
 		top: 649px;
 	}
 	#chatImage{
-		left: 660px;
+		left: 665px;
 	}
 	#inventoryImage{
-		left: 730px;
+		left: 735px;
 	}
 	#questsImage{
-		left: 800px;
+		left: 820px;
 	}
 	`;
 	document.head.appendChild( css );
@@ -127,16 +127,17 @@ if(screen.height >= 864){
 	top: 178px;
 	}
 	#chatImage, #inventoryImage, #questsImage{
-		left: 1192px;
+		left: 1197px;
 	}
 	#chatImage{
-		top: 38px;
+		top: 40px;
 	}
 	#inventoryImage{
-		top: 108px;
+		top: 110px;
 	}
 	#questsImage{
-		top: 178px;
+		top: 180px;
+		left: 1212px;
 	}
 	`;
 	document.head.appendChild( css );
