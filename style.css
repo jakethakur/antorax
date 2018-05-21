@@ -43,9 +43,12 @@ font-family: 'MedievalSharp', serif;
 	user-select: none;
 	background-color: #fef9b4;
 }
-#setting1 {
+#setting1, #activeQuestBox, #possibleQuestBox, #allQuestBox {
+	width: 501px;
+	height: 40px;
 	text-align: left;
-	text-indent: 10px;
+	padding-left: 10px;
+	padding-top: 10px;
 }
 #helm, #chest, #greaves, #boots, #weapon{
 margin-top: 10px;

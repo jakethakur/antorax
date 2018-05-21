@@ -72,6 +72,10 @@ function expand(block){
 	}else{
 		block.hidden = true;
 	}
+	if(block == activeQuestBox && questNum == 0){
+		document.getElementById("activeQuestBox").style.textAlign = "center";
+		document.getElementById("activeQuestBox").innerText = "You have no active quests";
+	}
 }
 
 function bookmarkPosition() {
@@ -228,4 +232,29 @@ if(screen.height >= 864){
 	}
 	`;
 	document.head.appendChild( css );
+}
+
+function npcDomCode(){
+	npcDom(prompt("Please enter quest name"),prompt("Please enter quest activity"));
+}
+
+function npcDom(name,activity){
+	npcBook(name,activity);
+}
+
+var questNum = 0;
+var questString = "";
+function npcBook(name,activity){
+	document.getElementById("activeQuestBox").style.textAlign = "left";
+	if(questNum == 0){
+		document.getElementById("activeQuestBox").innerText = "";
+	}
+	document.getElementById("activeQuestBox").innerText += name + ": ";
+	document.getElementById("activeQuestBox").innerText += activity + "\r\n";
+	questNum += 18;
+	questString = JSON.stringify(questNum+10)+"px";
+	document.getElementById("activeQuestBox").style.height = questString;
+	if(questNum < 19){
+		document.getElementById("activeQuestBox").style.height = "40px";
+	}
 }
