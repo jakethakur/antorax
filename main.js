@@ -313,16 +313,16 @@ class questNPC extends Character {
 	}
 }
 
-//characters.push new questNPC(
-
 //
 // load game
 //
 
+// load images
 Game.load = function () {
     return [
         Loader.loadImage('tiles', './assets/tilemap/tilemap.png'),
-        Loader.loadImage('hero', './assets/character.png')
+        Loader.loadImage('hero', './assets/character.png'),
+        Loader.loadImage('driver', './assets/driver.png'),
     ];
 };
 
@@ -345,11 +345,11 @@ Game.init = function () {
 	
 	Game.characters.push(new questNPC({ //create an NPC
 		map: map,
-		x: 1400,
+		x: 1420,
 		y: 270,
-		width: 60,
-		height: 60,
-		image: "hero",
+		width: 92,
+		height: 100,
+		image: "driver",
 		quest: "tbd",
 	}));
 	
@@ -410,7 +410,7 @@ Game._drawLayer = function (layer) {
 };
 
 Game._drawGrid = function () {
-        var width = map.cols * map.tsize;
+    var width = map.cols * map.tsize;
     var height = map.rows * map.tsize;
     var x, y;
     for (var r = 0; r < map.rows; r++) {
@@ -437,13 +437,6 @@ Game.render = function () {
     //if (this.hasScrolled) {
 	this._drawLayer(0);
     //}
-
-    // draw main character
-    this.ctx.drawImage(
-        this.hero.image,
-        this.hero.screenX - this.hero.width / 2,
-        this.hero.screenY - this.hero.height / 2
-    );
 	
     //draw npcs
     for(var i = 0; i < this.characters.length; i++) {
@@ -452,9 +445,14 @@ Game.render = function () {
 			(this.characters[i].x - this.characters[i].width / 2) - this.camera.x,
 			(this.characters[i].y - this.characters[i].height / 2) - this.camera.y
         );
-		//console.log(this.camera.x);
-		//console.log((this.characters[i].x - this.characters[i].width / 2));
     }
+
+    // draw main character
+    this.ctx.drawImage(
+        this.hero.image,
+        this.hero.screenX - this.hero.width / 2,
+        this.hero.screenY - this.hero.height / 2
+    );
 
     // draw map top layer
     //this._drawLayer(1);
