@@ -74,10 +74,6 @@ function expand(block){
 	}
 }
 
-function polygonPoints(){
-	return ("0,0 0,50 100,50 130,25 100,0");
-}
-
 function bookmarkPosition() {
 	if(document.getElementById("bottom").checked){
 		const css = document.createElement( 'style' );
@@ -158,6 +154,7 @@ function bookmarkPosition() {
 }
 
 if(screen.height >= 864){
+	document.getElementById("bottom").checked = true;
 	const css = document.createElement( 'style' );
 	css.textContent = `
 	#changeChat, #changeInventory, #changeQuests, #changeSettings {
@@ -195,6 +192,7 @@ if(screen.height >= 864){
 	`;
 	document.head.appendChild( css );
 }else{
+	document.getElementById("right").checked = true;
 	const css = document.createElement( 'style' );
 	css.textContent = `
 	#changeChat, #changeInventory, #changeQuests, #changeSettings {
@@ -230,7 +228,4 @@ if(screen.height >= 864){
 	}
 	`;
 	document.head.appendChild( css );
-}
-function chatIcon(){
-	return("./assets/icons/chat.png");
 }
