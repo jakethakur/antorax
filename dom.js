@@ -31,6 +31,7 @@ document.getElementById("gold").innerText = gold;
 document.getElementById("activeQuests").innerText = "Active Quests";
 document.getElementById("possibleQuests").innerText = "Possible Quests";
 document.getElementById("allQuests").innerText = "All Quests";
+document.getElementById("setting1").innerText = "Bookmark position:";
 
 //insert text in chat box
 function insertChat(text, delay) {
@@ -55,6 +56,7 @@ function changeBook(page) {
 	chat.hidden = true;
 	inventory.hidden = true;
 	quests.hidden = true;
+	settings.hidden = true;
 	page.hidden = false;
 }
 
@@ -80,10 +82,10 @@ function polygonPoints(){
 	return ("0,0 0,50 100,50 130,25 100,0");
 }
 
-if(screen.height > 864){
+if(screen.height >= 864){
 	const css = document.createElement( 'style' );
 	css.textContent = `
-	#changeChat, #changeInventory, #changeQuests {
+	#changeChat, #changeInventory, #changeQuests, #changeSettings {
 		top: 619px;
 		transform: rotate(90deg);
 		transform-origin: top left;
@@ -97,24 +99,30 @@ if(screen.height > 864){
 	#changeQuests {
 	left: 850px;
 	}
-	#chatImage, #inventoryImage, #questsImage{
+	#changeSettings {
+	left: 920px;
+	}
+	#chatImage, #inventoryImage, #questsImage, #settingsImage{
 		top: 649px;
 	}
 	#chatImage{
-		left: 665px;
+		left: 669px;
 	}
 	#inventoryImage{
-		left: 735px;
+		left: 739px;
 	}
 	#questsImage{
 		left: 820px;
+	}
+	#settingsImage{
+		left: 875px;
 	}
 	`;
 	document.head.appendChild( css );
 }else{
 	const css = document.createElement( 'style' );
 	css.textContent = `
-	#changeChat, #changeInventory, #changeQuests {
+	#changeChat, #changeInventory, #changeQuests, #changeSettings {
 		left: 1162px;
 	}
 	#changeChat {
@@ -126,18 +134,24 @@ if(screen.height > 864){
 	#changeQuests {
 	top: 178px;
 	}
-	#chatImage, #inventoryImage, #questsImage{
+	#changeSettings {
+	top: 248px;
+	}
+	#chatImage, #inventoryImage, #questsImage, #settingsImage{
 		left: 1197px;
 	}
 	#chatImage{
-		top: 40px;
+		top: 43px;
 	}
 	#inventoryImage{
-		top: 110px;
+		top: 113px;
 	}
 	#questsImage{
-		top: 180px;
+		top: 183px;
 		left: 1212px;
+	}
+	#settingsImage {
+		top: 253px;
 	}
 	`;
 	document.head.appendChild( css );

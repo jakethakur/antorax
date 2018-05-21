@@ -24,9 +24,13 @@
 		<div id="allQuests"onclick="expand('allQuestBox')"></div>
 		<div id="allQuestBox"hidden></div>
 	</div>
+	<div id="settings" hidden>
+	<div id="setting1"></div>
+	</div>
 	<div id="chatImage"onclick="changeBook(chat)"></div>
 	<div id="inventoryImage"onclick="changeBook(inventory)"></div>
 	<div id="questsImage"onclick="changeBook(quests)"></div>
+	<div id="settingsImage"onclick="changeBook(settings)"></div>
 	<svg height="50" width="200" id="changeChat" onclick="changeBook(chat)">
 		<polygon points ="0,0 0,50 100,50 130,25 100,0" style="fill:blue;stroke:black;stroke-width:1" />
 		Sorry, your browser does not support inline SVG.
@@ -37,6 +41,10 @@
 	</svg>
 	<svg height="50" width="200" id="changeQuests" onclick="changeBook(quests)">
 		<polygon points="0,0 0,50 100,50 130,25 100,0" style="fill:green;stroke:black;stroke-width:1" />
+		Sorry, your browser does not support inline SVG.
+	</svg>
+	<svg height="50" width="200" id="changeSettings" onclick="changeBook(settings)">
+		<polygon points ="0,0 0,50 100,50 130,25 100,0" style="fill:yellow;stroke:black;stroke-width:1" />
 		Sorry, your browser does not support inline SVG.
 	</svg>
 	<script src="main.js"></script>

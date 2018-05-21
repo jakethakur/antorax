@@ -2,7 +2,7 @@
 body{
 font-family: 'MedievalSharp', serif;
 }
-#chat, #inventory, #quests {
+#chat, #inventory, #quests, #settings {
         float: left;
         margin: 10px;
 		border: 1px solid black;
@@ -20,21 +20,19 @@ font-family: 'MedievalSharp', serif;
 #chat {
         overflow-y: scroll;
 }
-#inventory {
-}
-#quests {
-        border-top: 5px solid black;
+#quests, #settings {
+        border-top: 5px solid #886622;
         width: 500px;
         height: 596px;
 }
-#activeQuests, #possibleQuests, #allQuests {
+#activeQuests, #possibleQuests, #allQuests, #setting1 {
 text-align: center;
-line-height:50px;
+line-height: 50px;
 vertical-align: middle;
 font-size: 20px;
 font-family: 'MedievalSharp', serif;
 }
-#activeQuestBox, #possibleQuestBox, #allQuestBox, #activeQuests, #possibleQuests, #allQuests {
+#activeQuestBox, #possibleQuestBox, #allQuestBox, #activeQuests, #possibleQuests, #allQuests, #setting1 {
 	position: relative;
 	width: 511px;
 	height: 50px;
@@ -44,6 +42,10 @@ font-family: 'MedievalSharp', serif;
 	right: 10px;
 	user-select: none;
 	background-color: #fef9b4;
+}
+#setting1 {
+	text-align: left;
+	text-indent: 10px;
 }
 #helm, #chest, #greaves, #boots, #weapon{
 margin-top: 10px;
@@ -75,26 +77,29 @@ border: 5px solid #886622;
 float: right;
 margin-top: 10px;
 }
-#changeChat, #changeInventory, #changeQuests {
+#changeChat, #changeInventory, #changeQuests, #changeSettings {
 	position: absolute;
 	width: 200px;
 	height: 60px;
 }
-#chatImage, #inventoryImage, #questsImage{
+#chatImage, #inventoryImage, #questsImage, #settingsImage {
 	position: absolute;
-	height: 47px;
+	height: 40px;
 	z-index: 1;
 }
 #chatImage {
 	background-image: url("./assets/icons/chat.png");
-	width: 40px;
+	width: 32px;
 }
 #inventoryImage {
 	background-image: url("./assets/icons/inventory.png");
-	width: 40px;
+	width: 32px;
 }
 #questsImage {
 	background-image: url("./assets/icons/quests.png");
-	
 	width: 9px;
+}
+#settingsImage {
+	background-image: url("./assets/icons/settings.png");
+	width: 38px;
 }
