@@ -83,7 +83,7 @@ Keyboard.isDown = function (keyCode) {
 // Game object
 //
 
-var Game = {};
+var Game = {characters: [],};
 
 //run game
 Game.run = function (context) {
@@ -304,7 +304,7 @@ class Hero extends Character {
 // npcs
 //
 
-var Game.characters = {};
+//var Game.characters = {};
 
 class questNPC extends Character {
 	constructor(properties) {
@@ -342,6 +342,17 @@ Game.init = function () {
 		baseSpeed: 172, // base pixels per second
 		waterSpeed: 64, // speed when in water
 	});
+	
+	Game.characters.push(new questNPC({ //create an NPC
+		map: map,
+		x: 1400,
+		y: 270,
+		width: 60,
+		height: 60,
+		image: "hero",
+		quest: "tbd",
+	}));
+	
 	//console.log(this.hero);
     this.camera = new Camera(map, canvas.width, canvas.height);
     //this.camera = new Camera(map, canvas.width, canvas.height);
@@ -437,10 +448,12 @@ Game.render = function () {
     //draw npcs
     for(var i = 0; i < this.characters.length; i++) {
         this.ctx.drawImage(
-	    this.characters[i].image,
-	    Camera.x - (this.characters[i].x - this.characters.width / 2),
-	    Camera.y - (this.characters[i].y - this.characters.height / 2)
+			this.characters[i].image,
+			(this.characters[i].x - this.characters[i].width / 2) - this.camera.x,
+			(this.characters[i].y - this.characters[i].height / 2) - this.camera.y
         );
+		//console.log(this.camera.x);
+		//console.log((this.characters[i].x - this.characters[i].width / 2));
     }
 
     // draw map top layer
