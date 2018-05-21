@@ -17,15 +17,21 @@
 		<div id="gold"></div>
 	</div>
 	<div id="quests" hidden>
-		<div id="activeQuests"onclick="expand('activeQuestBox')"></div>
+		<div id="activeQuests"onclick="expand('activeQuestBox')">Active Quests</div>
 		<div id="activeQuestBox"hidden></div>
-		<div id="possibleQuests"onclick="expand('possibleQuestBox')"></div>
+		<div id="possibleQuests"onclick="expand('possibleQuestBox')">Possible Quests</div>
 		<div id="possibleQuestBox"hidden></div>
-		<div id="allQuests"onclick="expand('allQuestBox')"></div>
+		<div id="allQuests"onclick="expand('allQuestBox')">All Quests</div>
 		<div id="allQuestBox"hidden></div>
 	</div>
 	<div id="settings" hidden>
-	<div id="setting1"></div>
+		<div id="setting1">
+		Bookmarks position:
+			&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+			<input type="radio" id="bottom" name="bookmarksPosition" onclick="bookmarkPosition()">Bottom
+			&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+			<input type="radio" id="right" name="bookmarksPosition" onclick="bookmarkPosition()">Right
+		</div>
 	</div>
 	<div id="chatImage"onclick="changeBook(chat)"></div>
 	<div id="inventoryImage"onclick="changeBook(inventory)"></div>

@@ -28,10 +28,6 @@ function changeNum(array,num,string){
 }
 
 document.getElementById("gold").innerText = gold;
-document.getElementById("activeQuests").innerText = "Active Quests";
-document.getElementById("possibleQuests").innerText = "Possible Quests";
-document.getElementById("allQuests").innerText = "All Quests";
-document.getElementById("setting1").innerText = "Bookmark position:";
 
 //insert text in chat box
 function insertChat(text, delay) {
@@ -80,6 +76,85 @@ function expand(block){
 
 function polygonPoints(){
 	return ("0,0 0,50 100,50 130,25 100,0");
+}
+
+function bookmarkPosition() {
+	if(document.getElementById("bottom").checked){
+		const css = document.createElement( 'style' );
+		css.textContent = `
+		#changeChat, #changeInventory, #changeQuests, #changeSettings {
+			top: 619px;
+			transform: rotate(90deg);
+			transform-origin: top left;
+		}
+		#changeChat {
+		left: 710px;
+		}
+		#changeInventory {
+		left: 780px;
+		}
+		#changeQuests {
+		left: 850px;
+		}
+		#changeSettings {
+		left: 920px;
+		}
+		#chatImage, #inventoryImage, #questsImage, #settingsImage{
+			top: 649px;
+		}
+		#chatImage{
+			left: 669px;
+		}
+		#inventoryImage{
+			left: 739px;
+		}
+		#questsImage{
+			left: 820px;
+		}
+		#settingsImage{
+			left: 875px;
+		}
+		`;
+		document.head.appendChild( css );
+	}else{
+		const css = document.createElement( 'style' );
+		css.textContent = `
+		#changeChat, #changeInventory, #changeQuests, #changeSettings {
+			left: 1162px;
+			transform: rotate(0deg);
+			transform-origin: top left;
+		}
+		#changeChat {
+		top: 38px;
+		}
+		#changeInventory {
+		top: 108px;
+		}
+		#changeQuests {
+		top: 178px;
+		}
+		#changeSettings {
+		top: 248px;
+		}
+		#chatImage, #inventoryImage, #questsImage, #settingsImage{
+			left: 1197px;
+		}
+		#chatImage{
+			top: 43px;
+		}
+		#inventoryImage{
+			top: 113px;
+		}
+		#questsImage{
+			top: 183px;
+			left: 1212px;
+		}
+		#settingsImage {
+			top: 253px;
+		}
+		`;
+	document.head.appendChild( css );
+	}
 }
 
 if(screen.height >= 864){
