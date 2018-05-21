@@ -424,25 +424,28 @@ Game._drawGrid = function () {
 Game.render = function () {
     // draw map background layer
     //if (this.hasScrolled) {
-		this._drawLayer(0);
-	//}
+	this._drawLayer(0);
+    //}
 
     // draw main character
     this.ctx.drawImage(
         this.hero.image,
         this.hero.screenX - this.hero.width / 2,
         this.hero.screenY - this.hero.height / 2
-	);
+    );
 	
-	//draw npc
-	/*
-	this.ctx.drawImage(
-		this.
-	);*/
+    //draw npcs
+    for(var i = 0; i < this.characters.length; i++) {
+        this.ctx.drawImage(
+	    this.characters[i].image,
+	    Camera.x - (this.characters[i].x - this.characters.width / 2),
+	    Camera.y - (this.characters[i].y - this.characters.height / 2)
+        );
+    }
 
     // draw map top layer
     //this._drawLayer(1);
 
-	//draw map grid (debug)
+    //draw map grid (debug)
     //this._drawGrid();
 };
