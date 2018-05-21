@@ -24,16 +24,19 @@
 		<div id="allQuests"onclick="expand('allQuestBox')"></div>
 		<div id="allQuestBox"hidden></div>
 	</div>
-	<svg height="1000" width="1000" id="changeChat" onclick="changeBook(chat)">
-		<polygon points="0,0 50,0 50,100 25,130 0,100" style="fill:blue;stroke:black;stroke-width:1" />
+	<div id="chatImage"onclick="changeBook(chat)"></div>
+	<div id="inventoryImage"onclick="changeBook(inventory)"></div>
+	<div id="questsImage"onclick="changeBook(quests)"></div>
+	<svg height="50" width="200" id="changeChat" onclick="changeBook(chat)">
+		<polygon points ="0,0 0,50 100,50 130,25 100,0" style="fill:blue;stroke:black;stroke-width:1" />
 		Sorry, your browser does not support inline SVG.
 	</svg>
-	<svg height="1000" width="1000" id="changeInventory" onclick="changeBook(inventory)">
-		<polygon points="0,0 50,0 50, 100 25,130, 0,100" style="fill:red;stroke:black;stroke-width:1" />
+	<svg height="50" width="200" id="changeInventory" onclick="changeBook(inventory)">
+		<polygon points="0,0 0,50 100,50 130,25 100,0" style="fill:red;stroke:black;stroke-width:1" />
 		Sorry, your browser does not support inline SVG.
 	</svg>
-	<svg height="1000" width="1000" id="changeQuests" onclick="changeBook(quests)">
-		<polygon points="0,0 50,0 50,100 25,130 0,100" style="fill:green;stroke:black;stroke-width:1" />
+	<svg height="50" width="200" id="changeQuests" onclick="changeBook(quests)">
+		<polygon points="0,0 0,50 100,50 130,25 100,0" style="fill:green;stroke:black;stroke-width:1" />
 		Sorry, your browser does not support inline SVG.
 	</svg>
 	<script src="main.js"></script>
