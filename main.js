@@ -227,6 +227,18 @@ class Character {
 
 		this.image = Loader.getImage(properties.image);
 	}
+	
+	isTouching(object) {
+		if (this.x < object.x + object.width &&
+	    this.x + this.width > object.x &&
+	    this.y < object.y + object.height &&
+	    this.height + this.y > object.y) {
+			return true;
+		}
+		else {
+			return false;
+		}
+	}
 }
 
 class Hero extends Character {
@@ -375,8 +387,14 @@ Game.update = function (delta) {
 	else {
         this.hasScrolled = false;
 	}
-    //this.hero.move(delta, dirx, diry);
     this.camera.update();
+	
+	//check collision with npcs
+	for(var i = 0; i < this.characters.length; i++) {
+        if(this.hero.isTouching(this.characters[i])) {
+			alert("touching");
+		}
+    }
 };
 
 Game._drawLayer = function (layer) {
