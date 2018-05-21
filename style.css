@@ -2,39 +2,30 @@
 body{
 font-family: 'MedievalSharp', serif;
 }
-#game, #chat, #inventory, #quests {
+#chat, #inventory, #quests {
         float: left;
         margin: 10px;
+		border: 1px solid black;
+		width: 500px;
+		height: 600px;
+		padding-left: 10px;
+		padding-right: 10px;
+		background-color: #f9f9d0;
 }
 #game {
         border: 1px solid black;
+		float: left;
+        margin: 10px;
 }
 #chat {
-        border: 1px solid black;
-        width: 500px;
-        height: 600px;
         overflow-y: scroll;
-        padding-left: 10px;
-        padding-right: 10px;
-        font-family: sans-serif;
 }
 #inventory {
-        border: 1px solid black;
-        width: 500px;
-        height: 600px;
-        padding-left: 10px;
-        padding-right: 10px;
-        font-family: sans-serif;
-		background-color: #f9f9d0;
 }
 #quests {
-        border: 1px solid black;
-		border-top: 5px solid black;
+        border-top: 5px solid black;
         width: 500px;
         height: 596px;
-        padding-left: 10px;
-        padding-right: 10px;
-        font-family: sans-serif;
 }
 #activeQuests, #possibleQuests, #allQuests {
 text-align: center;
