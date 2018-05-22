@@ -239,6 +239,9 @@ function npcDomCode(){
 	npcDom(prompt("Please enter quest name"),prompt("Please enter npc name"),prompt("Please enter quest chat"),[prompt("Please enter quest objectives"),prompt("Please enter quest objectives")]);
 }
 
+var questVar = "";
+var objectivesVar = "";
+
 function npcDom(quest,name,chat,objectives){
 	changeBook(document.getElementById("questStart"));
 	document.getElementById("questStartQuest").innerHTML = quest;
@@ -248,7 +251,19 @@ function npcDom(quest,name,chat,objectives){
 	for(var i = 0; i < objectives.length; i++){
 		document.getElementById("questStartObjectives").innerHTML += objectives[i] + "<br>";
 	}
-	npcBook(quest,objectives);
+	questVar = quest;
+	objectivesVar = objectives;
+}
+
+function acceptFunction(){
+	npcBook(questVar,objectivesVar);
+	questStart.hidden = true;
+	quests.hidden = false;
+}
+
+function declineFunction(){
+	questStart.hidden = true;
+	quests.hidden = false;
 }
 
 var questNum = 0;
