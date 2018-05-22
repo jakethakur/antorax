@@ -55,6 +55,9 @@ font-family: 'MedievalSharp', serif;
 	border-right: 5px solid #886622;
 	border-bottom: 5px solid #886622;
 	right: 10px;
+	-webkit-user-select: none; /* Safari */        
+	-moz-user-select: none; /* Firefox */
+	-ms-user-select: none; /* IE10+/Edge */
 	user-select: none;
 	background-color: #fef9b4;
 }
@@ -85,6 +88,9 @@ line-height:65px;
 vertical-align: middle;
 font-size: 20px;
 font-family: 'MedievalSharp', serif;
+-webkit-user-select: none; /* Safari */        
+-moz-user-select: none; /* Firefox */
+-ms-user-select: none; /* IE10+/Edge */
 user-select: none;
 }
 #information{
@@ -106,6 +112,9 @@ margin-top: 10px;
 	vertical-align: middle;
 	font-size: 20px;
 	font-family: 'MedievalSharp', serif;
+	-webkit-user-select: none; /* Safari */        
+	-moz-user-select: none; /* Firefox */
+	-ms-user-select: none; /* IE10+/Edge */
 	user-select: none;
 }
 #accept{

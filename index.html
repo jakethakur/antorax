@@ -35,7 +35,9 @@
 		<div id="settingMusic">
 		Play music on Chrome:
 			&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
-			<input type="button" value="Of course!" onclick="Game.playMusic()">
+			<input type="radio" name="musicOnOff" onclick="Game.playMusic()">Yes
+			&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+			<input type="radio" name="musicOnOff">No
 		</div>
 	</div>
 	<div id="questStart" hidden>
@@ -46,6 +48,10 @@
 		<p id="questStartObjectives"></p>
 		<div id="accept"onclick="acceptFunction()">Accept</div>
 		<div id="decline"onclick="declineFunction()">Decline</div>
+	</div>
+	<div id="merchantPage" hidden>
+		<br><h1 id="merchantPageTitle"></h1><br><br>
+		
 	</div>
 	<div id="chatImage"onclick="changeBook(chatPage)"></div>
 	<div id="inventoryImage"onclick="changeBook(inventoryPage)"></div>
