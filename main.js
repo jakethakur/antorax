@@ -229,10 +229,10 @@ class Character {
 	}
 	
 	isTouching(object) {
-		if (this.x < object.x + object.width &&
-	    this.x + this.width > object.x &&
-	    this.y < object.y + object.height &&
-	    this.height + this.y > object.y) {
+		if (this.screenX < object.screenX + object.width &&
+	    this.screenX + this.width > object.screenX &&
+	    this.screenY < object.screenY + object.height &&
+	    this.height + this.screenY > object.screenY) {
 			return true;
 		}
 		else {
@@ -357,8 +357,8 @@ Game.init = function () {
 	
 	Game.characters.push(new questNPC({ //create an NPC
 		map: map,
-		x: 1420,
-		y: 270,
+		x: 1460,
+		y: 340,
 		width: 92,
 		height: 100,
 		image: "driver",
@@ -458,10 +458,15 @@ Game.render = function () {
 	
     //draw npcs
     for(var i = 0; i < this.characters.length; i++) {
+		//set character screen x and y
+		this.characters[i].screenX = (this.characters[i].x - this.characters[i].width / 2) - this.camera.x;
+		this.characters[i].screenY = (this.characters[i].y - this.characters[i].height / 2) - this.camera.y;
+		
+		//draw image
         this.ctx.drawImage(
 			this.characters[i].image,
-			(this.characters[i].x - this.characters[i].width / 2) - this.camera.x,
-			(this.characters[i].y - this.characters[i].height / 2) - this.camera.y
+			this.characters[i].screenX - this.hero.width / 2,
+			this.characters[i].screenY - this.hero.height / 2
         );
     }
 
@@ -471,6 +476,9 @@ Game.render = function () {
         this.hero.screenX - this.hero.width / 2,
         this.hero.screenY - this.hero.height / 2
     );
+	
+	//this.ctx.fillRect(this.hero.screenX,this.hero.screenY,this.hero.width,this.hero.height);
+	//this.ctx.fillRect(this.characters[0].screenX,this.characters[0].screenY,this.characters[0].width,this.characters[0].height);
 
     // draw map top layer
     //this._drawLayer(1);
