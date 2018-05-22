@@ -274,6 +274,7 @@ function declineFunction(){
 }
 
 var activeQuestArray = [];
+var completedQuestArray = [];
 var questNum = 0;
 var questString = "";
 function npcBook(quest,objectives){

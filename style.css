@@ -11,6 +11,7 @@ font-family: 'MedievalSharp', serif;
 		padding-left: 10px;
 		padding-right: 10px;
 		background-color: #f9f9d0;
+		overflow: hidden;
 }
 #game {
         border: 1px solid black;
@@ -24,7 +25,10 @@ font-family: 'MedievalSharp', serif;
         border-top: 5px solid #886622;
         width: 500px;
         height: 596px;
-		overflow-y: scroll;
+}
+#questsPage {
+	overflow-y: auto;
+	overflow-x: hidden;
 }
 #questStart {
 	text-align: center;
@@ -33,25 +37,28 @@ font-family: 'MedievalSharp', serif;
 #questStartQuest, #questStartName, #questStartChat, #questStartObjectives {
 	display: inline;
 }
-#activeQuests, #possibleQuests, #allQuests, #setting1 {
+#activeQuests, #possibleQuests, #allQuests, #settingBookmark, #settingMusic {
 text-align: center;
 line-height: 50px;
 vertical-align: middle;
 font-size: 20px;
 font-family: 'MedievalSharp', serif;
 }
-#activeQuestBox, #possibleQuestBox, #allQuestBox, #activeQuests, #possibleQuests, #allQuests, #setting1 {
+#settingBookmark, #settingMusic {
+	line-height: 30px;
+}
+#activeQuestBox, #possibleQuestBox, #allQuestBox, #activeQuests, #possibleQuests, #allQuests, #settingBookmark, #settingMusic {
 	position: relative;
 	width: 511px;
 	height: 50px;
 	border-left: 5px solid #886622;
-	border-right: 5px solid #886622;
+	border-right: 10px solid #886622;
 	border-bottom: 5px solid #886622;
 	right: 10px;
 	user-select: none;
 	background-color: #fef9b4;
 }
-#setting1, #activeQuestBox, #possibleQuestBox, #allQuestBox {
+#settingBookmark, #settingMusic, #activeQuestBox, #possibleQuestBox, #allQuestBox {
 	width: 501px;
 	height: 40px;
 	text-align: left;
