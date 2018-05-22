@@ -241,9 +241,12 @@ function npcDomCode(){
 
 function npcDom(quest,name,chat,objectives){
 	changeBook(document.getElementById("questStart"));
-	document.getElementById("questStart").innerHTML = "<center><h1>" + quest + "</h1><b>" + name + "<br></b>" + chat + "<br><br><b>Quest Objectives</b><br></center>";
+	document.getElementById("questStartQuest").innerHTML = quest;
+	document.getElementById("questStartName").innerHTML = name;
+	document.getElementById("questStartChat").innerHTML = chat;
+	document.getElementById("questStartObjectives").innerHTML = "";
 	for(var i = 0; i < objectives.length; i++){
-		document.getElementById("questStart").innerHTML += "<center>" + objectives[i] + "</center>";
+		document.getElementById("questStartObjectives").innerHTML += objectives[i] + "<br>";
 	}
 	npcBook(quest,objectives);
 }
@@ -255,8 +258,12 @@ function npcBook(quest,objectives){
 	if(questNum == 0){
 		document.getElementById("activeQuestBox").innerText = "";
 	}
-	document.getElementById("activeQuestBox").innerHTML += "<strong>" + quest + "</strong><br>" + objectives + "<br><br>";
-	questNum += 50;
+	document.getElementById("activeQuestBox").innerHTML += "<strong>" + quest + "</strong><br>";
+	for(var i = 0; i < objectives.length; i++){
+		document.getElementById("activeQuestBox").innerHTML += objectives[i] + "<br>"
+	}
+	document.getElementById("activeQuestBox").innerHTML += "<br>";
+	questNum += 30+(18*objectives.length);
 	questString = JSON.stringify(questNum+10)+"px";
 	document.getElementById("activeQuestBox").style.height = questString;
 	if(questNum < 50){
