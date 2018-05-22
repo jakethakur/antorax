@@ -24,6 +24,7 @@ font-family: 'MedievalSharp', serif;
         border-top: 5px solid #886622;
         width: 500px;
         height: 596px;
+		overflow-y: scroll;
 }
 #questStart {
 	text-align: center;

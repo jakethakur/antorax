@@ -50,14 +50,14 @@ function purgeChat() {
 }
 
 function changeBook(page) {
-	//if(questVar != ""){
+	if(questVar == ""){
 		chatPage.hidden = true;
 		inventoryPage.hidden = true;
 		questsPage.hidden = true;
 		settingsPage.hidden = true;
 		questStart.hidden = true;
 		page.hidden = false;
-	//}
+	}
 }
 
 function displayInformation(y){
@@ -273,9 +273,11 @@ function declineFunction(){
 	objectivesVar = "";
 }
 
+var activeQuestArray = [];
 var questNum = 0;
 var questString = "";
 function npcBook(quest,objectives){
+	activeQuestsArray.push(quest);
 	document.getElementById("activeQuestBox").style.textAlign = "left";
 	if(questNum == 0){
 		document.getElementById("activeQuestBox").innerText = "";
