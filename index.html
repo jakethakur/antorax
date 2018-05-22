@@ -7,7 +7,7 @@
 <body>
 	<canvas id="game" width="600" height="600"></canvas>
 	<div id="chatPage" hidden></div>
-	<div id="inventoryPage" hidden>
+	<div id="inventoryPage">
 		<div id="information" hidden></div>
 		<div id="helm"onmouseover="displayInformation('10px')"onmouseleave="hideInformation()"onclick="changeNum(helmArray,helmNum,'helm')"></div>
 		<div id="chest"onmouseover="displayInformation('80px')"onmouseleave="hideInformation()"onclick="changeNum(chestArray,chestNum,'chest')"></div>
@@ -16,7 +16,7 @@
 		<div id="weapon"onmouseover="displayInformation('305px')"onmouseleave="hideInformation()"onclick="changeNum(weaponArray,weaponNum,'weapon')"></div>
 		<div id="gold"onclick="npcDomCode()"=></div>
 	</div>
-	<div id="questsPage" >
+	<div id="questsPage" hidden>
 		<div id="activeQuests"onclick="expand('activeQuestBox')">Active Quests</div>
 		<div id="activeQuestBox"hidden></div>
 		<div id="possibleQuests"onclick="expand('possibleQuestBox')">Possible Quests</div>

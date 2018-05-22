@@ -50,7 +50,7 @@ function purgeChat() {
 }
 
 function changeBook(page) {
-	//if(questVar = ""){
+	//if(questVar != ""){
 		chatPage.hidden = true;
 		inventoryPage.hidden = true;
 		questsPage.hidden = true;
@@ -259,18 +259,18 @@ function npcDom(quest,name,chat,objectives){
 }
 
 function acceptFunction(){
-	questVar = "";
-	objectivesVar = "";
 	npcBook(questVar,objectivesVar);
 	questStart.hidden = true;
-	quests.hidden = false;
+	questsPage.hidden = false;
+	questVar = "";
+	objectivesVar = "";
 }
 
 function declineFunction(){
+	questStart.hidden = true;
+	questsPage.hidden = false;
 	questVar = "";
 	objectivesVar = "";
-	questStart.hidden = true;
-	quests.hidden = false;
 }
 
 var questNum = 0;
