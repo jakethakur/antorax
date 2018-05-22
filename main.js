@@ -520,5 +520,5 @@ Game.render = function () {
     //this._drawGrid();
 	
 	//draw hitboxes (debug)
-	this.drawHitboxes();
+	//this.drawHitboxes();
 };
