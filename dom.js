@@ -29,9 +29,11 @@ function changeNum(array,num,string){
 
 document.getElementById("gold").innerText = gold;
 var chatlength = 0;
+var chatContents = [];
 
 //insert text in chat box
 function insertChat(text, delay) {
+	chatContents.push(text);
 	setTimeout(function() {
 		chatPage.innerHTML = '<p>' + text + '</p>' + chatPage.innerHTML;
 		chatlength++;

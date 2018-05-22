@@ -342,8 +342,11 @@ class Hero extends Character {
 class questNPC extends Character {
 	constructor(properties) {
 		super(properties);
-		this.quest = properties.quest; //quest id, to be read from quests.json file
+		this.quest = properties.quest; // quest object address, to be read from questdata.js file
 		this.name = properties.name;
+		
+		this.questProgressText = properties.questProgressText; // text when quest is in progress
+		this.questCompleteText = properties.questCompleteText; // text when quest has been completed
 	}
 }
 
@@ -361,6 +364,10 @@ Game.load = function () {
 };
 
 Game.init = function () {
+	//welcome player
+	//TBD: make it use player name, make it say welcome back if you've played before and it saved your progress, make it a different colour?
+	insertChat("Welcome to Antorax, Hero!", 0);
+
     Keyboard.listenForEvents(
         [Keyboard.LEFT, Keyboard.RIGHT, Keyboard.UP, Keyboard.DOWN]);
     this.tileAtlas = Loader.getImage('tiles');
@@ -386,6 +393,8 @@ Game.init = function () {
 		image: "driver",
 		quest: quests.eaglecrestLoggingCamp[0],
 		name: "Cart Driver",
+		questProgressText: "Good luck with your travels!",
+		questCompleteText: "Look how much you've grown!",
 	}));
 	
 	//console.log(this.hero);
@@ -412,10 +421,21 @@ Game.update = function (delta) {
 	}
     this.camera.update();
 	
-	//check collision with npcs
+	// check collision with npcs
 	for(var i = 0; i < this.characters.length; i++) {
-        if(this.hero.isTouching(this.characters[i]) && questVar === "" && !activeQuestArray.includes(this.characters[i].quest.quest)) {
+		// doesn't currently check if the player's level is too low to accept the quest
+		
+		// quest is ready to be accepted
+        if (this.hero.isTouching(this.characters[i]) && questVar === "" && !activeQuestArray.includes(this.characters[i].quest.quest) && !completedQuestArray.includes(this.characters[i].quest.quest)) {
 			npcDom(this.characters[i].quest.quest, this.characters[i].name, this.characters[i].quest.chat, this.characters[i].quest.objectives);
+		}
+		// quest is currently active
+		else if (this.hero.isTouching(this.characters[i]) && activeQuestArray.includes(this.characters[i].quest.quest) && !chatContents.includes(this.characters[i].name + ": " + this.characters[i].questProgressText)) {
+			insertChat(this.characters[i].name + ": " + this.characters[i].questProgressText, 100);
+		}
+		// quest has been completed
+		else if (this.hero.isTouching(this.characters[i]) && completedQuestArray.includes(this.characters[i].quest.quest) && !chatContents.includes(this.characters[i].name + ": " + this.characters[i].questCompleteText)) {
+			insertChat(this.characters[i].name + ": " + this.characters[i].questCompleteText, 100);
 		}
     }
 };
