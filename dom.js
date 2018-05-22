@@ -277,7 +277,7 @@ var activeQuestArray = [];
 var questNum = 0;
 var questString = "";
 function npcBook(quest,objectives){
-	activeQuestsArray.push(quest);
+	activeQuestArray.push(quest);
 	document.getElementById("activeQuestBox").style.textAlign = "left";
 	if(questNum == 0){
 		document.getElementById("activeQuestBox").innerText = "";

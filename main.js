@@ -91,6 +91,7 @@ Game.run = function (context) {
     this._previousElapsed = 0;
 
     var p = this.load();
+	
     Promise.all(p).then(function (loaded) {
         this.init();
         window.requestAnimationFrame(this.tick);
@@ -114,6 +115,26 @@ Game.tick = function (elapsed) {
     this.update(delta); //update game state
     this.render(); //render game display
 }.bind(Game);
+
+// play music
+
+Game.playMusic = function() {
+	//check area
+	if (true) {
+		this.loadMusic('./assets/music/Pippin-the-Hunchback.mp3');
+	}
+}
+
+Game.loadMusic = function (song) {
+	this.audio = new Audio(song);
+	
+	this.audio.addEventListener('ended', function() {
+		this.currentTime = 0;
+		this.play();
+	}, false);
+	
+	this.audio.play();
+}
 
 //
 // start up function
@@ -363,7 +384,7 @@ Game.init = function () {
 		width: 92,
 		height: 100,
 		image: "driver",
-		quest: quests.eaglecrestLoggingCamp[1],
+		quest: quests.eaglecrestLoggingCamp[0],
 		name: "Cart Driver",
 	}));
 	
@@ -393,7 +414,7 @@ Game.update = function (delta) {
 	
 	//check collision with npcs
 	for(var i = 0; i < this.characters.length; i++) {
-        if(this.hero.isTouching(this.characters[i])) {
+        if(this.hero.isTouching(this.characters[i]) && questVar === "" && !activeQuestArray.includes(this.characters[i].quest.quest)) {
 			npcDom(this.characters[i].quest.quest, this.characters[i].name, this.characters[i].quest.chat, this.characters[i].quest.objectives);
 		}
     }
