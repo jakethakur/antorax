@@ -229,10 +229,10 @@ class Character {
 	}
 	
 	isTouching(object) {
-		if (this.screenX < object.screenX + object.width &&
-	    this.screenX + this.width > object.screenX &&
-	    this.screenY < object.screenY + object.height &&
-	    this.height + this.screenY > object.screenY) {
+		if (this.screenX - this.width / 2 < object.screenX + object.width / 2 &&
+	    this.screenX + this.width / 2 > object.screenX - object.width / 2 &&
+	    this.screenY - this.height / 2 < object.screenY + object.height / 2 &&
+	    this.screenY + this.height / 2 > object.screenY - object.height / 2) {
 			return true;
 		}
 		else {
@@ -322,6 +322,7 @@ class questNPC extends Character {
 	constructor(properties) {
 		super(properties);
 		this.quest = properties.quest; //quest id, to be read from quests.json file
+		this.name = properties.name;
 	}
 }
 
@@ -348,8 +349,8 @@ Game.init = function () {
 		map: map,
 		x: 1700,
 		y: 270,
-		width: 60,
-		height: 60,
+		width: 64,
+		height: 64,
 		image: "hero",
 		baseSpeed: 172, // base pixels per second
 		waterSpeed: 64, // speed when in water
@@ -357,12 +358,13 @@ Game.init = function () {
 	
 	Game.characters.push(new questNPC({ //create an NPC
 		map: map,
-		x: 1460,
+		x: 1470,
 		y: 340,
 		width: 92,
 		height: 100,
 		image: "driver",
-		quest: "tbd",
+		quest: quests.eaglecrestLoggingCamp[1],
+		name: "Cart Driver",
 	}));
 	
 	//console.log(this.hero);
@@ -392,7 +394,7 @@ Game.update = function (delta) {
 	//check collision with npcs
 	for(var i = 0; i < this.characters.length; i++) {
         if(this.hero.isTouching(this.characters[i])) {
-			alert("touching");
+			npcDom(this.characters[i].quest.quest, this.characters[i].name, this.characters[i].quest.chat, this.characters[i].quest.objectives);
 		}
     }
 };
@@ -449,24 +451,37 @@ Game._drawGrid = function () {
     }
 };
 
-//draw images on canvas
+Game.drawHitboxes = function () {
+	// stroke colour
+	this.ctx.strokeStyle="#FF0000";
+	
+	// player hitboxes
+	this.ctx.strokeRect(this.hero.screenX - this.hero.width / 2, this.hero.screenY - this.hero.height / 2, this.hero.width, this.hero.height);
+	
+	// NPC hitboxes
+	for(var i = 0; i < this.characters.length; i++) {
+		this.ctx.strokeRect(this.characters[i].screenX - this.characters[i].width / 2, this.characters[i].screenY - this.characters[i].height / 2, this.characters[i].width, this.characters[i].height);
+	}
+}
+
+// draw images on canvas
 Game.render = function () {
     // draw map background layer
     //if (this.hasScrolled) {
 	this._drawLayer(0);
     //}
 	
-    //draw npcs
+    // draw NPCs
     for(var i = 0; i < this.characters.length; i++) {
-		//set character screen x and y
+		// set character screen x and y
 		this.characters[i].screenX = (this.characters[i].x - this.characters[i].width / 2) - this.camera.x;
 		this.characters[i].screenY = (this.characters[i].y - this.characters[i].height / 2) - this.camera.y;
 		
-		//draw image
+		// draw image
         this.ctx.drawImage(
 			this.characters[i].image,
-			this.characters[i].screenX - this.hero.width / 2,
-			this.characters[i].screenY - this.hero.height / 2
+			this.characters[i].screenX - this.characters[i].width / 2,
+			this.characters[i].screenY - this.characters[i].height / 2
         );
     }
 
@@ -476,13 +491,13 @@ Game.render = function () {
         this.hero.screenX - this.hero.width / 2,
         this.hero.screenY - this.hero.height / 2
     );
-	
-	//this.ctx.fillRect(this.hero.screenX,this.hero.screenY,this.hero.width,this.hero.height);
-	//this.ctx.fillRect(this.characters[0].screenX,this.characters[0].screenY,this.characters[0].width,this.characters[0].height);
 
     // draw map top layer
     //this._drawLayer(1);
 
-    //draw map grid (debug)
+    // draw map grid (debug)
     //this._drawGrid();
+	
+	//draw hitboxes (debug)
+	this.drawHitboxes();
 };
