@@ -28,15 +28,16 @@ function changeNum(array,num,string){
 }
 
 document.getElementById("gold").innerText = gold;
+var chatlength = 0;
 
 //insert text in chat box
 function insertChat(text, delay) {
 	setTimeout(function() {
-		chat.innerHTML = '<p>' + text + '</p>' + chat.innerHTML;
+		chatPage.innerHTML = '<p>' + text + '</p>' + chatPage.innerHTML;
 		chatlength++;
 		if (chatlength >= 10000) { //check chat isn't too big; if it is then purge it. 10,000 is an arbitrary value; maybe change?
 			purgeChat();
-			chat.innerHTML = '<p>' + text + '</p>' + chat.innerHTML;
+			chatPage.innerHTML = '<p>' + text + '</p>' + chatPage.innerHTML;
 			chatlength++;
 		}
 	}, delay);
@@ -44,17 +45,19 @@ function insertChat(text, delay) {
 
 //delete all chat
 function purgeChat() {
-	chat.innerHTML = '<p>Chat cleared to free up memory.</p>';
+	chatPage.innerHTML = '<p>Chat cleared to free up memory.</p>';
 	chatlength = 1;
 }
 
 function changeBook(page) {
-	chat.hidden = true;
-	inventory.hidden = true;
-	quests.hidden = true;
-	settings.hidden = true;
-	questStart.hidden = true;
-	page.hidden = false;
+	//if(questVar = ""){
+		chatPage.hidden = true;
+		inventoryPage.hidden = true;
+		questsPage.hidden = true;
+		settingsPage.hidden = true;
+		questStart.hidden = true;
+		page.hidden = false;
+	//}
 }
 
 function displayInformation(y){
@@ -256,12 +259,16 @@ function npcDom(quest,name,chat,objectives){
 }
 
 function acceptFunction(){
+	questVar = "";
+	objectivesVar = "";
 	npcBook(questVar,objectivesVar);
 	questStart.hidden = true;
 	quests.hidden = false;
 }
 
 function declineFunction(){
+	questVar = "";
+	objectivesVar = "";
 	questStart.hidden = true;
 	quests.hidden = false;
 }

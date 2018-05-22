@@ -2,7 +2,7 @@
 body{
 font-family: 'MedievalSharp', serif;
 }
-#chat, #inventory, #quests, #settings, #questStart {
+#chatPage, #inventoryPage, #questsPage, #settingsPage, #questStart {
         float: left;
         margin: 10px;
 		border: 1px solid black;
@@ -17,10 +17,10 @@ font-family: 'MedievalSharp', serif;
 		float: left;
         margin: 10px;
 }
-#chat {
+#chatPage {
         overflow-y: scroll;
 }
-#quests, #settings {
+#questsPage, #settingsPage {
         border-top: 5px solid #886622;
         width: 500px;
         height: 596px;

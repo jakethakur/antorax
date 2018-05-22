@@ -6,8 +6,8 @@
 </head>
 <body>
 	<canvas id="game" width="600" height="600"></canvas>
-	<div id="chat" hidden></div>
-	<div id="inventory">
+	<div id="chatPage" hidden></div>
+	<div id="inventoryPage" hidden>
 		<div id="information" hidden></div>
 		<div id="helm"onmouseover="displayInformation('10px')"onmouseleave="hideInformation()"onclick="changeNum(helmArray,helmNum,'helm')"></div>
 		<div id="chest"onmouseover="displayInformation('80px')"onmouseleave="hideInformation()"onclick="changeNum(chestArray,chestNum,'chest')"></div>
@@ -16,7 +16,7 @@
 		<div id="weapon"onmouseover="displayInformation('305px')"onmouseleave="hideInformation()"onclick="changeNum(weaponArray,weaponNum,'weapon')"></div>
 		<div id="gold"onclick="npcDomCode()"=></div>
 	</div>
-	<div id="quests" hidden>
+	<div id="questsPage" >
 		<div id="activeQuests"onclick="expand('activeQuestBox')">Active Quests</div>
 		<div id="activeQuestBox"hidden></div>
 		<div id="possibleQuests"onclick="expand('possibleQuestBox')">Possible Quests</div>
@@ -24,7 +24,7 @@
 		<div id="allQuests"onclick="expand('allQuestBox')">All Quests</div>
 		<div id="allQuestBox"hidden></div>
 	</div>
-	<div id="settings" hidden>
+	<div id="settingsPage" hidden>
 		<div id="setting1">
 		Bookmarks position:
 			&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
@@ -42,21 +42,21 @@
 		<div id="accept"onclick="acceptFunction()">Accept</div>
 		<div id="decline"onclick="declineFunction()">Decline</div>
 	</div>
-	<div id="chatImage"onclick="changeBook(chat)"></div>
-	<div id="inventoryImage"onclick="changeBook(inventory)"></div>
-	<div id="questsImage"onclick="changeBook(quests)"></div>
-	<div id="settingsImage"onclick="changeBook(settings)"></div>
-	<svg height="50" width="200" id="changeChat" onclick="changeBook(chat)">
+	<div id="chatImage"onclick="changeBook(chatPage)"></div>
+	<div id="inventoryImage"onclick="changeBook(inventoryPage)"></div>
+	<div id="questsImage"onclick="changeBook(questsPage)"></div>
+	<div id="settingsImage"onclick="changeBook(settingsPage)"></div>
+	<svg height="50" width="200" id="changeChat" onclick="changeBook(chatPage)">
 		<polygon points ="0,0 0,50 100,50 130,25 100,0" style="fill:blue;stroke:black;stroke-width:1" />
 		Sorry, your browser does not support inline SVG.
 	</svg>
-	<svg height="50" width="200" id="changeInventory" onclick="changeBook(inventory)">
+	<svg height="50" width="200" id="changeInventory" onclick="changeBook(inventoryPage)">
 		<polygon points="0,0 0,50 100,50 130,25 100,0" style="fill:red;stroke:black;stroke-width:1" />
 	</svg>
-	<svg height="50" width="200" id="changeQuests" onclick="changeBook(quests)">
+	<svg height="50" width="200" id="changeQuests" onclick="changeBook(questsPage)">
 		<polygon points="0,0 0,50 100,50 130,25 100,0" style="fill:green;stroke:black;stroke-width:1" />
 	</svg>
-	<svg height="50" width="200" id="changeSettings" onclick="changeBook(settings)">
+	<svg height="50" width="200" id="changeSettings" onclick="changeBook(settingsPage)">
 		<polygon points ="0,0 0,50 100,50 130,25 100,0" style="fill:yellow;stroke:black;stroke-width:1" />
 	</svg>
 	<script src="questdata.js"></script>
