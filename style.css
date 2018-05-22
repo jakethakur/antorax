@@ -2,7 +2,7 @@
 body{
 font-family: 'MedievalSharp', serif;
 }
-#chat, #inventory, #quests, #settings {
+#chat, #inventory, #quests, #settings, #questStart {
         float: left;
         margin: 10px;
 		border: 1px solid black;

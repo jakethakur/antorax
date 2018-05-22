@@ -53,6 +53,7 @@ function changeBook(page) {
 	inventory.hidden = true;
 	quests.hidden = true;
 	settings.hidden = true;
+	questStart.hidden = true;
 	page.hidden = false;
 }
 
@@ -235,26 +236,30 @@ if(screen.height >= 864){
 }
 
 function npcDomCode(){
-	npcDom(prompt("Please enter quest name"),prompt("Please enter quest activity"));
+	npcDom(prompt("Please enter quest name"),prompt("Please enter npc name"),prompt("Please enter quest chat"),[prompt("Please enter quest objectives"),prompt("Please enter quest objectives")]);
 }
 
-function npcDom(name,activity){
-	npcBook(name,activity);
+function npcDom(quest,name,chat,objectives){
+	changeBook(document.getElementById("questStart"));
+	document.getElementById("questStart").innerHTML = "<center><h1>" + quest + "</h1><b>" + name + "<br></b>" + chat + "<br><br><b>Quest Objectives</b><br></center>";
+	for(var i = 0; i < objectives.length; i++){
+		document.getElementById("questStart").innerHTML += "<center>" + objectives[i] + "</center>";
+	}
+	npcBook(quest,objectives);
 }
 
 var questNum = 0;
 var questString = "";
-function npcBook(name,activity){
+function npcBook(quest,objectives){
 	document.getElementById("activeQuestBox").style.textAlign = "left";
 	if(questNum == 0){
 		document.getElementById("activeQuestBox").innerText = "";
 	}
-	document.getElementById("activeQuestBox").innerText += name + ": ";
-	document.getElementById("activeQuestBox").innerText += activity + "\r\n";
-	questNum += 18;
+	document.getElementById("activeQuestBox").innerHTML += "<strong>" + quest + "</strong><br>" + objectives + "<br><br>";
+	questNum += 50;
 	questString = JSON.stringify(questNum+10)+"px";
 	document.getElementById("activeQuestBox").style.height = questString;
-	if(questNum < 19){
+	if(questNum < 50){
 		document.getElementById("activeQuestBox").style.height = "40px";
 	}
 }
