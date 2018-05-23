@@ -72,6 +72,15 @@ function hideInformation(){
 	information.hidden = true;
 }
 
+function displayInformationMerchant(y){
+	informationMerchant.hidden = false;
+	document.getElementById("informationMerchant").style.marginTop = y;
+}
+
+function hideInformationMerchant(){
+	informationMerchant.hidden = true;
+}
+
 function expand(block){
 	block = document.getElementById(block);
 	if(block.hidden == true){
@@ -271,6 +280,7 @@ function acceptFunction(){
 
 function declineFunction(){
 	questStart.hidden = true;
+	merchantPage.hidden = true;
 	questsPage.hidden = false;
 	questVar = "";
 	objectivesVar = "";
@@ -304,7 +314,18 @@ function merchantDom(title,chat,options){
 	document.getElementById("merchantPageTitle").innerHTML = title;
 	document.getElementById("merchantPageChat").innerHTML = chat;
 	document.getElementById("merchantPageOptions").innerHTML = "";
+	document.getElementById("merchantPageBreak").innerHTML = "";
 	for(var i = 0; i < options.length; i++){
-		document.getElementById("merchantPageOptions").innerHTML += options[i] + "<br><br>";
+		document.getElementById("merchantPageOptions").innerHTML += "<img src='./assets/items/sword.png' style='border: 5px solid #886622;' onmouseover='displayInformationMerchant(\"10px\")'onmouseleave='hideInformationMerchant()'>" + "<br><br>";
+		document.getElementById("merchantPageBreak").innerHTML += "<br><br><br><br><br>";
+	}
+}
+
+for(var i = 0; i < quests.length; i++){
+	for(var x = 0; x < quests[i].length; x++){
+		document.getElementById("allQuestBox").innerHTML += "<strong>" + quests[i][x].quest + "</strong><br>";
+		for(var y = 0; y < quest[i][x].objectives.length; y++){
+			document.getElementById("activeQuestBox").innerHTML += quests[i][x].objectives[i] + "<br>"
+		}
 	}
 }

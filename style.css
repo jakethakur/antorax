@@ -61,7 +61,7 @@ font-family: 'MedievalSharp', serif;
 	user-select: none;
 	background-color: #fef9b4;
 }
-#settingBookmark, #settingMusic, #activeQuestBox, #possibleQuestBox, #allQuestBox {
+#settingBookmark, #settingMusic, #activeQuestBox, #completedQuestBox, #possibleQuestBox, #allQuestBox {
 	width: 501px;
 	height: 40px;
 	text-align: left;
@@ -93,7 +93,7 @@ font-family: 'MedievalSharp', serif;
 -ms-user-select: none; /* IE10+/Edge */
 user-select: none;
 }
-#information{
+#information, #informationMerchant {
 width: 400px;
 height: 50px;
 background-color: #fef9b4;
@@ -101,7 +101,7 @@ border: 5px solid #886622;
 float: right;
 margin-top: 10px;
 }
-#accept, #decline {
+#accept, #decline, #close {
 	position: relative;
 	width: 200px;
 	height: 50px;
@@ -117,13 +117,18 @@ margin-top: 10px;
 	-ms-user-select: none; /* IE10+/Edge */
 	user-select: none;
 }
+#merchantPageOptions {
+	float: left;
+}
 #accept{
 	top: 60px;
 	left: 20px;
 }
 #decline{
-	top: 0px;
 	left: 270px;
+}
+#close{
+	bottom: 30px;
 }
 #changeChat, #changeInventory, #changeQuests, #changeSettings {
 	position: absolute;
