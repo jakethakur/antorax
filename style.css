@@ -61,6 +61,27 @@ font-family: 'MedievalSharp', serif;
 	user-select: none;
 	background-color: #fef9b4;
 }
+#triangleLeft {
+  right: 25px;
+  top: 10px;
+  position: relative;
+  width: 0; 
+  height: 0; 
+  border-top: 15px solid transparent;
+  border-bottom: 15px solid transparent; 
+  border-right: 20px solid #886622; 
+}
+#innerTriangleLeft {
+  right: 18px;
+  bottom: 20px;
+  position: relative;
+  width: 0; 
+  height: 0; 
+  border-top: 15px solid transparent;
+  border-bottom: 15px solid transparent; 
+  border-right: 20px solid #fef9b4;
+  z-index: 2;
+}
 #settingBookmark, #settingMusic, #activeQuestBox, #completedQuestBox, #possibleQuestBox, #allQuestBox {
 	width: 501px;
 	height: 40px;

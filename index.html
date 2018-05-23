@@ -8,7 +8,10 @@
 	<canvas id="game" width="600" height="600"></canvas>
 	<div id="chatPage" hidden></div>
 	<div id="inventoryPage">
-		<div id="information" hidden></div>
+		<div id="information" hidden>
+			<div id="triangleLeft"></div>
+			<div id="innerTriangleLeft"></div>
+		</div>
 		<div id="helm"onmouseover="displayInformation('10px')"onmouseleave="hideInformation()"onclick="changeNum(helmArray,helmNum,'helm')"></div>
 		<div id="chest"onmouseover="displayInformation('80px')"onmouseleave="hideInformation()"onclick="changeNum(chestArray,chestNum,'chest')"></div>
 		<div id="greaves"onmouseover="displayInformation('150px')"onmouseleave="hideInformation()"onclick="changeNum(greavesArray,greavesNum,'greaves')"></div>
@@ -52,7 +55,10 @@
 		<div id="decline"onclick="declineFunction()">Decline</div>
 	</div>
 	<div id="merchantPage" hidden>
-		<div id="informationMerchant" hidden></div>
+		<div id="informationMerchant" hidden>
+			<div id="triangleLeft"></div>
+			<div id="innerTriangleLeft"></div>
+		</div>
 		<br><h1 id="merchantPageTitle"></h1><br><br>
 		<p id="merchantPageChat"></p><br><br>
 		<p id="merchantPageOptions"></p>
