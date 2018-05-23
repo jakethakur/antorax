@@ -2,7 +2,7 @@
 body{
 font-family: 'MedievalSharp', serif;
 }
-#chatPage, #inventoryPage, #questsPage, #settingsPage, #questStart {
+#chatPage, #inventoryPage, #questsPage, #settingsPage, #questStart, #merchantPage {
         float: left;
         margin: 10px;
 		border: 1px solid black;
@@ -30,14 +30,14 @@ font-family: 'MedievalSharp', serif;
 	overflow-y: auto;
 	overflow-x: hidden;
 }
-#questStart {
+#questStart, #merchantPage {
 	text-align: center;
 	user-select: none;
 }
-#questStartQuest, #questStartName, #questStartChat, #questStartObjectives {
+#questStartQuest, #questStartName, #questStartChat, #questStartObjectives, #merchantPageTitle, #merchantPageChat, #merchantPageOptions {
 	display: inline;
 }
-#activeQuests, #possibleQuests, #allQuests, #settingBookmark, #settingMusic {
+#activeQuests, #possibleQuests, #completedQuests, #allQuests, #settingBookmark, #settingMusic {
 text-align: center;
 line-height: 50px;
 vertical-align: middle;
@@ -47,7 +47,7 @@ font-family: 'MedievalSharp', serif;
 #settingBookmark, #settingMusic {
 	line-height: 30px;
 }
-#activeQuestBox, #possibleQuestBox, #allQuestBox, #activeQuests, #possibleQuests, #allQuests, #settingBookmark, #settingMusic {
+#activeQuestBox, #possibleQuestBox, #completedQuestBox, #allQuestBox, #activeQuests, #possibleQuests, #completedQuests, #allQuests, #settingBookmark, #settingMusic {
 	position: relative;
 	width: 511px;
 	height: 50px;

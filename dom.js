@@ -58,6 +58,7 @@ function changeBook(page) {
 		questsPage.hidden = true;
 		settingsPage.hidden = true;
 		questStart.hidden = true;
+		merchantPage.hidden = true;
 		page.hidden = false;
 	}
 }
@@ -241,7 +242,7 @@ if(screen.height >= 864){
 }
 
 function npcDomCode(){
-	npcDom(prompt("Please enter quest name"),prompt("Please enter npc name"),prompt("Please enter quest chat"),[prompt("Please enter quest objectives"),prompt("Please enter quest objectives")]);
+	merchantDom(prompt("Please enter merchant name"),prompt("Please enter merchant chat"),[prompt("Please enter merchant option"),prompt("Please enter anpother merchant option")]);
 }
 
 var questVar = "";
@@ -295,5 +296,15 @@ function npcBook(quest,objectives){
 	document.getElementById("activeQuestBox").style.height = questString;
 	if(questNum < 50){
 		document.getElementById("activeQuestBox").style.height = "40px";
+	}
+}
+
+function merchantDom(title,chat,options){
+	changeBook(document.getElementById("merchantPage"));
+	document.getElementById("merchantPageTitle").innerHTML = title;
+	document.getElementById("merchantPageChat").innerHTML = chat;
+	document.getElementById("merchantPageOptions").innerHTML = "";
+	for(var i = 0; i < options.length; i++){
+		document.getElementById("merchantPageOptions").innerHTML += options[i] + "<br><br>";
 	}
 }

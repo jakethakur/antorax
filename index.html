@@ -21,6 +21,8 @@
 		<div id="activeQuestBox"hidden></div>
 		<div id="possibleQuests"onclick="expand('possibleQuestBox')">Possible Quests</div>
 		<div id="possibleQuestBox"hidden></div>
+		<div id="completedQuests"onclick="expand('completedQuestBox')">Completed Quests</div>
+		<div id="completedQuestBox"hidden></div>
 		<div id="allQuests"onclick="expand('allQuestBox')">All Quests</div>
 		<div id="allQuestBox"hidden></div>
 	</div>
@@ -33,11 +35,11 @@
 			<input type="radio" id="right" name="bookmarksPosition" onclick="bookmarkPosition()">Right
 		</div>
 		<div id="settingMusic">
-		Play music on Chrome:
-			&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+		Play music:
+			&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
 			<input type="radio" name="musicOnOff" onclick="Game.playMusic()">Yes
-			&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
-			<input type="radio" name="musicOnOff">No
+			&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+			<input type="radio" name="musicOnOff" checked="true">No
 		</div>
 	</div>
 	<div id="questStart" hidden>
@@ -51,7 +53,8 @@
 	</div>
 	<div id="merchantPage" hidden>
 		<br><h1 id="merchantPageTitle"></h1><br><br>
-		
+		<p id="merchantPageChat"></p><br><br>
+		<p id="merchantPageOptions"></p>
 	</div>
 	<div id="chatImage"onclick="changeBook(chatPage)"></div>
 	<div id="inventoryImage"onclick="changeBook(inventoryPage)"></div>
