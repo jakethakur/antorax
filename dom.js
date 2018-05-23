@@ -77,7 +77,7 @@ function hideInformation(){
 }
 
 function displayInformationMerchant(y){
-		console.log(y);
+	console.log(y);
 	informationMerchant.hidden = false;
 	document.getElementById("informationMerchant").style.marginTop = y*200;
 }
@@ -262,7 +262,7 @@ function npcDomCode(){
 var questVar = "";
 var objectivesVar = "";
 
-function npcDom(quest,name,chat,objectives){
+function npcDom(quest,name,chat,objectives,gold){
 	changeBook(document.getElementById("questStart"));
 	document.getElementById("questStartQuest").innerHTML = quest;
 	document.getElementById("questStartName").innerHTML = name;
@@ -271,6 +271,7 @@ function npcDom(quest,name,chat,objectives){
 	for(var i = 0; i < objectives.length; i++){
 		document.getElementById("questStartObjectives").innerHTML += objectives[i] + "<br>";
 	}
+	//document.getElementById("questStartGold").innerText = "0";
 	questVar = quest;
 	objectivesVar = objectives;
 }
@@ -329,7 +330,6 @@ function merchantDom(title,chat,options){
 var allQuestNum = 0;
 var allQuestString = "";
 for(var i = 0; i < Object.keys(quests).length; i++){
-	console.log(quests[Object.keys(quests)[i]]);
 	for(var x = 0; x < quests[Object.keys(quests)[i]].length; x++){
 		document.getElementById("allQuestBox").innerHTML += "<strong>" + quests[Object.keys(quests)[i]][x].quest + "</strong><br>";
 		for(var y = 0; y < quests[Object.keys(quests)[i]][x].objectives.length; y++){
