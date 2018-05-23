@@ -16,10 +16,8 @@ var weaponNum = 0;
 
 var chat = {};
 
-// ???
+// changes which armour is shown in inventory
 function changeNum(array,num,string){
-	console.log(helmNum);
-	console.log(helmArray[helmNum]);
 	num++
 	if(num >= array.length){
 		num=0;
@@ -328,11 +326,17 @@ function merchantDom(title,chat,options){
 	}
 }
 
-for(var i = 0; i < quests.length; i++){
-	for(var x = 0; x < quests[i].length; x++){
-		document.getElementById("allQuestBox").innerHTML += "<strong>" + quests[i][x].quest + "</strong><br>";
-		for(var y = 0; y < quest[i][x].objectives.length; y++){
-			document.getElementById("activeQuestBox").innerHTML += quests[i][x].objectives[i] + "<br>"
+var allQuestNum = 0;
+var allQuestString = "";
+for(var i = 0; i < Object.keys(quests).length; i++){
+	console.log(quests[Object.keys(quests)[i]]);
+	for(var x = 0; x < quests[Object.keys(quests)[i]].length; x++){
+		document.getElementById("allQuestBox").innerHTML += "<strong>" + quests[Object.keys(quests)[i]][x].quest + "</strong><br>";
+		for(var y = 0; y < quests[Object.keys(quests)[i]][x].objectives.length; y++){
+			document.getElementById("allQuestBox").innerHTML += quests[Object.keys(quests)[i]][x].objectives[y] + "<br>";
 		}
+		allQuestNum = 30+(18*quests[Object.keys(quests)[i]][x].objectives.length);
+		allQuestString = JSON.stringify(allQuestNum+10)+"px";
+		document.getElementById("allQuestBox").style.height = allQuestString;
 	}
 }
