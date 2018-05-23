@@ -116,26 +116,6 @@ Game.tick = function (elapsed) {
     this.render(); //render game display
 }.bind(Game);
 
-// play music
-
-Game.playMusic = function() {
-	//check area
-	if (true) {
-		this.loadMusic('./assets/music/Pippin-the-Hunchback.mp3');
-	}
-}
-
-Game.loadMusic = function (song) {
-	this.audio = new Audio(song);
-	
-	this.audio.addEventListener('ended', function() {
-		this.currentTime = 0;
-		this.play();
-	}, false);
-	
-	this.audio.play();
-}
-
 //
 // start up function
 //
@@ -364,16 +344,19 @@ Game.load = function () {
 };
 
 Game.init = function () {
-	//welcome player
-	//TBD: make it use player name, make it say welcome back if you've played before and it saved your progress, make it a different colour?
+	// welcome player
+	// TBD: make it use player name, make it say welcome back if you've played before and it saved your progress, make it a different colour?
 	insertChat("Welcome to Antorax, Hero!", 0);
 
     Keyboard.listenForEvents(
         [Keyboard.LEFT, Keyboard.RIGHT, Keyboard.UP, Keyboard.DOWN]);
     this.tileAtlas = Loader.getImage('tiles');
+	
+	// music
+	this.playingMusic = false;
 
     //this.hero = new Hero(map, 1700, 270); //create the player at its start x and y positions
-	this.hero = new Hero({ //create the player at its start x and y positions
+	this.hero = new Hero({ // create the player at its start x and y positions
 		map: map,
 		x: 1700,
 		y: 270,
@@ -402,6 +385,35 @@ Game.init = function () {
     //this.camera = new Camera(map, canvas.width, canvas.height);
     this.camera.follow(this.hero);
 };
+
+// play music
+
+Game.playMusic = function() {
+	// check if music is already being played
+	if (!this.playingMusic) {
+		// check area
+		if (true) {
+			this.loadMusic('./assets/music/Pippin-the-Hunchback.mp3');
+		}
+	}
+}
+
+Game.loadMusic = function (song) {
+	this.audio = new Audio(song);
+	
+	this.audio.addEventListener('ended', function() {
+		this.currentTime = 0;
+		this.play();
+	}, false);
+	
+	this.audio.play();
+	this.playingMusic = true;
+}
+
+Game.stopMusic = function () {
+	this.audio.pause();
+	this.playingMusic = false;
+}
 
 Game.update = function (delta) {
     // handle hero movement with arrow keys
