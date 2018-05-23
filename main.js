@@ -346,7 +346,7 @@ Game.load = function () {
 Game.init = function () {
 	// welcome player
 	// TBD: make it use player name, make it say welcome back if you've played before and it saved your progress, make it a different colour?
-	insertChat("Welcome to Antorax, Hero!", 0);
+	chat.insert("Welcome to Antorax, Hero!", 0);
 
     Keyboard.listenForEvents(
         [Keyboard.LEFT, Keyboard.RIGHT, Keyboard.UP, Keyboard.DOWN]);
@@ -442,12 +442,12 @@ Game.update = function (delta) {
 			npcDom(this.characters[i].quest.quest, this.characters[i].name, this.characters[i].quest.chat, this.characters[i].quest.objectives);
 		}
 		// quest is currently active
-		else if (this.hero.isTouching(this.characters[i]) && activeQuestArray.includes(this.characters[i].quest.quest) && !chatContents.includes(this.characters[i].name + ": " + this.characters[i].questProgressText)) {
-			insertChat(this.characters[i].name + ": " + this.characters[i].questProgressText, 100);
+		else if (this.hero.isTouching(this.characters[i]) && activeQuestArray.includes(this.characters[i].quest.quest) && !chat.contents.includes(this.characters[i].name + ": " + this.characters[i].questProgressText)) {
+			chat.insert(this.characters[i].name + ": " + this.characters[i].questProgressText, 100);
 		}
 		// quest has been completed
-		else if (this.hero.isTouching(this.characters[i]) && completedQuestArray.includes(this.characters[i].quest.quest) && !chatContents.includes(this.characters[i].name + ": " + this.characters[i].questCompleteText)) {
-			insertChat(this.characters[i].name + ": " + this.characters[i].questCompleteText, 100);
+		else if (this.hero.isTouching(this.characters[i]) && completedQuestArray.includes(this.characters[i].quest.quest) && !chat.contents.includes(this.characters[i].name + ": " + this.characters[i].questCompleteText)) {
+			chat.insert(this.characters[i].name + ": " + this.characters[i].questCompleteText, 100);
 		}
     }
 };

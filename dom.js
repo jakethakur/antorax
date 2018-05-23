@@ -12,6 +12,11 @@ var greavesNum = 0;
 var bootsNum = 0;
 var weaponNum = 0;
 
+// DOM function arrays
+
+var chat = {};
+
+// ???
 function changeNum(array,num,string){
 	console.log(helmNum);
 	console.log(helmArray[helmNum]);
@@ -28,27 +33,28 @@ function changeNum(array,num,string){
 }
 
 document.getElementById("gold").innerText = gold;
-var chatlength = 0;
-var chatContents = [];
+chat.length = 0;
+chat.contents = [];
 
-//insert text in chat box
-function insertChat(text, delay) {
-	chatContents.push(text);
+// insert text in chat box
+chat.insert = function(text, delay) {
+	this.contents.push(text);
 	setTimeout(function() {
 		chatPage.innerHTML = '<p>' + text + '</p>' + chatPage.innerHTML;
-		chatlength++;
-		if (chatlength >= 10000) { //check chat isn't too big; if it is then purge it. 10,000 is an arbitrary value; maybe change?
-			purgeChat();
+		this.length++;
+		if (this.length >= 10000) { //check chat isn't too big; if it is then purge it. 10,000 is an arbitrary value; maybe change?
+			this.purge();
 			chatPage.innerHTML = '<p>' + text + '</p>' + chatPage.innerHTML;
-			chatlength++;
+			this.length++;
 		}
 	}, delay);
 }
 
-//delete all chat
-function purgeChat() {
+// delete all chat
+chat.purge = function() {
 	chatPage.innerHTML = '<p>Chat cleared to free up memory.</p>';
-	chatlength = 1;
+	this.contents = {};
+	this.length = 1;
 }
 
 function changeBook(page) {
