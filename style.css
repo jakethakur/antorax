@@ -115,6 +115,8 @@ font-family: 'MedievalSharp', serif;
 user-select: none;
 }
 #information, #informationMerchant {
+position: absolute;
+left: 740px;
 width: 400px;
 height: 50px;
 background-color: #fef9b4;

@@ -77,9 +77,9 @@ function hideInformation(){
 }
 
 function displayInformationMerchant(y){
-	console.log(y);
+	console.log(y*200);
 	informationMerchant.hidden = false;
-	document.getElementById("informationMerchant").style.marginTop = y*200;
+	document.getElementById("informationMerchant").style.top = 132+(y*82)+"px";
 }
 
 function hideInformationMerchant(){
@@ -322,7 +322,10 @@ function merchantDom(title,chat,options){
 	document.getElementById("merchantPageOptions").innerHTML = "";
 	document.getElementById("merchantPageBreak").innerHTML = "";
 	for(var i = 0; i < options.length; i++){
-		document.getElementById("merchantPageOptions").innerHTML += "<img src='./assets/items/sword.png' style='border: 5px solid #886622;' onmouseover='displayInformationMerchant(i)'onmouseleave='hideInformationMerchant(i)'></img><br><br>";
+		i
+		"i"
+		document.getElementById("merchantPageOptions").innerHTML += "<img src='./assets/items/sword.png' style='border: 5px solid #886622;' onmouseover='displayInformationMerchant(" + i + ")'onmouseleave='hideInformationMerchant(i)'></img><br><br>";
+		console.log("<img src='./assets/items/sword.png' style='border: 5px solid #886622;' onmouseover='displayInformationMerchant(" + i + ")'onmouseleave='hideInformationMerchant(" + i + ")'></img><br><br>");
 		document.getElementById("merchantPageBreak").innerHTML += "<br><br><br><br><br>";
 	}
 }
