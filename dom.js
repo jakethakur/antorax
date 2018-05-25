@@ -270,7 +270,8 @@ function npcDom(quest,name,chat,objectives,gold,xp){
 	for(var i = 0; i < objectives.length; i++){
 		document.getElementById("questStartObjectives").innerHTML += objectives[i] + "<br>";
 	}
-	document.getElementById("questStartGold").innerText = "0";
+	document.getElementById("questStartGold").innerHTML = "0";
+	console.log(document.getElementById("questStartGold"));
 	document.getElementById("questStartXP").innerText = "0";
 	questVar = quest;
 	objectivesVar = objectives;
@@ -323,7 +324,7 @@ function merchantDom(title,chat,options){
 	document.getElementById("merchantPageBreak").innerHTML = "";
 	for(var i = 0; i < options.length; i++){
 		document.getElementById("merchantPageOptions").innerHTML += "<img src='./assets/items/sword.png' style='border: 5px solid #886622;' onmouseover='displayInformationMerchant(" + i + ")'onmouseleave='hideInformationMerchant()'></img><br><br>";
-		document.getElementById("merchantPageBuy").innerHTML += "<div id='buy'>Buy</div><br>";
+		document.getElementById("merchantPageBuy").innerHTML += "<div class='buy'>Buy for: </div><br>";
 		document.getElementById("merchantPageBreak").innerHTML += "<br><br><br><br><br>";
 	}
 }
