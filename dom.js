@@ -321,8 +321,15 @@ function merchantDom(title,chat,options){
 	document.getElementById("merchantPageBreak").innerHTML = "";
 	for(var i = 0; i < options.length; i++){
 		document.getElementById("merchantPageOptions").innerHTML += "<img src='./assets/items/sword.png' style='border: 5px solid #886622;' onmouseover='displayInformationMerchant(" + i + ")'onmouseleave='hideInformationMerchant()'></img><br><br>";
-		document.getElementById("merchantPageBuy").innerHTML += "<div class='buy'>Buy for: </div><br>";
+		document.getElementById("merchantPageBuy").innerHTML += "<div class='buy' onclick = 'buyFunction(" + options[i] + ")'>Buy for: </div><br>";
 		document.getElementById("merchantPageBreak").innerHTML += "<br><br><br><br><br>";
+	}
+}
+
+function buyFunction(item){
+	if(gold >= item.cost){
+		gold -= item.cost;
+		weaponArray.push(item.image);
 	}
 }
 
