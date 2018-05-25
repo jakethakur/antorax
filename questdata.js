@@ -17,8 +17,8 @@ var quests = {
 			
 			onQuestStart: function() {
 				chat.insert("The cart driver fumbles around in his wallet to give you 3 golden ingots. You can spend them at a merchant to buy a new weapon.", 100);
-				Game.hero.gold += 3;
-				Game.dom.updateGold();
+				player.gold += 3;
+				updateGold();
 			},
 		},
 	],

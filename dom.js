@@ -1,4 +1,4 @@
-//these arrays will soon be moving to main.js, and main.js will update DOM for it. this is already being done with gold, which is now Game.hero.gold
+//these arrays will soon be moving to questdata.js. this is already being done with gold, which is now player.gold
 var helmArray = ["","url('assets/items/helm.png')","url('assets/items/helm2.png')"];
 var chestArray = ["","url('assets/items/chest.png')","url('assets/items/chest2.png')"];
 var greavesArray = ["","url('assets/items/greaves.png')","url('assets/items/greaves2.png')"];
@@ -10,6 +10,12 @@ var chestNum = 0;
 var greavesNum = 0;
 var bootsNum = 0;
 var weaponNum = 0;
+
+// update the DOM display of gold
+function updateGold() {
+	document.getElementById("gold").innerText = player.gold;
+}
+updateGold();
 
 // DOM function arrays
 
@@ -313,10 +319,11 @@ function npcBook(quest,objectives){
 	}
 }
 
-function merchantDom(title,chat,options){
+function merchantDom(title,greeting,options){
 	changeBook(document.getElementById("merchantPage"));
 	document.getElementById("merchantPageTitle").innerHTML = title;
-	document.getElementById("merchantPageChat").innerHTML = chat;
+	document.getElementById("merchantPageChat").innerHTML = greeting; //jt todo: change greeting to chat when chat becomes book.chat
+	chat.insert("<strong>" + title + ": " + "</strong>" + greeting, 100);
 	document.getElementById("merchantPageOptions").innerHTML = "";
 	document.getElementById("merchantPageBreak").innerHTML = "";
 	for(var i = 0; i < options.length; i++){
@@ -327,8 +334,9 @@ function merchantDom(title,chat,options){
 }
 
 function buyFunction(item){
-	if(gold >= item.cost){
-		gold -= item.cost;
+	if(player.gold >= item.cost){
+		player.gold -= item.cost;
+		updateGold();
 		weaponArray.push(item.image);
 	}
 }

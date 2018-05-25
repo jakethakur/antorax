@@ -94,7 +94,6 @@ Game.run = function (context) {
 	
     Promise.all(p).then(function (loaded) {
         this.init();
-		Game.dom.updateGold();
         window.requestAnimationFrame(this.tick);
     }.bind(this));
 };
@@ -249,8 +248,6 @@ class Hero extends Character {
 		this.baseSpeed = properties.baseSpeed;
 		this.waterSpeed = properties.waterSpeed;
 		this.speed = properties.baseSpeed;
-		
-		this.gold = properties.gold;
 	}
 	
 	move(delta, dirx, diry) {
@@ -369,8 +366,6 @@ Game.init = function () {
 		image: "hero",
 		baseSpeed: 172, // base pixels per second
 		waterSpeed: 64, // speed when in water
-		
-		gold: 0,
 	});
 	
 	Game.characters.push(new questNPC({ //create an NPC
@@ -391,12 +386,6 @@ Game.init = function () {
     //this.camera = new Camera(map, canvas.width, canvas.height);
     this.camera.follow(this.hero);
 };
-
-// update the DOM display of gold
-Game.dom.updateGold = function() {
-	console.log(Game.hero);
-	document.getElementById("gold").innerText = Game.hero.gold;
-}
 
 // play music
 
@@ -457,12 +446,12 @@ Game.update = function (delta) {
 			}
 		}
 		// quest is currently active
-		else if (this.hero.isTouching(this.characters[i]) && activeQuestArray.includes(this.characters[i].quest.quest) && !chat.contents.includes(this.characters[i].name + ": " + this.characters[i].questProgressText)) {
-			chat.insert(this.characters[i].name + ": " + this.characters[i].questProgressText, 100);
+		else if (this.hero.isTouching(this.characters[i]) && activeQuestArray.includes(this.characters[i].quest.quest) && !chat.contents.includes("<strong>" + this.characters[i].name + ": " + "</strong>" + this.characters[i].questProgressText)) {
+			chat.insert("<strong>" + this.characters[i].name + ": " + "</strong>" + this.characters[i].questProgressText, 100);
 		}
 		// quest has been completed
-		else if (this.hero.isTouching(this.characters[i]) && completedQuestArray.includes(this.characters[i].quest.quest) && !chat.contents.includes(this.characters[i].name + ": " + this.characters[i].questCompleteText)) {
-			chat.insert(this.characters[i].name + ": " + this.characters[i].questCompleteText, 100);
+		else if (this.hero.isTouching(this.characters[i]) && completedQuestArray.includes(this.characters[i].quest.quest) && !chat.contents.includes("<strong>" + this.characters[i].name + ": " + "</strong>" + this.characters[i].questCompleteText)) {
+			chat.insert("<strong>" + this.characters[i].name + ": " + "</strong>" + this.characters[i].questCompleteText, 100);
 		}
     }
 };
