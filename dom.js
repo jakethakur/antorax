@@ -1,5 +1,4 @@
-var gold = 0;
-
+//these arrays will soon be moving to main.js, and main.js will update DOM for it. this is already being done with gold, which is now Game.hero.gold
 var helmArray = ["","url('assets/items/helm.png')","url('assets/items/helm2.png')"];
 var chestArray = ["","url('assets/items/chest.png')","url('assets/items/chest2.png')"];
 var greavesArray = ["","url('assets/items/greaves.png')","url('assets/items/greaves2.png')"];
@@ -30,7 +29,6 @@ function changeNum(array,num,string){
 	if(string == "weapon"){weaponNum = num;}
 }
 
-document.getElementById("gold").innerText = gold;
 chat.length = 0;
 chat.contents = [];
 
