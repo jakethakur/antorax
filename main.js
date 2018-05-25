@@ -339,9 +339,10 @@ class questNPC extends Character {
 
 // load images
 Game.load = function () {
+	this.ctx.imageSmoothingEnabled = false;
     return [
         Loader.loadImage('tiles', './assets/tilemap/tilemap.png'),
-        Loader.loadImage('hero', './assets/character.png'),
+        Loader.loadImage('hero', './assets/player/archer-1.png'),
         Loader.loadImage('driver', './assets/driver.png'),
     ];
 };
@@ -363,8 +364,8 @@ Game.init = function () {
 		map: map,
 		x: 1700,
 		y: 270,
-		width: 64,
-		height: 64,
+		width: 57,
+		height: 120,
 		image: "hero",
 		baseSpeed: 172, // base pixels per second
 		waterSpeed: 64, // speed when in water
