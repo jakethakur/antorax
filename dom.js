@@ -262,7 +262,7 @@ function npcDomCode(){
 var questVar = "";
 var objectivesVar = "";
 
-function npcDom(quest,name,chat,objectives,gold){
+function npcDom(quest,name,chat,objectives,gold,xp){
 	changeBook(document.getElementById("questStart"));
 	document.getElementById("questStartQuest").innerHTML = quest;
 	document.getElementById("questStartName").innerHTML = name;
@@ -271,7 +271,8 @@ function npcDom(quest,name,chat,objectives,gold){
 	for(var i = 0; i < objectives.length; i++){
 		document.getElementById("questStartObjectives").innerHTML += objectives[i] + "<br>";
 	}
-	//document.getElementById("questStartGold").innerText = "0";
+	document.getElementById("questStartGold").innerText = "0";
+	document.getElementById("questStartXP").innerText = "0";
 	questVar = quest;
 	objectivesVar = objectives;
 }
@@ -322,10 +323,8 @@ function merchantDom(title,chat,options){
 	document.getElementById("merchantPageOptions").innerHTML = "";
 	document.getElementById("merchantPageBreak").innerHTML = "";
 	for(var i = 0; i < options.length; i++){
-		i
-		"i"
 		document.getElementById("merchantPageOptions").innerHTML += "<img src='./assets/items/sword.png' style='border: 5px solid #886622;' onmouseover='displayInformationMerchant(" + i + ")'onmouseleave='hideInformationMerchant(i)'></img><br><br>";
-		console.log("<img src='./assets/items/sword.png' style='border: 5px solid #886622;' onmouseover='displayInformationMerchant(" + i + ")'onmouseleave='hideInformationMerchant(" + i + ")'></img><br><br>");
+		
 		document.getElementById("merchantPageBreak").innerHTML += "<br><br><br><br><br>";
 	}
 }
