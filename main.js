@@ -248,6 +248,7 @@ class Hero extends Character {
 		this.baseSpeed = properties.baseSpeed;
 		this.waterSpeed = properties.waterSpeed;
 		this.speed = properties.baseSpeed;
+		this.direction = properties.direction;
 	}
 	
 	move(delta, dirx, diry) {
@@ -339,7 +340,7 @@ Game.load = function () {
 	this.ctx.imageSmoothingEnabled = false;
     return [
         Loader.loadImage('tiles', './assets/tilemap/tilemap.png'),
-        Loader.loadImage('hero', './assets/player/archer-1.png'),
+        Loader.loadImage('hero', './assets/player/archer.png'),
         Loader.loadImage('driver', './assets/driver.png'),
     ];
 };
@@ -361,6 +362,7 @@ Game.init = function () {
 		map: map,
 		x: 1700,
 		y: 270,
+		direction: 3,
 		width: 57,
 		height: 120,
 		image: "hero",
@@ -420,10 +422,10 @@ Game.update = function (delta) {
     // handle hero movement with arrow keys
     var dirx = 0;
     var diry = 0;
-    if (Keyboard.isDown(Keyboard.LEFT)) { dirx = -1; }
-    if (Keyboard.isDown(Keyboard.RIGHT)) { dirx = 1; }
-    if (Keyboard.isDown(Keyboard.UP)) { diry = -1; }
-    if (Keyboard.isDown(Keyboard.DOWN)) { diry = 1; }
+    if (Keyboard.isDown(Keyboard.LEFT)) { dirx = -1; this.hero.direction = 2; }
+    if (Keyboard.isDown(Keyboard.RIGHT)) { dirx = 1; this.hero.direction = 4; }
+    if (Keyboard.isDown(Keyboard.UP)) { diry = -1; this.hero.direction = 1; }
+    if (Keyboard.isDown(Keyboard.DOWN)) { diry = 1; this.hero.direction = 3; }
 
 	if (dirx !== 0 || diry !== 0) {
         this.hero.move(delta, dirx, diry);
@@ -543,11 +545,54 @@ Game.render = function () {
     }
 
     // draw main character
+	
+	//check what direction they are facing, then render player
+	if (this.hero.direction == 1) {
+		this.ctx.drawImage(
+			this.hero.image,
+			0, this.hero.height,
+			this.hero.width, this.hero.height,
+			this.hero.screenX - this.hero.width / 2, this.hero.screenY - this.hero.height / 2,
+			this.hero.width, this.hero.height,
+		);
+	} 
+	
+	else if (this.hero.direction == 2) {
+		this.ctx.drawImage(
+			this.hero.image,
+			this.hero.width, this.hero.height,
+			this.hero.width, this.hero.height,
+			this.hero.screenX - this.hero.width / 2, this.hero.screenY - this.hero.height / 2,
+			this.hero.width, this.hero.height,
+		);
+	} 
+	
+	else if (this.hero.direction == 3) {
+		this.ctx.drawImage(
+			this.hero.image,
+			0, 0,
+			this.hero.width, this.hero.height,
+			this.hero.screenX - this.hero.width / 2, this.hero.screenY - this.hero.height / 2,
+			this.hero.width, this.hero.height,
+		);
+	} 
+	
+	else if (this.hero.direction == 4) {
+		this.ctx.drawImage(
+			this.hero.image,
+			this.hero.width, 0,
+			this.hero.width, this.hero.height,
+			this.hero.screenX - this.hero.width / 2, this.hero.screenY - this.hero.height / 2,
+			this.hero.width, this.hero.height,
+		);
+	}
+	
+	/*
     this.ctx.drawImage(
         this.hero.image,
         this.hero.screenX - this.hero.width / 2,
         this.hero.screenY - this.hero.height / 2
-    );
+    );*/
 
     // draw map top layer
     //this._drawLayer(1);
