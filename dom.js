@@ -14,6 +14,7 @@ var weaponNum = 0;
 // update the DOM display of gold
 function updateGold() {
 	document.getElementById("gold").innerText = player.gold;
+	document.getElementById("xp").innerText = player.xp;
 }
 updateGold();
 

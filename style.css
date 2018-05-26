@@ -102,7 +102,7 @@ height: 50px;
 #weapon{
 margin-top: 25px;
 }
-#gold{
+#gold, #xp{
 background-image: url("./assets/icons/gold.png");
 margin-top: 25px;
 width: 60px;
@@ -116,6 +116,9 @@ font-family: 'MedievalSharp', serif;
 -moz-user-select: none; /* Firefox */
 -ms-user-select: none; /* IE10+/Edge */
 user-select: none;
+}
+#xp{
+	background-image: url("./assets/icons/xp.png");
 }
 #questStartGold, #questFinishGold{
 background-image: url("./assets/icons/gold.png");
