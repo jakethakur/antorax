@@ -12,11 +12,11 @@
 			<div id="triangleLeft"></div>
 			<div id="innerTriangleLeft"></div>
 		</div>
-		<div id="helm"onmouseover="displayInformation('10px')"onmouseleave="hideInformation()"onclick="changeNum(helmArray,helmNum,'helm')"></div>
-		<div id="chest"onmouseover="displayInformation('80px')"onmouseleave="hideInformation()"onclick="changeNum(chestArray,chestNum,'chest')"></div>
-		<div id="greaves"onmouseover="displayInformation('150px')"onmouseleave="hideInformation()"onclick="changeNum(greavesArray,greavesNum,'greaves')"></div>
-		<div id="boots"onmouseover="displayInformation('220px')"onmouseleave="hideInformation()"onclick="changeNum(bootsArray,bootsNum,'boots')"></div>
-		<div id="weapon"onmouseover="displayInformation('305px')"onmouseleave="hideInformation()"onclick="changeNum(weaponArray,weaponNum,'weapon')"></div>
+		<div id="helm"onmouseover="displayInformation('10px',player.inventory.helm)"onmouseleave="hideInformation()"onclick="changeNum(player.inventory.helm,helmNum,'helm')"></div>
+		<div id="chest"onmouseover="displayInformation('80px',player.inventory.chest)"onmouseleave="hideInformation()"onclick="changeNum(player.inventory.chest,chestNum,'chest')"></div>
+		<div id="greaves"onmouseover="displayInformation('150px',player.inventory.greaves)"onmouseleave="hideInformation()"onclick="changeNum(player.inventory.greaves,greavesNum,'greaves')"></div>
+		<div id="boots"onmouseover="displayInformation('220px',player.inventory.boots)"onmouseleave="hideInformation()"onclick="changeNum(player.inventory.boots,bootsNum,'boots')"></div>
+		<div id="weapon"onmouseover="displayInformation('305px',player.inventory.weapon)"onmouseleave="hideInformation()"onclick="changeNum(player.inventory.weapon,weaponNum,'weapon')"></div>
 		<div id="gold"onclick="npcDomCode()"></div>
 		<div id="xp"onclick="merchantDomCode()"></div>
 	</div>

@@ -1,10 +1,3 @@
-//these arrays will soon be moving to questdata.js. this is already being done with gold, which is now player.gold
-var helmArray = ["","url('assets/items/helm.png')","url('assets/items/helm2.png')"];
-var chestArray = ["","url('assets/items/chest.png')","url('assets/items/chest2.png')"];
-var greavesArray = ["","url('assets/items/greaves.png')","url('assets/items/greaves2.png')"];
-var bootsArray = ["","url('assets/items/boots.png')","url('assets/items/boots2.png')"];
-var weaponArray = ["","url('assets/items/weapon.png')","url('assets/items/weapon2.png')"];
-
 var helmNum = 0;
 var chestNum = 0;
 var greavesNum = 0;
@@ -28,7 +21,7 @@ function changeNum(array,num,string){
 	if(num >= array.length){
 		num=0;
 	}
-	document.getElementById(string).style.backgroundImage = array[num];
+	document.getElementById(string).style.backgroundImage = array[num].image;
 	if(string == "helm"){helmNum = num;}
 	if(string == "chest"){chestNum = num;}
 	if(string == "greaves"){greavesNum = num;}
@@ -72,22 +65,23 @@ function changeBook(page) {
 	}
 }
 
-function displayInformation(y){
-	information.hidden = false;
+function displayInformation(y,array){
+	document.getElementById("information").hidden = false;
 	document.getElementById("information").style.marginTop = y;
+	document.getElementById("information").innerHTML = array.name;
 }
 
 function hideInformation(){
-	information.hidden = true;
+	document.getElementById("information").hidden = true;
 }
 
 function displayInformationMerchant(y){
-	informationMerchant.hidden = false;
+	document.getElementById("informationMerchant").hidden = false;
 	document.getElementById("informationMerchant").style.top = 142+(y*82)+"px";
 }
 
 function hideInformationMerchant(){
-	informationMerchant.hidden = true;
+	document.getElementById("informationMerchant").hidden = true;
 }
 
 function expand(block){
