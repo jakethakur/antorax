@@ -260,8 +260,11 @@ if(screen.height >= 864){
 }
 
 function npcDomCode(){
-	//merchantDom(prompt("Please enter merchant name"),prompt("Please enter merchant chat"),[prompt("Please enter merchant option"),prompt("Please enter anpother merchant option")]);
 	finishDom(prompt("Please enter quest name"),prompt("Please enter npc name"),prompt("Please enter npc chat"),prompt("Please enter amount of gold"),prompt("please enter amount of xp"));
+}
+
+function merchantDomCode(){
+	merchantDom(prompt("Please enter merchant name"),prompt("Please enter merchant chat"),[prompt("Please enter merchant option"),prompt("Please enter anpother merchant option")]);
 }
 
 var questVar = "";
@@ -337,6 +340,7 @@ function merchantDom(title,greeting,options){
 	document.getElementById("merchantPageChat").innerHTML = greeting; //jt todo: change greeting to chat when chat becomes book.chat
 	chat.insert("<strong>" + title + ": " + "</strong>" + greeting, 100);
 	document.getElementById("merchantPageOptions").innerHTML = "";
+	document.getElementById("merchantPageBuy").innerHTML = "";
 	document.getElementById("merchantPageBreak").innerHTML = "";
 	for(var i = 0; i < options.length; i++){
 		document.getElementById("merchantPageOptions").innerHTML += "<img src='./assets/items/sword.png' style='border: 5px solid #886622;' onmouseover='displayInformationMerchant(" + i + ")'onmouseleave='hideInformationMerchant()'></img><br><br>";
