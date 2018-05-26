@@ -65,19 +65,22 @@ function changeBook(page) {
 	}
 }
 
-function displayInformation(y,array){
+function displayInformation(y,array,num){
+	document.getElementById("information").innerHTML = "";
 	document.getElementById("information").hidden = false;
 	document.getElementById("information").style.marginTop = y;
-	document.getElementById("information").innerHTML = array.name;
+	document.getElementById("information").innerHTML = "<div id='triangleLeft'></div><div id='innerTriangleLeft'></div>" + array[num].name;
 }
 
 function hideInformation(){
 	document.getElementById("information").hidden = true;
 }
 
-function displayInformationMerchant(y){
+function displayInformationMerchant(y,array,num){
+	document.getElementById("informationMerchant").innerHTML = "";
 	document.getElementById("informationMerchant").hidden = false;
 	document.getElementById("informationMerchant").style.top = 142+(y*82)+"px";
+	document.getElementById("informationMerchant").innerHTML = "<div id='triangleLeft'></div><div id='innerTriangleLeft'></div>" + array[num].name;
 }
 
 function hideInformationMerchant(){

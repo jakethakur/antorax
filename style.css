@@ -65,9 +65,9 @@ font-family: 'MedievalSharp', serif;
 	background-color: #fef9b4;
 }
 #triangleLeft {
-  right: 25px;
+  right: 285px;
   top: 10px;
-  position: relative;
+  position: absolute;
   width: 0; 
   height: 0; 
   border-top: 15px solid transparent;
@@ -75,9 +75,9 @@ font-family: 'MedievalSharp', serif;
   border-right: 20px solid #886622; 
 }
 #innerTriangleLeft {
-  right: 18px;
-  bottom: 20px;
-  position: relative;
+  right: 277px;
+  bottom: 10px;
+  position: absolute;
   width: 0; 
   height: 0; 
   border-top: 15px solid transparent;
@@ -175,6 +175,7 @@ height: 50px;
 background-color: #fef9b4;
 border: 5px solid #886622;
 float: right;
+text-indent: 10px;
 }
 #accept, #acceptReward, #decline, #close {
 	position: relative;
