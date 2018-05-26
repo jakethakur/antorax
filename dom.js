@@ -265,42 +265,46 @@ function merchantDomCode(){
 }
 
 var questVar = "";
-var objectivesVar = "";
 
-function npcDom(quest,name,chat,objectives,gold,xp){
+function npcDom(quest){
 	changeBook(document.getElementById("questStart"));
-	document.getElementById("questStartQuest").innerHTML = quest;
-	document.getElementById("questStartName").innerHTML = name;
-	document.getElementById("questStartChat").innerHTML = chat;
+	document.getElementById("questStartQuest").innerHTML = quest.quest;
+	document.getElementById("questStartName").innerHTML = quest.name;
+	document.getElementById("questStartChat").innerHTML = quest.chat;
 	document.getElementById("questStartObjectives").innerHTML = "";
-	for(var i = 0; i < objectives.length; i++){
-		document.getElementById("questStartObjectives").innerHTML += objectives[i] + "<br>";
+	for(var i = 0; i < quest.objectives.length; i++){
+		document.getElementById("questStartObjectives").innerHTML += quest.objectives[i] + "<br>";
 	}
-	document.getElementById("questStartGold").innerHTML = gold;
-	document.getElementById("questStartXP").innerHTML = xp;
+	document.getElementById("questStartGold").innerHTML = quest.rewards.gold;
+	document.getElementById("questStartXP").innerHTML = quest.rewards.xp;
 	questVar = quest;
-	objectivesVar = objectives;
 }
 
-function finishDom(quest,name,chat,gold,xp){
+function finishDom(quest){
 	changeBook(document.getElementById("questFinish"));
 	questVar = "merchant";
-	document.getElementById("questFinishQuest").innerHTML = quest;
-	document.getElementById("questFinishName").innerHTML = name;
-	document.getElementById("questFinishChat").innerHTML = chat;
-	document.getElementById("questFinishGold").innerHTML = gold;
-	document.getElementById("questFinishXP").innerHTML = xp;
-	player.gold += JSON.parse(gold);
-	player.xp += JSON.parse(xp);
+	document.getElementById("questFinishQuest").innerHTML = quest.quest;
+	document.getElementById("questFinishName").innerHTML = quest.name;
+	document.getElementById("questFinishChat").innerHTML = quest.chat;
+	document.getElementById("questFinishGold").innerHTML = quest.rewards.gold;
+	document.getElementById("questFinishXP").innerHTML = quest.rewards.xp;
+	player.gold += parseInt(quest.rewards.gold);
+	player.xp += parseInt(quest.rewards.xp);
 	updateGold();
 }
 
 function acceptFunction(){
-	npcBook(questVar,objectivesVar);
+	npcBook(questVar);
 	questStart.hidden = true;
 	questsPage.hidden = false;
+	
+	// check if there is a quest start function
+	if (questVar.onQuestStart != undefined) {
+		questVar.onQuestStart();
+	}
+	
+	// reset currently displayed quest
 	questVar = "";
-	objectivesVar = "";
 }
 
 function declineFunction(){
@@ -309,25 +313,24 @@ function declineFunction(){
 	merchantPage.hidden = true;
 	questsPage.hidden = false;
 	questVar = "";
-	objectivesVar = "";
 }
 
 var activeQuestArray = [];
 var completedQuestArray = [];
 var questNum = 0;
 var questString = "";
-function npcBook(quest,objectives){
-	activeQuestArray.push(quest);
+function npcBook(quest){
+	activeQuestArray.push(quest.quest);
 	document.getElementById("activeQuestBox").style.textAlign = "left";
 	if(questNum == 0){
 		document.getElementById("activeQuestBox").innerText = "";
 	}
-	document.getElementById("activeQuestBox").innerHTML += "<strong>" + quest + "</strong><br>";
-	for(var i = 0; i < objectives.length; i++){
-		document.getElementById("activeQuestBox").innerHTML += objectives[i] + "<br>"
+	document.getElementById("activeQuestBox").innerHTML += "<strong>" + quest.quest + "</strong><br>";
+	for(var i = 0; i < quest.objectives.length; i++){
+		document.getElementById("activeQuestBox").innerHTML += quest.objectives[i] + "<br>"
 	}
 	document.getElementById("activeQuestBox").innerHTML += "<br>";
-	questNum += 30+(18*objectives.length);
+	questNum += 30+(18*quest.objectives.length);
 	questString = JSON.stringify(questNum+10)+"px";
 	document.getElementById("activeQuestBox").style.height = questString;
 	if(questNum < 50){

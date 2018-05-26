@@ -442,10 +442,7 @@ Game.update = function (delta) {
 		
 		// quest is ready to be accepted
         if (this.hero.isTouching(this.characters[i]) && questVar === "" && !activeQuestArray.includes(this.characters[i].quest.quest) && !completedQuestArray.includes(this.characters[i].quest.quest)) {
-			npcDom(this.characters[i].quest.quest, this.characters[i].name, this.characters[i].quest.chat, this.characters[i].quest.objectives);
-			if (this.characters[i].quest.onQuestStart != undefined) {
-				this.characters[i].quest.onQuestStart();
-			}
+			npcDom(this.characters[i].quest);
 		}
 		// quest is currently active
 		else if (this.hero.isTouching(this.characters[i]) && activeQuestArray.includes(this.characters[i].quest.quest) && !chat.contents.includes("<strong>" + this.characters[i].name + ": " + "</strong>" + this.characters[i].questProgressText)) {
