@@ -331,6 +331,17 @@ class questNPC extends Character {
 	}
 }
 
+class merchant extends Character {
+	constructor(properties) {
+		super(properties);
+		this.name = properties.name;
+		
+		this.items = properties.items; // items sold
+		
+		//this.purchaseCurrencies = properties.purchaseCurrencies; // currencies that items are purchased with
+	}
+}
+
 //
 // load game
 //
