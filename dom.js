@@ -287,11 +287,15 @@ function npcDom(quest,name,chat,objectives,gold,xp){
 
 function finishDom(quest,name,chat,gold,xp){
 	changeBook(document.getElementById("questFinish"));
+	questVar = "merchant";
 	document.getElementById("questFinishQuest").innerHTML = quest;
 	document.getElementById("questFinishName").innerHTML = name;
 	document.getElementById("questFinishChat").innerHTML = chat;
 	document.getElementById("questFinishGold").innerHTML = gold;
 	document.getElementById("questFinishXP").innerHTML = xp;
+	player.gold += JSON.parse(gold);
+	player.xp += JSON.parse(xp);
+	updateGold();
 }
 
 function acceptFunction(){
@@ -336,6 +340,7 @@ function npcBook(quest,objectives){
 
 function merchantDom(title,greeting,options){
 	changeBook(document.getElementById("merchantPage"));
+	questVar = "merchant";
 	document.getElementById("merchantPageTitle").innerHTML = title;
 	document.getElementById("merchantPageChat").innerHTML = greeting; //jt todo: change greeting to chat when chat becomes book.chat
 	chat.insert("<strong>" + title + ": " + "</strong>" + greeting, 100);
