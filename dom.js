@@ -259,7 +259,8 @@ if(screen.height >= 864){
 }
 
 function npcDomCode(){
-	merchantDom(prompt("Please enter merchant name"),prompt("Please enter merchant chat"),[prompt("Please enter merchant option"),prompt("Please enter anpother merchant option")]);
+	//merchantDom(prompt("Please enter merchant name"),prompt("Please enter merchant chat"),[prompt("Please enter merchant option"),prompt("Please enter anpother merchant option")]);
+	finishDom(prompt("Please enter quest name"),prompt("Please enter npc name"),prompt("Please enter npc chat"),prompt("Please enter amount of gold"),prompt("please enter amount of xp"));
 }
 
 var questVar = "";
@@ -275,9 +276,18 @@ function npcDom(quest,name,chat,objectives,gold,xp){
 		document.getElementById("questStartObjectives").innerHTML += objectives[i] + "<br>";
 	}
 	document.getElementById("questStartGold").innerHTML = "0";
-	document.getElementById("questStartXP").innerText = "0";
+	document.getElementById("questStartXP").innerHTML = "0";
 	questVar = quest;
 	objectivesVar = objectives;
+}
+
+function finishDom(quest,name,chat,gold,xp){
+	changeBook(document.getElementById("questFinish"));
+	document.getElementById("questFinishQuest").innerHTML = quest;
+	document.getElementById("questFinishName").innerHTML = name;
+	document.getElementById("questFinishChat").innerHTML = chat;
+	document.getElementById("questFinishGold").innerHTML = gold;
+	document.getElementById("questFinishXP").innerHTML = xp;
 }
 
 function acceptFunction(){
@@ -289,6 +299,7 @@ function acceptFunction(){
 }
 
 function declineFunction(){
+	questFinish.hidden = true;
 	questStart.hidden = true;
 	merchantPage.hidden = true;
 	questsPage.hidden = false;

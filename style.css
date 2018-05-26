@@ -2,7 +2,7 @@
 body{
 font-family: 'MedievalSharp', serif;
 }
-#chatPage, #inventoryPage, #questsPage, #settingsPage, #questStart, #merchantPage {
+#chatPage, #inventoryPage, #questsPage, #settingsPage, #questStart, #questFinish, #merchantPage {
         float: left;
         margin: 10px;
 		border: 1px solid black;
@@ -30,14 +30,14 @@ font-family: 'MedievalSharp', serif;
 	overflow-y: auto;
 	overflow-x: hidden;
 }
-#questStart, #merchantPage {
+#questStart, #questFinish, #merchantPage {
 	text-align: center;
 	-webkit-user-select: none; /* Safari */        
 	-moz-user-select: none; /* Firefox */
 	-ms-user-select: none; /* IE10+/Edge */
 	user-select: none;
 }
-#questStartQuest, #questStartName, #questStartChat, #questStartObjectives, #merchantPageTitle, #merchantPageChat, #merchantPageOptions {
+#questStartQuest, #questFinishQuest, #questStartName, #questFinishName, #questStartChat, #questFinishChat, #questStartObjectives, #merchantPageTitle, #merchantPageChat, #merchantPageOptions {
 	display: inline;
 }
 #activeQuests, #possibleQuests, #completedQuests, #allQuests, #settingBookmark, #settingMusic {
@@ -117,7 +117,7 @@ font-family: 'MedievalSharp', serif;
 -ms-user-select: none; /* IE10+/Edge */
 user-select: none;
 }
-#questStartGold{
+#questStartGold, #questFinishGold{
 background-image: url("./assets/icons/gold.png");
 margin-top: 0px;
 width: 60px;
@@ -133,7 +133,7 @@ font-family: 'MedievalSharp', serif;
 user-select: none;
 display: inline-block;
 }
-#questStartXP{
+#questStartXP, #questFinishXP{
 background-image: url("./assets/icons/xp.png");
 margin-top: 0px;
 width: 60px;
@@ -173,7 +173,7 @@ background-color: #fef9b4;
 border: 5px solid #886622;
 float: right;
 }
-#accept, #decline, #close {
+#accept, #acceptReward, #decline, #close {
 	position: relative;
 	width: 200px;
 	height: 50px;
@@ -201,6 +201,9 @@ float: right;
 }
 #close{
 	bottom: 30px;
+}
+#acceptReward{
+	top: 20px;
 }
 #changeChat, #changeInventory, #changeQuests, #changeSettings {
 	position: absolute;
