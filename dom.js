@@ -279,8 +279,8 @@ function npcDom(quest,name,chat,objectives,gold,xp){
 	for(var i = 0; i < objectives.length; i++){
 		document.getElementById("questStartObjectives").innerHTML += objectives[i] + "<br>";
 	}
-	document.getElementById("questStartGold").innerHTML = "0";
-	document.getElementById("questStartXP").innerHTML = "0";
+	document.getElementById("questStartGold").innerHTML = gold;
+	document.getElementById("questStartXP").innerHTML = xp;
 	questVar = quest;
 	objectivesVar = objectives;
 }
