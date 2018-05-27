@@ -87,17 +87,17 @@ var player = {
 				stats: {}
 			},
 			{
-				name: "sword",
+				name: "Basic Sword",
 				image:"url('assets/items/sword.png')",
 				stats: {}
 			},
 			{
-				name: "staff",
+				name: "Basic Staff",
 				image:"url('assets/items/staff.png')",
 				stats: {}
 			},
 			{
-				name: "bow",
+				name: "Basic Bow",
 				image:"url('assets/items/bow.png')",
 				stats: {}
 			}

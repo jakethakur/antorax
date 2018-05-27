@@ -336,6 +336,8 @@ class merchant extends Character {
 		super(properties);
 		this.name = properties.name;
 		
+		this.greeting = properties.greeting;
+		
 		this.items = properties.items; // items sold
 		
 		//this.purchaseCurrencies = properties.purchaseCurrencies; // currencies that items are purchased with
@@ -353,6 +355,7 @@ Game.load = function () {
         Loader.loadImage('tiles', './assets/tilemap/tilemap.png'),
         Loader.loadImage('hero', './assets/player/archer.png'),
         Loader.loadImage('driver', './assets/driver.png'),
+        Loader.loadImage('weaponsmith', './assets/weaponsmith.png'),
     ];
 };
 
@@ -392,6 +395,34 @@ Game.init = function () {
 		name: "Cart Driver",
 		questProgressText: "Good luck with your travels!",
 		questCompleteText: "Look how much you've grown!",
+	}));
+	
+	Game.characters.push(new merchant({ //create an NPC
+		map: map,
+		x: 1100,
+		y: 340,
+		width: 90,
+		height: 110,
+		image: "weaponsmith",
+		name: "Weaponsmith",
+		greeting: "Would you like to buy anything?",
+		items: [
+			{
+				name: "Basic Sword",
+				image:"url('assets/items/sword.png')",
+				stats: {}
+			},
+			{
+				name: "Basic Staff",
+				image:"url('assets/items/staff.png')",
+				stats: {}
+			},
+			{
+				name: "Basic Bow",
+				image:"url('assets/items/bow.png')",
+				stats: {}
+			}
+		],
 	}));
 	
 	//console.log(this.hero);
