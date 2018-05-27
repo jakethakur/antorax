@@ -409,19 +409,19 @@ Game.init = function () {
 		items: [
 			{
 				name: "Basic Sword",
-				cost: 1,
+				cost: 3,
 				image: "assets/items/sword.png",
 				stats: {}
 			},
 			{
 				name: "Basic Staff",
-				cost: 1,
+				cost: 3,
 				image:"assets/items/staff.png",
 				stats: {}
 			},
 			{
 				name: "Basic Bow",
-				cost: 1,
+				cost: 3,
 				image:"assets/items/bow.png",
 				stats: {}
 			}

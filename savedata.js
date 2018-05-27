@@ -71,6 +71,11 @@ var player = {
 			}
 		],
 		weapon: [
+		{
+			name: "",
+			image: "",
+			stats: {}
+		}
 			/*{
 				name: "",
 				image: "",

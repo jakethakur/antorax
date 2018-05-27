@@ -65,7 +65,7 @@ font-family: 'MedievalSharp', serif;
 	background-color: #fef9b4;
 }
 .triangleLeft {
-  right: 285px;
+  right: 235px;
   top: 10px;
   position: absolute;
   width: 0; 
@@ -75,7 +75,7 @@ font-family: 'MedievalSharp', serif;
   border-right: 20px solid #886622; 
 }
 .innerTriangleLeft {
-  right: 277px;
+  right: 227px;
   bottom: 10px;
   position: absolute;
   width: 0; 
@@ -154,12 +154,12 @@ display: inline-block;
 }
 .buy {
 position: relative;
-width: 100px;
+width: 150px;
 height: 50px;
 background-color: #fef9b4;
 border: 5px solid #886622;
 margin-left: 100px;
-left: 290px;
+left: 240px;
 margin-top: 4px;
 text-align: center;
 line-height: 50px;
@@ -170,12 +170,13 @@ font-family: 'MedievalSharp', serif;
 #information, #informationMerchant {
 position: absolute;
 left: 740px;
-width: 280px;
+width: 230px;
 height: 50px;
 background-color: #fef9b4;
 border: 5px solid #886622;
 float: right;
 text-indent: 10px;
+text-align: left;
 }
 #accept, #acceptReward, #decline, #close {
 	position: relative;
