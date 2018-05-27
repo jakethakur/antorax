@@ -21,7 +21,7 @@ function changeNum(array,num,string){
 	if(num >= array.length){
 		num=0;
 	}
-	document.getElementById(string).style.backgroundImage = array[num].image;
+	document.getElementById(string).style.backgroundImage = "url(" + array[num].image + ")";
 	if(string == "helm"){
 		helmNum = num;
 		displayInformation("10px",player.inventory.helm,helmNum);
@@ -81,10 +81,12 @@ function changeBook(page) {
 }
 
 function displayInformation(y,array,num){
+	console.log(array);
+	console.log(num);
 	document.getElementById("information").innerHTML = "";
 	document.getElementById("information").hidden = false;
 	document.getElementById("information").style.marginTop = y;
-	document.getElementById("information").innerHTML = "<div id='triangleLeft'></div><div id='innerTriangleLeft'></div>" + array[num].name;
+	document.getElementById("information").innerHTML = "<div class='triangleLeft'></div><div class='innerTriangleLeft'></div>" + array[num].name;
 }
 
 function hideInformation(){
@@ -92,10 +94,13 @@ function hideInformation(){
 }
 
 function displayInformationMerchant(y,array,num){
+	/*console.log(array);
+	console.log(num);
 	document.getElementById("informationMerchant").innerHTML = "";
 	document.getElementById("informationMerchant").hidden = false;
 	document.getElementById("informationMerchant").style.top = 142+(y*82)+"px";
-	document.getElementById("informationMerchant").innerHTML = "<div id='triangleLeft'></div><div id='innerTriangleLeft'></div>" + array[num].name;
+	document.getElementById("informationMerchant").innerHTML = "<div class='triangleLeft'></div><div class='innerTriangleLeft'></div>" + array[num].name;
+	*/
 }
 
 function hideInformationMerchant(){
@@ -361,19 +366,29 @@ function merchantDom(title,greeting,options){
 	chat.insert("<strong>" + title + ": " + "</strong>" + greeting, 100);
 	document.getElementById("merchantPageOptions").innerHTML = "";
 	document.getElementById("merchantPageBuy").innerHTML = "";
-	document.getElementById("merchantPageBreak").innerHTML = "";
 	for(var i = 0; i < options.length; i++){
-		document.getElementById("merchantPageOptions").innerHTML += "<img src='./assets/items/sword.png' style='border: 5px solid #886622;' onmouseover='displayInformationMerchant(" + i + ")'onmouseleave='hideInformationMerchant()'></img><br><br>";
-		document.getElementById("merchantPageBuy").innerHTML += "<div class='buy' onclick = 'buyFunction(" + options[i] + ")'>Buy for: </div><br>";
-		document.getElementById("merchantPageBreak").innerHTML += "<br><br><br><br><br>";
+		console.log(options);
+		//document.getElementById("merchantPageOptions").innerHTML += "<img src='./assets/items/sword.png' style='border: 5px solid #886622;' onmouseover='displayInformationMerchant(" + i,options,i + ")'onmouseleave='hideInformationMerchant()'></img><br><br>";
+		document.getElementById("merchantPageOptions").innerHTML += "<img src='./assets/items/sword.png' style='border: 5px solid #886622;' ></img><br><br>";
+		document.getElementById("merchantPageBuy").innerHTML += "<div class='buy'>Buy for: </div><br>";
+		for(x = 0; x < document.getElementsByClassName("buy").length; x++){
+			console.log(options[x]);
+			document.getElementsByClassName("buy")[x].onclick = function() {
+				console.log(options);
+				console.log(x);
+				buyFunction(options[x]);
+			};
+		}
+		console.log(document.getElementById("merchantPageOptions").innerHTML);
 	}
 }
-
+//onmouseover='displayInformationMerchant(" + i + ",\"" + options[i].name + "\"," + i + ")'
 function buyFunction(item){
 	if(player.gold >= item.cost){
 		player.gold -= item.cost;
 		updateGold();
-		weaponArray.push(item.image);
+		//weaponArray.push(item.image);
+		player.inventory.weapon.push(item);
 	}
 }
 

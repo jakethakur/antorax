@@ -9,8 +9,8 @@
 	<div id="chatPage" hidden></div>
 	<div id="inventoryPage">
 		<div id="information" hidden>
-			<div id="triangleLeft"></div>
-			<div id="innerTriangleLeft"></div>
+			<div class="triangleLeft"></div>
+			<div class="innerTriangleLeft"></div>
 		</div>
 		<div id="helm"onmouseover="displayInformation('10px',player.inventory.helm,helmNum)"onmouseleave="hideInformation()"onclick="changeNum(player.inventory.helm,helmNum,'helm')"></div>
 		<div id="chest"onmouseover="displayInformation('80px',player.inventory.chest,chestNum)"onmouseleave="hideInformation()"onclick="changeNum(player.inventory.chest,chestNum,'chest')"></div>
@@ -71,14 +71,14 @@
 	</div>
 	<div id="merchantPage" hidden>
 		<div id="informationMerchant" hidden>
-			<div id="triangleLeft"></div>
-			<div id="innerTriangleLeft"></div>
+			<div class="triangleLeft"></div>
+			<div class="innerTriangleLeft"></div>
 		</div>
 		<br><h1 id="merchantPageTitle"></h1><br><br>
 		<p id="merchantPageChat"></p><br><br>
 		<p id="merchantPageOptions"></p>
 		<p id="merchantPageBuy"></p>
-		<p id="merchantPageBreak"></p>
+		<p id="merchantPageBreak"></p><br><br>
 		<center><div id="close"onclick="declineFunction()">Close</div></center>
 	</div>
 	<div id="chatImage"onclick="changeBook(chatPage)"></div>

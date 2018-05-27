@@ -64,7 +64,7 @@ font-family: 'MedievalSharp', serif;
 	user-select: none;
 	background-color: #fef9b4;
 }
-#triangleLeft {
+.triangleLeft {
   right: 285px;
   top: 10px;
   position: absolute;
@@ -74,7 +74,7 @@ font-family: 'MedievalSharp', serif;
   border-bottom: 15px solid transparent; 
   border-right: 20px solid #886622; 
 }
-#innerTriangleLeft {
+.innerTriangleLeft {
   right: 277px;
   bottom: 10px;
   position: absolute;
