@@ -11,16 +11,12 @@ var player = {
 			{
 				name: "helm",
 				image:"url('assets/items/helm.png')",
-				stats: {
-					defence: 5
-				}
+				stats: {}
 			},
 			{
 				name: "helm2",
 				image:"url('assets/items/helm2.png')",
-				stats: {
-					defence: 10
-				}
+				stats: {}
 			}
 		],
 		chest: [
@@ -32,16 +28,12 @@ var player = {
 			{
 				name: "chest",
 				image:"url('assets/items/chest.png')",
-				stats: {
-					defence: 10
-				}
+				stats: {}
 			},
 			{
 				name: "chest2",
 				image:"url('assets/items/chest2.png')",
-				stats: {
-					defence: 15
-				}
+				stats: {}
 			}
 		],
 		greaves: [
@@ -53,16 +45,12 @@ var player = {
 			{
 				name: "greaves",
 				image:"url('assets/items/greaves.png')",
-				stats: {
-					defence: 8
-				}
+				stats: {}
 			},
 			{
 				name: "greaves2",
 				image:"url('assets/items/greaves2.png')",
-				stats: {
-					defence: 12
-				}
+				stats: {}
 			}
 		],
 		boots: [
@@ -74,42 +62,44 @@ var player = {
 			{
 				name: "boots",
 				image:"url('assets/items/boots.png')",
-				stats: {
-					defence: 3
-				}
+				stats: {}
 			},
 			{
 				name: "boots2",
 				image:"url('assets/items/boots2.png')",
-				stats: {
-					defence: 6
-				}
+				stats: {}
 			}
 		],
 		weapon: [
 			{
 				name: "",
-				image: ""
+				image: "",
+				stats: {}
 			},
 			{
 				name: "weapon",
-				image:"url('assets/items/weapon.png')"
+				image:"url('assets/items/weapon.png')",
+				stats: {}
 			},
 			{
 				name: "weapon2",
-				image:"url('assets/items/weapon2.png')"
+				image:"url('assets/items/weapon2.png')",
+				stats: {}
 			},
 			{
 				name: "sword",
-				image:"url('assets/items/sword.png')"
+				image:"url('assets/items/sword.png')",
+				stats: {}
 			},
 			{
 				name: "staff",
-				image:"url('assets/items/staff.png')"
+				image:"url('assets/items/staff.png')",
+				stats: {}
 			},
 			{
 				name: "bow",
-				image:"url('assets/items/bow.png')"
+				image:"url('assets/items/bow.png')",
+				stats: {}
 			}
 		]
 	}

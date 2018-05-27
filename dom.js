@@ -22,11 +22,26 @@ function changeNum(array,num,string){
 		num=0;
 	}
 	document.getElementById(string).style.backgroundImage = array[num].image;
-	if(string == "helm"){helmNum = num;}
-	if(string == "chest"){chestNum = num;}
-	if(string == "greaves"){greavesNum = num;}
-	if(string == "boots"){bootsNum = num;}
-	if(string == "weapon"){weaponNum = num;}
+	if(string == "helm"){
+		helmNum = num;
+		displayInformation("10px",player.inventory.helm,helmNum);
+		}
+	if(string == "chest"){
+		chestNum = num;
+		displayInformation("80px",player.inventory.chest,chestNum);
+	}
+	if(string == "greaves"){
+		greavesNum = num;
+		displayInformation("150px",player.inventory.greaves,greavesNum);
+	}
+	if(string == "boots"){
+		bootsNum = num;
+		displayInformation("220px",player.inventory.boots,bootsNum);
+	}
+	if(string == "weapon"){
+		weaponNum = num;
+		displayInformation("305px",player.inventory.weapon,weaponNum);
+	}
 }
 
 chat.length = 0;
