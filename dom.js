@@ -366,12 +366,12 @@ function merchantDom(title,greeting,options){
 	chat.insert("<strong>" + title + ": " + "</strong>" + greeting, 100);
 	document.getElementById("merchantPageOptions").innerHTML = "";
 	document.getElementById("merchantPageBuy").innerHTML = "";
-	for(var i = 0; i < options.length; i++){
+	for(let i = 0; i < options.length; i++){
 		console.log(options);
 		//document.getElementById("merchantPageOptions").innerHTML += "<img src='./assets/items/sword.png' style='border: 5px solid #886622;' onmouseover='displayInformationMerchant(" + i,options,i + ")'onmouseleave='hideInformationMerchant()'></img><br><br>";
 		document.getElementById("merchantPageOptions").innerHTML += "<img src='./assets/items/sword.png' style='border: 5px solid #886622;' ></img><br><br>";
 		document.getElementById("merchantPageBuy").innerHTML += "<div class='buy'>Buy for: </div><br>";
-		for(x = 0; x < document.getElementsByClassName("buy").length; x++){
+		for(let x = 0; x < document.getElementsByClassName("buy").length; x++){
 			console.log(options[x]);
 			document.getElementsByClassName("buy")[x].onclick = function() {
 				console.log(options);
