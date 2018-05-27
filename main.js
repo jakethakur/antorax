@@ -83,7 +83,7 @@ Keyboard.isDown = function (keyCode) {
 // Game object
 //
 
-var Game = {characters: [], dom: []};
+var Game = {questNPCs: [], merchants: []};
 
 //run game
 Game.run = function (context) {
@@ -318,7 +318,7 @@ class Hero extends Character {
 // npcs
 //
 
-//var Game.characters = {};
+//var Game.questNPCs = {};
 
 class questNPC extends Character {
 	constructor(properties) {
@@ -384,7 +384,7 @@ Game.init = function () {
 		waterSpeed: 64, // speed when in water
 	});
 	
-	Game.characters.push(new questNPC({ //create an NPC
+	Game.questNPCs.push(new questNPC({ //create an NPC
 		map: map,
 		x: 1470,
 		y: 340,
@@ -397,10 +397,10 @@ Game.init = function () {
 		questCompleteText: "Look how much you've grown!",
 	}));
 	
-	Game.characters.push(new merchant({ //create an NPC
+	Game.merchants.push(new merchant({ //create an NPC
 		map: map,
-		x: 1100,
-		y: 340,
+		x: 500,
+		y: 400,
 		width: 90,
 		height: 110,
 		image: "weaponsmith",
@@ -478,21 +478,29 @@ Game.update = function (delta) {
 	}
     this.camera.update();
 	
-	// check collision with npcs
-	for(var i = 0; i < this.characters.length; i++) {
+	// check collision with quest npcs
+	for(var i = 0; i < this.questNPCs.length; i++) {
 		// doesn't currently check if the player's level is too low to accept the quest
 		
 		// quest is ready to be accepted
-        if (this.hero.isTouching(this.characters[i]) && questVar === "" && !activeQuestArray.includes(this.characters[i].quest.quest) && !completedQuestArray.includes(this.characters[i].quest.quest)) {
-			npcDom(this.characters[i].quest);
+        if (this.hero.isTouching(this.questNPCs[i]) && questVar === "" && !activeQuestArray.includes(this.questNPCs[i].quest.quest) && !completedQuestArray.includes(this.questNPCs[i].quest.quest)) {
+			npcDom(this.questNPCs[i].quest);
 		}
 		// quest is currently active
-		else if (this.hero.isTouching(this.characters[i]) && activeQuestArray.includes(this.characters[i].quest.quest) && !chat.contents.includes("<strong>" + this.characters[i].name + ": " + "</strong>" + this.characters[i].questProgressText)) {
-			chat.insert("<strong>" + this.characters[i].name + ": " + "</strong>" + this.characters[i].questProgressText, 100);
+		else if (this.hero.isTouching(this.questNPCs[i]) && activeQuestArray.includes(this.questNPCs[i].quest.quest) && !chat.contents.includes("<strong>" + this.questNPCs[i].name + ": " + "</strong>" + this.questNPCs[i].questProgressText)) {
+			chat.insert("<strong>" + this.questNPCs[i].name + ": " + "</strong>" + this.questNPCs[i].questProgressText, 100);
 		}
 		// quest has been completed
-		else if (this.hero.isTouching(this.characters[i]) && completedQuestArray.includes(this.characters[i].quest.quest) && !chat.contents.includes("<strong>" + this.characters[i].name + ": " + "</strong>" + this.characters[i].questCompleteText)) {
-			chat.insert("<strong>" + this.characters[i].name + ": " + "</strong>" + this.characters[i].questCompleteText, 100);
+		else if (this.hero.isTouching(this.questNPCs[i]) && completedQuestArray.includes(this.questNPCs[i].quest.quest) && !chat.contents.includes("<strong>" + this.questNPCs[i].name + ": " + "</strong>" + this.questNPCs[i].questCompleteText)) {
+			chat.insert("<strong>" + this.questNPCs[i].name + ": " + "</strong>" + this.questNPCs[i].questCompleteText, 100);
+		}
+    }
+	
+	// check collision with merchants
+	for(var i = 0; i < this.merchants.length; i++) {
+        if (this.hero.isTouching(this.merchants[i]) && questVar === "") {
+			merchantDom(this.merchants[i].name, this.merchants[i].greeting, this.merchants[i].items);
+			chat.insert("<strong>" + this.merchants[i].name + ": " + "</strong>" + this.merchants[i].greeting, 100);
 		}
     }
 };
@@ -557,8 +565,8 @@ Game.drawHitboxes = function () {
 	this.ctx.strokeRect(this.hero.screenX - this.hero.width / 2, this.hero.screenY - this.hero.height / 2, this.hero.width, this.hero.height);
 	
 	// NPC hitboxes
-	for(var i = 0; i < this.characters.length; i++) {
-		this.ctx.strokeRect(this.characters[i].screenX - this.characters[i].width / 2, this.characters[i].screenY - this.characters[i].height / 2, this.characters[i].width, this.characters[i].height);
+	for(var i = 0; i < this.questNPCs.length; i++) {
+		this.ctx.strokeRect(this.questNPCs[i].screenX - this.questNPCs[i].width / 2, this.questNPCs[i].screenY - this.questNPCs[i].height / 2, this.questNPCs[i].width, this.questNPCs[i].height);
 	}
 }
 
@@ -570,16 +578,30 @@ Game.render = function () {
     //}
 	
     // draw NPCs
-    for(var i = 0; i < this.characters.length; i++) {
+    for(var i = 0; i < this.questNPCs.length; i++) {
 		// set character screen x and y
-		this.characters[i].screenX = (this.characters[i].x - this.characters[i].width / 2) - this.camera.x;
-		this.characters[i].screenY = (this.characters[i].y - this.characters[i].height / 2) - this.camera.y;
+		this.questNPCs[i].screenX = (this.questNPCs[i].x - this.questNPCs[i].width / 2) - this.camera.x;
+		this.questNPCs[i].screenY = (this.questNPCs[i].y - this.questNPCs[i].height / 2) - this.camera.y;
 		
 		// draw image
         this.ctx.drawImage(
-			this.characters[i].image,
-			this.characters[i].screenX - this.characters[i].width / 2,
-			this.characters[i].screenY - this.characters[i].height / 2
+			this.questNPCs[i].image,
+			this.questNPCs[i].screenX - this.questNPCs[i].width / 2,
+			this.questNPCs[i].screenY - this.questNPCs[i].height / 2
+        );
+    }
+	
+    // draw merchants
+    for(var i = 0; i < this.questNPCs.length; i++) {
+		// set character screen x and y
+		this.merchants[i].screenX = (this.merchants[i].x - this.merchants[i].width / 2) - this.camera.x;
+		this.merchants[i].screenY = (this.merchants[i].y - this.merchants[i].height / 2) - this.camera.y;
+		
+		// draw image
+        this.ctx.drawImage(
+			this.merchants[i].image,
+			this.merchants[i].screenX - this.merchants[i].width / 2,
+			this.merchants[i].screenY - this.merchants[i].height / 2
         );
     }
 
