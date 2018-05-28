@@ -81,8 +81,8 @@ function changeBook(page) {
 }
 
 function displayInformation(y,array,num){
-	console.log(array);
-	console.log(num);
+	//console.log(array);
+	//console.log(num);
 	document.getElementById("information").innerHTML = "";
 	document.getElementById("information").hidden = false;
 	document.getElementById("information").style.marginTop = y;
@@ -94,8 +94,8 @@ function hideInformation(){
 }
 
 function displayInformationMerchant(y,array,num){
-	console.log(array);
-	console.log(num);
+	//console.log(array);
+	//console.log(num);
 	document.getElementById("informationMerchant").innerHTML = "";
 	document.getElementById("informationMerchant").hidden = false;
 	document.getElementById("informationMerchant").style.top = 142+(y*82)+"px";
@@ -366,24 +366,24 @@ function merchantDom(title,greeting,options){
 	document.getElementById("merchantPageOptions").innerHTML = "";
 	document.getElementById("merchantPageBuy").innerHTML = "";
 	for(let i = 0; i < options.length; i++){
-		console.log(options);
+		//console.log(options);
 		//document.getElementById("merchantPageOptions").innerHTML += "<img src='./assets/items/sword.png' style='border: 5px solid #886622;' onmouseover='displayInformationMerchant(" + i,options,i + ")'onmouseleave='hideInformationMerchant()'></img><br><br>";
 		document.getElementById("merchantPageOptions").innerHTML += "<img src=" + options[i].image + " class='theseOptions' style='border: 5px solid #886622;' onmouseleave='hideInformationMerchant()'></img><br><br>";
 		document.getElementById("merchantPageBuy").innerHTML += "<div class='buy'>Buy for: " + options[i].cost + " gold</div><br>";
 		for(let x = 0; x < document.getElementsByClassName("buy").length; x++){
-			console.log(options[x]);
+			//console.log(options[x]);
 			document.getElementsByClassName("buy")[x].onclick = function() {
-				console.log(options);
-				console.log(x);
+				//console.log(options);
+				//console.log(x);
 				buyFunction(options[x]);
 			};
 		}
-		console.log(document.getElementsByClassName("theseOptions").length);
+		//console.log(document.getElementsByClassName("theseOptions").length);
 		for(let x = 0; x < document.getElementsByClassName("theseOptions").length; x++){
-			console.log(options[x]);
+			//console.log(options[x]);
 			document.getElementsByClassName("theseOptions")[x].onmouseover = function() {
-				console.log(options);
-				console.log(x);
+				//console.log(options);
+				//console.log(x);
 				displayInformationMerchant(x, options, x);
 			};
 		}

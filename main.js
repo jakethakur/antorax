@@ -503,7 +503,8 @@ Game.update = function (delta) {
 	for(var i = 0; i < this.merchants.length; i++) {
         if (this.hero.isTouching(this.merchants[i]) && questVar === "") {
 			merchantDom(this.merchants[i].name, this.merchants[i].greeting, this.merchants[i].items);
-			chat.insert("<strong>" + this.merchants[i].name + ": " + "</strong>" + this.merchants[i].greeting, 100);
+			console.log("oui");
+			//chat.insert("<strong>" + this.merchants[i].name + ": " + "</strong>" + this.merchants[i].greeting, 100); (done in dom)
 		}
     }
 };
