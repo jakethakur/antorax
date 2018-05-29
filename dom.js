@@ -87,6 +87,11 @@ function displayInformation(y,array,num){
 	document.getElementById("information").hidden = false;
 	document.getElementById("information").style.marginTop = y;
 	document.getElementById("information").innerHTML = "<div class='triangleLeft'></div><div class='innerTriangleLeft'></div>" + array[num].name;
+	/*document.getElementById("information").innerHTML = "<div class='triangleLeft'></div><div class='innerTriangleLeft'></div>";
+	for(var i = 0; i < Object.keys(array[num].stats).length; i++) {
+		document.getElementById("information").innerHTML += "<br>";
+		document.getElementById("information").innerHTML += Object.keys(array[num].stats)[i] + ": " + array[num].stats[Object.keys(array[num].stats)[i]];
+	}*/
 }
 
 function hideInformation(){

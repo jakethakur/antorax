@@ -130,14 +130,14 @@ window.onload = function () {
 //
 
 var map = {
-    cols: 30,
+    /*cols: 30,
     rows: 10,
     tsize: 60,
 	tilesPerRow: 8, //tiles per tilemap row
     layers: [[
         37, 26, 33, 22, 23, 24, 24, 22, 23, 24, 24, 24, 3, 4, 5, 24, 24, 24, 24, 24, 24, 2, 24, 24, 24, 24, 24, 24, 24, 24, 37, 29, 33, 24, 24, 24, 24, 22, 23, 24, 24, 24, 11, 12, 13, 24, 21, 24, 24, 24, 24, 24, 24, 2, 1, 24, 24, 24, 24, 24, 37, 28, 33, 24, 24, 24, 24, 24, 24, 24, 24, 24, 24, 24, 24, 24, 24, 24, 24, 24, 24, 24, 24, 24, 24, 24, 24, 24, 21, 1, 37, 26, 33, 22, 23, 24, 24, 24, 24, 24, 24, 24, 24, 24, 24, 24, 24, 24, 24, 24, 24, 24, 24, 24, 3, 4, 5, 24, 24, 24, 37, 26, 33, 24, 22, 23, 24, 24, 24, 24, 24, 24, 24, 24, 24, 24, 18, 19, 20, 24, 2, 7, 8, 24, 11, 12, 13, 24, 24, 24, 37, 26, 9, 35, 34, 24, 24, 24, 24, 24, 21, 24, 24, 24, 24, 24, 24, 17, 24, 24, 24, 15, 16, 24, 24, 24, 24, 24, 24, 24, 10, 26, 26, 26, 9, 34, 24, 24, 24, 24, 24, 24, 24, 24, 3, 4, 5, 25, 21, 24, 24, 24, 24, 24, 24, 24, 7, 8, 1, 24, 27, 26, 26, 26, 26, 33, 24, 24, 24, 24, 24, 24, 24, 24, 11, 12, 13, 24, 24, 24, 24, 24, 24, 24, 24, 24, 15, 16, 2, 24, 26, 26, 29, 28, 26, 9, 35, 35, 35, 35, 34, 24, 24, 24, 24, 24, 24, 24, 24, 24, 24, 24, 2, 24, 24, 24, 24, 24, 24, 24, 29, 28, 26, 27, 26, 26, 29, 26, 28, 26, 9, 35, 35, 35, 35, 35, 34, 24, 24, 24, 24, 24, 24, 24, 24, 21, 24, 24, 24, 24,
          
-    ],[]],
+    ],[]],*/
     getTile: function (layer, col, row) {
         return this.layers[layer][row * map.cols + col];
     },
@@ -370,6 +370,16 @@ Game.init = function () {
 	
 	// music
 	this.playingMusic = false;
+	
+	Object.assign(map, mapData);
+	for(var i = 0; i < questNPCs.length; i++) {
+		questNPCs[i].map = map;
+		Game.questNPCs.push(new questNPC(questNPCs[i]));
+	}
+	for(var i = 0; i < merchants.length; i++) {
+		merchants[i].map = map;
+		Game.merchants.push(new merchant(merchants[i]));
+	}
 
     //this.hero = new Hero(map, 1700, 270); //create the player at its start x and y positions
 	this.hero = new Hero({ // create the player at its start x and y positions
@@ -384,7 +394,7 @@ Game.init = function () {
 		waterSpeed: 64, // speed when in water
 	});
 	
-	Game.questNPCs.push(new questNPC({ //create an NPC
+	/*Game.questNPCs.push(new questNPC({ //create an NPC
 		map: map,
 		x: 1470,
 		y: 340,
@@ -397,7 +407,7 @@ Game.init = function () {
 		questCompleteText: "Look how much you've grown!",
 	}));
 	
-	Game.merchants.push(new merchant({ //create an NPC
+	Game.merchants.push(new merchant({ //create a merchant
 		map: map,
 		x: 500,
 		y: 400,
@@ -426,7 +436,7 @@ Game.init = function () {
 				stats: {}
 			}
 		],
-	}));
+	}));*/
 	
 	//console.log(this.hero);
     this.camera = new Camera(map, canvas.width, canvas.height);
@@ -503,7 +513,7 @@ Game.update = function (delta) {
 	for(var i = 0; i < this.merchants.length; i++) {
         if (this.hero.isTouching(this.merchants[i]) && questVar === "") {
 			merchantDom(this.merchants[i].name, this.merchants[i].greeting, this.merchants[i].items);
-			console.log("oui");
+			//console.log("oui");
 			//chat.insert("<strong>" + this.merchants[i].name + ": " + "</strong>" + this.merchants[i].greeting, 100); (done in dom)
 		}
     }
@@ -588,6 +598,7 @@ Game.render = function () {
 		this.questNPCs[i].screenY = (this.questNPCs[i].y - this.questNPCs[i].height / 2) - this.camera.y;
 		
 		// draw image
+		//console.log(this.questNPCs[i].image);
         this.ctx.drawImage(
 			this.questNPCs[i].image,
 			this.questNPCs[i].screenX - this.questNPCs[i].width / 2,
@@ -667,4 +678,6 @@ Game.render = function () {
 	
 	//draw hitboxes (debug)
 	//this.drawHitboxes();
+	
+	//this.haha();
 };
