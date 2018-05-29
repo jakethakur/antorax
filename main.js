@@ -374,6 +374,34 @@ Game.load = function () {
     ];
 };
 
+// pull data from areadata.js
+Game.loadArea = function (areaName) {
+	// map
+	Object.assign(map, areas[areaName].mapData);
+	
+	// quets npcs
+	for(var i = 0; i < areas[areaName].questNPCs.length; i++) {
+		areas[areaName].questNPCs[i].map = map;
+		this.questNPCs.push(new QuestNPC(areas[areaName].questNPCs[i]));
+	}
+	
+	// merchants
+	for(var i = 0; i < areas[areaName].merchants.length; i++) {
+		areas[areaName].merchants[i].map = map;
+		this.merchants.push(new Merchant(areas[areaName].merchants[i]));
+	}
+	
+	// area teleports
+	for(var i = 0; i < areas[areaName].areaTeleports.length; i++) {
+		areas[areaName].areaTeleports[i].map = map;
+		this.areaTeleports.push(new AreaTeleport(areas[areaName].areaTeleports[i]));
+	}
+	
+	// player x and y
+	this.hero.x = areas[areaName].player.x;
+	this.hero.y = areas[areaName].player.y;
+}
+
 Game.init = function () {
 	// welcome player
 	// TBD: make it use player name, make it say welcome back if you've played before and it saved your progress, make it a different colour?
@@ -386,26 +414,12 @@ Game.init = function () {
 	// music
 	this.playingMusic = false;
 	
-	// pull data from areadata.js
-	Object.assign(map, areas.tutorial.mapData);
-	for(var i = 0; i < areas.tutorial.questNPCs.length; i++) {
-		areas.tutorial.questNPCs[i].map = map;
-		Game.questNPCs.push(new QuestNPC(areas.tutorial.questNPCs[i]));
-	}
-	for(var i = 0; i < areas.tutorial.merchants.length; i++) {
-		areas.tutorial.merchants[i].map = map;
-		Game.merchants.push(new Merchant(areas.tutorial.merchants[i]));
-	}
-	for(var i = 0; i < areas.tutorial.areaTeleports.length; i++) {
-		areas.tutorial.areaTeleports[i].map = map;
-		Game.areaTeleports.push(new AreaTeleport(areas.tutorial.areaTeleports[i]));
-	}
 
     //this.hero = new Hero(map, 1700, 270); //create the player at its start x and y positions
 	this.hero = new Hero({ // create the player at its start x and y positions
 		map: map,
-		x: 1700,
-		y: 270,
+		x: 0,
+		y: 0,
 		direction: 3,
 		width: 57,
 		height: 120,
@@ -413,6 +427,8 @@ Game.init = function () {
 		baseSpeed: 172, // base pixels per second
 		waterSpeed: 64, // speed when in water
 	});
+	
+	this.loadArea("tutorial");
 	
 	/*Game.questNPCs.push(new questNPC({ //create an NPC
 		map: map,
@@ -541,7 +557,8 @@ Game.update = function (delta) {
 	// check collision with area teleports
 	for(var i = 0; i < this.areaTeleports.length; i++) {
         if (this.hero.isTouching(this.areaTeleports[i])) {
-			console.log("oui");
+			// teleport to new area
+			//console.log("oui");
 		}
     }
 };
@@ -617,6 +634,8 @@ Game.drawHitboxes = function () {
 	
 	// area teleport hitboxes
 	for(var i = 0; i < this.areaTeleports.length; i++) {
+		this.areaTeleports[i].screenX = (this.areaTeleports[i].x - this.areaTeleports[i].width / 2) - this.camera.x;
+		this.areaTeleports[i].screenY = (this.areaTeleports[i].y - this.areaTeleports[i].height / 2) - this.camera.y;
 		this.ctx.strokeRect(this.areaTeleports[i].screenX - this.areaTeleports[i].width / 2, this.areaTeleports[i].screenY - this.areaTeleports[i].height / 2, this.areaTeleports[i].width, this.areaTeleports[i].height);
 	}
 }
