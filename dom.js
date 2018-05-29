@@ -401,6 +401,9 @@ function buyFunction(item){
 		updateGold();
 		player.inventory.weapon.push(item);
 	}
+	else {
+		alert("You don't have sufficient funds to buy that item.");
+	}
 }
 
 var allQuestNum = 0;

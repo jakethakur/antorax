@@ -83,7 +83,7 @@ Keyboard.isDown = function (keyCode) {
 // Game object
 //
 
-var Game = {questNPCs: [], merchants: []};
+var Game = {questNPCs: [], merchants: [], areaTeleports: []};
 
 //run game
 Game.run = function (context) {
@@ -218,15 +218,13 @@ Camera.prototype.update = function () {
     }
 };
 
-class Character {
+class Entity {
 	constructor(properties) {
 		this.map = properties.map;
 		this.x = properties.x;
 		this.y = properties.y;
 		this.width = properties.width;
 		this.height = properties.height;
-
-		this.image = Loader.getImage(properties.image);
 	}
 	
 	isTouching(object) {
@@ -239,6 +237,22 @@ class Character {
 		else {
 			return false;
 		}
+	}
+}
+
+class AreaTeleport extends Entity {
+	constructor(properties) {
+		super(properties);
+
+		this.teleportTo = properties.teleportTo;
+	}
+}
+
+class Character extends Entity {
+	constructor(properties) {
+		super(properties);
+
+		this.image = Loader.getImage(properties.image);
 	}
 }
 
@@ -320,7 +334,7 @@ class Hero extends Character {
 
 //var Game.questNPCs = {};
 
-class questNPC extends Character {
+class QuestNPC extends Character {
 	constructor(properties) {
 		super(properties);
 		this.quest = properties.quest; // quest object address, to be read from questdata.js file
@@ -331,12 +345,13 @@ class questNPC extends Character {
 	}
 }
 
-class merchant extends Character {
+class Merchant extends Character {
 	constructor(properties) {
 		super(properties);
 		this.name = properties.name;
 		
-		this.greeting = properties.greeting;
+		this.greetingText = properties.greetingText;
+		this.buyText = properties.buyText; // tbd
 		
 		this.items = properties.items; // items sold
 		
@@ -371,14 +386,19 @@ Game.init = function () {
 	// music
 	this.playingMusic = false;
 	
-	Object.assign(map, mapData);
-	for(var i = 0; i < questNPCs.length; i++) {
-		questNPCs[i].map = map;
-		Game.questNPCs.push(new questNPC(questNPCs[i]));
+	// pull data from areadata.js
+	Object.assign(map, areas.tutorial.mapData);
+	for(var i = 0; i < areas.tutorial.questNPCs.length; i++) {
+		areas.tutorial.questNPCs[i].map = map;
+		Game.questNPCs.push(new QuestNPC(areas.tutorial.questNPCs[i]));
 	}
-	for(var i = 0; i < merchants.length; i++) {
-		merchants[i].map = map;
-		Game.merchants.push(new merchant(merchants[i]));
+	for(var i = 0; i < areas.tutorial.merchants.length; i++) {
+		areas.tutorial.merchants[i].map = map;
+		Game.merchants.push(new Merchant(areas.tutorial.merchants[i]));
+	}
+	for(var i = 0; i < areas.tutorial.areaTeleports.length; i++) {
+		areas.tutorial.areaTeleports[i].map = map;
+		Game.areaTeleports.push(new AreaTeleport(areas.tutorial.areaTeleports[i]));
 	}
 
     //this.hero = new Hero(map, 1700, 270); //create the player at its start x and y positions
@@ -415,7 +435,7 @@ Game.init = function () {
 		height: 110,
 		image: "weaponsmith",
 		name: "Weaponsmith",
-		greeting: "Would you like to buy anything?",
+		greetingText: "Would you like to buy anything?",
 		items: [
 			{
 				name: "Basic Sword",
@@ -512,9 +532,16 @@ Game.update = function (delta) {
 	// check collision with merchants
 	for(var i = 0; i < this.merchants.length; i++) {
         if (this.hero.isTouching(this.merchants[i]) && questVar === "") {
-			merchantDom(this.merchants[i].name, this.merchants[i].greeting, this.merchants[i].items);
+			merchantDom(this.merchants[i].name, this.merchants[i].greetingText, this.merchants[i].items);
 			//console.log("oui");
-			//chat.insert("<strong>" + this.merchants[i].name + ": " + "</strong>" + this.merchants[i].greeting, 100); (done in dom)
+			//chat.insert("<strong>" + this.merchants[i].name + ": " + "</strong>" + this.merchants[i].greetingText, 100); (done in dom)
+		}
+    }
+	
+	// check collision with area teleports
+	for(var i = 0; i < this.areaTeleports.length; i++) {
+        if (this.hero.isTouching(this.areaTeleports[i])) {
+			console.log("oui");
 		}
     }
 };
@@ -582,6 +609,21 @@ Game.drawHitboxes = function () {
 	for(var i = 0; i < this.questNPCs.length; i++) {
 		this.ctx.strokeRect(this.questNPCs[i].screenX - this.questNPCs[i].width / 2, this.questNPCs[i].screenY - this.questNPCs[i].height / 2, this.questNPCs[i].width, this.questNPCs[i].height);
 	}
+	
+	// merchant hitboxes
+	for(var i = 0; i < this.merchants.length; i++) {
+		this.ctx.strokeRect(this.merchants[i].screenX - this.merchants[i].width / 2, this.merchants[i].screenY - this.merchants[i].height / 2, this.merchants[i].width, this.merchants[i].height);
+	}
+	
+	// area teleport hitboxes
+	for(var i = 0; i < this.areaTeleports.length; i++) {
+		this.ctx.strokeRect(this.areaTeleports[i].screenX - this.areaTeleports[i].width / 2, this.areaTeleports[i].screenY - this.areaTeleports[i].height / 2, this.areaTeleports[i].width, this.areaTeleports[i].height);
+	}
+}
+
+Game.coordinates = function (character) {
+	this.ctx.fillText("x: " + Math.round(character.x), 10, 10);
+	this.ctx.fillText("y: " + Math.round(character.y), 10, 20);
 }
 
 // draw images on canvas
@@ -676,8 +718,11 @@ Game.render = function () {
     // draw map grid (debug)
     //this._drawGrid();
 	
-	//draw hitboxes (debug)
-	//this.drawHitboxes();
+	// draw hitboxes (debug)
+	this.drawHitboxes();
+	
+	// give player coords (debug)
+	this.coordinates(this.hero);
 	
 	//this.haha();
 };
