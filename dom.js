@@ -4,51 +4,73 @@ var greavesNum = 0;
 var bootsNum = 0;
 var weaponNum = 0;
 
-// update the DOM display of gold
-function updateGold() {
-	document.getElementById("gold").innerText = player.gold;
-	document.getElementById("xp").innerText = player.xp;
-}
-updateGold();
-
 // DOM function arrays
 
-var chat = {};
+var Dom = {
+	chat: {},
+	inventory: {},
+	quests: {},
+	settings: {},
+};
 
-// changes which armour is shown in inventory
-function changeNum(array,num,string){
-	num++
-	if(num >= array.length){
-		num=0;
+// update the DOM display of gold (and xp temporarily)
+Dom.inventory.updateGold = function() {
+	for(var i = 0; i < document.getElementsByClassName("goldDisplay").length; i++) {
+		document.getElementsByClassName("goldDisplay")[i].innerText = Player.gold;
 	}
-	document.getElementById(string).style.backgroundImage = "url(" + array[num].image + ")";
+	for(var i = 0; i < document.getElementsByClassName("xpDisplay").length; i++) {
+		document.getElementsByClassName("xpDisplay")[i].innerText = Player.xp;
+	}
+}
+Dom.inventory.updateGold();
+
+// change which item is shown in inventory
+Dom.inventory.changeEquipment = function(array,string) {
+	array.push(array[0]);
+	array.splice(0, 1);
+	document.getElementById(string).style.backgroundImage = "url(" + array[0].image + ")";
 	if(string == "helm"){
-		helmNum = num;
-		displayInformation("10px",player.inventory.helm,helmNum);
-		}
+		Player.inventory.helm = array;
+		this.displayInformation("10px",Player.inventory.helm);
+	}
 	if(string == "chest"){
-		chestNum = num;
-		displayInformation("80px",player.inventory.chest,chestNum);
+		Player.inventory.chest = array;
+		this.displayInformation("80px",Player.inventory.chest);
 	}
 	if(string == "greaves"){
-		greavesNum = num;
-		displayInformation("150px",player.inventory.greaves,greavesNum);
+		Player.inventory.greaves = array;
+		this.displayInformation("150px",Player.inventory.greaves);
 	}
 	if(string == "boots"){
-		bootsNum = num;
-		displayInformation("220px",player.inventory.boots,bootsNum);
+		Player.inventory.boots = array;
+		this.displayInformation("220px",Player.inventory.boots);
 	}
 	if(string == "weapon"){
-		weaponNum = num;
-		displayInformation("305px",player.inventory.weapon,weaponNum);
+		Player.inventory.weapon = array;
+		this.displayInformation("305px",Player.inventory.weapon);
 	}
 }
 
-chat.length = 0;
-chat.contents = [];
+Dom.inventory.displayInformation = function(y,array){
+	//console.log(array);
+	//console.log(0);
+	document.getElementById("itemInformation").innerHTML = "";
+	document.getElementById("itemInformation").hidden = false;
+	document.getElementById("itemInformation").style.marginTop = y;
+	document.getElementById("itemInformation").innerHTML = "<div class='triangleLeft'></div><div class='innerTriangleLeft'></div>" + array[0].name;
+	/*document.getElementById("itemInformation").innerHTML = "<div class='triangleLeft'></div><div class='innerTriangleLeft'></div>";
+	for(var i = 0; i < Object.keys(array[num].stats).length; i++) {
+		document.getElementById("itemInformation").innerHTML += "<br>";
+		document.getElementById("itemInformation").innerHTML += Object.keys(array[num].stats)[i] + ": " + array[num].stats[Object.keys(array[num].stats)[i]];
+	}*/
+}
+
+
+Dom.chat.length = 0;
+Dom.chat.contents = [];
 
 // insert text in chat box
-chat.insert = function(text, delay) {
+Dom.chat.insert = function(text, delay) {
 	this.contents.push(text);
 	setTimeout(function() {
 		chatPage.innerHTML = '<p>' + text + '</p>' + chatPage.innerHTML;
@@ -62,7 +84,7 @@ chat.insert = function(text, delay) {
 }
 
 // delete all chat
-chat.purge = function() {
+Dom.chat.purge = function() {
 	chatPage.innerHTML = '<p>Chat cleared to free up memory.</p>';
 	this.contents = {};
 	this.length = 1;
@@ -79,23 +101,8 @@ function changeBook(page) {
 		page.hidden = false;
 	}
 }
-
-function displayInformation(y,array,num){
-	//console.log(array);
-	//console.log(num);
-	document.getElementById("information").innerHTML = "";
-	document.getElementById("information").hidden = false;
-	document.getElementById("information").style.marginTop = y;
-	document.getElementById("information").innerHTML = "<div class='triangleLeft'></div><div class='innerTriangleLeft'></div>" + array[num].name;
-	/*document.getElementById("information").innerHTML = "<div class='triangleLeft'></div><div class='innerTriangleLeft'></div>";
-	for(var i = 0; i < Object.keys(array[num].stats).length; i++) {
-		document.getElementById("information").innerHTML += "<br>";
-		document.getElementById("information").innerHTML += Object.keys(array[num].stats)[i] + ": " + array[num].stats[Object.keys(array[num].stats)[i]];
-	}*/
-}
-
 function hideInformation(){
-	document.getElementById("information").hidden = true;
+	document.getElementById("itemInformation").hidden = true;
 }
 
 function displayInformationMerchant(y,array,num){
@@ -312,8 +319,8 @@ function finishDom(quest){
 	document.getElementById("questFinishChat").innerHTML = quest.chat;
 	document.getElementById("questFinishGold").innerHTML = quest.rewards.gold;
 	document.getElementById("questFinishXP").innerHTML = quest.rewards.xp;
-	player.gold += parseInt(quest.rewards.gold);
-	player.xp += parseInt(quest.rewards.xp);
+	Player.gold += parseInt(quest.rewards.gold);
+	Player.xp += parseInt(quest.rewards.xp);
 	updateGold();
 }
 
@@ -367,7 +374,7 @@ function merchantDom(title,greeting,options){
 	questVar = "merchant";
 	document.getElementById("merchantPageTitle").innerHTML = title;
 	document.getElementById("merchantPageChat").innerHTML = greeting; //jt todo: change greeting to chat when chat becomes book.chat
-	chat.insert("<strong>" + title + ": " + "</strong>" + greeting, 100);
+	Dom.chat.insert("<strong>" + title + ": " + "</strong>" + greeting, 100);
 	document.getElementById("merchantPageOptions").innerHTML = "";
 	document.getElementById("merchantPageBuy").innerHTML = "";
 	for(let i = 0; i < options.length; i++){
@@ -396,10 +403,10 @@ function merchantDom(title,greeting,options){
 }
 
 function buyFunction(item){
-	if(player.gold >= item.cost){
-		player.gold -= item.cost;
+	if(Player.gold >= item.cost){
+		Player.gold -= item.cost;
 		updateGold();
-		player.inventory.weapon.push(item);
+		Player.inventory.weapon.push(item);
 	}
 	else {
 		alert("You don't have sufficient funds to buy that item.");

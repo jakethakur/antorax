@@ -8,17 +8,17 @@
 	<canvas id="game" width="600" height="600"></canvas>
 	<div id="chatPage" hidden></div>
 	<div id="inventoryPage">
-		<div id="information" hidden>
+		<div id="itemInformation" hidden>
 			<div class="triangleLeft"></div>
 			<div class="innerTriangleLeft"></div>
 		</div>
-		<div id="helm"onmouseover="displayInformation('10px',player.inventory.helm,helmNum)"onmouseleave="hideInformation()"onclick="changeNum(player.inventory.helm,helmNum,'helm')"></div>
-		<div id="chest"onmouseover="displayInformation('80px',player.inventory.chest,chestNum)"onmouseleave="hideInformation()"onclick="changeNum(player.inventory.chest,chestNum,'chest')"></div>
-		<div id="greaves"onmouseover="displayInformation('150px',player.inventory.greaves,greavesNum)"onmouseleave="hideInformation()"onclick="changeNum(player.inventory.greaves,greavesNum,'greaves')"></div>
-		<div id="boots"onmouseover="displayInformation('220px',player.inventory.boots,bootsNum)"onmouseleave="hideInformation()"onclick="changeNum(player.inventory.boots,bootsNum,'boots')"></div>
-		<div id="weapon"onmouseover="displayInformation('305px',player.inventory.weapon,weaponNum)"onmouseleave="hideInformation()"onclick="changeNum(player.inventory.weapon,weaponNum,'weapon')"></div>
-		<div id="gold"onclick="npcDomCode()"></div>
-		<div id="xp"onclick="merchantDomCode()"></div>
+		<div id="helm"onmouseover="Dom.inventory.displayInformation('10px',Player.inventory.helm)"onmouseleave="hideInformation()"onclick="Dom.inventory.changeEquipment(Player.inventory.helm,'helm')"></div>
+		<div id="chest"onmouseover="Dom.inventory.displayInformation('80px',Player.inventory.chest)"onmouseleave="hideInformation()"onclick="Dom.inventory.changeEquipment(Player.inventory.chest,'chest')"></div>
+		<div id="greaves"onmouseover="Dom.inventory.displayInformation('150px',Player.inventory.greaves)"onmouseleave="hideInformation()"onclick="Dom.inventory.changeEquipment(Player.inventory.greaves,'greaves')"></div>
+		<div id="boots"onmouseover="Dom.inventory.displayInformation('220px',Player.inventory.boots)"onmouseleave="hideInformation()"onclick="Dom.inventory.changeEquipment(Player.inventory.boots,'boots')"></div>
+		<div id="weapon"onmouseover="Dom.inventory.displayInformation('305px',Player.inventory.weapon)"onmouseleave="hideInformation()"onclick="Dom.inventory.changeEquipment(Player.inventory.weapon,'weapon')"></div>
+		<div class="goldDisplay"onclick="npcDomCode()"></div>
+		<div class="xpDisplay"onclick="merchantDomCode()"></div>
 	</div>
 	<div id="questsPage" hidden>
 		<div id="activeQuests"onclick="expand('activeQuestBox')">Active Quests</div>
@@ -78,6 +78,7 @@
 		<p id="merchantPageChat"></p><br><br>
 		<p id="merchantPageOptions"></p>
 		<p id="merchantPageBuy"></p>
+		<div class="goldDisplay"></div>
 		<p id="merchantPageBreak"></p><br><br>
 		<center><div id="close"onclick="declineFunction()">Close</div></center>
 	</div>

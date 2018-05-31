@@ -408,7 +408,7 @@ Game.loadArea = function (areaName) {
 Game.init = function () {
 	// welcome player
 	// TBD: make it use player name, make it say welcome back if you've played before and it saved your progress, make it a different colour?
-	chat.insert("Welcome to Antorax, Hero!", 0);
+	Dom.chat.insert("Welcome to Antorax, Hero!", 0);
 
     Keyboard.listenForEvents(
         [Keyboard.LEFT, Keyboard.RIGHT, Keyboard.UP, Keyboard.DOWN]);
@@ -539,12 +539,12 @@ Game.update = function (delta) {
 			npcDom(this.questNPCs[i].quest);
 		}
 		// quest is currently active
-		else if (this.hero.isTouching(this.questNPCs[i]) && activeQuestArray.includes(this.questNPCs[i].quest.quest) && !chat.contents.includes("<strong>" + this.questNPCs[i].name + ": " + "</strong>" + this.questNPCs[i].questProgressText)) {
-			chat.insert("<strong>" + this.questNPCs[i].name + ": " + "</strong>" + this.questNPCs[i].questProgressText, 100);
+		else if (this.hero.isTouching(this.questNPCs[i]) && activeQuestArray.includes(this.questNPCs[i].quest.quest) && !Dom.chat.contents.includes("<strong>" + this.questNPCs[i].name + ": " + "</strong>" + this.questNPCs[i].questProgressText)) {
+			Dom.chat.insert("<strong>" + this.questNPCs[i].name + ": " + "</strong>" + this.questNPCs[i].questProgressText, 100);
 		}
 		// quest has been completed
-		else if (this.hero.isTouching(this.questNPCs[i]) && completedQuestArray.includes(this.questNPCs[i].quest.quest) && !chat.contents.includes("<strong>" + this.questNPCs[i].name + ": " + "</strong>" + this.questNPCs[i].questCompleteText)) {
-			chat.insert("<strong>" + this.questNPCs[i].name + ": " + "</strong>" + this.questNPCs[i].questCompleteText, 100);
+		else if (this.hero.isTouching(this.questNPCs[i]) && completedQuestArray.includes(this.questNPCs[i].quest.quest) && !Dom.chat.contents.includes("<strong>" + this.questNPCs[i].name + ": " + "</strong>" + this.questNPCs[i].questCompleteText)) {
+			Dom.chat.insert("<strong>" + this.questNPCs[i].name + ": " + "</strong>" + this.questNPCs[i].questCompleteText, 100);
 		}
     }
 	
@@ -553,7 +553,7 @@ Game.update = function (delta) {
         if (this.hero.isTouching(this.merchants[i]) && questVar === "") {
 			merchantDom(this.merchants[i].name, this.merchants[i].greetingText, this.merchants[i].items);
 			//console.log("oui");
-			//chat.insert("<strong>" + this.merchants[i].name + ": " + "</strong>" + this.merchants[i].greetingText, 100); (done in dom)
+			//Dom.chat.insert("<strong>" + this.merchants[i].name + ": " + "</strong>" + this.merchants[i].greetingText, 100); (done in dom)
 		}
     }
 	

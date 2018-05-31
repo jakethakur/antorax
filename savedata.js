@@ -1,10 +1,10 @@
-var player = {
+var Player = {
 	gold: 0,
 	xp: 0,
 	inventory: {
 		helm: [
 			{
-				name: "",
+				name: "Helm slot empty",
 				image: "",
 				stats: {}
 			},
@@ -21,7 +21,7 @@ var player = {
 		],
 		chest: [
 			{
-				name: "",
+				name: "Chest slot empty",
 				image: "",
 				stats: {}
 			},
@@ -38,7 +38,7 @@ var player = {
 		],
 		greaves: [
 			{
-				name: "",
+				name: "Greaves slot empty",
 				image: "",
 				stats: {}
 			},
@@ -55,7 +55,7 @@ var player = {
 		],
 		boots: [
 			{
-				name: "",
+				name: "Boots slot empty",
 				image: "",
 				stats: {}
 			},
@@ -72,7 +72,7 @@ var player = {
 		],
 		weapon: [
 		{
-			name: "",
+			name: "Weapon slot empty",
 			image: "",
 			stats: {}
 		}

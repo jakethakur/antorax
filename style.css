@@ -102,24 +102,29 @@ height: 50px;
 #weapon{
 margin-top: 25px;
 }
-#gold, #xp{
-background-image: url("./assets/icons/gold.png");
-margin-top: 25px;
-width: 60px;
-height: 60px;
-text-align: center;
-line-height:65px;
-vertical-align: middle;
-font-size: 20px;
-font-family: 'MedievalSharp', serif;
--webkit-user-select: none; /* Safari */        
--moz-user-select: none; /* Firefox */
--ms-user-select: none; /* IE10+/Edge */
-user-select: none;
+
+/* display for player gold and xp */
+.goldDisplay, .xpDisplay{
+	margin-top: 25px;
+	width: 60px;
+	height: 60px;
+	text-align: center;
+	line-height:65px;
+	vertical-align: middle;
+	font-size: 20px;
+	font-family: 'MedievalSharp', serif;
+	-webkit-user-select: none; /* Safari */        
+	-moz-user-select: none; /* Firefox */
+	-ms-user-select: none; /* IE10+/Edge */
+	user-select: none;
 }
-#xp{
+.xpDisplay{
 	background-image: url("./assets/icons/xp.png");
 }
+.goldDisplay{
+	background-image: url("./assets/icons/gold.png");
+}
+
 #questStartGold, #questFinishGold{
 background-image: url("./assets/icons/gold.png");
 margin-top: 0px;
@@ -167,7 +172,7 @@ vertical-align: middle;
 font-size: 20px;
 font-family: 'MedievalSharp', serif;
 }
-#information, #informationMerchant {
+#itemInformation, #informationMerchant {
 position: absolute;
 left: 740px;
 width: 230px;
