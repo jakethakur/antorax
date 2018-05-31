@@ -379,19 +379,22 @@ Game.loadArea = function (areaName) {
 	// map
 	Object.assign(map, areas[areaName].mapData);
 	
-	// quets npcs
+	// quest npcs
+	this.questNPCs = [];
 	for(var i = 0; i < areas[areaName].questNPCs.length; i++) {
 		areas[areaName].questNPCs[i].map = map;
 		this.questNPCs.push(new QuestNPC(areas[areaName].questNPCs[i]));
 	}
 	
 	// merchants
+	this.merchants = [];
 	for(var i = 0; i < areas[areaName].merchants.length; i++) {
 		areas[areaName].merchants[i].map = map;
 		this.merchants.push(new Merchant(areas[areaName].merchants[i]));
 	}
 	
 	// area teleports
+	this.areaTeleports = [];
 	for(var i = 0; i < areas[areaName].areaTeleports.length; i++) {
 		areas[areaName].areaTeleports[i].map = map;
 		this.areaTeleports.push(new AreaTeleport(areas[areaName].areaTeleports[i]));
@@ -738,10 +741,10 @@ Game.render = function () {
     //this._drawGrid();
 	
 	// draw hitboxes (debug)
-	this.drawHitboxes();
+	//this.drawHitboxes();
 	
 	// give player coords (debug)
-	this.coordinates(this.hero);
+	//this.coordinates(this.hero);
 	
 	//this.haha();
 };
