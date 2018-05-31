@@ -1,17 +1,37 @@
-var helmNum = 0;
-var chestNum = 0;
-var greavesNum = 0;
-var bootsNum = 0;
-var weaponNum = 0;
-
 // DOM function arrays
-
 var Dom = {
-	chat: {},
+	elements: {
+		chatPage: document.getElementById("chatPage"),
+		inventoryPage: document.getElementById("inventoryPage"),
+		questsPage: document.getElementById("questsPage"),
+		settingsPage: document.getElementById("settingsPage"),
+		questStart: document.getElementById("questStart"),
+		questFinish: document.getElementById("questFinish"),
+		merchantPage: document.getElementById("merchantPage"),
+	},
+	chat: {
+		length: 0,
+		contents: [],
+	},
 	inventory: {},
 	quests: {},
 	settings: {},
 };
+
+// change currently displayed page
+Dom.changeBook = function(page) {
+	if(questVar == "") { // check the player doesn't have a quest active
+		// hide all pages
+		this.elements.chatPage.hidden = true;
+		this.elements.inventoryPage.hidden = true;
+		this.elements.questsPage.hidden = true;
+		this.elements.settingsPage.hidden = true;
+		this.elements.questStart.hidden = true;
+		this.elements.questFinish.hidden = true;
+		this.elements.merchantPage.hidden = true;
+		document.getElementById(page).hidden = false;
+	}
+}
 
 // update the DOM display of gold (and xp temporarily)
 Dom.inventory.updateGold = function() {
@@ -25,32 +45,33 @@ Dom.inventory.updateGold = function() {
 Dom.inventory.updateGold();
 
 // change which item is shown in inventory
-Dom.inventory.changeEquipment = function(array,string) {
+Dom.inventory.changeEquipment = function(array,equipmentType) {
 	array.push(array[0]);
 	array.splice(0, 1);
-	document.getElementById(string).style.backgroundImage = "url(" + array[0].image + ")";
-	if(string == "helm"){
+	document.getElementById(equipmentType).style.backgroundImage = "url(" + array[0].image + ")";
+	if(equipmentType == "helm"){
 		Player.inventory.helm = array;
 		this.displayInformation("10px",Player.inventory.helm);
 	}
-	if(string == "chest"){
+	if(equipmentType == "chest"){
 		Player.inventory.chest = array;
 		this.displayInformation("80px",Player.inventory.chest);
 	}
-	if(string == "greaves"){
+	if(equipmentType == "greaves"){
 		Player.inventory.greaves = array;
 		this.displayInformation("150px",Player.inventory.greaves);
 	}
-	if(string == "boots"){
+	if(equipmentType == "boots"){
 		Player.inventory.boots = array;
 		this.displayInformation("220px",Player.inventory.boots);
 	}
-	if(string == "weapon"){
+	if(equipmentType == "weapon"){
 		Player.inventory.weapon = array;
 		this.displayInformation("305px",Player.inventory.weapon);
 	}
 }
 
+// display inventory information next to item
 Dom.inventory.displayInformation = function(y,array){
 	//console.log(array);
 	//console.log(0);
@@ -65,11 +86,12 @@ Dom.inventory.displayInformation = function(y,array){
 	}*/
 }
 
+// hide inventory information next to item
+Dom.inventory.hideInformation = function(){
+	document.getElementById("itemInformation").hidden = true;
+}
 
-Dom.chat.length = 0;
-Dom.chat.contents = [];
-
-// insert text in chat box
+// insert text in chat page
 Dom.chat.insert = function(text, delay) {
 	this.contents.push(text);
 	setTimeout(function() {
@@ -90,22 +112,7 @@ Dom.chat.purge = function() {
 	this.length = 1;
 }
 
-function changeBook(page) {
-	if(questVar == ""){
-		chatPage.hidden = true;
-		inventoryPage.hidden = true;
-		questsPage.hidden = true;
-		settingsPage.hidden = true;
-		questStart.hidden = true;
-		merchantPage.hidden = true;
-		page.hidden = false;
-	}
-}
-function hideInformation(){
-	document.getElementById("itemInformation").hidden = true;
-}
-
-function displayInformationMerchant(y,array,num){
+function displayInformationMerchant(y,array,num) {
 	//console.log(array);
 	//console.log(num);
 	document.getElementById("informationMerchant").innerHTML = "";
@@ -114,25 +121,30 @@ function displayInformationMerchant(y,array,num){
 	document.getElementById("informationMerchant").innerHTML = "<div class='triangleLeft'></div><div class='innerTriangleLeft'></div>" + array[num].name;
 }
 
-function hideInformationMerchant(){
+function hideInformationMerchant() {
 	document.getElementById("informationMerchant").hidden = true;
 }
 
-function expand(block){
+// expand/collapse element
+Dom.expand = function(block) {
 	block = document.getElementById(block);
-	if(block.hidden == true){
+	if(block.hidden) {
 		block.hidden = false;
-	}else{
+	}
+	else {
 		block.hidden = true;
 	}
+	// the player has no active quests (possibly inefficient? doesn't need to check every time it's opened)
 	if(block == activeQuestBox && questNum == 0){
 		document.getElementById("activeQuestBox").style.textAlign = "center";
 		document.getElementById("activeQuestBox").innerText = "You have no active quests";
 	}
 }
 
-function bookmarkPosition() {
-	if(document.getElementById("bottom").checked){
+// arrange position of bookmarks
+Dom.settings.bookmarkPosition = function() {
+	// VERY INEFFICIENT (css continues to be appended - edit .style of each element instead?)
+	if(document.getElementById("bottom").checked) { // arrange bookmarks at bottom of screen
 		const css = document.createElement( 'style' );
 		css.textContent = `
 		#changeChat, #changeInventory, #changeQuests, #changeSettings {
@@ -169,7 +181,8 @@ function bookmarkPosition() {
 		}
 		`;
 		document.head.appendChild( css );
-	}else{
+	}
+	else { // arrange bookmarks at top of screen
 		const css = document.createElement( 'style' );
 		css.textContent = `
 		#changeChat, #changeInventory, #changeQuests, #changeSettings {
@@ -210,82 +223,22 @@ function bookmarkPosition() {
 	}
 }
 
-if(screen.height >= 864){
+// determine what the position of the bookmarks should be for the user (based on their window size)
+if(window.innerHeight >= 864) {
 	document.getElementById("bottom").checked = true;
-	const css = document.createElement( 'style' );
-	css.textContent = `
-	#changeChat, #changeInventory, #changeQuests, #changeSettings {
-		top: 619px;
-		transform: rotate(90deg);
-		transform-origin: top left;
-	}
-	#changeChat {
-	left: 710px;
-	}
-	#changeInventory {
-	left: 780px;
-	}
-	#changeQuests {
-	left: 850px;
-	}
-	#changeSettings {
-	left: 920px;
-	}
-	#chatImage, #inventoryImage, #questsImage, #settingsImage{
-		top: 649px;
-	}
-	#chatImage{
-		left: 669px;
-	}
-	#inventoryImage{
-		left: 739px;
-	}
-	#questsImage{
-		left: 820px;
-	}
-	#settingsImage{
-		left: 875px;
-	}
-	`;
-	document.head.appendChild( css );
-}else{
-	document.getElementById("right").checked = true;
-	const css = document.createElement( 'style' );
-	css.textContent = `
-	#changeChat, #changeInventory, #changeQuests, #changeSettings {
-		left: 1162px;
-	}
-	#changeChat {
-	top: 38px;
-	}
-	#changeInventory {
-	top: 108px;
-	}
-	#changeQuests {
-	top: 178px;
-	}
-	#changeSettings {
-	top: 248px;
-	}
-	#chatImage, #inventoryImage, #questsImage, #settingsImage{
-		left: 1197px;
-	}
-	#chatImage{
-		top: 43px;
-	}
-	#inventoryImage{
-		top: 113px;
-	}
-	#questsImage{
-		top: 183px;
-		left: 1212px;
-	}
-	#settingsImage {
-		top: 253px;
-	}
-	`;
-	document.head.appendChild( css );
+	Dom.settings.bookmarkPosition();
 }
+else if(window.innerWidth >= 1290) {
+	document.getElementById("right").checked = true;
+	Dom.settings.bookmarkPosition();
+}
+else {
+	alert("Your window size is too small. Please zoom out!");
+	console.warn("Your window size is too small. Please zoom out!");
+	document.getElementById("bottom").checked = true;
+	Dom.settings.bookmarkPosition();
+}
+console.log(window.innerWidth);
 
 function npcDomCode(){
 	finishDom(prompt("Please enter quest name"),prompt("Please enter npc name"),prompt("Please enter npc chat"),prompt("Please enter amount of gold"),prompt("please enter amount of xp"));
@@ -298,7 +251,7 @@ function merchantDomCode(){
 var questVar = "";
 
 function npcDom(quest){
-	changeBook(document.getElementById("questStart"));
+	Dom.changeBook("questStart");
 	document.getElementById("questStartQuest").innerHTML = quest.quest;
 	document.getElementById("questStartName").innerHTML = quest.name;
 	document.getElementById("questStartChat").innerHTML = quest.chat;
@@ -312,7 +265,7 @@ function npcDom(quest){
 }
 
 function finishDom(quest){
-	changeBook(document.getElementById("questFinish"));
+	Dom.changeBook("questFinish");
 	questVar = "merchant";
 	document.getElementById("questFinishQuest").innerHTML = quest.quest;
 	document.getElementById("questFinishName").innerHTML = quest.name;
@@ -370,7 +323,7 @@ function npcBook(quest){
 }
 
 function merchantDom(title,greeting,options){
-	changeBook(document.getElementById("merchantPage"));
+	Dom.changeBook("merchantPage");
 	questVar = "merchant";
 	document.getElementById("merchantPageTitle").innerHTML = title;
 	document.getElementById("merchantPageChat").innerHTML = greeting; //jt todo: change greeting to chat when chat becomes book.chat

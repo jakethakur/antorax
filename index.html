@@ -5,38 +5,43 @@
 	<link rel="stylesheet" href="style.css">
 </head>
 <body>
+
 	<canvas id="game" width="600" height="600"></canvas>
+	
 	<div id="chatPage" hidden></div>
+	
 	<div id="inventoryPage">
 		<div id="itemInformation" hidden>
 			<div class="triangleLeft"></div>
 			<div class="innerTriangleLeft"></div>
 		</div>
-		<div id="helm"onmouseover="Dom.inventory.displayInformation('10px',Player.inventory.helm)"onmouseleave="hideInformation()"onclick="Dom.inventory.changeEquipment(Player.inventory.helm,'helm')"></div>
-		<div id="chest"onmouseover="Dom.inventory.displayInformation('80px',Player.inventory.chest)"onmouseleave="hideInformation()"onclick="Dom.inventory.changeEquipment(Player.inventory.chest,'chest')"></div>
-		<div id="greaves"onmouseover="Dom.inventory.displayInformation('150px',Player.inventory.greaves)"onmouseleave="hideInformation()"onclick="Dom.inventory.changeEquipment(Player.inventory.greaves,'greaves')"></div>
-		<div id="boots"onmouseover="Dom.inventory.displayInformation('220px',Player.inventory.boots)"onmouseleave="hideInformation()"onclick="Dom.inventory.changeEquipment(Player.inventory.boots,'boots')"></div>
-		<div id="weapon"onmouseover="Dom.inventory.displayInformation('305px',Player.inventory.weapon)"onmouseleave="hideInformation()"onclick="Dom.inventory.changeEquipment(Player.inventory.weapon,'weapon')"></div>
+		<div id="helm"onmouseover="Dom.inventory.displayInformation('10px',Player.inventory.helm)"onmouseleave="Dom.inventory.hideInformation()"onclick="Dom.inventory.changeEquipment(Player.inventory.helm,'helm')"></div>
+		<div id="chest"onmouseover="Dom.inventory.displayInformation('80px',Player.inventory.chest)"onmouseleave="Dom.inventory.hideInformation()"onclick="Dom.inventory.changeEquipment(Player.inventory.chest,'chest')"></div>
+		<div id="greaves"onmouseover="Dom.inventory.displayInformation('150px',Player.inventory.greaves)"onmouseleave="Dom.inventory.hideInformation()"onclick="Dom.inventory.changeEquipment(Player.inventory.greaves,'greaves')"></div>
+		<div id="boots"onmouseover="Dom.inventory.displayInformation('220px',Player.inventory.boots)"onmouseleave="Dom.inventory.hideInformation()"onclick="Dom.inventory.changeEquipment(Player.inventory.boots,'boots')"></div>
+		<div id="weapon"onmouseover="Dom.inventory.displayInformation('305px',Player.inventory.weapon)"onmouseleave="Dom.inventory.hideInformation()"onclick="Dom.inventory.changeEquipment(Player.inventory.weapon,'weapon')"></div>
 		<div class="goldDisplay"onclick="npcDomCode()"></div>
 		<div class="xpDisplay"onclick="merchantDomCode()"></div>
 	</div>
+	
 	<div id="questsPage" hidden>
-		<div id="activeQuests"onclick="expand('activeQuestBox')">Active Quests</div>
+		<div id="activeQuests"onclick="Dom.expand('activeQuestBox')">Active Quests</div>
 		<div id="activeQuestBox"hidden></div>
-		<div id="possibleQuests"onclick="expand('possibleQuestBox')">Possible Quests</div>
+		<div id="possibleQuests"onclick="Dom.expand('possibleQuestBox')">Possible Quests</div>
 		<div id="possibleQuestBox"hidden></div>
-		<div id="completedQuests"onclick="expand('completedQuestBox')">Completed Quests</div>
+		<div id="completedQuests"onclick="Dom.expand('completedQuestBox')">Completed Quests</div>
 		<div id="completedQuestBox"hidden></div>
-		<div id="allQuests"onclick="expand('allQuestBox')">All Quests</div>
+		<div id="allQuests"onclick="Dom.expand('allQuestBox')">All Quests</div>
 		<div id="allQuestBox"hidden></div>
 	</div>
+	
 	<div id="settingsPage" hidden>
 		<div id="settingBookmark">
 		Bookmarks position:
 			&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
-			<input type="radio" id="bottom" name="bookmarksPosition" onclick="bookmarkPosition()">Bottom
+			<input type="radio" id="bottom" name="bookmarksPosition" onclick="Dom.settings.bookmarkPosition()">Bottom
 			&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
-			<input type="radio" id="right" name="bookmarksPosition" onclick="bookmarkPosition()">Right
+			<input type="radio" id="right" name="bookmarksPosition" onclick="Dom.settings.bookmarkPosition()">Right
 		</div>
 		<div id="settingMusic">
 		Play music:
@@ -46,6 +51,7 @@
 			<input type="radio" name="musicOnOff" checked="true" onclick="Game.stopMusic()">No
 		</div>
 	</div>
+	
 	<div id="questStart" hidden>
 		<br><h1 id="questStartQuest"></h1><br><br>
 		<b id="questStartName"></b><br>
@@ -59,6 +65,7 @@
 		<div id="accept"onclick="acceptFunction()">Accept</div>
 		<div id="decline"onclick="declineFunction()">Decline</div>
 	</div>
+	
 	<div id="questFinish" hidden>
 		<br><h1 id="questFinishQuest"></h1><br><br>
 		<b id="questFinishName"></b><br>
@@ -69,6 +76,7 @@
 		<div id="questFinishXP"></div>
 		<center><div id="acceptReward"onclick="declineFunction()">Complete Quest</div></center>
 	</div>
+	
 	<div id="merchantPage" hidden>
 		<div id="informationMerchant" hidden>
 			<div class="triangleLeft"></div>
@@ -82,23 +90,25 @@
 		<p id="merchantPageBreak"></p><br><br>
 		<center><div id="close"onclick="declineFunction()">Close</div></center>
 	</div>
-	<div id="chatImage"onclick="changeBook(chatPage)"></div>
-	<div id="inventoryImage"onclick="changeBook(inventoryPage)"></div>
-	<div id="questsImage"onclick="changeBook(questsPage)"></div>
-	<div id="settingsImage"onclick="changeBook(settingsPage)"></div>
-	<svg height="50" width="200" id="changeChat" onclick="changeBook(chatPage)">
+	
+	<div id="chatImage"onclick="Dom.changeBook('chatPage')"></div>
+	<div id="inventoryImage"onclick="Dom.changeBook('inventoryPage')"></div>
+	<div id="questsImage"onclick="Dom.changeBook('questsPage')"></div>
+	<div id="settingsImage"onclick="Dom.changeBook('settingsPage')"></div>
+	<svg height="50" width="200" id="changeChat" onclick="Dom.changeBook('chatPage')">
 		<polygon points ="0,0 0,50 100,50 130,25 100,0" style="fill:blue;stroke:black;stroke-width:1" />
 		Sorry, your browser does not support inline SVG. Get a better browser!
 	</svg>
-	<svg height="50" width="200" id="changeInventory" onclick="changeBook(inventoryPage)">
+	<svg height="50" width="200" id="changeInventory" onclick="Dom.changeBook('inventoryPage')">
 		<polygon points="0,0 0,50 100,50 130,25 100,0" style="fill:red;stroke:black;stroke-width:1" />
 	</svg>
-	<svg height="50" width="200" id="changeQuests" onclick="changeBook(questsPage)">
+	<svg height="50" width="200" id="changeQuests" onclick="Dom.changeBook('questsPage')">
 		<polygon points="0,0 0,50 100,50 130,25 100,0" style="fill:green;stroke:black;stroke-width:1" />
 	</svg>
-	<svg height="50" width="200" id="changeSettings" onclick="changeBook(settingsPage)">
+	<svg height="50" width="200" id="changeSettings" onclick="Dom.changeBook('settingsPage')">
 		<polygon points ="0,0 0,50 100,50 130,25 100,0" style="fill:#d3d3d3;stroke:black;stroke-width:1" />
 	</svg>
+	
 	<script src="questdata.js"></script>
 	<script src="savedata.js"></script>
 	<script src="areadata.js"></script>

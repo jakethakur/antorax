@@ -19,9 +19,9 @@ var quests = {
 			},
 			
 			onQuestStart: function() {
-				chat.insert("The cart driver fumbles around in his wallet to give you 3 golden ingots. You can spend them at a merchant to buy a new weapon.", 100);
-				player.gold += 3;
-				updateGold();
+				Dom.chat.insert("The cart driver fumbles around in his wallet to give you 3 golden ingots. You can spend them at a merchant to buy a new weapon.", 100);
+				Player.gold += 3;
+				Dom.inventory.updateGold();
 			},
 		},
 		
@@ -42,7 +42,7 @@ var quests = {
 			},
 			
 			onQuestStart: function() {
-				chat.insert("Gregor brews you an extra large beer. Try not to get too tipsy!", 100);
+				Dom.chat.insert("Gregor brews you an extra large beer. Try not to get too tipsy!", 100);
 				// give the player a brew
 			},
 		},
