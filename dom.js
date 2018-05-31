@@ -16,11 +16,15 @@ var Dom = {
 	inventory: {},
 	quests: {},
 	settings: {},
+	quest: {},
+	merchant: {},
 };
 
 // change currently displayed page
-Dom.changeBook = function(page) {
-	if(questVar == "") { // check the player doesn't have a quest active
+// returns if the page was changed or not
+Dom.changeBook = function(page, override) {
+	//override says if the function should be run regardless of if the player has a quest active (e.g: declining a quest or closing a merchant)
+	if(this.currentlyDisplayed == "" || override) { // check the player doesn't have a quest active
 		// hide all pages
 		this.elements.chatPage.hidden = true;
 		this.elements.inventoryPage.hidden = true;
@@ -30,6 +34,15 @@ Dom.changeBook = function(page) {
 		this.elements.questFinish.hidden = true;
 		this.elements.merchantPage.hidden = true;
 		document.getElementById(page).hidden = false;
+		
+		if(override) {
+			this.currentlyDisplayed = ""; // reset current display if it is overriden
+		}
+		
+		return true;
+	}
+	else {
+		return false;
 	}
 }
 
@@ -110,19 +123,6 @@ Dom.chat.purge = function() {
 	chatPage.innerHTML = '<p>Chat cleared to free up memory.</p>';
 	this.contents = {};
 	this.length = 1;
-}
-
-function displayInformationMerchant(y,array,num) {
-	//console.log(array);
-	//console.log(num);
-	document.getElementById("informationMerchant").innerHTML = "";
-	document.getElementById("informationMerchant").hidden = false;
-	document.getElementById("informationMerchant").style.top = 142+(y*82)+"px";
-	document.getElementById("informationMerchant").innerHTML = "<div class='triangleLeft'></div><div class='innerTriangleLeft'></div>" + array[num].name;
-}
-
-function hideInformationMerchant() {
-	document.getElementById("informationMerchant").hidden = true;
 }
 
 // expand/collapse element
@@ -238,7 +238,19 @@ else {
 	document.getElementById("bottom").checked = true;
 	Dom.settings.bookmarkPosition();
 }
-console.log(window.innerWidth);
+
+function displayInformationMerchant(y,array,num) {
+	//console.log(array);
+	//console.log(num);
+	document.getElementById("informationMerchant").innerHTML = "";
+	document.getElementById("informationMerchant").hidden = false;
+	document.getElementById("informationMerchant").style.top = 142+(y*82)+"px";
+	document.getElementById("informationMerchant").innerHTML = "<div class='triangleLeft'></div><div class='innerTriangleLeft'></div>" + array[num].name;
+}
+
+function hideInformationMerchant() {
+	document.getElementById("informationMerchant").hidden = true;
+}
 
 function npcDomCode(){
 	finishDom(prompt("Please enter quest name"),prompt("Please enter npc name"),prompt("Please enter npc chat"),prompt("Please enter amount of gold"),prompt("please enter amount of xp"));
@@ -248,25 +260,28 @@ function merchantDomCode(){
 	merchantDom(prompt("Please enter merchant name"),prompt("Please enter merchant chat"),[prompt("Please enter merchant option"),prompt("Please enter anpother merchant option")]);
 }
 
-var questVar = "";
+Dom.currentlyDisplayed = ""; // the currently displayed quest, merchant, etc. (something that can't be overridden)
 
-function npcDom(quest){
-	Dom.changeBook("questStart");
-	document.getElementById("questStartQuest").innerHTML = quest.quest;
-	document.getElementById("questStartName").innerHTML = quest.name;
-	document.getElementById("questStartChat").innerHTML = quest.chat;
-	document.getElementById("questStartObjectives").innerHTML = "";
-	for(var i = 0; i < quest.objectives.length; i++){
-		document.getElementById("questStartObjectives").innerHTML += quest.objectives[i] + "<br>";
+// display start quest page
+Dom.quest.start = function(quest) { // quest is passed in as parameter
+	if(Dom.changeBook("questStart", false)) {
+		document.getElementById("questStartQuest").innerHTML = quest.quest;
+		document.getElementById("questStartName").innerHTML = quest.name;
+		document.getElementById("questStartChat").innerHTML = quest.chat;
+		document.getElementById("questStartObjectives").innerHTML = "";
+		for(var i = 0; i < quest.objectives.length; i++){
+			document.getElementById("questStartObjectives").innerHTML += quest.objectives[i] + "<br>";
+		}
+		document.getElementById("questStartGold").innerHTML = quest.rewards.gold;
+		document.getElementById("questStartXP").innerHTML = quest.rewards.xp;
+		Dom.currentlyDisplayed = quest;
 	}
-	document.getElementById("questStartGold").innerHTML = quest.rewards.gold;
-	document.getElementById("questStartXP").innerHTML = quest.rewards.xp;
-	questVar = quest;
 }
 
-function finishDom(quest){
-	Dom.changeBook("questFinish");
-	questVar = "merchant";
+// display finish quest page
+Dom.quest.finish = function(quest){
+	Dom.changeBook("questFinish", false);
+	Dom.currentlyDisplayed = "merchant";
 	document.getElementById("questFinishQuest").innerHTML = quest.quest;
 	document.getElementById("questFinishName").innerHTML = quest.name;
 	document.getElementById("questFinishChat").innerHTML = quest.chat;
@@ -274,35 +289,27 @@ function finishDom(quest){
 	document.getElementById("questFinishXP").innerHTML = quest.rewards.xp;
 	Player.gold += parseInt(quest.rewards.gold);
 	Player.xp += parseInt(quest.rewards.xp);
-	updateGold();
+	Dom.inventory.updateGold();
 }
 
-function acceptFunction(){
-	npcBook(questVar);
-	questStart.hidden = true;
-	questsPage.hidden = false;
+// quest accepted
+Dom.quest.accept = function(){
+	npcBook(Dom.currentlyDisplayed);
 	
 	// check if there is a quest start function
-	if (questVar.onQuestStart != undefined) {
-		questVar.onQuestStart();
+	if (Dom.currentlyDisplayed.onQuestStart != undefined) {
+		Dom.currentlyDisplayed.onQuestStart();
 	}
 	
-	// reset currently displayed quest
-	questVar = "";
-}
-
-function declineFunction(){
-	questFinish.hidden = true;
-	questStart.hidden = true;
-	merchantPage.hidden = true;
-	questsPage.hidden = false;
-	questVar = "";
+	// switch off quest start screen (and to quest log)
+	Dom.changeBook("questsPage", true); // also resets Dom.currentlyDisplayed
 }
 
 var activeQuestArray = [];
 var completedQuestArray = [];
 var questNum = 0;
 var questString = "";
+// ???
 function npcBook(quest){
 	activeQuestArray.push(quest.quest);
 	document.getElementById("activeQuestBox").style.textAlign = "left";
@@ -310,8 +317,9 @@ function npcBook(quest){
 		document.getElementById("activeQuestBox").innerText = "";
 	}
 	document.getElementById("activeQuestBox").innerHTML += "<strong>" + quest.quest + "</strong><br>";
+	//console.log(quest.objectives.length);
 	for(var i = 0; i < quest.objectives.length; i++){
-		document.getElementById("activeQuestBox").innerHTML += quest.objectives[i] + "<br>"
+		document.getElementById("activeQuestBox").innerHTML += quest.objectives[i] + "<br>";
 	}
 	document.getElementById("activeQuestBox").innerHTML += "<br>";
 	questNum += 30+(18*quest.objectives.length);
@@ -323,8 +331,8 @@ function npcBook(quest){
 }
 
 function merchantDom(title,greeting,options){
-	Dom.changeBook("merchantPage");
-	questVar = "merchant";
+	Dom.changeBook("merchantPage", false);
+	Dom.currentlyDisplayed = "merchant";
 	document.getElementById("merchantPageTitle").innerHTML = title;
 	document.getElementById("merchantPageChat").innerHTML = greeting; //jt todo: change greeting to chat when chat becomes book.chat
 	Dom.chat.insert("<strong>" + title + ": " + "</strong>" + greeting, 100);
@@ -340,7 +348,7 @@ function merchantDom(title,greeting,options){
 			document.getElementsByClassName("buy")[x].onclick = function() {
 				//console.log(options);
 				//console.log(x);
-				buyFunction(options[x]);
+				Dom.merchant.buy(options[x]); // this.buy instead?
 			};
 		}
 		//console.log(document.getElementsByClassName("theseOptions").length);
@@ -355,10 +363,11 @@ function merchantDom(title,greeting,options){
 	}
 }
 
-function buyFunction(item){
+// buy item from merchant
+Dom.merchant.buy = function(item){
 	if(Player.gold >= item.cost){
 		Player.gold -= item.cost;
-		updateGold();
+		Dom.inventory.updateGold();
 		Player.inventory.weapon.push(item);
 	}
 	else {

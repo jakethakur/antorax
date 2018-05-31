@@ -62,8 +62,8 @@
 		<p id="questStartRewards"></p>
 		<div id="questStartGold"></div>&nbsp;&nbsp;&nbsp;&nbsp;
 		<div id="questStartXP"></div>
-		<div id="accept"onclick="acceptFunction()">Accept</div>
-		<div id="decline"onclick="declineFunction()">Decline</div>
+		<div id="accept"onclick="Dom.quest.accept()">Accept</div>
+		<div id="decline"onclick="Dom.changeBook('questsPage', true)">Decline</div>
 	</div>
 	
 	<div id="questFinish" hidden>
@@ -74,7 +74,7 @@
 		<p id="questFinishRewards"></p>
 		<div id="questFinishGold"></div>&nbsp;&nbsp;&nbsp;&nbsp;
 		<div id="questFinishXP"></div>
-		<center><div id="acceptReward"onclick="declineFunction()">Complete Quest</div></center>
+		<center><div id="acceptReward"onclick="Dom.changeBook('questsPage', true)">Complete Quest</div></center>
 	</div>
 	
 	<div id="merchantPage" hidden>
@@ -88,24 +88,24 @@
 		<p id="merchantPageBuy"></p>
 		<div class="goldDisplay"></div>
 		<p id="merchantPageBreak"></p><br><br>
-		<center><div id="close"onclick="declineFunction()">Close</div></center>
+		<center><div id="close"onclick="Dom.changeBook('questsPage', true)">Close</div></center>
 	</div>
 	
-	<div id="chatImage"onclick="Dom.changeBook('chatPage')"></div>
-	<div id="inventoryImage"onclick="Dom.changeBook('inventoryPage')"></div>
-	<div id="questsImage"onclick="Dom.changeBook('questsPage')"></div>
-	<div id="settingsImage"onclick="Dom.changeBook('settingsPage')"></div>
-	<svg height="50" width="200" id="changeChat" onclick="Dom.changeBook('chatPage')">
+	<div id="chatImage"onclick="Dom.changeBook('chatPage', false)"></div>
+	<div id="inventoryImage"onclick="Dom.changeBook('inventoryPage', false)"></div>
+	<div id="questsImage"onclick="Dom.changeBook('questsPage', false)"></div>
+	<div id="settingsImage"onclick="Dom.changeBook('settingsPage', false)"></div>
+	<svg height="50" width="200" id="changeChat" onclick="Dom.changeBook('chatPage', false)">
 		<polygon points ="0,0 0,50 100,50 130,25 100,0" style="fill:blue;stroke:black;stroke-width:1" />
 		Sorry, your browser does not support inline SVG. Get a better browser!
 	</svg>
-	<svg height="50" width="200" id="changeInventory" onclick="Dom.changeBook('inventoryPage')">
+	<svg height="50" width="200" id="changeInventory" onclick="Dom.changeBook('inventoryPage', false)">
 		<polygon points="0,0 0,50 100,50 130,25 100,0" style="fill:red;stroke:black;stroke-width:1" />
 	</svg>
-	<svg height="50" width="200" id="changeQuests" onclick="Dom.changeBook('questsPage')">
+	<svg height="50" width="200" id="changeQuests" onclick="Dom.changeBook('questsPage', false)">
 		<polygon points="0,0 0,50 100,50 130,25 100,0" style="fill:green;stroke:black;stroke-width:1" />
 	</svg>
-	<svg height="50" width="200" id="changeSettings" onclick="Dom.changeBook('settingsPage')">
+	<svg height="50" width="200" id="changeSettings" onclick="Dom.changeBook('settingsPage', false)">
 		<polygon points ="0,0 0,50 100,50 130,25 100,0" style="fill:#d3d3d3;stroke:black;stroke-width:1" />
 	</svg>
 	
