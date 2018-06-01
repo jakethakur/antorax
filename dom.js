@@ -224,11 +224,11 @@ Dom.settings.bookmarkPosition = function() {
 }
 
 // determine what the position of the bookmarks should be for the user (based on their window size)
-if(window.innerHeight >= 864) {
+if(window.innerHeight >= 755) {
 	document.getElementById("bottom").checked = true;
 	Dom.settings.bookmarkPosition();
 }
-else if(window.innerWidth >= 1290) {
+else if(window.innerWidth >= 1295) {
 	document.getElementById("right").checked = true;
 	Dom.settings.bookmarkPosition();
 }
