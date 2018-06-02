@@ -116,9 +116,13 @@ Dom.expand = function(block) {
 		block.hidden = true;
 	}
 	// the player has no active quests (possibly inefficient? doesn't need to check every time it's opened)
-	if(block == activeQuestBox && Dom.quests.questNum == 0){
+	if(block == activeQuestBox && Dom.quests.activeQuestArray.length == 0){
 		document.getElementById("activeQuestBox").style.textAlign = "center";
 		document.getElementById("activeQuestBox").innerText = "You have no active quests";
+	}
+	if(block == completedQuestBox && Dom.quests.completedQuestArray.length == 0){
+		document.getElementById("completedQuestBox").style.textAlign = "center";
+		document.getElementById("completedQuestBox").innerText = "You have no completed quests";
 	}
 }
 
@@ -242,7 +246,7 @@ Dom.merchant.displayInformation = function(y,array,num) {
 
 //ignore this
 function npcDomCode(){
-	finishDom(prompt("Please enter quest name"),prompt("Please enter npc name"),prompt("Please enter npc chat"),prompt("Please enter amount of gold"),prompt("please enter amount of xp"));
+	Dom.quest.finish(quests.eaglecrestLoggingCamp[0]);
 }
 
 //ignore this
@@ -271,7 +275,6 @@ Dom.quest.start = function(quest) { // quest is passed in as parameter
 // display quest finish page
 Dom.quest.finish = function(quest){
 	Dom.changeBook("questFinish", false);
-	Dom.currentlyDisplayed = "merchant";
 	document.getElementById("questFinishQuest").innerHTML = quest.quest;
 	document.getElementById("questFinishName").innerHTML = quest.name;
 	document.getElementById("questFinishChat").innerHTML = quest.chat;
@@ -280,6 +283,7 @@ Dom.quest.finish = function(quest){
 	Player.gold += parseInt(quest.rewards.gold);
 	Player.xp += parseInt(quest.rewards.xp);
 	Dom.inventory.updateGold();
+	Dom.currentlyDisplayed = quest;
 }
 
 // quest accepted
@@ -295,23 +299,74 @@ Dom.quest.accept = function(){
 	Dom.changeBook("questsPage", true); // also resets Dom.currentlyDisplayed
 }
 
+Dom.quest.acceptRewards = function(){
+	console.log(Dom.currentlyDisplayed);
+	for(var i = 0; i < Dom.quests.activeQuestArray.length; i++){
+		console.log(Dom.currentlyDisplayed);
+		if(Dom.quests.activeQuestArray[i] == Dom.currentlyDisplayed.quest){
+			console.log("yes");
+			Dom.quests.activeQuestArray.splice(i,1);
+			Dom.quests.activeQuestUseArray.splice(i,1);
+		}
+	}
+	Dom.quests.completed(Dom.currentlyDisplayed);
+	
+	// check if there is a quest start function
+	if (Dom.currentlyDisplayed.onQuestFinish != undefined) {
+		Dom.currentlyDisplayed.onQuestFinish();
+	}
+	
+	// switch off quest start screen (and to quest log)
+	Dom.changeBook("questsPage", true); // also resets Dom.currentlyDisplayed
+	Dom.quests.activeQuests(undefined);
+}
+
 Dom.quests.activeQuestArray = [];
+Dom.quests.activeQuestUseArray = [];
 Dom.quests.completedQuestArray = [];
 Dom.quests.questNum = 0;
 Dom.quests.questString = "";
-// ???
+// change to active
 Dom.quests.activeQuests = function(quest){
-	Dom.quests.activeQuestArray.push(quest.quest);
+	if(quest != undefined){
+		Dom.quests.activeQuestArray.push(quest.quest);
+		Dom.quests.activeQuestUseArray.push(quest);
+	}
+	console.log(Dom.quests.activeQuestArray);
 	document.getElementById("activeQuestBox").style.textAlign = "left";
-	if(Dom.quests.questNum == 0){
-		document.getElementById("activeQuestBox").innerText = "";
+	document.getElementById("activeQuestBox").innerText = "";
+	for(var x = 0; x < Dom.quests.activeQuestArray.length; x++){
+		/*document.getElementById("activeQuestBox").style.textAlign = "left";
+		if(Dom.quests.questNum == 0){
+			document.getElementById("activeQuestBox").innerText = "";
+		}*/
+		document.getElementById("activeQuestBox").innerHTML += "<strong>" + Dom.quests.activeQuestUseArray[x].quest + "</strong><br>";
+		for(var i = 0; i < Dom.quests.activeQuestUseArray[x].objectives.length; i++){
+			document.getElementById("activeQuestBox").innerHTML += Dom.quests.activeQuestUseArray[x].objectives[i] + "<br>";
+		}
+		document.getElementById("activeQuestBox").innerHTML += "<br>";
+		Dom.quests.questNum += 30+(18*Dom.quests.activeQuestUseArray[x].objectives.length);
+		Dom.quests.questString = JSON.stringify(Dom.quests.questNum+10)+"px";
+		document.getElementById("activeQuestBox").style.height = Dom.quests.questString;
 	}
-	document.getElementById("activeQuestBox").innerHTML += "<strong>" + quest.quest + "</strong><br>";
-	for(var i = 0; i < quest.objectives.length; i++){
-		document.getElementById("activeQuestBox").innerHTML += quest.objectives[i] + "<br>";
+	if(Dom.quests.activeQuestArray.length == 0){
+		document.getElementById("activeQuestBox").style.height = "40px";
+		document.getElementById("activeQuestBox").style.textAlign = "center";
+		document.getElementById("activeQuestBox").innerText = "You have no completed quests";
 	}
-	document.getElementById("activeQuestBox").innerHTML += "<br>";
-	Dom.quests.questNum += 30+(18*quest.objectives.length);
+}
+
+Dom.quests.completedQuestNum = 0;
+Dom.quests.completedQuestString = "";
+Dom.quests.completed = function(quest){
+	Dom.changeBook('questsPage', true);
+	Dom.quests.completedQuestArray.push(quest.quest);
+	document.getElementById("completedQuestBox").style.textAlign = "left";
+	if(Dom.quests.completedQuestNum == 0){
+		document.getElementById("completedQuestBox").innerText = "";
+	}
+	document.getElementById("completedQuestBox").innerHTML += quest.quest + "<br>";
+	Dom.quests.completedQuestNum += 18;
 	Dom.quests.questString = JSON.stringify(Dom.quests.questNum+10)+"px";
 	document.getElementById("activeQuestBox").style.height = Dom.quests.questString;
 	if(Dom.quests.questNum < 50){
@@ -361,16 +416,16 @@ Dom.merchant.buy = function(item){
 	}
 }
 
-Dom.quests.allQuestNum = 40;
+Dom.quests.allQuestNum = 18;
 Dom.quests.allQuestString = "";
 for(var i = 0; i < Object.keys(quests).length; i++){
 	for(var x = 0; x < quests[Object.keys(quests)[i]].length; x++){
-		document.getElementById("allQuestBox").innerHTML += "<strong>" + quests[Object.keys(quests)[i]][x].quest + "</strong><br>";
-		for(var y = 0; y < quests[Object.keys(quests)[i]][x].objectives.length; y++){
-			document.getElementById("allQuestBox").innerHTML += quests[Object.keys(quests)[i]][x].objectives[y] + "<br>";
-		}
-		document.getElementById("allQuestBox").innerHTML += "<br>";
-		Dom.quests.allQuestNum += 18+(18*quests[Object.keys(quests)[i]][x].objectives.length);
+		document.getElementById("allQuestBox").innerHTML += quests[Object.keys(quests)[i]][x].quest + "<br>";
+		//for(var y = 0; y < quests[Object.keys(quests)[i]][x].objectives.length; y++){
+			//document.getElementById("allQuestBox").innerHTML += quests[Object.keys(quests)[i]][x].objectives[y] + "<br>";
+		//}
+		//document.getElementById("allQuestBox").innerHTML += "<br>";
+		Dom.quests.allQuestNum += 18;
 		Dom.quests.allQuestString = JSON.stringify(Dom.quests.allQuestNum)+"px";
 		console.log(Dom.quests.allQuestString);
 		document.getElementById("allQuestBox").style.height = Dom.quests.allQuestString;

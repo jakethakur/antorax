@@ -41,15 +41,12 @@ body{
 #questStartQuest, #questFinishQuest, #questStartName, #questFinishName, #questStartChat, #questFinishChat, #questStartObjectives, #merchantPageTitle, #merchantPageChat, #merchantPageOptions {
 	display: inline;
 }
-#activeQuests, #possibleQuests, #completedQuests, #allQuests, #settingBookmark, #settingMusic {
+#settingBookmark, #settingMusic {
+	line-height: 30px;
 	text-align: center;
-	line-height: 50px;
 	vertical-align: middle;
 	font-size: 20px;
 	font-family: 'MedievalSharp', serif;
-}
-#settingBookmark, #settingMusic {
-	line-height: 30px;
 }
 #activeQuestBox, #possibleQuestBox, #completedQuestBox, #allQuestBox, #activeQuests, #possibleQuests, #completedQuests, #allQuests, #settingBookmark, #settingMusic {
 	position: relative;
@@ -64,6 +61,14 @@ body{
 	-ms-user-select: none; /* IE10+/Edge */
 	user-select: none;
 	background-color: #fef9b4;
+}
+#activeQuests, #possibleQuests, #completedQuests, #allQuests{
+	text-align: center;
+	line-height: 50px;
+	vertical-align: middle;
+	font-size: 20px;
+	font-family: 'MedievalSharp', serif;
+	background-color: #fff7a5;
 }
 .triangleLeft {
 	right: 235px;
