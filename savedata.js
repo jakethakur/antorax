@@ -4,7 +4,7 @@ var Player = {
 	inventory: {
 		helm: [
 			{
-				name: "Helm slot empty",
+				name: "",
 				image: "",
 				stats: {}
 			},
@@ -21,7 +21,7 @@ var Player = {
 		],
 		chest: [
 			{
-				name: "Chest slot empty",
+				name: "",
 				image: "",
 				stats: {}
 			},
@@ -38,7 +38,7 @@ var Player = {
 		],
 		greaves: [
 			{
-				name: "Greaves slot empty",
+				name: "",
 				image: "",
 				stats: {}
 			},
@@ -55,7 +55,7 @@ var Player = {
 		],
 		boots: [
 			{
-				name: "Boots slot empty",
+				name: "",
 				image: "",
 				stats: {}
 			},
