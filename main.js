@@ -535,15 +535,15 @@ Game.update = function (delta) {
 		// doesn't currently check if the player's level is too low to accept the quest
 		
 		// quest is ready to be accepted
-        if (this.hero.isTouching(this.questNPCs[i]) && Dom.currentlyDisplayed === "" && !activeQuestArray.includes(this.questNPCs[i].quest.quest) && !completedQuestArray.includes(this.questNPCs[i].quest.quest)) {
+        if (this.hero.isTouching(this.questNPCs[i]) && Dom.currentlyDisplayed === "" && !Dom.quests.activeQuestArray.includes(this.questNPCs[i].quest.quest) && !Dom.quests.completedQuestArray.includes(this.questNPCs[i].quest.quest)) {
 			Dom.quest.start(this.questNPCs[i].quest);
 		}
 		// quest is currently active
-		else if (this.hero.isTouching(this.questNPCs[i]) && activeQuestArray.includes(this.questNPCs[i].quest.quest) && !Dom.chat.contents.includes("<strong>" + this.questNPCs[i].name + ": " + "</strong>" + this.questNPCs[i].questProgressText)) {
+		else if (this.hero.isTouching(this.questNPCs[i]) && Dom.quests.activeQuestArray.includes(this.questNPCs[i].quest.quest) && !Dom.chat.contents.includes("<strong>" + this.questNPCs[i].name + ": " + "</strong>" + this.questNPCs[i].questProgressText)) {
 			Dom.chat.insert("<strong>" + this.questNPCs[i].name + ": " + "</strong>" + this.questNPCs[i].questProgressText, 100);
 		}
 		// quest has been completed
-		else if (this.hero.isTouching(this.questNPCs[i]) && completedQuestArray.includes(this.questNPCs[i].quest.quest) && !Dom.chat.contents.includes("<strong>" + this.questNPCs[i].name + ": " + "</strong>" + this.questNPCs[i].questCompleteText)) {
+		else if (this.hero.isTouching(this.questNPCs[i]) && Dom.quests.completedQuestArray.includes(this.questNPCs[i].quest.quest) && !Dom.chat.contents.includes("<strong>" + this.questNPCs[i].name + ": " + "</strong>" + this.questNPCs[i].questCompleteText)) {
 			Dom.chat.insert("<strong>" + this.questNPCs[i].name + ": " + "</strong>" + this.questNPCs[i].questCompleteText, 100);
 		}
     }
@@ -551,7 +551,7 @@ Game.update = function (delta) {
 	// check collision with merchants
 	for(var i = 0; i < this.merchants.length; i++) {
         if (this.hero.isTouching(this.merchants[i]) && Dom.currentlyDisplayed === "") {
-			merchantDom(this.merchants[i].name, this.merchants[i].greetingText, this.merchants[i].items);
+			Dom.merchant.page(this.merchants[i].name, this.merchants[i].greetingText, this.merchants[i].items);
 			//console.log("oui");
 			//Dom.chat.insert("<strong>" + this.merchants[i].name + ": " + "</strong>" + this.merchants[i].greetingText, 100); (done in dom)
 		}

@@ -84,26 +84,6 @@ Dom.inventory.changeEquipment = function(array,equipmentType) {
 	}
 }
 
-// display inventory information next to item
-Dom.inventory.displayInformation = function(y,array){
-	//console.log(array);
-	//console.log(0);
-	document.getElementById("itemInformation").innerHTML = "";
-	document.getElementById("itemInformation").hidden = false;
-	document.getElementById("itemInformation").style.marginTop = y;
-	document.getElementById("itemInformation").innerHTML = "<div class='triangleLeft'></div><div class='innerTriangleLeft'></div>" + array[0].name;
-	/*document.getElementById("itemInformation").innerHTML = "<div class='triangleLeft'></div><div class='innerTriangleLeft'></div>";
-	for(var i = 0; i < Object.keys(array[num].stats).length; i++) {
-		document.getElementById("itemInformation").innerHTML += "<br>";
-		document.getElementById("itemInformation").innerHTML += Object.keys(array[num].stats)[i] + ": " + array[num].stats[Object.keys(array[num].stats)[i]];
-	}*/
-}
-
-// hide inventory information next to item
-Dom.inventory.hideInformation = function(){
-	document.getElementById("itemInformation").hidden = true;
-}
-
 // insert text in chat page
 Dom.chat.insert = function(text, delay) {
 	this.contents.push(text);
@@ -128,6 +108,7 @@ Dom.chat.purge = function() {
 // expand/collapse element
 Dom.expand = function(block) {
 	block = document.getElementById(block);
+		console.log(block);
 	if(block.hidden) {
 		block.hidden = false;
 	}
@@ -135,7 +116,7 @@ Dom.expand = function(block) {
 		block.hidden = true;
 	}
 	// the player has no active quests (possibly inefficient? doesn't need to check every time it's opened)
-	if(block == activeQuestBox && questNum == 0){
+	if(block == activeQuestBox && Dom.quests.questNum == 0){
 		document.getElementById("activeQuestBox").style.textAlign = "center";
 		document.getElementById("activeQuestBox").innerText = "You have no active quests";
 	}
@@ -239,30 +220,39 @@ else {
 	Dom.settings.bookmarkPosition();
 }
 
-function displayInformationMerchant(y,array,num) {
-	//console.log(array);
-	//console.log(num);
+// display inventory information next to item
+Dom.inventory.displayInformation = function(y,array){
+	document.getElementById("itemInformation").innerHTML = "";
+	document.getElementById("itemInformation").hidden = false;
+	document.getElementById("itemInformation").style.marginTop = y;
+	document.getElementById("itemInformation").innerHTML = "<div class='triangleLeft'></div><div class='innerTriangleLeft'></div>" + array[0].name;
+	/*document.getElementById("itemInformation").innerHTML = "<div class='triangleLeft'></div><div class='innerTriangleLeft'></div>";
+	for(var i = 0; i < Object.keys(array[num].stats).length; i++) {
+		document.getElementById("itemInformation").innerHTML += "<br>";
+		document.getElementById("itemInformation").innerHTML += Object.keys(array[num].stats)[i] + ": " + array[num].stats[Object.keys(array[num].stats)[i]];
+	}*/
+}
+
+Dom.merchant.displayInformation = function(y,array,num) {
 	document.getElementById("informationMerchant").innerHTML = "";
 	document.getElementById("informationMerchant").hidden = false;
 	document.getElementById("informationMerchant").style.top = 142+(y*82)+"px";
 	document.getElementById("informationMerchant").innerHTML = "<div class='triangleLeft'></div><div class='innerTriangleLeft'></div>" + array[num].name;
 }
 
-function hideInformationMerchant() {
-	document.getElementById("informationMerchant").hidden = true;
-}
-
+//ignore this
 function npcDomCode(){
 	finishDom(prompt("Please enter quest name"),prompt("Please enter npc name"),prompt("Please enter npc chat"),prompt("Please enter amount of gold"),prompt("please enter amount of xp"));
 }
 
+//ignore this
 function merchantDomCode(){
-	merchantDom(prompt("Please enter merchant name"),prompt("Please enter merchant chat"),[prompt("Please enter merchant option"),prompt("Please enter anpother merchant option")]);
+	Dom.merchant.page(prompt("Please enter merchant name"),prompt("Please enter merchant chat"),[prompt("Please enter merchant option"),prompt("Please enter anpother merchant option")]);
 }
 
 Dom.currentlyDisplayed = ""; // the currently displayed quest, merchant, etc. (something that can't be overridden)
 
-// display start quest page
+// display quest start page
 Dom.quest.start = function(quest) { // quest is passed in as parameter
 	if(Dom.changeBook("questStart", false)) {
 		document.getElementById("questStartQuest").innerHTML = quest.quest;
@@ -278,7 +268,7 @@ Dom.quest.start = function(quest) { // quest is passed in as parameter
 	}
 }
 
-// display finish quest page
+// display quest finish page
 Dom.quest.finish = function(quest){
 	Dom.changeBook("questFinish", false);
 	Dom.currentlyDisplayed = "merchant";
@@ -294,7 +284,7 @@ Dom.quest.finish = function(quest){
 
 // quest accepted
 Dom.quest.accept = function(){
-	npcBook(Dom.currentlyDisplayed);
+	Dom.quests.activeQuests(Dom.currentlyDisplayed);
 	
 	// check if there is a quest start function
 	if (Dom.currentlyDisplayed.onQuestStart != undefined) {
@@ -305,32 +295,32 @@ Dom.quest.accept = function(){
 	Dom.changeBook("questsPage", true); // also resets Dom.currentlyDisplayed
 }
 
-var activeQuestArray = [];
-var completedQuestArray = [];
-var questNum = 0;
-var questString = "";
+Dom.quests.activeQuestArray = [];
+Dom.quests.completedQuestArray = [];
+Dom.quests.questNum = 0;
+Dom.quests.questString = "";
 // ???
-function npcBook(quest){
-	activeQuestArray.push(quest.quest);
+Dom.quests.activeQuests = function(quest){
+	Dom.quests.activeQuestArray.push(quest.quest);
 	document.getElementById("activeQuestBox").style.textAlign = "left";
-	if(questNum == 0){
+	if(Dom.quests.questNum == 0){
 		document.getElementById("activeQuestBox").innerText = "";
 	}
 	document.getElementById("activeQuestBox").innerHTML += "<strong>" + quest.quest + "</strong><br>";
-	//console.log(quest.objectives.length);
 	for(var i = 0; i < quest.objectives.length; i++){
 		document.getElementById("activeQuestBox").innerHTML += quest.objectives[i] + "<br>";
 	}
 	document.getElementById("activeQuestBox").innerHTML += "<br>";
-	questNum += 30+(18*quest.objectives.length);
-	questString = JSON.stringify(questNum+10)+"px";
-	document.getElementById("activeQuestBox").style.height = questString;
-	if(questNum < 50){
+	Dom.quests.questNum += 30+(18*quest.objectives.length);
+	Dom.quests.questString = JSON.stringify(Dom.quests.questNum+10)+"px";
+	document.getElementById("activeQuestBox").style.height = Dom.quests.questString;
+	if(Dom.quests.questNum < 50){
 		document.getElementById("activeQuestBox").style.height = "40px";
 	}
 }
 
-function merchantDom(title,greeting,options){
+Dom.merchant.page = function(title,greeting,options){
+//function Dom.merchant.page(title,greeting,options){
 	Dom.changeBook("merchantPage", false);
 	Dom.currentlyDisplayed = "merchant";
 	document.getElementById("merchantPageTitle").innerHTML = title;
@@ -339,26 +329,22 @@ function merchantDom(title,greeting,options){
 	document.getElementById("merchantPageOptions").innerHTML = "";
 	document.getElementById("merchantPageBuy").innerHTML = "";
 	for(let i = 0; i < options.length; i++){
-		//console.log(options);
-		//document.getElementById("merchantPageOptions").innerHTML += "<img src='./assets/items/sword.png' style='border: 5px solid #886622;' onmouseover='displayInformationMerchant(" + i,options,i + ")'onmouseleave='hideInformationMerchant()'></img><br><br>";
-		document.getElementById("merchantPageOptions").innerHTML += "<img src=" + options[i].image + " class='theseOptions' style='border: 5px solid #886622;' onmouseleave='hideInformationMerchant()'></img><br><br>";
+		//document.getElementById("merchantPageOptions").innerHTML += "<img src='./assets/items/sword.png' style='border: 5px solid #886622;' onmouseover='Dom.merchant.displayInformation(" + i,options,i + ")'onmouseleave='hideInformationMerchant()'></img><br><br>";
+		document.getElementById("merchantPageOptions").innerHTML += "<img src=" + options[i].image + " class='theseOptions' style='border: 5px solid #886622;'></img><br><br>";
 		document.getElementById("merchantPageBuy").innerHTML += "<div class='buy'>Buy for: " + options[i].cost + " gold</div><br>";
 		for(let x = 0; x < document.getElementsByClassName("buy").length; x++){
-			//console.log(options[x]);
 			document.getElementsByClassName("buy")[x].onclick = function() {
-				//console.log(options);
-				//console.log(x);
-				Dom.merchant.buy(options[x]); // this.buy instead?
+				Dom.merchant.buy(options[x]);
 			};
 		}
-		//console.log(document.getElementsByClassName("theseOptions").length);
 		for(let x = 0; x < document.getElementsByClassName("theseOptions").length; x++){
-			//console.log(options[x]);
 			document.getElementsByClassName("theseOptions")[x].onmouseover = function() {
-				//console.log(options);
-				//console.log(x);
-				displayInformationMerchant(x, options, x);
+				Dom.merchant.displayInformation(x, options, x);
 			};
+			document.getElementsByClassName("theseOptions")[x].onmouseleave = function() {
+				Dom.expand("informationMerchant");
+				//document.getElementById("informationMerchant").hidden = true;
+			}
 		}
 	}
 }
@@ -375,16 +361,18 @@ Dom.merchant.buy = function(item){
 	}
 }
 
-var allQuestNum = 0;
-var allQuestString = "";
+Dom.quests.allQuestNum = 40;
+Dom.quests.allQuestString = "";
 for(var i = 0; i < Object.keys(quests).length; i++){
 	for(var x = 0; x < quests[Object.keys(quests)[i]].length; x++){
 		document.getElementById("allQuestBox").innerHTML += "<strong>" + quests[Object.keys(quests)[i]][x].quest + "</strong><br>";
 		for(var y = 0; y < quests[Object.keys(quests)[i]][x].objectives.length; y++){
 			document.getElementById("allQuestBox").innerHTML += quests[Object.keys(quests)[i]][x].objectives[y] + "<br>";
 		}
-		allQuestNum = 30+(18*quests[Object.keys(quests)[i]][x].objectives.length);
-		allQuestString = JSON.stringify(allQuestNum+10)+"px";
-		document.getElementById("allQuestBox").style.height = allQuestString;
+		document.getElementById("allQuestBox").innerHTML += "<br>";
+		Dom.quests.allQuestNum += 18+(18*quests[Object.keys(quests)[i]][x].objectives.length);
+		Dom.quests.allQuestString = JSON.stringify(Dom.quests.allQuestNum)+"px";
+		console.log(Dom.quests.allQuestString);
+		document.getElementById("allQuestBox").style.height = Dom.quests.allQuestString;
 	}
 }
