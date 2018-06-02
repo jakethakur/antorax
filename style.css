@@ -1,30 +1,31 @@
 @import url('https://fonts.googleapis.com/css?family=MedievalSharp');
+
 body{
-font-family: 'MedievalSharp', serif;
+	font-family: 'MedievalSharp', serif;
 }
 #chatPage, #inventoryPage, #questsPage, #settingsPage, #questStart, #questFinish, #merchantPage {
-        float: left;
-        margin: 10px;
-		border: 1px solid black;
-		width: 500px;
-		height: 600px;
-		padding-left: 10px;
-		padding-right: 10px;
-		background-color: #f9f9d0;
-		overflow: hidden;
+	float: left;
+	margin: 10px;
+	border: 1px solid black;
+	width: 500px;
+	height: 600px;
+	padding-left: 10px;
+	padding-right: 10px;
+	background-color: #f9f9d0;
+	overflow: hidden;
 }
 #game {
-        border: 1px solid black;
-		float: left;
-        margin: 10px;
+	border: 1px solid black;
+	float: left;
+	margin: 10px;
 }
 #chatPage {
-        overflow-y: scroll;
+	overflow-y: scroll;
 }
 #questsPage, #settingsPage {
-        border-top: 5px solid #886622;
-        width: 500px;
-        height: 596px;
+	border-top: 5px solid #886622;
+	width: 500px;
+	height: 596px;
 }
 #questsPage {
 	overflow-y: auto;
@@ -41,11 +42,11 @@ font-family: 'MedievalSharp', serif;
 	display: inline;
 }
 #activeQuests, #possibleQuests, #completedQuests, #allQuests, #settingBookmark, #settingMusic {
-text-align: center;
-line-height: 50px;
-vertical-align: middle;
-font-size: 20px;
-font-family: 'MedievalSharp', serif;
+	text-align: center;
+	line-height: 50px;
+	vertical-align: middle;
+	font-size: 20px;
+	font-family: 'MedievalSharp', serif;
 }
 #settingBookmark, #settingMusic {
 	line-height: 30px;
@@ -65,25 +66,25 @@ font-family: 'MedievalSharp', serif;
 	background-color: #fef9b4;
 }
 .triangleLeft {
-  right: 235px;
-  top: 10px;
-  position: absolute;
-  width: 0; 
-  height: 0; 
-  border-top: 15px solid transparent;
-  border-bottom: 15px solid transparent; 
-  border-right: 20px solid #886622; 
+	right: 235px;
+	top: 10px;
+	position: absolute;
+	width: 0; 
+	height: 0; 
+	border-top: 15px solid transparent;
+	border-bottom: 15px solid transparent; 
+	border-right: 20px solid #886622; 
 }
 .innerTriangleLeft {
-  right: 227px;
-  bottom: 10px;
-  position: absolute;
-  width: 0; 
-  height: 0; 
-  border-top: 15px solid transparent;
-  border-bottom: 15px solid transparent; 
-  border-right: 20px solid #fef9b4;
-  z-index: 2;
+	right: 227px;
+	bottom: 10px;
+	position: absolute;
+	width: 0; 
+	height: 0; 
+	border-top: 15px solid transparent;
+	border-bottom: 15px solid transparent; 
+	border-right: 20px solid #fef9b4;
+	z-index: 2;
 }
 #settingBookmark, #settingMusic, #activeQuestBox, #completedQuestBox, #possibleQuestBox, #allQuestBox {
 	width: 501px;
@@ -93,14 +94,14 @@ font-family: 'MedievalSharp', serif;
 	padding-top: 10px;
 }
 #helm, #chest, #greaves, #boots, #weapon{
-margin-top: 10px;
-border: 5px solid #886622;
-background-color: #fef9b4;
-width: 50px;
-height: 50px;
+	margin-top: 10px;
+	border: 5px solid #886622;
+	background-color: #fef9b4;
+	width: 50px;
+	height: 50px;
 }
 #weapon{
-margin-top: 25px;
+	margin-top: 25px;
 }
 
 /* display for player gold and xp */
@@ -126,62 +127,62 @@ margin-top: 25px;
 }
 
 #questStartGold, #questFinishGold{
-background-image: url("./assets/icons/gold.png");
-margin-top: 0px;
-width: 60px;
-height: 60px;
-text-align: center;
-line-height:65px;
-vertical-align: middle;
-font-size: 20px;
-font-family: 'MedievalSharp', serif;
--webkit-user-select: none; /* Safari */        
--moz-user-select: none; /* Firefox */
--ms-user-select: none; /* IE10+/Edge */
-user-select: none;
-display: inline-block;
+	background-image: url("./assets/icons/gold.png");
+	margin-top: 0px;
+	width: 60px;
+	height: 60px;
+	text-align: center;
+	line-height:65px;
+	vertical-align: middle;
+	font-size: 20px;
+	font-family: 'MedievalSharp', serif;
+	-webkit-user-select: none; /* Safari */        
+	-moz-user-select: none; /* Firefox */
+	-ms-user-select: none; /* IE10+/Edge */
+	user-select: none;
+	display: inline-block;
 }
 #questStartXP, #questFinishXP{
-background-image: url("./assets/icons/xp.png");
-margin-top: 0px;
-width: 60px;
-height: 60px;
-text-align: center;
-line-height:65px;
-vertical-align: middle;
-font-size: 20px;
-font-family: 'MedievalSharp', serif;
--webkit-user-select: none; /* Safari */        
--moz-user-select: none; /* Firefox */
--ms-user-select: none; /* IE10+/Edge */
-user-select: none;
-display: inline-block;
+	background-image: url("./assets/icons/xp.png");
+	margin-top: 0px;
+	width: 60px;
+	height: 60px;
+	text-align: center;
+	line-height:65px;
+	vertical-align: middle;
+	font-size: 20px;
+	font-family: 'MedievalSharp', serif;
+	-webkit-user-select: none; /* Safari */        
+	-moz-user-select: none; /* Firefox */
+	-ms-user-select: none; /* IE10+/Edge */
+	user-select: none;
+	display: inline-block;
 }
 .buy {
-position: relative;
-width: 150px;
-height: 50px;
-background-color: #fef9b4;
-border: 5px solid #886622;
-margin-left: 100px;
-left: 240px;
-margin-top: 4px;
-text-align: center;
-line-height: 50px;
-vertical-align: middle;
-font-size: 20px;
-font-family: 'MedievalSharp', serif;
+	position: relative;
+	width: 150px;
+	height: 50px;
+	background-color: #fef9b4;
+	border: 5px solid #886622;
+	margin-left: 100px;
+	left: 240px;
+	margin-top: 4px;
+	text-align: center;
+	line-height: 50px;
+	vertical-align: middle;
+	font-size: 20px;
+	font-family: 'MedievalSharp', serif;
 }
 #itemInformation, #informationMerchant {
-position: absolute;
-left: 740px;
-width: 230px;
-height: 50px;
-background-color: #fef9b4;
-border: 5px solid #886622;
-float: right;
-text-indent: 10px;
-text-align: left;
+	position: absolute;
+	left: 740px;
+	width: 230px;
+	height: 50px;
+	background-color: #fef9b4;
+	border: 5px solid #886622;
+	float: right;
+	text-indent: 10px;
+	text-align: left;
 }
 #accept, #acceptReward, #decline, #close {
 	position: relative;
