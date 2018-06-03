@@ -12,6 +12,7 @@ var quests = {
 			
 			howToStart: "Speak to the Cart Driver.",
 			levelRequirement: 1,
+			//questRequirement: "address to quest here",
 			
 			rewards: {
 				gold: 5,
