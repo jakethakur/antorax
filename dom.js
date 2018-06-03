@@ -275,7 +275,13 @@ Dom.quest.start = function(quest) { // quest is passed in as parameter
 		for(var i = 0; i < quest.objectives.length; i++){
 			document.getElementById("questStartObjectives").innerHTML += quest.objectives[i] + "<br>";
 		}
-		document.getElementById("questStartGold").innerHTML = quest.rewards.gold;
+		if(quest.rewards.gold == 0){
+			document.getElementById("questStartGold").hidden = true;
+			console.log(document.getElementById("questStartGold"));
+		}else{
+			document.getElementById("questStartGold").hidden = false;
+			document.getElementById("questStartGold").innerHTML = quest.rewards.gold;
+		}
 		document.getElementById("questStartXP").innerHTML = quest.rewards.xp;
 		console.log(quest.rewards.items);
 		document.getElementById("questStartItems").innerHTML = "";
