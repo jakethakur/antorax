@@ -38,7 +38,7 @@ body{
 	-ms-user-select: none; /* IE10+/Edge */
 	user-select: none;
 }
-#questStartQuest, #questFinishQuest, #questStartName, #questFinishName, #questStartChat, #questFinishChat, #questStartObjectives, #merchantPageTitle, #merchantPageChat, #merchantPageOptions {
+#questStartQuest, #questFinishQuest, #questStartName, #questFinishName, #questStartChat, #questFinishChat, #questStartObjectives, #questStartRewards, #merchantPageTitle, #merchantPageChat, #merchantPageOptions {
 	display: inline;
 }
 #settingBookmark, #settingMusic {
@@ -70,25 +70,50 @@ body{
 	font-family: 'MedievalSharp', serif;
 	background-color: #fff7a5;
 }
-.triangleLeft {
-	right: 235px;
-	top: 10px;
+.rectangleRightUp{
+	position: absolute;
+	width: 22px;
+	height: 50px;
+	background-color: #f9f9d0;
+	left:155px;
+	bottom: 5px;
+}
+.rectangleRightDown{
+	position: absolute;
+	width: 22px;
+	height: 50px;
+	background-color: #f9f9d0;
+	left:155px;
+	top: 5px;
+}
+.triangleLeft, .innerTriangleLeft, .triangleRight, .innerTriangleRight{
 	position: absolute;
 	width: 0; 
 	height: 0; 
 	border-top: 15px solid transparent;
 	border-bottom: 15px solid transparent; 
+}
+
+.triangleLeft {
+	right: 155px;
+	top: 10px;
 	border-right: 20px solid #886622; 
 }
 .innerTriangleLeft {
-	right: 227px;
+	right: 147px;
 	bottom: 10px;
-	position: absolute;
-	width: 0; 
-	height: 0; 
-	border-top: 15px solid transparent;
-	border-bottom: 15px solid transparent; 
 	border-right: 20px solid #fef9b4;
+	z-index: 2;
+}
+.triangleRight{
+	top: 10px;
+	border-left: 20px solid #886622;
+	left: 155px;
+}
+.innerTriangleRight{
+	left: 147px;
+	bottom: 10px;
+	border-left: 20px solid #fef9b4;
 	z-index: 2;
 }
 #settingBookmark, #settingMusic, #activeQuestBox, #completedQuestBox, #possibleQuestBox, #allQuestBox {
@@ -131,9 +156,22 @@ body{
 	background-image: url("./assets/icons/gold.png");
 }
 
-#questStartGold, #questFinishGold{
-	background-image: url("./assets/icons/gold.png");
-	margin-top: 0px;
+#questStartItems{
+	display: inline-block;
+}
+
+.theseQuestOptions{
+	margin-top: 4px;
+	border: 5px solid #886622;
+	display: inline-block;
+	height: 50px;
+	width: 50px;
+	vertical-align: middle;
+	margin-bottom: 10px;
+}
+
+#questStartGold, #questStartXP, #questFinishGold, #questFinishXP{
+	margin-top: 5px;
 	width: 60px;
 	height: 60px;
 	text-align: center;
@@ -146,22 +184,14 @@ body{
 	-ms-user-select: none; /* IE10+/Edge */
 	user-select: none;
 	display: inline-block;
+	margin-bottom: 10px;
+}
+
+#questStartGold, #questFinishGold{
+	background-image: url("./assets/icons/gold.png");
 }
 #questStartXP, #questFinishXP{
 	background-image: url("./assets/icons/xp.png");
-	margin-top: 0px;
-	width: 60px;
-	height: 60px;
-	text-align: center;
-	line-height:65px;
-	vertical-align: middle;
-	font-size: 20px;
-	font-family: 'MedievalSharp', serif;
-	-webkit-user-select: none; /* Safari */        
-	-moz-user-select: none; /* Firefox */
-	-ms-user-select: none; /* IE10+/Edge */
-	user-select: none;
-	display: inline-block;
 }
 .buy {
 	position: relative;
@@ -178,10 +208,10 @@ body{
 	font-size: 20px;
 	font-family: 'MedievalSharp', serif;
 }
-#itemInformation, #informationMerchant {
+#itemInformation, #informationMerchant, #questInformation {
 	position: absolute;
 	left: 740px;
-	width: 230px;
+	width: 150px;
 	height: 50px;
 	background-color: #fef9b4;
 	border: 5px solid #886622;

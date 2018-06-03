@@ -53,6 +53,12 @@
 	</div>
 	
 	<div id="questStart" hidden>
+		<div id="questInformation" hidden>
+			<div class="triangleRight"></div>
+			<div class="innerTriangleRight"></div>
+			<div class="rectangleRightUp"></div>
+			<div class="rectangleRightDown"></div>
+		</div>
 		<br><h1 id="questStartQuest"></h1><br><br>
 		<b id="questStartName"></b><br>
 		<p id="questStartChat"></p><br><br>
@@ -60,8 +66,9 @@
 		<p id="questStartObjectives"></p><br>
 		<b>Quest Rewards</b><br>
 		<p id="questStartRewards"></p>
-		<div id="questStartGold"></div>&nbsp;&nbsp;&nbsp;&nbsp;
-		<div id="questStartXP"></div>
+		<div id="questStartGold"></div>&nbsp;&nbsp;
+		<div id="questStartXP"></div>&nbsp;&nbsp;
+		<div id="questStartItems"></div>
 		<div id="accept"onclick="Dom.quest.accept()">Accept</div>
 		<div id="decline"onclick="Dom.changeBook('questsPage', true)">Decline</div>
 	</div>
@@ -109,6 +116,7 @@
 		<polygon points ="0,0 0,50 100,50 130,25 100,0" style="fill:#d3d3d3;stroke:black;stroke-width:1" />
 	</svg>
 	
+	<!script src="itemdata.js"><!/script>
 	<script src="questdata.js"></script>
 	<script src="savedata.js"></script>
 	<script src="areadata.js"></script>

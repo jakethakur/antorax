@@ -244,6 +244,15 @@ Dom.merchant.displayInformation = function(y,array,num) {
 	document.getElementById("informationMerchant").innerHTML = "<div class='triangleLeft'></div><div class='innerTriangleLeft'></div>" + array[num].name;
 }
 
+Dom.quests.displayInformation = function(y,array,total){
+	console.log(array);
+	document.getElementById("questInformation").innerHTML = "";
+	document.getElementById("questInformation").hidden = false;
+	document.getElementById("questInformation").style.top = "342.5px";
+	document.getElementById("questInformation").style.left = 785-(total*35)+(y*70) +"px";
+	document.getElementById("questInformation").innerHTML = "<div class='rectangleRightUp'></div><div class='rectangleRightDown'></div><div class='triangleRight'></div><div class='innerTriangleRight'></div>" + array[y].name;
+}
+
 //ignore this
 function npcDomCode(){
 	Dom.quest.finish(quests.eaglecrestLoggingCamp[0]);
@@ -268,6 +277,21 @@ Dom.quest.start = function(quest) { // quest is passed in as parameter
 		}
 		document.getElementById("questStartGold").innerHTML = quest.rewards.gold;
 		document.getElementById("questStartXP").innerHTML = quest.rewards.xp;
+		console.log(quest.rewards.items);
+		document.getElementById("questStartItems").innerHTML = "";
+		for(var i = 0; i < quest.rewards.items.length; i++){
+			document.getElementById("questStartItems").innerHTML += "<img src=" + quest.rewards.items[i].image + " class='theseQuestOptions'></img>&nbsp;&nbsp;";
+		}
+		console.log(document.getElementById("questStartItems").innerHTML);
+		for(let x = 0; x < document.getElementsByClassName("theseQuestOptions").length; x++){
+			document.getElementsByClassName("theseQuestOptions")[x].onmouseover = function() {
+				Dom.quests.displayInformation(x, quest.rewards.items,document.getElementsByClassName("theseQuestOptions").length);
+			};
+			document.getElementsByClassName("theseQuestOptions")[x].onmouseleave = function() {
+				Dom.expand("questInformation");
+				//document.getElementById("informationMerchant").hidden = true;
+			}
+		}
 		Dom.currentlyDisplayed = quest;
 	}
 }

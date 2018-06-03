@@ -16,6 +16,28 @@ var quests = {
 			rewards: {
 				gold: 5,
 				xp: 10,
+				items: [
+					{
+						name: "helm",
+						image:"assets/items/helm.png",
+						stats: {},
+					},
+					{
+						name: "helm2",
+						image:"assets/items/helm2.png",
+						stats: {},
+					},
+					{
+						name: "helm",
+						image:"assets/items/helm.png",
+						stats: {},
+					},
+					{
+						name: "helm2",
+						image:"assets/items/helm2.png",
+						stats: {},
+					},
+				]
 			},
 			
 			onQuestStart: function() {
