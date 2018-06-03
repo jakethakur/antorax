@@ -276,26 +276,27 @@ Dom.quest.start = function(quest) { // quest is passed in as parameter
 			document.getElementById("questStartObjectives").innerHTML += quest.objectives[i] + "<br>";
 		}
 		if(quest.rewards.gold == 0){
-			document.getElementById("questStartGold").hidden = true;
-			console.log(document.getElementById("questStartGold"));
+			document.getElementById("questStartGold").style.display = "none";
+			document.getElementById("goldClass").style.display = "none";
 		}else{
-			document.getElementById("questStartGold").hidden = false;
 			document.getElementById("questStartGold").innerHTML = quest.rewards.gold;
 		}
-		document.getElementById("questStartXP").innerHTML = quest.rewards.xp;
-		console.log(quest.rewards.items);
+		if(quest.rewards.xp == 0){
+			document.getElementById("questStartXP").style.display = "none";
+			document.getElementById("xpClass").style.display = "none";
+		}else{
+			document.getElementById("questStartXP").innerHTML = quest.rewards.xp;
+		}
 		document.getElementById("questStartItems").innerHTML = "";
 		for(var i = 0; i < quest.rewards.items.length; i++){
 			document.getElementById("questStartItems").innerHTML += "<img src=" + quest.rewards.items[i].image + " class='theseQuestOptions'></img>&nbsp;&nbsp;";
 		}
-		console.log(document.getElementById("questStartItems").innerHTML);
 		for(let x = 0; x < document.getElementsByClassName("theseQuestOptions").length; x++){
 			document.getElementsByClassName("theseQuestOptions")[x].onmouseover = function() {
 				Dom.quests.displayInformation(x, quest.rewards.items,document.getElementsByClassName("theseQuestOptions").length);
 			};
 			document.getElementsByClassName("theseQuestOptions")[x].onmouseleave = function() {
 				Dom.expand("questInformation");
-				//document.getElementById("informationMerchant").hidden = true;
 			}
 		}
 		Dom.currentlyDisplayed = quest;

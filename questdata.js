@@ -15,7 +15,7 @@ var quests = {
 			//questRequirement: "address to quest here",
 			
 			rewards: {
-				gold: 0,
+				gold: 5,
 				xp: 10,
 				items: [
 					{
