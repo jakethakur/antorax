@@ -108,7 +108,6 @@ Dom.chat.purge = function() {
 // expand/collapse element
 Dom.expand = function(block) {
 	block = document.getElementById(block);
-		console.log(block);
 	if(block.hidden) {
 		block.hidden = false;
 	}
@@ -119,10 +118,11 @@ Dom.expand = function(block) {
 	if(block == activeQuestBox && Dom.quests.activeQuestArray.length == 0){
 		document.getElementById("activeQuestBox").style.textAlign = "center";
 		document.getElementById("activeQuestBox").innerText = "You have no active quests";
-	}
-	if(block == completedQuestBox && Dom.quests.completedQuestArray.length == 0){
+	}else if(block == completedQuestBox && Dom.quests.completedQuestArray.length == 0){
 		document.getElementById("completedQuestBox").style.textAlign = "center";
 		document.getElementById("completedQuestBox").innerText = "You have no completed quests";
+	}else if(block == itemInformation){
+		block.hidden = true;
 	}
 }
 
@@ -226,15 +226,18 @@ else {
 
 // display inventory information next to item
 Dom.inventory.displayInformation = function(y,array){
-	document.getElementById("itemInformation").innerHTML = "";
-	document.getElementById("itemInformation").hidden = false;
-	document.getElementById("itemInformation").style.marginTop = y;
-	document.getElementById("itemInformation").innerHTML = "<div class='triangleLeft'></div><div class='innerTriangleLeft'></div>" + array[0].name;
-	/*document.getElementById("itemInformation").innerHTML = "<div class='triangleLeft'></div><div class='innerTriangleLeft'></div>";
-	for(var i = 0; i < Object.keys(array[num].stats).length; i++) {
-		document.getElementById("itemInformation").innerHTML += "<br>";
-		document.getElementById("itemInformation").innerHTML += Object.keys(array[num].stats)[i] + ": " + array[num].stats[Object.keys(array[num].stats)[i]];
-	}*/
+	document.getElementById("itemInformation").hidden = true;
+	if(array[0].name != ""){
+		document.getElementById("itemInformation").innerHTML = "";
+		document.getElementById("itemInformation").hidden = false;
+		document.getElementById("itemInformation").style.marginTop = y;
+		document.getElementById("itemInformation").innerHTML = "<div class='triangleLeft'></div><div class='innerTriangleLeft'></div>" + array[0].name;
+		/*document.getElementById("itemInformation").innerHTML = "<div class='triangleLeft'></div><div class='innerTriangleLeft'></div>";
+		for(var i = 0; i < Object.keys(array[num].stats).length; i++) {
+			document.getElementById("itemInformation").innerHTML += "<br>";
+			document.getElementById("itemInformation").innerHTML += Object.keys(array[num].stats)[i] + ": " + array[num].stats[Object.keys(array[num].stats)[i]];
+		}*/
+	}
 }
 
 Dom.merchant.displayInformation = function(y,array,num) {
@@ -245,7 +248,6 @@ Dom.merchant.displayInformation = function(y,array,num) {
 }
 
 Dom.quests.displayInformation = function(y,array,total){
-	console.log(array);
 	document.getElementById("questInformation").innerHTML = "";
 	document.getElementById("questInformation").hidden = false;
 	document.getElementById("questInformation").style.top = "342.5px";

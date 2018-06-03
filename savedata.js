@@ -8,16 +8,6 @@ var Player = {
 				image: "",
 				stats: {}
 			},
-			{
-				name: "helm",
-				image:"assets/items/helm.png",
-				stats: {}
-			},
-			{
-				name: "helm2",
-				image:"assets/items/helm2.png",
-				stats: {}
-			}
 		],
 		chest: [
 			{
@@ -25,16 +15,6 @@ var Player = {
 				image: "",
 				stats: {}
 			},
-			{
-				name: "chest",
-				image:"assets/items/chest.png",
-				stats: {}
-			},
-			{
-				name: "chest2",
-				image:"assets/items/chest2.png",
-				stats: {}
-			}
 		],
 		greaves: [
 			{
@@ -42,16 +22,6 @@ var Player = {
 				image: "",
 				stats: {}
 			},
-			{
-				name: "greaves",
-				image:"assets/items/greaves.png",
-				stats: {}
-			},
-			{
-				name: "greaves2",
-				image:"assets/items/greaves2.png",
-				stats: {}
-			}
 		],
 		boots: [
 			{
@@ -59,20 +29,10 @@ var Player = {
 				image: "",
 				stats: {}
 			},
-			{
-				name: "boots",
-				image:"assets/items/boots.png",
-				stats: {}
-			},
-			{
-				name: "boots2",
-				image:"assets/items/boots2.png",
-				stats: {}
-			}
 		],
 		weapon: [
 		{
-			name: "Weapon slot empty",
+			name: "",
 			image: "",
 			stats: {}
 		}
