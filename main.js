@@ -172,7 +172,7 @@ var map = {
         // check first layer only and return TRUE if any tile is water 
 		// TBD : move this to areadata.js at some point pls
         var tile = this.getTile(0, col, row);
-        var isWater = tile === 37 || tile === 41 || tile === 46 ||tile === 61 || tile === 57 || tile === 53;
+        var isWater = tile === 50 || tile === 51 || tile === 52 ||tile === 59 || tile === 63 || tile === 67;
 		return isWater;
 	},
 };
@@ -380,6 +380,12 @@ Game.loadArea = function (areaName) {
 	// map
 	Object.assign(map, areas[areaName].mapData);
 	
+	// camera
+	if(this.camera != undefined) {
+		this.camera.maxX = map.cols * map.tsize - canvas.width;
+		this.camera.maxY = map.rows * map.tsize - canvas.height;
+	}
+	
 	// quest npcs
 	this.questNPCs = [];
 	for(var i = 0; i < areas[areaName].questNPCs.length; i++) {
@@ -431,6 +437,8 @@ Game.init = function () {
 		baseSpeed: 172, // base pixels per second
 		waterSpeed: 64, // speed when in water
 	});
+	
+	this.camera = undefined;
 	
 	this.loadArea("tutorial");
 	
@@ -532,6 +540,7 @@ Game.update = function (delta) {
     this.camera.update();
 	
 	// check collision with quest npcs
+	// tbd: make own function, and move to be called by hero.move (inefficient rn)
 	for(var i = 0; i < this.questNPCs.length; i++) {
 		// doesn't currently check if the player's level is too low to accept the quest
 		
@@ -553,15 +562,20 @@ Game.update = function (delta) {
 	for(var i = 0; i < this.merchants.length; i++) {
         if (this.hero.isTouching(this.merchants[i]) && Dom.currentlyDisplayed === "") {
 			Dom.merchant.page(this.merchants[i].name, this.merchants[i].greetingText, this.merchants[i].items);
-			//console.log("oui");
 			//Dom.chat.insert("<strong>" + this.merchants[i].name + ": " + "</strong>" + this.merchants[i].greetingText, 100); (done in dom)
 		}
     }
 	
 	// check collision with area teleports
 	for(var i = 0; i < this.areaTeleports.length; i++) {
+		// give area teleports a screenX and Y (should be turned into own function)
+		this.areaTeleports[i].screenX = (this.areaTeleports[i].x - this.areaTeleports[i].width / 2) - this.camera.x;
+		this.areaTeleports[i].screenY = (this.areaTeleports[i].y - this.areaTeleports[i].height / 2) - this.camera.y;
+		
         if (this.hero.isTouching(this.areaTeleports[i])) {
 			// teleport to new area
+			this.loadArea("eaglecrestLoggingCamp");
+			
 			//console.log("oui");
 		}
     }
@@ -638,8 +652,6 @@ Game.drawHitboxes = function () {
 	
 	// area teleport hitboxes
 	for(var i = 0; i < this.areaTeleports.length; i++) {
-		this.areaTeleports[i].screenX = (this.areaTeleports[i].x - this.areaTeleports[i].width / 2) - this.camera.x;
-		this.areaTeleports[i].screenY = (this.areaTeleports[i].y - this.areaTeleports[i].height / 2) - this.camera.y;
 		this.ctx.strokeRect(this.areaTeleports[i].screenX - this.areaTeleports[i].width / 2, this.areaTeleports[i].screenY - this.areaTeleports[i].height / 2, this.areaTeleports[i].width, this.areaTeleports[i].height);
 	}
 }
@@ -742,7 +754,7 @@ Game.render = function () {
     //this._drawGrid();
 	
 	// draw hitboxes (debug)
-	this.drawHitboxes();
+	//this.drawHitboxes();
 	
 	// give player coords (debug)
 	//this.coordinates(this.hero);
