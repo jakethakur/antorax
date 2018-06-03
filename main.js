@@ -169,9 +169,10 @@ var map = {
         var col = Math.floor(x / this.tsize);
         var row = Math.floor(y / this.tsize);
 
-        // check first layer only and return TRUE if any tile is fully water (26-29)
+        // check first layer only and return TRUE if any tile is water 
+		// TBD : move this to areadata.js at some point pls
         var tile = this.getTile(0, col, row);
-        var isWater = tile === 26 || tile === 27 || tile === 28 || tile === 29;
+        var isWater = tile === 37 || tile === 41 || tile === 46 ||tile === 61 || tile === 57 || tile === 53;
 		return isWater;
 	},
 };
@@ -741,7 +742,7 @@ Game.render = function () {
     //this._drawGrid();
 	
 	// draw hitboxes (debug)
-	//this.drawHitboxes();
+	this.drawHitboxes();
 	
 	// give player coords (debug)
 	//this.coordinates(this.hero);
