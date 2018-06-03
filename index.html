@@ -37,18 +37,39 @@
 	
 	<div id="settingsPage" hidden>
 		<div id="settingBookmark">
-		Bookmarks position:
+			Bookmarks position:
 			&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
 			<input type="radio" id="bottom" name="bookmarksPosition" onclick="Dom.settings.bookmarkPosition()">Bottom
 			&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
 			<input type="radio" id="right" name="bookmarksPosition" onclick="Dom.settings.bookmarkPosition()">Right
 		</div>
 		<div id="settingMusic">
-		Play music:
+			Play music:
 			&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
 			<input type="radio" name="musicOnOff" onclick="Game.playMusic()">Yes
 			&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
 			<input type="radio" name="musicOnOff" checked="true" onclick="Game.stopMusic()">No
+		</div>
+		<div id="settingHitboxes">
+			Show hitboxes:
+			&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+			<input type="radio" name="hitboxOnOff" onclick="Game.drawHitboxes()">Yes
+			&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+			<input type="radio" name="hitboxOnOff" checked="true" onclick="">No
+		</div>
+		<div id="settingCoords">
+			Show co-ordinates:
+			&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+			<input type="radio" name="coordsOnOff" onclick="Game.coordinates(Game.hero)">Yes
+			&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+			<input type="radio" name="coordsOnOff" checked="true" onclick="">No
+		</div>
+		<div id="settingGrid">
+			Show grid:
+			&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+			<input type="radio" name="gridOnOff" onclick="Game._drawGrid()">Yes
+			&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+			<input type="radio" name="gridOnOff" checked="true" onclick="">No
 		</div>
 	</div>
 	

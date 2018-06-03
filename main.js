@@ -612,6 +612,9 @@ Game._drawLayer = function (layer) {
 };
 
 Game._drawGrid = function () {
+	// stroke colour
+	this.ctx.strokeStyle="#0000ff";
+	
     var width = map.cols * map.tsize;
     var height = map.rows * map.tsize;
     var x, y;

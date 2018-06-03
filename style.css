@@ -41,14 +41,14 @@ body{
 #questStartQuest, #questFinishQuest, #questStartName, #questFinishName, #questStartChat, #questFinishChat, #questStartObjectives, #questStartRewards, #merchantPageTitle, #merchantPageChat, #merchantPageOptions {
 	display: inline;
 }
-#settingBookmark, #settingMusic {
+#settingBookmark, #settingMusic, #settingHitboxes, #settingCoords, #settingGrid {
 	line-height: 30px;
 	text-align: center;
 	vertical-align: middle;
 	font-size: 20px;
 	font-family: 'MedievalSharp', serif;
 }
-#activeQuestBox, #possibleQuestBox, #completedQuestBox, #allQuestBox, #activeQuests, #possibleQuests, #completedQuests, #allQuests, #settingBookmark, #settingMusic {
+#activeQuestBox, #possibleQuestBox, #completedQuestBox, #allQuestBox, #activeQuests, #possibleQuests, #completedQuests, #allQuests, #settingBookmark, #settingMusic, #settingHitboxes, #settingCoords, #settingGrid {
 	position: relative;
 	width: 511px;
 	height: 50px;
@@ -116,7 +116,7 @@ body{
 	border-left: 20px solid #fef9b4;
 	z-index: 2;
 }
-#settingBookmark, #settingMusic, #activeQuestBox, #completedQuestBox, #possibleQuestBox, #allQuestBox {
+#settingBookmark, #settingMusic, #settingHitboxes, #settingCoords, #settingGrid, #activeQuestBox, #completedQuestBox, #possibleQuestBox, #allQuestBox {
 	width: 501px;
 	height: 40px;
 	text-align: left;
