@@ -88,9 +88,12 @@ Dom.inventory.changeEquipment = function(array,equipmentType) {
 	}
 }
 
+document.getElementById("dot").innerHTML = 0;
 // insert text in chat page
 Dom.chat.insert = function(text, delay) {
 	document.getElementById("dot").hidden = false;
+	document.getElementById("dot").innerHTML = parseInt(document.getElementById("dot").innerHTML) + 1;
+	parseInt(document.getElementById("dot").innerHTML) + 1
 	this.contents.push(text);
 	setTimeout(function() {
 		chatPage.innerHTML = '<p>' + text + '</p>' + chatPage.innerHTML;
@@ -170,8 +173,8 @@ Dom.settings.bookmarkPosition = function() {
 			left: 875px;
 		}
 		#dot{
-			top: 648px;
-			right: 527px;
+			top: 645px;
+			right: 525px;
 		}
 		`;
 		document.head.appendChild( css );
