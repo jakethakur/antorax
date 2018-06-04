@@ -38,7 +38,7 @@ body{
 	-ms-user-select: none; /* IE10+/Edge */
 	user-select: none;
 }
-#questStartQuest, #questFinishQuest, #questStartName, #questFinishName, #questStartChat, #questFinishChat, #questStartObjectives, #questStartRewards, #merchantPageTitle, #merchantPageChat, #merchantPageOptions {
+#questStartQuest, #questFinishQuest, #questStartName, #questFinishName, #questStartChat, #questFinishChat, #questStartObjectives, #questStartRewards, #questFinishRewards, #merchantPageTitle, #merchantPageChat, #merchantPageOptions {
 	display: inline;
 }
 #settingBookmark, #settingMusic, #settingHitboxes, #settingCoords, #settingGrid {
@@ -156,7 +156,7 @@ body{
 	background-image: url("./assets/icons/gold.png");
 }
 
-#questStartItems{
+#questStartItems, #questFinishItems{
 	display: inline-block;
 }
 
@@ -225,7 +225,7 @@ body{
 	font-size: 20px;
 	font-family: 'MedievalSharp', serif;
 }
-#itemInformation, #informationMerchant, #questInformation {
+#itemInformation, #informationMerchant, #questInformation, #questFinishInformation {
 	position: absolute;
 	left: 740px;
 	width: 150px;
@@ -256,10 +256,11 @@ body{
 	float: left;
 }
 #accept{
-	top: 60px;
+	top: 20px;
 	left: 20px;
 }
 #decline{
+	bottom: 40px;
 	left: 270px;
 }
 #close{

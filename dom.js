@@ -280,11 +280,21 @@ Dom.merchant.displayInformation = function(y,array,num) {
 }
 
 Dom.quests.displayInformation = function(y,array,total){
+	console.log("yes");
 	document.getElementById("questInformation").innerHTML = "";
 	document.getElementById("questInformation").hidden = false;
 	document.getElementById("questInformation").style.top = document.getElementById("questStartGold").getBoundingClientRect().top+"px";
 	document.getElementById("questInformation").style.left = 785-(total*35)+(y*70) +"px";
 	document.getElementById("questInformation").innerHTML = "<div class='rectangleRightUp'></div><div class='rectangleRightDown'></div><div class='triangleRight'></div><div class='innerTriangleRight'></div>" + array[y].name;
+}
+
+Dom.quests.displayFinishInformation = function(y,array,total){
+	console.log("yes");
+	document.getElementById("questFinishInformation").innerHTML = "";
+	document.getElementById("questFinishInformation").hidden = false;
+	document.getElementById("questFinishInformation").style.top = document.getElementById("questFinishGold").getBoundingClientRect().top+"px";
+	document.getElementById("questFinishInformation").style.left = 785-(total*35)+(y*70) +"px";
+	document.getElementById("questFinishInformation").innerHTML = "<div class='rectangleRightUp'></div><div class='rectangleRightDown'></div><div class='triangleRight'></div><div class='innerTriangleRight'></div>" + array[y].name;
 }
 
 //ignore this
@@ -303,8 +313,8 @@ Dom.currentlyDisplayed = ""; // the currently displayed quest, merchant, etc. (s
 Dom.quest.start = function(quest) { // quest is passed in as parameter
 	if(Dom.changeBook("questStart", false)) {
 		document.getElementById("questStartQuest").innerHTML = quest.quest;
-		document.getElementById("questStartName").innerHTML = quest.name;
-		document.getElementById("questStartChat").innerHTML = quest.chat;
+		document.getElementById("questStartName").innerHTML = quest.startName;
+		document.getElementById("questStartChat").innerHTML = quest.startChat;
 		document.getElementById("questStartObjectives").innerHTML = "";
 		for(var i = 0; i < quest.objectives.length; i++){
 			document.getElementById("questStartObjectives").innerHTML += quest.objectives[i] + "<br>";
@@ -341,10 +351,32 @@ Dom.quest.start = function(quest) { // quest is passed in as parameter
 Dom.quest.finish = function(quest){
 	Dom.changeBook("questFinish", false);
 	document.getElementById("questFinishQuest").innerHTML = quest.quest;
-	document.getElementById("questFinishName").innerHTML = quest.name;
-	document.getElementById("questFinishChat").innerHTML = quest.chat;
-	document.getElementById("questFinishGold").innerHTML = quest.rewards.gold;
-	document.getElementById("questFinishXP").innerHTML = quest.rewards.xp;
+	document.getElementById("questFinishName").innerHTML = quest.finishName;
+	document.getElementById("questFinishChat").innerHTML = quest.finishChat;
+	if(quest.rewards.gold == 0){
+		document.getElementById("questFinishGold").style.display = "none";
+		document.getElementById("goldClass").style.display = "none";
+	}else{
+		document.getElementById("questFinishGold").innerHTML = quest.rewards.gold;
+	}
+	if(quest.rewards.xp == 0){
+		document.getElementById("questFinishXP").style.display = "none";
+		document.getElementById("xpClass").style.display = "none";
+	}else{
+		document.getElementById("questFinishXP").innerHTML = quest.rewards.xp;
+	}
+	document.getElementById("questStartItems").innerHTML = "";
+	for(var i = 0; i < quest.rewards.items.length; i++){
+		document.getElementById("questFinishItems").innerHTML += "<img src=" + quest.rewards.items[i].image + " class='theseQuestOptions'></img>&nbsp;&nbsp;";
+	}
+	for(let x = 0; x < document.getElementsByClassName("theseQuestOptions").length; x++){
+		document.getElementsByClassName("theseQuestOptions")[x].onmouseover = function() {
+			Dom.quests.displayFinishInformation(x, quest.rewards.items,document.getElementsByClassName("theseQuestOptions").length);
+		};
+		document.getElementsByClassName("theseQuestOptions")[x].onmouseleave = function() {
+			Dom.expand("questFinishInformation");
+		}
+	}
 	Player.gold += parseInt(quest.rewards.gold);
 	Player.xp += parseInt(quest.rewards.xp);
 	Dom.inventory.updateGold();

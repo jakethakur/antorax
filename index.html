@@ -95,13 +95,20 @@
 	</div>
 	
 	<div id="questFinish" hidden>
+		<div id="questFinishInformation" hidden>
+			<div class="triangleRight"></div>
+			<div class="innerTriangleRight"></div>
+			<div class="rectangleRightUp"></div>
+			<div class="rectangleRightDown"></div>
+		</div>
 		<br><h1 id="questFinishQuest"></h1><br><br>
 		<b id="questFinishName"></b><br>
 		<p id="questFinishChat"></p><br><br>
 		<b>Quest Rewards</b><br>
 		<p id="questFinishRewards"></p>
-		<div id="questFinishGold"></div>&nbsp;&nbsp;&nbsp;&nbsp;
-		<div id="questFinishXP"></div>
+		<div id="questFinishGold"></div><span id="goldClass">&nbsp;&nbsp;</span>
+		<div id="questFinishXP"></div><span id="xpClass">&nbsp;&nbsp;</span>
+		<div id="questFinishItems"></div>
 		<center><div id="acceptReward"onclick="Dom.quest.acceptRewards()">Complete Quest</div></center>
 	</div>
 	
