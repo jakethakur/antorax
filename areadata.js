@@ -28,24 +28,9 @@ var areas = {
 				greetingText: "Would you like to buy anything?",
 				buyText: "Come back again some time.",
 				items: [
-					{
-						name: "Basic Sword",
-						cost: 3,
-						image: "assets/items/sword.png",
-						stats: {}
-					},
-					{
-						name: "Basic Staff",
-						cost: 3,
-						image:"assets/items/staff.png",
-						stats: {}
-					},
-					{
-						name: "Basic Bow",
-						cost: 3,
-						image:"assets/items/bow.png",
-						stats: {}
-					},
+					items.weapon[2],
+					items.weapon[3],
+					items.weapon[4]
 				],
 			},
 		],

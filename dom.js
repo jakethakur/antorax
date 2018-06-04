@@ -380,6 +380,7 @@ Dom.quest.finish = function(quest){
 	Player.gold += parseInt(quest.rewards.gold);
 	Player.xp += parseInt(quest.rewards.xp);
 	Dom.inventory.updateGold();
+	Dom.quest.give(quest.rewards.items[0]);
 	Dom.currentlyDisplayed = quest;
 }
 
@@ -498,11 +499,19 @@ Dom.merchant.buy = function(item){
 	if(Player.gold >= item.cost){
 		Player.gold -= item.cost;
 		Dom.inventory.updateGold();
-		Player.inventory.weapon.push(item);
+		Dom.quest.give(item);
 	}
 	else {
 		alert("You don't have sufficient funds to buy that item.");
 	}
+}
+
+Dom.quest.give = function(item){
+	if(item.type == "helm"){Player.inventory.helm.push(item);}
+	if(item.type == "chest"){Player.inventory.chest.push(item);}
+	if(item.type == "greaves"){Player.inventory.greaves.push(item);}
+	if(item.type == "boots"){Player.inventory.boots.push(item);}
+	if(item.type == "weapon"){Player.inventory.weapon.push(item);}
 }
 
 Dom.quests.allQuestNum = 18;
