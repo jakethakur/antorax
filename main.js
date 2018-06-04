@@ -34,6 +34,10 @@ Loader.getImage = function (key) {
     return (key in this.images) ? this.images[key] : null;
 };
 
+Loader.wipeImages = function() {
+	this.images = {};
+}
+
 //
 // Keyboard handler
 //
@@ -90,12 +94,7 @@ Game.run = function (context) {
     this.ctx = context;
     this._previousElapsed = 0;
 
-    var p = this.load();
-	
-    Promise.all(p).then(function (loaded) {
-        this.init();
-        window.requestAnimationFrame(this.tick);
-    }.bind(this));
+    this.loadArea("tutorial");
 };
 
 //calculate current tick length and update/render canvas accordingly
@@ -366,7 +365,11 @@ class Merchant extends Character {
 
 // load images
 Game.load = function () {
+	// wipe previously loaded images
+	Loader.wipeImages();
+	
 	this.ctx.imageSmoothingEnabled = false;
+	
     return [
         Loader.loadImage('tiles', './assets/tilemap/tilemap.png'),
         Loader.loadImage('hero', './assets/player/archer.png'),
@@ -377,46 +380,58 @@ Game.load = function () {
 
 // pull data from areadata.js
 Game.loadArea = function (areaName) {
-	// map
-	Object.assign(map, areas[areaName].mapData);
+	// load images
+    var p = this.load();
+    Promise.all(p).then(function (loaded) {
+		// map
+		Object.assign(map, areas[areaName].mapData);
+		
+		// recalibrate camera (for areas other than first area)
+		if(this.camera != undefined) {
+			this.camera.maxX = map.cols * map.tsize - canvas.width;
+			this.camera.maxY = map.rows * map.tsize - canvas.height;
+		}
+		
+		// quest start npcs
+		this.questStartNPCs = [];
+		for(var i = 0; i < areas[areaName].questStartNPCs.length; i++) {
+			areas[areaName].questStartNPCs[i].map = map;
+			this.questStartNPCs.push(new QuestNPC(areas[areaName].questStartNPCs[i]));
+		}
+		
+		// quest finish npcs
+		this.questFinishNPCs = [];
+		for(var i = 0; i < areas[areaName].questFinishNPCs.length; i++) {
+			areas[areaName].questFinishNPCs[i].map = map;
+			this.questFinishNPCs.push(new QuestNPC(areas[areaName].questFinishNPCs[i]));
+		}
+		
+		// merchants
+		this.merchants = [];
+		for(var i = 0; i < areas[areaName].merchants.length; i++) {
+			areas[areaName].merchants[i].map = map;
+			this.merchants.push(new Merchant(areas[areaName].merchants[i]));
+		}
+		
+		// area teleports
+		this.areaTeleports = [];
+		for(var i = 0; i < areas[areaName].areaTeleports.length; i++) {
+			areas[areaName].areaTeleports[i].map = map;
+			this.areaTeleports.push(new AreaTeleport(areas[areaName].areaTeleports[i]));
+		}
+		
+		
+        this.init();
+		
+		// player x and y
+		this.hero.x = areas[areaName].player.x;
+		this.hero.y = areas[areaName].player.y;
+		
+		
+        window.requestAnimationFrame(this.tick);
+		
+    }.bind(this));
 	
-	// camera
-	if(this.camera != undefined) {
-		this.camera.maxX = map.cols * map.tsize - canvas.width;
-		this.camera.maxY = map.rows * map.tsize - canvas.height;
-	}
-	
-	// quest start npcs
-	this.questStartNPCs = [];
-	for(var i = 0; i < areas[areaName].questStartNPCs.length; i++) {
-		areas[areaName].questStartNPCs[i].map = map;
-		this.questStartNPCs.push(new QuestNPC(areas[areaName].questStartNPCs[i]));
-	}
-	
-	// quest finish npcs
-	this.questFinishNPCs = [];
-	for(var i = 0; i < areas[areaName].questFinishNPCs.length; i++) {
-		areas[areaName].questFinishNPCs[i].map = map;
-		this.questFinishNPCs.push(new QuestNPC(areas[areaName].questFinishNPCs[i]));
-	}
-	
-	// merchants
-	this.merchants = [];
-	for(var i = 0; i < areas[areaName].merchants.length; i++) {
-		areas[areaName].merchants[i].map = map;
-		this.merchants.push(new Merchant(areas[areaName].merchants[i]));
-	}
-	
-	// area teleports
-	this.areaTeleports = [];
-	for(var i = 0; i < areas[areaName].areaTeleports.length; i++) {
-		areas[areaName].areaTeleports[i].map = map;
-		this.areaTeleports.push(new AreaTeleport(areas[areaName].areaTeleports[i]));
-	}
-	
-	// player x and y
-	this.hero.x = areas[areaName].player.x;
-	this.hero.y = areas[areaName].player.y;
 }
 
 Game.init = function () {
@@ -445,7 +460,7 @@ Game.init = function () {
 	
 	this.camera = undefined;
 	
-	this.loadArea("tutorial");
+	//this.loadArea("tutorial");
 	
     this.camera = new Camera(map, canvas.width, canvas.height);
 	
