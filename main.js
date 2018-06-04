@@ -757,14 +757,16 @@ Game.render = function () {
     if(document.getElementById("gridOn").checked){
 	this._drawGrid();
     }
+	
     // draw hitboxes (debug)
-    console.log(document.getElementById("hitboxesOn").checked)
     if(document.getElementById("hitboxesOn").checked){
 	this.drawHitboxes();
     }
-	// give player coords (debug)
+	
+    // show player coords (debug)
     if(document.getElementById("coordsOn").checked){
 	this.coordinates(this.hero);
     }
-	//this.haha();
+	
+    //this.haha(); // test
 };
