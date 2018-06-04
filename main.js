@@ -754,7 +754,7 @@ Game.render = function () {
     //this._drawLayer(1);
 
     // draw map grid (debug)
-    if(gridOn == checked){
+    if(document.getElementById("gridOn").checked){
 	this._drawGrid();
     }
     // draw hitboxes (debug)
@@ -763,7 +763,7 @@ Game.render = function () {
 	this.drawHitboxes();
     }
 	// give player coords (debug)
-    if(coordsOn == checked){
+    if(document.getElementById("coordsOn").checked){
 	this.coordinates(this.hero);
     }
 	//this.haha();
