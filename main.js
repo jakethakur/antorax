@@ -758,7 +758,7 @@ Game.render = function () {
 	this._drawGrid();
     }
 	// draw hitboxes (debug)
-    if(hitboxesOn == checked){
+    if(document.getElementById("hitboxesOn").checked){
 	this.drawHitboxes();
     }
 	// give player coords (debug)
