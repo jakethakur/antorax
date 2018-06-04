@@ -31,11 +31,11 @@ var Player = {
 			},
 		],
 		weapon: [
-		{
-			name: "",
-			image: "",
-			stats: {}
-		}
+			{
+				name: "",
+				image: "",
+				stats: {}
+			},
 			/*{
 				name: "",
 				image: "",
@@ -66,6 +66,6 @@ var Player = {
 				image:"assets/items/bow.png",
 				stats: {}
 			}*/
-		]
-	}
+		],
+	},
 };

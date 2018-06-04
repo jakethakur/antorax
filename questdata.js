@@ -10,6 +10,26 @@ var quests = {
 				"Speak to <strong>Marshall Teper</strong> at the Eaglecrest Logging Camp.",
 			],
 			
+			conditions: [
+				Player.inventory.weapon.length > 1,
+			],
+			
+			isCompleted: function() {
+				var completed = []; // contains true or false for all of the objectives, with the last element being if the quest is ready to complete
+				
+				// true or falses for each objective (apart from the turn-in objective)
+				completed.push((Player.inventory.weapon.length > 1) ? true : false);
+				
+				var finished = true
+				for(var i = 0; i < completed.length; i++) {
+					if(!completed) {
+						finished = false;
+					}
+				}
+				
+				completed.push(finished);
+			},
+			
 			howToStart: "Speak to the Cart Driver.",
 			levelRequirement: 1,
 			//questRequirement: "address to quest here",

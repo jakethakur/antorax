@@ -1,8 +1,7 @@
 var areas = {
 	tutorial: {
-		questNPCs: [
+		questStartNPCs: [
 			{
-				//map: map,
 				x: 2070,
 				y: 340,
 				width: 92,
@@ -15,9 +14,11 @@ var areas = {
 			},
 		],
 		
+		questFinishNPCs: [
+		],
+		
 		merchants: [
 			{
-				//map: map,
 				x: 1100,
 				y: 400,
 				width: 90,
@@ -79,7 +80,21 @@ var areas = {
 	
 	
 	eaglecrestLoggingCamp: {
-		questNPCs: [
+		questStartNPCs: [
+		],
+		
+		questFinishNPCs: [
+			{
+				x: 500,
+				y: 500,
+				width: 92,
+				height: 100,
+				image: "driver",
+				quest: quests.eaglecrestLoggingCamp[0],
+				name: "Marshall Teper",
+				questProgressText: "Get on with your work!",
+				questCompleteText: "There's lots of work still to be done.",
+			},
 		],
 		
 		merchants: [
