@@ -36,9 +36,13 @@ Dom.changeBook = function(page, override) {
 		document.getElementById(page).hidden = false;
 		
 		if(page == "chatPage"){
+			if(chatPageString == ""){
+				chatPage.innerHTML = "<br>" + chatPageStringOld;
+			}
 			document.getElementById("dot").hidden = true;
 			document.getElementById("dot").innerHTML = 0;
-			chatPageStringOld = document.getElementById("chatPage").innerHTML;
+			chatPageStringOld = chatPageString + chatPageStringOld;
+			chatPageString = "";
 		}
 		
 		if(override) {
@@ -101,10 +105,13 @@ Dom.chat.insert = function(text, delay) {
 	}
 	this.contents.push(text);
 	setTimeout(function() {
-		var i = chatPage.innerHTML;
-		chatPage.innerHTML = '<p class="red">' + text + '</p>';
-		chatPage.innerHTML += chatPageString;
-		chatPageString = "<p class='red'>" + text + "</p>" + chatPageString;
+		chatPageString = text + "<br><br>" + chatPageString;
+		chatPage.innerHTML = "<br>" + chatPageString;
+		if(chatPageStringOld != 0){chatPage.innerHTML += '---------------------New Messages---------------------';}
+		chatPage.innerHTML += "</p>" + chatPageStringOld;
+		if(chatPage.hidden == false){
+			Dom.changeBook("chatPage",true);
+		}
 		this.length++;
 		if (this.length >= 10000) { //check chat isn't too big; if it is then purge it. 10,000 is an arbitrary value; maybe change?
 			this.purge();
