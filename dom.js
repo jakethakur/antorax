@@ -35,6 +35,10 @@ Dom.changeBook = function(page, override) {
 		this.elements.merchantPage.hidden = true;
 		document.getElementById(page).hidden = false;
 		
+		if(page == "chatPage"){
+			document.getElementById("dot").hidden = true;
+		}
+		
 		if(override) {
 			this.currentlyDisplayed = ""; // reset current display if it is overriden
 		}
@@ -86,6 +90,7 @@ Dom.inventory.changeEquipment = function(array,equipmentType) {
 
 // insert text in chat page
 Dom.chat.insert = function(text, delay) {
+	document.getElementById("dot").hidden = false;
 	this.contents.push(text);
 	setTimeout(function() {
 		chatPage.innerHTML = '<p>' + text + '</p>' + chatPage.innerHTML;
@@ -163,6 +168,10 @@ Dom.settings.bookmarkPosition = function() {
 		}
 		#settingsImage{
 			left: 875px;
+		}
+		#dot{
+			top: 648px;
+			right: 527px;
 		}
 		`;
 		document.head.appendChild( css );
