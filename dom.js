@@ -269,11 +269,6 @@ Dom.inventory.displayInformation = function(y,array){
 		document.getElementById("itemInformation").hidden = false;
 		document.getElementById("itemInformation").style.marginTop = y;
 		document.getElementById("itemInformation").innerHTML = "<div class='triangleLeft'></div><div class='innerTriangleLeft'></div>" + array[0].name;
-		/*document.getElementById("itemInformation").innerHTML = "<div class='triangleLeft'></div><div class='innerTriangleLeft'></div>";
-		for(var i = 0; i < Object.keys(array[num].stats).length; i++) {
-			document.getElementById("itemInformation").innerHTML += "<br>";
-			document.getElementById("itemInformation").innerHTML += Object.keys(array[num].stats)[i] + ": " + array[num].stats[Object.keys(array[num].stats)[i]];
-		}*/
 	}
 }
 
@@ -370,11 +365,8 @@ Dom.quest.accept = function(){
 }
 
 Dom.quest.acceptRewards = function(){
-	console.log(Dom.currentlyDisplayed);
 	for(var i = 0; i < Dom.quests.activeQuestArray.length; i++){
-		console.log(Dom.currentlyDisplayed);
 		if(Dom.quests.activeQuestArray[i] == Dom.currentlyDisplayed.quest){
-			console.log("yes");
 			Dom.quests.activeQuestArray.splice(i,1);
 			Dom.quests.activeQuestUseArray.splice(i,1);
 		}
@@ -402,7 +394,6 @@ Dom.quests.activeQuests = function(quest){
 		Dom.quests.activeQuestArray.push(quest.quest);
 		Dom.quests.activeQuestUseArray.push(quest);
 	}
-	console.log(Dom.quests.activeQuestArray);
 	document.getElementById("activeQuestBox").style.textAlign = "left";
 	document.getElementById("activeQuestBox").innerText = "";
 	for(var x = 0; x < Dom.quests.activeQuestArray.length; x++){
@@ -454,7 +445,6 @@ Dom.merchant.page = function(title,greeting,options){
 	document.getElementById("merchantPageOptions").innerHTML = "";
 	document.getElementById("merchantPageBuy").innerHTML = "";
 	for(let i = 0; i < options.length; i++){
-		//document.getElementById("merchantPageOptions").innerHTML += "<img src='./assets/items/sword.png' style='border: 5px solid #886622;' onmouseover='Dom.merchant.displayInformation(" + i,options,i + ")'onmouseleave='hideInformationMerchant()'></img><br><br>";
 		document.getElementById("merchantPageOptions").innerHTML += "<img src=" + options[i].image + " class='theseOptions' style='border: 5px solid #886622;'></img><br><br>";
 		document.getElementById("merchantPageBuy").innerHTML += "<div class='buy'>Buy for: " + options[i].cost + " gold</div><br>";
 		for(let x = 0; x < document.getElementsByClassName("buy").length; x++){
@@ -468,7 +458,6 @@ Dom.merchant.page = function(title,greeting,options){
 			};
 			document.getElementsByClassName("theseOptions")[x].onmouseleave = function() {
 				Dom.expand("informationMerchant");
-				//document.getElementById("informationMerchant").hidden = true;
 			}
 		}
 	}
@@ -497,7 +486,6 @@ for(var i = 0; i < Object.keys(quests).length; i++){
 		//document.getElementById("allQuestBox").innerHTML += "<br>";
 		Dom.quests.allQuestNum += 18;
 		Dom.quests.allQuestString = JSON.stringify(Dom.quests.allQuestNum)+"px";
-		console.log(Dom.quests.allQuestString);
 		document.getElementById("allQuestBox").style.height = Dom.quests.allQuestString;
 	}
 }
