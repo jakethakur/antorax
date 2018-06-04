@@ -287,7 +287,7 @@ Dom.merchant.displayInformation = function(y,array,num) {
 Dom.quests.displayInformation = function(y,array,total){
 	document.getElementById("questInformation").innerHTML = "";
 	document.getElementById("questInformation").hidden = false;
-	document.getElementById("questInformation").style.top = "342.5px";
+	document.getElementById("questInformation").style.top = document.getElementById("questStartGold").getBoundingClientRect().top+"px";
 	document.getElementById("questInformation").style.left = 785-(total*35)+(y*70) +"px";
 	document.getElementById("questInformation").innerHTML = "<div class='rectangleRightUp'></div><div class='rectangleRightDown'></div><div class='triangleRight'></div><div class='innerTriangleRight'></div>" + array[y].name;
 }

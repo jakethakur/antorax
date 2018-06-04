@@ -1,4 +1,4 @@
-items: {
+var items = {
 	helm: [
 		{
 			name: "helm",
