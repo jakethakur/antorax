@@ -171,7 +171,7 @@ body{
 }
 
 #dot {
-	line-height: 13px;;
+	line-height: 15px;
 	vertical-align: middle;
 	text-align: center;
 	font-size: 10px;
@@ -181,6 +181,10 @@ body{
 	width: 13px;
 	background-color: #ff0000;
 	border-radius: 50%;
+	-webkit-user-select: none; /* Safari */        
+	-moz-user-select: none; /* Firefox */
+	-ms-user-select: none; /* IE10+/Edge */
+	user-select: none;
 }
 
 #questStartGold, #questStartXP, #questFinishGold, #questFinishXP{
@@ -289,10 +293,4 @@ body{
 #settingsImage {
 	background-image: url("./assets/icons/settings.png");
 	width: 38px;
-}
-.black{
-	color: black;
-}
-.red{
-	color: red;
 }

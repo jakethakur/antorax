@@ -100,14 +100,20 @@ document.getElementById("dot").innerHTML = 0;
 // insert text in chat page
 Dom.chat.insert = function(text, delay) {
 	if(chatPage.hidden){
-		document.getElementById("dot").hidden = false;
-		document.getElementById("dot").innerHTML = parseInt(document.getElementById("dot").innerHTML) + 1;
+		if(document.getElementById("dot").innerHTML != "<b>...</b>"){
+			document.getElementById("dot").hidden = false;
+			document.getElementById("dot").innerHTML = parseInt(document.getElementById("dot").innerHTML) + 1;
+			if(parseInt(document.getElementById("dot").innerHTML) > 99){
+				document.getElementById("dot").innerHTML = "<b>...</b>";
+				document.getElementById("dot").style.lineHeight = "7.5px";
+			}
+		}
 	}
 	this.contents.push(text);
 	setTimeout(function() {
 		chatPageString = text + "<br><br>" + chatPageString;
 		chatPage.innerHTML = "<br>" + chatPageString;
-		if(chatPageStringOld != 0){chatPage.innerHTML += '---------------------New Messages---------------------';}
+		if(chatPageStringOld != 0){chatPage.innerHTML += '-------------------- <b>New Messages</b> --------------------';}
 		chatPage.innerHTML += "</p>" + chatPageStringOld;
 		if(chatPage.hidden == false){
 			Dom.changeBook("chatPage",true);
@@ -188,8 +194,8 @@ Dom.settings.bookmarkPosition = function() {
 			left: 875px;
 		}
 		#dot{
-			top: 645px;
-			right: 525px;
+			top: 646px;
+			left: 689px;
 		}
 		`;
 		document.head.appendChild( css );
@@ -229,6 +235,10 @@ Dom.settings.bookmarkPosition = function() {
 		}
 		#settingsImage {
 			top: 253px;
+		}
+		#dot{
+			top: 41px;
+			left: 1217px;
 		}
 		`;
 	document.head.appendChild( css );
