@@ -757,7 +757,8 @@ Game.render = function () {
     if(gridOn == checked){
 	this._drawGrid();
     }
-	// draw hitboxes (debug)
+    // draw hitboxes (debug)
+    console.log(document.getElementById("hitboxesOn").checked)
     if(document.getElementById("hitboxesOn").checked){
 	this.drawHitboxes();
     }
