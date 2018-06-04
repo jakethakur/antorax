@@ -20,14 +20,16 @@ var quests = {
 				// true or falses for each objective (apart from the turn-in objective)
 				completed.push((Player.inventory.weapon.length > 1) ? true : false);
 				
-				var finished = true
+				var finished = true;
 				for(var i = 0; i < completed.length; i++) {
-					if(!completed) {
+					if(!completed[i]) {
 						finished = false;
 					}
 				}
 				
 				completed.push(finished);
+				
+				return completed;
 			},
 			
 			howToStart: "Speak to the Cart Driver.",

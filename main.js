@@ -439,7 +439,7 @@ Game.init = function () {
 		width: 57,
 		height: 120,
 		image: "hero",
-		baseSpeed: 1720, // base pixels per second
+		baseSpeed: 172, // base pixels per second
 		waterSpeed: 64, // speed when in water
 	});
 	
