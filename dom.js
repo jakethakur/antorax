@@ -280,7 +280,7 @@ Dom.inventory.displayInformation = function(y,array){
 Dom.merchant.displayInformation = function(y,array,num) {
 	document.getElementById("informationMerchant").innerHTML = "";
 	document.getElementById("informationMerchant").hidden = false;
-	document.getElementById("informationMerchant").style.top = 142+(y*82)+"px";
+	document.getElementById("informationMerchant").style.top = y+"px";
 	document.getElementById("informationMerchant").innerHTML = "<div class='triangleLeft'></div><div class='innerTriangleLeft'></div>" + array[num].name;
 }
 
@@ -464,7 +464,7 @@ Dom.merchant.page = function(title,greeting,options){
 		}
 		for(let x = 0; x < document.getElementsByClassName("theseOptions").length; x++){
 			document.getElementsByClassName("theseOptions")[x].onmouseover = function() {
-				Dom.merchant.displayInformation(x, options, x);
+				Dom.merchant.displayInformation(document.getElementsByClassName("theseOptions")[x].getBoundingClientRect().top, options, x);
 			};
 			document.getElementsByClassName("theseOptions")[x].onmouseleave = function() {
 				Dom.expand("informationMerchant");
