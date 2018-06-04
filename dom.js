@@ -468,12 +468,10 @@ Dom.quests.completed = function(quest){
 }
 
 Dom.merchant.page = function(title,greeting,options){
-//function Dom.merchant.page(title,greeting,options){
 	Dom.changeBook("merchantPage", false);
 	Dom.currentlyDisplayed = "merchant";
 	document.getElementById("merchantPageTitle").innerHTML = title;
-	document.getElementById("merchantPageChat").innerHTML = greeting; //jt todo: change greeting to chat when chat becomes book.chat
-	Dom.chat.insert("<strong>" + title + ": " + "</strong>" + greeting, 100);
+	document.getElementById("merchantPageChat").innerHTML = greeting;
 	document.getElementById("merchantPageOptions").innerHTML = "";
 	document.getElementById("merchantPageBuy").innerHTML = "";
 	for(let i = 0; i < options.length; i++){
