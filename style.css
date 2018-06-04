@@ -290,3 +290,9 @@ body{
 	background-image: url("./assets/icons/settings.png");
 	width: 38px;
 }
+.black{
+	color: black;
+}
+.red{
+	color: red;
+}

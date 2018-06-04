@@ -37,6 +37,8 @@ Dom.changeBook = function(page, override) {
 		
 		if(page == "chatPage"){
 			document.getElementById("dot").hidden = true;
+			document.getElementById("dot").innerHTML = 0;
+			chatPageStringOld = document.getElementById("chatPage").innerHTML;
 		}
 		
 		if(override) {
@@ -88,15 +90,21 @@ Dom.inventory.changeEquipment = function(array,equipmentType) {
 	}
 }
 
+var chatPageString = "";
+var chatPageStringOld = "";
 document.getElementById("dot").innerHTML = 0;
 // insert text in chat page
 Dom.chat.insert = function(text, delay) {
-	document.getElementById("dot").hidden = false;
-	document.getElementById("dot").innerHTML = parseInt(document.getElementById("dot").innerHTML) + 1;
-	parseInt(document.getElementById("dot").innerHTML) + 1
+	if(chatPage.hidden){
+		document.getElementById("dot").hidden = false;
+		document.getElementById("dot").innerHTML = parseInt(document.getElementById("dot").innerHTML) + 1;
+	}
 	this.contents.push(text);
 	setTimeout(function() {
-		chatPage.innerHTML = '<p>' + text + '</p>' + chatPage.innerHTML;
+		var i = chatPage.innerHTML;
+		chatPage.innerHTML = '<p class="red">' + text + '</p>';
+		chatPage.innerHTML += chatPageString;
+		chatPageString = "<p class='red'>" + text + "</p>" + chatPageString;
 		this.length++;
 		if (this.length >= 10000) { //check chat isn't too big; if it is then purge it. 10,000 is an arbitrary value; maybe change?
 			this.purge();
