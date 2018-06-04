@@ -754,13 +754,16 @@ Game.render = function () {
     //this._drawLayer(1);
 
     // draw map grid (debug)
-    //this._drawGrid();
-	
+    if(gridOn == checked){
+	this._drawGrid();
+    }
 	// draw hitboxes (debug)
-	//this.drawHitboxes();
-	
+    if(hitboxesOn == checked){
+	this.drawHitboxes();
+    }
 	// give player coords (debug)
-	//this.coordinates(this.hero);
-	
+    if(coordsOn == checked){
+	this.coordinates(this.hero);
+    }
 	//this.haha();
 };
