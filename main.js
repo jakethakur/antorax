@@ -31,11 +31,24 @@ Loader.loadImage = function (key, src) {
 };
 
 Loader.getImage = function (key) {
-    return (key in this.images) ? this.images[key] : null;
+	if (key in this.images) {
+		return this.images[key];
+	}
+	else {
+		console.error("Image " + key + " could not be loaded. Is it misspelt or not loaded in?");
+		return null;
+	}
 };
 
-Loader.wipeImages = function() {
-	this.images = {};
+Loader.wipeImages = function (exceptions) {
+	//this.images = {}; // inefficient - wipes player from object
+	
+	// wipe all images from images object (apart from exceptions)
+	for (var key in this.images) {
+		if (this.images.hasOwnProperty(key) && !exceptions.includes(key)) {
+			delete this.images[key];
+		}
+	}
 }
 
 //
@@ -364,25 +377,43 @@ class Merchant extends Character {
 //
 
 // load images
-Game.load = function () {
-	// wipe previously loaded images
-	Loader.wipeImages();
-	
+Game.load = function (names, addresses) {
 	this.ctx.imageSmoothingEnabled = false;
 	
-    return [
-        Loader.loadImage('tiles', './assets/tilemap/tilemap.png'),
-        Loader.loadImage('hero', './assets/player/archer.png'),
-        Loader.loadImage('driver', './assets/driver.png'),
-        Loader.loadImage('weaponsmith', './assets/weaponsmith.png'),
-    ];
+	if (names.length != addresses.length) {
+		throw Error("Name length is not the same as address length. Consider fixing your area's images object in areadata.js?");
+	}
+	
+	let toLoad = [];
+	
+	for (var i = 0; i < names.length; i++) {
+		toLoad.push(Loader.loadImage(names[i], addresses[i]));
+	}
+	
+	// check player image has been loaded (if not, then load it)
+	if (!Object.keys(Loader.images).includes("hero")) {
+		// currently doesn't take into account player class
+		toLoad.push(Loader.loadImage("hero", "./assets/player/archer.png"));
+	}
+	
+    return toLoad;
 };
 
 // pull data from areadata.js
 Game.loadArea = function (areaName) {
+	
+	// wipe previously loaded images
+	Loader.wipeImages([
+		// images not to be wiped
+		"hero",
+	]);
+	
 	// load images
-    var p = this.load();
+    var p = this.load(areas[areaName].images.names, areas[areaName].images.addresses);
+	
+	// wait until images have been loaded
     Promise.all(p).then(function (loaded) {
+		
 		// map
 		Object.assign(map, areas[areaName].mapData);
 		
@@ -421,7 +452,10 @@ Game.loadArea = function (areaName) {
 		}
 		
 		
-        this.init();
+		// init game (if it hasn't been done so already)
+		if(this.hero == undefined) {
+			this.init();
+		}
 		
 		// player x and y
 		this.hero.x = areas[areaName].player.x;
@@ -458,7 +492,7 @@ Game.init = function () {
 		waterSpeed: 64, // speed when in water
 	});
 	
-	this.camera = undefined;
+	//this.camera = undefined;
 	
 	//this.loadArea("tutorial");
 	

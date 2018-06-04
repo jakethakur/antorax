@@ -75,7 +75,22 @@ var areas = {
 		player: {
 			x: 2300,
 			y: 270,
-		}
+		},
+		
+		// images that need to be loaded in
+		images: {
+			names: [
+				"tiles",
+				"driver",
+				"weaponsmith",
+			],
+			
+			addresses: [
+				"./assets/tilemap/tilemap.png",
+				"./assets/npcs/driver.png",
+				"./assets/npcs/weaponsmith.png",
+			],
+		},
 	},
 	
 	
@@ -89,7 +104,7 @@ var areas = {
 				y: 500,
 				width: 92,
 				height: 100,
-				image: "driver",
+				image: "teper",
 				quest: quests.eaglecrestLoggingCamp[0],
 				name: "Marshall Teper",
 				questProgressText: "Get on with your work!",
@@ -118,6 +133,18 @@ var areas = {
 		player: {
 			x: 460,
 			y: 1200,
-		}
+		},
+		
+		images: {
+			names: [
+				"tiles",
+				"teper",
+			],
+			
+			addresses: [
+				"./assets/tilemap/tilemap.png",
+				"./assets/npcs/teper.png",
+			],
+		},
 	},
 };
