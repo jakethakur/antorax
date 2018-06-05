@@ -22,12 +22,10 @@ var Dom = {
 
 // change currently displayed page
 // returns if the page was changed or not
-Dom.changeBook = function(page, override) {
-	console.log("yes");
+Dom.changeBook = function(page, override, x) {
 	//override says if the function should be run regardless of if the player has a quest active (e.g: declining a quest or closing a merchant)
 	if(this.currentlyDisplayed == "" || override) { // check the player doesn't have a quest active
 		// hide all pages
-		console.log("no");
 		this.elements.chatPage.hidden = true;
 		this.elements.inventoryPage.hidden = true;
 		this.elements.questsPage.hidden = true;
@@ -55,17 +53,20 @@ Dom.changeBook = function(page, override) {
 		return true;
 	}
 	else {
-		console.log("maybe");
 		for(var i = 0; i < document.getElementsByClassName("closeClass").length; i++){
 			document.getElementsByClassName("closeClass")[i].style.border = "5px solid red";
-			document.getElementsByClassName("closeClass")[i].style.backgroundColor = "#ffe9a4";
 		}
-		setTimeout(function(){
+		if(x != 0 && x != 1){
+			setTimeout(function(){
+				for(var i = 0; i < document.getElementsByClassName("closeClass").length; i++){
+					document.getElementsByClassName("closeClass")[i].style.border = "5px solid #886622";
+				}
+			},200);
+		} else if(x == 1){
 			for(var i = 0; i < document.getElementsByClassName("closeClass").length; i++){
 				document.getElementsByClassName("closeClass")[i].style.border = "5px solid #886622";
-				document.getElementsByClassName("closeClass")[i].style.backgroundColor = "#fef9b4";
 			}
-		},200);
+		}
 		return false;
 	}
 }
@@ -450,7 +451,8 @@ Dom.quests.completed = function(quest){
 
 Dom.merchant.page = function(title,greeting,options){
 	Dom.changeBook("merchantPage", false);
-	Dom.currentlyDisplayed = "merchant";
+	Dom.currentlyDisplayed = title;
+	Dom.changeBook("merchantPage", false, 1);
 	document.getElementById("merchantPageTitle").innerHTML = title;
 	document.getElementById("merchantPageChat").innerHTML = greeting;
 	document.getElementById("merchantPageOptions").innerHTML = "";
