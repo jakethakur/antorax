@@ -1,93 +1,163 @@
 var items = {
 	helm: [
 		{
-			name: "helm",
+			//id: 0
+			name: "Test Helm 1",
 			type: "helm",
 			image:"assets/items/helm.png",
-			stats: {}
+			stats: {},
 		},
 		{
-			name: "helm2",
+			//id: 1
+			name: "Test Helm 2",
 			type: "helm",
 			image:"assets/items/helm2.png",
-			stats: {}
-		}
+			stats: {},
+		},
 	],
 	chest: [
 		{
-			name: "chest",
+			//id: 0
+			name: "Test Chestplate 1",
 			type: "chest",
 			image:"assets/items/chest.png",
-			stats: {}
+			stats: {},
 		},
 		{
-			name: "chest2",
+			//id: 1
+			name: "Test Chestplate 2",
 			type: "chest",
 			image:"assets/items/chest2.png",
-			stats: {}
-		}
+			stats: {},
+		},
 	],
 	greaves: [
 		{
-			name: "greaves",
+			//id: 0
+			name: "Test Greaves 1",
 			type: "greaves",
 			image:"assets/items/greaves.png",
-			stats: {}
+			stats: {},
 		},
 		{
-			name: "greaves2",
+			//id: 1
+			name: "Test Greaves 2",
 			type: "greaves",
 			image:"assets/items/greaves2.png",
-			stats: {}
-		}
+			stats: {
+			},
+		},
 	],
 	boots: [
 		{
-			name: "boots",
+			//id: 0
+			name: "Test Boots 1",
 			type: "boots",
 			image:"assets/items/boots.png",
-			stats: {}
+			stats: {},
 		},
 		{
-			name: "boots2",
+			//id: 1
+			name: "Test Boots 2",
 			type: "boots",
 			image:"assets/items/boots2.png",
-			stats: {}
-		}
+			stats: {},
+		},
+		{
+			//id: 2
+			name: "Logging Boots",
+			type: "boots",
+			image:"assets/items/boots/2.png",
+			stats: {
+				tier: 1,
+				rarity: "unique",
+				defense: 2,
+				lore: "Protects you from splinters. And goblins!",
+			},
+		},
 	],
-	weapon: [
+	bow: [
 		{
-			name: "weapon",
-			type: "weapon",
-			image:"assets/items/weapon.png",
-			stats: {}
+			//id: 0
+			name: "Test bow 1",
+			type: "bow",
+			image:"assets/items/bow.png",
+			stats: {},
 		},
 		{
-			name: "weapon2",
-			type: "weapon",
+			//id: 1
+			name: "Test bow 2",
+			type: "bow",
 			image:"assets/items/weapon2.png",
-			stats: {}
+			stats: {},
 		},
 		{
-			name: "Basic Sword",
-			type: "weapon",
-			cost: 3,
-			image:"assets/items/sword.png",
-			stats: {}
-		},
-		{
-			name: "Basic Staff",
-			type: "weapon",
-			cost: 3,
-			image:"assets/items/staff.png",
-			stats: {}
-		},
-		{
+			//id: 2
 			name: "Basic Bow",
-			type: "weapon",
+			type: "bow",
 			cost: 3,
 			image:"assets/items/bow.png",
-			stats: {}
-		}
+			stats: {
+				tier: 1,
+				rarity: "common",
+				damage: 2,
+			},
+		},
+	],
+	staff: [
+		{
+			//id: 0
+			name: "Test staff 1",
+			type: "staff",
+			image:"assets/items/staff.png",
+			stats: {},
+		},
+		{
+			//id: 1
+			name: "Test staff 2",
+			type: "staff",
+			image:"assets/items/weapon2.png",
+			stats: {},
+		},
+		{
+			//id: 2
+			name: "Basic Staff",
+			type: "staff",
+			cost: 3,
+			image:"assets/items/staff.png",
+			stats: {
+				tier: 1,
+				rarity: "common",
+				damage: 2,
+			},
+		},
+	],
+	sword: [
+		{
+			//id: 0
+			name: "Test sword 1",
+			type: "sword",
+			image:"assets/items/sword.png",
+			stats: {},
+		},
+		{
+			//id: 1
+			name: "Test sword 2",
+			type: "sword",
+			image:"assets/items/weapon2.png",
+			stats: {},
+		},
+		{
+			//id: 2
+			name: "Basic Sword",
+			type: "sword",
+			cost: 3,
+			image:"assets/items/sword.png",
+			stats: {
+				tier: 1,
+				rarity: "common",
+				damage: 2,
+			},
+		},
 	],
 };

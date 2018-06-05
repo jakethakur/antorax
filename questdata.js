@@ -43,8 +43,8 @@ var quests = {
 				gold: 5,
 				xp: 10,
 				items: [
-					items.boots[0]
-				]
+					items.boots[2],
+				],
 			},
 			
 			onQuestStart: function() {
