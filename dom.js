@@ -47,6 +47,7 @@ Dom.changeBook = function(page, override) {
 		
 		if(override) {
 			this.currentlyDisplayed = ""; // reset current display if it is overriden
+			Dom.quests.activeQuests(undefined);
 		}
 		
 		return true;
@@ -280,7 +281,6 @@ Dom.merchant.displayInformation = function(y,array,num) {
 }
 
 Dom.quests.displayInformation = function(y,array,total){
-	console.log("yes");
 	document.getElementById("questInformation").innerHTML = "";
 	document.getElementById("questInformation").hidden = false;
 	document.getElementById("questInformation").style.top = document.getElementById("questStartGold").getBoundingClientRect().top+"px";
@@ -434,19 +434,25 @@ Dom.quests.activeQuests = function(quest){
 		if(Dom.quests.questNum == 0){
 			document.getElementById("activeQuestBox").innerText = "";
 		}*/
-		document.getElementById("activeQuestBox").innerHTML += "<strong>" + Dom.quests.activeQuestUseArray[x].quest + "</strong><br>";
+		document.getElementById("activeQuestBox").innerHTML += "<strong>" + Dom.quests.activeQuestUseArray[x].quest + "</strong>";
 		for(var i = 0; i < Dom.quests.activeQuestUseArray[x].objectives.length; i++){
-			document.getElementById("activeQuestBox").innerHTML += Dom.quests.activeQuestUseArray[x].objectives[i] + "<br>";
+			document.getElementById("activeQuestBox").innerHTML += "<br>" + Dom.quests.activeQuestUseArray[x].objectives[i];
+			console.log(Dom.quests.activeQuestUseArray[x].isCompleted());
+			if(Dom.quests.activeQuestUseArray[x].isCompleted()[i] && i != Dom.quests.activeQuestUseArray[x].objectives.length-1){
+				document.getElementById("activeQuestBox").innerHTML += " &#10004;";
+			}
 		}
-		document.getElementById("activeQuestBox").innerHTML += "<br>";
-		Dom.quests.questNum += 30+(18*Dom.quests.activeQuestUseArray[x].objectives.length);
-		Dom.quests.questString = JSON.stringify(Dom.quests.questNum+10)+"px";
-		document.getElementById("activeQuestBox").style.height = Dom.quests.questString;
+		if(quest != undefined){
+			document.getElementById("activeQuestBox").innerHTML += "<br>";
+			Dom.quests.questNum += 30+(18*Dom.quests.activeQuestUseArray[x].objectives.length);
+			Dom.quests.questString = JSON.stringify(Dom.quests.questNum+10)+"px";
+			document.getElementById("activeQuestBox").style.height = Dom.quests.questString;
+		}
 	}
 	if(Dom.quests.activeQuestArray.length == 0){
 		document.getElementById("activeQuestBox").style.height = "40px";
 		document.getElementById("activeQuestBox").style.textAlign = "center";
-		document.getElementById("activeQuestBox").innerText = "You have no completed quests";
+		document.getElementById("activeQuestBox").innerText = "You have no active quests";
 	}
 }
 
