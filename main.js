@@ -184,7 +184,7 @@ var map = {
         // check first layer only and return TRUE if any tile is water 
 		// TBD : move this to areadata.js at some point pls
         var tile = this.getTile(0, col, row);
-        var isWater = tile === 50 || tile === 51 || tile === 52 ||tile === 59 || tile === 63 || tile === 67;
+        var isWater = tile === 50 || tile === 51 || tile === 52;
 		return isWater;
 	},
 };
@@ -295,12 +295,13 @@ class Hero extends Character {
 	
 	_collide(dirx, diry) {
 		var row, col;
-		// -1 in right and bottom is because image ranges from 0..63
-		// and not up to 64
+		// there used to be a -1 in right and bottom is because image ranges from 0 to 59 and not up to 60
 		var left = this.x - this.width / 2;
-		var right = this.x + this.width / 2 - 1;
-		var top = this.y - this.height / 2;
-		var bottom = this.y + this.height / 2 - 1;
+		var right = this.x + this.width / 2;
+		//var top = this.y - this.height / 2;
+		var top = this.y + 100 - this.height / 2;
+		//var bottom = this.y + this.height / 2;
+		var bottom = this.y + 100;
 
 		// check for collisions on sprite sides
 		var collision =
@@ -311,7 +312,7 @@ class Hero extends Character {
 		
 		//test for water
 		//make this controlled by a status effect instead maybe?
-		if (this.map.isWaterAtXY(this.x, this.y)) {
+		if (this.map.isWaterAtXY(this.x, this.y + 50)) {
 			if(this.speed === this.baseSpeed) {
 				this.speed = this.waterSpeed;
 			}
@@ -726,6 +727,16 @@ Game.drawHitboxes = function () {
 	for(var i = 0; i < this.areaTeleports.length; i++) {
 		this.ctx.strokeRect(this.areaTeleports[i].screenX - this.areaTeleports[i].width / 2, this.areaTeleports[i].screenY - this.areaTeleports[i].height / 2, this.areaTeleports[i].width, this.areaTeleports[i].height);
 	}
+	
+	// player tile collision hitboxes
+	this.ctx.strokeStyle="#FF00FF";
+	this.ctx.strokeRect(this.hero.screenX - this.hero.width / 2, this.hero.screenY + 100 - this.hero.height / 2, this.hero.width, this.hero.height / 2);
+	
+		var left = this.x - this.width / 2;
+		var right = this.x + this.width / 2;
+		var top = this.y + 100 - this.height / 2;
+		var bottom = this.y + 100 + this.height / 2;
+
 }
 
 Game.coordinates = function (character) {
@@ -849,6 +860,4 @@ Game.render = function () {
     if(document.getElementById("coordsOn").checked){
 		this.coordinates(this.hero);
     }
-	
-    //this.haha(); // test
 };
