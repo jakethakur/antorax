@@ -123,9 +123,9 @@ Game.tick = function (elapsed) {
     var delta = (elapsed - this._previousElapsed) / 1000.0;
     delta = Math.min(delta, 0.25); // maximum delta of 250 ms
     this._previousElapsed = elapsed;
-
-    this.update(delta); //update game state
-    this.render(); //render game display
+	
+	this.update(delta); //update game state
+	this.render(); //render game display
 }.bind(Game);
 
 //
@@ -563,6 +563,13 @@ Game.update = function (delta) {
 				else if (this.hero.isTouching(this.questNPCs[i]) && Dom.quests.completedQuestArray.includes(this.questNPCs[i].quests[x].quest.quest) && !Dom.chat.contents.includes("<strong>" + this.questNPCs[i].name + ": " + "</strong>" + this.questNPCs[i].questCompleteText)) {
 					Dom.chat.insert("<strong>" + this.questNPCs[i].name + ": " + "</strong>" + this.questNPCs[i].questCompleteText, 100);
 				}
+				if(Dom.currentlyDisplayed != this.questNPCs[i].quests[0].quest && Dom.currentlyDisplayed != "" && !Dom.override){
+					if(this.hero.isTouching(this.questNPCs[i]) && document.getElementsByClassName("closeClass")[0].style.border != "5px solid red"){
+						Dom.changeBook("questsPage",false,0);
+					}else if(!this.hero.isTouching(this.questNPCs[i]) && document.getElementsByClassName("closeClass")[0].style.border == "5px solid red"){
+						Dom.changeBook("questsPage",false,1);
+					}
+				}
 			}
 			
 			// quest finishes
@@ -581,6 +588,13 @@ Game.update = function (delta) {
 				// quest has been completed
 				else if (this.hero.isTouching(this.questNPCs[i]) && Dom.quests.completedQuestArray.includes(this.questNPCs[i].quests[x].quest.quest) && !Dom.chat.contents.includes("<strong>" + this.questNPCs[i].name + ": " + "</strong>" + this.questNPCs[i].questCompleteText)) {
 					Dom.chat.insert("<strong>" + this.questNPCs[i].name + ": " + "</strong>" + this.questNPCs[i].questCompleteText, 100);
+				}
+				if(Dom.currentlyDisplayed != this.questNPCs[i].quests[this.questNPCs[i].quests.length-1].quest && Dom.currentlyDisplayed != "" && !Dom.override){
+					if(this.hero.isTouching(this.questNPCs[i]) && document.getElementsByClassName("closeClass")[0].style.border != "5px solid red"){
+						Dom.changeBook("questsPage",false,0);
+					}else if(!this.hero.isTouching(this.questNPCs[i]) && document.getElementsByClassName("closeClass")[0].style.border == "5px solid red"){
+						Dom.changeBook("questsPage",false,1);
+					}
 				}
 			}
 			
@@ -632,6 +646,12 @@ Game.update = function (delta) {
 			Dom.merchant.page(this.merchants[i].name, this.merchants[i].greetingText, this.merchants[i].items);
 			if (!Dom.chat.contents.includes("<strong>" + this.merchants[i].name + ": " + "</strong>" + this.merchants[i].buyText)) {
 				Dom.chat.insert("<strong>" + this.merchants[i].name + ": " + "</strong>" + this.merchants[i].buyText, 100);
+			}
+		}else if(Dom.currentlyDisplayed != this.merchants[i].name && Dom.currentlyDisplayed != "" && !Dom.override){
+			if(this.hero.isTouching(this.merchants[i]) && document.getElementsByClassName("closeClass")[0].style.border != "5px solid red"){
+				Dom.changeBook("questsPage",false,0);
+			}else if(!this.hero.isTouching(this.merchants[i]) && document.getElementsByClassName("closeClass")[0].style.border == "5px solid red"){
+				Dom.changeBook("questsPage",false,1);
 			}
 		}
     }

@@ -19,8 +19,6 @@ var quests = {
 				var completed = []; // contains true or false for all of the objectives, with the last element being if the quest is ready to complete
 				
 				// true or falses for each objective (apart from the turn-in objective)
-				console.log("yes");
-				console.log(Player.inventory.weapon.length);
 				completed.push((Player.inventory.weapon.length > 1) ? true : false);
 				
 				var finished = true;

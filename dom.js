@@ -18,13 +18,16 @@ var Dom = {
 	settings: {},
 	quest: {},
 	merchant: {},
+	overide: false,
 };
 
 // change currently displayed page
 // returns if the page was changed or not
 Dom.changeBook = function(page, override, x) {
 	//override says if the function should be run regardless of if the player has a quest active (e.g: declining a quest or closing a merchant)
+	console.log("maybe");
 	if(this.currentlyDisplayed == "" || override) { // check the player doesn't have a quest active
+		console.log("no");
 		// hide all pages
 		this.elements.chatPage.hidden = true;
 		this.elements.inventoryPage.hidden = true;
@@ -53,13 +56,17 @@ Dom.changeBook = function(page, override, x) {
 		return true;
 	}
 	else {
+		console.log("yes");
 		for(var i = 0; i < document.getElementsByClassName("closeClass").length; i++){
 			document.getElementsByClassName("closeClass")[i].style.border = "5px solid red";
 		}
 		if(x != 0 && x != 1){
+			console.log("definately");
+			Dom.override = true;
 			setTimeout(function(){
 				for(var i = 0; i < document.getElementsByClassName("closeClass").length; i++){
 					document.getElementsByClassName("closeClass")[i].style.border = "5px solid #886622";
+					Dom.override = false;
 				}
 			},200);
 		} else if(x == 1){
