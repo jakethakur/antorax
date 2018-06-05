@@ -158,91 +158,62 @@ Dom.expand = function(block) {
 
 // arrange position of bookmarks
 Dom.settings.bookmarkPosition = function() {
-	// VERY INEFFICIENT (css continues to be appended - edit .style of each element instead?)
+	// INEFFICIENT
 	if(document.getElementById("bottom").checked) { // arrange bookmarks at bottom of screen
-		const css = document.createElement( 'style' );
-		css.textContent = `
-		#changeChat, #changeInventory, #changeQuests, #changeSettings {
-			top: 619px;
-			transform: rotate(90deg);
-			transform-origin: top left;
-		}
-		#changeChat {
-		left: 710px;
-		}
-		#changeInventory {
-		left: 780px;
-		}
-		#changeQuests {
-		left: 850px;
-		}
-		#changeSettings {
-		left: 920px;
-		}
-		#chatImage, #inventoryImage, #questsImage, #settingsImage{
-			top: 649px;
-		}
-		#chatImage{
-			left: 669px;
-		}
-		#inventoryImage{
-			left: 739px;
-		}
-		#questsImage{
-			left: 820px;
-		}
-		#settingsImage{
-			left: 875px;
-		}
-		#dot{
-			top: 646px;
-			left: 689px;
-		}
-		`;
-		document.head.appendChild( css );
+		document.getElementById("changeChat").style.top="619";
+		document.getElementById("changeChat").style.transform="rotate(90deg)";
+		document.getElementById("changeChat").style.transformOrigin="top left";
+		document.getElementById("changeInventory").style.top="619";
+		document.getElementById("changeInventory").style.transform="rotate(90deg)";
+		document.getElementById("changeInventory").style.transformOrigin="top left";
+		document.getElementById("changeQuests").style.top="619";
+		document.getElementById("changeQuests").style.transform="rotate(90deg)";
+		document.getElementById("changeQuests").style.transformOrigin="top left";
+		document.getElementById("changeSettings").style.top="619";
+		document.getElementById("changeSettings").style.transform="rotate(90deg)";
+		document.getElementById("changeSettings").style.transformOrigin="top left";
+		document.getElementById("changeChat").style.left="710";
+		document.getElementById("changeInventory").style.left="780";
+		document.getElementById("changeQuests").style.left="850";
+		document.getElementById("changeSettings").style.left="920";
+		document.getElementById("chatImage").style.top="649px";
+		document.getElementById("inventoryImage").style.top="649px";
+		document.getElementById("questsImage").style.top="649px";
+		document.getElementById("settingsImage").style.top="649px";
+		document.getElementById("chatImage").style.left="669px";
+		document.getElementById("inventoryImage").style.left="739px";
+		document.getElementById("questsImage").style.left="820px";
+		document.getElementById("settingsImage").style.left="875px";
+		document.getElementById("dot").style.top="646px";
+		document.getElementById("dot").style.left="689px";
 	}
 	else { // arrange bookmarks at top of screen
-		const css = document.createElement( 'style' );
-		css.textContent = `
-		#changeChat, #changeInventory, #changeQuests, #changeSettings {
-			left: 1162px;
-			transform: rotate(0deg);
-			transform-origin: top left;
-		}
-		#changeChat {
-		top: 38px;
-		}
-		#changeInventory {
-		top: 108px;
-		}
-		#changeQuests {
-		top: 178px;
-		}
-		#changeSettings {
-		top: 248px;
-		}
-		#chatImage, #inventoryImage, #questsImage, #settingsImage{
-			left: 1197px;
-		}
-		#chatImage{
-			top: 43px;
-		}
-		#inventoryImage{
-			top: 113px;
-		}
-		#questsImage{
-			top: 183px;
-			left: 1212px;
-		}
-		#settingsImage {
-			top: 253px;
-		}
-		#dot{
-			top: 41px;
-			left: 1217px;
-		}
-		`;
-	document.head.appendChild( css );
+		document.getElementById("changeChat").style.left="1162";
+		document.getElementById("changeChat").style.transform="rotate(0deg)";
+		document.getElementById("changeChat").style.transformOrigin="top left";
+		document.getElementById("changeInventory").style.left="1162";
+		document.getElementById("changeInventory").style.transform="rotate(0deg)";
+		document.getElementById("changeInventory").style.transformOrigin="top left";
+		document.getElementById("changeQuests").style.left="1162";
+		document.getElementById("changeQuests").style.transform="rotate(0deg)";
+		document.getElementById("changeQuests").style.transformOrigin="top left";
+		document.getElementById("changeSettings").style.left="1162";
+		document.getElementById("changeSettings").style.transform="rotate(0deg)";
+		document.getElementById("changeSettings").style.transformOrigin="top left";
+		document.getElementById("changeChat").style.top="38";
+		document.getElementById("changeInventory").style.top="108";
+		document.getElementById("changeQuests").style.top="178";
+		document.getElementById("changeSettings").style.top="248";
+		document.getElementById("chatImage").style.top="43px";
+		document.getElementById("inventoryImage").style.top="113px";
+		document.getElementById("questsImage").style.top="183px";
+		document.getElementById("settingsImage").style.top="253px";
+		document.getElementById("chatImage").style.left="1197px";
+		document.getElementById("inventoryImage").style.left="1197px";
+		document.getElementById("questsImage").style.left="1212px";
+		document.getElementById("settingsImage").style.left="1197px";
+		document.getElementById("dot").style.top="41px";
+		document.getElementById("dot").style.left="1217px";
 	}
 }
 
@@ -295,16 +266,6 @@ Dom.quests.displayFinishInformation = function(y,array,total){
 	document.getElementById("questFinishInformation").style.top = document.getElementById("questFinishGold").getBoundingClientRect().top+"px";
 	document.getElementById("questFinishInformation").style.left = 785-(total*35)+(y*70) +"px";
 	document.getElementById("questFinishInformation").innerHTML = "<div class='rectangleRightUp'></div><div class='rectangleRightDown'></div><div class='triangleRight'></div><div class='innerTriangleRight'></div>" + array[y].name;
-}
-
-//ignore this
-function npcDomCode(){
-	Dom.quest.finish(quests.eaglecrestLoggingCamp[0]);
-}
-
-//ignore this
-function merchantDomCode(){
-	Dom.merchant.page(prompt("Please enter merchant name"),prompt("Please enter merchant chat"),[prompt("Please enter merchant option"),prompt("Please enter anpother merchant option")]);
 }
 
 Dom.currentlyDisplayed = ""; // the currently displayed quest, merchant, etc. (something that can't be overridden)
