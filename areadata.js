@@ -1,20 +1,22 @@
 var areas = {
 	tutorial: {
-		questStartNPCs: [
+		questNPCs: [
 			{
 				x: 2070,
 				y: 340,
 				width: 92,
 				height: 100,
 				image: "driver",
-				quest: quests.eaglecrestLoggingCamp[0],
+				quests: [
+					{
+						quest: quests.eaglecrestLoggingCamp[0], 
+						role: "start"
+					},
+				],
 				name: "Cart Driver",
 				questProgressText: "Good luck with your travels!",
 				questCompleteText: "Look how much you've grown!",
 			},
-		],
-		
-		questFinishNPCs: [
 		],
 		
 		merchants: [
@@ -80,17 +82,20 @@ var areas = {
 	
 	
 	eaglecrestLoggingCamp: {
-		questStartNPCs: [
-		],
 		
-		questFinishNPCs: [
+		questNPCs: [
 			{
 				x: 500,
 				y: 500,
 				width: 92,
 				height: 100,
 				image: "teper",
-				quest: quests.eaglecrestLoggingCamp[0],
+				quests: [
+					{
+						quest: quests.eaglecrestLoggingCamp[0], 
+						role: "finish"
+					},
+				],
 				name: "Marshall Teper",
 				questProgressText: "Get on with your work!",
 				questCompleteText: "There's lots of work still to be done.",

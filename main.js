@@ -100,7 +100,7 @@ Keyboard.isDown = function (keyCode) {
 // Game object
 //
 
-var Game = {questStartNPCs: [], merchants: [], areaTeleports: []};
+var Game = {questNPCs: [], merchants: [], areaTeleports: []};
 
 //run game
 Game.run = function (context) {
@@ -350,7 +350,7 @@ class Hero extends Character {
 class QuestNPC extends Character {
 	constructor(properties) {
 		super(properties);
-		this.quest = properties.quest; // quest object address, to be read from questdata.js file
+		this.quests = properties.quests; // quest object address, to be read from questdata.js file
 		this.name = properties.name;
 		
 		this.questProgressText = properties.questProgressText; // text when quest is in progress
@@ -423,18 +423,11 @@ Game.loadArea = function (areaName) {
 			this.camera.maxY = map.rows * map.tsize - canvas.height;
 		}
 		
-		// quest start npcs
-		this.questStartNPCs = [];
-		for(var i = 0; i < areas[areaName].questStartNPCs.length; i++) {
-			areas[areaName].questStartNPCs[i].map = map;
-			this.questStartNPCs.push(new QuestNPC(areas[areaName].questStartNPCs[i]));
-		}
-		
-		// quest finish npcs
-		this.questFinishNPCs = [];
-		for(var i = 0; i < areas[areaName].questFinishNPCs.length; i++) {
-			areas[areaName].questFinishNPCs[i].map = map;
-			this.questFinishNPCs.push(new QuestNPC(areas[areaName].questFinishNPCs[i]));
+		// quest npcs
+		this.questNPCs = [];
+		for(var i = 0; i < areas[areaName].questNPCs.length; i++) {
+			areas[areaName].questNPCs[i].map = map;
+			this.questNPCs.push(new QuestNPC(areas[areaName].questNPCs[i]));
 		}
 		
 		// merchants
@@ -548,52 +541,96 @@ Game.update = function (delta) {
 	}
     this.camera.update();
 	
+	// check collision with quest npcs
+	for(var i = 0; i < this.questNPCs.length; i++) { // iterate though quest npcs
+	
+		for(var x = 0; x < this.questNPCs[i].quests.length; x++) { // iterate through quests involving those npcs
+		
+			// quest starts
+			if (this.questNPCs[i].quests[x].role == "start") {
+				// doesn't currently check if the player's level is too low to accept the quest
+				
+				// quest is ready to be accepted
+				if (this.hero.isTouching(this.questNPCs[i]) && Dom.currentlyDisplayed === "" && !Dom.quests.activeQuestArray.includes(this.questNPCs[i].quests[x].quest.quest) && !Dom.quests.completedQuestArray.includes(this.questNPCs[i].quests[x].quest.quest)) {
+					Dom.quest.start(this.questNPCs[i].quests[x].quest);
+				}
+				// quest is currently active
+				else if (this.hero.isTouching(this.questNPCs[i]) && Dom.quests.activeQuestArray.includes(this.questNPCs[i].quests[x].quest.quest) && !Dom.chat.contents.includes("<strong>" + this.questNPCs[i].name + ": " + "</strong>" + this.questNPCs[i].questProgressText)) {
+					Dom.chat.insert("<strong>" + this.questNPCs[i].name + ": " + "</strong>" + this.questNPCs[i].questProgressText, 100);
+				}
+				// quest has been completed
+				else if (this.hero.isTouching(this.questNPCs[i]) && Dom.quests.completedQuestArray.includes(this.questNPCs[i].quests[x].quest.quest) && !Dom.chat.contents.includes("<strong>" + this.questNPCs[i].name + ": " + "</strong>" + this.questNPCs[i].questCompleteText)) {
+					Dom.chat.insert("<strong>" + this.questNPCs[i].name + ": " + "</strong>" + this.questNPCs[i].questCompleteText, 100);
+				}
+			}
+			
+			// quest finishes
+			if (this.questNPCs[i].quests[x].role == "finish") {
+				// check if quest is ready to be finished
+				if (this.hero.isTouching(this.questNPCs[i]) && Dom.currentlyDisplayed === "" && Dom.quests.activeQuestArray.includes(this.questNPCs[i].quests[x].quest.quest) && !Dom.quests.completedQuestArray.includes(this.questNPCs[i].quests[x].quest.quest)) {
+					//check if quest conditions have been fulfilled
+					if(this.questNPCs[i].quests[x].quest.isCompleted()[this.questNPCs[i].quests[x].quest.objectives.length - 1]) {
+						Dom.quest.finish(this.questNPCs[i].quests[x].quest);
+					}
+					// quest conditions have not been fulfilled
+					else if (!Dom.chat.contents.includes("<strong>" + this.questNPCs[i].name + ": " + "</strong>" + this.questNPCs[i].questProgressText)) {
+						Dom.chat.insert("<strong>" + this.questNPCs[i].name + ": " + "</strong>" + this.questNPCs[i].questProgressText, 100);
+					}
+				}
+				// quest has been completed
+				else if (this.hero.isTouching(this.questNPCs[i]) && Dom.quests.completedQuestArray.includes(this.questNPCs[i].quests[x].quest.quest) && !Dom.chat.contents.includes("<strong>" + this.questNPCs[i].name + ": " + "</strong>" + this.questNPCs[i].questCompleteText)) {
+					Dom.chat.insert("<strong>" + this.questNPCs[i].name + ": " + "</strong>" + this.questNPCs[i].questCompleteText, 100);
+				}
+			}
+			
+		}
+		
+	}
+	/*
 	// check collision with quest start npcs
 	// tbd: make own function, and move to be called by hero.move (inefficient rn)
-	for(var i = 0; i < this.questStartNPCs.length; i++) {
+	for(var i = 0; i < this.questNPCs.length; i++) {
 		// doesn't currently check if the player's level is too low to accept the quest
 		
 		// quest is ready to be accepted
-        if (this.hero.isTouching(this.questStartNPCs[i]) && Dom.currentlyDisplayed === "" && !Dom.quests.activeQuestArray.includes(this.questStartNPCs[i].quest.quest) && !Dom.quests.completedQuestArray.includes(this.questStartNPCs[i].quest.quest)) {
-			Dom.quest.start(this.questStartNPCs[i].quest);
+        if (this.hero.isTouching(this.questNPCs[i]) && Dom.currentlyDisplayed === "" && !Dom.quests.activeQuestArray.includes(this.questNPCs[i].quest.quest) && !Dom.quests.completedQuestArray.includes(this.questNPCs[i].quest.quest)) {
+			Dom.quest.start(this.questNPCs[i].quest);
 		}
 		// quest is currently active
-		else if (this.hero.isTouching(this.questStartNPCs[i]) && Dom.quests.activeQuestArray.includes(this.questStartNPCs[i].quest.quest) && !Dom.chat.contents.includes("<strong>" + this.questStartNPCs[i].name + ": " + "</strong>" + this.questStartNPCs[i].questProgressText)) {
-			Dom.chat.insert("<strong>" + this.questStartNPCs[i].name + ": " + "</strong>" + this.questStartNPCs[i].questProgressText, 100);
+		else if (this.hero.isTouching(this.questNPCs[i]) && Dom.quests.activeQuestArray.includes(this.questNPCs[i].quest.quest) && !Dom.chat.contents.includes("<strong>" + this.questNPCs[i].name + ": " + "</strong>" + this.questNPCs[i].questProgressText)) {
+			Dom.chat.insert("<strong>" + this.questNPCs[i].name + ": " + "</strong>" + this.questNPCs[i].questProgressText, 100);
 		}
 		// quest has been completed
-		else if (this.hero.isTouching(this.questStartNPCs[i]) && Dom.quests.completedQuestArray.includes(this.questStartNPCs[i].quest.quest) && !Dom.chat.contents.includes("<strong>" + this.questStartNPCs[i].name + ": " + "</strong>" + this.questStartNPCs[i].questCompleteText)) {
-			Dom.chat.insert("<strong>" + this.questStartNPCs[i].name + ": " + "</strong>" + this.questStartNPCs[i].questCompleteText, 100);
+		else if (this.hero.isTouching(this.questNPCs[i]) && Dom.quests.completedQuestArray.includes(this.questNPCs[i].quest.quest) && !Dom.chat.contents.includes("<strong>" + this.questNPCs[i].name + ": " + "</strong>" + this.questNPCs[i].questCompleteText)) {
+			Dom.chat.insert("<strong>" + this.questNPCs[i].name + ": " + "</strong>" + this.questNPCs[i].questCompleteText, 100);
 		}
     }
 	
 	// check collision with quest finish npcs
-	for(var i = 0; i < this.questFinishNPCs.length; i++) {
-		// doesn't currently check if the player's level is too low to accept the quest
-		
-		// quest is ready to be accepted
-        if (this.hero.isTouching(this.questFinishNPCs[i]) && Dom.currentlyDisplayed === "" && Dom.quests.activeQuestArray.includes(this.questFinishNPCs[i].quest.quest) && !Dom.quests.completedQuestArray.includes(this.questFinishNPCs[i].quest.quest)) {
+	for(var i = 0; i < this.questNPCs.length; i++) {
+		// quest is ready to be finished
+        if (this.hero.isTouching(this.questNPCs[i]) && Dom.currentlyDisplayed === "" && Dom.quests.activeQuestArray.includes(this.questNPCs[i].quest.quest) && !Dom.quests.completedQuestArray.includes(this.questNPCs[i].quest.quest)) {
 			//check if quest conditions have been fulfilled
-			if(this.questFinishNPCs[i].quest.isCompleted()[this.questFinishNPCs[i].quest.objectives.length - 1]) {
-				Dom.quest.finish(this.questFinishNPCs[i].quest);
+			if(this.questNPCs[i].quest.isCompleted()[this.questNPCs[i].quest.objectives.length - 1]) {
+				Dom.quest.finish(this.questNPCs[i].quest);
 			}
 			// quest conditions have not been fulfilled
-			else if (!Dom.chat.contents.includes("<strong>" + this.questFinishNPCs[i].name + ": " + "</strong>" + this.questFinishNPCs[i].questProgressText)) {
-				Dom.chat.insert("<strong>" + this.questFinishNPCs[i].name + ": " + "</strong>" + this.questFinishNPCs[i].questProgressText, 100);
+			else if (!Dom.chat.contents.includes("<strong>" + this.questNPCs[i].name + ": " + "</strong>" + this.questNPCs[i].questProgressText)) {
+				Dom.chat.insert("<strong>" + this.questNPCs[i].name + ": " + "</strong>" + this.questNPCs[i].questProgressText, 100);
 			}
 		}
 		// quest has been completed
-		else if (this.hero.isTouching(this.questFinishNPCs[i]) && Dom.quests.completedQuestArray.includes(this.questFinishNPCs[i].quest.quest) && !Dom.chat.contents.includes("<strong>" + this.questFinishNPCs[i].name + ": " + "</strong>" + this.questFinishNPCs[i].questCompleteText)) {
-			Dom.chat.insert("<strong>" + this.questFinishNPCs[i].name + ": " + "</strong>" + this.questFinishNPCs[i].questCompleteText, 100);
+		else if (this.hero.isTouching(this.questNPCs[i]) && Dom.quests.completedQuestArray.includes(this.questNPCs[i].quest.quest) && !Dom.chat.contents.includes("<strong>" + this.questNPCs[i].name + ": " + "</strong>" + this.questNPCs[i].questCompleteText)) {
+			Dom.chat.insert("<strong>" + this.questNPCs[i].name + ": " + "</strong>" + this.questNPCs[i].questCompleteText, 100);
 		}
     }
-	
+	*/
 	// check collision with merchants
 	for(var i = 0; i < this.merchants.length; i++) {
         if (this.hero.isTouching(this.merchants[i]) && Dom.currentlyDisplayed === "") {
 			Dom.merchant.page(this.merchants[i].name, this.merchants[i].greetingText, this.merchants[i].items);
-			if (!Dom.chat.contents.includes("<strong>" + this.merchants[i].name + ": " + "</strong>" + this.merchants[i].greetingText)) {
-				Dom.chat.insert("<strong>" + this.merchants[i].name + ": " + "</strong>" + this.merchants[i].greetingText, 100);
+			if (!Dom.chat.contents.includes("<strong>" + this.merchants[i].name + ": " + "</strong>" + this.merchants[i].buyText)) {
+				Dom.chat.insert("<strong>" + this.merchants[i].name + ": " + "</strong>" + this.merchants[i].buyText, 100);
 			}
 		}
     }
@@ -676,8 +713,8 @@ Game.drawHitboxes = function () {
 	this.ctx.strokeRect(this.hero.screenX - this.hero.width / 2, this.hero.screenY - this.hero.height / 2, this.hero.width, this.hero.height);
 	
 	// NPC hitboxes
-	for(var i = 0; i < this.questStartNPCs.length; i++) {
-		this.ctx.strokeRect(this.questStartNPCs[i].screenX - this.questStartNPCs[i].width / 2, this.questStartNPCs[i].screenY - this.questStartNPCs[i].height / 2, this.questStartNPCs[i].width, this.questStartNPCs[i].height);
+	for(var i = 0; i < this.questNPCs.length; i++) {
+		this.ctx.strokeRect(this.questNPCs[i].screenX - this.questNPCs[i].width / 2, this.questNPCs[i].screenY - this.questNPCs[i].height / 2, this.questNPCs[i].width, this.questNPCs[i].height);
 	}
 	
 	// merchant hitboxes
@@ -704,19 +741,19 @@ Game.render = function () {
     //}
 	
     // draw quest start NPCs
-    for(var i = 0; i < this.questStartNPCs.length; i++) {
+    for(var i = 0; i < this.questNPCs.length; i++) {
 		// set character screen x and y
-		this.questStartNPCs[i].screenX = (this.questStartNPCs[i].x - this.questStartNPCs[i].width / 2) - this.camera.x;
-		this.questStartNPCs[i].screenY = (this.questStartNPCs[i].y - this.questStartNPCs[i].height / 2) - this.camera.y;
+		this.questNPCs[i].screenX = (this.questNPCs[i].x - this.questNPCs[i].width / 2) - this.camera.x;
+		this.questNPCs[i].screenY = (this.questNPCs[i].y - this.questNPCs[i].height / 2) - this.camera.y;
 		
 		// draw image
         this.ctx.drawImage(
-			this.questStartNPCs[i].image,
-			this.questStartNPCs[i].screenX - this.questStartNPCs[i].width / 2,
-			this.questStartNPCs[i].screenY - this.questStartNPCs[i].height / 2
+			this.questNPCs[i].image,
+			this.questNPCs[i].screenX - this.questNPCs[i].width / 2,
+			this.questNPCs[i].screenY - this.questNPCs[i].height / 2
         );
     }
-	
+	/*
     // draw quest finish NPCs
     for(var i = 0; i < this.questFinishNPCs.length; i++) {
 		// set character screen x and y
@@ -730,9 +767,9 @@ Game.render = function () {
 			this.questFinishNPCs[i].screenY - this.questFinishNPCs[i].height / 2
         );
     }
-	
+	*/
     // draw merchants
-    for(var i = 0; i < this.questStartNPCs.length; i++) {
+    for(var i = 0; i < this.merchants.length; i++) {
 		// set character screen x and y
 		this.merchants[i].screenX = (this.merchants[i].x - this.merchants[i].width / 2) - this.camera.x;
 		this.merchants[i].screenY = (this.merchants[i].y - this.merchants[i].height / 2) - this.camera.y;
