@@ -53,6 +53,14 @@ Dom.changeBook = function(page, override) {
 		return true;
 	}
 	else {
+		for(var i = 0; i < document.getElementsByClassName("closeClass").length; i++){
+			setTimeout(function(){
+				document.getElementsByClassName("closeClass")[i].style.border = "5px solid red";
+			},100);
+			setTimeout(function(){
+				document.getElementsByClassName("closeClass")[i].style.border = "5px solid #886622";
+			},100);
+		}
 		return false;
 	}
 }
@@ -467,6 +475,7 @@ Dom.merchant.buy = function(item){
 		Player.gold -= item.cost;
 		Dom.inventory.updateGold();
 		Dom.quest.give(item);
+		Dom.chat.insert("You bought a " + item.name + ".", 100);
 	}
 	else {
 		alert("You don't have sufficient funds to buy that item.");

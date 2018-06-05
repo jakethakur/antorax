@@ -236,7 +236,7 @@ body{
 	text-indent: 10px;
 	text-align: left;
 }
-#accept, #acceptReward, #decline, #close {
+.closeClass {
 	position: relative;
 	width: 200px;
 	height: 50px;

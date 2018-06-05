@@ -26,7 +26,7 @@ var areas = {
 				image: "weaponsmith",
 				name: "Weaponsmith",
 				greetingText: "Would you like to buy anything?",
-				buyText: "Come back again some time.",
+				buyText: "Combe back some time.",
 				items: [
 					items.weapon[2],
 					items.weapon[3],

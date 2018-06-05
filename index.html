@@ -90,8 +90,8 @@
 		<div id="questStartGold"></div><span id="goldClass">&nbsp;&nbsp;</span>
 		<div id="questStartXP"></div><span id="xpClass">&nbsp;&nbsp;</span>
 		<div id="questStartItems"></div>
-		<div id="accept"onclick="Dom.quest.accept()">Accept</div>
-		<div id="decline"onclick="Dom.changeBook('questsPage', true)">Decline</div>
+		<div id="accept" class="closeClass" onclick="Dom.quest.accept()">Accept</div>
+		<div id="decline" class="closeClass" onclick="Dom.changeBook('questsPage', true)">Decline</div>
 	</div>
 	
 	<div id="questFinish" hidden>
@@ -109,7 +109,7 @@
 		<div id="questFinishGold"></div><span id="goldClass">&nbsp;&nbsp;</span>
 		<div id="questFinishXP"></div><span id="xpClass">&nbsp;&nbsp;</span>
 		<div id="questFinishItems"></div>
-		<center><div id="acceptReward"onclick="Dom.quest.acceptRewards()">Complete Quest</div></center>
+		<center><div id="acceptReward" class="closeClass" onclick="Dom.quest.acceptRewards()">Complete Quest</div></center>
 	</div>
 	
 	<div id="merchantPage" hidden>
@@ -123,7 +123,7 @@
 		<p id="merchantPageBuy"></p>
 		<div class="goldDisplay"></div>
 		<p id="merchantPageBreak"></p><br><br>
-		<center><div id="close"onclick="Dom.changeBook('questsPage', true)">Close</div></center>
+		<center><div id="close" class="closeClass" onclick="Dom.changeBook('questsPage', true)">Close</div></center>
 	</div>
 	
 	<div id="chatImage"onclick="Dom.changeBook('chatPage', false)"></div>
