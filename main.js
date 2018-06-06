@@ -107,7 +107,7 @@ Game.run = function (context) {
     this.ctx = context;
     this._previousElapsed = 0;
 
-    this.loadArea("tutorial");
+    this.loadArea("tutorial", undefined);
 };
 
 //calculate current tick length and update/render canvas accordingly
@@ -157,11 +157,11 @@ var map = {
         var col = Math.floor(x / this.tsize);
         var row = Math.floor(y / this.tsize);
 
-        // tiles 99 and 98 are solid -- the rest are walkable
+        // tiles x and y are solid -- the rest are walkable
         // loop through all layers and return TRUE if any tile is solid
         return this.layers.reduce(function (res, layer, index) {
             var tile = this.getTile(index, col, row);
-            var isSolid = tile === 99 || tile === 98;
+            var isSolid = tile === 4 || tile === 5 || tile === 6 || tile === 25 || tile === 36 || tile === 34;
             return res || isSolid;
         }.bind(this), false);
     },
@@ -258,6 +258,8 @@ class AreaTeleport extends Entity {
 		super(properties);
 
 		this.teleportTo = properties.teleportTo;
+		this.destinationX = properties.destinationX;
+		this.destinationY = properties.destinationY;
 	}
 }
 
@@ -284,7 +286,7 @@ class Hero extends Character {
 		this.y += diry * this.speed * delta;
 
 		// check if we walked into a non-walkable tile
-		this._collide(dirx, diry);
+		this._collide(dirx, diry, delta);
 
 		// clamp values
 		var maxX = this.map.cols * this.map.tsize;
@@ -293,7 +295,7 @@ class Hero extends Character {
 		this.y = Math.max(0, Math.min(this.y, maxY));
 	}
 	
-	_collide(dirx, diry) {
+	_collide(dirx, diry, delta) {
 		var row, col;
 		// there used to be a -1 in right and bottom is because image ranges from 0 to 59 and not up to 60
 		var left = this.x - this.width / 2;
@@ -324,20 +326,24 @@ class Hero extends Character {
 		if (!collision) { return; }
 
 		if (diry > 0) {
-			row = this.map.getRow(bottom);
-			this.y = -this.height / 2 + this.map.getY(row);
+			this.y -= this.speed * delta;
+			//row = this.map.getRow(bottom);
+			//this.y = -this.height / 2 + this.map.getY(row);
 		}
-		else if (diry < 0) {
-			row = this.map.getRow(top);
-			this.y = this.height / 2 + this.map.getY(row + 1);
+		if (diry < 0) {
+			this.y += this.speed * delta;
+			//row = this.map.getRow(top);
+			//this.y = this.height / 2 + this.map.getY(row + 1);
 		}
-		else if (dirx > 0) {
-			col = this.map.getCol(right);
-			this.x = -this.width / 2 + this.map.getX(col);
+		if (dirx > 0) {
+			this.x -= this.speed * delta;
+			//col = this.map.getCol(right);
+			//this.x = -this.width / 2 + this.map.getX(col);
 		}
-		else if (dirx < 0) {
-			col = this.map.getCol(left);
-			this.x = this.width / 2 + this.map.getX(col + 1);
+		if (dirx < 0) {
+			this.x += this.speed * delta;
+			//col = this.map.getCol(left);
+			//this.x = this.width / 2 + this.map.getX(col + 1);
 		}
 	}
 }
@@ -401,7 +407,7 @@ Game.load = function (names, addresses) {
 };
 
 // pull data from areadata.js
-Game.loadArea = function (areaName) {
+Game.loadArea = function (areaName, destination) {
 	
 	// wipe previously loaded images
 	Loader.wipeImages([
@@ -414,6 +420,7 @@ Game.loadArea = function (areaName) {
 	
 	// wait until images have been loaded
     Promise.all(p).then(function (loaded) {
+		this.areaName = areaName;
 		
 		// map
 		Object.assign(map, areas[areaName].mapData);
@@ -445,16 +452,16 @@ Game.loadArea = function (areaName) {
 			this.areaTeleports.push(new AreaTeleport(areas[areaName].areaTeleports[i]));
 		}
 		
-		
 		// init game (if it hasn't been done so already)
 		if(this.hero == undefined) {
 			this.init();
 		}
 		
-		// player x and y
-		this.hero.x = areas[areaName].player.x;
-		this.hero.y = areas[areaName].player.y;
-		
+		// reposition player
+		if(destination != undefined) {
+			this.hero.x = destination.x;
+			this.hero.y = destination.y;
+		}
 		
         window.requestAnimationFrame(this.tick);
 		
@@ -476,8 +483,8 @@ Game.init = function () {
 	
 	this.hero = new Hero({ // create the player at its start x and y positions
 		map: map,
-		x: 0,
-		y: 0,
+		x: areas[this.areaName].player.x,
+		y: areas[this.areaName].player.y,
 		direction: 3,
 		width: 57,
 		height: 120,
@@ -664,9 +671,7 @@ Game.update = function (delta) {
 		
         if (this.hero.isTouching(this.areaTeleports[i])) {
 			// teleport to new area
-			this.loadArea("eaglecrestLoggingCamp");
-			
-			//console.log("oui");
+			this.loadArea(this.areaTeleports[i].teleportTo, {x: this.areaTeleports[i].destinationX, y: this.areaTeleports[i].destinationY});
 		}
     }
 };
