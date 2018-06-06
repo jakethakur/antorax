@@ -269,13 +269,13 @@ body{
 #acceptReward{
 	top: 20px;
 }
-#changeChat, #changeInventory, #changeQuests, #changeSettings, #changeInstructions, #changeReputation, #changeInstructions, #changeReputation {
+#changeChat, #changeInventory, #changeQuests, #changeInstructions, #changeReputation, #changeInstructions, #changeReputation, #changeSettings{
 	position: absolute;
 	width: 131px;
 	height: 51px;
 	outline: none;
 }
-#chatImage, #inventoryImage, #questsImage, #settingsImage, #instructionsImage, #reputationImage {
+#chatImage, #inventoryImage, #questsImage, #instructionsImage, #reputationImage, #settingsImage{
 	position: absolute;
 	height: 40px;
 	z-index: 1;

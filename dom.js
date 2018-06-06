@@ -27,9 +27,7 @@ Dom.previous = "instructionsPage";
 // returns if the page was changed or not
 Dom.changeBook = function(page, override, x) {
 	//override says if the function should be run regardless of if the player has a quest active (e.g: declining a quest or closing a merchant)
-	console.log("maybe");
 	if(this.currentlyDisplayed == "" || override) { // check the player doesn't have a quest active
-		console.log("no");
 		// hide all pages
 		if(page != "questStart" && page != "questFinish" && page != "merchantPage"){
 			Dom.previous = page;
@@ -63,12 +61,10 @@ Dom.changeBook = function(page, override, x) {
 		return true;
 	}
 	else {
-		console.log("yes");
 		for(var i = 0; i < document.getElementsByClassName("closeClass").length; i++){
 			document.getElementsByClassName("closeClass")[i].style.border = "5px solid red";
 		}
 		if(x != 0 && x != 1){
-			console.log("definately");
 			Dom.override = true;
 			setTimeout(function(){
 				for(var i = 0; i < document.getElementsByClassName("closeClass").length; i++){
@@ -197,33 +193,33 @@ Dom.settings.bookmarkPosition = function() {
 		document.getElementById("changeQuests").style.top="619px";
 		document.getElementById("changeQuests").style.transform="rotate(90deg)";
 		document.getElementById("changeQuests").style.transformOrigin="top left";
-		document.getElementById("changeSettings").style.top="619px";
-		document.getElementById("changeSettings").style.transform="rotate(90deg)";
-		document.getElementById("changeSettings").style.transformOrigin="top left";
 		document.getElementById("changeInstructions").style.top="619px";
 		document.getElementById("changeInstructions").style.transform="rotate(90deg)";
 		document.getElementById("changeInstructions").style.transformOrigin="top left";
 		document.getElementById("changeReputation").style.top="619px";
 		document.getElementById("changeReputation").style.transform="rotate(90deg)";
 		document.getElementById("changeReputation").style.transformOrigin="top left";
+		document.getElementById("changeSettings").style.top="619px";
+		document.getElementById("changeSettings").style.transform="rotate(90deg)";
+		document.getElementById("changeSettings").style.transformOrigin="top left";
 		document.getElementById("changeChat").style.left="710px";
 		document.getElementById("changeInventory").style.left="780px";
 		document.getElementById("changeQuests").style.left="850px";
-		document.getElementById("changeSettings").style.left="920px";
-		document.getElementById("changeInstructions").style.left="990px";
-		document.getElementById("changeReputation").style.left="1060px";
+		document.getElementById("changeInstructions").style.left="920px";
+		document.getElementById("changeReputation").style.left="990px";
+		document.getElementById("changeSettings").style.left="1060px";
 		document.getElementById("chatImage").style.top="649px";
 		document.getElementById("inventoryImage").style.top="649px";
 		document.getElementById("questsImage").style.top="649px";
-		document.getElementById("settingsImage").style.top="649px";
 		document.getElementById("instructionsImage").style.top="649px";
 		document.getElementById("reputationImage").style.top="649px";
+		document.getElementById("settingsImage").style.top="649px";
 		document.getElementById("chatImage").style.left="669px";
 		document.getElementById("inventoryImage").style.left="739px";
 		document.getElementById("questsImage").style.left="820px";
-		document.getElementById("settingsImage").style.left="875px";
-		document.getElementById("instructionsImage").style.left="945px";
-		document.getElementById("reputationImage").style.left="1015px";
+		document.getElementById("instructionsImage").style.left="875px";
+		document.getElementById("reputationImage").style.left="945px";
+		document.getElementById("settingsImage").style.left="1015px";
 		document.getElementById("dot").style.top="646px";
 		document.getElementById("dot").style.left="689px";
 	}
@@ -237,33 +233,33 @@ Dom.settings.bookmarkPosition = function() {
 		document.getElementById("changeQuests").style.left="1162px";
 		document.getElementById("changeQuests").style.transform="rotate(0deg)";
 		document.getElementById("changeQuests").style.transformOrigin="top left";
-		document.getElementById("changeSettings").style.left="1162px";
-		document.getElementById("changeSettings").style.transform="rotate(0deg)";
-		document.getElementById("changeSettings").style.transformOrigin="top left";
 		document.getElementById("changeInstructions").style.left="1162px";
 		document.getElementById("changeInstructions").style.transform="rotate(0deg)";
 		document.getElementById("changeInstructions").style.transformOrigin="top left";
 		document.getElementById("changeReputation").style.left="1162px";
 		document.getElementById("changeReputation").style.transform="rotate(0deg)";
 		document.getElementById("changeReputation").style.transformOrigin="top left";
+		document.getElementById("changeSettings").style.left="1162px";
+		document.getElementById("changeSettings").style.transform="rotate(0deg)";
+		document.getElementById("changeSettings").style.transformOrigin="top left";
 		document.getElementById("changeChat").style.top="38px";
 		document.getElementById("changeInventory").style.top="108px";
 		document.getElementById("changeQuests").style.top="178px";
-		document.getElementById("changeSettings").style.top="248px";
-		document.getElementById("changeInstructions").style.top="318px";
-		document.getElementById("changeReputation").style.top="388px";
+		document.getElementById("changeInstructions").style.top="248px";
+		document.getElementById("changeReputation").style.top="318px";
+		document.getElementById("changeSettings").style.top="388px";
 		document.getElementById("chatImage").style.top="43px";
 		document.getElementById("inventoryImage").style.top="113px";
 		document.getElementById("questsImage").style.top="183px";
-		document.getElementById("settingsImage").style.top="253px";
-		document.getElementById("instructionsImage").style.top="323px";
-		document.getElementById("reputationImage").style.top="393px";
+		document.getElementById("instructionsImage").style.top="253px";
+		document.getElementById("reputationImage").style.top="323px";
+		document.getElementById("settingsImage").style.top="393px";
 		document.getElementById("chatImage").style.left="1197px";
 		document.getElementById("inventoryImage").style.left="1197px";
 		document.getElementById("questsImage").style.left="1212px";
-		document.getElementById("settingsImage").style.left="1197px";
 		document.getElementById("instructionsImage").style.left="1197px";
 		document.getElementById("reputationImage").style.left="1197px";
+		document.getElementById("settingsImage").style.left="1197px";
 		document.getElementById("dot").style.top="41px";
 		document.getElementById("dot").style.left="1217px";
 	}
