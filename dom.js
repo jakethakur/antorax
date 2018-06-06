@@ -286,7 +286,7 @@ else {
 	Dom.settings.bookmarkPosition();
 }
 
-Dom.reputation.num = 4;
+Dom.reputation.num = 5;
 Dom.reputation.array = ["Hated","Neutral","Honoured"]
 Dom.reputation.type = 1;
 Dom.reputation.update = function(){
@@ -305,11 +305,25 @@ Dom.reputation.update = function(){
 Dom.reputation.up = function(){
 	Dom.reputation.num -= 11;
 	Dom.reputation.type++;
+	if(Dom.reputation.type > 1){
+		document.getElementById("innerReputation").style.backgroundColor = "green";
+	}else if(Dom.reputation.type < 1){
+		document.getElementById("innerReputation").style.backgroundColor = "red";
+	}else{
+		document.getElementById("innerReputation").style.backgroundColor = "gold";
+	}
 	Dom.reputation.update();
 }
 Dom.reputation.down = function(){
 	Dom.reputation.num += 11;
 	Dom.reputation.type--;
+	if(Dom.reputation.type < 1){
+		document.getElementById("innerReputation").style.backgroundColor = "red";
+	}else if(Dom.reputation.type > 1){
+		document.getElementById("innerReputation").style.backgroundColor = "green";
+	}else{
+		document.getElementById("innerReputation").style.backgroundColor = "gold";
+	}
 	Dom.reputation.update();
 }
 
