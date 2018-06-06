@@ -271,8 +271,9 @@ body{
 }
 #changeChat, #changeInventory, #changeQuests, #changeSettings, #changeInstructions, #changeReputation, #changeInstructions, #changeReputation {
 	position: absolute;
-	width: 200px;
-	height: 60px;
+	width: 131px;
+	height: 51px;
+	outline: none;
 }
 #chatImage, #inventoryImage, #questsImage, #settingsImage, #instructionsImage, #reputationImage {
 	position: absolute;

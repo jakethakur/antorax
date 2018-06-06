@@ -186,7 +186,7 @@ Dom.expand = function(block) {
 
 // arrange position of bookmarks
 Dom.settings.bookmarkPosition = function() {
-	// INEFFICIENT
+	// INEFFICIENT?
 	if(document.getElementById("bottom").checked) { // arrange bookmarks at bottom of screen
 		document.getElementById("changeChat").style.top="619px";
 		document.getElementById("changeChat").style.transform="rotate(90deg)";
@@ -240,18 +240,30 @@ Dom.settings.bookmarkPosition = function() {
 		document.getElementById("changeSettings").style.left="1162px";
 		document.getElementById("changeSettings").style.transform="rotate(0deg)";
 		document.getElementById("changeSettings").style.transformOrigin="top left";
+		document.getElementById("changeInstructions").style.left="1162px";
+		document.getElementById("changeInstructions").style.transform="rotate(0deg)";
+		document.getElementById("changeInstructions").style.transformOrigin="top left";
+		document.getElementById("changeReputation").style.left="1162px";
+		document.getElementById("changeReputation").style.transform="rotate(0deg)";
+		document.getElementById("changeReputation").style.transformOrigin="top left";
 		document.getElementById("changeChat").style.top="38px";
 		document.getElementById("changeInventory").style.top="108px";
 		document.getElementById("changeQuests").style.top="178px";
 		document.getElementById("changeSettings").style.top="248px";
+		document.getElementById("changeInstructions").style.top="318px";
+		document.getElementById("changeReputation").style.top="388px";
 		document.getElementById("chatImage").style.top="43px";
 		document.getElementById("inventoryImage").style.top="113px";
 		document.getElementById("questsImage").style.top="183px";
 		document.getElementById("settingsImage").style.top="253px";
+		document.getElementById("instructionsImage").style.top="323px";
+		document.getElementById("reputationImage").style.top="393px";
 		document.getElementById("chatImage").style.left="1197px";
 		document.getElementById("inventoryImage").style.left="1197px";
 		document.getElementById("questsImage").style.left="1212px";
 		document.getElementById("settingsImage").style.left="1197px";
+		document.getElementById("instructionsImage").style.left="1197px";
+		document.getElementById("reputationImage").style.left="1197px";
 		document.getElementById("dot").style.top="41px";
 		document.getElementById("dot").style.left="1217px";
 	}
