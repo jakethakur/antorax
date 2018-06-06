@@ -258,6 +258,8 @@ class AreaTeleport extends Entity {
 		super(properties);
 
 		this.teleportTo = properties.teleportTo;
+		this.destinationX = properties.destinationX;
+		this.destinationY = properties.destinationY;
 	}
 }
 
@@ -282,6 +284,8 @@ class Hero extends Character {
 		// move hero
 		this.x += dirx * this.speed * delta;
 		this.y += diry * this.speed * delta;
+		
+		console.log([this.y, diry * this.speed * delta]);
 
 		// check if we walked into a non-walkable tile
 		this._collide(dirx, diry, delta);
@@ -418,6 +422,7 @@ Game.loadArea = function (areaName) {
 	
 	// wait until images have been loaded
     Promise.all(p).then(function (loaded) {
+		this.areaName = areaName;
 		
 		// map
 		Object.assign(map, areas[areaName].mapData);
@@ -449,15 +454,10 @@ Game.loadArea = function (areaName) {
 			this.areaTeleports.push(new AreaTeleport(areas[areaName].areaTeleports[i]));
 		}
 		
-		
 		// init game (if it hasn't been done so already)
 		if(this.hero == undefined) {
 			this.init();
 		}
-		
-		// player x and y
-		this.hero.x = areas[areaName].player.x;
-		this.hero.y = areas[areaName].player.y;
 		
 		
         window.requestAnimationFrame(this.tick);
@@ -480,8 +480,8 @@ Game.init = function () {
 	
 	this.hero = new Hero({ // create the player at its start x and y positions
 		map: map,
-		x: 0,
-		y: 0,
+		x: areas[this.areaName].player.x,
+		y: areas[this.areaName].player.y,
 		direction: 3,
 		width: 57,
 		height: 120,
@@ -668,7 +668,13 @@ Game.update = function (delta) {
 		
         if (this.hero.isTouching(this.areaTeleports[i])) {
 			// teleport to new area
-			this.loadArea("eaglecrestLoggingCamp");
+			this.loadArea(this.areaTeleports[i].teleportTo);
+			
+			// set new player x and y
+			this.hero.x = this.areaTeleports[i].destinationX;
+			this.hero.y = this.areaTeleports[i].destinationY;
+			
+			console.log(this.hero.y);
 			
 			//console.log("oui");
 		}
