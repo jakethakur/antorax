@@ -107,7 +107,7 @@ Game.run = function (context) {
     this.ctx = context;
     this._previousElapsed = 0;
 
-    this.loadArea("tutorial");
+    this.loadArea("tutorial", undefined);
 };
 
 //calculate current tick length and update/render canvas accordingly
@@ -284,8 +284,6 @@ class Hero extends Character {
 		// move hero
 		this.x += dirx * this.speed * delta;
 		this.y += diry * this.speed * delta;
-		
-		console.log([this.y, diry * this.speed * delta]);
 
 		// check if we walked into a non-walkable tile
 		this._collide(dirx, diry, delta);
@@ -409,7 +407,7 @@ Game.load = function (names, addresses) {
 };
 
 // pull data from areadata.js
-Game.loadArea = function (areaName) {
+Game.loadArea = function (areaName, destination) {
 	
 	// wipe previously loaded images
 	Loader.wipeImages([
@@ -459,6 +457,11 @@ Game.loadArea = function (areaName) {
 			this.init();
 		}
 		
+		// reposition player
+		if(destination != undefined) {
+			this.hero.x = destination.x;
+			this.hero.y = destination.y;
+		}
 		
         window.requestAnimationFrame(this.tick);
 		
@@ -668,15 +671,7 @@ Game.update = function (delta) {
 		
         if (this.hero.isTouching(this.areaTeleports[i])) {
 			// teleport to new area
-			this.loadArea(this.areaTeleports[i].teleportTo);
-			
-			// set new player x and y
-			this.hero.x = this.areaTeleports[i].destinationX;
-			this.hero.y = this.areaTeleports[i].destinationY;
-			
-			console.log(this.hero.y);
-			
-			//console.log("oui");
+			this.loadArea(this.areaTeleports[i].teleportTo, {x: this.areaTeleports[i].destinationX, y: this.areaTeleports[i].destinationY});
 		}
     }
 };
