@@ -292,7 +292,15 @@ body{
 	background-image: url("./assets/icons/quests.png");
 	width: 9px;
 }
-#settingsImage, #instructionsImage, #reputationImage {
+#instructionsImage{
+	background-image: url("./assets/icons/instructions.png");
+	width: 40px;
+}
+#reputationImage{
+	background-image: url("./assets/icons/reputation.png");
+	width: 45px;
+}
+#settingsImage{
 	background-image: url("./assets/icons/settings.png");
 	width: 38px;
 }
