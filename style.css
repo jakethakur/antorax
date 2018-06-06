@@ -255,6 +255,32 @@ body{
 #merchantPageOptions {
 	float: left;
 }
+#test{
+	position: absolute;
+	height: auto;
+    width: auto;
+	z-index: -1;
+}
+#reputationPage{
+	padding-top: 30px;
+	padding-left: 30px;
+	height: 570px;
+	width: 480px;
+}
+#reputation{
+	left: 20px;
+	position: relative;
+	height: 20px;
+	width: 250px;
+	border: 1px solid black;
+	display: inline-block;
+}
+#innerReputation{
+	height: 20px;
+	line-height: 22px;
+	vertical-align: middle;
+	background-color: green;
+}
 #accept{
 	top: 20px;
 	left: 20px;

@@ -17,6 +17,8 @@ var Dom = {
 	},
 	inventory: {},
 	quests: {},
+	instructions: {},
+	reputation: {},
 	settings: {},
 	quest: {},
 	merchant: {},
@@ -51,6 +53,9 @@ Dom.changeBook = function(page, override, x) {
 			document.getElementById("dot").innerHTML = 0;
 			chatPageStringOld = chatPageString + chatPageStringOld;
 			chatPageString = "";
+		}
+		if(page == "reputationPage"){
+			Dom.reputation.update();
 		}
 		
 		if(override) {
@@ -279,6 +284,33 @@ else {
 	console.warn("Your window size is too small. Please zoom out!");
 	document.getElementById("bottom").checked = true;
 	Dom.settings.bookmarkPosition();
+}
+
+Dom.reputation.num = 4;
+Dom.reputation.array = ["Hated","Neutral","Honoured"]
+Dom.reputation.type = 1;
+Dom.reputation.update = function(){
+	if(Dom.reputation.num > 10){
+		Dom.reputation.up();
+	}else if(Dom.reputation.num < 0){
+		Dom.reputation.down();
+	}else{
+		document.getElementById("innerReputation").innerHTML = Dom.reputation.array[Dom.reputation.type];
+		document.getElementById("test").innerHTML = Dom.reputation.array[Dom.reputation.type];
+		document.getElementById("innerReputation").style.textIndent = ((250-document.getElementById("test").clientWidth)/2) + "px";
+		document.getElementById("innerReputation").style.width = Dom.reputation.num*25+"px";
+	}
+}
+
+Dom.reputation.up = function(){
+	Dom.reputation.num -= 11;
+	Dom.reputation.type++;
+	Dom.reputation.update();
+}
+Dom.reputation.down = function(){
+	Dom.reputation.num += 11;
+	Dom.reputation.type--;
+	Dom.reputation.update();
 }
 
 // display inventory information next to item
