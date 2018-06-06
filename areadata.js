@@ -30,9 +30,9 @@ var areas = {
 				greetingText: "Would you like to buy anything?",
 				buyText: "Come back some time.",
 				items: [
-					items.bow[2],
-					items.staff[2],
 					items.sword[2],
+					items.staff[2],
+					items.bow[2],
 				],
 			},
 		],
@@ -87,8 +87,8 @@ var areas = {
 			{
 				x: 500,
 				y: 500,
-				width: 92,
-				height: 100,
+				width: 73,
+				height: 123,
 				image: "teper",
 				quests: [
 					{

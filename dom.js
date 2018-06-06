@@ -181,22 +181,22 @@ Dom.expand = function(block) {
 Dom.settings.bookmarkPosition = function() {
 	// INEFFICIENT
 	if(document.getElementById("bottom").checked) { // arrange bookmarks at bottom of screen
-		document.getElementById("changeChat").style.top="619";
+		document.getElementById("changeChat").style.top="619px";
 		document.getElementById("changeChat").style.transform="rotate(90deg)";
 		document.getElementById("changeChat").style.transformOrigin="top left";
-		document.getElementById("changeInventory").style.top="619";
+		document.getElementById("changeInventory").style.top="619px";
 		document.getElementById("changeInventory").style.transform="rotate(90deg)";
 		document.getElementById("changeInventory").style.transformOrigin="top left";
-		document.getElementById("changeQuests").style.top="619";
+		document.getElementById("changeQuests").style.top="619px";
 		document.getElementById("changeQuests").style.transform="rotate(90deg)";
 		document.getElementById("changeQuests").style.transformOrigin="top left";
-		document.getElementById("changeSettings").style.top="619";
+		document.getElementById("changeSettings").style.top="619px";
 		document.getElementById("changeSettings").style.transform="rotate(90deg)";
 		document.getElementById("changeSettings").style.transformOrigin="top left";
-		document.getElementById("changeChat").style.left="710";
-		document.getElementById("changeInventory").style.left="780";
-		document.getElementById("changeQuests").style.left="850";
-		document.getElementById("changeSettings").style.left="920";
+		document.getElementById("changeChat").style.left="710px";
+		document.getElementById("changeInventory").style.left="780px";
+		document.getElementById("changeQuests").style.left="850px";
+		document.getElementById("changeSettings").style.left="920px";
 		document.getElementById("chatImage").style.top="649px";
 		document.getElementById("inventoryImage").style.top="649px";
 		document.getElementById("questsImage").style.top="649px";
@@ -209,22 +209,22 @@ Dom.settings.bookmarkPosition = function() {
 		document.getElementById("dot").style.left="689px";
 	}
 	else { // arrange bookmarks at top of screen
-		document.getElementById("changeChat").style.left="1162";
+		document.getElementById("changeChat").style.left="1162px";
 		document.getElementById("changeChat").style.transform="rotate(0deg)";
 		document.getElementById("changeChat").style.transformOrigin="top left";
-		document.getElementById("changeInventory").style.left="1162";
+		document.getElementById("changeInventory").style.left="1162px";
 		document.getElementById("changeInventory").style.transform="rotate(0deg)";
 		document.getElementById("changeInventory").style.transformOrigin="top left";
-		document.getElementById("changeQuests").style.left="1162";
+		document.getElementById("changeQuests").style.left="1162px";
 		document.getElementById("changeQuests").style.transform="rotate(0deg)";
 		document.getElementById("changeQuests").style.transformOrigin="top left";
-		document.getElementById("changeSettings").style.left="1162";
+		document.getElementById("changeSettings").style.left="1162px";
 		document.getElementById("changeSettings").style.transform="rotate(0deg)";
 		document.getElementById("changeSettings").style.transformOrigin="top left";
-		document.getElementById("changeChat").style.top="38";
-		document.getElementById("changeInventory").style.top="108";
-		document.getElementById("changeQuests").style.top="178";
-		document.getElementById("changeSettings").style.top="248";
+		document.getElementById("changeChat").style.top="38px";
+		document.getElementById("changeInventory").style.top="108px";
+		document.getElementById("changeQuests").style.top="178px";
+		document.getElementById("changeSettings").style.top="248px";
 		document.getElementById("chatImage").style.top="43px";
 		document.getElementById("inventoryImage").style.top="113px";
 		document.getElementById("questsImage").style.top="183px";
@@ -501,7 +501,7 @@ Dom.quest.give = function(item){
 	if(item.type == "chest"){Player.inventory.chest.push(item);}
 	if(item.type == "greaves"){Player.inventory.greaves.push(item);}
 	if(item.type == "boots"){Player.inventory.boots.push(item);}
-	if(item.type == "weapon"){Player.inventory.weapon.push(item);}
+	if(item.type == "sword" || item.type == "staff" || item.type == "bow"){Player.inventory.weapon.push(item);}
 }
 
 Dom.quests.allQuestNum = 18;
