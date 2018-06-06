@@ -91,7 +91,7 @@
 		<div id="questStartXP"></div><span id="xpClass">&nbsp;&nbsp;</span>
 		<div id="questStartItems"></div>
 		<div id="accept" class="closeClass" onclick="Dom.quest.accept()">Accept</div>
-		<div id="decline" class="closeClass" onclick="Dom.changeBook('questsPage', true)">Decline</div>
+		<div id="decline" class="closeClass" onclick="Dom.changeBook(Dom.previous, true)">Decline</div>
 	</div>
 	
 	<div id="questFinish" hidden>
@@ -123,7 +123,7 @@
 		<p id="merchantPageBuy"></p>
 		<div class="goldDisplay"></div>
 		<p id="merchantPageBreak"></p><br><br>
-		<center><div id="close" class="closeClass" onclick="Dom.changeBook('questsPage', true)">Close</div></center>
+		<center><div id="close" class="closeClass" onclick="Dom.changeBook(Dom.previous, true)">Close</div></center>
 	</div>
 	
 	<div id="chatImage"onclick="Dom.changeBook('chatPage', false)"></div>

@@ -20,7 +20,7 @@ var Dom = {
 	merchant: {},
 	overide: false,
 };
-
+Dom.previous = "inventoryPage";
 // change currently displayed page
 // returns if the page was changed or not
 Dom.changeBook = function(page, override, x) {
@@ -29,6 +29,9 @@ Dom.changeBook = function(page, override, x) {
 	if(this.currentlyDisplayed == "" || override) { // check the player doesn't have a quest active
 		console.log("no");
 		// hide all pages
+		if(page != "questStart" && page != "questFinish" && page != "merchantPage"){
+			Dom.previous = page;
+		}
 		this.elements.chatPage.hidden = true;
 		this.elements.inventoryPage.hidden = true;
 		this.elements.questsPage.hidden = true;
@@ -376,7 +379,7 @@ Dom.quest.accept = function(){
 	}
 	
 	// switch off quest start screen (and to quest log)
-	Dom.changeBook("questsPage", true); // also resets Dom.currentlyDisplayed
+	Dom.changeBook(Dom.previous, true); // also resets Dom.currentlyDisplayed
 }
 
 Dom.quest.acceptRewards = function(){
@@ -394,7 +397,7 @@ Dom.quest.acceptRewards = function(){
 	}
 	
 	// switch off quest start screen (and to quest log)
-	Dom.changeBook("questsPage", true); // also resets Dom.currentlyDisplayed
+	Dom.changeBook(Dom.previous, true); // also resets Dom.currentlyDisplayed
 	Dom.quests.activeQuests(undefined);
 }
 
