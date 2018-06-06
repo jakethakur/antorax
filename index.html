@@ -10,7 +10,7 @@
 	
 	<div id="chatPage" hidden></div>
 	
-	<div id="inventoryPage">
+	<div id="inventoryPage" hidden>
 		<div id="itemInformation" hidden>
 			<div class="triangleLeft"></div>
 			<div class="innerTriangleLeft"></div>
@@ -72,7 +72,10 @@
 			<input type="radio" name="gridOnOff" checked="true" onclick="">No
 		</div>
 	</div>
-	
+	<div id="instructionsPage">
+	</div>
+	<div id="reputationPage" hidden>
+	</div>
 	<div id="questStart" hidden>
 		<div id="questInformation" hidden>
 			<div class="triangleRight"></div>
@@ -131,6 +134,8 @@
 	<div id="inventoryImage"onclick="Dom.changeBook('inventoryPage', false)"></div>
 	<div id="questsImage"onclick="Dom.changeBook('questsPage', false)"></div>
 	<div id="settingsImage"onclick="Dom.changeBook('settingsPage', false)"></div>
+	<div id="instructionsImage"onclick="Dom.changeBook('instructionsPage', false)"></div>
+	<div id="reputationImage"onclick="Dom.changeBook('reputationPage', false)"></div>
 	<svg height="50" width="200" id="changeChat" onclick="Dom.changeBook('chatPage', false)" tabindex = "0">
 		<polygon points ="0,0 0,50 100,50 130,25 100,0" style="fill:blue;stroke:black;stroke-width:1" />
 		Sorry, your browser does not support online SVG. Get a better browser!
@@ -143,6 +148,12 @@
 	</svg>
 	<svg height="50" width="200" id="changeSettings" onclick="Dom.changeBook('settingsPage', false)"tabindex = "0">
 		<polygon points ="0,0 0,50 100,50 130,25 100,0" style="fill:#d3d3d3;stroke:black;stroke-width:1" />
+	</svg>
+	<svg height="50" width="200" id="changeInstructions" onclick="Dom.changeBook('instructionsPage', false)"tabindex = "0">
+		<polygon points ="0,0 0,50 100,50 130,25 100,0" style="fill:yellow;stroke:black;stroke-width:1" />
+	</svg>
+	<svg height="50" width="200" id="changeReputation" onclick="Dom.changeBook('reputationPage', false)"tabindex = "0">
+		<polygon points ="0,0 0,50 100,50 130,25 100,0" style="fill:purple;stroke:black;stroke-width:1" />
 	</svg>
 	
 	<script src="itemdata.js"></script>

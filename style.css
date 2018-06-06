@@ -3,7 +3,7 @@
 body{
 	font-family: 'MedievalSharp', serif;
 }
-#chatPage, #inventoryPage, #questsPage, #settingsPage, #questStart, #questFinish, #merchantPage {
+#chatPage, #inventoryPage, #questsPage, #settingsPage, #instructionsPage, #reputationPage, #questStart, #questFinish, #merchantPage {
 	float: left;
 	margin: 10px;
 	border: 1px solid black;
@@ -269,12 +269,12 @@ body{
 #acceptReward{
 	top: 20px;
 }
-#changeChat, #changeInventory, #changeQuests, #changeSettings {
+#changeChat, #changeInventory, #changeQuests, #changeSettings, #changeInstructions, #changeReputation, #changeInstructions, #changeReputation {
 	position: absolute;
 	width: 200px;
 	height: 60px;
 }
-#chatImage, #inventoryImage, #questsImage, #settingsImage {
+#chatImage, #inventoryImage, #questsImage, #settingsImage, #instructionsImage, #reputationImage {
 	position: absolute;
 	height: 40px;
 	z-index: 1;
@@ -291,7 +291,7 @@ body{
 	background-image: url("./assets/icons/quests.png");
 	width: 9px;
 }
-#settingsImage {
+#settingsImage, #instructionsImage, #reputationImage {
 	background-image: url("./assets/icons/settings.png");
 	width: 38px;
 }
