@@ -124,8 +124,15 @@ Game.tick = function (elapsed) {
     delta = Math.min(delta, 0.25); // maximum delta of 250 ms
     this._previousElapsed = elapsed;
 	
+	
 	this.update(delta); //update game state
 	this.render(); //render game display
+	
+	// display delta time (debug)
+	//this.ctx.fillText("delta: " + Math.round(delta * 1000) / 1000, 10, 30);
+	
+	// display frames per second (debug)
+	this.ctx.fillText("fps: " + Math.round(1 / delta), 10, 30);
 }.bind(Game);
 
 //
@@ -463,7 +470,7 @@ Game.loadArea = function (areaName, destination) {
 			this.hero.y = destination.y;
 		}
 		
-        window.requestAnimationFrame(this.tick);
+        //window.requestAnimationFrame(this.tick);
 		
     }.bind(this));
 	
@@ -500,6 +507,9 @@ Game.init = function () {
     this.camera = new Camera(map, canvas.width, canvas.height);
 	
     this.camera.follow(this.hero);
+	
+	// begin game display
+	window.requestAnimationFrame(this.tick);
 };
 
 // play music
