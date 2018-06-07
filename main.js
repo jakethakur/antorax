@@ -132,7 +132,9 @@ Game.tick = function (elapsed) {
 	//this.ctx.fillText("delta: " + Math.round(delta * 1000) / 1000, 10, 30);
 	
 	// display frames per second (debug)
-	//this.ctx.fillText("fps: " + Math.round(1 / delta), 10, 30);
+	if(document.getElementById("fpsOn").checked){
+		this.ctx.fillText("fps: " + Math.round(1 / delta), 10, 30);
+	}
 }.bind(Game);
 
 //
