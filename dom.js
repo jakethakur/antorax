@@ -54,7 +54,7 @@ Dom.changeBook = function(page, override, x) {
 			chatPageString = "";
 		}
 		if(page == "reputationPage"){
-			Dom.reputation.update();
+			Dom.reputation.update(); // not necessary?
 		}
 		
 		if(override) {
@@ -285,56 +285,65 @@ else {
 	Dom.settings.bookmarkPosition();
 }
 
-Dom.reputation.array = ["Hated","Unfriendly","Neutral","Friendly","Honoured"];
-for(var i = 0; i < Player.reputation.length; i++){
-	Player.reputation[i].num = 5;
-	Player.reputation[i].type = 2;
+Dom.reputation.levels = ["Hated","Unfriendly","Neutral","Friendly","Honoured"]; // possible reputation levels
+for(var i = 0; i < Object.keys(Player.reputation).length; i++){
+	Player.reputation[Object.keys(Player.reputation)[i]].score = 5; // reputation score (between levels)
+	Player.reputation[Object.keys(Player.reputation)[i]].level = 2; // reputation level
 }
+
 Dom.reputation.update = function(){
-	for(var i = 0; i < Player.reputation.length; i++){
-		if(Player.reputation[i].num > 10){
-			Dom.reputation.up(Player.reputation[i]);
-		}else if(Player.reputation[i].num < 0){
-			Dom.reputation.down(Player.reputation[i]);
-		}else{
-			document.getElementById("innerReputation").innerHTML = Dom.reputation.array[Player.reputation[i].type];
-			document.getElementById("test").innerHTML = Dom.reputation.array[Player.reputation[i].type];
-			if(Player.reputation[i].type >=2){
-				document.getElementById("innerReputation").style.textIndent = ((250-document.getElementById("test").clientWidth)/2) + "px";
-				document.getElementById("innerReputation").style.width = Player.reputation[i].num*25+"px";
-				document.getElementById("innerReputation").style.left = "0px";
-			}else{
-				document.getElementById("innerReputation").style.textIndent = ((250-document.getElementById("test").clientWidth)/2)-Player.reputation[i].num*25+ "px";
-				document.getElementById("innerReputation").style.width = (10-Player.reputation[i].num)*25+"px";
-				document.getElementById("innerReputation").style.left = Player.reputation[i].num*25+"px";
+	for(var i = 0; i < Object.keys(Player.reputation).length; i++){
+		if(Player.reputation[Object.keys(Player.reputation)[i]].score > 10) {
+			this.upLevel(Player.reputation[Object.keys(Player.reputation)[i]]);
+		}
+		else if(Player.reputation[Object.keys(Player.reputation)[i]].score < 0) {
+			this.downLevel(Player.reputation[Object.keys(Player.reputation)[i]]);
+		}
+		else {
+			console.log(Player.reputation[Object.keys(Player.reputation)[i]].level);
+			document.getElementById("reputationBar").innerHTML = this.levels[Player.reputation[Object.keys(Player.reputation)[i]].level];
+			document.getElementById("widthPadding").innerHTML = this.levels[Player.reputation[Object.keys(Player.reputation)[i]].level];
+			if(Player.reputation[Object.keys(Player.reputation)[i]].level >=2) {
+				document.getElementById("reputationBar").style.textIndent = ((250-document.getElementById("widthPadding").clientWidth)/2) + "px";
+				document.getElementById("reputationBar").style.width = Player.reputation[Object.keys(Player.reputation)[i]].score*25+"px";
+				document.getElementById("reputationBar").style.left = "0px";
+			}
+			else {
+				document.getElementById("reputationBar").style.textIndent = ((250-document.getElementById("widthPadding").clientWidth)/2)-Player.reputation[Object.keys(Player.reputation)[i]].score*25+ "px";
+				document.getElementById("reputationBar").style.width = (10-Player.reputation[Object.keys(Player.reputation)[i]].score)*25+"px";
+				document.getElementById("reputationBar").style.left = Player.reputation[Object.keys(Player.reputation)[i]].score*25+"px";
 			}
 		}
 	}
 }
 
-Dom.reputation.up = function(Area){
-	Area.num -= 11;
-	Area.type++;
-	if(Area.type > 2){
-		document.getElementById("innerReputation").style.backgroundColor = "green";
-	}else if(Area.type < 2){
-		document.getElementById("innerReputation").style.backgroundColor = "red";
-	}else{
-		document.getElementById("innerReputation").style.backgroundColor = "gold";
+Dom.reputation.upLevel = function(Area){
+			console.log("uplevel");
+	Area.score -= 11;
+	Area.level++;
+	if(Area.level > 2) {
+		document.getElementById("reputationBar").style.backgroundColor = "green";
 	}
-	Dom.reputation.update();
+	else if(Area.level < 2) {
+		document.getElementById("reputationBar").style.backgroundColor = "red";
+	}
+	else {
+		document.getElementById("reputationBar").style.backgroundColor = "gold";
+	}
+	this.update();
 }
-Dom.reputation.down = function(Area){
-	Area.num += 11;
-	Area.type--;
-	if(Area.type < 2){
-		document.getElementById("innerReputation").style.backgroundColor = "red";
-	}else if(Area.type > 2){
-		document.getElementById("innerReputation").style.backgroundColor = "green";
+Dom.reputation.downLevel = function(Area){
+			console.log("downlevel");
+	Area.score += 11;
+	Area.level--;
+	if(Area.level < 2){
+		document.getElementById("reputationBar").style.backgroundColor = "red";
+	}else if(Area.level > 2){
+		document.getElementById("reputationBar").style.backgroundColor = "green";
 	}else{
-		document.getElementById("innerReputation").style.backgroundColor = "gold";
+		document.getElementById("reputationBar").style.backgroundColor = "gold";
 	}
-	Dom.reputation.update();
+	this.update();
 }
 
 // display inventory information next to item
@@ -447,6 +456,14 @@ Dom.quest.finish = function(quest){
 	Dom.inventory.updateGold();
 	Dom.quest.give(quest.rewards.items[0]);
 	Dom.currentlyDisplayed = quest;
+	
+	// reputation rewards
+	if(quest.rewards.reputation != undefined) {
+		for(var i = 0; i < Object.keys(quest.rewards.reputation).length; i++) {
+			Player.reputation[Object.keys(quest.rewards.reputation)[i]].score += quest.rewards.reputation[Object.keys(quest.rewards.reputation)[i]];
+		}
+	}
+	Dom.reputation.update();
 }
 
 // quest accepted
@@ -584,7 +601,7 @@ Dom.quest.give = function(item){
 	if(item.type == "chest"){Player.inventory.chest.push(item);}
 	if(item.type == "greaves"){Player.inventory.greaves.push(item);}
 	if(item.type == "boots"){Player.inventory.boots.push(item);}
-	if(item.type == "sword" || item.type == "staff" || item.type == "bow"){Player.inventory.weapon.push(item);}
+	if(item.type == "sword" || item.type == "staff" || item.type == "bow" || item.type == "rod"){Player.inventory.weapon.push(item);}
 }
 
 Dom.quests.allQuestNum = 18;
