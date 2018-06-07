@@ -132,7 +132,7 @@ Game.tick = function (elapsed) {
 	//this.ctx.fillText("delta: " + Math.round(delta * 1000) / 1000, 10, 30);
 	
 	// display frames per second (debug)
-	this.ctx.fillText("fps: " + Math.round(1 / delta), 10, 30);
+	//this.ctx.fillText("fps: " + Math.round(1 / delta), 10, 30);
 }.bind(Game);
 
 //
@@ -882,17 +882,17 @@ Game.render = function () {
     //this._drawLayer(1);
 
     // draw map grid (debug)
-    if(document.getElementById("gridOn").checked){
+    if(document.getElementById("gridOn").checked) {
 		this._drawGrid();
     }
 	
     // draw hitboxes (debug)
-    if(document.getElementById("hitboxesOn").checked){
+    if(document.getElementById("hitboxesOn").checked) {
 		this.drawHitboxes();
     }
 	
     // show player coords (debug)
-    if(document.getElementById("coordsOn").checked){
+    if(document.getElementById("coordsOn").checked) {
 		this.coordinates(this.hero);
     }
 };
