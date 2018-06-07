@@ -340,3 +340,6 @@ body{
 	background-image: url("./assets/icons/settings.png");
 	width: 38px;
 }
+#instructionsPage{
+	font-size: 80px;
+}

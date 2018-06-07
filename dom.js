@@ -53,9 +53,6 @@ Dom.changeBook = function(page, override, x) {
 			chatPageStringOld = chatPageString + chatPageStringOld;
 			chatPageString = "";
 		}
-		if(page == "reputationPage"){
-			Dom.reputation.update(); // not necessary?
-		}
 		
 		if(override) {
 			this.currentlyDisplayed = ""; // reset current display if it is overriden
