@@ -1,0 +1,21 @@
+@import url('https://fonts.googleapis.com/css?family=MedievalSharp');
+
+body{
+	font-family: 'MedievalSharp', serif;
+	text-align: center;
+	background-color: #f9f9d0;
+	overflow: auto;
+}
+#a{
+	width: 150px;
+	height: 300px;
+	border: 5px solid black;
+	background-color: #fef9b4;
+	padding: 0px;
+	margin: 0px;
+}
+#name{
+	display: inline-block;
+	padding: 0px;
+	margin: 0px;
+}
