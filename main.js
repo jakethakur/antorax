@@ -608,10 +608,11 @@ Game.update = function (delta) {
 				else if (this.hero.isTouching(this.questNPCs[i]) && Dom.quests.completedQuestArray.includes(this.questNPCs[i].quests[x].quest.quest) && !Dom.chat.contents.includes("<strong>" + this.questNPCs[i].name + ": " + "</strong>" + this.questNPCs[i].questCompleteText)) {
 					Dom.chat.insert("<strong>" + this.questNPCs[i].name + ": " + "</strong>" + this.questNPCs[i].questCompleteText, 100);
 				}
-				if(Dom.currentlyDisplayed != this.questNPCs[i].quests[this.questNPCs[i].quests.length-1].quest && Dom.currentlyDisplayed != "" && !Dom.override){
-					if(this.hero.isTouching(this.questNPCs[i]) && document.getElementsByClassName("closeClass")[0].style.border != "5px solid red"){
+				if(Dom.currentlyDisplayed != this.questNPCs[i].quests[this.questNPCs[i].quests.length-1].quest && Dom.currentlyDisplayed != "" && !Dom.override) {
+					if(this.hero.isTouching(this.questNPCs[i]) && document.getElementsByClassName("closeClass")[0].style.border != "5px solid red") {
 						Dom.changeBook("questsPage",false,0);
-					}else if(!this.hero.isTouching(this.questNPCs[i]) && document.getElementsByClassName("closeClass")[0].style.border == "5px solid red"){
+					}
+					else if(!this.hero.isTouching(this.questNPCs[i]) && document.getElementsByClassName("closeClass")[0].style.border == "5px solid red") {
 						Dom.changeBook("questsPage",false,1);
 					}
 				}

@@ -46,7 +46,7 @@ var quests = {
 					items.boots[2],
 				],
 				reputation: {
-					eaglecrestLoggingCamp: 5,
+					eaglecrestLoggingCamp: 6,
 				},
 			},
 			

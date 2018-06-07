@@ -1,7 +1,9 @@
 var Player = {
 	gold: 0,
 	xp: 0,
-	reputation: [{},],
+	reputation: {
+		eaglecrestLoggingCamp: {},
+	},
 	inventory: {
 		helm: [
 			{
