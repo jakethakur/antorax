@@ -262,12 +262,17 @@ body{
 	z-index: -1;
 }
 #reputationPage{
-	padding-top: 30px;
+	padding-top: 20px;
 	padding-left: 30px;
-	height: 570px;
+	height: 580px;
 	width: 480px;
+	-webkit-user-select: none; /* Safari */        
+	-moz-user-select: none; /* Firefox */
+	-ms-user-select: none; /* IE10+/Edge */
+	user-select: none;
 }
 #reputation{
+	top: 5px;
 	left: 20px;
 	position: relative;
 	height: 20px;
@@ -281,6 +286,10 @@ body{
 	line-height: 22px;
 	vertical-align: middle;
 	background-color: gold;
+	-webkit-user-select: none; /* Safari */        
+	-moz-user-select: none; /* Firefox */
+	-ms-user-select: none; /* IE10+/Edge */
+	user-select: none;
 }
 #accept{
 	top: 20px;

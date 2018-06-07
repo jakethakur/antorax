@@ -22,7 +22,6 @@ var Dom = {
 	settings: {},
 	quest: {},
 	merchant: {},
-	overide: false,
 };
 Dom.previous = "instructionsPage";
 // change currently displayed page
@@ -286,26 +285,28 @@ else {
 	Dom.settings.bookmarkPosition();
 }
 
-Dom.reputation.bars = {};
-Dom.reputation.bars.eaglecrestLoggingCamp = {};
-Dom.reputation.bars.eaglecrestLoggingCamp.num = 5;
-Dom.reputation.bars.eaglecrestLoggingCamp.array = ["Hated","Neutral","Honoured"]
-Dom.reputation.bars.eaglecrestLoggingCamp.type = 1;
+Dom.reputation.array = ["Hated","Unfriendly","Neutral","Friendly","Honoured"];
+for(var i = 0; i < Player.reputation.length; i++){
+	Player.reputation[i].num = 5;
+	Player.reputation[i].type = 2;
+}
 Dom.reputation.update = function(){
-	for(var i = 0; i < Object.keys(Dom.reputation.bars).length; i++){
-		if(Dom.reputation.bars[Object.keys(Dom.reputation.bars)[i]].num > 10){
-			Dom.reputation.up(Dom.reputation.bars[Object.keys(Dom.reputation.bars)[i]]);
-		}else if(Dom.reputation.bars[Object.keys(Dom.reputation.bars)[i]].num < 0){
-			Dom.reputation.down(Dom.reputation.bars[Object.keys(Dom.reputation.bars)[i]]);
+	for(var i = 0; i < Player.reputation.length; i++){
+		if(Player.reputation[i].num > 10){
+			Dom.reputation.up(Player.reputation[i]);
+		}else if(Player.reputation[i].num < 0){
+			Dom.reputation.down(Player.reputation[i]);
 		}else{
-			document.getElementById("innerReputation").innerHTML = Dom.reputation.bars[Object.keys(Dom.reputation.bars)[i]].array[Dom.reputation.bars[Object.keys(Dom.reputation.bars)[i]].type];
-			document.getElementById("test").innerHTML = Dom.reputation.bars[Object.keys(Dom.reputation.bars)[i]].array[Dom.reputation.bars[Object.keys(Dom.reputation.bars)[i]].type];
-			document.getElementById("innerReputation").style.textIndent = ((250-document.getElementById("test").clientWidth)/2) + "px";
-			document.getElementById("innerReputation").style.width = Dom.reputation.bars[Object.keys(Dom.reputation.bars)[i]].num*25+"px";
-			if(Dom.reputation.bars[Object.keys(Dom.reputation.bars)[i]].type < 1){
-				document.getElementById("innerReputation").style.textIndent = ((250-document.getElementById("test").clientWidth)/2)-Dom.reputation.bars[Object.keys(Dom.reputation.bars)[i]].num*25+ "px";
-				document.getElementById("innerReputation").style.width = (10-Dom.reputation.bars[Object.keys(Dom.reputation.bars)[i]].num)*25+"px";
-				document.getElementById("innerReputation").style.left = Dom.reputation.bars[Object.keys(Dom.reputation.bars)[i]].num*25+"px";
+			document.getElementById("innerReputation").innerHTML = Dom.reputation.array[Player.reputation[i].type];
+			document.getElementById("test").innerHTML = Dom.reputation.array[Player.reputation[i].type];
+			if(Player.reputation[i].type >=2){
+				document.getElementById("innerReputation").style.textIndent = ((250-document.getElementById("test").clientWidth)/2) + "px";
+				document.getElementById("innerReputation").style.width = Player.reputation[i].num*25+"px";
+				document.getElementById("innerReputation").style.left = "0px";
+			}else{
+				document.getElementById("innerReputation").style.textIndent = ((250-document.getElementById("test").clientWidth)/2)-Player.reputation[i].num*25+ "px";
+				document.getElementById("innerReputation").style.width = (10-Player.reputation[i].num)*25+"px";
+				document.getElementById("innerReputation").style.left = Player.reputation[i].num*25+"px";
 			}
 		}
 	}
@@ -314,9 +315,9 @@ Dom.reputation.update = function(){
 Dom.reputation.up = function(Area){
 	Area.num -= 11;
 	Area.type++;
-	if(Area.type > 1){
+	if(Area.type > 2){
 		document.getElementById("innerReputation").style.backgroundColor = "green";
-	}else if(Area.type < 1){
+	}else if(Area.type < 2){
 		document.getElementById("innerReputation").style.backgroundColor = "red";
 	}else{
 		document.getElementById("innerReputation").style.backgroundColor = "gold";
@@ -326,9 +327,9 @@ Dom.reputation.up = function(Area){
 Dom.reputation.down = function(Area){
 	Area.num += 11;
 	Area.type--;
-	if(Area.type < 1){
+	if(Area.type < 2){
 		document.getElementById("innerReputation").style.backgroundColor = "red";
-	}else if(Area.type > 1){
+	}else if(Area.type > 2){
 		document.getElementById("innerReputation").style.backgroundColor = "green";
 	}else{
 		document.getElementById("innerReputation").style.backgroundColor = "gold";
