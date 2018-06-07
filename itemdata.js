@@ -72,63 +72,7 @@ var items = {
 			rarity: "unique",
 			lore: "Protects you from splinters. And goblins!",
 			stats: {
-				defense: 2,
-			},
-		},
-	],
-	bow: [
-		{
-			//id: 0
-			name: "Test bow 1",
-			type: "bow",
-			image:"assets/items/bow.png",
-			stats: {},
-		},
-		{
-			//id: 1
-			name: "Test bow 2",
-			type: "bow",
-			image:"assets/items/weapon2.png",
-			stats: {},
-		},
-		{
-			//id: 2
-			name: "Basic Bow",
-			type: "bow",
-			cost: 3,
-			image:"assets/items/bow.png",
-			stats: {
-				tier: 1,
-				rarity: "common",
-				damage: 2,
-			},
-		},
-	],
-	staff: [
-		{
-			//id: 0
-			name: "Test staff 1",
-			type: "staff",
-			image:"assets/items/staff.png",
-			stats: {},
-		},
-		{
-			//id: 1
-			name: "Test staff 2",
-			type: "staff",
-			image:"assets/items/weapon2.png",
-			stats: {},
-		},
-		{
-			//id: 2
-			name: "Basic Staff",
-			type: "staff",
-			cost: 3,
-			image:"assets/items/staff.png",
-			stats: {
-				tier: 1,
-				rarity: "common",
-				damage: 2,
+				Defense: 2,
 			},
 		},
 	],
@@ -137,7 +81,7 @@ var items = {
 			//id: 0
 			name: "Test sword 1",
 			type: "sword",
-			image:"assets/items/sword.png",
+			image:"assets/items/weapon.png",
 			stats: {},
 		},
 		{
@@ -153,10 +97,66 @@ var items = {
 			type: "sword",
 			cost: 3,
 			image:"assets/items/sword.png",
+			tier: 1,
+			rarity: "common",
 			stats: {
-				tier: 1,
-				rarity: "common",
-				damage: 2,
+				Damage: 2,
+			},
+		},
+	],
+	staff: [
+		{
+			//id: 0
+			name: "Test staff 1",
+			type: "staff",
+			image:"assets/items/weapon.png",
+			stats: {},
+		},
+		{
+			//id: 1
+			name: "Test staff 2",
+			type: "staff",
+			image:"assets/items/weapon2.png",
+			stats: {},
+		},
+		{
+			//id: 2
+			name: "Basic Staff",
+			type: "staff",
+			cost: 3,
+			image:"assets/items/staff.png",
+			tier: 1,
+			rarity: "common",
+			stats: {
+				Damage: 2,
+			},
+		},
+	],
+	bow: [
+		{
+			//id: 0
+			name: "Test bow 1",
+			type: "bow",
+			image:"assets/items/weapon.png",
+			stats: {},
+		},
+		{
+			//id: 1
+			name: "Test bow 2",
+			type: "bow",
+			image:"assets/items/weapon2.png",
+			stats: {},
+		},
+		{
+			//id: 2
+			name: "Basic Bow",
+			type: "bow",
+			cost: 3,
+			image:"assets/items/bow.png",
+			tier: 1,
+			rarity: "common",
+			stats: {
+				Damage: 2,
 			},
 		},
 	],
