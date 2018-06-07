@@ -286,40 +286,49 @@ else {
 	Dom.settings.bookmarkPosition();
 }
 
-Dom.reputation.num = 5;
-Dom.reputation.array = ["Hated","Neutral","Honoured"]
-Dom.reputation.type = 1;
+Dom.reputation.bars = {};
+Dom.reputation.bars.eaglecrestLoggingCamp = {};
+Dom.reputation.bars.eaglecrestLoggingCamp.num = 5;
+Dom.reputation.bars.eaglecrestLoggingCamp.array = ["Hated","Neutral","Honoured"]
+Dom.reputation.bars.eaglecrestLoggingCamp.type = 1;
 Dom.reputation.update = function(){
-	if(Dom.reputation.num > 10){
-		Dom.reputation.up();
-	}else if(Dom.reputation.num < 0){
-		Dom.reputation.down();
-	}else{
-		document.getElementById("innerReputation").innerHTML = Dom.reputation.array[Dom.reputation.type];
-		document.getElementById("test").innerHTML = Dom.reputation.array[Dom.reputation.type];
-		document.getElementById("innerReputation").style.textIndent = ((250-document.getElementById("test").clientWidth)/2) + "px";
-		document.getElementById("innerReputation").style.width = Dom.reputation.num*25+"px";
+	for(var i = 0; i < Object.keys(Dom.reputation.bars).length; i++){
+		if(Dom.reputation.bars[Object.keys(Dom.reputation.bars)[i]].num > 10){
+			Dom.reputation.up(Dom.reputation.bars[Object.keys(Dom.reputation.bars)[i]]);
+		}else if(Dom.reputation.bars[Object.keys(Dom.reputation.bars)[i]].num < 0){
+			Dom.reputation.down(Dom.reputation.bars[Object.keys(Dom.reputation.bars)[i]]);
+		}else{
+			document.getElementById("innerReputation").innerHTML = Dom.reputation.bars[Object.keys(Dom.reputation.bars)[i]].array[Dom.reputation.bars[Object.keys(Dom.reputation.bars)[i]].type];
+			document.getElementById("test").innerHTML = Dom.reputation.bars[Object.keys(Dom.reputation.bars)[i]].array[Dom.reputation.bars[Object.keys(Dom.reputation.bars)[i]].type];
+			document.getElementById("innerReputation").style.textIndent = ((250-document.getElementById("test").clientWidth)/2) + "px";
+			document.getElementById("innerReputation").style.width = Dom.reputation.bars[Object.keys(Dom.reputation.bars)[i]].num*25+"px";
+			if(Dom.reputation.bars[Object.keys(Dom.reputation.bars)[i]].type < 1){
+				document.getElementById("innerReputation").style.textIndent = ((250-document.getElementById("test").clientWidth)/2)-Dom.reputation.bars[Object.keys(Dom.reputation.bars)[i]].num*25+ "px";
+				document.getElementById("innerReputation").style.width = (10-Dom.reputation.bars[Object.keys(Dom.reputation.bars)[i]].num)*25+"px";
+				document.getElementById("innerReputation").style.left = Dom.reputation.bars[Object.keys(Dom.reputation.bars)[i]].num*25+"px";
+			}
+		}
 	}
 }
 
-Dom.reputation.up = function(){
-	Dom.reputation.num -= 11;
-	Dom.reputation.type++;
-	if(Dom.reputation.type > 1){
+Dom.reputation.up = function(Area){
+	Area.num -= 11;
+	Area.type++;
+	if(Area.type > 1){
 		document.getElementById("innerReputation").style.backgroundColor = "green";
-	}else if(Dom.reputation.type < 1){
+	}else if(Area.type < 1){
 		document.getElementById("innerReputation").style.backgroundColor = "red";
 	}else{
 		document.getElementById("innerReputation").style.backgroundColor = "gold";
 	}
 	Dom.reputation.update();
 }
-Dom.reputation.down = function(){
-	Dom.reputation.num += 11;
-	Dom.reputation.type--;
-	if(Dom.reputation.type < 1){
+Dom.reputation.down = function(Area){
+	Area.num += 11;
+	Area.type--;
+	if(Area.type < 1){
 		document.getElementById("innerReputation").style.backgroundColor = "red";
-	}else if(Dom.reputation.type > 1){
+	}else if(Area.type > 1){
 		document.getElementById("innerReputation").style.backgroundColor = "green";
 	}else{
 		document.getElementById("innerReputation").style.backgroundColor = "gold";

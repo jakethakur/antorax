@@ -276,6 +276,7 @@ body{
 	display: inline-block;
 }
 #innerReputation{
+	position: absolute;
 	height: 20px;
 	line-height: 22px;
 	vertical-align: middle;
