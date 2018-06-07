@@ -766,19 +766,19 @@ Game.drawHitboxes = function () {
 	}
 	
 	// player tile collision hitboxes
-	this.ctx.strokeStyle="#FF00FF";
-	this.ctx.strokeRect(this.hero.screenX - this.hero.width / 2, this.hero.screenY + 100 - this.hero.height / 2, this.hero.width, this.hero.height / 2);
+	//this.ctx.strokeStyle="#FF00FF";
+	//this.ctx.strokeRect(this.hero.screenX - this.hero.width / 2, this.hero.screenY + 100 - this.hero.height / 2, this.hero.width, this.hero.height / 2);
 	
-		var left = this.x - this.width / 2;
-		var right = this.x + this.width / 2;
-		var top = this.y + 100 - this.height / 2;
-		var bottom = this.y + 100 + this.height / 2;
+		//var left = this.x - this.width / 2;
+		//var right = this.x + this.width / 2;
+		//var top = this.y + 100 - this.height / 2;
+		//var bottom = this.y + 100 + this.height / 2;
 
 }
 
 Game.coordinates = function (character) {
-	this.ctx.fillText("x: " + Math.round(character.x), 10, 10);
-	this.ctx.fillText("y: " + Math.round(character.y), 10, 20);
+	this.ctx.fillText("x: " + Math.round(character.x), 10, 20);
+	this.ctx.fillText("y: " + Math.round(character.y), 10, 30);
 }
 
 // draw images on canvas

@@ -1,41 +1,41 @@
 var Player = {
 	gold: 0,
 	xp: 0,
-	reputation: [{}],
+	reputation: [{},],
 	inventory: {
 		helm: [
 			{
 				name: "",
 				image: "",
-				stats: {}
+				stats: {},
 			},
 		],
 		chest: [
 			{
 				name: "",
 				image: "",
-				stats: {}
+				stats: {},
 			},
 		],
 		greaves: [
 			{
 				name: "",
 				image: "",
-				stats: {}
+				stats: {},
 			},
 		],
 		boots: [
 			{
 				name: "",
 				image: "",
-				stats: {}
+				stats: {},
 			},
 		],
 		weapon: [
 			{
 				name: "",
 				image: "",
-				stats: {}
+				stats: {},
 			},
 		],
 	},
