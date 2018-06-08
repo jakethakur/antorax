@@ -12,8 +12,8 @@ body{
 	background-color: #fef9b4;
 	padding: 0px;
 	padding-bottom: 20px;
-	margin: 10px;
-	float: left;
+	margin: 0px;
+	margin-bottom: 25px;
 }
 .para{
 	padding: 0px;
@@ -21,4 +21,21 @@ body{
 }
 .img{
 	margin: 20px;
+}
+.flashcardlist{
+	top: 110px;
+	position: absolute;
+    list-style: none;
+    padding: 0px;
+	margin: 0px;
+	width: 160px;
+}
+#searchBar{
+	position: absolute;
+	height: 50px;
+	background-color: #fef9b4;
+	border: 5px solid #886622;
+	top: 25px;
+	line-height: 50px;
+	vertical-align: middle;
 }
