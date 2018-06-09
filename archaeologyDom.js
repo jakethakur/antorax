@@ -1,16 +1,38 @@
 var array = [];
+var arrayLength = 0;
 var previousWidth = window.innerWidth;
 var previousCategory = "";
+var previousRarity = "";
+var previousMin = "";
+var previousMax = "";
+var previousSearch = "";
+var screenSize = 600;
+if(window.innerWidth >= 600){
+	screenSize = window.innerWidth;
+}else{
+	screenSize = 600;
+}
 checkChange();
 function checkChange(){
 	window.requestAnimationFrame(checkChange);
 	if(window.innerWidth != previousWidth){
+		if(window.innerWidth >= 600){
+			screenSize = window.innerWidth;
+		}else{
+			screenSize = 600;
+		}
 		previousWidth = window.innerWidth;
 		arrange();
 	}
-	if(category.value != previousCategory){
+	if(rarity.value != previousRarity || category.value != previousCategory || min.value != previousMin || max.value != previousMax || searchBar.value != previousSearch){
 		previousCategory = category.value;
 		array = [];
+		if(min.value > 2 || min.value < 0 || min.value.length > 1){
+			min.value = previousMin;
+		}
+		if(max.value > 2 || max.value < 0 || max.value.length > 1){
+			max.value = previousMax;
+		}
 		if(category.value == "all"){
 			for(var i = 0; i < 7; i++){
 				for(var x = 0; x < items[Object.keys(items)[i]].length; x++){
@@ -34,25 +56,59 @@ function checkChange(){
 					array.push(items[Object.keys(items)[category.value]][x]);
 				}
 		}
+		arrayLength = array.length;
+		previousRarity = rarity.value;
+		var b = 0;
+		if(rarity.value != "all"){
+			for(var i = 0; i < arrayLength; i++){
+				if(array[i-b].rarity != rarity.value){
+					array.splice(i-b,1);
+					b++;
+				}
+			}
+		}
+		arrayLength = array.length;
+		previousMin = min.value;
+		previousMax = max.value;
+		b = 0;
+		for(var i = 0; i < arrayLength; i++){
+			if(array[i-b].tier < min.value || array[i-b].tier < max.value){
+				array.splice(i-b,1);
+				b++;
+			}
+		}
+		
+		arrayLength = array.length;
+		b = 0;
+		previousSearch = searchBar.value;
+		if(document.getElementById("searchBar").value != ""){
+			var input = document.getElementById("searchBar");
+			var filter = input.value.toLowerCase();
+			for (var i = 0; i < arrayLength; i++) {
+				console.log(array);
+				var a = array[i-b].name;
+				if (a.toLowerCase().indexOf(filter) < 0) {
+					array.splice(i-b,1);
+					b++;
+				}
+			}
+		}
 		arrange();
 	}
 }
 arrange();
 function arrange(){
-	var columns = Math.floor((window.innerWidth-45)/185);
-	//document.getElementById("all").innerHTML = "<div id='searchBar'><input type='radio' id='helm' onclick='radioOnOff(\"helm\")' checked='true'>Helms&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<input type='radio' checked>Chests&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<input type='radio' checked>Greaves&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<input type='radio' checked>Boots&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<input type='radio' checked>Swords&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<input type='radio' checked>Staffs&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<input type='radio' checked>Bows</div>";
+	var columns = Math.floor((screenSize-45)/185);
 	document.getElementById("all").innerHTML = "";
-	document.getElementById("searchBar").style.width = (((Math.floor((window.innerWidth-45)/185)))*185)-35+"px";
-	document.getElementById("searchBar").style.left = 25+((window.innerWidth-45)-(((Math.floor((window.innerWidth-45)/185)))*185))/2+"px";
 	for(var i = 0; i < array.length; i++){
 		for(var a = 0; a < columns; a++){
 			if(Math.floor(i/columns)==(i-a)/columns){
-				x=a;
+				var c=a;
 			}
 		}
-		document.getElementById("all").innerHTML += '<ul id="flashcardlist'+x+'" class="flashcardlist"></ul>';
-		document.getElementById("flashcardlist"+x).innerHTML += '<li class="box"><img src="'+array[i].image+'" class="img"><p id="name'+i+'" class="para"></p><p id="tier'+i+'" class="para"></p><p id="stats'+i+'" class="para"></p><p id="lore'+i+'" class="para"></p></li>';
-		document.getElementById("flashcardlist"+x).style.left = 25+x*185+((window.innerWidth-45)-(((Math.floor((window.innerWidth-45)/185)))*185))/2+"px";
+		document.getElementById("all").innerHTML += '<ul id="flashcardlist'+c+'" class="flashcardlist"></ul>';
+		document.getElementById("flashcardlist"+c).innerHTML += '<li class="box"><img src="'+array[i].image+'" class="img"><p id="name'+i+'" class="para"></p><p id="tier'+i+'" class="para"></p><p id="stats'+i+'" class="para"></p><p id="lore'+i+'" class="para"></p></li>';
+		document.getElementById("flashcardlist"+c).style.left = 25+c*185+((screenSize-45)-(((Math.floor((screenSize-45)/185)))*185))/2+"px";
 		document.getElementById("name"+i).innerHTML = "<b>"+array[i].name+"</b>";
 		if(array[i].rarity == "common"){
 			document.getElementById("name"+i).style.color = "black";
@@ -66,5 +122,30 @@ function arrange(){
 			document.getElementById("stats"+i).innerHTML += Object.keys(array[i].stats)[a]+": "+array[i].stats[Object.keys(array[i].stats)[a]]+"<br>";
 		}
 		document.getElementById("lore"+i).innerHTML = "<br>"+array[i].lore;
+	}
+	document.getElementById("filters").style.width = (((Math.floor((screenSize-45)/185)))*185)-35+"px";
+	document.getElementById("filters").style.left = 25+((screenSize-45)-(((Math.floor((screenSize-45)/185)))*185))/2+"px";
+	document.getElementById("searchBar").style.width = (((Math.floor((screenSize-45)/185)))*185)-95+"px";
+	if(columns <= 5){
+		document.getElementById("space0").style.width = (((((Math.floor((screenSize-45)/185)))*185)-35)/2)-(500/2)+"px";
+		document.getElementById("space2").style.width = (((((Math.floor((screenSize-45)/185)))*185)-35)/2)-(500/2)+"px";
+		document.getElementById("space1").style.display = "none";
+		document.getElementById("filters").style.height = "200px";
+		document.getElementById("br").style.display = "";
+		console.log("no");
+		for(var i = 0; i < columns; i++){
+			console.log("yes");
+			document.getElementsByClassName("flashcardlist")[i].style.top = "260px";
+		}
+	}else{
+		for(var i = 0; i < 3; i++){
+			document.getElementById("space"+i).style.width = (((((Math.floor((screenSize-45)/185)))*185)-35)/3)-319+"px";
+		}
+		document.getElementById("space1").style.display = "";
+		document.getElementById("filters").style.height = "150px";
+		document.getElementById("br").style.display = "none";
+		for(var i = 0; i < columns; i++){
+			document.getElementsByClassName("flashcardlist")[i].style.top = "210px";
+		}
 	}
 }

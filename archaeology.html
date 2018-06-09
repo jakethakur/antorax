@@ -5,8 +5,10 @@
 	<link rel="stylesheet" href="archaeologyStyle.css">
 </head>
 <body>
-<div id="searchBar">
-	Category
+<div id="filters">
+	<br>
+	<center><input type="text" id="searchBar" placeholder="Search by name"></center>
+	<br>Category
 	<select id="category">
 		<option value="all">All</option>
 		<option value="armour">Any Armour</option>
@@ -19,17 +21,21 @@
 		<option value="5">Staff</option>
 		<option value="6">Bow</option>
 	</select>
-	&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;Rarity
+	<div id="space0"></div>
+	Rarity
 	<select id="rarity">
 		<option value="all">All</option>
 		<option value="common">Common</option>
 		<option value="unique">Unique</option>
 		<option value="mythic">Mythic</option>
 	</select>
-	&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;Mimimum Tier
-	<input type="number" min="1" max="1" id="min" value="1">
-	&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;Maximum Tier
-	<input type="number" min="1" max="1" id="max" value="1">
+	<div id="space1"></div>
+	<p id="br"></p>
+	Mimimum Tier
+	<input type="number" min="1" max="1" id="min" value="1" />
+	<div id="space2"></div>
+	Maximum Tier
+	<input type="number" min="1" max="1" id="max" value="1" />
 </div>
 <span id="all"></span>
 <script src="itemdata.js"></script>

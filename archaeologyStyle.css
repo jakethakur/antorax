@@ -23,21 +23,38 @@ body{
 	margin: 20px;
 }
 .flashcardlist{
-	top: 110px;
 	position: absolute;
     list-style: none;
     padding: 0px;
 	margin: 0px;
 	width: 160px;
 }
-#searchBar{
+#space0, #space1, #space2{
+	display: inline-block;
+}
+#filters{
 	position: absolute;
-	height: 50px;
 	background-color: #fef9b4;
 	border: 5px solid #886622;
 	top: 25px;
-	line-height: 50px;
-	vertical-align: middle;
+	font-size: 25px;
+}
+#searchBar{
+	height: 30px;
+	font-size: 25px;
+	font-family: 'MedievalSharp', serif;
+	text-indent: 5px;
+}
+#category, #rarity{
+	height: 30px;
+	font-size: 20px;
+	font-family: 'MedievalSharp', serif;
+}
+input[type=number]{
+	height: 25px;
+	font-size: 20px;
+	font-family: 'MedievalSharp', serif;
+	text-indent: 5px;
 }
 input[type=number]::-webkit-inner-spin-button{  
    opacity: 1;
