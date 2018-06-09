@@ -54,6 +54,10 @@ Dom.changeBook = function(page, override, x) {
 			chatPageString = "";
 		}
 		
+		if(page == "reputationPage"){
+			Dom.reputation.update(); // not necessary?
+		}
+
 		if(override) {
 			this.currentlyDisplayed = ""; // reset current display if it is overriden
 			Dom.quests.activeQuests(undefined);
@@ -538,7 +542,7 @@ Dom.quests.activeQuests = function(quest){
 Dom.quests.completedQuestNum = 0;
 Dom.quests.completedQuestString = "";
 Dom.quests.completed = function(quest){
-	Dom.changeBook('questsPage', true);
+	Dom.changeBook(Dom.previous, true);
 	Dom.quests.completedQuestArray.push(quest.quest);
 	document.getElementById("completedQuestBox").style.textAlign = "left";
 	if(Dom.quests.completedQuestNum == 0){
