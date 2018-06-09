@@ -1,25 +1,40 @@
 var array = [];
-for(var i = 0; i < Object.keys(items).length; i++){
-	for(var x = 0; x < items[Object.keys(items)[i]].length; x++){
-		array.push(items[Object.keys(items)[i]][x]);
-	}
-}
 var previousWidth = window.innerWidth;
-checkWidth();
-function checkWidth(){
-	window.requestAnimationFrame(checkWidth);
+var previousCategory = "";
+checkChange();
+function checkChange(){
+	window.requestAnimationFrame(checkChange);
 	if(window.innerWidth != previousWidth){
+		previousWidth = window.innerWidth;
 		arrange();
 	}
-	previousWidth = window.innerWidth;
-}
-function radioOnOff(id){
-	if(document.getElementById(id).checked){
-		console.log("no");
-		document.getElementById(id).checked = false;
-	}else{
-		console.log("yes");
-		document.getElementById(id).checked = true;
+	if(category.value != previousCategory){
+		previousCategory = category.value;
+		array = [];
+		if(category.value == "all"){
+			for(var i = 0; i < 7; i++){
+				for(var x = 0; x < items[Object.keys(items)[i]].length; x++){
+					array.push(items[Object.keys(items)[i]][x]);
+				}
+			}
+		}else if(category.value == "armour"){
+			for(var i = 0; i < 4; i++){
+				for(var x = 0; x < items[Object.keys(items)[i]].length; x++){
+					array.push(items[Object.keys(items)[i]][x]);
+				}
+			}
+		}else if(category.value == "weapon"){
+			for(var i = 4; i < 7; i++){
+				for(var x = 0; x < items[Object.keys(items)[i]].length; x++){
+					array.push(items[Object.keys(items)[i]][x]);
+				}
+			}
+		}else{
+				for(var x = 0; x < items[Object.keys(items)[category.value]].length; x++){
+					array.push(items[Object.keys(items)[category.value]][x]);
+				}
+		}
+		arrange();
 	}
 }
 arrange();

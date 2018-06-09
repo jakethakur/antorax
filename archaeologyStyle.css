@@ -39,3 +39,6 @@ body{
 	line-height: 50px;
 	vertical-align: middle;
 }
+input[type=number]::-webkit-inner-spin-button{  
+   opacity: 1;
+}

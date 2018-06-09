@@ -6,13 +6,30 @@
 </head>
 <body>
 <div id="searchBar">
-	<input type="radio" id="helm" onclick="radioOnOff('helm')" checked="true">Helms&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
-	<input type="radio" id="chest" onclick="radioOnOff('chest')" checked="true">Chests&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
-	<input type="radio" id="greaves" onclick="radioOnOff('greaves')" checked="true">Greaves&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
-	<input type="radio" id="boots" onclick="radioOnOff('boots')" checked="true">Boots&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
-	<input type="radio" id="sword" onclick="radioOnOff('sword')" checked="true">Swords&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
-	<input type="radio" id="staff" onclick="radioOnOff('staff')" checked="true">Staffs&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
-	<input type="radio" id="bow" onclick="radioOnOff('bow')" checked="true">Bows
+	Category
+	<select id="category">
+		<option value="all">All</option>
+		<option value="armour">Any Armour</option>
+		<option value="weapon">Any Weapon</option>
+		<option value="0">Helm</option>
+		<option value="1">Chest</option>
+		<option value="2">Greaves</option>
+		<option value="3">Boots</option>
+		<option value="4">Sword</option>
+		<option value="5">Staff</option>
+		<option value="6">Bow</option>
+	</select>
+	&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;Rarity
+	<select id="rarity">
+		<option value="all">All</option>
+		<option value="common">Common</option>
+		<option value="unique">Unique</option>
+		<option value="mythic">Mythic</option>
+	</select>
+	&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;Mimimum Tier
+	<input type="number" min="1" max="1" id="min" value="1">
+	&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;Maximum Tier
+	<input type="number" min="1" max="1" id="max" value="1">
 </div>
 <span id="all"></span>
 <script src="itemdata.js"></script>
