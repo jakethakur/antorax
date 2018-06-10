@@ -10,6 +10,7 @@ var Dom = {
 		questStart: document.getElementById("questStart"),
 		questFinish: document.getElementById("questFinish"),
 		merchantPage: document.getElementById("merchantPage"),
+		identifierPage: document.getElementById("identifierPage"),
 	},
 	chat: {
 		length: 0,
@@ -697,6 +698,6 @@ function unIdConstruct(area,tier){
 
 function identify(item){
 	for(i = 0; i < Object.keys(items[item.typeNum]).length; i++){
-		if(Object.keys(items[item.typeNum])[i].tier == item.tier && Object.keys(items[item.typeNum])[i].area == item.area)
+		if(Object.keys(items[item.typeNum])[i].tier == item.tier && Object.keys(items[item.typeNum])[i].area == item.area);
 	}
 }
