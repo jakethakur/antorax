@@ -133,7 +133,7 @@ Game.tick = function (elapsed) {
 	
 	// display frames per second (debug)
 	if(document.getElementById("fpsOn").checked){
-		this.ctx.fillText("fps: " + Math.round(1 / delta), 10, 30);
+		this.ctx.fillText("fps: " + Math.round(1 / delta), 10, 40);
 	}
 }.bind(Game);
 
@@ -170,7 +170,13 @@ var map = {
         // loop through all layers and return TRUE if any tile is solid
         return this.layers.reduce(function (res, layer, index) {
             var tile = this.getTile(index, col, row);
-            var isSolid = tile === 4 || tile === 5 || tile === 6 || tile === 25 || tile === 36 || tile === 34;
+			var isSolid = false;
+			this.solidTiles.forEach( function(element) {
+				if (tile === element) {
+					isSolid = true;
+				}
+			} );
+            //var isSolid = tile === 4 || tile === 5 || tile === 6 || tile === 25 || tile === 36 || tile === 34;
             return res || isSolid;
         }.bind(this), false);
     },
@@ -190,10 +196,15 @@ var map = {
         var col = Math.floor(x / this.tsize);
         var row = Math.floor(y / this.tsize);
 
-        // check first layer only and return TRUE if any tile is water 
-		// TBD : move this to areadata.js at some point pls
+        // check first layer only and return TRUE if any tile is water
         var tile = this.getTile(0, col, row);
-        var isWater = tile === 50 || tile === 51 || tile === 52;
+		var isWater = false;
+		this.waterTiles.forEach( function(element) {
+			if (tile === element) {
+				isWater = true;
+			}
+		} );
+        //var isWater = tile === 50 || tile === 51 || tile === 52;
 		return isWater;
 	},
 };
