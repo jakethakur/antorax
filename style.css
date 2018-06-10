@@ -95,10 +95,13 @@ body{
 }
 
 .triangleLeft {
+	right: 165px;
 	top: 10px;
 	border-right: 20px solid #886622; 
 }
 .innerTriangleLeft {
+	right: 157px;
+	bottom: 10px;
 	border-right: 20px solid #fef9b4;
 	z-index: 2;
 }
@@ -225,13 +228,13 @@ body{
 #itemInformation, #informationMerchant, #questInformation, #questFinishInformation {
 	position: absolute;
 	left: 740px;
+	width: 150px;
 	background-color: #fef9b4;
 	border: 5px solid #886622;
 	float: right;
 	padding-left: 10px;
-	padding-right: 10px;
-	overflow: hidden;
 	text-align: left;
+	z-index: 1;
 }
 .closeClass {
 	position: relative;
