@@ -27,32 +27,32 @@ function checkChange(){
 	if(rarity.value != previousRarity || category.value != previousCategory || min.value != previousMin || max.value != previousMax || searchBar.value != previousSearch){
 		previousCategory = category.value;
 		array = [];
-		if(min.value > 2 || min.value < 0 || min.value.length > 1){
+		if(min.value > 1 || (min.value < 1 && min.value.length > 0) || min.value.length > 1){
 			min.value = previousMin;
 		}
-		if(max.value > 2 || max.value < 0 || max.value.length > 1){
+		if(max.value > 1 || (max.value < 1 && max.value.length > 0) || max.value.length > 1){
 			max.value = previousMax;
 		}
 		if(category.value == "all"){
 			for(var i = 0; i < 7; i++){
-				for(var x = 0; x < items[Object.keys(items)[i]].length; x++){
+				for(var x = 2; x < items[Object.keys(items)[i]].length; x++){
 					array.push(items[Object.keys(items)[i]][x]);
 				}
 			}
 		}else if(category.value == "armour"){
 			for(var i = 0; i < 4; i++){
-				for(var x = 0; x < items[Object.keys(items)[i]].length; x++){
+				for(var x = 2; x < items[Object.keys(items)[i]].length; x++){
 					array.push(items[Object.keys(items)[i]][x]);
 				}
 			}
 		}else if(category.value == "weapon"){
 			for(var i = 4; i < 7; i++){
-				for(var x = 0; x < items[Object.keys(items)[i]].length; x++){
+				for(var x = 2; x < items[Object.keys(items)[i]].length; x++){
 					array.push(items[Object.keys(items)[i]][x]);
 				}
 			}
 		}else{
-				for(var x = 0; x < items[Object.keys(items)[category.value]].length; x++){
+				for(var x = 2; x < items[Object.keys(items)[category.value]].length; x++){
 					array.push(items[Object.keys(items)[category.value]][x]);
 				}
 		}
@@ -98,15 +98,23 @@ function checkChange(){
 }
 arrange();
 function arrange(){
+	var c = 0;
 	var columns = Math.floor((screenSize-45)/185);
 	document.getElementById("all").innerHTML = "";
+	for(var d = 0; d < columns; d++){
+		document.getElementById("all").innerHTML += '<ul id="flashcardlist'+d+'" class="flashcardlist"></ul>';
+	}
 	for(var i = 0; i < array.length; i++){
 		for(var a = 0; a < columns; a++){
-			if(Math.floor(i/columns)==(i-a)/columns){
-				var c=a;
+			if(document.getElementById("flashcardlist"+a).offsetHeight < document.getElementById("flashcardlist"+c).offsetHeight){
+				c = a;
+			}
+			for(var e = 0; e < columns - 1; e++){
+				if(c == columns-1 && a == columns-1 && document.getElementById("flashcardlist"+e).offsetHeight == document.getElementById("flashcardlist"+c).offsetHeight){
+					c = e;
+				}
 			}
 		}
-		document.getElementById("all").innerHTML += '<ul id="flashcardlist'+c+'" class="flashcardlist"></ul>';
 		document.getElementById("flashcardlist"+c).innerHTML += '<li class="box"><img src="'+array[i].image+'" class="img"><p id="name'+i+'" class="para"></p><p id="tier'+i+'" class="para"></p><p id="stats'+i+'" class="para"></p><p id="lore'+i+'" class="para"></p></li>';
 		document.getElementById("flashcardlist"+c).style.left = 25+c*185+((screenSize-45)-(((Math.floor((screenSize-45)/185)))*185))/2+"px";
 		document.getElementById("name"+i).innerHTML = "<b>"+array[i].name+"</b>";
@@ -121,7 +129,9 @@ function arrange(){
 		for(var a = 0; a < Object.keys(array[i].stats).length; a++){
 			document.getElementById("stats"+i).innerHTML += Object.keys(array[i].stats)[a]+": "+array[i].stats[Object.keys(array[i].stats)[a]]+"<br>";
 		}
-		document.getElementById("lore"+i).innerHTML = "<br>"+array[i].lore;
+		if(array[i].lore != undefined){
+			document.getElementById("lore"+i).innerHTML = "<br><i>"+array[i].lore+"</i>";
+		}
 	}
 	document.getElementById("filters").style.width = (((Math.floor((screenSize-45)/185)))*185)-35+"px";
 	document.getElementById("filters").style.left = 25+((screenSize-45)-(((Math.floor((screenSize-45)/185)))*185))/2+"px";
