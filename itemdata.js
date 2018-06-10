@@ -161,3 +161,48 @@ var items = {
 		},
 	],
 };
+
+var unId = [
+	{
+		name: "Unidentified Helm",
+		type: "helm",
+		image: "assets/items/helm.png",
+		tier: 1,
+	},
+	{
+		name: "Unidentified Chest",
+		type: "chest",
+		image: "assets/items/chest.png",
+		tier: 1,
+	},
+	{
+		name: "Unidentified Greaves",
+		type: "greaves",
+		image: "assets/items/greaves.png",
+		tier: 1,
+	},
+	{
+		name: "Unidentified Boots",
+		type: "boots",
+		image: "assets/items/boots.png",
+		tier: 1,
+	},
+	{
+		name: "Unidentified Sword",
+		type: "sword",
+		image: "assets/items/sword.png",
+		tier: 1,
+	},
+	{
+		name: "Unidentified Staff",
+		type: "staff",
+		image: "assets/items/staff.png",
+		tier: 1,
+	},
+	{
+		name: "Unidentified Bow",
+		type: "bow",
+		image: "assets/items/bow.png",
+		tier: 1,
+	},
+];

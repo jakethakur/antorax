@@ -104,23 +104,23 @@ Dom.inventory.changeEquipment = function(array,equipmentType) {
 	document.getElementById(equipmentType).style.backgroundImage = "url(" + array[0].image + ")";
 	if(equipmentType == "helm"){
 		Player.inventory.helm = array;
-		this.displayInformation("10px",Player.inventory.helm);
+		this.displayInformation("30px",Player.inventory.helm);
 	}
 	if(equipmentType == "chest"){
 		Player.inventory.chest = array;
-		this.displayInformation("80px",Player.inventory.chest);
+		this.displayInformation("100px",Player.inventory.chest);
 	}
 	if(equipmentType == "greaves"){
 		Player.inventory.greaves = array;
-		this.displayInformation("150px",Player.inventory.greaves);
+		this.displayInformation("170px",Player.inventory.greaves);
 	}
 	if(equipmentType == "boots"){
 		Player.inventory.boots = array;
-		this.displayInformation("220px",Player.inventory.boots);
+		this.displayInformation("240px",Player.inventory.boots);
 	}
 	if(equipmentType == "weapon"){
 		Player.inventory.weapon = array;
-		this.displayInformation("305px",Player.inventory.weapon);
+		this.displayInformation("325px",Player.inventory.weapon);
 	}
 }
 
@@ -301,7 +301,6 @@ Dom.reputation.update = function(){
 			this.downLevel(Player.reputation[Object.keys(Player.reputation)[i]]);
 		}
 		else {
-			console.log(Player.reputation[Object.keys(Player.reputation)[i]].level);
 			document.getElementById("reputationBar").innerHTML = this.levels[Player.reputation[Object.keys(Player.reputation)[i]].level];
 			document.getElementById("widthPadding").innerHTML = this.levels[Player.reputation[Object.keys(Player.reputation)[i]].level];
 			if(Player.reputation[Object.keys(Player.reputation)[i]].level >=2) {
@@ -319,7 +318,6 @@ Dom.reputation.update = function(){
 }
 
 Dom.reputation.upLevel = function(Area){
-			console.log("uplevel");
 	Area.score -= 11;
 	Area.level++;
 	if(Area.level > 2) {
@@ -334,7 +332,6 @@ Dom.reputation.upLevel = function(Area){
 	this.update();
 }
 Dom.reputation.downLevel = function(Area){
-			console.log("downlevel");
 	Area.score += 11;
 	Area.level--;
 	if(Area.level < 2){
@@ -351,30 +348,90 @@ Dom.reputation.downLevel = function(Area){
 Dom.inventory.displayInformation = function(y,array){
 	document.getElementById("itemInformation").hidden = true;
 	if(array[0].name != ""){
-		document.getElementById("itemInformation").innerHTML = "";
 		document.getElementById("itemInformation").hidden = false;
-		document.getElementById("itemInformation").style.marginTop = y;
-		document.getElementById("itemInformation").innerHTML = "<div class='triangleLeft'></div><div class='innerTriangleLeft'></div>" + array[0].name;
+		document.getElementById("itemInformation").style.top = y;
+		document.getElementById("itemInformation").innerHTML = "<div class='triangleLeft' id='triangle'></div><div id='inTriangle' class='innerTriangleLeft'></div>" + "<p id='name'><b>"+array[0].name+"</b></p><p id='stats'></p><p id='lore'></p>";
+		if(array[0].rarity == "common"){
+			document.getElementById("name").style.color = "black";
+		}else if(array[0].rarity == "unique"){
+			document.getElementById("name").style.color = "orange";
+		}else{
+			document.getElementById("name").style.color = "purple";
+		}
+		console.log(document.getElementById("name").offsetWidth);
+		var setWidth = document.getElementById("name").offsetWidth;
+		document.getElementById("itemInformation").style.width = setWidth+"px";
+		console.log(document.getElementById("itemInformation").style.width);
+		document.getElementById("stats").innerHTML = "Tier: "+array[0].tier;
+		for(var i = 0; i < Object.keys(array[0].stats).length; i++){
+			document.getElementById("stats").innerHTML += "<br>"+Object.keys(array[0].stats)[i]+": "+array[0].stats[Object.keys(array[0].stats)[i]];
+		}
+		if(array[0].lore != undefined){
+			document.getElementById("lore").innerHTML += "<i>"+array[0].lore+"</i>";
+		}
+		document.getElementById("inTriangle").style.bottom = document.getElementById("itemInformation").offsetHeight - 50 + "px";
+		document.getElementById("inTriangle").style.right = document.getElementById("itemInformation").offsetWidth - 14 + "px";
+		document.getElementById("triangle").style.right = document.getElementById("itemInformation").offsetWidth - 6 + "px";
 	}
 }
 
 Dom.merchant.displayInformation = function(y,array,num) {
-	document.getElementById("informationMerchant").innerHTML = "";
 	document.getElementById("informationMerchant").hidden = false;
 	document.getElementById("informationMerchant").style.top = y+"px";
-	document.getElementById("informationMerchant").innerHTML = "<div class='triangleLeft'></div><div class='innerTriangleLeft'></div>" + array[num].name;
+	document.getElementById("informationMerchant").innerHTML = "<div class='triangleLeft' id='triangle'></div><div class='innerTriangleLeft' id='inTriangle'></div>" + "<p id='name'><b>"+array[num].name+"</b></p><p id='stats'></p><p id='lore'></p>";
+	if(array[num].rarity == "common"){
+		document.getElementById("name").style.color = "black";
+	}else if(array[num].rarity == "unique"){
+		document.getElementById("name").style.color = "orange";
+	}else{
+		document.getElementById("name").style.color = "purple";
+	}
+	console.log(document.getElementById("name").offsetWidth);
+	var setWidth = document.getElementById("name").offsetWidth;
+	document.getElementById("informationMerchant").style.width = setWidth+"px";
+	console.log(document.getElementById("informationMerchant").style.width);
+	document.getElementById("stats").innerHTML = "Tier: "+array[num].tier;
+	for(var i = 0; i < Object.keys(array[num].stats).length; i++){
+		document.getElementById("stats").innerHTML += "<br>"+Object.keys(array[num].stats)[i]+": "+array[num].stats[Object.keys(array[num].stats)[i]];
+	}
+	if(array[num].lore != undefined){
+		document.getElementById("lore").innerHTML += "<i>"+array[num].lore+"</i>";
+	}
+	document.getElementById("inTriangle").style.bottom = document.getElementById("informationMerchant").offsetHeight - 50 + "px";
+	document.getElementById("inTriangle").style.right = document.getElementById("informationMerchant").offsetWidth - 14 + "px";
+	document.getElementById("triangle").style.right = document.getElementById("informationMerchant").offsetWidth - 6 + "px";
 }
 
 Dom.quests.displayInformation = function(y,array,total){
-	document.getElementById("questInformation").innerHTML = "";
 	document.getElementById("questInformation").hidden = false;
 	document.getElementById("questInformation").style.top = document.getElementById("questStartGold").getBoundingClientRect().top+"px";
 	document.getElementById("questInformation").style.left = 785-(total*35)+(y*70) +"px";
-	document.getElementById("questInformation").innerHTML = "<div class='rectangleRightUp'></div><div class='rectangleRightDown'></div><div class='triangleRight'></div><div class='innerTriangleRight'></div>" + array[y].name;
+	document.getElementById("questInformation").innerHTML = "<div class='rectangleRightUp'></div><div class='rectangleRightDown'></div><div class='triangleRight' id='triangle'></div><div class='innerTriangleRight' id='inTriangle'></div>" + "<p id='name'><b>"+array[y].name+"</b></p><p id='stats'></p><p id='lore'></p>";;
+
+	if(array[y].rarity == "common"){
+		document.getElementById("name").style.color = "black";
+	}else if(array[y].rarity == "unique"){
+		document.getElementById("name").style.color = "orange";
+	}else{
+		document.getElementById("name").style.color = "purple";
+	}
+	console.log(document.getElementById("name").offsetWidth);
+	var setWidth = document.getElementById("name").offsetWidth;
+	document.getElementById("questInformation").style.width = setWidth+"px";
+	console.log(document.getElementById("questInformation").style.width);
+	document.getElementById("stats").innerHTML = "Tier: "+array[y].tier;
+	for(var i = 0; i < Object.keys(array[y].stats).length; i++){
+		document.getElementById("stats").innerHTML += "<br>"+Object.keys(array[y].stats)[i]+": "+array[y].stats[Object.keys(array[y].stats)[i]];
+	}
+	if(array[y].lore != undefined){
+		document.getElementById("lore").innerHTML += "<i>"+array[y].lore+"</i>";
+	}
+	document.getElementById("inTriangle").style.bottom = document.getElementById("questInformation").offsetHeight - 50 + "px";
+	document.getElementById("inTriangle").style.right = document.getElementById("questInformation").offsetWidth - 14 + "px";
+	document.getElementById("triangle").style.right = document.getElementById("questInformation").offsetWidth - 6 + "px";
 }
 
 Dom.quests.displayFinishInformation = function(y,array,total){
-	console.log("yes");
 	document.getElementById("questFinishInformation").innerHTML = "";
 	document.getElementById("questFinishInformation").hidden = false;
 	document.getElementById("questFinishInformation").style.top = document.getElementById("questFinishGold").getBoundingClientRect().top+"px";
@@ -520,7 +577,6 @@ Dom.quests.activeQuests = function(quest){
 		document.getElementById("activeQuestBox").innerHTML += "<strong>" + Dom.quests.activeQuestUseArray[x].quest + "</strong>";
 		for(var i = 0; i < Dom.quests.activeQuestUseArray[x].objectives.length; i++){
 			document.getElementById("activeQuestBox").innerHTML += "<br>" + Dom.quests.activeQuestUseArray[x].objectives[i];
-			console.log(Dom.quests.activeQuestUseArray[x].isCompleted());
 			if(Dom.quests.activeQuestUseArray[x].isCompleted()[i] && i != Dom.quests.activeQuestUseArray[x].objectives.length-1){
 				document.getElementById("activeQuestBox").innerHTML += " &#10004;";
 			}
