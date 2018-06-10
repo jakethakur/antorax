@@ -40,5 +40,6 @@ var Player = {
 				stats: {},
 			},
 		],
+		unId: [],
 	},
 };

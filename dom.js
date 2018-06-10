@@ -22,6 +22,7 @@ var Dom = {
 	settings: {},
 	quest: {},
 	merchant: {},
+	identifier: {},
 };
 Dom.previous = "instructionsPage";
 // change currently displayed page
@@ -42,6 +43,7 @@ Dom.changeBook = function(page, override, x) {
 		this.elements.questStart.hidden = true;
 		this.elements.questFinish.hidden = true;
 		this.elements.merchantPage.hidden = true;
+		this.elements.identifierPage.hidden = true;
 		document.getElementById(page).hidden = false;
 		
 		if(page == "chatPage"){
@@ -653,6 +655,15 @@ Dom.merchant.buy = function(item){
 	}
 }
 
+Dom.identifier.page = function(chat, item){
+	Dom.changeBook("identifierPage", false)
+	Dom.currentlyDisplayed = "identifier";
+	Dom.changeBook("identifierPage", false, 1);
+	document.getElementById("identifierPageChat").innerHTML = chat;
+	var displayed = player.inventory.unId.length-1;
+	document.getElementById("identifierPageOption").innerHTML = "<img src=" + Player.inventory.unId[displayed].image + " class='theseOptions' style='border: 5px solid #886622;'></img>";
+}
+
 Dom.quest.give = function(item){
 	if(item.type == "helm"){Player.inventory.helm.push(item);}
 	if(item.type == "chest"){Player.inventory.chest.push(item);}
@@ -673,5 +684,19 @@ for(var i = 0; i < Object.keys(quests).length; i++){
 		Dom.quests.allQuestNum += 18;
 		Dom.quests.allQuestString = JSON.stringify(Dom.quests.allQuestNum)+"px";
 		document.getElementById("allQuestBox").style.height = Dom.quests.allQuestString;
+	}
+}
+
+function unIdConstruct(area,tier){
+	this.area = area;
+	this.tier = tier;
+	var types = ["Helm","Chest","Greaves","Boots","Sword","Staff","Bow"];
+	this.typeNum = Math.floor(Math.random*7);
+	this.type = types[typeNum];
+}
+
+function identify(item){
+	for(i = 0; i < Object.keys(items[item.typeNum]).length; i++){
+		if(Object.keys(items[item.typeNum])[i].tier == item.tier && Object.keys(items[item.typeNum])[i].area == item.area)
 	}
 }

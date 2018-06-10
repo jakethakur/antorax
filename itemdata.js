@@ -4,16 +4,28 @@ var items = {
 			//id: 0
 			name: "Test Helm 1",
 			type: "helm",
-			image:"assets/items/helm.png",
+			image: "assets/items/helm.png",
 			stats: {},
 		},
 		{
 			//id: 1
 			name: "Test Helm 2",
 			type: "helm",
-			image:"assets/items/helm2.png",
+			image: "assets/items/helm2.png",
 			stats: {},
 		},
+		{
+			//id: 2
+			name: "Worn Leather Helm",
+			type: "helm",
+			image: "assets/items/helm.png",
+			tier: 1,
+			rarity: "common",
+			obtain: "Find as an unidentified item in Eaglecrest Logging Camp",
+			stats: {
+				Defence: 1,
+			},
+		}
 	],
 	chest: [
 		{
@@ -30,6 +42,18 @@ var items = {
 			image:"assets/items/chest2.png",
 			stats: {},
 		},
+		{
+			//id: 2
+			name: "Worn Leather Chest",
+			type: "chest",
+			image: "assets/items/chest.png",
+			tier: 1,
+			rarity: "common",
+			obtain: "Find as an unidentified item in Eaglecrest Logging Camp",
+			stats: {
+				Defence: 2,
+			},
+		}
 	],
 	greaves: [
 		{
@@ -47,6 +71,18 @@ var items = {
 			stats: {
 			},
 		},
+		{
+			//id: 2
+			name: "Worn Leather Greaves",
+			type: "greaves",
+			image: "assets/items/greaves.png",
+			tier: 1,
+			rarity: "common",
+			obtain: "Find as an unidentified item in Eaglecrest Logging Camp",
+			stats: {
+				Defence: 2,
+			},
+		}
 	],
 	boots: [
 		{
@@ -75,6 +111,18 @@ var items = {
 				Defense: 2,
 			},
 		},
+		{
+			//id: 3
+			name: "Worn Leather Boots",
+			type: "boots",
+			image: "assets/items/boots.png",
+			tier: 1,
+			rarity: "common",
+			obtain: "Find as an unidentified item in Eaglecrest Logging Camp",
+			stats: {
+				Defence: 1,
+			},
+		}
 	],
 	sword: [
 		{
@@ -103,6 +151,18 @@ var items = {
 				Damage: 2,
 			},
 		},
+		{
+			//id: 3
+			name: "Crooked Wooden Sword",
+			type: "sword",
+			image: "assets/items/sword.png",
+			tier: 1,
+			rarity: "common",
+			obtain: "Find as an unidentified item in Eaglecrest Logging Camp",
+			stats: {
+				Damage: 3,
+			},
+		}
 	],
 	staff: [
 		{
@@ -131,6 +191,18 @@ var items = {
 				Damage: 2,
 			},
 		},
+		{
+			//id: 3
+			name: "Crooked Wooden Staff",
+			type: "staff",
+			image: "assets/items/staff.png",
+			tier: 1,
+			rarity: "common",
+			obtain: "Find as an unidentified item in Eaglecrest Logging Camp",
+			stats: {
+				Damage: 3,
+			},
+		}
 	],
 	bow: [
 		{
@@ -159,50 +231,17 @@ var items = {
 				Damage: 2,
 			},
 		},
+		{
+			//id: 3
+			name: "Crooked Wooden Bow",
+			type: "bow",
+			image: "assets/items/bow.png",
+			tier: 1,
+			rarity: "common",
+			obtain: "Find as an unidentified item in Eaglecrest Logging Camp",
+			stats: {
+				Damage: 3,
+			},
+		}
 	],
 };
-
-var unId = [
-	{
-		name: "Unidentified Helm",
-		type: "helm",
-		image: "assets/items/helm.png",
-		tier: 1,
-	},
-	{
-		name: "Unidentified Chest",
-		type: "chest",
-		image: "assets/items/chest.png",
-		tier: 1,
-	},
-	{
-		name: "Unidentified Greaves",
-		type: "greaves",
-		image: "assets/items/greaves.png",
-		tier: 1,
-	},
-	{
-		name: "Unidentified Boots",
-		type: "boots",
-		image: "assets/items/boots.png",
-		tier: 1,
-	},
-	{
-		name: "Unidentified Sword",
-		type: "sword",
-		image: "assets/items/sword.png",
-		tier: 1,
-	},
-	{
-		name: "Unidentified Staff",
-		type: "staff",
-		image: "assets/items/staff.png",
-		tier: 1,
-	},
-	{
-		name: "Unidentified Bow",
-		type: "bow",
-		image: "assets/items/bow.png",
-		tier: 1,
-	},
-];
