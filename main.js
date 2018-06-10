@@ -434,6 +434,8 @@ Game.loadArea = function (areaName, destination) {
 		// map
 		Object.assign(map, areas[areaName].mapData);
 		
+		this.tileAtlas = Loader.getImage('tiles');
+		
 		// recalibrate camera (for areas other than first area)
 		if(this.camera != undefined) {
 			this.camera.maxX = map.cols * map.tsize - canvas.width;
@@ -485,7 +487,6 @@ Game.init = function () {
 
     Keyboard.listenForEvents(
         [Keyboard.LEFT, Keyboard.RIGHT, Keyboard.UP, Keyboard.DOWN]);
-    this.tileAtlas = Loader.getImage('tiles');
 	
 	// music
 	this.playingMusic = false;

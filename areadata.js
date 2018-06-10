@@ -117,6 +117,15 @@ var areas = {
 				destinationX: 200,
 				destinationY: 100,
 			},
+			{
+				x: 460,
+				y: 300,
+				width: 150,
+				height: 2,
+				teleportTo: "tavern",
+				destinationX: 200,
+				destinationY: 100,
+			},
 		],
 		
 		mapData: {
@@ -140,6 +149,68 @@ var areas = {
 			addresses: [
 				"./assets/tilemap/tilemap.png",
 				"./assets/npcs/teper.png",
+			],
+		},
+	},
+	
+	
+	tavern: {
+		
+		questNPCs: [
+			/*{
+				x: 500,
+				y: 500,
+				width: 73,
+				height: 123,
+				image: "teper",
+				quests: [
+					{
+						quest: quests.eaglecrestLoggingCamp[0], 
+						role: "finish"
+					},
+				],
+				name: "Marshall Teper",
+				questProgressText: "Get on with your work!",
+				questCompleteText: "There's lots of work still to be done.",
+			},*/
+		],
+		
+		merchants: [
+		],
+		
+		areaTeleports: [
+			/*{
+				x: 460,
+				y: 1250,
+				width: 150,
+				height: 2,
+				teleportTo: "tutorial",
+				destinationX: 200,
+				destinationY: 100,
+			},*/
+		],
+		
+		mapData: {
+			// make a place to specify what the tilemap is, and make each of the 2 areas use a separate tilemap
+			cols: 12,
+			rows: 12,
+			tsize: 60,
+			tilesPerRow: 3, //tiles per tilemap row (important!)
+			layers: [
+				[2, 3, 3, 3, 3, 3, 3, 3, 3, 3, 2, 2, 5, 3, 3, 3, 3, 3, 3, 3, 3, 3, 5, 5, 1, 1, 1, 1, 1, 1, 1, 1, 1, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 2, 3, 4, 7, 8, 4, 3, 3, 4, 7, 8, 4, 5, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 2, 3, 3, 3, 3, 3, 3, 4, 7, 8, 4, 3, 5, 2, 2, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 5, 5, 3, 3, 3, 3, 3, 3, 3, 3, 3],
+				[],
+			],
+		},
+		
+		images: {
+			names: [
+				"tiles",
+				//"teper",
+			],
+			
+			addresses: [
+				"./assets/tilemap/tavern.png",
+				//"./assets/npcs/teper.png",
 			],
 		},
 	},
