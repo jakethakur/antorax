@@ -40,6 +40,6 @@ var Player = {
 				stats: {},
 			},
 		],
-		unId: [],
+		unId: [{image: "assets/items/boots/2.png"}],
 	},
 };

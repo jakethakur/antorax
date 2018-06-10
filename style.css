@@ -88,8 +88,8 @@ body{
 }
 .triangleLeft, .innerTriangleLeft, .triangleRight, .innerTriangleRight{
 	position: absolute;
-	width: 0; 
-	height: 0; 
+	width: 0px; 
+	height: 0px; 
 	border-top: 15px solid transparent;
 	border-bottom: 15px solid transparent; 
 }
@@ -116,6 +116,16 @@ body{
 	border-left: 20px solid #fef9b4;
 	z-index: 2;
 }
+#leftArrow{
+	border-right: 40px solid #886622;
+	border-top: 30px solid transparent;
+	border-bottom: 30px solid transparent;
+}
+#rightArrow{
+	border-left: 40px solid #886622;
+	border-top: 30px solid transparent;
+	border-bottom: 30px solid transparent;
+}
 #settingBookmark, #settingMusic, #settingHitboxes, #settingCoords, #settingFps, #settingGrid, #activeQuestBox, #completedQuestBox, #possibleQuestBox, #allQuestBox {
 	width: 501px;
 	height: 40px;
@@ -125,6 +135,12 @@ body{
 }
 #helm, #chest, #greaves, #boots, #weapon{
 	margin-top: 10px;
+	border: 5px solid #886622;
+	background-color: #fef9b4;
+	width: 50px;
+	height: 50px;
+}
+.unIdHolder{
 	border: 5px solid #886622;
 	background-color: #fef9b4;
 	width: 50px;
@@ -156,7 +172,7 @@ body{
 	background-image: url("./assets/icons/gold.png");
 }
 
-#questStartItems, #questFinishItems{
+#questStartItems, #questFinishItems, #identifierPageGold{
 	display: inline-block;
 }
 
@@ -210,7 +226,7 @@ body{
 #questStartXP, #questFinishXP{
 	background-image: url("./assets/icons/xp.png");
 }
-.buy {
+.buy, #identifierPageBuy{
 	position: relative;
 	width: 150px;
 	height: 50px;
@@ -224,6 +240,9 @@ body{
 	vertical-align: middle;
 	font-size: 20px;
 	font-family: 'MedievalSharp', serif;
+}
+#identifierPageBuy{
+	left: 0px;
 }
 #itemInformation, #informationMerchant, #questInformation, #questFinishInformation {
 	position: absolute;

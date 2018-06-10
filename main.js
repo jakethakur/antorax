@@ -586,8 +586,10 @@ Game.update = function (delta) {
 				if(Dom.currentlyDisplayed != this.questNPCs[i].quests[0].quest && Dom.currentlyDisplayed != "" && !Dom.override){
 					if(this.hero.isTouching(this.questNPCs[i]) && document.getElementsByClassName("closeClass")[0].style.border != "5px solid red"){
 						Dom.changeBook("questsPage",false,0);
-					}else if(!this.hero.isTouching(this.questNPCs[i]) && document.getElementsByClassName("closeClass")[0].style.border == "5px solid red"){
+						Dom.quests.override = true;
+					}else if(!this.hero.isTouching(this.questNPCs[i]) && document.getElementsByClassName("closeClass")[0].style.border == "5px solid red" && Dom.quests.override == true){
 						Dom.changeBook("questsPage",false,1);
+						Dom.quests.override = false;
 					}
 				}
 			}
@@ -612,9 +614,11 @@ Game.update = function (delta) {
 				if(Dom.currentlyDisplayed != this.questNPCs[i].quests[this.questNPCs[i].quests.length-1].quest && Dom.currentlyDisplayed != "" && !Dom.override) {
 					if(this.hero.isTouching(this.questNPCs[i]) && document.getElementsByClassName("closeClass")[0].style.border != "5px solid red") {
 						Dom.changeBook("questsPage",false,0);
+						Dom.quest.override = true;
 					}
-					else if(!this.hero.isTouching(this.questNPCs[i]) && document.getElementsByClassName("closeClass")[0].style.border == "5px solid red") {
+					else if(!this.hero.isTouching(this.questNPCs[i]) && document.getElementsByClassName("closeClass")[0].style.border == "5px solid red" && Dom.quest.override == true) {
 						Dom.changeBook("questsPage",false,1);
+						Dom.quest.override = false;
 					}
 				}
 			}
@@ -671,8 +675,10 @@ Game.update = function (delta) {
 		}else if(Dom.currentlyDisplayed != this.merchants[i].name && Dom.currentlyDisplayed != "" && !Dom.override){
 			if(this.hero.isTouching(this.merchants[i]) && document.getElementsByClassName("closeClass")[0].style.border != "5px solid red"){
 				Dom.changeBook("questsPage",false,0);
-			}else if(!this.hero.isTouching(this.merchants[i]) && document.getElementsByClassName("closeClass")[0].style.border == "5px solid red"){
+				Dom.merchant.override = true;
+			}else if(!this.hero.isTouching(this.merchants[i]) && document.getElementsByClassName("closeClass")[0].style.border == "5px solid red" && Dom.merchant.override == true){
 				Dom.changeBook("questsPage",false,1);
+				Dom.merchant.override = false;
 			}
 		}
     }

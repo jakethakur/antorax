@@ -107,6 +107,7 @@ var items = {
 			tier: 1,
 			rarity: "unique",
 			lore: "Protects you from splinters. And goblins!",
+			obtain: "Recieve as a reward for completing quest: 'To the Logging Camp'",
 			stats: {
 				Defense: 2,
 			},

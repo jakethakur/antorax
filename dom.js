@@ -32,7 +32,7 @@ Dom.changeBook = function(page, override, x) {
 	//override says if the function should be run regardless of if the player has a quest active (e.g: declining a quest or closing a merchant)
 	if(this.currentlyDisplayed == "" || override) { // check the player doesn't have a quest active
 		// hide all pages
-		if(page != "questStart" && page != "questFinish" && page != "merchantPage"){
+		if(page != "questStart" && page != "questFinish" && page != "merchantPage" && page != "identifierPage"){
 			Dom.previous = page;
 		}
 		this.elements.chatPage.hidden = true;
@@ -62,6 +62,9 @@ Dom.changeBook = function(page, override, x) {
 		}
 
 		if(override) {
+			for(var i = 0; i < document.getElementsByClassName("closeClass").length; i++){
+				document.getElementsByClassName("closeClass")[i].style.border = "5px solid #886622";
+			}
 			this.currentlyDisplayed = ""; // reset current display if it is overriden
 			Dom.quests.activeQuests(undefined);
 		}
@@ -654,16 +657,25 @@ Dom.merchant.buy = function(item){
 	else {
 		alert("You don't have sufficient funds to buy that item.");
 	}
-}
-
-Dom.identifier.page = function(chat, item){
-	Dom.changeBook("identifierPage", false)
+} 
+Dom.identifier.page = function(chat){
+	Dom.changeBook("identifierPage", false);
 	Dom.currentlyDisplayed = "identifier";
 	Dom.changeBook("identifierPage", false, 1);
 	document.getElementById("identifierPageChat").innerHTML = chat;
-	var displayed = player.inventory.unId.length-1;
-	document.getElementById("identifierPageOption").innerHTML = "<img src=" + Player.inventory.unId[displayed].image + " class='theseOptions' style='border: 5px solid #886622;'></img>";
+	var displayed = Player.inventory.unId.length-1;
+	if(Player.inventory.unId.length != 0){
+		document.getElementById("identifierPageOption").innerHTML = "<img src=" + Player.inventory.unId[displayed].image + " class='theseOptions' style='border: 5px solid #886622;'></img>";
+	}else{
+		document.getElementById("identifierPageOption").innerHTML = "<div class='unIdHolder'></div>";
+	}
+	document.getElementById("leftArrow").style.top = document.getElementById("identifierPageOption").getBoundingClientRect().top - 5 +"px";
+	document.getElementById("leftArrow").style.left = document.getElementById("identifierPageOption").getBoundingClientRect().left - 80 +"px";
+	document.getElementById("rightArrow").style.top = document.getElementById("identifierPageOption").getBoundingClientRect().top - 5 +"px";
+	document.getElementById("rightArrow").style.left = document.getElementById("identifierPageOption").getBoundingClientRect().left + 50 +"px";
+	document.getElementById("identifierPageBuy").innerHTML = "Identify for: "+"1"+" gold";
 }
+Dom.identifier.page("What would you like to identify?");
 
 Dom.quest.give = function(item){
 	if(item.type == "helm"){Player.inventory.helm.push(item);}

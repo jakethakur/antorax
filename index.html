@@ -38,7 +38,7 @@
 		<div id="allQuestBox"hidden></div>
 	</div>
 	<div id="instructionsPage" hidden>
-		<center><br><br><a href="https://jakethakur22.github.io/antorax/archaeology.html">Archaeology Page</a></center>
+		<center><br><br><a href="https://jakethakur22.github.io/antorax/archaeology.html" target="_blank">Archaeology Page</a></center>
 	</div>
 	<div id="reputationPage" hidden> <!-- this should all be added via dom not html --> Eaglecrest Logging Camp:
 		<div id="widthPadding"></div> <!-- pad area between text and reputation box -->
@@ -145,12 +145,16 @@
 	</div>
 	
 	<div id="identifierPage">
-		<br><h1 id="identifierPageTitle">Item Identifier</h1><br>
-		<p id="identifierPageChat"></p><br><br>
-		<div id="leftArrow" class="traingleLeft"></div>
+		<div id="identifierInformation" hidden>
+			<div class="triangleLeft"></div>
+			<div class="innerTriangleLeft"></div>
+		</div>
+		<br><h1 id="identifierPageTitle">Item Identifier</h1><br><br>
+		<p id="identifierPageChat"></p><br><br><br>
+		<div id="leftArrow" class="triangleLeft"></div>
 		<div id="identifierPageOption"></div>
-		<div id="rightArrow" class="traingleRight"></div><br><br><br>
-		<div class="goldDisplay"></div>
+		<div id="rightArrow" class="triangleRight"></div><br><br>
+		<div class="goldDisplay" id="identifierPageGold"></div>
 		<div id="identifierPageBuy"></div>
 		<center><div id="identifierPageClose" class="closeClass" onclick="Dom.changeBook(Dom.previous, true)">Close</div></center>
 	</div>
