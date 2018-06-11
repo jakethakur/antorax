@@ -251,6 +251,32 @@ Camera.prototype.update = function () {
     }
 };
 
+//
+// global functions
+//
+
+// random number between upper and lower limit
+function random(minimum, maximum) {
+    return Math.floor((Math.random() * (maximum - minimum + 1)) + minimum);
+}
+
+// find bearing between two objects (with x and y)
+// returns answer in radians
+// from https://github.com/jakethakur22/AUV-Project/blob/master/gps/distance-and-bearing.js
+function bearing(obj1, obj2) {
+	var y = Math.sin(obj2.x - obj1.x) * Math.cos(obj2.y);
+	var x = Math.cos(obj1.y) * Math.sin(obj2.y) -
+			Math.sin(obj1.y) * Math.cos(obj2.y) * Math.cos(obj2.x - obj1.x);
+  
+	var bearing = Math.atan2(y, x);
+  
+	return bearing;
+}
+
+//
+// classes
+//
+
 class Entity {
 	constructor(properties) {
 		this.map = properties.map;
@@ -372,8 +398,6 @@ class Hero extends Character {
 // npcs
 //
 
-//var Game.questStartNPCs = {};
-
 class QuestNPC extends Character {
 	constructor(properties) {
 		super(properties);
@@ -396,6 +420,93 @@ class Merchant extends Character {
 		this.items = properties.items; // items sold
 		
 		//this.purchaseCurrencies = properties.purchaseCurrencies; // currencies that items are purchased with
+	}
+}
+
+class PeacefulNPC extends Character {
+	constructor(properties) {
+		super(properties);
+		
+		this.name = properties.name;
+		
+		this.speed = properties.speed;
+		
+		this.wait = 0; // total time spent waiting
+		
+		this.boundary = properties.boundary; // object of circle or rectangle that the npc cannot walk out of (specified by type: "ellipse")
+		// currently just rect
+		//https://developer.mozilla.org/en-US/docs/Web/API/CanvasRenderingContext2D/ellipse
+	}
+	
+	// co-ordinate movement
+	update() {
+		
+		// check if the NPC's movement state needs to be reassigned
+		if (this.state === undefined) { // state has never been assigned
+			this.updateState(undefined);
+		}
+		
+		// movement
+		else if (this.state.x !== undefined) {
+		
+			if (this.state.x == this.x && this.state.y == this.y) { // movement destination reached
+				this.updateState("wait");
+			}
+			
+			else { // move towards destination
+				move(); // tbd : make move by delta value (make delta global/higher scope?)
+			}
+			
+		}
+		
+		// waiting
+		else if (this.state.wait !== undefined) {
+		
+			if (this.state.wait >= this.wait) { // waiting duration reached
+				this.updateState("move");
+			}
+			
+			else { // wait
+				this.wait++;
+				// ...
+			}
+			
+		}
+		
+	}
+	
+	// update movement state if the NPC has finished previous action
+	// parameter = new state type
+	updateState(type) {
+		if (this.type === undefined) { // NPC state has not been defined before
+			if (random(0,1) == 0) {
+				updateState("move"); // NPC will start with movement
+			}
+			else {
+				updateState("wait"); // NPC will start with waiting
+			}
+		}
+		
+		else if (this.type === "wait") { // NPC has just finished moving
+			this.state.x = undefined;
+			this.state.y = undefined;
+			this.state.wait = random(1000, 6000);
+		}
+		
+		else if (this.type === "move") { // NPC has just finished waiting
+			this.state.wait = undefined;
+			this.wait = 0;
+			this.state.x = random(this.boundary.x, this.boundary.x + this.boundary.width);
+			this.state.y = random(this.boundary.y, this.boundary.y + this.boundary.height);
+		}
+	}
+	
+	move() {
+		this.bearing = bearing(this, {x: this.state.x, y: this.state.y}); // update bearing (maybe doesn't need to be done every tick?)
+		
+		// tbd : multiply by delta
+		this.x += Math.cos(bearing) * this.speed;
+		this.y += Math.sin(bearing) * this.speed;
 	}
 }
 
