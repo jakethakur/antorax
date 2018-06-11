@@ -38,7 +38,7 @@ body{
 	-ms-user-select: none; /* IE10+/Edge */
 	user-select: none;
 }
-#questStartQuest, #questFinishQuest, #questStartName, #questFinishName, #questStartChat, #questFinishChat, #questStartObjectives, #questStartRewards, #questFinishRewards, #merchantPageTitle, #merchantPageChat, #merchantPageOptions, #identifierPageTitle, #identifierPageChat, #leftArrow, #identifierPageOption, #rightArrow, #identifierPageBuy {
+#questStartQuest, #questFinishQuest, #questStartName, #questFinishName, #questStartChat, #questFinishChat, #questStartObjectives, #questStartRewards, #questFinishRewards, #merchantPageTitle, #merchantPageChat, #merchantPageOptions, #identifierPageTitle, #identifierPageChat, #leftArrow, #identifierPageOption, #rightArrow{
 	display: inline;
 }
 #settingBookmark, #settingMusic, #settingHitboxes, #settingCoords, #settingFps, #settingGrid {
@@ -243,6 +243,7 @@ body{
 }
 #identifierPageBuy{
 	left: 0px;
+	margin-top: 10px;
 }
 #itemInformation, #informationMerchant, #questInformation, #questFinishInformation {
 	position: absolute;
