@@ -37,6 +37,24 @@ var areas = {
 			},
 		],
 		
+		villagers: [
+			{
+				x: 200,
+				y: 200,
+				width: 90,
+				height: 110,
+				image: "weaponsmith",
+				name: "Weaponsmith Clone",
+				speed: 1,
+				boundary: {
+					x: 0,
+					y: 0,
+					width: 1000,
+					height: 400,
+				},
+			},
+		],
+		
 		areaTeleports: [
 			{
 				x: 255,
@@ -107,6 +125,9 @@ var areas = {
 		],
 		
 		merchants: [
+		],
+		
+		villagers: [
 		],
 		
 		areaTeleports: [

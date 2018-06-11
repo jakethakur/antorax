@@ -269,7 +269,6 @@ function bearing(obj1, obj2) {
 			Math.sin(obj1.y) * Math.cos(obj2.y) * Math.cos(obj2.x - obj1.x);
   
 	var bearing = Math.atan2(y, x);
-  
 	return bearing;
 }
 
@@ -423,7 +422,7 @@ class Merchant extends Character {
 	}
 }
 
-class PeacefulNPC extends Character {
+class Villager extends Character {
 	constructor(properties) {
 		super(properties);
 		
@@ -440,7 +439,6 @@ class PeacefulNPC extends Character {
 	
 	// co-ordinate movement
 	update() {
-		
 		// check if the NPC's movement state needs to be reassigned
 		if (this.state === undefined) { // state has never been assigned
 			this.updateState(undefined);
@@ -454,7 +452,7 @@ class PeacefulNPC extends Character {
 			}
 			
 			else { // move towards destination
-				move(); // tbd : make move by delta value (make delta global/higher scope?)
+				this.move(); // tbd : make move by delta value (make delta global/higher scope?)
 			}
 			
 		}
@@ -478,22 +476,24 @@ class PeacefulNPC extends Character {
 	// update movement state if the NPC has finished previous action
 	// parameter = new state type
 	updateState(type) {
-		if (this.type === undefined) { // NPC state has not been defined before
+		console.log(this.state);
+		if (type === undefined) { // NPC state has not been defined before
+			this.state = {};
 			if (random(0,1) == 0) {
-				updateState("move"); // NPC will start with movement
+				this.updateState("move"); // NPC will start with movement
 			}
 			else {
-				updateState("wait"); // NPC will start with waiting
+				this.updateState("wait"); // NPC will start with waiting
 			}
 		}
 		
-		else if (this.type === "wait") { // NPC has just finished moving
+		else if (type === "wait") { // NPC has just finished moving
 			this.state.x = undefined;
 			this.state.y = undefined;
 			this.state.wait = random(1000, 6000);
 		}
 		
-		else if (this.type === "move") { // NPC has just finished waiting
+		else if (type === "move") { // NPC has just finished waiting
 			this.state.wait = undefined;
 			this.wait = 0;
 			this.state.x = random(this.boundary.x, this.boundary.x + this.boundary.width);
@@ -503,10 +503,9 @@ class PeacefulNPC extends Character {
 	
 	move() {
 		this.bearing = bearing(this, {x: this.state.x, y: this.state.y}); // update bearing (maybe doesn't need to be done every tick?)
-		
 		// tbd : multiply by delta
-		this.x += Math.cos(bearing) * this.speed;
-		this.y += Math.sin(bearing) * this.speed;
+		this.x += Math.cos(this.bearing) * this.speed;
+		this.y += Math.sin(this.bearing) * this.speed;
 	}
 }
 
@@ -556,6 +555,7 @@ Game.loadArea = function (areaName, destination) {
 		// map
 		Object.assign(map, areas[areaName].mapData);
 		
+		// set tileset
 		this.tileAtlas = Loader.getImage('tiles');
 		
 		// recalibrate camera (for areas other than first area)
@@ -576,6 +576,13 @@ Game.loadArea = function (areaName, destination) {
 		for(var i = 0; i < areas[areaName].merchants.length; i++) {
 			areas[areaName].merchants[i].map = map;
 			this.merchants.push(new Merchant(areas[areaName].merchants[i]));
+		}
+		
+		// villagers
+		this.villagers = [];
+		for(var i = 0; i < areas[areaName].villagers.length; i++) {
+			areas[areaName].villagers[i].map = map;
+			this.villagers.push(new Villager(areas[areaName].villagers[i]));
 		}
 		
 		// area teleports
@@ -621,7 +628,7 @@ Game.init = function () {
 		width: 57,
 		height: 120,
 		image: "hero",
-		baseSpeed: 172, // base pixels per second
+		baseSpeed: 1720, // base pixels per second
 		waterSpeed: 64, // speed when in water
 	});
 	
@@ -748,45 +755,7 @@ Game.update = function (delta) {
 		}
 		
 	}
-	/*
-	// check collision with quest start npcs
-	// tbd: make own function, and move to be called by hero.move (inefficient rn)
-	for(var i = 0; i < this.questNPCs.length; i++) {
-		// doesn't currently check if the player's level is too low to accept the quest
-		
-		// quest is ready to be accepted
-        if (this.hero.isTouching(this.questNPCs[i]) && Dom.currentlyDisplayed === "" && !Dom.quests.activeQuestArray.includes(this.questNPCs[i].quest.quest) && !Dom.quests.completedQuestArray.includes(this.questNPCs[i].quest.quest)) {
-			Dom.quest.start(this.questNPCs[i].quest);
-		}
-		// quest is currently active
-		else if (this.hero.isTouching(this.questNPCs[i]) && Dom.quests.activeQuestArray.includes(this.questNPCs[i].quest.quest) && !Dom.chat.contents.includes("<strong>" + this.questNPCs[i].name + ": " + "</strong>" + this.questNPCs[i].questProgressText)) {
-			Dom.chat.insert("<strong>" + this.questNPCs[i].name + ": " + "</strong>" + this.questNPCs[i].questProgressText, 100);
-		}
-		// quest has been completed
-		else if (this.hero.isTouching(this.questNPCs[i]) && Dom.quests.completedQuestArray.includes(this.questNPCs[i].quest.quest) && !Dom.chat.contents.includes("<strong>" + this.questNPCs[i].name + ": " + "</strong>" + this.questNPCs[i].questCompleteText)) {
-			Dom.chat.insert("<strong>" + this.questNPCs[i].name + ": " + "</strong>" + this.questNPCs[i].questCompleteText, 100);
-		}
-    }
 	
-	// check collision with quest finish npcs
-	for(var i = 0; i < this.questNPCs.length; i++) {
-		// quest is ready to be finished
-        if (this.hero.isTouching(this.questNPCs[i]) && Dom.currentlyDisplayed === "" && Dom.quests.activeQuestArray.includes(this.questNPCs[i].quest.quest) && !Dom.quests.completedQuestArray.includes(this.questNPCs[i].quest.quest)) {
-			//check if quest conditions have been fulfilled
-			if(this.questNPCs[i].quest.isCompleted()[this.questNPCs[i].quest.objectives.length - 1]) {
-				Dom.quest.finish(this.questNPCs[i].quest);
-			}
-			// quest conditions have not been fulfilled
-			else if (!Dom.chat.contents.includes("<strong>" + this.questNPCs[i].name + ": " + "</strong>" + this.questNPCs[i].questProgressText)) {
-				Dom.chat.insert("<strong>" + this.questNPCs[i].name + ": " + "</strong>" + this.questNPCs[i].questProgressText, 100);
-			}
-		}
-		// quest has been completed
-		else if (this.hero.isTouching(this.questNPCs[i]) && Dom.quests.completedQuestArray.includes(this.questNPCs[i].quest.quest) && !Dom.chat.contents.includes("<strong>" + this.questNPCs[i].name + ": " + "</strong>" + this.questNPCs[i].questCompleteText)) {
-			Dom.chat.insert("<strong>" + this.questNPCs[i].name + ": " + "</strong>" + this.questNPCs[i].questCompleteText, 100);
-		}
-    }
-	*/
 	// check collision with merchants
 	for(var i = 0; i < this.merchants.length; i++) {
         if (this.hero.isTouching(this.merchants[i]) && Dom.currentlyDisplayed === "") {
@@ -794,15 +763,22 @@ Game.update = function (delta) {
 			if (!Dom.chat.contents.includes("<strong>" + this.merchants[i].name + ": " + "</strong>" + this.merchants[i].buyText)) {
 				Dom.chat.insert("<strong>" + this.merchants[i].name + ": " + "</strong>" + this.merchants[i].buyText, 100);
 			}
-		}else if(Dom.currentlyDisplayed != this.merchants[i].name && Dom.currentlyDisplayed != "" && !Dom.override){
+		}
+		else if (Dom.currentlyDisplayed != this.merchants[i].name && Dom.currentlyDisplayed != "" && !Dom.override) {
 			if(this.hero.isTouching(this.merchants[i]) && document.getElementsByClassName("closeClass")[0].style.border != "5px solid red"){
 				Dom.changeBook("questsPage",false,0);
 				Dom.merchant.override = true;
-			}else if(!this.hero.isTouching(this.merchants[i]) && document.getElementsByClassName("closeClass")[0].style.border == "5px solid red" && Dom.merchant.override == true){
+			}
+			else if (!this.hero.isTouching(this.merchants[i]) && document.getElementsByClassName("closeClass")[0].style.border == "5px solid red" && Dom.merchant.override == true) {
 				Dom.changeBook("questsPage",false,1);
 				Dom.merchant.override = false;
 			}
 		}
+    }
+	
+	// check collision with villagers
+	for(var i = 0; i < this.villagers.length; i++) {
+		this.villagers[i].update();
     }
 	
 	// check collision with area teleports
@@ -931,21 +907,7 @@ Game.render = function () {
 			this.questNPCs[i].screenY - this.questNPCs[i].height / 2
         );
     }
-	/*
-    // draw quest finish NPCs
-    for(var i = 0; i < this.questFinishNPCs.length; i++) {
-		// set character screen x and y
-		this.questFinishNPCs[i].screenX = (this.questFinishNPCs[i].x - this.questFinishNPCs[i].width / 2) - this.camera.x;
-		this.questFinishNPCs[i].screenY = (this.questFinishNPCs[i].y - this.questFinishNPCs[i].height / 2) - this.camera.y;
-		
-		// draw image
-        this.ctx.drawImage(
-			this.questFinishNPCs[i].image,
-			this.questFinishNPCs[i].screenX - this.questFinishNPCs[i].width / 2,
-			this.questFinishNPCs[i].screenY - this.questFinishNPCs[i].height / 2
-        );
-    }
-	*/
+	
     // draw merchants
     for(var i = 0; i < this.merchants.length; i++) {
 		// set character screen x and y
@@ -957,6 +919,20 @@ Game.render = function () {
 			this.merchants[i].image,
 			this.merchants[i].screenX - this.merchants[i].width / 2,
 			this.merchants[i].screenY - this.merchants[i].height / 2
+        );
+    }
+	
+	// draw villagers
+    for(var i = 0; i < this.villagers.length; i++) {
+		// set character screen x and y
+		this.villagers[i].screenX = (this.villagers[i].x - this.villagers[i].width / 2) - this.camera.x;
+		this.villagers[i].screenY = (this.villagers[i].y - this.villagers[i].height / 2) - this.camera.y;
+		
+		// draw image
+        this.ctx.drawImage(
+			this.villagers[i].image,
+			this.villagers[i].screenX - this.villagers[i].width / 2,
+			this.villagers[i].screenY - this.villagers[i].height / 2
         );
     }
 
@@ -1002,13 +978,6 @@ Game.render = function () {
 			this.hero.width, this.hero.height,
 		);
 	}
-	
-	/*
-    this.ctx.drawImage(
-        this.hero.image,
-        this.hero.screenX - this.hero.width / 2,
-        this.hero.screenY - this.hero.height / 2
-    );*/
 
     // draw map top layer
     //this._drawLayer(1);
