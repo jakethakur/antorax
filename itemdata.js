@@ -24,9 +24,37 @@ var items = {
 			obtain: "Find as an unidentified item in Eaglecrest Logging Camp",
 			area: "Eaglecrest Logging Camp",
 			stats: {
-				defence: 2,
+				Defence: 2,
 			},
-		}
+		},
+		{
+			//id: 3
+			name: "Goblin Forged Helm",
+			type: "helm",
+			image: "assets/items/helm.png",
+			tier: 1,
+			rarity: "unique",
+			obtain: "Find as an unidentified item in Eaglecrest Logging Camp",
+			area: "Eaglecrest Logging Camp",
+			stats: {
+				Defence: 3,
+				Looting: "+5%",
+			},
+		},
+		{
+			//id: 4
+			name: "Siege Helm",
+			type: "helm",
+			image: "assets/items/helm.png",
+			tier: 1,
+			rarity: "unique",
+			obtain: "Find as an unidentified item in Eaglecrest Logging Camp",
+			area: "Eaglecrest Logging Camp",
+			stats: {
+				Defence: 3,
+				Health_Regen: "+1/s",
+			},
+		},
 	],
 	chest: [
 		{
@@ -53,9 +81,37 @@ var items = {
 			obtain: "Find as an unidentified item in Eaglecrest Logging Camp",
 			area: "Eaglecrest Logging Camp",
 			stats: {
-				defence: 3,
+				Defence: 3,
 			},
-		}
+		},
+		{
+			//id: 3
+			name: "Goblin Forged Chest",
+			type: "chest",
+			image: "assets/items/chest.png",
+			tier: 1,
+			rarity: "unique",
+			obtain: "Find as an unidentified item in Eaglecrest Logging Camp",
+			area: "Eaglecrest Logging Camp",
+			stats: {
+				Defence: 4,
+				Looting: "+5%",
+			},
+		},
+		{
+			//id: 4
+			name: "Siege Chest",
+			type: "chest",
+			image: "assets/items/chest.png",
+			tier: 1,
+			rarity: "unique",
+			obtain: "Find as an unidentified item in Eaglecrest Logging Camp",
+			area: "Eaglecrest Logging Camp",
+			stats: {
+				Defence: 4,
+				Health_Regen: "+1/s",
+			},
+		},
 	],
 	greaves: [
 		{
@@ -83,9 +139,37 @@ var items = {
 			obtain: "Find as an unidentified item in Eaglecrest Logging Camp",
 			area: "Eaglecrest Logging Camp",
 			stats: {
-				defence: 3,
+				Defence: 3,
 			},
-		}
+		},
+		{
+			//id: 3
+			name: "Goblin Forged Greaves",
+			type: "greaves",
+			image: "assets/items/greaves.png",
+			tier: 1,
+			rarity: "unique",
+			obtain: "Find as an unidentified item in Eaglecrest Logging Camp",
+			area: "Eaglecrest Logging Camp",
+			stats: {
+				Defence: 4,
+				Looting: "+5%",
+			},
+		},
+		{
+			//id: 4
+			name: "Siege Greaves",
+			type: "greaves",
+			image: "assets/items/greaves.png",
+			tier: 1,
+			rarity: "unique",
+			obtain: "Find as an unidentified item in Eaglecrest Logging Camp",
+			area: "Eaglecrest Logging Camp",
+			stats: {
+				Defence: 4,
+				Health_Regen: "+1/s",
+			},
+		},
 	],
 	boots: [
 		{
@@ -112,8 +196,8 @@ var items = {
 			lore: "Protects you from splinters. And goblins!",
 			obtain: "Recieve as a reward for completing quest: 'To the Logging Camp'",
 			stats: {
-				defence: 1,
-				speed: +0.5,
+				Defence: 1,
+				Speed: "+25",
 			},
 		},
 		{
@@ -126,9 +210,37 @@ var items = {
 			obtain: "Find as an unidentified item in Eaglecrest Logging Camp",
 			area: "Eaglecrest Logging Camp",
 			stats: {
-				defence: 2,
+				Defence: 2,
 			},
-		}
+		},
+		{
+			//id: 4
+			name: "Goblin Forged Boots",
+			type: "boots",
+			image: "assets/items/boots.png",
+			tier: 1,
+			rarity: "unique",
+			obtain: "Find as an unidentified item in Eaglecrest Logging Camp",
+			area: "Eaglecrest Logging Camp",
+			stats: {
+				Defence: 3,
+				Looting: "+5%",
+			},
+		},
+		{
+			//id: 5
+			name: "Siege Boots",
+			type: "boots",
+			image: "assets/items/boots.png",
+			tier: 1,
+			rarity: "unique",
+			obtain: "Find as an unidentified item in Eaglecrest Logging Camp",
+			area: "Eaglecrest Logging Camp",
+			stats: {
+				Defence: 3,
+				Health_Regen: "+1/s",
+			},
+		},
 	],
 	sword: [
 		{
@@ -154,7 +266,7 @@ var items = {
 			tier: 1,
 			rarity: "common",
 			stats: {
-				damage: 2,
+				Damage: 2,
 			},
 		},
 		{
@@ -167,12 +279,12 @@ var items = {
 			obtain: "Find as an unidentified item in Eaglecrest Logging Camp",
 			area: "Eaglecrest Logging Camp",
 			stats: {
-				damage: 3,
+				Damage: 3,
 			},
 		},
 		{
 			//id: 4
-			name: "Poisined Blade",
+			name: "Poisoned Blade",
 			type: "sword",
 			image: "assets/items/sword.png",
 			tier: 1,
@@ -180,8 +292,22 @@ var items = {
 			obtain: "Find as an unidentified item in Eaglecrest Logging Camp",
 			area: "Eaglecrest Logging Camp",
 			stats: {
-				damage: 3,
-				poison: "1 over 1 second",
+				Damage: 3,
+				Poison: "1/1s",
+			},
+		},
+		{
+			//id: 5
+			name: "Splintered Sword",
+			type: "sword",
+			image: "assets/items/sword.png",
+			tier: 1,
+			rarity: "unique",
+			obtain: "Find as an unidentified item in Eaglecrest Logging Camp",
+			area: "Eaglecrest Logging Camp",
+			stats: {
+				Damage: 4,
+				Critical_Chance: "+10%",
 			},
 		},
 	],
@@ -209,7 +335,7 @@ var items = {
 			tier: 1,
 			rarity: "common",
 			stats: {
-				damage: 2,
+				Damage: 2,
 			},
 		},
 		{
@@ -222,7 +348,21 @@ var items = {
 			obtain: "Find as an unidentified item in Eaglecrest Logging Camp",
 			area: "Eaglecrest Logging Camp",
 			stats: {
-				damage: 3,
+				Damage: 3,
+			},
+		},
+		{
+			//id: 5
+			name: "Health Staff",
+			type: "staff",
+			image: "assets/items/staff.png",
+			tier: 1,
+			rarity: "unique",
+			obtain: "Find as an unidentified item in Eaglecrest Logging Camp",
+			area: "Eaglecrest Logging Camp",
+			stats: {
+				Damage: 3,
+				Health_Regen: "+1/s",
 			},
 		},
 		{
@@ -235,8 +375,8 @@ var items = {
 			obtain: "Find as an unidentified item in Eaglecrest Logging Camp",
 			area: "Eaglecrest Logging Camp",
 			stats: {
-				damage: 3,
-				crit: "+25%",
+				Damage: 3,
+				Critical_Chance: "+25%",
 			},
 		},
 	],
@@ -264,7 +404,7 @@ var items = {
 			tier: 1,
 			rarity: "common",
 			stats: {
-				damage: 2,
+				Damage: 2,
 			},
 		},
 		{
@@ -277,7 +417,7 @@ var items = {
 			obtain: "Find as an unidentified item in Eaglecrest Logging Camp",
 			area: "Eaglecrest Logging Camp",
 			stats: {
-				damage: 3,
+				Damage: 3,
 			},
 		},
 		{
@@ -290,8 +430,36 @@ var items = {
 			obtain: "Find as an unidentified item in Eaglecrest Logging Camp",
 			area: "Eaglecrest Logging Camp",
 			stats: {
-				damage: 3,
-				focus: "+1",
+				Damage: 3,
+				Focus_Speed: "+1",
+			},
+		},
+		{
+			//id: 5
+			name: "Woodshot",
+			type: "bow",
+			image: "assets/items/bow.png",
+			tier: 1,
+			rarity: "unique",
+			obtain: "Find as an unidentified item in Eaglecrest Logging Camp",
+			area: "Eaglecrest Logging Camp",
+			stats: {
+				Damage: 2,
+				Critical_Chance: "+75%",
+			},
+		},
+		{
+			//id: 6
+			name: "Tattered Knight's Mace",
+			type: "bow",
+			image: "assets/items/bow.png",
+			tier: 1,
+			rarity: "unique",
+			obtain: "Find as an unidentified item in Eaglecrest Logging Camp",
+			area: "Eaglecrest Logging Camp",
+			stats: {
+				Damage: 2,
+				Critical_Chance: "+75%",
 			},
 		},
 	],

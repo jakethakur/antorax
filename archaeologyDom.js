@@ -127,7 +127,8 @@ function arrange(){
 		}
 		document.getElementById("tier"+i).innerHTML = "<br>Tier: "+array[i].tier;
 		for(var a = 0; a < Object.keys(array[i].stats).length; a++){
-			document.getElementById("stats"+i).innerHTML += Object.keys(array[i].stats)[a]+": "+array[i].stats[Object.keys(array[i].stats)[a]]+"<br>";
+			var replaceStat = Object.keys(array[i].stats)[a].replace("_"," ");
+			document.getElementById("stats"+i).innerHTML += replaceStat+": "+array[i].stats[Object.keys(array[i].stats)[a]]+"<br>";
 		}
 		if(array[i].lore != undefined){
 			document.getElementById("lore"+i).innerHTML = "<br><i>"+array[i].lore+"</i>";
