@@ -445,6 +445,18 @@ Dom.quests.displayFinishInformation = function(num,array,total){
 	document.getElementById("finishRectangle").style.bottom = document.getElementById("questFinishInformation").offsetHeight - 50 + "px";
 }
 
+Dom.identifier.displayInformation = function(num,array){
+	document.getElementById("identifierInformation").hidden = false;
+	document.getElementById("identifierInformation").style.top = document.getElementById("identifierPageOption").getBoundingClientRect().top+"px";
+	document.getElementById("identifierInformation").style.left = document.getElementById("identifierPageOption").getBoundingClientRect().left + 70 +"px";
+	document.getElementById("identifierInformation").innerHTML = "<div class='rectangleLeftUp' id='identifierRectangle'></div><div class='rectangleLeftDown'></div><div class='triangleLeft'></div><div id='identifierTriangle' class='innerTriangleLeft'></div><p id='identifierName'><b> Unidentified "+array[num].type+"</b></p><p id='identifierStats'></p><p id='identifierLore'></p>";
+	document.getElementById("identifierName").style.color = "black";
+	document.getElementById("identifierStats").innerHTML = "Tier: "+array[num].tier;
+	document.getElementById("identifierLore").innerHTML += "Area: "+array[num].area;
+	document.getElementById("identifierTriangle").style.bottom = document.getElementById("identifierInformation").offsetHeight - 50 + "px";
+	document.getElementById("identifierRectangle").style.bottom = document.getElementById("identifierInformation").offsetHeight - 50 + "px";
+}
+
 Dom.currentlyDisplayed = ""; // the currently displayed quest, merchant, etc. (something that can't be overridden)
 
 // display quest start page
@@ -669,9 +681,9 @@ Dom.identifier.page = function(chat){
 	}else{
 		document.getElementById("identifierPageOption").innerHTML = "<div class='unIdHolder'></div>";
 	}
-	document.getElementById("leftArrow").style.top = document.getElementById("identifierPageOption").getBoundingClientRect().top - 5 +"px";
-	document.getElementById("leftArrow").style.left = document.getElementById("identifierPageOption").getBoundingClientRect().left - 80 +"px";
-	document.getElementById("rightArrow").style.top = document.getElementById("identifierPageOption").getBoundingClientRect().top - 5 +"px";
+	document.getElementById("leftArrow").style.top = document.getElementById("identifierPageOption").getBoundingClientRect().top + 13 +"px";
+	document.getElementById("leftArrow").style.left = document.getElementById("identifierPageOption").getBoundingClientRect().left - 60 +"px";
+	document.getElementById("rightArrow").style.top = document.getElementById("identifierPageOption").getBoundingClientRect().top + 13 +"px";
 	document.getElementById("rightArrow").style.left = document.getElementById("identifierPageOption").getBoundingClientRect().left + 50 +"px";
 	document.getElementById("identifierPageBuy").innerHTML = "Identify for: "+"1"+" gold";
 }
