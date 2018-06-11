@@ -246,6 +246,7 @@ body{
 	display: inline-block;
 	margin-top: 25px;
 	width: 200px;
+	margin-left: 60px;
 }
 #itemInformation, #informationMerchant, #questInformation, #questFinishInformation {
 	position: absolute;
