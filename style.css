@@ -116,16 +116,6 @@ body{
 	border-left: 20px solid #fef9b4;
 	z-index: 2;
 }
-#leftArrow{
-	border-right: 40px solid #886622;
-	border-top: 30px solid transparent;
-	border-bottom: 30px solid transparent;
-}
-#rightArrow{
-	border-left: 40px solid #886622;
-	border-top: 30px solid transparent;
-	border-bottom: 30px solid transparent;
-}
 #settingBookmark, #settingMusic, #settingHitboxes, #settingCoords, #settingFps, #settingGrid, #activeQuestBox, #completedQuestBox, #possibleQuestBox, #allQuestBox {
 	width: 501px;
 	height: 40px;
@@ -246,7 +236,7 @@ body{
 	display: inline-block;
 	margin-top: 25px;
 	width: 200px;
-	margin-left: 60px;
+	margin-left: 40px;
 }
 #itemInformation, #informationMerchant, #questInformation, #questFinishInformation {
 	position: absolute;
