@@ -243,6 +243,7 @@ body{
 }
 #identifierPageBuy{
 	left: 0px;
+	display: inline-block;
 	margin-top: 10px;
 }
 #itemInformation, #informationMerchant, #questInformation, #questFinishInformation {
