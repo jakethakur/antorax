@@ -22,6 +22,7 @@ var items = {
 			tier: 1,
 			rarity: "common",
 			obtain: "Find as an unidentified item in Eaglecrest Logging Camp",
+			area: "Eaglecrest Logging Camp",
 			stats: {
 				Defence: 1,
 			},
@@ -50,6 +51,7 @@ var items = {
 			tier: 1,
 			rarity: "common",
 			obtain: "Find as an unidentified item in Eaglecrest Logging Camp",
+			area: "Eaglecrest Logging Camp",
 			stats: {
 				Defence: 2,
 			},
@@ -79,6 +81,7 @@ var items = {
 			tier: 1,
 			rarity: "common",
 			obtain: "Find as an unidentified item in Eaglecrest Logging Camp",
+			area: "Eaglecrest Logging Camp",
 			stats: {
 				Defence: 2,
 			},
@@ -120,6 +123,7 @@ var items = {
 			tier: 1,
 			rarity: "common",
 			obtain: "Find as an unidentified item in Eaglecrest Logging Camp",
+			area: "Eaglecrest Logging Camp",
 			stats: {
 				Defence: 1,
 			},
@@ -160,6 +164,7 @@ var items = {
 			tier: 1,
 			rarity: "common",
 			obtain: "Find as an unidentified item in Eaglecrest Logging Camp",
+			area: "Eaglecrest Logging Camp",
 			stats: {
 				Damage: 3,
 			},
@@ -200,6 +205,7 @@ var items = {
 			tier: 1,
 			rarity: "common",
 			obtain: "Find as an unidentified item in Eaglecrest Logging Camp",
+			area: "Eaglecrest Logging Camp",
 			stats: {
 				Damage: 3,
 			},
@@ -240,6 +246,7 @@ var items = {
 			tier: 1,
 			rarity: "common",
 			obtain: "Find as an unidentified item in Eaglecrest Logging Camp",
+			area: "Eaglecrest Logging Camp",
 			stats: {
 				Damage: 3,
 			},

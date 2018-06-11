@@ -70,19 +70,25 @@ body{
 	font-family: 'MedievalSharp', serif;
 	background-color: #fff7a5;
 }
-.rectangleRightUp{
+.rectangleLeftUp, .rectangleLeftDown, .rectangleRightUp, .rectangleRightDown{
 	position: absolute;
 	width: 22px;
 	height: 50px;
 	background-color: #f9f9d0;
+}
+.rectangleLeftUp{
+	right:165px;
+	bottom: 5px;
+}
+.rectangleLeftDown{
+	right:165px;
+	top: 5px;
+}
+.rectangleRightUp{
 	left:165px;
 	bottom: 5px;
 }
 .rectangleRightDown{
-	position: absolute;
-	width: 22px;
-	height: 50px;
-	background-color: #f9f9d0;
 	left:165px;
 	top: 5px;
 }
@@ -238,7 +244,7 @@ body{
 	width: 200px;
 	margin-left: 40px;
 }
-#itemInformation, #informationMerchant, #questInformation, #questFinishInformation {
+#itemInformation, #informationMerchant, #questInformation, #questFinishInformation, #identifierInformation {
 	position: absolute;
 	left: 740px;
 	width: 150px;

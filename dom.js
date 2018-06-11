@@ -447,8 +447,8 @@ Dom.quests.displayFinishInformation = function(num,array,total){
 
 Dom.identifier.displayInformation = function(num,array){
 	document.getElementById("identifierInformation").hidden = false;
-	document.getElementById("identifierInformation").style.top = document.getElementById("identifierPageOption").getBoundingClientRect().top+"px";
-	document.getElementById("identifierInformation").style.left = document.getElementById("identifierPageOption").getBoundingClientRect().left + 70 +"px";
+	document.getElementById("identifierInformation").style.top = document.getElementById("identifierPageOption").getBoundingClientRect().top - 46 + "px";
+	document.getElementById("identifierInformation").style.left = document.getElementById("identifierPageOption").getBoundingClientRect().left + 90 +"px";
 	document.getElementById("identifierInformation").innerHTML = "<div class='rectangleLeftUp' id='identifierRectangle'></div><div class='rectangleLeftDown'></div><div class='triangleLeft'></div><div id='identifierTriangle' class='innerTriangleLeft'></div><p id='identifierName'><b> Unidentified "+array[num].type+"</b></p><p id='identifierStats'></p><p id='identifierLore'></p>";
 	document.getElementById("identifierName").style.color = "black";
 	document.getElementById("identifierStats").innerHTML = "Tier: "+array[num].tier;
@@ -669,22 +669,49 @@ Dom.merchant.buy = function(item){
 	else {
 		alert("You don't have sufficient funds to buy that item.");
 	}
-} 
+}
+Dom.identifier.displayed = Player.inventory.unId.length-1;
+	
+Dom.identifier.left = function(chat){
+	if(Dom.identifier.displayed != 0){
+		Dom.identifier.displayed--;
+	}else{
+		Dom.identifier.displayed = Player.inventory.unId.length-1;
+	}
+	Dom.identifier.page(chat);
+}
+
+Dom.identifier.right = function(chat){
+	if(Dom.identifier.displayed != Player.inventory.unId.length-1){
+		Dom.identifier.displayed++;
+	}else{
+		Dom.identifier.displayed = 0;
+	}
+	Dom.identifier.page(chat);
+}
+
 Dom.identifier.page = function(chat){
 	Dom.changeBook("identifierPage", false);
 	Dom.currentlyDisplayed = "identifier";
 	Dom.changeBook("identifierPage", false, 1);
 	document.getElementById("identifierPageChat").innerHTML = chat;
-	var displayed = Player.inventory.unId.length-1;
 	if(Player.inventory.unId.length != 0){
-		document.getElementById("identifierPageOption").innerHTML = "<img src=" + Player.inventory.unId[displayed].image + " class='theseOptions' style='border: 5px solid #886622;'></img>";
+		document.getElementById("identifierPageOption").innerHTML = "<img src=" + Player.inventory.unId[Dom.identifier.displayed].image + " class='theseOptions' style='border: 5px solid #886622;'></img>";
 	}else{
 		document.getElementById("identifierPageOption").innerHTML = "<div class='unIdHolder'></div>";
 	}
-	document.getElementById("leftArrow").style.top = document.getElementById("identifierPageOption").getBoundingClientRect().top + 13 +"px";
+	document.getElementById("identifierPageOption").onmouseover = function(chat){
+		Dom.identifier.displayInformation(0,Player.inventory.unId);
+	}
+	document.getElementById("identifierPageOption").onmouseleave = function(chat){
+		Dom.expand("identifierInformation");
+	}
+	document.getElementById("leftArrow").style.top = document.getElementById("identifierPageOption").getBoundingClientRect().top + 10 +"px";
 	document.getElementById("leftArrow").style.left = document.getElementById("identifierPageOption").getBoundingClientRect().left - 60 +"px";
-	document.getElementById("rightArrow").style.top = document.getElementById("identifierPageOption").getBoundingClientRect().top + 13 +"px";
+	document.getElementById("leftArrow").onclick = Dom.identifier.left();
+	document.getElementById("rightArrow").style.top = document.getElementById("identifierPageOption").getBoundingClientRect().top + 10 +"px";
 	document.getElementById("rightArrow").style.left = document.getElementById("identifierPageOption").getBoundingClientRect().left + 50 +"px";
+	document.getElementById("rightArrow").onclick = Dom.identifier.right();
 	document.getElementById("identifierPageBuy").innerHTML = "Identify for: "+"1"+" gold";
 }
 Dom.identifier.page("What would you like to identify?");

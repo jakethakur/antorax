@@ -40,6 +40,6 @@ var Player = {
 				stats: {},
 			},
 		],
-		unId: [{image: "assets/items/boots/2.png"}],
+		unId: [{image: "assets/items/boots/2.png",tier:1,type:"boots",area:"Eaglecrest Logging Camp"},{image: "assets/items/sword.png",tier:1,type:"sword",area:"Eaglecrest Logging Camp"}],
 	},
 };
