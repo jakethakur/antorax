@@ -108,11 +108,12 @@ var items = {
 			type: "boots",
 			image:"assets/items/boots/2.png",
 			tier: 1,
-			rarity: "unique",
+			rarity: "common",
 			lore: "Protects you from splinters. And goblins!",
 			obtain: "Recieve as a reward for completing quest: 'To the Logging Camp'",
 			stats: {
-				Defense: 2,
+				Defense: 1,
+				
 			},
 		},
 		{
@@ -125,7 +126,7 @@ var items = {
 			obtain: "Find as an unidentified item in Eaglecrest Logging Camp",
 			area: "Eaglecrest Logging Camp",
 			stats: {
-				Defence: 1,
+				Defence: 2,
 			},
 		}
 	],
@@ -168,7 +169,21 @@ var items = {
 			stats: {
 				Damage: 3,
 			},
-		}
+		},
+		{
+			//id: 4
+			name: "Poisined Blade",
+			type: "sword",
+			image: "assets/items/sword.png",
+			tier: 1,
+			rarity: "unique",
+			obtain: "Find as an unidentified item in Eaglecrest Logging Camp",
+			area: "Eaglecrest Logging Camp",
+			stats: {
+				Damage: 3,
+				Poisin: "+1/1",
+			},
+		},
 	],
 	staff: [
 		{
@@ -209,7 +224,21 @@ var items = {
 			stats: {
 				Damage: 3,
 			},
-		}
+		},
+		{
+			//id: 4
+			name: "Power Surge Staff",
+			type: "staff",
+			image: "assets/items/staff.png",
+			tier: 1,
+			rarity: "unique",
+			obtain: "Find as an unidentified item in Eaglecrest Logging Camp",
+			area: "Eaglecrest Logging Camp",
+			stats: {
+				Damage: 3,
+				Critical Chance: "+25%",
+			},
+		},
 	],
 	bow: [
 		{
@@ -250,6 +279,20 @@ var items = {
 			stats: {
 				Damage: 3,
 			},
-		}
+		},
+		{
+			//id: 4
+			name: "Sharp Shooter Bow",
+			type: "bow",
+			image: "assets/items/bow.png",
+			tier: 1,
+			rarity: "unique",
+			obtain: "Find as an unidentified item in Eaglecrest Logging Camp",
+			area: "Eaglecrest Logging Camp",
+			stats: {
+				Damage: 3,
+				Focus: "+1",
+			},
+		},
 	],
 };

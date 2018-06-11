@@ -678,6 +678,7 @@ Dom.identifier.left = function(chat){
 	}else{
 		Dom.identifier.displayed = Player.inventory.unId.length-1;
 	}
+	console.log(Dom.identifier.displayed);
 	Dom.identifier.page(chat);
 }
 
@@ -687,7 +688,6 @@ Dom.identifier.right = function(chat){
 	}else{
 		Dom.identifier.displayed = 0;
 	}
-	Dom.identifier.page(chat);
 }
 
 Dom.identifier.page = function(chat){
@@ -708,7 +708,9 @@ Dom.identifier.page = function(chat){
 	}
 	document.getElementById("leftArrow").style.top = document.getElementById("identifierPageOption").getBoundingClientRect().top + 10 +"px";
 	document.getElementById("leftArrow").style.left = document.getElementById("identifierPageOption").getBoundingClientRect().left - 60 +"px";
-	document.getElementById("leftArrow").onclick = Dom.identifier.left();
+	document.getElementById("leftArrow").onclick = function(){
+		Dom.identifier.left();
+	}
 	document.getElementById("rightArrow").style.top = document.getElementById("identifierPageOption").getBoundingClientRect().top + 10 +"px";
 	document.getElementById("rightArrow").style.left = document.getElementById("identifierPageOption").getBoundingClientRect().left + 50 +"px";
 	document.getElementById("rightArrow").onclick = Dom.identifier.right();
@@ -745,6 +747,14 @@ function unIdConstruct(area,tier){
 	var types = ["Helm","Chest","Greaves","Boots","Sword","Staff","Bow"];
 	this.typeNum = Math.floor(Math.random*7);
 	this.type = types[typeNum];
+	this.rarityNum = Math.floor(Math.random*25);
+	if(this.rarityNum < 18){
+		this.rarity = "common";
+	}else if(this.rarity < 24){
+		this.rarity = "unique";
+	}else{
+		this.rarity = "mythic";
+	}
 }
 
 function identify(item){
