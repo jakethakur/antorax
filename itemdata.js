@@ -24,7 +24,7 @@ var items = {
 			obtain: "Find as an unidentified item in Eaglecrest Logging Camp",
 			area: "Eaglecrest Logging Camp",
 			stats: {
-				Defence: 1,
+				defence: 2,
 			},
 		}
 	],
@@ -53,7 +53,7 @@ var items = {
 			obtain: "Find as an unidentified item in Eaglecrest Logging Camp",
 			area: "Eaglecrest Logging Camp",
 			stats: {
-				Defence: 2,
+				defence: 3,
 			},
 		}
 	],
@@ -83,7 +83,7 @@ var items = {
 			obtain: "Find as an unidentified item in Eaglecrest Logging Camp",
 			area: "Eaglecrest Logging Camp",
 			stats: {
-				Defence: 2,
+				defence: 3,
 			},
 		}
 	],
@@ -112,8 +112,8 @@ var items = {
 			lore: "Protects you from splinters. And goblins!",
 			obtain: "Recieve as a reward for completing quest: 'To the Logging Camp'",
 			stats: {
-				Defense: 1,
-				
+				defence: 1,
+				speed: +0.5,
 			},
 		},
 		{
@@ -126,7 +126,7 @@ var items = {
 			obtain: "Find as an unidentified item in Eaglecrest Logging Camp",
 			area: "Eaglecrest Logging Camp",
 			stats: {
-				Defence: 2,
+				defence: 2,
 			},
 		}
 	],
@@ -154,7 +154,7 @@ var items = {
 			tier: 1,
 			rarity: "common",
 			stats: {
-				Damage: 2,
+				damage: 2,
 			},
 		},
 		{
@@ -167,7 +167,7 @@ var items = {
 			obtain: "Find as an unidentified item in Eaglecrest Logging Camp",
 			area: "Eaglecrest Logging Camp",
 			stats: {
-				Damage: 3,
+				damage: 3,
 			},
 		},
 		{
@@ -180,8 +180,8 @@ var items = {
 			obtain: "Find as an unidentified item in Eaglecrest Logging Camp",
 			area: "Eaglecrest Logging Camp",
 			stats: {
-				Damage: 3,
-				Poisin: "+1/1",
+				damage: 3,
+				poison: "1 over 1 second",
 			},
 		},
 	],
@@ -209,7 +209,7 @@ var items = {
 			tier: 1,
 			rarity: "common",
 			stats: {
-				Damage: 2,
+				damage: 2,
 			},
 		},
 		{
@@ -222,7 +222,7 @@ var items = {
 			obtain: "Find as an unidentified item in Eaglecrest Logging Camp",
 			area: "Eaglecrest Logging Camp",
 			stats: {
-				Damage: 3,
+				damage: 3,
 			},
 		},
 		{
@@ -235,8 +235,8 @@ var items = {
 			obtain: "Find as an unidentified item in Eaglecrest Logging Camp",
 			area: "Eaglecrest Logging Camp",
 			stats: {
-				Damage: 3,
-				Critical Chance: "+25%",
+				damage: 3,
+				crit: "+25%",
 			},
 		},
 	],
@@ -264,7 +264,7 @@ var items = {
 			tier: 1,
 			rarity: "common",
 			stats: {
-				Damage: 2,
+				damage: 2,
 			},
 		},
 		{
@@ -277,12 +277,12 @@ var items = {
 			obtain: "Find as an unidentified item in Eaglecrest Logging Camp",
 			area: "Eaglecrest Logging Camp",
 			stats: {
-				Damage: 3,
+				damage: 3,
 			},
 		},
 		{
 			//id: 4
-			name: "Sharp Shooter Bow",
+			name: "Sharpshooter's Bow",
 			type: "bow",
 			image: "assets/items/bow.png",
 			tier: 1,
@@ -290,8 +290,8 @@ var items = {
 			obtain: "Find as an unidentified item in Eaglecrest Logging Camp",
 			area: "Eaglecrest Logging Camp",
 			stats: {
-				Damage: 3,
-				Focus: "+1",
+				damage: 3,
+				focus: "+1",
 			},
 		},
 	],
