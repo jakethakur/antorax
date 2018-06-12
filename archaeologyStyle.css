@@ -58,5 +58,5 @@ input[type=number]{
 	text-indent: 5px;
 }
 input[type=number]::-webkit-inner-spin-button{  
-   opacity: 1;
+	opacity: 1;
 }

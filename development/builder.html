@@ -1,0 +1,58 @@
+<style>
+	#code{
+		border: 2px solid black;
+		padding: 10px;
+		width: 450px;
+		line-height: 20px;
+	}
+	body{
+		padding-left: 30px;
+		padding-top: 20px;
+		line-height: 35px;
+	}
+	input[type=number]::-webkit-inner-spin-button{  
+		opacity: 1;
+	}
+	#damage{
+		width: 35px;
+	}
+	#table{
+		width: 500px;
+		position: absolute;
+		left: 600px;
+	}
+	#table, tr, th, td{
+		border: 1px solid black;
+		border-collapse: collapse;
+	}
+</style>
+<table id="table">
+  <tr>
+		<th>Javascript</th>
+		<th>What it does</th> 
+	</tr>
+	<tr>
+		<td>Critical_Chance</td>
+		<td>Critical Chance</td>
+	</tr>
+</table>
+Name: <input type="text" id="name" placeholder="Bob's Mythic Bow">
+<br>Category: <select id="type">
+	<option value="helm">Helm</option>
+	<option value="chest">Chest</option>
+	<option value="greaves">Greaves</option>
+	<option value="boots">Boots</option>
+	<option value="sword">Sword</option>
+	<option value="staff">Staff</option>
+	<option value="bow">Bow</option>
+</select>
+<br>Rarity: <select id="rarity">
+	<option value="common">Common</option>
+	<option value="unique">Unique</option>
+	<option value="mythic">Mythic</option>
+</select>
+<br>Damage/Defence: <input type="number" id="damage" value="1">
+<br>Second Stat (optional): <input type="text" id="second" placeholder='Critical_Chance: "+7%"'>
+<br>Third Stat (optional): <input type="text" id="third" placeholder='Focus_Speed: "+3"'>
+<br><br><div id="code">
+<script src="builderDom.js"></script>
