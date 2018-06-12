@@ -38,7 +38,7 @@ var areas = {
 		],
 		
 		villagers: [
-			{
+			/*{
 				x: 200,
 				y: 200,
 				width: 90,
@@ -52,7 +52,7 @@ var areas = {
 					width: 1000,
 					height: 400,
 				},
-			},
+			},*/
 		],
 		
 		areaTeleports: [

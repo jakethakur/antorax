@@ -447,7 +447,7 @@ class Villager extends Character {
 		// movement
 		else if (this.state.x !== undefined) {
 		
-			if (this.state.x == this.x && this.state.y == this.y) { // movement destination reached
+			if (Math.round(this.x / 10) == Math.round(this.state.x / 10) && Math.round(this.y / 10) == Math.round(this.state.y / 10)) { // movement destination reached (to nearest 10px)
 				this.updateState("wait");
 			}
 			
@@ -476,7 +476,6 @@ class Villager extends Character {
 	// update movement state if the NPC has finished previous action
 	// parameter = new state type
 	updateState(type) {
-		console.log(this.state);
 		if (type === undefined) { // NPC state has not been defined before
 			this.state = {};
 			if (random(0,1) == 0) {
@@ -504,8 +503,12 @@ class Villager extends Character {
 	move() {
 		this.bearing = bearing(this, {x: this.state.x, y: this.state.y}); // update bearing (maybe doesn't need to be done every tick?)
 		// tbd : multiply by delta
-		this.x += Math.cos(this.bearing) * this.speed;
-		this.y += Math.sin(this.bearing) * this.speed;
+		if (Math.round(this.x / 100) != Math.round(this.state.x / 100)) {
+			this.x += Math.cos(this.bearing) * this.speed;
+		}
+		if (Math.round(this.y / 100) != Math.round(this.state.y / 100)) {
+			this.y += Math.sin(this.bearing) * this.speed;
+		}
 	}
 }
 
