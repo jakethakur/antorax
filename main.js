@@ -1,6 +1,6 @@
-//create game
+// create game
 
-var canvas = document.getElementById("game");
+var canvas = document.getElementById("game"); // maybe change to Game.canvas?
 
 //https://developer.mozilla.org/en-US/docs/Games/Techniques/Tilemaps
 
@@ -323,6 +323,8 @@ class Hero extends Character {
 		this.waterSpeed = properties.waterSpeed;
 		this.speed = properties.baseSpeed;
 		this.direction = properties.direction;
+		
+		this.statusEffects = [];
 	}
 	
 	move(delta, dirx, diry) {
@@ -366,6 +368,7 @@ class Hero extends Character {
 		}
 		else if (this.speed  === this.waterSpeed) {
 			this.speed = this.baseSpeed;
+			this.statusEffects.push(new statusEffect("Swimming", "Reduced movement speed"));
 		}
 		
 		if (!collision) { return; }
@@ -513,6 +516,15 @@ class Villager extends Character {
 }
 
 //
+// constructors
+//
+
+function statusEffect(title, effect) {
+	this.title = title;
+	this.effect = effect;
+}
+
+//
 // load game
 //
 
@@ -619,6 +631,9 @@ Game.init = function () {
 
     Keyboard.listenForEvents(
         [Keyboard.LEFT, Keyboard.RIGHT, Keyboard.UP, Keyboard.DOWN]);
+		
+	// player attack on click
+	//canvas.addEventListener("click", Game.hero.attack);
 	
 	// music
 	this.playingMusic = false;
@@ -631,7 +646,7 @@ Game.init = function () {
 		width: 57,
 		height: 120,
 		image: "hero",
-		baseSpeed: 1720, // base pixels per second
+		baseSpeed: 172, // base pixels per second
 		waterSpeed: 64, // speed when in water
 	});
 	

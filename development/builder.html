@@ -31,30 +31,44 @@
   <tr>
 		<th>Javascript</th>
 		<th>What it does</th> 
+		<th>Base value</th>
+		<th>Balance comments</th> 
 	</tr>
 	<tr>
 		<td>Critical_Chance: "+x%"</td>
-		<td>Critical Chance</td>
-	</tr>
-	<tr>
-		<td>Poison: "+x/ys"</td>
-		<td>Posion</td>
+		<td>Changes chance of dealing double damage with an attack. Above 100% does nothing extra.</td>
+		<td>1% (tbc)</td>
 	</tr>
 	<tr>
 		<td>Health_Regen: "+x/s"</td>
-		<td>Health Regen</td>
-	</tr>
-	<tr>
-		<td>Focus_Speed: "+x"</td>
-		<td>Focus Speed</td>
-	</tr>
-	<tr>
-		<td>Looting: "+x%"</td>
-		<td>Looting</td>
+		<td>Changes rate of health regeneration (in health per second). Health is out of 100.</td>
+		<td>2/s (tbc - maybe 1/s?)</td>
+		<td>Shouldn't normally be above 5/s, as this removes a need for the player to eat.</td>
 	</tr>
 	<tr>
 		<td>Speed: "+x"</td>
-		<td>Speed</td>
+		<td>Changes player's movement speed <strong>on land</strong>. Measured in pixels per second (one tile = 60 pixels).</td>
+		<td>172</td>
+	</tr>
+	<tr>
+		<td>Poison: "x/ys"</td>
+		<td><strong>Weapons only</strong>. Deals bonus damage to the enemy (x) over a time period (y). E.g: 4/2s deals 2 damage per second for 2 seconds.</td>
+		<td>0</td>
+	</tr>
+	<tr>
+		<td>Looting: "+x%"</td>
+		<td>Changes chance of recieving an item (e.g: unidentified item, gold, quest items) from a corpse.</td>
+		<td>50% (tbc)</td>
+	</tr>
+	<tr>
+		<td>Focus_Speed: "+x"</td>
+		<td><strong>Archers only</strong>. Increases the speed that the archer can focus their shots.</td>
+		<td>1 (takes 3 seconds to fully focus) (tbc)</td>
+	</tr>
+	<tr>
+		<td>Reflection: "+x%"</td>
+		<td>Changes the amount of damage dealt back to enemies when you are attacked, as a percentage of the damage that they deal to you.</td>
+		<td>0</td>
 	</tr>
 </table>
 Name: <input type="text" id="name" placeholder="Bob's Mythic Bow">
