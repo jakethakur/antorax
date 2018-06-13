@@ -633,7 +633,8 @@ Game.init = function () {
         [Keyboard.LEFT, Keyboard.RIGHT, Keyboard.UP, Keyboard.DOWN]);
 		
 	// player attack on click
-	//canvas.addEventListener("click", Game.hero.attack);
+	canvas.addEventListener("mousedown", Game.hero.startAttack);
+	canvas.addEventListener("mouseup", Game.hero.finishAttack);
 	
 	// music
 	this.playingMusic = false;

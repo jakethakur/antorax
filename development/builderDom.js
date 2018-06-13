@@ -13,7 +13,7 @@ function update(){
 	if(document.getElementById("third").value != ""){
 		document.getElementById("code").innerHTML += "<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;"+third.value+",";
 	}
-	document.getElementById("code").innerHTML += "<br>&nbsp;&nbsp;&nbsp;&nbsp;}<br>}";
+	document.getElementById("code").innerHTML += "<br>&nbsp;&nbsp;&nbsp;&nbsp;},<br>},";
 }
 update();
 window.addEventListener('keyup', function(){
