@@ -366,7 +366,7 @@ Dom.inventory.displayInformation = function(y,array){
 		}
 		document.getElementById("stats").innerHTML = "Tier: "+array[0].tier;
 		for(var i = 0; i < Object.keys(array[0].stats).length; i++){
-			var replaceStat = Object.keys(array[num].stats)[i].replace("_"," ");
+			var replaceStat = Object.keys(array[0].stats)[i].replace("_"," ");
 			document.getElementById("stats").innerHTML += "<br>"+replaceStat+": "+array[0].stats[Object.keys(array[0].stats)[i]];
 		}
 		if(array[0].lore != undefined){
@@ -688,52 +688,42 @@ Dom.identifier.right = function(chat){ // this code is not important
 	}else{
 		Dom.identifier.displayed = 0;
 	}
+	Dom.identifier.page(chat);
 }
 
 Dom.identifier.page = function(chat){ // identifier page
-	console.log("1");
-	console.log(document.getElementById("identifierPageOption").getBoundingClientRect().top);
 	Dom.changeBook("identifierPage", false); // changes page to identifier
 	Dom.currentlyDisplayed = "identifier"; // sets the currently displayed page variable to identifier
 	Dom.changeBook("identifierPage", false, 1); // sets the border color of the close button to brown
 	document.getElementById("identifierPageChat").innerHTML = chat; // sets the greeting to the parameter (chat)
-	console.log("2");
-	console.log(document.getElementById("identifierPageOption").getBoundingClientRect().top);
 	if(Player.inventory.unId.length != 0){ // checks if the player has any unIDed items
-		document.getElementById("identifierPageOption").innerHTML = "<img src=" + Player.inventory.unId[Dom.identifier.displayed].image + " class='theseOptions' style='border: 5px solid #886622; height: 50px; width: 50px;'></img>"; // sets the image to the selected item
-		console.log("yes");
+		document.getElementById("identifierPageOption").innerHTML = "<img src=" + Player.inventory.unId[Dom.identifier.displayed].image + " class='theseOptions' style='padding: 0px; margin: 0px; border: 5px solid #886622; height: 50px; width: 50px;'></img>"; // sets the image to the selected item
+		document.getElementById("identifierPageOption").onmouseover = function(chat){ // when the player hovers over the item...
+		Dom.identifier.displayInformation(Dom.identifier.displayed,Player.inventory.unId); // ...it displays its information
+		}
+		document.getElementById("identifierPageOption").onmouseleave = function(chat){ // when the player stops hovering over the item...
+			Dom.expand("identifierInformation"); // ...it stops displaying the information
+		}
 	}else{
-		document.getElementById("identifierPageOption").innerHTML = "<div class='unIdHolder'></div>"; // sets the image to empty
-		console.log("no");
+		document.getElementById("identifierPageOption").innerHTML = "<img class='theseOptions' style='background-color: #fef9b4; border: 5px solid #886622; height: 50px; width: 50px;'></img>"; // sets the image to empty
 	}
-	console.log("3");
-	console.log(document.getElementById("identifierPageOption").getBoundingClientRect().top);
-	document.getElementById("identifierPageOption").onmouseover = function(chat){ // when the player hovers over the item...
-		Dom.identifier.displayInformation(0,Player.inventory.unId); // ...it displays its information
-	}
-	document.getElementById("identifierPageOption").onmouseleave = function(chat){ // when the player stops hovering over the item...
-		Dom.expand("identifierInformation"); // ...it stops displaying the information
-	}
-	console.log("4");
-	console.log(document.getElementById("identifierPageOption").getBoundingClientRect().top);
-	document.getElementById("leftArrow").style.top = document.getElementById("identifierPageOption").getBoundingClientRect().top - 35 +"px"; // sets the left arrows position to the same height as the image
-	document.getElementById("leftArrow").style.left = document.getElementById("identifierPageOption").getBoundingClientRect().left - 30 +"px"; // sets the left arrows position to left of the image
+	document.getElementById("leftArrow").style.top = document.getElementById("identifierPageOption").getBoundingClientRect().top - 32 +"px"; // sets the left arrows position to the same height as the image
+	document.getElementById("leftArrow").style.left = document.getElementById("identifierPageOption").getBoundingClientRect().left - 31 +"px"; // sets the left arrows position to left of the image
 	document.getElementById("leftArrow").onclick = function(){ // when the player clicks on the left arrow...
 		Dom.identifier.left(chat); // ...it changes the selected item to the previous unIDed item
 		// at the end of the function it calls Dom.identifier.page and that is when the code breaks
 	}
-	console.log("5");
-	console.log(document.getElementById("identifierPageOption").getBoundingClientRect().top);
-	document.getElementById("rightArrow").style.top = document.getElementById("identifierPageOption").getBoundingClientRect().top - 35 +"px"; // sets the right arrows position to the same height as the image
-	document.getElementById("rightArrow").style.left = document.getElementById("identifierPageOption").getBoundingClientRect().left + 70 +"px"; // sets the right arrows position to right of the image
+	document.getElementById("rightArrow").style.top = document.getElementById("identifierPageOption").getBoundingClientRect().top - 32 +"px"; // sets the right arrows position to the same height as the image
+	document.getElementById("rightArrow").style.left = document.getElementById("identifierPageOption").getBoundingClientRect().left + 71 +"px"; // sets the right arrows position to right of the image
 	document.getElementById("rightArrow").onclick = function(){ // when the player clicks in the right arrow...
 		Dom.identifier.right(chat); // it changes the selected item to the next unIDed item
 		// this function does not work yet but does not cause the error.
 	}
 	document.getElementById("identifierPageBuy").innerHTML = "Identify for: "+"1"+" gold"; // sets the text inside the identify button
 }
-Dom.identifier.page("What would you like to identify?"); // opens and updates the identifier page
-
+setTimeout(function(){
+	Dom.identifier.page("What would you like to identify?"); // opens and updates the identifier page
+},100);
 Dom.quest.give = function(item){
 	if(item.type == "helm"){Player.inventory.helm.push(item);}
 	if(item.type == "chest"){Player.inventory.chest.push(item);}
