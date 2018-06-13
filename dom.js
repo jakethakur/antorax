@@ -307,7 +307,6 @@ Dom.reputation.update = function(){
 			this.downLevel(Player.reputation[Object.keys(Player.reputation)[i]]);
 		}
 		else {
-			console.log(Player.reputation[Object.keys(Player.reputation)[i]].level);
 			document.getElementById("reputationBar").innerHTML = this.levels[Player.reputation[Object.keys(Player.reputation)[i]].level];
 			document.getElementById("widthPadding").innerHTML = this.levels[Player.reputation[Object.keys(Player.reputation)[i]].level];
 			if(Player.reputation[Object.keys(Player.reputation)[i]].level >=2) {
@@ -325,7 +324,6 @@ Dom.reputation.update = function(){
 }
 
 Dom.reputation.upLevel = function(Area){
-			console.log("uplevel");
 	Area.score -= 11;
 	Area.level++;
 	if(Area.level > 2) {
@@ -340,7 +338,6 @@ Dom.reputation.upLevel = function(Area){
 	this.update();
 }
 Dom.reputation.downLevel = function(Area){
-			console.log("downlevel");
 	Area.score += 11;
 	Area.level--;
 	if(Area.level < 2){
@@ -682,7 +679,6 @@ Dom.identifier.left = function(chat){ // code called on clicking the left arrow 
 	}else{
 		Dom.identifier.displayed = Player.inventory.unId.length-1; // sets the currently displayed item to the last item in the array
 	}
-	console.log(Dom.identifier.displayed); // console.logs which item is being displayed (always what is expected)
 	Dom.identifier.page(chat); // opens and updates the identifier page
 }
 
@@ -695,29 +691,41 @@ Dom.identifier.right = function(chat){ // this code is not important
 }
 
 Dom.identifier.page = function(chat){ // identifier page
+	console.log("1");
+	console.log(document.getElementById("identifierPageOption").getBoundingClientRect().top);
 	Dom.changeBook("identifierPage", false); // changes page to identifier
 	Dom.currentlyDisplayed = "identifier"; // sets the currently displayed page variable to identifier
 	Dom.changeBook("identifierPage", false, 1); // sets the border color of the close button to brown
 	document.getElementById("identifierPageChat").innerHTML = chat; // sets the greeting to the parameter (chat)
+	console.log("2");
+	console.log(document.getElementById("identifierPageOption").getBoundingClientRect().top);
 	if(Player.inventory.unId.length != 0){ // checks if the player has any unIDed items
-		document.getElementById("identifierPageOption").innerHTML = "<img src=" + Player.inventory.unId[Dom.identifier.displayed].image + " class='theseOptions' style='border: 5px solid #886622;'></img>"; // sets the image to the selected item
+		document.getElementById("identifierPageOption").innerHTML = "<img src=" + Player.inventory.unId[Dom.identifier.displayed].image + " class='theseOptions' style='border: 5px solid #886622; height: 50px; width: 50px;'></img>"; // sets the image to the selected item
+		console.log("yes");
 	}else{
 		document.getElementById("identifierPageOption").innerHTML = "<div class='unIdHolder'></div>"; // sets the image to empty
+		console.log("no");
 	}
+	console.log("3");
+	console.log(document.getElementById("identifierPageOption").getBoundingClientRect().top);
 	document.getElementById("identifierPageOption").onmouseover = function(chat){ // when the player hovers over the item...
 		Dom.identifier.displayInformation(0,Player.inventory.unId); // ...it displays its information
 	}
 	document.getElementById("identifierPageOption").onmouseleave = function(chat){ // when the player stops hovering over the item...
 		Dom.expand("identifierInformation"); // ...it stops displaying the information
 	}
-	document.getElementById("leftArrow").style.top = document.getElementById("identifierPageOption").getBoundingClientRect().top + 10 +"px"; // sets the left arrows position to the same height as the image
-	document.getElementById("leftArrow").style.left = document.getElementById("identifierPageOption").getBoundingClientRect().left - 60 +"px"; // sets the left arrows position to left of the image
+	console.log("4");
+	console.log(document.getElementById("identifierPageOption").getBoundingClientRect().top);
+	document.getElementById("leftArrow").style.top = document.getElementById("identifierPageOption").getBoundingClientRect().top - 35 +"px"; // sets the left arrows position to the same height as the image
+	document.getElementById("leftArrow").style.left = document.getElementById("identifierPageOption").getBoundingClientRect().left - 30 +"px"; // sets the left arrows position to left of the image
 	document.getElementById("leftArrow").onclick = function(){ // when the player clicks on the left arrow...
 		Dom.identifier.left(chat); // ...it changes the selected item to the previous unIDed item
 		// at the end of the function it calls Dom.identifier.page and that is when the code breaks
 	}
-	document.getElementById("rightArrow").style.top = document.getElementById("identifierPageOption").getBoundingClientRect().top + 10 +"px"; // sets the right arrows position to the same height as the image
-	document.getElementById("rightArrow").style.left = document.getElementById("identifierPageOption").getBoundingClientRect().left + 50 +"px"; // sets the right arrows position to right of the image
+	console.log("5");
+	console.log(document.getElementById("identifierPageOption").getBoundingClientRect().top);
+	document.getElementById("rightArrow").style.top = document.getElementById("identifierPageOption").getBoundingClientRect().top - 35 +"px"; // sets the right arrows position to the same height as the image
+	document.getElementById("rightArrow").style.left = document.getElementById("identifierPageOption").getBoundingClientRect().left + 70 +"px"; // sets the right arrows position to right of the image
 	document.getElementById("rightArrow").onclick = function(){ // when the player clicks in the right arrow...
 		Dom.identifier.right(chat); // it changes the selected item to the next unIDed item
 		// this function does not work yet but does not cause the error.
