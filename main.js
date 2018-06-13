@@ -399,12 +399,20 @@ class Hero extends Character {
 	}
 	
 	// start channeling basic attack
-	startAttack() {
+	startAttack(e) {
 		this.channelling = true;
+		Game.projectiles.push(new Projectile({
+			map: map,
+			x: this.x + (e.clientX - 300),
+			y: this.y + (e.clientY - 300),
+			width: 39,
+			height: 40,
+			image: "projectile", // make image never unloaded
+		}));
 	}
 	
 	// fire basic attack
-	finishAttack() {
+	finishAttack(e) {
 		this.channelTime = 0;
 		this.channelling = false;
 	}
@@ -413,6 +421,8 @@ class Hero extends Character {
 class Projectile extends Character {
 	constructor(properties) {
 		super(properties);
+		
+		this.expand = 1;
 	}
 }
 
@@ -567,6 +577,11 @@ Game.load = function (names, addresses) {
 		// currently doesn't take into account player class
 		toLoad.push(Loader.loadImage("hero", "./assets/player/archer.png"));
 	}
+	// check projectile image has been loaded (if not, then load it)
+	if (!Object.keys(Loader.images).includes("projectile")) {
+		// currently doesn't take into account player class
+		toLoad.push(Loader.loadImage("projectile", "./assets/icons/settings.png"));
+	}
 	
     return toLoad;
 };
@@ -578,6 +593,7 @@ Game.loadArea = function (areaName, destination) {
 	Loader.wipeImages([
 		// images not to be wiped
 		"hero",
+		"projectile",
 	]);
 	
 	// load images
@@ -619,6 +635,8 @@ Game.loadArea = function (areaName, destination) {
 			areas[areaName].villagers[i].map = map;
 			this.villagers.push(new Villager(areas[areaName].villagers[i]));
 		}
+		
+		this.projectiles = [];
 		
 		// area teleports
 		this.areaTeleports = [];
@@ -963,6 +981,24 @@ Game.render = function () {
 			this.merchants[i].image,
 			this.merchants[i].screenX - this.merchants[i].width / 2,
 			this.merchants[i].screenY - this.merchants[i].height / 2
+        );
+    }
+	
+	// draw projectiles
+    for(var i = 0; i < this.projectiles.length; i++) {
+		// set screen x and y
+		this.projectiles[i].screenX = (this.projectiles[i].x - this.projectiles[i].width / 2) - this.camera.x;
+		this.projectiles[i].screenY = (this.projectiles[i].y - this.projectiles[i].height / 2) - this.camera.y;
+		//console.log([this.projectiles[i].image,this.projectiles[i].screenX - this.projectiles[i].width / 2,this.projectiles[i].screenY - this.projectiles[i].height / 2,this.projectiles[i].width,this.projectiles[i].height]);
+		// draw image
+        this.ctx.drawImage(
+			this.projectiles[i].image,
+			this.projectiles[i].screenX - this.projectiles[i].width / 2,
+			this.projectiles[i].screenY - this.projectiles[i].height / 2,
+			//this.width * this.expand,
+			//this.height * this.expand
+			this.projectiles[i].width,
+			this.projectiles[i].height
         );
     }
 	
