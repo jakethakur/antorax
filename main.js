@@ -324,6 +324,9 @@ class Hero extends Character {
 		this.speed = properties.baseSpeed;
 		this.direction = properties.direction;
 		
+		this.channelTime = 0;
+		this.channelling = false;
+		
 		this.statusEffects = [];
 	}
 	
@@ -393,6 +396,23 @@ class Hero extends Character {
 			//col = this.map.getCol(left);
 			//this.x = this.width / 2 + this.map.getX(col + 1);
 		}
+	}
+	
+	// start channeling basic attack
+	startAttack() {
+		this.channelling = true;
+	}
+	
+	// fire basic attack
+	finishAttack() {
+		this.channelTime = 0;
+		this.channelling = false;
+	}
+}
+
+class Projectile extends Character {
+	constructor(properties) {
+		super(properties);
 	}
 }
 
@@ -631,10 +651,6 @@ Game.init = function () {
 
     Keyboard.listenForEvents(
         [Keyboard.LEFT, Keyboard.RIGHT, Keyboard.UP, Keyboard.DOWN]);
-		
-	// player attack on click
-	canvas.addEventListener("mousedown", Game.hero.startAttack);
-	canvas.addEventListener("mouseup", Game.hero.finishAttack);
 	
 	// music
 	this.playingMusic = false;
@@ -650,6 +666,10 @@ Game.init = function () {
 		baseSpeed: 172, // base pixels per second
 		waterSpeed: 64, // speed when in water
 	});
+		
+	// player attack on click
+	canvas.addEventListener("mousedown", Game.hero.startAttack.bind(this.hero));
+	canvas.addEventListener("mouseup", Game.hero.finishAttack.bind(this.hero));
 	
 	//this.camera = undefined;
 	
@@ -811,6 +831,11 @@ Game.update = function (delta) {
 			this.loadArea(this.areaTeleports[i].teleportTo, {x: this.areaTeleports[i].destinationX, y: this.areaTeleports[i].destinationY});
 		}
     }
+	
+	// increase player channelTime if they are holding their mouse down
+	if (this.hero.channelling) {
+		this.hero.channelTime++;
+	}
 };
 
 Game._drawLayer = function (layer) {
