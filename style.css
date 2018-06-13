@@ -3,7 +3,7 @@
 body{
 	font-family: 'MedievalSharp', serif;
 }
-#chatPage, #inventoryPage, #questsPage, #settingsPage, #instructionsPage, #reputationPage, #questStart, #questFinish, #merchantPage, #identifierPage {
+#chatPage, #inventoryPage, #questsPage, #settingsPage, #instructionsPage, #reputationPage, #questStart, #questFinish, #merchantPage, #identifierPage, #identifiedPage {
 	float: left;
 	margin: 10px;
 	border: 1px solid black;
@@ -31,14 +31,14 @@ body{
 	overflow-y: auto;
 	overflow-x: hidden;
 }
-#questStart, #questFinish, #merchantPage, #identifierPage {
+#questStart, #questFinish, #merchantPage, #identifierPage, #identifiedPage {
 	text-align: center;
 	-webkit-user-select: none; /* Safari */        
 	-moz-user-select: none; /* Firefox */
 	-ms-user-select: none; /* IE10+/Edge */
 	user-select: none;
 }
-#questStartQuest, #questFinishQuest, #questStartName, #questFinishName, #questStartChat, #questFinishChat, #questStartObjectives, #questStartRewards, #questFinishRewards, #merchantPageTitle, #merchantPageChat, #merchantPageOptions, #identifierPageTitle, #identifierPageChat, #leftArrow, #identifierPageOption, #rightArrow{
+#questStartQuest, #questFinishQuest, #questStartName, #questFinishName, #questStartChat, #questFinishChat, #questStartObjectives, #questStartRewards, #questFinishRewards, #merchantPageTitle, #merchantPageChat, #merchantPageOptions, #identifierPageTitle, #identifierPageChat, #leftArrow, #identifierPageOption, #rightArrow, #identifiedPageTitle, #identifiedPageChat, #identifiedPageOptions{
 	display: inline;
 }
 #settingBookmark, #settingMusic, #settingHitboxes, #settingCoords, #settingFps, #settingGrid {
@@ -238,7 +238,7 @@ body{
 	width: 200px;
 	margin-left: 40px;
 }
-#itemInformation, #informationMerchant, #questInformation, #questFinishInformation, #identifierInformation {
+#itemInformation, #informationMerchant, #questInformation, #questFinishInformation, #identifierInformation, #identifiedInformation{
 	position: absolute;
 	left: 740px;
 	width: 150px;

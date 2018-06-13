@@ -5,8 +5,8 @@
 	
 	<link rel="stylesheet" href="style.css">
 	
-	<link rel="icon" type="image/png" href="./assets/favicon-32x.png" sizes="32x32" />
-	<link rel="icon" type="image/png" href="./assets/favicon-16x.png" sizes="16x16" />
+	<link rel="icon" type="image/png" href="./assets/icons/favicon-32x.png" sizes="32x32" />
+	<link rel="icon" type="image/png" href="./assets/icons/favicon-16x.png" sizes="16x16" />
 </head>
 <body>
 
@@ -14,10 +14,7 @@
 	
 	<div id="chatPage" hidden></div>
 	<div id="inventoryPage" hidden>
-		<div id="itemInformation" hidden>
-			<!div class="triangleLeft"><!/div>
-			<!div class="innerTriangleLeft"><!/div>
-		</div>
+		<div id="itemInformation" hidden></div>
 		<div id="helm"onmouseover="Dom.inventory.displayInformation('30px',Player.inventory.helm)"onmouseleave="Dom.expand('itemInformation')"onclick="Dom.inventory.changeEquipment(Player.inventory.helm,'helm')"></div>
 		<div id="chest"onmouseover="Dom.inventory.displayInformation('100px',Player.inventory.chest)"onmouseleave="Dom.expand('itemInformation')"onclick="Dom.inventory.changeEquipment(Player.inventory.chest,'chest')"></div>
 		<div id="greaves"onmouseover="Dom.inventory.displayInformation('170px',Player.inventory.greaves)"onmouseleave="Dom.expand('itemInformation')"onclick="Dom.inventory.changeEquipment(Player.inventory.greaves,'greaves')"></div>
@@ -92,12 +89,7 @@
 		<p>Realms of Antorax is not supported on older browsers.</p>
 	</div>
 	<div id="questStart" hidden>
-		<div id="questInformation" hidden>
-			<!div class="triangleRight"><!/div>
-			<!div class="innerTriangleRight"><!/div>
-			<!div class="rectangleRightUp"><!/div>
-			<!div class="rectangleRightDown"><!/div>
-		</div>
+		<div id="questInformation" hidden></div>
 		<br><h1 id="questStartQuest"></h1><br><br>
 		<b id="questStartName"></b><br>
 		<p id="questStartChat"></p><br><br></center>
@@ -113,12 +105,7 @@
 	</div>
 	
 	<div id="questFinish" hidden>
-		<div id="questFinishInformation" hidden>
-			<!div class="triangleRight"><!/div>
-			<!div class="innerTriangleRight"><!/div>
-			<!div class="rectangleRightUp"><!/div>
-			<!div class="rectangleRightDown"><!/div>
-		</div>
+		<div id="questFinishInformation" hidden></div>
 		<br><h1 id="questFinishQuest"></h1><br><br>
 		<b id="questFinishName"></b><br>
 		<p id="questFinishChat"></p><br><br>
@@ -131,10 +118,7 @@
 	</div>
 	
 	<div id="merchantPage" hidden>
-		<div id="informationMerchant" hidden>
-			<div! class="triangleLeft"><!/div>
-			<div! class="innerTriangleLeft"><!/div>
-		</div>
+		<div id="informationMerchant" hidden></div>
 		<br><h1 id="merchantPageTitle"></h1><br><br>
 		<p id="merchantPageChat"></p><br><br>
 		<p id="merchantPageOptions"></p>
@@ -145,12 +129,7 @@
 	</div>
 	
 	<div id="identifierPage">
-		<div id="identifierInformation" hidden>
-			<!div class="triangleLeft"><!/div>
-			<!div class="innerTriangleLeft"><!/div>
-			<!div class="rectangleLeftUp"><!/div>
-			<!div class="rectangleLeftDown"><!/div>
-		</div>
+		<div id="identifierInformation" hidden></div>
 		<br><h1 id="identifierPageTitle">Item Identifier</h1><br><br>
 		<p id="identifierPageChat"></p><br><br><br>
 		<div id="leftArrow" class="triangleLeft"></div>
@@ -160,7 +139,13 @@
 		<div id="identifierPageBuy"></div><br><br><br><br>
 		<center><div id="identifierPageClose" class="closeClass" onclick="Dom.changeBook(Dom.previous, true)">Close</div></center>
 	</div>
-	
+	<div id="identifiedPage" hidden>
+		<div id="identifiedInformation" hidden></div>
+		<br><h1 id="identifiedPageTitle">Item Identifier</h1><br><br>
+		<p id="identifiedPageChat"></p><br><br><br>
+		<center><div id="identifiedPageOption"></div>
+		<div id="identifiedPageBack" class="closeClass">Back</div></center>
+	</div>
 	<div id="chatImage"onclick="Dom.changeBook('chatPage', false)"></div>
 	<span id="dot" onclick="Dom.changeBook('chatPage', false)" hidden></span>
 	<div id="inventoryImage"onclick="Dom.changeBook('inventoryPage', false)"></div>

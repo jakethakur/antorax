@@ -11,6 +11,7 @@ var Dom = {
 		questFinish: document.getElementById("questFinish"),
 		merchantPage: document.getElementById("merchantPage"),
 		identifierPage: document.getElementById("identifierPage"),
+		identifiedPage: document.getElementById("identifiedPage"),
 	},
 	chat: {
 		length: 0,
@@ -32,7 +33,7 @@ Dom.changeBook = function(page, override, x) {
 	//override says if the function should be run regardless of if the player has a quest active (e.g: declining a quest or closing a merchant)
 	if(this.currentlyDisplayed == "" || override) { // check the player doesn't have a quest active
 		// hide all pages
-		if(page != "questStart" && page != "questFinish" && page != "merchantPage" && page != "identifierPage"){
+		if(page != "questStart" && page != "questFinish" && page != "merchantPage" && page != "identifierPage" && page != "identifiedPage"){
 			Dom.previous = page;
 		}
 		this.elements.chatPage.hidden = true;
@@ -45,6 +46,7 @@ Dom.changeBook = function(page, override, x) {
 		this.elements.questFinish.hidden = true;
 		this.elements.merchantPage.hidden = true;
 		this.elements.identifierPage.hidden = true;
+		this.elements.identifiedPage.hidden = true;
 		document.getElementById(page).hidden = false;
 		
 		if(page == "chatPage"){
@@ -451,13 +453,20 @@ Dom.identifier.displayInformation = function(num,array){
 	document.getElementById("identifierInformation").style.top = document.getElementById("identifierPageOption").getBoundingClientRect().top - 46 + "px";
 	document.getElementById("identifierInformation").style.left = document.getElementById("identifierPageOption").getBoundingClientRect().left + 90 +"px";
 	document.getElementById("identifierInformation").innerHTML = "<div class='rectangleLeftUp' id='identifierRectangle'></div><div class='rectangleLeftDown'></div><div class='triangleLeft'></div><div id='identifierTriangle' class='innerTriangleLeft'></div><p id='identifierName'><b> Unidentified "+array[num].type+"</b></p><p id='identifierStats'></p><p id='identifierLore'></p>";
-	document.getElementById("identifierName").style.color = "black";
 	document.getElementById("identifierStats").innerHTML = "Tier: "+array[num].tier;
 	document.getElementById("identifierLore").innerHTML += "Area: "+array[num].area;
 	document.getElementById("identifierTriangle").style.bottom = document.getElementById("identifierInformation").offsetHeight - 50 + "px";
 	document.getElementById("identifierRectangle").style.bottom = document.getElementById("identifierInformation").offsetHeight - 50 + "px";
 }
-
+Dom.identifier.displayIdentifiedInformation = function(num,array){
+	document.getElementById("identifiedInformation").hidden = false;
+	document.getElementById("identifiedInformation").style.top = document.getElementById("identifiedPageOption").getBoundingClientRect().top - 46 + "px";
+	document.getElementById("identifiedInformation").style.left = document.getElementById("identifiedPageOption").getBoundingClientRect().left + 90 +"px";
+	document.getElementById("identifiedInformation").innerHTML = "<div id='identifiedTriangle' class='innerTriangleLeft'></div><p id='identifiedName'><b>" + array[num].name + "</b></p><p id='identifiedStats'></p><p id='identifiedLore'></p>";
+	document.getElementById("identifiedStats").innerHTML = "Tier: "+array[num].tier;
+	document.getElementById("identifiedLore").innerHTML += "Area: "+array[num].area;
+	document.getElementById("identifiedTriangle").style.bottom = document.getElementById("identifiedInformation").offsetHeight - 50 + "px";
+}
 Dom.currentlyDisplayed = ""; // the currently displayed quest, merchant, etc. (something that can't be overridden)
 
 // display quest start page
@@ -581,128 +590,128 @@ Dom.quests.completedQuestArray = [];
 Dom.quests.questNum = 0;
 Dom.quests.questString = "";
 // change to active
-Dom.quests.activeQuests = function(quest){
-	if(quest != undefined){
-		Dom.quests.activeQuestArray.push(quest.quest);
-		Dom.quests.activeQuestUseArray.push(quest);
+Dom.quests.activeQuests = function(quest){ // when a quest is started or ended...
+	if(quest != undefined){ // if a quest is started...
+		Dom.quests.activeQuestArray.push(quest.quest); // adds the quest name to the array of active quest names
+		Dom.quests.activeQuestUseArray.push(quest); // adds the quest to the array of active quests
 	}
-	document.getElementById("activeQuestBox").style.textAlign = "left";
-	document.getElementById("activeQuestBox").innerText = "";
-	for(var x = 0; x < Dom.quests.activeQuestArray.length; x++){
-		/*document.getElementById("activeQuestBox").style.textAlign = "left";
-		if(Dom.quests.questNum == 0){
-			document.getElementById("activeQuestBox").innerText = "";
-		}*/
-		document.getElementById("activeQuestBox").innerHTML += "<strong>" + Dom.quests.activeQuestUseArray[x].quest + "</strong>";
-		for(var i = 0; i < Dom.quests.activeQuestUseArray[x].objectives.length; i++){
-			document.getElementById("activeQuestBox").innerHTML += "<br>" + Dom.quests.activeQuestUseArray[x].objectives[i];
-			if(Dom.quests.activeQuestUseArray[x].isCompleted()[i] && i != Dom.quests.activeQuestUseArray[x].objectives.length-1){
-				document.getElementById("activeQuestBox").innerHTML += " &#10004;";
+	document.getElementById("activeQuestBox").style.textAlign = "left"; // the text in the box is written from the left
+	document.getElementById("activeQuestBox").innerText = ""; // sets the text in the box to none
+	for(var x = 0; x < Dom.quests.activeQuestArray.length; x++){ // repeats for every active quest
+		document.getElementById("activeQuestBox").innerHTML += "<strong>" + Dom.quests.activeQuestUseArray[x].quest + "</strong>"; // writes the name of the quest in the box
+		for(var i = 0; i < Dom.quests.activeQuestUseArray[x].objectives.length; i++){ // repeats for each objective
+			document.getElementById("activeQuestBox").innerHTML += "<br>" + Dom.quests.activeQuestUseArray[x].objectives[i]; // writes the objective in the box
+			if(Dom.quests.activeQuestUseArray[x].isCompleted()[i] && i != Dom.quests.activeQuestUseArray[x].objectives.length-1){ // if the objective has been completed...
+				document.getElementById("activeQuestBox").innerHTML += " &#10004;"; // ...put a tick next to it
 			}
 		}
-		if(quest != undefined){
-			document.getElementById("activeQuestBox").innerHTML += "<br>";
-			Dom.quests.questNum += 30+(18*Dom.quests.activeQuestUseArray[x].objectives.length);
-			Dom.quests.questString = JSON.stringify(Dom.quests.questNum+10)+"px";
-			document.getElementById("activeQuestBox").style.height = Dom.quests.questString;
+		if(quest != undefined){ // if a quest is started
+			document.getElementById("activeQuestBox").innerHTML += "<br>"; // adds a new line to the box
+			Dom.quests.questNum += 30+(18*Dom.quests.activeQuestUseArray[x].objectives.length); // sets the...
+			Dom.quests.questString = JSON.stringify(Dom.quests.questNum+10)+"px"; // ...height of...
+			document.getElementById("activeQuestBox").style.height = Dom.quests.questString; // ...the box
 		}
 	}
-	if(Dom.quests.activeQuestArray.length == 0){
-		document.getElementById("activeQuestBox").style.height = "40px";
-		document.getElementById("activeQuestBox").style.textAlign = "center";
-		document.getElementById("activeQuestBox").innerText = "You have no active quests";
+	if(Dom.quests.activeQuestArray.length == 0){ // if there are no active quests
+		document.getElementById("activeQuestBox").style.height = "40px"; // set the height to 40px
+		document.getElementById("activeQuestBox").style.textAlign = "center"; // write text in the centre
+		document.getElementById("activeQuestBox").innerText = "You have no active quests"; // write "you have no active quests"
 	}
 }
 
-Dom.quests.completedQuestNum = 0;
-Dom.quests.completedQuestString = "";
-Dom.quests.completed = function(quest){
-	Dom.changeBook(Dom.previous, true);
-	Dom.quests.completedQuestArray.push(quest.quest);
-	document.getElementById("completedQuestBox").style.textAlign = "left";
-	if(Dom.quests.completedQuestNum == 0){
-		document.getElementById("completedQuestBox").innerText = "";
+Dom.quests.completedQuestNum = 0; // sets the number of completed quests to 0
+Dom.quests.completedQuestString = ""; // sets the height of the box to 0
+Dom.quests.completed = function(quest){ // when a quest is completed...
+	Dom.changeBook(Dom.previous, true); // the completed quest page opens
+	Dom.quests.completedQuestArray.push(quest.quest); // the quest is added to the array of completed quests
+	document.getElementById("completedQuestBox").style.textAlign = "left"; // the text in the box is written from the left
+	if(Dom.quests.completedQuestNum == 0){ // if there are completed quests...
+		document.getElementById("completedQuestBox").innerText = ""; // ...it sets the box to empty
 	}
-	document.getElementById("completedQuestBox").innerHTML += quest.quest + "<br>";
-	Dom.quests.completedQuestNum += 18;
-	Dom.quests.questString = JSON.stringify(Dom.quests.questNum+10)+"px";
-	document.getElementById("activeQuestBox").style.height = Dom.quests.questString;
-	if(Dom.quests.questNum < 50){
-		document.getElementById("activeQuestBox").style.height = "40px";
+	document.getElementById("completedQuestBox").innerHTML += quest.quest + "<br>"; // adds the quests you just completed to the box
+	Dom.quests.completedQuestNum += 18; // increases the height...
+	Dom.quests.questString = JSON.stringify(Dom.quests.questNum+10)+"px"; // ...of the box...
+	document.getElementById("activeQuestBox").style.height = Dom.quests.questString; // ...by one line
+	if(Dom.quests.questNum < 50){ // if the box is too small...
+		document.getElementById("activeQuestBox").style.height = "40px"; // ...its height is set to 40px
 	}
 }
 
-Dom.merchant.page = function(title,greeting,options){
-	Dom.changeBook("merchantPage", false);
-	Dom.currentlyDisplayed = title;
-	Dom.changeBook("merchantPage", false, 1);
-	document.getElementById("merchantPageTitle").innerHTML = title;
-	document.getElementById("merchantPageChat").innerHTML = greeting;
-	document.getElementById("merchantPageOptions").innerHTML = "";
-	document.getElementById("merchantPageBuy").innerHTML = "";
-	for(let i = 0; i < options.length; i++){
-		document.getElementById("merchantPageOptions").innerHTML += "<img src=" + options[i].image + " class='theseOptions' style='border: 5px solid #886622;'></img><br><br>";
-		document.getElementById("merchantPageBuy").innerHTML += "<div class='buy'>Buy for: " + options[i].cost + " gold</div><br>";
-		for(let x = 0; x < document.getElementsByClassName("buy").length; x++){
-			document.getElementsByClassName("buy")[x].onclick = function() {
-				Dom.merchant.buy(options[x]);
+Dom.merchant.page = function(title,greeting,options){ // merchant page
+	Dom.changeBook("merchantPage", false); // changes the page to the merchant page
+	Dom.currentlyDisplayed = title; // sets the currently displayed variable to the merchant's name
+	Dom.changeBook("merchantPage", false, 1); // stops close button being red
+	document.getElementById("merchantPageTitle").innerHTML = title; // sets the title to the merchant's name
+	document.getElementById("merchantPageChat").innerHTML = greeting; // sets the greeting to the merchant's greeting
+	document.getElementById("merchantPageOptions").innerHTML = ""; // sets the options to none
+	document.getElementById("merchantPageBuy").innerHTML = ""; // sets the buy buttons to none
+	for(let i = 0; i < options.length; i++){ // repeats for each option
+		document.getElementById("merchantPageOptions").innerHTML += "<img src=" + options[i].image + " class='theseOptions' style='border: 5px solid #886622;'></img><br><br>"; // sets the image for the option
+		document.getElementById("merchantPageBuy").innerHTML += "<div class='buy'>Buy for: " + options[i].cost + " gold</div><br>"; // makes a buy button next to the option
+		for(let x = 0; x < document.getElementsByClassName("buy").length; x++){ // repeats for every buy button
+			document.getElementsByClassName("buy")[x].onclick = function() { // when you click on a buy button...
+				Dom.merchant.buy(options[x]); // ...the buy function is called
 			};
 		}
-		for(let x = 0; x < document.getElementsByClassName("theseOptions").length; x++){
-			document.getElementsByClassName("theseOptions")[x].onmouseover = function() {
-				Dom.merchant.displayInformation(document.getElementsByClassName("theseOptions")[x].getBoundingClientRect().top, options, x);
+		for(let x = 0; x < document.getElementsByClassName("theseOptions").length; x++){ // repeats for every option
+			document.getElementsByClassName("theseOptions")[x].onmouseover = function() { // when you hover over an item...
+				Dom.merchant.displayInformation(document.getElementsByClassName("theseOptions")[x].getBoundingClientRect().top, options, x); // ...its information displays
 			};
-			document.getElementsByClassName("theseOptions")[x].onmouseleave = function() {
-				Dom.expand("informationMerchant");
+			document.getElementsByClassName("theseOptions")[x].onmouseleave = function() { // when you stop hovering over an item...
+				Dom.expand("informationMerchant"); // ...its information stops displaying
 			}
 		}
 	}
 }
 
-// buy item from merchant
-Dom.merchant.buy = function(item){
-	if(Player.gold >= item.cost){
-		Player.gold -= item.cost;
-		Dom.inventory.updateGold();
-		Dom.quest.give(item);
-		Dom.chat.insert("You bought a " + item.name + ".", 100);
+Dom.merchant.buy = function(item){ // buy item from merchant
+	if(Player.gold >= item.cost){ // if they have an enough gold...
+		Player.gold -= item.cost; // takes the amount of gold from the player
+		Dom.inventory.updateGold(); // updates how much gold the display shows
+		Dom.quest.give(item); // gives the player the item
+		Dom.chat.insert("You bought a " + item.name + ".", 100); // tells the player they bough an item in the chat
 	}
-	else {
-		alert("You don't have sufficient funds to buy that item.");
+	else { // if they do not have enough gold...
+		alert("You don't have sufficient funds to buy that item."); // alert them that they don't have enough gold
 	}
 }
-Dom.identifier.displayed = Player.inventory.unId.length-1;
+Dom.identifier.displayed = Player.inventory.unId.length-1; // set the currently displayed item in the identifier to the latest one
 	
-Dom.identifier.left = function(chat){ // code called on clicking the left arrow to change the displayed item to the previous item
+Dom.identifier.left = function(chat, chat1, chat2, chat3){ // code called on clicking the left arrow to change the displayed item to the previous item
 	if(Dom.identifier.displayed != 0){ // checks if the currently displayed item is the first in the array
 		Dom.identifier.displayed--; // sets the currently displayed item to the previous item
 	}else{
 		Dom.identifier.displayed = Player.inventory.unId.length-1; // sets the currently displayed item to the last item in the array
 	}
-	Dom.identifier.page(chat); // opens and updates the identifier page
+	Dom.identifier.page(chat, chat1, chat2, chat3); // opens and updates the identifier page
 }
 
-Dom.identifier.right = function(chat){ // this code is not important
-	if(Dom.identifier.displayed != Player.inventory.unId.length-1){
-		Dom.identifier.displayed++;
+Dom.identifier.right = function(chat, chat1, chat2, chat3){ // this code is not important
+	if(Dom.identifier.displayed != Player.inventory.unId.length-1){ // checks if the currently displayed item is the last in the array
+		Dom.identifier.displayed++; // sets the currently displayed item to the next item
 	}else{
-		Dom.identifier.displayed = 0;
+		Dom.identifier.displayed = 0; // sets the currently displayed item to the first item in the array
 	}
-	Dom.identifier.page(chat);
+	Dom.identifier.page(chat, chat1, chat2, chat3); // opens and updates the identifier page
 }
 
-Dom.identifier.page = function(chat){ // identifier page
-	Dom.changeBook("identifierPage", false); // changes page to identifier
+Dom.identifier.page = function(chat, chat1, chat2, chat3, over){ // identifier page
+	Dom.changeBook("identifierPage", over); // changes page to identifier
 	Dom.currentlyDisplayed = "identifier"; // sets the currently displayed page variable to identifier
-	Dom.changeBook("identifierPage", false, 1); // sets the border color of the close button to brown
-	document.getElementById("identifierPageChat").innerHTML = chat; // sets the greeting to the parameter (chat)
+	Dom.changeBook("identifierPage", false, 1); // stops close button being red
+	if(chat != undefined){
+		document.getElementById("identifierPageChat").innerHTML = chat; // sets the greeting to the parameter (chat)
+	}
 	if(Player.inventory.unId.length != 0){ // checks if the player has any unIDed items
 		document.getElementById("identifierPageOption").innerHTML = "<img src=" + Player.inventory.unId[Dom.identifier.displayed].image + " class='theseOptions' style='padding: 0px; margin: 0px; border: 5px solid #886622; height: 50px; width: 50px;'></img>"; // sets the image to the selected item
-		document.getElementById("identifierPageOption").onmouseover = function(chat){ // when the player hovers over the item...
-		Dom.identifier.displayInformation(Dom.identifier.displayed,Player.inventory.unId); // ...it displays its information
+		document.getElementById("identifierPageOption").onmouseover = function(){ // when the player hovers over the item...
+			Dom.identifier.displayInformation(Dom.identifier.displayed,Player.inventory.unId); // ...it displays its information
 		}
-		document.getElementById("identifierPageOption").onmouseleave = function(chat){ // when the player stops hovering over the item...
+		document.getElementById("identifierPageOption").onmouseleave = function(){ // when the player stops hovering over the item...
 			Dom.expand("identifierInformation"); // ...it stops displaying the information
+		}
+		document.getElementById("identifierPageBuy").onclick = function(){ // when the player clicks identify...
+			Dom.identifier.identify(Player.inventory.unId[Dom.identifier.displayed],chat,chat1,chat2,chat3); // ...it calls the identify function (below)
 		}
 	}else{
 		document.getElementById("identifierPageOption").innerHTML = "<img class='theseOptions' style='background-color: #fef9b4; border: 5px solid #886622; height: 50px; width: 50px;'></img>"; // sets the image to empty
@@ -710,61 +719,89 @@ Dom.identifier.page = function(chat){ // identifier page
 	document.getElementById("leftArrow").style.top = document.getElementById("identifierPageOption").getBoundingClientRect().top - 32 +"px"; // sets the left arrows position to the same height as the image
 	document.getElementById("leftArrow").style.left = document.getElementById("identifierPageOption").getBoundingClientRect().left - 31 +"px"; // sets the left arrows position to left of the image
 	document.getElementById("leftArrow").onclick = function(){ // when the player clicks on the left arrow...
-		Dom.identifier.left(chat); // ...it changes the selected item to the previous unIDed item
+		Dom.identifier.left(chat, chat1, chat2, chat3); // ...it changes the selected item to the previous unIDed item
 		// at the end of the function it calls Dom.identifier.page and that is when the code breaks
 	}
 	document.getElementById("rightArrow").style.top = document.getElementById("identifierPageOption").getBoundingClientRect().top - 32 +"px"; // sets the right arrows position to the same height as the image
 	document.getElementById("rightArrow").style.left = document.getElementById("identifierPageOption").getBoundingClientRect().left + 71 +"px"; // sets the right arrows position to right of the image
 	document.getElementById("rightArrow").onclick = function(){ // when the player clicks in the right arrow...
-		Dom.identifier.right(chat); // it changes the selected item to the next unIDed item
+		Dom.identifier.right(chat, chat1, chat2, chat3); // it changes the selected item to the next unIDed item
 		// this function does not work yet but does not cause the error.
 	}
 	document.getElementById("identifierPageBuy").innerHTML = "Identify for: "+"1"+" gold"; // sets the text inside the identify button
 }
-setTimeout(function(){
-	Dom.identifier.page("What would you like to identify?"); // opens and updates the identifier page
-},100);
-Dom.quest.give = function(item){
-	if(item.type == "helm"){Player.inventory.helm.push(item);}
-	if(item.type == "chest"){Player.inventory.chest.push(item);}
-	if(item.type == "greaves"){Player.inventory.greaves.push(item);}
-	if(item.type == "boots"){Player.inventory.boots.push(item);}
-	if(item.type == "sword" || item.type == "staff" || item.type == "bow" || item.type == "rod"){Player.inventory.weapon.push(item);}
+
+setTimeout(function(){ // wait for timeout
+	Dom.identifier.page("What would you like to identify?","Here is your item, adventurer", "Some people will pay good money for that item", "Wow! A Mythic"); // opens and updates the identifier page
+},100); // wait 100
+
+Dom.quest.give = function(item){ // gives the player the item
+	if(item.type == "helm"){Player.inventory.helm.push(item);} // adds the helm to the players helm array
+	if(item.type == "chest"){Player.inventory.chest.push(item);} // adds the chest to the players chest array
+	if(item.type == "greaves"){Player.inventory.greaves.push(item);} // adds the greaves to the players greaves array
+	if(item.type == "boots"){Player.inventory.boots.push(item);} // adds the boots to the players boots array
+	if(item.type == "sword" || item.type == "staff" || item.type == "bow" || item.type == "rod"){Player.inventory.weapon.push(item);} // adds the weapon to the players weapons arary
 }
 
-Dom.quests.allQuestNum = 18;
-Dom.quests.allQuestString = "";
-for(var i = 0; i < Object.keys(quests).length; i++){
-	for(var x = 0; x < quests[Object.keys(quests)[i]].length; x++){
-		document.getElementById("allQuestBox").innerHTML += quests[Object.keys(quests)[i]][x].quest + "<br>";
-		//for(var y = 0; y < quests[Object.keys(quests)[i]][x].objectives.length; y++){
-			//document.getElementById("allQuestBox").innerHTML += quests[Object.keys(quests)[i]][x].objectives[y] + "<br>";
+Dom.quests.allQuestNum = 18; // sets the box height...
+Dom.quests.allQuestString = ""; // ...to one line
+for(var i = 0; i < Object.keys(quests).length; i++){ // repeats this code for each area
+	for(var x = 0; x < quests[Object.keys(quests)[i]].length; x++){ // repeats this code for each quest
+		document.getElementById("allQuestBox").innerHTML += quests[Object.keys(quests)[i]][x].quest + "<br>"; // writes the name of the quest in the box
+		//for(var y = 0; y < quests[Object.keys(quests)[i]][x].objectives.length; y++){ // repeats this code for each objective
+			//document.getElementById("allQuestBox").innerHTML += quests[Object.keys(quests)[i]][x].objectives[y] + "<br>"; // writes the objective under the name
 		//}
-		//document.getElementById("allQuestBox").innerHTML += "<br>";
-		Dom.quests.allQuestNum += 18;
-		Dom.quests.allQuestString = JSON.stringify(Dom.quests.allQuestNum)+"px";
-		document.getElementById("allQuestBox").style.height = Dom.quests.allQuestString;
+		//document.getElementById("allQuestBox").innerHTML += "<br>"; // adds a space after the objectives
+		Dom.quests.allQuestNum += 18; // increases...
+		Dom.quests.allQuestString = JSON.stringify(Dom.quests.allQuestNum)+"px"; // ...height...
+		document.getElementById("allQuestBox").style.height = Dom.quests.allQuestString; // ...of the box
 	}
 }
 
-function unIdConstruct(area,tier){
-	this.area = area;
-	this.tier = tier;
-	var types = ["Helm","Chest","Greaves","Boots","Sword","Staff","Bow"];
-	this.typeNum = Math.floor(Math.random*7);
-	this.type = types[typeNum];
-	this.rarityNum = Math.floor(Math.random*25);
-	if(this.rarityNum < 18){
-		this.rarity = "common";
-	}else if(this.rarity < 24){
-		this.rarity = "unique";
-	}else{
-		this.rarity = "mythic";
+function unIdConstruct(area,tier){ // constructs an unidentified item when you kill an enemy
+	this.area = area; // sets the item's area to the area you are in
+	this.tier = tier; // sets the item's tier to the tier of the enemy
+	var types = ["Helm","Chest","Greaves","Boots","Sword","Staff","Bow"]; // an array of types of weapon/armour
+	this.typeNum = Math.floor(Math.random()*7); // a random number between 0 and 7...
+	this.type = types[typeNum]; // ...used to choose a random category (e.g. bow)
+	this.image = "'assets/items/"+this.type+".png'"; // sets the item's image to the default for its category (e.g. basic bow)
+	this.rarityNum = Math.floor(Math.random()*25); // a random number between 0 and 25
+	if(this.rarityNum < 18){ // 18/25 chance that the item is a...
+		this.rarity = "common"; // ...common
+	}else if(this.rarity < 24){ // 6/25 chance that the item is a...
+		this.rarity = "unique"; // ...unique
+	}else{ // 1/25 chance that the item is a...
+		this.rarity = "mythic"; // ...mythic
 	}
 }
 
-function identify(item){
-	for(i = 0; i < Object.keys(items[item.typeNum]).length; i++){
-		if(Object.keys(items[item.typeNum])[i].tier == item.tier && Object.keys(items[item.typeNum])[i].area == item.area);
+Dom.identifier.identify = function(item, chat, chat1, chat2, chat3){ // the page that you go to when you click "identify for 1 gold"
+	Dom.changeBook("identifiedPage",true); // changed page to the identified page
+	Dom.currentlyDisplayed = "identified"; // sets the currently displayed page variable to identified
+	Dom.identifier.array = []; // sets the possible items to none
+	if(item.rarity == "common"){ // if it is a common item...
+		document.getElementById("identifiedPageChat").innerHTML = chat1; // ...it uses the "common" chat
+	}else if(item.rarity == "unique"){ // if it is a unique item...
+		document.getElementById("identifiedPageChat").innerHTML = chat2; // ...it uses the "unique" chat
+	}else{ // if it is a myhtic item...
+		document.getElementById("identifiedPageChat").innerHTML = chat3; // ...it uses the "mythic" chat
+	}
+	for(i = 0; i < items[Object.keys(items)[item.typeNum]].length; i++){ // for every item of the same catergory (e.g. bow)...
+		if(items[Object.keys(items)[item.typeNum]][i].tier == item.tier && items[Object.keys(items)[item.typeNum]][i].area == item.area && items[Object.keys(items)[item.typeNum]][i].rarity == item.rarity){ // ...check if it matches the stats...
+			Dom.identifier.array.push(items[Object.keys(items)[item.typeNum]][i]); // ...if it does add is to the array of possible items
+		}
+	}
+	Dom.identifier.num = Math.floor(Math.random()*Dom.identifier.array.length); // a random number between 0 and the number of items in the array of possible items
+	Dom.identifier.item = Dom.identifier.array[Dom.identifier.num]; // a random item from the array of possible items
+	document.getElementById("identifiedPageOption").innerHTML = "<img src=" + Dom.identifier.item.image + " class='theseOptions' style='padding: 0px; margin: 0px; border: 5px solid #886622; height: 50px; width: 50px;'></img>"; // sets the image to the selected item
+	Dom.quest.give(Dom.identifier.item); // gives the player the item
+	document.getElementById("identifiedPageOption").onmouseover = function(){ // when the player hovers over the item...
+		Dom.identifier.displayIdentifiedInformation(Dom.identifier.num,Dom.identifier.array); // ...it displays its information
+	}
+	document.getElementById("identifiedPageOption").onmouseleave = function(){ // when the player stops hovering over the item...
+		Dom.expand("identifiedInformation"); // ...it stops displaying the information
+	}
+	document.getElementById("identifiedPageBack").onclick = function(){ // when you click on the back button...
+		Dom.identifier.page(chat,chat1, chat2, chat3, true); // ...the page goes back to the normal identifier
 	}
 }
