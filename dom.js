@@ -460,11 +460,24 @@ Dom.identifier.displayInformation = function(num,array){
 }
 Dom.identifier.displayIdentifiedInformation = function(num,array){
 	document.getElementById("identifiedInformation").hidden = false;
-	document.getElementById("identifiedInformation").style.top = document.getElementById("identifiedPageOption").getBoundingClientRect().top - 46 + "px";
-	document.getElementById("identifiedInformation").style.left = document.getElementById("identifiedPageOption").getBoundingClientRect().left + 90 +"px";
-	document.getElementById("identifiedInformation").innerHTML = "<div id='identifiedTriangle' class='innerTriangleLeft'></div><p id='identifiedName'><b>" + array[num].name + "</b></p><p id='identifiedStats'></p><p id='identifiedLore'></p>";
+	document.getElementById("identifiedInformation").style.top = document.getElementById("identifiedPageOption").getElementsByTagName("img")[0].getBoundingClientRect().top + "px";
+	document.getElementById("identifiedInformation").style.left = document.getElementById("identifiedPageOption").getElementsByTagName("img")[0].getBoundingClientRect().left + 90 +"px";
+	document.getElementById("identifiedInformation").innerHTML = "<div class='triangleLeft'></div><div id='identifiedTriangle' class='innerTriangleLeft'></div><p id='identifiedName'><b>" + array[num].name + "</b></p><p id='identifiedStats'></p><p id='identifiedLore'></p>";
+	if(array[num].rarity == "common"){
+		document.getElementById("identifiedName").style.color = "black";
+	}else if(array[num].rarity == "unique"){
+		document.getElementById("identifiedName").style.color = "orange";
+	}else{
+		document.getElementById("identifiedName").style.color = "purple";
+	}
 	document.getElementById("identifiedStats").innerHTML = "Tier: "+array[num].tier;
-	document.getElementById("identifiedLore").innerHTML += "Area: "+array[num].area;
+	for(var i = 0; i < Object.keys(array[num].stats).length; i++){
+		var replaceStat = Object.keys(array[num].stats)[i].replace("_"," ");
+		document.getElementById("identifiedStats").innerHTML += "<br>"+replaceStat+": "+array[num].stats[Object.keys(array[num].stats)[i]];
+	}
+	if(array[num].lore != undefined){
+		document.getElementById("identifiedLore").innerHTML += "<i>"+array[num].lore+"</i>";
+	}
 	document.getElementById("identifiedTriangle").style.bottom = document.getElementById("identifiedInformation").offsetHeight - 50 + "px";
 }
 Dom.currentlyDisplayed = ""; // the currently displayed quest, merchant, etc. (something that can't be overridden)
@@ -677,22 +690,22 @@ Dom.merchant.buy = function(item){ // buy item from merchant
 }
 Dom.identifier.displayed = Player.inventory.unId.length-1; // set the currently displayed item in the identifier to the latest one
 	
-Dom.identifier.left = function(chat, chat1, chat2, chat3){ // code called on clicking the left arrow to change the displayed item to the previous item
+Dom.identifier.left = function(chat, chat1, chat2, chat3, over){ // code called on clicking the left arrow to change the displayed item to the previous item
 	if(Dom.identifier.displayed != 0){ // checks if the currently displayed item is the first in the array
 		Dom.identifier.displayed--; // sets the currently displayed item to the previous item
 	}else{
 		Dom.identifier.displayed = Player.inventory.unId.length-1; // sets the currently displayed item to the last item in the array
 	}
-	Dom.identifier.page(chat, chat1, chat2, chat3); // opens and updates the identifier page
+	Dom.identifier.page(chat, chat1, chat2, chat3, over); // opens and updates the identifier page
 }
 
-Dom.identifier.right = function(chat, chat1, chat2, chat3){ // this code is not important
+Dom.identifier.right = function(chat, chat1, chat2, chat3, over){ // this code is not important
 	if(Dom.identifier.displayed != Player.inventory.unId.length-1){ // checks if the currently displayed item is the last in the array
 		Dom.identifier.displayed++; // sets the currently displayed item to the next item
 	}else{
 		Dom.identifier.displayed = 0; // sets the currently displayed item to the first item in the array
 	}
-	Dom.identifier.page(chat, chat1, chat2, chat3); // opens and updates the identifier page
+	Dom.identifier.page(chat, chat1, chat2, chat3, over); // opens and updates the identifier page
 }
 
 Dom.identifier.page = function(chat, chat1, chat2, chat3, over){ // identifier page
@@ -701,6 +714,12 @@ Dom.identifier.page = function(chat, chat1, chat2, chat3, over){ // identifier p
 	Dom.changeBook("identifierPage", false, 1); // stops close button being red
 	if(chat != undefined){
 		document.getElementById("identifierPageChat").innerHTML = chat; // sets the greeting to the parameter (chat)
+	}
+	document.getElementById("identifierPageOption").onmouseover = function(){ // when the player hovers over the item...
+	}
+	document.getElementById("identifierPageOption").onmouseleave = function(){ // when the player stops hovering over the item...
+	}
+	document.getElementById("identifierPageBuy").onclick = function(){ // when the player clicks identify...
 	}
 	if(Player.inventory.unId.length != 0){ // checks if the player has any unIDed items
 		document.getElementById("identifierPageOption").innerHTML = "<img src=" + Player.inventory.unId[Dom.identifier.displayed].image + " class='theseOptions' style='padding: 0px; margin: 0px; border: 5px solid #886622; height: 50px; width: 50px;'></img>"; // sets the image to the selected item
@@ -711,7 +730,7 @@ Dom.identifier.page = function(chat, chat1, chat2, chat3, over){ // identifier p
 			Dom.expand("identifierInformation"); // ...it stops displaying the information
 		}
 		document.getElementById("identifierPageBuy").onclick = function(){ // when the player clicks identify...
-			Dom.identifier.identify(Player.inventory.unId[Dom.identifier.displayed],chat,chat1,chat2,chat3); // ...it calls the identify function (below)
+			Dom.identifier.identify(chat,chat1,chat2,chat3); // ...it calls the identify function (below)
 		}
 	}else{
 		document.getElementById("identifierPageOption").innerHTML = "<img class='theseOptions' style='background-color: #fef9b4; border: 5px solid #886622; height: 50px; width: 50px;'></img>"; // sets the image to empty
@@ -732,7 +751,7 @@ Dom.identifier.page = function(chat, chat1, chat2, chat3, over){ // identifier p
 }
 
 setTimeout(function(){ // wait for timeout
-	Dom.identifier.page("What would you like to identify?","Here is your item, adventurer", "Some people will pay good money for that item", "Wow! A Mythic"); // opens and updates the identifier page
+	Dom.identifier.page("What would you like to identify?","Here is your item, adventurer", "Some people would pay good money for that item", "Wow! A Mythic"); // opens and updates the identifier page
 },100); // wait 100
 
 Dom.quest.give = function(item){ // gives the player the item
@@ -775,33 +794,39 @@ function unIdConstruct(area,tier){ // constructs an unidentified item when you k
 	}
 }
 
-Dom.identifier.identify = function(item, chat, chat1, chat2, chat3){ // the page that you go to when you click "identify for 1 gold"
-	Dom.changeBook("identifiedPage",true); // changed page to the identified page
-	Dom.currentlyDisplayed = "identified"; // sets the currently displayed page variable to identified
-	Dom.identifier.array = []; // sets the possible items to none
-	if(item.rarity == "common"){ // if it is a common item...
-		document.getElementById("identifiedPageChat").innerHTML = chat1; // ...it uses the "common" chat
-	}else if(item.rarity == "unique"){ // if it is a unique item...
-		document.getElementById("identifiedPageChat").innerHTML = chat2; // ...it uses the "unique" chat
-	}else{ // if it is a myhtic item...
-		document.getElementById("identifiedPageChat").innerHTML = chat3; // ...it uses the "mythic" chat
-	}
-	for(i = 0; i < items[Object.keys(items)[item.typeNum]].length; i++){ // for every item of the same catergory (e.g. bow)...
-		if(items[Object.keys(items)[item.typeNum]][i].tier == item.tier && items[Object.keys(items)[item.typeNum]][i].area == item.area && items[Object.keys(items)[item.typeNum]][i].rarity == item.rarity){ // ...check if it matches the stats...
-			Dom.identifier.array.push(items[Object.keys(items)[item.typeNum]][i]); // ...if it does add is to the array of possible items
+Dom.identifier.identify = function(chat, chat1, chat2, chat3){ // the page that you go to when you click "identify for 1 gold"
+	if(Player.gold >= 1){
+		Player.gold--;
+		Dom.changeBook("identifiedPage",true); // changed page to the identified page
+		Dom.currentlyDisplayed = "identified"; // sets the currently displayed page variable to identified
+		Dom.identifier.array = []; // sets the possible items to none
+		if(Player.inventory.unId[Dom.identifier.displayed].rarity == "common"){ // if it is a common item...
+			document.getElementById("identifiedPageChat").innerHTML = chat1; // ...it uses the "common" chat
+		}else if(Player.inventory.unId[Dom.identifier.displayed].rarity == "unique"){ // if it is a unique item...
+			document.getElementById("identifiedPageChat").innerHTML = chat2; // ...it uses the "unique" chat
+		}else{ // if it is a myhtic item...
+			document.getElementById("identifiedPageChat").innerHTML = chat3; // ...it uses the "mythic" chat
 		}
-	}
-	Dom.identifier.num = Math.floor(Math.random()*Dom.identifier.array.length); // a random number between 0 and the number of items in the array of possible items
-	Dom.identifier.item = Dom.identifier.array[Dom.identifier.num]; // a random item from the array of possible items
-	document.getElementById("identifiedPageOption").innerHTML = "<img src=" + Dom.identifier.item.image + " class='theseOptions' style='padding: 0px; margin: 0px; border: 5px solid #886622; height: 50px; width: 50px;'></img>"; // sets the image to the selected item
-	Dom.quest.give(Dom.identifier.item); // gives the player the item
-	document.getElementById("identifiedPageOption").onmouseover = function(){ // when the player hovers over the item...
-		Dom.identifier.displayIdentifiedInformation(Dom.identifier.num,Dom.identifier.array); // ...it displays its information
-	}
-	document.getElementById("identifiedPageOption").onmouseleave = function(){ // when the player stops hovering over the item...
-		Dom.expand("identifiedInformation"); // ...it stops displaying the information
-	}
-	document.getElementById("identifiedPageBack").onclick = function(){ // when you click on the back button...
-		Dom.identifier.page(chat,chat1, chat2, chat3, true); // ...the page goes back to the normal identifier
+		for(i = 0; i < items[Object.keys(items)[Player.inventory.unId[Dom.identifier.displayed].typeNum]].length; i++){ // for every item of the same catergory (e.g. bow)...
+			if(items[Object.keys(items)[Player.inventory.unId[Dom.identifier.displayed].typeNum]][i].tier == Player.inventory.unId[Dom.identifier.displayed].tier && items[Object.keys(items)[Player.inventory.unId[Dom.identifier.displayed].typeNum]][i].area == Player.inventory.unId[Dom.identifier.displayed].area && items[Object.keys(items)[Player.inventory.unId[Dom.identifier.displayed].typeNum]][i].rarity == Player.inventory.unId[Dom.identifier.displayed].rarity){ // ...check if it matches the stats...
+				Dom.identifier.array.push(items[Object.keys(items)[Player.inventory.unId[Dom.identifier.displayed].typeNum]][i]); // ...if it does add is to the array of possible items
+			}
+		}
+		Dom.identifier.num = Math.floor(Math.random()*Dom.identifier.array.length); // a random number between 0 and the number of items in the array of possible items
+		Dom.identifier.item = Dom.identifier.array[Dom.identifier.num]; // a random item from the array of possible items
+		document.getElementById("identifiedPageOption").innerHTML = "<img src=" + Dom.identifier.item.image + " class='theseOptions' style='padding: 0px; margin: 0px; border: 5px solid #886622; height: 50px; width: 50px;'></img>"; // sets the image to the selected item
+		Dom.quest.give(Dom.identifier.item); // gives the player the item
+		document.getElementById("identifiedPageOption").getElementsByTagName("img")[0].onmouseover = function(){ // when the player hovers over the item...
+			Dom.identifier.displayIdentifiedInformation(Dom.identifier.num,Dom.identifier.array); // ...it displays its information
+		}
+		document.getElementById("identifiedPageOption").getElementsByTagName("img")[0].onmouseleave = function(){ // when the player stops hovering over the item...
+			Dom.expand("identifiedInformation"); // ...it stops displaying the information
+		}
+		document.getElementById("identifiedPageBack").onclick = function(){ // when you click on the back button...
+			Dom.identifier.left(chat, chat1, chat2, chat3, true); // ...the page goes back to the normal identifier
+		}
+		Player.inventory.unId.splice(Dom.identifier.displayed, 1); // removes from the array of unidentified items
+	}else{
+		alert("You don't have sufficient funds to buy that item."); // alert them that they don't have enough gold
 	}
 }
