@@ -169,7 +169,7 @@ Dom.expand = function(block) { // expand/collapse element
 		document.getElementById("completedQuestBox").style.textAlign = "center"; // ...the text in the completed quest box is written in the centre... 
 		document.getElementById("completedQuestBox").innerText = "You have no completed quests"; // ...and it says "you have no completed quests"
 	}else if(block == itemInformation){ // if the block is the itemInformation...
-		block.hidden = true; //...hide it
+		block.hidden = true; // ...hide it
 	}
 }
 Dom.settings.bookmarkPosition = function() { // arrange position of bookmarks
@@ -349,7 +349,7 @@ Dom.inventory.displayInformation = function(y,array){ // display inventory infor
 	}
 }
 Dom.merchant.displayInformation = function(y,array,num) { // display merchant information
-	document.getElementById("informationMerchant").hidden = false; // hide merchant information
+	document.getElementById("informationMerchant").hidden = false; // display merchant information
 	document.getElementById("informationMerchant").style.top = y+"px"; // sets the information's top value to the value specified in the parameter
 	document.getElementById("informationMerchant").innerHTML = "<div class='triangleLeft'></div><div id='merchantTriangle' class='innerTriangleLeft'></div><p id='merchantName'><b>"+array[num].name+"</b></p><p id='merchantStats'></p><p id='merchantLore'></p>"; // construct the information without the values
 	if(array[num].rarity == "common"){ // if the item is a common...
@@ -370,7 +370,7 @@ Dom.merchant.displayInformation = function(y,array,num) { // display merchant in
 	document.getElementById("merchantTriangle").style.bottom = document.getElementById("informationMerchant").offsetHeight - 50 + "px"; // postition the triangle in the correct place
 }
 Dom.quests.displayInformation = function(num,array,total){ // display quest start information
-	document.getElementById("questInformation").hidden = false; // hide quest start information
+	document.getElementById("questInformation").hidden = false; // display quest start information
 	document.getElementById("questInformation").style.top = document.getElementById("questStartGold").getBoundingClientRect().top+"px"; // sets the information's top value to the top value of the gold and xp
 	document.getElementById("questInformation").style.left = 780-(total*35)+(num*70) +"px"; // sets the information's left value based on information from the parameter
 	document.getElementById("questInformation").innerHTML = "<div class='rectangleRightUp' id='questRectangle'></div><div class='rectangleRightDown'></div><div class='triangleRight'></div><div id='questTriangle' class='innerTriangleRight'></div><p id='questName'><b>"+array[num].name+"</b></p><p id='questStats'></p><p id='questLore'></p>"; // construct the information without the values
@@ -382,7 +382,7 @@ Dom.quests.displayInformation = function(num,array,total){ // display quest star
 		document.getElementById("questName").style.color = "purple"; // ...sets the name color to purple
 	}
 	document.getElementById("questStats").innerHTML = "Tier: "+array[num].tier; // add the tier to the information
-	for(var i = 0; i < Object.keys(array[num].stats).length; i++){ // reapeat for all stats
+	for(var i = 0; i < Object.keys(array[num].stats).length; i++){ // repeat for all stats
 		var replaceStat = Object.keys(array[num].stats)[i].replace("_"," "); // replace any underscores with spaces
 		document.getElementById("questStats").innerHTML += "<br>"+replaceStat+": "+array[num].stats[Object.keys(array[num].stats)[i]]; // add the stats to the information
 	}
@@ -393,7 +393,7 @@ Dom.quests.displayInformation = function(num,array,total){ // display quest star
 	document.getElementById("questRectangle").style.bottom = document.getElementById("questInformation").offsetHeight - 50 + "px"; // position the rectangle in the correct place
 }
 Dom.quests.displayFinishInformation = function(num,array,total){ // display quest finish information
-	document.getElementById("questFinishInformation").hidden = false; // hide quest start information
+	document.getElementById("questFinishInformation").hidden = false; // display quest start information
 	document.getElementById("questFinishInformation").style.top = document.getElementById("questFinishGold").getBoundingClientRect().top+"px"; // sets the information's top value to the top value of the gold and xp
 	document.getElementById("questFinishInformation").style.left = 780-(total*35)+(num*70) +"px"; // sets the information's left value based on the information from the parameter
 	document.getElementById("questFinishInformation").innerHTML = "<div class='rectangleRightUp' id='finishRectangle'></div><div class='rectangleRightDown'></div><div class='triangleRight'></div><div id='finishTriangle' class='innerTriangleRight'></div><p id='finishName'><b>"+array[num].name+"</b></p><p id='finishStats'></p><p id='finishLore'></p>"; // construct the information without the values
@@ -404,122 +404,120 @@ Dom.quests.displayFinishInformation = function(num,array,total){ // display ques
 	}else{ // if the item is a mythic...
 		document.getElementById("finishName").style.color = "purple"; // ...sets the name color to purple
 	}
-	document.getElementById("finishStats").innerHTML = "Tier: "+array[num].tier;
-	for(var i = 0; i < Object.keys(array[num].stats).length; i++){
-		var replaceStat = Object.keys(array[num].stats)[i].replace("_"," ");
-		document.getElementById("finishStats").innerHTML += "<br>"+replaceStat+": "+array[num].stats[Object.keys(array[num].stats)[i]];
+	document.getElementById("finishStats").innerHTML = "Tier: "+array[num].tier; // add the tier to the information
+	for(var i = 0; i < Object.keys(array[num].stats).length; i++){ // repeat for all stats
+		var replaceStat = Object.keys(array[num].stats)[i].replace("_"," "); // replace any underscores with spaces
+		document.getElementById("finishStats").innerHTML += "<br>"+replaceStat+": "+array[num].stats[Object.keys(array[num].stats)[i]]; // add the stats to the information
 	}
-	if(array[num].lore != undefined){
-		document.getElementById("finishLore").innerHTML += "<i>"+array[num].lore+"</i>";
+	if(array[num].lore != undefined){ // if the item has a lore...
+		document.getElementById("finishLore").innerHTML += "<i>"+array[num].lore+"</i>"; // ...add the lore to the information
 	}
-	document.getElementById("finishTriangle").style.bottom = document.getElementById("questFinishInformation").offsetHeight - 50 + "px";
-	document.getElementById("finishRectangle").style.bottom = document.getElementById("questFinishInformation").offsetHeight - 50 + "px";
+	document.getElementById("finishTriangle").style.bottom = document.getElementById("questFinishInformation").offsetHeight - 50 + "px"; // position the triangle in the correct place
+	document.getElementById("finishRectangle").style.bottom = document.getElementById("questFinishInformation").offsetHeight - 50 + "px"; // position the rectangle in the correct place
 }
 
-Dom.identifier.displayInformation = function(num,array){
-	document.getElementById("identifierInformation").hidden = false;
-	document.getElementById("identifierInformation").style.top = document.getElementById("identifierPageOption").getBoundingClientRect().top - 46 + "px";
-	document.getElementById("identifierInformation").style.left = document.getElementById("identifierPageOption").getBoundingClientRect().left + 90 +"px";
-	document.getElementById("identifierInformation").innerHTML = "<div class='rectangleLeftUp' id='identifierRectangle'></div><div class='rectangleLeftDown'></div><div class='triangleLeft'></div><div id='identifierTriangle' class='innerTriangleLeft'></div><p id='identifierName'><b> Unidentified "+array[num].type+"</b></p><p id='identifierStats'></p><p id='identifierLore'></p>";
-	document.getElementById("identifierStats").innerHTML = "Tier: "+array[num].tier;
-	document.getElementById("identifierLore").innerHTML += "Area: "+array[num].area;
-	document.getElementById("identifierTriangle").style.bottom = document.getElementById("identifierInformation").offsetHeight - 50 + "px";
-	document.getElementById("identifierRectangle").style.bottom = document.getElementById("identifierInformation").offsetHeight - 50 + "px";
+Dom.identifier.displayInformation = function(num,array){ // display identifier information
+	document.getElementById("identifierInformation").hidden = false; // display identifier information
+	document.getElementById("identifierInformation").style.top = document.getElementById("identifierPageOption").getBoundingClientRect().top - 46 + "px"; // sets the information's top value to the top value of the item
+	document.getElementById("identifierInformation").style.left = document.getElementById("identifierPageOption").getBoundingClientRect().left + 90 +"px"; // sets the information's left value based on the left value of the item
+	document.getElementById("identifierInformation").innerHTML = "<div class='rectangleLeftUp' id='identifierRectangle'></div><div class='rectangleLeftDown'></div><div class='triangleLeft'></div><div id='identifierTriangle' class='innerTriangleLeft'></div><p id='identifierName'><b> Unidentified "+array[num].type+"</b></p><p id='identifierStats'></p><p id='identifierLore'></p>"; // construct the information without the values
+	document.getElementById("identifierStats").innerHTML = "Tier: "+array[num].tier; // add the tier to the information
+	document.getElementById("identifierLore").innerHTML += "Area: "+array[num].area; // add the area to the information
+	document.getElementById("identifierTriangle").style.bottom = document.getElementById("identifierInformation").offsetHeight - 50 + "px"; // positition the triangle in the correct place
+	document.getElementById("identifierRectangle").style.bottom = document.getElementById("identifierInformation").offsetHeight - 50 + "px"; // postition the rectangle in the correct place
 }
-Dom.identifier.displayIdentifiedInformation = function(num,array){
-	document.getElementById("identifiedInformation").hidden = false;
-	document.getElementById("identifiedInformation").style.top = document.getElementById("identifiedPageOption").getElementsByTagName("img")[0].getBoundingClientRect().top + "px";
-	document.getElementById("identifiedInformation").style.left = document.getElementById("identifiedPageOption").getElementsByTagName("img")[0].getBoundingClientRect().left + 90 +"px";
-	document.getElementById("identifiedInformation").innerHTML = "<div class='triangleLeft'></div><div id='identifiedTriangle' class='innerTriangleLeft'></div><p id='identifiedName'><b>" + array[num].name + "</b></p><p id='identifiedStats'></p><p id='identifiedLore'></p>";
-	if(array[num].rarity == "common"){
-		document.getElementById("identifiedName").style.color = "black";
-	}else if(array[num].rarity == "unique"){
-		document.getElementById("identifiedName").style.color = "orange";
-	}else{
-		document.getElementById("identifiedName").style.color = "purple";
+Dom.identifier.displayIdentifiedInformation = function(num,array){ // display identified information
+	document.getElementById("identifiedInformation").hidden = false; // display identified information
+	document.getElementById("identifiedInformation").style.top = document.getElementById("identifiedPageOption").getElementsByTagName("img")[0].getBoundingClientRect().top + "px"; // sets the information's top value to the top value of the item
+	document.getElementById("identifiedInformation").style.left = document.getElementById("identifiedPageOption").getElementsByTagName("img")[0].getBoundingClientRect().left + 90 +"px"; // sets the informations left value based on the left value of the item
+	document.getElementById("identifiedInformation").innerHTML = "<div class='triangleLeft'></div><div id='identifiedTriangle' class='innerTriangleLeft'></div><p id='identifiedName'><b>" + array[num].name + "</b></p><p id='identifiedStats'></p><p id='identifiedLore'></p>"; // constuct the information without the values
+	if(array[num].rarity == "common"){ // if the item is a common...
+		document.getElementById("identifiedName").style.color = "black"; // ...sets the name color to black
+	}else if(array[num].rarity == "unique"){ // if the item is a unique...
+		document.getElementById("identifiedName").style.color = "orange"; // ...sets the name color to orange
+	}else{ // if the item is a mythic...
+		document.getElementById("identifiedName").style.color = "purple"; // ...sets the name color to purple
 	}
-	document.getElementById("identifiedStats").innerHTML = "Tier: "+array[num].tier;
-	for(var i = 0; i < Object.keys(array[num].stats).length; i++){
-		var replaceStat = Object.keys(array[num].stats)[i].replace("_"," ");
-		document.getElementById("identifiedStats").innerHTML += "<br>"+replaceStat+": "+array[num].stats[Object.keys(array[num].stats)[i]];
+	document.getElementById("identifiedStats").innerHTML = "Tier: "+array[num].tier; // add the tier to the information
+	for(var i = 0; i < Object.keys(array[num].stats).length; i++){ // repeat fot all stats
+		var replaceStat = Object.keys(array[num].stats)[i].replace("_"," "); // replace any underscores with spaces
+		document.getElementById("identifiedStats").innerHTML += "<br>"+replaceStat+": "+array[num].stats[Object.keys(array[num].stats)[i]]; // add the stats to the information
 	}
-	if(array[num].lore != undefined){
-		document.getElementById("identifiedLore").innerHTML += "<i>"+array[num].lore+"</i>";
+	if(array[num].lore != undefined){ // if the items has a lore...
+		document.getElementById("identifiedLore").innerHTML += "<i>"+array[num].lore+"</i>"; // ...add the lore to the information
 	}
-	document.getElementById("identifiedTriangle").style.bottom = document.getElementById("identifiedInformation").offsetHeight - 50 + "px";
+	document.getElementById("identifiedTriangle").style.bottom = document.getElementById("identifiedInformation").offsetHeight - 50 + "px"; // position the triangle in the correct place
 }
-Dom.currentlyDisplayed = ""; // the currently displayed quest, merchant, etc. (something that can't be overridden)
-
-// display quest start page
-Dom.quest.start = function(quest) { // quest is passed in as parameter
-	if(Dom.changeBook("questStart", false)) {
-		document.getElementById("questStartQuest").innerHTML = quest.quest;
-		document.getElementById("questStartName").innerHTML = quest.startName;
-		document.getElementById("questStartChat").innerHTML = quest.startChat;
-		document.getElementById("questStartObjectives").innerHTML = "";
-		for(var i = 0; i < quest.objectives.length; i++){
-			document.getElementById("questStartObjectives").innerHTML += quest.objectives[i] + "<br>";
+Dom.currentlyDisplayed = ""; // the currently displayed quest, merchant, etc. (any pop up)
+Dom.quest.start = function(quest) { // display quest start page
+	if(Dom.changeBook("questStart", false)) { // display quest start page
+		document.getElementById("questStartQuest").innerHTML = quest.quest; // sets title to quest name
+		document.getElementById("questStartName").innerHTML = quest.startName; // sets NPC name to NPC name
+		document.getElementById("questStartChat").innerHTML = quest.startChat; // sets chat to NPC chat
+		document.getElementById("questStartObjectives").innerHTML = ""; // sets objectives to none
+		for(var i = 0; i < quest.objectives.length; i++){ // repeat for all objectives
+			document.getElementById("questStartObjectives").innerHTML += quest.objectives[i] + "<br>"; // adds ovjective to objectives
 		}
-		if(quest.rewards.gold == 0){
-			document.getElementById("questStartGold").style.display = "none";
-			document.getElementById("goldClass").style.display = "none";
-		}else{
-			document.getElementById("questStartGold").innerHTML = quest.rewards.gold;
+		if(quest.rewards.gold == 0){ // if there is no gold reward...
+			document.getElementById("questStartGold").style.display = "none"; // ...do not display gold
+			//document.getElementById("goldClass").style.display = "none";
+		}else{ // if there is a gold reward...
+			document.getElementById("questStartGold").innerHTML = quest.rewards.gold; // ...display the amount of gold inside the gold
 		}
-		if(quest.rewards.xp == 0){
-			document.getElementById("questStartXP").style.display = "none";
-			document.getElementById("xpClass").style.display = "none";
-		}else{
-			document.getElementById("questStartXP").innerHTML = quest.rewards.xp;
+		if(quest.rewards.xp == 0){ // if there is no xp reward...
+			document.getElementById("questStartXP").style.display = "none"; // ...do not display xp
+			//document.getElementById("xpClass").style.display = "none";
+		}else{ // if there is a xp reward...
+			document.getElementById("questStartXP").innerHTML = quest.rewards.xp; // ...display the amount of xp inside the xp
 		}
-		document.getElementById("questStartItems").innerHTML = "";
-		for(var i = 0; i < quest.rewards.items.length; i++){
-			document.getElementById("questStartItems").innerHTML += "<img src=" + quest.rewards.items[i].image + " class='theseQuestOptions'></img>&nbsp;&nbsp;";
+		document.getElementById("questStartItems").innerHTML = ""; // sets the item rewards to none
+		for(var i = 0; i < quest.rewards.items.length; i++){ // repeats for all item rewards
+			document.getElementById("questStartItems").innerHTML += "<img src=" + quest.rewards.items[i].image + " class='theseQuestOptions'></img>&nbsp;&nbsp;"; // adds item to item rewards
 		}
-		for(let x = 0; x < document.getElementsByClassName("theseQuestOptions").length; x++){
-			document.getElementsByClassName("theseQuestOptions")[x].onmouseover = function() {
-				Dom.quests.displayInformation(x, quest.rewards.items,document.getElementsByClassName("theseQuestOptions").length);
+		for(let x = 0; x < document.getElementsByClassName("theseQuestOptions").length; x++){ // repeats for all item rewards
+			document.getElementsByClassName("theseQuestOptions")[x].onmouseover = function() { // when the user hovers over the item...
+				Dom.quests.displayInformation(x, quest.rewards.items,document.getElementsByClassName("theseQuestOptions").length); // ...displays the information for that item
 			};
-			document.getElementsByClassName("theseQuestOptions")[x].onmouseleave = function() {
-				Dom.expand("questInformation");
-			}
+			document.getElementsByClassName("theseQuestOptions")[x].onmouseleave = function() { // when the user stops hovering over the item...
+				Dom.expand("questInformation"); // ...stops displaying the information for that item
+			};
 		}
-		Dom.currentlyDisplayed = quest;
+		Dom.currentlyDisplayed = quest; // sets the currently displayed pop up to the quest
 	}
 }
-
-// display quest finish page
-Dom.quest.finish = function(quest){
-	Dom.changeBook("questFinish", false);
-	document.getElementById("questFinishQuest").innerHTML = quest.quest;
-	document.getElementById("questFinishName").innerHTML = quest.finishName;
-	document.getElementById("questFinishChat").innerHTML = quest.finishChat;
-	if(quest.rewards.gold == 0){
-		document.getElementById("questFinishGold").style.display = "none";
-		document.getElementById("goldClass").style.display = "none";
-	}else{
-		document.getElementById("questFinishGold").innerHTML = quest.rewards.gold;
+Dom.quest.finish = function(quest){ // display quest finish page
+	Dom.changeBook("questFinish", false); // display quest finish page
+	document.getElementById("questFinishQuest").innerHTML = quest.quest; // sets title to quest name
+	document.getElementById("questFinishName").innerHTML = quest.finishName; // sets NPC name to NPC name
+	document.getElementById("questFinishChat").innerHTML = quest.finishChat; // sets chat to NPC chat
+	if(quest.rewards.gold == 0){ // if the is no gold reward...
+		document.getElementById("questFinishGold").style.display = "none"; // ...do not display gold
+		//document.getElementById("goldClass").style.display = "none";
+	}else{ // if there a gold reward...
+		document.getElementById("questFinishGold").innerHTML = quest.rewards.gold; // ...display the amount of gold inside the gold
 	}
-	if(quest.rewards.xp == 0){
-		document.getElementById("questFinishXP").style.display = "none";
-		document.getElementById("xpClass").style.display = "none";
-	}else{
-		document.getElementById("questFinishXP").innerHTML = quest.rewards.xp;
+	if(quest.rewards.xp == 0){ // if there no xp reward...
+		document.getElementById("questFinishXP").style.display = "none"; // ...do not display xp
+		//document.getElementById("xpClass").style.display = "none";
+	}else{ // if there is a xp reward...
+		document.getElementById("questFinishXP").innerHTML = quest.rewards.xp; // ...display the amount of xp inside the xp
 	}
-	document.getElementById("questStartItems").innerHTML = "";
-	for(var i = 0; i < quest.rewards.items.length; i++){
-		document.getElementById("questFinishItems").innerHTML += "<img src=" + quest.rewards.items[i].image + " class='theseQuestOptions'></img>&nbsp;&nbsp;";
+	document.getElementById("questFinishItems").innerHTML = ""; // sets the item rewards to none
+	for(var i = 0; i < quest.rewards.items.length; i++){ // repeats for all item rewards
+		document.getElementById("questFinishItems").innerHTML += "<img src=" + quest.rewards.items[i].image + " class='theseQuestOptions'></img>&nbsp;&nbsp;"; //adds item to item rewards
 	}
-	for(let x = 0; x < document.getElementsByClassName("theseQuestOptions").length; x++){
-		document.getElementsByClassName("theseQuestOptions")[x].onmouseover = function() {
-			Dom.quests.displayFinishInformation(x, quest.rewards.items,document.getElementsByClassName("theseQuestOptions").length);
+	for(let x = 0; x < document.getElementsByClassName("theseQuestOptions").length; x++){ // repeats for all item rewards
+		document.getElementsByClassName("theseQuestOptions")[x].onmouseover = function() { // when the user hovers over the item...
+			Dom.quests.displayFinishInformation(x, quest.rewards.items,document.getElementsByClassName("theseQuestOptions").length); // ...displays the information for that item
 		};
-		document.getElementsByClassName("theseQuestOptions")[x].onmouseleave = function() {
-			Dom.expand("questFinishInformation");
+		document.getElementsByClassName("theseQuestOptions")[x].onmouseleave = function() { // when the user stops hovering over the item...
+			Dom.expand("questFinishInformation"); // ...stops displaying the information for that item
 		}
 	}
-	Player.gold += parseInt(quest.rewards.gold);
-	Player.xp += parseInt(quest.rewards.xp);
+	//Player.gold += parseInt(quest.rewards.gold);
+	Player.gold += quest.rewards.gold; // gives the player the gold reward
+	//Player.xp += parseInt(quest.rewards.xp);
+	Player.xp += quest.rewards.xp // gives the player the xp reward
 	Dom.inventory.updateGold();
 	Dom.quest.give(quest.rewards.items[0]);
 	Dom.currentlyDisplayed = quest;
