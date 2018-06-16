@@ -1,202 +1,178 @@
 var Dom = { // DOM function arrays
-	elements: {
-		chatPage: document.getElementById("chatPage"),
-		inventoryPage: document.getElementById("inventoryPage"),
-		questsPage: document.getElementById("questsPage"),
-		settingsPage: document.getElementById("settingsPage"),
-		instructionsPage: document.getElementById("instructionsPage"),
-		reputationPage: document.getElementById("reputationPage"),
-		questStart: document.getElementById("questStart"),
-		questFinish: document.getElementById("questFinish"),
-		merchantPage: document.getElementById("merchantPage"),
-		identifierPage: document.getElementById("identifierPage"),
-		identifiedPage: document.getElementById("identifiedPage"),
+	elements: { // pages
+		chatPage: document.getElementById("chatPage"), // shortens references to the chatPage to "chatPage"
+		inventoryPage: document.getElementById("inventoryPage"), // shortens references to the inventoryPage to "inventoryPage"
+		questsPage: document.getElementById("questsPage"), // shortens references to the questsPage to "questsPage"
+		settingsPage: document.getElementById("settingsPage"), // shortens references to the settingsPage to "settingsPage"
+		instructionsPage: document.getElementById("instructionsPage"), // shortens references to the instructionsPage to "instructionsPage"
+		reputationPage: document.getElementById("reputationPage"), // shortens references to the reputationPage to "reputationPage"
+		questStart: document.getElementById("questStart"), // shortens references to the questStart to "questStart"
+		questFinish: document.getElementById("questFinish"), // shortens references to the questFinish to "questFinish"
+		merchantPage: document.getElementById("merchantPage"), // shortens references to the merchantPage to "merchantPage"
+		identifierPage: document.getElementById("identifierPage"), // shortens references to the identifierPage to "identifierPage"
+		identifiedPage: document.getElementById("identifiedPage"), // shortens references to the identifiedPage to "identifiedPage"
 	},
-	chat: {
-		length: 0,
-		contents: [],
-	},
-	inventory: {},
-	quests: {},
-	instructions: {},
-	reputation: {},
-	settings: {},
-	quest: {},
-	merchant: {},
-	identifier: {},
+	chat: {}, // variables to do with the chat are defined as Dom.chat.varName
+	inventory: {}, // variables to do with inventory are defined as Dom.inventory.varName
+	quests: {}, // variables to do with quests are defined as Dom.quests.varName
+	instructions: {}, // variables to do with instructions are defined as Dom.instructions.varName
+	reputation: {}, // variables to do with reputation are defined as Dom.reputation.varName
+	settings: {}, // variables to do with settings are defined as Dom.settings.varName
+	quest: {}, // variables to do with quest are defined as Dom.quest.varName
+	merchant: {}, // variables to do with merchant are defined as Dom.merchant.varName
+	identifier: {}, // variables to do with identifier are defined as Dom.identifier.varName
 };
 Dom.previous = "instructionsPage"; // change currently displayed page
-Dom.changeBook = function(page, override, x) { // returns if the page was changed or not
+Dom.changeBook = function(page, override, x) { // changes the page or changes the color of close buttons
 	//override says if the function should be run regardless of if the player has a quest active (e.g: declining a quest or closing a merchant)
 	if(this.currentlyDisplayed == "" || override) { // check the player doesn't have a quest active
 		// hide all pages
-		if(page != "questStart" && page != "questFinish" && page != "merchantPage" && page != "identifierPage" && page != "identifiedPage"){
-			Dom.previous = page;
+		if(page != "questStart" && page != "questFinish" && page != "merchantPage" && page != "identifierPage" && page != "identifiedPage"){ // if the page being changed to is a not a pop up...
+			Dom.previous = page; // ... it will open it next time you close a pop up
 		}
-		this.elements.chatPage.hidden = true;
-		this.elements.inventoryPage.hidden = true;
-		this.elements.questsPage.hidden = true;
-		this.elements.settingsPage.hidden = true;
-		this.elements.instructionsPage.hidden = true;
-		this.elements.reputationPage.hidden = true;
-		this.elements.questStart.hidden = true;
-		this.elements.questFinish.hidden = true;
-		this.elements.merchantPage.hidden = true;
-		this.elements.identifierPage.hidden = true;
-		this.elements.identifiedPage.hidden = true;
-		document.getElementById(page).hidden = false;
-		
-		if(page == "chatPage"){
-			if(chatPageString == ""){
-				chatPage.innerHTML = "<br>" + chatPageStringOld;
+		this.elements.chatPage.hidden = true; // hides the chat
+		this.elements.inventoryPage.hidden = true; // hides the inventory
+		this.elements.questsPage.hidden = true; // hides the quest log
+		this.elements.settingsPage.hidden = true; // hides the settings
+		this.elements.instructionsPage.hidden = true; // hides the instructions
+		this.elements.reputationPage.hidden = true; // hides the reputation
+		this.elements.questStart.hidden = true; // hides the questStart pop up
+		this.elements.questFinish.hidden = true; // hides the questFinish pop up
+		this.elements.merchantPage.hidden = true; // hides the merchant pop up
+		this.elements.identifierPage.hidden = true; // hides the identifier pop up
+		this.elements.identifiedPage.hidden = true; // hides the identified item pop up
+		document.getElementById(page).hidden = false; // displays the page you are opening
+		if(page == "chatPage"){ // if the chat is being opened
+			if(Dom.chat.newString == ""){ // if there is no new chat
+				chatPage.innerHTML = "<br>" + Dom.chat.oldString; // display the old chat
 			}
-			document.getElementById("dot").hidden = true;
-			document.getElementById("dot").innerHTML = 0;
-			chatPageStringOld = chatPageString + chatPageStringOld;
-			chatPageString = "";
+			document.getElementById("dot").hidden = true; // remove notifications
+			document.getElementById("dot").innerHTML = 0; // set notification number to 0
+			Dom.chat.oldString = Dom.chat.newString + Dom.chat.oldString; // add the new chat to the old chat
+			Dom.chat.newString = ""; // set the new chat to nothing
 		}
-		
-		if(page == "reputationPage"){
-			Dom.reputation.update(); // not necessary?
+		if(page == "reputationPage"){ // if the reputation is being opened
+			Dom.reputation.update(); // update the reputation (not sure why it is necessary)
 		}
-
-		if(override) {
-			for(var i = 0; i < document.getElementsByClassName("closeClass").length; i++){
-				document.getElementsByClassName("closeClass")[i].style.border = "5px solid #886622";
+		if(override) { // if the a pop up is being closed
+			for(var i = 0; i < document.getElementsByClassName("closeClass").length; i++){ // repeat for all close buttons
+				document.getElementsByClassName("closeClass")[i].style.border = "5px solid #886622"; // set close button border color to normal
 			}
 			this.currentlyDisplayed = ""; // reset current display if it is overriden
-			Dom.quests.activeQuests(undefined);
+			Dom.quests.activeQuests(undefined); // update the active quests box
 		}
-		
-		return true;
+		return true; // returns true if the page was changed
 	}
-	else {
-		for(var i = 0; i < document.getElementsByClassName("closeClass").length; i++){
-			document.getElementsByClassName("closeClass")[i].style.border = "5px solid red";
+	else { // if the page cannot be changed
+		for(var i = 0; i < document.getElementsByClassName("closeClass").length; i++){ // repeat for all close buttons
+			document.getElementsByClassName("closeClass")[i].style.border = "5px solid red"; // set close button border color to red
 		}
-		if(x != 0 && x != 1){
-			Dom.override = true;
-			setTimeout(function(){
-				for(var i = 0; i < document.getElementsByClassName("closeClass").length; i++){
-					document.getElementsByClassName("closeClass")[i].style.border = "5px solid #886622";
-					Dom.override = false;
+		if(x != 0 && x != 1){ // if x = "undefined"
+			Dom.override = true; // overrides future updates
+			setTimeout(function(){ // waits 200
+				for(var i = 0; i < document.getElementsByClassName("closeClass").length; i++){ // repeat for all close buttons
+					document.getElementsByClassName("closeClass")[i].style.border = "5px solid #886622"; // set close button border color back to normal
+					Dom.override = false; // allows future updates
 				}
-			},200);
-		} else if(x == 1){
-			for(var i = 0; i < document.getElementsByClassName("closeClass").length; i++){
-				document.getElementsByClassName("closeClass")[i].style.border = "5px solid #886622";
+			},200); // waits 0.2 seconds
+		} else if(x == 1){ // // if x = 1
+			for(var i = 0; i < document.getElementsByClassName("closeClass").length; i++){ // repeat for all close buttons
+				document.getElementsByClassName("closeClass")[i].style.border = "5px solid #886622"; // instantly set close button border color back to normal
 			}
 		}
-		return false;
+		return false; // returns false if the page was not changed
 	}
 }
-
-// update the DOM display of gold and xp
-Dom.inventory.updateGold = function() {
-	for(var i = 0; i < document.getElementsByClassName("goldDisplay").length; i++) {
-		document.getElementsByClassName("goldDisplay")[i].innerText = Player.gold;
+Dom.inventory.updateGold = function() { // update the DOM display of gold and xp
+	for(var i = 0; i < document.getElementsByClassName("goldDisplay").length; i++) { // repeat for each gold display
+		document.getElementsByClassName("goldDisplay")[i].innerText = Player.gold; // set the number displayed to the amount of gold
 	}
-	for(var i = 0; i < document.getElementsByClassName("xpDisplay").length; i++) {
-		document.getElementsByClassName("xpDisplay")[i].innerText = Player.xp;
+	for(var i = 0; i < document.getElementsByClassName("xpDisplay").length; i++) { // repeat for each xp display
+		document.getElementsByClassName("xpDisplay")[i].innerText = Player.xp; // set the number displayed to the amount of xp
 	}
 }
-Dom.inventory.updateGold();
-
-// change which item is shown in inventory
-Dom.inventory.changeEquipment = function(array,equipmentType) {
-	array.push(array[0]);
-	array.splice(0, 1);
-	document.getElementById(equipmentType).style.backgroundImage = "url(" + array[0].image + ")";
-	if(equipmentType == "helm"){
-		Player.inventory.helm = array;
-		this.displayInformation("30px",Player.inventory.helm);
-	}
-	if(equipmentType == "chest"){
-		Player.inventory.chest = array;
-		this.displayInformation("100px",Player.inventory.chest);
-	}
-	if(equipmentType == "greaves"){
-		Player.inventory.greaves = array;
-		this.displayInformation("170px",Player.inventory.greaves);
-	}
-	if(equipmentType == "boots"){
-		Player.inventory.boots = array;
-		this.displayInformation("240px",Player.inventory.boots);
-	}
-	if(equipmentType == "weapon"){
-		Player.inventory.weapon = array;
-		this.displayInformation("325px",Player.inventory.weapon);
+Dom.inventory.updateGold(); // calls the function to update the gold display
+Dom.inventory.changeEquipment = function(array,equipmentType) { // change which item is shown in inventory
+	array.push(array[0]); // adds the first element of the array to the end of the array
+	array.splice(0, 1); // removes the first element of the array
+	document.getElementById(equipmentType).style.backgroundImage = "url(" + array[0].image + ")"; // sets the image of to the the item's image
+	if(equipmentType == "helm"){ // if the equipment being changed is a helm...
+		Player.inventory.helm = array; // ...updates the helm array...
+		this.displayInformation("30px",Player.inventory.helm); // ... and displays the information for your helm
+	}else if(equipmentType == "chest"){ // if the equipment being changed is a chest...
+		Player.inventory.chest = array; // ...updates the chest array...
+		this.displayInformation("100px",Player.inventory.chest); // ...and displays the information for your chest
+	}else if(equipmentType == "greaves"){ // if the equipment being chaged are greaves...
+		Player.inventory.greaves = array; // ...updates the greaves array...
+		this.displayInformation("170px",Player.inventory.greaves); // ...and displays the information for your greaves
+	}else if(equipmentType == "boots"){ // if the equipment being changed are boots...
+		Player.inventory.boots = array; // ...updates the boots array...
+		this.displayInformation("240px",Player.inventory.boots); // ...and displays the information for your boots
+	}else{ // if the equipment being changed is a weapon...
+		Player.inventory.weapon = array; // ...updates the weapon array...
+		this.displayInformation("325px",Player.inventory.weapon); // ...and displays the information for your weapon
 	}
 }
-
-Dom.inventory.stats = function(){
-	document.getElementById("statInfo").innerHTML = "<strong>Damage: <br>Defence: <br>Critical Chance: <br>Focus Speed: <br>Health Regen: <br>Looting: <br>Poison: <br>Reflection: <br>Walk Speed: </strong>";
+Dom.inventory.stats = function(){ // updates the stats displayed in your inventory
+	document.getElementById("statInfo").innerHTML = "<strong>Damage: <br>Defence: <br>Critical Chance: <br>Focus Speed: <br>Health Regen: <br>Looting: <br>Poison: <br>Reflection: <br>Walk Speed: </strong>"; // sets the stats in your inventory
 }
-Dom.inventory.stats();
-
-var chatPageString = "";
-var chatPageStringOld = "";
-document.getElementById("dot").innerHTML = 0;
-// insert text in chat page
-Dom.chat.insert = function(text, delay) {
-	if(chatPage.hidden){
-		if(document.getElementById("dot").innerHTML != "<b>...</b>"){
-			document.getElementById("dot").hidden = false;
-			document.getElementById("dot").innerHTML = parseInt(document.getElementById("dot").innerHTML) + 1;
-			if(parseInt(document.getElementById("dot").innerHTML) > 99){
-				document.getElementById("dot").innerHTML = "<b>...</b>";
-				document.getElementById("dot").style.lineHeight = "7.5px";
+Dom.inventory.stats(); // calls the function to display stats in your inventory
+Dom.chat.newString = ""; // sets the new chat to nothing
+Dom.chat.oldString = ""; // sets the old chat to nothing
+Dom.chat.length = 0; // sets the chat length to 0
+Dom.chat.contents = []; // sets the chat contents to 0
+document.getElementById("dot").innerHTML = 0; // sets the notification number to 0
+Dom.chat.insert = function(text, delay) { // // insert text in chat page
+	if(Dom.chat.length == 10) { // if chat is too big
+			Dom.chat.purge(); // purge it
+		}
+	if(chatPage.hidden){ // if the chat is hidden
+		if(document.getElementById("dot").innerHTML != "<b>...</b>"){ // if there are less than 100 notifications
+			document.getElementById("dot").hidden = false; // display the notifications
+			document.getElementById("dot").innerHTML = parseInt(document.getElementById("dot").innerHTML) + 1; // add 1 to the notification number
+			if(parseInt(document.getElementById("dot").innerHTML) > 99){ // if there are 100 notifications
+				document.getElementById("dot").innerHTML = "<b>...</b>"; // set the notification number to "..."
+				document.getElementById("dot").style.lineHeight = "7.5px"; // move the "..." to the centre
 			}
 		}
 	}
-	this.contents.push(text);
-	setTimeout(function() {
-		chatPageString = text + "<br><br>" + chatPageString;
-		chatPage.innerHTML = "<br>" + chatPageString;
-		if(chatPageStringOld != 0){chatPage.innerHTML += '-------------------- <b>New Messages</b> --------------------';}
-		chatPage.innerHTML += "</p>" + chatPageStringOld;
-		if(chatPage.hidden == false){
-			Dom.changeBook("chatPage",true);
+	Dom.chat.contents.push(text); // add the text to the array of chat contents
+	setTimeout(function() { // wait for the amount of time specified in the parameter
+		Dom.chat.newString = text + "<br><br>" + Dom.chat.newString; // adds the text to the new chat
+		chatPage.innerHTML = "<br>" + Dom.chat.newString; // sets the chat to the new chat
+		if(Dom.chat.oldString != 0){chatPage.innerHTML += '-------------------- <b>New Messages</b> --------------------';} // if there is old chat write "New Messages"
+		chatPage.innerHTML += "</p>" + Dom.chat.oldString; // write old chat under new messages
+		if(!chatPage.hidden){ // if the chat is displayed...
+			Dom.changeBook("chatPage",true); // ...update the chat
 		}
-		this.length++;
-		if (this.length >= 10000) { //check chat isn't too big; if it is then purge it. 10,000 is an arbitrary value; maybe change?
-			this.purge();
-			chatPage.innerHTML = '<p>' + text + '</p>' + chatPage.innerHTML;
-			this.length++;
-		}
-	}, delay);
+		Dom.chat.length++; // adds 1 to the length of the chat
+	}, delay); // sets the delay to the amount specified in the parameter
 }
-
-// delete all chat
-Dom.chat.purge = function() {
-	chatPage.innerHTML = '<p>Chat cleared to free up memory.</p>';
-	this.contents = {};
-	this.length = 1;
+Dom.chat.purge = function() { // delete all chat
+	Dom.chat.oldString = ""; // sets the old chat to nothing
+	Dom.chat.newString = "Chat cleared to free up memory"; // warns the user that the chat was reset
+	Dom.chat.length = 1; // sets the chat length to 1
+	Dom.chat.contents = []; // sets the chat contents to nothing
 }
-
-// expand/collapse element
-Dom.expand = function(block) {
-	block = document.getElementById(block);
-	if(block.hidden) {
-		block.hidden = false;
+Dom.expand = function(block) { // expand/collapse element
+	block = document.getElementById(block); // sets block to the element: block
+	if(block.hidden) { // if the element is hidden...
+		block.hidden = false; // ...display it
 	}
-	else {
-		block.hidden = true;
+	else { // if the element is displayed...
+		block.hidden = true; // ...hide it
 	}
-	// the player has no active quests (possibly inefficient? doesn't need to check every time it's opened)
-	if(block == activeQuestBox && Dom.quests.activeQuestArray.length == 0){
-		document.getElementById("activeQuestBox").style.textAlign = "center";
-		document.getElementById("activeQuestBox").innerText = "You have no active quests";
-	}else if(block == completedQuestBox && Dom.quests.completedQuestArray.length == 0){
-		document.getElementById("completedQuestBox").style.textAlign = "center";
-		document.getElementById("completedQuestBox").innerText = "You have no completed quests";
-	}else if(block == itemInformation){
-		block.hidden = true;
+	if(block == activeQuestBox && Dom.quests.activeQuestArray.length == 0){ // if the player has no active quests... (possibly inefficient? doesn't need to check every time it's opened)
+		document.getElementById("activeQuestBox").style.textAlign = "center"; // ...the text in the active quest box is written in the centre...
+		document.getElementById("activeQuestBox").innerText = "You have no active quests"; // ... and it says "you have no active quests"
+	}else if(block == completedQuestBox && Dom.quests.completedQuestArray.length == 0){ // if the player has no completed quests...
+		document.getElementById("completedQuestBox").style.textAlign = "center"; // ...the text in the completed quest box is written in the centre... 
+		document.getElementById("completedQuestBox").innerText = "You have no completed quests"; // ...and it says "you have no completed quests"
+	}else if(block == itemInformation){ // if the block is the itemInformation...
+		block.hidden = true; //...hide it
 	}
 }
-
-// arrange position of bookmarks
-Dom.settings.bookmarkPosition = function() {
+Dom.settings.bookmarkPosition = function() { // arrange position of bookmarks
 	// INEFFICIENT?
 	if(document.getElementById("bottom").checked) { // arrange bookmarks at bottom of screen
 		document.getElementById("changeChat").style.top="619px";
@@ -238,7 +214,7 @@ Dom.settings.bookmarkPosition = function() {
 		document.getElementById("dot").style.top="646px";
 		document.getElementById("dot").style.left="689px";
 	}
-	else { // arrange bookmarks at top of screen
+	else { // arrange bookmarks at right of screen
 		document.getElementById("changeChat").style.left="1162px";
 		document.getElementById("changeChat").style.transform="rotate(0deg)";
 		document.getElementById("changeChat").style.transformOrigin="top left";
@@ -279,164 +255,154 @@ Dom.settings.bookmarkPosition = function() {
 		document.getElementById("dot").style.left="1217px";
 	}
 }
-
-// determine what the position of the bookmarks should be for the user (based on their window size)
-if(window.innerHeight >= 755) {
-	document.getElementById("bottom").checked = true;
-	Dom.settings.bookmarkPosition();
+if(window.innerHeight >= 755) { // if the window height is big enough...
+	document.getElementById("bottom").checked = true; // ...set the bookmark position to the bottom...
+	Dom.settings.bookmarkPosition(); // ...then update the position
 }
-else if(window.innerWidth >= 1295) {
-	document.getElementById("right").checked = true;
-	Dom.settings.bookmarkPosition();
+else if(window.innerWidth >= 1295) { // if the window height is too small but the width is big enough...
+	document.getElementById("right").checked = true; // ...set the bookmark position to the right...
+	Dom.settings.bookmarkPosition(); // ...then update the position
 }
-else {
-	alert("Your window size is too small. Please zoom out!");
-	console.warn("Your window size is too small. Please zoom out!");
-	document.getElementById("bottom").checked = true;
-	Dom.settings.bookmarkPosition();
+else { // if the window size is too small...
+	alert("Your window size is too small. Please zoom out!"); // ...alert the user that their window is too small...
+	console.warn("Your window size is too small. Please zoom out!"); // ...warn the user that their window is too small...
+	document.getElementById("bottom").checked = true; // ...set the bookmark position to bottom...
+	Dom.settings.bookmarkPosition(); // ...then update the position
 }
-
 Dom.reputation.levels = ["Hated","Unfriendly","Neutral","Friendly","Honoured"]; // possible reputation levels
-for(var i = 0; i < Object.keys(Player.reputation).length; i++){
+for(var i = 0; i < Object.keys(Player.reputation).length; i++){ // repeat for all reputations
 	Player.reputation[Object.keys(Player.reputation)[i]].score = 5; // reputation score (between levels)
 	Player.reputation[Object.keys(Player.reputation)[i]].level = 2; // reputation level
 }
-
-Dom.reputation.update = function(){
-	for(var i = 0; i < Object.keys(Player.reputation).length; i++){
-		if(Player.reputation[Object.keys(Player.reputation)[i]].score > 10) {
-			this.upLevel(Player.reputation[Object.keys(Player.reputation)[i]]);
+Dom.reputation.update = function(){ // update reputation
+	for(var i = 0; i < Object.keys(Player.reputation).length; i++){ // repeat for all reputations
+		if(Player.reputation[Object.keys(Player.reputation)[i]].score > 10) { // if the reputation is above 10...
+			this.upLevel(Player.reputation[Object.keys(Player.reputation)[i]]); // ...increase the reputation level
 		}
-		else if(Player.reputation[Object.keys(Player.reputation)[i]].score < 0) {
-			this.downLevel(Player.reputation[Object.keys(Player.reputation)[i]]);
+		else if(Player.reputation[Object.keys(Player.reputation)[i]].score < 0) { // if the reputation is below 0...
+			this.downLevel(Player.reputation[Object.keys(Player.reputation)[i]]); // ...decrease the reputation level
 		}
-		else {
-			document.getElementById("reputationBar").innerHTML = this.levels[Player.reputation[Object.keys(Player.reputation)[i]].level];
-			document.getElementById("widthPadding").innerHTML = this.levels[Player.reputation[Object.keys(Player.reputation)[i]].level];
-			if(Player.reputation[Object.keys(Player.reputation)[i]].level >=2) {
-				document.getElementById("reputationBar").style.textIndent = ((250-document.getElementById("widthPadding").clientWidth)/2) + "px";
-				document.getElementById("reputationBar").style.width = Player.reputation[Object.keys(Player.reputation)[i]].score*25+"px";
-				document.getElementById("reputationBar").style.left = "0px";
+		else { // if the reputation is between 0 and 10
+			document.getElementById("reputationBar").innerHTML = this.levels[Player.reputation[Object.keys(Player.reputation)[i]].level]; // writes the level in the repuatation bar
+			document.getElementById("widthPadding").innerHTML = this.levels[Player.reputation[Object.keys(Player.reputation)[i]].level]; // gets the width of the text
+			if(Player.reputation[Object.keys(Player.reputation)[i]].level >=2) { // if the reputation is neutral or above
+				document.getElementById("reputationBar").style.textIndent = ((250-document.getElementById("widthPadding").clientWidth)/2) + "px"; // writes the text in the centre
+				document.getElementById("reputationBar").style.width = Player.reputation[Object.keys(Player.reputation)[i]].score*25+"px"; // sets the width of the bar
+				document.getElementById("reputationBar").style.left = "0px"; // sets the bar to start on the left
 			}
-			else {
-				document.getElementById("reputationBar").style.textIndent = ((250-document.getElementById("widthPadding").clientWidth)/2)-Player.reputation[Object.keys(Player.reputation)[i]].score*25+ "px";
-				document.getElementById("reputationBar").style.width = (10-Player.reputation[Object.keys(Player.reputation)[i]].score)*25+"px";
-				document.getElementById("reputationBar").style.left = Player.reputation[Object.keys(Player.reputation)[i]].score*25+"px";
+			else { // if the reputation is negative
+				document.getElementById("reputationBar").style.textIndent = ((250-document.getElementById("widthPadding").clientWidth)/2)-Player.reputation[Object.keys(Player.reputation)[i]].score*25+ "px"; // writes the text in the centre
+				document.getElementById("reputationBar").style.width = (10-Player.reputation[Object.keys(Player.reputation)[i]].score)*25+"px"; // sets the width of the bar
+				document.getElementById("reputationBar").style.left = Player.reputation[Object.keys(Player.reputation)[i]].score*25+"px"; // sets the bar to start on the right
 			}
 		}
 	}
 }
-
-Dom.reputation.upLevel = function(Area){
-	Area.score -= 11;
-	Area.level++;
-	if(Area.level > 2) {
-		document.getElementById("reputationBar").style.backgroundColor = "green";
+Dom.reputation.upLevel = function(Area){ // increases the reputation level
+	Area.score -= 11; // resets the score to 0 + the remainder
+	Area.level++; // increases the reputation level
+	if(Area.level > 2) { // if the reputation is positive...
+		document.getElementById("reputationBar").style.backgroundColor = "green"; // ...sets the color to green
 	}
-	else if(Area.level < 2) {
-		document.getElementById("reputationBar").style.backgroundColor = "red";
+	else if(Area.level < 2) { // if the reputation is negative...
+		document.getElementById("reputationBar").style.backgroundColor = "red"; // ...sets the color to red
 	}
-	else {
-		document.getElementById("reputationBar").style.backgroundColor = "gold";
+	else { // if the reputation is neutral...
+		document.getElementById("reputationBar").style.backgroundColor = "gold"; // ...sets the color to yellow
 	}
-	this.update();
+	this.update(); // updates the reputation
 }
-Dom.reputation.downLevel = function(Area){
-	Area.score += 11;
-	Area.level--;
-	if(Area.level < 2){
-		document.getElementById("reputationBar").style.backgroundColor = "red";
-	}else if(Area.level > 2){
-		document.getElementById("reputationBar").style.backgroundColor = "green";
-	}else{
-		document.getElementById("reputationBar").style.backgroundColor = "gold";
+Dom.reputation.downLevel = function(Area){ // decreases the reputation level
+	Area.score += 11; // resets the score to 10 - the remainder
+	Area.level--; // decreases the reputation level
+	if(Area.level < 2){ // if the reputation is negative...
+		document.getElementById("reputationBar").style.backgroundColor = "red"; // ...sets the color to red
+	}else if(Area.level > 2){ // if the reputation is positive...
+		document.getElementById("reputationBar").style.backgroundColor = "green"; // ...sets the color to green
+	}else{ // if the reputation is neutral...
+		document.getElementById("reputationBar").style.backgroundColor = "gold"; // ...sets the color to yellow
 	}
-	this.update();
+	this.update(); // updates the reputation
 }
-
-// display inventory information next to item
-Dom.inventory.displayInformation = function(y,array){
-	document.getElementById("itemInformation").hidden = true;
-	if(array[0].name != ""){
-		document.getElementById("itemInformation").hidden = false;
-		document.getElementById("itemInformation").style.top = y;
-		document.getElementById("itemInformation").innerHTML = "<div class='triangleLeft'></div><div id='triangle' class='innerTriangleLeft'></div><p id='name'><b>"+array[0].name+"</b></p><p id='stats'></p><p id='lore'></p>";
-		if(array[0].rarity == "common"){
-			document.getElementById("name").style.color = "black";
-		}else if(array[0].rarity == "unique"){
-			document.getElementById("name").style.color = "orange";
-		}else{
-			document.getElementById("name").style.color = "purple";
+Dom.inventory.displayInformation = function(y,array){ // display inventory information
+	document.getElementById("itemInformation").hidden = true; // hide item information
+	if(array[0].name != ""){ // if the user is hovering over an item...
+		document.getElementById("itemInformation").hidden = false; // ...display information
+		document.getElementById("itemInformation").style.top = y; // sets information's top value to the value specified in the parameter
+		document.getElementById("itemInformation").innerHTML = "<div class='triangleLeft'></div><div id='triangle' class='innerTriangleLeft'></div><p id='name'><b>"+array[0].name+"</b></p><p id='stats'></p><p id='lore'></p>"; // construct the information without the values
+		if(array[0].rarity == "common"){ // if the item is a common...
+			document.getElementById("name").style.color = "black"; // ...sets the name color to black
+		}else if(array[0].rarity == "unique"){ // if the item is a unique...
+			document.getElementById("name").style.color = "orange"; // ...sets the name color to orange
+		}else{ // if the item is a mythic...
+			document.getElementById("name").style.color = "purple"; // ...sets the name color to purple
 		}
-		document.getElementById("stats").innerHTML = "Tier: "+array[0].tier;
-		for(var i = 0; i < Object.keys(array[0].stats).length; i++){
-			var replaceStat = Object.keys(array[0].stats)[i].replace("_"," ");
-			document.getElementById("stats").innerHTML += "<br>"+replaceStat+": "+array[0].stats[Object.keys(array[0].stats)[i]];
+		document.getElementById("stats").innerHTML = "Tier: "+array[0].tier; // add the tier to the information
+		for(var i = 0; i < Object.keys(array[0].stats).length; i++){ // repeat for all stats
+			var replaceStat = Object.keys(array[0].stats)[i].replace("_"," "); // replace any underscores with spaces
+			document.getElementById("stats").innerHTML += "<br>"+replaceStat+": "+array[0].stats[Object.keys(array[0].stats)[i]]; // add the stats to the information
 		}
-		if(array[0].lore != undefined){
-			document.getElementById("lore").innerHTML += "<i>"+array[0].lore+"</i>";
+		if(array[0].lore != undefined){ // if the item has a lore...
+			document.getElementById("lore").innerHTML += "<i>"+array[0].lore+"</i>"; // ...add the lore to the information
 		}
-		document.getElementById("triangle").style.bottom = document.getElementById("itemInformation").offsetHeight - 50 + "px";
+		document.getElementById("triangle").style.bottom = document.getElementById("itemInformation").offsetHeight - 50 + "px"; // position the triangle in the correct place
 	}
 }
-
-Dom.merchant.displayInformation = function(y,array,num) {
-	document.getElementById("informationMerchant").hidden = false;
-	document.getElementById("informationMerchant").style.top = y+"px";
-	document.getElementById("informationMerchant").innerHTML = "<div class='triangleLeft'></div><div id='merchantTriangle' class='innerTriangleLeft'></div><p id='merchantName'><b>"+array[num].name+"</b></p><p id='merchantStats'></p><p id='merchantLore'></p>";
-	if(array[num].rarity == "common"){
-		document.getElementById("merchantName").style.color = "black";
-	}else if(array[num].rarity == "unique"){
-		document.getElementById("merchantName").style.color = "orange";
-	}else{
-		document.getElementById("merchantName").style.color = "purple";
+Dom.merchant.displayInformation = function(y,array,num) { // display merchant information
+	document.getElementById("informationMerchant").hidden = false; // hide merchant information
+	document.getElementById("informationMerchant").style.top = y+"px"; // sets the information's top value to the value specified in the parameter
+	document.getElementById("informationMerchant").innerHTML = "<div class='triangleLeft'></div><div id='merchantTriangle' class='innerTriangleLeft'></div><p id='merchantName'><b>"+array[num].name+"</b></p><p id='merchantStats'></p><p id='merchantLore'></p>"; // construct the information without the values
+	if(array[num].rarity == "common"){ // if the item is a common...
+		document.getElementById("merchantName").style.color = "black"; // ...sets the name color to black
+	}else if(array[num].rarity == "unique"){ // if the item is a unique...
+		document.getElementById("merchantName").style.color = "orange"; // ...sets the name color to orange
+	}else{ // if the item is a mythic...
+		document.getElementById("merchantName").style.color = "purple"; // ...sets the name color to purple
 	}
-	document.getElementById("merchantStats").innerHTML = "Tier: "+array[num].tier;
-	for(var i = 0; i < Object.keys(array[num].stats).length; i++){
-		var replaceStat = Object.keys(array[num].stats)[i].replace("_"," ");
-		document.getElementById("merchantStats").innerHTML += "<br>"+replaceStat+": "+array[num].stats[Object.keys(array[num].stats)[i]];
+	document.getElementById("merchantStats").innerHTML = "Tier: "+array[num].tier; // add the tier to the information
+	for(var i = 0; i < Object.keys(array[num].stats).length; i++){ // repeat for all stats
+		var replaceStat = Object.keys(array[num].stats)[i].replace("_"," "); // replace any underscores with spaces
+		document.getElementById("merchantStats").innerHTML += "<br>"+replaceStat+": "+array[num].stats[Object.keys(array[num].stats)[i]]; // add the stats to the information
 	}
-	if(array[num].lore != undefined){
-		document.getElementById("merchantLore").innerHTML += "<i>"+array[num].lore+"</i>";
+	if(array[num].lore != undefined){ // if the item has a lore...
+		document.getElementById("merchantLore").innerHTML += "<i>"+array[num].lore+"</i>"; // ...add the lore to the information
 	}
-	document.getElementById("merchantTriangle").style.bottom = document.getElementById("informationMerchant").offsetHeight - 50 + "px";
+	document.getElementById("merchantTriangle").style.bottom = document.getElementById("informationMerchant").offsetHeight - 50 + "px"; // postition the triangle in the correct place
 }
-
-Dom.quests.displayInformation = function(num,array,total){
-	document.getElementById("questInformation").hidden = false;
-	document.getElementById("questInformation").style.top = document.getElementById("questStartGold").getBoundingClientRect().top+"px";
-	document.getElementById("questInformation").style.left = 780-(total*35)+(num*70) +"px";
-	document.getElementById("questInformation").innerHTML = "<div class='rectangleRightUp' id='questRectangle'></div><div class='rectangleRightDown'></div><div class='triangleRight'></div><div id='questTriangle' class='innerTriangleRight'></div><p id='questName'><b>"+array[num].name+"</b></p><p id='questStats'></p><p id='questLore'></p>";
-	if(array[num].rarity == "common"){
-		document.getElementById("questName").style.color = "black";
-	}else if(array[num].rarity == "unique"){
-		document.getElementById("questName").style.color = "orange";
-	}else{
-		document.getElementById("questName").style.color = "purple";
+Dom.quests.displayInformation = function(num,array,total){ // display quest start information
+	document.getElementById("questInformation").hidden = false; // hide quest start information
+	document.getElementById("questInformation").style.top = document.getElementById("questStartGold").getBoundingClientRect().top+"px"; // sets the information's top value to the top value of the gold and xp
+	document.getElementById("questInformation").style.left = 780-(total*35)+(num*70) +"px"; // sets the information's left value based on information from the parameter
+	document.getElementById("questInformation").innerHTML = "<div class='rectangleRightUp' id='questRectangle'></div><div class='rectangleRightDown'></div><div class='triangleRight'></div><div id='questTriangle' class='innerTriangleRight'></div><p id='questName'><b>"+array[num].name+"</b></p><p id='questStats'></p><p id='questLore'></p>"; // construct the information without the values
+	if(array[num].rarity == "common"){ // if the item is a common...
+		document.getElementById("questName").style.color = "black"; // ...sets the name color to black
+	}else if(array[num].rarity == "unique"){ // if the item is a unique...
+		document.getElementById("questName").style.color = "orange"; // ...sets the name color to orange
+	}else{ // if the item is a mythic...
+		document.getElementById("questName").style.color = "purple"; // ...sets the name color to purple
 	}
-	document.getElementById("questStats").innerHTML = "Tier: "+array[num].tier;
-	for(var i = 0; i < Object.keys(array[num].stats).length; i++){
-		var replaceStat = Object.keys(array[num].stats)[i].replace("_"," ");
-		document.getElementById("questStats").innerHTML += "<br>"+replaceStat+": "+array[num].stats[Object.keys(array[num].stats)[i]];
+	document.getElementById("questStats").innerHTML = "Tier: "+array[num].tier; // add the tier to the information
+	for(var i = 0; i < Object.keys(array[num].stats).length; i++){ // reapeat for all stats
+		var replaceStat = Object.keys(array[num].stats)[i].replace("_"," "); // replace any underscores with spaces
+		document.getElementById("questStats").innerHTML += "<br>"+replaceStat+": "+array[num].stats[Object.keys(array[num].stats)[i]]; // add the stats to the information
 	}
-	if(array[num].lore != undefined){
-		document.getElementById("questLore").innerHTML += "<i>"+array[num].lore+"</i>";
+	if(array[num].lore != undefined){ // if the item has a lore...
+		document.getElementById("questLore").innerHTML += "<i>"+array[num].lore+"</i>"; // ...add the lore to the information
 	}
-	document.getElementById("questTriangle").style.bottom = document.getElementById("questInformation").offsetHeight - 50 + "px";
-	document.getElementById("questRectangle").style.bottom = document.getElementById("questInformation").offsetHeight - 50 + "px";
+	document.getElementById("questTriangle").style.bottom = document.getElementById("questInformation").offsetHeight - 50 + "px"; // position the triangle in the correct place
+	document.getElementById("questRectangle").style.bottom = document.getElementById("questInformation").offsetHeight - 50 + "px"; // position the rectangle in the correct place
 }
-
-Dom.quests.displayFinishInformation = function(num,array,total){
-	document.getElementById("questFinishInformation").hidden = false;
-	document.getElementById("questFinishInformation").style.top = document.getElementById("questFinishGold").getBoundingClientRect().top+"px";
-	document.getElementById("questFinishInformation").style.left = 780-(total*35)+(num*70) +"px";
-	document.getElementById("questFinishInformation").innerHTML = "<div class='rectangleRightUp' id='finishRectangle'></div><div class='rectangleRightDown'></div><div class='triangleRight'></div><div id='finishTriangle' class='innerTriangleRight'></div><p id='finishName'><b>"+array[num].name+"</b></p><p id='finishStats'></p><p id='finishLore'></p>";
-	if(array[num].rarity == "common"){
-		document.getElementById("finishName").style.color = "black";
-	}else if(array[num].rarity == "unique"){
-		document.getElementById("finishName").style.color = "orange";
-	}else{
-		document.getElementById("finishName").style.color = "purple";
+Dom.quests.displayFinishInformation = function(num,array,total){ // display quest finish information
+	document.getElementById("questFinishInformation").hidden = false; // hide quest start information
+	document.getElementById("questFinishInformation").style.top = document.getElementById("questFinishGold").getBoundingClientRect().top+"px"; // sets the information's top value to the top value of the gold and xp
+	document.getElementById("questFinishInformation").style.left = 780-(total*35)+(num*70) +"px"; // sets the information's left value based on the information from the parameter
+	document.getElementById("questFinishInformation").innerHTML = "<div class='rectangleRightUp' id='finishRectangle'></div><div class='rectangleRightDown'></div><div class='triangleRight'></div><div id='finishTriangle' class='innerTriangleRight'></div><p id='finishName'><b>"+array[num].name+"</b></p><p id='finishStats'></p><p id='finishLore'></p>"; // construct the information without the values
+	if(array[num].rarity == "common"){ // if the item is a common...
+		document.getElementById("finishName").style.color = "black"; // ...sets the name color to black
+	}else if(array[num].rarity == "unique"){ // if the item is a unique...
+		document.getElementById("finishName").style.color = "orange"; // ...sets the name color to orange
+	}else{ // if the item is a mythic...
+		document.getElementById("finishName").style.color = "purple"; // ...sets the name color to purple
 	}
 	document.getElementById("finishStats").innerHTML = "Tier: "+array[num].tier;
 	for(var i = 0; i < Object.keys(array[num].stats).length; i++){
