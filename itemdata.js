@@ -197,7 +197,7 @@ var items = {
 			obtain: "Recieve as a reward for completing quest: 'To the Logging Camp'",
 			stats: {
 				Defence: 1,
-				Speed: "+25",
+				Walk_Speed: "+25",
 			},
 		},
 		{
