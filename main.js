@@ -412,6 +412,11 @@ class Hero extends Character {
 			y: projectileY,
 			width: 10,
 			height: 40,
+			adjust: {
+				// manually adjust position - make this per class (per projectile image) in the future ( tbd )
+				x: -13,
+				y: 16,
+			},
 			image: "projectile",
 		}));
 	}
@@ -428,6 +433,12 @@ class Projectile extends Character {
 		super(properties);
 		
 		this.expand = 1;
+		
+		// adjust position to make it directed to mouse pointer
+		this.adjust = {
+			x: properties.adjust.x,
+			y: properties.adjust.y,
+		}
 	}
 }
 
@@ -1055,8 +1066,8 @@ Game.render = function () {
 	// draw projectiles
     for(var i = 0; i < this.projectiles.length; i++) {
 		// set screen x and y
-		this.projectiles[i].screenX = (this.projectiles[i].x - this.projectiles[i].width / 2) - this.camera.x;
-		this.projectiles[i].screenY = (this.projectiles[i].y - this.projectiles[i].height / 2) - this.camera.y;
+		this.projectiles[i].screenX = (this.projectiles[i].x - this.projectiles[i].width / 2) - this.camera.x + this.projectiles[i].adjust.x;
+		this.projectiles[i].screenY = (this.projectiles[i].y - this.projectiles[i].height / 2) - this.camera.y + this.projectiles[i].adjust.y;
 		// draw image
         this.ctx.drawImage(
 			this.projectiles[i].image,
