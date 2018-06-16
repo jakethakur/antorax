@@ -1,5 +1,4 @@
-// DOM function arrays
-var Dom = {
+var Dom = { // DOM function arrays
 	elements: {
 		chatPage: document.getElementById("chatPage"),
 		inventoryPage: document.getElementById("inventoryPage"),
@@ -26,10 +25,8 @@ var Dom = {
 	merchant: {},
 	identifier: {},
 };
-Dom.previous = "instructionsPage";
-// change currently displayed page
-// returns if the page was changed or not
-Dom.changeBook = function(page, override, x) {
+Dom.previous = "instructionsPage"; // change currently displayed page
+Dom.changeBook = function(page, override, x) { // returns if the page was changed or not
 	//override says if the function should be run regardless of if the player has a quest active (e.g: declining a quest or closing a merchant)
 	if(this.currentlyDisplayed == "" || override) { // check the player doesn't have a quest active
 		// hide all pages
@@ -94,7 +91,7 @@ Dom.changeBook = function(page, override, x) {
 	}
 }
 
-// update the DOM display of gold (and xp temporarily)
+// update the DOM display of gold and xp
 Dom.inventory.updateGold = function() {
 	for(var i = 0; i < document.getElementsByClassName("goldDisplay").length; i++) {
 		document.getElementsByClassName("goldDisplay")[i].innerText = Player.gold;
@@ -130,6 +127,10 @@ Dom.inventory.changeEquipment = function(array,equipmentType) {
 		Player.inventory.weapon = array;
 		this.displayInformation("325px",Player.inventory.weapon);
 	}
+}
+
+Dom.inventory.stats = function(){
+	document.getElementById("statInfo").innerHTML = "Damage: <br>Defence: <br>Critical Chance: <br>Focus Speed: <br>Health Regen: <br>Looting: <br>Poison: <br>Reflection: <br>Walk Speed: <br>";
 }
 
 var chatPageString = "";
