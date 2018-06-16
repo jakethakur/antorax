@@ -236,8 +236,7 @@ Camera.prototype.update = function () {
     this.x = Math.max(0, Math.min(this.x, this.maxX));
     this.y = Math.max(0, Math.min(this.y, this.maxY));
 
-    // in map corners, the sprite cannot be placed in the center of the screen
-    // and we have to change its screen coordinates
+    // in map corners, the sprite cannot be placed in the center of the screen and we have to change its screen coordinates
 
     // left and right sides
     if (this.following.x < this.width / 2 ||
@@ -401,10 +400,16 @@ class Hero extends Character {
 	// start channeling basic attack
 	startAttack(e) {
 		this.channelling = true;
+		
+		var projectileX, projectileY;
+		
+		projectileX = Game.camera.x + (e.clientX);
+		projectileY = Game.camera.y + (e.clientY);
+
 		Game.projectiles.push(new Projectile({
 			map: map,
-			x: this.x + (e.clientX - 300),
-			y: this.y + (e.clientY - 300),
+			x: projectileX,
+			y: projectileY,
 			width: 39,
 			height: 40,
 			image: "projectile", // make image never unloaded
