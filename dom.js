@@ -130,8 +130,9 @@ Dom.inventory.changeEquipment = function(array,equipmentType) {
 }
 
 Dom.inventory.stats = function(){
-	document.getElementById("statInfo").innerHTML = "Damage: <br>Defence: <br>Critical Chance: <br>Focus Speed: <br>Health Regen: <br>Looting: <br>Poison: <br>Reflection: <br>Walk Speed: <br>";
+	document.getElementById("statInfo").innerHTML = "<strong>Damage: <br>Defence: <br>Critical Chance: <br>Focus Speed: <br>Health Regen: <br>Looting: <br>Poison: <br>Reflection: <br>Walk Speed: </strong>";
 }
+Dom.inventory.stats();
 
 var chatPageString = "";
 var chatPageStringOld = "";

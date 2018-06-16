@@ -265,6 +265,13 @@ body{
 	-ms-user-select: none; /* IE10+/Edge */
 	user-select: none;
 }
+#statInfo{
+	position: absolute;
+	left: 775px;
+	top: 40px;
+	font-size: 20px;
+	line-height: 37px;
+}
 #merchantPageOptions {
 	float: left;
 }
