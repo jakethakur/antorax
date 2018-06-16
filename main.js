@@ -35,7 +35,7 @@ Loader.getImage = function (key) {
 		return this.images[key];
 	}
 	else {
-		console.error("Image " + key + " could not be loaded. Is it misspelt or not loaded in?");
+		console.error("Image " + key + " could not be loaded. Is it misspelt or not already loaded in?");
 		return null;
 	}
 };
@@ -410,9 +410,9 @@ class Hero extends Character {
 			map: map,
 			x: projectileX,
 			y: projectileY,
-			width: 39,
+			width: 10,
 			height: 40,
-			image: "projectile", // make image never unloaded
+			image: "projectile",
 		}));
 	}
 	
@@ -582,10 +582,11 @@ Game.load = function (names, addresses) {
 		// currently doesn't take into account player class
 		toLoad.push(Loader.loadImage("hero", "./assets/player/archer.png"));
 	}
+	
 	// check projectile image has been loaded (if not, then load it)
 	if (!Object.keys(Loader.images).includes("projectile")) {
 		// currently doesn't take into account player class
-		toLoad.push(Loader.loadImage("projectile", "./assets/icons/settings.png"));
+		toLoad.push(Loader.loadImage("projectile", "./assets/projectiles/" + "archer" + ".png"));
 	}
 	
     return toLoad;
@@ -920,7 +921,7 @@ Game.drawHitboxes = function () {
 	// stroke colour
 	this.ctx.strokeStyle="#FF0000";
 	
-	// player hitboxes
+	// player hitbox
 	this.ctx.strokeRect(this.hero.screenX - this.hero.width / 2, this.hero.screenY - this.hero.height / 2, this.hero.width, this.hero.height);
 	
 	// NPC hitboxes
@@ -936,6 +937,11 @@ Game.drawHitboxes = function () {
 	// area teleport hitboxes
 	for(var i = 0; i < this.areaTeleports.length; i++) {
 		this.ctx.strokeRect(this.areaTeleports[i].screenX - this.areaTeleports[i].width / 2, this.areaTeleports[i].screenY - this.areaTeleports[i].height / 2, this.areaTeleports[i].width, this.areaTeleports[i].height);
+	}
+	
+	// projectile hitboxes
+	for(var i = 0; i < this.projectiles.length; i++) {
+		this.ctx.strokeRect(this.projectiles[i].screenX - this.projectiles[i].width / 2, this.projectiles[i].screenY - this.projectiles[i].height / 2, this.projectiles[i].width, this.projectiles[i].height);
 	}
 	
 	// player tile collision hitboxes
@@ -986,24 +992,6 @@ Game.render = function () {
 			this.merchants[i].image,
 			this.merchants[i].screenX - this.merchants[i].width / 2,
 			this.merchants[i].screenY - this.merchants[i].height / 2
-        );
-    }
-	
-	// draw projectiles
-    for(var i = 0; i < this.projectiles.length; i++) {
-		// set screen x and y
-		this.projectiles[i].screenX = (this.projectiles[i].x - this.projectiles[i].width / 2) - this.camera.x;
-		this.projectiles[i].screenY = (this.projectiles[i].y - this.projectiles[i].height / 2) - this.camera.y;
-		//console.log([this.projectiles[i].image,this.projectiles[i].screenX - this.projectiles[i].width / 2,this.projectiles[i].screenY - this.projectiles[i].height / 2,this.projectiles[i].width,this.projectiles[i].height]);
-		// draw image
-        this.ctx.drawImage(
-			this.projectiles[i].image,
-			this.projectiles[i].screenX - this.projectiles[i].width / 2,
-			this.projectiles[i].screenY - this.projectiles[i].height / 2,
-			//this.width * this.expand,
-			//this.height * this.expand
-			this.projectiles[i].width,
-			this.projectiles[i].height
         );
     }
 	
@@ -1063,6 +1051,23 @@ Game.render = function () {
 			this.hero.width, this.hero.height,
 		);
 	}
+	
+	// draw projectiles
+    for(var i = 0; i < this.projectiles.length; i++) {
+		// set screen x and y
+		this.projectiles[i].screenX = (this.projectiles[i].x - this.projectiles[i].width / 2) - this.camera.x;
+		this.projectiles[i].screenY = (this.projectiles[i].y - this.projectiles[i].height / 2) - this.camera.y;
+		// draw image
+        this.ctx.drawImage(
+			this.projectiles[i].image,
+			this.projectiles[i].screenX - this.projectiles[i].width / 2,
+			this.projectiles[i].screenY - this.projectiles[i].height / 2,
+			//this.width * this.expand,
+			//this.height * this.expand
+			this.projectiles[i].width,
+			this.projectiles[i].height
+        );
+    }
 
     // draw map top layer
     //this._drawLayer(1);
