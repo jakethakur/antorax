@@ -289,6 +289,7 @@ var items = {
 			image: "assets/items/sword.png",
 			tier: 1,
 			rarity: "unique",
+			lore: "Not to be mistaken with its Grand Tournament counterpart.",
 			obtain: "Find as an unidentified item in Eaglecrest Logging Camp",
 			area: "Eaglecrest Logging Camp",
 			stats: {
@@ -303,6 +304,7 @@ var items = {
 			image: "assets/items/sword.png",
 			tier: 1,
 			rarity: "unique",
+			lore: "It might be falling apart, but those splinters hurt!",
 			obtain: "Find as an unidentified item in Eaglecrest Logging Camp",
 			area: "Eaglecrest Logging Camp",
 			stats: {
@@ -358,6 +360,7 @@ var items = {
 			image: "assets/items/staff.png",
 			tier: 1,
 			rarity: "unique",
+			lore: "",
 			obtain: "Find as an unidentified item in Eaglecrest Logging Camp",
 			area: "Eaglecrest Logging Camp",
 			stats: {
@@ -372,6 +375,7 @@ var items = {
 			image: "assets/items/staff.png",
 			tier: 1,
 			rarity: "unique",
+			lore: "POWER OVERWHELMING!",
 			obtain: "Find as an unidentified item in Eaglecrest Logging Camp",
 			area: "Eaglecrest Logging Camp",
 			stats: {
@@ -427,6 +431,7 @@ var items = {
 			image: "assets/items/bow.png",
 			tier: 1,
 			rarity: "unique",
+			lore: "",
 			obtain: "Find as an unidentified item in Eaglecrest Logging Camp",
 			area: "Eaglecrest Logging Camp",
 			stats: {
@@ -441,6 +446,7 @@ var items = {
 			image: "assets/items/bow.png",
 			tier: 1,
 			rarity: "unique",
+			lore: "",
 			obtain: "Find as an unidentified item in Eaglecrest Logging Camp",
 			area: "Eaglecrest Logging Camp",
 			stats: {
