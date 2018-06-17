@@ -371,7 +371,7 @@ Dom.merchant.displayInformation = function(y,array,num) { // display merchant in
 }
 Dom.quests.displayInformation = function(num,array,total){ // display quest start information
 	document.getElementById("questInformation").hidden = false; // display quest start information
-	document.getElementById("questInformation").style.top = document.getElementById("questStartGold").getBoundingClientRect().top+"px"; // sets the information's top value to the top value of the gold and xp
+	document.getElementById("questInformation").style.top = array[num].top+"px"; // sets the information's top value to the top value of the image
 	document.getElementById("questInformation").style.left = 780-(total*35)+(num*70) +"px"; // sets the information's left value based on information from the parameter
 	document.getElementById("questInformation").innerHTML = "<div class='rectangleRightUp' id='questRectangle'></div><div class='rectangleRightDown'></div><div class='triangleRight'></div><div id='questTriangle' class='innerTriangleRight'></div><p id='questName'><b>"+array[num].name+"</b></p><p id='questStats'></p><p id='questLore'></p>"; // construct the information without the values
 	if(array[num].rarity == "common"){ // if the item is a common...
@@ -394,8 +394,11 @@ Dom.quests.displayInformation = function(num,array,total){ // display quest star
 }
 Dom.quests.displayFinishInformation = function(num,array,total){ // display quest finish information
 	document.getElementById("questFinishInformation").hidden = false; // display quest start information
-	document.getElementById("questFinishInformation").style.top = document.getElementById("questFinishGold").getBoundingClientRect().top+"px"; // sets the information's top value to the top value of the gold and xp
+	document.getElementById("questInformation").style.top = array[num].top+"px"; // sets the information's top value to the top value of the image
 	document.getElementById("questFinishInformation").style.left = 780-(total*35)+(num*70) +"px"; // sets the information's left value based on the information from the parameter
+	console.log(array);
+	console.log(num);
+	console.log(array[num]);
 	document.getElementById("questFinishInformation").innerHTML = "<div class='rectangleRightUp' id='finishRectangle'></div><div class='rectangleRightDown'></div><div class='triangleRight'></div><div id='finishTriangle' class='innerTriangleRight'></div><p id='finishName'><b>"+array[num].name+"</b></p><p id='finishStats'></p><p id='finishLore'></p>"; // construct the information without the values
 	if(array[num].rarity == "common"){ // if the item is a common...
 		document.getElementById("finishName").style.color = "black"; // ...sets the name color to black
@@ -458,13 +461,13 @@ Dom.quest.start = function(quest) { // display quest start page
 		for(var i = 0; i < quest.objectives.length; i++){ // repeat for all objectives
 			document.getElementById("questStartObjectives").innerHTML += quest.objectives[i] + "<br>"; // adds ovjective to objectives
 		}
-		if(quest.rewards.gold == 0){ // if there is no gold reward...
+		if(quest.rewards.gold == 0 || quest.rewards.gold == undefined){ // if there is no gold reward...
 			document.getElementById("questStartGold").style.display = "none"; // ...do not display gold
 			//document.getElementById("goldClass").style.display = "none";
 		}else{ // if there is a gold reward...
 			document.getElementById("questStartGold").innerHTML = quest.rewards.gold; // ...display the amount of gold inside the gold
 		}
-		if(quest.rewards.xp == 0){ // if there is no xp reward...
+		if(quest.rewards.xp == 0 || quest.rewards.xp == undefined){ // if there is no xp reward...
 			document.getElementById("questStartXP").style.display = "none"; // ...do not display xp
 			//document.getElementById("xpClass").style.display = "none";
 		}else{ // if there is a xp reward...
@@ -490,13 +493,13 @@ Dom.quest.finish = function(quest){ // display quest finish page
 	document.getElementById("questFinishQuest").innerHTML = quest.quest; // sets title to quest name
 	document.getElementById("questFinishName").innerHTML = quest.finishName; // sets NPC name to NPC name
 	document.getElementById("questFinishChat").innerHTML = quest.finishChat; // sets chat to NPC chat
-	if(quest.rewards.gold == 0){ // if the is no gold reward...
+	if(quest.rewards.gold == 0 || quest.rewards.gold == undefined){ // if the is no gold reward...
 		document.getElementById("questFinishGold").style.display = "none"; // ...do not display gold
 		//document.getElementById("goldClass").style.display = "none";
-	}else{ // if there a gold reward...
+	}else{ // if there is a gold reward...
 		document.getElementById("questFinishGold").innerHTML = quest.rewards.gold; // ...display the amount of gold inside the gold
 	}
-	if(quest.rewards.xp == 0){ // if there no xp reward...
+	if(quest.rewards.xp == 0 || quest.rewards.xp == undefined){ // if there is no xp reward...
 		document.getElementById("questFinishXP").style.display = "none"; // ...do not display xp
 		//document.getElementById("xpClass").style.display = "none";
 	}else{ // if there is a xp reward...
@@ -504,71 +507,58 @@ Dom.quest.finish = function(quest){ // display quest finish page
 	}
 	document.getElementById("questFinishItems").innerHTML = ""; // sets the item rewards to none
 	for(var i = 0; i < quest.rewards.items.length; i++){ // repeats for all item rewards
-		document.getElementById("questFinishItems").innerHTML += "<img src=" + quest.rewards.items[i].image + " class='theseQuestOptions'></img>&nbsp;&nbsp;"; //adds item to item rewards
+		document.getElementById("questFinishItems").innerHTML += "<img src=" + quest.rewards.items[i].image + " class='theseQuestFinishOptions'></img>&nbsp;&nbsp;"; //adds item to item rewards
 	}
-	for(let x = 0; x < document.getElementsByClassName("theseQuestOptions").length; x++){ // repeats for all item rewards
-		document.getElementsByClassName("theseQuestOptions")[x].onmouseover = function() { // when the user hovers over the item...
-			Dom.quests.displayFinishInformation(x, quest.rewards.items,document.getElementsByClassName("theseQuestOptions").length); // ...displays the information for that item
+	for(let x = 0; x < document.getElementsByClassName("theseQuestFinishOptions").length; x++){ // repeats for all item rewards
+		document.getElementsByClassName("theseQuestFinishOptions")[x].onmouseover = function() { // when the user hovers over the item...
+			Dom.quests.displayFinishInformation(x, quest.rewards.items,document.getElementsByClassName("theseQuestFinishOptions").length); // ...displays the information for that item
 		};
-		document.getElementsByClassName("theseQuestOptions")[x].onmouseleave = function() { // when the user stops hovering over the item...
+		document.getElementsByClassName("theseQuestFinishOptions")[x].onmouseleave = function() { // when the user stops hovering over the item...
 			Dom.expand("questFinishInformation"); // ...stops displaying the information for that item
-		}
+		};
 	}
 	//Player.gold += parseInt(quest.rewards.gold);
 	Player.gold += quest.rewards.gold; // gives the player the gold reward
 	//Player.xp += parseInt(quest.rewards.xp);
 	Player.xp += quest.rewards.xp // gives the player the xp reward
-	Dom.inventory.updateGold();
-	Dom.quest.give(quest.rewards.items[0]);
-	Dom.currentlyDisplayed = quest;
-	
-	// reputation rewards
-	if(quest.rewards.reputation != undefined) {
-		for(var i = 0; i < Object.keys(quest.rewards.reputation).length; i++) {
-			Player.reputation[Object.keys(quest.rewards.reputation)[i]].score += quest.rewards.reputation[Object.keys(quest.rewards.reputation)[i]];
+	Dom.inventory.updateGold(); // updates the gold and xp display
+	for(var i = 0; i < quest.rewards.items.length; i++){ // repeats for all item rewards
+		Dom.quest.give(quest.rewards.items[i]); // gives the player the reward
+	}
+	Dom.currentlyDisplayed = quest; // sets the currently displayed variable to the quest
+	if(quest.rewards.reputation != undefined) { // reputation rewards
+		for(var i = 0; i < Object.keys(quest.rewards.reputation).length; i++) { // repeats for all reputation rewards
+			Player.reputation[Object.keys(quest.rewards.reputation)[i]].score += quest.rewards.reputation[Object.keys(quest.rewards.reputation)[i]]; // gives the player the reputation reward
 		}
 	}
-	Dom.reputation.update();
+	Dom.reputation.update(); // updates the reputation display
 }
-
-// quest accepted
-Dom.quest.accept = function(){
-	Dom.quests.activeQuests(Dom.currentlyDisplayed);
-	
-	// check if there is a quest start function
-	if (Dom.currentlyDisplayed.onQuestStart != undefined) {
-		Dom.currentlyDisplayed.onQuestStart();
+Dom.quest.accept = function(){ // quest accepted
+	Dom.quests.activeQuests(Dom.currentlyDisplayed); // add the quest to the active quests
+	if (Dom.currentlyDisplayed.onQuestStart != undefined) { // if there is a quest start function...
+		Dom.currentlyDisplayed.onQuestStart(); // ...do it
 	}
-	
-	// switch off quest start screen (and to quest log)
-	Dom.changeBook(Dom.previous, true); // also resets Dom.currentlyDisplayed
+	Dom.changeBook(Dom.previous, true); // change page back to previous page
 }
-
-Dom.quest.acceptRewards = function(){
-	for(var i = 0; i < Dom.quests.activeQuestArray.length; i++){
-		if(Dom.quests.activeQuestArray[i] == Dom.currentlyDisplayed.quest){
-			Dom.quests.activeQuestArray.splice(i,1);
-			Dom.quests.activeQuestUseArray.splice(i,1);
+Dom.quest.acceptRewards = function(){ // quest rewards accepted
+	for(var i = 0; i < Dom.quests.activeQuestArray.length; i++){ // repeats for all active quests
+		if(Dom.quests.activeQuestArray[i] == Dom.currentlyDisplayed.quest){ // if this is the quest you just finished...
+			Dom.quests.activeQuestArray.splice(i,1); // ...remove it from the active quest array...
+			Dom.quests.activeQuestUseArray.splice(i,1); // ...and revove it from the other active quest array
 		}
 	}
-	Dom.quests.completed(Dom.currentlyDisplayed);
-	
-	// check if there is a quest start function
-	if (Dom.currentlyDisplayed.onQuestFinish != undefined) {
-		Dom.currentlyDisplayed.onQuestFinish();
+	Dom.quests.completed(Dom.currentlyDisplayed); // add the quest to the completed quest array
+	if (Dom.currentlyDisplayed.onQuestFinish != undefined) { // if there is a quest start function...
+		Dom.currentlyDisplayed.onQuestFinish(); // ...do it
 	}
-	
-	// switch off quest start screen (and to quest log)
-	Dom.changeBook(Dom.previous, true); // also resets Dom.currentlyDisplayed
-	Dom.quests.activeQuests(undefined);
+	Dom.changeBook(Dom.previous, true); // change back to previous page
+	Dom.quests.activeQuests(undefined); // update the active quest box
 }
-
-Dom.quests.activeQuestArray = [];
-Dom.quests.activeQuestUseArray = [];
-Dom.quests.completedQuestArray = [];
-Dom.quests.questNum = 0;
-Dom.quests.questString = "";
-// change to active
+Dom.quests.activeQuestArray = []; // sets the active quest array to nothing
+Dom.quests.activeQuestUseArray = []; // sets the other active quest array to nothing
+Dom.quests.completedQuestArray = []; // sets the completed quest array to nothing
+Dom.quests.questNum = 0; // sets the quest number to 0
+Dom.quests.questString = ""; // sets the string version of the quest number to nothing
 Dom.quests.activeQuests = function(quest){ // when a quest is started or ended...
 	if(quest != undefined){ // if a quest is started...
 		Dom.quests.activeQuestArray.push(quest.quest); // adds the quest name to the array of active quest names
