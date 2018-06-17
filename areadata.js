@@ -138,12 +138,6 @@ var areas = {
 			},
 		],
 		
-		merchants: [
-		],
-		
-		villagers: [
-		],
-		
 		areaTeleports: [
 			{
 				// teleport to tutorial area (south)
@@ -220,9 +214,6 @@ var areas = {
 				questProgressText: "Girls! Make some room by the hearth, won't ya!",
 				questCompleteText: "Oh ho ho! It's good to see ya again!",
 			},
-		],
-		
-		merchants: [
 		],
 		
 		areaTeleports: [

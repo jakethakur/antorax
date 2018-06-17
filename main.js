@@ -424,10 +424,9 @@ class Hero extends Character {
 			rotate: projectileRotate,
 			adjust: {
 				// manually adjust position - make this per class (per projectile image) in the future ( tbd )
-				//x: -13,
-				//y: 16,
-				x: 0,
+				x: -13,
 				y: 0,
+				//y: 16,
 			},
 			image: "projectile",
 		}));
@@ -648,32 +647,43 @@ Game.loadArea = function (areaName, destination) {
 		
 		// quest npcs
 		this.questNPCs = [];
-		for(var i = 0; i < areas[areaName].questNPCs.length; i++) {
-			areas[areaName].questNPCs[i].map = map;
-			this.questNPCs.push(new QuestNPC(areas[areaName].questNPCs[i]));
+		if(areas[areaName].questNPCs !== undefined) { // check they exist in areadata.js
+			for(var i = 0; i < areas[areaName].questNPCs.length; i++) {
+				areas[areaName].questNPCs[i].map = map;
+				this.questNPCs.push(new QuestNPC(areas[areaName].questNPCs[i]));
+			}
 		}
 		
 		// merchants
 		this.merchants = [];
-		for(var i = 0; i < areas[areaName].merchants.length; i++) {
-			areas[areaName].merchants[i].map = map;
-			this.merchants.push(new Merchant(areas[areaName].merchants[i]));
+		if(areas[areaName].merchants !== undefined) {
+			for(var i = 0; i < areas[areaName].merchants.length; i++) {
+				areas[areaName].merchants[i].map = map;
+				this.merchants.push(new Merchant(areas[areaName].merchants[i]));
+			}
 		}
 		
-		// villagers
+		// villagers (currently broken)
 		this.villagers = [];
-		for(var i = 0; i < areas[areaName].villagers.length; i++) {
-			areas[areaName].villagers[i].map = map;
-			this.villagers.push(new Villager(areas[areaName].villagers[i]));
+		if(areas[areaName].questNPCs !== undefined) {
+			for(var i = 0; i < areas[areaName].villagers.length; i++) {
+				areas[areaName].villagers[i].map = map;
+				this.villagers.push(new Villager(areas[areaName].villagers[i]));
+			}
 		}
 		
 		this.projectiles = [];
 		
 		// area teleports
 		this.areaTeleports = [];
-		for(var i = 0; i < areas[areaName].areaTeleports.length; i++) {
-			areas[areaName].areaTeleports[i].map = map;
-			this.areaTeleports.push(new AreaTeleport(areas[areaName].areaTeleports[i]));
+		if(areas[areaName].questNPCs !== undefined) {
+			for(var i = 0; i < areas[areaName].areaTeleports.length; i++) {
+				areas[areaName].areaTeleports[i].map = map;
+				this.areaTeleports.push(new AreaTeleport(areas[areaName].areaTeleports[i]));
+			}
+		}
+		else {
+			console.warn("This area has no areaTeleports in areaData... Help...");
 		}
 		
 		// init game (if it hasn't been done so already)
