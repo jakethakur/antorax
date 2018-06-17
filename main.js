@@ -406,10 +406,11 @@ class Hero extends Character {
 	startAttack(e) {
 		this.channelling = true;
 		
-		var projectileX, projectileY;
+		var projectileX, projectileY, projectileRotate;
 		
 		projectileX = Game.camera.x + (e.clientX);
 		projectileY = Game.camera.y + (e.clientY);
+		projectileRotate = Math.atan((this.x - projectileX) / (this.y - projectileY));
 
 		Game.projectiles.push(new Projectile({
 			map: map,
@@ -417,6 +418,7 @@ class Hero extends Character {
 			y: projectileY,
 			width: 10,
 			height: 40,
+			rotate: projectileRotate,
 			adjust: {
 				// manually adjust position - make this per class (per projectile image) in the future ( tbd )
 				x: -13,
@@ -438,6 +440,8 @@ class Projectile extends Character {
 		super(properties);
 		
 		this.expand = 1;
+		
+		this.rotate = properties.rotate;
 		
 		// adjust position to make it directed to mouse pointer
 		this.adjust = {
@@ -1089,6 +1093,8 @@ Game.render = function () {
 		// set screen x and y
 		this.projectiles[i].screenX = (this.projectiles[i].x - this.projectiles[i].width / 2) - this.camera.x + this.projectiles[i].adjust.x;
 		this.projectiles[i].screenY = (this.projectiles[i].y - this.projectiles[i].height / 2) - this.camera.y + this.projectiles[i].adjust.y;
+		// temporarily rotate canvas to projectile rotation
+		this.ctx.rotate(this.projectiles[i].rotate);
 		// draw image
         this.ctx.drawImage(
 			this.projectiles[i].image,
@@ -1118,8 +1124,6 @@ Game.render = function () {
     if(document.getElementById("coordsOn").checked) {
 		this.coordinates(this.hero);
     }
-	
-	// DANGER POINT! the canvas text formatting changes below this line...
 	
 	// display area name (if the player has just gone to a new area)
 	if (this.displayAreaName.duration > 0) {
