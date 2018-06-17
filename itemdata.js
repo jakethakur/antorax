@@ -197,7 +197,7 @@ var items = {
 			obtain: "Recieve as a reward for completing quest: 'To the Logging Camp'",
 			stats: {
 				Defence: 1,
-				Walk_Speed: "+25",
+				Walk_Speed: "+25/s",
 			},
 		},
 		{
@@ -294,7 +294,7 @@ var items = {
 			area: "Eaglecrest Logging Camp",
 			stats: {
 				Damage: 3,
-				Poison: "1/1s",
+				Poison: "+1/1s",
 			},
 		},
 		{

@@ -16,7 +16,6 @@ input[type=number]::-webkit-inner-spin-button{
 	width: 35px;
 }
 #table{
-	width: 500px;
 	position: absolute;
 	left: 600px;
 }

@@ -21,6 +21,19 @@ var Dom = { // DOM function arrays
 	quest: {}, // variables to do with quest are defined as Dom.quest.varName
 	merchant: {}, // variables to do with merchant are defined as Dom.merchant.varName
 	identifier: {}, // variables to do with identifier are defined as Dom.identifier.varName
+	stats: { // variables to do with stats are defined as Dom.stats.varName
+		damage: 0,
+		defence: 0,
+		critical_chance: 1,
+		focus_speed: 1,
+		health_regen: 2,
+		looting: 50,
+		poisonX: 0,
+		poisonY: 0,
+		reflection: 0,
+		swim_speed: 64,
+		walk_speed: 172,
+	},
 };
 Dom.previous = "instructionsPage"; // change currently displayed page
 Dom.changeBook = function(page, override, x) { // changes the page or changes the color of close buttons
@@ -114,7 +127,16 @@ Dom.inventory.changeEquipment = function(array,equipmentType) { // change which 
 	}
 }
 Dom.inventory.stats = function(){ // updates the stats displayed in your inventory
-	document.getElementById("statInfo").innerHTML = "<strong>Damage: <br>Defence: <br>Critical Chance: <br>Focus Speed: <br>Health Regen: <br>Looting: <br>Poison: <br>Reflection: <br>Walk Speed: </strong>"; // sets the stats in your inventory
+	document.getElementById("statInfo").innerHTML = "Damage: " + Dom.stats.damage;
+	document.getElementById("statInfo").innerHTML += "<br>Defence: " + Dom.stats.defence;
+	document.getElementById("statInfo").innerHTML += "<br>Critical Chance: " + Dom.stats.critical_chance + "%";
+	document.getElementById("statInfo").innerHTML += "<br>Focus Speed: " + Dom.stats.focus_speed;
+	document.getElementById("statInfo").innerHTML += "<br>Health Regen: " + Dom.stats.health_regen + "/s";
+	document.getElementById("statInfo").innerHTML += "<br>Looting: " + Dom.stats.looting + "%";
+	document.getElementById("statInfo").innerHTML += "<br>Poison: " + Dom.stats.poisonX + "/" + Dom.stats.poisonY + "s";
+	document.getElementById("statInfo").innerHTML += "<br>Reflection: " + Dom.stats.reflection + "%";
+	document.getElementById("statInfo").innerHTML += "<br>Swim Speed: " + Dom.stats.swim_speed + "/s";
+	document.getElementById("statInfo").innerHTML += "<br>Walk Speed: " + Dom.stats.walk_speed + "/s";
 }
 Dom.inventory.stats(); // calls the function to display stats in your inventory
 Dom.chat.newString = ""; // sets the new chat to nothing
@@ -371,7 +393,7 @@ Dom.merchant.displayInformation = function(y,array,num) { // display merchant in
 }
 Dom.quests.displayInformation = function(num,array,total){ // display quest start information
 	document.getElementById("questInformation").hidden = false; // display quest start information
-	document.getElementById("questInformation").style.top = array[num].top+"px"; // sets the information's top value to the top value of the image
+	document.getElementById("questInformation").style.top = document.getElementsByClassName("theseQuestOptions")[num].getBoundingClientRect().top+"px"; // sets the information's top value to the top value of the image
 	document.getElementById("questInformation").style.left = 780-(total*35)+(num*70) +"px"; // sets the information's left value based on information from the parameter
 	document.getElementById("questInformation").innerHTML = "<div class='rectangleRightUp' id='questRectangle'></div><div class='rectangleRightDown'></div><div class='triangleRight'></div><div id='questTriangle' class='innerTriangleRight'></div><p id='questName'><b>"+array[num].name+"</b></p><p id='questStats'></p><p id='questLore'></p>"; // construct the information without the values
 	if(array[num].rarity == "common"){ // if the item is a common...
@@ -394,7 +416,7 @@ Dom.quests.displayInformation = function(num,array,total){ // display quest star
 }
 Dom.quests.displayFinishInformation = function(num,array,total){ // display quest finish information
 	document.getElementById("questFinishInformation").hidden = false; // display quest start information
-	document.getElementById("questInformation").style.top = array[num].top+"px"; // sets the information's top value to the top value of the image
+	document.getElementById("questFinishInformation").style.top = document.getElementsByClassName("theseQuestFinishOptions")[num].getBoundingClientRect().top+"px"; // sets the information's top value to the top value of the image
 	document.getElementById("questFinishInformation").style.left = 780-(total*35)+(num*70) +"px"; // sets the information's left value based on the information from the parameter
 	console.log(array);
 	console.log(num);
@@ -587,7 +609,6 @@ Dom.quests.activeQuests = function(quest){ // when a quest is started or ended..
 		document.getElementById("activeQuestBox").innerText = "You have no active quests"; // write "you have no active quests"
 	}
 }
-
 Dom.quests.completedQuestNum = 0; // sets the number of completed quests to 0
 Dom.quests.completedQuestString = ""; // sets the height of the box to 0
 Dom.quests.completed = function(quest){ // when a quest is completed...
@@ -605,7 +626,6 @@ Dom.quests.completed = function(quest){ // when a quest is completed...
 		document.getElementById("activeQuestBox").style.height = "40px"; // ...its height is set to 40px
 	}
 }
-
 Dom.merchant.page = function(title,greeting,options){ // merchant page
 	Dom.changeBook("merchantPage", false); // changes the page to the merchant page
 	Dom.currentlyDisplayed = title; // sets the currently displayed variable to the merchant's name
@@ -632,7 +652,6 @@ Dom.merchant.page = function(title,greeting,options){ // merchant page
 		}
 	}
 }
-
 Dom.merchant.buy = function(item){ // buy item from merchant
 	if(Player.gold >= item.cost){ // if they have an enough gold...
 		Player.gold -= item.cost; // takes the amount of gold from the player
@@ -644,8 +663,7 @@ Dom.merchant.buy = function(item){ // buy item from merchant
 		alert("You don't have sufficient funds to buy that item."); // alert them that they don't have enough gold
 	}
 }
-Dom.identifier.displayed = Player.inventory.unId.length-1; // set the currently displayed item in the identifier to the latest one
-	
+Dom.identifier.displayed = Player.inventory.unId.length-1; // set the currently displayed item in the identifier to the latest one	
 Dom.identifier.left = function(chat, chat1, chat2, chat3, over){ // code called on clicking the left arrow to change the displayed item to the previous item
 	if(Dom.identifier.displayed != 0){ // checks if the currently displayed item is the first in the array
 		Dom.identifier.displayed--; // sets the currently displayed item to the previous item
@@ -654,7 +672,6 @@ Dom.identifier.left = function(chat, chat1, chat2, chat3, over){ // code called 
 	}
 	Dom.identifier.page(chat, chat1, chat2, chat3, over); // opens and updates the identifier page
 }
-
 Dom.identifier.right = function(chat, chat1, chat2, chat3, over){ // this code is not important
 	if(Dom.identifier.displayed != Player.inventory.unId.length-1){ // checks if the currently displayed item is the last in the array
 		Dom.identifier.displayed++; // sets the currently displayed item to the next item
@@ -663,20 +680,11 @@ Dom.identifier.right = function(chat, chat1, chat2, chat3, over){ // this code i
 	}
 	Dom.identifier.page(chat, chat1, chat2, chat3, over); // opens and updates the identifier page
 }
-
 Dom.identifier.page = function(chat, chat1, chat2, chat3, over){ // identifier page
 	Dom.changeBook("identifierPage", over); // changes page to identifier
 	Dom.currentlyDisplayed = "identifier"; // sets the currently displayed page variable to identifier
 	Dom.changeBook("identifierPage", false, 1); // stops close button being red
-	if(chat != undefined){
-		document.getElementById("identifierPageChat").innerHTML = chat; // sets the greeting to the parameter (chat)
-	}
-	document.getElementById("identifierPageOption").onmouseover = function(){ // when the player hovers over the item...
-	}
-	document.getElementById("identifierPageOption").onmouseleave = function(){ // when the player stops hovering over the item...
-	}
-	document.getElementById("identifierPageBuy").onclick = function(){ // when the player clicks identify...
-	}
+	document.getElementById("identifierPageChat").innerHTML = chat; // sets the greeting to the parameter (chat)
 	if(Player.inventory.unId.length != 0){ // checks if the player has any unIDed items
 		document.getElementById("identifierPageOption").innerHTML = "<img src=" + Player.inventory.unId[Dom.identifier.displayed].image + " class='theseOptions' style='padding: 0px; margin: 0px; border: 5px solid #886622; height: 50px; width: 50px;'></img>"; // sets the image to the selected item
 		document.getElementById("identifierPageOption").onmouseover = function(){ // when the player hovers over the item...
@@ -688,28 +696,24 @@ Dom.identifier.page = function(chat, chat1, chat2, chat3, over){ // identifier p
 		document.getElementById("identifierPageBuy").onclick = function(){ // when the player clicks identify...
 			Dom.identifier.identify(chat,chat1,chat2,chat3); // ...it calls the identify function (below)
 		}
-	}else{
+	}else{ // if the player has on unIDed items...
 		document.getElementById("identifierPageOption").innerHTML = "<img class='theseOptions' style='background-color: #fef9b4; border: 5px solid #886622; height: 50px; width: 50px;'></img>"; // sets the image to empty
 	}
 	document.getElementById("leftArrow").style.top = document.getElementById("identifierPageOption").getBoundingClientRect().top - 32 +"px"; // sets the left arrows position to the same height as the image
 	document.getElementById("leftArrow").style.left = document.getElementById("identifierPageOption").getBoundingClientRect().left - 31 +"px"; // sets the left arrows position to left of the image
 	document.getElementById("leftArrow").onclick = function(){ // when the player clicks on the left arrow...
 		Dom.identifier.left(chat, chat1, chat2, chat3); // ...it changes the selected item to the previous unIDed item
-		// at the end of the function it calls Dom.identifier.page and that is when the code breaks
 	}
 	document.getElementById("rightArrow").style.top = document.getElementById("identifierPageOption").getBoundingClientRect().top - 32 +"px"; // sets the right arrows position to the same height as the image
 	document.getElementById("rightArrow").style.left = document.getElementById("identifierPageOption").getBoundingClientRect().left + 71 +"px"; // sets the right arrows position to right of the image
 	document.getElementById("rightArrow").onclick = function(){ // when the player clicks in the right arrow...
 		Dom.identifier.right(chat, chat1, chat2, chat3); // it changes the selected item to the next unIDed item
-		// this function does not work yet but does not cause the error.
 	}
 	document.getElementById("identifierPageBuy").innerHTML = "Identify for: "+"1"+" gold"; // sets the text inside the identify button
 }
-
-setTimeout(function(){ // wait for timeout
+setTimeout(function(){ // waits 100
 	Dom.identifier.page("What would you like to identify?","Here is your item, adventurer", "Some people would pay good money for that item", "Wow! A Mythic"); // opens and updates the identifier page
-},100); // wait 100
-
+},100); // waits 0.1 seconds
 Dom.quest.give = function(item){ // gives the player the item
 	if(item.type == "helm"){Player.inventory.helm.push(item);} // adds the helm to the players helm array
 	if(item.type == "chest"){Player.inventory.chest.push(item);} // adds the chest to the players chest array
@@ -717,7 +721,6 @@ Dom.quest.give = function(item){ // gives the player the item
 	if(item.type == "boots"){Player.inventory.boots.push(item);} // adds the boots to the players boots array
 	if(item.type == "sword" || item.type == "staff" || item.type == "bow" || item.type == "rod"){Player.inventory.weapon.push(item);} // adds the weapon to the players weapons arary
 }
-
 Dom.quests.allQuestNum = 18; // sets the box height...
 Dom.quests.allQuestString = ""; // ...to one line
 for(var i = 0; i < Object.keys(quests).length; i++){ // repeats this code for each area
@@ -732,7 +735,6 @@ for(var i = 0; i < Object.keys(quests).length; i++){ // repeats this code for ea
 		document.getElementById("allQuestBox").style.height = Dom.quests.allQuestString; // ...of the box
 	}
 }
-
 function unIdConstruct(area,tier){ // constructs an unidentified item when you kill an enemy
 	this.area = area; // sets the item's area to the area you are in
 	this.tier = tier; // sets the item's tier to the tier of the enemy
@@ -749,10 +751,10 @@ function unIdConstruct(area,tier){ // constructs an unidentified item when you k
 		this.rarity = "mythic"; // ...mythic
 	}
 }
-
 Dom.identifier.identify = function(chat, chat1, chat2, chat3){ // the page that you go to when you click "identify for 1 gold"
-	if(Player.gold >= 1){
-		Player.gold--;
+	if(Player.gold >= 1){ // if the player can afford the item
+		Player.gold--; // take the money from the player
+		Dom.inventory.updateGold(); // update the gold display
 		Dom.changeBook("identifiedPage",true); // changed page to the identified page
 		Dom.currentlyDisplayed = "identified"; // sets the currently displayed page variable to identified
 		Dom.identifier.array = []; // sets the possible items to none
@@ -782,7 +784,7 @@ Dom.identifier.identify = function(chat, chat1, chat2, chat3){ // the page that 
 			Dom.identifier.left(chat, chat1, chat2, chat3, true); // ...the page goes back to the normal identifier
 		}
 		Player.inventory.unId.splice(Dom.identifier.displayed, 1); // removes from the array of unidentified items
-	}else{
-		alert("You don't have sufficient funds to buy that item."); // alert them that they don't have enough gold
+	}else{ // if the player can't afford the item
+ 		alert("You don't have sufficient funds to buy that item."); // alert them that they don't have enough gold
 	}
 }

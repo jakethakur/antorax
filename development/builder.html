@@ -2,6 +2,10 @@
 <link rel="icon" type="image/png" href="../assets/icons/favicon-32x.png" sizes="32x32" />
 <link rel="icon" type="image/png" href="../assets/icons/favicon-16x.png" sizes="16x16" />
 <table id="table">
+	<col width="200">
+	<col width="200">
+	<col width="200">
+	<col width="200">
 	<tr>
 		<th>Javascript</th>
 		<th>What it does</th> 
@@ -14,20 +18,15 @@
 		<td>1% (tbc)</td>
 	</tr>
 	<tr>
+		<td>Focus_Speed: "+x"</td>
+		<td><strong>Archers only</strong>. Increases the speed that the archer can focus their shots.</td>
+		<td>1 (takes 3 seconds to fully focus) (tbc)</td>
+	</tr>
+	<tr>
 		<td>Health_Regen: "+x/s"</td>
 		<td>Changes rate of health regeneration (in health per second). Health is out of 100.</td>
 		<td>2/s (tbc - maybe 1/s?)</td>
 		<td>Shouldn't normally be above 5/s, as this removes a need for the player to eat.</td>
-	</tr>
-	<tr>
-		<td>Walk_Speed: "+x"</td>
-		<td>Changes player's movement speed <strong>on land</strong>. Measured in pixels per second (one tile = 60 pixels).</td>
-		<td>172</td>
-	</tr>
-	<tr>
-		<td>Poison: "x/ys"</td>
-		<td><strong>Weapons only</strong>. Deals bonus damage to the enemy (x) over a time period (y). E.g: 4/2s deals 2 damage per second for 2 seconds.</td>
-		<td>0</td>
 	</tr>
 	<tr>
 		<td>Looting: "+x%"</td>
@@ -35,14 +34,24 @@
 		<td>50% (tbc)</td>
 	</tr>
 	<tr>
-		<td>Focus_Speed: "+x"</td>
-		<td><strong>Archers only</strong>. Increases the speed that the archer can focus their shots.</td>
-		<td>1 (takes 3 seconds to fully focus) (tbc)</td>
+		<td>Poison: "+x/ys"</td>
+		<td><strong>Weapons only</strong>. Deals bonus damage to the enemy (x) over a time period (y). E.g: 4/2s deals 2 damage per second for 2 seconds.</td>
+		<td>0/0s</td>
 	</tr>
 	<tr>
 		<td>Reflection: "+x%"</td>
 		<td>Changes the amount of damage dealt back to enemies when you are attacked, as a percentage of the damage that they deal to you.</td>
-		<td>0</td>
+		<td>0%</td>
+	</tr>
+	<tr>
+		<td>Swim_Speed: "+x/s"</td>
+		<td>Changes player's movement speed <strong>in water</strong>. Measured in pixels per second (one tile = 60 pixels).</td>
+		<td>64/s (tbc maybe 60/s)</td>
+	</tr>
+	<tr>
+		<td>Walk_Speed: "+x/s"</td>
+		<td>Changes player's movement speed <strong>on land</strong>. Measured in pixels per second (one tile = 60 pixels).</td>
+		<td>172/s (tbc maybe 180/s)</td>
 	</tr>
 </table>
 Name: <input type="text" id="name" placeholder="Bob's Mythic Bow">
