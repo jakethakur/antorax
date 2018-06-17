@@ -268,12 +268,14 @@ function random(minimum, maximum) {
 // returns answer in radians
 // from https://github.com/jakethakur22/AUV-Project/blob/master/gps/distance-and-bearing.js
 function bearing(obj1, obj2) {
+	return Math.atan2(obj2.x - obj1.x, obj1.y - obj2.y)
+	/*
 	var y = Math.sin(obj2.x - obj1.x) * Math.cos(obj2.y);
 	var x = Math.cos(obj1.y) * Math.sin(obj2.y) -
 			Math.sin(obj1.y) * Math.cos(obj2.y) * Math.cos(obj2.x - obj1.x);
   
 	var bearing = Math.atan2(y, x);
-	return bearing;
+	return bearing;*/
 }
 
 //
@@ -410,7 +412,8 @@ class Hero extends Character {
 		
 		projectileX = Game.camera.x + (e.clientX);
 		projectileY = Game.camera.y + (e.clientY);
-		projectileRotate = Math.atan((this.x - projectileX) / (this.y - projectileY));
+		projectileRotate = bearing(this, {x: projectileX, y: projectileY});
+		console.log(projectileRotate / Math.PI * 180);
 
 		Game.projectiles.push(new Projectile({
 			map: map,
@@ -421,8 +424,10 @@ class Hero extends Character {
 			rotate: projectileRotate,
 			adjust: {
 				// manually adjust position - make this per class (per projectile image) in the future ( tbd )
-				x: -13,
-				y: 16,
+				//x: -13,
+				//y: 16,
+				x: 0,
+				y: 0,
 			},
 			image: "projectile",
 		}));
@@ -993,6 +998,26 @@ Game.resetFormatting = function () {
 	//console.log(this.ctx.font);
 }
 
+// draw a rotated image (rotated in radians)
+// source: https://stackoverflow.com/a/11985464/9713957 --- thank you! <3
+Game.drawImageRotated = function (img, x, y, width, height, rad) {
+    // convert degrees to radian 
+    //var rad = deg * Math.PI / 180;
+
+    // set the origin to the center of the image
+    this.ctx.translate(x + width / 2, y + height / 2);
+
+    // rotate the canvas around the origin
+    this.ctx.rotate(rad);
+
+    // draw the image
+    this.ctx.drawImage(img,width / 2 * (-1),height / 2 * (-1),width,height);
+
+    // reset the canvas  
+    this.ctx.rotate(rad * ( -1 ) );
+    this.ctx.translate((x + width / 2) * (-1), (y + height / 2) * (-1));
+}
+
 // draw images on canvas
 Game.render = function () {
 	// reset text formatting (currntly done in individual functions)
@@ -1093,8 +1118,19 @@ Game.render = function () {
 		// set screen x and y
 		this.projectiles[i].screenX = (this.projectiles[i].x - this.projectiles[i].width / 2) - this.camera.x + this.projectiles[i].adjust.x;
 		this.projectiles[i].screenY = (this.projectiles[i].y - this.projectiles[i].height / 2) - this.camera.y + this.projectiles[i].adjust.y;
-		// temporarily rotate canvas to projectile rotation
+		
+		this.drawImageRotated(
+			this.projectiles[i].image,
+			this.projectiles[i].screenX - this.projectiles[i].width / 2,
+			this.projectiles[i].screenY - this.projectiles[i].height / 2,
+			this.projectiles[i].width,
+			this.projectiles[i].height,
+			this.projectiles[i].rotate
+		);
+		
+		/*this.ctx.translate(this.projectiles[i].screenX - this.projectiles[i].width / 2, this.projectiles[i].screenY - this.projectiles[i].height / 2);
 		this.ctx.rotate(this.projectiles[i].rotate);
+		
 		// draw image
         this.ctx.drawImage(
 			this.projectiles[i].image,
@@ -1105,6 +1141,9 @@ Game.render = function () {
 			this.projectiles[i].width,
 			this.projectiles[i].height
         );
+		
+		this.ctx.rotate(-this.projectiles[i].rotate);
+		this.ctx.translate(-this.projectiles[i].screenX + this.projectiles[i].width / 2, -this.projectiles[i].screenY + this.projectiles[i].height / 2);*/
     }
 
     // draw map top layer
