@@ -1,5 +1,13 @@
 var areas = {
+	
 	tutorial: {
+		
+		data: {
+			name: "Fisher's Valley",
+			level: "Level 1 - 5",
+			territory: "Neutral territory",
+		},
+		
 		questNPCs: [
 			{
 				x: 2070,
@@ -105,6 +113,12 @@ var areas = {
 	
 	eaglecrestLoggingCamp: {
 		
+		data: {
+			name: "Eaglecrest Logging Camp",
+			level: "Level 1 - 5",
+			territory: "Allied territory",
+		},
+		
 		questNPCs: [
 			{
 				x: 500,
@@ -177,10 +191,17 @@ var areas = {
 				"./assets/npcs/teper.png",
 			],
 		},
+		
 	},
 	
 	
 	tavern: {
+		
+		data: {
+			name: "Treefeller's Tavern",
+			level: "",
+			territory: "",
+		},
 		
 		questNPCs: [
 			{
@@ -240,5 +261,7 @@ var areas = {
 				"./assets/npcs/innkeeper.png",
 			],
 		},
+		
 	},
+	
 };

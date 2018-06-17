@@ -105,6 +105,7 @@ var Game = {questNPCs: [], merchants: [], areaTeleports: []};
 //run game
 Game.run = function (context) {
     this.ctx = context;
+	
     this._previousElapsed = 0;
 
     this.loadArea("tutorial", undefined);
@@ -127,6 +128,10 @@ Game.tick = function (elapsed) {
 	
 	this.update(delta); //update game state
 	this.render(); //render game display
+	
+	
+	// reset text formatting
+	this.resetFormatting();
 	
 	// display delta time (debug)
 	//this.ctx.fillText("delta: " + Math.round(delta * 1000) / 1000, 10, 30);
@@ -673,8 +678,9 @@ Game.loadArea = function (areaName, destination) {
 			this.hero.y = destination.y;
 		}
 		
-        //window.requestAnimationFrame(this.tick);
-		
+		// display area name
+		this.displayAreaName = areas[areaName].data;
+		this.displayAreaName.duration = 200;
     }.bind(this));
 	
 }
@@ -698,8 +704,8 @@ Game.init = function () {
 		width: 57,
 		height: 120,
 		image: "hero",
-		baseSpeed: 172, // base pixels per second
-		waterSpeed: 64, // speed when in water
+		baseSpeed: 180, // base pixels per second
+		waterSpeed: 60, // speed when in water
 	});
 		
 	// player attack on click
@@ -966,13 +972,28 @@ Game.drawHitboxes = function () {
 
 }
 
+// display coordinates on canvas (settings option)
 Game.coordinates = function (character) {
+	// reset text formatting
+	this.resetFormatting();
+	
 	this.ctx.fillText("x: " + Math.round(character.x), 10, 20);
 	this.ctx.fillText("y: " + Math.round(character.y), 10, 30);
 }
 
+// reset text formatting
+Game.resetFormatting = function () {
+	this.ctx.textAlign = "left";
+	this.ctx.fillStyle = "rgba(0, 0, 0, 1)";
+	this.ctx.font = "10px MedievalSharp"; // maybe serif instead?
+	//console.log(this.ctx.font);
+}
+
 // draw images on canvas
 Game.render = function () {
+	// reset text formatting (currntly done in individual functions)
+	//this.resetFormatting();
+	
     // draw map background layer
     //if (this.hasScrolled) {
 	this._drawLayer(0);
@@ -1097,4 +1118,22 @@ Game.render = function () {
     if(document.getElementById("coordsOn").checked) {
 		this.coordinates(this.hero);
     }
+	
+	// DANGER POINT! the canvas text formatting changes below this line...
+	
+	// display area name (if the player has just gone to a new area)
+	if (this.displayAreaName.duration > 0) {
+		// formatting
+		this.ctx.fillStyle = "rgba(0, 0, 0, " + this.displayAreaName.duration / 100 + ")";
+		this.ctx.textAlign="center";
+		this.ctx.font = "48px MedievalSharp";
+		
+		this.ctx.fillText(this.displayAreaName.name, 300, 100); // area name
+		
+		this.ctx.font = "28px MedievalSharp";
+		this.ctx.fillText(this.displayAreaName.level, 300, 150); // area level
+		this.ctx.fillText(this.displayAreaName.territory, 300, 180); // area territory (hostile, neutral, allied, etc.)
+		
+		this.displayAreaName.duration--;
+	}
 };
