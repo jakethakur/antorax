@@ -663,20 +663,30 @@ Game.loadArea = function (areaName, destination) {
 			}
 		}
 		
+		// item identifiers
+		this.identifiers = [];
+		if(areas[areaName].identifiers !== undefined) {
+			for(var i = 0; i < areas[areaName].identifiers.length; i++) {
+				areas[areaName].identifiers[i].map = map;
+				this.identifiers.push(new Character(areas[areaName].identifiers[i]));
+			}
+		}
+		
 		// villagers (currently broken)
 		this.villagers = [];
-		if(areas[areaName].questNPCs !== undefined) {
+		if(areas[areaName].villagers !== undefined) {
 			for(var i = 0; i < areas[areaName].villagers.length; i++) {
 				areas[areaName].villagers[i].map = map;
 				this.villagers.push(new Villager(areas[areaName].villagers[i]));
 			}
 		}
 		
+		// projectiles
 		this.projectiles = [];
 		
 		// area teleports
 		this.areaTeleports = [];
-		if(areas[areaName].questNPCs !== undefined) {
+		if(areas[areaName].areaTeleports !== undefined) {
 			for(var i = 0; i < areas[areaName].areaTeleports.length; i++) {
 				areas[areaName].areaTeleports[i].map = map;
 				this.areaTeleports.push(new AreaTeleport(areas[areaName].areaTeleports[i]));
