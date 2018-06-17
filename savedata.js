@@ -51,7 +51,7 @@ var Player = {
 				rarityNum: 2,
 			},
 			{
-				image: "assets/items/sword.png",
+				image: "assets/items/sword/2.png",
 				tier:1,
 				type:"sword",
 				typeNum: 4,

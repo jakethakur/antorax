@@ -781,7 +781,7 @@ function unIdConstruct(area,tier){ // constructs an unidentified item when you k
 	var types = ["Helm","Chest","Greaves","Boots","Sword","Staff","Bow"]; // an array of types of weapon/armour
 	this.typeNum = Math.floor(Math.random()*7); // a random number between 0 and 7...
 	this.type = types[typeNum]; // ...used to choose a random category (e.g. bow)
-	this.image = "'assets/items/"+this.type+".png'"; // sets the item's image to the default for its category (e.g. basic bow)
+	this.image = "'assets/items/"+this.type+"/2.png'"; // sets the item's image to the default for its category (e.g. basic bow)
 	this.rarityNum = Math.floor(Math.random()*25); // a random number between 0 and 25
 	if(this.rarityNum < 18){ // 18/25 chance that the item is a...
 		this.rarity = "common"; // ...common
