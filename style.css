@@ -271,6 +271,10 @@ body{
 	top: 40px;
 	font-size: 20px;
 	line-height: 34px;
+	-webkit-user-select: none; /* Safari */        
+	-moz-user-select: none; /* Firefox */
+	-ms-user-select: none; /* IE10+/Edge */
+	user-select: none;
 }
 #merchantPageOptions {
 	float: left;

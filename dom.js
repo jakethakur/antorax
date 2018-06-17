@@ -21,20 +21,22 @@ var Dom = { // DOM function arrays
 	quest: {}, // variables to do with quest are defined as Dom.quest.varName
 	merchant: {}, // variables to do with merchant are defined as Dom.merchant.varName
 	identifier: {}, // variables to do with identifier are defined as Dom.identifier.varName
-	stats: { // variables to do with stats are defined as Dom.stats.varName
-		damage: 0,
-		defence: 0,
-		critical_chance: 1,
-		focus_speed: 1,
-		health_regen: 2,
-		looting: 50,
-		poisonX: 0,
-		poisonY: 0,
-		reflection: 0,
-		swim_speed: 64,
-		walk_speed: 172,
-	},
 };
+
+var Stats = { // variables to do with stats are defined as Stats.varName
+	Damage: 0, // the user's total damage default is 0 but can be changed by weapons
+	Defence: 0, // the user's total defence default is 0 but can be changed by armour
+	Critical_Chance: 1, // the user's total critical chance default is 1 but can be changed by armour or weapons
+	Focus_Speed: 1, // the user's total focus speed default is 1 but can be changed by bows
+	Health_Regen: 2, // the user's total health regen default is 2 but can be changed by armour or weapons
+	Looting: 50, // the user's total looting default is 50 but can be changed by armour or weapons
+	PoisonX: 0, // the user's total posion default is 0 damage...
+	PoisonY: 0, // ...over 0 seconds but can be changed by armour or weapons
+	Reflection: 0, // the user's total looting default is 0 but can be changed by armour or weapons
+	Swim_Speed: 60, // the user's total swim speed default is 60 but can be changed by armour or weapons
+	Walk_Speed: 180, // the user's total walk speed default is 180 but can be changed by armour or weapons
+};
+
 Dom.previous = "instructionsPage"; // change currently displayed page
 Dom.changeBook = function(page, override, x) { // changes the page or changes the color of close buttons
 	//override says if the function should be run regardless of if the player has a quest active (e.g: declining a quest or closing a merchant)
@@ -96,6 +98,7 @@ Dom.changeBook = function(page, override, x) { // changes the page or changes th
 		return false; // returns false if the page was not changed
 	}
 }
+
 Dom.inventory.updateGold = function() { // update the DOM display of gold and xp
 	for(var i = 0; i < document.getElementsByClassName("goldDisplay").length; i++) { // repeat for each gold display
 		document.getElementsByClassName("goldDisplay")[i].innerText = Player.gold; // set the number displayed to the amount of gold
@@ -105,9 +108,18 @@ Dom.inventory.updateGold = function() { // update the DOM display of gold and xp
 	}
 }
 Dom.inventory.updateGold(); // calls the function to update the gold display
+
 Dom.inventory.changeEquipment = function(array,equipmentType) { // change which item is shown in inventory
+	for(var i = 0; i < Object.keys(array[0].stats).length; i++){
+		Stats[Object.keys(array[0].stats)[i]] -= parseInt(array[0].stats[Object.keys(array[0].stats)[i]]);
+		Dom.inventory.stats();
+	}
 	array.push(array[0]); // adds the first element of the array to the end of the array
 	array.splice(0, 1); // removes the first element of the array
+	for(var i = 0; i < Object.keys(array[0].stats).length; i++){
+		Stats[Object.keys(array[0].stats)[i]] += parseInt(array[0].stats[Object.keys(array[0].stats)[i]]);
+		Dom.inventory.stats();
+	}
 	document.getElementById(equipmentType).style.backgroundImage = "url(" + array[0].image + ")"; // sets the image of to the the item's image
 	if(equipmentType == "helm"){ // if the equipment being changed is a helm...
 		Player.inventory.helm = array; // ...updates the helm array...
@@ -126,19 +138,21 @@ Dom.inventory.changeEquipment = function(array,equipmentType) { // change which 
 		this.displayInformation("325px",Player.inventory.weapon); // ...and displays the information for your weapon
 	}
 }
+
 Dom.inventory.stats = function(){ // updates the stats displayed in your inventory
-	document.getElementById("statInfo").innerHTML = "Damage: " + Dom.stats.damage;
-	document.getElementById("statInfo").innerHTML += "<br>Defence: " + Dom.stats.defence;
-	document.getElementById("statInfo").innerHTML += "<br>Critical Chance: " + Dom.stats.critical_chance + "%";
-	document.getElementById("statInfo").innerHTML += "<br>Focus Speed: " + Dom.stats.focus_speed;
-	document.getElementById("statInfo").innerHTML += "<br>Health Regen: " + Dom.stats.health_regen + "/s";
-	document.getElementById("statInfo").innerHTML += "<br>Looting: " + Dom.stats.looting + "%";
-	document.getElementById("statInfo").innerHTML += "<br>Poison: " + Dom.stats.poisonX + "/" + Dom.stats.poisonY + "s";
-	document.getElementById("statInfo").innerHTML += "<br>Reflection: " + Dom.stats.reflection + "%";
-	document.getElementById("statInfo").innerHTML += "<br>Swim Speed: " + Dom.stats.swim_speed + "/s";
-	document.getElementById("statInfo").innerHTML += "<br>Walk Speed: " + Dom.stats.walk_speed + "/s";
+	document.getElementById("statInfo").innerHTML = "Damage: " + Stats.Damage; // updates the damage display
+	document.getElementById("statInfo").innerHTML += "<br>Defence: " + Stats.Defence; // updates the defence display
+	document.getElementById("statInfo").innerHTML += "<br>Critical Chance: " + Stats.Critical_Chance + "%"; // updates the critical chance display
+	document.getElementById("statInfo").innerHTML += "<br>Focus Speed: " + Stats.Focus_Speed; // updates the focus speed display
+	document.getElementById("statInfo").innerHTML += "<br>Health Regen: " + Stats.Health_Regen + "/s"; // updates the health regen display
+	document.getElementById("statInfo").innerHTML += "<br>Looting: " + Stats.Looting + "%"; // updates the looting display
+	document.getElementById("statInfo").innerHTML += "<br>Poison: " + Stats.PoisonX + "/" + Stats.PoisonY + "s"; // updates the poison display
+	document.getElementById("statInfo").innerHTML += "<br>Reflection: " + Stats.Reflection + "%"; // updates the reflection display
+	document.getElementById("statInfo").innerHTML += "<br>Swim Speed: " + Stats.Swim_Speed + "/s"; // updates the swim speed display
+	document.getElementById("statInfo").innerHTML += "<br>Walk Speed: " + Stats.Walk_Speed + "/s"; // updates the walk speed display
 }
 Dom.inventory.stats(); // calls the function to display stats in your inventory
+
 Dom.chat.newString = ""; // sets the new chat to nothing
 Dom.chat.oldString = ""; // sets the old chat to nothing
 Dom.chat.length = 0; // sets the chat length to 0
@@ -170,12 +184,14 @@ Dom.chat.insert = function(text, delay) { // // insert text in chat page
 		Dom.chat.length++; // adds 1 to the length of the chat
 	}, delay); // sets the delay to the amount specified in the parameter
 }
+
 Dom.chat.purge = function() { // delete all chat
 	Dom.chat.oldString = ""; // sets the old chat to nothing
 	Dom.chat.newString = "Chat cleared to free up memory"; // warns the user that the chat was reset
 	Dom.chat.length = 1; // sets the chat length to 1
 	Dom.chat.contents = []; // sets the chat contents to nothing
 }
+
 Dom.expand = function(block) { // expand/collapse element
 	block = document.getElementById(block); // sets block to the element: block
 	if(block.hidden) { // if the element is hidden...
@@ -190,10 +206,11 @@ Dom.expand = function(block) { // expand/collapse element
 	}else if(block == completedQuestBox && Dom.quests.completedQuestArray.length == 0){ // if the player has no completed quests...
 		document.getElementById("completedQuestBox").style.textAlign = "center"; // ...the text in the completed quest box is written in the centre... 
 		document.getElementById("completedQuestBox").innerText = "You have no completed quests"; // ...and it says "you have no completed quests"
-	}else if(block == itemInformation){ // if the block is the itemInformation...
+	}else if(block == itemInformation || block == identifierInformation){ // if the block is the itemInformation...
 		block.hidden = true; // ...hide it
 	}
 }
+
 Dom.settings.bookmarkPosition = function() { // arrange position of bookmarks
 	// INEFFICIENT?
 	if(document.getElementById("bottom").checked) { // arrange bookmarks at bottom of screen
@@ -277,6 +294,7 @@ Dom.settings.bookmarkPosition = function() { // arrange position of bookmarks
 		document.getElementById("dot").style.left="1217px";
 	}
 }
+
 if(window.innerHeight >= 755) { // if the window height is big enough...
 	document.getElementById("bottom").checked = true; // ...set the bookmark position to the bottom...
 	Dom.settings.bookmarkPosition(); // ...then update the position
@@ -291,6 +309,7 @@ else { // if the window size is too small...
 	document.getElementById("bottom").checked = true; // ...set the bookmark position to bottom...
 	Dom.settings.bookmarkPosition(); // ...then update the position
 }
+
 Dom.reputation.levels = ["Hated","Unfriendly","Neutral","Friendly","Honoured"]; // possible reputation levels
 for(var i = 0; i < Object.keys(Player.reputation).length; i++){ // repeat for all reputations
 	Player.reputation[Object.keys(Player.reputation)[i]].score = 5; // reputation score (between levels)
@@ -320,6 +339,7 @@ Dom.reputation.update = function(){ // update reputation
 		}
 	}
 }
+
 Dom.reputation.upLevel = function(Area){ // increases the reputation level
 	Area.score -= 11; // resets the score to 0 + the remainder
 	Area.level++; // increases the reputation level
@@ -334,6 +354,7 @@ Dom.reputation.upLevel = function(Area){ // increases the reputation level
 	}
 	this.update(); // updates the reputation
 }
+
 Dom.reputation.downLevel = function(Area){ // decreases the reputation level
 	Area.score += 11; // resets the score to 10 - the remainder
 	Area.level--; // decreases the reputation level
@@ -346,6 +367,7 @@ Dom.reputation.downLevel = function(Area){ // decreases the reputation level
 	}
 	this.update(); // updates the reputation
 }
+
 Dom.inventory.displayInformation = function(y,array){ // display inventory information
 	document.getElementById("itemInformation").hidden = true; // hide item information
 	if(array[0].name != ""){ // if the user is hovering over an item...
@@ -370,6 +392,7 @@ Dom.inventory.displayInformation = function(y,array){ // display inventory infor
 		document.getElementById("triangle").style.bottom = document.getElementById("itemInformation").offsetHeight - 50 + "px"; // position the triangle in the correct place
 	}
 }
+
 Dom.merchant.displayInformation = function(y,array,num) { // display merchant information
 	document.getElementById("informationMerchant").hidden = false; // display merchant information
 	document.getElementById("informationMerchant").style.top = y+"px"; // sets the information's top value to the value specified in the parameter
@@ -391,6 +414,7 @@ Dom.merchant.displayInformation = function(y,array,num) { // display merchant in
 	}
 	document.getElementById("merchantTriangle").style.bottom = document.getElementById("informationMerchant").offsetHeight - 50 + "px"; // postition the triangle in the correct place
 }
+
 Dom.quests.displayInformation = function(num,array,total){ // display quest start information
 	document.getElementById("questInformation").hidden = false; // display quest start information
 	document.getElementById("questInformation").style.top = document.getElementsByClassName("theseQuestOptions")[num].getBoundingClientRect().top+"px"; // sets the information's top value to the top value of the image
@@ -414,13 +438,11 @@ Dom.quests.displayInformation = function(num,array,total){ // display quest star
 	document.getElementById("questTriangle").style.bottom = document.getElementById("questInformation").offsetHeight - 50 + "px"; // position the triangle in the correct place
 	document.getElementById("questRectangle").style.bottom = document.getElementById("questInformation").offsetHeight - 50 + "px"; // position the rectangle in the correct place
 }
+
 Dom.quests.displayFinishInformation = function(num,array,total){ // display quest finish information
 	document.getElementById("questFinishInformation").hidden = false; // display quest start information
 	document.getElementById("questFinishInformation").style.top = document.getElementsByClassName("theseQuestFinishOptions")[num].getBoundingClientRect().top+"px"; // sets the information's top value to the top value of the image
 	document.getElementById("questFinishInformation").style.left = 780-(total*35)+(num*70) +"px"; // sets the information's left value based on the information from the parameter
-	console.log(array);
-	console.log(num);
-	console.log(array[num]);
 	document.getElementById("questFinishInformation").innerHTML = "<div class='rectangleRightUp' id='finishRectangle'></div><div class='rectangleRightDown'></div><div class='triangleRight'></div><div id='finishTriangle' class='innerTriangleRight'></div><p id='finishName'><b>"+array[num].name+"</b></p><p id='finishStats'></p><p id='finishLore'></p>"; // construct the information without the values
 	if(array[num].rarity == "common"){ // if the item is a common...
 		document.getElementById("finishName").style.color = "black"; // ...sets the name color to black
@@ -442,15 +464,19 @@ Dom.quests.displayFinishInformation = function(num,array,total){ // display ques
 }
 
 Dom.identifier.displayInformation = function(num,array){ // display identifier information
-	document.getElementById("identifierInformation").hidden = false; // display identifier information
-	document.getElementById("identifierInformation").style.top = document.getElementById("identifierPageOption").getBoundingClientRect().top - 46 + "px"; // sets the information's top value to the top value of the item
-	document.getElementById("identifierInformation").style.left = document.getElementById("identifierPageOption").getBoundingClientRect().left + 90 +"px"; // sets the information's left value based on the left value of the item
-	document.getElementById("identifierInformation").innerHTML = "<div class='rectangleLeftUp' id='identifierRectangle'></div><div class='rectangleLeftDown'></div><div class='triangleLeft'></div><div id='identifierTriangle' class='innerTriangleLeft'></div><p id='identifierName'><b> Unidentified "+array[num].type+"</b></p><p id='identifierStats'></p><p id='identifierLore'></p>"; // construct the information without the values
-	document.getElementById("identifierStats").innerHTML = "Tier: "+array[num].tier; // add the tier to the information
-	document.getElementById("identifierLore").innerHTML += "Area: "+array[num].area; // add the area to the information
-	document.getElementById("identifierTriangle").style.bottom = document.getElementById("identifierInformation").offsetHeight - 50 + "px"; // positition the triangle in the correct place
-	document.getElementById("identifierRectangle").style.bottom = document.getElementById("identifierInformation").offsetHeight - 50 + "px"; // postition the rectangle in the correct place
+	document.getElementById("identifierInformation").hidden = true;
+	if(array.length != 0){
+		document.getElementById("identifierInformation").hidden = false; // display identifier information
+		document.getElementById("identifierInformation").style.top = document.getElementById("identifierPageOption").getBoundingClientRect().top - 46 + "px"; // sets the information's top value to the top value of the item
+		document.getElementById("identifierInformation").style.left = document.getElementById("identifierPageOption").getBoundingClientRect().left + 90 +"px"; // sets the information's left value based on the left value of the item
+		document.getElementById("identifierInformation").innerHTML = "<div class='rectangleLeftUp' id='identifierRectangle'></div><div class='rectangleLeftDown'></div><div class='triangleLeft'></div><div id='identifierTriangle' class='innerTriangleLeft'></div><p id='identifierName'><b> Unidentified "+array[num].type+"</b></p><p id='identifierStats'></p><p id='identifierLore'></p>"; // construct the information without the values
+		document.getElementById("identifierStats").innerHTML = "Tier: "+array[num].tier; // add the tier to the information
+		document.getElementById("identifierLore").innerHTML += "Area: "+array[num].area; // add the area to the information
+		document.getElementById("identifierTriangle").style.bottom = document.getElementById("identifierInformation").offsetHeight - 50 + "px"; // positition the triangle in the correct place
+		document.getElementById("identifierRectangle").style.bottom = document.getElementById("identifierInformation").offsetHeight - 50 + "px"; // postition the rectangle in the correct place
+	}
 }
+
 Dom.identifier.displayIdentifiedInformation = function(num,array){ // display identified information
 	document.getElementById("identifiedInformation").hidden = false; // display identified information
 	document.getElementById("identifiedInformation").style.top = document.getElementById("identifiedPageOption").getElementsByTagName("img")[0].getBoundingClientRect().top + "px"; // sets the information's top value to the top value of the item
@@ -473,6 +499,7 @@ Dom.identifier.displayIdentifiedInformation = function(num,array){ // display id
 	}
 	document.getElementById("identifiedTriangle").style.bottom = document.getElementById("identifiedInformation").offsetHeight - 50 + "px"; // position the triangle in the correct place
 }
+
 Dom.currentlyDisplayed = ""; // the currently displayed quest, merchant, etc. (any pop up)
 Dom.quest.start = function(quest) { // display quest start page
 	if(Dom.changeBook("questStart", false)) { // display quest start page
@@ -510,6 +537,7 @@ Dom.quest.start = function(quest) { // display quest start page
 		Dom.currentlyDisplayed = quest; // sets the currently displayed pop up to the quest
 	}
 }
+
 Dom.quest.finish = function(quest){ // display quest finish page
 	Dom.changeBook("questFinish", false); // display quest finish page
 	document.getElementById("questFinishQuest").innerHTML = quest.quest; // sets title to quest name
@@ -555,6 +583,7 @@ Dom.quest.finish = function(quest){ // display quest finish page
 	}
 	Dom.reputation.update(); // updates the reputation display
 }
+
 Dom.quest.accept = function(){ // quest accepted
 	Dom.quests.activeQuests(Dom.currentlyDisplayed); // add the quest to the active quests
 	if (Dom.currentlyDisplayed.onQuestStart != undefined) { // if there is a quest start function...
@@ -562,6 +591,7 @@ Dom.quest.accept = function(){ // quest accepted
 	}
 	Dom.changeBook(Dom.previous, true); // change page back to previous page
 }
+
 Dom.quest.acceptRewards = function(){ // quest rewards accepted
 	for(var i = 0; i < Dom.quests.activeQuestArray.length; i++){ // repeats for all active quests
 		if(Dom.quests.activeQuestArray[i] == Dom.currentlyDisplayed.quest){ // if this is the quest you just finished...
@@ -576,6 +606,7 @@ Dom.quest.acceptRewards = function(){ // quest rewards accepted
 	Dom.changeBook(Dom.previous, true); // change back to previous page
 	Dom.quests.activeQuests(undefined); // update the active quest box
 }
+
 Dom.quests.activeQuestArray = []; // sets the active quest array to nothing
 Dom.quests.activeQuestUseArray = []; // sets the other active quest array to nothing
 Dom.quests.completedQuestArray = []; // sets the completed quest array to nothing
@@ -609,6 +640,7 @@ Dom.quests.activeQuests = function(quest){ // when a quest is started or ended..
 		document.getElementById("activeQuestBox").innerText = "You have no active quests"; // write "you have no active quests"
 	}
 }
+
 Dom.quests.completedQuestNum = 0; // sets the number of completed quests to 0
 Dom.quests.completedQuestString = ""; // sets the height of the box to 0
 Dom.quests.completed = function(quest){ // when a quest is completed...
@@ -626,6 +658,7 @@ Dom.quests.completed = function(quest){ // when a quest is completed...
 		document.getElementById("activeQuestBox").style.height = "40px"; // ...its height is set to 40px
 	}
 }
+
 Dom.merchant.page = function(title,greeting,options){ // merchant page
 	Dom.changeBook("merchantPage", false); // changes the page to the merchant page
 	Dom.currentlyDisplayed = title; // sets the currently displayed variable to the merchant's name
@@ -652,6 +685,7 @@ Dom.merchant.page = function(title,greeting,options){ // merchant page
 		}
 	}
 }
+
 Dom.merchant.buy = function(item){ // buy item from merchant
 	if(Player.gold >= item.cost){ // if they have an enough gold...
 		Player.gold -= item.cost; // takes the amount of gold from the player
@@ -663,6 +697,7 @@ Dom.merchant.buy = function(item){ // buy item from merchant
 		alert("You don't have sufficient funds to buy that item."); // alert them that they don't have enough gold
 	}
 }
+
 Dom.identifier.displayed = Player.inventory.unId.length-1; // set the currently displayed item in the identifier to the latest one	
 Dom.identifier.left = function(chat, chat1, chat2, chat3, over){ // code called on clicking the left arrow to change the displayed item to the previous item
 	if(Dom.identifier.displayed != 0){ // checks if the currently displayed item is the first in the array
@@ -672,6 +707,7 @@ Dom.identifier.left = function(chat, chat1, chat2, chat3, over){ // code called 
 	}
 	Dom.identifier.page(chat, chat1, chat2, chat3, over); // opens and updates the identifier page
 }
+
 Dom.identifier.right = function(chat, chat1, chat2, chat3, over){ // this code is not important
 	if(Dom.identifier.displayed != Player.inventory.unId.length-1){ // checks if the currently displayed item is the last in the array
 		Dom.identifier.displayed++; // sets the currently displayed item to the next item
@@ -680,6 +716,7 @@ Dom.identifier.right = function(chat, chat1, chat2, chat3, over){ // this code i
 	}
 	Dom.identifier.page(chat, chat1, chat2, chat3, over); // opens and updates the identifier page
 }
+
 Dom.identifier.page = function(chat, chat1, chat2, chat3, over){ // identifier page
 	Dom.changeBook("identifierPage", over); // changes page to identifier
 	Dom.currentlyDisplayed = "identifier"; // sets the currently displayed page variable to identifier
@@ -714,6 +751,7 @@ Dom.identifier.page = function(chat, chat1, chat2, chat3, over){ // identifier p
 setTimeout(function(){ // waits 100
 	Dom.identifier.page("What would you like to identify?","Here is your item, adventurer", "Some people would pay good money for that item", "Wow! A Mythic"); // opens and updates the identifier page
 },100); // waits 0.1 seconds
+
 Dom.quest.give = function(item){ // gives the player the item
 	if(item.type == "helm"){Player.inventory.helm.push(item);} // adds the helm to the players helm array
 	if(item.type == "chest"){Player.inventory.chest.push(item);} // adds the chest to the players chest array
@@ -721,6 +759,7 @@ Dom.quest.give = function(item){ // gives the player the item
 	if(item.type == "boots"){Player.inventory.boots.push(item);} // adds the boots to the players boots array
 	if(item.type == "sword" || item.type == "staff" || item.type == "bow" || item.type == "rod"){Player.inventory.weapon.push(item);} // adds the weapon to the players weapons arary
 }
+
 Dom.quests.allQuestNum = 18; // sets the box height...
 Dom.quests.allQuestString = ""; // ...to one line
 for(var i = 0; i < Object.keys(quests).length; i++){ // repeats this code for each area
@@ -735,6 +774,7 @@ for(var i = 0; i < Object.keys(quests).length; i++){ // repeats this code for ea
 		document.getElementById("allQuestBox").style.height = Dom.quests.allQuestString; // ...of the box
 	}
 }
+
 function unIdConstruct(area,tier){ // constructs an unidentified item when you kill an enemy
 	this.area = area; // sets the item's area to the area you are in
 	this.tier = tier; // sets the item's tier to the tier of the enemy
@@ -751,8 +791,9 @@ function unIdConstruct(area,tier){ // constructs an unidentified item when you k
 		this.rarity = "mythic"; // ...mythic
 	}
 }
+
 Dom.identifier.identify = function(chat, chat1, chat2, chat3){ // the page that you go to when you click "identify for 1 gold"
-	if(Player.gold >= 1){ // if the player can afford the item
+	if(Player.gold >= 1 && Player.inventory.unId.length != 0){ // if the player can afford the item
 		Player.gold--; // take the money from the player
 		Dom.inventory.updateGold(); // update the gold display
 		Dom.changeBook("identifiedPage",true); // changed page to the identified page
@@ -784,7 +825,7 @@ Dom.identifier.identify = function(chat, chat1, chat2, chat3){ // the page that 
 			Dom.identifier.left(chat, chat1, chat2, chat3, true); // ...the page goes back to the normal identifier
 		}
 		Player.inventory.unId.splice(Dom.identifier.displayed, 1); // removes from the array of unidentified items
-	}else{ // if the player can't afford the item
+	}else if(Player.inventory.unId.length != 0){ // if the player can't afford the item
  		alert("You don't have sufficient funds to buy that item."); // alert them that they don't have enough gold
 	}
 }
