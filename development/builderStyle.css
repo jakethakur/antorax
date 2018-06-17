@@ -9,11 +9,11 @@ body{
 	padding-top: 20px;
 	line-height: 35px;
 }
+input[type=number]{
+	width: 35px;
+}
 input[type=number]::-webkit-inner-spin-button{  
 	opacity: 1;
-}
-#damage{
-	width: 35px;
 }
 #table{
 	position: absolute;
