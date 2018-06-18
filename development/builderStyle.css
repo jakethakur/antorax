@@ -18,6 +18,7 @@ input[type=number]::-webkit-inner-spin-button{
 #table{
 	position: absolute;
 	left: 600px;
+	margin-bottom: 30px;
 }
 #table, tr, th, td{
 	border: 1px solid black;
