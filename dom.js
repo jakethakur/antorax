@@ -114,6 +114,9 @@ Dom.inventory.changeEquipment = function(array,equipmentType) { // change which 
 		Stats[Object.keys(array[0].stats)[i]] -= parseInt(array[0].stats[Object.keys(array[0].stats)[i]]);
 		Dom.inventory.stats();
 	}
+	if(array[0].set != undefined){
+		console.log(parseInt("+5%"));
+	}
 	array.push(array[0]); // adds the first element of the array to the end of the array
 	array.splice(0, 1); // removes the first element of the array
 	for(var i = 0; i < Object.keys(array[0].stats).length; i++){
