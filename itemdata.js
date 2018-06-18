@@ -474,7 +474,7 @@ var items = {
 		},
 		{
 			//id: 6
-			name: "The Highborn Hoarder’s Staff",
+			name: "The Highborn Hoarder's Staff",
 			type: "staff",
 			image: "assets/items/staff/2.png",
 			tier: 1,
@@ -561,7 +561,7 @@ var items = {
 		},
 		{
 			//id: 6
-			name: "Kraiss' Brimstone(?) Bow",
+			name: "Kraiss' Brimstone Bow",
 			type: "bow",
 			image: "assets/items/bow/2.png",
 			tier: 1,
