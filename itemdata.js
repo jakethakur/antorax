@@ -75,7 +75,7 @@ var items = {
 		},
 		{
 			//id: 2
-			name: "Worn Leather Chestplate",
+			name: "Worn Leather Tunic",
 			type: "chest",
 			image: "assets/items/chest/0.png",
 			tier: 1,
@@ -135,7 +135,7 @@ var items = {
 		},
 		{
 			//id: 2
-			name: "Worn Leather Greaves",
+			name: "Worn Leather Trousers",
 			type: "greaves",
 			image: "assets/items/greaves/0.png",
 			tier: 1,
