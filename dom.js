@@ -115,7 +115,11 @@ Dom.inventory.changeEquipment = function(array,equipmentType) { // change which 
 		Dom.inventory.stats();
 	}
 	if(array[0].set != undefined){
-		console.log(parseInt("+5%"));
+		for(var i = 0; i < Object.keys(items.sets)[array[0].set].length; i++){
+			//Stats[Object.keys(array[0].stats)[i]] -= parseInt(array[0].stats[Object.keys(array[0].stats)[i]]);
+			//Dom.inventory.stats();
+			console.log(items.sets[array[0].set]);
+		}
 	}
 	array.push(array[0]); // adds the first element of the array to the end of the array
 	array.splice(0, 1); // removes the first element of the array

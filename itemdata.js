@@ -37,6 +37,7 @@ var items = {
 			lore: "",
 			obtain: "Find as an unidentified item in Eaglecrest Logging Camp",
 			area: "Eaglecrest Logging Camp",
+			set: 3,
 			stats: {
 				Defence: 3,
 				Looting: "+5%",
@@ -52,6 +53,7 @@ var items = {
 			lore: "",
 			obtain: "Find as an unidentified item in Eaglecrest Logging Camp",
 			area: "Eaglecrest Logging Camp",
+			set: 2,
 			stats: {
 				Defence: 3,
 				Health_Regen: "+1/s",
@@ -111,6 +113,7 @@ var items = {
 			lore: "",
 			obtain: "Find as an unidentified item in Eaglecrest Logging Camp",
 			area: "Eaglecrest Logging Camp",
+			set: 3,
 			stats: {
 				Defence: 4,
 				Looting: "+5%",
@@ -126,6 +129,7 @@ var items = {
 			lore: "",
 			obtain: "Find as an unidentified item in Eaglecrest Logging Camp",
 			area: "Eaglecrest Logging Camp",
+			set: 2,
 			stats: {
 				Defence: 4,
 				Health_Regen: "+1/s",
@@ -186,6 +190,7 @@ var items = {
 			lore: "",
 			obtain: "Find as an unidentified item in Eaglecrest Logging Camp",
 			area: "Eaglecrest Logging Camp",
+			set: 3,
 			stats: {
 				Defence: 4,
 				Looting: "+5%",
@@ -201,6 +206,7 @@ var items = {
 			lore: "",
 			obtain: "Find as an unidentified item in Eaglecrest Logging Camp",
 			area: "Eaglecrest Logging Camp",
+			set: 2,
 			stats: {
 				Defence: 4,
 				Health_Regen: "+1/s",
@@ -275,6 +281,7 @@ var items = {
 			lore: "",
 			obtain: "Find as an unidentified item in Eaglecrest Logging Camp",
 			area: "Eaglecrest Logging Camp",
+			set: 3,
 			stats: {
 				Defence: 3,
 				Looting: "+5%",
@@ -290,6 +297,7 @@ var items = {
 			lore: "",
 			obtain: "Find as an unidentified item in Eaglecrest Logging Camp",
 			area: "Eaglecrest Logging Camp",
+			set: 2,
 			stats: {
 				Defence: 3,
 				Health_Regen: "+1/s",
