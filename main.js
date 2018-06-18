@@ -884,6 +884,13 @@ Game.update = function (delta) {
 			}
 		}
     }
+	// check collision with identifiers
+	for(var i = 0; i < this.identifiers.length; i++) {
+		if (this.hero.isTouching(this.identifiers[i])) { // needs to check that it is not already open - PG tbd
+			// open identifier page
+			Dom.identifier.page();
+		}
+	 }
 	
 	// check collision with villagers
 	for(var i = 0; i < this.villagers.length; i++) {
@@ -978,6 +985,11 @@ Game.drawHitboxes = function () {
 	// merchant hitboxes
 	for(var i = 0; i < this.merchants.length; i++) {
 		this.ctx.strokeRect(this.merchants[i].screenX - this.merchants[i].width / 2, this.merchants[i].screenY - this.merchants[i].height / 2, this.merchants[i].width, this.merchants[i].height);
+	}
+	
+	// identifier hitboxes
+	for(var i = 0; i < this.identifiers.length; i++) {
+		this.ctx.strokeRect(this.identifiers[i].screenX - this.identifiers[i].width / 2, this.identifiers[i].screenY - this.identifiers[i].height / 2, this.identifiers[i].width, this.identifiers[i].height);
 	}
 	
 	// area teleport hitboxes
