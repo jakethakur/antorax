@@ -6,20 +6,20 @@ var previousRarity = "";
 var previousMin = "";
 var previousMax = "";
 var previousSearch = "";
-var screenSize = 600;
-if(window.innerWidth >= 600){
+var screenSize = 245*3+45;
+if(window.innerWidth >= 245*3+45){
 	screenSize = window.innerWidth;
 }else{
-	screenSize = 600;
+	screenSize = 245*3+45;
 }
 checkChange();
 function checkChange(){
 	window.requestAnimationFrame(checkChange);
 	if(window.innerWidth != previousWidth){
-		if(window.innerWidth >= 600){
+		if(window.innerWidth >= 245*3+45){
 			screenSize = window.innerWidth;
 		}else{
-			screenSize = 600;
+			screenSize = 245*3+45;
 		}
 		previousWidth = window.innerWidth;
 		arrange();
@@ -99,7 +99,7 @@ function checkChange(){
 arrange();
 function arrange(){
 	var c = 0;
-	var columns = Math.floor((screenSize-45)/185);
+	var columns = Math.floor((screenSize-45)/245);
 	document.getElementById("all").innerHTML = "";
 	for(var d = 0; d < columns; d++){
 		document.getElementById("all").innerHTML += '<ul id="flashcardlist'+d+'" class="flashcardlist"></ul>';
@@ -116,7 +116,7 @@ function arrange(){
 			}
 		}
 		document.getElementById("flashcardlist"+c).innerHTML += '<li class="box"><img src="'+array[i].image+'" class="img"><p id="name'+i+'" class="para"></p><p id="tier'+i+'" class="para"></p><p id="stats'+i+'" class="para"></p><p id="lore'+i+'" class="para"></p></li>';
-		document.getElementById("flashcardlist"+c).style.left = 25+c*185+((screenSize-45)-(((Math.floor((screenSize-45)/185)))*185))/2+"px";
+		document.getElementById("flashcardlist"+c).style.left = 25+c*245+((screenSize-45)-(((Math.floor((screenSize-45)/245)))*245))/2+"px";
 		document.getElementById("name"+i).innerHTML = "<b>"+array[i].name+"</b>";
 		if(array[i].rarity == "common"){
 			document.getElementById("name"+i).style.color = "black";
@@ -130,9 +130,9 @@ function arrange(){
 			console.log("yes");
 			console.log(array[i]);
 			for(var f = 0; f < array[i].armour.length; f++){
-				console.log(array[i].armour[f]);
 				document.getElementById("tier"+i).innerHTML += "<br>"+array[i].armour[f];
 			}
+			document.getElementById("tier"+i).innerHTML += "<br>";
 		}
 		document.getElementById("tier"+i).innerHTML += "<br>Tier: "+array[i].tier;
 		for(var a = 0; a < Object.keys(array[i].stats).length; a++){
@@ -143,12 +143,12 @@ function arrange(){
 			document.getElementById("lore"+i).innerHTML = "<br><i>"+array[i].lore+"</i>";
 		}
 	}
-	document.getElementById("filters").style.width = (((Math.floor((screenSize-45)/185)))*185)-35+"px";
-	document.getElementById("filters").style.left = 25+((screenSize-45)-(((Math.floor((screenSize-45)/185)))*185))/2+"px";
-	document.getElementById("searchBar").style.width = (((Math.floor((screenSize-45)/185)))*185)-95+"px";
-	if(columns <= 5){
-		document.getElementById("space0").style.width = (((((Math.floor((screenSize-45)/185)))*185)-35)/2)-(500/2)+"px";
-		document.getElementById("space2").style.width = (((((Math.floor((screenSize-45)/185)))*185)-35)/2)-(500/2)+"px";
+	document.getElementById("filters").style.width = (((Math.floor((screenSize-45)/245)))*245)-35+"px";
+	document.getElementById("filters").style.left = 25+((screenSize-45)-(((Math.floor((screenSize-45)/245)))*245))/2+"px";
+	document.getElementById("searchBar").style.width = (((Math.floor((screenSize-45)/245)))*245)-95+"px";
+	if(columns <= 4){
+		document.getElementById("space0").style.width = (((((Math.floor((screenSize-45)/245)))*245)-35)/2)-(500/2)+"px";
+		document.getElementById("space2").style.width = (((((Math.floor((screenSize-45)/245)))*245)-35)/2)-(500/2)+"px";
 		document.getElementById("space1").style.display = "none";
 		document.getElementById("filters").style.height = "200px";
 		document.getElementById("br").style.display = "";
@@ -159,7 +159,7 @@ function arrange(){
 		}
 	}else{
 		for(var i = 0; i < 3; i++){
-			document.getElementById("space"+i).style.width = (((((Math.floor((screenSize-45)/185)))*185)-35)/3)-319+"px";
+			document.getElementById("space"+i).style.width = (((((Math.floor((screenSize-45)/245)))*245)-35)/3)-319+"px";
 		}
 		document.getElementById("space1").style.display = "";
 		document.getElementById("filters").style.height = "150px";

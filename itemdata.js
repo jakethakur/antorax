@@ -484,7 +484,7 @@ var items = {
 				"Siege Boots",
 			],
 			stats: {
-				Damage: 2,
+				Walk_Speed: "+20/s",
 			},
 		},
 		{
@@ -501,7 +501,7 @@ var items = {
 				"Goblin Forged Boots",
 			],
 			stats: {
-				Damage: 2,
+				Looting: "+5%",
 			},
 		},
 	],
