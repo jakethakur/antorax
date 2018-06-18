@@ -455,4 +455,20 @@ var items = {
 			},
 		},
 	],
+	sets: [
+		{
+			name: "Siege Set",
+			type: "set",
+			image: "assets/items/bow/2.png",
+			tier: 1,
+			rarity: "unique",
+		},
+		{
+			name: "Goblin Forged Set",
+			type: "set",
+			image: "assets/items/bow/2.png",
+			tier: 1,
+			rarity: "unique",
+		},
+	],
 };
