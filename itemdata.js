@@ -34,6 +34,7 @@ var items = {
 			image: "assets/items/helm/0.png",
 			tier: 1,
 			rarity: "unique",
+			lore: "",
 			obtain: "Find as an unidentified item in Eaglecrest Logging Camp",
 			area: "Eaglecrest Logging Camp",
 			stats: {
@@ -48,6 +49,7 @@ var items = {
 			image: "assets/items/helm/0.png",
 			tier: 1,
 			rarity: "unique",
+			lore: "",
 			obtain: "Find as an unidentified item in Eaglecrest Logging Camp",
 			area: "Eaglecrest Logging Camp",
 			stats: {
@@ -73,7 +75,7 @@ var items = {
 		},
 		{
 			//id: 2
-			name: "Worn Leather Chest",
+			name: "Worn Leather Chestplate",
 			type: "chest",
 			image: "assets/items/chest/0.png",
 			tier: 1,
@@ -86,11 +88,12 @@ var items = {
 		},
 		{
 			//id: 3
-			name: "Goblin Forged Chest",
+			name: "Goblin Forged Chestplate",
 			type: "chest",
 			image: "assets/items/chest/0.png",
 			tier: 1,
 			rarity: "unique",
+			lore: "",
 			obtain: "Find as an unidentified item in Eaglecrest Logging Camp",
 			area: "Eaglecrest Logging Camp",
 			stats: {
@@ -100,11 +103,12 @@ var items = {
 		},
 		{
 			//id: 4
-			name: "Siege Chest",
+			name: "Siege Chestplate",
 			type: "chest",
 			image: "assets/items/chest/0.png",
 			tier: 1,
 			rarity: "unique",
+			lore: "",
 			obtain: "Find as an unidentified item in Eaglecrest Logging Camp",
 			area: "Eaglecrest Logging Camp",
 			stats: {
@@ -149,6 +153,7 @@ var items = {
 			image: "assets/items/greaves/0.png",
 			tier: 1,
 			rarity: "unique",
+			lore: "",
 			obtain: "Find as an unidentified item in Eaglecrest Logging Camp",
 			area: "Eaglecrest Logging Camp",
 			stats: {
@@ -163,6 +168,7 @@ var items = {
 			image: "assets/items/greaves/0.png",
 			tier: 1,
 			rarity: "unique",
+			lore: "",
 			obtain: "Find as an unidentified item in Eaglecrest Logging Camp",
 			area: "Eaglecrest Logging Camp",
 			stats: {
@@ -220,6 +226,7 @@ var items = {
 			image: "assets/items/boots/0.png",
 			tier: 1,
 			rarity: "unique",
+			lore: "",
 			obtain: "Find as an unidentified item in Eaglecrest Logging Camp",
 			area: "Eaglecrest Logging Camp",
 			stats: {
@@ -234,6 +241,7 @@ var items = {
 			image: "assets/items/boots/0.png",
 			tier: 1,
 			rarity: "unique",
+			lore: "",
 			obtain: "Find as an unidentified item in Eaglecrest Logging Camp",
 			area: "Eaglecrest Logging Camp",
 			stats: {

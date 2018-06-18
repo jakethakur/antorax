@@ -884,13 +884,14 @@ Game.update = function (delta) {
 			}
 		}
     }
+	
 	// check collision with identifiers
 	for(var i = 0; i < this.identifiers.length; i++) {
 		if (this.hero.isTouching(this.identifiers[i])) { // needs to check that it is not already open - PG tbd
 			// open identifier page
-			Dom.identifier.page();
+			Dom.identifier.page("What would you like to identify?", "Here is your item, adventurer.", "Hmm, this item is of rather fine quality, adventurer.", "Wow! Some people would pay good money for that item!");
 		}
-	 }
+	}
 	
 	// check collision with villagers
 	for(var i = 0; i < this.villagers.length; i++) {
@@ -1060,7 +1061,7 @@ Game.render = function () {
 	this._drawLayer(0);
     //}
 	
-    // draw quest start NPCs
+    // draw quest NPCs
     for(var i = 0; i < this.questNPCs.length; i++) {
 		// set character screen x and y
 		this.questNPCs[i].screenX = (this.questNPCs[i].x - this.questNPCs[i].width / 2) - this.camera.x;
@@ -1099,6 +1100,20 @@ Game.render = function () {
 			this.villagers[i].image,
 			this.villagers[i].screenX - this.villagers[i].width / 2,
 			this.villagers[i].screenY - this.villagers[i].height / 2
+        );
+    }
+	
+    // draw identifiers
+    for(var i = 0; i < this.identifiers.length; i++) {
+		// set character screen x and y
+		this.identifiers[i].screenX = (this.identifiers[i].x - this.identifiers[i].width / 2) - this.camera.x;
+		this.identifiers[i].screenY = (this.identifiers[i].y - this.identifiers[i].height / 2) - this.camera.y;
+		
+		// draw image
+        this.ctx.drawImage(
+			this.identifiers[i].image,
+			this.identifiers[i].screenX - this.identifiers[i].width / 2,
+			this.identifiers[i].screenY - this.identifiers[i].height / 2
         );
     }
 

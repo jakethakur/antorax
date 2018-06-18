@@ -138,6 +138,16 @@ var areas = {
 			},
 		],
 		
+		identifiers: [
+			{
+				x: 300,
+				y: 600,
+				width: 78,
+				height: 125,
+				image: "identifier",
+			},
+		],
+		
 		areaTeleports: [
 			{
 				// teleport to tutorial area (south)
@@ -178,11 +188,13 @@ var areas = {
 			names: [
 				"tiles",
 				"teper",
+				"identifier",
 			],
 			
 			addresses: [
 				"./assets/tilemap/tilemap.png",
 				"./assets/npcs/teper.png",
+				"./assets/npcs/identifier.png",
 			],
 		},
 		
