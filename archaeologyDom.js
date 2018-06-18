@@ -52,9 +52,9 @@ function checkChange(){
 				}
 			}
 		}else{
-				for(var x = 2; x < items[Object.keys(items)[category.value]].length; x++){
-					array.push(items[Object.keys(items)[category.value]][x]);
-				}
+			for(var x = 2; x < items[Object.keys(items)[category.value]].length; x++){
+				array.push(items[Object.keys(items)[category.value]][x]);
+			}
 		}
 		arrayLength = array.length;
 		previousRarity = rarity.value;
@@ -125,7 +125,16 @@ function arrange(){
 		}else{
 			document.getElementById("name"+i).style.color = "purple";
 		}
-		document.getElementById("tier"+i).innerHTML = "<br>Tier: "+array[i].tier;
+		document.getElementById("tier"+i).innerHTML = "";
+		if(category.value == 7){
+			console.log("yes");
+			console.log(array[i]);
+			for(var f = 0; f < array[i].armour.length; f++){
+				console.log(array[i].armour[f]);
+				document.getElementById("tier"+i).innerHTML += "<br>"+array[i].armour[f];
+			}
+		}
+		document.getElementById("tier"+i).innerHTML += "<br>Tier: "+array[i].tier;
 		for(var a = 0; a < Object.keys(array[i].stats).length; a++){
 			var replaceStat = Object.keys(array[i].stats)[a].replace("_"," ");
 			document.getElementById("stats"+i).innerHTML += replaceStat+": "+array[i].stats[Object.keys(array[i].stats)[a]]+"<br>";
