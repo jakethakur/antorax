@@ -18,7 +18,7 @@ var items = {
 			//id: 2
 			name: "Worn Leather Helm",
 			type: "helm",
-			image: "assets/items/helm/0.png",
+			image: "assets/items/helm/2.png",
 			tier: 1,
 			rarity: "common",
 			obtain: "Find as an unidentified item in Eaglecrest Logging Camp",
@@ -57,27 +57,42 @@ var items = {
 				Health_Regen: "+1/s",
 			},
 		},
+		{
+			//id: 5
+			name: "War Ogre's Helm",
+			type: "helm",
+			image: "assets/items/helm/0.png",
+			tier: 1,
+			rarity: "mythic",
+			lore: "",
+			obtain: "Find as an unidentified item in Eaglecrest Logging Camp",
+			area: "Eaglecrest Logging Camp",
+			stats: {
+				Defence: 4,
+				Reflection: "+20%",
+			},
+		},
 	],
 	chest: [
 		{
 			//id: 0
 			name: "Test Chestplate 1",
 			type: "chest",
-			image:"assets/items/chest/0.png",
+			image: "assets/items/chest/0.png",
 			stats: {},
 		},
 		{
 			//id: 1
 			name: "Test Chestplate 2",
 			type: "chest",
-			image:"assets/items/chest/1.png",
+			image: "assets/items/chest/1.png",
 			stats: {},
 		},
 		{
 			//id: 2
 			name: "Worn Leather Tunic",
 			type: "chest",
-			image: "assets/items/chest/0.png",
+			image: "assets/items/chest/2.png",
 			tier: 1,
 			rarity: "common",
 			obtain: "Find as an unidentified item in Eaglecrest Logging Camp",
@@ -116,20 +131,35 @@ var items = {
 				Health_Regen: "+1/s",
 			},
 		},
+		{
+			//id: 5
+			name: "The Tattered Knight's Chestplate",
+			type: "chest",
+			image: "assets/items/chest/0.png",
+			tier: 1,
+			rarity: "mythic",
+			lore: "",
+			obtain: "Find as an unidentified item in Eaglecrest Logging Camp",
+			area: "Eaglecrest Logging Camp",
+			stats: {
+				Defence: 6,
+				Walk_Speed: "-30/s",
+			},
+		},
 	],
 	greaves: [
 		{
 			//id: 0
 			name: "Test Greaves 1",
 			type: "greaves",
-			image:"assets/items/greaves/0.png",
+			image: "assets/items/greaves/0.png",
 			stats: {},
 		},
 		{
 			//id: 1
 			name: "Test Greaves 2",
 			type: "greaves",
-			image:"assets/items/greaves/1.png",
+			image: "assets/items/greaves/1.png",
 			stats: {
 			},
 		},
@@ -137,7 +167,7 @@ var items = {
 			//id: 2
 			name: "Worn Leather Trousers",
 			type: "greaves",
-			image: "assets/items/greaves/0.png",
+			image: "assets/items/greaves/2.png",
 			tier: 1,
 			rarity: "common",
 			obtain: "Find as an unidentified item in Eaglecrest Logging Camp",
@@ -176,27 +206,43 @@ var items = {
 				Health_Regen: "+1/s",
 			},
 		},
+		{
+			//id: 5
+			name: "Weirwood Carved Greaves",
+			type: "greaves",
+			image: "assets/items/greaves/0.png",
+			tier: 1,
+			rarity: "mythic",
+			lore: "",
+			obtain: "Find as an unidentified item in Eaglecrest Logging Camp",
+			area: "Eaglecrest Logging Camp",
+			stats: {
+				Defence: 4,
+				Dodge_Chance: "+20%",
+				Health_Regen: "+2/s",
+			},
+		},
 	],
 	boots: [
 		{
 			//id: 0
 			name: "Test Boots 1",
 			type: "boots",
-			image:"assets/items/boots/0.png",
+			image: "assets/items/boots/0.png",
 			stats: {},
 		},
 		{
 			//id: 1
 			name: "Test Boots 2",
 			type: "boots",
-			image:"assets/items/boots/1.png",
+			image: "assets/items/boots/1.png",
 			stats: {},
 		},
 		{
 			//id: 2
 			name: "Logging Boots",
 			type: "boots",
-			image:"assets/items/boots/2.png",
+			image: "assets/items/boots/2.png",
 			tier: 1,
 			rarity: "common",
 			lore: "Protects you from splinters. And goblins!",
@@ -210,7 +256,7 @@ var items = {
 			//id: 3
 			name: "Worn Leather Boots",
 			type: "boots",
-			image: "assets/items/boots/0.png",
+			image: "assets/items/boots/3.png",
 			tier: 1,
 			rarity: "common",
 			obtain: "Find as an unidentified item in Eaglecrest Logging Camp",
@@ -249,20 +295,38 @@ var items = {
 				Health_Regen: "+1/s",
 			},
 		},
+		{
+			//id: 6
+			name: "Marshall Teper's Lost Boots",
+			type: "boots",
+			image: "assets/items/boots/0.png",
+			tier: 1,
+			rarity: "mythic",
+			lore: "Marshall Teper's favourite boots. Maybe you could return them for a reward?",
+			obtain: "Find as an unidentified item in Eaglecrest Logging Camp",
+			area: "Eaglecrest Logging Camp",
+			stats: {
+				Defence: 2,
+				Critical_Chance: "+10%",
+				Dodge_Chance: "+10%",
+				Health_Regen: "+1/s",
+				Looting: "+10%",
+			},
+		},
 	],
 	sword: [
 		{
 			//id: 0
 			name: "Test sword 1",
 			type: "sword",
-			image:"assets/items/sword/0.png",
+			image: "assets/items/sword/0.png",
 			stats: {},
 		},
 		{
 			//id: 1
 			name: "Test sword 2",
 			type: "sword",
-			image:"assets/items/sword/1.png",
+			image: "assets/items/sword/1.png",
 			stats: {},
 		},
 		{
@@ -270,9 +334,10 @@ var items = {
 			name: "Basic Sword",
 			type: "sword",
 			cost: 3,
-			image:"assets/items/sword/2.png",
+			image: "assets/items/sword/2.png",
 			tier: 1,
 			rarity: "common",
+			obtain: "Purchase from a merchant in the Fisher's Valley",
 			stats: {
 				Damage: 2,
 			},
@@ -302,7 +367,7 @@ var items = {
 			area: "Eaglecrest Logging Camp",
 			stats: {
 				Damage: 3,
-				Poison: "+1/1s",
+				Poison: "1/1s",
 			},
 		},
 		{
@@ -320,20 +385,35 @@ var items = {
 				Critical_Chance: "+10%",
 			},
 		},
+		{
+			//id: 6
+			name: "Blade of the Orc Raiders",
+			type: "sword",
+			image: "assets/items/sword/2.png",
+			tier: 1,
+			rarity: "unique",
+			lore: "",
+			obtain: "Find as an unidentified item in Eaglecrest Logging Camp",
+			area: "Eaglecrest Logging Camp",
+			stats: {
+				Damage: 4,
+				Stun: "1s",
+			},
+		},
 	],
 	staff: [
 		{
 			//id: 0
 			name: "Test staff 1",
 			type: "staff",
-			image:"assets/items/staff/0.png",
+			image: "assets/items/staff/0.png",
 			stats: {},
 		},
 		{
 			//id: 1
 			name: "Test staff 2",
 			type: "staff",
-			image:"assets/items/staff/1.png",
+			image: "assets/items/staff/1.png",
 			stats: {},
 		},
 		{
@@ -341,9 +421,10 @@ var items = {
 			name: "Basic Staff",
 			type: "staff",
 			cost: 3,
-			image:"assets/items/staff/2.png",
+			image: "assets/items/staff/2.png",
 			tier: 1,
 			rarity: "common",
+			obtain: "Purchase from a merchant in the Fisher's Valley",
 			stats: {
 				Damage: 2,
 			},
@@ -362,7 +443,7 @@ var items = {
 			},
 		},
 		{
-			//id: 5
+			//id: 4
 			name: "Health Staff",
 			type: "staff",
 			image: "assets/items/staff/2.png",
@@ -377,7 +458,7 @@ var items = {
 			},
 		},
 		{
-			//id: 4
+			//id: 5
 			name: "Power Surge Staff",
 			type: "staff",
 			image: "assets/items/staff/2.png",
@@ -391,20 +472,35 @@ var items = {
 				Critical_Chance: "+25%",
 			},
 		},
+		{
+			//id: 6
+			name: "The Highborn Hoarder’s Staff",
+			type: "staff",
+			image: "assets/items/staff/2.png",
+			tier: 1,
+			rarity: "unique",
+			lore: "",
+			obtain: "Find as an unidentified item in Eaglecrest Logging Camp",
+			area: "Eaglecrest Logging Camp",
+			stats: {
+				Damage: 2,
+				Looting: "+45%",
+			},
+		},
 	],
 	bow: [
 		{
 			//id: 0
 			name: "Test bow 1",
 			type: "bow",
-			image:"assets/items/bow/0.png",
+			image: "assets/items/bow/0.png",
 			stats: {},
 		},
 		{
 			//id: 1
 			name: "Test bow 2",
 			type: "bow",
-			image:"assets/items/bow/1.png",
+			image: "assets/items/bow/1.png",
 			stats: {},
 		},
 		{
@@ -412,9 +508,10 @@ var items = {
 			name: "Basic Bow",
 			type: "bow",
 			cost: 3,
-			image:"assets/items/bow/2.png",
+			image: "assets/items/bow/2.png",
 			tier: 1,
 			rarity: "common",
+			obtain: "Purchase from a merchant in the Fisher's Valley",
 			stats: {
 				Damage: 2,
 			},
@@ -462,20 +559,35 @@ var items = {
 				Critical_Chance: "+75%",
 			},
 		},
+		{
+			//id: 6
+			name: "Kraiss' Brimstone(?) Bow",
+			type: "bow",
+			image: "assets/items/bow/2.png",
+			tier: 1,
+			rarity: "mythic",
+			lore: "",
+			obtain: "Find as an unidentified item in Eaglecrest Logging Camp",
+			area: "Eaglecrest Logging Camp",
+			stats: {
+				Damage: 3,
+				Flaming: true,
+			},
+		},
 	],
 	sets: [
 		{
 			//id: 0
 			name: "Test bow 1",
 			type: "bow",
-			image:"assets/items/bow/0.png",
+			image: "assets/items/bow/0.png",
 			stats: {},
 		},
 		{
 			//id: 1
 			name: "Test bow 2",
 			type: "bow",
-			image:"assets/items/bow/1.png",
+			image: "assets/items/bow/1.png",
 			stats: {},
 		},
 		{
