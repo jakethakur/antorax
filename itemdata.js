@@ -457,18 +457,52 @@ var items = {
 	],
 	sets: [
 		{
+			//id: 0
+			name: "Test bow 1",
+			type: "bow",
+			image:"assets/items/bow/0.png",
+			stats: {},
+		},
+		{
+			//id: 1
+			name: "Test bow 2",
+			type: "bow",
+			image:"assets/items/bow/1.png",
+			stats: {},
+		},
+		{
+			//id: 2
 			name: "Siege Set",
 			type: "set",
 			image: "assets/items/bow/2.png",
 			tier: 1,
 			rarity: "unique",
+			armour: [
+				"Siege Helm",
+				"Siege Chest",
+				"Siege Greaves",
+				"Siege Boots",
+			],
+			stats: {
+				Damage: 2,
+			},
 		},
 		{
+			//id: 3
 			name: "Goblin Forged Set",
 			type: "set",
 			image: "assets/items/bow/2.png",
 			tier: 1,
 			rarity: "unique",
+			armour: [
+				"Goblin Forged Helm",
+				"Goblin Forged Chest",
+				"Goblin Forged Greaves",
+				"Goblin Forged Boots",
+			],
+			stats: {
+				Damage: 2,
+			},
 		},
 	],
 };
