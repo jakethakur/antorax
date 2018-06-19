@@ -110,22 +110,43 @@ Dom.inventory.updateGold = function() { // update the DOM display of gold and xp
 Dom.inventory.updateGold(); // calls the function to update the gold display
 
 Dom.inventory.changeEquipment = function(array,equipmentType) { // change which item is shown in inventory
-	for(var i = 0; i < Object.keys(array[0].stats).length; i++){
-		Stats[Object.keys(array[0].stats)[i]] -= parseInt(array[0].stats[Object.keys(array[0].stats)[i]]);
-		Dom.inventory.stats();
+	for(var i = 0; i < Object.keys(array[0].stats).length; i++){ // repeats code for all stats in old item
+		Stats[Object.keys(array[0].stats)[i]] -= parseInt(array[0].stats[Object.keys(array[0].stats)[i]]); // minuses that stat from the player's stats
+		Dom.inventory.stats(); // updates the stat display
 	}
-	if(array[0].set != undefined){
-		for(var i = 0; i < items.sets[array[0].set].armour.length; i++){
-			//Stats[Object.keys(array[0].stats)[i]] -= parseInt(array[0].stats[Object.keys(array[0].stats)[i]]);
-			//Dom.inventory.stats();
-			console.log(items.sets[array[0].set].armour[i]);
+	if(array[0].set != undefined){ // if the item being removed is part of a set
+		Dom.inventory.noSet = false; // allows the set code to run
+		for(var i = 0; i < items.sets[array[0].set].armour.length; i++){ // repeats for all armour in the set
+			if(Player.inventory.helm[0].name != items.sets[array[0].set].armour[i] && Player.inventory.chest[0].name != items.sets[array[0].set].armour[i] && Player.inventory.greaves[0].name != items.sets[array[0].set].armour[i] && Player.inventory.boots[0].name != items.sets[array[0].set].armour[i]){ // checks if the armour is being worn
+				Dom.inventory.noSet = true; // does not allow the set code to run
+			}
+		}
+		if(!Dom.inventory.noSet){ // set code (runs if the player was wearing a set but now isn't)
+			for(var i = 0; i < Object.keys(items.sets[array[0].set].stats).length; i++){ // repeats for all stats in set
+				Stats[Object.keys(items.sets[array[0].set].stats)[i]] -= parseInt(items.sets[array[0].set].stats[Object.keys(items.sets[array[0].set].stats)]); // removes that stat from player's stats
+				Dom.inventory.stats(); // updates the stats display
+			}
 		}
 	}
 	array.push(array[0]); // adds the first element of the array to the end of the array
 	array.splice(0, 1); // removes the first element of the array
-	for(var i = 0; i < Object.keys(array[0].stats).length; i++){
-		Stats[Object.keys(array[0].stats)[i]] += parseInt(array[0].stats[Object.keys(array[0].stats)[i]]);
-		Dom.inventory.stats();
+	for(var i = 0; i < Object.keys(array[0].stats).length; i++){ // repeats code for all stats in new item
+		Stats[Object.keys(array[0].stats)[i]] += parseInt(array[0].stats[Object.keys(array[0].stats)[i]]); // adds that stat to the player's stats
+		Dom.inventory.stats(); // updates the stat display
+	}
+	if(array[0].set != undefined){ // if the item being added is part of a set
+		Dom.inventory.noSet = false; // allows the set code to run
+		for(var i = 0; i < items.sets[array[0].set].armour.length; i++){ // repeats for all armour in the set
+			if(Player.inventory.helm[0].name != items.sets[array[0].set].armour[i] && Player.inventory.chest[0].name != items.sets[array[0].set].armour[i] && Player.inventory.greaves[0].name != items.sets[array[0].set].armour[i] && Player.inventory.boots[0].name != items.sets[array[0].set].armour[i]){ // checks if the armour is being worn
+				Dom.inventory.noSet = true; // does not allow the set code to run
+			}
+		}
+		if(!Dom.inventory.noSet){ // set code (runs if the player was not wearing a set but now is)
+			for(var i = 0; i < Object.keys(items.sets[array[0].set].stats).length; i++){ // repeats for all stats in set
+				Stats[Object.keys(items.sets[array[0].set].stats)[i]] += parseInt(items.sets[array[0].set].stats[Object.keys(items.sets[array[0].set].stats)]); // removes that stat from player's stats
+				Dom.inventory.stats(); // updates the stat display
+			}
+		}
 	}
 	document.getElementById(equipmentType).style.backgroundImage = "url(" + array[0].image + ")"; // sets the image of to the the item's image
 	if(equipmentType == "helm"){ // if the equipment being changed is a helm...
@@ -471,8 +492,8 @@ Dom.quests.displayFinishInformation = function(num,array,total){ // display ques
 }
 
 Dom.identifier.displayInformation = function(num,array){ // display identifier information
-	document.getElementById("identifierInformation").hidden = true;
-	if(array.length != 0){
+	document.getElementById("identifierInformation").hidden = true; // hide identifier information
+	if(array.length != 0){ // if the player is hovering over an item
 		document.getElementById("identifierInformation").hidden = false; // display identifier information
 		document.getElementById("identifierInformation").style.top = document.getElementById("identifierPageOption").getBoundingClientRect().top - 46 + "px"; // sets the information's top value to the top value of the item
 		document.getElementById("identifierInformation").style.left = document.getElementById("identifierPageOption").getBoundingClientRect().left + 90 +"px"; // sets the information's left value based on the left value of the item
