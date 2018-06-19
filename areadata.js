@@ -148,6 +148,18 @@ var areas = {
 			},
 		],
 		
+		enemies: [
+			{
+				x: 600,
+				y: 600,
+				width: 77,
+				height: 100,
+				image: "dummy",
+				name: "Target Dummy",
+				health: 1000000,
+			},
+		],
+		
 		areaTeleports: [
 			{
 				// teleport to tutorial area (south)
@@ -189,12 +201,14 @@ var areas = {
 				"tiles",
 				"teper",
 				"identifier",
+				"dummy",
 			],
 			
 			addresses: [
 				"./assets/tilemap/tilemap.png",
 				"./assets/npcs/teper.png",
 				"./assets/npcs/identifier.png",
+				"./assets/enemies/dummy.png",
 			],
 		},
 		

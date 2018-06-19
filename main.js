@@ -413,7 +413,6 @@ class Hero extends Character {
 		projectileX = Game.camera.x + (e.clientX);
 		projectileY = Game.camera.y + (e.clientY);
 		projectileRotate = bearing(this, {x: projectileX, y: projectileY});
-		console.log(projectileRotate / Math.PI * 180);
 
 		Game.projectiles.push(new Projectile({
 			map: map,
@@ -436,6 +435,9 @@ class Hero extends Character {
 	finishAttack(e) {
 		this.channelTime = 0;
 		this.channelling = false;
+	
+	
+		Game.projectiles[Game.projectiles.length - 1].damageEnemies();
 	}
 }
 
@@ -451,6 +453,17 @@ class Projectile extends Character {
 		this.adjust = {
 			x: properties.adjust.x,
 			y: properties.adjust.y,
+		};
+		
+		this.damageDealt = []; // array of damages dealt to show
+	}
+	
+	damageEnemies () {
+		for(var i = 0; i < Game.enemies.length; i++) {
+			if(this.isTouching(Game.enemies[i])) {
+				Game.enemies[i].health -= Stats.Damage;
+				this.damageDealt.push({enemy: Game.enemies[i], damage: Stats.Damage, critical: false});
+			}
 		}
 	}
 }
@@ -574,6 +587,27 @@ class Villager extends Character {
 	}
 }
 
+class Enemy extends Character {
+	constructor(properties) {
+		super(properties);
+		
+		this.name = properties.name;
+		
+		this.health = properties.health;
+	}
+	
+	move() {
+		this.bearing = bearing(this, Game.hero); // update bearing (maybe doesn't need to be done every tick?)
+		// tbd : multiply by delta
+		if (Math.round(this.x / 100) != Math.round(this.state.x / 100)) {
+			this.x += Math.cos(this.bearing) * this.speed;
+		}
+		if (Math.round(this.y / 100) != Math.round(this.state.y / 100)) {
+			this.y += Math.sin(this.bearing) * this.speed;
+		}
+	}
+}
+
 //
 // constructors
 //
@@ -669,6 +703,15 @@ Game.loadArea = function (areaName, destination) {
 			for(var i = 0; i < areas[areaName].identifiers.length; i++) {
 				areas[areaName].identifiers[i].map = map;
 				this.identifiers.push(new Character(areas[areaName].identifiers[i]));
+			}
+		}
+		
+		// enemies
+		this.enemies = [];
+		if(areas[areaName].enemies !== undefined) {
+			for(var i = 0; i < areas[areaName].enemies.length; i++) {
+				areas[areaName].enemies[i].map = map;
+				this.enemies.push(new Enemy(areas[areaName].enemies[i]));
 			}
 		}
 		
@@ -993,6 +1036,11 @@ Game.drawHitboxes = function () {
 		this.ctx.strokeRect(this.identifiers[i].screenX - this.identifiers[i].width / 2, this.identifiers[i].screenY - this.identifiers[i].height / 2, this.identifiers[i].width, this.identifiers[i].height);
 	}
 	
+	// enemy hitboxes
+	for(var i = 0; i < this.enemies.length; i++) {
+		this.ctx.strokeRect(this.enemies[i].screenX - this.enemies[i].width / 2, this.enemies[i].screenY - this.enemies[i].height / 2, this.enemies[i].width, this.enemies[i].height);
+	}
+	
 	// area teleport hitboxes
 	for(var i = 0; i < this.areaTeleports.length; i++) {
 		this.ctx.strokeRect(this.areaTeleports[i].screenX - this.areaTeleports[i].width / 2, this.areaTeleports[i].screenY - this.areaTeleports[i].height / 2, this.areaTeleports[i].width, this.areaTeleports[i].height);
@@ -1028,7 +1076,6 @@ Game.resetFormatting = function () {
 	this.ctx.textAlign = "left";
 	this.ctx.fillStyle = "rgba(0, 0, 0, 1)";
 	this.ctx.font = "10px MedievalSharp"; // maybe serif instead?
-	//console.log(this.ctx.font);
 }
 
 // draw a rotated image (rotated in radians)
@@ -1116,6 +1163,20 @@ Game.render = function () {
 			this.identifiers[i].screenY - this.identifiers[i].height / 2
         );
     }
+	
+    // draw enemies
+    for(var i = 0; i < this.enemies.length; i++) {
+		// set character screen x and y
+		this.enemies[i].screenX = (this.enemies[i].x - this.enemies[i].width / 2) - this.camera.x;
+		this.enemies[i].screenY = (this.enemies[i].y - this.enemies[i].height / 2) - this.camera.y;
+		
+		// draw image
+        this.ctx.drawImage(
+			this.enemies[i].image,
+			this.enemies[i].screenX - this.enemies[i].width / 2,
+			this.enemies[i].screenY - this.enemies[i].height / 2
+        );
+    }
 
     // draw main character
 	
@@ -1166,7 +1227,7 @@ Game.render = function () {
 		this.projectiles[i].screenX = (this.projectiles[i].x - this.projectiles[i].width / 2) - this.camera.x + this.projectiles[i].adjust.x;
 		this.projectiles[i].screenY = (this.projectiles[i].y - this.projectiles[i].height / 2) - this.camera.y + this.projectiles[i].adjust.y;
 		
-		this.drawImageRotated(
+		this.drawImageRotated( // rotate projectile away from player
 			this.projectiles[i].image,
 			this.projectiles[i].screenX - this.projectiles[i].width / 2,
 			this.projectiles[i].screenY - this.projectiles[i].height / 2,
@@ -1175,22 +1236,15 @@ Game.render = function () {
 			this.projectiles[i].rotate
 		);
 		
-		/*this.ctx.translate(this.projectiles[i].screenX - this.projectiles[i].width / 2, this.projectiles[i].screenY - this.projectiles[i].height / 2);
-		this.ctx.rotate(this.projectiles[i].rotate);
-		
-		// draw image
-        this.ctx.drawImage(
-			this.projectiles[i].image,
-			this.projectiles[i].screenX - this.projectiles[i].width / 2,
-			this.projectiles[i].screenY - this.projectiles[i].height / 2,
-			//this.width * this.expand,
-			//this.height * this.expand
-			this.projectiles[i].width,
-			this.projectiles[i].height
-        );
-		
-		this.ctx.rotate(-this.projectiles[i].rotate);
-		this.ctx.translate(-this.projectiles[i].screenX + this.projectiles[i].width / 2, -this.projectiles[i].screenY + this.projectiles[i].height / 2);*/
+		// shows damage dealt by projectile
+		for(var x = 0; x < this.projectiles[i].damageDealt.length; x++) {
+			// formatting
+			this.ctx.fillStyle = "rgb(0, 0, 0)"; // maybe use rgba to make it fade away?
+			this.ctx.textAlign = "left";
+			this.ctx.font = "18px MedievalSharp";
+			
+			this.ctx.fillText(this.projectiles[i].damageDealt[x].damage, this.projectiles[i].screenX, this.projectiles[i].screenY);
+		}
     }
 
     // draw map top layer
@@ -1215,7 +1269,7 @@ Game.render = function () {
 	if (this.displayAreaName.duration > 0) {
 		// formatting
 		this.ctx.fillStyle = "rgba(0, 0, 0, " + this.displayAreaName.duration / 100 + ")";
-		this.ctx.textAlign="center";
+		this.ctx.textAlign = "center";
 		this.ctx.font = "48px MedievalSharp";
 		
 		this.ctx.fillText(this.displayAreaName.name, 300, 100); // area name
