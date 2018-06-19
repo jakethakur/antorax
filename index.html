@@ -2,16 +2,12 @@
 <html>
 <head>
 	<title>Antorax</title>
-	
 	<link rel="stylesheet" href="style.css">
-	
 	<link rel="icon" type="image/png" href="./assets/icons/favicon-32x.png" sizes="32x32" />
 	<link rel="icon" type="image/png" href="./assets/icons/favicon-16x.png" sizes="16x16" />
 </head>
 <body>
-
 	<canvas id="game" width="600" height="600"></canvas>
-	
 	<div id="chatPage" hidden></div>
 	<div id="inventoryPage" hidden>
 		<div id="itemInformation" hidden></div>
@@ -21,10 +17,81 @@
 		<div id="boots"onmouseover="Dom.inventory.displayInformation('240px',Player.inventory.boots)"onmouseleave="Dom.expand('itemInformation')"onclick="Dom.inventory.changeEquipment(Player.inventory.boots,'boots')"></div>
 		<div id="weapon"onmouseover="Dom.inventory.displayInformation('325px',Player.inventory.weapon)"onmouseleave="Dom.expand('itemInformation')"onclick="Dom.inventory.changeEquipment(Player.inventory.weapon,'weapon')"></div>
 		<div id="statInfo"></div>
-		<div class="goldDisplay"></div>
-		<div class="xpDisplay"></div>
+		<div class="goldDisplay" id="inventoryGold"></div>
+		<div class="xpDisplay" id="inventoryXP"></div>
+		<div id="itemInventory">
+			<div class="inventorySpace"></div>
+			<div class="inventorySpace"></div>
+			<div class="inventorySpace"></div>
+			<div class="inventorySpace"></div>
+			<div class="inventorySpace"></div>
+			<div class="inventorySpace"></div>
+			<div class="inventorySpace"></div>
+			<div class="inventorySpace"></div>
+			<div class="inventorySpace"></div>
+			<div class="inventorySpace"></div>
+			<div class="inventorySpace"></div>
+			<div class="inventorySpace"></div>
+			<div class="inventorySpace"></div>
+			<div class="inventorySpace"></div>
+			<div class="inventorySpace"></div>
+			<div class="inventorySpace"></div>
+			<div class="inventorySpace"></div>
+			<div class="inventorySpace"></div>
+			<div class="inventorySpace"></div>
+			<div class="inventorySpace"></div>
+			<div class="inventorySpace"></div>
+			<div class="inventorySpace"></div>
+			<div class="inventorySpace"></div>
+			<div class="inventorySpace"></div>
+			<div class="inventorySpace"></div>
+			<div class="inventorySpace"></div>
+			<div class="inventorySpace"></div>
+			<div class="inventorySpace"></div>
+			<div class="inventorySpace"></div>
+			<div class="inventorySpace"></div>
+			<div class="inventorySpace"></div>
+			<div class="inventorySpace"></div>
+			<div class="inventorySpace"></div>
+			<div class="inventorySpace"></div>
+			<div class="inventorySpace"></div>
+			<div class="inventorySpace"></div>
+			<div class="inventorySpace"></div>
+			<div class="inventorySpace"></div>
+			<div class="inventorySpace"></div>
+			<div class="inventorySpace"></div>
+			<div class="inventorySpace"></div>
+			<div class="inventorySpace"></div>
+			<div class="inventorySpace"></div>
+			<div class="inventorySpace"></div>
+			<div class="inventorySpace"></div>
+			<div class="inventorySpace"></div>
+			<div class="inventorySpace"></div>
+			<div class="inventorySpace"></div>
+			<div class="inventorySpace"></div>
+			<div class="inventorySpace"></div>
+			<div class="inventorySpace"></div>
+			<div class="inventorySpace"></div>
+			<div class="inventorySpace"></div>
+			<div class="inventorySpace"></div>
+			<div class="inventorySpace"></div>
+			<div class="inventorySpace"></div>
+			<div class="inventorySpace"></div>
+			<div class="inventorySpace"></div>
+			<div class="inventorySpace"></div>
+			<div class="inventorySpace"></div>
+			<div class="inventorySpace"></div>
+			<div class="inventorySpace"></div>
+			<div class="inventorySpace"></div>
+			<div class="inventorySpace"></div>
+			<div class="inventorySpace"></div>
+			<div class="inventorySpace"></div>
+			<div class="inventorySpace"></div>
+			<div class="inventorySpace"></div>
+			<div class="inventorySpace"></div>
+			<div class="inventorySpace"></div>
+			</div>
 	</div>
-	
 	<div id="questsPage" hidden>
 		<div id="activeQuests"onclick="Dom.expand('activeQuestBox')">Active Quests</div>
 		<div id="activeQuestBox"hidden></div>
@@ -35,7 +102,7 @@
 		<div id="allQuests"onclick="Dom.expand('allQuestBox')">All Quests</div>
 		<div id="allQuestBox"hidden></div>
 	</div>
-	<div id="instructionsPage" hidden>
+	<div id="instructionsPage">
 		<center><br><br><a href="https://jakethakur22.github.io/antorax/archaeology.html" target="_blank">Archaeology Page</a></center>
 	</div>
 	<div id="reputationPage" hidden> <!-- this should all be added via dom not html --> Eaglecrest Logging Camp:
@@ -128,7 +195,7 @@
 		<center><div id="close" class="closeClass" onclick="Dom.changeBook(Dom.previous, true)">Close</div></center>
 	</div>
 	
-	<div id="identifierPage">
+	<div id="identifierPage" hidden>
 		<div id="identifierInformation" hidden></div>
 		<br><h1 id="identifierPageTitle">Item Identifier</h1><br><br>
 		<p id="identifierPageChat"></p><br><br><br>

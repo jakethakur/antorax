@@ -139,8 +139,6 @@ body{
 #weapon{
 	margin-top: 25px;
 }
-
-/* display for player gold and xp */
 .goldDisplay, .xpDisplay{
 	margin-top: 25px;
 	width: 60px;
@@ -270,7 +268,7 @@ body{
 	left: 775px;
 	top: 40px;
 	font-size: 20px;
-	line-height: 34px;
+	line-height: 26px;
 	-webkit-user-select: none; /* Safari */        
 	-moz-user-select: none; /* Firefox */
 	-ms-user-select: none; /* IE10+/Edge */
@@ -366,4 +364,24 @@ body{
 }
 #instructionsPage{
 	font-size: 80px;
+}
+#itemInventory{
+	position: absolute;
+	top: 19px;
+	left: 730px;
+	width: 385px;
+	height: 550px;
+	background-color: #fef9b4;
+	border: 2.5px solid #886622;
+	margin-top: 10px;
+	font-size: 0px;
+}
+.inventorySpace{
+	width: 50px;
+	height: 50px;
+	margin: 0px;
+	padding: 0px;
+	display: inline-block;
+	background-color: #fef9b4;
+	border: 2.5px solid #886622;
 }

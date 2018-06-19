@@ -34,25 +34,21 @@
 		<td>Don't give any individual item more than 10-15% without a suitable downside, otherwise a player could be able get near 100%!</td>
 	</tr>
 	<tr>
-		<td>Health_Regen: "+x/s"</td>
-		<td>Changes rate of health regeneration (in health per second). Health is out of 100.</td>
-		<td>2/s (tbc - maybe 1/s?)</td>
-		<td>Shouldn't normally be above 5/s, as this removes a need for the player to eat.</td>
-	</tr>
-	<tr>
-		<td>Walk_Speed: "+x/s"</td>
-		<td>Changes player's movement speed <strong>on land</strong>. Measured in pixels per second (one tile = 60 pixels).</td>
-		<td>180/s</td>
-	</tr>
-	<tr>
-		<td>Swim_Speed: "+x/s"</td>
-		<td>Changes player's movement speed <strong>in water</strong>. Measured in pixels per second (one tile = 60 pixels).</td>
-		<td>60/s</td>
+		<td>Flaming: "+x"</td>
+		<td><strong>Weapons only</strong>. Makes your attacks flaming, meaning 1 damage is dealt every second for 3 seconds for tier 1 and is more powerful at higher tiers. On attack, this status is refreshed (cannot stack). Ignores defense.</td>
+		<td>0</td>
+		<td>Might interact with spells, abilities and passives in the future to become more powerful.</td>
 	</tr>
 	<tr>
 		<td>Focus_Speed: "+x"</td>
 		<td><strong>Archers only</strong>. Increases the speed that the archer can focus their shots.</td>
 		<td>1 (takes 3 seconds to fully focus)</td>
+	</tr>
+	<tr>
+		<td>Health_Regen: "+x/s"</td>
+		<td>Changes rate of health regeneration (in health per second). Health is out of 100.</td>
+		<td>2/s (tbc - maybe 1/s?)</td>
+		<td>Shouldn't normally be above 5/s, as this removes a need for the player to eat.</td>
 	</tr>
 	<tr>
 		<td>Looting: "+x%"</td>
@@ -70,15 +66,19 @@
 		<td>0%</td>
 	</tr>
 	<tr>
-		<td>Flaming: "+x/ys"</td>
-		<td><strong>Weapons only</strong>. Makes your attacks flaming, meaning 1 damage is dealt every second for 3 seconds. On attack, this status is refreshed (cannot stack). Ignores defense.</td>
-		<td>False</td>
-		<td>Might interact with spells, abilities and passives in the future to become more powerful.</td>
-	</tr>
-	<tr>
 		<td>Stun: "+xs"</td>
 		<td><strong>Weapons only</strong>. Sets the amount of time that you stun an enemy for after you attack. When stunned, an enemy cannot move, attack, regen or channel.</td>
 		<td>0s</td>
+	</tr>
+	<tr>
+		<td>Swim_Speed: "+x/s"</td>
+		<td>Changes player's movement speed <strong>in water</strong>. Measured in pixels per second (one tile = 60 pixels).</td>
+		<td>60/s</td>
+	</tr>
+	<tr>
+		<td>Walk_Speed: "+x/s"</td>
+		<td>Changes player's movement speed <strong>on land</strong>. Measured in pixels per second (one tile = 60 pixels).</td>
+		<td>180/s</td>
 	</tr>
 </table>
 Name: <input type="text" id="name" placeholder="Bob's Mythic Bow">

@@ -27,12 +27,15 @@ var Stats = { // variables to do with stats are defined as Stats.varName
 	Damage: 0, // the user's total damage default is 0 but can be changed by weapons
 	Defence: 0, // the user's total defence default is 0 but can be changed by armour
 	Critical_Chance: 1, // the user's total critical chance default is 1 but can be changed by armour or weapons
+	Dodge_Chance: 1, // the user's total dodge chance default is 1 but can be changed by armout or weapons
+	Flaming: 0, // the user does not usually deal fire damage to enemies but some weapons do
 	Focus_Speed: 1, // the user's total focus speed default is 1 but can be changed by bows
 	Health_Regen: 2, // the user's total health regen default is 2 but can be changed by armour or weapons
 	Looting: 50, // the user's total looting default is 50 but can be changed by armour or weapons
 	PoisonX: 0, // the user's total posion default is 0 damage...
 	PoisonY: 0, // ...over 0 seconds but can be changed by armour or weapons
 	Reflection: 0, // the user's total looting default is 0 but can be changed by armour or weapons
+	Stun: 0, // the user's total stun time default is 0 but can be changed by armour or weapons
 	Swim_Speed: 60, // the user's total swim speed default is 60 but can be changed by armour or weapons
 	Walk_Speed: 180, // the user's total walk speed default is 180 but can be changed by armour or weapons
 };
@@ -171,11 +174,14 @@ Dom.inventory.stats = function(){ // updates the stats displayed in your invento
 	document.getElementById("statInfo").innerHTML = "Damage: " + Stats.Damage; // updates the damage display
 	document.getElementById("statInfo").innerHTML += "<br>Defence: " + Stats.Defence; // updates the defence display
 	document.getElementById("statInfo").innerHTML += "<br>Critical Chance: " + Stats.Critical_Chance + "%"; // updates the critical chance display
+	document.getElementById("statInfo").innerHTML += "<br>Dodge Chance: " + Stats.Dodge_Chance + "%"; // updates the dodge chance display
+	document.getElementById("statInfo").innerHTML += "<br>Flaming: " + Stats.Flaming; // updates the flaming display
 	document.getElementById("statInfo").innerHTML += "<br>Focus Speed: " + Stats.Focus_Speed; // updates the focus speed display
 	document.getElementById("statInfo").innerHTML += "<br>Health Regen: " + Stats.Health_Regen + "/s"; // updates the health regen display
 	document.getElementById("statInfo").innerHTML += "<br>Looting: " + Stats.Looting + "%"; // updates the looting display
 	document.getElementById("statInfo").innerHTML += "<br>Poison: " + Stats.PoisonX + "/" + Stats.PoisonY + "s"; // updates the poison display
 	document.getElementById("statInfo").innerHTML += "<br>Reflection: " + Stats.Reflection + "%"; // updates the reflection display
+	document.getElementById("statInfo").innerHTML += "<br>Stun: " + Stats.Stun + "s"; // updates the stun display
 	document.getElementById("statInfo").innerHTML += "<br>Swim Speed: " + Stats.Swim_Speed + "/s"; // updates the swim speed display
 	document.getElementById("statInfo").innerHTML += "<br>Walk Speed: " + Stats.Walk_Speed + "/s"; // updates the walk speed display
 }
@@ -332,8 +338,8 @@ else if(window.innerWidth >= 1295) { // if the window height is too small but th
 	Dom.settings.bookmarkPosition(); // ...then update the position
 }
 else { // if the window size is too small...
-	alert("Your window size is too small. Please zoom out!"); // ...alert the user that their window is too small...
-	console.warn("Your window size is too small. Please zoom out!"); // ...warn the user that their window is too small...
+	alert("Your window size is too small. Please zoom out and refresh the page!"); // ...alert the user that their window is too small...
+	console.warn("Your window size is too small. Please zoom out and refresh the page!"); // ...warn the user that their window is too small...
 	document.getElementById("bottom").checked = true; // ...set the bookmark position to bottom...
 	Dom.settings.bookmarkPosition(); // ...then update the position
 }
@@ -776,9 +782,6 @@ Dom.identifier.page = function(chat, chat1, chat2, chat3, over){ // identifier p
 	}
 	document.getElementById("identifierPageBuy").innerHTML = "Identify for: "+"1"+" gold"; // sets the text inside the identify button
 }
-setTimeout(function(){ // waits 100
-	Dom.identifier.page("What would you like to identify?","Here is your item, adventurer", "Some people would pay good money for that item", "Wow! A Mythic"); // opens and updates the identifier page
-},100); // waits 0.1 seconds
 
 Dom.quest.give = function(item){ // gives the player the item
 	if(item.type == "helm"){Player.inventory.helm.push(item);} // adds the helm to the players helm array
