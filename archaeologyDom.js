@@ -139,7 +139,7 @@ function arrange(){
 			var replaceStat = Object.keys(array[i].stats)[a].replace("_"," ");
 			document.getElementById("stats"+i).innerHTML += replaceStat+": "+array[i].stats[Object.keys(array[i].stats)[a]]+"<br>";
 		}
-		if(array[i].lore != undefined){
+		if(array[i].lore != undefined && array[i].lore != ""){
 			document.getElementById("lore"+i).innerHTML = "<br><i>"+array[i].lore+"</i>";
 		}
 	}

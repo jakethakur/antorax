@@ -367,7 +367,7 @@ var items = {
 			//id: 4
 			name: "Poisoned Blade",
 			type: "sword",
-			image: "assets/items/sword/2.png",
+			image: "assets/items/poisonedblade.png",
 			tier: 1,
 			rarity: "unique",
 			lore: "Not to be mistaken with its Grand Tournament counterpart.",
@@ -571,7 +571,7 @@ var items = {
 			//id: 6
 			name: "Kraiss' Brimstone Bow",
 			type: "bow",
-			image: "assets/items/bow/2.png",
+			image: "assets/items/kraissbow.png",
 			tier: 1,
 			rarity: "mythic",
 			lore: "",
@@ -602,7 +602,7 @@ var items = {
 			//id: 2
 			name: "Siege Set",
 			type: "set",
-			image: "assets/items/bow/2.png",
+			image: "assets/items/sets/2.png",
 			tier: 1,
 			rarity: "unique",
 			armour: [
