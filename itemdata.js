@@ -47,7 +47,7 @@ var items = {
 			//id: 4
 			name: "Siege Helm",
 			type: "helm",
-			image: "assets/items/helm/0.png",
+			image: "assets/items/helm/4.png",
 			tier: 1,
 			rarity: "unique",
 			lore: "",
@@ -123,7 +123,7 @@ var items = {
 			//id: 4
 			name: "Siege Chestplate",
 			type: "chest",
-			image: "assets/items/chest/0.png",
+			image: "assets/items/chest/4.png",
 			tier: 1,
 			rarity: "unique",
 			lore: "",
@@ -200,7 +200,7 @@ var items = {
 			//id: 4
 			name: "Siege Greaves",
 			type: "greaves",
-			image: "assets/items/greaves/0.png",
+			image: "assets/items/greaves/4.png",
 			tier: 1,
 			rarity: "unique",
 			lore: "",
@@ -291,7 +291,7 @@ var items = {
 			//id: 5
 			name: "Siege Boots",
 			type: "boots",
-			image: "assets/items/boots/0.png",
+			image: "assets/items/boots/5.png",
 			tier: 1,
 			rarity: "unique",
 			lore: "",
@@ -579,7 +579,7 @@ var items = {
 			area: "Eaglecrest Logging Camp",
 			stats: {
 				Damage: 3,
-				Flaming: true,
+				Flaming: 1,
 			},
 		},
 	],
@@ -612,7 +612,7 @@ var items = {
 				"Siege Boots",
 			],
 			stats: {
-				Walk_Speed: "+20/s",
+				Defence: "5",
 			},
 		},
 		{
@@ -629,7 +629,7 @@ var items = {
 				"Goblin Forged Boots",
 			],
 			stats: {
-				Looting: "+5%",
+				Looting: "+10%",
 			},
 		},
 	],
