@@ -115,7 +115,6 @@ Dom.inventory.updateGold(); // calls the function to update the gold display
 Dom.inventory.changeEquipment = function(array,equipmentType) { // change which item is shown in inventory
 	for(var i = 0; i < Object.keys(array[0].stats).length; i++){ // repeats code for all stats in old item
 		Stats[Object.keys(array[0].stats)[i]] -= parseInt(array[0].stats[Object.keys(array[0].stats)[i]]); // minuses that stat from the player's stats
-		Dom.inventory.stats(); // updates the stat display
 	}
 	if(array[0].set != undefined){ // if the item being removed is part of a set
 		Dom.inventory.noSet = false; // allows the set code to run
@@ -127,7 +126,6 @@ Dom.inventory.changeEquipment = function(array,equipmentType) { // change which 
 		if(!Dom.inventory.noSet){ // set code (runs if the player was wearing a set but now isn't)
 			for(var i = 0; i < Object.keys(items.sets[array[0].set].stats).length; i++){ // repeats for all stats in set
 				Stats[Object.keys(items.sets[array[0].set].stats)[i]] -= parseInt(items.sets[array[0].set].stats[Object.keys(items.sets[array[0].set].stats)]); // removes that stat from player's stats
-				Dom.inventory.stats(); // updates the stats display
 			}
 		}
 	}
@@ -135,7 +133,6 @@ Dom.inventory.changeEquipment = function(array,equipmentType) { // change which 
 	array.splice(0, 1); // removes the first element of the array
 	for(var i = 0; i < Object.keys(array[0].stats).length; i++){ // repeats code for all stats in new item
 		Stats[Object.keys(array[0].stats)[i]] += parseInt(array[0].stats[Object.keys(array[0].stats)[i]]); // adds that stat to the player's stats
-		Dom.inventory.stats(); // updates the stat display
 	}
 	if(array[0].set != undefined){ // if the item being added is part of a set
 		Dom.inventory.noSet = false; // allows the set code to run
@@ -147,45 +144,27 @@ Dom.inventory.changeEquipment = function(array,equipmentType) { // change which 
 		if(!Dom.inventory.noSet){ // set code (runs if the player was not wearing a set but now is)
 			for(var i = 0; i < Object.keys(items.sets[array[0].set].stats).length; i++){ // repeats for all stats in set
 				Stats[Object.keys(items.sets[array[0].set].stats)[i]] += parseInt(items.sets[array[0].set].stats[Object.keys(items.sets[array[0].set].stats)]); // removes that stat from player's stats
-				Dom.inventory.stats(); // updates the stat display
 			}
 		}
 	}
 	document.getElementById(equipmentType).style.backgroundImage = "url(" + array[0].image + ")"; // sets the image of to the the item's image
 	if(equipmentType == "helm"){ // if the equipment being changed is a helm...
 		Player.inventory.helm = array; // ...updates the helm array...
-		this.displayInformation("30px",Player.inventory.helm); // ... and displays the information for your helm
+		this.displayInformation("289px",Player.inventory.helm); // ... and displays the information for your helm
 	}else if(equipmentType == "chest"){ // if the equipment being changed is a chest...
 		Player.inventory.chest = array; // ...updates the chest array...
-		this.displayInformation("100px",Player.inventory.chest); // ...and displays the information for your chest
+		this.displayInformation("359px",Player.inventory.chest); // ...and displays the information for your chest
 	}else if(equipmentType == "greaves"){ // if the equipment being chaged are greaves...
 		Player.inventory.greaves = array; // ...updates the greaves array...
-		this.displayInformation("170px",Player.inventory.greaves); // ...and displays the information for your greaves
+		this.displayInformation("429px",Player.inventory.greaves); // ...and displays the information for your greaves
 	}else if(equipmentType == "boots"){ // if the equipment being changed are boots...
 		Player.inventory.boots = array; // ...updates the boots array...
-		this.displayInformation("240px",Player.inventory.boots); // ...and displays the information for your boots
+		this.displayInformation("499px",Player.inventory.boots); // ...and displays the information for your boots
 	}else{ // if the equipment being changed is a weapon...
 		Player.inventory.weapon = array; // ...updates the weapon array...
-		this.displayInformation("325px",Player.inventory.weapon); // ...and displays the information for your weapon
+		this.displayInformation("179px",Player.inventory.weapon); // ...and displays the information for your weapon
 	}
 }
-
-Dom.inventory.stats = function(){ // updates the stats displayed in your inventory
-	document.getElementById("statInfo").innerHTML = "Damage: " + Stats.Damage; // updates the damage display
-	document.getElementById("statInfo").innerHTML += "<br>Defence: " + Stats.Defence; // updates the defence display
-	document.getElementById("statInfo").innerHTML += "<br>Critical Chance: " + Stats.Critical_Chance + "%"; // updates the critical chance display
-	document.getElementById("statInfo").innerHTML += "<br>Dodge Chance: " + Stats.Dodge_Chance + "%"; // updates the dodge chance display
-	document.getElementById("statInfo").innerHTML += "<br>Flaming: " + Stats.Flaming; // updates the flaming display
-	document.getElementById("statInfo").innerHTML += "<br>Focus Speed: " + Stats.Focus_Speed; // updates the focus speed display
-	document.getElementById("statInfo").innerHTML += "<br>Health Regen: " + Stats.Health_Regen + "/s"; // updates the health regen display
-	document.getElementById("statInfo").innerHTML += "<br>Looting: " + Stats.Looting + "%"; // updates the looting display
-	document.getElementById("statInfo").innerHTML += "<br>Poison: " + Stats.PoisonX + "/" + Stats.PoisonY + "s"; // updates the poison display
-	document.getElementById("statInfo").innerHTML += "<br>Reflection: " + Stats.Reflection + "%"; // updates the reflection display
-	document.getElementById("statInfo").innerHTML += "<br>Stun: " + Stats.Stun + "s"; // updates the stun display
-	document.getElementById("statInfo").innerHTML += "<br>Swim Speed: " + Stats.Swim_Speed + "/s"; // updates the swim speed display
-	document.getElementById("statInfo").innerHTML += "<br>Walk Speed: " + Stats.Walk_Speed + "/s"; // updates the walk speed display
-}
-Dom.inventory.stats(); // calls the function to display stats in your inventory
 
 Dom.chat.newString = ""; // sets the new chat to nothing
 Dom.chat.oldString = ""; // sets the old chat to nothing
@@ -400,6 +379,26 @@ Dom.reputation.downLevel = function(Area){ // decreases the reputation level
 		document.getElementById("reputationBar").style.backgroundColor = "gold"; // ...sets the color to yellow
 	}
 	this.update(); // updates the reputation
+}
+
+Dom.inventory.displayIdentification = function(){ // display inventory information
+	document.getElementById("itemInformation").hidden = false; // ...display information
+	document.getElementById("itemInformation").style.top = "69px"; // sets information's top value to the value specified in the parameter
+	document.getElementById("itemInformation").innerHTML = "<div class='triangleLeft'></div><div id='triangle' class='innerTriangleLeft'></div><p id='innerStats'></p>"; // construct the information
+	document.getElementById("innerStats").innerHTML += "Damage: " + Stats.Damage; // updates the damage display
+	document.getElementById("innerStats").innerHTML += "<br>Defence: " + Stats.Defence; // updates the defence display
+	document.getElementById("innerStats").innerHTML += "<br>Critical Chance: " + Stats.Critical_Chance + "%"; // updates the critical chance display
+	document.getElementById("innerStats").innerHTML += "<br>Dodge Chance: " + Stats.Dodge_Chance + "%"; // updates the dodge chance display
+	document.getElementById("innerStats").innerHTML += "<br>Flaming: " + Stats.Flaming; // updates the flaming display
+	document.getElementById("innerStats").innerHTML += "<br>Focus Speed: " + Stats.Focus_Speed; // updates the focus speed display
+	document.getElementById("innerStats").innerHTML += "<br>Health Regen: " + Stats.Health_Regen + "/s"; // updates the health regen display
+	document.getElementById("innerStats").innerHTML += "<br>Looting: " + Stats.Looting + "%"; // updates the looting display
+	document.getElementById("innerStats").innerHTML += "<br>Poison: " + Stats.PoisonX + "/" + Stats.PoisonY + "s"; // updates the poison display
+	document.getElementById("innerStats").innerHTML += "<br>Reflection: " + Stats.Reflection + "%"; // updates the reflection display
+	document.getElementById("innerStats").innerHTML += "<br>Stun: " + Stats.Stun + "s"; // updates the stun display
+	document.getElementById("innerStats").innerHTML += "<br>Swim Speed: " + Stats.Swim_Speed + "/s"; // updates the swim speed display
+	document.getElementById("innerStats").innerHTML += "<br>Walk Speed: " + Stats.Walk_Speed + "/s"; // updates the walk speed display
+	document.getElementById("triangle").style.bottom = document.getElementById("itemInformation").offsetHeight - 50 + "px"; // position the triangle in the correct place
 }
 
 Dom.inventory.displayInformation = function(y,array){ // display inventory information

@@ -129,6 +129,11 @@ body{
 	padding-left: 10px;
 	padding-top: 10px;
 }
+#inventoryPage{
+	padding-left: 32px;
+	padding-top: 40px;
+	height: 560px;
+}
 #helm, #chest, #greaves, #boots, #weapon{
 	margin-top: 10px;
 	border: 5px solid #886622;
@@ -136,8 +141,31 @@ body{
 	width: 50px;
 	height: 50px;
 }
-#weapon{
-	margin-top: 25px;
+#helm, #weapon{
+	margin-top: 50px;
+}
+#inventoryGoldXP{
+	margin-top: 10px;
+}
+#itemInventory{
+	position: absolute;
+	top: 30px;
+	left: 769px;
+	width: 385px;
+	height: 550px;
+	background-color: #fef9b4;
+	border: 2.5px solid #886622;
+	margin-top: 10px;
+	font-size: 0px;
+}
+.inventorySpace{
+	width: 50px;
+	height: 50px;
+	margin: 0px;
+	padding: 0px;
+	display: inline-block;
+	background-color: #fef9b4;
+	border: 2.5px solid #886622;
 }
 .goldDisplay, .xpDisplay{
 	margin-top: 25px;
@@ -238,7 +266,7 @@ body{
 }
 #itemInformation, #informationMerchant, #questInformation, #questFinishInformation, #identifierInformation, #identifiedInformation{
 	position: absolute;
-	left: 740px;
+	left: 760px;
 	width: 150px;
 	background-color: #fef9b4;
 	border: 5px solid #886622;
@@ -246,6 +274,9 @@ body{
 	padding-left: 10px;
 	text-align: left;
 	z-index: 1;
+}
+#informationMerchant{
+	left: 740px;
 }
 .closeClass {
 	position: relative;
@@ -258,17 +289,6 @@ body{
 	vertical-align: middle;
 	font-size: 20px;
 	font-family: 'MedievalSharp', serif;
-	-webkit-user-select: none; /* Safari */        
-	-moz-user-select: none; /* Firefox */
-	-ms-user-select: none; /* IE10+/Edge */
-	user-select: none;
-}
-#statInfo{
-	position: absolute;
-	left: 775px;
-	top: 40px;
-	font-size: 20px;
-	line-height: 26px;
 	-webkit-user-select: none; /* Safari */        
 	-moz-user-select: none; /* Firefox */
 	-ms-user-select: none; /* IE10+/Edge */
@@ -364,24 +384,4 @@ body{
 }
 #instructionsPage{
 	font-size: 80px;
-}
-#itemInventory{
-	position: absolute;
-	top: 19px;
-	left: 730px;
-	width: 385px;
-	height: 550px;
-	background-color: #fef9b4;
-	border: 2.5px solid #886622;
-	margin-top: 10px;
-	font-size: 0px;
-}
-.inventorySpace{
-	width: 50px;
-	height: 50px;
-	margin: 0px;
-	padding: 0px;
-	display: inline-block;
-	background-color: #fef9b4;
-	border: 2.5px solid #886622;
 }
