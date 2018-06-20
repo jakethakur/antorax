@@ -859,3 +859,18 @@ Dom.identifier.identify = function(chat, chat1, chat2, chat3){ // the page that 
  		alert("You don't have sufficient funds to buy that item."); // alert them that they don't have enough gold
 	}
 }
+
+for(i = 0; i < Player.inventory.items.length; i++){
+	document.getElementsByClassName("inventorySpace")[i].style.backgroundImage = "url('"+Player.inventory.items[i].image+"')";
+	console.log(Player.inventory.items[i].image);
+	console.log(document.getElementsByClassName("inventorySpace")[i].style.backgroundImage);
+	console.log("yes");
+}
+
+function updateInvSize(){
+	document.getElementById("bagText").style.top = 300+(26*(document.getElementsByClassName("inventorySpace").length/7))+"px";
+	console.log((document.getElementsByClassName("inventorySpace").length/7));
+	//document.getElementById("bagText").style.top = parseInt(document.getElementById("bagText").style.top)+   10*(document.getElementsByClassName("inventorySpace").length/7)   +"px";
+	//console.log((document.getElementsByClassName("inventorySpace").length/7));
+}
+updateInvSize();

@@ -133,6 +133,19 @@ function arrange(){
 				document.getElementById("tier"+i).innerHTML += "<br>"+array[i].armour[f];
 			}
 			document.getElementById("tier"+i).innerHTML += "<br>";
+			for(var f = 0; f < 7; f++){
+				for(var g = 0; g < items[Object.keys(items)[f]].length; g++){
+					console.log(items[Object.keys(items)[f]][g].name);
+					console.log(array[i].armour[0]);
+					if(items[Object.keys(items)[f]][g].name == array[i].armour[0]){
+						console.log("no");
+						if(items[Object.keys(items)[f]][g].lore != undefined && items[Object.keys(items)[f]][g].lore != ""){
+							console.log(items[Object.keys(items)[f]][g].lore);
+							document.getElementById("lore"+i).innerHTML = "<br><i>"+items[Object.keys(items)[f]][g].lore+"</i>";
+						}
+					}
+				}
+			}
 		}
 		document.getElementById("tier"+i).innerHTML += "<br>Tier: "+array[i].tier;
 		for(var a = 0; a < Object.keys(array[i].stats).length; a++){

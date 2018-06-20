@@ -152,11 +152,15 @@ body{
 	top: 30px;
 	left: 769px;
 	width: 385px;
-	height: 550px;
 	background-color: #fef9b4;
 	border: 2.5px solid #886622;
 	margin-top: 10px;
 	font-size: 0px;
+	z-index: 1;
+}
+#bagText{
+	position: absolute;
+	left: 822px;
 }
 .inventorySpace{
 	width: 50px;
@@ -273,7 +277,7 @@ body{
 	float: right;
 	padding-left: 10px;
 	text-align: left;
-	z-index: 1;
+	z-index: 2;
 }
 #informationMerchant{
 	left: 740px;
