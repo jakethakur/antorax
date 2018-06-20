@@ -382,7 +382,7 @@ var items = {
 			//id: 5
 			name: "Splintered Sword",
 			type: "sword",
-			image: "assets/items/sword/2.png",
+			image: "assets/items/splinteredsword.png",
 			tier: 1,
 			rarity: "unique",
 			lore: "It might be falling apart, but those splinters hurt!",
@@ -469,7 +469,7 @@ var items = {
 			//id: 5
 			name: "Power Surge Staff",
 			type: "staff",
-			image: "assets/items/staff/2.png",
+			image: "assets/items/lightningstaff.png",
 			tier: 1,
 			rarity: "unique",
 			lore: "POWER OVERWHELMING!",
@@ -541,7 +541,7 @@ var items = {
 			//id: 4
 			name: "Sharpshooter's Bow",
 			type: "bow",
-			image: "assets/items/bow/2.png",
+			image: "assets/items/sharpshooterbow.png",
 			tier: 1,
 			rarity: "unique",
 			lore: "",
