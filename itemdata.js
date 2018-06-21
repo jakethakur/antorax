@@ -1,4 +1,4 @@
-var items = {
+var items = { // items should have a capital (global variable)
 	helm: [
 		{
 			//id: 0
@@ -147,7 +147,7 @@ var items = {
 			area: "Eaglecrest Logging Camp",
 			stats: {
 				Defence: 6,
-				Walk_Speed: "-30/s",
+				Walk_Speed: "-40/s",
 			},
 		},
 	],
@@ -255,7 +255,7 @@ var items = {
 			obtain: "Recieve as a reward for completing quest: 'To the Logging Camp'",
 			stats: {
 				Defence: 1,
-				Walk_Speed: "+20/s",
+				Walk_Speed: "+30/s",
 			},
 		},
 		{
@@ -319,6 +319,20 @@ var items = {
 				Dodge_Chance: "+10%",
 				Health_Regen: "+1/s",
 				Looting: "+10%",
+			},
+		},
+		{
+			//id: 7
+			name: "James Boots",
+			type: "boots",
+			image: "assets/items/boots/7.png",
+			tier: 1,
+			rarity: "mythic",
+			lore: "'James just feels like poison' - Peter",
+			obtain: "Log in on James Day",
+			stats: {
+				Defence: 4,
+				Swim_Speed: "-50/s"
 			},
 		},
 	],

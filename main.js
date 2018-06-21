@@ -325,9 +325,9 @@ class Character extends Entity {
 class Hero extends Character {
 	constructor(properties) {
 		super(properties);
-		this.baseSpeed = properties.baseSpeed;
-		this.waterSpeed = properties.waterSpeed;
-		this.speed = properties.baseSpeed;
+		//this.baseSpeed = properties.baseSpeed;
+		//this.waterSpeed = properties.waterSpeed;
+		this.speed = Stats.Walk_Speed;
 		this.direction = properties.direction;
 		
 		this.channelTime = 0;
@@ -337,6 +337,8 @@ class Hero extends Character {
 	}
 	
 	move(delta, dirx, diry) {
+		// update speed (maybe doesn't have to be done every move tick?)
+		
 		// move hero
 		this.x += dirx * this.speed * delta;
 		this.y += diry * this.speed * delta;
@@ -351,7 +353,7 @@ class Hero extends Character {
 		this.y = Math.max(0, Math.min(this.y, maxY));
 	}
 	
-	_collide(dirx, diry, delta) {
+	_collide(dirx, diry, delta) { // update move speed based on equipment and surroundings
 		var row, col;
 		// there used to be a -1 in right and bottom is because image ranges from 0 to 59 and not up to 60
 		var left = this.x - this.width / 2;
@@ -368,16 +370,19 @@ class Hero extends Character {
 			this.map.isSolidTileAtXY(right, bottom) ||
 			this.map.isSolidTileAtXY(left, bottom);
 		
-		//test for water
-		//make this controlled by a status effect instead maybe?
-		if (this.map.isWaterAtXY(this.x, this.y + 50)) {
-			if(this.speed === this.baseSpeed) {
-				this.speed = this.waterSpeed;
+		// test for water
+		// make this controlled by a status effect instead maybe?
+		if (this.map.isWaterAtXY(this.x, this.y + 50)) { // in water
+			if(this.speed === Stats.Walk_Speed) {
+				this.speed = Stats.Swim_Speed;
+				if(!this.statusEffects.includes( {title: "Swimming", effect: "Reduced movement speed"} )) { // maybe just make a function to add a status effect? ( tbd )
+					this.statusEffects.push(new statusEffect("Swimming", "Reduced movement speed"));
+				}
 			}
 		}
-		else if (this.speed  === this.waterSpeed) {
-			this.speed = this.baseSpeed;
-			this.statusEffects.push(new statusEffect("Swimming", "Reduced movement speed"));
+		else { // normal speed
+			this.speed = Stats.Walk_Speed;
+			// remove swimming status effect
 		}
 		
 		if (!collision) { return; }
@@ -406,38 +411,48 @@ class Hero extends Character {
 	
 	// start channeling basic attack
 	startAttack(e) {
-		this.channelling = true;
-		
-		var projectileX, projectileY, projectileRotate;
-		
-		projectileX = Game.camera.x + (e.clientX);
-		projectileY = Game.camera.y + (e.clientY);
-		projectileRotate = bearing(this, {x: projectileX, y: projectileY});
+		if (Stats.Damage > 0) {
+			this.channelling = true;
+			
+			var projectileX, projectileY, projectileRotate;
+			
+			projectileX = Game.camera.x + (e.clientX);
+			projectileY = Game.camera.y + (e.clientY);
+			projectileRotate = bearing(this, {x: projectileX, y: projectileY});
 
-		Game.projectiles.push(new Projectile({
-			map: map,
-			x: projectileX,
-			y: projectileY,
-			width: 10,
-			height: 40,
-			rotate: projectileRotate,
-			adjust: {
-				// manually adjust position - make this per class (per projectile image) in the future ( tbd )
-				x: -13,
-				y: 0,
-				//y: 16,
-			},
-			image: "projectile",
-		}));
+			Game.projectiles.push(new Projectile({
+				map: map,
+				x: projectileX,
+				y: projectileY,
+				width: 10,
+				height: 40,
+				rotate: projectileRotate,
+				adjust: {
+					// manually adjust position - make this per class (per projectile image) in the future ( tbd )
+					x: -13,
+					y: 0,
+					//y: 16,
+				},
+				image: "projectile",
+			}));
+		}
 	}
 	
 	// fire basic attack
 	finishAttack(e) {
-		this.channelTime = 0;
-		this.channelling = false;
-	
-	
-		Game.projectiles[Game.projectiles.length - 1].damageEnemies();
+		if (this.channelling) { // check that the player is channelling an attack (they might not have a weapon equipped so are not channelling, for example)
+			this.channelTime = 0;
+			this.channelling = false;
+			
+			// damage enemies that the projectile is touching
+			Game.projectiles[Game.projectiles.length - 1].damageEnemies();
+			
+			// after a timeout (2s), remove the first projectile from the array of projectiles
+			// note that this only works for removing projectiles if ALL projectiles stay for the same period of time (2s)
+			setTimeout(function () {
+				Game.projectiles.shift();
+			}, 2000);
+		}
 	}
 }
 
@@ -459,10 +474,16 @@ class Projectile extends Character {
 	}
 	
 	damageEnemies () {
-		for(var i = 0; i < Game.enemies.length; i++) {
-			if(this.isTouching(Game.enemies[i])) {
-				Game.enemies[i].health -= Stats.Damage;
-				this.damageDealt.push({enemy: Game.enemies[i], damage: Stats.Damage, critical: false});
+		for (var i = 0; i < Game.enemies.length; i++) {
+			if (this.isTouching(Game.enemies[i])) {
+				if (random(0, 100) < Stats.Critical_Chance) { // critical hit
+					Game.enemies[i].health -= Stats.Damage * 2;
+					this.damageDealt.push({enemy: Game.enemies[i], damage: Stats.Damage * 2, critical: true});
+				}
+				else {
+					Game.enemies[i].health -= Stats.Damage;
+					this.damageDealt.push({enemy: Game.enemies[i], damage: Stats.Damage, critical: false});
+				}
 			}
 		}
 	}
@@ -766,7 +787,7 @@ Game.init = function () {
         [Keyboard.LEFT, Keyboard.RIGHT, Keyboard.UP, Keyboard.DOWN]);
 	
 	// music
-	this.playingMusic = false;
+	this.playingMusic = null;
 	
 	this.hero = new Hero({ // create the player at its start x and y positions
 		map: map,
@@ -776,8 +797,10 @@ Game.init = function () {
 		width: 57,
 		height: 120,
 		image: "hero",
-		baseSpeed: 180, // base pixels per second
-		waterSpeed: 60, // speed when in water
+		
+		// the following have been moved to Stats in DOM.js
+		//baseSpeed: 180, // base pixels per second
+		//waterSpeed: 60, // speed when in water
 	});
 		
 	// player attack on click
@@ -792,18 +815,45 @@ Game.init = function () {
 	
     this.camera.follow(this.hero);
 	
+	// check for events
+	this.checkEvents();
+	
 	// begin game display
 	window.requestAnimationFrame(this.tick);
 };
 
-// play music
+// check for events
+Game.checkEvents = function() {
+	// get date
+	var today = new Date();
+	var day = today.getDate();
+	var month = today.getMonth() + 1; // January is 0, so add 1
+	var year = today.getFullYear();
+	
+	// James Day
+	if (day == 21 && month == 6) {
+		console.log("Happy James day!");
+		Player.inventory.boots.push(items.boots[7]);
+	}
+}
+
+//
+// music
+//
 
 Game.playMusic = function() {
+	// currently does not change music for tavern ( tbd )
 	// check if music is already being played
-	if (!this.playingMusic) {
+	if (this.playingMusic !== null) {
 		// check area
-		if (true) {
+		if (this.areaName == "tutorial" || this.areaName == "eaglecrestLoggingCamp") {
 			this.loadMusic('./assets/music/Pippin-the-Hunchback.mp3');
+		}
+		else if (this.areaName == "tavern") {
+			this.loadMusic('./assets/music/Tavern.mp3');
+		}
+		else {
+			console.warn("No music for the current area could be found.");
 		}
 	}
 }
@@ -817,13 +867,17 @@ Game.loadMusic = function (song) {
 	}, false);
 	
 	this.audio.play();
-	this.playingMusic = true;
+	this.playingMusic = song;
 }
 
 Game.stopMusic = function () {
 	this.audio.pause();
-	this.playingMusic = false;
+	this.playingMusic = null;
 }
+
+//
+// 
+//
 
 Game.update = function (delta) {
     // handle hero movement with arrow keys
@@ -1250,7 +1304,12 @@ Game.render = function () {
 		// shows damage dealt by projectile
 		for(var x = 0; x < this.projectiles[i].damageDealt.length; x++) {
 			// formatting
-			this.ctx.fillStyle = "rgb(0, 0, 0)"; // maybe use rgba to make it fade away?
+			if (this.projectiles[i].damageDealt[x].critical) {
+				this.ctx.fillStyle = "rgb(255, 0, 0)"; // maybe use rgba to make it fade away?
+			}
+			else {
+				this.ctx.fillStyle = "rgb(0, 0, 0)"; // maybe use rgba to make it fade away?
+			}
 			this.ctx.textAlign = "left";
 			this.ctx.font = "18px MedievalSharp";
 			
