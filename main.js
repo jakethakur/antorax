@@ -815,11 +815,31 @@ Game.init = function () {
 	
     this.camera.follow(this.hero);
 	
+	// check for events
+	this.checkEvents();
+	
 	// begin game display
 	window.requestAnimationFrame(this.tick);
 };
 
-// play music
+// check for events
+Game.checkEvents = function() {
+	// get date
+	var today = new Date();
+	var day = today.getDate();
+	var month = today.getMonth() + 1; // January is 0, so add 1
+	var year = today.getFullYear();
+	
+	// James Day
+	if (day == 21 && month == 6) {
+		console.log("Happy James day!");
+		Player.inventory.boots.push(items.boots[7]);
+	}
+}
+
+//
+// music
+//
 
 Game.playMusic = function() {
 	// currently does not change music for tavern ( tbd )
@@ -854,6 +874,10 @@ Game.stopMusic = function () {
 	this.audio.pause();
 	this.playingMusic = null;
 }
+
+//
+// 
+//
 
 Game.update = function (delta) {
     // handle hero movement with arrow keys
