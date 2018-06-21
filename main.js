@@ -338,7 +338,6 @@ class Hero extends Character {
 	
 	move(delta, dirx, diry) {
 		// update speed (maybe doesn't have to be done every move tick?)
-		this.speed = Stats.Walk_Speed;
 		
 		// move hero
 		this.x += dirx * this.speed * delta;
@@ -354,7 +353,7 @@ class Hero extends Character {
 		this.y = Math.max(0, Math.min(this.y, maxY));
 	}
 	
-	_collide(dirx, diry, delta) {
+	_collide(dirx, diry, delta) { // update move speed based on equipment and surroundings
 		var row, col;
 		// there used to be a -1 in right and bottom is because image ranges from 0 to 59 and not up to 60
 		var left = this.x - this.width / 2;
@@ -371,16 +370,19 @@ class Hero extends Character {
 			this.map.isSolidTileAtXY(right, bottom) ||
 			this.map.isSolidTileAtXY(left, bottom);
 		
-		//test for water
-		//make this controlled by a status effect instead maybe?
-		if (this.map.isWaterAtXY(this.x, this.y + 50)) {
+		// test for water
+		// make this controlled by a status effect instead maybe?
+		if (this.map.isWaterAtXY(this.x, this.y + 50)) { // in water
 			if(this.speed === Stats.Walk_Speed) {
 				this.speed = Stats.Swim_Speed;
+				if(!this.statusEffects.includes( {title: "Swimming", effect: "Reduced movement speed"} )) { // maybe just make a function to add a status effect? ( tbd )
+					this.statusEffects.push(new statusEffect("Swimming", "Reduced movement speed"));
+				}
 			}
 		}
-		else if (this.speed === Stats.Swim_Speed) {
+		else { // normal speed
 			this.speed = Stats.Walk_Speed;
-			this.statusEffects.push(new statusEffect("Swimming", "Reduced movement speed"));
+			// remove swimming status effect
 		}
 		
 		if (!collision) { return; }
@@ -775,7 +777,7 @@ Game.init = function () {
         [Keyboard.LEFT, Keyboard.RIGHT, Keyboard.UP, Keyboard.DOWN]);
 	
 	// music
-	this.playingMusic = false;
+	this.playingMusic = null;
 	
 	this.hero = new Hero({ // create the player at its start x and y positions
 		map: map,
@@ -810,11 +812,18 @@ Game.init = function () {
 // play music
 
 Game.playMusic = function() {
+	// currently does not change music for tavern ( tbd )
 	// check if music is already being played
-	if (!this.playingMusic) {
+	if (this.playingMusic !== null) {
 		// check area
-		if (true) {
+		if (this.areaName == "tutorial" || this.areaName == "eaglecrestLoggingCamp") {
 			this.loadMusic('./assets/music/Pippin-the-Hunchback.mp3');
+		}
+		else if (this.areaName == "tavern") {
+			this.loadMusic('./assets/music/Tavern.mp3');
+		}
+		else {
+			console.warn("No music for the current area could be found.");
 		}
 	}
 }
@@ -828,12 +837,12 @@ Game.loadMusic = function (song) {
 	}, false);
 	
 	this.audio.play();
-	this.playingMusic = true;
+	this.playingMusic = song;
 }
 
 Game.stopMusic = function () {
 	this.audio.pause();
-	this.playingMusic = false;
+	this.playingMusic = null;
 }
 
 Game.update = function (delta) {
