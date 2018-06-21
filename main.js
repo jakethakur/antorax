@@ -378,7 +378,7 @@ class Hero extends Character {
 				this.speed = Stats.Swim_Speed;
 			}
 		}
-		else if (this.speed  === this. Stats.Swim_Speed) {
+		else if (this.speed === Stats.Swim_Speed) {
 			this.speed = Stats.Walk_Speed;
 			this.statusEffects.push(new statusEffect("Swimming", "Reduced movement speed"));
 		}
