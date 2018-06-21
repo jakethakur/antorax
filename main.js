@@ -325,9 +325,9 @@ class Character extends Entity {
 class Hero extends Character {
 	constructor(properties) {
 		super(properties);
-		this.baseSpeed = properties.baseSpeed;
-		this.waterSpeed = properties.waterSpeed;
-		this.speed = properties.baseSpeed;
+		//this.baseSpeed = properties.baseSpeed;
+		//this.waterSpeed = properties.waterSpeed;
+		this.speed = Stats.Walk_Speed;
 		this.direction = properties.direction;
 		
 		this.channelTime = 0;
@@ -337,6 +337,9 @@ class Hero extends Character {
 	}
 	
 	move(delta, dirx, diry) {
+		// update speed (maybe doesn't have to be done every move tick?)
+		this.speed = Stats.Walk_Speed;
+		
 		// move hero
 		this.x += dirx * this.speed * delta;
 		this.y += diry * this.speed * delta;
@@ -371,12 +374,12 @@ class Hero extends Character {
 		//test for water
 		//make this controlled by a status effect instead maybe?
 		if (this.map.isWaterAtXY(this.x, this.y + 50)) {
-			if(this.speed === this.baseSpeed) {
-				this.speed = this.waterSpeed;
+			if(this.speed === Stats.Walk_Speed) {
+				this.speed = Stats.Swim_Speed;
 			}
 		}
-		else if (this.speed  === this.waterSpeed) {
-			this.speed = this.baseSpeed;
+		else if (this.speed  === this. Stats.Swim_Speed) {
+			this.speed = Stats.Walk_Speed;
 			this.statusEffects.push(new statusEffect("Swimming", "Reduced movement speed"));
 		}
 		
@@ -459,10 +462,16 @@ class Projectile extends Character {
 	}
 	
 	damageEnemies () {
-		for(var i = 0; i < Game.enemies.length; i++) {
-			if(this.isTouching(Game.enemies[i])) {
-				Game.enemies[i].health -= Stats.Damage;
-				this.damageDealt.push({enemy: Game.enemies[i], damage: Stats.Damage, critical: false});
+		for (var i = 0; i < Game.enemies.length; i++) {
+			if (this.isTouching(Game.enemies[i])) {
+				if (random(0, 100) < Stats.Critical_Chance) { // critical hit
+					Game.enemies[i].health -= Stats.Damage * 2;
+					this.damageDealt.push({enemy: Game.enemies[i], damage: Stats.Damage * 2, critical: true});
+				}
+				else {
+					Game.enemies[i].health -= Stats.Damage;
+					this.damageDealt.push({enemy: Game.enemies[i], damage: Stats.Damage, critical: false});
+				}
 			}
 		}
 	}
@@ -776,8 +785,10 @@ Game.init = function () {
 		width: 57,
 		height: 120,
 		image: "hero",
-		baseSpeed: 180, // base pixels per second
-		waterSpeed: 60, // speed when in water
+		
+		// the following have been moved to Stats in DOM.js
+		//baseSpeed: 180, // base pixels per second
+		//waterSpeed: 60, // speed when in water
 	});
 		
 	// player attack on click
@@ -1250,7 +1261,12 @@ Game.render = function () {
 		// shows damage dealt by projectile
 		for(var x = 0; x < this.projectiles[i].damageDealt.length; x++) {
 			// formatting
-			this.ctx.fillStyle = "rgb(0, 0, 0)"; // maybe use rgba to make it fade away?
+			if (this.projectiles[i].damageDealt[x].critical) {
+				this.ctx.fillStyle = "rgb(255, 0, 0)"; // maybe use rgba to make it fade away?
+			}
+			else {
+				this.ctx.fillStyle = "rgb(0, 0, 0)"; // maybe use rgba to make it fade away?
+			}
 			this.ctx.textAlign = "left";
 			this.ctx.font = "18px MedievalSharp";
 			
