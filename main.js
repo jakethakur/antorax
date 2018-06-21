@@ -411,38 +411,48 @@ class Hero extends Character {
 	
 	// start channeling basic attack
 	startAttack(e) {
-		this.channelling = true;
-		
-		var projectileX, projectileY, projectileRotate;
-		
-		projectileX = Game.camera.x + (e.clientX);
-		projectileY = Game.camera.y + (e.clientY);
-		projectileRotate = bearing(this, {x: projectileX, y: projectileY});
+		if (Stats.Damage > 0) {
+			this.channelling = true;
+			
+			var projectileX, projectileY, projectileRotate;
+			
+			projectileX = Game.camera.x + (e.clientX);
+			projectileY = Game.camera.y + (e.clientY);
+			projectileRotate = bearing(this, {x: projectileX, y: projectileY});
 
-		Game.projectiles.push(new Projectile({
-			map: map,
-			x: projectileX,
-			y: projectileY,
-			width: 10,
-			height: 40,
-			rotate: projectileRotate,
-			adjust: {
-				// manually adjust position - make this per class (per projectile image) in the future ( tbd )
-				x: -13,
-				y: 0,
-				//y: 16,
-			},
-			image: "projectile",
-		}));
+			Game.projectiles.push(new Projectile({
+				map: map,
+				x: projectileX,
+				y: projectileY,
+				width: 10,
+				height: 40,
+				rotate: projectileRotate,
+				adjust: {
+					// manually adjust position - make this per class (per projectile image) in the future ( tbd )
+					x: -13,
+					y: 0,
+					//y: 16,
+				},
+				image: "projectile",
+			}));
+		}
 	}
 	
 	// fire basic attack
 	finishAttack(e) {
-		this.channelTime = 0;
-		this.channelling = false;
-	
-	
-		Game.projectiles[Game.projectiles.length - 1].damageEnemies();
+		if (this.channelling) { // check that the player is channelling an attack (they might not have a weapon equipped so are not channelling, for example)
+			this.channelTime = 0;
+			this.channelling = false;
+			
+			// damage enemies that the projectile is touching
+			Game.projectiles[Game.projectiles.length - 1].damageEnemies();
+			
+			// after a timeout (2s), remove the first projectile from the array of projectiles
+			// note that this only works for removing projectiles if ALL projectiles stay for the same period of time (2s)
+			setTimeout(function () {
+				Game.projectiles.shift();
+			}, 2000);
+		}
 	}
 }
 
