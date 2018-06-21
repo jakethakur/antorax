@@ -150,19 +150,19 @@ Dom.inventory.changeEquipment = function(array,equipmentType) { // change which 
 	document.getElementById(equipmentType).style.backgroundImage = "url(" + array[0].image + ")"; // sets the image of to the the item's image
 	if(equipmentType == "helm"){ // if the equipment being changed is a helm...
 		Player.inventory.helm = array; // ...updates the helm array...
-		this.displayInformation("289px",Player.inventory.helm); // ... and displays the information for your helm
+		this.displayInformation("294px",Player.inventory.helm); // ... and displays the information for your helm
 	}else if(equipmentType == "chest"){ // if the equipment being changed is a chest...
 		Player.inventory.chest = array; // ...updates the chest array...
-		this.displayInformation("359px",Player.inventory.chest); // ...and displays the information for your chest
+		this.displayInformation("364px",Player.inventory.chest); // ...and displays the information for your chest
 	}else if(equipmentType == "greaves"){ // if the equipment being chaged are greaves...
 		Player.inventory.greaves = array; // ...updates the greaves array...
-		this.displayInformation("429px",Player.inventory.greaves); // ...and displays the information for your greaves
+		this.displayInformation("434px",Player.inventory.greaves); // ...and displays the information for your greaves
 	}else if(equipmentType == "boots"){ // if the equipment being changed are boots...
 		Player.inventory.boots = array; // ...updates the boots array...
-		this.displayInformation("499px",Player.inventory.boots); // ...and displays the information for your boots
+		this.displayInformation("504px",Player.inventory.boots); // ...and displays the information for your boots
 	}else{ // if the equipment being changed is a weapon...
 		Player.inventory.weapon = array; // ...updates the weapon array...
-		this.displayInformation("179px",Player.inventory.weapon); // ...and displays the information for your weapon
+		this.displayInformation("184px",Player.inventory.weapon); // ...and displays the information for your weapon
 	}
 }
 
@@ -383,7 +383,7 @@ Dom.reputation.downLevel = function(Area){ // decreases the reputation level
 
 Dom.inventory.displayIdentification = function(){ // display inventory information
 	document.getElementById("itemInformation").hidden = false; // ...display information
-	document.getElementById("itemInformation").style.top = "69px"; // sets information's top value to the value specified in the parameter
+	document.getElementById("itemInformation").style.top = "74px"; // sets information's top value to the value specified in the parameter
 	document.getElementById("itemInformation").innerHTML = "<div class='triangleLeft'></div><div id='triangle' class='innerTriangleLeft'></div><p id='innerStats'></p>"; // construct the information
 	document.getElementById("innerStats").innerHTML += "Damage: " + Stats.Damage; // updates the damage display
 	document.getElementById("innerStats").innerHTML += "<br>Defence: " + Stats.Defence; // updates the defence display
@@ -860,17 +860,34 @@ Dom.identifier.identify = function(chat, chat1, chat2, chat3){ // the page that 
 	}
 }
 
-for(i = 0; i < Player.inventory.items.length; i++){
-	document.getElementsByClassName("inventorySpace")[i].style.backgroundImage = "url('"+Player.inventory.items[i].image+"')";
-	console.log(Player.inventory.items[i].image);
-	console.log(document.getElementsByClassName("inventorySpace")[i].style.backgroundImage);
-	console.log("yes");
+Dom.inventory.itemArray = [[],[],[],[],[],[]]
+
+for(var i = 0; i < Player.inventory.items.length; i++){
+	document.getElementsByTagName("td")[i].innerHTML = "<img src='"+Player.inventory.items[i].image+"' draggable='true' ondragstart='drag(event,"+i+")'></img>";
+	Dom.inventory.itemArray[i] = Player.inventory.items[i];
 }
 
 function updateInvSize(){
-	document.getElementById("bagText").style.top = 300+(26*(document.getElementsByClassName("inventorySpace").length/7))+"px";
-	console.log((document.getElementsByClassName("inventorySpace").length/7));
-	//document.getElementById("bagText").style.top = parseInt(document.getElementById("bagText").style.top)+   10*(document.getElementsByClassName("inventorySpace").length/7)   +"px";
-	//console.log((document.getElementsByClassName("inventorySpace").length/7));
+	document.getElementById("bagText").style.top = 300+(26*(document.getElementById("itemInventory").rows.length))+"px";
 }
 updateInvSize();
+
+function allowDrop(ev) {
+    ev.preventDefault();
+}
+
+function drag(ev, i) {
+    ev.dataTransfer.setData("text", i);
+}
+
+function drop(ev) {
+    ev.preventDefault();
+	var data = ev.dataTransfer.getData("text");
+	ev.target.innerHTML = "<img src='"+Dom.inventory.itemArray[data].image+"' draggable='true' ondragstart='drag(event,"+data+")'></img>";
+	for(var i = 0; i < document.getElementsByTagName("td").length; i++){
+		console.log(document.getElementsByTagName("td")[i].innerHTML);
+		if(document.getElementsByTagName("td")[i].innerHTML == ev.target.innerHTML && document.getElementsByTagName("td")[i] != ev.target){
+			document.getElementsByTagName("td")[i].innerHTML = "";
+		}
+	}
+}

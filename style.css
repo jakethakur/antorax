@@ -130,9 +130,10 @@ body{
 	padding-top: 10px;
 }
 #inventoryPage{
-	padding-left: 32px;
-	padding-top: 40px;
-	height: 560px;
+	padding-left: 38px;
+	padding-top: 45px;
+	height: 555px;
+	width: 472px;
 }
 #helm, #chest, #greaves, #boots, #weapon{
 	margin-top: 10px;
@@ -149,27 +150,26 @@ body{
 }
 #itemInventory{
 	position: absolute;
-	top: 30px;
-	left: 769px;
-	width: 385px;
+	top: 51px;
+	left: 779px;
 	background-color: #fef9b4;
-	border: 2.5px solid #886622;
 	margin-top: 10px;
 	font-size: 0px;
 	z-index: 1;
 }
+#itemInventory, tr, th, td{
+	border: 5px solid #886622;
+	border-collapse: collapse;
+	text-align: center;
+	font-size: 0px;
+}
 #bagText{
 	position: absolute;
-	left: 822px;
-}
-.inventorySpace{
-	width: 50px;
-	height: 50px;
-	margin: 0px;
-	padding: 0px;
-	display: inline-block;
-	background-color: #fef9b4;
-	border: 2.5px solid #886622;
+	left: 815px;
+	-webkit-user-select: none; /* Safari */        
+	-moz-user-select: none; /* Firefox */
+	-ms-user-select: none; /* IE10+/Edge */
+	user-select: none;
 }
 .goldDisplay, .xpDisplay{
 	margin-top: 25px;
@@ -270,7 +270,7 @@ body{
 }
 #itemInformation, #informationMerchant, #questInformation, #questFinishInformation, #identifierInformation, #identifiedInformation{
 	position: absolute;
-	left: 760px;
+	left: 765px;
 	width: 150px;
 	background-color: #fef9b4;
 	border: 5px solid #886622;

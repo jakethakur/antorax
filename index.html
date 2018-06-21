@@ -12,28 +12,28 @@
 	<div id="inventoryPage" hidden>
 		<div id="itemInformation" hidden></div>
 		<div class="goldDisplay" id="inventoryGoldXP"onmouseover="Dom.inventory.displayIdentification()"onmouseleave="Dom.expand('itemInformation')"></div>
-		<div id="weapon"onmouseover="Dom.inventory.displayInformation('179px',Player.inventory.weapon)"onmouseleave="Dom.expand('itemInformation')"onclick="Dom.inventory.changeEquipment(Player.inventory.weapon,'weapon')"></div>
-		<div id="helm"onmouseover="Dom.inventory.displayInformation('289px',Player.inventory.helm)"onmouseleave="Dom.expand('itemInformation')"onclick="Dom.inventory.changeEquipment(Player.inventory.helm,'helm')"></div>
-		<div id="chest"onmouseover="Dom.inventory.displayInformation('359px',Player.inventory.chest)"onmouseleave="Dom.expand('itemInformation')"onclick="Dom.inventory.changeEquipment(Player.inventory.chest,'chest')"></div>
-		<div id="greaves"onmouseover="Dom.inventory.displayInformation('429px',Player.inventory.greaves)"onmouseleave="Dom.expand('itemInformation')"onclick="Dom.inventory.changeEquipment(Player.inventory.greaves,'greaves')"></div>
-		<div id="boots"onmouseover="Dom.inventory.displayInformation('499px',Player.inventory.boots)"onmouseleave="Dom.expand('itemInformation')"onclick="Dom.inventory.changeEquipment(Player.inventory.boots,'boots')"></div>
-		<div id="itemInventory">
-			<div class="inventorySpace"></div>
-			<div class="inventorySpace"></div>
-			<div class="inventorySpace"></div>
-			<div class="inventorySpace"></div>
-			<div class="inventorySpace"></div>
-			<div class="inventorySpace"></div>
-			<div class="inventorySpace"></div>
-			<div class="inventorySpace"></div>
-			<div class="inventorySpace"></div>
-			<div class="inventorySpace"></div>
-			<div class="inventorySpace"></div>
-			<div class="inventorySpace"></div>
-			<div class="inventorySpace"></div>
-			<div class="inventorySpace"></div>
-		</div>
-		<p id="bagText">Buy bags to gain more inventory space</p>
+		<div id="weapon"onmouseover="Dom.inventory.displayInformation('184px',Player.inventory.weapon)"onmouseleave="Dom.expand('itemInformation')"onclick="Dom.inventory.changeEquipment(Player.inventory.weapon,'weapon')"></div>
+		<div id="helm"onmouseover="Dom.inventory.displayInformation('294px',Player.inventory.helm)"onmouseleave="Dom.expand('itemInformation')"onclick="Dom.inventory.changeEquipment(Player.inventory.helm,'helm')"></div>
+		<div id="chest"onmouseover="Dom.inventory.displayInformation('364px',Player.inventory.chest)"onmouseleave="Dom.expand('itemInformation')"onclick="Dom.inventory.changeEquipment(Player.inventory.chest,'chest')"></div>
+		<div id="greaves"onmouseover="Dom.inventory.displayInformation('434px',Player.inventory.greaves)"onmouseleave="Dom.expand('itemInformation')"onclick="Dom.inventory.changeEquipment(Player.inventory.greaves,'greaves')"></div>
+		<div id="boots"onmouseover="Dom.inventory.displayInformation('504px',Player.inventory.boots)"onmouseleave="Dom.expand('itemInformation')"onclick="Dom.inventory.changeEquipment(Player.inventory.boots,'boots')"></div>
+		<table id="itemInventory">
+			<col width="56.8">
+			<col width="56.8">
+			<col width="56.8">
+			<col width="56.8">
+			<col width="56.8">
+			<col width="56.8">
+			<tr height="56.4">
+				<td ondrop="drop(event)" ondragover="allowDrop(event)"></td>
+				<td ondrop="drop(event)" ondragover="allowDrop(event)"></td>
+				<td ondrop="drop(event)" ondragover="allowDrop(event)"></td>
+				<td ondrop="drop(event)" ondragover="allowDrop(event)"></td>
+				<td ondrop="drop(event)" ondragover="allowDrop(event)"></td>
+				<td ondrop="drop(event)" ondragover="allowDrop(event)"></td>
+			</tr>
+		</table>
+		<p id="bagText">Buy bags to get more inventory space</p>
 	</div>
 	<div id="questsPage" hidden>
 		<div id="activeQuests"onclick="Dom.expand('activeQuestBox')">Active Quests</div>
