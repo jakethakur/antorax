@@ -368,7 +368,7 @@ var items = { // items should have a capital (global variable)
 			//id: 3
 			name: "Crooked Wooden Sword",
 			type: "sword",
-			image: "assets/items/crookedsword.png",
+			image: "assets/items/bow/2.png",
 			tier: 1,
 			rarity: "common",
 			obtain: "Find as an unidentified item in Eaglecrest Logging Camp",
@@ -381,7 +381,7 @@ var items = { // items should have a capital (global variable)
 			//id: 4
 			name: "Poisoned Blade",
 			type: "sword",
-			image: "assets/items/poisonedblade.png",
+			image: "assets/items/bow/2.png",
 			tier: 1,
 			rarity: "unique",
 			lore: "Not to be mistaken with its Grand Tournament counterpart.",
@@ -396,7 +396,7 @@ var items = { // items should have a capital (global variable)
 			//id: 5
 			name: "Splintered Sword",
 			type: "sword",
-			image: "assets/items/splinteredsword.png",
+			image: "assets/items/bow/2.png",
 			tier: 1,
 			rarity: "unique",
 			lore: "It might be falling apart, but those splinters hurt!",
@@ -455,7 +455,7 @@ var items = { // items should have a capital (global variable)
 			//id: 3
 			name: "Crooked Wooden Staff",
 			type: "staff",
-			image: "assets/items/crookedstaff.png",
+			image: "assets/items/bow/2.png",
 			tier: 1,
 			rarity: "common",
 			obtain: "Find as an unidentified item in Eaglecrest Logging Camp",
@@ -483,7 +483,7 @@ var items = { // items should have a capital (global variable)
 			//id: 5
 			name: "Power Surge Staff",
 			type: "staff",
-			image: "assets/items/lightningstaff.png",
+			image: "assets/items/bow/2.png",
 			tier: 1,
 			rarity: "unique",
 			lore: "POWER OVERWHELMING!",
@@ -542,7 +542,7 @@ var items = { // items should have a capital (global variable)
 			//id: 3
 			name: "Crooked Wooden Bow",
 			type: "bow",
-			image: "assets/items/crookedbow.png",
+			image: "assets/items/bow/2.png",
 			tier: 1,
 			rarity: "common",
 			obtain: "Find as an unidentified item in Eaglecrest Logging Camp",
@@ -555,7 +555,7 @@ var items = { // items should have a capital (global variable)
 			//id: 4
 			name: "Sharpshooter's Bow",
 			type: "bow",
-			image: "assets/items/sharpshooterbow.png",
+			image: "assets/items/bow/2.png",
 			tier: 1,
 			rarity: "unique",
 			lore: "",
@@ -570,7 +570,7 @@ var items = { // items should have a capital (global variable)
 			//id: 5
 			name: "Woodshot",
 			type: "bow",
-			image: "assets/items/woodshot.png",
+			image: "assets/items/bow/2.png",
 			tier: 1,
 			rarity: "unique",
 			lore: "",
@@ -585,7 +585,7 @@ var items = { // items should have a capital (global variable)
 			//id: 6
 			name: "Kraiss' Brimstone Bow",
 			type: "bow",
-			image: "assets/items/kraissbow.png",
+			image: "assets/items/bow/2.png",
 			tier: 1,
 			rarity: "mythic",
 			lore: "",
