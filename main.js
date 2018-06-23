@@ -100,7 +100,7 @@ Keyboard.isDown = function (keyCode) {
 // Game object
 //
 
-var Game = {questNPCs: [], merchants: [], areaTeleports: []};
+var Game = {};
 
 //run game
 Game.run = function (context) {
@@ -866,6 +866,11 @@ Game.loadArea = function (areaName, destination) {
 			console.warn("This area has no areaTeleports in areaData... Help...");
 		}
 		
+		// music
+		if(document.getElementById("musicOn").checked) {
+			this.playMusic();
+		}
+		
 		// init game (if it hasn't been done so already)
 		if(this.hero == undefined) {
 			this.init();
@@ -951,24 +956,19 @@ Game.checkEvents = function() {
 // music
 //
 
-Game.playMusic = function() {
-	// currently does not change music for tavern ( tbd )
-	// check if music is already being played
-	if (this.playingMusic !== null) {
-		// check area
-		if (this.areaName == "tutorial" || this.areaName == "eaglecrestLoggingCamp") {
-			this.loadMusic('./assets/music/Pippin-the-Hunchback.mp3');
-		}
-		else if (this.areaName == "tavern") {
-			this.loadMusic('./assets/music/Tavern.mp3');
-		}
-		else {
-			console.warn("No music for the current area could be found.");
-		}
+Game.playMusic = function () {
+	// check if the new area's music is already being played
+	if (this.playingMusic !== areas[this.areaName].song) {
+		this.loadMusic(areas[this.areaName].song);
 	}
 }
 
 Game.loadMusic = function (song) {
+	// stop previously playing song
+	if (this.audio !== undefined) {
+		this.stopMusic(); // possibly inefficient? might not unload old audio
+	}
+	
 	this.audio = new Audio(song);
 	
 	this.audio.addEventListener('ended', function() {
