@@ -12,11 +12,11 @@
 	<div id="inventoryPage" hidden>
 		<div id="itemInformation" hidden></div>
 		<div class="goldDisplay" id="inventoryGoldXP"onmouseover="Dom.inventory.displayIdentification()"onmouseleave="Dom.expand('itemInformation')"></div>
-		<div id="weapon"onmouseover="Dom.inventory.displayInformation('184px',Player.inventory.weapon)"onmouseleave="Dom.expand('itemInformation')"onclick="Dom.inventory.changeEquipment(Player.inventory.weapon,'weapon')"></div>
-		<div id="helm"onmouseover="Dom.inventory.displayInformation('294px',Player.inventory.helm)"onmouseleave="Dom.expand('itemInformation')"onclick="Dom.inventory.changeEquipment(Player.inventory.helm,'helm')"></div>
-		<div id="chest"onmouseover="Dom.inventory.displayInformation('364px',Player.inventory.chest)"onmouseleave="Dom.expand('itemInformation')"onclick="Dom.inventory.changeEquipment(Player.inventory.chest,'chest')"></div>
-		<div id="greaves"onmouseover="Dom.inventory.displayInformation('434px',Player.inventory.greaves)"onmouseleave="Dom.expand('itemInformation')"onclick="Dom.inventory.changeEquipment(Player.inventory.greaves,'greaves')"></div>
-		<div id="boots"onmouseover="Dom.inventory.displayInformation('504px',Player.inventory.boots)"onmouseleave="Dom.expand('itemInformation')"onclick="Dom.inventory.changeEquipment(Player.inventory.boots,'boots')"></div>
+		<div id="weapon"onmouseover="Dom.inventory.displayInformation('184px',Player.inventory.weapon)"onmouseleave="Dom.expand('itemInformation')"ondrop="Dom.inventory.drop(event,'weapon')" ondragover="Dom.inventory.allowDrop(event)"><!--onclick="Dom.inventory.changeEquipment(Player.inventory.weapon,'weapon')"--></div>
+		<div id="helm"onmouseover="Dom.inventory.displayInformation('294px',Player.inventory.helm)"onmouseleave="Dom.expand('itemInformation')"ondrop="Dom.inventory.drop(event,'helm')" ondragover="Dom.inventory.allowDrop(event)"><!--onclick="Dom.inventory.changeEquipment(Player.inventory.helm,'helm')"--></div>
+		<div id="chest"onmouseover="Dom.inventory.displayInformation('364px',Player.inventory.chest)"onmouseleave="Dom.expand('itemInformation')"ondrop="Dom.inventory.drop(event,'chest')" ondragover="Dom.inventory.allowDrop(event)"><!--onclick="Dom.inventory.changeEquipment(Player.inventory.chest,'chest')"--></div>
+		<div id="greaves"onmouseover="Dom.inventory.displayInformation('434px',Player.inventory.greaves)"onmouseleave="Dom.expand('itemInformation')"ondrop="Dom.inventory.drop(event,'greaves')" ondragover="Dom.inventory.allowDrop(event)"><!--onclick="Dom.inventory.changeEquipment(Player.inventory.greaves,'greaves')"--></div>
+		<div id="boots"onmouseover="Dom.inventory.displayInformation('504px',Player.inventory.boots)"onmouseleave="Dom.expand('itemInformation')"ondrop="Dom.inventory.drop(event,'boots')" ondragover="Dom.inventory.allowDrop(event)"><!--onclick="Dom.inventory.changeEquipment(Player.inventory.boots,'boots')"--></div>
 		<table id="itemInventory">
 			<col width="56.8">
 			<col width="56.8">
@@ -25,12 +25,12 @@
 			<col width="56.8">
 			<col width="56.8">
 			<tr height="56.4">
-				<td ondrop="Dom.inventory.drop(event)" ondragover="Dom.inventory.allowDrop(event,0)"></td>
-				<td ondrop="Dom.inventory.drop(event)" ondragover="Dom.inventory.allowDrop(event,1)"></td>
-				<td ondrop="Dom.inventory.drop(event)" ondragover="Dom.inventory.allowDrop(event,2)"></td>
-				<td ondrop="Dom.inventory.drop(event)" ondragover="Dom.inventory.allowDrop(event,3)"></td>
-				<td ondrop="Dom.inventory.drop(event)" ondragover="Dom.inventory.allowDrop(event,4)"></td>
-				<td ondrop="Dom.inventory.drop(event)" ondragover="Dom.inventory.allowDrop(event,5)"></td>
+				<td ondrop="Dom.inventory.drop(event)" ondragover="Dom.inventory.allowDrop(event)"></td>
+				<td ondrop="Dom.inventory.drop(event)" ondragover="Dom.inventory.allowDrop(event)"></td>
+				<td ondrop="Dom.inventory.drop(event)" ondragover="Dom.inventory.allowDrop(event)"></td>
+				<td ondrop="Dom.inventory.drop(event)" ondragover="Dom.inventory.allowDrop(event)"></td>
+				<td ondrop="Dom.inventory.drop(event)" ondragover="Dom.inventory.allowDrop(event)"></td>
+				<td ondrop="Dom.inventory.drop(event)" ondragover="Dom.inventory.allowDrop(event)"></td>
 			</tr>
 		</table>
 		<p id="bagText">Buy bags to get more inventory space</p>

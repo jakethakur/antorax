@@ -54,7 +54,20 @@ var Player = {
 				stats: {
 					Defence: 2,
 				},
-			},{},{},{},{},{},
+			},
+			{
+				//id: 2
+				name: "Used Iron Helm",
+				type: "helm",
+				image: "assets/items/helm/4.png",
+				tier: 1,
+				rarity: "common",
+				obtain: "Find as an unidentified item in Eaglecrest Logging Camp",
+				area: "Eaglecrest Logging Camp",
+				stats: {
+					Defence: 2,
+				},
+			},{},{},{},{},
 		],
 	},
 };

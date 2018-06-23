@@ -112,7 +112,7 @@ Dom.inventory.updateGold = function() { // update the DOM display of gold and xp
 }
 Dom.inventory.updateGold(); // calls the function to update the gold display
 
-Dom.inventory.changeEquipment = function(array,equipmentType) { // change which item is shown in inventory
+/*Dom.inventory.changeEquipment = function(array,equipmentType) { // change which item is shown in inventory
 	for(var i = 0; i < Object.keys(array[0].stats).length; i++){ // repeats code for all stats in old item
 		Stats[Object.keys(array[0].stats)[i]] -= parseInt(array[0].stats[Object.keys(array[0].stats)[i]]); // minuses that stat from the player's stats
 	}
@@ -164,7 +164,7 @@ Dom.inventory.changeEquipment = function(array,equipmentType) { // change which 
 		Player.inventory.weapon = array; // ...updates the weapon array...
 		this.displayInformation("184px",Player.inventory.weapon); // ...and displays the information for your weapon
 	}
-}
+}*/
 
 Dom.chat.newString = ""; // sets the new chat to nothing
 Dom.chat.oldString = ""; // sets the old chat to nothing
@@ -883,36 +883,118 @@ Dom.inventory.allowDrop = function(ev) { // when an item is held over a place th
 
 Dom.inventory.drag = function(ev, x) { // when an item is dragged...
     ev.dataTransfer.setData("text", x); // ...sets the variables for the drop
+	Dom.expand("itemInformation");
 }
 
-Dom.inventory.drop = function(ev) { // when an item is dropped
+Dom.inventory.drop = function(ev,equip) { // when an item is dropped
     ev.preventDefault(); // allows the item to drop
 	var data = ev.dataTransfer.getData("text"); // sets the variable data to a set variable chosen when the item was picked up
-	document.getElementById("data").innerHTML = "<img src='"+Player.inventory.items[data].image+"' draggable='true' ondragstart='Dom.inventory.drag(event,"+data+")'></img>"; // sets a variable
+	console.log(data);
 	var test = ""+ev.target+""; // checks if there is an item already there
-	if(test[12] == "T"){ // if there is not an item already there
-		for(var i = 0; i < Player.inventory.items.length; i++){ // repeats code for all inventory slots
-			/*if(document.getElementsByTagName("td")[i].innerHTML == document.getElementById("data").innerHTML && document.getElementsByTagName("td")[i] != ev.target){
-				document.getElementsByTagName("td")[i].innerHTML = "";
-			}else*/ if(document.getElementsByTagName("td")[i] == ev.target){ // if the item slot us where you are putting the item
-				Player.inventory.items[i] = Player.inventory.items[data]; // sets the slot you are putting the item in to the item you are putting in it
+	if(equip == undefined){
+		if(data != "weapon" && data != "helm" && data != "chest" && data != "greaves" && data != "boots"){
+			if(test[12] == "T"){ // if there is not an item already there
+				for(var i = 0; i < Player.inventory.items.length; i++){ // repeats code for all inventory slots
+					/*if(document.getElementsByTagName("td")[i].innerHTML == document.getElementById("data").innerHTML && document.getElementsByTagName("td")[i] != ev.target){
+						document.getElementsByTagName("td")[i].innerHTML = "";
+					}else*/ if(document.getElementsByTagName("td")[i] == ev.target){ // if the item slot us where you are putting the item
+						Player.inventory.items[i] = Player.inventory.items[data]; // sets the slot you are putting the item in to the item you are putting in it
+						document.getElementsByTagName("td")[data].innerHTML = ""; // updates the image for the new slot
+						ev.target.innerHTML = "<img src='"+Player.inventory.items[data].image+"' draggable='true' ondragstart='Dom.inventory.drag(event,"+i+")'></img>"; // updates the image for the new slot
+					}
+				}
+				Player.inventory.items[data] = {}; // sets the slot you got the item from to empty
+			}
+			else{ // if there is an item already there
+				for(var i = 0; i < Player.inventory.items.length; i++){ // repeats code fot all inventory slots
+					/*if(document.getElementsByTagName("td")[i].innerHTML == document.getElementById("data").innerHTML && document.getElementsByTagName("td")[i].innerHTML != ev.target.outerHTML){
+						document.getElementsByTagName("td")[i].innerHTML = "img src='";
+					}else*/ if(document.getElementsByTagName("td")[i].innerHTML == ev.target.outerHTML){ // if the item slot is where you are putting the item
+						test = Player.inventory.items[i]; // sets the variable for later
+						Player.inventory.items[i] = Player.inventory.items[data]; // sets the slot you are putting the item in to the item you are putting in it
+						document.getElementsByTagName("td")[data].innerHTML = "<img src='"+test.image+"' draggable='true' ondragstart='Dom.inventory.drag(event,"+data+")'></img>"; // updates the image for the previous slot
+						document.getElementsByTagName("td")[i].innerHTML = "<img src='"+Player.inventory.items[data].image+"' draggable='true' ondragstart='Dom.inventory.drag(event,"+i+")'></img>"; // updates the image fot the new slot
+					}
+				}
+				Player.inventory.items[data] = test; // sets the slot you got the item from to the item in the slot you are putting the item in
+			}
+		}else{
+			if(test[12] == "T"){ // if there is not an item already there
+				for(var i = 0; i < Player.inventory.items.length; i++){ // repeats code for all inventory slots
+					/*if(document.getElementsByTagName("td")[i].innerHTML == document.getElementById("data").innerHTML && document.getElementsByTagName("td")[i] != ev.target){
+						document.getElementsByTagName("td")[i].innerHTML = "";
+					}else*/ if(document.getElementsByTagName("td")[i] == ev.target){ // if the item slot us where you are putting the item
+						Player.inventory.items[i] = Player.inventory[data][0]; // sets the slot you are putting the item in to the item you are putting in it
+						document.getElementById(data).innerHTML = ""; // updates the image for the new slot
+						ev.target.innerHTML = "<img src='"+Player.inventory.items[i].image+"' draggable='true' ondragstart='Dom.inventory.drag(event,"+i+")'></img>"; // updates the image for the new slot
+						Dom.inventory.removeEquipment(Player.inventory[Player.inventory.items[i].type]);
+						Player.inventory[Player.inventory.items[i].type].splice(0,1); // sets the slot you are putting the item in to the item you are putting in it
+						Player.inventory[Player.inventory.items[i].type].push({name: "",image: "",stats: {},},); // sets the slot you are putting the item in to the item you are putting in it
+					}
+				}
+				Player.inventory.items[data] = {}; // sets the slot you got the item from to empty
+			}
+		}
+	}else{
+		console.log(ev.target);
+		if(test[12] == "D"){
+			if(Player.inventory.items[data].type == ev.target.id){
+				Player.inventory[ev.target.id].splice(0,1); // sets the slot you are putting the item in to the item you are putting in it
+				Player.inventory[ev.target.id].push(Player.inventory.items[data]); // sets the slot you are putting the item in to the item you are putting in it
+				Dom.inventory.addEquipment(Player.inventory[equip]);
 				document.getElementsByTagName("td")[data].innerHTML = ""; // updates the image for the new slot
-				ev.target.innerHTML = "<img src='"+Player.inventory.items[data].image+"' draggable='true' ondragstart='Dom.inventory.drag(event,"+i+")'></img>"; // updates the image for the new slot
+				Player.inventory.items[data] = {}; // sets the slot you got the item from to empty
+				document.getElementById(ev.target.id).innerHTML = "<img src='"+Player.inventory[ev.target.id][0].image+"' draggable='true' ondragstart='Dom.inventory.drag(event,\""+ev.target.id+"\")'></img>";
+			}
+		}else{
+			if(Player.inventory.items[data].type == equip){
+				test = Player.inventory[equip][0];
+				Dom.inventory.removeEquipment(Player.inventory[equip]);
+				Player.inventory[equip].splice(0,1); // sets the slot you are putting the item in to the item you are putting in it
+				Player.inventory[equip].push(Player.inventory.items[data]); // sets the slot you are putting the item in to the item you are putting in it
+				Dom.inventory.addEquipment(Player.inventory[equip]);
+				document.getElementsByTagName("td")[data].innerHTML = "<img src='"+test.image+"' draggable='true' ondragstart='Dom.inventory.drag(event,\""+data+"\")'></img>"; // updates the image for the new slot
+				Player.inventory.items[data] = test; // sets the slot you got the item from to empty
+				document.getElementById(equip).innerHTML = "<img src='"+Player.inventory[equip][0].image+"' draggable='true' ondragstart='Dom.inventory.drag(event,\""+equip+"\")'></img>";
 			}
 		}
-		Player.inventory.items[data] = {}; // sets the slot you got the item from to empty
 	}
-	else{ // if there is an item already there
-		for(var i = 0; i < Player.inventory.items.length; i++){ // repeats code fot all inventory slots
-			/*if(document.getElementsByTagName("td")[i].innerHTML == document.getElementById("data").innerHTML && document.getElementsByTagName("td")[i].innerHTML != ev.target.outerHTML){
-				document.getElementsByTagName("td")[i].innerHTML = "img src='";
-			}else*/ if(document.getElementsByTagName("td")[i].innerHTML == ev.target.outerHTML){ // if the item slot is where you are putting the item
-				test = Player.inventory.items[i]; // sets the variable for later
-				Player.inventory.items[i] = Player.inventory.items[data]; // sets the slot you are putting the item in to the item you are putting in it
-				document.getElementsByTagName("td")[data].innerHTML = "<img src='"+test.image+"' draggable='true' ondragstart='Dom.inventory.drag(event,"+data+")'></img>"; // updates the image for the previous slot
-				document.getElementsByTagName("td")[i].innerHTML = "<img src='"+Player.inventory.items[data].image+"' draggable='true' ondragstart='Dom.inventory.drag(event,"+i+")'></img>"; // updates the image fot the new slot
+}
+
+Dom.inventory.removeEquipment = function(array){
+	for(var i = 0; i < Object.keys(array[0].stats).length; i++){ // repeats code for all stats in old item
+		Stats[Object.keys(array[0].stats)[i]] -= parseInt(array[0].stats[Object.keys(array[0].stats)[i]]); // minuses that stat from the player's stats
+	}
+	if(array[0].set != undefined){ // if the item being removed is part of a set
+		Dom.inventory.noSet = false; // allows the set code to run
+		for(var i = 0; i < items.sets[array[0].set].armour.length; i++){ // repeats for all armour in the set
+			if(Player.inventory.helm[0].name != items.sets[array[0].set].armour[i] && Player.inventory.chest[0].name != items.sets[array[0].set].armour[i] && Player.inventory.greaves[0].name != items.sets[array[0].set].armour[i] && Player.inventory.boots[0].name != items.sets[array[0].set].armour[i]){ // checks if the armour is being worn
+				Dom.inventory.noSet = true; // does not allow the set code to run
 			}
 		}
-		Player.inventory.items[data] = test; // sets the slot you got the item from to the item in the slot you are putting the item in
+		if(!Dom.inventory.noSet){ // set code (runs if the player was wearing a set but now isn't)
+			for(var i = 0; i < Object.keys(items.sets[array[0].set].stats).length; i++){ // repeats for all stats in set
+				Stats[Object.keys(items.sets[array[0].set].stats)[i]] -= parseInt(items.sets[array[0].set].stats[Object.keys(items.sets[array[0].set].stats)]); // removes that stat from player's stats
+			}
+		}
+	}
+}
+
+Dom.inventory.addEquipment = function(array){
+	for(var i = 0; i < Object.keys(array[0].stats).length; i++){ // repeats code for all stats in old item
+		Stats[Object.keys(array[0].stats)[i]] += parseInt(array[0].stats[Object.keys(array[0].stats)[i]]); // minuses that stat from the player's stats
+	}
+	if(array[0].set != undefined){ // if the item being removed is part of a set
+		Dom.inventory.noSet = false; // allows the set code to run
+		for(var i = 0; i < items.sets[array[0].set].armour.length; i++){ // repeats for all armour in the set
+			if(Player.inventory.helm[0].name != items.sets[array[0].set].armour[i] && Player.inventory.chest[0].name != items.sets[array[0].set].armour[i] && Player.inventory.greaves[0].name != items.sets[array[0].set].armour[i] && Player.inventory.boots[0].name != items.sets[array[0].set].armour[i]){ // checks if the armour is being worn
+				Dom.inventory.noSet = true; // does not allow the set code to run
+			}
+		}
+		if(!Dom.inventory.noSet){ // set code (runs if the player was wearing a set but now isn't)
+			for(var i = 0; i < Object.keys(items.sets[array[0].set].stats).length; i++){ // repeats for all stats in set
+				Stats[Object.keys(items.sets[array[0].set].stats)[i]] += parseInt(items.sets[array[0].set].stats[Object.keys(items.sets[array[0].set].stats)]); // removes that stat from player's stats
+			}
+		}
 	}
 }
