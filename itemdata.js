@@ -368,7 +368,7 @@ var items = { // items should have a capital (global variable)
 			//id: 3
 			name: "Crooked Wooden Sword",
 			type: "sword",
-			image: "assets/items/sword/2.png",
+			image: "assets/items/crookedsword.png",
 			tier: 1,
 			rarity: "common",
 			obtain: "Find as an unidentified item in Eaglecrest Logging Camp",
@@ -455,7 +455,7 @@ var items = { // items should have a capital (global variable)
 			//id: 3
 			name: "Crooked Wooden Staff",
 			type: "staff",
-			image: "assets/items/staff/2.png",
+			image: "assets/items/crookedstaff.png",
 			tier: 1,
 			rarity: "common",
 			obtain: "Find as an unidentified item in Eaglecrest Logging Camp",
@@ -542,7 +542,7 @@ var items = { // items should have a capital (global variable)
 			//id: 3
 			name: "Crooked Wooden Bow",
 			type: "bow",
-			image: "assets/items/bow/2.png",
+			image: "assets/items/crookedbow.png",
 			tier: 1,
 			rarity: "common",
 			obtain: "Find as an unidentified item in Eaglecrest Logging Camp",
@@ -570,7 +570,7 @@ var items = { // items should have a capital (global variable)
 			//id: 5
 			name: "Woodshot",
 			type: "bow",
-			image: "assets/items/bow/2.png",
+			image: "assets/items/woodshot.png",
 			tier: 1,
 			rarity: "unique",
 			lore: "",
