@@ -111,9 +111,11 @@ var quests = { // quests should have a capital (global variable)
 		},
 		
 		{
+			// id: 2 (tbc)
 			quest: "A drink on us!",
-			name: "Gregor Goldenbrew",
-			chat: "I 'aven't seen you round 'ere before! Hehe, enjoy a drink by the hearth - free on us!",
+			
+			startName: "Gregor Goldenbrew",
+			startChat: "I 'aven't seen you round 'ere before! Hehe, enjoy a drink by the hearth - free on us!",
 			
 			objectives: [
 				"Take a sip from your wood-brewed beer around the hearth.",
@@ -129,6 +131,134 @@ var quests = { // quests should have a capital (global variable)
 			onQuestStart: function() {
 				Dom.chat.insert("Gregor brews you an extra large beer. Try not to get too tipsy!", 100);
 				// give the player a brew
+			},
+		},
+		
+		{
+			// id: 3 (tbc)
+			quest: "Learning to Fish I",
+			
+			startName: "Fisherman name",
+			startChat: "tbd",
+			
+			finishName: "Fisherman name",
+			finishChat: "tbd",
+			
+			objectives: [
+				"Buy a fishing rod from Fisherman name and equip it.",
+				"Fish something up!",
+				"Return to <strong>Fisherman name</strong> at the Fisher's Valley.",
+			],
+			
+			isCompleted: function() {
+				var completed = []; // contains true or false for all of the objectives, with the last element being if the quest is ready to complete
+				
+				// true or falses for each objective (apart from the turn-in objective)
+				//completed.push((Player.inventory.weapon.length > 1) ? true : false); tbd
+				
+				var finished = true;
+				for(var i = 0; i < completed.length; i++) {
+					if(!completed[i]) {
+						finished = false;
+					}
+				}
+				
+				completed.push(finished);
+				
+				return completed;
+			},
+			
+			howToStart: "Speak to <strong>Fisherman name</strong> at the Fisher's Valley.",
+			levelRequirement: 2,
+			questRequirement: "quests.eaglecrestLoggingCamp[2]", // doesn't work - tbd
+			
+			rewards: {
+				xp: 50,
+			},
+		},
+		
+		{
+			// id: 4 (tbc)
+			quest: "Learning to Fish II",
+			
+			startName: "Fisherman name",
+			startChat: "tbd",
+			
+			finishName: "Fisherman name",
+			finishChat: "tbd",
+			
+			objectives: [
+				"Buy a can of worms from Fisherman name and use it.",
+				"Catch your first fish!",
+				"Return to <strong>Fisherman name</strong> at the Fisher's Valley.",
+			],
+			
+			isCompleted: function() {
+				var completed = []; // contains true or false for all of the objectives, with the last element being if the quest is ready to complete
+				
+				// true or falses for each objective (apart from the turn-in objective)
+				//completed.push((Player.inventory.weapon.length > 1) ? true : false); tbd
+				
+				var finished = true;
+				for(var i = 0; i < completed.length; i++) {
+					if(!completed[i]) {
+						finished = false;
+					}
+				}
+				
+				completed.push(finished);
+				
+				return completed;
+			},
+			
+			howToStart: "Speak to <strong>Fisherman name</strong> at the Fisher's Valley.",
+			levelRequirement: 2,
+			questRequirement: "quests.eaglecrestLoggingCamp[3]", // doesn't work - tbd
+			
+			rewards: {
+				xp: 50,
+			},
+		},
+		
+		{
+			// id: 5 (tbc)
+			quest: "Learning to Fish III",
+			
+			startName: "Fisherman name",
+			startChat: "tbd",
+			
+			finishName: "Fisherman name",
+			finishChat: "tbd",
+			
+			objectives: [
+				"Level your base fishing skill to 10.",
+				"Return to <strong>Fisherman name</strong> at the Fisher's Valley.",
+			],
+			
+			isCompleted: function() {
+				var completed = []; // contains true or false for all of the objectives, with the last element being if the quest is ready to complete
+				
+				// true or falses for each objective (apart from the turn-in objective)
+				//completed.push((Player.inventory.weapon.length > 1) ? true : false); tbd
+				
+				var finished = true;
+				for(var i = 0; i < completed.length; i++) {
+					if(!completed[i]) {
+						finished = false;
+					}
+				}
+				
+				completed.push(finished);
+				
+				return completed;
+			},
+			
+			howToStart: "Speak to <strong>Fisherman name</strong> at the Fisher's Valley.",
+			levelRequirement: 2,
+			questRequirement: "quests.eaglecrestLoggingCamp[4]", // doesn't work - tbd
+			
+			rewards: {
+				xp: 100,
 			},
 		},
 	],
