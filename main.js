@@ -376,7 +376,7 @@ class Hero extends Character {
 			if(this.speed === Stats.Walk_Speed) {
 				this.speed = Stats.Swim_Speed;
 				if(!this.statusEffects.includes( {title: "Swimming", effect: "Reduced movement speed"} )) { // maybe just make a function to add a status effect? ( tbd )
-					this.statusEffects.push(new statusEffect("Swimming", "Reduced movement speed"));
+					this.statusEffects.push(new statusEffect({title: "Swimming", effect: "Reduced movement speed",}));
 				}
 			}
 		}
@@ -449,6 +449,7 @@ class Hero extends Character {
 			
 			// after a timeout (2s), remove the first projectile from the array of projectiles
 			// note that this only works for removing projectiles if ALL projectiles stay for the same period of time (2s)
+			// this also doesn't work if the user attacks too fast, though this shouldn't be a problem...
 			setTimeout(function () {
 				Game.projectiles.shift();
 			}, 2000);
@@ -474,8 +475,10 @@ class Projectile extends Character {
 	}
 	
 	damageEnemies () {
+		// enemies
 		for (var i = 0; i < Game.enemies.length; i++) {
 			if (this.isTouching(Game.enemies[i])) {
+				// damage
 				if (random(0, 100) < Stats.Critical_Chance) { // critical hit
 					Game.enemies[i].health -= Stats.Damage * 2;
 					this.damageDealt.push({enemy: Game.enemies[i], damage: Stats.Damage * 2, critical: true});
@@ -483,6 +486,80 @@ class Projectile extends Character {
 				else {
 					Game.enemies[i].health -= Stats.Damage;
 					this.damageDealt.push({enemy: Game.enemies[i], damage: Stats.Damage, critical: false});
+				}
+				
+				// poison
+				if (Stats.PoisonX > 0 && Stats.PoisonY > 0) { // check player weapon has poison
+					// remember poison damage (so the player cannot change their weapon)
+					Game.enemies[i].statusEffects.push(new statusEffect({
+						title: "Poisoned",
+						effect: "Take " + Stats.PoisonX + " damage over " + Stats.PoisonY + " seconds.",
+						info: {
+							poisonDamage: Stats.PoisonX,
+							poisonTime: Stats.PoisonY,
+							poisonTicks: 0, // increased by 1 every tick
+						},
+						idNumber: i,
+						tick: function() { // deal poison damage every second
+							if (this.info.poisonTicks < this.info.poisonTime) { // check poison has not expired
+								Game.enemies[this.idNumber].health -= this.info.poisonDamage / this.info.poisonTime;
+								console.log(Game.enemies[this.idNumber].health);
+								this.info.poisonTicks++;
+							}
+							else { // remove poison interval
+								for (var z = 0; z < Game.enemies[this.idNumber].statusEffects.length; z++) { // try to find poison in array (inefficient?)
+									if (Game.enemies[this.idNumber].statusEffects[z].info.poisonTicks >= Game.enemies[this.idNumber].statusEffects[z].info.poisonTime) {
+										Game.enemies[this.idNumber].statusEffects.splice(z, 0);
+										break;
+									}
+								}
+							}
+						},
+					}));
+				}
+			}
+		}
+		
+		// dummies
+		for (var i = 0; i < Game.dummies.length; i++) {
+			if (this.isTouching(Game.dummies[i])) {
+				// damage
+				if (random(0, 100) < Stats.Critical_Chance) { // critical hit
+					Game.dummies[i].damageTaken += Stats.Damage * 2;
+					this.damageDealt.push({enemy: Game.dummies[i], damage: Stats.Damage * 2, critical: true});
+				}
+				else {
+					Game.dummies[i].damageTaken += Stats.Damage;
+					this.damageDealt.push({enemy: Game.dummies[i], damage: Stats.Damage, critical: false});
+				}
+				
+				// poison
+				if (Stats.PoisonX > 0 && Stats.PoisonY > 0) { // check player weapon has poison
+					// remember poison damage (so the player cannot change their weapon)
+					Game.dummies[i].statusEffects.push(new statusEffect({
+						title: "Poisoned",
+						effect: "Take " + Stats.PoisonX + " damage over " + Stats.PoisonY + " seconds.",
+						info: {
+							poisonDamage: Stats.PoisonX,
+							poisonTime: Stats.PoisonY,
+							poisonTicks: 0, // increased by 1 every tick
+						},
+						idNumber: i,
+						tick: function() { // deal poison damage every second
+							if (this.info.poisonTicks < this.info.poisonTime) { // check poison has not expired
+								Game.dummies[this.idNumber].damageTaken += this.info.poisonDamage / this.info.poisonTime;
+								this.info.poisonTicks++;
+							}
+							else { // remove poison interval
+								for (var z = 0; z < Game.dummies[this.idNumber].statusEffects.length; z++) { // try to find poison in array (inefficient?)
+									if (Game.dummies[this.idNumber].statusEffects[z].info.poisonTicks >= Game.dummies[this.idNumber].statusEffects[z].info.poisonTime) {
+										Game.dummies[this.idNumber].statusEffects.splice(z, 0);
+										break;
+									}
+								}
+							}
+						},
+					}));
 				}
 			}
 		}
@@ -608,6 +685,18 @@ class Villager extends Character {
 	}
 }
 
+class Dummy extends Character { // e.g: target dummey
+	constructor(properties) {
+		super(properties);
+		
+		this.name = properties.name;
+		
+		this.damageTaken = 0; // dummies have damage taken instead of health
+		
+		this.statusEffects = [];
+	}
+}
+
 class Enemy extends Character {
 	constructor(properties) {
 		super(properties);
@@ -615,6 +704,8 @@ class Enemy extends Character {
 		this.name = properties.name;
 		
 		this.health = properties.health;
+		
+		this.statusEffects = [];
 	}
 	
 	move() {
@@ -633,16 +724,22 @@ class Enemy extends Character {
 // constructors
 //
 
-function statusEffect(title, effect) {
-	this.title = title;
-	this.effect = effect;
+function statusEffect(properties) {
+	this.title = properties.title; // displayed title
+	this.effect = properties.effect; // displayed effect
+	
+	this.info = properties.info; // extra information (e.g: poison damage and length)
+	
+	this.idNumber = properties.idNumber; // number to refer back to the main object - e.g: Game.enemies[idNumber]
+	
+	this.tick = properties.tick; // function to be carried out every second
 }
 
 //
 // load game
 //
 
-// load images
+// load game for the first time
 Game.load = function (names, addresses) {
 	this.ctx.imageSmoothingEnabled = false;
 	
@@ -736,6 +833,15 @@ Game.loadArea = function (areaName, destination) {
 			}
 		}
 		
+		// dummies (enemies for training)
+		this.dummies = [];
+		if(areas[areaName].dummies !== undefined) {
+			for(var i = 0; i < areas[areaName].dummies.length; i++) {
+				areas[areaName].dummies[i].map = map;
+				this.dummies.push(new Dummy(areas[areaName].dummies[i]));
+			}
+		}
+		
 		// villagers (currently broken)
 		this.villagers = [];
 		if(areas[areaName].villagers !== undefined) {
@@ -778,6 +884,7 @@ Game.loadArea = function (areaName, destination) {
 	
 }
 
+// initialise game
 Game.init = function () {
 	// welcome player
 	// TBD: make it use player name, make it say welcome back if you've played before and it saved your progress, make it a different colour?
@@ -815,8 +922,11 @@ Game.init = function () {
 	
     this.camera.follow(this.hero);
 	
-	// check for events
+	// check for in-game events
 	this.checkEvents();
+	
+	// update status effects every second
+	this.statusInterval = setInterval(this.statusUpdate.bind(this), 1000);
 	
 	// begin game display
 	window.requestAnimationFrame(this.tick);
@@ -876,7 +986,7 @@ Game.stopMusic = function () {
 }
 
 //
-// 
+// update game
 //
 
 Game.update = function (delta) {
@@ -990,7 +1100,6 @@ Game.update = function (delta) {
 		}
 		else if (Dom.currentlyDisplayed != "identifier" && Dom.currentlyDisplayed != "identified" && Dom.currentlyDisplayed != "" && !Dom.override) {
 			if(this.hero.isTouching(this.identifiers[i]) && document.getElementsByClassName("closeClass")[0].style.border != "5px solid red"){
-				console.log("yes");
 				Dom.changeBook("identifierPage",false,0);
 				Dom.identifier.override = true;
 			}
@@ -1023,6 +1132,37 @@ Game.update = function (delta) {
 		this.hero.channelTime++;
 	}
 };
+
+// update status effects (called once a second)
+Game.statusUpdate = function () {
+	// iterate through enemy status effects
+	for (var i = 0; i < this.enemies.length; i++) {
+		for (var x = 0; x < this.enemies[i].statusEffects.length; x++) {
+			// check if the status effect has a function that needs to be called (every second)
+			if (this.enemies[i].statusEffects[x].tick !== undefined) {
+				this.enemies[i].statusEffects[x].tick();
+			}
+			// check for expired status effects
+			//tbd
+		}
+	}
+	
+	// iterate through dummy status effects
+	for (var i = 0; i < this.dummies.length; i++) {
+		for (var x = 0; x < this.dummies[i].statusEffects.length; x++) {
+			// check if the status effect has a function that needs to be called (every second)
+			if (this.dummies[i].statusEffects[x].tick !== undefined) {
+				this.dummies[i].statusEffects[x].tick();
+			}
+			// check for expired status effects
+			//tbd
+		}
+	}
+}
+
+//
+// render game
+//
 
 Game._drawLayer = function (layer) {
     var startCol = Math.floor(this.camera.x / map.tsize);
@@ -1104,6 +1244,11 @@ Game.drawHitboxes = function () {
 	// enemy hitboxes
 	for(var i = 0; i < this.enemies.length; i++) {
 		this.ctx.strokeRect(this.enemies[i].screenX - this.enemies[i].width / 2, this.enemies[i].screenY - this.enemies[i].height / 2, this.enemies[i].width, this.enemies[i].height);
+	}
+	
+	// dummy hitboxes
+	for(var i = 0; i < this.dummies.length; i++) {
+		this.ctx.strokeRect(this.dummies[i].screenX - this.dummies[i].width / 2, this.dummies[i].screenY - this.dummies[i].height / 2, this.dummies[i].width, this.dummies[i].height);
 	}
 	
 	// area teleport hitboxes
@@ -1241,6 +1386,30 @@ Game.render = function () {
 			this.enemies[i].screenX - this.enemies[i].width / 2,
 			this.enemies[i].screenY - this.enemies[i].height / 2
         );
+    }
+	
+    // draw dummies
+    for(var i = 0; i < this.dummies.length; i++) {
+		// set character screen x and y
+		this.dummies[i].screenX = (this.dummies[i].x - this.dummies[i].width / 2) - this.camera.x;
+		this.dummies[i].screenY = (this.dummies[i].y - this.dummies[i].height / 2) - this.camera.y;
+		
+		// draw image
+        this.ctx.drawImage(
+			this.dummies[i].image,
+			this.dummies[i].screenX - this.dummies[i].width / 2,
+			this.dummies[i].screenY - this.dummies[i].height / 2
+        );
+		
+		// show damage taken
+		if (this.dummies[i].damageTaken > 0) {
+			// formatting
+			this.ctx.fillStyle = "rgb(0, 0, 0)";
+			this.ctx.textAlign = "center";
+			this.ctx.font = "18px MedievalSharp";
+			
+			this.ctx.fillText(this.dummies[i].damageTaken, this.dummies[i].screenX, this.dummies[i].screenY - this.dummies[i].height / 2);
+		}
     }
 
     // draw main character
