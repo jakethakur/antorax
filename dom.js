@@ -783,11 +783,17 @@ Dom.identifier.page = function(chat, chat1, chat2, chat3, over){ // identifier p
 }
 
 Dom.quest.give = function(item){ // gives the player the item
-	if(item.type == "helm"){Player.inventory.helm.push(item);} // adds the helm to the players helm array
-	if(item.type == "chest"){Player.inventory.chest.push(item);} // adds the chest to the players chest array
-	if(item.type == "greaves"){Player.inventory.greaves.push(item);} // adds the greaves to the players greaves array
-	if(item.type == "boots"){Player.inventory.boots.push(item);} // adds the boots to the players boots array
-	if(item.type == "sword" || item.type == "staff" || item.type == "bow" || item.type == "rod"){Player.inventory.weapon.push(item);} // adds the weapon to the players weapons arary
+	//if(item.type == "helm"){Player.inventory.items.push(item);} // adds the helm to the players helm array
+	//if(item.type == "chest"){Player.inventory.items.push(item);} // adds the chest to the players chest array
+	//if(item.type == "greaves"){Player.inventory.items.push(item);} // adds the greaves to the players greaves array
+	//if(item.type == "boots"){Player.inventory.items.push(item);} // adds the boots to the players boots array
+	for(var i = 0; i < Player.inventory.items.length; i++){ // repeats code for all inventory slots
+		if(Object.keys(Player.inventory.items[i]).length == 0){ // if the slot is empty
+			Player.inventory.items[i] = item; // puts the item in the inventory slot
+			document.getElementsByTagName("td")[i].innerHTML = "<img src='"+Player.inventory.items[i].image+"' draggable='true' ondragstart='Dom.inventory.drag(event,"+i+")'></img>"; // sets the items image
+			break; // stops the item being placed in multiple slots
+		}
+	}
 }
 
 Dom.quests.allQuestNum = 18; // sets the box height...
@@ -860,37 +866,53 @@ Dom.identifier.identify = function(chat, chat1, chat2, chat3){ // the page that 
 	}
 }
 
-for(var i = 0; i < Player.inventory.items.length; i++){
-	if(Player.inventory.items[i].image != undefined){
-		document.getElementsByTagName("td")[i].innerHTML = "<img src='"+Player.inventory.items[i].image+"' draggable='true' ondragstart='drag(event,"+i+")'></img>";
+for(var i = 0; i < Player.inventory.items.length; i++){ // repeats the code for all inventory slots
+	if(Player.inventory.items[i].image != undefined){ // if the slot is not empty...
+		document.getElementsByTagName("td")[i].innerHTML = "<img src='"+Player.inventory.items[i].image+"' draggable='true' ondragstart='Dom.inventory.drag(event,"+i+")'></img>"; // ...puts the image in the slot
 	}
 }
 
-function updateInvSize(){
-	document.getElementById("bagText").style.top = 300+(26*(document.getElementById("itemInventory").rows.length))+"px";
+Dom.inventory.update = function(){ // updates the position of the "buy bags to get more inventory space" text
+	document.getElementById("bagText").style.top = 300+(26*(document.getElementById("itemInventory").rows.length))+"px"; // sets the position to half way below the inventory
 }
-updateInvSize();
+Dom.inventory.update(); // sets the original position of the text
 
-function allowDrop(ev) {
-    ev.preventDefault();
-}
-
-function drag(ev, i) {
-    ev.dataTransfer.setData("text", i);
+Dom.inventory.allowDrop = function(ev) { // when an item is held over a place that it can be dropped in...
+    ev.preventDefault(); // ...allows the item to be dropped
 }
 
-function drop(ev) {
-    ev.preventDefault();
-	var data = ev.dataTransfer.getData("text");
-	ev.target.innerHTML = "<img src='"+Player.inventory.items[data].image+"' draggable='true' ondragstart='drag(event,"+data+")'></img>";
-	for(var i = 0; i < Player.inventory.items.length; i++){
-		console.log(document.getElementsByTagName("td")[i].innerHTML);
-		if(document.getElementsByTagName("td")[i].innerHTML == ev.target.innerHTML && document.getElementsByTagName("td")[i] != ev.target){
-			document.getElementsByTagName("td")[i].innerHTML = "";
-		}else if(document.getElementsByTagName("td")[i] == ev.target){
-			Player.inventory.items[i] = Player.inventory.items[data];
+Dom.inventory.drag = function(ev, x) { // when an item is dragged...
+    ev.dataTransfer.setData("text", x); // ...sets the variables for the drop
+}
+
+Dom.inventory.drop = function(ev) { // when an item is dropped
+    ev.preventDefault(); // allows the item to drop
+	var data = ev.dataTransfer.getData("text"); // sets the variable data to a set variable chosen when the item was picked up
+	document.getElementById("data").innerHTML = "<img src='"+Player.inventory.items[data].image+"' draggable='true' ondragstart='Dom.inventory.drag(event,"+data+")'></img>"; // sets a variable
+	var test = ""+ev.target+""; // checks if there is an item already there
+	if(test[12] == "T"){ // if there is not an item already there
+		for(var i = 0; i < Player.inventory.items.length; i++){ // repeats code for all inventory slots
+			/*if(document.getElementsByTagName("td")[i].innerHTML == document.getElementById("data").innerHTML && document.getElementsByTagName("td")[i] != ev.target){
+				document.getElementsByTagName("td")[i].innerHTML = "";
+			}else*/ if(document.getElementsByTagName("td")[i] == ev.target){ // if the item slot us where you are putting the item
+				Player.inventory.items[i] = Player.inventory.items[data]; // sets the slot you are putting the item in to the item you are putting in it
+				document.getElementsByTagName("td")[data].innerHTML = ""; // updates the image for the new slot
+				ev.target.innerHTML = "<img src='"+Player.inventory.items[data].image+"' draggable='true' ondragstart='Dom.inventory.drag(event,"+i+")'></img>"; // updates the image for the new slot
+			}
 		}
+		Player.inventory.items[data] = {}; // sets the slot you got the item from to empty
 	}
-	Player.inventory.items[data] = {};
-	
+	else{ // if there is an item already there
+		for(var i = 0; i < Player.inventory.items.length; i++){ // repeats code fot all inventory slots
+			/*if(document.getElementsByTagName("td")[i].innerHTML == document.getElementById("data").innerHTML && document.getElementsByTagName("td")[i].innerHTML != ev.target.outerHTML){
+				document.getElementsByTagName("td")[i].innerHTML = "img src='";
+			}else*/ if(document.getElementsByTagName("td")[i].innerHTML == ev.target.outerHTML){ // if the item slot is where you are putting the item
+				test = Player.inventory.items[i]; // sets the variable for later
+				Player.inventory.items[i] = Player.inventory.items[data]; // sets the slot you are putting the item in to the item you are putting in it
+				document.getElementsByTagName("td")[data].innerHTML = "<img src='"+test.image+"' draggable='true' ondragstart='Dom.inventory.drag(event,"+data+")'></img>"; // updates the image for the previous slot
+				document.getElementsByTagName("td")[i].innerHTML = "<img src='"+Player.inventory.items[data].image+"' draggable='true' ondragstart='Dom.inventory.drag(event,"+i+")'></img>"; // updates the image fot the new slot
+			}
+		}
+		Player.inventory.items[data] = test; // sets the slot you got the item from to the item in the slot you are putting the item in
+	}
 }

@@ -25,15 +25,16 @@
 			<col width="56.8">
 			<col width="56.8">
 			<tr height="56.4">
-				<td ondrop="drop(event)" ondragover="allowDrop(event)"></td>
-				<td ondrop="drop(event)" ondragover="allowDrop(event)"></td>
-				<td ondrop="drop(event)" ondragover="allowDrop(event)"></td>
-				<td ondrop="drop(event)" ondragover="allowDrop(event)"></td>
-				<td ondrop="drop(event)" ondragover="allowDrop(event)"></td>
-				<td ondrop="drop(event)" ondragover="allowDrop(event)"></td>
+				<td ondrop="Dom.inventory.drop(event)" ondragover="Dom.inventory.allowDrop(event,0)"></td>
+				<td ondrop="Dom.inventory.drop(event)" ondragover="Dom.inventory.allowDrop(event,1)"></td>
+				<td ondrop="Dom.inventory.drop(event)" ondragover="Dom.inventory.allowDrop(event,2)"></td>
+				<td ondrop="Dom.inventory.drop(event)" ondragover="Dom.inventory.allowDrop(event,3)"></td>
+				<td ondrop="Dom.inventory.drop(event)" ondragover="Dom.inventory.allowDrop(event,4)"></td>
+				<td ondrop="Dom.inventory.drop(event)" ondragover="Dom.inventory.allowDrop(event,5)"></td>
 			</tr>
 		</table>
 		<p id="bagText">Buy bags to get more inventory space</p>
+		<p id="data" hidden></p>
 	</div>
 	<div id="questsPage" hidden>
 		<div id="activeQuests"onclick="Dom.expand('activeQuestBox')">Active Quests</div>
