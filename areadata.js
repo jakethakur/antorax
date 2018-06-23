@@ -148,7 +148,7 @@ var areas = {
 			},
 		],
 		
-		enemies: [
+		dummies: [
 			{
 				x: 600,
 				y: 600,
@@ -156,7 +156,6 @@ var areas = {
 				height: 100,
 				image: "dummy",
 				name: "Target Dummy",
-				health: 1000000,
 			},
 		],
 		

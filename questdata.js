@@ -1,4 +1,4 @@
-var quests = {
+var quests = { // quests should have a capital (global variable)
 	eaglecrestLoggingCamp: [
 		{
 			// id: 0

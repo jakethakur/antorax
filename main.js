@@ -472,23 +472,20 @@ class Projectile extends Character {
 		};
 		
 		this.damageDealt = []; // array of damages dealt to show
-		
-		this.enemiesDamaged = []; // array of enemies (by their index) damaged
 	}
 	
 	damageEnemies () {
+		// enemies
 		for (var i = 0; i < Game.enemies.length; i++) {
 			if (this.isTouching(Game.enemies[i])) {
 				// damage
 				if (random(0, 100) < Stats.Critical_Chance) { // critical hit
 					Game.enemies[i].health -= Stats.Damage * 2;
 					this.damageDealt.push({enemy: Game.enemies[i], damage: Stats.Damage * 2, critical: true});
-					this.enemiesDamaged.push(i); // works as long as enemy index never changes (enemies are given a dead tag when they die instead of being removed)
 				}
 				else {
 					Game.enemies[i].health -= Stats.Damage;
 					this.damageDealt.push({enemy: Game.enemies[i], damage: Stats.Damage, critical: false});
-					this.enemiesDamaged.push(i);
 				}
 				
 				// poison
@@ -513,6 +510,50 @@ class Projectile extends Character {
 								for (var z = 0; z < Game.enemies[this.idNumber].statusEffects.length; z++) { // try to find poison in array (inefficient?)
 									if (Game.enemies[this.idNumber].statusEffects[z].info.poisonTicks >= Game.enemies[this.idNumber].statusEffects[z].info.poisonTime) {
 										Game.enemies[this.idNumber].statusEffects.splice(z, 0);
+										break;
+									}
+								}
+							}
+						},
+					}));
+				}
+			}
+		}
+		
+		// dummies
+		for (var i = 0; i < Game.dummies.length; i++) {
+			if (this.isTouching(Game.dummies[i])) {
+				// damage
+				if (random(0, 100) < Stats.Critical_Chance) { // critical hit
+					Game.dummies[i].damageTaken += Stats.Damage * 2;
+					this.damageDealt.push({enemy: Game.dummies[i], damage: Stats.Damage * 2, critical: true});
+				}
+				else {
+					Game.dummies[i].damageTaken += Stats.Damage;
+					this.damageDealt.push({enemy: Game.dummies[i], damage: Stats.Damage, critical: false});
+				}
+				
+				// poison
+				if (Stats.PoisonX > 0 && Stats.PoisonY > 0) { // check player weapon has poison
+					// remember poison damage (so the player cannot change their weapon)
+					Game.dummies[i].statusEffects.push(new statusEffect({
+						title: "Poisoned",
+						effect: "Take " + Stats.PoisonX + " damage over " + Stats.PoisonY + " seconds.",
+						info: {
+							poisonDamage: Stats.PoisonX,
+							poisonTime: Stats.PoisonY,
+							poisonTicks: 0, // increased by 1 every tick
+						},
+						idNumber: i,
+						tick: function() { // deal poison damage every second
+							if (this.info.poisonTicks < this.info.poisonTime) { // check poison has not expired
+								Game.dummies[this.idNumber].damageTaken += this.info.poisonDamage / this.info.poisonTime;
+								this.info.poisonTicks++;
+							}
+							else { // remove poison interval
+								for (var z = 0; z < Game.dummies[this.idNumber].statusEffects.length; z++) { // try to find poison in array (inefficient?)
+									if (Game.dummies[this.idNumber].statusEffects[z].info.poisonTicks >= Game.dummies[this.idNumber].statusEffects[z].info.poisonTime) {
+										Game.dummies[this.idNumber].statusEffects.splice(z, 0);
 										break;
 									}
 								}
@@ -641,6 +682,18 @@ class Villager extends Character {
 		if (Math.round(this.y / 100) != Math.round(this.state.y / 100)) {
 			this.y += Math.sin(this.bearing) * this.speed;
 		}
+	}
+}
+
+class Dummy extends Character { // e.g: target dummey
+	constructor(properties) {
+		super(properties);
+		
+		this.name = properties.name;
+		
+		this.damageTaken = 0; // dummies have damage taken instead of health
+		
+		this.statusEffects = [];
 	}
 }
 
@@ -777,6 +830,15 @@ Game.loadArea = function (areaName, destination) {
 			for(var i = 0; i < areas[areaName].enemies.length; i++) {
 				areas[areaName].enemies[i].map = map;
 				this.enemies.push(new Enemy(areas[areaName].enemies[i]));
+			}
+		}
+		
+		// dummies (enemies for training)
+		this.dummies = [];
+		if(areas[areaName].dummies !== undefined) {
+			for(var i = 0; i < areas[areaName].dummies.length; i++) {
+				areas[areaName].dummies[i].map = map;
+				this.dummies.push(new Dummy(areas[areaName].dummies[i]));
 			}
 		}
 		
@@ -1084,6 +1146,18 @@ Game.statusUpdate = function () {
 			//tbd
 		}
 	}
+	
+	// iterate through dummy status effects
+	for (var i = 0; i < this.dummies.length; i++) {
+		for (var x = 0; x < this.dummies[i].statusEffects.length; x++) {
+			// check if the status effect has a function that needs to be called (every second)
+			if (this.dummies[i].statusEffects[x].tick !== undefined) {
+				this.dummies[i].statusEffects[x].tick();
+			}
+			// check for expired status effects
+			//tbd
+		}
+	}
 }
 
 //
@@ -1170,6 +1244,11 @@ Game.drawHitboxes = function () {
 	// enemy hitboxes
 	for(var i = 0; i < this.enemies.length; i++) {
 		this.ctx.strokeRect(this.enemies[i].screenX - this.enemies[i].width / 2, this.enemies[i].screenY - this.enemies[i].height / 2, this.enemies[i].width, this.enemies[i].height);
+	}
+	
+	// dummy hitboxes
+	for(var i = 0; i < this.dummies.length; i++) {
+		this.ctx.strokeRect(this.dummies[i].screenX - this.dummies[i].width / 2, this.dummies[i].screenY - this.dummies[i].height / 2, this.dummies[i].width, this.dummies[i].height);
 	}
 	
 	// area teleport hitboxes
@@ -1307,6 +1386,30 @@ Game.render = function () {
 			this.enemies[i].screenX - this.enemies[i].width / 2,
 			this.enemies[i].screenY - this.enemies[i].height / 2
         );
+    }
+	
+    // draw dummies
+    for(var i = 0; i < this.dummies.length; i++) {
+		// set character screen x and y
+		this.dummies[i].screenX = (this.dummies[i].x - this.dummies[i].width / 2) - this.camera.x;
+		this.dummies[i].screenY = (this.dummies[i].y - this.dummies[i].height / 2) - this.camera.y;
+		
+		// draw image
+        this.ctx.drawImage(
+			this.dummies[i].image,
+			this.dummies[i].screenX - this.dummies[i].width / 2,
+			this.dummies[i].screenY - this.dummies[i].height / 2
+        );
+		
+		// show damage taken
+		if (this.dummies[i].damageTaken > 0) {
+			// formatting
+			this.ctx.fillStyle = "rgb(0, 0, 0)";
+			this.ctx.textAlign = "center";
+			this.ctx.font = "18px MedievalSharp";
+			
+			this.ctx.fillText(this.dummies[i].damageTaken, this.dummies[i].screenX, this.dummies[i].screenY - this.dummies[i].height / 2);
+		}
     }
 
     // draw main character
