@@ -966,7 +966,7 @@ Dom.inventory.removeEquipment = function(array){ // removes the stats of an item
 	if(array[0].set != undefined){ // if the item being removed is part of a set
 		Dom.inventory.noSet = false; // allows the set code to run
 		for(var i = 0; i < items.sets[array[0].set].armour.length; i++){ // repeats for all armour in the set
-			if(Player.inventory.helm[0].name != items.sets[array[0].set].armour[i] && Player.inventory.chest[0].name != items.sets[array[0].set].armour[i] && Player.inventory.greaves[0].name != items.sets[array[0].set].armour[i] && Player.inventory.boots[0].name != items.sets[array[0].set].armour[i]){ // checks if the armour is being worn
+			if(Player.inventory.helm[0].name != items.sets[array[0].set].armour[i] || Player.inventory.chest[0].name != items.sets[array[0].set].armour[i] || Player.inventory.greaves[0].name != items.sets[array[0].set].armour[i] || Player.inventory.boots[0].name != items.sets[array[0].set].armour[i]){ // checks if the armour is being worn
 				Dom.inventory.noSet = true; // does not allow the set code to run
 			}
 		}
@@ -985,7 +985,7 @@ Dom.inventory.addEquipment = function(array){ // adds the stats of an item to th
 	if(array[0].set != undefined){ // if the item being removed is part of a set
 		Dom.inventory.noSet = false; // allows the set code to run
 		for(var i = 0; i < items.sets[array[0].set].armour.length; i++){ // repeats for all armour in the set
-			if(Player.inventory.helm[0].name != items.sets[array[0].set].armour[i] && Player.inventory.chest[0].name != items.sets[array[0].set].armour[i] && Player.inventory.greaves[0].name != items.sets[array[0].set].armour[i] && Player.inventory.boots[0].name != items.sets[array[0].set].armour[i]){ // checks if the armour is being worn
+			if(Player.inventory.helm[0].name != items.sets[array[0].set].armour[i] || Player.inventory.chest[0].name != items.sets[array[0].set].armour[i] || Player.inventory.greaves[0].name != items.sets[array[0].set].armour[i] || Player.inventory.boots[0].name != items.sets[array[0].set].armour[i]){ // checks if the armour is being worn
 				Dom.inventory.noSet = true; // does not allow the set code to run
 			}
 		}
