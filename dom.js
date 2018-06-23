@@ -860,11 +860,10 @@ Dom.identifier.identify = function(chat, chat1, chat2, chat3){ // the page that 
 	}
 }
 
-Dom.inventory.itemArray = [[],[],[],[],[],[]]
-
 for(var i = 0; i < Player.inventory.items.length; i++){
-	document.getElementsByTagName("td")[i].innerHTML = "<img src='"+Player.inventory.items[i].image+"' draggable='true' ondragstart='drag(event,"+i+")'></img>";
-	Dom.inventory.itemArray[i] = Player.inventory.items[i];
+	if(Player.inventory.items[i].image != undefined){
+		document.getElementsByTagName("td")[i].innerHTML = "<img src='"+Player.inventory.items[i].image+"' draggable='true' ondragstart='drag(event,"+i+")'></img>";
+	}
 }
 
 function updateInvSize(){
@@ -883,11 +882,15 @@ function drag(ev, i) {
 function drop(ev) {
     ev.preventDefault();
 	var data = ev.dataTransfer.getData("text");
-	ev.target.innerHTML = "<img src='"+Dom.inventory.itemArray[data].image+"' draggable='true' ondragstart='drag(event,"+data+")'></img>";
-	for(var i = 0; i < document.getElementsByTagName("td").length; i++){
+	ev.target.innerHTML = "<img src='"+Player.inventory.items[data].image+"' draggable='true' ondragstart='drag(event,"+data+")'></img>";
+	for(var i = 0; i < Player.inventory.items.length; i++){
 		console.log(document.getElementsByTagName("td")[i].innerHTML);
 		if(document.getElementsByTagName("td")[i].innerHTML == ev.target.innerHTML && document.getElementsByTagName("td")[i] != ev.target){
 			document.getElementsByTagName("td")[i].innerHTML = "";
+		}else if(document.getElementsByTagName("td")[i] == ev.target){
+			Player.inventory.items[i] = Player.inventory.items[data];
 		}
 	}
+	Player.inventory.items[data] = {};
+	
 }
