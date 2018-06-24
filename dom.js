@@ -926,9 +926,15 @@ Dom.inventory.drop = function(ev,equip) { // when an item is dropped
 						Player.inventory.items[i] = Player.inventory[data][0]; // sets the slot you are putting the item in to the item you are putting in it
 						document.getElementById(data).innerHTML = ""; // updates the image for the new slot
 						ev.target.innerHTML = "<img src='"+Player.inventory.items[i].image+"' draggable='true' ondragstart='Dom.inventory.drag(event,"+i+")'></img>"; // updates the image for the new slot
-						Dom.inventory.removeEquipment(Player.inventory[Player.inventory.items[i].type]); // removes the stats of that equipment from the total
-						Player.inventory[Player.inventory.items[i].type].splice(0,1); // sets the slot you are putting the item in to the item you are putting in it
-						Player.inventory[Player.inventory.items[i].type].push({name: "",image: "",stats: {},},); // sets the slot you are putting the item in to the item you are putting in it
+						if(Player.inventory.items[i].type != "sword" && Player.inventory.items[i].type != "staff" && Player.inventory.items[i].type != "bow"){ // if it is armour
+							Dom.inventory.removeEquipment(Player.inventory[Player.inventory.items[i].type]); // removes the stats of that armour from the total
+							Player.inventory[Player.inventory.items[i].type].splice(0,1); // sets the slot you are putting the item in to the item you are putting in it
+							Player.inventory[Player.inventory.items[i].type].push({name: "",image: "",stats: {},},); // sets the slot you are putting the item in to the item you are putting in it
+						}else{ // if it is a weapon
+							Dom.inventory.removeEquipment(Player.inventory.weapon); // removes the stats of that weapon from the total
+							Player.inventory.weapon.splice(0,1); // sets the slot you are putting the item in to the item you are putting in it
+							Player.inventory.weapon.push({name: "",image: "",stats: {},},); // sets the slot you are putting the item in to the item you are putting in it
+						}
 					}
 				}
 				Player.inventory.items[data] = {}; // sets the slot you got the item from to empty

@@ -30,6 +30,9 @@ var quests = { // quests should have a capital (global variable)
 						break;
 					}
 				}
+				if(completed.length == 0 && Player.inventory.weapon[0].name != ""){
+					completed.push(true);
+				}
 				
 				var finished = true;
 				for(var i = 0; i < completed.length; i++) {
