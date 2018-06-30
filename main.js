@@ -695,6 +695,22 @@ class Dummy extends Character { // e.g: target dummey
 		
 		this.statusEffects = [];
 	}
+	
+	// function to be carried out during Game.render()
+	renderFunction () {
+		// show damage taken
+		if (this.damageTaken > 0) {
+			// formatting
+			Game.ctx.fillStyle = "rgb(0, 0, 0)";
+			Game.ctx.textAlign = "center";
+			Game.ctx.font = "18px MedievalSharp";
+			
+			// "\u{2694}" displays the unicode crossed swords symbol
+			// thanks to Wilfred Lee at https://stackoverflow.com/a/49667311/9713957
+			// w3schools reference for unicode special characters: https://www.w3schools.com/charsets/ref_utf_symbols.asp
+			Game.ctx.fillText("\u{2694} " + this.damageTaken, this.screenX, this.screenY - this.height / 2);
+		}
+	}
 }
 
 class Enemy extends Character {
@@ -797,6 +813,15 @@ Game.loadArea = function (areaName, destination) {
 			this.camera.maxY = map.rows * map.tsize - canvas.height;
 		}
 		
+		// villagers (currently broken)
+		this.villagers = [];
+		if(areas[areaName].villagers !== undefined) {
+			for(var i = 0; i < areas[areaName].villagers.length; i++) {
+				areas[areaName].villagers[i].map = map;
+				this.villagers.push(new Villager(areas[areaName].villagers[i]));
+			}
+		}
+		
 		// quest npcs
 		this.questNPCs = [];
 		if(areas[areaName].questNPCs !== undefined) { // check they exist in areadata.js
@@ -824,16 +849,7 @@ Game.loadArea = function (areaName, destination) {
 			}
 		}
 		
-		// enemies
-		this.enemies = [];
-		if(areas[areaName].enemies !== undefined) {
-			for(var i = 0; i < areas[areaName].enemies.length; i++) {
-				areas[areaName].enemies[i].map = map;
-				this.enemies.push(new Enemy(areas[areaName].enemies[i]));
-			}
-		}
-		
-		// dummies (enemies for training)
+		// dummies (enemies for training) - trivial (don't damage you)
 		this.dummies = [];
 		if(areas[areaName].dummies !== undefined) {
 			for(var i = 0; i < areas[areaName].dummies.length; i++) {
@@ -842,12 +858,12 @@ Game.loadArea = function (areaName, destination) {
 			}
 		}
 		
-		// villagers (currently broken)
-		this.villagers = [];
-		if(areas[areaName].villagers !== undefined) {
-			for(var i = 0; i < areas[areaName].villagers.length; i++) {
-				areas[areaName].villagers[i].map = map;
-				this.villagers.push(new Villager(areas[areaName].villagers[i]));
+		// enemies
+		this.enemies = [];
+		if(areas[areaName].enemies !== undefined) {
+			for(var i = 0; i < areas[areaName].enemies.length; i++) {
+				areas[areaName].enemies[i].map = map;
+				this.enemies.push(new Enemy(areas[areaName].enemies[i]));
 			}
 		}
 		
@@ -863,7 +879,7 @@ Game.loadArea = function (areaName, destination) {
 			}
 		}
 		else {
-			console.warn("This area has no areaTeleports in areaData... Help...");
+			console.warn("This area has no areaTeleports in areaData... Enjoy your new home!");
 		}
 		
 		// music
@@ -894,14 +910,20 @@ Game.init = function () {
 	// welcome player
 	// TBD: make it use player name, make it say welcome back if you've played before and it saved your progress, make it a different colour?
 	Dom.chat.insert("Welcome to Antorax, Hero!", 0);
-
+	
+	// player movement
     Keyboard.listenForEvents(
         [Keyboard.LEFT, Keyboard.RIGHT, Keyboard.UP, Keyboard.DOWN]);
 	
 	// music
 	this.playingMusic = null;
 	
-	this.hero = new Hero({ // create the player at its start x and y positions
+	// list of basic (no extra operations to be done) things to be rendered (in order)
+	this.renderList = ["villagers", "questNPCs", "merchants", "identifiers", "dummies", "enemies"];
+	// then player, then projectiles (in order they were shot)
+	
+	// create the player at its start x and y positions
+	this.hero = new Hero({
 		map: map,
 		x: areas[this.areaName].player.x,
 		y: areas[this.areaName].player.y,
@@ -909,22 +931,14 @@ Game.init = function () {
 		width: 57,
 		height: 120,
 		image: "hero",
-		
-		// the following have been moved to Stats in DOM.js
-		//baseSpeed: 180, // base pixels per second
-		//waterSpeed: 60, // speed when in water
 	});
 		
 	// player attack on click
 	canvas.addEventListener("mousedown", Game.hero.startAttack.bind(this.hero));
 	canvas.addEventListener("mouseup", Game.hero.finishAttack.bind(this.hero));
 	
-	//this.camera = undefined;
-	
-	//this.loadArea("tutorial");
-	
+	// camera
     this.camera = new Camera(map, canvas.width, canvas.height);
-	
     this.camera.follow(this.hero);
 	
 	// check for in-game events
@@ -1308,6 +1322,12 @@ Game.drawImageRotated = function (img, x, y, width, height, rad) {
     this.ctx.translate((x + width / 2) * (-1), (y + height / 2) * (-1));
 }
 
+// update entity's screen position (called every time it is rendered)
+Game.updateScreenPosition = function (entity) {
+	entity.screenX = (entity.x - entity.width / 2) - this.camera.x;
+	entity.screenY = (entity.y - entity.height / 2) - this.camera.y;
+}
+
 // draw images on canvas
 Game.render = function () {
 	// reset text formatting (currntly done in individual functions)
@@ -1318,6 +1338,7 @@ Game.render = function () {
 	this._drawLayer(0);
     //}
 	
+	/*
     // draw quest NPCs
     for(var i = 0; i < this.questNPCs.length; i++) {
 		// set character screen x and y
@@ -1411,6 +1432,30 @@ Game.render = function () {
 			this.ctx.fillText(this.dummies[i].damageTaken, this.dummies[i].screenX, this.dummies[i].screenY - this.dummies[i].height / 2);
 		}
     }
+	*/
+	
+	// render npcs on renderList
+	for (var i = 0; i < this.renderList.length; i++) { // iterate through everything to be rendered (in order)
+		
+		for (var x = 0; x < this[this.renderList[i]].length; x++) { // iterate through that array of things to be rendered
+			
+			// set character screen x and y
+			this.updateScreenPosition(this[this.renderList[i]][x]);
+			
+			// draw image
+			this.ctx.drawImage(
+				this[this.renderList[i]][x].image,
+				this[this.renderList[i]][x].screenX - this[this.renderList[i]][x].width / 2,
+				this[this.renderList[i]][x].screenY - this[this.renderList[i]][x].height / 2
+			);
+			
+			// render function (additional render to be carried out upon render of this entity)
+			if (this[this.renderList[i]][x].renderFunction !== undefined) {
+				this[this.renderList[i]][x].renderFunction();
+			}
+		}
+		
+	}
 
     // draw main character
 	
