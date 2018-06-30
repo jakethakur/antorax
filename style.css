@@ -158,10 +158,18 @@ body{
 	z-index: 1;
 }
 #itemInventory, tr, th, td{
-	border: 5px solid #886622;
-	border-collapse: collapse;
+	border: 2.5px solid #886622;
+	border-collapse: separate;
+	border-spacing: 0px;
 	text-align: center;
 	font-size: 0px;
+	padding: 0px;
+}
+td{
+	width: 50px;
+	height: 50px;
+	display:inline-block;
+	padding: 0px;
 }
 #bagText{
 	position: absolute;
