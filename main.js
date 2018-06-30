@@ -1,4 +1,7 @@
-// create game
+//
+// Realms of Antorax canvas code
+// Jake Thakur 2018
+//
 
 var canvas = document.getElementById("game"); // maybe change to Game.canvas?
 
@@ -111,14 +114,12 @@ Game.run = function (context) {
     this.loadArea("tutorial", undefined);
 };
 
-//calculate current tick length and update/render canvas accordingly
+// calculate current tick length and update/render canvas accordingly
 Game.tick = function (elapsed) {
     window.requestAnimationFrame(this.tick);
 
     // clear previous frame
     this.ctx.clearRect(0, 0, canvas.width, canvas.height);
-    //this.ctx.clearRect(0, 0, canvas.width, canvas.height);
-    //this.ctx.clearRect(0, 0, canvas.width, canvas.height);
 
     // compute delta time in seconds -- also cap it
     var delta = (elapsed - this._previousElapsed) / 1000.0;
@@ -137,13 +138,21 @@ Game.tick = function (elapsed) {
 	//this.ctx.fillText("delta: " + Math.round(delta * 1000) / 1000, 10, 30);
 	
 	// display frames per second (debug)
+	// doesn't work very well - should be averaged - TBD
 	if(document.getElementById("fpsOn").checked){
+		//fps array needs to be defined
+		//make own function?
+		/*this.fpsArray.push(Math.round(1 / delta));
+		if (this.fpsArray.length >= 100) {
+			this.fpsArray.shift();
+		}
+		this.fpsArray.push(Math.round(1 / delta));*/
 		this.ctx.fillText("fps: " + Math.round(1 / delta), 10, 40);
 	}
 }.bind(Game);
 
 //
-// start up function
+// Start up function
 //
 
 window.onload = function () {
@@ -152,18 +161,10 @@ window.onload = function () {
 };
 
 //
-// map
+// Map
 //
 
 var map = {
-    /*cols: 30,
-    rows: 10,
-    tsize: 60,
-	tilesPerRow: 8, //tiles per tilemap row
-    layers: [[
-        37, 26, 33, 22, 23, 24, 24, 22, 23, 24, 24, 24, 3, 4, 5, 24, 24, 24, 24, 24, 24, 2, 24, 24, 24, 24, 24, 24, 24, 24, 37, 29, 33, 24, 24, 24, 24, 22, 23, 24, 24, 24, 11, 12, 13, 24, 21, 24, 24, 24, 24, 24, 24, 2, 1, 24, 24, 24, 24, 24, 37, 28, 33, 24, 24, 24, 24, 24, 24, 24, 24, 24, 24, 24, 24, 24, 24, 24, 24, 24, 24, 24, 24, 24, 24, 24, 24, 24, 21, 1, 37, 26, 33, 22, 23, 24, 24, 24, 24, 24, 24, 24, 24, 24, 24, 24, 24, 24, 24, 24, 24, 24, 24, 24, 3, 4, 5, 24, 24, 24, 37, 26, 33, 24, 22, 23, 24, 24, 24, 24, 24, 24, 24, 24, 24, 24, 18, 19, 20, 24, 2, 7, 8, 24, 11, 12, 13, 24, 24, 24, 37, 26, 9, 35, 34, 24, 24, 24, 24, 24, 21, 24, 24, 24, 24, 24, 24, 17, 24, 24, 24, 15, 16, 24, 24, 24, 24, 24, 24, 24, 10, 26, 26, 26, 9, 34, 24, 24, 24, 24, 24, 24, 24, 24, 3, 4, 5, 25, 21, 24, 24, 24, 24, 24, 24, 24, 7, 8, 1, 24, 27, 26, 26, 26, 26, 33, 24, 24, 24, 24, 24, 24, 24, 24, 11, 12, 13, 24, 24, 24, 24, 24, 24, 24, 24, 24, 15, 16, 2, 24, 26, 26, 29, 28, 26, 9, 35, 35, 35, 35, 34, 24, 24, 24, 24, 24, 24, 24, 24, 24, 24, 24, 2, 24, 24, 24, 24, 24, 24, 24, 29, 28, 26, 27, 26, 26, 29, 26, 28, 26, 9, 35, 35, 35, 35, 35, 34, 24, 24, 24, 24, 24, 24, 24, 24, 21, 24, 24, 24, 24,
-         
-    ],[]],*/
     getTile: function (layer, col, row) {
         return this.layers[layer][row * map.cols + col];
     },
@@ -214,6 +215,10 @@ var map = {
 	},
 };
 
+//
+// Camera
+//
+
 function Camera(map, width, height) {
     this.x = 0;
     this.y = 0;
@@ -256,30 +261,28 @@ Camera.prototype.update = function () {
 };
 
 //
-// global functions
+// Global functions
+// (maybe these shouldn't be global?)
 //
 
 // random number between upper and lower limit
-function random(minimum, maximum) {
+function random (minimum, maximum) {
     return Math.floor((Math.random() * (maximum - minimum + 1)) + minimum);
 }
 
-// find bearing between two objects (with x and y)
+// find bearing between two entities (with x and y)
 // returns answer in radians
-// from https://github.com/jakethakur22/AUV-Project/blob/master/gps/distance-and-bearing.js
-function bearing(obj1, obj2) {
-	return Math.atan2(obj2.x - obj1.x, obj1.y - obj2.y)
-	/*
-	var y = Math.sin(obj2.x - obj1.x) * Math.cos(obj2.y);
-	var x = Math.cos(obj1.y) * Math.sin(obj2.y) -
-			Math.sin(obj1.y) * Math.cos(obj2.y) * Math.cos(obj2.x - obj1.x);
-  
-	var bearing = Math.atan2(y, x);
-	return bearing;*/
+function bearing (obj1, obj2) {
+	return Math.atan2(obj2.x - obj1.x, obj1.y - obj2.y);
+}
+
+// find distance between two entities (with x and y) - pythagoras' theorem
+function distance (obj1, obj2) {
+	return Math.sqrt((obj1.x - obj2.x) * (obj1.x - obj2.x) + (obj1.y - obj2.y, 2) * (obj1.y - obj2.y, 2));
 }
 
 //
-// classes
+// Classes
 //
 
 class Entity {
@@ -567,7 +570,7 @@ class Projectile extends Character {
 }
 
 //
-// npcs
+// NPC classes
 //
 
 class QuestNPC extends Character {
@@ -703,7 +706,7 @@ class Dummy extends Character { // e.g: target dummey
 			// formatting
 			Game.ctx.fillStyle = "rgb(0, 0, 0)";
 			Game.ctx.textAlign = "center";
-			Game.ctx.font = "18px MedievalSharp";
+			Game.ctx.font = "bold 18px MedievalSharp";
 			
 			// "\u{2694}" displays the unicode crossed swords symbol
 			// thanks to Wilfred Lee at https://stackoverflow.com/a/49667311/9713957
@@ -719,13 +722,40 @@ class Enemy extends Character {
 		
 		this.name = properties.name;
 		
+		// combat traits
 		this.health = properties.health;
+		this.speed = properties.speed; // TBD - make enemy slower in water (give it separate walk speed and move speed)
+		this.range = properties.range;
+		this.reloadTime = properties.reloadTime; // time in ms to attack again
 		
+		this.leashRadius = properties.leashRadius // how far away the player has to be for the enemy to ignore them
+		
+		// for code later on
 		this.statusEffects = [];
+		this.canAttack = true;
 	}
 	
-	move() {
-		this.bearing = bearing(this, Game.hero); // update bearing (maybe doesn't need to be done every tick?)
+	update() {
+		// perhaps condense into hostile and passive ai functions (that also apply to things like villagers)?
+		if (distance(this, Game.hero) < this.range) { // enemy should attack hero
+			if (this.canAttack) { // projectile can be shot
+				this.canAttack = false;
+				// shoot projectile TBD
+				setTimeout(function() {this.canAttack = true;}, this.reloadTime); // wait to shoot next projectile
+			}
+		}
+		else if (distance(this, Game.hero) > this.leashRadius) { // enemy should move passively
+			// passive movement within given (to be given...) boundaries...
+		}
+		else if (distance(this, Game.hero) < this.leashRadius && distance(this, Game.hero) > this.range) { // enemy should move towards hero
+			this.move(Game.hero);
+		}
+		// add spell cast
+	}
+	
+	// move towards entity (towards parameter)
+	move (towards) {
+		this.bearing = bearing(this, towards); // update bearing (maybe doesn't need to be done every tick?)
 		// tbd : multiply by delta
 		if (Math.round(this.x / 100) != Math.round(this.state.x / 100)) {
 			this.x += Math.cos(this.bearing) * this.speed;
@@ -737,7 +767,7 @@ class Enemy extends Character {
 }
 
 //
-// constructors
+// Constructors
 //
 
 function statusEffect(properties) {
@@ -752,7 +782,7 @@ function statusEffect(properties) {
 }
 
 //
-// load game
+// Load game
 //
 
 // load game for the first time
@@ -967,7 +997,7 @@ Game.checkEvents = function() {
 }
 
 //
-// music
+// Music
 //
 
 Game.playMusic = function () {
@@ -1000,7 +1030,7 @@ Game.stopMusic = function () {
 }
 
 //
-// update game
+// Update game state
 //
 
 Game.update = function (delta) {
@@ -1175,7 +1205,7 @@ Game.statusUpdate = function () {
 }
 
 //
-// render game
+// Render game (draw onto canvas)
 //
 
 Game._drawLayer = function (layer) {
