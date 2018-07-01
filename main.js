@@ -750,7 +750,10 @@ class Enemy extends Character {
 		this.range = properties.range;
 		this.reloadTime = properties.reloadTime; // time in ms to attack again
 		
-		this.leashRadius = properties.leashRadius // how far away the player has to be for the enemy to ignore them
+		this.leashRadius = properties.leashRadius; // how far away the player has to be for the enemy to ignore them
+		
+		// information about projectile
+		this.projectile = properties.projectile; // should contain projectile width, height, adjust x and y, image
 		
 		// for code later on
 		this.statusEffects = [];
@@ -761,23 +764,7 @@ class Enemy extends Character {
 		// perhaps condense into hostile and passive ai functions (that also apply to things like villagers)?
 		if (distance(this, Game.hero) < this.range) { // enemy should attack hero
 			if (this.canAttack) { // projectile can be shot
-				this.canAttack = false;
-				
-				this.channelTime = 0;
-				this.channelling = false;
-				
-				// damage enemies that the projectile is touching
-				Game.projectiles[Game.projectiles.length - 1].damageEnemies();
-				
-				// wait to shoot next projectile
-				setTimeout(function () {
-					this.canAttack = true;
-				}, this.reloadTime);
-				
-				// remove shot projectile
-				setTimeout(function () {
-					Game.projectiles.shift();
-				}, 2000);
+				this.shootProjectile();
 			}
 		}
 		else if (distance(this, Game.hero) > this.leashRadius) { // enemy should move passively
@@ -800,6 +787,51 @@ class Enemy extends Character {
 			this.y += Math.sin(this.bearing) * this.speed;
 		}
 	}
+	
+	// shoot projectile at player
+	shoot (at) {
+		this.canAttack = false;
+		
+		var projectileX, projectileY, projectileRotate;
+				
+		projectileX = Game.hero.screenX - Game.hero.width / 2; // might be incorrect
+		projectileY = Game.hero.screenY - Game.hero.height / 2;
+		projectileRotate = bearing(this, {x: projectileX, y: projectileY});
+		
+		this.channellingProjectileId = Game.nextProjectileId;
+
+		Game.projectiles.push(new Projectile({
+			map: map,
+			x: projectileX,
+			y: projectileY,
+			width: this.projectile.width,
+			height: this.projectile.height,
+			rotate: projectileRotate,
+			adjust: {
+				x: this.projectile.adjustX,
+				y: this.projectile.adjustY,
+			},
+			image: this.projectile.image,
+		}));
+		
+		// damage allies that the projectile is touching
+		Game.projectiles[Game.searchFor(this.channellingProjectileId, Game.projectiles)].damageAllies();
+		
+		// wait to shoot next projectile
+		setTimeout(function () {
+			this.canAttack = true;
+		}, this.reloadTime);
+		
+		// after a timeout (2s), remove the projectile that was just shot
+		// taken from Player
+		let a = this.channellingProjectileId; // maintain a variable of the currently shot projectile
+		setTimeout(function (a) {
+			Game.projectiles.splice(Game.searchFor(a, Game.projectiles), 1); // find the id of the to-be-removed projectile and remove it
+		}, 2000, a);
+		
+		this.channellingProjectileId = null;
+	}
+				
 }
 
 //
@@ -1404,102 +1436,6 @@ Game.render = function () {
     //if (this.hasScrolled) {
 	this._drawLayer(0);
     //}
-	
-	/*
-    // draw quest NPCs
-    for(var i = 0; i < this.questNPCs.length; i++) {
-		// set character screen x and y
-		this.questNPCs[i].screenX = (this.questNPCs[i].x - this.questNPCs[i].width / 2) - this.camera.x;
-		this.questNPCs[i].screenY = (this.questNPCs[i].y - this.questNPCs[i].height / 2) - this.camera.y;
-		
-		// draw image
-        this.ctx.drawImage(
-			this.questNPCs[i].image,
-			this.questNPCs[i].screenX - this.questNPCs[i].width / 2,
-			this.questNPCs[i].screenY - this.questNPCs[i].height / 2
-        );
-    }
-	
-    // draw merchants
-    for(var i = 0; i < this.merchants.length; i++) {
-		// set character screen x and y
-		this.merchants[i].screenX = (this.merchants[i].x - this.merchants[i].width / 2) - this.camera.x;
-		this.merchants[i].screenY = (this.merchants[i].y - this.merchants[i].height / 2) - this.camera.y;
-		
-		// draw image
-        this.ctx.drawImage(
-			this.merchants[i].image,
-			this.merchants[i].screenX - this.merchants[i].width / 2,
-			this.merchants[i].screenY - this.merchants[i].height / 2
-        );
-    }
-	
-	// draw villagers
-    for(var i = 0; i < this.villagers.length; i++) {
-		// set character screen x and y
-		this.villagers[i].screenX = (this.villagers[i].x - this.villagers[i].width / 2) - this.camera.x;
-		this.villagers[i].screenY = (this.villagers[i].y - this.villagers[i].height / 2) - this.camera.y;
-		
-		// draw image
-        this.ctx.drawImage(
-			this.villagers[i].image,
-			this.villagers[i].screenX - this.villagers[i].width / 2,
-			this.villagers[i].screenY - this.villagers[i].height / 2
-        );
-    }
-	
-    // draw identifiers
-    for(var i = 0; i < this.identifiers.length; i++) {
-		// set character screen x and y
-		this.identifiers[i].screenX = (this.identifiers[i].x - this.identifiers[i].width / 2) - this.camera.x;
-		this.identifiers[i].screenY = (this.identifiers[i].y - this.identifiers[i].height / 2) - this.camera.y;
-		
-		// draw image
-        this.ctx.drawImage(
-			this.identifiers[i].image,
-			this.identifiers[i].screenX - this.identifiers[i].width / 2,
-			this.identifiers[i].screenY - this.identifiers[i].height / 2
-        );
-    }
-	
-    // draw enemies
-    for(var i = 0; i < this.enemies.length; i++) {
-		// set character screen x and y
-		this.enemies[i].screenX = (this.enemies[i].x - this.enemies[i].width / 2) - this.camera.x;
-		this.enemies[i].screenY = (this.enemies[i].y - this.enemies[i].height / 2) - this.camera.y;
-		
-		// draw image
-        this.ctx.drawImage(
-			this.enemies[i].image,
-			this.enemies[i].screenX - this.enemies[i].width / 2,
-			this.enemies[i].screenY - this.enemies[i].height / 2
-        );
-    }
-	
-    // draw dummies
-    for(var i = 0; i < this.dummies.length; i++) {
-		// set character screen x and y
-		this.dummies[i].screenX = (this.dummies[i].x - this.dummies[i].width / 2) - this.camera.x;
-		this.dummies[i].screenY = (this.dummies[i].y - this.dummies[i].height / 2) - this.camera.y;
-		
-		// draw image
-        this.ctx.drawImage(
-			this.dummies[i].image,
-			this.dummies[i].screenX - this.dummies[i].width / 2,
-			this.dummies[i].screenY - this.dummies[i].height / 2
-        );
-		
-		// show damage taken
-		if (this.dummies[i].damageTaken > 0) {
-			// formatting
-			this.ctx.fillStyle = "rgb(0, 0, 0)";
-			this.ctx.textAlign = "center";
-			this.ctx.font = "18px MedievalSharp";
-			
-			this.ctx.fillText(this.dummies[i].damageTaken, this.dummies[i].screenX, this.dummies[i].screenY - this.dummies[i].height / 2);
-		}
-    }
-	*/
 	
 	// render npcs on renderList
 	for (var i = 0; i < this.renderList.length; i++) { // iterate through everything to be rendered (in order)

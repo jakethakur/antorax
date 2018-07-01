@@ -209,7 +209,7 @@ var areas = { // areas should have a capital (global variable)
 			{
 				x: 600,
 				y: 600,
-				width: 77,
+				width: 57,
 				height: 100,
 				image: "dummy",
 				name: "Target Dummy",
