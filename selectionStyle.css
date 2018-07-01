@@ -1,0 +1,20 @@
+#archer, #mage, #knight, #name, #logo, #news{
+	background-color: #fef9b4;
+	border: 5px solid #886622;
+}
+#archer, #mage, #knight{
+	margin: 20px;
+	margin-left: 15px;
+}
+#name, #image, #logo, #news{
+	position: absolute;
+}
+#image, #logo{
+	top: 20px;
+}
+#name{
+	font-size: 25px;
+	line-height: 45px;
+	vertical-align: middle;
+	text-align: center;
+}
