@@ -3,7 +3,7 @@ var areas = { // areas should have a capital (global variable)
 	tutorial: {
 		
 		data: {
-			name: "Fisher's Valley",
+			name: "Fishers' Valley",
 			level: "Level 1 - 5",
 			territory: "Neutral territory",
 		},

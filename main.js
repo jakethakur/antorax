@@ -281,6 +281,21 @@ function distance (obj1, obj2) {
 	return Math.sqrt((obj1.x - obj2.x) * (obj1.x - obj2.x) + (obj1.y - obj2.y, 2) * (obj1.y - obj2.y, 2));
 }
 
+
+// search for an entity with a specific id (first param) within an array (second param)
+// returns the array index of the first found item of the array with that id
+// only works for projectiles as of 01/07/18 (they're the only entities with ids)
+Game.searchFor = function (id, array) {
+	for (let i = 0; i < array.length; i++) {
+		if (array[i].id == id) {
+			return i;
+		}
+	}
+	console.warn("The requested item of id " + id + " could not be found in the following array:");
+	console.log(array);
+	return null;
+}
+
 //
 // Classes
 //
@@ -422,6 +437,8 @@ class Hero extends Character {
 			projectileX = Game.camera.x + (e.clientX);
 			projectileY = Game.camera.y + (e.clientY);
 			projectileRotate = bearing(this, {x: projectileX, y: projectileY});
+			
+			this.channellingProjectileId = Game.nextProjectileId;
 
 			Game.projectiles.push(new Projectile({
 				map: map,
@@ -448,14 +465,16 @@ class Hero extends Character {
 			this.channelling = false;
 			
 			// damage enemies that the projectile is touching
-			Game.projectiles[Game.projectiles.length - 1].damageEnemies();
+			Game.projectiles[Game.searchFor(this.channellingProjectileId, Game.projectiles)].damageEnemies();
 			
-			// after a timeout (2s), remove the first projectile from the array of projectiles
-			// note that this only works for removing projectiles if ALL projectiles stay for the same period of time (2s)
-			// this also doesn't work if the user attacks too fast, though this shouldn't be a problem...
-			setTimeout(function () {
-				Game.projectiles.shift();
-			}, 2000);
+			// after a timeout (2s), remove the projectile that was just shot
+			// this doesn't work if the user attacks too fast, though this shouldn't be a problem...
+			let a = this.channellingProjectileId; // maintain a variable of the currently shot projectile
+			setTimeout(function (a) {
+				Game.projectiles.splice(Game.searchFor(a, Game.projectiles), 1); // find the id of the to-be-removed projectile and remove it
+			}, 2000, a);
+			
+			this.channellingProjectileId = null;
 		}
 	}
 }
@@ -463,6 +482,9 @@ class Hero extends Character {
 class Projectile extends Character {
 	constructor(properties) {
 		super(properties);
+		
+		this.id = Game.nextProjectileId; // way that the game can identify which projectile was shot
+		Game.nextProjectileId++;
 		
 		this.expand = 1;
 		
@@ -740,8 +762,22 @@ class Enemy extends Character {
 		if (distance(this, Game.hero) < this.range) { // enemy should attack hero
 			if (this.canAttack) { // projectile can be shot
 				this.canAttack = false;
-				// shoot projectile TBD
-				setTimeout(function() {this.canAttack = true;}, this.reloadTime); // wait to shoot next projectile
+				
+				this.channelTime = 0;
+				this.channelling = false;
+				
+				// damage enemies that the projectile is touching
+				Game.projectiles[Game.projectiles.length - 1].damageEnemies();
+				
+				// wait to shoot next projectile
+				setTimeout(function () {
+					this.canAttack = true;
+				}, this.reloadTime);
+				
+				// remove shot projectile
+				setTimeout(function () {
+					Game.projectiles.shift();
+				}, 2000);
 			}
 		}
 		else if (distance(this, Game.hero) > this.leashRadius) { // enemy should move passively
@@ -899,6 +935,7 @@ Game.loadArea = function (areaName, destination) {
 		
 		// projectiles
 		this.projectiles = [];
+		this.nextProjectileId = 0; // reset projectile id chain (because projectiles don't persist between areas)
 		
 		// area teleports
 		this.areaTeleports = [];
