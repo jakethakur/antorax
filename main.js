@@ -465,7 +465,7 @@ class Hero extends Character {
 			this.channelling = false;
 			
 			// damage enemies that the projectile is touching
-			Game.projectiles[Game.searchFor(this.channellingProjectileId, Game.projectiles)].damageEnemies();
+			Game.projectiles[Game.searchFor(this.channellingProjectileId, Game.projectiles)].dealDamage([Game.enemies, Game.dummies,]);
 			
 			// after a timeout (2s), remove the projectile that was just shot
 			// this doesn't work if the user attacks too fast, though this shouldn't be a problem...
@@ -499,92 +499,54 @@ class Projectile extends Character {
 		this.damageDealt = []; // array of damages dealt to show
 	}
 	
-	damageEnemies () {
-		// enemies
-		for (var i = 0; i < Game.enemies.length; i++) {
-			if (this.isTouching(Game.enemies[i])) {
-				// damage
-				if (random(0, 100) < Stats.Critical_Chance) { // critical hit
-					Game.enemies[i].health -= Stats.Damage * 2;
-					this.damageDealt.push({enemy: Game.enemies[i], damage: Stats.Damage * 2, critical: true});
-				}
-				else {
-					Game.enemies[i].health -= Stats.Damage;
-					this.damageDealt.push({enemy: Game.enemies[i], damage: Stats.Damage, critical: false});
-				}
-				
-				// poison
-				if (Stats.PoisonX > 0 && Stats.PoisonY > 0) { // check player weapon has poison
-					// remember poison damage (so the player cannot change their weapon)
-					Game.enemies[i].statusEffects.push(new statusEffect({
-						title: "Poisoned",
-						effect: "Take " + Stats.PoisonX + " damage over " + Stats.PoisonY + " seconds.",
-						info: {
-							poisonDamage: Stats.PoisonX,
-							poisonTime: Stats.PoisonY,
-							poisonTicks: 0, // increased by 1 every tick
-						},
-						idNumber: i,
-						tick: function() { // deal poison damage every second
-							if (this.info.poisonTicks < this.info.poisonTime) { // check poison has not expired
-								Game.enemies[this.idNumber].health -= this.info.poisonDamage / this.info.poisonTime;
-								console.log(Game.enemies[this.idNumber].health);
-								this.info.poisonTicks++;
-							}
-							else { // remove poison interval
-								for (var z = 0; z < Game.enemies[this.idNumber].statusEffects.length; z++) { // try to find poison in array (inefficient?)
-									if (Game.enemies[this.idNumber].statusEffects[z].info.poisonTicks >= Game.enemies[this.idNumber].statusEffects[z].info.poisonTime) {
-										Game.enemies[this.idNumber].statusEffects.splice(z, 0);
-										break;
+	// deal damage to array of entities (to)
+	// to = array of arrays to deal damage to
+	// hence, if you want to damage a single target still put it in an array, e.g: dealDamage([[Game.hero]])
+	dealDamage (to) {
+		for (var i = 0; i < to.length; i++) {
+			for (var x = 0; x < to[i].length; x++) {
+				if (this.isTouching(to[i][x])) {
+					// damage
+					if (random(0, 100) < Stats.Critical_Chance) { // critical hit
+						to[i][x].health -= Stats.Damage * 2;
+						to[i][x].damageTaken += Stats.Damage * 2;
+						this.damageDealt.push({enemy: to[i][x], damage: Stats.Damage * 2, critical: true});
+					}
+					else {
+						to[i][x].health -= Stats.Damage;
+						to[i][x].damageTaken += Stats.Damage * 2; // tbd give ALL characters a health and damage taken
+						this.damageDealt.push({enemy: to[i][x], damage: Stats.Damage, critical: false});
+					}
+					
+					// poison
+					if (Stats.PoisonX > 0 && Stats.PoisonY > 0) { // check player weapon has poison
+						// remember poison damage (so the player cannot change their weapon)
+						to[i][x].statusEffects.push(new statusEffect({
+							title: "Poisoned",
+							effect: "Take " + Stats.PoisonX + " damage over " + Stats.PoisonY + " seconds.",
+							info: {
+								poisonDamage: Stats.PoisonX,
+								poisonTime: Stats.PoisonY,
+								poisonTicks: 0, // increased by 1 every tick
+							},
+							idNumber: x,
+							tick: function() { // deal poison damage every second
+								if (this.info.poisonTicks < this.info.poisonTime) { // check poison has not expired
+									to[i][this.idNumber].health -= this.info.poisonDamage / this.info.poisonTime;
+									to[i][this.idNumber].damageTaken += this.info.poisonDamage / this.info.poisonTime;
+									this.info.poisonTicks++;
+								}
+								else { // remove poison interval
+									for (var z = 0; z < to[i][this.idNumber].statusEffects.length; z++) { // try to find poison in array (inefficient?)
+										if (to[i][this.idNumber].statusEffects[z].info.poisonTicks >= to[i][this.idNumber].statusEffects[z].info.poisonTime) {
+											to[i][this.idNumber].statusEffects.splice(z, 0);
+											break;
+										}
 									}
 								}
-							}
-						},
-					}));
-				}
-			}
-		}
-		
-		// dummies
-		for (var i = 0; i < Game.dummies.length; i++) {
-			if (this.isTouching(Game.dummies[i])) {
-				// damage
-				if (random(0, 100) < Stats.Critical_Chance) { // critical hit
-					Game.dummies[i].damageTaken += Stats.Damage * 2;
-					this.damageDealt.push({enemy: Game.dummies[i], damage: Stats.Damage * 2, critical: true});
-				}
-				else {
-					Game.dummies[i].damageTaken += Stats.Damage;
-					this.damageDealt.push({enemy: Game.dummies[i], damage: Stats.Damage, critical: false});
-				}
-				
-				// poison
-				if (Stats.PoisonX > 0 && Stats.PoisonY > 0) { // check player weapon has poison
-					// remember poison damage (so the player cannot change their weapon)
-					Game.dummies[i].statusEffects.push(new statusEffect({
-						title: "Poisoned",
-						effect: "Take " + Stats.PoisonX + " damage over " + Stats.PoisonY + " seconds.",
-						info: {
-							poisonDamage: Stats.PoisonX,
-							poisonTime: Stats.PoisonY,
-							poisonTicks: 0, // increased by 1 every tick
-						},
-						idNumber: i,
-						tick: function() { // deal poison damage every second
-							if (this.info.poisonTicks < this.info.poisonTime) { // check poison has not expired
-								Game.dummies[this.idNumber].damageTaken += this.info.poisonDamage / this.info.poisonTime;
-								this.info.poisonTicks++;
-							}
-							else { // remove poison interval
-								for (var z = 0; z < Game.dummies[this.idNumber].statusEffects.length; z++) { // try to find poison in array (inefficient?)
-									if (Game.dummies[this.idNumber].statusEffects[z].info.poisonTicks >= Game.dummies[this.idNumber].statusEffects[z].info.poisonTime) {
-										Game.dummies[this.idNumber].statusEffects.splice(z, 0);
-										break;
-									}
-								}
-							}
-						},
-					}));
+							},
+						}));
+					}
 				}
 			}
 		}
@@ -815,7 +777,7 @@ class Enemy extends Character {
 		}));
 		
 		// damage allies that the projectile is touching
-		Game.projectiles[Game.searchFor(this.channellingProjectileId, Game.projectiles)].damageAllies();
+		Game.projectiles[Game.searchFor(this.channellingProjectileId, Game.projectiles)].dealDamage([[Game.hero],]);
 		
 		// wait to shoot next projectile
 		setTimeout(function () {
