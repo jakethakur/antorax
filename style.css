@@ -2,6 +2,10 @@
 
 body{
 	font-family: 'MedievalSharp', serif;
+	-webkit-user-select: none; /* Safari */        
+	-moz-user-select: none; /* Firefox */
+	-ms-user-select: none; /* IE10+/Edge */
+	user-select: none;
 }
 #chatPage, #inventoryPage, #questsPage, #settingsPage, #instructionsPage, #reputationPage, #questStart, #questFinish, #merchantPage, #identifierPage, #identifiedPage {
 	float: left;
@@ -33,10 +37,6 @@ body{
 }
 #questStart, #questFinish, #merchantPage, #identifierPage, #identifiedPage {
 	text-align: center;
-	-webkit-user-select: none; /* Safari */        
-	-moz-user-select: none; /* Firefox */
-	-ms-user-select: none; /* IE10+/Edge */
-	user-select: none;
 }
 #questStartQuest, #questFinishQuest, #questStartName, #questFinishName, #questStartChat, #questFinishChat, #questStartObjectives, #questStartRewards, #questFinishRewards, #merchantPageTitle, #merchantPageChat, #merchantPageOptions, #identifierPageTitle, #identifierPageChat, #leftArrow, #identifierPageOption, #rightArrow, #identifiedPageTitle, #identifiedPageChat, #identifiedPageOptions{
 	display: inline;
@@ -46,7 +46,6 @@ body{
 	text-align: center;
 	vertical-align: middle;
 	font-size: 20px;
-	font-family: 'MedievalSharp', serif;
 }
 #activeQuestBox, #possibleQuestBox, #completedQuestBox, #allQuestBox, #activeQuests, #possibleQuests, #completedQuests, #allQuests, #settingBookmark, #settingMusic, #settingHitboxes, #settingCoords, #settingFps, #settingGrid {
 	position: relative;
@@ -56,10 +55,6 @@ body{
 	border-right: 5px solid #886622;
 	border-bottom: 5px solid #886622;
 	right: 10px;
-	-webkit-user-select: none; /* Safari */        
-	-moz-user-select: none; /* Firefox */
-	-ms-user-select: none; /* IE10+/Edge */
-	user-select: none;
 	background-color: #fef9b4;
 }
 #activeQuests, #possibleQuests, #completedQuests, #allQuests{
@@ -67,7 +62,6 @@ body{
 	line-height: 50px;
 	vertical-align: middle;
 	font-size: 20px;
-	font-family: 'MedievalSharp', serif;
 	background-color: #fff7a5;
 }
 .rectangleLeftUp, .rectangleLeftDown, .rectangleRightUp, .rectangleRightDown{
@@ -174,10 +168,6 @@ td{
 #bagText{
 	position: absolute;
 	left: 815px;
-	-webkit-user-select: none; /* Safari */        
-	-moz-user-select: none; /* Firefox */
-	-ms-user-select: none; /* IE10+/Edge */
-	user-select: none;
 }
 .goldDisplay, .xpDisplay{
 	margin-top: 25px;
@@ -187,11 +177,6 @@ td{
 	line-height:65px;
 	vertical-align: middle;
 	font-size: 20px;
-	font-family: 'MedievalSharp', serif;
-	-webkit-user-select: none; /* Safari */        
-	-moz-user-select: none; /* Firefox */
-	-ms-user-select: none; /* IE10+/Edge */
-	user-select: none;
 }
 .xpDisplay{
 	background-image: url("./assets/icons/xp.png");
@@ -225,10 +210,6 @@ td{
 	width: 13px;
 	background-color: #ff0000;
 	border-radius: 50%;
-	-webkit-user-select: none; /* Safari */        
-	-moz-user-select: none; /* Firefox */
-	-ms-user-select: none; /* IE10+/Edge */
-	user-select: none;
 }
 
 #questStartGold, #questStartXP, #questFinishGold, #questFinishXP{
@@ -239,11 +220,6 @@ td{
 	line-height:65px;
 	vertical-align: middle;
 	font-size: 20px;
-	font-family: 'MedievalSharp', serif;
-	-webkit-user-select: none; /* Safari */        
-	-moz-user-select: none; /* Firefox */
-	-ms-user-select: none; /* IE10+/Edge */
-	user-select: none;
 	display: inline-block;
 	margin-bottom: 10px;
 }
@@ -267,7 +243,6 @@ td{
 	line-height: 50px;
 	vertical-align: middle;
 	font-size: 20px;
-	font-family: 'MedievalSharp', serif;
 }
 #identifierPageBuy{
 	left: 0px;
@@ -300,11 +275,6 @@ td{
 	line-height:50px;
 	vertical-align: middle;
 	font-size: 20px;
-	font-family: 'MedievalSharp', serif;
-	-webkit-user-select: none; /* Safari */        
-	-moz-user-select: none; /* Firefox */
-	-ms-user-select: none; /* IE10+/Edge */
-	user-select: none;
 }
 #merchantPageOptions {
 	float: left;
@@ -320,10 +290,6 @@ td{
 	padding-left: 30px;
 	height: 580px;
 	width: 480px;
-	-webkit-user-select: none; /* Safari */        
-	-moz-user-select: none; /* Firefox */
-	-ms-user-select: none; /* IE10+/Edge */
-	user-select: none;
 }
 #reputationBox{
 	top: 5px;
@@ -340,10 +306,6 @@ td{
 	line-height: 22px;
 	vertical-align: middle;
 	background-color: gold;
-	-webkit-user-select: none; /* Safari */        
-	-moz-user-select: none; /* Firefox */
-	-ms-user-select: none; /* IE10+/Edge */
-	user-select: none;
 }
 #accept{
 	top: 20px;

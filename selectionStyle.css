@@ -1,8 +1,20 @@
-#archer, #mage, #knight, #name, #logo, #news{
+@import url('https://fonts.googleapis.com/css?family=MedievalSharp');
+
+body{
+	font-family: 'MedievalSharp', serif;
+	background-color: #f9f9d0;
+	-webkit-user-select: none; /* Safari */        
+	-moz-user-select: none; /* Firefox */
+	-ms-user-select: none; /* IE10+/Edge */
+	user-select: none;
+	text-align: center;
+}
+#archer, #mage, #knight, #name, #news{
 	background-color: #fef9b4;
 	border: 5px solid #886622;
 }
 #archer, #mage, #knight{
+	padding: 10px;
 	margin: 20px;
 	margin-left: 15px;
 }
@@ -17,4 +29,17 @@
 	line-height: 45px;
 	vertical-align: middle;
 	text-align: center;
+	height: 50px;
+	font-family: 'MedievalSharp', serif;
+}
+#news{
+	padding-top: 20px;
+}
+#newsTitle{
+	font-size: 50px;
+}
+.title{
+	display: inline;
+	font-size: 25px;
+	font-weight: bold;
 }
