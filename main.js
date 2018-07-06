@@ -727,7 +727,7 @@ class Enemy extends Character {
 		// perhaps condense into hostile and passive ai functions (that also apply to things like villagers)?
 		if (distance(this, Game.hero) < this.range) { // enemy should attack hero
 			if (this.canAttack) { // projectile can be shot
-				this.shootProjectile();
+				this.shoot(Game.hero);
 			}
 		}
 		else if (distance(this, Game.hero) > this.leashRadius) { // enemy should move passively
@@ -742,13 +742,9 @@ class Enemy extends Character {
 	// move towards entity (towards parameter)
 	move (towards) {
 		this.bearing = bearing(this, towards); // update bearing (maybe doesn't need to be done every tick?)
-		// tbd : multiply by delta
-		if (Math.round(this.x / 100) != Math.round(this.state.x / 100)) {
-			this.x += Math.cos(this.bearing) * this.speed;
-		}
-		if (Math.round(this.y / 100) != Math.round(this.state.y / 100)) {
-			this.y += Math.sin(this.bearing) * this.speed;
-		}
+		// tbd : multiply by delta=
+		this.x += Math.cos(this.bearing) * this.speed;
+		this.y += Math.sin(this.bearing) * this.speed;
 	}
 	
 	// shoot projectile at array of enemies
@@ -776,6 +772,8 @@ class Enemy extends Character {
 			},
 			image: this.projectile.image,
 		}));
+		
+		console.log("hi");
 		
 		// damage allies that the projectile is touching
 		Game.projectiles[Game.searchFor(this.channellingProjectileId, Game.projectiles)].dealDamage([[Game.hero],]);
@@ -1207,9 +1205,13 @@ Game.update = function (delta) {
 		}
 	}
 	
-	// check collision with villagers
+	// update villagers
 	for(var i = 0; i < this.villagers.length; i++) {
 		this.villagers[i].update();
+    }
+	// update enemies
+	for(var i = 0; i < this.enemies.length; i++) {
+		this.enemies[i].update();
     }
 	
 	// check collision with area teleports
