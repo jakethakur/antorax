@@ -111,6 +111,32 @@ var areas = { // areas should have a capital (global variable)
 			},*/
 		],
 		
+		enemies: [
+			{
+				x: 1500,
+				y: 200,
+				width: 90,
+				height: 110,
+				image: "weaponsmith",
+				name: "Weaponsmith Clone",
+				speed: 1,
+				health: 355,
+				range: 200,
+				reloadTime: 2000,
+				leashRadius: 500,
+				projectile: {
+					width: 10,
+					height: 40,
+					adjust: {
+						// manually adjust position - make this per class (per projectile image) in the future ( tbd )
+						x: -13,
+						y: 0,
+						//y: 16,
+					},
+					image: "projectile",
+				}
+			}
+		],
 	},
 	
 	

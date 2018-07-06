@@ -707,6 +707,7 @@ class Enemy extends Character {
 		this.name = properties.name;
 		
 		// combat traits
+		this.maxHealth = properties.health;
 		this.health = properties.health;
 		this.speed = properties.speed; // TBD - make enemy slower in water (give it separate walk speed and move speed)
 		this.range = properties.range;
@@ -750,7 +751,7 @@ class Enemy extends Character {
 		}
 	}
 	
-	// shoot projectile at player
+	// shoot projectile at array of enemies
 	shoot (at) {
 		this.canAttack = false;
 		
@@ -793,7 +794,28 @@ class Enemy extends Character {
 		
 		this.channellingProjectileId = null;
 	}
-				
+	
+	// function to be carried out during Game.render()
+	renderFunction () {
+		// show health bar above head
+		// tbd : make more intermediate steps into constants
+		
+		const totalLength = 100; // total length of health bar
+		const totalHeight = 15; // total height of health bar
+		const barValue = Math.pow(10, (this.maxHealth.toString().length - 1)); // get length of each health bar (in health)
+		
+		// health bar body
+		this.healthFraction = this.health / this.maxHealth; // fraction of health remaining
+		Game.ctx.fillStyle = "rgb(255, 0, 0)";
+		Game.ctx.fillRect(this.screenX - this.width / 2, this.screenY - this.height / 2 - totalHeight, this.healthFraction * totalLength, totalHeight);
+		
+		// health bar border
+		Game.ctx.strokeStyle = "rgb(0, 0, 0)";
+		for (let i = 0; i < this.health / barValue - 1; i++) {
+			Game.ctx.strokeRect(this.screenX - this.width / 2 + barValue / this.health * totalLength * i, this.screenY - this.height / 2 - totalHeight, barValue / this.health * totalLength, totalHeight);
+		}
+		Game.ctx.strokeRect(this.screenX - this.width / 2 + barValue / this.health * Math.round(this.health / barValue), this.screenY - this.height / 2 - totalHeight, totalLength, totalHeight);
+	}
 }
 
 //
