@@ -451,8 +451,7 @@ class Hero extends Character {
 				adjust: {
 					// manually adjust position - make this per class (per projectile image) in the future ( tbd )
 					x: -13,
-					y: 0,
-					//y: 16,
+					y: -13,
 				},
 				image: "projectile",
 			}));
@@ -755,6 +754,7 @@ class Enemy extends Character {
 		var projectileX, projectileY, projectileRotate;
 		
 		// TBD add randomness in projectile impact towards player
+		// TBD make it so that this randomness can make the enemy miss? this could be a specifyable stat
 		projectileX = Game.camera.x + Game.hero.screenX - Game.hero.width / 2;
 		projectileY = Game.camera.y + Game.hero.screenY - Game.hero.height / 2;
 		projectileRotate = bearing(this, {x: projectileX, y: projectileY}) + Math.PI / 2;
