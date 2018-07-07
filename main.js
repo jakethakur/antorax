@@ -273,12 +273,13 @@ function random (minimum, maximum) {
 // find bearing between two entities (with x and y)
 // returns answer in radians
 function bearing (obj1, obj2) {
-	return Math.atan2(obj2.x - obj1.x, obj1.y - obj2.y);
+	let bearing = Math.atan2(obj2.y - obj1.y, obj2.x - obj1.x);
+	return bearing;
 }
 
 // find distance between two entities (with x and y) - pythagoras' theorem
 function distance (obj1, obj2) {
-	return Math.sqrt((obj1.x - obj2.x) * (obj1.x - obj2.x) + (obj1.y - obj2.y, 2) * (obj1.y - obj2.y, 2));
+	return Math.sqrt((obj1.x - obj2.x) * (obj1.x - obj2.x) + (obj1.y - obj2.y) * (obj1.y - obj2.y));
 }
 
 
@@ -292,7 +293,7 @@ Game.searchFor = function (id, array) {
 		}
 	}
 	console.warn("The requested item of id " + id + " could not be found in the following array:");
-	console.log(array);
+	console.warn(array);
 	return null;
 }
 
@@ -436,7 +437,7 @@ class Hero extends Character {
 			
 			projectileX = Game.camera.x + (e.clientX);
 			projectileY = Game.camera.y + (e.clientY);
-			projectileRotate = bearing(this, {x: projectileX, y: projectileY});
+			projectileRotate = bearing(this, {x: projectileX, y: projectileY}) + Math.PI / 2;
 			
 			this.channellingProjectileId = Game.nextProjectileId;
 
@@ -752,10 +753,11 @@ class Enemy extends Character {
 		this.canAttack = false;
 		
 		var projectileX, projectileY, projectileRotate;
-				
-		projectileX = Game.hero.screenX - Game.hero.width / 2; // might be incorrect
-		projectileY = Game.hero.screenY - Game.hero.height / 2;
-		projectileRotate = bearing(this, {x: projectileX, y: projectileY});
+		
+		// TBD add randomness in projectile impact towards player
+		projectileX = Game.camera.x + Game.hero.screenX - Game.hero.width / 2;
+		projectileY = Game.camera.y + Game.hero.screenY - Game.hero.height / 2;
+		projectileRotate = bearing(this, {x: projectileX, y: projectileY}) + Math.PI / 2;
 		
 		this.channellingProjectileId = Game.nextProjectileId;
 
@@ -767,13 +769,11 @@ class Enemy extends Character {
 			height: this.projectile.height,
 			rotate: projectileRotate,
 			adjust: {
-				x: this.projectile.adjustX,
-				y: this.projectile.adjustY,
+				x: this.projectile.adjust.x,
+				y: this.projectile.adjust.y,
 			},
 			image: this.projectile.image,
 		}));
-		
-		console.log("hi");
 		
 		// damage allies that the projectile is touching
 		Game.projectiles[Game.searchFor(this.channellingProjectileId, Game.projectiles)].dealDamage([[Game.hero],]);
@@ -781,12 +781,13 @@ class Enemy extends Character {
 		// wait to shoot next projectile
 		setTimeout(function () {
 			this.canAttack = true;
-		}, this.reloadTime);
+		}.bind(this), this.reloadTime);
 		
 		// after a timeout (2s), remove the projectile that was just shot
 		// taken from Player
 		let a = this.channellingProjectileId; // maintain a variable of the currently shot projectile
 		setTimeout(function (a) {
+			console.log(Game.projectiles[Game.searchFor(a, Game.projectiles)]);
 			Game.projectiles.splice(Game.searchFor(a, Game.projectiles), 1); // find the id of the to-be-removed projectile and remove it
 		}, 2000, a);
 		
@@ -796,23 +797,23 @@ class Enemy extends Character {
 	// function to be carried out during Game.render()
 	renderFunction () {
 		// show health bar above head
-		// tbd : make more intermediate steps into constants
+		// tbd : make intermediate steps into constants as well
 		
-		const totalLength = 100; // total length of health bar
+		const totalWidth = this.width; // total width of health bar
 		const totalHeight = 15; // total height of health bar
-		const barValue = Math.pow(10, (this.maxHealth.toString().length - 1)); // get length of each health bar (in health)
+		const barValue = Math.pow(10, (this.maxHealth.toString().length - 1)); // get wdth of each health bar (in health)
 		
 		// health bar body
 		this.healthFraction = this.health / this.maxHealth; // fraction of health remaining
 		Game.ctx.fillStyle = "rgb(255, 0, 0)";
-		Game.ctx.fillRect(this.screenX - this.width / 2, this.screenY - this.height / 2 - totalHeight, this.healthFraction * totalLength, totalHeight);
+		Game.ctx.fillRect(this.screenX - this.width / 2, this.screenY - this.height / 2 - totalHeight, this.healthFraction * totalWidth, totalHeight);
 		
 		// health bar border
 		Game.ctx.strokeStyle = "rgb(0, 0, 0)";
-		for (let i = 0; i < this.health / barValue - 1; i++) {
-			Game.ctx.strokeRect(this.screenX - this.width / 2 + barValue / this.health * totalLength * i, this.screenY - this.height / 2 - totalHeight, barValue / this.health * totalLength, totalHeight);
+		for (let i = 0; i < this.maxHealth / barValue - 1; i++) {
+			Game.ctx.strokeRect(this.screenX - this.width / 2 + barValue / this.maxHealth * totalWidth * i, this.screenY - this.height / 2 - totalHeight, barValue / this.maxHealth * totalWidth, totalHeight);
 		}
-		Game.ctx.strokeRect(this.screenX - this.width / 2 + barValue / this.health * Math.round(this.health / barValue), this.screenY - this.height / 2 - totalHeight, totalLength, totalHeight);
+		Game.ctx.strokeRect(this.screenX - this.width / 2 + barValue / this.maxHealth * Math.round(this.maxHealth / barValue), this.screenY - this.height / 2 - totalHeight, totalWidth, totalHeight);
 	}
 }
 
@@ -1042,7 +1043,6 @@ Game.checkEvents = function() {
 	
 	// James Day
 	if (day == 21 && month == 6) {
-		console.log("Happy James day!");
 		Player.inventory.boots.push(items.boots[7]);
 	}
 }
@@ -1409,8 +1409,8 @@ Game.drawImageRotated = function (img, x, y, width, height, rad) {
 
 // update entity's screen position (called every time it is rendered)
 Game.updateScreenPosition = function (entity) {
-	entity.screenX = (entity.x - entity.width / 2) - this.camera.x;
-	entity.screenY = (entity.y - entity.height / 2) - this.camera.y;
+	entity.screenX = (entity.x) - this.camera.x;
+	entity.screenY = (entity.y) - this.camera.y;
 }
 
 // draw images on canvas
@@ -1492,8 +1492,9 @@ Game.render = function () {
 	// draw projectiles
     for(var i = 0; i < this.projectiles.length; i++) {
 		// set screen x and y
-		this.projectiles[i].screenX = (this.projectiles[i].x - this.projectiles[i].width / 2) - this.camera.x + this.projectiles[i].adjust.x;
-		this.projectiles[i].screenY = (this.projectiles[i].y - this.projectiles[i].height / 2) - this.camera.y + this.projectiles[i].adjust.y;
+		this.updateScreenPosition(this.projectiles[i]);
+		this.projectiles[i].screenX += this.projectiles[i].adjust.x;
+		this.projectiles[i].screenY += this.projectiles[i].adjust.y;
 		
 		this.drawImageRotated( // rotate projectile away from player
 			this.projectiles[i].image,

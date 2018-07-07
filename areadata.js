@@ -58,8 +58,8 @@ var areas = { // areas should have a capital (global variable)
 		
 		questNPCs: [
 			{
-				x: 2070,
-				y: 340,
+				x: 2020,
+				y: 290,
 				width: 92,
 				height: 100,
 				image: "driver",
@@ -77,8 +77,8 @@ var areas = { // areas should have a capital (global variable)
 		
 		merchants: [
 			{
-				x: 1100,
-				y: 400,
+				x: 1050,
+				y: 350,
 				width: 90,
 				height: 110,
 				image: "weaponsmith",
@@ -122,16 +122,15 @@ var areas = { // areas should have a capital (global variable)
 				speed: 1,
 				health: 355,
 				range: 200,
-				reloadTime: 2000,
+				reloadTime: 1000,
 				leashRadius: 500,
 				projectile: {
 					width: 10,
 					height: 40,
 					adjust: {
 						// manually adjust position - make this per class (per projectile image) in the future ( tbd )
-						x: -13,
-						y: 0,
-						//y: 16,
+						x: 30,
+						y: 70,
 					},
 					image: "projectile",
 				}
@@ -182,8 +181,8 @@ var areas = { // areas should have a capital (global variable)
 		areaTeleports: [
 			{
 				// teleport to tutorial area (south)
-				x: 460,
-				y: 1250,
+				x: 385,
+				y: 1249,
 				width: 150,
 				height: 2,
 				teleportTo: "tutorial",
@@ -192,8 +191,8 @@ var areas = { // areas should have a capital (global variable)
 			},
 			{
 				// teleport to tavern (tavern door - north)
-				x: 475,
-				y: 83,
+				x: 445,
+				y: 82,
 				width: 60,
 				height: 2,
 				teleportTo: "tavern",
@@ -204,8 +203,8 @@ var areas = { // areas should have a capital (global variable)
 		
 		questNPCs: [
 			{
-				x: 500,
-				y: 500,
+				x: 464,
+				y: 440,
 				width: 73,
 				height: 123,
 				image: "teper",
@@ -223,8 +222,8 @@ var areas = { // areas should have a capital (global variable)
 		
 		identifiers: [
 			{
-				x: 300,
-				y: 600,
+				x: 260,
+				y: 540,
 				width: 78,
 				height: 125,
 				image: "identifier",
@@ -233,8 +232,8 @@ var areas = { // areas should have a capital (global variable)
 		
 		dummies: [
 			{
-				x: 600,
-				y: 600,
+				x: 570,
+				y: 550,
 				width: 57,
 				height: 100,
 				image: "dummy",
@@ -294,8 +293,8 @@ var areas = { // areas should have a capital (global variable)
 		
 		questNPCs: [
 			{
-				x: 200,
-				y: 100,
+				x: 165,
+				y: 65,
 				width: 67,
 				height: 90,
 				image: "innkeeper",
