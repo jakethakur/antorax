@@ -9,20 +9,24 @@ body{
 	user-select: none;
 	text-align: center;
 }
-#archer, #mage, #knight, #name, #news{
+#archer, #mage, #knight, #name, #news, #play{
 	background-color: #fef9b4;
 	border: 5px solid #886622;
 }
-#archer, #mage, #knight{
+#archer, #mage, #knight, #play{
 	padding: 10px;
 	margin: 20px;
 	margin-left: 15px;
+	vertical-align: middle;
 }
 #name, #image, #logo, #news{
 	position: absolute;
 }
-#image, #logo{
+#logo{
 	top: 20px;
+}
+#image{
+	top: 100px;
 }
 #name{
 	font-size: 25px;
@@ -31,12 +35,19 @@ body{
 	text-align: center;
 	height: 50px;
 	font-family: 'MedievalSharp', serif;
+	top: 20px;
 }
 #news{
 	padding-top: 20px;
 }
 #newsTitle{
 	font-size: 50px;
+}
+#play{
+	position: absolute;
+	font-size: 25px;
+	margin: 0px;
+	color: black;
 }
 .title{
 	display: inline;

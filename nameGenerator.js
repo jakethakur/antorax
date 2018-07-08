@@ -1,5 +1,4 @@
 // http://www.darkshire.net/jhkim/rpg/lordoftherings/names.pdf
-
 // https://stackoverflow.com/questions/16761150/how-to-find-and-replace-contents-of-a-bracket-inside-notepad
 
 var MaleNames = ["Adalgrim", "Adelard", "Andwise", "Anson", "Balbo", "Bandobras",
@@ -31,14 +30,14 @@ var FemaleNames = ["Adaldrida", "Adamanta", "Amaranth", "Angelica", "Asphodel",
 "Prisca", "Rosamunda", "Rosa", "Rose", "Ruby", "Salvia", "Tanta"];
 
 function randomName(gender) {
-	if (gender == "female") {
-		return(FemaleNames[Math.floor(Math.random()*items.length)]);
+	if (gender == "male") {
+		return(MaleNames[Math.floor(Math.random()*FemaleNames.length)]);
 	}
-	else if (gender == "male") {
-		return(MaleNames[Math.floor(Math.random()*items.length)]);
+	else if (gender == "female") {
+		return(FemaleNames[Math.floor(Math.random()*FemaleNames.length)]);
 	}
 	else {
-		console.warn("Unknown name gender.");
+		console.error("Unknown name gender.");
 		return(null);
 	}
 }

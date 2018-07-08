@@ -42,7 +42,9 @@
 		<div id="allQuestBox"hidden></div>
 	</div>
 	<div id="instructionsPage">
-		<center><br><br><a href="https://jakethakur22.github.io/antorax/archaeology.html" target="_blank">Archaeology Page</a></center>
+		<center><br><a href="./archaeology.html" target="_blank">Archaeology</a>
+		<br><br><a href="./selection.html" target="_blank">Class Selection</a>
+		<br><br><a href="./development/builder.html" target="_blank">Item builder and identifications</a></center>
 	</div>
 	<div id="reputationPage" hidden> <!-- this should all be added via dom not html --> Eaglecrest Logging Camp:
 		<div id="widthPadding"></div> <!-- pad area between text and reputation box -->
@@ -98,7 +100,7 @@
 		<div id="questInformation" hidden></div>
 		<br><h1 id="questStartQuest"></h1><br><br>
 		<b id="questStartName"></b><br>
-		<p id="questStartChat"></p><br><br></center>
+		<p id="questStartChat"></p><br><br>
 		<b>Quest Objectives</b><br>
 		<p id="questStartObjectives"></p><br>
 		<b>Quest Rewards</b><br>
@@ -109,7 +111,6 @@
 		<div id="accept" class="closeClass" onclick="Dom.quest.accept()">Accept</div>
 		<div id="decline" class="closeClass" onclick="Dom.changeBook(Dom.previous, true)">Decline</div>
 	</div>
-	
 	<div id="questFinish" hidden>
 		<div id="questFinishInformation" hidden></div>
 		<br><h1 id="questFinishQuest"></h1><br><br>
@@ -122,7 +123,6 @@
 		<div id="questFinishItems"></div>
 		<center><div id="acceptReward" class="closeClass" onclick="Dom.quest.acceptRewards()">Complete Quest</div></center>
 	</div>
-	
 	<div id="merchantPage" hidden>
 		<div id="informationMerchant" hidden></div>
 		<br><h1 id="merchantPageTitle"></h1><br><br>
@@ -133,7 +133,6 @@
 		<p id="merchantPageBreak"></p><br><br>
 		<center><div id="close" class="closeClass" onclick="Dom.changeBook(Dom.previous, true)">Close</div></center>
 	</div>
-	
 	<div id="identifierPage" hidden>
 		<div id="identifierInformation" hidden></div>
 		<br><h1 id="identifierPageTitle">Item Identifier</h1><br><br>
