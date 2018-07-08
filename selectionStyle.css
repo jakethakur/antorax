@@ -9,10 +9,13 @@ body{
 	user-select: none;
 	text-align: center;
 }
-#archer, #mage, #knight, #name, #news, #play{
+#archer, #mage, #knight, #name, #news, #play, #random{
 	background-color: #fef9b4;
 	border: 5px solid #886622;
 }
+#name, #image, #logo, #news, #play, #random{
+	 position: absolute;
+ }
 #archer, #mage, #knight, #play{
 	padding: 10px;
 	margin: 20px;
@@ -22,7 +25,7 @@ body{
 #name, #image, #logo, #news{
 	position: absolute;
 }
-#logo{
+#logo, #random, #name{
 	top: 20px;
 }
 #image{
@@ -33,9 +36,7 @@ body{
 	line-height: 45px;
 	vertical-align: middle;
 	text-align: center;
-	height: 50px;
 	font-family: 'MedievalSharp', serif;
-	top: 20px;
 }
 #news{
 	padding-top: 20px;
@@ -44,10 +45,12 @@ body{
 	font-size: 50px;
 }
 #play{
-	position: absolute;
 	font-size: 25px;
 	margin: 0px;
 	color: black;
+}
+#random{
+	width: 50px;
 }
 .title{
 	display: inline;

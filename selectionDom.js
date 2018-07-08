@@ -6,12 +6,13 @@ var previousHeight = window.innerHeight;
 var previousName = "";
 
 function validate(strValue) {
-  var objRegExp  = /^[a-zA-Z\u00C0-\u00ff]+$/;
-  return objRegExp.test(strValue);
-}
-function validate2(strValue) {
-  var objRegExp  = /^$/;
-  return objRegExp.test(strValue);
+	var objRegExp  = /^[a-zA-Z\u00C0-\u00ff]+$/;
+	if(!objRegExp.test(strValue)){
+		objRegExp  = /^$/;
+		return objRegExp.test(strValue);
+	}else{
+		return objRegExp.test(strValue);
+	}
 }
 
 checkChange();
@@ -26,7 +27,7 @@ function checkChange(){
 		arrange();
 	}
 	if(document.getElementById("name").value.length != previousName.length){
-		if(document.getElementById("name").value.length > 12 || (!validate(document.getElementById("name").value) && !validate2(document.getElementById("name").value))){
+		if(document.getElementById("name").value.length > 12 || (!validate(document.getElementById("name").value))){
 			document.getElementById("name").value = previousName;
 		}
 		previousName = document.getElementById("name").value;
@@ -42,10 +43,14 @@ function arrange(){
 	document.getElementById("knight").style.width = window.innerWidth/5-54+"px";
 	document.getElementById("knight").style.height = window.innerHeight/3-58+"px";
 	document.getElementById("image").style.height = window.innerHeight-205+"px";
-	document.getElementById("name").style.width = document.getElementById("image").offsetWidth-10+"px";
-	document.getElementById("name").style.left = window.innerWidth/2-document.getElementById("name").offsetWidth/2+"px";
 	document.getElementById("play").style.top = window.innerHeight-85+"px";
 	document.getElementById("play").style.left = window.innerWidth/2-document.getElementById("play").offsetWidth/2+"px";
+	document.getElementById("name").style.width = document.getElementById("play").offsetWidth-10+"px";
+	document.getElementById("name").style.left = window.innerWidth/2-document.getElementById("name").offsetWidth/2+"px";
+	document.getElementById("name").style.width = document.getElementById("play").offsetWidth-document.getElementById("name").offsetHeight-5+"px";
+	document.getElementById("random").style.left = parseInt(document.getElementById("play").style.left) + document.getElementById("name").offsetWidth-5+"px";
+	document.getElementById("random").style.height = document.getElementById("name").offsetHeight-10+"px";
+	document.getElementById("random").style.width = document.getElementById("name").offsetHeight-10+"px";
 	document.getElementById("logo").style.left = window.innerWidth/5*4+"px";
 	document.getElementById("logo").style.width = window.innerWidth/5-24+"px";
 	document.getElementById("news").style.left = window.innerWidth/5*4+"px";
@@ -88,6 +93,16 @@ document.getElementById("image").onclick = function(){
 		gender = "m";
 	}
 	display();
+}
+
+document.getElementById("random").onclick = function(){
+	document.getElementById("name").value = randomName(gender);
+}
+
+document.getElementById("play").onclick = function(){
+	if(document.getElementById("name").value.length > 2){
+		window.location = "./index.html";
+	}
 }
 
 function display(){

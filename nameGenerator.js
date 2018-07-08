@@ -30,14 +30,10 @@ var FemaleNames = ["Adaldrida", "Adamanta", "Amaranth", "Angelica", "Asphodel",
 "Prisca", "Rosamunda", "Rosa", "Rose", "Ruby", "Salvia", "Tanta"];
 
 function randomName(gender) {
-	if (gender == "male") {
+	if (gender == "m") {
 		return(MaleNames[Math.floor(Math.random()*FemaleNames.length)]);
 	}
-	else if (gender == "female") {
+	else{
 		return(FemaleNames[Math.floor(Math.random()*FemaleNames.length)]);
-	}
-	else {
-		console.error("Unknown name gender.");
-		return(null);
 	}
 }

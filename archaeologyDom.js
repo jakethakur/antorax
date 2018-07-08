@@ -12,6 +12,17 @@ if(window.innerWidth >= 245*3+45){
 }else{
 	screenSize = 245*3+45;
 }
+
+function validate(strValue) {
+	var objRegExp  = /^[a-zA-Z\u00C0-\u00ff]+$/;
+	if(!objRegExp.test(strValue)){
+		objRegExp  = /^$/;
+		return objRegExp.test(strValue);
+	}else{
+		return objRegExp.test(strValue);
+	}
+}
+
 checkChange();
 function checkChange(){
 	window.requestAnimationFrame(checkChange);
@@ -32,6 +43,9 @@ function checkChange(){
 		}
 		if(max.value > 1 || (max.value < 1 && max.value.length > 0) || max.value.length > 1){
 			max.value = previousMax;
+		}
+		if(!validate(searchBar.value)){
+			searchBar.value = previousSearch;
 		}
 		if(category.value == "all"){
 			for(var i = 0; i < 7; i++){
@@ -85,7 +99,6 @@ function checkChange(){
 			var input = document.getElementById("searchBar");
 			var filter = input.value.toLowerCase();
 			for (var i = 0; i < arrayLength; i++) {
-				console.log(array);
 				var a = array[i-b].name;
 				if (a.toLowerCase().indexOf(filter) < 0) {
 					array.splice(i-b,1);
@@ -127,20 +140,14 @@ function arrange(){
 		}
 		document.getElementById("tier"+i).innerHTML = "";
 		if(category.value == 7){
-			console.log("yes");
-			console.log(array[i]);
 			for(var f = 0; f < array[i].armour.length; f++){
 				document.getElementById("tier"+i).innerHTML += "<br>"+array[i].armour[f];
 			}
 			document.getElementById("tier"+i).innerHTML += "<br>";
 			for(var f = 0; f < 7; f++){
 				for(var g = 0; g < items[Object.keys(items)[f]].length; g++){
-					console.log(items[Object.keys(items)[f]][g].name);
-					console.log(array[i].armour[0]);
 					if(items[Object.keys(items)[f]][g].name == array[i].armour[0]){
-						console.log("no");
 						if(items[Object.keys(items)[f]][g].lore != undefined && items[Object.keys(items)[f]][g].lore != ""){
-							console.log(items[Object.keys(items)[f]][g].lore);
 							document.getElementById("lore"+i).innerHTML = "<br><i>"+items[Object.keys(items)[f]][g].lore+"</i>";
 						}
 					}
@@ -165,9 +172,7 @@ function arrange(){
 		document.getElementById("space1").style.display = "none";
 		document.getElementById("filters").style.height = "200px";
 		document.getElementById("br").style.display = "";
-		console.log("no");
 		for(var i = 0; i < columns; i++){
-			console.log("yes");
 			document.getElementsByClassName("flashcardlist")[i].style.top = "260px";
 		}
 	}else{
