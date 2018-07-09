@@ -370,7 +370,7 @@ var items = { // items should have a capital (global variable)
 			//id: 3
 			name: "Crooked Wooden Sword",
 			type: "sword",
-			image: "assets/items/bow/3.png",
+			image: "assets/items/sword/3.png",
 			tier: 1,
 			rarity: "common",
 			obtain: "Find as an unidentified item in Eaglecrest Logging Camp",
@@ -383,7 +383,7 @@ var items = { // items should have a capital (global variable)
 			//id: 4
 			name: "Poisoned Blade",
 			type: "sword",
-			image: "assets/items/bow/4.png",
+			image: "assets/items/sword/4.png",
 			tier: 1,
 			rarity: "unique",
 			lore: "Not to be mistaken with its Grand Tournament counterpart.",
@@ -398,7 +398,7 @@ var items = { // items should have a capital (global variable)
 			//id: 5
 			name: "Splintered Sword",
 			type: "sword",
-			image: "assets/items/bow/5.png",
+			image: "assets/items/sword/5.png",
 			tier: 1,
 			rarity: "unique",
 			lore: "It might be falling apart, but those splinters hurt!",
@@ -457,7 +457,7 @@ var items = { // items should have a capital (global variable)
 			//id: 3
 			name: "Crooked Wooden Staff",
 			type: "staff",
-			image: "assets/items/bow/3.png",
+			image: "assets/items/staff/3.png",
 			tier: 1,
 			rarity: "common",
 			obtain: "Find as an unidentified item in Eaglecrest Logging Camp",
@@ -485,7 +485,7 @@ var items = { // items should have a capital (global variable)
 			//id: 5
 			name: "Power Surge Staff",
 			type: "staff",
-			image: "assets/items/bow/5.png",
+			image: "assets/items/staff/5.png",
 			tier: 1,
 			rarity: "unique",
 			lore: "POWER OVERWHELMING!",
