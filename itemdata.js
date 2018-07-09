@@ -1,3 +1,5 @@
+// please put the name of any image that has not been made yet as what it would be
+
 var items = { // items should have a capital (global variable)
 	helm: [
 		{
@@ -31,7 +33,7 @@ var items = { // items should have a capital (global variable)
 			//id: 3
 			name: "Goblin Forged Helm",
 			type: "helm",
-			image: "assets/items/helm/0.png",
+			image: "assets/items/helm/3.png",
 			tier: 1,
 			rarity: "unique",
 			lore: "",
@@ -63,7 +65,7 @@ var items = { // items should have a capital (global variable)
 			//id: 5
 			name: "War Ogre's Helm",
 			type: "helm",
-			image: "assets/items/helm/0.png",
+			image: "assets/items/helm/5.png",
 			tier: 1,
 			rarity: "mythic",
 			lore: "",
@@ -107,7 +109,7 @@ var items = { // items should have a capital (global variable)
 			//id: 3
 			name: "Goblin Forged Chestplate",
 			type: "chest",
-			image: "assets/items/chest/0.png",
+			image: "assets/items/chest/3.png",
 			tier: 1,
 			rarity: "unique",
 			lore: "",
@@ -139,7 +141,7 @@ var items = { // items should have a capital (global variable)
 			//id: 5
 			name: "The Tattered Knight's Chestplate",
 			type: "chest",
-			image: "assets/items/chest/0.png",
+			image: "assets/items/chest/5.png",
 			tier: 1,
 			rarity: "mythic",
 			lore: "",
@@ -184,7 +186,7 @@ var items = { // items should have a capital (global variable)
 			//id: 3
 			name: "Goblin Forged Greaves",
 			type: "greaves",
-			image: "assets/items/greaves/0.png",
+			image: "assets/items/greaves/3.png",
 			tier: 1,
 			rarity: "unique",
 			lore: "",
@@ -216,7 +218,7 @@ var items = { // items should have a capital (global variable)
 			//id: 5
 			name: "Weirwood Carved Greaves",
 			type: "greaves",
-			image: "assets/items/greaves/0.png",
+			image: "assets/items/greaves/5.png",
 			tier: 1,
 			rarity: "mythic",
 			lore: "",
@@ -275,7 +277,7 @@ var items = { // items should have a capital (global variable)
 			//id: 4
 			name: "Goblin Forged Boots",
 			type: "boots",
-			image: "assets/items/boots/0.png",
+			image: "assets/items/boots/4.png",
 			tier: 1,
 			rarity: "unique",
 			lore: "",
@@ -307,7 +309,7 @@ var items = { // items should have a capital (global variable)
 			//id: 6
 			name: "Marshall Teper's Lost Boots",
 			type: "boots",
-			image: "assets/items/boots/0.png",
+			image: "assets/items/boots/6.png",
 			tier: 1,
 			rarity: "mythic",
 			lore: "Marshall Teper's favourite boots. Maybe you could return them for a reward?",
@@ -368,7 +370,7 @@ var items = { // items should have a capital (global variable)
 			//id: 3
 			name: "Crooked Wooden Sword",
 			type: "sword",
-			image: "assets/items/bow/2.png",
+			image: "assets/items/bow/3.png",
 			tier: 1,
 			rarity: "common",
 			obtain: "Find as an unidentified item in Eaglecrest Logging Camp",
@@ -381,7 +383,7 @@ var items = { // items should have a capital (global variable)
 			//id: 4
 			name: "Poisoned Blade",
 			type: "sword",
-			image: "assets/items/bow/2.png",
+			image: "assets/items/bow/4.png",
 			tier: 1,
 			rarity: "unique",
 			lore: "Not to be mistaken with its Grand Tournament counterpart.",
@@ -396,7 +398,7 @@ var items = { // items should have a capital (global variable)
 			//id: 5
 			name: "Splintered Sword",
 			type: "sword",
-			image: "assets/items/bow/2.png",
+			image: "assets/items/bow/5.png",
 			tier: 1,
 			rarity: "unique",
 			lore: "It might be falling apart, but those splinters hurt!",
@@ -411,7 +413,7 @@ var items = { // items should have a capital (global variable)
 			//id: 6
 			name: "Blade of the Orc Raiders",
 			type: "sword",
-			image: "assets/items/sword/2.png",
+			image: "assets/items/sword/6.png",
 			tier: 1,
 			rarity: "mythic",
 			lore: "",
@@ -455,7 +457,7 @@ var items = { // items should have a capital (global variable)
 			//id: 3
 			name: "Crooked Wooden Staff",
 			type: "staff",
-			image: "assets/items/bow/2.png",
+			image: "assets/items/bow/3.png",
 			tier: 1,
 			rarity: "common",
 			obtain: "Find as an unidentified item in Eaglecrest Logging Camp",
@@ -468,7 +470,7 @@ var items = { // items should have a capital (global variable)
 			//id: 4
 			name: "Health Staff",
 			type: "staff",
-			image: "assets/items/staff/2.png",
+			image: "assets/items/staff/4.png",
 			tier: 1,
 			rarity: "unique",
 			lore: "",
@@ -483,7 +485,7 @@ var items = { // items should have a capital (global variable)
 			//id: 5
 			name: "Power Surge Staff",
 			type: "staff",
-			image: "assets/items/bow/2.png",
+			image: "assets/items/bow/5.png",
 			tier: 1,
 			rarity: "unique",
 			lore: "POWER OVERWHELMING!",
@@ -498,7 +500,7 @@ var items = { // items should have a capital (global variable)
 			//id: 6
 			name: "The Highborn Hoarder's Staff",
 			type: "staff",
-			image: "assets/items/staff/2.png",
+			image: "assets/items/staff/6.png",
 			tier: 1,
 			rarity: "mythic",
 			lore: "",
@@ -542,7 +544,7 @@ var items = { // items should have a capital (global variable)
 			//id: 3
 			name: "Crooked Wooden Bow",
 			type: "bow",
-			image: "assets/items/bow/2.png",
+			image: "assets/items/bow/3.png",
 			tier: 1,
 			rarity: "common",
 			obtain: "Find as an unidentified item in Eaglecrest Logging Camp",
@@ -555,7 +557,7 @@ var items = { // items should have a capital (global variable)
 			//id: 4
 			name: "Sharpshooter's Bow",
 			type: "bow",
-			image: "assets/items/bow/2.png",
+			image: "assets/items/bow/4.png",
 			tier: 1,
 			rarity: "unique",
 			lore: "",
@@ -570,7 +572,7 @@ var items = { // items should have a capital (global variable)
 			//id: 5
 			name: "Woodshot",
 			type: "bow",
-			image: "assets/items/bow/2.png",
+			image: "assets/items/bow/5.png",
 			tier: 1,
 			rarity: "unique",
 			lore: "",
@@ -585,7 +587,7 @@ var items = { // items should have a capital (global variable)
 			//id: 6
 			name: "Kraiss' Brimstone Bow",
 			type: "bow",
-			image: "assets/items/bow/2.png",
+			image: "assets/items/bow/6.png",
 			tier: 1,
 			rarity: "mythic",
 			lore: "",
@@ -633,7 +635,7 @@ var items = { // items should have a capital (global variable)
 			//id: 3
 			name: "Goblin Forged Set",
 			type: "set",
-			image: "assets/items/bow/2.png",
+			image: "assets/items/sets/3.png",
 			tier: 1,
 			rarity: "unique",
 			armour: [
