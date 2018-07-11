@@ -101,7 +101,8 @@ document.getElementById("random").onclick = function(){
 
 document.getElementById("play").onclick = function(){
 	if(document.getElementById("name").value.length > 2){
-		window.location = "./index.html";
+		sessionStorage.setItem("class",selected);
+		window.location.replace("./index.html");
 	}
 }
 

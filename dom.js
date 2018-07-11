@@ -40,6 +40,10 @@ var Stats = { // variables to do with stats are defined as Stats.varName
 	Walk_Speed: 180, // the user's total walk speed default is 180 but can be changed by armour or weapons
 };
 
+if(sessionStorage.getItem("class")==undefined){
+	window.location.replace("./selection.html");
+}
+
 Dom.previous = "instructionsPage"; // change currently displayed page
 Dom.changeBook = function(page, override, x) { // changes the page or changes the color of close buttons
 	//override says if the function should be run regardless of if the player has a quest active (e.g: declining a quest or closing a merchant)

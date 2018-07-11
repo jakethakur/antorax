@@ -30,7 +30,10 @@ var quests = { // quests should have a capital (global variable)
 						break;
 					}
 				}
-				if(completed.length == 0 && Player.inventory.weapon[0].name != ""){
+				if(completed.length == 0){
+					completed.push(false);
+				}
+				if(completed[0] == false && Player.inventory.weapon[0].name != ""){
 					completed.push(true);
 				}
 				
