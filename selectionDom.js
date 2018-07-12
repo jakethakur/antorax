@@ -109,23 +109,23 @@ document.getElementById("play").onclick = function(){
 function display(){
 	if(num == 0){
 		document.getElementById("image").src="assets/class-select/"+selected+gender+"f.png";
-		if(selected=="a"){
+		//if(selected=="a"){
 			document.getElementById("image").style.left = window.innerWidth/2-document.getElementById("image").offsetWidth/2-parseInt(document.getElementById("image").width)/6.7+"px";
-		}
+		//}
 	}else if(num == 1){
 		document.getElementById("image").src="assets/class-select/"+selected+gender+"l.png";
-		if(selected=="a"){
+		//if(selected=="a"){
 			document.getElementById("image").style.left = window.innerWidth/2-document.getElementById("image").offsetWidth/2+"px";
-		}
+		//}
 	}else if(num == 2){
 		document.getElementById("image").src="assets/class-select/"+selected+gender+"b.png";
-		if(selected=="a"){
+		//if(selected=="a"){
 			document.getElementById("image").style.left = window.innerWidth/2-document.getElementById("image").offsetWidth/2+parseInt(document.getElementById("image").width)/6.7+"px";
-		}
+		//}
 	}else {
 		document.getElementById("image").src="assets/class-select/"+selected+gender+"r.png";
-		if(selected=="a"){
+		//if(selected=="a"){
 			document.getElementById("image").style.left = window.innerWidth/2-document.getElementById("image").offsetWidth/2+"px";
-		}
+		//}
 	}
 }
