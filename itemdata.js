@@ -1,6 +1,6 @@
 // please put the name of any image that has not been made yet as what it would be
 
-var items = { // items should have a capital (global variable)
+var Items = {
 	helm: [
 		{
 			//id: 0
@@ -648,5 +648,14 @@ var items = { // items should have a capital (global variable)
 				Looting: "+10%",
 			},
 		},
+	],
+	item: [
+		{
+			//id: 0
+			name: "Log",
+			type: "quest",
+			image: "assets/items/staff/5.png",
+			stack: 4,
+		}
 	],
 };

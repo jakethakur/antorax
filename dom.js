@@ -823,10 +823,6 @@ Dom.identifier.page = function(chat, chat1, chat2, chat3, over){ // identifier p
 }
 
 Dom.inventory.give = function(item){ // gives the player the item
-	//if(item.type == "helm"){Player.inventory.items.push(item);} // adds the helm to the players helm array
-	//if(item.type == "chest"){Player.inventory.items.push(item);} // adds the chest to the players chest array
-	//if(item.type == "greaves"){Player.inventory.items.push(item);} // adds the greaves to the players greaves array
-	//if(item.type == "boots"){Player.inventory.items.push(item);} // adds the boots to the players boots array
 	if(item.unidentified){
 		Player.inventory.unId.push(item);
 	}
@@ -1031,14 +1027,14 @@ Dom.inventory.removeEquipment = function(array){ // removes the stats of an item
 	}
 	if(array[0].set != undefined){ // if the item being removed is part of a set
 		Dom.inventory.noSet = false; // allows the set code to run
-		for(var i = 0; i < items.sets[array[0].set].armour.length; i++){ // repeats for all armour in the set
-			if(Player.inventory.helm[0].name != items.sets[array[0].set].armour[i] || Player.inventory.chest[0].name != items.sets[array[0].set].armour[i] || Player.inventory.greaves[0].name != items.sets[array[0].set].armour[i] || Player.inventory.boots[0].name != items.sets[array[0].set].armour[i]){ // checks if the armour is being worn
+		for(var i = 0; i < Items.sets[array[0].set].armour.length; i++){ // repeats for all armour in the set
+			if(Player.inventory.helm[0].name != Items.sets[array[0].set].armour[i] || Player.inventory.chest[0].name != Items.sets[array[0].set].armour[i] || Player.inventory.greaves[0].name != Items.sets[array[0].set].armour[i] || Player.inventory.boots[0].name != Items.sets[array[0].set].armour[i]){ // checks if the armour is being worn
 				Dom.inventory.noSet = true; // does not allow the set code to run
 			}
 		}
 		if(!Dom.inventory.noSet){ // set code (runs if the player was wearing a set but now isn't)
-			for(var i = 0; i < Object.keys(items.sets[array[0].set].stats).length; i++){ // repeats for all stats in set
-				Stats[Object.keys(items.sets[array[0].set].stats)[i]] -= parseInt(items.sets[array[0].set].stats[Object.keys(items.sets[array[0].set].stats)]); // removes that stat from player's stats
+			for(var i = 0; i < Object.keys(Items.sets[array[0].set].stats).length; i++){ // repeats for all stats in set
+				Stats[Object.keys(Items.sets[array[0].set].stats)[i]] -= parseInt(Items.sets[array[0].set].stats[Object.keys(Items.sets[array[0].set].stats)]); // removes that stat from player's stats
 			}
 		}
 	}
@@ -1052,14 +1048,14 @@ Dom.inventory.addEquipment = function(array){ // adds the stats of an item to th
 	}
 	if(array[0].set != undefined){ // if the item being removed is part of a set
 		Dom.inventory.noSet = false; // allows the set code to run
-		for(var i = 0; i < items.sets[array[0].set].armour.length; i++){ // repeats for all armour in the set
-			if(Player.inventory.helm[0].name != items.sets[array[0].set].armour[i] || Player.inventory.chest[0].name != items.sets[array[0].set].armour[i] || Player.inventory.greaves[0].name != items.sets[array[0].set].armour[i] || Player.inventory.boots[0].name != items.sets[array[0].set].armour[i]){ // checks if the armour is being worn
+		for(var i = 0; i < Items.sets[array[0].set].armour.length; i++){ // repeats for all armour in the set
+			if(Player.inventory.helm[0].name != Items.sets[array[0].set].armour[i] || Player.inventory.chest[0].name != Items.sets[array[0].set].armour[i] || Player.inventory.greaves[0].name != Items.sets[array[0].set].armour[i] || Player.inventory.boots[0].name != Items.sets[array[0].set].armour[i]){ // checks if the armour is being worn
 				Dom.inventory.noSet = true; // does not allow the set code to run
 			}
 		}
 		if(!Dom.inventory.noSet){ // set code (runs if the player was wearing a set but now isn't)
-			for(var i = 0; i < Object.keys(items.sets[array[0].set].stats).length; i++){ // repeats for all stats in set
-				Stats[Object.keys(items.sets[array[0].set].stats)[i]] += parseInt(items.sets[array[0].set].stats[Object.keys(items.sets[array[0].set].stats)]); // removes that stat from player's stats
+			for(var i = 0; i < Object.keys(Items.sets[array[0].set].stats).length; i++){ // repeats for all stats in set
+				Stats[Object.keys(Items.sets[array[0].set].stats)[i]] += parseInt(Items.sets[array[0].set].stats[Object.keys(Items.sets[array[0].set].stats)]); // removes that stat from player's stats
 			}
 		}
 	}

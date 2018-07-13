@@ -1043,7 +1043,7 @@ Game.checkEvents = function() {
 	
 	// James Day
 	if (day == 21 && month == 6) {
-		Player.inventory.boots.push(items.boots[7]);
+		Player.inventory.boots.push(Items.boots[7]);
 	}
 }
 

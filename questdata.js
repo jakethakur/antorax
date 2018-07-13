@@ -46,7 +46,7 @@ var quests = { // quests should have a capital (global variable)
 				gold: 5,
 				xp: 10,
 				items: [
-					items.boots[2],
+					Items.boots[2],
 				],
 				reputation: {
 					eaglecrestLoggingCamp: 6,

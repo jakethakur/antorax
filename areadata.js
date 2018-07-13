@@ -86,9 +86,9 @@ var areas = { // areas should have a capital (global variable)
 				greetingText: "Would you like to buy anything?",
 				buyText: "Come back some time.",
 				items: [
-					items.sword[2],
-					items.staff[2],
-					items.bow[2],
+					Items.sword[2],
+					Items.staff[2],
+					Items.bow[2],
 				],
 			},
 		],
