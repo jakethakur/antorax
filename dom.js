@@ -610,7 +610,7 @@ Dom.quest.finish = function(quest){ // display quest finish page
 	Player.xp += quest.rewards.xp // gives the player the xp reward
 	Dom.inventory.updateGold(); // updates the gold and xp display
 	for(var i = 0; i < quest.rewards.items.length; i++){ // repeats for all item rewards
-		Dom.quest.give(quest.rewards.items[i]); // gives the player the reward
+		Dom.inventory.give(quest.rewards.items[i]); // gives the player the reward
 	}
 	Dom.currentlyDisplayed = quest; // sets the currently displayed variable to the quest
 	if(quest.rewards.reputation != undefined) { // reputation rewards
@@ -727,7 +727,7 @@ Dom.merchant.buy = function(item){ // buy item from merchant
 	if(Player.gold >= item.cost){ // if they have an enough gold...
 		Player.gold -= item.cost; // takes the amount of gold from the player
 		Dom.inventory.updateGold(); // updates how much gold the display shows
-		Dom.quest.give(item); // gives the player the item
+		Dom.inventory.give(item); // gives the player the item
 		Dom.chat.insert("You bought a " + item.name + ".", 100); // tells the player they bough an item in the chat
 	}
 	else { // if they do not have enough gold...
@@ -786,7 +786,7 @@ Dom.identifier.page = function(chat, chat1, chat2, chat3, over){ // identifier p
 	document.getElementById("identifierPageBuy").innerHTML = "Identify for: "+"1"+" gold"; // sets the text inside the identify button
 }
 
-Dom.quest.give = function(item){ // gives the player the item
+Dom.inventory.give = function(item){ // gives the player the item
 	//if(item.type == "helm"){Player.inventory.items.push(item);} // adds the helm to the players helm array
 	//if(item.type == "chest"){Player.inventory.items.push(item);} // adds the chest to the players chest array
 	//if(item.type == "greaves"){Player.inventory.items.push(item);} // adds the greaves to the players greaves array
@@ -819,15 +819,15 @@ for(var i = 0; i < Object.keys(quests).length; i++){ // repeats this code for ea
 }
 
 for(var i = 0; i < 2; i++){
+	constructUnId("Eaglecrest Logging Camp",1);
+}
+Dom.inventory.constructUnId = function(area,tier){
 	setTimeout(function(){
-		let tempUnId = new unIdConstruct("Eaglecrest Logging Camp",1);
-		Dom.quest.give(tempUnId);
+		let tempUnId = new unId(area,tier);
+		Dom.inventory.give(tempUnId);
 	},1);
 }
-function giveUnId(area,tier){
-	
-}
-function unIdCostruct(area,tier){ // constructs an unidentified item when you kill an enemy
+function unId(area,tier){ // constructs an unidentified item when you kill an enemy
 	this.area = area; // sets the item's area to the area you are in
 	this.tier = tier; // sets the item's tier to the tier of the enemy
 	var types = ["helm","chest","greaves","boots","sword","staff","bow"]; // an array of types of weapon/armour
@@ -875,7 +875,7 @@ Dom.identifier.identify = function(chat, chat1, chat2, chat3){ // the page that 
 		Dom.identifier.num = Math.floor(Math.random()*Dom.identifier.array.length); // a random number between 0 and the number of items in the array of possible items
 		Dom.identifier.item = Dom.identifier.array[Dom.identifier.num]; // a random item from the array of possible items
 		document.getElementById("identifiedPageOption").innerHTML = "<img src=" + Dom.identifier.item.image + " class='theseOptions' style='padding: 0px; margin: 0px; border: 5px solid #886622; height: 50px; width: 50px;'></img>"; // sets the image to the selected item
-		Dom.quest.give(Dom.identifier.item); // gives the player the item
+		Dom.inventory.give(Dom.identifier.item); // gives the player the item
 		document.getElementById("identifiedPageOption").getElementsByTagName("img")[0].onmouseover = function(){ // when the player hovers over the item...
 			Dom.identifier.displayIdentifiedInformation(Dom.identifier.num,Dom.identifier.array); // ...it displays its information
 		}
