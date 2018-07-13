@@ -64,6 +64,7 @@ Keyboard.LEFT = 37;
 Keyboard.RIGHT = 39;
 Keyboard.UP = 38;
 Keyboard.DOWN = 40;
+Keyboard.SPACE = 32;
 
 Keyboard._keys = {};
 
@@ -993,10 +994,6 @@ Game.init = function () {
 	// TBD: make it use player name, make it say welcome back if you've played before and it saved your progress, make it a different colour?
 	Dom.chat.insert("Welcome to Antorax, Hero!", 0);
 	
-	// player movement
-    Keyboard.listenForEvents(
-        [Keyboard.LEFT, Keyboard.RIGHT, Keyboard.UP, Keyboard.DOWN]);
-	
 	// music
 	this.playingMusic = null;
 	
@@ -1014,6 +1011,10 @@ Game.init = function () {
 		height: 120,
 		image: "hero",
 	});
+	
+	// detect player movement and interaction
+    Keyboard.listenForEvents(
+        [Keyboard.LEFT, Keyboard.RIGHT, Keyboard.UP, Keyboard.DOWN, Keyboard.SPACE]);
 		
 	// player attack on click
 	canvas.addEventListener("mousedown", Game.hero.startAttack.bind(this.hero));
@@ -1101,6 +1102,9 @@ Game.update = function (delta) {
         this.hasScrolled = false;
 	}
     this.camera.update();
+	
+	// interact with touching object
+    if (Keyboard.isDown(Keyboard.SPACE)) { diry = 1; this.hero.direction = 3; this.hero.move }
 	
 	// check collision with quest npcs
 	for(var i = 0; i < this.questNPCs.length; i++) { // iterate though quest npcs
