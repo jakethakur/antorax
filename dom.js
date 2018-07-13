@@ -820,10 +820,14 @@ for(var i = 0; i < Object.keys(quests).length; i++){ // repeats this code for ea
 
 for(var i = 0; i < 2; i++){
 	setTimeout(function(){
-		unIdConstruct("Eaglecrest Logging Camp",1);
+		let tempUnId = new unIdConstruct("Eaglecrest Logging Camp",1);
+		Dom.quest.give(tempUnId);
 	},1);
 }
-function unIdConstruct(area,tier){ // constructs an unidentified item when you kill an enemy
+function giveUnId(area,tier){
+	
+}
+function unIdCostruct(area,tier){ // constructs an unidentified item when you kill an enemy
 	this.area = area; // sets the item's area to the area you are in
 	this.tier = tier; // sets the item's tier to the tier of the enemy
 	var types = ["helm","chest","greaves","boots","sword","staff","bow"]; // an array of types of weapon/armour
@@ -839,7 +843,6 @@ function unIdConstruct(area,tier){ // constructs an unidentified item when you k
 		this.rarity = "mythic"; // ...mythic
 	}
 	this.unidentified = true;
-	Dom.quest.give(this);
 }
 
 Dom.identifier.identify = function(chat, chat1, chat2, chat3){ // the page that you go to when you click "identify for 1 gold"
