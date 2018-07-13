@@ -223,7 +223,7 @@ Dom.expand = function(block) { // expand/collapse element
 	}else if(block == completedQuestBox && Dom.quests.completedQuestArray.length == 0){ // if the player has no completed quests...
 		document.getElementById("completedQuestBox").style.textAlign = "center"; // ...the text in the completed quest box is written in the centre... 
 		document.getElementById("completedQuestBox").innerText = "You have no completed quests"; // ...and it says "you have no completed quests"
-	}else if(block == itemInformation || block == identifierInformation){ // if the block is the itemInformation...
+	}else if(block == itemInformation || block == identifierInformation || block == inventoryInformation){ // if the block is the itemInformation...
 		block.hidden = true; // ...hide it
 	}
 }
@@ -427,6 +427,42 @@ Dom.inventory.displayInformation = function(y,array){ // display inventory infor
 			document.getElementById("lore").innerHTML += "<i>"+array[0].lore+"</i>"; // ...add the lore to the information
 		}
 		document.getElementById("triangle").style.bottom = document.getElementById("itemInformation").offsetHeight - 50 + "px"; // position the triangle in the correct place
+	}
+}
+
+Dom.inventory.displayEquipmentInformation = function(num){
+	document.getElementById("inventoryInformation").hidden = true; // hide item information
+	if(Object.keys(Player.inventory.items[num]).length != 0){ // if the user is hovering over an item...
+		document.getElementById("inventoryInformation").hidden = false; // ...display information
+		document.getElementById("inventoryInformation").style.top = "61px"; // sets information's top value to the value specified in the parameter
+		document.getElementById("inventoryInformation").style.left = 865+55*num+"px"; // sets information's top value to the value specified in the parameter
+		document.getElementById("inventoryInformation").innerHTML = "<div class='triangleLeft'></div><div id='invTriangle' class='innerTriangleLeft'></div><p id='invName' style='font-weight: bold;'></p><p id='invStats'></p><p id='invLore'></p>"; // construct the information without the values
+		if(Player.inventory.items[num].name != undefined){
+			document.getElementById("invName").innerHTML = Player.inventory.items[num].name;
+			if(Player.inventory.items[num].rarity == "common"){ // if the item is a common...
+				document.getElementById("invName").style.color = "black"; // ...sets the name color to black
+			}else if(Player.inventory.items[num].rarity == "unique"){ // if the item is a unique...
+				document.getElementById("invName").style.color = "orange"; // ...sets the name color to orange
+			}else{ // if the item is a mythic...
+				document.getElementById("invName").style.color = "purple"; // ...sets the name color to purple
+			}
+		}else{
+			console.log("yes");
+			document.getElementById("invName").innerHTML = "Unidentified "+Player.inventory.items[num].type;
+		}
+		document.getElementById("invStats").innerHTML = "Tier: "+Player.inventory.items[num].tier; // add the tier to the information
+		if(Player.inventory.items[num].stats != undefined){
+			for(var i = 0; i < Object.keys(Player.inventory.items[num].stats).length; i++){ // repeat for all stats
+				var replaceStat = Object.keys(Player.inventory.items[num].stats)[i].replace("_"," "); // replace any underscores with spaces
+				document.getElementById("invStats").innerHTML += "<br>"+replaceStat+": "+Player.inventory.items[num].stats[Object.keys(Player.inventory.items[num].stats)[i]]; // add the stats to the information
+			}
+		}else{
+			document.getElementById("invStats").innerHTML += "<br><br>Area: "+Player.inventory.items[num].area; // add the tier to the information
+		}
+		if(Player.inventory.items[num].lore != undefined){ // if the item has a lore...
+			document.getElementById("invLore").innerHTML += "<i>"+Player.inventory.items[num].lore+"</i>"; // ...add the lore to the information
+		}
+		document.getElementById("invTriangle").style.bottom = document.getElementById("inventoryInformation").offsetHeight - 50 + "px"; // position the triangle in the correct place
 	}
 }
 
@@ -818,21 +854,20 @@ for(var i = 0; i < Object.keys(quests).length; i++){ // repeats this code for ea
 	}
 }
 
-for(var i = 0; i < 2; i++){
-	constructUnId("Eaglecrest Logging Camp",1);
-}
 Dom.inventory.constructUnId = function(area,tier){
-	setTimeout(function(){
 		let tempUnId = new unId(area,tier);
 		Dom.inventory.give(tempUnId);
-	},1);
 }
+for(var i = 0; i < 2; i++){
+	Dom.inventory.constructUnId("Eaglecrest Logging Camp",1);
+}
+
 function unId(area,tier){ // constructs an unidentified item when you kill an enemy
 	this.area = area; // sets the item's area to the area you are in
 	this.tier = tier; // sets the item's tier to the tier of the enemy
 	var types = ["helm","chest","greaves","boots","sword","staff","bow"]; // an array of types of weapon/armour
 	this.typeNum = Math.floor(Math.random()*7); // a random number between 0 and 7...
-	this.type = types[typeNum].toLowerCase(); // ...used to choose a random category (e.g. bow)
+	this.type = types[this.typeNum].toLowerCase(); // ...used to choose a random category (e.g. bow)
 	this.image = "assets/items/"+this.type+"/2.png"; // sets the item's image to the default for its category (e.g. basic bow)
 	this.rarityNum = Math.floor(Math.random()*25); // a random number between 0 and 25
 	if(this.rarityNum < 18){ // 18/25 chance that the item is a...

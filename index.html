@@ -11,6 +11,7 @@
 	<div id="chatPage" hidden></div>
 	<div id="inventoryPage" hidden>
 		<div id="itemInformation" hidden></div>
+		<div id="inventoryInformation" hidden></div>
 		<div class="goldDisplay" id="inventoryGoldXP"onmouseover="Dom.inventory.displayIdentification()"onmouseleave="Dom.expand('itemInformation')"></div>
 		<div id="weapon"onmouseover="Dom.inventory.displayInformation('184px',Player.inventory.weapon)"onmouseleave="Dom.expand('itemInformation')"ondrop="Dom.inventory.drop(event,'weapon')" ondragover="Dom.inventory.allowDrop(event)"><!--onclick="Dom.inventory.changeEquipment(Player.inventory.weapon,'weapon')"--></div>
 		<div id="helm"onmouseover="Dom.inventory.displayInformation('294px',Player.inventory.helm)"onmouseleave="Dom.expand('itemInformation')"ondrop="Dom.inventory.drop(event,'helm')" ondragover="Dom.inventory.allowDrop(event)"><!--onclick="Dom.inventory.changeEquipment(Player.inventory.helm,'helm')"--></div>
@@ -20,12 +21,12 @@
 		<table id="itemInventory">
 
 			<tr>
-				<td ondrop="Dom.inventory.drop(event)" ondragover="Dom.inventory.allowDrop(event)"></td>
-				<td ondrop="Dom.inventory.drop(event)" ondragover="Dom.inventory.allowDrop(event)"></td>
-				<td ondrop="Dom.inventory.drop(event)" ondragover="Dom.inventory.allowDrop(event)"></td>
-				<td ondrop="Dom.inventory.drop(event)" ondragover="Dom.inventory.allowDrop(event)"></td>
-				<td ondrop="Dom.inventory.drop(event)" ondragover="Dom.inventory.allowDrop(event)"></td>
-				<td ondrop="Dom.inventory.drop(event)" ondragover="Dom.inventory.allowDrop(event)"></td>
+				<td ondrop="Dom.inventory.drop(event)" ondragover="Dom.inventory.allowDrop(event)" onmouseover="Dom.inventory.displayEquipmentInformation(0)" onmouseleave="Dom.expand('inventoryInformation')" ondrag="Dom.expand('inventoryInformation')"></td>
+				<td ondrop="Dom.inventory.drop(event)" ondragover="Dom.inventory.allowDrop(event)" onmouseover="Dom.inventory.displayEquipmentInformation(1)" onmouseleave="Dom.expand('inventoryInformation')" ondrag="Dom.expand('inventoryInformation')"></td>
+				<td ondrop="Dom.inventory.drop(event)" ondragover="Dom.inventory.allowDrop(event)" onmouseover="Dom.inventory.displayEquipmentInformation(2)" onmouseleave="Dom.expand('inventoryInformation')" ondrag="Dom.expand('inventoryInformation')"></td>
+				<td ondrop="Dom.inventory.drop(event)" ondragover="Dom.inventory.allowDrop(event)" onmouseover="Dom.inventory.displayEquipmentInformation(3)" onmouseleave="Dom.expand('inventoryInformation')" ondrag="Dom.expand('inventoryInformation')"></td>
+				<td ondrop="Dom.inventory.drop(event)" ondragover="Dom.inventory.allowDrop(event)" onmouseover="Dom.inventory.displayEquipmentInformation(4)" onmouseleave="Dom.expand('inventoryInformation')" ondrag="Dom.expand('inventoryInformation')"></td>
+				<td ondrop="Dom.inventory.drop(event)" ondragover="Dom.inventory.allowDrop(event)" onmouseover="Dom.inventory.displayEquipmentInformation(5)" onmouseleave="Dom.expand('inventoryInformation')" ondrag="Dom.expand('inventoryInformation')"></td>
 			</tr>
 		</table>
 		<p id="bagText">Buy bags to get more inventory space</p>

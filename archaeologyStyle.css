@@ -60,6 +60,7 @@ input[type=number]{
 	font-size: 20px;
 	font-family: 'MedievalSharp', serif;
 	text-indent: 5px;
+	width:35px;
 }
 input[type=number]::-webkit-inner-spin-button{  
 	opacity: 1;

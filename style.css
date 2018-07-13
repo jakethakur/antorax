@@ -251,7 +251,7 @@ td{
 	width: 200px;
 	margin-left: 40px;
 }
-#itemInformation, #informationMerchant, #questInformation, #questFinishInformation, #identifierInformation, #identifiedInformation{
+#itemInformation, #informationMerchant, #questInformation, #questFinishInformation, #identifierInformation, #identifiedInformation, #inventoryInformation{
 	position: absolute;
 	left: 765px;
 	width: 150px;
