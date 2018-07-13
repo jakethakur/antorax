@@ -652,10 +652,17 @@ var Items = {
 	item: [
 		{
 			//id: 0
+			name: "Staff",
+			type: "junk",
+			image: "assets/items/staff/5.png",
+			stack: 2,
+		},
+		{
+			//id: 1
 			name: "Log",
 			type: "quest",
-			image: "assets/items/staff/5.png",
+			image: "assets/items/item/1.png",
 			stack: 4,
-		}
+		},
 	],
 };

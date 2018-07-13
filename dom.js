@@ -447,7 +447,6 @@ Dom.inventory.displayEquipmentInformation = function(num){
 				document.getElementById("invName").style.color = "purple"; // ...sets the name color to purple
 			}
 		}else{
-			console.log("yes");
 			document.getElementById("invName").innerHTML = "Unidentified "+Player.inventory.items[num].type;
 		}
 		document.getElementById("invStats").innerHTML = "Tier: "+Player.inventory.items[num].tier; // add the tier to the information
@@ -885,7 +884,6 @@ Dom.identifier.identify = function(chat, chat1, chat2, chat3){ // the page that 
 		
 		for(var i = 0; i < Player.inventory.items.length; i++){
 			if(Player.inventory.items[i].unidentified && Player.inventory.items[i].tier == Player.inventory.unId[Dom.identifier.displayed].tier && Player.inventory.items[i].area == Player.inventory.unId[Dom.identifier.displayed].area && Player.inventory.items[i].rarity == Player.inventory.unId[Dom.identifier.displayed].rarity && Player.inventory.items[i].type == Player.inventory.unId[Dom.identifier.displayed].type){
-				console.log("yes");
 				Player.inventory.items[i] = "";
 			}
 		}
