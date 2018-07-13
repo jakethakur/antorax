@@ -735,7 +735,7 @@ Dom.merchant.buy = function(item){ // buy item from merchant
 	}
 }
 
-Dom.identifier.displayed = Player.inventory.unId.length-1; // set the currently displayed item in the identifier to the latest one	
+Dom.identifier.displayed = 0; // set the currently displayed item in the identifier to the latest one	
 Dom.identifier.left = function(chat, chat1, chat2, chat3, over){ // code called on clicking the left arrow to change the displayed item to the previous item
 	if(Dom.identifier.displayed != 0){ // checks if the currently displayed item is the first in the array
 		Dom.identifier.displayed--; // sets the currently displayed item to the previous item
@@ -791,6 +791,9 @@ Dom.quest.give = function(item){ // gives the player the item
 	//if(item.type == "chest"){Player.inventory.items.push(item);} // adds the chest to the players chest array
 	//if(item.type == "greaves"){Player.inventory.items.push(item);} // adds the greaves to the players greaves array
 	//if(item.type == "boots"){Player.inventory.items.push(item);} // adds the boots to the players boots array
+	if(item.unidentified){
+		Player.inventory.unId.push(item);
+	}
 	for(var i = 0; i < Player.inventory.items.length; i++){ // repeats code for all inventory slots
 		if(Object.keys(Player.inventory.items[i]).length == 0){ // if the slot is empty
 			Player.inventory.items[i] = item; // puts the item in the inventory slot
@@ -815,13 +818,18 @@ for(var i = 0; i < Object.keys(quests).length; i++){ // repeats this code for ea
 	}
 }
 
+for(var i = 0; i < 2; i++){
+	setTimeout(function(){
+		unIdConstruct("Eaglecrest Logging Camp",1);
+	},1);
+}
 function unIdConstruct(area,tier){ // constructs an unidentified item when you kill an enemy
 	this.area = area; // sets the item's area to the area you are in
 	this.tier = tier; // sets the item's tier to the tier of the enemy
-	var types = ["Helm","Chest","Greaves","Boots","Sword","Staff","Bow"]; // an array of types of weapon/armour
+	var types = ["helm","chest","greaves","boots","sword","staff","bow"]; // an array of types of weapon/armour
 	this.typeNum = Math.floor(Math.random()*7); // a random number between 0 and 7...
-	this.type = types[typeNum]; // ...used to choose a random category (e.g. bow)
-	this.image = "'assets/items/"+this.type+"/2.png'"; // sets the item's image to the default for its category (e.g. basic bow)
+	this.type = types[typeNum].toLowerCase(); // ...used to choose a random category (e.g. bow)
+	this.image = "assets/items/"+this.type+"/2.png"; // sets the item's image to the default for its category (e.g. basic bow)
 	this.rarityNum = Math.floor(Math.random()*25); // a random number between 0 and 25
 	if(this.rarityNum < 18){ // 18/25 chance that the item is a...
 		this.rarity = "common"; // ...common
@@ -830,6 +838,8 @@ function unIdConstruct(area,tier){ // constructs an unidentified item when you k
 	}else{ // 1/25 chance that the item is a...
 		this.rarity = "mythic"; // ...mythic
 	}
+	this.unidentified = true;
+	Dom.quest.give(this);
 }
 
 Dom.identifier.identify = function(chat, chat1, chat2, chat3){ // the page that you go to when you click "identify for 1 gold"
@@ -838,6 +848,14 @@ Dom.identifier.identify = function(chat, chat1, chat2, chat3){ // the page that 
 		Dom.inventory.updateGold(); // update the gold display
 		Dom.changeBook("identifiedPage",true); // changed page to the identified page
 		Dom.currentlyDisplayed = "identified"; // sets the currently displayed page variable to identified
+		
+		for(var i = 0; i < Player.inventory.items.length; i++){
+			if(Player.inventory.items[i].unidentified && Player.inventory.items[i].tier == Player.inventory.unId[Dom.identifier.displayed].tier && Player.inventory.items[i].area == Player.inventory.unId[Dom.identifier.displayed].area && Player.inventory.items[i].rarity == Player.inventory.unId[Dom.identifier.displayed].rarity && Player.inventory.items[i].type == Player.inventory.unId[Dom.identifier.displayed].type){
+				console.log("yes");
+				Player.inventory.items[i] = "";
+			}
+		}
+		
 		Dom.identifier.array = []; // sets the possible items to none
 		if(Player.inventory.unId[Dom.identifier.displayed].rarity == "common"){ // if it is a common item...
 			document.getElementById("identifiedPageChat").innerHTML = chat1; // ...it uses the "common" chat
@@ -946,7 +964,7 @@ Dom.inventory.drop = function(ev,equip) { // when an item is dropped
 		}
 	}else{ // if the item is being moved to a weapon/armour slot
 		if(test[12] == "D"){ // if there is not an item already there
-			if(Player.inventory.items[data].type == ev.target.id || (Player.inventory.items[data].type == "sword" && ev.target.id == "weapon") || (Player.inventory.items[data].type == "staff" && ev.target.id == "weapon") || (Player.inventory.items[data].type == "bow" && ev.target.id == "weapon")){ // if the item is allowed in that slot (e.g. a helm in the helm slot)
+			if((Player.inventory.items[data].type == ev.target.id || (Player.inventory.items[data].type == "sword" && ev.target.id == "weapon") || (Player.inventory.items[data].type == "staff" && ev.target.id == "weapon") || (Player.inventory.items[data].type == "bow" && ev.target.id == "weapon")) && !Player.inventory.items[data].unidentified){ // if the item is allowed in that slot (e.g. a helm in the helm slot)
 				Player.inventory[ev.target.id].splice(0,1); // sets the slot you are putting the item in to the item you are putting in it
 				Player.inventory[ev.target.id].push(Player.inventory.items[data]); // sets the slot you are putting the item in to the item you are putting in it
 				Dom.inventory.addEquipment(Player.inventory[equip]); // adds the stats of the equipment to the total
@@ -955,7 +973,7 @@ Dom.inventory.drop = function(ev,equip) { // when an item is dropped
 				document.getElementById(ev.target.id).innerHTML = "<img src='"+Player.inventory[ev.target.id][0].image+"' draggable='true' ondragstart='Dom.inventory.drag(event,\""+ev.target.id+"\")'></img>"; // updates the image
 			}
 		}else{ // if there is already an item there
-			if(Player.inventory.items[data].type == equip || (Player.inventory.items[data].type == "sword" && equip == "weapon") || (Player.inventory.items[data].type == "staff" && equip == "weapon") || (Player.inventory.items[data].type == "bow" && equip == "weapon")){ // if the item is allowed in that slot (e.g. a helm in the helm slot);
+			if((Player.inventory.items[data].type == equip || (Player.inventory.items[data].type == "sword" && equip == "weapon") || (Player.inventory.items[data].type == "staff" && equip == "weapon") || (Player.inventory.items[data].type == "bow" && equip == "weapon")) && !Player.inventory.items[data].unidentified){ // if the item is allowed in that slot (e.g. a helm in the helm slot);
 				test = Player.inventory[equip][0]; // sets the variable for later
 				Dom.inventory.removeEquipment(Player.inventory[equip]); // removes the stats of the equipment from the total
 				Player.inventory[equip].splice(0,1); // sets the slot you are putting the item in to the item you are putting in it
@@ -989,8 +1007,10 @@ Dom.inventory.removeEquipment = function(array){ // removes the stats of an item
 }
 
 Dom.inventory.addEquipment = function(array){ // adds the stats of an item to the payer's total
-	for(var i = 0; i < Object.keys(array[0].stats).length; i++){ // repeats code for all stats in old item
-		Stats[Object.keys(array[0].stats)[i]] += parseInt(array[0].stats[Object.keys(array[0].stats)[i]]); // minuses that stat from the player's stats
+	if(array[0].stats != undefined){
+		for(var i = 0; i < Object.keys(array[0].stats).length; i++){ // repeats code for all stats in old item
+			Stats[Object.keys(array[0].stats)[i]] += parseInt(array[0].stats[Object.keys(array[0].stats)[i]]); // minuses that stat from the player's stats
+		}
 	}
 	if(array[0].set != undefined){ // if the item being removed is part of a set
 		Dom.inventory.noSet = false; // allows the set code to run
@@ -1005,4 +1025,19 @@ Dom.inventory.addEquipment = function(array){ // adds the stats of an item to th
 			}
 		}
 	}
+}
+
+Dom.inventory.check = function(){
+	var completed = false;
+	for(var i = 0; i < Player.inventory.items.length; i++){
+		if(Player.inventory.items[i].type == "sword" || Player.inventory.items[i].type == "staff" || Player.inventory.items[i].type == "bow"){
+			completed = true;
+			break;
+		}
+	}
+	if(completed == false && Player.inventory.weapon[0].name != ""){
+		completed = true;
+	}
+	
+	return(completed);
 }

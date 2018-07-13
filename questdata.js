@@ -24,18 +24,7 @@ var quests = { // quests should have a capital (global variable)
 				
 				// true or falses for each objective (apart from the turn-in objective)
 				
-				for(var i = 0; i < Player.inventory.items.length; i++){
-					if(Player.inventory.items[i].type == "sword" || Player.inventory.items[i].type == "staff" || Player.inventory.items[i].type == "bow"){
-						completed.push(true);
-						break;
-					}
-				}
-				if(completed.length == 0){
-					completed.push(false);
-				}
-				if(completed[0] == false && Player.inventory.weapon[0].name != ""){
-					completed.push(true);
-				}
+				completed.push(Dom.inventory.check());
 				
 				var finished = true;
 				for(var i = 0; i < completed.length; i++) {
