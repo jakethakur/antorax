@@ -656,6 +656,7 @@ var Items = {
 			type: "junk",
 			image: "assets/items/staff/5.png",
 			stack: 2,
+			stacked: 1,
 		},
 		{
 			//id: 1
@@ -663,6 +664,7 @@ var Items = {
 			type: "quest",
 			image: "assets/items/item/1.png",
 			stack: 4,
+			stacked: 1,
 		},
 	],
 };

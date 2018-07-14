@@ -825,11 +825,25 @@ Dom.inventory.give = function(item){ // gives the player the item
 	if(item.unidentified){
 		Player.inventory.unId.push(item);
 	}
-	for(var i = 0; i < Player.inventory.items.length; i++){ // repeats code for all inventory slots
-		if(Object.keys(Player.inventory.items[i]).length == 0){ // if the slot is empty
-			Player.inventory.items[i] = item; // puts the item in the inventory slot
-			document.getElementsByTagName("td")[i].innerHTML = "<img src='"+Player.inventory.items[i].image+"' draggable='true' ondragstart='Dom.inventory.drag(event,"+i+")'></img>"; // sets the items image
-			break; // stops the item being placed in multiple slots
+	var add = true;
+	for(var i = 0; i < Player.inventory.items.length; i++){
+		console.log(Player.inventory.items[i]);
+		console.log(item);
+		if(Player.inventory.items[i] === item && Player.inventory.items[i].stacked < Player.inventory.items[i].stack){
+			console.log("maybe");
+			Player.inventory.items[i].stacked++;
+			document.getElementsByTagName("td")[i].innerHTML = "<img style='font-size: 20px;' src='"+Player.inventory.items[i].image+"' draggable='true' ondragstart='Dom.inventory.drag(event,"+i+")'>2</img>"; // sets the items number
+			add = false;
+		}
+	}
+	if(add){
+		console.log("yes");
+		for(var i = 0; i < Player.inventory.items.length; i++){ // repeats code for all inventory slots
+			if(Object.keys(Player.inventory.items[i]).length == 0){ // if the slot is empty
+				Player.inventory.items[i] = item; // puts the item in the inventory slot
+				document.getElementsByTagName("td")[i].innerHTML = "<img src='"+Player.inventory.items[i].image+"' draggable='true' ondragstart='Dom.inventory.drag(event,"+i+")'></img>"; // sets the items image
+				break; // stops the item being placed in multiple slots
+			}
 		}
 	}
 }
@@ -885,6 +899,7 @@ Dom.identifier.identify = function(chat, chat1, chat2, chat3){ // the page that 
 		for(var i = 0; i < Player.inventory.items.length; i++){
 			if(Player.inventory.items[i].unidentified && Player.inventory.items[i].tier == Player.inventory.unId[Dom.identifier.displayed].tier && Player.inventory.items[i].area == Player.inventory.unId[Dom.identifier.displayed].area && Player.inventory.items[i].rarity == Player.inventory.unId[Dom.identifier.displayed].rarity && Player.inventory.items[i].type == Player.inventory.unId[Dom.identifier.displayed].type){
 				Player.inventory.items[i] = "";
+				break;
 			}
 		}
 		
