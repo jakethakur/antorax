@@ -116,60 +116,6 @@ Dom.inventory.updateGold = function() { // update the DOM display of gold and xp
 }
 Dom.inventory.updateGold(); // calls the function to update the gold display
 
-/*Dom.inventory.changeEquipment = function(array,equipmentType) { // change which item is shown in inventory
-	for(var i = 0; i < Object.keys(array[0].stats).length; i++){ // repeats code for all stats in old item
-		Stats[Object.keys(array[0].stats)[i]] -= parseInt(array[0].stats[Object.keys(array[0].stats)[i]]); // minuses that stat from the player's stats
-	}
-	if(array[0].set != undefined){ // if the item being removed is part of a set
-		Dom.inventory.noSet = false; // allows the set code to run
-		for(var i = 0; i < items.sets[array[0].set].armour.length; i++){ // repeats for all armour in the set
-			if(Player.inventory.helm[0].name != items.sets[array[0].set].armour[i] && Player.inventory.chest[0].name != items.sets[array[0].set].armour[i] && Player.inventory.greaves[0].name != items.sets[array[0].set].armour[i] && Player.inventory.boots[0].name != items.sets[array[0].set].armour[i]){ // checks if the armour is being worn
-				Dom.inventory.noSet = true; // does not allow the set code to run
-			}
-		}
-		if(!Dom.inventory.noSet){ // set code (runs if the player was wearing a set but now isn't)
-			for(var i = 0; i < Object.keys(items.sets[array[0].set].stats).length; i++){ // repeats for all stats in set
-				Stats[Object.keys(items.sets[array[0].set].stats)[i]] -= parseInt(items.sets[array[0].set].stats[Object.keys(items.sets[array[0].set].stats)]); // removes that stat from player's stats
-			}
-		}
-	}
-	array.push(array[0]); // adds the first element of the array to the end of the array
-	array.splice(0, 1); // removes the first element of the array
-	for(var i = 0; i < Object.keys(array[0].stats).length; i++){ // repeats code for all stats in new item
-		Stats[Object.keys(array[0].stats)[i]] += parseInt(array[0].stats[Object.keys(array[0].stats)[i]]); // adds that stat to the player's stats
-	}
-	if(array[0].set != undefined){ // if the item being added is part of a set
-		Dom.inventory.noSet = false; // allows the set code to run
-		for(var i = 0; i < items.sets[array[0].set].armour.length; i++){ // repeats for all armour in the set
-			if(Player.inventory.helm[0].name != items.sets[array[0].set].armour[i] && Player.inventory.chest[0].name != items.sets[array[0].set].armour[i] && Player.inventory.greaves[0].name != items.sets[array[0].set].armour[i] && Player.inventory.boots[0].name != items.sets[array[0].set].armour[i]){ // checks if the armour is being worn
-				Dom.inventory.noSet = true; // does not allow the set code to run
-			}
-		}
-		if(!Dom.inventory.noSet){ // set code (runs if the player was not wearing a set but now is)
-			for(var i = 0; i < Object.keys(items.sets[array[0].set].stats).length; i++){ // repeats for all stats in set
-				Stats[Object.keys(items.sets[array[0].set].stats)[i]] += parseInt(items.sets[array[0].set].stats[Object.keys(items.sets[array[0].set].stats)]); // removes that stat from player's stats
-			}
-		}
-	}
-	document.getElementById(equipmentType).style.backgroundImage = "url(" + array[0].image + ")"; // sets the image of to the the item's image
-	if(equipmentType == "helm"){ // if the equipment being changed is a helm...
-		Player.inventory.helm = array; // ...updates the helm array...
-		this.displayInformation("294px",Player.inventory.helm); // ... and displays the information for your helm
-	}else if(equipmentType == "chest"){ // if the equipment being changed is a chest...
-		Player.inventory.chest = array; // ...updates the chest array...
-		this.displayInformation("364px",Player.inventory.chest); // ...and displays the information for your chest
-	}else if(equipmentType == "greaves"){ // if the equipment being chaged are greaves...
-		Player.inventory.greaves = array; // ...updates the greaves array...
-		this.displayInformation("434px",Player.inventory.greaves); // ...and displays the information for your greaves
-	}else if(equipmentType == "boots"){ // if the equipment being changed are boots...
-		Player.inventory.boots = array; // ...updates the boots array...
-		this.displayInformation("504px",Player.inventory.boots); // ...and displays the information for your boots
-	}else{ // if the equipment being changed is a weapon...
-		Player.inventory.weapon = array; // ...updates the weapon array...
-		this.displayInformation("184px",Player.inventory.weapon); // ...and displays the information for your weapon
-	}
-}*/
-
 Dom.chat.newString = ""; // sets the new chat to nothing
 Dom.chat.oldString = ""; // sets the old chat to nothing
 Dom.chat.length = 0; // sets the chat length to 0
@@ -832,7 +778,7 @@ Dom.inventory.give = function(item){ // gives the player the item
 		if(Player.inventory.items[i] === item && Player.inventory.items[i].stacked < Player.inventory.items[i].stack){
 			console.log("maybe");
 			Player.inventory.items[i].stacked++;
-			document.getElementsByTagName("td")[i].innerHTML = "<img style='font-size: 20px;' src='"+Player.inventory.items[i].image+"' draggable='true' ondragstart='Dom.inventory.drag(event,"+i+")'>2</img>"; // sets the items number
+			document.getElementsByTagName("td")[i].innerHTML = "<img src='"+Player.inventory.items[i].image+"' draggable='true' ondragstart='Dom.inventory.drag(event,"+i+")'></img><div class='stackNum'>"+Player.inventory.items[i].stacked+"</div>"; // sets the items number
 			add = false;
 		}
 	}
@@ -911,9 +857,9 @@ Dom.identifier.identify = function(chat, chat1, chat2, chat3){ // the page that 
 		}else{ // if it is a myhtic item...
 			document.getElementById("identifiedPageChat").innerHTML = chat3; // ...it uses the "mythic" chat
 		}
-		for(i = 0; i < items[Object.keys(items)[Player.inventory.unId[Dom.identifier.displayed].typeNum]].length; i++){ // for every item of the same catergory (e.g. bow)...
-			if(items[Object.keys(items)[Player.inventory.unId[Dom.identifier.displayed].typeNum]][i].tier == Player.inventory.unId[Dom.identifier.displayed].tier && items[Object.keys(items)[Player.inventory.unId[Dom.identifier.displayed].typeNum]][i].area == Player.inventory.unId[Dom.identifier.displayed].area && items[Object.keys(items)[Player.inventory.unId[Dom.identifier.displayed].typeNum]][i].rarity == Player.inventory.unId[Dom.identifier.displayed].rarity){ // ...check if it matches the stats...
-				Dom.identifier.array.push(items[Object.keys(items)[Player.inventory.unId[Dom.identifier.displayed].typeNum]][i]); // ...if it does add is to the array of possible items
+		for(i = 0; i < Items[Object.keys(Items)[Player.inventory.unId[Dom.identifier.displayed].typeNum]].length; i++){ // for every item of the same catergory (e.g. bow)...
+			if(Items[Object.keys(Items)[Player.inventory.unId[Dom.identifier.displayed].typeNum]][i].tier == Player.inventory.unId[Dom.identifier.displayed].tier && Items[Object.keys(Items)[Player.inventory.unId[Dom.identifier.displayed].typeNum]][i].area == Player.inventory.unId[Dom.identifier.displayed].area && Items[Object.keys(Items)[Player.inventory.unId[Dom.identifier.displayed].typeNum]][i].rarity == Player.inventory.unId[Dom.identifier.displayed].rarity){ // ...check if it matches the stats...
+				Dom.identifier.array.push(Items[Object.keys(Items)[Player.inventory.unId[Dom.identifier.displayed].typeNum]][i]); // ...if it does add is to the array of possible items
 			}
 		}
 		Dom.identifier.num = Math.floor(Math.random()*Dom.identifier.array.length); // a random number between 0 and the number of items in the array of possible items

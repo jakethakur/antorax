@@ -109,9 +109,9 @@ document.getElementById("play").onclick = function(){
 function display(){
 	if(num == 0){
 		document.getElementById("image").src="assets/class-select/"+selected+gender+"f.png";
-		if(selected=="a"){
+		if(selected!="m"){
 			document.getElementById("image").style.left = window.innerWidth/2-document.getElementById("image").offsetWidth/2-parseInt(document.getElementById("image").width)/6.7+"px";
-		}else if(selected=="m"){
+		}else{
 			document.getElementById("image").style.left = window.innerWidth/2-document.getElementById("image").offsetWidth/2-parseInt(document.getElementById("image").width)/10+"px";
 		}
 	}else if(num == 1){
@@ -120,12 +120,14 @@ function display(){
 			document.getElementById("image").style.left = window.innerWidth/2-document.getElementById("image").offsetWidth/2+"px";
 		}else if(selected=="m"){
 			document.getElementById("image").style.left = window.innerWidth/2-document.getElementById("image").offsetWidth/2+parseInt(document.getElementById("image").width)/20+"px";
+		}else{
+			document.getElementById("image").style.left = window.innerWidth/2-document.getElementById("image").offsetWidth/2-parseInt(document.getElementById("image").width)/10+"px";
 		}
 	}else if(num == 2){
 		document.getElementById("image").src="assets/class-select/"+selected+gender+"b.png";
-		if(selected=="a"){
+		if(selected!="m"){
 			document.getElementById("image").style.left = window.innerWidth/2-document.getElementById("image").offsetWidth/2+parseInt(document.getElementById("image").width)/6.7+"px";
-		}else if(selected=="m"){
+		}else{
 			document.getElementById("image").style.left = window.innerWidth/2-document.getElementById("image").offsetWidth/2+parseInt(document.getElementById("image").width)/10+"px";
 		}
 	}else {
@@ -134,6 +136,8 @@ function display(){
 			document.getElementById("image").style.left = window.innerWidth/2-document.getElementById("image").offsetWidth/2+"px";
 		}else if(selected=="m"){
 			document.getElementById("image").style.left = window.innerWidth/2-document.getElementById("image").offsetWidth/2-parseInt(document.getElementById("image").width)/20+"px";
+		}else{
+			document.getElementById("image").style.left = window.innerWidth/2-document.getElementById("image").offsetWidth/2+parseInt(document.getElementById("image").width)/10+"px";
 		}
 	}
 }
