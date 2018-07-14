@@ -773,21 +773,25 @@ Dom.inventory.give = function(item){ // gives the player the item
 	}
 	var add = true;
 	for(var i = 0; i < Player.inventory.items.length; i++){
-		console.log(Player.inventory.items[i]);
-		console.log(item);
-		if(Player.inventory.items[i] === item && Player.inventory.items[i].stacked < Player.inventory.items[i].stack){
-			console.log("maybe");
-			Player.inventory.items[i].stacked++;
-			document.getElementsByTagName("td")[i].innerHTML = "<img src='"+Player.inventory.items[i].image+"' draggable='true' ondragstart='Dom.inventory.drag(event,"+i+")'></img><div class='stackNum'>"+Player.inventory.items[i].stacked+"</div>"; // sets the items number
-			add = false;
+		if(Player.inventory.items[i].name == item.name && Player.inventory.items[i].type == item.type && Player.inventory.items[i].image == item.image){
+			if(Player.inventory.items[i].stacked == undefined){
+				Player.inventory.items[i].stacked = 1;
+			}		
+			if(Player.inventory.items[i].stacked < Player.inventory.items[i].stack){
+				Player.inventory.items[i].stacked++;
+				document.getElementsByTagName("td")[i].innerHTML = "<img src='"+Player.inventory.items[i].image+"' draggable='true' ondragstart='Dom.inventory.drag(event,"+i+")'></img><div class='stackNum'>"+Player.inventory.items[i].stacked+"</div>"; // sets the items number
+				add = false;
+			}
 		}
 	}
 	if(add){
-		console.log("yes");
 		for(var i = 0; i < Player.inventory.items.length; i++){ // repeats code for all inventory slots
 			if(Object.keys(Player.inventory.items[i]).length == 0){ // if the slot is empty
-				Player.inventory.items[i] = item; // puts the item in the inventory slot
+				Player.inventory.items[i] = Object.assign({},item); // puts the item in the inventory slot
 				document.getElementsByTagName("td")[i].innerHTML = "<img src='"+Player.inventory.items[i].image+"' draggable='true' ondragstart='Dom.inventory.drag(event,"+i+")'></img>"; // sets the items image
+				if(Player.inventory.items[i].stacked != undefined && Player.inventory.items[i].stacked != 1){
+					document.getElementsByTagName("td")[i].innerHTML += "<div class='stackNum'>"+Player.inventory.items[i].stacked+"</div>";
+				}
 				break; // stops the item being placed in multiple slots
 			}
 		}
@@ -884,6 +888,9 @@ Dom.identifier.identify = function(chat, chat1, chat2, chat3){ // the page that 
 for(var i = 0; i < Player.inventory.items.length; i++){ // repeats the code for all inventory slots
 	if(Player.inventory.items[i].image != undefined){ // if the slot is not empty...
 		document.getElementsByTagName("td")[i].innerHTML = "<img src='"+Player.inventory.items[i].image+"' draggable='true' ondragstart='Dom.inventory.drag(event,"+i+")'></img>"; // ...puts the image in the slot
+		if(Player.inventory.items[i].stacked != undefined && Player.inventory.items[i].stacked != 1){
+			document.getElementsByTagName("td")[i].innerHTML += "<div class='stackNum'>"+Player.inventory.items[i].stacked+"</div>";
+		}
 	}
 }
 
@@ -909,25 +916,31 @@ Dom.inventory.drop = function(ev,equip) { // when an item is dropped
 		if(data != "weapon" && data != "helm" && data != "chest" && data != "greaves" && data != "boots"){ // if the item is being moved from an inventory slot
 			if(test[12] == "T"){ // if there is not an item already there
 				for(var i = 0; i < Player.inventory.items.length; i++){ // repeats code for all inventory slots
-					/*if(document.getElementsByTagName("td")[i].innerHTML == document.getElementById("data").innerHTML && document.getElementsByTagName("td")[i] != ev.target){
-						document.getElementsByTagName("td")[i].innerHTML = "";
-					}else*/ if(document.getElementsByTagName("td")[i] == ev.target){ // if the item slot us where you are putting the item
+					if(document.getElementsByTagName("td")[i] == ev.target){ // if the item slot us where you are putting the item
 						Player.inventory.items[i] = Player.inventory.items[data]; // sets the slot you are putting the item in to the item you are putting in it
 						document.getElementsByTagName("td")[data].innerHTML = ""; // updates the image for the new slot
 						ev.target.innerHTML = "<img src='"+Player.inventory.items[data].image+"' draggable='true' ondragstart='Dom.inventory.drag(event,"+i+")'></img>"; // updates the image for the new slot
+						if(Player.inventory.items[i].stacked != undefined && Player.inventory.items[i].stacked != 1){
+							ev.target.innerHTML += "<div class='stackNum'>"+Player.inventory.items[i].stacked+"</div>";
+						}
 					}
 				}
 				Player.inventory.items[data] = {}; // sets the slot you got the item from to empty
 			}
 			else{ // if there is an item already there
 				for(var i = 0; i < Player.inventory.items.length; i++){ // repeats code fot all inventory slots
-					/*if(document.getElementsByTagName("td")[i].innerHTML == document.getElementById("data").innerHTML && document.getElementsByTagName("td")[i].innerHTML != ev.target.outerHTML){
-						document.getElementsByTagName("td")[i].innerHTML = "img src='";
-					}else*/ if(document.getElementsByTagName("td")[i].innerHTML == ev.target.outerHTML){ // if the item slot is where you are putting the item
+					var str = document.getElementsByTagName("td")[i].innerHTML;
+					if((str == ev.target.outerHTML || ev.target.outerHTML == str.substring(0,str.length-29) || ev.target.outerHTML == str.substring(0,str.length-30))){ // if the item slot is where you are putting the item
 						test = Player.inventory.items[i]; // sets the variable for later
 						Player.inventory.items[i] = Player.inventory.items[data]; // sets the slot you are putting the item in to the item you are putting in it
 						document.getElementsByTagName("td")[data].innerHTML = "<img src='"+test.image+"' draggable='true' ondragstart='Dom.inventory.drag(event,"+data+")'></img>"; // updates the image for the previous slot
+						if(test.stacked != undefined && test.stacked != 1){
+							document.getElementsByTagName("td")[data].innerHTML += "<div class='stackNum'>"+test.stacked+"</div>";
+						}
 						document.getElementsByTagName("td")[i].innerHTML = "<img src='"+Player.inventory.items[data].image+"' draggable='true' ondragstart='Dom.inventory.drag(event,"+i+")'></img>"; // updates the image fot the new slot
+						if(Player.inventory.items[i].stacked != undefined && Player.inventory.items[i].stacked != 1){
+							document.getElementsByTagName("td")[i].innerHTML += "<div class='stackNum'>"+Player.inventory.items[i].stacked+"</div>";
+						}
 					}
 				}
 				Player.inventory.items[data] = test; // sets the slot you got the item from to the item in the slot you are putting the item in
@@ -935,12 +948,13 @@ Dom.inventory.drop = function(ev,equip) { // when an item is dropped
 		}else{ // if the item is being moved from a weapon/armour slot
 			if(test[12] == "T"){ // if there is not an item already there
 				for(var i = 0; i < Player.inventory.items.length; i++){ // repeats code for all inventory slots
-					/*if(document.getElementsByTagName("td")[i].innerHTML == document.getElementById("data").innerHTML && document.getElementsByTagName("td")[i] != ev.target){
-						document.getElementsByTagName("td")[i].innerHTML = "";
-					}else*/ if(document.getElementsByTagName("td")[i] == ev.target){ // if the item slot us where you are putting the item
+					if(document.getElementsByTagName("td")[i] == ev.target){ // if the item slot us where you are putting the item
 						Player.inventory.items[i] = Player.inventory[data][0]; // sets the slot you are putting the item in to the item you are putting in it
 						document.getElementById(data).innerHTML = ""; // updates the image for the new slot
 						ev.target.innerHTML = "<img src='"+Player.inventory.items[i].image+"' draggable='true' ondragstart='Dom.inventory.drag(event,"+i+")'></img>"; // updates the image for the new slot
+						if(Player.inventory.items[i].stacked != undefined && Player.inventory.items[i].stacked != 1){
+							ev.target.innerHTML += "<div class='stackNum'>"+Player.inventory.items[i].stacked+"</div>";
+						}
 						if(Player.inventory.items[i].type != "sword" && Player.inventory.items[i].type != "staff" && Player.inventory.items[i].type != "bow"){ // if it is armour
 							Dom.inventory.removeEquipment(Player.inventory[Player.inventory.items[i].type]); // removes the stats of that armour from the total
 							Player.inventory[Player.inventory.items[i].type].splice(0,1); // sets the slot you are putting the item in to the item you are putting in it
