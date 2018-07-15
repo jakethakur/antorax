@@ -649,6 +649,15 @@ var Items = {
 			},
 		},
 	],
+	bags: [
+		{
+		//id: 0
+		name: "Bag",
+		type: "bag",
+		image: "assets/items/item/1.png",
+		size: 6,
+		}
+	],
 	item: [
 		{
 			//id: 0
