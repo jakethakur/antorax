@@ -18,10 +18,13 @@ body{
 	background-color: #f9f9d0;
 	overflow: hidden;
 }
-#game {
+#game, #secondary{
 	border: 1px solid black;
 	float: left;
 	margin: 10px;
+}
+#secondary{
+	position: absolute;
 }
 #chatPage {
 	overflow-y: scroll;

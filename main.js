@@ -3,7 +3,6 @@
 // Jake Thakur 2018
 //
 
-var canvas = document.getElementById("game"); // maybe change to Game.canvas?
 
 //https://developer.mozilla.org/en-US/docs/Games/Techniques/Tilemaps
 
@@ -104,11 +103,17 @@ Keyboard.isDown = function (keyCode) {
 // Game object
 //
 
-var Game = {};
+var Game = {
+	secondary: {},
+};
+Game.canvas = document.getElementById("game");
+Game.secondary.canvas = document.getElementById("secondary");
 
 //run game
-Game.run = function (context) {
+Game.run = function (context, secondaryContext) {
     this.ctx = context;
+	
+    this.secondary.ctx = secondaryContext;
 	
     this._previousElapsed = 0;
 
@@ -120,7 +125,7 @@ Game.tick = function (elapsed) {
     window.requestAnimationFrame(this.tick);
 
     // clear previous frame
-    this.ctx.clearRect(0, 0, canvas.width, canvas.height);
+    this.ctx.clearRect(0, 0, this.canvas.width, this.canvas.height);
 
     // compute delta time in seconds -- also cap it
     var delta = (elapsed - this._previousElapsed) / 1000.0;
@@ -157,8 +162,9 @@ Game.tick = function (elapsed) {
 //
 
 window.onload = function () {
-    var context = canvas.getContext('2d');
-    Game.run(context);
+    let context = Game.canvas.getContext('2d');
+	let secondaryContext = Game.secondary.canvas.getContext('2d');
+    Game.run(context, secondaryContext);
 };
 
 //
@@ -311,7 +317,7 @@ class Entity {
 		this.height = properties.height;
 	}
 	
-	isTouching(object) {
+	isTouching (object) {
 		if (this.screenX - this.width / 2 < object.screenX + object.width / 2 &&
 	    this.screenX + this.width / 2 > object.screenX - object.width / 2 &&
 	    this.screenY - this.height / 2 < object.screenY + object.height / 2 &&
@@ -354,6 +360,8 @@ class Hero extends Character {
 		this.channelling = false;
 		
 		this.statusEffects = [];
+		this.maxHealth = properties.health;
+		this.health = properties.health;
 	}
 	
 	move(delta, dirx, diry) {
@@ -506,6 +514,7 @@ class Projectile extends Character {
 	dealDamage (to) {
 		for (var i = 0; i < to.length; i++) {
 			for (var x = 0; x < to[i].length; x++) {
+				Game.updateScreenPosition(this);
 				if (this.isTouching(to[i][x])) {
 					// damage
 					if (random(0, 100) < Stats.Critical_Chance) { // critical hit
@@ -547,6 +556,9 @@ class Projectile extends Character {
 								}
 							},
 						}));
+					}
+					if(to[i][x] == Game.hero){
+						Game.secondary.render();
 					}
 				}
 			}
@@ -802,7 +814,7 @@ class Enemy extends Character {
 		
 		const totalWidth = this.width; // total width of health bar
 		const totalHeight = 15; // total height of health bar
-		const barValue = Math.pow(10, (this.maxHealth.toString().length - 1)); // get wdth of each health bar (in health)
+		const barValue = Math.pow(10, (this.maxHealth.toString().length - 1)); // get width of each health bar (in health)
 		
 		// health bar body
 		this.healthFraction = this.health / this.maxHealth; // fraction of health remaining
@@ -881,6 +893,7 @@ Game.loadArea = function (areaName, destination) {
 	
 	// wait until images have been loaded
     Promise.all(p).then(function (loaded) {
+		
 		this.areaName = areaName;
 		
 		// map
@@ -891,8 +904,8 @@ Game.loadArea = function (areaName, destination) {
 		
 		// recalibrate camera (for areas other than first area)
 		if(this.camera != undefined) {
-			this.camera.maxX = map.cols * map.tsize - canvas.width;
-			this.camera.maxY = map.rows * map.tsize - canvas.height;
+			this.camera.maxX = map.cols * map.tsize - this.canvas.width;
+			this.camera.maxY = map.rows * map.tsize - this.canvas.height;
 		}
 		
 		// villagers (currently broken)
@@ -1010,18 +1023,21 @@ Game.init = function () {
 		width: 57,
 		height: 120,
 		image: "hero",
+		health: 50,
 	});
+	
+	Game.secondary.render();
 	
 	// detect player movement and interaction
     Keyboard.listenForEvents(
         [Keyboard.LEFT, Keyboard.RIGHT, Keyboard.UP, Keyboard.DOWN, Keyboard.SPACE]);
 		
 	// player attack on click
-	canvas.addEventListener("mousedown", Game.hero.startAttack.bind(this.hero));
-	canvas.addEventListener("mouseup", Game.hero.finishAttack.bind(this.hero));
+	this.canvas.addEventListener("mousedown", Game.hero.startAttack.bind(this.hero));
+	this.canvas.addEventListener("mouseup", Game.hero.finishAttack.bind(this.hero));
 	
 	// camera
-    this.camera = new Camera(map, canvas.width, canvas.height);
+    this.camera = new Camera(map, this.canvas.width, this.canvas.height);
     this.camera.follow(this.hero);
 	
 	// check for in-game events
@@ -1559,3 +1575,24 @@ Game.render = function () {
 		this.displayAreaName.duration--;
 	}
 };
+
+Game.secondary.render = function () {
+	this.ctx.clearRect(0,0,600,600);
+
+	this.ctx.lineWidth = 1;
+	const totalWidth = 250; // total width of health bar
+	const totalHeight = 25; // total height of health bar
+	const barValue = Math.pow(10, (Game.hero.maxHealth.toString().length - 1)); // get width of each health bar (in health)
+	
+	// health bar body
+	Game.hero.healthFraction = Game.hero.health / Game.hero.maxHealth; // fraction of health remaining
+	this.ctx.fillStyle = "rgb(255, 0, 0)";
+	this.ctx.fillRect(10, 10, Game.hero.healthFraction * totalWidth, totalHeight);
+	
+	// health bar border
+	this.ctx.strokeStyle = "rgb(0, 0, 0)";
+	for (let i = 0; i < Game.hero.maxHealth / barValue; i++) {
+		this.ctx.strokeRect(10 + barValue / Game.hero.maxHealth * totalWidth * i, 10, barValue / Game.hero.maxHealth * totalWidth, totalHeight);
+	}
+	this.ctx.strokeRect(10 + barValue / Game.hero.maxHealth * Math.round(Game.hero.maxHealth / barValue), 10, totalWidth-1, totalHeight);
+}
