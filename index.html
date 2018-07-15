@@ -20,7 +20,6 @@
 		<div id="greaves"onmouseover="Dom.inventory.displayInformation('434px',Player.inventory.greaves)"onmouseleave="Dom.expand('itemInformation')"ondrop="Dom.inventory.drop(event,'greaves')" ondragover="Dom.inventory.allowDrop(event)"><!--onclick="Dom.inventory.changeEquipment(Player.inventory.greaves,'greaves')"--></div>
 		<div id="boots"onmouseover="Dom.inventory.displayInformation('504px',Player.inventory.boots)"onmouseleave="Dom.expand('itemInformation')"ondrop="Dom.inventory.drop(event,'boots')" ondragover="Dom.inventory.allowDrop(event)"><!--onclick="Dom.inventory.changeEquipment(Player.inventory.boots,'boots')"--></div>
 		<table id="itemInventory">
-
 			<tr>
 				<td ondrop="Dom.inventory.drop(event)" ondragover="Dom.inventory.allowDrop(event)" onmouseover="Dom.inventory.displayEquipmentInformation(0)" onmouseleave="Dom.expand('inventoryInformation')" ondrag="Dom.expand('inventoryInformation')"></td>
 				<td ondrop="Dom.inventory.drop(event)" ondragover="Dom.inventory.allowDrop(event)" onmouseover="Dom.inventory.displayEquipmentInformation(1)" onmouseleave="Dom.expand('inventoryInformation')" ondrag="Dom.expand('inventoryInformation')"></td>
@@ -33,6 +32,11 @@
 		<p id="bagText">Buy bags to get more inventory space</p>
 		<p id="data" hidden></p>
 	</div>
+	<table id="hotbar">
+	<tr>
+		<td/><td/><td/><td/><td/><td/>
+	</tr>
+	</table>
 	<div id="questsPage" hidden>
 		<div id="activeQuests"onclick="Dom.expand('activeQuestBox')">Active Quests</div>
 		<div id="activeQuestBox"hidden></div>

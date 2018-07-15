@@ -439,6 +439,7 @@ class Hero extends Character {
 	
 	// start channeling basic attack
 	startAttack(e) {
+		console.log("yes");
 		if (Stats.Damage > 0) {
 			this.channelling = true;
 			
@@ -1033,8 +1034,8 @@ Game.init = function () {
         [Keyboard.LEFT, Keyboard.RIGHT, Keyboard.UP, Keyboard.DOWN, Keyboard.SPACE]);
 		
 	// player attack on click
-	this.canvas.addEventListener("mousedown", Game.hero.startAttack.bind(this.hero));
-	this.canvas.addEventListener("mouseup", Game.hero.finishAttack.bind(this.hero));
+	Game.secondary.canvas.addEventListener("mousedown", Game.hero.startAttack.bind(this.hero));
+	Game.secondary.canvas.addEventListener("mouseup", Game.hero.finishAttack.bind(this.hero));
 	
 	// camera
     this.camera = new Camera(map, this.canvas.width, this.canvas.height);

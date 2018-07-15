@@ -145,7 +145,7 @@ body{
 #inventoryGoldXP{
 	margin-top: 10px;
 }
-#itemInventory{
+#itemInventory, #hotbar{
 	position: absolute;
 	top: 51px;
 	left: 779px;
@@ -154,13 +154,17 @@ body{
 	font-size: 0px;
 	z-index: 1;
 }
-#itemInventory, tr, th, td{
+#itemInventory, #hotbar, tr, th, td{
 	border: 2.5px solid #886622;
 	border-collapse: separate;
 	border-spacing: 0px;
 	text-align: center;
 	font-size: 0px;
 	padding: 0px;
+}
+#hotbar{
+	top: 530px;
+	left: 150px;
 }
 td{
 	width: 50px;
