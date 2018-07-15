@@ -1195,7 +1195,7 @@ Game.update = function (delta) {
 	for(var i = 0; i < this.identifiers.length; i++) {
 		if (this.hero.isTouching(this.identifiers[i]) && Dom.currentlyDisplayed === "") { // needs to check that it is not already open - PG tbd
 			// open identifier page
-			Dom.identifier.page("What would you like to identify?", "Here is your item, adventurer.", "Hmm, this item is of rather fine quality, adventurer.", "Wow! Some people would pay good money for that item!");
+			Dom.identifier.page("What would you like to identify?", "Here is your item, adventurer.", "Hmm, this item is of rather fine quality, adventurer.", "Wow! Some people would pay good money for that item!", "You have no unidentified items. Kill enemies to get some.");
 		}
 		else if (Dom.currentlyDisplayed != "identifier" && Dom.currentlyDisplayed != "identified" && Dom.currentlyDisplayed != "" && !Dom.override) {
 			if(this.hero.isTouching(this.identifiers[i]) && document.getElementsByClassName("closeClass")[0].style.border != "5px solid red"){

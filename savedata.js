@@ -1,4 +1,5 @@
 var Player = {
+	name: sessionStorage.getItem("username"),
 	gold: 0,
 	xp: 0,
 	reputation: {

@@ -102,6 +102,7 @@ document.getElementById("random").onclick = function(){
 document.getElementById("play").onclick = function(){
 	if(document.getElementById("name").value.length > 2){
 		sessionStorage.setItem("class",selected);
+		sessionStorage.setItem("username",document.getElementById("name").value);
 		window.location.replace("./index.html");
 	}
 }

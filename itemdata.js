@@ -565,7 +565,7 @@ var Items = {
 			area: "Eaglecrest Logging Camp",
 			stats: {
 				Damage: 3,
-				Focus_Speed: "+1",
+				Focus_Speed: "+1/s",
 			},
 		},
 		{

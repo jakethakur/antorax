@@ -339,13 +339,24 @@ Dom.inventory.displayIdentification = function(){ // display inventory informati
 	document.getElementById("innerStats").innerHTML += "<br>Defence: " + Stats.Defence; // updates the defence display
 	document.getElementById("innerStats").innerHTML += "<br>Critical Chance: " + Stats.Critical_Chance + "%"; // updates the critical chance display
 	document.getElementById("innerStats").innerHTML += "<br>Dodge Chance: " + Stats.Dodge_Chance + "%"; // updates the dodge chance display
-	document.getElementById("innerStats").innerHTML += "<br>Flaming: " + Stats.Flaming; // updates the flaming display
+	if(Stats.Flaming > 0){
+		document.getElementById("innerStats").innerHTML += "<br>Flaming "
+		for(var i = 0; i < Stats.Flaming; i++){
+			document.getElementById("innerStats").innerHTML += "I"; // updates the flaming display
+		}
+	}
 	document.getElementById("innerStats").innerHTML += "<br>Focus Speed: " + Stats.Focus_Speed; // updates the focus speed display
 	document.getElementById("innerStats").innerHTML += "<br>Health Regen: " + Stats.Health_Regen + "/s"; // updates the health regen display
 	document.getElementById("innerStats").innerHTML += "<br>Looting: " + Stats.Looting + "%"; // updates the looting display
-	document.getElementById("innerStats").innerHTML += "<br>Poison: " + Stats.PoisonX + "/" + Stats.PoisonY + "s"; // updates the poison display
-	document.getElementById("innerStats").innerHTML += "<br>Reflection: " + Stats.Reflection + "%"; // updates the reflection display
-	document.getElementById("innerStats").innerHTML += "<br>Stun: " + Stats.Stun + "s"; // updates the stun display
+	if(Stats.PoisonX != 0 && Stats.PosionY != 0){
+		document.getElementById("innerStats").innerHTML += "<br>Poison: " + Stats.PoisonX + "/" + Stats.PoisonY + "s"; // updates the poison display
+	}
+	if(Stats.Reflection != 0){
+		document.getElementById("innerStats").innerHTML += "<br>Reflection: " + Stats.Reflection + "%"; // updates the reflection display
+	}
+	if(Stats.Stun != 0){
+		document.getElementById("innerStats").innerHTML += "<br>Stun: " + Stats.Stun + "s"; // updates the stun display
+	}
 	document.getElementById("innerStats").innerHTML += "<br>Swim Speed: " + Stats.Swim_Speed + "/s"; // updates the swim speed display
 	document.getElementById("innerStats").innerHTML += "<br>Walk Speed: " + Stats.Walk_Speed + "/s"; // updates the walk speed display
 	document.getElementById("triangle").style.bottom = document.getElementById("itemInformation").offsetHeight - 50 + "px"; // position the triangle in the correct place
@@ -695,57 +706,56 @@ Dom.merchant.page = function(title,greeting,options){ // merchant page
 		document.getElementById("merchantPageBuy").innerHTML += "<div class='buy'>Buy for: " + options[i].cost + " gold</div><br>"; // makes a buy button next to the option
 		for(let x = 0; x < document.getElementsByClassName("buy").length; x++){ // repeats for every buy button
 			document.getElementsByClassName("buy")[x].onclick = function() { // when you click on a buy button...
-				Dom.merchant.buy(options[x]); // ...the buy function is called
+				Dom.merchant.buy(options[x], x); // ...the buy function is called
 			};
-		}
-		for(let x = 0; x < document.getElementsByClassName("theseOptions").length; x++){ // repeats for every option
-			document.getElementsByClassName("theseOptions")[x].onmouseover = function() { // when you hover over an item...
-				Dom.merchant.displayInformation(document.getElementsByClassName("theseOptions")[x].getBoundingClientRect().top, options, x); // ...its information displays
-			};
-			document.getElementsByClassName("theseOptions")[x].onmouseleave = function() { // when you stop hovering over an item...
-				Dom.expand("informationMerchant"); // ...its information stops displaying
-			}
 		}
 	}
 }
 
-Dom.merchant.buy = function(item){ // buy item from merchant
+Dom.merchant.buy = function(item,num){ // buy item from merchant
 	if(Player.gold >= item.cost){ // if they have an enough gold...
+		document.getElementsByClassName("buy")[num].style.backgroundColor = "#aa8844";
+		setTimeout(function(){
+			document.getElementsByClassName("buy")[num].style.backgroundColor = "#fef9b4";
+		},100);
 		Player.gold -= item.cost; // takes the amount of gold from the player
 		Dom.inventory.updateGold(); // updates how much gold the display shows
 		Dom.inventory.give(item); // gives the player the item
 		Dom.chat.insert("You bought a " + item.name + ".", 100); // tells the player they bough an item in the chat
 	}
 	else { // if they do not have enough gold...
-		alert("You don't have sufficient funds to buy that item."); // alert them that they don't have enough gold
+		document.getElementsByClassName("buy")[num].style.border = "5px solid red"; // alert them that they don't have enough gold
+		setTimeout(function(){
+			document.getElementsByClassName("buy")[num].style.border = "5px solid #886622";
+		},100);
 	}
 }
 
 Dom.identifier.displayed = 0; // set the currently displayed item in the identifier to the latest one	
-Dom.identifier.left = function(chat, chat1, chat2, chat3, over){ // code called on clicking the left arrow to change the displayed item to the previous item
+Dom.identifier.left = function(chat, chat1, chat2, chat3, chat4, over){ // code called on clicking the left arrow to change the displayed item to the previous item
 	if(Dom.identifier.displayed != 0){ // checks if the currently displayed item is the first in the array
 		Dom.identifier.displayed--; // sets the currently displayed item to the previous item
 	}else{
 		Dom.identifier.displayed = Player.inventory.unId.length-1; // sets the currently displayed item to the last item in the array
 	}
-	Dom.identifier.page(chat, chat1, chat2, chat3, over); // opens and updates the identifier page
+	Dom.identifier.page(chat, chat1, chat2, chat3, chat4, over); // opens and updates the identifier page
 }
 
-Dom.identifier.right = function(chat, chat1, chat2, chat3, over){ // this code is not important
+Dom.identifier.right = function(chat, chat1, chat2, chat3, chat4, over){ // this code is not important
 	if(Dom.identifier.displayed != Player.inventory.unId.length-1){ // checks if the currently displayed item is the last in the array
 		Dom.identifier.displayed++; // sets the currently displayed item to the next item
 	}else{
 		Dom.identifier.displayed = 0; // sets the currently displayed item to the first item in the array
 	}
-	Dom.identifier.page(chat, chat1, chat2, chat3, over); // opens and updates the identifier page
+	Dom.identifier.page(chat, chat1, chat2, chat3, chat4, over); // opens and updates the identifier page
 }
 
-Dom.identifier.page = function(chat, chat1, chat2, chat3, over){ // identifier page
+Dom.identifier.page = function(chat, chat1, chat2, chat3, chat4, over){ // identifier page
 	Dom.changeBook("identifierPage", over); // changes page to identifier
 	Dom.currentlyDisplayed = "identifier"; // sets the currently displayed page variable to identifier
 	Dom.changeBook("identifierPage", false, 1); // stops close button being red
-	document.getElementById("identifierPageChat").innerHTML = chat; // sets the greeting to the parameter (chat)
 	if(Player.inventory.unId.length != 0){ // checks if the player has any unIDed items
+		document.getElementById("identifierPageChat").innerHTML = chat; // sets the greeting to the parameter (chat)
 		document.getElementById("identifierPageOption").innerHTML = "<img src=" + Player.inventory.unId[Dom.identifier.displayed].image + " class='theseOptions' style='padding: 0px; margin: 0px; border: 5px solid #886622; height: 50px; width: 50px;'></img>"; // sets the image to the selected item
 		document.getElementById("identifierPageOption").onmouseover = function(){ // when the player hovers over the item...
 			Dom.identifier.displayInformation(Dom.identifier.displayed,Player.inventory.unId); // ...it displays its information
@@ -753,23 +763,30 @@ Dom.identifier.page = function(chat, chat1, chat2, chat3, over){ // identifier p
 		document.getElementById("identifierPageOption").onmouseleave = function(){ // when the player stops hovering over the item...
 			Dom.expand("identifierInformation"); // ...it stops displaying the information
 		}
+		document.getElementById("identifierPageGold").style.visibility = "visible"; // shows the gold display...
+		document.getElementById("identifierPageBuy").style.visibility = "visible"; // shows the buy button...
 		document.getElementById("identifierPageBuy").onclick = function(){ // when the player clicks identify...
-			Dom.identifier.identify(chat,chat1,chat2,chat3); // ...it calls the identify function (below)
+			Dom.identifier.identify(chat,chat1,chat2,chat3, chat4); // ...it calls the identify function (below)
 		}
-	}else{ // if the player has on unIDed items...
-		document.getElementById("identifierPageOption").innerHTML = "<img class='theseOptions' style='background-color: #fef9b4; border: 5px solid #886622; height: 50px; width: 50px;'></img>"; // sets the image to empty
+		document.getElementById("leftArrow").style.top = document.getElementById("identifierPageOption").getBoundingClientRect().top - 32 +"px"; // sets the left arrows position to the same height as the image
+		document.getElementById("leftArrow").style.left = document.getElementById("identifierPageOption").getBoundingClientRect().left - 31 +"px"; // sets the left arrows position to left of the image
+		document.getElementById("leftArrow").onclick = function(){ // when the player clicks on the left arrow...
+			Dom.identifier.page(chat, chat1, chat2, chat3, chat4); // ...it changes the selected item to the previous unIDed item
+		}
+		document.getElementById("rightArrow").style.top = document.getElementById("identifierPageOption").getBoundingClientRect().top - 32 +"px"; // sets the right arrows position to the same height as the image
+		document.getElementById("rightArrow").style.left = document.getElementById("identifierPageOption").getBoundingClientRect().left + 71 +"px"; // sets the right arrows position to right of the image
+		document.getElementById("rightArrow").onclick = function(){ // when the player clicks in the right arrow...
+			Dom.identifier.right(chat, chat1, chat2, chat3, chat4); // it changes the selected item to the next unIDed item
+		}
+		document.getElementById("identifierPageBuy").innerHTML = "Identify for: "+"1"+" gold"; // sets the text inside the identify button
+	}else{
+		document.getElementById("identifierPageChat").innerHTML = chat4;
+		document.getElementById("identifierPageOption").innerHTML = "";
+		document.getElementById("identifierPageBuy").style.visibility = "hidden";
+		document.getElementById("identifierPageGold").style.visibility = "hidden";
+		document.getElementById("leftArrow").style.top = "-1000px";
+		document.getElementById("rightArrow").style.top = "-1000px";
 	}
-	document.getElementById("leftArrow").style.top = document.getElementById("identifierPageOption").getBoundingClientRect().top - 32 +"px"; // sets the left arrows position to the same height as the image
-	document.getElementById("leftArrow").style.left = document.getElementById("identifierPageOption").getBoundingClientRect().left - 31 +"px"; // sets the left arrows position to left of the image
-	document.getElementById("leftArrow").onclick = function(){ // when the player clicks on the left arrow...
-		Dom.identifier.left(chat, chat1, chat2, chat3); // ...it changes the selected item to the previous unIDed item
-	}
-	document.getElementById("rightArrow").style.top = document.getElementById("identifierPageOption").getBoundingClientRect().top - 32 +"px"; // sets the right arrows position to the same height as the image
-	document.getElementById("rightArrow").style.left = document.getElementById("identifierPageOption").getBoundingClientRect().left + 71 +"px"; // sets the right arrows position to right of the image
-	document.getElementById("rightArrow").onclick = function(){ // when the player clicks in the right arrow...
-		Dom.identifier.right(chat, chat1, chat2, chat3); // it changes the selected item to the next unIDed item
-	}
-	document.getElementById("identifierPageBuy").innerHTML = "Identify for: "+"1"+" gold"; // sets the text inside the identify button
 }
 
 Dom.inventory.give = function(item){ // gives the player the item
@@ -851,7 +868,7 @@ function unId(area,tier){ // constructs an unidentified item when you kill an en
 	this.unidentified = true;
 }
 
-Dom.identifier.identify = function(chat, chat1, chat2, chat3){ // the page that you go to when you click "identify for 1 gold"
+Dom.identifier.identify = function(chat, chat1, chat2, chat3, chat4){ // the page that you go to when you click "identify for 1 gold"
 	if(Player.gold >= 1 && Player.inventory.unId.length != 0){ // if the player can afford the item
 		Player.gold--; // take the money from the player
 		Dom.inventory.updateGold(); // update the gold display
@@ -889,11 +906,15 @@ Dom.identifier.identify = function(chat, chat1, chat2, chat3){ // the page that 
 			Dom.expand("identifiedInformation"); // ...it stops displaying the information
 		}
 		document.getElementById("identifiedPageBack").onclick = function(){ // when you click on the back button...
-			Dom.identifier.left(chat, chat1, chat2, chat3, true); // ...the page goes back to the normal identifier
+			Dom.identifier.displayed = 0;
+			Dom.identifier.page(chat, chat1, chat2, chat3, chat4, true); // ...the page goes back to the normal identifier
 		}
 		Player.inventory.unId.splice(Dom.identifier.displayed, 1); // removes from the array of unidentified items
 	}else if(Player.inventory.unId.length != 0){ // if the player can't afford the item
- 		alert("You don't have sufficient funds to buy that item."); // alert them that they don't have enough gold
+ 		document.getElementById("identifierPageBuy").style.border = "5px solid red"; // alert them that they don't have enough gold
+		setTimeout(function(){
+			document.getElementById("identifierPageBuy").style.border = "5px solid #886622";
+		},100);
 	}
 }
 
@@ -1123,4 +1144,9 @@ Dom.inventory.check = function(){
 	}
 	
 	return(completed);
+}
+
+document.getElementById("settingLogout").innerHTML = "You are logged in as "+Player.name+"<div id='settingLogoutInner'>Logout</div>";
+document.getElementById("settingLogoutInner").onclick = function(){
+	window.location.replace("./selection.html");
 }
