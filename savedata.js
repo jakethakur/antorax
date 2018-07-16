@@ -2,6 +2,7 @@ var Player = {
 	name: sessionStorage.getItem("username"),
 	gold: 0,
 	xp: 0,
+	level: 1,
 	reputation: {
 		eaglecrestLoggingCamp: {},
 	},
@@ -45,3 +46,5 @@ var Player = {
 		items: [{},{},{},{},{},{}],
 	},
 };
+
+LevelXP = [0,50,100,150,200,250];

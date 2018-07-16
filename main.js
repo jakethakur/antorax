@@ -322,6 +322,7 @@ class Entity {
 	    this.screenX + this.width / 2 > object.screenX - object.width / 2 &&
 	    this.screenY - this.height / 2 < object.screenY + object.height / 2 &&
 	    this.screenY + this.height / 2 > object.screenY - object.height / 2) {
+			Game.secondary.render();
 			return true;
 		}
 		else {
@@ -411,6 +412,11 @@ class Hero extends Character {
 		else { // normal speed
 			this.speed = Stats.Walk_Speed;
 			// remove swimming status effect
+			for(var i = 0; i < this.statusEffects.length; i++){
+				if(this.statusEffects[i].title == "Swimming"){
+					this.statusEffects.splice(i,1);
+				}
+			}
 		}
 		
 		if (!collision) { return; }
@@ -439,7 +445,6 @@ class Hero extends Character {
 	
 	// start channeling basic attack
 	startAttack(e) {
-		console.log("yes");
 		if (Stats.Damage > 0) {
 			this.channelling = true;
 			
@@ -890,7 +895,7 @@ Game.loadArea = function (areaName, destination) {
 	]);
 	
 	// load images
-    var p = this.load(areas[areaName].images.names, areas[areaName].images.addresses);
+    var p = this.load(Areas[areaName].images.names, Areas[areaName].images.addresses);
 	
 	// wait until images have been loaded
     Promise.all(p).then(function (loaded) {
@@ -898,7 +903,7 @@ Game.loadArea = function (areaName, destination) {
 		this.areaName = areaName;
 		
 		// map
-		Object.assign(map, areas[areaName].mapData);
+		Object.assign(map, Areas[areaName].mapData);
 		
 		// set tileset
 		this.tileAtlas = Loader.getImage('tiles');
@@ -911,55 +916,55 @@ Game.loadArea = function (areaName, destination) {
 		
 		// villagers (currently broken)
 		this.villagers = [];
-		if(areas[areaName].villagers !== undefined) {
-			for(var i = 0; i < areas[areaName].villagers.length; i++) {
-				areas[areaName].villagers[i].map = map;
-				this.villagers.push(new Villager(areas[areaName].villagers[i]));
+		if(Areas[areaName].villagers !== undefined) {
+			for(var i = 0; i < Areas[areaName].villagers.length; i++) {
+				Areas[areaName].villagers[i].map = map;
+				this.villagers.push(new Villager(Areas[areaName].villagers[i]));
 			}
 		}
 		
 		// quest npcs
 		this.questNPCs = [];
-		if(areas[areaName].questNPCs !== undefined) { // check they exist in areadata.js
-			for(var i = 0; i < areas[areaName].questNPCs.length; i++) {
-				areas[areaName].questNPCs[i].map = map;
-				this.questNPCs.push(new QuestNPC(areas[areaName].questNPCs[i]));
+		if(Areas[areaName].questNPCs !== undefined) { // check they exist in areadata.js
+			for(var i = 0; i < Areas[areaName].questNPCs.length; i++) {
+				Areas[areaName].questNPCs[i].map = map;
+				this.questNPCs.push(new QuestNPC(Areas[areaName].questNPCs[i]));
 			}
 		}
 		
 		// merchants
 		this.merchants = [];
-		if(areas[areaName].merchants !== undefined) {
-			for(var i = 0; i < areas[areaName].merchants.length; i++) {
-				areas[areaName].merchants[i].map = map;
-				this.merchants.push(new Merchant(areas[areaName].merchants[i]));
+		if(Areas[areaName].merchants !== undefined) {
+			for(var i = 0; i < Areas[areaName].merchants.length; i++) {
+				Areas[areaName].merchants[i].map = map;
+				this.merchants.push(new Merchant(Areas[areaName].merchants[i]));
 			}
 		}
 		
 		// item identifiers
 		this.identifiers = [];
-		if(areas[areaName].identifiers !== undefined) {
-			for(var i = 0; i < areas[areaName].identifiers.length; i++) {
-				areas[areaName].identifiers[i].map = map;
-				this.identifiers.push(new Character(areas[areaName].identifiers[i]));
+		if(Areas[areaName].identifiers !== undefined) {
+			for(var i = 0; i < Areas[areaName].identifiers.length; i++) {
+				Areas[areaName].identifiers[i].map = map;
+				this.identifiers.push(new Character(Areas[areaName].identifiers[i]));
 			}
 		}
 		
 		// dummies (enemies for training) - trivial (don't damage you)
 		this.dummies = [];
-		if(areas[areaName].dummies !== undefined) {
-			for(var i = 0; i < areas[areaName].dummies.length; i++) {
-				areas[areaName].dummies[i].map = map;
-				this.dummies.push(new Dummy(areas[areaName].dummies[i]));
+		if(Areas[areaName].dummies !== undefined) {
+			for(var i = 0; i < Areas[areaName].dummies.length; i++) {
+				Areas[areaName].dummies[i].map = map;
+				this.dummies.push(new Dummy(Areas[areaName].dummies[i]));
 			}
 		}
 		
 		// enemies
 		this.enemies = [];
-		if(areas[areaName].enemies !== undefined) {
-			for(var i = 0; i < areas[areaName].enemies.length; i++) {
-				areas[areaName].enemies[i].map = map;
-				this.enemies.push(new Enemy(areas[areaName].enemies[i]));
+		if(Areas[areaName].enemies !== undefined) {
+			for(var i = 0; i < Areas[areaName].enemies.length; i++) {
+				Areas[areaName].enemies[i].map = map;
+				this.enemies.push(new Enemy(Areas[areaName].enemies[i]));
 			}
 		}
 		
@@ -969,10 +974,10 @@ Game.loadArea = function (areaName, destination) {
 		
 		// area teleports
 		this.areaTeleports = [];
-		if(areas[areaName].areaTeleports !== undefined) {
-			for(var i = 0; i < areas[areaName].areaTeleports.length; i++) {
-				areas[areaName].areaTeleports[i].map = map;
-				this.areaTeleports.push(new AreaTeleport(areas[areaName].areaTeleports[i]));
+		if(Areas[areaName].areaTeleports !== undefined) {
+			for(var i = 0; i < Areas[areaName].areaTeleports.length; i++) {
+				Areas[areaName].areaTeleports[i].map = map;
+				this.areaTeleports.push(new AreaTeleport(Areas[areaName].areaTeleports[i]));
 			}
 		}
 		else {
@@ -996,7 +1001,7 @@ Game.loadArea = function (areaName, destination) {
 		}
 		
 		// display area name
-		this.displayAreaName = areas[areaName].data;
+		this.displayAreaName = Areas[areaName].data;
 		this.displayAreaName.duration = 200;
     }.bind(this));
 	
@@ -1018,8 +1023,8 @@ Game.init = function () {
 	// create the player at its start x and y positions
 	this.hero = new Hero({
 		map: map,
-		x: areas[this.areaName].player.x,
-		y: areas[this.areaName].player.y,
+		x: Areas[this.areaName].player.x,
+		y: Areas[this.areaName].player.y,
 		direction: 3,
 		width: 57,
 		height: 120,
@@ -1071,8 +1076,8 @@ Game.checkEvents = function() {
 
 Game.playMusic = function () {
 	// check if the new area's music is already being played
-	if (this.playingMusic !== areas[this.areaName].song) {
-		this.loadMusic(areas[this.areaName].song);
+	if (this.playingMusic !== Areas[this.areaName].song) {
+		this.loadMusic(Areas[this.areaName].song);
 	}
 }
 
@@ -1579,11 +1584,12 @@ Game.render = function () {
 
 Game.secondary.render = function () {
 	this.ctx.clearRect(0,0,600,600);
-
 	this.ctx.lineWidth = 1;
-	const totalWidth = 250; // total width of health bar
-	const totalHeight = 25; // total height of health bar
-	const barValue = Math.pow(10, (Game.hero.maxHealth.toString().length - 1)); // get width of each health bar (in health)
+	
+	// set health variables
+	var totalWidth = 250; // total width of health bar
+	var totalHeight = 25; // total height of health bar
+	var barValue = Math.pow(10, (Game.hero.maxHealth.toString().length - 1)); // get width of each health bar (in health)
 	
 	// health bar body
 	Game.hero.healthFraction = Game.hero.health / Game.hero.maxHealth; // fraction of health remaining
@@ -1596,4 +1602,42 @@ Game.secondary.render = function () {
 		this.ctx.strokeRect(10 + barValue / Game.hero.maxHealth * totalWidth * i, 10, barValue / Game.hero.maxHealth * totalWidth, totalHeight);
 	}
 	this.ctx.strokeRect(10 + barValue / Game.hero.maxHealth * Math.round(Game.hero.maxHealth / barValue), 10, totalWidth-1, totalHeight);
+	
+	// set xp variables
+	totalWidth = 335; // total width of xp bar
+	totalHeight = 8; // total height of xp bar
+	totalLeft = 132; // total height of xp bar
+	totalTop = 507; // total height of xp bar
+	
+	// xp bar body
+	
+	var grd = this.ctx.createLinearGradient(totalLeft, 0, totalLeft+totalWidth-1, 0);
+	grd.addColorStop(0, "red");
+	grd.addColorStop("0.2", "yellow");
+	grd.addColorStop("0.4", "green");
+	grd.addColorStop("0.6", "blue");
+	grd.addColorStop("0.8", "magenta");
+	grd.addColorStop(1, "indigo");
+	 
+	this.ctx.fillStyle = grd;	
+	
+	Player.xpFraction = Player.xp / LevelXP[Player.level];
+	this.ctx.fillRect(totalLeft, totalTop, Player.xpFraction * totalWidth, totalHeight);
+
+	// xp bar border
+	this.ctx.strokeRect(totalLeft, totalTop, totalWidth-1, totalHeight);
+	this.ctx.strokeRect(totalLeft, totalTop, totalWidth-1, totalHeight);
+	
+	// level	
+	this.ctx.font = "bold 30px MedievalSharp";
+	this.ctx.fillStyle = "rgb(100, 100, 100)";
+	this.ctx.fillText(Player.level, 294, 519);	
+	this.ctx.fillStyle = "rgb(255, 255, 255)";
+	this.ctx.fillText(Player.level, 292, 517);
+	
+	//status effects
+	for(var i = 0; i < Game.hero.statusEffects.length; i++){
+		//this.ctx.drawImage("./assets/items/image.png",270 + i * 35, 10, 25, 25);
+		this.ctx.drawRect(270 + i * 35, 10, 25, 25);
+	}
 }
