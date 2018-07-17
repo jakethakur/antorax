@@ -403,7 +403,7 @@ class Hero extends Character {
 		if (this.map.isWaterAtXY(this.x, this.y + 50)) { // in water
 			if(this.speed === Stats.Walk_Speed) {
 				this.speed = Stats.Swim_Speed;
-				if(!this.statusEffects.includes( {title: "Swimming", effect: "Reduced movement speed"} )) { // maybe just make a function to add a status effect? ( tbd )
+				if(!this.statusEffects.includes({title: "Swimming", effect: "Reduced movement speed",})) { // maybe just make a function to add a status effect? ( tbd )
 					this.statusEffects.push(new statusEffect({title: "Swimming", effect: "Reduced movement speed",}));
 				}
 			}
@@ -1584,6 +1584,7 @@ Game.render = function () {
 Game.secondary.render = function () {
 	this.ctx.clearRect(0,0,600,600);
 	this.ctx.lineWidth = 1;
+	this.ctx.globalAlpha = 0.6;
 	
 	// set health variables
 	var totalWidth = 250; // total width of health bar
@@ -1592,11 +1593,11 @@ Game.secondary.render = function () {
 	
 	// health bar body
 	Game.hero.healthFraction = Game.hero.health / Game.hero.maxHealth; // fraction of health remaining
-	this.ctx.fillStyle = "rgb(255, 0, 0)";
+	this.ctx.fillStyle = "red";
 	this.ctx.fillRect(10, 10, Game.hero.healthFraction * totalWidth, totalHeight);
 	
 	// health bar border
-	this.ctx.strokeStyle = "rgb(0, 0, 0)";
+	this.ctx.strokeStyle = "black";
 	for (let i = 0; i < Game.hero.maxHealth / barValue; i++) {
 		this.ctx.strokeRect(10 + barValue / Game.hero.maxHealth * totalWidth * i, 10, barValue / Game.hero.maxHealth * totalWidth, totalHeight);
 	}
@@ -1629,14 +1630,25 @@ Game.secondary.render = function () {
 	
 	// level	
 	this.ctx.font = "bold 30px MedievalSharp";
-	this.ctx.fillStyle = "rgb(100, 100, 100)";
+	this.ctx.fillStyle = "lightGrey";
 	this.ctx.fillText(Player.level, 294, 519);	
-	this.ctx.fillStyle = "rgb(255, 255, 255)";
+	this.ctx.fillStyle = "white";
 	this.ctx.fillText(Player.level, 292, 517);
 	
 	//status effects
 	for(var i = 0; i < Game.hero.statusEffects.length; i++){
-		//this.ctx.drawImage("./assets/items/image.png",270 + i * 35, 10, 25, 25);
-		this.ctx.drawRect(270 + i * 35, 10, 25, 25);
+		var imgToBeUpdated = new Image();
+		imgToBeUpdated.src = "./assets/icons/status.png";
+		var iconNum = 0;
+		if(Game.hero.statusEffects[i].title == "Mud"){
+			iconNum = 1;
+		}else if(Game.hero.statusEffects[i].title == "Poison"){
+			iconNum = 2;
+		}else if(Game.hero.statusEffects[i].title == "Stun"){
+			iconNum = 3;
+		}else if(Game.hero.statusEffects[i].title == "Swimming"){
+			iconNum = 4;
+		}
+		this.ctx.drawImage(imgToBeUpdated,0,27*iconNum,27,27,270 + i * 35, 10, 27, 27);
 	}
 }

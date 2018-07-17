@@ -52,6 +52,8 @@ Dom.changeBook = function(page, override, x) { // changes the page or changes th
 	if(this.currentlyDisplayed == "" || override) { // check the player doesn't have a quest active
 		// hide all pages
 		if(page != "questStart" && page != "questFinish" && page != "merchantPage" && page != "identifierPage" && page != "identifiedPage"){ // if the page being changed to is a not a pop up...
+			document.getElementById("change"+Dom.previous.substring(0,1).toUpperCase()+Dom.previous.substring(1,Dom.previous.length-4)).getElementsByTagName("polygon")[0].style.strokeWidth = "1";
+			document.getElementById("change"+page.substring(0,1).toUpperCase()+page.substring(1,page.length-4)).getElementsByTagName("polygon")[0].style.strokeWidth = "3";
 			Dom.previous = page; // ... it will open it next time you close a pop up
 		}
 		this.elements.chatPage.hidden = true; // hides the chat
@@ -406,7 +408,7 @@ Dom.inventory.displayInformation = function(y,array){ // display inventory infor
 			}
 			document.getElementById("set").innerHTML = Items.sets[array[0].set].name + " (" + setNum + "/" + Items.sets[array[0].set].armour.length+")"; // ...add the set to the information
 			if(setNum == Items.sets[array[0].set].armour.length){
-				document.getElementById("set").innerHTML += "<br>";
+				document.getElementById("set").innerHTML += "<br><br>Set Bonus:";
 				for(var i = 0; i < Object.keys(Items.sets[array[0].set].stats).length; i++){ // repeat for all stats
 					var replaceSetStat = Object.keys(Items.sets[array[0].set].stats)[i].replace("_"," "); // replace any underscores with spaces
 					document.getElementById("set").innerHTML += "<br>"+replaceSetStat+": "+Items.sets[array[0].set].stats[Object.keys(Items.sets[array[0].set].stats)[i]]; // add the stats to the information
@@ -471,7 +473,7 @@ Dom.inventory.displayEquipmentInformation = function(num){
 				}
 				document.getElementById("invSet").innerHTML = Items.sets[Player.inventory.items[num].set].name + " (" + setNum + "/" + Items.sets[Player.inventory.items[num].set].armour.length+")"; // ...add the set to the information
 				if(setNum == Items.sets[Player.inventory.items[num].set].armour.length){
-					document.getElementById("invSet").innerHTML += "<br>";
+					document.getElementById("invSet").innerHTML += "<br><br>Set Bonus:";
 					for(var i = 0; i < Object.keys(Items.sets[Player.inventory.items[num].set].stats).length; i++){ // repeat for all stats
 						var replaceSetStat = Object.keys(Items.sets[Player.inventory.items[num].set].stats)[i].replace("_"," "); // replace any underscores with spaces
 						document.getElementById("invSet").innerHTML += "<br>"+replaceSetStat+": "+Items.sets[Player.inventory.items[num].set].stats[Object.keys(Items.sets[Player.inventory.items[num].set].stats)[i]]; // add the stats to the information
@@ -490,7 +492,6 @@ Dom.inventory.displayEquipmentInformation = function(num){
 }
 
 Dom.merchant.displayInformation = function(y,array,num) { // display merchant information
-console.log("yes");
 	document.getElementById("informationMerchant").hidden = false; // display merchant information
 	document.getElementById("informationMerchant").style.top = y+"px"; // sets the information's top value to the value specified in the parameter
 	document.getElementById("informationMerchant").innerHTML = "<div class='triangleLeft'></div><div id='merchantTriangle' class='innerTriangleLeft'></div><p id='merchantName'><b>"+array[num].name+"</b></p><p id='merchantStats'></p><p id='merchantLore'></p>"; // construct the information without the values
@@ -995,6 +996,47 @@ for(var i = 0; i < Player.inventory.items.length; i++){ // repeats the code for 
 	}
 }
 
+Dom.inventory.dispose = function(ev){
+	ev.preventDefault(); // allows the item to drop
+	if(ev.target.id == "inventoryPage" || ev.target.id == "inventoryGoldXP" || ev.target.id == "bagText"){
+		if(confirm("Are you sure you want to drop this item. It will be lost forever.")){
+			if(!isNaN(parseInt(ev.dataTransfer.getData("text")))){
+				Dom.inventory.remove(parseInt(ev.dataTransfer.getData("text"))); // removes the item
+			}else if(ev.dataTransfer.getData("text") == "weapon"){
+				Dom.inventory.removeEquipment(Player.inventory.weapon);
+				Player.inventory.weapon.splice(0,1); // removes the weapon
+				Player.inventory.weapon.push({name: "",image: "",stats: {},},); // sets the weapon to no weapon
+				document.getElementById("weapon").innerHTML = ""; // deletes the image
+			}else if(ev.dataTransfer.getData("text") == "helm"){
+				Dom.inventory.removeEquipment(Player.inventory.helm);
+				Player.inventory.helm.splice(0,1); // removes the helm
+				Player.inventory.helm.push({name: "",image: "",stats: {},},); // sets the helm to no helm
+				document.getElementById("helm").innerHTML = ""; // deletes the image
+			}else if(ev.dataTransfer.getData("text") == "chest"){
+				Dom.inventory.removeEquipment(Player.inventory.chest);
+				Player.inventory.chest.splice(0,1); // removes the chest
+				Player.inventory.chest.push({name: "",image: "",stats: {},},); // sets the chest to no chest
+				document.getElementById("chest").innerHTML = ""; // deletes the image
+			}else if(ev.dataTransfer.getData("text") == "greaves"){
+				Dom.inventory.removeEquipment(Player.inventory.greaves);
+				Player.inventory.greaves.splice(0,1); // removes the greaves
+				Player.inventory.greaves.push({name: "",image: "",stats: {},},); // sets the greaves to no greaves
+				document.getElementById("greaves").innerHTML = ""; // deletes the image
+			}else{
+				Dom.inventory.removeEquipment(Player.inventory.boots);
+				Player.inventory.boots.splice(0,1); // removes the boots
+				Player.inventory.boots.push({name: "",image: "",stats: {},},); // sets the boots to no boots
+				document.getElementById("boots").innerHTML = ""; // deletes the image
+			}
+		}
+	}
+}
+
+Dom.inventory.remove = function(num){
+	document.getElementById("itemInventory").getElementsByTagName("td")[num].innerHTML = ""; // removes the image from the inventory
+	Player.inventory.items[num] = {}; // removes the image from the inventory
+}
+
 Dom.inventory.update = function(){ // updates the position of the "buy bags to get more inventory space" text
 	document.getElementById("bagText").style.top = 300+(26*(document.getElementById("itemInventory").rows.length))+"px"; // sets the position to half way below the inventory
 }
@@ -1126,8 +1168,8 @@ Dom.inventory.drop = function(ev,equip) { // when an item is dropped
 							Player.inventory[Player.inventory.items[i].type].push({name: "",image: "",stats: {},},); // sets the slot you are putting the item in to the item you are putting in it
 						}else{ // if it is a weapon
 							Dom.inventory.removeEquipment(Player.inventory.weapon); // removes the stats of that weapon from the total
-							Player.inventory.weapon.splice(0,1); // sets the slot you are putting the item in to the item you are putting in it
-							Player.inventory.weapon.push({name: "",image: "",stats: {},},); // sets the slot you are putting the item in to the item you are putting in it
+							Player.inventory.weapon.splice(0,1); // removes the weapon
+							Player.inventory.weapon.push({name: "",image: "",stats: {},},); // sets the weapon to no weapon
 						}
 					}
 				}

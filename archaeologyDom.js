@@ -49,25 +49,25 @@ function checkChange(){
 		}
 		if(category.value == "all"){
 			for(var i = 0; i < 7; i++){
-				for(var x = 2; x < items[Object.keys(items)[i]].length; x++){
-					array.push(items[Object.keys(items)[i]][x]);
+				for(var x = 2; x < Items[Object.keys(Items)[i]].length; x++){
+					array.push(Items[Object.keys(Items)[i]][x]);
 				}
 			}
 		}else if(category.value == "armour"){
 			for(var i = 0; i < 4; i++){
-				for(var x = 2; x < items[Object.keys(items)[i]].length; x++){
-					array.push(items[Object.keys(items)[i]][x]);
+				for(var x = 2; x < Items[Object.keys(Items)[i]].length; x++){
+					array.push(Items[Object.keys(Items)[i]][x]);
 				}
 			}
 		}else if(category.value == "weapon"){
 			for(var i = 4; i < 7; i++){
-				for(var x = 2; x < items[Object.keys(items)[i]].length; x++){
-					array.push(items[Object.keys(items)[i]][x]);
+				for(var x = 2; x < Items[Object.keys(Items)[i]].length; x++){
+					array.push(Items[Object.keys(Items)[i]][x]);
 				}
 			}
 		}else{
-			for(var x = 2; x < items[Object.keys(items)[category.value]].length; x++){
-				array.push(items[Object.keys(items)[category.value]][x]);
+			for(var x = 2; x < Items[Object.keys(Items)[category.value]].length; x++){
+				array.push(Items[Object.keys(Items)[category.value]][x]);
 			}
 		}
 		arrayLength = array.length;
@@ -128,7 +128,7 @@ function arrange(){
 				}
 			}
 		}
-		document.getElementById("flashcardlist"+c).innerHTML += '<li class="box"><img src="'+array[i].image+'" class="img"><p id="name'+i+'" class="para"></p><p id="tier'+i+'" class="para"></p><p id="stats'+i+'" class="para"></p><p id="lore'+i+'" class="para"></p></li>';
+		document.getElementById("flashcardlist"+c).innerHTML += '<li class="box"><img src="'+array[i].image+'" class="img"><p id="name'+i+'" class="para"></p><p id="tier'+i+'" class="para"></p><p id="stats'+i+'" class="para"></p><p id="set'+i+'" class="para"></p><p id="lore'+i+'" class="para"></p></li>';
 		document.getElementById("flashcardlist"+c).style.left = 25+c*245+((screenSize-45)-(((Math.floor((screenSize-45)/245)))*245))/2+"px";
 		document.getElementById("name"+i).innerHTML = "<b>"+array[i].name+"</b>";
 		if(array[i].rarity == "common"){
@@ -145,10 +145,10 @@ function arrange(){
 			}
 			document.getElementById("tier"+i).innerHTML += "<br>";
 			for(var f = 0; f < 7; f++){
-				for(var g = 0; g < items[Object.keys(items)[f]].length; g++){
-					if(items[Object.keys(items)[f]][g].name == array[i].armour[0]){
-						if(items[Object.keys(items)[f]][g].lore != undefined && items[Object.keys(items)[f]][g].lore != ""){
-							document.getElementById("lore"+i).innerHTML = "<br><i>"+items[Object.keys(items)[f]][g].lore+"</i>";
+				for(var g = 0; g < Items[Object.keys(Items)[f]].length; g++){
+					if(Items[Object.keys(Items)[f]][g].name == array[i].armour[0]){
+						if(Items[Object.keys(Items)[f]][g].lore != undefined && Items[Object.keys(Items)[f]][g].lore != ""){
+							document.getElementById("lore"+i).innerHTML = "<br><i>"+Items[Object.keys(Items)[f]][g].lore+"</i>";
 						}
 					}
 				}
@@ -158,6 +158,9 @@ function arrange(){
 		for(var a = 0; a < Object.keys(array[i].stats).length; a++){
 			var replaceStat = Object.keys(array[i].stats)[a].replace("_"," ");
 			document.getElementById("stats"+i).innerHTML += replaceStat+": "+array[i].stats[Object.keys(array[i].stats)[a]]+"<br>";
+		}
+		if(array[i].set != undefined && array[i].set != ""){
+			document.getElementById("set"+i).innerHTML = "<br>Part of "+Items.sets[array[i].set].name;
 		}
 		if(array[i].lore != undefined && array[i].lore != ""){
 			document.getElementById("lore"+i).innerHTML = "<br><i>"+array[i].lore+"</i>";

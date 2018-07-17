@@ -10,7 +10,7 @@
 	<canvas id="secondary" width="600" height="600"></canvas>
 	<canvas id="game" width="600" height="600"></canvas>
 	<div id="chatPage" hidden></div>
-	<div id="inventoryPage" hidden>
+	<div id="inventoryPage" hidden ondrop="Dom.inventory.dispose(event)" ondragover="Dom.inventory.allowDrop(event)">
 		<div id="itemInformation" hidden></div>
 		<div id="inventoryInformation" hidden></div>
 		<div class="goldDisplay" id="inventoryGoldXP"onmouseover="Dom.inventory.displayIdentification()"onmouseleave="Dom.expand('itemInformation')"></div>
@@ -176,7 +176,7 @@
 		<polygon points="0,0 0,50 100,50 130,25 100,0" style="fill:green;stroke:black;stroke-width:1" />
 	</svg>
 	<svg height="51" width="131" id="changeInstructions" onclick="Dom.changeBook('instructionsPage', false)"tabindex = "0">
-		<polygon points ="0,0 0,50 100,50 130,25 100,0" style="fill:yellow;stroke:black;stroke-width:1" />
+		<polygon points ="0,0 0,50 100,50 130,25 100,0" style="fill:yellow;stroke:black;stroke-width:3" />
 	</svg>
 	<svg height="51" width="131" id="changeReputation" onclick="Dom.changeBook('reputationPage', false)"tabindex = "0">
 		<polygon points ="0,0 0,50 100,50 130,25 100,0" style="fill:purple;stroke:black;stroke-width:1" />
