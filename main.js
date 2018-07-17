@@ -322,7 +322,6 @@ class Entity {
 	    this.screenX + this.width / 2 > object.screenX - object.width / 2 &&
 	    this.screenY - this.height / 2 < object.screenY + object.height / 2 &&
 	    this.screenY + this.height / 2 > object.screenY - object.height / 2) {
-			Game.secondary.render();
 			return true;
 		}
 		else {
@@ -530,7 +529,7 @@ class Projectile extends Character {
 					}
 					else {
 						to[i][x].health -= Stats.Damage;
-						to[i][x].damageTaken += Stats.Damage * 2; // tbd give ALL characters a health and damage taken
+						to[i][x].damageTaken += Stats.Damage; // tbd give ALL characters a health and damage taken
 						this.damageDealt.push({enemy: to[i][x], damage: Stats.Damage, critical: false});
 					}
 					
@@ -563,7 +562,7 @@ class Projectile extends Character {
 							},
 						}));
 					}
-					if(to[i][x] == Game.hero){
+					if (to[i][x] == Game.hero) { // re-render the second canvas if the hero has been damaged
 						Game.secondary.render();
 					}
 				}
