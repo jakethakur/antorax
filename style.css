@@ -25,6 +25,7 @@ body{
 }
 #secondary{
 	position: absolute;
+	left: 8px;
 }
 #chatPage {
 	overflow-y: scroll;

@@ -623,7 +623,7 @@ var Items = {
 			rarity: "unique",
 			armour: [
 				"Siege Helm",
-				"Siege Chest",
+				"Siege Chestplate",
 				"Siege Greaves",
 				"Siege Boots",
 			],
@@ -640,7 +640,7 @@ var Items = {
 			rarity: "unique",
 			armour: [
 				"Goblin Forged Helm",
-				"Goblin Forged Chest",
+				"Goblin Forged Chestplate",
 				"Goblin Forged Greaves",
 				"Goblin Forged Boots",
 			],

@@ -1,4 +1,4 @@
-var areas = { // areas should have a capital (global variable)
+var Areas = { // areas should have a capital (global variable)
 	
 	tutorial: {
 		
@@ -65,7 +65,7 @@ var areas = { // areas should have a capital (global variable)
 				image: "driver",
 				quests: [
 					{
-						quest: quests.eaglecrestLoggingCamp[0], 
+						quest: Quests.eaglecrestLoggingCamp[0], 
 						role: "start"
 					},
 				],
@@ -210,7 +210,7 @@ var areas = { // areas should have a capital (global variable)
 				image: "teper",
 				quests: [
 					{
-						quest: quests.eaglecrestLoggingCamp[0], 
+						quest: Quests.eaglecrestLoggingCamp[0], 
 						role: "finish"
 					},
 				],
@@ -300,7 +300,7 @@ var areas = { // areas should have a capital (global variable)
 				image: "innkeeper",
 				quests: [
 					{
-						quest: quests.eaglecrestLoggingCamp[1], 
+						quest: Quests.eaglecrestLoggingCamp[1], 
 						role: "start"
 					},
 				],
