@@ -1,4 +1,4 @@
-var Quests = { // quests should have a capital (global variable)
+var Quests = {
 	eaglecrestLoggingCamp: [
 		{
 			// id: 0
@@ -56,6 +56,9 @@ var Quests = { // quests should have a capital (global variable)
 			onQuestStart: function() {
 				Dom.chat.insert("The cart driver fumbles around in his wallet to give you 3 golden ingots. You can spend them at a merchant to buy a new weapon.", 100);
 				Player.gold += 3;
+				for(var i = 0; i < 3; i++){
+					Dom.inventory.give(Items.currency[0]);
+				}
 				Dom.inventory.updateGold();
 			},
 		},

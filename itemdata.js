@@ -649,6 +649,15 @@ var Items = {
 			},
 		},
 	],
+	currency: [
+	{
+		//id: 0
+		name: "Gold",
+		type: "currency",
+		image: "assets/items/currency/gold.png",
+		stack: 128,
+	},
+	],
 	bags: [
 		{
 		//id: 0
@@ -656,7 +665,7 @@ var Items = {
 		type: "bag",
 		image: "assets/items/item/1.png",
 		size: 6,
-		}
+		},
 	],
 	item: [
 		{

@@ -441,7 +441,7 @@ Dom.inventory.displayEquipmentInformation = function(num){
 		}else{
 			document.getElementById("invName").innerHTML = "Unidentified "+Player.inventory.items[num].type;
 		}
-		if(Player.inventory.items[num].type != "junk" && Player.inventory.items[num].type != "quest" && Player.inventory.items[num].type != "bag"){
+		if(Player.inventory.items[num].type != "junk" && Player.inventory.items[num].type != "quest" && Player.inventory.items[num].type != "bag" && Player.inventory.items[num].type != "currency"){
 			document.getElementById("invStats").innerHTML = "Tier: "+Player.inventory.items[num].tier; // add the tier to the information
 			if(Player.inventory.items[num].stats != undefined){
 				for(var i = 0; i < Object.keys(Player.inventory.items[num].stats).length; i++){ // repeat for all stats
@@ -667,6 +667,9 @@ Dom.quest.finish = function(quest){ // display quest finish page
 	}
 	//Player.gold += parseInt(quest.rewards.gold);
 	Player.gold += quest.rewards.gold; // gives the player the gold reward
+	for(var i = 0; i < quest.rewards.gold; i++){
+		Dom.invetory.give(Items.currency[0]);
+	}
 	//Player.xp += parseInt(quest.rewards.xp);
 	Player.xp += quest.rewards.xp // gives the player the xp reward
 	Dom.inventory.updateGold(); // updates the gold and xp display
@@ -862,6 +865,7 @@ Dom.identifier.page = function(chat, chat1, chat2, chat3, chat4, over){ // ident
 }
 
 Dom.inventory.give = function(item){ // gives the player the item
+console.log(item);
 	if(item.unidentified){
 		Player.inventory.unId.push(item);
 	}
@@ -1107,11 +1111,15 @@ Dom.inventory.drop = function(ev,equip) { // when an item is dropped
 						Player.inventory.items[i] = Player.inventory.items[data]; // sets the slot you are putting the item in to the item you are putting in it
 						document.getElementById("itemInventory").getElementsByTagName("td")[data].innerHTML = "<img src='"+test.image+"' draggable='true' ondragstart='Dom.inventory.drag(event,"+data+")'></img>"; // updates the image for the previous slot
 						if(test.stacked != undefined && test.stacked != 1){
-							document.getElementById("itemInventory").getElementsByTagName("td")[data].innerHTML += "<div class='stackNum'>"+test.stacked+"</div>";
+							console.log(document.getElementById("itemInventory").getElementsByTagName("td")[parseInt(data)].innerHTML);
+							document.getElementById("itemInventory").getElementsByTagName("td")[parseInt(data)].innerHTML += "<div class='stackNum'>"+test.stacked+"</div>";
+							console.log(document.getElementById("itemInventory").getElementsByTagName("td")[parseInt(data)].innerHTML);
 						}
 						document.getElementById("itemInventory").getElementsByTagName("td")[i].innerHTML = "<img src='"+Player.inventory.items[data].image+"' draggable='true' ondragstart='Dom.inventory.drag(event,"+i+")'></img>"; // updates the image fot the new slot
 						if(Player.inventory.items[i].stacked != undefined && Player.inventory.items[i].stacked != 1){
+							console.log(document.getElementById("itemInventory").getElementsByTagName("td")[i].innerHTML);
 							document.getElementById("itemInventory").getElementsByTagName("td")[i].innerHTML += "<div class='stackNum'>"+Player.inventory.items[i].stacked+"</div>";
+							console.log(document.getElementById("itemInventory").getElementsByTagName("td")[i].innerHTML);
 						}
 						if(data == 5 && Player.inventory.items[data].type == "bag"){
 							document.getElementById("itemInventory").innerHTML = '<tr><td ondrop="Dom.inventory.drop(event)" ondragover="Dom.inventory.allowDrop(event)" onmouseover="Dom.inventory.displayEquipmentInformation(0)" onmouseleave="Dom.expand(\'inventoryInformation\')" ondrag="Dom.expand(\'inventoryInformation\')"></td><td ondrop="Dom.inventory.drop(event)" ondragover="Dom.inventory.allowDrop(event)" onmouseover="Dom.inventory.displayEquipmentInformation(1)" onmouseleave="Dom.expand(\'inventoryInformation\')" ondrag="Dom.expand(\'inventoryInformation\')"></td><td ondrop="Dom.inventory.drop(event)" ondragover="Dom.inventory.allowDrop(event)" onmouseover="Dom.inventory.displayEquipmentInformation(2)" onmouseleave="Dom.expand(\'inventoryInformation\')" ondrag="Dom.expand(\'inventoryInformation\')"></td><td ondrop="Dom.inventory.drop(event)" ondragover="Dom.inventory.allowDrop(event)" onmouseover="Dom.inventory.displayEquipmentInformation(3)" onmouseleave="Dom.expand(\'inventoryInformation\')" ondrag="Dom.expand(\'inventoryInformation\')"></td><td ondrop="Dom.inventory.drop(event)" ondragover="Dom.inventory.allowDrop(event)" onmouseover="Dom.inventory.displayEquipmentInformation(4)" onmouseleave="Dom.expand(\'inventoryInformation\')" ondrag="Dom.expand(\'inventoryInformation\')"></td><td ondrop="Dom.inventory.drop(event)" ondragover="Dom.inventory.allowDrop(event)" onmouseover="Dom.inventory.displayEquipmentInformation(5)" onmouseleave="Dom.expand(\'inventoryInformation\')" ondrag="Dom.expand(\'inventoryInformation\')"></td></tr>';
