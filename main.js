@@ -805,7 +805,6 @@ class Enemy extends Character {
 		// taken from Player
 		let a = this.channellingProjectileId; // maintain a variable of the currently shot projectile
 		setTimeout(function (a) {
-			console.log(Game.projectiles[Game.searchFor(a, Game.projectiles)]);
 			Game.projectiles.splice(Game.searchFor(a, Game.projectiles), 1); // find the id of the to-be-removed projectile and remove it
 		}, 2000, a);
 		
@@ -984,9 +983,8 @@ Game.loadArea = function (areaName, destination) {
 		}
 		
 		// music
-		if(document.getElementById("musicOn").checked) {
-			this.playMusic();
-		}
+		// it is checked if the user has selected for music to be played in the settings within the Game.playMusic function
+		this.playMusic();
 		
 		// init game (if it hasn't been done so already)
 		if(this.hero == undefined) {
@@ -1038,7 +1036,7 @@ Game.init = function () {
         [Keyboard.LEFT, Keyboard.RIGHT, Keyboard.UP, Keyboard.DOWN, Keyboard.SPACE]);
 		
 	// player attack on click
-	Game.secondary.canvas.addEventListener("mousedown", Game.hero.startAttack.bind(this.hero));
+	Game.secondary.canvas.addEventListener("mousedown", Game.hero.startAttack.bind(this.hero)); // tbd bug - not called
 	Game.secondary.canvas.addEventListener("mouseup", Game.hero.finishAttack.bind(this.hero));
 	
 	// camera
@@ -1073,13 +1071,18 @@ Game.checkEvents = function() {
 // Music
 //
 
+// called whenever a new area is entered, with the song specified in areaData
 Game.playMusic = function () {
-	// check if the new area's music is already being played
-	if (this.playingMusic !== Areas[this.areaName].song) {
-		this.loadMusic(Areas[this.areaName].song);
+	// check the user has allowed music to play
+	if (document.getElementById("musicOn").checked) {
+		// check if the new area's music is already being played
+		if (this.playingMusic !== Areas[this.areaName].song) {
+			this.loadMusic(Areas[this.areaName].song);
+		}
 	}
 }
 
+// loads and plays music, stopping previous music
 Game.loadMusic = function (song) {
 	// stop previously playing song
 	if (this.audio !== undefined) {
@@ -1088,6 +1091,7 @@ Game.loadMusic = function (song) {
 	
 	this.audio = new Audio(song);
 	
+	// set music to repeat
 	this.audio.addEventListener('ended', function() {
 		this.currentTime = 0;
 		this.play();
@@ -1097,9 +1101,44 @@ Game.loadMusic = function (song) {
 	this.playingMusic = song;
 }
 
+// stop playing current music
 Game.stopMusic = function () {
 	this.audio.pause();
 	this.playingMusic = null;
+}
+
+// play the level up sound for the current area
+// needs to be hard-coded into switch statement for each area... :(
+Game.playLevelupSound = function (areaName) {
+	// check the user has allowed music to play
+	if (document.getElementById("musicOn").checked) {
+		
+		// find level up sound to play
+		switch (areaName) {
+			
+			case "tutorial":
+			case "eaglecrestLoggingCamp":
+			case "nilbog":
+				var levelUp = new Audio("./assets/sounds/loggingCampLevelup.mp3");
+				break;
+			
+			default:
+				var levelUp = false;
+				console.error("No level up sound for current area - add it to the switch statement in Game.playLevelupSound");8
+			
+		}
+		
+		if (levelUp !== false) { // check that the area has been added to the switch statement
+		
+			this.audio.pause(); // pause currently playing song
+			levelUp.play(); //  play levelup sound
+			levelUp.addEventListener('ended', function() { // resume area's song when levelup sound has finished
+				this.audio.play();
+			}.bind(Game), false);
+			
+		}
+		
+	}
 }
 
 //
