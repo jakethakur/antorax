@@ -814,23 +814,7 @@ class Enemy extends Character {
 	// function to be carried out during Game.render()
 	renderFunction () {
 		// show health bar above head
-		// tbd : make intermediate steps into constants as well
-		
-		const totalWidth = this.width; // total width of health bar
-		const totalHeight = 15; // total height of health bar
-		const barValue = Math.pow(10, (this.maxHealth.toString().length - 1)); // get width of each health bar (in health)
-		
-		// health bar body
-		this.healthFraction = this.health / this.maxHealth; // fraction of health remaining
-		Game.ctx.fillStyle = "rgb(255, 0, 0)";
-		Game.ctx.fillRect(this.screenX - this.width / 2, this.screenY - this.height / 2 - totalHeight, this.healthFraction * totalWidth, totalHeight);
-		
-		// health bar border
-		Game.ctx.strokeStyle = "rgb(0, 0, 0)";
-		for (let i = 0; i < this.maxHealth / barValue - 1; i++) {
-			Game.ctx.strokeRect(this.screenX - this.width / 2 + barValue / this.maxHealth * totalWidth * i, this.screenY - this.height / 2 - totalHeight, barValue / this.maxHealth * totalWidth, totalHeight);
-		}
-		Game.ctx.strokeRect(this.screenX - this.width / 2 + barValue / this.maxHealth * Math.round(this.maxHealth / barValue), this.screenY - this.height / 2 - totalHeight, totalWidth, totalHeight);
+		Game.drawHealthBar(Game.ctx, this, this.screenX - this.width * 0.5, this.screenY - this.height * 0.5 - 15, this.width, 15);
 	}
 }
 
@@ -1513,6 +1497,56 @@ Game.updateScreenPosition = function (entity) {
 	entity.screenY = (entity.y) - this.camera.y;
 }
 
+// draw a health bar (on given context, for given character, at given position, with given dimensions)
+// tbd : change colour for friendly characters?
+Game.drawHealthBar = function (ctx, character, x, y, width, height) {
+	// remember previous canvas preferences
+	const oldGlobalAlpha = ctx.globalAlpha;
+	
+	// canvas formatting
+	ctx.lineWidth = 1;
+	ctx.globalAlpha = 0.6;
+	
+	// health variables
+	const barValue = Math.pow(10, (character.maxHealth.toString().length - 1)); // get width of each small health bar (in health)
+	character.healthFraction = character.health / character.maxHealth; // fraction of health remaining
+	
+	// colour based on size of each bar
+	if (barValue === 1) {
+		ctx.fillStyle = "#FF4D4D"; // light red
+	}
+	else if (barValue === 10) {
+		ctx.fillStyle = "#FF0000"; // red
+	}
+	else if (barValue === 100) {
+		ctx.fillStyle = "#CC0000"; // dark red
+	}
+	else if (barValue === 1000) {
+		ctx.fillStyle = "#800000"; // maroon (very dark red)
+	}
+	else if (barValue === 10000) {
+		ctx.fillStyle = "#DAA520"; // gold
+	}
+	else {
+		// default
+		ctx.fillStyle = "FFFF00";
+		console.warn("No dedicated health bar colour for bar size " + barValue);
+	}
+	
+	// health bar body
+	ctx.fillRect(x, y, character.healthFraction * width, height);
+	
+	// health bar border
+	ctx.strokeStyle = "black";
+	for (let i = 0; i < character.maxHealth / barValue; i++) {
+		ctx.strokeRect(x + barValue / character.maxHealth * width * i, y, barValue / character.maxHealth * width, height);
+	}
+	ctx.strokeRect(x + barValue / character.maxHealth * Math.round(character.maxHealth / barValue), y, width-1, height);
+	
+	// restore previous canvas formatting preferences
+	ctx.globalAlpha = oldGlobalAlpha;
+}
+
 // draw images on canvas
 Game.render = function () {
 	// reset text formatting (currntly done in individual functions)
@@ -1668,37 +1702,21 @@ Game.secondary.render = function () {
 		this.ctx.fillRect(0, 0, 600, 600);
 	}
 	
-	// set style defaults
+	// set canvas formatting style defaults
 	this.ctx.lineWidth = 1;
 	this.ctx.globalAlpha = 0.6;
 	
-	// tbd : move health bar to its own function
-	
-	// set health variables
-	var totalWidth = 250; // total width of health bar
-	var totalHeight = 25; // total height of health bar
-	var barValue = Math.pow(10, (Game.hero.maxHealth.toString().length - 1)); // get width of each health bar (in health)
-	
-	// health bar body
-	Game.hero.healthFraction = Game.hero.health / Game.hero.maxHealth; // fraction of health remaining
-	this.ctx.fillStyle = "red";
-	this.ctx.fillRect(10, 10, Game.hero.healthFraction * totalWidth, totalHeight);
-	
-	// health bar border
-	this.ctx.strokeStyle = "black";
-	for (let i = 0; i < Game.hero.maxHealth / barValue; i++) {
-		this.ctx.strokeRect(10 + barValue / Game.hero.maxHealth * totalWidth * i, 10, barValue / Game.hero.maxHealth * totalWidth, totalHeight);
-	}
-	this.ctx.strokeRect(10 + barValue / Game.hero.maxHealth * Math.round(Game.hero.maxHealth / barValue), 10, totalWidth-1, totalHeight);
+	// player health bar at top-left
+	Game.drawHealthBar(this.ctx, Game.hero, 10, 10, 250, 25);
 	
 	// set xp variables
 	totalWidth = 335; // total width of xp bar
 	totalHeight = 8; // total height of xp bar
 	totalLeft = 132; // total height of xp bar
 	totalTop = 507; // total height of xp bar
+	Player.xpFraction = Player.xp / LevelXP[Player.level]; // fraction of XP for current level
 	
-	// xp bar body
-	
+	// rainbow gradient
 	var grd = this.ctx.createLinearGradient(totalLeft, 0, totalLeft+totalWidth-1, 0);
 	grd.addColorStop(0, "red");
 	grd.addColorStop("0.2", "yellow");
@@ -1706,10 +1724,9 @@ Game.secondary.render = function () {
 	grd.addColorStop("0.6", "blue");
 	grd.addColorStop("0.8", "magenta");
 	grd.addColorStop(1, "indigo");
-	 
 	this.ctx.fillStyle = grd;	
 	
-	Player.xpFraction = Player.xp / LevelXP[Player.level];
+	// xp bar body
 	this.ctx.fillRect(totalLeft, totalTop, Player.xpFraction * totalWidth, totalHeight);
 
 	// xp bar border

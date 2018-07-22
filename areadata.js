@@ -125,7 +125,7 @@ var Areas = { // areas should have a capital (global variable)
 		],
 		
 		enemies: [
-			/*{
+			{
 				x: 1500,
 				y: 200,
 				width: 90,
@@ -147,7 +147,7 @@ var Areas = { // areas should have a capital (global variable)
 					},
 					image: "projectile",
 				}
-			}*/
+			}
 		],
 	},
 	
