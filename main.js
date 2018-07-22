@@ -1036,6 +1036,9 @@ Game.init = function () {
     this.camera = new Camera(map, this.canvas.width, this.canvas.height);
     this.camera.follow(this.hero);
 	
+	// set game time of day
+	this.time = this.getTime();
+	
 	// check for in-game events
 	this.checkEvents();
 	
@@ -1062,7 +1065,7 @@ Game.checkEvents = function() {
 }
 
 // check time (day or night)
-Game.time = function() {
+Game.getTime = function() {
 	// get date and time
 	var today = new Date();
 	var hour = today.getHours();
@@ -1096,8 +1099,8 @@ Game.playMusic = function () {
 	// check the user has allowed music to play
 	if (document.getElementById("musicOn").checked) {
 		// check if the new area's music is already being played
-		if (this.playingMusic !== Areas[this.areaName].song) {
-			this.loadMusic(Areas[this.areaName].song);
+		if (this.playingMusic !== Areas[this.areaName][song + "-" + this.time]) {
+			this.loadMusic(Areas[this.areaName][song + "-" + this.time]);
 		}
 	}
 }
@@ -1538,10 +1541,10 @@ Game.drawHealthBar = function (ctx, character, x, y, width, height) {
 	
 	// health bar border
 	ctx.strokeStyle = "black";
-	for (let i = 0; i < character.maxHealth / barValue; i++) {
+	for (let i = 0; i < character.maxHealth / barValue - 1; i++) {
 		ctx.strokeRect(x + barValue / character.maxHealth * width * i, y, barValue / character.maxHealth * width, height);
 	}
-	ctx.strokeRect(x + barValue / character.maxHealth * Math.round(character.maxHealth / barValue), y, width-1, height);
+	ctx.strokeRect(x + barValue / character.maxHealth * Math.round(character.maxHealth / barValue), y, width, height); // tbd - comes a bit fainter - idk why
 	
 	// restore previous canvas formatting preferences
 	ctx.globalAlpha = oldGlobalAlpha;
@@ -1696,7 +1699,7 @@ Game.secondary.render = function () {
 	this.ctx.clearRect(0, 0, 600, 600);
 	
 	// make canvas darker if it is night time
-	if (Game.time() === "night") {
+	if (this.time === "night") {
 		this.ctx.fillStyle = "black";
 		this.ctx.globalAlpha = 0.3; // maybe change?
 		this.ctx.fillRect(0, 0, 600, 600);

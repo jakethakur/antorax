@@ -40,7 +40,8 @@ var Areas = { // areas should have a capital (global variable)
 			],
 		},
 		
-		song: "./assets/music/Pippin-the-Hunchback.mp3",
+		song-day: "./assets/music/Pippin-the-Hunchback.mp3",
+		song-night: "./assets/music/Pippin-the-Hunchback-night.mp3",
 		
 		player: {
 			x: 2297,
@@ -125,7 +126,7 @@ var Areas = { // areas should have a capital (global variable)
 		],
 		
 		enemies: [
-			{
+			/*{
 				x: 1500,
 				y: 200,
 				width: 90,
@@ -147,7 +148,7 @@ var Areas = { // areas should have a capital (global variable)
 					},
 					image: "projectile",
 				}
-			}
+			}*/
 		],
 	},
 	
@@ -189,7 +190,8 @@ var Areas = { // areas should have a capital (global variable)
 			],
 		},
 		
-		song: "./assets/music/Pippin-the-Hunchback.mp3",
+		song-day: "./assets/music/Pippin-the-Hunchback.mp3",
+		song-night: "./assets/music/Pippin-the-Hunchback-night.mp3",
 		
 		areaTeleports: [
 			{
@@ -302,7 +304,8 @@ var Areas = { // areas should have a capital (global variable)
 			},*/
 		],
 		
-		song: "./assets/music/Tavern.mp3",
+		song-day: "./assets/music/Tavern.mp3",
+		song-night: "./assets/music/Tavern.mp3",
 		
 		questNPCs: [
 			{
