@@ -1016,8 +1016,8 @@ Game.loadArea = function (areaName, destination) {
 // initialise game
 Game.init = function () {
 	// welcome player
-	// TBD: make it use player name, make it say welcome back if you've played before and it saved your progress, make it a different colour?
-	Dom.chat.insert("Welcome to Antorax, Hero!", 0);
+	// tbd: make it say welcome back if you've played before and it saved your progress; make it a different colour?
+	Dom.chat.insert("Welcome to Antorax, " + Player.name + "!", 0);
 	
 	// music
 	this.playingMusic = null;
@@ -1071,8 +1071,35 @@ Game.checkEvents = function() {
 	var year = today.getFullYear();
 	
 	// James Day
+	// Summer Solstice
 	if (day == 21 && month == 6) {
 		Player.inventory.boots.push(Items.boots[7]);
+	}
+}
+
+// check time (day or night)
+Game.time = function() {
+	// get date and time
+	var today = new Date();
+	var hour = today.getHours();
+	var day = today.getDate();
+	var month = today.getMonth() + 1; // January is 0, so add 1
+	
+	// Summer Solstice - sun up all day
+	if (day == 21 && month == 6) {
+		return "day";
+	}
+	// Winter Solstice - sun down all day
+	else if (day == 21 && month == 12) {
+		return "night";
+	}
+
+	// day time
+	if (hour > 7 && hour < 19) {
+		return "day";
+	// night time
+	} else {
+		return "night";
 	}
 }
 
@@ -1629,10 +1656,23 @@ Game.render = function () {
 	}
 };
 
+// render secondary canvas (contains anything that does not need to be continuously redrawn)
 Game.secondary.render = function () {
-	this.ctx.clearRect(0,0,600,600);
+	// clear secondary canvas
+	this.ctx.clearRect(0, 0, 600, 600);
+	
+	// make canvas darker if it is night time
+	if (Game.time() === "night") {
+		this.ctx.fillStyle = "black";
+		this.ctx.globalAlpha = 0.3; // maybe change?
+		this.ctx.fillRect(0, 0, 600, 600);
+	}
+	
+	// set style defaults
 	this.ctx.lineWidth = 1;
 	this.ctx.globalAlpha = 0.6;
+	
+	// tbd : move health bar to its own function
 	
 	// set health variables
 	var totalWidth = 250; // total width of health bar
@@ -1683,7 +1723,7 @@ Game.secondary.render = function () {
 	this.ctx.fillStyle = "white";
 	this.ctx.fillText(Player.level, 292, 517);
 	
-	//status effects
+	// status effects
 	for(var i = 0; i < Game.hero.statusEffects.length; i++){
 		var imgToBeUpdated = new Image();
 		imgToBeUpdated.src = "./assets/icons/status.png";
