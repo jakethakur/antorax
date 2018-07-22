@@ -398,20 +398,20 @@ Dom.inventory.displayInformation = function(y,array){ // display inventory infor
 		}
 		if(array[0].set != undefined){ // if the item has a set...
 			var setNum = 0;
-			for(var i = 0; i < Items.sets[array[0].set].armour.length; i++){
+			for(var i = 0; i < Items.set[array[0].set].armour.length; i++){
 				for(var x = 0; x < 4; x++){
-					if(Player.inventory[Object.keys(Player.inventory)[x]][0].name == Items.sets[array[0].set].armour[i]){
+					if(Player.inventory[Object.keys(Player.inventory)[x]][0].name == Items.set[array[0].set].armour[i]){
 						setNum++;
 						break;
 					}
 				}
 			}
-			document.getElementById("set").innerHTML = Items.sets[array[0].set].name + " (" + setNum + "/" + Items.sets[array[0].set].armour.length+")"; // ...add the set to the information
-			if(setNum == Items.sets[array[0].set].armour.length){
+			document.getElementById("set").innerHTML = Items.set[array[0].set].name + " (" + setNum + "/" + Items.set[array[0].set].armour.length+")"; // ...add the set to the information
+			if(setNum == Items.set[array[0].set].armour.length){
 				document.getElementById("set").innerHTML += "<br><br>Set Bonus:";
-				for(var i = 0; i < Object.keys(Items.sets[array[0].set].stats).length; i++){ // repeat for all stats
-					var replaceSetStat = Object.keys(Items.sets[array[0].set].stats)[i].replace("_"," "); // replace any underscores with spaces
-					document.getElementById("set").innerHTML += "<br>"+replaceSetStat+": "+Items.sets[array[0].set].stats[Object.keys(Items.sets[array[0].set].stats)[i]]; // add the stats to the information
+				for(var i = 0; i < Object.keys(Items.set[array[0].set].stats).length; i++){ // repeat for all stats
+					var replaceSetStat = Object.keys(Items.set[array[0].set].stats)[i].replace("_"," "); // replace any underscores with spaces
+					document.getElementById("set").innerHTML += "<br>"+replaceSetStat+": "+Items.set[array[0].set].stats[Object.keys(Items.set[array[0].set].stats)[i]]; // add the stats to the information
 				}
 			}
 		}
@@ -453,10 +453,10 @@ Dom.inventory.displayEquipmentInformation = function(num){
 			}
 			if(Player.inventory.items[num].set != undefined){ // if the item has a set...
 				var setNum = 0;
-				for(var i = 0; i < Items.sets[Player.inventory.items[num].set].armour.length; i++){
+				for(var i = 0; i < Items.set[Player.inventory.items[num].set].armour.length; i++){
 					for(var x = 0; x < Player.inventory.items.length; x++){
 						var checkUsed = true;
-						if(Player.inventory.items[x].name == Items.sets[Player.inventory.items[num].set].armour[i]){
+						if(Player.inventory.items[x].name == Items.set[Player.inventory.items[num].set].armour[i]){
 							setNum++;
 							checkUsed = false;
 							break;
@@ -464,25 +464,28 @@ Dom.inventory.displayEquipmentInformation = function(num){
 					}
 					if(checkUsed){
 						for(var x = 0; x < 4; x++){
-							if(Player.inventory[Object.keys(Player.inventory)[x]][0].name == Items.sets[Player.inventory.items[num].set].armour[i]){
+							if(Player.inventory[Object.keys(Player.inventory)[x]][0].name == Items.set[Player.inventory.items[num].set].armour[i]){
 								setNum++;
 								break;
 							}
 						}
 					}
 				}
-				document.getElementById("invSet").innerHTML = Items.sets[Player.inventory.items[num].set].name + " (" + setNum + "/" + Items.sets[Player.inventory.items[num].set].armour.length+")"; // ...add the set to the information
-				if(setNum == Items.sets[Player.inventory.items[num].set].armour.length){
+				document.getElementById("invSet").innerHTML = Items.set[Player.inventory.items[num].set].name + " (" + setNum + "/" + Items.set[Player.inventory.items[num].set].armour.length+")"; // ...add the set to the information
+				if(setNum == Items.set[Player.inventory.items[num].set].armour.length){
 					document.getElementById("invSet").innerHTML += "<br><br>Set Bonus:";
-					for(var i = 0; i < Object.keys(Items.sets[Player.inventory.items[num].set].stats).length; i++){ // repeat for all stats
-						var replaceSetStat = Object.keys(Items.sets[Player.inventory.items[num].set].stats)[i].replace("_"," "); // replace any underscores with spaces
-						document.getElementById("invSet").innerHTML += "<br>"+replaceSetStat+": "+Items.sets[Player.inventory.items[num].set].stats[Object.keys(Items.sets[Player.inventory.items[num].set].stats)[i]]; // add the stats to the information
+					for(var i = 0; i < Object.keys(Items.set[Player.inventory.items[num].set].stats).length; i++){ // repeat for all stats
+						var replaceSetStat = Object.keys(Items.set[Player.inventory.items[num].set].stats)[i].replace("_"," "); // replace any underscores with spaces
+						document.getElementById("invSet").innerHTML += "<br>"+replaceSetStat+": "+Items.set[Player.inventory.items[num].set].stats[Object.keys(Items.set[Player.inventory.items[num].set].stats)[i]]; // add the stats to the information
 					}
 				}
 			}
 		}
 		if(Player.inventory.items[num].type == "bag"){
 			document.getElementById("invStats").innerHTML = "Capacity: "+Player.inventory.items[num].size; // add the size to the information
+		}
+		if(Player.inventory.items[num].type == "currency"){
+			document.getElementById("invName").innerHTML = Player.inventory.items[num].stacked + " " + document.getElementById("invName").innerHTML; // add the size to the information
 		}
 		if(Player.inventory.items[num].lore != undefined){ // if the item has a lore...
 			document.getElementById("invLore").innerHTML += "<i>"+Player.inventory.items[num].lore+"</i>"; // ...add the lore to the information
@@ -665,12 +668,8 @@ Dom.quest.finish = function(quest){ // display quest finish page
 			Dom.expand("questFinishInformation"); // ...stops displaying the information for that item
 		};
 	}
-	//Player.gold += parseInt(quest.rewards.gold);
 	Player.gold += quest.rewards.gold; // gives the player the gold reward
-	for(var i = 0; i < quest.rewards.gold; i++){
-		Dom.invetory.give(Items.currency[0]);
-	}
-	//Player.xp += parseInt(quest.rewards.xp);
+	Dom.inventory.give(Items.currency[0],quest.rewards.gold);
 	Player.xp += quest.rewards.xp // gives the player the xp reward
 	Dom.inventory.updateGold(); // updates the gold and xp display
 	for(var i = 0; i < quest.rewards.items.length; i++){ // repeats for all item rewards
@@ -794,6 +793,7 @@ Dom.merchant.buy = function(item,num){ // buy item from merchant
 			document.getElementsByClassName("buy")[num].style.backgroundColor = "#fef9b4";
 		},200);
 		Player.gold -= item.cost; // takes the amount of gold from the player
+		Dom.inventory.removeById(0,"currency",item.cost);
 		Dom.inventory.updateGold(); // updates how much gold the display shows
 		Dom.inventory.give(item); // gives the player the item
 		Dom.chat.insert("You bought a " + item.name + ".", 100); // tells the player they bough an item in the chat
@@ -864,40 +864,45 @@ Dom.identifier.page = function(chat, chat1, chat2, chat3, chat4, over){ // ident
 	}
 }
 
-Dom.inventory.give = function(item){ // gives the player the item
-console.log(item);
-	if(item.unidentified){
-		Player.inventory.unId.push(item);
+Dom.inventory.give = function(item,num){ // gives the player the item
+	var number = num;
+	if(number == undefined){
+		number = 1;
 	}
-	var add = true;
-	for(var i = 0; i < Player.inventory.items.length; i++){
-		if(Player.inventory.items[i].name == item.name && Player.inventory.items[i].type == item.type && Player.inventory.items[i].image == item.image){
-			if(Player.inventory.items[i].stacked == undefined){
-				Player.inventory.items[i].stacked = 1;
-			}		
-			if(Player.inventory.items[i].stacked < Player.inventory.items[i].stack){
-				Player.inventory.items[i].stacked++;
-				document.getElementById("itemInventory").getElementsByTagName("td")[i].innerHTML = "<img src='"+Player.inventory.items[i].image+"' draggable='true' ondragstart='Dom.inventory.drag(event,"+i+")'></img><div class='stackNum'>"+Player.inventory.items[i].stacked+"</div>"; // sets the items number
-				add = false;
+	for(var y = 0; y < number; y++){
+		if(item.unidentified){
+			Player.inventory.unId.push(item);
+		}
+		var add = true;
+		for(var i = 0; i < Player.inventory.items.length; i++){
+			if(Player.inventory.items[i].name == item.name && Player.inventory.items[i].type == item.type && Player.inventory.items[i].image == item.image){
+				if(Player.inventory.items[i].stacked == undefined){
+					Player.inventory.items[i].stacked = 1;
+				}		
+				if(Player.inventory.items[i].stacked < Player.inventory.items[i].stack){
+					Player.inventory.items[i].stacked++;
+					document.getElementById("itemInventory").getElementsByTagName("td")[i].innerHTML = "<img src='"+Player.inventory.items[i].image+"' draggable='true' ondragstart='Dom.inventory.drag(event,"+i+")'></img><div class='stackNum'>"+Player.inventory.items[i].stacked+"</div>"; // sets stack size
+					add = false;
+				}
 			}
 		}
-	}
-	if(add){
-		for(var i = 0; i < Player.inventory.items.length; i++){ // repeats code for all inventory slots
-			if(Object.keys(Player.inventory.items[i]).length == 0){ // if the slot is empty
-				Player.inventory.items[i] = Object.assign({},item); // puts the item in the inventory slot
-				document.getElementById("itemInventory").getElementsByTagName("td")[i].innerHTML = "<img src='"+Player.inventory.items[i].image+"' draggable='true' ondragstart='Dom.inventory.drag(event,"+i+")'></img>"; // sets the items image
-				if(Player.inventory.items[i].stacked != undefined && Player.inventory.items[i].stacked != 1){
-					document.getElementById("itemInventory").getElementsByTagName("td")[i].innerHTML += "<div class='stackNum'>"+Player.inventory.items[i].stacked+"</div>";
-				}
-				if(i == 5 && item.type == "bag"){
-					for(var x = 0; x < Math.floor(item.size/6); x++){
-						document.getElementById("itemInventory").innerHTML += '<tr><td ondrop="Dom.inventory.drop(event)" ondragover="Dom.inventory.allowDrop(event)" onmouseover="Dom.inventory.displayEquipmentInformation('+Player.inventory.items.length+')" onmouseleave="Dom.expand(\'inventoryInformation\')" ondrag="Dom.expand(\'inventoryInformation\')"></td><td ondrop="Dom.inventory.drop(event)" ondragover="Dom.inventory.allowDrop(event)" onmouseover="Dom.inventory.displayEquipmentInformation('+(Player.inventory.items.length+1)+')" onmouseleave="Dom.expand(\'inventoryInformation\')" ondrag="Dom.expand(\'inventoryInformation\')"></td><td ondrop="Dom.inventory.drop(event)" ondragover="Dom.inventory.allowDrop(event)" onmouseover="Dom.inventory.displayEquipmentInformation('+(Player.inventory.items.length+2)+')" onmouseleave="Dom.expand(\'inventoryInformation\')" ondrag="Dom.expand(\'inventoryInformation\')"></td><td ondrop="Dom.inventory.drop(event)" ondragover="Dom.inventory.allowDrop(event)" onmouseover="Dom.inventory.displayEquipmentInformation('+(Player.inventory.items.length+3)+')" onmouseleave="Dom.expand(\'inventoryInformation\')" ondrag="Dom.expand(\'inventoryInformation\')"></td><td ondrop="Dom.inventory.drop(event)" ondragover="Dom.inventory.allowDrop(event)" onmouseover="Dom.inventory.displayEquipmentInformation('+(Player.inventory.items.length+4)+')" onmouseleave="Dom.expand(\'inventoryInformation\')" ondrag="Dom.expand(\'inventoryInformation\')"></td><td ondrop="Dom.inventory.drop(event)" ondragover="Dom.inventory.allowDrop(event)" onmouseover="Dom.inventory.displayEquipmentInformation('+(Player.inventory.items.length+5)+')" onmouseleave="Dom.expand(\'inventoryInformation\')" ondrag="Dom.expand(\'inventoryInformation\')"></td></tr>';
-						Player.inventory.items.push({},{},{},{},{},{});
+		if(add){
+			for(var i = 0; i < Player.inventory.items.length; i++){ // repeats code for all inventory slots
+				if(Object.keys(Player.inventory.items[i]).length == 0){ // if the slot is empty
+					Player.inventory.items[i] = Object.assign({},item); // puts the item in the inventory slot
+					document.getElementById("itemInventory").getElementsByTagName("td")[i].innerHTML = "<img src='"+Player.inventory.items[i].image+"' draggable='true' ondragstart='Dom.inventory.drag(event,"+i+")'></img>"; // sets the items image
+					if(Player.inventory.items[i].stacked != undefined && Player.inventory.items[i].stacked != 1){
+						document.getElementById("itemInventory").getElementsByTagName("td")[i].innerHTML += "<div class='stackNum'>"+Player.inventory.items[i].stacked+"</div>";
 					}
-					Dom.inventory.update();
+					if(i == 5 && item.type == "bag"){
+						for(var x = 0; x < Math.floor(item.size/6); x++){
+							document.getElementById("itemInventory").innerHTML += '<tr><td ondrop="Dom.inventory.drop(event)" ondragover="Dom.inventory.allowDrop(event)" onmouseover="Dom.inventory.displayEquipmentInformation('+Player.inventory.items.length+')" onmouseleave="Dom.expand(\'inventoryInformation\')" ondrag="Dom.expand(\'inventoryInformation\')"></td><td ondrop="Dom.inventory.drop(event)" ondragover="Dom.inventory.allowDrop(event)" onmouseover="Dom.inventory.displayEquipmentInformation('+(Player.inventory.items.length+1)+')" onmouseleave="Dom.expand(\'inventoryInformation\')" ondrag="Dom.expand(\'inventoryInformation\')"></td><td ondrop="Dom.inventory.drop(event)" ondragover="Dom.inventory.allowDrop(event)" onmouseover="Dom.inventory.displayEquipmentInformation('+(Player.inventory.items.length+2)+')" onmouseleave="Dom.expand(\'inventoryInformation\')" ondrag="Dom.expand(\'inventoryInformation\')"></td><td ondrop="Dom.inventory.drop(event)" ondragover="Dom.inventory.allowDrop(event)" onmouseover="Dom.inventory.displayEquipmentInformation('+(Player.inventory.items.length+3)+')" onmouseleave="Dom.expand(\'inventoryInformation\')" ondrag="Dom.expand(\'inventoryInformation\')"></td><td ondrop="Dom.inventory.drop(event)" ondragover="Dom.inventory.allowDrop(event)" onmouseover="Dom.inventory.displayEquipmentInformation('+(Player.inventory.items.length+4)+')" onmouseleave="Dom.expand(\'inventoryInformation\')" ondrag="Dom.expand(\'inventoryInformation\')"></td><td ondrop="Dom.inventory.drop(event)" ondragover="Dom.inventory.allowDrop(event)" onmouseover="Dom.inventory.displayEquipmentInformation('+(Player.inventory.items.length+5)+')" onmouseleave="Dom.expand(\'inventoryInformation\')" ondrag="Dom.expand(\'inventoryInformation\')"></td></tr>';
+							Player.inventory.items.push({},{},{},{},{},{});
+						}
+						Dom.inventory.update();
+					}
+					break; // stops the item being placed in multiple slots
 				}
-				break; // stops the item being placed in multiple slots
 			}
 		}
 	}
@@ -944,6 +949,7 @@ function unId(area,tier){ // constructs an unidentified item when you kill an en
 Dom.identifier.identify = function(chat, chat1, chat2, chat3, chat4){ // the page that you go to when you click "identify for 1 gold"
 	if(Player.gold >= 1 && Player.inventory.unId.length != 0){ // if the player can afford the item
 		Player.gold--; // take the money from the player
+		Dom.inventory.removeById(0,"currency",1);
 		Dom.inventory.updateGold(); // update the gold display
 		Dom.changeBook("identifiedPage",true); // changed page to the identified page
 		Dom.currentlyDisplayed = "identified"; // sets the currently displayed page variable to identified
@@ -1036,9 +1042,29 @@ Dom.inventory.dispose = function(ev){
 	}
 }
 
+Dom.inventory.removeById = function(ID,type,num){
+	console.log("yes");
+	for(var i = 0; i < Player.inventory.items.length; i++){
+		console.log("definately");
+		if(Player.inventory.items[i].type == type && Player.inventory.items[i].id == ID){
+			console.log("maybe");
+			for(var x = 0; x < num; x++){
+				console.log("no");
+				Dom.inventory.remove(i);
+			}
+			break;
+		}
+	}
+}
+
 Dom.inventory.remove = function(num){
-	document.getElementById("itemInventory").getElementsByTagName("td")[num].innerHTML = ""; // removes the image from the inventory
-	Player.inventory.items[num] = {}; // removes the image from the inventory
+	if(Player.inventory.items[num].stacked == 1 || Player.inventory.items[num].stacked == undefined){
+		document.getElementById("itemInventory").getElementsByTagName("td")[num].innerHTML = ""; // removes the image from the inventory
+		Player.inventory.items[num] = {}; // removes the image from the inventory
+	}else{
+		Player.inventory.items[num].stacked--;
+		document.getElementById("itemInventory").getElementsByTagName("td")[num].innerHTML = "<img src='"+Player.inventory.items[num].image+"' draggable='true' ondragstart='Dom.inventory.drag(event,"+num+")'></img><div class='stackNum'>"+Player.inventory.items[num].stacked+"</div>"; // sets the stack size
+	}
 }
 
 Dom.inventory.update = function(){ // updates the position of the "buy bags to get more inventory space" text
@@ -1224,14 +1250,14 @@ Dom.inventory.removeEquipment = function(array){ // removes the stats of an item
 	}
 	if(array[0].set != undefined){ // if the item being removed is part of a set
 		Dom.inventory.noSet = false; // allows the set code to run
-		for(var i = 0; i < Items.sets[array[0].set].armour.length; i++){ // repeats for all armour in the set
-			if(Player.inventory.helm[0].name != Items.sets[array[0].set].armour[i] || Player.inventory.chest[0].name != Items.sets[array[0].set].armour[i] || Player.inventory.greaves[0].name != Items.sets[array[0].set].armour[i] || Player.inventory.boots[0].name != Items.sets[array[0].set].armour[i]){ // checks if the armour is being worn
+		for(var i = 0; i < Items.set[array[0].set].armour.length; i++){ // repeats for all armour in the set
+			if(Player.inventory.helm[0].name != Items.set[array[0].set].armour[i] || Player.inventory.chest[0].name != Items.set[array[0].set].armour[i] || Player.inventory.greaves[0].name != Items.set[array[0].set].armour[i] || Player.inventory.boots[0].name != Items.set[array[0].set].armour[i]){ // checks if the armour is being worn
 				Dom.inventory.noSet = true; // does not allow the set code to run
 			}
 		}
 		if(!Dom.inventory.noSet){ // set code (runs if the player was wearing a set but now isn't)
-			for(var i = 0; i < Object.keys(Items.sets[array[0].set].stats).length; i++){ // repeats for all stats in set
-				Stats[Object.keys(Items.sets[array[0].set].stats)[i]] -= parseInt(Items.sets[array[0].set].stats[Object.keys(Items.sets[array[0].set].stats)]); // removes that stat from player's stats
+			for(var i = 0; i < Object.keys(Items.set[array[0].set].stats).length; i++){ // repeats for all stats in set
+				Stats[Object.keys(Items.set[array[0].set].stats)[i]] -= parseInt(Items.set[array[0].set].stats[Object.keys(Items.set[array[0].set].stats)]); // removes that stat from player's stats
 			}
 		}
 	}
@@ -1251,14 +1277,14 @@ Dom.inventory.addEquipment = function(array){ // adds the stats of an item to th
 	}
 	if(array[0].set != undefined){ // if the item being removed is part of a set
 		Dom.inventory.noSet = false; // allows the set code to run
-		for(var i = 0; i < Items.sets[array[0].set].armour.length; i++){ // repeats for all armour in the set
-			if(Player.inventory.helm[0].name != Items.sets[array[0].set].armour[i] && Player.inventory.chest[0].name != Items.sets[array[0].set].armour[i] && Player.inventory.greaves[0].name != Items.sets[array[0].set].armour[i] && Player.inventory.boots[0].name != Items.sets[array[0].set].armour[i]){ // checks if the armour is being worn
+		for(var i = 0; i < Items.set[array[0].set].armour.length; i++){ // repeats for all armour in the set
+			if(Player.inventory.helm[0].name != Items.set[array[0].set].armour[i] && Player.inventory.chest[0].name != Items.set[array[0].set].armour[i] && Player.inventory.greaves[0].name != Items.set[array[0].set].armour[i] && Player.inventory.boots[0].name != Items.set[array[0].set].armour[i]){ // checks if the armour is being worn
 				Dom.inventory.noSet = true; // does not allow the set code to run
 			}
 		}
 		if(!Dom.inventory.noSet){ // set code (runs if the player was wearing a set but now isn't)
-			for(var i = 0; i < Object.keys(Items.sets[array[0].set].stats).length; i++){ // repeats for all stats in set
-				Stats[Object.keys(Items.sets[array[0].set].stats)[i]] += parseInt(Items.sets[array[0].set].stats[Object.keys(Items.sets[array[0].set].stats)]); // removes that stat from player's stats
+			for(var i = 0; i < Object.keys(Items.set[array[0].set].stats).length; i++){ // repeats for all stats in set
+				Stats[Object.keys(Items.set[array[0].set].stats)[i]] += parseInt(Items.set[array[0].set].stats[Object.keys(Items.set[array[0].set].stats)]); // removes that stat from player's stats
 			}
 		}
 	}

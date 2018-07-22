@@ -3,21 +3,21 @@
 var Items = {
 	helm: [
 		{
-			//id: 0
+			id: 0,
 			name: "Test Helm 1",
 			type: "helm",
 			image: "assets/items/helm/0.png",
 			stats: {},
 		},
 		{
-			//id: 1
+			id: 1,
 			name: "Test Helm 2",
 			type: "helm",
 			image: "assets/items/helm/1.png",
 			stats: {},
 		},
 		{
-			//id: 2
+			id: 2,
 			name: "Worn Leather Helm",
 			type: "helm",
 			image: "assets/items/helm/2.png",
@@ -30,7 +30,7 @@ var Items = {
 			},
 		},
 		{
-			//id: 3
+			id: 3,
 			name: "Goblin Forged Helm",
 			type: "helm",
 			image: "assets/items/helm/3.png",
@@ -46,7 +46,7 @@ var Items = {
 			},
 		},
 		{
-			//id: 4
+			id: 4,
 			name: "Siege Helm",
 			type: "helm",
 			image: "assets/items/helm/4.png",
@@ -62,7 +62,7 @@ var Items = {
 			},
 		},
 		{
-			//id: 5
+			id: 5,
 			name: "War Ogre's Helm",
 			type: "helm",
 			image: "assets/items/helm/5.png",
@@ -79,21 +79,21 @@ var Items = {
 	],
 	chest: [
 		{
-			//id: 0
+			id: 0,
 			name: "Test Chestplate 1",
 			type: "chest",
 			image: "assets/items/chest/0.png",
 			stats: {},
 		},
 		{
-			//id: 1
+			id: 1,
 			name: "Test Chestplate 2",
 			type: "chest",
 			image: "assets/items/chest/1.png",
 			stats: {},
 		},
 		{
-			//id: 2
+			id: 2,
 			name: "Worn Leather Tunic",
 			type: "chest",
 			image: "assets/items/chest/2.png",
@@ -106,7 +106,7 @@ var Items = {
 			},
 		},
 		{
-			//id: 3
+			id: 3,
 			name: "Goblin Forged Chestplate",
 			type: "chest",
 			image: "assets/items/chest/3.png",
@@ -122,7 +122,7 @@ var Items = {
 			},
 		},
 		{
-			//id: 4
+			id: 4,
 			name: "Siege Chestplate",
 			type: "chest",
 			image: "assets/items/chest/4.png",
@@ -138,7 +138,7 @@ var Items = {
 			},
 		},
 		{
-			//id: 5
+			id: 5,
 			name: "The Tattered Knight's Chestplate",
 			type: "chest",
 			image: "assets/items/chest/5.png",
@@ -155,14 +155,14 @@ var Items = {
 	],
 	greaves: [
 		{
-			//id: 0
+			id: 0,
 			name: "Test Greaves 1",
 			type: "greaves",
 			image: "assets/items/greaves/0.png",
 			stats: {},
 		},
 		{
-			//id: 1
+			id: 1,
 			name: "Test Greaves 2",
 			type: "greaves",
 			image: "assets/items/greaves/1.png",
@@ -170,7 +170,7 @@ var Items = {
 			},
 		},
 		{
-			//id: 2
+			id: 2,
 			name: "Worn Leather Trousers",
 			type: "greaves",
 			image: "assets/items/greaves/2.png",
@@ -183,7 +183,7 @@ var Items = {
 			},
 		},
 		{
-			//id: 3
+			id: 3,
 			name: "Goblin Forged Greaves",
 			type: "greaves",
 			image: "assets/items/greaves/3.png",
@@ -199,7 +199,7 @@ var Items = {
 			},
 		},
 		{
-			//id: 4
+			id: 4,
 			name: "Siege Greaves",
 			type: "greaves",
 			image: "assets/items/greaves/4.png",
@@ -215,7 +215,7 @@ var Items = {
 			},
 		},
 		{
-			//id: 5
+			id: 5,
 			name: "Weirwood Carved Greaves",
 			type: "greaves",
 			image: "assets/items/greaves/5.png",
@@ -233,21 +233,21 @@ var Items = {
 	],
 	boots: [
 		{
-			//id: 0
+			id: 0,
 			name: "Test Boots 1",
 			type: "boots",
 			image: "assets/items/boots/0.png",
 			stats: {},
 		},
 		{
-			//id: 1
+			id: 1,
 			name: "Test Boots 2",
 			type: "boots",
 			image: "assets/items/boots/1.png",
 			stats: {},
 		},
 		{
-			//id: 2
+			id: 2,
 			name: "Logging Boots",
 			type: "boots",
 			image: "assets/items/boots/2.png",
@@ -261,7 +261,7 @@ var Items = {
 			},
 		},
 		{
-			//id: 3
+			id: 3,
 			name: "Worn Leather Boots",
 			type: "boots",
 			image: "assets/items/boots/3.png",
@@ -274,7 +274,7 @@ var Items = {
 			},
 		},
 		{
-			//id: 4
+			id: 4,
 			name: "Goblin Forged Boots",
 			type: "boots",
 			image: "assets/items/boots/4.png",
@@ -290,7 +290,7 @@ var Items = {
 			},
 		},
 		{
-			//id: 5
+			id: 5,
 			name: "Siege Boots",
 			type: "boots",
 			image: "assets/items/boots/5.png",
@@ -306,7 +306,7 @@ var Items = {
 			},
 		},
 		{
-			//id: 6
+			id: 6,
 			name: "Marshall Teper's Lost Boots",
 			type: "boots",
 			image: "assets/items/boots/6.png",
@@ -324,7 +324,7 @@ var Items = {
 			},
 		},
 		{
-			//id: 7
+			id: 7,
 			name: "James Boots",
 			type: "boots",
 			image: "assets/items/boots/7.png",
@@ -340,21 +340,21 @@ var Items = {
 	],
 	sword: [
 		{
-			//id: 0
+			id: 0,
 			name: "Test sword 1",
 			type: "sword",
 			image: "assets/items/sword/0.png",
 			stats: {},
 		},
 		{
-			//id: 1
+			id: 1,
 			name: "Test sword 2",
 			type: "sword",
 			image: "assets/items/sword/1.png",
 			stats: {},
 		},
 		{
-			//id: 2
+			id: 2,
 			name: "Basic Sword",
 			type: "sword",
 			cost: 3,
@@ -367,7 +367,7 @@ var Items = {
 			},
 		},
 		{
-			//id: 3
+			id: 3,
 			name: "Crooked Wooden Sword",
 			type: "sword",
 			image: "assets/items/sword/3.png",
@@ -380,7 +380,7 @@ var Items = {
 			},
 		},
 		{
-			//id: 4
+			id: 4,
 			name: "Poisoned Blade",
 			type: "sword",
 			image: "assets/items/sword/4.png",
@@ -395,7 +395,7 @@ var Items = {
 			},
 		},
 		{
-			//id: 5
+			id: 5,
 			name: "Splintered Sword",
 			type: "sword",
 			image: "assets/items/sword/5.png",
@@ -410,7 +410,7 @@ var Items = {
 			},
 		},
 		{
-			//id: 6
+			id: 6,
 			name: "Blade of the Orc Raiders",
 			type: "sword",
 			image: "assets/items/sword/6.png",
@@ -427,21 +427,21 @@ var Items = {
 	],
 	staff: [
 		{
-			//id: 0
+			id: 0,
 			name: "Test staff 1",
 			type: "staff",
 			image: "assets/items/staff/0.png",
 			stats: {},
 		},
 		{
-			//id: 1
+			id: 1,
 			name: "Test staff 2",
 			type: "staff",
 			image: "assets/items/staff/1.png",
 			stats: {},
 		},
 		{
-			//id: 2
+			id: 2,
 			name: "Basic Staff",
 			type: "staff",
 			cost: 3,
@@ -454,7 +454,7 @@ var Items = {
 			},
 		},
 		{
-			//id: 3
+			id: 3,
 			name: "Crooked Wooden Staff",
 			type: "staff",
 			image: "assets/items/staff/3.png",
@@ -467,7 +467,7 @@ var Items = {
 			},
 		},
 		{
-			//id: 4
+			id: 4,
 			name: "Health Staff",
 			type: "staff",
 			image: "assets/items/staff/4.png",
@@ -482,7 +482,7 @@ var Items = {
 			},
 		},
 		{
-			//id: 5
+			id: 5,
 			name: "Power Surge Staff",
 			type: "staff",
 			image: "assets/items/staff/5.png",
@@ -497,7 +497,7 @@ var Items = {
 			},
 		},
 		{
-			//id: 6
+			id: 6,
 			name: "The Highborn Hoarder's Staff",
 			type: "staff",
 			image: "assets/items/staff/6.png",
@@ -511,24 +511,31 @@ var Items = {
 				Looting: "+45%",
 			},
 		},
+		{
+			id: 7,
+			name: "Goblin Torch",
+			type: "staff",
+			image: "assets/items/staff/7.png",
+			uncollectable: true,
+		},
 	],
 	bow: [
 		{
-			//id: 0
+			id: 0,
 			name: "Test bow 1",
 			type: "bow",
 			image: "assets/items/bow/0.png",
 			stats: {},
 		},
 		{
-			//id: 1
+			id: 1,
 			name: "Test bow 2",
 			type: "bow",
 			image: "assets/items/bow/1.png",
 			stats: {},
 		},
 		{
-			//id: 2
+			id: 2,
 			name: "Basic Bow",
 			type: "bow",
 			cost: 3,
@@ -541,7 +548,7 @@ var Items = {
 			},
 		},
 		{
-			//id: 3
+			id: 3,
 			name: "Crooked Wooden Bow",
 			type: "bow",
 			image: "assets/items/bow/3.png",
@@ -554,7 +561,7 @@ var Items = {
 			},
 		},
 		{
-			//id: 4
+			id: 4,
 			name: "Sharpshooter's Bow",
 			type: "bow",
 			image: "assets/items/bow/4.png",
@@ -569,7 +576,7 @@ var Items = {
 			},
 		},
 		{
-			//id: 5
+			id: 5,
 			name: "Woodshot",
 			type: "bow",
 			image: "assets/items/bow/5.png",
@@ -584,7 +591,7 @@ var Items = {
 			},
 		},
 		{
-			//id: 6
+			id: 6,
 			name: "Kraiss' Brimstone Bow",
 			type: "bow",
 			image: "assets/items/bow/6.png",
@@ -599,23 +606,23 @@ var Items = {
 			},
 		},
 	],
-	sets: [
+	set: [
 		{
-			//id: 0
+			id: 0,
 			name: "Test bow 1",
 			type: "bow",
 			image: "assets/items/bow/0.png",
 			stats: {},
 		},
 		{
-			//id: 1
+			id: 1,
 			name: "Test bow 2",
 			type: "bow",
 			image: "assets/items/bow/1.png",
 			stats: {},
 		},
 		{
-			//id: 2
+			id: 2,
 			name: "Siege Set",
 			type: "set",
 			image: "assets/items/sets/2.png",
@@ -632,7 +639,7 @@ var Items = {
 			},
 		},
 		{
-			//id: 3
+			id: 3,
 			name: "Goblin Forged Set",
 			type: "set",
 			image: "assets/items/sets/3.png",
@@ -650,33 +657,33 @@ var Items = {
 		},
 	],
 	currency: [
-	{
-		//id: 0
-		name: "Gold",
-		type: "currency",
-		image: "assets/items/currency/gold.png",
-		stack: 128,
-	},
-	],
-	bags: [
 		{
-		//id: 0
-		name: "Bag",
-		type: "bag",
-		image: "assets/items/item/1.png",
-		size: 6,
+			id: 0,
+			name: "Gold",
+			type: "currency",
+			image: "assets/items/currency/gold.png",
+			stack: 128,
+		},
+	],
+	bag: [
+		{
+			id: 0,
+			name: "Bag",
+			type: "bag",
+			image: "assets/items/item/1.png",
+			size: 6,
 		},
 	],
 	item: [
 		{
-			//id: 0
+			id: 0,
 			name: "Staff",
 			type: "junk",
 			image: "assets/items/staff/5.png",
 			stack: 2,
 		},
 		{
-			//id: 1
+			id: 1,
 			name: "Log",
 			type: "quest",
 			image: "assets/items/item/1.png",

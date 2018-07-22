@@ -863,6 +863,11 @@ Game.load = function (names, addresses) {
 		toLoad.push(Loader.loadImage("projectile", "./assets/projectiles/" + "archer" + ".png"));
 	}
 	
+	// check status image has been loaded (if not, then load it)
+	if (!Object.keys(Loader.images).includes("status")) {
+		toLoad.push(Loader.loadImage("status", "./assets/icons/status.png"));
+	}
+	
     return toLoad;
 };
 
@@ -874,6 +879,7 @@ Game.loadArea = function (areaName, destination) {
 		// images not to be wiped
 		"hero",
 		"projectile",
+		"status",
 	]);
 	
 	// load images
@@ -1021,6 +1027,9 @@ Game.init = function () {
 		image: "hero",
 		health: 50,
 	});
+	
+	// set loaded status image
+	this.statusImage = Loader.getImage("status");
 	
 	// detect player movement and interaction
     Keyboard.listenForEvents(
@@ -1744,8 +1753,6 @@ Game.secondary.render = function () {
 	
 	// status effects
 	for(var i = 0; i < Game.hero.statusEffects.length; i++){
-		var imgToBeUpdated = new Image();
-		imgToBeUpdated.src = "./assets/icons/status.png";
 		var iconNum = 0;
 		if(Game.hero.statusEffects[i].title == "Mud"){
 			iconNum = 1;
@@ -1756,6 +1763,6 @@ Game.secondary.render = function () {
 		}else if(Game.hero.statusEffects[i].title == "Swimming"){
 			iconNum = 4;
 		}
-		this.ctx.drawImage(imgToBeUpdated,0,27*iconNum,27,27,270 + i * 35, 10, 27, 27);
+		this.ctx.drawImage(Game.statusImage,0,27*iconNum,27,27,270 + i * 35, 10, 27, 27);
 	}
 }

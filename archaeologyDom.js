@@ -50,24 +50,32 @@ function checkChange(){
 		if(category.value == "all"){
 			for(var i = 0; i < 7; i++){
 				for(var x = 2; x < Items[Object.keys(Items)[i]].length; x++){
-					array.push(Items[Object.keys(Items)[i]][x]);
+					if(!Items[Object.keys(Items)[i]][x].uncollectable){
+						array.push(Items[Object.keys(Items)[i]][x]);
+					}
 				}
 			}
 		}else if(category.value == "armour"){
 			for(var i = 0; i < 4; i++){
 				for(var x = 2; x < Items[Object.keys(Items)[i]].length; x++){
-					array.push(Items[Object.keys(Items)[i]][x]);
+					if(!Items[Object.keys(Items)[i]][x].uncollectable){
+						array.push(Items[Object.keys(Items)[i]][x]);
+					}
 				}
 			}
 		}else if(category.value == "weapon"){
 			for(var i = 4; i < 7; i++){
 				for(var x = 2; x < Items[Object.keys(Items)[i]].length; x++){
-					array.push(Items[Object.keys(Items)[i]][x]);
+					if(!Items[Object.keys(Items)[i]][x].uncollectable){
+						array.push(Items[Object.keys(Items)[i]][x]);
+					}
 				}
 			}
 		}else{
 			for(var x = 2; x < Items[Object.keys(Items)[category.value]].length; x++){
-				array.push(Items[Object.keys(Items)[category.value]][x]);
+				if(!Items[Object.keys(Items)[category.value]][x].uncollectable){
+					array.push(Items[Object.keys(Items)[category.value]][x]);
+				}
 			}
 		}
 		arrayLength = array.length;
@@ -160,7 +168,7 @@ function arrange(){
 			document.getElementById("stats"+i).innerHTML += replaceStat+": "+array[i].stats[Object.keys(array[i].stats)[a]]+"<br>";
 		}
 		if(array[i].set != undefined && array[i].set != ""){
-			document.getElementById("set"+i).innerHTML = "<br>Part of "+Items.sets[array[i].set].name;
+			document.getElementById("set"+i).innerHTML = "<br>Part of "+Items.set[array[i].set].name;
 		}
 		if(array[i].lore != undefined && array[i].lore != ""){
 			document.getElementById("lore"+i).innerHTML = "<br><i>"+array[i].lore+"</i>";
