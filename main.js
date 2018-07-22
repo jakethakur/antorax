@@ -1022,8 +1022,6 @@ Game.init = function () {
 		health: 50,
 	});
 	
-	Game.secondary.render();
-	
 	// detect player movement and interaction
     Keyboard.listenForEvents(
         [Keyboard.LEFT, Keyboard.RIGHT, Keyboard.UP, Keyboard.DOWN, Keyboard.SPACE]);
@@ -1046,6 +1044,7 @@ Game.init = function () {
 	this.statusInterval = setInterval(this.statusUpdate.bind(this), 1000);
 	
 	// begin game display
+	Game.secondary.render();
 	window.requestAnimationFrame(this.tick);
 };
 
@@ -1099,8 +1098,8 @@ Game.playMusic = function () {
 	// check the user has allowed music to play
 	if (document.getElementById("musicOn").checked) {
 		// check if the new area's music is already being played
-		if (this.playingMusic !== Areas[this.areaName][song + "-" + this.time]) {
-			this.loadMusic(Areas[this.areaName][song + "-" + this.time]);
+		if (this.playingMusic !== Areas[this.areaName]["song_" + this.time]) {
+			this.loadMusic(Areas[this.areaName]["song_" + this.time]);
 		}
 	}
 }
@@ -1699,9 +1698,9 @@ Game.secondary.render = function () {
 	this.ctx.clearRect(0, 0, 600, 600);
 	
 	// make canvas darker if it is night time
-	if (this.time === "night") {
+	if (Game.time === "night") {
 		this.ctx.fillStyle = "black";
-		this.ctx.globalAlpha = 0.3; // maybe change?
+		this.ctx.globalAlpha = 0.35; // maybe change?
 		this.ctx.fillRect(0, 0, 600, 600);
 	}
 	
