@@ -921,6 +921,15 @@ Game.loadArea = function (areaName, destination) {
 			}
 		}
 		
+		// characters (aesthetic only)
+		this.characters = [];
+		if(Areas[areaName].characters !== undefined) {
+			for(var i = 0; i < Areas[areaName].characters.length; i++) {
+				Areas[areaName].characters[i].map = map;
+				this.characters.push(new Villager(Areas[areaName].characters[i]));
+			}
+		}
+		
 		// quest npcs
 		this.questNPCs = [];
 		if(Areas[areaName].questNPCs !== undefined) { // check they exist in areadata.js
@@ -1014,7 +1023,7 @@ Game.init = function () {
 	this.playingMusic = null;
 	
 	// list of basic (no extra operations to be done) things to be rendered (in order)
-	this.renderList = ["villagers", "questNPCs", "merchants", "identifiers", "dummies", "enemies"];
+	this.renderList = ["characters", "villagers", "questNPCs", "merchants", "identifiers", "dummies", "enemies"];
 	// then player, then projectiles (in order they were shot)
 	
 	// create the player at its start x and y positions
