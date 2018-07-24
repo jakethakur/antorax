@@ -13,7 +13,8 @@
 	<div id="inventoryPage" hidden ondrop="Dom.inventory.dispose(event)" ondragover="Dom.inventory.allowDrop(event)">
 		<div id="itemInformation" hidden></div>
 		<div id="inventoryInformation" hidden></div>
-		<div class="goldDisplay" id="inventoryGoldXP"onmouseover="Dom.inventory.displayIdentification()"onmouseleave="Dom.expand('itemInformation')"></div>
+		<div id="inventoryGoldXP"></div>
+		<div id="displayStats" onmouseover="Dom.inventory.displayIdentification()"onmouseleave="Dom.expand('itemInformation')"></div>
 		<div id="weapon"onmouseover="Dom.inventory.displayInformation('184px',Player.inventory.weapon)"onmouseleave="Dom.expand('itemInformation')"ondrop="Dom.inventory.drop(event,'weapon')" ondragover="Dom.inventory.allowDrop(event)"><!--onclick="Dom.inventory.changeEquipment(Player.inventory.weapon,'weapon')"--></div>
 		<div id="helm"onmouseover="Dom.inventory.displayInformation('294px',Player.inventory.helm)"onmouseleave="Dom.expand('itemInformation')"ondrop="Dom.inventory.drop(event,'helm')" ondragover="Dom.inventory.allowDrop(event)"><!--onclick="Dom.inventory.changeEquipment(Player.inventory.helm,'helm')"--></div>
 		<div id="chest"onmouseover="Dom.inventory.displayInformation('364px',Player.inventory.chest)"onmouseleave="Dom.expand('itemInformation')"ondrop="Dom.inventory.drop(event,'chest')" ondragover="Dom.inventory.allowDrop(event)"><!--onclick="Dom.inventory.changeEquipment(Player.inventory.chest,'chest')"--></div>
@@ -47,9 +48,9 @@
 		<div id="allQuests"onclick="Dom.expand('allQuestBox')">All Quests</div>
 		<div id="allQuestBox"hidden></div>
 	</div>
-	<div id="instructionsPage">
+	<div id="instructionsPage" hidden>
 		<center><br><a href="./archaeology.html" target="_blank">Archaeology</a>
-		<br><br><a href="./selection.html" target="_blank">Class Selection</a>
+		<br><br><a href="./selection.html">Class Selection</a>
 		<br><br><a href="./development/builder.html" target="_blank">Item builder and identifications</a></center>
 	</div>
 	<div id="reputationPage" hidden> <!-- this should all be added via dom not html --> Eaglecrest Logging Camp:
@@ -129,7 +130,7 @@
 		<div id="questFinishGold"></div><span id="goldClass">&nbsp;&nbsp;</span>
 		<div id="questFinishXP"></div><span id="xpClass">&nbsp;&nbsp;</span>
 		<div id="questFinishItems"></div>
-		<center><div id="acceptReward" class="closeClass" onclick="Dom.quest.acceptRewards()">Complete Quest</div></center>
+		<center><div id="acceptReward" class="closeClass" onclick="Dom.quest.acceptRewards();Game.getXP();">Complete Quest</div></center>
 	</div>
 	<div id="merchantPage" hidden>
 		<div id="informationMerchant" hidden></div>
@@ -137,7 +138,6 @@
 		<p id="merchantPageChat"></p><br><br>
 		<p id="merchantPageOptions"></p>
 		<p id="merchantPageBuy"></p>
-		<div class="goldDisplay"></div>
 		<p id="merchantPageBreak"></p><br><br>
 		<center><div id="close" class="closeClass" onclick="Dom.changeBook(Dom.previous, true)">Close</div></center>
 	</div>
@@ -148,7 +148,6 @@
 		<div id="leftArrow" class="triangleLeft"></div>
 		<center><div id="identifierPageOption"></div></center>
 		<div id="rightArrow" class="triangleRight"></div><br><br>
-		<div class="goldDisplay" id="identifierPageGold"></div>
 		<div id="identifierPageBuy"></div><br><br><br><br>
 		<center><div id="identifierPageClose" class="closeClass" onclick="Dom.changeBook(Dom.previous, true)">Close</div></center>
 	</div>
@@ -158,6 +157,8 @@
 		<p id="identifiedPageChat"></p><br><br><br>
 		<center><div id="identifiedPageOption"></div><br><br>
 		<div id="identifiedPageBack" class="closeClass">Back</div></center>
+	</div>
+	<div id="levelUpPage">
 	</div>
 	<div id="chatImage"onclick="Dom.changeBook('chatPage', false)"></div>
 	<span id="dot" onclick="Dom.changeBook('chatPage', false)" hidden></span>

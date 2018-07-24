@@ -101,13 +101,7 @@ document.getElementById("random").onclick = function(){
 
 document.getElementById("play").onclick = function(){
 	if(document.getElementById("name").value.length > 2){
-		if(selected == "a"){
-			sessionStorage.setItem("class","archer");
-		}else if(selected == "m"){
-			sessionStorage.setItem("class","mage");
-		}else{
-			sessionStorage.setItem("class","knight");
-		}
+		sessionStorage.setItem("class",selected);
 		sessionStorage.setItem("gender",gender);
 		sessionStorage.setItem("skin",gender);
 		sessionStorage.setItem("username",document.getElementById("name").value);

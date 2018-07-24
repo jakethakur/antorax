@@ -1622,7 +1622,7 @@ Game.drawHealthBar = function (ctx, character, x, y, width, height) {
 	
 	// health bar border
 	ctx.strokeStyle = "black";
-	for (let i = 0; i < character.stats.maxHealth / barValue - 1; i++) {
+	for (let i = 0; i < character.stats.maxHealth / barValue; i++) {
 		ctx.strokeRect(x + barValue / character.stats.maxHealth * width * i, y, barValue / character.stats.maxHealth * width, height);
 	}
 	ctx.strokeRect(x + barValue / character.stats.maxHealth * Math.round(character.stats.maxHealth / barValue), y, width, height); // tbd - comes a bit fainter - idk why
@@ -1773,6 +1773,16 @@ Game.render = function () {
 		this.displayAreaName.duration--;
 	}
 };
+
+Game.getXP = function () {
+	if(Player.xp >= LevelXP[Player.level]){
+		Player.xp -= LevelXP[Player.level];
+		Player.level++;
+		Game.playLevelupSound(this.areaName);
+		Dom.levelUp.page();
+	}
+	Game.secondary.render();
+}
 
 // render secondary canvas (contains anything that does not need to be continuously redrawn)
 Game.secondary.render = function () {

@@ -7,7 +7,7 @@ body{
 	-ms-user-select: none; /* IE10+/Edge */
 	user-select: none;
 }
-#chatPage, #inventoryPage, #questsPage, #settingsPage, #instructionsPage, #reputationPage, #questStart, #questFinish, #merchantPage, #identifierPage, #identifiedPage {
+#chatPage, #inventoryPage, #questsPage, #settingsPage, #instructionsPage, #reputationPage, #questStart, #questFinish, #merchantPage, #identifierPage, #levelUpPage, #identifiedPage {
 	float: left;
 	margin: 10px;
 	border: 1px solid black;
@@ -144,7 +144,19 @@ body{
 	margin-top: 50px;
 }
 #inventoryGoldXP{
-	margin-top: 10px;
+	position: relative;
+	bottom: 3px;
+	right: 20px;
+	width: 80px;
+	height: 60px;
+	background-size: 80px;
+	background-repeat: no-repeat;
+}
+#displayStats{
+	position: absolute;
+	top: 60px;
+	width: 60px;
+	height: 60px;
 }
 #itemInventory, #hotbar{
 	position: absolute;

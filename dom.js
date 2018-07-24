@@ -12,6 +12,7 @@ var Dom = { // DOM function arrays
 		merchantPage: document.getElementById("merchantPage"), // shortens references to the merchantPage to "merchantPage"
 		identifierPage: document.getElementById("identifierPage"), // shortens references to the identifierPage to "identifierPage"
 		identifiedPage: document.getElementById("identifiedPage"), // shortens references to the identifiedPage to "identifiedPage"
+		levelUpPage: document.getElementById("levelUpPage"), // shortens references to the levelUpPage to "levelUpPage"
 	},
 	chat: {}, // variables to do with the chat are defined as Dom.chat.varName
 	inventory: {}, // variables to do with inventory are defined as Dom.inventory.varName
@@ -23,6 +24,7 @@ var Dom = { // DOM function arrays
 	quest: {}, // variables to do with quest are defined as Dom.quest.varName
 	merchant: {}, // variables to do with merchant are defined as Dom.merchant.varName
 	identifier: {}, // variables to do with identifier are defined as Dom.identifier.varName
+	levelUp: {}, // variables to do with levelUp are defined as Dom.levelUp.varName
 };
 
 /*var Stats = { // variables to do with stats are defined as Stats.varName
@@ -66,7 +68,8 @@ Dom.changeBook = function(page, override, x) { // changes the page or changes th
 		this.elements.questFinish.hidden = true; // hides the questFinish pop up
 		this.elements.merchantPage.hidden = true; // hides the merchant pop up
 		this.elements.identifierPage.hidden = true; // hides the identifier pop up
-		this.elements.identifiedPage.hidden = true; // hides the identified item pop up
+		this.elements.identifiedPage.hidden = true; // hides the identified pop up
+		this.elements.levelUpPage.hidden = true; // hides the levelUp pop up
 		document.getElementById(page).hidden = false; // displays the page you are opening
 		if(page == "chatPage"){ // if the chat is being opened
 			if(Dom.chat.newString == ""){ // if there is no new chat
@@ -347,41 +350,41 @@ Dom.reputation.downLevel = function(Area){ // decreases the reputation level
 
 Dom.inventory.displayIdentification = function(){ // display inventory information
 	document.getElementById("itemInformation").hidden = false; // ...display information
-	document.getElementById("itemInformation").style.top = "74px"; // sets information's top value to the value specified in the parameter
+	document.getElementById("itemInformation").style.top = "61px"; // sets information's top value to the value specified in the parameter
 	document.getElementById("itemInformation").innerHTML = "<div class='triangleLeft'></div><div id='triangle' class='innerTriangleLeft'></div><p id='innerStats'></p>"; // construct the information
 	document.getElementById("innerStats").innerHTML += "<strong>Level: " + Player.level + "</strong>"; // updates the level display
 	document.getElementById("innerStats").innerHTML += "<br><strong>XP: " + 100*Player.xp/LevelXP[Player.level] + "%</strong>"; // updates the xp display
-	document.getElementById("innerStats").innerHTML += "<br><br>Damage: " + Player.stats.Damage; // updates the damage display
-	document.getElementById("innerStats").innerHTML += "<br>Defence: " + Player.stats.Defence; // updates the defence display
-	document.getElementById("innerStats").innerHTML += "<br>Critical Chance: " + Player.stats.Critical_Chance + "%"; // updates the critical chance display
-	document.getElementById("innerStats").innerHTML += "<br>Dodge Chance: " + Player.stats.Dodge_Chance + "%"; // updates the dodge chance display
-	if(Player.stats.Flaming > 0){
+	document.getElementById("innerStats").innerHTML += "<br><br>Damage: " + Player.stats.damage; // updates the damage display
+	document.getElementById("innerStats").innerHTML += "<br>Defence: " + Player.stats.defence; // updates the defence display
+	document.getElementById("innerStats").innerHTML += "<br>Critical Chance: " + Player.stats.criticalChance + "%"; // updates the critical chance display
+	document.getElementById("innerStats").innerHTML += "<br>Dodge Chance: " + Player.stats.dodgeChance + "%"; // updates the dodge chance display
+	if(Player.stats.flaming > 0){
 		document.getElementById("innerStats").innerHTML += "<br>Flaming "
-		for(var i = 0; i < Player.stats.Flaming; i++){
+		for(var i = 0; i < Player.stats.flaming; i++){
 			document.getElementById("innerStats").innerHTML += "I"; // updates the flaming display
 		}
 	}
-	document.getElementById("innerStats").innerHTML += "<br>Focus Speed: " + Player.stats.Focus_Speed; // updates the focus speed display
-	document.getElementById("innerStats").innerHTML += "<br>Health Regen: " + Player.stats.Health_Regen + "/s"; // updates the health regen display
-	document.getElementById("innerStats").innerHTML += "<br>Looting: " + Player.stats.Looting + "%"; // updates the looting display
-	if(Player.stats.PoisonX != 0 && Player.stats.PosionY != 0){
-		document.getElementById("innerStats").innerHTML += "<br>Poison: " + Player.stats.PoisonX + "/" + Player.stats.PoisonY + "s"; // updates the poison display
+	document.getElementById("innerStats").innerHTML += "<br>Focus Speed: " + Player.stats.focusSpeed; // updates the focus speed display
+	document.getElementById("innerStats").innerHTML += "<br>Health Regen: " + Player.stats.healthRegen + "/s"; // updates the health regen display
+	document.getElementById("innerStats").innerHTML += "<br>Looting: " + Player.stats.looting + "%"; // updates the looting display
+	if(Player.stats.poisonX != 0 && Player.stats.posionY != 0){
+		document.getElementById("innerStats").innerHTML += "<br>Poison: " + Player.stats.poisonX + "/" + Player.stats.poisonY + "s"; // updates the poison display
 	}
-	if(Player.stats.Reflection != 0){
-		document.getElementById("innerStats").innerHTML += "<br>Reflection: " + Player.stats.Reflection + "%"; // updates the reflection display
+	if(Player.stats.reflection != 0){
+		document.getElementById("innerStats").innerHTML += "<br>Reflection: " + Player.stats.reflection + "%"; // updates the reflection display
 	}
-	if(Player.stats.Stun != 0){
-		document.getElementById("innerStats").innerHTML += "<br>Stun: " + Player.stats.Stun + "s"; // updates the stun display
+	if(Player.stats.stun != 0){
+		document.getElementById("innerStats").innerHTML += "<br>Stun: " + Player.stats.stun + "s"; // updates the stun display
 	}
-	document.getElementById("innerStats").innerHTML += "<br>Swim Speed: " + Player.stats.Swim_Speed + "/s"; // updates the swim speed display
-	document.getElementById("innerStats").innerHTML += "<br>Walk Speed: " + Player.stats.Walk_Speed + "/s"; // updates the walk speed display
+	document.getElementById("innerStats").innerHTML += "<br>Swim Speed: " + Player.stats.swimSpeed + "/s"; // updates the swim speed display
+	document.getElementById("innerStats").innerHTML += "<br>Walk Speed: " + Player.stats.walkSpeed + "/s"; // updates the walk speed display
 	
-	if(Player.statusEffects.length != 0){
+	/*if(Player.statusEffects.length != 0){
 		document.getElementById("innerStats").innerHTML += "<br><br>Status Effects: "; // adds status effects
 		for(var i = 0; i < Player.statusEffects.length; i++){
 			document.getElementById("innerStats").innerHTML += "<br>" + Player.statusEffects[i].title + ": " + Player.statusEffects[i].effect; // updates the walk speed display
 		}
-	}
+	}*/
 	
 	document.getElementById("triangle").style.bottom = document.getElementById("itemInformation").offsetHeight - 50 + "px"; // position the triangle in the correct place
 }
@@ -676,19 +679,7 @@ Dom.quest.finish = function(quest){ // display quest finish page
 			Dom.expand("questFinishInformation"); // ...stops displaying the information for that item
 		};
 	}
-	Dom.inventory.give(Items.currency[0],quest.rewards.gold);
-	Player.xp += quest.rewards.xp // gives the player the xp reward
-	//Dom.inventory.updateGold(); // updates the gold and xp display
-	for(var i = 0; i < quest.rewards.items.length; i++){ // repeats for all item rewards
-		Dom.inventory.give(quest.rewards.items[i]); // gives the player the reward
-	}
-	Dom.currentlyDisplayed = quest; // sets the currently displayed variable to the quest
-	if(quest.rewards.reputation != undefined) { // reputation rewards
-		for(var i = 0; i < Object.keys(quest.rewards.reputation).length; i++) { // repeats for all reputation rewards
-			Player.reputation[Object.keys(quest.rewards.reputation)[i]].score += quest.rewards.reputation[Object.keys(quest.rewards.reputation)[i]]; // gives the player the reputation reward
-		}
-	}
-	Dom.reputation.update(); // updates the reputation display
+	Dom.quest.waitForReward = quest;
 }
 
 Dom.quest.accept = function(){ // quest accepted
@@ -700,6 +691,19 @@ Dom.quest.accept = function(){ // quest accepted
 }
 
 Dom.quest.acceptRewards = function(){ // quest rewards accepted
+	var quest = Dom.quest.waitForReward;
+	Dom.inventory.give(Items.currency[0],quest.rewards.gold);
+	Player.xp += quest.rewards.xp // gives the player the xp reward
+	for(var i = 0; i < quest.rewards.items.length; i++){ // repeats for all item rewards
+		Dom.inventory.give(quest.rewards.items[i]); // gives the player the reward
+	}
+	Dom.currentlyDisplayed = quest; // sets the currently displayed variable to the quest
+	if(quest.rewards.reputation != undefined) { // reputation rewards
+		for(var i = 0; i < Object.keys(quest.rewards.reputation).length; i++) { // repeats for all reputation rewards
+			Player.reputation[Object.keys(quest.rewards.reputation)[i]].score += quest.rewards.reputation[Object.keys(quest.rewards.reputation)[i]]; // gives the player the reputation reward
+		}
+	}
+	Dom.reputation.update(); // updates the reputation display
 	for(var i = 0; i < Dom.quests.activeQuestArray.length; i++){ // repeats for all active quests
 		if(Dom.quests.activeQuestArray[i] == Dom.currentlyDisplayed.quest){ // if this is the quest you just finished...
 			Dom.quests.activeQuestArray.splice(i,1); // ...remove it from the active quest array...
@@ -844,7 +848,6 @@ Dom.identifier.page = function(chat, chat1, chat2, chat3, chat4, over){ // ident
 		document.getElementById("identifierPageOption").onmouseleave = function(){ // when the player stops hovering over the item...
 			Dom.expand("identifierInformation"); // ...it stops displaying the information
 		}
-		document.getElementById("identifierPageGold").style.visibility = "visible"; // shows the gold display...
 		document.getElementById("identifierPageBuy").style.visibility = "visible"; // shows the buy button...
 		document.getElementById("identifierPageBuy").onclick = function(){ // when the player clicks identify...
 			Dom.identifier.identify(chat,chat1,chat2,chat3, chat4); // ...it calls the identify function (below)
@@ -864,7 +867,6 @@ Dom.identifier.page = function(chat, chat1, chat2, chat3, chat4, over){ // ident
 		document.getElementById("identifierPageChat").innerHTML = chat4;
 		document.getElementById("identifierPageOption").innerHTML = "";
 		document.getElementById("identifierPageBuy").style.visibility = "hidden";
-		document.getElementById("identifierPageGold").style.visibility = "hidden";
 		document.getElementById("leftArrow").style.top = "-1000px";
 		document.getElementById("rightArrow").style.top = "-1000px";
 	}
@@ -1245,8 +1247,8 @@ Dom.inventory.removeEquipment = function(array){ // removes the stats of an item
 				Player.stats[Object.keys(array[0].stats)[i]] -= parseInt(array[0].stats[Object.keys(array[0].stats)[i]]); // minuses that stat from the player's stats
 			}else{
 				var split = array[0].stats.Poison.split('/');
-				Player.stats.PoisonX -= parseInt(split[0]);
-				Player.stats.PoisonY -= parseInt(split[1]);
+				Player.stats.poisonX -= parseInt(split[0]);
+				Player.stats.poisonY -= parseInt(split[1]);
 			}
 		}
 	}
@@ -1272,8 +1274,8 @@ Dom.inventory.addEquipment = function(array){ // adds the stats of an item to th
 				Player.stats[Object.keys(array[0].stats)[i]] += parseInt(array[0].stats[Object.keys(array[0].stats)[i]]); // minuses that stat from the player's stats
 			}else{
 				var split = array[0].stats.Poison.split('/');
-				Player.stats.PoisonX += parseInt(split[0]);
-				Player.stats.PoisonY += parseInt(split[1]);
+				Player.stats.poisonX += parseInt(split[0]);
+				Player.stats.poisonY += parseInt(split[1]);
 			}
 		}
 	}
@@ -1306,7 +1308,12 @@ Dom.inventory.check = function(ID, type, num){
 	return(completed);
 }
 
+document.getElementById("inventoryGoldXP").style.backgroundImage = 'url("./assets/class-select/'+Player.class+Player.gender+'f.png")';
 document.getElementById("settingLogout").innerHTML = "You are logged in as "+Player.name+"<div id='settingLogoutInner'>Logout</div>";
 document.getElementById("settingLogoutInner").onclick = function(){
 	window.location.replace("./selection.html");
+}
+
+Dom.levelUp.page = function(){
+	
 }
