@@ -24,7 +24,7 @@ var Quests = {
 				
 				// true or falses for each objective (apart from the turn-in objective)
 				
-				completed.push(Dom.inventory.check());
+				completed.push(Dom.inventory.check(2,"sword") || Dom.inventory.check(2,"staff") || Dom.inventory.check(2,"bow"));
 				
 				var finished = true;
 				for(var i = 0; i < completed.length; i++) {
@@ -59,7 +59,6 @@ var Quests = {
 				for(var i = 0; i < 3; i++){
 					Dom.inventory.give(Items.currency[0]);
 				}
-				Dom.inventory.updateGold();
 			},
 		},
 		
