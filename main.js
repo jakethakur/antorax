@@ -305,9 +305,10 @@ Game.searchFor = function (id, array) {
 }
 
 //
-// Classes
+// Base Classes (sole role is inheritance)
 //
 
+// an unseen object - takes up space but can't be seen
 class Entity {
 	constructor(properties) {
 		this.map = properties.map;
@@ -330,6 +331,81 @@ class Entity {
 	}
 }
 
+// a version of entity that can be seen
+class Thing extends Entity {
+	constructor(properties) {
+		super(properties);
+
+		this.image = Loader.getImage(properties.image);
+	}
+}
+
+// a version of thing that can be damaged (but can't deal damage)
+class Character extends Thing {
+	constructor(properties) {
+		super(properties);
+		
+		this.name = properties.name;
+		
+		this.health = properties.health;
+		this.speed = properties.stats.walkSpeed;
+
+		// stats
+		this.stats = {};
+		this.stats.defence = properties.stats.defence;
+		this.stats.maxHealth = properties.stats.maxHealth;
+		this.stats.healthRegen = properties.stats.healthRegen;
+		this.stats.walkSpeed = properties.stats.walkSpeed;
+		this.stats.swimSpeed = properties.stats.swimSpeed;
+		
+		// optional stats
+		// using || defaults to second value if first is undefined, 0 or ""
+		this.stats.dodgeChange = properties.stats.dodgeChance || 0;
+		this.stats.reflection = properties.stats.reflection || 0;
+		
+		if (properties.direction !== undefined) {
+			this.direction = 0;
+		}
+		else {
+			this.direction = properties.direction;
+		}
+		
+		this.statusEffects = [];
+	}
+}
+
+// a version of character that can deal damage
+class Attacker extends Character {
+	constructor(properties) {
+		super(properties);
+		
+		// stats
+		if (this.stats === undefined) {
+			this.stats = {};
+		}
+		this.stats.damage = properties.stats.damage;
+		this.stats.range = properties.stats.range;
+		this.stats.reloadTime = properties.stats.reloadTime; // time in ms to attack again
+		
+		// optional stats
+		// using || defaults to second value if first is undefined, 0 or ""
+		this.stats.criticalChance = properties.stats.criticalChance || 0;
+		this.stats.flaming = properties.stats.flaming || 0;
+		this.stats.poisonX = properties.stats.poisonX || 0;
+		this.stats.poisonY = properties.stats.poisonY || 0;
+		this.stats.stun = properties.stats.stun || 0;
+		
+		// information about projectile
+		this.projectile = properties.projectile; // should contain projectile width, height, adjust x and y, image
+	//  ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^ ???
+	}
+}
+
+//
+// Proper Classes (used in-game; ordered from lowest-level to highest-level)
+//
+
+// hidden teleport from one area to another
 class AreaTeleport extends Entity {
 	constructor(properties) {
 		super(properties);
@@ -340,28 +416,23 @@ class AreaTeleport extends Entity {
 	}
 }
 
-class Character extends Entity {
-	constructor(properties) {
-		super(properties);
-
-		this.image = Loader.getImage(properties.image);
-	}
-}
-
-class Hero extends Character {
+// player - similar to Player global variable in saveData.js, but only contains necessary information (also has some cool functions)
+class Hero extends Attacker {
 	constructor(properties) {
 		super(properties);
 		//this.baseSpeed = properties.baseSpeed;
-		//this.waterSpeed = properties.waterSpeed;
-		this.speed = Stats.Walk_Speed;
-		this.direction = properties.direction;
+		//this.waterSpeed = properties.waterSpeed;=
 		
+		// perhaps condense the following with enemy's canAttack?
 		this.channelTime = 0;
 		this.channelling = false;
 		
-		this.statusEffects = [];
-		this.maxHealth = properties.health;
-		this.health = properties.health;
+		// stats
+		this.stats.looting = properties.stats.looting;
+		
+		// optional stats
+		// using || defaults to second value if first is undefined, 0 or ""
+		this.stats.focusSpeed = properties.stats.focusSpeed || 0; // the user's total focus speed default is 1 but can be changed by bows
 	}
 	
 	move(delta, dirx, diry) {
@@ -401,15 +472,15 @@ class Hero extends Character {
 		// test for water
 		// make this controlled by a status effect instead maybe?
 		if (this.map.isWaterAtXY(this.x, this.y + 50)) { // in water
-			if(this.speed === Stats.Walk_Speed) {
-				this.speed = Stats.Swim_Speed;
+			if(this.speed === this.stats.walkSpeed) {
+				this.speed = this.stats.swimSpeed;
 				if(!this.statusEffects.includes({title: "Swimming", effect: "Reduced movement speed",})) { // maybe just make a function to add a status effect? ( tbd )
 					this.statusEffects.push(new statusEffect({title: "Swimming", effect: "Reduced movement speed",}));
 				}
 			}
 		}
 		else { // normal speed
-			this.speed = Stats.Walk_Speed;
+			this.speed = this.stats.walkSpeed;
 			// remove swimming status effect
 			for(var i = 0; i < this.statusEffects.length; i++){
 				if(this.statusEffects[i].title == "Swimming"){
@@ -444,7 +515,7 @@ class Hero extends Character {
 	
 	// start channeling basic attack
 	startAttack(e) {
-		if (Stats.Damage > 0) {
+		if (this.stats.damage > 0) {
 			this.channelling = true;
 			
 			var projectileX, projectileY, projectileRotate;
@@ -493,7 +564,8 @@ class Hero extends Character {
 	}
 }
 
-class Projectile extends Character {
+// any projectile
+class Projectile extends Thing {
 	constructor(properties) {
 		super(properties);
 		
@@ -522,26 +594,26 @@ class Projectile extends Character {
 				Game.updateScreenPosition(this);
 				if (this.isTouching(to[i][x])) {
 					// damage
-					if (random(0, 100) < Stats.Critical_Chance) { // critical hit
-						to[i][x].health -= Stats.Damage * 2;
-						to[i][x].damageTaken += Stats.Damage * 2;
-						this.damageDealt.push({enemy: to[i][x], damage: Stats.Damage * 2, critical: true});
+					if (random(0, 100) < this.stats.criticalChance) { // critical hit
+						to[i][x].health -= this.stats.damage * 2;
+						to[i][x].damageTaken += this.stats.damage * 2;
+						this.damageDealt.push({enemy: to[i][x], damage: this.stats.damage * 2, critical: true});
 					}
 					else {
-						to[i][x].health -= Stats.Damage;
-						to[i][x].damageTaken += Stats.Damage; // tbd give ALL characters a health and damage taken
-						this.damageDealt.push({enemy: to[i][x], damage: Stats.Damage, critical: false});
+						to[i][x].health -= this.stats.damage;
+						to[i][x].damageTaken += this.stats.damage; // tbd give ALL characters a health and damage taken
+						this.damageDealt.push({enemy: to[i][x], damage: this.stats.damage, critical: false});
 					}
 					
 					// poison
-					if (Stats.PoisonX > 0 && Stats.PoisonY > 0) { // check player weapon has poison
+					if (this.stats.poisonX > 0 && this.stats.poisonY > 0) { // check player weapon has poison
 						// remember poison damage (so the player cannot change their weapon)
 						to[i][x].statusEffects.push(new statusEffect({
 							title: "Poisoned",
-							effect: "Take " + Stats.PoisonX + " damage over " + Stats.PoisonY + " seconds.",
+							effect: "Take " + this.stats.poisonX + " damage over " + this.stats.poisonY + " seconds.",
 							info: {
-								poisonDamage: Stats.PoisonX,
-								poisonTime: Stats.PoisonY,
+								poisonDamage: this.stats.poisonX,
+								poisonTime: this.stats.poisonY,
 								poisonTicks: 0, // increased by 1 every tick
 							},
 							idNumber: x,
@@ -571,11 +643,8 @@ class Projectile extends Character {
 	}
 }
 
-//
-// NPC classes
-//
-
-class QuestNPC extends Character {
+// quest NPC (to be merged with merchant)
+class QuestNPC extends Thing { // to be changed to character
 	constructor(properties) {
 		super(properties);
 		this.quests = properties.quests; // quest object address, to be read from questdata.js file
@@ -586,7 +655,8 @@ class QuestNPC extends Character {
 	}
 }
 
-class Merchant extends Character {
+// merchant (to be merged with quest NPC)
+class Merchant extends Thing { // to be changed to character
 	constructor(properties) {
 		super(properties);
 		this.name = properties.name;
@@ -600,7 +670,9 @@ class Merchant extends Character {
 	}
 }
 
-class Villager extends Character {
+// person that just moves around and does nothing of use (to be what merchant/quest NPC inherit off)
+// currently doesn't move properly
+class Villager extends Thing { // to be changed to character
 	constructor(properties) {
 		super(properties);
 		
@@ -690,20 +762,21 @@ class Villager extends Character {
 	}
 }
 
-class Dummy extends Character { // e.g: target dummey
+// training enemy; displays damage taken rather than health
+// e.g: target dummy
+class Dummy extends Character {
 	constructor(properties) {
 		super(properties);
 		
-		this.name = properties.name;
-		
 		this.damageTaken = 0; // dummies have damage taken instead of health
-		
-		this.statusEffects = [];
 	}
 	
 	// function to be carried out during Game.render()
 	renderFunction () {
-		// show damage taken
+		// calculate damage taken
+		this.damageTaken = this.stats.maxHealth - this.health
+		
+		// show damage taken above head
 		if (this.damageTaken > 0) {
 			// formatting
 			Game.ctx.fillStyle = "rgb(0, 0, 0)";
@@ -718,27 +791,16 @@ class Dummy extends Character { // e.g: target dummey
 	}
 }
 
-class Enemy extends Character {
+// moves and attacks in a hostile way...
+class Enemy extends Attacker {
 	constructor(properties) {
 		super(properties);
 		
-		this.name = properties.name;
-		
-		// combat traits
-		this.maxHealth = properties.health;
-		this.health = properties.health;
-		this.speed = properties.speed; // TBD - make enemy slower in water (give it separate walk speed and move speed)
-		this.range = properties.range;
-		this.reloadTime = properties.reloadTime; // time in ms to attack again
-		
+		// combat traits (specific to enemy)
 		this.leashRadius = properties.leashRadius; // how far away the player has to be for the enemy to ignore them
 		
-		// information about projectile
-		this.projectile = properties.projectile; // should contain projectile width, height, adjust x and y, image
-		
 		// for code later on
-		this.statusEffects = [];
-		this.canAttack = true;
+		this.canAttack = true; // perhaps condense with hero isChannelling?
 	}
 	
 	update() {
@@ -1018,14 +1080,25 @@ Game.init = function () {
 	
 	// create the player at its start x and y positions
 	this.hero = new Hero({
+		// properties inherited from Entity
 		map: map,
 		x: Areas[this.areaName].player.x,
 		y: Areas[this.areaName].player.y,
-		direction: 3,
 		width: 57,
 		height: 120,
+		
+		// properties inheritied from Thing
 		image: "hero",
-		health: 50,
+		
+		// properties inherited from Character
+		direction: 3,
+		health: Player.health,
+		name: Player.name,
+		
+		// properties inherited from Attacker
+		
+		// stats
+		stats: Player.stats,
 	});
 	
 	// set loaded status image
@@ -1519,8 +1592,8 @@ Game.drawHealthBar = function (ctx, character, x, y, width, height) {
 	ctx.globalAlpha = 0.6;
 	
 	// health variables
-	const barValue = Math.pow(10, (character.maxHealth.toString().length - 1)); // get width of each small health bar (in health)
-	character.healthFraction = character.health / character.maxHealth; // fraction of health remaining
+	const barValue = Math.pow(10, (character.stats.maxHealth.toString().length - 1)); // get width of each small health bar (in health)
+	character.healthFraction = character.health / character.stats.maxHealth; // fraction of health remaining
 	
 	// colour based on size of each bar
 	if (barValue === 1) {
@@ -1549,10 +1622,10 @@ Game.drawHealthBar = function (ctx, character, x, y, width, height) {
 	
 	// health bar border
 	ctx.strokeStyle = "black";
-	for (let i = 0; i < character.maxHealth / barValue - 1; i++) {
-		ctx.strokeRect(x + barValue / character.maxHealth * width * i, y, barValue / character.maxHealth * width, height);
+	for (let i = 0; i < character.stats.maxHealth / barValue - 1; i++) {
+		ctx.strokeRect(x + barValue / character.stats.maxHealth * width * i, y, barValue / character.stats.maxHealth * width, height);
 	}
-	ctx.strokeRect(x + barValue / character.maxHealth * Math.round(character.maxHealth / barValue), y, width, height); // tbd - comes a bit fainter - idk why
+	ctx.strokeRect(x + barValue / character.stats.maxHealth * Math.round(character.stats.maxHealth / barValue), y, width, height); // tbd - comes a bit fainter - idk why
 	
 	// restore previous canvas formatting preferences
 	ctx.globalAlpha = oldGlobalAlpha;
@@ -1752,15 +1825,18 @@ Game.secondary.render = function () {
 	this.ctx.fillText(Player.level, 292, 517);
 	
 	// status effects
-	for(var i = 0; i < Game.hero.statusEffects.length; i++){
+	for(var i = 0; i < Game.hero.statusEffects.length; i++) {
 		var iconNum = 0;
 		if(Game.hero.statusEffects[i].title == "Mud"){
 			iconNum = 1;
-		}else if(Game.hero.statusEffects[i].title == "Poison"){
+		}
+		else if(Game.hero.statusEffects[i].title == "Poison") {
 			iconNum = 2;
-		}else if(Game.hero.statusEffects[i].title == "Stun"){
+		}
+		else if(Game.hero.statusEffects[i].title == "Stun") {
 			iconNum = 3;
-		}else if(Game.hero.statusEffects[i].title == "Swimming"){
+		}
+		else if(Game.hero.statusEffects[i].title == "Swimming") {
 			iconNum = 4;
 		}
 		this.ctx.drawImage(Game.statusImage,0,27*iconNum,27,27,270 + i * 35, 10, 27, 27);
