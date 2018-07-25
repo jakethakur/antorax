@@ -1097,8 +1097,6 @@ Game.init = function () {
 		stats: Player.stats,
 	});
 	
-	console.log(this.hero);
-	
 	// set loaded status image
 	this.statusImage = Loader.getImage("status");
 	
@@ -1423,6 +1421,22 @@ Game.statusUpdate = function () {
 			//tbd
 		}
 	}
+}
+
+// called whenever player xp is changed
+Game.getXP = function () {
+	if(Player.xp >= LevelXP[Player.level]) {
+		Player.xp -= LevelXP[Player.level];
+		Player.level++;
+		Game.playLevelupSound(this.areaName);
+		Dom.levelUp.page();
+	}
+	Game.secondary.render();
+}
+
+// called whenever inventory is changed (in order to change player stats)
+Game.inventoryUpdate = function () {
+	// tbd
 }
 
 //
@@ -1771,16 +1785,6 @@ Game.render = function () {
 		this.displayAreaName.duration--;
 	}
 };
-
-Game.getXP = function () {
-	if(Player.xp >= LevelXP[Player.level]){
-		Player.xp -= LevelXP[Player.level];
-		Player.level++;
-		Game.playLevelupSound(this.areaName);
-		Dom.levelUp.page();
-	}
-	Game.secondary.render();
-}
 
 // render secondary canvas (contains anything that does not need to be continuously redrawn)
 Game.secondary.render = function () {
