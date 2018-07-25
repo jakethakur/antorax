@@ -253,6 +253,9 @@ var Areas = { // areas should have a capital (global variable)
 				height: 100,
 				image: "dummy",
 				name: "Target Dummy",
+				stats: {
+					maxHealth: 1000,
+				},
 			},
 		],
 		

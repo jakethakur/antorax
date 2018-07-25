@@ -348,27 +348,23 @@ class Character extends Thing {
 		this.name = properties.name;
 		
 		this.health = properties.health;
-		this.speed = properties.stats.walkSpeed;
+		this.speed = properties.stats.walkSpeed || 0;
 
 		// stats
 		this.stats = {};
-		this.stats.defence = properties.stats.defence;
 		this.stats.maxHealth = properties.stats.maxHealth;
-		this.stats.healthRegen = properties.stats.healthRegen;
-		this.stats.walkSpeed = properties.stats.walkSpeed;
-		this.stats.swimSpeed = properties.stats.swimSpeed;
+		// it is recommended that you pick a value for these, but not necessary
+		this.stats.defence = properties.stats.defence || 0;
+		this.stats.healthRegen = properties.stats.healthRegen || 0;
+		this.stats.walkSpeed = properties.stats.walkSpeed || 0;
+		this.stats.swimSpeed = properties.stats.swimSpeed || 0;
 		
 		// optional stats
 		// using || defaults to second value if first is undefined, 0 or ""
 		this.stats.dodgeChange = properties.stats.dodgeChance || 0;
 		this.stats.reflection = properties.stats.reflection || 0;
 		
-		if (properties.direction !== undefined) {
-			this.direction = 0;
-		}
-		else {
-			this.direction = properties.direction;
-		}
+		this.direction = properties.direction || 0;
 		
 		this.statusEffects = [];
 	}
@@ -1005,7 +1001,7 @@ Game.loadArea = function (areaName, destination) {
 		if(Areas[areaName].identifiers !== undefined) {
 			for(var i = 0; i < Areas[areaName].identifiers.length; i++) {
 				Areas[areaName].identifiers[i].map = map;
-				this.identifiers.push(new Character(Areas[areaName].identifiers[i]));
+				this.identifiers.push(new Thing(Areas[areaName].identifiers[i]));
 			}
 		}
 		
@@ -1100,6 +1096,8 @@ Game.init = function () {
 		// stats
 		stats: Player.stats,
 	});
+	
+	console.log(this.hero);
 	
 	// set loaded status image
 	this.statusImage = Loader.getImage("status");
@@ -1228,7 +1226,7 @@ Game.playLevelupSound = function (areaName) {
 			
 			default:
 				var levelUp = false;
-				console.error("No level up sound for current area - add it to the switch statement in Game.playLevelupSound");8
+				console.error("No level up sound for current area - add it to the switch statement in Game.playLevelupSound");
 			
 		}
 		
