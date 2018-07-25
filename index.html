@@ -48,7 +48,7 @@
 		<div id="allQuests"onclick="Dom.expand('allQuestBox')">All Quests</div>
 		<div id="allQuestBox"hidden></div>
 	</div>
-	<div id="instructionsPage" hidden>
+	<div id="instructionsPage">
 		<center><br><br><a href="./archaeology.html" target="_blank">Archaeology</a>
 		<br><br><a href="./development/builder.html" target="_blank">Item builder and identifications</a></center>
 	</div>
@@ -158,9 +158,11 @@
 		<center><div id="identifiedPageOption"></div><br><br>
 		<div id="identifiedPageBack" class="closeClass">Back</div></center>
 	</div>
-	<div id="levelUpPage">
-		<br><h1 id="levelUpPageTitle">Level Up!</h1><br>
-		<h1 id="levelUpPageLevel"></h1>
+	<div id="levelUpPage" hidden>
+		<p id="levelUpPageTitle">Level Up!</p>
+		<p id="levelUpPageLevel"></p>
+		<p id="levelUpPageUnlock"></p>
+		<center><div id="levelUpPageClose" class="closeClass" onclick="Dom.changeBook(Dom.previous, true)">Close</div></center>
 	</div>
 	<div id="chatImage"onclick="Dom.changeBook('chatPage', false)"></div>
 	<span id="dot" onclick="Dom.changeBook('chatPage', false)" hidden></span>

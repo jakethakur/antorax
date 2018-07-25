@@ -398,9 +398,24 @@ td{
 .stackNum{
 	position: relative;
     bottom: 22px;
-	left: 30px;
 	height: 20px;
-	width: 20px;
+	width: 47px;
 	font-size: 20px;
 	text-shadow: 1px 1px grey;
+	text-align: right;
+}
+#levelUpPageTitle{
+	position: relative;
+	bottom: 40px;
+	font-size: 70px;
+}
+#levelUpPageLevel{
+	position: relative;
+	font-size: 40px;
+	bottom: 80px;
+}
+#levelUpPageUnlock{
+	position: relative;
+	font-size: 20px;
+	bottom: 80px;
 }
