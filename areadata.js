@@ -132,11 +132,13 @@ var Areas = { // areas should have a capital (global variable)
 				width: 90,
 				height: 110,
 				image: "weaponsmith",
-				name: "Weaponsmith Clone",
-				speed: 1,
-				health: 355,
-				range: 200,
-				reloadTime: 1000,
+				name: "Evil Weaponsmith Clone",
+				stats: {
+					walkSpeed: 1,
+					maxHealth: 355,
+					range: 200,
+					reloadTime: 1000,
+				}
 				leashRadius: 500,
 				projectile: {
 					width: 10,
