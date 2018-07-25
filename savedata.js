@@ -48,8 +48,8 @@ var Player = {
 		items: [{},{},{},{},{},{}],
 	},
 	
+	// updated by DOM
 	stats: {
-		// TBD change to work in camelCase
 		damage: 0, // the user's total damage default is 0 but can be changed by weapons
 		defence: 0, // the user's total defence default is 0 but can be changed by armour
 		maxHealth: 50,
@@ -78,7 +78,9 @@ var Player = {
 	level: 1,
 	//gold: 0,
 	
-	health: 50, // should be set to whatever stats.Max_Health is set to
+	health: 50, // should be set to whatever stats.Max_Health is set to (but didn't work)
+	
+	statusEffects = [], // updated by saved data / main [function Game.hero.updateStatusEffects()]
 };
 
 LevelXP = [0,50,100,150,200,250];

@@ -414,7 +414,7 @@ class AreaTeleport extends Entity {
 
 // player - similar to Player global variable in saveData.js, but only contains necessary information (also has some cool functions)
 class Hero extends Attacker {
-	constructor(properties) {
+	constructor (properties) {
 		super(properties);
 		//this.baseSpeed = properties.baseSpeed;
 		//this.waterSpeed = properties.waterSpeed;=
@@ -431,7 +431,7 @@ class Hero extends Attacker {
 		this.stats.focusSpeed = properties.stats.focusSpeed || 0; // the user's total focus speed default is 1 but can be changed by bows
 	}
 	
-	move(delta, dirx, diry) {
+	move (delta, dirx, diry) {
 		// update speed (maybe doesn't have to be done every move tick?)
 		
 		// move hero
@@ -448,7 +448,7 @@ class Hero extends Attacker {
 		this.y = Math.max(0, Math.min(this.y, maxY));
 	}
 	
-	_collide(dirx, diry, delta) { // update move speed based on equipment and surroundings
+	_collide (dirx, diry, delta) { // update move speed based on equipment and surroundings
 		var row, col;
 		// there used to be a -1 in right and bottom is because image ranges from 0 to 59 and not up to 60
 		var left = this.x - this.width / 2;
@@ -466,12 +466,12 @@ class Hero extends Attacker {
 			this.map.isSolidTileAtXY(left, bottom);
 		
 		// test for water
-		// make this controlled by a status effect instead maybe?
 		if (this.map.isWaterAtXY(this.x, this.y + 50)) { // in water
 			if(this.speed === this.stats.walkSpeed) {
 				this.speed = this.stats.swimSpeed;
 				if(!this.statusEffects.includes({title: "Swimming", effect: "Reduced movement speed",})) { // maybe just make a function to add a status effect? ( tbd )
 					this.statusEffects.push(new statusEffect({title: "Swimming", effect: "Reduced movement speed",}));
+					this.updateStatusEffects();
 				}
 			}
 		}
@@ -483,6 +483,7 @@ class Hero extends Attacker {
 					this.statusEffects.splice(i,1);
 				}
 			}
+			this.updateStatusEffects();
 		}
 		
 		if (!collision) { return; }
@@ -510,7 +511,7 @@ class Hero extends Attacker {
 	}
 	
 	// start channeling basic attack
-	startAttack(e) {
+	startAttack (e) {
 		if (this.stats.damage > 0) {
 			this.channelling = true;
 			
@@ -540,7 +541,7 @@ class Hero extends Attacker {
 	}
 	
 	// fire basic attack
-	finishAttack(e) {
+	finishAttack (e) {
 		if (this.channelling) { // check that the player is channelling an attack (they might not have a weapon equipped so are not channelling, for example)
 			this.channelTime = 0;
 			this.channelling = false;
@@ -557,6 +558,10 @@ class Hero extends Attacker {
 			
 			this.channellingProjectileId = null;
 		}
+	}
+	
+	updateStatusEffects () {
+		Player.statusEffects = this.statusEffects;
 	}
 }
 
@@ -584,6 +589,7 @@ class Projectile extends Thing {
 	// deal damage to array of entities (to)
 	// to = array of arrays to deal damage to
 	// hence, if you want to damage a single target still put it in an array, e.g: dealDamage([[Game.hero]])
+	// BROKEN ONLY WORKS OFF PLAYER STATS TBD
 	dealDamage (to) {
 		for (var i = 0; i < to.length; i++) {
 			for (var x = 0; x < to[i].length; x++) {
@@ -629,6 +635,7 @@ class Projectile extends Thing {
 								}
 							},
 						}));
+						Game.hero.updateStatusEffects();
 					}
 					if (to[i][x] == Game.hero) { // re-render the second canvas if the hero has been damaged
 						Game.secondary.render();
