@@ -423,6 +423,9 @@ class Hero extends Attacker {
 		this.channelTime = 0;
 		this.channelling = false;
 		
+		// status effects override - mirror savedata.js' versions
+		this.statusEffects = Player.statusEffects;
+		
 		// stats
 		this.stats.looting = properties.stats.looting;
 		
@@ -560,8 +563,13 @@ class Hero extends Attacker {
 		}
 	}
 	
+	// called whenever Game.hero
 	updateStatusEffects () {
-		Player.statusEffects = this.statusEffects;
+		// update secondary canvas (status effects display on it)
+		Game.secondary.render();
+		
+		// update dom
+		Dom.inventory.updateIdentification();
 	}
 }
 
