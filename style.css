@@ -419,3 +419,38 @@ td{
 	font-size: 20px;
 	bottom: 80px;
 }
+#alert{
+	position: absolute;
+	width: 300px;
+	//height: 200px;
+	top: 100px;
+	left: 725px;
+	background-color: #eecc77;
+	border: 5px solid #886622;
+	font-size: 25px;
+	padding: 20px;
+	padding-bottom: 10px;
+	z-index: 3;
+	text-align: center;
+}
+#alertYes, #alertNo{
+	position: relative;
+	width: 100px;
+	height: 50px;
+	background-color: #fef9b4;
+	border: 5px solid #886622;
+	display: inline-block;
+	right: 15px;
+	bottom: 20px;
+	text-align: center;
+	vertical-align: middle;
+	line-height: 50px;
+}
+#alertNo{
+	right: 0px;
+}
+#alertText{
+	position: relative;
+	bottom: 25px;
+	font-size: 20px;
+}

@@ -9,6 +9,11 @@
 <body>
 	<canvas id="secondary" width="600" height="600"></canvas>
 	<canvas id="game" width="600" height="600"></canvas>
+	<div id="alert" hidden>
+		<p id="alertText"></p>
+		<div id="alertYes">Yes</div>
+		<div id="alertNo">No</div>
+	</div>
 	<div id="chatPage" hidden></div>
 	<div id="inventoryPage" hidden ondrop="Dom.inventory.dispose(event)" ondragover="Dom.inventory.allowDrop(event)" onmouseup="Game.inventoryUpdate()">
 		<div id="itemInformation" hidden></div>

@@ -40,7 +40,6 @@ var Quests = {
 			
 			howToStart: "Speak to the Cart Driver.",
 			levelRequirement: 1,
-			//questRequirement: "address to quest here",
 			
 			rewards: {
 				gold: 5,
@@ -96,7 +95,7 @@ var Quests = {
 			
 			howToStart: "Speak to <strong>Marshall Teper</strong> at the Eaglecrest Logging Camp.",
 			levelRequirement: 1,
-			questRequirement: "quests.eaglecrestLoggingCamp[0]", // doesn't work - tbd
+			questRequirement: "To the Logging Camp", // doesn't work - tbd
 			
 			rewards: {
 				xp: 10,
@@ -119,6 +118,7 @@ var Quests = {
 			
 			howToStart: "Speak to Gregor Goldenbrew in the Treefeller's Tavern.",
 			levelRequirement: 1,
+			questRequirement: "To the Logging Camp", // doesn't work - tbd
 			
 			rewards: {
 				xp: 25,
@@ -166,7 +166,7 @@ var Quests = {
 			
 			howToStart: "Speak to <strong>Fisherman name</strong> at the Fisher's Valley.",
 			levelRequirement: 2,
-			questRequirement: "quests.eaglecrestLoggingCamp[2]", // doesn't work - tbd
+			questRequirement: "To the Logging Camp", // doesn't work - tbd
 			
 			rewards: {
 				xp: 50,
@@ -209,7 +209,7 @@ var Quests = {
 			
 			howToStart: "Speak to <strong>Fisherman name</strong> at the Fisher's Valley.",
 			levelRequirement: 2,
-			questRequirement: "quests.eaglecrestLoggingCamp[3]", // doesn't work - tbd
+			questRequirement: "Learning to Fish I", // doesn't work - tbd
 			
 			rewards: {
 				xp: 50,
@@ -251,7 +251,7 @@ var Quests = {
 			
 			howToStart: "Speak to <strong>Fisherman name</strong> at the Fisher's Valley.",
 			levelRequirement: 2,
-			questRequirement: "quests.eaglecrestLoggingCamp[4]", // doesn't work - tbd
+			questRequirement: "Learning to fish II", // doesn't work - tbd
 			
 			rewards: {
 				xp: 100,

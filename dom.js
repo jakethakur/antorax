@@ -25,6 +25,7 @@ var Dom = { // DOM function arrays
 	merchant: {}, // variables to do with merchant are defined as Dom.merchant.varName
 	identifier: {}, // variables to do with identifier are defined as Dom.identifier.varName
 	levelUp: {}, // variables to do with levelUp are defined as Dom.levelUp.varName
+	alert: {}, // variables to do with alert are defined as Dom.alert.varName
 };
 
 /*var Stats = { // variables to do with stats are defined as Stats.varName
@@ -348,8 +349,50 @@ Dom.reputation.downLevel = function(Area){ // decreases the reputation level
 	this.update(); // updates the reputation
 }
 
-Dom.inventory.displayIdentification = function(){ // display inventory information
-	document.getElementById("itemInformation").hidden = false; // ...display information
+Dom.inventory.displayIdentification = function(){
+	document.getElementById("itemInformation").hidden = false;
+	document.getElementById("itemInformation").style.top = "61px"; // sets information's top value to the value specified in the parameter
+	document.getElementById("itemInformation").innerHTML = "<div class='triangleLeft'></div><div id='triangle' class='innerTriangleLeft'></div><p id='innerStats'></p>"; // construct the information
+	document.getElementById("innerStats").innerHTML += "<strong>Level: " + Player.level + "</strong>"; // updates the level display
+	document.getElementById("innerStats").innerHTML += "<br><strong>XP: " + 100*Player.xp/LevelXP[Player.level] + "%</strong>"; // updates the xp display
+	document.getElementById("innerStats").innerHTML += "<br><br><strong>Stats:</strong>"; // updates the xp display
+	document.getElementById("innerStats").innerHTML += "<br>Damage: " + Player.stats.damage; // updates the damage display
+	document.getElementById("innerStats").innerHTML += "<br>Defence: " + Player.stats.defence; // updates the defence display
+	document.getElementById("innerStats").innerHTML += "<br>Critical Chance: " + Player.stats.criticalChance + "%"; // updates the critical chance display
+	document.getElementById("innerStats").innerHTML += "<br>Dodge Chance: " + Player.stats.dodgeChance + "%"; // updates the dodge chance display
+	if(Player.stats.flaming > 0){
+		document.getElementById("innerStats").innerHTML += "<br>Flaming "
+		for(var i = 0; i < Player.stats.flaming; i++){
+			document.getElementById("innerStats").innerHTML += "I"; // updates the flaming display
+		}
+	}
+	document.getElementById("innerStats").innerHTML += "<br>Focus Speed: " + Player.stats.focusSpeed; // updates the focus speed display
+	document.getElementById("innerStats").innerHTML += "<br>Health Regen: " + Player.stats.healthRegen + "/s"; // updates the health regen display
+	document.getElementById("innerStats").innerHTML += "<br>Looting: " + Player.stats.looting + "%"; // updates the looting display
+	if(Player.stats.poisonX != 0 && Player.stats.posionY != 0){
+		document.getElementById("innerStats").innerHTML += "<br>Poison: " + Player.stats.poisonX + "/" + Player.stats.poisonY + "s"; // updates the poison display
+	}
+	if(Player.stats.reflection != 0){
+		document.getElementById("innerStats").innerHTML += "<br>Reflection: " + Player.stats.reflection + "%"; // updates the reflection display
+	}
+	if(Player.stats.stun != 0){
+		document.getElementById("innerStats").innerHTML += "<br>Stun: " + Player.stats.stun + "s"; // updates the stun display
+	}
+	document.getElementById("innerStats").innerHTML += "<br>Swim Speed: " + Player.stats.swimSpeed + "/s"; // updates the swim speed display
+	document.getElementById("innerStats").innerHTML += "<br>Walk Speed: " + Player.stats.walkSpeed + "/s"; // updates the walk speed display
+	
+	if(Player.statusEffects.length != 0){
+		document.getElementById("innerStats").innerHTML += "<br><br><strong>Status Effects:</strong>"; // adds status effects
+		for(var i = 0; i < Player.statusEffects.length; i++){
+			document.getElementById("innerStats").innerHTML += "<br>" + Player.statusEffects[i].title + ": " + Player.statusEffects[i].effect; // updates the walk speed display
+		}
+	}
+	
+	document.getElementById("triangle").style.bottom = document.getElementById("itemInformation").offsetHeight - 50 + "px"; // position the triangle in the correct place
+}
+
+Dom.inventory.updateIdentification = function(){ // display inventory information
+	//document.getElementById("itemInformation").hidden = false; // ...display information
 	document.getElementById("itemInformation").style.top = "61px"; // sets information's top value to the value specified in the parameter
 	document.getElementById("itemInformation").innerHTML = "<div class='triangleLeft'></div><div id='triangle' class='innerTriangleLeft'></div><p id='innerStats'></p>"; // construct the information
 	document.getElementById("innerStats").innerHTML += "<strong>Level: " + Player.level + "</strong>"; // updates the level display
@@ -688,6 +731,7 @@ Dom.quest.accept = function(){ // quest accepted
 	if (Dom.currentlyDisplayed.onQuestStart != undefined) { // if there is a quest start function...
 		Dom.currentlyDisplayed.onQuestStart(); // ...do it
 	}
+	Dom.quests.possible();
 	Dom.changeBook(Dom.previous, true); // change page back to previous page
 }
 
@@ -717,14 +761,16 @@ Dom.quest.acceptRewards = function(){ // quest rewards accepted
 	}
 	Dom.changeBook(Dom.previous, true); // change back to previous page
 	Dom.quests.activeQuests(undefined); // update the active quest box
+	Dom.quests.possible(); // update the possible quest box
 }
 
 Dom.quests.activeQuestArray = []; // sets the active quest array to nothing
 Dom.quests.activeQuestUseArray = []; // sets the other active quest array to nothing
 Dom.quests.completedQuestArray = []; // sets the completed quest array to nothing
-Dom.quests.questNum = 0; // sets the quest number to 0
-Dom.quests.questString = ""; // sets the string version of the quest number to nothing
+Dom.quests.possibleQuestArray = []; // sets the possible quest array to nothing
 Dom.quests.activeQuests = function(quest){ // when a quest is started or ended...
+	Dom.quests.questNum = 0; // sets the quest number to 0
+	Dom.quests.questString = ""; // sets the string version of the quest number to nothing
 	if(quest != undefined){ // if a quest is started...
 		Dom.quests.activeQuestArray.push(quest.quest); // adds the quest name to the array of active quest names
 		Dom.quests.activeQuestUseArray.push(quest); // adds the quest to the array of active quests
@@ -753,21 +799,57 @@ Dom.quests.activeQuests = function(quest){ // when a quest is started or ended..
 	}
 }
 
-Dom.quests.completedQuestNum = 0; // sets the number of completed quests to 0
+Dom.quests.possible = function(){
+	Dom.quests.possibleQuestArray = [];
+	Dom.quests.possibleQuestNum = 18; // sets the box height...
+	Dom.quests.possibleQuestString = ""; // ...to one line
+	document.getElementById("possibleQuestBox").innerHTML = "";
+	document.getElementById("possibleQuestBox").style.textAlign = "left"; // write text in the centre
+	for(var i = 0; i < Object.keys(Quests).length; i++){ // repeats this code for each area
+		for(var x = 0; x < Quests[Object.keys(Quests)[i]].length; x++){ // repeats this code for each quest
+			if(!Dom.quests.completedQuestArray.includes(Quests[Object.keys(Quests)[i]][x].quest) && !Dom.quests.activeQuestArray.includes(Quests[Object.keys(Quests)[i]][x].quest) && Player.level >= Quests[Object.keys(Quests)[i]][x].levelRequirement && (Dom.quests.completedQuestArray.includes(Quests[Object.keys(Quests)[i]][x].questRequirement) || Quests[Object.keys(Quests)[i]][x].questRequirement == undefined)){
+				Dom.quests.possibleQuestArray.push(Quests[Object.keys(Quests)[i]][x].quest);
+				document.getElementById("possibleQuestBox").innerHTML += Quests[Object.keys(Quests)[i]][x].quest + "<br>"; // writes the name of the quest in the box
+				Dom.quests.possibleQuestNum += 18; // increases...
+				Dom.quests.possibleQuestString = JSON.stringify(Dom.quests.possibleQuestNum)+"px"; // ...height...
+				document.getElementById("possibleQuestBox").style.height = Dom.quests.possibleQuestString; // ...of the box
+			}
+		}
+	}
+	if(Dom.quests.possibleQuestArray.length == 0){ // if there are no possible quests
+		document.getElementById("possibleQuestBox").style.height = "40px"; // set the height to 40px
+		document.getElementById("possibleQuestBox").style.textAlign = "center"; // write text in the centre
+		document.getElementById("possibleQuestBox").innerText = "You have no active quests"; // write "you have no possible quests"
+	}
+}
+Dom.quests.possible();
+
+Dom.quests.completedQuestNum = 18; // sets the number of completed quests to 0
 Dom.quests.completedQuestString = ""; // sets the height of the box to 0
 Dom.quests.completed = function(quest){ // when a quest is completed...
 	Dom.changeBook(Dom.previous, true); // the completed quest page opens
 	Dom.quests.completedQuestArray.push(quest.quest); // the quest is added to the array of completed quests
 	document.getElementById("completedQuestBox").style.textAlign = "left"; // the text in the box is written from the left
-	if(Dom.quests.completedQuestNum == 0){ // if there are completed quests...
+	if(Dom.quests.completedQuestNum == 18){ // if there are completed quests...
 		document.getElementById("completedQuestBox").innerText = ""; // ...it sets the box to empty
 	}
 	document.getElementById("completedQuestBox").innerHTML += quest.quest + "<br>"; // adds the quests you just completed to the box
 	Dom.quests.completedQuestNum += 18; // increases the height...
-	Dom.quests.questString = JSON.stringify(Dom.quests.questNum+10)+"px"; // ...of the box...
-	document.getElementById("activeQuestBox").style.height = Dom.quests.questString; // ...by one line
-	if(Dom.quests.questNum < 50){ // if the box is too small...
-		document.getElementById("activeQuestBox").style.height = "40px"; // ...its height is set to 40px
+	Dom.quests.completedQuestString = JSON.stringify(Dom.quests.completedQuestNum)+"px"; // ...of the box...
+	document.getElementById("completedQuestBox").style.height = Dom.quests.completedQuestString; // ...by one line
+	if(Dom.quests.completedQuestNum < 50){ // if the box is too small...
+		document.getElementById("completedQuestBox").style.height = "40px"; // ...its height is set to 40px
+	}
+}
+
+Dom.quests.allQuestNum = 18; // sets the box height...
+Dom.quests.allQuestString = ""; // ...to one line
+for(var i = 0; i < Object.keys(Quests).length; i++){ // repeats this code for each area
+	for(var x = 0; x < Quests[Object.keys(Quests)[i]].length; x++){ // repeats this code for each quest
+		document.getElementById("allQuestBox").innerHTML += Quests[Object.keys(Quests)[i]][x].quest + "<br>"; // writes the name of the quest in the box
+		Dom.quests.allQuestNum += 18; // increases...
+		Dom.quests.allQuestString = JSON.stringify(Dom.quests.allQuestNum)+"px"; // ...height...
+		document.getElementById("allQuestBox").style.height = Dom.quests.allQuestString; // ...of the box
 	}
 }
 
@@ -918,17 +1000,6 @@ Dom.inventory.give = function(item,num){ // gives the player the item
 	Dom.hotbar.update();
 }
 
-Dom.quests.allQuestNum = 18; // sets the box height...
-Dom.quests.allQuestString = ""; // ...to one line
-for(var i = 0; i < Object.keys(Quests).length; i++){ // repeats this code for each area
-	for(var x = 0; x < Quests[Object.keys(Quests)[i]].length; x++){ // repeats this code for each quest
-		document.getElementById("allQuestBox").innerHTML += Quests[Object.keys(Quests)[i]][x].quest + "<br>"; // writes the name of the quest in the box
-		Dom.quests.allQuestNum += 18; // increases...
-		Dom.quests.allQuestString = JSON.stringify(Dom.quests.allQuestNum)+"px"; // ...height...
-		document.getElementById("allQuestBox").style.height = Dom.quests.allQuestString; // ...of the box
-	}
-}
-
 Dom.inventory.constructUnId = function(area,tier){
 		let tempUnId = new unId(area,tier);
 		Dom.inventory.give(tempUnId);
@@ -1015,27 +1086,34 @@ for(var i = 0; i < Player.inventory.items.length; i++){ // repeats the code for 
 }
 
 Dom.inventory.dispose = function(ev){
+	var remove = true;
+	for(var i = 6; i < Player.inventory.items.length; i++){
+		if(Object.keys(Player.inventory.items[i]).length != 0){
+			remove = false;
+		}
+	}
+	console.log(Object.assign({},ev.dataTransfer.getData("text")));
 	ev.preventDefault(); // allows the item to drop
 	if(ev.target.id == "inventoryPage" || ev.target.id == "inventoryGoldXP" || ev.target.id == "bagText"){
-		if(confirm("Are you sure you want to drop this item? It will be lost forever.")){
-			if(!isNaN(parseInt(ev.dataTransfer.getData("text")))){
-				Dom.inventory.remove(parseInt(ev.dataTransfer.getData("text"))); // removes the item
-			}else if(ev.dataTransfer.getData("text") == "weapon"){
+		Dom.alert.target = function(ev){
+			if(!isNaN(parseInt(ev[0]))){
+				Dom.inventory.remove(parseInt(ev[0])); // removes the item
+			}else if(ev[0] == "weapon"){
 				Dom.inventory.removeEquipment(Player.inventory.weapon);
 				Player.inventory.weapon.splice(0,1); // removes the weapon
 				Player.inventory.weapon.push({name: "",image: "",stats: {},},); // sets the weapon to no weapon
 				document.getElementById("weapon").innerHTML = ""; // deletes the image
-			}else if(ev.dataTransfer.getData("text") == "helm"){
+			}else if(ev[0] == "helm"){
 				Dom.inventory.removeEquipment(Player.inventory.helm);
 				Player.inventory.helm.splice(0,1); // removes the helm
 				Player.inventory.helm.push({name: "",image: "",stats: {},},); // sets the helm to no helm
 				document.getElementById("helm").innerHTML = ""; // deletes the image
-			}else if(ev.dataTransfer.getData("text") == "chest"){
+			}else if(ev[0] == "chest"){
 				Dom.inventory.removeEquipment(Player.inventory.chest);
 				Player.inventory.chest.splice(0,1); // removes the chest
 				Player.inventory.chest.push({name: "",image: "",stats: {},},); // sets the chest to no chest
 				document.getElementById("chest").innerHTML = ""; // deletes the image
-			}else if(ev.dataTransfer.getData("text") == "greaves"){
+			}else if(ev[0] == "greaves"){
 				Dom.inventory.removeEquipment(Player.inventory.greaves);
 				Player.inventory.greaves.splice(0,1); // removes the greaves
 				Player.inventory.greaves.push({name: "",image: "",stats: {},},); // sets the greaves to no greaves
@@ -1046,7 +1124,9 @@ Dom.inventory.dispose = function(ev){
 				Player.inventory.boots.push({name: "",image: "",stats: {},},); // sets the boots to no boots
 				document.getElementById("boots").innerHTML = ""; // deletes the image
 			}
-		}
+		};
+		Dom.alert.ev = Object.assign({},ev.dataTransfer.getData("text"));
+		Dom.alert.page("Are you sure you want to drop this item? It will be lost forever.",true);
 	}
 }
 
@@ -1090,11 +1170,10 @@ Dom.inventory.drop = function(ev,equip) { // when an item is dropped
     ev.preventDefault(); // allows the item to drop
 	var data = ev.dataTransfer.getData("text"); // sets the variable data to a set variable chosen when the item was picked up
 	var test = ""+ev.target+""; // checks if there is an item already there
-	console.log(ev.target.innerHTML);
 	if(equip == undefined){ // if the item is being moved to an inventory slot
 		if(data != "weapon" && data != "helm" && data != "chest" && data != "greaves" && data != "boots"){ // if the item is being moved from an inventory slot
 			var remove = true;
-			var removed = false;
+			//var removed = false;
 			for(var i = 6; i < Player.inventory.items.length; i++){
 				if(Object.keys(Player.inventory.items[i]).length != 0){
 					remove = false;
@@ -1124,16 +1203,19 @@ Dom.inventory.drop = function(ev,equip) { // when an item is dropped
 							}
 							Dom.inventory.update();
 						}
+						Player.inventory.items[data] = {}; // sets the slot you got the item from to empty
+						document.getElementById("itemInventory").getElementsByTagName("td")[data].innerHTML = ""; // removes the image from the old slot
 					}else if(document.getElementById("itemInventory").getElementsByTagName("td")[i] == ev.target){
-						removed = true;
+						//removed = true;
+						Dom.alert.page("Move some items to the bank or dispose of them before you can do that.");
 					}
 				}
-				if (removed){
+				/*if (removed){
 					alert("Move some items to the bank or dispose of them before you can do that");
 				}else{
 					Player.inventory.items[data] = {}; // sets the slot you got the item from to empty
 					document.getElementById("itemInventory").getElementsByTagName("td")[data].innerHTML = ""; // removes the image from the old slot
-				}
+				}*/
 			}else{ // if there is an item already there
 				for(var i = 0; i < Player.inventory.items.length; i++){ // repeats code fot all inventory slots
 					var str = document.getElementById("itemInventory").getElementsByTagName("td")[i].innerHTML;
@@ -1179,7 +1261,7 @@ Dom.inventory.drop = function(ev,equip) { // when an item is dropped
 						Player.inventory.items[data] = test; // sets the slot you got the item from to the item in the slot you are putting the item in
 						break;
 					}else if(str == ev.target.outerHTML || ev.target.outerHTML == str.substring(0,str.length-44) || ev.target.outerHTML == str.substring(0,str.length-45) || ev.target.outerHTML == str.substring(0,str.length-46) || ev.target.outerHTML == str.substring(0,str.length-47) || ev.target.outerHTML == str.substring(str.length-44) || ev.target.outerHTML == str.substring(str.length-45) || ev.target.outerHTML == str.substring(str.length-46) || ev.target.outerHTML == str.substring(str.length-47)){
-						alert("Move some items to the bank or dispose of them before you can do that");
+						Dom.alert.page("Move some items to the bank or dispose of them before you can do that");
 					}
 				}
 			}
@@ -1295,7 +1377,7 @@ Dom.inventory.check = function(ID, type, num){
 			break;
 		}
 	}
-	if(completed == false && num == undefined && ((Player.inventory.weapon[0].type == type && Player.inventory.weapon[0].id == ID) || (Player.inventory.helm[0].type == type && Player.inventory.helm[0].id == ID) || (Player.inventory.chest[0].type == type && Player.inventory.chest[0].id == ID) || (Player.inventory.greaves[0].type == type && Player.inventory.greaves[0].id == ID) || (Player.inventory.boots[0].type == type && Player.inventory.boots[0].id == ID))){
+	if(!completed && num == undefined && ((Player.inventory.weapon[0].type == type && Player.inventory.weapon[0].id == ID) || (Player.inventory.helm[0].type == type && Player.inventory.helm[0].id == ID) || (Player.inventory.chest[0].type == type && Player.inventory.chest[0].id == ID) || (Player.inventory.greaves[0].type == type && Player.inventory.greaves[0].id == ID) || (Player.inventory.boots[0].type == type && Player.inventory.boots[0].id == ID))){
 		completed = true;
 	}
 	return(completed);
@@ -1319,4 +1401,29 @@ Dom.levelUp.page = function(){
 			}
 		}
 	}
+	Dom.quests.possible();
+}
+
+Dom.alert.page = function(text,buttons){
+	document.getElementById("alert").hidden = false;
+	if(buttons){
+		document.getElementById("alertYes").style.display = "inline-block";
+		document.getElementById("alertNo").style.left = "15px";
+		document.getElementById("alertNo").innerHTML = "No";
+	}else{
+		document.getElementById("alertYes").style.display = "none";
+		document.getElementById("alertNo").style.left = "0px";
+		document.getElementById("alertNo").innerHTML = "OK";
+	}
+	document.getElementById("alertText").innerHTML = text;
+}
+
+document.getElementById("alertYes").onclick = function(){
+	console.log("yes");
+	Dom.alert.target(Dom.alert.ev);
+	document.getElementById("alert").hidden = true;
+}
+
+document.getElementById("alertNo").onclick = function(){
+	document.getElementById("alert").hidden = true;
 }
