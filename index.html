@@ -17,9 +17,10 @@
 	<div id="chatPage" hidden></div>
 	<div id="inventoryPage" hidden ondrop="Dom.inventory.dispose(event)" ondragover="Dom.inventory.allowDrop(event)" onmouseup="Game.inventoryUpdate()">
 		<div id="itemInformation" hidden></div>
+		<div id="itemIdentification" hidden></div>
 		<div id="inventoryInformation" hidden></div>
 		<div id="inventoryGoldXP"></div>
-		<div id="displayStats" onmouseover="Dom.inventory.displayIdentification()"onmouseleave="Dom.expand('itemInformation')"></div>
+		<div id="displayStats" onmouseover="Dom.inventory.displayIdentification()"onmouseleave="Dom.expand('itemIdentification')"></div>
 		<div id="weapon"onmouseover="Dom.inventory.displayInformation('184px',Player.inventory.weapon)"onmouseleave="Dom.expand('itemInformation')"ondrop="Dom.inventory.drop(event,'weapon')" ondragover="Dom.inventory.allowDrop(event)" onmouseup="Game.inventoryUpdate()"></div>
 		<div id="helm"onmouseover="Dom.inventory.displayInformation('294px',Player.inventory.helm)"onmouseleave="Dom.expand('itemInformation')"ondrop="Dom.inventory.drop(event,'helm')" ondragover="Dom.inventory.allowDrop(event)" onmouseup="Game.inventoryUpdate()"></div>
 		<div id="chest"onmouseover="Dom.inventory.displayInformation('364px',Player.inventory.chest)"onmouseleave="Dom.expand('itemInformation')"ondrop="Dom.inventory.drop(event,'chest')" ondragover="Dom.inventory.allowDrop(event)" onmouseup="Game.inventoryUpdate()"></div>

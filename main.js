@@ -1306,7 +1306,7 @@ Game.update = function (delta) {
 					if(this.hero.isTouching(this.questNPCs[i]) && document.getElementsByClassName("closeClass")[0].style.border != "5px solid red"){
 						Dom.changeBook("questsPage",false,0);
 						Dom.quests.override = true;
-					}else if(!this.hero.isTouching(this.questNPCs[i]) && document.getElementsByClassName("closeClass")[0].style.border == "5px solid red" && Dom.quests.override == true){
+					}else if(!this.hero.isTouching(this.questNPCs[i]) && document.getElementsByClassName("closeClass")[0].style.border == "5px solid red" && Dom.quests.override){
 						Dom.changeBook("questsPage",false,1);
 						Dom.quests.override = false;
 					}
@@ -1335,7 +1335,7 @@ Game.update = function (delta) {
 						Dom.changeBook("questsPage",false,0);
 						Dom.quest.override = true;
 					}
-					else if(!this.hero.isTouching(this.questNPCs[i]) && document.getElementsByClassName("closeClass")[0].style.border == "5px solid red" && Dom.quest.override == true) {
+					else if(!this.hero.isTouching(this.questNPCs[i]) && document.getElementsByClassName("closeClass")[0].style.border == "5px solid red" && Dom.quest.override) {
 						Dom.changeBook("questsPage",false,1);
 						Dom.quest.override = false;
 					}
@@ -1359,7 +1359,7 @@ Game.update = function (delta) {
 				Dom.changeBook("questsPage",false,0);
 				Dom.merchant.override = true;
 			}
-			else if (!this.hero.isTouching(this.merchants[i]) && document.getElementsByClassName("closeClass")[0].style.border == "5px solid red" && Dom.merchant.override == true) {
+			else if (!this.hero.isTouching(this.merchants[i]) && document.getElementsByClassName("closeClass")[0].style.border == "5px solid red" && Dom.merchant.override) {
 				Dom.changeBook("questsPage",false,1);
 				Dom.merchant.override = false;
 			}
@@ -1377,7 +1377,7 @@ Game.update = function (delta) {
 				Dom.changeBook("identifierPage",false,0);
 				Dom.identifier.override = true;
 			}
-			else if (!this.hero.isTouching(this.identifiers[i]) && document.getElementsByClassName("closeClass")[0].style.border == "5px solid red" && Dom.identifier.override == true) {
+			else if (!this.hero.isTouching(this.identifiers[i]) && document.getElementsByClassName("closeClass")[0].style.border == "5px solid red" && Dom.identifier.override) {
 				Dom.changeBook("identifierPage",false,1);
 				Dom.identifier.override = false;
 			}

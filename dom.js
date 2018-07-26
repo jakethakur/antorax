@@ -350,9 +350,9 @@ Dom.reputation.downLevel = function(Area){ // decreases the reputation level
 }
 
 Dom.inventory.displayIdentification = function(){
-	document.getElementById("itemInformation").hidden = false;
-	document.getElementById("itemInformation").style.top = "61px"; // sets information's top value to the value specified in the parameter
-	document.getElementById("itemInformation").innerHTML = "<div class='triangleLeft'></div><div id='triangle' class='innerTriangleLeft'></div><p id='innerStats'></p>"; // construct the information
+	document.getElementById("itemIdentification").hidden = false;
+	document.getElementById("itemIdentification").style.top = "61px"; // sets information's top value to the value specified in the parameter
+	document.getElementById("itemIdentification").innerHTML = "<div class='triangleLeft'></div><div id='idtriangle' class='innerTriangleLeft'></div><p id='innerStats'></p>"; // construct the information
 	document.getElementById("innerStats").innerHTML += "<strong>Level: " + Player.level + "</strong>"; // updates the level display
 	document.getElementById("innerStats").innerHTML += "<br><strong>XP: " + 100*Player.xp/LevelXP[Player.level] + "%</strong>"; // updates the xp display
 	document.getElementById("innerStats").innerHTML += "<br><br><strong>Stats:</strong>"; // updates the xp display
@@ -388,13 +388,12 @@ Dom.inventory.displayIdentification = function(){
 		}
 	}
 	
-	document.getElementById("triangle").style.bottom = document.getElementById("itemInformation").offsetHeight - 50 + "px"; // position the triangle in the correct place
+	document.getElementById("idtriangle").style.bottom = document.getElementById("itemIdentification").offsetHeight - 50 + "px"; // position the triangle in the correct place
 }
 
 Dom.inventory.updateIdentification = function(){ // display inventory information
-	//document.getElementById("itemInformation").hidden = false; // ...display information
-	document.getElementById("itemInformation").style.top = "61px"; // sets information's top value to the value specified in the parameter
-	document.getElementById("itemInformation").innerHTML = "<div class='triangleLeft'></div><div id='triangle' class='innerTriangleLeft'></div><p id='innerStats'></p>"; // construct the information
+	document.getElementById("itemIdentification").style.top = "61px"; // sets information's top value to the value specified in the parameter
+	document.getElementById("itemIdentification").innerHTML = "<div class='triangleLeft'></div><div id='idtriangle' class='innerTriangleLeft'></div><p id='innerStats'></p>"; // construct the information
 	document.getElementById("innerStats").innerHTML += "<strong>Level: " + Player.level + "</strong>"; // updates the level display
 	document.getElementById("innerStats").innerHTML += "<br><strong>XP: " + 100*Player.xp/LevelXP[Player.level] + "%</strong>"; // updates the xp display
 	document.getElementById("innerStats").innerHTML += "<br><br><strong>Stats:</strong>"; // updates the xp display
@@ -430,7 +429,7 @@ Dom.inventory.updateIdentification = function(){ // display inventory informatio
 		}
 	}
 	
-	document.getElementById("triangle").style.bottom = document.getElementById("itemInformation").offsetHeight - 50 + "px"; // position the triangle in the correct place
+	document.getElementById("idtriangle").style.bottom = document.getElementById("itemIdentification").offsetHeight - 50 + "px"; // position the triangle in the correct place
 }
 
 Dom.inventory.displayInformation = function(y,array){ // display inventory information
@@ -484,6 +483,9 @@ Dom.inventory.displayEquipmentInformation = function(num){
 		document.getElementById("inventoryInformation").style.top = 61+((Math.floor(num/6))*55)+"px"; // sets information's top value to the value specified in the parameter
 		document.getElementById("inventoryInformation").style.left = (865+55*num)-((Math.floor(num/6))*6*55)+"px"; // sets information's top value to the value specified in the parameter
 		document.getElementById("inventoryInformation").innerHTML = "<div class='triangleLeft'></div><div id='invTriangle' class='innerTriangleLeft'></div><p id='invName' style='font-weight: bold;'></p><p id='invStats'></p><p id='invSet'></p><p id='invLore'></p>"; // construct the information without the values
+		console.log(document.getElementById("inventoryInformation").getBoundingClientRect().left + document.getElementById("inventoryInformation").offsetWidth);
+		
+		
 		if(Player.inventory.items[num].name != undefined){
 			document.getElementById("invName").innerHTML = Player.inventory.items[num].name;
 			if(Player.inventory.items[num].rarity == "mythic"){ // if the item is a mythic...
@@ -1016,11 +1018,15 @@ function unId(area,tier){ // constructs an unidentified item when you kill an en
 	this.type = types[this.typeNum].toLowerCase(); // ...used to choose a random category (e.g. bow)
 	this.image = "assets/items/"+this.type+"/2.png"; // sets the item's image to the default for its category (e.g. basic bow)
 	this.rarityNum = Math.floor(Math.random()*25); // a random number between 0 and 25
+	console.log(this.rarityNum);
 	if(this.rarityNum < 18){ // 18/25 chance that the item is a...
-		this.rarity = "common"; // ...common
-	}else if(this.rarity < 24){ // 6/25 chance that the item is a...
+		console.log("yes");
+	this.rarity = "common"; // ...common
+	}else if(this.rarityNum < 24){ // 6/25 chance that the item is a...
+		console.log("no");
 		this.rarity = "unique"; // ...unique
 	}else{ // 1/25 chance that the item is a...
+		console.log("maybe");
 		this.rarity = "mythic"; // ...mythic
 	}
 	this.unidentified = true;
@@ -1092,9 +1098,9 @@ Dom.inventory.dispose = function(ev){
 			remove = false;
 		}
 	}
-	console.log(Object.assign({},ev.dataTransfer.getData("text")));
+	//console.log(Object.assign({},ev.dataTransfer.getData("text")));
 	ev.preventDefault(); // allows the item to drop
-	if(ev.target.id == "inventoryPage" || ev.target.id == "inventoryGoldXP" || ev.target.id == "bagText"){
+	if((ev.target.id == "inventoryPage" || ev.target.id == "displayStats" || ev.target.id == "bagText") && !(!remove && ev.dataTransfer.getData("text") == "5" && Player.inventory.items[5].type == "bag")){
 		Dom.alert.target = function(ev){
 			if(!isNaN(parseInt(ev[0]))){
 				Dom.inventory.remove(parseInt(ev[0])); // removes the item
@@ -1127,6 +1133,8 @@ Dom.inventory.dispose = function(ev){
 		};
 		Dom.alert.ev = Object.assign({},ev.dataTransfer.getData("text"));
 		Dom.alert.page("Are you sure you want to drop this item? It will be lost forever.",true);
+	}else if(ev.target.id == "inventoryPage" || ev.target.id == "displayStats" || ev.target.id == "bagText"){
+		Dom.alert.page("Move some items to the bank or dispose of them before you can do that.");
 	}
 }
 

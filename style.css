@@ -270,9 +270,9 @@ td{
 	display: inline-block;
 	margin-top: 25px;
 	width: 200px;
-	margin-left: 40px;
+	margin-left: 0px;
 }
-#itemInformation, #informationMerchant, #questInformation, #questFinishInformation, #identifierInformation, #identifiedInformation, #inventoryInformation{
+#itemInformation, #itemIdentification, #informationMerchant, #questInformation, #questFinishInformation, #identifierInformation, #identifiedInformation, #inventoryInformation{
 	position: absolute;
 	left: 765px;
 	width: 150px;
