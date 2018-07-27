@@ -179,9 +179,8 @@ var map = {
         var col = Math.floor(x / this.tsize);
         var row = Math.floor(y / this.tsize);
 
-        // tiles x and y are solid -- the rest are walkable
         // loop through all layers and return TRUE if any tile is solid
-        return this.layers.reduce(function (res, layer, index) {
+        return this.layers.reduce(function (res, layer, index) { // idk what res is TBD find out
             var tile = this.getTile(index, col, row);
 			var isSolid = false;
 			this.solidTiles.forEach( function(element) {
@@ -189,7 +188,6 @@ var map = {
 					isSolid = true;
 				}
 			} );
-            //var isSolid = tile === 4 || tile === 5 || tile === 6 || tile === 25 || tile === 36 || tile === 34;
             return res || isSolid;
         }.bind(this), false);
     },
@@ -205,20 +203,30 @@ var map = {
     getY: function (row) {
         return row * this.tsize;
     },
-	isWaterAtXY: function (x, y) {
+	isSlowTileAtXY: function (x, y) {
         var col = Math.floor(x / this.tsize);
         var row = Math.floor(y / this.tsize);
 
-        // check first layer only and return TRUE if any tile is water
+        // check first layer only and return TRUE if any tile is a slowing tile
         var tile = this.getTile(0, col, row);
-		var isWater = false;
-		this.waterTiles.forEach( function(element) {
-			if (tile === element) {
-				isWater = true;
-			}
-		} );
-        //var isWater = tile === 50 || tile === 51 || tile === 52;
-		return isWater;
+		var isSlow = null;
+		if (typeof this.waterTiles !== "undefined") { // check that this map contains waterTiles
+			this.waterTiles.forEach( function(element) {
+				if (tile === element) {
+					isSlow = "water";
+					return isSlow;
+				}
+			} );
+		}
+		if (typeof this.mudTiles !== "undefined") { // check that this map contains mudTiles
+			this.mudTiles.forEach( function(element) {
+				if (tile === element) {
+					isSlow = "mud";
+					return isSlow;
+				}
+			} );
+		}
+		return isSlow;
 	},
 };
 
@@ -468,8 +476,19 @@ class Hero extends Attacker {
 			this.map.isSolidTileAtXY(right, bottom) ||
 			this.map.isSolidTileAtXY(left, bottom);
 		
-		// test for water
-		if (this.map.isWaterAtXY(this.x, this.y + 50)) { // in water
+		// test for slow tiles (e.g: water, mud)
+		let slowTile = this.map.isSlowTileAtXY(this.x, this.y + 50);
+		if (slowTile === null) { // normal speed
+			this.speed = this.stats.walkSpeed;
+			// remove swimming/mud status effect
+			for(var i = 0; i < this.statusEffects.length; i++){
+				if(this.statusEffects[i].title == "Swimming" || this.statusEffects[i].title == "Stuck in the mud"){
+					this.statusEffects.splice(i,1);
+				}
+			}
+			this.updateStatusEffects();
+		}
+		else if (slowTile === "water") { // in water tile
 			if(this.speed === this.stats.walkSpeed) {
 				this.speed = this.stats.swimSpeed;
 				if(!this.statusEffects.includes({title: "Swimming", effect: "Reduced movement speed",})) { // maybe just make a function to add a status effect? ( tbd )
@@ -478,15 +497,18 @@ class Hero extends Attacker {
 				}
 			}
 		}
-		else { // normal speed
-			this.speed = this.stats.walkSpeed;
-			// remove swimming status effect
-			for(var i = 0; i < this.statusEffects.length; i++){
-				if(this.statusEffects[i].title == "Swimming"){
-					this.statusEffects.splice(i,1);
+		else if (slowTile === "mud") { // in mud tile
+			// currently mud goes the same speed as swimSpeed
+			if(this.speed === this.stats.walkSpeed) {
+				this.speed = this.stats.swimSpeed;
+				if(!this.statusEffects.includes({title: "Stuck in the mud", effect: "Reduced movement speed",})) {
+					this.statusEffects.push(new statusEffect({title: "Stuck in the mud", effect: "Reduced movement speed",}));
+					this.updateStatusEffects();
 				}
 			}
-			this.updateStatusEffects();
+		}
+		else {
+			console.error("Unknown slow tile: " + slowTile);
 		}
 		
 		if (!collision) { return; }
@@ -1854,7 +1876,7 @@ Game.secondary.render = function () {
 	// status effects
 	for(var i = 0; i < Game.hero.statusEffects.length; i++) {
 		var iconNum = 0;
-		if(Game.hero.statusEffects[i].title == "Mud"){
+		if(Game.hero.statusEffects[i].title == "Stuck in the mud"){
 			iconNum = 1;
 		}
 		else if(Game.hero.statusEffects[i].title == "Poison") {
