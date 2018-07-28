@@ -14,7 +14,6 @@ var Areas = { // areas should have a capital (global variable)
 			rows: 10,
 			tsize: 60,
 			tilesPerRow: 7, //tiles per tilemap row (important!)
-			solidTiles: [],
 			waterTiles: [24, 31, 38],
 			pathTiles: [2, 9, 16, 23, 30, 37, 44, 51, 58],
 			layers: [
@@ -290,7 +289,6 @@ var Areas = { // areas should have a capital (global variable)
 			tsize: 60,
 			tilesPerRow: 3,
 			solidTiles: [1],
-			waterTiles: [],
 			layers: [
 				[2, 3, 3, 3, 3, 3, 3, 3, 3, 3, 2, 2, 5, 3, 3, 3, 3, 3, 3, 3, 3, 3, 5, 5, 1, 1, 1, 1, 1, 1, 1, 1, 1, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 2, 3, 4, 7, 8, 4, 3, 3, 4, 7, 8, 4, 5, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 2, 3, 3, 3, 3, 3, 3, 4, 7, 8, 4, 3, 5, 2, 2, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 5, 5, 3, 3, 3, 3, 3, 3, 3, 3, 3],
 				[],

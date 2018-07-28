@@ -183,11 +183,13 @@ var map = {
         return this.layers.reduce(function (res, layer, index) { // idk what res is TBD find out
             var tile = this.getTile(index, col, row);
 			var isSolid = false;
-			this.solidTiles.forEach( function(element) {
-				if (tile === element) {
-					isSolid = true;
-				}
-			} );
+			if (typeof this.solidTiles !== "undefined") { // check that this map contains solidTiles
+				this.solidTiles.forEach( function(element) {
+					if (tile === element) {
+						isSolid = true;
+					}
+				} );
+			}
             return res || isSolid;
         }.bind(this), false);
     },
@@ -986,6 +988,12 @@ Game.loadArea = function (areaName, destination) {
 		this.areaName = areaName;
 		
 		// map
+		// there are some properties that some areaData areas don't have, so should be undefined rather than the old value
+		map.solidTiles = undefined;
+		map.waterTiles = undefined;
+		map.mudTiles = undefined;
+		map.pathTiles = undefined;
+		// now add all properties from areaData to the map variable
 		Object.assign(map, Areas[areaName].mapData);
 		
 		// set tileset
@@ -1866,7 +1874,7 @@ Game.secondary.render = function () {
 	this.ctx.strokeRect(totalLeft, totalTop, totalWidth-1, totalHeight);
 	this.ctx.strokeRect(totalLeft, totalTop, totalWidth-1, totalHeight);
 	
-	// level	
+	// level
 	this.ctx.font = "bold 30px MedievalSharp";
 	this.ctx.fillStyle = "lightGrey";
 	this.ctx.fillText(Player.level, 294, 519);	
