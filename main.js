@@ -539,7 +539,7 @@ class Hero extends Attacker {
 	
 	// start channeling basic attack
 	startAttack (e) {
-		if (this.stats.damage > 0) {
+		if (Player.inventory.weapon[0].name !== "") { // checks the player has no weapon
 			this.channelling = true;
 			
 			var projectileX, projectileY, projectileRotate;
@@ -574,7 +574,7 @@ class Hero extends Attacker {
 			this.channelling = false;
 			
 			// damage enemies that the projectile is touching
-			Game.projectiles[Game.searchFor(this.channellingProjectileId, Game.projectiles)].dealDamage([Game.enemies, Game.dummies,]);
+			Game.projectiles[Game.searchFor(this.channellingProjectileId, Game.projectiles)].dealDamage(this, [Game.enemies, Game.dummies,]);
 			
 			// after a timeout (2s), remove the projectile that was just shot
 			// this doesn't work if the user attacks too fast, though this shouldn't be a problem...
@@ -619,35 +619,35 @@ class Projectile extends Thing {
 	}
 	
 	// deal damage to array of entities (to)
-	// to = array of arrays to deal damage to
-	// hence, if you want to damage a single target still put it in an array, e.g: dealDamage([[Game.hero]])
-	// BROKEN ONLY WORKS OFF PLAYER STATS TBD
-	dealDamage (to) {
-		for (var i = 0; i < to.length; i++) {
-			for (var x = 0; x < to[i].length; x++) {
+	// attacker = whose stats to use when dealing damage
+	// to = array of arrays of objects to deal damage to
+	// hence, if you want to damage a single target still put it in an array, e.g: dealDamage(attacker, [[Game.hero]])
+	dealDamage (attacker, to) {
+		for (var i = 0; i < to.length; i++) { // iterate through arrays of objects in to
+			for (var x = 0; x < to[i].length; x++) { // iterate through objects in to
 				Game.updateScreenPosition(this);
 				if (this.isTouching(to[i][x])) {
 					// damage
-					if (random(0, 100) < this.stats.criticalChance) { // critical hit
-						to[i][x].health -= this.stats.damage * 2;
-						to[i][x].damageTaken += this.stats.damage * 2;
-						this.damageDealt.push({enemy: to[i][x], damage: this.stats.damage * 2, critical: true});
+					if (random(0, 100) < attacker.stats.criticalChance) { // critical hit
+						to[i][x].health -= attacker.stats.damage * 2;
+						to[i][x].damageTaken += attacker.stats.damage * 2;
+						this.damageDealt.push({enemy: to[i][x], damage: attacker.stats.damage * 2, critical: true});
 					}
 					else {
-						to[i][x].health -= this.stats.damage;
-						to[i][x].damageTaken += this.stats.damage; // tbd give ALL characters a health and damage taken
-						this.damageDealt.push({enemy: to[i][x], damage: this.stats.damage, critical: false});
+						to[i][x].health -= attacker.stats.damage;
+						to[i][x].damageTaken += attacker.stats.damage; // tbd give ALL characters a health and damage taken
+						this.damageDealt.push({enemy: to[i][x], damage: attacker.stats.damage, critical: false});
 					}
 					
 					// poison
-					if (this.stats.poisonX > 0 && this.stats.poisonY > 0) { // check player weapon has poison
+					if (attacker.stats.poisonX > 0 && attacker.stats.poisonY > 0) { // check player weapon has poison
 						// remember poison damage (so the player cannot change their weapon)
 						to[i][x].statusEffects.push(new statusEffect({
 							title: "Poisoned",
-							effect: "Take " + this.stats.poisonX + " damage over " + this.stats.poisonY + " seconds.",
+							effect: "Take " + attacker.stats.poisonX + " damage over " + attacker.stats.poisonY + " seconds.",
 							info: {
-								poisonDamage: this.stats.poisonX,
-								poisonTime: this.stats.poisonY,
+								poisonDamage: attacker.stats.poisonX,
+								poisonTime: attacker.stats.poisonY,
 								poisonTicks: 0, // increased by 1 every tick
 							},
 							idNumber: x,
@@ -891,7 +891,7 @@ class Enemy extends Attacker {
 		}));
 		
 		// damage allies that the projectile is touching
-		Game.projectiles[Game.searchFor(this.channellingProjectileId, Game.projectiles)].dealDamage([[Game.hero],]);
+		Game.projectiles[Game.searchFor(this.channellingProjectileId, Game.projectiles)].dealDamage([this, [Game.hero],]);
 		
 		// wait to shoot next projectile
 		setTimeout(function () {
@@ -1150,7 +1150,7 @@ Game.init = function () {
         [Keyboard.LEFT, Keyboard.RIGHT, Keyboard.UP, Keyboard.DOWN, Keyboard.SPACE]);
 		
 	// player attack on click
-	Game.secondary.canvas.addEventListener("mousedown", Game.hero.startAttack.bind(this.hero)); // tbd bug - not called
+	Game.secondary.canvas.addEventListener("mousedown", Game.hero.startAttack.bind(this.hero));
 	Game.secondary.canvas.addEventListener("mouseup", Game.hero.finishAttack.bind(this.hero));
 	
 	// camera
@@ -1349,6 +1349,7 @@ Game.update = function (delta) {
 				if (this.hero.isTouching(this.questNPCs[i]) && Dom.currentlyDisplayed === "" && Dom.quests.activeQuestArray.includes(this.questNPCs[i].quests[x].quest.quest) && !Dom.quests.completedQuestArray.includes(this.questNPCs[i].quests[x].quest.quest)) {
 					//check if quest conditions have been fulfilled
 					if(this.questNPCs[i].quests[x].quest.isCompleted()[this.questNPCs[i].quests[x].quest.objectives.length - 1]) {
+						console.log("finish");
 						Dom.quest.finish(this.questNPCs[i].quests[x].quest);
 					}
 					// quest conditions have not been fulfilled
@@ -1356,7 +1357,7 @@ Game.update = function (delta) {
 						Dom.chat.insert("<strong>" + this.questNPCs[i].name + ": " + "</strong>" + this.questNPCs[i].questProgressText, 100);
 					}
 				}
-				// quest has been completed
+				// quest has already been completed
 				else if (this.hero.isTouching(this.questNPCs[i]) && Dom.quests.completedQuestArray.includes(this.questNPCs[i].quests[x].quest.quest) && !Dom.chat.contents.includes("<strong>" + this.questNPCs[i].name + ": " + "</strong>" + this.questNPCs[i].questCompleteText)) {
 					Dom.chat.insert("<strong>" + this.questNPCs[i].name + ": " + "</strong>" + this.questNPCs[i].questCompleteText, 100);
 				}
@@ -1480,8 +1481,14 @@ Game.getXP = function () {
 }
 
 // called whenever inventory is changed (in order to change player stats)
-Game.inventoryUpdate = function () {
-	// tbd
+// this is called by index.html
+Game.inventoryUpdate = function (e) {
+	let data = e.dataTransfer.getData("text"); // sets the variable data to a set variable chosen when the item was picked up
+	for (let i = 0; i < Player.inventory.items.length; i++) { // repeats code for all inventory slots
+		if (document.getElementById("itemInventory").getElementsByTagName("td")[i] == e.target && i == parseInt(data)) { // if the item slot is where you are putting the item and where you picked the item up
+			Game.hero.stats = Player.stats;
+		}
+	}
 }
 
 //
@@ -1632,10 +1639,14 @@ Game.drawImageRotated = function (img, x, y, width, height, rad) {
     this.ctx.translate((x + width / 2) * (-1), (y + height / 2) * (-1));
 }
 
-// update entity's screen position (called every time it is rendered)
+// update entity's screen position (called every time it is rendered, and also in functions like dealDamage)
 Game.updateScreenPosition = function (entity) {
 	entity.screenX = (entity.x) - this.camera.x;
 	entity.screenY = (entity.y) - this.camera.y;
+	if (typeof entity.adjust !== "undefined") {
+		entity.screenX += entity.adjust.x;
+		entity.screenY += entity.adjust.y;
+	}
 }
 
 // draw a health bar (on given context, for given character, at given position, with given dimensions)
@@ -1768,8 +1779,6 @@ Game.render = function () {
     for(var i = 0; i < this.projectiles.length; i++) {
 		// set screen x and y
 		this.updateScreenPosition(this.projectiles[i]);
-		this.projectiles[i].screenX += this.projectiles[i].adjust.x;
-		this.projectiles[i].screenY += this.projectiles[i].adjust.y;
 		
 		this.drawImageRotated( // rotate projectile away from player
 			this.projectiles[i].image,
