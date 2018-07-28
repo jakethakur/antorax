@@ -1189,7 +1189,7 @@ Dom.inventory.drop = function(ev,equip) { // when an item is dropped
 			}
 			if(test[12] == "T" && ev.target.innerHTML == ""){ // if there is not an item already there
 				for(var i = 0; i < Player.inventory.items.length; i++){ // repeats code for all inventory slots
-					if(document.getElementById("itemInventory").getElementsByTagName("td")[i] == ev.target && ((i < 6 && remove && data == 5 && Player.inventory.items[data].type == "bag") || !(data == 5 && Player.inventory.items[data].type == "bag"))){ // if the item slot us where you are putting the item
+					if(document.getElementById("itemInventory").getElementsByTagName("td")[i] == ev.target && ((i < 6 && remove && data == 5 && Player.inventory.items[data].type == "bag") || !(data == 5 && Player.inventory.items[data].type == "bag"))){ // if the item slot is where you are putting the item
 						Player.inventory.items[i] = Player.inventory.items[data]; // sets the slot you are putting the item in to the item you are putting in it
 						document.getElementById("itemInventory").getElementsByTagName("td")[data].innerHTML = ""; // removes the image from the old slot
 						ev.target.innerHTML = "<img src='"+Player.inventory.items[data].image+"' draggable='true' ondragstart='Dom.inventory.drag(event,"+i+")'></img>"; // updates the image for the new slot
@@ -1400,7 +1400,7 @@ document.getElementById("settingLogoutInner").onclick = function(){
 Dom.levelUp.page = function(){
 	Dom.changeBook("levelUpPage");
 	Dom.currentlyDisplayed = "levelUp";
-	document.getElementById("levelUpPageLevel").innerHTML = Player.level-1 + " &#129094; " + Player.level;
+	document.getElementById("levelUpPageLevel").innerHTML = Player.level-1 + " &#10132; " + Player.level;
 	document.getElementById("levelUpPageUnlock").innerHTML = "<strong>Quests Unlocked:</strong>"
 	for(var i = 0; i < Object.keys(Quests).length; i++){
 		for(var x = 0; x < Quests[Object.keys(Quests)[i]].length; x++){
