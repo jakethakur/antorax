@@ -1483,12 +1483,24 @@ Game.getXP = function () {
 // called whenever inventory is changed (in order to change player stats)
 // this is called by index.html
 Game.inventoryUpdate = function (e) {
-	let data = e.dataTransfer.getData("text"); // sets the variable data to a set variable chosen when the item was picked up
-	for (let i = 0; i < Player.inventory.items.length; i++) { // repeats code for all inventory slots
-		if (document.getElementById("itemInventory").getElementsByTagName("td")[i] == e.target && i == parseInt(data)) { // if the item slot is where you are putting the item and where you picked the item up
+	//let data = e.dataTransfer.getData("text"); // sets the variable data to a set variable chosen when the item was picked up
+	console.log("no");
+	if(e == undefined){
+		Game.hero.stats = Player.stats;
+		console.log("yes");
+	}else{
+		console.log(e.dataTransfer.getData("text"));
+		if(isNaN(parseInt(e.dataTransfer.getData("text")))){
 			Game.hero.stats = Player.stats;
+			console.log("maybe");
 		}
 	}
+	//for (let i = 0; i < Player.inventory.items.length; i++) { // repeats code for all inventory slots
+		//if (document.getElementById("itemInventory").getElementsByTagName("td")[i] == e.target && i == parseInt(data)) { // if the item slot is where you are putting the item and where you picked the item up
+			//Game.hero.stats = Player.stats;
+			//console.log("yes");
+		//}
+	//}
 }
 
 //
