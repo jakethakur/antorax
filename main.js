@@ -358,6 +358,7 @@ class Character extends Thing {
 		this.name = properties.name;
 		
 		this.health = properties.health || properties.stats.maxHealth;
+		this.damageTaken = 0; // only used so far for Dummies
 		this.speed = properties.stats.walkSpeed || 0;
 
 		// stats
@@ -374,9 +375,39 @@ class Character extends Thing {
 		this.stats.dodgeChange = properties.stats.dodgeChance || 0;
 		this.stats.reflection = properties.stats.reflection || 0;
 		
+		this.chat = properties.chat || {}; // object containing properties that are inserted into chat when specific things happen
+		/* examples of chat properties:
+			firstDamaged - said when the character is damaged for the first time
+			fiftyPercentHealth - said when the character goes below 50% health for the first time
+			tenPercentHealth - said when the character goes below 10% health for the first time
+			//death - said when the character dies (unlimited times) TBD
+			more tbd
+			
+			use "/me " at the start of the chat to make the chat reflexive
+			e.g:	"Hi" => "Character: Hi"
+					"/me Hi" => "Character Hi"
+		*/
+		
 		this.direction = properties.direction || 0;
 		
 		this.statusEffects = [];
+	}
+	
+	// insert a message into the chat, under the format of "this.name: message"
+	// this.name is emboldened via <strong> tags
+	// if message begins with "/me " (including space), the format changes to "this.name message"
+	// if singleUse is true, and if Dom.chat.contents contains message, the message is not sent
+	say (message, singleUse, delay) {
+		if (message.substring(0, 4) === "/me ") { // reflexive message
+			if (!(singleUse && Dom.chat.contents.includes("<strong>" + this.name + "</strong> " + message))) { // check if message should be sent (due to singleUse)
+				Dom.chat.insert("<strong>" + this.name + "</strong> " + message, delay);
+			}
+		}
+		else {
+			if (!(singleUse && Dom.chat.contents.includes("<strong>" + this.name + "</strong>: " + message))) { // check if message should be sent (due to singleUse)
+				Dom.chat.insert("<strong>" + this.name + "</strong>: " + message, delay);
+			}
+		}
 	}
 }
 
@@ -446,9 +477,13 @@ class Hero extends Attacker {
 	
 	move (delta, dirx, diry) {
 		// update speed if the player has selected HIGH SPEED MODE in their settings (maybe doesn't have to be done every move tick? - TBD use onclick in main instead with status effect)
-		if(document.getElementById("speedOn").checked) {
+		if (document.getElementById("speedOn").checked) {
 			Player.stats.walkSpeed = 1000;
+			Player.stats.swimSpeed = 333;
 			Game.inventoryUpdate();
+		}
+		else {
+			// TBD undo ability
 		}
 		
 		// move hero
@@ -625,12 +660,14 @@ class Projectile extends Thing {
 	// deal damage to array of entities (to)
 	// attacker = whose stats to use when dealing damage
 	// to = array of arrays of objects to deal damage to
+	// make sure that attacker and to are at least Characters in the inheritance chain (not Entities or Things)
 	// hence, if you want to damage a single target still put it in an array, e.g: dealDamage(attacker, [[Game.hero]])
 	dealDamage (attacker, to) {
 		for (var i = 0; i < to.length; i++) { // iterate through arrays of objects in to
 			for (var x = 0; x < to[i].length; x++) { // iterate through objects in to
-				Game.updateScreenPosition(this);
-				if (this.isTouching(to[i][x])) {
+				Game.updateScreenPosition(this); // update projectile position
+				if (this.isTouching(to[i][x])) { // check projectile is touching character it wants to damage
+					
 					// damage
 					if (random(0, 100) < attacker.stats.criticalChance) { // critical hit
 						to[i][x].health -= attacker.stats.damage * 2;
@@ -673,8 +710,22 @@ class Projectile extends Thing {
 						}));
 						Game.hero.updateStatusEffects();
 					}
+					
 					if (to[i][x] == Game.hero) { // re-render the second canvas if the hero has been damaged
 						Game.secondary.render();
+					}
+					
+					// chat relating to being damaged (and dealing damage? TBD)
+					if (typeof to[i][x].chat !== "undefined") { // check the character has been given text to say about being damaged
+						if (to[i][x].health < to[i][x].stats.maxHealth && typeof to[i][x].chat.firstDamaged !== "undefined") { // first damaged chat message
+							to[i][x].say(to[i][x].chat.firstDamaged, true, 0);
+						}
+						else if (to[i][x].health < to[i][x].stats.maxHealth / 2 && typeof to[i][x].chat.fiftyPercentHealth !== "undefined") { // 50% health chat message
+							to[i][x].say(to[i][x].chat.fiftyPercentHealth, true, 0);
+						}
+						else if (to[i][x].health < to[i][x].stats.maxHealth / 10 && typeof to[i][x].chat.tenPercentHealth !== "undefined") { // 10% health chat message
+							to[i][x].say(to[i][x].chat.tenPercentHealth, true, 0);
+						}
 					}
 				}
 			}
@@ -806,15 +857,10 @@ class Villager extends Thing { // to be changed to character
 class Dummy extends Character {
 	constructor(properties) {
 		super(properties);
-		
-		this.damageTaken = 0; // dummies have damage taken used instead of their health (though they do still have health)
 	}
 	
 	// function to be carried out during Game.render()
 	renderFunction () {
-		// calculate damage taken
-		this.damageTaken = this.stats.maxHealth - this.health
-		
 		// show damage taken above head
 		if (this.damageTaken > 0) {
 			// formatting

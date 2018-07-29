@@ -267,7 +267,13 @@ var Areas = { // areas should have a capital (global variable)
 				image: "dummy",
 				name: "Target Dummy",
 				stats: {
-					maxHealth: 1000,
+					maxHealth: 10,
+				},
+				chat: {
+					firstDamaged: "creak!!!",
+					fiftyPercentHealth: "/me creaks",
+					tenPercentHealth: "/me creaks",
+					death: "/me crumbles into a heap of rubble",
 				},
 			},
 		],
