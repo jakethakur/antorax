@@ -445,7 +445,11 @@ class Hero extends Attacker {
 	}
 	
 	move (delta, dirx, diry) {
-		// update speed (maybe doesn't have to be done every move tick?)
+		// update speed if the player has selected HIGH SPEED MODE in their settings (maybe doesn't have to be done every move tick? - TBD use onclick in main instead with status effect)
+		if(document.getElementById("speedOn").checked) {
+			Player.stats.walkSpeed = 1000;
+			Game.inventoryUpdate();
+		}
 		
 		// move hero
 		this.x += dirx * this.speed * delta;
@@ -995,6 +999,26 @@ Game.loadArea = function (areaName, destination) {
 		map.pathTiles = undefined;
 		// now add all properties from areaData to the map variable
 		Object.assign(map, Areas[areaName].mapData);
+	
+		// set game time of day (day or night)
+		this.time = this.getTime();
+	
+		// if it is nighttime, change all daytime tiles to their nighttime versions
+		if (this.time === "night" && typeof Areas[areaName].mapData.nightTiles !== "undefined") {
+			if (Areas[areaName].mapData.nightTiles.length === Areas[areaName].mapData.dayTiles.length) {
+				for (let replaceIndex = 0; replaceIndex < Areas[areaName].mapData.nightTiles.length; replaceIndex++) { // iterate through tiles to replace
+					for (let tileIndex = 0; tileIndex < Areas[areaName].mapData.layers[0].length; tileIndex++) { // iterate through area's tiles to find those that need replacing
+						if (map.layers[0][tileIndex] == Areas[areaName].mapData.dayTiles[replaceIndex]) {
+							// tile needs replacing
+							map.layers[0][tileIndex] = Areas[areaName].mapData.nightTiles[replaceIndex];
+						}
+					}
+				}
+			}
+			else {
+				console.error("dayTiles and nightTiles should have the same length in areadata.js for area " + areaName + ", but do not");
+			}
+		}
 		
 		// set tileset
 		this.tileAtlas = Loader.getImage('tiles');
@@ -1156,9 +1180,6 @@ Game.init = function () {
 	// camera
     this.camera = new Camera(map, this.canvas.width, this.canvas.height);
     this.camera.follow(this.hero);
-	
-	// set game time of day
-	this.time = this.getTime();
 	
 	// check for in-game events
 	this.checkEvents();
