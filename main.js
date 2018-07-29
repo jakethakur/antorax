@@ -785,7 +785,7 @@ class Villager extends Thing { // to be changed to character
 	}
 	
 	// co-ordinate movement
-	update() {
+	update(delta) {
 		// check if the NPC's movement state needs to be reassigned
 		if (this.state === undefined) { // state has never been assigned
 			this.updateState(undefined);
@@ -799,7 +799,7 @@ class Villager extends Thing { // to be changed to character
 			}
 			
 			else { // move towards destination
-				this.move(); // tbd : make move by delta value (make delta global/higher scope?)
+				this.move(delta);
 			}
 			
 		}
@@ -847,14 +847,13 @@ class Villager extends Thing { // to be changed to character
 		}
 	}
 	
-	move() {
+	move (delta) {
 		this.bearing = bearing(this, {x: this.state.x, y: this.state.y}); // update bearing (maybe doesn't need to be done every tick?)
-		// tbd : multiply by delta
 		if (Math.round(this.x / 100) != Math.round(this.state.x / 100)) {
-			this.x += Math.cos(this.bearing) * this.speed;
+			this.x += Math.cos(this.bearing) * this.speed * delta;
 		}
 		if (Math.round(this.y / 100) != Math.round(this.state.y / 100)) {
-			this.y += Math.sin(this.bearing) * this.speed;
+			this.y += Math.sin(this.bearing) * this.speed * delta;
 		}
 	}
 }
@@ -895,7 +894,7 @@ class Enemy extends Attacker {
 		this.canAttack = true; // perhaps condense with hero isChannelling?
 	}
 	
-	update() {
+	update (delta) {
 		// perhaps condense into hostile and passive ai functions (that also apply to things like villagers)?
 		if (distance(this, Game.hero) < this.stats.range) { // enemy should attack hero
 			if (this.canAttack) { // projectile can be shot
@@ -906,17 +905,16 @@ class Enemy extends Attacker {
 			// passive movement within given (to be given...) boundaries...
 		}
 		else if (distance(this, Game.hero) < this.leashRadius && distance(this, Game.hero) > this.stats.range) { // enemy should move towards hero
-			this.move(Game.hero);
+			this.move(delta, Game.hero);
 		}
 		// add spell cast
 	}
 	
 	// move towards entity (towards parameter)
-	move (towards) {
+	move (delta, towards) {
 		this.bearing = bearing(this, towards); // update bearing (maybe doesn't need to be done every tick?)
-		// tbd : multiply by delta=
-		this.x += Math.cos(this.bearing) * this.speed;
-		this.y += Math.sin(this.bearing) * this.speed;
+		this.x += Math.cos(this.bearing) * this.speed * delta;
+		this.y += Math.sin(this.bearing) * this.speed * delta;
 	}
 	
 	// shoot projectile at array of enemies
@@ -1490,11 +1488,11 @@ Game.update = function (delta) {
 	
 	// update villagers
 	for(var i = 0; i < this.villagers.length; i++) {
-		this.villagers[i].update();
+		this.villagers[i].update(delta);
     }
 	// update enemies
 	for(var i = 0; i < this.enemies.length; i++) {
-		this.enemies[i].update();
+		this.enemies[i].update(delta);
     }
 	
 	// check collision with area teleports

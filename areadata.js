@@ -109,6 +109,7 @@ var Areas = { // areas should have a capital (global variable)
 		
 		villagers: [
 			/*{
+				// out of date
 				x: 200,
 				y: 200,
 				width: 90,
@@ -135,7 +136,7 @@ var Areas = { // areas should have a capital (global variable)
 				name: "Evil Weaponsmith Clone",
 				stats: {
 					damage: 5,
-					walkSpeed: 1,
+					walkSpeed: 180,
 					maxHealth: 355,
 					range: 200,
 					reloadTime: 1000,
@@ -435,9 +436,9 @@ var Areas = { // areas should have a capital (global variable)
 				name: "Goblin Rockthrower",
 				stats: {
 					damage: 2,
-					walkSpeed: 1,
+					walkSpeed: 160,
 					maxHealth: 14,
-					range: 300,
+					range: 200,
 					reloadTime: 2000,
 				},
 				leashRadius: 600,
