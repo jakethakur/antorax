@@ -16,9 +16,27 @@
 	</div>
 	<div id="chatPage" hidden></div>
 	<div id="inventoryPage" hidden ondrop="Dom.inventory.dispose(event)" ondragover="Dom.inventory.allowDrop(event)">
-		<div id="itemInformation" hidden></div>
-		<div id="itemIdentification" hidden></div>
-		<div id="inventoryInformation" hidden></div>
+		<div id="itemInformation" hidden>
+			<div class='triangleLeft'></div>
+			<div id='triangle' class='innerTriangleLeft'></div>
+			<p id='name'></p>
+			<p id='stats'></p>
+			<p id='set'></p>
+			<p id='lore'></p>
+		</div>
+		<div id="itemIdentification" hidden>
+			<div class='triangleLeft'></div>
+			<div id='idtriangle' class='innerTriangleLeft'></div>
+			<p id='innerStats'></p>
+		</div>
+		<div id="inventoryInformation" hidden>
+			<div class='triangleLeft'></div>
+			<div id='invTriangle' class='innerTriangleLeft'></div>
+			<p id='invName' style='font-weight: bold;'></p>
+			<p id='invStats'></p>
+			<p id='invSet'></p>
+			<p id='invLore'></p>
+		</div>
 		<div id="inventoryGoldXP"></div>
 		<div id="displayStats" onmouseover="Dom.inventory.displayIdentification()"onmouseleave="Dom.expand('itemIdentification')"></div>
 		<div id="weapon"onmouseover="Dom.inventory.displayInformation('184px',Player.inventory.weapon)"onmouseleave="Dom.expand('itemInformation')"ondrop="Dom.inventory.drop(event,'weapon');Game.inventoryUpdate()" ondragover="Dom.inventory.allowDrop(event)"></div>
@@ -67,59 +85,51 @@
 	</div>
 	<div id="settingsPage" hidden>
 		<div id="settingBookmark">
-			Bookmarks position:
-			&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
-			<input type="radio" id="bottom" name="bookmarksPosition" onclick="Dom.settings.bookmarkPosition()">Bottom
-			&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
-			<input type="radio" id="right" name="bookmarksPosition" onclick="Dom.settings.bookmarkPosition()">Right
+			<p style="display:inline;">Bookmarks position:</p>
+			<span class="radio1"><input type="radio" id="bottom" name="bookmarksPosition" onclick="Dom.settings.bookmarkPosition()">Bottom</input></span>
+			<span class="radio2"><input type="radio" id="right" name="bookmarksPosition" onclick="Dom.settings.bookmarkPosition()">Right</input></span>
 		</div>
 		<div id="settingMusic">
 			Play music:
-			&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
-			<input type="radio" id="musicOn" name="musicOnOff" onclick="Game.playMusic()">Yes
-			&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
-			<input type="radio" name="musicOnOff" checked="true" onclick="Game.stopMusic()">No
+			<span class="radio1"><input type="radio" id="musicOn" name="musicOnOff" onclick="Game.playMusic()">Yes</input></span>
+			<span class="radio2"><input type="radio" name="musicOnOff" checked="true" onclick="Game.stopMusic()">No</input></span>
 		</div>
 		<div id="settingCoords">
 			Show co-ordinates:
-			&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
-			<input type="radio" id="coordsOn" name="coordsOnOff">Yes
-			&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
-			<input type="radio" name="coordsOnOff" checked="true">No
+			<span class="radio1"><input type="radio" id="coordsOn" name="coordsOnOff">Yes</input></span>
+			<span class="radio2"><input type="radio" name="coordsOnOff" checked="true">No</input></span>
 		</div>
 		<div id="settingFps">
 			Show FPS:
-			&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
-			<input type="radio" id="fpsOn" name="fpsOnOff">Yes
-			&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
-			<input type="radio" name="fpsOnOff" checked="true">No
+			<span class="radio1"><input type="radio" id="fpsOn" name="fpsOnOff">Yes</input></span>
+			<span class="radio2"><input type="radio" name="fpsOnOff" checked="true">No</input></span>
 		</div>
 		<div id="settingHitboxes">
 			Show hitboxes:
-			&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
-			<input type="radio" id="hitboxesOn" name="hitboxOnOff">Yes
-			&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
-			<input type="radio" name="hitboxOnOff" checked="true">No
+			<span class="radio1"><input type="radio" id="hitboxesOn" name="hitboxOnOff">Yes</input></span>
+			<span class="radio2"><input type="radio" name="hitboxOnOff" checked="true">No</input></span>
 		</div>
 		<div id="settingGrid">
 			Show grid:
-			&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
-			<input type="radio" id="gridOn" name="gridOnOff">Yes
-			&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
-			<input type="radio" name="gridOnOff" checked="true">No
+			<span class="radio1"><input type="radio" id="gridOn" name="gridOnOff">Yes</input></span>
+			<span class="radio2"><input type="radio" name="gridOnOff" checked="true">No</input></span>
 		</div>
 		<div id="settingGrid">
 			HIGH SPEED:
-			&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
-			<input type="radio" id="speedOn" name="speedOnOff">Whee!
-			&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
-			<input type="radio" name="speedOnOff" checked="true">No
+			<span class="radio1"><input type="radio" id="speedOn" name="speedOnOff">Whee!</input></span>
+			<span class="radio2"><input type="radio" name="speedOnOff" checked="true">No</input></span>
 		</div>
 		<div id="settingLogout">
 		</div>
 	</div>
 	<div id="questStart" hidden>
-		<div id="questInformation" hidden></div>
+		<div id="questInformation" hidden>
+			<div class='triangleLeft'></div>
+			<div id='questTriangle' class='innerTriangleLeft'></div>
+			<p id='questName'></p>
+			<p id='questStats'></p>
+			<p id='questLore'></p>
+		</div>
 		<br><h1 id="questStartQuest"></h1><br><br>
 		<b id="questStartName"></b><br>
 		<p id="questStartChat"></p><br><br>
@@ -134,7 +144,13 @@
 		<div id="decline" class="closeClass" onclick="Dom.changeBook(Dom.previous, true)">Decline</div>
 	</div>
 	<div id="questFinish" hidden>
-		<div id="questFinishInformation" hidden></div>
+		<div id="questFinishInformation" hidden>
+			<div class='triangleLeft'></div>
+			<div id='finishTriangle' class='innerTriangleLeft'></div>
+			<p id='finishName'></p>
+			<p id='finishStats'></p>
+			<p id='finishLore'></p>
+		</div>
 		<br><h1 id="questFinishQuest"></h1><br><br>
 		<b id="questFinishName"></b><br>
 		<p id="questFinishChat"></p><br><br>
@@ -146,7 +162,13 @@
 		<center><div id="acceptReward" class="closeClass" onclick="Dom.quest.acceptRewards();Game.getXP();">Complete Quest</div></center>
 	</div>
 	<div id="merchantPage" hidden>
-		<div id="informationMerchant" hidden></div>
+		<div id="informationMerchant" hidden>
+			<div class='triangleLeft'></div>
+			<div id='merchantTriangle' class='innerTriangleLeft'></div>
+			<p id='merchantName'></p>
+			<p id='merchantStats'></p>
+			<p id='merchantLore'></p>
+		</div>
 		<br><h1 id="merchantPageTitle"></h1><br><br>
 		<p id="merchantPageChat"></p><br><br>
 		<p id="merchantPageOptions"></p>
@@ -155,7 +177,13 @@
 		<center><div id="close" class="closeClass" onclick="Dom.changeBook(Dom.previous, true)">Close</div></center>
 	</div>
 	<div id="identifierPage" hidden>
-		<div id="identifierInformation" hidden></div>
+		<div id="identifierInformation" hidden>
+			<div class='triangleLeft'></div>
+			<div id='identifierTriangle' class='innerTriangleLeft'></div>
+			<p id='identifierName'></p>
+			<p id='identifierStats'></p>
+			<p id='identifierLore'></p>
+		</div>
 		<br><h1 id="identifierPageTitle">Item Identifier</h1><br><br>
 		<p id="identifierPageChat"></p><br><br><br>
 		<div id="leftArrow" class="triangleLeft"></div>
@@ -165,7 +193,13 @@
 		<center><div id="identifierPageClose" class="closeClass" onclick="Dom.changeBook(Dom.previous, true)">Close</div></center>
 	</div>
 	<div id="identifiedPage" hidden>
-		<div id="identifiedInformation" hidden></div>
+		<div id="identifiedInformation" hidden>
+			<div class='triangleLeft'></div>
+			<div id='identifiedTriangle' class='innerTriangleLeft'></div>
+			<p id='identifiedName'></p>
+			<p id='identifiedStats'></p>
+			<p id='identifiedLore'></p>
+		</div>
 		<br><h1 id="identifiedPageTitle">Item Identifier</h1><br><br>
 		<p id="identifiedPageChat"></p><br><br><br>
 		<center><div id="identifiedPageOption"></div><br><br>

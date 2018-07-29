@@ -356,8 +356,52 @@ document.onmousemove = function(e){
 }
 
 Dom.inventory.updatePosition = function(object){
-	object.style.left = window.mouseX+30+"px";
-	object.style.top = window.mouseY-30+"px";
+	if(window.mouseX != Dom.inventory.prevMouseX || window.mouseY != Dom.inventory.prevMouseY){
+		Dom.inventory.prevMouseX = window.mouseX;
+		Dom.inventory.prevMouseY = window.mouseY;
+		if(window.mouseX+200 <= 1161){
+			object.style.left = window.mouseX+30+"px";
+			for(var i = 0; i < document.getElementsByClassName("triangleLeft").length; i++){
+				if(document.getElementsByClassName("triangleLeft")[i].id != "leftArrow"){
+					document.getElementsByClassName("triangleLeft")[i].style = "right: 165px; border-right: 20px solid #886622; border-left: 0px solid transparent;";
+				}
+			}
+			for(var i = 0; i < document.getElementsByClassName("innerTriangleLeft").length; i++){
+				document.getElementsByClassName("innerTriangleLeft")[i].style = "right: 157px; border-right: 20px solid #fef9b4; border-left: 0px solid transparent;";
+			}
+		}else{
+			object.style.left = window.mouseX-200+"px";
+			for(var i = 0; i < document.getElementsByClassName("triangleLeft").length; i++){
+				if(document.getElementsByClassName("triangleLeft")[i].id != "leftArrow"){
+					document.getElementsByClassName("triangleLeft")[i].style = "left: 165px; border-left: 20px solid #886622; border-right: 0px solid transparent;";
+				}
+			}
+			for(var i = 0; i < document.getElementsByClassName("innerTriangleLeft").length; i++){
+				document.getElementsByClassName("innerTriangleLeft")[i].style = "left: 157px; border-left: 20px solid #fef9b4; border-right: 0px solid transparent;";
+			}
+		}
+		if(window.mouseY+object.offsetHeight-30 <= 618){
+			object.style.top = window.mouseY-30+"px";
+			for(var i = 0; i < document.getElementsByClassName("triangleLeft").length; i++){
+				if(document.getElementsByClassName("triangleLeft")[i].id != "leftArrow"){
+					document.getElementsByClassName("triangleLeft")[i].style.top = "10px";
+				}
+			}
+			for(var i = 0; i < document.getElementsByClassName("innerTriangleLeft").length; i++){
+				document.getElementsByClassName("innerTriangleLeft")[i].style.top = "10px";
+			}
+		}else{
+			object.style.top = 618-object.offsetHeight+"px";
+			for(var i = 0; i < document.getElementsByClassName("triangleLeft").length; i++){
+				if(document.getElementsByClassName("triangleLeft")[i].id != "leftArrow"){
+					document.getElementsByClassName("triangleLeft")[i].style.top = window.mouseY - object.getBoundingClientRect().top - 20 + "px";
+				}
+			}
+			for(var i = 0; i < document.getElementsByClassName("innerTriangleLeft").length; i++){
+				document.getElementsByClassName("innerTriangleLeft")[i].style.top = window.mouseY - object.getBoundingClientRect().top - 20 + "px";
+			}
+		}
+	}
 	if(!object.hidden){
 		setTimeout(function(){
 			Dom.inventory.updatePosition(object);
@@ -367,8 +411,9 @@ Dom.inventory.updatePosition = function(object){
 
 Dom.inventory.displayIdentification = function(){
 	document.getElementById("itemIdentification").hidden = false;
-	document.getElementById("itemIdentification").style.top = "61px"; // sets information's top value to the value specified in the parameter
-	document.getElementById("itemIdentification").innerHTML = "<div class='triangleLeft'></div><div id='idtriangle' class='innerTriangleLeft'></div><p id='innerStats'></p>"; // construct the information
+	Dom.inventory.updatePosition(document.getElementById("itemIdentification"));
+	//document.getElementById("itemIdentification").innerHTML = "<div class='triangleLeft'></div><div id='idtriangle' class='innerTriangleLeft'></div><p id='innerStats'></p>"; // construct the information
+	document.getElementById("innerStats").innerHTML = "";
 	document.getElementById("innerStats").innerHTML += "<strong>Level: " + Player.level + "</strong>"; // updates the level display
 	document.getElementById("innerStats").innerHTML += "<br><strong>XP: " + 100*Player.xp/LevelXP[Player.level] + "%</strong>"; // updates the xp display
 	document.getElementById("innerStats").innerHTML += "<br><br><strong>Stats:</strong>"; // updates the xp display
@@ -404,12 +449,13 @@ Dom.inventory.displayIdentification = function(){
 		}
 	}
 	
-	document.getElementById("idtriangle").style.bottom = document.getElementById("itemIdentification").offsetHeight - 50 + "px"; // position the triangle in the correct place
+	//document.getElementById("idtriangle").style.bottom = document.getElementById("itemIdentification").offsetHeight - 50 + "px"; // position the triangle in the correct place
 }
 
 Dom.inventory.updateIdentification = function(){ // display inventory information
-	document.getElementById("itemIdentification").style.top = "61px"; // sets information's top value to the value specified in the parameter
-	document.getElementById("itemIdentification").innerHTML = "<div class='triangleLeft'></div><div id='idtriangle' class='innerTriangleLeft'></div><p id='innerStats'></p>"; // construct the information
+	//Dom.inventory.updatePosition(document.getElementById("inventoryInformation"));
+	//document.getElementById("itemIdentification").innerHTML = "<div class='triangleLeft'></div><div id='idtriangle' class='innerTriangleLeft'></div><p id='innerStats'></p>"; // construct the information
+	document.getElementById("innerStats").innerHTML = "";
 	document.getElementById("innerStats").innerHTML += "<strong>Level: " + Player.level + "</strong>"; // updates the level display
 	document.getElementById("innerStats").innerHTML += "<br><strong>XP: " + 100*Player.xp/LevelXP[Player.level] + "%</strong>"; // updates the xp display
 	document.getElementById("innerStats").innerHTML += "<br><br><strong>Stats:</strong>"; // updates the xp display
@@ -445,15 +491,16 @@ Dom.inventory.updateIdentification = function(){ // display inventory informatio
 		}
 	}
 	
-	document.getElementById("idtriangle").style.bottom = document.getElementById("itemIdentification").offsetHeight - 50 + "px"; // position the triangle in the correct place
+	//document.getElementById("idtriangle").style.bottom = document.getElementById("itemIdentification").offsetHeight - 50 + "px"; // position the triangle in the correct place
 }
 
 Dom.inventory.displayInformation = function(y,array){ // display inventory information
 	document.getElementById("itemInformation").hidden = true; // hide item information
 	if(array[0].name != ""){ // if the user is hovering over an item...
 		document.getElementById("itemInformation").hidden = false; // ...display information
-		document.getElementById("itemInformation").style.top = y; // sets information's top value to the value specified in the parameter
-		document.getElementById("itemInformation").innerHTML = "<div class='triangleLeft'></div><div id='triangle' class='innerTriangleLeft'></div><p id='name'><b>"+array[0].name+"</b></p><p id='stats'></p><p id='set'></p><p id='lore'></p>"; // construct the information without the values
+		Dom.inventory.updatePosition(document.getElementById("itemInformation"));
+		//document.getElementById("itemInformation").innerHTML = "<div class='triangleLeft'></div><div id='triangle' class='innerTriangleLeft'></div><p id='name'></p><p id='stats'></p><p id='set'></p><p id='lore'></p>"; // construct the information without the values
+		document.getElementById("name").innerHTML = "<strong>"+array[0].name+"</strong>";
 		if(array[0].rarity == "common"){ // if the item is a common...
 			document.getElementById("name").style.color = "black"; // ...sets the name color to black
 		}else if(array[0].rarity == "unique"){ // if the item is a unique...
@@ -463,8 +510,8 @@ Dom.inventory.displayInformation = function(y,array){ // display inventory infor
 		}
 		document.getElementById("stats").innerHTML = "Tier: "+array[0].tier; // add the tier to the information
 		for(var i = 0; i < Object.keys(array[0].stats).length; i++){ // repeat for all stats
-			var replaceStat = Object.keys(array[0].stats)[i].replace("_"," "); // replace any underscores with spaces
-			document.getElementById("stats").innerHTML += "<br>"+replaceStat+": "+array[0].stats[Object.keys(array[0].stats)[i]]; // add the stats to the information
+			var replaceStat = Object.keys(array[0].stats)[i].replace( /([A-Z])/g, " $1" );
+			document.getElementById("stats").innerHTML += "<br>"+replaceStat.charAt(0).toUpperCase() + replaceStat.slice(1)+": "+array[0].stats[Object.keys(array[0].stats)[i]];
 		}
 		if(array[0].set != undefined){ // if the item has a set...
 			var setNum = 0;
@@ -475,20 +522,24 @@ Dom.inventory.displayInformation = function(y,array){ // display inventory infor
 						break;
 					}
 				}
-			}
+			}//Object.keys(Items.set[array[0].set].stats
 			document.getElementById("set").innerHTML = Items.set[array[0].set].name + " (" + setNum + "/" + Items.set[array[0].set].armour.length+")"; // ...add the set to the information
 			if(setNum == Items.set[array[0].set].armour.length){
 				document.getElementById("set").innerHTML += "<br><br>Set Bonus:";
 				for(var i = 0; i < Object.keys(Items.set[array[0].set].stats).length; i++){ // repeat for all stats
-					var replaceSetStat = Object.keys(Items.set[array[0].set].stats)[i].replace("_"," "); // replace any underscores with spaces
-					document.getElementById("set").innerHTML += "<br>"+replaceSetStat+": "+Items.set[array[0].set].stats[Object.keys(Items.set[array[0].set].stats)[i]]; // add the stats to the information
+					var replaceStat = Object.keys(Items.set[array[0].set].stats)[i].replace( /([A-Z])/g, " $1" );
+					document.getElementById("set").innerHTML += "<br>"+replaceStat.charAt(0).toUpperCase() + replaceStat.slice(1)+": "+Items.set[array[0].set].stats[Object.keys(Items.set[array[0].set].stats)[i]];
 				}
 			}
+		}else{
+			document.getElementById("set").innerHTML = "";
 		}
 		if(array[0].lore != undefined){ // if the item has a lore...
 			document.getElementById("lore").innerHTML = "<i>"+array[0].lore+"</i>"; // ...add the lore to the information
+		}else{
+			document.getElementById("lore").innerHTML = "";
 		}
-		document.getElementById("triangle").style.bottom = document.getElementById("itemInformation").offsetHeight - 50 + "px"; // position the triangle in the correct place
+		//document.getElementById("triangle").style.bottom = document.getElementById("itemInformation").offsetHeight - 50 + "px"; // position the triangle in the correct place
 	}
 }
 
@@ -497,7 +548,7 @@ Dom.inventory.displayEquipmentInformation = function(num){
 	if(Object.keys(Player.inventory.items[num]).length != 0){ // if the user is hovering over an item...
 		document.getElementById("inventoryInformation").hidden = false; // ...display information
 		Dom.inventory.updatePosition(document.getElementById("inventoryInformation"));
-		document.getElementById("inventoryInformation").innerHTML = "<div class='triangleLeft'></div><div id='invTriangle' class='innerTriangleLeft'></div><p id='invName' style='font-weight: bold;'></p><p id='invStats'></p><p id='invSet'></p><p id='invLore'></p>"; // construct the information without the values
+		//document.getElementById("inventoryInformation").innerHTML = "<div class='triangleLeft'></div><div id='invTriangle' class='innerTriangleLeft'></div><p id='invName' style='font-weight: bold;'></p><p id='invStats'></p><p id='invSet'></p><p id='invLore'></p>"; // construct the information without the values
 		
 		if(Player.inventory.items[num].name != undefined){
 			document.getElementById("invName").innerHTML = Player.inventory.items[num].name;
@@ -515,8 +566,8 @@ Dom.inventory.displayEquipmentInformation = function(num){
 			document.getElementById("invStats").innerHTML = "Tier: "+Player.inventory.items[num].tier; // add the tier to the information
 			if(Player.inventory.items[num].stats != undefined){
 				for(var i = 0; i < Object.keys(Player.inventory.items[num].stats).length; i++){ // repeat for all stats
-					var replaceStat = Object.keys(Player.inventory.items[num].stats)[i].replace("_"," "); // replace any underscores with spaces
-					document.getElementById("invStats").innerHTML += "<br>"+replaceStat+": "+Player.inventory.items[num].stats[Object.keys(Player.inventory.items[num].stats)[i]]; // add the stats to the information
+					var replaceStat = Object.keys(Player.inventory.items[num].stats)[i].replace( /([A-Z])/g, " $1" );
+					document.getElementById("invStats").innerHTML += "<br>"+replaceStat.charAt(0).toUpperCase() + replaceStat.slice(1)+": "+Player.inventory.items[num].stats[Object.keys(Player.inventory.items[num].stats)[i]];
 				}
 			}else{
 				document.getElementById("invStats").innerHTML += "<br><br>Area: "+Player.inventory.items[num].area; // add the tier to the information
@@ -545,11 +596,16 @@ Dom.inventory.displayEquipmentInformation = function(num){
 				if(setNum == Items.set[Player.inventory.items[num].set].armour.length){
 					document.getElementById("invSet").innerHTML += "<br><br>Set Bonus:";
 					for(var i = 0; i < Object.keys(Items.set[Player.inventory.items[num].set].stats).length; i++){ // repeat for all stats
-						var replaceSetStat = Object.keys(Items.set[Player.inventory.items[num].set].stats)[i].replace("_"," "); // replace any underscores with spaces
-						document.getElementById("invSet").innerHTML += "<br>"+replaceSetStat+": "+Items.set[Player.inventory.items[num].set].stats[Object.keys(Items.set[Player.inventory.items[num].set].stats)[i]]; // add the stats to the information
+						var replaceStat = Object.keys(Items.set[Player.inventory.items[num].set].stats)[i].replace( /([A-Z])/g, " $1" );
+						document.getElementById("invSet").innerHTML += "<br>"+replaceStat.charAt(0).toUpperCase() + replaceStat.slice(1)+": "+Items.set[Player.inventory.items[num].set].stats[Object.keys(Items.set[Player.inventory.items[num].set].stats)[i]];
 					}
 				}
+			}else{
+				document.getElementById("invSet").innerHTML = "";
 			}
+		}else{
+			document.getElementById("invSet").innerHTML = "";
+			document.getElementById("invStats").innerHTML = "";
 		}
 		if(Player.inventory.items[num].type == "bag"){
 			document.getElementById("invStats").innerHTML = "Capacity: "+Player.inventory.items[num].size; // add the size to the information
@@ -558,16 +614,19 @@ Dom.inventory.displayEquipmentInformation = function(num){
 			document.getElementById("invName").innerHTML = Player.inventory.items[num].stacked + " " + document.getElementById("invName").innerHTML; // add the size to the information
 		}
 		if(Player.inventory.items[num].lore != undefined){ // if the item has a lore...
-			document.getElementById("invLore").innerHTML += "<i>"+Player.inventory.items[num].lore+"</i>"; // ...add the lore to the information
+			document.getElementById("invLore").innerHTML = "<i>"+Player.inventory.items[num].lore+"</i>"; // ...add the lore to the information
+		}else{
+			document.getElementById("invLore").innerHTML = "";
 		}
-		document.getElementById("invTriangle").style.bottom = document.getElementById("inventoryInformation").offsetHeight - 50 + "px"; // position the triangle in the correct place
+		//document.getElementById("invTriangle").style.bottom = document.getElementById("inventoryInformation").offsetHeight - 50 + "px"; // position the triangle in the correct place
 	}
 }
 
 Dom.merchant.displayInformation = function(y,array,num) { // display merchant information
 	document.getElementById("informationMerchant").hidden = false; // display merchant information
-	document.getElementById("informationMerchant").style.top = y+"px"; // sets the information's top value to the value specified in the parameter
-	document.getElementById("informationMerchant").innerHTML = "<div class='triangleLeft'></div><div id='merchantTriangle' class='innerTriangleLeft'></div><p id='merchantName'><b>"+array[num].name+"</b></p><p id='merchantStats'></p><p id='merchantLore'></p>"; // construct the information without the values
+	Dom.inventory.updatePosition(document.getElementById("informationMerchant"));
+	//document.getElementById("informationMerchant").innerHTML = "<div class='triangleLeft'></div><div id='merchantTriangle' class='innerTriangleLeft'></div><p id='merchantName'></p><p id='merchantStats'></p><p id='merchantLore'></p>"; // construct the information without the values
+	document.getElementById("merchantName").innerHTML = "<strong>" + array[num].name + "</strong>";
 	if(array[num].rarity == "common"){ // if the item is a common...
 		document.getElementById("merchantName").style.color = "black"; // ...sets the name color to black
 	}else if(array[num].rarity == "unique"){ // if the item is a unique...
@@ -577,20 +636,22 @@ Dom.merchant.displayInformation = function(y,array,num) { // display merchant in
 	}
 	document.getElementById("merchantStats").innerHTML = "Tier: "+array[num].tier; // add the tier to the information
 	for(var i = 0; i < Object.keys(array[num].stats).length; i++){ // repeat for all stats
-		var replaceStat = Object.keys(array[num].stats)[i].replace("_"," "); // replace any underscores with spaces
-		document.getElementById("merchantStats").innerHTML += "<br>"+replaceStat+": "+array[num].stats[Object.keys(array[num].stats)[i]]; // add the stats to the information
+		var replaceStat = Object.keys(array[num].stats)[i].replace( /([A-Z])/g, " $1" );
+		document.getElementById("merchantStats").innerHTML += "<br>"+replaceStat.charAt(0).toUpperCase() + replaceStat.slice(1)+": "+array[num].stats[Object.keys(array[num].stats)[i]];
 	}
 	if(array[num].lore != undefined){ // if the item has a lore...
-		document.getElementById("merchantLore").innerHTML += "<i>"+array[num].lore+"</i>"; // ...add the lore to the information
+		document.getElementById("merchantLore").innerHTML = "<i>"+array[num].lore+"</i>"; // ...add the lore to the information
+	}else{
+		document.getElementById("merchantLore").innerHTML = "";
 	}
-	document.getElementById("merchantTriangle").style.bottom = document.getElementById("informationMerchant").offsetHeight - 50 + "px"; // postition the triangle in the correct place
+	//document.getElementById("merchantTriangle").style.bottom = document.getElementById("informationMerchant").offsetHeight - 50 + "px"; // postition the triangle in the correct place
 }
 
 Dom.quests.displayInformation = function(num,array,total){ // display quest start information
 	document.getElementById("questInformation").hidden = false; // display quest start information
-	document.getElementById("questInformation").style.top = document.getElementsByClassName("theseQuestOptions")[num].getBoundingClientRect().top+"px"; // sets the information's top value to the top value of the image
-	document.getElementById("questInformation").style.left = 780-(total*35)+(num*70) +"px"; // sets the information's left value based on information from the parameter
-	document.getElementById("questInformation").innerHTML = "<div class='rectangleRightUp' id='questRectangle'></div><div class='rectangleRightDown'></div><div class='triangleRight'></div><div id='questTriangle' class='innerTriangleRight'></div><p id='questName'><b>"+array[num].name+"</b></p><p id='questStats'></p><p id='questLore'></p>"; // construct the information without the values
+	Dom.inventory.updatePosition(document.getElementById("questInformation"));
+	//document.getElementById("questInformation").innerHTML = "<div class='triangleLeft'></div><div id='questTriangle' class='innerTriangleLeft'></div><p id='questName'></p><p id='questStats'></p><p id='questLore'></p>"; // construct the information without the values
+	document.getElementById("questName").innerHTML = "<strong>" + array[num].name + "</strong>";
 	if(array[num].rarity == "common"){ // if the item is a common...
 		document.getElementById("questName").style.color = "black"; // ...sets the name color to black
 	}else if(array[num].rarity == "unique"){ // if the item is a unique...
@@ -600,21 +661,22 @@ Dom.quests.displayInformation = function(num,array,total){ // display quest star
 	}
 	document.getElementById("questStats").innerHTML = "Tier: "+array[num].tier; // add the tier to the information
 	for(var i = 0; i < Object.keys(array[num].stats).length; i++){ // repeat for all stats
-		var replaceStat = Object.keys(array[num].stats)[i].replace("_"," "); // replace any underscores with spaces
-		document.getElementById("questStats").innerHTML += "<br>"+replaceStat+": "+array[num].stats[Object.keys(array[num].stats)[i]]; // add the stats to the information
+		var replaceStat = Object.keys(array[num].stats)[i].replace( /([A-Z])/g, " $1" );
+		document.getElementById("questStats").innerHTML += "<br>"+replaceStat.charAt(0).toUpperCase() + replaceStat.slice(1)+": "+array[num].stats[Object.keys(array[num].stats)[i]];
 	}
 	if(array[num].lore != undefined){ // if the item has a lore...
-		document.getElementById("questLore").innerHTML += "<i>"+array[num].lore+"</i>"; // ...add the lore to the information
+		document.getElementById("questLore").innerHTML = "<i>"+array[num].lore+"</i>"; // ...add the lore to the information
+	}else{
+		document.getElementById("questLore").innerHTML = "";
 	}
-	document.getElementById("questTriangle").style.bottom = document.getElementById("questInformation").offsetHeight - 50 + "px"; // position the triangle in the correct place
-	document.getElementById("questRectangle").style.bottom = document.getElementById("questInformation").offsetHeight - 50 + "px"; // position the rectangle in the correct place
+	//document.getElementById("questTriangle").style.bottom = document.getElementById("questInformation").offsetHeight - 50 + "px"; // position the triangle in the correct place
 }
 
 Dom.quests.displayFinishInformation = function(num,array,total){ // display quest finish information
 	document.getElementById("questFinishInformation").hidden = false; // display quest start information
-	document.getElementById("questFinishInformation").style.top = document.getElementsByClassName("theseQuestFinishOptions")[num].getBoundingClientRect().top+"px"; // sets the information's top value to the top value of the image
-	document.getElementById("questFinishInformation").style.left = 780-(total*35)+(num*70) +"px"; // sets the information's left value based on the information from the parameter
-	document.getElementById("questFinishInformation").innerHTML = "<div class='rectangleRightUp' id='finishRectangle'></div><div class='rectangleRightDown'></div><div class='triangleRight'></div><div id='finishTriangle' class='innerTriangleRight'></div><p id='finishName'><b>"+array[num].name+"</b></p><p id='finishStats'></p><p id='finishLore'></p>"; // construct the information without the values
+	Dom.inventory.updatePosition(document.getElementById("questFinishInformation"));
+	//document.getElementById("questFinishInformation").innerHTML = "<div class='triangleLeft'></div><div id='finishTriangle' class='innerTriangleLeft'></div><p id='finishName'></p><p id='finishStats'></p><p id='finishLore'></p>"; // construct the information without the values
+	document.getElementById("finishName").innerHTML = "<strong>" + array[num].name + "</strong>";
 	if(array[num].rarity == "common"){ // if the item is a common...
 		document.getElementById("finishName").style.color = "black"; // ...sets the name color to black
 	}else if(array[num].rarity == "unique"){ // if the item is a unique...
@@ -624,35 +686,36 @@ Dom.quests.displayFinishInformation = function(num,array,total){ // display ques
 	}
 	document.getElementById("finishStats").innerHTML = "Tier: "+array[num].tier; // add the tier to the information
 	for(var i = 0; i < Object.keys(array[num].stats).length; i++){ // repeat for all stats
-		var replaceStat = Object.keys(array[num].stats)[i].replace("_"," "); // replace any underscores with spaces
-		document.getElementById("finishStats").innerHTML += "<br>"+replaceStat+": "+array[num].stats[Object.keys(array[num].stats)[i]]; // add the stats to the information
+		var replaceStat = Object.keys(array[num].stats)[i].replace( /([A-Z])/g, " $1" );
+		document.getElementById("finishStats").innerHTML += "<br>"+replaceStat.charAt(0).toUpperCase() + replaceStat.slice(1)+": "+array[num].stats[Object.keys(array[num].stats)[i]];
 	}
+	document.getElementById("finishLore").innerHTML = "";
 	if(array[num].lore != undefined){ // if the item has a lore...
 		document.getElementById("finishLore").innerHTML += "<i>"+array[num].lore+"</i>"; // ...add the lore to the information
+	}else{
+		document.getElementById("finishLore").innerHTML = "";
 	}
-	document.getElementById("finishTriangle").style.bottom = document.getElementById("questFinishInformation").offsetHeight - 50 + "px"; // position the triangle in the correct place
-	document.getElementById("finishRectangle").style.bottom = document.getElementById("questFinishInformation").offsetHeight - 50 + "px"; // position the rectangle in the correct place
+	//document.getElementById("finishTriangle").style.bottom = document.getElementById("questFinishInformation").offsetHeight - 50 + "px"; // position the triangle in the correct place
 }
 
 Dom.identifier.displayInformation = function(num,array){ // display identifier information
 	document.getElementById("identifierInformation").hidden = true; // hide identifier information
 	if(array.length != 0){ // if the player is hovering over an item
 		document.getElementById("identifierInformation").hidden = false; // display identifier information
-		document.getElementById("identifierInformation").style.top = document.getElementById("identifierPageOption").getBoundingClientRect().top - 46 + "px"; // sets the information's top value to the top value of the item
-		document.getElementById("identifierInformation").style.left = document.getElementById("identifierPageOption").getBoundingClientRect().left + 90 +"px"; // sets the information's left value based on the left value of the item
-		document.getElementById("identifierInformation").innerHTML = "<div class='rectangleLeftUp' id='identifierRectangle'></div><div class='rectangleLeftDown'></div><div class='triangleLeft'></div><div id='identifierTriangle' class='innerTriangleLeft'></div><p id='identifierName'><b> Unidentified "+array[num].type+"</b></p><p id='identifierStats'></p><p id='identifierLore'></p>"; // construct the information without the values
+		Dom.inventory.updatePosition(document.getElementById("identifierInformation"));
+		//document.getElementById("identifierInformation").innerHTML = "<div class='triangleLeft'></div><div id='identifierTriangle' class='innerTriangleLeft'></div><p id='identifierName'></p><p id='identifierStats'></p><p id='identifierLore'></p>"; // construct the information without the values		
+		document.getElementById("identifierName").innerHTML = "<strong> Unidentified " + array[num].type + "</strong>";
 		document.getElementById("identifierStats").innerHTML = "Tier: "+array[num].tier; // add the tier to the information
-		document.getElementById("identifierLore").innerHTML += "Area: "+array[num].area; // add the area to the information
-		document.getElementById("identifierTriangle").style.bottom = document.getElementById("identifierInformation").offsetHeight - 50 + "px"; // positition the triangle in the correct place
-		document.getElementById("identifierRectangle").style.bottom = document.getElementById("identifierInformation").offsetHeight - 50 + "px"; // postition the rectangle in the correct place
+		document.getElementById("identifierLore").innerHTML = "Area: "+array[num].area; // add the area to the information
+		//document.getElementById("identifierTriangle").style.bottom = document.getElementById("identifierInformation").offsetHeight - 50 + "px"; // positition the triangle in the correct place
 	}
 }
 
 Dom.identifier.displayIdentifiedInformation = function(num,array){ // display identified information
 	document.getElementById("identifiedInformation").hidden = false; // display identified information
-	document.getElementById("identifiedInformation").style.top = document.getElementById("identifiedPageOption").getElementsByTagName("img")[0].getBoundingClientRect().top + "px"; // sets the information's top value to the top value of the item
-	document.getElementById("identifiedInformation").style.left = document.getElementById("identifiedPageOption").getElementsByTagName("img")[0].getBoundingClientRect().left + 90 +"px"; // sets the informations left value based on the left value of the item
-	document.getElementById("identifiedInformation").innerHTML = "<div class='triangleLeft'></div><div id='identifiedTriangle' class='innerTriangleLeft'></div><p id='identifiedName'><b>" + array[num].name + "</b></p><p id='identifiedStats'></p><p id='identifiedLore'></p>"; // constuct the information without the values
+	Dom.inventory.updatePosition(document.getElementById("identifiedInformation"));
+	//document.getElementById("identifiedInformation").innerHTML = "<div class='triangleLeft'></div><div id='identifiedTriangle' class='innerTriangleLeft'></div><p id='identifiedName'></p><p id='identifiedStats'></p><p id='identifiedLore'></p>"; // constuct the information without the values
+	document.getElementById("identifiedName").innerHTML = "<strong>" + array[num].name + "</strong>";
 	if(array[num].rarity == "common"){ // if the item is a common...
 		document.getElementById("identifiedName").style.color = "black"; // ...sets the name color to black
 	}else if(array[num].rarity == "unique"){ // if the item is a unique...
@@ -662,13 +725,15 @@ Dom.identifier.displayIdentifiedInformation = function(num,array){ // display id
 	}
 	document.getElementById("identifiedStats").innerHTML = "Tier: "+array[num].tier; // add the tier to the information
 	for(var i = 0; i < Object.keys(array[num].stats).length; i++){ // repeat fot all stats
-		var replaceStat = Object.keys(array[num].stats)[i].replace("_"," "); // replace any underscores with spaces
-		document.getElementById("identifiedStats").innerHTML += "<br>"+replaceStat+": "+array[num].stats[Object.keys(array[num].stats)[i]]; // add the stats to the information
+		var replaceStat = Object.keys(array[num].stats)[i].replace( /([A-Z])/g, " $1" );
+		document.getElementById("identifiedStats").innerHTML += "<br>"+replaceStat.charAt(0).toUpperCase() + replaceStat.slice(1)+": "+array[num].stats[Object.keys(array[num].stats)[i]];
 	}
 	if(array[num].lore != undefined){ // if the items has a lore...
-		document.getElementById("identifiedLore").innerHTML += "<i>"+array[num].lore+"</i>"; // ...add the lore to the information
+		document.getElementById("identifiedLore").innerHTML = "<i>"+array[num].lore+"</i>"; // ...add the lore to the information
+	}else{
+		document.getElementById("identifiedLore").innerHTML = "";
 	}
-	document.getElementById("identifiedTriangle").style.bottom = document.getElementById("identifiedInformation").offsetHeight - 50 + "px"; // position the triangle in the correct place
+	//document.getElementById("identifiedTriangle").style.bottom = document.getElementById("identifiedInformation").offsetHeight - 50 + "px"; // position the triangle in the correct place
 }
 
 Dom.currentlyDisplayed = ""; // the currently displayed quest, merchant, etc. (any pop up)

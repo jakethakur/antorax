@@ -100,23 +100,23 @@ body{
 
 .triangleLeft {
 	right: 165px;
-	top: 10px;
+	/*top: 10px;*/
 	border-right: 20px solid #886622; 
 }
 .innerTriangleLeft {
 	right: 157px;
-	bottom: 10px;
+	/*top: 10px;*/
 	border-right: 20px solid #fef9b4;
 	z-index: 2;
 }
 .triangleRight{
-	top: 10px;
+	/*top: 10px;*/
 	border-left: 20px solid #886622;
 	left: 165px;
 }
 .innerTriangleRight{
 	left: 157px;
-	bottom: 10px;
+	/*top: 10px;*/
 	border-left: 20px solid #fef9b4;
 	z-index: 2;
 }
@@ -453,4 +453,12 @@ td{
 	position: relative;
 	bottom: 25px;
 	font-size: 20px;
+}
+.radio1{
+	position: absolute;
+	left: 250px;
+}
+.radio2{
+	position: absolute;
+	left: 375px;
 }

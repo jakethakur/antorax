@@ -517,6 +517,12 @@ var Items = {
 			type: "staff",
 			image: "assets/items/staff/7.png",
 			uncollectable: true,
+			tier: 1,
+			area: "Eaglecrest Logging Camp",
+			rarity: "common",
+			stats: {
+				damage: 2,
+			}
 		},
 	],
 	bow: [
