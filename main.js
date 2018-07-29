@@ -399,6 +399,7 @@ class Character extends Thing {
 	// if singleUse is true, and if Dom.chat.contents contains message, the message is not sent
 	say (message, singleUse, delay) {
 		if (message.substring(0, 4) === "/me ") { // reflexive message
+			message = message.substr(4, message.length);
 			if (!(singleUse && Dom.chat.contents.includes("<strong>" + this.name + "</strong> " + message))) { // check if message should be sent (due to singleUse)
 				Dom.chat.insert("<strong>" + this.name + "</strong> " + message, delay);
 			}
@@ -669,18 +670,24 @@ class Projectile extends Thing {
 				if (this.isTouching(to[i][x])) { // check projectile is touching character it wants to damage
 					
 					// damage
+					let damageDealt = attacker.stats.damage - to[i][x].stats.defence / 10; // calculate damage dealt
+					if (damageDealt < 0) {
+						damageDealt = 0;
+					}
 					if (random(0, 100) < attacker.stats.criticalChance) { // critical hit
-						to[i][x].health -= attacker.stats.damage * 2;
-						to[i][x].damageTaken += attacker.stats.damage * 2;
-						this.damageDealt.push({enemy: to[i][x], damage: attacker.stats.damage * 2, critical: true});
+						damageDealt *= 2
+						to[i][x].health -= damageDealt;
+						to[i][x].damageTaken += damageDealt;
+						this.damageDealt.push({enemy: to[i][x], damage: damageDealt, critical: true});
 					}
 					else {
-						to[i][x].health -= attacker.stats.damage;
-						to[i][x].damageTaken += attacker.stats.damage; // tbd give ALL characters a health and damage taken
-						this.damageDealt.push({enemy: to[i][x], damage: attacker.stats.damage, critical: false});
+						to[i][x].health -= damageDealt;
+						to[i][x].damageTaken += damageDealt;
+						this.damageDealt.push({enemy: to[i][x], damage: damageDealt, critical: false});
 					}
 					
 					// poison
+					// TBD decide if defence should affect this
 					if (attacker.stats.poisonX > 0 && attacker.stats.poisonY > 0) { // check player weapon has poison
 						// remember poison damage (so the player cannot change their weapon)
 						to[i][x].statusEffects.push(new statusEffect({
@@ -717,14 +724,14 @@ class Projectile extends Thing {
 					
 					// chat relating to being damaged (and dealing damage? TBD)
 					if (typeof to[i][x].chat !== "undefined") { // check the character has been given text to say about being damaged
-						if (to[i][x].health < to[i][x].stats.maxHealth && typeof to[i][x].chat.firstDamaged !== "undefined") { // first damaged chat message
-							to[i][x].say(to[i][x].chat.firstDamaged, true, 0);
+						if (to[i][x].health < to[i][x].stats.maxHealth / 10 && typeof to[i][x].chat.tenPercentHealth !== "undefined") { // 10% health chat message
+							to[i][x].say(to[i][x].chat.tenPercentHealth, true, 0);
 						}
 						else if (to[i][x].health < to[i][x].stats.maxHealth / 2 && typeof to[i][x].chat.fiftyPercentHealth !== "undefined") { // 50% health chat message
 							to[i][x].say(to[i][x].chat.fiftyPercentHealth, true, 0);
 						}
-						else if (to[i][x].health < to[i][x].stats.maxHealth / 10 && typeof to[i][x].chat.tenPercentHealth !== "undefined") { // 10% health chat message
-							to[i][x].say(to[i][x].chat.tenPercentHealth, true, 0);
+						else if (to[i][x].health < to[i][x].stats.maxHealth && typeof to[i][x].chat.firstDamaged !== "undefined") { // first damaged chat message
+							to[i][x].say(to[i][x].chat.firstDamaged, true, 0);
 						}
 					}
 				}
@@ -890,7 +897,7 @@ class Enemy extends Attacker {
 	
 	update() {
 		// perhaps condense into hostile and passive ai functions (that also apply to things like villagers)?
-		if (distance(this, Game.hero) < this.range) { // enemy should attack hero
+		if (distance(this, Game.hero) < this.stats.range) { // enemy should attack hero
 			if (this.canAttack) { // projectile can be shot
 				this.shoot(Game.hero);
 			}
@@ -898,7 +905,7 @@ class Enemy extends Attacker {
 		else if (distance(this, Game.hero) > this.leashRadius) { // enemy should move passively
 			// passive movement within given (to be given...) boundaries...
 		}
-		else if (distance(this, Game.hero) < this.leashRadius && distance(this, Game.hero) > this.range) { // enemy should move towards hero
+		else if (distance(this, Game.hero) < this.leashRadius && distance(this, Game.hero) > this.stats.range) { // enemy should move towards hero
 			this.move(Game.hero);
 		}
 		// add spell cast
@@ -941,12 +948,12 @@ class Enemy extends Attacker {
 		}));
 		
 		// damage allies that the projectile is touching
-		Game.projectiles[Game.searchFor(this.channellingProjectileId, Game.projectiles)].dealDamage([this, [Game.hero],]);
+		Game.projectiles[Game.searchFor(this.channellingProjectileId, Game.projectiles)].dealDamage(this, [[Game.hero],]);
 		
 		// wait to shoot next projectile
 		setTimeout(function () {
 			this.canAttack = true;
-		}.bind(this), this.reloadTime);
+		}.bind(this), this.stats.reloadTime);
 		
 		// after a timeout (2s), remove the projectile that was just shot
 		// taken from Player
@@ -1759,10 +1766,11 @@ Game.drawHealthBar = function (ctx, character, x, y, width, height) {
 	
 	// health bar border
 	ctx.strokeStyle = "black";
-	for (let i = 0; i < character.stats.maxHealth / barValue; i++) {
+	ctx.strokeRect(x, y, width, height); // general border around the whole thing
+	for (let i = 0; i < character.stats.maxHealth / barValue - 1; i++) {
 		ctx.strokeRect(x + barValue / character.stats.maxHealth * width * i, y, barValue / character.stats.maxHealth * width, height);
 	}
-	ctx.strokeRect(x + barValue / character.stats.maxHealth * Math.round(character.stats.maxHealth / barValue), y, width, height); // tbd - comes a bit fainter - idk why
+	ctx.strokeRect(x + barValue / character.stats.maxHealth * Math.round(character.stats.maxHealth / barValue), y, width, height);
 	
 	// restore previous canvas formatting preferences
 	ctx.globalAlpha = oldGlobalAlpha;

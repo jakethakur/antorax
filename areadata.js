@@ -127,18 +127,19 @@ var Areas = { // areas should have a capital (global variable)
 		
 		enemies: [
 			/*{
-				x: 1500,
+				x: 2200,
 				y: 200,
 				width: 90,
 				height: 110,
 				image: "weaponsmith",
 				name: "Evil Weaponsmith Clone",
 				stats: {
+					damage: 5,
 					walkSpeed: 1,
 					maxHealth: 355,
 					range: 200,
 					reloadTime: 1000,
-				}
+				},
 				leashRadius: 500,
 				projectile: {
 					width: 10,
@@ -268,11 +269,11 @@ var Areas = { // areas should have a capital (global variable)
 				name: "Target Dummy",
 				stats: {
 					maxHealth: 10,
+					defence: 5,
 				},
 				chat: {
-					firstDamaged: "creak!!!",
 					fiftyPercentHealth: "/me creaks",
-					tenPercentHealth: "/me creaks",
+					tenPercentHealth: "/me creaks loudly",
 					death: "/me crumbles into a heap of rubble",
 				},
 			},
@@ -380,10 +381,12 @@ var Areas = { // areas should have a capital (global variable)
 		images: {
 			names: [
 				"tiles",
+				"goblinRock",
 			],
 			
 			addresses: [
 				"./assets/tilemap/nilbog.png",
+				"./assets/enemies/goblinRockthrower.png",
 			],
 		},
 		
@@ -423,20 +426,21 @@ var Areas = { // areas should have a capital (global variable)
 		],
 		
 		enemies: [
-			/*{
-				x: 1500,
-				y: 200,
-				width: 90,
-				height: 110,
-				image: "weaponsmith",
-				name: "Evil Weaponsmith Clone",
+			{
+				x: 1100,
+				y: 400,
+				width: 38,
+				height: 87,
+				image: "goblinRock",
+				name: "Goblin Rockthrower",
 				stats: {
+					damage: 2,
 					walkSpeed: 1,
-					maxHealth: 355,
-					range: 200,
-					reloadTime: 1000,
-				}
-				leashRadius: 500,
+					maxHealth: 14,
+					range: 300,
+					reloadTime: 2000,
+				},
+				leashRadius: 600,
 				projectile: {
 					width: 10,
 					height: 40,
@@ -447,7 +451,7 @@ var Areas = { // areas should have a capital (global variable)
 					},
 					image: "projectile",
 				}
-			}*/
+			}
 		],
 	},
 	
