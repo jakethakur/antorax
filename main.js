@@ -357,7 +357,7 @@ class Character extends Thing {
 		
 		this.name = properties.name;
 		
-		this.health = properties.health;
+		this.health = properties.health || properties.stats.maxHealth;
 		this.speed = properties.stats.walkSpeed || 0;
 
 		// stats
@@ -803,7 +803,7 @@ class Dummy extends Character {
 	constructor(properties) {
 		super(properties);
 		
-		this.damageTaken = 0; // dummies have damage taken instead of health
+		this.damageTaken = 0; // dummies have damage taken used instead of their health (though they do still have health)
 	}
 	
 	// function to be carried out during Game.render()
@@ -1349,7 +1349,6 @@ Game.update = function (delta) {
 				if (this.hero.isTouching(this.questNPCs[i]) && Dom.currentlyDisplayed === "" && Dom.quests.activeQuestArray.includes(this.questNPCs[i].quests[x].quest.quest) && !Dom.quests.completedQuestArray.includes(this.questNPCs[i].quests[x].quest.quest)) {
 					//check if quest conditions have been fulfilled
 					if(this.questNPCs[i].quests[x].quest.isCompleted()[this.questNPCs[i].quests[x].quest.objectives.length - 1]) {
-						console.log("finish");
 						Dom.quest.finish(this.questNPCs[i].quests[x].quest);
 					}
 					// quest conditions have not been fulfilled
@@ -1482,25 +1481,16 @@ Game.getXP = function () {
 
 // called whenever inventory is changed (in order to change player stats)
 // this is called by index.html
+// PG's code
 Game.inventoryUpdate = function (e) {
-	//let data = e.dataTransfer.getData("text"); // sets the variable data to a set variable chosen when the item was picked up
-	console.log("no");
-	if(e == undefined){
+	if (e == undefined) {
 		Game.hero.stats = Player.stats;
-		console.log("yes");
-	}else{
-		console.log(e.dataTransfer.getData("text"));
-		if(isNaN(parseInt(e.dataTransfer.getData("text")))){
+	}
+	else {
+		if (isNaN(parseInt(e.dataTransfer.getData("text")))) {
 			Game.hero.stats = Player.stats;
-			console.log("maybe");
 		}
 	}
-	//for (let i = 0; i < Player.inventory.items.length; i++) { // repeats code for all inventory slots
-		//if (document.getElementById("itemInventory").getElementsByTagName("td")[i] == e.target && i == parseInt(data)) { // if the item slot is where you are putting the item and where you picked the item up
-			//Game.hero.stats = Player.stats;
-			//console.log("yes");
-		//}
-	//}
 }
 
 //
