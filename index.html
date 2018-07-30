@@ -39,11 +39,11 @@
 		</div>
 		<div id="inventoryGoldXP"></div>
 		<div id="displayStats" onmouseover="Dom.inventory.displayIdentification()"onmouseleave="Dom.expand('itemIdentification')"></div>
-		<div id="weapon"onmouseover="Dom.inventory.displayInformation('184px',Player.inventory.weapon)"onmouseleave="Dom.expand('itemInformation')"ondrop="Dom.inventory.drop(event,'weapon');Game.inventoryUpdate()" ondragover="Dom.inventory.allowDrop(event)"></div>
-		<div id="helm"onmouseover="Dom.inventory.displayInformation('294px',Player.inventory.helm)"onmouseleave="Dom.expand('itemInformation')"ondrop="Dom.inventory.drop(event,'helm');Game.inventoryUpdate()" ondragover="Dom.inventory.allowDrop(event)"></div>
-		<div id="chest"onmouseover="Dom.inventory.displayInformation('364px',Player.inventory.chest)"onmouseleave="Dom.expand('itemInformation')"ondrop="Dom.inventory.drop(event,'chest');Game.inventoryUpdate()" ondragover="Dom.inventory.allowDrop(event)"></div>
-		<div id="greaves"onmouseover="Dom.inventory.displayInformation('434px',Player.inventory.greaves)"onmouseleave="Dom.expand('itemInformation')"ondrop="Dom.inventory.drop(event,'greaves');Game.inventoryUpdate()" ondragover="Dom.inventory.allowDrop(event)"></div>
-		<div id="boots"onmouseover="Dom.inventory.displayInformation('504px',Player.inventory.boots)"onmouseleave="Dom.expand('itemInformation')"ondrop="Dom.inventory.drop(event,'boots');Game.inventoryUpdate()" ondragover="Dom.inventory.allowDrop(event)"></div>
+		<div id="weapon"onmouseover="Dom.inventory.displayInformation('184px',Player.inventory.weapon)"onmouseleave="Dom.expand('itemInformation')"ondrop="Dom.inventory.drop(event,'weapon');Game.inventoryUpdate()" ondragover="Dom.inventory.allowDrop(event)" ondrag="Dom.expand('itemInformation')"></div>
+		<div id="helm"onmouseover="Dom.inventory.displayInformation('294px',Player.inventory.helm)"onmouseleave="Dom.expand('itemInformation')"ondrop="Dom.inventory.drop(event,'helm');Game.inventoryUpdate()" ondragover="Dom.inventory.allowDrop(event)" ondrag="Dom.expand('itemInformation')"></div>
+		<div id="chest"onmouseover="Dom.inventory.displayInformation('364px',Player.inventory.chest)"onmouseleave="Dom.expand('itemInformation')"ondrop="Dom.inventory.drop(event,'chest');Game.inventoryUpdate()" ondragover="Dom.inventory.allowDrop(event)" ondrag="Dom.expand('itemInformation')"></div>
+		<div id="greaves"onmouseover="Dom.inventory.displayInformation('434px',Player.inventory.greaves)"onmouseleave="Dom.expand('itemInformation')"ondrop="Dom.inventory.drop(event,'greaves');Game.inventoryUpdate()" ondragover="Dom.inventory.allowDrop(event)" ondrag="Dom.expand('itemInformation')"></div>
+		<div id="boots"onmouseover="Dom.inventory.displayInformation('504px',Player.inventory.boots)"onmouseleave="Dom.expand('itemInformation')"ondrop="Dom.inventory.drop(event,'boots');Game.inventoryUpdate()" ondragover="Dom.inventory.allowDrop(event)" ondrag="Dom.expand('itemInformation')"></div>
 		<table id="itemInventory">
 			<tr>
 				<td ondrop="Dom.inventory.drop(event);Game.inventoryUpdate(event)" ondragover="Dom.inventory.allowDrop(event)" onmouseover="Dom.inventory.displayEquipmentInformation(0)" onmouseleave="Dom.expand('inventoryInformation')" ondrag="Dom.expand('inventoryInformation')" onclick="Game.inventoryUpdate()"></td>
@@ -114,11 +114,17 @@
 			<span class="radio1"><input type="radio" id="gridOn" name="gridOnOff">Yes</input></span>
 			<span class="radio2"><input type="radio" name="gridOnOff" checked="true">No</input></span>
 		</div>
-		<div id="settingGrid">
+		<div id="settingSpeed">
 			HIGH SPEED:
 			<span class="radio1"><input type="radio" id="speedOn" name="speedOnOff">Whee!</input></span>
 			<span class="radio2"><input type="radio" name="speedOnOff" checked="true">No</input></span>
 		</div>
+		<span id="settingAcceptHolder">
+			<div id="settingAccept">Enable progress saving:
+				<span class="radio1"><input type="radio" id="acceptOn" name="acceptOnOff">Yes</input></span>
+				<span class="radio2"><input type="radio" name="acceptOnOff" checked="true">No</input></span>
+			</div>
+		</span>
 		<div id="settingLogout">
 		</div>
 	</div>

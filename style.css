@@ -45,13 +45,13 @@ body{
 #questStartQuest, #questFinishQuest, #questStartName, #questFinishName, #questStartChat, #questFinishChat, #questStartObjectives, #questStartRewards, #questFinishRewards, #merchantPageTitle, #merchantPageChat, #merchantPageOptions, #identifierPageTitle, #identifierPageChat, #leftArrow, #identifierPageOption, #rightArrow, #identifiedPageTitle, #identifiedPageChat, #identifiedPageOptions{
 	display: inline;
 }
-#settingBookmark, #settingMusic, #settingHitboxes, #settingCoords, #settingFps, #settingGrid {
+#settingBookmark, #settingMusic, #settingHitboxes, #settingCoords, #settingFps, #settingGrid, #settingSpeed, #settingAccept {
 	line-height: 30px;
 	text-align: center;
 	vertical-align: middle;
 	font-size: 20px;
 }
-#activeQuestBox, #possibleQuestBox, #completedQuestBox, #allQuestBox, #activeQuests, #possibleQuests, #completedQuests, #allQuests, #settingBookmark, #settingMusic, #settingHitboxes, #settingCoords, #settingFps, #settingGrid {
+#activeQuestBox, #possibleQuestBox, #completedQuestBox, #allQuestBox, #activeQuests, #possibleQuests, #completedQuests, #allQuests, #settingBookmark, #settingMusic, #settingHitboxes, #settingCoords, #settingFps, #settingGrid, #settingSpeed, #settingAccept {
 	position: relative;
 	width: 511px;
 	height: 50px;
@@ -120,7 +120,7 @@ body{
 	border-left: 20px solid #fef9b4;
 	z-index: 2;
 }
-#settingBookmark, #settingMusic, #settingHitboxes, #settingCoords, #settingFps, #settingGrid, #activeQuestBox, #completedQuestBox, #possibleQuestBox, #allQuestBox {
+#settingBookmark, #settingMusic, #settingHitboxes, #settingCoords, #settingFps, #settingGrid, #settingSpeed, #settingAccept, #activeQuestBox, #completedQuestBox, #possibleQuestBox, #allQuestBox {
 	width: 501px;
 	height: 40px;
 	text-align: left;
@@ -275,11 +275,12 @@ td{
 #itemInformation, #itemIdentification, #informationMerchant, #questInformation, #questFinishInformation, #identifierInformation, #identifiedInformation, #inventoryInformation{
 	position: absolute;
 	left: 765px;
-	width: 150px;
+	width: 140px;
 	background-color: #fef9b4;
 	border: 5px solid #886622;
 	float: right;
 	padding-left: 10px;
+	padding-right: 10px;
 	text-align: left;
 	z-index: 2;
 }

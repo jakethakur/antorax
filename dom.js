@@ -193,8 +193,10 @@ Dom.expand = function(block) { // expand/collapse element
 }
 
 Dom.settings.bookmarkPosition = function() { // arrange position of bookmarks
-	// INEFFICIENT?
 	if(document.getElementById("bottom").checked) { // arrange bookmarks at bottom of screen
+		if(localStorage.getItem("accept") == "true"){
+			localStorage.setItem("bookmarksPosition","bottom");
+		}
 		document.getElementById("changeChat").style.top="619px";
 		document.getElementById("changeChat").style.transform="rotate(90deg)";
 		document.getElementById("changeChat").style.transformOrigin="top left";
@@ -235,6 +237,9 @@ Dom.settings.bookmarkPosition = function() { // arrange position of bookmarks
 		document.getElementById("dot").style.left="689px";
 	}
 	else { // arrange bookmarks at right of screen
+		if(localStorage.getItem("accept") == "true"){
+			localStorage.setItem("bookmarksPosition","right");
+		}
 		document.getElementById("changeChat").style.left="1162px";
 		document.getElementById("changeChat").style.transform="rotate(0deg)";
 		document.getElementById("changeChat").style.transformOrigin="top left";
@@ -1350,7 +1355,7 @@ Dom.inventory.drop = function(ev,equip) { // when an item is dropped
 		}else{ // if the item is being moved from a weapon/armour slot
 			if(test[12] == "T" && ev.target.innerHTML == ""){ // if there is not an item already there
 				for(var i = 0; i < Player.inventory.items.length; i++){ // repeats code for all inventory slots
-					if(document.getElementById("itemInventory").getElementsByTagName("td")[i] == ev.target){ // if the item slot us where you are putting the item
+					if(document.getElementById("itemInventory").getElementsByTagName("td")[i] == ev.target){ // if the item slot is where you are putting the item
 						Player.inventory.items[i] = Player.inventory[data][0]; // sets the slot you are putting the item in to the item you are putting in it
 						document.getElementById(data).innerHTML = ""; // updates the image for the new slot
 						ev.target.innerHTML = "<img src='"+Player.inventory.items[i].image+"' draggable='true' ondragstart='Dom.inventory.drag(event,"+i+")'></img>"; // updates the image for the new slot
@@ -1368,7 +1373,30 @@ Dom.inventory.drop = function(ev,equip) { // when an item is dropped
 						}
 					}
 				}
-				Player.inventory.items[data] = {}; // sets the slot you got the item from to empty
+			}else{ // if there is an item already there
+				for(var i = 0; i < Player.inventory.items.length; i++){ // repeats code for all inventory slots
+					if(document.getElementById("itemInventory").getElementsByTagName("td")[i].innerHTML == ev.target.outerHTML && (((Player.inventory.items[i].type == "sword" || Player.inventory.items[i].type == "staff" || Player.inventory.items[i].type == "bow") && data == "weapon") || Player.inventory.items[i].type == data)){ // if the item slot is where you are putting the item
+						test = Player.inventory.items[i];
+						Player.inventory.items[i] = Player.inventory[data][0]; // sets the slot you are putting the item in to the item you are putting in it
+						document.getElementById("itemInventory").getElementsByTagName("td")[i].innerHTML = "<img src='"+Player.inventory[data][0].image+"' draggable='true' ondragstart='Dom.inventory.drag(event,"+i+")'></img>"; // updates the image for the new slot
+						if(Player.inventory.items[i].stacked != undefined && Player.inventory.items[i].stacked != 1){
+							ev.target.innerHTML += "<div class='stackNum' id='stackNum"+i+"'>"+Player.inventory.items[i].stacked+"</div>";
+						}
+						if(Player.inventory.items[i].type != "sword" && Player.inventory.items[i].type != "staff" && Player.inventory.items[i].type != "bow"){ // if it is armour
+							Dom.inventory.removeEquipment(Player.inventory[Player.inventory.items[i].type]); // removes the stats of that armour from the total
+							Player.inventory[Player.inventory.items[i].type].splice(0,1); // sets the slot you are putting the item in to the item you are putting in it
+							Player.inventory[Player.inventory.items[i].type].push({name: "",image: "",stats: {},},); // sets the slot you are putting the item in to the item you are putting in it
+						}else{ // if it is a weapon
+							Dom.inventory.removeEquipment(Player.inventory.weapon); // removes the stats of that weapon from the total
+							Player.inventory.weapon.splice(0,1); // removes the weapon
+							Player.inventory.weapon.push({name: "",image: "",stats: {},},); // sets the weapon to no weapon
+						}
+						Player.inventory[data].splice(0,1);
+						Player.inventory[data].push(test);
+						Dom.inventory.addEquipment(Player.inventory[data]); // removes the stats of that armour from the total
+						document.getElementById(data).innerHTML = "<img src='"+Player.inventory[data][0].image+"' draggable='true' ondragstart='Dom.inventory.drag(event,\""+data+"\")'></img>"; // updates the image
+					}
+				}
 			}
 		}
 	}else if(data != "weapon" && data != "helm" && data != "chest" && data != "greaves" && data != "boots"){ // if the item is being moved to a weapon/armour slot
@@ -1382,7 +1410,7 @@ Dom.inventory.drop = function(ev,equip) { // when an item is dropped
 				document.getElementById(ev.target.id).innerHTML = "<img src='"+Player.inventory[ev.target.id][0].image+"' draggable='true' ondragstart='Dom.inventory.drag(event,\""+ev.target.id+"\")'></img>"; // updates the image
 			}
 		}else{ // if there is already an item there
-			if((Player.inventory.items[data].type == equip || (Player.inventory.items[data].type == "sword" && equip == "weapon") || (Player.inventory.items[data].type == "staff" && equip == "weapon") || (Player.inventory.items[data].type == "bow" && equip == "weapon")) && !Player.inventory.items[data].unidentified){ // if the item is allowed in that slot (e.g. a helm in the helm slot);
+			if((Player.inventory.items[data].type == equip || ((Player.inventory.items[data].type == "sword" || Player.inventory.items[data].type == "staff" || Player.inventory.items[data].type == "bow")) && equip == "weapon") && !Player.inventory.items[data].unidentified){ // if the item is allowed in that slot (e.g. a helm in the helm slot);
 				test = Player.inventory[equip][0]; // sets the variable for later
 				Dom.inventory.removeEquipment(Player.inventory[equip]); // removes the stats of the equipment from the total
 				Player.inventory[equip].splice(0,1); // sets the slot you are putting the item in to the item you are putting in it
@@ -1400,10 +1428,10 @@ Dom.inventory.drop = function(ev,equip) { // when an item is dropped
 Dom.inventory.removeEquipment = function(array){ // removes the stats of an item from the player's total
 	if(array[0].stats != undefined){
 		for(var i = 0; i < Object.keys(array[0].stats).length; i++){ // repeats code for all stats in old item
-			if(Object.keys(array[0].stats)[i] != "Poison"){
+			if(Object.keys(array[0].stats)[i] != "poison"){
 				Player.stats[Object.keys(array[0].stats)[i]] -= parseInt(array[0].stats[Object.keys(array[0].stats)[i]]); // minuses that stat from the player's stats
 			}else{
-				var split = array[0].stats.Poison.split('/');
+				var split = array[0].stats.poison.split('/');
 				Player.stats.poisonX -= parseInt(split[0]);
 				Player.stats.poisonY -= parseInt(split[1]);
 			}
@@ -1427,10 +1455,10 @@ Dom.inventory.removeEquipment = function(array){ // removes the stats of an item
 Dom.inventory.addEquipment = function(array){ // adds the stats of an item to the payer's total
 	if(array[0].stats != undefined){
 		for(var i = 0; i < Object.keys(array[0].stats).length; i++){ // repeats code for all stats in old item
-			if(Object.keys(array[0].stats)[i] != "Poison"){
+			if(Object.keys(array[0].stats)[i] != "poison"){
 				Player.stats[Object.keys(array[0].stats)[i]] += parseInt(array[0].stats[Object.keys(array[0].stats)[i]]); // minuses that stat from the player's stats
 			}else{
-				var split = array[0].stats.Poison.split('/');
+				var split = array[0].stats.poison.split('/');
 				Player.stats.poisonX += parseInt(split[0]);
 				Player.stats.poisonY += parseInt(split[1]);
 			}
@@ -1520,3 +1548,10 @@ document.getElementById("hotbar").onmouseover = function(){
 document.getElementById("hotbar").onmouseleave = function(){
 	document.getElementById("hotbar").style.opacity = "0.6";
 }
+
+Dom.alert.target = function(){
+	localStorage.setItem("accept","true");
+	document.getElementById("settingAcceptHolder").innerHTML = "";
+}
+
+Dom.alert.page("This site uses local storage for progress saving, do you accept?",true);
