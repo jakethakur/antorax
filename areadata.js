@@ -384,12 +384,18 @@ var Areas = { // areas should have a capital (global variable)
 				"tiles",
 				"rockGoblin",
 				"rock",
+				"swordGoblin",
+				"hammerGoblin",
+				"melee",
 			],
 			
 			addresses: [
 				"./assets/tilemap/nilbog.png",
 				"./assets/enemies/goblinRockthrower.png",
 				"./assets/projectiles/rock.png",
+				"./assets/enemies/goblinSkirmisher.png",
+				"./assets/enemies/goblinBruiser.png",
+				"./assets/projectiles/knight.png",
 			],
 		},
 		
@@ -453,8 +459,62 @@ var Areas = { // areas should have a capital (global variable)
 						y: 0,
 					},
 					image: "rock",
-				}
-			}
+				},
+			},
+			{
+				x: 900,
+				y: 300,
+				width: 38,
+				height: 87,
+				image: "swordGoblin",
+				name: "Goblin Skirmisher",
+				stats: {
+					damage: 2,
+					walkSpeed: 90,
+					maxHealth: 14,
+					defence: 2,
+					range: 60,
+					reloadTime: 1500,
+				},
+				leashRadius: 400,
+				projectile: {
+					width: 1,
+					height: 1,
+					adjust: {
+						// manually adjust position - make this per class (per projectile image) in the future ( tbd )
+						x: 0,
+						y: 0,
+					},
+					image: "melee",
+				},
+			},
+			{
+				x: 1000,
+				y: 250,
+				width: 46,
+				height: 93,
+				image: "hammerGoblin",
+				name: "Goblin Bruiser",
+				stats: {
+					damage: 3,
+					walkSpeed: 70,
+					maxHealth: 14,
+					defence: 3,
+					range: 60,
+					reloadTime: 2000,
+				},
+				leashRadius: 400,
+				projectile: {
+					width: 1,
+					height: 1,
+					adjust: {
+						// manually adjust position - make this per class (per projectile image) in the future ( tbd )
+						x: 0,
+						y: 0,
+					},
+					image: "melee",
+				},
+			},
 		],
 	},
 	
