@@ -1543,13 +1543,17 @@ Game.statusUpdate = function () {
 
 // called whenever player xp is changed
 Game.getXP = function () {
-	if(Player.xp >= LevelXP[Player.level]) {
-		Player.xp -= LevelXP[Player.level];
-		Player.level++;
-		Game.playLevelupSound(this.areaName);
-		Dom.levelUp.page();
+	if(Player.level < LevelXP.length - 1){
+		if(Player.xp >= LevelXP[Player.level]) {
+			Player.xp -= LevelXP[Player.level];
+			Player.level++;
+			Game.playLevelupSound(this.areaName);
+			Dom.levelUp.page();
+		}
+		Game.secondary.render();
+	}else{
+		Player.xp = LevelXP[Player.level];
 	}
-	Game.secondary.render();
 }
 
 // called whenever inventory is changed (in order to change player stats)
@@ -1946,13 +1950,20 @@ Game.secondary.render = function () {
 	
 	// rainbow gradient
 	var grd = this.ctx.createLinearGradient(totalLeft, 0, totalLeft+totalWidth-1, 0);
-	grd.addColorStop(0, "red");
-	grd.addColorStop("0.2", "yellow");
-	grd.addColorStop("0.4", "green");
-	grd.addColorStop("0.6", "blue");
-	grd.addColorStop("0.8", "magenta");
-	grd.addColorStop(1, "indigo");
-	this.ctx.fillStyle = grd;	
+	if(Player.level < LevelXP.length - 1){
+		grd.addColorStop(0, "red");
+		grd.addColorStop("0.2", "yellow");
+		grd.addColorStop("0.4", "green");
+		grd.addColorStop("0.6", "blue");
+		grd.addColorStop("0.8", "magenta");
+		grd.addColorStop(1, "indigo");
+	}else{
+		grd.addColorStop(0, "#daa520");
+		grd.addColorStop(0.6, "#daa520");
+		grd.addColorStop(0.8, "#e8c264");
+		grd.addColorStop(1, "#daa520");
+	}
+	this.ctx.fillStyle = grd;
 	
 	// xp bar body
 	this.ctx.fillRect(totalLeft, totalTop, Player.xpFraction * totalWidth, totalHeight);

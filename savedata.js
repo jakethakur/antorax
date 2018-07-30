@@ -83,4 +83,4 @@ var Player = {
 	statusEffects: [], // updated by saved data / main [function Game.hero.updateStatusEffects()]
 };
 
-LevelXP = [0, 50, 100, 150, 200, 250];
+LevelXP = [0, 50, 100, 125, 150, 175];

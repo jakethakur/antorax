@@ -1474,6 +1474,7 @@ document.getElementById("settingLogoutInner").onclick = function(){
 Dom.levelUp.page = function(){
 	Dom.changeBook("levelUpPage");
 	Dom.currentlyDisplayed = "levelUp";
+	Player.stats.maxHealth+=5;
 	document.getElementById("levelUpPageLevel").innerHTML = Player.level-1 + " &#10132; " + Player.level;
 	document.getElementById("levelUpPageUnlock").innerHTML = "<strong>Quests Unlocked:</strong>"
 	for(var i = 0; i < Object.keys(Quests).length; i++){
@@ -1482,6 +1483,9 @@ Dom.levelUp.page = function(){
 				document.getElementById("levelUpPageUnlock").innerHTML += "<br>" + Quests[Object.keys(Quests)[i]][x].quest;
 			}
 		}
+	}
+	if(Player.level >= LevelXP.length - 1){
+		Player.xp = LevelXP[Player.level];
 	}
 	Dom.quests.possible();
 }
@@ -1507,4 +1511,12 @@ document.getElementById("alertYes").onclick = function(){
 
 document.getElementById("alertNo").onclick = function(){
 	document.getElementById("alert").hidden = true;
+}
+
+document.getElementById("hotbar").onmouseover = function(){
+	document.getElementById("hotbar").style.opacity = "1";
+}
+
+document.getElementById("hotbar").onmouseleave = function(){
+	document.getElementById("hotbar").style.opacity = "0.6";
 }

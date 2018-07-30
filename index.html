@@ -209,7 +209,7 @@
 		<p id="levelUpPageTitle">Level Up!</p>
 		<p id="levelUpPageLevel"></p>
 		<p id="levelUpPageUnlock"></p>
-		<center><div id="levelUpPageClose" class="closeClass" onclick="Dom.changeBook(Dom.previous, true)">Close</div></center>
+		<center><div id="levelUpPageClose" class="closeClass" onclick="Dom.changeBook(Dom.previous, true);Game.inventoryUpdate();Game.secondary.render();Game.getXP();">Close</div></center>
 	</div>
 	<div id="chatImage"onclick="Dom.changeBook('chatPage', false)"></div>
 	<span id="dot" onclick="Dom.changeBook('chatPage', false)" hidden></span>
