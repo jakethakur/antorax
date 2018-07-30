@@ -26,7 +26,7 @@ var Items = {
 			obtain: "Find as an unidentified item in Eaglecrest Logging Camp",
 			area: "Eaglecrest Logging Camp",
 			stats: {
-				defence: 2,
+				defence: "+2",
 			},
 		},
 		{
@@ -41,7 +41,7 @@ var Items = {
 			area: "Eaglecrest Logging Camp",
 			set: 3,
 			stats: {
-				defence: 3,
+				defence: "+3",
 				looting: "+5%",
 			},
 		},
@@ -57,7 +57,7 @@ var Items = {
 			area: "Eaglecrest Logging Camp",
 			set: 2,
 			stats: {
-				defence: 3,
+				defence: "+3",
 				healthRegen: "+1/s",
 			},
 		},
@@ -72,7 +72,7 @@ var Items = {
 			obtain: "Find as an unidentified item in Eaglecrest Logging Camp",
 			area: "Eaglecrest Logging Camp",
 			stats: {
-				defence: 4,
+				defence: "+4",
 				reflection: "+20%",
 			},
 		},
@@ -102,7 +102,7 @@ var Items = {
 			obtain: "Find as an unidentified item in Eaglecrest Logging Camp",
 			area: "Eaglecrest Logging Camp",
 			stats: {
-				defence: 3,
+				defence: "+3",
 			},
 		},
 		{
@@ -117,7 +117,7 @@ var Items = {
 			area: "Eaglecrest Logging Camp",
 			set: 3,
 			stats: {
-				defence: 4,
+				defence: "+4",
 				looting: "+5%",
 			},
 		},
@@ -133,7 +133,7 @@ var Items = {
 			area: "Eaglecrest Logging Camp",
 			set: 2,
 			stats: {
-				defence: 4,
+				defence: "+4",
 				healthRegen: "+1/s",
 			},
 		},
@@ -148,7 +148,7 @@ var Items = {
 			obtain: "Find as an unidentified item in Eaglecrest Logging Camp",
 			area: "Eaglecrest Logging Camp",
 			stats: {
-				defence: 6,
+				defence: "+6",
 				walkSpeed: "-40/s",
 			},
 		},
@@ -179,7 +179,7 @@ var Items = {
 			obtain: "Find as an unidentified item in Eaglecrest Logging Camp",
 			area: "Eaglecrest Logging Camp",
 			stats: {
-				defence: 3,
+				defence: "+3",
 			},
 		},
 		{
@@ -194,7 +194,7 @@ var Items = {
 			area: "Eaglecrest Logging Camp",
 			set: 3,
 			stats: {
-				defence: 4,
+				defence: "+4",
 				looting: "+5%",
 			},
 		},
@@ -210,7 +210,7 @@ var Items = {
 			area: "Eaglecrest Logging Camp",
 			set: 2,
 			stats: {
-				defence: 4,
+				defence: "+4",
 				healthRegen: "+1/s",
 			},
 		},
@@ -225,7 +225,7 @@ var Items = {
 			obtain: "Find as an unidentified item in Eaglecrest Logging Camp",
 			area: "Eaglecrest Logging Camp",
 			stats: {
-				defence: 4,
+				defence: "+4",
 				dodgeChance: "+20%",
 				healthRegen: "+2/s",
 			},
@@ -256,7 +256,7 @@ var Items = {
 			lore: "Protects you from splinters. And goblins!",
 			obtain: "Recieve as a reward for completing quest: 'To the Logging Camp'",
 			stats: {
-				defence: 1,
+				defence: "+1",
 				walkSpeed: "+30/s",
 			},
 		},
@@ -270,7 +270,7 @@ var Items = {
 			obtain: "Find as an unidentified item in Eaglecrest Logging Camp",
 			area: "Eaglecrest Logging Camp",
 			stats: {
-				defence: 2,
+				defence: "+2",
 			},
 		},
 		{
@@ -285,7 +285,7 @@ var Items = {
 			area: "Eaglecrest Logging Camp",
 			set: 3,
 			stats: {
-				defence: 3,
+				defence: "+3",
 				looting: "+5%",
 			},
 		},
@@ -301,7 +301,7 @@ var Items = {
 			area: "Eaglecrest Logging Camp",
 			set: 2,
 			stats: {
-				defence: 3,
+				defence: "+3",
 				healthRegen: "+1/s",
 			},
 		},
@@ -316,7 +316,7 @@ var Items = {
 			obtain: "Find as an unidentified item in Eaglecrest Logging Camp",
 			area: "Eaglecrest Logging Camp",
 			stats: {
-				defence: 2,
+				defence: "+2",
 				criticalChance: "+10%",
 				dodgeChance: "+10%",
 				healthRegen: "+1/s",
@@ -333,7 +333,7 @@ var Items = {
 			lore: "'James just feels like poison' - Peter",
 			obtain: "Log in on James Day",
 			stats: {
-				defence: 4,
+				defence: "+4",
 				swimSpeed: "-50/s"
 			},
 		},
@@ -363,7 +363,7 @@ var Items = {
 			rarity: "common",
 			obtain: "Purchase from a merchant in the Fisher's Valley",
 			stats: {
-				damage: 2,
+				damage: "+2",
 			},
 		},
 		{
@@ -376,7 +376,7 @@ var Items = {
 			obtain: "Find as an unidentified item in Eaglecrest Logging Camp",
 			area: "Eaglecrest Logging Camp",
 			stats: {
-				damage: 3,
+				damage: "+3",
 			},
 		},
 		{
@@ -390,7 +390,7 @@ var Items = {
 			obtain: "Find as an unidentified item in Eaglecrest Logging Camp",
 			area: "Eaglecrest Logging Camp",
 			stats: {
-				damage: 3,
+				damage: "+3",
 				poison: "1/1s",
 			},
 		},
@@ -405,7 +405,7 @@ var Items = {
 			obtain: "Find as an unidentified item in Eaglecrest Logging Camp",
 			area: "Eaglecrest Logging Camp",
 			stats: {
-				damage: 4,
+				damage: "+4",
 				criticalChance: "+10%",
 			},
 		},
@@ -420,7 +420,7 @@ var Items = {
 			obtain: "Find as an unidentified item in Eaglecrest Logging Camp",
 			area: "Eaglecrest Logging Camp",
 			stats: {
-				damage: 4,
+				damage: "+4",
 				stun: "1s",
 			},
 		},
@@ -450,7 +450,7 @@ var Items = {
 			rarity: "common",
 			obtain: "Purchase from a merchant in the Fisher's Valley",
 			stats: {
-				damage: 2,
+				damage: "+2",
 			},
 		},
 		{
@@ -463,7 +463,7 @@ var Items = {
 			obtain: "Find as an unidentified item in Eaglecrest Logging Camp",
 			area: "Eaglecrest Logging Camp",
 			stats: {
-				damage: 3,
+				damage: "+3",
 			},
 		},
 		{
@@ -477,7 +477,7 @@ var Items = {
 			obtain: "Find as an unidentified item in Eaglecrest Logging Camp",
 			area: "Eaglecrest Logging Camp",
 			stats: {
-				damage: 3,
+				damage: "+3",
 				healthRegen: "+1/s",
 			},
 		},
@@ -492,7 +492,7 @@ var Items = {
 			obtain: "Find as an unidentified item in Eaglecrest Logging Camp",
 			area: "Eaglecrest Logging Camp",
 			stats: {
-				damage: 3,
+				damage: "+3",
 				criticalChance: "+25%",
 			},
 		},
@@ -507,7 +507,7 @@ var Items = {
 			obtain: "Find as an unidentified item in Eaglecrest Logging Camp",
 			area: "Eaglecrest Logging Camp",
 			stats: {
-				damage: 2,
+				damage: "+2",
 				looting: "+45%",
 			},
 		},
@@ -521,7 +521,7 @@ var Items = {
 			area: "Eaglecrest Logging Camp",
 			rarity: "common",
 			stats: {
-				damage: 2,
+				damage: "+2",
 			}
 		},
 	],
@@ -550,7 +550,7 @@ var Items = {
 			rarity: "common",
 			obtain: "Purchase from a merchant in the Fisher's Valley",
 			stats: {
-				damage: 2,
+				damage: "+2",
 			},
 		},
 		{
@@ -563,7 +563,7 @@ var Items = {
 			obtain: "Find as an unidentified item in Eaglecrest Logging Camp",
 			area: "Eaglecrest Logging Camp",
 			stats: {
-				damage: 3,
+				damage: "+3",
 			},
 		},
 		{
@@ -577,7 +577,7 @@ var Items = {
 			obtain: "Find as an unidentified item in Eaglecrest Logging Camp",
 			area: "Eaglecrest Logging Camp",
 			stats: {
-				damage: 3,
+				damage: "+3",
 				focusSpeed: "+1/s",
 			},
 		},
@@ -592,7 +592,7 @@ var Items = {
 			obtain: "Find as an unidentified item in Eaglecrest Logging Camp",
 			area: "Eaglecrest Logging Camp",
 			stats: {
-				damage: 2,
+				damage: "+2",
 				criticalChance: "+75%",
 			},
 		},
@@ -607,7 +607,7 @@ var Items = {
 			obtain: "Find as an unidentified item in Eaglecrest Logging Camp",
 			area: "Eaglecrest Logging Camp",
 			stats: {
-				damage: 3,
+				damage: "+3",
 				flaming: 1,
 			},
 		},
@@ -641,7 +641,7 @@ var Items = {
 				"Siege Boots",
 			],
 			stats: {
-				defence: "5",
+				defence: "+5",
 			},
 		},
 		{

@@ -1311,6 +1311,7 @@ Game.getTime = function() {
 Game.playMusic = function () {
 	// check the user has allowed music to play
 	if (document.getElementById("musicOn").checked) {
+		localStorage.setItem("playMusic","true");
 		// check if the new area's music is already being played
 		if (this.playingMusic !== Areas[this.areaName]["song_" + this.time]) {
 			this.loadMusic(Areas[this.areaName]["song_" + this.time]);
@@ -1339,6 +1340,7 @@ Game.loadMusic = function (song) {
 
 // stop playing current music
 Game.stopMusic = function () {
+	localStorage.setItem("playMusic","false");
 	this.audio.pause();
 	this.playingMusic = null;
 }
