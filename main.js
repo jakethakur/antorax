@@ -1769,10 +1769,7 @@ Game.drawHealthBar = function (ctx, character, x, y, width, height) {
 		ctx.strokeRect(x + barValue / character.stats.maxHealth * width * i, y, barValue / character.stats.maxHealth * width, height);
 	}
 	// old code: ctx.strokeRect(x + barValue / character.stats.maxHealth * Math.round(character.stats.maxHealth / barValue), y, width, height);
-	console.log(x + barValue / character.stats.maxHealth * width * 5);
-	console.log(((character.stats.maxHealth - (character.stats.maxHealth / barValue - 1) * barValue)/barValue) * barValue / character.stats.maxHealth * width);
-	console.log(character);
-	ctx.strokeRect(x + barValue / character.stats.maxHealth * width * Math.round(character.stats.maxHealth / barValue - 1), y, ((character.stats.maxHealth - (character.stats.maxHealth / barValue - 1) * barValue)/barValue) * barValue / character.stats.maxHealth * width, height);
+	ctx.strokeRect(x + barValue / character.stats.maxHealth * width * Math.floor(character.stats.maxHealth / barValue), y, width - Math.floor(character.stats.maxHealth / barValue) * barValue / character.stats.maxHealth * width, height);
 	
 	// restore previous canvas formatting preferences
 	ctx.globalAlpha = oldGlobalAlpha;
