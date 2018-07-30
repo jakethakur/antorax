@@ -270,7 +270,6 @@ var Areas = { // areas should have a capital (global variable)
 				name: "Target Dummy",
 				stats: {
 					maxHealth: 10,
-					defence: 5,
 				},
 				chat: {
 					fiftyPercentHealth: "/me creaks",

@@ -104,6 +104,7 @@ Keyboard.isDown = function (keyCode) {
 //
 
 var Game = {
+	statusEffects: {},
 	secondary: {},
 };
 Game.canvas = document.getElementById("game");
@@ -687,35 +688,8 @@ class Projectile extends Thing {
 					}
 					
 					// poison
-					// TBD decide if defence should affect this
 					if (attacker.stats.poisonX > 0 && attacker.stats.poisonY > 0) { // check player weapon has poison
-						// remember poison damage (so the player cannot change their weapon)
-						to[i][x].statusEffects.push(new statusEffect({
-							title: "Poisoned",
-							effect: "Take " + attacker.stats.poisonX + " damage over " + attacker.stats.poisonY + " seconds.",
-							info: {
-								poisonDamage: attacker.stats.poisonX,
-								poisonTime: attacker.stats.poisonY,
-								poisonTicks: 0, // increased by 1 every tick
-							},
-							idNumber: x,
-							tick: function() { // deal poison damage every second
-								if (this.info.poisonTicks < this.info.poisonTime) { // check poison has not expired
-									to[i][this.idNumber].health -= this.info.poisonDamage / this.info.poisonTime;
-									to[i][this.idNumber].damageTaken += this.info.poisonDamage / this.info.poisonTime;
-									this.info.poisonTicks++;
-								}
-								else { // remove poison interval
-									for (var z = 0; z < to[i][this.idNumber].statusEffects.length; z++) { // try to find poison in array (inefficient?)
-										if (to[i][this.idNumber].statusEffects[z].info.poisonTicks >= to[i][this.idNumber].statusEffects[z].info.poisonTime) {
-											to[i][this.idNumber].statusEffects.splice(z, 0);
-											break;
-										}
-									}
-								}
-							},
-						}));
-						Game.hero.updateStatusEffects();
+						Game.statusEffects.poison(attacker.stats.poisonX, attacker.stats.poisonY, to[i][x]);
 					}
 					
 					if (to[i][x] == Game.hero) { // re-render the second canvas if the hero has been damaged
@@ -972,18 +946,65 @@ class Enemy extends Attacker {
 }
 
 //
-// Constructors
+// Status effects
 //
 
+// status effect constructor
 function statusEffect(properties) {
 	this.title = properties.title; // displayed title
 	this.effect = properties.effect; // displayed effect
 	
 	this.info = properties.info; // extra information (e.g: poison damage and length)
 	
-	this.idNumber = properties.idNumber; // number to refer back to the main object - e.g: Game.enemies[idNumber]
-	
 	this.tick = properties.tick; // function to be carried out every second
+}
+
+// check through owner's status effects to see which can be removed
+// called by a status effect's own tick function
+// might need to be reworked (tbd)
+Game.removeStatusEffect = function (owner) {
+	for (let i = 0; i < owner.statusEffects.length; i++) { // iterate through owner's status effects
+		if (typeof owner.statusEffects[i].info.time !== "undefined" && typeof owner.statusEffects[i].info.ticks !== "undefined") { // check that the status effect can expire
+			if (owner.statusEffects[i].info.ticks >= owner.statusEffects[i].info.time) { // check if it has expired
+				owner.statusEffects.splice(i, 1); // remove it
+				i--;
+			}
+		}
+	}
+}
+
+// give target the poison debuff
+// damage per second = damage / time
+// TBD decide if defence should affect this
+Game.statusEffects.poison = function(damage, time, target) {
+	target.statusEffects.push(new statusEffect({
+		title: "Poisoned",
+		effect: "Take " + damage + " damage over " + time + " seconds.",
+		info: {
+			poisonDamage: damage,
+			time: time,
+			ticks: 0, // increased by 1 every tick
+		},
+		tick: function (owner) { // deal poison damage every second
+			if (this.info.ticks < this.info.time) { // check poison has not expired
+				owner.health -= this.info.poisonDamage / this.info.time;
+				owner.damageTaken += this.info.poisonDamage / this.info.time;
+				this.info.ticks++;
+				setTimeout(function (owner) {
+					this.tick(owner);
+				}.bind(this), 1000, owner);
+			}
+			else { // remove poison interval
+				Game.removeStatusEffect(owner);
+			}
+		},
+	}));
+	
+	setTimeout(function (owner) {
+		owner.statusEffects[owner.statusEffects.length - 1].tick(owner);
+	}.bind(target.statusEffects[target.statusEffects.length - 1]), 1000, target);
+	
+	Game.hero.updateStatusEffects();
 }
 
 //
@@ -1235,9 +1256,6 @@ Game.init = function () {
 	
 	// check for in-game events
 	this.checkEvents();
-	
-	// update status effects every second
-	this.statusInterval = setInterval(this.statusUpdate.bind(this), 1000);
 	
 	// begin game display
 	Game.secondary.render();
@@ -1513,33 +1531,6 @@ Game.update = function (delta) {
 		this.hero.channelTime++;
 	}
 };
-
-// update status effects (called once a second)
-Game.statusUpdate = function () {
-	// iterate through enemy status effects
-	for (var i = 0; i < this.enemies.length; i++) {
-		for (var x = 0; x < this.enemies[i].statusEffects.length; x++) {
-			// check if the status effect has a function that needs to be called (every second)
-			if (this.enemies[i].statusEffects[x].tick !== undefined) {
-				this.enemies[i].statusEffects[x].tick();
-			}
-			// check for expired status effects
-			//tbd
-		}
-	}
-	
-	// iterate through dummy status effects
-	for (var i = 0; i < this.dummies.length; i++) {
-		for (var x = 0; x < this.dummies[i].statusEffects.length; x++) {
-			// check if the status effect has a function that needs to be called (every second)
-			if (this.dummies[i].statusEffects[x].tick !== undefined) {
-				this.dummies[i].statusEffects[x].tick();
-			}
-			// check for expired status effects
-			//tbd
-		}
-	}
-}
 
 // called whenever player xp is changed
 Game.getXP = function () {
@@ -1985,10 +1976,10 @@ Game.secondary.render = function () {
 		if(Game.hero.statusEffects[i].title == "Stuck in the mud"){
 			iconNum = 1;
 		}
-		else if(Game.hero.statusEffects[i].title == "Poison") {
+		else if(Game.hero.statusEffects[i].title == "Poisoned") {
 			iconNum = 2;
 		}
-		else if(Game.hero.statusEffects[i].title == "Stun") {
+		else if(Game.hero.statusEffects[i].title == "Stunned") {
 			iconNum = 3;
 		}
 		else if(Game.hero.statusEffects[i].title == "Swimming") {
