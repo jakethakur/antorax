@@ -382,12 +382,14 @@ var Areas = { // areas should have a capital (global variable)
 		images: {
 			names: [
 				"tiles",
-				"goblinRock",
+				"rockGoblin",
+				"rock",
 			],
 			
 			addresses: [
 				"./assets/tilemap/nilbog.png",
 				"./assets/enemies/goblinRockthrower.png",
+				"./assets/projectiles/rock.png",
 			],
 		},
 		
@@ -432,25 +434,25 @@ var Areas = { // areas should have a capital (global variable)
 				y: 400,
 				width: 38,
 				height: 87,
-				image: "goblinRock",
+				image: "rockGoblin",
 				name: "Goblin Rockthrower",
 				stats: {
 					damage: 2,
-					walkSpeed: 160,
+					walkSpeed: 100,
 					maxHealth: 14,
 					range: 200,
 					reloadTime: 2000,
 				},
-				leashRadius: 600,
+				leashRadius: 400,
 				projectile: {
-					width: 10,
-					height: 40,
+					width: 27,
+					height: 20,
 					adjust: {
 						// manually adjust position - make this per class (per projectile image) in the future ( tbd )
-						x: 30,
-						y: 70,
+						x: 0,
+						y: 0,
 					},
-					image: "projectile",
+					image: "rock",
 				}
 			}
 		],

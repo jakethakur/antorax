@@ -523,12 +523,12 @@ class Hero extends Attacker {
 		if (slowTile === null) { // normal speed
 			this.speed = this.stats.walkSpeed;
 			// remove swimming/mud status effect
-			for(var i = 0; i < this.statusEffects.length; i++){
-				if(this.statusEffects[i].title == "Swimming" || this.statusEffects[i].title == "Stuck in the mud"){
+			for (var i = 0; i < this.statusEffects.length; i++) {
+				if (this.statusEffects[i].title == "Swimming" || this.statusEffects[i].title == "Stuck in the mud") {
 					this.statusEffects.splice(i,1);
+					this.updateStatusEffects();
 				}
 			}
-			this.updateStatusEffects();
 		}
 		else if (slowTile === "water") { // in water tile
 			if(this.speed === this.stats.walkSpeed) {
@@ -898,7 +898,7 @@ class Enemy extends Attacker {
 		// perhaps condense into hostile and passive ai functions (that also apply to things like villagers)?
 		if (distance(this, Game.hero) < this.stats.range) { // enemy should attack hero
 			if (this.canAttack) { // projectile can be shot
-				this.shoot(Game.hero);
+				this.shoot([[Game.hero],]);
 			}
 		}
 		else if (distance(this, Game.hero) > this.leashRadius) { // enemy should move passively
@@ -917,7 +917,8 @@ class Enemy extends Attacker {
 		this.y += Math.sin(this.bearing) * this.speed * delta;
 	}
 	
-	// shoot projectile at array of enemies
+	// shoot projectile at array of arrays of enemies (at)
+	// currently just the first thing in at is shot at - tbd
 	shoot (at) {
 		this.canAttack = false;
 		
@@ -925,8 +926,8 @@ class Enemy extends Attacker {
 		
 		// TBD add randomness in projectile impact towards player
 		// TBD make it so that this randomness can make the enemy miss? this could be a specifyable stat
-		projectileX = Game.camera.x + Game.hero.screenX - Game.hero.width / 2;
-		projectileY = Game.camera.y + Game.hero.screenY - Game.hero.height / 2;
+		projectileX = at[0][0].x;
+		projectileY = at[0][0].y;
 		projectileRotate = bearing(this, {x: projectileX, y: projectileY}) + Math.PI / 2;
 		
 		this.channellingProjectileId = Game.nextProjectileId;
@@ -946,7 +947,7 @@ class Enemy extends Attacker {
 		}));
 		
 		// damage allies that the projectile is touching
-		Game.projectiles[Game.searchFor(this.channellingProjectileId, Game.projectiles)].dealDamage(this, [[Game.hero],]);
+		Game.projectiles[Game.searchFor(this.channellingProjectileId, Game.projectiles)].dealDamage(this, at);
 		
 		// wait to shoot next projectile
 		setTimeout(function () {
@@ -1765,11 +1766,12 @@ Game.drawHealthBar = function (ctx, character, x, y, width, height) {
 	// health bar border
 	ctx.strokeStyle = "black";
 	ctx.strokeRect(x, y, width, height); // general border around the whole thing
-	for (let i = 0; i < character.stats.maxHealth / barValue - 1; i++) {
+	for (var i = 0; i < character.stats.maxHealth / barValue - 1; i++) {
 		ctx.strokeRect(x + barValue / character.stats.maxHealth * width * i, y, barValue / character.stats.maxHealth * width, height);
 	}
-	// old code: ctx.strokeRect(x + barValue / character.stats.maxHealth * Math.round(character.stats.maxHealth / barValue), y, width, height);
-	ctx.strokeRect(x + barValue / character.stats.maxHealth * width * Math.floor(character.stats.maxHealth / barValue), y, width - Math.floor(character.stats.maxHealth / barValue) * barValue / character.stats.maxHealth * width, height);
+	
+	// final bar
+	ctx.strokeRect(x + barValue / character.stats.maxHealth * width * i, y, width - (barValue / character.stats.maxHealth * width * i), height);
 	
 	// restore previous canvas formatting preferences
 	ctx.globalAlpha = oldGlobalAlpha;
