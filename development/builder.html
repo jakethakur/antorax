@@ -19,13 +19,13 @@
 		<th>Balance comments</th> 
 	</tr>
 	<tr>
-		<td>Damage: "x"</td>
+		<td>Damage: "+x"</td>
 		<td><strong>Weapons only</strong>. Changes damage dealt from an attack. Can interact with some spells and abilities to decide how strong they are.</td>
 		<td>0</td>
 	</tr>
 	<tr>
-		<td>Defense: "x"</td>
-		<td>Reduces damage taken (quadratically).</td>
+		<td>Defence: "+x"</td>
+		<td>Reduces damage taken. 1 defence = 1 less damage taken</td>
 		<td>0</td>
 	</tr>
 	<tr>
@@ -40,8 +40,8 @@
 		<td>Don't give any individual item more than 10-15% without a suitable downside, otherwise a player could be able get near 100%!</td>
 	</tr>
 	<tr>
-		<td>Flaming: "+x"</td>
-		<td><strong>Weapons only</strong>. Makes your attacks flaming, meaning 1 damage is dealt every second for 3 seconds for tier 1 and is more powerful at higher tiers. On attack, this status is refreshed (cannot stack). Ignores defense.</td>
+		<td>Flaming: "x"</td>
+		<td><strong>Weapons only</strong>. x = tier of flaming (displayed in roman numerals). Makes your attacks flaming, meaning 1 damage is dealt every second for 3 seconds for tier 1 and is more powerful at higher tiers. On attack, this status is refreshed (cannot stack). Ignores defence.</td>
 		<td>0</td>
 		<td>Might interact with spells, abilities and passives in the future to become more powerful.</td>
 	</tr>
@@ -63,7 +63,7 @@
 	</tr>
 	<tr>
 		<td>Poison: "+x/ys"</td>
-		<td><strong>Weapons only</strong>. Deals bonus damage to the enemy (x) over a time period (y). This ability can stack. E.g: 4/2s deals 2 damage per second for 2 seconds.</td>
+		<td><strong>Weapons only</strong>. Deals bonus damage to the enemy (x) over a time period (y). This ability can stack. E.g: 4/2s deals 2 damage per second for 2 seconds. Ignores defence.</td>
 		<td>0</td>
 	</tr>
 	<tr>
@@ -87,7 +87,7 @@
 		<td>180/s</td>
 	</tr>
 </table>
-Name: <input type="text" id="name" placeholder="Bob's Mythic Bow">
+Name: <input type="text" id="name" placeholder="James Boots">
 <br>Category: <select id="type">
 	<option value="helm">Helm</option>
 	<option value="chest">Chest</option>

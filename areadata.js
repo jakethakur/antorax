@@ -1,4 +1,4 @@
-var Areas = { // areas should have a capital (global variable)
+var Areas = {
 	
 	tutorial: {
 		
@@ -269,7 +269,7 @@ var Areas = { // areas should have a capital (global variable)
 				image: "dummy",
 				name: "Target Dummy",
 				stats: {
-					maxHealth: 10,
+					maxHealth: 1000,
 				},
 				chat: {
 					fiftyPercentHealth: "/me creaks",
