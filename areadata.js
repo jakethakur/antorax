@@ -76,6 +76,7 @@ var Areas = {
 				name: "Cart Driver",
 				questProgressText: "Good luck with your travels!",
 				questCompleteText: "Look how much you've grown!",
+				//inventoryFullText: "Look how much you've grown!",
 			},
 		],
 		
@@ -386,6 +387,8 @@ var Areas = {
 				"swordGoblin",
 				"hammerGoblin",
 				"melee",
+				"fireGoblin",
+				"fire",
 			],
 			
 			addresses: [
@@ -394,7 +397,9 @@ var Areas = {
 				"./assets/projectiles/rock.png",
 				"./assets/enemies/goblinSkirmisher.png",
 				"./assets/enemies/goblinBruiser.png",
-				"./assets/projectiles/knight.png",
+				"./assets/projectiles/melee.png",
+				"./assets/enemies/goblinPyromancer.png",
+				"./assets/projectiles/mage.png",
 			],
 		},
 		
@@ -512,6 +517,34 @@ var Areas = {
 						y: 0,
 					},
 					image: "melee",
+				},
+			},
+			{
+				x: 1050,
+				y: 100,
+				width: 50,
+				height: 95,
+				image: "fireGoblin",
+				name: "Fire Goblin",
+				stats: {
+					damage: 2,
+					walkSpeed: 95,
+					maxHealth: 18,
+					defence: 1,
+					range: 140,
+					reloadTime: 2250,
+					flaming: 1,
+				},
+				leashRadius: 400,
+				projectile: {
+					width: 26,
+					height: 60,
+					adjust: {
+						// manually adjust position - make this per class (per projectile image) in the future ( tbd )
+						x: 0,
+						y: 0,
+					},
+					image: "fire",
 				},
 			},
 		],

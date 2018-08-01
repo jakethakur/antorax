@@ -608,7 +608,7 @@ class Hero extends Attacker {
 		}
 	}
 	
-	// fire basic attack
+	// shoot basic attack
 	finishAttack (e) {
 		if (this.channelling) { // check that the player is channelling an attack (they might not have a weapon equipped so are not channelling, for example)
 			this.channelTime = 0;
@@ -690,6 +690,11 @@ class Projectile extends Thing {
 					// poison
 					if (attacker.stats.poisonX > 0 && attacker.stats.poisonY > 0) { // check player weapon has poison
 						Game.statusEffects.poison(attacker.stats.poisonX, attacker.stats.poisonY, to[i][x]);
+					}
+					
+					// flaming
+					if (attacker.stats.flaming > 0) { // check player weapon has flaming
+						Game.statusEffects.fire(attacker.stats.flaming, to[i][x]);
 					}
 					
 					if (to[i][x] == Game.hero) { // re-render the second canvas if the hero has been damaged
@@ -990,22 +995,99 @@ Game.statusEffects.poison = function(damage, time, target) {
 				owner.health -= this.info.poisonDamage / this.info.time;
 				owner.damageTaken += this.info.poisonDamage / this.info.time;
 				this.info.ticks++;
+				if (owner.constructor.name === "Hero") { // refresh canvas status effects if the status effect was applied to player
+					Game.hero.updateStatusEffects();
+				}
 				setTimeout(function (owner) {
 					this.tick(owner);
 				}.bind(this), 1000, owner);
 			}
 			else { // remove poison interval
 				Game.removeStatusEffect(owner);
+				if (owner.constructor.name === "Hero") { // refresh canvas status effects if the status effect was applied to player
+					Game.hero.updateStatusEffects();
+				}
 			}
 		},
 	}));
 	
+	// begin poison tick
 	setTimeout(function (owner) {
 		owner.statusEffects[owner.statusEffects.length - 1].tick(owner);
 	}.bind(target.statusEffects[target.statusEffects.length - 1]), 1000, target);
 	
-	Game.hero.updateStatusEffects();
+	if (target.constructor.name === "Hero") { // refresh canvas status effects if the status effect was applied to player
+		Game.hero.updateStatusEffects();
+	}
 }
+
+// give target the fire debuff
+Game.statusEffects.fire = function(tier, target) {
+	// turn tier into roman numeral (function in dom)
+	tier = romanize(tier);
+	
+	// try to find an existing flaming effect of the tier
+	let found = target.statusEffects.findIndex(function(element) {
+		console.log("Fire " + tier);
+		return element.title === ("Fore " + tier);
+	});
+	
+	if (found === -1) { // no fire effect of that tier currently applied to the target
+		
+		let damagePerSecond = 0;
+		let time = 0;
+		// find what tier does
+		if (tier === "I") {
+			damagePerSecond = 1;
+			time = 3;
+		}
+		else {
+			console.error("Fire status effect tier " + tier + " has not been assigned damage and time");
+		}
+		
+		target.statusEffects.push(new statusEffect({
+			title: "Fire " + tier,
+			effect: "Take " + damagePerSecond + " damage every second for " + time + " seconds.",
+			info: {
+				fireDamagePerSecond: damagePerSecond,
+				time: time,
+				ticks: 0, // increased by 1 every tick
+			},
+			tick: function (owner) { // deal fire damage every second
+				if (this.info.ticks < this.info.time) { // check effect has not expired
+					owner.health -= this.info.fireDamagePerSecond;
+					owner.damageTaken += this.info.fireDamagePerSecond;
+					this.info.ticks++;
+					if (owner.constructor.name === "Hero") { // refresh canvas status effects if the status effect was applied to player
+						Game.hero.updateStatusEffects();
+					}
+					setTimeout(function (owner) {
+						this.tick(owner);
+					}.bind(this), 1000, owner);
+				}
+				else { // remove effect interval
+					Game.removeStatusEffect(owner);
+					if (owner.constructor.name === "Hero") { // refresh canvas status effects if the status effect was applied to player
+						Game.hero.updateStatusEffects();
+					}
+				}
+			},
+		}));
+		
+		// begin fire tick
+		setTimeout(function (owner) {
+			owner.statusEffects[owner.statusEffects.length - 1].tick(owner);
+		}.bind(target.statusEffects[target.statusEffects.length - 1]), 1000, target);
+	}
+	else {
+		target.statusEffects[found].info.ticks = 0;
+	}
+	
+	if (target.constructor.name === "Hero") { // refresh canvas status effects if the status effect was applied to player
+		Game.hero.updateStatusEffects();
+	}
+}
+
 
 //
 // Load game
@@ -1972,21 +2054,28 @@ Game.secondary.render = function () {
 	this.ctx.fillStyle = "white";
 	this.ctx.fillText(Player.level, 292, 517);
 	
-	// status effects
-	for(var i = 0; i < Game.hero.statusEffects.length; i++) {
-		var iconNum = 0;
-		if(Game.hero.statusEffects[i].title == "Stuck in the mud"){
+	// status effect icons next to health bar
+	for(let i = 0; i < Game.hero.statusEffects.length; i++) {
+		let iconNum = null;
+		if(Game.hero.statusEffects[i].title == "Fire I") {
+			iconNum = 0;
+		}
+		else if (Game.hero.statusEffects[i].title == "Stuck in the mud") {
 			iconNum = 1;
 		}
-		else if(Game.hero.statusEffects[i].title == "Poisoned") {
+		else if (Game.hero.statusEffects[i].title == "Poisoned") {
 			iconNum = 2;
 		}
-		else if(Game.hero.statusEffects[i].title == "Stunned") {
+		else if (Game.hero.statusEffects[i].title == "Stunned") {
 			iconNum = 3;
 		}
-		else if(Game.hero.statusEffects[i].title == "Swimming") {
+		else if (Game.hero.statusEffects[i].title == "Swimming") {
 			iconNum = 4;
 		}
-		this.ctx.drawImage(Game.statusImage,0,27*iconNum,27,27,270 + i * 35, 10, 27, 27);
+		else { // status effect not
+			iconNum = 0; // fire image used as placeholder
+			console.error("Status effect " + Game.hero.statusEffects[i].title + " icon not found");
+		}
+		this.ctx.drawImage(Game.statusImage, 0, 27 * iconNum, 27, 27, 270 + i * 35, 10, 27, 27);
 	}
 }
