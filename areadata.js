@@ -67,13 +67,18 @@ var Areas = {
 				width: 92,
 				height: 100,
 				image: "driver",
+				name: "Cart Driver",
+				level: 10,
+				stats: {
+					maxHealth: 100,
+					defence: 1,
+				},
 				quests: [
 					{
 						quest: Quests.eaglecrestLoggingCamp[0], 
 						role: "start"
 					},
 				],
-				name: "Cart Driver",
 				questProgressText: "Good luck with your travels!",
 				questCompleteText: "Look how much you've grown!",
 				//inventoryFullText: "Look how much you've grown!",
@@ -88,13 +93,18 @@ var Areas = {
 				height: 110,
 				image: "weaponsmith",
 				name: "Weaponsmith",
-				greetingText: "Would you like to buy anything?",
-				buyText: "Come back some time.",
+				level: 10,
+				stats: {
+					maxHealth: 100,
+					defence: 2,
+				},
 				items: [
 					Items.sword[2],
 					Items.staff[2],
 					Items.bow[2],
 				],
+				greetingText: "Would you like to buy anything?",
+				buyText: "Come back some time.",
 			},
 		],
 		
@@ -239,13 +249,18 @@ var Areas = {
 				width: 73,
 				height: 123,
 				image: "teper",
+				name: "Marshall Teper",
+				level: 50,
+				stats: {
+					maxHealth: 300,
+					defence: 10,
+				},
 				quests: [
 					{
 						quest: Quests.eaglecrestLoggingCamp[0], 
 						role: "finish"
 					},
 				],
-				name: "Marshall Teper",
 				questProgressText: "Get on with your work!",
 				questCompleteText: "There's lots of work still to be done.",
 			},
@@ -258,6 +273,12 @@ var Areas = {
 				width: 78,
 				height: 125,
 				image: "identifier",
+				name: "Identifier Gilas",
+				level: 30,
+				stats: {
+					maxHealth: 200,
+					defence: 3,
+				},
 			},
 		],
 		
@@ -337,13 +358,18 @@ var Areas = {
 				width: 67,
 				height: 90,
 				image: "innkeeper",
+				name: "Gregor Goldenbrew",
+				level: 10,
+				stats: {
+					maxHealth: 100,
+					defense: 2,
+				},
 				quests: [
 					{
 						quest: Quests.eaglecrestLoggingCamp[1], 
 						role: "start"
 					},
 				],
-				name: "Gregor Goldenbrew",
 				questProgressText: "Girls! Make some room by the hearth, won't ya!",
 				questCompleteText: "Oh ho ho! It's good to see ya again!",
 			},
@@ -446,6 +472,7 @@ var Areas = {
 				height: 87,
 				image: "rockGoblin",
 				name: "Goblin Rockthrower",
+				level: 2,
 				stats: {
 					damage: 2,
 					walkSpeed: 100,
@@ -468,10 +495,11 @@ var Areas = {
 			{
 				x: 900,
 				y: 300,
-				width: 38,
-				height: 87,
+				width: 51,
+				height: 90,
 				image: "swordGoblin",
 				name: "Goblin Skirmisher",
+				level: 2,
 				stats: {
 					damage: 2,
 					walkSpeed: 90,
@@ -499,6 +527,7 @@ var Areas = {
 				height: 93,
 				image: "hammerGoblin",
 				name: "Goblin Bruiser",
+				level: 3,
 				stats: {
 					damage: 3,
 					walkSpeed: 70,
@@ -526,6 +555,7 @@ var Areas = {
 				height: 95,
 				image: "fireGoblin",
 				name: "Fire Goblin",
+				level: 4,
 				stats: {
 					damage: 2,
 					walkSpeed: 95,

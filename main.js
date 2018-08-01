@@ -361,6 +361,8 @@ class Character extends Thing {
 		this.health = properties.health || properties.stats.maxHealth;
 		this.damageTaken = 0; // only used so far for Dummies
 		this.speed = properties.stats.walkSpeed || 0;
+		
+		this.level = properties.level;
 
 		// stats
 		this.stats = {};
@@ -720,11 +722,10 @@ class Projectile extends Thing {
 }
 
 // quest NPC (to be merged with merchant)
-class QuestNPC extends Thing { // to be changed to character
+class QuestNPC extends Character { // to be changed to character
 	constructor(properties) {
 		super(properties);
 		this.quests = properties.quests; // quest object address, to be read from questdata.js file
-		this.name = properties.name;
 		
 		this.questProgressText = properties.questProgressText; // text when quest is in progress
 		this.questCompleteText = properties.questCompleteText; // text when quest has been completed
@@ -969,10 +970,12 @@ function statusEffect(properties) {
 // might need to be reworked (tbd)
 Game.removeStatusEffect = function (owner) {
 	for (let i = 0; i < owner.statusEffects.length; i++) { // iterate through owner's status effects
-		if (typeof owner.statusEffects[i].info.time !== "undefined" && typeof owner.statusEffects[i].info.ticks !== "undefined") { // check that the status effect can expire
-			if (owner.statusEffects[i].info.ticks >= owner.statusEffects[i].info.time) { // check if it has expired
-				owner.statusEffects.splice(i, 1); // remove it
-				i--;
+		if (typeof owner.statusEffects[i].info !== "undefined") {
+			if (typeof owner.statusEffects[i].info.time !== "undefined" && typeof owner.statusEffects[i].info.ticks !== "undefined") { // check that the status effect can expire
+				if (owner.statusEffects[i].info.ticks >= owner.statusEffects[i].info.time) { // check if it has expired
+					owner.statusEffects.splice(i, 1); // remove it
+					i--;
+				}
 			}
 		}
 	}
@@ -1013,7 +1016,7 @@ Game.statusEffects.poison = function(damage, time, target) {
 	
 	// begin poison tick
 	setTimeout(function (owner) {
-		owner.statusEffects[owner.statusEffects.length - 1].tick(owner);
+		this.tick(owner);
 	}.bind(target.statusEffects[target.statusEffects.length - 1]), 1000, target);
 	
 	if (target.constructor.name === "Hero") { // refresh canvas status effects if the status effect was applied to player
@@ -1028,8 +1031,7 @@ Game.statusEffects.fire = function(tier, target) {
 	
 	// try to find an existing flaming effect of the tier
 	let found = target.statusEffects.findIndex(function(element) {
-		console.log("Fire " + tier);
-		return element.title === ("Fore " + tier);
+		return element.title === ("Fire " + tier);
 	});
 	
 	if (found === -1) { // no fire effect of that tier currently applied to the target
@@ -1076,7 +1078,7 @@ Game.statusEffects.fire = function(tier, target) {
 		
 		// begin fire tick
 		setTimeout(function (owner) {
-			owner.statusEffects[owner.statusEffects.length - 1].tick(owner);
+			this.tick(owner);
 		}.bind(target.statusEffects[target.statusEffects.length - 1]), 1000, target);
 	}
 	else {
@@ -1198,7 +1200,7 @@ Game.loadArea = function (areaName, destination) {
 		if(Areas[areaName].characters !== undefined) {
 			for(var i = 0; i < Areas[areaName].characters.length; i++) {
 				Areas[areaName].characters[i].map = map;
-				this.characters.push(new Villager(Areas[areaName].characters[i]));
+				this.characters.push(new Thing(Areas[areaName].characters[i]));
 			}
 		}
 		
@@ -1225,7 +1227,7 @@ Game.loadArea = function (areaName, destination) {
 		if(Areas[areaName].identifiers !== undefined) {
 			for(var i = 0; i < Areas[areaName].identifiers.length; i++) {
 				Areas[areaName].identifiers[i].map = map;
-				this.identifiers.push(new Thing(Areas[areaName].identifiers[i]));
+				this.identifiers.push(new Character(Areas[areaName].identifiers[i]));
 			}
 		}
 		
@@ -1314,6 +1316,7 @@ Game.init = function () {
 		direction: 3,
 		health: Player.health,
 		name: Player.name,
+		level: Player.level,
 		
 		// properties inherited from Attacker
 		
@@ -1618,15 +1621,17 @@ Game.update = function (delta) {
 
 // called whenever player xp is changed
 Game.getXP = function () {
-	if(Player.level < LevelXP.length - 1){
-		if(Player.xp >= LevelXP[Player.level]) {
+	if (Player.level < LevelXP.length - 1) {
+		if (Player.xp >= LevelXP[Player.level]) {
 			Player.xp -= LevelXP[Player.level];
 			Player.level++;
+			Game.hero.level = Player.level;
 			Game.playLevelupSound(this.areaName);
 			Dom.levelUp.page();
 		}
 		Game.secondary.render();
-	}else{
+	}
+	else {
 		Player.xp = LevelXP[Player.level];
 	}
 }
