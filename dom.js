@@ -355,6 +355,17 @@ Dom.reputation.downLevel = function(Area){ // decreases the reputation level
 	this.update(); // updates the reputation
 }
 
+function romanize(num) {
+  var lookup = {M:1000,CM:900,D:500,CD:400,C:100,XC:90,L:50,XL:40,X:10,IX:9,V:5,IV:4,I:1},roman = '',i;
+  for ( i in lookup ) {
+    while ( num >= lookup[i] ) {
+      roman += i;
+      num -= lookup[i];
+    }
+  }
+  return roman;
+}
+
 document.onmousemove = function(e){
 	var event = e || window.event;
     window.mouseX = event.clientX;
@@ -428,10 +439,7 @@ Dom.inventory.displayIdentification = function(){
 	document.getElementById("innerStats").innerHTML += "<br>Critical Chance: " + Player.stats.criticalChance + "%"; // updates the critical chance display
 	document.getElementById("innerStats").innerHTML += "<br>Dodge Chance: " + Player.stats.dodgeChance + "%"; // updates the dodge chance display
 	if(Player.stats.flaming > 0){
-		document.getElementById("innerStats").innerHTML += "<br>Flaming "
-		for(var i = 0; i < Player.stats.flaming; i++){
-			document.getElementById("innerStats").innerHTML += "I"; // updates the flaming display
-		}
+		document.getElementById("innerStats").innerHTML += "<br>Flaming "+romanize(Player.stats.flaming);
 	}
 	document.getElementById("innerStats").innerHTML += "<br>Focus Speed: " + Player.stats.focusSpeed; // updates the focus speed display
 	document.getElementById("innerStats").innerHTML += "<br>Health Regen: " + Player.stats.healthRegen + "/s"; // updates the health regen display
