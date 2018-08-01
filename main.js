@@ -400,16 +400,17 @@ class Character extends Thing {
 	// this.name is emboldened via <strong> tags
 	// if message begins with "/me " (including space), the format changes to "this.name message"
 	// if singleUse is true, and if Dom.chat.contents contains message, the message is not sent
-	say (message, singleUse, delay) {
+	// if important is true, the chat message triggers a red flashing prompt around the chat bookmark
+	say (message, singleUse, delay, important) {
 		if (message.substring(0, 4) === "/me ") { // reflexive message
 			message = message.substr(4, message.length);
 			if (!(singleUse && Dom.chat.contents.includes("<strong>" + this.name + "</strong> " + message))) { // check if message should be sent (due to singleUse)
-				Dom.chat.insert("<strong>" + this.name + "</strong> " + message, delay);
+				Dom.chat.insert("<strong>" + this.name + "</strong> " + message, delay, important);
 			}
 		}
 		else {
 			if (!(singleUse && Dom.chat.contents.includes("<strong>" + this.name + "</strong>: " + message))) { // check if message should be sent (due to singleUse)
-				Dom.chat.insert("<strong>" + this.name + "</strong>: " + message, delay);
+				Dom.chat.insert("<strong>" + this.name + "</strong>: " + message, delay, important);
 			}
 		}
 	}
@@ -438,7 +439,7 @@ class Attacker extends Character {
 		
 		// information about projectile
 		this.projectile = properties.projectile; // should contain projectile width, height, adjust x and y, image
-	//  ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^ ???
+	//  ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^ only supported for enemies - should be updated to work for player as well (TBD TBD!!!)
 	}
 }
 
@@ -706,13 +707,13 @@ class Projectile extends Thing {
 					// chat relating to being damaged (and dealing damage? TBD)
 					if (typeof to[i][x].chat !== "undefined") { // check the character has been given text to say about being damaged
 						if (to[i][x].health < to[i][x].stats.maxHealth / 10 && typeof to[i][x].chat.tenPercentHealth !== "undefined") { // 10% health chat message
-							to[i][x].say(to[i][x].chat.tenPercentHealth, true, 0);
+							to[i][x].say(to[i][x].chat.tenPercentHealth, true, 0, false);
 						}
 						else if (to[i][x].health < to[i][x].stats.maxHealth / 2 && typeof to[i][x].chat.fiftyPercentHealth !== "undefined") { // 50% health chat message
-							to[i][x].say(to[i][x].chat.fiftyPercentHealth, true, 0);
+							to[i][x].say(to[i][x].chat.fiftyPercentHealth, true, 0, false);
 						}
 						else if (to[i][x].health < to[i][x].stats.maxHealth && typeof to[i][x].chat.firstDamaged !== "undefined") { // first damaged chat message
-							to[i][x].say(to[i][x].chat.firstDamaged, true, 0);
+							to[i][x].say(to[i][x].chat.firstDamaged, true, 0, false);
 						}
 					}
 				}
@@ -722,30 +723,30 @@ class Projectile extends Thing {
 }
 
 // quest NPC (to be merged with merchant)
-class QuestNPC extends Character { // to be changed to character
+class NPC extends Character {
 	constructor(properties) {
 		super(properties);
 		this.quests = properties.quests; // quest object address, to be read from questdata.js file
 		
-		this.questProgressText = properties.questProgressText; // text when quest is in progress
-		this.questCompleteText = properties.questCompleteText; // text when quest has been completed
+		this.items = properties.items; // items sold
+		
+		//this.questProgressText = properties.questProgressText; // text when quest is in progress
+		//this.questCompleteText = properties.questCompleteText; // text when quest has been completed
+		//this.greetingText = properties.greetingText;
+		//this.buyText = properties.buyText; // tbd
 	}
 }
 
+/*
 // merchant (to be merged with quest NPC)
 class Merchant extends Thing { // to be changed to character
 	constructor(properties) {
 		super(properties);
 		this.name = properties.name;
 		
-		this.greetingText = properties.greetingText;
-		this.buyText = properties.buyText; // tbd
-		
-		this.items = properties.items; // items sold
-		
-		//this.purchaseCurrencies = properties.purchaseCurrencies; // currencies that items are purchased with
 	}
 }
+*/
 
 // person that just moves around and does nothing of use (to be what merchant/quest NPC inherit off)
 // currently doesn't move properly
@@ -1209,7 +1210,7 @@ Game.loadArea = function (areaName, destination) {
 		if(Areas[areaName].questNPCs !== undefined) { // check they exist in areadata.js
 			for(var i = 0; i < Areas[areaName].questNPCs.length; i++) {
 				Areas[areaName].questNPCs[i].map = map;
-				this.questNPCs.push(new QuestNPC(Areas[areaName].questNPCs[i]));
+				this.questNPCs.push(new NPC(Areas[areaName].questNPCs[i]));
 			}
 		}
 		
@@ -1218,7 +1219,7 @@ Game.loadArea = function (areaName, destination) {
 		if(Areas[areaName].merchants !== undefined) {
 			for(var i = 0; i < Areas[areaName].merchants.length; i++) {
 				Areas[areaName].merchants[i].map = map;
-				this.merchants.push(new Merchant(Areas[areaName].merchants[i]));
+				this.merchants.push(new NPC(Areas[areaName].merchants[i]));
 			}
 		}
 		
@@ -1291,7 +1292,7 @@ Game.loadArea = function (areaName, destination) {
 Game.init = function () {
 	// welcome player
 	// tbd: make it say welcome back if you've played before and it saved your progress; make it a different colour?
-	Dom.chat.insert("Welcome to Antorax, " + Player.name + "!", 0);
+	Dom.chat.insert("Welcome to Antorax, " + Player.name + "!", 0, false);
 	
 	// music
 	this.playingMusic = null;
@@ -1504,11 +1505,11 @@ Game.update = function (delta) {
 				}
 				// quest is currently active
 				else if (this.hero.isTouching(this.questNPCs[i]) && Dom.quests.activeQuestArray.includes(this.questNPCs[i].quests[x].quest.quest) && !Dom.chat.contents.includes("<strong>" + this.questNPCs[i].name + ": " + "</strong>" + this.questNPCs[i].questProgressText)) {
-					Dom.chat.insert("<strong>" + this.questNPCs[i].name + ": " + "</strong>" + this.questNPCs[i].questProgressText, 100);
+					Dom.chat.insert("<strong>" + this.questNPCs[i].name + ": " + "</strong>" + this.questNPCs[i].questProgressText, 100, false);
 				}
 				// quest has been completed
 				else if (this.hero.isTouching(this.questNPCs[i]) && Dom.quests.completedQuestArray.includes(this.questNPCs[i].quests[x].quest.quest) && !Dom.chat.contents.includes("<strong>" + this.questNPCs[i].name + ": " + "</strong>" + this.questNPCs[i].questCompleteText)) {
-					Dom.chat.insert("<strong>" + this.questNPCs[i].name + ": " + "</strong>" + this.questNPCs[i].questCompleteText, 100);
+					Dom.chat.insert("<strong>" + this.questNPCs[i].name + ": " + "</strong>" + this.questNPCs[i].questCompleteText, 100, false);
 				}
 				if(Dom.currentlyDisplayed != this.questNPCs[i].quests[0].quest && Dom.currentlyDisplayed != "" && !Dom.override){
 					if(this.hero.isTouching(this.questNPCs[i]) && document.getElementsByClassName("closeClass")[0].style.border != "5px solid red"){
@@ -1531,12 +1532,12 @@ Game.update = function (delta) {
 					}
 					// quest conditions have not been fulfilled
 					else if (!Dom.chat.contents.includes("<strong>" + this.questNPCs[i].name + ": " + "</strong>" + this.questNPCs[i].questProgressText)) {
-						Dom.chat.insert("<strong>" + this.questNPCs[i].name + ": " + "</strong>" + this.questNPCs[i].questProgressText, 100);
+						Dom.chat.insert("<strong>" + this.questNPCs[i].name + ": " + "</strong>" + this.questNPCs[i].questProgressText, 100, false);
 					}
 				}
 				// quest has already been completed
 				else if (this.hero.isTouching(this.questNPCs[i]) && Dom.quests.completedQuestArray.includes(this.questNPCs[i].quests[x].quest.quest) && !Dom.chat.contents.includes("<strong>" + this.questNPCs[i].name + ": " + "</strong>" + this.questNPCs[i].questCompleteText)) {
-					Dom.chat.insert("<strong>" + this.questNPCs[i].name + ": " + "</strong>" + this.questNPCs[i].questCompleteText, 100);
+					Dom.chat.insert("<strong>" + this.questNPCs[i].name + ": " + "</strong>" + this.questNPCs[i].questCompleteText, 100, false);
 				}
 				if(Dom.currentlyDisplayed != this.questNPCs[i].quests[this.questNPCs[i].quests.length-1].quest && Dom.currentlyDisplayed != "" && !Dom.override) {
 					if(this.hero.isTouching(this.questNPCs[i]) && document.getElementsByClassName("closeClass")[0].style.border != "5px solid red") {
@@ -1559,7 +1560,7 @@ Game.update = function (delta) {
         if (this.hero.isTouching(this.merchants[i]) && Dom.currentlyDisplayed === "") {
 			Dom.merchant.page(this.merchants[i].name, this.merchants[i].greetingText, this.merchants[i].items);
 			if (!Dom.chat.contents.includes("<strong>" + this.merchants[i].name + ": " + "</strong>" + this.merchants[i].buyText)) {
-				Dom.chat.insert("<strong>" + this.merchants[i].name + ": " + "</strong>" + this.merchants[i].buyText, 100);
+				Dom.chat.insert("<strong>" + this.merchants[i].name + ": " + "</strong>" + this.merchants[i].buyText, 100, false);
 			}
 		}
 		else if (Dom.currentlyDisplayed != this.merchants[i].name && Dom.currentlyDisplayed != "" && !Dom.override) {
