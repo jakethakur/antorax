@@ -2083,5 +2083,12 @@ Game.secondary.render = function () {
 			console.error("Status effect " + Game.hero.statusEffects[i].title + " icon not found");
 		}
 		this.ctx.drawImage(Game.statusImage, 0, 27 * iconNum, 27, 27, 270 + i * 35, 10, 27, 27);
+		this.ctx.fillStyle = "black";
+		this.ctx.font = "20px MedievalSharp";
+		if (typeof Game.hero.statusEffects[i].info !== "undefined") { //variable exists
+			if (typeof Game.hero.statusEffects[i].info.time !== "undefined" && typeof Game.hero.statusEffects[i].info.ticks !== "undefined") { //variable exists
+				this.ctx.fillText(Game.hero.statusEffects[i].info.time - Game.hero.statusEffects[i].info.ticks, 285 + i * 35, 37);
+			}
+		}
 	}
 }

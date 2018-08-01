@@ -123,23 +123,12 @@ Dom.hotbar.update = function(){
 	}
 }
 
-/*Dom.inventory.updateGold = function() { // update the DOM display of gold and xp
-	for(var i = 0; i < document.getElementsByClassName("goldDisplay").length; i++) { // repeat for each gold display
-		document.getElementsByClassName("goldDisplay")[i].innerText = Player.gold; // set the number displayed to the amount of gold
-	}
-	if(Player.xp >= LevelXP[Player.level]){
-		Player.xp -= LevelXP[Player.level];
-		Player.level++;
-	}
-}
-Dom.inventory.updateGold(); // calls the function to update the gold display*/
-
 Dom.chat.newString = ""; // sets the new chat to nothing
 Dom.chat.oldString = ""; // sets the old chat to nothing
 Dom.chat.length = 0; // sets the chat length to 0
 Dom.chat.contents = []; // sets the chat contents to 0
 document.getElementById("dot").innerHTML = 0; // sets the notification number to 0
-Dom.chat.insert = function(text, delay) { // // insert text in chat page
+Dom.chat.insert = function(text, delay, important) { // // insert text in chat page
 	if(Dom.chat.length == 10) { // if chat is too big
 			Dom.chat.purge(); // purge it
 		}
@@ -164,6 +153,11 @@ Dom.chat.insert = function(text, delay) { // // insert text in chat page
 		}
 		Dom.chat.length++; // adds 1 to the length of the chat
 	}, delay); // sets the delay to the amount specified in the parameter
+	//if(important){
+		setInterval(
+		document.getElementById("changeChat").getElementsByTagName("polygon")[0].style.strokeWidth = "3";
+		document.getElementById("changeChat").getElementsByTagName("polygon")[0].style.stroke = "red";
+	//}
 }
 
 Dom.chat.purge = function() { // delete all chat
@@ -355,10 +349,10 @@ Dom.reputation.downLevel = function(Area){ // decreases the reputation level
 	this.update(); // updates the reputation
 }
 
-function romanize(num) {
+function romanize(num){
   var lookup = {M:1000,CM:900,D:500,CD:400,C:100,XC:90,L:50,XL:40,X:10,IX:9,V:5,IV:4,I:1},roman = '',i;
-  for ( i in lookup ) {
-    while ( num >= lookup[i] ) {
+  for(i in lookup){
+    while(num >= lookup[i]){
       roman += i;
       num -= lookup[i];
     }
@@ -524,8 +518,13 @@ Dom.inventory.displayInformation = function(y,array){ // display inventory infor
 		}
 		document.getElementById("stats").innerHTML = "Tier: "+array[0].tier; // add the tier to the information
 		for(var i = 0; i < Object.keys(array[0].stats).length; i++){ // repeat for all stats
-			var replaceStat = Object.keys(array[0].stats)[i].replace( /([A-Z])/g, " $1" );
-			document.getElementById("stats").innerHTML += "<br>"+replaceStat.charAt(0).toUpperCase() + replaceStat.slice(1)+": "+array[0].stats[Object.keys(array[0].stats)[i]];
+			if(Object.keys(array[0].stats)[i] != "flaming"){
+				var replaceStat = Object.keys(array[0].stats)[i].replace( /([A-Z])/g, " $1" );
+				document.getElementById("stats").innerHTML += "<br>"+replaceStat.charAt(0).toUpperCase() + replaceStat.slice(1)+": "+array[0].stats[Object.keys(array[0].stats)[i]];
+			}else{
+				var replaceStat = Object.keys(array[0].stats)[i].replace( /([A-Z])/g, " $1" );
+				document.getElementById("stats").innerHTML += "<br>"+replaceStat.charAt(0).toUpperCase() + replaceStat.slice(1)+": "+romanize(array[0].stats[Object.keys(array[0].stats)[i]]);
+			}
 		}
 		if(array[0].set != undefined){ // if the item has a set...
 			var setNum = 0;
@@ -536,13 +535,18 @@ Dom.inventory.displayInformation = function(y,array){ // display inventory infor
 						break;
 					}
 				}
-			}//Object.keys(Items.set[array[0].set].stats
+			}
 			document.getElementById("set").innerHTML = Items.set[array[0].set].name + " (" + setNum + "/" + Items.set[array[0].set].armour.length+")"; // ...add the set to the information
 			if(setNum == Items.set[array[0].set].armour.length){
 				document.getElementById("set").innerHTML += "<br><br>Set Bonus:";
 				for(var i = 0; i < Object.keys(Items.set[array[0].set].stats).length; i++){ // repeat for all stats
-					var replaceStat = Object.keys(Items.set[array[0].set].stats)[i].replace( /([A-Z])/g, " $1" );
-					document.getElementById("set").innerHTML += "<br>"+replaceStat.charAt(0).toUpperCase() + replaceStat.slice(1)+": "+Items.set[array[0].set].stats[Object.keys(Items.set[array[0].set].stats)[i]];
+					if(Object.keys(Items.set[array[0].set].stats)[i] != "flaming"){
+						var replaceStat = Object.keys(Items.set[array[0].set].stats)[i].replace( /([A-Z])/g, " $1" );
+						document.getElementById("set").innerHTML += "<br>"+replaceStat.charAt(0).toUpperCase() + replaceStat.slice(1)+": "+Items.set[array[0].set].stats[Object.keys(Items.set[array[0].set].stats)[i]];
+					}else{
+						var replaceStat = Object.keys(Items.set[Player.inventory.items[num].set].stats)[i].replace( /([A-Z])/g, " $1" );
+						document.getElementById("set").innerHTML += "<br>"+replaceStat.charAt(0).toUpperCase() + replaceStat.slice(1)+": "+romanize(Items.set[array[0].set].stats[Object.keys(Items.set[array[0].set].stats)[i]]);
+					}
 				}
 			}
 		}else{
@@ -563,7 +567,6 @@ Dom.inventory.displayEquipmentInformation = function(num){
 		document.getElementById("inventoryInformation").hidden = false; // ...display information
 		Dom.inventory.updatePosition(document.getElementById("inventoryInformation"));
 		//document.getElementById("inventoryInformation").innerHTML = "<div class='triangleLeft'></div><div id='invTriangle' class='innerTriangleLeft'></div><p id='invName' style='font-weight: bold;'></p><p id='invStats'></p><p id='invSet'></p><p id='invLore'></p>"; // construct the information without the values
-		
 		if(Player.inventory.items[num].name != undefined){
 			document.getElementById("invName").innerHTML = Player.inventory.items[num].name;
 			if(Player.inventory.items[num].rarity == "mythic"){ // if the item is a mythic...
@@ -575,13 +578,19 @@ Dom.inventory.displayEquipmentInformation = function(num){
 			}
 		}else{
 			document.getElementById("invName").innerHTML = "Unidentified "+Player.inventory.items[num].type;
+			document.getElementById("invName").style.color = "black"; // ...sets the name color to black
 		}
 		if(Player.inventory.items[num].type != "junk" && Player.inventory.items[num].type != "quest" && Player.inventory.items[num].type != "bag" && Player.inventory.items[num].type != "currency"){
 			document.getElementById("invStats").innerHTML = "Tier: "+Player.inventory.items[num].tier; // add the tier to the information
 			if(Player.inventory.items[num].stats != undefined){
 				for(var i = 0; i < Object.keys(Player.inventory.items[num].stats).length; i++){ // repeat for all stats
-					var replaceStat = Object.keys(Player.inventory.items[num].stats)[i].replace( /([A-Z])/g, " $1" );
-					document.getElementById("invStats").innerHTML += "<br>"+replaceStat.charAt(0).toUpperCase() + replaceStat.slice(1)+": "+Player.inventory.items[num].stats[Object.keys(Player.inventory.items[num].stats)[i]];
+					if(Object.keys(Player.inventory.items[num].stats)[i] != "flaming"){
+						var replaceStat = Object.keys(Player.inventory.items[num].stats)[i].replace( /([A-Z])/g, " $1" );
+						document.getElementById("invStats").innerHTML += "<br>"+replaceStat.charAt(0).toUpperCase() + replaceStat.slice(1)+": "+Player.inventory.items[num].stats[Object.keys(Player.inventory.items[num].stats)[i]];
+					}else{
+						var replaceStat = Object.keys(Player.inventory.items[num].stats)[i].replace( /([A-Z])/g, " $1" );
+						document.getElementById("invStats").innerHTML += "<br>"+replaceStat.charAt(0).toUpperCase() + replaceStat.slice(1)+": "+romanize(Player.inventory.items[num].stats[Object.keys(Player.inventory.items[num].stats)[i]]);
+					}
 				}
 			}else{
 				document.getElementById("invStats").innerHTML += "<br><br>Area: "+Player.inventory.items[num].area; // add the tier to the information
@@ -610,8 +619,13 @@ Dom.inventory.displayEquipmentInformation = function(num){
 				if(setNum == Items.set[Player.inventory.items[num].set].armour.length){
 					document.getElementById("invSet").innerHTML += "<br><br>Set Bonus:";
 					for(var i = 0; i < Object.keys(Items.set[Player.inventory.items[num].set].stats).length; i++){ // repeat for all stats
-						var replaceStat = Object.keys(Items.set[Player.inventory.items[num].set].stats)[i].replace( /([A-Z])/g, " $1" );
-						document.getElementById("invSet").innerHTML += "<br>"+replaceStat.charAt(0).toUpperCase() + replaceStat.slice(1)+": "+Items.set[Player.inventory.items[num].set].stats[Object.keys(Items.set[Player.inventory.items[num].set].stats)[i]];
+						if(Object.keys(Items.set[Player.inventory.items[num].set].stats)[i] != "flaming"){
+							var replaceStat = Object.keys(Items.set[Player.inventory.items[num].set].stats)[i].replace( /([A-Z])/g, " $1" );
+							document.getElementById("invSet").innerHTML += "<br>"+replaceStat.charAt(0).toUpperCase() + replaceStat.slice(1)+": "+Items.set[Player.inventory.items[num].set].stats[Object.keys(Items.set[Player.inventory.items[num].set].stats)[i]];
+						}else{
+							var replaceStat = Object.keys(Items.set[Player.inventory.items[num].set].stats)[i].replace( /([A-Z])/g, " $1" );
+							document.getElementById("invSet").innerHTML += "<br>"+replaceStat.charAt(0).toUpperCase() + replaceStat.slice(1)+": "+romanize(Items.set[Player.inventory.items[num].set].stats[Object.keys(Items.set[Player.inventory.items[num].set].stats)[i]]);
+						}
 					}
 				}
 			}else{
@@ -650,8 +664,13 @@ Dom.merchant.displayInformation = function(y,array,num) { // display merchant in
 	}
 	document.getElementById("merchantStats").innerHTML = "Tier: "+array[num].tier; // add the tier to the information
 	for(var i = 0; i < Object.keys(array[num].stats).length; i++){ // repeat for all stats
-		var replaceStat = Object.keys(array[num].stats)[i].replace( /([A-Z])/g, " $1" );
-		document.getElementById("merchantStats").innerHTML += "<br>"+replaceStat.charAt(0).toUpperCase() + replaceStat.slice(1)+": "+array[num].stats[Object.keys(array[num].stats)[i]];
+		if(Object.keys(array[num].stats)[i] != "flaming"){
+			var replaceStat = Object.keys(array[num].stats)[i].replace( /([A-Z])/g, " $1" );
+			document.getElementById("merchantStats").innerHTML += "<br>"+replaceStat.charAt(0).toUpperCase() + replaceStat.slice(1)+": "+array[num].stats[Object.keys(array[num].stats)[i]];
+		}else{
+			var replaceStat = Object.keys(array[num].stats)[i].replace( /([A-Z])/g, " $1" );
+			document.getElementById("merchantStats").innerHTML += "<br>"+replaceStat.charAt(0).toUpperCase() + replaceStat.slice(1)+": "+romanize(array[num].stats[Object.keys(array[num].stats)[i]]);
+		}
 	}
 	if(array[num].lore != undefined){ // if the item has a lore...
 		document.getElementById("merchantLore").innerHTML = "<i>"+array[num].lore+"</i>"; // ...add the lore to the information
@@ -675,8 +694,13 @@ Dom.quests.displayInformation = function(num,array,total){ // display quest star
 	}
 	document.getElementById("questStats").innerHTML = "Tier: "+array[num].tier; // add the tier to the information
 	for(var i = 0; i < Object.keys(array[num].stats).length; i++){ // repeat for all stats
-		var replaceStat = Object.keys(array[num].stats)[i].replace( /([A-Z])/g, " $1" );
-		document.getElementById("questStats").innerHTML += "<br>"+replaceStat.charAt(0).toUpperCase() + replaceStat.slice(1)+": "+array[num].stats[Object.keys(array[num].stats)[i]];
+		if(Object.keys(array[num].stats)[i] != "flaming"){
+			var replaceStat = Object.keys(array[num].stats)[i].replace( /([A-Z])/g, " $1" );
+			document.getElementById("questStats").innerHTML += "<br>"+replaceStat.charAt(0).toUpperCase() + replaceStat.slice(1)+": "+array[num].stats[Object.keys(array[num].stats)[i]];
+		}else{
+			var replaceStat = Object.keys(array[num].stats)[i].replace( /([A-Z])/g, " $1" );
+			document.getElementById("questStats").innerHTML += "<br>"+replaceStat.charAt(0).toUpperCase() + replaceStat.slice(1)+": "+romanize(array[num].stats[Object.keys(array[num].stats)[i]]);
+		}
 	}
 	if(array[num].lore != undefined){ // if the item has a lore...
 		document.getElementById("questLore").innerHTML = "<i>"+array[num].lore+"</i>"; // ...add the lore to the information
@@ -700,8 +724,13 @@ Dom.quests.displayFinishInformation = function(num,array,total){ // display ques
 	}
 	document.getElementById("finishStats").innerHTML = "Tier: "+array[num].tier; // add the tier to the information
 	for(var i = 0; i < Object.keys(array[num].stats).length; i++){ // repeat for all stats
-		var replaceStat = Object.keys(array[num].stats)[i].replace( /([A-Z])/g, " $1" );
-		document.getElementById("finishStats").innerHTML += "<br>"+replaceStat.charAt(0).toUpperCase() + replaceStat.slice(1)+": "+array[num].stats[Object.keys(array[num].stats)[i]];
+		if(Object.keys(array[num].stats)[i] != "flaming"){
+			var replaceStat = Object.keys(array[num].stats)[i].replace( /([A-Z])/g, " $1" );
+			document.getElementById("finishStats").innerHTML += "<br>"+replaceStat.charAt(0).toUpperCase() + replaceStat.slice(1)+": "+array[num].stats[Object.keys(array[num].stats)[i]];
+		}else{
+			var replaceStat = Object.keys(array[num].stats)[i].replace( /([A-Z])/g, " $1" );
+			document.getElementById("finishStats").innerHTML += "<br>"+replaceStat.charAt(0).toUpperCase() + replaceStat.slice(1)+": "+romanize(array[num].stats[Object.keys(array[num].stats)[i]]);
+		}
 	}
 	document.getElementById("finishLore").innerHTML = "";
 	if(array[num].lore != undefined){ // if the item has a lore...
@@ -739,8 +768,13 @@ Dom.identifier.displayIdentifiedInformation = function(num,array){ // display id
 	}
 	document.getElementById("identifiedStats").innerHTML = "Tier: "+array[num].tier; // add the tier to the information
 	for(var i = 0; i < Object.keys(array[num].stats).length; i++){ // repeat fot all stats
-		var replaceStat = Object.keys(array[num].stats)[i].replace( /([A-Z])/g, " $1" );
-		document.getElementById("identifiedStats").innerHTML += "<br>"+replaceStat.charAt(0).toUpperCase() + replaceStat.slice(1)+": "+array[num].stats[Object.keys(array[num].stats)[i]];
+		if(Object.keys(array[num].stats)[i] != "flaming"){
+			var replaceStat = Object.keys(array[num].stats)[i].replace( /([A-Z])/g, " $1" );
+			document.getElementById("identifiedStats").innerHTML += "<br>"+replaceStat.charAt(0).toUpperCase() + replaceStat.slice(1)+": "+array[num].stats[Object.keys(array[num].stats)[i]];
+		}else{
+			var replaceStat = Object.keys(array[num].stats)[i].replace( /([A-Z])/g, " $1" );
+			document.getElementById("identifiedStats").innerHTML += "<br>"+replaceStat.charAt(0).toUpperCase() + replaceStat.slice(1)+": "+romanize(array[num].stats[Object.keys(array[num].stats)[i]]);
+		}
 	}
 	if(array[num].lore != undefined){ // if the items has a lore...
 		document.getElementById("identifiedLore").innerHTML = "<i>"+array[num].lore+"</i>"; // ...add the lore to the information
@@ -1032,7 +1066,7 @@ Dom.identifier.page = function(chat, chat1, chat2, chat3, chat4, over){ // ident
 		document.getElementById("leftArrow").style.top = document.getElementById("identifierPageOption").getBoundingClientRect().top - 32 +"px"; // sets the left arrows position to the same height as the image
 		document.getElementById("leftArrow").style.left = document.getElementById("identifierPageOption").getBoundingClientRect().left - 31 +"px"; // sets the left arrows position to left of the image
 		document.getElementById("leftArrow").onclick = function(){ // when the player clicks on the left arrow...
-			Dom.identifier.page(chat, chat1, chat2, chat3, chat4); // ...it changes the selected item to the previous unIDed item
+			Dom.identifier.left(chat, chat1, chat2, chat3, chat4); // ...it changes the selected item to the previous unIDed item
 		}
 		document.getElementById("rightArrow").style.top = document.getElementById("identifierPageOption").getBoundingClientRect().top - 32 +"px"; // sets the right arrows position to the same height as the image
 		document.getElementById("rightArrow").style.left = document.getElementById("identifierPageOption").getBoundingClientRect().left + 71 +"px"; // sets the right arrows position to right of the image
@@ -1565,8 +1599,37 @@ Dom.alert.target = function(){
 
 if(localStorage.getItem("accept") != "true"){
 	Dom.alert.page("This site uses local storage for progress saving, do you accept?",true);
+}else{
+	
+	document.getElementById("settingAcceptHolder").innerHTML = "";
 }
 
 if(localStorage.getItem("playMusic") == "true"){
 	document.getElementById("musicOn").checked = true;
+}
+
+Dom.inventory.checkSpace = function(){
+	var space = 0;
+	for(var i = 0; i < Player.inventory.items.length; i++){
+		if(Object.keys(Player.inventory.items[i]).length == 0){
+			space++
+		}
+	}
+	return space;
+}
+
+Dom.inventory.requiredSpace = function(items){
+	var required = 0;
+	for(var i = 0; i < items.length; i++){
+		if(items[i].stacked != undefined){
+			for(var x = 0; x < Player.inventory.items.length; x++){
+				if(!(Player.inventory.items[i].id == items[i].id && Player.inventory.items[i].type == items[i].type && Player.inventory.items[i].stacked < Player.inventory.items[i].stack)){
+					required++;
+				}
+			}
+		}else{
+			required++;
+		}
+	}
+	return required <= Dom.inventory.checkSpace();
 }
