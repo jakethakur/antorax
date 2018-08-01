@@ -298,10 +298,23 @@ td{
 	vertical-align: middle;
 	font-size: 20px;
 }
+#closeReputation{
+	position: relative;
+	width: 200px;
+	height: 50px;
+	background-color: #fef9b4;
+	border: 5px solid #886622;
+	text-align: center;
+	line-height:50px;
+	vertical-align: middle;
+	font-size: 20px;
+	left: 130px;
+	top: 70px;
+}
 #merchantPageOptions {
 	float: left;
 }
-#widthPadding{
+.widthPadding{
 	position: absolute;
 	height: auto;
     width: auto;
@@ -309,11 +322,11 @@ td{
 }
 #reputationPage{
 	padding-top: 20px;
-	padding-left: 30px;
 	height: 580px;
 	width: 480px;
+	padding-left: 20px;
 }
-#reputationBox{
+.reputationBox{
 	top: 5px;
 	left: 20px;
 	position: relative;
@@ -322,7 +335,7 @@ td{
 	border: 1px solid black;
 	display: inline-block;
 }
-#reputationBar{
+.reputationBar{
 	position: absolute;
 	height: 20px;
 	line-height: 22px;

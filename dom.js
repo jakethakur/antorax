@@ -80,6 +80,9 @@ Dom.changeBook = function(page, override, x) { // changes the page or changes th
 			document.getElementById("dot").innerHTML = 0; // set notification number to 0
 			Dom.chat.oldString = Dom.chat.newString + Dom.chat.oldString; // add the new chat to the old chat
 			Dom.chat.newString = ""; // set the new chat to nothing
+			clearInterval(Dom.chat.borderRed);
+			clearInterval(Dom.chat.borderBlack);
+			document.getElementById("changeChat").getElementsByTagName("polygon")[0].style.stroke = "black";
 		}
 		if(page == "reputationPage"){ // if the reputation is being opened
 			Dom.reputation.update(); // update the reputation (not sure why it is necessary)
@@ -89,7 +92,7 @@ Dom.changeBook = function(page, override, x) { // changes the page or changes th
 				document.getElementsByClassName("closeClass")[i].style.border = "5px solid #886622"; // set close button border color to normal
 			}
 			this.currentlyDisplayed = ""; // reset current display if it is overriden
-			Dom.quests.activeQuests(undefined); // update the active quests box
+			Dom.quests.active(undefined); // update the active quests box
 		}
 		return true; // returns true if the page was changed
 	}
@@ -149,15 +152,20 @@ Dom.chat.insert = function(text, delay, important) { // // insert text in chat p
 		if(Dom.chat.oldString != 0){chatPage.innerHTML += '-------------------- <b>New Messages</b> --------------------';} // if there is old chat write "New Messages"
 		chatPage.innerHTML += "</p>" + Dom.chat.oldString; // write old chat under new messages
 		if(!chatPage.hidden){ // if the chat is displayed...
-			Dom.changeBook("chatPage",true); // ...update the chat
+			Dom.changeBook("chatPage"); // ...update the chat
 		}
 		Dom.chat.length++; // adds 1 to the length of the chat
 	}, delay); // sets the delay to the amount specified in the parameter
-	//if(important){
-		setInterval(
-		document.getElementById("changeChat").getElementsByTagName("polygon")[0].style.strokeWidth = "3";
-		document.getElementById("changeChat").getElementsByTagName("polygon")[0].style.stroke = "red";
-	//}
+	if(important){
+		Dom.chat.borderRed = setInterval(function(){
+			document.getElementById("changeChat").getElementsByTagName("polygon")[0].style.strokeWidth = "3";
+			document.getElementById("changeChat").getElementsByTagName("polygon")[0].style.stroke = "red";
+		},500);
+		Dom.chat.borderBlack = setInterval(function(){
+			document.getElementById("changeChat").getElementsByTagName("polygon")[0].style.strokeWidth = "1";
+			document.getElementById("changeChat").getElementsByTagName("polygon")[0].style.stroke = "black";
+		},1000);
+	}
 }
 
 Dom.chat.purge = function() { // delete all chat
@@ -291,62 +299,93 @@ if(window.innerHeight >= 755) { // if the window height is big enough...
 	Dom.settings.bookmarkPosition(); // ...then update the position
 }
 
+Dom.reputation.ready = false;
+Dom.reputation.start = function(){
+	document.getElementById("reputationPage").innerHTML = "";
+	for(var i = 0; i < Object.keys(Player.reputation).length; i++){
+		var replaceStat = Object.keys(Player.reputation)[i].replace( /([A-Z])/g, " $1" );
+		document.getElementById("reputationPage").innerHTML += "<br>"+replaceStat.charAt(0).toUpperCase() + replaceStat.slice(1) + ':<div class="widthPadding"></div> <div class="reputationBox"> <div class="reputationBar"></div> </div>';
+	}
+	Dom.reputation.ready = true;
+	Dom.reputation.update();
+}
+
 Dom.reputation.levels = ["Hated","Unfriendly","Neutral","Friendly","Honoured"]; // possible reputation levels
 for(var i = 0; i < Object.keys(Player.reputation).length; i++){ // repeat for all reputations
 	Player.reputation[Object.keys(Player.reputation)[i]].score = 5; // reputation score (between levels)
 	Player.reputation[Object.keys(Player.reputation)[i]].level = 2; // reputation level
 }
 Dom.reputation.update = function(){ // update reputation
+	if(!(Dom.reputation.ready) && document.getElementById("reputationPage").getElementsByTagName("div").length == 0 && Object.keys(Player.reputation).length != 0){
+		document.getElementById("reputationPage").innerHTML += "<div id='closeReputation' onclick='Dom.reputation.start()'>Close</div>"
 	for(var i = 0; i < Object.keys(Player.reputation).length; i++){ // repeat for all reputations
-		if(Player.reputation[Object.keys(Player.reputation)[i]].score > 10) { // if the reputation is above 10...
-			this.upLevel(Player.reputation[Object.keys(Player.reputation)[i]]); // ...increase the reputation level
+		if(Player.reputation[Object.keys(Player.reputation)[i]].score > 10){ // if the reputation is above 10...
+			this.upLevel(Player.reputation[Object.keys(Player.reputation)[i]],i); // ...increase the reputation level
 		}
-		else if(Player.reputation[Object.keys(Player.reputation)[i]].score < 0) { // if the reputation is below 0...
-			this.downLevel(Player.reputation[Object.keys(Player.reputation)[i]]); // ...decrease the reputation level
+		else if(Player.reputation[Object.keys(Player.reputation)[i]].score < 0){ // if the reputation is below 0...
+			this.downLevel(Player.reputation[Object.keys(Player.reputation)[i]],i); // ...decrease the reputation level
 		}
-		else { // if the reputation is between 0 and 10
-			document.getElementById("reputationBar").innerHTML = this.levels[Player.reputation[Object.keys(Player.reputation)[i]].level]; // writes the level in the repuatation bar
-			document.getElementById("widthPadding").innerHTML = this.levels[Player.reputation[Object.keys(Player.reputation)[i]].level]; // gets the width of the text
-			if(Player.reputation[Object.keys(Player.reputation)[i]].level >=2) { // if the reputation is neutral or above
-				document.getElementById("reputationBar").style.textIndent = ((250-document.getElementById("widthPadding").clientWidth)/2) + "px"; // writes the text in the centre
-				document.getElementById("reputationBar").style.width = Player.reputation[Object.keys(Player.reputation)[i]].score*25+"px"; // sets the width of the bar
-				document.getElementById("reputationBar").style.left = "0px"; // sets the bar to start on the left
-			}
-			else { // if the reputation is negative
-				document.getElementById("reputationBar").style.textIndent = ((250-document.getElementById("widthPadding").clientWidth)/2)-Player.reputation[Object.keys(Player.reputation)[i]].score*25+ "px"; // writes the text in the centre
-				document.getElementById("reputationBar").style.width = (10-Player.reputation[Object.keys(Player.reputation)[i]].score)*25+"px"; // sets the width of the bar
-				document.getElementById("reputationBar").style.left = Player.reputation[Object.keys(Player.reputation)[i]].score*25+"px"; // sets the bar to start on the right
+		else if(Dom.reputation.ready){ // if the reputation is between 0 and 10  
+				document.getElementsByClassName("reputationBar")[i].innerHTML = this.levels[Player.reputation[Object.keys(Player.reputation)[i]].level]; // writes the level in the repuatation bar
+				document.getElementsByClassName("widthPadding")[i].innerHTML = this.levels[Player.reputation[Object.keys(Player.reputation)[i]].level]; // gets the width of the text
+				if(Player.reputation[Object.keys(Player.reputation)[i]].level >=2) { // if the reputation is neutral or above
+					document.getElementsByClassName("reputationBar")[i].style.textIndent = ((250-document.getElementsByClassName("widthPadding")[i].clientWidth)/2) + "px"; // writes the text in the centre
+					document.getElementsByClassName("reputationBar")[i].style.width = Player.reputation[Object.keys(Player.reputation)[i]].score*25+"px"; // sets the width of the bar
+					document.getElementsByClassName("reputationBar")[i].style.left = "0px"; // sets the bar to start on the left
+				}
+				else{ // if the reputation is negative
+					document.getElementsByClassName("reputationBar")[i].style.textIndent = ((250-document.getElementsByClassName("widthPadding")[i].clientWidth)/2)-Player.reputation[Object.keys(Player.reputation)[i]].score*25+ "px"; // writes the text in the centre
+					document.getElementsByClassName("reputationBar")[i].style.width = (10-Player.reputation[Object.keys(Player.reputation)[i]].score)*25+"px"; // sets the width of the bar
+					document.getElementsByClassName("reputationBar")[i].style.left = Player.reputation[Object.keys(Player.reputation)[i]].score*25+"px"; // sets the bar to start on the right
+				}
 			}
 		}
 	}
 }
 
-Dom.reputation.upLevel = function(Area){ // increases the reputation level
-	Area.score -= 11; // resets the score to 0 + the remainder
-	Area.level++; // increases the reputation level
-	if(Area.level > 2) { // if the reputation is positive...
-		document.getElementById("reputationBar").style.backgroundColor = "green"; // ...sets the color to green
+Dom.reputation.upLevel = function(Area,i){ // increases the reputation level
+console.log(Area.level);
+	if(Area.level < 4){
+		Area.score -= 11; // resets the score to 0 + the remainder
+		Area.level++; // increases the reputation level
+		if(Dom.reputation.ready){
+			if(Area.level > 2){ // if the reputation is positive...
+				document.getElementsByClassName("reputationBar")[i].style.backgroundColor = "green"; // ...sets the color to green
+			}else if(Area.level < 2){ // if the reputation is negative...
+				document.getElementsByClassName("reputationBar")[i].style.backgroundColor = "red"; // ...sets the color to red
+			}else{ // if the reputation is neutral...
+				document.getElementsByClassName("reputationBar")[i].style.backgroundColor = "gold"; // ...sets the color to yellow
+			}
+		}
+		var replaceStat = Object.keys(Player.reputation)[i].replace( /([A-Z])/g, " $1" );
+		Dom.chat.insert("Your reputation with " + replaceStat.charAt(0).toUpperCase() + replaceStat.slice(1) + " has increased to " + Dom.reputation.levels[Area.level], 0, true);
+		this.update(); // updates the reputation
+	}else{
+		Area.score = 10;
+		this.update(); // updates the reputation
 	}
-	else if(Area.level < 2) { // if the reputation is negative...
-		document.getElementById("reputationBar").style.backgroundColor = "red"; // ...sets the color to red
-	}
-	else { // if the reputation is neutral...
-		document.getElementById("reputationBar").style.backgroundColor = "gold"; // ...sets the color to yellow
-	}
-	this.update(); // updates the reputation
 }
 
-Dom.reputation.downLevel = function(Area){ // decreases the reputation level
-	Area.score += 11; // resets the score to 10 - the remainder
-	Area.level--; // decreases the reputation level
-	if(Area.level < 2){ // if the reputation is negative...
-		document.getElementById("reputationBar").style.backgroundColor = "red"; // ...sets the color to red
-	}else if(Area.level > 2){ // if the reputation is positive...
-		document.getElementById("reputationBar").style.backgroundColor = "green"; // ...sets the color to green
-	}else{ // if the reputation is neutral...
-		document.getElementById("reputationBar").style.backgroundColor = "gold"; // ...sets the color to yellow
+Dom.reputation.downLevel = function(Area,i){ // decreases the reputation level
+	if(Area.level > 0){
+		Area.score += 11; // resets the score to 10 - the remainder
+		Area.level--; // decreases the reputation level
+		if(Dom.reputation.ready){
+			if(Area.level < 2){ // if the reputation is negative...
+				document.getElementsByClassName("reputationBar")[i].style.backgroundColor = "red"; // ...sets the color to red
+			}else if(Area.level > 2){ // if the reputation is positive...
+				document.getElementsByClassName("reputationBar")[i].style.backgroundColor = "green"; // ...sets the color to green
+			}else{ // if the reputation is neutral...
+				document.getElementsByClassName("reputationBar")[i].style.backgroundColor = "gold"; // ...sets the color to yellow
+			}
+		}
+		var replaceStat = Object.keys(Player.reputation)[i].replace( /([A-Z])/g, " $1" );
+		Dom.chat.insert("Your reputation with " + replaceStat.charAt(0).toUpperCase() + replaceStat.slice(1) + " has decreased to " + Dom.reputation.levels[Area.level], 0, true);
+		this.update(); // updates the reputation
+	}else{
+		Area.score = 0;
+		this.update(); // updates the reputation
 	}
-	this.update(); // updates the reputation
 }
 
 function romanize(num){
@@ -856,7 +895,7 @@ Dom.quest.finish = function(quest){ // display quest finish page
 }
 
 Dom.quest.accept = function(){ // quest accepted
-	Dom.quests.activeQuests(Dom.currentlyDisplayed); // add the quest to the active quests
+	Dom.quests.active(Dom.currentlyDisplayed); // add the quest to the active quests
 	if (Dom.currentlyDisplayed.onQuestStart != undefined) { // if there is a quest start function...
 		Dom.currentlyDisplayed.onQuestStart(); // ...do it
 	}
@@ -872,8 +911,20 @@ Dom.quest.acceptRewards = function(){ // quest rewards accepted
 		Dom.inventory.give(quest.rewards.items[i]); // gives the player the reward
 	}
 	if(quest.rewards.reputation != undefined) { // reputation rewards
-		for(var i = 0; i < Object.keys(quest.rewards.reputation).length; i++) { // repeats for all reputation rewards
-			Player.reputation[Object.keys(quest.rewards.reputation)[i]].score += quest.rewards.reputation[Object.keys(quest.rewards.reputation)[i]]; // gives the player the reputation reward
+		for(var i = 0; i < Object.keys(quest.rewards.reputation).length; i++) { // repeats for all reputation rewards			
+			var replaceStat = Object.keys(quest.rewards.reputation)[i].replace( /([A-Z])/g, " $1" );
+			if(Player.reputation[Object.keys(quest.rewards.reputation)[i]] != undefined){
+				Player.reputation[Object.keys(quest.rewards.reputation)[i]].score += quest.rewards.reputation[Object.keys(quest.rewards.reputation)[i]]; // gives the player the reputation reward
+				Dom.chat.insert("You have gained " + quest.rewards.reputation[Object.keys(quest.rewards.reputation)[i]] + " reputation with " + replaceStat.charAt(0).toUpperCase() + replaceStat.slice(1));
+			}else{
+				Player.reputation[Object.keys(quest.rewards.reputation)[i]]={};
+				Player.reputation[Object.keys(Player.reputation)[i]].score = 5 + quest.rewards.reputation[Object.keys(quest.rewards.reputation)[i]]; // reputation score (between levels)
+				Player.reputation[Object.keys(Player.reputation)[i]].level = 2; // reputation level
+				Dom.chat.insert("You have gained " + quest.rewards.reputation[Object.keys(quest.rewards.reputation)[i]] + " reputation with " + replaceStat.charAt(0).toUpperCase() + replaceStat.slice(1));
+				if(Dom.reputation.ready){
+					document.getElementById("reputationPage").innerHTML += "<br>" + replaceStat.charAt(0).toUpperCase() + replaceStat.slice(1) + ': <div class="widthPadding"></div> <div class="reputationBox"> <div class="reputationBar"></div> </div>';
+				}
+			}
 		}
 	}
 	Dom.reputation.update(); // updates the reputation display
@@ -888,7 +939,7 @@ Dom.quest.acceptRewards = function(){ // quest rewards accepted
 		Dom.currentlyDisplayed.onQuestFinish(); // ...do it
 	}
 	Dom.changeBook(Dom.previous, true); // change back to previous page
-	Dom.quests.activeQuests(undefined); // update the active quest box
+	Dom.quests.active(undefined); // update the active quest box
 	Dom.quests.possible(); // update the possible quest box
 }
 
@@ -896,7 +947,7 @@ Dom.quests.activeQuestArray = []; // sets the active quest array to nothing
 Dom.quests.activeQuestUseArray = []; // sets the other active quest array to nothing
 Dom.quests.completedQuestArray = []; // sets the completed quest array to nothing
 Dom.quests.possibleQuestArray = []; // sets the possible quest array to nothing
-Dom.quests.activeQuests = function(quest){ // when a quest is started or ended...
+Dom.quests.active = function(quest){ // when a quest is started or ended...
 	Dom.quests.questNum = 0; // sets the quest number to 0
 	Dom.quests.questString = ""; // sets the string version of the quest number to nothing
 	if(quest != undefined){ // if a quest is started...
@@ -911,6 +962,16 @@ Dom.quests.activeQuests = function(quest){ // when a quest is started or ended..
 			document.getElementById("activeQuestBox").innerHTML += "<br>" + Dom.quests.activeQuestUseArray[x].objectives[i]; // writes the objective in the box
 			if(Dom.quests.activeQuestUseArray[x].isCompleted()[i] && i != Dom.quests.activeQuestUseArray[x].objectives.length-1){ // if the objective has been completed...
 				document.getElementById("activeQuestBox").innerHTML += " &#10004;"; // ...put a tick next to it
+			}
+		}
+		if(Dom.quests.activeQuestUseArray[x].wasCompleted == undefined){
+			Dom.quests.activeQuestUseArray[x].wasCompleted = Dom.quests.activeQuestUseArray[x].isCompleted();
+		}else{
+			if(JSON.stringify(Dom.quests.activeQuestUseArray[x].wasCompleted) !== JSON.stringify(Dom.quests.activeQuestUseArray[x].isCompleted())){
+				Dom.chat.insert("Quest log updated", 0, true);
+				console.log(Dom.quests.activeQuestUseArray[x].wasCompleted);
+				console.log(Dom.quests.activeQuestUseArray[x].isCompleted());
+				Dom.quests.activeQuestUseArray[x].wasCompleted = Dom.quests.activeQuestUseArray[x].isCompleted();
 			}
 		}
 		if(quest != undefined){ // if a quest is started

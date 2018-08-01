@@ -5,7 +5,6 @@ var Player = {
 	gender: sessionStorage.getItem("gender"),
 	
 	reputation: {
-		eaglecrestLoggingCamp: {},
 	},
 	
 	inventory: {
