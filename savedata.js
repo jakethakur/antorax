@@ -58,7 +58,7 @@ var Player = {
 		dodgeChance: 1, // the user's total dodge chance default is 1 but can be changed by armour or weapons
 		flaming: 0, // the user does not usually deal fire damage to enemies but some weapons do
 		focusSpeed: 1, // the user's total focus speed default is 1 but can be changed by bows
-		healthRegen: 2, // the user's total health regen default is 2 but can be changed by armour or weapons
+		healthRegen: 1, // the user's total health regen default is 1 but can be changed by armour or weapons
 		looting: 50, // the user's total looting default is 50 but can be changed by armour or weapons
 		poisonX: 0, // the user's total posion default is 0 damage...
 		poisonY: 0, // ...over 0 seconds but can be changed by armour or weapons
