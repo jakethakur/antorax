@@ -318,6 +318,7 @@ for(var i = 0; i < Object.keys(Player.reputation).length; i++){ // repeat for al
 Dom.reputation.update = function(){ // update reputation
 	if(!(Dom.reputation.ready) && document.getElementById("reputationPage").getElementsByTagName("div").length == 0 && Object.keys(Player.reputation).length != 0){
 		document.getElementById("reputationPage").innerHTML += "<div id='closeReputation' onclick='Dom.reputation.start()'>Close</div>"
+	}
 	for(var i = 0; i < Object.keys(Player.reputation).length; i++){ // repeat for all reputations
 		if(Player.reputation[Object.keys(Player.reputation)[i]].score > 10){ // if the reputation is above 10...
 			this.upLevel(Player.reputation[Object.keys(Player.reputation)[i]],i); // ...increase the reputation level
@@ -325,38 +326,34 @@ Dom.reputation.update = function(){ // update reputation
 		else if(Player.reputation[Object.keys(Player.reputation)[i]].score < 0){ // if the reputation is below 0...
 			this.downLevel(Player.reputation[Object.keys(Player.reputation)[i]],i); // ...decrease the reputation level
 		}
-		else if(Dom.reputation.ready){ // if the reputation is between 0 and 10  
-				document.getElementsByClassName("reputationBar")[i].innerHTML = this.levels[Player.reputation[Object.keys(Player.reputation)[i]].level]; // writes the level in the repuatation bar
-				document.getElementsByClassName("widthPadding")[i].innerHTML = this.levels[Player.reputation[Object.keys(Player.reputation)[i]].level]; // gets the width of the text
-				if(Player.reputation[Object.keys(Player.reputation)[i]].level >=2) { // if the reputation is neutral or above
-					document.getElementsByClassName("reputationBar")[i].style.textIndent = ((250-document.getElementsByClassName("widthPadding")[i].clientWidth)/2) + "px"; // writes the text in the centre
-					document.getElementsByClassName("reputationBar")[i].style.width = Player.reputation[Object.keys(Player.reputation)[i]].score*25+"px"; // sets the width of the bar
-					document.getElementsByClassName("reputationBar")[i].style.left = "0px"; // sets the bar to start on the left
-				}
-				else{ // if the reputation is negative
-					document.getElementsByClassName("reputationBar")[i].style.textIndent = ((250-document.getElementsByClassName("widthPadding")[i].clientWidth)/2)-Player.reputation[Object.keys(Player.reputation)[i]].score*25+ "px"; // writes the text in the centre
-					document.getElementsByClassName("reputationBar")[i].style.width = (10-Player.reputation[Object.keys(Player.reputation)[i]].score)*25+"px"; // sets the width of the bar
-					document.getElementsByClassName("reputationBar")[i].style.left = Player.reputation[Object.keys(Player.reputation)[i]].score*25+"px"; // sets the bar to start on the right
-				}
+		else if(Dom.reputation.ready){ // if the reputation is between 0 and 10
+			if(Player.reputation[Object.keys(Player.reputation)[i]].level > 2){ // if the reputation is positive...
+				document.getElementsByClassName("reputationBar")[i].style.backgroundColor = "green"; // ...sets the color to green
+			}else if(Player.reputation[Object.keys(Player.reputation)[i]].level < 2){ // if the reputation is negative...
+				document.getElementsByClassName("reputationBar")[i].style.backgroundColor = "red"; // ...sets the color to red
+			}else{ // if the reputation is neutral...
+				document.getElementsByClassName("reputationBar")[i].style.backgroundColor = "gold"; // ...sets the color to yellow
+			}
+			document.getElementsByClassName("reputationBar")[i].innerHTML = this.levels[Player.reputation[Object.keys(Player.reputation)[i]].level] + "&nbsp;&nbsp;(" + Player.reputation[Object.keys(Player.reputation)[i]].score + "/10)"; // writes the level in the repuatation bar
+			document.getElementsByClassName("widthPadding")[i].innerHTML = this.levels[Player.reputation[Object.keys(Player.reputation)[i]].level] + " (" + Player.reputation[Object.keys(Player.reputation)[i]].score + "/10)"; // gets the width of the text
+			if(Player.reputation[Object.keys(Player.reputation)[i]].level >=2) { // if the reputation is neutral or above
+				document.getElementsByClassName("reputationBar")[i].style.textIndent = ((250-document.getElementsByClassName("widthPadding")[i].clientWidth)/2) + "px"; // writes the text in the centre
+				document.getElementsByClassName("reputationBar")[i].style.width = Player.reputation[Object.keys(Player.reputation)[i]].score*25+"px"; // sets the width of the bar
+				document.getElementsByClassName("reputationBar")[i].style.left = "0px"; // sets the bar to start on the left
+			}
+			else{ // if the reputation is negative
+				document.getElementsByClassName("reputationBar")[i].style.textIndent = ((250-document.getElementsByClassName("widthPadding")[i].clientWidth)/2)-Player.reputation[Object.keys(Player.reputation)[i]].score*25+ "px"; // writes the text in the centre
+				document.getElementsByClassName("reputationBar")[i].style.width = (10-Player.reputation[Object.keys(Player.reputation)[i]].score)*25+"px"; // sets the width of the bar
+				document.getElementsByClassName("reputationBar")[i].style.left = Player.reputation[Object.keys(Player.reputation)[i]].score*25+"px"; // sets the bar to start on the right
 			}
 		}
 	}
 }
 
 Dom.reputation.upLevel = function(Area,i){ // increases the reputation level
-console.log(Area.level);
 	if(Area.level < 4){
 		Area.score -= 11; // resets the score to 0 + the remainder
 		Area.level++; // increases the reputation level
-		if(Dom.reputation.ready){
-			if(Area.level > 2){ // if the reputation is positive...
-				document.getElementsByClassName("reputationBar")[i].style.backgroundColor = "green"; // ...sets the color to green
-			}else if(Area.level < 2){ // if the reputation is negative...
-				document.getElementsByClassName("reputationBar")[i].style.backgroundColor = "red"; // ...sets the color to red
-			}else{ // if the reputation is neutral...
-				document.getElementsByClassName("reputationBar")[i].style.backgroundColor = "gold"; // ...sets the color to yellow
-			}
-		}
 		var replaceStat = Object.keys(Player.reputation)[i].replace( /([A-Z])/g, " $1" );
 		Dom.chat.insert("Your reputation with " + replaceStat.charAt(0).toUpperCase() + replaceStat.slice(1) + " has increased to " + Dom.reputation.levels[Area.level], 0, true);
 		this.update(); // updates the reputation
@@ -370,15 +367,6 @@ Dom.reputation.downLevel = function(Area,i){ // decreases the reputation level
 	if(Area.level > 0){
 		Area.score += 11; // resets the score to 10 - the remainder
 		Area.level--; // decreases the reputation level
-		if(Dom.reputation.ready){
-			if(Area.level < 2){ // if the reputation is negative...
-				document.getElementsByClassName("reputationBar")[i].style.backgroundColor = "red"; // ...sets the color to red
-			}else if(Area.level > 2){ // if the reputation is positive...
-				document.getElementsByClassName("reputationBar")[i].style.backgroundColor = "green"; // ...sets the color to green
-			}else{ // if the reputation is neutral...
-				document.getElementsByClassName("reputationBar")[i].style.backgroundColor = "gold"; // ...sets the color to yellow
-			}
-		}
 		var replaceStat = Object.keys(Player.reputation)[i].replace( /([A-Z])/g, " $1" );
 		Dom.chat.insert("Your reputation with " + replaceStat.charAt(0).toUpperCase() + replaceStat.slice(1) + " has decreased to " + Dom.reputation.levels[Area.level], 0, true);
 		this.update(); // updates the reputation
@@ -833,12 +821,6 @@ Dom.quest.start = function(quest) { // display quest start page
 		for(var i = 0; i < quest.objectives.length; i++){ // repeat for all objectives
 			document.getElementById("questStartObjectives").innerHTML += quest.objectives[i] + "<br>"; // adds ovjective to objectives
 		}
-		if(quest.rewards.gold == 0 || quest.rewards.gold == undefined){ // if there is no gold reward...
-			document.getElementById("questStartGold").style.display = "none"; // ...do not display gold
-			//document.getElementById("goldClass").style.display = "none";
-		}else{ // if there is a gold reward...
-			document.getElementById("questStartGold").innerHTML = quest.rewards.gold; // ...display the amount of gold inside the gold
-		}
 		if(quest.rewards.xp == 0 || quest.rewards.xp == undefined){ // if there is no xp reward...
 			document.getElementById("questStartXP").style.display = "none"; // ...do not display xp
 			//document.getElementById("xpClass").style.display = "none";
@@ -847,7 +829,7 @@ Dom.quest.start = function(quest) { // display quest start page
 		}
 		document.getElementById("questStartItems").innerHTML = ""; // sets the item rewards to none
 		for(var i = 0; i < quest.rewards.items.length; i++){ // repeats for all item rewards
-			document.getElementById("questStartItems").innerHTML += "<img src=" + quest.rewards.items[i].image + " class='theseQuestOptions'></img>&nbsp;&nbsp;"; // adds item to item rewards
+			document.getElementById("questStartItems").innerHTML += "<img src=" + quest.rewards.items[i].image + " class='theseQuestOptions'><div class='stackNum'>"+quest.rewards.itemQuantities[i]+"</div></img>&nbsp;&nbsp;"; // adds item to item rewards
 		}
 		for(let x = 0; x < document.getElementsByClassName("theseQuestOptions").length; x++){ // repeats for all item rewards
 			document.getElementsByClassName("theseQuestOptions")[x].onmouseover = function() { // when the user hovers over the item...
@@ -866,12 +848,6 @@ Dom.quest.finish = function(quest){ // display quest finish page
 	document.getElementById("questFinishQuest").innerHTML = quest.quest; // sets title to quest name
 	document.getElementById("questFinishName").innerHTML = quest.finishName; // sets NPC name to NPC name
 	document.getElementById("questFinishChat").innerHTML = quest.finishChat; // sets chat to NPC chat
-	if(quest.rewards.gold == 0 || quest.rewards.gold == undefined){ // if the is no gold reward...
-		document.getElementById("questFinishGold").style.display = "none"; // ...do not display gold
-		//document.getElementById("goldClass").style.display = "none";
-	}else{ // if there is a gold reward...
-		document.getElementById("questFinishGold").innerHTML = quest.rewards.gold; // ...display the amount of gold inside the gold
-	}
 	if(quest.rewards.xp == 0 || quest.rewards.xp == undefined){ // if there is no xp reward...
 		document.getElementById("questFinishXP").style.display = "none"; // ...do not display xp
 		//document.getElementById("xpClass").style.display = "none";
@@ -899,16 +875,18 @@ Dom.quest.accept = function(){ // quest accepted
 	if (Dom.currentlyDisplayed.onQuestStart != undefined) { // if there is a quest start function...
 		Dom.currentlyDisplayed.onQuestStart(); // ...do it
 	}
+	for(var i = 0; i < Dom.currentlyDisplayed.startRewards.items.length; i++){ // repeats for all item rewards
+		Dom.inventory.give(Dom.currentlyDisplayed.startRewards.items[i],Dom.currentlyDisplayed.startRewards.itemQuantities[i]); // gives the player the reward
+	}
 	Dom.quests.possible();
 	Dom.changeBook(Dom.previous, true); // change page back to previous page
 }
 
 Dom.quest.acceptRewards = function(){ // quest rewards accepted
 	var quest = Dom.quest.waitForReward;
-	Dom.inventory.give(Items.currency[0],quest.rewards.gold);
 	Player.xp += quest.rewards.xp // gives the player the xp reward
 	for(var i = 0; i < quest.rewards.items.length; i++){ // repeats for all item rewards
-		Dom.inventory.give(quest.rewards.items[i]); // gives the player the reward
+		Dom.inventory.give(quest.rewards.items[i],quest.rewards.itemQuantities[i]); // gives the player the reward
 	}
 	if(quest.rewards.reputation != undefined) { // reputation rewards
 		for(var i = 0; i < Object.keys(quest.rewards.reputation).length; i++) { // repeats for all reputation rewards			
@@ -1679,12 +1657,12 @@ Dom.inventory.checkSpace = function(){
 	return space;
 }
 
-Dom.inventory.requiredSpace = function(items){
+Dom.inventory.requiredSpace = function(items,quantities){
 	var required = 0;
 	for(var i = 0; i < items.length; i++){
 		if(items[i].stacked != undefined){
 			for(var x = 0; x < Player.inventory.items.length; x++){
-				if(!(Player.inventory.items[i].id == items[i].id && Player.inventory.items[i].type == items[i].type && Player.inventory.items[i].stacked < Player.inventory.items[i].stack)){
+				if(!(Player.inventory.items[i].id == items[i].id && Player.inventory.items[i].type == items[i].type && Player.inventory.items[i].stacked <= Player.inventory.items[i].stack - quantities[i])){
 					required++;
 				}
 			}

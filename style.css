@@ -323,7 +323,7 @@ td{
 #reputationPage{
 	padding-top: 20px;
 	height: 580px;
-	width: 480px;
+	width: 490px;
 	padding-left: 20px;
 }
 .reputationBox{
@@ -417,6 +417,7 @@ td{
 	font-size: 20px;
 	text-shadow: 1px 1px grey;
 	text-align: right;
+	display: inline;
 }
 #levelUpPageTitle{
 	position: relative;
