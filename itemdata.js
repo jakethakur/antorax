@@ -10,8 +10,9 @@ var Items = {
 			stats: {},
 		},
 		{
+			// unequipped item
 			id: 1,
-			name: "Test Helm 2",
+			name: "",
 			type: "helm",
 			image: "assets/items/helm/1.png",
 			stats: {},
@@ -86,8 +87,9 @@ var Items = {
 			stats: {},
 		},
 		{
+			// unequipped item
 			id: 1,
-			name: "Test Chestplate 2",
+			name: "",
 			type: "chest",
 			image: "assets/items/chest/1.png",
 			stats: {},
@@ -162,8 +164,9 @@ var Items = {
 			stats: {},
 		},
 		{
+			// unequipped item
 			id: 1,
-			name: "Test Greaves 2",
+			name: "",
 			type: "greaves",
 			image: "assets/items/greaves/1.png",
 			stats: {
@@ -240,8 +243,9 @@ var Items = {
 			stats: {},
 		},
 		{
+			// unequipped item
 			id: 1,
-			name: "Test Boots 2",
+			name: "",
 			type: "boots",
 			image: "assets/items/boots/1.png",
 			stats: {},
@@ -347,8 +351,9 @@ var Items = {
 			stats: {},
 		},
 		{
+			// unequipped item
 			id: 1,
-			name: "Test sword 2",
+			name: "",
 			type: "sword",
 			image: "assets/items/sword/1.png",
 			stats: {},
@@ -361,7 +366,7 @@ var Items = {
 			image: "assets/items/sword/2.png",
 			tier: 1,
 			rarity: "common",
-			obtain: "Purchase from a merchant in the Fisher's Valley",
+			obtain: "Purchase from a merchant in the Fishers' Valley",
 			stats: {
 				damage: "+2",
 			},
@@ -434,28 +439,29 @@ var Items = {
 			stats: {},
 		},
 		{
+			// unequipped item
 			id: 1,
-			name: "Test staff 2",
+			name: "",
 			type: "staff",
 			image: "assets/items/staff/1.png",
 			stats: {},
 		},
 		{
 			id: 2,
-			name: "Basic Staff",
+			name: "Basic Wand",
 			type: "staff",
 			cost: 3,
 			image: "assets/items/staff/2.png",
 			tier: 1,
 			rarity: "common",
-			obtain: "Purchase from a merchant in the Fisher's Valley",
+			obtain: "Purchase from a merchant in the Fishers' Valley",
 			stats: {
 				damage: "+2",
 			},
 		},
 		{
 			id: 3,
-			name: "Crooked Wooden Staff",
+			name: "Crooked Wooden Wand",
 			type: "staff",
 			image: "assets/items/staff/3.png",
 			tier: 1,
@@ -471,6 +477,7 @@ var Items = {
 			name: "Health Staff",
 			type: "staff",
 			image: "assets/items/staff/4.png",
+			imageArchaeology: "assets/items/staff/4archaeology.png",
 			tier: 1,
 			rarity: "unique",
 			lore: "",
@@ -486,6 +493,7 @@ var Items = {
 			name: "Power Surge Staff",
 			type: "staff",
 			image: "assets/items/staff/5.png",
+			imageArchaeology: "assets/items/staff/5archaeology.png",
 			tier: 1,
 			rarity: "unique",
 			lore: "POWER OVERWHELMING!",
@@ -501,6 +509,7 @@ var Items = {
 			name: "The Highborn Hoarder's Staff",
 			type: "staff",
 			image: "assets/items/staff/6.png",
+			imageArchaeology: "assets/items/staff/6archaeology.png",
 			tier: 1,
 			rarity: "mythic",
 			lore: "",
@@ -518,10 +527,12 @@ var Items = {
 			image: "assets/items/staff/7.png",
 			uncollectable: true,
 			tier: 1,
-			area: "Eaglecrest Logging Camp",
 			rarity: "common",
+			lore: "Hates the goblins just as much as you do.",
+			area: "Eaglecrest Logging Camp",
 			stats: {
 				damage: "+2",
+				flaming: 1,
 			}
 		},
 	],
@@ -534,8 +545,9 @@ var Items = {
 			stats: {},
 		},
 		{
+			// unequipped item
 			id: 1,
-			name: "Test bow 2",
+			name: "",
 			type: "bow",
 			image: "assets/items/bow/1.png",
 			stats: {},
@@ -548,7 +560,7 @@ var Items = {
 			image: "assets/items/bow/2.png",
 			tier: 1,
 			rarity: "common",
-			obtain: "Purchase from a merchant in the Fisher's Valley",
+			obtain: "Purchase from a merchant in the Fishers' Valley",
 			stats: {
 				damage: "+2",
 			},
@@ -615,16 +627,16 @@ var Items = {
 	set: [
 		{
 			id: 0,
-			name: "Test bow 1",
-			type: "bow",
-			image: "assets/items/bow/0.png",
+			name: "Test set 1",
+			type: "set",
+			image: "assets/items/bow/0.png", // perhaps give it its own image?
 			stats: {},
 		},
 		{
 			id: 1,
-			name: "Test bow 2",
-			type: "bow",
-			image: "assets/items/bow/1.png",
+			name: "Test set 2",
+			type: "set",
+			image: "assets/items/bow/1.png", // perhaps give it its own image?
 			stats: {},
 		},
 		{
@@ -665,34 +677,71 @@ var Items = {
 	currency: [
 		{
 			id: 0,
+			name: "Test currency 1",
+			type: "currency",
+			image: "assets/items/currency/2.png", // perhaps give it its own image?
+			stack: 128,
+		},
+		{
+			id: 1,
+			name: "Test currency 2",
+			type: "currency",
+			image: "assets/items/currency/2.png", // perhaps give it its own image?
+			stack: 128,
+		},
+		{
+			id: 2,
 			name: "Gold",
 			type: "currency",
-			image: "assets/items/currency/gold.png",
+			image: "assets/items/currency/2.png",
 			stack: 128,
 		},
 	],
 	bag: [
 		{
 			id: 0,
-			name: "Bag",
+			name: "Test bag 1",
 			type: "bag",
-			image: "assets/items/item/1.png",
+			image: "assets/items/bag/2.png", // perhaps give it its own image?
+			size: 6,
+		},
+		{
+			// unequipped item
+			id: 1,
+			name: "",
+			type: "bag",
+			image: "assets/items/bag/1.png",
+			size: 6,
+		},
+		{
+			id: 2,
+			name: "Logging Sack",
+			type: "bag",
+			image: "assets/items/bag/2.png",
+			rarity: "common",
 			size: 6,
 		},
 	],
 	item: [
 		{
 			id: 0,
-			name: "Staff",
+			name: "Test junk item",
 			type: "junk",
-			image: "assets/items/staff/5.png",
+			image: "assets/items/staff/5.png", // perhaps give it its own image?
 			stack: 2,
 		},
 		{
 			id: 1,
+			name: "Test quest item",
+			type: "quest",
+			image: "assets/items/staff/7.png", // perhaps give it its own image?
+			stack: 2,
+		},
+		{
+			id: 2,
 			name: "Log",
 			type: "quest",
-			image: "assets/items/item/1.png",
+			image: "assets/items/item/2.png",
 			stack: 4,
 		},
 	],

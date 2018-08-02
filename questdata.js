@@ -42,7 +42,7 @@ var Quests = {
 			
 			startRewards: {
 				items: [
-					Items.currency[0],
+					Items.currency[2],
 				],
 				itemQuantities: [
 					3,
@@ -52,7 +52,7 @@ var Quests = {
 			rewards: {
 				xp: 10,
 				items: [
-					Items.currency[0],
+					Items.currency[2],
 					Items.boots[2],
 				],
 				itemQuantities: [
