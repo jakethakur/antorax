@@ -60,7 +60,7 @@ var Areas = {
 			},
 		],
 		
-		questNPCs: [
+		NPCs: [
 			{
 				x: 2080,
 				y: 290,
@@ -84,9 +84,6 @@ var Areas = {
 					questComplete: "I hope your quests are going well!",
 				}
 			},
-		],
-		
-		merchants: [
 			{
 				x: 1300,
 				y: 350,
@@ -99,7 +96,7 @@ var Areas = {
 					maxHealth: 100,
 					defence: 2,
 				},
-				items: [
+				sold: [
 					Items.sword[2],
 					Items.staff[2],
 					Items.bow[2],
@@ -245,7 +242,7 @@ var Areas = {
 			},
 		],
 		
-		questNPCs: [
+		NPCs: [
 			{
 				x: 884,
 				y: 440,
@@ -357,7 +354,7 @@ var Areas = {
 		song_day: "./assets/music/Tavern.mp3",
 		song_night: "./assets/music/Tavern.mp3",
 		
-		questNPCs: [
+		NPCs: [
 			{
 				x: 165,
 				y: 65,
@@ -451,7 +448,7 @@ var Areas = {
 			},
 		],
 		
-		questNPCs: [
+		NPCs: [
 		],
 		
 		merchants: [
