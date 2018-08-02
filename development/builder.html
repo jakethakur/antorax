@@ -7,86 +7,12 @@
 	<link rel="icon" type="image/png" href="../assets/icons/favicon-16x.png" sizes="16x16" />
 </head>
 <body>
-<table id="table">
-	<col width="200">
-	<col width="200">
-	<col width="200">
-	<col width="200">
-	<tr>
-		<th>Javascript</th>
-		<th>What it does</th> 
-		<th>Base value</th>
-		<th>Balance comments</th> 
-	</tr>
-	<tr>
-		<td>damage: "+x"</td>
-		<td><strong>Weapons only</strong>. Changes damage dealt from an attack. Can interact with some spells and abilities to decide how strong they are.</td>
-		<td>0</td>
-	</tr>
-	<tr>
-		<td>defence: "+x"</td>
-		<td>Reduces damage taken. 1 defence = 1 less damage taken</td>
-		<td>0</td>
-	</tr>
-	<tr>
-		<td>criticalChance: "+x%"</td>
-		<td>Changes chance of dealing double damage with an attack.</td>
-		<td>1%</td>
-	</tr>
-	<tr>
-		<td>dodgeChance: "+x%"</td>
-		<td>Changes chance of ignoring an enemy attack.</td>
-		<td>1%</td>
-		<td>Don't give any individual item more than 10-15% without a suitable downside, otherwise a player could be able get near 100%!</td>
-	</tr>
-	<tr>
-		<td>flaming: x</td>
-		<td><strong>Weapons only</strong>. x = tier of flaming (displayed in roman numerals). Makes your attacks flaming, meaning 1 damage is dealt every second for 3 seconds for tier 1 and is more powerful at higher tiers. On attack, this status is refreshed (cannot stack). Ignores defence.</td>
-		<td>0</td>
-		<td>Might interact with spells, abilities and passives in the future to become more powerful.</td>
-	</tr>
-	<tr>
-		<td>focusSpeed: "+x"</td>
-		<td><strong>Archers only</strong>. Increases the speed that the archer can focus their shots.</td>
-		<td>1 (takes 3 seconds to fully focus)</td>
-	</tr>
-	<tr>
-		<td>healthRegen: "+x/s"</td>
-		<td>Changes rate of health regeneration (in health per second). Health is out of 100.</td>
-		<td>2/s (tbc - maybe 1/s?)</td>
-		<td>Shouldn't normally be above 5/s, as this removes a need for the player to eat.</td>
-	</tr>
-	<tr>
-		<td>looting: "+x%"</td>
-		<td>Changes chance of recieving any item (e.g: unidentified item, gold, quest items) from a corpse.</td>
-		<td>50%</td>
-	</tr>
-	<tr>
-		<td>poison: "+x/ys"</td>
-		<td><strong>Weapons only</strong>. Deals bonus damage to the enemy (x) over a time period (y). This ability can stack. E.g: 4/2s deals 2 damage per second for 2 seconds. Ignores defence.</td>
-		<td>0</td>
-	</tr>
-	<tr>
-		<td>reflection: "+x%"</td>
-		<td>Changes the amount of damage dealt back to enemies when you are attacked, as a percentage of the damage that they deal to you.</td>
-		<td>0%</td>
-	</tr>
-	<tr>
-		<td>stun: "+xs"</td>
-		<td><strong>Weapons only</strong>. Sets the amount of time that you stun an enemy for after you attack. When stunned, an enemy cannot move, attack, regen or channel.</td>
-		<td>0s</td>
-	</tr>
-	<tr>
-		<td>swimSpeed: "+x/s"</td>
-		<td>Changes player's movement speed <strong>in water</strong>. Measured in pixels per second (one tile = 60 pixels).</td>
-		<td>60/s</td>
-	</tr>
-	<tr>
-		<td>walkSpeed: "+x/s"</td>
-		<td>Changes player's movement speed <strong>on land</strong>. Measured in pixels per second (one tile = 60 pixels).</td>
-		<td>180/s</td>
-	</tr>
-</table>
+<div id="question">What would you like to build?</div>
+<div id="item" class="option">Item</div>
+<div id="quest" class="option">Quest</div>
+<div id="npc" class="option">NPC</div>
+<div id="enemy" class="option">Enemy</div>
+<!--
 Name: <input type="text" id="name" placeholder="James Boots">
 <br>Category: <select id="type">
 	<option value="helm">Helm</option>
@@ -108,7 +34,7 @@ Name: <input type="text" id="name" placeholder="James Boots">
 <br>Damage/Defence: <input type="number" id="damage" value="1">
 <br>Second Stat (optional): <input type="text" id="second" placeholder='Critical_Chance: "+7%"'>
 <br>Third Stat (optional): <input type="text" id="third" placeholder='Health_Regen: "+3/s"'>
-<br><br><div id="code">
+<br><br><div id="code">-->
 <script src="builderDom.js"></script>
 </body>
 </html>

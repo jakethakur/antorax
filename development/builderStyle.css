@@ -1,23 +1,17 @@
+@import url('https://fonts.googleapis.com/css?family=MedievalSharp');
+
 body{
-	padding-left: 30px;
-	padding-top: 20px;
-	line-height: 35px;
+	//padding-left: 30px;
+	padding: 15px;
+	//line-height: 35px;
+	font-family: 'MedievalSharp', serif;
+	background-color: #f9f9d0;
+	overflow: auto;
 }
-#code{
+/*#code{
 	border: 2px solid black;
 	padding: 10px;
 	width: 450px;
-	line-height: 20px;
-}
-#table{
-	position: absolute;
-	left: 600px;
-	margin-bottom: 30px;
-}
-#table, tr, th, td{
-	border: 1px solid black;
-	border-collapse: collapse;
-	text-align: center;
 	line-height: 20px;
 }
 input[type=number]{
@@ -25,4 +19,40 @@ input[type=number]{
 }
 input[type=number]::-webkit-inner-spin-button{  
 	opacity: 1;
+}*/
+#question{
+	text-align: center;
+	font-size: 60px;
+	margin: 20px;
+	margin-bottom: 25px;
+	min-width: 893px;
+}
+.option{
+	position: absolute;
+	background-color: #fef9b4;
+	border: 5px solid #886622;
+	height: 600px;
+	display: inline-block;
+	margin: 20px;
+	text-align: center;
+	vertical-align: middle;
+	font-size: 60px;
+}
+#item{
+	background-image: url("../assets/unused/5archaeology.png");
+	background-size: contain;
+    background-position: center;
+    background-repeat: no-repeat;
+}
+#npc{
+	background-image: url("../assets/unused/feller.png");
+	background-size: contain;
+    background-position: center;
+    background-repeat: no-repeat;
+}
+#enemy{
+	background-image: url("../assets/unused/goblin4.png");
+	background-size: contain;
+    background-position: center;
+    background-repeat: no-repeat;
 }
