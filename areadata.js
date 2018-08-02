@@ -79,9 +79,10 @@ var Areas = {
 						role: "start"
 					},
 				],
-				questProgressText: "Good luck with your travels!",
-				questCompleteText: "Look how much you've grown!",
-				//inventoryFullText: "Look how much you've grown!",
+				chat: {
+					questProgress: "Good luck with your adventures!",
+					questComplete: "I hope your quests are going well!",
+				}
 			},
 		],
 		
@@ -103,8 +104,10 @@ var Areas = {
 					Items.staff[2],
 					Items.bow[2],
 				],
-				greetingText: "Would you like to buy anything?",
-				buyText: "Come back some time.",
+				chat: {
+					greeting: "Would you like to buy anything?",
+					leave: "Come back some time.",
+				},
 			},
 		],
 		
@@ -261,8 +264,11 @@ var Areas = {
 						role: "finish"
 					},
 				],
-				questProgressText: "Get on with your work!",
-				questCompleteText: "There's lots of work still to be done.",
+				chat: {
+					questProgress: "Get on with your work!",
+					questComplete: "There's lots of work still to be done.",
+					inventoryFull: "You have no space to hold this. Empty your bags a bit and come back.",
+				},
 			},
 		],
 		

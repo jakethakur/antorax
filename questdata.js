@@ -23,7 +23,6 @@ var Quests = {
 				var completed = []; // contains true or false for all of the objectives, with the last element being if the quest is ready to complete
 				
 				// true or falses for each objective (apart from the turn-in objective)
-				
 				completed.push(Dom.inventory.check(2,"sword") || Dom.inventory.check(2,"staff") || Dom.inventory.check(2,"bow"));
 				
 				var finished = true;
@@ -41,11 +40,24 @@ var Quests = {
 			howToStart: "Speak to the Cart Driver.",
 			levelRequirement: 1,
 			
+			startRewards: {
+				items: [
+					Items.currency[0],
+				],
+				itemQuantities: [
+					3,
+				],
+			},
+			
 			rewards: {
-				gold: 5,
 				xp: 10,
 				items: [
+					Items.currency[0],
 					Items.boots[2],
+				],
+				itemQuantities: [
+					5,
+					1,
 				],
 				reputation: {
 					eaglecrestLoggingCamp: 6,
@@ -53,10 +65,7 @@ var Quests = {
 			},
 			
 			onQuestStart: function() {
-				Dom.chat.insert("The cart driver fumbles around in his wallet to give you 3 golden ingots. You can spend them at a merchant to buy a new weapon.", 100);
-				for(var i = 0; i < 3; i++){
-					Dom.inventory.give(Items.currency[0]);
-				}
+				Dom.chat.insert("The cart driver fumbles around in his wallet to give you 3 golden ingots. You can spend them at a merchant to buy a new weapon.", 100); // perhaps move to chat object in quest start NPC
 			},
 		},
 		

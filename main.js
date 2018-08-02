@@ -384,7 +384,12 @@ class Character extends Thing {
 			fiftyPercentHealth - said when the character goes below 50% health for the first time
 			tenPercentHealth - said when the character goes below 10% health for the first time
 			//death - said when the character dies (unlimited times) TBD
-			more tbd
+			questProgress - said when a quest involving this NPC is in progress (mandatory for quest NPCs)
+			questComplete - said when quests involving this NPC have been finished (mandatory for quest NPCs)
+			inventoryFull - said when a quest involving this NPC adds more items than needed (mandatory for quest NPCs that add something to inventory on start or finish)
+			greeting - said (on DOM as well as chat) when you first speak to a merchant (mandatory for merchants)
+			leave - said when you leave a merchant (mandatory for merchants)
+			more tba
 			
 			use "/me " at the start of the chat to make the chat reflexive
 			e.g:	"Hi" => "Character: Hi"
@@ -462,8 +467,6 @@ class AreaTeleport extends Entity {
 class Hero extends Attacker {
 	constructor (properties) {
 		super(properties);
-		//this.baseSpeed = properties.baseSpeed;
-		//this.waterSpeed = properties.waterSpeed;=
 		
 		// perhaps condense the following with enemy's canAttack?
 		this.channelTime = 0;
@@ -729,24 +732,8 @@ class NPC extends Character {
 		this.quests = properties.quests; // quest object address, to be read from questdata.js file
 		
 		this.items = properties.items; // items sold
-		
-		//this.questProgressText = properties.questProgressText; // text when quest is in progress
-		//this.questCompleteText = properties.questCompleteText; // text when quest has been completed
-		//this.greetingText = properties.greetingText;
-		//this.buyText = properties.buyText; // tbd
 	}
 }
-
-/*
-// merchant (to be merged with quest NPC)
-class Merchant extends Thing { // to be changed to character
-	constructor(properties) {
-		super(properties);
-		this.name = properties.name;
-		
-	}
-}
-*/
 
 // person that just moves around and does nothing of use (to be what merchant/quest NPC inherit off)
 // currently doesn't move properly
@@ -1501,21 +1488,30 @@ Game.update = function (delta) {
 				
 				// quest is ready to be accepted
 				if (this.hero.isTouching(this.questNPCs[i]) && Dom.currentlyDisplayed === "" && !Dom.quests.activeQuestArray.includes(this.questNPCs[i].quests[x].quest.quest) && !Dom.quests.completedQuestArray.includes(this.questNPCs[i].quests[x].quest.quest)) {
-					Dom.quest.start(this.questNPCs[i].quests[x].quest);
+					if (Dom.inventory.requiredSpace(Quests.eaglecrestLoggingCamp[0].rewards.startItems)) {
+						// user has space for quest start items
+						Dom.quest.start(this.questNPCs[i].quests[x].quest);
+					}
+					else {
+						// user doesn't have enough space
+						this.questNPCs[i].say(this.questNPCs[i].chat.inventoryFull, true, 0, false);
+					}
 				}
 				// quest is currently active
-				else if (this.hero.isTouching(this.questNPCs[i]) && Dom.quests.activeQuestArray.includes(this.questNPCs[i].quests[x].quest.quest) && !Dom.chat.contents.includes("<strong>" + this.questNPCs[i].name + ": " + "</strong>" + this.questNPCs[i].questProgressText)) {
-					Dom.chat.insert("<strong>" + this.questNPCs[i].name + ": " + "</strong>" + this.questNPCs[i].questProgressText, 100, false);
+				else if (this.hero.isTouching(this.questNPCs[i]) && Dom.quests.activeQuestArray.includes(this.questNPCs[i].quests[x].quest.quest)) {
+					this.questNPCs[i].say(this.questNPCs[i].chat.questProgress, true, 0, false);
 				}
 				// quest has been completed
-				else if (this.hero.isTouching(this.questNPCs[i]) && Dom.quests.completedQuestArray.includes(this.questNPCs[i].quests[x].quest.quest) && !Dom.chat.contents.includes("<strong>" + this.questNPCs[i].name + ": " + "</strong>" + this.questNPCs[i].questCompleteText)) {
-					Dom.chat.insert("<strong>" + this.questNPCs[i].name + ": " + "</strong>" + this.questNPCs[i].questCompleteText, 100, false);
+				else if (this.hero.isTouching(this.questNPCs[i]) && Dom.quests.completedQuestArray.includes(this.questNPCs[i].quests[x].quest.quest)) {
+					this.questNPCs[i].say(this.questNPCs[i].chat.questComplete, true, 0, false);
 				}
-				if(Dom.currentlyDisplayed != this.questNPCs[i].quests[0].quest && Dom.currentlyDisplayed != "" && !Dom.override){
-					if(this.hero.isTouching(this.questNPCs[i]) && document.getElementsByClassName("closeClass")[0].style.border != "5px solid red"){
+				if(Dom.currentlyDisplayed != this.questNPCs[i].quests[0].quest && Dom.currentlyDisplayed != "" && !Dom.override) { // trying to speak to NPC when an interface is already open
+					// red colour of close button
+					if (this.hero.isTouching(this.questNPCs[i]) && document.getElementsByClassName("closeClass")[0].style.border != "5px solid red") {
 						Dom.changeBook("questsPage",false,0);
 						Dom.quests.override = true;
-					}else if(!this.hero.isTouching(this.questNPCs[i]) && document.getElementsByClassName("closeClass")[0].style.border == "5px solid red" && Dom.quests.override){
+					}
+					else if (!this.hero.isTouching(this.questNPCs[i]) && document.getElementsByClassName("closeClass")[0].style.border == "5px solid red" && Dom.quests.override) {
 						Dom.changeBook("questsPage",false,1);
 						Dom.quests.override = false;
 					}
@@ -1528,23 +1524,31 @@ Game.update = function (delta) {
 				if (this.hero.isTouching(this.questNPCs[i]) && Dom.currentlyDisplayed === "" && Dom.quests.activeQuestArray.includes(this.questNPCs[i].quests[x].quest.quest) && !Dom.quests.completedQuestArray.includes(this.questNPCs[i].quests[x].quest.quest)) {
 					//check if quest conditions have been fulfilled
 					if(this.questNPCs[i].quests[x].quest.isCompleted()[this.questNPCs[i].quests[x].quest.objectives.length - 1]) {
-						Dom.quest.finish(this.questNPCs[i].quests[x].quest);
+						if (Dom.inventory.requiredSpace(Quests.eaglecrestLoggingCamp[0].rewards.items)) {
+							// user has space for quest finish items
+							Dom.quest.finish(this.questNPCs[i].quests[x].quest);
+						}
+						else {
+							// user doesn't have enough space
+							this.questNPCs[i].say(this.questNPCs[i].chat.inventoryFull, true, 0, false);
+						}
 					}
 					// quest conditions have not been fulfilled
-					else if (!Dom.chat.contents.includes("<strong>" + this.questNPCs[i].name + ": " + "</strong>" + this.questNPCs[i].questProgressText)) {
-						Dom.chat.insert("<strong>" + this.questNPCs[i].name + ": " + "</strong>" + this.questNPCs[i].questProgressText, 100, false);
+					else {
+						this.questNPCs[i].say(this.questNPCs[i].chat.questProgress, true, 0, false);
 					}
 				}
 				// quest has already been completed
-				else if (this.hero.isTouching(this.questNPCs[i]) && Dom.quests.completedQuestArray.includes(this.questNPCs[i].quests[x].quest.quest) && !Dom.chat.contents.includes("<strong>" + this.questNPCs[i].name + ": " + "</strong>" + this.questNPCs[i].questCompleteText)) {
-					Dom.chat.insert("<strong>" + this.questNPCs[i].name + ": " + "</strong>" + this.questNPCs[i].questCompleteText, 100, false);
+				else if (this.hero.isTouching(this.questNPCs[i]) && Dom.quests.completedQuestArray.includes(this.questNPCs[i].quests[x].quest.quest)) {
+					this.questNPCs[i].say(this.questNPCs[i].chat.questComplete, true, 0, false);
 				}
-				if(Dom.currentlyDisplayed != this.questNPCs[i].quests[this.questNPCs[i].quests.length-1].quest && Dom.currentlyDisplayed != "" && !Dom.override) {
-					if(this.hero.isTouching(this.questNPCs[i]) && document.getElementsByClassName("closeClass")[0].style.border != "5px solid red") {
+				if (Dom.currentlyDisplayed != this.questNPCs[i].quests[this.questNPCs[i].quests.length-1].quest && Dom.currentlyDisplayed != "" && !Dom.override) { // trying to speak to NPC when an interface is already open
+				// red colour of close button
+					if (this.hero.isTouching(this.questNPCs[i]) && document.getElementsByClassName("closeClass")[0].style.border != "5px solid red") {
 						Dom.changeBook("questsPage",false,0);
 						Dom.quest.override = true;
 					}
-					else if(!this.hero.isTouching(this.questNPCs[i]) && document.getElementsByClassName("closeClass")[0].style.border == "5px solid red" && Dom.quest.override) {
+					else if (!this.hero.isTouching(this.questNPCs[i]) && document.getElementsByClassName("closeClass")[0].style.border == "5px solid red" && Dom.quest.override) {
 						Dom.changeBook("questsPage",false,1);
 						Dom.quest.override = false;
 					}
@@ -1558,18 +1562,17 @@ Game.update = function (delta) {
 	// check collision with merchants
 	for(var i = 0; i < this.merchants.length; i++) {
         if (this.hero.isTouching(this.merchants[i]) && Dom.currentlyDisplayed === "") {
-			Dom.merchant.page(this.merchants[i].name, this.merchants[i].greetingText, this.merchants[i].items);
-			if (!Dom.chat.contents.includes("<strong>" + this.merchants[i].name + ": " + "</strong>" + this.merchants[i].buyText)) {
-				Dom.chat.insert("<strong>" + this.merchants[i].name + ": " + "</strong>" + this.merchants[i].buyText, 100, false);
-			}
+			Dom.merchant.page(this.merchants[i].name, this.merchants[i].chat.greeting, this.merchants[i].items);
+			this.questNPCs[i].say(this.questNPCs[i].chat.leave, true, 0, false);
 		}
-		else if (Dom.currentlyDisplayed != this.merchants[i].name && Dom.currentlyDisplayed != "" && !Dom.override) {
-			if(this.hero.isTouching(this.merchants[i]) && document.getElementsByClassName("closeClass")[0].style.border != "5px solid red"){
-				Dom.changeBook("questsPage",false,0);
+		else if (Dom.currentlyDisplayed != this.merchants[i].name && Dom.currentlyDisplayed != "" && !Dom.override) { // trying to speak to merchant when an interface is already open
+			// red colour of close button
+			if (this.hero.isTouching(this.merchants[i]) && document.getElementsByClassName("closeClass")[0].style.border != "5px solid red"){
+				Dom.changeBook("questsPage", false, 0);
 				Dom.merchant.override = true;
 			}
 			else if (!this.hero.isTouching(this.merchants[i]) && document.getElementsByClassName("closeClass")[0].style.border == "5px solid red" && Dom.merchant.override) {
-				Dom.changeBook("questsPage",false,1);
+				Dom.changeBook("questsPage", false, 1);
 				Dom.merchant.override = false;
 			}
 		}
