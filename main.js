@@ -387,7 +387,7 @@ class Character extends Thing {
 			questProgress - said when a quest involving this NPC is in progress (mandatory for quest NPCs)
 			questComplete - said when quests involving this NPC have been finished (mandatory for quest NPCs)
 			inventoryFull - said when a quest involving this NPC adds more items than needed (mandatory for quest NPCs that add something to inventory on start or finish)
-			greeting - said (on DOM as well as chat) when you first speak to a merchant (mandatory for merchants)
+			greeting - said (on DOM not chat) when you first speak to a merchant (mandatory for merchants)
 			leave - said when you leave a merchant (mandatory for merchants)
 			more tba
 			
@@ -1488,7 +1488,7 @@ Game.update = function (delta) {
 				
 				// quest is ready to be accepted
 				if (this.hero.isTouching(this.questNPCs[i]) && Dom.currentlyDisplayed === "" && !Dom.quests.activeQuestArray.includes(this.questNPCs[i].quests[x].quest.quest) && !Dom.quests.completedQuestArray.includes(this.questNPCs[i].quests[x].quest.quest)) {
-					if (Dom.inventory.requiredSpace(Quests.eaglecrestLoggingCamp[0].rewards.startItems)) {
+					if (Dom.inventory.requiredSpace(Quests.eaglecrestLoggingCamp[0].startRewards.items)) {
 						// user has space for quest start items
 						Dom.quest.start(this.questNPCs[i].quests[x].quest);
 					}
@@ -1563,7 +1563,7 @@ Game.update = function (delta) {
 	for(var i = 0; i < this.merchants.length; i++) {
         if (this.hero.isTouching(this.merchants[i]) && Dom.currentlyDisplayed === "") {
 			Dom.merchant.page(this.merchants[i].name, this.merchants[i].chat.greeting, this.merchants[i].items);
-			this.questNPCs[i].say(this.questNPCs[i].chat.leave, true, 0, false);
+			this.merchants[i].say(this.merchants[i].chat.leave, true, 0, false);
 		}
 		else if (Dom.currentlyDisplayed != this.merchants[i].name && Dom.currentlyDisplayed != "" && !Dom.override) { // trying to speak to merchant when an interface is already open
 			// red colour of close button
