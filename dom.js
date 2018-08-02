@@ -52,7 +52,8 @@ if(sessionStorage.getItem("class")==undefined){
 Dom.previous = "instructionsPage"; // change currently displayed page
 Dom.changeBook = function(page, override, x) { // changes the page or changes the color of close buttons
 	//override says if the function should be run regardless of if the player has a quest active (e.g: declining a quest or closing a merchant)
-	if(this.currentlyDisplayed == "" || override) { // check the player doesn't have a quest active
+	if((this.currentlyDisplayed == "" || override) && page != "levelUpPage") { // check the player doesn't have a quest active
+	console.log("yes");
 		// hide all pages
 		if(page != "questStart" && page != "questFinish" && page != "merchantPage" && page != "identifierPage" && page != "identifiedPage" && page != "levelUpPage"){ // if the page being changed to is a not a pop up...
 			document.getElementById("change"+Dom.previous.substring(0,1).toUpperCase()+Dom.previous.substring(1,Dom.previous.length-4)).getElementsByTagName("polygon")[0].style.strokeWidth = "1";
@@ -70,7 +71,6 @@ Dom.changeBook = function(page, override, x) { // changes the page or changes th
 		this.elements.merchantPage.hidden = true; // hides the merchant pop up
 		this.elements.identifierPage.hidden = true; // hides the identifier pop up
 		this.elements.identifiedPage.hidden = true; // hides the identified pop up
-		this.elements.levelUpPage.hidden = true; // hides the levelUp pop up
 		document.getElementById(page).hidden = false; // displays the page you are opening
 		if(page == "chatPage"){ // if the chat is being opened
 			if(Dom.chat.newString == ""){ // if there is no new chat
@@ -82,6 +82,8 @@ Dom.changeBook = function(page, override, x) { // changes the page or changes th
 			Dom.chat.newString = ""; // set the new chat to nothing
 			clearInterval(Dom.chat.borderRed);
 			clearInterval(Dom.chat.borderBlack);
+			Dom.chat.borderRed = false;
+			Dom.chat.borderBlack = false;
 			document.getElementById("changeChat").getElementsByTagName("polygon")[0].style.stroke = "black";
 		}
 		if(page == "reputationPage"){ // if the reputation is being opened
@@ -113,6 +115,9 @@ Dom.changeBook = function(page, override, x) { // changes the page or changes th
 				document.getElementsByClassName("closeClass")[i].style.border = "5px solid #886622"; // instantly set close button border color back to normal
 			}
 		}
+		if(page == "levelUpPage"){
+			document.getElementById(page).hidden = false; // displays the page you are opening
+		}
 		return false; // returns false if the page was not changed
 	}
 }
@@ -126,6 +131,8 @@ Dom.hotbar.update = function(){
 	}
 }
 
+Dom.chat.borderRed = false;
+Dom.chat.borderBlack = false;
 Dom.chat.newString = ""; // sets the new chat to nothing
 Dom.chat.oldString = ""; // sets the old chat to nothing
 Dom.chat.length = 0; // sets the chat length to 0
@@ -156,7 +163,7 @@ Dom.chat.insert = function(text, delay, important) { // // insert text in chat p
 		}
 		Dom.chat.length++; // adds 1 to the length of the chat
 	}, delay); // sets the delay to the amount specified in the parameter
-	if(important){
+	if(important && !Dom.chat.borderRed && !Dom.chat.borderBlack){
 		Dom.chat.borderRed = setInterval(function(){
 			document.getElementById("changeChat").getElementsByTagName("polygon")[0].style.strokeWidth = "3";
 			document.getElementById("changeChat").getElementsByTagName("polygon")[0].style.stroke = "red";
@@ -812,7 +819,7 @@ Dom.identifier.displayIdentifiedInformation = function(num,array){ // display id
 }
 
 Dom.currentlyDisplayed = ""; // the currently displayed quest, merchant, etc. (any pop up)
-Dom.quest.start = function(quest) { // display quest start page
+Dom.quest.start = function(quest){ // display quest start page
 	if(Dom.changeBook("questStart", false)) { // display quest start page
 		document.getElementById("questStartQuest").innerHTML = quest.quest; // sets title to quest name
 		document.getElementById("questStartName").innerHTML = quest.startName; // sets NPC name to NPC name
@@ -829,7 +836,11 @@ Dom.quest.start = function(quest) { // display quest start page
 		}
 		document.getElementById("questStartItems").innerHTML = ""; // sets the item rewards to none
 		for(var i = 0; i < quest.rewards.items.length; i++){ // repeats for all item rewards
-			document.getElementById("questStartItems").innerHTML += "<img src=" + quest.rewards.items[i].image + " class='theseQuestOptions'><div class='stackNum'>"+quest.rewards.itemQuantities[i]+"</div></img>&nbsp;&nbsp;"; // adds item to item rewards
+			if(quest.rewards.itemQuantities[i] != 1){
+				document.getElementById("questStartItems").innerHTML += "<img src=" + quest.rewards.items[i].image + " class='theseQuestOptions'><div class='questStackNum'>"+quest.rewards.itemQuantities[i]+"</div></img>&nbsp;&nbsp;"; // adds item to item rewards
+			}else{
+				document.getElementById("questStartItems").innerHTML += "<img src=" + quest.rewards.items[i].image + " class='theseQuestOptions'><span class='questStackNum'></span></img>&nbsp;&nbsp;"; // adds item to item rewards
+			}
 		}
 		for(let x = 0; x < document.getElementsByClassName("theseQuestOptions").length; x++){ // repeats for all item rewards
 			document.getElementsByClassName("theseQuestOptions")[x].onmouseover = function() { // when the user hovers over the item...
@@ -839,35 +850,60 @@ Dom.quest.start = function(quest) { // display quest start page
 				Dom.expand("questInformation"); // ...stops displaying the information for that item
 			};
 		}
+		for(let x = 0; x < document.getElementsByClassName("questStackNum").length; x++){ // repeats for all item rewards
+			document.getElementsByClassName("questStackNum")[x].onmouseover = function() { // when the user hovers over the item...
+				Dom.quests.displayInformation(x, quest.rewards.items,document.getElementsByClassName("theseQuestOptions").length); // ...displays the information for that item
+			};
+			document.getElementsByClassName("questStackNum")[x].onmouseleave = function() { // when the user stops hovering over the item...
+				Dom.expand("questInformation"); // ...stops displaying the information for that item
+			};
+			document.getElementsByClassName("questStackNum")[x].style.left = document.getElementsByClassName("theseQuestOptions")[x].getBoundingClientRect().left + 5 + "px";
+			document.getElementsByClassName("questStackNum")[x].style.top = document.getElementsByClassName("theseQuestOptions")[x].getBoundingClientRect().top + 33 + "px";
+		}
 		Dom.currentlyDisplayed = quest; // sets the currently displayed pop up to the quest
 	}
 }
 
 Dom.quest.finish = function(quest){ // display quest finish page
-	Dom.changeBook("questFinish", false); // display quest finish page
-	document.getElementById("questFinishQuest").innerHTML = quest.quest; // sets title to quest name
-	document.getElementById("questFinishName").innerHTML = quest.finishName; // sets NPC name to NPC name
-	document.getElementById("questFinishChat").innerHTML = quest.finishChat; // sets chat to NPC chat
-	if(quest.rewards.xp == 0 || quest.rewards.xp == undefined){ // if there is no xp reward...
-		document.getElementById("questFinishXP").style.display = "none"; // ...do not display xp
-		//document.getElementById("xpClass").style.display = "none";
-	}else{ // if there is a xp reward...
-		document.getElementById("questFinishXP").innerHTML = quest.rewards.xp; // ...display the amount of xp inside the xp
+	if(Dom.changeBook("questFinish", false)){ // display quest finish page
+		document.getElementById("questFinishQuest").innerHTML = quest.quest; // sets title to quest name
+		document.getElementById("questFinishName").innerHTML = quest.finishName; // sets NPC name to NPC name
+		document.getElementById("questFinishChat").innerHTML = quest.finishChat; // sets chat to NPC chat
+		if(quest.rewards.xp == 0 || quest.rewards.xp == undefined){ // if there is no xp reward...
+			document.getElementById("questFinishXP").style.display = "none"; // ...do not display xp
+			//document.getElementById("xpClass").style.display = "none";
+		}else{ // if there is a xp reward...
+			document.getElementById("questFinishXP").innerHTML = quest.rewards.xp; // ...display the amount of xp inside the xp
+		}
+		document.getElementById("questFinishItems").innerHTML = ""; // sets the item rewards to none
+		for(var i = 0; i < quest.rewards.items.length; i++){ // repeats for all item rewards
+			if(quest.rewards.itemQuantities[i] != 1){
+				document.getElementById("questFinishItems").innerHTML += "<img src=" + quest.rewards.items[i].image + " class='theseQuestFinishOptions'><div class='questFinishStackNum'>"+quest.rewards.itemQuantities[i]+"</div></img>&nbsp;&nbsp;"; // adds item to item rewards
+			}else{
+				document.getElementById("questFinishItems").innerHTML += "<img src=" + quest.rewards.items[i].image + " class='theseQuestFinishOptions'><span class='questFinishStackNum'></span></img>&nbsp;&nbsp;"; // adds item to item rewards
+			}
+		}
+		for(let x = 0; x < document.getElementsByClassName("theseQuestFinishOptions").length; x++){ // repeats for all item rewards
+			document.getElementsByClassName("theseQuestFinishOptions")[x].onmouseover = function() { // when the user hovers over the item...
+				Dom.quests.displayFinishInformation(x, quest.rewards.items,document.getElementsByClassName("theseQuestFinishOptions").length); // ...displays the information for that item
+			};
+			document.getElementsByClassName("theseQuestFinishOptions")[x].onmouseleave = function() { // when the user stops hovering over the item...
+				Dom.expand("questFinishInformation"); // ...stops displaying the information for that item
+			};
+		}
+		for(let x = 0; x < document.getElementsByClassName("questFinishStackNum").length; x++){ // repeats for all item rewards
+			document.getElementsByClassName("questFinishStackNum")[x].onmouseover = function() { // when the user hovers over the item...
+				Dom.quests.displayFinishInformation(x, quest.rewards.items,document.getElementsByClassName("theseQuestFinishOptions").length); // ...displays the information for that item
+			};
+			document.getElementsByClassName("questFinishStackNum")[x].onmouseleave = function() { // when the user stops hovering over the item...
+				Dom.expand("questFinishInformation"); // ...stops displaying the information for that item
+			};
+			document.getElementsByClassName("questFinishStackNum")[x].style.left = document.getElementsByClassName("theseQuestFinishOptions")[x].getBoundingClientRect().left + 5 + "px";
+			document.getElementsByClassName("questFinishStackNum")[x].style.top = document.getElementsByClassName("theseQuestFinishOptions")[x].getBoundingClientRect().top + 33 + "px";
+		}
+		Dom.currentlyDisplayed = quest; // sets the currently displayed variable to the quest
+		Dom.quest.waitForReward = quest;
 	}
-	document.getElementById("questFinishItems").innerHTML = ""; // sets the item rewards to none
-	for(var i = 0; i < quest.rewards.items.length; i++){ // repeats for all item rewards
-		document.getElementById("questFinishItems").innerHTML += "<img src=" + quest.rewards.items[i].image + " class='theseQuestFinishOptions'></img>&nbsp;&nbsp;"; //adds item to item rewards
-	}
-	for(let x = 0; x < document.getElementsByClassName("theseQuestFinishOptions").length; x++){ // repeats for all item rewards
-		document.getElementsByClassName("theseQuestFinishOptions")[x].onmouseover = function() { // when the user hovers over the item...
-			Dom.quests.displayFinishInformation(x, quest.rewards.items,document.getElementsByClassName("theseQuestFinishOptions").length); // ...displays the information for that item
-		};
-		document.getElementsByClassName("theseQuestFinishOptions")[x].onmouseleave = function() { // when the user stops hovering over the item...
-			Dom.expand("questFinishInformation"); // ...stops displaying the information for that item
-		};
-	}
-	Dom.currentlyDisplayed = quest; // sets the currently displayed variable to the quest
-	Dom.quest.waitForReward = quest;
 }
 
 Dom.quest.accept = function(){ // quest accepted
@@ -1583,7 +1619,6 @@ document.getElementById("settingLogoutInner").onclick = function(){
 
 Dom.levelUp.page = function(){
 	Dom.changeBook("levelUpPage");
-	Dom.currentlyDisplayed = "levelUp";
 	Player.stats.maxHealth+=5;
 	document.getElementById("levelUpPageLevel").innerHTML = Player.level-1 + " &#10132; " + Player.level;
 	document.getElementById("levelUpPageUnlock").innerHTML = "<strong>Quests Unlocked:</strong>"
@@ -1671,4 +1706,8 @@ Dom.inventory.requiredSpace = function(items,quantities){
 		}
 	}
 	return required <= Dom.inventory.checkSpace();
+}
+
+document.getElementById("levelUpPageClose").onclick = function(){
+	document.getElementById("levelUpPage").hidden = true;
 }

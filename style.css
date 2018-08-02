@@ -42,6 +42,11 @@ body{
 #questStart, #questFinish, #merchantPage, #identifierPage, #identifiedPage, #levelUpPage{
 	text-align: center;
 }
+#levelUpPage{
+	position: absolute;
+	left: 630px;
+	z-index: 1;
+}
 #questStartQuest, #questFinishQuest, #questStartName, #questFinishName, #questStartChat, #questFinishChat, #questStartObjectives, #questStartRewards, #questFinishRewards, #merchantPageTitle, #merchantPageChat, #merchantPageOptions, #identifierPageTitle, #identifierPageChat, #leftArrow, #identifierPageOption, #rightArrow, #identifiedPageTitle, #identifiedPageChat, #identifiedPageOptions{
 	display: inline;
 }
@@ -132,6 +137,11 @@ body{
 	padding-top: 45px;
 	height: 555px;
 	width: 472px;
+}
+#merchantPage{
+	padding-left: 38px;
+	padding-right: 38px;
+	width: 434px;
 }
 #helm, #chest, #greaves, #boots, #weapon, #settingLogoutInner{
 	margin-top: 10px;
@@ -258,7 +268,7 @@ td{
 	background-color: #fef9b4;
 	border: 5px solid #886622;
 	margin-left: 100px;
-	left: 240px;
+	left: 175px;
 	margin-top: 4px;
 	text-align: center;
 	line-height: 50px;
@@ -287,7 +297,7 @@ td{
 #informationMerchant{
 	left: 740px;
 }
-.closeClass {
+.closeClass, #levelUpPageClose{
 	position: relative;
 	width: 200px;
 	height: 50px;
@@ -409,7 +419,7 @@ td{
 	left: 200px;
 	height: 40px;
 }
-.stackNum{
+.stackNum, .questStackNum, .questFinishStackNum{
 	position: relative;
     bottom: 22px;
 	height: 20px;
@@ -417,7 +427,9 @@ td{
 	font-size: 20px;
 	text-shadow: 1px 1px grey;
 	text-align: right;
-	display: inline;
+}
+.questStackNum, .questFinishStackNum{
+	position: absolute;
 }
 #levelUpPageTitle{
 	position: relative;
