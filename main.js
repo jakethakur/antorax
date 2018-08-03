@@ -676,47 +676,59 @@ class Projectile extends Thing {
 				Game.updateScreenPosition(this); // update projectile position
 				if (this.isTouching(to[i][x])) { // check projectile is touching character it wants to damage
 					
-					// damage
-					let damageDealt = attacker.stats.damage - to[i][x].stats.defence / 10; // calculate damage dealt
-					if (damageDealt < 0) {
-						damageDealt = 0;
-					}
-					if (random(0, 100) < attacker.stats.criticalChance) { // critical hit
-						damageDealt *= 2
-						to[i][x].health -= damageDealt;
-						to[i][x].damageTaken += damageDealt;
-						this.damageDealt.push({enemy: to[i][x], damage: damageDealt, critical: true});
+					if (random(0, 100) < to[i][x].stats.dodgeChance) { // hit dodged
+						this.damageDealt.push({enemy: to[i][x], damage: "hit dodged", critical: false});
 					}
 					else {
-						to[i][x].health -= damageDealt;
-						to[i][x].damageTaken += damageDealt;
-						this.damageDealt.push({enemy: to[i][x], damage: damageDealt, critical: false});
-					}
-					
-					// poison
-					if (attacker.stats.poisonX > 0 && attacker.stats.poisonY > 0) { // check player weapon has poison
-						Game.statusEffects.poison(attacker.stats.poisonX, attacker.stats.poisonY, to[i][x]);
-					}
-					
-					// flaming
-					if (attacker.stats.flaming > 0) { // check player weapon has flaming
-						Game.statusEffects.fire(attacker.stats.flaming, to[i][x]);
-					}
-					
-					if (to[i][x] == Game.hero) { // re-render the second canvas if the hero has been damaged
-						Game.secondary.render();
-					}
-					
-					// chat relating to being damaged (and dealing damage? TBD)
-					if (typeof to[i][x].chat !== "undefined") { // check the character has been given text to say about being damaged
-						if (to[i][x].health < to[i][x].stats.maxHealth / 10 && typeof to[i][x].chat.tenPercentHealth !== "undefined") { // 10% health chat message
-							to[i][x].say(to[i][x].chat.tenPercentHealth, true, 0, false);
+						// damage
+						let dmgDealt = attacker.stats.damage - to[i][x].stats.defence / 10; // calculate damage dealt
+						if (dmgDealt < 0) {
+							dmgDealt = 0;
 						}
-						else if (to[i][x].health < to[i][x].stats.maxHealth / 2 && typeof to[i][x].chat.fiftyPercentHealth !== "undefined") { // 50% health chat message
-							to[i][x].say(to[i][x].chat.fiftyPercentHealth, true, 0, false);
+						if (random(0, 100) < attacker.stats.criticalChance) { // critical hit
+							dmgDealt *= 2
+							to[i][x].health -= dmgDealt;
+							to[i][x].damageTaken += dmgDealt;
+							this.damageDealt.push({enemy: to[i][x], damage: dmgDealt, critical: true});
 						}
-						else if (to[i][x].health < to[i][x].stats.maxHealth && typeof to[i][x].chat.firstDamaged !== "undefined") { // first damaged chat message
-							to[i][x].say(to[i][x].chat.firstDamaged, true, 0, false);
+						else {
+							to[i][x].health -= dmgDealt;
+							to[i][x].damageTaken += dmgDealt;
+							this.damageDealt.push({enemy: to[i][x], damage: dmgDealt, critical: false});
+						}
+						
+						// poison
+						if (attacker.stats.poisonX > 0 && attacker.stats.poisonY > 0) { // check target weapon has poison
+							Game.statusEffects.poison(attacker.stats.poisonX, attacker.stats.poisonY, to[i][x]);
+						}
+						
+						// flaming
+						if (attacker.stats.flaming > 0) { // check target weapon has flaming
+							Game.statusEffects.fire(attacker.stats.flaming, to[i][x]);
+						}
+						
+						// reflection
+						if (to[i][x].stats.reflection > 0) { // check target has reflection
+							attacker.health -= dmgDealt * (to[i][x].stats.reflection / 100);
+							attacker.damageTaken += dmgDealt * (to[i][x].stats.reflection / 100);
+						}
+						
+						// re-render the second canvas if the hero has been damaged
+						if (to[i][x] == Game.hero) {
+							Game.secondary.render();
+						}
+						
+						// chat relating to being damaged (and dealing damage? TBD)
+						if (typeof to[i][x].chat !== "undefined") { // check the character has been given text to say about being damaged
+							if (to[i][x].health < to[i][x].stats.maxHealth / 10 && typeof to[i][x].chat.tenPercentHealth !== "undefined") { // 10% health chat message
+								to[i][x].say(to[i][x].chat.tenPercentHealth, true, 0, false);
+							}
+							else if (to[i][x].health < to[i][x].stats.maxHealth / 2 && typeof to[i][x].chat.fiftyPercentHealth !== "undefined") { // 50% health chat message
+								to[i][x].say(to[i][x].chat.fiftyPercentHealth, true, 0, false);
+							}
+							else if (to[i][x].health < to[i][x].stats.maxHealth && typeof to[i][x].chat.firstDamaged !== "undefined") { // first damaged chat message
+								to[i][x].say(to[i][x].chat.firstDamaged, true, 0, false);
+							}
 						}
 					}
 				}
@@ -1315,6 +1327,11 @@ Game.init = function () {
 	Game.secondary.canvas.addEventListener("mousedown", Game.hero.startAttack.bind(this.hero));
 	Game.secondary.canvas.addEventListener("mouseup", Game.hero.finishAttack.bind(this.hero));
 	
+	// health regeneration every second
+	setInterval(function () {
+		this.regenHealth();
+	}.bind(Game), 1000);
+	
 	// camera
     this.camera = new Camera(map, this.canvas.width, this.canvas.height);
     this.camera.follow(this.hero);
@@ -1441,6 +1458,47 @@ Game.playLevelupSound = function (areaName) {
 			
 		}
 		
+	}
+}
+
+//
+// Regeneration every second
+//
+
+// health
+// healthRegen = health regenerated per second
+Game.regenHealth = function () {
+	// player
+	this.restoreHealth(Game.hero, Game.hero.stats.healthRegen);
+	Game.secondary.render();
+	// NPCs
+	for (let i = 0; i < Game.NPCs.length; i++) {
+		this.restoreHealth(Game.NPCs[i], Game.NPCs[i].stats.healthRegen);
+	}
+	// identifiers
+	for (let i = 0; i < Game.identifiers.length; i++) {
+		this.restoreHealth(Game.identifiers[i], Game.identifiers[i].stats.healthRegen);
+	}
+	// dummies
+	for (let i = 0; i < Game.dummies.length; i++) {
+		this.restoreHealth(Game.dummies[i], Game.dummies[i].stats.healthRegen);
+	}
+	// enemies
+	for (let i = 0; i < Game.enemies.length; i++) {
+		this.restoreHealth(Game.enemies[i], Game.enemies[i].stats.healthRegen);
+	}
+}
+
+// restores health to the target, not allowing them to go above their maximum health
+// returns true if the target was healed for the full amount
+Game.restoreHealth = function (target, health) {
+	if (target.health + target.stats.healthRegen > target.stats.maxHealth) {
+		// too much health - cap out at maximum
+		target.health = target.stats.maxHealth;
+		return false;
+	}
+	else {
+		target.health += target.stats.healthRegen;
 	}
 }
 
