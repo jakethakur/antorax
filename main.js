@@ -363,15 +363,24 @@ class Character extends Thing {
 		this.speed = properties.stats.walkSpeed || 0;
 		
 		this.level = properties.level;
+		
+		this.spawnX = properties.x;
+		this.spawnY = properties.y
+		
+		this.respawning = false;
 
 		// stats
 		this.stats = {};
+		
+		// these stats must have a value
 		this.stats.maxHealth = properties.stats.maxHealth;
+		
 		// it is recommended that you pick a value for these, but not necessary
 		this.stats.defence = properties.stats.defence || 0;
 		this.stats.healthRegen = properties.stats.healthRegen || 0;
 		this.stats.walkSpeed = properties.stats.walkSpeed || 0;
 		this.stats.swimSpeed = properties.stats.swimSpeed || 0;
+		this.stats.respawnTime = properties.stats.respawnTime || 3000;
 		
 		// optional stats
 		// using || defaults to second value if first is undefined, 0 or ""
@@ -383,7 +392,7 @@ class Character extends Thing {
 			firstDamaged - said when the character is damaged for the first time
 			fiftyPercentHealth - said when the character goes below 50% health for the first time
 			tenPercentHealth - said when the character goes below 10% health for the first time
-			//death - said when the character dies (unlimited times) TBD
+			death - said when the character dies (unlimited times)
 			questProgress - said when a quest involving this NPC is in progress (mandatory for quest NPCs)
 			questComplete - said when quests involving this NPC have been finished (mandatory for quest NPCs)
 			inventoryFull - said when a quest involving this NPC adds more items than needed (mandatory for quest NPCs that add something to inventory on start or finish)
@@ -419,6 +428,46 @@ class Character extends Thing {
 			}
 		}
 	}
+	
+	// take damage
+	takeDamage (damage) {
+		this.health -= damage;
+		this.damageTaken += damage;
+		
+		// check for death
+		if (this !== Game.hero) {
+			// not player
+			if (this.health <= 0) {
+				// death
+				this.respawning = true;
+				
+				// wipe status effects
+				this.statusEffects = [];
+				
+				// respawn in this.stats.respawnTime ms
+				setTimeout(function () {
+					this.respawn();
+				}.bind(this), this.stats.respawnTime);
+			}
+		}
+		else {
+			// player dealth
+			// TBD
+		}
+	}
+	
+	// respawn after death
+	respawn () {
+		this.x = this.spawnX;
+		this.y = this.spawnY;
+		
+		this.health = this.stats.maxHealth;
+		this.damageTaken = 0;
+		
+		this.speed = this.stats.walkSpeed || 0;
+		
+		this.respawning = false;
+	}
 }
 
 // a version of character that can deal damage
@@ -430,6 +479,8 @@ class Attacker extends Character {
 		if (this.stats === undefined) {
 			this.stats = {};
 		}
+		
+		// these stats must have a value
 		this.stats.damage = properties.stats.damage;
 		this.stats.range = properties.stats.range;
 		this.stats.reloadTime = properties.stats.reloadTime; // time in ms to attack again
@@ -687,13 +738,11 @@ class Projectile extends Thing {
 						}
 						if (random(0, 100) < attacker.stats.criticalChance) { // critical hit
 							dmgDealt *= 2
-							to[i][x].health -= dmgDealt;
-							to[i][x].damageTaken += dmgDealt;
+							to[i][x].takeDamage(dmgDealt)
 							this.damageDealt.push({enemy: to[i][x], damage: dmgDealt, critical: true});
 						}
 						else {
-							to[i][x].health -= dmgDealt;
-							to[i][x].damageTaken += dmgDealt;
+							to[i][x].takeDamage(dmgDealt)
 							this.damageDealt.push({enemy: to[i][x], damage: dmgDealt, critical: false});
 						}
 						
@@ -709,8 +758,7 @@ class Projectile extends Thing {
 						
 						// reflection
 						if (to[i][x].stats.reflection > 0) { // check target has reflection
-							attacker.health -= dmgDealt * (to[i][x].stats.reflection / 100);
-							attacker.damageTaken += dmgDealt * (to[i][x].stats.reflection / 100);
+							attacker.takeDamage(dmgDealt * (to[i][x].stats.reflection / 100))
 						}
 						
 						// re-render the second canvas if the hero has been damaged
@@ -996,8 +1044,7 @@ Game.statusEffects.poison = function(damage, time, target) {
 		},
 		tick: function (owner) { // deal poison damage every second
 			if (this.info.ticks < this.info.time) { // check poison has not expired
-				owner.health -= this.info.poisonDamage / this.info.time;
-				owner.damageTaken += this.info.poisonDamage / this.info.time;
+				owner.takeDamage(this.info.poisonDamage / this.info.time);
 				this.info.ticks++;
 				if (owner.constructor.name === "Hero") { // refresh canvas status effects if the status effect was applied to player
 					Game.hero.updateStatusEffects();
@@ -1058,8 +1105,7 @@ Game.statusEffects.fire = function(tier, target) {
 			},
 			tick: function (owner) { // deal fire damage every second
 				if (this.info.ticks < this.info.time) { // check effect has not expired
-					owner.health -= this.info.fireDamagePerSecond;
-					owner.damageTaken += this.info.fireDamagePerSecond;
+					owner.takeDamage(this.info.fireDamagePerSecond);
 					this.info.ticks++;
 					if (owner.constructor.name === "Hero") { // refresh canvas status effects if the status effect was applied to player
 						Game.hero.updateStatusEffects();
@@ -1473,19 +1519,27 @@ Game.regenHealth = function () {
 	Game.secondary.render();
 	// NPCs
 	for (let i = 0; i < Game.NPCs.length; i++) {
-		this.restoreHealth(Game.NPCs[i], Game.NPCs[i].stats.healthRegen);
+		if (!Game.NPCs[i].respawning) {
+			this.restoreHealth(Game.NPCs[i], Game.NPCs[i].stats.healthRegen);
+		}
 	}
 	// identifiers
 	for (let i = 0; i < Game.identifiers.length; i++) {
-		this.restoreHealth(Game.identifiers[i], Game.identifiers[i].stats.healthRegen);
+		if (!Game.identifiers[i].respawning) {
+			this.restoreHealth(Game.identifiers[i], Game.identifiers[i].stats.healthRegen);
+		}
 	}
 	// dummies
 	for (let i = 0; i < Game.dummies.length; i++) {
-		this.restoreHealth(Game.dummies[i], Game.dummies[i].stats.healthRegen);
+		if (!Game.dummies[i].respawning) {
+			this.restoreHealth(Game.dummies[i], Game.dummies[i].stats.healthRegen);
+		}
 	}
 	// enemies
 	for (let i = 0; i < Game.enemies.length; i++) {
-		this.restoreHealth(Game.enemies[i], Game.enemies[i].stats.healthRegen);
+		if (!Game.enemies[i].respawning) {
+			this.restoreHealth(Game.enemies[i], Game.enemies[i].stats.healthRegen);
+		}
 	}
 }
 
@@ -1530,99 +1584,102 @@ Game.update = function (delta) {
 	// check collision with quest npcs
 	for(var i = 0; i < this.NPCs.length; i++) { // iterate though NPCs
 	
-		if (typeof this.NPCs[i].quests !== "undefined") { // check if the NPC is a quest giver
-			for(var x = 0; x < this.NPCs[i].quests.length; x++) { // iterate through quests involving that NPC
-			
-				// quest starts
-				if (this.NPCs[i].quests[x].role == "start") {
-					// doesn't currently check if the player's level is too low to accept the quest
-					
-					// quest is ready to be accepted
-					if (this.hero.isTouching(this.NPCs[i]) && Dom.currentlyDisplayed === "" && !Dom.quests.activeQuestArray.includes(this.NPCs[i].quests[x].quest.quest) && !Dom.quests.completedQuestArray.includes(this.NPCs[i].quests[x].quest.quest)) {
-						if (Dom.inventory.requiredSpace(Quests.eaglecrestLoggingCamp[0].startRewards.items)) {
-							// user has space for quest start items
-							Dom.quest.start(this.NPCs[i].quests[x].quest);
-						}
-						else {
-							// user doesn't have enough space
-							this.NPCs[i].say(this.NPCs[i].chat.inventoryFull, true, 0, false);
-						}
-					}
-					// quest is currently active
-					else if (this.hero.isTouching(this.NPCs[i]) && Dom.quests.activeQuestArray.includes(this.NPCs[i].quests[x].quest.quest)) {
-						this.NPCs[i].say(this.NPCs[i].chat.questProgress, true, 0, false);
-					}
-					// quest has been completed
-					else if (this.hero.isTouching(this.NPCs[i]) && Dom.quests.completedQuestArray.includes(this.NPCs[i].quests[x].quest.quest)) {
-						this.NPCs[i].say(this.NPCs[i].chat.questComplete, true, 0, false);
-					}
-					if(Dom.currentlyDisplayed != this.NPCs[i].quests[0].quest && Dom.currentlyDisplayed != "" && !Dom.override) { // trying to speak to NPC when an interface is already open
-						// red colour of close button
-						if (this.hero.isTouching(this.NPCs[i]) && document.getElementsByClassName("closeClass")[0].style.border != "5px solid red") {
-							Dom.changeBook("questsPage",false,0);
-							Dom.quests.override = true;
-						}
-						else if (!this.hero.isTouching(this.NPCs[i]) && document.getElementsByClassName("closeClass")[0].style.border == "5px solid red" && Dom.quests.override) {
-							Dom.changeBook("questsPage",false,1);
-							Dom.quests.override = false;
-						}
-					}
-				}
+		if (!Game.NPCs[i].respawning) { // check npc is not dead
+	
+			if (typeof this.NPCs[i].quests !== "undefined") { // check if the NPC is a quest giver
+				for(var x = 0; x < this.NPCs[i].quests.length; x++) { // iterate through quests involving that NPC
 				
-				// quest finishes
-				if (this.NPCs[i].quests[x].role == "finish") {
-					// check if quest is ready to be finished
-					if (this.hero.isTouching(this.NPCs[i]) && Dom.currentlyDisplayed === "" && Dom.quests.activeQuestArray.includes(this.NPCs[i].quests[x].quest.quest) && !Dom.quests.completedQuestArray.includes(this.NPCs[i].quests[x].quest.quest)) {
-						//check if quest conditions have been fulfilled
-						if(this.NPCs[i].quests[x].quest.isCompleted()[this.NPCs[i].quests[x].quest.objectives.length - 1]) {
-							if (Dom.inventory.requiredSpace(Quests.eaglecrestLoggingCamp[0].rewards.items)) {
-								// user has space for quest finish items
-								Dom.quest.finish(this.NPCs[i].quests[x].quest);
+					// quest starts
+					if (this.NPCs[i].quests[x].role == "start") {
+						// doesn't currently check if the player's level is too low to accept the quest
+						
+						// quest is ready to be accepted
+						if (this.hero.isTouching(this.NPCs[i]) && Dom.currentlyDisplayed === "" && !Dom.quests.activeQuestArray.includes(this.NPCs[i].quests[x].quest.quest) && !Dom.quests.completedQuestArray.includes(this.NPCs[i].quests[x].quest.quest)) {
+							if (Dom.inventory.requiredSpace(Quests.eaglecrestLoggingCamp[0].startRewards.items)) {
+								// user has space for quest start items
+								Dom.quest.start(this.NPCs[i].quests[x].quest);
 							}
 							else {
 								// user doesn't have enough space
 								this.NPCs[i].say(this.NPCs[i].chat.inventoryFull, true, 0, false);
 							}
 						}
-						// quest conditions have not been fulfilled
-						else {
+						// quest is currently active
+						else if (this.hero.isTouching(this.NPCs[i]) && Dom.quests.activeQuestArray.includes(this.NPCs[i].quests[x].quest.quest)) {
 							this.NPCs[i].say(this.NPCs[i].chat.questProgress, true, 0, false);
 						}
-					}
-					// quest has already been completed
-					else if (this.hero.isTouching(this.NPCs[i]) && Dom.quests.completedQuestArray.includes(this.NPCs[i].quests[x].quest.quest)) {
-						this.NPCs[i].say(this.NPCs[i].chat.questComplete, true, 0, false);
-					}
-					if (Dom.currentlyDisplayed != this.NPCs[i].quests[this.NPCs[i].quests.length-1].quest && Dom.currentlyDisplayed != "" && !Dom.override) { // trying to speak to NPC when an interface is already open
-					// red colour of close button
-						if (this.hero.isTouching(this.NPCs[i]) && document.getElementsByClassName("closeClass")[0].style.border != "5px solid red") {
-							Dom.changeBook("questsPage",false,0);
-							Dom.quest.override = true;
+						// quest has been completed
+						else if (this.hero.isTouching(this.NPCs[i]) && Dom.quests.completedQuestArray.includes(this.NPCs[i].quests[x].quest.quest)) {
+							this.NPCs[i].say(this.NPCs[i].chat.questComplete, true, 0, false);
 						}
-						else if (!this.hero.isTouching(this.NPCs[i]) && document.getElementsByClassName("closeClass")[0].style.border == "5px solid red" && Dom.quest.override) {
-							Dom.changeBook("questsPage",false,1);
-							Dom.quest.override = false;
+						if(Dom.currentlyDisplayed != this.NPCs[i].quests[0].quest && Dom.currentlyDisplayed != "" && !Dom.override) { // trying to speak to NPC when an interface is already open
+							// red colour of close button
+							if (this.hero.isTouching(this.NPCs[i]) && document.getElementsByClassName("closeClass")[0].style.border != "5px solid red") {
+								Dom.changeBook("questsPage",false,0);
+								Dom.quests.override = true;
+							}
+							else if (!this.hero.isTouching(this.NPCs[i]) && document.getElementsByClassName("closeClass")[0].style.border == "5px solid red" && Dom.quests.override) {
+								Dom.changeBook("questsPage",false,1);
+								Dom.quests.override = false;
+							}
 						}
 					}
+					
+					// quest finishes
+					if (this.NPCs[i].quests[x].role == "finish") {
+						// check if quest is ready to be finished
+						if (this.hero.isTouching(this.NPCs[i]) && Dom.currentlyDisplayed === "" && Dom.quests.activeQuestArray.includes(this.NPCs[i].quests[x].quest.quest) && !Dom.quests.completedQuestArray.includes(this.NPCs[i].quests[x].quest.quest)) {
+							//check if quest conditions have been fulfilled
+							if(this.NPCs[i].quests[x].quest.isCompleted()[this.NPCs[i].quests[x].quest.objectives.length - 1]) {
+								if (Dom.inventory.requiredSpace(Quests.eaglecrestLoggingCamp[0].rewards.items)) {
+									// user has space for quest finish items
+									Dom.quest.finish(this.NPCs[i].quests[x].quest);
+								}
+								else {
+									// user doesn't have enough space
+									this.NPCs[i].say(this.NPCs[i].chat.inventoryFull, true, 0, false);
+								}
+							}
+							// quest conditions have not been fulfilled
+							else {
+								this.NPCs[i].say(this.NPCs[i].chat.questProgress, true, 0, false);
+							}
+						}
+						// quest has already been completed
+						else if (this.hero.isTouching(this.NPCs[i]) && Dom.quests.completedQuestArray.includes(this.NPCs[i].quests[x].quest.quest)) {
+							this.NPCs[i].say(this.NPCs[i].chat.questComplete, true, 0, false);
+						}
+						if (Dom.currentlyDisplayed != this.NPCs[i].quests[this.NPCs[i].quests.length-1].quest && Dom.currentlyDisplayed != "" && !Dom.override) { // trying to speak to NPC when an interface is already open
+						// red colour of close button
+							if (this.hero.isTouching(this.NPCs[i]) && document.getElementsByClassName("closeClass")[0].style.border != "5px solid red") {
+								Dom.changeBook("questsPage",false,0);
+								Dom.quest.override = true;
+							}
+							else if (!this.hero.isTouching(this.NPCs[i]) && document.getElementsByClassName("closeClass")[0].style.border == "5px solid red" && Dom.quest.override) {
+								Dom.changeBook("questsPage",false,1);
+								Dom.quest.override = false;
+							}
+						}
+					}
+				
 				}
+			}
 			
-			}
-		}
-		
-		if (typeof this.NPCs[i].sold !== "undefined") { // check if the NPC is a merchant
-		    if (this.hero.isTouching(this.NPCs[i]) && Dom.currentlyDisplayed === "") {
-				Dom.merchant.page(this.NPCs[i].name, this.NPCs[i].chat.greeting, this.NPCs[i].sold);
-				this.NPCs[i].say(this.NPCs[i].chat.leave, true, 0, false);
-			}
-			else if (Dom.currentlyDisplayed != this.NPCs[i].name && Dom.currentlyDisplayed != "" && !Dom.override) { // trying to speak to merchant when an interface is already open
-				// red colour of close button
-				if (this.hero.isTouching(this.NPCs[i]) && document.getElementsByClassName("closeClass")[0].style.border != "5px solid red"){
-					Dom.changeBook("questsPage", false, 0);
-					Dom.merchant.override = true;
+			if (typeof this.NPCs[i].sold !== "undefined") { // check if the NPC is a merchant
+				if (this.hero.isTouching(this.NPCs[i]) && Dom.currentlyDisplayed === "") {
+					Dom.merchant.page(this.NPCs[i].name, this.NPCs[i].chat.greeting, this.NPCs[i].sold);
+					this.NPCs[i].say(this.NPCs[i].chat.leave, true, 0, false);
 				}
-				else if (!this.hero.isTouching(this.NPCs[i]) && document.getElementsByClassName("closeClass")[0].style.border == "5px solid red" && Dom.merchant.override) {
-					Dom.changeBook("questsPage", false, 1);
-					Dom.merchant.override = false;
+				else if (Dom.currentlyDisplayed != this.NPCs[i].name && Dom.currentlyDisplayed != "" && !Dom.override) { // trying to speak to merchant when an interface is already open
+					// red colour of close button
+					if (this.hero.isTouching(this.NPCs[i]) && document.getElementsByClassName("closeClass")[0].style.border != "5px solid red"){
+						Dom.changeBook("questsPage", false, 0);
+						Dom.merchant.override = true;
+					}
+					else if (!this.hero.isTouching(this.NPCs[i]) && document.getElementsByClassName("closeClass")[0].style.border == "5px solid red" && Dom.merchant.override) {
+						Dom.changeBook("questsPage", false, 1);
+						Dom.merchant.override = false;
+					}
 				}
 			}
 		}
@@ -1630,29 +1687,35 @@ Game.update = function (delta) {
 	
 	// check collision with identifiers
 	for(var i = 0; i < this.identifiers.length; i++) {
-		if (this.hero.isTouching(this.identifiers[i]) && Dom.currentlyDisplayed === "") { // needs to check that it is not already open - PG tbd
-			// open identifier page
-			Dom.identifier.page("What would you like to identify?", "Here is your item, adventurer.", "Hmm, this item is of rather fine quality, adventurer.", "Wow! Some people would pay good money for that item!", "You have no unidentified items. Kill enemies to get some.");
-		}
-		else if (Dom.currentlyDisplayed != "identifier" && Dom.currentlyDisplayed != "identified" && Dom.currentlyDisplayed != "" && !Dom.override) {
-			if(this.hero.isTouching(this.identifiers[i]) && document.getElementsByClassName("closeClass")[0].style.border != "5px solid red"){
-				Dom.changeBook("identifierPage",false,0);
-				Dom.identifier.override = true;
+		if (!Game.identifiers[i].respawning) { // check identifier is not dead
+			if (this.hero.isTouching(this.identifiers[i]) && Dom.currentlyDisplayed === "") { // needs to check that it is not already open - PG tbd
+				// open identifier page
+				Dom.identifier.page("What would you like to identify?", "Here is your item, adventurer.", "Hmm, this item is of rather fine quality, adventurer.", "Wow! Some people would pay good money for that item!", "You have no unidentified items. Kill enemies to get some.");
 			}
-			else if (!this.hero.isTouching(this.identifiers[i]) && document.getElementsByClassName("closeClass")[0].style.border == "5px solid red" && Dom.identifier.override) {
-				Dom.changeBook("identifierPage",false,1);
-				Dom.identifier.override = false;
+			else if (Dom.currentlyDisplayed != "identifier" && Dom.currentlyDisplayed != "identified" && Dom.currentlyDisplayed != "" && !Dom.override) {
+				if(this.hero.isTouching(this.identifiers[i]) && document.getElementsByClassName("closeClass")[0].style.border != "5px solid red"){
+					Dom.changeBook("identifierPage",false,0);
+					Dom.identifier.override = true;
+				}
+				else if (!this.hero.isTouching(this.identifiers[i]) && document.getElementsByClassName("closeClass")[0].style.border == "5px solid red" && Dom.identifier.override) {
+					Dom.changeBook("identifierPage",false,1);
+					Dom.identifier.override = false;
+				}
 			}
 		}
 	}
 	
 	// update villagers
 	for(var i = 0; i < this.villagers.length; i++) {
-		this.villagers[i].update(delta);
+		if (!Game.villagers[i].respawning) { // check villager is not dead
+			this.villagers[i].update(delta);
+		}
     }
 	// update enemies
 	for(var i = 0; i < this.enemies.length; i++) {
-		this.enemies[i].update(delta);
+		if (!Game.enemies[i].respawning) { // check enemy is not dead
+			this.enemies[i].update(delta);
+		}
     }
 	
 	// check collision with area teleports
@@ -1774,22 +1837,30 @@ Game.drawHitboxes = function () {
 	
 	// NPC hitboxes
 	for(var i = 0; i < this.NPCs.length; i++) {
-		this.ctx.strokeRect(this.NPCs[i].screenX - this.NPCs[i].width / 2, this.NPCs[i].screenY - this.NPCs[i].height / 2, this.NPCs[i].width, this.NPCs[i].height);
+		if (!Game.NPCs[i].respawning) { // check npc is not dead
+			this.ctx.strokeRect(this.NPCs[i].screenX - this.NPCs[i].width / 2, this.NPCs[i].screenY - this.NPCs[i].height / 2, this.NPCs[i].width, this.NPCs[i].height);
+		}
 	}
 	
 	// identifier hitboxes
 	for(var i = 0; i < this.identifiers.length; i++) {
-		this.ctx.strokeRect(this.identifiers[i].screenX - this.identifiers[i].width / 2, this.identifiers[i].screenY - this.identifiers[i].height / 2, this.identifiers[i].width, this.identifiers[i].height);
+		if (!Game.identifiers[i].respawning) { // check identifier is not dead
+			this.ctx.strokeRect(this.identifiers[i].screenX - this.identifiers[i].width / 2, this.identifiers[i].screenY - this.identifiers[i].height / 2, this.identifiers[i].width, this.identifiers[i].height);
+		}
 	}
 	
 	// enemy hitboxes
 	for(var i = 0; i < this.enemies.length; i++) {
-		this.ctx.strokeRect(this.enemies[i].screenX - this.enemies[i].width / 2, this.enemies[i].screenY - this.enemies[i].height / 2, this.enemies[i].width, this.enemies[i].height);
+		if (!Game.NPCs[i].respawning) { // check enemy is not dead
+			this.ctx.strokeRect(this.enemies[i].screenX - this.enemies[i].width / 2, this.enemies[i].screenY - this.enemies[i].height / 2, this.enemies[i].width, this.enemies[i].height);
+		}
 	}
 	
 	// dummy hitboxes
 	for(var i = 0; i < this.dummies.length; i++) {
-		this.ctx.strokeRect(this.dummies[i].screenX - this.dummies[i].width / 2, this.dummies[i].screenY - this.dummies[i].height / 2, this.dummies[i].width, this.dummies[i].height);
+		if (!Game.NPCs[i].respawning) { // check dummy is not dead
+			this.ctx.strokeRect(this.dummies[i].screenX - this.dummies[i].width / 2, this.dummies[i].screenY - this.dummies[i].height / 2, this.dummies[i].width, this.dummies[i].height);
+		}
 	}
 	
 	// area teleport hitboxes
@@ -1926,21 +1997,24 @@ Game.render = function () {
 	for (var i = 0; i < this.renderList.length; i++) { // iterate through everything to be rendered (in order)
 		
 		for (var x = 0; x < this[this.renderList[i]].length; x++) { // iterate through that array of things to be rendered
-			
-			// set character screen x and y
-			this.updateScreenPosition(this[this.renderList[i]][x]);
-			
-			// draw image
-			this.ctx.drawImage(
-				this[this.renderList[i]][x].image,
-				this[this.renderList[i]][x].screenX - this[this.renderList[i]][x].width / 2,
-				this[this.renderList[i]][x].screenY - this[this.renderList[i]][x].height / 2
-			);
-			
-			// render function (additional render to be carried out upon render of this entity)
-			if (this[this.renderList[i]][x].renderFunction !== undefined) {
-				this[this.renderList[i]][x].renderFunction();
+		
+			if (!this[this.renderList[i]][x].respawning) { // check character is not dead
+				// set character screen x and y
+				this.updateScreenPosition(this[this.renderList[i]][x]);
+				
+				// draw image
+				this.ctx.drawImage(
+					this[this.renderList[i]][x].image,
+					this[this.renderList[i]][x].screenX - this[this.renderList[i]][x].width / 2,
+					this[this.renderList[i]][x].screenY - this[this.renderList[i]][x].height / 2
+				);
+				
+				// render function (additional render to be carried out upon render of this entity)
+				if (this[this.renderList[i]][x].renderFunction !== undefined) {
+					this[this.renderList[i]][x].renderFunction();
+				}
 			}
+			
 		}
 		
 	}

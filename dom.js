@@ -181,6 +181,15 @@ Dom.chat.purge = function() { // delete all chat
 	Dom.chat.contents = []; // sets the chat contents to nothing
 }
 
+/*
+// translates chat to goblin language (giblish)
+// the chat should be raw, and not contain who said it, /me, etc.
+Dom.chat.translateToGiblish = function(chat) {
+	chat = "<em>(giblish)</em> " + chat;
+	return chat;
+}
+*/
+
 Dom.expand = function(block) { // expand/collapse element
 	block = document.getElementById(block); // sets block to the element: block
 	if(block.hidden) { // if the element is hidden...
