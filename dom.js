@@ -53,7 +53,6 @@ Dom.previous = "instructionsPage"; // change currently displayed page
 Dom.changeBook = function(page, override, x) { // changes the page or changes the color of close buttons
 	//override says if the function should be run regardless of if the player has a quest active (e.g: declining a quest or closing a merchant)
 	if((this.currentlyDisplayed == "" || override) && page != "levelUpPage") { // check the player doesn't have a quest active
-	console.log("yes");
 		// hide all pages
 		if(page != "questStart" && page != "questFinish" && page != "merchantPage" && page != "identifierPage" && page != "identifiedPage" && page != "levelUpPage"){ // if the page being changed to is a not a pop up...
 			document.getElementById("change"+Dom.previous.substring(0,1).toUpperCase()+Dom.previous.substring(1,Dom.previous.length-4)).getElementsByTagName("polygon")[0].style.strokeWidth = "1";
@@ -719,22 +718,29 @@ Dom.quests.displayInformation = function(num,array,total){ // display quest star
 	Dom.inventory.updatePosition(document.getElementById("questInformation"));
 	//document.getElementById("questInformation").innerHTML = "<div class='triangleLeft'></div><div id='questTriangle' class='innerTriangleLeft'></div><p id='questName'></p><p id='questStats'></p><p id='questLore'></p>"; // construct the information without the values
 	document.getElementById("questName").innerHTML = "<strong>" + array[num].name + "</strong>";
-	if(array[num].rarity == "common"){ // if the item is a common...
-		document.getElementById("questName").style.color = "black"; // ...sets the name color to black
+	if(array[num].rarity == "mythic"){ // if the item is a common...
+		document.getElementById("questName").style.color = "purple"; // ...sets the name color to black
 	}else if(array[num].rarity == "unique"){ // if the item is a unique...
 		document.getElementById("questName").style.color = "orange"; // ...sets the name color to orange
 	}else{ // if the item is a mythic...
-		document.getElementById("questName").style.color = "purple"; // ...sets the name color to purple
+		document.getElementById("questName").style.color = "black"; // ...sets the name color to purple
 	}
-	document.getElementById("questStats").innerHTML = "Tier: "+array[num].tier; // add the tier to the information
-	for(var i = 0; i < Object.keys(array[num].stats).length; i++){ // repeat for all stats
-		if(Object.keys(array[num].stats)[i] != "flaming"){
-			var replaceStat = Object.keys(array[num].stats)[i].replace( /([A-Z])/g, " $1" );
-			document.getElementById("questStats").innerHTML += "<br>"+replaceStat.charAt(0).toUpperCase() + replaceStat.slice(1)+": "+array[num].stats[Object.keys(array[num].stats)[i]];
-		}else{
-			var replaceStat = Object.keys(array[num].stats)[i].replace( /([A-Z])/g, " $1" );
-			document.getElementById("questStats").innerHTML += "<br>"+replaceStat.charAt(0).toUpperCase() + replaceStat.slice(1)+": "+romanize(array[num].stats[Object.keys(array[num].stats)[i]]);
+	if(array[num].type != "junk" && array[num].type != "quest" && array[num].type != "bag" && array[num].type != "currency"){
+		document.getElementById("questStats").innerHTML = "Tier: "+array[num].tier; // add the tier to the information
+		for(var i = 0; i < Object.keys(array[num].stats).length; i++){ // repeat for all stats
+			if(Object.keys(array[num].stats)[i] != "flaming"){
+				var replaceStat = Object.keys(array[num].stats)[i].replace( /([A-Z])/g, " $1" );
+				document.getElementById("questStats").innerHTML += "<br>"+replaceStat.charAt(0).toUpperCase() + replaceStat.slice(1)+": "+array[num].stats[Object.keys(array[num].stats)[i]];
+			}else{
+				var replaceStat = Object.keys(array[num].stats)[i].replace( /([A-Z])/g, " $1" );
+				document.getElementById("questStats").innerHTML += "<br>"+replaceStat.charAt(0).toUpperCase() + replaceStat.slice(1)+": "+romanize(array[num].stats[Object.keys(array[num].stats)[i]]);
+			}
 		}
+	}else{
+		document.getElementById("questStats").innerHTML = "";
+	}
+	if(array[num].type == "currency"){
+		document.getElementById("questName").innerHTML = "<strong>" + total[num] + " " + document.getElementById("questName").innerHTML + "</strong>"; // add the size to the information
 	}
 	if(array[num].lore != undefined){ // if the item has a lore...
 		document.getElementById("questLore").innerHTML = "<i>"+array[num].lore+"</i>"; // ...add the lore to the information
@@ -749,26 +755,32 @@ Dom.quests.displayFinishInformation = function(num,array,total){ // display ques
 	Dom.inventory.updatePosition(document.getElementById("questFinishInformation"));
 	//document.getElementById("questFinishInformation").innerHTML = "<div class='triangleLeft'></div><div id='finishTriangle' class='innerTriangleLeft'></div><p id='finishName'></p><p id='finishStats'></p><p id='finishLore'></p>"; // construct the information without the values
 	document.getElementById("finishName").innerHTML = "<strong>" + array[num].name + "</strong>";
-	if(array[num].rarity == "common"){ // if the item is a common...
-		document.getElementById("finishName").style.color = "black"; // ...sets the name color to black
+	if(array[num].rarity == "mythic"){ // if the item is a common...
+		document.getElementById("finishName").style.color = "purple"; // ...sets the name color to black
 	}else if(array[num].rarity == "unique"){ // if the item is a unique...
 		document.getElementById("finishName").style.color = "orange"; // ...sets the name color to orange
 	}else{ // if the item is a mythic...
-		document.getElementById("finishName").style.color = "purple"; // ...sets the name color to purple
+		document.getElementById("finishName").style.color = "black"; // ...sets the name color to purple
 	}
-	document.getElementById("finishStats").innerHTML = "Tier: "+array[num].tier; // add the tier to the information
-	for(var i = 0; i < Object.keys(array[num].stats).length; i++){ // repeat for all stats
-		if(Object.keys(array[num].stats)[i] != "flaming"){
-			var replaceStat = Object.keys(array[num].stats)[i].replace( /([A-Z])/g, " $1" );
-			document.getElementById("finishStats").innerHTML += "<br>"+replaceStat.charAt(0).toUpperCase() + replaceStat.slice(1)+": "+array[num].stats[Object.keys(array[num].stats)[i]];
-		}else{
-			var replaceStat = Object.keys(array[num].stats)[i].replace( /([A-Z])/g, " $1" );
-			document.getElementById("finishStats").innerHTML += "<br>"+replaceStat.charAt(0).toUpperCase() + replaceStat.slice(1)+": "+romanize(array[num].stats[Object.keys(array[num].stats)[i]]);
+	if(array[num].type != "junk" && array[num].type != "quest" && array[num].type != "bag" && array[num].type != "currency"){
+		document.getElementById("finishStats").innerHTML = "Tier: "+array[num].tier; // add the tier to the information
+		for(var i = 0; i < Object.keys(array[num].stats).length; i++){ // repeat for all stats
+			if(Object.keys(array[num].stats)[i] != "flaming"){
+				var replaceStat = Object.keys(array[num].stats)[i].replace( /([A-Z])/g, " $1" );
+				document.getElementById("finishStats").innerHTML += "<br>"+replaceStat.charAt(0).toUpperCase() + replaceStat.slice(1)+": "+array[num].stats[Object.keys(array[num].stats)[i]];
+			}else{
+				var replaceStat = Object.keys(array[num].stats)[i].replace( /([A-Z])/g, " $1" );
+				document.getElementById("finishStats").innerHTML += "<br>"+replaceStat.charAt(0).toUpperCase() + replaceStat.slice(1)+": "+romanize(array[num].stats[Object.keys(array[num].stats)[i]]);
+			}
 		}
+	}else{
+		document.getElementById("finishStats").innerHTML = "";
 	}
-	document.getElementById("finishLore").innerHTML = "";
+	if(array[num].type == "currency"){
+		document.getElementById("finishName").innerHTML = "<strong>" + total[num] + " " + document.getElementById("finishName").innerHTML + "</strong>"; // add the size to the information
+	}
 	if(array[num].lore != undefined){ // if the item has a lore...
-		document.getElementById("finishLore").innerHTML += "<i>"+array[num].lore+"</i>"; // ...add the lore to the information
+		document.getElementById("finishLore").innerHTML = "<i>"+array[num].lore+"</i>"; // ...add the lore to the information
 	}else{
 		document.getElementById("finishLore").innerHTML = "";
 	}
@@ -844,7 +856,7 @@ Dom.quest.start = function(quest){ // display quest start page
 		}
 		for(let x = 0; x < document.getElementsByClassName("theseQuestOptions").length; x++){ // repeats for all item rewards
 			document.getElementsByClassName("theseQuestOptions")[x].onmouseover = function() { // when the user hovers over the item...
-				Dom.quests.displayInformation(x, quest.rewards.items,document.getElementsByClassName("theseQuestOptions").length); // ...displays the information for that item
+				Dom.quests.displayInformation(x, quest.rewards.items, quest.rewards.itemQuantities); // ...displays the information for that item
 			};
 			document.getElementsByClassName("theseQuestOptions")[x].onmouseleave = function() { // when the user stops hovering over the item...
 				Dom.expand("questInformation"); // ...stops displaying the information for that item
@@ -852,7 +864,7 @@ Dom.quest.start = function(quest){ // display quest start page
 		}
 		for(let x = 0; x < document.getElementsByClassName("questStackNum").length; x++){ // repeats for all item rewards
 			document.getElementsByClassName("questStackNum")[x].onmouseover = function() { // when the user hovers over the item...
-				Dom.quests.displayInformation(x, quest.rewards.items,document.getElementsByClassName("theseQuestOptions").length); // ...displays the information for that item
+				Dom.quests.displayInformation(x, quest.rewards.items, quest.rewards.itemQuantities); // ...displays the information for that item
 			};
 			document.getElementsByClassName("questStackNum")[x].onmouseleave = function() { // when the user stops hovering over the item...
 				Dom.expand("questInformation"); // ...stops displaying the information for that item
@@ -885,7 +897,7 @@ Dom.quest.finish = function(quest){ // display quest finish page
 		}
 		for(let x = 0; x < document.getElementsByClassName("theseQuestFinishOptions").length; x++){ // repeats for all item rewards
 			document.getElementsByClassName("theseQuestFinishOptions")[x].onmouseover = function() { // when the user hovers over the item...
-				Dom.quests.displayFinishInformation(x, quest.rewards.items,document.getElementsByClassName("theseQuestFinishOptions").length); // ...displays the information for that item
+				Dom.quests.displayFinishInformation(x, quest.rewards.items, quest.rewards.itemQuantities); // ...displays the information for that item
 			};
 			document.getElementsByClassName("theseQuestFinishOptions")[x].onmouseleave = function() { // when the user stops hovering over the item...
 				Dom.expand("questFinishInformation"); // ...stops displaying the information for that item
@@ -893,7 +905,7 @@ Dom.quest.finish = function(quest){ // display quest finish page
 		}
 		for(let x = 0; x < document.getElementsByClassName("questFinishStackNum").length; x++){ // repeats for all item rewards
 			document.getElementsByClassName("questFinishStackNum")[x].onmouseover = function() { // when the user hovers over the item...
-				Dom.quests.displayFinishInformation(x, quest.rewards.items,document.getElementsByClassName("theseQuestFinishOptions").length); // ...displays the information for that item
+				Dom.quests.displayFinishInformation(x, quest.rewards.items, quest.rewards.itemQuantities); // ...displays the information for that item
 			};
 			document.getElementsByClassName("questFinishStackNum")[x].onmouseleave = function() { // when the user stops hovering over the item...
 				Dom.expand("questFinishInformation"); // ...stops displaying the information for that item
@@ -1084,12 +1096,12 @@ Dom.merchant.page = function(title,greeting,options){ // merchant page
 }
 
 Dom.merchant.buy = function(item,num){ // buy item from merchant
-	if(Dom.inventory.check(0,"currency",item.cost)){ // if they have an enough gold...
+	if(Dom.inventory.check(2,"currency",item.cost)){ // if they have an enough gold...
 		document.getElementsByClassName("buy")[num].style.backgroundColor = "#bb9933";
 		setTimeout(function(){
 			document.getElementsByClassName("buy")[num].style.backgroundColor = "#fef9b4";
 		},200);
-		Dom.inventory.removeById(0,"currency",item.cost);
+		Dom.inventory.removeById(2,"currency",item.cost);
 		//Dom.inventory.updateGold(); // updates how much gold the display shows
 		Dom.inventory.give(item); // gives the player the item
 		Dom.chat.insert("You bought a " + item.name + ".", 100); // tells the player they bough an item in the chat
@@ -1230,8 +1242,8 @@ function unId(area,tier){ // constructs an unidentified item when you kill an en
 }
 
 Dom.identifier.identify = function(chat, chat1, chat2, chat3, chat4){ // the page that you go to when you click "identify for 1 gold"
-	if(Dom.inventory.check(0,"currency",1) && Player.inventory.unId.length != 0){ // if the player can afford the item
-		Dom.inventory.removeById(0,"currency",1);
+	if(Dom.inventory.check(2,"currency",1) && Player.inventory.unId.length != 0){ // if the player can afford the item
+		Dom.inventory.removeById(2,"currency",1);
 		//Dom.inventory.updateGold(); // update the gold display
 		Dom.changeBook("identifiedPage",true); // changed page to the identified page
 		Dom.currentlyDisplayed = "identified"; // sets the currently displayed page variable to identified
@@ -1287,6 +1299,7 @@ for(var i = 0; i < Player.inventory.items.length; i++){ // repeats the code for 
 		}
 	}
 }
+document.getElementById("itemInventory").getElementsByTagName("td")[5].style.backgroundImage = "url('assets/items/bag/1.png')";
 
 Dom.inventory.dispose = function(ev){
 	var remove = true;
@@ -1395,6 +1408,7 @@ Dom.inventory.drop = function(ev,equip) { // when an item is dropped
 						}
 						if(data == 5 && Player.inventory.items[data].type == "bag"){
 							document.getElementById("itemInventory").innerHTML = '<tr><td ondrop="Dom.inventory.drop(event);Game.inventoryUpdate(event)" ondragover="Dom.inventory.allowDrop(event)" onmouseover="Dom.inventory.displayEquipmentInformation(0)" onmouseleave="Dom.expand(\'inventoryInformation\')" ondrag="Dom.expand(\'inventoryInformation\')" onclick="Game.inventoryUpdate()"></td><td ondrop="Dom.inventory.drop(event);Game.inventoryUpdate(event)" ondragover="Dom.inventory.allowDrop(event)" onmouseover="Dom.inventory.displayEquipmentInformation(1)" onmouseleave="Dom.expand(\'inventoryInformation\')" ondrag="Dom.expand(\'inventoryInformation\')" onclick="Game.inventoryUpdate()"></td><td ondrop="Dom.inventory.drop(event);Game.inventoryUpdate(event)" ondragover="Dom.inventory.allowDrop(event)" onmouseover="Dom.inventory.displayEquipmentInformation(2)" onmouseleave="Dom.expand(\'inventoryInformation\')" ondrag="Dom.expand(\'inventoryInformation\')" onclick="Game.inventoryUpdate()"></td><td ondrop="Dom.inventory.drop(event);Game.inventoryUpdate(event)" ondragover="Dom.inventory.allowDrop(event)" onmouseover="Dom.inventory.displayEquipmentInformation(3)" onmouseleave="Dom.expand(\'inventoryInformation\')" ondrag="Dom.expand(\'inventoryInformation\')" onclick="Game.inventoryUpdate()"></td><td ondrop="Dom.inventory.drop(event);Game.inventoryUpdate(event)" ondragover="Dom.inventory.allowDrop(event)" onmouseover="Dom.inventory.displayEquipmentInformation(4)" onmouseleave="Dom.expand(\'inventoryInformation\')" ondrag="Dom.expand(\'inventoryInformation\')" onclick="Game.inventoryUpdate()"></td><td ondrop="Dom.inventory.drop(event);Game.inventoryUpdate(event)" ondragover="Dom.inventory.allowDrop(event)" onmouseover="Dom.inventory.displayEquipmentInformation(5)" onmouseleave="Dom.expand(\'inventoryInformation\')" ondrag="Dom.expand(\'inventoryInformation\')" onclick="Game.inventoryUpdate()"></td></tr>';
+							document.getElementById("itemInventory").getElementsByTagName("td")[5].style.backgroundImage = "url('assets/items/bag/1.png')";
 							for(var x = 0; x < 6; x++){
 								if(Object.keys(Player.inventory.items[x]).length != 0){document.getElementById("itemInventory").getElementsByTagName("td")[x].innerHTML = '<img src="'+Player.inventory.items[x].image+'" draggable="true" ondragstart="Dom.inventory.drag(event,'+x+')"></img>';}
 							}
@@ -1437,6 +1451,7 @@ Dom.inventory.drop = function(ev,equip) { // when an item is dropped
 						}
 						if(data == 5 && Player.inventory.items[data].type == "bag"){
 							document.getElementById("itemInventory").innerHTML = '<tr><td ondrop="Dom.inventory.drop(event);Game.inventoryUpdate(event)" ondragover="Dom.inventory.allowDrop(event)" onmouseover="Dom.inventory.displayEquipmentInformation(0)" onmouseleave="Dom.expand(\'inventoryInformation\')" ondrag="Dom.expand(\'inventoryInformation\')" onclick="Game.inventoryUpdate()"></td><td ondrop="Dom.inventory.drop(event);Game.inventoryUpdate(event)" ondragover="Dom.inventory.allowDrop(event)" onmouseover="Dom.inventory.displayEquipmentInformation(1)" onmouseleave="Dom.expand(\'inventoryInformation\')" ondrag="Dom.expand(\'inventoryInformation\')" onclick="Game.inventoryUpdate()"></td><td ondrop="Dom.inventory.drop(event);Game.inventoryUpdate(event)" ondragover="Dom.inventory.allowDrop(event)" onmouseover="Dom.inventory.displayEquipmentInformation(2)" onmouseleave="Dom.expand(\'inventoryInformation\')" ondrag="Dom.expand(\'inventoryInformation\')" onclick="Game.inventoryUpdate()"></td><td ondrop="Dom.inventory.drop(event);Game.inventoryUpdate(event)" ondragover="Dom.inventory.allowDrop(event)" onmouseover="Dom.inventory.displayEquipmentInformation(3)" onmouseleave="Dom.expand(\'inventoryInformation\')" ondrag="Dom.expand(\'inventoryInformation\')" onclick="Game.inventoryUpdate()"></td><td ondrop="Dom.inventory.drop(event);Game.inventoryUpdate(event)" ondragover="Dom.inventory.allowDrop(event)" onmouseover="Dom.inventory.displayEquipmentInformation(4)" onmouseleave="Dom.expand(\'inventoryInformation\')" ondrag="Dom.expand(\'inventoryInformation\')" onclick="Game.inventoryUpdate()"></td><td ondrop="Dom.inventory.drop(event);Game.inventoryUpdate(event)" ondragover="Dom.inventory.allowDrop(event)" onmouseover="Dom.inventory.displayEquipmentInformation(5)" onmouseleave="Dom.expand(\'inventoryInformation\')" ondrag="Dom.expand(\'inventoryInformation\')" onclick="Game.inventoryUpdate()"></td></tr>';
+							document.getElementById("itemInventory").getElementsByTagName("td")[5].style.backgroundImage = "url('assets/items/bag/1.png')";
 							for(var x = 0; x < 6; x++){
 								if(Object.keys(Player.inventory.items[x]).length != 0){document.getElementById("itemInventory").getElementsByTagName("td")[x].innerHTML = '<img src="'+Player.inventory.items[x].image+'" draggable="true" ondragstart="Dom.inventory.drag(event,'+x+')"></img>';}
 							}
@@ -1444,6 +1459,7 @@ Dom.inventory.drop = function(ev,equip) { // when an item is dropped
 							Dom.inventory.update();
 						}else if(i == 5 && test.type == "bag"){
 							document.getElementById("itemInventory").innerHTML = '<tr><td ondrop="Dom.inventory.drop(event);Game.inventoryUpdate(event)" ondragover="Dom.inventory.allowDrop(event)" onmouseover="Dom.inventory.displayEquipmentInformation(0)" onmouseleave="Dom.expand(\'inventoryInformation\')" ondrag="Dom.expand(\'inventoryInformation\')" onclick="Game.inventoryUpdate()"></td><td ondrop="Dom.inventory.drop(event);Game.inventoryUpdate(event)" ondragover="Dom.inventory.allowDrop(event)" onmouseover="Dom.inventory.displayEquipmentInformation(1)" onmouseleave="Dom.expand(\'inventoryInformation\')" ondrag="Dom.expand(\'inventoryInformation\')" onclick="Game.inventoryUpdate()"></td><td ondrop="Dom.inventory.drop(event);Game.inventoryUpdate(event)" ondragover="Dom.inventory.allowDrop(event)" onmouseover="Dom.inventory.displayEquipmentInformation(2)" onmouseleave="Dom.expand(\'inventoryInformation\')" ondrag="Dom.expand(\'inventoryInformation\')" onclick="Game.inventoryUpdate()"></td><td ondrop="Dom.inventory.drop(event);Game.inventoryUpdate(event)" ondragover="Dom.inventory.allowDrop(event)" onmouseover="Dom.inventory.displayEquipmentInformation(3)" onmouseleave="Dom.expand(\'inventoryInformation\')" ondrag="Dom.expand(\'inventoryInformation\')" onclick="Game.inventoryUpdate()"></td><td ondrop="Dom.inventory.drop(event);Game.inventoryUpdate(event)" ondragover="Dom.inventory.allowDrop(event)" onmouseover="Dom.inventory.displayEquipmentInformation(4)" onmouseleave="Dom.expand(\'inventoryInformation\')" ondrag="Dom.expand(\'inventoryInformation\')" onclick="Game.inventoryUpdate()"></td><td ondrop="Dom.inventory.drop(event);Game.inventoryUpdate(event)" ondragover="Dom.inventory.allowDrop(event)" onmouseover="Dom.inventory.displayEquipmentInformation(5)" onmouseleave="Dom.expand(\'inventoryInformation\')" ondrag="Dom.expand(\'inventoryInformation\')" onclick="Game.inventoryUpdate()"></td></tr>';
+							document.getElementById("itemInventory").getElementsByTagName("td")[5].style.backgroundImage = "url('assets/items/bag/1.png')";
 							for(var x = 0; x < 6; x++){
 								if(Object.keys(Player.inventory.items[x]).length != 0){document.getElementById("itemInventory").getElementsByTagName("td")[x].innerHTML = '<img src="'+Player.inventory.items[x].image+'" draggable="true" ondragstart="Dom.inventory.drag(event,'+x+')"></img>';}
 							}

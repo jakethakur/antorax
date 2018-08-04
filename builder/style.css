@@ -1,0 +1,70 @@
+@import url('https://fonts.googleapis.com/css?family=MedievalSharp');
+
+body{
+	padding: 1%;
+	font-family: 'MedievalSharp', serif;
+	background-color: #f9f9d0;
+	overflow: auto;
+	-webkit-user-select: none; /* Safari */        
+	-moz-user-select: none; /* Firefox */
+	-ms-user-select: none; /* IE10+/Edge */
+	user-select: none;
+	text-align: center;
+}
+#back{
+	width: 4vw;
+	height: 4vw;
+	position: absolute;
+	background-color: #fef9b4;
+	border: 5px solid #886622;
+	right: 2.4%;
+	top: 2.4vw;
+	font-size: 4vw;
+	line-height: 4vw;
+	vertical-align: center;
+}
+#question{
+	margin: 2vh;
+	font-size: 5vw;
+}
+#answer div{
+	position: absolute;
+	background-color: #fef9b4;
+	border: 5px solid #886622;
+	display: inline-block;
+	vertical-align: middle;
+	font-size: 4vw;
+	background-size: contain;
+    background-position: center;
+    background-repeat: no-repeat;
+}
+#item{
+	background-image: url("./assets/item.png");
+}
+#quest{
+	background-image: url("./assets/quest.png");
+}
+#npc{
+	background-image: url("./assets/npc.png");
+}
+#enemy{
+	background-image: url("./assets/enemy.png");
+}
+input[type=text]{
+	height: 6vw;
+	top: 45%;
+	left: 25%;
+	width: 50%;
+	position: absolute;
+	font-size: 5vw;
+	font-family: 'MedievalSharp', serif;
+}
+.submit{
+	height: 6vw;
+	line-height: 6vw;
+	vertical-align: middle;
+	top: 65%;
+	left: 40%;
+	width: 20%;
+	position: absolute;
+}
