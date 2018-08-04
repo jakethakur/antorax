@@ -50,7 +50,7 @@ body{
 #enemy{
 	background-image: url("./assets/enemy.png");
 }
-input[type=text]{
+input, select{
 	height: 6vw;
 	top: 45%;
 	left: 25%;
@@ -58,6 +58,19 @@ input[type=text]{
 	position: absolute;
 	font-size: 5vw;
 	font-family: 'MedievalSharp', serif;
+}
+input[type=number]::-webkit-inner-spin-button{
+   opacity: 1;
+}
+input[type=checkbox]{
+	height: 12px;
+	top: 0%;
+	left: 0%;
+	width: 12px;
+	position: relative;
+	font-size: 5vw;
+	font-family: 'MedievalSharp', serif;
+	text-align: left;
 }
 .submit{
 	height: 6vw;
