@@ -62,24 +62,25 @@ for(var i = 2; i < Object.keys(Items.set).length; i++){
 	setList += "<option value='"+i+"'>"+Items.set[Object.keys(Items.set)[i]].name+"</option>";
 }
 
+var name = "helm";
 var Builder = {
 	question: "What would you like to build?",
 	item: {
 		question: "What item would you like to build?",
 		helm: [
-			{
+			{/*0*/
 				question: "Please enter the name:",
 				answer: '<input type="text" id="helmName" placeholder="War Ogre\'s Helm"></input>\
 					<div class="submit" onclick="submit()">Submit</div>',
-				name: "",
+				value: "",
 			},
-			{
+			{/*1*/
 				question: "Please enter the tier:",
 				answer: '<input type="number" id="helmTier" min="1" value="1" style="width: 10%; left: 45%;"></input>\
 					<div class="submit" onclick="submit()">Submit</div>',
-				name: "",
+				value: "",
 			},
-			{
+			{/*2*/
 				question: "Please select the rarity:",
 				answer: '<select type="select" id="helmRarity">\
 					<option value="common">Common</option>\
@@ -87,17 +88,23 @@ var Builder = {
 					<option value="mythic">Mythic</option>\
 					</select>\
 					<div class="submit" onclick="submit()">Submit</div>',
-				name: "",
+				value: "",
 			},
-			{
+			{/*3*/
+				question: "Please enter image address:",
+				answer: '<input type="text" id="helmImage" style="font-size: 3vw;" value="assets/items/'+name+'/'+Items[name].length+'.png"></input>\
+					<div class="submit" onclick="submit()">Submit</div>',
+				value: "",
+			},
+			{/*4*/
 				question: "Please enter the defence:",
 				answer: '<input type="number" id="helmDefence" value="0" style="width: 10%; left: 45%;"></input>\
 					<div class="submit" onclick="submit()">Submit</div>',
-				name: "",
+				value: "",
 			},
-			{
+			{/*5*/
 				question: "Please select any other stats:",
-				answer: '<input type="checkbox" name="helmStats" value="criticalChance">Critical Chance</input><br>\
+				answer: '<br><br><br><input type="checkbox" name="helmStats" value="criticalChance">Critical Chance</input><br>\
 					<input type="checkbox" name="helmStats" value="dodgeChance">Dodge Chance</input><br>\
 					<input type="checkbox" name="helmStats" value="flaming">Flaming</input><br>\
 					<input type="checkbox" name="helmStats" value="focusSpeed">Focus Speed</input><br>\
@@ -108,34 +115,34 @@ var Builder = {
 					<input type="checkbox" name="helmStats" value="stun">Stun</input><br>\
 					<input type="checkbox" name="helmStats" value="swimSpeed">Swim Speed</input><br>\
 					<input type="checkbox" name="helmStats" value="walkSpeed">Walk Speed</input><br>\
-					<div class="submit" onclick="submit()">Submit</div>',
-				name: "",
+					<div class="submit" onclick="submitStat()">Submit</div>',
+				value: "",
 			},
-			{
+			{/*6*/
 				question: "Please enter the lore if it has one:",
 				answer: '<input type="text" id="helmLore" style="width: 77%; left: 11.5%; font-size: 3vw;" placeholder="Protects you from splinters. And goblins!"></input>\
 					<div class="submit" onclick="submit()">Submit</div>',
-				name: "",
+				value: "",
 			},
-			{
+			{/*7*/
 				question: "Please select the set if it has one:",
 				answer: '<select type="select" id="helmSet">\
 					'+setList+'\
 					</select>\
 					<div class="submit" onclick="submit()">Submit</div>',
-				name: "",
+				value: "",
 			},
 			/*{
 				question: "What area is this item for?",
 				answer: '<input type="text" id="helmArea" placeholder="Eaglecrest Logging Camp" style="width: 60%; left: 20%;"></input>\
 					<div class="submit" onclick="submit()">Submit</div>',
-				name: "",
+				value: "",
 			},*/
-			{
+			{/*8*/
 				question: "How is this item obtained?",
 				answer: '<input type="text" id="helmObtain" style="width: 77%; left: 11.5%; font-size: 3vw;" placeholder="Find as an unidentified item in Eaglecrest Logging Camp"></input>\
-					<div class="submit" onclick="submit()">Submit</div>',
-				name: "",
+					<div class="submit" onclick="finish()">Submit</div>',
+				value: "",
 			},
 		],
 		chest: [
@@ -183,6 +190,7 @@ var Builder = {
 	},
 }
 
+var stats = [];
 var position = Builder;
 var stage = 0;
 var back0 = undefined;
@@ -225,6 +233,7 @@ function forward(num){
 		position = back1[Object.keys(back1)[num]];
 	}
 	if(position.length != undefined){
+		name = Object.keys(back1)[num];
 		document.getElementById("question").innerHTML = position[0].question;
 		document.getElementById("answer").innerHTML = position[0].answer;
 	}else{
@@ -239,9 +248,96 @@ function forward(num){
 }
 
 function submit(){
+	if(document.getElementById("answer").getElementsByTagName("input").length == 1){
+		position[stage].value = document.getElementById("answer").getElementsByTagName("input")[0].value;
+	}else if(document.getElementById("answer").getElementsByTagName("input").length == 0){
+		position[stage].value = document.getElementById("answer").getElementsByTagName("select")[0].value;	
+	}else{
+		position[stage].value = document.getElementById("answer").getElementsByTagName("input")[0].value + "/" + document.getElementById("answer").getElementsByTagName("input")[1].value;
+	}
 	stage++;
 	document.getElementById("question").innerHTML = position[stage].question;
 	document.getElementById("answer").innerHTML = position[stage].answer;
+}
+
+function submitStat(){
+	for(var i = document.getElementsByName("helmStats").length - 1; i >= 0; i--){
+		if(document.getElementsByName("helmStats")[i].checked){
+			var replaceStat = document.getElementsByName("helmStats")[i].value.replace( /([A-Z])/g, " $1" );
+			stats.push(document.getElementsByName("helmStats")[i].value);
+			if(document.getElementsByName("helmStats")[i].value != "poison"){
+				position.splice(stage+1,0,{
+					question: "Please enter the "+replaceStat.toLowerCase()+":",
+					answer: '<input type="number" id="'+document.getElementsByName("helmStats")[i].value+'" value="0" style="width: 10%; left: 45%;"></input>\
+					<div class="submit" onclick="submit()">Submit</div>',
+				});
+			}else{
+				position.splice(stage+1,0,{
+					question: "Please enter the "+replaceStat.toLowerCase()+":",
+					answer: '<input type="number" id="poisonX" value="0" style="width: 10%; left: 38%;"></input>\
+					<div style="font-size: 5vw; background-color: transparent; border: 0px solid transparent; width: 4%; left: 48%; top: 46%;">/</div>\
+					<input type="number" id="poisonY" value="0" style="width: 10%; left: 52%;"></input>\
+					<div class="submit" onclick="submit()">Submit</div>',
+				});
+			}
+		}
+	}
+	submit();
+	//position.push[stage+1,0,
+}
+
+function finish(){
+	if(document.getElementById("answer").getElementsByTagName("input").length == 1){
+		position[stage].value = document.getElementById("answer").getElementsByTagName("input")[0].value;
+	}else if(document.getElementById("answer").getElementsByTagName("input").length == 0){
+		position[stage].value = document.getElementById("answer").getElementsByTagName("select")[0].value;	
+	}else{
+		position[stage].value = document.getElementById("answer").getElementsByTagName("select")[0].value + "/" + document.getElementById("answer").getElementsByTagName("select")[1].value;
+	}
+	var complete = '{\n'+
+	'&nbsp;&nbsp;&nbsp;&nbsp;id: '+Items[name].length+',\n'+
+	'&nbsp;&nbsp;&nbsp;&nbsp;name: "'+position[0].value+'",\n'+
+	'&nbsp;&nbsp;&nbsp;&nbsp;type: "'+name+'",\n'+
+	'&nbsp;&nbsp;&nbsp;&nbsp;image: "'+position[3].value+'",\n'+
+	'&nbsp;&nbsp;&nbsp;&nbsp;tier: "'+position[1].value+'",\n'+
+	'&nbsp;&nbsp;&nbsp;&nbsp;rarity: "'+position[2].value+'",\n'+
+	'&nbsp;&nbsp;&nbsp;&nbsp;obtain: "'+position[8+stats.length].value+'",\n'+
+	'&nbsp;&nbsp;&nbsp;&nbsp;area: "Eaglecrest Logging Camp",\n';
+	if(position[6+stats.length].value != ""){
+		complete += '&nbsp;&nbsp;&nbsp;&nbsp;lore: "'+position[6+stats.length].value+'",\n';
+	}
+	if(position[7+stats.length].value != ""){
+		complete += '&nbsp;&nbsp;&nbsp;&nbsp;set: '+position[7+stats.length].value+',\n';
+	}
+	complete += '&nbsp;&nbsp;&nbsp;&nbsp;stats: {\n'+
+	'&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;defence: "'+sign(position[4].value)+position[4].value+'",\n';
+	for(var i = 1; i < stats.length+1; i++){
+		console.log(position[i+5].value);
+		if(stats[stats.length-i] == "flaming"){
+			complete += '&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;'+stats[stats.length-i]+': '+position[i+5].value+',\n';
+		}else if(stats[stats.length-i] == "criticalChance" || stats[stats.length-i] == "dodgeChance" || stats[stats.length-i] == "looting" || stats[stats.length-i] == "reflection"){
+			complete += '&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;'+stats[stats.length-i]+': "'+sign(position[i+5].value)+position[i+5].value+'%",\n';
+		}else if(stats[stats.length-i] == "focusSpeed" || stats[stats.length-i] == "healthRegen" || stats[stats.length-i] == "swimSpeed" || stats[stats.length-i] == "walkSpeed"){
+			complete += '&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;'+stats[stats.length-i]+': "'+sign(position[i+5].value)+position[i+5].value+'/s",\n';
+		}else if(stats[stats.length-i] == "stun"){
+			complete += '&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;'+stats[stats.length-i]+': "'+sign(position[i+5].value)+position[i+5].value+'s",\n';
+		}else{
+			complete += '&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;'+stats[stats.length-i]+': "'+sign(position[i+5].value)+position[i+5].value+'"\n';
+		}
+	}
+	complete += '&nbsp;&nbsp;&nbsp;&nbsp;}\n}';
+	document.getElementById("question").innerHTML = "Here is your item:";
+	document.getElementById("answer").innerHTML = '<div id="result" style="font-size: 1.5vw; text-align: left; padding: 1.5vw; left: 2%; top: 20%; user-select: text;">'+complete.replace(/\n/g,"<br>")+'</div>';
+	document.getElementById("answer").innerHTML += '<div style="right: 2%; top: 20%; width: '+document.getElementById("result").offsetWidth+'px; height: '+document.getElementById("result").offsetWidth+'px; background-image: url(\'../'+position[3].value+'\');"></div>';
+	console.log(complete);
+}
+
+function sign(value){
+	if(value >= 0){
+		return "+";
+	}else{
+		return "";
+	}
 }
 
 /*function index(){
