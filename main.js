@@ -348,6 +348,10 @@ class Thing extends Entity {
 		super(properties);
 
 		this.image = Loader.getImage(properties.image);
+		
+		// set width and height to image dimensions unless otherwise specified
+		this.width = properties.width || this.image.width;
+		this.height = properties.height || this.image.height;
 	}
 }
 
@@ -380,7 +384,7 @@ class Character extends Thing {
 		this.stats.healthRegen = properties.stats.healthRegen || 0;
 		this.stats.walkSpeed = properties.stats.walkSpeed || 0;
 		this.stats.swimSpeed = properties.stats.swimSpeed || 0;
-		this.stats.respawnTime = properties.stats.respawnTime || 3000;
+		this.stats.respawnTime = properties.stats.respawnTime || 3000; // time to respawn (and time that it can be looted for)
 		
 		// optional stats
 		// using || defaults to second value if first is undefined, 0 or ""
@@ -494,8 +498,14 @@ class Attacker extends Character {
 		this.stats.stun = properties.stats.stun || 0;
 		
 		// information about projectile
-		this.projectile = properties.projectile; // should contain projectile width, height, adjust x and y, image
-	//  ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^ only supported for enemies - should be updated to work for player as well (TBD TBD!!!)
+		// only supported for enemies - should be updated to work for player as well (TBD TBD!!!)
+		this.projectile = {};
+		this.projectile.image = properties.projectile.image;
+		// not necessary (can be left as undefined to just fit to projectile image size)
+		this.projectile.width = properties.projectile.width;
+		this.projectile.height = properties.projectile.height;
+		// not necessary (defaults to x: 0 and y: 0 later on if it is undefined)
+		this.projectile.adjust = properties.projectile.adjust || {};
 	}
 }
 
@@ -648,6 +658,7 @@ class Hero extends Attacker {
 			
 			this.channellingProjectileId = Game.nextProjectileId;
 
+			// tbd make work the same as enemy projectile
 			Game.projectiles.push(new Projectile({
 				map: map,
 				x: projectileX,
@@ -707,10 +718,14 @@ class Projectile extends Thing {
 		
 		this.rotate = properties.rotate;
 		
-		// adjust position to make it directed to mouse pointer
+		// set width and height to death image dimensions unless otherwise specified
+		this.width = properties.width || this.image.width;
+		this.height = properties.height || this.image.height;
+		
+		// adjust position to make it directed to mouse pointer (not needed - undefined defaults to 0)
 		this.adjust = {
-			x: properties.adjust.x,
-			y: properties.adjust.y,
+			x: properties.adjust.x || 0,
+			y: properties.adjust.y || 0,
 		};
 		
 		this.damageDealt = []; // array of damages dealt to show
@@ -917,7 +932,12 @@ class Enemy extends Attacker {
 		super(properties);
 		
 		// combat traits (specific to enemy)
-		this.leashRadius = properties.leashRadius; // how far away the player has to be for the enemy to ignore them
+		this.leashRadius = properties.leashRadius; // how far away the player has to be for the enemy to stop following them
+		
+		this.deathImage = Loader.getImage(properties.deathImage);
+		// set width and height to death image dimensions unless otherwise specified
+		this.deathImageWidth = properties.deathImageWidth || this.deathImage.width;
+		this.deathImageHeight = properties.deathImageHeight || this.deathImage.height;
 		
 		// for code later on
 		this.canAttack = true; // perhaps condense with hero isChannelling?
@@ -969,8 +989,8 @@ class Enemy extends Attacker {
 			height: this.projectile.height,
 			rotate: projectileRotate,
 			adjust: {
-				x: this.projectile.adjust.x,
-				y: this.projectile.adjust.y,
+				x: this.projectile.adjust.x || 0,
+				y: this.projectile.adjust.y || 0,
 			},
 			image: this.projectile.image,
 		}));
@@ -1179,6 +1199,8 @@ Game.load = function (names, addresses) {
 // pull data from areadata.js
 Game.loadArea = function (areaName, destination) {
 	
+	this.areaTeleports = []; // stop player from teleporting again during promise
+	
 	// wipe previously loaded images
 	Loader.wipeImages([
 		// images not to be wiped
@@ -1292,7 +1314,7 @@ Game.loadArea = function (areaName, destination) {
 		this.nextProjectileId = 0; // reset projectile id chain (because projectiles don't persist between areas)
 		
 		// area teleports
-		this.areaTeleports = [];
+		//this.areaTeleports = [];
 		if(Areas[areaName].areaTeleports !== undefined) {
 			for(var i = 0; i < Areas[areaName].areaTeleports.length; i++) {
 				Areas[areaName].areaTeleports[i].map = map;
@@ -1360,6 +1382,9 @@ Game.init = function () {
 		
 		// stats
 		stats: Player.stats,
+		
+		// projectile (TBD)
+		projectile: {},
 	});
 	
 	// set loaded status image
@@ -1375,7 +1400,9 @@ Game.init = function () {
 	
 	// health regeneration every second
 	setInterval(function () {
-		this.regenHealth();
+		if (document.hasFocus()) { // check user is focused on the game (otherwise enemies cannot damage but user can heal)
+			this.regenHealth();
+		}
 	}.bind(Game), 1000);
 	
 	// camera
@@ -1851,14 +1878,17 @@ Game.drawHitboxes = function () {
 	
 	// enemy hitboxes
 	for(var i = 0; i < this.enemies.length; i++) {
-		if (!Game.NPCs[i].respawning) { // check enemy is not dead
+		if (!Game.enemies[i].respawning) { // check enemy is not dead
 			this.ctx.strokeRect(this.enemies[i].screenX - this.enemies[i].width / 2, this.enemies[i].screenY - this.enemies[i].height / 2, this.enemies[i].width, this.enemies[i].height);
+		}
+		else { // corpse hitbox
+			this.ctx.strokeRect(this.enemies[i].screenX - this.enemies[i].deathImageWidth / 2, this.enemies[i].screenY - this.enemies[i].deathImageHeight / 2, this.enemies[i].deathImageWidth, this.enemies[i].deathImageHeight);
 		}
 	}
 	
 	// dummy hitboxes
 	for(var i = 0; i < this.dummies.length; i++) {
-		if (!Game.NPCs[i].respawning) { // check dummy is not dead
+		if (!Game.dummies[i].respawning) { // check dummy is not dead
 			this.ctx.strokeRect(this.dummies[i].screenX - this.dummies[i].width / 2, this.dummies[i].screenY - this.dummies[i].height / 2, this.dummies[i].width, this.dummies[i].height);
 		}
 	}
@@ -2012,6 +2042,22 @@ Game.render = function () {
 				// render function (additional render to be carried out upon render of this entity)
 				if (this[this.renderList[i]][x].renderFunction !== undefined) {
 					this[this.renderList[i]][x].renderFunction();
+				}
+			}
+			
+			else {
+				if (this[this.renderList[i]][x].deathImage !== undefined) { // display corpse
+					// set character screen x and y
+					this.updateScreenPosition(this[this.renderList[i]][x]);
+					
+					// draw image
+					this.ctx.drawImage(
+						this[this.renderList[i]][x].deathImage,
+						this[this.renderList[i]][x].screenX - this[this.renderList[i]][x].deathImageWidth / 2,
+						this[this.renderList[i]][x].screenY - this[this.renderList[i]][x].deathImageHeight / 2
+					);
+					
+					// perhaps a death render function should be added? tbd
 				}
 			}
 			

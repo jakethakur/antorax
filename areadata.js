@@ -62,8 +62,6 @@ var Areas = {
 			{
 				x: 2080,
 				y: 290,
-				width: 92,
-				height: 100,
 				image: "driver",
 				name: "Cart Driver",
 				level: 10,
@@ -85,8 +83,6 @@ var Areas = {
 			{
 				x: 1300,
 				y: 350,
-				width: 90,
-				height: 110,
 				image: "weaponsmith",
 				name: "Weaponsmith",
 				level: 10,
@@ -110,8 +106,6 @@ var Areas = {
 			{
 				x: 2290,
 				y: 290,
-				width: 246,
-				height: 175,
 				image: "cart",
 			},
 		],
@@ -244,8 +238,6 @@ var Areas = {
 			{
 				x: 884,
 				y: 440,
-				width: 73,
-				height: 123,
 				image: "teper",
 				name: "Marshall Teper",
 				level: 50,
@@ -271,8 +263,6 @@ var Areas = {
 			{
 				x: 680,
 				y: 540,
-				width: 78,
-				height: 125,
 				image: "identifier",
 				name: "Identifier Gilas",
 				level: 30,
@@ -287,8 +277,6 @@ var Areas = {
 			{
 				x: 230,
 				y: 750,
-				width: 57,
-				height: 100,
 				image: "dummy",
 				name: "Target Dummy",
 				stats: {
@@ -356,8 +344,6 @@ var Areas = {
 			{
 				x: 165,
 				y: 65,
-				width: 67,
-				height: 90,
 				image: "innkeeper",
 				name: "Gregor Goldenbrew",
 				level: 10,
@@ -413,6 +399,7 @@ var Areas = {
 				"melee",
 				"fireGoblin",
 				"fire",
+				"goblinCorpse",
 			],
 			
 			addresses: [
@@ -424,6 +411,7 @@ var Areas = {
 				"./assets/projectiles/melee.png",
 				"./assets/enemies/goblinPyromancer.png",
 				"./assets/projectiles/mage.png",
+				"./assets/projectiles/rock.png",
 			],
 		},
 		
@@ -466,9 +454,8 @@ var Areas = {
 			{
 				x: 1100,
 				y: 400,
-				width: 38,
-				height: 87,
 				image: "rockGoblin",
+				deathImage: "goblinCorpse",
 				name: "Goblin Rockthrower",
 				level: 2,
 				stats: {
@@ -478,25 +465,18 @@ var Areas = {
 					range: 200,
 					healthRegen: 0.5,
 					reloadTime: 2000,
+					respawnTime: 3000,
 				},
 				leashRadius: 400,
 				projectile: {
-					width: 27,
-					height: 20,
-					adjust: {
-						// manually adjust position - make this per class (per projectile image) in the future ( tbd )
-						x: 0,
-						y: 0,
-					},
 					image: "rock",
 				},
 			},
 			{
 				x: 900,
 				y: 300,
-				width: 51,
-				height: 90,
 				image: "swordGoblin",
+				deathImage: "goblinCorpse",
 				name: "Goblin Skirmisher",
 				level: 2,
 				stats: {
@@ -507,25 +487,18 @@ var Areas = {
 					range: 60,
 					healthRegen: 0.5,
 					reloadTime: 1500,
+					respawnTime: 3000,
 				},
 				leashRadius: 400,
 				projectile: {
-					width: 1,
-					height: 1,
-					adjust: {
-						// manually adjust position - make this per class (per projectile image) in the future ( tbd )
-						x: 0,
-						y: 0,
-					},
 					image: "melee",
 				},
 			},
 			{
 				x: 1000,
 				y: 250,
-				width: 46,
-				height: 93,
 				image: "hammerGoblin",
+				deathImage: "goblinCorpse",
 				name: "Goblin Bruiser",
 				level: 3,
 				stats: {
@@ -536,25 +509,18 @@ var Areas = {
 					range: 60,
 					healthRegen: 0.5,
 					reloadTime: 2000,
+					respawnTime: 3000,
 				},
 				leashRadius: 400,
 				projectile: {
-					width: 1,
-					height: 1,
-					adjust: {
-						// manually adjust position - make this per class (per projectile image) in the future ( tbd )
-						x: 0,
-						y: 0,
-					},
 					image: "melee",
 				},
 			},
 			{
 				x: 1050,
 				y: 100,
-				width: 50,
-				height: 95,
 				image: "fireGoblin",
+				deathImage: "goblinCorpse",
 				name: "Fire Goblin",
 				level: 4,
 				stats: {
@@ -566,16 +532,10 @@ var Areas = {
 					reloadTime: 2250,
 					healthRegen: 0.5,
 					flaming: 1,
+					respawnTime: 10000,
 				},
 				leashRadius: 400,
 				projectile: {
-					width: 26,
-					height: 60,
-					adjust: {
-						// manually adjust position - make this per class (per projectile image) in the future ( tbd )
-						x: 0,
-						y: 0,
-					},
 					image: "fire",
 				},
 			},
