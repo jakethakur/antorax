@@ -81,3 +81,9 @@ input[type=checkbox]{
 	width: 20%;
 	position: absolute;
 }
+#inventoryInformation{
+	width: 140px;
+	padding-left: 10px;
+	padding-right: 10px;
+	text-align: left;
+}

@@ -188,7 +188,7 @@ var Builder = {
 	enemy: {
 		
 	},
-}
+};
 
 var stats = [];
 var position = Builder;
@@ -253,7 +253,7 @@ function submit(){
 	}else if(document.getElementById("answer").getElementsByTagName("input").length == 0){
 		position[stage].value = document.getElementById("answer").getElementsByTagName("select")[0].value;	
 	}else{
-		position[stage].value = document.getElementById("answer").getElementsByTagName("input")[0].value + "/" + document.getElementById("answer").getElementsByTagName("input")[1].value;
+		position[stage].value = document.getElementById("answer").getElementsByTagName("input")[0].value + "/" + document.getElementById("answer").getElementsByTagName("input")[1].value+"s";
 	}
 	stage++;
 	document.getElementById("question").innerHTML = position[stage].question;
@@ -292,7 +292,7 @@ function finish(){
 	}else if(document.getElementById("answer").getElementsByTagName("input").length == 0){
 		position[stage].value = document.getElementById("answer").getElementsByTagName("select")[0].value;	
 	}else{
-		position[stage].value = document.getElementById("answer").getElementsByTagName("select")[0].value + "/" + document.getElementById("answer").getElementsByTagName("select")[1].value;
+		position[stage].value = document.getElementById("answer").getElementsByTagName("select")[0].value + "/" + document.getElementById("answer").getElementsByTagName("select")[1].value+"s";
 	}
 	var complete = '{\n'+
 	'&nbsp;&nbsp;&nbsp;&nbsp;id: '+Items[name].length+',\n'+
@@ -312,7 +312,6 @@ function finish(){
 	complete += '&nbsp;&nbsp;&nbsp;&nbsp;stats: {\n'+
 	'&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;defence: "'+sign(position[4].value)+position[4].value+'",\n';
 	for(var i = 1; i < stats.length+1; i++){
-		console.log(position[i+5].value);
 		if(stats[stats.length-i] == "flaming"){
 			complete += '&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;'+stats[stats.length-i]+': '+position[i+5].value+',\n';
 		}else if(stats[stats.length-i] == "criticalChance" || stats[stats.length-i] == "dodgeChance" || stats[stats.length-i] == "looting" || stats[stats.length-i] == "reflection"){
@@ -325,11 +324,67 @@ function finish(){
 			complete += '&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;'+stats[stats.length-i]+': "'+sign(position[i+5].value)+position[i+5].value+'"\n';
 		}
 	}
-	complete += '&nbsp;&nbsp;&nbsp;&nbsp;}\n}';
+	complete += '&nbsp;&nbsp;&nbsp;&nbsp;},\n},';
 	document.getElementById("question").innerHTML = "Here is your item:";
-	document.getElementById("answer").innerHTML = '<div id="result" style="font-size: 1.5vw; text-align: left; padding: 1.5vw; left: 2%; top: 20%; user-select: text;">'+complete.replace(/\n/g,"<br>")+'</div>';
-	document.getElementById("answer").innerHTML += '<div style="right: 2%; top: 20%; width: '+document.getElementById("result").offsetWidth+'px; height: '+document.getElementById("result").offsetWidth+'px; background-image: url(\'../'+position[3].value+'\');"></div>';
+	document.getElementById("answer").innerHTML = '<div id="result" style="font-size: 1.5vw; text-align: left; padding: 1.5vw; left: 2%; top: 20%; user-select: text;">'+complete.replace(/\n/g,"<br>")+'</div>\
+	<div style="left: 50%; top: 20%; width: 50px; height: 50px; background-image: url(\'../'+position[3].value+'\');"></div>\
+	<div id="inventoryInformation" style="left: 60%; top: 20%; font-size: 16px;">\
+	<p id="invName" style="font-weight: bold;"></p>\
+	<p id="invStats"></p>\
+	<p id="invSet"></p>\
+	<p id="invLore"></p>\
+	</div>';
 	console.log(complete);
+			document.getElementById("invName").innerHTML = position[0].value;
+			if(position[2].value == "mythic"){ // if the item is a mythic...
+				document.getElementById("invName").style.color = "purple"; // ...sets the name color to purple
+			}else if(position[2].value == "unique"){ // if the item is a unique...
+				document.getElementById("invName").style.color = "orange"; // ...sets the name color to orange
+			}else{ // if the item is a common...
+				document.getElementById("invName").style.color = "black"; // ...sets the name color to black
+			}
+			document.getElementById("invStats").innerHTML = "Tier: "+position[1].value; // add the tier to the information
+				for(var i = 1; i < stats.length + 1; i++){ // repeat for all stats
+					var replaceStat = stats[stats.length-i].replace( /([A-Z])/g, " $1" );
+					if(stats[stats.length-i] == "flaming"){
+						document.getElementById("invStats").innerHTML += '<br>'+replaceStat.charAt(0).toUpperCase() + replaceStat.slice(1)+': '+position[i+5].value;
+					}else if(stats[stats.length-i] == "criticalChance" || stats[stats.length-i] == "dodgeChance" || stats[stats.length-i] == "looting" || stats[stats.length-i] == "reflection"){
+						document.getElementById("invStats").innerHTML += '<br>'+replaceStat.charAt(0).toUpperCase() + replaceStat.slice(1)+': '+sign(position[i+5].value)+position[i+5].value+'%';
+					}else if(stats[stats.length-i] == "focusSpeed" || stats[stats.length-i] == "healthRegen" || stats[stats.length-i] == "swimSpeed" || stats[stats.length-i] == "walkSpeed"){
+						document.getElementById("invStats").innerHTML += '<br>'+replaceStat.charAt(0).toUpperCase() + replaceStat.slice(1)+': '+sign(position[i+5].value)+position[i+5].value+'/s';
+					}else if(stats[stats.length-i] == "stun"){
+						document.getElementById("invStats").innerHTML += '<br>'+replaceStat.charAt(0).toUpperCase() + replaceStat.slice(1)+': '+sign(position[i+5].value)+position[i+5].value+'s';
+					}else{
+						document.getElementById("invStats").innerHTML += '<br>'+replaceStat.charAt(0).toUpperCase() + replaceStat.slice(1)+': '+sign(position[i+5].value)+position[i+5].value;
+					}
+					/*if(Object.keys(Player.inventory.items[num].stats)[i] != "flaming"){
+						var replaceStat = Object.keys(Player.inventory.items[num].stats)[i].replace( /([A-Z])/g, " $1" );
+						document.getElementById("invStats").innerHTML += "<br>"+replaceStat.charAt(0).toUpperCase() + replaceStat.slice(1)+": "+Player.inventory.items[num].stats[Object.keys(Player.inventory.items[num].stats)[i]];
+					}else{
+						var replaceStat = Object.keys(Player.inventory.items[num].stats)[i].replace( /([A-Z])/g, " $1" );
+						document.getElementById("invStats").innerHTML += "<br>"+replaceStat.charAt(0).toUpperCase() + replaceStat.slice(1)+": "+romanize(Player.inventory.items[num].stats[Object.keys(Player.inventory.items[num].stats)[i]]);
+					}*/
+				}
+			if(position[7+stats.length].value != ""){ // if the item has a set...
+				document.getElementById("invSet").innerHTML = Items.set[position[7+stats.length].value].name + " ("+Items.set[position[7+stats.length].value].armour.length+"/" + Items.set[position[7+stats.length].value].armour.length+")"; // ...add the set to the information
+					document.getElementById("invSet").innerHTML += "<br><br>Set Bonus:";
+					for(var i = 0; i < Object.keys(Items.set[position[7+stats.length].value].stats).length; i++){ // repeat for all stats
+						if(Object.keys(Items.set[position[7+stats.length].value].stats)[i] != "flaming"){
+							var replaceStat = Object.keys(Items.set[position[7+stats.length].value].stats)[i].replace( /([A-Z])/g, " $1" );
+							document.getElementById("invSet").innerHTML += "<br>"+replaceStat.charAt(0).toUpperCase() + replaceStat.slice(1)+": "+Items.set[position[7+stats.length].value].stats[Object.keys(Items.set[position[7+stats.length].value].stats)[i]];
+						}else{
+							var replaceStat = Object.keys(Items.set[position[7+stats.length].value].stats)[i].replace( /([A-Z])/g, " $1" );
+							document.getElementById("invSet").innerHTML += "<br>"+replaceStat.charAt(0).toUpperCase() + replaceStat.slice(1)+": "+romanize(Items.set[position[7+stats.length].value].stats[Object.keys(Items.set[position[7+stats.length].value].stats)[i]]);
+						}
+					}
+			}else{
+				document.getElementById("invSet").innerHTML = "";
+			}
+		if(position[6+stats.length].value != undefined){ // if the item has a lore...
+			document.getElementById("invLore").innerHTML = "<i>"+position[6+stats.length].value+"</i>"; // ...add the lore to the information
+		}else{
+			document.getElementById("invLore").innerHTML = "";
+		}
 }
 
 function sign(value){
@@ -338,6 +393,17 @@ function sign(value){
 	}else{
 		return "";
 	}
+}
+
+function romanize(num){
+  var lookup = {M:1000,CM:900,D:500,CD:400,C:100,XC:90,L:50,XL:40,X:10,IX:9,V:5,IV:4,I:1},roman = '',i;
+  for(i in lookup){
+    while(num >= lookup[i]){
+      roman += i;
+      num -= lookup[i];
+    }
+  }
+  return roman;
 }
 
 /*function index(){
