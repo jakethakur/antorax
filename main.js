@@ -400,8 +400,8 @@ class Character extends Thing {
 			questProgress - said when a quest involving this NPC is in progress (mandatory for quest NPCs)
 			questComplete - said when quests involving this NPC have been finished (mandatory for quest NPCs)
 			inventoryFull - said when a quest involving this NPC adds more items than needed (mandatory for quest NPCs that add something to inventory on start or finish)
-			greeting - said (on DOM not chat) when you first speak to a merchant (mandatory for merchants)
-			leave - said when you leave a merchant (mandatory for merchants)
+			shopGreeting - said (on DOM not chat) when you first speak to a merchant (mandatory for merchants)
+			shopLeave - said when you leave a merchant (mandatory for merchants)
 			more tba
 			
 			use "/me " at the start of the chat to make the chat reflexive
@@ -441,7 +441,7 @@ class Character extends Thing {
 		// check for death
 		if (this !== Game.hero) {
 			// not player
-			if (this.health <= 0) {
+			if (this.health <= 0 && !this.respawning) {
 				// death
 				this.respawning = true;
 				
@@ -1694,8 +1694,8 @@ Game.update = function (delta) {
 			
 			if (typeof this.NPCs[i].sold !== "undefined") { // check if the NPC is a merchant
 				if (this.hero.isTouching(this.NPCs[i]) && Dom.currentlyDisplayed === "") {
-					Dom.merchant.page(this.NPCs[i].name, this.NPCs[i].chat.greeting, this.NPCs[i].sold);
-					this.NPCs[i].say(this.NPCs[i].chat.leave, true, 0, false);
+					Dom.merchant.page(this.NPCs[i].name, this.NPCs[i].chat.shopGreeting, this.NPCs[i].sold);
+					this.NPCs[i].say(this.NPCs[i].chat.shopLeave, true, 0, false);
 				}
 				else if (Dom.currentlyDisplayed != this.NPCs[i].name && Dom.currentlyDisplayed != "" && !Dom.override) { // trying to speak to merchant when an interface is already open
 					// red colour of close button

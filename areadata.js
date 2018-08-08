@@ -96,8 +96,8 @@ var Areas = {
 					Items.bow[2],
 				],
 				chat: {
-					greeting: "Would you like to buy anything?",
-					leave: "Come back some time.",
+					shopGreeting: "Would you like to buy anything?",
+					shopLeave: "Come back some time.",
 				},
 			},
 		],
