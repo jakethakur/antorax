@@ -102,26 +102,21 @@ body{
 	border-top: 15px solid transparent;
 	border-bottom: 15px solid transparent; 
 }
-
 .triangleLeft {
 	right: 165px;
-	/*top: 10px;*/
 	border-right: 20px solid #886622; 
 }
 .innerTriangleLeft {
 	right: 157px;
-	/*top: 10px;*/
 	border-right: 20px solid #fef9b4;
 	z-index: 2;
 }
 .triangleRight{
-	/*top: 10px;*/
 	border-left: 20px solid #886622;
 	left: 165px;
 }
 .innerTriangleRight{
 	left: 157px;
-	/*top: 10px;*/
 	border-left: 20px solid #fef9b4;
 	z-index: 2;
 }

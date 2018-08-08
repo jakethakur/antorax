@@ -52,12 +52,15 @@ body{
 }
 input, select{
 	height: 6vw;
-	top: 45%;
+	top: 30%;
 	left: 25%;
 	width: 50%;
 	position: absolute;
-	font-size: 5vw;
+	font-size: 3vw;
 	font-family: 'MedievalSharp', serif;
+}
+input[type=number]{
+	font-size: 5vw;
 }
 input[type=number]::-webkit-inner-spin-button{
    opacity: 1;
@@ -76,7 +79,7 @@ input[type=checkbox]{
 	height: 6vw;
 	line-height: 6vw;
 	vertical-align: middle;
-	top: 65%;
+	top: 60%;
 	left: 40%;
 	width: 20%;
 	position: absolute;
@@ -86,4 +89,23 @@ input[type=checkbox]{
 	padding-left: 10px;
 	padding-right: 10px;
 	text-align: left;
+}
+.triangleLeft, .innerTriangleLeft{
+	position: absolute;
+	width: 0px; 
+	height: 0px; 
+	border-top: 15px solid transparent !important;
+	border-bottom: 15px solid transparent !important;
+	border-left: 0px solid transparent !important;
+	background-color: transparent !important;
+	top: 10px;
+}
+.triangleLeft {
+	right: 165px;
+	border-right: 20px solid #886622 !important;
+}
+.innerTriangleLeft {
+	right: 157px;
+	border-right: 20px solid #fef9b4 !important;
+	z-index: 2;
 }

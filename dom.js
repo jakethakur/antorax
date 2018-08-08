@@ -1569,6 +1569,9 @@ Dom.inventory.drop = function(ev,equip) { // when an item is dropped
 }
 
 Dom.inventory.removeEquipment = function(array){ // removes the stats of an item from the player's total
+	if(array == Player.inventory.weapon){
+		document.getElementById("secondary").style.cursor = "default";
+	}
 	if(array[0].stats != undefined){
 		for(var i = 0; i < Object.keys(array[0].stats).length; i++){ // repeats code for all stats in old item
 			if(Object.keys(array[0].stats)[i] != "poison"){
@@ -1596,6 +1599,9 @@ Dom.inventory.removeEquipment = function(array){ // removes the stats of an item
 }
 
 Dom.inventory.addEquipment = function(array){ // adds the stats of an item to the payer's total
+	if(array == Player.inventory.weapon){
+		document.getElementById("secondary").style.cursor = "crosshair";
+	}
 	if(array[0].stats != undefined){
 		for(var i = 0; i < Object.keys(array[0].stats).length; i++){ // repeats code for all stats in old item
 			if(Object.keys(array[0].stats)[i] != "poison"){
