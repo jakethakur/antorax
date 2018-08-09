@@ -663,8 +663,6 @@ class Hero extends Attacker {
 				map: map,
 				x: projectileX,
 				y: projectileY,
-				width: 10,
-				height: 40,
 				rotate: projectileRotate,
 				adjust: {
 					// manually adjust position - make this per class (per projectile image) in the future ( tbd )
@@ -1178,14 +1176,14 @@ Game.load = function (names, addresses) {
 	
 	// check player image has been loaded (if not, then load it)
 	if (!Object.keys(Loader.images).includes("hero")) {
-		// currently doesn't take into account player class
-		toLoad.push(Loader.loadImage("hero", "./assets/player/archer.png"));
+		// load image based on class
+		toLoad.push(Loader.loadImage("hero", "./assets/player/" + Player.class + Player.skin + ".png"));
 	}
 	
 	// check projectile image has been loaded (if not, then load it)
 	if (!Object.keys(Loader.images).includes("projectile")) {
 		// currently doesn't take into account player class
-		toLoad.push(Loader.loadImage("projectile", "./assets/projectiles/" + "archer" + ".png"));
+		toLoad.push(Loader.loadImage("projectile", "./assets/projectiles/" + Player.class + ".png"));
 	}
 	
 	// check status image has been loaded (if not, then load it)
@@ -1974,30 +1972,32 @@ Game.drawHealthBar = function (ctx, character, x, y, width, height) {
 	const barValue = Math.pow(10, (character.stats.maxHealth.toString().length - 1)); // get width of each small health bar (in health)
 	character.healthFraction = character.health / character.stats.maxHealth; // fraction of health remaining
 	
-	// colour based on size of each bar
-	if (barValue === 1) {
-		ctx.fillStyle = "#FF4D4D"; // light red
+	if (character.healthFraction > 0) { // check the character has some health to draw (we don't want to draw negative health)
+		// colour based on size of each bar
+		if (barValue === 1) {
+			ctx.fillStyle = "#FF4D4D"; // light red
+		}
+		else if (barValue === 10) {
+			ctx.fillStyle = "#FF0000"; // red
+		}
+		else if (barValue === 100) {
+			ctx.fillStyle = "#CC0000"; // dark red
+		}
+		else if (barValue === 1000) {
+			ctx.fillStyle = "#800000"; // maroon (very dark red)
+		}
+		else if (barValue === 10000) {
+			ctx.fillStyle = "#DAA520"; // gold
+		}
+		else {
+			// default
+			ctx.fillStyle = "FFFF00";
+			console.warn("No dedicated health bar colour for bar size " + barValue);
+		}
+		
+		// health bar body
+		ctx.fillRect(x, y, character.healthFraction * width, height);
 	}
-	else if (barValue === 10) {
-		ctx.fillStyle = "#FF0000"; // red
-	}
-	else if (barValue === 100) {
-		ctx.fillStyle = "#CC0000"; // dark red
-	}
-	else if (barValue === 1000) {
-		ctx.fillStyle = "#800000"; // maroon (very dark red)
-	}
-	else if (barValue === 10000) {
-		ctx.fillStyle = "#DAA520"; // gold
-	}
-	else {
-		// default
-		ctx.fillStyle = "FFFF00";
-		console.warn("No dedicated health bar colour for bar size " + barValue);
-	}
-	
-	// health bar body
-	ctx.fillRect(x, y, character.healthFraction * width, height);
 	
 	// health bar border
 	ctx.strokeStyle = "black";

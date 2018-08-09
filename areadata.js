@@ -410,7 +410,7 @@ var Areas = {
 				"./assets/enemies/goblinBruiser.png",
 				"./assets/projectiles/melee.png",
 				"./assets/enemies/goblinPyromancer.png",
-				"./assets/projectiles/mage.png",
+				"./assets/projectiles/m.png",
 				"./assets/corpses/deadGoblin.png",
 			],
 		},
