@@ -17,6 +17,14 @@ function update(){
 				document.getElementById("answer").getElementsByTagName("div")[4*x+i].style.left = 2 + 24.5 * i + "%";
 			}
 		}
+	}else if(document.getElementById("answer").getElementsByTagName("div").length == 2){
+		for(var i = 0; i < 2; i++){
+			document.getElementById("answer").getElementsByTagName("div")[i].style.width = "46%";
+			document.getElementById("answer").getElementsByTagName("div")[i].style.height = "74%";
+			document.getElementById("answer").getElementsByTagName("div")[i].style.lineHeight = "74vh";
+			document.getElementById("answer").getElementsByTagName("div")[i].style.top = "20%";
+			document.getElementById("answer").getElementsByTagName("div")[i].style.left = 2 + 49 * i + "%";
+		}
 	}
 	if(document.getElementById("inventoryInformation") != undefined){
 		document.getElementById("inventoryInformation").style.left = window.innerWidth/2+90+"px";
@@ -144,7 +152,26 @@ var Builder = {
 		staff: armour("staff","The Highborn Hoarder's Staff","damage"),
 		bow: armour("bow","Kraiss' Brimstone Bow","damage"),
 		set: [
-			
+			{
+				question: "Please enter the name:",
+				answer: '<input type="text" placeholder="Siege Set"></input>\
+					<div class="submit" onclick="submit()">Submit</div>',
+				value: "",
+			},
+			{
+				question: "What would you like to do?",
+				buildANewItem: {
+					question: "What item would you like to build?",
+					helm: armour("helm","War Ogre's Helm","defence"),
+					chest: armour("chest","The Tattered Knight's Chestplate","defence"),
+					greaves: armour("greaves","Weirwood Carved Greaves","defence"),
+					boots: armour("boots","Marshall Teper's Lost Boots","defence"),
+					sword: armour("sword","Blade of the Orc Raiders","damage"),
+					staff: armour("staff","The Highborn Hoarder's Staff","damage"),
+					bow: armour("bow","Kraiss' Brimstone Bow","damage"),
+				},
+				selectAnExistingItem: {},
+			}
 		],
 		currency: [
 			
@@ -173,8 +200,7 @@ var Builder = {
 var stats = [];
 var position = Builder;
 var stage = 0;
-var back0 = undefined;
-var back1 = undefined;
+var back = [];
 var previousWidth = 0;
 var previousHeight = 0;
 function checkChange(){
@@ -188,16 +214,15 @@ window.requestAnimationFrame(checkChange);
 checkChange();
 
 document.getElementById("back").onclick = function(){
-	if(stage != 0){
+	if(position == back[back.length-1]){
 		if(document.getElementById("inventoryInformation") == undefined){
 			stage--;
+			position = back[back.length-1];
+			back.splice(back.length-1,1);
 		}
-	}else if(back1 != undefined){
-		position = back1;
-		back1 = undefined;
-	}else if(back0 != undefined){
-		position = Builder;
-		back0 = undefined;
+	}else{
+		position = back[back.length-1];
+		back.splice(back.length-1,1);
 	}
 	if(position.length != undefined){
 		document.getElementById("question").innerHTML = position[stage].question;
@@ -219,15 +244,11 @@ document.getElementById("back").onclick = function(){
 }
 
 function forward(num){
-	if(back0 == undefined){
-		back0 = position;
-		position = back0[Object.keys(back0)[num]];
-	}else if(back1 == undefined){
-		back1 = position;
-		position = back1[Object.keys(back1)[num]];
-	}
+	stage = 0;
+	back.push(position);
+	position = back[back.length-1][Object.keys(back[back.length-1])[num]];
 	if(position.length != undefined){
-		name = Object.keys(back1)[num];
+		name = Object.keys(back[back.length-1])[num];
 		document.getElementById("question").innerHTML = position[0].question;
 		document.getElementById("answer").innerHTML = position[0].answer;
 		if(position[stage].value != "" && position[stage].value != undefined && document.getElementById("answer").getElementsByTagName("input").length != 0){
@@ -247,6 +268,7 @@ function forward(num){
 }
 
 function submit(){
+	back.push(position);
 	if(document.getElementById("answer").getElementsByTagName("input").length == 1){
 		position[stage].value = document.getElementById("answer").getElementsByTagName("input")[0].value;
 	}else if(document.getElementById("answer").getElementsByTagName("input").length == 0){
@@ -255,13 +277,23 @@ function submit(){
 		position[stage].value = document.getElementById("answer").getElementsByTagName("input")[0].value + "/" + document.getElementById("answer").getElementsByTagName("input")[1].value+"s";
 	}
 	stage++;
-	document.getElementById("question").innerHTML = position[stage].question;
-	document.getElementById("answer").innerHTML = position[stage].answer;
-	if(position[stage].value != "" && position[stage].value != undefined && document.getElementById("answer").getElementsByTagName("input").length != 0){
-		document.getElementById("answer").getElementsByTagName("input")[0].value = position[stage].value;
-	}else if(position[stage].value != "" && position[stage].value != undefined && document.getElementById("answer").getElementsByTagName("select").length != 0){
-		document.getElementById("answer").getElementsByTagName("select")[0].value = position[stage].value;
+	if(position[stage].answer != undefined){
+		document.getElementById("question").innerHTML = position[stage].question;
+		document.getElementById("answer").innerHTML = position[stage].answer;
+		if(position[stage].value != "" && position[stage].value != undefined && document.getElementById("answer").getElementsByTagName("input").length != 0){
+			document.getElementById("answer").getElementsByTagName("input")[0].value = position[stage].value;
+		}else if(position[stage].value != "" && position[stage].value != undefined && document.getElementById("answer").getElementsByTagName("select").length != 0){
+			document.getElementById("answer").getElementsByTagName("select")[0].value = position[stage].value;
+		}
+	}else{
+		document.getElementById("question").innerHTML = position[stage].question;
+		document.getElementById("answer").innerHTML = "";
+		for(var i = 1; i < Object.keys(position[stage]).length; i++){
+			var replaceStat = Object.keys(position[stage])[i].replace( /([A-Z])/g, " $1" );
+			document.getElementById("answer").innerHTML += '<div id="'+replaceStat+'" onclick="forward('+i+')">'+replaceStat.charAt(0).toUpperCase() + replaceStat.slice(1)+'</div>';
+		}
 	}
+	update();
 }
 
 function submitStat(){
@@ -312,8 +344,12 @@ function finish(){
 	if(position[7+stats.length].value != ""){
 		complete += '&nbsp;&nbsp;&nbsp;&nbsp;set: '+position[7+stats.length].value+',\n';
 	}
-	complete += '&nbsp;&nbsp;&nbsp;&nbsp;stats: {\n'+
-	'&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;defence: "'+sign(position[4].value)+position[4].value+'",\n';
+	complete += '&nbsp;&nbsp;&nbsp;&nbsp;stats: {\n';
+	if(name == "sword" || name == "staff" || name == "bo"){
+		complete += '&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;damage: "'+sign(position[4].value)+position[4].value+'",\n';
+	}else{
+		complete += '&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;defence: "'+sign(position[4].value)+position[4].value+'",\n';
+	}
 	for(var i = 1; i < stats.length+1; i++){
 		if(stats[stats.length-i] == "flaming"){
 			complete += '&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;'+stats[stats.length-i]+': '+position[i+5].value+',\n';
@@ -359,8 +395,12 @@ function finish(){
 	}else{ // if the item is a common...
 		document.getElementById("invName").style.color = "black"; // ...sets the name color to black
 	}
-	document.getElementById("invStats").innerHTML = "Tier: "+position[1].value+
-	'<br>Defence: '+sign(position[4].value)+position[4].value;
+	document.getElementById("invStats").innerHTML = "Tier: "+position[1].value;
+	if(name == "sword" || name == "staff" || name == "bo"){
+		document.getElementById("invStats").innerHTML += '<br>Damage: '+sign(position[4].value)+position[4].value;
+	}else{
+		document.getElementById("invStats").innerHTML += '<br>Defence: '+sign(position[4].value)+position[4].value;
+	}'<br>Defence: '+sign(position[4].value)+position[4].value;
 	for(var i = 1; i < stats.length + 1; i++){ // repeat for all stats
 		var replaceStat = stats[stats.length-i].replace( /([A-Z])/g, " $1" );
 		if(stats[stats.length-i] == "flaming"){
@@ -395,6 +435,7 @@ function finish(){
 	}else{
 		document.getElementById("invLore").innerHTML = "";
 	}
+	update();
 }
 
 function sign(value){
