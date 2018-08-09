@@ -238,6 +238,9 @@ var map = {
 		}
 		return isSlow;
 	},
+	setTile: function (layer, col, row, newTileNum) {
+        this.layers[layer][row * map.cols + col] = newTileNum;
+    },
 };
 
 //
@@ -513,6 +516,8 @@ class Attacker extends Character {
 		this.projectile.height = properties.projectile.height;
 		// not necessary (defaults to x: 0 and y: 0 later on if it is undefined)
 		this.projectile.adjust = properties.projectile.adjust || {};
+		
+		this.canAttack = true; // check attack is not reloading
 	}
 }
 
@@ -654,30 +659,34 @@ class Hero extends Attacker {
 	
 	// start channeling basic attack
 	startAttack (e) {
-		if (Player.inventory.weapon[0].name !== "") { // checks the player has no weapon
-			this.channelling = true;
-			
+		if (this.canAttack && Player.inventory.weapon[0].name !== "") { // checks the player has a weapon and is not currently reloading
 			var projectileX, projectileY, projectileRotate;
 			
 			projectileX = Game.camera.x + (e.clientX);
 			projectileY = Game.camera.y + (e.clientY);
-			projectileRotate = bearing(this, {x: projectileX, y: projectileY}) + Math.PI / 2;
 			
-			this.channellingProjectileId = Game.nextProjectileId;
+			if (distance({x: projectileX, y: projectileY,}, this) < this.stats.range) {
+				this.channelling = true;
+				this.canAttack = false;
+				
+				projectileRotate = bearing(this, {x: projectileX, y: projectileY}) + Math.PI / 2;
+				
+				this.channellingProjectileId = Game.nextProjectileId;
 
-			// tbd make work the same as enemy projectile
-			Game.projectiles.push(new Projectile({
-				map: map,
-				x: projectileX,
-				y: projectileY,
-				rotate: projectileRotate,
-				adjust: {
-					// manually adjust position - make this per class (per projectile image) in the future ( tbd )
-					x: -13,
-					y: -13,
-				},
-				image: "projectile",
-			}));
+				// tbd make work the same as enemy projectile
+				Game.projectiles.push(new Projectile({
+					map: map,
+					x: projectileX,
+					y: projectileY,
+					rotate: projectileRotate,
+					adjust: {
+						// manually adjust position - make this per class (per projectile image) in the future ( tbd )
+						x: -13,
+						y: -13,
+					},
+					image: "projectile",
+				}));
+			}
 		}
 	}
 	
@@ -698,6 +707,11 @@ class Hero extends Attacker {
 			}, 2000, a);
 			
 			this.channellingProjectileId = null;
+			
+			// wait for the player's reload time (1s) until they can attack again
+			setTimeout(function () {
+				this.canAttack = true;
+			}.bind(this), this.stats.reloadTime);
 		}
 	}
 	
@@ -708,6 +722,14 @@ class Hero extends Attacker {
 		
 		// update dom
 		Dom.inventory.updateIdentification();
+	}
+	
+	interact () {
+		let tileNum = map.getTile(0, map.getCol(this.x), map.getRow(this.y + this.height/2));
+		//console.log(tileNum);
+		if (map.interactWithTile !== undefined) {
+			map.interactWithTile(tileNum, this.x, this.y + this.height/2);
+		}
 	}
 }
 
@@ -943,9 +965,6 @@ class Enemy extends Attacker {
 		// set width and height to death image dimensions unless otherwise specified
 		this.deathImageWidth = properties.deathImageWidth || this.deathImage.width;
 		this.deathImageHeight = properties.deathImageHeight || this.deathImage.height;
-		
-		// for code later on
-		this.canAttack = true; // perhaps condense with hero isChannelling?
 	}
 	
 	update (delta) {
@@ -1403,6 +1422,9 @@ Game.init = function () {
 	Game.secondary.canvas.addEventListener("mousedown", Game.hero.startAttack.bind(this.hero));
 	Game.secondary.canvas.addEventListener("mouseup", Game.hero.finishAttack.bind(this.hero));
 	
+	// change between default cursor and crosshair based on player range
+	Game.secondary.canvas.addEventListener("mousemove", Game.secondary.updateCursor.bind(this.secondary));
+	
 	// health regeneration every second
 	setInterval(function () {
 		if (document.hasFocus()) { // check user is focused on the game (otherwise enemies cannot damage but user can heal)
@@ -1611,7 +1633,7 @@ Game.update = function (delta) {
     this.camera.update();
 	
 	// interact with touching object
-    if (Keyboard.isDown(Keyboard.SPACE)) { diry = 1; this.hero.direction = 3; this.hero.move }
+    if (Keyboard.isDown(Keyboard.SPACE)) { this.hero.interact(); }
 	
 	// check collision with quest npcs
 	for(var i = 0; i < this.NPCs.length; i++) { // iterate though NPCs
@@ -2179,6 +2201,23 @@ Game.render = function () {
 		this.displayAreaName.duration--;
 	}
 };
+
+//
+// Secondary canvas
+//
+
+// update crosshair based on mouse distance from player (called by mouseMove event listener in init)
+Game.secondary.updateCursor = function (event) {
+	// check the player's mouse distance is within range; they currently have a weapon; and are not reloading
+	if (distance({x: Game.camera.x + event.clientX, y: Game.camera.y + event.clientY,}, Game.hero) < Game.hero.stats.range && Game.hero.canAttack && Player.inventory.weapon[0].name !== "") {
+		// mouse in range (crosshair)
+		document.getElementById("secondary").style.cursor = "crosshair";
+	}
+	else {
+		// mouse not in range (normal cursor)
+		document.getElementById("secondary").style.cursor = "default";
+	}
+}
 
 // render secondary canvas (contains anything that does not need to be continuously redrawn)
 Game.secondary.render = function () {

@@ -1,6 +1,8 @@
+let playerClass = sessionStorage.getItem("class"); // avoids it having to be called multiple times from inside Player's declaration
+
 var Player = {
 	name: sessionStorage.getItem("username"),
-	class: sessionStorage.getItem("class"),
+	class: playerClass,
 	skin: sessionStorage.getItem("skin"),
 	gender: sessionStorage.getItem("gender"),
 	
@@ -52,7 +54,7 @@ var Player = {
 		damage: 0, // the user's total damage default is 0 but can be changed by weapons
 		defence: 0, // the user's total defence default is 0 but can be changed by armour
 		maxHealth: 50,
-		range: 100, // TBD should be changed based on the class
+		range: playerClass === "a" ? 300 : (playerClass === "m" ? 140 : (playerClass === "k" ? 70 : 0)),
 		reloadTime: 1000, // time that must be taken between attack channel finish and channel start (in ms)
 		criticalChance: 1, // the user's total critical chance default is 1 but can be changed by armour or weapons
 		dodgeChance: 1, // the user's total dodge chance default is 1 but can be changed by armour or weapons
