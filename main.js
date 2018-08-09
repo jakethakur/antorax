@@ -59,10 +59,17 @@ Loader.wipeImages = function (exceptions) {
 
 var Keyboard = {};
 
+// arrow key movement
 Keyboard.LEFT = 37;
 Keyboard.RIGHT = 39;
 Keyboard.UP = 38;
 Keyboard.DOWN = 40;
+// wsad movement
+Keyboard.A = 65;
+Keyboard.D = 68;
+Keyboard.W = 87;
+Keyboard.S = 83;
+// space (action button)
 Keyboard.SPACE = 32;
 
 Keyboard._keys = {};
@@ -1390,7 +1397,7 @@ Game.init = function () {
 	
 	// detect player movement and interaction
     Keyboard.listenForEvents(
-        [Keyboard.LEFT, Keyboard.RIGHT, Keyboard.UP, Keyboard.DOWN, Keyboard.SPACE]);
+        [Keyboard.LEFT, Keyboard.RIGHT, Keyboard.UP, Keyboard.DOWN, Keyboard.W, Keyboard.S, Keyboard.A, Keyboard.D, Keyboard.SPACE]);
 		
 	// player attack on click
 	Game.secondary.canvas.addEventListener("mousedown", Game.hero.startAttack.bind(this.hero));
@@ -1589,10 +1596,10 @@ Game.update = function (delta) {
     // handle hero movement with arrow keys
     var dirx = 0;
     var diry = 0;
-    if (Keyboard.isDown(Keyboard.LEFT)) { dirx = -1; this.hero.direction = 2; }
-    if (Keyboard.isDown(Keyboard.RIGHT)) { dirx = 1; this.hero.direction = 4; }
-    if (Keyboard.isDown(Keyboard.UP)) { diry = -1; this.hero.direction = 1; }
-    if (Keyboard.isDown(Keyboard.DOWN)) { diry = 1; this.hero.direction = 3; }
+    if (Keyboard.isDown(Keyboard.LEFT) || Keyboard.isDown(Keyboard.A)) { dirx = -1; this.hero.direction = 2; }
+    if (Keyboard.isDown(Keyboard.RIGHT) || Keyboard.isDown(Keyboard.D)) { dirx = 1; this.hero.direction = 4; }
+    if (Keyboard.isDown(Keyboard.UP) || Keyboard.isDown(Keyboard.W)) { diry = -1; this.hero.direction = 1; }
+    if (Keyboard.isDown(Keyboard.DOWN) || Keyboard.isDown(Keyboard.S)) { diry = 1; this.hero.direction = 3; }
 
 	if (dirx !== 0 || diry !== 0) {
         this.hero.move(delta, dirx, diry);

@@ -90,11 +90,7 @@ var Areas = {
 					maxHealth: 100,
 					defence: 2,
 				},
-				sold: [
-					Items.sword[2],
-					Items.staff[2],
-					Items.bow[2],
-				],
+				sold: Player.class === "k" ? [Items.sword[2],] : (Player.class === "m" ? [Items.staff[2],] : (Player.class === "a" ? [Items.bow[2],] : [])),
 				chat: {
 					shopGreeting: "Would you like to buy anything?",
 					shopLeave: "Come back some time.",
@@ -432,9 +428,6 @@ var Areas = {
 		],
 		
 		NPCs: [
-		],
-		
-		merchants: [
 		],
 		
 		characters: [
