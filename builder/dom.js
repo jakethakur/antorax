@@ -17,13 +17,33 @@ function update(){
 				document.getElementById("answer").getElementsByTagName("div")[4*x+i].style.left = 2 + 24.5 * i + "%";
 			}
 		}
-	}else if(document.getElementById("answer").getElementsByTagName("div").length == 2){
+	}else if(document.getElementById("answer").getElementsByTagName("div").length == 3){
 		for(var i = 0; i < 2; i++){
 			document.getElementById("answer").getElementsByTagName("div")[i].style.width = "46%";
-			document.getElementById("answer").getElementsByTagName("div")[i].style.height = "74%";
-			document.getElementById("answer").getElementsByTagName("div")[i].style.lineHeight = "74vh";
+			document.getElementById("answer").getElementsByTagName("div")[i].style.height = "53%";
+			document.getElementById("answer").getElementsByTagName("div")[i].style.lineHeight = "53vh";
 			document.getElementById("answer").getElementsByTagName("div")[i].style.top = "20%";
 			document.getElementById("answer").getElementsByTagName("div")[i].style.left = 2 + 49 * i + "%";
+		}
+		document.getElementById("answer").getElementsByTagName("div")[2].style.width = "95%";
+		document.getElementById("answer").getElementsByTagName("div")[2].style.height = "15%";
+		document.getElementById("answer").getElementsByTagName("div")[2].style.lineHeight = "15vh";
+		document.getElementById("answer").getElementsByTagName("div")[2].style.top = "79%";
+		document.getElementById("answer").getElementsByTagName("div")[2].style.left = "2%";
+	}else if(document.getElementById("answer").getElementsByTagName("div").length == 7){
+		for(var i = 0; i < 4; i++){
+			document.getElementById("answer").getElementsByTagName("div")[i].style.width = "21.5%";
+			document.getElementById("answer").getElementsByTagName("div")[i].style.height = "34%";
+			document.getElementById("answer").getElementsByTagName("div")[i].style.lineHeight = "34vh";
+			document.getElementById("answer").getElementsByTagName("div")[i].style.top = "20%";
+			document.getElementById("answer").getElementsByTagName("div")[i].style.left = 2 + 24.5 * i + "%";
+		}
+		for(var i = 0; i < 3; i++){
+			document.getElementById("answer").getElementsByTagName("div")[4+i].style.width = "29.7%";
+			document.getElementById("answer").getElementsByTagName("div")[4+i].style.height = "34%";
+			document.getElementById("answer").getElementsByTagName("div")[4+i].style.lineHeight = "34vh";
+			document.getElementById("answer").getElementsByTagName("div")[4+i].style.top = "60%";
+			document.getElementById("answer").getElementsByTagName("div")[4+i].style.left = 2 + 32.6 * i + "%";
 		}
 	}
 	if(document.getElementById("inventoryInformation") != undefined){
@@ -40,7 +60,12 @@ setList = "<option value=''>None</option>";
 for(var i = 2; i < Object.keys(Items.set).length; i++){
 	setList += "<option value='"+i+"'>"+Items.set[Object.keys(Items.set)[i]].name+"</option>";
 }
-
+itemList = "";
+for(var x = 0; x < 7; x++){
+	for(var i = 2; i < Items[(Object.keys(Items)[x])].length; i++){
+		itemList += "<option value='"+Items[(Object.keys(Items)[x])][i]+"'>"+Items[(Object.keys(Items)[x])][i].name+"</option>";
+	}
+}
 var name = "helm";
 
 function stats(primary){
@@ -70,7 +95,7 @@ function stats(primary){
 	}
 }
 
-function armour(type,placeholder,primary) {
+function armour(type,placeholder,primary,end) {
 	return [
 		{/*0*/
 			question: "Please enter the name:",
@@ -95,7 +120,7 @@ function armour(type,placeholder,primary) {
 			value: "",
 		},
 		{/*3*/
-			question: "Please enter image address:",
+			question: "Please enter the image address:",
 			answer: '<input type="text" style="font-size: 3vw;" value="assets/items/'+type+'/'+Items[type].length+'.png"></input>\
 				<div class="submit" onclick="submit()">Submit</div>',
 			value: "",
@@ -134,7 +159,7 @@ function armour(type,placeholder,primary) {
 		{/*8*/
 			question: "How is this item obtained?",
 			answer: '<input type="text" id="obtain" style="width: 77%; left: 11.5%; font-size: 3vw;" placeholder="Find as an unidentified item in Eaglecrest Logging Camp"></input>\
-				<div class="submit" onclick="finish()">Submit</div>',
+				<div class="submit" onclick="'+end+'">Submit</div>',
 			value: "",
 		},
 	];
@@ -144,34 +169,65 @@ var Builder = {
 	question: "What would you like to build?",
 	item: {
 		question: "What item would you like to build?",
-		helm: armour("helm","War Ogre's Helm","defence"),
-		chest: armour("chest","The Tattered Knight's Chestplate","defence"),
-		greaves: armour("greaves","Weirwood Carved Greaves","defence"),
-		boots: armour("boots","Marshall Teper's Lost Boots","defence"),
-		sword: armour("sword","Blade of the Orc Raiders","damage"),
-		staff: armour("staff","The Highborn Hoarder's Staff","damage"),
-		bow: armour("bow","Kraiss' Brimstone Bow","damage"),
+		helm: armour("helm","War Ogre's Helm","defence","finish()"),
+		chest: armour("chest","The Tattered Knight's Chestplate","defence","finish()"),
+		greaves: armour("greaves","Weirwood Carved Greaves","defence","finish()"),
+		boots: armour("boots","Marshall Teper's Lost Boots","defence","finish()"),
+		sword: armour("sword","Blade of the Orc Raiders","damage","finish()"),
+		staff: armour("staff","The Highborn Hoarder's Staff","damage","finish()"),
+		bow: armour("bow","Kraiss' Brimstone Bow","damage","finish()"),
 		set: [
-			{
+			{/*0*/
 				question: "Please enter the name:",
 				answer: '<input type="text" placeholder="Siege Set"></input>\
 					<div class="submit" onclick="submit()">Submit</div>',
 				value: "",
 			},
-			{
-				question: "What would you like to do?",
+			{/*1*/
+				question: "Here you can add items to the set:",
 				buildANewItem: {
 					question: "What item would you like to build?",
-					helm: armour("helm","War Ogre's Helm","defence"),
-					chest: armour("chest","The Tattered Knight's Chestplate","defence"),
-					greaves: armour("greaves","Weirwood Carved Greaves","defence"),
-					boots: armour("boots","Marshall Teper's Lost Boots","defence"),
-					sword: armour("sword","Blade of the Orc Raiders","damage"),
-					staff: armour("staff","The Highborn Hoarder's Staff","damage"),
-					bow: armour("bow","Kraiss' Brimstone Bow","damage"),
+					helm: armour("helm","War Ogre's Helm","defence","end(2)"),
+					chest: armour("chest","The Tattered Knight's Chestplate","defence","end(2)"),
+					greaves: armour("greaves","Weirwood Carved Greaves","defence","end(2)"),
+					boots: armour("boots","Marshall Teper's Lost Boots","defence","end(2)"),
+					sword: armour("sword","Blade of the Orc Raiders","damage","end(2)"),
+					staff: armour("staff","The Highborn Hoarder's Staff","damage","end(2)"),
+					bow: armour("bow","Kraiss' Brimstone Bow","damage","end(2)"),
 				},
-				selectAnExistingItem: {},
-			}
+				selectAnExistingItem: [
+					{
+						question: "Please select an item:",
+						answer: '<select type="select" >\
+							'+itemList+'\
+							</select>\
+							<div class="submit" onclick="end(1)">Submit</div>',
+						value: "",				
+					},
+				],
+			},
+			{/*2*/
+				question: "Please enter the tier:",
+				answer: '<input type="number" min="1" value="1" style="width: 10%; left: 45%;"></input>\
+					<div class="submit" onclick="submit()">Submit</div>',
+				value: "",
+			},
+			{/*3*/
+				question: "Please select the rarity:",
+				answer: '<select type="select">\
+					<option value="common">Common</option>\
+					<option value="unique">Unique</option>\
+					<option value="mythic">Mythic</option>\
+					</select>\
+					<div class="submit" onclick="submit()">Submit</div>',
+				value: "",
+			},
+			{/*4*/
+				question: "Please enter the image address:",
+				answer: '<input type="text" style="font-size: 3vw;" value="assets/items/set/'+Items.set.length+'.png"></input>\
+					<div class="submit" onclick="submit()">Submit</div>',
+				value: "",
+			},
 		],
 		currency: [
 			
@@ -213,7 +269,7 @@ window.requestAnimationFrame(checkChange);
 }
 checkChange();
 
-document.getElementById("back").onclick = function(){
+function goBack(){
 	if(position == back[back.length-1]){
 		if(document.getElementById("inventoryInformation") == undefined){
 			stage--;
@@ -224,13 +280,30 @@ document.getElementById("back").onclick = function(){
 		position = back[back.length-1];
 		back.splice(back.length-1,1);
 	}
+	if(back.length != 0){
+		if(back[back.length-1].length != undefined && position.length == undefined){
+			position = back[back.length-1];
+			back.splice(back.length-1,1);
+			stage = 1;
+		}
+	}
 	if(position.length != undefined){
-		document.getElementById("question").innerHTML = position[stage].question;
-		document.getElementById("answer").innerHTML = position[stage].answer;
-		if(position[stage].value != "" && position[stage].value != undefined && document.getElementById("answer").getElementsByTagName("input").length != 0){
-			document.getElementById("answer").getElementsByTagName("input")[0].value = position[stage].value;
-		}else if(position[stage].value != "" && position[stage].value != undefined && document.getElementById("answer").getElementsByTagName("select").length != 0){
-			document.getElementById("answer").getElementsByTagName("select")[0].value = position[stage].value;
+		if(position[stage].answer != undefined){
+			document.getElementById("question").innerHTML = position[stage].question;
+			document.getElementById("answer").innerHTML = position[stage].answer;
+			if(position[stage].value != "" && position[stage].value != undefined && document.getElementById("answer").getElementsByTagName("input").length != 0){
+				document.getElementById("answer").getElementsByTagName("input")[0].value = position[stage].value;
+			}else if(position[stage].value != "" && position[stage].value != undefined && document.getElementById("answer").getElementsByTagName("select").length != 0){
+				document.getElementById("answer").getElementsByTagName("select")[0].value = position[stage].value;
+			}
+		}else{
+			document.getElementById("question").innerHTML = position[stage].question;
+			document.getElementById("answer").innerHTML = "";
+			for(var i = 1; i < Object.keys(position[stage]).length; i++){
+				var replaceStat = Object.keys(position[stage])[i].replace( /([A-Z])/g, " $1" );
+				document.getElementById("answer").innerHTML += '<div id="'+replaceStat+'" onclick="forward('+i+')">'+replaceStat.charAt(0).toUpperCase() + replaceStat.slice(1)+'</div>';
+			}
+			document.getElementById("answer").innerHTML += '<div class="submit" onclick="submit()">Finished Adding Items</div>';
 		}
 	}else{
 		document.getElementById("question").innerHTML = position.question;
@@ -244,7 +317,11 @@ document.getElementById("back").onclick = function(){
 }
 
 function forward(num){
-	stage = 0;
+	if(stage != 0){
+		back.push(position);
+		position = position[stage];
+		stage = 0;
+	}
 	back.push(position);
 	position = back[back.length-1][Object.keys(back[back.length-1])[num]];
 	if(position.length != undefined){
@@ -271,7 +348,7 @@ function submit(){
 	back.push(position);
 	if(document.getElementById("answer").getElementsByTagName("input").length == 1){
 		position[stage].value = document.getElementById("answer").getElementsByTagName("input")[0].value;
-	}else if(document.getElementById("answer").getElementsByTagName("input").length == 0){
+	}else if(document.getElementById("answer").getElementsByTagName("select").length == 1){
 		position[stage].value = document.getElementById("answer").getElementsByTagName("select")[0].value;	
 	}else if(document.getElementById("answer").getElementsByTagName("input").length == 2){
 		position[stage].value = document.getElementById("answer").getElementsByTagName("input")[0].value + "/" + document.getElementById("answer").getElementsByTagName("input")[1].value+"s";
@@ -292,6 +369,7 @@ function submit(){
 			var replaceStat = Object.keys(position[stage])[i].replace( /([A-Z])/g, " $1" );
 			document.getElementById("answer").innerHTML += '<div id="'+replaceStat+'" onclick="forward('+i+')">'+replaceStat.charAt(0).toUpperCase() + replaceStat.slice(1)+'</div>';
 		}
+		document.getElementById("answer").innerHTML += '<div class="submit" onclick="submit()">Finished Adding Items</div>';
 	}
 	update();
 }
@@ -321,6 +399,15 @@ function submitStat(){
 	submit();
 }
 
+function end(num){
+	while(stage != 0){
+		goBack();
+	}
+	for(var i = 0; i < num; i++){
+		goBack();
+	}
+}
+
 function finish(){
 	if(document.getElementById("answer").getElementsByTagName("input").length == 1){
 		position[stage].value = document.getElementById("answer").getElementsByTagName("input")[0].value;
@@ -345,7 +432,7 @@ function finish(){
 		complete += '&nbsp;&nbsp;&nbsp;&nbsp;set: '+position[7+stats.length].value+',\n';
 	}
 	complete += '&nbsp;&nbsp;&nbsp;&nbsp;stats: {\n';
-	if(name == "sword" || name == "staff" || name == "bo"){
+	if(name == "sword" || name == "staff" || name == "bow"){
 		complete += '&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;damage: "'+sign(position[4].value)+position[4].value+'",\n';
 	}else{
 		complete += '&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;defence: "'+sign(position[4].value)+position[4].value+'",\n';
@@ -456,3 +543,21 @@ function romanize(num){
   }
   return roman;
 }
+
+document.addEventListener('keyup',function(event){
+	if(event.keyCode == 13 && document.getElementsByClassName("submit").length == 1){
+		document.getElementsByClassName("submit")[0].onclick();
+	}else if(event.keyCode == 27 && !document.getElementById("back").hidden){
+		goBack();
+	}else if(event.key > 0 && event.key < 10 && position.length == undefined && event.key < Object.keys(position).length){
+		forward(event.key);
+	}else if(event.keyCode == 48 && position.length == undefined && Object.keys(position).length > 10){
+		forward(10);
+	}else if(event.keyCode == 189 && position.length == undefined && Object.keys(position).length > 11){
+		forward(11);
+	}else if(event.keyCode == 187 && position.length == undefined && Object.keys(position).length > 12){
+		forward(12);
+	}else if(event.key > 0 && event.key < 3 && position == Builder.item.set && stage == 1){
+		forward(event.key);
+	}
+});

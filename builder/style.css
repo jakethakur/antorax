@@ -52,7 +52,7 @@ body{
 }
 input, select{
 	height: 6vw;
-	top: 30%;
+	top: 35%;
 	left: 25%;
 	width: 50%;
 	position: absolute;
@@ -79,7 +79,7 @@ input[type=checkbox]{
 	height: 6vw;
 	line-height: 6vw;
 	vertical-align: middle;
-	top: 60%;
+	top: 70%;
 	left: 40%;
 	width: 20%;
 	position: absolute;
