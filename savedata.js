@@ -55,7 +55,7 @@ var Player = {
 		defence: 0, // the user's total defence default is 0 but can be changed by armour
 		maxHealth: 50,
 		range: playerClass === "a" ? 300 : (playerClass === "m" ? 140 : (playerClass === "k" ? 70 : 0)),
-		reloadTime: 1000, // time that must be taken between attack channel finish and channel start (in ms)
+		reloadTime: 500, // time that must be taken between attack channel finish and channel start (in ms)
 		criticalChance: 1, // the user's total critical chance default is 1 but can be changed by armour or weapons
 		dodgeChance: 1, // the user's total dodge chance default is 1 but can be changed by armour or weapons
 		flaming: 0, // the user does not usually deal fire damage to enemies but some weapons do

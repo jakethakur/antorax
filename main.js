@@ -340,6 +340,14 @@ class Entity {
 	}
 	
 	isTouching (object) {
+		/*if (this.rotate !== undefined || object.rotate !== undefined) {
+			// involves rotated hitboxes
+		}
+		potentially useful: https://gamedev.stackexchange.com/a/86784/119033
+		https://stackoverflow.com/a/12414951/9713957
+		https://yal.cc/rot-rect-vs-circle-intersection/
+		*/
+		
 		if (this.screenX - this.width / 2 < object.screenX + object.width / 2 &&
 	    this.screenX + this.width / 2 > object.screenX - object.width / 2 &&
 	    this.screenY - this.height / 2 < object.screenY + object.height / 2 &&
@@ -377,6 +385,8 @@ class Character extends Thing {
 		this.speed = properties.stats.walkSpeed || 0;
 		
 		this.level = properties.level;
+		
+		this.class = properties.class
 		
 		this.spawnX = properties.x;
 		this.spawnY = properties.y
@@ -674,6 +684,7 @@ class Hero extends Attacker {
 				this.channellingProjectileId = Game.nextProjectileId;
 
 				// tbd make work the same as enemy projectile
+				
 				Game.projectiles.push(new Projectile({
 					map: map,
 					x: projectileX,
@@ -685,6 +696,8 @@ class Hero extends Attacker {
 						y: -13,
 					},
 					image: "projectile",
+					beingChannelled: true,
+					variance: Player.class === "k" ? 0 : (Player.class === "m" ? 0 : (Player.class === "a" ? 50 : 0)),
 				}));
 			}
 		}
@@ -696,8 +709,16 @@ class Hero extends Attacker {
 			this.channelTime = 0;
 			this.channelling = false;
 			
+			// get projectile
+			let shotProjectile = Game.projectiles[Game.searchFor(this.channellingProjectileId, Game.projectiles)];
+			
+			// set projectile as not channelling
+			shotProjectile.beingChannelled = false;
+			
+			shotProjectile.varyPosition(); // vary projectile position based off its variance
+			
 			// damage enemies that the projectile is touching
-			Game.projectiles[Game.searchFor(this.channellingProjectileId, Game.projectiles)].dealDamage(this, [Game.enemies, Game.dummies,]);
+			shotProjectile.dealDamage(this, [Game.enemies, Game.dummies,]);
 			
 			// after a timeout (2s), remove the projectile that was just shot
 			// this doesn't work if the user attacks too fast, though this shouldn't be a problem...
@@ -741,9 +762,13 @@ class Projectile extends Thing {
 		this.id = Game.nextProjectileId; // way that the game can identify which projectile was shot
 		Game.nextProjectileId++;
 		
-		this.expand = 1;
+		this.expand = properties.expand || 1; // size of projectile based on its image size
+		
+		this.variance = properties.variance || 0; // diameter of circle that it could fall into
 		
 		this.rotate = properties.rotate;
+		
+		this.beingChannelled = properties.beingChannelled || false;
 		
 		// set width and height to death image dimensions unless otherwise specified
 		this.width = properties.width || this.image.width;
@@ -822,6 +847,18 @@ class Projectile extends Thing {
 						}
 					}
 				}
+			}
+		}
+	}
+	
+	// move projectile to random position in circle, where circle is its variance
+	varyPosition () {
+		if (this.variance !== undefined) {
+			if (this.variance > 0) {
+				let randomDistance = random(0, this.variance * this.variance);
+				let randomAngle = random(0, Math.PI * 2);
+				this.x += Math.sqrt(randomDistance) * Math.cos(randomAngle) - this.variance;
+				this.y += Math.sqrt(randomDistance) * Math.sin(randomAngle) - this.variance;
 			}
 		}
 	}
@@ -1005,7 +1042,8 @@ class Enemy extends Attacker {
 		
 		this.channellingProjectileId = Game.nextProjectileId;
 
-		Game.projectiles.push(new Projectile({
+		// save projectile into variable
+		let shotProjectile = new Projectile({
 			map: map,
 			x: projectileX,
 			y: projectileY,
@@ -1017,10 +1055,15 @@ class Enemy extends Attacker {
 				y: this.projectile.adjust.y || 0,
 			},
 			image: this.projectile.image,
-		}));
+			variance: this.projectile.variance,
+		});
+		
+		shotProjectile.varyPosition(); // move projectile based on its variance
+		
+		Game.projectiles.push(shotProjectile); // add projectile to array of projectiles
 		
 		// damage allies that the projectile is touching
-		Game.projectiles[Game.searchFor(this.channellingProjectileId, Game.projectiles)].dealDamage(this, at);
+		shotProjectile.dealDamage(this, at);
 		
 		// wait to shoot next projectile
 		setTimeout(function () {
@@ -1401,6 +1444,7 @@ Game.init = function () {
 		health: Player.health,
 		name: Player.name,
 		level: Player.level,
+		class: Player.class,
 		
 		// properties inherited from Attacker
 		
@@ -1784,11 +1828,37 @@ Game.update = function (delta) {
 		}
     }
 	
-	// increase player channelTime if they are holding their mouse down
-	if (this.hero.channelling) {
-		this.hero.channelTime++;
-	}
+	this.playerProjectileUpdate(delta); // update player's currently channelling projectile
 };
+
+// update player's currently channelling projectile
+Game.playerProjectileUpdate = function(delta) {
+	if (Game.hero.channellingProjectileId !== null && Game.hero.channellingProjectileId !== undefined) { // check that the player is currently channelling a projectile
+		let projectile = Game.projectiles[Game.searchFor(Game.hero.channellingProjectileId, Game.projectiles)];
+		
+		// increase player channelTime if they are holding their mouse down
+		if (this.hero.channelling) {
+			this.hero.channelTime += delta;
+		}
+
+		if (Game.hero.class === "a") { // archers slowly focus as they are channelling
+			if (projectile.variance > 0 + Game.hero.stats.focusSpeed * delta * 16) { // check it won't be 0 or less
+				projectile.variance -= Game.hero.stats.focusSpeed * delta * 16;
+			}
+			else {
+				projectile.variance = 1;
+			}
+		}
+		
+		else if (Game.hero.class === "m") {
+			if (projectile.expand < 2) { // check it won't be 0 or less
+				projectile.expand += delta;
+				projectile.width += projectile.image.width * delta;
+				projectile.height += projectile.image.height * delta;
+			}
+		}
+	}
+}
 
 // called whenever player xp is changed
 Game.getXP = function () {
@@ -2142,28 +2212,37 @@ Game.render = function () {
 		// set screen x and y
 		this.updateScreenPosition(this.projectiles[i]);
 		
-		this.drawImageRotated( // rotate projectile away from player
-			this.projectiles[i].image,
-			this.projectiles[i].screenX - this.projectiles[i].width / 2,
-			this.projectiles[i].screenY - this.projectiles[i].height / 2,
-			this.projectiles[i].width,
-			this.projectiles[i].height,
-			this.projectiles[i].rotate
-		);
+		if (Game.hero.class === "a" && this.projectiles[i].beingChannelled) { // show archer red circle instead of projectile if they are currently channelling it
+			this.ctx.strokeStyle = "red";
+			this.ctx.beginPath();
+			this.ctx.arc(this.projectiles[i].screenX, this.projectiles[i].screenY, this.projectiles[i].variance, 0, 2*Math.PI);
+			this.ctx.stroke();
+		}
 		
-		// shows damage dealt by projectile
-		for(var x = 0; x < this.projectiles[i].damageDealt.length; x++) {
-			// formatting
-			if (this.projectiles[i].damageDealt[x].critical) {
-				this.ctx.fillStyle = "rgb(255, 0, 0)"; // maybe use rgba to make it fade away?
-			}
-			else {
-				this.ctx.fillStyle = "rgb(0, 0, 0)"; // maybe use rgba to make it fade away?
-			}
-			this.ctx.textAlign = "left";
-			this.ctx.font = "18px MedievalSharp";
+		else { // render projectile normally
+			this.drawImageRotated( // rotate projectile away from player
+				this.projectiles[i].image,
+				this.projectiles[i].screenX - this.projectiles[i].width / 2,
+				this.projectiles[i].screenY - this.projectiles[i].height / 2,
+				this.projectiles[i].width,
+				this.projectiles[i].height,
+				this.projectiles[i].rotate
+			);
 			
-			this.ctx.fillText(this.projectiles[i].damageDealt[x].damage, this.projectiles[i].screenX, this.projectiles[i].screenY);
+			// shows damage dealt by projectile
+			for(var x = 0; x < this.projectiles[i].damageDealt.length; x++) {
+				// formatting
+				if (this.projectiles[i].damageDealt[x].critical) {
+					this.ctx.fillStyle = "rgb(255, 0, 0)"; // maybe use rgba to make it fade away?
+				}
+				else {
+					this.ctx.fillStyle = "rgb(0, 0, 0)"; // maybe use rgba to make it fade away?
+				}
+				this.ctx.textAlign = "left";
+				this.ctx.font = "18px MedievalSharp";
+				
+				this.ctx.fillText(this.projectiles[i].damageDealt[x].damage, this.projectiles[i].screenX, this.projectiles[i].screenY);
+			}
 		}
     }
 
@@ -2208,8 +2287,8 @@ Game.render = function () {
 
 // update crosshair based on mouse distance from player (called by mouseMove event listener in init)
 Game.secondary.updateCursor = function (event) {
-	// check the player's mouse distance is within range; they currently have a weapon; and are not reloading
-	if (distance({x: Game.camera.x + event.clientX, y: Game.camera.y + event.clientY,}, Game.hero) < Game.hero.stats.range && Game.hero.canAttack && Player.inventory.weapon[0].name !== "") {
+	// check the player's mouse distance is within range and they currently have a weapon
+	if (distance({x: Game.camera.x + event.clientX, y: Game.camera.y + event.clientY,}, Game.hero) < Game.hero.stats.range && Player.inventory.weapon[0].name !== "") {
 		// mouse in range (crosshair)
 		document.getElementById("secondary").style.cursor = "crosshair";
 	}
