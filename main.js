@@ -348,10 +348,22 @@ class Entity {
 		https://yal.cc/rot-rect-vs-circle-intersection/
 		*/
 		
-		if (this.screenX - this.width / 2 < object.screenX + object.width / 2 &&
-	    this.screenX + this.width / 2 > object.screenX - object.width / 2 &&
-	    this.screenY - this.height / 2 < object.screenY + object.height / 2 &&
-	    this.screenY + this.height / 2 > object.screenY - object.height / 2) {
+		// make a copy of the two things to check collision on
+		let object1 = object;
+		let object2 = this;
+		
+		// check that the objects do not have their own special hitbox
+		if (this.hitbox !== undefined) {
+			object2 = this.hitbox;
+		}
+		if (object.hitbox !== undefined) {
+			object1 = object.hitbox;
+		}
+		
+		if (object2.screenX - object2.width / 2 < object1.screenX + object1.width / 2 &&
+	    object2.screenX + object2.width / 2 > object1.screenX - object1.width / 2 &&
+	    object2.screenY - object2.height / 2 < object1.screenY + object1.height / 2 &&
+	    object2.screenY + object2.height / 2 > object1.screenY - object1.height / 2) {
 			return true;
 		}
 		else {
@@ -695,12 +707,12 @@ class Hero extends Attacker {
 						y: 20,
 						towards: this,
 					},
-					hitbox: { // arrow tip at mouse position
+					/*hitbox: { // arrow tip at mouse position
 						x: projectileX,
 						y: projectileY,
 						width: 10,
 						height: 10,
-					},
+					},*/
 					image: "projectile",
 					beingChannelled: true,
 					variance: Player.class === "k" ? 0 : (Player.class === "m" ? 0 : (Player.class === "a" ? 50 : 0)),
@@ -873,8 +885,8 @@ class Projectile extends Thing {
 			if (this.variance > 0) {
 				let randomDistance = random(0, this.variance * this.variance);
 				let randomAngle = random(0, Math.PI * 2);
-				this.x += Math.sqrt(randomDistance) * Math.cos(randomAngle) - this.variance;
-				this.y += Math.sqrt(randomDistance) * Math.sin(randomAngle) - this.variance;
+				this.x += Math.sqrt(randomDistance) * Math.cos(randomAngle);
+				this.y += Math.sqrt(randomDistance) * Math.sin(randomAngle);
 			}
 		}
 	}
@@ -2012,7 +2024,12 @@ Game.drawHitboxes = function () {
 	
 	// projectile hitboxes
 	for(var i = 0; i < this.projectiles.length; i++) {
-		this.ctx.strokeRect(this.projectiles[i].screenX - this.projectiles[i].width / 2, this.projectiles[i].screenY - this.projectiles[i].height / 2, this.projectiles[i].width, this.projectiles[i].height);
+		if (this.hitbox !== undefined) { // this should be checked for everything in the future (when this function is reworked to work with renderList)
+			this.ctx.strokeRect(this.projectiles[i].hitbox.screenX - this.projectiles[i].hitbox.width / 2, this.projectiles[i].hitbox.screenY - this.projectiles[i].hitbox.height / 2, this.projectiles[i].hitbox.width, this.projectiles[i].hitbox.height);
+		}
+		else {
+			this.ctx.strokeRect(this.projectiles[i].screenX - this.projectiles[i].width / 2, this.projectiles[i].screenY - this.projectiles[i].height / 2, this.projectiles[i].width, this.projectiles[i].height);
+		}
 	}
 	
 	// player tile collision hitboxes
@@ -2242,6 +2259,10 @@ Game.render = function () {
 		}
 		
 		else { // render projectile normally
+			if (Game.hero.class === "m" && this.projectiles[i].beingChannelled) { // mage projectiles are transparent when being channelled
+				this.ctx.globalAlpha = 0.6;
+			}
+		
 			this.drawImageRotated( // rotate projectile away from player
 				this.projectiles[i].image,
 				this.projectiles[i].screenX - this.projectiles[i].width / 2,
@@ -2265,6 +2286,8 @@ Game.render = function () {
 				
 				this.ctx.fillText(this.projectiles[i].damageDealt[x].damage, this.projectiles[i].screenX, this.projectiles[i].screenY);
 			}
+			
+			this.ctx.globalAlpha = 1; // restore transparency if it was changed if player is a mage (see above)
 		}
     }
 
