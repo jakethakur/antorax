@@ -672,8 +672,8 @@ class Hero extends Attacker {
 		if (this.canAttack && Player.inventory.weapon[0].name !== "") { // checks the player has a weapon and is not currently reloading
 			var projectileX, projectileY, projectileRotate;
 			
-			projectileX = Game.camera.x + (e.clientX);
-			projectileY = Game.camera.y + (e.clientY);
+			projectileX = Game.camera.x + (e.clientX - 19);
+			projectileY = Game.camera.y + (e.clientY - 19);
 			
 			if (distance({x: projectileX, y: projectileY,}, this) < this.stats.range) {
 				this.channelling = true;
@@ -684,7 +684,6 @@ class Hero extends Attacker {
 				this.channellingProjectileId = Game.nextProjectileId;
 
 				// tbd make work the same as enemy projectile
-				
 				Game.projectiles.push(new Projectile({
 					map: map,
 					x: projectileX,
@@ -692,8 +691,15 @@ class Hero extends Attacker {
 					rotate: projectileRotate,
 					adjust: {
 						// manually adjust position - make this per class (per projectile image) in the future ( tbd )
-						x: -13,
-						y: -13,
+						x: 20,
+						y: 20,
+						towards: this,
+					},
+					hitbox: { // arrow tip at mouse position
+						x: projectileX,
+						y: projectileY,
+						width: 10,
+						height: 10,
 					},
 					image: "projectile",
 					beingChannelled: true,
@@ -747,7 +753,6 @@ class Hero extends Attacker {
 	
 	interact () {
 		let tileNum = map.getTile(0, map.getCol(this.x), map.getRow(this.y + this.height/2));
-		//console.log(tileNum);
 		if (map.interactWithTile !== undefined) {
 			map.interactWithTile(tileNum, this.x, this.y + this.height/2);
 		}
@@ -774,11 +779,22 @@ class Projectile extends Thing {
 		this.width = properties.width || this.image.width;
 		this.height = properties.height || this.image.height;
 		
-		// adjust position to make it directed to mouse pointer (not needed - undefined defaults to 0)
+		// adjust position to make it move towards a point (e.g: move arrow so that the point hits the target
 		this.adjust = {
 			x: properties.adjust.x || 0,
 			y: properties.adjust.y || 0,
+			towards: properties.adjust.towards || {x:0,y:0},
 		};
+		
+		// custom hitbox
+		if (properties.hitbox !== undefined) {
+			this.hitbox = {
+				x: properties.hitbox.x,
+				y: properties.hitbox.y,
+				width: properties.hitbox.width,
+				height: properties.hitbox.height,
+			}
+		}
 		
 		this.damageDealt = []; // array of damages dealt to show
 	}
@@ -1034,8 +1050,6 @@ class Enemy extends Attacker {
 		
 		var projectileX, projectileY, projectileRotate;
 		
-		// TBD add randomness in projectile impact towards player
-		// TBD make it so that this randomness can make the enemy miss? this could be a specifyable stat
 		projectileX = at[0][0].x;
 		projectileY = at[0][0].y;
 		projectileRotate = bearing(this, {x: projectileX, y: projectileY}) + Math.PI / 2;
@@ -1051,8 +1065,9 @@ class Enemy extends Attacker {
 			height: this.projectile.height,
 			rotate: projectileRotate,
 			adjust: {
-				x: this.projectile.adjust.x || 0,
-				y: this.projectile.adjust.y || 0,
+				x: this.projectile.adjust.x || undefined,
+				y: this.projectile.adjust.y || undefined,
+				towards: this.projectile.adjust.towards || undefined,
 			},
 			image: this.projectile.image,
 			variance: this.projectile.variance,
@@ -2048,12 +2063,19 @@ Game.drawImageRotated = function (img, x, y, width, height, rad) {
 }
 
 // update entity's screen position (called every time it is rendered, and also in functions like dealDamage)
+// screenX and screenY are the CENTRE of the object (hence width/2 or height/2 are subtracted when drawing images to get the top left)
 Game.updateScreenPosition = function (entity) {
 	entity.screenX = (entity.x) - this.camera.x;
 	entity.screenY = (entity.y) - this.camera.y;
-	if (typeof entity.adjust !== "undefined") {
-		entity.screenX += entity.adjust.x;
-		entity.screenY += entity.adjust.y;
+	if (typeof entity.adjust !== "undefined") { // adjust postiion
+		let angle = bearing(entity, entity.adjust.towards);
+		entity.screenX += entity.adjust.x * Math.cos(angle);
+		entity.screenY += entity.adjust.y * Math.sin(angle);
+	}
+	
+	if (typeof entity.hitbox !== "undefined") { // special hitbox
+		entity.hitbox.screenX = (entity.hitbox.x) - this.camera.x;
+		entity.hitbox.screenY = (entity.hitbox.y) - this.camera.y;
 	}
 }
 
@@ -2215,7 +2237,7 @@ Game.render = function () {
 		if (Game.hero.class === "a" && this.projectiles[i].beingChannelled) { // show archer red circle instead of projectile if they are currently channelling it
 			this.ctx.strokeStyle = "red";
 			this.ctx.beginPath();
-			this.ctx.arc(this.projectiles[i].screenX, this.projectiles[i].screenY, this.projectiles[i].variance, 0, 2*Math.PI);
+			this.ctx.arc(this.projectiles[i].hitbox.screenX, this.projectiles[i].hitbox.screenY, this.projectiles[i].variance, 0, 2*Math.PI);
 			this.ctx.stroke();
 		}
 		
@@ -2282,13 +2304,13 @@ Game.render = function () {
 };
 
 //
-// Secondary canvas
+// Secondary canvas render (only called when it needs to be, not every tick)
 //
 
 // update crosshair based on mouse distance from player (called by mouseMove event listener in init)
 Game.secondary.updateCursor = function (event) {
 	// check the player's mouse distance is within range and they currently have a weapon
-	if (distance({x: Game.camera.x + event.clientX, y: Game.camera.y + event.clientY,}, Game.hero) < Game.hero.stats.range && Player.inventory.weapon[0].name !== "") {
+	if (distance({x: Game.camera.x + event.clientX - 19, y: Game.camera.y + event.clientY - 19,}, Game.hero) < Game.hero.stats.range && Player.inventory.weapon[0].name !== "") {
 		// mouse in range (crosshair)
 		document.getElementById("secondary").style.cursor = "crosshair";
 	}
