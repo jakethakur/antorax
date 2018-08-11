@@ -69,30 +69,27 @@ for(var x = 0; x < 7; x++){
 var name = "helm";
 
 function stats(primary){
-	if(primary == "defence"){
-		return '<br><br><br><input type="checkbox" name="stats" value="criticalChance">Critical Chance</input><br>\
-				<input type="checkbox" name="stats" value="dodgeChance">Dodge Chance</input><br>\
-				<input type="checkbox" name="stats" value="focusSpeed">Focus Speed</input><br>\
-				<input type="checkbox" name="stats" value="healthRegen">Health Regen</input><br>\
-				<input type="checkbox" name="stats" value="looting">Looting</input><br>\
-				<input type="checkbox" name="stats" value="reflection">Reflection</input><br>\
-				<input type="checkbox" name="stats" value="swimSpeed">Swim Speed</input><br>\
-				<input type="checkbox" name="stats" value="walkSpeed">Walk Speed</input><br>\
-				<div class="submit" onclick="submitStat()">Submit</div>'
-	}else{
-		return '<br><br><br><input type="checkbox" name="stats" value="criticalChance">Critical Chance</input><br>\
-				<input type="checkbox" name="stats" value="dodgeChance">Dodge Chance</input><br>\
-				<input type="checkbox" name="stats" value="flaming">Flaming</input><br>\
-				<input type="checkbox" name="stats" value="focusSpeed">Focus Speed</input><br>\
-				<input type="checkbox" name="stats" value="healthRegen">Health Regen</input><br>\
-				<input type="checkbox" name="stats" value="looting">Looting</input><br>\
-				<input type="checkbox" name="stats" value="poison">Poison</input><br>\
-				<input type="checkbox" name="stats" value="reflection">Reflection</input><br>\
-				<input type="checkbox" name="stats" value="stun">Stun</input><br>\
-				<input type="checkbox" name="stats" value="swimSpeed">Swim Speed</input><br>\
-				<input type="checkbox" name="stats" value="walkSpeed">Walk Speed</input><br>\
-				<div class="submit" onclick="submitStat()">Submit</div>'
+	statsList = '<br><br><br>';
+	if(primary == "set"){
+		statsList += '<input type="checkbox" name="stats" value="damage">Damage</input><br>\
+				<input type="checkbox" name="stats" value="defence">Defence</input><br>';
 	}
+	statsList += '<input type="checkbox" name="stats" value="criticalChance">Critical Chance</input><br>\
+			<input type="checkbox" name="stats" value="dodgeChance">Dodge Chance</input><br>\
+			<input type="checkbox" name="stats" value="focusSpeed">Focus Speed</input><br>\
+			<input type="checkbox" name="stats" value="healthRegen">Health Regen</input><br>\
+			<input type="checkbox" name="stats" value="looting">Looting</input><br>\
+			<input type="checkbox" name="stats" value="reflection">Reflection</input><br>\
+			<input type="checkbox" name="stats" value="swimSpeed">Swim Speed</input><br>\
+			<input type="checkbox" name="stats" value="walkSpeed">Walk Speed</input><br>\
+			<div class="submit" onclick="submitStat()">Submit</div>';
+	if(primary != "defence"){
+		statsList += '<input type="checkbox" name="stats" value="flaming">Flaming</input><br>\
+				<input type="checkbox" name="stats" value="poison">Poison</input><br>\
+				<input type="checkbox" name="stats" value="stun">Stun</input><br>\
+				<div class="submit" onclick="submitStat()">Submit</div>';
+	}
+	return statsList;
 }
 
 function armour(type,placeholder,primary,end) {
@@ -120,20 +117,20 @@ function armour(type,placeholder,primary,end) {
 			value: "",
 		},
 		{/*3*/
-			question: "Please enter the image address:",
-			answer: '<input type="text" style="font-size: 3vw;" value="assets/items/'+type+'/'+Items[type].length+'.png"></input>\
-				<div class="submit" onclick="submit()">Submit</div>',
-			value: "",
-		},
-		{/*4*/
 			question: "Please enter the "+primary+":",
 			answer: '<input type="number" value="0" style="width: 10%; left: 45%;"></input>\
 				<div class="submit" onclick="submit()">Submit</div>',
 			value: "",
 		},
-		{/*5*/
+		{/*4*/
 			question: "Please select any other stats:",
 			answer: stats(primary),
+			value: "",
+		},
+		{/*5*/
+			question: "Please enter the image address:",
+			answer: '<input type="text" style="font-size: 3vw;" value="assets/items/'+type+'/'+Items[type].length+'.png"></input>\
+				<div class="submit" onclick="submit()">Submit</div>',
 			value: "",
 		},
 		{/*6*/
@@ -223,9 +220,14 @@ var Builder = {
 				value: "",
 			},
 			{/*4*/
+				question: "Please select stats for set bonus:",
+				answer: stats("set"),
+				value: "",
+			},
+			{/*5*/
 				question: "Please enter the image address:",
 				answer: '<input type="text" style="font-size: 3vw;" value="assets/items/set/'+Items.set.length+'.png"></input>\
-					<div class="submit" onclick="submit()">Submit</div>',
+					<div class="submit" onclick="finish()">Submit</div>',
 				value: "",
 			},
 		],
@@ -389,7 +391,7 @@ function submitStat(){
 				position.splice(stage+1,0,{
 					question: "Please enter the "+replaceStat.toLowerCase()+":",
 					answer: '<input type="number" id="poisonX" value="0" style="width: 10%; left: 38%;"></input>\
-					<div style="font-size: 5vw; background-color: transparent; border: 0px solid transparent; width: 4%; left: 48%; top: 46%;">/</div>\
+					<div style="font-size: 5vw; background-color: transparent; border: 0px solid transparent; width: 4%; left: 48%; top: 36%;">/</div>\
 					<input type="number" id="poisonY" value="0" style="width: 10%; left: 52%;"></input>\
 					<div class="submit" onclick="submit()">Submit</div>',
 				});
@@ -420,7 +422,7 @@ function finish(){
 	'&nbsp;&nbsp;&nbsp;&nbsp;id: '+Items[name].length+',\n'+
 	'&nbsp;&nbsp;&nbsp;&nbsp;name: "'+position[0].value+'",\n'+
 	'&nbsp;&nbsp;&nbsp;&nbsp;type: "'+name+'",\n'+
-	'&nbsp;&nbsp;&nbsp;&nbsp;image: "'+position[3].value+'",\n'+
+	'&nbsp;&nbsp;&nbsp;&nbsp;image: "'+position[5+stats.length].value+'",\n'+
 	'&nbsp;&nbsp;&nbsp;&nbsp;tier: '+position[1].value+',\n'+
 	'&nbsp;&nbsp;&nbsp;&nbsp;rarity: "'+position[2].value+'",\n'+
 	'&nbsp;&nbsp;&nbsp;&nbsp;obtain: "'+position[8+stats.length].value+'",\n'+
@@ -433,21 +435,21 @@ function finish(){
 	}
 	complete += '&nbsp;&nbsp;&nbsp;&nbsp;stats: {\n';
 	if(name == "sword" || name == "staff" || name == "bow"){
-		complete += '&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;damage: "'+sign(position[4].value)+position[4].value+'",\n';
+		complete += '&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;damage: "'+sign(position[3].value)+position[3].value+'",\n';
 	}else{
-		complete += '&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;defence: "'+sign(position[4].value)+position[4].value+'",\n';
+		complete += '&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;defence: "'+sign(position[3].value)+position[3].value+'",\n';
 	}
 	for(var i = 1; i < stats.length+1; i++){
 		if(stats[stats.length-i] == "flaming"){
-			complete += '&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;'+stats[stats.length-i]+': '+position[i+5].value+',\n';
+			complete += '&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;'+stats[stats.length-i]+': '+position[i+4].value+',\n';
 		}else if(stats[stats.length-i] == "criticalChance" || stats[stats.length-i] == "dodgeChance" || stats[stats.length-i] == "looting" || stats[stats.length-i] == "reflection"){
-			complete += '&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;'+stats[stats.length-i]+': "'+sign(position[i+5].value)+position[i+5].value+'%",\n';
+			complete += '&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;'+stats[stats.length-i]+': "'+sign(position[i+4].value)+position[i+4].value+'%",\n';
 		}else if(stats[stats.length-i] == "focusSpeed" || stats[stats.length-i] == "healthRegen" || stats[stats.length-i] == "swimSpeed" || stats[stats.length-i] == "walkSpeed"){
-			complete += '&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;'+stats[stats.length-i]+': "'+sign(position[i+5].value)+position[i+5].value+'/s",\n';
+			complete += '&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;'+stats[stats.length-i]+': "'+sign(position[i+4].value)+position[i+4].value+'/s",\n';
 		}else if(stats[stats.length-i] == "stun"){
-			complete += '&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;'+stats[stats.length-i]+': "'+sign(position[i+5].value)+position[i+5].value+'s",\n';
+			complete += '&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;'+stats[stats.length-i]+': "'+sign(position[i+4].value)+position[i+4].value+'s",\n';
 		}else{
-			complete += '&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;'+stats[stats.length-i]+': "'+sign(position[i+5].value)+position[i+5].value+'"\n';
+			complete += '&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;'+stats[stats.length-i]+': "'+sign(position[i+4].value)+position[i+4].value+'"\n';
 		}
 	}
 	complete += '&nbsp;&nbsp;&nbsp;&nbsp;},\n},';
@@ -463,9 +465,9 @@ function finish(){
 	<p id="invLore"></p>\
 	</div>';
 	var img = new Image();
-	img.src = "../"+position[3].value;
+	img.src = "../"+position[5+stats.length].value;
 	img.onload = function() {
-		document.getElementById("image").style.backgroundImage = "url('../"+position[3].value+"')";
+		document.getElementById("image").style.backgroundImage = "url('../"+position[5+stats.length].value+"')";
 	};
 	img.onerror = function() {
 		document.getElementById("image").style.backgroundImage = "url('../assets/items/"+name+"/unidentified.png')";
@@ -484,22 +486,22 @@ function finish(){
 	}
 	document.getElementById("invStats").innerHTML = "Tier: "+position[1].value;
 	if(name == "sword" || name == "staff" || name == "bo"){
-		document.getElementById("invStats").innerHTML += '<br>Damage: '+sign(position[4].value)+position[4].value;
+		document.getElementById("invStats").innerHTML += '<br>Damage: '+sign(position[3].value)+position[3].value;
 	}else{
-		document.getElementById("invStats").innerHTML += '<br>Defence: '+sign(position[4].value)+position[4].value;
-	}'<br>Defence: '+sign(position[4].value)+position[4].value;
+		document.getElementById("invStats").innerHTML += '<br>Defence: '+sign(position[3].value)+position[3].value;
+	}'<br>Defence: '+sign(position[3].value)+position[3].value;
 	for(var i = 1; i < stats.length + 1; i++){ // repeat for all stats
 		var replaceStat = stats[stats.length-i].replace( /([A-Z])/g, " $1" );
 		if(stats[stats.length-i] == "flaming"){
-			document.getElementById("invStats").innerHTML += '<br>'+replaceStat.charAt(0).toUpperCase() + replaceStat.slice(1)+': '+position[i+5].value;
+			document.getElementById("invStats").innerHTML += '<br>'+replaceStat.charAt(0).toUpperCase() + replaceStat.slice(1)+': '+position[i+4].value;
 		}else if(stats[stats.length-i] == "criticalChance" || stats[stats.length-i] == "dodgeChance" || stats[stats.length-i] == "looting" || stats[stats.length-i] == "reflection"){
-			document.getElementById("invStats").innerHTML += '<br>'+replaceStat.charAt(0).toUpperCase() + replaceStat.slice(1)+': '+sign(position[i+5].value)+position[i+5].value+'%';
+			document.getElementById("invStats").innerHTML += '<br>'+replaceStat.charAt(0).toUpperCase() + replaceStat.slice(1)+': '+sign(position[i+4].value)+position[i+4].value+'%';
 		}else if(stats[stats.length-i] == "focusSpeed" || stats[stats.length-i] == "healthRegen" || stats[stats.length-i] == "swimSpeed" || stats[stats.length-i] == "walkSpeed"){
-			document.getElementById("invStats").innerHTML += '<br>'+replaceStat.charAt(0).toUpperCase() + replaceStat.slice(1)+': '+sign(position[i+5].value)+position[i+5].value+'/s';
+			document.getElementById("invStats").innerHTML += '<br>'+replaceStat.charAt(0).toUpperCase() + replaceStat.slice(1)+': '+sign(position[i+4].value)+position[i+4].value+'/s';
 		}else if(stats[stats.length-i] == "stun"){
-			document.getElementById("invStats").innerHTML += '<br>'+replaceStat.charAt(0).toUpperCase() + replaceStat.slice(1)+': '+sign(position[i+5].value)+position[i+5].value+'s';
+			document.getElementById("invStats").innerHTML += '<br>'+replaceStat.charAt(0).toUpperCase() + replaceStat.slice(1)+': '+sign(position[i+4].value)+position[i+4].value+'s';
 		}else{
-			document.getElementById("invStats").innerHTML += '<br>'+replaceStat.charAt(0).toUpperCase() + replaceStat.slice(1)+': '+sign(position[i+5].value)+position[i+5].value;
+			document.getElementById("invStats").innerHTML += '<br>'+replaceStat.charAt(0).toUpperCase() + replaceStat.slice(1)+': '+sign(position[i+4].value)+position[i+4].value;
 		}
 	}
 	if(position[7+stats.length].value != ""){ // if the item has a set...
