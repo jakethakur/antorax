@@ -528,6 +528,7 @@ class Attacker extends Character {
 		this.stats.poisonX = properties.stats.poisonX || 0;
 		this.stats.poisonY = properties.stats.poisonY || 0;
 		this.stats.stun = properties.stats.stun || 0;
+		this.stats.variance = properties.stats.variance || 0;
 		
 		// information about projectile
 		// only supported for enemies - should be updated to work for player as well (TBD TBD!!!)
@@ -684,7 +685,7 @@ class Hero extends Attacker {
 		if (this.canAttack && Player.inventory.weapon[0].name !== "") { // checks the player has a weapon and is not currently reloading
 			var projectileX, projectileY, projectileRotate;
 			
-			projectileX = Game.camera.x + (e.clientX - 19);
+			projectileX = Game.camera.x + (e.clientX - 19); // subtract 19 from the mouse position because this is the margin of the canvas
 			projectileY = Game.camera.y + (e.clientY - 19);
 			
 			if (distance({x: projectileX, y: projectileY,}, this) < this.stats.range) {
@@ -705,17 +706,17 @@ class Hero extends Attacker {
 						// manually adjust position - make this per class (per projectile image) in the future ( tbd )
 						x: 20,
 						y: 20,
-						towards: this,
+						towards: {x: this.x, y: this.y},
 					},
 					hitbox: { // arrow tip at mouse position
 						x: projectileX,
 						y: projectileY,
-						width: 10,
-						height: 10,
+						width: playerClass === "k" ? 60 : (playerClass === "m" ? 30 : (playerClass === "a" ? 10 : 0)),
+						height: playerClass === "k" ? 60 : (playerClass === "m" ? 30 : (playerClass === "a" ? 10 : 0)),
 					},
 					image: "projectile",
 					beingChannelled: true,
-					variance: Player.class === "k" ? 0 : (Player.class === "m" ? 0 : (Player.class === "a" ? 50 : 0)),
+					variance: this.stats.variance,
 				}));
 			}
 		}
@@ -1073,6 +1074,7 @@ class Enemy extends Attacker {
 		
 		this.channellingProjectileId = Game.nextProjectileId;
 
+		console.error("hi");
 		// save projectile into variable
 		let shotProjectile = new Projectile({
 			map: map,
@@ -1087,9 +1089,8 @@ class Enemy extends Attacker {
 				towards: this.projectile.adjust.towards || undefined,
 			},
 			image: this.projectile.image,
-			variance: this.projectile.variance,
+			variance: this.stats.variance,
 		});
-		
 		shotProjectile.varyPosition(); // move projectile based on its variance
 		
 		Game.projectiles.push(shotProjectile); // add projectile to array of projectiles
@@ -1887,6 +1888,8 @@ Game.playerProjectileUpdate = function(delta) {
 				projectile.expand += delta;
 				projectile.width += projectile.image.width * delta;
 				projectile.height += projectile.image.height * delta;
+				projectile.hitbox.width += 30 * delta; // assumes the mage hitbox's width is always 30
+				projectile.hitbox.height += 30 * delta;
 			}
 		}
 	}

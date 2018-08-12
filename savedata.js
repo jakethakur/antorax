@@ -59,7 +59,6 @@ var Player = {
 		criticalChance: 1, // the user's total critical chance default is 1 but can be changed by armour or weapons
 		dodgeChance: 1, // the user's total dodge chance default is 1 but can be changed by armour or weapons
 		flaming: 0, // the user does not usually deal fire damage to enemies but some weapons do
-		focusSpeed: 1, // the user's total focus speed default is 1 but can be changed by bows
 		healthRegen: 0.5, // the user's total health regen default is 0.5 but can be changed by armour or weapons
 		looting: 50, // the user's total looting default is 50 but can be changed by armour or weapons
 		poisonX: 0, // the user's total posion default is 0 damage...
@@ -68,6 +67,9 @@ var Player = {
 		stun: 0, // the user's total stun time default is 0 but can be changed by armour or weapons
 		swimSpeed: 60, // the user's total swim speed default is 60 but can be changed by armour or weapons
 		walkSpeed: 180, // the user's total walk speed default is 180 but can be changed by armour or weapons
+		// archers only
+		variance: playerClass === "k" ? 0 : (playerClass === "m" ? 0 : (playerClass === "a" ? 50 : 0)), // the user's total focus speed default is 1 but can be changed by bows
+		focusSpeed: 1, // the user's total focus speed default is 1 but can be changed by bows
 	},
 	
 	//

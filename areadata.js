@@ -475,6 +475,7 @@ var Areas = {
 					healthRegen: 0.5,
 					reloadTime: 2000,
 					respawnTime: 3000,
+					variance: 100,
 				},
 				leashRadius: 400,
 				projectile: {
