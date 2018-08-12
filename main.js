@@ -688,11 +688,19 @@ class Hero extends Attacker {
 			projectileX = Game.camera.x + (e.clientX - 19); // subtract 19 from the mouse position because this is the margin of the canvas
 			projectileY = Game.camera.y + (e.clientY - 19);
 			
-			if (distance({x: projectileX, y: projectileY,}, this) < this.stats.range) {
+			let distanceToProjectile = distance({x: projectileX, y: projectileY,}, this);
+				
+			if (distanceToProjectile < this.stats.range) {
 				this.channelling = true;
 				this.canAttack = false;
 				
 				projectileRotate = bearing(this, {x: projectileX, y: projectileY}) + Math.PI / 2;
+				
+				let variance = this.stats.variance;
+				if (this.class === "a") { // alter variance based on distance to enemy if the class is archer
+					let distanceFraction = distanceToProjectile / 600; // fraction of maximum variance (max variance = Playerstats.variance)
+					variance *= distanceFraction;
+				}
 				
 				this.channellingProjectileId = Game.nextProjectileId;
 
@@ -711,12 +719,12 @@ class Hero extends Attacker {
 					hitbox: { // arrow tip at mouse position
 						x: projectileX,
 						y: projectileY,
-						width: playerClass === "k" ? 60 : (playerClass === "m" ? 30 : (playerClass === "a" ? 10 : 0)),
-						height: playerClass === "k" ? 60 : (playerClass === "m" ? 30 : (playerClass === "a" ? 10 : 0)),
+						width: this.class === "k" ? 60 : (this.class === "m" ? 23 : (this.class === "a" ? 10 : 0)),
+						height: this.class === "k" ? 60 : (this.class === "m" ? 23 : (this.class === "a" ? 10 : 0)),
 					},
 					image: "projectile",
 					beingChannelled: true,
-					variance: this.stats.variance,
+					variance: variance,
 				}));
 			}
 		}
@@ -1074,7 +1082,6 @@ class Enemy extends Attacker {
 		
 		this.channellingProjectileId = Game.nextProjectileId;
 
-		console.error("hi");
 		// save projectile into variable
 		let shotProjectile = new Projectile({
 			map: map,
@@ -1888,8 +1895,8 @@ Game.playerProjectileUpdate = function(delta) {
 				projectile.expand += delta;
 				projectile.width += projectile.image.width * delta;
 				projectile.height += projectile.image.height * delta;
-				projectile.hitbox.width += 30 * delta; // assumes the mage hitbox's width is always 30
-				projectile.hitbox.height += 30 * delta;
+				projectile.hitbox.width += 23 * delta; // assumes the mage hitbox's width is always 30
+				projectile.hitbox.height += 23 * delta;
 			}
 		}
 	}

@@ -54,7 +54,7 @@ var Player = {
 		damage: 0, // the user's total damage default is 0 but can be changed by weapons
 		defence: 0, // the user's total defence default is 0 but can be changed by armour
 		maxHealth: 50,
-		range: playerClass === "a" ? 300 : (playerClass === "m" ? 140 : (playerClass === "k" ? 70 : 0)),
+		range: playerClass === "a" ? 1000 : (playerClass === "m" ? 200 : (playerClass === "k" ? 100 : 0)),
 		reloadTime: 500, // time that must be taken between attack channel finish and channel start (in ms)
 		criticalChance: 1, // the user's total critical chance default is 1 but can be changed by armour or weapons
 		dodgeChance: 1, // the user's total dodge chance default is 1 but can be changed by armour or weapons
@@ -68,7 +68,7 @@ var Player = {
 		swimSpeed: 60, // the user's total swim speed default is 60 but can be changed by armour or weapons
 		walkSpeed: 180, // the user's total walk speed default is 180 but can be changed by armour or weapons
 		// archers only
-		variance: playerClass === "k" ? 0 : (playerClass === "m" ? 0 : (playerClass === "a" ? 50 : 0)), // the user's total focus speed default is 1 but can be changed by bows
+		variance: playerClass === "k" ? 0 : (playerClass === "m" ? 0 : (playerClass === "a" ? 100 : 0)), // the user's total focus speed default is 1 but can be changed by bows
 		focusSpeed: 1, // the user's total focus speed default is 1 but can be changed by bows
 	},
 	
