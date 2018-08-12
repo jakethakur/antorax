@@ -707,12 +707,12 @@ class Hero extends Attacker {
 						y: 20,
 						towards: this,
 					},
-					/*hitbox: { // arrow tip at mouse position
+					hitbox: { // arrow tip at mouse position
 						x: projectileX,
 						y: projectileY,
 						width: 10,
 						height: 10,
-					},*/
+					},
 					image: "projectile",
 					beingChannelled: true,
 					variance: Player.class === "k" ? 0 : (Player.class === "m" ? 0 : (Player.class === "a" ? 50 : 0)),
