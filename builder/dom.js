@@ -71,8 +71,7 @@ var name = "helm";
 function stats(primary){
 	statsList = '<br><br><br>';
 	if(primary == "set"){
-		statsList += '<input type="checkbox" name="stats" value="damage">Damage</input><br>\
-				<input type="checkbox" name="stats" value="defence">Defence</input><br>';
+		statsList += '<input type="checkbox" name="stats" value="damage">Damage</input><br>';
 	}
 	statsList += '<input type="checkbox" name="stats" value="criticalChance">Critical Chance</input><br>\
 			<input type="checkbox" name="stats" value="dodgeChance">Dodge Chance</input><br>\
@@ -81,14 +80,13 @@ function stats(primary){
 			<input type="checkbox" name="stats" value="looting">Looting</input><br>\
 			<input type="checkbox" name="stats" value="reflection">Reflection</input><br>\
 			<input type="checkbox" name="stats" value="swimSpeed">Swim Speed</input><br>\
-			<input type="checkbox" name="stats" value="walkSpeed">Walk Speed</input><br>\
-			<div class="submit" onclick="submitStat()">Submit</div>';
+			<input type="checkbox" name="stats" value="walkSpeed">Walk Speed</input><br>';
 	if(primary != "defence"){
 		statsList += '<input type="checkbox" name="stats" value="flaming">Flaming</input><br>\
 				<input type="checkbox" name="stats" value="poison">Poison</input><br>\
-				<input type="checkbox" name="stats" value="stun">Stun</input><br>\
-				<div class="submit" onclick="submitStat()">Submit</div>';
+				<input type="checkbox" name="stats" value="stun">Stun</input><br>';
 	}
+	statsList += '<div class="submit" onclick="submitStat()">Submit</div>';
 	return statsList;
 }
 
@@ -247,7 +245,7 @@ var Builder = {
 	quest: {
 		
 	},
-	npc: {
+	NPC: {
 		
 	},
 	enemy: {
@@ -255,6 +253,7 @@ var Builder = {
 	},
 };
 
+var setItems = [];
 var stats = [];
 var position = Builder;
 var stage = 0;
@@ -287,6 +286,7 @@ function goBack(){
 			position = back[back.length-1];
 			back.splice(back.length-1,1);
 			stage = 1;
+			name = "set";
 		}
 	}
 	if(position.length != undefined){
@@ -402,6 +402,42 @@ function submitStat(){
 }
 
 function end(num){
+	var complete = '{<br>'+
+	'&nbsp;&nbsp;&nbsp;&nbsp;id: '+Items[name].length+',<br>'+
+	'&nbsp;&nbsp;&nbsp;&nbsp;name: "'+position[0].value+'",<br>'+
+	'&nbsp;&nbsp;&nbsp;&nbsp;type: "'+name+'",<br>'+
+	'&nbsp;&nbsp;&nbsp;&nbsp;image: "'+position[5+stats.length].value+'",<br>'+
+	'&nbsp;&nbsp;&nbsp;&nbsp;tier: '+position[1].value+',<br>'+
+	'&nbsp;&nbsp;&nbsp;&nbsp;rarity: "'+position[2].value+'",<br>'+
+	'&nbsp;&nbsp;&nbsp;&nbsp;obtain: "'+position[8+stats.length].value+'",<br>'+
+	'&nbsp;&nbsp;&nbsp;&nbsp;area: "Eaglecrest Logging Camp",<br>';
+	if(position[6+stats.length].value != ""){
+		complete += '&nbsp;&nbsp;&nbsp;&nbsp;lore: "'+position[6+stats.length].value+'",<br>';
+	}
+	if(position[7+stats.length].value != ""){
+		complete += '&nbsp;&nbsp;&nbsp;&nbsp;set: '+position[7+stats.length].value+',<br>';
+	}
+	complete += '&nbsp;&nbsp;&nbsp;&nbsp;stats: {<br>';
+	if(name == "sword" || name == "staff" || name == "bow"){
+		complete += '&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;damage: "'+sign(position[3].value)+position[3].value+'",<br>';
+	}else{
+		complete += '&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;defence: "'+sign(position[3].value)+position[3].value+'",<br>';
+	}
+	for(var i = 1; i < stats.length+1; i++){
+		if(stats[stats.length-i] == "flaming"){
+			complete += '&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;'+stats[stats.length-i]+': '+position[i+4].value+',<br>';
+		}else if(stats[stats.length-i] == "criticalChance" || stats[stats.length-i] == "dodgeChance" || stats[stats.length-i] == "looting" || stats[stats.length-i] == "reflection"){
+			complete += '&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;'+stats[stats.length-i]+': "'+sign(position[i+4].value)+position[i+4].value+'%",<br>';
+		}else if(stats[stats.length-i] == "focusSpeed" || stats[stats.length-i] == "healthRegen" || stats[stats.length-i] == "swimSpeed" || stats[stats.length-i] == "walkSpeed"){
+			complete += '&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;'+stats[stats.length-i]+': "'+sign(position[i+4].value)+position[i+4].value+'/s",<br>';
+		}else if(stats[stats.length-i] == "stun"){
+			complete += '&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;'+stats[stats.length-i]+': "'+sign(position[i+4].value)+position[i+4].value+'s",<br>';
+		}else{
+			complete += '&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;'+stats[stats.length-i]+': "'+sign(position[i+4].value)+position[i+4].value+'"<br>';
+		}
+	}
+	complete += '&nbsp;&nbsp;&nbsp;&nbsp;},<br>},';
+	setItems.push(complete);
 	while(stage != 0){
 		goBack();
 	}
@@ -418,111 +454,143 @@ function finish(){
 	}else{
 		position[stage].value = document.getElementById("answer").getElementsByTagName("select")[0].value + "/" + document.getElementById("answer").getElementsByTagName("select")[1].value+"s";
 	}
-	var complete = '{\n'+
-	'&nbsp;&nbsp;&nbsp;&nbsp;id: '+Items[name].length+',\n'+
-	'&nbsp;&nbsp;&nbsp;&nbsp;name: "'+position[0].value+'",\n'+
-	'&nbsp;&nbsp;&nbsp;&nbsp;type: "'+name+'",\n'+
-	'&nbsp;&nbsp;&nbsp;&nbsp;image: "'+position[5+stats.length].value+'",\n'+
-	'&nbsp;&nbsp;&nbsp;&nbsp;tier: '+position[1].value+',\n'+
-	'&nbsp;&nbsp;&nbsp;&nbsp;rarity: "'+position[2].value+'",\n'+
-	'&nbsp;&nbsp;&nbsp;&nbsp;obtain: "'+position[8+stats.length].value+'",\n'+
-	'&nbsp;&nbsp;&nbsp;&nbsp;area: "Eaglecrest Logging Camp",\n';
-	if(position[6+stats.length].value != ""){
-		complete += '&nbsp;&nbsp;&nbsp;&nbsp;lore: "'+position[6+stats.length].value+'",\n';
-	}
-	if(position[7+stats.length].value != ""){
-		complete += '&nbsp;&nbsp;&nbsp;&nbsp;set: '+position[7+stats.length].value+',\n';
-	}
-	complete += '&nbsp;&nbsp;&nbsp;&nbsp;stats: {\n';
-	if(name == "sword" || name == "staff" || name == "bow"){
-		complete += '&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;damage: "'+sign(position[3].value)+position[3].value+'",\n';
-	}else{
-		complete += '&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;defence: "'+sign(position[3].value)+position[3].value+'",\n';
-	}
-	for(var i = 1; i < stats.length+1; i++){
-		if(stats[stats.length-i] == "flaming"){
-			complete += '&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;'+stats[stats.length-i]+': '+position[i+4].value+',\n';
-		}else if(stats[stats.length-i] == "criticalChance" || stats[stats.length-i] == "dodgeChance" || stats[stats.length-i] == "looting" || stats[stats.length-i] == "reflection"){
-			complete += '&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;'+stats[stats.length-i]+': "'+sign(position[i+4].value)+position[i+4].value+'%",\n';
-		}else if(stats[stats.length-i] == "focusSpeed" || stats[stats.length-i] == "healthRegen" || stats[stats.length-i] == "swimSpeed" || stats[stats.length-i] == "walkSpeed"){
-			complete += '&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;'+stats[stats.length-i]+': "'+sign(position[i+4].value)+position[i+4].value+'/s",\n';
-		}else if(stats[stats.length-i] == "stun"){
-			complete += '&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;'+stats[stats.length-i]+': "'+sign(position[i+4].value)+position[i+4].value+'s",\n';
-		}else{
-			complete += '&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;'+stats[stats.length-i]+': "'+sign(position[i+4].value)+position[i+4].value+'"\n';
+	if(name == "set"){
+		var complete = '{<br>'+
+		'&nbsp;&nbsp;&nbsp;&nbsp;id: '+Items[name].length+',<br>'+
+		'&nbsp;&nbsp;&nbsp;&nbsp;name: "'+position[0].value+'",<br>'+
+		'&nbsp;&nbsp;&nbsp;&nbsp;type: "'+name+'",<br>'+
+		'&nbsp;&nbsp;&nbsp;&nbsp;image: "'+position[5+stats.length].value+'",<br>'+
+		'&nbsp;&nbsp;&nbsp;&nbsp;tier: '+position[2].value+',<br>'+
+		'&nbsp;&nbsp;&nbsp;&nbsp;rarity: "'+position[3].value+'",<br>'+
+		'&nbsp;&nbsp;&nbsp;&nbsp;armour: [<br>';
+		for(var i = 0; i < setItems.length; i++){
+			complete += '&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;"'+ setItems[i].substring(setItems[i].indexOf('"')+1,setItems[i].indexOf('"', setItems[i].indexOf('"')+1)) +'",<br>';
 		}
-	}
-	complete += '&nbsp;&nbsp;&nbsp;&nbsp;},\n},';
-	document.getElementById("question").innerHTML = "Here is your item:";
-	document.getElementById("answer").innerHTML = '<div id="result" style="font-size: 16px; text-align: left; padding: 1.5vw; left: 2%; top: 20%; user-select: text; max-width: 40%; word-wrap: break-word">'+complete.replace(/\n/g,"<br>")+'</div>\
-	<div id="image" style="left: 50%; top: 20%; width: 50px; height: 50px;"></div>\
-	<div id="inventoryInformation" style="left: '+(window.innerWidth/2+90)+'px; top: 20%; font-size: 16px; word-wrap: break-word">\
-	<div class="triangleLeft"></div>\
-	<div id="invTriangle" class="innerTriangleLeft"></div>\
-	<p id="invName" style="font-weight: bold;"></p>\
-	<p id="invStats"></p>\
-	<p id="invSet"></p>\
-	<p id="invLore"></p>\
-	</div>';
-	var img = new Image();
-	img.src = "../"+position[5+stats.length].value;
-	img.onload = function() {
-		document.getElementById("image").style.backgroundImage = "url('../"+position[5+stats.length].value+"')";
-	};
-	img.onerror = function() {
-		document.getElementById("image").style.backgroundImage = "url('../assets/items/"+name+"/unidentified.png')";
-	};
-	img.onabort = function() {
-		console.error("image load aborted")
-	};
-	console.log(complete);
-	document.getElementById("invName").innerHTML = position[0].value;
-	if(position[2].value == "mythic"){ // if the item is a mythic...
-		document.getElementById("invName").style.color = "purple"; // ...sets the name color to purple
-	}else if(position[2].value == "unique"){ // if the item is a unique...
-		document.getElementById("invName").style.color = "orange"; // ...sets the name color to orange
-	}else{ // if the item is a common...
-		document.getElementById("invName").style.color = "black"; // ...sets the name color to black
-	}
-	document.getElementById("invStats").innerHTML = "Tier: "+position[1].value;
-	if(name == "sword" || name == "staff" || name == "bo"){
-		document.getElementById("invStats").innerHTML += '<br>Damage: '+sign(position[3].value)+position[3].value;
-	}else{
-		document.getElementById("invStats").innerHTML += '<br>Defence: '+sign(position[3].value)+position[3].value;
-	}'<br>Defence: '+sign(position[3].value)+position[3].value;
-	for(var i = 1; i < stats.length + 1; i++){ // repeat for all stats
-		var replaceStat = stats[stats.length-i].replace( /([A-Z])/g, " $1" );
-		if(stats[stats.length-i] == "flaming"){
-			document.getElementById("invStats").innerHTML += '<br>'+replaceStat.charAt(0).toUpperCase() + replaceStat.slice(1)+': '+position[i+4].value;
-		}else if(stats[stats.length-i] == "criticalChance" || stats[stats.length-i] == "dodgeChance" || stats[stats.length-i] == "looting" || stats[stats.length-i] == "reflection"){
-			document.getElementById("invStats").innerHTML += '<br>'+replaceStat.charAt(0).toUpperCase() + replaceStat.slice(1)+': '+sign(position[i+4].value)+position[i+4].value+'%';
-		}else if(stats[stats.length-i] == "focusSpeed" || stats[stats.length-i] == "healthRegen" || stats[stats.length-i] == "swimSpeed" || stats[stats.length-i] == "walkSpeed"){
-			document.getElementById("invStats").innerHTML += '<br>'+replaceStat.charAt(0).toUpperCase() + replaceStat.slice(1)+': '+sign(position[i+4].value)+position[i+4].value+'/s';
-		}else if(stats[stats.length-i] == "stun"){
-			document.getElementById("invStats").innerHTML += '<br>'+replaceStat.charAt(0).toUpperCase() + replaceStat.slice(1)+': '+sign(position[i+4].value)+position[i+4].value+'s';
-		}else{
-			document.getElementById("invStats").innerHTML += '<br>'+replaceStat.charAt(0).toUpperCase() + replaceStat.slice(1)+': '+sign(position[i+4].value)+position[i+4].value;
-		}
-	}
-	if(position[7+stats.length].value != ""){ // if the item has a set...
-		document.getElementById("invSet").innerHTML = Items.set[position[7+stats.length].value].name + " ("+Items.set[position[7+stats.length].value].armour.length+"/" + Items.set[position[7+stats.length].value].armour.length+")"; // ...add the set to the information
-		document.getElementById("invSet").innerHTML += "<br><br>Set Bonus:";
-		for(var i = 0; i < Object.keys(Items.set[position[7+stats.length].value].stats).length; i++){ // repeat for all stats
-			if(Object.keys(Items.set[position[7+stats.length].value].stats)[i] != "flaming"){
-				var replaceStat = Object.keys(Items.set[position[7+stats.length].value].stats)[i].replace( /([A-Z])/g, " $1" );
-				document.getElementById("invSet").innerHTML += "<br>"+replaceStat.charAt(0).toUpperCase() + replaceStat.slice(1)+": "+Items.set[position[7+stats.length].value].stats[Object.keys(Items.set[position[7+stats.length].value].stats)[i]];
+		complete += '&nbsp;&nbsp;&nbsp;&nbsp;],<br>\
+		&nbsp;&nbsp;&nbsp;&nbsp;stats: {<br>';
+		for(var i = 1; i < stats.length+1; i++){
+			if(stats[stats.length-i] == "flaming"){
+				complete += '&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;'+stats[stats.length-i]+': '+position[i+4].value+',<br>';
+			}else if(stats[stats.length-i] == "criticalChance" || stats[stats.length-i] == "dodgeChance" || stats[stats.length-i] == "looting" || stats[stats.length-i] == "reflection"){
+				complete += '&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;'+stats[stats.length-i]+': "'+sign(position[i+4].value)+position[i+4].value+'%",<br>';
+			}else if(stats[stats.length-i] == "focusSpeed" || stats[stats.length-i] == "healthRegen" || stats[stats.length-i] == "swimSpeed" || stats[stats.length-i] == "walkSpeed"){
+				complete += '&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;'+stats[stats.length-i]+': "'+sign(position[i+4].value)+position[i+4].value+'/s",<br>';
+			}else if(stats[stats.length-i] == "stun"){
+				complete += '&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;'+stats[stats.length-i]+': "'+sign(position[i+4].value)+position[i+4].value+'s",<br>';
 			}else{
-				var replaceStat = Object.keys(Items.set[position[7+stats.length].value].stats)[i].replace( /([A-Z])/g, " $1" );
-				document.getElementById("invSet").innerHTML += "<br>"+replaceStat.charAt(0).toUpperCase() + replaceStat.slice(1)+": "+romanize(Items.set[position[7+stats.length].value].stats[Object.keys(Items.set[position[7+stats.length].value].stats)[i]]);
+				complete += '&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;'+stats[stats.length-i]+': "'+sign(position[i+4].value)+position[i+4].value+'",<br>';
 			}
 		}
+		complete += '&nbsp;&nbsp;&nbsp;&nbsp;},<br>},';
+		document.getElementById("question").innerHTML = "Here is your item:";
+		document.getElementById("answer").innerHTML = '<div id="result" style="font-size: 16px; text-align: left; padding: 1.5vw; left: 2%; top: 20%; user-select: text; max-width: 40%; word-wrap: break-word">'+complete+'</div>';
+		
 	}else{
-		document.getElementById("invSet").innerHTML = "";
-	}
-	if(position[6+stats.length].value != undefined){ // if the item has a lore...
-		document.getElementById("invLore").innerHTML = "<i>"+position[6+stats.length].value+"</i>"; // ...add the lore to the information
-	}else{
-		document.getElementById("invLore").innerHTML = "";
+		var complete = '{<br>'+
+		'&nbsp;&nbsp;&nbsp;&nbsp;id: '+Items[name].length+',<br>'+
+		'&nbsp;&nbsp;&nbsp;&nbsp;name: "'+position[0].value+'",<br>'+
+		'&nbsp;&nbsp;&nbsp;&nbsp;type: "'+name+'",<br>'+
+		'&nbsp;&nbsp;&nbsp;&nbsp;image: "'+position[5+stats.length].value+'",<br>'+
+		'&nbsp;&nbsp;&nbsp;&nbsp;tier: '+position[1].value+',<br>'+
+		'&nbsp;&nbsp;&nbsp;&nbsp;rarity: "'+position[2].value+'",<br>'+
+		'&nbsp;&nbsp;&nbsp;&nbsp;obtain: "'+position[8+stats.length].value+'",<br>'+
+		'&nbsp;&nbsp;&nbsp;&nbsp;area: "Eaglecrest Logging Camp",<br>';
+		if(position[6+stats.length].value != ""){
+			complete += '&nbsp;&nbsp;&nbsp;&nbsp;lore: "'+position[6+stats.length].value+'",<br>';
+		}
+		if(position[7+stats.length].value != ""){
+			complete += '&nbsp;&nbsp;&nbsp;&nbsp;set: '+position[7+stats.length].value+',<br>';
+		}
+		complete += '&nbsp;&nbsp;&nbsp;&nbsp;stats: {<br>';
+		if(name == "sword" || name == "staff" || name == "bow"){
+			complete += '&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;damage: "'+sign(position[3].value)+position[3].value+'",<br>';
+		}else{
+			complete += '&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;defence: "'+sign(position[3].value)+position[3].value+'",<br>';
+		}
+		for(var i = 1; i < stats.length+1; i++){
+			if(stats[stats.length-i] == "flaming"){
+				complete += '&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;'+stats[stats.length-i]+': '+position[i+4].value+',<br>';
+			}else if(stats[stats.length-i] == "criticalChance" || stats[stats.length-i] == "dodgeChance" || stats[stats.length-i] == "looting" || stats[stats.length-i] == "reflection"){
+				complete += '&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;'+stats[stats.length-i]+': "'+sign(position[i+4].value)+position[i+4].value+'%",<br>';
+			}else if(stats[stats.length-i] == "focusSpeed" || stats[stats.length-i] == "healthRegen" || stats[stats.length-i] == "swimSpeed" || stats[stats.length-i] == "walkSpeed"){
+				complete += '&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;'+stats[stats.length-i]+': "'+sign(position[i+4].value)+position[i+4].value+'/s",<br>';
+			}else if(stats[stats.length-i] == "stun"){
+				complete += '&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;'+stats[stats.length-i]+': "'+sign(position[i+4].value)+position[i+4].value+'s",<br>';
+			}else{
+				complete += '&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;'+stats[stats.length-i]+': "'+sign(position[i+4].value)+position[i+4].value+'"<br>';
+			}
+		}
+		complete += '&nbsp;&nbsp;&nbsp;&nbsp;},<br>},';
+		document.getElementById("question").innerHTML = "Here is your item:";
+		document.getElementById("answer").innerHTML = '<div id="result" style="font-size: 16px; text-align: left; padding: 1.5vw; left: 2%; top: 20%; user-select: text; max-width: 40%; word-wrap: break-word">'+complete+'</div>\
+		<div id="image" style="left: 50%; top: 20%; width: 50px; height: 50px;"></div>\
+		<div id="inventoryInformation" style="left: '+(window.innerWidth/2+90)+'px; top: 20%; font-size: 16px; word-wrap: break-word">\
+		<div class="triangleLeft"></div>\
+		<div id="invTriangle" class="innerTriangleLeft"></div>\
+		<p id="invName" style="font-weight: bold;"></p>\
+		<p id="invStats"></p>\
+		<p id="invSet"></p>\
+		<p id="invLore"></p>\
+		</div>';
+		var img = new Image();
+		img.src = "../"+position[5+stats.length].value;
+		img.onload = function() {
+			document.getElementById("image").style.backgroundImage = "url('../"+position[5+stats.length].value+"')";
+		};
+		img.onerror = function() {
+			document.getElementById("image").style.backgroundImage = "url('../assets/items/"+name+"/unidentified.png')";
+		};
+		img.onabort = function() {
+			console.error("image load aborted")
+		};
+		document.getElementById("invName").innerHTML = position[0].value;
+		if(position[2].value == "mythic"){ // if the item is a mythic...
+			document.getElementById("invName").style.color = "purple"; // ...sets the name color to purple
+		}else if(position[2].value == "unique"){ // if the item is a unique...
+			document.getElementById("invName").style.color = "orange"; // ...sets the name color to orange
+		}else{ // if the item is a common...
+			document.getElementById("invName").style.color = "black"; // ...sets the name color to black
+		}
+		document.getElementById("invStats").innerHTML = "Tier: "+position[1].value;
+		if(name == "sword" || name == "staff" || name == "bow"){
+			document.getElementById("invStats").innerHTML += '<br>Damage: '+sign(position[3].value)+position[3].value;
+		}else{
+			document.getElementById("invStats").innerHTML += '<br>Defence: '+sign(position[3].value)+position[3].value;
+		}'<br>Defence: '+sign(position[3].value)+position[3].value;
+		for(var i = 1; i < stats.length + 1; i++){ // repeat for all stats
+			var replaceStat = stats[stats.length-i].replace( /([A-Z])/g, " $1" );
+			if(stats[stats.length-i] == "flaming"){
+				document.getElementById("invStats").innerHTML += '<br>'+replaceStat.charAt(0).toUpperCase() + replaceStat.slice(1)+': '+position[i+4].value;
+			}else if(stats[stats.length-i] == "criticalChance" || stats[stats.length-i] == "dodgeChance" || stats[stats.length-i] == "looting" || stats[stats.length-i] == "reflection"){
+				document.getElementById("invStats").innerHTML += '<br>'+replaceStat.charAt(0).toUpperCase() + replaceStat.slice(1)+': '+sign(position[i+4].value)+position[i+4].value+'%';
+			}else if(stats[stats.length-i] == "focusSpeed" || stats[stats.length-i] == "healthRegen" || stats[stats.length-i] == "swimSpeed" || stats[stats.length-i] == "walkSpeed"){
+				document.getElementById("invStats").innerHTML += '<br>'+replaceStat.charAt(0).toUpperCase() + replaceStat.slice(1)+': '+sign(position[i+4].value)+position[i+4].value+'/s';
+			}else if(stats[stats.length-i] == "stun"){
+				document.getElementById("invStats").innerHTML += '<br>'+replaceStat.charAt(0).toUpperCase() + replaceStat.slice(1)+': '+sign(position[i+4].value)+position[i+4].value+'s';
+			}else{
+				document.getElementById("invStats").innerHTML += '<br>'+replaceStat.charAt(0).toUpperCase() + replaceStat.slice(1)+': '+sign(position[i+4].value)+position[i+4].value;
+			}
+		}
+		if(position[7+stats.length].value != ""){ // if the item has a set...
+			document.getElementById("invSet").innerHTML = Items.set[position[7+stats.length].value].name + " ("+Items.set[position[7+stats.length].value].armour.length+"/" + Items.set[position[7+stats.length].value].armour.length+")"; // ...add the set to the information
+			document.getElementById("invSet").innerHTML += "<br><br>Set Bonus:";
+			for(var i = 0; i < Object.keys(Items.set[position[7+stats.length].value].stats).length; i++){ // repeat for all stats
+				if(Object.keys(Items.set[position[7+stats.length].value].stats)[i] != "flaming"){
+					var replaceStat = Object.keys(Items.set[position[7+stats.length].value].stats)[i].replace( /([A-Z])/g, " $1" );
+					document.getElementById("invSet").innerHTML += "<br>"+replaceStat.charAt(0).toUpperCase() + replaceStat.slice(1)+": "+Items.set[position[7+stats.length].value].stats[Object.keys(Items.set[position[7+stats.length].value].stats)[i]];
+				}else{
+					var replaceStat = Object.keys(Items.set[position[7+stats.length].value].stats)[i].replace( /([A-Z])/g, " $1" );
+					document.getElementById("invSet").innerHTML += "<br>"+replaceStat.charAt(0).toUpperCase() + replaceStat.slice(1)+": "+romanize(Items.set[position[7+stats.length].value].stats[Object.keys(Items.set[position[7+stats.length].value].stats)[i]]);
+				}
+			}
+		}else{
+			document.getElementById("invSet").innerHTML = "";
+		}
+		if(position[6+stats.length].value != undefined){ // if the item has a lore...
+			document.getElementById("invLore").innerHTML = "<i>"+position[6+stats.length].value+"</i>"; // ...add the lore to the information
+		}else{
+			document.getElementById("invLore").innerHTML = "";
+		}
 	}
 	update();
 }

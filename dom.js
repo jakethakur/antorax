@@ -1004,8 +1004,6 @@ Dom.quests.active = function(quest){ // when a quest is started or ended...
 		}else{
 			if(JSON.stringify(Dom.quests.activeQuestUseArray[x].wasCompleted) !== JSON.stringify(Dom.quests.activeQuestUseArray[x].isCompleted())){
 				Dom.chat.insert("Quest log updated", 0, true);
-				console.log(Dom.quests.activeQuestUseArray[x].wasCompleted);
-				console.log(Dom.quests.activeQuestUseArray[x].isCompleted());
 				Dom.quests.activeQuestUseArray[x].wasCompleted = Dom.quests.activeQuestUseArray[x].isCompleted();
 			}
 		}
