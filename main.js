@@ -887,6 +887,11 @@ class Projectile extends Thing {
 				let randomAngle = random(0, Math.PI * 2);
 				this.x += Math.sqrt(randomDistance) * Math.cos(randomAngle);
 				this.y += Math.sqrt(randomDistance) * Math.sin(randomAngle);
+				
+				if (this.hitbox !== undefined) { // move special hitbox
+					this.hitbox.x += Math.sqrt(randomDistance) * Math.cos(randomAngle);
+					this.hitbox.y += Math.sqrt(randomDistance) * Math.sin(randomAngle);
+				}
 			}
 		}
 	}
@@ -2024,7 +2029,7 @@ Game.drawHitboxes = function () {
 	
 	// projectile hitboxes
 	for(var i = 0; i < this.projectiles.length; i++) {
-		if (this.hitbox !== undefined) { // this should be checked for everything in the future (when this function is reworked to work with renderList)
+		if (this.projectiles[i].hitbox !== undefined) { // this should be checked for everything in the future (when this function is reworked to work with renderList)
 			this.ctx.strokeRect(this.projectiles[i].hitbox.screenX - this.projectiles[i].hitbox.width / 2, this.projectiles[i].hitbox.screenY - this.projectiles[i].hitbox.height / 2, this.projectiles[i].hitbox.width, this.projectiles[i].hitbox.height);
 		}
 		else {
