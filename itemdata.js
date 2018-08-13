@@ -529,11 +529,10 @@ var Items = {
 			tier: 1,
 			rarity: "common",
 			lore: "Hates the goblins just as much as you do.",
-			area: "Eaglecrest Logging Camp",
 			stats: {
 				damage: "+2",
 				flaming: 1,
-			}
+			},
 		},
 	],
 	bow: [

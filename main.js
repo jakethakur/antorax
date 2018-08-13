@@ -1416,6 +1416,13 @@ Game.loadArea = function (areaName, destination) {
 			}
 		}
 		
+		// reset any channelling projectile (if the player exists)
+		if(this.hero !== undefined) {
+			Game.hero.channellingProjectileId = null;
+			Game.hero.channelling = false;
+			Game.hero.canAttack = true;
+		}
+		
 		// projectiles
 		this.projectiles = [];
 		this.nextProjectileId = 0; // reset projectile id chain (because projectiles don't persist between areas)
@@ -1429,7 +1436,7 @@ Game.loadArea = function (areaName, destination) {
 			}
 		}
 		else {
-			console.warn("This area has no areaTeleports in areaData... Enjoy your new home!");
+			console.warn("This area has no areaTeleports in areaData.");
 		}
 		
 		// music
@@ -1437,12 +1444,12 @@ Game.loadArea = function (areaName, destination) {
 		this.playMusic();
 		
 		// init game (if it hasn't been done so already)
-		if(this.hero == undefined) {
+		if(this.hero === undefined) {
 			this.init();
 		}
 		
 		// reposition player
-		if(destination != undefined) {
+		if(destination !== undefined) {
 			this.hero.x = destination.x;
 			this.hero.y = destination.y;
 		}
