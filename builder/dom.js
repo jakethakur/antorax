@@ -1,5 +1,5 @@
 function update(){
-	if(document.getElementById("answer").getElementsByTagName("div").length == 4){
+	if(document.getElementById("answer").getElementsByTagName("div").length == 4 && document.getElementById("result") == undefined){
 		for(var i = 0; i < document.getElementById("answer").getElementsByTagName("div").length; i++){
 			document.getElementById("answer").getElementsByTagName("div")[i].style.width = "21.5%";
 			document.getElementById("answer").getElementsByTagName("div")[i].style.height = "74%";
@@ -7,7 +7,7 @@ function update(){
 			document.getElementById("answer").getElementsByTagName("div")[i].style.left = 2 + 24.5 * i + "%";
 			document.getElementById("answer").getElementsByTagName("div")[i].style.top = "20%";
 		}
-	}else if(document.getElementById("answer").getElementsByTagName("div").length == 12){
+	}else if(document.getElementById("answer").getElementsByTagName("div").length == 12 && document.getElementById("result") == undefined){
 		for(var x = 0; x < 3; x++){
 			for(var i = 0; i < 4; i++){
 				document.getElementById("answer").getElementsByTagName("div")[4*x+i].style.width = "21.5%";
@@ -17,7 +17,7 @@ function update(){
 				document.getElementById("answer").getElementsByTagName("div")[4*x+i].style.left = 2 + 24.5 * i + "%";
 			}
 		}
-	}else if(document.getElementById("answer").getElementsByTagName("div").length == 3){
+	}else if(document.getElementById("answer").getElementsByTagName("div").length == 3 && document.getElementById("result") == undefined){
 		for(var i = 0; i < 2; i++){
 			document.getElementById("answer").getElementsByTagName("div")[i].style.width = "46%";
 			document.getElementById("answer").getElementsByTagName("div")[i].style.height = "53%";
@@ -30,7 +30,7 @@ function update(){
 		document.getElementById("answer").getElementsByTagName("div")[2].style.lineHeight = "15vh";
 		document.getElementById("answer").getElementsByTagName("div")[2].style.top = "79%";
 		document.getElementById("answer").getElementsByTagName("div")[2].style.left = "2%";
-	}else if(document.getElementById("answer").getElementsByTagName("div").length == 7){
+	}else if(document.getElementById("answer").getElementsByTagName("div").length == 7 && document.getElementById("result") == undefined){
 		for(var i = 0; i < 4; i++){
 			document.getElementById("answer").getElementsByTagName("div")[i].style.width = "21.5%";
 			document.getElementById("answer").getElementsByTagName("div")[i].style.height = "34%";
@@ -48,6 +48,12 @@ function update(){
 	}
 	if(document.getElementById("inventoryInformation") != undefined){
 		document.getElementById("inventoryInformation").style.left = window.innerWidth/2+90+"px";
+		for(var i = 0; i < setItems.length; i++){
+			document.getElementById("answer").innerHTML += '<div id="result'+i+'" style="font-size: 16px; text-align: left; padding: 1.5vw; left: 2%; user-select: text; max-width: 40%; word-wrap: break-word">'+complete+'</div>';
+			document.getElementById("result"+i).innerHTML = setItems[i];
+			document.getElementById("result"+i).style.top = window.innerHeight/100*23 + document.getElementById("result").offsetHeight + offsettop +"px"; 
+			offsettop += document.getElementById("result"+i).offsetHeight + window.innerHeight/100*3;
+		}
 	}
 	if(position == Builder){
 		document.getElementById("back").hidden = true;
@@ -63,7 +69,7 @@ for(var i = 2; i < Object.keys(Items.set).length; i++){
 itemList = "";
 for(var x = 0; x < 7; x++){
 	for(var i = 2; i < Items[(Object.keys(Items)[x])].length; i++){
-		itemList += "<option value='"+Items[(Object.keys(Items)[x])][i]+"'>"+Items[(Object.keys(Items)[x])][i].name+"</option>";
+		itemList += "<option value='"+Items[(Object.keys(Items)[x])][i].name+"'>"+Items[(Object.keys(Items)[x])][i].name+"</option>";
 	}
 }
 var name = "helm";
@@ -272,7 +278,7 @@ checkChange();
 
 function goBack(){
 	if(position == back[back.length-1]){
-		if(document.getElementById("inventoryInformation") == undefined){
+		if(document.getElementById("result") == undefined){
 			stage--;
 			position = back[back.length-1];
 			back.splice(back.length-1,1);
@@ -280,6 +286,7 @@ function goBack(){
 	}else{
 		position = back[back.length-1];
 		back.splice(back.length-1,1);
+		stats = [];
 	}
 	if(back.length != 0){
 		if(back[back.length-1].length != undefined && position.length == undefined){
@@ -402,41 +409,58 @@ function submitStat(){
 }
 
 function end(num){
-	var complete = '{<br>'+
-	'&nbsp;&nbsp;&nbsp;&nbsp;id: '+Items[name].length+',<br>'+
-	'&nbsp;&nbsp;&nbsp;&nbsp;name: "'+position[0].value+'",<br>'+
-	'&nbsp;&nbsp;&nbsp;&nbsp;type: "'+name+'",<br>'+
-	'&nbsp;&nbsp;&nbsp;&nbsp;image: "'+position[5+stats.length].value+'",<br>'+
-	'&nbsp;&nbsp;&nbsp;&nbsp;tier: '+position[1].value+',<br>'+
-	'&nbsp;&nbsp;&nbsp;&nbsp;rarity: "'+position[2].value+'",<br>'+
-	'&nbsp;&nbsp;&nbsp;&nbsp;obtain: "'+position[8+stats.length].value+'",<br>'+
-	'&nbsp;&nbsp;&nbsp;&nbsp;area: "Eaglecrest Logging Camp",<br>';
-	if(position[6+stats.length].value != ""){
-		complete += '&nbsp;&nbsp;&nbsp;&nbsp;lore: "'+position[6+stats.length].value+'",<br>';
-	}
-	if(position[7+stats.length].value != ""){
-		complete += '&nbsp;&nbsp;&nbsp;&nbsp;set: '+position[7+stats.length].value+',<br>';
-	}
-	complete += '&nbsp;&nbsp;&nbsp;&nbsp;stats: {<br>';
-	if(name == "sword" || name == "staff" || name == "bow"){
-		complete += '&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;damage: "'+sign(position[3].value)+position[3].value+'",<br>';
+	if(document.getElementById("answer").getElementsByTagName("input").length == 1){
+		position[stage].value = document.getElementById("answer").getElementsByTagName("input")[0].value;
+	}else if(document.getElementById("answer").getElementsByTagName("input").length == 0){
+		position[stage].value = document.getElementById("answer").getElementsByTagName("select")[0].value;	
 	}else{
-		complete += '&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;defence: "'+sign(position[3].value)+position[3].value+'",<br>';
+		position[stage].value = document.getElementById("answer").getElementsByTagName("select")[0].value + "/" + document.getElementById("answer").getElementsByTagName("select")[1].value+"s";
 	}
-	for(var i = 1; i < stats.length+1; i++){
-		if(stats[stats.length-i] == "flaming"){
-			complete += '&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;'+stats[stats.length-i]+': '+position[i+4].value+',<br>';
-		}else if(stats[stats.length-i] == "criticalChance" || stats[stats.length-i] == "dodgeChance" || stats[stats.length-i] == "looting" || stats[stats.length-i] == "reflection"){
-			complete += '&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;'+stats[stats.length-i]+': "'+sign(position[i+4].value)+position[i+4].value+'%",<br>';
-		}else if(stats[stats.length-i] == "focusSpeed" || stats[stats.length-i] == "healthRegen" || stats[stats.length-i] == "swimSpeed" || stats[stats.length-i] == "walkSpeed"){
-			complete += '&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;'+stats[stats.length-i]+': "'+sign(position[i+4].value)+position[i+4].value+'/s",<br>';
-		}else if(stats[stats.length-i] == "stun"){
-			complete += '&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;'+stats[stats.length-i]+': "'+sign(position[i+4].value)+position[i+4].value+'s",<br>';
-		}else{
-			complete += '&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;'+stats[stats.length-i]+': "'+sign(position[i+4].value)+position[i+4].value+'"<br>';
+	if(position == Builder.item.set[1].selectAnExistingItem){
+		for(var i = 0; i < 7; i++){
+			for(var x = 0; x < Items[Object.keys(Items)[i]].length; x++){
+				if(Items[Object.keys(Items)[i]][x].name == position[0].value){
+					complete = stringify(Items[Object.keys(Items)[i]][x],0);
+				}
+			}
 		}
+	}else{
+		var complete = '{<br>'+
+		'&nbsp;&nbsp;&nbsp;&nbsp;id: '+Items[name].length+',<br>'+
+		'&nbsp;&nbsp;&nbsp;&nbsp;name: "'+position[0].value+'",<br>'+
+		'&nbsp;&nbsp;&nbsp;&nbsp;type: "'+name+'",<br>'+
+		'&nbsp;&nbsp;&nbsp;&nbsp;image: "'+position[5+stats.length].value+'",<br>'+
+		'&nbsp;&nbsp;&nbsp;&nbsp;tier: '+position[1].value+',<br>'+
+		'&nbsp;&nbsp;&nbsp;&nbsp;rarity: "'+position[2].value+'",<br>'+
+		'&nbsp;&nbsp;&nbsp;&nbsp;obtain: "'+position[8+stats.length].value+'",<br>'+
+		'&nbsp;&nbsp;&nbsp;&nbsp;area: "Eaglecrest Logging Camp",<br>';
+		if(position[6+stats.length].value != ""){
+			complete += '&nbsp;&nbsp;&nbsp;&nbsp;lore: "'+position[6+stats.length].value+'",<br>';
+		}
+		if(position[7+stats.length].value != ""){
+			complete += '&nbsp;&nbsp;&nbsp;&nbsp;set: '+position[7+stats.length].value+',<br>';
+		}
+		complete += '&nbsp;&nbsp;&nbsp;&nbsp;stats: {<br>';
+		if(name == "sword" || name == "staff" || name == "bow"){
+			complete += '&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;damage: "'+sign(position[3].value)+position[3].value+'",<br>';
+		}else{
+			complete += '&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;defence: "'+sign(position[3].value)+position[3].value+'",<br>';
+		}
+		for(var i = 1; i < stats.length+1; i++){
+			if(stats[stats.length-i] == "flaming"){
+				complete += '&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;'+stats[stats.length-i]+': '+position[i+4].value+',<br>';
+			}else if(stats[stats.length-i] == "criticalChance" || stats[stats.length-i] == "dodgeChance" || stats[stats.length-i] == "looting" || stats[stats.length-i] == "reflection"){
+				complete += '&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;'+stats[stats.length-i]+': "'+sign(position[i+4].value)+position[i+4].value+'%",<br>';
+			}else if(stats[stats.length-i] == "focusSpeed" || stats[stats.length-i] == "healthRegen" || stats[stats.length-i] == "swimSpeed" || stats[stats.length-i] == "walkSpeed"){
+				complete += '&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;'+stats[stats.length-i]+': "'+sign(position[i+4].value)+position[i+4].value+'/s",<br>';
+			}else if(stats[stats.length-i] == "stun"){
+				complete += '&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;'+stats[stats.length-i]+': "'+sign(position[i+4].value)+position[i+4].value+'s",<br>';
+			}else{
+				complete += '&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;'+stats[stats.length-i]+': "'+sign(position[i+4].value)+position[i+4].value+'"<br>';
+			}
+		}
+		complete += '&nbsp;&nbsp;&nbsp;&nbsp;},<br>},';
 	}
-	complete += '&nbsp;&nbsp;&nbsp;&nbsp;},<br>},';
 	setItems.push(complete);
 	while(stage != 0){
 		goBack();
@@ -484,7 +508,71 @@ function finish(){
 		complete += '&nbsp;&nbsp;&nbsp;&nbsp;},<br>},';
 		document.getElementById("question").innerHTML = "Here is your item:";
 		document.getElementById("answer").innerHTML = '<div id="result" style="font-size: 16px; text-align: left; padding: 1.5vw; left: 2%; top: 20%; user-select: text; max-width: 40%; word-wrap: break-word">'+complete+'</div>';
-		
+		var offsettop = 0;
+		for(var i = 0; i < setItems.length; i++){
+			document.getElementById("answer").innerHTML += '<div id="result'+i+'" style="font-size: 16px; text-align: left; padding: 1.5vw; left: 2%; user-select: text; max-width: 40%; word-wrap: break-word">'+complete+'</div>\
+			<div id="inventoryInformation'+i+'" class="inventoryInformations" style="left: '+(window.innerWidth/2+90)+'px; top: 20%; font-size: 16px; word-wrap: break-word">\
+			<div class="triangleLeft"></div>\
+			<div id="invTriangle'+i+'" class="innerTriangleLeft"></div>\
+			<p id="invName'+i+'" style="font-weight: bold;"></p>\
+			<p id="invStats'+i+'"></p>\
+			<p id="invSet'+i+'"></p>\
+			<p id="invLore'+i+'"></p>\
+			</div>';
+			/*
+			document.getElementById("invName"+i).innerHTML = position[0].value;
+			if(position[2].value == "mythic"){ // if the item is a mythic...
+				document.getElementById("invName"+i).style.color = "purple"; // ...sets the name color to purple
+			}else if(position[2].value == "unique"){ // if the item is a unique...
+				document.getElementById("invName"+i).style.color = "orange"; // ...sets the name color to orange
+			}else{ // if the item is a common...
+				document.getElementById("invName"+i).style.color = "black"; // ...sets the name color to black
+			}
+			document.getElementById("invStats"+i).innerHTML = "Tier: "+position[1].value;
+			if(name == "sword" || name == "staff" || name == "bow"){
+				document.getElementById("invStats"+i).innerHTML += '<br>Damage: '+sign(position[3].value)+position[3].value;
+			}else{
+				document.getElementById("invStats"+i).innerHTML += '<br>Defence: '+sign(position[3].value)+position[3].value;
+			}'<br>Defence: '+sign(position[3].value)+position[3].value;
+			for(var i = 1; i < stats.length + 1; i++){ // repeat for all stats
+				var replaceStat = stats[stats.length-i].replace( /([A-Z])/g, " $1" );
+				if(stats[stats.length-i] == "flaming"){
+					document.getElementById("invStats"+i).innerHTML += '<br>'+replaceStat.charAt(0).toUpperCase() + replaceStat.slice(1)+': '+position[i+4].value;
+				}else if(stats[stats.length-i] == "criticalChance" || stats[stats.length-i] == "dodgeChance" || stats[stats.length-i] == "looting" || stats[stats.length-i] == "reflection"){
+					document.getElementById("invStats"+i).innerHTML += '<br>'+replaceStat.charAt(0).toUpperCase() + replaceStat.slice(1)+': '+sign(position[i+4].value)+position[i+4].value+'%';
+				}else if(stats[stats.length-i] == "focusSpeed" || stats[stats.length-i] == "healthRegen" || stats[stats.length-i] == "swimSpeed" || stats[stats.length-i] == "walkSpeed"){
+					document.getElementById("invStats"+i).innerHTML += '<br>'+replaceStat.charAt(0).toUpperCase() + replaceStat.slice(1)+': '+sign(position[i+4].value)+position[i+4].value+'/s';
+				}else if(stats[stats.length-i] == "stun"){
+					document.getElementById("invStats"+i).innerHTML += '<br>'+replaceStat.charAt(0).toUpperCase() + replaceStat.slice(1)+': '+sign(position[i+4].value)+position[i+4].value+'s';
+				}else{
+					document.getElementById("invStats"+i).innerHTML += '<br>'+replaceStat.charAt(0).toUpperCase() + replaceStat.slice(1)+': '+sign(position[i+4].value)+position[i+4].value;
+				}
+			}
+			if(position[7+stats.length].value != ""){ // if the item has a set...
+				document.getElementById("invSet"+i).innerHTML = Items.set[position[7+stats.length].value].name + " ("+Items.set[position[7+stats.length].value].armour.length+"/" + Items.set[position[7+stats.length].value].armour.length+")"; // ...add the set to the information
+				document.getElementById("invSet"+i).innerHTML += "<br><br>Set Bonus:";
+				for(var i = 0; i < Object.keys(Items.set[position[7+stats.length].value].stats).length; i++){ // repeat for all stats
+					if(Object.keys(Items.set[position[7+stats.length].value].stats)[i] != "flaming"){
+						var replaceStat = Object.keys(Items.set[position[7+stats.length].value].stats)[i].replace( /([A-Z])/g, " $1" );
+						document.getElementById("invSet"+i).innerHTML += "<br>"+replaceStat.charAt(0).toUpperCase() + replaceStat.slice(1)+": "+Items.set[position[7+stats.length].value].stats[Object.keys(Items.set[position[7+stats.length].value].stats)[i]];
+					}else{
+						var replaceStat = Object.keys(Items.set[position[7+stats.length].value].stats)[i].replace( /([A-Z])/g, " $1" );
+						document.getElementById("invSet"+i).innerHTML += "<br>"+replaceStat.charAt(0).toUpperCase() + replaceStat.slice(1)+": "+romanize(Items.set[position[7+stats.length].value].stats[Object.keys(Items.set[position[7+stats.length].value].stats)[i]]);
+					}
+				}
+			}else{
+				document.getElementById("invSet"+i).innerHTML = "";
+			}
+			if(position[6+stats.length].value != undefined){ // if the item has a lore...
+				document.getElementById("invLore"+i).innerHTML = "<i>"+position[6+stats.length].value+"</i>"; // ...add the lore to the information
+			}else{
+				document.getElementById("invLore"+i).innerHTML = "";
+			}
+			*/
+			document.getElementById("result"+i).innerHTML = setItems[i];
+			document.getElementById("result"+i).style.top = window.innerHeight/100*23 + document.getElementById("result").offsetHeight + offsettop +"px"; 
+			offsettop += document.getElementById("result"+i).offsetHeight + window.innerHeight/100*3;
+		}
 	}else{
 		var complete = '{<br>'+
 		'&nbsp;&nbsp;&nbsp;&nbsp;id: '+Items[name].length+',<br>'+
@@ -524,7 +612,7 @@ function finish(){
 		document.getElementById("question").innerHTML = "Here is your item:";
 		document.getElementById("answer").innerHTML = '<div id="result" style="font-size: 16px; text-align: left; padding: 1.5vw; left: 2%; top: 20%; user-select: text; max-width: 40%; word-wrap: break-word">'+complete+'</div>\
 		<div id="image" style="left: 50%; top: 20%; width: 50px; height: 50px;"></div>\
-		<div id="inventoryInformation" style="left: '+(window.innerWidth/2+90)+'px; top: 20%; font-size: 16px; word-wrap: break-word">\
+		<div id="inventoryInformation" class="inventoryInformations" style="left: '+(window.innerWidth/2+90)+'px; top: 20%; font-size: 16px; word-wrap: break-word">\
 		<div class="triangleLeft"></div>\
 		<div id="invTriangle" class="innerTriangleLeft"></div>\
 		<p id="invName" style="font-weight: bold;"></p>\
@@ -612,6 +700,28 @@ function romanize(num){
     }
   }
   return roman;
+}
+
+function stringify(object,indent){
+	var b=[];
+	Object.keys(object).forEach(function(k){
+		if(typeof object[k] === "string"){
+			b.push(k+': "'+object[k]+'"');
+		}else if(typeof object[k] === "object"){
+			b.push(k+': '+stringify(object[k],indent+1));
+		}else{
+			b.push(k+": "+object[k]);
+		}
+	});
+	var tab = "";
+	for(var i = 0; i < indent; i++){
+		tab += "&nbsp;&nbsp;&nbsp;&nbsp;"
+	}
+	b="{<br>&nbsp;&nbsp;&nbsp;&nbsp;"+tab+b.join(',<br>&nbsp;&nbsp;&nbsp;&nbsp;'+tab)+",<br>"+tab+"}";
+	if(indent == 0){
+		b+=",";
+	}
+	return(''+b);
 }
 
 document.addEventListener('keyup',function(event){

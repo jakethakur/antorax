@@ -4,7 +4,7 @@ body{
 	padding: 1%;
 	font-family: 'MedievalSharp', serif;
 	background-color: #f9f9d0;
-	overflow: auto;
+	overflow: scroll;
 	-webkit-user-select: none; /* Safari */        
 	-moz-user-select: none; /* Firefox */
 	-ms-user-select: none; /* IE10+/Edge */
@@ -84,7 +84,7 @@ input[type=checkbox]{
 	width: 20%;
 	position: absolute;
 }
-#inventoryInformation{
+.inventoryInformations{
 	width: 140px;
 	padding-left: 10px;
 	padding-right: 10px;

@@ -1748,3 +1748,11 @@ Dom.inventory.requiredSpace = function(items,quantities){
 document.getElementById("levelUpPageClose").onclick = function(){
 	document.getElementById("levelUpPage").hidden = true;
 }
+
+for(var i = 0; i < 5; i++){
+	Player.inventory[Object.keys(Player.inventory)[i]].push({
+		name: "",
+		image: "",
+		stats: {},
+	});
+}

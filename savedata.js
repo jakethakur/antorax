@@ -10,41 +10,11 @@ var Player = {
 	},
 	
 	inventory: {
-		helm: [
-			{
-				name: "",
-				image: "",
-				stats: {},
-			},
-		],
-		chest: [
-			{
-				name: "",
-				image: "",
-				stats: {},
-			},
-		],
-		greaves: [
-			{
-				name: "",
-				image: "",
-				stats: {},
-			},
-		],
-		boots: [
-			{
-				name: "",
-				image: "",
-				stats: {},
-			},
-		],
-		weapon: [
-			{
-				name: "",
-				image: "",
-				stats: {},
-			},
-		],
+		helm: [],
+		chest: [],
+		greaves: [],
+		boots: [],
+		weapon: [],
 		unId: [],
 		items: [{},{},{},{},{},{}],
 	},
