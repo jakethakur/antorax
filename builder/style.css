@@ -4,7 +4,7 @@ body{
 	padding: 1%;
 	font-family: 'MedievalSharp', serif;
 	background-color: #f9f9d0;
-	overflow: scroll;
+	overflow: auto;
 	-webkit-user-select: none; /* Safari */        
 	-moz-user-select: none; /* Firefox */
 	-ms-user-select: none; /* IE10+/Edge */
@@ -49,6 +49,9 @@ body{
 }
 #enemy{
 	background-image: url("./assets/enemy.png");
+}
+#answer #image{
+	background-size: auto;
 }
 input, select{
 	height: 6vw;

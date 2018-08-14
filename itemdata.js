@@ -642,7 +642,7 @@ var Items = {
 			id: 2,
 			name: "Siege Set",
 			type: "set",
-			image: "assets/items/sets/2.png",
+			image: "assets/items/set/2.png",
 			tier: 1,
 			rarity: "unique",
 			armour: [
@@ -659,7 +659,7 @@ var Items = {
 			id: 3,
 			name: "Goblin Forged Set",
 			type: "set",
-			image: "assets/items/sets/3.png",
+			image: "assets/items/set/3.png",
 			tier: 1,
 			rarity: "unique",
 			armour: [
