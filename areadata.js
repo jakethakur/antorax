@@ -481,6 +481,9 @@ var Areas = {
 				projectile: {
 					image: "rock",
 				},
+				lootTable: [
+					
+				],
 			},
 			{
 				x: 900,

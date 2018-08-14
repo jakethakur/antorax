@@ -1040,10 +1040,15 @@ class Enemy extends Attacker {
 		// combat traits (specific to enemy)
 		this.leashRadius = properties.leashRadius; // how far away the player has to be for the enemy to stop following them
 		
-		this.deathImage = Loader.getImage(properties.deathImage);
+		this.deathImage = Loader.getImage(properties.deathImage); // corpse image
 		// set width and height to death image dimensions unless otherwise specified
 		this.deathImageWidth = properties.deathImageWidth || this.deathImage.width;
 		this.deathImageHeight = properties.deathImageHeight || this.deathImage.height;
+		
+		this.lootTable = properties.lootTable; // array objects for each loot item - these objects contain the item, chances of looting them, guaranteed to loot, amount to loot, etc.
+		// set when the enemy dies
+		this.loot = null; // loot that can be picked up by player
+		this.lootable = false; // whether the player has looted the enemy yet
 	}
 	
 	update (delta) {
