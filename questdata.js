@@ -1,7 +1,7 @@
 var Quests = {
 	eaglecrestLoggingCamp: [
 		{
-			// id: 0
+			id: 0,
 			quest: "To the Logging Camp",
 			
 			startName: "Cart Driver",
@@ -15,24 +15,13 @@ var Quests = {
 				"Speak to <strong>Marshall Teper</strong> at the Eaglecrest Logging Camp.",
 			],
 			
-			/*conditions: [
-				Player.inventory.weapon.length > 1,
-			],*/
-			
 			isCompleted: function() {
-				var completed = []; // contains true or false for all of the objectives, with the last element being if the quest is ready to complete
+				let completed = []; // contains true or false for all of the objectives, with the last element being if the quest is ready to complete
 				
 				// true or falses for each objective (apart from the turn-in objective)
-				completed.push(Dom.inventory.check(2,"sword") || Dom.inventory.check(2,"staff") || Dom.inventory.check(2,"bow"));
+				completed.push(Dom.inventory.check(2, "sword") || Dom.inventory.check(2, "staff") || Dom.inventory.check(2, "bow"));
 				
-				var finished = true;
-				for(var i = 0; i < completed.length; i++) {
-					if(!completed[i]) {
-						finished = false;
-					}
-				}
-				
-				completed.push(finished);
+				completed = checkFinished(completed);
 				
 				return completed;
 			},
@@ -57,7 +46,7 @@ var Quests = {
 				],
 				itemQuantities: [
 					5,
-					1,
+					2,
 				],
 				reputation: {
 					eaglecrestLoggingCamp: 6,
@@ -70,7 +59,7 @@ var Quests = {
 		},
 		
 		{
-			// id: 1
+			id: 1,
 			quest: "Learning from the Best",
 			
 			startName: "Mashall Teper",
@@ -85,7 +74,7 @@ var Quests = {
 			],
 			
 			isCompleted: function() {
-				var completed = []; // contains true or false for all of the objectives, with the last element being if the quest is ready to complete
+				var completed = [];
 				
 				// true or falses for each objective (apart from the turn-in objective)
 				//completed.push((Player.inventory.weapon.length > 1) ? true : false); tbd
@@ -115,7 +104,7 @@ var Quests = {
 		},
 		
 		{
-			// id: 2 (tbc)
+			id: 2,
 			quest: "A drink on us!",
 			
 			startName: "Gregor Goldenbrew",
@@ -156,7 +145,7 @@ var Quests = {
 			],
 			
 			isCompleted: function() {
-				var completed = []; // contains true or false for all of the objectives, with the last element being if the quest is ready to complete
+				var completed = [];
 				
 				// true or falses for each objective (apart from the turn-in objective)
 				//completed.push((Player.inventory.weapon.length > 1) ? true : false); tbd
@@ -183,7 +172,7 @@ var Quests = {
 		},
 		
 		{
-			// id: 4 (tbc)
+			id: 4,
 			quest: "Learning to Fish II",
 			
 			startName: "Fisherman name",
@@ -199,7 +188,7 @@ var Quests = {
 			],
 			
 			isCompleted: function() {
-				var completed = []; // contains true or false for all of the objectives, with the last element being if the quest is ready to complete
+				var completed = [];
 				
 				// true or falses for each objective (apart from the turn-in objective)
 				//completed.push((Player.inventory.weapon.length > 1) ? true : false); tbd
@@ -226,7 +215,7 @@ var Quests = {
 		},
 		
 		{
-			// id: 5 (tbc)
+			id: 5,
 			quest: "Learning to Fish III",
 			
 			startName: "Fisherman name",
@@ -241,7 +230,7 @@ var Quests = {
 			],
 			
 			isCompleted: function() {
-				var completed = []; // contains true or false for all of the objectives, with the last element being if the quest is ready to complete
+				var completed = [];
 				
 				// true or falses for each objective (apart from the turn-in objective)
 				//completed.push((Player.inventory.weapon.length > 1) ? true : false); tbd
@@ -260,11 +249,24 @@ var Quests = {
 			
 			howToStart: "Speak to <strong>Fisherman name</strong> at the Fisher's Valley.",
 			levelRequirement: 2,
-			questRequirement: "Learning to fish II", // doesn't work - tbd
+			questRequirement: "Learning to Fish II", // doesn't work - tbd
 			
 			rewards: {
 				xp: 100,
 			},
 		},
 	],
+};
+
+// check if all of the contents of the array are true
+// adds the last value to the completed array
+function checkFinished(completed) {
+	var finished = true;
+	for(var i = 0; i < completed.length; i++) {
+		if(!completed[i]) {
+			finished = false;
+		}
+	}
+	completed.push(finished);
+	return completed;
 }
