@@ -237,10 +237,54 @@ var Builder = {
 			},
 		],
 		currency: [
-			
+			{/*0*/
+				question: "Please enter the name:",
+				answer: '<input type="text" placeholder="Gold"></input>\
+					<div class="submit" onclick="submit()">Submit</div>',
+				value: "",
+			},
+			{/*1*/
+				question: "Please enter the max stack size:",
+				answer: '<input type="number" min="1" value="1" style="width: 10%; left: 45%;"></input>\
+					<div class="submit" onclick="submit()">Submit</div>',
+				value: "",
+			},
+			{/*2*/
+				question: "Please enter the image address:",
+				answer: '<input type="text" style="font-size: 3vw;" value="assets/items/currency/'+Items.currency.length+'.png"></input>\
+					<div class="submit" onclick="finish()">Submit</div>',
+				value: "",
+			},
 		],
 		bag: [
-			
+			{/*0*/
+				question: "Please enter the name:",
+				answer: '<input type="text" placeholder="Logging Sack"></input>\
+					<div class="submit" onclick="submit()">Submit</div>',
+				value: "",
+			},
+			{/*1*/
+				question: "Please enter the capacity:",
+				answer: '<input type="number" min="1" value="1" style="width: 10%; left: 45%;"></input>\
+					<div class="submit" onclick="submit()">Submit</div>',
+				value: "",
+			},
+			{/*2*/
+				question: "Please select the rarity:",
+				answer: '<select type="select">\
+					<option value="common">Common</option>\
+					<option value="unique">Unique</option>\
+					<option value="mythic">Mythic</option>\
+					</select>\
+					<div class="submit" onclick="submit()">Submit</div>',
+				value: "",
+			},
+			{/*3*/
+				question: "Please enter the image address:",
+				answer: '<input type="text" style="font-size: 3vw;" value="assets/items/bag/'+Items.bag.length+'.png"></input>\
+					<div class="submit" onclick="finish()">Submit</div>',
+				value: "",
+			},
 		],
 		questItem: [
 			
@@ -478,7 +522,73 @@ function finish(){
 	}else{
 		position[stage].value = document.getElementById("answer").getElementsByTagName("select")[0].value + "/" + document.getElementById("answer").getElementsByTagName("select")[1].value+"s";
 	}
-	if(name == "set"){
+	if(name == "bag"){
+		var complete = '{<br>'+
+		'&nbsp;&nbsp;&nbsp;&nbsp;id: '+Items[name].length+',<br>'+
+		'&nbsp;&nbsp;&nbsp;&nbsp;name: "'+position[0].value+'",<br>'+
+		'&nbsp;&nbsp;&nbsp;&nbsp;type: "'+name+'",<br>'+
+		'&nbsp;&nbsp;&nbsp;&nbsp;image: "'+position[3].value+'",<br>'+
+		'&nbsp;&nbsp;&nbsp;&nbsp;size: "'+position[1].value+'",<br>'+
+		'&nbsp;&nbsp;&nbsp;&nbsp;rarity: "'+position[2].value+'",<br>'+
+		'},';
+		document.getElementById("answer").innerHTML = '<div id="result" style="font-size: 16px; text-align: left; padding: 1.5vw; left: 2%; top: 20%; user-select: text; max-width: 40%; word-wrap: break-word">'+complete+'</div>\
+		<div id="image" style="left: 50%; top: 20%; width: 50px; height: 50px;"></div>\
+		<div id="inventoryInformation" class="inventoryInformations" style="left: '+(window.innerWidth/2+90)+'px; top: 20%; font-size: 16px; word-wrap: break-word">\
+		<div class="triangleLeft"></div>\
+		<div id="invTriangle" class="innerTriangleLeft"></div>\
+		<p id="invName" style="font-weight: bold;"></p>\
+		<p id="invStats"></p>\
+		</div>';
+		var img = new Image();
+		img.src = "../"+position[3].value;
+		img.onload = function() {
+			document.getElementById("image").style.backgroundImage = "url('../"+position[3].value+"')";
+		};
+		img.onerror = function() {
+			document.getElementById("image").style.backgroundImage = "url('../assets/items/bag/unidentified.png')";
+		};
+		img.onabort = function() {
+			console.error("image load aborted")
+		};
+		document.getElementById("invName").innerHTML = position[0].value;
+		document.getElementById("invStats").innerHTML = "Capacity: "+position[1].value;
+		if(position[2].value == "mythic"){ // if the item is a mythic...
+			document.getElementById("invName").style.color = "purple"; // ...sets the name color to purple
+		}else if(position[2].value == "unique"){ // if the item is a unique...
+			document.getElementById("invName").style.color = "orange"; // ...sets the name color to orange
+		}else{ // if the item is a common...
+			document.getElementById("invName").style.color = "black"; // ...sets the name color to black
+		}
+	}else if(name == "currency"){
+		var complete = '{<br>'+
+		'&nbsp;&nbsp;&nbsp;&nbsp;id: '+Items[name].length+',<br>'+
+		'&nbsp;&nbsp;&nbsp;&nbsp;name: "'+position[0].value+'",<br>'+
+		'&nbsp;&nbsp;&nbsp;&nbsp;type: "'+name+'",<br>'+
+		'&nbsp;&nbsp;&nbsp;&nbsp;image: "'+position[2].value+'",<br>';
+		if(position[1].value > 1){
+			complete += '&nbsp;&nbsp;&nbsp;&nbsp;stack: "'+position[1].value+'",<br>';
+		}		
+		complete += '},';
+		document.getElementById("answer").innerHTML = '<div id="result" style="font-size: 16px; text-align: left; padding: 1.5vw; left: 2%; top: 20%; user-select: text; max-width: 40%; word-wrap: break-word">'+complete+'</div>\
+		<div id="image" style="left: 50%; top: 20%; width: 50px; height: 50px;"></div>\
+		<div id="inventoryInformation" class="inventoryInformations" style="left: '+(window.innerWidth/2+90)+'px; top: 20%; font-size: 16px; word-wrap: break-word">\
+		<div class="triangleLeft"></div>\
+		<div id="invTriangle" class="innerTriangleLeft"></div>\
+		<p id="invName" style="font-weight: bold;"></p>\
+		</div>';
+		var img = new Image();
+		img.src = "../"+position[2].value;
+		img.onload = function() {
+			document.getElementById("image").style.backgroundImage = "url('../"+position[2].value+"')";
+		};
+		img.onerror = function() {
+			document.getElementById("image").style.backgroundImage = "url('../assets/items/currency/2.png')";
+		};
+		img.onabort = function() {
+			console.error("image load aborted")
+		};
+		document.getElementById("invName").innerHTML = position[0].value;
+	}else if(name == "set"){
 		var complete = '{<br>'+
 		'&nbsp;&nbsp;&nbsp;&nbsp;id: '+Items[name].length+',<br>'+
 		'&nbsp;&nbsp;&nbsp;&nbsp;name: "'+position[0].value+'",<br>'+
@@ -506,22 +616,20 @@ function finish(){
 			}
 		}
 		complete += '&nbsp;&nbsp;&nbsp;&nbsp;},<br>},';
-		document.getElementById("question").innerHTML = "Here is your item:";
+		document.getElementById("question").innerHTML = "Here is your set:";
 		document.getElementById("answer").innerHTML = '<div id="result" style="font-size: 16px; text-align: left; padding: 1.5vw; left: 2%; top: 20%; user-select: text; max-width: 40%; word-wrap: break-word">'+complete+'</div>\
 		<div id="image" style="left: 50%; top: 20%; width: 60px; height: 135px;"></div>';
-		
 		var img = new Image();
 		img.src = "../"+position[5+stats.length].value;
 		img.onload = function() {
 			document.getElementById("image").style.backgroundImage = "url('../"+position[5+stats.length].value+"')";
 		};
 		img.onerror = function() {
-			document.getElementById("image").style.backgroundImage = "url('../assets/items/"+name+"/unidentified.png')";
+			document.getElementById("image").style.backgroundImage = "url('../assets/items/set/unidentified.png')";
 		};
 		img.onabort = function() {
 			console.error("image load aborted")
 		};
-		
 		var offsettop = 0;
 		for(let i = 0; i < setItems.length; i++){
 			document.getElementById("answer").innerHTML += '<div id="result'+i+'" style="font-size: 16px; text-align: left; padding: 1.5vw; left: 2%; user-select: text; max-width: 40%; word-wrap: break-word">'+complete+'</div>\
