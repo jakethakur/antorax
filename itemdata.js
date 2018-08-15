@@ -717,8 +717,18 @@ var Items = {
 			name: "Logging Sack",
 			type: "bag",
 			image: "assets/items/bag/2.png",
+			sellPrice: 1,
 			rarity: "common",
 			size: 6,
+		},
+		{
+			id: 3,
+			name: "Goblin Sewn Bag",
+			type: "bag",
+			image: "assets/items/bag/3.png",
+			sellPrice: 5,
+			rarity: "common",
+			size: 12,
 		},
 	],
 	item: [
@@ -739,8 +749,10 @@ var Items = {
 		{
 			id: 2,
 			name: "Log",
-			type: "quest",
+			type: "misc",
 			image: "assets/items/item/2.png",
+			sellPrice: 1,
+			sellQuantity: 4,
 			stack: 4,
 		},
 		{
@@ -763,15 +775,6 @@ var Items = {
 		},
 		{
 			id: 5,
-			name: "Seared Scrap of Cloth",
-			type: "junk",
-			image: "assets/items/item/2.png",
-			sellPrice: 1,
-			sellQuantity: 16,
-			stack: 64,
-		},
-		{
-			id: 6,
 			name: "Fiery Rock",
 			type: "junk",
 			image: "assets/items/item/2.png",

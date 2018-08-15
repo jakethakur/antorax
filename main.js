@@ -474,11 +474,17 @@ class Character extends Thing {
 		if (this !== Game.hero) {
 			// not player
 			if (this.health <= 0 && !this.respawning) {
+				// wipe status effects
+				this.statusEffects = [];
+				
 				// death
 				this.respawning = true;
 				
-				// wipe status effects
-				this.statusEffects = [];
+				// loot
+				this.lootable = true;
+				if (this.lootTable !== undefined) {
+					this.loot = this.generateLoot(lootTable);
+				}
 				
 				// respawn in this.stats.respawnTime ms
 				setTimeout(function () {
@@ -494,6 +500,9 @@ class Character extends Thing {
 	
 	// respawn after death
 	respawn () {
+		this.lootable = false;
+		this.loot = null;
+		
 		this.x = this.spawnX;
 		this.y = this.spawnY;
 		
@@ -1045,7 +1054,7 @@ class Enemy extends Attacker {
 		this.deathImageWidth = properties.deathImageWidth || this.deathImage.width;
 		this.deathImageHeight = properties.deathImageHeight || this.deathImage.height;
 		
-		this.lootTable = properties.lootTable; // array objects for each loot item - these objects contain the item, chances of looting them, guaranteed to loot, amount to loot, etc.
+		this.lootTable = properties.lootTable.concat(properties.lootTableTemplate); // array objects for each loot item - these objects contain the item ("item) and chances of looting them ("chance")
 		// set when the enemy dies
 		this.loot = null; // loot that can be picked up by player
 		this.lootable = false; // whether the player has looted the enemy yet
@@ -1129,6 +1138,19 @@ class Enemy extends Attacker {
 	renderFunction () {
 		// show health bar above head
 		Game.drawHealthBar(Game.ctx, this, this.screenX - this.width * 0.5, this.screenY - this.height * 0.5 - 15, this.width, 15);
+	}
+	
+	// generate loot from lootTable
+	generateLoot () {
+		if (this.loot === null) {
+			for (let i = 0; i < this.lootTable.length; i++) {
+				let rollRandom = random(0, 100) * Game.hero.stats.looting;
+				let possibleDrops = this.lootTable[i].filter(chance => chance > rollRandom);
+			}
+		}
+		else {
+			console.error("Expected this.loot to be null, however it was not. Loot has not been generated.");
+		}
 	}
 }
 
