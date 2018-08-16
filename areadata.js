@@ -1,3 +1,55 @@
+var LootTables = { // loot table templates
+	nilbogGoblin: [
+		{ // unidentified item
+			item: {
+				name: "unidentified",
+				tier: 1,
+				area: "Eaglecrest Logging Camp",
+			},
+			chance: [ // number rolled from 0 to 100, and then multiplied by looting (100% default)
+				60,				// 0
+				Infinity,		// 1
+			],
+		},
+		{ // gold
+			item: Items.currency[2],
+			chance: [
+				45,				// 0
+				95,				// 1
+				Infinity,		// 2
+			],
+		},
+		{ // log
+			item: Items.item[2],
+			chance: [
+				80,				// 0
+				Infinity,		// 1
+			],
+		},
+		{ // scrap of cloth
+			item: Items.item[3],
+			chance: [
+				30,				// 0
+				Infinity,		// 1
+			],
+		},
+		/*{ // goblin brewed potion (to be made)
+			item: Items.bag[3],
+			chance: [
+				80,				// 0
+				Infinity,		// 1
+			],
+		},*/
+		{ // goblin sewn bag
+			item: Items.bag[3],
+			chance: [
+				96,				// 0
+				Infinity,		// 1
+			],
+		},
+	],
+}
+
 var Areas = {
 	
 	tutorial: {
@@ -481,7 +533,7 @@ var Areas = {
 				projectile: {
 					image: "rock",
 				},
-				lootTableTemplate: "nilbogGoblin",
+				lootTableTemplate: LootTables.nilbogGoblin,
 				lootTable: [
 					{ // polished rock
 						item: Items.item[4],
@@ -515,7 +567,7 @@ var Areas = {
 				projectile: {
 					image: "melee",
 				},
-				lootTableTemplate: "nilbogGoblin",
+				lootTableTemplate: LootTables.nilbogGoblin,
 			},
 			{
 				x: 1000,
@@ -538,7 +590,7 @@ var Areas = {
 				projectile: {
 					image: "melee",
 				},
-				lootTableTemplate: "nilbogGoblin",
+				lootTableTemplate: LootTables.nilbogGoblin,
 			},
 			{
 				x: 1050,
@@ -562,7 +614,7 @@ var Areas = {
 				projectile: {
 					image: "fire",
 				},
-				lootTableTemplate: "nilbogGoblin",
+				lootTableTemplate: LootTables.nilbogGoblin,
 				lootTable: [
 					{ // firey rock
 						item: Items.item[5],
@@ -577,55 +629,3 @@ var Areas = {
 	},
 	
 };
-
-var LootTables = {
-	nilbogGoblin: [
-		{ // unidentified item
-			item: {
-				name: "unidentified",
-				tier: 1,
-				area: "Eaglecrest Logging Camp",
-			},
-			chance: [ // number rolled from 0 to 100, and then multiplied by looting (100% default)
-				60,				// 0
-				Infinity,		// 1
-			],
-		},
-		{ // gold
-			item: Items.currency[2],
-			chance: [
-				45,				// 0
-				95,				// 1
-				Infinity,		// 2
-			],
-		},
-		{ // log
-			item: Items.item[2],
-			chance: [
-				80,				// 0
-				Infinity,		// 1
-			],
-		},
-		{ // scrap of cloth
-			item: Items.item[3],
-			chance: [
-				30,				// 0
-				Infinity,		// 1
-			],
-		},
-		/*{ // goblin brewed potion (to be made)
-			item: Items.bag[3],
-			chance: [
-				80,				// 0
-				Infinity,		// 1
-			],
-		},*/
-		{ // goblin sewn bag
-			item: Items.bag[3],
-			chance: [
-				96,				// 0
-				Infinity,		// 1
-			],
-		},
-	],
-}

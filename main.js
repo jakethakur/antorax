@@ -483,7 +483,8 @@ class Character extends Thing {
 				// loot
 				this.lootable = true;
 				if (this.lootTable !== undefined) {
-					this.loot = this.generateLoot(lootTable);
+					this.generateLoot(lootTable);
+					this.generateLoot(lootTable);
 				}
 				
 				// respawn in this.stats.respawnTime ms
@@ -502,6 +503,7 @@ class Character extends Thing {
 	respawn () {
 		this.lootable = false;
 		this.loot = null;
+		this.lootQuantities = null;
 		
 		this.x = this.spawnX;
 		this.y = this.spawnY;
@@ -647,6 +649,15 @@ class Hero extends Attacker {
 				this.speed = this.stats.swimSpeed;
 				if(!this.statusEffects.includes({title: "Swimming", effect: "Reduced movement speed",})) { // maybe just make a function to add a status effect? ( tbd )
 					this.statusEffects.push(new statusEffect({title: "Swimming", effect: "Reduced movement speed",}));
+					// remove fire status effects
+					let fireEffects = this.statusEffects.filter(statusEffect => statusEffect.title === "Fire I") // don't forget to update when new fire tiers are added!
+					if (fireEffects.length > 0) {
+						for (var i = 0; i < this.statusEffects.length; i++) {
+							if (this.statusEffects[i].title == "Fire I") { // don't forget to update when new fire tiers are added!
+								this.statusEffects.splice(i,1);
+							}
+						}
+					}
 					this.updateStatusEffects();
 				}
 			}
@@ -1054,9 +1065,24 @@ class Enemy extends Attacker {
 		this.deathImageWidth = properties.deathImageWidth || this.deathImage.width;
 		this.deathImageHeight = properties.deathImageHeight || this.deathImage.height;
 		
-		this.lootTable = properties.lootTable.concat(properties.lootTableTemplate); // array objects for each loot item - these objects contain the item ("item) and chances of looting them ("chance")
+		console.log(properties.lootTable);
+		console.log(properties.lootTableTemplate);
+		// lootTable: an array of objects for each loot item - these objects contain the item ("item") and chances of looting them ("chance")
+		// merge the arrays properties.lootTable and properties.lootTableTemplate
+		if (properties.lootTable !== undefined && properties.lootTableTemplate !== undefined) {
+			this.lootTable = properties.lootTable.concat(properties.lootTableTemplate);
+		}
+		else if (properties.lootTable === undefined && properties.lootTableTemplate !== undefined) {
+			this.lootTable = properties.lootTable;
+		}
+		else if (properties.lootTable !== undefined && properties.lootTableTemplate === undefined) {
+			this.lootTable = properties.lootTableTemplate;
+		}
+		// see generateLoot() function in Enemy for how this works
+		
 		// set when the enemy dies
 		this.loot = null; // loot that can be picked up by player
+		this.lootQuantities = null; // quantity of each item of loot that is picked up by player
 		this.lootable = false; // whether the player has looted the enemy yet
 	}
 	
@@ -1140,12 +1166,25 @@ class Enemy extends Attacker {
 		Game.drawHealthBar(Game.ctx, this, this.screenX - this.width * 0.5, this.screenY - this.height * 0.5 - 15, this.width, 15);
 	}
 	
-	// generate loot from lootTable
+	// generate loot from lootTable (called when enemy dies)
 	generateLoot () {
-		if (this.loot === null) {
+		if (this.loot === null && this.lootQuantities === null) {
+			this.loot = [];
+			this.lootQuantities = [];
 			for (let i = 0; i < this.lootTable.length; i++) {
-				let rollRandom = random(0, 100) * Game.hero.stats.looting;
-				let possibleDrops = this.lootTable[i].filter(chance => chance > rollRandom);
+				// for each item, a random number between 0 and 100 is generated, then multiplied by the player's looting
+				// lootTable is an array of objects, where the objects have a property called chance (an array)
+				// chance contains the probability of getting x amount of that item, where x is the array index of the probability
+				// the lowest number that is higher than the roll is selected for the number of that item that the player receives
+				
+				let rollRandom = random(0, 100) * Game.hero.stats.looting; // random number to see how much of item i the player will get
+				let possibleDropChances = this.lootTable[i].chance.filter(chance => chance > rollRandom); // filter chances of getting item to see all chances the player is eligible for with their roll
+				let itemQuantity = Math.min(...possibleDropChances); // get the number of that item the player will get
+				
+				if (itemQuantity > 0) { // check that the player should recieve the item
+					this.loot.push(lootTable[i].item);
+					this.lootQuantities.push(itemQuantity);
+				}
 			}
 		}
 		else {
@@ -1168,7 +1207,7 @@ function statusEffect(properties) {
 	this.tick = properties.tick; // function to be carried out every second
 }
 
-// check through owner's status effects to see which can be removed
+// check through owner's status effects to see which can be removed (due to having expired)
 // called by a status effect's own tick function
 // might need to be reworked (tbd)
 Game.removeStatusEffect = function (owner) {
@@ -1236,7 +1275,10 @@ Game.statusEffects.fire = function(tier, target) {
 		return element.title === ("Fire " + tier);
 	});
 	
-	if (found === -1) { // no fire effect of that tier currently applied to the target
+	// see if the target is in water (hence cannot be set on fire)
+	let water = target.statusEffects.filter(statusEffect => statusEffect.title === "Swimming");
+	
+	if (found === -1 && water.length === 0) { // no fire effect of that tier currently applied to the target
 		
 		let damagePerSecond = 0;
 		let time = 0;
@@ -1282,7 +1324,7 @@ Game.statusEffects.fire = function(tier, target) {
 			this.tick(owner);
 		}.bind(target.statusEffects[target.statusEffects.length - 1]), 1000, target);
 	}
-	else {
+	else if (found !== -1) { // extend existing fire effect
 		target.statusEffects[found].info.ticks = 0;
 	}
 	
