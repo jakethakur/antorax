@@ -1,5 +1,5 @@
 function update(){
-	if(document.getElementById("answer").getElementsByTagName("div").length == 4 && document.getElementById("result") == undefined){
+	if(document.getElementById("answer").getElementsByTagName("div").length == 4 && document.getElementById("result") == undefined && document.getElementsByTagName("input").length == 0){
 		for(var i = 0; i < document.getElementById("answer").getElementsByTagName("div").length; i++){
 			document.getElementById("answer").getElementsByTagName("div")[i].style.width = "21.5%";
 			document.getElementById("answer").getElementsByTagName("div")[i].style.height = "74%";
@@ -7,7 +7,7 @@ function update(){
 			document.getElementById("answer").getElementsByTagName("div")[i].style.left = 2 + 24.5 * i + "%";
 			document.getElementById("answer").getElementsByTagName("div")[i].style.top = "20%";
 		}
-	}else if(document.getElementById("answer").getElementsByTagName("div").length == 12 && document.getElementById("result") == undefined){
+	}else if(document.getElementById("answer").getElementsByTagName("div").length == 12 && document.getElementById("result") == undefined && document.getElementsByTagName("input").length == 0){
 		for(var x = 0; x < 3; x++){
 			for(var i = 0; i < 4; i++){
 				document.getElementById("answer").getElementsByTagName("div")[4*x+i].style.width = "21.5%";
@@ -17,7 +17,7 @@ function update(){
 				document.getElementById("answer").getElementsByTagName("div")[4*x+i].style.left = 2 + 24.5 * i + "%";
 			}
 		}
-	}else if(document.getElementById("answer").getElementsByTagName("div").length == 3 && document.getElementById("result") == undefined){
+	}else if(document.getElementById("answer").getElementsByTagName("div").length == 3 && document.getElementById("result") == undefined && document.getElementsByTagName("input").length == 0){
 		for(var i = 0; i < 2; i++){
 			document.getElementById("answer").getElementsByTagName("div")[i].style.width = "46%";
 			document.getElementById("answer").getElementsByTagName("div")[i].style.height = "53%";
@@ -30,7 +30,7 @@ function update(){
 		document.getElementById("answer").getElementsByTagName("div")[2].style.lineHeight = "15vh";
 		document.getElementById("answer").getElementsByTagName("div")[2].style.top = "79%";
 		document.getElementById("answer").getElementsByTagName("div")[2].style.left = "2%";
-	}else if(document.getElementById("answer").getElementsByTagName("div").length == 7 && document.getElementById("result") == undefined){
+	}else if(document.getElementById("answer").getElementsByTagName("div").length == 7 && document.getElementById("result") == undefined && document.getElementsByTagName("input").length == 0){
 		for(var i = 0; i < 4; i++){
 			document.getElementById("answer").getElementsByTagName("div")[i].style.width = "21.5%";
 			document.getElementById("answer").getElementsByTagName("div")[i].style.height = "34%";
@@ -286,11 +286,53 @@ var Builder = {
 				value: "",
 			},
 		],
-		questItem: [
+		consumable: [
 			
 		],
-		junkItem: [
-			
+		otherItem: [
+			{/*0*/
+				question: "Please enter the type:",
+				answer: '<select type="select">\
+					<option value="quest">Quest Item</option>\
+					<option value="misc">Misc Item</option>\
+					<option value="junk">Junk Item</option>\
+					</select>\
+					<div class="submit" onclick="submit()">Submit</div>',
+				value: "",
+			},
+			{/*1*/
+				question: "Please enter the name:",
+				answer: '<input type="text" placeholder="Scrap of Cloth"></input>\
+					<div class="submit" onclick="submit()">Submit</div>',
+				value: "",
+			},
+			{/*2*/
+				question: "Please enter the cost if it is buyable:",
+				answer: '<input type="number" min="1" value="1" style="width: 10%; left: 45%;"></input>\
+					<div class="submit" onclick="submit()">Submit</div>',
+				value: "",
+			},
+			{/*3*/
+				question: "Please enter the price if it is sellable:",
+				answer: '<input type="number" value="0" style="width: 10%; left: 35%;"></input>\
+					<div style="font-size: 5vw; background-color: transparent; border: 0px solid transparent; width: 10%; left: 45%; top: 36%;">for</div>\
+					<input type="number" value="0" style="width: 10%; left: 55%;"></input>\
+					<div style="font-size: 5vw; background-color: transparent; border: 0px solid transparent; width: 10%; left: 66%; top: 36%;">gold</div>\
+					<div class="submit" onclick="submit()">Submit</div>',
+				value: "",
+			},
+			{/*4*/
+				question: "Please enter the max stack size:",
+				answer: '<input type="number" min="1" value="1" style="width: 10%; left: 45%;"></input>\
+					<div class="submit" onclick="submit()">Submit</div>',
+				value: "",
+			},
+			{/*5*/
+				question: "Please enter the image address:",
+				answer: '<input type="text" style="font-size: 3vw;" value="assets/items/item/'+Items.item.length+'.png"></input>\
+					<div class="submit" onclick="finish()">Submit</div>',
+				value: "",
+			},
 		],
 	},
 	quest: {
@@ -363,39 +405,45 @@ function goBack(){
 		document.getElementById("question").innerHTML = position.question;
 		document.getElementById("answer").innerHTML = "";
 		for(var i = 1; i < Object.keys(position).length; i++){
-			var replaceStat = Object.keys(position)[i].replace( /([A-Z])/g, " $1" );
-			document.getElementById("answer").innerHTML += '<div id="'+replaceStat+'" onclick="forward('+i+')">'+replaceStat.charAt(0).toUpperCase() + replaceStat.slice(1)+'</div>';
+			if(Object.keys(position)[i] != "NPC"){
+				var replaceStat = Object.keys(position)[i].replace( /([A-Z])/g, " $1" );
+				document.getElementById("answer").innerHTML += '<div id="'+replaceStat+'" onclick="forward('+i+')">'+replaceStat.charAt(0).toUpperCase() + replaceStat.slice(1)+'</div>';
+			}else{
+				document.getElementById("answer").innerHTML += '<div id="'+Object.keys(position)[i].toLowerCase()+'" onclick="forward('+i+')">'+Object.keys(position)[i]+'</div>';
+			}
 		}
 	}
 	update();
 }
 
 function forward(num){
-	if(stage != 0){
+	if(!(position == Builder.item && num == 11)){
+		if(stage != 0){
+			back.push(position);
+			position = position[stage];
+			stage = 0;
+		}
 		back.push(position);
-		position = position[stage];
-		stage = 0;
-	}
-	back.push(position);
-	position = back[back.length-1][Object.keys(back[back.length-1])[num]];
-	if(position.length != undefined){
-		name = Object.keys(back[back.length-1])[num];
-		document.getElementById("question").innerHTML = position[0].question;
-		document.getElementById("answer").innerHTML = position[0].answer;
-		if(position[stage].value != "" && position[stage].value != undefined && document.getElementById("answer").getElementsByTagName("input").length != 0){
-			document.getElementById("answer").getElementsByTagName("input")[0].value = position[stage].value;
-		}else if(position[stage].value != "" && position[stage].value != undefined && document.getElementById("answer").getElementsByTagName("select").length != 0){
-			document.getElementById("answer").getElementsByTagName("select")[0].value = position[stage].value;
+		position = back[back.length-1][Object.keys(back[back.length-1])[num]];
+		if(position.length != undefined){
+			name = Object.keys(back[back.length-1])[num];
+			document.getElementById("question").innerHTML = position[0].question;
+			document.getElementById("answer").innerHTML = position[0].answer;
+			if(position[stage].value != "" && position[stage].value != undefined && document.getElementById("answer").getElementsByTagName("input").length != 0){
+				document.getElementById("answer").getElementsByTagName("input")[0].value = position[stage].value;
+			}else if(position[stage].value != "" && position[stage].value != undefined && document.getElementById("answer").getElementsByTagName("select").length != 0){
+				document.getElementById("answer").getElementsByTagName("select")[0].value = position[stage].value;
+			}
+		}else{
+			document.getElementById("question").innerHTML = position.question;
+			document.getElementById("answer").innerHTML = "";
+			for(var i = 1; i < Object.keys(position).length; i++){
+				var replaceStat = Object.keys(position)[i].replace( /([A-Z])/g, " $1" );
+				document.getElementById("answer").innerHTML += '<div id="'+replaceStat+'" onclick="forward('+i+')">'+replaceStat.charAt(0).toUpperCase() + replaceStat.slice(1)+'</div>';
+			}
 		}
-	}else{
-		document.getElementById("question").innerHTML = position.question;
-		document.getElementById("answer").innerHTML = "";
-		for(var i = 1; i < Object.keys(position).length; i++){
-			var replaceStat = Object.keys(position)[i].replace( /([A-Z])/g, " $1" );
-			document.getElementById("answer").innerHTML += '<div id="'+replaceStat+'" onclick="forward('+i+')">'+replaceStat.charAt(0).toUpperCase() + replaceStat.slice(1)+'</div>';
-		}
+		update();
 	}
-	update();
 }
 
 function submit(){
@@ -522,7 +570,51 @@ function finish(){
 	}else{
 		position[stage].value = document.getElementById("answer").getElementsByTagName("select")[0].value + "/" + document.getElementById("answer").getElementsByTagName("select")[1].value+"s";
 	}
-	if(name == "bag"){
+	if(name == "otherItem"){
+		var complete = '{<br>'+
+		'&nbsp;&nbsp;&nbsp;&nbsp;id: '+Items.item.length+',<br>'+
+		'&nbsp;&nbsp;&nbsp;&nbsp;name: "'+position[1].value+'",<br>'+
+		'&nbsp;&nbsp;&nbsp;&nbsp;type: "'+position[0].value+'",<br>'+
+		'&nbsp;&nbsp;&nbsp;&nbsp;image: "'+position[5].value+'",<br>'+
+		'&nbsp;&nbsp;&nbsp;&nbsp;stack: "'+position[4].value+'",<br>';
+		if(position[2].value != 0){
+			complete += '&nbsp;&nbsp;&nbsp;&nbsp;cost: "'+position[2].value+'",<br>';
+		}
+		if(position[3].value.split("/")[0] != 0){
+			complete += '&nbsp;&nbsp;&nbsp;&nbsp;sellPrice: "'+parseInt(position[3].value.split("/")[1])+'",<br>'+
+			'&nbsp;&nbsp;&nbsp;&nbsp;sellQuantity: "'+position[3].value.split("/")[0]+'",<br>';
+		}
+		complete += '},';
+		document.getElementById("answer").innerHTML = '<div id="result" style="font-size: 16px; text-align: left; padding: 1.5vw; left: 2%; top: 20%; user-select: text; max-width: 40%; word-wrap: break-word">'+complete+'</div>\
+		<div id="image" style="left: 50%; top: 20%; width: 50px; height: 50px;"></div>\
+		<div id="inventoryInformation" class="inventoryInformations" style="left: '+(window.innerWidth/2+90)+'px; top: 20%; font-size: 16px; word-wrap: break-word">\
+		<div class="triangleLeft"></div>\
+		<div id="invTriangle" class="innerTriangleLeft"></div>\
+		<p id="invName" style="font-weight: bold;"></p>\
+		<p id="invStats"></p>\
+		</div>';
+		var img = new Image();
+		img.src = "../"+position[5].value;
+		img.onload = function() {
+			document.getElementById("image").style.backgroundImage = "url('../"+position[5].value+"')";
+		};
+		img.onerror = function() {
+			document.getElementById("image").style.backgroundImage = "url('../assets/items/item/unidentified.png')";
+		};
+		img.onabort = function() {
+			console.error("image load aborted")
+		};
+		document.getElementById("invName").innerHTML = position[1].value;
+		if(position[0].value == "quest"){ // if the item is a mythic...
+			document.getElementById("invName").style.color = "black"; // ...sets the name color to purple
+			document.getElementById("invStats").style.color = "slateblue"; // ...sets the name color to purple
+			document.getElementById("invStats").innerHTML = "<strong>Quest Item</strong>"; // ...sets the name color to purple
+		}else if(position[0].value == "misc"){ // if the item is a unique...
+			document.getElementById("invName").style.color = "dimgray"; // ...sets the name color to orange
+		}else{ // if the item is a common...
+			document.getElementById("invName").style.color = "silver"; // ...sets the name color to black
+		}
+	}else if(name == "bag"){
 		var complete = '{<br>'+
 		'&nbsp;&nbsp;&nbsp;&nbsp;id: '+Items[name].length+',<br>'+
 		'&nbsp;&nbsp;&nbsp;&nbsp;name: "'+position[0].value+'",<br>'+
