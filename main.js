@@ -310,6 +310,18 @@ function distance (obj1, obj2) {
 	return Math.sqrt((obj1.x - obj2.x) * (obj1.x - obj2.x) + (obj1.y - obj2.y) * (obj1.y - obj2.y));
 }
 
+// checks if a click event was a right click
+// thanks to https://stackoverflow.com/a/4235486/9713957
+function checkRightClick (e) {
+    var rightclick;
+    if (e.which) {
+		rightclick = (e.which == 3);
+	}
+    else if (e.button) {
+		rightclick = (e.button == 2);
+	}
+    return(rightclick); // true or false, you can trap right click here by if comparison
+}
 
 // search for an entity with a specific id (first param) within an array (second param)
 // returns the array index of the first found item of the array with that id
@@ -703,56 +715,62 @@ class Hero extends Attacker {
 	// start channeling basic attack
 	startAttack (e) {
 		if (this.canAttack && Player.inventory.weapon[0].name !== "") { // checks the player has a weapon and is not currently reloading
-			var projectileX, projectileY, projectileRotate;
-			
-			projectileX = Game.camera.x + (e.clientX - 19); // subtract 19 from the mouse position because this is the margin of the canvas
-			projectileY = Game.camera.y + (e.clientY - 19);
-			
-			let distanceToProjectile = distance({x: projectileX, y: projectileY,}, this);
+			if (!checkRightClick(e) || Player.class === "m" || Player.class === "a") {
+				var projectileX, projectileY, projectileRotate;
 				
-			if (distanceToProjectile < this.stats.range) {
-				this.channelling = true;
-				this.canAttack = false;
+				projectileX = Game.camera.x + (e.clientX - 19); // subtract 19 from the mouse position because this is the margin of the canvas
+				projectileY = Game.camera.y + (e.clientY - 19);
 				
-				projectileRotate = bearing(this, {x: projectileX, y: projectileY}) + Math.PI / 2;
-				
-				let variance = this.stats.variance;
-				if (this.class === "a") { // alter variance based on distance to enemy if the class is archer
-					let distanceFraction = distanceToProjectile / 600; // fraction of maximum variance (max variance = Playerstats.variance)
-					variance *= distanceFraction;
-				}
-				
-				this.channellingProjectileId = Game.nextProjectileId;
+				let distanceToProjectile = distance({x: projectileX, y: projectileY,}, this);
+					
+				if (distanceToProjectile < this.stats.range) {
+					this.channelling = "projectile";
+					this.canAttack = false;
+					
+					projectileRotate = bearing(this, {x: projectileX, y: projectileY}) + Math.PI / 2;
+					
+					let variance = this.stats.variance;
+					if (this.class === "a") { // alter variance based on distance to enemy if the class is archer
+						let distanceFraction = distanceToProjectile / 600; // fraction of maximum variance (max variance = Playerstats.variance)
+						variance *= distanceFraction;
+					}
+					
+					this.channellingProjectileId = Game.nextProjectileId;
 
-				// tbd make work the same as enemy projectile
-				Game.projectiles.push(new Projectile({
-					map: map,
-					x: projectileX,
-					y: projectileY,
-					rotate: projectileRotate,
-					adjust: {
-						// manually adjust position - make this per class (per projectile image) in the future ( tbd )
-						x: 20,
-						y: 20,
-						towards: {x: this.x, y: this.y},
-					},
-					hitbox: { // arrow tip at mouse position
+					// tbd make work the same as enemy projectile
+					Game.projectiles.push(new Projectile({
+						map: map,
 						x: projectileX,
 						y: projectileY,
-						width: this.class === "k" ? 60 : (this.class === "m" ? 23 : (this.class === "a" ? 10 : 0)),
-						height: this.class === "k" ? 60 : (this.class === "m" ? 23 : (this.class === "a" ? 10 : 0)),
-					},
-					image: "projectile",
-					beingChannelled: true,
-					variance: variance,
-				}));
+						rotate: projectileRotate,
+						adjust: {
+							// manually adjust position - make this per class (per projectile image) in the future ( tbd )
+							x: 20,
+							y: 20,
+							towards: {x: this.x, y: this.y},
+						},
+						hitbox: { // arrow tip at mouse position
+							x: projectileX,
+							y: projectileY,
+							width: this.class === "k" ? 60 : (this.class === "m" ? 23 : (this.class === "a" ? 10 : 0)),
+							height: this.class === "k" ? 60 : (this.class === "m" ? 23 : (this.class === "a" ? 10 : 0)),
+						},
+						image: "projectile",
+						beingChannelled: true,
+						variance: variance,
+					}));
+				}
+			}
+			else { // knights block when they right click
+				this.channelling = "block";
+				this.canAttack = false;
 			}
 		}
 	}
 	
 	// shoot basic attack
 	finishAttack (e) {
-		if (this.channelling) { // check that the player is channelling an attack (they might not have a weapon equipped so are not channelling, for example)
+		if (this.channelling === "projectile") { // check that the player is channelling a projectile (they might not have a weapon equipped so are not channelling, for example)
 			this.channelTime = 0;
 			this.channelling = false;
 			
@@ -775,6 +793,14 @@ class Hero extends Attacker {
 			}, 2000, a);
 			
 			this.channellingProjectileId = null;
+			
+			// wait for the player's reload time (1s) until they can attack again
+			setTimeout(function () {
+				this.canAttack = true;
+			}.bind(this), this.stats.reloadTime);
+		}
+		else if (this.channelling = "block") {
+			this.channelling = false;
 			
 			// wait for the player's reload time (1s) until they can attack again
 			setTimeout(function () {
@@ -856,7 +882,11 @@ class Projectile extends Thing {
 					}
 					else {
 						// damage
-						let dmgDealt = attacker.stats.damage - to[i][x].stats.defence / 10; // calculate damage dealt
+						let blockDefense = 0;
+						if (to.channelling === "block") { // add block defense if the target is blocking
+							blockDefense = to.stats.blockDefense;
+						}
+						let dmgDealt = attacker.stats.damage - ((to[i][x].stats.defence + blockDefense) / 10); // calculate damage dealt
 						if (dmgDealt < 0) {
 							dmgDealt = 0;
 						}

@@ -46,7 +46,7 @@ var Quests = {
 				],
 				itemQuantities: [
 					5,
-					2,
+					1,
 				],
 				reputation: {
 					eaglecrestLoggingCamp: 6,
