@@ -520,7 +520,7 @@ var Areas = {
 				name: "Goblin Rockthrower",
 				level: 2,
 				stats: {
-					damage: 2,
+					damage: 3,
 					walkSpeed: 100,
 					maxHealth: 10,
 					range: 200,
@@ -554,7 +554,7 @@ var Areas = {
 				name: "Goblin Skirmisher",
 				level: 2,
 				stats: {
-					damage: 2,
+					damage: 3,
 					walkSpeed: 90,
 					maxHealth: 10,
 					defence: 2,
@@ -577,7 +577,7 @@ var Areas = {
 				name: "Goblin Bruiser",
 				level: 3,
 				stats: {
-					damage: 3,
+					damage: 4,
 					walkSpeed: 70,
 					maxHealth: 10,
 					defence: 3,
@@ -600,7 +600,7 @@ var Areas = {
 				name: "Fire Goblin",
 				level: 4,
 				stats: {
-					damage: 2,
+					damage: 3,
 					walkSpeed: 95,
 					maxHealth: 14,
 					defence: 1,

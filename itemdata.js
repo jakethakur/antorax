@@ -43,7 +43,7 @@ var Items = {
 			set: 3,
 			stats: {
 				defence: "+3",
-				looting: "+5%",
+				looting: "+10%",
 			},
 		},
 		{
@@ -59,7 +59,7 @@ var Items = {
 			set: 2,
 			stats: {
 				defence: "+3",
-				healthRegen: "+1/s",
+				healthRegen: "+0.25/s",
 			},
 		},
 		{
@@ -73,8 +73,8 @@ var Items = {
 			obtain: "Find as an unidentified item in Eaglecrest Logging Camp",
 			area: "Eaglecrest Logging Camp",
 			stats: {
-				defence: "+4",
-				reflection: "+20%",
+				defence: "+3",
+				reflection: "+30%",
 			},
 		},
 	],
@@ -120,7 +120,7 @@ var Items = {
 			set: 3,
 			stats: {
 				defence: "+4",
-				looting: "+5%",
+				looting: "+10%",
 			},
 		},
 		{
@@ -136,7 +136,7 @@ var Items = {
 			set: 2,
 			stats: {
 				defence: "+4",
-				healthRegen: "+1/s",
+				healthRegen: "+0.25/s",
 			},
 		},
 		{
@@ -150,7 +150,7 @@ var Items = {
 			obtain: "Find as an unidentified item in Eaglecrest Logging Camp",
 			area: "Eaglecrest Logging Camp",
 			stats: {
-				defence: "+6",
+				defence: "+7",
 				walkSpeed: "-40/s",
 			},
 		},
@@ -198,7 +198,7 @@ var Items = {
 			set: 3,
 			stats: {
 				defence: "+4",
-				looting: "+5%",
+				looting: "+10%",
 			},
 		},
 		{
@@ -214,7 +214,7 @@ var Items = {
 			set: 2,
 			stats: {
 				defence: "+4",
-				healthRegen: "+1/s",
+				healthRegen: "+0.25/s",
 			},
 		},
 		{
@@ -230,7 +230,7 @@ var Items = {
 			stats: {
 				defence: "+4",
 				dodgeChance: "+20%",
-				healthRegen: "+2/s",
+				healthRegen: "+0.5/s",
 			},
 		},
 	],
@@ -290,7 +290,7 @@ var Items = {
 			set: 3,
 			stats: {
 				defence: "+3",
-				looting: "+5%",
+				looting: "+10%",
 			},
 		},
 		{
@@ -306,7 +306,7 @@ var Items = {
 			set: 2,
 			stats: {
 				defence: "+3",
-				healthRegen: "+1/s",
+				healthRegen: "+0.25/s",
 			},
 		},
 		{
@@ -323,8 +323,9 @@ var Items = {
 				defence: "+2",
 				criticalChance: "+10%",
 				dodgeChance: "+10%",
-				healthRegen: "+1/s",
-				looting: "+10%",
+				healthRegen: "+0.5/s",
+				looting: "+25%",
+				walkSpeed: "+30/s",
 			},
 		},
 		{
@@ -426,7 +427,7 @@ var Items = {
 			area: "Eaglecrest Logging Camp",
 			stats: {
 				damage: "+4",
-				stun: "1s",
+				stun: "0.5s",
 			},
 		},
 	],
@@ -608,8 +609,8 @@ var Items = {
 			obtain: "Find as an unidentified item in Eaglecrest Logging Camp",
 			area: "Eaglecrest Logging Camp",
 			stats: {
-				damage: "+2",
-				criticalChance: "+75%",
+				damage: "+2.5",
+				criticalChance: "+70%",
 			},
 		},
 		{
@@ -623,7 +624,7 @@ var Items = {
 			obtain: "Find as an unidentified item in Eaglecrest Logging Camp",
 			area: "Eaglecrest Logging Camp",
 			stats: {
-				damage: "+3",
+				damage: "+4",
 				flaming: 1,
 			},
 		},
@@ -658,6 +659,7 @@ var Items = {
 			],
 			stats: {
 				defence: "+5",
+				healthRegen: "+0.5/s",
 			},
 		},
 		{
@@ -674,7 +676,8 @@ var Items = {
 				"Goblin Forged Boots",
 			],
 			stats: {
-				looting: "+10%",
+				looting: "+30%",
+				walkSpeed: "+60/s",
 			},
 		},
 	],
@@ -707,7 +710,7 @@ var Items = {
 			name: "Test bag 1",
 			type: "bag",
 			image: "assets/items/bag/2.png", // perhaps give it its own image?
-			size: 6,
+			size: 60,
 		},
 		{
 			// unequipped item
@@ -715,7 +718,6 @@ var Items = {
 			name: "",
 			type: "bag",
 			image: "assets/items/bag/1.png",
-			size: 6,
 		},
 		{
 			id: 2,
