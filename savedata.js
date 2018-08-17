@@ -40,6 +40,7 @@ var Player = {
 		// archers only
 		variance: playerClass === "k" ? 0 : (playerClass === "m" ? 0 : (playerClass === "a" ? 100 : 0)), // the user's total focus speed default is 1 but can be changed by bows
 		focusSpeed: 1, // the user's total focus speed default is 1 but can be changed by bows
+		maxDamage: 0, // mages only (damage done when channelled)
 	},
 	
 	//

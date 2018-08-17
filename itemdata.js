@@ -396,7 +396,7 @@ var Items = {
 			area: "Eaglecrest Logging Camp",
 			stats: {
 				damage: "+3",
-				poison: "1/1s",
+				poison: "1.5/3s",
 			},
 		},
 		{
@@ -457,6 +457,7 @@ var Items = {
 			obtain: "Purchase from a merchant in the Fishers' Valley",
 			stats: {
 				damage: "+2",
+				maxDamage: "+4",
 			},
 		},
 		{
@@ -470,6 +471,7 @@ var Items = {
 			area: "Eaglecrest Logging Camp",
 			stats: {
 				damage: "+3",
+				maxDamage: "+6",
 			},
 		},
 		{
@@ -485,7 +487,8 @@ var Items = {
 			area: "Eaglecrest Logging Camp",
 			stats: {
 				damage: "+3",
-				healthRegen: "+1/s",
+				maxDamage: "+6",
+				healthRegen: "+0.5/s",
 			},
 		},
 		{
@@ -500,7 +503,8 @@ var Items = {
 			obtain: "Find as an unidentified item in Eaglecrest Logging Camp",
 			area: "Eaglecrest Logging Camp",
 			stats: {
-				damage: "+3",
+				damage: "+2",
+				maxDamage: "+7",
 				criticalChance: "+25%",
 			},
 		},
@@ -517,7 +521,8 @@ var Items = {
 			area: "Eaglecrest Logging Camp",
 			stats: {
 				damage: "+2",
-				looting: "+45%",
+				maxDamage: "+6",
+				looting: "+100%",
 			},
 		},
 		{

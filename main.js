@@ -1,3 +1,5 @@
+"use strict";
+
 //
 // Realms of Antorax canvas code
 // Jake Thakur 2018
@@ -323,6 +325,15 @@ function checkRightClick (e) {
     return(rightclick); // true or false, you can trap right click here by if comparison
 }
 
+// round number to 1dp
+// normally used for damage and to get rid of floating point errors
+function damageRound (number) {
+	number *= 10;
+	number = Math.round(number);
+	number /= 10;
+	return number;
+}
+
 // search for an entity with a specific id (first param) within an array (second param)
 // returns the array index of the first found item of the array with that id
 // only works for projectiles as of 01/07/18 (they're the only entities with ids)
@@ -332,8 +343,8 @@ Game.searchFor = function (id, array) {
 			return i;
 		}
 	}
-	console.warn("The requested item of id " + id + " could not be found in the following array:");
-	console.warn(array);
+	console.error("The requested item of id " + id + " could not be found in the following array:");
+	console.error(array);
 	return null;
 }
 
@@ -495,8 +506,8 @@ class Character extends Thing {
 				// loot
 				this.lootable = true;
 				if (this.lootTable !== undefined) {
-					this.generateLoot(lootTable);
-					this.generateLoot(lootTable);
+					this.generateLoot(this.lootTable);
+					this.generateLoot(this.lootTable);
 				}
 				
 				// respawn in this.stats.respawnTime ms
@@ -724,8 +735,9 @@ class Hero extends Attacker {
 				let distanceToProjectile = distance({x: projectileX, y: projectileY,}, this);
 					
 				if (distanceToProjectile < this.stats.range) {
-					this.channelling = "projectile";
 					this.canAttack = false;
+					
+					this.channelling = "projectile";
 					
 					projectileRotate = bearing(this, {x: projectileX, y: projectileY}) + Math.PI / 2;
 					
@@ -763,7 +775,6 @@ class Hero extends Attacker {
 			}
 			else { // knights block when they right click
 				this.channelling = "block";
-				this.canAttack = false;
 			}
 		}
 	}
@@ -799,7 +810,7 @@ class Hero extends Attacker {
 				this.canAttack = true;
 			}.bind(this), this.stats.reloadTime);
 		}
-		else if (this.channelling = "block") {
+		else if (this.channelling === "block") {
 			this.channelling = false;
 			
 			// wait for the player's reload time (1s) until they can attack again
@@ -886,7 +897,16 @@ class Projectile extends Thing {
 						if (to.channelling === "block") { // add block defense if the target is blocking
 							blockDefense = to.stats.blockDefense;
 						}
-						let dmgDealt = attacker.stats.damage - ((to[i][x].stats.defence + blockDefense) / 10); // calculate damage dealt
+						let attackerDamage = attacker.stats.damage;
+						if (attacker.stats.maxDamage > attacker.stats.damage) { // calculate damage based on channelling time (if the attacker is a mage)
+							// this.expand - 1 = a number from 0 to 1
+							// multiply the extra damage gained by maxDamage by this fraction to see the extra damage dealt
+							let a = (attacker.stats.maxDamage - attacker.stats.damage); // possible extra damage
+							let b = damageRound(this.expand) - 1; // multiplier
+							let c = a * b; // extra damage dealt
+							attackerDamage += c;
+						}
+						let dmgDealt = attackerDamage - ((to[i][x].stats.defence + blockDefense) / 10); // calculate damage dealt
 						if (dmgDealt < 0) {
 							dmgDealt = 0;
 						}
@@ -1077,7 +1097,7 @@ class Dummy extends Character {
 			// "\u{2694}" displays the unicode crossed swords symbol
 			// thanks to Wilfred Lee at https://stackoverflow.com/a/49667311/9713957
 			// w3schools reference for unicode special characters: https://www.w3schools.com/charsets/ref_utf_symbols.asp
-			Game.ctx.fillText("\u{2694} " + this.damageTaken, this.screenX, this.screenY - this.height / 2);
+			Game.ctx.fillText("\u{2694} " + damageRound(this.damageTaken), this.screenX, this.screenY - this.height / 2);
 		}
 	}
 }
@@ -1095,8 +1115,6 @@ class Enemy extends Attacker {
 		this.deathImageWidth = properties.deathImageWidth || this.deathImage.width;
 		this.deathImageHeight = properties.deathImageHeight || this.deathImage.height;
 		
-		console.log(properties.lootTable);
-		console.log(properties.lootTableTemplate);
 		// lootTable: an array of objects for each loot item - these objects contain the item ("item") and chances of looting them ("chance")
 		// merge the arrays properties.lootTable and properties.lootTableTemplate
 		if (properties.lootTable !== undefined && properties.lootTableTemplate !== undefined) {
@@ -1197,18 +1215,18 @@ class Enemy extends Attacker {
 	}
 	
 	// generate loot from lootTable (called when enemy dies)
-	generateLoot () {
+	generateLoot (lootTable) {
 		if (this.loot === null && this.lootQuantities === null) {
 			this.loot = [];
 			this.lootQuantities = [];
-			for (let i = 0; i < this.lootTable.length; i++) {
+			for (let i = 0; i < lootTable.length; i++) {
 				// for each item, a random number between 0 and 100 is generated, then multiplied by the player's looting
 				// lootTable is an array of objects, where the objects have a property called chance (an array)
 				// chance contains the probability of getting x amount of that item, where x is the array index of the probability
 				// the lowest number that is higher than the roll is selected for the number of that item that the player receives
 				
-				let rollRandom = random(0, 100) * Game.hero.stats.looting; // random number to see how much of item i the player will get
-				let possibleDropChances = this.lootTable[i].chance.filter(chance => chance > rollRandom); // filter chances of getting item to see all chances the player is eligible for with their roll
+				let rollRandom = random(0, 100) * (Game.hero.stats.looting / 100); // random number to see how much of item i the player will get
+				let possibleDropChances = lootTable[i].chance.filter(chance => chance > rollRandom); // filter chances of getting item to see all chances the player is eligible for with their roll
 				let itemQuantity = Math.min(...possibleDropChances); // get the number of that item the player will get
 				
 				if (itemQuantity > 0) { // check that the player should recieve the item
@@ -1998,6 +2016,7 @@ Game.playerProjectileUpdate = function(delta) {
 		
 		else if (Game.hero.class === "m") {
 			if (projectile.expand < 2) { // check it won't be 0 or less
+				// takes about 1 second to fully expand
 				projectile.expand += delta;
 				projectile.width += projectile.image.width * delta;
 				projectile.height += projectile.image.height * delta;
@@ -2405,7 +2424,7 @@ Game.render = function () {
 				this.ctx.textAlign = "left";
 				this.ctx.font = "18px MedievalSharp";
 				
-				this.ctx.fillText(this.projectiles[i].damageDealt[x].damage, this.projectiles[i].screenX, this.projectiles[i].screenY);
+				this.ctx.fillText(damageRound(this.projectiles[i].damageDealt[x].damage), this.projectiles[i].screenX, this.projectiles[i].screenY);
 			}
 			
 			this.ctx.globalAlpha = 1; // restore transparency if it was changed if player is a mage (see above)
@@ -2484,10 +2503,10 @@ Game.secondary.render = function () {
 	Game.drawHealthBar(this.ctx, Game.hero, 10, 10, 250, 25);
 	
 	// set xp variables
-	totalWidth = 335; // total width of xp bar
-	totalHeight = 8; // total height of xp bar
-	totalLeft = 132; // total height of xp bar
-	totalTop = 507; // total height of xp bar
+	const totalWidth = 335; // total width of xp bar
+	const totalHeight = 8; // total height of xp bar
+	const totalLeft = 132; // total height of xp bar
+	const totalTop = 507; // total height of xp bar
 	Player.xpFraction = Player.xp / LevelXP[Player.level]; // fraction of XP for current level
 	
 	// rainbow gradient
