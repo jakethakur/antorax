@@ -74,7 +74,7 @@ var Items = {
 			area: "Eaglecrest Logging Camp",
 			stats: {
 				defence: "+3",
-				reflection: "+30%",
+				reflection: "+50%",
 			},
 		},
 	],
@@ -150,8 +150,8 @@ var Items = {
 			obtain: "Find as an unidentified item in Eaglecrest Logging Camp",
 			area: "Eaglecrest Logging Camp",
 			stats: {
-				defence: "+7",
-				walkSpeed: "-40/s",
+				defence: "+8",
+				walkSpeed: "-80/s",
 			},
 		},
 	],
@@ -710,7 +710,7 @@ var Items = {
 			name: "Test bag 1",
 			type: "bag",
 			image: "assets/items/bag/2.png", // perhaps give it its own image?
-			size: 60,
+			size: 55, // biggest a bag can be
 		},
 		{
 			// unequipped item
