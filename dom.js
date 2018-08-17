@@ -1220,6 +1220,7 @@ Dom.inventory.give = function(item,num){ // gives the player the item
 		}
 	}
 	Dom.hotbar.update();
+	return item.name;
 }
 
 Dom.inventory.constructUnId = function(area,tier){

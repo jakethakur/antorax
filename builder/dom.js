@@ -69,7 +69,9 @@ for(var i = 2; i < Object.keys(Items.set).length; i++){
 itemList = "";
 for(var x = 0; x < 7; x++){
 	for(var i = 2; i < Items[(Object.keys(Items)[x])].length; i++){
-		itemList += "<option value=\""+Items[(Object.keys(Items)[x])][i].name+"\">"+Items[(Object.keys(Items)[x])][i].name+"</option>";
+		if(Items[(Object.keys(Items)[x])][i].set == undefined){
+			itemList += "<option value=\""+Items[(Object.keys(Items)[x])][i].name+"\">"+Items[(Object.keys(Items)[x])][i].name+"</option>";
+		}
 	}
 }
 var name = "helm";
@@ -152,13 +154,34 @@ function armour(type,placeholder,primary,end) {
 				<div class="submit" onclick="submit()">Submit</div>',
 			value: "",
 		},
-		/*{
-			question: "What area is this item for?",
-			answer: '<input type="text" placeholder="Eaglecrest Logging Camp" style="width: 60%; left: 20%;"></input>\
+		{/*8*/
+			question: "Is it found as an unidentified item?",
+			answer: '<select type="select">\
+				<option value="">No</option>\
+				<option value="Eaglecrest Loggin Camp">Yes</option>\
+				</select>\
 				<div class="submit" onclick="submit()">Submit</div>',
 			value: "",
-		},*/
-		{/*8*/
+		},
+		{/*9*/
+			question: "Please enter the cost if it is buyable:",
+			answer: '<input type="number" value="0" style="width: 10%; left: 35%;"></input>\
+				<div style="font-size: 5vw; background-color: transparent; border: 0px solid transparent; width: 10%; left: 45%; top: 36%;">for</div>\
+				<input type="number" value="0" style="width: 10%; left: 55%;"></input>\
+				<div style="font-size: 5vw; background-color: transparent; border: 0px solid transparent; width: 10%; left: 66%; top: 36%;">gold</div>\
+				<div class="submit" onclick="submit()">Submit</div>',
+			value: "",
+		},
+		{/*10*/
+			question: "Please enter the price if it is sellable:",
+			answer: '<input type="number" value="0" style="width: 10%; left: 35%;"></input>\
+				<div style="font-size: 5vw; background-color: transparent; border: 0px solid transparent; width: 10%; left: 45%; top: 36%;">for</div>\
+				<input type="number" value="0" style="width: 10%; left: 55%;"></input>\
+				<div style="font-size: 5vw; background-color: transparent; border: 0px solid transparent; width: 10%; left: 66%; top: 36%;">gold</div>\
+				<div class="submit" onclick="submit()">Submit</div>',
+			value: "",
+		},
+		{/*11*/
 			question: "How is this item obtained?",
 			answer: '<input type="text" id="obtain" style="width: 77%; left: 11.5%; font-size: 3vw;" placeholder="Find as an unidentified item in Eaglecrest Logging Camp"></input>\
 				<div class="submit" onclick="'+end+'">Submit</div>',
@@ -232,6 +255,12 @@ var Builder = {
 			{/*5*/
 				question: "Please enter the image address:",
 				answer: '<input type="text" style="font-size: 3vw;" value="assets/items/set/'+Items.set.length+'.png"></input>\
+					<div class="submit" onclick="submit()">Submit</div>',
+				value: "",
+			},
+			{/*6*/
+				question: "Please enter the lore if it has one:",
+				answer: '<input type="text" style="width: 77%; left: 11.5%; font-size: 3vw;" placeholder="Protects you from splinters. And goblins!"></input>\
 					<div class="submit" onclick="finish()">Submit</div>',
 				value: "",
 			},
@@ -252,6 +281,30 @@ var Builder = {
 			{/*2*/
 				question: "Please enter the image address:",
 				answer: '<input type="text" style="font-size: 3vw;" value="assets/items/currency/'+Items.currency.length+'.png"></input>\
+					<div class="submit" onclick="submit()">Submit</div>',
+				value: "",
+			},
+			{/*3*/
+				question: "Please enter the cost if it is buyable:",
+				answer: '<input type="number" value="0" style="width: 10%; left: 35%;"></input>\
+					<div style="font-size: 5vw; background-color: transparent; border: 0px solid transparent; width: 10%; left: 45%; top: 36%;">for</div>\
+					<input type="number" value="0" style="width: 10%; left: 55%;"></input>\
+					<div style="font-size: 5vw; background-color: transparent; border: 0px solid transparent; width: 10%; left: 66%; top: 36%;">gold</div>\
+					<div class="submit" onclick="submit()">Submit</div>',
+				value: "",
+			},
+			{/*4*/
+				question: "Please enter the price if it is sellable:",
+				answer: '<input type="number" value="0" style="width: 10%; left: 35%;"></input>\
+					<div style="font-size: 5vw; background-color: transparent; border: 0px solid transparent; width: 10%; left: 45%; top: 36%;">for</div>\
+					<input type="number" value="0" style="width: 10%; left: 55%;"></input>\
+					<div style="font-size: 5vw; background-color: transparent; border: 0px solid transparent; width: 10%; left: 66%; top: 36%;">gold</div>\
+					<div class="submit" onclick="submit()">Submit</div>',
+				value: "",
+			},
+			{/*5*/
+				question: "Please enter the lore if it has one:",
+				answer: '<input type="text" style="width: 77%; left: 11.5%; font-size: 3vw;" placeholder="Protects you from splinters. And goblins!"></input>\
 					<div class="submit" onclick="finish()">Submit</div>',
 				value: "",
 			},
@@ -282,6 +335,30 @@ var Builder = {
 			{/*3*/
 				question: "Please enter the image address:",
 				answer: '<input type="text" style="font-size: 3vw;" value="assets/items/bag/'+Items.bag.length+'.png"></input>\
+					<div class="submit" onclick="submit()">Submit</div>',
+				value: "",
+			},
+			{/*4*/
+				question: "Please enter the cost if it is buyable:",
+				answer: '<input type="number" value="0" style="width: 10%; left: 35%;"></input>\
+					<div style="font-size: 5vw; background-color: transparent; border: 0px solid transparent; width: 10%; left: 45%; top: 36%;">for</div>\
+					<input type="number" value="0" style="width: 10%; left: 55%;"></input>\
+					<div style="font-size: 5vw; background-color: transparent; border: 0px solid transparent; width: 10%; left: 66%; top: 36%;">gold</div>\
+					<div class="submit" onclick="submit()">Submit</div>',
+				value: "",
+			},
+			{/*5*/
+				question: "Please enter the price if it is sellable:",
+				answer: '<input type="number" value="0" style="width: 10%; left: 35%;"></input>\
+					<div style="font-size: 5vw; background-color: transparent; border: 0px solid transparent; width: 10%; left: 45%; top: 36%;">for</div>\
+					<input type="number" value="0" style="width: 10%; left: 55%;"></input>\
+					<div style="font-size: 5vw; background-color: transparent; border: 0px solid transparent; width: 10%; left: 66%; top: 36%;">gold</div>\
+					<div class="submit" onclick="submit()">Submit</div>',
+				value: "",
+			},
+			{/*6*/
+				question: "Please enter the lore if it has one:",
+				answer: '<input type="text" style="width: 77%; left: 11.5%; font-size: 3vw;" placeholder="Protects you from splinters. And goblins!"></input>\
 					<div class="submit" onclick="finish()">Submit</div>',
 				value: "",
 			},
@@ -308,7 +385,10 @@ var Builder = {
 			},
 			{/*2*/
 				question: "Please enter the cost if it is buyable:",
-				answer: '<input type="number" min="1" value="1" style="width: 10%; left: 45%;"></input>\
+				answer: '<input type="number" value="0" style="width: 10%; left: 35%;"></input>\
+					<div style="font-size: 5vw; background-color: transparent; border: 0px solid transparent; width: 10%; left: 45%; top: 36%;">for</div>\
+					<input type="number" value="0" style="width: 10%; left: 55%;"></input>\
+					<div style="font-size: 5vw; background-color: transparent; border: 0px solid transparent; width: 10%; left: 66%; top: 36%;">gold</div>\
 					<div class="submit" onclick="submit()">Submit</div>',
 				value: "",
 			},
@@ -330,6 +410,12 @@ var Builder = {
 			{/*5*/
 				question: "Please enter the image address:",
 				answer: '<input type="text" style="font-size: 3vw;" value="assets/items/item/'+Items.item.length+'.png"></input>\
+					<div class="submit" onclick="submit()">Submit</div>',
+				value: "",
+			},
+			{/*6*/
+				question: "Please enter the lore if it has one:",
+				answer: '<input type="text" style="width: 77%; left: 11.5%; font-size: 3vw;" placeholder="Protects you from splinters. And goblins!"></input>\
 					<div class="submit" onclick="finish()">Submit</div>',
 				value: "",
 			},
@@ -364,6 +450,11 @@ window.requestAnimationFrame(checkChange);
 checkChange();
 
 function goBack(){
+	if(back[5] != undefined){
+		if(back[5].question == "What item would you like to build?" && stage == 8){
+			stage--;
+		}
+	}
 	if(position == back[back.length-1]){
 		if(document.getElementById("result") == undefined){
 			stage--;
@@ -388,7 +479,12 @@ function goBack(){
 			document.getElementById("question").innerHTML = position[stage].question;
 			document.getElementById("answer").innerHTML = position[stage].answer;
 			if(position[stage].value != "" && position[stage].value != undefined && document.getElementById("answer").getElementsByTagName("input").length != 0){
-				document.getElementById("answer").getElementsByTagName("input")[0].value = position[stage].value;
+				if(document.getElementById("answer").getElementsByTagName("input").length == 1){
+					document.getElementById("answer").getElementsByTagName("input")[0].value = position[stage].value;
+				}else{
+					document.getElementById("answer").getElementsByTagName("input")[0].value = position[stage].value.split("/")[0];
+					document.getElementById("answer").getElementsByTagName("input")[1].value = parseInt(position[stage].value.split("/")[1]);
+				}
 			}else if(position[stage].value != "" && position[stage].value != undefined && document.getElementById("answer").getElementsByTagName("select").length != 0){
 				document.getElementById("answer").getElementsByTagName("select")[0].value = position[stage].value;
 			}
@@ -456,11 +552,21 @@ function submit(){
 		position[stage].value = document.getElementById("answer").getElementsByTagName("input")[0].value + "/" + document.getElementById("answer").getElementsByTagName("input")[1].value+"s";
 	}
 	stage++;
+	if(back[5] != undefined){
+		if(back[5].question == "What item would you like to build?" && stage == 7){
+			stage++;
+		}
+	}
 	if(position[stage].answer != undefined){
 		document.getElementById("question").innerHTML = position[stage].question;
 		document.getElementById("answer").innerHTML = position[stage].answer;
 		if(position[stage].value != "" && position[stage].value != undefined && document.getElementById("answer").getElementsByTagName("input").length != 0){
-			document.getElementById("answer").getElementsByTagName("input")[0].value = position[stage].value;
+			if(document.getElementById("answer").getElementsByTagName("input").length == 1){
+				document.getElementById("answer").getElementsByTagName("input")[0].value = position[stage].value;
+			}else{
+				document.getElementById("answer").getElementsByTagName("input")[0].value = position[stage].value.split("/")[0];
+				document.getElementById("answer").getElementsByTagName("input")[1].value = parseInt(position[stage].value.split("/")[1]);
+			}
 		}else if(position[stage].value != "" && position[stage].value != undefined && document.getElementById("answer").getElementsByTagName("select").length != 0){
 			document.getElementById("answer").getElementsByTagName("select")[0].value = position[stage].value;
 		}
@@ -525,14 +631,26 @@ function end(num){
 		complete.image = position[5+stats.length].value;
 		complete.tier = position[1].value;
 		complete.rarity = position[2].value;
-		complete.obtain = position[8+stats.length].value;
-		complete.area = "Eaglecrest Logging Camp";
+		complete.obtain = position[11+stats.length].value;
+		if(position[9].value.split("/")[0] != 0){
+			complete.cost = parseInt(position[9].value.split("/")[1]);
+			if(position[9].value.split("/")[0] != 1){
+				complete.costQuantity = position[9].value.split("/")[0];
+			}
+		}
+		if(position[10].value.split("/")[0] != 0){
+			complete.sellPrice = parseInt(position[10].value.split("/")[1]);
+			if(position[10].value.split("/")[0] != 1){
+				complete.sellQuantity = position[10].value.split("/")[0];
+			}
+		}
+		if(position[8+stats.length].value != ""){
+			complete.area = "Eaglecrest Logging Camp";
+		}
 		if(position[6+stats.length].value != ""){
 			complete.lore = position[6+stats.length].value;
 		}
-		if(position[7+stats.length].value != ""){
-			complete.set = position[7+stats.length].value;
-		}
+		complete.set = back[3][0].value;
 		complete.stats = {};
 		if(name == "sword" || name == "staff" || name == "bow"){
 			complete.stats.damage = sign(position[3].value)+position[3].value;
@@ -577,14 +695,23 @@ function finish(){
 		'&nbsp;&nbsp;&nbsp;&nbsp;type: "'+position[0].value+'",<br>'+
 		'&nbsp;&nbsp;&nbsp;&nbsp;image: "'+position[5].value+'",<br>'+
 		'&nbsp;&nbsp;&nbsp;&nbsp;stack: "'+position[4].value+'",<br>';
-		if(position[2].value != 0){
-			complete += '&nbsp;&nbsp;&nbsp;&nbsp;cost: "'+position[2].value+'",<br>';
+		if(position[6].value != ""){
+			complete += '&nbsp;&nbsp;&nbsp;&nbsp;lore: "'+position[6].value+'",<br>';
+		}
+		if(position[2].value.split("/")[0] != 0){
+			complete += '&nbsp;&nbsp;&nbsp;&nbsp;cost: "'+parseInt(position[2].value.split("/")[1])+'",<br>';
+			if(position[2].value.split("/")[0] != 1){
+				complete += '&nbsp;&nbsp;&nbsp;&nbsp;costQuantity: "'+position[2].value.split("/")[0]+'",<br>';
+			}
 		}
 		if(position[3].value.split("/")[0] != 0){
-			complete += '&nbsp;&nbsp;&nbsp;&nbsp;sellPrice: "'+parseInt(position[3].value.split("/")[1])+'",<br>'+
-			'&nbsp;&nbsp;&nbsp;&nbsp;sellQuantity: "'+position[3].value.split("/")[0]+'",<br>';
+			complete += '&nbsp;&nbsp;&nbsp;&nbsp;sellPrice: "'+parseInt(position[3].value.split("/")[1])+'",<br>';
+			if(position[3].value.split("/")[0] != 1){
+				complete += '&nbsp;&nbsp;&nbsp;&nbsp;sellQuantity: "'+position[3].value.split("/")[0]+'",<br>';
+			}
 		}
 		complete += '},';
+		document.getElementById("question").innerHTML = "Here is you item";
 		document.getElementById("answer").innerHTML = '<div id="result" style="font-size: 16px; text-align: left; padding: 1.5vw; left: 2%; top: 20%; user-select: text; max-width: 40%; word-wrap: break-word">'+complete+'</div>\
 		<div id="image" style="left: 50%; top: 20%; width: 50px; height: 50px;"></div>\
 		<div id="inventoryInformation" class="inventoryInformations" style="left: '+(window.innerWidth/2+90)+'px; top: 20%; font-size: 16px; word-wrap: break-word">\
@@ -592,6 +719,7 @@ function finish(){
 		<div id="invTriangle" class="innerTriangleLeft"></div>\
 		<p id="invName" style="font-weight: bold;"></p>\
 		<p id="invStats"></p>\
+		<p id="invLore""></p>\
 		</div>';
 		var img = new Image();
 		img.src = "../"+position[5].value;
@@ -612,8 +740,9 @@ function finish(){
 		}else if(position[0].value == "misc"){ // if the item is a unique...
 			document.getElementById("invName").style.color = "dimgray"; // ...sets the name color to orange
 		}else{ // if the item is a common...
-			document.getElementById("invName").style.color = "silver"; // ...sets the name color to black
+			document.getElementById("invName").style.color = "darkgray"; // ...sets the name color to black
 		}
+		document.getElementById("invLore").innerHTML = "<i>"+position[6].value+"</i>";
 	}else if(name == "bag"){
 		var complete = '{<br>'+
 		'&nbsp;&nbsp;&nbsp;&nbsp;id: '+Items[name].length+',<br>'+
@@ -621,8 +750,24 @@ function finish(){
 		'&nbsp;&nbsp;&nbsp;&nbsp;type: "'+name+'",<br>'+
 		'&nbsp;&nbsp;&nbsp;&nbsp;image: "'+position[3].value+'",<br>'+
 		'&nbsp;&nbsp;&nbsp;&nbsp;size: "'+position[1].value+'",<br>'+
-		'&nbsp;&nbsp;&nbsp;&nbsp;rarity: "'+position[2].value+'",<br>'+
+		'&nbsp;&nbsp;&nbsp;&nbsp;rarity: "'+position[2].value+'",<br>';
+		if(position[4].value.split("/")[0] != 0){
+			complete += '&nbsp;&nbsp;&nbsp;&nbsp;cost: "'+parseInt(position[4].value.split("/")[1])+'",<br>';
+			if(position[4].value.split("/")[0] != 1){
+				complete += '&nbsp;&nbsp;&nbsp;&nbsp;costQuantity: "'+position[4].value.split("/")[0]+'",<br>';
+			}
+		}
+		if(position[5].value.split("/")[0] != 0){
+			complete += '&nbsp;&nbsp;&nbsp;&nbsp;sellPrice: "'+parseInt(position[5].value.split("/")[1])+'",<br>';
+			if(position[5].value.split("/")[0] != 1){
+				complete += '&nbsp;&nbsp;&nbsp;&nbsp;sellQuantity: "'+position[5].value.split("/")[0]+'",<br>';
+			}
+		}
+		if(position[6].value != ""){
+			complete += '&nbsp;&nbsp;&nbsp;&nbsp;lore: "'+position[6].value+'",<br>';
+		}
 		'},';
+		document.getElementById("question").innerHTML = "Here is you bag";
 		document.getElementById("answer").innerHTML = '<div id="result" style="font-size: 16px; text-align: left; padding: 1.5vw; left: 2%; top: 20%; user-select: text; max-width: 40%; word-wrap: break-word">'+complete+'</div>\
 		<div id="image" style="left: 50%; top: 20%; width: 50px; height: 50px;"></div>\
 		<div id="inventoryInformation" class="inventoryInformations" style="left: '+(window.innerWidth/2+90)+'px; top: 20%; font-size: 16px; word-wrap: break-word">\
@@ -630,6 +775,7 @@ function finish(){
 		<div id="invTriangle" class="innerTriangleLeft"></div>\
 		<p id="invName" style="font-weight: bold;"></p>\
 		<p id="invStats"></p>\
+		<p id="invLore""></p>\
 		</div>';
 		var img = new Image();
 		img.src = "../"+position[3].value;
@@ -651,22 +797,40 @@ function finish(){
 		}else{ // if the item is a common...
 			document.getElementById("invName").style.color = "black"; // ...sets the name color to black
 		}
+		document.getElementById("invLore").innerHTML = "<i>"+position[6].value+"</i>";
 	}else if(name == "currency"){
 		var complete = '{<br>'+
 		'&nbsp;&nbsp;&nbsp;&nbsp;id: '+Items[name].length+',<br>'+
 		'&nbsp;&nbsp;&nbsp;&nbsp;name: "'+position[0].value+'",<br>'+
 		'&nbsp;&nbsp;&nbsp;&nbsp;type: "'+name+'",<br>'+
 		'&nbsp;&nbsp;&nbsp;&nbsp;image: "'+position[2].value+'",<br>';
+		if(position[3].value.split("/")[0] != 0){
+			complete += '&nbsp;&nbsp;&nbsp;&nbsp;cost: "'+parseInt(position[3].value.split("/")[1])+'",<br>';
+			if(position[3].value.split("/")[0] != 1){
+				complete += '&nbsp;&nbsp;&nbsp;&nbsp;costQuantity: "'+position[3].value.split("/")[0]+'",<br>';
+			}
+		}
+		if(position[4].value.split("/")[0] != 0){
+			complete += '&nbsp;&nbsp;&nbsp;&nbsp;sellPrice: "'+parseInt(position[4].value.split("/")[1])+'",<br>';
+			if(position[4].value.split("/")[0] != 1){
+				complete += '&nbsp;&nbsp;&nbsp;&nbsp;sellQuantity: "'+position[4].value.split("/")[0]+'",<br>';
+			}
+		}
+		if(position[5].value != ""){
+			complete += '&nbsp;&nbsp;&nbsp;&nbsp;lore: "'+position[5].value+'",<br>';
+		}
 		if(position[1].value > 1){
 			complete += '&nbsp;&nbsp;&nbsp;&nbsp;stack: "'+position[1].value+'",<br>';
 		}		
 		complete += '},';
+		document.getElementById("question").innerHTML = "Here is you currency";
 		document.getElementById("answer").innerHTML = '<div id="result" style="font-size: 16px; text-align: left; padding: 1.5vw; left: 2%; top: 20%; user-select: text; max-width: 40%; word-wrap: break-word">'+complete+'</div>\
 		<div id="image" style="left: 50%; top: 20%; width: 50px; height: 50px;"></div>\
 		<div id="inventoryInformation" class="inventoryInformations" style="left: '+(window.innerWidth/2+90)+'px; top: 20%; font-size: 16px; word-wrap: break-word">\
 		<div class="triangleLeft"></div>\
 		<div id="invTriangle" class="innerTriangleLeft"></div>\
 		<p id="invName" style="font-weight: bold;"></p>\
+		<p id="invLore""></p>\
 		</div>';
 		var img = new Image();
 		img.src = "../"+position[2].value;
@@ -680,6 +844,7 @@ function finish(){
 			console.error("image load aborted")
 		};
 		document.getElementById("invName").innerHTML = position[0].value;
+		document.getElementById("invLore").innerHTML = "<i>"+position[5].value+"</i>";
 	}else if(name == "set"){
 		var complete = '{<br>'+
 		'&nbsp;&nbsp;&nbsp;&nbsp;id: '+Items[name].length+',<br>'+
@@ -687,8 +852,11 @@ function finish(){
 		'&nbsp;&nbsp;&nbsp;&nbsp;type: "'+name+'",<br>'+
 		'&nbsp;&nbsp;&nbsp;&nbsp;image: "'+position[5+stats.length].value+'",<br>'+
 		'&nbsp;&nbsp;&nbsp;&nbsp;tier: '+position[2].value+',<br>'+
-		'&nbsp;&nbsp;&nbsp;&nbsp;rarity: "'+position[3].value+'",<br>'+
-		'&nbsp;&nbsp;&nbsp;&nbsp;armour: [<br>';
+		'&nbsp;&nbsp;&nbsp;&nbsp;rarity: "'+position[3].value+'",<br>';
+		if(position[6].value != ""){
+			complete += '&nbsp;&nbsp;&nbsp;&nbsp;lore: "'+position[6].value+'",<br>';
+		}
+		complete += '&nbsp;&nbsp;&nbsp;&nbsp;armour: [<br>';
 		for(var i = 0; i < setItems.length; i++){
 			complete += '&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;"'+ JSON.parse(setItems[i]).name +'",<br>';
 		}
@@ -806,8 +974,22 @@ function finish(){
 		'&nbsp;&nbsp;&nbsp;&nbsp;image: "'+position[5+stats.length].value+'",<br>'+
 		'&nbsp;&nbsp;&nbsp;&nbsp;tier: '+position[1].value+',<br>'+
 		'&nbsp;&nbsp;&nbsp;&nbsp;rarity: "'+position[2].value+'",<br>'+
-		'&nbsp;&nbsp;&nbsp;&nbsp;obtain: "'+position[8+stats.length].value+'",<br>'+
-		'&nbsp;&nbsp;&nbsp;&nbsp;area: "Eaglecrest Logging Camp",<br>';
+		'&nbsp;&nbsp;&nbsp;&nbsp;obtain: "'+position[11+stats.length].value+'",<br>';
+		if(position[9].value.split("/")[0] != 0){
+			complete += '&nbsp;&nbsp;&nbsp;&nbsp;cost: "'+parseInt(position[9].value.split("/")[1])+'",<br>';
+			if(position[9].value.split("/")[0] != 1){
+				complete += '&nbsp;&nbsp;&nbsp;&nbsp;costQuantity: "'+position[9].value.split("/")[0]+'",<br>';
+			}
+		}
+		if(position[10].value.split("/")[0] != 0){
+			complete += '&nbsp;&nbsp;&nbsp;&nbsp;sellPrice: "'+parseInt(position[10].value.split("/")[1])+'",<br>';
+			if(position[10].value.split("/")[0] != 1){
+				complete += '&nbsp;&nbsp;&nbsp;&nbsp;sellQuantity: "'+position[10].value.split("/")[0]+'",<br>';
+			}
+		}
+		if(position[8+stats.length].value != ""){
+			complete += '&nbsp;&nbsp;&nbsp;&nbsp;area: "Eaglecrest Logging Camp",<br>';
+		}
 		if(position[6+stats.length].value != ""){
 			complete += '&nbsp;&nbsp;&nbsp;&nbsp;lore: "'+position[6+stats.length].value+'",<br>';
 		}
@@ -843,7 +1025,7 @@ function finish(){
 		<p id="invName" style="font-weight: bold;"></p>\
 		<p id="invStats"></p>\
 		<p id="invSet"></p>\
-		<p id="invLore"></p>\
+		<p id="invLore""></p>\
 		</div>';
 		var img = new Image();
 		img.src = "../"+position[5+stats.length].value;
