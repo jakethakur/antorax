@@ -618,7 +618,7 @@ Dom.inventory.displayEquipmentInformation = function(num){
 			document.getElementById("invName").innerHTML = "Unidentified "+Player.inventory.items[num].type;
 			document.getElementById("invName").style.color = "black"; // ...sets the name color to black
 		}
-		if(Player.inventory.items[num].type != "junk" && Player.inventory.items[num].type != "quest" && Player.inventory.items[num].type != "bag" && Player.inventory.items[num].type != "currency"){
+		if(Player.inventory.items[num].type != "junk" && Player.inventory.items[num].type != "misc" && Player.inventory.items[num].type != "quest" && Player.inventory.items[num].type != "bag" && Player.inventory.items[num].type != "currency"){
 			document.getElementById("invStats").innerHTML = "Tier: "+Player.inventory.items[num].tier; // add the tier to the information
 			if(Player.inventory.items[num].stats != undefined){
 				for(var i = 0; i < Object.keys(Player.inventory.items[num].stats).length; i++){ // repeat for all stats
@@ -730,7 +730,7 @@ Dom.quests.displayInformation = function(num,array,total){ // display quest star
 	}else{ // if the item is a mythic...
 		document.getElementById("questName").style.color = "black"; // ...sets the name color to purple
 	}
-	if(array[num].type != "junk" && array[num].type != "quest" && array[num].type != "bag" && array[num].type != "currency"){
+	if(array[num].type != "junk" && array[num].type != "misc" && array[num].type != "quest" && array[num].type != "bag" && array[num].type != "currency"){
 		document.getElementById("questStats").innerHTML = "Tier: "+array[num].tier; // add the tier to the information
 		for(var i = 0; i < Object.keys(array[num].stats).length; i++){ // repeat for all stats
 			if(Object.keys(array[num].stats)[i] != "flaming"){
@@ -767,7 +767,7 @@ Dom.quests.displayFinishInformation = function(num,array,total){ // display ques
 	}else{ // if the item is a mythic...
 		document.getElementById("finishName").style.color = "black"; // ...sets the name color to purple
 	}
-	if(array[num].type != "junk" && array[num].type != "quest" && array[num].type != "bag" && array[num].type != "currency"){
+	if(array[num].type != "junk" && array[num].type != "misc" && array[num].type != "quest" && array[num].type != "bag" && array[num].type != "currency"){
 		document.getElementById("finishStats").innerHTML = "Tier: "+array[num].tier; // add the tier to the information
 		for(var i = 0; i < Object.keys(array[num].stats).length; i++){ // repeat for all stats
 			if(Object.keys(array[num].stats)[i] != "flaming"){
@@ -1516,7 +1516,7 @@ Dom.inventory.drop = function(ev,equip) { // when an item is dropped
 						if(Player.inventory.items[i].stacked != undefined && Player.inventory.items[i].stacked != 1){
 							ev.target.innerHTML += "<div class='stackNum' id='stackNum"+i+"'>"+Player.inventory.items[i].stacked+"</div>";
 						}
-						if(Player.inventory.items[i].type != "sword" && Player.inventory.items[i].type != "staff" && Player.inventory.items[i].type != "bow"){ // if it is armour
+						if(Player.inventory.items[i].type != "sword" && Player.inventory.items[i].type != "staff" && Player.inventory.items[i].type != "bow" && Player.inventory.items[i].type != "rod"){ // if it is armour
 							Dom.inventory.removeEquipment(Player.inventory[Player.inventory.items[i].type]); // removes the stats of that armour from the total
 							Player.inventory[Player.inventory.items[i].type].splice(0,1); // sets the slot you are putting the item in to the item you are putting in it
 							Player.inventory[Player.inventory.items[i].type].push({name: "",image: "",stats: {},},); // sets the slot you are putting the item in to the item you are putting in it
@@ -1529,14 +1529,14 @@ Dom.inventory.drop = function(ev,equip) { // when an item is dropped
 				}
 			}else{ // if there is an item already there
 				for(var i = 0; i < Player.inventory.items.length; i++){ // repeats code for all inventory slots
-					if(document.getElementById("itemInventory").getElementsByTagName("td")[i].innerHTML == ev.target.outerHTML && (((Player.inventory.items[i].type == "sword" || Player.inventory.items[i].type == "staff" || Player.inventory.items[i].type == "bow") && data == "weapon") || Player.inventory.items[i].type == data)){ // if the item slot is where you are putting the item
+					if(document.getElementById("itemInventory").getElementsByTagName("td")[i].innerHTML == ev.target.outerHTML && ((((Player.inventory.items[i].type == "sword" && Player.class == "k") || (Player.inventory.items[i].type == "staff" && Player.class == "m") || (Player.inventory.items[i].type == "bow" && Player.class == "a") || Player.inventory.items[i].type == "rod") && data == "weapon") || Player.inventory.items[i].type == data)){ // if the item slot is where you are putting the item
 						test = Player.inventory.items[i];
 						Player.inventory.items[i] = Player.inventory[data][0]; // sets the slot you are putting the item in to the item you are putting in it
 						document.getElementById("itemInventory").getElementsByTagName("td")[i].innerHTML = "<img src='"+Player.inventory[data][0].image+"' draggable='true' ondragstart='Dom.inventory.drag(event,"+i+")'></img>"; // updates the image for the new slot
 						if(Player.inventory.items[i].stacked != undefined && Player.inventory.items[i].stacked != 1){
 							ev.target.innerHTML += "<div class='stackNum' id='stackNum"+i+"'>"+Player.inventory.items[i].stacked+"</div>";
 						}
-						if(Player.inventory.items[i].type != "sword" && Player.inventory.items[i].type != "staff" && Player.inventory.items[i].type != "bow"){ // if it is armour
+						if(Player.inventory.items[i].type != "sword" && Player.inventory.items[i].type != "staff" && Player.inventory.items[i].type != "bow" && Player.inventory.items[i].type != "rod"){ // if it is armour
 							Dom.inventory.removeEquipment(Player.inventory[Player.inventory.items[i].type]); // removes the stats of that armour from the total
 							Player.inventory[Player.inventory.items[i].type].splice(0,1); // sets the slot you are putting the item in to the item you are putting in it
 							Player.inventory[Player.inventory.items[i].type].push({name: "",image: "",stats: {},},); // sets the slot you are putting the item in to the item you are putting in it
@@ -1555,7 +1555,7 @@ Dom.inventory.drop = function(ev,equip) { // when an item is dropped
 		}
 	}else if(data != "weapon" && data != "helm" && data != "chest" && data != "greaves" && data != "boots"){ // if the item is being moved to a weapon/armour slot
 		if(test[12] == "D"){ // if there is not an item already there
-			if((Player.inventory.items[data].type == ev.target.id || (Player.inventory.items[data].type == "sword" && ev.target.id == "weapon") || (Player.inventory.items[data].type == "staff" && ev.target.id == "weapon") || (Player.inventory.items[data].type == "bow" && ev.target.id == "weapon")) && !Player.inventory.items[data].unidentified){ // if the item is allowed in that slot (e.g. a helm in the helm slot)
+			if((Player.inventory.items[data].type == ev.target.id || (((Player.inventory.items[data].type == "sword" && Player.class == "k") || (Player.inventory.items[data].type == "staff" && Player.class == "m") || (Player.inventory.items[data].type == "bow" && Player.class == "a") || Player.inventory.items[data].type == "rod") && ev.target.id == "weapon")) && !Player.inventory.items[data].unidentified){ // if the item is allowed in that slot (e.g. a helm in the helm slot)
 				Player.inventory[ev.target.id].splice(0,1); // sets the slot you are putting the item in to the item you are putting in it
 				Player.inventory[ev.target.id].push(Player.inventory.items[data]); // sets the slot you are putting the item in to the item you are putting in it
 				Dom.inventory.addEquipment(Player.inventory[equip]); // adds the stats of the equipment to the total
@@ -1564,7 +1564,7 @@ Dom.inventory.drop = function(ev,equip) { // when an item is dropped
 				document.getElementById(ev.target.id).innerHTML = "<img src='"+Player.inventory[ev.target.id][0].image+"' draggable='true' ondragstart='Dom.inventory.drag(event,\""+ev.target.id+"\")'></img>"; // updates the image
 			}
 		}else{ // if there is already an item there
-			if((Player.inventory.items[data].type == equip || ((Player.inventory.items[data].type == "sword" || Player.inventory.items[data].type == "staff" || Player.inventory.items[data].type == "bow")) && equip == "weapon") && !Player.inventory.items[data].unidentified){ // if the item is allowed in that slot (e.g. a helm in the helm slot);
+			if((Player.inventory.items[data].type == equip || (((Player.inventory.items[data].type == "sword" && Player.class == "k") || (Player.inventory.items[data].type == "staff" && Player.class == "m") || (Player.inventory.items[data].type == "bow" && Player.class == "a") || Player.inventory.items[data].type == "rod") && equip == "weapon")) && !Player.inventory.items[data].unidentified){ // if the item is allowed in that slot (e.g. a helm in the helm slot);
 				test = Player.inventory[equip][0]; // sets the variable for later
 				Dom.inventory.removeEquipment(Player.inventory[equip]); // removes the stats of the equipment from the total
 				Player.inventory[equip].splice(0,1); // sets the slot you are putting the item in to the item you are putting in it
