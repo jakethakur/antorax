@@ -325,15 +325,6 @@ function checkRightClick (e) {
     return(rightclick); // true or false, you can trap right click here by if comparison
 }
 
-// round number to 1dp
-// normally used for damage and to get rid of floating point errors
-function damageRound (number) {
-	number *= 10;
-	number = Math.round(number);
-	number /= 10;
-	return number;
-}
-
 // search for an entity with a specific id (first param) within an array (second param)
 // returns the array index of the first found item of the array with that id
 // only works for projectiles as of 01/07/18 (they're the only entities with ids)
@@ -625,8 +616,13 @@ class Hero extends Attacker {
 		}
 		
 		// move hero
-		this.x += dirx * this.speed * delta;
-		this.y += diry * this.speed * delta;
+		if (this.statusEffects.filter(statusEffect => statusEffect.title === "Stunned").length !== 0) {
+			// player is stunned
+		}
+		else {
+			this.x += dirx * this.speed * delta;
+			this.y += diry * this.speed * delta;
+		}
 
 		// check if we walked into a non-walkable tile
 		this._collide(dirx, diry, delta);
@@ -775,6 +771,7 @@ class Hero extends Attacker {
 			}
 			else { // knights block when they right click
 				this.channelling = "block";
+				console.log("blocking");
 			}
 		}
 	}
@@ -1157,9 +1154,14 @@ class Enemy extends Attacker {
 	
 	// move towards entity (towards parameter)
 	move (delta, towards) {
-		this.bearing = bearing(this, towards); // update bearing (maybe doesn't need to be done every tick?)
-		this.x += Math.cos(this.bearing) * this.speed * delta;
-		this.y += Math.sin(this.bearing) * this.speed * delta;
+		if (this.statusEffects.filter(statusEffect => statusEffect.title === "Stunned").length !== 0) {
+			// enemy is stunned
+		}
+		else {
+			this.bearing = bearing(this, towards); // update bearing (maybe doesn't need to be done every tick?)
+			this.x += Math.cos(this.bearing) * this.speed * delta;
+			this.y += Math.sin(this.bearing) * this.speed * delta;
+		}
 	}
 	
 	// shoot projectile at array of arrays of enemies (at)
@@ -2005,7 +2007,7 @@ Game.update = function (delta) {
 		if (!Game.identifiers[i].respawning) { // check identifier is not dead
 			if (this.hero.isTouching(this.identifiers[i]) && Dom.currentlyDisplayed === "") { // needs to check that it is not already open - PG tbd
 				// open identifier page
-				Dom.identifier.page("What would you like to identify?", "Here is your item, adventurer.", "Hmm, this item is of rather fine quality, adventurer.", "Wow! Some people would pay good money for that item!", "You have no unidentified items. Kill enemies to get some.");
+				Dom.identifier.page("Game.identifiers[i]");
 			}
 			else if (Dom.currentlyDisplayed != "identifier" && Dom.currentlyDisplayed != "identified" && Dom.currentlyDisplayed != "" && !Dom.override) {
 				if(this.hero.isTouching(this.identifiers[i]) && document.getElementsByClassName("closeClass")[0].style.border != "5px solid red"){

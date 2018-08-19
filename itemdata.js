@@ -146,7 +146,7 @@ var Items = {
 			image: "assets/items/chest/5.png",
 			tier: 1,
 			rarity: "mythic",
-			lore: "",
+			lore: "Legend says the tattered knight is still wandering around shirtless.",
 			obtain: "Find as an unidentified item in Eaglecrest Logging Camp",
 			area: "Eaglecrest Logging Camp",
 			stats: {
@@ -224,7 +224,7 @@ var Items = {
 			image: "assets/items/greaves/5.png",
 			tier: 1,
 			rarity: "mythic",
-			lore: "",
+			lore: "You'll find none of those cheap MDF greaves from the Wierwood.",
 			obtain: "Find as an unidentified item in Eaglecrest Logging Camp",
 			area: "Eaglecrest Logging Camp",
 			stats: {
@@ -370,6 +370,7 @@ var Items = {
 			obtain: "Purchase from a merchant in the Fishers' Valley",
 			stats: {
 				damage: "+2",
+				blockDefense: "+10",
 			},
 		},
 		{
@@ -383,6 +384,7 @@ var Items = {
 			area: "Eaglecrest Logging Camp",
 			stats: {
 				damage: "+3",
+				blockDefense: "+12",
 			},
 		},
 		{
@@ -392,12 +394,13 @@ var Items = {
 			image: "assets/items/sword/4.png",
 			tier: 1,
 			rarity: "unique",
-			lore: "Not to be mistaken with its Grand Tournament counterpart.",
+			lore: "Your hero power gives this... oh, wrong game.",
 			obtain: "Find as an unidentified item in Eaglecrest Logging Camp",
 			area: "Eaglecrest Logging Camp",
 			stats: {
 				damage: "+3",
 				poison: "1.5/3s",
+				blockDefense: "+14",
 			},
 		},
 		{
@@ -413,6 +416,7 @@ var Items = {
 			stats: {
 				damage: "+4",
 				criticalChance: "+10%",
+				blockDefense: "+8",
 			},
 		},
 		{
@@ -422,12 +426,13 @@ var Items = {
 			image: "assets/items/sword/6.png",
 			tier: 1,
 			rarity: "mythic",
-			lore: "",
+			lore: "Not to be confused with the hit movie 'Raiders of the Lost Orc'.",
 			obtain: "Find as an unidentified item in Eaglecrest Logging Camp",
 			area: "Eaglecrest Logging Camp",
 			stats: {
 				damage: "+4",
 				stun: "0.5s",
+				blockDefense: "+15",
 			},
 		},
 	],

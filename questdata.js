@@ -129,7 +129,7 @@ var Quests = {
 		},
 		
 		{
-			// id: 3 (tbc)
+			id: 3,
 			quest: "Learning to Fish I",
 			
 			startName: "Fisherman name",

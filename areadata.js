@@ -79,6 +79,7 @@ var Areas = {
 				"driver",
 				"weaponsmith",
 				"cart",
+				"fisherman",
 			],
 			
 			addresses: [
@@ -86,6 +87,7 @@ var Areas = {
 				"./assets/npcs/driver.png",
 				"./assets/npcs/weaponsmith.png",
 				"./assets/objects/cartEaglecrest.png",
+				"./assets/npcs/fisherman.png",
 			],
 		},
 		
@@ -124,14 +126,14 @@ var Areas = {
 				quests: [
 					{
 						quest: Quests.eaglecrestLoggingCamp[0], 
-						role: "start"
+						role: "start",
 					},
 				],
 				chat: {
 					questProgress: "Good luck with your adventures!",
 					questComplete: "I hope your quests are going well!",
 					inventoryFull: "Empty your bag a bit! You can't hold that.",
-				}
+				},
 			},
 			{
 				x: 1300,
@@ -149,6 +151,32 @@ var Areas = {
 					shopLeave: "Come back some time.",
 					inventoryFull: "Looks like your bag's too full! Empty it a bit and come back.",
 					tooPoor: "You can't afford that item. Kill some enemies and come back.",
+				},
+			},
+			{
+				x: 263,
+				y: 380,
+				image: "fisherman",
+				name: "Fisherman Tobenamed",
+				level: 15,
+				stats: {
+					maxHealth: 125,
+					defence: 3,
+				},
+				quests: [
+					{
+						quest: Quests.eaglecrestLoggingCamp[3], 
+						role: "start",
+					},
+				],
+				chat: {
+					questProgress: "You can always buy a lure to fish up more. Heheh, that rhymed!",
+					questComplete: "Caught a big one?",
+					inventoryFull: "You've lots of fish in your bags, but you've not any space for your rewards!",
+					// "&#9835; I'm fiiiiiiiishing in the rain! &#9835;"
+				},
+				canBeShown: function () {
+					return Dom.quests.completedQuestArray.includes("gathering wood quest"); // nameTBD
 				},
 			},
 		],
@@ -321,6 +349,14 @@ var Areas = {
 					maxHealth: 200,
 					defence: 3,
 				},
+				chat: {
+					identifierGreeting: "What would you like to identify?",
+					noUnidentified: "You have no unidentified items. Kill and loot enemies to get some.",
+					identifyCommon: "Here is your item, adventurer.",
+					identifyUnique: "Hmm, this item is of rather fine quality, adventurer.",
+					identifyMythic: "Wow! Some people would pay good money for that item!",
+					tooPoor: "You don't have enough gold to identify that. Kill and loot enemies to get some.",
+				}
 			},
 		],
 		
@@ -397,7 +433,7 @@ var Areas = {
 				y: 65,
 				image: "innkeeper",
 				name: "Gregor Goldenbrew",
-				level: 10,
+				level: 15,
 				stats: {
 					maxHealth: 100,
 					defense: 2,
