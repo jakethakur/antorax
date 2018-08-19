@@ -935,6 +935,11 @@ class Projectile extends Thing {
 							attacker.takeDamage(dmgDealt * (to[i][x].stats.reflection / 100))
 						}
 						
+						// stun
+						if (attacker.stats.stun > 0) { // check target weapon has poison
+							Game.statusEffects.stun(attacker.stats.stun, to[i][x]);
+						}
+						
 						// re-render the second canvas if the hero has been damaged
 						if (to[i][x] == Game.hero) {
 							Game.secondary.render();
@@ -1381,6 +1386,54 @@ Game.statusEffects.fire = function(tier, target) {
 	}
 }
 
+// give target the stunned debuff
+Game.statusEffects.stun = function(time, target) {
+	// try to find an existing flaming effect of the tier
+	let found = target.statusEffects.findIndex(function(element) {
+		return element.title === ("Stunned");
+	});
+	
+	if (found === -1) { // no fire effect of that tier currently applied to the target
+		
+		target.statusEffects.push(new statusEffect({
+			title: "Stunned",
+			effect: "Can't move for " + time + " seconds.",
+			info: {
+				time: time,
+				ticks: 0, // increased by 1 every tick
+			},
+			tick: function (owner) { // decrease time
+				if (damageRound(this.info.ticks) < this.info.time) { // check effect has not expired 
+					this.info.ticks += 0.2;
+					if (owner.constructor.name === "Hero") { // refresh canvas status effects if the status effect was applied to player
+						Game.hero.updateStatusEffects();
+					}
+					setTimeout(function (owner) {
+						this.tick(owner);
+					}.bind(this), 200, owner);
+				}
+				else { // remove effect interval
+					Game.removeStatusEffect(owner);
+					if (owner.constructor.name === "Hero") { // refresh canvas status effects if the status effect was applied to player
+						Game.hero.updateStatusEffects();
+					}
+				}
+			},
+		}));
+		
+		// begin tick for every 0.2 seconds
+		setTimeout(function (owner) {
+			this.tick(owner);
+		}.bind(target.statusEffects[target.statusEffects.length - 1]), 200, target);
+	}
+	else if (found !== -1) { // extend existing stunned
+		target.statusEffects[found].info.ticks = 0;
+	}
+	
+	if (target.constructor.name === "Hero") { // refresh canvas status effects if the status effect was applied to player
+		Game.hero.updateStatusEffects();
+	}
+}
 
 //
 // Load game
@@ -1863,7 +1916,7 @@ Game.update = function (delta) {
 							}
 							else {
 								// user doesn't have enough space
-								this.NPCs[i].say(this.NPCs[i].chat.inventoryFull, true, 0, false);
+								this.NPCs[i].say(this.NPCs[i].chat.inventoryFull, true, 0, true);
 							}
 						}
 						// quest is currently active
@@ -1929,7 +1982,7 @@ Game.update = function (delta) {
 			
 			if (typeof this.NPCs[i].sold !== "undefined") { // check if the NPC is a merchant
 				if (this.hero.isTouching(this.NPCs[i]) && Dom.currentlyDisplayed === "") {
-					Dom.merchant.page(this.NPCs[i].name, this.NPCs[i].chat.shopGreeting, this.NPCs[i].sold);
+					Dom.merchant.page(this.NPCs[i]);
 					this.NPCs[i].say(this.NPCs[i].chat.shopLeave, true, 0, false);
 				}
 				else if (Dom.currentlyDisplayed != this.NPCs[i].name && Dom.currentlyDisplayed != "" && !Dom.override) { // trying to speak to merchant when an interface is already open
@@ -2567,7 +2620,7 @@ Game.secondary.render = function () {
 		this.ctx.font = "20px MedievalSharp";
 		if (typeof Game.hero.statusEffects[i].info !== "undefined") { //variable exists
 			if (typeof Game.hero.statusEffects[i].info.time !== "undefined" && typeof Game.hero.statusEffects[i].info.ticks !== "undefined") { //variable exists
-				this.ctx.fillText(Game.hero.statusEffects[i].info.time - Game.hero.statusEffects[i].info.ticks, 285 + i * 35, 37);
+				this.ctx.fillText(damageRound(Game.hero.statusEffects[i].info.time - Game.hero.statusEffects[i].info.ticks), 285 + i * 35, 37);
 			}
 		}
 	}

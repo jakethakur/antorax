@@ -130,6 +130,7 @@ var Areas = {
 				chat: {
 					questProgress: "Good luck with your adventures!",
 					questComplete: "I hope your quests are going well!",
+					inventoryFull: "Empty your bag a bit! You can't hold that.",
 				}
 			},
 			{
@@ -146,6 +147,8 @@ var Areas = {
 				chat: {
 					shopGreeting: "Would you like to buy anything?",
 					shopLeave: "Come back some time.",
+					inventoryFull: "Looks like your bag's too full! Empty it a bit and come back.",
+					tooPoor: "You can't afford that item. Kill some enemies and come back.",
 				},
 			},
 		],
