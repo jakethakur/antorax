@@ -21,26 +21,26 @@ var Player = {
 	
 	// updated by DOM
 	stats: {
-		damage: 0, // the user's total damage default is 0 but can be changed by weapons
-		defence: 0, // the user's total defence default is 0 but can be changed by armour
+		damage: 0,
+		defence: 0,
 		maxHealth: 50,
 		range: playerClass === "a" ? 1000 : (playerClass === "m" ? 200 : (playerClass === "k" ? 100 : 0)),
 		reloadTime: 500, // time that must be taken between attack channel finish and channel start (in ms)
-		criticalChance: 1, // the user's total critical chance default is 1 but can be changed by armour or weapons
-		dodgeChance: 1, // the user's total dodge chance default is 1 but can be changed by armour or weapons
-		flaming: 0, // the user does not usually deal fire damage to enemies but some weapons do
-		healthRegen: 0.5, // the user's total health regen default is 0.5 but can be changed by armour or weapons
-		looting: 100, // the user's total looting default is 100 but can be changed by armour or weapons
-		poisonX: 0, // the user's total posion default is 0 damage...
-		poisonY: 0, // ...over 0 seconds but can be changed by armour or weapons
-		reflection: 0, // the user's total looting default is 0 but can be changed by armour or weapons
-		stun: 0, // the user's total stun time default is 0 but can be changed by armour or weapons
-		swimSpeed: 60, // the user's total swim speed default is 60 but can be changed by armour or weapons
-		walkSpeed: 180, // the user's total walk speed default is 180 but can be changed by armour or weapons
-		// archers only
-		variance: playerClass === "k" ? 0 : (playerClass === "m" ? 0 : (playerClass === "a" ? 100 : 0)), // the user's total focus speed default is 1 but can be changed by bows
-		focusSpeed: 1, // the user's total focus speed default is 1 but can be changed by bows
+		criticalChance: 1,
+		dodgeChance: 1,
+		flaming: 0,
+		healthRegen: 0.5,
+		looting: 100,
+		poisonX: 0, // the total damage dealt after the main attack
+		poisonY: 0, // the number of seconds that damage is dealt over after the main attack
+		reflection: 0,
+		stun: 0,
+		swimSpeed: 60,
+		walkSpeed: 180,
+		variance: playerClass === "a" ? 100 : 0, // default variant of archer projectiles when 600px away
+		focusSpeed: 1, // speed that the variant for archer projectiles gets smaller
 		maxDamage: 0, // mages only (damage done when channelled)
+		blockDefence: 0, // knights only
 	},
 	
 	//
@@ -50,7 +50,6 @@ var Player = {
 	
 	xp: 0,
 	level: 1,
-	//gold: 0,
 	
 	health: 50, // should be set to whatever stats.Max_Health is set to (but didn't work)
 	
