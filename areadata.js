@@ -176,7 +176,7 @@ var Areas = {
 					// "&#9835; I'm fiiiiiiiishing in the rain! &#9835;"
 				},
 				canBeShown: function () {
-					return Dom.quests.completedQuestArray.includes("gathering wood quest"); // nameTBD
+					return Dom.quests.completedQuestArray.includes("To the Logging Camp"); // TBD change to gathering wood quest
 				},
 			},
 		],

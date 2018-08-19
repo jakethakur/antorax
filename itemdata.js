@@ -370,7 +370,7 @@ var Items = {
 			obtain: "Purchase from a merchant in the Fishers' Valley",
 			stats: {
 				damage: "+2",
-				blockDefense: "+10",
+				blockDefence: "+10",
 			},
 		},
 		{
@@ -384,7 +384,7 @@ var Items = {
 			area: "Eaglecrest Logging Camp",
 			stats: {
 				damage: "+3",
-				blockDefense: "+12",
+				blockDefence: "+12",
 			},
 		},
 		{
@@ -400,7 +400,7 @@ var Items = {
 			stats: {
 				damage: "+3",
 				poison: "1.5/3s",
-				blockDefense: "+14",
+				blockDefence: "+14",
 			},
 		},
 		{
@@ -416,7 +416,7 @@ var Items = {
 			stats: {
 				damage: "+4",
 				criticalChance: "+10%",
-				blockDefense: "+8",
+				blockDefence: "+8",
 			},
 		},
 		{
@@ -432,7 +432,7 @@ var Items = {
 			stats: {
 				damage: "+4",
 				stun: "0.5s",
-				blockDefense: "+15",
+				blockDefence: "+15",
 			},
 		},
 	],
@@ -634,6 +634,38 @@ var Items = {
 			},
 		},
 	],
+	rod: [ // fishing rod
+		{
+			id: 0,
+			name: "Test Rod 1",
+			type: "rod",
+			image: "assets/items/bow/6.png",
+			rarity: "mythic",
+			lore: "",
+			stats: {
+			},
+		},
+		{
+			id: 1,
+			name: "Test Rod 2",
+			type: "rod",
+			image: "assets/items/bow/6.png",
+			rarity: "mythic",
+			lore: "",
+			stats: {
+			},
+		},
+		{
+			id: 2,
+			name: "Fishermanname's Old Fishing Rod",
+			type: "rod",
+			image: "assets/items/bow/6.png",
+			rarity: "common",
+			lore: "A fine rod.",
+			stats: {
+			},
+		},
+	],
 	set: [
 		{
 			id: 0,
@@ -793,6 +825,13 @@ var Items = {
 			sellPrice: 1,
 			sellQuantity: 1,
 			stack: 64,
+		},
+		{
+			id: 5,
+			name: "Fishermanname's Lost Fishing Rod",
+			type: "quest",
+			image: "assets/items/item/2.png",
+			lore: "The goblins haven't looked after this rod very well...",
 		},
 	],
 	fish: [

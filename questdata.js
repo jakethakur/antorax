@@ -129,7 +129,49 @@ var Quests = {
 		},
 		
 		{
-			id: 3,
+			id: 3, // tbc
+			quest: "A Lost Fishing Rod",
+			
+			startName: "Fisherman name",
+			startChat: "tbd",
+			
+			finishName: "Fisherman name",
+			finishChat: "tbd",
+			
+			objectives: [
+				"Find <strong>Fisherman name's</strong> fishing rod. They think it has been taken by a goblin.",
+				"Return to <strong>Fisherman name</strong> at the Fisher's Valley.",
+			],
+			
+			isCompleted: function() {
+				var completed = [];
+				
+				// true or falses for each objective (apart from the turn-in objective)
+				//completed.push((Player.inventory.weapon.length > 1) ? true : false); tbd
+				
+				var finished = true;
+				for(var i = 0; i < completed.length; i++) {
+					if(!completed[i]) {
+						finished = false;
+					}
+				}
+				
+				completed.push(finished);
+				
+				return completed;
+			},
+			
+			howToStart: "Speak to <strong>Fisherman name</strong> at the Fisher's Valley.",
+			levelRequirement: 2,
+			questRequirement: "To the Logging Camp", // doesn't work - tbd
+			
+			rewards: {
+				xp: 50,
+			},
+		},
+		
+		{
+			id: 4, // tbc
 			quest: "Learning to Fish I",
 			
 			startName: "Fisherman name",
@@ -172,7 +214,7 @@ var Quests = {
 		},
 		
 		{
-			id: 4,
+			id: 5,
 			quest: "Learning to Fish II",
 			
 			startName: "Fisherman name",
@@ -215,7 +257,7 @@ var Quests = {
 		},
 		
 		{
-			id: 5,
+			id: 6,
 			quest: "Learning to Fish III",
 			
 			startName: "Fisherman name",

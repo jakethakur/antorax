@@ -339,6 +339,17 @@ Game.searchFor = function (id, array) {
 	return null;
 }
 
+// checks if an NPC can be shown (from their canBeShown function)
+Game.canBeShown = function (NPC) {
+	let show = true;
+	if (NPC.canBeShown !== undefined) {
+		if (!NPC.canBeShown()) {
+			show = false;
+		}
+	}
+	return show;
+}
+
 //
 // Base Classes (sole role is inheritance)
 //
@@ -771,7 +782,6 @@ class Hero extends Attacker {
 			}
 			else { // knights block when they right click
 				this.channelling = "block";
-				console.log("blocking");
 			}
 		}
 	}
@@ -890,12 +900,12 @@ class Projectile extends Thing {
 					}
 					else {
 						// damage
-						let blockDefense = 0;
-						if (to.channelling === "block") { // add block defense if the target is blocking
-							blockDefense = to.stats.blockDefense;
+						let blockDefence = 0;
+						if (to[i][x].channelling === "block") { // add block defense if the target is blocking
+							blockDefence = to[i][x].stats.blockDefence;
 						}
 						let attackerDamage = attacker.stats.damage;
-						if (attacker.stats.maxDamage > attacker.stats.damage) { // calculate damage based on channelling time (if the attacker is a mage)
+						if (attacker.stats.maxDamage !== undefined && attacker.stats.maxDamage > attacker.stats.damage) { // calculate damage based on channelling time (if the attacker is a mage)
 							// this.expand - 1 = a number from 0 to 1
 							// multiply the extra damage gained by maxDamage by this fraction to see the extra damage dealt
 							let a = (attacker.stats.maxDamage - attacker.stats.damage); // possible extra damage
@@ -903,7 +913,7 @@ class Projectile extends Thing {
 							let c = a * b; // extra damage dealt
 							attackerDamage += c;
 						}
-						let dmgDealt = attackerDamage - ((to[i][x].stats.defence + blockDefense) / 10); // calculate damage dealt
+						let dmgDealt = attackerDamage - ((to[i][x].stats.defence + blockDefence) / 10); // calculate damage dealt
 						if (dmgDealt < 0) {
 							dmgDealt = 0;
 						}
@@ -1556,8 +1566,10 @@ Game.loadArea = function (areaName, destination) {
 		this.NPCs = [];
 		if(Areas[areaName].NPCs !== undefined) { // check they exist in areadata.js
 			for(var i = 0; i < Areas[areaName].NPCs.length; i++) {
-				Areas[areaName].NPCs[i].map = map;
-				this.NPCs.push(new NPC(Areas[areaName].NPCs[i]));
+				if (this.canBeShown(Areas[areaName].NPCs[i])) { // check if NPC should be shown
+					Areas[areaName].NPCs[i].map = map;
+					this.NPCs.push(new NPC(Areas[areaName].NPCs[i]));
+				}
 			}
 		}
 		
