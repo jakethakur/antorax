@@ -454,7 +454,13 @@ Dom.inventory.displayIdentification = function(){
 	document.getElementById("innerStats").innerHTML += "<br><strong>XP: " + 100*Player.xp/LevelXP[Player.level] + "%</strong>"; // updates the xp display
 	document.getElementById("innerStats").innerHTML += "<br><br><strong>Stats:</strong>"; // updates the xp display
 	document.getElementById("innerStats").innerHTML += "<br>Damage: " + Player.stats.damage; // updates the damage display
+	if(Player.stats.maxDamage != 0){
+		document.getElementById("innerStats").innerHTML += "-" + Player.stats.maxDamage; // updates the damage display
+	}
 	document.getElementById("innerStats").innerHTML += "<br>Defence: " + Player.stats.defence; // updates the defence display
+	if(Player.stats.blockDefence != 0){
+		document.getElementById("innerStats").innerHTML += "<br>Block Defence: " + Player.stats.blockDefence; // updates the critical chance display
+	}
 	document.getElementById("innerStats").innerHTML += "<br>Critical Chance: " + Player.stats.criticalChance + "%"; // updates the critical chance display
 	document.getElementById("innerStats").innerHTML += "<br>Dodge Chance: " + Player.stats.dodgeChance + "%"; // updates the dodge chance display
 	if(Player.stats.flaming != 0){
@@ -498,9 +504,12 @@ Dom.inventory.updateIdentification = function(){ // display inventory informatio
 	document.getElementById("innerStats").innerHTML += "<br><br><strong>Stats:</strong>"; // updates the xp display
 	document.getElementById("innerStats").innerHTML += "<br>Damage: " + Player.stats.damage; // updates the damage display
 	document.getElementById("innerStats").innerHTML += "<br>Defence: " + Player.stats.defence; // updates the defence display
+	if(Player.stats.blockDefence != 0){
+		document.getElementById("innerStats").innerHTML += "<br>Block Defence: " + Player.stats.blockDefence; // updates the critical chance display
+	}
 	document.getElementById("innerStats").innerHTML += "<br>Critical Chance: " + Player.stats.criticalChance + "%"; // updates the critical chance display
 	document.getElementById("innerStats").innerHTML += "<br>Dodge Chance: " + Player.stats.dodgeChance + "%"; // updates the dodge chance display
-	if(Player.stats.flaming > 0){
+	if(Player.stats.flaming != 0){
 		document.getElementById("innerStats").innerHTML += "<br>Flaming "
 		for(var i = 0; i < Player.stats.flaming; i++){
 			document.getElementById("innerStats").innerHTML += "I"; // updates the flaming display
@@ -843,11 +852,13 @@ Dom.quest.start = function(quest){ // display quest start page
 			document.getElementById("questStartXP").innerHTML = quest.rewards.xp; // ...display the amount of xp inside the xp
 		}
 		document.getElementById("questStartItems").innerHTML = ""; // sets the item rewards to none
-		for(var i = 0; i < quest.rewards.items.length; i++){ // repeats for all item rewards
-			if(quest.rewards.itemQuantities[i] != 1){
-				document.getElementById("questStartItems").innerHTML += "<img src=" + quest.rewards.items[i].image + " class='theseQuestOptions'><div class='questStackNum'>"+quest.rewards.itemQuantities[i]+"</div></img>&nbsp;&nbsp;"; // adds item to item rewards
-			}else{
-				document.getElementById("questStartItems").innerHTML += "<img src=" + quest.rewards.items[i].image + " class='theseQuestOptions'><span class='questStackNum'></span></img>&nbsp;&nbsp;"; // adds item to item rewards
+		if(quest.rewards.items != undefined){
+			for(var i = 0; i < quest.rewards.items.length; i++){ // repeats for all item rewards
+				if(quest.rewards.itemQuantities[i] != 1){
+					document.getElementById("questStartItems").innerHTML += "<img src=" + quest.rewards.items[i].image + " class='theseQuestOptions'><div class='questStackNum'>"+quest.rewards.itemQuantities[i]+"</div></img>&nbsp;&nbsp;"; // adds item to item rewards
+				}else{
+					document.getElementById("questStartItems").innerHTML += "<img src=" + quest.rewards.items[i].image + " class='theseQuestOptions'><span class='questStackNum'></span></img>&nbsp;&nbsp;"; // adds item to item rewards
+				}
 			}
 		}
 		for(let x = 0; x < document.getElementsByClassName("theseQuestOptions").length; x++){ // repeats for all item rewards
@@ -884,11 +895,13 @@ Dom.quest.finish = function(quest){ // display quest finish page
 			document.getElementById("questFinishXP").innerHTML = quest.rewards.xp; // ...display the amount of xp inside the xp
 		}
 		document.getElementById("questFinishItems").innerHTML = ""; // sets the item rewards to none
-		for(var i = 0; i < quest.rewards.items.length; i++){ // repeats for all item rewards
-			if(quest.rewards.itemQuantities[i] != 1){
-				document.getElementById("questFinishItems").innerHTML += "<img src=" + quest.rewards.items[i].image + " class='theseQuestFinishOptions'><div class='questFinishStackNum'>"+quest.rewards.itemQuantities[i]+"</div></img>&nbsp;&nbsp;"; // adds item to item rewards
-			}else{
-				document.getElementById("questFinishItems").innerHTML += "<img src=" + quest.rewards.items[i].image + " class='theseQuestFinishOptions'><span class='questFinishStackNum'></span></img>&nbsp;&nbsp;"; // adds item to item rewards
+		if(quest.rewards.items != undefined){
+			for(var i = 0; i < quest.rewards.items.length; i++){ // repeats for all item rewards
+				if(quest.rewards.itemQuantities[i] != 1){
+					document.getElementById("questFinishItems").innerHTML += "<img src=" + quest.rewards.items[i].image + " class='theseQuestFinishOptions'><div class='questFinishStackNum'>"+quest.rewards.itemQuantities[i]+"</div></img>&nbsp;&nbsp;"; // adds item to item rewards
+				}else{
+					document.getElementById("questFinishItems").innerHTML += "<img src=" + quest.rewards.items[i].image + " class='theseQuestFinishOptions'><span class='questFinishStackNum'></span></img>&nbsp;&nbsp;"; // adds item to item rewards
+				}
 			}
 		}
 		for(let x = 0; x < document.getElementsByClassName("theseQuestFinishOptions").length; x++){ // repeats for all item rewards
@@ -919,8 +932,10 @@ Dom.quest.accept = function(){ // quest accepted
 	if (Dom.currentlyDisplayed.onQuestStart != undefined) { // if there is a quest start function...
 		Dom.currentlyDisplayed.onQuestStart(); // ...do it
 	}
-	for(var i = 0; i < Dom.currentlyDisplayed.startRewards.items.length; i++){ // repeats for all item rewards
-		Dom.inventory.give(Dom.currentlyDisplayed.startRewards.items[i],Dom.currentlyDisplayed.startRewards.itemQuantities[i]); // gives the player the reward
+	if(Dom.currentlyDisplayed.startRewards != undefined){
+		for(var i = 0; i < Dom.currentlyDisplayed.startRewards.items.length; i++){ // repeats for all item rewards
+			Dom.inventory.give(Dom.currentlyDisplayed.startRewards.items[i],Dom.currentlyDisplayed.startRewards.itemQuantities[i]); // gives the player the reward
+		}
 	}
 	Dom.quests.possible();
 	Dom.changeBook(Dom.previous, true); // change page back to previous page
@@ -929,8 +944,10 @@ Dom.quest.accept = function(){ // quest accepted
 Dom.quest.acceptRewards = function(){ // quest rewards accepted
 	var quest = Dom.quest.waitForReward;
 	Player.xp += quest.rewards.xp // gives the player the xp reward
-	for(var i = 0; i < quest.rewards.items.length; i++){ // repeats for all item rewards
-		Dom.inventory.give(quest.rewards.items[i],quest.rewards.itemQuantities[i]); // gives the player the reward
+	if(quest.rewards.items != undefined){
+		for(var i = 0; i < quest.rewards.items.length; i++){ // repeats for all item rewards
+			Dom.inventory.give(quest.rewards.items[i],quest.rewards.itemQuantities[i]); // gives the player the reward
+		}
 	}
 	if(quest.rewards.reputation != undefined) { // reputation rewards
 		for(var i = 0; i < Object.keys(quest.rewards.reputation).length; i++) { // repeats for all reputation rewards			
@@ -979,6 +996,9 @@ Dom.quests.active = function(quest){ // when a quest is started or ended...
 	document.getElementById("activeQuestBox").style.textAlign = "left"; // the text in the box is written from the left
 	document.getElementById("activeQuestBox").innerText = ""; // sets the text in the box to none
 	for(var x = 0; x < Dom.quests.activeQuestArray.length; x++){ // repeats for every active quest
+		if(x != 0){
+			document.getElementById("activeQuestBox").innerHTML += "<br><br>";
+		}
 		document.getElementById("activeQuestBox").innerHTML += "<strong>" + Dom.quests.activeQuestUseArray[x].quest + "</strong>"; // writes the name of the quest in the box
 		for(var i = 0; i < Dom.quests.activeQuestUseArray[x].objectives.length; i++){ // repeats for each objective
 			document.getElementById("activeQuestBox").innerHTML += "<br>" + Dom.quests.activeQuestUseArray[x].objectives[i]; // writes the objective in the box
