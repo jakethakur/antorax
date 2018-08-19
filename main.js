@@ -2007,7 +2007,7 @@ Game.update = function (delta) {
 		if (!Game.identifiers[i].respawning) { // check identifier is not dead
 			if (this.hero.isTouching(this.identifiers[i]) && Dom.currentlyDisplayed === "") { // needs to check that it is not already open - PG tbd
 				// open identifier page
-				Dom.identifier.page("Game.identifiers[i]");
+				Dom.identifier.page(Game.identifiers[i]);
 			}
 			else if (Dom.currentlyDisplayed != "identifier" && Dom.currentlyDisplayed != "identified" && Dom.currentlyDisplayed != "" && !Dom.override) {
 				if(this.hero.isTouching(this.identifiers[i]) && document.getElementsByClassName("closeClass")[0].style.border != "5px solid red"){
