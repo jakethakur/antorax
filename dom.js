@@ -28,23 +28,6 @@ var Dom = { // DOM function arrays
 	alert: {}, // variables to do with alert are defined as Dom.alert.varName
 };
 
-/*var Stats = { // variables to do with stats are defined as Stats.varName
-	Damage: 0, // the user's total damage default is 0 but can be changed by weapons
-	Defence: 0, // the user's total defence default is 0 but can be changed by armour
-	Critical_Chance: 1, // the user's total critical chance default is 1 but can be changed by armour or weapons
-	Dodge_Chance: 1, // the user's total dodge chance default is 1 but can be changed by armout or weapons
-	Flaming: 0, // the user does not usually deal fire damage to enemies but some weapons do
-	Focus_Speed: 1, // the user's total focus speed default is 1 but can be changed by bows
-	Health_Regen: 2, // the user's total health regen default is 2 but can be changed by armour or weapons
-	Looting: 50, // the user's total looting default is 50 but can be changed by armour or weapons
-	PoisonX: 0, // the user's total posion default is 0 damage...
-	PoisonY: 0, // ...over 0 seconds but can be changed by armour or weapons
-	Reflection: 0, // the user's total looting default is 0 but can be changed by armour or weapons
-	Stun: 0, // the user's total stun time default is 0 but can be changed by armour or weapons
-	Swim_Speed: 60, // the user's total swim speed default is 60 but can be changed by armour or weapons
-	Walk_Speed: 180, // the user's total walk speed default is 180 but can be changed by armour or weapons
-};*/
-
 if(sessionStorage.getItem("class")==undefined){
 	window.location.replace("./selection.html");
 }
@@ -474,12 +457,16 @@ Dom.inventory.displayIdentification = function(){
 	document.getElementById("innerStats").innerHTML += "<br>Defence: " + Player.stats.defence; // updates the defence display
 	document.getElementById("innerStats").innerHTML += "<br>Critical Chance: " + Player.stats.criticalChance + "%"; // updates the critical chance display
 	document.getElementById("innerStats").innerHTML += "<br>Dodge Chance: " + Player.stats.dodgeChance + "%"; // updates the dodge chance display
-	if(Player.stats.flaming > 0){
+	if(Player.stats.flaming != 0){
 		document.getElementById("innerStats").innerHTML += "<br>Flaming "+romanize(Player.stats.flaming);
 	}
-	document.getElementById("innerStats").innerHTML += "<br>Focus Speed: " + Player.stats.focusSpeed; // updates the focus speed display
+	if(Player.class == "a"){
+		document.getElementById("innerStats").innerHTML += "<br>Focus Speed: " + Player.stats.focusSpeed; // updates the focus speed display
+	}
 	document.getElementById("innerStats").innerHTML += "<br>Health Regen: " + Player.stats.healthRegen + "/s"; // updates the health regen display
-	document.getElementById("innerStats").innerHTML += "<br>Looting: " + Player.stats.looting + "%"; // updates the looting display
+	if(Player.stats.looting != 100){
+		document.getElementById("innerStats").innerHTML += "<br>Looting: " + Player.stats.looting + "%"; // updates the looting display
+	}
 	if(Player.stats.poisonX != 0 && Player.stats.posionY != 0){
 		document.getElementById("innerStats").innerHTML += "<br>Poison: " + Player.stats.poisonX + "/" + Player.stats.poisonY + "s"; // updates the poison display
 	}
@@ -1579,11 +1566,11 @@ Dom.inventory.removeEquipment = function(array){ // removes the stats of an item
 	if(array[0].stats != undefined){
 		for(var i = 0; i < Object.keys(array[0].stats).length; i++){ // repeats code for all stats in old item
 			if(Object.keys(array[0].stats)[i] != "poison"){
-				Player.stats[Object.keys(array[0].stats)[i]] -= parseInt(array[0].stats[Object.keys(array[0].stats)[i]]); // minuses that stat from the player's stats
+				Player.stats[Object.keys(array[0].stats)[i]] -= parseFloat(array[0].stats[Object.keys(array[0].stats)[i]]); // minuses that stat from the player's stats
 			}else{
 				var split = array[0].stats.poison.split('/');
-				Player.stats.poisonX -= parseInt(split[0]);
-				Player.stats.poisonY -= parseInt(split[1]);
+				Player.stats.poisonX -= parseFloat(split[0]);
+				Player.stats.poisonY -= parseFloat(split[1]);
 			}
 		}
 	}
@@ -1596,7 +1583,7 @@ Dom.inventory.removeEquipment = function(array){ // removes the stats of an item
 		}
 		if(!Dom.inventory.noSet){ // set code (runs if the player was wearing a set but now isn't)
 			for(var i = 0; i < Object.keys(Items.set[array[0].set].stats).length; i++){ // repeats for all stats in set
-				Player.stats[Object.keys(Items.set[array[0].set].stats)[i]] -= parseInt(Items.set[array[0].set].stats[Object.keys(Items.set[array[0].set].stats)]); // removes that stat from player's stats
+				Player.stats[Object.keys(Items.set[array[0].set].stats)[i]] -= parseFloat(Items.set[array[0].set].stats[Object.keys(Items.set[array[0].set].stats)]); // removes that stat from player's stats
 			}
 		}
 	}
@@ -1609,11 +1596,11 @@ Dom.inventory.addEquipment = function(array){ // adds the stats of an item to th
 	if(array[0].stats != undefined){
 		for(var i = 0; i < Object.keys(array[0].stats).length; i++){ // repeats code for all stats in old item
 			if(Object.keys(array[0].stats)[i] != "poison"){
-				Player.stats[Object.keys(array[0].stats)[i]] += parseInt(array[0].stats[Object.keys(array[0].stats)[i]]); // minuses that stat from the player's stats
+				Player.stats[Object.keys(array[0].stats)[i]] += parseFloat(array[0].stats[Object.keys(array[0].stats)[i]]); // minuses that stat from the player's stats
 			}else{
 				var split = array[0].stats.poison.split('/');
-				Player.stats.poisonX += parseInt(split[0]);
-				Player.stats.poisonY += parseInt(split[1]);
+				Player.stats.poisonX += parseFloat(split[0]);
+				Player.stats.poisonY += parseFloat(split[1]);
 			}
 		}
 	}
@@ -1626,7 +1613,7 @@ Dom.inventory.addEquipment = function(array){ // adds the stats of an item to th
 		}
 		if(!Dom.inventory.noSet){ // set code (runs if the player was wearing a set but now isn't)
 			for(var i = 0; i < Object.keys(Items.set[array[0].set].stats).length; i++){ // repeats for all stats in set
-				Player.stats[Object.keys(Items.set[array[0].set].stats)[i]] += parseInt(Items.set[array[0].set].stats[Object.keys(Items.set[array[0].set].stats)]); // removes that stat from player's stats
+				Player.stats[Object.keys(Items.set[array[0].set].stats)[i]] += parseFloat(Items.set[array[0].set].stats[Object.keys(Items.set[array[0].set].stats)[i]]); // removes that stat from player's stats
 			}
 		}
 	}
@@ -1761,4 +1748,13 @@ for(var i = 0; i < 5; i++){
 		image: "",
 		stats: {},
 	});
+}
+
+// round number to 1dp
+// normally used for damage and to get rid of floating point errors
+function damageRound (number) {
+    number *= 10;
+    number = Math.round(number);
+    number /= 10;
+    return number;
 }
