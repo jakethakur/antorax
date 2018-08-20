@@ -41,6 +41,9 @@ var Player = {
 		focusSpeed: 1, // speed that the variant for archer projectiles gets smaller
 		maxDamage: 0, // mages only (damage done when channelled)
 		blockDefence: 0, // knights only
+		
+		// fishing
+		fishingRange: 200, // fishing rod range (currently just a constant)
 	},
 	
 	//

@@ -224,7 +224,7 @@ var Items = {
 			image: "assets/items/greaves/5.png",
 			tier: 1,
 			rarity: "mythic",
-			lore: "You'll find none of those cheap MDF greaves from the Wierwood.",
+			lore: "You'll find none of those cheap MDF greaves from the Weirwood.",
 			obtain: "Find as an unidentified item in Eaglecrest Logging Camp",
 			area: "Eaglecrest Logging Camp",
 			stats: {

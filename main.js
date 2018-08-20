@@ -5,8 +5,13 @@
 // Jake Thakur 2018
 //
 
-
 //https://developer.mozilla.org/en-US/docs/Games/Techniques/Tilemaps
+
+//
+// Just for testing...
+//
+
+Dom.inventory.give(Items.rod[2]);
 
 //
 // Asset loader
@@ -733,55 +738,97 @@ class Hero extends Attacker {
 	// start channeling basic attack
 	startAttack (e) {
 		if (this.canAttack && Player.inventory.weapon[0].name !== "") { // checks the player has a weapon and is not currently reloading
-			if (!checkRightClick(e) || Player.class === "m" || Player.class === "a") {
-				var projectileX, projectileY, projectileRotate;
+			if (!checkRightClick(e)) {
+				// left-click (normal) attack
 				
-				projectileX = Game.camera.x + (e.clientX - 19); // subtract 19 from the mouse position because this is the margin of the canvas
-				projectileY = Game.camera.y + (e.clientY - 19);
-				
+				// position of projectile
+				let projectileX = Game.camera.x + (e.clientX - 19); // subtract 19 from the mouse position because this is the margin of the canvas
+				let projectileY = Game.camera.y + (e.clientY - 19);
 				let distanceToProjectile = distance({x: projectileX, y: projectileY,}, this);
-					
-				if (distanceToProjectile < this.stats.range) {
-					this.canAttack = false;
-					
-					this.channelling = "projectile";
-					
-					projectileRotate = bearing(this, {x: projectileX, y: projectileY}) + Math.PI / 2;
-					
-					let variance = this.stats.variance;
-					if (this.class === "a") { // alter variance based on distance to enemy if the class is archer
-						let distanceFraction = distanceToProjectile / 600; // fraction of maximum variance (max variance = Playerstats.variance)
-						variance *= distanceFraction;
-					}
-					
-					this.channellingProjectileId = Game.nextProjectileId;
+				
+				if (Player.class === "m" && Player.inventory.weapon[0].type === "staff" || Player.class === "a" && Player.inventory.weapon[0].type === "bow" || Player.class === "k" && Player.inventory.weapon[0].type === "sword") {
+					// player is using conventional weapon
+						
+					if (distanceToProjectile < this.stats.range) {
+						// player is in range
+						
+						this.canAttack = false;
+						
+						this.channelling = "projectile";
+						
+						let projectileRotate = bearing(this, {x: projectileX, y: projectileY}) + Math.PI / 2;
+						
+						let variance = this.stats.variance;
+						if (this.class === "a") { // alter variance based on distance to enemy if the class is archer
+							let distanceFraction = distanceToProjectile / 600; // fraction of maximum variance (max variance = Playerstats.variance)
+							variance *= distanceFraction;
+						}
+						
+						this.channellingProjectileId = Game.nextProjectileId;
 
-					// tbd make work the same as enemy projectile
-					Game.projectiles.push(new Projectile({
-						map: map,
-						x: projectileX,
-						y: projectileY,
-						rotate: projectileRotate,
-						adjust: {
-							// manually adjust position - make this per class (per projectile image) in the future ( tbd )
-							x: 20,
-							y: 20,
-							towards: {x: this.x, y: this.y},
-						},
-						hitbox: { // arrow tip at mouse position
+						// tbd make work the same as enemy projectile
+						Game.projectiles.push(new Projectile({
+							map: map,
 							x: projectileX,
 							y: projectileY,
-							width: this.class === "k" ? 60 : (this.class === "m" ? 23 : (this.class === "a" ? 10 : 0)),
-							height: this.class === "k" ? 60 : (this.class === "m" ? 23 : (this.class === "a" ? 10 : 0)),
-						},
-						image: "projectile",
-						beingChannelled: true,
-						variance: variance,
-					}));
+							rotate: projectileRotate,
+							adjust: {
+								// manually adjust position - make this per class (per projectile image) in the future ( tbd )
+								x: 20,
+								y: 20,
+								towards: {x: this.x, y: this.y},
+							},
+							hitbox: { // arrow tip at mouse position
+								x: projectileX,
+								y: projectileY,
+								width: this.class === "k" ? 60 : (this.class === "m" ? 23 : (this.class === "a" ? 10 : 0)),
+								height: this.class === "k" ? 60 : (this.class === "m" ? 23 : (this.class === "a" ? 10 : 0)),
+							},
+							image: "projectile",
+							beingChannelled: true,
+							variance: variance,
+						}));
+					}
+				}
+				else if (Player.inventory.weapon[0].type === "rod" && this.channelling === false) {
+					// fishing rod (bobber has not been cast yet)
+					
+					if (distanceToProjectile < this.stats.fishingRange) {
+						// player is in range
+						
+						this.channelling = "fishing";
+						
+						this.channellingProjectileId = Game.nextProjectileId;
+					
+						Game.projectiles.push(new Projectile({
+							map: map,
+							x: projectileX,
+							y: projectileY,
+							/*adjust: {
+								// manually adjust position - make this per class (per projectile image) in the future ( tbd )
+								x: 20,
+								y: 20,
+								towards: {x: this.x, y: this.y},
+							},*/
+							image: "bobber",
+							beingChannelled: true,
+						}));
+					}
+				}
+				else if (Player.inventory.weapon[0].type === "rod" && this.channelling === "fishing") {
+					// fishing rod (bobber has been cast)
+					
+					Game.projectiles.splice(Game.searchFor(this.channellingProjectileId, Game.projectiles), 1); // remove bobber
+						
+					this.channelling = false;
+					this.channellingProjectileId = null;
 				}
 			}
-			else { // knights block when they right click
-				this.channelling = "block";
+			else {
+				// knight block attack
+				if (Player.class === "k") {
+					this.channelling = "block";
+				}
 			}
 		}
 	}
@@ -865,6 +912,9 @@ class Projectile extends Thing {
 		this.height = properties.height || this.image.height;
 		
 		// adjust position to make it move towards a point (e.g: move arrow so that the point hits the target
+		if (properties.adjust === undefined) {
+			properties.adjust = {}; // stop undefined error from trying to set adjust x/y/towards
+		}
 		this.adjust = {
 			x: properties.adjust.x || 0,
 			y: properties.adjust.y || 0,
@@ -1482,6 +1532,12 @@ Game.load = function (names, addresses) {
 		toLoad.push(Loader.loadImage("status", "./assets/icons/status.png"));
 	}
 	
+	// check fishing bobber has been loaded (if not, then load it)
+	// maybe this should just be done if the player has a fishing rod? - tbd
+	if (!Object.keys(Loader.images).includes("bobber")) {
+		toLoad.push(Loader.loadImage("bobber", "./assets/projectiles/bobber.png"));
+	}
+	
     return toLoad;
 };
 
@@ -2064,7 +2120,7 @@ Game.update = function (delta) {
 
 // update player's currently channelling projectile
 Game.playerProjectileUpdate = function(delta) {
-	if (Game.hero.channellingProjectileId !== null && Game.hero.channellingProjectileId !== undefined) { // check that the player is currently channelling a projectile
+	if (Game.hero.channellingProjectileId !== null && Game.hero.channellingProjectileId !== undefined && Game.hero.channelling === "projectile") { // check that the player is currently channelling a projectile
 		let projectile = Game.projectiles[Game.searchFor(Game.hero.channellingProjectileId, Game.projectiles)];
 		
 		// increase player channelTime if they are holding their mouse down
@@ -2115,12 +2171,14 @@ Game.getXP = function () {
 // this is called by index.html
 // PG's code
 Game.inventoryUpdate = function (e) {
-	if (e == undefined) {
+	if (e == undefined || isNaN(parseInt(e.dataTransfer.getData("text")))) {
+		// player stats updated
 		Game.hero.stats = Player.stats;
-	}
-	else {
-		if (isNaN(parseInt(e.dataTransfer.getData("text")))) {
-			Game.hero.stats = Player.stats;
+		if (Player.inventory.weapon[0].type !== "rod" && Game.hero.channelling === "fishing") { // if the player is no longer holding a fishing rod, remove their bobber
+			Game.projectiles.splice(Game.searchFor(Game.hero.channellingProjectileId, Game.projectiles), 1); // remove bobber
+			
+			Game.hero.channelling = false;
+			this.channellingProjectileId = null;
 		}
 	}
 }
@@ -2466,7 +2524,7 @@ Game.render = function () {
 		}
 		
 		else { // render projectile normally
-			if (Game.hero.class === "m" && this.projectiles[i].beingChannelled) { // mage projectiles are transparent when being channelled
+			if (Game.hero.class === "m" && this.projectiles[i].beingChannelled && Game.hero.channelling === "projectile") { // mage projectiles are transparent when being channelled
 				this.ctx.globalAlpha = 0.6;
 			}
 		
@@ -2539,8 +2597,17 @@ Game.render = function () {
 
 // update crosshair based on mouse distance from player (called by mouseMove event listener in init)
 Game.secondary.updateCursor = function (event) {
-	// check the player's mouse distance is within range and they currently have a weapon
-	if (distance({x: Game.camera.x + event.clientX - 19, y: Game.camera.y + event.clientY - 19,}, Game.hero) < Game.hero.stats.range && Player.inventory.weapon[0].name !== "") {
+	// get player's range
+	let range = 0;
+	if (Player.inventory.weapon[0].type === "rod") { // fishing
+		range = Game.hero.stats.fishingRange;
+	}
+	else if (Player.inventory.weapon[0].type === "bow" || Player.inventory.weapon[0].type === "sword" || Player.inventory.weapon[0].type === "staff") {
+		range = Game.hero.stats.range;
+	}
+	
+	// check the player's mouse distance is within range
+	if (distance({x: Game.camera.x + event.clientX - 19, y: Game.camera.y + event.clientY - 19,}, Game.hero) < range) {
 		// mouse in range (crosshair)
 		document.getElementById("secondary").style.cursor = "crosshair";
 	}
