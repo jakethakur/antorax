@@ -1121,5 +1121,211 @@ var Items = {
 				max: 200,
 			},
 		},
+		{
+			id: 15,
+			name: "Lemon Sole",
+			type: "misc",
+			image: "assets/items/fish/15.png",
+			rarity: "common",
+			lore: "",
+			consumption: true,
+			areas: [], 
+			waterTypes: [
+				"marine",
+			],
+			length: {
+				min: 20,
+				avg: 25,
+				max: 64,
+			},
+		},
+		{
+			id: 16,
+			name: "Climbing Perch",
+			type: "misc",
+			image: "assets/items/fish/16.png",
+			rarity: "common",
+			lore: "",
+			consumption: false,
+			areas: [], 
+			waterTypes: [
+				"freshwater",
+				"brackish",
+			],
+			length: {
+				min: 1.2,
+				avg: 12.5,
+				max: 25,
+			},
+		},
+		{
+			id: 17,
+			name: "Fallfish",
+			type: "misc",
+			image: "assets/items/fish/17.png",
+			rarity: "common",
+			lore: "",
+			consumption: true,
+			areas: [], 
+			waterTypes: [
+				"freshwater",
+			],
+			length: {
+				min: 12,
+				avg: 17,
+				max: 51,
+			},
+		},
+		{
+			id: 18,
+			name: "Fourfinger Threadfin",
+			type: "misc",
+			image: "assets/items/fish/18.png",
+			rarity: "common",
+			lore: "",
+			consumption: false,
+			areas: [], 
+			waterTypes: [
+				"freshwater",
+				"brackish",
+				"marine",
+			],
+			length: {
+				min: null, // tbd
+				avg: null, // tbd
+				max: 18,
+			},
+		},
+		{
+			id: 19,
+			name: "Cuttlefish",
+			type: "misc",
+			image: "assets/items/fish/19.png",
+			rarity: "unique",
+			lore: "",
+			consumption: true,
+			areas: [], 
+			waterTypes: [
+				"marine",
+			],
+			length: {
+				min: 10,
+				avg: 45,
+				max: 50,
+			},
+		},
+		{
+			id: 20,
+			name: "Dark Eel Catfish",
+			type: "misc",
+			image: "assets/items/fish/20.png",
+			rarity: "common",
+			lore: "",
+			consumption: false,
+			areas: [], 
+			waterTypes: [
+				"freshwater",
+				"brackish",
+				"marine",
+			],
+			length: {
+				min: null, // tbd
+				avg: 30,
+				max: 41,
+			},
+		},
+		{
+			id: 21,
+			name: "Zebra Fish",
+			type: "misc",
+			image: "assets/items/fish/21.png",
+			rarity: "common",
+			lore: "",
+			consumption: true,
+			areas: [], 
+			waterTypes: [
+				"freshwater",
+				"brackish",
+			],
+			length: {
+				min: null, // tbd
+				avg: null, // tbd
+				max: 34,
+			},
+		},
+		{
+			id: 22,
+			name: "Southern Herring",
+			type: "misc",
+			image: "assets/items/fish/22.png",
+			rarity: "common",
+			lore: "",
+			consumption: true,
+			areas: [], 
+			waterTypes: [
+				"brackish",
+				"marine",
+			],
+			length: {
+				min: 20,
+				avg: 30,
+				max: 45,
+			},
+		},
+		{
+			id: 23,
+			name: "Northern Red Snapper",
+			type: "misc",
+			image: "assets/items/fish/23.png",
+			rarity: "common",
+			lore: "",
+			consumption: true,
+			areas: [], 
+			waterTypes: [
+				"marine",
+			],
+			length: {
+				min: 39,
+				avg: 60,
+				max: 100,
+			},
+		},
+		{
+			id: 24,
+			name: "Blue-Barred Parrotfish",
+			type: "misc",
+			image: "assets/items/fish/24.png",
+			rarity: "common",
+			lore: "",
+			consumption: true,
+			areas: [], 
+			waterTypes: [
+				"brackish",
+				"marine",
+			],
+			length: {
+				min: null, // tbd
+				avg: 30,
+				max: 90,
+			},
+		},
+		{
+			id: 25,
+			name: "Zebra Danio",
+			type: "misc",
+			image: "assets/items/fish/25.png",
+			rarity: "common",
+			lore: "",
+			consumption: false,
+			areas: [], 
+			waterTypes: [
+				"freshwater",
+			],
+			length: {
+				min: null, //tbd
+				avg: 3.8,
+				max: 6.4,
+			},
+		},
 	],
 };
