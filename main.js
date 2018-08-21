@@ -800,13 +800,23 @@ class Hero extends Attacker {
 							beingChannelled: true,
 							variance: variance,
 						}));
+						
+						this.fishingBobs = 0; // number of times that the fishing bobber has bobbed
+						
+						setTimeout(function () {
+							this.beingChannelled++;
+							setTimeout(function () {
+								this.beingChannelled++;
+								
+							}.bind(this), random(500, 12000))
+						}.bind(Game.projectiles[Game.projectiles.length - 1]), random(500, 12000));
 					}
 				}
 				else if (Player.inventory.weapon[0].type === "rod" && this.channelling === false) {
 					// fishing rod (bobber has not been cast yet)
 					
-					if (distanceToProjectile < this.stats.fishingRange) {
-						// player is in range
+					if (distanceToProjectile < this.stats.fishingRange && this.map.isSlowTileAtXY(projectileX, projectileY) === "water") {
+						// player is in range and clicked in water
 						
 						this.channelling = "fishing";
 						
@@ -895,10 +905,32 @@ class Hero extends Attacker {
 		Dom.inventory.updateIdentification();
 	}
 	
+	// space bar
 	interact () {
 		let tileNum = map.getTile(0, map.getCol(this.x), map.getRow(this.y + this.height/2));
 		if (map.interactWithTile !== undefined) {
 			map.interactWithTile(tileNum, this.x, this.y + this.height/2);
+		}
+	}
+	
+	// called by fishing bobber timeouts
+	fish () {
+		if (this.fishingBobs < 4 && this.fishingBobs > -1) {
+			// bob fishing bobber every ~1 second
+			this.fishingBobs++;
+			
+			if (random(0, 5) < this.fishingBobs) {
+				// fish caught
+				let fish = Items.fish;
+				fish = fish.filter(item => item.waterTypes.includes(Areas[Game.areaName].waterType)); // filter for water type
+				fish = fish.filter(item => item.areas.includes(Game.areaName) || item.areas === []); // filter for area
+				fish = fish[random(0, fish.length - 1)]; // TBD make the fish decided based on your fishing skill
+				this.channelling = fish;
+			}
+			else {
+				// timer for next bob
+				setTimeout(this.fish.bind(this), random(500, 1500));
+			}
 		}
 	}
 }

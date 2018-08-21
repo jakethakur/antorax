@@ -94,6 +94,8 @@ var Areas = {
 		song_day: "./assets/music/Pippin-the-Hunchback.mp3",
 		song_night: "./assets/music/Pippin-the-Hunchback-night.mp3",
 		
+		waterType: "brackish",
+		
 		player: {
 			x: 2297,
 			y: 387,
@@ -279,6 +281,8 @@ var Areas = {
 		
 		song_day: "./assets/music/Pippin-the-Hunchback.mp3",
 		song_night: "./assets/music/Pippin-the-Hunchback-night.mp3",
+		
+		waterType: "freshwater",
 		
 		areaTeleports: [
 			{
@@ -520,6 +524,8 @@ var Areas = {
 		
 		song_day: "./assets/music/Pippin-the-Hunchback.mp3",
 		song_night: "./assets/music/Pippin-the-Hunchback-night.mp3",
+		
+		waterType: "freshwater",
 		
 		areaTeleports: [
 			{
