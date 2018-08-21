@@ -118,13 +118,16 @@ Keyboard.isDown = function (keyCode) {
 //
 
 var Game = {
+	// function objects
 	statusEffects: {},
 	secondary: {},
+	
+	displayedStats: 0, // number of stats displayed at the top left
 };
 Game.canvas = document.getElementById("game");
 Game.secondary.canvas = document.getElementById("secondary");
 
-//run game
+// run game
 Game.run = function (context, secondaryContext) {
     this.ctx = context;
 	
@@ -149,7 +152,7 @@ Game.tick = function (elapsed) {
 	
 	
 	this.update(delta); //update game state
-	this.render(); //render game display
+	this.render(delta); //render game display
 	
 	
 	// reset text formatting
@@ -157,19 +160,6 @@ Game.tick = function (elapsed) {
 	
 	// display delta time (debug)
 	//this.ctx.fillText("delta: " + Math.round(delta * 1000) / 1000, 10, 30);
-	
-	// display frames per second (debug)
-	// doesn't work very well - should be averaged - TBD
-	if(document.getElementById("fpsOn").checked){
-		//fps array needs to be defined
-		//make own function?
-		/*this.fpsArray.push(Math.round(1 / delta));
-		if (this.fpsArray.length >= 100) {
-			this.fpsArray.shift();
-		}
-		this.fpsArray.push(Math.round(1 / delta));*/
-		this.ctx.fillText("fps: " + Math.round(1 / delta), 10, 40);
-	}
 }.bind(Game);
 
 //
@@ -1723,7 +1713,7 @@ Game.loadArea = function (areaName, destination) {
 	
 }
 
-// initialise game
+// initialise game and variables within Game object
 Game.init = function () {
 	// welcome player
 	// tbd: make it say welcome back if you've played before and it saved your progress; make it a different colour?
@@ -1777,6 +1767,9 @@ Game.init = function () {
 	
 	// change between default cursor and crosshair based on player range
 	Game.secondary.canvas.addEventListener("mousemove", Game.secondary.updateCursor.bind(this.secondary));
+	
+	// fps array (used for tracking frames per second in Game.fps())
+	Game.fpsArray = [];
 	
 	// health regeneration every second
 	setInterval(function () {
@@ -2328,8 +2321,31 @@ Game.coordinates = function (character) {
 	// reset text formatting
 	this.resetFormatting();
 	
-	this.ctx.fillText("x: " + Math.round(character.x), 10, 20);
-	this.ctx.fillText("y: " + Math.round(character.y), 10, 30);
+	this.ctx.fillText("x: " + Math.round(character.x), 10, 50);
+	this.ctx.fillText("y: " + Math.round(character.y), 10, 60);
+}
+
+// display frames per second on canvas (settings option)
+// delta = time in ms between frames
+Game.fps = function (delta) {
+	// reset text formatting
+	this.resetFormatting();
+	
+	// add current fps value to fps array
+	this.fpsArray.push(Math.round(1 / delta));
+	if (this.fpsArray.length >= 100) {
+		this.fpsArray.shift();
+	}
+	
+	// calculate average 
+	let sum = 0;
+	for (let i = 0; i < this.fpsArray.length; i++) {
+		sum += this.fpsArray[i];
+	}
+	let average = sum / this.fpsArray.length;
+	
+	// write on canvas
+	this.ctx.fillText("fps: " + damageRound(average), 10, 75);
 }
 
 // reset text formatting
@@ -2432,7 +2448,7 @@ Game.drawHealthBar = function (ctx, character, x, y, width, height) {
 }
 
 // draw images on canvas
-Game.render = function () {
+Game.render = function (delta) {
 	// reset text formatting (currntly done in individual functions)
 	//this.resetFormatting();
 	
@@ -2590,6 +2606,10 @@ Game.render = function () {
 
     // draw map top layer
     //this._drawLayer(1);
+	
+	//
+	// Setting options
+	//
 
     // draw map grid (debug)
     if(document.getElementById("gridOn").checked) {
@@ -2605,6 +2625,13 @@ Game.render = function () {
     if(document.getElementById("coordsOn").checked) {
 		this.coordinates(this.hero);
     }
+	
+    // show canvas fps (debug)
+	if(document.getElementById("fpsOn").checked){
+		this.fps(delta);
+	}
+	
+	
 	
 	// display area name (if the player has just gone to a new area)
 	if (this.displayAreaName.duration > 0) {
