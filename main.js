@@ -296,11 +296,22 @@ Camera.prototype.update = function () {
 };
 
 // check if object is displayed on the screen
-Camera.prototype.isOnScreen = function (object) {
-	if (object.x + object.width / 2 > this.x && object.y + object.height / 2 > this.y) { // object's x and y are big enough
-		if (object.x - object.width / 2 < this.x + 600 && object.y - object.height / 2 < this.y + 600) { // object's x and y are also small enough
-			console.log(object.name);
-			return true;
+// if mode is "hitbox", it is checked if the hitbox is on the screen instead of the image (for hitbox rendering)
+Camera.prototype.isOnScreen = function (object, mode) {
+	if (mode === "hitbox" && object.hitbox !== undefined) {
+		// hitbox mode
+		if (object.hitbox.x + object.hitbox.width / 2 > this.x && object.hitbox.y + object.hitbox.height / 2 > this.y) { // object's x and y are big enough
+			if (object.hitbox.x - object.hitbox.width / 2 < this.x + 600 && object.hitbox.y - object.hitbox.height / 2 < this.y + 600) { // object's x and y are also small enough
+				return true;
+			}
+		}
+	}
+	else {
+		// image mode
+		if (object.x + object.width / 2 > this.x && object.y + object.height / 2 > this.y) { // object's x and y are big enough
+			if (object.x - object.width / 2 < this.x + 600 && object.y - object.height / 2 < this.y + 600) { // object's x and y are also small enough
+				return true;
+			}
 		}
 	}
 	return false;
@@ -2259,46 +2270,39 @@ Game.drawHitboxes = function () {
 	
 	// TBD change this to work off of renderList
 	
-	// player hitbox
+	// player hitbox (add to renderlist tbd)
 	this.ctx.strokeRect(this.hero.screenX - this.hero.width / 2, this.hero.screenY - this.hero.height / 2, this.hero.width, this.hero.height);
 	
-	// NPC hitboxes
-	for(var i = 0; i < this.NPCs.length; i++) {
-		if (!Game.NPCs[i].respawning) { // check npc is not dead
-			this.ctx.strokeRect(this.NPCs[i].screenX - this.NPCs[i].width / 2, this.NPCs[i].screenY - this.NPCs[i].height / 2, this.NPCs[i].width, this.NPCs[i].height);
+	// render npcs on renderList
+	for (var i = 0; i < this.renderList.length; i++) { // iterate through everything to be rendered (in order)
+		
+		for (var x = 0; x < this[this.renderList[i]].length; x++) { // iterate through that array of things to be rendered
+		
+			let objectToRender = this[this.renderList[i]][x];
+		
+			if (Game.camera.isOnScreen(objectToRender, "hitbox")) { // check object hitbox is on the screen hence should be rendered
+			
+				if (objectToRender.hitbox !== undefined) { // check if the object has a special hitbox that should be drawn instead
+					this.ctx.strokeRect(objectToRender.hitbox.screenX - objectToRender.hitbox.width / 2, objectToRender.hitbox.screenY - objectToRender.hitbox.height / 2, objectToRender.hitbox.width, objectToRender.hitbox.height);
+				}
+				else {
+					this.ctx.strokeRect(objectToRender.screenX - objectToRender.width / 2, objectToRender.screenY - objectToRender.height / 2, objectToRender.width, objectToRender.height);
+				}
+				
+			}
+			
 		}
-	}
-	
-	// identifier hitboxes
-	for(var i = 0; i < this.identifiers.length; i++) {
-		if (!Game.identifiers[i].respawning) { // check identifier is not dead
-			this.ctx.strokeRect(this.identifiers[i].screenX - this.identifiers[i].width / 2, this.identifiers[i].screenY - this.identifiers[i].height / 2, this.identifiers[i].width, this.identifiers[i].height);
-		}
-	}
-	
-	// enemy hitboxes
-	for(var i = 0; i < this.enemies.length; i++) {
-		if (!Game.enemies[i].respawning) { // check enemy is not dead
-			this.ctx.strokeRect(this.enemies[i].screenX - this.enemies[i].width / 2, this.enemies[i].screenY - this.enemies[i].height / 2, this.enemies[i].width, this.enemies[i].height);
-		}
-		else { // corpse hitbox
-			this.ctx.strokeRect(this.enemies[i].screenX - this.enemies[i].deathImageWidth / 2, this.enemies[i].screenY - this.enemies[i].deathImageHeight / 2, this.enemies[i].deathImageWidth, this.enemies[i].deathImageHeight);
-		}
-	}
-	
-	// dummy hitboxes
-	for(var i = 0; i < this.dummies.length; i++) {
-		if (!Game.dummies[i].respawning) { // check dummy is not dead
-			this.ctx.strokeRect(this.dummies[i].screenX - this.dummies[i].width / 2, this.dummies[i].screenY - this.dummies[i].height / 2, this.dummies[i].width, this.dummies[i].height);
-		}
+		
 	}
 	
 	// area teleport hitboxes
+	// maybe a special hitbox render list should be made? (tbd)
 	for(var i = 0; i < this.areaTeleports.length; i++) {
 		this.ctx.strokeRect(this.areaTeleports[i].screenX - this.areaTeleports[i].width / 2, this.areaTeleports[i].screenY - this.areaTeleports[i].height / 2, this.areaTeleports[i].width, this.areaTeleports[i].height);
 	}
 	
 	// projectile hitboxes
+	// should be added to renderList (tbd)
 	for(var i = 0; i < this.projectiles.length; i++) {
 		if (this.projectiles[i].hitbox !== undefined) { // this should be checked for everything in the future (when this function is reworked to work with renderList)
 			this.ctx.strokeRect(this.projectiles[i].hitbox.screenX - this.projectiles[i].hitbox.width / 2, this.projectiles[i].hitbox.screenY - this.projectiles[i].hitbox.height / 2, this.projectiles[i].hitbox.width, this.projectiles[i].hitbox.height);
@@ -2444,7 +2448,7 @@ Game.render = function () {
 		
 			let objectToRender = this[this.renderList[i]][x];
 		
-			if (Game.camera.isOnScreen(objectToRender)) { // check object is on the screen hence should be rendered
+			if (Game.camera.isOnScreen(objectToRender, "image")) { // check object is on the screen hence should be rendered
 			
 				// set character screen x and y
 				this.updateScreenPosition(objectToRender);
@@ -2498,7 +2502,7 @@ Game.render = function () {
 
     // draw main character
 	
-	//check what direction they are facing, then render player
+	// check what direction they are facing, then render player
 	if (this.hero.direction == 1) {
 		this.ctx.drawImage(
 			this.hero.image,
