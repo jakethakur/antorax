@@ -295,6 +295,17 @@ Camera.prototype.update = function () {
     }
 };
 
+// check if object is displayed on the screen
+Camera.prototype.isOnScreen = function (object) {
+	if (object.x + object.width / 2 > this.x && object.y + object.height / 2 > this.y) { // object's x and y are big enough
+		if (object.x - object.width / 2 < this.x + 600 && object.y - object.height / 2 < this.y + 600) { // object's x and y are also small enough
+			console.log(object.name);
+			return true;
+		}
+	}
+	return false;
+}
+
 //
 // Global functions
 // (maybe these shouldn't be global?)
@@ -2345,7 +2356,7 @@ Game.drawImageRotated = function (img, x, y, width, height, rad) {
 }
 
 // update entity's screen position (called every time it is rendered, and also in functions like dealDamage)
-// screenX and screenY are the CENTRE of the object (hence width/2 or height/2 are subtracted when drawing images to get the top left)
+// screenX and screenY are the CENTRE of the object (hence width/2 or height/2 are subtracted when drawing images to get the top left), as are x and y
 Game.updateScreenPosition = function (entity) {
 	entity.screenX = (entity.x) - this.camera.x;
 	entity.screenY = (entity.y) - this.camera.y;
@@ -2431,41 +2442,58 @@ Game.render = function () {
 		
 		for (var x = 0; x < this[this.renderList[i]].length; x++) { // iterate through that array of things to be rendered
 		
-			if (!this[this.renderList[i]][x].respawning) { // check character is not dead
-				// set character screen x and y
-				this.updateScreenPosition(this[this.renderList[i]][x]);
-				
-				// draw image
-				this.ctx.drawImage(
-					this[this.renderList[i]][x].image,
-					this[this.renderList[i]][x].screenX - this[this.renderList[i]][x].width / 2,
-					this[this.renderList[i]][x].screenY - this[this.renderList[i]][x].height / 2
-				);
-				
-				// render function (additional render to be carried out upon render of this entity)
-				if (this[this.renderList[i]][x].renderFunction !== undefined) {
-					this[this.renderList[i]][x].renderFunction();
-				}
-			}
+			let objectToRender = this[this.renderList[i]][x];
+		
+			if (Game.camera.isOnScreen(objectToRender)) { // check object is on the screen hence should be rendered
 			
-			else {
-				if (this[this.renderList[i]][x].deathImage !== undefined) { // display corpse
-					// set character screen x and y
-					this.updateScreenPosition(this[this.renderList[i]][x]);
+				// set character screen x and y
+				this.updateScreenPosition(objectToRender);
+			
+				if (!objectToRender.respawning) { // check character is not dead
 					
 					// draw image
 					this.ctx.drawImage(
-						this[this.renderList[i]][x].deathImage,
-						this[this.renderList[i]][x].screenX - this[this.renderList[i]][x].deathImageWidth / 2,
-						this[this.renderList[i]][x].screenY - this[this.renderList[i]][x].deathImageHeight / 2
+						objectToRender.image,
+						objectToRender.screenX - objectToRender.width / 2,
+						objectToRender.screenY - objectToRender.height / 2
 					);
 					
-					// perhaps a death render function should be added? tbd
+					// render function (additional render to be carried out upon render of this entity)
+					if (objectToRender.renderFunction !== undefined) {
+						objectToRender.renderFunction();
+					}
 				}
+				
+				else {
+					if (objectToRender.deathImage !== undefined) { // display corpse
+						// set character screen x and y
+						this.updateScreenPosition(objectToRender);
+						
+						// draw image
+						this.ctx.drawImage(
+							objectToRender.deathImage,
+							objectToRender.screenX - objectToRender.deathImageWidth / 2,
+							objectToRender.screenY - objectToRender.deathImageHeight / 2
+						);
+						
+						// perhaps a death render function should be added? tbd
+					}
+				}
+				
 			}
 			
 		}
 		
+	}
+	
+	if (Game.hero.channelling === "fishing") {
+		// line between fishing bobber and player
+		let projectile = Game.projectiles[Game.searchFor(Game.hero.channellingProjectileId, Game.projectiles)];
+		this.ctx.strokeStyle = "grey";
+		this.ctx.beginPath();
+		this.ctx.moveTo(projectile.screenX, projectile.screenY - 8);
+		this.ctx.lineTo(Game.hero.screenX, Game.hero.screenY);
+		this.ctx.stroke();
 	}
 
     // draw main character
@@ -2516,7 +2544,7 @@ Game.render = function () {
 		// set screen x and y
 		this.updateScreenPosition(this.projectiles[i]);
 		
-		if (Game.hero.class === "a" && this.projectiles[i].beingChannelled) { // show archer red circle instead of projectile if they are currently channelling it
+		if (Game.hero.class === "a" && this.projectiles[i].beingChannelled && Game.hero.channelling === "projectile") { // show archer red circle instead of projectile if they are currently channelling it
 			this.ctx.strokeStyle = "red";
 			this.ctx.beginPath();
 			this.ctx.arc(this.projectiles[i].hitbox.screenX, this.projectiles[i].hitbox.screenY, this.projectiles[i].variance, 0, 2*Math.PI);
