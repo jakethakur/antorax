@@ -4,6 +4,7 @@ var Quests = {
 			id: 0,
 			quest: "To the Logging Camp",
 			
+			// redundant but will keep anyway
 			startName: "Cart Driver",
 			startChat: "That's it, we're here! I'm afraid you're going to have to walk to the <strong>Eaglecrest Logging Camp</strong> from here. If you walk down a bit to the west you should see the entrance to the camp.<br>You should probably buy a weapon on your way there. Take this <strong>3 gold</strong> and you can buy yourself a new one, I guess. There's a good weaponsmith on your way to the camp, not far from here.",
 			

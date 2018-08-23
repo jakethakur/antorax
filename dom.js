@@ -1585,8 +1585,12 @@ Dom.inventory.removeEquipment = function(array){ // removes the stats of an item
 	}
 	if(array[0].stats != undefined){
 		for(var i = 0; i < Object.keys(array[0].stats).length; i++){ // repeats code for all stats in old item
-			if(Object.keys(array[0].stats)[i] != "poison"){
+			if(Object.keys(array[0].stats)[i] != "poison" && Object.keys(array[0].stats)[i] != "damage"){
 				Player.stats[Object.keys(array[0].stats)[i]] -= parseFloat(array[0].stats[Object.keys(array[0].stats)[i]]); // minuses that stat from the player's stats
+			}else if(Object.keys(array[0].stats)[i] == "damage"){
+				var split = array[0].stats.damage.split('-');
+				Player.stats.damage -= parseFloat(split[0]);
+				Player.stats.maxDamage -= parseFloat(split[1]);
 			}else{
 				var split = array[0].stats.poison.split('/');
 				Player.stats.poisonX -= parseFloat(split[0]);
@@ -1603,7 +1607,18 @@ Dom.inventory.removeEquipment = function(array){ // removes the stats of an item
 		}
 		if(!Dom.inventory.noSet){ // set code (runs if the player was wearing a set but now isn't)
 			for(var i = 0; i < Object.keys(Items.set[array[0].set].stats).length; i++){ // repeats for all stats in set
-				Player.stats[Object.keys(Items.set[array[0].set].stats)[i]] -= parseFloat(Items.set[array[0].set].stats[Object.keys(Items.set[array[0].set].stats)]); // removes that stat from player's stats
+				if(Object.keys(Items.set[array[0].set].stats)[i] != "poison" && Object.keys(Items.set[array[0].set].stats)[i] != "damage"){
+					Player.stats[Object.keys(Items.set[array[0].set].stats)[i]] -= parseFloat(Items.set[array[0].set].stats[Object.keys(Items.set[array[0].set].stats)[i]]); // minuses that stat from the player's stats
+				}else if(Object.keys(Items.set[array[0].set].stats)[i] == "damage"){
+					Player.stats.damage -= parseFloat(Items.set[array[0].set].stats.damage);
+					if(Player.class == "m"){
+						Player.stats.maxDamage -= parseFloat(Items.set[array[0].set].stats.damage);
+					}
+				}else{
+					var split = Items.set[array[0].set].stats.poison.split('/');
+					Player.stats.poisonX -= parseFloat(split[0]);
+					Player.stats.poisonY -= parseFloat(split[1]);
+				}
 			}
 		}
 	}
@@ -1615,8 +1630,12 @@ Dom.inventory.addEquipment = function(array){ // adds the stats of an item to th
 	}
 	if(array[0].stats != undefined){
 		for(var i = 0; i < Object.keys(array[0].stats).length; i++){ // repeats code for all stats in old item
-			if(Object.keys(array[0].stats)[i] != "poison"){
+			if(Object.keys(array[0].stats)[i] != "poison" && Object.keys(array[0].stats)[i] != "damage"){
 				Player.stats[Object.keys(array[0].stats)[i]] += parseFloat(array[0].stats[Object.keys(array[0].stats)[i]]); // minuses that stat from the player's stats
+			}else if(Object.keys(array[0].stats)[i] == "damage"){
+				var split = array[0].stats.damage.split('-');
+				Player.stats.damage += parseFloat(split[0]);
+				Player.stats.maxDamage += parseFloat(split[1]);
 			}else{
 				var split = array[0].stats.poison.split('/');
 				Player.stats.poisonX += parseFloat(split[0]);
@@ -1633,7 +1652,18 @@ Dom.inventory.addEquipment = function(array){ // adds the stats of an item to th
 		}
 		if(!Dom.inventory.noSet){ // set code (runs if the player was wearing a set but now isn't)
 			for(var i = 0; i < Object.keys(Items.set[array[0].set].stats).length; i++){ // repeats for all stats in set
-				Player.stats[Object.keys(Items.set[array[0].set].stats)[i]] += parseFloat(Items.set[array[0].set].stats[Object.keys(Items.set[array[0].set].stats)[i]]); // removes that stat from player's stats
+				if(Object.keys(Items.set[array[0].set].stats)[i] != "poison" && Object.keys(Items.set[array[0].set].stats)[i] != "damage"){
+					Player.stats[Object.keys(Items.set[array[0].set].stats)[i]] += parseFloat(Items.set[array[0].set].stats[Object.keys(Items.set[array[0].set].stats)[i]]); // minuses that stat from the player's stats
+				}else if(Object.keys(Items.set[array[0].set].stats)[i] == "damage"){
+					Player.stats.damage += parseFloat(Items.set[array[0].set].stats.damage);
+					if(Player.class == "m"){
+						Player.stats.maxDamage += parseFloat(Items.set[array[0].set].stats.damage);
+					}
+				}else{
+					var split = Items.set[array[0].set].stats.poison.split('/');
+					Player.stats.poisonX += parseFloat(split[0]);
+					Player.stats.poisonY += parseFloat(split[1]);
+				}
 			}
 		}
 	}
@@ -1777,4 +1807,12 @@ function damageRound (number) {
     number = Math.round(number);
     number /= 10;
     return number;
+}
+
+Dom.inventory.hideHotbar = function(hide){
+	if(hide){
+		document.getElementById("hotbar").hidden = true;
+	}else{
+		document.getElementById("hotbar").hidden = false;
+	}
 }

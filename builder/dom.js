@@ -653,7 +653,7 @@ function end(num){
 		complete.set = back[3][0].value;
 		complete.stats = {};
 		if(name == "sword" || name == "staff" || name == "bow"){
-			complete.stats.damage = sign(position[3].value)+position[3].value;
+			complete.stats.damage = position[3].value;
 		}else{
 			complete.stats.defence = sign(position[3].value)+position[3].value;
 		}
@@ -998,7 +998,7 @@ function finish(){
 		}
 		complete += '&nbsp;&nbsp;&nbsp;&nbsp;stats: {<br>';
 		if(name == "sword" || name == "staff" || name == "bow"){
-			complete += '&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;damage: "'+sign(position[3].value)+position[3].value+'",<br>';
+			complete += '&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;damage: "'+position[3].value+'",<br>';
 		}else{
 			complete += '&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;defence: "'+sign(position[3].value)+position[3].value+'",<br>';
 		}
@@ -1048,7 +1048,7 @@ function finish(){
 		}
 		document.getElementById("invStats").innerHTML = "Tier: "+position[1].value;
 		if(name == "sword" || name == "staff" || name == "bow"){
-			document.getElementById("invStats").innerHTML += '<br>Damage: '+sign(position[3].value)+position[3].value;
+			document.getElementById("invStats").innerHTML += '<br>Damage: '+position[3].value;
 		}else{
 			document.getElementById("invStats").innerHTML += '<br>Defence: '+sign(position[3].value)+position[3].value;
 		}

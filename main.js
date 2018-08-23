@@ -78,6 +78,8 @@ Keyboard.W = 87;
 Keyboard.S = 83;
 // space (action button)
 Keyboard.SPACE = 32;
+//shift (hide secondary canvas)
+Keyboard.SHIFT = 16;
 
 Keyboard._keys = {};
 
@@ -112,6 +114,24 @@ Keyboard.isDown = function (keyCode) {
     }
     return this._keys[keyCode];
 };
+
+window.addEventListener("keydown", function(event){
+	if(event.keyCode == 16){
+		setTimeout (function(){
+			Game.secondary.render();
+			Dom.inventory.hideHotbar(true);
+		},1);
+	}
+});
+
+window.addEventListener("keyup", function(event){
+	if(event.keyCode == 16){
+		setTimeout (function(){
+			Game.secondary.render();
+			Dom.inventory.hideHotbar();
+		},1);
+	}
+});
 
 //
 // Game object
@@ -1791,7 +1811,7 @@ Game.init = function () {
 	
 	// detect player movement and interaction
     Keyboard.listenForEvents(
-        [Keyboard.LEFT, Keyboard.RIGHT, Keyboard.UP, Keyboard.DOWN, Keyboard.W, Keyboard.S, Keyboard.A, Keyboard.D, Keyboard.SPACE]);
+        [Keyboard.LEFT, Keyboard.RIGHT, Keyboard.UP, Keyboard.DOWN, Keyboard.W, Keyboard.S, Keyboard.A, Keyboard.D, Keyboard.SPACE, Keyboard.SHIFT]);
 		
 	// player attack on click
 	Game.secondary.canvas.addEventListener("mousedown", Game.hero.startAttack.bind(this.hero));
@@ -2713,86 +2733,89 @@ Game.secondary.render = function () {
 	// clear secondary canvas
 	this.ctx.clearRect(0, 0, 600, 600);
 	
-	// make canvas darker if it is night time
-	if (Game.time === "night") {
-		this.ctx.fillStyle = "black";
-		this.ctx.globalAlpha = 0.35; // maybe change?
-		this.ctx.fillRect(0, 0, 600, 600);
-	}
-	
-	// set canvas formatting style defaults
-	this.ctx.lineWidth = 1;
-	this.ctx.globalAlpha = 0.6;
-	
-	// player health bar at top-left
-	Game.drawHealthBar(this.ctx, Game.hero, 10, 10, 250, 25);
-	
-	// set xp variables
-	const totalWidth = 335; // total width of xp bar
-	const totalHeight = 8; // total height of xp bar
-	const totalLeft = 132; // total height of xp bar
-	const totalTop = 507; // total height of xp bar
-	Player.xpFraction = Player.xp / LevelXP[Player.level]; // fraction of XP for current level
-	
-	// rainbow gradient
-	var grd = this.ctx.createLinearGradient(totalLeft, 0, totalLeft+totalWidth-1, 0);
-	if(Player.level < LevelXP.length - 1){
-		grd.addColorStop(0, "red");
-		grd.addColorStop("0.2", "yellow");
-		grd.addColorStop("0.4", "green");
-		grd.addColorStop("0.6", "blue");
-		grd.addColorStop("0.8", "magenta");
-		grd.addColorStop(1, "indigo");
-	}else{
-		grd.addColorStop(0, "#daa520");
-		grd.addColorStop(0.6, "#daa520");
-		grd.addColorStop(0.8, "#e8c264");
-		grd.addColorStop(1, "#daa520");
-	}
-	this.ctx.fillStyle = grd;
-	
-	// xp bar body
-	this.ctx.fillRect(totalLeft, totalTop, Player.xpFraction * totalWidth, totalHeight);
+	if(!Keyboard.isDown(Keyboard.SHIFT)){
+		
+		// make canvas darker if it is night time
+		if (Game.time === "night") {
+			this.ctx.fillStyle = "black";
+			this.ctx.globalAlpha = 0.35; // maybe change?
+			this.ctx.fillRect(0, 0, 600, 600);
+		}
+		
+		// set canvas formatting style defaults
+		this.ctx.lineWidth = 1;
+		this.ctx.globalAlpha = 0.6;
+		
+		// player health bar at top-left
+		Game.drawHealthBar(this.ctx, Game.hero, 10, 10, 250, 25);
+		
+		// set xp variables
+		const totalWidth = 335; // total width of xp bar
+		const totalHeight = 8; // total height of xp bar
+		const totalLeft = 132; // total height of xp bar
+		const totalTop = 507; // total height of xp bar
+		Player.xpFraction = Player.xp / LevelXP[Player.level]; // fraction of XP for current level
+		
+		// rainbow gradient
+		var grd = this.ctx.createLinearGradient(totalLeft, 0, totalLeft+totalWidth-1, 0);
+		if(Player.level < LevelXP.length - 1){
+			grd.addColorStop(0, "red");
+			grd.addColorStop("0.2", "yellow");
+			grd.addColorStop("0.4", "green");
+			grd.addColorStop("0.6", "blue");
+			grd.addColorStop("0.8", "magenta");
+			grd.addColorStop(1, "indigo");
+		}else{
+			grd.addColorStop(0, "#daa520");
+			grd.addColorStop(0.6, "#daa520");
+			grd.addColorStop(0.8, "#e8c264");
+			grd.addColorStop(1, "#daa520");
+		}
+		this.ctx.fillStyle = grd;
+		
+		// xp bar body
+		this.ctx.fillRect(totalLeft, totalTop, Player.xpFraction * totalWidth, totalHeight);
 
-	// xp bar border
-	this.ctx.strokeRect(totalLeft, totalTop, totalWidth-1, totalHeight);
-	this.ctx.strokeRect(totalLeft, totalTop, totalWidth-1, totalHeight);
-	
-	// level
-	this.ctx.font = "bold 30px MedievalSharp";
-	this.ctx.fillStyle = "lightGrey";
-	this.ctx.fillText(Player.level, 294, 519);	
-	this.ctx.fillStyle = "white";
-	this.ctx.fillText(Player.level, 292, 517);
-	
-	// status effect icons next to health bar
-	for(let i = 0; i < Game.hero.statusEffects.length; i++) {
-		let iconNum = null;
-		if(Game.hero.statusEffects[i].title == "Fire I") {
-			iconNum = 0;
-		}
-		else if (Game.hero.statusEffects[i].title == "Stuck in the mud") {
-			iconNum = 1;
-		}
-		else if (Game.hero.statusEffects[i].title == "Poisoned") {
-			iconNum = 2;
-		}
-		else if (Game.hero.statusEffects[i].title == "Stunned") {
-			iconNum = 3;
-		}
-		else if (Game.hero.statusEffects[i].title == "Swimming") {
-			iconNum = 4;
-		}
-		else { // status effect not
-			iconNum = 0; // fire image used as placeholder
-			console.error("Status effect " + Game.hero.statusEffects[i].title + " icon not found");
-		}
-		this.ctx.drawImage(Game.statusImage, 0, 27 * iconNum, 27, 27, 270 + i * 35, 10, 27, 27);
-		this.ctx.fillStyle = "black";
-		this.ctx.font = "20px MedievalSharp";
-		if (typeof Game.hero.statusEffects[i].info !== "undefined") { //variable exists
-			if (typeof Game.hero.statusEffects[i].info.time !== "undefined" && typeof Game.hero.statusEffects[i].info.ticks !== "undefined") { //variable exists
-				this.ctx.fillText(damageRound(Game.hero.statusEffects[i].info.time - Game.hero.statusEffects[i].info.ticks), 285 + i * 35, 37);
+		// xp bar border
+		this.ctx.strokeRect(totalLeft, totalTop, totalWidth-1, totalHeight);
+		this.ctx.strokeRect(totalLeft, totalTop, totalWidth-1, totalHeight);
+		
+		// level
+		this.ctx.font = "bold 30px MedievalSharp";
+		this.ctx.fillStyle = "lightGrey";
+		this.ctx.fillText(Player.level, 294, 519);	
+		this.ctx.fillStyle = "white";
+		this.ctx.fillText(Player.level, 292, 517);
+		
+		// status effect icons next to health bar
+		for(let i = 0; i < Game.hero.statusEffects.length; i++) {
+			let iconNum = null;
+			if(Game.hero.statusEffects[i].title == "Fire I") {
+				iconNum = 0;
+			}
+			else if (Game.hero.statusEffects[i].title == "Stuck in the mud") {
+				iconNum = 1;
+			}
+			else if (Game.hero.statusEffects[i].title == "Poisoned") {
+				iconNum = 2;
+			}
+			else if (Game.hero.statusEffects[i].title == "Stunned") {
+				iconNum = 3;
+			}
+			else if (Game.hero.statusEffects[i].title == "Swimming") {
+				iconNum = 4;
+			}
+			else { // status effect not
+				iconNum = 0; // fire image used as placeholder
+				console.error("Status effect " + Game.hero.statusEffects[i].title + " icon not found");
+			}
+			this.ctx.drawImage(Game.statusImage, 0, 27 * iconNum, 27, 27, 270 + i * 35, 10, 27, 27);
+			this.ctx.fillStyle = "black";
+			this.ctx.font = "20px MedievalSharp";
+			if (typeof Game.hero.statusEffects[i].info !== "undefined") { //variable exists
+				if (typeof Game.hero.statusEffects[i].info.time !== "undefined" && typeof Game.hero.statusEffects[i].info.ticks !== "undefined") { //variable exists
+					this.ctx.fillText(damageRound(Game.hero.statusEffects[i].info.time - Game.hero.statusEffects[i].info.ticks), 285 + i * 35, 37);
+				}
 			}
 		}
 	}
