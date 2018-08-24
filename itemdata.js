@@ -652,7 +652,7 @@ var Items = {
 		},
 		{
 			id: 2,
-			name: "Fishermanname's Old Fishing Rod",
+			name: "Fisherman Tobenam's Old Rod",
 			type: "rod",
 			image: "assets/items/rod/2.png",
 			rarity: "common",
@@ -833,7 +833,7 @@ var Items = {
 		{
 			id: 0,
 			name: "Yellow Perch",
-			type: "misc",
+			type: "fish",
 			image: "assets/items/fish/0.png",
 			rarity: "common",
 			lore: "",
@@ -852,7 +852,7 @@ var Items = {
 		{
 			id: 1,
 			name: "Milkfish",
-			type: "misc",
+			type: "fish",
 			image: "assets/items/fish/1.png",
 			rarity: "unique",
 			lore: "",
@@ -872,7 +872,7 @@ var Items = {
 		{
 			id: 2,
 			name: "Oscar",
-			type: "misc",
+			type: "fish",
 			image: "assets/items/fish/2.png",
 			rarity: "mythic",
 			lore: "",
@@ -882,7 +882,7 @@ var Items = {
 				"freshwater",
 			],
 			length: {
-				min: null, // tbd
+				min: 17,
 				avg: 24,
 				max: 46,
 			},
@@ -890,7 +890,7 @@ var Items = {
 		{
 			id: 3,
 			name: "Saffron Cod",
-			type: "misc",
+			type: "fish",
 			image: "assets/items/fish/3.png",
 			rarity: "common",
 			lore: "",
@@ -910,7 +910,7 @@ var Items = {
 		{
 			id: 4,
 			name: "Rainbow Trout",
-			type: "misc",
+			type: "fish",
 			image: "assets/items/fish/4.png",
 			rarity: "unique",
 			lore: "",
@@ -930,7 +930,7 @@ var Items = {
 		{
 			id: 5,
 			name: "White-Spotted Puffer",
-			type: "misc",
+			type: "fish",
 			image: "assets/items/fish/5.png",
 			rarity: "common",
 			lore: "",
@@ -941,7 +941,7 @@ var Items = {
 				"marine",
 			],
 			length: {
-				min: null, // tbd
+				min: 27,
 				avg: 40,
 				max: 50,
 			},
@@ -949,7 +949,7 @@ var Items = {
 		{
 			id: 6,
 			name: "King of Herrings",
-			type: "misc",
+			type: "fish",
 			image: "assets/items/fish/6.png",
 			rarity: "mythic",
 			lore: "",
@@ -959,7 +959,7 @@ var Items = {
 				"marine",
 			],
 			length: {
-				min: null, // tbd
+				min: 200,
 				avg: 300,
 				max: 800,
 			},
@@ -967,7 +967,7 @@ var Items = {
 		{
 			id: 7,
 			name: "Blunthead Puffer",
-			type: "misc",
+			type: "fish",
 			image: "assets/items/fish/7.png",
 			rarity: "common",
 			lore: "",
@@ -977,7 +977,7 @@ var Items = {
 				"marine",
 			],
 			length: {
-				min: null, // tbd
+				min: 20,
 				avg: 26,
 				max: 40.5,
 			},
@@ -985,7 +985,7 @@ var Items = {
 		{
 			id: 8,
 			name: "Bluefin Gurnard",
-			type: "misc",
+			type: "fish",
 			image: "assets/items/fish/8.png",
 			rarity: "unique",
 			lore: "",
@@ -996,7 +996,7 @@ var Items = {
 				"marine",
 			],
 			length: {
-				min: null, // tbd
+				min: 30,
 				avg: 40,
 				max: 60,
 			},
@@ -1004,17 +1004,17 @@ var Items = {
 		{
 			id: 9,
 			name: "Oriental Flying Gurnard",
-			type: "misc",
+			type: "fish",
 			image: "assets/items/fish/9.png",
 			rarity: "unique",
 			lore: "",
-			consumption: null, // tbd
+			consumption: false,
 			areas: [], 
 			waterTypes: [
 				"marine",
 			],
 			length: {
-				min: null, //tbd
+				min: 16,
 				avg: 20,
 				max: 40,
 			},
@@ -1022,7 +1022,7 @@ var Items = {
 		{
 			id: 10,
 			name: "Southern Hake",
-			type: "misc",
+			type: "fish",
 			image: "assets/items/fish/10.png",
 			rarity: "common",
 			lore: "",
@@ -1040,7 +1040,7 @@ var Items = {
 		{
 			id: 11,
 			name: "Pink Salmon",
-			type: "misc",
+			type: "fish",
 			image: "assets/items/fish/11.png",
 			rarity: "common",
 			lore: "",
@@ -1060,7 +1060,7 @@ var Items = {
 		{
 			id: 12,
 			name: "Sea Trout",
-			type: "misc",
+			type: "fish",
 			image: "assets/items/fish/12.png",
 			rarity: "common",
 			lore: "",
@@ -1080,7 +1080,7 @@ var Items = {
 		{
 			id: 13,
 			name: "Cobia",
-			type: "misc",
+			type: "fish",
 			image: "assets/items/fish/13.png",
 			rarity: "unique",
 			lore: "",
@@ -1099,7 +1099,7 @@ var Items = {
 		{
 			id: 14,
 			name: "Southern Herring",
-			type: "misc",
+			type: "fish",
 			image: "assets/items/fish/14.png",
 			rarity: "common",
 			lore: "",
@@ -1118,7 +1118,7 @@ var Items = {
 		{
 			id: 15,
 			name: "Dolphinfish",
-			type: "misc",
+			type: "fish",
 			image: "assets/items/fish/15.png",
 			rarity: "mythic",
 			lore: "",
@@ -1137,7 +1137,7 @@ var Items = {
 		{
 			id: 16,
 			name: "Chimerafish",
-			type: "misc",
+			type: "fish",
 			image: "assets/items/fish/16.png",
 			rarity: "mythic",
 			lore: "",
@@ -1157,36 +1157,66 @@ var Items = {
 		{
 			id: 17,
 			name: "Old Boot",
-			type: "junk",
+			type: "waterjunk",
 			image: "assets/items/fish/17.png",
+			areas: [], 
+			waterTypes: [
+				"freshwater",
+				"brackish",
+				"marine",
+			],
 		},
 		{
 			id: 18,
 			name: "Seaweed",
-			type: "junk",
+			type: "waterjunk",
 			image: "assets/items/fish/18.png",
 			stack: 64,
+			areas: [], 
+			waterTypes: [
+				"freshwater",
+				"brackish",
+				"marine",
+			],
 		},
 		{
 			id: 19,
 			name: "Oak Driftwood",
-			type: "junk",
+			type: "waterjunk",
 			image: "assets/items/fish/19.png",
 			stack: 16,
+			areas: [], 
+			waterTypes: [
+				"freshwater",
+				"brackish",
+				"marine",
+			],
 		},
 		{
 			id: 20,
 			name: "Birch Driftwood",
-			type: "junk",
+			type: "waterjunk",
 			image: "assets/items/fish/20.png",
 			stack: 16,
+			areas: [], 
+			waterTypes: [
+				"freshwater",
+				"brackish",
+				"marine",
+			],
 		},
 		{
 			id: 21,
 			name: "Cherry Driftwood",
-			type: "junk",
+			type: "waterjunk",
 			image: "assets/items/fish/21.png",
 			stack: 16,
+			areas: [], 
+			waterTypes: [
+				"freshwater",
+				"brackish",
+				"marine",
+			],
 		},
 		/*{
 			id: 22,

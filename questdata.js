@@ -6,7 +6,7 @@ var Quests = {
 			
 			// redundant but will keep anyway
 			startName: "Cart Driver",
-			startChat: "That's it, we're here! I'm afraid you're going to have to walk to the <strong>Eaglecrest Logging Camp</strong> from here. If you walk down a bit to the west you should see the entrance to the camp.<br>You should probably buy a weapon on your way there. Take this <strong>3 gold</strong> and you can buy yourself a new one, I guess. There's a good weaponsmith on your way to the camp, not far from here.",
+			startChat: "That's it, we're here! I'm afraid you're going to have to walk to the <strong>Eaglecrest Logging Camp</strong> from here. If you walk down a bit to the west you should see the entrance to the camp.<br>You should probably buy a weapon on your way there. It looks like you have enough gold on you to do so. There's a good weaponsmith on your way to the camp, not far from here.",
 			
 			finishName: "Marshall Teper",
 			finishChat: "Welcome to the Eaglecrest Logging Camp, adventurer. It's useful to have you here. I hope your journey was fine.<br>Take this gold and pair of boots. They're provided by the King's Covenant to all new adventurers. Feel free to have a look around the camp and buy anything you want, but not for too long. We've got work to be done.",
@@ -29,15 +29,6 @@ var Quests = {
 			
 			howToStart: "Speak to the Cart Driver.",
 			levelRequirement: 1,
-			
-			startRewards: {
-				items: [
-					Items.currency[2],
-				],
-				itemQuantities: [
-					3,
-				],
-			},
 			
 			rewards: {
 				xp: 10,
@@ -133,15 +124,15 @@ var Quests = {
 			id: 3, // tbc
 			quest: "A Lost Fishing Rod",
 			
-			startName: "Fisherman name",
+			startName: "Fisherman Tobenam",
 			startChat: "tbd",
 			
-			finishName: "Fisherman name",
+			finishName: "Fisherman Tobenam",
 			finishChat: "tbd",
 			
 			objectives: [
-				"Find <strong>Fisherman name's</strong> fishing rod. They think it has been taken by a goblin.",
-				"Return to <strong>Fisherman name</strong> at the Fisher's Valley.",
+				"Find <strong>Fisherman Tobenam's</strong> fishing rod. They think it has been taken by a goblin.",
+				"Return to <strong>Fisherman Tobenam</strong> at the Fisher's Valley.",
 			],
 			
 			isCompleted: function() {
@@ -162,7 +153,7 @@ var Quests = {
 				return completed;
 			},
 			
-			howToStart: "Speak to <strong>Fisherman name</strong> at the Fisher's Valley.",
+			howToStart: "Speak to <strong>Fisherman Tobenam</strong> at the Fisher's Valley.",
 			levelRequirement: 2,
 			questRequirement: "To the Logging Camp", // doesn't work - tbd
 			
@@ -175,16 +166,16 @@ var Quests = {
 			id: 4, // tbc
 			quest: "Learning to Fish I",
 			
-			startName: "Fisherman name",
+			startName: "Fisherman Tobenam",
 			startChat: "tbd",
 			
-			finishName: "Fisherman name",
+			finishName: "Fisherman Tobenam",
 			finishChat: "tbd",
 			
 			objectives: [
-				"Buy a fishing rod from Fisherman name and equip it.",
+				"Buy a fishing rod from Fisherman Tobenam and equip it.",
 				"Fish something up!",
-				"Return to <strong>Fisherman name</strong> at the Fisher's Valley.",
+				"Return to <strong>Fisherman Tobenam</strong> at the Fisher's Valley.",
 			],
 			
 			isCompleted: function() {
@@ -205,7 +196,7 @@ var Quests = {
 				return completed;
 			},
 			
-			howToStart: "Speak to <strong>Fisherman name</strong> at the Fisher's Valley.",
+			howToStart: "Speak to <strong>Fisherman Tobenam</strong> at the Fisher's Valley.",
 			levelRequirement: 2,
 			questRequirement: "To the Logging Camp", // doesn't work - tbd
 			
@@ -218,16 +209,16 @@ var Quests = {
 			id: 5,
 			quest: "Learning to Fish II",
 			
-			startName: "Fisherman name",
+			startName: "Fisherman Tobenam",
 			startChat: "tbd",
 			
-			finishName: "Fisherman name",
+			finishName: "Fisherman Tobenam",
 			finishChat: "tbd",
 			
 			objectives: [
-				"Buy a can of worms from Fisherman name and use it.",
+				"Buy a can of worms from Fisherman Tobenam and use it.",
 				"Catch your first fish!",
-				"Return to <strong>Fisherman name</strong> at the Fisher's Valley.",
+				"Return to <strong>Fisherman Tobenam</strong> at the Fisher's Valley.",
 			],
 			
 			isCompleted: function() {
@@ -248,7 +239,7 @@ var Quests = {
 				return completed;
 			},
 			
-			howToStart: "Speak to <strong>Fisherman name</strong> at the Fisher's Valley.",
+			howToStart: "Speak to <strong>Fisherman Tobenam</strong> at the Fisher's Valley.",
 			levelRequirement: 2,
 			questRequirement: "Learning to Fish I", // doesn't work - tbd
 			
@@ -261,15 +252,15 @@ var Quests = {
 			id: 6,
 			quest: "Learning to Fish III",
 			
-			startName: "Fisherman name",
+			startName: "Fisherman Tobenam",
 			startChat: "tbd",
 			
-			finishName: "Fisherman name",
+			finishName: "Fisherman Tobenam",
 			finishChat: "tbd",
 			
 			objectives: [
 				"Level your base fishing skill to 10.",
-				"Return to <strong>Fisherman name</strong> at the Fisher's Valley.",
+				"Return to <strong>Fisherman Tobenam</strong> at the Fisher's Valley.",
 			],
 			
 			isCompleted: function() {
@@ -290,7 +281,7 @@ var Quests = {
 				return completed;
 			},
 			
-			howToStart: "Speak to <strong>Fisherman name</strong> at the Fisher's Valley.",
+			howToStart: "Speak to <strong>Fisherman Tobenam</strong> at the Fisher's Valley.",
 			levelRequirement: 2,
 			questRequirement: "Learning to Fish II", // doesn't work - tbd
 			

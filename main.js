@@ -8,12 +8,6 @@
 //https://developer.mozilla.org/en-US/docs/Games/Techniques/Tilemaps
 
 //
-// Just for testing...
-//
-
-Dom.inventory.give(Items.rod[2]);
-
-//
 // Asset loader
 //
 
@@ -332,9 +326,18 @@ Camera.prototype.isOnScreen = function (object, mode) {
 // (maybe these shouldn't be global?)
 //
 
-// random number between upper and lower limit
+// random integer between upper and lower limit (inclusive)
 function random (minimum, maximum) {
     return Math.floor((Math.random() * (maximum - minimum + 1)) + minimum);
+}
+
+// random number between min and max, biased around certain value (bias)
+// influence is how much influence on the random number this should have (should normally be set to 1)
+// thanks to https://stackoverflow.com/a/29325222/9713957
+function biasedRandom (min, max, bias, influence) {
+    var rnd = Math.random() * (max - min) + min,   // random in range
+        mix = Math.random() * influence;           // random mixer
+    return rnd * (1 - mix) + bias * mix;           // mix full range and bias
 }
 
 // find bearing between two entities (with x and y)
@@ -820,20 +823,11 @@ class Hero extends Attacker {
 							beingChannelled: true,
 							variance: variance,
 						}));
-						
-						this.fishingBobs = 0; // number of times that the fishing bobber has bobbed
-						
-						setTimeout(function () {
-							this.beingChannelled++;
-							setTimeout(function () {
-								this.beingChannelled++;
-								
-							}.bind(this), random(500, 12000))
-						}.bind(Game.projectiles[Game.projectiles.length - 1]), random(500, 12000));
 					}
 				}
 				else if (Player.inventory.weapon[0].type === "rod" && this.channelling === false) {
 					// fishing rod (bobber has not been cast yet)
+					this.fishingBobs = 0; // number of times that the fishing bobber has bobbed
 					
 					if (distanceToProjectile < this.stats.fishingRange && this.map.isSlowTileAtXY(projectileX, projectileY) === "water") {
 						// player is in range and clicked in water
@@ -855,15 +849,48 @@ class Hero extends Attacker {
 							image: "bobber",
 							beingChannelled: true,
 						}));
+						
+						// timer for first bob
+						setTimeout(this.fish.bind(this), random(500, 12000));
 					}
 				}
 				else if (Player.inventory.weapon[0].type === "rod" && this.channelling === "fishing") {
 					// fishing rod (bobber has been cast)
 					
-					Game.projectiles.splice(Game.searchFor(this.channellingProjectileId, Game.projectiles), 1); // remove bobber
-						
+					/*Game.projectiles.splice(Game.searchFor(this.channellingProjectileId, Game.projectiles), 1); // remove bobber
+					
 					this.channelling = false;
-					this.channellingProjectileId = null;
+					this.channellingProjectileId = null;*/
+					
+					// in the future, the player should be able to remove the bobber whilst fishing
+				}
+				else if (Player.inventory.weapon[0].type === "rod" && this.channelling.type !== undefined && this.fishingBobs >= 100) { // channelling.type is only defined when it is set to an item (i.e. a fishing item)
+					// fishing rod (fish has been caught - player is clicking to pull it up)
+					
+					this.fishingBobs++;
+					
+					if (this.fishingBobs >= 100 + this.channelling.clicksToCatch) {
+						// fish caught
+						
+						// give fish
+						Dom.inventory.give(this.channelling);
+						
+						// chat message
+						if (this.channelling.type === "fish") { // fish
+							Dom.chat.insert("You caught a " + this.channelling.length + "cm <strong>" + this.channelling.name + "</strong>!");
+						}
+						else if (this.channelling.type === "waterjunk") { // junk item
+							Dom.chat.insert("You fished up a <strong>" + this.channelling.name + "</strong>.");
+						}
+						else {
+							console.error("It is not known that an item of type " + channelling.type + " can be fished up.");
+						}
+						
+						// remove fishing bobber
+						Game.projectiles.splice(Game.searchFor(this.channellingProjectileId, Game.projectiles), 1);
+						this.channelling = false;
+						this.channellingProjectileId = null;
+					}
 				}
 			}
 			else {
@@ -935,17 +962,100 @@ class Hero extends Attacker {
 	
 	// called by fishing bobber timeouts
 	fish () {
-		if (this.fishingBobs < 4 && this.fishingBobs > -1) {
+		if (this.fishingBobs < 5 && this.fishingBobs > -1) {
 			// bob fishing bobber every ~1 second
 			this.fishingBobs++;
+			console.log("bob");
 			
-			if (random(0, 5) < this.fishingBobs) {
+			if (random(0, 4) < this.fishingBobs) {
 				// fish caught
+				console.log("fish caught");
 				let fish = Items.fish;
 				fish = fish.filter(item => item.waterTypes.includes(Areas[Game.areaName].waterType)); // filter for water type
-				fish = fish.filter(item => item.areas.includes(Game.areaName) || item.areas === []); // filter for area
+				fish = fish.filter(item => item.areas.includes(Game.areaName) || item.areas.length === 0); // filter for area
 				fish = fish[random(0, fish.length - 1)]; // TBD make the fish decided based on your fishing skill
-				this.channelling = fish;
+				
+				// calculate time to catch fish and clicks needed for fish
+				// see fish spreadsheet for how this is figured out
+				// should be moved to its own (recursive?) function
+				let clicks = 0;
+				let time = 0; // in ms
+				if (fish.type === "waterjunk") { // junk fishing item (uses different algorithm for clicks and time)
+					// clicks
+					clicks = 1;
+					time = 1000;
+				}
+				else { // fish
+					// calculate fish length
+					// between min and max; biased towards average
+					let fishLength = damageRound(biasedRandom(fish.length.min, fish.length.max, fish.length.avg, 1));
+					fish.length = fishLength; // replace length object with an integer saying the fish's length
+					
+					// clicks
+					if (fishLength / 25 >= 4) {
+						clicks += 4;
+						fishLength -= 100;
+						
+						if (fishLength / 50 >= 4) {
+							clicks += 4;
+							fishLength -= 200;
+							
+							if (fishLength / 75 >= 4) {
+								clicks += 4;
+								fishLength -= 300;
+								
+								if (fishLength / 100 >= 4) {
+									clicks += 4;
+									fishLength -= 400;
+									console.error("Fish length " + fish.length + " is not accounted for being so large!");
+								}
+								else {
+									clicks += Math.floor(fishLength / 100);
+								}
+								
+							}
+							else {
+								clicks += Math.floor(fishLength / 75);
+							}
+							
+						}
+						else {
+							clicks += Math.floor(fishLength / 50);
+						}
+					}
+					else {
+						clicks += Math.floor(fishLength / 25);
+					}
+					// time
+					if (fish.rarity === "common") {
+						time += 500 + 500 * clicks;
+					}
+					if (fish.rarity === "unique") {
+						time += 300 + 300 * clicks;
+					}
+					if (fish.rarity === "mythic") {
+						time += 200 + 200 * clicks;
+					}
+				}
+				fish.clicksToCatch = clicks;
+				
+				console.log("time: " + time);
+				console.log("clicks: " + clicks);
+				
+				// fish finished! time for player to fish it up...
+				this.channelling = fish; 
+				this.fishingBobs = 100; // fishingBobs is used to see how many clicks the player has done when it is >= 100
+				
+				// timer for player clicks
+				setTimeout(function (fish) {
+					if (this.channelling === fish) { // fish has not been caught
+						console.log("time up");
+						// remove fishing bobber
+						Game.projectiles.splice(Game.searchFor(this.channellingProjectileId, Game.projectiles), 1);
+						this.channelling = false;
+						this.channellingProjectileId = null;
+					}
+				}.bind(this), time, fish);
 			}
 			else {
 				// timer for next bob
@@ -1747,6 +1857,11 @@ Game.loadArea = function (areaName, destination) {
 		// it is checked if the user has selected for music to be played in the settings within the Game.playMusic function
 		this.playMusic();
 		
+		// purge the chat (if there is any to purge)
+		if (Dom.chat.length > 0) {
+			Dom.chat.purge();
+		}
+		
 		// init game (if it hasn't been done so already)
 		if(this.hero === undefined) {
 			this.init();
@@ -2047,13 +2162,19 @@ Game.update = function (delta) {
 						
 						// quest is ready to be accepted
 						if (this.hero.isTouching(this.NPCs[i]) && Dom.currentlyDisplayed === "" && !Dom.quests.activeQuestArray.includes(this.NPCs[i].quests[x].quest.quest) && !Dom.quests.completedQuestArray.includes(this.NPCs[i].quests[x].quest.quest)) {
-							if (Dom.inventory.requiredSpace(Quests.eaglecrestLoggingCamp[0].startRewards.items)) {
-								// user has space for quest start items
-								Dom.quest.start(this.NPCs[i].quests[x].quest);
+							if (this.NPCs[i].quests[x].quest.startRewards !== undefined) {
+								if (Dom.inventory.requiredSpace(this.NPCs[i].quests[x].quest.startRewards.items)) {
+									// user has space for quest start items
+									Dom.quest.start(this.NPCs[i].quests[x].quest);
+								}
+								else {
+									// user doesn't have enough space
+									this.NPCs[i].say(this.NPCs[i].chat.inventoryFull, true, 0, true);
+								}
 							}
 							else {
-								// user doesn't have enough space
-								this.NPCs[i].say(this.NPCs[i].chat.inventoryFull, true, 0, true);
+								// no quest start items, so user ofc has enough inventory space
+								Dom.quest.start(this.NPCs[i].quests[x].quest);
 							}
 						}
 						// quest is currently active
@@ -2558,7 +2679,7 @@ Game.render = function (delta) {
 		
 	}
 	
-	if (Game.hero.channelling === "fishing") {
+	if (Game.hero.channelling === "fishing" || (Game.hero.channelling.type !== undefined && Game.hero.fishingBobs >= 100)) { // check player's fishing bobber is out
 		// line between fishing bobber and player
 		let projectile = Game.projectiles[Game.searchFor(Game.hero.channellingProjectileId, Game.projectiles)];
 		this.ctx.strokeStyle = "grey";

@@ -159,7 +159,7 @@ var Areas = {
 				x: 263,
 				y: 380,
 				image: "fisherman",
-				name: "Fisherman Tobenamed",
+				name: "Fisherman Tobenam",
 				level: 15,
 				stats: {
 					maxHealth: 125,
