@@ -2729,18 +2729,19 @@ Game.secondary.updateCursor = function (event) {
 }
 
 // render secondary canvas (contains anything that does not need to be continuously redrawn)
+// mainly PG code
 Game.secondary.render = function () {
 	// clear secondary canvas
 	this.ctx.clearRect(0, 0, 600, 600);
-	
-	if(!Keyboard.isDown(Keyboard.SHIFT)){
 		
-		// make canvas darker if it is night time
-		if (Game.time === "night") {
-			this.ctx.fillStyle = "black";
-			this.ctx.globalAlpha = 0.35; // maybe change?
-			this.ctx.fillRect(0, 0, 600, 600);
-		}
+	// make canvas darker if it is night time
+	if (Game.time === "night") {
+		this.ctx.fillStyle = "black";
+		this.ctx.globalAlpha = 0.35; // maybe change?
+		this.ctx.fillRect(0, 0, 600, 600);
+	}
+	
+	if (!Keyboard.isDown(Keyboard.SHIFT)) { // only render the second canvas if the player isn't pressing the shift key
 		
 		// set canvas formatting style defaults
 		this.ctx.lineWidth = 1;

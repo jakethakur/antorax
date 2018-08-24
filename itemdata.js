@@ -824,10 +824,10 @@ var Items = {
 			stack: 64,
 		},
 		{
-			id: 5,
-			name: "Fishermanname's Lost Fishing Rod",
+			id: 6,
+			name: "Fisherman Tobenam's Lost Rod",
 			type: "quest",
-			image: "assets/items/item/2.png",
+			image: "assets/items/item/6.png",
 			lore: "The goblins haven't looked after this rod very well...",
 		},
 	],

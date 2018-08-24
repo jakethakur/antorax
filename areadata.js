@@ -558,7 +558,7 @@ var Areas = {
 		
 		enemies: [
 			{
-				x: 1100,
+				x: 1070,
 				y: 400,
 				image: "rockGoblin",
 				deathImage: "goblinCorpse",
