@@ -448,14 +448,17 @@ Dom.inventory.updatePosition = function(object){
 Dom.inventory.displayIdentification = function(){
 	document.getElementById("itemIdentification").hidden = false;
 	Dom.inventory.updatePosition(document.getElementById("itemIdentification"));
-	//document.getElementById("itemIdentification").innerHTML = "<div class='triangleLeft'></div><div id='idtriangle' class='innerTriangleLeft'></div><p id='innerStats'></p>"; // construct the information
 	document.getElementById("innerStats").innerHTML = "";
 	document.getElementById("innerStats").innerHTML += "<strong>Level: " + Player.level + "</strong>"; // updates the level display
 	document.getElementById("innerStats").innerHTML += "<br><strong>XP: " + 100*Player.xp/LevelXP[Player.level] + "%</strong>"; // updates the xp display
 	document.getElementById("innerStats").innerHTML += "<br><br><strong>Stats:</strong>"; // updates the xp display
-	document.getElementById("innerStats").innerHTML += "<br>Damage: " + Player.stats.damage; // updates the damage display
-	if(Player.stats.maxDamage != 0){
-		document.getElementById("innerStats").innerHTML += "-" + Player.stats.maxDamage; // updates the damage display
+	if(Player.inventory.weapon[0].name != ""){
+		document.getElementById("innerStats").innerHTML += "<br>Damage: " + Player.stats.damage; // updates the damage display
+		if(Player.stats.maxDamage != 0 && Player.stats.maxDamage != Player.stats.damage){
+			document.getElementById("innerStats").innerHTML += "-" + Player.stats.maxDamage; // updates the damage display
+		}
+	}else{
+		document.getElementById("innerStats").innerHTML += "<br>Damage: 0"; // updates the damage display
 	}
 	document.getElementById("innerStats").innerHTML += "<br>Defence: " + Player.stats.defence; // updates the defence display
 	if(Player.stats.blockDefence != 0){
@@ -467,7 +470,7 @@ Dom.inventory.displayIdentification = function(){
 		document.getElementById("innerStats").innerHTML += "<br>Flaming "+romanize(Player.stats.flaming);
 	}
 	if(Player.class == "a"){
-		document.getElementById("innerStats").innerHTML += "<br>Focus Speed: " + Player.stats.focusSpeed; // updates the focus speed display
+		document.getElementById("innerStats").innerHTML += "<br>Focus Speed: " + Player.stats.focusSpeed + "/s"; // updates the focus speed display
 	}
 	document.getElementById("innerStats").innerHTML += "<br>Health Regen: " + Player.stats.healthRegen + "/s"; // updates the health regen display
 	if(Player.stats.looting != 100){
@@ -491,18 +494,21 @@ Dom.inventory.displayIdentification = function(){
 			document.getElementById("innerStats").innerHTML += "<br>" + Player.statusEffects[i].title + ": " + Player.statusEffects[i].effect; // updates the walk speed display
 		}
 	}
-	
-	//document.getElementById("idtriangle").style.bottom = document.getElementById("itemIdentification").offsetHeight - 50 + "px"; // position the triangle in the correct place
 }
 
 Dom.inventory.updateIdentification = function(){ // display inventory information
-	//Dom.inventory.updatePosition(document.getElementById("inventoryInformation"));
-	//document.getElementById("itemIdentification").innerHTML = "<div class='triangleLeft'></div><div id='idtriangle' class='innerTriangleLeft'></div><p id='innerStats'></p>"; // construct the information
 	document.getElementById("innerStats").innerHTML = "";
 	document.getElementById("innerStats").innerHTML += "<strong>Level: " + Player.level + "</strong>"; // updates the level display
 	document.getElementById("innerStats").innerHTML += "<br><strong>XP: " + 100*Player.xp/LevelXP[Player.level] + "%</strong>"; // updates the xp display
 	document.getElementById("innerStats").innerHTML += "<br><br><strong>Stats:</strong>"; // updates the xp display
-	document.getElementById("innerStats").innerHTML += "<br>Damage: " + Player.stats.damage; // updates the damage display
+	if(Player.inventory.weapon[0].name != ""){
+		document.getElementById("innerStats").innerHTML += "<br>Damage: " + Player.stats.damage; // updates the damage display
+		if(Player.stats.maxDamage != 0 && Player.stats.maxDamage != Player.stats.damage){
+			document.getElementById("innerStats").innerHTML += "-" + Player.stats.maxDamage; // updates the damage display
+		}
+	}else{
+		document.getElementById("innerStats").innerHTML += "<br>Damage: 0"; // updates the damage display
+	}
 	document.getElementById("innerStats").innerHTML += "<br>Defence: " + Player.stats.defence; // updates the defence display
 	if(Player.stats.blockDefence != 0){
 		document.getElementById("innerStats").innerHTML += "<br>Block Defence: " + Player.stats.blockDefence; // updates the critical chance display
@@ -510,14 +516,15 @@ Dom.inventory.updateIdentification = function(){ // display inventory informatio
 	document.getElementById("innerStats").innerHTML += "<br>Critical Chance: " + Player.stats.criticalChance + "%"; // updates the critical chance display
 	document.getElementById("innerStats").innerHTML += "<br>Dodge Chance: " + Player.stats.dodgeChance + "%"; // updates the dodge chance display
 	if(Player.stats.flaming != 0){
-		document.getElementById("innerStats").innerHTML += "<br>Flaming "
-		for(var i = 0; i < Player.stats.flaming; i++){
-			document.getElementById("innerStats").innerHTML += "I"; // updates the flaming display
-		}
+		document.getElementById("innerStats").innerHTML += "<br>Flaming "+romanize(Player.stats.flaming);
 	}
-	document.getElementById("innerStats").innerHTML += "<br>Focus Speed: " + Player.stats.focusSpeed; // updates the focus speed display
+	if(Player.class == "a"){
+		document.getElementById("innerStats").innerHTML += "<br>Focus Speed: " + Player.stats.focusSpeed + "/s"; // updates the focus speed display
+	}
 	document.getElementById("innerStats").innerHTML += "<br>Health Regen: " + Player.stats.healthRegen + "/s"; // updates the health regen display
-	document.getElementById("innerStats").innerHTML += "<br>Looting: " + Player.stats.looting + "%"; // updates the looting display
+	if(Player.stats.looting != 100){
+		document.getElementById("innerStats").innerHTML += "<br>Looting: " + Player.stats.looting + "%"; // updates the looting display
+	}
 	if(Player.stats.poisonX != 0 && Player.stats.posionY != 0){
 		document.getElementById("innerStats").innerHTML += "<br>Poison: " + Player.stats.poisonX + "/" + Player.stats.poisonY + "s"; // updates the poison display
 	}
@@ -536,8 +543,6 @@ Dom.inventory.updateIdentification = function(){ // display inventory informatio
 			document.getElementById("innerStats").innerHTML += "<br>" + Player.statusEffects[i].title + ": " + Player.statusEffects[i].effect; // updates the walk speed display
 		}
 	}
-	
-	//document.getElementById("idtriangle").style.bottom = document.getElementById("itemIdentification").offsetHeight - 50 + "px"; // position the triangle in the correct place
 }
 
 Dom.inventory.displayInformation = function(y,array){ // display inventory information
@@ -554,14 +559,16 @@ Dom.inventory.displayInformation = function(y,array){ // display inventory infor
 		}else{ // if the item is a mythic...
 			document.getElementById("name").style.color = "purple"; // ...sets the name color to purple
 		}
-		document.getElementById("stats").innerHTML = "Tier: "+array[0].tier; // add the tier to the information
+		if(array[0].type != "rod"){
+			document.getElementById("stats").innerHTML = "Tier: "+array[0].tier; // add the tier to the information
+		}
 		for(var i = 0; i < Object.keys(array[0].stats).length; i++){ // repeat for all stats
 			if(Object.keys(array[0].stats)[i] != "flaming"){
 				var replaceStat = Object.keys(array[0].stats)[i].replace( /([A-Z])/g, " $1" );
 				document.getElementById("stats").innerHTML += "<br>"+replaceStat.charAt(0).toUpperCase() + replaceStat.slice(1)+": "+array[0].stats[Object.keys(array[0].stats)[i]];
 			}else{
 				var replaceStat = Object.keys(array[0].stats)[i].replace( /([A-Z])/g, " $1" );
-				document.getElementById("stats").innerHTML += "<br>"+replaceStat.charAt(0).toUpperCase() + replaceStat.slice(1)+": "+romanize(array[0].stats[Object.keys(array[0].stats)[i]]);
+				document.getElementById("stats").innerHTML += "<br>"+replaceStat.charAt(0).toUpperCase() + replaceStat.slice(1)+" "+romanize(array[0].stats[Object.keys(array[0].stats)[i]]);
 			}
 		}
 		if(array[0].set != undefined){ // if the item has a set...
@@ -583,7 +590,7 @@ Dom.inventory.displayInformation = function(y,array){ // display inventory infor
 						document.getElementById("set").innerHTML += "<br>"+replaceStat.charAt(0).toUpperCase() + replaceStat.slice(1)+": "+Items.set[array[0].set].stats[Object.keys(Items.set[array[0].set].stats)[i]];
 					}else{
 						var replaceStat = Object.keys(Items.set[Player.inventory.items[num].set].stats)[i].replace( /([A-Z])/g, " $1" );
-						document.getElementById("set").innerHTML += "<br>"+replaceStat.charAt(0).toUpperCase() + replaceStat.slice(1)+": "+romanize(Items.set[array[0].set].stats[Object.keys(Items.set[array[0].set].stats)[i]]);
+						document.getElementById("set").innerHTML += "<br>"+replaceStat.charAt(0).toUpperCase() + replaceStat.slice(1)+" "+romanize(Items.set[array[0].set].stats[Object.keys(Items.set[array[0].set].stats)[i]]);
 					}
 				}
 			}
@@ -619,7 +626,9 @@ Dom.inventory.displayEquipmentInformation = function(num){
 			document.getElementById("invName").style.color = "black"; // ...sets the name color to black
 		}
 		if(Player.inventory.items[num].type != "junk" && Player.inventory.items[num].type != "misc" && Player.inventory.items[num].type != "quest" && Player.inventory.items[num].type != "bag" && Player.inventory.items[num].type != "currency"){
-			document.getElementById("invStats").innerHTML = "Tier: "+Player.inventory.items[num].tier; // add the tier to the information
+			if(Player.inventory.items[num].type != "rod"){
+				document.getElementById("invStats").innerHTML = "Tier: "+Player.inventory.items[num].tier; // add the tier to the information
+			}
 			if(Player.inventory.items[num].stats != undefined){
 				for(var i = 0; i < Object.keys(Player.inventory.items[num].stats).length; i++){ // repeat for all stats
 					if(Object.keys(Player.inventory.items[num].stats)[i] != "flaming"){
@@ -627,7 +636,7 @@ Dom.inventory.displayEquipmentInformation = function(num){
 						document.getElementById("invStats").innerHTML += "<br>"+replaceStat.charAt(0).toUpperCase() + replaceStat.slice(1)+": "+Player.inventory.items[num].stats[Object.keys(Player.inventory.items[num].stats)[i]];
 					}else{
 						var replaceStat = Object.keys(Player.inventory.items[num].stats)[i].replace( /([A-Z])/g, " $1" );
-						document.getElementById("invStats").innerHTML += "<br>"+replaceStat.charAt(0).toUpperCase() + replaceStat.slice(1)+": "+romanize(Player.inventory.items[num].stats[Object.keys(Player.inventory.items[num].stats)[i]]);
+						document.getElementById("invStats").innerHTML += "<br>"+replaceStat.charAt(0).toUpperCase() + replaceStat.slice(1)+" "+romanize(Player.inventory.items[num].stats[Object.keys(Player.inventory.items[num].stats)[i]]);
 					}
 				}
 			}else{
@@ -662,7 +671,7 @@ Dom.inventory.displayEquipmentInformation = function(num){
 							document.getElementById("invSet").innerHTML += "<br>"+replaceStat.charAt(0).toUpperCase() + replaceStat.slice(1)+": "+Items.set[Player.inventory.items[num].set].stats[Object.keys(Items.set[Player.inventory.items[num].set].stats)[i]];
 						}else{
 							var replaceStat = Object.keys(Items.set[Player.inventory.items[num].set].stats)[i].replace( /([A-Z])/g, " $1" );
-							document.getElementById("invSet").innerHTML += "<br>"+replaceStat.charAt(0).toUpperCase() + replaceStat.slice(1)+": "+romanize(Items.set[Player.inventory.items[num].set].stats[Object.keys(Items.set[Player.inventory.items[num].set].stats)[i]]);
+							document.getElementById("invSet").innerHTML += "<br>"+replaceStat.charAt(0).toUpperCase() + replaceStat.slice(1)+" "+romanize(Items.set[Player.inventory.items[num].set].stats[Object.keys(Items.set[Player.inventory.items[num].set].stats)[i]]);
 						}
 					}
 				}
@@ -677,7 +686,11 @@ Dom.inventory.displayEquipmentInformation = function(num){
 			document.getElementById("invStats").innerHTML = "Capacity: "+Player.inventory.items[num].size; // add the size to the information
 		}
 		if(Player.inventory.items[num].type == "currency"){
-			document.getElementById("invName").innerHTML = Player.inventory.items[num].stacked + " " + document.getElementById("invName").innerHTML; // add the size to the information
+			if(Player.inventory.items[num].stacked != undefined){
+				document.getElementById("invName").innerHTML = Player.inventory.items[num].stacked + " " + document.getElementById("invName").innerHTML; // add the size to the information
+			}else{
+				document.getElementById("invName").innerHTML = "1 " + document.getElementById("invName").innerHTML; // add the size to the information
+			}
 		}
 		if(Player.inventory.items[num].lore != undefined){ // if the item has a lore...
 			document.getElementById("invLore").innerHTML = "<i>"+Player.inventory.items[num].lore+"</i>"; // ...add the lore to the information
@@ -1241,6 +1254,8 @@ Dom.inventory.constructUnId = function(area,tier){
 for(var i = 0; i < 2; i++){
 	Dom.inventory.constructUnId("Eaglecrest Logging Camp",1);
 }
+Dom.inventory.give(Items.rod[2]);
+Dom.inventory.give(Items.currency[2],3);
 
 function unId(area,tier){ // constructs an unidentified item when you kill an enemy
 	this.area = area; // sets the item's area to the area you are in
@@ -1590,7 +1605,9 @@ Dom.inventory.removeEquipment = function(array){ // removes the stats of an item
 			}else if(Object.keys(array[0].stats)[i] == "damage"){
 				var split = array[0].stats.damage.split('-');
 				Player.stats.damage -= parseFloat(split[0]);
-				Player.stats.maxDamage -= parseFloat(split[1]);
+				if(!isNaN(parseFloat(split[1]))){
+					Player.stats.maxDamage -= parseFloat(split[1]);
+				}
 			}else{
 				var split = array[0].stats.poison.split('/');
 				Player.stats.poisonX -= parseFloat(split[0]);
@@ -1601,7 +1618,7 @@ Dom.inventory.removeEquipment = function(array){ // removes the stats of an item
 	if(array[0].set != undefined){ // if the item being removed is part of a set
 		Dom.inventory.noSet = false; // allows the set code to run
 		for(var i = 0; i < Items.set[array[0].set].armour.length; i++){ // repeats for all armour in the set
-			if(Player.inventory.helm[0].name != Items.set[array[0].set].armour[i] || Player.inventory.chest[0].name != Items.set[array[0].set].armour[i] || Player.inventory.greaves[0].name != Items.set[array[0].set].armour[i] || Player.inventory.boots[0].name != Items.set[array[0].set].armour[i]){ // checks if the armour is being worn
+			if(Player.inventory.helm[0].name != Items.set[array[0].set].armour[i] && Player.inventory.chest[0].name != Items.set[array[0].set].armour[i] && Player.inventory.greaves[0].name != Items.set[array[0].set].armour[i] && Player.inventory.boots[0].name != Items.set[array[0].set].armour[i]){ // checks if the armour is being worn
 				Dom.inventory.noSet = true; // does not allow the set code to run
 			}
 		}
@@ -1635,7 +1652,9 @@ Dom.inventory.addEquipment = function(array){ // adds the stats of an item to th
 			}else if(Object.keys(array[0].stats)[i] == "damage"){
 				var split = array[0].stats.damage.split('-');
 				Player.stats.damage += parseFloat(split[0]);
-				Player.stats.maxDamage += parseFloat(split[1]);
+				if(!isNaN(parseFloat(split[1]))){
+					Player.stats.maxDamage += parseFloat(split[1]);
+				}
 			}else{
 				var split = array[0].stats.poison.split('/');
 				Player.stats.poisonX += parseFloat(split[0]);

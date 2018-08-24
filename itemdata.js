@@ -692,8 +692,6 @@ var Items = {
 			stats: {
 				defence: "+5",
 				healthRegen: "+0.5/s",
-				damage: "+5",
-				poison: "5/6s",
 			},
 		},
 		{
