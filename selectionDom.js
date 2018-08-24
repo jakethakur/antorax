@@ -110,6 +110,7 @@ document.getElementById("play").onclick = function(){
 }
 
 function display(){
+	document.getElementById("random").style.backgroundImage = "url('assets/class-select/r"+gender+".png')";
 	if(num == 0){
 		document.getElementById("image").src="assets/class-select/"+selected+gender+"f.png";
 		if(selected!="m"){

@@ -550,7 +550,6 @@ Dom.inventory.displayInformation = function(y,array){ // display inventory infor
 	if(array[0].name != ""){ // if the user is hovering over an item...
 		document.getElementById("itemInformation").hidden = false; // ...display information
 		Dom.inventory.updatePosition(document.getElementById("itemInformation"));
-		//document.getElementById("itemInformation").innerHTML = "<div class='triangleLeft'></div><div id='triangle' class='innerTriangleLeft'></div><p id='name'></p><p id='stats'></p><p id='set'></p><p id='lore'></p>"; // construct the information without the values
 		document.getElementById("name").innerHTML = "<strong>"+array[0].name+"</strong>";
 		if(array[0].rarity == "common"){ // if the item is a common...
 			document.getElementById("name").style.color = "black"; // ...sets the name color to black
@@ -602,7 +601,6 @@ Dom.inventory.displayInformation = function(y,array){ // display inventory infor
 		}else{
 			document.getElementById("lore").innerHTML = "";
 		}
-		//document.getElementById("triangle").style.bottom = document.getElementById("itemInformation").offsetHeight - 50 + "px"; // position the triangle in the correct place
 	}
 }
 
@@ -611,7 +609,6 @@ Dom.inventory.displayEquipmentInformation = function(num){
 	if(Object.keys(Player.inventory.items[num]).length != 0){ // if the user is hovering over an item...
 		document.getElementById("inventoryInformation").hidden = false; // ...display information
 		Dom.inventory.updatePosition(document.getElementById("inventoryInformation"));
-		//document.getElementById("inventoryInformation").innerHTML = "<div class='triangleLeft'></div><div id='invTriangle' class='innerTriangleLeft'></div><p id='invName' style='font-weight: bold;'></p><p id='invStats'></p><p id='invSet'></p><p id='invLore'></p>"; // construct the information without the values
 		if(Player.inventory.items[num].name != undefined){
 			document.getElementById("invName").innerHTML = Player.inventory.items[num].name;
 			if(Player.inventory.items[num].rarity == "mythic"){ // if the item is a mythic...
@@ -625,9 +622,11 @@ Dom.inventory.displayEquipmentInformation = function(num){
 			document.getElementById("invName").innerHTML = "Unidentified "+Player.inventory.items[num].type;
 			document.getElementById("invName").style.color = "black"; // ...sets the name color to black
 		}
-		if(Player.inventory.items[num].type != "junk" && Player.inventory.items[num].type != "misc" && Player.inventory.items[num].type != "quest" && Player.inventory.items[num].type != "bag" && Player.inventory.items[num].type != "currency"){
+		if(Player.inventory.items[num].type != "junk" && Player.inventory.items[num].type != "waterjunk" && Player.inventory.items[num].type != "misc" && Player.inventory.items[num].type != "quest" && Player.inventory.items[num].type != "bag" && Player.inventory.items[num].type != "currency"){
 			if(Player.inventory.items[num].type != "rod"){
 				document.getElementById("invStats").innerHTML = "Tier: "+Player.inventory.items[num].tier; // add the tier to the information
+			}else{
+				document.getElementById("invStats").innerHTML = ""; // remove any information
 			}
 			if(Player.inventory.items[num].stats != undefined){
 				for(var i = 0; i < Object.keys(Player.inventory.items[num].stats).length; i++){ // repeat for all stats
@@ -692,6 +691,12 @@ Dom.inventory.displayEquipmentInformation = function(num){
 				document.getElementById("invName").innerHTML = "1 " + document.getElementById("invName").innerHTML; // add the size to the information
 			}
 		}
+		if(Player.inventory.items[num].type == "junk" || Player.inventory.items[num].type == "waterjunk"){
+			document.getElementById("invName").style.color = "darkgray";
+		}
+		if(Player.inventory.items[num].type == "misc"){
+			document.getElementById("invName").style.color = "#333333";
+		}
 		if(Player.inventory.items[num].lore != undefined){ // if the item has a lore...
 			document.getElementById("invLore").innerHTML = "<i>"+Player.inventory.items[num].lore+"</i>"; // ...add the lore to the information
 		}else{
@@ -743,7 +748,7 @@ Dom.quests.displayInformation = function(num,array,total){ // display quest star
 	}else{ // if the item is a mythic...
 		document.getElementById("questName").style.color = "black"; // ...sets the name color to purple
 	}
-	if(array[num].type != "junk" && array[num].type != "misc" && array[num].type != "quest" && array[num].type != "bag" && array[num].type != "currency"){
+	if(array[num].type != "junk" && array[num].type != "waterjunk" && array[num].type != "misc" && array[num].type != "quest" && array[num].type != "bag" && array[num].type != "currency"){
 		document.getElementById("questStats").innerHTML = "Tier: "+array[num].tier; // add the tier to the information
 		for(var i = 0; i < Object.keys(array[num].stats).length; i++){ // repeat for all stats
 			if(Object.keys(array[num].stats)[i] != "flaming"){
@@ -780,7 +785,7 @@ Dom.quests.displayFinishInformation = function(num,array,total){ // display ques
 	}else{ // if the item is a mythic...
 		document.getElementById("finishName").style.color = "black"; // ...sets the name color to purple
 	}
-	if(array[num].type != "junk" && array[num].type != "misc" && array[num].type != "quest" && array[num].type != "bag" && array[num].type != "currency"){
+	if(array[num].type != "junk" && array[num].type != "waterjunk" && array[num].type != "misc" && array[num].type != "quest" && array[num].type != "bag" && array[num].type != "currency"){
 		document.getElementById("finishStats").innerHTML = "Tier: "+array[num].tier; // add the tier to the information
 		for(var i = 0; i < Object.keys(array[num].stats).length; i++){ // repeat for all stats
 			if(Object.keys(array[num].stats)[i] != "flaming"){
@@ -821,7 +826,6 @@ Dom.identifier.displayInformation = function(num,array){ // display identifier i
 Dom.identifier.displayIdentifiedInformation = function(num,array){ // display identified information
 	document.getElementById("identifiedInformation").hidden = false; // display identified information
 	Dom.inventory.updatePosition(document.getElementById("identifiedInformation"));
-	//document.getElementById("identifiedInformation").innerHTML = "<div class='triangleLeft'></div><div id='identifiedTriangle' class='innerTriangleLeft'></div><p id='identifiedName'></p><p id='identifiedStats'></p><p id='identifiedLore'></p>"; // constuct the information without the values
 	document.getElementById("identifiedName").innerHTML = "<strong>" + array[num].name + "</strong>";
 	if(array[num].rarity == "common"){ // if the item is a common...
 		document.getElementById("identifiedName").style.color = "black"; // ...sets the name color to black
@@ -1150,13 +1154,13 @@ Dom.identifier.left = function(npc, over){ // code called on clicking the left a
 	if(Dom.identifier.displayed != 0){ // checks if the currently displayed item is the first in the array
 		Dom.identifier.displayed--; // sets the currently displayed item to the previous item
 	}else{
-		Dom.identifier.displayed = Player.inventory.unId.length-1; // sets the currently displayed item to the last item in the array
+		Dom.identifier.displayed = Dom.identifier.unId.length-1; // sets the currently displayed item to the last item in the array
 	}
 	Dom.identifier.page(npc, over); // opens and updates the identifier page
 }
 
 Dom.identifier.right = function(npc, over){ // this code is not important
-	if(Dom.identifier.displayed != Player.inventory.unId.length-1){ // checks if the currently displayed item is the last in the array
+	if(Dom.identifier.displayed != Dom.identifier.unId.length-1){ // checks if the currently displayed item is the last in the array
 		Dom.identifier.displayed++; // sets the currently displayed item to the next item
 	}else{
 		Dom.identifier.displayed = 0; // sets the currently displayed item to the first item in the array
@@ -1168,11 +1172,17 @@ Dom.identifier.page = function(npc, over){ // identifier page
 	Dom.changeBook("identifierPage", over); // changes page to identifier
 	Dom.currentlyDisplayed = "identifier"; // sets the currently displayed page variable to identifier
 	Dom.changeBook("identifierPage", false, 1); // stops close button being red
-	if(Player.inventory.unId.length != 0){ // checks if the player has any unIDed items
+	Dom.identifier.unId = [];
+	for(var i = 0; i < Player.inventory.items.length; i++){
+		if(Player.inventory.items[i].unidentified){
+			Dom.identifier.unId.push(Player.inventory.items[i]);
+		}
+	}
+	if(Dom.identifier.unId.length != 0){ // checks if the player has any unIDed items
 		document.getElementById("identifierPageChat").innerHTML = npc.chat.identifierGreeting; // sets the greeting to the parameter (chat)
-		document.getElementById("identifierPageOption").innerHTML = "<img src=" + Player.inventory.unId[Dom.identifier.displayed].image + " class='theseOptions' style='padding: 0px; margin: 0px; border: 5px solid #886622; height: 50px; width: 50px;'></img>"; // sets the image to the selected item
+		document.getElementById("identifierPageOption").innerHTML = "<img src=" + Dom.identifier.unId[Dom.identifier.displayed].image + " class='theseOptions' style='padding: 0px; margin: 0px; border: 5px solid #886622; height: 50px; width: 50px;'></img>"; // sets the image to the selected item
 		document.getElementById("identifierPageOption").onmouseover = function(){ // when the player hovers over the item...
-			Dom.identifier.displayInformation(Dom.identifier.displayed,Player.inventory.unId); // ...it displays its information
+			Dom.identifier.displayInformation(Dom.identifier.displayed,Dom.identifier.unId); // ...it displays its information
 		}
 		document.getElementById("identifierPageOption").onmouseleave = function(){ // when the player stops hovering over the item...
 			Dom.expand("identifierInformation"); // ...it stops displaying the information
@@ -1207,9 +1217,6 @@ Dom.inventory.give = function(item,num){ // gives the player the item
 		number = 1;
 	}
 	for(var y = 0; y < number; y++){
-		if(item.unidentified){
-			Player.inventory.unId.push(item);
-		}
 		var add = true;
 		for(var i = 0; i < Player.inventory.items.length; i++){
 			if(Player.inventory.items[i].name == item.name && Player.inventory.items[i].type == item.type && Player.inventory.items[i].image == item.image){
@@ -1248,8 +1255,8 @@ Dom.inventory.give = function(item,num){ // gives the player the item
 }
 
 Dom.inventory.constructUnId = function(area,tier){
-		let tempUnId = new unId(area,tier);
-		Dom.inventory.give(tempUnId);
+	let tempUnId = new unId(area,tier);
+	Dom.inventory.give(tempUnId);
 }
 for(var i = 0; i < 2; i++){
 	Dom.inventory.constructUnId("Eaglecrest Logging Camp",1);
@@ -1276,30 +1283,30 @@ function unId(area,tier){ // constructs an unidentified item when you kill an en
 }
 
 Dom.identifier.identify = function(npc){ // the page that you go to when you click "identify for 1 gold"
-	if(Dom.inventory.check(2,"currency",1) && Player.inventory.unId.length != 0){ // if the player can afford the item
+	if(Dom.inventory.check(2,"currency",1) && Dom.identifier.unId.length != 0){ // if the player can afford the item
 		Dom.inventory.removeById(2,"currency",1);
-		//Dom.inventory.updateGold(); // update the gold display
 		Dom.changeBook("identifiedPage",true); // changed page to the identified page
 		Dom.currentlyDisplayed = "identified"; // sets the currently displayed page variable to identified
 		
 		for(var i = 0; i < Player.inventory.items.length; i++){
-			if(Player.inventory.items[i].unidentified && Player.inventory.items[i].tier == Player.inventory.unId[Dom.identifier.displayed].tier && Player.inventory.items[i].area == Player.inventory.unId[Dom.identifier.displayed].area && Player.inventory.items[i].rarity == Player.inventory.unId[Dom.identifier.displayed].rarity && Player.inventory.items[i].type == Player.inventory.unId[Dom.identifier.displayed].type){
-				Player.inventory.items[i] = "";
+			if(Player.inventory.items[i].unidentified && Player.inventory.items[i].tier == Dom.identifier.unId[Dom.identifier.displayed].tier && Player.inventory.items[i].area == Dom.identifier.unId[Dom.identifier.displayed].area && Player.inventory.items[i].rarity == Dom.identifier.unId[Dom.identifier.displayed].rarity && Player.inventory.items[i].type == Dom.identifier.unId[Dom.identifier.displayed].type){
+				Player.inventory.items[i] = {};
+				document.getElementById("itemInventory").getElementsByTagName("td")[i].innerHTML = "";
 				break;
 			}
 		}
 		
 		Dom.identifier.array = []; // sets the possible items to none
-		if(Player.inventory.unId[Dom.identifier.displayed].rarity == "common"){ // if it is a common item...
+		if(Dom.identifier.unId[Dom.identifier.displayed].rarity == "common"){ // if it is a common item...
 			document.getElementById("identifiedPageChat").innerHTML = npc.chat.identifyCommon; // ...it uses the "common" chat
-		}else if(Player.inventory.unId[Dom.identifier.displayed].rarity == "unique"){ // if it is a unique item...
+		}else if(Dom.identifier.unId[Dom.identifier.displayed].rarity == "unique"){ // if it is a unique item...
 			document.getElementById("identifiedPageChat").innerHTML = npc.chat.identifyUnique; // ...it uses the "unique" chat
 		}else{ // if it is a myhtic item...
 			document.getElementById("identifiedPageChat").innerHTML = npc.chat.identifyMythic; // ...it uses the "mythic" chat
 		}
-		for(i = 0; i < Items[Object.keys(Items)[Player.inventory.unId[Dom.identifier.displayed].typeNum]].length; i++){ // for every item of the same catergory (e.g. bow)...
-			if(Items[Object.keys(Items)[Player.inventory.unId[Dom.identifier.displayed].typeNum]][i].tier == Player.inventory.unId[Dom.identifier.displayed].tier && Items[Object.keys(Items)[Player.inventory.unId[Dom.identifier.displayed].typeNum]][i].area == Player.inventory.unId[Dom.identifier.displayed].area && Items[Object.keys(Items)[Player.inventory.unId[Dom.identifier.displayed].typeNum]][i].rarity == Player.inventory.unId[Dom.identifier.displayed].rarity){ // ...check if it matches the stats...
-				Dom.identifier.array.push(Items[Object.keys(Items)[Player.inventory.unId[Dom.identifier.displayed].typeNum]][i]); // ...if it does add is to the array of possible items
+		for(i = 0; i < Items[Object.keys(Items)[Dom.identifier.unId[Dom.identifier.displayed].typeNum]].length; i++){ // for every item of the same catergory (e.g. bow)...
+			if(Items[Object.keys(Items)[Dom.identifier.unId[Dom.identifier.displayed].typeNum]][i].tier == Dom.identifier.unId[Dom.identifier.displayed].tier && Items[Object.keys(Items)[Dom.identifier.unId[Dom.identifier.displayed].typeNum]][i].area == Dom.identifier.unId[Dom.identifier.displayed].area && Items[Object.keys(Items)[Dom.identifier.unId[Dom.identifier.displayed].typeNum]][i].rarity == Dom.identifier.unId[Dom.identifier.displayed].rarity){ // ...check if it matches the stats...
+				Dom.identifier.array.push(Items[Object.keys(Items)[Dom.identifier.unId[Dom.identifier.displayed].typeNum]][i]); // ...if it does add is to the array of possible items
 			}
 		}
 		Dom.identifier.num = Math.floor(Math.random()*Dom.identifier.array.length); // a random number between 0 and the number of items in the array of possible items
@@ -1316,8 +1323,8 @@ Dom.identifier.identify = function(npc){ // the page that you go to when you cli
 			Dom.identifier.displayed = 0;
 			Dom.identifier.page(npc, true); // ...the page goes back to the normal identifier
 		}
-		Player.inventory.unId.splice(Dom.identifier.displayed, 1); // removes from the array of unidentified items
-	}else if(Player.inventory.unId.length != 0){ // if the player can't afford the item
+		Dom.identifier.unId.splice(Dom.identifier.displayed, 1); // removes from the array of unidentified items
+	}else if(Dom.identifier.unId.length != 0){ // if the player can't afford the item
  		document.getElementById("identifierPageBuy").style.border = "5px solid red"; // alert them that they don't have enough gold
 		setTimeout(function(){
 			document.getElementById("identifierPageBuy").style.border = "5px solid #886622";
@@ -1401,7 +1408,11 @@ Dom.inventory.remove = function(num){
 		Player.inventory.items[num] = {}; // removes the image from the inventory
 	}else{
 		Player.inventory.items[num].stacked--;
-		document.getElementById("itemInventory").getElementsByTagName("td")[num].innerHTML = "<img src='"+Player.inventory.items[num].image+"' draggable='true' ondragstart='Dom.inventory.drag(event,"+num+")'></img><div class='stackNum' id='stackNum"+i+"'>"+Player.inventory.items[num].stacked+"</div>"; // sets the stack size
+		if(Player.inventory.items[num].stacked != 1){
+			document.getElementById("itemInventory").getElementsByTagName("td")[num].innerHTML = "<img src='"+Player.inventory.items[num].image+"' draggable='true' ondragstart='Dom.inventory.drag(event,"+num+")'></img><div class='stackNum' id='stackNum"+i+"'>"+Player.inventory.items[num].stacked+"</div>"; // sets the stack size
+		}else{
+			document.getElementById("itemInventory").getElementsByTagName("td")[num].innerHTML = "<img src='"+Player.inventory.items[num].image+"' draggable='true' ondragstart='Dom.inventory.drag(event,"+num+")'></img>"; // sets the stack size
+		}
 	}
 }
 

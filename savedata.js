@@ -15,7 +15,6 @@ var Player = {
 		greaves: [],
 		boots: [],
 		weapon: [],
-		unId: [],
 		items: [{},{},{},{},{},{}],
 	},
 	

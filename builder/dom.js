@@ -693,9 +693,9 @@ function finish(){
 		'&nbsp;&nbsp;&nbsp;&nbsp;id: '+Items.item.length+',<br>'+
 		'&nbsp;&nbsp;&nbsp;&nbsp;name: "'+position[1].value+'",<br>'+
 		'&nbsp;&nbsp;&nbsp;&nbsp;type: "'+position[0].value+'",<br>'+
-		'&nbsp;&nbsp;&nbsp;&nbsp;image: "'+position[5].value+'",<br>'+
+		'&nbsp;&nbsp;&nbsp;&nbsp;image: "'+position[5].value+'",<br>';
 		if(position[4].value > 1){
-			'&nbsp;&nbsp;&nbsp;&nbsp;stack: '+position[4].value+',<br>';
+			complete += '&nbsp;&nbsp;&nbsp;&nbsp;stack: '+position[4].value+',<br>';
 		}
 		if(position[6].value != ""){
 			complete += '&nbsp;&nbsp;&nbsp;&nbsp;lore: "'+position[6].value+'",<br>';
