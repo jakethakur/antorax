@@ -969,11 +969,12 @@ class Hero extends Attacker {
 			
 			if (random(0, 4) < this.fishingBobs) {
 				// fish caught
-				console.log("fish caught");
 				let fish = Items.fish;
 				fish = fish.filter(item => item.waterTypes.includes(Areas[Game.areaName].waterType)); // filter for water type
 				fish = fish.filter(item => item.areas.includes(Game.areaName) || item.areas.length === 0); // filter for area
 				fish = fish[random(0, fish.length - 1)]; // TBD make the fish decided based on your fishing skill
+				fish = { ...fish }; // remove all references to itemdata in fish variable (otherwise length value changed in this will also affect itemData)!
+				console.log("fish caught: " + fish.name);
 				
 				// calculate time to catch fish and clicks needed for fish
 				// see fish spreadsheet for how this is figured out
@@ -1022,6 +1023,7 @@ class Hero extends Attacker {
 						else {
 							clicks += Math.floor(fishLength / 50);
 						}
+						
 					}
 					else {
 						clicks += Math.floor(fishLength / 25);
@@ -2679,13 +2681,13 @@ Game.render = function (delta) {
 		
 	}
 	
-	if (Game.hero.channelling === "fishing" || (Game.hero.channelling.type !== undefined && Game.hero.fishingBobs >= 100)) { // check player's fishing bobber is out
+	if (this.hero.channelling === "fishing" || (this.hero.channelling.type !== undefined && this.hero.fishingBobs >= 100)) { // check player's fishing bobber is out
 		// line between fishing bobber and player
-		let projectile = Game.projectiles[Game.searchFor(Game.hero.channellingProjectileId, Game.projectiles)];
+		let projectile = this.projectiles[this.searchFor(this.hero.channellingProjectileId, this.projectiles)];
 		this.ctx.strokeStyle = "grey";
 		this.ctx.beginPath();
 		this.ctx.moveTo(projectile.screenX, projectile.screenY - 8);
-		this.ctx.lineTo(Game.hero.screenX, Game.hero.screenY);
+		this.ctx.lineTo(this.hero.screenX, this.hero.screenY);
 		this.ctx.stroke();
 	}
 
@@ -2748,6 +2750,10 @@ Game.render = function (delta) {
 			if (Game.hero.class === "m" && this.projectiles[i].beingChannelled && Game.hero.channelling === "projectile") { // mage projectiles are transparent when being channelled
 				this.ctx.globalAlpha = 0.6;
 			}
+			
+			if (this.projectiles[i].beingChannelled && this.hero.channelling.type !== undefined && this.hero.fishingBobs >= 100) { // check if player has cast a bobber and it is underwater (bitten by a fish)
+				this.ctx.globalAlpha = 0.2;
+			}
 		
 			this.drawImageRotated( // rotate projectile away from player
 				this.projectiles[i].image,
@@ -2773,7 +2779,7 @@ Game.render = function (delta) {
 				this.ctx.fillText(damageRound(this.projectiles[i].damageDealt[x].damage), this.projectiles[i].screenX, this.projectiles[i].screenY);
 			}
 			
-			this.ctx.globalAlpha = 1; // restore transparency if it was changed if player is a mage (see above)
+			this.ctx.globalAlpha = 1; // restore transparency if it was changed above (player is mage, fishing bobber underwater, etc.)
 		}
     }
 
