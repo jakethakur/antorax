@@ -891,6 +891,67 @@ class Hero extends Attacker {
 							console.error("It is not known that an item of type " + channelling.type + " can be fished up.");
 						}
 						
+						// increase fishing skill
+						// see fish spreadsheet for algorithm
+						// note: if the Game.hero stats were updated in the middle of this code, it **might** ignore some skill that should have been added (overwritten back to old value in savedata.js) - tbd fix this
+						// tbd make own function
+						if (this.stats.fishingSkill < 20) {
+							// tutorial fishing skill values (fishing skill less than 20)
+							if (this.channelling.type === "waterjunk") {
+								this.stats.fishingSkill += 1;
+							}
+							else if (this.channelling.rarity === "common") {
+								this.stats.fishingSkill += 2;
+							}
+							else if (this.channelling.rarity === "unique") {
+								this.stats.fishingSkill += 3;
+							}
+							else if (this.channelling.rarity === "mythic") {
+								this.stats.fishingSkill += 5;
+							}
+							else {
+								console.error("Fishing item " + this.channelling + "currently never gives any fishing skill, but probably should.");
+							}
+						}
+						else {
+							// normal fishing skill values
+							if (this.channelling.type === "waterjunk") {
+								this.stats.fishingSkill += (1 / this.stats.fishingSkill);
+							}
+							else if (this.channelling.rarity === "common") {
+								this.stats.fishingSkill += (20 / this.stats.fishingSkill);
+							}
+							else if (this.channelling.rarity === "unique") {
+								this.stats.fishingSkill += (50 / this.stats.fishingSkill);
+							}
+							else if (this.channelling.rarity === "mythic") {
+								this.stats.fishingSkill += (200 / this.stats.fishingSkill);
+							}
+							else {
+								console.error("Fishing item " + this.channelling + "currently never gives any fishing skill, but probably should.");
+							}
+							
+							if (this.channelling.length !== undefined) {
+								// fish give extra skill points based on their length
+								if (this.stats.fishingSkill < 50) {
+									this.stats.fishingSkill += Math.floor(this.channelling.length / 100);
+								}
+								else if (this.stats.fishingSkill < 100) {
+									this.stats.fishingSkill += Math.floor(this.channelling.length / 100) / 2;
+								}
+								else if (this.stats.fishingSkill < 200) {
+									this.stats.fishingSkill += Math.floor(this.channelling.length / 100) / 3;
+								}
+								else {
+									this.stats.fishingSkill += Math.floor(this.channelling.length / 100) / 4;
+								}
+							}
+						}
+						if (Math.floor(this.stats.fishingSkill) - Math.floor(Player.stats.fishingSkill) > 0) { // check if the player's fishing skill has increased to the next integer (or more)
+							Dom.chat.insert("Your fishing skill has increased to " + this.stats.fishingSkill + "."); // notify them of this in chat
+						}
+						Player.stats.fishingSkill = this.stats.fishingSkill; // update copy of fishingSkill in savedata.js
+						
 						// remove fishing bobber
 						Game.projectiles.splice(Game.searchFor(this.channellingProjectileId, Game.projectiles), 1);
 						this.channelling = false;
