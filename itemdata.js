@@ -848,6 +848,10 @@ var Items = {
 				avg: 19,
 				max: 50,
 			},
+			skillRequirement: {
+				min: 10,
+				max: 1000,
+			},
 		},
 		{
 			id: 1,
@@ -868,6 +872,10 @@ var Items = {
 				avg: 100,
 				max: 180,
 			},
+			skillRequirement: {
+				min: 40,
+				max: 1000,
+			},
 		},
 		{
 			id: 2,
@@ -885,6 +893,10 @@ var Items = {
 				min: 17,
 				avg: 24,
 				max: 46,
+			},
+			skillRequirement: {
+				min: 50,
+				max: 1000,
 			},
 		},
 		{
@@ -906,6 +918,10 @@ var Items = {
 				avg: 27,
 				max: 55,
 			},
+			skillRequirement: {
+				min: 10,
+				max: 1000,
+			},
 		},
 		{
 			id: 4,
@@ -926,6 +942,10 @@ var Items = {
 				avg: 60,
 				max: 122,
 			},
+			skillRequirement: {
+				min: 30,
+				max: 1000,
+			},
 		},
 		{
 			id: 5,
@@ -945,6 +965,10 @@ var Items = {
 				avg: 40,
 				max: 50,
 			},
+			skillRequirement: {
+				min: 20,
+				max: 1000,
+			},
 		},
 		{
 			id: 6,
@@ -963,6 +987,10 @@ var Items = {
 				avg: 300,
 				max: 800,
 			},
+			skillRequirement: {
+				min: 50,
+				max: 1000,
+			},
 		},
 		{
 			id: 7,
@@ -980,6 +1008,10 @@ var Items = {
 				min: 20,
 				avg: 26,
 				max: 40.5,
+			},
+			skillRequirement: {
+				min: 20,
+				max: 1000,
 			},
 		},
 		{
@@ -1000,6 +1032,10 @@ var Items = {
 				avg: 40,
 				max: 60,
 			},
+			skillRequirement: {
+				min: 35,
+				max: 1000,
+			},
 		},
 		{
 			id: 9,
@@ -1018,6 +1054,10 @@ var Items = {
 				avg: 20,
 				max: 40,
 			},
+			skillRequirement: {
+				min: 35,
+				max: 1000,
+			},
 		},
 		{
 			id: 10,
@@ -1035,6 +1075,10 @@ var Items = {
 				min: 75,
 				avg: 80,
 				max: 155,
+			},
+			skillRequirement: {
+				min: 25,
+				max: 1000,
 			},
 		},
 		{
@@ -1056,6 +1100,10 @@ var Items = {
 				avg: 50,
 				max: 76,
 			},
+			skillRequirement: {
+				min: 25,
+				max: 1000,
+			},
 		},
 		{
 			id: 12,
@@ -1076,6 +1124,10 @@ var Items = {
 				avg: 72,
 				max: 140,
 			},
+			skillRequirement: {
+				min: 25,
+				max: 1000,
+			},
 		},
 		{
 			id: 13,
@@ -1094,6 +1146,10 @@ var Items = {
 				min: 43,
 				avg: 110,
 				max: 200,
+			},
+			skillRequirement: {
+				min: 40,
+				max: 1000,
 			},
 		},
 		{
@@ -1114,6 +1170,10 @@ var Items = {
 				avg: 30,
 				max: 45,
 			},
+			skillRequirement: {
+				min: 10,
+				max: 1000,
+			},
 		},
 		{
 			id: 15,
@@ -1132,6 +1192,10 @@ var Items = {
 				min: 35,
 				avg: 100,
 				max: 210,
+			},
+			skillRequirement: {
+				min: 50,
+				max: 1000,
 			},
 		},
 		{
@@ -1153,6 +1217,10 @@ var Items = {
 				avg: 25,
 				max: 50,
 			},
+			skillRequirement: {
+				min: 50,
+				max: 1000,
+			},
 		},
 		{
 			id: 17,
@@ -1165,6 +1233,10 @@ var Items = {
 				"brackish",
 				"marine",
 			],
+			skillRequirement: {
+				min: 0,
+				max: 45,
+			},
 		},
 		{
 			id: 18,
@@ -1178,6 +1250,10 @@ var Items = {
 				"brackish",
 				"marine",
 			],
+			skillRequirement: {
+				min: 0,
+				max: 45,
+			},
 		},
 		{
 			id: 19,
@@ -1191,6 +1267,10 @@ var Items = {
 				"brackish",
 				"marine",
 			],
+			skillRequirement: {
+				min: 0,
+				max: 45,
+			},
 		},
 		{
 			id: 20,
@@ -1204,6 +1284,10 @@ var Items = {
 				"brackish",
 				"marine",
 			],
+			skillRequirement: {
+				min: 0,
+				max: 45,
+			},
 		},
 		{
 			id: 21,
@@ -1217,6 +1301,10 @@ var Items = {
 				"brackish",
 				"marine",
 			],
+			skillRequirement: {
+				min: 0,
+				max: 45,
+			},
 		},
 		/*{
 			id: 22,
