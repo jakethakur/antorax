@@ -42,6 +42,7 @@ var Player = {
 		blockDefence: 0, // knights only
 		
 		// fishing
+		fishingSkill: 0,
 		fishingRange: 200, // fishing rod range (currently just a constant)
 	},
 	

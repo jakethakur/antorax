@@ -443,6 +443,9 @@ class Thing extends Entity {
 		super(properties);
 
 		this.image = Loader.getImage(properties.image);
+		 
+		// if the image is a **horizontal** tileset, where all images have the same width and height, this specifies the number image to use (starting at 0 for the first image)
+		this.imageNumber = properties.imageNumber || 0; // currently only works for projectiles (TBD)
 		
 		// set width and height to image dimensions unless otherwise specified
 		this.width = properties.width || this.image.width;
@@ -840,6 +843,8 @@ class Hero extends Attacker {
 							map: map,
 							x: projectileX,
 							y: projectileY,
+							width: 27,
+							height: 23,
 							/*adjust: {
 								// manually adjust position - make this per class (per projectile image) in the future ( tbd )
 								x: 20,
@@ -962,19 +967,20 @@ class Hero extends Attacker {
 	
 	// called by fishing bobber timeouts
 	fish () {
-		if (this.fishingBobs < 5 && this.fishingBobs > -1) {
+		if (this.fishingBobs < 6 && this.fishingBobs > -1) {
 			// bob fishing bobber every ~1 second
 			this.fishingBobs++;
-			console.log("bob");
 			
-			if (random(0, 4) < this.fishingBobs) {
+			if (random(0, 5) < this.fishingBobs) {
 				// fish caught
 				let fish = Items.fish;
 				fish = fish.filter(item => item.waterTypes.includes(Areas[Game.areaName].waterType)); // filter for water type
 				fish = fish.filter(item => item.areas.includes(Game.areaName) || item.areas.length === 0); // filter for area
-				fish = fish[random(0, fish.length - 1)]; // TBD make the fish decided based on your fishing skill
+				if (random(1, 6) !== 2) { // 1 in 6 chance of getting something that might not be within fishing level range
+					fish = fish.filter(item => Game.hero.stats.fishingSkill >= item.skillRequirement.min && Game.hero.stats.fishingSkill <= item.skillRequirement.max); // filter for fishing skill
+				}
+				fish = fish[random(0, fish.length - 1)]; // random fish that fulfils requirements above
 				fish = { ...fish }; // remove all references to itemdata in fish variable (otherwise length value changed in this will also affect itemData)!
-				console.log("fish caught: " + fish.name);
 				
 				// calculate time to catch fish and clicks needed for fish
 				// see fish spreadsheet for how this is figured out
@@ -1027,6 +1033,9 @@ class Hero extends Attacker {
 					}
 					else {
 						clicks += Math.floor(fishLength / 25);
+						if (clicks === 0) {
+							clicks = 1; // clicks needed defaults to 1
+						}
 					}
 					// time
 					if (fish.rarity === "common") {
@@ -1041,17 +1050,15 @@ class Hero extends Attacker {
 				}
 				fish.clicksToCatch = clicks;
 				
-				console.log("time: " + time);
-				console.log("clicks: " + clicks);
-				
 				// fish finished! time for player to fish it up...
 				this.channelling = fish; 
 				this.fishingBobs = 100; // fishingBobs is used to see how many clicks the player has done when it is >= 100
 				
+				Game.projectiles[Game.searchFor(this.channellingProjectileId, Game.projectiles)].imageNumber = 2; // submerged image for projectile
+				
 				// timer for player clicks
 				setTimeout(function (fish) {
 					if (this.channelling === fish) { // fish has not been caught
-						console.log("time up");
 						// remove fishing bobber
 						Game.projectiles.splice(Game.searchFor(this.channellingProjectileId, Game.projectiles), 1);
 						this.channelling = false;
@@ -1062,6 +1069,12 @@ class Hero extends Attacker {
 			else {
 				// timer for next bob
 				setTimeout(this.fish.bind(this), random(500, 1500));
+				
+				// tbd make searchFor only need to be run once (for efficiency)
+				Game.projectiles[Game.searchFor(this.channellingProjectileId, Game.projectiles)].imageNumber = 1; // bobbing image for projectile
+				setTimeout(function () {
+					Game.projectiles[Game.searchFor(this.channellingProjectileId, Game.projectiles)].imageNumber = 0; // set image back to normal after 150ms
+				}.bind(this), 200);
 			}
 		}
 	}
@@ -1079,7 +1092,7 @@ class Projectile extends Thing {
 		
 		this.variance = properties.variance || 0; // diameter of circle that it could fall into
 		
-		this.rotate = properties.rotate;
+		this.rotate = properties.rotate || 0;
 		
 		this.beingChannelled = properties.beingChannelled || false;
 		
@@ -2502,6 +2515,7 @@ Game.coordinates = function (character) {
 
 // display frames per second on canvas (settings option)
 // delta = time in ms between frames
+// tbd change to https://developer.mozilla.org/en-US/docs/Web/API/Performance/now
 Game.fps = function (delta) {
 	// reset text formatting
 	this.resetFormatting();
@@ -2686,7 +2700,15 @@ Game.render = function (delta) {
 		let projectile = this.projectiles[this.searchFor(this.hero.channellingProjectileId, this.projectiles)];
 		this.ctx.strokeStyle = "grey";
 		this.ctx.beginPath();
-		this.ctx.moveTo(projectile.screenX, projectile.screenY - 8);
+		if (projectile.imageNumber === 0) {
+			this.ctx.moveTo(projectile.screenX, projectile.screenY - 8); // bobber above water
+		}
+		else if (projectile.imageNumber === 1) {
+			this.ctx.moveTo(projectile.screenX, projectile.screenY); // bobber bobbing
+		}
+		else if (projectile.imageNumber === 2) {
+			this.ctx.moveTo(projectile.screenX, projectile.screenY + 8); // bobber submerged by fish
+		}
 		this.ctx.lineTo(this.hero.screenX, this.hero.screenY);
 		this.ctx.stroke();
 	}
@@ -2750,19 +2772,27 @@ Game.render = function (delta) {
 			if (Game.hero.class === "m" && this.projectiles[i].beingChannelled && Game.hero.channelling === "projectile") { // mage projectiles are transparent when being channelled
 				this.ctx.globalAlpha = 0.6;
 			}
-			
-			if (this.projectiles[i].beingChannelled && this.hero.channelling.type !== undefined && this.hero.fishingBobs >= 100) { // check if player has cast a bobber and it is underwater (bitten by a fish)
-				this.ctx.globalAlpha = 0.2;
-			}
 		
-			this.drawImageRotated( // rotate projectile away from player
-				this.projectiles[i].image,
-				this.projectiles[i].screenX - this.projectiles[i].width / 2,
-				this.projectiles[i].screenY - this.projectiles[i].height / 2,
-				this.projectiles[i].width,
-				this.projectiles[i].height,
-				this.projectiles[i].rotate
-			);
+			if (this.projectiles[i].rotate !== 0) {
+				this.drawImageRotated( // rotate projectile and draw
+					this.projectiles[i].image,
+					this.projectiles[i].screenX - this.projectiles[i].width / 2,
+					this.projectiles[i].screenY - this.projectiles[i].height / 2,
+					this.projectiles[i].width,
+					this.projectiles[i].height,
+					this.projectiles[i].rotate
+				);
+			}
+			else {
+				this.ctx.drawImage( // draw unrotated
+					this.projectiles[i].image,
+					this.projectiles[i].width * this.projectiles[i].imageNumber, 0, // draw a certain number image from a tileset (maybe only do this if it is from a tileset, otherwise call simplified drawImage function? TBD)
+					this.projectiles[i].width, this.projectiles[i].height,
+					this.projectiles[i].screenX - this.projectiles[i].width / 2,
+					this.projectiles[i].screenY - this.projectiles[i].height / 2,
+					this.projectiles[i].width, this.projectiles[i].height,
+				);
+			}
 			
 			// shows damage dealt by projectile
 			for(var x = 0; x < this.projectiles[i].damageDealt.length; x++) {
@@ -2779,7 +2809,7 @@ Game.render = function (delta) {
 				this.ctx.fillText(damageRound(this.projectiles[i].damageDealt[x].damage), this.projectiles[i].screenX, this.projectiles[i].screenY);
 			}
 			
-			this.ctx.globalAlpha = 1; // restore transparency if it was changed above (player is mage, fishing bobber underwater, etc.)
+			this.ctx.globalAlpha = 1; // restore transparency if it was changed above (e.g: mage channelled projectile)
 		}
     }
 

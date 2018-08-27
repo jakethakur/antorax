@@ -14,7 +14,7 @@ var MaleNames = ["Adalgrim", "Adelard", "Andwise", "Anson", "Balbo", "Bandobras"
 "Isembold", "Isengar", "Isemgrim", "Isumbras", "Largo", "Longo",
 "Lotho", "Madoc", "Marcho", "Marmadas", "Marmadoc", "Marroc",
 "Meriadoc", "Merimac", "Merimas", "Milo", "Minto", "Moro",
-"Mosco", "Mungo", "Nob", "Odo", "Odovacar", "Olo", "Orgolas",
+"Mosco", "Mungo", "Odo", "Odovacar", "Olo", "Orgolas",
 "Otho", "Paladin", "Peregrin", "Polo", "Ponto", "Porto", "Posco", "Reginard",
 "Rendigar", "Robin", "Rorimac", "Rudigar", "Rufus", "Sadoc",
 "Samwise", "Sancho", "Saradas", "Saradoc", "Seredic", "Sigismond",
@@ -31,7 +31,7 @@ var FemaleNames = ["Adaldrida", "Adamanta", "Amaranth", "Angelica", "Asphodel",
 
 function randomName(gender) {
 	if (gender == "m") {
-		return(MaleNames[Math.floor(Math.random()*FemaleNames.length)]);
+		return(MaleNames[Math.floor(Math.random()*MaleNames.length)]);
 	}
 	else{
 		return(FemaleNames[Math.floor(Math.random()*FemaleNames.length)]);
