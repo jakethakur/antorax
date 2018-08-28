@@ -6,10 +6,10 @@ var Quests = {
 			
 			// redundant but will keep anyway
 			startName: "Cart Driver",
-			startChat: "That's it, we're here! I'm afraid you're going to have to walk to the <strong>Eaglecrest Logging Camp</strong> from here. If you walk down a bit to the west you should see the entrance to the camp.<br>You should probably buy a weapon on your way there. It looks like you have enough gold on you to do so. There's a good weaponsmith on your way to the camp, not far from here.",
+			startChat: `That's it, we're here! I'm afraid you're going to have to walk to the <strong>Eaglecrest Logging Camp</strong> from here. If you walk down a bit to the west you should see the entrance to the camp.<br>You should probably buy a weapon on your way there. It looks like you have enough gold on you to do so. There's a good weaponsmith on your way to the camp, not far from here.`,
 			
 			finishName: "Marshall Teper",
-			finishChat: "Welcome to the Eaglecrest Logging Camp, adventurer. It's useful to have you here. I hope your journey was fine.<br>Take this gold and pair of boots. They're provided by the King's Covenant to all new adventurers. Feel free to have a look around the camp and buy anything you want, but not for too long. We've got work to be done.",
+			finishChat: `Welcome to the Eaglecrest Logging Camp, adventurer. It's useful to have you here. I hope your journey was fine.<br>Take this gold and pair of boots. They're provided by the King's Covenant to all new adventurers. Feel free to have a look around the camp and buy anything you want, but not for too long. We've got work to be done.`,
 			
 			objectives: [
 				"Buy a weapon from a nearby weaponsmith.",
@@ -29,6 +29,7 @@ var Quests = {
 			
 			howToStart: "Speak to the Cart Driver.",
 			levelRequirement: 1,
+			questRequirements: [],
 			
 			rewards: {
 				xp: 10,
@@ -51,21 +52,21 @@ var Quests = {
 			quest: "Learning from the Best",
 			
 			startName: "Mashall Teper",
-			startChat: "You're going to need to learn how to fight if you're going to be able to help us gather some wood - there are goblins out there in the forest.<br>Go and see <strong>Combat Trainer Saral</strong>. She's more skilled in combat than anyone else here. She'll be able to teach you what you need to know know.",
+			startChat: `You're going to need to learn how to fight if you're going to be able to help us gather some wood - there are goblins out there in the forest.<br>Go and see <strong>Combat Trainer Saral</strong>. She's more skilled in combat than anyone else here. She'll be able to teach you what you need to know know.`,
 			
-			finishName: "Combat Trauner Saral",
-			finishChat: "Why hello, ${Player.name}. I always love new blood in the Logging Camp. Now let's get started, shall we?",
+			finishName: "Combat Trainer Saral",
+			finishChat: `Why hello, ${Player.name}. I always love new blood in the Logging Camp. Now let's get started, shall we?`,
 			
 			objectives: [
 				"Equip your weapon in the inventory.",
-				"Speak to <strong>Overseer Saral</strong> at the Eaglecrest Logging Camp.",
+				"Speak to <strong>Combat Trainer Saral</strong> at the Eaglecrest Logging Camp.",
 			],
 			
 			isCompleted: function() {
 				var completed = [];
 				
 				// true or falses for each objective (apart from the turn-in objective)
-				completed.push(Player.inventory.weapon === Items.bow[2] || Player.inventory.weapon === Items.staff[2] || Player.inventory.weapon === Items.sword[2]);
+				completed.push(Player.inventory.weapon[0].type === "bow" || Player.inventory.weapon[0].type === "staff" || Player.inventory.weapon[0].type === "sword");
 				
 				var finished = true;
 				for(var i = 0; i < completed.length; i++) {
@@ -81,7 +82,7 @@ var Quests = {
 			
 			howToStart: "Speak to <strong>Marshall Teper</strong> at the Eaglecrest Logging Camp.",
 			levelRequirement: 1,
-			questRequirement: "To the Logging Camp", // doesn't work - tbd
+			questRequirements: ["To the Logging Camp"],
 			
 			rewards: {
 				xp: 10,
@@ -92,6 +93,51 @@ var Quests = {
 		},
 		
 		{
+			id: 2,
+			quest: "Learning to Fight",
+			
+			startName: "Combat Trainer Saral",
+			startChat: `You're going to need to learn how to fight if you're going to be able to help us gather some wood - there are goblins out there in the forest.<br>Go and see <strong>Combat Trainer Saral</strong>. She's more skilled in combat than anyone else here. She'll be able to teach you what you need to know know.`,
+			
+			finishName: "Combat Trainer Saral",
+			finishChat: `Why hello, ${Player.name}. I always love new blood in the Logging Camp. Now let's get started, shall we?`,
+			
+			objectives: [
+				"Equip your weapon in the inventory.",
+				"Speak to <strong>Combat Trainer Saral</strong> at the Eaglecrest Logging Camp.",
+			],
+			
+			isCompleted: function() {
+				var completed = [];
+				
+				// true or falses for each objective (apart from the turn-in objective)
+				completed.push(Player.inventory.weapon[0].type === "bow" || Player.inventory.weapon[0].type === "staff" || Player.inventory.weapon[0].type === "sword");
+				
+				var finished = true;
+				for(var i = 0; i < completed.length; i++) {
+					if(!completed[i]) {
+						finished = false;
+					}
+				}
+				
+				completed.push(finished);
+				
+				return completed;
+			},
+			
+			howToStart: "Speak to <strong>Marshall Teper</strong> at the Eaglecrest Logging Camp.",
+			levelRequirement: 1,
+			questRequirements: ["To the Logging Camp"],
+			
+			rewards: {
+				xp: 10,
+				reputation: {
+					eaglecrestLoggingCamp: 2,
+				},
+			},
+		},
+		
+		/*{
 			id: 2,
 			quest: "A drink on us!",
 			
@@ -284,7 +330,7 @@ var Quests = {
 			rewards: {
 				xp: 100,
 			},
-		},
+		},*/
 	],
 };
 

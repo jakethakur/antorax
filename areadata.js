@@ -269,6 +269,7 @@ var Areas = {
 				"teper",
 				"identifier",
 				"dummy",
+				"saral",
 			],
 			
 			addresses: [
@@ -276,6 +277,7 @@ var Areas = {
 				"./assets/npcs/teper.png",
 				"./assets/npcs/identifier.png",
 				"./assets/enemies/dummy.png",
+				"./assets/npcs/saral.png",
 			],
 		},
 		
@@ -333,11 +335,37 @@ var Areas = {
 						quest: Quests.eaglecrestLoggingCamp[0], 
 						role: "finish"
 					},
+					{
+						quest: Quests.eaglecrestLoggingCamp[1], 
+						role: "start"
+					},
 				],
 				chat: {
 					questProgress: "Get on with your work!",
 					questComplete: "There's lots of work still to be done.",
 					inventoryFull: "You have no space to hold this. Empty your bags a bit and come back.",
+				},
+			},
+			{
+				x: 365,
+				y: 870,
+				image: "saral",
+				name: "Combat Trainer Saral",
+				level: 40,
+				stats: {
+					maxHealth: 250,
+					defence: 10,
+				},
+				quests: [
+					{
+						quest: Quests.eaglecrestLoggingCamp[1], 
+						role: "finish"
+					},
+				],
+				chat: {
+					questProgress: "The dummy isn't going anywhere.",
+					questComplete: "You can always check your adventure log if you need to brush up on your combat skills.",
+					inventoryFull: "Empty your bags some. You have no space for your rewards.",
 				},
 			},
 		],
