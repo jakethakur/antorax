@@ -2322,7 +2322,7 @@ Game.update = function (delta) {
 									}
 									else {
 										// no quest item rewards, so user ofc has enough inventory space
-										Dom.quest.start(this.NPCs[i].quests[x].quest);
+										Dom.quest.finish(this.NPCs[i].quests[x].quest);
 									}
 								}
 								// quest conditions have not been fulfilled
