@@ -1218,7 +1218,7 @@ var Items = {
 				max: 50,
 			},
 			skillRequirement: {
-				min: 50,
+				min: 55,
 				max: 1000,
 			},
 		},
@@ -1236,7 +1236,7 @@ var Items = {
 			],
 			skillRequirement: {
 				min: 0,
-				max: 45,
+				max: 60,
 			},
 		},
 		{
@@ -1253,7 +1253,7 @@ var Items = {
 			],
 			skillRequirement: {
 				min: 0,
-				max: 45,
+				max: 60,
 			},
 		},
 		{
@@ -1270,7 +1270,7 @@ var Items = {
 			],
 			skillRequirement: {
 				min: 0,
-				max: 45,
+				max: 60,
 			},
 		},
 		{
@@ -1287,7 +1287,7 @@ var Items = {
 			],
 			skillRequirement: {
 				min: 0,
-				max: 45,
+				max: 60,
 			},
 		},
 		{
@@ -1304,7 +1304,7 @@ var Items = {
 			],
 			skillRequirement: {
 				min: 0,
-				max: 45,
+				max: 60,
 			},
 		},
 		{
@@ -1322,7 +1322,7 @@ var Items = {
 			],
 			skillRequirement: {
 				min: 0,
-				max: 45,
+				max: 60,
 			},
 		},
 		{
@@ -1340,7 +1340,7 @@ var Items = {
 			],
 			skillRequirement: {
 				min: 0,
-				max: 45,
+				max: 60,
 			},
 		},
 		{
