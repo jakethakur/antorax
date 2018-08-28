@@ -1941,8 +1941,8 @@ Game.loadArea = function (areaName, destination) {
 		this.playMusic();
 		
 		// purge the chat (if there is any to purge)
-		if (Dom.chat.length > 0) {
-			Dom.chat.purge();
+		if (Dom.chat.contents.length > 0) {
+			Dom.chat.purge(false);
 		}
 		
 		// init game (if it hasn't been done so already)

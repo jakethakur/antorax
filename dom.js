@@ -117,51 +117,50 @@ Dom.chat.borderRed = false;
 Dom.chat.borderBlack = false;
 Dom.chat.newString = ""; // sets the new chat to nothing
 Dom.chat.oldString = ""; // sets the old chat to nothing
-Dom.chat.length = 0; // sets the chat length to 0
 Dom.chat.contents = []; // sets the chat contents to 0
 document.getElementById("dot").innerHTML = 0; // sets the notification number to 0
 Dom.chat.insert = function(text, delay, important) { // // insert text in chat page
-	if(Dom.chat.length == 10) { // if chat is too big
-			Dom.chat.purge(); // purge it
-		}
-	if(chatPage.hidden){ // if the chat is hidden
-		if(document.getElementById("dot").innerHTML != "<b>...</b>"){ // if there are less than 100 notifications
+	if(this.contents.length > 1000) { // if chat is too big
+		this.contents.shift(); // purge it
+	}
+	if(chatPage.hidden) { // if the chat is hidden
+		if(document.getElementById("dot").innerHTML != "<b>...</b>") { // if there are less than 100 notifications
 			document.getElementById("dot").hidden = false; // display the notifications
 			document.getElementById("dot").innerHTML = parseInt(document.getElementById("dot").innerHTML) + 1; // add 1 to the notification number
-			if(parseInt(document.getElementById("dot").innerHTML) > 99){ // if there are 100 notifications
+			if(parseInt(document.getElementById("dot").innerHTML) > 99) { // if there are 100 notifications
 				document.getElementById("dot").innerHTML = "<b>...</b>"; // set the notification number to "..."
 				document.getElementById("dot").style.lineHeight = "7.5px"; // move the "..." to the centre
 			}
 		}
 	}
-	Dom.chat.contents.push(text); // add the text to the array of chat contents
+	this.contents.push(text); // add the text to the array of chat contents
 	setTimeout(function() { // wait for the amount of time specified in the parameter
-		Dom.chat.newString = text + "<br><br>" + Dom.chat.newString; // adds the text to the new chat
-		chatPage.innerHTML = "<br>" + Dom.chat.newString; // sets the chat to the new chat
-		if(Dom.chat.oldString != 0){chatPage.innerHTML += '-------------------- <b>New Messages</b> --------------------';} // if there is old chat write "New Messages"
-		chatPage.innerHTML += "</p>" + Dom.chat.oldString; // write old chat under new messages
+		this.newString = text + "<br><br>" + this.newString; // adds the text to the new chat
+		chatPage.innerHTML = "<br>" + this.newString; // sets the chat to the new chat
+		if(this.oldString != 0){chatPage.innerHTML += '-------------------- <b>New Messages</b> --------------------';} // if there is old chat write "New Messages"
+		chatPage.innerHTML += "</p>" + this.oldString; // write old chat under new messages
 		if(!chatPage.hidden){ // if the chat is displayed...
 			Dom.changeBook("chatPage"); // ...update the chat
 		}
-		Dom.chat.length++; // adds 1 to the length of the chat
-	}, delay); // sets the delay to the amount specified in the parameter
-	if(important && !Dom.chat.borderRed && !Dom.chat.borderBlack){
-		Dom.chat.borderRed = setInterval(function(){
+	}.bind(this), delay); // sets the delay to the amount specified in the parameter
+	if(important && !this.borderRed && !this.borderBlack) {
+		this.borderRed = setInterval(function(){
 			document.getElementById("changeChat").getElementsByTagName("polygon")[0].style.strokeWidth = "3";
 			document.getElementById("changeChat").getElementsByTagName("polygon")[0].style.stroke = "red";
 		},500);
-		Dom.chat.borderBlack = setInterval(function(){
+		this.borderBlack = setInterval(function(){
 			document.getElementById("changeChat").getElementsByTagName("polygon")[0].style.strokeWidth = "1";
 			document.getElementById("changeChat").getElementsByTagName("polygon")[0].style.stroke = "black";
 		},1000);
 	}
 }
 
-Dom.chat.purge = function() { // delete all chat
-	Dom.chat.oldString = ""; // sets the old chat to nothing
-	Dom.chat.newString = "Chat cleared to free up memory"; // warns the user that the chat was reset
-	Dom.chat.length = 1; // sets the chat length to 1
-	Dom.chat.contents = []; // sets the chat contents to nothing
+Dom.chat.purge = function(insertMessage) { // delete all chat
+	this.oldString = ""; // sets the old chat to nothing
+	if (insertMessage) { // insertMessage is a boolean that specifies if something should be inserted to say that the chat was purged
+		this.newString = "Chat cleared to free up memory"; // warns the user that the chat was reset
+	}
+	this.contents = []; // sets the chat contents to nothing
 }
 
 /*
