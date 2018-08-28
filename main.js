@@ -887,6 +887,9 @@ class Hero extends Attacker {
 						else if (this.channelling.type === "waterjunk") { // junk item
 							Dom.chat.insert("You fished up a <strong>" + this.channelling.name + "</strong>.");
 						}
+						else if (this.channelling.type === "waterjunk") { // misc
+							Dom.chat.insert("You reeled up a <strong>" + this.channelling.name + "</strong>.");
+						}
 						else {
 							console.error("It is not known that an item of type " + channelling.type + " can be fished up.");
 						}
@@ -895,6 +898,7 @@ class Hero extends Attacker {
 						// see fish spreadsheet for algorithm
 						// note: if the Game.hero stats were updated in the middle of this code, it **might** ignore some skill that should have been added (overwritten back to old value in savedata.js) - tbd fix this
 						// tbd make own function
+						let oldFishingSkill = this.stats.fishingSkill; // remember old fishing skill to know if it has changed by a whole number
 						if (this.stats.fishingSkill < 20) {
 							// tutorial fishing skill values (fishing skill less than 20)
 							if (this.channelling.type === "waterjunk") {
@@ -947,10 +951,10 @@ class Hero extends Attacker {
 								}
 							}
 						}
-						if (Math.floor(this.stats.fishingSkill) - Math.floor(Player.stats.fishingSkill) > 0) { // check if the player's fishing skill has increased to the next integer (or more)
+						
+						if (Math.floor(this.stats.fishingSkill) - Math.floor(oldFishingSkill) > 0) { // check if the player's fishing skill has increased to the next integer (or more)
 							Dom.chat.insert("Your fishing skill has increased to " + this.stats.fishingSkill + "."); // notify them of this in chat
 						}
-						Player.stats.fishingSkill = this.stats.fishingSkill; // update copy of fishingSkill in savedata.js
 						
 						// remove fishing bobber
 						Game.projectiles.splice(Game.searchFor(this.channellingProjectileId, Game.projectiles), 1);
@@ -1049,9 +1053,12 @@ class Hero extends Attacker {
 				let clicks = 0;
 				let time = 0; // in ms
 				if (fish.type === "waterjunk") { // junk fishing item (uses different algorithm for clicks and time)
-					// clicks
 					clicks = 1;
 					time = 1000;
+				}
+				else if (fish.type === "watermisc") { // misc fishing item (no length, so clicks and time specified in itemdata)
+					clicks = fish.clicksToCatch;
+					time = fish.timeToCatch;
 				}
 				else { // fish
 					// calculate fish length

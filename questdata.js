@@ -55,10 +55,10 @@ var Quests = {
 			quest: "Learning from the Best",
 			
 			startName: "Mashall Teper",
-			startChat: "You're going to need to learn how to fight if you're going to be able to help us gather some wood - there are goblins out there in the forest.<br>Go and see <strong>Overseer Saral</strong>. She's more skilled in combat than anyone else here. She'll be able to teach you what you need to know know.",
+			startChat: "You're going to need to learn how to fight if you're going to be able to help us gather some wood - there are goblins out there in the forest.<br>Go and see <strong>Combat Trainer Saral</strong>. She's more skilled in combat than anyone else here. She'll be able to teach you what you need to know know.",
 			
-			finishName: "Overseer Saral",
-			finishChat: "tbd",
+			finishName: "Combat Trauner Saral",
+			finishChat: "Why hello, ${Player.name}. I always love new blood in the Logging Camp. Now let's get started, shall we?",
 			
 			objectives: [
 				"Equip your weapon in the inventory.",
@@ -69,7 +69,7 @@ var Quests = {
 				var completed = [];
 				
 				// true or falses for each objective (apart from the turn-in objective)
-				//completed.push((Player.inventory.weapon.length > 1) ? true : false); tbd
+				completed.push(Player.inventory.weapon === Items.bow[2] || Player.inventory.weapon === Items.staff[2] || Player.inventory.weapon === Items.sword[2]);
 				
 				var finished = true;
 				for(var i = 0; i < completed.length; i++) {

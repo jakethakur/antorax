@@ -42,7 +42,7 @@ var Player = {
 		blockDefence: 0, // knights only
 		
 		// fishing
-		fishingSkill: 0,
+		fishingSkill: 0, // increased when you fish stuff up (increased by main.js)
 		fishingRange: 200, // fishing rod range (currently just a constant)
 	},
 	
