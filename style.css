@@ -7,7 +7,7 @@ body{
 	-ms-user-select: none; /* IE10+/Edge */
 	user-select: none;
 }
-#chatPage, #inventoryPage, #questsPage, #settingsPage, #instructionsPage, #reputationPage, #questStart, #questFinish, #merchantPage, #identifierPage, #levelUpPage, #identifiedPage {
+#chatPage, #inventoryPage, #questsPage, #settingsPage, #instructionsPage, #reputationPage, #questStart, #questFinish, #merchantPage, #identifierPage, #levelUpPage, #lootPage, #identifiedPage {
 	float: left;
 	margin: 10px;
 	border: 1px solid black;
@@ -39,8 +39,11 @@ body{
 	overflow-y: auto;
 	overflow-x: hidden;
 }
-#questStart, #questFinish, #merchantPage, #identifierPage, #identifiedPage, #levelUpPage{
+#questStart, #questFinish, #merchantPage, #identifierPage, #identifiedPage, #levelUpPage, #lootPage{
 	text-align: center;
+}
+#questStartChat{
+	text-align: left;
 }
 #levelUpPage{
 	position: absolute;
@@ -127,6 +130,9 @@ body{
 	padding-left: 10px;
 	padding-top: 10px;
 }
+#activeQuestBox{
+	height: 100%;
+}
 #inventoryPage{
 	padding-left: 38px;
 	padding-top: 45px;
@@ -174,7 +180,7 @@ body{
 	width: 60px;
 	height: 60px;
 }
-#itemInventory, #hotbar{
+#itemInventory, #hotbar, #loot{
 	position: absolute;
 	top: 51px;
 	left: 779px;
@@ -183,7 +189,7 @@ body{
 	font-size: 0px;
 	z-index: 1;
 }
-#itemInventory, #hotbar, tr, th, td{
+#itemInventory, #hotbar, #loot, tr, th, td{
 	border: 2.5px solid #886622;
 	border-collapse: separate;
 	border-spacing: 0px;
@@ -195,6 +201,10 @@ body{
 	top: 530px;
 	left: 150px;
 	opacity: 0.6;
+}
+#loot{
+	left: 680px;
+	top: 90px;
 }
 td{
 	width: 50px;
@@ -426,7 +436,7 @@ td{
 	height: 40px;
 	background-color: #fef9b4;
 }
-.stackNum, .questStackNum, .questFinishStackNum{
+.stackNum, .questStackNum, .questFinishStackNum, .lootStackNum{
 	position: relative;
     bottom: 22px;
 	height: 20px;

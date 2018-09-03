@@ -1,31 +1,33 @@
-var Dom = { // DOM function arrays
-	elements: { // pages
-		chatPage: document.getElementById("chatPage"), // shortens references to the chatPage to "chatPage"
-		inventoryPage: document.getElementById("inventoryPage"), // shortens references to the inventoryPage to "inventoryPage"
-		hotbar: document.getElementById("hotbar"), // shortens references to the hotbar to "hotbar"
-		questsPage: document.getElementById("questsPage"), // shortens references to the questsPage to "questsPage"
-		settingsPage: document.getElementById("settingsPage"), // shortens references to the settingsPage to "settingsPage"
-		instructionsPage: document.getElementById("instructionsPage"), // shortens references to the instructionsPage to "instructionsPage"
-		reputationPage: document.getElementById("reputationPage"), // shortens references to the reputationPage to "reputationPage"
-		questStart: document.getElementById("questStart"), // shortens references to the questStart to "questStart"
-		questFinish: document.getElementById("questFinish"), // shortens references to the questFinish to "questFinish"
-		merchantPage: document.getElementById("merchantPage"), // shortens references to the merchantPage to "merchantPage"
-		identifierPage: document.getElementById("identifierPage"), // shortens references to the identifierPage to "identifierPage"
-		identifiedPage: document.getElementById("identifiedPage"), // shortens references to the identifiedPage to "identifiedPage"
-		levelUpPage: document.getElementById("levelUpPage"), // shortens references to the levelUpPage to "levelUpPage"
+var Dom = {
+	elements: {
+		chatPage: document.getElementById("chatPage"),
+		inventoryPage: document.getElementById("inventoryPage"),
+		hotbar: document.getElementById("hotbar"),
+		questsPage: document.getElementById("questsPage"),
+		settingsPage: document.getElementById("settingsPage"),
+		instructionsPage: document.getElementById("instructionsPage"),
+		reputationPage: document.getElementById("reputationPage"),
+		questStart: document.getElementById("questStart"),
+		questFinish: document.getElementById("questFinish"),
+		merchantPage: document.getElementById("merchantPage"),
+		identifierPage: document.getElementById("identifierPage"),
+		identifiedPage: document.getElementById("identifiedPage"),
+		levelUpPage: document.getElementById("levelUpPage"),
+		lootPage: document.getElementById("lootPage"),
 	},
-	chat: {}, // variables to do with the chat are defined as Dom.chat.varName
-	inventory: {}, // variables to do with inventory are defined as Dom.inventory.varName
-	hotbar: {}, // variables to do with inventory are defined as Dom.hotbar.varName
-	quests: {}, // variables to do with quests are defined as Dom.quests.varName
-	instructions: {}, // variables to do with instructions are defined as Dom.instructions.varName
-	reputation: {}, // variables to do with reputation are defined as Dom.reputation.varName
-	settings: {}, // variables to do with settings are defined as Dom.settings.varName
-	quest: {}, // variables to do with quest are defined as Dom.quest.varName
-	merchant: {}, // variables to do with merchant are defined as Dom.merchant.varName
-	identifier: {}, // variables to do with identifier are defined as Dom.identifier.varName
-	levelUp: {}, // variables to do with levelUp are defined as Dom.levelUp.varName
-	alert: {}, // variables to do with alert are defined as Dom.alert.varName
+	chat: {},
+	inventory: {},
+	hotbar: {},
+	quests: {},
+	instructions: {},
+	reputation: {},
+	settings: {},
+	quest: {},
+	merchant: {},
+	identifier: {},
+	levelUp: {},
+	loot: {},
+	alert: {},
 };
 
 if(sessionStorage.getItem("class")==undefined){
@@ -37,7 +39,7 @@ Dom.changeBook = function(page, override, x) { // changes the page or changes th
 	//override says if the function should be run regardless of if the player has a quest active (e.g: declining a quest or closing a merchant)
 	if((this.currentlyDisplayed == "" || override) && page != "levelUpPage") { // check the player doesn't have a quest active
 		// hide all pages
-		if(page != "questStart" && page != "questFinish" && page != "merchantPage" && page != "identifierPage" && page != "identifiedPage" && page != "levelUpPage"){ // if the page being changed to is a not a pop up...
+		if(page != "questStart" && page != "questFinish" && page != "merchantPage" && page != "identifierPage" && page != "identifiedPage" && page != "levelUpPage" && page != "lootPage"){ // if the page being changed to is a not a pop up...
 			document.getElementById("change"+Dom.previous.substring(0,1).toUpperCase()+Dom.previous.substring(1,Dom.previous.length-4)).getElementsByTagName("polygon")[0].style.strokeWidth = "1";
 			document.getElementById("change"+page.substring(0,1).toUpperCase()+page.substring(1,page.length-4)).getElementsByTagName("polygon")[0].style.strokeWidth = "3";
 			Dom.previous = page; // ... it will open it next time you close a pop up
@@ -53,6 +55,7 @@ Dom.changeBook = function(page, override, x) { // changes the page or changes th
 		this.elements.merchantPage.hidden = true; // hides the merchant pop up
 		this.elements.identifierPage.hidden = true; // hides the identifier pop up
 		this.elements.identifiedPage.hidden = true; // hides the identified pop up
+		this.elements.lootPage.hidden = true; // hides the identified pop up
 		document.getElementById(page).hidden = false; // displays the page you are opening
 		if(page == "chatPage"){ // if the chat is being opened
 			if(Dom.chat.newString == ""){ // if there is no new chat
@@ -959,6 +962,9 @@ Dom.quest.accept = function(){ // quest accepted
 
 Dom.quest.acceptRewards = function(){ // quest rewards accepted
 	var quest = Dom.quest.waitForReward;
+	if (quest.onQuestFinish !== undefined) { // if there is a quest finish function...
+		quest.onQuestFinish(); // ...do it
+	}
 	Player.xp += quest.rewards.xp // gives the player the xp reward
 	if(quest.rewards.items != undefined){
 		for(var i = 0; i < quest.rewards.items.length; i++){ // repeats for all item rewards
@@ -1844,4 +1850,43 @@ Dom.inventory.hideHotbar = function(hide){
 	}else{
 		document.getElementById("hotbar").hidden = false;
 	}
+}
+
+Dom.loot.page = function(name, items, quantities, space){
+	Dom.changeBook("lootPage");
+	var spaces = [];
+	Dom.loot.previousSpaces = [];
+	for(var i = 0; i < space; i++){
+		spaces.push(i);
+	}
+	document.getElementById("lootingPageTitle").innerHTML = name;
+	var lootSpaces = "";
+	for(var i = 0; i < space; i+=8){
+		lootSpaces += "<tr><td></td><td></td><td></td><td></td><td></td><td></td><td></td><td></td></tr>";
+	}
+	let promise = new Promise(function(resolve, reject) {
+		document.getElementById("loot").innerHTML = lootSpaces;
+		resolve("resolved");
+	}).then(function(result) {
+		for(let i = 0; i < items.length; i++){
+			var currentSpaceNum = Math.floor(Math.random()*(spaces.length));
+			var currentSpace = spaces[currentSpaceNum];
+			Dom.loot.previousSpaces.push(currentSpace);
+			spaces.splice(currentSpaceNum,1);
+			if(quantities[i] != 1){
+				document.getElementById("loot").getElementsByTagName("td")[currentSpace].innerHTML = "<img src=" + items[i].image + " class='lootOptions'><div class='lootStackNum'>"+quantities[i]+"</div></img>"; // adds item to item rewards
+			}else{
+				document.getElementById("loot").getElementsByTagName("td")[currentSpace].innerHTML = "<img src=" + items[i].image + " class='lootOptions'><span class='lootStackNum'></span></img>"; // adds item to item rewards
+			}
+		}
+		for(let i = 0; i < document.getElementsByClassName("lootOptions").length; i++){
+			document.getElementsByClassName("lootOptions")[i].onclick = function(){
+				Dom.inventory.give(items[i],quantities[i]);
+				document.getElementsByClassName("lootOptions")[i].outerHTML = "<span class='lootOptions'></span>";
+				document.getElementsByClassName("lootStackNum")[i].outerHTML = "<span class='lootStackNum'></span>";
+			};
+			console.log(document.getElementsByClassName("lootOptions"),i,document.getElementsByClassName("lootOptions")[i]);
+		}
+		document.getElementById("lootingPageClose").style.top = 55 * space/8 + 55 + "px";
+	},items,quantities);
 }
