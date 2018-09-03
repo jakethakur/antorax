@@ -339,6 +339,14 @@ var Areas = {
 						quest: Quests.eaglecrestLoggingCamp[1], 
 						role: "start"
 					},
+					{
+						quest: Quests.eaglecrestLoggingCamp[3], 
+						role: "start"
+					},
+					{
+						quest: Quests.eaglecrestLoggingCamp[3], 
+						role: "finish"
+					},
 				],
 				chat: {
 					questProgress: "Get on with your work!",
@@ -359,6 +367,14 @@ var Areas = {
 				quests: [
 					{
 						quest: Quests.eaglecrestLoggingCamp[1], 
+						role: "finish"
+					},
+					{
+						quest: Quests.eaglecrestLoggingCamp[2], 
+						role: "start"
+					},
+					{
+						quest: Quests.eaglecrestLoggingCamp[2], 
 						role: "finish"
 					},
 				],
@@ -397,7 +413,7 @@ var Areas = {
 				x: 230,
 				y: 750,
 				image: "dummy",
-				name: "Target Dummy",
+				name: "Training Dummy",
 				stats: {
 					maxHealth: 1000,
 				},

@@ -94,16 +94,16 @@ var Quests = {
 		
 		{
 			id: 2,
-			quest: "Learning to Fight",
+			quest: "Combat Training",
 			
 			startName: "Combat Trainer Saral",
-			startChat: `You're going to need to learn how to fight if you're going to be able to help us gather some wood - there are goblins out there in the forest.<br>Go and see <strong>Combat Trainer Saral</strong>. She's more skilled in combat than anyone else here. She'll be able to teach you what you need to know know.`,
+			startChat: `${Player.name}, I'd like for you to deal some damage to this <strong>Training Dummy</strong>. 20 should suffice. <br>You can find out more about how you can attack in your <strong>adventure log</strong>.`,
 			
 			finishName: "Combat Trainer Saral",
-			finishChat: `Why hello, ${Player.name}. I always love new blood in the Logging Camp. Now let's get started, shall we?`,
+			finishChat: `Well done. It's inspiring to watch a new adventurer learn their ways - I look forward to seeing more of you in the future. I imagine <strong>Marshall Teper</strong> would like for you to get to work with him now.`,
 			
 			objectives: [
-				"Equip your weapon in the inventory.",
+				"Deal at least 20 damage to the <strong>Training Dummy</strong> in Eaglecrest Logging Camp.",
 				"Speak to <strong>Combat Trainer Saral</strong> at the Eaglecrest Logging Camp.",
 			],
 			
@@ -111,7 +111,7 @@ var Quests = {
 				var completed = [];
 				
 				// true or falses for each objective (apart from the turn-in objective)
-				completed.push(Player.inventory.weapon[0].type === "bow" || Player.inventory.weapon[0].type === "staff" || Player.inventory.weapon[0].type === "sword");
+				completed.push(typeof Game.dummies !== "undefined" && Game.dummies[0].damageTaken >= 20); // quest must be finished in Eaglecrest Logging Camp, hence Game.dummies[0] is always the right dummy
 				
 				var finished = true;
 				for(var i = 0; i < completed.length; i++) {
@@ -125,15 +125,64 @@ var Quests = {
 				return completed;
 			},
 			
-			howToStart: "Speak to <strong>Marshall Teper</strong> at the Eaglecrest Logging Camp.",
+			howToStart: "Speak to <strong>Combat Trainer Saral</strong> at the Eaglecrest Logging Camp.",
 			levelRequirement: 1,
-			questRequirements: ["To the Logging Camp"],
+			questRequirements: ["Learning from the Best"],
 			
 			rewards: {
-				xp: 10,
+				xp: 20,
 				reputation: {
 					eaglecrestLoggingCamp: 2,
 				},
+			},
+		},
+		
+		{
+			id: 3,
+			quest: "Retrieval of Logs",
+			
+			startName: "Marshall Teper",
+			startChat: `You looked good enough at the training dummy to go out to <strong>The Nilbog</strong>. It's the camp of some goblins, but trust me - they're not much stronger than that dummy you just fought.<br>They recently invaded our camp in huge numbers, and managed to steal some logs of wood whilst we were fighting them off. Head east to <strong>The Nilbog</strong> and retrieve some wood from them, and return it to me.`,
+			
+			finishName: "Marshall Teper",
+			finishChat: `Good. Now we need to make sure that the goblins won't happen again.`,
+			
+			objectives: [
+				"Retrieve 4 logs from The Nilbog <em>(press space when standing on one to pick it up)</em>",
+				"Speak to <strong>Marshall Teper</strong> at the Eaglecrest Logging Camp.",
+			],
+			
+			isCompleted: function() {
+				var completed = [];
+				
+				// true or falses for each objective (apart from the turn-in objective)
+				completed.push(Dom.inventory.check(2, "misc", 4));
+				
+				var finished = true;
+				for(var i = 0; i < completed.length; i++) {
+					if(!completed[i]) {
+						finished = false;
+					}
+				}
+				
+				completed.push(finished);
+				
+				return completed;
+			},
+			
+			howToStart: "Speak to <strong>Combat Trainer Saral</strong> at the Eaglecrest Logging Camp.",
+			levelRequirement: 1,
+			questRequirements: ["Combat Training"],
+			
+			rewards: {
+				xp: 30,
+				reputation: {
+					eaglecrestLoggingCamp: 4,
+				},
+			},
+			
+			onQuestStart: function () {
+				Dom.inventory.removeById(2, "misc", 4); // remove the wood
 			},
 		},
 		

@@ -37,7 +37,7 @@ var Player = {
 		swimSpeed: 60,
 		walkSpeed: 180,
 		variance: playerClass === "a" ? 100 : 0, // default variant of archer projectiles when 600px away
-		focusSpeed: 1, // speed that the variant for archer projectiles gets smaller
+		focusSpeed: 1, // archers only (speed that the variant for archer projectiles gets smaller)
 		maxDamage: 0, // mages only (damage done when channelled)
 		blockDefence: 0, // knights only
 		
