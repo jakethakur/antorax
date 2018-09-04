@@ -482,6 +482,7 @@ class Character extends Thing {
 		this.spawnY = properties.y
 		
 		this.respawning = false;
+		this.isCorpse = false;
 
 		// stats
 		this.stats = {};
@@ -494,7 +495,8 @@ class Character extends Thing {
 		this.stats.healthRegen = properties.stats.healthRegen || 0;
 		this.stats.walkSpeed = properties.stats.walkSpeed || 0;
 		this.stats.swimSpeed = properties.stats.swimSpeed || 0;
-		this.stats.respawnTime = properties.stats.respawnTime || 3000; // time to respawn (and time that it can be looted for)
+		this.stats.lootTime = properties.stats.lootTime || 10000; // time that it can be looted for
+		this.stats.respawnTime = properties.stats.respawnTime || 11000; // time to respawn (should be more than lootTime)
 		
 		// optional stats
 		// using || defaults to second value if first is undefined, 0 or ""
@@ -557,13 +559,17 @@ class Character extends Thing {
 				
 				// death
 				this.respawning = true;
+				this.isCorpse = true;
 				
 				// loot
-				this.lootable = true;
 				if (this.lootTable !== undefined) {
 					this.generateLoot(this.lootTable);
-					this.generateLoot(this.lootTable);
 				}
+				
+				// corpse disappears in this.stats.lootTime ms
+				setTimeout(function () {
+					this.isCorpse = false;
+				}.bind(this), this.stats.lootTime);
 				
 				// respawn in this.stats.respawnTime ms
 				setTimeout(function () {
@@ -579,7 +585,6 @@ class Character extends Thing {
 	
 	// respawn after death
 	respawn () {
-		this.lootable = false;
 		this.loot = null;
 		this.lootQuantities = null;
 		
@@ -1450,17 +1455,18 @@ class Enemy extends Attacker {
 			this.lootTable = properties.lootTable.concat(properties.lootTableTemplate);
 		}
 		else if (properties.lootTable === undefined && properties.lootTableTemplate !== undefined) {
-			this.lootTable = properties.lootTable;
+			this.lootTable = properties.lootTableTemplate;
 		}
 		else if (properties.lootTable !== undefined && properties.lootTableTemplate === undefined) {
-			this.lootTable = properties.lootTableTemplate;
+			this.lootTable = properties.lootTable;
 		}
 		// see generateLoot() function in Enemy for how this works
 		
+		this.inventorySpace = properties.inventorySpace;
+		
 		// set when the enemy dies
-		this.loot = null; // loot that can be picked up by player
+		this.loot = null; // loot that can be picked up by player (null if the player cannot loot the enemy or already has)
 		this.lootQuantities = null; // quantity of each item of loot that is picked up by player
-		this.lootable = false; // whether the player has looted the enemy yet
 	}
 	
 	update (delta) {
@@ -1561,11 +1567,18 @@ class Enemy extends Attacker {
 				
 				let rollRandom = random(0, 100) * (Game.hero.stats.looting / 100); // random number to see how much of item i the player will get
 				let possibleDropChances = lootTable[i].chance.filter(chance => chance > rollRandom); // filter chances of getting item to see all chances the player is eligible for with their roll
-				let itemQuantity = Math.min(...possibleDropChances); // get the number of that item the player will get
+				let itemQuantity = lootTable[i].chance.indexOf(Math.min(...possibleDropChances)); // get the number of that item the player will get
 				
 				if (itemQuantity > 0) { // check that the player should recieve the item
-					this.loot.push(lootTable[i].item);
-					this.lootQuantities.push(itemQuantity);
+					if (lootTable[i].item.name === "unidentified") {
+						// construct unidentified item
+						this.loot.push(new unId(lootTable[i].item.area, lootTable[i].item.tier));
+						this.lootQuantities.push(itemQuantity);
+					}
+					else {
+						this.loot.push(lootTable[i].item);
+						this.lootQuantities.push(itemQuantity);
+					}
 				}
 			}
 		}
@@ -2244,7 +2257,7 @@ Game.update = function (delta) {
 	// check collision with quest npcs
 	for(var i = 0; i < this.NPCs.length; i++) { // iterate though NPCs
 	
-		if (!Game.NPCs[i].respawning) { // check npc is not dead
+		if (!this.NPCs[i].respawning) { // check npc is not dead
 	
 			if (typeof this.NPCs[i].quests !== "undefined") { // check if the NPC is a quest giver
 				for(var x = 0; x < this.NPCs[i].quests.length; x++) { // iterate through quests involving that NPC
@@ -2256,7 +2269,7 @@ Game.update = function (delta) {
 						if (this.hero.isTouching(this.NPCs[i]) && // touching NPC
 						!Dom.quests.activeQuestArray.includes(this.NPCs[i].quests[x].quest.quest) && // quest isn't currently active
 						!Dom.quests.completedQuestArray.includes(this.NPCs[i].quests[x].quest.quest) && // quest hasn't aleady been completed
-						this.NPCs[i].quests[x].quest.levelRequirement <= Game.hero.level && // player is a high enough level
+						this.NPCs[i].quests[x].quest.levelRequirement <= this.hero.level && // player is a high enough level
 						isContainedInArray(this.NPCs[i].quests[x].quest.questRequirements, Dom.quests.completedQuestArray)) { // quest requirements have been completed
 							
 							if (Dom.currentlyDisplayed === "") { // quest isn't currently pending to be accepted (currently displayed on DOM)
@@ -2376,10 +2389,10 @@ Game.update = function (delta) {
 	
 	// check collision with identifiers
 	for(var i = 0; i < this.identifiers.length; i++) {
-		if (!Game.identifiers[i].respawning) { // check identifier is not dead
+		if (!this.identifiers[i].respawning) { // check identifier is not dead
 			if (this.hero.isTouching(this.identifiers[i]) && Dom.currentlyDisplayed === "") { // needs to check that it is not already open - PG tbd
 				// open identifier page
-				Dom.identifier.page(Game.identifiers[i]);
+				Dom.identifier.page(this.identifiers[i]);
 			}
 			else if (Dom.currentlyDisplayed != "identifier" && Dom.currentlyDisplayed != "identified" && Dom.currentlyDisplayed != "" && !Dom.override) {
 				if(this.hero.isTouching(this.identifiers[i]) && document.getElementsByClassName("closeClass")[0].style.border != "5px solid red"){
@@ -2396,14 +2409,24 @@ Game.update = function (delta) {
 	
 	// update villagers
 	for(var i = 0; i < this.villagers.length; i++) {
-		if (!Game.villagers[i].respawning) { // check villager is not dead
+		if (!this.villagers[i].respawning) { // check villager is not dead
 			this.villagers[i].update(delta);
 		}
     }
 	// update enemies
 	for(var i = 0; i < this.enemies.length; i++) {
-		if (!Game.enemies[i].respawning) { // check enemy is not dead
+		if (!this.enemies[i].respawning) { // check enemy is not dead
 			this.enemies[i].update(delta);
+		}
+		else if (this.enemies[i].isCorpse) { // check enemy is a corpse (hence might be able to be looted) 
+			if (this.hero.isTouching(this.enemies[i]) && this.enemies[i].loot !== null && Dom.currentlyDisplayed === "") { // player is touching enemy, enemy can be looted, and DOM isn't occupied
+				console.log(this.enemies[i].loot, this.enemies[i].lootQuantities);
+				Dom.loot.page(this.enemies[i].name, this.enemies[i].loot, this.enemies[i].lootQuantities, this.enemies[i].inventorySpace);
+				Dom.loot.currentId = "e"+i;
+				// "e"+i is a string that allows the loot menu to be identified - e means enemy, and i is the index of the enemy in Game.enemies
+				// the loot menu closes when the area changes anyway, so this will always work
+				// Dom.loot.currentId is only ever used in main, in the function Game.lootClosed() (called by index.html)
+			}
 		}
     }
 	
@@ -2484,6 +2507,21 @@ Game.inventoryUpdate = function (e) {
 			Game.hero.channelling = false;
 			this.channellingProjectileId = null;
 		}
+	}
+}
+
+// called whenever a loot menu is closed, so that the remaining loot can be wiped
+// called by index.html
+Game.lootClosed = function () {
+	if (Dom.loot.currentId[0] === "e") {
+		// enemy loot menu closed
+		let arrayIndex = Dom.loot.currentId.substr(1);
+		Game.enemies[arrayIndex].loot = null;
+		Game.enemies[arrayIndex].lootQuantities = null;
+	}
+	// TBD chests when they are made
+	else {
+		console.error("Dom.loot.currentId cannot be understood: " + Dom.loot.currentId);
 	}
 }
 
@@ -2775,7 +2813,7 @@ Game.render = function (delta) {
 				}
 				
 				else {
-					if (objectToRender.deathImage !== undefined) { // display corpse
+					if (objectToRender.deathImage !== undefined && objectToRender.isCorpse) { // display corpse
 						// set character screen x and y
 						this.updateScreenPosition(objectToRender);
 						

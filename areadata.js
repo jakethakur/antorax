@@ -524,18 +524,20 @@ var Areas = {
 			],
 			interactWithTile: function(tileNum, x, y) {
 				if (tileNum === 48) { // left side of log stack
-					// replace tiles with grass
-					map.setTile(0, map.getCol(x), map.getRow(y), 102)
-					map.setTile(0, map.getCol(x + 60), map.getRow(y), 102)
 					// give log item to player
-					Dom.inventory.give(Items.item[2], 1);
+					if (Dom.inventory.give(Items.item[2], 1)) { // check if player has enough inventory space
+						// replace tiles with grass
+						map.setTile(0, map.getCol(x), map.getRow(y), 102);
+						map.setTile(0, map.getCol(x + 60), map.getRow(y), 102);
+					}
 				}
 				else if (tileNum === 49) { // right side of log stack
-					// replace tiles with grass
-					map.setTile(0, map.getCol(x), map.getRow(y), 102)
-					map.setTile(0, map.getCol(x - 60), map.getRow(y), 102)
 					// give log item to player
-					Dom.inventory.give(Items.item[2], 1);
+					if (Dom.inventory.give(Items.item[2], 1)) { // check if player has enough inventory space
+						// replace tiles with grass
+						map.setTile(0, map.getCol(x), map.getRow(y), 102);
+						map.setTile(0, map.getCol(x - 60), map.getRow(y), 102);
+					}
 				}
 			},
 		},
@@ -615,10 +617,12 @@ var Areas = {
 					range: 200,
 					healthRegen: 0.4,
 					reloadTime: 2000,
-					respawnTime: 3000,
+					lootTime: 10000,
+					respawnTime: 11000,
 					variance: 100,
 				},
-				leashRadius: 400,
+				leashRadius: 350,
+				xpGiven: 10,
 				projectile: {
 					image: "rock",
 				},
@@ -634,6 +638,7 @@ var Areas = {
 						],
 					},
 				],
+				inventorySpace: 8,
 			},
 			{
 				x: 900,
@@ -650,13 +655,16 @@ var Areas = {
 					range: 60,
 					healthRegen: 0.4,
 					reloadTime: 1500,
-					respawnTime: 3000,
+					lootTime: 10000,
+					respawnTime: 11000,
 				},
-				leashRadius: 400,
+				leashRadius: 350,
+				xpGiven: 10,
 				projectile: {
 					image: "melee",
 				},
 				lootTableTemplate: LootTables.nilbogGoblin,
+				inventorySpace: 8,
 			},
 			{
 				x: 1000,
@@ -673,13 +681,16 @@ var Areas = {
 					range: 60,
 					healthRegen: 0.4,
 					reloadTime: 2000,
-					respawnTime: 3000,
+					lootTime: 10000,
+					respawnTime: 11000,
 				},
-				leashRadius: 400,
+				leashRadius: 350,
+				xpGiven: 10,
 				projectile: {
 					image: "melee",
 				},
 				lootTableTemplate: LootTables.nilbogGoblin,
+				inventorySpace: 8,
 			},
 			{
 				x: 1050,
@@ -697,9 +708,11 @@ var Areas = {
 					reloadTime: 2250,
 					healthRegen: 0.4,
 					flaming: 1,
-					respawnTime: 10000,
+					lootTime: 10000,
+					respawnTime: 20000,
 				},
-				leashRadius: 400,
+				leashRadius: 350,
+				xpGiven: 20,
 				projectile: {
 					image: "fire",
 				},
@@ -713,6 +726,7 @@ var Areas = {
 						],
 					},
 				],
+				inventorySpace: 8,
 			},
 		],
 	},

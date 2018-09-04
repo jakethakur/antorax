@@ -13,7 +13,7 @@ var Quests = {
 			
 			objectives: [
 				"Buy a weapon from a nearby weaponsmith.",
-				"Speak to <strong>Marshall Teper</strong> at the Eaglecrest Logging Camp.",
+				"Speak to <strong>Marshall Teper</strong>.",
 			],
 			
 			isCompleted: function() {
@@ -59,7 +59,7 @@ var Quests = {
 			
 			objectives: [
 				"Equip your weapon in the inventory.",
-				"Speak to <strong>Combat Trainer Saral</strong> at the Eaglecrest Logging Camp.",
+				"Speak to <strong>Combat Trainer Saral</strong>.",
 			],
 			
 			isCompleted: function() {
@@ -80,7 +80,7 @@ var Quests = {
 				return completed;
 			},
 			
-			howToStart: "Speak to <strong>Marshall Teper</strong> at the Eaglecrest Logging Camp.",
+			howToStart: "Speak to <strong>Marshall Teper</strong>.",
 			levelRequirement: 1,
 			questRequirements: ["To the Logging Camp"],
 			
@@ -103,8 +103,8 @@ var Quests = {
 			finishChat: `Well done. It's inspiring to watch a new adventurer learn their ways - I look forward to seeing more of you in the future. I imagine <strong>Marshall Teper</strong> would like for you to get to work with him now.`,
 			
 			objectives: [
-				"Deal at least 20 damage to the <strong>Training Dummy</strong> in Eaglecrest Logging Camp.",
-				"Speak to <strong>Combat Trainer Saral</strong> at the Eaglecrest Logging Camp.",
+				"Deal at least 20 damage to the <strong>Training Dummy</strong>.",
+				"Speak to <strong>Combat Trainer Saral</strong>.",
 			],
 			
 			isCompleted: function() {
@@ -125,7 +125,7 @@ var Quests = {
 				return completed;
 			},
 			
-			howToStart: "Speak to <strong>Combat Trainer Saral</strong> at the Eaglecrest Logging Camp.",
+			howToStart: "Speak to <strong>Combat Trainer Saral</strong>.",
 			levelRequirement: 1,
 			questRequirements: ["Learning from the Best"],
 			
@@ -149,7 +149,7 @@ var Quests = {
 			
 			objectives: [
 				"Retrieve 4 logs from The Nilbog <em>(press space when standing on one to pick it up)</em>",
-				"Speak to <strong>Marshall Teper</strong> at the Eaglecrest Logging Camp.",
+				"Speak to <strong>Marshall Teper</strong>.",
 			],
 			
 			isCompleted: function() {
@@ -170,7 +170,7 @@ var Quests = {
 				return completed;
 			},
 			
-			howToStart: "Speak to <strong>Combat Trainer Saral</strong> at the Eaglecrest Logging Camp.",
+			howToStart: "Speak to <strong>Marshall Teper</strong>.",
 			levelRequirement: 1,
 			questRequirements: ["Combat Training"],
 			
@@ -181,7 +181,7 @@ var Quests = {
 				},
 			},
 			
-			onQuestStart: function () {
+			onQuestFinish: function () {
 				Dom.inventory.removeById(2, "misc", 4); // remove the wood
 			},
 		},
