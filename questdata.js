@@ -145,7 +145,7 @@ var Quests = {
 			startChat: `You looked good enough at the training dummy to go out to <strong>The Nilbog</strong>. It's the camp of some goblins, but trust me - they're not much stronger than that dummy you just fought.<br>They recently invaded our camp in huge numbers, and managed to steal some logs of wood whilst we were fighting them off. Head east to <strong>The Nilbog</strong> and retrieve some wood from them, and return it to me.`,
 			
 			finishName: "Marshall Teper",
-			finishChat: `Good. Now we need to make sure that the goblins won't happen again.`,
+			finishChat: `Good. Now we need to make sure that a goblin attack like this won't happen again.`,
 			
 			objectives: [
 				"Retrieve 4 logs from The Nilbog <em>(press space when standing on one to pick it up)</em>",

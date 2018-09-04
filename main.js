@@ -365,16 +365,6 @@ function checkRightClick (e) {
     return(rightclick); // true or false, you can trap right click here by if comparison
 }
 
-// checks if all elements of subArray can be found in largeArray
-function isContainedInArray (subArray, largeArray) {
-	for(let i = 0; i < subArray.length; i++) {
-		if (largeArray.indexOf(subArray[i]) === -1) { // an element from subArray can't be found in largeArray
-			return false;
-		}
-	}
-	return true;
-}
-
 // search for an entity with a specific id (first param) within an array (second param)
 // returns the array index of the first found item of the array with that id
 // only works for projectiles as of 01/07/18 (they're the only entities with ids)

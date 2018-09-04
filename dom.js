@@ -1058,7 +1058,7 @@ Dom.quests.possible = function(){
 	document.getElementById("possibleQuestBox").style.textAlign = "left"; // write text in the centre
 	for(var i = 0; i < Object.keys(Quests).length; i++){ // repeats this code for each area
 		for(var x = 0; x < Quests[Object.keys(Quests)[i]].length; x++){ // repeats this code for each quest
-			if(!Dom.quests.completedQuestArray.includes(Quests[Object.keys(Quests)[i]][x].quest) && !Dom.quests.activeQuestArray.includes(Quests[Object.keys(Quests)[i]][x].quest) && Player.level >= Quests[Object.keys(Quests)[i]][x].levelRequirement && (Dom.quests.completedQuestArray.includes(Quests[Object.keys(Quests)[i]][x].questRequirement) || Quests[Object.keys(Quests)[i]][x].questRequirement == undefined)){
+			if(!Dom.quests.completedQuestArray.includes(Quests[Object.keys(Quests)[i]][x].quest) && !Dom.quests.activeQuestArray.includes(Quests[Object.keys(Quests)[i]][x].quest) && Player.level >= Quests[Object.keys(Quests)[i]][x].levelRequirement && isContainedInArray(Quests[Object.keys(Quests)[i]][x].questRequirements,Dom.quests.completedQuestArray)){
 				Dom.quests.possibleQuestArray.push(Quests[Object.keys(Quests)[i]][x].quest);
 				document.getElementById("possibleQuestBox").innerHTML += Quests[Object.keys(Quests)[i]][x].quest + "<br>"; // writes the name of the quest in the box
 				Dom.quests.possibleQuestNum += 18; // increases...
@@ -1070,7 +1070,7 @@ Dom.quests.possible = function(){
 	if(Dom.quests.possibleQuestArray.length == 0){ // if there are no possible quests
 		document.getElementById("possibleQuestBox").style.height = "40px"; // set the height to 40px
 		document.getElementById("possibleQuestBox").style.textAlign = "center"; // write text in the centre
-		document.getElementById("possibleQuestBox").innerText = "You have no active quests"; // write "you have no possible quests"
+		document.getElementById("possibleQuestBox").innerText = "You have no possible quests"; // write "you have no possible quests"
 	}
 }
 Dom.quests.possible();
@@ -1269,9 +1269,6 @@ Dom.inventory.give = function(item,num){ // gives the player the item
 Dom.inventory.constructUnId = function(area,tier){
 	let tempUnId = new unId(area,tier);
 	Dom.inventory.give(tempUnId);
-}
-for(var i = 0; i < 2; i++){
-	Dom.inventory.constructUnId("Eaglecrest Logging Camp",1);
 }
 Dom.inventory.give(Items.rod[2]);
 Dom.inventory.give(Items.currency[2],3);
@@ -1899,4 +1896,14 @@ Dom.loot.page = function(name, items, quantities, space){
 		}
 		document.getElementById("lootingPageClose").style.top = 55 * space/8 + 55 + "px";
 	},items,quantities,space);
+}
+
+// checks if all elements of subArray can be found in largeArray
+function isContainedInArray (subArray, largeArray) {
+	for(let i = 0; i < subArray.length; i++) {
+		if (largeArray.indexOf(subArray[i]) === -1) { // an element from subArray can't be found in largeArray
+			return false;
+		}
+	}
+	return true;
 }
