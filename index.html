@@ -215,7 +215,7 @@
 	<div id="lootPage" hidden>
 		<h1 id="lootingPageTitle"></h1>
 		<table id="loot"></table>
-		<center><div id="lootingPageClose" class="closeClass" onclick="Dom.changeBook(Dom.previous, true)">Close</div></center>
+		<center><div id="lootingPageClose" class="closeClass" onclick="Dom.changeBook(Dom.previous, true);Game.lootClosed()">Close</div></center>
 	</div>
 	<div id="chatImage"onclick="Dom.changeBook('chatPage', false)"></div>
 	<span id="dot" onclick="Dom.changeBook('chatPage', false)" hidden></span>

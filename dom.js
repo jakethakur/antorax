@@ -1218,6 +1218,7 @@ Dom.identifier.page = function(npc, over){ // identifier page
 
 Dom.inventory.give = function(item,num){ // gives the player the item
 	var number = num;
+	var added = false;
 	if(number == undefined){
 		number = 1;
 	}
@@ -1229,6 +1230,7 @@ Dom.inventory.give = function(item,num){ // gives the player the item
 					Player.inventory.items[i].stacked = 1;
 				}		
 				if(Player.inventory.items[i].stacked < Player.inventory.items[i].stack){
+					added = true;
 					Player.inventory.items[i].stacked++;
 					document.getElementById("itemInventory").getElementsByTagName("td")[i].innerHTML = "<img src='"+Player.inventory.items[i].image+"' draggable='true' ondragstart='Dom.inventory.drag(event,"+i+")'></img><div class='stackNum' id='stackNum"+i+"'>"+Player.inventory.items[i].stacked+"</div>"; // sets stack size
 					add = false;
@@ -1238,6 +1240,7 @@ Dom.inventory.give = function(item,num){ // gives the player the item
 		if(add){
 			for(var i = 0; i < Player.inventory.items.length; i++){ // repeats code for all inventory slots
 				if(Object.keys(Player.inventory.items[i]).length == 0){ // if the slot is empty
+					added = true;
 					Player.inventory.items[i] = Object.assign({},item); // puts the item in the inventory slot
 					document.getElementById("itemInventory").getElementsByTagName("td")[i].innerHTML = "<img src='"+Player.inventory.items[i].image+"' draggable='true' ondragstart='Dom.inventory.drag(event,"+i+")'></img>"; // sets the items image
 					if(Player.inventory.items[i].stacked != undefined && Player.inventory.items[i].stacked != 1){
@@ -1256,7 +1259,11 @@ Dom.inventory.give = function(item,num){ // gives the player the item
 		}
 	}
 	Dom.hotbar.update();
-	return item.name;
+	if(added){
+		return true;
+	}else{
+		return false;
+	}
 }
 
 Dom.inventory.constructUnId = function(area,tier){
@@ -1854,6 +1861,7 @@ Dom.inventory.hideHotbar = function(hide){
 
 Dom.loot.page = function(name, items, quantities, space){
 	Dom.changeBook("lootPage");
+	Dom.currentlyDisplayed = "loot";
 	var spaces = [];
 	Dom.loot.previousSpaces = [];
 	for(var i = 0; i < space; i++){
@@ -1868,7 +1876,10 @@ Dom.loot.page = function(name, items, quantities, space){
 		document.getElementById("loot").innerHTML = lootSpaces;
 		resolve("resolved");
 	}).then(function(result) {
-		for(let i = 0; i < items.length; i++){
+		if(items.length > space){
+			console.warn(name+" has generated too much loot for its space of "+space);
+		}
+		for(let i = 0; i < items.length && i < space; i++){
 			var currentSpaceNum = Math.floor(Math.random()*(spaces.length));
 			var currentSpace = spaces[currentSpaceNum];
 			Dom.loot.previousSpaces.push(currentSpace);
@@ -1885,8 +1896,7 @@ Dom.loot.page = function(name, items, quantities, space){
 				document.getElementsByClassName("lootOptions")[i].outerHTML = "<span class='lootOptions'></span>";
 				document.getElementsByClassName("lootStackNum")[i].outerHTML = "<span class='lootStackNum'></span>";
 			};
-			console.log(document.getElementsByClassName("lootOptions"),i,document.getElementsByClassName("lootOptions")[i]);
 		}
 		document.getElementById("lootingPageClose").style.top = 55 * space/8 + 55 + "px";
-	},items,quantities);
+	},items,quantities,space);
 }
