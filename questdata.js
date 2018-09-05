@@ -52,7 +52,7 @@ var Quests = {
 			quest: "Learning from the Best",
 			
 			startName: "Mashall Teper",
-			startChat: `You're going to need to learn how to fight if you're going to be able to help us gather some wood - there are goblins out there in the forest.<br>Go and see <strong>Combat Trainer Saral</strong>. She's more skilled in combat than anyone else here. She'll be able to teach you what you need to know know.`,
+			startChat: `You're going to need to learn how to fight if you're going to be able to help us gather some wood - there are goblins out there.<br>Go and see <strong>Combat Trainer Saral</strong>. She's more skilled in combat than anyone else here. She'll be able to teach you what you need to know know.`,
 			
 			finishName: "Combat Trainer Saral",
 			finishChat: `Why hello, ${Player.name}. I always love new blood in the Logging Camp. Now let's get started, shall we?`,
@@ -181,9 +181,12 @@ var Quests = {
 				},
 			},
 			
-			onQuestFinish: function () {
-				Dom.inventory.removeById(2, "misc", 4); // remove the wood
-			},
+			removeItems: [
+				Items.item[2], // logs
+			],
+			removeItemQuantity: [
+				4,
+			],
 		},
 		
 		/*{
@@ -199,7 +202,7 @@ var Quests = {
 			
 			howToStart: "Speak to Gregor Goldenbrew in the Treefeller's Tavern.",
 			levelRequirement: 1,
-			questRequirement: "To the Logging Camp", // doesn't work - tbd
+			questRequirements: ["To the Logging Camp"],
 			
 			rewards: {
 				xp: 25,
@@ -216,21 +219,21 @@ var Quests = {
 			quest: "A Lost Fishing Rod",
 			
 			startName: "Fisherman Tobenam",
-			startChat: "tbd",
+			startChat: "You! You look like you've been to see the goblins! One of my fav'rite fishing rods has been stolen from me, and I think it was one of those goblins, heheh! Would you be able to head down to them and see if you can find it? I'll happily give you a couple o' lessons on fishing if you're able to get your hands on it.",
 			
 			finishName: "Fisherman Tobenam",
-			finishChat: "tbd",
+			finishChat: "You found it! Heheh, let me clean it for you. You can keep it for your fishing lessons with me. I've plenty of other rods I can be using. Now, let me teach you... the way of the water! Heheheh.",
 			
 			objectives: [
-				"Find <strong>Fisherman Tobenam's</strong> fishing rod. They think it has been taken by a goblin.",
-				"Return to <strong>Fisherman Tobenam</strong> at the Fisher's Valley.",
+				"Find <strong>Fisherman Tobenam's</strong> fishing rod. He thinks it has been taken by a goblin.",
+				"Return to <strong>Fisherman Tobenam</strong>.",
 			],
 			
 			isCompleted: function() {
 				var completed = [];
 				
 				// true or falses for each objective (apart from the turn-in objective)
-				//completed.push((Player.inventory.weapon.length > 1) ? true : false); tbd
+				completed.push((Dom.inventory.check(6, "quest")) ? true : false);
 				
 				var finished = true;
 				for(var i = 0; i < completed.length; i++) {
@@ -246,11 +249,24 @@ var Quests = {
 			
 			howToStart: "Speak to <strong>Fisherman Tobenam</strong> at the Fisher's Valley.",
 			levelRequirement: 2,
-			questRequirement: "To the Logging Camp", // doesn't work - tbd
+			questRequirements: ["Retrieval of Logs"],
 			
 			rewards: {
-				xp: 50,
+				xp: 30,
+				items: [
+					Items.rod[2],
+				],
+				itemQuantities: [
+					1,
+				],
 			},
+			
+			removeItems: [
+				Items.item[6], // Tobenam's Lost Fishing Rod (cleaned version given in its place)
+			],
+			removeItemQuantity: [
+				1,
+			],
 		},
 		
 		{
@@ -264,9 +280,8 @@ var Quests = {
 			finishChat: "tbd",
 			
 			objectives: [
-				"Buy a fishing rod from Fisherman Tobenam and equip it.",
 				"Fish something up!",
-				"Return to <strong>Fisherman Tobenam</strong> at the Fisher's Valley.",
+				"Speak to <strong>Fisherman Tobenam</strong>.",
 			],
 			
 			isCompleted: function() {
@@ -287,12 +302,12 @@ var Quests = {
 				return completed;
 			},
 			
-			howToStart: "Speak to <strong>Fisherman Tobenam</strong> at the Fisher's Valley.",
+			howToStart: "Speak to <strong>Fisherman Tobenam</strong>.",
 			levelRequirement: 2,
-			questRequirement: "To the Logging Camp", // doesn't work - tbd
+			questRequirements: ["A Lost Fishing Rod"],
 			
 			rewards: {
-				xp: 50,
+				xp: 30,
 			},
 		},
 		
@@ -309,7 +324,7 @@ var Quests = {
 			objectives: [
 				"Buy a can of worms from Fisherman Tobenam and use it.",
 				"Catch your first fish!",
-				"Return to <strong>Fisherman Tobenam</strong> at the Fisher's Valley.",
+				"Speak to <strong>Fisherman Tobenam</strong>.",
 			],
 			
 			isCompleted: function() {
@@ -330,12 +345,12 @@ var Quests = {
 				return completed;
 			},
 			
-			howToStart: "Speak to <strong>Fisherman Tobenam</strong> at the Fisher's Valley.",
+			howToStart: "Speak to <strong>Fisherman Tobenam</strong>.",
 			levelRequirement: 2,
-			questRequirement: "Learning to Fish I", // doesn't work - tbd
+			questRequirements: ["Learning to Fish I"],
 			
 			rewards: {
-				xp: 50,
+				xp: 30,
 			},
 		},
 		
@@ -351,7 +366,7 @@ var Quests = {
 			
 			objectives: [
 				"Level your base fishing skill to 10.",
-				"Return to <strong>Fisherman Tobenam</strong> at the Fisher's Valley.",
+				"Speak to <strong>Fisherman Tobenam</strong>.",
 			],
 			
 			isCompleted: function() {
@@ -372,12 +387,12 @@ var Quests = {
 				return completed;
 			},
 			
-			howToStart: "Speak to <strong>Fisherman Tobenam</strong> at the Fisher's Valley.",
+			howToStart: "Speak to <strong>Fisherman Tobenam</strong>.",
 			levelRequirement: 2,
-			questRequirement: "Learning to Fish II", // doesn't work - tbd
+			questRequirements: ["Learning to Fish II"],
 			
 			rewards: {
-				xp: 100,
+				xp: 50,
 			},
 		},*/
 	],

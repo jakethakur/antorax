@@ -1550,26 +1550,35 @@ class Enemy extends Attacker {
 			this.loot = [];
 			this.lootQuantities = [];
 			for (let i = 0; i < lootTable.length; i++) {
-				// for each item, a random number between 0 and 100 is generated, then multiplied by the player's looting
-				// lootTable is an array of objects, where the objects have a property called chance (an array)
-				// chance contains the probability of getting x amount of that item, where x is the array index of the probability
-				// the lowest number that is higher than the roll is selected for the number of that item that the player receives
+				// check if item is eligible to be looted by the player (i.e. correct quest has been started, they haven't already looted it, etc.)
+				let itemCanBeLooted = true;
+				if (lootTable[i].condition !== undefined) {
+					itemCanBeLooted = lootTable[i].condition();
+				}
 				
-				let rollRandom = random(0, 100) * (Game.hero.stats.looting / 100); // random number to see how much of item i the player will get
-				let possibleDropChances = lootTable[i].chance.filter(chance => chance > rollRandom); // filter chances of getting item to see all chances the player is eligible for with their roll
-				let itemQuantity = lootTable[i].chance.indexOf(Math.min(...possibleDropChances)); // get the number of that item the player will get
-				
-				if (itemQuantity > 0) { // check that the player should recieve the item
-					if (lootTable[i].item.name === "unidentified") {
-						// construct unidentified item
-						this.loot.push(new unId(lootTable[i].item.area, lootTable[i].item.tier));
-						this.lootQuantities.push(itemQuantity);
-					}
-					else {
-						this.loot.push(lootTable[i].item);
-						this.lootQuantities.push(itemQuantity);
+				if (itemCanBeLooted) {
+					// for each item, a random number between 0 and 100 is generated, then multiplied by the player's looting
+					// lootTable is an array of objects, where the objects have a property called chance (an array)
+					// chance contains the probability of getting x amount of that item, where x is the array index of the probability
+					// the lowest number that is higher than the roll is selected for the number of that item that the player receives
+					
+					let rollRandom = random(0, 100) * (Game.hero.stats.looting / 100); // random number to see how much of item i the player will get
+					let possibleDropChances = lootTable[i].chance.filter(chance => chance > rollRandom); // filter chances of getting item to see all chances the player is eligible for with their roll
+					let itemQuantity = lootTable[i].chance.indexOf(Math.min(...possibleDropChances)); // get the number of that item the player will get
+					
+					if (itemQuantity > 0) { // check that the player should recieve the item
+						if (lootTable[i].item.name === "unidentified") {
+							// construct unidentified item
+							this.loot.push(new unId(lootTable[i].item.area, lootTable[i].item.tier));
+							this.lootQuantities.push(itemQuantity);
+						}
+						else {
+							this.loot.push(lootTable[i].item);
+							this.lootQuantities.push(itemQuantity);
+						}
 					}
 				}
+				
 			}
 		}
 		else {
@@ -3099,7 +3108,7 @@ Game.secondary.render = function () {
 			this.ctx.drawImage(Game.statusImage, 0, 27 * iconNum, 27, 27, 270 + i * 35, 10, 27, 27);
 			this.ctx.fillStyle = "black";
 			this.ctx.font = "20px MedievalSharp";
-			if (typeof Game.hero.statusEffects[i].info !== "undefined") { //variable exists
+			if (typeof Game.hero.statusEffects[i].info !== "undefined") { // variable exists
 				if (typeof Game.hero.statusEffects[i].info.time !== "undefined" && typeof Game.hero.statusEffects[i].info.ticks !== "undefined") { //variable exists
 					this.ctx.fillText(damageRound(Game.hero.statusEffects[i].info.time - Game.hero.statusEffects[i].info.ticks), 285 + i * 35, 37);
 				}

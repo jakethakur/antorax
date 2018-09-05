@@ -47,6 +47,19 @@ var LootTables = { // loot table templates
 				Infinity,		// 1
 			],
 		},
+		{ // Fisherman Tobenam's Lost Rod
+			item: Items.item[6],
+			condition: function () {
+				if (activeQuestArray.includes("A Lost Fishing Rod") && !Dom.inventory.check(6, "quest")) {
+					return true; // quest is active and player doesn't already have the rod
+				}
+				return false;
+			},
+			chance: [
+				65,				// 0
+				Infinity,		// 1
+			],
+		},
 	],
 }
 
