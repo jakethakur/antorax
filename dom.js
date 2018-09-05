@@ -971,6 +971,11 @@ Dom.quest.acceptRewards = function(){ // quest rewards accepted
 			Dom.inventory.give(quest.rewards.items[i],quest.rewards.itemQuantities[i]); // gives the player the reward
 		}
 	}
+	if(quest.removeItems != undefined){
+		for(var i = 0; i < quest.removeItems.length; i++){ // repeats for all item rewards
+			Dom.inventory.removeById(quest.removeItems[i].id,quest.removeItems[i].type,quest.removeItemQuantity[i]); // gives the player the reward
+		}
+	}
 	if(quest.rewards.reputation != undefined) { // reputation rewards
 		for(var i = 0; i < Object.keys(quest.rewards.reputation).length; i++) { // repeats for all reputation rewards			
 			var replaceStat = Object.keys(quest.rewards.reputation)[i].replace( /([A-Z])/g, " $1" );
@@ -1052,7 +1057,7 @@ Dom.quests.active = function(quest){ // when a quest is started or ended...
 
 Dom.quests.possible = function(){
 	Dom.quests.possibleQuestArray = [];
-	Dom.quests.possibleQuestNum = 18; // sets the box height...
+	Dom.quests.possibleQuestNum = 27; // sets the box height...
 	Dom.quests.possibleQuestString = ""; // ...to one line
 	document.getElementById("possibleQuestBox").innerHTML = "";
 	document.getElementById("possibleQuestBox").style.textAlign = "left"; // write text in the centre
@@ -1060,8 +1065,8 @@ Dom.quests.possible = function(){
 		for(var x = 0; x < Quests[Object.keys(Quests)[i]].length; x++){ // repeats this code for each quest
 			if(!Dom.quests.completedQuestArray.includes(Quests[Object.keys(Quests)[i]][x].quest) && !Dom.quests.activeQuestArray.includes(Quests[Object.keys(Quests)[i]][x].quest) && Player.level >= Quests[Object.keys(Quests)[i]][x].levelRequirement && isContainedInArray(Quests[Object.keys(Quests)[i]][x].questRequirements,Dom.quests.completedQuestArray)){
 				Dom.quests.possibleQuestArray.push(Quests[Object.keys(Quests)[i]][x].quest);
-				document.getElementById("possibleQuestBox").innerHTML += Quests[Object.keys(Quests)[i]][x].quest + "<br>"; // writes the name of the quest in the box
-				Dom.quests.possibleQuestNum += 18; // increases...
+				document.getElementById("possibleQuestBox").innerHTML += "<strong>" + Quests[Object.keys(Quests)[i]][x].quest + "</strong><br>" + Quests[Object.keys(Quests)[i]][x].howToStart + "<br><br>"; // writes the name of the quest in the box
+				Dom.quests.possibleQuestNum += 27; // increases...
 				Dom.quests.possibleQuestString = JSON.stringify(Dom.quests.possibleQuestNum)+"px"; // ...height...
 				document.getElementById("possibleQuestBox").style.height = Dom.quests.possibleQuestString; // ...of the box
 			}
@@ -1072,8 +1077,8 @@ Dom.quests.possible = function(){
 		document.getElementById("possibleQuestBox").style.textAlign = "center"; // write text in the centre
 		document.getElementById("possibleQuestBox").innerText = "You have no possible quests"; // write "you have no possible quests"
 	}
+	Dom.quests.all();
 }
-Dom.quests.possible();
 
 Dom.quests.completedQuestNum = 18; // sets the number of completed quests to 0
 Dom.quests.completedQuestString = ""; // sets the height of the box to 0
@@ -1095,14 +1100,27 @@ Dom.quests.completed = function(quest){ // when a quest is completed...
 
 Dom.quests.allQuestNum = 18; // sets the box height...
 Dom.quests.allQuestString = ""; // ...to one line
-for(var i = 0; i < Object.keys(Quests).length; i++){ // repeats this code for each area
-	for(var x = 0; x < Quests[Object.keys(Quests)[i]].length; x++){ // repeats this code for each quest
-		document.getElementById("allQuestBox").innerHTML += Quests[Object.keys(Quests)[i]][x].quest + "<br>"; // writes the name of the quest in the box
-		Dom.quests.allQuestNum += 18; // increases...
-		Dom.quests.allQuestString = JSON.stringify(Dom.quests.allQuestNum)+"px"; // ...height...
-		document.getElementById("allQuestBox").style.height = Dom.quests.allQuestString; // ...of the box
+Dom.quests.all = function(){
+	document.getElementById("allQuestBox").innerHTML = "";
+	Dom.quests.allQuestNum = 18;
+	for(var i = 0; i < Object.keys(Quests).length; i++){ // repeats this code for each area
+		for(var x = 0; x < Quests[Object.keys(Quests)[i]].length; x++){ // repeats this code for each quest
+			if(!Dom.quests.activeQuestArray.includes(Quests[Object.keys(Quests)[i]][x].quest) && !Dom.quests.possibleQuestArray.includes(Quests[Object.keys(Quests)[i]][x].quest) && !Dom.quests.completedQuestArray.includes(Quests[Object.keys(Quests)[i]][x].quest)){
+				document.getElementById("allQuestBox").innerHTML += Quests[Object.keys(Quests)[i]][x].quest + "<br>"; // writes the name of the quest in the box
+				Dom.quests.allQuestNum += 18; // increases...
+				Dom.quests.allQuestString = JSON.stringify(Dom.quests.allQuestNum)+"px"; // ...height...
+				document.getElementById("allQuestBox").style.height = Dom.quests.allQuestString; // ...of the box
+			}
+		}
+	}
+	if(Dom.quests.allQuestNum == 18){ // if there are no possible quests
+		document.getElementById("allQuestBox").style.height = "40px"; // set the height to 40px
+		document.getElementById("allQuestBox").style.textAlign = "center"; // write text in the centre
+		document.getElementById("allQuestBox").innerText = "You have no all quests"; // write "you have no possible quests"
 	}
 }
+Dom.quests.all();
+Dom.quests.possible();
 
 Dom.merchant.page = function(npc){ // merchant page
 	Dom.changeBook("merchantPage", false); // changes the page to the merchant page
