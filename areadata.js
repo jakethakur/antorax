@@ -109,6 +109,7 @@ var Areas = {
 		
 		waterType: "brackish",
 		
+		checkpoint: false,
 		player: {
 			x: 2297,
 			y: 387,
@@ -299,6 +300,12 @@ var Areas = {
 		
 		waterType: "freshwater",
 		
+		checkpoint: true,
+		player: {
+			x: 663,
+			y: 217,
+		},
+		
 		areaTeleports: [
 			{
 				// teleport to fishers' valley (path - south)
@@ -488,6 +495,8 @@ var Areas = {
 		song_day: "./assets/music/Tavern.mp3",
 		song_night: "./assets/music/Tavern.mp3",
 		
+		checkpoint: false, // probably in the future taverns should be the ONLY checkpoints
+		
 		NPCs: [
 			{
 				x: 165,
@@ -585,6 +594,8 @@ var Areas = {
 		song_night: "./assets/music/Pippin-the-Hunchback-night.mp3",
 		
 		waterType: "freshwater",
+		
+		checkpoint: false,
 		
 		areaTeleports: [
 			{
