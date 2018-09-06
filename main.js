@@ -374,8 +374,7 @@ Game.searchFor = function (id, array) {
 			return i;
 		}
 	}
-	console.error("The requested item of id " + id + " could not be found in the following array:");
-	console.error(array);
+	console.error("The requested item of id " + id + " could not be found in the following array: ", array);
 	return null;
 }
 
@@ -543,7 +542,7 @@ class Character extends Thing {
 		// check for death
 		if (this !== Game.hero) {
 			// not player
-			if (this.health <= 0 && !this.respawning) {
+			if (this.health <= 0 && !this.respawning) { // check it is not already respawning
 				// wipe status effects
 				this.statusEffects = [];
 				
@@ -570,8 +569,43 @@ class Character extends Thing {
 			}
 		}
 		else {
-			// player dealth
-			// TBD
+			// player
+			if (this.health <= 0 && !this.respawning) { // check it is not already respawning
+				let existingEffect = this.statusEffects.find(statusEffect => statusEffect.title === "XP Fatigue"); // find existing XP fatigue effect
+				
+				// wipe status effects
+				this.statusEffects = [];
+				
+				// death
+				this.respawning = true;
+				this.isCorpse = true;
+				
+				Game.loadArea(this.checkpoint, Areas[this.checkpoint].player);
+				
+				this.health = this.stats.maxHealth;
+				
+				let ineffectiveAmount = LevelXP[Game.hero.level] / 6; // amount of XP to be worth 50% less
+				let stacks = 1;
+				if (existingEffect !== undefined) {
+					ineffectiveAmount += existingEffect.info.ineffectiveAmount; // stack to an effect XP fatigue effect
+					stacks = existingEffect.info.stacks + 1;
+					if (ineffectiveAmount > LevelXP[Game.hero.level]) { // caps out at the total XP to your next level
+						ineffectiveAmount = LevelXP[Game.hero.level];
+					}
+				}
+				
+				// add stronger xp fatigue effect (or add one if the player doesn't already have one)
+				Game.hero.statusEffects.push(new statusEffect({
+					title: "XP Fatigue",
+					effect: "You recently died. Your next " + ineffectiveAmount + " XP is worth 50% less.",
+					info: {
+						stacks: stacks,
+						ineffectiveAmount: ineffectiveAmount,
+					},
+				}));
+				
+				Game.hero.updateStatusEffects();
+			}
 		}
 	}
 	
@@ -663,6 +697,9 @@ class Hero extends Attacker {
 		// optional stats
 		// using || defaults to second value if first is undefined, 0 or ""
 		this.stats.focusSpeed = properties.stats.focusSpeed || 0; // the user's total focus speed default is 1 but can be changed by bows
+		
+		// where the player respawns when they die (set at any major city)
+		this.checkpoint = "tutorial";
 	}
 	
 	move (delta, dirx, diry) {
@@ -677,8 +714,8 @@ class Hero extends Attacker {
 		}
 		
 		// move hero
-		if (this.statusEffects.filter(statusEffect => statusEffect.title === "Stunned").length !== 0) {
-			// player is stunned
+		if (this.statusEffects.filter(statusEffect => statusEffect.title === "Stunned").length !== 0 || this.isCorpse) {
+			// player cannot move
 		}
 		else {
 			this.x += dirx * this.speed * delta;
@@ -1733,12 +1770,12 @@ Game.statusEffects.fire = function(tier, target) {
 
 // give target the stunned debuff
 Game.statusEffects.stun = function(time, target) {
-	// try to find an existing flaming effect of the tier
+	// try to find an existing stunned effect of the tier
 	let found = target.statusEffects.findIndex(function(element) {
 		return element.title === ("Stunned");
 	});
 	
-	if (found === -1) { // no fire effect of that tier currently applied to the target
+	if (found === -1) { // no stun effect of that tier currently applied to the target
 		
 		target.statusEffects.push(new statusEffect({
 			title: "Stunned",
@@ -1972,14 +2009,27 @@ Game.loadArea = function (areaName, destination) {
 		}
 		
 		// init game (if it hasn't been done so already)
-		if(this.hero === undefined) {
+		if (this.hero === undefined) {
 			this.init();
 		}
 		
 		// reposition player
-		if(destination !== undefined) {
+		if (destination !== undefined) {
 			this.hero.x = destination.x;
 			this.hero.y = destination.y;
+		}
+		
+		// allow hero to move again if they died
+		if (this.hero.respawning) {
+			this.hero.respawning = false;
+			this.hero.isCorpse = false;
+			Dom.chat.insert("You died.");
+		}
+		
+		// if the area is a checkpoint and it is not the player's current checkpoint, update the player's checkpoint
+		if (Areas[areaName].checkpoint && this.hero.checkpoint !== areaName) {
+			this.hero.checkpoint = areaName;
+			Dom.chat.insert("Checkpoint reached! Your spawn location has been set to this location.");
 		}
 		
 		// display area name
@@ -3104,6 +3154,9 @@ Game.secondary.render = function () {
 			}
 			else if (Game.hero.statusEffects[i].title == "Swimming") {
 				iconNum = 4;
+			}
+			else if (Game.hero.statusEffects[i].title == "XP Fatigue") {
+				iconNum = 5;
 			}
 			else { // status effect not
 				iconNum = 0; // fire image used as placeholder
