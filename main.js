@@ -552,6 +552,8 @@ class Character extends Thing {
 				this.isCorpse = true;
 				
 				// loot
+				Player.xp += this.xpGiven / Player.level;
+				Game.getXP();
 				if (this.lootTable !== undefined) {
 					this.generateLoot(this.lootTable);
 				}
@@ -1451,6 +1453,8 @@ class Enemy extends Attacker {
 			this.lootTable = properties.lootTable;
 		}
 		// see generateLoot() function in Enemy for how this works
+		
+		this.xpGiven = properties.xpGiven;
 		
 		this.inventorySpace = properties.inventorySpace;
 		
@@ -2419,7 +2423,6 @@ Game.update = function (delta) {
 		}
 		else if (this.enemies[i].isCorpse) { // check enemy is a corpse (hence might be able to be looted) 
 			if (this.hero.isTouching(this.enemies[i]) && this.enemies[i].loot !== null && Dom.currentlyDisplayed === "") { // player is touching enemy, enemy can be looted, and DOM isn't occupied
-				console.log(this.enemies[i].loot, this.enemies[i].lootQuantities);
 				Dom.loot.page(this.enemies[i].name, this.enemies[i].loot, this.enemies[i].lootQuantities, this.enemies[i].inventorySpace);
 				Dom.loot.currentId = "e"+i;
 				// "e"+i is a string that allows the loot menu to be identified - e means enemy, and i is the index of the enemy in Game.enemies
@@ -2476,7 +2479,8 @@ Game.playerProjectileUpdate = function(delta) {
 	}
 }
 
-// called whenever player xp is changed
+// should always be called after player xp is changed
+// i.e. quest finish close in index.html (onclick straight after rewards are given)
 Game.getXP = function () {
 	if (Player.level < LevelXP.length - 1) {
 		if (Player.xp >= LevelXP[Player.level]) {
