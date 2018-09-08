@@ -284,6 +284,7 @@ var Areas = {
 				"identifier",
 				"dummy",
 				"saral",
+				"mailman",
 			],
 			
 			addresses: [
@@ -292,6 +293,7 @@ var Areas = {
 				"./assets/npcs/identifier.png",
 				"./assets/enemies/dummy.png",
 				"./assets/npcs/saral.png",
+				"./assets/npcs/mailman.png",
 			],
 		},
 		
@@ -402,6 +404,35 @@ var Areas = {
 					questProgress: "The dummy isn't going anywhere.",
 					questComplete: "You can always check your adventure log if you need to brush up on your combat skills.",
 					inventoryFull: "Empty your bags some. You have no space for your rewards.",
+				},
+			},
+			{
+				x: 1176,
+				y: 300,
+				image: "mailman",
+				name: "Eaglecrest Mailman",
+				level: 10,
+				stats: {
+					maxHealth: 100,
+					defence: 5,
+				},
+				quests: [
+					{
+						quest: Quests.eaglecrestLoggingCamp[5], 
+						role: "start"
+					},
+					{
+						quest: Quests.eaglecrestLoggingCamp[5], 
+						role: "finish"
+					},
+				],
+				chat: {
+					questProgress: "I hope you can find it. I'm getting worried.",
+					questComplete: "Thank you so much! I must hurry now to Eaglecrest.",
+					inventoryFull: "I'm not sure you have any space to hold this.",
+				},
+				canBeShown: function () {
+					return (Dom.quests.activeQuestArray.includes("Retrieval of Logs") || Dom.quests.activeQuestArray.includes("Making Yourself Useful")) && !Dom.quests.completedQuestArray.includes("Stolen Mail");
 				},
 			},
 		],

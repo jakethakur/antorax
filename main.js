@@ -1628,6 +1628,29 @@ class Enemy extends Attacker {
 	}
 }
 
+// can be looted
+class LootChest extends Thing {
+	constructor(properties) {
+		super(properties);
+		
+		this.name = properties.name;
+		
+		this.loot = properties.loot; // items contained
+		this.lootQuantities = properties.lootQuantities;
+		this.inventorySpace = properties.inventorySpace;
+		
+		this.disappearAfterOpened = properties.disappearAfterOpened; // whether it should hide straight after being looted
+	}
+	
+	loot (arrayIndex) {
+		Dom.loot.page(this.name, this.loot, this.lootQuantities, this.inventorySpace);
+		Dom.loot.currentId = "c"+arrayIndex;
+		// "c"+i is a string that allows the loot menu to be identified - c means enemy, and arrayIndex is the index of the enemy in Game.chests
+		// the loot menu closes when the area changes anyway, so this will always work
+		// Dom.loot.currentId is only ever used in main, in the function Game.lootClosed() (called by index.html)
+	}
+}
+
 //
 // Status effects
 //
@@ -1973,6 +1996,15 @@ Game.loadArea = function (areaName, destination) {
 			for(var i = 0; i < Areas[areaName].enemies.length; i++) {
 				Areas[areaName].enemies[i].map = map;
 				this.enemies.push(new Enemy(Areas[areaName].enemies[i]));
+			}
+		}
+		
+		// loot chests
+		this.chests = [];
+		if(Areas[areaName].chests !== undefined) {
+			for(var i = 0; i < Areas[areaName].chests.length; i++) {
+				Areas[areaName].chests[i].map = map;
+				this.chests.push(new Enemy(Areas[areaName].chests[i]));
 			}
 		}
 		

@@ -148,7 +148,7 @@ var Quests = {
 			finishChat: `Good. Now we need to make sure that a goblin attack like this won't happen again.`,
 			
 			objectives: [
-				"Retrieve 4 logs from The Nilbog <em>(press space when standing on one to pick it up)</em>",
+				"Retrieve 4 logs from The Nilbog. <em>(press space when standing on one to pick it up)</em>",
 				"Speak to <strong>Marshall Teper</strong>.",
 			],
 			
@@ -186,6 +186,104 @@ var Quests = {
 			],
 			removeItemQuantity: [
 				4,
+			],
+		},
+		
+		{
+			id: 4,
+			quest: "Making Yourself Useful",
+			
+			startName: "Marshall Teper",
+			startChat: `There's lots going on around the logging camp at the moment, especially after the goblin attack. Speak to some people in the camp and see if there's anyone that could use your help.`,
+			
+			finishName: "Marshall Teper",
+			finishChat: `You made quick work of that. I believe it is time for you to head to Eaglecrest soon, but first we need to get to the root of this goblin problem.`,
+			
+			objectives: [
+				"Help 3 people around the Logging Camp.",
+				"Speak to <strong>Marshall Teper</strong>.",
+			],
+			
+			isCompleted: function() {
+				var completed = [];
+				
+				// true or falses for each objective (apart from the turn-in objective)
+				//TBD
+				
+				var finished = true;
+				for(var i = 0; i < completed.length; i++) {
+					if(!completed[i]) {
+						finished = false;
+					}
+				}
+				
+				completed.push(finished);
+				
+				return completed;
+			},
+			
+			howToStart: "Speak to <strong>Marshall Teper</strong>.",
+			levelRequirement: 1,
+			questRequirements: ["Retrieval of Logs"],
+			
+			rewards: {
+				xp: 50,
+				reputation: {
+					eaglecrestLoggingCamp: 5,
+				},
+				// there should be a good item reward
+			},
+		},
+		
+		{
+			id: 5,
+			quest: "Stolen Mail",
+			
+			startName: "Eaglecrest Mailman",
+			startChat: `Oh no - I was driving my mail cart through that boggy area to the east and came across a huge group of goblins! I had to abandon the cart and flee for my life, but I left a mail sack in the cart. Please, would you be able to try to find my missing mail sack?`,
+			
+			finishName: "Eaglecrest Mailman",
+			finishChat: `Phew, I was so worried. It's a shame about the cart though...`,
+			
+			objectives: [
+				"Find a mail sack inside the mail cart at the Nilbog.",
+				"Speak to the <strong>Eaglecrest Mailman</strong>.",
+			],
+			
+			isCompleted: function() {
+				var completed = [];
+				
+				// true or falses for each objective (apart from the turn-in objective)
+				completed.push(Dom.inventory.check(7, "quest"));
+				
+				var finished = true;
+				for(var i = 0; i < completed.length; i++) {
+					if(!completed[i]) {
+						finished = false;
+					}
+				}
+				
+				completed.push(finished);
+				
+				return completed;
+			},
+			
+			howToStart: "Speak to the <strong>Eaglecrest Mailman</strong>.",
+			levelRequirement: 1,
+			questRequirements: ["Retrieval of Logs"],
+			
+			rewards: {
+				xp: 30,
+				reputation: {
+					//eaglecrestCity: 5,
+				},
+			},
+			
+			removeItems: [
+				Items.item[7], // mail sack
+			],
+			removeItemQuantity: [
+				1,
 			],
 		},
 		

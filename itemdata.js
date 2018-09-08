@@ -793,6 +793,7 @@ var Items = {
 			sellPrice: 1,
 			sellQuantity: 4,
 			stack: 4,
+			lore: "Stolen from the logging camp.",
 		},
 		{
 			id: 3,
@@ -827,6 +828,13 @@ var Items = {
 			type: "quest",
 			image: "assets/items/item/6.png",
 			lore: "The goblins haven't looked after this rod very well...",
+		},
+		{
+			id: 7,
+			name: "Eaglecrest Mail Sack",
+			type: "quest",
+			image: "assets/items/item/7.png",
+			lore: "Contains mail to be delivered across the lands of Antorax.",
 		},
 	],
 	fish: [
