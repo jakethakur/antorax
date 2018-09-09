@@ -453,7 +453,7 @@ var Areas = {
 					inventoryFull: "I'm not sure you have any space to hold this.",
 				},
 				canBeShown: function () {
-					return (Dom.quests.activeQuestArray.includes("Retrieval of Logs") || Dom.quests.activeQuestArray.includes("Making Yourself Useful") || Dom.quests.activeQuestArray.includes("Mail Gone Astray")) && !Dom.quests.completedQuestArray.includes("Mail Gone Astray");
+					return (Dom.quests.activeQuestArray.includes("Retrieval of Logs") || Dom.quests.activeQuestArray.includes("Making Yourself Useful") || Dom.quests.activeQuestArray.includes("First Class Recovery")) && !Dom.quests.completedQuestArray.includes("First Class Recovery");
 				},
 			},
 		],
@@ -685,7 +685,7 @@ var Areas = {
 				inventorySpace: 8,
 				disappearAfterOpened: false,
 				canBeShown: function () {
-					return (Dom.quests.activeQuestArray.includes("Making Yourself Useful") || Dom.quests.activeQuestArray.includes("Mail Gone Astray"));
+					return (Dom.quests.activeQuestArray.includes("Making Yourself Useful") || Dom.quests.activeQuestArray.includes("First Class Recovery"));
 				},
 			},
 		],

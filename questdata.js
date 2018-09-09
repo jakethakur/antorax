@@ -42,7 +42,7 @@ var Quests = {
 					1,
 				],
 				reputation: {
-					eaglecrestLoggingCamp: 6,
+					eaglecrestLoggingCamp: 50,
 				},
 			},
 		},
@@ -86,9 +86,6 @@ var Quests = {
 			
 			rewards: {
 				xp: 10,
-				reputation: {
-					eaglecrestLoggingCamp: 2,
-				},
 			},
 		},
 		
@@ -132,7 +129,7 @@ var Quests = {
 			rewards: {
 				xp: 20,
 				reputation: {
-					eaglecrestLoggingCamp: 2,
+					eaglecrestLoggingCamp: 50,
 				},
 			},
 		},
@@ -177,7 +174,7 @@ var Quests = {
 			rewards: {
 				xp: 30,
 				reputation: {
-					eaglecrestLoggingCamp: 4,
+					eaglecrestLoggingCamp: 50,
 				},
 			},
 			
@@ -229,7 +226,7 @@ var Quests = {
 			rewards: {
 				xp: 50,
 				reputation: {
-					eaglecrestLoggingCamp: 5,
+					eaglecrestLoggingCamp: 100,
 				},
 				// there should be a good item reward
 			},
@@ -237,7 +234,7 @@ var Quests = {
 		
 		{
 			id: 5,
-			quest: "Mail Gone Astray",
+			quest: "First Class Recovery",
 			
 			startName: "Eaglecrest Mailman",
 			startChat: `Oh no - I was driving my mail cart through that boggy area to the east and came across a huge group of goblins! I had to abandon the cart and flee for my life, but I left a mail sack in the cart. Please, would you be able to try to find my missing mail sack?`,
@@ -275,7 +272,7 @@ var Quests = {
 			rewards: {
 				xp: 30,
 				reputation: {
-					//eaglecrestCity: 5,
+					//eaglecrestCity: 20,
 				},
 			},
 			

@@ -1255,7 +1255,9 @@ class Projectile extends Thing {
 						if (to[i][x].channelling === "block") { // add block defense if the target is blocking
 							blockDefence = to[i][x].stats.blockDefence;
 						}
+						
 						let attackerDamage = attacker.stats.damage;
+						
 						if (attacker.stats.maxDamage !== undefined && attacker.stats.maxDamage > attacker.stats.damage) { // calculate damage based on channelling time (if the attacker is a mage)
 							// this.expand - 1 = a number from 0 to 1
 							// multiply the extra damage gained by maxDamage by this fraction to see the extra damage dealt
@@ -1264,10 +1266,18 @@ class Projectile extends Thing {
 							let c = a * b; // extra damage dealt
 							attackerDamage += c;
 						}
+						
 						let dmgDealt = attackerDamage - ((to[i][x].stats.defence + blockDefence) / 10); // calculate damage dealt
 						if (dmgDealt < 0) {
 							dmgDealt = 0;
 						}
+						
+						// strength status effect
+						let strengthStatusEffect = this.statusEffects.filter(statusEffect => statusEffect.title.substring(0, 8) === "Strength");
+						if (strengthStatusEffect.length !== 0) {
+							dmgDealt += dmgDealt * strengthStatusEffect[0].info.damageIncrease;
+						}
+						
 						if (random(0, 100) < attacker.stats.criticalChance) { // critical hit
 							dmgDealt *= 2
 							to[i][x].takeDamage(dmgDealt)
@@ -1277,6 +1287,7 @@ class Projectile extends Thing {
 							to[i][x].takeDamage(dmgDealt)
 							this.damageDealt.push({enemy: to[i][x], damage: dmgDealt, critical: false});
 						}
+						
 						
 						// poison
 						if (attacker.stats.poisonX > 0 && attacker.stats.poisonY > 0) { // check target weapon has poison
@@ -1805,7 +1816,7 @@ Game.statusEffects.stun = function(time, target) {
 			effect: "Can't move for " + time + " seconds.",
 			info: {
 				time: time,
-				ticks: 0, // increased by 1 every tick
+				ticks: 0, // increased by 1 every second
 			},
 			tick: function (owner) { // decrease time
 				if (damageRound(this.info.ticks) < this.info.time) { // check effect has not expired 
@@ -1832,6 +1843,70 @@ Game.statusEffects.stun = function(time, target) {
 		}.bind(target.statusEffects[target.statusEffects.length - 1]), 200, target);
 	}
 	else if (found !== -1) { // extend existing stunned
+		target.statusEffects[found].info.ticks = 0;
+	}
+	
+	if (target.constructor.name === "Hero") { // refresh canvas status effects if the status effect was applied to player
+		Game.hero.updateStatusEffects();
+	}
+}
+
+// give target the strength debuff
+Game.statusEffects.strength = function(tier, target) { // you might want to add an optional time parameter in the future (to override the tier's time, i.e. for bosses)
+	// turn tier into roman numeral (function in dom)
+	tier = romanize(tier);
+	
+	// try to find an existing strength effect of the tier
+	let found = target.statusEffects.findIndex(function(element) {
+		return element.title === ("Strength " + tier);
+	});
+	
+	if (found === -1) { // no strength effect of that tier currently applied to the target
+		
+		let damageIncrease = 0; // percentage (same damage = 0 damageIncrease)
+		let time = 0;
+		// find what tier does
+		if (tier === "I") {
+			damageIncrease = 40;
+			time = 10;
+		}
+		else {
+			console.error("Strength status effect tier " + tier + " has not been assigned damage increase and time");
+		}
+		
+		target.statusEffects.push(new statusEffect({
+			title: "Strength " + tier,
+			effect: "+" + damageIncrease + "% damage for " + time + " seconds.",
+			info: {
+				damageIncrease: damageIncrease,
+				time: time,
+				ticks: 0, // increased by 1 every second
+			},
+			tick: function (owner) { // decrease time
+				if (damageRound(this.info.ticks) < this.info.time) { // check effect has not expired 
+					this.info.ticks += 0.2;
+					if (owner.constructor.name === "Hero") { // refresh canvas status effects if the status effect was applied to player
+						Game.hero.updateStatusEffects();
+					}
+					setTimeout(function (owner) {
+						this.tick(owner);
+					}.bind(this), 200, owner);
+				}
+				else { // remove effect interval
+					Game.removeStatusEffect(owner);
+					if (owner.constructor.name === "Hero") { // refresh canvas status effects if the status effect was applied to player
+						Game.hero.updateStatusEffects();
+					}
+				}
+			},
+		}));
+		
+		// begin tick for every 0.2 seconds
+		setTimeout(function (owner) {
+			this.tick(owner);
+		}.bind(target.statusEffects[target.statusEffects.length - 1]), 200, target);
+	}
+	else if (found !== -1) { // extend existing strength
 		target.statusEffects[found].info.ticks = 0;
 	}
 	
@@ -3215,7 +3290,10 @@ Game.secondary.render = function () {
 			else if (Game.hero.statusEffects[i].title == "XP Fatigue") {
 				iconNum = 5;
 			}
-			else { // status effect not
+			else if (Game.hero.statusEffects[i].title == "Strength I") {
+				iconNum = 2; // TBD
+			}
+			else { // no status effect image
 				iconNum = 0; // fire image used as placeholder
 				console.error("Status effect " + Game.hero.statusEffects[i].title + " icon not found");
 			}

@@ -719,21 +719,29 @@ var Items = {
 			name: "Test currency 1",
 			type: "currency",
 			image: "assets/items/currency/2.png", // perhaps give it its own image?
-			stack: 128,
+			stack: 256,
 		},
 		{
 			id: 1,
 			name: "Test currency 2",
 			type: "currency",
 			image: "assets/items/currency/2.png", // perhaps give it its own image?
-			stack: 128,
+			stack: 256,
 		},
 		{
 			id: 2,
 			name: "Gold",
 			type: "currency",
 			image: "assets/items/currency/2.png",
-			stack: 128,
+			stack: 256,
+		},
+		{
+			id: 2,
+			name: "Fishing Token",
+			type: "currency",
+			image: "assets/items/currency/3.png",
+			lore: "Can be used to buy fishing related items from a fisher(wo)man.",
+			stack: 256,
 		},
 	],
 	bag: [
@@ -768,6 +776,15 @@ var Items = {
 			sellPrice: 5,
 			rarity: "unique",
 			size: 12,
+		},
+		{
+			id: 4,
+			name: "Fishing Pouch",
+			type: "bag",
+			image: "assets/items/bag/4.png",
+			sellPrice: 20,
+			rarity: "unique",
+			size: 18,
 		},
 	],
 	item: [
