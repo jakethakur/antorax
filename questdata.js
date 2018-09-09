@@ -272,7 +272,7 @@ var Quests = {
 			rewards: {
 				xp: 30,
 				reputation: {
-					//eaglecrestCity: 20,
+					eaglecrestCity: 20,
 				},
 			},
 			

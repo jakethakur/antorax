@@ -7,6 +7,14 @@ var Player = {
 	gender: sessionStorage.getItem("gender"),
 	
 	reputation: {
+		eaglecrestLoggingCamp: {
+			score: 60,
+			level: 3,
+		},
+		eaglecrestCity: {
+			score: 0,
+			level: 4,
+		},
 	},
 	
 	inventory: {
@@ -54,6 +62,8 @@ var Player = {
 	xp: 0,
 	level: 1,
 	
+	fatiguedXP: 0, // this amount of xp is worth 50% less due to a death
+    
 	health: 50, // should be set to whatever stats.Max_Health is set to (but didn't work)
 	
 	statusEffects: [], // updated by saved data / main [function Game.hero.updateStatusEffects()]

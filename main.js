@@ -1273,10 +1273,10 @@ class Projectile extends Thing {
 						}
 						
 						// strength status effect
-						let strengthStatusEffect = this.statusEffects.filter(statusEffect => statusEffect.title.substring(0, 8) === "Strength");
-						if (strengthStatusEffect.length !== 0) {
-							dmgDealt += dmgDealt * strengthStatusEffect[0].info.damageIncrease;
-						}
+						//let strengthStatusEffect = this.statusEffects.filter(statusEffect => statusEffect.title.substring(0, 8) === "Strength");
+						//if (strengthStatusEffect.length !== 0) {
+							//dmgDealt += dmgDealt * strengthStatusEffect[0].info.damageIncrease;
+						//}
 						
 						if (random(0, 100) < attacker.stats.criticalChance) { // critical hit
 							dmgDealt *= 2

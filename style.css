@@ -50,7 +50,7 @@ body{
 #levelUpPage{
 	position: absolute;
 	left: 630px;
-	z-index: 1;
+	z-index: 2;
 }
 #questStartChat, #questFinishChat, #questStartQuest, #questFinishQuest, #questStartName, #questFinishName, #questStartObjectives, #questStartRewards, #questFinishRewards, #merchantPageTitle, #merchantPageChat, #merchantPageOptions, #identifierPageTitle, #identifierPageChat, #leftArrow, #identifierPageOption, #rightArrow, #identifiedPageTitle, #identifiedPageChat, #identifiedPageOptions{
 	display: inline;
@@ -352,9 +352,9 @@ td{
 	padding-left: 20px;
 }
 .reputationBox{
-	top: 5px;
-	left: 20px;
-	position: relative;
+	//top: 5px;
+	left: 875px;
+	position: absolute;
 	height: 20px;
 	width: 250px;
 	border: 1px solid black;
