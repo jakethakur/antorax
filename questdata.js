@@ -237,7 +237,7 @@ var Quests = {
 		
 		{
 			id: 5,
-			quest: "Stolen Mail",
+			quest: "Mail Gone Astray",
 			
 			startName: "Eaglecrest Mailman",
 			startChat: `Oh no - I was driving my mail cart through that boggy area to the east and came across a huge group of goblins! I had to abandon the cart and flee for my life, but I left a mail sack in the cart. Please, would you be able to try to find my missing mail sack?`,

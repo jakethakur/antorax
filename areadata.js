@@ -205,6 +205,19 @@ var Areas = {
 			},
 		],
 		
+		chests: [
+			/*{
+				x: 1690,
+				y: 290,
+				image: "cart",
+				name: "Loot Chest-Cart",
+				loot: [Items.bow[2]],
+				lootQuantities: [1],
+				inventorySpace: 8,
+				disappearAfterOpened: true,
+			},*/
+		],
+		
 		villagers: [
 			/*{
 				// out of date
@@ -369,6 +382,14 @@ var Areas = {
 						quest: Quests.eaglecrestLoggingCamp[3], 
 						role: "finish"
 					},
+					{
+						quest: Quests.eaglecrestLoggingCamp[4], 
+						role: "start"
+					},
+					{
+						quest: Quests.eaglecrestLoggingCamp[4], 
+						role: "finish"
+					},
 				],
 				chat: {
 					questProgress: "Get on with your work!",
@@ -407,7 +428,7 @@ var Areas = {
 				},
 			},
 			{
-				x: 1176,
+				x: 1166,
 				y: 300,
 				image: "mailman",
 				name: "Eaglecrest Mailman",
@@ -432,7 +453,7 @@ var Areas = {
 					inventoryFull: "I'm not sure you have any space to hold this.",
 				},
 				canBeShown: function () {
-					return (Dom.quests.activeQuestArray.includes("Retrieval of Logs") || Dom.quests.activeQuestArray.includes("Making Yourself Useful")) && !Dom.quests.completedQuestArray.includes("Stolen Mail");
+					return (Dom.quests.activeQuestArray.includes("Retrieval of Logs") || Dom.quests.activeQuestArray.includes("Making Yourself Useful") || Dom.quests.activeQuestArray.includes("Mail Gone Astray")) && !Dom.quests.completedQuestArray.includes("Mail Gone Astray");
 				},
 			},
 		],
@@ -606,6 +627,7 @@ var Areas = {
 				"fireGoblin",
 				"fire",
 				"goblinCorpse",
+				"mailcart",
 			],
 			
 			addresses: [
@@ -618,6 +640,7 @@ var Areas = {
 				"./assets/enemies/goblinPyromancer.png",
 				"./assets/projectiles/m.png",
 				"./assets/corpses/deadGoblin.png",
+				"./assets/objects/cartDestroyed.png",
 			],
 		},
 		
@@ -641,9 +664,6 @@ var Areas = {
 			},
 		],
 		
-		NPCs: [
-		],
-		
 		characters: [
 			/*{
 				x: 2290,
@@ -654,7 +674,20 @@ var Areas = {
 			},*/
 		],
 		
-		villagers: [
+		chests: [
+			{
+				x: 1140,
+				y: 905,
+				image: "mailcart",
+				name: "Mail Cart",
+				loot: [Items.item[7]],
+				lootQuantities: [1],
+				inventorySpace: 8,
+				disappearAfterOpened: false,
+				canBeShown: function () {
+					return (Dom.quests.activeQuestArray.includes("Making Yourself Useful") || Dom.quests.activeQuestArray.includes("Mail Gone Astray"));
+				},
+			},
 		],
 		
 		enemies: [

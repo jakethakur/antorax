@@ -1642,7 +1642,7 @@ class LootChest extends Thing {
 		this.disappearAfterOpened = properties.disappearAfterOpened; // whether it should hide straight after being looted
 	}
 	
-	loot (arrayIndex) {
+	openLoot (arrayIndex) {
 		Dom.loot.page(this.name, this.loot, this.lootQuantities, this.inventorySpace);
 		Dom.loot.currentId = "c"+arrayIndex;
 		// "c"+i is a string that allows the loot menu to be identified - c means enemy, and arrayIndex is the index of the enemy in Game.chests
@@ -1947,8 +1947,10 @@ Game.loadArea = function (areaName, destination) {
 		this.villagers = [];
 		if(Areas[areaName].villagers !== undefined) {
 			for(var i = 0; i < Areas[areaName].villagers.length; i++) {
-				Areas[areaName].villagers[i].map = map;
-				this.villagers.push(new Villager(Areas[areaName].villagers[i]));
+				if (this.canBeShown(Areas[areaName].villagers[i])) { // check if NPC should be shown
+					Areas[areaName].villagers[i].map = map;
+					this.villagers.push(new Villager(Areas[areaName].villagers[i]));
+				}
 			}
 		}
 		
@@ -1956,8 +1958,10 @@ Game.loadArea = function (areaName, destination) {
 		this.characters = [];
 		if(Areas[areaName].characters !== undefined) {
 			for(var i = 0; i < Areas[areaName].characters.length; i++) {
-				Areas[areaName].characters[i].map = map;
-				this.characters.push(new Thing(Areas[areaName].characters[i]));
+				if (this.canBeShown(Areas[areaName].characters[i])) { // check if NPC should be shown
+					Areas[areaName].characters[i].map = map;
+					this.characters.push(new Thing(Areas[areaName].characters[i]));
+				}
 			}
 		}
 		
@@ -1976,8 +1980,10 @@ Game.loadArea = function (areaName, destination) {
 		this.identifiers = [];
 		if(Areas[areaName].identifiers !== undefined) {
 			for(var i = 0; i < Areas[areaName].identifiers.length; i++) {
-				Areas[areaName].identifiers[i].map = map;
-				this.identifiers.push(new Character(Areas[areaName].identifiers[i]));
+				if (this.canBeShown(Areas[areaName].identifiers[i])) { // check if NPC should be shown
+					Areas[areaName].identifiers[i].map = map;
+					this.identifiers.push(new Character(Areas[areaName].identifiers[i]));
+				}
 			}
 		}
 		
@@ -1985,8 +1991,10 @@ Game.loadArea = function (areaName, destination) {
 		this.dummies = [];
 		if(Areas[areaName].dummies !== undefined) {
 			for(var i = 0; i < Areas[areaName].dummies.length; i++) {
-				Areas[areaName].dummies[i].map = map;
-				this.dummies.push(new Dummy(Areas[areaName].dummies[i]));
+				if (this.canBeShown(Areas[areaName].dummies[i])) { // check if NPC should be shown
+					Areas[areaName].dummies[i].map = map;
+					this.dummies.push(new Dummy(Areas[areaName].dummies[i]));
+				}
 			}
 		}
 		
@@ -1994,8 +2002,10 @@ Game.loadArea = function (areaName, destination) {
 		this.enemies = [];
 		if(Areas[areaName].enemies !== undefined) {
 			for(var i = 0; i < Areas[areaName].enemies.length; i++) {
-				Areas[areaName].enemies[i].map = map;
-				this.enemies.push(new Enemy(Areas[areaName].enemies[i]));
+				if (this.canBeShown(Areas[areaName].enemies[i])) { // check if NPC should be shown
+					Areas[areaName].enemies[i].map = map;
+					this.enemies.push(new Enemy(Areas[areaName].enemies[i]));
+				}
 			}
 		}
 		
@@ -2003,8 +2013,10 @@ Game.loadArea = function (areaName, destination) {
 		this.chests = [];
 		if(Areas[areaName].chests !== undefined) {
 			for(var i = 0; i < Areas[areaName].chests.length; i++) {
-				Areas[areaName].chests[i].map = map;
-				this.chests.push(new Enemy(Areas[areaName].chests[i]));
+				if (this.canBeShown(Areas[areaName].chests[i])) { // check if NPC should be shown
+					Areas[areaName].chests[i].map = map;
+					this.chests.push(new LootChest(Areas[areaName].chests[i]));
+				}
 			}
 		}
 		
@@ -2034,11 +2046,6 @@ Game.loadArea = function (areaName, destination) {
 		// music
 		// it is checked if the user has selected for music to be played in the settings within the Game.playMusic function
 		this.playMusic();
-		
-		// purge the chat (if there is any to purge)
-		if (Dom.chat.contents.length > 0) {
-			Dom.chat.purge(false);
-		}
 		
 		// init game (if it hasn't been done so already)
 		if (this.hero === undefined) {
@@ -2081,7 +2088,7 @@ Game.init = function () {
 	this.playingMusic = null;
 	
 	// list of basic (no extra operations to be done) things to be rendered (in order)
-	this.renderList = ["characters", "villagers", "NPCs", "identifiers", "dummies", "enemies"];
+	this.renderList = ["chests", "characters", "villagers", "NPCs", "identifiers", "dummies", "enemies"];
 	// then player, then projectiles (in order they were shot)
 	
 	// create the player at its start x and y positions
@@ -2498,6 +2505,7 @@ Game.update = function (delta) {
 			this.villagers[i].update(delta);
 		}
     }
+	
 	// update enemies
 	for(var i = 0; i < this.enemies.length; i++) {
 		if (!this.enemies[i].respawning) { // check enemy is not dead
@@ -2511,6 +2519,13 @@ Game.update = function (delta) {
 				// the loot menu closes when the area changes anyway, so this will always work
 				// Dom.loot.currentId is only ever used in main, in the function Game.lootClosed() (called by index.html)
 			}
+		}
+    }
+	
+	// check collision with loot chests
+	for(var i = 0; i < this.chests.length; i++) {
+		if (this.hero.isTouching(this.chests[i]) && this.chests[i].loot !== null && Dom.currentlyDisplayed === "") { // player is touching chest, chest can be looted, and DOM isn't occupied
+			this.chests[i].openLoot(i);
 		}
     }
 	
@@ -2604,7 +2619,17 @@ Game.lootClosed = function () {
 		Game.enemies[arrayIndex].loot = null;
 		Game.enemies[arrayIndex].lootQuantities = null;
 	}
-	// TBD chests when they are made
+	else if (Dom.loot.currentId[0] === "c") {
+		// chest loot menu closed
+		let arrayIndex = Dom.loot.currentId.substr(1);
+		if (Game.chests[arrayIndex].disappearAfterOpened) {
+			Game.chests.splice(arrayIndex, 1);
+		}
+		else {
+			Game.chests[arrayIndex].loot = null;
+			Game.chests[arrayIndex].lootQuantities = null;
+		}
+	}
 	else {
 		console.error("Dom.loot.currentId cannot be understood: " + Dom.loot.currentId);
 	}
