@@ -1152,7 +1152,10 @@ Dom.merchant.page = function(npc){ // merchant page
 	document.getElementById("merchantPageBuy").innerHTML = ""; // sets the buy buttons to none
 	for(let i = 0; i < npc.sold.length; i++){ // repeats for each option
 		document.getElementById("merchantPageOptions").innerHTML += "<img src=" + npc.sold[i].image + " class='theseOptions' style='border: 5px solid #886622;'></img><br><br>"; // sets the image for the option
-		document.getElementById("merchantPageBuy").innerHTML += "<div class='buy'>Buy for: " + npc.sold[i].cost + " gold</div><br>"; // makes a buy button next to the option
+		if(npc.sold[i].costCurrency == undefined){
+			npc.sold[i].costCurrency = "gold";
+		}
+		document.getElementById("merchantPageBuy").innerHTML += "<div class='buy'>Buy for: " + npc.sold[i].cost + " " + npc.sold[i].costCurrency + "</div><br>"; // makes a buy button next to the option
 		for(let x = 0; x < document.getElementsByClassName("buy").length; x++){ // repeats for every buy button
 			document.getElementsByClassName("buy")[x].onclick = function() { // when you click on a buy button...
 				Dom.merchant.buy(npc.sold[x], x, npc); // ...the buy function is called
