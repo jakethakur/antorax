@@ -197,11 +197,12 @@ var Areas = {
 			},
 		],
 		
-		characters: [
+		things: [
 			{
 				x: 2290,
 				y: 290,
 				image: "cart",
+				name: "Cart",
 			},
 		],
 		
@@ -664,7 +665,7 @@ var Areas = {
 			},
 		],
 		
-		characters: [
+		things: [
 			/*{
 				x: 2290,
 				y: 290,

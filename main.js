@@ -449,6 +449,8 @@ class Thing extends Entity {
 		// set width and height to image dimensions unless otherwise specified
 		this.width = properties.width || this.image.width;
 		this.height = properties.height || this.image.height;
+		
+		this.name = properties.name;
 	}
 }
 
@@ -456,8 +458,6 @@ class Thing extends Entity {
 class Character extends Thing {
 	constructor(properties) {
 		super(properties);
-		
-		this.name = properties.name;
 		
 		this.health = properties.health || properties.stats.maxHealth;
 		this.damageTaken = 0; // only used so far for Dummies
@@ -1088,7 +1088,7 @@ class Hero extends Attacker {
 		
 		while (interactionDone !== true) {
 			// enemy looting
-			if (interactionDone === 2) {
+			if (interactionDone === 0) {
 				for (var i = 0; i < Game.enemies.length; i++) {
 					if (Game.enemies[i].isCorpse) { // check enemy is a corpse (hence might be able to be looted) 
 						if (this.isTouching(Game.enemies[i]) && Game.enemies[i].loot !== null && Dom.currentlyDisplayed === "") { // player is touching enemy, enemy can be looted, and DOM isn't occupied
@@ -1105,7 +1105,7 @@ class Hero extends Attacker {
 			}
 			
 			// check collision with loot chests
-			if (interactionDone === 1) {
+			else if (interactionDone === 1) {
 				for (var i = 0; i < Game.chests.length; i++) {
 					if (this.isTouching(Game.chests[i]) && Game.chests[i].loot !== null && Dom.currentlyDisplayed === "") { // player is touching chest, chest can be looted, and DOM isn't occupied
 						Game.chests[i].openLoot(i);
@@ -1115,8 +1115,18 @@ class Hero extends Attacker {
 				}
 			}
 			
+			// cannon firing
+			else if (interactionDone === 2) {
+				for (var i = 0; i < Game.chests.length; i++) {
+					if (this.isTouching(Game.cannons[i])) { // player is touching cannon
+						Game.cannons[i].interact(); // might not end up doing anything if cannon is on cooldown (perhaps that if should be moved here?)
+						interactionDone = true;
+					}
+				}
+			}
+			
 			// tilemap tiles
-			if (interactionDone === 2) {
+			else if (interactionDone === 3) {
 				let tileNum = map.getTile(0, map.getCol(this.x), map.getRow(this.y + this.height/2));
 				if (map.interactWithTile !== undefined) {
 					map.interactWithTile(tileNum, this.x, this.y + this.height/2);
@@ -1423,8 +1433,6 @@ class Villager extends Thing { // to be changed to character
 	constructor(properties) {
 		super(properties);
 		
-		this.name = properties.name;
-		
 		this.speed = properties.speed;
 		
 		this.wait = 0; // total time spent waiting
@@ -1700,8 +1708,6 @@ class LootChest extends Thing {
 	constructor(properties) {
 		super(properties);
 		
-		this.name = properties.name;
-		
 		this.loot = properties.loot; // items contained
 		this.lootQuantities = properties.lootQuantities;
 		this.inventorySpace = properties.inventorySpace;
@@ -1715,6 +1721,50 @@ class LootChest extends Thing {
 		// "c"+i is a string that allows the loot menu to be identified - c means enemy, and arrayIndex is the index of the enemy in Game.chests
 		// the loot menu closes when the area changes anyway, so this will always work
 		// Dom.loot.currentId is only ever used in main, in the function Game.lootClosed() (called by index.html)
+	}
+}
+
+// can be looted
+class Cannon extends Thing {
+	constructor(properties) {
+		super(properties);
+		
+		this.firingStatus = 0; // 0 = not loaded; 1 = loaded
+		
+		this.canBeInteractedWith = true; // set to false during timeout
+		
+		this.levelRequirement = properties.levelRequirement; // level requirement to use cannon
+		// maybe introduce quest requirement in future?
+	}
+	
+	interact () {
+		if (this.canBeInteractedWith) {
+			if (this.firingStatus === 0) {
+				// load cannon
+				this.firingStatus = 1;
+				this.canBeInteractedWith = false;
+				setTimeout(function () {
+					this.canBeInteractedWith = true;
+				}.bind(this), 1000);
+			}
+			else if (this.firingStatus === 0) {
+				// fire cannon
+				this.firingStatus = 0;
+				this.canBeInteractedWith = false;
+				
+				// cannonball
+				Game.things.push(new Thing({
+					//image: ,
+					name: "Cannonball",
+					x: this.x,
+					y: this.y,
+				}));
+				
+				setTimeout(function () {
+					this.canBeInteractedWith = true;
+				}.bind(this), 1000);
+			}
+		}
 	}
 }
 
@@ -2085,13 +2135,13 @@ Game.loadArea = function (areaName, destination) {
 			}
 		}
 		
-		// characters (aesthetic only)
-		this.characters = [];
-		if(Areas[areaName].characters !== undefined) {
-			for(var i = 0; i < Areas[areaName].characters.length; i++) {
-				if (this.canBeShown(Areas[areaName].characters[i])) { // check if NPC should be shown
-					Areas[areaName].characters[i].map = map;
-					this.characters.push(new Thing(Areas[areaName].characters[i]));
+		// things (aesthetic only)
+		this.things = [];
+		if(Areas[areaName].things !== undefined) {
+			for(var i = 0; i < Areas[areaName].things.length; i++) {
+				if (this.canBeShown(Areas[areaName].things[i])) { // check if NPC should be shown
+					Areas[areaName].things[i].map = map;
+					this.things.push(new Thing(Areas[areaName].things[i]));
 				}
 			}
 		}
@@ -2147,6 +2197,17 @@ Game.loadArea = function (areaName, destination) {
 				if (this.canBeShown(Areas[areaName].chests[i])) { // check if NPC should be shown
 					Areas[areaName].chests[i].map = map;
 					this.chests.push(new LootChest(Areas[areaName].chests[i]));
+				}
+			}
+		}
+		
+		// cannons
+		this.cannnons = [];
+		if(Areas[areaName].cannons !== undefined) {
+			for(var i = 0; i < Areas[areaName].cannons.length; i++) {
+				if (this.canBeShown(Areas[areaName].cannons[i])) { // check if NPC should be shown
+					Areas[areaName].cannons[i].map = map;
+					this.cannons.push(new Cannon(Areas[areaName].cannons[i]));
 				}
 			}
 		}
@@ -2219,7 +2280,7 @@ Game.init = function () {
 	this.playingMusic = null;
 	
 	// list of basic (no extra operations to be done) things to be rendered (in order)
-	this.renderList = ["chests", "characters", "villagers", "NPCs", "identifiers", "dummies", "enemies"];
+	this.renderList = ["chests", "things", "villagers", "NPCs", "identifiers", "dummies", "enemies"];
 	// then player, then projectiles (in order they were shot)
 	
 	// create the player at its start x and y positions
