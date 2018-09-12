@@ -551,11 +551,24 @@ class Character extends Thing {
 				this.isCorpse = true;
 				
 				// loot
-				Player.xp += this.xpGiven / Player.level;
-				Game.getXP();
 				if (this.lootTable !== undefined) {
 					this.generateLoot(this.lootTable);
 				}
+				
+				// xp
+				Player.xp += this.xpGiven / Player.level;
+				if (Player.fatiguedXP !== 0) { // fatigued xp is worth 50% less due to a recent death
+					if (this.xpGiven > Player.fatiguedXP) {
+						Player.xp -= Player.fatiguedXP / 2;
+						Player.fatiguedXP = 0;
+						Game.hero.statusEffects.splice(Game.hero.statusEffects.findIndex(statusEffect => statusEffect.title === "XP Fatigue"), 1); // remove xp fatigue effect
+					}
+					else {
+						Player.xp -= this.xpGiven / 2;
+						Player.fatiguedXP -= this.xpGiven;
+					}
+				}
+				Game.getXP(); // now that the XP has fully been added, check for a levelUp and display it on the canvas
 				
 				// corpse disappears in this.stats.lootTime ms
 				setTimeout(function () {
@@ -573,7 +586,7 @@ class Character extends Thing {
 			if (this.health <= 0 && !this.respawning) { // check it is not already respawning
 				let existingEffect = this.statusEffects.find(statusEffect => statusEffect.title === "XP Fatigue"); // find existing XP fatigue effect
 				
-				// wipe status effects
+				// wipe status effects (including existing XP fatigue)
 				this.statusEffects = [];
 				
 				// death
@@ -584,7 +597,7 @@ class Character extends Thing {
 				
 				this.health = this.stats.maxHealth;
 				
-				let ineffectiveAmount = LevelXP[Game.hero.level] / 6; // amount of XP to be worth 50% less
+				let ineffectiveAmount = damageRound(LevelXP[Game.hero.level] / 6); // amount of XP to be worth 50% less
 				let stacks = 1;
 				if (existingEffect !== undefined) {
 					ineffectiveAmount += existingEffect.info.ineffectiveAmount; // stack to an effect XP fatigue effect
@@ -603,6 +616,8 @@ class Character extends Thing {
 						ineffectiveAmount: ineffectiveAmount,
 					},
 				}));
+				
+				Player.fatiguedXP = ineffectiveAmount;
 				
 				Game.hero.updateStatusEffects();
 			}
@@ -1068,9 +1083,50 @@ class Hero extends Attacker {
 	
 	// space bar
 	interact () {
-		let tileNum = map.getTile(0, map.getCol(this.x), map.getRow(this.y + this.height/2));
-		if (map.interactWithTile !== undefined) {
-			map.interactWithTile(tileNum, this.x, this.y + this.height/2);
+		let interactionDone = 0; // set to true if the player has interacted with something, iterated by 1 each time to show what should be tried to be interacted with each time
+		// this is done so that only 1 interaction can happen per space press
+		
+		while (interactionDone !== true) {
+			// enemy looting
+			if (interactionDone === 2) {
+				for (var i = 0; i < Game.enemies.length; i++) {
+					if (Game.enemies[i].isCorpse) { // check enemy is a corpse (hence might be able to be looted) 
+						if (this.isTouching(Game.enemies[i]) && Game.enemies[i].loot !== null && Dom.currentlyDisplayed === "") { // player is touching enemy, enemy can be looted, and DOM isn't occupied
+							Dom.loot.page(Game.enemies[i].name, Game.enemies[i].loot, Game.enemies[i].lootQuantities, Game.enemies[i].inventorySpace);
+							Dom.loot.currentId = "e"+i;
+							interactionDone = true;
+							// "e"+i is a string that allows the loot menu to be identified - e means enemy, and i is the index of the enemy in Game.enemies
+							// the loot menu closes when the area changes anyway, so this will always work
+							// Dom.loot.currentId is only ever used in main, in the function Game.lootClosed() (called by index.html)
+						}
+						// should flash red if player can't loot it
+					}
+				}
+			}
+			
+			// check collision with loot chests
+			if (interactionDone === 1) {
+				for (var i = 0; i < Game.chests.length; i++) {
+					if (this.isTouching(Game.chests[i]) && Game.chests[i].loot !== null && Dom.currentlyDisplayed === "") { // player is touching chest, chest can be looted, and DOM isn't occupied
+						Game.chests[i].openLoot(i);
+						interactionDone = true;
+					}
+					// should flash red if player can't loot it
+				}
+			}
+			
+			// tilemap tiles
+			if (interactionDone === 2) {
+				let tileNum = map.getTile(0, map.getCol(this.x), map.getRow(this.y + this.height/2));
+				if (map.interactWithTile !== undefined) {
+					map.interactWithTile(tileNum, this.x, this.y + this.height/2);
+				}
+				interactionDone = true; // interaction might not have happened, but this is always the last thing to be done anyway so it can be set to true
+			}
+			
+			if (interactionDone !== true) {
+				interactionDone++;
+			}
 		}
 	}
 	
@@ -2582,22 +2638,6 @@ Game.update = function (delta) {
 	for(var i = 0; i < this.enemies.length; i++) {
 		if (!this.enemies[i].respawning) { // check enemy is not dead
 			this.enemies[i].update(delta);
-		}
-		else if (this.enemies[i].isCorpse) { // check enemy is a corpse (hence might be able to be looted) 
-			if (this.hero.isTouching(this.enemies[i]) && this.enemies[i].loot !== null && Dom.currentlyDisplayed === "") { // player is touching enemy, enemy can be looted, and DOM isn't occupied
-				Dom.loot.page(this.enemies[i].name, this.enemies[i].loot, this.enemies[i].lootQuantities, this.enemies[i].inventorySpace);
-				Dom.loot.currentId = "e"+i;
-				// "e"+i is a string that allows the loot menu to be identified - e means enemy, and i is the index of the enemy in Game.enemies
-				// the loot menu closes when the area changes anyway, so this will always work
-				// Dom.loot.currentId is only ever used in main, in the function Game.lootClosed() (called by index.html)
-			}
-		}
-    }
-	
-	// check collision with loot chests
-	for(var i = 0; i < this.chests.length; i++) {
-		if (this.hero.isTouching(this.chests[i]) && this.chests[i].loot !== null && Dom.currentlyDisplayed === "") { // player is touching chest, chest can be looted, and DOM isn't occupied
-			this.chests[i].openLoot(i);
 		}
     }
 	
