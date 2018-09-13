@@ -693,7 +693,7 @@ var Areas = {
 		
 		enemies: [
 			{
-				x: 1070,
+				x: 1070, // at goblin camp
 				y: 400,
 				image: "rockGoblin",
 				deathImage: "goblinCorpse",
@@ -730,14 +730,51 @@ var Areas = {
 				inventorySpace: 8,
 			},
 			{
-				x: 900,
+				x: 630, // south west (near logging camp)
+				y: 1320,
+				image: "rockGoblin",
+				deathImage: "goblinCorpse",
+				name: "Goblin Rockthrower",
+				level: 2,
+				stats: {
+					damage: 3,
+					walkSpeed: 100,
+					maxHealth: 10,
+					range: 200,
+					healthRegen: 0.4,
+					reloadTime: 2000,
+					lootTime: 10000,
+					respawnTime: 11000,
+					variance: 100,
+				},
+				leashRadius: 350,
+				xpGiven: 10,
+				projectile: {
+					image: "rock",
+				},
+				lootTableTemplate: LootTables.nilbogGoblin,
+				lootTable: [
+					{ // polished rock
+						item: Items.item[4],
+						chance: [
+							20,				// 0
+							70,				// 1
+							95,				// 2
+							Infinity,		// 3
+						],
+					},
+				],
+				inventorySpace: 8,
+			},
+			{
+				x: 900, // at goblin camp
 				y: 300,
 				image: "swordGoblin",
 				deathImage: "goblinCorpse",
 				name: "Goblin Skirmisher",
 				level: 2,
 				stats: {
-					damage: 3,
+					damage: 2,
 					walkSpeed: 90,
 					maxHealth: 10,
 					defence: 2,
@@ -756,7 +793,62 @@ var Areas = {
 				inventorySpace: 8,
 			},
 			{
-				x: 1000,
+				x: 1240, // south (between bogs)
+				y: 1240,
+				image: "swordGoblin",
+				deathImage: "goblinCorpse",
+				name: "Goblin Skirmisher",
+				level: 2,
+				stats: {
+					damage: 2,
+					walkSpeed: 90,
+					maxHealth: 10,
+					defence: 2,
+					range: 60,
+					healthRegen: 0.4,
+					reloadTime: 1500,
+					lootTime: 10000,
+					respawnTime: 20000, // longer respawn time
+				},
+				leashRadius: 350,
+				xpGiven: 10,
+				projectile: {
+					image: "melee",
+				},
+				lootTableTemplate: LootTables.nilbogGoblin,
+				inventorySpace: 8,
+			},
+			{
+				x: 860, // next to mail cart (only present when that quest is active)
+				y: 915,
+				image: "swordGoblin",
+				deathImage: "goblinCorpse",
+				name: "Goblin Skirmisher",
+				level: 2,
+				stats: {
+					damage: 2,
+					walkSpeed: 90,
+					maxHealth: 10,
+					defence: 2,
+					range: 60,
+					healthRegen: 0.4,
+					reloadTime: 1500,
+					lootTime: 10000,
+					respawnTime: 11000,
+				},
+				leashRadius: 350,
+				xpGiven: 10,
+				projectile: {
+					image: "melee",
+				},
+				lootTableTemplate: LootTables.nilbogGoblin,
+				inventorySpace: 8,
+				canBeShown: function () { // only show when mail cart quest is active
+					return (Dom.quests.activeQuestArray.includes("Making Yourself Useful") || Dom.quests.activeQuestArray.includes("First Class Recovery"));
+				},
+			},
+			{
+				x: 1000, // at goblin camp
 				y: 250,
 				image: "hammerGoblin",
 				deathImage: "goblinCorpse",
@@ -782,7 +874,33 @@ var Areas = {
 				inventorySpace: 8,
 			},
 			{
-				x: 1050,
+				x: 1510, // outside tower
+				y: 640,
+				image: "hammerGoblin",
+				deathImage: "goblinCorpse",
+				name: "Goblin Bruiser",
+				level: 3,
+				stats: {
+					damage: 4,
+					walkSpeed: 70,
+					maxHealth: 10,
+					defence: 3,
+					range: 60,
+					healthRegen: 0.4,
+					reloadTime: 2000,
+					lootTime: 10000,
+					respawnTime: 11000,
+				},
+				leashRadius: 350,
+				xpGiven: 10,
+				projectile: {
+					image: "melee",
+				},
+				lootTableTemplate: LootTables.nilbogGoblin,
+				inventorySpace: 8,
+			},
+			{
+				x: 1050, // at goblin camp
 				y: 100,
 				image: "fireGoblin",
 				deathImage: "goblinCorpse",
