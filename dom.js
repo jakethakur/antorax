@@ -1415,7 +1415,7 @@ Dom.identifier.identify = function(npc){ // the page that you go to when you cli
 		}else{ // if it is a myhtic item...
 			document.getElementById("identifiedPageChat").innerHTML = npc.chat.identifyMythic; // ...it uses the "mythic" chat
 		}
-		for(i = 0; i < Items[Object.keys(Items)[Dom.identifier.unId[Dom.identifier.displayed].typeNum]].length; i++){ // for every item of the same catergory (e.g. bow)...
+		for(let i = 0; i < Items[Object.keys(Items)[Dom.identifier.unId[Dom.identifier.displayed].typeNum]].length; i++){ // for every item of the same catergory (e.g. bow)...
 			if(Items[Object.keys(Items)[Dom.identifier.unId[Dom.identifier.displayed].typeNum]][i].tier === Dom.identifier.unId[Dom.identifier.displayed].tier && Items[Object.keys(Items)[Dom.identifier.unId[Dom.identifier.displayed].typeNum]][i].area === Dom.identifier.unId[Dom.identifier.displayed].area && Items[Object.keys(Items)[Dom.identifier.unId[Dom.identifier.displayed].typeNum]][i].rarity === Dom.identifier.unId[Dom.identifier.displayed].rarity){ // ...check if it matches the stats...
 				Dom.identifier.array.push(Items[Object.keys(Items)[Dom.identifier.unId[Dom.identifier.displayed].typeNum]][i]); // ...if it does add is to the array of possible items
 			}
@@ -1499,12 +1499,12 @@ Dom.inventory.dispose = function(ev){
 		Dom.alert.ev = Object.assign({},ev.dataTransfer.getData("text"));
 		if(!isNaN(parseInt(ev.dataTransfer.getData("text")))){
 			if(Player.inventory.items[parseInt(ev.dataTransfer.getData("text"))].stacked > 1){
-				Dom.alert.page("How many would you like to drop?",true,true);
+				Dom.alert.page("How many would you like to drop?", true, true);
 			}else{
-				Dom.alert.page("Are you sure you want to drop this item? It will be lost forever!",true);
+				Dom.alert.page("Are you sure you want to drop this item? It will be lost forever!", true);
 			}
 		}else{
-			Dom.alert.page("Are you sure you want to drop this item? It will be lost forever!",true);
+			Dom.alert.page("Are you sure you want to drop this item? It will be lost forever!", true);
 		}
 	}else if(ev.target.id === "inventoryPage" || ev.target.id === "displayStats" || ev.target.id === "bagText"){
 		if(!quest){
@@ -1528,6 +1528,7 @@ Dom.inventory.removeById = function(ID, type, num){
 }
 
 Dom.inventory.remove = function(num, all){
+	console.log(num);
 	if(Player.inventory.items[num].stacked === 1 || Player.inventory.items[num].stacked === undefined || all){
 		document.getElementById("itemInventory").getElementsByTagName("td")[num].innerHTML = ""; // removes the image from the inventory
 		Player.inventory.items[num] = {}; // removes the image from the inventory
@@ -2084,13 +2085,13 @@ document.getElementById("levelUpPageClose").onclick = function(){
 
 Dom.text.page = function(name, text, buttons, functions){
 	Dom.changeBook("textPage");
-	Dom.currentlyDisplayed = "text";
+	Dom.currentlyDisplayed = name;
 	document.getElementById("textPage").innerHTML = '<h1 id="textPageName">'+name+'</h1>'
 	document.getElementById("textPage").innerHTML += '<p id="textPageText">'+text+'</p>'
 	for(let i = 0; i < buttons.length; i++){
-		document.getElementById("textPage").innerHTML += "<br><br><br><center><div id='buttons"+i+"' class='closeClass'>"+buttons[i]+"</div></center>";
+		document.getElementById("textPage").innerHTML += "<br><br><br><center><div id='buttons"+i+"' class='buttons'>"+buttons[i]+"</div></center>";
 	}
-	document.getElementById("textPage").innerHTML += "<br><br><br><center><div class='closeClass' onclick='Dom.changeBook(Dom.previous)'>Close</div></center>";
+	document.getElementById("textPage").innerHTML += "<br><br><br><center><div class='closeClass' onclick='Dom.changeBook(Dom.previous, true)'>Close</div></center>";
 	for(let i = 0; i < buttons.length; i++){
 		document.getElementById("buttons"+i).onclick = function(){
 			functions[i]();
@@ -2098,8 +2099,18 @@ Dom.text.page = function(name, text, buttons, functions){
 	}
 }
 
+Dom.buyer.remove = function(i, all){
+	document.getElementById("buyerPageInventory").getElementsByTagName("td")[i].innerHTML = "";
+	if(Player.inventory.items[i].sellCurrency === undefined){
+		Player.inventory.items[i].sellCurrency = 2;
+	}
+	Dom.inventory.give(Items.currency[Player.inventory.items[i].sellCurrency], (all ? Player.inventory.items[i].sellPrice*Player.inventory.items[i].stacked : Player.inventory.items[i].sellPrice));
+	Dom.inventory.remove(i, all);
+}
+
 Dom.buyer.page = function(){
 	Dom.changeBook("buyerPage");
+	Dom.currentlyDisplayed = "itemBuyer";
 	document.getElementById("buyerPageInventory").innerHTML = "";
 	for(let i = 0; i < document.getElementById("itemInventory").getElementsByTagName("td").length / 6; i++){
 		document.getElementById("buyerPageInventory").innerHTML += "<tr><td/><td/><td/><td/><td/><td/></tr>";
@@ -2108,11 +2119,24 @@ Dom.buyer.page = function(){
 		document.getElementById("buyerPageInventory").getElementsByTagName("td")[i].innerHTML = document.getElementById("itemInventory").getElementsByTagName("td")[i].innerHTML;
 		if(document.getElementById("buyerPageInventory").getElementsByTagName("td")[i].getElementsByTagName("img").length > 0){
 			document.getElementById("buyerPageInventory").getElementsByTagName("td")[i].getElementsByTagName("img")[0].setAttribute('draggable', false);
+			if(Player.inventory.items[i].sellPrice !== undefined){
+				document.getElementById("buyerPageInventory").getElementsByTagName("td")[i].onclick = function(){
+					Dom.alert.ev = i;
+					Dom.alert.target = Dom.buyer.remove;
+					if(Player.inventory.items[i].stacked > 1){
+						Dom.alert.page("How many would you like to sell?", true, true);
+					}else{
+						Dom.alert.page("Are you sure you want to sell this item? You cannot buy it back!", true);
+					}
+				}
+			}
 		}
 	}
 }
 
+//
 // DO NOT ADD CODE BELOW THIS POINT
+//
 
 for(let i = 0; i < 5; i++){
 	Player.inventory[Object.keys(Player.inventory)[i]].push({

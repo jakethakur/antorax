@@ -329,6 +329,20 @@ td{
 #informationMerchant{
 	left: 740px;
 }
+.buttons{
+	position: relative;
+	height: 50px;
+	background-color: #fef9b4;
+	border: 5px solid #886622;
+	text-align: center;
+	line-height:50px;
+	vertical-align: middle;
+	font-size: 20px;
+	clear: both;
+	width: max-content;
+	padding-left: 15px;
+	padding-right: 15px;
+}
 .closeClass, #levelUpPageClose{
 	position: relative;
 	width: 200px;
