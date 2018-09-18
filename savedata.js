@@ -13,6 +13,11 @@ var Player = {
 	gender: playerGender,
 	skin: playerSkin,
 	
+	// updated by saved progress
+	x: 2297,
+	y: 387,
+	areaName: "tutorial",
+	
 	reputation: {
 		eaglecrestLoggingCamp: {
 			score: 60,

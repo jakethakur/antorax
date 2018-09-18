@@ -149,7 +149,7 @@ Game.run = function (context, secondaryContext) {
 	
     this._previousElapsed = 0;
 
-    this.loadArea("tutorial", undefined);
+    this.loadArea(Player.areaName, {x: Player.x, y: Player.y});
 };
 
 // calculate current tick length and update/render canvas accordingly
@@ -587,7 +587,10 @@ class Character extends Thing {
 				let existingEffect = this.statusEffects.find(statusEffect => statusEffect.title === "XP Fatigue"); // find existing XP fatigue effect
 				
 				// wipe status effects (including existing XP fatigue)
-				this.statusEffects = [];
+				while (this.statusEffects.length > 0) {
+					// cannot be set to [], otherwise it no longer mirrors player
+					this.statusEffects.splice(0, 1);
+				}
 				
 				// death
 				this.respawning = true;
@@ -3410,33 +3413,37 @@ Game.secondary.render = function () {
 			this.ctx.drawImage(Game.statusImage, 0, 27 * iconNum, 27, 27, 270 + i * 35, 10, 27, 27);
 			this.ctx.fillStyle = "black";
 			this.ctx.font = "20px MedievalSharp";
+			this.ctx.textAlign = "right";
 			if (typeof Game.hero.statusEffects[i].info !== "undefined") { // variable exists
-				if (typeof Game.hero.statusEffects[i].info.time !== "undefined" && typeof Game.hero.statusEffects[i].info.ticks !== "undefined") { //variable exists
-					this.ctx.fillText(damageRound(Game.hero.statusEffects[i].info.time - Game.hero.statusEffects[i].info.ticks), 285 + i * 35, 37);
+				if (typeof Game.hero.statusEffects[i].info.time !== "undefined" && typeof Game.hero.statusEffects[i].info.ticks !== "undefined") { // variable exists
+					this.ctx.fillText(damageRound(Game.hero.statusEffects[i].info.time - Game.hero.statusEffects[i].info.ticks), 295 + i * 35, 37);
 				}
 			}
 		}
 	}
 }
-/*
-Game.save = function () {
-	if(localStorage.getItem("accept") === "true"){
-		localStorage.setItem(Player.class+"-checkpoint", Game.hero.checkpoint);
-		localStorage.setItem(Player.class+"-x", Game.hero.spawnX);
-		localStorage.setItem(Player.class+"-y", Game.hero.spawnY);
-	}
-	let time = new Date();
-	console.log("SAVE AT " + (time.getHours() < 10 ? "0" : "") + time.getHours() + ":" + (time.getMinutes() < 10 ? "0" : "") + time.getMinutes() + ":" + (time.getSeconds() < 10 ? "0" : "") + time.getSeconds());
-	if(localStorage.getItem("accept") === "true"){
+
+//
+// Save player progress
+//
+
+// autosave every 10 minutes
+setInterval(function() {
+	Game.saveProgress();
+}, 60000);
+
+Game.saveProgress = function (saveType) { // if saveType is "auto" then the save is an autosave (hence has a slightly different console.info)
+	if (localStorage.getItem("accept") === "true") {
+		// save player position to savedata.js
+		Player.x = Game.hero.x;
+		Player.y = Game.hero.y;
+		Player.areaName = Game.areaName;
+		
+		// save everything in savedata.js
 		localStorage.setItem(Player.class, JSON.stringify(Player));
+		
+		// message to console
+		let time = new Date();
+		console.info((saveType === "auto" ? "AUTO" : "") + "SAVE AT " + (time.getHours() < 10 ? "0" : "") + time.getHours() + ":" + (time.getMinutes() < 10 ? "0" : "") + time.getMinutes() + ":" + (time.getSeconds() < 10 ? "0" : "") + time.getSeconds());
 	}
 }
-setTimeout(function(){
-	if(localStorage.getItem(Player.class+"-checkpoint") !== null){
-		Game.loadArea(localStorage.getItem(Player.class+"-checkpoint"), Areas[localStorage.getItem(Player.class+"-checkpoint")].player);
-		setTimeout(function(){
-			Game.hero.x = parseInt(localStorage.getItem(Player.class+"-x"));
-			Game.hero.y = parseInt(localStorage.getItem(Player.class+"-y"));
-		},100);
-	}
-},100);*/
