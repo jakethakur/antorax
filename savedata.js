@@ -1,10 +1,17 @@
+if(sessionStorage.getItem("class") == undefined){ // must be ==
+	window.location.replace("./selection.html");
+}
+
+let playerName = sessionStorage.getItem("name"); // avoids it having to be called multiple times from inside Player's declaration
 let playerClass = sessionStorage.getItem("class"); // avoids it having to be called multiple times from inside Player's declaration
+let playerGender = sessionStorage.getItem("gender"); // avoids it having to be called multiple times from inside Player's declaration
+let playerSkin = sessionStorage.getItem("skin"); // avoids it having to be called multiple times from inside Player's declaration
 
 var Player = {
-	name: sessionStorage.getItem("username"),
+	name: playerName,
 	class: playerClass,
-	skin: sessionStorage.getItem("skin"),
-	gender: sessionStorage.getItem("gender"),
+	gender: playerGender,
+	skin: playerSkin,
 	
 	reputation: {
 		eaglecrestLoggingCamp: {
@@ -15,6 +22,12 @@ var Player = {
 			score: 0,
 			level: 4,
 		},
+	},
+	
+	quests: {
+		activeQuestArray: [],
+		possibleQuestArray: [],
+		completedQuestArray: [],
 	},
 	
 	inventory: {

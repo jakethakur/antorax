@@ -7,7 +7,7 @@ body{
 	-ms-user-select: none; /* IE10+/Edge */
 	user-select: none;
 }
-#chatPage, #inventoryPage, #questsPage, #settingsPage, #instructionsPage, #reputationPage, #questStart, #questFinish, #merchantPage, #identifierPage, #levelUpPage, #lootPage, #identifiedPage {
+#chatPage, #inventoryPage, #questsPage, #settingsPage, #instructionsPage, #reputationPage, #questStart, #questFinish, #merchantPage, #identifierPage, #levelUpPage, #lootPage, #textPage, #identifiedPage {
 	float: left;
 	margin: 10px;
 	border: 1px solid black;
@@ -39,7 +39,7 @@ body{
 	overflow-y: auto;
 	overflow-x: hidden;
 }
-#questStart, #questFinish, #merchantPage, #identifierPage, #identifiedPage, #levelUpPage, #lootPage{
+#questStart, #questFinish, #merchantPage, #identifierPage, #identifiedPage, #levelUpPage, #lootPage, #textPage{
 	text-align: center;
 }
 /*#questStartChat, #questFinishChat{
@@ -61,17 +61,16 @@ body{
 	vertical-align: middle;
 	font-size: 20px;
 }
-#activeQuestBox, #possibleQuestBox, #completedQuestBox, #allQuestBox, #activeQuests, #possibleQuests, #completedQuests, #allQuests, #settingBookmark, #settingMusic, #settingHitboxes, #settingCoords, #settingFps, #settingGrid, #settingSpeed, #settingAccept {
+#activeQuestBox, #possibleQuestBox, #completedQuestBox, #otherQuestBox, #activeQuests, #possibleQuests, #completedQuests, #otherQuests, #settingBookmark, #settingMusic, #settingHitboxes, #settingCoords, #settingFps, #settingGrid, #settingSpeed, #settingAccept {
 	position: relative;
 	width: 511px;
-	height: 50px;
 	border-left: 5px solid #886622;
 	border-right: 5px solid #886622;
 	border-bottom: 5px solid #886622;
 	right: 10px;
 	background-color: #fef9b4;
 }
-#activeQuests, #possibleQuests, #completedQuests, #allQuests{
+#activeQuests, #possibleQuests, #completedQuests, #otherQuests{
 	text-align: center;
 	line-height: 50px;
 	vertical-align: middle;
@@ -125,12 +124,18 @@ body{
 	border-left: 20px solid #fef9b4;
 	z-index: 2;
 }
-#settingBookmark, #settingMusic, #settingHitboxes, #settingCoords, #settingFps, #settingGrid, #settingSpeed, #settingAccept, #activeQuestBox, #completedQuestBox, #possibleQuestBox, #allQuestBox {
+#settingBookmark, #settingMusic, #settingHitboxes, #settingCoords, #settingFps, #settingGrid, #settingSpeed, #settingAccept, #activeQuestBox, #completedQuestBox, #possibleQuestBox, #otherQuestBox {
 	width: 501px;
 	height: 40px;
 	text-align: left;
 	padding-left: 10px;
 	padding-top: 10px;
+}
+#activeQuestBox, #possibleQuestBox, #completedQuestBox, #otherQuestBox{
+	padding-bottom: 10px;
+	min-height: 30px;
+	height: auto;
+	line-height: 20px;
 }
 #inventoryPage{
 	padding-left: 38px;
@@ -143,7 +148,7 @@ body{
 	padding-right: 38px;
 	width: 444px;
 }
-#helm, #chest, #greaves, #boots, #weapon, #settingLogoutInner{
+#helm, #chest, #greaves, #boots, #weapon, #settingLogoutInner, #settingSave, #settingDelete{
 	margin-top: 10px;
 	border: 5px solid #886622;
 	width: 50px;
@@ -276,28 +281,36 @@ td{
 #questStartXP, #questFinishXP{
 	background-image: url("./assets/icons/xp.png");
 }
-.buy, #identifierPageBuy{
-	position: relative;
-	width: 150px;
+.buy, #identifierPageBuy, #lootAll{
 	height: 50px;
 	background-color: #fef9b4;
 	border: 5px solid #886622;
-	margin-left: 100px;
-	left: 175px;
-	margin-top: 4px;
+	float: right;
+	margin-bottom: 20px;
 	text-align: center;
 	line-height: 50px;
 	vertical-align: middle;
 	font-size: 20px;
+	padding-left: 10px;
+	padding-right: 10px;
+	width: max-content;
 }
-#identifierPageBuy{
-	left: 0px;
+#identifierPageBuy, #lootAll{
 	display: inline-block;
 	margin-top: 25px;
-	width: 200px;
-	margin-left: 0px;
+	margin-bottom: 0px;
+	padding-left: 20px;
+	padding-right: 20px;
+	float: none;
 }
-#itemInformation, #itemIdentification, #informationMerchant, #questInformation, #questFinishInformation, #identifierInformation, #identifiedInformation, #inventoryInformation{
+#lootAll{
+	margin-top: 100px;
+}
+#merchantPageBuy{
+	float: right;
+	display: inline;
+}
+#itemInformation, #itemIdentification, #informationMerchant, #questInformation, #questFinishInformation, #identifierInformation, #identifiedInformation, #lootInformation, #inventoryInformation{
 	position: absolute;
 	left: 765px;
 	width: 140px;
@@ -322,6 +335,7 @@ td{
 	line-height:50px;
 	vertical-align: middle;
 	font-size: 20px;
+	clear: both;
 }
 #closeReputation{
 	position: relative;
@@ -375,9 +389,6 @@ td{
 	bottom: 40px;
 	left: 270px;
 }
-#close{
-	bottom: 30px;
-}
 #acceptReward{
 	top: 20px;
 }
@@ -419,7 +430,7 @@ td{
 #instructionsPage{
 	font-size: 60px;
 }
-#settingLogoutInner, #settingLogout{
+#settingLogoutInner, #settingLogout, #settingSave, #settingDelete{
 	position: relative;
 	font-size: 20px;
 	vertical-align: middle;
@@ -429,11 +440,18 @@ td{
 #settingLogout{
 	top: 15px;
 }
-#settingLogoutInner{
+#settingLogoutInner, #settingSave, #settingDelete{
+	position: absolute;
 	width: 100px;
 	left: 200px;
 	height: 40px;
 	background-color: #fef9b4;
+}
+#settingSave{
+	left: 50px;
+}
+#settingDelete{
+	left: 350px;
 }
 .stackNum, .questStackNum, .questFinishStackNum, .lootStackNum{
 	position: relative;
@@ -475,7 +493,7 @@ td{
 	z-index: 3;
 	text-align: center;
 }
-#alertYes, #alertNo{
+#alertYes, #alertNo, #alertDispose{
 	position: relative;
 	width: 100px;
 	height: 50px;
@@ -488,8 +506,11 @@ td{
 	vertical-align: middle;
 	line-height: 50px;
 }
-#alertNo{
+#alertNo, #alertDispose{
 	right: 0px;
+}
+#alertDispose{
+	left: 15px;
 }
 #alertText{
 	position: relative;

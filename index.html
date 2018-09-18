@@ -11,8 +11,9 @@
 	<canvas id="game" width="600" height="600"></canvas>
 	<div id="alert" hidden>
 		<p id="alertText"></p>
-		<div id="alertYes" onmousedown="Game.inventoryUpdate()">Yes</div>
-		<div id="alertNo">No</div>
+		<div id="alertYes" onclick="Game.inventoryUpdate()"></div>
+		<div id="alertDispose" onclick="Game.inventoryUpdate()">All</div>
+		<div id="alertNo"></div>
 	</div>
 	<div id="chatPage" hidden></div>
 	<div id="inventoryPage" hidden ondrop="Dom.inventory.dispose(event)" ondragover="Dom.inventory.allowDrop(event)">
@@ -69,8 +70,8 @@
 		<div id="possibleQuestBox"hidden></div>
 		<div id="completedQuests"onclick="Dom.expand('completedQuestBox')">Completed Quests</div>
 		<div id="completedQuestBox"hidden></div>
-		<div id="allQuests"onclick="Dom.expand('allQuestBox')">Other Quests</div>
-		<div id="allQuestBox"hidden></div>
+		<div id="otherQuests"onclick="Dom.expand('otherQuestBox')">Other Quests</div>
+		<div id="otherQuestBox"hidden></div>
 	</div>
 	<div id="instructionsPage">
 		<center><br><br><a href="./archaeology.html" target="_blank">Archaeology</a>
@@ -122,8 +123,7 @@
 				<span class="radio2"><input type="radio" name="acceptOnOff" checked="true">No</input></span>
 			</div>
 		</span>
-		<div id="settingLogout">
-		</div>
+		<div id="settingLogout"></div>
 	</div>
 	<div id="questStart" hidden>
 		<div id="questInformation" hidden>
@@ -174,7 +174,6 @@
 		<p id="merchantPageChat"></p><br><br>
 		<p id="merchantPageOptions"></p>
 		<p id="merchantPageBuy"></p>
-		<p id="merchantPageBreak"></p><br><br>
 		<center><div id="close" class="closeClass" onclick="Dom.changeBook(Dom.previous, true)">Close</div></center>
 	</div>
 	<div id="identifierPage" hidden>
@@ -206,17 +205,27 @@
 		<center><div id="identifiedPageOption"></div><br><br>
 		<div id="identifiedPageBack" class="closeClass">Back</div></center>
 	</div>
+	<div id="lootPage" hidden>
+		<div id="lootInformation" hidden>
+			<div class='triangleLeft'></div>
+			<div id='lootTriangle' class='innerTriangleLeft'></div>
+			<p id='lootName' style='font-weight: bold;'></p>
+			<p id='lootStats'></p>
+			<p id='lootLore'></p>
+		</div>
+		<h1 id="lootingPageTitle"></h1>
+		<table id="loot"></table>
+		<div id="lootAll">Loot All</div>
+		<center><div id="lootingPageClose" class="closeClass" onclick="Dom.changeBook(Dom.previous, true);Game.lootClosed()">Close</div></center>
+	</div>
+	<div id="textPage" hidden></div>
 	<div id="levelUpPage" hidden>
 		<p id="levelUpPageTitle">Level Up!</p>
 		<p id="levelUpPageLevel"></p>
 		<p id="levelUpPageUnlock"></p>
 		<center><div id="levelUpPageClose" onclick="Game.inventoryUpdate();Game.secondary.render();">Close</div></center>
 	</div>
-	<div id="lootPage" hidden>
-		<h1 id="lootingPageTitle"></h1>
-		<table id="loot"></table>
-		<center><div id="lootingPageClose" class="closeClass" onclick="Dom.changeBook(Dom.previous, true);Game.lootClosed()">Close</div></center>
-	</div>
+
 	<div id="chatImage"onclick="Dom.changeBook('chatPage', false)"></div>
 	<span id="dot" onclick="Dom.changeBook('chatPage', false)" hidden></span>
 	<div id="inventoryImage"onclick="Dom.changeBook('inventoryPage', false)"></div>
@@ -248,6 +257,6 @@
 	<script src="questdata.js"></script>
 	<script src="areadata.js"></script>
 	<script src="dom.js"></script>
-	<script src="main.js"></script>
+	<script src="main.js"></script>	
 </body>
 </html>

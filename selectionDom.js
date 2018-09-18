@@ -1,12 +1,32 @@
-var num = 0;
-var selected = "a";
-var gender = "m";
-var previousWidth = window.innerWidth;
-var previousHeight = window.innerHeight;
-var previousName = "";
+let num = 0;
+let max = {
+	am: 1,
+	af: 0,
+	mm: 0,
+	mf: 0,
+	km: 0,
+	kf: 0,
+}
+let selected = {
+	am: 0,
+	af: 0,
+	mm: 0,
+	mf: 0,
+	km: 0,
+	kf: 0,
+	class: "a",
+	gender: "m",
+};
+if(localStorage.getItem("selected") !== null){
+	selected = JSON.parse(localStorage.getItem("selected"));
+	document.getElementById("name").value = localStorage.getItem("name");
+}
+let previousWidth = window.innerWidth;
+let previousHeight = window.innerHeight;
+let previousName = "";
 
 function validate(strValue) {
-	var objRegExp  = /^[a-zA-Z\u00C0-\u00ff]+$/;
+	let objRegExp  = /^[a-zA-Z0-9_\u00C0-\u00ff]+$/;
 	if(!objRegExp.test(strValue)){
 		objRegExp  = /^$/;
 		return objRegExp.test(strValue);
@@ -15,24 +35,29 @@ function validate(strValue) {
 	}
 }
 
-checkChange();
 function checkChange(){
 	window.requestAnimationFrame(checkChange);
-	if(window.innerWidth != previousWidth){
+	if(window.innerWidth !== previousWidth){
 		previousWidth = window.innerWidth;
 		arrange();
 	}
-	if(window.innerHeight != previousHeight){
+	if(window.innerHeight !== previousHeight){
 		previousHeight = window.innerHeight;
 		arrange();
 	}
-	if(document.getElementById("name").value.length != previousName.length){
-		if(document.getElementById("name").value.length > 12 || (!validate(document.getElementById("name").value))){
+	if(document.getElementById("name").value.length !== previousName.length){
+		if(document.getElementById("name").value.length > 15 || (!validate(document.getElementById("name").value))){
 			document.getElementById("name").value = previousName;
 		}
 		previousName = document.getElementById("name").value;
+		if(localStorage.getItem("accept") === "true"){
+			setTimeout(function(){
+				localStorage.setItem("name", document.getElementById("name").value);
+			},1);
+		}
 	}
 }
+checkChange();
 
 setTimeout(function(){arrange();},10);
 function arrange(){
@@ -45,6 +70,13 @@ function arrange(){
 	document.getElementById("image").style.height = window.innerHeight-205+"px";
 	document.getElementById("play").style.top = window.innerHeight-85+"px";
 	document.getElementById("play").style.left = window.innerWidth/2-document.getElementById("play").offsetWidth/2+"px";
+	document.getElementById("male").style.width = document.getElementById("female").offsetWidth-30+"px";
+	document.getElementById("male").style.left = window.innerWidth/100*27-document.getElementById("male").offsetWidth/2+"px";
+	document.getElementById("left").style.left = window.innerWidth/100*27-document.getElementById("left").offsetWidth/2+"px";
+	document.getElementById("left").style.top = window.innerHeight/2-document.getElementById("left").offsetHeight/2+"px";
+	document.getElementById("right").style.top = window.innerHeight/2-document.getElementById("right").offsetHeight/2+"px";
+	document.getElementById("female").style.left = window.innerWidth/100*73-document.getElementById("female").offsetWidth/2+"px";
+	document.getElementById("right").style.left = window.innerWidth/100*73-document.getElementById("right").offsetWidth/2+"px";
 	document.getElementById("name").style.width = document.getElementById("play").offsetWidth-10+"px";
 	document.getElementById("name").style.left = window.innerWidth/2-document.getElementById("name").offsetWidth/2+"px";
 	document.getElementById("name").style.width = document.getElementById("play").offsetWidth-document.getElementById("name").offsetHeight-5+"px";
@@ -60,6 +92,91 @@ function arrange(){
 	display();
 }
 
+document.getElementById("archer").onclick = function(){
+	selected.class = "a";
+	display();
+}
+
+document.getElementById("mage").onclick = function(){
+	selected.class = "m";
+	display();
+}
+
+document.getElementById("knight").onclick = function(){
+	selected.class = "k";
+	display();
+}
+
+document.getElementById("male").onclick = function(){
+	selected.gender = "m";
+	display();
+}
+
+document.getElementById("female").onclick = function(){
+	selected.gender = "f";
+	display();
+}
+
+document.getElementById("image").onclick = function(){
+	if(selected[selected.class+selected.gender] !== max[selected.class+selected.gender]){
+		selected[selected.class+selected.gender]++;
+	}else{
+		selected[selected.class+selected.gender] = 0;
+	}
+	display();
+}
+
+document.getElementById("random").onclick = function(){
+	document.getElementById("name").value = randomName(selected.gender);
+}
+
+document.getElementById("play").onclick = function(){
+	if(document.getElementById("name").value.length > 2){
+		sessionStorage.setItem("class",selected.class);
+		sessionStorage.setItem("gender",selected.gender);
+		sessionStorage.setItem("skin",selected[selected.class+selected.gender]);
+		sessionStorage.setItem("name",document.getElementById("name").value);
+		window.location.replace("./index.html");
+	}
+}
+
+function display(){
+	document.getElementById("random").style.backgroundImage = "url('assets/class-select/r"+selected.gender+".png')";
+	if(num === 0){
+		document.getElementById("image").src="assets/class-select/"+selected.class+selected.gender+selected[selected.class+selected.gender]+"/f.png";
+		if(selected.class!=="m"){
+			document.getElementById("image").style.left = window.innerWidth/2-document.getElementById("image").offsetWidth/2-parseInt(document.getElementById("image").width)/6.7+"px";
+		}else{
+			document.getElementById("image").style.left = window.innerWidth/2-document.getElementById("image").offsetWidth/2-parseInt(document.getElementById("image").width)/10+"px";
+		}
+	}else if(num === 1){
+		document.getElementById("image").src="assets/class-select/"+selected.class+selected.gender+selected[selected.class+selected.gender]+"/l.png";
+		if(selected.class==="a"){
+			document.getElementById("image").style.left = window.innerWidth/2-document.getElementById("image").offsetWidth/2+"px";
+		}else if(selected.class==="m"){
+			document.getElementById("image").style.left = window.innerWidth/2-document.getElementById("image").offsetWidth/2+parseInt(document.getElementById("image").width)/20+"px";
+		}else{
+			document.getElementById("image").style.left = window.innerWidth/2-document.getElementById("image").offsetWidth/2-parseInt(document.getElementById("image").width)/10+"px";
+		}
+	}else if(num === 2){
+		document.getElementById("image").src="assets/class-select/"+selected.class+selected.gender+selected[selected.class+selected.gender]+"/b.png";
+		if(selected.class!=="m"){
+			document.getElementById("image").style.left = window.innerWidth/2-document.getElementById("image").offsetWidth/2+parseInt(document.getElementById("image").width)/6.7+"px";
+		}else{
+			document.getElementById("image").style.left = window.innerWidth/2-document.getElementById("image").offsetWidth/2+parseInt(document.getElementById("image").width)/10+"px";
+		}
+	}else {
+		document.getElementById("image").src="assets/class-select/"+selected.class+selected.gender+selected[selected.class+selected.gender]+"/r.png";
+		if(selected.class==="a"){
+			document.getElementById("image").style.left = window.innerWidth/2-document.getElementById("image").offsetWidth/2+"px";
+		}else if(selected.class==="m"){
+			document.getElementById("image").style.left = window.innerWidth/2-document.getElementById("image").offsetWidth/2-parseInt(document.getElementById("image").width)/20+"px";
+		}else{
+			document.getElementById("image").style.left = window.innerWidth/2-document.getElementById("image").offsetWidth/2+parseInt(document.getElementById("image").width)/10+"px";
+		}
+	}
+}
+
 document.addEventListener('mouseup', function(event){
 	if(event.pageX < parseInt(document.getElementById("image").style.left) && event.pageX > window.innerWidth/5 && event.pageY > 100 && event.pageY < window.innerHeight-105){
 		num++;
@@ -69,79 +186,9 @@ document.addEventListener('mouseup', function(event){
 		if(num < 0){num = 3;}
 	}
 	display();
+	if(localStorage.getItem("accept") === "true"){
+		setTimeout(function(){
+			localStorage.setItem("selected", JSON.stringify(selected));
+		},1);
+	}
 });
-
-document.getElementById("archer").onclick = function(){
-	selected = "a";
-	display();
-}
-
-document.getElementById("mage").onclick = function(){
-	selected = "m";
-	display();
-}
-
-document.getElementById("knight").onclick = function(){
-	selected = "k";
-	display();
-}
-
-document.getElementById("image").onclick = function(){
-	if(gender == "m"){
-		gender = "f";
-	}else{
-		gender = "m";
-	}
-	display();
-}
-
-document.getElementById("random").onclick = function(){
-	document.getElementById("name").value = randomName(gender);
-}
-
-document.getElementById("play").onclick = function(){
-	if(document.getElementById("name").value.length > 2){
-		sessionStorage.setItem("class",selected);
-		sessionStorage.setItem("gender",gender);
-		sessionStorage.setItem("skin",gender);
-		sessionStorage.setItem("username",document.getElementById("name").value);
-		window.location.replace("./index.html");
-	}
-}
-
-function display(){
-	document.getElementById("random").style.backgroundImage = "url('assets/class-select/r"+gender+".png')";
-	if(num == 0){
-		document.getElementById("image").src="assets/class-select/"+selected+gender+"f.png";
-		if(selected!="m"){
-			document.getElementById("image").style.left = window.innerWidth/2-document.getElementById("image").offsetWidth/2-parseInt(document.getElementById("image").width)/6.7+"px";
-		}else{
-			document.getElementById("image").style.left = window.innerWidth/2-document.getElementById("image").offsetWidth/2-parseInt(document.getElementById("image").width)/10+"px";
-		}
-	}else if(num == 1){
-		document.getElementById("image").src="assets/class-select/"+selected+gender+"l.png";
-		if(selected=="a"){
-			document.getElementById("image").style.left = window.innerWidth/2-document.getElementById("image").offsetWidth/2+"px";
-		}else if(selected=="m"){
-			document.getElementById("image").style.left = window.innerWidth/2-document.getElementById("image").offsetWidth/2+parseInt(document.getElementById("image").width)/20+"px";
-		}else{
-			document.getElementById("image").style.left = window.innerWidth/2-document.getElementById("image").offsetWidth/2-parseInt(document.getElementById("image").width)/10+"px";
-		}
-	}else if(num == 2){
-		document.getElementById("image").src="assets/class-select/"+selected+gender+"b.png";
-		if(selected!="m"){
-			document.getElementById("image").style.left = window.innerWidth/2-document.getElementById("image").offsetWidth/2+parseInt(document.getElementById("image").width)/6.7+"px";
-		}else{
-			document.getElementById("image").style.left = window.innerWidth/2-document.getElementById("image").offsetWidth/2+parseInt(document.getElementById("image").width)/10+"px";
-		}
-	}else {
-		document.getElementById("image").src="assets/class-select/"+selected+gender+"r.png";
-		if(selected=="a"){
-			document.getElementById("image").style.left = window.innerWidth/2-document.getElementById("image").offsetWidth/2+"px";
-		}else if(selected=="m"){
-			document.getElementById("image").style.left = window.innerWidth/2-document.getElementById("image").offsetWidth/2-parseInt(document.getElementById("image").width)/20+"px";
-		}else{
-			document.getElementById("image").style.left = window.innerWidth/2-document.getElementById("image").offsetWidth/2+parseInt(document.getElementById("image").width)/10+"px";
-		}
-	}
-}

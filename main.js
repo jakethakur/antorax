@@ -1098,6 +1098,11 @@ class Hero extends Attacker {
 							// "e"+i is a string that allows the loot menu to be identified - e means enemy, and i is the index of the enemy in Game.enemies
 							// the loot menu closes when the area changes anyway, so this will always work
 							// Dom.loot.currentId is only ever used in main, in the function Game.lootClosed() (called by index.html)
+						}else if(Game.enemies[i].loot !== null && Dom.currentlyDisplayed != "loot" && Dom.currentlyDisplayed != "" && !Dom.override){
+							if(this.isTouching(Game.enemies[i]) && document.getElementsByClassName("closeClass")[0].style.border != "5px solid red"){
+								Dom.changeBook("lootPage",false,2);
+								Dom.loot.override = true;
+							}
 						}
 						// should flash red if player can't loot it
 					}
@@ -1117,7 +1122,7 @@ class Hero extends Attacker {
 			
 			// cannon firing
 			else if (interactionDone === 2) {
-				for (var i = 0; i < Game.chests.length; i++) {
+				for (var i = 0; i < Game.cannons.length; i++) {
 					if (this.isTouching(Game.cannons[i])) { // player is touching cannon
 						Game.cannons[i].interact(); // might not end up doing anything if cannon is on cooldown (perhaps that if should be moved here?)
 						interactionDone = true;
@@ -1130,6 +1135,7 @@ class Hero extends Attacker {
 				let tileNum = map.getTile(0, map.getCol(this.x), map.getRow(this.y + this.height/2));
 				if (map.interactWithTile !== undefined) {
 					map.interactWithTile(tileNum, this.x, this.y + this.height/2);
+					Dom.quests.active();
 				}
 				interactionDone = true; // interaction might not have happened, but this is always the last thing to be done anyway so it can be set to true
 			}
@@ -1392,6 +1398,9 @@ class Projectile extends Thing {
 								to[i][x].say(to[i][x].chat.firstDamaged, true, 0, false);
 							}
 						}
+					}
+					if(to[i][x].name == "Training Dummy"){
+						Dom.quests.active();
 					}
 				}
 			}
@@ -2042,13 +2051,13 @@ Game.load = function (names, addresses) {
 	// check player image has been loaded (if not, then load it)
 	if (!Object.keys(Loader.images).includes("hero")) {
 		// load image based on class
-		toLoad.push(Loader.loadImage("hero", "./assets/player/" + Player.class + Player.skin + ".png"));
+		toLoad.push(Loader.loadImage("hero", "./assets/player/" + Player.class + Player.gender + Player.skin + ".png"));
 	}
 	
 	// check projectile image has been loaded (if not, then load it)
 	if (!Object.keys(Loader.images).includes("projectile")) {
 		// currently doesn't take into account player class
-		toLoad.push(Loader.loadImage("projectile", "./assets/projectiles/" + Player.class + ".png"));
+		toLoad.push(Loader.loadImage("projectile", "./assets/projectiles/" + (Player.class+Player.gender+Player.skin == "am1" ? "predatorProjectile" : Player.class) + ".png"));
 	}
 	
 	// check status image has been loaded (if not, then load it)
@@ -2202,7 +2211,7 @@ Game.loadArea = function (areaName, destination) {
 		}
 		
 		// cannons
-		this.cannnons = [];
+		this.cannons = [];
 		if(Areas[areaName].cannons !== undefined) {
 			for(var i = 0; i < Areas[areaName].cannons.length; i++) {
 				if (this.canBeShown(Areas[areaName].cannons[i])) { // check if NPC should be shown
@@ -2555,10 +2564,10 @@ Game.update = function (delta) {
 						
 						// quest is ready to be accepted
 						if (this.hero.isTouching(this.NPCs[i]) && // touching NPC
-						!Dom.quests.activeQuestArray.includes(this.NPCs[i].quests[x].quest.quest) && // quest isn't currently active
-						!Dom.quests.completedQuestArray.includes(this.NPCs[i].quests[x].quest.quest) && // quest hasn't aleady been completed
+						!Player.quests.activeQuestArray.includes(this.NPCs[i].quests[x].quest.quest) && // quest isn't currently active
+						!Player.quests.completedQuestArray.includes(this.NPCs[i].quests[x].quest.quest) && // quest hasn't aleady been completed
 						this.NPCs[i].quests[x].quest.levelRequirement <= this.hero.level && // player is a high enough level
-						isContainedInArray(this.NPCs[i].quests[x].quest.questRequirements, Dom.quests.completedQuestArray)) { // quest requirements have been completed
+						isContainedInArray(this.NPCs[i].quests[x].quest.questRequirements, Player.quests.completedQuestArray)) { // quest requirements have been completed
 							
 							if (Dom.currentlyDisplayed === "") { // quest isn't currently pending to be accepted (currently displayed on DOM)
 								if (typeof this.NPCs[i].quests[x].quest.startRewards !== "undefined" && typeof this.NPCs[i].quests[x].quest.startRewards.items !== "undefined") {
@@ -2583,11 +2592,11 @@ Game.update = function (delta) {
 							}
 						}
 						// quest is currently active
-						else if (this.hero.isTouching(this.NPCs[i]) && Dom.quests.activeQuestArray.includes(this.NPCs[i].quests[x].quest.quest)) {
+						else if (this.hero.isTouching(this.NPCs[i]) && Player.quests.activeQuestArray.includes(this.NPCs[i].quests[x].quest.quest)) {
 							this.NPCs[i].say(this.NPCs[i].chat.questProgress, true, 0, false);
 						}
 						// quest has been completed
-						else if (this.hero.isTouching(this.NPCs[i]) && Dom.quests.completedQuestArray.includes(this.NPCs[i].quests[x].quest.quest)) {
+						else if (this.hero.isTouching(this.NPCs[i]) && Player.quests.completedQuestArray.includes(this.NPCs[i].quests[x].quest.quest)) {
 							this.NPCs[i].say(this.NPCs[i].chat.questComplete, true, 0, false);
 						}
 					}
@@ -2596,8 +2605,8 @@ Game.update = function (delta) {
 					if (this.NPCs[i].quests[x].role == "finish") {
 						// check if quest is ready to be finished
 						if (this.hero.isTouching(this.NPCs[i]) && // touching NPC
-						Dom.quests.activeQuestArray.includes(this.NPCs[i].quests[x].quest.quest) && // quest is currently active
-						!Dom.quests.completedQuestArray.includes(this.NPCs[i].quests[x].quest.quest)) { // quest has not already been completed
+						Player.quests.activeQuestArray.includes(this.NPCs[i].quests[x].quest.quest) && // quest is currently active
+						!Player.quests.completedQuestArray.includes(this.NPCs[i].quests[x].quest.quest)) { // quest has not already been completed
 							
 							// check if quest conditions have been fulfilled
 							if(this.NPCs[i].quests[x].quest.isCompleted()[this.NPCs[i].quests[x].quest.objectives.length - 1]) {
@@ -2630,7 +2639,7 @@ Game.update = function (delta) {
 							
 						}
 						// quest has already been completed
-						else if (this.hero.isTouching(this.NPCs[i]) && Dom.quests.completedQuestArray.includes(this.NPCs[i].quests[x].quest.quest)) {
+						else if (this.hero.isTouching(this.NPCs[i]) && Player.quests.completedQuestArray.includes(this.NPCs[i].quests[x].quest.quest)) {
 							this.NPCs[i].say(this.NPCs[i].chat.questComplete, true, 0, false);
 						}
 					}
@@ -3299,7 +3308,11 @@ Game.secondary.updateCursor = function (event) {
 	// check the player's mouse distance is within range
 	if (distance({x: Game.camera.x + event.clientX - 19, y: Game.camera.y + event.clientY - 19,}, Game.hero) < range) {
 		// mouse in range (crosshair)
-		document.getElementById("secondary").style.cursor = "crosshair";
+		var cursor = "crosshair";
+		if(Player.class+Player.gender+Player.skin == 'am1'){
+			cursor = "url('assets/unused/predatorTarget.png') 18 16, auto;";
+		}
+		document.getElementById("secondary").setAttribute("style","cursor: " + cursor);
 	}
 	else {
 		// mouse not in range (normal cursor)
@@ -3406,3 +3419,25 @@ Game.secondary.render = function () {
 		}
 	}
 }
+/*
+Game.save = function () {
+	if(localStorage.getItem("accept") === "true"){
+		localStorage.setItem(Player.class+"-checkpoint", Game.hero.checkpoint);
+		localStorage.setItem(Player.class+"-x", Game.hero.spawnX);
+		localStorage.setItem(Player.class+"-y", Game.hero.spawnY);
+	}
+	let time = new Date();
+	console.log("SAVE AT " + (time.getHours() < 10 ? "0" : "") + time.getHours() + ":" + (time.getMinutes() < 10 ? "0" : "") + time.getMinutes() + ":" + (time.getSeconds() < 10 ? "0" : "") + time.getSeconds());
+	if(localStorage.getItem("accept") === "true"){
+		localStorage.setItem(Player.class, JSON.stringify(Player));
+	}
+}
+setTimeout(function(){
+	if(localStorage.getItem(Player.class+"-checkpoint") !== null){
+		Game.loadArea(localStorage.getItem(Player.class+"-checkpoint"), Areas[localStorage.getItem(Player.class+"-checkpoint")].player);
+		setTimeout(function(){
+			Game.hero.x = parseInt(localStorage.getItem(Player.class+"-x"));
+			Game.hero.y = parseInt(localStorage.getItem(Player.class+"-y"));
+		},100);
+	}
+},100);*/

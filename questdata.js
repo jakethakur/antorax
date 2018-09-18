@@ -20,7 +20,7 @@ var Quests = {
 				let completed = []; // contains true or false for all of the objectives, with the last element being if the quest is ready to complete
 				
 				// true or falses for each objective (apart from the turn-in objective)
-				completed.push(Dom.inventory.check(2, "sword") || Dom.inventory.check(2, "staff") || Dom.inventory.check(2, "bow"));
+				completed.push(Dom.inventory.check(2, "sword", 1) || Dom.inventory.check(2, "staff", 1) || Dom.inventory.check(2, "bow", 1));
 				
 				completed = checkFinished(completed);
 				
@@ -108,11 +108,11 @@ var Quests = {
 				var completed = [];
 				
 				// true or falses for each objective (apart from the turn-in objective)
-				completed.push(typeof Game.dummies !== "undefined" && Game.dummies[0].damageTaken >= 20); // quest must be finished in Eaglecrest Logging Camp, hence Game.dummies[0] is always the right dummy
+				completed.push(typeof Game.dummies !== "undefined" && Game.dummies[0].damageTaken >= 20 ? true : typeof Game.dummies !== "undefined" && Game.dummies[0].damageTaken > 0 ? " (" + Game.dummies[0].damageTaken + "/20)" : false); // quest must be finished in Eaglecrest Logging Camp, hence Game.dummies[0] is always the right dummy
 				
 				var finished = true;
 				for(var i = 0; i < completed.length; i++) {
-					if(!completed[i]) {
+					if(completed[i] != true) {
 						finished = false;
 					}
 				}
@@ -153,11 +153,11 @@ var Quests = {
 				var completed = [];
 				
 				// true or falses for each objective (apart from the turn-in objective)
-				completed.push(Dom.inventory.check(2, "misc", 4));
+				completed.push(Dom.inventory.check(2, "misc") >= 4 ? true : Dom.inventory.check(2, "misc") > 0 ? " (" + Dom.inventory.check(2, "misc") + "/4)" : false);
 				
 				var finished = true;
 				for(var i = 0; i < completed.length; i++) {
-					if(!completed[i]) {
+					if(completed[i] != true) {
 						finished = false;
 					}
 				}
@@ -251,7 +251,7 @@ var Quests = {
 				var completed = [];
 				
 				// true or falses for each objective (apart from the turn-in objective)
-				completed.push(Dom.inventory.check(7, "quest"));
+				completed.push(Dom.inventory.check(7, "quest", 1));
 				
 				var finished = true;
 				for(var i = 0; i < completed.length; i++) {
@@ -328,7 +328,7 @@ var Quests = {
 				var completed = [];
 				
 				// true or falses for each objective (apart from the turn-in objective)
-				completed.push((Dom.inventory.check(6, "quest")) ? true : false);
+				completed.push((Dom.inventory.check(6, "quest", 1)) ? true : false);
 				
 				var finished = true;
 				for(var i = 0; i < completed.length; i++) {

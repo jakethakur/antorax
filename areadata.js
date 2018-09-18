@@ -50,7 +50,7 @@ var LootTables = { // loot table templates
 		{ // Fisherman Tobenam's Lost Rod
 			item: Items.item[6],
 			condition: function () {
-				if (Dom.quests.activeQuestArray.includes("A Lost Fishing Rod") && !Dom.inventory.check(6, "quest")) {
+				if (Player.quests.activeQuestArray.includes("A Lost Fishing Rod") && !Dom.inventory.check(6, "quest", 1)) {
 					return true; // quest is active and player doesn't already have the rod
 				}
 				return false;
@@ -192,7 +192,7 @@ var Areas = {
 					// "&#9835; I'm fiiiiiiiishing in the rain! &#9835;"
 				},
 				canBeShown: function () {
-					return Dom.quests.completedQuestArray.includes("To the Logging Camp"); // TBD change to gathering wood quest
+					return Player.quests.completedQuestArray.includes("To the Logging Camp"); // TBD change to gathering wood quest
 				},
 			},
 		],
@@ -454,7 +454,7 @@ var Areas = {
 					inventoryFull: "I'm not sure you have any space to hold this.",
 				},
 				canBeShown: function () {
-					return (Dom.quests.activeQuestArray.includes("Retrieval of Logs") || Dom.quests.activeQuestArray.includes("Making Yourself Useful") || Dom.quests.activeQuestArray.includes("First Class Recovery")) && !Dom.quests.completedQuestArray.includes("First Class Recovery");
+					return (Player.quests.activeQuestArray.includes("Retrieval of Logs") || Player.quests.activeQuestArray.includes("Making Yourself Useful") || Player.quests.activeQuestArray.includes("First Class Recovery")) && !Player.quests.completedQuestArray.includes("First Class Recovery");
 				},
 			},
 		],
@@ -686,7 +686,7 @@ var Areas = {
 				inventorySpace: 8,
 				disappearAfterOpened: false,
 				canBeShown: function () {
-					return (Dom.quests.activeQuestArray.includes("Making Yourself Useful") || Dom.quests.activeQuestArray.includes("First Class Recovery"));
+					return (Player.quests.activeQuestArray.includes("Making Yourself Useful") || Player.quests.activeQuestArray.includes("First Class Recovery"));
 				},
 			},
 		],
@@ -844,7 +844,7 @@ var Areas = {
 				lootTableTemplate: LootTables.nilbogGoblin,
 				inventorySpace: 8,
 				canBeShown: function () { // only show when mail cart quest is active
-					return (Dom.quests.activeQuestArray.includes("Making Yourself Useful") || Dom.quests.activeQuestArray.includes("First Class Recovery"));
+					return (Player.quests.activeQuestArray.includes("Making Yourself Useful") || Player.quests.activeQuestArray.includes("First Class Recovery"));
 				},
 			},
 			{
