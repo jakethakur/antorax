@@ -708,7 +708,7 @@ class Hero extends Attacker {
 		
 		// fishing stats
 		this.stats.focusSpeed = properties.stats.fishingSkill || 0;
-		this.stats.maxDamage = properties.stats.fishingRange || 0;
+		this.stats.fishingRange = properties.stats.fishingRange || 0;
 		
 		// where the player respawns when they die (set at any major city)
 		this.checkpoint = "tutorial";
@@ -2725,10 +2725,10 @@ Game.update = function (delta) {
 						// open page
 						Dom.text.page("Soul Healer", this.soulHealers[i].chat.canBeHealedText, ["Remove XP Fatigue for " + this.soulHealerCost + " gold"], [function () {
 							if (Dom.inventory.check(2, "currency", Game.soulHealerCost)) {
-								Dom.inventory.remove(2, "currency", Game.soulHealerCost);
+								Dom.inventory.removeById(2, "currency", Game.soulHealerCost);
 								Game.hero.statusEffects.splice(Game.hero.statusEffects.findIndex(statusEffect => statusEffect.title === "XP Fatigue"), 1); // remove xp fatigue effect
-								Dom.changeBook(Dom.previous); // close page
-								Game.soulHealers[i].say(Game.soulHealers[i].chat.healedText, false, 0, false);
+								Dom.changeBook(Dom.previous, true); // close page
+								Game.currentSoulHealer.say(Game.currentSoulHealer.chat.healedText, false, 0, false);
 								Game.currentSoulHealer = undefined; // reset variable that remembers which soul healer the player is speaking to
 								Game.soulHealerCost = undefined; // reset variable that remembers the cost for soul healing
 							}
@@ -2752,7 +2752,7 @@ Game.update = function (delta) {
 					}
 				}
 				else {
-					if (!Dom.chat.contents.includes("<strong>" + this.soulHealers[i].name + "</strong> " + this.soulHealers[i].healed)) {
+					if (!Dom.chat.contents.includes("<strong>" + this.soulHealers[i].name + "</strong>: " + this.soulHealers[i].chat.healedText)) {
 						this.soulHealers[i].say(this.soulHealers[i].chat.cannotBeHealedText, true, 0, false);
 					}
 				}
@@ -3501,6 +3501,7 @@ Game.secondary.render = function () {
 					this.ctx.fillText(damageRound(Game.hero.statusEffects[i].info.time - Game.hero.statusEffects[i].info.ticks), 295 + i * 35, 37);
 				}
 			}
+			this.ctx.textAlign = "center";
 		}
 	}
 }
