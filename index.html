@@ -160,7 +160,7 @@
 		<p id="questFinishRewards"></p>
 		<div id="questFinishXP"></div><span id="xpClass">&nbsp;&nbsp;</span>
 		<div id="questFinishItems"></div>
-		<center><div id="acceptReward" class="closeClass" onclick="Dom.quest.acceptRewards();Game.getXP();">Complete Quest</div></center>
+		<center><div id="acceptReward" class="closeClass" onclick="Game.getXP(Dom.quest.waitForReward.rewards.xp);Dom.quest.acceptRewards();">Complete Quest</div></center>
 	</div>
 	<div id="merchantPage" hidden>
 		<div id="informationMerchant" hidden>
@@ -217,6 +217,14 @@
 		<table id="loot"></table>
 		<div id="lootAll">Loot All</div>
 		<center><div id="lootingPageClose" class="closeClass" onclick="Dom.changeBook(Dom.previous, true);Game.lootClosed()">Close</div></center>
+	</div>
+	<div id="buyerPage" hidden>
+		<h1>Item Buyer</h1>
+		<table id="buyerPageInventory">
+			<tr>
+				<td/><td/><td/><td/><td/><td/>
+			</tr>
+		</table>
 	</div>
 	<div id="textPage" hidden></div>
 	<div id="levelUpPage" hidden>

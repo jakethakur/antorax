@@ -15,6 +15,7 @@ let Dom = {
 		identifierPage: document.getElementById("identifierPage"),
 		identifiedPage: document.getElementById("identifiedPage"),
 		lootPage: document.getElementById("lootPage"),
+		buyerPage: document.getElementById("buyerPage"),
 		textPage: document.getElementById("textPage"),
 		levelUpPage: document.getElementById("levelUpPage"),
 	},
@@ -29,6 +30,7 @@ let Dom = {
 	merchant: {},
 	identifier: {},
 	loot: {},
+	buyer: {},
 	text: {},
 	levelUp: {},
 	alert: {},
@@ -39,24 +41,25 @@ Dom.changeBook = function(page, override, x) { // changes the page or changes th
 	//override says if the function should be run regardless of if the player has a quest active (e.g: declining a quest or closing a merchant)
 	if((this.currentlyDisplayed === "" || override) && page !== "levelUpPage") { // check the player doesn't have a quest active
 		// hide all pages
-		if(page !== "questStart" && page !== "questFinish" && page !== "merchantPage" && page !== "identifierPage" && page !== "identifiedPage" && page !== "lootPage" && page !== "textPage"){ // if the page being changed to is a not a pop up...
+		if(page !== "questStart" && page !== "questFinish" && page !== "merchantPage" && page !== "identifierPage" && page !== "identifiedPage" && page !== "lootPage" && page !== "buyerPage" && page !== "textPage"){ // if the page being changed to is a not a pop up...
 			document.getElementById("change"+Dom.previous.substring(0,1).toUpperCase()+Dom.previous.substring(1,Dom.previous.length-4)).getElementsByTagName("polygon")[0].style.strokeWidth = "1";
 			document.getElementById("change"+page.substring(0,1).toUpperCase()+page.substring(1,page.length-4)).getElementsByTagName("polygon")[0].style.strokeWidth = "3";
 			Dom.previous = page; // ... it will open it next time you close a pop up
 		}
-		this.elements.chatPage.hidden = true; // hides the chat
-		this.elements.inventoryPage.hidden = true; // hides the inventory
-		this.elements.questsPage.hidden = true; // hides the quest log
-		this.elements.settingsPage.hidden = true; // hides the settings
-		this.elements.instructionsPage.hidden = true; // hides the instructions
-		this.elements.reputationPage.hidden = true; // hides the reputation
-		this.elements.questStart.hidden = true; // hides the questStart pop up
-		this.elements.questFinish.hidden = true; // hides the questFinish pop up
-		this.elements.merchantPage.hidden = true; // hides the merchant pop up
-		this.elements.identifierPage.hidden = true; // hides the identifier pop up
-		this.elements.identifiedPage.hidden = true; // hides the identified pop up
-		this.elements.lootPage.hidden = true; // hides the loot pop up
-		this.elements.textPage.hidden = true; // hides the loot pop up
+		this.elements.chatPage.hidden = true;
+		this.elements.inventoryPage.hidden = true;
+		this.elements.questsPage.hidden = true;
+		this.elements.settingsPage.hidden = true;
+		this.elements.instructionsPage.hidden = true;
+		this.elements.reputationPage.hidden = true;
+		this.elements.questStart.hidden = true;				// Hides all other pages
+		this.elements.questFinish.hidden = true;
+		this.elements.merchantPage.hidden = true;
+		this.elements.identifierPage.hidden = true;
+		this.elements.identifiedPage.hidden = true;
+		this.elements.lootPage.hidden = true;
+		this.elements.buyerPage.hidden = true;
+		this.elements.textPage.hidden = true;
 		document.getElementById(page).hidden = false; // displays the page you are opening
 		if(page === "chatPage"){ // if the chat is being opened
 			if(Dom.chat.newString === ""){ // if there is no new chat
@@ -1054,7 +1057,7 @@ Dom.quest.acceptRewards = function(){ // quest rewards accepted
 	if (quest.onQuestFinish !== undefined) { // if there is a quest finish function...
 		quest.onQuestFinish(); // ...do it
 	}
-	Player.xp += quest.rewards.xp // gives the player the xp reward
+	//Player.xp += quest.rewards.xp // gives the player the xp reward
 	if(quest.rewards.items !== undefined){
 		for(let i = 0; i < quest.rewards.items.length; i++){ // repeats for all item rewards
 			Dom.inventory.give(quest.rewards.items[i],quest.rewards.itemQuantities[i]); // gives the player the reward
@@ -1862,7 +1865,7 @@ document.getElementById("inventoryGoldXP").style.backgroundImage = 'url("./asset
 if(Player.class+Player.gender+Player.skin === "am1"){
 	document.getElementById("inventoryGoldXP").style.right = "8px";
 }
-document.getElementById("settingLogout").innerHTML = "You are logged in as "+Player.name+"<div id='settingSave'>Save</div><div id='settingLogoutInner'>Logout</div><div id='settingDelete'>Delete</div>";
+document.getElementById("settingLogout").innerHTML = "You are logged in as "+Player.name+"<div id='settingSave' onclick='Game.saveProgress()'>Save</div><div id='settingLogoutInner' onclick='Game.saveProgress(\"logout\")'>Logout</div><div id='settingDelete'>Delete</div>";
 
 Dom.levelUp.page = function(){
 	Dom.changeBook("levelUpPage",false,0);
@@ -2058,6 +2061,7 @@ Dom.loot.page = function(name, items, quantities, space){
 					document.getElementsByClassName("lootOptions")[i].onclick();
 				}
 			}
+			Dom.changeBook(Dom.previous, true);
 		}
 		document.getElementById("lootingPageClose").style.top = 55 * space/8 + "px";
 	},items,quantities,space);
@@ -2078,15 +2082,9 @@ document.getElementById("levelUpPageClose").onclick = function(){
 	Dom.currentlyDisplayed = "";
 }
 
-document.getElementById("settingLogoutInner").onclick = function(){
-	if(localStorage.getItem("accept") === "true"){
-		localStorage.setItem(Player.class, JSON.stringify(Player));
-	}
-	window.location.replace("./selection.html");
-}
-
 Dom.text.page = function(name, text, buttons, functions){
 	Dom.changeBook("textPage");
+	Dom.currentlyDisplayed = "text";
 	document.getElementById("textPage").innerHTML = '<h1 id="textPageName">'+name+'</h1>'
 	document.getElementById("textPage").innerHTML += '<p id="textPageText">'+text+'</p>'
 	for(let i = 0; i < buttons.length; i++){
@@ -2096,6 +2094,20 @@ Dom.text.page = function(name, text, buttons, functions){
 	for(let i = 0; i < buttons.length; i++){
 		document.getElementById("buttons"+i).onclick = function(){
 			functions[i]();
+		}
+	}
+}
+
+Dom.buyer.page = function(){
+	Dom.changeBook("buyerPage");
+	document.getElementById("buyerPageInventory").innerHTML = "";
+	for(let i = 0; i < document.getElementById("itemInventory").getElementsByTagName("td").length / 6; i++){
+		document.getElementById("buyerPageInventory").innerHTML += "<tr><td/><td/><td/><td/><td/><td/></tr>";
+	}
+	for(let i = 0; i < 6; i++){
+		document.getElementById("buyerPageInventory").getElementsByTagName("td")[i].innerHTML = document.getElementById("itemInventory").getElementsByTagName("td")[i].innerHTML;
+		if(document.getElementById("buyerPageInventory").getElementsByTagName("td")[i].getElementsByTagName("img").length > 0){
+			document.getElementById("buyerPageInventory").getElementsByTagName("td")[i].getElementsByTagName("img")[0].setAttribute('draggable', false);
 		}
 	}
 }
@@ -2140,26 +2152,33 @@ Dom.quests.active();
 Dom.quests.possible();
 Dom.quests.completed();
 
-setInterval(function(){
+/*setInterval(function(){											// DELETE!
 	let time = new Date();
-	console.log("AUTOSAVE AT " + time.getHours() + ":" + time.getMinutes() + ":" + (time.getSeconds() < 10 ? "0" : "") + time.getSeconds());
+	console.log("AUTOSAVE AT " + (time.getHours() < 10 ? "0" : "") + time.getHours() + ":" + (time.getMinutes() < 10 ? "0" : "") + time.getMinutes() + ":" + (time.getSeconds() < 10 ? "0" : "") + time.getSeconds());
 	if(localStorage.getItem("accept") === "true"){
 		localStorage.setItem(Player.class, JSON.stringify(Player));
 	}
-},60000);
+},60000);*/
 
-document.getElementById("settingSave").onclick = function(){
+/*document.getElementById("settingSave").onclick = function(){		// DELETE!
 	let time = new Date();
 	console.log("SAVE AT " + (time.getHours() < 10 ? "0" : "") + time.getHours() + ":" + (time.getMinutes() < 10 ? "0" : "") + time.getMinutes() + ":" + (time.getSeconds() < 10 ? "0" : "") + time.getSeconds());
 	if(localStorage.getItem("accept") === "true"){
 		localStorage.setItem(Player.class, JSON.stringify(Player));
 	}
-}
+}*/
+
+/*document.getElementById("settingLogoutInner").onclick = function(){
+	if(localStorage.getItem("accept") === "true"){					// DELETE!
+		localStorage.setItem(Player.class, JSON.stringify(Player)); // DELETE!
+	}																// DELETE!
+	window.location.replace("./selection.html");
+}*/
 
 document.getElementById("settingDelete").onclick = function(){
 	Dom.alert.target = function(){
 		localStorage.removeItem(Player.class);
 		window.location.replace("./selection.html");
 	}
-	Dom.alert.page("Are you sure you want to delete this class? It will be lost forever!", true);
+	Dom.alert.page("Are you sure you want to delete your progress for this class? It will be lost forever!", true);
 }

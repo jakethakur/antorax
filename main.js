@@ -3455,7 +3455,7 @@ Game.saveProgress = function (saveType) { // if saveType is "auto" then the save
 		let time = new Date();
 		console.info((saveType === "auto" ? "AUTO" : "") + "SAVE AT " + (time.getHours() < 10 ? "0" : "") + time.getHours() + ":" + (time.getMinutes() < 10 ? "0" : "") + time.getMinutes() + ":" + (time.getSeconds() < 10 ? "0" : "") + time.getSeconds());
 		
-		if (saveType = "logout") {
+		if (saveType === "logout") {
 			window.location.replace("./selection.html");
 		}
 	}

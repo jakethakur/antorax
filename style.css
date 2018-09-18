@@ -7,7 +7,7 @@ body{
 	-ms-user-select: none; /* IE10+/Edge */
 	user-select: none;
 }
-#chatPage, #inventoryPage, #questsPage, #settingsPage, #instructionsPage, #reputationPage, #questStart, #questFinish, #merchantPage, #identifierPage, #levelUpPage, #lootPage, #textPage, #identifiedPage {
+#chatPage, #inventoryPage, #questsPage, #settingsPage, #instructionsPage, #reputationPage, #questStart, #questFinish, #merchantPage, #identifierPage, #levelUpPage, #lootPage, #buyerPage, #textPage, #identifiedPage {
 	float: left;
 	margin: 10px;
 	border: 1px solid black;
@@ -39,7 +39,7 @@ body{
 	overflow-y: auto;
 	overflow-x: hidden;
 }
-#questStart, #questFinish, #merchantPage, #identifierPage, #identifiedPage, #levelUpPage, #lootPage, #textPage{
+#questStart, #questFinish, #merchantPage, #identifierPage, #identifiedPage, #levelUpPage, #lootPage, #buyerPage, #textPage{
 	text-align: center;
 }
 /*#questStartChat, #questFinishChat{
@@ -184,7 +184,7 @@ body{
 	width: 60px;
 	height: 60px;
 }
-#itemInventory, #hotbar, #loot{
+#itemInventory, #hotbar, #buyerPageInventory, #loot{
 	position: absolute;
 	top: 51px;
 	left: 779px;
@@ -193,7 +193,7 @@ body{
 	font-size: 0px;
 	z-index: 1;
 }
-#itemInventory, #hotbar, #loot, tr, th, td{
+#itemInventory, #hotbar, #buyerPageInventory, #loot, tr, th, td{
 	border: 2.5px solid #886622;
 	border-collapse: separate;
 	border-spacing: 0px;
@@ -205,6 +205,10 @@ body{
 	top: 530px;
 	left: 150px;
 	opacity: 0.6;
+}
+#buyerPageInventory {
+	top: 90px;
+	left: 735px;
 }
 #loot{
 	left: 680px;
