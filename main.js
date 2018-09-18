@@ -556,19 +556,7 @@ class Character extends Thing {
 				}
 				
 				// xp
-				Player.xp += this.xpGiven / Player.level;
-				if (Player.fatiguedXP !== 0) { // fatigued xp is worth 50% less due to a recent death
-					if (this.xpGiven > Player.fatiguedXP) {
-						Player.xp -= Player.fatiguedXP / 2;
-						Player.fatiguedXP = 0;
-						Game.hero.statusEffects.splice(Game.hero.statusEffects.findIndex(statusEffect => statusEffect.title === "XP Fatigue"), 1); // remove xp fatigue effect
-					}
-					else {
-						Player.xp -= this.xpGiven / 2;
-						Player.fatiguedXP -= this.xpGiven;
-					}
-				}
-				Game.getXP(); // now that the XP has fully been added, check for a levelUp and display it on the canvas
+				Game.getXP(this.xpGiven / Player.level); // now that the XP has fully been added, check for a levelUp and display it on the canvas
 				
 				// corpse disappears in this.stats.lootTime ms
 				setTimeout(function () {
@@ -2298,8 +2286,8 @@ Game.init = function () {
 	this.hero = new Hero({
 		// properties inherited from Entity
 		map: map,
-		x: Areas[this.areaName].player.x,
-		y: Areas[this.areaName].player.y,
+		x: Areas[this.areaName].player.x || 0,
+		y: Areas[this.areaName].player.y || 0,
 		width: 57,
 		height: 120,
 		
@@ -2760,20 +2748,41 @@ Game.playerProjectileUpdate = function(delta) {
 	}
 }
 
-// should always be called after player xp is changed
-// i.e. quest finish close in index.html (onclick straight after rewards are given)
-Game.getXP = function () {
+// increase player XP by xpGiven, and check for levelup, update secondary canvas, obey XP fatigue, etc.
+Game.getXP = function (xpGiven) {
+	// increase XP
+	Player.xp += xpGiven;
+	
+	// XP fatigue
+	if (Player.fatiguedXP !== 0) { // fatigued XP is worth 50% less due to a recent death
+		if (xpGiven > Player.fatiguedXP) {
+			Player.xp -= Player.fatiguedXP / 2;
+			Player.fatiguedXP = 0;
+			Game.hero.statusEffects.splice(Game.hero.statusEffects.findIndex(statusEffect => statusEffect.title === "XP Fatigue"), 1); // remove xp fatigue effect
+		}
+		else {
+			Player.xp -= xpGiven / 2;
+			Player.fatiguedXP -= xpGiven;
+		}
+	}
+	
+	// now that the XP has fully been added, check for a levelUp and display it on the canvas
+	
+	// check for level up
 	if (Player.level < LevelXP.length - 1) {
 		if (Player.xp >= LevelXP[Player.level]) {
+			// level up
 			Player.xp -= LevelXP[Player.level];
 			Player.level++;
 			Game.hero.level = Player.level;
 			Game.playLevelupSound(this.areaName);
 			Dom.levelUp.page();
 		}
+		// xp gained
 		Game.secondary.render();
 	}
 	else {
+		// max level
 		Player.xp = LevelXP[Player.level];
 	}
 }
@@ -3427,7 +3436,7 @@ Game.secondary.render = function () {
 // Save player progress
 //
 
-// autosave every 10 minutes
+// autosave every 1 minute
 setInterval(function() {
 	Game.saveProgress();
 }, 60000);
@@ -3445,5 +3454,9 @@ Game.saveProgress = function (saveType) { // if saveType is "auto" then the save
 		// message to console
 		let time = new Date();
 		console.info((saveType === "auto" ? "AUTO" : "") + "SAVE AT " + (time.getHours() < 10 ? "0" : "") + time.getHours() + ":" + (time.getMinutes() < 10 ? "0" : "") + time.getMinutes() + ":" + (time.getSeconds() < 10 ? "0" : "") + time.getSeconds());
+		
+		if (saveType = "logout") {
+			window.location.replace("./selection.html");
+		}
 	}
 }
