@@ -299,6 +299,7 @@ var Areas = {
 				"dummy",
 				"saral",
 				"mailman",
+				"soulHealer",
 			],
 			
 			addresses: [
@@ -308,6 +309,7 @@ var Areas = {
 				"./assets/enemies/dummy.png",
 				"./assets/npcs/saral.png",
 				"./assets/npcs/mailman.png",
+				"./assets/npcs/soulHealer.png",
 			],
 		},
 		
@@ -478,6 +480,26 @@ var Areas = {
 					identifyMythic: "Wow! Some people would pay good money for that item!",
 					tooPoor: "You don't have enough gold to identify that. Kill and loot enemies to get some.",
 				}
+			},
+		],
+		
+		soulHealers: [
+			{
+				x: 1160,
+				y: 100,
+				image: "soulHealer",
+				name: "Soul Healer Nalaa",
+				level: 25,
+				stats: {
+					maxHealth: 175,
+					defence: 5,
+				},
+				chat: {
+					canBeHealedText: "My blessings to you. It appears that you have a soul debt, meaning you will earn XP slower due to a recent death. If you wish, I can cleanse your soul and remove this effect for a small price.",
+					cannotBeHealedText: "When you die, you will earn some future XP slower than normal. If this happens to you and you wish to be cleansed of this, come to me and I can remove it for you for a small price. May the purity of the demigods be with you.",
+					healedText: "May the purity of the demigods be with you.",
+					tooPoor: "I don't think you can afford that.",
+				},
 			},
 		],
 		

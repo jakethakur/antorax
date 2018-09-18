@@ -5,7 +5,7 @@
 // Jake Thakur 2018
 //
 
-//https://developer.mozilla.org/en-US/docs/Games/Techniques/Tilemaps
+// https://developer.mozilla.org/en-US/docs/Games/Techniques/Tilemaps
 
 //
 // Asset loader
@@ -489,7 +489,7 @@ class Character extends Thing {
 		
 		// optional stats
 		// using || defaults to second value if first is undefined, 0 or ""
-		this.stats.dodgeChange = properties.stats.dodgeChance || 0;
+		this.stats.dodgeChance = properties.stats.dodgeChance || 0;
 		this.stats.reflection = properties.stats.reflection || 0;
 		
 		this.chat = properties.chat || {}; // object containing properties that are inserted into chat when specific things happen
@@ -702,7 +702,13 @@ class Hero extends Attacker {
 		
 		// optional stats
 		// using || defaults to second value if first is undefined, 0 or ""
-		this.stats.focusSpeed = properties.stats.focusSpeed || 0; // the user's total focus speed default is 1 but can be changed by bows
+		this.stats.focusSpeed = properties.stats.focusSpeed || 0; // archer only
+		this.stats.maxDamage = properties.stats.maxDamage; // mage only
+		this.stats.blockDefense = properties.stats.blockDefense; // knight only
+		
+		// fishing stats
+		this.stats.focusSpeed = properties.stats.fishingSkill || 0;
+		this.stats.maxDamage = properties.stats.fishingRange || 0;
 		
 		// where the player respawns when they die (set at any major city)
 		this.checkpoint = "tutorial";
@@ -2167,6 +2173,17 @@ Game.loadArea = function (areaName, destination) {
 			}
 		}
 		
+		// soul healers
+		this.soulHealers = [];
+		if(Areas[areaName].soulHealers !== undefined) {
+			for(var i = 0; i < Areas[areaName].soulHealers.length; i++) {
+				if (this.canBeShown(Areas[areaName].soulHealers[i])) { // check if NPC should be shown
+					Areas[areaName].soulHealers[i].map = map;
+					this.soulHealers.push(new Character(Areas[areaName].soulHealers[i]));
+				}
+			}
+		}
+		
 		// dummies (enemies for training) - trivial (don't damage you)
 		this.dummies = [];
 		if(Areas[areaName].dummies !== undefined) {
@@ -2279,15 +2296,15 @@ Game.init = function () {
 	this.playingMusic = null;
 	
 	// list of basic (no extra operations to be done) things to be rendered (in order)
-	this.renderList = ["chests", "things", "villagers", "NPCs", "identifiers", "dummies", "enemies"];
+	this.renderList = ["chests", "things", "villagers", "NPCs", "identifiers", "soulHealers", "dummies", "enemies"];
 	// then player, then projectiles (in order they were shot)
-	
+	console.log(Player.stats.maxDamage);
 	// create the player at its start x and y positions
 	this.hero = new Hero({
 		// properties inherited from Entity
 		map: map,
-		x: Areas[this.areaName].player.x || 0,
-		y: Areas[this.areaName].player.y || 0,
+		x: Areas[this.areaName].player !== undefined ? Areas[this.areaName].player.x : 0,
+		y: Areas[this.areaName].player !== undefined ? Areas[this.areaName].player.y : 0,
 		width: 57,
 		height: 120,
 		
@@ -2309,6 +2326,7 @@ Game.init = function () {
 		// projectile (TBD)
 		projectile: {},
 	});
+	console.log(this.hero.stats.maxDamage);
 	
 	// set loaded status image
 	this.statusImage = Loader.getImage("status");
@@ -2469,6 +2487,7 @@ Game.playLevelupSound = function (areaName) {
 
 // health
 // healthRegen = health regenerated per second
+// tbd make list of characters that regen health
 Game.regenHealth = function () {
 	// player
 	this.restoreHealth(Game.hero, Game.hero.stats.healthRegen);
@@ -2485,6 +2504,7 @@ Game.regenHealth = function () {
 			this.restoreHealth(Game.identifiers[i], Game.identifiers[i].stats.healthRegen);
 		}
 	}
+	// soul healers tbd
 	// dummies
 	for (let i = 0; i < Game.dummies.length; i++) {
 		if (!Game.dummies[i].respawning) {
@@ -2561,7 +2581,7 @@ Game.update = function (delta) {
 							
 							if (Dom.currentlyDisplayed === "") { // quest isn't currently pending to be accepted (currently displayed on DOM)
 								if (typeof this.NPCs[i].quests[x].quest.startRewards !== "undefined" && typeof this.NPCs[i].quests[x].quest.startRewards.items !== "undefined") {
-									if (Dom.inventory.requiredSpace(this.NPCs[i].quests[x].quest.startRewards.items)) {
+									if (Dom.inventory.requiredSpace(this.NPCs[i].quests[x].quest.startRewards.items, this.NPCs[i].quests[x].quest.startRewards.itemQuantities)) {
 										// user has space for quest start items
 										Dom.quest.start(this.NPCs[i].quests[x].quest);
 										spokenTo = true;
@@ -2602,7 +2622,7 @@ Game.update = function (delta) {
 							if(this.NPCs[i].quests[x].quest.isCompleted()[this.NPCs[i].quests[x].quest.objectives.length - 1]) {
 								if (Dom.currentlyDisplayed === "") { // quest isn't currently pending to be accepted (currently displayed on DOM)
 									if (typeof this.NPCs[i].quests[x].quest.rewards !== "undefined" && typeof this.NPCs[i].quests[x].quest.rewards.items !== "undefined") {
-										if (Dom.inventory.requiredSpace(this.NPCs[i].quests[x].quest.rewards.items)) {
+										if (Dom.inventory.requiredSpace(this.NPCs[i].quests[x].quest.rewards.items, this.NPCs[i].quests[x].quest.rewards.itemQuantities)) {
 											// user has space for quest finish items
 											Dom.quest.finish(this.NPCs[i].quests[x].quest);
 											spokenTo = true;
@@ -2674,14 +2694,67 @@ Game.update = function (delta) {
 				// open identifier page
 				Dom.identifier.page(this.identifiers[i]);
 			}
-			else if (Dom.currentlyDisplayed != "identifier" && Dom.currentlyDisplayed != "identified" && Dom.currentlyDisplayed != "" && !Dom.override) {
-				if(this.hero.isTouching(this.identifiers[i]) && document.getElementsByClassName("closeClass")[0].style.border != "5px solid red"){
+			else if (Dom.currentlyDisplayed !== "identifier" && Dom.currentlyDisplayed != "identified" && Dom.currentlyDisplayed != "" && !Dom.override) {
+				// flashing red if something else is open in dom
+				if (this.hero.isTouching(this.identifiers[i]) && document.getElementsByClassName("closeClass")[0].style.border != "5px solid red") {
 					Dom.changeBook("identifierPage",false,0);
 					Dom.identifier.override = true;
 				}
 				else if (!this.hero.isTouching(this.identifiers[i]) && document.getElementsByClassName("closeClass")[0].style.border == "5px solid red" && Dom.identifier.override) {
 					Dom.changeBook("identifierPage",false,1);
 					Dom.identifier.override = false;
+				}
+			}
+		}
+	}
+	
+	// check collision with soul healers
+	for(var i = 0; i < this.soulHealers.length; i++) {
+		if (!this.soulHealers[i].respawning) { // check identifier is not dead
+			let statusEffect = Game.hero.statusEffects.find(statusEffect => statusEffect.title === "XP Fatigue"); // try to find xp fatigue effect
+			if (this.hero.isTouching(this.soulHealers[i])) {
+				if (statusEffect !== undefined) {
+					if (Dom.currentlyDisplayed === "") {
+						// calculate cost
+						this.soulHealerCost = Math.floor(statusEffect.info.ineffectiveAmount / 50); // set to Game so that it can be accessed from the function in Dom.text.page
+						if (this.soulHealerCost < 1) {
+							this.soulHealerCost = 1;
+						}
+						// save the NPC into a variable so that it can say something if the person is healed
+						this.currentSoulHealer = this.soulHealers[i];
+						// open page
+						Dom.text.page("Soul Healer", this.soulHealers[i].chat.canBeHealedText, ["Remove XP Fatigue for " + this.soulHealerCost + " gold"], [function () {
+							if (Dom.inventory.check(2, "currency", Game.soulHealerCost)) {
+								Dom.inventory.remove(2, "currency", Game.soulHealerCost);
+								Game.hero.statusEffects.splice(Game.hero.statusEffects.findIndex(statusEffect => statusEffect.title === "XP Fatigue"), 1); // remove xp fatigue effect
+								Dom.changeBook(Dom.previous); // close page
+								Game.soulHealers[i].say(Game.soulHealers[i].chat.healedText, false, 0, false);
+								Game.currentSoulHealer = undefined; // reset variable that remembers which soul healer the player is speaking to
+								Game.soulHealerCost = undefined; // reset variable that remembers the cost for soul healing
+							}
+							else {
+								// player cannot afford it
+								Game.soulHealers[i].say(Game.soulHealers[i].chat.tooPoor, true, 0, false);
+							}
+						}], this.soulHealers[i].name);
+					}
+					else if (Dom.currentlyDisplayed !== "Soul Healer" && Dom.currentlyDisplayed != "" && !Dom.override) {
+						// flashing red if something else is open in dom
+						// tbd PG
+						/*if (this.hero.isTouching(this.soulHealers[i]) && document.getElementsByClassName("closeClass")[0].style.border != "5px solid red") {
+							Dom.changeBook("identifierPage",false,0);
+							Dom.identifier.override = true;
+						}
+						else if (!this.hero.isTouching(this.soulHealers[i]) && document.getElementsByClassName("closeClass")[0].style.border == "5px solid red" && Dom.identifier.override) {
+							Dom.changeBook("identifierPage",false,1);
+							Dom.identifier.override = false;
+						}*/
+					}
+				}
+				else {
+					if (!Dom.chat.contents.includes("<strong>" + this.soulHealers[i].name + "</strong> " + this.soulHealers[i].healed)) {
+						this.soulHealers[i].say(this.soulHealers[i].chat.cannotBeHealedText, true, 0, false);
+					}
 				}
 			}
 		}
@@ -3438,7 +3511,7 @@ Game.secondary.render = function () {
 
 // autosave every 1 minute
 setInterval(function() {
-	Game.saveProgress();
+	Game.saveProgress("auto");
 }, 60000);
 
 Game.saveProgress = function (saveType) { // if saveType is "auto" then the save is an autosave (hence has a slightly different console.info)

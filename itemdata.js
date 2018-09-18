@@ -854,6 +854,26 @@ var Items = {
 			lore: "Contains mail to be delivered across the lands of Antorax.",
 		},
 	],
+	consumable: [
+		{
+			id: 0,
+			name: "Test consumable 1",
+			type: "consumable",
+			image: "assets/items/consumable/2.png",
+		},
+		{
+			id: 1,
+			name: "Test consumable 2",
+			type: "consumable",
+			image: "assets/items/consumable/2.png",
+		},
+		{
+			id: 2,
+			name: "Potion of Strength I",
+			type: "consumable",
+			image: "assets/items/consumable/2.png",
+		},
+	],
 	fish: [
 		{
 			id: 0,
