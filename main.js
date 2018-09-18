@@ -2056,8 +2056,7 @@ Game.load = function (names, addresses) {
 	
 	// check projectile image has been loaded (if not, then load it)
 	if (!Object.keys(Loader.images).includes("projectile")) {
-		// currently doesn't take into account player class
-		toLoad.push(Loader.loadImage("projectile", "./assets/projectiles/" + (Player.class+Player.gender+Player.skin == "am1" ? "predatorProjectile" : Player.class) + ".png"));
+		toLoad.push(Loader.loadImage("projectile", "./assets/projectiles/" + (Player.class+Player.gender+Player.skin === "am1" ? "jungleHunter" : Player.class) + ".png"));
 	}
 	
 	// check status image has been loaded (if not, then load it)
@@ -3310,7 +3309,7 @@ Game.secondary.updateCursor = function (event) {
 		// mouse in range (crosshair)
 		var cursor = "crosshair";
 		if(Player.class+Player.gender+Player.skin == 'am1'){
-			cursor = "url('assets/unused/predatorTarget.png') 18 16, auto;";
+			cursor = "url('assets/icons/cursors/jungleHunter.png') 9.5 8, auto;";
 		}
 		document.getElementById("secondary").setAttribute("style","cursor: " + cursor);
 	}
