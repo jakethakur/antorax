@@ -2298,7 +2298,7 @@ Game.init = function () {
 	// list of basic (no extra operations to be done) things to be rendered (in order)
 	this.renderList = ["chests", "things", "villagers", "NPCs", "identifiers", "soulHealers", "dummies", "enemies"];
 	// then player, then projectiles (in order they were shot)
-	console.log(Player.stats.maxDamage);
+	
 	// create the player at its start x and y positions
 	this.hero = new Hero({
 		// properties inherited from Entity
@@ -2326,7 +2326,6 @@ Game.init = function () {
 		// projectile (TBD)
 		projectile: {},
 	});
-	console.log(this.hero.stats.maxDamage);
 	
 	// set loaded status image
 	this.statusImage = Loader.getImage("status");
