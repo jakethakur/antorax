@@ -134,6 +134,7 @@ var Areas = {
 				y: 290,
 				image: "driver",
 				name: "Cart Driver",
+				hostility: "friendly",
 				level: 10,
 				stats: {
 					maxHealth: 100,
@@ -156,6 +157,7 @@ var Areas = {
 				y: 350,
 				image: "weaponsmith",
 				name: "Weaponsmith",
+				hostility: "friendly",
 				level: 10,
 				stats: {
 					maxHealth: 100,
@@ -179,6 +181,7 @@ var Areas = {
 				y: 380,
 				image: "fisherman",
 				name: "Fisherman Tobenam",
+				hostility: "friendly",
 				level: 15,
 				stats: {
 					maxHealth: 125,
@@ -368,6 +371,7 @@ var Areas = {
 				y: 440,
 				image: "teper",
 				name: "Marshall Teper",
+				hostility: "friendly",
 				level: 50,
 				stats: {
 					maxHealth: 300,
@@ -410,6 +414,7 @@ var Areas = {
 				y: 870,
 				image: "saral",
 				name: "Combat Trainer Saral",
+				hostility: "friendly",
 				level: 40,
 				stats: {
 					maxHealth: 250,
@@ -440,6 +445,7 @@ var Areas = {
 				y: 300,
 				image: "mailman",
 				name: "Eaglecrest Mailman",
+				hostility: "friendly",
 				level: 10,
 				stats: {
 					maxHealth: 100,
@@ -464,41 +470,22 @@ var Areas = {
 					return (Player.quests.activeQuestArray.includes("Retrieval of Logs") || Player.quests.activeQuestArray.includes("Making Yourself Useful") || Player.quests.activeQuestArray.includes("First Class Recovery")) && !Player.quests.completedQuestArray.includes("First Class Recovery");
 				},
 			},
-			/*{
-				x: 1160,
-				y: 100,
-				image: "soulHealer",
-				name: "Soul Healer Nalaa",
-				level: 25,
-				stats: {
-					maxHealth: 175,
-					defence: 5,
-				},
-				roles: [
-					{
-						role: "soulHealer"
-					},
-				],
-				chat: {
-					canBeHealedText: "My blessings to you. It appears that you have a soul debt, meaning you will earn XP slower due to a recent death. If you wish, I can cleanse your soul and remove this effect for a small price.",
-					cannotBeHealedText: "When you die, you will earn some future XP slower than normal. If this happens to you and you wish to be cleansed of this, come to me and I can remove it for you for a small price. May the purity of the demigods be with you.",
-					healedText: "May the purity of the demigods be with you.",
-					tooPoor: "I don't think you can afford that.",
-				},
-			},*/
-		],
-		
-		identifiers: [
 			{
 				x: 680,
 				y: 540,
 				image: "identifier",
 				name: "Identifier Gilas",
+				hostility: "friendly",
 				level: 30,
 				stats: {
 					maxHealth: 200,
 					defence: 3,
 				},
+				roles: [
+					{
+						role: "identifier",
+					},
+				],
 				chat: {
 					identifierGreeting: "What would you like to identify?",
 					noUnidentified: "You have no unidentified items. Kill and loot enemies to get some.",
@@ -508,19 +495,22 @@ var Areas = {
 					tooPoor: "You don't have enough gold to identify that. Kill and loot enemies to get some.",
 				}
 			},
-		],
-		
-		soulHealers: [
 			{
 				x: 1160,
 				y: 100,
 				image: "soulHealer",
 				name: "Soul Healer Nalaa",
+				hostility: "friendly",
 				level: 25,
 				stats: {
 					maxHealth: 175,
 					defence: 5,
 				},
+				roles: [
+					{
+						role: "soulHealer",
+					},
+				],
 				chat: {
 					canBeHealedText: "My blessings to you. It appears that you have a soul debt, meaning you will earn XP slower due to a recent death. If you wish, I can cleanse your soul and remove this effect for a small price.",
 					cannotBeHealedText: "When you die, you will earn some future XP slower than normal. If this happens to you and you wish to be cleansed of this, come to me and I can remove it for you for a small price. May the purity of the demigods be with you.",
@@ -536,6 +526,7 @@ var Areas = {
 				y: 750,
 				image: "dummy",
 				name: "Training Dummy",
+				hostility: "dummy",
 				stats: {
 					maxHealth: 1000,
 				},
@@ -605,6 +596,7 @@ var Areas = {
 				y: 65,
 				image: "innkeeper",
 				name: "Gregor Goldenbrew",
+				hostility: "friendly",
 				level: 15,
 				stats: {
 					maxHealth: 100,
@@ -747,6 +739,7 @@ var Areas = {
 				image: "rockGoblin",
 				deathImage: "goblinCorpse",
 				name: "Goblin Rockthrower",
+				hostility: "hostile",
 				level: 2,
 				stats: {
 					damage: 3,
@@ -784,6 +777,7 @@ var Areas = {
 				image: "rockGoblin",
 				deathImage: "goblinCorpse",
 				name: "Goblin Rockthrower",
+				hostility: "hostile",
 				level: 2,
 				stats: {
 					damage: 3,
@@ -821,6 +815,7 @@ var Areas = {
 				image: "swordGoblin",
 				deathImage: "goblinCorpse",
 				name: "Goblin Skirmisher",
+				hostility: "hostile",
 				level: 2,
 				stats: {
 					damage: 2,
@@ -847,6 +842,7 @@ var Areas = {
 				image: "swordGoblin",
 				deathImage: "goblinCorpse",
 				name: "Goblin Skirmisher",
+				hostility: "hostile",
 				level: 2,
 				stats: {
 					damage: 2,
@@ -873,6 +869,7 @@ var Areas = {
 				image: "swordGoblin",
 				deathImage: "goblinCorpse",
 				name: "Goblin Skirmisher",
+				hostility: "hostile",
 				level: 2,
 				stats: {
 					damage: 2,
@@ -902,6 +899,7 @@ var Areas = {
 				image: "hammerGoblin",
 				deathImage: "goblinCorpse",
 				name: "Goblin Bruiser",
+				hostility: "hostile",
 				level: 3,
 				stats: {
 					damage: 4,
@@ -928,6 +926,7 @@ var Areas = {
 				image: "hammerGoblin",
 				deathImage: "goblinCorpse",
 				name: "Goblin Bruiser",
+				hostility: "hostile",
 				level: 3,
 				stats: {
 					damage: 4,
@@ -954,6 +953,7 @@ var Areas = {
 				image: "fireGoblin",
 				deathImage: "goblinCorpse",
 				name: "Fire Goblin",
+				hostility: "hostile",
 				level: 4,
 				stats: {
 					damage: 3,

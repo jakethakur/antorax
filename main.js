@@ -465,10 +465,12 @@ class Character extends Thing {
 		
 		this.level = properties.level;
 		
-		this.class = properties.class
+		this.class = properties.class;
+		
+		this.hostility = properties.hostility; // used for name colour
 		
 		this.spawnX = properties.x;
-		this.spawnY = properties.y
+		this.spawnY = properties.y;
 		
 		this.respawning = false;
 		this.isCorpse = false;
@@ -532,6 +534,12 @@ class Character extends Thing {
 				Dom.chat.insert("<strong>" + this.name + "</strong>: " + message, delay, important);
 			}
 		}
+	}
+	
+	// function to be carried out during Game.render()
+	renderFunction () {
+		// show health bar and character name above head
+		Game.drawCharacterInformation(Game.ctx, this);
 	}
 	
 	// take damage
@@ -1526,22 +1534,6 @@ class Dummy extends Character {
 	constructor(properties) {
 		super(properties);
 	}
-	
-	// function to be carried out during Game.render()
-	renderFunction () {
-		// show damage taken above head
-		if (this.damageTaken > 0) {
-			// formatting
-			Game.ctx.fillStyle = "rgb(0, 0, 0)";
-			Game.ctx.textAlign = "center";
-			Game.ctx.font = "bold 18px MedievalSharp";
-			
-			// "\u{2694}" displays the unicode crossed swords symbol
-			// thanks to Wilfred Lee at https://stackoverflow.com/a/49667311/9713957
-			// w3schools reference for unicode special characters: https://www.w3schools.com/charsets/ref_utf_symbols.asp
-			Game.ctx.fillText("\u{2694} " + damageRound(this.damageTaken), this.screenX, this.screenY - this.height / 2);
-		}
-	}
 }
 
 // moves and attacks in a hostile way...
@@ -1656,12 +1648,6 @@ class Enemy extends Attacker {
 		}, 2000, a);
 		
 		this.channellingProjectileId = null;
-	}
-	
-	// function to be carried out during Game.render()
-	renderFunction () {
-		// show health bar above head
-		Game.drawHealthBar(Game.ctx, this, this.screenX - this.width * 0.5, this.screenY - this.height * 0.5 - 15, this.width, 15);
 	}
 	
 	// generate loot from lootTable (called when enemy dies)
@@ -2149,35 +2135,13 @@ Game.loadArea = function (areaName, destination) {
 			}
 		}
 		
-		// quest NPCs and merchants
+		// quest NPCs, merchants, identifiers, soul healers, item buyers, etc.
 		this.NPCs = [];
 		if(Areas[areaName].NPCs !== undefined) { // check they exist in areadata.js
 			for(var i = 0; i < Areas[areaName].NPCs.length; i++) {
 				if (this.canBeShown(Areas[areaName].NPCs[i])) { // check if NPC should be shown
 					Areas[areaName].NPCs[i].map = map;
 					this.NPCs.push(new NPC(Areas[areaName].NPCs[i]));
-				}
-			}
-		}
-		
-		// item identifiers
-		this.identifiers = [];
-		if(Areas[areaName].identifiers !== undefined) {
-			for(var i = 0; i < Areas[areaName].identifiers.length; i++) {
-				if (this.canBeShown(Areas[areaName].identifiers[i])) { // check if NPC should be shown
-					Areas[areaName].identifiers[i].map = map;
-					this.identifiers.push(new Character(Areas[areaName].identifiers[i]));
-				}
-			}
-		}
-		
-		// soul healers
-		this.soulHealers = [];
-		if(Areas[areaName].soulHealers !== undefined) {
-			for(var i = 0; i < Areas[areaName].soulHealers.length; i++) {
-				if (this.canBeShown(Areas[areaName].soulHealers[i])) { // check if NPC should be shown
-					Areas[areaName].soulHealers[i].map = map;
-					this.soulHealers.push(new Character(Areas[areaName].soulHealers[i]));
 				}
 			}
 		}
@@ -2294,7 +2258,7 @@ Game.init = function () {
 	this.playingMusic = null;
 	
 	// list of basic (no extra operations to be done) things to be rendered (in order)
-	this.renderList = ["chests", "things", "villagers", "NPCs", "identifiers", "soulHealers", "dummies", "enemies"];
+	this.renderList = ["chests", "things", "villagers", "NPCs", "dummies", "enemies"];
 	// then player, then projectiles (in order they were shot)
 	
 	// create the player at its start x and y positions
@@ -2495,13 +2459,6 @@ Game.regenHealth = function () {
 			this.restoreHealth(Game.NPCs[i], Game.NPCs[i].stats.healthRegen);
 		}
 	}
-	// identifiers
-	for (let i = 0; i < Game.identifiers.length; i++) {
-		if (!Game.identifiers[i].respawning) {
-			this.restoreHealth(Game.identifiers[i], Game.identifiers[i].stats.healthRegen);
-		}
-	}
-	// soul healers tbd
 	// dummies
 	for (let i = 0; i < Game.dummies.length; i++) {
 		if (!Game.dummies[i].respawning) {
@@ -2567,8 +2524,7 @@ Game.update = function (delta) {
 				NPC.roles.forEach(role => { // iterate through quests involving that NPC
 				
 					// quest starts
-					if (role.role == "questStart") {
-						
+					if (role.role === "questStart") {
 						// quest is ready to be accepted
 						if (this.hero.isTouching(NPC) && // touching NPC
 						!Player.quests.activeQuestArray.includes(role.quest.quest) && // quest isn't currently active
@@ -2609,7 +2565,7 @@ Game.update = function (delta) {
 					}
 					
 					// quest finishes
-					if (role.role == "questFinish") {
+					if (role.role === "questFinish") {
 						// check if quest is ready to be finished
 						if (this.hero.isTouching(NPC) && // touching NPC
 						Player.quests.activeQuestArray.includes(role.quest.quest) && // quest is currently active
@@ -2651,8 +2607,8 @@ Game.update = function (delta) {
 						}
 					}
 					
-					// quest finishes
-					if (role.role == "merchant") {
+					// merchants
+					if (role.role === "merchant") {
 						if (this.hero.isTouching(NPC) && Dom.currentlyDisplayed === "") {
 							Dom.merchant.page(NPC, role.sold);
 							NPC.say(NPC.chat.shopLeave, true, 0, false);
@@ -2669,95 +2625,116 @@ Game.update = function (delta) {
 							}*/
 						}
 					}
-				
-				}); // finish iterating through NPC roles
-				
-				// red colour of close button
-				/*if (document.getElementsByClassName("closeClass")[0].style.border != "5px solid red" && !spokenTo && flashRed) {
-					Dom.changeBook("questsPage",false,0);
-					Dom.quest.override = true;
-					Dom.quests.npc = NPC;
-				}
-				else if (document.getElementsByClassName("closeClass")[0].style.border == "5px solid red" && Dom.quest.override && !this.hero.isTouching(Dom.quests.npc)) {
-					Dom.changeBook("questsPage",false,1);
-					Dom.quest.override = false;
-				}*/
-			}
-		}
-	}); // finish iterating through NPCs
-	
-	// check collision with identifiers
-	for(var i = 0; i < this.identifiers.length; i++) {
-		if (!this.identifiers[i].respawning) { // check identifier is not dead
-			if (this.hero.isTouching(this.identifiers[i]) && Dom.currentlyDisplayed === "") { // needs to check that it is not already open - PG tbd
-				// open identifier page
-				Dom.identifier.page(this.identifiers[i]);
-			}
-			else if (Dom.currentlyDisplayed !== "identifier" && Dom.currentlyDisplayed != "identified" && Dom.currentlyDisplayed != "" && !Dom.override) {
-				// flashing red if something else is open in dom
-				if (this.hero.isTouching(this.identifiers[i]) && document.getElementsByClassName("closeClass")[0].style.border != "5px solid red") {
-					Dom.changeBook("identifierPage",false,0);
-					Dom.identifier.override = true;
-				}
-				else if (!this.hero.isTouching(this.identifiers[i]) && document.getElementsByClassName("closeClass")[0].style.border == "5px solid red" && Dom.identifier.override) {
-					Dom.changeBook("identifierPage",false,1);
-					Dom.identifier.override = false;
-				}
-			}
-		}
-	}
-	
-	// check collision with soul healers
-	for(var i = 0; i < this.soulHealers.length; i++) {
-		if (!this.soulHealers[i].respawning) { // check identifier is not dead
-			let statusEffect = Game.hero.statusEffects.find(statusEffect => statusEffect.title === "XP Fatigue"); // try to find xp fatigue effect
-			if (this.hero.isTouching(this.soulHealers[i])) {
-				if (statusEffect !== undefined) {
-					if (Dom.currentlyDisplayed === "") {
-						// calculate cost
-						this.soulHealerCost = Math.floor(statusEffect.info.ineffectiveAmount / 50); // set to Game so that it can be accessed from the function in Dom.text.page
-						if (this.soulHealerCost < 1) {
-							this.soulHealerCost = 1;
-						}
-						// save the NPC into a variable so that it can say something if the person is healed
-						this.currentSoulHealer = this.soulHealers[i];
-						// open page
-						Dom.text.page("Soul Healer", this.soulHealers[i].chat.canBeHealedText, ["Remove XP Fatigue for " + this.soulHealerCost + " gold"], [function () {
-							if (Dom.inventory.check(2, "currency", Game.soulHealerCost)) {
-								Dom.inventory.removeById(2, "currency", Game.soulHealerCost);
-								Game.hero.statusEffects.splice(Game.hero.statusEffects.findIndex(statusEffect => statusEffect.title === "XP Fatigue"), 1); // remove xp fatigue effect
-								Dom.changeBook(Dom.previous, true); // close page
-								Game.currentSoulHealer.say(Game.currentSoulHealer.chat.healedText, false, 0, false);
-								Game.currentSoulHealer = undefined; // reset variable that remembers which soul healer the player is speaking to
-								Game.soulHealerCost = undefined; // reset variable that remembers the cost for soul healing
+					
+					// soul healers
+					if (role.role === "soulHealer") {
+						if (!NPC.respawning) { // check soul healer is not dead
+							let statusEffect = Game.hero.statusEffects.find(statusEffect => statusEffect.title === "XP Fatigue"); // try to find xp fatigue effect
+							if (this.hero.isTouching(NPC)) {
+								if (statusEffect !== undefined) {
+									if (Dom.currentlyDisplayed === "") {
+										// calculate cost
+										this.soulHealerCost = Math.floor(statusEffect.info.ineffectiveAmount / 50); // set to Game so that it can be accessed from the function in Dom.text.page
+										if (this.soulHealerCost < 1) {
+											this.soulHealerCost = 1;
+										}
+										// save the NPC into a variable so that it can say something if the person is healed
+										this.currentSoulHealer = NPC;
+										// open page
+										Dom.text.page("Soul Healer", NPC.chat.canBeHealedText, ["Remove XP Fatigue for " + this.soulHealerCost + " gold"], [function () {
+											if (Dom.inventory.check(2, "currency", Game.soulHealerCost)) {
+												Dom.inventory.removeById(2, "currency", Game.soulHealerCost);
+												Game.hero.statusEffects.splice(Game.hero.statusEffects.findIndex(statusEffect => statusEffect.title === "XP Fatigue"), 1); // remove xp fatigue effect
+												Dom.changeBook(Dom.previous, true); // close page
+												Game.currentSoulHealer.say(Game.currentSoulHealer.chat.healedText, false, 0, false);
+												Game.currentSoulHealer = undefined; // reset variable that remembers which soul healer the player is speaking to
+												Game.soulHealerCost = undefined; // reset variable that remembers the cost for soul healing
+											}
+											else {
+												// player cannot afford it
+												Game.soulHealers[i].say(Game.soulHealers[i].chat.tooPoor, true, 0, false);
+											}
+										}], NPC.name);
+									}
+									else if (Dom.currentlyDisplayed !== "Soul Healer" && Dom.currentlyDisplayed != "" && !Dom.override) {
+										// flashing red if something else is open in dom
+										// tbd PG
+										/*if (this.hero.isTouching(NPC) && document.getElementsByClassName("closeClass")[0].style.border != "5px solid red") {
+											Dom.changeBook("identifierPage",false,0);
+											Dom.identifier.override = true;
+										}
+										else if (!this.hero.isTouching(NPC) && document.getElementsByClassName("closeClass")[0].style.border == "5px solid red" && Dom.identifier.override) {
+											Dom.changeBook("identifierPage",false,1);
+											Dom.identifier.override = false;
+										}*/
+									}
+								}
+								else {
+									if (!Dom.chat.contents.includes("<strong>" + NPC.name + "</strong>: " + NPC.chat.healedText)) {
+										NPC.say(NPC.chat.cannotBeHealedText, true, 0, false);
+									}
+								}
 							}
-							else {
-								// player cannot afford it
-								Game.soulHealers[i].say(Game.soulHealers[i].chat.tooPoor, true, 0, false);
-							}
-						}], this.soulHealers[i].name);
-					}
-					else if (Dom.currentlyDisplayed !== "Soul Healer" && Dom.currentlyDisplayed != "" && !Dom.override) {
-						// flashing red if something else is open in dom
-						// tbd PG
-						/*if (this.hero.isTouching(this.soulHealers[i]) && document.getElementsByClassName("closeClass")[0].style.border != "5px solid red") {
-							Dom.changeBook("identifierPage",false,0);
-							Dom.identifier.override = true;
 						}
-						else if (!this.hero.isTouching(this.soulHealers[i]) && document.getElementsByClassName("closeClass")[0].style.border == "5px solid red" && Dom.identifier.override) {
-							Dom.changeBook("identifierPage",false,1);
-							Dom.identifier.override = false;
-						}*/
 					}
-				}
-				else {
-					if (!Dom.chat.contents.includes("<strong>" + this.soulHealers[i].name + "</strong>: " + this.soulHealers[i].chat.healedText)) {
-						this.soulHealers[i].say(this.soulHealers[i].chat.cannotBeHealedText, true, 0, false);
+					
+					// identifiers
+					if (role.role === "identifier") {
+						if (!NPC.respawning) { // check identifier is not dead
+							if (this.hero.isTouching(NPC) && Dom.currentlyDisplayed === "") { // needs to check that it is not already open - PG tbd
+								// open identifier page
+								Dom.identifier.page(NPC);
+							}
+							else if (Dom.currentlyDisplayed !== "identifier" && Dom.currentlyDisplayed != "identified" && Dom.currentlyDisplayed != "" && !Dom.override) {
+								// flashing red if something else is open in dom
+								/*if (this.hero.isTouching(NPC) && document.getElementsByClassName("closeClass")[0].style.border != "5px solid red") {
+									Dom.changeBook("identifierPage",false,0);
+									Dom.identifier.override = true;
+								}
+								else if (!this.hero.isTouching(NPC) && document.getElementsByClassName("closeClass")[0].style.border == "5px solid red" && Dom.identifier.override) {
+									Dom.changeBook("identifierPage",false,1);
+									Dom.identifier.override = false;
+								}*/
+							}
+						}
 					}
-				}
+					
+					// item buyers
+					if (role.role === "itemBuyer") {
+						if (!NPC.respawning) { // check item buyer is not dead
+							if (this.hero.isTouching(NPC) && Dom.currentlyDisplayed === "") { // needs to check that it is not already open - PG tbd
+								// open item buyer page
+								Dom.buyer.page(NPC.chat.buyerGreeting);
+							}
+							//else if (Dom.currentlyDisplayed !== "itemBuyer" && Dom.currentlyDisplayed !== "" && !Dom.override) {
+								// flashing red if something else is open in dom
+								/*if (this.hero.isTouching(NPC) && document.getElementsByClassName("closeClass")[0].style.border != "5px solid red") {
+									Dom.changeBook("identifierPage",false,0);
+									Dom.identifier.override = true;
+								}
+								else if (!this.hero.isTouching(NPC) && document.getElementsByClassName("closeClass")[0].style.border == "5px solid red" && Dom.identifier.override) {
+									Dom.changeBook("identifierPage",false,1);
+									Dom.identifier.override = false;
+								}*/
+							//}
+						}
+					}
+					
+					// red colour of close button
+					/*if (document.getElementsByClassName("closeClass")[0].style.border != "5px solid red" && !spokenTo && flashRed) {
+						Dom.changeBook("questsPage",false,0);
+						Dom.quest.override = true;
+						Dom.quests.npc = NPC;
+					}
+					else if (document.getElementsByClassName("closeClass")[0].style.border == "5px solid red" && Dom.quest.override && !this.hero.isTouching(Dom.quests.npc)) {
+						Dom.changeBook("questsPage",false,1);
+						Dom.quest.override = false;
+					}*/
+					
+				}); // finished iterating through this NPC's roles
 			}
 		}
-	}
+	}); // finished iterating through NPCs
 	
 	// update villagers
 	for(var i = 0; i < this.villagers.length; i++) {
@@ -3095,10 +3072,44 @@ Game.updateScreenPosition = function (entity) {
 	}
 }
 
+// draw character health bar and name in correct placed
+Game.drawCharacterInformation = function (ctx, character) {
+	let healthBarDrawn = false; // size of healthbar or other similar thing (e.g: damage taken), so that it is known how much to offset character's name by (in y axis)
+	
+	if (character.hostility === "friendly" || character.hostility === "neutral") {
+		// only draw health bar if character is damaged
+		if (character.health !== character.stats.maxHealth) {
+			this.drawHealthBar(ctx, character, character.screenX - character.width * 0.5, character.screenY - character.height * 0.5 - 15, character.width, 15);
+			healthBarDrawn = 15;
+		}
+	}
+	else if (character.hostility === "dummy") {
+		// show damage taken above head instead of health bar (if the character has taken any damage)
+		if (character.damageTaken > 0) {
+			this.drawDamageTaken(ctx, character, character.screenX, character.screenY - character.height / 2 - 1, 18);
+			healthBarDrawn = 18;
+		}
+	}
+	else if (character.hostility === "hostile") {
+		// always draw health bar
+		this.drawHealthBar(ctx, character, character.screenX - character.width * 0.5, character.screenY - character.height * 0.5 - 15, character.width, 15);
+		healthBarDrawn = 15;
+	}
+	else {
+		console.error("Unknown character hostility: ", character.hostility);
+	}
+	
+	/*if (healthBarDrawn !== false) { // !healthBarDrawn is not used, as healthBarDrawn is set to a number (not true) if it isn't false
+		healthBarDrawn += 3; // padding for name (currently not seen as necessary, so this has been commented out)
+	}*/
+	
+	this.drawCharacterName(ctx, character, character.screenX, character.screenY - character.height / 2 - healthBarDrawn - 3);
+}
+
 // draw a health bar (on given context, for given character, at given position, with given dimensions)
 // tbd : change colour for friendly characters?
 Game.drawHealthBar = function (ctx, character, x, y, width, height) {
-	// remember previous canvas preferences
+	// remember previous canvas transparency preferences
 	const oldGlobalAlpha = ctx.globalAlpha;
 	
 	// canvas formatting
@@ -3146,8 +3157,49 @@ Game.drawHealthBar = function (ctx, character, x, y, width, height) {
 	// final bar
 	ctx.strokeRect(x + barValue / character.stats.maxHealth * width * i, y, width - (barValue / character.stats.maxHealth * width * i), height);
 	
-	// restore previous canvas formatting preferences
+	// restore previous canvas transparency preferences
 	ctx.globalAlpha = oldGlobalAlpha;
+}
+
+Game.drawDamageTaken = function (ctx, character, x, y, fontSize) {
+	// formatting
+	ctx.fillStyle = "rgb(0, 0, 0)";
+	ctx.textAlign = "center";
+	ctx.font = "bold " + fontSize + "px MedievalSharp";
+	
+	// "\u{2694}" displays the unicode crossed swords symbol
+	// thanks to Wilfred Lee at https://stackoverflow.com/a/49667311/9713957
+	// w3schools reference for unicode special characters: https://www.w3schools.com/charsets/ref_utf_symbols.asp
+	ctx.fillText("\u{2694} " + damageRound(character.damageTaken), x, y);
+}
+
+// draw character's name (often positioned to be above their head
+// tbd : change colour for friendly characters?
+Game.drawCharacterName = function (ctx, character, x, y) {
+	
+	// text formatting
+	ctx.font = "13px MedievalSharp";
+	ctx.textAlign = "center";
+	// colour based on whether npc is good or not
+	if (character.hostility === "hostile") {
+		ctx.fillStyle = "red";
+	}
+	else if (character.hostility === "friendly") {
+		ctx.fillStyle = "#08720d"; // dark green name
+	}
+	else if (character.hostility === "neutral") {
+		ctx.fillStyle = "#c9c202"; // yellow name
+	}
+	else if (character.hostility === "boss") {
+		ctx.fillStyle = "#8c0700"; // dark red name
+	}
+	else {
+		ctx.fillStyle = "black";
+	}
+	
+	
+	// draw text
+	ctx.fillText(character.name, x, y);
 }
 
 // draw images on canvas
