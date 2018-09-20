@@ -139,10 +139,10 @@ var Areas = {
 					maxHealth: 100,
 					defence: 1,
 				},
-				quests: [
+				roles: [
 					{
 						quest: Quests.eaglecrestLoggingCamp[0], 
-						role: "start",
+						role: "questStart",
 					},
 				],
 				chat: {
@@ -161,7 +161,12 @@ var Areas = {
 					maxHealth: 100,
 					defence: 2,
 				},
-				sold: Player.class === "k" ? [Items.sword[2],] : (Player.class === "m" ? [Items.staff[2],] : (Player.class === "a" ? [Items.bow[2],] : [])),
+				roles: [
+					{
+						sold: Player.class === "k" ? [Items.sword[2],] : (Player.class === "m" ? [Items.staff[2],] : (Player.class === "a" ? [Items.bow[2],] : [])),
+						role: "merchant",
+					},
+				],
 				chat: {
 					shopGreeting: "Would you like to buy anything?",
 					shopLeave: "Come back some time.",
@@ -179,10 +184,10 @@ var Areas = {
 					maxHealth: 125,
 					defence: 3,
 				},
-				quests: [
+				roles: [
 					{
 						quest: Quests.eaglecrestLoggingCamp[3], 
-						role: "start",
+						role: "questStart",
 					},
 				],
 				chat: {
@@ -368,30 +373,30 @@ var Areas = {
 					maxHealth: 300,
 					defence: 10,
 				},
-				quests: [
+				roles: [
 					{
 						quest: Quests.eaglecrestLoggingCamp[0], 
-						role: "finish"
+						role: "questFinish"
 					},
 					{
 						quest: Quests.eaglecrestLoggingCamp[1], 
-						role: "start"
+						role: "questStart"
 					},
 					{
 						quest: Quests.eaglecrestLoggingCamp[3], 
-						role: "start"
+						role: "questStart"
 					},
 					{
 						quest: Quests.eaglecrestLoggingCamp[3], 
-						role: "finish"
+						role: "questFinish"
 					},
 					{
 						quest: Quests.eaglecrestLoggingCamp[4], 
-						role: "start"
+						role: "questStart"
 					},
 					{
 						quest: Quests.eaglecrestLoggingCamp[4], 
-						role: "finish"
+						role: "questFinish"
 					},
 				],
 				chat: {
@@ -410,18 +415,18 @@ var Areas = {
 					maxHealth: 250,
 					defence: 10,
 				},
-				quests: [
+				roles: [
 					{
 						quest: Quests.eaglecrestLoggingCamp[1], 
-						role: "finish"
+						role: "questFinish"
 					},
 					{
 						quest: Quests.eaglecrestLoggingCamp[2], 
-						role: "start"
+						role: "questStart"
 					},
 					{
 						quest: Quests.eaglecrestLoggingCamp[2], 
-						role: "finish"
+						role: "questFinish"
 					},
 				],
 				chat: {
@@ -440,14 +445,14 @@ var Areas = {
 					maxHealth: 100,
 					defence: 5,
 				},
-				quests: [
+				roles: [
 					{
 						quest: Quests.eaglecrestLoggingCamp[5], 
-						role: "start"
+						role: "questStart"
 					},
 					{
 						quest: Quests.eaglecrestLoggingCamp[5], 
-						role: "finish"
+						role: "questFinish"
 					},
 				],
 				chat: {
@@ -459,6 +464,28 @@ var Areas = {
 					return (Player.quests.activeQuestArray.includes("Retrieval of Logs") || Player.quests.activeQuestArray.includes("Making Yourself Useful") || Player.quests.activeQuestArray.includes("First Class Recovery")) && !Player.quests.completedQuestArray.includes("First Class Recovery");
 				},
 			},
+			/*{
+				x: 1160,
+				y: 100,
+				image: "soulHealer",
+				name: "Soul Healer Nalaa",
+				level: 25,
+				stats: {
+					maxHealth: 175,
+					defence: 5,
+				},
+				roles: [
+					{
+						role: "soulHealer"
+					},
+				],
+				chat: {
+					canBeHealedText: "My blessings to you. It appears that you have a soul debt, meaning you will earn XP slower due to a recent death. If you wish, I can cleanse your soul and remove this effect for a small price.",
+					cannotBeHealedText: "When you die, you will earn some future XP slower than normal. If this happens to you and you wish to be cleansed of this, come to me and I can remove it for you for a small price. May the purity of the demigods be with you.",
+					healedText: "May the purity of the demigods be with you.",
+					tooPoor: "I don't think you can afford that.",
+				},
+			},*/
 		],
 		
 		identifiers: [
@@ -583,10 +610,10 @@ var Areas = {
 					maxHealth: 100,
 					defense: 2,
 				},
-				quests: [
+				roles: [
 					{
 						quest: Quests.eaglecrestLoggingCamp[1], 
-						role: "start"
+						role: "questStart"
 					},
 				],
 				questProgressText: "Girls! Make some room by the hearth, won't ya!",

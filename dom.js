@@ -1209,7 +1209,7 @@ Dom.quests.other = function(){
 Dom.quests.other();
 Dom.quests.possible();
 
-Dom.merchant.page = function(npc){ // merchant page
+Dom.merchant.page = function(npc, sold){ // merchant page
 	Dom.changeBook("merchantPage", false); // changes the page to the merchant page
 	Dom.currentlyDisplayed = npc.name; // sets the currently displayed variable to the merchant's name
 	Dom.changeBook("merchantPage", false, 1); // stops close button being red
@@ -1217,20 +1217,20 @@ Dom.merchant.page = function(npc){ // merchant page
 	document.getElementById("merchantPageChat").innerHTML = npc.chat.shopGreeting; // sets the greeting to the merchant's greeting
 	document.getElementById("merchantPageOptions").innerHTML = ""; // sets the options to none
 	document.getElementById("merchantPageBuy").innerHTML = ""; // sets the buy buttons to none
-	for(let i = 0; i < npc.sold.length; i++){ // repeats for each option
-		document.getElementById("merchantPageOptions").innerHTML += "<img src=" + npc.sold[i].image + " class='theseOptions' style='border: 5px solid #886622;'></img><br><br>"; // sets the image for the option
-		if(npc.sold[i].costCurrency === undefined){
-			npc.sold[i].costCurrency = 2;
+	for(let i = 0; i < sold.length; i++){ // repeats for each option
+		document.getElementById("merchantPageOptions").innerHTML += "<img src=" + sold[i].image + " class='theseOptions' style='border: 5px solid #886622;'></img><br><br>"; // sets the image for the option
+		if(sold[i].costCurrency === undefined){
+			sold[i].costCurrency = 2;
 		}
-		document.getElementById("merchantPageBuy").innerHTML += "<div class='buy'>Buy for: " + npc.sold[i].cost + " " + Items.currency[npc.sold[i].costCurrency].name + "</div><br>"; // makes a buy button next to the option
+		document.getElementById("merchantPageBuy").innerHTML += "<div class='buy'>Buy for: " + sold[i].cost + " " + Items.currency[sold[i].costCurrency].name + "</div><br>"; // makes a buy button next to the option
 		for(let x = 0; x < document.getElementsByClassName("buy").length; x++){ // repeats for every buy button
 			document.getElementsByClassName("buy")[x].onclick = function() { // when you click on a buy button...
-				Dom.merchant.buy(npc.sold[x], x, npc); // ...the buy function is called
+				Dom.merchant.buy(sold[x], x, npc); // ...the buy function is called
 			};
 		}
 		for(let x = 0; x < document.getElementsByClassName("theseOptions").length; x++){ // repeats for every option
 			document.getElementsByClassName("theseOptions")[x].onmouseover = function() { // when you hover over an item...
-				Dom.merchant.displayInformation(document.getElementsByClassName("theseOptions")[x].getBoundingClientRect().top, npc.sold, x); // ...its information displays
+				Dom.merchant.displayInformation(document.getElementsByClassName("theseOptions")[x].getBoundingClientRect().top, sold, x); // ...its information displays
 			};
 			document.getElementsByClassName("theseOptions")[x].onmouseleave = function() { // when you stop hovering over an item...
 				Dom.expand("informationMerchant"); // ...its information stops displaying

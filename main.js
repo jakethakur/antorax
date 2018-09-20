@@ -1427,9 +1427,7 @@ class NPC extends Character {
 	constructor(properties) {
 		super(properties);
 		
-		this.quests = properties.quests; // quests given / finished (for quest NPCs)
-		
-		this.sold = properties.sold; // items sold (for merchants)
+		this.roles = properties.roles; // array of objects, containing anything that can happen when the NPC is touched
 	}
 }
 
@@ -2556,135 +2554,137 @@ Game.update = function (delta) {
 	// interact with touching object
     if (Keyboard.isDown(Keyboard.SPACE)) { this.hero.interact(); }
 	
-	// check collision with quest npcs
-	for(var i = 0; i < this.NPCs.length; i++) { // iterate though NPCs
+	// check collision with NPCs - includes quest givers, quest finishers, merchants, soul healers, more TBA
+	this.NPCs.forEach(NPC => { // iterate though NPCs
 	
-		if (!this.NPCs[i].respawning) { // check npc is not dead
+		if (!NPC.respawning) { // check npc is not dead
 			// code for red flashing close button
-			let spokenTo = false; // if the NPC has opened up a quest
-			let flashRed = false; // if the NPC has tried to open up a quest but cannot (not necessarily the same quest)
+			//let spokenTo = false; // if the NPC has opened up a quest
+			//let flashRed = false; // if the NPC has tried to open up a quest but cannot (not necessarily the same quest)
 			
-			if (typeof this.NPCs[i].quests !== "undefined") { // check if the NPC is a quest npc
+			if (typeof NPC.roles !== "undefined") { // check if the NPC is a functional npc (does something when touched)
 			
-				for(var x = 0; x < this.NPCs[i].quests.length; x++) { // iterate through quests involving that NPC
+				NPC.roles.forEach(role => { // iterate through quests involving that NPC
 				
 					// quest starts
-					if (this.NPCs[i].quests[x].role == "start") {
+					if (role.role == "questStart") {
 						
 						// quest is ready to be accepted
-						if (this.hero.isTouching(this.NPCs[i]) && // touching NPC
-						!Player.quests.activeQuestArray.includes(this.NPCs[i].quests[x].quest.quest) && // quest isn't currently active
-						!Player.quests.completedQuestArray.includes(this.NPCs[i].quests[x].quest.quest) && // quest hasn't aleady been completed
-						this.NPCs[i].quests[x].quest.levelRequirement <= this.hero.level && // player is a high enough level
-						isContainedInArray(this.NPCs[i].quests[x].quest.questRequirements, Player.quests.completedQuestArray)) { // quest requirements have been completed
+						if (this.hero.isTouching(NPC) && // touching NPC
+						!Player.quests.activeQuestArray.includes(role.quest.quest) && // quest isn't currently active
+						!Player.quests.completedQuestArray.includes(role.quest.quest) && // quest hasn't aleady been completed
+						role.quest.levelRequirement <= this.hero.level && // player is a high enough level
+						isContainedInArray(role.quest.questRequirements, Player.quests.completedQuestArray)) { // quest requirements have been completed
 							
 							if (Dom.currentlyDisplayed === "") { // quest isn't currently pending to be accepted (currently displayed on DOM)
-								if (typeof this.NPCs[i].quests[x].quest.startRewards !== "undefined" && typeof this.NPCs[i].quests[x].quest.startRewards.items !== "undefined") {
-									if (Dom.inventory.requiredSpace(this.NPCs[i].quests[x].quest.startRewards.items, this.NPCs[i].quests[x].quest.startRewards.itemQuantities)) {
+								if (typeof role.quest.startRewards !== "undefined" && typeof role.quest.startRewards.items !== "undefined") {
+									if (Dom.inventory.requiredSpace(role.quest.startRewards.items, role.quest.startRewards.itemQuantities)) {
 										// user has space for quest start items
-										Dom.quest.start(this.NPCs[i].quests[x].quest);
+										Dom.quest.start(role.quest);
 										spokenTo = true;
 									}
 									else {
 										// user doesn't have enough space
-										this.NPCs[i].say(this.NPCs[i].chat.inventoryFull, true, 0, true);
+										NPC.say(NPC.chat.inventoryFull, true, 0, true);
 									}
 								}
 								else {
 									// no quest start items, so user ofc has enough inventory space
-									Dom.quest.start(this.NPCs[i].quests[x].quest);
-									spokenTo = true;
+									Dom.quest.start(role.quest);
+									//spokenTo = true;
 								}
 							}
-							else if (this.NPCs[i].quests.find(quest => quest.quest == Dom.currentlyDisplayed) === undefined) {
-								flashRed = true;
+							else if (NPC.roles.find(role => role.quest == Dom.currentlyDisplayed) === undefined) {
+								//flashRed = true;
 							}
 						}
 						// quest is currently active
-						else if (this.hero.isTouching(this.NPCs[i]) && Player.quests.activeQuestArray.includes(this.NPCs[i].quests[x].quest.quest)) {
-							this.NPCs[i].say(this.NPCs[i].chat.questProgress, true, 0, false);
+						else if (this.hero.isTouching(NPC) && Player.quests.activeQuestArray.includes(role.quest.quest)) {
+							NPC.say(NPC.chat.questProgress, true, 0, false);
 						}
 						// quest has been completed
-						else if (this.hero.isTouching(this.NPCs[i]) && Player.quests.completedQuestArray.includes(this.NPCs[i].quests[x].quest.quest)) {
-							this.NPCs[i].say(this.NPCs[i].chat.questComplete, true, 0, false);
+						else if (this.hero.isTouching(NPC) && Player.quests.completedQuestArray.includes(role.quest.quest)) {
+							NPC.say(NPC.chat.questComplete, true, 0, false);
 						}
 					}
 					
 					// quest finishes
-					if (this.NPCs[i].quests[x].role == "finish") {
+					if (role.role == "questFinish") {
 						// check if quest is ready to be finished
-						if (this.hero.isTouching(this.NPCs[i]) && // touching NPC
-						Player.quests.activeQuestArray.includes(this.NPCs[i].quests[x].quest.quest) && // quest is currently active
-						!Player.quests.completedQuestArray.includes(this.NPCs[i].quests[x].quest.quest)) { // quest has not already been completed
+						if (this.hero.isTouching(NPC) && // touching NPC
+						Player.quests.activeQuestArray.includes(role.quest.quest) && // quest is currently active
+						!Player.quests.completedQuestArray.includes(role.quest.quest)) { // quest has not already been completed
 							
 							// check if quest conditions have been fulfilled
-							if(this.NPCs[i].quests[x].quest.isCompleted()[this.NPCs[i].quests[x].quest.objectives.length - 1]) {
+							if(role.quest.isCompleted()[role.quest.objectives.length - 1]) {
 								if (Dom.currentlyDisplayed === "") { // quest isn't currently pending to be accepted (currently displayed on DOM)
-									if (typeof this.NPCs[i].quests[x].quest.rewards !== "undefined" && typeof this.NPCs[i].quests[x].quest.rewards.items !== "undefined") {
-										if (Dom.inventory.requiredSpace(this.NPCs[i].quests[x].quest.rewards.items, this.NPCs[i].quests[x].quest.rewards.itemQuantities)) {
+									if (typeof role.quest.rewards !== "undefined" && typeof role.quest.rewards.items !== "undefined") {
+										if (Dom.inventory.requiredSpace(role.quest.rewards.items, role.quest.rewards.itemQuantities)) {
 											// user has space for quest finish items
-											Dom.quest.finish(this.NPCs[i].quests[x].quest);
-											spokenTo = true;
+											Dom.quest.finish(role.quest);
+											//spokenTo = true;
 										}
 										else {
 											// user doesn't have enough space
-											this.NPCs[i].say(this.NPCs[i].chat.inventoryFull, true, 0, true);
+											NPC.say(NPC.chat.inventoryFull, true, 0, true);
 										}
 									}
 									else {
 										// no quest item rewards, so user ofc has enough inventory space
-										Dom.quest.finish(this.NPCs[i].quests[x].quest);
-										spokenTo = true;
+										Dom.quest.finish(role.quest);
+										//spokenTo = true;
 									}
 								}
-								else if (this.NPCs[i].quests.find(quest => quest.quest == Dom.currentlyDisplayed) === undefined) {
-									flashRed = true;
+								else if (NPC.roles.find(role => role.quest == Dom.currentlyDisplayed) === undefined) {
+									//flashRed = true;
 								}
 							}
 							// quest conditions have not been fulfilled
 							else {
-								this.NPCs[i].say(this.NPCs[i].chat.questProgress, true, 0, false);
+								NPC.say(NPC.chat.questProgress, true, 0, false);
 							}
 							
 						}
 						// quest has already been completed
-						else if (this.hero.isTouching(this.NPCs[i]) && Player.quests.completedQuestArray.includes(this.NPCs[i].quests[x].quest.quest)) {
-							this.NPCs[i].say(this.NPCs[i].chat.questComplete, true, 0, false);
+						else if (this.hero.isTouching(NPC) && Player.quests.completedQuestArray.includes(role.quest.quest)) {
+							NPC.say(NPC.chat.questComplete, true, 0, false);
+						}
+					}
+					
+					// quest finishes
+					if (role.role == "merchant") {
+						if (this.hero.isTouching(NPC) && Dom.currentlyDisplayed === "") {
+							Dom.merchant.page(NPC, role.sold);
+							NPC.say(NPC.chat.shopLeave, true, 0, false);
+						}
+						else if (Dom.currentlyDisplayed != NPC.name && Dom.currentlyDisplayed != "" && !Dom.override) { // trying to speak to merchant when an interface is already open
+							/*// red colour of close button
+							if (this.hero.isTouching(NPC) && document.getElementsByClassName("closeClass")[0].style.border != "5px solid red"){
+								Dom.changeBook("questsPage", false, 0);
+								Dom.merchant.override = true;
+							}
+							else if (!this.hero.isTouching(NPC) && document.getElementsByClassName("closeClass")[0].style.border == "5px solid red" && Dom.merchant.override) {
+								Dom.changeBook("questsPage", false, 1);
+								Dom.merchant.override = false;
+							}*/
 						}
 					}
 				
-				}
+				}); // finish iterating through NPC roles
+				
 				// red colour of close button
-				if (document.getElementsByClassName("closeClass")[0].style.border != "5px solid red" && !spokenTo && flashRed) {
+				/*if (document.getElementsByClassName("closeClass")[0].style.border != "5px solid red" && !spokenTo && flashRed) {
 					Dom.changeBook("questsPage",false,0);
 					Dom.quest.override = true;
-					Dom.quests.npc = this.NPCs[i];
+					Dom.quests.npc = NPC;
 				}
 				else if (document.getElementsByClassName("closeClass")[0].style.border == "5px solid red" && Dom.quest.override && !this.hero.isTouching(Dom.quests.npc)) {
 					Dom.changeBook("questsPage",false,1);
 					Dom.quest.override = false;
-				}
-			}
-			
-			if (typeof this.NPCs[i].sold !== "undefined") { // check if the NPC is a merchant
-				if (this.hero.isTouching(this.NPCs[i]) && Dom.currentlyDisplayed === "") {
-					Dom.merchant.page(this.NPCs[i]);
-					this.NPCs[i].say(this.NPCs[i].chat.shopLeave, true, 0, false);
-				}
-				else if (Dom.currentlyDisplayed != this.NPCs[i].name && Dom.currentlyDisplayed != "" && !Dom.override) { // trying to speak to merchant when an interface is already open
-					// red colour of close button
-					if (this.hero.isTouching(this.NPCs[i]) && document.getElementsByClassName("closeClass")[0].style.border != "5px solid red"){
-						Dom.changeBook("questsPage", false, 0);
-						Dom.merchant.override = true;
-					}
-					else if (!this.hero.isTouching(this.NPCs[i]) && document.getElementsByClassName("closeClass")[0].style.border == "5px solid red" && Dom.merchant.override) {
-						Dom.changeBook("questsPage", false, 1);
-						Dom.merchant.override = false;
-					}
-				}
+				}*/
 			}
 		}
-	}
+	}); // finish iterating through NPCs
 	
 	// check collision with identifiers
 	for(var i = 0; i < this.identifiers.length; i++) {
