@@ -16,6 +16,7 @@ let Dom = {
 		identifiedPage: document.getElementById("identifiedPage"),
 		lootPage: document.getElementById("lootPage"),
 		buyerPage: document.getElementById("buyerPage"),
+		choosePage: document.getElementById("choosePage"),
 		textPage: document.getElementById("textPage"),
 		levelUpPage: document.getElementById("levelUpPage"),
 	},
@@ -31,6 +32,7 @@ let Dom = {
 	identifier: {},
 	loot: {},
 	buyer: {},
+	choose: {},
 	text: {},
 	levelUp: {},
 	alert: {},
@@ -41,7 +43,7 @@ Dom.changeBook = function(page, override, x) { // changes the page or changes th
 	//override says if the function should be run regardless of if the player has a quest active (e.g: declining a quest or closing a merchant)
 	if((this.currentlyDisplayed === "" || override) && page !== "levelUpPage") { // check the player doesn't have a quest active
 		// hide all pages
-		if(page !== "questStart" && page !== "questFinish" && page !== "merchantPage" && page !== "identifierPage" && page !== "identifiedPage" && page !== "lootPage" && page !== "buyerPage" && page !== "textPage"){ // if the page being changed to is a not a pop up...
+		if(page === "chatPage" || page === "inventoryPage" || page === "questsPage" || page === "instructionsPage" || page === "reputationPage" || page === "settingsPage"){ // if the page being changed to is a not a pop up...
 			document.getElementById("change"+Dom.previous.substring(0,1).toUpperCase()+Dom.previous.substring(1,Dom.previous.length-4)).getElementsByTagName("polygon")[0].style.strokeWidth = "1";
 			document.getElementById("change"+page.substring(0,1).toUpperCase()+page.substring(1,page.length-4)).getElementsByTagName("polygon")[0].style.strokeWidth = "3";
 			Dom.previous = page; // ... it will open it next time you close a pop up
@@ -59,6 +61,7 @@ Dom.changeBook = function(page, override, x) { // changes the page or changes th
 		this.elements.identifiedPage.hidden = true;
 		this.elements.lootPage.hidden = true;
 		this.elements.buyerPage.hidden = true;
+		this.elements.choosePage.hidden = true;
 		this.elements.textPage.hidden = true;
 		document.getElementById(page).hidden = false; // displays the page you are opening
 		if(page === "chatPage"){ // if the chat is being opened
@@ -312,7 +315,6 @@ if(window.innerHeight >= 755) { // if the window height is big enough...
 	Dom.settings.bookmarkPosition(); // ...then update the position
 }
 
-Dom.reputation.ready = false;
 Dom.reputation.start = function(){
 	document.getElementById("reputationPage").innerHTML = "";
 	for(let i = 0; i < Object.keys(Player.reputation).length; i++){
@@ -321,20 +323,17 @@ Dom.reputation.start = function(){
 			document.getElementById("reputationPage").innerHTML += replaceStat.charAt(0).toUpperCase() + replaceStat.slice(1) + ':<div class="widthPadding"></div> <div class="reputationBox"> <div class="reputationBar"></div> </div><br><br><br>';
 		}
 	}
+	Player.reputationReady = true;
 	Dom.reputation.ready = true;
 	Dom.reputation.update();
 }
 
 Dom.reputation.levels = ["Adhorred","Hated","Unfriendly","Neutral","Friendly","Honoured","Venerated"]; // possible reputation levels
 Dom.reputation.pointsPerLevel = [1,2500,500,100,500,2500,1]; // possible reputation levels
-/*for(let i = 0; i < Object.keys(Player.reputation).length; i++){ // repeat for all reputations
-	Player.reputation[Object.keys(Player.reputation)[i]].score = 5; // reputation score (between levels)
-	Player.reputation[Object.keys(Player.reputation)[i]].level = 2; // reputation level
-}*/
 Dom.reputation.update = function(){ // update reputation
 	if(!Dom.reputation.ready && document.getElementById("reputationPage").getElementsByTagName("div").length === 0){
 		for(let i = 0; i < Object.keys(Player.reputation).length; i++){
-			if(Player.reputation[Object.keys(Player.reputation)[i]].changed){
+			if(Player.reputation[Object.keys(Player.reputation)[i]].changed && document.getElementById("closeReputation") === null){
 				document.getElementById("reputationPage").innerHTML += "<div id='closeReputation' onclick='Dom.reputation.start()'>Close</div>"
 			}
 		}
@@ -1076,13 +1075,12 @@ Dom.quest.acceptRewards = function(){ // quest rewards accepted
 	if(quest.rewards.reputation !== undefined) { // reputation rewards
 		for(let i = 0; i < Object.keys(quest.rewards.reputation).length; i++) { // repeats for all reputation rewards			
 			let replaceStat = Object.keys(quest.rewards.reputation)[i].replace( /([A-Z])/g, " $1" );
-			if(Player.reputation[Object.keys(quest.rewards.reputation)[i]].changed){
+			if(Player.reputation[Object.keys(quest.rewards.reputation)[i]].changed){ // if the reputation has already been changed
 				Player.reputation[Object.keys(quest.rewards.reputation)[i]].score += quest.rewards.reputation[Object.keys(quest.rewards.reputation)[i]]; // gives the player the reputation reward
 				Dom.chat.insert("You have gained " + quest.rewards.reputation[Object.keys(quest.rewards.reputation)[i]] + " reputation with " + replaceStat.charAt(0).toUpperCase() + replaceStat.slice(1));
-			}else{
-				//Player.reputation[Object.keys(quest.rewards.reputation)[i]]={};
-				Player.reputation[Object.keys(Player.reputation)[i]].score += quest.rewards.reputation[Object.keys(quest.rewards.reputation)[i]]; // reputation score (between levels)
-				//Player.reputation[Object.keys(Player.reputation)[i]].level = 2; // reputation level
+			}else{ // if the reputation has not been changed
+			console.log(Player.reputation[Object.keys(quest.rewards.reputation)[i]]);
+				Player.reputation[Object.keys(quest.rewards.reputation)[i]].score += quest.rewards.reputation[Object.keys(quest.rewards.reputation)[i]]; // reputation score (between levels)
 				Dom.chat.insert("You have gained " + quest.rewards.reputation[Object.keys(quest.rewards.reputation)[i]] + " reputation with " + replaceStat.charAt(0).toUpperCase() + replaceStat.slice(1));
 				Player.reputation[Object.keys(quest.rewards.reputation)[i]].changed = true;
 				if(Dom.reputation.ready){
@@ -2016,13 +2014,14 @@ Dom.inventory.requiredSpace = function(items,quantities){
 
 // round number to 1dp
 // normally used for damage and to get rid of floating point errors
+// uses floor round instead of standard round because otherwise it might seem like a quest has been completed when it hasn't!
 function damageRound (number,dp) {
     if(dp === undefined){
 		number *= 10;
     }else{
 		number *= dp;
 	}
-	number = Math.round(number);
+	number = Math.floor(number);
     if(dp === undefined){
 		number /= 10;
     }else{
@@ -2152,13 +2151,15 @@ Dom.buyer.remove = function(i, all){
 	Dom.buyer.page();
 }
 
-Dom.buyer.page = function(){
+Dom.buyer.page = function(chat){
 	Dom.changeBook("buyerPage");
 	Dom.currentlyDisplayed = "itemBuyer";
+	document.getElementById("buyerPageChat").innerHTML = chat;
 	document.getElementById("buyerPageInventory").innerHTML = "";
 	for(let i = 0; i < document.getElementById("itemInventory").getElementsByTagName("td").length / 6; i++){
 		document.getElementById("buyerPageInventory").innerHTML += "<tr><td/><td/><td/><td/><td/><td/></tr>";
 	}
+	//document.getElementById("buyerPageClose").style.top = 50 + 55* document.getElementById("itemInventory").getElementsByTagName("td").length / 6 + "px";
 	let remove = true;
 	for(let i = 6; i < Player.inventory.items.length; i++){
 		if(Object.keys(Player.inventory.items[i]).length !== 0){
@@ -2175,6 +2176,9 @@ Dom.buyer.page = function(){
 				}
 				if(Player.inventory.items[i].sellQuantity === undefined){
 					Player.inventory.items[i].sellQuantity = 1;
+				}
+				if(Player.inventory.items[i].stacked === undefined){
+					Player.inventory.items[i].stacked = 1;
 				}
 				document.getElementById("buyerPageInventory").getElementsByTagName("td")[i].onclick = function(){
 					if(!(!remove && i === 5 && Player.inventory.items[5].type === "bag") && Player.inventory.items[i].stacked >= Player.inventory.items[i].sellQuantity){
@@ -2196,10 +2200,17 @@ Dom.buyer.page = function(){
 	}
 }
 
+Dom.choose.page = function(buttons, functions, parameters){
+	Dom.changeBook("choosePage");
+	Dom.currentlyDisplayed = "choose";
+	document.getElementById("choosePage").innerHTML = "<h1>What would you like to do?</h1>";
+}
+
 //
 // DO NOT ADD CODE BELOW THIS POINT
 //
 
+//LOADS A NEW CLASS
 for(let i = 0; i < 5; i++){
 	Player.inventory[Object.keys(Player.inventory)[i]].push({
 		name: "",
@@ -2210,6 +2221,7 @@ for(let i = 0; i < 5; i++){
 Dom.inventory.give(Items.rod[2]);
 Dom.inventory.give(Items.currency[2],3);
 
+//LOADS ALL EXISTING SAVEDATA
 if(localStorage.getItem(Player.class) !== null){
 	Player = JSON.parse(localStorage.getItem(Player.class));
 	Player.name = playerName;
@@ -2217,6 +2229,7 @@ if(localStorage.getItem(Player.class) !== null){
 	Player.skin = playerSkin;
 }
 
+//LOADS AN EXISTING CLASS
 document.getElementById("itemInventory").innerHTML = "";
 for(let i = 0; i < Player.inventory.items.length/6; i++){
 	document.getElementById("itemInventory").innerHTML += "<tr>\
@@ -2248,7 +2261,11 @@ Dom.hotbar.update();
 Dom.quests.active();
 Dom.quests.possible();
 Dom.quests.completed();
+if(Player.reputationReady){
+	Dom.reputation.start();
+}
 
+//DELTES EXISTING CLASS
 document.getElementById("settingDelete").onclick = function(){
 	Dom.alert.target = function(){
 		localStorage.removeItem(Player.class);

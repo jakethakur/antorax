@@ -3180,6 +3180,8 @@ Game.drawCharacterName = function (ctx, character, x, y) {
 	// text formatting
 	ctx.font = "13px MedievalSharp";
 	ctx.textAlign = "center";
+	ctx.strokeStyle = "black";
+	ctx.lineWidth = 0.5;
 	// colour based on whether npc is good or not
 	if (character.hostility === "hostile") {
 		ctx.fillStyle = "red";
@@ -3200,6 +3202,8 @@ Game.drawCharacterName = function (ctx, character, x, y) {
 	
 	// draw text
 	ctx.fillText(character.name, x, y);
+	// black border (easier to read)
+	ctx.strokeText(character.name, x, y);
 }
 
 // draw images on canvas

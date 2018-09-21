@@ -28,6 +28,7 @@ var Player = {
 			level: 4,
 		},
 	},
+	reputationReady: false,
 	
 	quests: {
 		activeQuestArray: [],

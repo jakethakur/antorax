@@ -108,7 +108,7 @@ var Quests = {
 				var completed = [];
 				
 				// true or falses for each objective (apart from the turn-in objective)
-				completed.push(typeof Game.dummies !== "undefined" && Game.dummies[0].damageTaken >= 20 ? true : typeof Game.dummies !== "undefined" && Game.dummies[0].damageTaken > 0 ? " (" + Game.dummies[0].damageTaken + "/20)" : false); // quest must be finished in Eaglecrest Logging Camp, hence Game.dummies[0] is always the right dummy
+				completed.push(typeof Game.dummies !== "undefined" && Game.dummies[0].damageTaken >= 20 ? true : typeof Game.dummies !== "undefined" && Game.dummies[0].damageTaken > 0 ? " (" + damageRound(Game.dummies[0].damageTaken) + "/20)" : false); // quest must be finished in Eaglecrest Logging Camp, hence Game.dummies[0] is always the right dummy
 				
 				var finished = true;
 				for(var i = 0; i < completed.length; i++) {
@@ -170,6 +170,15 @@ var Quests = {
 			howToStart: "Speak to <strong>Marshall Teper</strong>.",
 			levelRequirement: 1,
 			questRequirements: ["Combat Training"],
+			
+			startRewards: {
+				items: [
+					Items.bag[2],
+				],
+				itemQuantities: [
+					1,
+				],
+			},
 			
 			rewards: {
 				xp: 30,
