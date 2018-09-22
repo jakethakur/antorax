@@ -2585,9 +2585,6 @@ Game.update = function (delta) {
 	this.NPCs.forEach(NPC => { // iterate though NPCs
 	
 		if (!NPC.respawning && this.hero.isTouching(NPC)) { // check npc is not dead and that hero is touching it
-			// code for red flashing close button
-			//let spokenTo = false; // if the NPC has opened up a quest
-			//let flashRed = false; // if the NPC has tried to open up a quest but cannot (not necessarily the same quest)
 			
 			if (typeof NPC.roles !== "undefined") { // check if the NPC is a functional npc (does something when touched)
 				
@@ -2613,7 +2610,6 @@ Game.update = function (delta) {
 									textArray.push("Quest start: " + role.quest.quest);
 									functionArray.push(Dom.quest.start);
 									parameterArray.push([role.quest]);
-									//spokenTo = true;
 								}
 								else {
 									// user doesn't have enough space
@@ -2626,7 +2622,6 @@ Game.update = function (delta) {
 								textArray.push("Quest start: " + role.quest.quest);
 								functionArray.push(Dom.quest.start);
 								parameterArray.push([role.quest]);
-								//spokenTo = true;
 							}
 						}
 						// quest is currently active
@@ -2654,7 +2649,6 @@ Game.update = function (delta) {
 										textArray.push("Quest finish: " + role.quest.quest);
 										functionArray.push(Dom.quest.finish);
 										parameterArray.push([role.quest]);
-										//spokenTo = true;
 									}
 									else {
 										// user doesn't have enough space
@@ -2667,7 +2661,6 @@ Game.update = function (delta) {
 									textArray.push("Quest finish: " + role.quest.quest);
 									functionArray.push(Dom.quest.finish);
 									parameterArray.push([role.quest]);
-									//spokenTo = true;
 								}
 							}
 							// quest conditions have not been fulfilled
@@ -2687,9 +2680,7 @@ Game.update = function (delta) {
 						// merchant appears as an option for choose DOM
 						textArray.push(role.chooseText || "I'd like to browse your goods.");
 						functionArray.push(Dom.merchant.page);
-						console.log(parameterArray);
 						parameterArray.push([NPC, role.sold]);
-						console.log(parameterArray);
 						NPC.say(NPC.chat.shopLeave, true, 0, false);
 					}
 					
@@ -2744,32 +2735,15 @@ Game.update = function (delta) {
 						// item buyer appears as an option for choose DOM
 						textArray.push(role.chooseText || "I'd like to sell some items to you.");
 						functionArray.push(Dom.buyer.page);
-						parameterArray.push([NPC.chat.buyerGreeting]);
+						parameterArray.push(NPC);
 					}
-					
-					// red colour of close button
-					/*if (document.getElementsByClassName("closeClass")[0].style.border != "5px solid red" && !spokenTo && flashRed) {
-						Dom.changeBook("questsPage",false,0);
-						Dom.quest.override = true;
-						Dom.quests.npc = NPC;
-					}
-					else if (document.getElementsByClassName("closeClass")[0].style.border == "5px solid red" && Dom.quest.override && !this.hero.isTouching(Dom.quests.npc)) {
-						Dom.changeBook("questsPage",false,1);
-						Dom.quest.override = false;
-					}*/
-					
 				}); // finished iterating through this NPC's roles
 				
 				if (functionArray.length > 0) {
 					// NPC can be spoken to, hence choose DOM should be opened
-					if (true) { // DOM isn't occupied hence choose DOM can be opened (TBD)
-						console.log(textArray, functionArray, parameterArray);
-						Dom.choose.page(NPC.name, NPC.chat.chooseChat, textArray, functionArray, parameterArray);
-						// if there is only one thing that can be chosen between, choose DOM handles this and just skips itself straight to that one thing
-					}
-					else {
-						// red colour of close button
-					}
+					// Dom.choose.page checks whether or not the DOM is occupied, and handles red flashing of close button
+					Dom.choose.page(NPC, textArray, functionArray, parameterArray);
+					// if there is only one thing that can be chosen between, choose DOM handles this and just skips itself straight to that one thing
 				}
 			}
 		}
