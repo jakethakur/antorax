@@ -734,7 +734,7 @@ class Hero extends Attacker {
 		}
 		
 		// move hero
-		if (this.statusEffects.filter(statusEffect => statusEffect.title === "Stunned").length !== 0 || this.isCorpse) {
+		if (this.statusEffects.find(statusEffect => statusEffect.title === "Stunned") !== undefined || this.isCorpse) {
 			// player cannot move
 		}
 		else {
@@ -787,8 +787,8 @@ class Hero extends Attacker {
 				if(!this.statusEffects.includes({title: "Swimming", effect: "Reduced movement speed",})) { // maybe just make a function to add a status effect? ( tbd )
 					this.statusEffects.push(new statusEffect({title: "Swimming", effect: "Reduced movement speed",}));
 					// remove fire status effects
-					let fireEffects = this.statusEffects.filter(statusEffect => statusEffect.title === "Fire I") // don't forget to update when new fire tiers are added!
-					if (fireEffects.length > 0) {
+					let fireEffects = this.statusEffects.find(statusEffect => statusEffect.title === "Fire I") // don't forget to update when new fire tiers are added!
+					if (fireEffects !== undefined) {
 						for (var i = 0; i < this.statusEffects.length; i++) {
 							if (this.statusEffects[i].title == "Fire I") { // don't forget to update when new fire tiers are added!
 								this.statusEffects.splice(i,1);
@@ -811,6 +811,12 @@ class Hero extends Attacker {
 		}
 		else {
 			console.error("Unknown slow tile: " + slowTile);
+		}
+		
+		// swiftness status effect
+		let swiftessStatusEffect = this.statusEffects.find(statusEffect => statusEffect.title.substring(0, 9) === "Swiftness");
+		if (swiftessStatusEffect !== undefined) {
+			this.speed *= 1 + swiftessStatusEffect.info.speedIncrease;
 		}
 		
 		if (!collision) { return; }
@@ -1350,9 +1356,9 @@ class Projectile extends Thing {
 						}
 						
 						// strength status effect
-						let strengthStatusEffect = attacker.statusEffects.filter(statusEffect => statusEffect.title.substring(0, 8) === "Strength");
-						if (strengthStatusEffect.length !== 0) {
-							dmgDealt += dmgDealt * strengthStatusEffect[0].info.damageIncrease;
+						let strengthStatusEffect = attacker.statusEffects.find(statusEffect => statusEffect.title.substring(0, 8) === "Strength");
+						if (strengthStatusEffect !== undefined) {
+							dmgDealt *= 1 + strengthStatusEffect.info.damageIncrease;
 						}
 						
 						if (random(0, 100) < attacker.stats.criticalChance) { // critical hit
@@ -1589,7 +1595,7 @@ class Enemy extends Attacker {
 	
 	// move towards entity (towards parameter)
 	move (delta, towards) {
-		if (this.statusEffects.filter(statusEffect => statusEffect.title === "Stunned").length !== 0) {
+		if (this.statusEffects.find(statusEffect => statusEffect.title === "Stunned") !== undefined) {
 			// enemy is stunned
 		}
 		else {
@@ -1947,7 +1953,7 @@ Game.statusEffects.stun = function(time, target) {
 	}
 }
 
-// give target the strength debuff
+// give target the strength buff
 Game.statusEffects.strength = function(tier, target) { // you might want to add an optional time parameter in the future (to override the tier's time, i.e. for bosses)
 	// turn tier into roman numeral (function in dom)
 	tier = romanize(tier);
@@ -1980,7 +1986,7 @@ Game.statusEffects.strength = function(tier, target) { // you might want to add 
 			},
 			tick: function (owner) { // decrease time
 				if (damageRound(this.info.ticks) < this.info.time) { // check effect has not expired 
-					this.info.ticks += 0.2;
+					this.info.ticks++;
 					if (owner.constructor.name === "Hero") { // refresh canvas status effects if the status effect was applied to player
 						Game.hero.updateStatusEffects();
 					}
@@ -1997,10 +2003,74 @@ Game.statusEffects.strength = function(tier, target) { // you might want to add 
 			},
 		}));
 		
-		// begin tick for every 0.2 seconds
+		// begin tick for every second
 		setTimeout(function (owner) {
 			this.tick(owner);
-		}.bind(target.statusEffects[target.statusEffects.length - 1]), 200, target);
+		}.bind(target.statusEffects[target.statusEffects.length - 1]), 1000, target);
+	}
+	else if (found !== -1) { // extend existing strength
+		target.statusEffects[found].info.ticks = 0;
+	}
+	
+	if (target.constructor.name === "Hero") { // refresh canvas status effects if the status effect was applied to player
+		Game.hero.updateStatusEffects();
+	}
+}
+
+// give target the swiftness buff (walk speed increase)
+Game.statusEffects.swiftness = function(tier, target) { // you might want to add an optional time parameter in the future (to override the tier's time, i.e. for bosses)
+	// turn tier into roman numeral (function in dom)
+	tier = romanize(tier);
+	
+	// try to find an existing strength effect of the tier
+	let found = target.statusEffects.findIndex(function(element) {
+		return element.title === ("Swiftness " + tier);
+	});
+	
+	if (found === -1) { // no strength effect of that tier currently applied to the target
+		
+		let speedIncrease = 0; // percentage (same walk speed = 0 speedIncrease)
+		let time = 0;
+		// find what tier does
+		if (tier === "I") {
+			speedIncrease = 35;
+			time = 20;
+		}
+		else {
+			console.error("Swiftness status effect tier " + tier + " has not been assigned walk speed increase and time");
+		}
+		
+		target.statusEffects.push(new statusEffect({
+			title: "Swiftness " + tier,
+			effect: "+" + speedIncrease + "% walk speed for " + time + " seconds.",
+			info: {
+				speedIncrease: speedIncrease,
+				time: time,
+				ticks: 0, // increased by 1 every second
+			},
+			tick: function (owner) { // decrease time
+				if (damageRound(this.info.ticks) < this.info.time) { // check effect has not expired 
+					this.info.ticks++;
+					if (owner.constructor.name === "Hero") { // refresh canvas status effects if the status effect was applied to player
+						Game.hero.updateStatusEffects();
+					}
+					setTimeout(function (owner) {
+						this.tick(owner);
+					}.bind(this), 200, owner);
+				}
+				else { // remove effect interval
+					Game.removeStatusEffect(owner);
+					if (owner.constructor.name === "Hero") { // refresh canvas status effects if the status effect was applied to player
+						Game.hero.updateStatusEffects();
+					}
+				}
+			},
+		}));
+		
+		// begin tick for every second
+		setTimeout(function (owner) {
+			this.tick(owner);
+		}.bind(target.statusEffects[target.statusEffects.length - 1]), 1000, target);
 	}
 	else if (found !== -1) { // extend existing strength
 		target.statusEffects[found].info.ticks = 0;
@@ -2514,52 +2584,57 @@ Game.update = function (delta) {
 	// check collision with NPCs - includes quest givers, quest finishers, merchants, soul healers, more TBA
 	this.NPCs.forEach(NPC => { // iterate though NPCs
 	
-		if (!NPC.respawning) { // check npc is not dead
+		if (!NPC.respawning && this.hero.isTouching(NPC)) { // check npc is not dead and that hero is touching it
 			// code for red flashing close button
 			//let spokenTo = false; // if the NPC has opened up a quest
 			//let flashRed = false; // if the NPC has tried to open up a quest but cannot (not necessarily the same quest)
 			
 			if (typeof NPC.roles !== "undefined") { // check if the NPC is a functional npc (does something when touched)
-			
+				
+				// arrays for choose DOM
+				let textArray = []; // array of text to describe that function
+				let functionArray = []; // array of functions that can be called
+				let parameterArray = []; // array of arrays of parameters for these functions (to be ...spread into the function)
+				
 				NPC.roles.forEach(role => { // iterate through quests involving that NPC
 				
 					// quest starts
 					if (role.role === "questStart") {
 						// quest is ready to be accepted
-						if (this.hero.isTouching(NPC) && // touching NPC
-						!Player.quests.activeQuestArray.includes(role.quest.quest) && // quest isn't currently active
+						if (!Player.quests.activeQuestArray.includes(role.quest.quest) && // quest isn't currently active
 						!Player.quests.completedQuestArray.includes(role.quest.quest) && // quest hasn't aleady been completed
 						role.quest.levelRequirement <= this.hero.level && // player is a high enough level
 						isContainedInArray(role.quest.questRequirements, Player.quests.completedQuestArray)) { // quest requirements have been completed
 							
-							if (Dom.currentlyDisplayed === "") { // quest isn't currently pending to be accepted (currently displayed on DOM)
-								if (typeof role.quest.startRewards !== "undefined" && typeof role.quest.startRewards.items !== "undefined") {
-									if (Dom.inventory.requiredSpace(role.quest.startRewards.items, role.quest.startRewards.itemQuantities)) {
-										// user has space for quest start items
-										Dom.quest.start(role.quest);
-										spokenTo = true;
-									}
-									else {
-										// user doesn't have enough space
-										NPC.say(NPC.chat.inventoryFull, true, 0, true);
-									}
-								}
-								else {
-									// no quest start items, so user ofc has enough inventory space
-									Dom.quest.start(role.quest);
+							if (typeof role.quest.startRewards !== "undefined" && typeof role.quest.startRewards.items !== "undefined") {
+								if (Dom.inventory.requiredSpace(role.quest.startRewards.items, role.quest.startRewards.itemQuantities)) {
+									// user has space for quest start items
+									// quest start appears as an option for choose DOM
+									textArray.push("Quest start: " + role.quest.quest);
+									functionArray.push(Dom.quest.start);
+									parameterArray.push([role.quest]);
 									//spokenTo = true;
 								}
+								else {
+									// user doesn't have enough space
+									NPC.say(NPC.chat.inventoryFull, true, 0, true);
+								}
 							}
-							else if (NPC.roles.find(role => role.quest == Dom.currentlyDisplayed) === undefined) {
-								//flashRed = true;
+							else {
+								// no quest start items, so user ofc has enough inventory space
+								// quest start appears as an option for choose DOM
+								textArray.push("Quest start: " + role.quest.quest);
+								functionArray.push(Dom.quest.start);
+								parameterArray.push([role.quest]);
+								//spokenTo = true;
 							}
 						}
 						// quest is currently active
-						else if (this.hero.isTouching(NPC) && Player.quests.activeQuestArray.includes(role.quest.quest)) {
+						else if (Player.quests.activeQuestArray.includes(role.quest.quest)) {
 							NPC.say(NPC.chat.questProgress, true, 0, false);
 						}
 						// quest has been completed
-						else if (this.hero.isTouching(NPC) && Player.quests.completedQuestArray.includes(role.quest.quest)) {
+						else if (Player.quests.completedQuestArray.includes(role.quest.quest)) {
 							NPC.say(NPC.chat.questComplete, true, 0, false);
 						}
 					}
@@ -2567,32 +2642,32 @@ Game.update = function (delta) {
 					// quest finishes
 					if (role.role === "questFinish") {
 						// check if quest is ready to be finished
-						if (this.hero.isTouching(NPC) && // touching NPC
-						Player.quests.activeQuestArray.includes(role.quest.quest) && // quest is currently active
+						if (Player.quests.activeQuestArray.includes(role.quest.quest) && // quest is currently active
 						!Player.quests.completedQuestArray.includes(role.quest.quest)) { // quest has not already been completed
 							
 							// check if quest conditions have been fulfilled
 							if(role.quest.isCompleted()[role.quest.objectives.length - 1]) {
-								if (Dom.currentlyDisplayed === "") { // quest isn't currently pending to be accepted (currently displayed on DOM)
-									if (typeof role.quest.rewards !== "undefined" && typeof role.quest.rewards.items !== "undefined") {
-										if (Dom.inventory.requiredSpace(role.quest.rewards.items, role.quest.rewards.itemQuantities)) {
-											// user has space for quest finish items
-											Dom.quest.finish(role.quest);
-											//spokenTo = true;
-										}
-										else {
-											// user doesn't have enough space
-											NPC.say(NPC.chat.inventoryFull, true, 0, true);
-										}
-									}
-									else {
-										// no quest item rewards, so user ofc has enough inventory space
-										Dom.quest.finish(role.quest);
+								if (typeof role.quest.rewards !== "undefined" && typeof role.quest.rewards.items !== "undefined") {
+									if (Dom.inventory.requiredSpace(role.quest.rewards.items, role.quest.rewards.itemQuantities)) {
+										// user has space for quest finish items
+										// quest finish appears as an option for choose DOM
+										textArray.push("Quest finish: " + role.quest.quest);
+										functionArray.push(Dom.quest.finish);
+										parameterArray.push([role.quest]);
 										//spokenTo = true;
 									}
+									else {
+										// user doesn't have enough space
+										NPC.say(NPC.chat.inventoryFull, true, 0, true);
+									}
 								}
-								else if (NPC.roles.find(role => role.quest == Dom.currentlyDisplayed) === undefined) {
-									//flashRed = true;
+								else {
+									// no quest item rewards, so user ofc has enough inventory space
+									// quest finish appears as an option for choose DOM
+									textArray.push("Quest finish: " + role.quest.quest);
+									functionArray.push(Dom.quest.finish);
+									parameterArray.push([role.quest]);
+									//spokenTo = true;
 								}
 							}
 							// quest conditions have not been fulfilled
@@ -2602,122 +2677,74 @@ Game.update = function (delta) {
 							
 						}
 						// quest has already been completed
-						else if (this.hero.isTouching(NPC) && Player.quests.completedQuestArray.includes(role.quest.quest)) {
+						else if (Player.quests.completedQuestArray.includes(role.quest.quest)) {
 							NPC.say(NPC.chat.questComplete, true, 0, false);
 						}
 					}
 					
 					// merchants
 					if (role.role === "merchant") {
-						if (this.hero.isTouching(NPC) && Dom.currentlyDisplayed === "") {
-							Dom.merchant.page(NPC, role.sold);
-							NPC.say(NPC.chat.shopLeave, true, 0, false);
-						}
-						else if (Dom.currentlyDisplayed != NPC.name && Dom.currentlyDisplayed != "" && !Dom.override) { // trying to speak to merchant when an interface is already open
-							/*// red colour of close button
-							if (this.hero.isTouching(NPC) && document.getElementsByClassName("closeClass")[0].style.border != "5px solid red"){
-								Dom.changeBook("questsPage", false, 0);
-								Dom.merchant.override = true;
-							}
-							else if (!this.hero.isTouching(NPC) && document.getElementsByClassName("closeClass")[0].style.border == "5px solid red" && Dom.merchant.override) {
-								Dom.changeBook("questsPage", false, 1);
-								Dom.merchant.override = false;
-							}*/
-						}
+						// merchant appears as an option for choose DOM
+						textArray.push(role.chooseText || "I'd like to browse your goods.");
+						functionArray.push(Dom.merchant.page);
+						console.log(parameterArray);
+						parameterArray.push([NPC, role.sold]);
+						console.log(parameterArray);
+						NPC.say(NPC.chat.shopLeave, true, 0, false);
 					}
 					
 					// soul healers
 					if (role.role === "soulHealer") {
-						if (!NPC.respawning) { // check soul healer is not dead
-							let statusEffect = Game.hero.statusEffects.find(statusEffect => statusEffect.title === "XP Fatigue"); // try to find xp fatigue effect
-							if (this.hero.isTouching(NPC)) {
-								if (statusEffect !== undefined) {
-									if (Dom.currentlyDisplayed === "") {
-										// calculate cost
-										this.soulHealerCost = Math.floor(statusEffect.info.ineffectiveAmount / 50); // set to Game so that it can be accessed from the function in Dom.text.page
-										if (this.soulHealerCost < 1) {
-											this.soulHealerCost = 1;
-										}
-										// save the NPC into a variable so that it can say something if the person is healed
-										this.currentSoulHealer = NPC;
-										// open page
-										Dom.text.page("Soul Healer", NPC.chat.canBeHealedText, ["Remove XP Fatigue for " + this.soulHealerCost + " gold"], [function () {
-											if (Dom.inventory.check(2, "currency", Game.soulHealerCost)) {
-												Dom.inventory.removeById(2, "currency", Game.soulHealerCost);
-												Game.hero.statusEffects.splice(Game.hero.statusEffects.findIndex(statusEffect => statusEffect.title === "XP Fatigue"), 1); // remove xp fatigue effect
-												Dom.changeBook(Dom.previous, true); // close page
-												Game.currentSoulHealer.say(Game.currentSoulHealer.chat.healedText, false, 0, false);
-												Game.currentSoulHealer = undefined; // reset variable that remembers which soul healer the player is speaking to
-												Game.soulHealerCost = undefined; // reset variable that remembers the cost for soul healing
-											}
-											else {
-												// player cannot afford it
-												Game.soulHealers[i].say(Game.soulHealers[i].chat.tooPoor, true, 0, false);
-											}
-										}], NPC.name);
-									}
-									else if (Dom.currentlyDisplayed !== "Soul Healer" && Dom.currentlyDisplayed != "" && !Dom.override) {
-										// flashing red if something else is open in dom
-										// tbd PG
-										/*if (this.hero.isTouching(NPC) && document.getElementsByClassName("closeClass")[0].style.border != "5px solid red") {
-											Dom.changeBook("identifierPage",false,0);
-											Dom.identifier.override = true;
-										}
-										else if (!this.hero.isTouching(NPC) && document.getElementsByClassName("closeClass")[0].style.border == "5px solid red" && Dom.identifier.override) {
-											Dom.changeBook("identifierPage",false,1);
-											Dom.identifier.override = false;
-										}*/
-									}
+						let statusEffect = Game.hero.statusEffects.find(statusEffect => statusEffect.title === "XP Fatigue"); // try to find xp fatigue effect
+						if (statusEffect !== undefined) {
+							// calculate cost
+							this.soulHealerCost = Math.floor(statusEffect.info.ineffectiveAmount / 50); // set to Game so that it can be accessed from the function in Dom.text.page
+							if (this.soulHealerCost < 1) {
+								this.soulHealerCost = 1;
+							}
+							
+							// save the NPC into a variable so that it can say something if the person is healed
+							this.currentSoulHealer = NPC;
+							
+							// soul healer appears as an option for choose DOM
+							textArray.push(role.chooseText || "I'd like to remove my 'XP Fatigue' status effect.");
+							functionArray.push(Dom.text.page);
+							parameterArray.push(["Soul Healer", NPC.chat.canBeHealedText, ["Remove XP Fatigue for " + this.soulHealerCost + " gold"], [function () {
+								if (Dom.inventory.check(2, "currency", Game.soulHealerCost)) {
+									Dom.inventory.removeById(2, "currency", Game.soulHealerCost);
+									Game.hero.statusEffects.splice(Game.hero.statusEffects.findIndex(statusEffect => statusEffect.title === "XP Fatigue"), 1); // remove xp fatigue effect
+									Dom.changeBook(Dom.previous, true); // close page
+									Game.currentSoulHealer.say(Game.currentSoulHealer.chat.healedText, false, 0, false);
+									Game.currentSoulHealer = undefined; // reset variable that remembers which soul healer the player is speaking to
+									Game.soulHealerCost = undefined; // reset variable that remembers the cost for soul healing
 								}
 								else {
-									if (!Dom.chat.contents.includes("<strong>" + NPC.name + "</strong>: " + NPC.chat.healedText)) {
-										NPC.say(NPC.chat.cannotBeHealedText, true, 0, false);
-									}
+									// player cannot afford it
+									Game.soulHealers[i].say(Game.soulHealers[i].chat.tooPoor, true, 0, false);
 								}
+							}], NPC.name]);
+						}
+						else {
+							if (!Dom.chat.contents.includes("<strong>" + NPC.name + "</strong>: " + NPC.chat.healedText)) {
+								NPC.say(NPC.chat.cannotBeHealedText, true, 0, false);
 							}
 						}
 					}
 					
 					// identifiers
 					if (role.role === "identifier") {
-						if (!NPC.respawning) { // check identifier is not dead
-							if (this.hero.isTouching(NPC) && Dom.currentlyDisplayed === "") { // needs to check that it is not already open - PG tbd
-								// open identifier page
-								Dom.identifier.page(NPC);
-							}
-							else if (Dom.currentlyDisplayed !== "identifier" && Dom.currentlyDisplayed != "identified" && Dom.currentlyDisplayed != "" && !Dom.override) {
-								// flashing red if something else is open in dom
-								/*if (this.hero.isTouching(NPC) && document.getElementsByClassName("closeClass")[0].style.border != "5px solid red") {
-									Dom.changeBook("identifierPage",false,0);
-									Dom.identifier.override = true;
-								}
-								else if (!this.hero.isTouching(NPC) && document.getElementsByClassName("closeClass")[0].style.border == "5px solid red" && Dom.identifier.override) {
-									Dom.changeBook("identifierPage",false,1);
-									Dom.identifier.override = false;
-								}*/
-							}
-						}
+						// identifier appears as an option for choose DOM
+						textArray.push(role.chooseText || "I'd like to identify an item.");
+						functionArray.push(Dom.identifier.page);
+						parameterArray.push([NPC, true]);
 					}
 					
 					// item buyers
 					if (role.role === "itemBuyer") {
-						if (!NPC.respawning) { // check item buyer is not dead
-							if (this.hero.isTouching(NPC) && Dom.currentlyDisplayed === "") { // needs to check that it is not already open - PG tbd
-								// open item buyer page
-								Dom.buyer.page(NPC.chat.buyerGreeting);
-							}
-							//else if (Dom.currentlyDisplayed !== "itemBuyer" && Dom.currentlyDisplayed !== "" && !Dom.override) {
-								// flashing red if something else is open in dom
-								/*if (this.hero.isTouching(NPC) && document.getElementsByClassName("closeClass")[0].style.border != "5px solid red") {
-									Dom.changeBook("identifierPage",false,0);
-									Dom.identifier.override = true;
-								}
-								else if (!this.hero.isTouching(NPC) && document.getElementsByClassName("closeClass")[0].style.border == "5px solid red" && Dom.identifier.override) {
-									Dom.changeBook("identifierPage",false,1);
-									Dom.identifier.override = false;
-								}*/
-							//}
-						}
+						// item buyer appears as an option for choose DOM
+						textArray.push(role.chooseText || "I'd like to sell some items to you.");
+						functionArray.push(Dom.buyer.page);
+						parameterArray.push([NPC.chat.buyerGreeting]);
 					}
 					
 					// red colour of close button
@@ -2732,6 +2759,18 @@ Game.update = function (delta) {
 					}*/
 					
 				}); // finished iterating through this NPC's roles
+				
+				if (functionArray.length > 0) {
+					// NPC can be spoken to, hence choose DOM should be opened
+					if (true) { // DOM isn't occupied hence choose DOM can be opened (TBD)
+						console.log(textArray, functionArray, parameterArray);
+						Dom.choose.page(NPC.name, NPC.chat.chooseChat, textArray, functionArray, parameterArray);
+						// if there is only one thing that can be chosen between, choose DOM handles this and just skips itself straight to that one thing
+					}
+					else {
+						// red colour of close button
+					}
+				}
 			}
 		}
 	}); // finished iterating through NPCs

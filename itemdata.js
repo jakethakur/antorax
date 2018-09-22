@@ -906,6 +906,107 @@ var Items = {
 			name: "Potion of Strength I",
 			type: "consumable",
 			image: "assets/items/consumable/2.png",
+			onClickText: "Increases damage dealt by 40% for 10 seconds",
+			onClick: function (inventoryPosition) {
+				// remove the item
+				Dom.inventory.remove(inventoryPosition);
+				
+				// give strength I status effect to player
+				Game.statusEffects.strength("I", Game.hero);
+			}
+		},
+		{
+			id: 3,
+			name: "Potion of Swiftness I",
+			type: "consumable",
+			image: "assets/items/consumable/3.png",
+			onClickText: "Increases walk speed by 35% for 20 seconds",
+			onClick: function (inventoryPosition) {
+				// remove the item
+				Dom.inventory.remove(inventoryPosition);
+				
+				// give swiftness I status effect to player
+				Game.statusEffects.swiftness("I", Game.hero);
+			}
+		},
+		{
+			id: 4,
+			name: "Potion of Health I",
+			type: "consumable",
+			image: "assets/items/consumable/4.png",
+			onClickText: "Restores 20 health",
+			onClick: function (inventoryPosition) {
+				// remove the item
+				Dom.inventory.remove(inventoryPosition);
+				
+				// restore the health
+				Game.restoreHealth(Game.hero, 20);
+			}
+		},
+		{
+			id: 5,
+			name: "Wood-Brewed Beer",
+			type: "consumable",
+			image: "assets/items/consumable/5.png",
+			onClickText: "Restores 15 health",
+			lore: "Might make you a little tipsy...",
+			onClick: function (inventoryPosition) {
+				// remove the item
+				Dom.inventory.remove(inventoryPosition);
+				
+				// restore the health
+				Game.restoreHealth(Game.hero, 20);
+				// make the player tipsy!
+				//tbd
+			}
+		},
+		{
+			id: 6,
+			name: "Goblin Brewed Potion",
+			type: "consumable",
+			image: "assets/items/consumable/6.png",
+			onClickText: "I wonder what this does?",
+			onClick: function (inventoryPosition) {
+				// remove the item
+				Dom.inventory.remove(inventoryPosition);
+				
+				// do something crazy!
+				let effectNumber = random(0, 4);
+				switch(effectNumber) {
+					case 0:
+						// give strength I status effect to player
+						Game.statusEffects.strength("I", Game.hero);
+						break;
+					case 1:
+						// give swiftness I status effect to player
+						Game.statusEffects.swiftness("I", Game.hero);
+						break;
+					case 2:
+						// give fire I status effect to player
+						Game.statusEffects.fire("I", Game.hero);
+						break;
+					// more TBD...
+					default:
+						break;
+				}
+			}
+		},
+		{
+			id: 7,
+			name: "Goblin Trap",
+			type: "consumable",
+			image: "assets/items/consumable/6.png",
+			onClickText: "Places a trap",
+			lore: "Like a bear trap, but ickier.",
+			onClick: function (inventoryPosition) {
+				// remove the item
+				Dom.inventory.remove(inventoryPosition);
+				
+				// quest progress
+				//tbd
+				// place trap
+				//tbd
+			}
 		},
 	],
 	fish: [

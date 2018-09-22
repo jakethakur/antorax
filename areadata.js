@@ -168,6 +168,9 @@ var Areas = {
 						sold: Player.class === "k" ? [Items.sword[2],] : (Player.class === "m" ? [Items.staff[2],] : (Player.class === "a" ? [Items.bow[2],] : [])),
 						role: "merchant",
 					},
+					{
+						role: "itemBuyer",
+					},
 				],
 				chat: {
 					shopGreeting: "Would you like to buy anything?",
