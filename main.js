@@ -2735,7 +2735,7 @@ Game.update = function (delta) {
 						// item buyer appears as an option for choose DOM
 						textArray.push(role.chooseText || "I'd like to sell some items to you.");
 						functionArray.push(Dom.buyer.page);
-						parameterArray.push(NPC);
+						parameterArray.push([NPC]);
 					}
 				}); // finished iterating through this NPC's roles
 				

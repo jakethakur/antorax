@@ -725,7 +725,7 @@ var Areas = {
 				y: 905,
 				image: "mailcart",
 				name: "Mail Cart",
-				loot: [Items.item[7]],
+				loot: [Items.item[6]],
 				lootQuantities: [1],
 				inventorySpace: 8,
 				disappearAfterOpened: false,

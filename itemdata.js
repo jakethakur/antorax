@@ -667,7 +667,7 @@ var Items = {
 			id: 0,
 			name: "Test Rod 1",
 			type: "rod",
-			image: "assets/items/rod/3.png",
+			image: "assets/items/rod/1.png",
 			rarity: "mythic",
 			lore: "",
 			stats: {
@@ -677,7 +677,7 @@ var Items = {
 			id: 1,
 			name: "Test Rod 2",
 			type: "rod",
-			image: "assets/items/rod/3.png",
+			image: "assets/items/rod/1.png",
 			rarity: "mythic",
 			lore: "",
 			stats: {
@@ -693,6 +693,14 @@ var Items = {
 			lore: "A fine rod.",
 			stats: {
 			},
+		},
+		{
+			id: 3,
+			name: "Fisherman Tobenam's Lost Rod",
+			type: "rod",
+			quest: true,
+			image: "assets/items/rod/3.png",
+			lore: "The goblins haven't looked after this rod very well...",
 		},
 	],
 	set: [
@@ -831,8 +839,8 @@ var Items = {
 		},
 		{
 			id: 1,
-			name: "Test quest item",
-			type: "quest",
+			name: "Test misc item",
+			type: "misc",
 			image: "assets/items/staff/7.png", // perhaps give it its own image?
 			stack: 2,
 		},
@@ -875,16 +883,10 @@ var Items = {
 		},
 		{
 			id: 6,
-			name: "Fisherman Tobenam's Lost Rod",
-			type: "quest",
-			image: "assets/items/item/6.png",
-			lore: "The goblins haven't looked after this rod very well...",
-		},
-		{
-			id: 7,
 			name: "Eaglecrest Mail Sack",
 			type: "quest",
-			image: "assets/items/item/7.png",
+			quest: true,
+			image: "assets/items/item/6.png",
 			lore: "Contains mail to be delivered across the lands of Antorax.",
 		},
 	],

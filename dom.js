@@ -739,7 +739,7 @@ Dom.inventory.displayEquipmentInformation = function(num){
 		if(Player.inventory.items[num].type === "misc"){
 			document.getElementById("invName").style.color = "#333333";
 		}
-		if(Player.inventory.items[num].type === "quest"){
+		if(Player.inventory.items[num].quest){
 			document.getElementById("invStats").style.color = "slateblue";
 			document.getElementById("invStats").innerHTML = "Quest item";
 		}else{
@@ -937,7 +937,7 @@ Dom.loot.displayInformation = function(num, array, total){
 	if(array[num].type === "misc"){
 		document.getElementById("lootName").style.color = "#333333";
 	}
-	if(array[num].type === "quest"){
+	if(array[num].quest){
 		document.getElementById("lootStats").style.color = "slateblue";
 		document.getElementById("lootStats").innerHTML = "Quest item";
 	}else{
@@ -1282,7 +1282,7 @@ Dom.identifier.right = function(npc, over){ // this code is not important
 
 Dom.identifier.page = function(npc, over){ // identifier page
 	Dom.changeBook("identifierPage", over); // changes page to identifier
-	Dom.currentlyDisplayed = "identifier"; // sets the currently displayed page variable to identifier
+	Dom.currentlyDisplayed = npc.name; // sets the currently displayed page variable to identifier
 	Dom.changeBook("identifierPage", false, 1); // stops close button being red
 	Dom.identifier.unId = [];
 	for(let i = 0; i < Player.inventory.items.length; i++){
@@ -1401,7 +1401,7 @@ Dom.identifier.identify = function(npc){ // the page that you go to when you cli
 	if(Dom.inventory.check(2,"currency",1) && Dom.identifier.unId.length !== 0){ // if the player can afford the item
 		Dom.inventory.removeById(2,"currency",1);
 		Dom.changeBook("identifiedPage",true); // changed page to the identified page
-		Dom.currentlyDisplayed = "identified"; // sets the currently displayed page variable to identified
+		Dom.currentlyDisplayed = npc.name; // sets the currently displayed page variable to identified
 		
 		for(let i = 0; i < Player.inventory.items.length; i++){
 			if(Player.inventory.items[i].unidentified && Player.inventory.items[i].tier === Dom.identifier.unId[Dom.identifier.displayed].tier && Player.inventory.items[i].area === Dom.identifier.unId[Dom.identifier.displayed].area && Player.inventory.items[i].rarity === Dom.identifier.unId[Dom.identifier.displayed].rarity && Player.inventory.items[i].type === Dom.identifier.unId[Dom.identifier.displayed].type){
@@ -1451,7 +1451,7 @@ Dom.identifier.identify = function(npc){ // the page that you go to when you cli
 Dom.inventory.dispose = function(ev){
 	let quest = false;
 	if(!isNaN(parseInt(ev.dataTransfer.getData("text")))){
-		if(Player.inventory.items[parseInt(ev.dataTransfer.getData("text"))].type === "quest"){
+		if(Player.inventory.items[parseInt(ev.dataTransfer.getData("text"))].quest){
 			quest = true;
 		}
 	}
@@ -2039,7 +2039,7 @@ Dom.inventory.hideHotbar = function(hide){
 }
 
 Dom.loot.page = function(name, items, quantities, space){
-	Dom.changeBook("lootPage", true/*false*/);
+	Dom.changeBook("lootPage", false);
 	Dom.currentlyDisplayed = "loot";
 	let spaces = [];
 	for(let i = 0; i < space; i++){
@@ -2087,7 +2087,7 @@ Dom.loot.page = function(name, items, quantities, space){
 		}
 		document.getElementById("lootAll").onclick = function(){
 			for(let i = 0; i < document.getElementsByClassName("lootOptions").length; i++){
-				if(document.getElementsByClassName("lootOptions")[i].onclick !== undefined){
+				if(document.getElementsByClassName("lootOptions")[i].onclick !== null){
 					document.getElementsByClassName("lootOptions")[i].onclick();
 				}
 			}
@@ -2151,11 +2151,12 @@ Dom.buyer.remove = function(i, all){
 	Dom.buyer.page();
 }
 
-Dom.buyer.page = function(chat){
+Dom.buyer.page = function(npc){
 	Dom.changeBook("buyerPage", true/*false*/);
-	Dom.currentlyDisplayed = "itemBuyer";
-	document.getElementById("buyerPageChat").innerHTML = chat;
-	document.getElementById("buyerPageInventory").innerHTML = "";
+	if(npc !== undefined){
+		Dom.currentlyDisplayed = npc.name;
+		document.getElementById("buyerPageChat").innerHTML = npc.chat.buyerGreeting;
+	}document.getElementById("buyerPageInventory").innerHTML = "";
 	for(let i = 0; i < document.getElementById("itemInventory").getElementsByTagName("td").length / 6; i++){
 		document.getElementById("buyerPageInventory").innerHTML += "<tr><td/><td/><td/><td/><td/><td/></tr>";
 	}
@@ -2200,14 +2201,32 @@ Dom.buyer.page = function(chat){
 	}
 }
 
-Dom.choose.page = function(name, chat, buttons, functions, parameters){
-	Dom.changeBook("choosePage");
-	Dom.currentlyDisplayed = "choose";
-	document.getElementById("choosePage").innerHTML = "<h1>"+name+"</h1><p>"+chat+"</p>";
-	for(let i = 0; i < buttons.length; i++){
-		document.getElementById("choosePage").innerHTML += "<p id='choosePageButtons"+i+"'>"+buttons[i]+"</p>";
-		document.getElementById("choosePageButtons"+i).onclick = function(){
-			functions[i](...parameters[i]);
+Dom.choose.page = function(npc, buttons, functions, parameters){
+	if(Dom.currentlyDisplayed === ""){
+		if(buttons.length > 1){
+			Dom.changeBook("choosePage");
+			Dom.currentlyDisplayed = npc.name;
+			document.getElementById("choosePage").innerHTML = "<h1>"+npc.name+"</h1><p>"+npc.chat.chooseChat+"</p>";
+			for(let i = 0; i < buttons.length; i++){
+				let image = "";
+				image = "<img src='assets/icons/quests.png' height='15px' style='position: relative; top: 2px;'></img>";
+				if(functions[i] === Dom.merchant.page){
+					image = "<img src='assets/items/currency/2.png' height='15px' style='position: relative; top: 2px;'></img>";
+				}
+				document.getElementById("choosePage").innerHTML += "<p id='choosePageButtons"+i+"'>"+image+" "+buttons[i]+"</p>";
+			}
+			document.getElementById("choosePage").innerHTML += '<br><br><center><div id="choosePageClose" class="closeClass" onclick="Dom.changeBook(Dom.previous, true)">Close</div></center>';
+			for(let i = 0; i < buttons.length; i++){
+				document.getElementById("choosePageButtons"+i).onclick = function(){
+					functions[i](...parameters[i]);
+				}
+			}
+		}else{
+			functions[0](...parameters[0]);
+		}
+	}else if(Dom.currentlyDisplayed !== npc.name && npc.roles.find(role => role.quest == Dom.currentlyDisplayed) === undefined){
+		if(document.getElementsByClassName("closeClass")[0].style.border !== "5px solid red") {
+			Dom.changeBook("identifierPage",false,2);
 		}
 	}
 }
