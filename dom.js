@@ -299,7 +299,7 @@ Dom.settings.bookmarkPosition = function() { // arrange position of bookmarks
 	}
 }
 
-if(window.innerHeight >= 755) { // if the window height is big enough...
+if(window.innerHeight >= 754) { // if the window height is big enough...
 	document.getElementById("bottom").checked = true; // ...set the bookmark position to the bottom...
 	if(window.innerWidth >= 1295 && localStorage.getItem("bookmarksPosition") === "right"){
 		document.getElementById("right").checked = true; // ...set the bookmark position to the right...
@@ -952,7 +952,7 @@ Dom.loot.displayInformation = function(num, array, total){
 
 Dom.currentlyDisplayed = ""; // the currently displayed quest, merchant, etc. (any pop up)
 Dom.quest.start = function(quest){ // display quest start page
-	if(Dom.changeBook("questStart", false)) { // display quest start page
+	if(Dom.changeBook("questStart", true/*false*/)) { // display quest start page
 		document.getElementById("questStartQuest").innerHTML = quest.quest; // sets title to quest name
 		document.getElementById("questStartName").innerHTML = quest.startName; // sets NPC name to NPC name
 		document.getElementById("questStartChat").innerHTML = quest.startChat; // sets chat to NPC chat
@@ -999,7 +999,7 @@ Dom.quest.start = function(quest){ // display quest start page
 }
 
 Dom.quest.finish = function(quest){ // display quest finish page
-	if(Dom.changeBook("questFinish", false)){ // display quest finish page
+	if(Dom.changeBook("questFinish", true/*false*/)){ // display quest finish page
 		document.getElementById("questFinishQuest").innerHTML = quest.quest; // sets title to quest name
 		document.getElementById("questFinishName").innerHTML = quest.finishName; // sets NPC name to NPC name
 		document.getElementById("questFinishChat").innerHTML = quest.finishChat; // sets chat to NPC chat
@@ -1208,7 +1208,7 @@ Dom.quests.other();
 Dom.quests.possible();
 
 Dom.merchant.page = function(npc, sold){ // merchant page
-	Dom.changeBook("merchantPage", false); // changes the page to the merchant page
+	Dom.changeBook("merchantPage", true/*false*/); // changes the page to the merchant page
 	Dom.currentlyDisplayed = npc.name; // sets the currently displayed variable to the merchant's name
 	Dom.changeBook("merchantPage", false, 1); // stops close button being red
 	document.getElementById("merchantPageTitle").innerHTML = npc.name; // sets the title to the merchant's name
@@ -2039,7 +2039,7 @@ Dom.inventory.hideHotbar = function(hide){
 }
 
 Dom.loot.page = function(name, items, quantities, space){
-	Dom.changeBook("lootPage", false);
+	Dom.changeBook("lootPage", true/*false*/);
 	Dom.currentlyDisplayed = "loot";
 	let spaces = [];
 	for(let i = 0; i < space; i++){
@@ -2113,7 +2113,7 @@ document.getElementById("levelUpPageClose").onclick = function(){
 }
 
 Dom.text.page = function(name, text, buttons, functions){
-	Dom.changeBook("textPage");
+	Dom.changeBook("textPage", true/*false*/);
 	Dom.currentlyDisplayed = name;
 	document.getElementById("textPage").innerHTML = '<h1 id="textPageName">'+name+'</h1>'
 	document.getElementById("textPage").innerHTML += '<p id="textPageText">'+text+'</p>'
@@ -2152,7 +2152,7 @@ Dom.buyer.remove = function(i, all){
 }
 
 Dom.buyer.page = function(chat){
-	Dom.changeBook("buyerPage");
+	Dom.changeBook("buyerPage", true/*false*/);
 	Dom.currentlyDisplayed = "itemBuyer";
 	document.getElementById("buyerPageChat").innerHTML = chat;
 	document.getElementById("buyerPageInventory").innerHTML = "";
@@ -2200,10 +2200,16 @@ Dom.buyer.page = function(chat){
 	}
 }
 
-Dom.choose.page = function(buttons, functions, parameters){
+Dom.choose.page = function(name, chat, buttons, functions, parameters){
 	Dom.changeBook("choosePage");
 	Dom.currentlyDisplayed = "choose";
-	document.getElementById("choosePage").innerHTML = "<h1>What would you like to do?</h1>";
+	document.getElementById("choosePage").innerHTML = "<h1>"+name+"</h1><p>"+chat+"</p>";
+	for(let i = 0; i < buttons.length; i++){
+		document.getElementById("choosePage").innerHTML += "<p id='choosePageButtons"+i+"'>"+buttons[i]+"</p>";
+		document.getElementById("choosePageButtons"+i).onclick = function(){
+			functions[i](...parameters[i]);
+		}
+	}
 }
 
 //
