@@ -694,14 +694,6 @@ var Items = {
 			stats: {
 			},
 		},
-		{
-			id: 3,
-			name: "Fisherman Tobenam's Lost Rod",
-			type: "rod",
-			quest: true,
-			image: "assets/items/rod/3.png",
-			lore: "The goblins haven't looked after this rod very well...",
-		},
 	],
 	set: [
 		{
@@ -833,21 +825,22 @@ var Items = {
 		{
 			id: 0,
 			name: "Test junk item",
-			type: "junk",
+			type: "item",
+			rarity: "junk",
 			image: "assets/items/staff/5.png", // perhaps give it its own image?
 			stack: 2,
 		},
 		{
 			id: 1,
 			name: "Test misc item",
-			type: "misc",
+			type: "item",
 			image: "assets/items/staff/7.png", // perhaps give it its own image?
 			stack: 2,
 		},
 		{
 			id: 2,
 			name: "Log",
-			type: "misc",
+			type: "item",
 			image: "assets/items/item/2.png",
 			sellPrice: 1,
 			sellQuantity: 4,
@@ -857,7 +850,8 @@ var Items = {
 		{
 			id: 3,
 			name: "Scrap of Cloth",
-			type: "junk",
+			type: "item",
+			rarity: "junk",
 			image: "assets/items/item/3.png",
 			sellPrice: 1,
 			sellQuantity: 8,
@@ -866,7 +860,8 @@ var Items = {
 		{
 			id: 4,
 			name: "Polished Rock",
-			type: "junk",
+			type: "item",
+			rarity: "junk",
 			image: "assets/items/item/4.png",
 			sellPrice: 1,
 			sellQuantity: 4,
@@ -875,7 +870,8 @@ var Items = {
 		{
 			id: 5,
 			name: "Fiery Rock",
-			type: "junk",
+			type: "item",
+			rarity: "junk",
 			image: "assets/items/item/5.png",
 			sellPrice: 1,
 			sellQuantity: 2,
@@ -884,10 +880,18 @@ var Items = {
 		{
 			id: 6,
 			name: "Eaglecrest Mail Sack",
-			type: "quest",
+			type: "item",
 			quest: true,
 			image: "assets/items/item/6.png",
 			lore: "Contains mail to be delivered across the lands of Antorax.",
+		},
+		{
+			id: 7,
+			name: "Fisherman Tobenam's Lost Rod",
+			type: "item",
+			quest: true,
+			image: "assets/items/item/7.png",
+			lore: "The goblins haven't looked after this rod very well...",
 		},
 	],
 	consumable: [
@@ -914,7 +918,7 @@ var Items = {
 				Dom.inventory.remove(inventoryPosition);
 				
 				// give strength I status effect to player
-				Game.statusEffects.strength("I", Game.hero);
+				Game.statusEffects.strength(1, Game.hero);
 			}
 		},
 		{
@@ -928,7 +932,7 @@ var Items = {
 				Dom.inventory.remove(inventoryPosition);
 				
 				// give swiftness I status effect to player
-				Game.statusEffects.swiftness("I", Game.hero);
+				Game.statusEffects.swiftness(1, Game.hero);
 			}
 		},
 		{
@@ -998,6 +1002,7 @@ var Items = {
 			name: "Goblin Trap",
 			type: "consumable",
 			image: "assets/items/consumable/6.png",
+			buyPrice: 0,
 			onClickText: "Places a trap",
 			lore: "Like a bear trap, but ickier.",
 			onClick: function (inventoryPosition) {
@@ -1015,6 +1020,7 @@ var Items = {
 		{
 			id: 0,
 			name: "Yellow Perch",
+			fishingType: "fish",
 			type: "fish",
 			image: "assets/items/fish/0.png",
 			rarity: "common",
@@ -1039,6 +1045,7 @@ var Items = {
 		{
 			id: 1,
 			name: "Milkfish",
+			fishingType: "fish",
 			type: "fish",
 			image: "assets/items/fish/1.png",
 			rarity: "unique",
@@ -1064,6 +1071,7 @@ var Items = {
 		{
 			id: 2,
 			name: "Oscar",
+			fishingType: "fish",
 			type: "fish",
 			image: "assets/items/fish/2.png",
 			rarity: "mythic",
@@ -1087,6 +1095,7 @@ var Items = {
 		{
 			id: 3,
 			name: "Saffron Cod",
+			fishingType: "fish",
 			type: "fish",
 			image: "assets/items/fish/3.png",
 			rarity: "common",
@@ -1112,6 +1121,7 @@ var Items = {
 		{
 			id: 4,
 			name: "Rainbow Trout",
+			fishingType: "fish",
 			type: "fish",
 			image: "assets/items/fish/4.png",
 			rarity: "unique",
@@ -1137,6 +1147,7 @@ var Items = {
 		{
 			id: 5,
 			name: "White-Spotted Puffer",
+			fishingType: "fish",
 			type: "fish",
 			image: "assets/items/fish/5.png",
 			rarity: "common",
@@ -1161,6 +1172,7 @@ var Items = {
 		{
 			id: 6,
 			name: "King of Herrings",
+			fishingType: "fish",
 			type: "fish",
 			image: "assets/items/fish/6.png",
 			rarity: "mythic",
@@ -1184,6 +1196,7 @@ var Items = {
 		{
 			id: 7,
 			name: "Blunthead Puffer",
+			fishingType: "fish",
 			type: "fish",
 			image: "assets/items/fish/7.png",
 			rarity: "common",
@@ -1207,6 +1220,7 @@ var Items = {
 		{
 			id: 8,
 			name: "Bluefin Gurnard",
+			fishingType: "fish",
 			type: "fish",
 			image: "assets/items/fish/8.png",
 			rarity: "unique",
@@ -1231,6 +1245,7 @@ var Items = {
 		{
 			id: 9,
 			name: "Oriental Flying Gurnard",
+			fishingType: "fish",
 			type: "fish",
 			image: "assets/items/fish/9.png",
 			rarity: "unique",
@@ -1254,6 +1269,7 @@ var Items = {
 		{
 			id: 10,
 			name: "Southern Hake",
+			fishingType: "fish",
 			type: "fish",
 			image: "assets/items/fish/10.png",
 			rarity: "common",
@@ -1277,6 +1293,7 @@ var Items = {
 		{
 			id: 11,
 			name: "Pink Salmon",
+			fishingType: "fish",
 			type: "fish",
 			image: "assets/items/fish/11.png",
 			rarity: "common",
@@ -1302,6 +1319,7 @@ var Items = {
 		{
 			id: 12,
 			name: "Sea Trout",
+			fishingType: "fish",
 			type: "fish",
 			image: "assets/items/fish/12.png",
 			rarity: "common",
@@ -1327,6 +1345,7 @@ var Items = {
 		{
 			id: 13,
 			name: "Cobia",
+			fishingType: "fish",
 			type: "fish",
 			image: "assets/items/fish/13.png",
 			rarity: "unique",
@@ -1351,6 +1370,7 @@ var Items = {
 		{
 			id: 14,
 			name: "Southern Herring",
+			fishingType: "fish",
 			type: "fish",
 			image: "assets/items/fish/14.png",
 			rarity: "common",
@@ -1375,6 +1395,7 @@ var Items = {
 		{
 			id: 15,
 			name: "Dolphinfish",
+			fishingType: "fish",
 			type: "fish",
 			image: "assets/items/fish/15.png",
 			rarity: "mythic",
@@ -1399,6 +1420,7 @@ var Items = {
 		{
 			id: 16,
 			name: "Chimerafish",
+			fishingType: "fish",
 			type: "fish",
 			image: "assets/items/fish/16.png",
 			rarity: "mythic",
@@ -1424,7 +1446,8 @@ var Items = {
 		{
 			id: 17,
 			name: "Old Boot",
-			type: "waterjunk",
+			fishingType: "waterjunk",
+			type: "fish",
 			image: "assets/items/fish/17.png",
 			sellPrice: 1,
 			sellQuantity: 2,
@@ -1443,7 +1466,8 @@ var Items = {
 		{
 			id: 18,
 			name: "Seaweed",
-			type: "waterjunk",
+			fishingType: "waterjunk",
+			type: "fish",
 			image: "assets/items/fish/18.png",
 			sellPrice: 1,
 			sellQuantity: 8,
@@ -1462,7 +1486,8 @@ var Items = {
 		{
 			id: 19,
 			name: "Oak Driftwood",
-			type: "waterjunk",
+			fishingType: "waterjunk",
+			type: "fish",
 			image: "assets/items/fish/19.png",
 			sellPrice: 1,
 			sellQuantity: 4,
@@ -1481,7 +1506,8 @@ var Items = {
 		{
 			id: 20,
 			name: "Birch Driftwood",
-			type: "waterjunk",
+			fishingType: "waterjunk",
+			type: "fish",
 			image: "assets/items/fish/20.png",
 			sellPrice: 1,
 			sellQuantity: 4,
@@ -1500,7 +1526,8 @@ var Items = {
 		{
 			id: 21,
 			name: "Cherry Driftwood",
-			type: "waterjunk",
+			fishingType: "waterjunk",
+			type: "fish",
 			image: "assets/items/fish/21.png",
 			sellPrice: 1,
 			sellQuantity: 4,
@@ -1519,7 +1546,8 @@ var Items = {
 		{
 			id: 22,
 			name: "Old Rusted Coin",
-			type: "waterjunk",
+			fishingType: "waterjunk",
+			type: "fish",
 			image: "assets/items/fish/22.png",
 			sellPrice: 20,
 			sellQuantity: 20,
@@ -1539,7 +1567,8 @@ var Items = {
 		{
 			id: 23,
 			name: "Rusted Gold",
-			type: "waterjunk",
+			fishingType: "waterjunk",
+			type: "fish",
 			image: "assets/items/fish/23.png",
 			sellPrice: 20,
 			sellQuantity: 20,
@@ -1559,7 +1588,8 @@ var Items = {
 		{
 			id: 24,
 			name: "Common Frog",
-			type: "watermisc",
+			fishingType: "watermisc",
+			type: "fish",
 			image: "assets/items/fish/24.png",
 			rarity: "common",
 			sellPrice: 2,
@@ -1579,7 +1609,8 @@ var Items = {
 		{
 			id: 25,
 			name: "Sunken Chest",
-			type: "watermisc",
+			fishingType: "watermisc",
+			type: "fish",
 			image: "assets/items/fish/25.png",
 			rarity: "mythic",
 			sellPrice: 5,
@@ -1601,7 +1632,8 @@ var Items = {
 		{
 			id: 26,
 			name: "Sunken Key",
-			type: "watermisc",
+			fishingType: "watermisc",
+			type: "fish",
 			image: "assets/items/fish/26.png",
 			rarity: "mythic",
 			sellPrice: 2,
@@ -1623,7 +1655,7 @@ var Items = {
 		/*{
 			id: 22,
 			name: "Fourfinger Threadfin",
-			type: "misc",
+			type: "item",
 			image: "assets/items/fish/22.png",
 			rarity: "unique",
 			lore: "",
@@ -1643,7 +1675,7 @@ var Items = {
 		{
 			id: 23,
 			name: "Lemon Sole",
-			type: "misc",
+			type: "item",
 			image: "assets/items/fish/23.png",
 			rarity: "common",
 			lore: "",
@@ -1661,7 +1693,7 @@ var Items = {
 		{
 			id: 24,
 			name: "Climbing Perch",
-			type: "misc",
+			type: "item",
 			image: "assets/items/fish/24.png",
 			rarity: "common",
 			lore: "",
@@ -1680,7 +1712,7 @@ var Items = {
 		{
 			id: 25,
 			name: "Fallfish",
-			type: "misc",
+			type: "item",
 			image: "assets/items/fish/25.png",
 			rarity: "common",
 			lore: "",
@@ -1698,7 +1730,7 @@ var Items = {
 		{
 			id: 26,
 			name: "Fourfinger Threadfin",
-			type: "misc",
+			type: "item",
 			image: "assets/items/fish/26.png",
 			rarity: "common",
 			lore: "",
@@ -1718,7 +1750,7 @@ var Items = {
 		{
 			id: 27,
 			name: "Cuttlefish",
-			type: "misc",
+			type: "item",
 			image: "assets/items/fish/27.png",
 			rarity: "unique",
 			lore: "",
@@ -1736,7 +1768,7 @@ var Items = {
 		{
 			id: 28,
 			name: "Dark Eel Catfish",
-			type: "misc",
+			type: "item",
 			image: "assets/items/fish/28.png",
 			rarity: "common",
 			lore: "",
@@ -1756,7 +1788,7 @@ var Items = {
 		{
 			id: 29,
 			name: "Zebra Fish",
-			type: "misc",
+			type: "item",
 			image: "assets/items/fish/29.png",
 			rarity: "common",
 			lore: "",
@@ -1775,7 +1807,7 @@ var Items = {
 		{
 			id: 30,
 			name: "Northern Red Snapper",
-			type: "misc",
+			type: "item",
 			image: "assets/items/fish/30.png",
 			rarity: "common",
 			lore: "",
@@ -1793,7 +1825,7 @@ var Items = {
 		{
 			id: 31,
 			name: "Blue-Barred Parrotfish",
-			type: "misc",
+			type: "item",
 			image: "assets/items/fish/31.png",
 			rarity: "common",
 			lore: "",
@@ -1812,7 +1844,7 @@ var Items = {
 		{
 			id: 32,
 			name: "Zebra Danio",
-			type: "misc",
+			type: "item",
 			image: "assets/items/fish/32.png",
 			rarity: "common",
 			lore: "",

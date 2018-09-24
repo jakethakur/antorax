@@ -740,7 +740,7 @@ function finish(){
 			document.getElementById("invStats").style.color = "slateblue"; // ...sets the name color to purple
 			document.getElementById("invStats").innerHTML = "<strong>Quest Item</strong>"; // ...sets the name color to purple
 		}else if(position[0].value == "misc"){ // if the item is a unique...
-			document.getElementById("invName").style.color = "dimgray"; // ...sets the name color to orange
+			document.getElementById("invName").style.color = "black"; // ...sets the name color to orange
 		}else{ // if the item is a common...
 			document.getElementById("invName").style.color = "darkgray"; // ...sets the name color to black
 		}
