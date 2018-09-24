@@ -348,6 +348,91 @@ var Quests = {
 			],
 		},
 		
+		{
+			id: 7,
+			quest: "Learning to Fish I",
+			
+			startName: "Fisherman Tobenam",
+			startChat: "tbd",
+			
+			finishName: "Fisherman Tobenam",
+			finishChat: "tbd",
+			
+			objectives: [
+				"Fish something up!",
+				"Speak to <strong>Fisherman Tobenam</strong>.",
+			],
+			
+			isCompleted: function() {
+				var completed = [];
+				
+				// true or falses for each objective (apart from the turn-in objective)
+				completed.push((Player.stats.fishingSkill > 0) ? true : false);
+				
+				var finished = true;
+				for(var i = 0; i < completed.length; i++) {
+					if(!completed[i]) {
+						finished = false;
+					}
+				}
+				
+				completed.push(finished);
+				
+				return completed;
+			},
+			
+			howToStart: "Speak to <strong>Fisherman Tobenam</strong>.",
+			levelRequirement: 2,
+			questRequirements: ["A Lost Fishing Rod"],
+			
+			rewards: {
+				xp: 30,
+			},
+		},
+		/*{
+			id: 8,
+			quest: "Learning to Fish II",
+			
+			startName: "Fisherman Tobenam",
+			startChat: "tbd",
+			
+			finishName: "Fisherman Tobenam",
+			finishChat: "tbd",
+			
+			objectives: [
+				"Buy a can of worms from Fisherman Tobenam and use it.",
+				"Catch your first fish!",
+				"Speak to <strong>Fisherman Tobenam</strong>.",
+			],
+			
+			isCompleted: function() {
+				var completed = [];
+				
+				// true or falses for each objective (apart from the turn-in objective)
+				completed.push(false);
+				completed.push(false);
+				
+				var finished = true;
+				for(var i = 0; i < completed.length; i++) {
+					if(!completed[i]) {
+						finished = false;
+					}
+				}
+				
+				completed.push(finished);
+				
+				return completed;
+			},
+			
+			howToStart: "Speak to <strong>Fisherman Tobenam</strong>.",
+			levelRequirement: 2,
+			questRequirements: ["Learning to Fish I"],
+			
+			rewards: {
+				xp: 30,
+			},
+		},*/
+		
 		/*{
 			id: 2,
 			quest: "A drink on us!",
@@ -373,90 +458,6 @@ var Quests = {
 			},
 		},
 		
-		{
-			id: 4, // tbc
-			quest: "Learning to Fish I",
-			
-			startName: "Fisherman Tobenam",
-			startChat: "tbd",
-			
-			finishName: "Fisherman Tobenam",
-			finishChat: "tbd",
-			
-			objectives: [
-				"Fish something up!",
-				"Speak to <strong>Fisherman Tobenam</strong>.",
-			],
-			
-			isCompleted: function() {
-				var completed = [];
-				
-				// true or falses for each objective (apart from the turn-in objective)
-				//completed.push((Player.inventory.weapon.length > 1) ? true : false); tbd
-				
-				var finished = true;
-				for(var i = 0; i < completed.length; i++) {
-					if(!completed[i]) {
-						finished = false;
-					}
-				}
-				
-				completed.push(finished);
-				
-				return completed;
-			},
-			
-			howToStart: "Speak to <strong>Fisherman Tobenam</strong>.",
-			levelRequirement: 2,
-			questRequirements: ["A Lost Fishing Rod"],
-			
-			rewards: {
-				xp: 30,
-			},
-		},
-		
-		{
-			id: 5,
-			quest: "Learning to Fish II",
-			
-			startName: "Fisherman Tobenam",
-			startChat: "tbd",
-			
-			finishName: "Fisherman Tobenam",
-			finishChat: "tbd",
-			
-			objectives: [
-				"Buy a can of worms from Fisherman Tobenam and use it.",
-				"Catch your first fish!",
-				"Speak to <strong>Fisherman Tobenam</strong>.",
-			],
-			
-			isCompleted: function() {
-				var completed = [];
-				
-				// true or falses for each objective (apart from the turn-in objective)
-				//completed.push((Player.inventory.weapon.length > 1) ? true : false); tbd
-				
-				var finished = true;
-				for(var i = 0; i < completed.length; i++) {
-					if(!completed[i]) {
-						finished = false;
-					}
-				}
-				
-				completed.push(finished);
-				
-				return completed;
-			},
-			
-			howToStart: "Speak to <strong>Fisherman Tobenam</strong>.",
-			levelRequirement: 2,
-			questRequirements: ["Learning to Fish I"],
-			
-			rewards: {
-				xp: 30,
-			},
-		},
 		
 		{
 			id: 6,
