@@ -939,7 +939,7 @@ class Hero extends Attacker {
 					
 					// in the future, the player should be able to remove the bobber whilst fishing
 				}
-				else if (Player.inventory.weapon[0].type === "rod" && this.channelling.type !== undefined && this.fishingBobs >= 100) { // channelling.type is only defined when it is set to an item (i.e. a fishing item)
+				else if (Player.inventory.weapon[0].type === "rod" && this.channelling.fishingType !== undefined && this.fishingBobs >= 100) { // channelling.type is only defined when it is set to an item (i.e. a fishing item)
 					// fishing rod (fish has been caught - player is clicking to pull it up)
 					
 					this.fishingBobs++;
@@ -951,17 +951,17 @@ class Hero extends Attacker {
 						Dom.inventory.give(this.channelling);
 						
 						// chat message
-						if (this.channelling.type === "fish") { // fish
+						if (this.channelling.fishingType === "fish") { // fish
 							Dom.chat.insert("You caught a " + this.channelling.length + "cm <strong>" + this.channelling.name + "</strong>!");
 						}
-						else if (this.channelling.type === "waterjunk") { // junk item
+						else if (this.channelling.fishingType === "waterjunk") { // junk item
 							Dom.chat.insert("You fished up a <strong>" + this.channelling.name + "</strong>.");
 						}
-						else if (this.channelling.type === "waterjunk") { // misc
+						else if (this.channelling.fishingType === "waterjunk") { // misc
 							Dom.chat.insert("You reeled up a <strong>" + this.channelling.name + "</strong>.");
 						}
 						else {
-							console.error("It is not known that an item of type " + channelling.type + " can be fished up.");
+							console.error("It is not known that an item of fishingType " + channelling.fishingType + " can be fished up.");
 						}
 						
 						// increase fishing skill
@@ -971,7 +971,7 @@ class Hero extends Attacker {
 						let oldFishingSkill = this.stats.fishingSkill; // remember old fishing skill to know if it has changed by a whole number
 						if (this.stats.fishingSkill < 20) {
 							// tutorial fishing skill values (fishing skill less than 20)
-							if (this.channelling.type === "waterjunk") {
+							if (this.channelling.fishingType === "waterjunk") {
 								this.stats.fishingSkill += 1;
 							}
 							else if (this.channelling.rarity === "common") {
@@ -989,7 +989,7 @@ class Hero extends Attacker {
 						}
 						else {
 							// normal fishing skill values
-							if (this.channelling.type === "waterjunk") {
+							if (this.channelling.fishingType === "waterjunk") {
 								this.stats.fishingSkill += (1 / this.stats.fishingSkill);
 							}
 							else if (this.channelling.rarity === "common") {
@@ -1179,11 +1179,11 @@ class Hero extends Attacker {
 				// should be moved to its own (recursive?) function
 				let clicks = 0;
 				let time = 0; // in ms
-				if (fish.type === "waterjunk") { // junk fishing item (uses different algorithm for clicks and time)
+				if (fish.fishingType === "waterjunk") { // junk fishing item (uses different algorithm for clicks and time)
 					clicks = 1;
 					time = 1000;
 				}
-				else if (fish.type === "watermisc") { // misc fishing item (no length, so clicks and time specified in itemdata)
+				else if (fish.fishingType === "watermisc") { // misc fishing item (no length, so clicks and time specified in itemdata)
 					clicks = fish.clicksToCatch;
 					time = fish.timeToCatch;
 				}
@@ -1992,7 +1992,7 @@ Game.statusEffects.strength = function(tier, target) { // you might want to add 
 					}
 					setTimeout(function (owner) {
 						this.tick(owner);
-					}.bind(this), 200, owner);
+					}.bind(this), 1000, owner);
 				}
 				else { // remove effect interval
 					Game.removeStatusEffect(owner);
@@ -2056,7 +2056,7 @@ Game.statusEffects.swiftness = function(tier, target) { // you might want to add
 					}
 					setTimeout(function (owner) {
 						this.tick(owner);
-					}.bind(this), 200, owner);
+					}.bind(this), 1000, owner);
 				}
 				else { // remove effect interval
 					Game.removeStatusEffect(owner);
@@ -2593,6 +2593,11 @@ Game.update = function (delta) {
 				let functionArray = []; // array of functions that can be called
 				let parameterArray = []; // array of arrays of parameters for these functions (to be ...spread into the function)
 				
+				// booleans to decide NPC chat for if choose DOM doesn't open
+				let questActive = false; // if one of the NPC's quests is currently active
+				let questComplete = false; // if one of the NPC's quests has been completed
+				// see below forEach for logic regarding these variables
+				
 				NPC.roles.forEach(role => { // iterate through quests involving that NPC
 				
 					// quest starts
@@ -2626,11 +2631,11 @@ Game.update = function (delta) {
 						}
 						// quest is currently active
 						else if (Player.quests.activeQuestArray.includes(role.quest.quest)) {
-							NPC.say(NPC.chat.questProgress, true, 0, false);
+							questActive = true;
 						}
 						// quest has been completed
 						else if (Player.quests.completedQuestArray.includes(role.quest.quest)) {
-							NPC.say(NPC.chat.questComplete, true, 0, false);
+							questComplete = true;
 						}
 					}
 					
@@ -2665,13 +2670,13 @@ Game.update = function (delta) {
 							}
 							// quest conditions have not been fulfilled
 							else {
-								NPC.say(NPC.chat.questProgress, true, 0, false);
+								questActive = true;
 							}
 							
 						}
 						// quest has already been completed
 						else if (Player.quests.completedQuestArray.includes(role.quest.quest)) {
-							NPC.say(NPC.chat.questComplete, true, 0, false);
+							questComplete = true;
 						}
 					}
 					
@@ -2681,7 +2686,6 @@ Game.update = function (delta) {
 						textArray.push(role.chooseText || "I'd like to browse your goods.");
 						functionArray.push(Dom.merchant.page);
 						parameterArray.push([NPC, role.sold]);
-						NPC.say(NPC.chat.shopLeave, true, 0, false);
 					}
 					
 					// soul healers
@@ -2717,6 +2721,7 @@ Game.update = function (delta) {
 						}
 						else {
 							if (!Dom.chat.contents.includes("<strong>" + NPC.name + "</strong>: " + NPC.chat.healedText)) {
+								// display instruction text if user cannot be healed
 								NPC.say(NPC.chat.cannotBeHealedText, true, 0, false);
 							}
 						}
@@ -2744,6 +2749,17 @@ Game.update = function (delta) {
 					// Dom.choose.page checks whether or not the DOM is occupied, and handles red flashing of close button
 					Dom.choose.page(NPC, textArray, functionArray, parameterArray);
 					// if there is only one thing that can be chosen between, choose DOM handles this and just skips itself straight to that one thing
+				}
+				else {
+					// text that the NPC says if they don't open a choose DOM
+					if (questActive) {
+						// the player has active quest(s) with the NPC and no other alternate options
+						NPC.say(NPC.chat.questProgress, true, 0, false);
+					}
+					else if (questFinish) {
+						// the player has finished quest(s) with the NPC and no other alternate options
+						NPC.say(NPC.chat.questComplete, true, 0, false);
+					}
 				}
 			}
 		}

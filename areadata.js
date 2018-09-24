@@ -50,7 +50,7 @@ var LootTables = { // loot table templates
 		{ // Fisherman Tobenam's Lost Rod
 			item: Items.item[7],
 			condition: function () {
-				if (Player.quests.activeQuestArray.includes("A Lost Fishing Rod") && !Dom.inventory.check(7, "quest", 1)) {
+				if (Player.quests.activeQuestArray.includes("A Lost Fishing Rod") && !Dom.inventory.check(7, "item", 1)) {
 					return true; // quest is active and player doesn't already have the rod
 				}
 				return false;
@@ -167,9 +167,6 @@ var Areas = {
 					{
 						sold: Player.class === "k" ? [Items.sword[2],] : (Player.class === "m" ? [Items.staff[2],] : (Player.class === "a" ? [Items.bow[2],] : [])),
 						role: "merchant",
-					},
-					{
-						role: "itemBuyer",
 					},
 				],
 				chat: {
@@ -315,6 +312,8 @@ var Areas = {
 				"saral",
 				"mailman",
 				"soulHealer",
+				"galuthel",
+				"itemBuyer",
 			],
 			
 			addresses: [
@@ -325,6 +324,8 @@ var Areas = {
 				"./assets/npcs/saral.png",
 				"./assets/npcs/mailman.png",
 				"./assets/npcs/soulHealer.png",
+				"./assets/npcs/galuthel.png",
+				"./assets/npcs/itemBuyer.png",
 			],
 		},
 		
@@ -523,6 +524,50 @@ var Areas = {
 					cannotBeHealedText: "When you die, you will earn some future XP slower than normal. If this happens to you and you wish to be cleansed of this, come to me and I can remove it for you for a small price. May the purity of the demigods be with you.",
 					healedText: "May the purity of the demigods be with you.",
 					tooPoor: "I don't think you can afford that.",
+				},
+			},
+			{
+				x: 435,
+				y: 372,
+				image: "galuthel",
+				name: "Galuthel the Trap Mechanic",
+				hostility: "friendly",
+				level: 25,
+				stats: {
+					maxHealth: 175,
+					defence: 10,
+				},
+				roles: [
+					{
+						sold: Items.consumable[7],
+						role: "merchant",
+						// TBD make the player have to have the trap quest active to access the shop
+					},
+				],
+				chat: {
+					shopGreeting: "If you're out of traps, I'll give you some more.",
+					shopLeave: "Let's crush those goblins.",
+					inventoryFull: "Empty your inventory a bit and come back.",
+				},
+			},
+			{
+				x: 576,
+				y: 984,
+				image: "itemBuyer",
+				name: "Item Buyer Noledar",
+				hostility: "friendly",
+				level: 15,
+				stats: {
+					maxHealth: 125,
+					defence: 3,
+				},
+				roles: [
+					{
+						role: "itemBuyer",
+					},
+				],
+				chat: {
+					buyerGreeting: "I'll happily buy any items that you're willing to part with.",
 				},
 			},
 		],

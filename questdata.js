@@ -153,7 +153,7 @@ var Quests = {
 				var completed = [];
 				
 				// true or falses for each objective (apart from the turn-in objective)
-				completed.push(Dom.inventory.check(2, "misc") >= 4 ? true : Dom.inventory.check(2, "misc") > 0 ? " (" + Dom.inventory.check(2, "misc") + "/4)" : false);
+				completed.push(Dom.inventory.check(2, "item") >= 4 ? true : Dom.inventory.check(2, "item") > 0 ? " (" + Dom.inventory.check(2, "item") + "/4)" : false);
 				
 				var finished = true;
 				for(var i = 0; i < completed.length; i++) {
@@ -260,7 +260,7 @@ var Quests = {
 				var completed = [];
 				
 				// true or falses for each objective (apart from the turn-in objective)
-				completed.push(Dom.inventory.check(6, "quest", 1));
+				completed.push(Dom.inventory.check(6, "item", 1));
 				
 				var finished = true;
 				for(var i = 0; i < completed.length; i++) {
@@ -312,7 +312,7 @@ var Quests = {
 				var completed = [];
 				
 				// true or falses for each objective (apart from the turn-in objective)
-				completed.push((Dom.inventory.check(7, "quest", 1)) ? true : false);
+				completed.push((Dom.inventory.check(7, "item", 1)) ? true : false);
 				
 				var finished = true;
 				for(var i = 0; i < completed.length; i++) {
