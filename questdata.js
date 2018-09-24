@@ -260,7 +260,7 @@ var Quests = {
 				var completed = [];
 				
 				// true or falses for each objective (apart from the turn-in objective)
-				completed.push(Dom.inventory.check(7, "quest", 1));
+				completed.push(Dom.inventory.check(6, "quest", 1));
 				
 				var finished = true;
 				for(var i = 0; i < completed.length; i++) {
@@ -286,7 +286,62 @@ var Quests = {
 			},
 			
 			removeItems: [
-				Items.item[7], // mail sack
+				Items.item[6], // mail sack
+			],
+			removeItemQuantity: [
+				1,
+			],
+		},
+		
+		{
+			id: 6,
+			quest: "A Lost Fishing Rod",
+			
+			startName: "Fisherman Tobenam",
+			startChat: "You! You look like you've been to see the goblins! One of my fav'rite fishing rods has been stolen from me, and I think it was one of those goblins, heheh! Would you be able to head down to them and see if you can find it? I'll happily give you a couple o' lessons on fishing if you're able to get your hands on it.",
+			
+			finishName: "Fisherman Tobenam",
+			finishChat: "You found it! Heheh, let me clean it for you. You can keep it for your fishing lessons with me. I've plenty of other rods I can be using. Now, let me teach you... the way of the water! Heheheh.",
+			
+			objectives: [
+				"Find <strong>Fisherman Tobenam's</strong> fishing rod. He thinks it has been taken by a goblin.",
+				"Return to <strong>Fisherman Tobenam</strong>.",
+			],
+			
+			isCompleted: function() {
+				var completed = [];
+				
+				// true or falses for each objective (apart from the turn-in objective)
+				completed.push((Dom.inventory.check(7, "quest", 1)) ? true : false);
+				
+				var finished = true;
+				for(var i = 0; i < completed.length; i++) {
+					if(!completed[i]) {
+						finished = false;
+					}
+				}
+				
+				completed.push(finished);
+				
+				return completed;
+			},
+			
+			howToStart: "Speak to <strong>Fisherman Tobenam</strong> at the Fisher's Valley.",
+			levelRequirement: 2,
+			questRequirements: ["Retrieval of Logs"],
+			
+			rewards: {
+				xp: 30,
+				items: [
+					Items.rod[2],
+				],
+				itemQuantities: [
+					1,
+				],
+			},
+			
+			removeItems: [
+				Items.item[7], // Tobenam's Lost Fishing Rod (cleaned version given in its place)
 			],
 			removeItemQuantity: [
 				1,
@@ -316,61 +371,6 @@ var Quests = {
 				Dom.chat.insert("Gregor brews you an extra large beer. Try not to get too tipsy!", 100);
 				// give the player a brew
 			},
-		},
-		
-		{
-			id: 3, // tbc
-			quest: "A Lost Fishing Rod",
-			
-			startName: "Fisherman Tobenam",
-			startChat: "You! You look like you've been to see the goblins! One of my fav'rite fishing rods has been stolen from me, and I think it was one of those goblins, heheh! Would you be able to head down to them and see if you can find it? I'll happily give you a couple o' lessons on fishing if you're able to get your hands on it.",
-			
-			finishName: "Fisherman Tobenam",
-			finishChat: "You found it! Heheh, let me clean it for you. You can keep it for your fishing lessons with me. I've plenty of other rods I can be using. Now, let me teach you... the way of the water! Heheheh.",
-			
-			objectives: [
-				"Find <strong>Fisherman Tobenam's</strong> fishing rod. He thinks it has been taken by a goblin.",
-				"Return to <strong>Fisherman Tobenam</strong>.",
-			],
-			
-			isCompleted: function() {
-				var completed = [];
-				
-				// true or falses for each objective (apart from the turn-in objective)
-				completed.push((Dom.inventory.check(6, "quest", 1)) ? true : false);
-				
-				var finished = true;
-				for(var i = 0; i < completed.length; i++) {
-					if(!completed[i]) {
-						finished = false;
-					}
-				}
-				
-				completed.push(finished);
-				
-				return completed;
-			},
-			
-			howToStart: "Speak to <strong>Fisherman Tobenam</strong> at the Fisher's Valley.",
-			levelRequirement: 2,
-			questRequirements: ["Retrieval of Logs"],
-			
-			rewards: {
-				xp: 30,
-				items: [
-					Items.rod[2],
-				],
-				itemQuantities: [
-					1,
-				],
-			},
-			
-			removeItems: [
-				Items.item[6], // Tobenam's Lost Fishing Rod (cleaned version given in its place)
-			],
-			removeItemQuantity: [
-				1,
-			],
 		},
 		
 		{

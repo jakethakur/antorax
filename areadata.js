@@ -48,9 +48,9 @@ var LootTables = { // loot table templates
 			],
 		},
 		{ // Fisherman Tobenam's Lost Rod
-			item: Items.item[6],
+			item: Items.item[7],
 			condition: function () {
-				if (Player.quests.activeQuestArray.includes("A Lost Fishing Rod") && !Dom.inventory.check(6, "quest", 1)) {
+				if (Player.quests.activeQuestArray.includes("A Lost Fishing Rod") && !Dom.inventory.check(7, "quest", 1)) {
 					return true; // quest is active and player doesn't already have the rod
 				}
 				return false;
@@ -192,8 +192,12 @@ var Areas = {
 				},
 				roles: [
 					{
-						quest: Quests.eaglecrestLoggingCamp[3], 
+						quest: Quests.eaglecrestLoggingCamp[6], 
 						role: "questStart",
+					},
+					{
+						quest: Quests.eaglecrestLoggingCamp[6], 
+						role: "questFinish",
 					},
 				],
 				chat: {
@@ -203,7 +207,7 @@ var Areas = {
 					// "&#9835; I'm fiiiiiiiishing in the rain! &#9835;"
 				},
 				canBeShown: function () {
-					return Player.quests.completedQuestArray.includes("To the Logging Camp"); // TBD change to gathering wood quest
+					return Player.quests.completedQuestArray.includes("To the Logging Camp");
 				},
 			},
 		],
