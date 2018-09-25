@@ -1001,7 +1001,7 @@ var Items = {
 			id: 7,
 			name: "Goblin Trap",
 			type: "consumable",
-			image: "assets/items/consumable/6.png",
+			image: "assets/items/consumable/7.png",
 			buyPrice: 0,
 			onClickText: "Places a trap",
 			lore: "Like a bear trap, but ickier.",
@@ -1013,6 +1013,33 @@ var Items = {
 				//tbd
 				// place trap
 				//tbd
+			}
+		},
+		{
+			id: 8,
+			name: "Can of Worms",
+			type: "consumable",
+			image: "assets/items/consumable/8.png",
+			buyPrice: 5,
+			onClickText: "Gives you +20 fishing skill for your next fishing attempt",
+			charges: 3,
+			onClick: function (inventoryPosition) {
+				if (Game.hero.hasStatusEffect("Fish bait")) { // player does not have an existing status effect from the same item
+					// remove one charge from the item
+					this.charges--;
+					if (this.charges <= 0) {
+						Dom.inventory.remove(inventoryPosition);
+					}
+					
+					// give fish bait status effect
+					Game.hero.statusEffects.push(new statusEffect({
+						title: "Fish bait",
+						effect: "+20 fishing skill for your next fishing attempt",
+						info: {
+							skillIncrease: 20,
+						}
+					}));
+				}
 			}
 		},
 	],

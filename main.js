@@ -638,6 +638,21 @@ class Character extends Thing {
 		
 		this.respawning = false;
 	}
+	
+	// check if the character has a status effect with the specific title
+	hasStatusEffect (title, startIndex, finishBeforeIndex) {
+		// startIndex and finishBeforeIndex are the same as String.substring parameters
+		if (startIndex === undefined) {
+			startIndex = 0;
+		}
+		if (finishBeforeIndex === undefined) {
+			finishBeforeIndex = string.length;
+		}
+		if (this.statusEffects.find(statusEffect => statusEffect.title.substring(startIndex, finishBeforeIndex) === title) !== undefined) {
+			return true;
+		}
+		return false;
+	}
 }
 
 // a version of character that can deal damage
@@ -734,7 +749,7 @@ class Hero extends Attacker {
 		}
 		
 		// move hero
-		if (this.statusEffects.find(statusEffect => statusEffect.title === "Stunned") !== undefined || this.isCorpse) {
+		if (this.hasStatusEffect("Stunned") || this.isCorpse) {
 			// player cannot move
 		}
 		else {
@@ -786,13 +801,10 @@ class Hero extends Attacker {
 				this.speed = this.stats.swimSpeed;
 				if(!this.statusEffects.includes({title: "Swimming", effect: "Reduced movement speed",})) { // maybe just make a function to add a status effect? ( tbd )
 					this.statusEffects.push(new statusEffect({title: "Swimming", effect: "Reduced movement speed",}));
-					// remove fire status effects
-					let fireEffects = this.statusEffects.find(statusEffect => statusEffect.title === "Fire I") // don't forget to update when new fire tiers are added!
-					if (fireEffects !== undefined) {
-						for (var i = 0; i < this.statusEffects.length; i++) {
-							if (this.statusEffects[i].title == "Fire I") { // don't forget to update when new fire tiers are added!
-								this.statusEffects.splice(i,1);
-							}
+					// remove fire status effect
+					for (var i = 0; i < this.statusEffects.length; i++) {
+						if (this.statusEffects[i].title.substring(0, 4) == "Fire") {
+							this.statusEffects.splice(i,1);
 						}
 					}
 					this.updateStatusEffects();
@@ -814,8 +826,7 @@ class Hero extends Attacker {
 		}
 		
 		// swiftness status effect
-		let swiftessStatusEffect = this.statusEffects.find(statusEffect => statusEffect.title.substring(0, 9) === "Swiftness");
-		if (swiftessStatusEffect !== undefined) {
+		if (this.hasStatusEffect("Swiftness", 0, 9)) {
 			this.speed *= 1 + swiftessStatusEffect.info.speedIncrease;
 		}
 		
@@ -1165,6 +1176,14 @@ class Hero extends Attacker {
 			
 			if (random(0, 5) < this.fishingBobs) {
 				// fish caught
+				
+				// increase fishing skill if the player has a fish bait status effect
+				let fishingSkill = Game.hero.stats.fishingSkill;
+				if (this.hasStatusEffect("Fish bait")) {
+					
+				}
+				
+				// find the fish that should be caught
 				let fish = Items.fish;
 				fish = fish.filter(item => item.waterTypes.includes(Areas[Game.areaName].waterType)); // filter for water type
 				fish = fish.filter(item => item.areas.includes(Game.areaName) || item.areas.length === 0); // filter for area
@@ -1356,8 +1375,7 @@ class Projectile extends Thing {
 						}
 						
 						// strength status effect
-						let strengthStatusEffect = attacker.statusEffects.find(statusEffect => statusEffect.title.substring(0, 8) === "Strength");
-						if (strengthStatusEffect !== undefined) {
+						if (attacker.hasStatusEffect("Strength", 0, 8)) {
 							dmgDealt *= 1 + strengthStatusEffect.info.damageIncrease;
 						}
 						
@@ -1595,7 +1613,7 @@ class Enemy extends Attacker {
 	
 	// move towards entity (towards parameter)
 	move (delta, towards) {
-		if (this.statusEffects.find(statusEffect => statusEffect.title === "Stunned") !== undefined) {
+		if (this.hasStatusEffect("Stunned")) {
 			// enemy is stunned
 		}
 		else {
@@ -1771,7 +1789,7 @@ class Cannon extends Thing {
 // status effect constructor
 function statusEffect(properties) {
 	this.title = properties.title; // displayed title
-	this.effect = properties.effect; // displayed effect
+	this.effect = properties.effect; // displayed effect (displayed in the DOM as a description of the status effect, in player stats)
 	
 	this.info = properties.info; // extra information (e.g: poison damage and length)
 	
