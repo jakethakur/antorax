@@ -549,7 +549,9 @@ var Areas = {
 					{
 						sold: [Items.consumable[7]],
 						role: "merchant",
-						// TBD make the player have to have the trap quest active to access the shop
+						roleRequirement: function () {
+							Player.quests.activeQuestArray.includes("Strengthen Defences");
+						}
 					},
 				],
 				chat: {

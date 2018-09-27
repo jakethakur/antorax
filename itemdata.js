@@ -561,7 +561,8 @@ var Items = {
 			image: "assets/items/staff/7.png",
 			uncollectable: true,
 			tier: 1,
-			rarity: "common",
+			rarity: "unique",
+			quest: true,
 			lore: "Hates the goblins just as much as you do.",
 			stats: {
 				damage: "2",
@@ -816,7 +817,7 @@ var Items = {
 			name: "Fishing Pouch",
 			type: "bag",
 			image: "assets/items/bag/4.png",
-			sellPrice: 20,
+			sellPrice: 10,
 			rarity: "unique",
 			size: 18,
 		},
@@ -977,7 +978,7 @@ var Items = {
 				Dom.inventory.remove(inventoryPosition);
 				
 				// do something crazy!
-				let effectNumber = random(0, 4);
+				let effectNumber = random(0, 3);
 				switch(effectNumber) {
 					case 0:
 						// give strength I status effect to player

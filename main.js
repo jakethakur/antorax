@@ -1178,9 +1178,11 @@ class Hero extends Attacker {
 				// fish caught
 				
 				// increase fishing skill if the player has a fish bait status effect
-				let fishingSkill = Game.hero.stats.fishingSkill;
-				if (this.hasStatusEffect("Fish bait")) {
-					
+				let fishingSkill = this.stats.fishingSkill;
+				let baitStatusEffectIndex = this.statusEffects.findIndex(statusEffect => statusEffect.title === "Fish bait");
+				if (baitStatusEffectIndex !== -1) { // check if player has a bait status effect
+					fishingSkill += this.statusEffects[baitStatusEffectIndex].info.skillIncrease;
+					this.statusEffects.splice(baitStatusEffectIndex, 1);
 				}
 				
 				// find the fish that should be caught
@@ -1188,7 +1190,7 @@ class Hero extends Attacker {
 				fish = fish.filter(item => item.waterTypes.includes(Areas[Game.areaName].waterType)); // filter for water type
 				fish = fish.filter(item => item.areas.includes(Game.areaName) || item.areas.length === 0); // filter for area
 				if (random(1, 6) !== 2) { // 1 in 6 chance of getting something that might not be within fishing level range
-					fish = fish.filter(item => Game.hero.stats.fishingSkill >= item.skillRequirement.min && Game.hero.stats.fishingSkill <= item.skillRequirement.max); // filter for fishing skill
+					fish = fish.filter(item => fishingSkill >= item.skillRequirement.min && fishingSkill <= item.skillRequirement.max); // filter for fishing skill
 				}
 				fish = fish[random(0, fish.length - 1)]; // random fish that fulfils requirements above
 				fish = { ...fish }; // remove all references to itemdata in fish variable (otherwise length value changed in this will also affect itemData)!
@@ -2617,60 +2619,22 @@ Game.update = function (delta) {
 				// see below forEach for logic regarding these variables
 				
 				NPC.roles.forEach(role => { // iterate through quests involving that NPC
-				
-					// quest starts
-					if (role.role === "questStart") {
-						// quest is ready to be accepted
-						if (!Player.quests.activeQuestArray.includes(role.quest.quest) && // quest isn't currently active
-						!Player.quests.completedQuestArray.includes(role.quest.quest) && // quest hasn't aleady been completed
-						role.quest.levelRequirement <= this.hero.level && // player is a high enough level
-						isContainedInArray(role.quest.questRequirements, Player.quests.completedQuestArray)) { // quest requirements have been completed
-							
-							if (typeof role.quest.startRewards !== "undefined" && typeof role.quest.startRewards.items !== "undefined") {
-								if (Dom.inventory.requiredSpace(role.quest.startRewards.items, role.quest.startRewards.itemQuantities)) {
-									// user has space for quest start items
-									// quest start appears as an option for choose DOM
-									textArray.push("Quest start: " + role.quest.quest);
-									functionArray.push(Dom.quest.start);
-									parameterArray.push([role.quest]);
-								}
-								else {
-									// user doesn't have enough space
-									NPC.say(NPC.chat.inventoryFull, true, 0, true);
-								}
-							}
-							else {
-								// no quest start items, so user ofc has enough inventory space
-								// quest start appears as an option for choose DOM
-								textArray.push("Quest start: " + role.quest.quest);
-								functionArray.push(Dom.quest.start);
-								parameterArray.push([role.quest]);
-							}
-						}
-						// quest is currently active
-						else if (Player.quests.activeQuestArray.includes(role.quest.quest)) {
-							questActive = true;
-						}
-						// quest has been completed
-						else if (Player.quests.completedQuestArray.includes(role.quest.quest)) {
-							questComplete = true;
-						}
-					}
-					
-					// quest finishes
-					if (role.role === "questFinish") {
-						// check if quest is ready to be finished
-						if (Player.quests.activeQuestArray.includes(role.quest.quest) && // quest is currently active
-						!Player.quests.completedQuestArray.includes(role.quest.quest)) { // quest has not already been completed
-							
-							// check if quest conditions have been fulfilled
-							if(role.quest.isCompleted()[role.quest.objectives.length - 1]) {
-								if (typeof role.quest.rewards !== "undefined" && typeof role.quest.rewards.items !== "undefined") {
-									if (Dom.inventory.requiredSpace(role.quest.rewards.items, role.quest.rewards.itemQuantities)) {
-										// user has space for quest finish items
-										// quest finish appears as an option for choose DOM
-										textArray.push("Quest finish: " + role.quest.quest);
-										functionArray.push(Dom.quest.finish);
+					if (role.roleRequirement === undefined || role.roleRequirement()) {
+						
+						// quest starts
+						if (role.role === "questStart") {
+							// quest is ready to be accepted
+							if (!Player.quests.activeQuestArray.includes(role.quest.quest) && // quest isn't currently active
+							!Player.quests.completedQuestArray.includes(role.quest.quest) && // quest hasn't aleady been completed
+							role.quest.levelRequirement <= this.hero.level && // player is a high enough level
+							isContainedInArray(role.quest.questRequirements, Player.quests.completedQuestArray)) { // quest requirements have been completed
+								
+								if (typeof role.quest.startRewards !== "undefined" && typeof role.quest.startRewards.items !== "undefined") {
+									if (Dom.inventory.requiredSpace(role.quest.startRewards.items, role.quest.startRewards.itemQuantities)) {
+										// user has space for quest start items
+										// quest start appears as an option for choose DOM
+										textArray.push("Quest start: " + role.quest.quest);
+										functionArray.push(Dom.quest.start);
 										parameterArray.push([role.quest]);
 									}
 									else {
@@ -2679,86 +2643,127 @@ Game.update = function (delta) {
 									}
 								}
 								else {
-									// no quest item rewards, so user ofc has enough inventory space
-									// quest finish appears as an option for choose DOM
-									textArray.push("Quest finish: " + role.quest.quest);
-									functionArray.push(Dom.quest.finish);
+									// no quest start items, so user ofc has enough inventory space
+									// quest start appears as an option for choose DOM
+									textArray.push("Quest start: " + role.quest.quest);
+									functionArray.push(Dom.quest.start);
 									parameterArray.push([role.quest]);
 								}
 							}
-							// quest conditions have not been fulfilled
-							else {
+							// quest is currently active
+							else if (Player.quests.activeQuestArray.includes(role.quest.quest)) {
 								questActive = true;
 							}
-							
-						}
-						// quest has already been completed
-						else if (Player.quests.completedQuestArray.includes(role.quest.quest)) {
-							questComplete = true;
-						}
-					}
-					
-					// merchants
-					if (role.role === "merchant") {
-						// merchant appears as an option for choose DOM
-						textArray.push(role.chooseText || "I'd like to browse your goods.");
-						functionArray.push(Dom.merchant.page);
-						parameterArray.push([NPC, role.sold]);
-					}
-					
-					// soul healers
-					if (role.role === "soulHealer") {
-						let statusEffect = Game.hero.statusEffects.find(statusEffect => statusEffect.title === "XP Fatigue"); // try to find xp fatigue effect
-						if (statusEffect !== undefined) {
-							// calculate cost
-							this.soulHealerCost = Math.floor(statusEffect.info.ineffectiveAmount / 50); // set to Game so that it can be accessed from the function in Dom.text.page
-							if (this.soulHealerCost < 1) {
-								this.soulHealerCost = 1;
+							// quest has been completed
+							else if (Player.quests.completedQuestArray.includes(role.quest.quest)) {
+								questComplete = true;
 							}
-							
-							// save the NPC into a variable so that it can say something if the person is healed
-							this.currentSoulHealer = NPC;
-							
-							// soul healer appears as an option for choose DOM
-							textArray.push(role.chooseText || "I'd like to remove my 'XP Fatigue' status effect.");
-							functionArray.push(Dom.text.page);
-							parameterArray.push(["Soul Healer", NPC.chat.canBeHealedText, ["Remove XP Fatigue for " + this.soulHealerCost + " gold"], [function () {
-								if (Dom.inventory.check(2, "currency", Game.soulHealerCost)) {
-									Dom.inventory.removeById(2, "currency", Game.soulHealerCost);
-									Game.hero.statusEffects.splice(Game.hero.statusEffects.findIndex(statusEffect => statusEffect.title === "XP Fatigue"), 1); // remove xp fatigue effect
-									Dom.changeBook(Dom.previous, true); // close page
-									Game.currentSoulHealer.say(Game.currentSoulHealer.chat.healedText, false, 0, false);
-									Game.currentSoulHealer = undefined; // reset variable that remembers which soul healer the player is speaking to
-									Game.soulHealerCost = undefined; // reset variable that remembers the cost for soul healing
+						}
+						
+						// quest finishes
+						if (role.role === "questFinish") {
+							// check if quest is ready to be finished
+							if (Player.quests.activeQuestArray.includes(role.quest.quest) && // quest is currently active
+							!Player.quests.completedQuestArray.includes(role.quest.quest)) { // quest has not already been completed
+								
+								// check if quest conditions have been fulfilled
+								if(role.quest.isCompleted()[role.quest.objectives.length - 1]) {
+									if (typeof role.quest.rewards !== "undefined" && typeof role.quest.rewards.items !== "undefined") {
+										if (Dom.inventory.requiredSpace(role.quest.rewards.items, role.quest.rewards.itemQuantities)) {
+											// user has space for quest finish items
+											// quest finish appears as an option for choose DOM
+											textArray.push("Quest finish: " + role.quest.quest);
+											functionArray.push(Dom.quest.finish);
+											parameterArray.push([role.quest]);
+										}
+										else {
+											// user doesn't have enough space
+											NPC.say(NPC.chat.inventoryFull, true, 0, true);
+										}
+									}
+									else {
+										// no quest item rewards, so user ofc has enough inventory space
+										// quest finish appears as an option for choose DOM
+										textArray.push("Quest finish: " + role.quest.quest);
+										functionArray.push(Dom.quest.finish);
+										parameterArray.push([role.quest]);
+									}
 								}
+								// quest conditions have not been fulfilled
 								else {
-									// player cannot afford it
-									Game.soulHealers[i].say(Game.soulHealers[i].chat.tooPoor, true, 0, false);
+									questActive = true;
 								}
-							}], NPC.name]);
-						}
-						else {
-							if (!Dom.chat.contents.includes("<strong>" + NPC.name + "</strong>: " + NPC.chat.healedText)) {
-								// display instruction text if user cannot be healed
-								NPC.say(NPC.chat.cannotBeHealedText, true, 0, false);
+								
+							}
+							// quest has already been completed
+							else if (Player.quests.completedQuestArray.includes(role.quest.quest)) {
+								questComplete = true;
 							}
 						}
-					}
-					
-					// identifiers
-					if (role.role === "identifier") {
-						// identifier appears as an option for choose DOM
-						textArray.push(role.chooseText || "I'd like to identify an item.");
-						functionArray.push(Dom.identifier.page);
-						parameterArray.push([NPC, true]);
-					}
-					
-					// item buyers
-					if (role.role === "itemBuyer") {
-						// item buyer appears as an option for choose DOM
-						textArray.push(role.chooseText || "I'd like to sell some items to you.");
-						functionArray.push(Dom.buyer.page);
-						parameterArray.push([NPC]);
+						
+						// merchants
+						if (role.role === "merchant") {
+							// merchant appears as an option for choose DOM
+							textArray.push(role.chooseText || "I'd like to browse your goods.");
+							functionArray.push(Dom.merchant.page);
+							parameterArray.push([NPC, role.sold]);
+						}
+						
+						// soul healers
+						if (role.role === "soulHealer") {
+							let statusEffect = Game.hero.statusEffects.find(statusEffect => statusEffect.title === "XP Fatigue"); // try to find xp fatigue effect
+							if (statusEffect !== undefined) {
+								// calculate cost
+								this.soulHealerCost = Math.floor(statusEffect.info.ineffectiveAmount / 50); // set to Game so that it can be accessed from the function in Dom.text.page
+								if (this.soulHealerCost < 1) {
+									this.soulHealerCost = 1;
+								}
+								
+								// save the NPC into a variable so that it can say something if the person is healed
+								this.currentSoulHealer = NPC;
+								
+								// soul healer appears as an option for choose DOM
+								textArray.push(role.chooseText || "I'd like to remove my 'XP Fatigue' status effect.");
+								functionArray.push(Dom.text.page);
+								parameterArray.push(["Soul Healer", NPC.chat.canBeHealedText, ["Remove XP Fatigue for " + this.soulHealerCost + " gold"], [function () {
+									if (Dom.inventory.check(2, "currency", Game.soulHealerCost)) {
+										Dom.inventory.removeById(2, "currency", Game.soulHealerCost);
+										Game.hero.statusEffects.splice(Game.hero.statusEffects.findIndex(statusEffect => statusEffect.title === "XP Fatigue"), 1); // remove xp fatigue effect
+										Dom.changeBook(Dom.previous, true); // close page
+										Game.currentSoulHealer.say(Game.currentSoulHealer.chat.healedText, false, 0, false);
+										Game.currentSoulHealer = undefined; // reset variable that remembers which soul healer the player is speaking to
+										Game.soulHealerCost = undefined; // reset variable that remembers the cost for soul healing
+									}
+									else {
+										// player cannot afford it
+										Game.soulHealers[i].say(Game.soulHealers[i].chat.tooPoor, true, 0, false);
+									}
+								}], NPC.name]);
+							}
+							else {
+								if (!Dom.chat.contents.includes("<strong>" + NPC.name + "</strong>: " + NPC.chat.healedText)) {
+									// display instruction text if user cannot be healed
+									NPC.say(NPC.chat.cannotBeHealedText, true, 0, false);
+								}
+							}
+						}
+						
+						// identifiers
+						if (role.role === "identifier") {
+							// identifier appears as an option for choose DOM
+							textArray.push(role.chooseText || "I'd like to identify an item.");
+							functionArray.push(Dom.identifier.page);
+							parameterArray.push([NPC, true]);
+						}
+						
+						// item buyers
+						if (role.role === "itemBuyer") {
+							// item buyer appears as an option for choose DOM
+							textArray.push(role.chooseText || "I'd like to sell some items to you.");
+							functionArray.push(Dom.buyer.page);
+							parameterArray.push([NPC]);
+						}
+						
 					}
 				}); // finished iterating through this NPC's roles
 				
@@ -2774,7 +2779,7 @@ Game.update = function (delta) {
 						// the player has active quest(s) with the NPC and no other alternate options
 						NPC.say(NPC.chat.questProgress, true, 0, false);
 					}
-					else if (questFinish) {
+					else if (questComplete) {
 						// the player has finished quest(s) with the NPC and no other alternate options
 						NPC.say(NPC.chat.questComplete, true, 0, false);
 					}
@@ -3623,6 +3628,8 @@ Game.saveProgress = function (saveType) { // if saveType is "auto" then the save
 		Player.x = Game.hero.x;
 		Player.y = Game.hero.y;
 		Player.areaName = Game.areaName;
+		// save other player details that aren't otherwise saved to savedata
+		Player.health = Game.hero.health;
 		
 		// save everything in savedata.js
 		localStorage.setItem(Player.class, JSON.stringify(Player));

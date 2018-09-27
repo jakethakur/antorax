@@ -28,7 +28,7 @@ var Player = {
 			level: 4,
 		},
 	},
-	reputationReady: false,
+	reputationReady: false, // if player has dismissed reputation tutorial text
 	
 	quests: {
 		activeQuestArray: [],
@@ -83,9 +83,9 @@ var Player = {
 	
 	fatiguedXP: 0, // this amount of xp is worth 50% less due to a death
     
-	health: 50, // should be set to whatever stats.Max_Health is set to (but didn't work)
+	health: 50, // should be set to whatever stats.maxHealth is set to (but didn't work)
 	
 	statusEffects: [], // updated by saved data / main [function Game.hero.updateStatusEffects()]
 };
 
-LevelXP = [0, 50, 100, 125, 150, 175];
+LevelXP = [0, 50, 100, 150, 200, 250]; // amount of xp required for next level (current level = array index)
