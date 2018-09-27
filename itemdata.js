@@ -1024,13 +1024,13 @@ var Items = {
 			onClickText: "Gives you +20 fishing skill for your next fishing attempt",
 			charges: 3,
 			onClick: function (inventoryPosition) {
-				if (Game.hero.hasStatusEffect("Fish bait")) { // player does not have an existing status effect from the same item
+				if (!Game.hero.hasStatusEffect("Fish bait")) { // player does not have an existing status effect from the same item
 					// remove one charge from the item
-					this.charges--;
-					if (this.charges <= 0) {
+					Player.inventory.items[inventoryPosition].charges--;
+					if (Player.inventory.items[inventoryPosition].charges <= 0) {
 						Dom.inventory.remove(inventoryPosition);
 					}
-					
+					Dom.inventory.displayEquipmentInformation(inventoryPosition);
 					// give fish bait status effect
 					Game.hero.statusEffects.push(new statusEffect({
 						title: "Fish bait",
