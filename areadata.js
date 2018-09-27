@@ -196,6 +196,14 @@ var Areas = {
 						quest: Quests.eaglecrestLoggingCamp[6], 
 						role: "questFinish",
 					},
+					{
+						quest: Quests.eaglecrestLoggingCamp[7], 
+						role: "questStart",
+					},
+					{
+						quest: Quests.eaglecrestLoggingCamp[7], 
+						role: "questFinish",
+					},
 				],
 				chat: {
 					questProgress: "You can always buy a lure to fish up more. Heheh, that rhymed!",
@@ -539,7 +547,7 @@ var Areas = {
 				},
 				roles: [
 					{
-						sold: Items.consumable[7],
+						sold: [Items.consumable[7]],
 						role: "merchant",
 						// TBD make the player have to have the trap quest active to access the shop
 					},

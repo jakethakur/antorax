@@ -646,7 +646,7 @@ class Character extends Thing {
 			startIndex = 0;
 		}
 		if (finishBeforeIndex === undefined) {
-			finishBeforeIndex = string.length;
+			finishBeforeIndex = title.length;
 		}
 		if (this.statusEffects.find(statusEffect => statusEffect.title.substring(startIndex, finishBeforeIndex) === title) !== undefined) {
 			return true;

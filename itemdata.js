@@ -1002,7 +1002,7 @@ var Items = {
 			name: "Goblin Trap",
 			type: "consumable",
 			image: "assets/items/consumable/7.png",
-			buyPrice: 0,
+			cost: 0,
 			onClickText: "Places a trap",
 			lore: "Like a bear trap, but ickier.",
 			onClick: function (inventoryPosition) {
@@ -1020,7 +1020,7 @@ var Items = {
 			name: "Can of Worms",
 			type: "consumable",
 			image: "assets/items/consumable/8.png",
-			buyPrice: 5,
+			cost: 5,
 			onClickText: "Gives you +20 fishing skill for your next fishing attempt",
 			charges: 3,
 			onClick: function (inventoryPosition) {
