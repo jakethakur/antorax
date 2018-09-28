@@ -41,6 +41,7 @@ body{
 }
 #questStart, #questFinish, #merchantPage, #identifierPage, #identifiedPage, #levelUpPage, #lootPage, #buyerPage, #choosePage, #textPage{
 	text-align: center;
+	overflow-y: auto;
 }
 /*#questStartChat, #questFinishChat{
 	display: inline-block;
@@ -52,7 +53,7 @@ body{
 	left: 630px;
 	z-index: 2;
 }
-#questStartChat, #questFinishChat, #questStartQuest, #questFinishQuest, #questStartName, #questFinishName, #questStartObjectives, #questStartRewards, #questFinishRewards, #merchantPageTitle, #merchantPageChat, #merchantPageOptions, #identifierPageTitle, #identifierPageChat, #leftArrow, #identifierPageOption, #rightArrow, #identifiedPageTitle, #identifiedPageChat, #identifiedPageOptions{
+#questStartChat, #questFinishChat, #questStartQuest, #questFinishQuest, #questStartName, #questFinishName, #questStartObjectives, #questStartRewards, #questStartStartRewards, #questStartRewardsTitle, #questStartStartRewardsTitle, #questFinishRewardsTitle, #questFinishRewards, #merchantPageTitle, #merchantPageChat, #merchantPageOptions, #identifierPageTitle, #identifierPageChat, #leftArrow, #identifierPageOption, #rightArrow, #identifiedPageTitle, #identifiedPageChat, #identifiedPageOptions{
 	display: inline;
 }
 #settingBookmark, #settingMusic, #settingHitboxes, #settingCoords, #settingFps, #settingGrid, #settingSpeed, #settingAccept {
@@ -241,11 +242,11 @@ td{
 	background-image: url("./assets/icons/gold.png");
 }
 
-#questStartItems, #questFinishItems, #identifierPageGold{
+#questStartItems, #questStartStartItems, #questFinishItems, #identifierPageGold{
 	display: inline-block;
 }
 
-.theseQuestOptions, .theseQuestFinishOptions{
+.theseQuestOptions, .theseQuestFinishOptions, .theseQuestStartOptions{
 	margin-top: 4px;
 	border: 5px solid #886622;
 	display: inline-block;
@@ -315,7 +316,7 @@ td{
 	float: right;
 	display: inline;
 }
-#itemInformation, #itemIdentification, #informationMerchant, #questInformation, #questFinishInformation, #identifierInformation, #identifiedInformation, #lootInformation, #inventoryInformation{
+#information, #itemInformation, #itemIdentification, #informationMerchant, #questInformation, #questFinishInformation, #identifierInformation, #identifiedInformation, #lootInformation, #inventoryInformation{
 	position: absolute;
 	left: 765px;
 	width: 140px;
@@ -472,7 +473,7 @@ td{
 #settingDelete{
 	left: 350px;
 }
-.stackNum, .questStackNum, .questFinishStackNum, .lootStackNum{
+.stackNum, .questStackNum, .questFinishStackNum, .questStartStackNum, .lootStackNum{
 	position: relative;
     bottom: 22px;
 	height: 20px;
@@ -481,7 +482,7 @@ td{
 	text-shadow: 1px 1px grey;
 	text-align: right;
 }
-.questStackNum, .questFinishStackNum{
+.questStackNum, .questFinishStackNum, .questStartStackNum{
 	position: absolute;
 }
 #levelUpPageTitle{

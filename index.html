@@ -10,6 +10,14 @@
 <body oncontextmenu="return false;">
 	<canvas id="secondary" width="600" height="600"></canvas>
 	<canvas id="game" width="600" height="600"></canvas>
+	<div id="information" hidden>
+		<div class='triangleLeft'></div>
+		<div id='itriangle' class='innerTriangleLeft'></div>
+		<p id='iname' style="font-weight: bold;"></p>
+		<p id='istats'></p>
+		<p id='iset'></p>
+		<p id='ilore'></p>
+	</div>
 	<div id="alert" hidden>
 		<p id="alertText"></p>
 		<div id="alertYes" onclick="Game.inventoryUpdate()"></div>
@@ -18,42 +26,26 @@
 	</div>
 	<div id="chatPage" hidden></div>
 	<div id="inventoryPage" hidden ondrop="Dom.inventory.dispose(event)" ondragover="Dom.inventory.allowDrop(event)">
-		<div id="itemInformation" hidden>
-			<div class='triangleLeft'></div>
-			<div id='triangle' class='innerTriangleLeft'></div>
-			<p id='name'></p>
-			<p id='stats'></p>
-			<p id='set'></p>
-			<p id='lore'></p>
-		</div>
 		<div id="itemIdentification" hidden>
 			<div class='triangleLeft'></div>
 			<div id='idtriangle' class='innerTriangleLeft'></div>
 			<p id='innerStats'></p>
 		</div>
-		<div id="inventoryInformation" hidden>
-			<div class='triangleLeft'></div>
-			<div id='invTriangle' class='innerTriangleLeft'></div>
-			<p id='invName' style='font-weight: bold;'></p>
-			<p id='invStats'></p>
-			<p id='invSet'></p>
-			<p id='invLore'></p>
-		</div>
 		<div id="inventoryGoldXP"></div>
-		<div id="displayStats" onmouseover="Dom.inventory.displayIdentification()"onmouseleave="Dom.expand('itemIdentification')"></div>
-		<div id="weapon"onmouseover="Dom.inventory.displayInformation('184px',Player.inventory.weapon)"onmouseleave="Dom.expand('itemInformation')"ondrop="Dom.inventory.drop(event,'weapon');Game.inventoryUpdate()" ondragover="Dom.inventory.allowDrop(event)" ondrag="Dom.expand('itemInformation')"></div>
-		<div id="helm"onmouseover="Dom.inventory.displayInformation('294px',Player.inventory.helm)"onmouseleave="Dom.expand('itemInformation')"ondrop="Dom.inventory.drop(event,'helm');Game.inventoryUpdate()" ondragover="Dom.inventory.allowDrop(event)" ondrag="Dom.expand('itemInformation')"></div>
-		<div id="chest"onmouseover="Dom.inventory.displayInformation('364px',Player.inventory.chest)"onmouseleave="Dom.expand('itemInformation')"ondrop="Dom.inventory.drop(event,'chest');Game.inventoryUpdate()" ondragover="Dom.inventory.allowDrop(event)" ondrag="Dom.expand('itemInformation')"></div>
-		<div id="greaves"onmouseover="Dom.inventory.displayInformation('434px',Player.inventory.greaves)"onmouseleave="Dom.expand('itemInformation')"ondrop="Dom.inventory.drop(event,'greaves');Game.inventoryUpdate()" ondragover="Dom.inventory.allowDrop(event)" ondrag="Dom.expand('itemInformation')"></div>
-		<div id="boots"onmouseover="Dom.inventory.displayInformation('504px',Player.inventory.boots)"onmouseleave="Dom.expand('itemInformation')"ondrop="Dom.inventory.drop(event,'boots');Game.inventoryUpdate()" ondragover="Dom.inventory.allowDrop(event)" ondrag="Dom.expand('itemInformation')"></div>
+		<div id="displayStats" onmouseover="Dom.inventory.displayIdentification(true)"onmouseleave="Dom.expand('itemIdentification')"></div>
+		<div id="weapon"onmouseover="Dom.inventory.displayInformation(Player.inventory.weapon[0], undefined, 'equip')"onmouseleave="Dom.expand('information')"ondrop="Dom.inventory.drop(event,'weapon');Game.inventoryUpdate()" ondragover="Dom.inventory.allowDrop(event)" ondrag="Dom.expand('information')"></div>
+		<div id="helm"onmouseover="Dom.inventory.displayInformation(Player.inventory.helm[0], undefined, 'equip')"onmouseleave="Dom.expand('information')"ondrop="Dom.inventory.drop(event,'helm');Game.inventoryUpdate()" ondragover="Dom.inventory.allowDrop(event)" ondrag="Dom.expand('information')"></div>
+		<div id="chest"onmouseover="Dom.inventory.displayInformation(Player.inventory.chest[0], undefined, 'equip')"onmouseleave="Dom.expand('information')"ondrop="Dom.inventory.drop(event,'chest');Game.inventoryUpdate()" ondragover="Dom.inventory.allowDrop(event)" ondrag="Dom.expand('information')"></div>
+		<div id="greaves"onmouseover="Dom.inventory.displayInformation(Player.inventory.greaves[0], undefined, 'equip')"onmouseleave="Dom.expand('information')"ondrop="Dom.inventory.drop(event,'greaves');Game.inventoryUpdate()" ondragover="Dom.inventory.allowDrop(event)" ondrag="Dom.expand('information')"></div>
+		<div id="boots"onmouseover="Dom.inventory.displayInformation(Player.inventory.boots[0], undefined, 'equip')"onmouseleave="Dom.expand('information')"ondrop="Dom.inventory.drop(event,'boots');Game.inventoryUpdate()" ondragover="Dom.inventory.allowDrop(event)" ondrag="Dom.expand('information')"></div>
 		<table id="itemInventory">
 			<tr>
-				<td ondrop="Dom.inventory.drop(event);Game.inventoryUpdate(event)" ondragover="Dom.inventory.allowDrop(event)" onmouseover="Dom.inventory.displayEquipmentInformation(0)" onmouseleave="Dom.expand('inventoryInformation')" ondrag="Dom.expand('inventoryInformation')" onclick="Game.inventoryUpdate()"></td>
-				<td ondrop="Dom.inventory.drop(event);Game.inventoryUpdate(event)" ondragover="Dom.inventory.allowDrop(event)" onmouseover="Dom.inventory.displayEquipmentInformation(1)" onmouseleave="Dom.expand('inventoryInformation')" ondrag="Dom.expand('inventoryInformation')" onclick="Game.inventoryUpdate()"></td>
-				<td ondrop="Dom.inventory.drop(event);Game.inventoryUpdate(event)" ondragover="Dom.inventory.allowDrop(event)" onmouseover="Dom.inventory.displayEquipmentInformation(2)" onmouseleave="Dom.expand('inventoryInformation')" ondrag="Dom.expand('inventoryInformation')" onclick="Game.inventoryUpdate()"></td>
-				<td ondrop="Dom.inventory.drop(event);Game.inventoryUpdate(event)" ondragover="Dom.inventory.allowDrop(event)" onmouseover="Dom.inventory.displayEquipmentInformation(3)" onmouseleave="Dom.expand('inventoryInformation')" ondrag="Dom.expand('inventoryInformation')" onclick="Game.inventoryUpdate()"></td>
-				<td ondrop="Dom.inventory.drop(event);Game.inventoryUpdate(event)" ondragover="Dom.inventory.allowDrop(event)" onmouseover="Dom.inventory.displayEquipmentInformation(4)" onmouseleave="Dom.expand('inventoryInformation')" ondrag="Dom.expand('inventoryInformation')" onclick="Game.inventoryUpdate()"></td>
-				<td ondrop="Dom.inventory.drop(event);Game.inventoryUpdate(event)" ondragover="Dom.inventory.allowDrop(event)" onmouseover="Dom.inventory.displayEquipmentInformation(5)" onmouseleave="Dom.expand('inventoryInformation')" ondrag="Dom.expand('inventoryInformation')" onclick="Game.inventoryUpdate()"></td>
+				<td ondrop="Dom.inventory.drop(event);Game.inventoryUpdate(event)" ondragover="Dom.inventory.allowDrop(event)" onmouseover="Dom.inventory.displayEquipmentInformation(0)" onmouseleave="Dom.expand('information')" ondrag="Dom.expand('information')" onclick="Game.inventoryUpdate()"></td>
+				<td ondrop="Dom.inventory.drop(event);Game.inventoryUpdate(event)" ondragover="Dom.inventory.allowDrop(event)" onmouseover="Dom.inventory.displayEquipmentInformation(1)" onmouseleave="Dom.expand('information')" ondrag="Dom.expand('information')" onclick="Game.inventoryUpdate()"></td>
+				<td ondrop="Dom.inventory.drop(event);Game.inventoryUpdate(event)" ondragover="Dom.inventory.allowDrop(event)" onmouseover="Dom.inventory.displayEquipmentInformation(2)" onmouseleave="Dom.expand('information')" ondrag="Dom.expand('information')" onclick="Game.inventoryUpdate()"></td>
+				<td ondrop="Dom.inventory.drop(event);Game.inventoryUpdate(event)" ondragover="Dom.inventory.allowDrop(event)" onmouseover="Dom.inventory.displayEquipmentInformation(3)" onmouseleave="Dom.expand('information')" ondrag="Dom.expand('information')" onclick="Game.inventoryUpdate()"></td>
+				<td ondrop="Dom.inventory.drop(event);Game.inventoryUpdate(event)" ondragover="Dom.inventory.allowDrop(event)" onmouseover="Dom.inventory.displayEquipmentInformation(4)" onmouseleave="Dom.expand('information')" ondrag="Dom.expand('information')" onclick="Game.inventoryUpdate()"></td>
+				<td ondrop="Dom.inventory.drop(event);Game.inventoryUpdate(event)" ondragover="Dom.inventory.allowDrop(event)" onmouseover="Dom.inventory.displayEquipmentInformation(5)" onmouseleave="Dom.expand('information')" ondrag="Dom.expand('information')" onclick="Game.inventoryUpdate()"></td>
 			</tr>
 		</table>
 		<p id="bagText">Buy bags to get more inventory space</p>
@@ -137,9 +129,12 @@
 		<br><h1 id="questStartQuest"></h1><br><br>
 		<b id="questStartName"></b><br>
 		<p id="questStartChat"></p><br><br>
-		<b>Quest Objectives</b><br>
-		<p id="questStartObjectives"></p><br>
-		<b>Quest Rewards</b><br>
+		<b>Quest Objectives</b>
+		<p id="questStartObjectives"></p>
+		<p id="questStartStartRewardsTitle"></p>
+		<p id="questStartStartRewards"></p>
+		<div id="questStartStartItems"></div>
+		<p id="questStartRewardsTitle"></p>
 		<p id="questStartRewards"></p>
 		<div id="questStartXP"></div><span id="xpClass">&nbsp;&nbsp;</span>
 		<div id="questStartItems"></div>
@@ -156,8 +151,8 @@
 		</div>
 		<br><h1 id="questFinishQuest"></h1><br><br>
 		<b id="questFinishName"></b><br>
-		<p id="questFinishChat"></p><br><br>
-		<b>Quest Rewards</b><br>
+		<p id="questFinishChat"></p>
+		<p id="questFinishRewardsTitle"></p>
 		<p id="questFinishRewards"></p>
 		<div id="questFinishXP"></div><span id="xpClass">&nbsp;&nbsp;</span>
 		<div id="questFinishItems"></div>
