@@ -34,6 +34,8 @@ var Player = {
 		activeQuestArray: [],
 		possibleQuestArray: [],
 		completedQuestArray: [],
+		
+		questProgress: {}, // stores properties for quest objectives that cannot otherwise be tracked between saves
 	},
 	
 	inventory: {

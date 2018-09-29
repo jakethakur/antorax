@@ -389,7 +389,7 @@ var Quests = {
 				xp: 30,
 			},
 		},
-		/*{
+		{
 			id: 8,
 			quest: "Learning to Fish II",
 			
@@ -409,8 +409,8 @@ var Quests = {
 				var completed = [];
 				
 				// true or falses for each objective (apart from the turn-in objective)
-				completed.push(false);
-				completed.push(false);
+				completed.push(Player.quests.questProgress.hasUsedBait || false);
+				completed.push(Player.quests.questProgress.hasCaughtFish || false);
 				
 				var finished = true;
 				for(var i = 0; i < completed.length; i++) {
@@ -431,7 +431,48 @@ var Quests = {
 			rewards: {
 				xp: 30,
 			},
-		},*/
+		},
+		{
+			id: 9,
+			quest: "Learning to Fish III",
+			
+			startName: "Fisherman Tobenam",
+			startChat: "tbd",
+			
+			finishName: "Fisherman Tobenam",
+			finishChat: "tbd",
+			
+			objectives: [
+				"Level your base fishing skill to 10.",
+				"Speak to <strong>Fisherman Tobenam</strong>.",
+			],
+			
+			isCompleted: function() {
+				var completed = [];
+				
+				// true or falses for each objective (apart from the turn-in objective)
+				completed.push(Player.stats.fishingSkill >= 10);
+				
+				var finished = true;
+				for(var i = 0; i < completed.length; i++) {
+					if(!completed[i]) {
+						finished = false;
+					}
+				}
+				
+				completed.push(finished);
+				
+				return completed;
+			},
+			
+			howToStart: "Speak to <strong>Fisherman Tobenam</strong>.",
+			levelRequirement: 2,
+			questRequirements: ["Learning to Fish II"],
+			
+			rewards: {
+				xp: 50,
+			},
+		},
 		
 		/*{
 			id: 2,
@@ -458,48 +499,7 @@ var Quests = {
 			},
 		},
 		
-		
-		{
-			id: 6,
-			quest: "Learning to Fish III",
-			
-			startName: "Fisherman Tobenam",
-			startChat: "tbd",
-			
-			finishName: "Fisherman Tobenam",
-			finishChat: "tbd",
-			
-			objectives: [
-				"Level your base fishing skill to 10.",
-				"Speak to <strong>Fisherman Tobenam</strong>.",
-			],
-			
-			isCompleted: function() {
-				var completed = [];
-				
-				// true or falses for each objective (apart from the turn-in objective)
-				//completed.push((Player.inventory.weapon.length > 1) ? true : false); tbd
-				
-				var finished = true;
-				for(var i = 0; i < completed.length; i++) {
-					if(!completed[i]) {
-						finished = false;
-					}
-				}
-				
-				completed.push(finished);
-				
-				return completed;
-			},
-			
-			howToStart: "Speak to <strong>Fisherman Tobenam</strong>.",
-			levelRequirement: 2,
-			questRequirements: ["Learning to Fish II"],
-			
-			rewards: {
-				xp: 50,
-			},
-		},*/
+		*/
 	],
 };
 

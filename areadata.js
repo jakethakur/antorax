@@ -204,6 +204,26 @@ var Areas = {
 						quest: Quests.eaglecrestLoggingCamp[7], 
 						role: "questFinish",
 					},
+					{
+						quest: Quests.eaglecrestLoggingCamp[8], 
+						role: "questStart",
+					},
+					{
+						quest: Quests.eaglecrestLoggingCamp[8], 
+						role: "questFinish",
+					},
+					{
+						quest: Quests.eaglecrestLoggingCamp[9], 
+						role: "questStart",
+					},
+					{
+						quest: Quests.eaglecrestLoggingCamp[9], 
+						role: "questFinish",
+					},
+					{
+						sold: [Items.consumable[8]],
+						role: "merchant",
+					},
 				],
 				chat: {
 					questProgress: "You can always buy a lure to fish up more. Heheh, that rhymed!",

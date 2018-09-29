@@ -1031,7 +1031,7 @@ var Items = {
 					if (Player.inventory.items[inventoryPosition].charges <= 0) {
 						Dom.inventory.remove(inventoryPosition);
 					}
-					Dom.inventory.displayEquipmentInformation(inventoryPosition);
+					Dom.inventory.displayInformation(Player.inventory.items[inventoryPosition]);
 					// give fish bait status effect
 					Game.hero.statusEffects.push(new statusEffect({
 						title: "Fish bait",
@@ -1040,6 +1040,8 @@ var Items = {
 							skillIncrease: 20,
 						}
 					}));
+					// give quest progress for "learning to fish II"
+					Player.quests.questProgress.hasUsedBait = true;
 				}
 			}
 		},

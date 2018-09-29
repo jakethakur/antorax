@@ -1263,6 +1263,8 @@ class Hero extends Attacker {
 					if (fish.rarity === "mythic") {
 						time += 200 + 200 * clicks;
 					}
+					
+					Player.quests.questProgress.hasCaughtFish = true;
 				}
 				fish.clicksToCatch = clicks;
 				
@@ -2725,7 +2727,7 @@ Game.update = function (delta) {
 								// soul healer appears as an option for choose DOM
 								textArray.push(role.chooseText || "I'd like to remove my 'XP Fatigue' status effect.");
 								functionArray.push(Dom.text.page);
-								parameterArray.push(["Soul Healer", NPC.chat.canBeHealedText, ["Remove XP Fatigue for " + this.soulHealerCost + " gold"], [function () {
+								parameterArray.push([NPC.name, "Soul Healer", NPC.chat.canBeHealedText, ["Remove XP Fatigue for " + this.soulHealerCost + " gold"], [function () {
 									if (Dom.inventory.check(2, "currency", Game.soulHealerCost)) {
 										Dom.inventory.removeById(2, "currency", Game.soulHealerCost);
 										Game.hero.statusEffects.splice(Game.hero.statusEffects.findIndex(statusEffect => statusEffect.title === "XP Fatigue"), 1); // remove xp fatigue effect
