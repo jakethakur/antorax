@@ -523,7 +523,7 @@ class Character extends Thing {
 	// if singleUse is true, and if Dom.chat.contents contains message, the message is not sent
 	// if important is true, the chat message triggers a red flashing prompt around the chat bookmark
 	say (message, singleUse, delay, important) {
-		if (message.substring(0, 4) === "/me ") { // reflexive message
+		if (message !== undefined && message.substring(0, 4) === "/me ") { // reflexive message
 			message = message.substr(4, message.length);
 			if (!(singleUse && Dom.chat.contents.includes("<strong>" + this.name + "</strong> " + message))) { // check if message should be sent (due to singleUse)
 				Dom.chat.insert("<strong>" + this.name + "</strong> " + message, delay, important);
@@ -1730,13 +1730,13 @@ class LootChest extends Thing {
 	}
 	
 	openLoot (arrayIndex) {
-		Dom.choose.page(this, ["Loot chest"], [function () {
-			Dom.loot.page(this.name, this.loot, this.lootQuantities, this.inventorySpace);
+		Dom.choose.page(this, ["Loot chest"], [function (chest) {
+			Dom.loot.page(chest.name, chest.loot, chest.lootQuantities, chest.inventorySpace);
 			Dom.loot.currentId = "c"+arrayIndex;
 			// "c"+i is a string that allows the loot menu to be identified - c means enemy, and arrayIndex is the index of the enemy in Game.chests
 			// the loot menu closes when the area changes anyway, so this will always work
 			// Dom.loot.currentId is only ever used in main, in the function Game.lootClosed() (called by index.html)
-		}], [[]]);
+		}], [[this]]);
 	}
 }
 
@@ -2621,7 +2621,6 @@ Game.update = function (delta) {
 				
 				NPC.roles.forEach(role => { // iterate through quests involving that NPC
 					if (role.roleRequirement === undefined || role.roleRequirement()) {
-						
 						// quest starts
 						if (role.role === "questStart") {
 							// quest is ready to be accepted

@@ -1584,7 +1584,6 @@ var Items = {
 			type: "fish",
 			image: "assets/items/fish/17.png",
 			sellPrice: 1,
-			sellQuantity: 2,
 			lore: "I wonder who this belongs to?",
 			areas: [], 
 			waterTypes: [
@@ -1761,7 +1760,12 @@ var Items = {
 				max: 1000,
 			},
 			clicksToCatch: 20,
-			timeToCatch: 7000,
+			timeToCatch: 7000,			
+			onOpen: function () {
+				let loot = [];
+				let lootQuantities = [];
+				Dom.loot.page("Sunken Chest", loot, lootQuantities, 24);
+			},
 		},
 		{
 			id: 26,
@@ -1785,6 +1789,10 @@ var Items = {
 			},
 			clicksToCatch: 1,
 			timeToCatch: 1000,
+			opens: {
+				type: "fish",
+				id: 25,
+			},
 		},
 		/*{
 			id: 22,

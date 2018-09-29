@@ -574,7 +574,7 @@ var Areas = {
 						sold: [Items.consumable[7]],
 						role: "merchant",
 						roleRequirement: function () {
-							Player.quests.activeQuestArray.includes("Strengthen Defences");
+							return Player.quests.activeQuestArray.includes("Strengthen Defences");
 						}
 					},
 				],
@@ -600,7 +600,7 @@ var Areas = {
 					{
 						role: "itemBuyer",
 						roleRequirement: function () {
-							Player.quests.completedQuestArray.includes("Retrieval of Logs");
+							return Player.quests.completedQuestArray.includes("Retrieval of Logs");
 						}
 					},
 				],
