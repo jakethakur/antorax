@@ -1100,7 +1100,7 @@ class Hero extends Attacker {
 		Game.secondary.render();
 		
 		// update dom
-		Dom.inventory.updateIdentification();
+		Dom.inventory.displayIdentification();
 	}
 	
 	// space bar
@@ -1113,20 +1113,16 @@ class Hero extends Attacker {
 			if (interactionDone === 0) {
 				for (var i = 0; i < Game.enemies.length; i++) {
 					if (Game.enemies[i].isCorpse) { // check enemy is a corpse (hence might be able to be looted) 
-						if (this.isTouching(Game.enemies[i]) && Game.enemies[i].loot !== null && Dom.currentlyDisplayed === "") { // player is touching enemy, enemy can be looted, and DOM isn't occupied
-							Dom.loot.page(Game.enemies[i].name, Game.enemies[i].loot, Game.enemies[i].lootQuantities, Game.enemies[i].inventorySpace);
-							Dom.loot.currentId = "e"+i;
+						if (this.isTouching(Game.enemies[i]) && Game.enemies[i].loot !== null) { // player is touching enemy and enemy can be looted
+							Dom.choose.page(Game.enemies[i], ["Loot enemy"], [function () {
+								Dom.loot.page(Game.enemies[i].name, Game.enemies[i].loot, Game.enemies[i].lootQuantities, Game.enemies[i].inventorySpace);
+								Dom.loot.currentId = "e"+i;
+								// "e"+i is a string that allows the loot menu to be identified - e means enemy, and i is the index of the enemy in Game.enemies
+								// the loot menu closes when the area changes anyway, so this will always work
+								// Dom.loot.currentId is only ever used in main, in the function Game.lootClosed() (called by index.html)
+							}], [[]]);
 							interactionDone = true;
-							// "e"+i is a string that allows the loot menu to be identified - e means enemy, and i is the index of the enemy in Game.enemies
-							// the loot menu closes when the area changes anyway, so this will always work
-							// Dom.loot.currentId is only ever used in main, in the function Game.lootClosed() (called by index.html)
-						}else if(Game.enemies[i].loot !== null && Dom.currentlyDisplayed != "loot" && Dom.currentlyDisplayed != "" && !Dom.override){
-							if(this.isTouching(Game.enemies[i]) && document.getElementsByClassName("closeClass")[0].style.border != "5px solid red"){
-								Dom.changeBook("lootPage",false,2);
-								Dom.loot.override = true;
-							}
 						}
-						// should flash red if player can't loot it
 					}
 				}
 			}
@@ -1734,11 +1730,13 @@ class LootChest extends Thing {
 	}
 	
 	openLoot (arrayIndex) {
-		Dom.loot.page(this.name, this.loot, this.lootQuantities, this.inventorySpace);
-		Dom.loot.currentId = "c"+arrayIndex;
-		// "c"+i is a string that allows the loot menu to be identified - c means enemy, and arrayIndex is the index of the enemy in Game.chests
-		// the loot menu closes when the area changes anyway, so this will always work
-		// Dom.loot.currentId is only ever used in main, in the function Game.lootClosed() (called by index.html)
+		Dom.choose.page(this, ["Loot chest"], [function () {
+			Dom.loot.page(this.name, this.loot, this.lootQuantities, this.inventorySpace);
+			Dom.loot.currentId = "c"+arrayIndex;
+			// "c"+i is a string that allows the loot menu to be identified - c means enemy, and arrayIndex is the index of the enemy in Game.chests
+			// the loot menu closes when the area changes anyway, so this will always work
+			// Dom.loot.currentId is only ever used in main, in the function Game.lootClosed() (called by index.html)
+		}], [[]]);
 	}
 }
 
@@ -1984,19 +1982,19 @@ Game.statusEffects.strength = function(tier, target) { // you might want to add 
 	let found = target.statusEffects.findIndex(function(element) {
 		return element.title === ("Strength " + tier);
 	});
+		
+	let damageIncrease = 0; // percentage (same damage = 0 damageIncrease)
+	let time = 0;
+	// find what tier does
+	if (tier === "I") {
+		damageIncrease = 40;
+		time = 10;
+	}
+	else {
+		console.error("Strength status effect tier " + tier + " has not been assigned damage increase and time");
+	}
 	
 	if (found === -1) { // no strength effect of that tier currently applied to the target
-		
-		let damageIncrease = 0; // percentage (same damage = 0 damageIncrease)
-		let time = 0;
-		// find what tier does
-		if (tier === "I") {
-			damageIncrease = 40;
-			time = 10;
-		}
-		else {
-			console.error("Strength status effect tier " + tier + " has not been assigned damage increase and time");
-		}
 		
 		target.statusEffects.push(new statusEffect({
 			title: "Strength " + tier,
@@ -2031,7 +2029,7 @@ Game.statusEffects.strength = function(tier, target) { // you might want to add 
 		}.bind(target.statusEffects[target.statusEffects.length - 1]), 1000, target);
 	}
 	else if (found !== -1) { // extend existing strength
-		target.statusEffects[found].info.ticks = 0;
+		target.statusEffects[found].info.time += time;
 	}
 	
 	if (target.constructor.name === "Hero") { // refresh canvas status effects if the status effect was applied to player
@@ -2048,19 +2046,19 @@ Game.statusEffects.swiftness = function(tier, target) { // you might want to add
 	let found = target.statusEffects.findIndex(function(element) {
 		return element.title === ("Swiftness " + tier);
 	});
+		
+	let speedIncrease = 0; // percentage (same walk speed = 0 speedIncrease)
+	let time = 0;
+	// find what tier does
+	if (tier === "I") {
+		speedIncrease = 35;
+		time = 20;
+	}
+	else {
+		console.error("Swiftness status effect tier " + tier + " has not been assigned walk speed increase and time");
+	}
 	
 	if (found === -1) { // no strength effect of that tier currently applied to the target
-		
-		let speedIncrease = 0; // percentage (same walk speed = 0 speedIncrease)
-		let time = 0;
-		// find what tier does
-		if (tier === "I") {
-			speedIncrease = 35;
-			time = 20;
-		}
-		else {
-			console.error("Swiftness status effect tier " + tier + " has not been assigned walk speed increase and time");
-		}
 		
 		target.statusEffects.push(new statusEffect({
 			title: "Swiftness " + tier,
@@ -2095,7 +2093,7 @@ Game.statusEffects.swiftness = function(tier, target) { // you might want to add
 		}.bind(target.statusEffects[target.statusEffects.length - 1]), 1000, target);
 	}
 	else if (found !== -1) { // extend existing strength
-		target.statusEffects[found].info.ticks = 0;
+		target.statusEffects[found].info.time += time;
 	}
 	
 	if (target.constructor.name === "Hero") { // refresh canvas status effects if the status effect was applied to player
@@ -2618,6 +2616,7 @@ Game.update = function (delta) {
 				// booleans to decide NPC chat for if choose DOM doesn't open
 				let questActive = false; // if one of the NPC's quests is currently active
 				let questComplete = false; // if one of the NPC's quests has been completed
+				let notUnlockedRoles = false; // if one of the NPC's roles has not been unlocked
 				// see below forEach for logic regarding these variables
 				
 				NPC.roles.forEach(role => { // iterate through quests involving that NPC
@@ -2767,6 +2766,9 @@ Game.update = function (delta) {
 						}
 						
 					}
+					else {
+						notUnlockedRoles = true;
+					}
 				}); // finished iterating through this NPC's roles
 				
 				if (functionArray.length > 0) {
@@ -2784,6 +2786,10 @@ Game.update = function (delta) {
 					else if (questComplete) {
 						// the player has finished quest(s) with the NPC and no other alternate options
 						NPC.say(NPC.chat.questComplete, true, 0, false);
+					}
+					else if (notUnlockedRoles) {
+						// the player has not unlocked a possible role with the NPC and no other alternate options
+						NPC.say(NPC.chat.notUnlockedRoles, true, 0, false);
 					}
 				}
 			}

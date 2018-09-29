@@ -81,6 +81,26 @@ var Items = {
 				reflection: "+50%",
 			},
 		},
+		{
+			id: 6,
+			name: "The Ocean Warrior's Helm",
+			type: "helm",
+			image: "assets/items/helm/6.png",
+			tier: 1,
+			rarity: "mythic",
+			sellPrice: 5,
+			lore: "",
+			obtain: "Find in a sunken chest in a tier 1 fishing area",
+			set: 4,
+			stats: {
+				defence: "+3",
+			},
+			chooseStats: {
+				criticalChance: "+5%",
+				dodgeChance: "+5%",
+				reflection: "+10%",
+			},
+		},
 	],
 	chest: [
 		{
@@ -160,6 +180,26 @@ var Items = {
 			stats: {
 				defence: "+8",
 				walkSpeed: "-80/s",
+			},
+		},
+		{
+			id: 6,
+			name: "The Ocean Warrior's Chestplate",
+			type: "chest",
+			image: "assets/items/chest/6.png",
+			tier: 1,
+			rarity: "mythic",
+			sellPrice: 5,
+			lore: "",
+			obtain: "Find in a sunken chest in a tier 1 fishing area",
+			set: 4,
+			stats: {
+				defence: "+4",
+			},
+			chooseStats: {
+				criticalChance: "+5%",
+				dodgeChance: "+5%",
+				reflection: "+10%",
 			},
 		},
 	],
@@ -243,6 +283,26 @@ var Items = {
 				defence: "+4",
 				dodgeChance: "+20%",
 				healthRegen: "+0.5/s",
+			},
+		},
+		{
+			id: 6,
+			name: "The Ocean Warrior's Leggings",
+			type: "greaves",
+			image: "assets/items/greaves/6.png",
+			tier: 1,
+			rarity: "mythic",
+			sellPrice: 5,
+			lore: "",
+			obtain: "Find in a sunken chest in a tier 1 fishing area",
+			set: 4,
+			stats: {
+				defence: "+4",
+			},
+			chooseStats: {
+				criticalChance: "+5%",
+				dodgeChance: "+5%",
+				reflection: "+10%",
 			},
 		},
 	],
@@ -358,6 +418,26 @@ var Items = {
 			stats: {
 				defence: "+4",
 				swimSpeed: "-50/s"
+			},
+		},
+		{
+			id: 8,
+			name: "The Ocean Warrior's Boots",
+			type: "chest",
+			image: "assets/items/chest/8.png",
+			tier: 1,
+			rarity: "mythic",
+			sellPrice: 5,
+			lore: "",
+			obtain: "Find in a sunken chest in a tier 1 fishing area",
+			set: 4,
+			stats: {
+				defence: "+3",
+			},
+			chooseStats: {
+				criticalChance: "+5%",
+				dodgeChance: "+5%",
+				reflection: "+10%",
 			},
 		},
 	],
@@ -747,6 +827,24 @@ var Items = {
 				walkSpeed: "+60/s",
 			},
 		},
+		{
+			id: 4,
+			name: "Ocean Warrior's Set",
+			type: "set",
+			image: "assets/items/set/4.png",
+			tier: 1,
+			rarity: "mythic",
+			armour: [
+				"Ocean Warrior's Helm",
+				"Ocean Warrior's Chestplate",
+				"Ocean Warrior's Leggings",
+				"Ocean Warrior's Boots",
+			],
+			stats: {
+				// double chosen stats
+				swimSpeed: "+120/s", // perhaps display as water walking?
+			},
+		},
 	],
 	currency: [
 		{
@@ -913,6 +1011,8 @@ var Items = {
 			name: "Potion of Strength I",
 			type: "consumable",
 			image: "assets/items/consumable/2.png",
+			cost: 5,
+			sellPrice: 2,
 			onClickText: "Increases damage dealt by 40% for 10 seconds",
 			onClick: function (inventoryPosition) {
 				// remove the item
@@ -927,6 +1027,8 @@ var Items = {
 			name: "Potion of Swiftness I",
 			type: "consumable",
 			image: "assets/items/consumable/3.png",
+			cost: 3,
+			sellPrice: 1,
 			onClickText: "Increases walk speed by 35% for 20 seconds",
 			onClick: function (inventoryPosition) {
 				// remove the item
@@ -941,13 +1043,15 @@ var Items = {
 			name: "Potion of Health I",
 			type: "consumable",
 			image: "assets/items/consumable/4.png",
-			onClickText: "Restores 20 health",
+			cost: 3,
+			sellPrice: 1,
+			onClickText: "Restores 15 health",
 			onClick: function (inventoryPosition) {
 				// remove the item
 				Dom.inventory.remove(inventoryPosition);
 				
 				// restore the health
-				Game.restoreHealth(Game.hero, 20);
+				Game.restoreHealth(Game.hero, 15);
 			}
 		},
 		{

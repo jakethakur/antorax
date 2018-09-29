@@ -342,6 +342,7 @@ var Areas = {
 				"soulHealer",
 				"galuthel",
 				"itemBuyer",
+				"darkbrew",
 			],
 			
 			addresses: [
@@ -354,6 +355,7 @@ var Areas = {
 				"./assets/npcs/soulHealer.png",
 				"./assets/npcs/galuthel.png",
 				"./assets/npcs/itemBuyer.png",
+				"./assets/npcs/darkbrew.png",
 			],
 		},
 		
@@ -575,6 +577,7 @@ var Areas = {
 					},
 				],
 				chat: {
+					notUnlockedRoles: "I think we have enough traps out at the moment. Come back in a bit.",
 					shopGreeting: "If you're out of traps, I'll give you some more.",
 					shopLeave: "Let's crush those goblins.",
 					inventoryFull: "Empty your inventory a bit and come back.",
@@ -594,10 +597,40 @@ var Areas = {
 				roles: [
 					{
 						role: "itemBuyer",
+						roleRequirement: function () {
+							Player.quests.completedQuestArray.includes("Retrieval of Logs");
+						}
 					},
 				],
 				chat: {
 					buyerGreeting: "I'll happily buy any items that you're willing to part with.",
+				},
+			},
+			{
+				x: 1111,
+				y: 633,
+				image: "darkbrew",
+				name: "Ciarra Darkbrew",
+				hostility: "friendly",
+				level: 20,
+				stats: {
+					maxHealth: 150,
+					defence: 6,
+				},
+				roles: [
+					{
+						sold: [Items.consumable[4], Items.consumable[3], Items.consumable[2]],
+						role: "merchant",
+						roleRequirement: function () {
+							return Player.level > 2;
+						}
+					},
+				],
+				chat: {
+					notUnlockedRoles: "I've been told you're not a high enough level to handle my potions.",
+					shopGreeting: "Want to buy a potion? Of course you do.",
+					shopLeave: "Side effects? No. Trust me.",
+					inventoryFull: "You don't want to be spilling a potion with an inventory as full as yours. Come back with some free space.",
 				},
 			},
 		],
