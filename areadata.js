@@ -226,9 +226,11 @@ var Areas = {
 					},
 				],
 				chat: {
-					questProgress: "You can always buy a lure to fish up more. Heheh, that rhymed!",
-					questComplete: "Caught a big one?",
+					chooseChat: "Caught a big one?",
+					shopGreeting: "You can always buy a lure to fish up more. Heheh, that rhymed!",
+					shopLeave: "Heheh, see you soon!",
 					inventoryFull: "You've lots of fish in your bags, but you've not any space for your rewards!",
+					tooPoor: "You can't afford that, but don't let that stop ya from fishing!",
 					// "&#9835; I'm fiiiiiiiishing in the rain! &#9835;"
 				},
 				canBeShown: function () {

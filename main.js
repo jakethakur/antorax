@@ -1034,7 +1034,7 @@ class Hero extends Attacker {
 						}
 						
 						if (Math.floor(this.stats.fishingSkill) - Math.floor(oldFishingSkill) > 0) { // check if the player's fishing skill has increased to the next integer (or more)
-							Dom.chat.insert("Your fishing skill has increased to " + this.stats.fishingSkill + "."); // notify them of this in chat
+							Dom.chat.insert("Your fishing skill has increased to " + Math.floor(this.stats.fishingSkill) + "."); // notify them of this in chat
 						}
 						
 						// remove fishing bobber
