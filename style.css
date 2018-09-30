@@ -78,28 +78,6 @@ body{
 	font-size: 20px;
 	background-color: #fff7a5;
 }
-.rectangleLeftUp, .rectangleLeftDown, .rectangleRightUp, .rectangleRightDown{
-	position: absolute;
-	width: 22px;
-	height: 50px;
-	background-color: #f9f9d0;
-}
-.rectangleLeftUp{
-	right:165px;
-	bottom: 5px;
-}
-.rectangleLeftDown{
-	right:165px;
-	top: 5px;
-}
-.rectangleRightUp{
-	left:165px;
-	bottom: 5px;
-}
-.rectangleRightDown{
-	left:165px;
-	top: 5px;
-}
 .triangleLeft, .innerTriangleLeft, .triangleRight, .innerTriangleRight{
 	position: absolute;
 	width: 0px; 
@@ -108,22 +86,21 @@ body{
 	border-bottom: 15px solid transparent; 
 }
 .triangleLeft {
-	right: 165px;
 	border-right: 20px solid #886622; 
 }
 .innerTriangleLeft {
-	right: 157px;
 	border-right: 20px solid #fef9b4;
 	z-index: 2;
 }
 .triangleRight{
 	border-left: 20px solid #886622;
-	left: 165px;
 }
 .innerTriangleRight{
-	left: 157px;
 	border-left: 20px solid #fef9b4;
 	z-index: 2;
+}
+#lootAll{
+	position: relative;
 }
 #settingBookmark, #settingMusic, #settingHitboxes, #settingCoords, #settingFps, #settingGrid, #settingSpeed, #settingAccept, #activeQuestBox, #completedQuestBox, #possibleQuestBox, #otherQuestBox {
 	width: 501px;
@@ -315,8 +292,7 @@ td{
 }
 #information, #itemInformation, #itemIdentification, #informationMerchant, #questInformation, #questFinishInformation, #identifierInformation, #identifiedInformation, #lootInformation, #inventoryInformation{
 	position: absolute;
-	left: 765px;
-	width: 140px;
+	width: 150px;
 	background-color: #fef9b4;
 	border: 5px solid #886622;
 	float: right;

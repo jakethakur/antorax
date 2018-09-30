@@ -224,7 +224,7 @@ var Areas = {
 						sold: [Items.consumable[8]],
 						role: "merchant",
 						roleRequirement: function () {
-							return Player.quests.completedQuestArray.includes("Learning to Fish II") || Player.activeQuestArray.includes("Learning to Fish II");
+							return Player.quests.completedQuestArray.includes("Learning to Fish II") || Player.quests.activeQuestArray.includes("Learning to Fish II");
 						},
 					},
 				],

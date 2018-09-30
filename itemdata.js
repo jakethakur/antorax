@@ -423,7 +423,7 @@ var Items = {
 		{
 			id: 8,
 			name: "The Ocean Warrior's Boots",
-			type: "chest",
+			type: "boots",
 			image: "assets/items/boots/8.png",
 			tier: 1,
 			rarity: "mythic",
