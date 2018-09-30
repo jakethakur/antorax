@@ -224,7 +224,7 @@ var Areas = {
 						sold: [Items.consumable[8]],
 						role: "merchant",
 						roleRequirement: function () {
-							return Player.completedQuestArray.includes("Learning to Fish II") || Player.activeQuestArray.includes("Learning to Fish II");
+							return Player.quests.completedQuestArray.includes("Learning to Fish II") || Player.activeQuestArray.includes("Learning to Fish II");
 						},
 					},
 				],
@@ -446,8 +446,37 @@ var Areas = {
 						quest: Quests.eaglecrestLoggingCamp[4], 
 						role: "questFinish"
 					},
+					{
+						role: "text",
+						chooseText: "I found a pair of boots that I think might be yours.",
+						chat: "Are you sure? Give them here.<br>You're right, they were mine. They were stolen by a goblin during the recent goblin siege. Are you sure I can have them back? I will make sure that you are aptly rewarded.",
+						buttons: ["Return them.", "Keep them."],
+						functions: [function () {
+							// remove the boots
+							Dom.inventory.removeById(6, "boots");
+							// give rewards
+							Game.getXP(50);
+							Dom.reputation.give("eaglecrestLoggingCamp", 300);
+							Dom.inventory.give(Items.currency[2], 5);
+							Dom.chat.insert("Marshall Teper has given you <strong>5 Gold</strong> for the boots.", 0);
+							// close page
+							Dom.changeBook(Dom.previous, true); // close page
+							// chat message
+							Game.NPCs[0].say("Thank you. I hope you find these rewards useful to your progression. Now, back to work.", false, 0, false); // Teper is Game.NPCs[0]
+						},
+						function () {
+							// close page
+							Dom.changeBook(Dom.previous, true); // close page
+							// chat message
+							Game.NPCs[0].say("What, are you even allowed to keep them? I'd like my boots back!", false, 0, false); // Teper is Game.NPCs[0]
+						}],
+						roleRequirement: function () {
+							return Dom.inventory.check(6, "boots", 1); // check that the player has Marshall Teper's lost boots
+						},
+					},
 				],
 				chat: {
+					notUnlockedRoles: "I'm busy. Come back later.",
 					questProgress: "Get on with your work!",
 					questComplete: "There's lots of work still to be done.",
 					inventoryFull: "You have no space to hold this. Empty your bags a bit and come back.",

@@ -2671,7 +2671,7 @@ Game.update = function (delta) {
 						}
 						
 						// quest finishes
-						if (role.role === "questFinish") {
+						else if (role.role === "questFinish") {
 							// check if quest is ready to be finished
 							if (Player.quests.activeQuestArray.includes(role.quest.quest) && // quest is currently active
 							!Player.quests.completedQuestArray.includes(role.quest.quest)) { // quest has not already been completed
@@ -2712,7 +2712,7 @@ Game.update = function (delta) {
 						}
 						
 						// merchants
-						if (role.role === "merchant") {
+						else if (role.role === "merchant") {
 							// merchant appears as an option for choose DOM
 							textArray.push(role.chooseText || "I'd like to browse your goods.");
 							functionArray.push(Dom.merchant.page);
@@ -2720,7 +2720,7 @@ Game.update = function (delta) {
 						}
 						
 						// soul healers
-						if (role.role === "soulHealer") {
+						else if (role.role === "soulHealer") {
 							let statusEffect = Game.hero.statusEffects.find(statusEffect => statusEffect.title === "XP Fatigue"); // try to find xp fatigue effect
 							if (statusEffect !== undefined) {
 								// calculate cost
@@ -2759,7 +2759,7 @@ Game.update = function (delta) {
 						}
 						
 						// identifiers
-						if (role.role === "identifier") {
+						else if (role.role === "identifier") {
 							// identifier appears as an option for choose DOM
 							textArray.push(role.chooseText || "I'd like to identify an item.");
 							functionArray.push(Dom.identifier.page);
@@ -2767,11 +2767,32 @@ Game.update = function (delta) {
 						}
 						
 						// item buyers
-						if (role.role === "itemBuyer") {
+						else if (role.role === "itemBuyer") {
 							// item buyer appears as an option for choose DOM
 							textArray.push(role.chooseText || "I'd like to sell some items to you.");
 							functionArray.push(Dom.buyer.page);
 							parameterArray.push([NPC]);
+						}
+						
+						// generic text DOM
+						else if (role.role === "text") {
+							// soul healer appears as an option for choose DOM
+							textArray.push(role.chooseText || "I'd like to remove my 'XP Fatigue' status effect.");
+							functionArray.push(Dom.text.page);
+							parameterArray.push([NPC.name, "Soul Healer", NPC.chat.canBeHealedText, ["Remove XP Fatigue for " + this.soulHealerCost + " gold"], [function () {
+								if (Dom.inventory.check(2, "currency", Game.soulHealerCost)) {
+									Dom.inventory.removeById(2, "currency", Game.soulHealerCost);
+									Game.hero.statusEffects.splice(Game.hero.statusEffects.findIndex(statusEffect => statusEffect.title === "XP Fatigue"), 1); // remove xp fatigue effect
+									Dom.changeBook(Dom.previous, true); // close page
+									Game.currentSoulHealer.say(Game.currentSoulHealer.chat.healedText, false, 0, false);
+									Game.currentSoulHealer = undefined; // reset variable that remembers which soul healer the player is speaking to
+									Game.soulHealerCost = undefined; // reset variable that remembers the cost for soul healing
+								}
+								else {
+									// player cannot afford it
+									Game.soulHealers[i].say(Game.soulHealers[i].chat.tooPoor, true, 0, false);
+								}
+							}], NPC.name]);
 						}
 						
 					}
@@ -2940,6 +2961,9 @@ Game.lootClosed = function () {
 			Game.chests[arrayIndex].loot = null;
 			Game.chests[arrayIndex].lootQuantities = null;
 		}
+	}
+	else if (Dom.loot.currentId[0] === "x") {
+		// do nothing
 	}
 	else {
 		console.error("Dom.loot.currentId cannot be understood: " + Dom.loot.currentId);
@@ -3591,26 +3615,32 @@ Game.secondary.render = function () {
 		// status effect icons next to health bar
 		for(let i = 0; i < Game.hero.statusEffects.length; i++) {
 			let iconNum = null;
-			if(Game.hero.statusEffects[i].title == "Fire I") {
+			if (Game.hero.statusEffects[i].title == "Fish bait") {
 				iconNum = 0;
 			}
-			else if (Game.hero.statusEffects[i].title == "Stuck in the mud") {
+			else if (Game.hero.statusEffects[i].title == "Speed I") {
 				iconNum = 1;
 			}
-			else if (Game.hero.statusEffects[i].title == "Poisoned") {
+			else if (Game.hero.statusEffects[i].title == "Fire I") {
 				iconNum = 2;
 			}
-			else if (Game.hero.statusEffects[i].title == "Stunned") {
+			else if (Game.hero.statusEffects[i].title == "Stuck in the mud") {
 				iconNum = 3;
 			}
-			else if (Game.hero.statusEffects[i].title == "Swimming") {
+			else if (Game.hero.statusEffects[i].title == "Poisoned") {
 				iconNum = 4;
 			}
-			else if (Game.hero.statusEffects[i].title == "XP Fatigue") {
+			else if (Game.hero.statusEffects[i].title == "Stunned") {
 				iconNum = 5;
 			}
+			else if (Game.hero.statusEffects[i].title == "Swimming") {
+				iconNum = 6;
+			}
+			else if (Game.hero.statusEffects[i].title == "XP Fatigue") {
+				iconNum = 7;
+			}
 			else if (Game.hero.statusEffects[i].title == "Strength I") {
-				iconNum = 2; // TBD
+				iconNum = 8;
 			}
 			else { // no status effect image
 				iconNum = 0; // fire image used as placeholder

@@ -1816,6 +1816,8 @@ var Items = {
 				}
 				lootQuantities.push(1);
 				
+				// open loot page
+				Dom.loot.currentId = "x"; // x means that nothing should be done when it is closed
 				Dom.loot.page("Sunken Chest", loot, lootQuantities, 24);
 			},
 		},
@@ -1853,7 +1855,11 @@ var Items = {
 			image: "assets/items/fish/27.png",
 			rarity: "mythic",
 			sellPrice: 2,
-			lore: ["The message's ink appears to have washed off.", "The message reads: 'Dearest Audrey, I recently got into alchemy. I think I need an arm donor. Can use one of yours?'", "The message reads: 'Dearest Audrey, I hope you are well. Please send return with some gold. I will pay you back.", "The message reads: 'Dearest Audrey, I am sending this message from the Dragon Cove. We're looking for new volunteers to undertake our dragonkin convertee program. Please reply if interested.'"],
+			lore: ["The message's ink appears to have washed off.", 
+			"The message reads: 'Dearest Audrey, I recently got into alchemy. I think I need an arm donor. Can use one of yours?'", 
+			"The message reads: 'Dearest Audrey, I hope you are well. Please send return with some gold. I will pay you back.", 
+			"The message reads: 'Dearest Audrey, I am sending this message from the Dragon Cove. We're looking for new volunteers to undertake our dragonkin convertee program. Please reply if interested.'", 
+			"The message reads: 'Dearest Audrey, I have sent four other messages to you. Please check your nearby shores for them.'"],
 			consumption: true,
 			areas: [], 
 			waterTypes: [
