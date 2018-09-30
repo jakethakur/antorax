@@ -326,11 +326,6 @@ Camera.prototype.isOnScreen = function (object, mode) {
 // (maybe these shouldn't be global?)
 //
 
-// random integer between upper and lower limit (inclusive)
-function random (minimum, maximum) {
-    return Math.floor((Math.random() * (maximum - minimum + 1)) + minimum);
-}
-
 // random number between min and max, biased around certain value (bias)
 // influence is how much influence on the random number this should have (should normally be set to 1)
 // thanks to https://stackoverflow.com/a/29325222/9713957
@@ -523,16 +518,21 @@ class Character extends Thing {
 	// if singleUse is true, and if Dom.chat.contents contains message, the message is not sent
 	// if important is true, the chat message triggers a red flashing prompt around the chat bookmark
 	say (message, singleUse, delay, important) {
-		if (message !== undefined && message.substring(0, 4) === "/me ") { // reflexive message
-			message = message.substr(4, message.length);
-			if (!(singleUse && Dom.chat.contents.includes("<strong>" + this.name + "</strong> " + message))) { // check if message should be sent (due to singleUse)
-				Dom.chat.insert("<strong>" + this.name + "</strong> " + message, delay, important);
+		if (message !== undefined) {
+			if (message.substring(0, 4) === "/me ") { // reflexive message
+				message = message.substr(4, message.length);
+				if (!(singleUse && Dom.chat.contents.includes("<strong>" + this.name + "</strong> " + message))) { // check if message should be sent (due to singleUse)
+					Dom.chat.insert("<strong>" + this.name + "</strong> " + message, delay, important);
+				}
+			}
+			else {
+				if (!(singleUse && Dom.chat.contents.includes("<strong>" + this.name + "</strong>: " + message))) { // check if message should be sent (due to singleUse)
+					Dom.chat.insert("<strong>" + this.name + "</strong>: " + message, delay, important);
+				}
 			}
 		}
 		else {
-			if (!(singleUse && Dom.chat.contents.includes("<strong>" + this.name + "</strong>: " + message))) { // check if message should be sent (due to singleUse)
-				Dom.chat.insert("<strong>" + this.name + "</strong>: " + message, delay, important);
-			}
+			console.warn("undefined chat message for " + this.name);
 		}
 	}
 	
@@ -730,7 +730,7 @@ class Hero extends Attacker {
 		this.stats.blockDefense = properties.stats.blockDefense; // knight only
 		
 		// fishing stats
-		this.stats.focusSpeed = properties.stats.fishingSkill || 0;
+		this.stats.fishingSkill = properties.stats.fishingSkill || 0;
 		this.stats.fishingRange = properties.stats.fishingRange || 0;
 		
 		// where the player respawns when they die (set at any major city)
@@ -1187,6 +1187,10 @@ class Hero extends Attacker {
 				fish = fish.filter(item => item.areas.includes(Game.areaName) || item.areas.length === 0); // filter for area
 				if (random(1, 6) !== 2) { // 1 in 6 chance of getting something that might not be within fishing level range
 					fish = fish.filter(item => fishingSkill >= item.skillRequirement.min && fishingSkill <= item.skillRequirement.max); // filter for fishing skill
+				}
+				if (baitStatusEffectIndex !== -1 && !Player.quests.questProgress.hasCaughtFish) { // player is using fishing bait but has never caught a fish before
+					// guaranteed fish!
+					fish = fish.filter(item => item.fishingType === "fish");
 				}
 				fish = fish[random(0, fish.length - 1)]; // random fish that fulfils requirements above
 				fish = { ...fish }; // remove all references to itemdata in fish variable (otherwise length value changed in this will also affect itemData)!
@@ -1699,7 +1703,7 @@ class Enemy extends Attacker {
 					if (itemQuantity > 0) { // check that the player should recieve the item
 						if (lootTable[i].item.name === "unidentified") {
 							// construct unidentified item
-							this.loot.push(new unId(lootTable[i].item.area, lootTable[i].item.tier));
+							this.loot.push(new UnId(lootTable[i].item.area, lootTable[i].item.tier));
 							this.lootQuantities.push(itemQuantity);
 						}
 						else {
@@ -2316,6 +2320,12 @@ Game.loadArea = function (areaName, destination) {
 		if (destination !== undefined) {
 			this.hero.x = destination.x;
 			this.hero.y = destination.y;
+		}
+		
+		// loot area and tier in Player
+		if (this.areaName === "tutorial" || this.areaName === "eaglecrestLoggingCamp" || this.areaName === "nilbog") {
+			Player.lootArea = "Eaglecrest Logging Camp";
+			Player.lootTier = 1;
 		}
 		
 		// allow hero to move again if they died

@@ -18,6 +18,9 @@ var Player = {
 	y: 387,
 	areaName: "tutorial",
 	
+	lootArea: "Eaglecrest Logging Camp", // general area that unidentified items are from
+	lootTier: 1, // tier that unidentified items are from
+	
 	reputation: {
 		eaglecrestLoggingCamp: {
 			score: 60,

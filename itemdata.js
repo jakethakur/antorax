@@ -424,7 +424,7 @@ var Items = {
 			id: 8,
 			name: "The Ocean Warrior's Boots",
 			type: "chest",
-			image: "assets/items/chest/8.png",
+			image: "assets/items/boots/8.png",
 			tier: 1,
 			rarity: "mythic",
 			sellPrice: 5,
@@ -829,16 +829,16 @@ var Items = {
 		},
 		{
 			id: 4,
-			name: "Ocean Warrior's Set",
+			name: "The Set of the Ocean Warrior",
 			type: "set",
 			image: "assets/items/set/4.png",
 			tier: 1,
 			rarity: "mythic",
 			armour: [
-				"Ocean Warrior's Helm",
-				"Ocean Warrior's Chestplate",
-				"Ocean Warrior's Leggings",
-				"Ocean Warrior's Boots",
+				"The Ocean Warrior's Helm",
+				"The Ocean Warrior's Chestplate",
+				"The Ocean Warrior's Leggings",
+				"The Ocean Warrior's Boots",
 			],
 			stats: {
 				// double chosen stats
@@ -1737,7 +1737,7 @@ var Items = {
 				max: 1000,
 			},
 			clicksToCatch: 2,
-			timeToCatch: 1000,
+			timeToCatch: 750,
 		},
 		{
 			id: 25,
@@ -1748,7 +1748,6 @@ var Items = {
 			rarity: "mythic",
 			sellPrice: 5,
 			lore: "It seems to be locked. You need a key to open it.",
-			consumption: true,
 			areas: [], 
 			waterTypes: [
 				"freshwater",
@@ -1764,6 +1763,59 @@ var Items = {
 			onOpen: function () {
 				let loot = [];
 				let lootQuantities = [];
+				// fill up chest
+				// junk items
+				let possibleJunkItems = Items.fish.filter(item => item.fishingType === "waterjunk"); // filter for junk fishing items
+				let itemsChosen = 0; // cap out at 6 different junk items
+				possibleJunkItems.forEach(item => { 
+					if (itemsChosen < 8 && random(0, 2) === 0) { // 1 in 3 chance of it being in the chest
+						loot.push(item);
+						let itemStack = item.stack
+						if (itemStack === undefined) {
+							itemStack = 1;
+						}
+						else if (itemStack > 20) {
+							itemStack = 20;
+						}
+						lootQuantities.push(random(1, itemStack));
+						itemsChosen++;
+						if (random(0, 1) === 0) { // 1 in 2 chance of a second stack
+							loot.push(item);
+							lootQuantities.push(random(1, itemStack));
+							itemsChosen++;
+						}
+					}
+				});
+				// gold
+				let goldStacks = random(2, 5); // between 2 and 5 possible stacks of gold
+				for (let i = 0; i < goldStacks; i++) {
+					loot.push(Items.currency[2]);
+					lootQuantities.push(random(1, 5));
+				}
+				// unidentified items
+				let unidentifiedNumber = random(1, 3); // between 1 and 3 unidentified items
+				for (let i = 0; i < unidentifiedNumber; i++) {
+						loot.push(new UnId(Player.lootArea, Player.lootTier));
+						lootQuantities.push(1);
+				}
+				// Ocean Warrior's armour
+				let armourType = random(0, 3);
+				switch(armourType) { // pick random piece of armour from that set
+					case 0:
+						loot.push(Items.helm[6]);
+						break;
+					case 1:
+						loot.push(Items.chest[6]);
+						break;
+					case 2:
+						loot.push(Items.greaves[6]);
+						break;
+					case 3:
+						loot.push(Items.boots[8]);
+						break;
+				}
+				lootQuantities.push(1);
+				
 				Dom.loot.page("Sunken Chest", loot, lootQuantities, 24);
 			},
 		},
@@ -1774,9 +1826,8 @@ var Items = {
 			type: "fish",
 			image: "assets/items/fish/26.png",
 			rarity: "mythic",
-			sellPrice: 2,
+			sellPrice: 1,
 			lore: "I wonder what this opens?",
-			consumption: true,
 			areas: [], 
 			waterTypes: [
 				"freshwater",
@@ -1793,6 +1844,29 @@ var Items = {
 				type: "fish",
 				id: 25,
 			},
+		},
+		{
+			id: 27,
+			name: "Message in a Bottle",
+			fishingType: "waterjunk",
+			type: "fish",
+			image: "assets/items/fish/27.png",
+			rarity: "mythic",
+			sellPrice: 2,
+			lore: ["The message's ink appears to have washed off.", "The message reads: 'Dearest Audrey, I recently got into alchemy. I think I need an arm donor. Can use one of yours?'", "The message reads: 'Dearest Audrey, I hope you are well. Please send return with some gold. I will pay you back.", "The message reads: 'Dearest Audrey, I am sending this message from the Dragon Cove. We're looking for new volunteers to undertake our dragonkin convertee program. Please reply if interested.'"],
+			consumption: true,
+			areas: [], 
+			waterTypes: [
+				"freshwater",
+				"brackish",
+				"marine",
+			],
+			skillRequirement: {
+				min: 0,
+				max: 1000,
+			},
+			clicksToCatch: 1,
+			timeToCatch: 750,
 		},
 		/*{
 			id: 22,

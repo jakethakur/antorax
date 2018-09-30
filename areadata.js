@@ -223,9 +223,13 @@ var Areas = {
 					{
 						sold: [Items.consumable[8]],
 						role: "merchant",
+						roleRequirement: function () {
+							return Player.completedQuestArray.includes("Learning to Fish II") || Player.activeQuestArray.includes("Learning to Fish II");
+						},
 					},
 				],
 				chat: {
+					notUnlockedRoles: "It's a great day to fish, heheh.",
 					chooseChat: "Caught a big one?",
 					shopGreeting: "You can always buy a lure to fish up more. Heheh, that rhymed!",
 					shopLeave: "Heheh, see you soon!",
@@ -605,6 +609,7 @@ var Areas = {
 					},
 				],
 				chat: {
+					notUnlockedRoles: "I'm not sure you have anything I can buy from you. Come back a bit later.",
 					buyerGreeting: "I'll happily buy any items that you're willing to part with.",
 				},
 			},
