@@ -241,11 +241,9 @@ td{
 .goldDisplay{
 	background-image: url("./assets/icons/gold.png");
 }
-
 #questStartItems, #questStartStartItems, #questFinishItems, #identifierPageGold{
 	display: inline-block;
 }
-
 .theseQuestOptions, .theseQuestFinishOptions, .theseQuestStartOptions{
 	margin-top: 4px;
 	border: 5px solid #886622;
@@ -255,7 +253,6 @@ td{
 	vertical-align: middle;
 	margin-bottom: 10px;
 }
-
 #dot {
 	line-height: 15px;
 	vertical-align: middle;
@@ -536,6 +533,11 @@ td{
 	position: relative;
 	bottom: 25px;
 	font-size: 20px;
+}
+#alertOptions{
+	position: relative;
+	bottom: 20px;
+	line-height: 40px;
 }
 .chooseIcon{
 	position: absolute;

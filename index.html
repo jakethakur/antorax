@@ -12,16 +12,17 @@
 	<canvas id="game" width="600" height="600"></canvas>
 	<div id="information" hidden>
 		<div class='triangleLeft'></div>
-		<div id='itriangle' class='innerTriangleLeft'></div>
-		<p id='iname' style="font-weight: bold;"></p>
-		<p id='istats'></p>
-		<p id='iset'></p>
-		<p id='ilore'></p>
+		<div id='triangle' class='innerTriangleLeft'></div>
+		<p id='name' style="font-weight: bold;"></p>
+		<p id='stats'></p>
+		<p id='set'></p>
+		<p id='lore'></p>
 	</div>
 	<div id="alert" hidden>
 		<p id="alertText"></p>
 		<div id="alertYes" onclick="Game.inventoryUpdate()"></div>
 		<div id="alertDispose" onclick="Game.inventoryUpdate()"></div>
+		<div id="alertOptions" onclick="Game.inventoryUpdate()"></div>
 		<div id="alertNo"></div>
 	</div>
 	<div id="chatPage" hidden></div>

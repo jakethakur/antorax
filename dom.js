@@ -586,44 +586,44 @@ Dom.inventory.displayIdentification = function(display){
 	}
 }*/
 
-Dom.inventory.displayInformation = function(item, stacked, position){ // NEW FUNCTION
+Dom.inventory.displayInformation = function(item, stacked, position){
 	document.getElementById("information").hidden = true; // hide item information
 	if(item.image !== "" && item.image !== undefined){ // if the user is hovering over an item...
 		document.getElementById("information").hidden = false; // ...display information
 		Dom.inventory.updatePosition(document.getElementById("information"));
 		if(item.name !== undefined){
-			document.getElementById("iname").innerHTML = item.name;
+			document.getElementById("name").innerHTML = item.name;
 			if(item.rarity === "mythic"){ // if the item is a mythic...
-				document.getElementById("iname").style.color = "purple"; // ...sets the name color to purple
+				document.getElementById("name").style.color = "purple"; // ...sets the name color to purple
 			}else if(item.rarity === "unique"){ // if the item is a unique...
-				document.getElementById("iname").style.color = "orange"; // ...sets the name color to orange
+				document.getElementById("name").style.color = "orange"; // ...sets the name color to orange
 			}else if(item.rarity === "junk"){
-				document.getElementById("iname").style.color = "darkgray";
+				document.getElementById("name").style.color = "darkgray";
 			}else{ // if the item is a common...
-				document.getElementById("iname").style.color = "black"; // ...sets the name color to black
+				document.getElementById("name").style.color = "black"; // ...sets the name color to black
 			}
 		}else{
-			document.getElementById("iname").innerHTML = "Unidentified "+item.type.charAt(0).toUpperCase() + item.type.slice(1);
-			document.getElementById("iname").style.color = "black"; // ...sets the name color to black
+			document.getElementById("name").innerHTML = "Unidentified "+item.type.charAt(0).toUpperCase() + item.type.slice(1);
+			document.getElementById("name").style.color = "black"; // ...sets the name color to black
 		}
 		if(item.type !== "item" && item.type !== "bag" && item.type !== "currency" && item.type !== "fish" && item.type !== "consumable"){
 			if(item.type !== "rod"){
-				document.getElementById("istats").innerHTML = "Tier: "+item.tier; // add the tier to the information
+				document.getElementById("stats").innerHTML = "Tier: "+item.tier; // add the tier to the information
 			}else{
-				document.getElementById("istats").innerHTML = "";
+				document.getElementById("stats").innerHTML = "";
 			}
 			if(item.stats !== undefined){
 				for(let i = 0; i < Object.keys(item.stats).length; i++){ // repeat for all stats
 					if(Object.keys(item.stats)[i] !== "flaming"){
 						let replaceStat = Object.keys(item.stats)[i].replace( /([A-Z])/g, " $1" );
-						document.getElementById("istats").innerHTML += "<br>"+replaceStat.charAt(0).toUpperCase() + replaceStat.slice(1)+": "+item.stats[Object.keys(item.stats)[i]];
+						document.getElementById("stats").innerHTML += "<br>"+replaceStat.charAt(0).toUpperCase() + replaceStat.slice(1)+": "+item.stats[Object.keys(item.stats)[i]];
 					}else{
 						let replaceStat = Object.keys(item.stats)[i].replace( /([A-Z])/g, " $1" );
-						document.getElementById("istats").innerHTML += "<br>"+replaceStat.charAt(0).toUpperCase() + replaceStat.slice(1)+" "+romanize(item.stats[Object.keys(item.stats)[i]]);
+						document.getElementById("stats").innerHTML += "<br>"+replaceStat.charAt(0).toUpperCase() + replaceStat.slice(1)+" "+romanize(item.stats[Object.keys(item.stats)[i]]);
 					}
 				}
 			}else{
-				document.getElementById("istats").innerHTML += "<br><br>Area: "+item.area; // add the tier to the information
+				document.getElementById("stats").innerHTML += "<br><br>Area: "+item.area; // add the tier to the information
 			}
 			if(item.set !== undefined){ // if the item has a set...
 				if(position === "equip"){
@@ -636,16 +636,16 @@ Dom.inventory.displayInformation = function(item, stacked, position){ // NEW FUN
 							}
 						}
 					}
-					document.getElementById("iset").innerHTML = Items.set[item.set].name + " (" + setNum + "/" + Items.set[item.set].armour.length+")"; // ...add the set to the information
+					document.getElementById("set").innerHTML = Items.set[item.set].name + " (" + setNum + "/" + Items.set[item.set].armour.length+")"; // ...add the set to the information
 					if(setNum === Items.set[item.set].armour.length){
-						document.getElementById("iset").innerHTML += "<br><br>Set Bonus:";
+						document.getElementById("set").innerHTML += "<br><br>Set Bonus:";
 						for(let i = 0; i < Object.keys(Items.set[item.set].stats).length; i++){ // repeat for all stats
 							if(Object.keys(Items.set[item.set].stats)[i] !== "flaming"){
 								let replaceStat = Object.keys(Items.set[item.set].stats)[i].replace( /([A-Z])/g, " $1" );
-								document.getElementById("iset").innerHTML += "<br>"+replaceStat.charAt(0).toUpperCase() + replaceStat.slice(1)+": "+Items.set[item.set].stats[Object.keys(Items.set[item.set].stats)[i]];
+								document.getElementById("set").innerHTML += "<br>"+replaceStat.charAt(0).toUpperCase() + replaceStat.slice(1)+": "+Items.set[item.set].stats[Object.keys(Items.set[item.set].stats)[i]];
 							}else{
 								let replaceStat = Object.keys(Items.set[item.set].stats)[i].replace( /([A-Z])/g, " $1" );
-								document.getElementById("iset").innerHTML += "<br>"+replaceStat.charAt(0).toUpperCase() + replaceStat.slice(1)+" "+romanize(Items.set[item.set].stats[Object.keys(Items.set[item.set].stats)[i]]);
+								document.getElementById("set").innerHTML += "<br>"+replaceStat.charAt(0).toUpperCase() + replaceStat.slice(1)+" "+romanize(Items.set[item.set].stats[Object.keys(Items.set[item.set].stats)[i]]);
 							}
 						}
 					}
@@ -669,60 +669,60 @@ Dom.inventory.displayInformation = function(item, stacked, position){ // NEW FUN
 							}
 						}
 					}
-					document.getElementById("iset").innerHTML = Items.set[item.set].name + " (" + setNum + "/" + Items.set[item.set].armour.length+")"; // ...add the set to the information
+					document.getElementById("set").innerHTML = Items.set[item.set].name + " (" + setNum + "/" + Items.set[item.set].armour.length+")"; // ...add the set to the information
 					if(setNum === Items.set[item.set].armour.length){
-						document.getElementById("iset").innerHTML += "<br><br>Set Bonus:";
+						document.getElementById("set").innerHTML += "<br><br>Set Bonus:";
 						for(let i = 0; i < Object.keys(Items.set[item.set].stats).length; i++){ // repeat for all stats
 							if(Object.keys(Items.set[item.set].stats)[i] !== "flaming"){
 								let replaceStat = Object.keys(Items.set[item.set].stats)[i].replace( /([A-Z])/g, " $1" );
-								document.getElementById("iset").innerHTML += "<br>"+replaceStat.charAt(0).toUpperCase() + replaceStat.slice(1)+": "+Items.set[item.set].stats[Object.keys(Items.set[item.set].stats)[i]];
+								document.getElementById("set").innerHTML += "<br>"+replaceStat.charAt(0).toUpperCase() + replaceStat.slice(1)+": "+Items.set[item.set].stats[Object.keys(Items.set[item.set].stats)[i]];
 							}else{
 								let replaceStat = Object.keys(Items.set[item.set].stats)[i].replace( /([A-Z])/g, " $1" );
-								document.getElementById("iset").innerHTML += "<br>"+replaceStat.charAt(0).toUpperCase() + replaceStat.slice(1)+" "+romanize(Items.set[item.set].stats[Object.keys(Items.set[item.set].stats)[i]]);
+								document.getElementById("set").innerHTML += "<br>"+replaceStat.charAt(0).toUpperCase() + replaceStat.slice(1)+" "+romanize(Items.set[item.set].stats[Object.keys(Items.set[item.set].stats)[i]]);
 							}
 						}
 					}
 				}
 			}else{
-				document.getElementById("iset").innerHTML = "";
+				document.getElementById("set").innerHTML = "";
 			}
 		}else{
-			document.getElementById("iset").innerHTML = "";
-			document.getElementById("istats").innerHTML = "";
+			document.getElementById("set").innerHTML = "";
+			document.getElementById("stats").innerHTML = "";
 		}
 		if(item.type === "bag"){
-			document.getElementById("istats").innerHTML = "Capacity: "+item.size; // add the size to the information
+			document.getElementById("stats").innerHTML = "Capacity: "+item.size; // add the size to the information
 		}
 		if(item.type === "currency"){
 			if(stacked !== undefined){
-				document.getElementById("iname").innerHTML = stacked + " " + document.getElementById("iname").innerHTML; // add the size to the information
+				document.getElementById("name").innerHTML = stacked + " " + document.getElementById("name").innerHTML; // add the size to the information
 			}else if(item.stacked !== undefined){
-				document.getElementById("iname").innerHTML = item.stacked + " " + document.getElementById("iname").innerHTML; // add the size to the information
+				document.getElementById("name").innerHTML = item.stacked + " " + document.getElementById("name").innerHTML; // add the size to the information
 			}else{
-				document.getElementById("iname").innerHTML = "1 " + document.getElementById("iname").innerHTML; // add the size to the information
+				document.getElementById("name").innerHTML = "1 " + document.getElementById("name").innerHTML; // add the size to the information
 			}
 		}
 		if(item.type === "consumable"){
-			document.getElementById("istats").innerHTML = item.onClickText + (item.charges !== undefined ? "<br><br>" + item.charges + " Charges" : "");
+			document.getElementById("stats").innerHTML = item.onClickText + (item.charges !== undefined ? "<br><br>" + item.charges + " Charges" : "");
 		}
 		if(item.fishingType === "fish"){
-			document.getElementById("istats").innerHTML = "Length: " + item.length + "cm";
+			document.getElementById("stats").innerHTML = "Length: " + item.length + "cm";
 		}
 		if(item.quest){
-			document.getElementById("istats").style.color = "slateblue";
-			document.getElementById("istats").innerHTML = "Quest item";
+			document.getElementById("stats").style.color = "slateblue";
+			document.getElementById("stats").innerHTML = "Quest item";
 		}else{
-			document.getElementById("istats").style.color = "black";
+			document.getElementById("stats").style.color = "black";
 		}
 		let lorebuyer = "";
 		if(item.lore !== undefined && item.lore !== ""){ // if the item has a lore...
-			document.getElementById("ilore").innerHTML = "<i>"+item.lore+"</i>"; // ...add the lore to the information
+			document.getElementById("lore").innerHTML = "<i>"+item.lore+"</i>"; // ...add the lore to the information
 			lorebuyer = "<br><br>";
 		}else{
-			document.getElementById("ilore").innerHTML = "";
+			document.getElementById("lore").innerHTML = "";
 		}
 		if(position === "buyer" && item.sellPrice !== undefined){
-			document.getElementById("ilore").innerHTML += lorebuyer+"Sell "+(item.sellQuantity !== 1 ? item.sellQuantity : "")+" for "+item.sellPrice+" gold";
+			document.getElementById("lore").innerHTML += lorebuyer+"Sell "+(item.sellQuantity !== 1 ? item.sellQuantity : "")+" for "+item.sellPrice+" gold";
 		}
 	}
 }
@@ -1534,6 +1534,12 @@ Dom.inventory.give = function(item,num){ // gives the player the item
 				if(Object.keys(Player.inventory.items[i]).length === 0){ // if the slot is empty
 					added = true;
 					Player.inventory.items[i] = Object.assign({},item); // puts the item in the inventory slot
+					if(Player.inventory.items[i].chooseStats !== undefined){
+						item.onClick = Dom.inventory.chooseStats;
+					}
+					if(Array.isArray(Player.inventory.items[i].lore)){
+						Player.inventory.items[i].lore = item.lore[Math.floor(Math.random()*item.lore.length)];
+					}
 					document.getElementById("itemInventory").getElementsByTagName("td")[i].innerHTML = "<img src='"+Player.inventory.items[i].image+"' draggable='true' ondragstart='Dom.inventory.drag(event,"+i+")' "+(!Player.inventory.items[i].unidentified ? (Items[Player.inventory.items[i].type][Player.inventory.items[i].id].onClick !== undefined ? "onclick='Items[Player.inventory.items["+i+"].type][Player.inventory.items["+i+"].id].onClick("+i+")'" : "") : "")+"></img>"; // sets the items image
 					if(Player.inventory.items[i].stacked !== undefined && Player.inventory.items[i].stacked !== 1){
 						document.getElementById("itemInventory").getElementsByTagName("td")[i].innerHTML += "<div class='stackNum' id='stackNum"+i+"'>"+Player.inventory.items[i].stacked+"</div>";
@@ -1558,12 +1564,35 @@ Dom.inventory.give = function(item,num){ // gives the player the item
 	}
 }
 
+Dom.inventory.chooseStats = function(inventoryPosition){
+	let values = "";
+	let str = Player.inventory.items[inventoryPosition].chooseStats;
+	Dom.alert.ev = [];
+	for(let i = 0; i < Object.keys(str).length; i++){
+		if(Object.keys(str)[i] === Player.inventory.items[inventoryPosition].chosenStat){
+			values += "<strong><span onclick='Dom.alert.target(Dom.alert.ev, "+i+")'>"+str[Object.keys(str)[i]] + " " + Object.keys(str)[i][0].toUpperCase() + Object.keys(str)[i].slice(1).replace( /([A-Z])/g, " $1" )+"</span></strong><br>";
+		}else{
+			values += "<span onclick='Dom.alert.target(Dom.alert.ev, "+i+")'>"+str[Object.keys(str)[i]] + " " + Object.keys(str)[i][0].toUpperCase() + Object.keys(str)[i].slice(1).replace( /([A-Z])/g, " $1" )+"</span><br>";
+		}
+		Dom.alert.ev.push([Object.keys(str)[i], str[Object.keys(str)[i]]]);
+	}
+	Dom.alert.target = function(ev, num){
+		document.getElementById("alert").hidden = true;
+		if(Player.inventory.items[inventoryPosition].chosenStat !== undefined){
+			delete Player.inventory.items[inventoryPosition].stats[Player.inventory.items[inventoryPosition].chosenStat];
+		}
+		Player.inventory.items[inventoryPosition].chosenStat = ev[num][0];
+		Player.inventory.items[inventoryPosition].stats[ev[num][0]] = ev[num][1];
+	}
+	Dom.alert.page("Choose an effect:", 3, values)
+}
+
 Dom.inventory.constructUnId = function(area,tier){
-	let tempUnId = new unId(area,tier);
+	let tempUnId = new UnId(area,tier);
 	Dom.inventory.give(tempUnId);
 }
 
-function unId(area,tier){ // constructs an unidentified item when you kill an enemy
+function UnId(area,tier){ // constructs an unidentified item when you kill an enemy
 	this.area = area; // sets the item's area to the area you are in
 	this.tier = tier; // sets the item's tier to the tier of the enemy
 	let types = ["helm","chest","greaves","boots","sword","staff","bow"]; // an array of types of weapon/armour
@@ -1699,12 +1728,12 @@ Dom.inventory.dispose = function(ev){
 		Dom.alert.ev = Object.assign({},ev.dataTransfer.getData("text"));
 		if(!isNaN(parseInt(ev.dataTransfer.getData("text")))){
 			if(Player.inventory.items[parseInt(ev.dataTransfer.getData("text"))].stacked > 1){
-				Dom.alert.page("How many would you like to drop?", true, true);
+				Dom.alert.page("How many would you like to drop?", 2);
 			}else{
-				Dom.alert.page("Are you sure you want to drop this item? It will be lost forever!", true);
+				Dom.alert.page("Are you sure you want to drop this item? It will be lost forever!", 1);
 			}
 		}else{
-			Dom.alert.page("Are you sure you want to drop this item? It will be lost forever!", true);
+			Dom.alert.page("Are you sure you want to drop this item? It will be lost forever!", 1);
 		}
 	}else if(ev.target.id === "inventoryPage" || ev.target.id === "displayStats" || ev.target.id === "bagText"){
 		if(!quest){
@@ -2174,26 +2203,38 @@ Dom.levelUp.page = function(){
 	Dom.quests.possible();
 }
 
-Dom.alert.page = function(text, buttons, dispose, values){
+Dom.alert.page = function(text, type, values){
 	document.getElementById("alert").hidden = false;
-	if(dispose){
+	if(type === 3){
+		document.getElementById("alertOptions").style.display = "block";
+		document.getElementById("alertOptions").innerHTML = values;
+		document.getElementById("alertYes").style.display = "none";
+		document.getElementById("alertNo").style.display = "none";
+		document.getElementById("alertDispose").style.display = "none";
+	}else if(type === 2){
+		document.getElementById("alertOptions").style.display = "none";
 		document.getElementById("alertYes").style.display = "inline-block";
 		document.getElementById("alertDispose").style.display = "inline-block";
+		document.getElementById("alertNo").style.display = "inline-block";
 		document.getElementById("alertNo").style.left = "0px";
 		document.getElementById("alertNo").style.bottom = "5px";
 		document.getElementById("alertNo").innerHTML = "Cancel";
 		document.getElementById("alertYes").innerHTML = values !== undefined ? values[0] : "One";
 		document.getElementById("alertDispose").innerHTML = values !== undefined ? values[1] : "All";
-	}else if(buttons){
+	}else if(type === 1){
+		document.getElementById("alertOptions").style.display = "none";
 		document.getElementById("alertYes").style.display = "inline-block";
+		document.getElementById("alertNo").style.display = "inline-block";
 		document.getElementById("alertDispose").style.display = "none";
 		document.getElementById("alertNo").style.left = "15px";
 		document.getElementById("alertNo").innerHTML = "No";
 		document.getElementById("alertYes").innerHTML = "Yes";
 		document.getElementById("alertNo").style.bottom = "20px";
 	}else{
+		document.getElementById("alertOptions").style.display = "none";
 		document.getElementById("alertYes").style.display = "none";
 		document.getElementById("alertDispose").style.display = "none";
+		document.getElementById("alertNo").style.display = "inline-block";
 		document.getElementById("alertNo").style.left = "0px";
 		document.getElementById("alertNo").innerHTML = "OK";
 		document.getElementById("alertNo").style.bottom = "20px";
@@ -2206,12 +2247,12 @@ document.getElementById("alertYes").onclick = function(){
 	document.getElementById("alert").hidden = true;
 }
 
-document.getElementById("alertDispose").onclick = function(){
-	Dom.alert.target(Dom.alert.ev, true);
+document.getElementById("alertNo").onclick = function(){
 	document.getElementById("alert").hidden = true;
 }
 
-document.getElementById("alertNo").onclick = function(){
+document.getElementById("alertDispose").onclick = function(){
+	Dom.alert.target(Dom.alert.ev, true);
 	document.getElementById("alert").hidden = true;
 }
 
@@ -2229,7 +2270,7 @@ Dom.alert.target = function(){
 }
 
 if(localStorage.getItem("accept") !== "true"){
-	Dom.alert.page("This site uses local storage for progress saving, do you accept?",true);
+	Dom.alert.page("This site uses local storage for progress saving, do you accept?", 1);
 }else{
 	document.getElementById("settingAcceptHolder").innerHTML = "";
 }
@@ -2451,9 +2492,9 @@ Dom.buyer.page = function(npc){
 						Dom.alert.ev = i;
 						Dom.alert.target = Dom.buyer.remove;
 						if(Player.inventory.items[i].stacked >= Player.inventory.items[i].sellQuantity*2){
-							Dom.alert.page("How many <strong>"+Player.inventory.items[i].name.toLowerCase()+"</strong> would you like to sell for <strong>"+Player.inventory.items[i].sellPrice+" "+Items.currency[Player.inventory.items[i].sellCurrency].name.toLowerCase()+"</strong> each?", true, true, [Player.inventory.items[i].sellQuantity <= Player.inventory.items[i].stacked ? Player.inventory.items[i].sellQuantity : 0, Math.floor(Player.inventory.items[i].stacked/Player.inventory.items[i].sellQuantity)*Player.inventory.items[i].sellQuantity]);
+							Dom.alert.page("How many <strong>"+Player.inventory.items[i].name.toLowerCase()+"</strong> would you like to sell for <strong>"+Player.inventory.items[i].sellPrice+" "+Items.currency[Player.inventory.items[i].sellCurrency].name.toLowerCase()+"</strong> each?", 2, [Player.inventory.items[i].sellQuantity <= Player.inventory.items[i].stacked ? Player.inventory.items[i].sellQuantity : 0, Math.floor(Player.inventory.items[i].stacked/Player.inventory.items[i].sellQuantity)*Player.inventory.items[i].sellQuantity]);
 						}else{
-							Dom.alert.page("Are you sure you want to sell <strong>"+(Player.inventory.items[i].sellQuantity > 1 ? Player.inventory.items[i].sellQuantity+" " : "")+(Player.inventory.items[i].unidentified ? "unidentified "+Player.inventory.items[i].type : Player.inventory.items[i].name.toLowerCase())+"</strong> for <strong>"+Player.inventory.items[i].sellPrice+" "+Items.currency[Player.inventory.items[i].sellCurrency].name.toLowerCase()+"</strong>? You cannot buy it back!", true);
+							Dom.alert.page("Are you sure you want to sell <strong>"+(Player.inventory.items[i].sellQuantity > 1 ? Player.inventory.items[i].sellQuantity+" " : "")+(Player.inventory.items[i].unidentified ? "unidentified "+Player.inventory.items[i].type : Player.inventory.items[i].name.toLowerCase())+"</strong> for <strong>"+Player.inventory.items[i].sellPrice+" "+Items.currency[Player.inventory.items[i].sellCurrency].name.toLowerCase()+"</strong>? You cannot buy it back!", 1);
 						}
 					}else if(!(!remove && i === 5 && Player.inventory.items[5].type === "bag")){
 						Dom.alert.page("You need "+Player.inventory.items[i].sellQuantity+" of these to sell them.");
@@ -2511,6 +2552,10 @@ Dom.choose.page = function(npc, buttons, functions, parameters){
 			Dom.changeBook("identifierPage",false,2);
 		}
 	}
+}
+
+function random (minimum, maximum) {
+    return Math.floor((Math.random() * (maximum - minimum + 1)) + minimum);
 }
 
 //
@@ -2578,5 +2623,5 @@ document.getElementById("settingDelete").onclick = function(){
 		localStorage.removeItem(Player.class);
 		window.location.replace("./selection.html");
 	}
-	Dom.alert.page("Are you sure you want to delete your progress for this class? It will be lost forever!", true);
+	Dom.alert.page("Are you sure you want to delete your progress for this class? It will be lost forever!", 1);
 }
