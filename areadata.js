@@ -453,7 +453,7 @@ var Areas = {
 						buttons: ["Return them.", "Keep them."],
 						functions: [function () {
 							// remove the boots
-							Dom.inventory.removeById(6, "boots");
+							Dom.inventory.removeById(6, "boots", 1);
 							// give rewards
 							Game.getXP(50);
 							Dom.reputation.give("eaglecrestLoggingCamp", 300);
@@ -477,6 +477,7 @@ var Areas = {
 				],
 				chat: {
 					notUnlockedRoles: "I'm busy. Come back later.",
+					chooseText: "What do you want?",
 					questProgress: "Get on with your work!",
 					questComplete: "There's lots of work still to be done.",
 					inventoryFull: "You have no space to hold this. Empty your bags a bit and come back.",
@@ -821,6 +822,7 @@ var Areas = {
 				"fire",
 				"goblinCorpse",
 				"mailcart",
+				"trap",
 			],
 			
 			addresses: [
@@ -834,6 +836,7 @@ var Areas = {
 				"./assets/projectiles/m.png",
 				"./assets/corpses/deadGoblin.png",
 				"./assets/objects/cartDestroyed.png",
+				"./assets/objects/trap.png",
 			],
 		},
 		
@@ -855,16 +858,6 @@ var Areas = {
 				destinationX: 1330,
 				destinationY: 400,
 			},
-		],
-		
-		things: [
-			/*{
-				x: 2290,
-				y: 290,
-				width: 246,
-				height: 175,
-				image: "cart",
-			},*/
 		],
 		
 		chests: [
@@ -1136,6 +1129,8 @@ var Areas = {
 				inventorySpace: 8,
 			},
 		],
+		
+		things: [], // for traps to be shown
 	},
 	
 };

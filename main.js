@@ -2748,7 +2748,7 @@ Game.update = function (delta) {
 										// player cannot afford it
 										Game.soulHealers[i].say(Game.soulHealers[i].chat.tooPoor, true, 0, false);
 									}
-								}], NPC.name]);
+								}]]);
 							}
 							else {
 								if (!Dom.chat.contents.includes("<strong>" + NPC.name + "</strong>: " + NPC.chat.healedText)) {
@@ -2776,23 +2776,10 @@ Game.update = function (delta) {
 						
 						// generic text DOM
 						else if (role.role === "text") {
-							// soul healer appears as an option for choose DOM
-							textArray.push(role.chooseText || "I'd like to remove my 'XP Fatigue' status effect.");
+							// NPC chat appears as an option in choose DOM
+							textArray.push(role.chooseText);
 							functionArray.push(Dom.text.page);
-							parameterArray.push([NPC.name, "Soul Healer", NPC.chat.canBeHealedText, ["Remove XP Fatigue for " + this.soulHealerCost + " gold"], [function () {
-								if (Dom.inventory.check(2, "currency", Game.soulHealerCost)) {
-									Dom.inventory.removeById(2, "currency", Game.soulHealerCost);
-									Game.hero.statusEffects.splice(Game.hero.statusEffects.findIndex(statusEffect => statusEffect.title === "XP Fatigue"), 1); // remove xp fatigue effect
-									Dom.changeBook(Dom.previous, true); // close page
-									Game.currentSoulHealer.say(Game.currentSoulHealer.chat.healedText, false, 0, false);
-									Game.currentSoulHealer = undefined; // reset variable that remembers which soul healer the player is speaking to
-									Game.soulHealerCost = undefined; // reset variable that remembers the cost for soul healing
-								}
-								else {
-									// player cannot afford it
-									Game.soulHealers[i].say(Game.soulHealers[i].chat.tooPoor, true, 0, false);
-								}
-							}], NPC.name]);
+							parameterArray.push([NPC.name, NPC.name, role.chat, role.buttons, role.functions]);
 						}
 						
 					}

@@ -1108,16 +1108,26 @@ var Items = {
 			type: "consumable",
 			image: "assets/items/consumable/7.png",
 			cost: 0,
-			onClickText: "Places a trap",
+			onClickText: "Places a trap (can only be used in The Nilbog)",
 			lore: "Like a bear trap, but ickier.",
 			onClick: function (inventoryPosition) {
-				// remove the item
-				Dom.inventory.remove(inventoryPosition);
-				
-				// quest progress
-				//tbd
-				// place trap
-				//tbd
+				if (Game.areaName = "nilbog") { // trap can only be placed in the nilbog
+					// remove the item
+					Dom.inventory.remove(inventoryPosition);
+					
+					// quest progress
+					//tbd
+					
+					// place trap
+					let trapObject = {
+						image: "trap",
+						name: "Goblin Trap",
+						x: Game.hero.x,
+						y: Game.hero.x,
+					};
+					Game.things.push(new Thing(trapObject)); // place trap in the current area
+					Areas.nilbog.things.push(trapObject); // save in areadata.js for if the player leaves and rejoins the area
+				}
 			}
 		},
 		{
