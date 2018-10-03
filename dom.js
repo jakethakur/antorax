@@ -81,9 +81,7 @@ Dom.changeBook = function(page, override, x) { // changes the page or changes th
 		if(page === "reputationPage"){ // if the reputation is being opened
 			Dom.reputation.update(); // update the reputation (not sure why it is necessary)
 		}
-		if(page === "questsPage"){
-			Dom.quests.active(); // update the active quests box
-		}
+		Dom.quests.active(); // quest log updated
 		//if(override) { // if the a pop up is being closed
 		for(let i = 0; i < document.getElementsByClassName("closeClass").length; i++){ // repeat for all close buttons
 			document.getElementsByClassName("closeClass")[i].style.border = "5px solid #886622"; // set close button border color to normal
@@ -639,7 +637,7 @@ Dom.inventory.displayInformation = function(item, stacked, position){
 					}
 				}
 				if(item.chooseStats !== undefined){
-					document.getElementById("stats").innerHTML += "<br>";
+					document.getElementById("stats").innerHTML += "<br><br>"+item.onClickText;
 					for(let i = 0; i < Object.keys(item.chooseStats).length; i++){
 						let color = "gray";
 						if(Object.keys(item.chooseStats)[i] === item.chosenStat){
@@ -1348,7 +1346,7 @@ Dom.quests.active = function(quest){ // when a quest is started or ended...
 		if(currentQuest.wasCompleted === undefined){
 			currentQuest.wasCompleted = currentQuest.isCompleted();
 		}else{
-			if(JSON.stringify(currentQuest.wasCompleted) !== JSON.stringify(currentQuest.isCompleted())){
+			if(JSON.stringify(currentQuest.wasCompleted) !== JSON.stringify(currentQuest.isCompleted()) && currentQuest.isCompleted()[currentQuest.isCompleted().length-1]){
 				Dom.chat.insert("Quest log updated", 0, true);
 				currentQuest.wasCompleted = currentQuest.isCompleted();
 			}

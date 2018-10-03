@@ -100,6 +100,7 @@ var Items = {
 				dodgeChance: "+5%",
 				reflection: "+10%",
 			},
+			onClickText: "Click to choose stat:",
 		},
 	],
 	chest: [
@@ -201,6 +202,7 @@ var Items = {
 				dodgeChance: "+5%",
 				reflection: "+10%",
 			},
+			onClickText: "Click to choose stat:",
 		},
 	],
 	greaves: [
@@ -304,6 +306,7 @@ var Items = {
 				dodgeChance: "+5%",
 				reflection: "+10%",
 			},
+			onClickText: "Click to choose stat:",
 		},
 	],
 	boots: [
@@ -439,6 +442,7 @@ var Items = {
 				dodgeChance: "+5%",
 				reflection: "+10%",
 			},
+			onClickText: "Click to choose stat:",
 		},
 	],
 	sword: [

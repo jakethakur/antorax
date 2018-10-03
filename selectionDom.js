@@ -2,9 +2,9 @@ let num = 0;
 let max = {
 	am: 1,
 	af: 0,
-	mm: 0,
+	mm: 1,
 	mf: 0,
-	km: 0,
+	km: 1,
 	kf: 0,
 }
 let selected = {

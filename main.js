@@ -2926,6 +2926,7 @@ Game.inventoryUpdate = function (e) {
 			Game.hero.channelling = false;
 			this.channellingProjectileId = null;
 		}
+		Dom.quests.active(); // quest log updated
 	}
 }
 
