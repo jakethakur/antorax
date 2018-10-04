@@ -389,6 +389,7 @@ var Quests = {
 				xp: 30,
 			},
 		},
+		
 		{
 			id: 8,
 			quest: "Learning to Fish II",
@@ -432,6 +433,7 @@ var Quests = {
 				xp: 30,
 			},
 		},
+		
 		{
 			id: 9,
 			quest: "Learning to Fish III",
@@ -472,6 +474,62 @@ var Quests = {
 			rewards: {
 				xp: 50,
 			},
+		},
+		
+		{
+			id: 10,
+			quest: "Strengthening Defences",
+			
+			startName: "Galuthel the Trap Mechanic",
+			startChat: `tbd`,
+			
+			finishName: "Galuthel the Trap Mechanic",
+			finishChat: `tbd`,
+			
+			objectives: [
+				"Place 3 goblin traps around The Nilbog. <em>(click on one to place it)</em>",
+				"Speak to <strong>Galuthel the Trap Mechanic</strong>.",
+			],
+			
+			isCompleted: function() {
+				var completed = [];
+				
+				// true or falses for each objective (apart from the turn-in objective)
+				completed.push(Player.quests.questProgress.goblinTrapsPlaced === undefined ? false : Player.quests.questProgress.goblinTrapsPlaced >= 3 ? true : " (" + Player.quests.questProgress.goblinTrapsPlaced + "/3)");
+				
+				var finished = true;
+				for(var i = 0; i < completed.length; i++) {
+					if(!completed[i]) {
+						finished = false;
+					}
+				}
+				
+				completed.push(finished);
+				
+				return completed;
+			},
+			
+			howToStart: "Speak to <strong>Galuthel the Trap Mechanic</strong>.",
+			levelRequirement: 1,
+			questRequirements: ["Retrieval of Logs"],
+			
+			rewards: {
+				xp: 30,
+				reputation: {
+					eaglecrestLoggingCamp: 20,
+				},
+			},
+			
+			removeItems: [
+				// remove all traps
+			],
+			removeItemQuantity: [
+				// remove all traps
+			],
+			
+			onQuestStart: function () {
+				Player.quests.questProgress.goblinTrapsPlaced = undefined;
+			}
 		},
 		
 		/*{

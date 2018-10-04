@@ -1120,7 +1120,12 @@ var Items = {
 					Dom.inventory.remove(inventoryPosition);
 					
 					// quest progress
-					//tbd
+					if (Player.quests.questProgress.goblinTrapsPlaced !== undefined) {
+						Player.quests.questProgress.goblinTrapsPlaced++;
+					}
+					else {
+						Player.quests.questProgress.goblinTrapsPlaced = 1;
+					}
 					
 					// place trap
 					let trapObject = {

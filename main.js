@@ -727,7 +727,7 @@ class Hero extends Attacker {
 		// using || defaults to second value if first is undefined, 0 or ""
 		this.stats.focusSpeed = properties.stats.focusSpeed || 0; // archer only
 		this.stats.maxDamage = properties.stats.maxDamage; // mage only
-		this.stats.blockDefense = properties.stats.blockDefense; // knight only
+		this.stats.blockDefence = properties.stats.blockDefence; // knight only
 		
 		// fishing stats
 		this.stats.fishingSkill = properties.stats.fishingSkill || 0;
@@ -1354,7 +1354,7 @@ class Projectile extends Thing {
 					else {
 						// damage
 						let blockDefence = 0;
-						if (to[i][x].channelling === "block") { // add block defense if the target is blocking
+						if (to[i][x].channelling === "block") { // add block defence if the target is blocking
 							blockDefence = to[i][x].stats.blockDefence;
 						}
 						

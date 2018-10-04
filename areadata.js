@@ -737,6 +737,14 @@ var Areas = {
 							return Player.quests.activeQuestArray.includes("Strengthen Defences");
 						}
 					},
+					{
+						quest: Quests.eaglecrestLoggingCamp[10], 
+						role: "questStart"
+					},
+					{
+						quest: Quests.eaglecrestLoggingCamp[10], 
+						role: "questFinish"
+					},
 				],
 				chat: {
 					notUnlockedRoles: "I think we have enough traps out at the moment. Come back in a bit.",
@@ -878,7 +886,7 @@ var Areas = {
 				level: 15,
 				stats: {
 					maxHealth: 100,
-					defense: 2,
+					defence: 2,
 				},
 				roles: [
 					{
