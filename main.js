@@ -797,28 +797,24 @@ class Hero extends Attacker {
 			}
 		}
 		else if (slowTile === "water") { // in water tile
-			if(this.speed === this.stats.walkSpeed) {
+			if(!this.hasStatusEffect("Swimming")) {
 				this.speed = this.stats.swimSpeed;
-				if(!this.statusEffects.includes({title: "Swimming", effect: "Reduced movement speed",})) { // maybe just make a function to add a status effect? ( tbd )
-					this.statusEffects.push(new statusEffect({title: "Swimming", effect: "Reduced movement speed",}));
-					// remove fire status effect
-					for (var i = 0; i < this.statusEffects.length; i++) {
-						if (this.statusEffects[i].title.substring(0, 4) == "Fire") {
-							this.statusEffects.splice(i,1);
-						}
+				this.statusEffects.push(new statusEffect({title: "Swimming", effect: "Reduced movement speed",}));
+				// remove fire status effect
+				for (var i = 0; i < this.statusEffects.length; i++) {
+					if (this.statusEffects[i].title.substring(0, 4) == "Fire") {
+						this.statusEffects.splice(i,1);
 					}
-					this.updateStatusEffects();
 				}
+				this.updateStatusEffects();
 			}
 		}
 		else if (slowTile === "mud") { // in mud tile
 			// currently mud goes the same speed as swimSpeed
-			if(this.speed === this.stats.walkSpeed) {
+			if(!this.hasStatusEffect("Stuck in the mud")) {
 				this.speed = this.stats.swimSpeed;
-				if(!this.statusEffects.includes({title: "Stuck in the mud", effect: "Reduced movement speed",})) {
-					this.statusEffects.push(new statusEffect({title: "Stuck in the mud", effect: "Reduced movement speed",}));
-					this.updateStatusEffects();
-				}
+				this.statusEffects.push(new statusEffect({title: "Stuck in the mud", effect: "Reduced movement speed",}));
+				this.updateStatusEffects();
 			}
 		}
 		else {
@@ -1352,7 +1348,7 @@ class Projectile extends Thing {
 				Game.updateScreenPosition(this); // update projectile position
 				if (this.isTouching(to[i][x])) { // check projectile is touching character it wants to damage
 					
-					if (random(0, 100) < to[i][x].stats.dodgeChance) { // hit dodged
+					if (random(0, 99) < to[i][x].stats.dodgeChance) { // hit dodged
 						this.damageDealt.push({enemy: to[i][x], damage: "hit dodged", critical: false});
 					}
 					else {
@@ -1383,7 +1379,7 @@ class Projectile extends Thing {
 							dmgDealt *= 1 + strengthStatusEffect.info.damageIncrease;
 						}
 						
-						if (random(0, 100) < attacker.stats.criticalChance) { // critical hit
+						if (random(0, 99) < attacker.stats.criticalChance) { // critical hit
 							dmgDealt *= 2
 							to[i][x].takeDamage(dmgDealt)
 							this.damageDealt.push({enemy: to[i][x], damage: dmgDealt, critical: true});
@@ -1567,6 +1563,10 @@ class Dummy extends Character {
 // moves and attacks in a hostile way...
 class Enemy extends Attacker {
 	constructor(properties) {
+		if (properties.template !== undefined) {
+			properties = Object.assign(properties.template, properties); // add template properties to main properties object
+		}
+		
 		super(properties);
 		
 		// combat traits (specific to enemy)
@@ -3457,7 +3457,12 @@ Game.render = function (delta) {
 				this.ctx.textAlign = "left";
 				this.ctx.font = "18px MedievalSharp";
 				
-				this.ctx.fillText(damageRound(this.projectiles[i].damageDealt[x].damage), this.projectiles[i].screenX, this.projectiles[i].screenY);
+				let damage = this.projectiles[i].damageDealt[x].damage;
+				if (damage !== "hit dodged") {
+					damage = damageRound(damage); // round damage to 1d.p. if it is an integer value
+				}
+				
+				this.ctx.fillText(damage, this.projectiles[i].screenX, this.projectiles[i].screenY);
 			}
 			
 			this.ctx.globalAlpha = 1; // restore transparency if it was changed above (e.g: mage channelled projectile)

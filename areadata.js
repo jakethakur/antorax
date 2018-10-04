@@ -61,7 +61,133 @@ var LootTables = { // loot table templates
 			],
 		},
 	],
-}
+};
+
+var EnemyTemplates = {
+	nilbog: {
+		goblinRockthrower: {
+			image: "rockGoblin",
+			deathImage: "goblinCorpse",
+			name: "Goblin Rockthrower",
+			hostility: "hostile",
+			level: 2,
+			stats: {
+				damage: 3,
+				walkSpeed: 100,
+				maxHealth: 10,
+				range: 200,
+				healthRegen: 0.4,
+				reloadTime: 2000,
+				lootTime: 10000,
+				respawnTime: 11000,
+				variance: 100,
+			},
+			leashRadius: 350,
+			xpGiven: 10,
+			projectile: {
+				image: "rock",
+			},
+			lootTableTemplate: LootTables.nilbogGoblin,
+			lootTable: [
+				{ // polished rock
+					item: Items.item[4],
+					chance: [
+						20,				// 0
+						70,				// 1
+						95,				// 2
+						Infinity,		// 3
+					],
+				},
+			],
+			inventorySpace: 8,
+		},
+		goblinSkirmisher: {
+			image: "swordGoblin",
+			deathImage: "goblinCorpse",
+			name: "Goblin Skirmisher",
+			hostility: "hostile",
+			level: 2,
+			stats: {
+				damage: 2,
+				walkSpeed: 90,
+				maxHealth: 10,
+				defence: 2,
+				range: 60,
+				healthRegen: 0.4,
+				reloadTime: 1500,
+				lootTime: 10000,
+				respawnTime: 11000,
+			},
+			leashRadius: 350,
+			xpGiven: 10,
+			projectile: {
+				image: "melee",
+			},
+			lootTableTemplate: LootTables.nilbogGoblin,
+			inventorySpace: 8,
+		},
+		goblinBruiser: {
+			image: "hammerGoblin",
+			deathImage: "goblinCorpse",
+			name: "Goblin Bruiser",
+			hostility: "hostile",
+			level: 3,
+			stats: {
+				damage: 4,
+				walkSpeed: 70,
+				maxHealth: 10,
+				defence: 3,
+				range: 60,
+				healthRegen: 0.4,
+				reloadTime: 2000,
+				lootTime: 10000,
+				respawnTime: 11000,
+			},
+			leashRadius: 350,
+			xpGiven: 10,
+			projectile: {
+				image: "melee",
+			},
+			lootTableTemplate: LootTables.nilbogGoblin,
+			inventorySpace: 8,
+		},
+		fireGoblin: {
+			image: "fireGoblin",
+			deathImage: "goblinCorpse",
+			name: "Fire Goblin",
+			hostility: "hostile",
+			level: 4,
+			stats: {
+				damage: 3,
+				walkSpeed: 95,
+				maxHealth: 14,
+				defence: 1,
+				range: 140,
+				reloadTime: 2250,
+				healthRegen: 0.4,
+				flaming: 1,
+				lootTime: 10000,
+				respawnTime: 20000,
+			},
+			leashRadius: 350,
+			xpGiven: 20,
+			projectile: {
+				image: "fire",
+			},
+			lootTableTemplate: LootTables.nilbogGoblin,
+			lootTable: [
+				{ // firey rock
+					item: Items.item[5],
+					chance: [
+						50,				// 0
+						Infinity,		// 1
+					],
+				},
+			],
+			inventorySpace: 8,
+		},
+	},
+};
 
 var Areas = {
 	
@@ -477,7 +603,7 @@ var Areas = {
 				],
 				chat: {
 					notUnlockedRoles: "I'm busy. Come back later.",
-					chooseText: "What do you want?",
+					chooseChat: "What do you want?",
 					questProgress: "Get on with your work!",
 					questComplete: "There's lots of work still to be done.",
 					inventoryFull: "You have no space to hold this. Empty your bags a bit and come back.",
@@ -880,159 +1006,28 @@ var Areas = {
 			{
 				x: 1070, // at goblin camp
 				y: 400,
-				image: "rockGoblin",
-				deathImage: "goblinCorpse",
-				name: "Goblin Rockthrower",
-				hostility: "hostile",
-				level: 2,
-				stats: {
-					damage: 3,
-					walkSpeed: 100,
-					maxHealth: 10,
-					range: 200,
-					healthRegen: 0.4,
-					reloadTime: 2000,
-					lootTime: 10000,
-					respawnTime: 11000,
-					variance: 100,
-				},
-				leashRadius: 350,
-				xpGiven: 10,
-				projectile: {
-					image: "rock",
-				},
-				lootTableTemplate: LootTables.nilbogGoblin,
-				lootTable: [
-					{ // polished rock
-						item: Items.item[4],
-						chance: [
-							20,				// 0
-							70,				// 1
-							95,				// 2
-							Infinity,		// 3
-						],
-					},
-				],
-				inventorySpace: 8,
+				template: EnemyTemplates.nilbog.goblinRockthrower,
 			},
 			{
 				x: 630, // south west (near logging camp)
 				y: 1320,
-				image: "rockGoblin",
-				deathImage: "goblinCorpse",
-				name: "Goblin Rockthrower",
-				hostility: "hostile",
-				level: 2,
-				stats: {
-					damage: 3,
-					walkSpeed: 100,
-					maxHealth: 10,
-					range: 200,
-					healthRegen: 0.4,
-					reloadTime: 2000,
-					lootTime: 10000,
-					respawnTime: 11000,
-					variance: 100,
-				},
-				leashRadius: 350,
-				xpGiven: 10,
-				projectile: {
-					image: "rock",
-				},
-				lootTableTemplate: LootTables.nilbogGoblin,
-				lootTable: [
-					{ // polished rock
-						item: Items.item[4],
-						chance: [
-							20,				// 0
-							70,				// 1
-							95,				// 2
-							Infinity,		// 3
-						],
-					},
-				],
-				inventorySpace: 8,
+				template: EnemyTemplates.nilbog.goblinRockthrower,
 			},
 			{
 				x: 900, // at goblin camp
 				y: 300,
-				image: "swordGoblin",
-				deathImage: "goblinCorpse",
-				name: "Goblin Skirmisher",
-				hostility: "hostile",
-				level: 2,
-				stats: {
-					damage: 2,
-					walkSpeed: 90,
-					maxHealth: 10,
-					defence: 2,
-					range: 60,
-					healthRegen: 0.4,
-					reloadTime: 1500,
-					lootTime: 10000,
-					respawnTime: 11000,
-				},
-				leashRadius: 350,
-				xpGiven: 10,
-				projectile: {
-					image: "melee",
-				},
-				lootTableTemplate: LootTables.nilbogGoblin,
-				inventorySpace: 8,
+				template: EnemyTemplates.nilbog.goblinSkirmisher,
 			},
 			{
 				x: 1240, // south (between bogs)
 				y: 1240,
-				image: "swordGoblin",
-				deathImage: "goblinCorpse",
-				name: "Goblin Skirmisher",
-				hostility: "hostile",
-				level: 2,
-				stats: {
-					damage: 2,
-					walkSpeed: 90,
-					maxHealth: 10,
-					defence: 2,
-					range: 60,
-					healthRegen: 0.4,
-					reloadTime: 1500,
-					lootTime: 10000,
-					respawnTime: 20000, // longer respawn time
-				},
-				leashRadius: 350,
-				xpGiven: 10,
-				projectile: {
-					image: "melee",
-				},
-				lootTableTemplate: LootTables.nilbogGoblin,
-				inventorySpace: 8,
+				template: EnemyTemplates.nilbog.goblinSkirmisher,
+				//template.stats.respawnTime: 20000, // longer respawn time (currently doesn't work)
 			},
 			{
 				x: 860, // next to mail cart (only present when that quest is active)
 				y: 915,
-				image: "swordGoblin",
-				deathImage: "goblinCorpse",
-				name: "Goblin Skirmisher",
-				hostility: "hostile",
-				level: 2,
-				stats: {
-					damage: 2,
-					walkSpeed: 90,
-					maxHealth: 10,
-					defence: 2,
-					range: 60,
-					healthRegen: 0.4,
-					reloadTime: 1500,
-					lootTime: 10000,
-					respawnTime: 11000,
-				},
-				leashRadius: 350,
-				xpGiven: 10,
-				projectile: {
-					image: "melee",
-				},
-				lootTableTemplate: LootTables.nilbogGoblin,
-				inventorySpace: 8,
+				template: EnemyTemplates.nilbog.goblinSkirmisher,
 				canBeShown: function () { // only show when mail cart quest is active
 					return (Player.quests.activeQuestArray.includes("Making Yourself Useful") || Player.quests.activeQuestArray.includes("First Class Recovery"));
 				},
@@ -1040,93 +1035,17 @@ var Areas = {
 			{
 				x: 1000, // at goblin camp
 				y: 250,
-				image: "hammerGoblin",
-				deathImage: "goblinCorpse",
-				name: "Goblin Bruiser",
-				hostility: "hostile",
-				level: 3,
-				stats: {
-					damage: 4,
-					walkSpeed: 70,
-					maxHealth: 10,
-					defence: 3,
-					range: 60,
-					healthRegen: 0.4,
-					reloadTime: 2000,
-					lootTime: 10000,
-					respawnTime: 11000,
-				},
-				leashRadius: 350,
-				xpGiven: 10,
-				projectile: {
-					image: "melee",
-				},
-				lootTableTemplate: LootTables.nilbogGoblin,
-				inventorySpace: 8,
+				template: EnemyTemplates.nilbog.goblinBruiser,
 			},
 			{
 				x: 1510, // outside tower
 				y: 640,
-				image: "hammerGoblin",
-				deathImage: "goblinCorpse",
-				name: "Goblin Bruiser",
-				hostility: "hostile",
-				level: 3,
-				stats: {
-					damage: 4,
-					walkSpeed: 70,
-					maxHealth: 10,
-					defence: 3,
-					range: 60,
-					healthRegen: 0.4,
-					reloadTime: 2000,
-					lootTime: 10000,
-					respawnTime: 11000,
-				},
-				leashRadius: 350,
-				xpGiven: 10,
-				projectile: {
-					image: "melee",
-				},
-				lootTableTemplate: LootTables.nilbogGoblin,
-				inventorySpace: 8,
+				template: EnemyTemplates.nilbog.goblinBruiser,
 			},
 			{
 				x: 1050, // at goblin camp
 				y: 100,
-				image: "fireGoblin",
-				deathImage: "goblinCorpse",
-				name: "Fire Goblin",
-				hostility: "hostile",
-				level: 4,
-				stats: {
-					damage: 3,
-					walkSpeed: 95,
-					maxHealth: 14,
-					defence: 1,
-					range: 140,
-					reloadTime: 2250,
-					healthRegen: 0.4,
-					flaming: 1,
-					lootTime: 10000,
-					respawnTime: 20000,
-				},
-				leashRadius: 350,
-				xpGiven: 20,
-				projectile: {
-					image: "fire",
-				},
-				lootTableTemplate: LootTables.nilbogGoblin,
-				lootTable: [
-					{ // firey rock
-						item: Items.item[5],
-						chance: [
-							50,				// 0
-							Infinity,		// 1
-						],
-					},
-				],
-				inventorySpace: 8,
+				template: EnemyTemplates.nilbog.fireGoblin,
 			},
 		],
 		

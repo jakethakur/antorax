@@ -1115,7 +1115,7 @@ var Items = {
 			onClickText: "Places a trap (can only be used in The Nilbog)",
 			lore: "Like a bear trap, but ickier.",
 			onClick: function (inventoryPosition) {
-				if (Game.areaName = "nilbog") { // trap can only be placed in the nilbog
+				if (Game.areaName === "nilbog") { // trap can only be placed in the nilbog
 					// remove the item
 					Dom.inventory.remove(inventoryPosition);
 					
@@ -1124,13 +1124,16 @@ var Items = {
 					
 					// place trap
 					let trapObject = {
+						map: map,
+						map: map,
 						image: "trap",
 						name: "Goblin Trap",
 						x: Game.hero.x,
-						y: Game.hero.x,
+						y: Game.hero.y + 40,
 					};
 					Game.things.push(new Thing(trapObject)); // place trap in the current area
 					Areas.nilbog.things.push(trapObject); // save in areadata.js for if the player leaves and rejoins the area
+					console.log(Game.things);
 				}
 			}
 		},
@@ -1867,7 +1870,7 @@ var Items = {
 			fishingType: "waterjunk",
 			type: "fish",
 			image: "assets/items/fish/27.png",
-			rarity: "mythic",
+			rarity: "junk",
 			sellPrice: 2,
 			lore: ["The message's ink appears to have washed off.", 
 			"The message reads: 'Dearest Audrey, I recently got into alchemy. I think I need an arm donor. Can use one of yours?'", 
