@@ -559,6 +559,43 @@ var Quests = {
 		
 		*/
 	],
+	
+	fishing: [
+		{
+			id: 0,
+			quest: "A Big Catch",
+			
+			startName: "Fisherman Tobenam",
+			startChat: `tbd`,
+			
+			finishName: "Fisherman Tobenam",
+			finishChat: `tbd`,
+			
+			objectives: [
+				"Fish up 15 items.",
+				"Speak to <strong>Fisherman Tobenam</strong>.",
+			],
+			
+			isCompleted: function() {
+				let completed = []; // contains true or false for all of the objectives, with the last element being if the quest is ready to complete
+				
+				// true or falses for each objective (apart from the turn-in objective)
+				completed.push(Player.quests.questProgress.itemsFishedUp === undefined ? false : Player.quests.questProgress.itemsFishedUp >= 15 ? true : " (" + Player.quests.questProgress.itemsFishedUp + "/15)");
+				
+				completed = checkFinished(completed);
+				
+				return completed;
+			},
+			
+			howToStart: "Speak to Fisherman Tobenam.",
+			levelRequirement: 1,
+			questRequirements: [],
+			
+			rewards: {
+				
+			},
+		},
+	],
 };
 
 // check if all of the contents of the array are true

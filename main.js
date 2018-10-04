@@ -957,6 +957,14 @@ class Hero extends Attacker {
 						// give fish
 						Dom.inventory.give(this.channelling);
 						
+						// quest progress
+						if (Player.quests.questProgress.itemsFishedUp !== undefined) {
+							Player.quests.questProgress.itemsFishedUp++;
+						}
+						else {
+							Player.quests.questProgress.itemsFishedUp = 1;
+						}
+						
 						// chat message
 						if (this.channelling.fishingType === "fish") { // fish
 							Dom.chat.insert("You caught a " + this.channelling.length + "cm <strong>" + this.channelling.name + "</strong>!");
