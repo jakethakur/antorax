@@ -1319,6 +1319,7 @@ Dom.quest.acceptRewards = function(){ // quest rewards accepted
 	if (Dom.currentlyDisplayed.onQuestFinish !== undefined) { // if there is a quest start function...
 		Dom.currentlyDisplayed.onQuestFinish(); // ...do it
 	}
+	Player.quests.questLastFinished[quest.questArea][quest.id] = getFullDate(); // set date that the quest was finished (for daily quests)
 	Dom.changeBook(Dom.previous, true); // change back to previous page
 	Dom.quests.possible(); // update the possible quest box
 }
@@ -2642,8 +2643,30 @@ Dom.choose.page = function(npc, buttons, functions, parameters){
 	}
 }
 
+// random integer between upper and lower limit (inclusive)
 function random (minimum, maximum) {
     return Math.floor((Math.random() * (maximum - minimum + 1)) + minimum);
+}
+
+// get date in format ddmmyyyy
+function getFullDate () {
+	let d = new Date();
+	let dateString = "";
+	// day
+	let mem = d.getDate();
+	if (mem.length !== 2) {
+		mem = "0" + mem;
+	}
+	dateString += mem;
+	// month
+	mem = d.getMonth();
+	if (mem.length !== 2) {
+		mem = "0" + mem;
+	}
+	dateString += mem;
+	// year
+	dateString += d.getFullYear();
+	return fullDate;
 }
 
 //

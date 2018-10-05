@@ -3,6 +3,7 @@ var Quests = {
 		{
 			id: 0,
 			quest: "To the Logging Camp",
+			questArea: "eaglecrestLoggingCamp", // name of the array this is contained in
 			
 			// redundant but will keep anyway
 			startName: "Cart Driver",
@@ -50,6 +51,7 @@ var Quests = {
 		{
 			id: 1,
 			quest: "Learning from the Best",
+			questArea: "eaglecrestLoggingCamp",
 			
 			startName: "Mashall Teper",
 			startChat: `You're going to need to learn how to fight if you're going to be able to help us gather some wood - there are goblins out there.<br>Go and see <strong>Combat Trainer Saral</strong>. She's more skilled in combat than anyone else here. She'll be able to teach you what you need to know.`,
@@ -92,6 +94,7 @@ var Quests = {
 		{
 			id: 2,
 			quest: "Combat Training",
+			questArea: "eaglecrestLoggingCamp",
 			
 			startName: "Combat Trainer Saral",
 			startChat: `${Player.name}, I'd like for you to deal some damage to this <strong>Training Dummy</strong>. 20 should suffice. <br>You can find out more about how you can attack in your <strong>adventure log</strong>.`,
@@ -137,6 +140,7 @@ var Quests = {
 		{
 			id: 3,
 			quest: "Retrieval of Logs",
+			questArea: "eaglecrestLoggingCamp",
 			
 			startName: "Marshall Teper",
 			startChat: `You looked good enough at the training dummy to go out to <strong>The Nilbog</strong>. It's the camp of some goblins, but trust me - they're not much stronger than that dummy you just fought.<br>They recently invaded our camp in huge numbers, and managed to steal some logs of wood whilst we were fighting them off. Head east to <strong>The Nilbog</strong> and retrieve some wood from them, and return it to me.<br>This <strong>Logging Sack</strong> might be useful for you to hold the logs in, as well as any other items you might want to hold but don't have space for.`,
@@ -198,6 +202,7 @@ var Quests = {
 		{
 			id: 4,
 			quest: "Making Yourself Useful",
+			questArea: "eaglecrestLoggingCamp",
 			
 			startName: "Marshall Teper",
 			startChat: `There's lots going on around the logging camp at the moment, especially after the goblin attack. Speak to some people in the camp and see if there's anyone that could use your help.`,
@@ -244,6 +249,7 @@ var Quests = {
 		{
 			id: 5,
 			quest: "First Class Recovery",
+			questArea: "eaglecrestLoggingCamp",
 			
 			startName: "Eaglecrest Mailman",
 			startChat: `Oh no - I was driving my mail cart through that boggy area to the east and came across a huge group of goblins! I had to abandon the cart and flee for my life, but I left a mail sack in the cart. Please, would you be able to try to find my missing mail sack?`,
@@ -296,6 +302,7 @@ var Quests = {
 		{
 			id: 6,
 			quest: "A Lost Fishing Rod",
+			questArea: "eaglecrestLoggingCamp",
 			
 			startName: "Fisherman Tobenam",
 			startChat: "You! You look like you've been to see the goblins! One of my fav'rite fishing rods has been stolen from me, and I think it was one of those goblins, heheh! Would you be able to head down to them and see if you can find it? I'll happily give you a couple o' lessons on fishing if you're able to get your hands on it.",
@@ -351,6 +358,7 @@ var Quests = {
 		{
 			id: 7,
 			quest: "Learning to Fish I",
+			questArea: "eaglecrestLoggingCamp",
 			
 			startName: "Fisherman Tobenam",
 			startChat: "tbd",
@@ -393,6 +401,7 @@ var Quests = {
 		{
 			id: 8,
 			quest: "Learning to Fish II",
+			questArea: "eaglecrestLoggingCamp",
 			
 			startName: "Fisherman Tobenam",
 			startChat: "tbd",
@@ -437,6 +446,7 @@ var Quests = {
 		{
 			id: 9,
 			quest: "Learning to Fish III",
+			questArea: "eaglecrestLoggingCamp",
 			
 			startName: "Fisherman Tobenam",
 			startChat: "tbd",
@@ -479,6 +489,7 @@ var Quests = {
 		{
 			id: 10,
 			quest: "Strengthening Defences",
+			questArea: "eaglecrestLoggingCamp",
 			
 			startName: "Galuthel the Trap Mechanic",
 			startChat: `tbd`,
@@ -564,6 +575,7 @@ var Quests = {
 		{
 			id: 0,
 			quest: "A Big Catch",
+			questArea: "fishing",
 			
 			startName: "Fisherman Tobenam",
 			startChat: `tbd`,
