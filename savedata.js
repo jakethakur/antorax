@@ -39,6 +39,7 @@ var Player = {
 		completedQuestArray: [],
 		
 		questProgress: {}, // stores properties for quest objectives that cannot otherwise be tracked between saves
+		questLastFinished: {}, // stores the last time that the quest was finished (for seeing if daily quests can be started again)
 	},
 	
 	inventory: {

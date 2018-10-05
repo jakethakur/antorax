@@ -1138,7 +1138,6 @@ var Items = {
 					};
 					Game.things.push(new Thing(trapObject)); // place trap in the current area
 					Areas.nilbog.things.push(trapObject); // save in areadata.js for if the player leaves and rejoins the area
-					console.log(Game.things);
 				}
 			}
 		},
@@ -1850,7 +1849,7 @@ var Items = {
 			type: "fish",
 			image: "assets/items/fish/26.png",
 			rarity: "mythic",
-			sellPrice: 1,
+			sellPrice: 2,
 			lore: "I wonder what this opens?",
 			areas: [], 
 			waterTypes: [
@@ -1876,7 +1875,7 @@ var Items = {
 			type: "fish",
 			image: "assets/items/fish/27.png",
 			rarity: "junk",
-			sellPrice: 2,
+			sellPrice: 1,
 			lore: ["The message's ink appears to have washed off.", 
 			"The message reads: 'Dearest Audrey, I recently got into alchemy. I think I need an arm donor. Can use one of yours?'", 
 			"The message reads: 'Dearest Audrey, I hope you are well. Please send return with some gold. I will pay you back.", 

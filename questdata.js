@@ -527,9 +527,9 @@ var Quests = {
 				// remove all traps
 			],
 			
-			onQuestStart: function () {
-				Player.quests.questProgress.goblinTrapsPlaced = undefined;
-			}
+			resetVariables: [
+				Player.quests.questProgress.goblinTrapsPlaced,
+			],
 		},
 		
 		/*{
@@ -590,10 +590,15 @@ var Quests = {
 			howToStart: "Speak to Fisherman Tobenam.",
 			levelRequirement: 1,
 			questRequirements: [],
+			repeatTime: "daily",
 			
 			rewards: {
 				
 			},
+			
+			resetVariables: [
+				Player.quests.questProgress.itemsFishedUp,
+			],
 		},
 	],
 };

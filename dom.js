@@ -1257,6 +1257,13 @@ Dom.quest.finish = function(quest){ // display quest finish page
 
 Dom.quest.accept = function(){ // quest accepted
 	Dom.quests.active(Dom.currentlyDisplayed); // add the quest to the active quests
+	
+	if(Dom.currentlyDisplayed.resetVariables !== undefined){
+		for(let i = 0; i < Dom.currentlyDisplayed.resetVariables.length; i++){
+			Dom.currentlyDisplayed.resetVariables[i] = undefined;
+		}
+	}
+	
 	if (Dom.currentlyDisplayed.onQuestStart !== undefined) { // if there is a quest start function...
 		Dom.currentlyDisplayed.onQuestStart(); // ...do it
 	}
@@ -1589,6 +1596,7 @@ Dom.inventory.give = function(item,num){ // gives the player the item
 		}
 	}
 	Dom.hotbar.update();
+	Dom.quests.active();
 	if(added){
 		return true;
 	}else{

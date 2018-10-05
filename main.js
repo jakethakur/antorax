@@ -1159,7 +1159,7 @@ class Hero extends Attacker {
 				let tileNum = map.getTile(0, map.getCol(this.x), map.getRow(this.y + this.height/2));
 				if (map.interactWithTile !== undefined) {
 					map.interactWithTile(tileNum, this.x, this.y + this.height/2);
-					Dom.quests.active();
+					//Dom.quests.active();
 				}
 				interactionDone = true; // interaction might not have happened, but this is always the last thing to be done anyway so it can be set to true
 			}
