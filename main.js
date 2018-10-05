@@ -974,7 +974,7 @@ class Hero extends Attacker {
 						else if (this.channelling.fishingType === "waterjunk") { // junk item
 							Dom.chat.insert("You fished up a <strong>" + this.channelling.name + "</strong>.");
 						}
-						else if (this.channelling.fishingType === "waterjunk") { // misc
+						else if (this.channelling.fishingType === "watermisc") { // misc
 							Dom.chat.insert("You reeled up a <strong>" + this.channelling.name + "</strong>.");
 						}
 						else {
@@ -2645,9 +2645,13 @@ Game.update = function (delta) {
 						if (role.role === "questStart") {
 							// quest is ready to be accepted
 							if (!Player.quests.activeQuestArray.includes(role.quest.quest) && // quest isn't currently active
-							!Player.quests.completedQuestArray.includes(role.quest.quest) && // quest hasn't aleady been completed
 							role.quest.levelRequirement <= this.hero.level && // player is a high enough level
-							isContainedInArray(role.quest.questRequirements, Player.quests.completedQuestArray)) { // quest requirements have been completed
+							isContainedInArray(role.quest.questRequirements, Player.quests.completedQuestArray) && // quest requirements have been completed
+                            ((role.quest.repeatTime === undefined && // not a daily quest, and...
+                            !Player.quests.completedQuestArray.includes(role.quest.quest)) || // quest hasn't aleady been completed, or...
+                            (role.quest.repeatTime === "daily" && // is a daily quest, and...
+                            (Player.quests.questLastFinished[role.quest.questArea][role.quest.id] === undefined || // has not been done before, or...
+                            Player.quests.questLastFinished[role.quest.questArea][role.quest.id] < getFullDate())))) { // was done at least one day ago
 								
 								if (typeof role.quest.startRewards !== "undefined" && typeof role.quest.startRewards.items !== "undefined") {
 									if (Dom.inventory.requiredSpace(role.quest.startRewards.items, role.quest.startRewards.itemQuantities)) {
@@ -2684,8 +2688,9 @@ Game.update = function (delta) {
 						else if (role.role === "questFinish") {
 							// check if quest is ready to be finished
 							if (Player.quests.activeQuestArray.includes(role.quest.quest) && // quest is currently active
-							!Player.quests.completedQuestArray.includes(role.quest.quest)) { // quest has not already been completed
-								
+                            ((role.quest.repeatTime === undefined && // not a daily quest, and...
+							!Player.quests.completedQuestArray.includes(role.quest.quest)) || // quest has not already been completed, or...
+                            role.quest.repeatTime === "daily")) { // is a daily quest
 								// check if quest conditions have been fulfilled
 								if(role.quest.isCompleted()[role.quest.objectives.length - 1]) {
 									if (typeof role.quest.rewards !== "undefined" && typeof role.quest.rewards.items !== "undefined") {

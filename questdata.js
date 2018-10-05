@@ -333,7 +333,7 @@ var Quests = {
 				return completed;
 			},
 			
-			howToStart: "Speak to <strong>Fisherman Tobenam</strong> at the Fisher's Valley.",
+			howToStart: "Speak to <strong>Fisherman Tobenam</strong> at the Fishers' Valley.",
 			levelRequirement: 2,
 			questRequirements: ["Retrieval of Logs"],
 			
@@ -539,7 +539,7 @@ var Quests = {
 			],
 			
 			resetVariables: [
-				Player.quests.questProgress.goblinTrapsPlaced,
+				"goblinTrapsPlaced",
 			],
 		},
 		
@@ -609,7 +609,7 @@ var Quests = {
 			},
 			
 			resetVariables: [
-				Player.quests.questProgress.itemsFishedUp,
+				"itemsFishedUp",
 			],
 		},
 	],

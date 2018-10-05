@@ -347,6 +347,14 @@ var Areas = {
 						role: "questFinish",
 					},
 					{
+						quest: Quests.fishing[0], 
+						role: "questStart",
+					},
+					{
+						quest: Quests.fishing[0], 
+						role: "questFinish",
+					},
+					{
 						sold: [Items.consumable[8]],
 						role: "merchant",
 						roleRequirement: function () {
@@ -361,6 +369,7 @@ var Areas = {
 					shopLeave: "Heheh, see you soon!",
 					inventoryFull: "You've lots of fish in your bags, but you've not any space for your rewards!",
 					tooPoor: "You can't afford that, but don't let that stop ya from fishing!",
+					questProgress: "It's a great day to fish, heheh.",
 					// "&#9835; I'm fiiiiiiiishing in the rain! &#9835;"
 				},
 				canBeShown: function () {
