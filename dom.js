@@ -1260,7 +1260,7 @@ Dom.quest.accept = function(){ // quest accepted
 	
 	if(Dom.currentlyDisplayed.resetVariables !== undefined){
 		for(let i = 0; i < Dom.currentlyDisplayed.resetVariables.length; i++){
-			Dom.currentlyDisplayed.resetVariables[i] = undefined;
+			Player.quests.questProgress[Dom.currentlyDisplayed.resetVariables[i]] = undefined;
 		}
 	}
 	
@@ -1277,24 +1277,24 @@ Dom.quest.accept = function(){ // quest accepted
 }
 
 Dom.quest.acceptRewards = function(){ // quest rewards accepted
-	let quest = Dom.quest.waitForReward;
-	if (quest.onQuestFinish !== undefined) { // if there is a quest finish function...
-		quest.onQuestFinish(); // ...do it
+	let quest = Dom.quest.waitForReward; // is this necessary?
+	if (Dom.currentlyDisplayed.onQuestFinish !== undefined) { // if there is a quest finish function...
+		Dom.currentlyDisplayed.onQuestFinish(); // ...do it
 	}
 	//Player.xp += quest.rewards.xp // gives the player the xp reward
-	if(quest.rewards.items !== undefined){
-		for(let i = 0; i < quest.rewards.items.length; i++){ // repeats for all item rewards
-			Dom.inventory.give(quest.rewards.items[i],quest.rewards.itemQuantities[i]); // gives the player the reward
+	if(Dom.currentlyDisplayed.rewards.items !== undefined){
+		for(let i = 0; i < Dom.currentlyDisplayed.rewards.items.length; i++){ // repeats for all item rewards
+			Dom.inventory.give(Dom.currentlyDisplayed.rewards.items[i],Dom.currentlyDisplayed.rewards.itemQuantities[i]); // gives the player the reward
 		}
 	}
-	if(quest.removeItems !== undefined){
-		for(let i = 0; i < quest.removeItems.length; i++){ // repeats for all item rewards
-			Dom.inventory.removeById(quest.removeItems[i].id,quest.removeItems[i].type,quest.removeItemQuantity[i]); // gives the player the reward
+	if(Dom.currentlyDisplayed.removeItems !== undefined){
+		for(let i = 0; i < Dom.currentlyDisplayed.removeItems.length; i++){ // repeats for all item rewards
+			Dom.inventory.removeById(Dom.currentlyDisplayed.removeItems[i].id,Dom.currentlyDisplayed.removeItems[i].type,Dom.currentlyDisplayed.removeItemQuantity[i]); // gives the player the reward
 		}
 	}
-	if(quest.rewards.reputation !== undefined) { // reputation rewards
-		for(let i = 0; i < Object.keys(quest.rewards.reputation).length; i++) { // repeats for all reputation rewards			
-			Dom.reputation.give(Object.keys(quest.rewards.reputation)[i], quest.rewards.reputation[Object.keys(quest.rewards.reputation)[i]])
+	if(Dom.currentlyDisplayed.rewards.reputation !== undefined) { // reputation rewards
+		for(let i = 0; i < Object.keys(Dom.currentlyDisplayed.rewards.reputation).length; i++) { // repeats for all reputation rewards			
+			Dom.reputation.give(Object.keys(Dom.currentlyDisplayed.rewards.reputation)[i], Dom.currentlyDisplayed.rewards.reputation[Object.keys(Dom.currentlyDisplayed.rewards.reputation)[i]])
 			/*let replaceStat = Object.keys(quest.rewards.reputation)[i].replace( /([A-Z])/g, " $1" );
 			if(Player.reputation[Object.keys(quest.rewards.reputation)[i]].changed){ // if the reputation has already been changed
 				Player.reputation[Object.keys(quest.rewards.reputation)[i]].score += quest.rewards.reputation[Object.keys(quest.rewards.reputation)[i]]; // gives the player the reputation reward
@@ -1319,7 +1319,7 @@ Dom.quest.acceptRewards = function(){ // quest rewards accepted
 	if (Dom.currentlyDisplayed.onQuestFinish !== undefined) { // if there is a quest start function...
 		Dom.currentlyDisplayed.onQuestFinish(); // ...do it
 	}
-	Player.quests.questLastFinished[quest.questArea][quest.id] = getFullDate(); // set date that the quest was finished (for daily quests)
+	Player.quests.questLastFinished[Dom.currentlyDisplayed.questArea][Dom.currentlyDisplayed.id] = getFullDate(); // set date that the quest was finished (for daily quests)
 	Dom.changeBook(Dom.previous, true); // change back to previous page
 	Dom.quests.possible(); // update the possible quest box
 }
@@ -1396,8 +1396,13 @@ Dom.quests.possible = function(){
 }
 
 Dom.quests.completed = function(quest){ // when a quest is completed...
-	//Dom.changeBook(Dom.previous, true); // the completed quest page opens
-	if(quest !== undefined){
+	let first = true;
+	for(let i = 0; i < Player.quests.completedQuestArray.length; i++){
+		if(Player.quests.completedQuestArray[i] === quest.quest){
+			first = false;
+		}
+	}
+	if(quest !== undefined && first){
 		Player.quests.completedQuestArray.push(quest.quest); // the quest is added to the array of completed quests
 	}
 	if(Player.quests.completedQuestArray.length > 0){
@@ -1643,11 +1648,19 @@ Dom.inventory.chooseStats = function(inventoryPosition){
 			document.getElementById("alert").hidden = true;
 			if(Player.inventory[inventoryPosition][0].chosenStat !== undefined){
 				Player.stats[Player.inventory[inventoryPosition][0].chosenStat] -= parseFloat(Player.inventory[inventoryPosition][0].stats[Player.inventory[inventoryPosition][0].chosenStat]);
+				let x = Items.set[Player.inventory[inventoryPosition][0].set].multiplier.findIndex(multiplier => multiplier.stat === "chosenStat");
+				if(x !== -1){
+					Player.stats[Player.inventory[inventoryPosition][0][Items.set[Player.inventory[inventoryPosition][0].set].multiplier[x].stat]] -= parseFloat(Player.inventory[inventoryPosition][0].stats[Player.inventory[inventoryPosition][0][Items.set[Player.inventory[inventoryPosition][0].set].multiplier[x].stat]]);
+				}
 				delete Player.inventory[inventoryPosition][0].stats[Player.inventory[inventoryPosition][0].chosenStat];
 			}
 			Player.inventory[inventoryPosition][0].chosenStat = ev[num][0];
 			Player.stats[ev[num][0]] += parseFloat(ev[num][1]);
 			Player.inventory[inventoryPosition][0].stats[ev[num][0]] = ev[num][1];
+			let x = Items.set[Player.inventory[inventoryPosition][0].set].multiplier.findIndex(multiplier => multiplier.stat === "chosenStat");
+			if(x !== -1){
+				Player.stats[Player.inventory[inventoryPosition][0][Items.set[Player.inventory[inventoryPosition][0].set].multiplier[x].stat]] += parseFloat(Player.inventory[inventoryPosition][0].stats[Player.inventory[inventoryPosition][0][Items.set[Player.inventory[inventoryPosition][0].set].multiplier[x].stat]]);
+			}
 		}
 		Dom.alert.page("Choose an effect:", 3, values)
 	}
@@ -1813,9 +1826,7 @@ Dom.inventory.dispose = function(ev){
 Dom.inventory.removeById = function(ID, type, num){
 	for(let i = 0; i < Player.inventory.items.length; i++){
 		if(Player.inventory.items[i].type === type && Player.inventory.items[i].id === ID){
-			for(let x = 0; x < num; x++){
-				Dom.inventory.remove(i);
-			}
+				Dom.inventory.remove(i, num);
 			break;
 		}
 	}
@@ -1825,8 +1836,14 @@ Dom.inventory.removeById = function(ID, type, num){
 Dom.inventory.remove = function(num, all){
 	for(let i = 0; i < (isNaN(all) ? 1 : all); i++){
 		if(Player.inventory.items[num].stacked === 1 || Player.inventory.items[num].stacked === undefined || all === true){
-			document.getElementById("itemInventory").getElementsByTagName("td")[num].innerHTML = ""; // removes the image from the inventory
-			Player.inventory.items[num] = {}; // removes the image from the inventory
+			if(Player.inventory.items[num].image !== undefined){
+				let toRemove = [Player.inventory.items[num].id, Player.inventory.items[num].type, all - i - 1];
+				document.getElementById("itemInventory").getElementsByTagName("td")[num].innerHTML = ""; // removes the image from the inventory
+				Player.inventory.items[num] = {}; // removes the image from the inventory
+				if(all !== true && all - i !== 1){
+					Dom.inventory.removeById(toRemove[0],toRemove[1],toRemove[2]);
+				}
+			}
 		}else{
 			Player.inventory.items[num].stacked--;
 			if(Player.inventory.items[num].stacked !== 1){
@@ -2161,14 +2178,18 @@ Dom.inventory.removeEquipment = function(array){ // removes the stats of an item
 					Player.stats.poisonY -= parseFloat(split[1]);
 				}
 			}
+			if(Items.set[array[0].set].multiplier !== undefined){
+				for(let x = 0; x < Items.set[array[0].set].multiplier.length; x++){
+					for(let i = 0; i < Items.set[array[0].set].multiplier[x].slots.length; i++){
+						Player.stats[Player.inventory[Items.set[array[0].set].multiplier[x].slots[i]][0][Items.set[array[0].set].multiplier[x].stat]] -= parseFloat(Player.inventory[Items.set[array[0].set].multiplier[x].slots[i]][0].stats[Player.inventory[Items.set[array[0].set].multiplier[x].slots[i]][0][Items.set[array[0].set].multiplier[x].stat]]);
+					}
+				}
+			}
 		}
 	}
 }
 
 Dom.inventory.addEquipment = function(array){ // adds the stats of an item to the payer's total
-	/*if(array === Player.inventory.weapon){
-		//document.getElementById("secondary").style.cursor = Player.class+Player.gender+Player.skin !== "am1" ? "crosshair" : "url(assets/unused/predatorTarget.png), auto;";
-	}*/
 	if(array[0].stats !== undefined){
 		for(let i = 0; i < Object.keys(array[0].stats).length; i++){ // repeats code for all stats in old item
 			if(Object.keys(array[0].stats)[i] !== "poison" && Object.keys(array[0].stats)[i] !== "damage"){
@@ -2206,6 +2227,13 @@ Dom.inventory.addEquipment = function(array){ // adds the stats of an item to th
 					let split = Items.set[array[0].set].stats.poison.split('/');
 					Player.stats.poisonX += parseFloat(split[0]);
 					Player.stats.poisonY += parseFloat(split[1]);
+				}
+			}
+			if(Items.set[array[0].set].multiplier !== undefined){
+				for(let x = 0; x < Items.set[array[0].set].multiplier.length; x++){
+					for(let i = 0; i < Items.set[array[0].set].multiplier[x].slots.length; i++){
+						Player.stats[Player.inventory[Items.set[array[0].set].multiplier[x].slots[i]][0][Items.set[array[0].set].multiplier[x].stat]] += parseFloat(Player.inventory[Items.set[array[0].set].multiplier[x].slots[i]][0].stats[Player.inventory[Items.set[array[0].set].multiplier[x].slots[i]][0][Items.set[array[0].set].multiplier[x].stat]]);
+					}
 				}
 			}
 		}
@@ -2573,7 +2601,7 @@ Dom.buyer.page = function(npc){
 					Player.inventory.items[i].stacked = 1;
 				}
 				document.getElementById("buyerPageInventory").getElementsByTagName("td")[i].onclick = function(){
-					if(!(!remove && i === 5 && Player.inventory.items[5].type === "bag") && Player.inventory.items[i].stacked >= Player.inventory.items[i].sellQuantity){
+					if(!(!remove && i === 5 && Player.inventory.items[5].type === "bag") && Dom.inventory.check(Player.inventory.items[i].id, Player.inventory.items[i].type, Player.inventory.items[i].sellQuantity)){
 						Dom.alert.ev = i;
 						Dom.alert.target = Dom.buyer.remove;
 						if(Player.inventory.items[i].stacked >= Player.inventory.items[i].sellQuantity*2){
@@ -2609,20 +2637,24 @@ Dom.choose.page = function(npc, buttons, functions, parameters){
 			Dom.currentlyDisplayed = npc.name;
 			document.getElementById("choosePage").innerHTML = "<h1>"+npc.name+"</h1><p>"+npc.chat.chooseChat+"</p>";
 			for(let i = 0; i < buttons.length; i++){
-				let imagenum = 1;
+				let imagenum = 2;
 				if(functions[i] === Dom.buyer.page){
-					imagenum = 2;
-				}else if(functions[i] === Dom.merchant.page){
 					imagenum = 3;
-				}else if(functions[i] === Dom.quest.finish){
+				}else if(functions[i] === Dom.merchant.page){
 					imagenum = 4;
-				}else if(functions[i] === Dom.quest.start){
+				}else if(functions[i] === Dom.quest.finish){
 					imagenum = 5;
+				}else if(functions[i] === Dom.quest.start){
+					if(parameters[i][0].repeatTime === "daily"){
+						imagenum = 0;
+					}else{
+						imagenum = 6;
+					}
 				}else if(functions[i] === Dom.text.page){
 					if(parameters[i][1] === "Soul Healer"){
-						imagenum = 6;
+						imagenum = 7;
 					}else{
-						imagenum = 0;
+						imagenum = 1;
 					}
 				}
 				document.getElementById("choosePage").innerHTML += "<p id='choosePageButtons"+i+"'><img src='assets/icons/choose.png' class='chooseIcon' style='clip: rect("+25*imagenum+"px, 25px, "+25*(imagenum+1)+"px, 0px); margin-top: -"+(25*imagenum+3)+"px'></img>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;"+buttons[i]+"</p>";
@@ -2659,14 +2691,14 @@ function getFullDate () {
 	}
 	dateString += mem;
 	// month
-	mem = d.getMonth();
+	mem = d.getMonth()+1;
 	if (mem.length !== 2) {
 		mem = "0" + mem;
 	}
 	dateString += mem;
 	// year
 	dateString += d.getFullYear();
-	return fullDate;
+	return dateString;
 }
 
 //
@@ -2745,4 +2777,12 @@ document.getElementById("settingDelete").onclick = function(){
 		window.location.replace("./selection.html");
 	}
 	Dom.alert.page("Are you sure you want to delete your progress for this class? It will be lost forever!", 1);
+}
+
+//TESTING
+Dom.testing = {};
+Dom.testing.completeQuest = function(quest){
+	Dom.currentlyDisplayed = quest;
+	Dom.quest.acceptRewards();
+	return quest.quest
 }

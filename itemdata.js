@@ -848,6 +848,13 @@ var Items = {
 				// double chosen stats
 				swimSpeed: "+120/s", // perhaps display as water walking?
 			},
+			multiplier: [
+				{
+					stat: "chosenStat",
+					multiplier: 2,
+					slots: ["helm", "chest", "greaves", "boots"],
+				},
+			],
 		},
 	],
 	currency: [
@@ -1606,6 +1613,7 @@ var Items = {
 			image: "assets/items/fish/17.png",
 			rarity: "junk",
 			sellPrice: 1,
+			sellQuantity: 2,
 			// sell quantity 2 TBD
 			lore: "I wonder who this belongs to?",
 			areas: [], 
