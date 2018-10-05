@@ -2659,14 +2659,14 @@ function getFullDate () {
 	}
 	dateString += mem;
 	// month
-	mem = d.getMonth() + 1;
+	mem = d.getMonth();
 	if (mem.length !== 2) {
 		mem = "0" + mem;
 	}
 	dateString += mem;
 	// year
 	dateString += d.getFullYear();
-	return dateString;
+	return fullDate;
 }
 
 //
