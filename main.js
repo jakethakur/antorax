@@ -386,6 +386,17 @@ Game.canBeShown = function (NPC) {
 	return show;
 }
 
+// checks if two objects are within a certain range of each other
+Game.areNearby = function (obj1, obj2, range) {
+	let distanceValue = distance(obj1, obj2);
+	if (distanceValue <= range) {
+		return true;
+	}
+	else {
+		return false;
+	}
+}
+
 //
 // Base Classes (sole role is inheritance)
 //
@@ -630,6 +641,8 @@ class Character extends Thing {
 		this.loot = null;
 		this.lootQuantities = null;
 		
+		this.hasBeenSiphoned = false; // for quests
+		
 		this.x = this.spawnX;
 		this.y = this.spawnY;
 		
@@ -824,8 +837,9 @@ class Hero extends Attacker {
 		}
 		
 		// swiftness status effect
-		if (this.hasStatusEffect("Swiftness", 0, 9)) {
-			this.speed *= 1 + swiftessStatusEffect.info.speedIncrease;
+		let swiftessStatusEffect = this.statusEffects.find(statusEffect => statusEffect.title.substring(0, 9) === "Swiftness")
+		if (swiftessStatusEffect !== undefined) {
+			this.speed *= 1 + (swiftessStatusEffect.info.speedIncrease / 100);
 		}
 		
 		if (!collision) { return; }
@@ -3626,7 +3640,7 @@ Game.secondary.render = function () {
 			if (Game.hero.statusEffects[i].title == "Fish bait") {
 				iconNum = 0;
 			}
-			else if (Game.hero.statusEffects[i].title == "Speed I") {
+			else if (Game.hero.statusEffects[i].title == "Swiftness I") {
 				iconNum = 1;
 			}
 			else if (Game.hero.statusEffects[i].title == "Fire I") {
@@ -3651,7 +3665,7 @@ Game.secondary.render = function () {
 				iconNum = 8;
 			}
 			else { // no status effect image
-				iconNum = 0; // fire image used as placeholder
+				iconNum = 2; // fire image used as placeholder
 				console.error("Status effect " + Game.hero.statusEffects[i].title + " icon not found");
 			}
 			this.ctx.drawImage(Game.statusImage, 0, 27 * iconNum, 27, 27, 270 + i * 35, 10, 27, 27);

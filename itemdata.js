@@ -877,14 +877,15 @@ var Items = {
 			name: "Gold",
 			type: "currency",
 			image: "assets/items/currency/2.png",
+			use: "The primary currency of Antorax",
 			stack: 256,
 		},
 		{
-			id: 2,
-			name: "Fishing Token",
+			id: 3,
+			name: "Fishing Seal",
 			type: "currency",
 			image: "assets/items/currency/3.png",
-			lore: "Can be used to buy fishing related items from a fisher(wo)man.",
+			use: "Can be used to buy fishing related items from a fisher(wo)man.",
 			stack: 256,
 		},
 	],
@@ -1002,6 +1003,31 @@ var Items = {
 			quest: true,
 			image: "assets/items/item/7.png",
 			lore: "The goblins haven't looked after this rod very well...",
+		},
+		{
+			id: 8,
+			name: "The Sceptre of Souls",
+			type: "item",
+			rarity: "mythic",
+			quest: true,
+			image: "assets/items/item/8.png",
+			onClickText: "Siphons the soul essence of any nearby enemy corpses.",
+			onClick: function () {
+				Game.enemies.forEach(enemy => {
+					if (Game.areNearby(Game.hero, enemy, 100)) { // check the player is within 2 tiles of an enemy
+						if (enemy.isCorpse && !enemy.hasBeenSiphoned) { // check the enemy is a corpse
+							enemy.hasBeenSiphoned = true;
+							if (Player.quests.questProgress.soulSceptreEnergy === undefined) {
+								Player.quests.questProgress.soulSceptreEnergy = 1;
+							}
+							else {
+								Player.quests.questProgress.soulSceptreEnergy++;
+							}
+						}
+					}
+				});
+			},
+			lore: "The energy stored within this sceptre can be used to cure even the worst XP fatigue.",
 		},
 	],
 	consumable: [

@@ -72,7 +72,7 @@ var Quests = {
 				
 				var finished = true;
 				for(var i = 0; i < completed.length; i++) {
-					if(!completed[i]) {
+					if(completed[i] !== true) {
 						finished = false;
 					}
 				}
@@ -198,9 +198,62 @@ var Quests = {
 				4,
 			],
 		},
-		
 		{
 			id: 4,
+			quest: "More Logs",
+			questArea: "eaglecrestLoggingCamp",
+			
+			startName: "Marshall Teper",
+			startChat: `There's still more logs out there in The Nilbog. If you're up for it, we could do with retrieving some more.`,
+			
+			finishName: "Marshall Teper",
+			finishChat: `Good. Come back tomorrow and we can retrieve some more.`,
+			
+			objectives: [
+				"Retrieve 4 logs from The Nilbog.",
+				"Speak to <strong>Marshall Teper</strong>.",
+			],
+			
+			isCompleted: function() {
+				var completed = [];
+				
+				// true or falses for each objective (apart from the turn-in objective)
+				completed.push(Dom.inventory.check(2, "item") >= 4 ? true : Dom.inventory.check(2, "item") > 0 ? " (" + Dom.inventory.check(2, "item") + "/4)" : false);
+				
+				var finished = true;
+				for(var i = 0; i < completed.length; i++) {
+					if(completed[i] != true) {
+						finished = false;
+					}
+				}
+				
+				completed.push(finished);
+				
+				return completed;
+			},
+			
+			howToStart: "Speak to <strong>Marshall Teper</strong>.",
+			levelRequirement: 1,
+			questRequirements: ["Retrieval of Logs"],
+			repeatTime: "daily",
+			
+			rewards: {
+				xp: 30,
+				reputation: {
+					eaglecrestLoggingCamp: 50,
+				},
+			},
+			
+			removeItems: [
+				Items.item[2], // logs
+			],
+			removeItemQuantity: [
+				4,
+			],
+		},
+		
+		{
+			id: 5,
 			quest: "Making Yourself Useful",
 			questArea: "eaglecrestLoggingCamp",
 			
@@ -219,11 +272,14 @@ var Quests = {
 				var completed = [];
 				
 				// true or falses for each objective (apart from the turn-in objective)
-				//TBD
+				let peopleHelped = 0; // count number of people that the player has helped
+				if (Player.quests.completedQuestArray.includes("First Class Recovery")) { peopleHelped++; }
+				if (Player.quests.completedQuestArray.includes("Strengthening Defences")) { peopleHelped++; }
+				completed.push(peopleHelped >= 3 ? true : peopleHelped === 0 ? false : " (" + peopleHelped + "/3)");
 				
 				var finished = true;
 				for(var i = 0; i < completed.length; i++) {
-					if(!completed[i]) {
+					if(completed[i] !== true) {
 						finished = false;
 					}
 				}
@@ -247,7 +303,7 @@ var Quests = {
 		},
 		
 		{
-			id: 5,
+			id: 6,
 			quest: "First Class Recovery",
 			questArea: "eaglecrestLoggingCamp",
 			
@@ -270,7 +326,7 @@ var Quests = {
 				
 				var finished = true;
 				for(var i = 0; i < completed.length; i++) {
-					if(!completed[i]) {
+					if(completed[i] !== true) {
 						finished = false;
 					}
 				}
@@ -300,7 +356,7 @@ var Quests = {
 		},
 		
 		{
-			id: 6,
+			id: 7,
 			quest: "A Lost Fishing Rod",
 			questArea: "eaglecrestLoggingCamp",
 			
@@ -323,7 +379,7 @@ var Quests = {
 				
 				var finished = true;
 				for(var i = 0; i < completed.length; i++) {
-					if(!completed[i]) {
+					if(completed[i] !== true) {
 						finished = false;
 					}
 				}
@@ -338,7 +394,7 @@ var Quests = {
 			questRequirements: ["Retrieval of Logs"],
 			
 			rewards: {
-				xp: 30,
+				xp: 20,
 				items: [
 					Items.rod[2],
 				],
@@ -356,15 +412,15 @@ var Quests = {
 		},
 		
 		{
-			id: 7,
+			id: 8,
 			quest: "Learning to Fish I",
 			questArea: "eaglecrestLoggingCamp",
 			
 			startName: "Fisherman Tobenam",
-			startChat: "tbd",
+			startChat: "Heheh, you can't always fish up a fish right away, but you can always fish up some driftwood! Take a fish and see what you're gettin', heh.",
 			
 			finishName: "Fisherman Tobenam",
-			finishChat: "tbd",
+			finishChat: "Heheh, you'll slowly improve at fishing the more you do it.",
 			
 			objectives: [
 				"Fish something up!",
@@ -379,7 +435,7 @@ var Quests = {
 				
 				var finished = true;
 				for(var i = 0; i < completed.length; i++) {
-					if(!completed[i]) {
+					if(completed[i] !== true) {
 						finished = false;
 					}
 				}
@@ -394,20 +450,20 @@ var Quests = {
 			questRequirements: ["A Lost Fishing Rod"],
 			
 			rewards: {
-				xp: 30,
+				xp: 20,
 			},
 		},
 		
 		{
-			id: 8,
+			id: 9,
 			quest: "Learning to Fish II",
 			questArea: "eaglecrestLoggingCamp",
 			
 			startName: "Fisherman Tobenam",
-			startChat: "tbd",
+			startChat: "What better way to get a fish than to use some bait? Buy a <strong>Can of Worms</strong> from me, and try your luck, heheh.",
 			
 			finishName: "Fisherman Tobenam",
-			finishChat: "tbd",
+			finishChat: "Heheh, your first catch! You'll be good as me in no time...",
 			
 			objectives: [
 				"Buy a can of worms from Fisherman Tobenam and use it.",
@@ -424,7 +480,7 @@ var Quests = {
 				
 				var finished = true;
 				for(var i = 0; i < completed.length; i++) {
-					if(!completed[i]) {
+					if(completed[i] !== true) {
 						finished = false;
 					}
 				}
@@ -439,20 +495,20 @@ var Quests = {
 			questRequirements: ["Learning to Fish I"],
 			
 			rewards: {
-				xp: 30,
+				xp: 20,
 			},
 		},
 		
 		{
-			id: 9,
+			id: 10,
 			quest: "Learning to Fish III",
 			questArea: "eaglecrestLoggingCamp",
 			
 			startName: "Fisherman Tobenam",
-			startChat: "tbd",
+			startChat: "What did I say, you can't get fish all the time without practising! Keep fishing until your skill is level 10... your effort now will be made up for later, heheh.",
 			
 			finishName: "Fisherman Tobenam",
-			finishChat: "tbd",
+			finishChat: "Wow, well done! You're now a fishing master, heheh, almost. Come back to me every day and I'll give you something to do, heheh.",
 			
 			objectives: [
 				"Level your base fishing skill to 10.",
@@ -467,7 +523,7 @@ var Quests = {
 				
 				var finished = true;
 				for(var i = 0; i < completed.length; i++) {
-					if(!completed[i]) {
+					if(completed[i] !== true) {
 						finished = false;
 					}
 				}
@@ -487,15 +543,15 @@ var Quests = {
 		},
 		
 		{
-			id: 10,
+			id: 11,
 			quest: "Strengthening Defences",
 			questArea: "eaglecrestLoggingCamp",
 			
 			startName: "Galuthel the Trap Mechanic",
-			startChat: `tbd`,
+			startChat: `Welcome to the logging camp, adventurer. I hope Teper hasn't been too harsh to you. Since the goblin attack, we've been investing in ways to stop something like it happening again. My traps are some of the best technology this area has to offer to stop those goblins.<br>Help me by taking some traps and place them around in the Nilbog. 3 should suffice. They won't arm right away, but when they do there's sure to be a huge impact.`,
 			
 			finishName: "Galuthel the Trap Mechanic",
-			finishChat: `tbd`,
+			finishChat: `Excellent. You can always come back later if you have a bit of spare time. I'd appreciate your help.`,
 			
 			objectives: [
 				"Place 3 goblin traps around The Nilbog. <em>(click on one to place it)</em>",
@@ -510,7 +566,7 @@ var Quests = {
 				
 				var finished = true;
 				for(var i = 0; i < completed.length; i++) {
-					if(!completed[i]) {
+					if(completed[i] !== true) {
 						finished = false;
 					}
 				}
@@ -527,7 +583,60 @@ var Quests = {
 			rewards: {
 				xp: 30,
 				reputation: {
-					eaglecrestLoggingCamp: 20,
+					eaglecrestLoggingCamp: 50,
+				},
+			},
+			
+			removeItems: [
+				// remove all traps
+			],
+			removeItemQuantity: [
+				// remove all traps
+			],
+		},
+		{
+			id: 12,
+			quest: "Reinforcing Defences",
+			questArea: "eaglecrestLoggingCamp",
+			
+			startName: "Galuthel the Trap Mechanic",
+			startChat: `If you have some time, I need 3 more traps placed around The Nilbog. We can't let those goblins attack us again!`,
+			
+			finishName: "Galuthel the Trap Mechanic",
+			finishChat: `Thank you. Same time tomorrow?`,
+			
+			objectives: [
+				"Place 3 goblin traps around The Nilbog. <em>(click on one to place it)</em>",
+				"Speak to <strong>Galuthel the Trap Mechanic</strong>.",
+			],
+			
+			isCompleted: function() {
+				var completed = [];
+				
+				// true or falses for each objective (apart from the turn-in objective)
+				completed.push(Player.quests.questProgress.goblinTrapsPlaced === undefined ? false : Player.quests.questProgress.goblinTrapsPlaced >= 3 ? true : " (" + Player.quests.questProgress.goblinTrapsPlaced + "/3)");
+				
+				var finished = true;
+				for(var i = 0; i < completed.length; i++) {
+					if(completed[i] !== true) {
+						finished = false;
+					}
+				}
+				
+				completed.push(finished);
+				
+				return completed;
+			},
+			
+			howToStart: "Speak to <strong>Galuthel the Trap Mechanic</strong>.",
+			levelRequirement: 4,
+			questRequirements: ["Strengthening Defences"],
+			repeatTime: "daily",
+			
+			rewards: {
+				xp: 30,
+				reputation: {
+					eaglecrestLoggingCamp: 50,
 				},
 			},
 			
@@ -540,6 +649,127 @@ var Quests = {
 			
 			resetVariables: [
 				"goblinTrapsPlaced",
+			],
+		},
+		
+		{
+			id: 13,
+			quest: "The Sceptre of Souls",
+			questArea: "eaglecrestLoggingCamp",
+			
+			startName: "Soul Healer Nalaa",
+			startChat: `My blessings to you. My sceptre is running low on soul essence, a sacred power contained in the corpses of those who have recently died. I use it to remove XP fatigue from those who have died, here at the logging camp. I am not well equipped to go out to collect this essence, however I believe that you are. May you restore my scepter's power?`,
+			
+			finishName: "Soul Healer Nalaa",
+			finishChat: `Thank you. It is people like you that allow the Logging Camp to flourish.`,
+			
+			objectives: [
+				"Use the sceptre of souls near 5 corpses to restore its power. <em>(click on it to use it)</em>",
+				"Speak to <strong>Soul Healer Nalaa</strong>.",
+			],
+			
+			isCompleted: function() {
+				var completed = [];
+				
+				// true or falses for each objective (apart from the turn-in objective)
+				completed.push(Player.quests.questProgress.soulSceptreEnergy === undefined ? false : Player.quests.questProgress.soulSceptreEnergy >= 5 ? true : " (" + Player.quests.questProgress.soulSceptreEnergy + "/5)");
+				
+				var finished = true;
+				for(var i = 0; i < completed.length; i++) {
+					if(completed[i] !== true) {
+						finished = false;
+					}
+				}
+				
+				completed.push(finished);
+				
+				return completed;
+			},
+			
+			howToStart: "Speak to <strong>Soul Healer Nalaa</strong>.",
+			levelRequirement: 1,
+			questRequirements: ["Retrieval of Logs"],
+			
+			startRewards: {
+				items: [
+					Items.item[8], // soul sceptre
+				],
+				itemQuantities: [
+					1,
+				],
+			},
+			
+			rewards: {
+				xp: 30,
+				reputation: {
+					eaglecrestLoggingCamp: 50,
+				},
+			},
+			
+			removeItems: [
+				Items.item[8], // remove soul sceptre
+			],
+			removeItemQuantity: [
+				1,
+			],
+		},
+		
+		{
+			id: 14,
+			quest: "Partners in Goblin Destruction",
+			questArea: "eaglecrestLoggingCamp",
+			
+			startName: "Goblin Torch",
+			startChat: `<em>The torch speaks to you with a coarse whisper.</em><br>Please help. Goblins used wrong spell. On me. I can think. And speak. Other torches. Can not.<br>I hate goblins. As much as you. Please. Give me. A lift? We can kill. Together.`,
+			
+			finishName: "Goblin Torch",
+			finishChat: `Thank you. That was the. Best time of my life.`,
+			
+			objectives: [
+				"Kill 10 goblins with the help of the goblin torch.",
+				"Speak to the goblin torch.",
+			],
+			
+			isCompleted: function() {
+				var completed = [];
+				
+				// true or falses for each objective (apart from the turn-in objective)
+				completed.push(Player.quests.questProgress.goblinsKilledWithTorch === undefined ? false : Player.quests.questProgress.goblinsKilledWithTorch >= 10 ? true : " (" + Player.quests.questProgress.goblinsKilledWithTorch + "/10)");
+				
+				var finished = true;
+				for(var i = 0; i < completed.length; i++) {
+					if(completed[i] !== true) {
+						finished = false;
+					}
+				}
+				
+				completed.push(finished);
+				
+				return completed;
+			},
+			
+			howToStart: "Speak to a goblin torch in The Nilbog.",
+			levelRequirement: 3,
+			questRequirements: [],
+			
+			startRewards: {
+				items: [
+					Items.item[7], // goblin torch
+				],
+				itemQuantities: [
+					1,
+				],
+			},
+			
+			rewards: {
+				xp: 50,
+			},
+			
+			removeItems: [
+				Items.item[7], // remove goblin torch
+			],
+			removeItemQuantity: [
+				1,
 			],
 		},
 		
@@ -578,10 +808,10 @@ var Quests = {
 			questArea: "fishing",
 			
 			startName: "Fisherman Tobenam",
-			startChat: `tbd`,
+			startChat: `How's your fishing going? Reel up 15 items and we'll see, heheh.`,
 			
 			finishName: "Fisherman Tobenam",
-			finishChat: `tbd`,
+			finishChat: `Not bad, heheh. I'm glad I taught you how to fish now!`,
 			
 			objectives: [
 				"Fish up 15 items.",
@@ -600,12 +830,18 @@ var Quests = {
 			},
 			
 			howToStart: "Speak to Fisherman Tobenam.",
-			levelRequirement: 1,
-			questRequirements: [],
+			levelRequirement: 2,
+			questRequirements: ["Learning to Fish III"],
 			repeatTime: "daily",
 			
 			rewards: {
-				
+				xp: 50,
+				items: [
+					Items.currency[4], // fishing seal
+				],
+				itemQuantities: [
+					1,
+				],
 			},
 			
 			resetVariables: [
@@ -620,7 +856,7 @@ var Quests = {
 function checkFinished(completed) {
 	var finished = true;
 	for(var i = 0; i < completed.length; i++) {
-		if(!completed[i]) {
+		if(completed[i] !== true) {
 			finished = false;
 		}
 	}

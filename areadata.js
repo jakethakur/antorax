@@ -315,14 +315,6 @@ var Areas = {
 				},
 				roles: [
 					{
-						quest: Quests.eaglecrestLoggingCamp[6], 
-						role: "questStart",
-					},
-					{
-						quest: Quests.eaglecrestLoggingCamp[6], 
-						role: "questFinish",
-					},
-					{
 						quest: Quests.eaglecrestLoggingCamp[7], 
 						role: "questStart",
 					},
@@ -344,6 +336,14 @@ var Areas = {
 					},
 					{
 						quest: Quests.eaglecrestLoggingCamp[9], 
+						role: "questFinish",
+					},
+					{
+						quest: Quests.eaglecrestLoggingCamp[10], 
+						role: "questStart",
+					},
+					{
+						quest: Quests.eaglecrestLoggingCamp[10], 
 						role: "questFinish",
 					},
 					{
@@ -574,6 +574,14 @@ var Areas = {
 						role: "questFinish"
 					},
 					{
+						quest: Quests.eaglecrestLoggingCamp[5], 
+						role: "questStart"
+					},
+					{
+						quest: Quests.eaglecrestLoggingCamp[5], 
+						role: "questFinish"
+					},
+					{
 						quest: Quests.eaglecrestLoggingCamp[4], 
 						role: "questStart"
 					},
@@ -662,11 +670,11 @@ var Areas = {
 				},
 				roles: [
 					{
-						quest: Quests.eaglecrestLoggingCamp[5], 
+						quest: Quests.eaglecrestLoggingCamp[6], 
 						role: "questStart"
 					},
 					{
-						quest: Quests.eaglecrestLoggingCamp[5], 
+						quest: Quests.eaglecrestLoggingCamp[6], 
 						role: "questFinish"
 					},
 				],
@@ -717,6 +725,14 @@ var Areas = {
 				},
 				roles: [
 					{
+						quest: Quests.eaglecrestLoggingCamp[13], 
+						role: "questStart"
+					},
+					{
+						quest: Quests.eaglecrestLoggingCamp[13], 
+						role: "questFinish"
+					},
+					{
 						role: "soulHealer",
 					},
 				],
@@ -725,6 +741,7 @@ var Areas = {
 					cannotBeHealedText: "When you die, you will earn some future XP slower than normal. If this happens to you and you wish to be cleansed of this, come to me and I can remove it for you for a small price. May the purity of the demigods be with you.",
 					healedText: "May the purity of the demigods be with you.",
 					tooPoor: "I don't think you can afford that.",
+					questProgress: "If you use the sceptre near dead enemies, soul essence will rush inside it.",
 				},
 			},
 			{
@@ -740,23 +757,32 @@ var Areas = {
 				},
 				roles: [
 					{
+						quest: Quests.eaglecrestLoggingCamp[11], 
+						role: "questStart"
+					},
+					{
+						quest: Quests.eaglecrestLoggingCamp[11], 
+						role: "questFinish"
+					},
+					{
+						quest: Quests.eaglecrestLoggingCamp[12], 
+						role: "questStart"
+					},
+					{
+						quest: Quests.eaglecrestLoggingCamp[12], 
+						role: "questFinish"
+					},
+					{
 						sold: [Items.consumable[7]],
 						role: "merchant",
 						roleRequirement: function () {
 							return Player.quests.activeQuestArray.includes("Strengthening Defences");
 						}
 					},
-					{
-						quest: Quests.eaglecrestLoggingCamp[10], 
-						role: "questStart"
-					},
-					{
-						quest: Quests.eaglecrestLoggingCamp[10], 
-						role: "questFinish"
-					},
 				],
 				chat: {
 					notUnlockedRoles: "I think we have enough traps out at the moment. Come back in a bit.",
+					chooseChat: "How's it going?",
 					shopGreeting: "If you're out of traps, I'll give you some more.",
 					shopLeave: "Let's crush those goblins.",
 					inventoryFull: "Empty your inventory a bit and come back.",
@@ -966,6 +992,7 @@ var Areas = {
 				"goblinCorpse",
 				"mailcart",
 				"trap",
+				"torch",
 			],
 			
 			addresses: [
@@ -980,6 +1007,7 @@ var Areas = {
 				"./assets/corpses/deadGoblin.png",
 				"./assets/objects/cartDestroyed.png",
 				"./assets/objects/trap.png",
+				"./assets/npcs/torch.png",
 			],
 		},
 		
@@ -1003,6 +1031,37 @@ var Areas = {
 			},
 		],
 		
+		NPCs: [
+			{
+				x: 858,
+				y: 502,
+				image: "torch",
+				name: "Goblin Torch",
+				hostility: "neutral",
+				level: 5,
+				stats: {
+					maxHealth: 75,
+					defence: 5,
+				},
+				roles: [
+					/*{
+						quest: Quests.eaglecrestLoggingCamp[14], 
+						role: "questStart"
+					},
+					{
+						quest: Quests.eaglecrestLoggingCamp[14], 
+						role: "questFinish"
+					},*/
+				],
+				chat: {
+					notUnlockedRoles: "Very. Bored.",
+					questProgress: "Keep going. Please.",
+					questComplete: "I hope. That we shall meet again. Soon",
+					inventoryFull: "You cannot. Hold that.",
+				},
+			},
+		],
+		
 		chests: [
 			{
 				x: 1140,
@@ -1014,7 +1073,7 @@ var Areas = {
 				inventorySpace: 8,
 				disappearAfterOpened: false,
 				canBeShown: function () {
-					return (Player.quests.activeQuestArray.includes("Making Yourself Useful") || Player.quests.activeQuestArray.includes("First Class Recovery"));
+					return (Player.quests.activeQuestArray.includes("First Class Recovery") || Player.quests.completedQuestArray.includes("First Class Recovery"));
 				},
 			},
 		],
@@ -1045,8 +1104,8 @@ var Areas = {
 				x: 860, // next to mail cart (only present when that quest is active)
 				y: 915,
 				template: EnemyTemplates.nilbog.goblinSkirmisher,
-				canBeShown: function () { // only show when mail cart quest is active
-					return (Player.quests.activeQuestArray.includes("Making Yourself Useful") || Player.quests.activeQuestArray.includes("First Class Recovery"));
+				canBeShown: function () { // only show after mail cart quest has been started
+					return (Player.quests.activeQuestArray.includes("First Class Recovery") || Player.quests.completedQuestArray.includes("First Class Recovery"));
 				},
 			},
 			{
