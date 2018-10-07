@@ -397,6 +397,35 @@ Game.areNearby = function (obj1, obj2, range) {
 	}
 }
 
+// insert a message into the chat, under the format of "name: message"
+// name is emboldened via <strong> tags
+// if message is an array, a random message from the array will be chosen
+// if message begins with "/me " (including space), the format changes to "this.name message"
+// if singleUse is true, and if Dom.chat.contents contains message, the message is not sent
+// if important is true, the chat message triggers a red flashing prompt around the chat bookmark
+Game.sayChat = function (name, message, singleUse, delay, important) {
+	if (message !== undefined) {
+		if (message.constructor === Array) {
+			// if message is array, pick a random message from the array
+			message = message[random(0, message.length - 1)];
+		}
+		if (message.substring(0, 4) === "/me ") { // reflexive message
+			message = message.substr(4, message.length);
+			if (!(singleUse && Dom.chat.contents.includes("<strong>" + name + "</strong> " + message))) { // check if message should be sent (due to singleUse)
+				Dom.chat.insert("<strong>" + name + "</strong> " + message, delay, important);
+			}
+		}
+		else {
+			if (!(singleUse && Dom.chat.contents.includes("<strong>" + name + "</strong>: " + message))) { // check if message should be sent (due to singleUse)
+				Dom.chat.insert("<strong>" + name + "</strong>: " + message, delay, important);
+			}
+		}
+	}
+	else {
+		console.warn("undefined chat message for " + name);
+	}
+}
+
 //
 // Base Classes (sole role is inheritance)
 //
@@ -475,6 +504,9 @@ class Character extends Thing {
 		
 		this.class = properties.class;
 		
+		this.species = properties.species; // "human", "goblin", "orc", etc.
+		this.subSpecies = properties.subSpecies; // "nilbog goblin", "fire orc", etc.
+		
 		this.hostility = properties.hostility; // used for name colour
 		
 		this.spawnX = properties.x;
@@ -531,22 +563,7 @@ class Character extends Thing {
 	// if singleUse is true, and if Dom.chat.contents contains message, the message is not sent
 	// if important is true, the chat message triggers a red flashing prompt around the chat bookmark
 	say (message, singleUse, delay, important) {
-		if (message !== undefined) {
-			if (message.substring(0, 4) === "/me ") { // reflexive message
-				message = message.substr(4, message.length);
-				if (!(singleUse && Dom.chat.contents.includes("<strong>" + this.name + "</strong> " + message))) { // check if message should be sent (due to singleUse)
-					Dom.chat.insert("<strong>" + this.name + "</strong> " + message, delay, important);
-				}
-			}
-			else {
-				if (!(singleUse && Dom.chat.contents.includes("<strong>" + this.name + "</strong>: " + message))) { // check if message should be sent (due to singleUse)
-					Dom.chat.insert("<strong>" + this.name + "</strong>: " + message, delay, important);
-				}
-			}
-		}
-		else {
-			console.warn("undefined chat message for " + this.name);
-		}
+		Game.sayChat(this.name, message, singleUse, delay, important);
 	}
 	
 	// function to be carried out during Game.render()
@@ -588,6 +605,23 @@ class Character extends Thing {
 				setTimeout(function () {
 					this.respawn();
 				}.bind(this), this.stats.respawnTime);
+				
+				// quest progress
+				if (this.subSpecies = "nilbog goblin") {
+					if (JSON.stringify(Player.inventory.weapon[0]) === JSON.stringify(Items.staff[7])) { // goblin torch equipped
+						if (Player.quests.questProgress.goblinsKilledWithTorch === undefined) {
+							Player.quests.questProgress.goblinsKilledWithTorch = 1;
+						}
+						else {
+							Player.quests.questProgress.goblinsKilledWithTorch++;
+						}
+					}
+				}
+				
+				// weapon chat message (some weapons have a chat message for when they kill something!)
+				if (Player.inventory.weapon[0].chat.kill !== undefined) {
+					Game.sayChat(Player.inventory.weapon[0].name, Player.inventory.weapon[0].chat.kill, false, 100, false)
+				}
 			}
 		}
 		else {
@@ -2809,6 +2843,14 @@ Game.update = function (delta) {
 							textArray.push(role.chooseText);
 							functionArray.push(Dom.text.page);
 							parameterArray.push([NPC.name, NPC.name, role.chat, role.buttons, role.functions]);
+						}
+						
+						// button just runs a function
+						else if (role.role === "function") {
+							// NPC chat appears as an option in choose DOM
+							textArray.push(role.chooseText);
+							functionArray.push(role.onClick);
+							parameterArray.push([]);
 						}
 						
 					}

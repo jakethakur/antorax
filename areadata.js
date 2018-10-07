@@ -33,13 +33,13 @@ var LootTables = { // loot table templates
 				Infinity,		// 1
 			],
 		},
-		/*{ // goblin brewed potion (to be made)
-			item: Items.bag[3],
+		{ // goblin brewed potion
+			item: Items.consumable[6],
 			chance: [
-				80,				// 0
+				90,				// 0
 				Infinity,		// 1
 			],
-		},*/
+		},
 		{ // goblin sewn bag
 			item: Items.bag[3],
 			chance: [
@@ -60,6 +60,14 @@ var LootTables = { // loot table templates
 				Infinity,		// 1
 			],
 		},
+		{ // goblin eye
+			item: Items.item[10],
+			chance: [
+				80,				// 0
+				95,				// 1
+				Infinity,		// 2
+			],
+		},
 	],
 };
 
@@ -69,6 +77,8 @@ var EnemyTemplates = {
 			image: "rockGoblin",
 			deathImage: "goblinCorpse",
 			name: "Goblin Rockthrower",
+			species: "goblin",
+			subSpecies: "nilbog goblin",
 			hostility: "hostile",
 			level: 2,
 			stats: {
@@ -105,6 +115,8 @@ var EnemyTemplates = {
 			image: "swordGoblin",
 			deathImage: "goblinCorpse",
 			name: "Goblin Skirmisher",
+			species: "goblin",
+			subSpecies: "nilbog goblin",
 			hostility: "hostile",
 			level: 2,
 			stats: {
@@ -130,6 +142,8 @@ var EnemyTemplates = {
 			image: "hammerGoblin",
 			deathImage: "goblinCorpse",
 			name: "Goblin Bruiser",
+			species: "goblin",
+			subSpecies: "nilbog goblin",
 			hostility: "hostile",
 			level: 3,
 			stats: {
@@ -155,6 +169,8 @@ var EnemyTemplates = {
 			image: "fireGoblin",
 			deathImage: "goblinCorpse",
 			name: "Fire Goblin",
+			species: "goblin",
+			subSpecies: "nilbog goblin",
 			hostility: "hostile",
 			level: 4,
 			stats: {
@@ -546,6 +562,7 @@ var Areas = {
 		
 		NPCs: [
 			{
+				// id: 0,
 				x: 884,
 				y: 440,
 				image: "teper",
@@ -627,6 +644,7 @@ var Areas = {
 				},
 			},
 			{
+				// id: 1,
 				x: 365,
 				y: 870,
 				image: "saral",
@@ -658,6 +676,7 @@ var Areas = {
 				},
 			},
 			{
+				// id: 2,
 				x: 1166,
 				y: 300,
 				image: "mailman",
@@ -688,6 +707,7 @@ var Areas = {
 				},
 			},
 			{
+				// id: 3,
 				x: 680,
 				y: 540,
 				image: "identifier",
@@ -713,6 +733,7 @@ var Areas = {
 				}
 			},
 			{
+				// id: 4,
 				x: 1160,
 				y: 100,
 				image: "soulHealer",
@@ -745,6 +766,7 @@ var Areas = {
 				},
 			},
 			{
+				// id: 5,
 				x: 435,
 				y: 372,
 				image: "galuthel",
@@ -786,9 +808,11 @@ var Areas = {
 					shopGreeting: "If you're out of traps, I'll give you some more.",
 					shopLeave: "Let's crush those goblins.",
 					inventoryFull: "Empty your inventory a bit and come back.",
+					questComplete: "I'll have more traps for you to place in a bit. Come back tomorrow.",
 				},
 			},
 			{
+				// id: 6,
 				x: 576,
 				y: 984,
 				image: "itemBuyer",
@@ -806,6 +830,18 @@ var Areas = {
 							return Player.quests.completedQuestArray.includes("Retrieval of Logs");
 						}
 					},
+					{
+						role: "function",
+						chooseText: "I don't suppose you have a vial of goblin blood?",
+						onClick: function () {
+							Game.NPCs[6].say("Why yes, I have had some goblin blood handed into me. Sure, you can have it - I haven't got any use for it.")
+						},
+						roleRequirement: function () {
+							// check that the player has "potion making" active and hasn't already got some goblin blood
+							return Player.quests.activeQuestArray.includes("Potion Making") && !Dom.inventory.check(11, "item", 1);
+							// tbd also check that they haven't added it to the potion
+						}
+					},
 				],
 				chat: {
 					notUnlockedRoles: "I'm not sure you have anything I can buy from you. Come back a bit later.",
@@ -813,6 +849,7 @@ var Areas = {
 				},
 			},
 			{
+				// id: 7,
 				x: 1111,
 				y: 633,
 				image: "darkbrew",
@@ -1044,20 +1081,23 @@ var Areas = {
 					defence: 5,
 				},
 				roles: [
-					/*{
+					{
 						quest: Quests.eaglecrestLoggingCamp[14], 
 						role: "questStart"
 					},
 					{
 						quest: Quests.eaglecrestLoggingCamp[14], 
 						role: "questFinish"
-					},*/
+					},
 				],
 				chat: {
 					notUnlockedRoles: "Very. Bored.",
 					questProgress: "Keep going. Please.",
-					questComplete: "I hope. That we shall meet again. Soon",
-					inventoryFull: "You cannot. Hold that.",
+					questComplete: "I hope we shall meet again. Soon.",
+					inventoryFull: "You cannot hold that.",
+				},
+				canBeShown: function () {
+					return !Player.quests.activeQuestArray.includes("Partners in Goblin Destruction");
 				},
 			},
 		],

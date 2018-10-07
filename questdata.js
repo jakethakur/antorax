@@ -204,7 +204,7 @@ var Quests = {
 			questArea: "eaglecrestLoggingCamp",
 			
 			startName: "Marshall Teper",
-			startChat: `There's still more logs out there in The Nilbog. If you're up for it, we could do with retrieving some more.`,
+			startChat: `There's still more logs out there in The Nilbog. We need to retrieve some more.`,
 			
 			finishName: "Marshall Teper",
 			finishChat: `Good. Come back tomorrow and we can retrieve some more.`,
@@ -275,6 +275,7 @@ var Quests = {
 				let peopleHelped = 0; // count number of people that the player has helped
 				if (Player.quests.completedQuestArray.includes("First Class Recovery")) { peopleHelped++; }
 				if (Player.quests.completedQuestArray.includes("Strengthening Defences")) { peopleHelped++; }
+				if (Player.quests.completedQuestArray.includes("The Sceptre of Souls")) { peopleHelped++; }
 				completed.push(peopleHelped >= 3 ? true : peopleHelped === 0 ? false : " (" + peopleHelped + "/3)");
 				
 				var finished = true;
@@ -727,7 +728,7 @@ var Quests = {
 			
 			objectives: [
 				"Kill 10 goblins with the help of the goblin torch.",
-				"Speak to the goblin torch.",
+				"Place the torch back at the goblin camp.",
 			],
 			
 			isCompleted: function() {
@@ -742,25 +743,31 @@ var Quests = {
 						finished = false;
 					}
 				}
-				if(finished){
-					Dom.quests.finish(Quests.eaglecrestLoggingCamp[14]);
+				if(finished){ // to be moved to autofinish
+					Dom.quest.finish(Quests.eaglecrestLoggingCamp[14]);
 				}
 				completed.push(finished);
 				
 				return completed;
 			},
 			
-			howToStart: "Speak to a goblin torch in The Nilbog.",
+			howToStart: "???",
 			levelRequirement: 3,
 			questRequirements: [],
 			
+			autofinish: true,
+			
 			startRewards: {
 				items: [
-					Items.item[7], // goblin torch
+					Items.staff[7], // goblin torch
 				],
 				itemQuantities: [
 					1,
 				],
+			},
+			
+			onQuestStart: function() {
+				Game.NPCs.splice(0, 1); // remove goblin torch NPC from the map
 			},
 			
 			rewards: {
@@ -768,11 +775,17 @@ var Quests = {
 			},
 			
 			removeItems: [
-				Items.item[7], // remove goblin torch
+				Items.staff[7], // remove goblin torch
 			],
 			removeItemQuantity: [
 				1,
 			],
+			
+			onQuestFinish: function() {
+				if (Game.areaName === "nilbog") {
+					Game.NPCs.push(new NPC(Areas.nilbog.NPCs[0])); // add goblin torch image to the map
+				}
+			},
 		},
 		
 		/*{

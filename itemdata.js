@@ -652,6 +652,9 @@ var Items = {
 				damage: "2",
 				flaming: 1,
 			},
+			chat: {
+				kill: ["Burn with me!", "Must. Kill.", "Keep going. Please. Kill them all.", "Goblin idiots must die!"],
+			}
 		},
 	],
 	bow: [
@@ -918,7 +921,7 @@ var Items = {
 			name: "Goblin Sewn Bag",
 			type: "bag",
 			image: "assets/items/bag/3.png",
-			sellPrice: 5,
+			sellPrice: 3,
 			rarity: "unique",
 			size: 12,
 		},
@@ -1030,6 +1033,34 @@ var Items = {
 			},
 			lore: "The energy stored within this sceptre can be used to cure even the worst XP fatigue.",
 		},
+		{
+			id: 9,
+			name: "Inert Potion",
+			type: "item",
+			quest: true,
+			image: "assets/items/item/9.png",
+			lore: "Try adding some ingredients...",
+		},
+		{
+			id: 10,
+			name: "Goblin Eye",
+			rarity: "junk",
+			type: "item",
+			image: "assets/items/item/10.png",
+			lore: "Has some alchemical uses.",
+			sellPrice: 1,
+			sellQuantity: 2,
+			stack: 32,
+		},
+		{
+			id: 11,
+			name: "Vial of Goblin Blood",
+			rarity: "junk",
+			type: "item",
+			quest: true,
+			image: "assets/items/item/10.png",
+			lore: "Has some alchemical uses.",
+		},
 	],
 	consumable: [
 		{
@@ -1114,6 +1145,7 @@ var Items = {
 			name: "Goblin Brewed Potion",
 			type: "consumable",
 			image: "assets/items/consumable/6.png",
+			sellPrice: 1,
 			onClickText: "I wonder what this does?",
 			onClick: function (inventoryPosition) {
 				// remove the item
@@ -1134,8 +1166,9 @@ var Items = {
 						// give fire I status effect to player
 						Game.statusEffects.fire("I", Game.hero);
 						break;
-					// more TBD...
-					default:
+					case 3:
+						// deal 50 damage over 10 seconds to the player
+						Game.statusEffects.poison(50, 10, Game.hero);
 						break;
 				}
 			}
@@ -1935,6 +1968,28 @@ var Items = {
 			},
 			clicksToCatch: 1,
 			timeToCatch: 750,
+		},
+		{
+			id: 28,
+			name: "Direweed",
+			fishingType: "waterjunk",
+			type: "fish",
+			image: "assets/items/fish/28.png",
+			rarity: "junk",
+			sellPrice: 1,
+			sellQuantity: 8,
+			stack: 64,
+			lore: "Has some alchemical uses.",
+			areas: [], 
+			waterTypes: [
+				"freshwater",
+				"brackish",
+				"marine",
+			],
+			skillRequirement: {
+				min: 0,
+				max: 60,
+			},
 		},
 		/*{
 			id: 22,
