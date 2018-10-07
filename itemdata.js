@@ -1023,6 +1023,7 @@ var Items = {
 							else {
 								Player.quests.questProgress.soulSceptreEnergy++;
 							}
+							Dom.quests.active();
 						}
 					}
 				});

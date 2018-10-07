@@ -742,7 +742,9 @@ var Quests = {
 						finished = false;
 					}
 				}
-				
+				if(finished){
+					Dom.quests.finish(Quests.eaglecrestLoggingCamp[14]);
+				}
 				completed.push(finished);
 				
 				return completed;

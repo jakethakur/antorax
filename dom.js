@@ -440,25 +440,25 @@ Dom.inventory.updatePosition = function(object){
 	if(window.mouseX !== Dom.inventory.prevMouseX || window.mouseY !== Dom.inventory.prevMouseY){
 		Dom.inventory.prevMouseX = window.mouseX;
 		Dom.inventory.prevMouseY = window.mouseY;
-		if(window.mouseX+200 <= 1161){
+		if(window.mouseX+220 <= 1161){
 			object.style.left = window.mouseX+30+"px";
 			for(let i = 0; i < document.getElementsByClassName("triangleLeft").length; i++){
 				if(document.getElementsByClassName("triangleLeft")[i].id !== "leftArrow"){
-					document.getElementsByClassName("triangleLeft")[i].style = "right: 175px; border-right: 20px solid #886622; border-left: 0px solid transparent;";
+					document.getElementsByClassName("triangleLeft")[i].style = "right: 185px; border-right: 20px solid #886622; border-left: 0px solid transparent;";
 				}
 			}
 			for(let i = 0; i < document.getElementsByClassName("innerTriangleLeft").length; i++){
-				document.getElementsByClassName("innerTriangleLeft")[i].style = "right: 167px; border-right: 20px solid #fef9b4; border-left: 0px solid transparent;";
+				document.getElementsByClassName("innerTriangleLeft")[i].style = "right: 177px; border-right: 20px solid #fef9b4; border-left: 0px solid transparent;";
 			}
 		}else{
-			object.style.left = window.mouseX-210+"px";
+			object.style.left = window.mouseX-220+"px";
 			for(let i = 0; i < document.getElementsByClassName("triangleLeft").length; i++){
 				if(document.getElementsByClassName("triangleLeft")[i].id !== "leftArrow"){
-					document.getElementsByClassName("triangleLeft")[i].style = "left: 175px; border-left: 20px solid #886622; border-right: 0px solid transparent;";
+					document.getElementsByClassName("triangleLeft")[i].style = "left: 185px; border-left: 20px solid #886622; border-right: 0px solid transparent;";
 				}
 			}
 			for(let i = 0; i < document.getElementsByClassName("innerTriangleLeft").length; i++){
-				document.getElementsByClassName("innerTriangleLeft")[i].style = "left: 167px; border-left: 20px solid #fef9b4; border-right: 0px solid transparent;";
+				document.getElementsByClassName("innerTriangleLeft")[i].style = "left: 177px; border-left: 20px solid #fef9b4; border-right: 0px solid transparent;";
 			}
 		}
 		if(window.mouseY+object.offsetHeight-30 <= 618){
@@ -545,58 +545,6 @@ Dom.inventory.displayIdentification = function(display){
 		}
 	}
 }
-
-/*Dom.inventory.updateIdentification = function(){ // display inventory information
-	document.getElementById("innerStats").innerHTML = "";
-	document.getElementById("innerStats").innerHTML += "<strong>Level: " + Player.level + "</strong>"; // updates the level display
-	document.getElementById("innerStats").innerHTML += "<br><strong>XP: " + 100*Player.xp/LevelXP[Player.level] + "%</strong>"; // updates the xp display
-	document.getElementById("innerStats").innerHTML += "<br><br><strong>Stats:</strong>"; // updates the xp display
-	if(Player.inventory.weapon[0].name !== ""){
-		document.getElementById("innerStats").innerHTML += "<br>Damage: " + Player.stats.damage; // updates the damage display
-		if(Player.stats.maxDamage !== 0 && Player.stats.maxDamage !== Player.stats.damage){
-			document.getElementById("innerStats").innerHTML += "-" + Player.stats.maxDamage; // updates the damage display
-		}
-	}else{
-		document.getElementById("innerStats").innerHTML += "<br>Damage: 0"; // updates the damage display
-	}
-	document.getElementById("innerStats").innerHTML += "<br>Defence: " + Player.stats.defence; // updates the defence display
-	if(Player.stats.blockDefence !== 0){
-		document.getElementById("innerStats").innerHTML += "<br>Block Defence: " + Player.stats.blockDefence; // updates the critical chance display
-	}
-	document.getElementById("innerStats").innerHTML += "<br>Critical Chance: " + Player.stats.criticalChance + "%"; // updates the critical chance display
-	document.getElementById("innerStats").innerHTML += "<br>Dodge Chance: " + Player.stats.dodgeChance + "%"; // updates the dodge chance display
-	if(Player.stats.flaming !== 0){
-		document.getElementById("innerStats").innerHTML += "<br>Flaming "+romanize(Player.stats.flaming);
-	}
-	if(Player.class === "a"){
-		document.getElementById("innerStats").innerHTML += "<br>Focus Speed: " + Player.stats.focusSpeed + "/s"; // updates the focus speed display
-	}
-	document.getElementById("innerStats").innerHTML += "<br>Health Regen: " + Player.stats.healthRegen + "/s"; // updates the health regen display
-	if(Player.stats.looting !== 100){
-		document.getElementById("innerStats").innerHTML += "<br>Looting: " + Player.stats.looting + "%"; // updates the looting display
-	}
-	if(Player.stats.poisonX !== 0 && Player.stats.posionY !== 0){
-		document.getElementById("innerStats").innerHTML += "<br>Poison: " + Player.stats.poisonX + "/" + Player.stats.poisonY + "s"; // updates the poison display
-	}
-	if(Player.stats.reflection !== 0){
-		document.getElementById("innerStats").innerHTML += "<br>Reflection: " + Player.stats.reflection + "%"; // updates the reflection display
-	}
-	if(Player.stats.stun !== 0){
-		document.getElementById("innerStats").innerHTML += "<br>Stun: " + Player.stats.stun + "s"; // updates the stun display
-	}
-	document.getElementById("innerStats").innerHTML += "<br>Swim Speed: " + Player.stats.swimSpeed + "/s"; // updates the swim speed display
-	document.getElementById("innerStats").innerHTML += "<br>Walk Speed: " + Player.stats.walkSpeed + "/s"; // updates the walk speed display
-	if(Player.stats.fishingSkill !== 0){
-		document.getElementById("innerStats").innerHTML += "<br>Fishing Skill: " + Player.stats.fishingSkill; // updates the fishing skill display
-	}
-	
-	if(Player.statusEffects.length !== 0){
-		document.getElementById("innerStats").innerHTML += "<br><br><strong>Status Effects:</strong>"; // adds status effects
-		for(let i = 0; i < Player.statusEffects.length; i++){
-			document.getElementById("innerStats").innerHTML += "<br>" + Player.statusEffects[i].title + ": " + Player.statusEffects[i].effect; // updates the walk speed display
-		}
-	}
-}*/
 
 Dom.inventory.displayInformation = function(item, stacked, position){
 	document.getElementById("information").hidden = true; // hide item information
@@ -732,17 +680,19 @@ Dom.inventory.displayInformation = function(item, stacked, position){
 				document.getElementById("name").innerHTML = "1 " + document.getElementById("name").innerHTML; // add the size to the information
 			}
 		}
-		if(item.type === "consumable"){
-			document.getElementById("stats").innerHTML = item.onClickText + (item.charges !== undefined ? "<br><br>" + item.charges + " Charges" : "");
-		}
 		if(item.fishingType === "fish"){
 			document.getElementById("stats").innerHTML = "Length: " + item.length + "cm";
 		}
 		if(item.quest){
-			document.getElementById("stats").style.color = "slateblue";
-			document.getElementById("stats").innerHTML = "Quest item";
+			document.getElementById("stats").innerHTML = "<span style='color: slateblue;'>Quest item</span>";
 		}else{
 			document.getElementById("stats").style.color = "black";
+		}
+		if(item.use !== undefined){
+			document.getElementById("stats").innerHTML = item.use;
+		}
+		if(item.onClickText !== undefined){
+			document.getElementById("stats").innerHTML += (document.getElementById("stats").innerHTML !== undefined ? "<br><br>" : "") + item.onClickText + (item.charges !== undefined ? "<br><br>" + item.charges + " Charges" : "");
 		}
 		let lorebuyer = "";
 		if(item.lore !== undefined && item.lore !== "" && !Array.isArray(item.lore)){ // if the item has a lore...
@@ -1148,8 +1098,8 @@ Dom.quest.start = function(quest){ // display quest start page
 			}
 		}else{
 			document.getElementById("questStartRewardsTitle").innerHTML = "";
-			document.getElementById("questStartItems").innerHTML = "";
 		}
+		document.getElementById("questStartStartItems").innerHTML = ""; // sets the item rewards to none
 		if(quest.startRewards !== undefined){
 			document.getElementById("questStartStartRewardsTitle").innerHTML = "<br><br><b>Quest Start Rewards</b><br>";
 			if(quest.startRewards.items !== undefined){
@@ -1163,7 +1113,6 @@ Dom.quest.start = function(quest){ // display quest start page
 			}
 		}else{
 			document.getElementById("questStartStartRewardsTitle").innerHTML = "";
-			document.getElementById("questStartStartItems").innerHTML = "";
 		}
 		for(let x = 0; x < document.getElementsByClassName("theseQuestOptions").length; x++){ // repeats for all item rewards
 			document.getElementsByClassName("theseQuestOptions")[x].onmouseover = function() { // when the user hovers over the item...
@@ -1251,7 +1200,7 @@ Dom.quest.finish = function(quest){ // display quest finish page
 			document.getElementsByClassName("questFinishStackNum")[x].style.top = document.getElementsByClassName("theseQuestFinishOptions")[x].getBoundingClientRect().top + 33 + "px";
 		}
 		Dom.currentlyDisplayed = quest; // sets the currently displayed variable to the quest
-		Dom.quest.waitForReward = quest;
+		//Dom.quest.waitForReward = quest;
 	}
 }
 
@@ -1277,7 +1226,7 @@ Dom.quest.accept = function(){ // quest accepted
 }
 
 Dom.quest.acceptRewards = function(){ // quest rewards accepted
-	let quest = Dom.quest.waitForReward; // is this necessary?
+	//let quest = Dom.quest.waitForReward; // is this necessary?
 	if (Dom.currentlyDisplayed.onQuestFinish !== undefined) { // if there is a quest finish function...
 		Dom.currentlyDisplayed.onQuestFinish(); // ...do it
 	}
@@ -1398,7 +1347,7 @@ Dom.quests.possible = function(){
 Dom.quests.completed = function(quest){ // when a quest is completed...
 	let first = true;
 	for(let i = 0; i < Player.quests.completedQuestArray.length; i++){
-		if(Player.quests.completedQuestArray[i] === quest.quest){
+		if(quest !== undefined && Player.quests.completedQuestArray[i] === quest.quest){
 			first = false;
 		}
 	}
@@ -1840,7 +1789,7 @@ Dom.inventory.remove = function(num, all){
 				let toRemove = [Player.inventory.items[num].id, Player.inventory.items[num].type, all - i - 1];
 				document.getElementById("itemInventory").getElementsByTagName("td")[num].innerHTML = ""; // removes the image from the inventory
 				Player.inventory.items[num] = {}; // removes the image from the inventory
-				if(all !== true && all - i !== 1){
+				if(!isNaN(all) && all - i !== 1){
 					Dom.inventory.removeById(toRemove[0],toRemove[1],toRemove[2]);
 				}
 			}
@@ -2783,6 +2732,8 @@ document.getElementById("settingDelete").onclick = function(){
 Dom.testing = {};
 Dom.testing.completeQuest = function(quest){
 	Dom.currentlyDisplayed = quest;
+	Dom.quest.finish(quest);
+	Game.getXP(Dom.currentlyDisplayed.rewards.xp);
 	Dom.quest.acceptRewards();
 	return quest.quest
 }
