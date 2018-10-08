@@ -72,7 +72,7 @@ Keyboard.W = 87;
 Keyboard.S = 83;
 // space (action button)
 Keyboard.SPACE = 32;
-//shift (hide secondary canvas)
+// shift (hide secondary canvas)
 Keyboard.SHIFT = 16;
 
 Keyboard._keys = {};
@@ -108,6 +108,8 @@ Keyboard.isDown = function (keyCode) {
     }
     return this._keys[keyCode];
 };
+
+//  hiding of second canvas when shift key is pressed
 
 window.addEventListener("keydown", function(event){
 	if(event.keyCode == 16){
@@ -384,6 +386,46 @@ Game.canBeShown = function (NPC) {
 	return show;
 }
 
+// checks if two objects are within a certain range of each other
+Game.areNearby = function (obj1, obj2, range) {
+	let distanceValue = distance(obj1, obj2);
+	if (distanceValue <= range) {
+		return true;
+	}
+	else {
+		return false;
+	}
+}
+
+// insert a message into the chat, under the format of "name: message"
+// name is emboldened via <strong> tags
+// if message is an array, a random message from the array will be chosen
+// if message begins with "/me " (including space), the format changes to "this.name message"
+// if singleUse is true, and if Dom.chat.contents contains message, the message is not sent
+// if important is true, the chat message triggers a red flashing prompt around the chat bookmark
+Game.sayChat = function (name, message, singleUse, delay, important) {
+	if (message !== undefined) {
+		if (message.constructor === Array) {
+			// if message is array, pick a random message from the array
+			message = message[random(0, message.length - 1)];
+		}
+		if (message.substring(0, 4) === "/me ") { // reflexive message
+			message = message.substr(4, message.length);
+			if (!(singleUse && Dom.chat.contents.includes("<strong>" + name + "</strong> " + message))) { // check if message should be sent (due to singleUse)
+				Dom.chat.insert("<strong>" + name + "</strong> " + message, delay, important);
+			}
+		}
+		else {
+			if (!(singleUse && Dom.chat.contents.includes("<strong>" + name + "</strong>: " + message))) { // check if message should be sent (due to singleUse)
+				Dom.chat.insert("<strong>" + name + "</strong>: " + message, delay, important);
+			}
+		}
+	}
+	else {
+		console.warn("undefined chat message for " + name);
+	}
+}
+
 //
 // Base Classes (sole role is inheritance)
 //
@@ -462,6 +504,9 @@ class Character extends Thing {
 		
 		this.class = properties.class;
 		
+		this.species = properties.species; // "human", "goblin", "orc", etc.
+		this.subSpecies = properties.subSpecies; // "nilbog goblin", "fire orc", etc.
+		
 		this.hostility = properties.hostility; // used for name colour
 		
 		this.spawnX = properties.x;
@@ -518,22 +563,7 @@ class Character extends Thing {
 	// if singleUse is true, and if Dom.chat.contents contains message, the message is not sent
 	// if important is true, the chat message triggers a red flashing prompt around the chat bookmark
 	say (message, singleUse, delay, important) {
-		if (message !== undefined) {
-			if (message.substring(0, 4) === "/me ") { // reflexive message
-				message = message.substr(4, message.length);
-				if (!(singleUse && Dom.chat.contents.includes("<strong>" + this.name + "</strong> " + message))) { // check if message should be sent (due to singleUse)
-					Dom.chat.insert("<strong>" + this.name + "</strong> " + message, delay, important);
-				}
-			}
-			else {
-				if (!(singleUse && Dom.chat.contents.includes("<strong>" + this.name + "</strong>: " + message))) { // check if message should be sent (due to singleUse)
-					Dom.chat.insert("<strong>" + this.name + "</strong>: " + message, delay, important);
-				}
-			}
-		}
-		else {
-			console.warn("undefined chat message for " + this.name);
-		}
+		Game.sayChat(this.name, message, singleUse, delay, important);
 	}
 	
 	// function to be carried out during Game.render()
@@ -575,6 +605,23 @@ class Character extends Thing {
 				setTimeout(function () {
 					this.respawn();
 				}.bind(this), this.stats.respawnTime);
+				
+				// quest progress
+				if (this.subSpecies = "nilbog goblin") {
+					if (JSON.stringify(Player.inventory.weapon[0]) === JSON.stringify(Items.staff[7])) { // goblin torch equipped
+						if (Player.quests.questProgress.goblinsKilledWithTorch === undefined) {
+							Player.quests.questProgress.goblinsKilledWithTorch = 1;
+						}
+						else {
+							Player.quests.questProgress.goblinsKilledWithTorch++;
+						}
+					}
+				}
+				
+				// weapon chat message (some weapons have a chat message for when they kill something!)
+				if (Player.inventory.weapon[0].chat.kill !== undefined) {
+					Game.sayChat(Player.inventory.weapon[0].name, Player.inventory.weapon[0].chat.kill, false, 100, false)
+				}
 			}
 		}
 		else {
@@ -627,6 +674,8 @@ class Character extends Thing {
 	respawn () {
 		this.loot = null;
 		this.lootQuantities = null;
+		
+		this.hasBeenSiphoned = false; // for quests
 		
 		this.x = this.spawnX;
 		this.y = this.spawnY;
@@ -727,7 +776,7 @@ class Hero extends Attacker {
 		// using || defaults to second value if first is undefined, 0 or ""
 		this.stats.focusSpeed = properties.stats.focusSpeed || 0; // archer only
 		this.stats.maxDamage = properties.stats.maxDamage; // mage only
-		this.stats.blockDefense = properties.stats.blockDefense; // knight only
+		this.stats.blockDefence = properties.stats.blockDefence; // knight only
 		
 		// fishing stats
 		this.stats.fishingSkill = properties.stats.fishingSkill || 0;
@@ -797,28 +846,24 @@ class Hero extends Attacker {
 			}
 		}
 		else if (slowTile === "water") { // in water tile
-			if(this.speed === this.stats.walkSpeed) {
+			if(!this.hasStatusEffect("Swimming")) {
 				this.speed = this.stats.swimSpeed;
-				if(!this.statusEffects.includes({title: "Swimming", effect: "Reduced movement speed",})) { // maybe just make a function to add a status effect? ( tbd )
-					this.statusEffects.push(new statusEffect({title: "Swimming", effect: "Reduced movement speed",}));
-					// remove fire status effect
-					for (var i = 0; i < this.statusEffects.length; i++) {
-						if (this.statusEffects[i].title.substring(0, 4) == "Fire") {
-							this.statusEffects.splice(i,1);
-						}
+				this.statusEffects.push(new statusEffect({title: "Swimming", effect: "Reduced movement speed",}));
+				// remove fire status effect
+				for (var i = 0; i < this.statusEffects.length; i++) {
+					if (this.statusEffects[i].title.substring(0, 4) == "Fire") {
+						this.statusEffects.splice(i,1);
 					}
-					this.updateStatusEffects();
 				}
+				this.updateStatusEffects();
 			}
 		}
 		else if (slowTile === "mud") { // in mud tile
 			// currently mud goes the same speed as swimSpeed
-			if(this.speed === this.stats.walkSpeed) {
+			if(!this.hasStatusEffect("Stuck in the mud")) {
 				this.speed = this.stats.swimSpeed;
-				if(!this.statusEffects.includes({title: "Stuck in the mud", effect: "Reduced movement speed",})) {
-					this.statusEffects.push(new statusEffect({title: "Stuck in the mud", effect: "Reduced movement speed",}));
-					this.updateStatusEffects();
-				}
+				this.statusEffects.push(new statusEffect({title: "Stuck in the mud", effect: "Reduced movement speed",}));
+				this.updateStatusEffects();
 			}
 		}
 		else {
@@ -826,8 +871,9 @@ class Hero extends Attacker {
 		}
 		
 		// swiftness status effect
-		if (this.hasStatusEffect("Swiftness", 0, 9)) {
-			this.speed *= 1 + swiftessStatusEffect.info.speedIncrease;
+		let swiftessStatusEffect = this.statusEffects.find(statusEffect => statusEffect.title.substring(0, 9) === "Swiftness")
+		if (swiftessStatusEffect !== undefined) {
+			this.speed *= 1 + (swiftessStatusEffect.info.speedIncrease / 100);
 		}
 		
 		if (!collision) { return; }
@@ -961,6 +1007,14 @@ class Hero extends Attacker {
 						// give fish
 						Dom.inventory.give(this.channelling);
 						
+						// quest progress
+						if (Player.quests.questProgress.itemsFishedUp !== undefined) {
+							Player.quests.questProgress.itemsFishedUp++;
+						}
+						else {
+							Player.quests.questProgress.itemsFishedUp = 1;
+						}
+						
 						// chat message
 						if (this.channelling.fishingType === "fish") { // fish
 							Dom.chat.insert("You caught a " + this.channelling.length + "cm <strong>" + this.channelling.name + "</strong>!");
@@ -968,7 +1022,7 @@ class Hero extends Attacker {
 						else if (this.channelling.fishingType === "waterjunk") { // junk item
 							Dom.chat.insert("You fished up a <strong>" + this.channelling.name + "</strong>.");
 						}
-						else if (this.channelling.fishingType === "waterjunk") { // misc
+						else if (this.channelling.fishingType === "watermisc") { // misc
 							Dom.chat.insert("You reeled up a <strong>" + this.channelling.name + "</strong>.");
 						}
 						else {
@@ -1153,7 +1207,7 @@ class Hero extends Attacker {
 				let tileNum = map.getTile(0, map.getCol(this.x), map.getRow(this.y + this.height/2));
 				if (map.interactWithTile !== undefined) {
 					map.interactWithTile(tileNum, this.x, this.y + this.height/2);
-					Dom.quests.active();
+					//Dom.quests.active();
 				}
 				interactionDone = true; // interaction might not have happened, but this is always the last thing to be done anyway so it can be set to true
 			}
@@ -1352,13 +1406,13 @@ class Projectile extends Thing {
 				Game.updateScreenPosition(this); // update projectile position
 				if (this.isTouching(to[i][x])) { // check projectile is touching character it wants to damage
 					
-					if (random(0, 100) < to[i][x].stats.dodgeChance) { // hit dodged
+					if (random(0, 99) < to[i][x].stats.dodgeChance) { // hit dodged
 						this.damageDealt.push({enemy: to[i][x], damage: "hit dodged", critical: false});
 					}
 					else {
 						// damage
 						let blockDefence = 0;
-						if (to[i][x].channelling === "block") { // add block defense if the target is blocking
+						if (to[i][x].channelling === "block") { // add block defence if the target is blocking
 							blockDefence = to[i][x].stats.blockDefence;
 						}
 						
@@ -1383,7 +1437,7 @@ class Projectile extends Thing {
 							dmgDealt *= 1 + strengthStatusEffect.info.damageIncrease;
 						}
 						
-						if (random(0, 100) < attacker.stats.criticalChance) { // critical hit
+						if (random(0, 99) < attacker.stats.criticalChance) { // critical hit
 							dmgDealt *= 2
 							to[i][x].takeDamage(dmgDealt)
 							this.damageDealt.push({enemy: to[i][x], damage: dmgDealt, critical: true});
@@ -1567,6 +1621,10 @@ class Dummy extends Character {
 // moves and attacks in a hostile way...
 class Enemy extends Attacker {
 	constructor(properties) {
+		if (properties.template !== undefined) {
+			properties = Object.assign(properties.template, properties); // add template properties to main properties object
+		}
+		
 		super(properties);
 		
 		// combat traits (specific to enemy)
@@ -2635,9 +2693,13 @@ Game.update = function (delta) {
 						if (role.role === "questStart") {
 							// quest is ready to be accepted
 							if (!Player.quests.activeQuestArray.includes(role.quest.quest) && // quest isn't currently active
-							!Player.quests.completedQuestArray.includes(role.quest.quest) && // quest hasn't aleady been completed
 							role.quest.levelRequirement <= this.hero.level && // player is a high enough level
-							isContainedInArray(role.quest.questRequirements, Player.quests.completedQuestArray)) { // quest requirements have been completed
+							isContainedInArray(role.quest.questRequirements, Player.quests.completedQuestArray) && // quest requirements have been completed
+                            ((role.quest.repeatTime === undefined && // not a daily quest, and...
+                            !Player.quests.completedQuestArray.includes(role.quest.quest)) || // quest hasn't aleady been completed, or...
+                            (role.quest.repeatTime === "daily" && // is a daily quest, and...
+                            (Player.quests.questLastFinished[role.quest.questArea][role.quest.id] === undefined || // has not been done before, or...
+                            Player.quests.questLastFinished[role.quest.questArea][role.quest.id] < getFullDate())))) { // was done at least one day ago
 								
 								if (typeof role.quest.startRewards !== "undefined" && typeof role.quest.startRewards.items !== "undefined") {
 									if (Dom.inventory.requiredSpace(role.quest.startRewards.items, role.quest.startRewards.itemQuantities)) {
@@ -2674,8 +2736,9 @@ Game.update = function (delta) {
 						else if (role.role === "questFinish") {
 							// check if quest is ready to be finished
 							if (Player.quests.activeQuestArray.includes(role.quest.quest) && // quest is currently active
-							!Player.quests.completedQuestArray.includes(role.quest.quest)) { // quest has not already been completed
-								
+                            ((role.quest.repeatTime === undefined && // not a daily quest, and...
+							!Player.quests.completedQuestArray.includes(role.quest.quest)) || // quest has not already been completed, or...
+                            role.quest.repeatTime === "daily")) { // is a daily quest
 								// check if quest conditions have been fulfilled
 								if(role.quest.isCompleted()[role.quest.objectives.length - 1]) {
 									if (typeof role.quest.rewards !== "undefined" && typeof role.quest.rewards.items !== "undefined") {
@@ -2780,6 +2843,14 @@ Game.update = function (delta) {
 							textArray.push(role.chooseText);
 							functionArray.push(Dom.text.page);
 							parameterArray.push([NPC.name, NPC.name, role.chat, role.buttons, role.functions]);
+						}
+						
+						// button just runs a function
+						else if (role.role === "function") {
+							// NPC chat appears as an option in choose DOM
+							textArray.push(role.chooseText);
+							functionArray.push(role.onClick);
+							parameterArray.push([]);
 						}
 						
 					}
@@ -3457,7 +3528,12 @@ Game.render = function (delta) {
 				this.ctx.textAlign = "left";
 				this.ctx.font = "18px MedievalSharp";
 				
-				this.ctx.fillText(damageRound(this.projectiles[i].damageDealt[x].damage), this.projectiles[i].screenX, this.projectiles[i].screenY);
+				let damage = this.projectiles[i].damageDealt[x].damage;
+				if (damage !== "hit dodged") {
+					damage = damageRound(damage); // round damage to 1d.p. if it is an integer value
+				}
+				
+				this.ctx.fillText(damage, this.projectiles[i].screenX, this.projectiles[i].screenY);
 			}
 			
 			this.ctx.globalAlpha = 1; // restore transparency if it was changed above (e.g: mage channelled projectile)
@@ -3606,7 +3682,7 @@ Game.secondary.render = function () {
 			if (Game.hero.statusEffects[i].title == "Fish bait") {
 				iconNum = 0;
 			}
-			else if (Game.hero.statusEffects[i].title == "Speed I") {
+			else if (Game.hero.statusEffects[i].title == "Swiftness I") {
 				iconNum = 1;
 			}
 			else if (Game.hero.statusEffects[i].title == "Fire I") {
@@ -3631,7 +3707,7 @@ Game.secondary.render = function () {
 				iconNum = 8;
 			}
 			else { // no status effect image
-				iconNum = 0; // fire image used as placeholder
+				iconNum = 2; // fire image used as placeholder
 				console.error("Status effect " + Game.hero.statusEffects[i].title + " icon not found");
 			}
 			this.ctx.drawImage(Game.statusImage, 0, 27 * iconNum, 27, 27, 270 + i * 35, 10, 27, 27);

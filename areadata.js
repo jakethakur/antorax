@@ -33,13 +33,13 @@ var LootTables = { // loot table templates
 				Infinity,		// 1
 			],
 		},
-		/*{ // goblin brewed potion (to be made)
-			item: Items.bag[3],
+		{ // goblin brewed potion
+			item: Items.consumable[6],
 			chance: [
-				80,				// 0
+				90,				// 0
 				Infinity,		// 1
 			],
-		},*/
+		},
 		{ // goblin sewn bag
 			item: Items.bag[3],
 			chance: [
@@ -60,8 +60,150 @@ var LootTables = { // loot table templates
 				Infinity,		// 1
 			],
 		},
+		{ // goblin eye
+			item: Items.item[10],
+			chance: [
+				80,				// 0
+				95,				// 1
+				Infinity,		// 2
+			],
+		},
 	],
-}
+};
+
+var EnemyTemplates = {
+	nilbog: {
+		goblinRockthrower: {
+			image: "rockGoblin",
+			deathImage: "goblinCorpse",
+			name: "Goblin Rockthrower",
+			species: "goblin",
+			subSpecies: "nilbog goblin",
+			hostility: "hostile",
+			level: 2,
+			stats: {
+				damage: 3,
+				walkSpeed: 100,
+				maxHealth: 10,
+				range: 200,
+				healthRegen: 0.4,
+				reloadTime: 2000,
+				lootTime: 10000,
+				respawnTime: 11000,
+				variance: 100,
+			},
+			leashRadius: 350,
+			xpGiven: 10,
+			projectile: {
+				image: "rock",
+			},
+			lootTableTemplate: LootTables.nilbogGoblin,
+			lootTable: [
+				{ // polished rock
+					item: Items.item[4],
+					chance: [
+						20,				// 0
+						70,				// 1
+						95,				// 2
+						Infinity,		// 3
+					],
+				},
+			],
+			inventorySpace: 8,
+		},
+		goblinSkirmisher: {
+			image: "swordGoblin",
+			deathImage: "goblinCorpse",
+			name: "Goblin Skirmisher",
+			species: "goblin",
+			subSpecies: "nilbog goblin",
+			hostility: "hostile",
+			level: 2,
+			stats: {
+				damage: 2,
+				walkSpeed: 90,
+				maxHealth: 10,
+				defence: 2,
+				range: 60,
+				healthRegen: 0.4,
+				reloadTime: 1500,
+				lootTime: 10000,
+				respawnTime: 11000,
+			},
+			leashRadius: 350,
+			xpGiven: 10,
+			projectile: {
+				image: "melee",
+			},
+			lootTableTemplate: LootTables.nilbogGoblin,
+			inventorySpace: 8,
+		},
+		goblinBruiser: {
+			image: "hammerGoblin",
+			deathImage: "goblinCorpse",
+			name: "Goblin Bruiser",
+			species: "goblin",
+			subSpecies: "nilbog goblin",
+			hostility: "hostile",
+			level: 3,
+			stats: {
+				damage: 4,
+				walkSpeed: 70,
+				maxHealth: 10,
+				defence: 3,
+				range: 60,
+				healthRegen: 0.4,
+				reloadTime: 2000,
+				lootTime: 10000,
+				respawnTime: 11000,
+			},
+			leashRadius: 350,
+			xpGiven: 10,
+			projectile: {
+				image: "melee",
+			},
+			lootTableTemplate: LootTables.nilbogGoblin,
+			inventorySpace: 8,
+		},
+		fireGoblin: {
+			image: "fireGoblin",
+			deathImage: "goblinCorpse",
+			name: "Fire Goblin",
+			species: "goblin",
+			subSpecies: "nilbog goblin",
+			hostility: "hostile",
+			level: 4,
+			stats: {
+				damage: 3,
+				walkSpeed: 95,
+				maxHealth: 14,
+				defence: 1,
+				range: 140,
+				reloadTime: 2250,
+				healthRegen: 0.4,
+				flaming: 1,
+				lootTime: 10000,
+				respawnTime: 20000,
+			},
+			leashRadius: 350,
+			xpGiven: 20,
+			projectile: {
+				image: "fire",
+			},
+			lootTableTemplate: LootTables.nilbogGoblin,
+			lootTable: [
+				{ // firey rock
+					item: Items.item[5],
+					chance: [
+						50,				// 0
+						Infinity,		// 1
+					],
+				},
+			],
+			inventorySpace: 8,
+		},
+	},
+};
 
 var Areas = {
 	
@@ -189,14 +331,6 @@ var Areas = {
 				},
 				roles: [
 					{
-						quest: Quests.eaglecrestLoggingCamp[6], 
-						role: "questStart",
-					},
-					{
-						quest: Quests.eaglecrestLoggingCamp[6], 
-						role: "questFinish",
-					},
-					{
 						quest: Quests.eaglecrestLoggingCamp[7], 
 						role: "questStart",
 					},
@@ -218,6 +352,22 @@ var Areas = {
 					},
 					{
 						quest: Quests.eaglecrestLoggingCamp[9], 
+						role: "questFinish",
+					},
+					{
+						quest: Quests.eaglecrestLoggingCamp[10], 
+						role: "questStart",
+					},
+					{
+						quest: Quests.eaglecrestLoggingCamp[10], 
+						role: "questFinish",
+					},
+					{
+						quest: Quests.fishing[0], 
+						role: "questStart",
+					},
+					{
+						quest: Quests.fishing[0], 
 						role: "questFinish",
 					},
 					{
@@ -235,6 +385,7 @@ var Areas = {
 					shopLeave: "Heheh, see you soon!",
 					inventoryFull: "You've lots of fish in your bags, but you've not any space for your rewards!",
 					tooPoor: "You can't afford that, but don't let that stop ya from fishing!",
+					questProgress: "It's a great day to fish, heheh.",
 					// "&#9835; I'm fiiiiiiiishing in the rain! &#9835;"
 				},
 				canBeShown: function () {
@@ -411,6 +562,7 @@ var Areas = {
 		
 		NPCs: [
 			{
+				// id: 0,
 				x: 884,
 				y: 440,
 				image: "teper",
@@ -436,6 +588,14 @@ var Areas = {
 					},
 					{
 						quest: Quests.eaglecrestLoggingCamp[3], 
+						role: "questFinish"
+					},
+					{
+						quest: Quests.eaglecrestLoggingCamp[5], 
+						role: "questStart"
+					},
+					{
+						quest: Quests.eaglecrestLoggingCamp[5], 
 						role: "questFinish"
 					},
 					{
@@ -477,13 +637,14 @@ var Areas = {
 				],
 				chat: {
 					notUnlockedRoles: "I'm busy. Come back later.",
-					chooseText: "What do you want?",
+					chooseChat: "What do you want?",
 					questProgress: "Get on with your work!",
 					questComplete: "There's lots of work still to be done.",
 					inventoryFull: "You have no space to hold this. Empty your bags a bit and come back.",
 				},
 			},
 			{
+				// id: 1,
 				x: 365,
 				y: 870,
 				image: "saral",
@@ -515,6 +676,7 @@ var Areas = {
 				},
 			},
 			{
+				// id: 2,
 				x: 1166,
 				y: 300,
 				image: "mailman",
@@ -527,11 +689,11 @@ var Areas = {
 				},
 				roles: [
 					{
-						quest: Quests.eaglecrestLoggingCamp[5], 
+						quest: Quests.eaglecrestLoggingCamp[6], 
 						role: "questStart"
 					},
 					{
-						quest: Quests.eaglecrestLoggingCamp[5], 
+						quest: Quests.eaglecrestLoggingCamp[6], 
 						role: "questFinish"
 					},
 				],
@@ -545,6 +707,7 @@ var Areas = {
 				},
 			},
 			{
+				// id: 3,
 				x: 680,
 				y: 540,
 				image: "identifier",
@@ -570,6 +733,7 @@ var Areas = {
 				}
 			},
 			{
+				// id: 4,
 				x: 1160,
 				y: 100,
 				image: "soulHealer",
@@ -582,6 +746,14 @@ var Areas = {
 				},
 				roles: [
 					{
+						quest: Quests.eaglecrestLoggingCamp[13], 
+						role: "questStart"
+					},
+					{
+						quest: Quests.eaglecrestLoggingCamp[13], 
+						role: "questFinish"
+					},
+					{
 						role: "soulHealer",
 					},
 				],
@@ -590,9 +762,11 @@ var Areas = {
 					cannotBeHealedText: "When you die, you will earn some future XP slower than normal. If this happens to you and you wish to be cleansed of this, come to me and I can remove it for you for a small price. May the purity of the demigods be with you.",
 					healedText: "May the purity of the demigods be with you.",
 					tooPoor: "I don't think you can afford that.",
+					questProgress: "If you use the sceptre near dead enemies, soul essence will rush inside it.",
 				},
 			},
 			{
+				// id: 5,
 				x: 435,
 				y: 372,
 				image: "galuthel",
@@ -605,21 +779,40 @@ var Areas = {
 				},
 				roles: [
 					{
+						quest: Quests.eaglecrestLoggingCamp[11], 
+						role: "questStart"
+					},
+					{
+						quest: Quests.eaglecrestLoggingCamp[11], 
+						role: "questFinish"
+					},
+					{
+						quest: Quests.eaglecrestLoggingCamp[12], 
+						role: "questStart"
+					},
+					{
+						quest: Quests.eaglecrestLoggingCamp[12], 
+						role: "questFinish"
+					},
+					{
 						sold: [Items.consumable[7]],
 						role: "merchant",
 						roleRequirement: function () {
-							return Player.quests.activeQuestArray.includes("Strengthen Defences");
+							return Player.quests.activeQuestArray.includes("Strengthening Defences");
 						}
 					},
 				],
 				chat: {
 					notUnlockedRoles: "I think we have enough traps out at the moment. Come back in a bit.",
+					chooseChat: "How's it going?",
 					shopGreeting: "If you're out of traps, I'll give you some more.",
 					shopLeave: "Let's crush those goblins.",
 					inventoryFull: "Empty your inventory a bit and come back.",
+					questComplete: "I'll have more traps for you to place in a bit. Come back tomorrow.",
 				},
 			},
 			{
+				// id: 6,
 				x: 576,
 				y: 984,
 				image: "itemBuyer",
@@ -637,6 +830,18 @@ var Areas = {
 							return Player.quests.completedQuestArray.includes("Retrieval of Logs");
 						}
 					},
+					{
+						role: "function",
+						chooseText: "I don't suppose you have a vial of goblin blood?",
+						onClick: function () {
+							Game.NPCs[6].say("Why yes, I have had some goblin blood handed into me. Sure, you can have it - I haven't got any use for it.")
+						},
+						roleRequirement: function () {
+							// check that the player has "potion making" active and hasn't already got some goblin blood
+							return Player.quests.activeQuestArray.includes("Potion Making") && !Dom.inventory.check(11, "item", 1);
+							// tbd also check that they haven't added it to the potion
+						}
+					},
 				],
 				chat: {
 					notUnlockedRoles: "I'm not sure you have anything I can buy from you. Come back a bit later.",
@@ -644,6 +849,7 @@ var Areas = {
 				},
 			},
 			{
+				// id: 7,
 				x: 1111,
 				y: 633,
 				image: "darkbrew",
@@ -752,7 +958,7 @@ var Areas = {
 				level: 15,
 				stats: {
 					maxHealth: 100,
-					defense: 2,
+					defence: 2,
 				},
 				roles: [
 					{
@@ -823,6 +1029,7 @@ var Areas = {
 				"goblinCorpse",
 				"mailcart",
 				"trap",
+				"torch",
 			],
 			
 			addresses: [
@@ -837,6 +1044,7 @@ var Areas = {
 				"./assets/corpses/deadGoblin.png",
 				"./assets/objects/cartDestroyed.png",
 				"./assets/objects/trap.png",
+				"./assets/npcs/torch.png",
 			],
 		},
 		
@@ -860,6 +1068,40 @@ var Areas = {
 			},
 		],
 		
+		NPCs: [
+			{
+				x: 858,
+				y: 502,
+				image: "torch",
+				name: "Goblin Torch",
+				hostility: "neutral",
+				level: 5,
+				stats: {
+					maxHealth: 75,
+					defence: 5,
+				},
+				roles: [
+					{
+						quest: Quests.eaglecrestLoggingCamp[14], 
+						role: "questStart"
+					},
+					{
+						quest: Quests.eaglecrestLoggingCamp[14], 
+						role: "questFinish"
+					},
+				],
+				chat: {
+					notUnlockedRoles: "Very. Bored.",
+					questProgress: "Keep going. Please.",
+					questComplete: "I hope we shall meet again. Soon.",
+					inventoryFull: "You cannot hold that.",
+				},
+				canBeShown: function () {
+					return !Player.quests.activeQuestArray.includes("Partners in Goblin Destruction");
+				},
+			},
+		],
+		
 		chests: [
 			{
 				x: 1140,
@@ -871,7 +1113,7 @@ var Areas = {
 				inventorySpace: 8,
 				disappearAfterOpened: false,
 				canBeShown: function () {
-					return (Player.quests.activeQuestArray.includes("Making Yourself Useful") || Player.quests.activeQuestArray.includes("First Class Recovery"));
+					return (Player.quests.activeQuestArray.includes("First Class Recovery") || Player.quests.completedQuestArray.includes("First Class Recovery"));
 				},
 			},
 		],
@@ -880,253 +1122,46 @@ var Areas = {
 			{
 				x: 1070, // at goblin camp
 				y: 400,
-				image: "rockGoblin",
-				deathImage: "goblinCorpse",
-				name: "Goblin Rockthrower",
-				hostility: "hostile",
-				level: 2,
-				stats: {
-					damage: 3,
-					walkSpeed: 100,
-					maxHealth: 10,
-					range: 200,
-					healthRegen: 0.4,
-					reloadTime: 2000,
-					lootTime: 10000,
-					respawnTime: 11000,
-					variance: 100,
-				},
-				leashRadius: 350,
-				xpGiven: 10,
-				projectile: {
-					image: "rock",
-				},
-				lootTableTemplate: LootTables.nilbogGoblin,
-				lootTable: [
-					{ // polished rock
-						item: Items.item[4],
-						chance: [
-							20,				// 0
-							70,				// 1
-							95,				// 2
-							Infinity,		// 3
-						],
-					},
-				],
-				inventorySpace: 8,
+				template: EnemyTemplates.nilbog.goblinRockthrower,
 			},
 			{
 				x: 630, // south west (near logging camp)
 				y: 1320,
-				image: "rockGoblin",
-				deathImage: "goblinCorpse",
-				name: "Goblin Rockthrower",
-				hostility: "hostile",
-				level: 2,
-				stats: {
-					damage: 3,
-					walkSpeed: 100,
-					maxHealth: 10,
-					range: 200,
-					healthRegen: 0.4,
-					reloadTime: 2000,
-					lootTime: 10000,
-					respawnTime: 11000,
-					variance: 100,
-				},
-				leashRadius: 350,
-				xpGiven: 10,
-				projectile: {
-					image: "rock",
-				},
-				lootTableTemplate: LootTables.nilbogGoblin,
-				lootTable: [
-					{ // polished rock
-						item: Items.item[4],
-						chance: [
-							20,				// 0
-							70,				// 1
-							95,				// 2
-							Infinity,		// 3
-						],
-					},
-				],
-				inventorySpace: 8,
+				template: EnemyTemplates.nilbog.goblinRockthrower,
 			},
 			{
 				x: 900, // at goblin camp
 				y: 300,
-				image: "swordGoblin",
-				deathImage: "goblinCorpse",
-				name: "Goblin Skirmisher",
-				hostility: "hostile",
-				level: 2,
-				stats: {
-					damage: 2,
-					walkSpeed: 90,
-					maxHealth: 10,
-					defence: 2,
-					range: 60,
-					healthRegen: 0.4,
-					reloadTime: 1500,
-					lootTime: 10000,
-					respawnTime: 11000,
-				},
-				leashRadius: 350,
-				xpGiven: 10,
-				projectile: {
-					image: "melee",
-				},
-				lootTableTemplate: LootTables.nilbogGoblin,
-				inventorySpace: 8,
+				template: EnemyTemplates.nilbog.goblinSkirmisher,
 			},
 			{
 				x: 1240, // south (between bogs)
 				y: 1240,
-				image: "swordGoblin",
-				deathImage: "goblinCorpse",
-				name: "Goblin Skirmisher",
-				hostility: "hostile",
-				level: 2,
-				stats: {
-					damage: 2,
-					walkSpeed: 90,
-					maxHealth: 10,
-					defence: 2,
-					range: 60,
-					healthRegen: 0.4,
-					reloadTime: 1500,
-					lootTime: 10000,
-					respawnTime: 20000, // longer respawn time
-				},
-				leashRadius: 350,
-				xpGiven: 10,
-				projectile: {
-					image: "melee",
-				},
-				lootTableTemplate: LootTables.nilbogGoblin,
-				inventorySpace: 8,
+				template: EnemyTemplates.nilbog.goblinSkirmisher,
+				//template.stats.respawnTime: 20000, // longer respawn time (currently doesn't work)
 			},
 			{
 				x: 860, // next to mail cart (only present when that quest is active)
 				y: 915,
-				image: "swordGoblin",
-				deathImage: "goblinCorpse",
-				name: "Goblin Skirmisher",
-				hostility: "hostile",
-				level: 2,
-				stats: {
-					damage: 2,
-					walkSpeed: 90,
-					maxHealth: 10,
-					defence: 2,
-					range: 60,
-					healthRegen: 0.4,
-					reloadTime: 1500,
-					lootTime: 10000,
-					respawnTime: 11000,
-				},
-				leashRadius: 350,
-				xpGiven: 10,
-				projectile: {
-					image: "melee",
-				},
-				lootTableTemplate: LootTables.nilbogGoblin,
-				inventorySpace: 8,
-				canBeShown: function () { // only show when mail cart quest is active
-					return (Player.quests.activeQuestArray.includes("Making Yourself Useful") || Player.quests.activeQuestArray.includes("First Class Recovery"));
+				template: EnemyTemplates.nilbog.goblinSkirmisher,
+				canBeShown: function () { // only show after mail cart quest has been started
+					return (Player.quests.activeQuestArray.includes("First Class Recovery") || Player.quests.completedQuestArray.includes("First Class Recovery"));
 				},
 			},
 			{
 				x: 1000, // at goblin camp
 				y: 250,
-				image: "hammerGoblin",
-				deathImage: "goblinCorpse",
-				name: "Goblin Bruiser",
-				hostility: "hostile",
-				level: 3,
-				stats: {
-					damage: 4,
-					walkSpeed: 70,
-					maxHealth: 10,
-					defence: 3,
-					range: 60,
-					healthRegen: 0.4,
-					reloadTime: 2000,
-					lootTime: 10000,
-					respawnTime: 11000,
-				},
-				leashRadius: 350,
-				xpGiven: 10,
-				projectile: {
-					image: "melee",
-				},
-				lootTableTemplate: LootTables.nilbogGoblin,
-				inventorySpace: 8,
+				template: EnemyTemplates.nilbog.goblinBruiser,
 			},
 			{
 				x: 1510, // outside tower
 				y: 640,
-				image: "hammerGoblin",
-				deathImage: "goblinCorpse",
-				name: "Goblin Bruiser",
-				hostility: "hostile",
-				level: 3,
-				stats: {
-					damage: 4,
-					walkSpeed: 70,
-					maxHealth: 10,
-					defence: 3,
-					range: 60,
-					healthRegen: 0.4,
-					reloadTime: 2000,
-					lootTime: 10000,
-					respawnTime: 11000,
-				},
-				leashRadius: 350,
-				xpGiven: 10,
-				projectile: {
-					image: "melee",
-				},
-				lootTableTemplate: LootTables.nilbogGoblin,
-				inventorySpace: 8,
+				template: EnemyTemplates.nilbog.goblinBruiser,
 			},
 			{
 				x: 1050, // at goblin camp
 				y: 100,
-				image: "fireGoblin",
-				deathImage: "goblinCorpse",
-				name: "Fire Goblin",
-				hostility: "hostile",
-				level: 4,
-				stats: {
-					damage: 3,
-					walkSpeed: 95,
-					maxHealth: 14,
-					defence: 1,
-					range: 140,
-					reloadTime: 2250,
-					healthRegen: 0.4,
-					flaming: 1,
-					lootTime: 10000,
-					respawnTime: 20000,
-				},
-				leashRadius: 350,
-				xpGiven: 20,
-				projectile: {
-					image: "fire",
-				},
-				lootTableTemplate: LootTables.nilbogGoblin,
-				lootTable: [
-					{ // firey rock
-						item: Items.item[5],
-						chance: [
-							50,				// 0
-							Infinity,		// 1
-						],
-					},
-				],
-				inventorySpace: 8,
+				template: EnemyTemplates.nilbog.fireGoblin,
 			},
 		],
 		

@@ -652,6 +652,9 @@ var Items = {
 				damage: "2",
 				flaming: 1,
 			},
+			chat: {
+				kill: ["Burn with me!", "Must. Kill.", "Keep going. Please. Kill them all.", "Goblin idiots must die!"],
+			}
 		},
 	],
 	bow: [
@@ -848,6 +851,13 @@ var Items = {
 				// double chosen stats
 				swimSpeed: "+120/s", // perhaps display as water walking?
 			},
+			multiplier: [
+				{
+					stat: "chosenStat",
+					multiplier: 2,
+					slots: ["helm", "chest", "greaves", "boots"],
+				},
+			],
 		},
 	],
 	currency: [
@@ -870,14 +880,15 @@ var Items = {
 			name: "Gold",
 			type: "currency",
 			image: "assets/items/currency/2.png",
+			use: "The primary currency of Antorax",
 			stack: 256,
 		},
 		{
-			id: 2,
-			name: "Fishing Token",
+			id: 3,
+			name: "Fishing Seal",
 			type: "currency",
 			image: "assets/items/currency/3.png",
-			lore: "Can be used to buy fishing related items from a fisher(wo)man.",
+			use: "Can be used to buy fishing related items from a fisher(wo)man.",
 			stack: 256,
 		},
 	],
@@ -910,7 +921,7 @@ var Items = {
 			name: "Goblin Sewn Bag",
 			type: "bag",
 			image: "assets/items/bag/3.png",
-			sellPrice: 5,
+			sellPrice: 3,
 			rarity: "unique",
 			size: 12,
 		},
@@ -996,6 +1007,60 @@ var Items = {
 			image: "assets/items/item/7.png",
 			lore: "The goblins haven't looked after this rod very well...",
 		},
+		{
+			id: 8,
+			name: "The Sceptre of Souls",
+			type: "item",
+			rarity: "mythic",
+			quest: true,
+			image: "assets/items/item/8.png",
+			onClickText: "Siphons the soul essence of any nearby enemy corpses.",
+			onClick: function () {
+				Game.enemies.forEach(enemy => {
+					if (Game.areNearby(Game.hero, enemy, 100)) { // check the player is within 2 tiles of an enemy
+						if (enemy.isCorpse && !enemy.hasBeenSiphoned) { // check the enemy is a corpse
+							enemy.hasBeenSiphoned = true;
+							if (Player.quests.questProgress.soulSceptreEnergy === undefined) {
+								Player.quests.questProgress.soulSceptreEnergy = 1;
+							}
+							else {
+								Player.quests.questProgress.soulSceptreEnergy++;
+							}
+							Dom.quests.active();
+						}
+					}
+				});
+			},
+			lore: "The energy stored within this sceptre can be used to cure even the worst XP fatigue.",
+		},
+		{
+			id: 9,
+			name: "Inert Potion",
+			type: "item",
+			quest: true,
+			image: "assets/items/item/9.png",
+			lore: "Try adding some ingredients...",
+		},
+		{
+			id: 10,
+			name: "Goblin Eye",
+			rarity: "junk",
+			type: "item",
+			image: "assets/items/item/10.png",
+			lore: "Has some alchemical uses.",
+			sellPrice: 1,
+			sellQuantity: 2,
+			stack: 32,
+		},
+		{
+			id: 11,
+			name: "Vial of Goblin Blood",
+			rarity: "junk",
+			type: "item",
+			quest: true,
+			image: "assets/items/item/10.png",
+			lore: "Has some alchemical uses.",
+		},
 	],
 	consumable: [
 		{
@@ -1080,6 +1145,7 @@ var Items = {
 			name: "Goblin Brewed Potion",
 			type: "consumable",
 			image: "assets/items/consumable/6.png",
+			sellPrice: 1,
 			onClickText: "I wonder what this does?",
 			onClick: function (inventoryPosition) {
 				// remove the item
@@ -1100,8 +1166,9 @@ var Items = {
 						// give fire I status effect to player
 						Game.statusEffects.fire("I", Game.hero);
 						break;
-					// more TBD...
-					default:
+					case 3:
+						// deal 50 damage over 10 seconds to the player
+						Game.statusEffects.poison(50, 10, Game.hero);
 						break;
 				}
 			}
@@ -1115,19 +1182,26 @@ var Items = {
 			onClickText: "Places a trap (can only be used in The Nilbog)",
 			lore: "Like a bear trap, but ickier.",
 			onClick: function (inventoryPosition) {
-				if (Game.areaName = "nilbog") { // trap can only be placed in the nilbog
+				if (Game.areaName === "nilbog") { // trap can only be placed in the nilbog
 					// remove the item
 					Dom.inventory.remove(inventoryPosition);
 					
 					// quest progress
-					//tbd
+					if (Player.quests.questProgress.goblinTrapsPlaced !== undefined) {
+						Player.quests.questProgress.goblinTrapsPlaced++;
+					}
+					else {
+						Player.quests.questProgress.goblinTrapsPlaced = 1;
+					}
 					
 					// place trap
 					let trapObject = {
+						map: map,
+						map: map,
 						image: "trap",
 						name: "Goblin Trap",
 						x: Game.hero.x,
-						y: Game.hero.x,
+						y: Game.hero.y + 40,
 					};
 					Game.things.push(new Thing(trapObject)); // place trap in the current area
 					Areas.nilbog.things.push(trapObject); // save in areadata.js for if the player leaves and rejoins the area
@@ -1597,7 +1671,10 @@ var Items = {
 			fishingType: "waterjunk",
 			type: "fish",
 			image: "assets/items/fish/17.png",
+			rarity: "junk",
 			sellPrice: 1,
+			sellQuantity: 2,
+			// sell quantity 2 TBD
 			lore: "I wonder who this belongs to?",
 			areas: [], 
 			waterTypes: [
@@ -1616,6 +1693,7 @@ var Items = {
 			fishingType: "waterjunk",
 			type: "fish",
 			image: "assets/items/fish/18.png",
+			rarity: "junk",
 			sellPrice: 1,
 			sellQuantity: 8,
 			stack: 64,
@@ -1636,6 +1714,7 @@ var Items = {
 			fishingType: "waterjunk",
 			type: "fish",
 			image: "assets/items/fish/19.png",
+			rarity: "junk",
 			sellPrice: 1,
 			sellQuantity: 4,
 			stack: 16,
@@ -1656,6 +1735,7 @@ var Items = {
 			fishingType: "waterjunk",
 			type: "fish",
 			image: "assets/items/fish/20.png",
+			rarity: "junk",
 			sellPrice: 1,
 			sellQuantity: 4,
 			stack: 16,
@@ -1676,6 +1756,7 @@ var Items = {
 			fishingType: "waterjunk",
 			type: "fish",
 			image: "assets/items/fish/21.png",
+			rarity: "junk",
 			sellPrice: 1,
 			sellQuantity: 4,
 			stack: 16,
@@ -1696,8 +1777,8 @@ var Items = {
 			fishingType: "waterjunk",
 			type: "fish",
 			image: "assets/items/fish/22.png",
-			sellPrice: 20,
-			sellQuantity: 20,
+			rarity: "junk",
+			sellPrice: 1,
 			stack: 264,
 			lore: "An old coin from before Antorax was formed.",
 			areas: [], 
@@ -1717,8 +1798,8 @@ var Items = {
 			fishingType: "waterjunk",
 			type: "fish",
 			image: "assets/items/fish/23.png",
-			sellPrice: 20,
-			sellQuantity: 20,
+			rarity: "junk",
+			sellPrice: 1,
 			stack: 264,
 			lore: "It's too tarnished to be used as currency.",
 			areas: [], 
@@ -1842,7 +1923,7 @@ var Items = {
 			type: "fish",
 			image: "assets/items/fish/26.png",
 			rarity: "mythic",
-			sellPrice: 1,
+			sellPrice: 2,
 			lore: "I wonder what this opens?",
 			areas: [], 
 			waterTypes: [
@@ -1867,8 +1948,8 @@ var Items = {
 			fishingType: "waterjunk",
 			type: "fish",
 			image: "assets/items/fish/27.png",
-			rarity: "mythic",
-			sellPrice: 2,
+			rarity: "junk",
+			sellPrice: 1,
 			lore: ["The message's ink appears to have washed off.", 
 			"The message reads: 'Dearest Audrey, I recently got into alchemy. I think I need an arm donor. Can use one of yours?'", 
 			"The message reads: 'Dearest Audrey, I hope you are well. Please send return with some gold. I will pay you back.", 
@@ -1887,6 +1968,28 @@ var Items = {
 			},
 			clicksToCatch: 1,
 			timeToCatch: 750,
+		},
+		{
+			id: 28,
+			name: "Direweed",
+			fishingType: "waterjunk",
+			type: "fish",
+			image: "assets/items/fish/28.png",
+			rarity: "junk",
+			sellPrice: 1,
+			sellQuantity: 8,
+			stack: 64,
+			lore: "Has some alchemical uses.",
+			areas: [], 
+			waterTypes: [
+				"freshwater",
+				"brackish",
+				"marine",
+			],
+			skillRequirement: {
+				min: 0,
+				max: 60,
+			},
 		},
 		/*{
 			id: 22,

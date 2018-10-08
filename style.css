@@ -290,9 +290,9 @@ td{
 	float: right;
 	display: inline;
 }
-#information, #itemInformation, #itemIdentification, #informationMerchant, #questInformation, #questFinishInformation, #identifierInformation, #identifiedInformation, #lootInformation, #inventoryInformation{
+#information, #itemIdentification{
 	position: absolute;
-	width: 150px;
+	width: 160px;
 	background-color: #fef9b4;
 	border: 5px solid #886622;
 	float: right;
@@ -300,9 +300,6 @@ td{
 	padding-right: 10px;
 	text-align: left;
 	z-index: 2;
-}
-#informationMerchant{
-	left: 740px;
 }
 .buttons{
 	position: relative;
