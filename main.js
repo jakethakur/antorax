@@ -619,8 +619,12 @@ class Character extends Thing {
 				}
 				
 				// weapon chat message (some weapons have a chat message for when they kill something!)
-				if (Player.inventory.weapon[0].chat.kill !== undefined) {
+				if (Player.inventory.weapon[0].chat !== undefined && Player.inventory.weapon[0].chat.kill !== undefined) {
 					Game.sayChat(Player.inventory.weapon[0].name, Player.inventory.weapon[0].chat.kill, false, 100, false)
+				}
+				
+				if(this.subSpecies === "nilbog goblin"){
+					Dom.quests.active();
 				}
 			}
 		}
@@ -783,7 +787,7 @@ class Hero extends Attacker {
 		this.stats.fishingRange = properties.stats.fishingRange || 0;
 		
 		// where the player respawns when they die (set at any major city)
-		this.checkpoint = "tutorial";
+		this.checkpoint = properties.checkpoint || "tutorial";
 	}
 	
 	move (delta, dirx, diry) {
@@ -911,7 +915,7 @@ class Hero extends Attacker {
 				let projectileY = Game.camera.y + (e.clientY - 19);
 				let distanceToProjectile = distance({x: projectileX, y: projectileY,}, this);
 				
-				if (Player.class === "m" && Player.inventory.weapon[0].type === "staff" || Player.class === "a" && Player.inventory.weapon[0].type === "bow" || Player.class === "k" && Player.inventory.weapon[0].type === "sword") {
+				if (/*Player.class === "m" && */Player.inventory.weapon[0].type === "staff" || /*Player.class === "a" && */Player.inventory.weapon[0].type === "bow" || /*Player.class === "k" && */Player.inventory.weapon[0].type === "sword") {
 					// player is using conventional weapon
 						
 					if (distanceToProjectile < this.stats.range) {
@@ -1486,7 +1490,7 @@ class Projectile extends Thing {
 							}
 						}
 					}
-					if(to[i][x].name == "Training Dummy"){
+					if(to[i][x].name === "Training Dummy"){
 						Dom.quests.active();
 					}
 				}
@@ -3739,6 +3743,7 @@ Game.saveProgress = function (saveType) { // if saveType is "auto" then the save
 		Player.x = Game.hero.x;
 		Player.y = Game.hero.y;
 		Player.areaName = Game.areaName;
+		Player.checkpoint = Game.checkpoint;
 		// save other player details that aren't otherwise saved to savedata
 		Player.health = Game.hero.health;
 		
@@ -3748,9 +3753,8 @@ Game.saveProgress = function (saveType) { // if saveType is "auto" then the save
 		// message to console
 		let time = new Date();
 		console.info((saveType === "auto" ? "AUTO" : "") + "SAVE AT " + (time.getHours() < 10 ? "0" : "") + time.getHours() + ":" + (time.getMinutes() < 10 ? "0" : "") + time.getMinutes() + ":" + (time.getSeconds() < 10 ? "0" : "") + time.getSeconds());
-		
-		if (saveType === "logout") {
-			window.location.replace("./selection.html");
-		}
+	}
+	if (saveType === "logout") {
+		window.location.replace("./selection.html");
 	}
 }

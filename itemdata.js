@@ -644,6 +644,7 @@ var Items = {
 			type: "staff",
 			image: "assets/items/staff/7.png",
 			uncollectable: true,
+			allClasses: true,
 			tier: 1,
 			rarity: "unique",
 			quest: true,
@@ -653,7 +654,7 @@ var Items = {
 				flaming: 1,
 			},
 			chat: {
-				kill: ["Burn with me!", "Must. Kill.", "Keep going. Please. Kill them all.", "Goblin idiots must die!"],
+				kill: ["Burn with me!", "Must. Kill.", "Keep going. Please. Kill them all.", "Goblin idiots must die!", "Diseased creatures."],
 			}
 		},
 	],
@@ -1156,15 +1157,15 @@ var Items = {
 				switch(effectNumber) {
 					case 0:
 						// give strength I status effect to player
-						Game.statusEffects.strength("I", Game.hero);
+						Game.statusEffects.strength(1, Game.hero);
 						break;
 					case 1:
 						// give swiftness I status effect to player
-						Game.statusEffects.swiftness("I", Game.hero);
+						Game.statusEffects.swiftness(1, Game.hero);
 						break;
 					case 2:
 						// give fire I status effect to player
-						Game.statusEffects.fire("I", Game.hero);
+						Game.statusEffects.fire(1, Game.hero);
 						break;
 					case 3:
 						// deal 50 damage over 10 seconds to the player

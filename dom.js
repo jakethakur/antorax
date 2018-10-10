@@ -39,7 +39,7 @@ let Dom = {
 };
 
 Dom.previous = "instructionsPage"; // change currently displayed page
-Dom.changeBook = function(page, override, x) { // changes the page or changes the color of close buttons
+Dom.changeBook = function(page, override, x, shouldNotBeOverriden) { // changes the page or changes the color of close buttons
 	//override says if the function should be run regardless of if the player has a quest active (e.g: declining a quest or closing a merchant)
 	if((this.currentlyDisplayed === "" || override) && page !== "levelUpPage") { // check the player doesn't have a quest active
 		// hide all pages
@@ -86,7 +86,9 @@ Dom.changeBook = function(page, override, x) { // changes the page or changes th
 		for(let i = 0; i < document.getElementsByClassName("closeClass").length; i++){ // repeat for all close buttons
 			document.getElementsByClassName("closeClass")[i].style.border = "5px solid #886622"; // set close button border color to normal
 		}
-		Dom.currentlyDisplayed = ""; // reset current display if it is overriden
+		if(!shouldNotBeOverriden){
+			Dom.currentlyDisplayed = ""; // reset current display if it is overriden
+		}
 		//}
 		return true; // returns true if the page was changed
 	}else{ // if the page cannot be changed
@@ -684,7 +686,7 @@ Dom.inventory.displayInformation = function(item, stacked, position){
 			document.getElementById("stats").innerHTML = "Length: " + item.length + "cm";
 		}
 		if(item.quest){
-			document.getElementById("stats").innerHTML = "<span style='color: slateblue;'>Quest item</span>";
+			document.getElementById("stats").innerHTML = "<span style='color: slateblue;'>Quest item</span>" + (document.getElementById("stats").innerHTML !== "" ? "<br><br>"+document.getElementById("stats").innerHTML : "");
 		}else{
 			document.getElementById("stats").style.color = "black";
 		}
@@ -707,370 +709,9 @@ Dom.inventory.displayInformation = function(item, stacked, position){
 	}
 }
 
-/*Dom.inventory.displayInformation = function(y,array){ // display inventory information
-	document.getElementById("itemInformation").hidden = true; // hide item information
-	if(array[0].name !== ""){ // if the user is hovering over an item...
-		document.getElementById("itemInformation").hidden = false; // ...display information
-		Dom.inventory.updatePosition(document.getElementById("itemInformation"));
-		document.getElementById("name").innerHTML = "<strong>"+array[0].name+"</strong>";
-		if(array[0].rarity === "common"){ // if the item is a common...
-			document.getElementById("name").style.color = "black"; // ...sets the name color to black
-		}else if(array[0].rarity === "unique"){ // if the item is a unique...
-			document.getElementById("name").style.color = "orange"; // ...sets the name color to orange
-		}else{ // if the item is a mythic...
-			document.getElementById("name").style.color = "purple"; // ...sets the name color to purple
-		}
-		if(array[0].type !== "rod"){
-			document.getElementById("stats").innerHTML = "Tier: "+array[0].tier; // add the tier to the information
-		}
-		for(let i = 0; i < Object.keys(array[0].stats).length; i++){ // repeat for all stats
-			if(Object.keys(array[0].stats)[i] !== "flaming"){
-				let replaceStat = Object.keys(array[0].stats)[i].replace( /([A-Z])/g, " $1" );
-				document.getElementById("stats").innerHTML += "<br>"+replaceStat.charAt(0).toUpperCase() + replaceStat.slice(1)+": "+array[0].stats[Object.keys(array[0].stats)[i]];
-			}else{
-				let replaceStat = Object.keys(array[0].stats)[i].replace( /([A-Z])/g, " $1" );
-				document.getElementById("stats").innerHTML += "<br>"+replaceStat.charAt(0).toUpperCase() + replaceStat.slice(1)+" "+romanize(array[0].stats[Object.keys(array[0].stats)[i]]);
-			}
-		}
-		if(array[0].set !== undefined){ // if the item has a set...
-			let setNum = 0;
-			for(let i = 0; i < Items.set[array[0].set].armour.length; i++){
-				for(let x = 0; x < 4; x++){
-					if(Player.inventory[Object.keys(Player.inventory)[x]][0].name === Items.set[array[0].set].armour[i]){
-						setNum++;
-						break;
-					}
-				}
-			}
-			document.getElementById("set").innerHTML = Items.set[array[0].set].name + " (" + setNum + "/" + Items.set[array[0].set].armour.length+")"; // ...add the set to the information
-			if(setNum === Items.set[array[0].set].armour.length){
-				document.getElementById("set").innerHTML += "<br><br>Set Bonus:";
-				for(let i = 0; i < Object.keys(Items.set[array[0].set].stats).length; i++){ // repeat for all stats
-					if(Object.keys(Items.set[array[0].set].stats)[i] !== "flaming"){
-						let replaceStat = Object.keys(Items.set[array[0].set].stats)[i].replace( /([A-Z])/g, " $1" );
-						document.getElementById("set").innerHTML += "<br>"+replaceStat.charAt(0).toUpperCase() + replaceStat.slice(1)+": "+Items.set[array[0].set].stats[Object.keys(Items.set[array[0].set].stats)[i]];
-					}else{
-						let replaceStat = Object.keys(Items.set[Player.inventory.items[num].set].stats)[i].replace( /([A-Z])/g, " $1" );
-						document.getElementById("set").innerHTML += "<br>"+replaceStat.charAt(0).toUpperCase() + replaceStat.slice(1)+" "+romanize(Items.set[array[0].set].stats[Object.keys(Items.set[array[0].set].stats)[i]]);
-					}
-				}
-			}
-		}else{
-			document.getElementById("set").innerHTML = "";
-		}
-		if(array[0].lore !== undefined){ // if the item has a lore...
-			document.getElementById("lore").innerHTML = "<i>"+array[0].lore+"</i>"; // ...add the lore to the information
-		}else{
-			document.getElementById("lore").innerHTML = "";
-		}
-	}
-}*/
-
-/*Dom.inventory.displayEquipmentInformation = function(num){
-	document.getElementById("inventoryInformation").hidden = true; // hide item information
-	if(Object.keys(Player.inventory.items[num]).length !== 0){ // if the user is hovering over an item...
-		document.getElementById("inventoryInformation").hidden = false; // ...display information
-		Dom.inventory.updatePosition(document.getElementById("inventoryInformation"));
-		if(Player.inventory.items[num].name !== undefined){
-			document.getElementById("invName").innerHTML = Player.inventory.items[num].name;
-			if(Player.inventory.items[num].rarity === "mythic"){ // if the item is a mythic...
-				document.getElementById("invName").style.color = "purple"; // ...sets the name color to purple
-			}else if(Player.inventory.items[num].rarity === "unique"){ // if the item is a unique...
-				document.getElementById("invName").style.color = "orange"; // ...sets the name color to orange
-			}else if(Player.inventory.items[num].rarity === "junk"){
-				document.getElementById("invName").style.color = "darkgray";
-			}else{ // if the item is a common...
-				document.getElementById("invName").style.color = "black"; // ...sets the name color to black
-			}
-		}else{
-			document.getElementById("invName").innerHTML = "Unidentified "+Player.inventory.items[num].type.charAt(0).toUpperCase() + Player.inventory.items[num].type.slice(1);
-			document.getElementById("invName").style.color = "black"; // ...sets the name color to black
-		}
-		if(Player.inventory.items[num].type !== "item" && Player.inventory.items[num].type !== "bag" && Player.inventory.items[num].type !== "currency" && Player.inventory.items[num].type !== "fish" && Player.inventory.items[num].type !== "consumable"){
-			if(Player.inventory.items[num].type !== "rod"){
-				document.getElementById("invStats").innerHTML = "Tier: "+Player.inventory.items[num].tier; // add the tier to the information
-			}else{
-				document.getElementById("invStats").innerHTML = ""; // remove any information
-			}
-			if(Player.inventory.items[num].stats !== undefined){
-				for(let i = 0; i < Object.keys(Player.inventory.items[num].stats).length; i++){ // repeat for all stats
-					if(Object.keys(Player.inventory.items[num].stats)[i] !== "flaming"){
-						let replaceStat = Object.keys(Player.inventory.items[num].stats)[i].replace( /([A-Z])/g, " $1" );
-						document.getElementById("invStats").innerHTML += "<br>"+replaceStat.charAt(0).toUpperCase() + replaceStat.slice(1)+": "+Player.inventory.items[num].stats[Object.keys(Player.inventory.items[num].stats)[i]];
-					}else{
-						let replaceStat = Object.keys(Player.inventory.items[num].stats)[i].replace( /([A-Z])/g, " $1" );
-						document.getElementById("invStats").innerHTML += "<br>"+replaceStat.charAt(0).toUpperCase() + replaceStat.slice(1)+" "+romanize(Player.inventory.items[num].stats[Object.keys(Player.inventory.items[num].stats)[i]]);
-					}
-				}
-			}else{
-				document.getElementById("invStats").innerHTML += "<br><br>Area: "+Player.inventory.items[num].area; // add the tier to the information
-			}
-			if(Player.inventory.items[num].set !== undefined){ // if the item has a set...
-				let setNum = 0;
-				for(let i = 0; i < Items.set[Player.inventory.items[num].set].armour.length; i++){
-					let checkUsed = true;
-					for(let x = 0; x < Player.inventory.items.length; x++){
-						if(Player.inventory.items[x].name === Items.set[Player.inventory.items[num].set].armour[i]){
-							setNum++;
-							checkUsed = false;
-							break;
-						}
-					}
-					if(checkUsed){
-						for(let x = 0; x < 4; x++){
-							if(Player.inventory[Object.keys(Player.inventory)[x]][0].name === Items.set[Player.inventory.items[num].set].armour[i]){
-								setNum++;
-								break;
-							}
-						}
-					}
-				}
-				document.getElementById("invSet").innerHTML = Items.set[Player.inventory.items[num].set].name + " (" + setNum + "/" + Items.set[Player.inventory.items[num].set].armour.length+")"; // ...add the set to the information
-				if(setNum === Items.set[Player.inventory.items[num].set].armour.length){
-					document.getElementById("invSet").innerHTML += "<br><br>Set Bonus:";
-					for(let i = 0; i < Object.keys(Items.set[Player.inventory.items[num].set].stats).length; i++){ // repeat for all stats
-						if(Object.keys(Items.set[Player.inventory.items[num].set].stats)[i] !== "flaming"){
-							let replaceStat = Object.keys(Items.set[Player.inventory.items[num].set].stats)[i].replace( /([A-Z])/g, " $1" );
-							document.getElementById("invSet").innerHTML += "<br>"+replaceStat.charAt(0).toUpperCase() + replaceStat.slice(1)+": "+Items.set[Player.inventory.items[num].set].stats[Object.keys(Items.set[Player.inventory.items[num].set].stats)[i]];
-						}else{
-							let replaceStat = Object.keys(Items.set[Player.inventory.items[num].set].stats)[i].replace( /([A-Z])/g, " $1" );
-							document.getElementById("invSet").innerHTML += "<br>"+replaceStat.charAt(0).toUpperCase() + replaceStat.slice(1)+" "+romanize(Items.set[Player.inventory.items[num].set].stats[Object.keys(Items.set[Player.inventory.items[num].set].stats)[i]]);
-						}
-					}
-				}
-			}else{
-				document.getElementById("invSet").innerHTML = "";
-			}
-		}else{
-			document.getElementById("invSet").innerHTML = "";
-			document.getElementById("invStats").innerHTML = "";
-		}
-		if(Player.inventory.items[num].type === "bag"){
-			document.getElementById("invStats").innerHTML = "Capacity: "+Player.inventory.items[num].size; // add the size to the information
-		}
-		if(Player.inventory.items[num].type === "currency"){
-			if(Player.inventory.items[num].stacked !== undefined){
-				document.getElementById("invName").innerHTML = Player.inventory.items[num].stacked + " " + document.getElementById("invName").innerHTML; // add the size to the information
-			}else{
-				document.getElementById("invName").innerHTML = "1 " + document.getElementById("invName").innerHTML; // add the size to the information
-			}
-		}
-		if(Player.inventory.items[num].type === "consumable"){
-			document.getElementById("invStats").innerHTML = (Player.inventory.items[num].charges !== undefined ? "Charges: " + Player.inventory.items[num].charges + "<br><br>" : "") + Player.inventory.items[num].onClickText;
-		}
-		if(Player.inventory.items[num].fishingType === "fish"){
-			document.getElementById("invStats").innerHTML = "Length: " + Player.inventory.items[num].length + "cm";
-		}
-		if(Player.inventory.items[num].quest){
-			document.getElementById("invStats").style.color = "slateblue";
-			document.getElementById("invStats").innerHTML = "Quest item";
-		}else{
-			document.getElementById("invStats").style.color = "black";
-		}
-		if(Player.inventory.items[num].lore !== undefined){ // if the item has a lore...
-			document.getElementById("invLore").innerHTML = "<i>"+Player.inventory.items[num].lore+"</i>"; // ...add the lore to the information
-		}else{
-			document.getElementById("invLore").innerHTML = "";
-		}
-	}
-}*/
-
-/*Dom.merchant.displayInformation = function(y,array,num) { // display merchant information
-	document.getElementById("informationMerchant").hidden = false; // display merchant information
-	Dom.inventory.updatePosition(document.getElementById("informationMerchant"));
-	document.getElementById("merchantName").innerHTML = "<strong>" + array[num].name + "</strong>";
-	if(array[num].rarity === "mythic"){ // if the item is a mythic...
-		document.getElementById("invName").style.color = "purple"; // ...sets the name color to purple
-	}else if(array[num].rarity === "unique"){ // if the item is a unique...
-		document.getElementById("invName").style.color = "orange"; // ...sets the name color to orange
-	}else if(array[num].rarity === "junk"){
-		document.getElementById("lootName").style.color = "darkgray";
-	}else{ // if the item is a common...
-		document.getElementById("invName").style.color = "black"; // ...sets the name color to black
-	}
-	if(array[num].type !== "item" && array[num].type !== "bag" && array[num].type !== "currency" && array[num].type !== "fish" && array[num].type !== "consumable"){
-		document.getElementById("merchantStats").innerHTML = "Tier: "+array[num].tier; // add the tier to the information
-		for(let i = 0; i < Object.keys(array[num].stats).length; i++){ // repeat for all stats
-			if(Object.keys(array[num].stats)[i] !== "flaming"){
-				let replaceStat = Object.keys(array[num].stats)[i].replace( /([A-Z])/g, " $1" );
-				document.getElementById("merchantStats").innerHTML += "<br>"+replaceStat.charAt(0).toUpperCase() + replaceStat.slice(1)+": "+array[num].stats[Object.keys(array[num].stats)[i]];
-			}else{
-				let replaceStat = Object.keys(array[num].stats)[i].replace( /([A-Z])/g, " $1" );
-				document.getElementById("merchantStats").innerHTML += "<br>"+replaceStat.charAt(0).toUpperCase() + replaceStat.slice(1)+": "+romanize(array[num].stats[Object.keys(array[num].stats)[i]]);
-			}
-		}
-	}
-	if(array[num].lore !== undefined){ // if the item has a lore...
-		document.getElementById("merchantLore").innerHTML = "<i>"+array[num].lore+"</i>"; // ...add the lore to the information
-	}else{
-		document.getElementById("merchantLore").innerHTML = "";
-	}
-}*/
-
-/*Dom.quests.displayInformation = function(num,array,total){ // display quest start information
-	document.getElementById("questInformation").hidden = false; // display quest start information
-	Dom.inventory.updatePosition(document.getElementById("questInformation"));
-	document.getElementById("questName").innerHTML = "<strong>" + array[num].name + "</strong>";
-	if(array[num].rarity === "mythic"){ // if the item is a common...
-		document.getElementById("questName").style.color = "purple"; // ...sets the name color to black
-	}else if(array[num].rarity === "unique"){ // if the item is a unique...
-		document.getElementById("questName").style.color = "orange"; // ...sets the name color to orange
-	}else{ // if the item is a mythic...
-		document.getElementById("questName").style.color = "black"; // ...sets the name color to purple
-	}
-	if(array[num].type !== "item" && array[num].type !== "bag" && array[num].type !== "currency"){
-		document.getElementById("questStats").innerHTML = "Tier: "+array[num].tier; // add the tier to the information
-		for(let i = 0; i < Object.keys(array[num].stats).length; i++){ // repeat for all stats
-			if(Object.keys(array[num].stats)[i] !== "flaming"){
-				let replaceStat = Object.keys(array[num].stats)[i].replace( /([A-Z])/g, " $1" );
-				document.getElementById("questStats").innerHTML += "<br>"+replaceStat.charAt(0).toUpperCase() + replaceStat.slice(1)+": "+array[num].stats[Object.keys(array[num].stats)[i]];
-			}else{
-				let replaceStat = Object.keys(array[num].stats)[i].replace( /([A-Z])/g, " $1" );
-				document.getElementById("questStats").innerHTML += "<br>"+replaceStat.charAt(0).toUpperCase() + replaceStat.slice(1)+": "+romanize(array[num].stats[Object.keys(array[num].stats)[i]]);
-			}
-		}
-	}else{
-		document.getElementById("questStats").innerHTML = "";
-	}
-	if(array[num].type === "currency"){
-		document.getElementById("questName").innerHTML = "<strong>" + total[num] + " " + document.getElementById("questName").innerHTML + "</strong>"; // add the size to the information
-	}
-	if(array[num].lore !== undefined){ // if the item has a lore...
-		document.getElementById("questLore").innerHTML = "<i>"+array[num].lore+"</i>"; // ...add the lore to the information
-	}else{
-		document.getElementById("questLore").innerHTML = "";
-	}
-}*/
-
-/*Dom.quests.displayFinishInformation = function(num,array,total){ // display quest finish information
-	document.getElementById("questFinishInformation").hidden = false; // display quest start information
-	Dom.inventory.updatePosition(document.getElementById("questFinishInformation"));
-	//document.getElementById("questFinishInformation").innerHTML = "<div class='triangleLeft'></div><div id='finishTriangle' class='innerTriangleLeft'></div><p id='finishName'></p><p id='finishStats'></p><p id='finishLore'></p>"; // construct the information without the values
-	document.getElementById("finishName").innerHTML = "<strong>" + array[num].name + "</strong>";
-	if(array[num].rarity === "mythic"){ // if the item is a common...
-		document.getElementById("finishName").style.color = "purple"; // ...sets the name color to black
-	}else if(array[num].rarity === "unique"){ // if the item is a unique...
-		document.getElementById("finishName").style.color = "orange"; // ...sets the name color to orange
-	}else{ // if the item is a mythic...
-		document.getElementById("finishName").style.color = "black"; // ...sets the name color to purple
-	}
-	if(array[num].type !== "item" && array[num].type !== "bag" && array[num].type !== "currency"){
-		document.getElementById("finishStats").innerHTML = "Tier: "+array[num].tier; // add the tier to the information
-		for(let i = 0; i < Object.keys(array[num].stats).length; i++){ // repeat for all stats
-			if(Object.keys(array[num].stats)[i] !== "flaming"){
-				let replaceStat = Object.keys(array[num].stats)[i].replace( /([A-Z])/g, " $1" );
-				document.getElementById("finishStats").innerHTML += "<br>"+replaceStat.charAt(0).toUpperCase() + replaceStat.slice(1)+": "+array[num].stats[Object.keys(array[num].stats)[i]];
-			}else{
-				let replaceStat = Object.keys(array[num].stats)[i].replace( /([A-Z])/g, " $1" );
-				document.getElementById("finishStats").innerHTML += "<br>"+replaceStat.charAt(0).toUpperCase() + replaceStat.slice(1)+": "+romanize(array[num].stats[Object.keys(array[num].stats)[i]]);
-			}
-		}
-	}else{
-		document.getElementById("finishStats").innerHTML = "";
-	}
-	if(array[num].type === "currency"){
-		document.getElementById("finishName").innerHTML = "<strong>" + total[num] + " " + document.getElementById("finishName").innerHTML + "</strong>"; // add the size to the information
-	}
-	if(array[num].lore !== undefined){ // if the item has a lore...
-		document.getElementById("finishLore").innerHTML = "<i>"+array[num].lore+"</i>"; // ...add the lore to the information
-	}else{
-		document.getElementById("finishLore").innerHTML = "";
-	}
-	//document.getElementById("finishTriangle").style.bottom = document.getElementById("questFinishInformation").offsetHeight - 50 + "px"; // position the triangle in the correct place
-}*/
-
-/*Dom.identifier.displayInformation = function(num,array){ // display identifier information
-	document.getElementById("identifierInformation").hidden = true; // hide identifier information
-	if(array.length !== 0){ // if the player is hovering over an item
-		document.getElementById("identifierInformation").hidden = false; // display identifier information
-		Dom.inventory.updatePosition(document.getElementById("identifierInformation"));
-		//document.getElementById("identifierInformation").innerHTML = "<div class='triangleLeft'></div><div id='identifierTriangle' class='innerTriangleLeft'></div><p id='identifierName'></p><p id='identifierStats'></p><p id='identifierLore'></p>"; // construct the information without the values		
-		document.getElementById("identifierName").innerHTML = "<strong> Unidentified " + array[num].type.charAt(0).toUpperCase() + array[num].type.slice(1) + "</strong>";
-		document.getElementById("identifierStats").innerHTML = "Tier: "+array[num].tier; // add the tier to the information
-		document.getElementById("identifierLore").innerHTML = "Area: "+array[num].area; // add the area to the information
-		//document.getElementById("identifierTriangle").style.bottom = document.getElementById("identifierInformation").offsetHeight - 50 + "px"; // positition the triangle in the correct place
-	}
-}*/
-
-/*Dom.identifier.displayIdentifiedInformation = function(num,array){ // display identified information
-	document.getElementById("identifiedInformation").hidden = false; // display identified information
-	Dom.inventory.updatePosition(document.getElementById("identifiedInformation"));
-	document.getElementById("identifiedName").innerHTML = "<strong>" + array[num].name + "</strong>";
-	if(array[num].rarity === "common"){ // if the item is a common...
-		document.getElementById("identifiedName").style.color = "black"; // ...sets the name color to black
-	}else if(array[num].rarity === "unique"){ // if the item is a unique...
-		document.getElementById("identifiedName").style.color = "orange"; // ...sets the name color to orange
-	}else{ // if the item is a mythic...
-		document.getElementById("identifiedName").style.color = "purple"; // ...sets the name color to purple
-	}
-	document.getElementById("identifiedStats").innerHTML = "Tier: "+array[num].tier; // add the tier to the information
-	for(let i = 0; i < Object.keys(array[num].stats).length; i++){ // repeat fot all stats
-		if(Object.keys(array[num].stats)[i] !== "flaming"){
-			let replaceStat = Object.keys(array[num].stats)[i].replace( /([A-Z])/g, " $1" );
-			document.getElementById("identifiedStats").innerHTML += "<br>"+replaceStat.charAt(0).toUpperCase() + replaceStat.slice(1)+": "+array[num].stats[Object.keys(array[num].stats)[i]];
-		}else{
-			let replaceStat = Object.keys(array[num].stats)[i].replace( /([A-Z])/g, " $1" );
-			document.getElementById("identifiedStats").innerHTML += "<br>"+replaceStat.charAt(0).toUpperCase() + replaceStat.slice(1)+": "+romanize(array[num].stats[Object.keys(array[num].stats)[i]]);
-		}
-	}
-	if(array[num].lore !== undefined){ // if the items has a lore...
-		document.getElementById("identifiedLore").innerHTML = "<i>"+array[num].lore+"</i>"; // ...add the lore to the information
-	}else{
-		document.getElementById("identifiedLore").innerHTML = "";
-	}
-	//document.getElementById("identifiedTriangle").style.bottom = document.getElementById("identifiedInformation").offsetHeight - 50 + "px"; // position the triangle in the correct place
-}*/
-
-/*Dom.loot.displayInformation = function(num, array, total){
-	document.getElementById("lootInformation").hidden = false; // ...display information
-	Dom.inventory.updatePosition(document.getElementById("lootInformation"));
-	if(array[num].name !== undefined){
-		document.getElementById("lootName").innerHTML = array[num].name;
-		if(array[num].rarity === "mythic"){ // if the item is a mythic...
-			document.getElementById("lootName").style.color = "purple"; // ...sets the name color to purple
-		}else if(array[num].rarity === "unique"){ // if the item is a unique...
-			document.getElementById("lootName").style.color = "orange"; // ...sets the name color to orange
-		}else if(array[num].rarity === "junk"){
-			document.getElementById("lootName").style.color = "darkgray";
-		}else{ // if the item is a common...
-			document.getElementById("lootName").style.color = "black"; // ...sets the name color to black
-		}
-	}else{
-		document.getElementById("lootName").innerHTML = "Unidentified "+array[num].type.charAt(0).toUpperCase() + array[num].type.slice(1);
-		document.getElementById("lootName").style.color = "black"; // ...sets the name color to black
-	}
-	if(array[num].type !== "item" && array[num].type !== "bag" && array[num].type !== "currency"){
-		document.getElementById("lootStats").innerHTML = "Tier: "+array[num].tier; // add the tier to the information
-		document.getElementById("lootStats").innerHTML += "<br><br>Area: "+array[num].area; // add the tier to the information
-	}else{
-		document.getElementById("lootStats").innerHTML = "";
-	}
-	if(array[num].type === "bag"){
-		document.getElementById("lootStats").innerHTML = "Capacity: "+array[num].size; // add the size to the information
-	}
-	if(array[num].type === "currency"){
-		if(total[num] > 1){
-			document.getElementById("lootName").innerHTML = total[num] + " " + document.getElementById("lootName").innerHTML; // add the size to the information
-		}else{
-			document.getElementById("lootName").innerHTML = "1 " + document.getElementById("lootName").innerHTML; // add the size to the information
-		}
-	}
-	if(array[num].quest){
-		document.getElementById("lootStats").style.color = "slateblue";
-		document.getElementById("lootStats").innerHTML = "Quest item";
-	}else{
-		document.getElementById("lootStats").style.color = "black";
-	}
-	if(array[num].lore !== undefined){ // if the item has a lore...
-		document.getElementById("lootLore").innerHTML = "<i>"+array[num].lore+"</i>"; // ...add the lore to the information
-	}else{
-		document.getElementById("lootLore").innerHTML = "";
-	}
-}*/
-
 Dom.currentlyDisplayed = ""; // the currently displayed quest, merchant, etc. (any pop up)
 Dom.quest.start = function(quest){ // display quest start page
-	if(Dom.changeBook("questStart", true/*false*/)) { // display quest start page
+	if(Dom.changeBook("questStart", true/*false*/, undefined, true)) { // display quest start page
 		document.getElementById("questStartQuest").innerHTML = quest.quest; // sets title to quest name
 		document.getElementById("questStartName").innerHTML = quest.startName; // sets NPC name to NPC name
 		document.getElementById("questStartChat").innerHTML = quest.startChat; // sets chat to NPC chat
@@ -1155,7 +796,7 @@ Dom.quest.start = function(quest){ // display quest start page
 }
 
 Dom.quest.finish = function(quest){ // display quest finish page
-	if(Dom.changeBook("questFinish", true/*false*/)){ // display quest finish page
+	if(Dom.changeBook("questFinish", true/*false*/, undefined, true)){ // display quest finish page
 		document.getElementById("questFinishQuest").innerHTML = quest.quest; // sets title to quest name
 		document.getElementById("questFinishName").innerHTML = quest.finishName; // sets NPC name to NPC name
 		document.getElementById("questFinishChat").innerHTML = quest.finishChat; // sets chat to NPC chat
@@ -1295,7 +936,14 @@ Dom.quests.active = function(quest){ // when a quest is started or ended...
 		for(let i = 0; i < currentQuest.objectives.length; i++){ // repeats for each objective
 			document.getElementById("activeQuestBox").innerHTML += "<br>" + currentQuest.objectives[i]; // writes the objective in the box
 			if(currentQuest.isCompleted()[i] === true && i !== currentQuest.objectives.length-1){ // if the objective has been completed...
-				document.getElementById("activeQuestBox").innerHTML += " &#10004;"; // ...put a tick next to it
+				if(currentQuest.autofinish){
+					Dom.goblinTorch = {
+						name: "Goblin Torch",
+					}
+					Dom.choose.page(Dom.goblinTorch, ["Quest Finish: " + currentQuest.quest], [Dom.quest.finish], [[currentQuest]]);
+				}else{
+					document.getElementById("activeQuestBox").innerHTML += " &#10004;"; // ...put a tick next to it
+				}
 			}else if(currentQuest.isCompleted()[i] !== false && i !== currentQuest.objectives.length-1){ // if the objective is partly completed...
 				document.getElementById("activeQuestBox").innerHTML += currentQuest.isCompleted()[i];
 			}
@@ -1344,7 +992,7 @@ Dom.quests.possible = function(){
 	Dom.quests.other();
 }
 
-Dom.quests.completed = function(quest){ // when a quest is completed...
+Dom.quests.completed = function(quest){ // when a quest is completed...	
 	let first = true;
 	for(let i = 0; i < Player.quests.completedQuestArray.length; i++){
 		if(quest !== undefined && Player.quests.completedQuestArray[i] === quest.quest){
@@ -1383,7 +1031,7 @@ Dom.quests.other();
 Dom.quests.possible();
 
 Dom.merchant.page = function(npc, sold){ // merchant page
-	Dom.changeBook("merchantPage", true/*false*/); // changes the page to the merchant page
+	Dom.changeBook("merchantPage", true/*false*/, undefined, true); // changes the page to the merchant page
 	Dom.currentlyDisplayed = npc.name; // sets the currently displayed variable to the merchant's name
 	Dom.changeBook("merchantPage", false, 1); // stops close button being red
 	document.getElementById("merchantPageTitle").innerHTML = npc.name; // sets the title to the merchant's name
@@ -1775,8 +1423,17 @@ Dom.inventory.dispose = function(ev){
 Dom.inventory.removeById = function(ID, type, num){
 	for(let i = 0; i < Player.inventory.items.length; i++){
 		if(Player.inventory.items[i].type === type && Player.inventory.items[i].id === ID){
-				Dom.inventory.remove(i, num);
+			Dom.inventory.remove(i, num);
 			break;
+		}
+	}
+	for(let i = 0; i < Object.keys(Player.inventory).length-1; i++){
+		if(Player.inventory[Object.keys(Player.inventory)[i]][0].type === type && Player.inventory[Object.keys(Player.inventory)[i]][0].id === ID){
+			let equipment = ["helm","chest","greaves","boots","weapon"]
+			Dom.inventory.removeEquipment(Player.inventory[equipment[i]]);
+			Player.inventory[equipment[i]].splice(0,1); // removes the helm
+			Player.inventory[equipment[i]].push({name: "",image: "",stats: {},},); // sets the helm to no helm
+			document.getElementById(equipment[i]).innerHTML = ""; // deletes the image
 		}
 	}
 	Dom.hotbar.update();
@@ -2031,7 +1688,7 @@ Dom.inventory.drop = function(ev,equip) { // when an item is dropped
 				}
 			}else{ // if there is an item already there
 				for(let i = 0; i < Player.inventory.items.length; i++){ // repeats code for all inventory slots
-					if(document.getElementById("itemInventory").getElementsByTagName("td")[i].innerHTML === ev.target.outerHTML && ((((Player.inventory.items[i].type === "sword" && Player.class === "k") || (Player.inventory.items[i].type === "staff" && Player.class === "m") || (Player.inventory.items[i].type === "bow" && Player.class === "a") || Player.inventory.items[i].type === "rod") && data === "weapon") || Player.inventory.items[i].type === data)){ // if the item slot is where you are putting the item
+					if(document.getElementById("itemInventory").getElementsByTagName("td")[i].innerHTML === ev.target.outerHTML && (((Player.inventory.items[i].allClasses === true || (Player.inventory.items[i].type === "sword" && Player.class === "k") || (Player.inventory.items[i].type === "staff" && Player.class === "m") || (Player.inventory.items[i].type === "bow" && Player.class === "a") || Player.inventory.items[i].type === "rod") && data === "weapon") || Player.inventory.items[i].type === data)){ // if the item slot is where you are putting the item
 						test = Player.inventory.items[i];
 						Player.inventory.items[i] = Player.inventory[data][0]; // sets the slot you are putting the item in to the item you are putting in it
 						document.getElementById("itemInventory").getElementsByTagName("td")[i].innerHTML = "<img src='"+Player.inventory.items[i].image+"' draggable='true' ondragstart='Dom.inventory.drag(event,"+i+")' "+(Player.inventory.items[i].onClick !== undefined ? "onclick='Player.inventory.items["+i+"].onClick("+i+")'" : "") +"></img>"; // updates the image for the new slot
@@ -2057,7 +1714,7 @@ Dom.inventory.drop = function(ev,equip) { // when an item is dropped
 		}
 	}else if(data !== "weapon" && data !== "helm" && data !== "chest" && data !== "greaves" && data !== "boots"){ // if the item is being moved to a weapon/armour slot
 		if(test[12] === "D"){ // if there is not an item already there
-			if((Player.inventory.items[data].type === ev.target.id || (((Player.inventory.items[data].type === "sword" && Player.class === "k") || (Player.inventory.items[data].type === "staff" && Player.class === "m") || (Player.inventory.items[data].type === "bow" && Player.class === "a") || Player.inventory.items[data].type === "rod") && ev.target.id === "weapon")) && !Player.inventory.items[data].unidentified){ // if the item is allowed in that slot (e.g. a helm in the helm slot)
+			if((Player.inventory.items[data].type === ev.target.id || ((Player.inventory.items[data].allClasses === true || (Player.inventory.items[data].type === "sword" && Player.class === "k") || (Player.inventory.items[data].type === "staff" && Player.class === "m") || (Player.inventory.items[data].type === "bow" && Player.class === "a") || Player.inventory.items[data].type === "rod") && ev.target.id === "weapon")) && !Player.inventory.items[data].unidentified){ // if the item is allowed in that slot (e.g. a helm in the helm slot)
 				Player.inventory[ev.target.id].splice(0,1); // sets the slot you are putting the item in to the item you are putting in it
 				Player.inventory[ev.target.id].push(Player.inventory.items[data]); // sets the slot you are putting the item in to the item you are putting in it
 				Player.inventory[ev.target.id][0].onClick = Player.inventory.items[data].onClick; // sets the slot you are putting the item in to the item you are putting in it
@@ -2067,7 +1724,7 @@ Dom.inventory.drop = function(ev,equip) { // when an item is dropped
 				document.getElementById(ev.target.id).innerHTML = "<img src='"+Player.inventory[ev.target.id][0].image+"' draggable='true' ondragstart='Dom.inventory.drag(event,\""+ev.target.id+"\")' "+(Player.inventory[ev.target.id][0].onClick !== undefined ? "onclick='Player.inventory."+ev.target.id+"[0].onClick(\""+ev.target.id+"\")'" : "")+"></img>"; // updates the image
 			}
 		}else{ // if there is already an item there
-			if((Player.inventory.items[data].type === equip || (((Player.inventory.items[data].type === "sword" && Player.class === "k") || (Player.inventory.items[data].type === "staff" && Player.class === "m") || (Player.inventory.items[data].type === "bow" && Player.class === "a") || Player.inventory.items[data].type === "rod") && equip === "weapon")) && !Player.inventory.items[data].unidentified){ // if the item is allowed in that slot (e.g. a helm in the helm slot);
+			if((Player.inventory.items[data].type === equip || ((Player.inventory.items[data].allClasses === true || (Player.inventory.items[data].type === "sword" && Player.class === "k") || (Player.inventory.items[data].type === "staff" && Player.class === "m") || (Player.inventory.items[data].type === "bow" && Player.class === "a") || Player.inventory.items[data].type === "rod") && equip === "weapon")) && !Player.inventory.items[data].unidentified){ // if the item is allowed in that slot (e.g. a helm in the helm slot);
 				test = Player.inventory[equip][0]; // sets the variable for later
 				Dom.inventory.removeEquipment(Player.inventory[equip]); // removes the stats of the equipment from the total
 				Player.inventory[equip].splice(0,1); // sets the slot you are putting the item in to the item you are putting in it
@@ -2225,7 +1882,7 @@ document.getElementById("inventoryGoldXP").style.backgroundImage = 'url("./asset
 if(Player.class+Player.gender+Player.skin === "am1"){
 	document.getElementById("inventoryGoldXP").style.right = "8px";
 }
-document.getElementById("settingLogout").innerHTML = "You are logged in as "+Player.name+"<div id='settingSave' onclick='Game.saveProgress()'>Save</div><div id='settingLogoutInner' onclick='Game.saveProgress(\"logout\")'>Logout</div><div id='settingDelete'>Delete</div>";
+document.getElementById("settingLogout").innerHTML = "You are logged in as "+Player.name+(localStorage.getItem("accept") ? "<div id='settingSave' onclick='Game.saveProgress()'>Save</div>" : "")+"<div id='settingLogoutInner' onclick='Game.saveProgress(\"logout\")'>Logout</div>"+(localStorage.getItem("accept") ? "<div id='settingDelete'>Delete</div>" : "");
 
 Dom.levelUp.page = function(){
 	Dom.changeBook("levelUpPage",false,0);
@@ -2309,10 +1966,13 @@ document.getElementById("hotbar").onmouseleave = function(){
 	document.getElementById("hotbar").style.opacity = "0.6";
 }
 
-Dom.alert.target = function(){
+Dom.settings.acceptOn = function(){
 	localStorage.setItem("accept","true");
 	document.getElementById("settingAcceptHolder").innerHTML = "";
+	document.getElementById("settingLogout").innerHTML = "You are logged in as "+Player.name+"<div id='settingSave' onclick='Game.saveProgress()'>Save</div><div id='settingLogoutInner' onclick='Game.saveProgress(\"logout\")'>Logout</div><div id='settingDelete'>Delete</div>";
 }
+
+Dom.alert.target = Dom.settings.acceptOn;
 
 if(localStorage.getItem("accept") !== "true"){
 	Dom.alert.page("This site uses local storage for progress saving, do you accept?", 1);
@@ -2383,8 +2043,8 @@ Dom.inventory.hideHotbar = function(hide){
 }
 
 Dom.loot.page = function(name, items, quantities, space){
-	Dom.changeBook("lootPage", false);
-	Dom.currentlyDisplayed = name;
+	Dom.changeBook("lootPage", true/*false*/, undefined, true);
+	//Dom.currentlyDisplayed = name;
 	let spaces = [];
 	for(let i = 0; i < space; i++){
 		spaces.push(i);
@@ -2475,7 +2135,7 @@ document.getElementById("levelUpPageClose").onclick = function(){
 }
 
 Dom.text.page = function(npcName, name, text, buttons, functions){
-	Dom.changeBook("textPage", true/*false*/);
+	Dom.changeBook("textPage", true/*false*/, undefined, true);
 	Dom.currentlyDisplayed = npcName;
 	document.getElementById("textPage").innerHTML = '<h1 id="textPageName">'+name+'</h1>'
 	document.getElementById("textPage").innerHTML += '<p id="textPageText">'+text+'</p>'
@@ -2514,7 +2174,7 @@ Dom.buyer.remove = function(i, all){
 }
 
 Dom.buyer.page = function(npc){
-	Dom.changeBook("buyerPage", true/*false*/);
+	Dom.changeBook("buyerPage", true/*false*/, undefined, true);
 	if(npc !== undefined){
 		Dom.currentlyDisplayed = npc.name;
 		document.getElementById("buyerPageChat").innerHTML = npc.chat.buyerGreeting;
@@ -2581,9 +2241,9 @@ Dom.buyer.page = function(npc){
 
 Dom.choose.page = function(npc, buttons, functions, parameters){
 	if(Dom.currentlyDisplayed === ""){
+		Dom.currentlyDisplayed = npc.name;
 		if(buttons.length > 1){
-			Dom.changeBook("choosePage");
-			Dom.currentlyDisplayed = npc.name;
+			Dom.changeBook("choosePage", true/*false*/, undefined, true);
 			document.getElementById("choosePage").innerHTML = "<h1>"+npc.name+"</h1><p>"+npc.chat.chooseChat+"</p>";
 			for(let i = 0; i < buttons.length; i++){
 				let imagenum = 2;
@@ -2720,12 +2380,14 @@ if(Player.reputationReady){
 }
 
 //DELTES EXISTING CLASS
-document.getElementById("settingDelete").onclick = function(){
-	Dom.alert.target = function(){
-		localStorage.removeItem(Player.class);
-		window.location.replace("./selection.html");
+if(document.getElementById("settingDelete") !== null){
+	document.getElementById("settingDelete").onclick = function(){
+		Dom.alert.target = function(){
+			localStorage.removeItem(Player.class);
+			window.location.replace("./selection.html");
+		}
+		Dom.alert.page("Are you sure you want to delete your progress for this class? It will be lost forever!", 1);
 	}
-	Dom.alert.page("Are you sure you want to delete your progress for this class? It will be lost forever!", 1);
 }
 
 //TESTING

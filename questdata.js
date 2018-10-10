@@ -743,9 +743,6 @@ var Quests = {
 						finished = false;
 					}
 				}
-				if(finished){ // to be moved to autofinish
-					Dom.quest.finish(Quests.eaglecrestLoggingCamp[14]);
-				}
 				completed.push(finished);
 				
 				return completed;
