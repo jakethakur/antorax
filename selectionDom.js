@@ -3,7 +3,7 @@ let max = {
 	am: 1,
 	af: 0,
 	mm: 1,
-	mf: 0,
+	mf: 1,
 	km: 1,
 	kf: 0,
 }
