@@ -1008,9 +1008,6 @@ class Hero extends Attacker {
 					if (this.fishingBobs >= 100 + this.channelling.clicksToCatch) {
 						// fish caught
 						
-						// give fish
-						Dom.inventory.give(this.channelling);
-						
 						// quest progress
 						if (Player.quests.questProgress.itemsFishedUp !== undefined) {
 							Player.quests.questProgress.itemsFishedUp++;
@@ -1018,6 +1015,10 @@ class Hero extends Attacker {
 						else {
 							Player.quests.questProgress.itemsFishedUp = 1;
 						}
+						
+						// give fish
+						// must be after quest progress
+						Dom.inventory.give(this.channelling);
 						
 						// chat message
 						if (this.channelling.fishingType === "fish") { // fish
@@ -2802,7 +2803,7 @@ Game.update = function (delta) {
 								// soul healer appears as an option for choose DOM
 								textArray.push(role.chooseText || "I'd like to remove my 'XP Fatigue' status effect.");
 								functionArray.push(Dom.text.page);
-								parameterArray.push([NPC.name, "Soul Healer", NPC.chat.canBeHealedText, ["Remove XP Fatigue for " + this.soulHealerCost + " gold"], [function () {
+								parameterArray.push([NPC.name, "Soul Healer", NPC.chat.canBeHealedText, true, ["Remove XP Fatigue for " + this.soulHealerCost + " gold"], [function () {
 									if (Dom.inventory.check(2, "currency", Game.soulHealerCost)) {
 										Dom.inventory.removeById(2, "currency", Game.soulHealerCost);
 										Game.hero.statusEffects.splice(Game.hero.statusEffects.findIndex(statusEffect => statusEffect.title === "XP Fatigue"), 1); // remove xp fatigue effect
@@ -2846,7 +2847,7 @@ Game.update = function (delta) {
 							// NPC chat appears as an option in choose DOM
 							textArray.push(role.chooseText);
 							functionArray.push(Dom.text.page);
-							parameterArray.push([NPC.name, NPC.name, role.chat, role.buttons, role.functions]);
+							parameterArray.push([NPC.name, NPC.name, role.chat, role.showCloseButton, role.buttons, role.functions]);
 						}
 						
 						// button just runs a function
@@ -2994,7 +2995,7 @@ Game.getXP = function (xpGiven) {
 Game.inventoryUpdate = function (e) {
 	if (e == undefined || isNaN(parseInt(e.dataTransfer.getData("text")))) {
 		// player stats updated
-		Game.hero.stats = Player.stats;
+		Game.hero.stats = Player.stats; // inefficient
 		if (Player.inventory.weapon[0].type !== "rod" && Game.hero.channelling === "fishing") { // if the player is no longer holding a fishing rod, remove their bobber
 			Game.projectiles.splice(Game.searchFor(Game.hero.channellingProjectileId, Game.projectiles), 1); // remove bobber
 			

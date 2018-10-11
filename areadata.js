@@ -610,7 +610,8 @@ var Areas = {
 						role: "text",
 						chooseText: "I found a pair of boots that I think might be yours.",
 						chat: "Are you sure? Give them here.<br>You're right, they were mine. They were stolen by a goblin during the recent goblin siege. Are you sure I can have them back? I will make sure that you are aptly rewarded.",
-						buttons: ["Return them.", "Keep them."],
+						buttons: ["Return them", "Keep them"],
+						showCloseButton: false,
 						functions: [function () {
 							// remove the boots
 							Dom.inventory.removeById(6, "boots", 1);
@@ -703,7 +704,7 @@ var Areas = {
 					inventoryFull: "I'm not sure you have any space to hold this.",
 				},
 				canBeShown: function () {
-					return (Player.quests.activeQuestArray.includes("Retrieval of Logs") || Player.quests.activeQuestArray.includes("Making Yourself Useful") || Player.quests.activeQuestArray.includes("First Class Recovery")) && !Player.quests.completedQuestArray.includes("First Class Recovery");
+					return Player.quests.possibleQuestArray.includes("First Class Recovery") || Player.quests.activeQuestArray.includes("First Class Recovery");
 				},
 			},
 			{
@@ -798,7 +799,7 @@ var Areas = {
 						sold: [Items.consumable[7]],
 						role: "merchant",
 						roleRequirement: function () {
-							return Player.quests.activeQuestArray.includes("Strengthening Defences");
+							return Player.quests.activeQuestArray.includes("Strengthening Defences") || Player.quests.activeQuestArray.includes("Reinforcing Defences");
 						}
 					},
 				],

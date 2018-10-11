@@ -937,10 +937,7 @@ Dom.quests.active = function(quest){ // when a quest is started or ended...
 			document.getElementById("activeQuestBox").innerHTML += "<br>" + currentQuest.objectives[i]; // writes the objective in the box
 			if(currentQuest.isCompleted()[i] === true && i !== currentQuest.objectives.length-1){ // if the objective has been completed...
 				if(currentQuest.autofinish){
-					Dom.goblinTorch = {
-						name: "Goblin Torch",
-					}
-					Dom.choose.page(Dom.goblinTorch, ["Quest Finish: " + currentQuest.quest], [Dom.quest.finish], [[currentQuest]]);
+					Dom.choose.page(currentQuest.finishName, ["Quest Finish: " + currentQuest.quest], [Dom.quest.finish], [[currentQuest]]);
 				}else{
 					document.getElementById("activeQuestBox").innerHTML += " &#10004;"; // ...put a tick next to it
 				}
@@ -974,7 +971,7 @@ Dom.quests.possible = function(){
 	document.getElementById("possibleQuestBox").style.textAlign = "left"; // write text in the centre
 	for(let i = 0; i < Object.keys(Quests).length; i++){ // repeats this code for each area
 		for(let x = 0; x < Quests[Object.keys(Quests)[i]].length; x++){ // repeats this code for each quest
-			if(!Player.quests.completedQuestArray.includes(Quests[Object.keys(Quests)[i]][x].quest) && !Player.quests.activeQuestArray.includes(Quests[Object.keys(Quests)[i]][x].quest) && Player.level >= Quests[Object.keys(Quests)[i]][x].levelRequirement && isContainedInArray(Quests[Object.keys(Quests)[i]][x].questRequirements,Player.quests.completedQuestArray)){
+			if((!Player.quests.completedQuestArray.includes(Quests[Object.keys(Quests)[i]][x].quest) && !Player.quests.activeQuestArray.includes(Quests[Object.keys(Quests)[i]][x].quest) && Player.level >= Quests[Object.keys(Quests)[i]][x].levelRequirement && isContainedInArray(Quests[Object.keys(Quests)[i]][x].questRequirements,Player.quests.completedQuestArray)) || (Quests[Object.keys(Quests)[i]][x].repeatTime === "daily" && Player.quests.questLastFinished[Quests[Object.keys(Quests)[i]][x].questArea][Quests[Object.keys(Quests)[i]][x].id] && !Player.quests.completedQuestArray.includes(Quests[Object.keys(Quests)[i]][x].quest))){
 				if(Player.quests.possibleQuestArray.length !== 0){
 					document.getElementById("possibleQuestBox").innerHTML += "<br><br>";
 				}
@@ -2134,15 +2131,17 @@ document.getElementById("levelUpPageClose").onclick = function(){
 	Dom.currentlyDisplayed = "";
 }
 
-Dom.text.page = function(npcName, name, text, buttons, functions){
+Dom.text.page = function(npcName, name, text, close, buttons, functions){
 	Dom.changeBook("textPage", true/*false*/, undefined, true);
 	Dom.currentlyDisplayed = npcName;
 	document.getElementById("textPage").innerHTML = '<h1 id="textPageName">'+name+'</h1>'
 	document.getElementById("textPage").innerHTML += '<p id="textPageText">'+text+'</p>'
 	for(let i = 0; i < buttons.length; i++){
-		document.getElementById("textPage").innerHTML += "<br><br><br><center><div id='buttons"+i+"' class='buttons'>"+buttons[i]+"</div></center>";
+		document.getElementById("textPage").innerHTML += "<br><center><div id='buttons"+i+"' class='buttons'>"+buttons[i]+"</div></center>";
 	}
-	document.getElementById("textPage").innerHTML += "<br><br><br><center><div class='closeClass' onclick='Dom.changeBook(Dom.previous, true)'>Close</div></center>";
+	if(close){
+		document.getElementById("textPage").innerHTML += "<br><br><br><center><div class='closeClass' onclick='Dom.changeBook(Dom.previous, true)'>Close</div></center>";
+	}
 	for(let i = 0; i < buttons.length; i++){
 		document.getElementById("buttons"+i).onclick = function(){
 			functions[i]();
@@ -2240,11 +2239,12 @@ Dom.buyer.page = function(npc){
 }
 
 Dom.choose.page = function(npc, buttons, functions, parameters){
+	let name = npc.name !== undefined ? npc.name : npc;
 	if(Dom.currentlyDisplayed === ""){
-		Dom.currentlyDisplayed = npc.name;
+		Dom.currentlyDisplayed = name;
 		if(buttons.length > 1){
 			Dom.changeBook("choosePage", true/*false*/, undefined, true);
-			document.getElementById("choosePage").innerHTML = "<h1>"+npc.name+"</h1><p>"+npc.chat.chooseChat+"</p>";
+			document.getElementById("choosePage").innerHTML = "<h1>"+name+"</h1>"+(npc.chat !== undefined ? "<p>"+npc.chat.chooseChat+"</p>" : "");
 			for(let i = 0; i < buttons.length; i++){
 				let imagenum = 2;
 				if(functions[i] === Dom.buyer.page){
@@ -2277,7 +2277,7 @@ Dom.choose.page = function(npc, buttons, functions, parameters){
 		}else{
 			functions[0](...parameters[0]);
 		}
-	}else if(Dom.currentlyDisplayed !== npc.name && (npc.roles === undefined || npc.roles.find(role => role.quest ==/*==*/ Dom.currentlyDisplayed) === undefined)){
+	}else if(Dom.currentlyDisplayed !== name && (npc.roles === undefined || npc.roles.find(role => role.quest ==/*==*/ Dom.currentlyDisplayed) === undefined)){
 		if(document.getElementsByClassName("closeClass")[0].style.border !== "5px solid red") {
 			Dom.changeBook("identifierPage",false,2);
 		}

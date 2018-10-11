@@ -849,7 +849,7 @@ var Quests = {
 			rewards: {
 				xp: 50,
 				items: [
-					Items.currency[4], // fishing seal
+					Items.currency[3], // fishing seal
 				],
 				itemQuantities: [
 					1,
