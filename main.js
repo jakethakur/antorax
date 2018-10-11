@@ -1096,6 +1096,9 @@ class Hero extends Attacker {
 							Dom.chat.insert("Your fishing skill has increased to " + Math.floor(this.stats.fishingSkill) + "."); // notify them of this in chat
 						}
 						
+						// update player stats
+						Game.hero.stats = Player.stats; // inefficient (should be linked)
+						
 						// remove fishing bobber
 						Game.projectiles.splice(Game.searchFor(this.channellingProjectileId, Game.projectiles), 1);
 						this.channelling = false;
@@ -2745,7 +2748,7 @@ Game.update = function (delta) {
 							!Player.quests.completedQuestArray.includes(role.quest.quest)) || // quest has not already been completed, or...
                             role.quest.repeatTime === "daily")) { // is a daily quest
 								// check if quest conditions have been fulfilled
-								if(role.quest.isCompleted()[role.quest.objectives.length - 1]) {
+								if (Quests[role.quest.questArea][role.quest.id].completed) {
 									if (typeof role.quest.rewards !== "undefined" && typeof role.quest.rewards.items !== "undefined") {
 										if (Dom.inventory.requiredSpace(role.quest.rewards.items, role.quest.rewards.itemQuantities)) {
 											// user has space for quest finish items
@@ -2995,7 +2998,7 @@ Game.getXP = function (xpGiven) {
 Game.inventoryUpdate = function (e) {
 	if (e == undefined || isNaN(parseInt(e.dataTransfer.getData("text")))) {
 		// player stats updated
-		Game.hero.stats = Player.stats; // inefficient
+		Game.hero.stats = Player.stats; // inefficient (should be linked)
 		if (Player.inventory.weapon[0].type !== "rod" && Game.hero.channelling === "fishing") { // if the player is no longer holding a fishing rod, remove their bobber
 			Game.projectiles.splice(Game.searchFor(Game.hero.channellingProjectileId, Game.projectiles), 1); // remove bobber
 			
