@@ -119,6 +119,18 @@
 		</span>
 		<div id="settingLogout"></div>
 	</div>
+	<div id="settingsTwoPage" hidden>
+		<center>
+			<h1>Hotkeys</h1>
+			<p style="display: inline">Chat Page:</p>&nbsp;&nbsp;&nbsp;<div class="hotkey"></div><br>
+			<p style="display: inline">Inventory Page:</p>&nbsp;&nbsp;&nbsp;<div class="hotkey"></div><br>
+			<p style="display: inline">Quests Page:</p>&nbsp;&nbsp;&nbsp;<div class="hotkey"></div><br>
+			<p style="display: inline">Instructions Page:</p>&nbsp;&nbsp;&nbsp;<div class="hotkey"></div><br>
+			<p style="display: inline">Reputation Page:</p>&nbsp;&nbsp;&nbsp;<div class="hotkey"></div><br>
+			<p style="display: inline">Settings Page:</p>&nbsp;&nbsp;&nbsp;<div class="hotkey"></div><br>
+			<div id="closeSettings" onclick="Dom.settings.page('settingsPage')">Close</div>
+		</center>
+	</div>
 	<div id="questStart" hidden>
 		<br><h1 id="questStartQuest"></h1><br><br>
 		<b id="questStartName"></b><br>
@@ -194,7 +206,7 @@
 	<div id="questsImage"onclick="Dom.changeBook('questsPage', false)"></div>
 	<div id="instructionsImage"onclick="Dom.changeBook('instructionsPage', false)"></div>
 	<div id="reputationImage"onclick="Dom.changeBook('reputationPage', false)"></div>
-	<div id="settingsImage"onclick="Dom.changeBook('settingsPage', false)"></div>
+	<div id="settingsImage"onclick="Dom.settings.page()"></div>
 	<svg height="51" width="131" id="changeChat" onclick="Dom.changeBook('chatPage', false)" tabindex = "0">
 		<polygon points ="0,0 0,50 100,50 130,25 100,0" style="fill:blue;stroke:black;stroke-width:1" />
 	</svg>
@@ -210,7 +222,7 @@
 	<svg height="51" width="131" id="changeReputation" onclick="Dom.changeBook('reputationPage', false)"tabindex = "0">
 		<polygon points ="0,0 0,50 100,50 130,25 100,0" style="fill:purple;stroke:black;stroke-width:1" />
 	</svg>
-	<svg height="51" width="131" id="changeSettings" onclick="Dom.changeBook('settingsPage', false)"tabindex = "0">
+	<svg height="51" width="131" id="changeSettings" onclick="Dom.settings.page()"tabindex = "0">
 		<polygon points ="0,0 0,50 100,50 130,25 100,0" style="fill:#d3d3d3;stroke:black;stroke-width:1" />
 	</svg>
 	

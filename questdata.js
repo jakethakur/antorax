@@ -520,7 +520,7 @@ var Quests = {
 				var completed = [];
 				
 				// true or falses for each objective (apart from the turn-in objective)
-				completed.push(Player.stats.fishingSkill >= 10 ? true : "("+Player.stats.fishingSkill+"/10)");
+				completed.push(Player.stats.fishingSkill >= 10 ? true : " ("+Player.stats.fishingSkill+"/10)");
 				
 				var finished = true;
 				for(var i = 0; i < completed.length; i++) {

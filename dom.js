@@ -7,6 +7,7 @@ let Dom = {
 		hotbar: document.getElementById("hotbar"),
 		questsPage: document.getElementById("questsPage"),
 		settingsPage: document.getElementById("settingsPage"),
+		settingsTwoPage: document.getElementById("settingsTwoPage"),
 		instructionsPage: document.getElementById("instructionsPage"),
 		reputationPage: document.getElementById("reputationPage"),
 		questStart: document.getElementById("questStart"),
@@ -52,6 +53,7 @@ Dom.changeBook = function(page, override, x, shouldNotBeOverriden) { // changes 
 		this.elements.inventoryPage.hidden = true;
 		this.elements.questsPage.hidden = true;
 		this.elements.settingsPage.hidden = true;
+		this.elements.settingsTwoPage.hidden = true;
 		this.elements.instructionsPage.hidden = true;
 		this.elements.reputationPage.hidden = true;
 		this.elements.questStart.hidden = true;				// Hides all other pages
@@ -89,7 +91,13 @@ Dom.changeBook = function(page, override, x, shouldNotBeOverriden) { // changes 
 		if(!shouldNotBeOverriden){
 			Dom.currentlyDisplayed = ""; // reset current display if it is overriden
 		}
-		//}
+		if(page === "settingsPage" && !shouldNotBeOverriden){
+			Dom.settings.page();
+		}
+		if(Dom.settings.hotkey !== undefined){
+			document.getElementsByClassName("hotkeys")[Dom.settings.hotkey].innerHTML = Player.hotkeys[Dom.settings.hotkey];
+			Dom.settings.hotkey = undefined;
+		}
 		return true; // returns true if the page was changed
 	}else{ // if the page cannot be changed
 		for(let i = 0; i < document.getElementsByClassName("closeClass").length; i++){ // repeat for all close buttons
@@ -953,12 +961,9 @@ Dom.quests.active = function(quest){ // when a quest is started or ended...
 				currentQuest.wasCompleted = currentQuest.isCompleted();
 			}
 		}
-		console.log("maybe");
 		if(currentQuest.isCompleted()[currentQuest.isCompleted().length - 1]){
-			console.log("no");
 			currentQuest.completed = true;
 		}else{
-			console.log("yes");
 			currentQuest.completed = false;
 		}
 		if(quest !== undefined){ // if a quest is started
@@ -1888,7 +1893,7 @@ document.getElementById("inventoryGoldXP").style.backgroundImage = 'url("./asset
 if(Player.class+Player.skin === "a1"){
 	document.getElementById("inventoryGoldXP").style.right = "8px";
 }
-document.getElementById("settingLogout").innerHTML = "You are logged in as "+Player.name+(localStorage.getItem("accept") ? "<div id='settingSave' onclick='Game.saveProgress()'>Save</div>" : "")+"<div id='settingLogoutInner' onclick='Game.saveProgress(\"logout\")'>Logout</div>"+(localStorage.getItem("accept") ? "<div id='settingDelete'>Delete</div>" : "");
+document.getElementById("settingLogout").innerHTML = "<div id='settingControls' onclick='Dom.settings.page(\"settingsTwoPage\")'>Hotkey Bindings</div><br><br>You are logged in as "+Player.name+(localStorage.getItem("accept") ? "<div id='settingSave' onclick='Game.saveProgress()'>Save</div>" : "")+"<div id='settingLogoutInner' onclick='Game.saveProgress(\"logout\")'>Logout</div>"+(localStorage.getItem("accept") ? "<div id='settingDelete'>Delete</div>" : "");
 
 Dom.levelUp.page = function(){
 	Dom.changeBook("levelUpPage",false,0);
@@ -1975,7 +1980,7 @@ document.getElementById("hotbar").onmouseleave = function(){
 Dom.settings.acceptOn = function(){
 	localStorage.setItem("accept","true");
 	document.getElementById("settingAcceptHolder").innerHTML = "";
-	document.getElementById("settingLogout").innerHTML = "You are logged in as "+Player.name+"<div id='settingSave' onclick='Game.saveProgress()'>Save</div><div id='settingLogoutInner' onclick='Game.saveProgress(\"logout\")'>Logout</div><div id='settingDelete'>Delete</div>";
+	document.getElementById("settingLogout").innerHTML = "<div id='settingControls' onclick='Dom.settings.page(\"settingsTwoPage\")'>Hotkey Bindings</div><br><br>You are logged in as "+Player.name+"<div id='settingSave' onclick='Game.saveProgress()'>Save</div><div id='settingLogoutInner' onclick='Game.saveProgress(\"logout\")'>Logout</div><div id='settingDelete'>Delete</div>";
 }
 
 Dom.alert.target = Dom.settings.acceptOn;
@@ -2319,6 +2324,44 @@ function getFullDate () {
 	return dateString;
 }
 
+window.addEventListener('keyup', function(ev){
+	if(Dom.settings.hotkey !== undefined){
+		let availible = true;
+		for(let i = 0; i < Player.hotkeys.length; i++){
+			if(Player.hotkeys[i] === ev.key && i !== Dom.settings.hotkey){
+				availible = false;
+			}
+		}
+		if(availible && ev.keyCode !== 65 && ev.keyCode !== 83 && ev.keyCode !== 68 && ev.keyCode !== 87 && ev.keyCode !== 16 && ev.keyCode !== 32 && ev.keyCode !== 37 && ev.keyCode !== 38 && ev.keyCode !== 39 && ev.keyCode !== 40){ // not equal to shift, space, wasd, arrows...
+			Player.hotkeys[Dom.settings.hotkey] = ev.key;
+			document.getElementsByClassName("hotkey")[Dom.settings.hotkey].innerHTML = ev.key.toUpperCase();
+			Dom.settings.hotkey = undefined;
+		}
+	}else if(ev.key === Player.hotkeys[0]){
+		Dom.changeBook("chatPage");
+	}else if(ev.key === Player.hotkeys[1]){
+		Dom.changeBook("inventoryPage");
+	}else if(ev.key === Player.hotkeys[2]){
+		Dom.changeBook("questsPage");
+	}else if(ev.key === Player.hotkeys[3]){
+		Dom.changeBook("instructionsPage");
+	}else if(ev.key === Player.hotkeys[4]){
+		Dom.changeBook("reputationPage");
+	}else if(ev.key === Player.hotkeys[5]){
+		Dom.changeBook("settingsPage");
+	}
+});
+
+Dom.settings.current = "settingsPage";
+Dom.settings.page = function(page){
+	if(page !== undefined){
+		Dom.settings.current = page
+		Dom.changeBook(page, undefined, undefined, true);
+	}else{
+		Dom.changeBook(Dom.settings.current, undefined, undefined, true);
+	}
+}
+
 //
 // DO NOT ADD CODE BELOW THIS POINT
 //
@@ -2385,6 +2428,13 @@ Dom.quests.possible();
 Dom.quests.completed();
 if(Player.reputationReady){
 	Dom.reputation.start();
+}
+for(let i = 0; i < document.getElementsByClassName("hotkey").length; i++){
+	document.getElementsByClassName("hotkey")[i].innerHTML = Player.hotkeys[i].toUpperCase();
+	document.getElementsByClassName("hotkey")[i].onclick = function(){
+		document.getElementsByClassName("hotkey")[i].innerHTML = "...";
+		Dom.settings.hotkey = i;
+	}
 }
 
 //DELTES EXISTING CLASS
