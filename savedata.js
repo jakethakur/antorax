@@ -4,13 +4,11 @@ if(sessionStorage.getItem("class") == undefined){ // must be ==
 
 let playerName = sessionStorage.getItem("name"); // avoids it having to be called multiple times from inside Player's declaration
 let playerClass = sessionStorage.getItem("class"); // avoids it having to be called multiple times from inside Player's declaration
-let playerGender = sessionStorage.getItem("gender"); // avoids it having to be called multiple times from inside Player's declaration
 let playerSkin = sessionStorage.getItem("skin"); // avoids it having to be called multiple times from inside Player's declaration
 
 var Player = {
 	name: playerName,
 	class: playerClass,
-	gender: playerGender,
 	skin: playerSkin,
 	
 	// updated by saved progress

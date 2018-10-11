@@ -953,6 +953,14 @@ Dom.quests.active = function(quest){ // when a quest is started or ended...
 				currentQuest.wasCompleted = currentQuest.isCompleted();
 			}
 		}
+		console.log("maybe");
+		if(currentQuest.isCompleted()[currentQuest.isCompleted().length - 1]){
+			console.log("no");
+			currentQuest.completed = true;
+		}else{
+			console.log("yes");
+			currentQuest.completed = false;
+		}
 		if(quest !== undefined){ // if a quest is started
 			document.getElementById("activeQuestBox").innerHTML += "<br>"; // adds a new line to the box
 			//document.getElementById("activeQuestBox").style.height = "auto"; // ...the box
@@ -1457,6 +1465,7 @@ Dom.inventory.remove = function(num, all){
 		}
 	}
 	Dom.hotbar.update();
+	Dom.quests.active();
 }
 
 Dom.inventory.update = function(){ // updates the position of the "buy bags to get more inventory space" text
@@ -1875,8 +1884,8 @@ if(Player.class === "a"){
 	document.getElementById("weapon").style.backgroundImage = "url('./assets/items/sword/1.png')";
 }
 
-document.getElementById("inventoryGoldXP").style.backgroundImage = 'url("./assets/class-select/'+Player.class+Player.gender+Player.skin+'/f.png")';
-if(Player.class+Player.gender+Player.skin === "am1"){
+document.getElementById("inventoryGoldXP").style.backgroundImage = 'url("./assets/class-select/'+Player.class+Player.skin+'/f.png")';
+if(Player.class+Player.skin === "a1"){
 	document.getElementById("inventoryGoldXP").style.right = "8px";
 }
 document.getElementById("settingLogout").innerHTML = "You are logged in as "+Player.name+(localStorage.getItem("accept") ? "<div id='settingSave' onclick='Game.saveProgress()'>Save</div>" : "")+"<div id='settingLogoutInner' onclick='Game.saveProgress(\"logout\")'>Logout</div>"+(localStorage.getItem("accept") ? "<div id='settingDelete'>Delete</div>" : "");
@@ -2328,7 +2337,6 @@ Dom.inventory.give(Items.currency[2],3);
 if(localStorage.getItem(Player.class) !== null){
 	Player = JSON.parse(localStorage.getItem(Player.class));
 	Player.name = playerName;
-	Player.gender = playerGender;
 	Player.skin = playerSkin;
 }
 

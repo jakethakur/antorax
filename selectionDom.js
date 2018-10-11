@@ -1,21 +1,27 @@
 let num = 0;
 let max = {
-	am: 1,
-	af: 0,
-	mm: 1,
-	mf: 1,
-	km: 1,
-	kf: 0,
+	a: [
+		[-6.7,Infinity],
+		[-6.7,Infinity],
+		[20,Infinity],
+	],
+	m: [
+		[-10,20],
+		[-10,20],
+		[-20,Infinity],
+		[-20,-6.7],
+	],
+	k: [
+		[-6.7,-10],
+		[-6.7,-10],
+		[-20,Infinity],
+	],
 }
 let selected = {
-	am: 0,
-	af: 0,
-	mm: 0,
-	mf: 0,
-	km: 0,
-	kf: 0,
+	a: 0,
+	m: 0,
+	k: 0,
 	class: "a",
-	gender: "m",
 };
 if(localStorage.getItem("selected") !== null){
 	selected = JSON.parse(localStorage.getItem("selected"));
@@ -70,12 +76,9 @@ function arrange(){
 	document.getElementById("image").style.height = window.innerHeight-205+"px";
 	document.getElementById("play").style.top = window.innerHeight-85+"px";
 	document.getElementById("play").style.left = window.innerWidth/2-document.getElementById("play").offsetWidth/2+"px";
-	document.getElementById("male").style.width = document.getElementById("female").offsetWidth-30+"px";
-	document.getElementById("male").style.left = window.innerWidth/100*27-document.getElementById("male").offsetWidth/2+"px";
 	document.getElementById("left").style.left = window.innerWidth/100*27-document.getElementById("left").offsetWidth/2+"px";
 	document.getElementById("left").style.top = window.innerHeight/2-document.getElementById("left").offsetHeight/2+"px";
 	document.getElementById("right").style.top = window.innerHeight/2-document.getElementById("right").offsetHeight/2+"px";
-	document.getElementById("female").style.left = window.innerWidth/100*73-document.getElementById("female").offsetWidth/2+"px";
 	document.getElementById("right").style.left = window.innerWidth/100*73-document.getElementById("right").offsetWidth/2+"px";
 	document.getElementById("name").style.width = document.getElementById("play").offsetWidth-10+"px";
 	document.getElementById("name").style.left = window.innerWidth/2-document.getElementById("name").offsetWidth/2+"px";
@@ -107,73 +110,42 @@ document.getElementById("knight").onclick = function(){
 	display();
 }
 
-document.getElementById("male").onclick = function(){
-	selected.gender = "m";
-	display();
-}
-
-document.getElementById("female").onclick = function(){
-	selected.gender = "f";
-	display();
-}
-
 document.getElementById("image").onclick = function(){
-	if(selected[selected.class+selected.gender] !== max[selected.class+selected.gender]){
-		selected[selected.class+selected.gender]++;
+	if(selected[selected.class] < max[selected.class].length-1){
+		selected[selected.class]++;
 	}else{
-		selected[selected.class+selected.gender] = 0;
+		selected[selected.class] = 0;
 	}
 	display();
 }
 
 document.getElementById("random").onclick = function(){
-	document.getElementById("name").value = randomName(selected.gender);
+	document.getElementById("name").value = randomName();
 }
 
 document.getElementById("play").onclick = function(){
 	if(document.getElementById("name").value.length > 2){
 		sessionStorage.setItem("class",selected.class);
-		sessionStorage.setItem("gender",selected.gender);
-		sessionStorage.setItem("skin",selected[selected.class+selected.gender]);
+		sessionStorage.setItem("skin",selected[selected.class]);
 		sessionStorage.setItem("name",document.getElementById("name").value);
 		window.location.replace("./index.html");
 	}
 }
 
 function display(){
-	document.getElementById("random").style.backgroundImage = "url('assets/class-select/r"+selected.gender+".png')";
-	if(num === 0){
-		document.getElementById("image").src="assets/class-select/"+selected.class+selected.gender+selected[selected.class+selected.gender]+"/f.png";
-		if(selected.class!=="m"){
-			document.getElementById("image").style.left = window.innerWidth/2-document.getElementById("image").offsetWidth/2-parseInt(document.getElementById("image").width)/6.7+"px";
-		}else{
-			document.getElementById("image").style.left = window.innerWidth/2-document.getElementById("image").offsetWidth/2-parseInt(document.getElementById("image").width)/10+"px";
-		}
-	}else if(num === 1){
-		document.getElementById("image").src="assets/class-select/"+selected.class+selected.gender+selected[selected.class+selected.gender]+"/l.png";
-		if(selected.class==="a"){
-			document.getElementById("image").style.left = window.innerWidth/2-document.getElementById("image").offsetWidth/2+"px";
-		}else if(selected.class==="m"){
-			document.getElementById("image").style.left = window.innerWidth/2-document.getElementById("image").offsetWidth/2+parseInt(document.getElementById("image").width)/20+"px";
-		}else{
-			document.getElementById("image").style.left = window.innerWidth/2-document.getElementById("image").offsetWidth/2-parseInt(document.getElementById("image").width)/10+"px";
-		}
-	}else if(num === 2){
-		document.getElementById("image").src="assets/class-select/"+selected.class+selected.gender+selected[selected.class+selected.gender]+"/b.png";
-		if(selected.class!=="m"){
-			document.getElementById("image").style.left = window.innerWidth/2-document.getElementById("image").offsetWidth/2+parseInt(document.getElementById("image").width)/6.7+"px";
-		}else{
-			document.getElementById("image").style.left = window.innerWidth/2-document.getElementById("image").offsetWidth/2+parseInt(document.getElementById("image").width)/10+"px";
-		}
-	}else {
-		document.getElementById("image").src="assets/class-select/"+selected.class+selected.gender+selected[selected.class+selected.gender]+"/r.png";
-		if(selected.class==="a"){
-			document.getElementById("image").style.left = window.innerWidth/2-document.getElementById("image").offsetWidth/2+"px";
-		}else if(selected.class==="m"){
-			document.getElementById("image").style.left = window.innerWidth/2-document.getElementById("image").offsetWidth/2-parseInt(document.getElementById("image").width)/20+"px";
-		}else{
-			document.getElementById("image").style.left = window.innerWidth/2-document.getElementById("image").offsetWidth/2+parseInt(document.getElementById("image").width)/10+"px";
-		}
+	document.getElementById("random").style.backgroundImage = "url('assets/class-select/rm.png')";
+	if(num === 0){ // forward
+		document.getElementById("image").src="assets/class-select/"+selected.class+selected[selected.class]+"/f.png";
+		document.getElementById("image").style.left = window.innerWidth/2-document.getElementById("image").offsetWidth/2+parseInt(document.getElementById("image").width)/max[selected.class][selected[selected.class]][0]+"px";
+	}else if(num === 1){ // left
+		document.getElementById("image").src="assets/class-select/"+selected.class+selected[selected.class]+"/l.png";
+		document.getElementById("image").style.left = window.innerWidth/2-document.getElementById("image").offsetWidth/2+parseInt(document.getElementById("image").width)/max[selected.class][selected[selected.class]][1]+"px";
+	}else if(num === 2){ // backward
+		document.getElementById("image").src="assets/class-select/"+selected.class+selected[selected.class]+"/b.png";
+		document.getElementById("image").style.left = window.innerWidth/2-document.getElementById("image").offsetWidth/2-parseInt(document.getElementById("image").width)/max[selected.class][selected[selected.class]][0]+"px";
+	}else { // right
+		document.getElementById("image").src="assets/class-select/"+selected.class+selected[selected.class]+"/r.png";
+		document.getElementById("image").style.left = window.innerWidth/2-document.getElementById("image").offsetWidth/2-parseInt(document.getElementById("image").width)/max[selected.class][selected[selected.class]][1]+"px";
 	}
 }
 

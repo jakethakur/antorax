@@ -1016,10 +1016,6 @@ class Hero extends Attacker {
 							Player.quests.questProgress.itemsFishedUp = 1;
 						}
 						
-						// give fish
-						// must be after quest progress
-						Dom.inventory.give(this.channelling);
-						
 						// chat message
 						if (this.channelling.fishingType === "fish") { // fish
 							Dom.chat.insert("You caught a " + this.channelling.length + "cm <strong>" + this.channelling.name + "</strong>!");
@@ -1091,6 +1087,10 @@ class Hero extends Attacker {
 								}
 							}
 						}
+						
+						// give fish
+						// must be after quest progress and fishing skill
+						Dom.inventory.give(this.channelling);
 						
 						if (Math.floor(this.stats.fishingSkill) - Math.floor(oldFishingSkill) > 0) { // check if the player's fishing skill has increased to the next integer (or more)
 							Dom.chat.insert("Your fishing skill has increased to " + Math.floor(this.stats.fishingSkill) + "."); // notify them of this in chat
@@ -2192,12 +2192,12 @@ Game.load = function (names, addresses) {
 	// check player image has been loaded (if not, then load it)
 	if (!Object.keys(Loader.images).includes("hero")) {
 		// load image based on class
-		toLoad.push(Loader.loadImage("hero", "./assets/player/" + Player.class + Player.gender + Player.skin + ".png"));
+		toLoad.push(Loader.loadImage("hero", "./assets/player/" + Player.class + Player.skin + ".png"));
 	}
 	
 	// check projectile image has been loaded (if not, then load it)
 	if (!Object.keys(Loader.images).includes("projectile")) {
-		toLoad.push(Loader.loadImage("projectile", "./assets/projectiles/" + (Player.class+Player.gender+Player.skin === "am1" ? "jungleHunter" : Player.class) + ".png"));
+		toLoad.push(Loader.loadImage("projectile", "./assets/projectiles/" + (Player.class+Player.skin === "a1" ? "jungleHunter" : Player.class) + ".png"));
 	}
 	
 	// check status image has been loaded (if not, then load it)
@@ -3613,7 +3613,7 @@ Game.secondary.updateCursor = function (event) {
 	if (distance({x: Game.camera.x + event.clientX - 19, y: Game.camera.y + event.clientY - 19,}, Game.hero) < range) {
 		// mouse in range (crosshair)
 		var cursor = "crosshair";
-		if(Player.class+Player.gender+Player.skin == 'am1'){
+		if(Player.class+Player.skin == 'a1'){
 			cursor = "url('assets/icons/cursors/jungleHunter.png') 9.5 8, auto;";
 		}
 		document.getElementById("secondary").setAttribute("style","cursor: " + cursor);
