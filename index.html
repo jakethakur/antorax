@@ -67,9 +67,22 @@
 		<div id="otherQuests"onclick="Dom.expand('otherQuestBox')">Other Quests</div>
 		<div id="otherQuestBox"hidden></div>
 	</div>
-	<div id="instructionsPage">
-		<center><br><br><a href="./archaeology.html" target="_blank">Archaeology</a>
-		<br><br><br><a href="./builder/index.html" target="_blank">Item builder</a></center>
+	<div id="adventurePage">
+		<div id="level" style="display:inline;">Level 1</div>
+		<a href="./builder/index.html" target="_blank" style="display: inline; float: right;">Achievements</a>
+		<div><br>Suggested Content:</div>
+		<div id="eaglecrestLoggingCamp" class="adventure">
+			Eaglecrest Logging Camp<br>
+			<span style="font-size: 20px;">Help the logging camp defend against goblins.</span>
+		</div>
+		<div id="archaeology" class="adventure">
+			<a href="./archaeology.html" target="_blank">Archaeology</a><br>
+			<span style="font-size: 20px;">Uncover and collect weapons and armour.</span>
+		</div>
+		<div id="instructions" class="adventure">
+			<span id="instructionsTitle" style="color: blue; cursor: pointer;"><u>Instructions</u></span><br>
+			<span style="font-size: 20px;">View information to help you in your journey.</span>
+		</div>
 	</div>
 	<div id="reputationPage" hidden>
 	<br><p style="padding-left: 30px;padding-right: 20px;font-size: 20px;">Here you can see your reputation with the different factions of Antorax. If you have a good reputation you may receive discounts from local merchants and the villagers may trust you enough to help them for a reward.</p><br>
@@ -120,16 +133,16 @@
 		<div id="settingLogout"></div>
 	</div>
 	<div id="settingsTwoPage" hidden>
-		<center>
-			<h1>Hotkeys</h1>
-			<p style="display: inline">Chat Page:</p>&nbsp;&nbsp;&nbsp;<div class="hotkey"></div><br>
-			<p style="display: inline">Inventory Page:</p>&nbsp;&nbsp;&nbsp;<div class="hotkey"></div><br>
-			<p style="display: inline">Quests Page:</p>&nbsp;&nbsp;&nbsp;<div class="hotkey"></div><br>
-			<p style="display: inline">Instructions Page:</p>&nbsp;&nbsp;&nbsp;<div class="hotkey"></div><br>
-			<p style="display: inline">Reputation Page:</p>&nbsp;&nbsp;&nbsp;<div class="hotkey"></div><br>
-			<p style="display: inline">Settings Page:</p>&nbsp;&nbsp;&nbsp;<div class="hotkey"></div><br>
-			<div id="closeSettings" onclick="Dom.settings.page('settingsPage')">Close</div>
-		</center>
+		<center><h1>Hotkeys</h1></center>
+		<div id="hotkeyTexts">
+			<p style="display: inline">Chat Page:</p><div class="hotkey"></div><br>
+			<p style="display: inline"><br>Inventory Page:</p><div class="hotkey"></div><br>
+			<p style="display: inline"><br>Quests Page:</p><div class="hotkey"></div><br>
+			<p style="display: inline"><br>Adventure Page:</p><div class="hotkey"></div><br>
+			<p style="display: inline"><br>Reputation Page:</p><div class="hotkey"></div><br>
+			<p style="display: inline"><br>Settings Page:</p><div class="hotkey"></div><br>
+		</div>
+		<center><div id="closeSettings" onclick="Dom.settings.page('settingsPage')">Close</div></center>
 	</div>
 	<div id="questStart" hidden>
 		<br><h1 id="questStartQuest"></h1><br><br>
@@ -204,7 +217,7 @@
 	<span id="dot" onclick="Dom.changeBook('chatPage', false)" hidden></span>
 	<div id="inventoryImage"onclick="Dom.changeBook('inventoryPage', false)"></div>
 	<div id="questsImage"onclick="Dom.changeBook('questsPage', false)"></div>
-	<div id="instructionsImage"onclick="Dom.changeBook('instructionsPage', false)"></div>
+	<div id="adventureImage"onclick="Dom.changeBook('adventurePage', false)"></div>
 	<div id="reputationImage"onclick="Dom.changeBook('reputationPage', false)"></div>
 	<div id="settingsImage"onclick="Dom.settings.page()"></div>
 	<svg height="51" width="131" id="changeChat" onclick="Dom.changeBook('chatPage', false)" tabindex = "0">
@@ -216,7 +229,7 @@
 	<svg height="51" width="131" id="changeQuests" onclick="Dom.changeBook('questsPage', false)"tabindex = "0">
 		<polygon points="0,0 0,50 100,50 130,25 100,0" style="fill:green;stroke:black;stroke-width:1" />
 	</svg>
-	<svg height="51" width="131" id="changeInstructions" onclick="Dom.changeBook('instructionsPage', false)"tabindex = "0">
+	<svg height="51" width="131" id="changeAdventure" onclick="Dom.changeBook('adventurePage', false)"tabindex = "0">
 		<polygon points ="0,0 0,50 100,50 130,25 100,0" style="fill:yellow;stroke:black;stroke-width:3" />
 	</svg>
 	<svg height="51" width="131" id="changeReputation" onclick="Dom.changeBook('reputationPage', false)"tabindex = "0">

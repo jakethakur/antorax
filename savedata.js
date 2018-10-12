@@ -19,8 +19,6 @@ var Player = {
 	lootArea: "Eaglecrest Logging Camp", // general area that unidentified items are from
 	lootTier: 1, // tier that unidentified items are from
 	
-	hotkeys: ["c","i","q","l","r","z"],
-	
 	reputation: {
 		eaglecrestLoggingCamp: {
 			score: 60,

@@ -8,7 +8,7 @@ let Dom = {
 		questsPage: document.getElementById("questsPage"),
 		settingsPage: document.getElementById("settingsPage"),
 		settingsTwoPage: document.getElementById("settingsTwoPage"),
-		instructionsPage: document.getElementById("instructionsPage"),
+		adventurePage: document.getElementById("adventurePage"),
 		reputationPage: document.getElementById("reputationPage"),
 		questStart: document.getElementById("questStart"),
 		questFinish: document.getElementById("questFinish"),
@@ -25,7 +25,7 @@ let Dom = {
 	inventory: {},
 	hotbar: {},
 	quests: {},
-	instructions: {},
+	adventure: {},
 	reputation: {},
 	settings: {},
 	quest: {},
@@ -39,22 +39,30 @@ let Dom = {
 	alert: {},
 };
 
-Dom.previous = "instructionsPage"; // change currently displayed page
+Dom.previous = "adventurePage"; // change currently displayed page
 Dom.changeBook = function(page, override, x, shouldNotBeOverriden) { // changes the page or changes the color of close buttons
 	//override says if the function should be run regardless of if the player has a quest active (e.g: declining a quest or closing a merchant)
 	if((this.currentlyDisplayed === "" || override) && page !== "levelUpPage") { // check the player doesn't have a quest active
 		// hide all pages
-		if(page === "chatPage" || page === "inventoryPage" || page === "questsPage" || page === "instructionsPage" || page === "reputationPage" || page === "settingsPage"){ // if the page being changed to is a not a pop up...
+		if(page === "chatPage" || page === "inventoryPage" || page === "questsPage" || page === "adventurePage" || page === "reputationPage" || page === "settingsPage" || page === "settingsTwoPage"){ // if the page being changed to is a not a pop up...
+			let changed = false;
+			if(page === "settingsTwoPage"){
+				page = "settingsPage";
+				changed = true;
+			}
 			document.getElementById("change"+Dom.previous.substring(0,1).toUpperCase()+Dom.previous.substring(1,Dom.previous.length-4)).getElementsByTagName("polygon")[0].style.strokeWidth = "1";
 			document.getElementById("change"+page.substring(0,1).toUpperCase()+page.substring(1,page.length-4)).getElementsByTagName("polygon")[0].style.strokeWidth = "3";
 			Dom.previous = page; // ... it will open it next time you close a pop up
+			if(changed){
+				page = "settingsTwoPage";
+			}
 		}
 		this.elements.chatPage.hidden = true;
 		this.elements.inventoryPage.hidden = true;
 		this.elements.questsPage.hidden = true;
 		this.elements.settingsPage.hidden = true;
 		this.elements.settingsTwoPage.hidden = true;
-		this.elements.instructionsPage.hidden = true;
+		this.elements.adventurePage.hidden = true;
 		this.elements.reputationPage.hidden = true;
 		this.elements.questStart.hidden = true;				// Hides all other pages
 		this.elements.questFinish.hidden = true;
@@ -95,7 +103,7 @@ Dom.changeBook = function(page, override, x, shouldNotBeOverriden) { // changes 
 			Dom.settings.page();
 		}
 		if(Dom.settings.hotkey !== undefined){
-			document.getElementsByClassName("hotkeys")[Dom.settings.hotkey].innerHTML = Player.hotkeys[Dom.settings.hotkey];
+			document.getElementsByClassName("hotkey")[Dom.settings.hotkey].innerHTML = Dom.settings.bound[Dom.settings.hotkey].toUpperCase();
 			Dom.settings.hotkey = undefined;
 		}
 		return true; // returns true if the page was changed
@@ -232,9 +240,9 @@ Dom.settings.bookmarkPosition = function() { // arrange position of bookmarks
 		document.getElementById("changeQuests").style.top="619px";
 		document.getElementById("changeQuests").style.transform="rotate(90deg)";
 		document.getElementById("changeQuests").style.transformOrigin="top left";
-		document.getElementById("changeInstructions").style.top="619px";
-		document.getElementById("changeInstructions").style.transform="rotate(90deg)";
-		document.getElementById("changeInstructions").style.transformOrigin="top left";
+		document.getElementById("changeAdventure").style.top="619px";
+		document.getElementById("changeAdventure").style.transform="rotate(90deg)";
+		document.getElementById("changeAdventure").style.transformOrigin="top left";
 		document.getElementById("changeReputation").style.top="619px";
 		document.getElementById("changeReputation").style.transform="rotate(90deg)";
 		document.getElementById("changeReputation").style.transformOrigin="top left";
@@ -244,19 +252,19 @@ Dom.settings.bookmarkPosition = function() { // arrange position of bookmarks
 		document.getElementById("changeChat").style.left="710px";
 		document.getElementById("changeInventory").style.left="780px";
 		document.getElementById("changeQuests").style.left="850px";
-		document.getElementById("changeInstructions").style.left="920px";
+		document.getElementById("changeAdventure").style.left="920px";
 		document.getElementById("changeReputation").style.left="990px";
 		document.getElementById("changeSettings").style.left="1060px";
 		document.getElementById("chatImage").style.top="649px";
 		document.getElementById("inventoryImage").style.top="649px";
 		document.getElementById("questsImage").style.top="649px";
-		document.getElementById("instructionsImage").style.top="649px";
+		document.getElementById("adventureImage").style.top="649px";
 		document.getElementById("reputationImage").style.top="649px";
 		document.getElementById("settingsImage").style.top="649px";
 		document.getElementById("chatImage").style.left="669px";
 		document.getElementById("inventoryImage").style.left="739px";
 		document.getElementById("questsImage").style.left="820px";
-		document.getElementById("instructionsImage").style.left="875px";
+		document.getElementById("adventureImage").style.left="875px";
 		document.getElementById("reputationImage").style.left="943px";
 		document.getElementById("settingsImage").style.left="1015px";
 		document.getElementById("dot").style.top="646px";
@@ -275,9 +283,9 @@ Dom.settings.bookmarkPosition = function() { // arrange position of bookmarks
 		document.getElementById("changeQuests").style.left="1162px";
 		document.getElementById("changeQuests").style.transform="rotate(0deg)";
 		document.getElementById("changeQuests").style.transformOrigin="top left";
-		document.getElementById("changeInstructions").style.left="1162px";
-		document.getElementById("changeInstructions").style.transform="rotate(0deg)";
-		document.getElementById("changeInstructions").style.transformOrigin="top left";
+		document.getElementById("changeAdventure").style.left="1162px";
+		document.getElementById("changeAdventure").style.transform="rotate(0deg)";
+		document.getElementById("changeAdventure").style.transformOrigin="top left";
 		document.getElementById("changeReputation").style.left="1162px";
 		document.getElementById("changeReputation").style.transform="rotate(0deg)";
 		document.getElementById("changeReputation").style.transformOrigin="top left";
@@ -287,19 +295,19 @@ Dom.settings.bookmarkPosition = function() { // arrange position of bookmarks
 		document.getElementById("changeChat").style.top="38px";
 		document.getElementById("changeInventory").style.top="108px";
 		document.getElementById("changeQuests").style.top="178px";
-		document.getElementById("changeInstructions").style.top="248px";
+		document.getElementById("changeAdventure").style.top="248px";
 		document.getElementById("changeReputation").style.top="318px";
 		document.getElementById("changeSettings").style.top="388px";
 		document.getElementById("chatImage").style.top="43px";
 		document.getElementById("inventoryImage").style.top="113px";
 		document.getElementById("questsImage").style.top="183px";
-		document.getElementById("instructionsImage").style.top="253px";
+		document.getElementById("adventureImage").style.top="253px";
 		document.getElementById("reputationImage").style.top="323px";
 		document.getElementById("settingsImage").style.top="393px";
 		document.getElementById("chatImage").style.left="1197px";
 		document.getElementById("inventoryImage").style.left="1197px";
 		document.getElementById("questsImage").style.left="1212px";
-		document.getElementById("instructionsImage").style.left="1197px";
+		document.getElementById("adventureImage").style.left="1197px";
 		document.getElementById("reputationImage").style.left="1197px";
 		document.getElementById("settingsImage").style.left="1197px";
 		document.getElementById("dot").style.top="41px";
@@ -702,7 +710,7 @@ Dom.inventory.displayInformation = function(item, stacked, position){
 			document.getElementById("stats").innerHTML = item.use;
 		}
 		if(item.onClickText !== undefined){
-			document.getElementById("stats").innerHTML += (document.getElementById("stats").innerHTML !== undefined ? "<br><br>" : "") + item.onClickText + (item.charges !== undefined ? "<br><br>" + item.charges + " Charges" : "");
+			document.getElementById("stats").innerHTML += (document.getElementById("stats").innerHTML !== "" ? "<br><br>" : "") + item.onClickText + (item.charges !== undefined ? "<br><br>" + item.charges + " Charges" : "");
 		}
 		let lorebuyer = "";
 		if(item.lore !== undefined && item.lore !== "" && !Array.isArray(item.lore)){ // if the item has a lore...
@@ -2324,30 +2332,40 @@ function getFullDate () {
 	return dateString;
 }
 
+Dom.settings.bound = ["c","i","q","l","r","z"];
+if(localStorage.getItem("hotkeys") !== null){
+	Dom.settings.bound = JSON.parse(localStorage.getItem("hotkeys"));
+}
 window.addEventListener('keyup', function(ev){
 	if(Dom.settings.hotkey !== undefined){
 		let availible = true;
-		for(let i = 0; i < Player.hotkeys.length; i++){
-			if(Player.hotkeys[i] === ev.key && i !== Dom.settings.hotkey){
+		for(let i = 0; i < Dom.settings.bound.length; i++){
+			if(Dom.settings.bound[i] === ev.key && i !== Dom.settings.hotkey){
 				availible = false;
 			}
 		}
-		if(availible && ev.keyCode !== 65 && ev.keyCode !== 83 && ev.keyCode !== 68 && ev.keyCode !== 87 && ev.keyCode !== 16 && ev.keyCode !== 32 && ev.keyCode !== 37 && ev.keyCode !== 38 && ev.keyCode !== 39 && ev.keyCode !== 40){ // not equal to shift, space, wasd, arrows...
-			Player.hotkeys[Dom.settings.hotkey] = ev.key;
+		if(availible && ev.keyCode !== 65 && ev.keyCode !== 83 && ev.keyCode !== 68 && ev.keyCode !== 87 && ev.keyCode !== 16 && ev.keyCode !== 32 && ev.keyCode !== 37 && ev.keyCode !== 38 && ev.keyCode !== 39 && ev.keyCode !== 40 && ev.keyCode !== 255 && ev.keyCode !== 173 && ev.keyCode !== 174 && ev.keyCode !== 175 && ev.keyCode !== 176 && ev.keyCode !== 177 && ev.keyCode !== 179 && ev.keyCode !== 44){ // not equal to shift, space, wasd, arrows...
+			Dom.settings.bound[Dom.settings.hotkey] = ev.key;
 			document.getElementsByClassName("hotkey")[Dom.settings.hotkey].innerHTML = ev.key.toUpperCase();
 			Dom.settings.hotkey = undefined;
+			if(localStorage.getItem("accept") === "true"){
+				localStorage.setItem("hotkeys", JSON.stringify(Dom.settings.bound));
+			}
+		}else{
+			document.getElementsByClassName("hotkey")[Dom.settings.hotkey].innerHTML = Dom.settings.bound[Dom.settings.hotkey].toUpperCase();
+			Dom.settings.hotkey = undefined;
 		}
-	}else if(ev.key === Player.hotkeys[0]){
+	}else if(ev.key === Dom.settings.bound[0]){
 		Dom.changeBook("chatPage");
-	}else if(ev.key === Player.hotkeys[1]){
+	}else if(ev.key === Dom.settings.bound[1]){
 		Dom.changeBook("inventoryPage");
-	}else if(ev.key === Player.hotkeys[2]){
+	}else if(ev.key === Dom.settings.bound[2]){
 		Dom.changeBook("questsPage");
-	}else if(ev.key === Player.hotkeys[3]){
-		Dom.changeBook("instructionsPage");
-	}else if(ev.key === Player.hotkeys[4]){
+	}else if(ev.key === Dom.settings.bound[3]){
+		Dom.changeBook("adventurePage");
+	}else if(ev.key === Dom.settings.bound[4]){
 		Dom.changeBook("reputationPage");
-	}else if(ev.key === Player.hotkeys[5]){
+	}else if(ev.key === Dom.settings.bound[5]){
 		Dom.changeBook("settingsPage");
 	}
 });
@@ -2360,6 +2378,36 @@ Dom.settings.page = function(page){
 	}else{
 		Dom.changeBook(Dom.settings.current, undefined, undefined, true);
 	}
+}
+
+Dom.adventure.instructions = [["Getting Started","<p>Welcome to the mystical kingdom of Antorax - a world full of immersion, magic, archaeology, and no third dimension. Regardless, in this cruel and unforgiving world, I should probably let you know how everything works, rather than drop you in unawares and let you immediately die.</p>"],
+	["Movement","<p>First up: moving. You’d think this would be simple, but there is, in fact, a needlessly complex control scheme: a ancient art known as the arrow keys. Up goes up, left goes left, right goes right… I bet you can’t figure out what down does! WASD also works for those of you who like to use proper controls.</p>"],
+	["Collisions with NPCs","<p>To make money and earn new items, you’ll need to know how to talk to people. Luckily, for those of you who’d prefer not to initiate conversation, it seems that everybody wants to talk to you! Just walk on up to someone and poof! Dialogue!</p>"],
+	["Getting back to instructions","<p>If you ever forget anything you read here and want to come back, simply click on the yellow bookmark with a compass on it.</p>"],
+]
+Dom.adventure.currentInstruction = 0;
+
+Dom.adventure.nextInstruction = function(){
+	Dom.adventure.currentInstruction++;
+	Dom.text.page("", Dom.adventure.instructions[Dom.adventure.currentInstruction][0], "<p>"+(Dom.adventure.currentInstruction > 0 ? "<span onclick='Dom.adventure.previousInstruction()'>&#8678;</span>&nbsp;&nbsp;" : "")+"Page "+(Dom.adventure.currentInstruction+1)+" of "+Dom.adventure.instructions.length+(Dom.adventure.currentInstruction < Dom.adventure.instructions.length-1 ? "&nbsp;&nbsp;<span onclick='Dom.adventure.nextInstruction()'>&#8680;</span>" : "")+"</p>"+Dom.adventure.instructions[Dom.adventure.currentInstruction][1]+"<p>"+(Dom.adventure.currentInstruction > 0 ? "<span onclick='Dom.adventure.previousInstruction()'>&#8678;</span>&nbsp;&nbsp;" : "")+"Page "+(Dom.adventure.currentInstruction+1)+" of "+Dom.adventure.instructions.length+(Dom.adventure.currentInstruction < Dom.adventure.instructions.length-1 ? "&nbsp;&nbsp;<span onclick='Dom.adventure.nextInstruction()'>&#8680;</span>" : "")+"</p>", Dom.adventure.currentInstruction === Dom.adventure.instructions.length-1, []);
+}
+
+Dom.adventure.previousInstruction = function(){
+	Dom.adventure.currentInstruction--;
+	Dom.text.page("", Dom.adventure.instructions[Dom.adventure.currentInstruction][0], "<p>"+(Dom.adventure.currentInstruction > 0 ? "<span onclick='Dom.adventure.previousInstruction()'>&#8678;</span>&nbsp;&nbsp;" : "")+"Page "+(Dom.adventure.currentInstruction+1)+" of "+Dom.adventure.instructions.length+(Dom.adventure.currentInstruction < Dom.adventure.instructions.length-1 ? "&nbsp;&nbsp;<span onclick='Dom.adventure.nextInstruction()'>&#8680;</span>" : "")+"</p>"+Dom.adventure.instructions[Dom.adventure.currentInstruction][1]+"<p>"+(Dom.adventure.currentInstruction > 0 ? "<span onclick='Dom.adventure.previousInstruction()'>&#8678;</span>&nbsp;&nbsp;" : "")+"Page "+(Dom.adventure.currentInstruction+1)+" of "+Dom.adventure.instructions.length+(Dom.adventure.currentInstruction < Dom.adventure.instructions.length-1 ? "&nbsp;&nbsp;<span onclick='Dom.adventure.nextInstruction()'>&#8680;</span>" : "")+"</p>", Dom.adventure.currentInstruction === Dom.adventure.instructions.length-1, []);
+}
+
+if(localStorage.getItem("instructions") === "true"){
+	document.getElementById("instructionsTitle").style.color = "#551a8b";
+}
+
+document.getElementById("instructions").onclick = function(){
+	if(localStorage.getItem("accept") === "true"){
+		localStorage.setItem("instructions", true);
+	}
+	document.getElementById("instructionsTitle").style.color = "#551a8b";
+	Dom.adventure.currentInstruction = 0;
+	Dom.text.page("", Dom.adventure.instructions[Dom.adventure.currentInstruction][0], "<p>"+(Dom.adventure.currentInstruction > 0 ? "<span onclick='Dom.adventure.previousInstruction()'>&#8678;</span>&nbsp;&nbsp;" : "")+"Page "+(Dom.adventure.currentInstruction+1)+" of "+Dom.adventure.instructions.length+(Dom.adventure.currentInstruction < Dom.adventure.instructions.length-1 ? "&nbsp;&nbsp;<span onclick='Dom.adventure.nextInstruction()'>&#8680;</span>" : "")+"</p>"+Dom.adventure.instructions[Dom.adventure.currentInstruction][1]+"<p>"+(Dom.adventure.currentInstruction > 0 ? "<span onclick='Dom.adventure.previousInstruction()'>&#8678;</span>&nbsp;&nbsp;" : "")+"Page "+(Dom.adventure.currentInstruction+1)+" of "+Dom.adventure.instructions.length+(Dom.adventure.currentInstruction < Dom.adventure.instructions.length-1 ? "&nbsp;&nbsp;<span onclick='Dom.adventure.nextInstruction()'>&#8680;</span>" : "")+"</p>", Dom.adventure.currentInstruction === Dom.adventure.instructions.length-1, []);
 }
 
 //
@@ -2430,12 +2478,15 @@ if(Player.reputationReady){
 	Dom.reputation.start();
 }
 for(let i = 0; i < document.getElementsByClassName("hotkey").length; i++){
-	document.getElementsByClassName("hotkey")[i].innerHTML = Player.hotkeys[i].toUpperCase();
+	document.getElementsByClassName("hotkey")[i].innerHTML = Dom.settings.bound[i].toUpperCase();
 	document.getElementsByClassName("hotkey")[i].onclick = function(){
-		document.getElementsByClassName("hotkey")[i].innerHTML = "...";
-		Dom.settings.hotkey = i;
+		if(Dom.settings.hotkey === undefined){
+			document.getElementsByClassName("hotkey")[i].innerHTML = "...";
+			Dom.settings.hotkey = i;
+		}
 	}
 }
+document.getElementById("level").innerHTML = "Level "+Player.level;
 
 //DELTES EXISTING CLASS
 if(document.getElementById("settingDelete") !== null){

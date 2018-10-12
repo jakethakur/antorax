@@ -2994,6 +2994,7 @@ Game.getXP = function (xpGiven) {
 			Game.hero.level = Player.level;
 			Game.playLevelupSound(this.areaName);
 			Dom.levelUp.page();
+			document.getElementById("level").innerHTML = "Level "+Player.level;
 		}
 		// xp gained
 		Game.secondary.render();

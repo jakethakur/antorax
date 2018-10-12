@@ -7,7 +7,7 @@ body{
 	-ms-user-select: none; /* IE10+/Edge */
 	user-select: none;
 }
-#chatPage, #inventoryPage, #questsPage, #settingsPage, #settingsTwoPage, #instructionsPage, #reputationPage, #questStart, #questFinish, #merchantPage, #identifierPage, #levelUpPage, #lootPage, #buyerPage, #choosePage, #textPage, #identifiedPage {
+#chatPage, #inventoryPage, #questsPage, #settingsPage, #settingsTwoPage, #adventurePage, #reputationPage, #questStart, #questFinish, #merchantPage, #identifierPage, #levelUpPage, #lootPage, #buyerPage, #choosePage, #textPage, #identifiedPage {
 	float: left;
 	margin: 10px;
 	border: 1px solid black;
@@ -62,7 +62,7 @@ body{
 	vertical-align: middle;
 	font-size: 20px;
 }
-#activeQuestBox, #possibleQuestBox, #completedQuestBox, #otherQuestBox, #activeQuests, #possibleQuests, #completedQuests, #otherQuests, #settingBookmark, #settingMusic, #settingHitboxes, #settingCoords, #settingFps, #settingGrid, #settingSpeed, #settingAccept {
+.adventure, #activeQuestBox, #possibleQuestBox, #completedQuestBox, #otherQuestBox, #activeQuests, #possibleQuests, #completedQuests, #otherQuests, #settingBookmark, #settingMusic, #settingHitboxes, #settingCoords, #settingFps, #settingGrid, #settingSpeed, #settingAccept {
 	position: relative;
 	width: 511px;
 	border-left: 5px solid #886622;
@@ -70,6 +70,13 @@ body{
 	border-bottom: 5px solid #886622;
 	right: 10px;
 	background-color: #fef9b4;
+}
+.adventure{
+	margin-top: 10px;
+	border-top: 5px solid #886622;
+	right: 0px;
+	width: 450px;
+	padding: 10px;
 }
 #activeQuests, #possibleQuests, #completedQuests, #otherQuests{
 	text-align: center;
@@ -162,8 +169,14 @@ body{
 	padding-left: 5px;
 	padding-right: 5px;
 	height: 35px;
-	margin-top: 10px;
+	margin-top: -10px;
+	//margin-bottom: 10px;
 	font-weight: bold;
+	left: 1000px;
+	position: absolute;
+}
+#hotkeyTexts{
+	margin-left: 100px;
 }
 #inventoryGoldXP{
 	position: relative;
@@ -403,13 +416,13 @@ td{
 #acceptReward{
 	top: 20px;
 }
-#changeChat, #changeInventory, #changeQuests, #changeInstructions, #changeReputation, #changeInstructions, #changeSettings{
+#changeChat, #changeInventory, #changeQuests, #changeAdventure, #changeReputation, #changeAdventure, #changeSettings{
 	position: absolute;
 	width: 131px;
 	height: 51px;
 	outline: none;
 }
-#chatImage, #inventoryImage, #questsImage, #instructionsImage, #reputationImage, #settingsImage{
+#chatImage, #inventoryImage, #questsImage, #adventureImage, #reputationImage, #settingsImage{
 	position: absolute;
 	height: 40px;
 	z-index: 1;
@@ -426,8 +439,8 @@ td{
 	background-image: url("./assets/icons/quests.png");
 	width: 9px;
 }
-#instructionsImage{
-	background-image: url("./assets/icons/instructions.png");
+#adventureImage{
+	background-image: url("./assets/icons/adventure.png");
 	width: 40px;
 }
 #reputationImage{
@@ -437,9 +450,6 @@ td{
 #settingsImage{
 	background-image: url("./assets/icons/settings.png");
 	width: 38px;
-}
-#instructionsPage{
-	font-size: 60px;
 }
 #settingLogoutInner, #settingLogout, #settingSave, #settingDelete, #settingControls{
 	position: relative;
@@ -549,4 +559,10 @@ td{
 .radio2{
 	position: absolute;
 	left: 375px;
+}
+#adventurePage{
+	font-size: 30px;
+	padding: 20px;
+	width: 480px;
+	height: 560px;
 }
