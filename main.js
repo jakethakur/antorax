@@ -850,8 +850,8 @@ class Hero extends Attacker {
 			}
 		}
 		else if (slowTile === "water") { // in water tile
-			if(!this.hasStatusEffect("Swimming")) {
-				this.speed = this.stats.swimSpeed;
+			this.speed = this.stats.swimSpeed;
+			if(!this.hasStatusEffect("Swimming")) { // give status effect if the player doesn't already have it
 				this.statusEffects.push(new statusEffect({title: "Swimming", effect: "Reduced movement speed",}));
 				// remove fire status effect
 				for (var i = 0; i < this.statusEffects.length; i++) {
@@ -864,7 +864,7 @@ class Hero extends Attacker {
 		}
 		else if (slowTile === "mud") { // in mud tile
 			// currently mud goes the same speed as swimSpeed
-			if(!this.hasStatusEffect("Stuck in the mud")) {
+			if(!this.hasStatusEffect("Stuck in the mud")) { // give status effect if the player doesn't already have it
 				this.speed = this.stats.swimSpeed;
 				this.statusEffects.push(new statusEffect({title: "Stuck in the mud", effect: "Reduced movement speed",}));
 				this.updateStatusEffects();
@@ -875,7 +875,7 @@ class Hero extends Attacker {
 		}
 		
 		// swiftness status effect
-		let swiftessStatusEffect = this.statusEffects.find(statusEffect => statusEffect.title.substring(0, 9) === "Swiftness")
+		let swiftessStatusEffect = this.statusEffects.find(statusEffect => statusEffect.title.substring(0, 9) === "Swiftness");
 		if (swiftessStatusEffect !== undefined) {
 			this.speed *= 1 + (swiftessStatusEffect.info.speedIncrease / 100);
 		}
@@ -915,7 +915,7 @@ class Hero extends Attacker {
 				let projectileY = Game.camera.y + (e.clientY - 19);
 				let distanceToProjectile = distance({x: projectileX, y: projectileY,}, this);
 				
-				if (/*Player.class === "m" && */Player.inventory.weapon[0].type === "staff" || /*Player.class === "a" && */Player.inventory.weapon[0].type === "bow" || /*Player.class === "k" && */Player.inventory.weapon[0].type === "sword") {
+				if (Player.inventory.weapon[0].type === "staff" || Player.inventory.weapon[0].type === "bow" || Player.inventory.weapon[0].type === "sword") {
 					// player is using conventional weapon
 						
 					if (distanceToProjectile < this.stats.range) {
@@ -928,7 +928,7 @@ class Hero extends Attacker {
 						let projectileRotate = bearing(this, {x: projectileX, y: projectileY}) + Math.PI / 2;
 						
 						let variance = this.stats.variance;
-						if (this.class === "a") { // alter variance based on distance to enemy if the class is archer
+						if (Player.inventory.weapon[0].type === "bow") { // alter variance based on distance to enemy if the class is archer
 							let distanceFraction = distanceToProjectile / 600; // fraction of maximum variance (max variance = Playerstats.variance)
 							variance *= distanceFraction;
 						}
@@ -953,7 +953,7 @@ class Hero extends Attacker {
 								width: this.class === "k" ? 60 : (this.class === "m" ? 23 : (this.class === "a" ? 10 : 0)),
 								height: this.class === "k" ? 60 : (this.class === "m" ? 23 : (this.class === "a" ? 10 : 0)),
 							},
-							image: "projectile",
+							image: Player.inventory.weapon[0].type === "bow" ? "projectileA" : (Player.inventory.weapon[0].type === "staff" ? "projectileM" : (Player.inventory.weapon[0].type === "sword" ? "projectileK" : "")),
 							beingChannelled: true,
 							variance: variance,
 						}));
@@ -1108,7 +1108,7 @@ class Hero extends Attacker {
 			}
 			else {
 				// knight block attack
-				if (Player.class === "k") {
+				if (Player.inventory.weapon[0].type === "bow") {
 					this.channelling = "block";
 				}
 			}
@@ -1442,7 +1442,8 @@ class Projectile extends Thing {
 						
 						// strength status effect
 						if (attacker.hasStatusEffect("Strength", 0, 8)) {
-							dmgDealt *= 1 + strengthStatusEffect.info.damageIncrease;
+							let strengthStatusEffect = attacker.statusEffects.find(statusEffect => statusEffect.title.substring(0, 8) === "Strength")
+							dmgDealt *= 1 + (strengthStatusEffect.info.damageIncrease / 100);
 						}
 						
 						if (random(0, 99) < attacker.stats.criticalChance) { // critical hit
@@ -2195,9 +2196,18 @@ Game.load = function (names, addresses) {
 		toLoad.push(Loader.loadImage("hero", "./assets/player/" + Player.class + Player.skin + ".png"));
 	}
 	
-	// check projectile image has been loaded (if not, then load it)
-	if (!Object.keys(Loader.images).includes("projectile")) {
-		toLoad.push(Loader.loadImage("projectile", "./assets/projectiles/" + (Player.class+Player.skin === "a1" ? "jungleHunter" : Player.class) + ".png"));
+	// check if a class projectile image has been loaded (if not, then load all class')
+	if (!Object.keys(Loader.images).includes("projectileA")) {
+		// load all necessary projectiles
+		// basic projectiles
+		toLoad.push(Loader.loadImage("projectileA", "./assets/projectiles/a.png"));
+		toLoad.push(Loader.loadImage("projectileM", "./assets/projectiles/m.png"));
+		toLoad.push(Loader.loadImage("projectileK", "./assets/projectiles/k.png"));
+		// class-specific projectiles
+		/*if (Player.class+Player.gender+Player.skin === "am1") {
+			// jungle hunter
+		}*/
+		//toLoad.push(Loader.loadImage("projectileM", "./assets/projectiles/" + (Player.class+Player.gender+Player.skin === "mm1" ? "ghostbusters" : Player.class) + ".png"));
 	}
 	
 	// check status image has been loaded (if not, then load it)
@@ -2223,7 +2233,9 @@ Game.loadArea = function (areaName, destination) {
 	Loader.wipeImages([
 		// images not to be wiped
 		"hero",
-		"projectile",
+		"projectileA",
+		"projectileM",
+		"projectileK",
 		"status",
 	]);
 	
@@ -2931,7 +2943,7 @@ Game.playerProjectileUpdate = function(delta) {
 			this.hero.channelTime += delta;
 		}
 
-		if (Game.hero.class === "a") { // archers slowly focus as they are channelling
+		if (Player.inventory.weapon[0].type === "bow") { // archer weapons slowly focus as they are channelling
 			if (projectile.variance > 0 + Game.hero.stats.focusSpeed * delta * 16) { // check it won't be 0 or less
 				projectile.variance -= Game.hero.stats.focusSpeed * delta * 16;
 			}
@@ -2940,7 +2952,7 @@ Game.playerProjectileUpdate = function(delta) {
 			}
 		}
 		
-		else if (Game.hero.class === "m") {
+		else if (Player.inventory.weapon[0].type === "staff") { // mage weapon
 			if (projectile.expand < 2) { // check it won't be 0 or less
 				// takes about 1 second to fully expand
 				projectile.expand += delta;
@@ -3491,7 +3503,7 @@ Game.render = function (delta) {
 		// set screen x and y
 		this.updateScreenPosition(this.projectiles[i]);
 		
-		if (Game.hero.class === "a" && this.projectiles[i].beingChannelled && Game.hero.channelling === "projectile") { // show archer red circle instead of projectile if they are currently channelling it
+		if (Player.inventory.weapon[0].type === "bow" && this.projectiles[i].beingChannelled && Game.hero.channelling === "projectile") { // show archer red circle instead of projectile if they are currently channelling it
 			this.ctx.strokeStyle = "red";
 			this.ctx.beginPath();
 			this.ctx.arc(this.projectiles[i].hitbox.screenX, this.projectiles[i].hitbox.screenY, this.projectiles[i].variance, 0, 2*Math.PI);
@@ -3499,7 +3511,7 @@ Game.render = function (delta) {
 		}
 		
 		else { // render projectile normally
-			if (Game.hero.class === "m" && this.projectiles[i].beingChannelled && Game.hero.channelling === "projectile") { // mage projectiles are transparent when being channelled
+			if (Player.inventory.weapon[0].type === "staff" && this.projectiles[i].beingChannelled && Game.hero.channelling === "projectile") { // mage projectiles are transparent when being channelled
 				this.ctx.globalAlpha = 0.6;
 			}
 		

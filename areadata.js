@@ -188,7 +188,7 @@ var EnemyTemplates = {
 			leashRadius: 350,
 			xpGiven: 20,
 			projectile: {
-				image: "fire",
+				image: "projectileM",
 			},
 			lootTableTemplate: LootTables.nilbogGoblin,
 			lootTable: [
@@ -1026,7 +1026,6 @@ var Areas = {
 				"hammerGoblin",
 				"melee",
 				"fireGoblin",
-				"fire",
 				"goblinCorpse",
 				"mailcart",
 				"trap",
@@ -1041,7 +1040,6 @@ var Areas = {
 				"./assets/enemies/goblinBruiser.png",
 				"./assets/projectiles/melee.png",
 				"./assets/enemies/goblinPyromancer.png",
-				"./assets/projectiles/m.png",
 				"./assets/corpses/deadGoblin.png",
 				"./assets/objects/cartDestroyed.png",
 				"./assets/objects/trap.png",
