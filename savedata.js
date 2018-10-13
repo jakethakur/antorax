@@ -12,7 +12,7 @@ var Player = {
 	skin: playerSkin,
 	
 	// updated by saved progress
-	x: 2297,
+	x: 2297, // start coords
 	y: 387,
 	areaName: "tutorial",
 	

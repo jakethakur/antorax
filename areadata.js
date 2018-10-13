@@ -270,6 +270,30 @@ var Areas = {
 			},
 		],
 		
+		tripwires: [
+			{
+				// instructions pop up when bridge is moved to
+				x: 1100,
+				y: 0,
+				width: 1,
+				height: 600,
+				onPlayerTouch: function () {
+					// check that the "to the logging camp" quest has been started and this bit of code hasn't been run before
+					if (Player.quests.activeQuestArray.contains("To the Logging Camp")
+					&& !this.hasOpenedInstructions) {
+						Dom.adventure.addInstruction(3); // open instructions chapter 3
+						this.hasOpenedInstructions = true; // stop this part of function from being called again
+					}
+					// otherwise if the player hasn't started the quest, teleport them back to make them!
+					else if (!this.hasOpenedInstructions) {
+						Game.hero.x = 2297;
+						Game.hero.y = 387;
+						Dom.alert.page("You need to start your first quest. Speak to the Cart Driver who is right next to you.")
+					}
+				}
+			}
+		],
+		
 		NPCs: [
 			{
 				x: 2080,
@@ -525,6 +549,13 @@ var Areas = {
 		player: {
 			x: 663,
 			y: 217,
+		},
+		
+		onAreaLoad: function () {
+			// start instructions chapter 4 if the player hasn't already
+			if (Player.unlockedInstructions.length < 4) {
+				Dom.adventure.addInstruction(4);
+			}
 		},
 		
 		areaTeleports: [

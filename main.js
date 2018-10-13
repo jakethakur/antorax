@@ -349,6 +349,16 @@ function distance (obj1, obj2) {
 	return Math.sqrt((obj1.x - obj2.x) * (obj1.x - obj2.x) + (obj1.y - obj2.y) * (obj1.y - obj2.y));
 }
 
+// convert to radians
+function toRadians (degrees) {
+  return degrees * (Math.PI / 180);
+}
+
+// convert to degrees
+function toDegrees (radians) {
+  return radians * (180 / Math.PI);
+}
+
 // checks if a click event was a right click
 // thanks to https://stackoverflow.com/a/4235486/9713957
 function checkRightClick (e) {
@@ -706,6 +716,25 @@ class Character extends Thing {
 		}
 		return false;
 	}
+	
+	// whee! make the character fly away from their current point
+	// if direction (in rad) is undefined, a random one is picked (more chaos!!)
+	// velocity = pixels thrown total
+	// must be called every tick with the delta as the second parameter
+	displace (velocity, delta, direction) {
+		if (!this.isBeingDisplaced) {
+			// init displacement
+			if (direction === undefined) {
+				direction = toRadians(random(0, 360));
+			}
+			let displacementY = Math.sin(direction) * velocity;
+			let displacementX = Math.cos(direction) * velocity;
+			this.isBeingDisplaced = true;
+		}
+		else {
+			// begin the fun...
+		}
+	}
 }
 
 // a version of character that can deal damage
@@ -758,6 +787,16 @@ class AreaTeleport extends Entity {
 		this.teleportTo = properties.teleportTo;
 		this.destinationX = properties.destinationX;
 		this.destinationY = properties.destinationY;
+	}
+}
+
+// hidden hitbox that calls a function when hits
+class Tripwire extends Entity {
+	constructor(properties) {
+		super(properties);
+		
+		this.onPlayerTouch = properties.onPlayerTouch; // function called when touched by player (will be called multiple times)
+		// note that onPlayerTouch is bound to the entity (this = entity)
 	}
 }
 
@@ -2374,7 +2413,6 @@ Game.loadArea = function (areaName, destination) {
 		this.nextProjectileId = 0; // reset projectile id chain (because projectiles don't persist between areas)
 		
 		// area teleports
-		//this.areaTeleports = [];
 		if(Areas[areaName].areaTeleports !== undefined) {
 			for(var i = 0; i < Areas[areaName].areaTeleports.length; i++) {
 				Areas[areaName].areaTeleports[i].map = map;
@@ -2383,6 +2421,15 @@ Game.loadArea = function (areaName, destination) {
 		}
 		else {
 			console.warn("This area has no areaTeleports in areaData.");
+		}
+		
+		// tripwires (invisible; calls function when touched)
+		this.tripwires = [];
+		if(Areas[areaName].tripwires !== undefined) {
+			for(var i = 0; i < Areas[areaName].tripwires.length; i++) {
+				Areas[areaName].tripwires[i].map = map;
+				this.tripwires.push(new Tripwire(Areas[areaName].tripwires[i]));
+			}
 		}
 		
 		// music
@@ -2422,6 +2469,11 @@ Game.loadArea = function (areaName, destination) {
 		// display area name
 		this.displayAreaName = Areas[areaName].data;
 		this.displayAreaName.duration = 200;
+		
+		// call onAreaLoad function if there is one
+		if (Areas[areaName].onAreaLoad !== undefined) {
+			Areas[areaName].onAreaLoad();
+		}
     }.bind(this));
 	
 }
@@ -2930,6 +2982,13 @@ Game.update = function (delta) {
 		}
     }
 	
+	// check collision with tripwires - invisible entities that call a function when touched
+	this.tripwires.forEach(entity => { // iterate though tripwires
+		if (this.hero.isTouching(entity)) {
+			entity.onPlayerTouch().bind(entity);
+		}
+	});
+	
 	this.playerProjectileUpdate(delta); // update player's currently channelling projectile
 };
 
@@ -3421,7 +3480,7 @@ Game.render = function (delta) {
 						// set character screen x and y
 						this.updateScreenPosition(objectToRender);
 						
-						// draw image
+						// draw image (corpse)
 						this.ctx.drawImage(
 							objectToRender.deathImage,
 							objectToRender.screenX - objectToRender.deathImageWidth / 2,
@@ -3760,7 +3819,7 @@ Game.saveProgress = function (saveType) { // if saveType is "auto" then the save
 		Player.x = Game.hero.x;
 		Player.y = Game.hero.y;
 		Player.areaName = Game.areaName;
-		Player.checkpoint = Game.checkpoint;
+		Player.checkpoint = Game.hero.checkpoint;
 		// save other player details that aren't otherwise saved to savedata
 		Player.health = Game.hero.health;
 		
