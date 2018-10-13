@@ -274,7 +274,7 @@ var Areas = {
 			{
 				// instructions pop up when bridge is moved to
 				x: 1100,
-				y: 0,
+				y: 600,
 				width: 1,
 				height: 600,
 				onPlayerTouch: function () {

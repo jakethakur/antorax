@@ -2984,7 +2984,11 @@ Game.update = function (delta) {
 	
 	// check collision with tripwires - invisible entities that call a function when touched
 	this.tripwires.forEach(entity => { // iterate though tripwires
-		if (this.hero.isTouching(entity)) {
+		// give area teleports a screenX and Y (should be turned into own function)
+		entity.screenX = (entity.x - entity.width / 2) - this.camera.x;
+		entity.screenY = (entity.y - entity.height / 2) - this.camera.y;
+		
+        if (this.hero.isTouching(entity)) {
 			entity.onPlayerTouch().bind(entity);
 		}
 	});
@@ -3203,6 +3207,12 @@ Game.drawHitboxes = function () {
 	// maybe a special hitbox render list should be made? (tbd)
 	for(var i = 0; i < this.areaTeleports.length; i++) {
 		this.ctx.strokeRect(this.areaTeleports[i].screenX - this.areaTeleports[i].width / 2, this.areaTeleports[i].screenY - this.areaTeleports[i].height / 2, this.areaTeleports[i].width, this.areaTeleports[i].height);
+	}
+	
+	// tripwire hitboxes
+	// maybe a special hitbox render list should be made? (tbd)
+	for(var i = 0; i < this.tripwires.length; i++) {
+		this.ctx.strokeRect(this.tripwires[i].screenX - this.tripwires[i].width / 2, this.tripwires[i].screenY - this.tripwires[i].height / 2, this.tripwires[i].width, this.tripwires[i].height);
 	}
 	
 	// projectile hitboxes
