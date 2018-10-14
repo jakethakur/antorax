@@ -14,7 +14,7 @@ var LootTables = { // loot table templates
 		{ // gold
 			item: Items.currency[2],
 			chance: [
-				45,				// 0
+				75,				// 0
 				95,				// 1
 				Infinity,		// 2
 			],
@@ -43,7 +43,7 @@ var LootTables = { // loot table templates
 		{ // goblin sewn bag
 			item: Items.bag[3],
 			chance: [
-				96,				// 0
+				97,				// 0
 				Infinity,		// 1
 			],
 		},
@@ -64,7 +64,7 @@ var LootTables = { // loot table templates
 			item: Items.item[10],
 			chance: [
 				80,				// 0
-				95,				// 1
+				83,				// 1
 				Infinity,		// 2
 			],
 		},
@@ -278,14 +278,13 @@ var Areas = {
 				width: 1,
 				height: 600,
 				onPlayerTouch: function () {
-					// check that the "to the logging camp" quest has been started and this bit of code hasn't been run before
+					// check that the "to the logging camp" quest has been started and the instructions haven't been shown before
 					if (Player.quests.activeQuestArray.includes("To the Logging Camp")
-					&& !this.hasOpenedInstructions) {
+					&& Player.unlockedInstructions.length < 1) {
 						Dom.adventure.addInstruction(3); // open instructions chapter 3
-						this.hasOpenedInstructions = true; // stop this part of function from being called again
 					}
 					// otherwise if the player hasn't started the quest, teleport them back to make them!
-					else if (!this.hasOpenedInstructions) {
+					else if (!Player.quests.activeQuestArray.includes("To the Logging Camp")) {
 						Game.hero.x = 2297;
 						Game.hero.y = 387;
 						Dom.alert.page("You need to start your first quest. Speak to the Cart Driver who is right next to you.")
@@ -1107,7 +1106,7 @@ var Areas = {
 				y: 502,
 				image: "torch",
 				name: "Goblin Torch",
-				hostility: "neutral",
+				hostility: "friendly",
 				level: 5,
 				stats: {
 					maxHealth: 75,

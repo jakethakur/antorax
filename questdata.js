@@ -5,7 +5,6 @@ var Quests = {
 			quest: "To the Logging Camp",
 			questArea: "eaglecrestLoggingCamp", // name of the array this is contained in
 			
-			// redundant but will keep anyway
 			startName: "Cart Driver",
 			startChat: `That's it, we're here! I'm afraid you're going to have to walk to the <strong>Eaglecrest Logging Camp</strong> from here. If you walk down a bit to the west you should see the entrance to the camp.<br>You should probably buy a weapon on your way there. It looks like you have enough gold on you to do so. There's a good weaponsmith on your way to the camp, not far from here.`,
 			
@@ -196,6 +195,12 @@ var Quests = {
 			
 			rewards: {
 				xp: 30,
+				items: [
+					Items.currency[2],
+				],
+				itemQuantities: [
+					2,
+				],
 				reputation: {
 					eaglecrestLoggingCamp: 50,
 				},
@@ -249,6 +254,12 @@ var Quests = {
 			
 			rewards: {
 				xp: 30,
+				items: [
+					Items.currency[2],
+				],
+				itemQuantities: [
+					2,
+				],
 				reputation: {
 					eaglecrestLoggingCamp: 50,
 				},
@@ -306,10 +317,17 @@ var Quests = {
 			
 			rewards: {
 				xp: 50,
+				items: [
+					Items.currency[2],
+					Items.chest[4],
+				],
+				itemQuantities: [
+					5,
+					1,
+				],
 				reputation: {
 					eaglecrestLoggingCamp: 100,
 				},
-				// there should be a good item reward
 			},
 		},
 		
@@ -353,6 +371,12 @@ var Quests = {
 			
 			rewards: {
 				xp: 30,
+				items: [
+					Items.currency[2],
+				],
+				itemQuantities: [
+					2,
+				],
 				reputation: {
 					eaglecrestCity: 20,
 				},
@@ -593,6 +617,12 @@ var Quests = {
 			
 			rewards: {
 				xp: 30,
+				items: [
+					Items.currency[2],
+				],
+				itemQuantities: [
+					2,
+				],
 				reputation: {
 					eaglecrestLoggingCamp: 50,
 				},
@@ -646,6 +676,12 @@ var Quests = {
 			
 			rewards: {
 				xp: 30,
+				items: [
+					Items.currency[2],
+				],
+				itemQuantities: [
+					2,
+				],
 				reputation: {
 					eaglecrestLoggingCamp: 50,
 				},
@@ -712,6 +748,12 @@ var Quests = {
 			
 			rewards: {
 				xp: 30,
+				items: [
+					Items.currency[2],
+				],
+				itemQuantities: [
+					2,
+				],
 				reputation: {
 					eaglecrestLoggingCamp: 50,
 				},
@@ -792,6 +834,74 @@ var Quests = {
 				if (Game.areaName === "nilbog") {
 					Game.NPCs.push(new NPC(Areas.nilbog.NPCs[0])); // add goblin torch image to the map
 				}
+			},
+		},
+		
+		{
+			id: 15,
+			quest: "Potion Making",
+			questArea: "eaglecrestLoggingCamp",
+			
+			startName: "Ciarra Darkbrew",
+			startChat: `It's important that we potion merchants experiment with our wares. You wouldn't want to feel to safe as a customer, would you? Gather some potion ingredients for me and let's see what we can brew up.`,
+			
+			finishName: "Ciarra Darkbrew",
+			finishChat: `Interesting. Let's see how this goes.`,
+			
+			onQuestFinish: function () {
+				Game.sayChat("Ciarra Darkbrew", "Stand back. We wouldn't want your arms to detatch so soon.", false, 1000, true);
+				Game.sayChat("Ciarra Darkbrew", "/me adds the potion ingredients to an inert vial.", false, 3000, true);
+				Dom.chat.insert("The vial fizzes rapidly.", 4000, true);
+				Dom.chat.insert("The vial explodes.", 5000, true);
+				setTimeout(function () {
+					// damage Ciarra
+					if (Game.areaName === "eaglecrestLoggingCamp") {
+						Game.NPCs.find(NPC => NPC.name === "Ciarra Darkbrew").takeDamage(100)
+					}
+				}, 5100);
+				Game.sayChat("Ciarra Darkbrew", "That... didn't go as planned.", false, 6000, true);
+			},
+			
+			objectives: [
+				"Gather 2 goblin eyes.",
+				"Fish up 1 direweed.",
+				"Obtain 1 vial of goblin blood. You might be able to ask a nearby NPC for one.",
+				"Speak to <strong>Ciarra Darkbrew</strong>.",
+			],
+			
+			isCompleted: function() {
+				var completed = [];
+				
+				// true or falses for each objective (apart from the turn-in objective)
+				//completed.push(Player.quests.questProgress.soulSceptreEnergy === undefined ? false : Player.quests.questProgress.soulSceptreEnergy >= 5 ? true : " (" + Player.quests.questProgress.soulSceptreEnergy + "/5)");
+				
+				var finished = true;
+				for(var i = 0; i < completed.length; i++) {
+					if(completed[i] !== true) {
+						finished = false;
+					}
+				}
+				
+				completed.push(finished);
+				
+				return completed;
+			},
+			
+			howToStart: "Speak to <strong>Ciarra Darkbrew</strong>.",
+			levelRequirement: 2,
+			questRequirements: ["A Lost Fishing Rod"],
+			
+			rewards: {
+				xp: 50,
+				items: [
+					Items.currency[2],
+				],
+				itemQuantities: [
+					3,
+				],
+				reputation: {
+					eaglecrestLoggingCamp: 50,
+				},
 			},
 		},
 		

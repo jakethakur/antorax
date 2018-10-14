@@ -158,20 +158,22 @@ Dom.chat.contents = []; // sets the chat contents to 0
 document.getElementById("dot").innerHTML = 0; // sets the notification number to 0
 Dom.chat.insert = function(text, delay, important) { // // insert text in chat page
 	if(this.contents.length > 1000) { // if chat is too big
-		this.contents.shift(); // purge it
+		this.contents.shift(); // purge the oldest
 	}
-	if(chatPage.hidden) { // if the chat is hidden
-		if(document.getElementById("dot").innerHTML !== "<b>...</b>") { // if there are less than 100 notifications
-			document.getElementById("dot").hidden = false; // display the notifications
-			document.getElementById("dot").innerHTML = parseInt(document.getElementById("dot").innerHTML) + 1; // add 1 to the notification number
-			if(parseInt(document.getElementById("dot").innerHTML) > 99) { // if there are 100 notifications
-				document.getElementById("dot").innerHTML = "<b>...</b>"; // set the notification number to "..."
-				document.getElementById("dot").style.lineHeight = "7.5px"; // move the "..." to the centre
+	setTimeout(function() { // wait for the amount of time specified in the parameter
+		
+		if(chatPage.hidden) { // if the chat is hidden
+			if(document.getElementById("dot").innerHTML !== "<b>...</b>") { // if there are less than 100 notifications
+				document.getElementById("dot").hidden = false; // display the notifications
+				document.getElementById("dot").innerHTML = parseInt(document.getElementById("dot").innerHTML) + 1; // add 1 to the notification number
+				if(parseInt(document.getElementById("dot").innerHTML) > 99) { // if there are 100 notifications
+					document.getElementById("dot").innerHTML = "<b>...</b>"; // set the notification number to "..."
+					document.getElementById("dot").style.lineHeight = "7.5px"; // move the "..." to the centre
+				}
 			}
 		}
-	}
-	this.contents.push(text); // add the text to the array of chat contents
-	setTimeout(function() { // wait for the amount of time specified in the parameter
+		this.contents.push(text); // add the text to the array of chat contents
+		
 		this.newString = text + "<br><br>" + this.newString; // adds the text to the new chat
 		chatPage.innerHTML = "<br>" + this.newString; // sets the chat to the new chat
 		if(this.oldString !== 0){chatPage.innerHTML += '-------------------- <b>New Messages</b> --------------------';} // if there is old chat write "New Messages"
@@ -180,17 +182,18 @@ Dom.chat.insert = function(text, delay, important) { // // insert text in chat p
 			Dom.changeBook("chatPage"); // ...update the chat
 			Dom.changeBook("chatPage"); // ...update the chat
 		}
+		
+		if(important && !this.borderRed && !this.borderBlack) {
+			this.borderRed = setInterval(function(){
+				document.getElementById("changeChat").getElementsByTagName("polygon")[0].style.strokeWidth = "3";
+				document.getElementById("changeChat").getElementsByTagName("polygon")[0].style.stroke = "red";
+			},500);
+			this.borderBlack = setInterval(function(){
+				document.getElementById("changeChat").getElementsByTagName("polygon")[0].style.strokeWidth = "1";
+				document.getElementById("changeChat").getElementsByTagName("polygon")[0].style.stroke = "black";
+			},1000);
+		}
 	}.bind(this), delay); // sets the delay to the amount specified in the parameter
-	if(important && !this.borderRed && !this.borderBlack) {
-		this.borderRed = setInterval(function(){
-			document.getElementById("changeChat").getElementsByTagName("polygon")[0].style.strokeWidth = "3";
-			document.getElementById("changeChat").getElementsByTagName("polygon")[0].style.stroke = "red";
-		},500);
-		this.borderBlack = setInterval(function(){
-			document.getElementById("changeChat").getElementsByTagName("polygon")[0].style.strokeWidth = "1";
-			document.getElementById("changeChat").getElementsByTagName("polygon")[0].style.stroke = "black";
-		},1000);
-	}
 }
 
 Dom.chat.purge = function(insertMessage) { // delete all chat
@@ -933,9 +936,6 @@ Dom.quest.acceptRewards = function(){ // quest rewards accepted
 		}
 	}
 	Dom.quests.completed(Dom.currentlyDisplayed); // add the quest to the completed quest array
-	if (Dom.currentlyDisplayed.onQuestFinish !== undefined) { // if there is a quest start function...
-		Dom.currentlyDisplayed.onQuestFinish(); // ...do it
-	}
 	Player.quests.questLastFinished[Dom.currentlyDisplayed.questArea][Dom.currentlyDisplayed.id] = getFullDate(); // set date that the quest was finished (for daily quests)
 	Dom.quests.possible(); // update the possible quest box
 	let quest = Dom.currentlyDisplayed;

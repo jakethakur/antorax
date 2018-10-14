@@ -1082,7 +1082,7 @@ var Items = {
 			name: "Potion of Strength I",
 			type: "consumable",
 			image: "assets/items/consumable/2.png",
-			cost: 5,
+			cost: 4,
 			sellPrice: 2,
 			onClickText: "Increases damage dealt by 40% for 10 seconds",
 			onClick: function (inventoryPosition) {
@@ -1098,7 +1098,7 @@ var Items = {
 			name: "Potion of Swiftness I",
 			type: "consumable",
 			image: "assets/items/consumable/3.png",
-			cost: 3,
+			cost: 2,
 			sellPrice: 1,
 			onClickText: "Increases walk speed by 35% for 20 seconds",
 			onClick: function (inventoryPosition) {
@@ -1114,7 +1114,7 @@ var Items = {
 			name: "Potion of Health I",
 			type: "consumable",
 			image: "assets/items/consumable/4.png",
-			cost: 3,
+			cost: 2,
 			sellPrice: 1,
 			onClickText: "Restores 15 health",
 			onClick: function (inventoryPosition) {
@@ -1215,7 +1215,7 @@ var Items = {
 			name: "Can of Worms",
 			type: "consumable",
 			image: "assets/items/consumable/8.png",
-			cost: 5,
+			cost: 4,
 			onClickText: "Gives you +20 fishing skill for your next fishing attempt",
 			charges: 3,
 			onClick: function (inventoryPosition) {
