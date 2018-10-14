@@ -279,7 +279,7 @@ var Areas = {
 				height: 600,
 				onPlayerTouch: function () {
 					// check that the "to the logging camp" quest has been started and this bit of code hasn't been run before
-					if (Player.quests.activeQuestArray.contains("To the Logging Camp")
+					if (Player.quests.activeQuestArray.includes("To the Logging Camp")
 					&& !this.hasOpenedInstructions) {
 						Dom.adventure.addInstruction(3); // open instructions chapter 3
 						this.hasOpenedInstructions = true; // stop this part of function from being called again

@@ -46,6 +46,11 @@ var Quests = {
 					eaglecrestLoggingCamp: 50,
 				},
 			},
+			
+			onQuestStart: function() {
+				Dom.changeBook(Dom.previous, true);
+				Dom.adventure.addInstruction(2);
+			},
 		},
 		
 		{
@@ -88,6 +93,11 @@ var Quests = {
 			
 			rewards: {
 				xp: 10,
+			},
+			
+			onQuestStart: function() {
+				Dom.changeBook(Dom.previous, true);
+				Dom.adventure.addInstruction(5);
 			},
 		},
 		

@@ -56,13 +56,13 @@ body{
 #questStartChat, #questFinishChat, #questStartQuest, #questFinishQuest, #questStartName, #questFinishName, #questStartObjectives, #questStartRewards, #questStartStartRewards, #questStartRewardsTitle, #questStartStartRewardsTitle, #questFinishRewardsTitle, #questFinishRewards, #merchantPageTitle, #merchantPageChat, #merchantPageOptions, #identifierPageTitle, #identifierPageChat, #leftArrow, #identifierPageOption, #rightArrow, #identifiedPageTitle, #identifiedPageChat, #identifiedPageOptions{
 	display: inline;
 }
-#settingBookmark, #settingMusic, #settingHitboxes, #settingCoords, #settingFps, #settingGrid, #settingSpeed, #settingAccept {
+.settings {
 	line-height: 30px;
 	text-align: center;
 	vertical-align: middle;
 	font-size: 20px;
 }
-.adventure, #activeQuestBox, #possibleQuestBox, #completedQuestBox, #otherQuestBox, #activeQuests, #possibleQuests, #completedQuests, #otherQuests, #settingBookmark, #settingMusic, #settingHitboxes, #settingCoords, #settingFps, #settingGrid, #settingSpeed, #settingAccept {
+.adventure, #activeQuestBox, #possibleQuestBox, #completedQuestBox, #otherQuestBox, #activeQuests, #possibleQuests, #completedQuests, #otherQuests, .settings{
 	position: relative;
 	width: 511px;
 	border-left: 5px solid #886622;
@@ -109,7 +109,7 @@ body{
 #lootAll{
 	position: relative;
 }
-#settingBookmark, #settingMusic, #settingHitboxes, #settingCoords, #settingFps, #settingGrid, #settingSpeed, #settingAccept, #activeQuestBox, #completedQuestBox, #possibleQuestBox, #otherQuestBox {
+.settings, #activeQuestBox, #completedQuestBox, #possibleQuestBox, #otherQuestBox {
 	width: 501px;
 	height: 40px;
 	text-align: left;
@@ -343,6 +343,7 @@ td{
 	font-size: 20px;
 	clear: both;
 	width: max-content;
+	min-width: 170px;
 	padding-left: 15px;
 	padding-right: 15px;
 }
@@ -565,4 +566,12 @@ td{
 	padding: 20px;
 	width: 480px;
 	height: 560px;
+}
+.instructionArrowLeft{
+	position: absolute;
+	left: 830px;
+}
+.instructionArrowRight{
+	position: absolute;
+	left: 960px;
 }

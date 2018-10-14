@@ -42,7 +42,10 @@ let Dom = {
 Dom.previous = "adventurePage"; // change currently displayed page
 Dom.changeBook = function(page, override, x, shouldNotBeOverriden) { // changes the page or changes the color of close buttons
 	//override says if the function should be run regardless of if the player has a quest active (e.g: declining a quest or closing a merchant)
-	if((this.currentlyDisplayed === "" || override) && page !== "levelUpPage") { // check the player doesn't have a quest active
+	if(page === Dom.previous && Dom.adventure.awaitingInstructions[0]){
+		Dom.adventure.showInstructions(Dom.adventure.awaitingInstructions[0]);
+		Dom.adventure.awaitingInstructions.splice(0,1);
+	}else if((this.currentlyDisplayed === "" || override) && page !== "levelUpPage") { // check the player doesn't have a quest active
 		// hide all pages
 		if(page === "chatPage" || page === "inventoryPage" || page === "questsPage" || page === "adventurePage" || page === "reputationPage" || page === "settingsPage" || page === "settingsTwoPage"){ // if the page being changed to is a not a pop up...
 			let changed = false;
@@ -644,6 +647,11 @@ Dom.inventory.displayInformation = function(item, stacked, position){
 								document.getElementById("set").innerHTML += "<br>"+replaceStat.charAt(0).toUpperCase() + replaceStat.slice(1)+" "+romanize(Items.set[item.set].stats[Object.keys(Items.set[item.set].stats)[i]]);
 							}
 						}
+						if(Items.set[item.set].multiplier !== undefined){
+							for(let i = 0; i < Items.set[item.set].multiplier.length; i++){
+								document.getElementById("set").innerHTML += "<br>"+ Items.set[item.set].multiplier[i].text;
+							}
+						}
 					}
 				}else{
 					let setNum = 0;
@@ -675,6 +683,11 @@ Dom.inventory.displayInformation = function(item, stacked, position){
 							}else{
 								let replaceStat = Object.keys(Items.set[item.set].stats)[i].replace( /([A-Z])/g, " $1" );
 								document.getElementById("set").innerHTML += "<br>"+replaceStat.charAt(0).toUpperCase() + replaceStat.slice(1)+" "+romanize(Items.set[item.set].stats[Object.keys(Items.set[item.set].stats)[i]]);
+							}
+						}
+						if(Items.set[item.set].multiplier !== undefined){
+							for(let i = 0; i < Items.set[item.set].multiplier.length; i++){
+								document.getElementById("set").innerHTML += "<br>"+ Items.set[item.set].multiplier[i].text;
 							}
 						}
 					}
@@ -863,15 +876,10 @@ Dom.quest.finish = function(quest){ // display quest finish page
 
 Dom.quest.accept = function(){ // quest accepted
 	Dom.quests.active(Dom.currentlyDisplayed); // add the quest to the active quests
-	
 	if(Dom.currentlyDisplayed.resetVariables !== undefined){
 		for(let i = 0; i < Dom.currentlyDisplayed.resetVariables.length; i++){
 			Player.quests.questProgress[Dom.currentlyDisplayed.resetVariables[i]] = undefined;
 		}
-	}
-	
-	if (Dom.currentlyDisplayed.onQuestStart !== undefined) { // if there is a quest start function...
-		Dom.currentlyDisplayed.onQuestStart(); // ...do it
 	}
 	if(Dom.currentlyDisplayed.startRewards !== undefined){
 		for(let i = 0; i < Dom.currentlyDisplayed.startRewards.items.length; i++){ // repeats for all item rewards
@@ -879,14 +887,17 @@ Dom.quest.accept = function(){ // quest accepted
 		}
 	}
 	Dom.quests.possible();
-	Dom.changeBook(Dom.previous, true); // change page back to previous page
+	let quest = Dom.currentlyDisplayed;
+	if (Dom.currentlyDisplayed.onQuestStart !== undefined) { // if there is a quest start function...
+		Dom.currentlyDisplayed.onQuestStart(); // ...do it
+	}
+	if(Dom.currentlyDisplayed === quest){
+		Dom.changeBook(Dom.previous, true); // change page back to previous page
+	}
 }
 
 Dom.quest.acceptRewards = function(){ // quest rewards accepted
 	//let quest = Dom.quest.waitForReward; // is this necessary?
-	if (Dom.currentlyDisplayed.onQuestFinish !== undefined) { // if there is a quest finish function...
-		Dom.currentlyDisplayed.onQuestFinish(); // ...do it
-	}
 	//Player.xp += quest.rewards.xp // gives the player the xp reward
 	if(Dom.currentlyDisplayed.rewards.items !== undefined){
 		for(let i = 0; i < Dom.currentlyDisplayed.rewards.items.length; i++){ // repeats for all item rewards
@@ -926,8 +937,14 @@ Dom.quest.acceptRewards = function(){ // quest rewards accepted
 		Dom.currentlyDisplayed.onQuestFinish(); // ...do it
 	}
 	Player.quests.questLastFinished[Dom.currentlyDisplayed.questArea][Dom.currentlyDisplayed.id] = getFullDate(); // set date that the quest was finished (for daily quests)
-	Dom.changeBook(Dom.previous, true); // change back to previous page
 	Dom.quests.possible(); // update the possible quest box
+	let quest = Dom.currentlyDisplayed;
+	if (Dom.currentlyDisplayed.onQuestFinish !== undefined) { // if there is a quest finish function...
+		Dom.currentlyDisplayed.onQuestFinish(); // ...do it
+	}
+	if(Dom.currentlyDisplayed === quest){
+		Dom.changeBook(Dom.previous, true); // change back to previous page
+	}
 }
 
 Dom.quests.active = function(quest){ // when a quest is started or ended...
@@ -2159,14 +2176,18 @@ Dom.text.page = function(npcName, name, text, close, buttons, functions){
 	document.getElementById("textPage").innerHTML = '<h1 id="textPageName">'+name+'</h1>'
 	document.getElementById("textPage").innerHTML += '<p id="textPageText">'+text+'</p>'
 	for(let i = 0; i < buttons.length; i++){
-		document.getElementById("textPage").innerHTML += "<br><center><div id='buttons"+i+"' class='buttons'>"+buttons[i]+"</div></center>";
+		if(buttons[i] !== undefined){
+			document.getElementById("textPage").innerHTML += "<br><center><div id='buttons"+i+"' class='buttons'>"+buttons[i]+"</div></center>";
+		}
 	}
 	if(close){
 		document.getElementById("textPage").innerHTML += "<br><br><br><center><div class='closeClass' onclick='Dom.changeBook(Dom.previous, true)'>Close</div></center>";
 	}
 	for(let i = 0; i < buttons.length; i++){
-		document.getElementById("buttons"+i).onclick = function(){
-			functions[i]();
+		if(buttons[i] !== undefined){
+			document.getElementById("buttons"+i).onclick = function(){
+				functions[i]();
+			}
 		}
 	}
 }
@@ -2299,9 +2320,13 @@ Dom.choose.page = function(npc, buttons, functions, parameters){
 		}else{
 			functions[0](...parameters[0]);
 		}
-	}else if(Dom.currentlyDisplayed !== name && (npc.roles === undefined || npc.roles.find(role => role.quest ==/*==*/ Dom.currentlyDisplayed) === undefined)){
-		if(document.getElementsByClassName("closeClass")[0].style.border !== "5px solid red") {
-			Dom.changeBook("identifierPage",false,2);
+	}else{
+		if(npc === "Instructions"){
+			Dom.adventure.awaitingInstructions.push(parameters[0][0]);
+		}else if(Dom.currentlyDisplayed !== name && (npc.roles === undefined || npc.roles.find(role => role.quest ==/*==*/ Dom.currentlyDisplayed) === undefined)){
+			if(document.getElementsByClassName("closeClass")[0].style.border !== "5px solid red") {
+				Dom.changeBook("identifierPage",false,2);
+			}
 		}
 	}
 }
@@ -2380,25 +2405,53 @@ Dom.settings.page = function(page){
 	}
 }
 
-Dom.adventure.instructions = [["Getting Started","<p>Welcome to the mystical kingdom of Antorax - a world full of immersion, magic, archaeology, and no third dimension. Regardless, in this cruel and unforgiving world, I should probably let you know how everything works, rather than drop you in unawares and let you immediately die.</p>"],
-	["Movement","<p>First up: moving. You’d think this would be simple, but there is, in fact, a needlessly complex control scheme: a ancient art known as the arrow keys. Up goes up, left goes left, right goes right… I bet you can’t figure out what down does! WASD also works for those of you who like to use proper controls.</p>"],
-	["Collisions with NPCs","<p>To make money and earn new items, you’ll need to know how to talk to people. Luckily, for those of you who’d prefer not to initiate conversation, it seems that everybody wants to talk to you! Just walk on up to someone and poof! Dialogue!</p>"],
-	["Getting back to instructions","<p>If you ever forget anything you read here and want to come back, simply click on the yellow bookmark with a compass on it.</p>"],
-]
 Dom.adventure.currentInstruction = 0;
+Dom.adventure.awaitingInstructions = [];
+Dom.adventure.openedInstructions = false;
+
+Dom.adventure.addInstruction = function(chapter){
+	if(Player.unlockedInstructions.length === chapter-1){
+		Player.unlockedInstructions.push(Instructions[chapter-1][0]);
+		if(!document.getElementById("tutorialOn").checked){
+			Dom.choose.page("Instructions", [Instructions[chapter-1][0]], [Dom.adventure.showInstructions], [[chapter-1]]);
+		}
+	}
+	if(Player.unlockedInstructions.length >= Instructions.length){
+		document.getElementById("settingTutorialHolder").hidden = true;
+	}
+}
 
 Dom.adventure.nextInstruction = function(){
 	Dom.adventure.currentInstruction++;
-	Dom.text.page("", Dom.adventure.instructions[Dom.adventure.currentInstruction][0], "<p>"+(Dom.adventure.currentInstruction > 0 ? "<span onclick='Dom.adventure.previousInstruction()'>&#8678;</span>&nbsp;&nbsp;" : "")+"Page "+(Dom.adventure.currentInstruction+1)+" of "+Dom.adventure.instructions.length+(Dom.adventure.currentInstruction < Dom.adventure.instructions.length-1 ? "&nbsp;&nbsp;<span onclick='Dom.adventure.nextInstruction()'>&#8680;</span>" : "")+"</p>"+Dom.adventure.instructions[Dom.adventure.currentInstruction][1]+"<p>"+(Dom.adventure.currentInstruction > 0 ? "<span onclick='Dom.adventure.previousInstruction()'>&#8678;</span>&nbsp;&nbsp;" : "")+"Page "+(Dom.adventure.currentInstruction+1)+" of "+Dom.adventure.instructions.length+(Dom.adventure.currentInstruction < Dom.adventure.instructions.length-1 ? "&nbsp;&nbsp;<span onclick='Dom.adventure.nextInstruction()'>&#8680;</span>" : "")+"</p>", Dom.adventure.currentInstruction === Dom.adventure.instructions.length-1, []);
+	Dom.text.page("", Instructions[Dom.adventure.awaitingInstructions[0]][1][Dom.adventure.currentInstruction][0], "<p>"+(Dom.adventure.currentInstruction > 0 ? "<span onclick='Dom.adventure.previousInstruction()' class='instructionArrowLeft'>&#8678;</span>" : "")+"Page "+(Dom.adventure.currentInstruction+1)+" of "+Instructions[Dom.adventure.awaitingInstructions[0]][1].length+(Dom.adventure.currentInstruction < Instructions[Dom.adventure.awaitingInstructions[0]][1].length-1 ? "<span onclick='Dom.adventure.nextInstruction()' class='instructionArrowRight'>&#8680;</span>" : "")+"</p>"+Instructions[Dom.adventure.awaitingInstructions[0]][1][Dom.adventure.currentInstruction][1], false, [Dom.adventure.currentInstruction === Instructions[Dom.adventure.awaitingInstructions[0]][1].length-1 ? "Close" : undefined], [Dom.adventure.instructionIndex]);
 }
 
 Dom.adventure.previousInstruction = function(){
 	Dom.adventure.currentInstruction--;
-	Dom.text.page("", Dom.adventure.instructions[Dom.adventure.currentInstruction][0], "<p>"+(Dom.adventure.currentInstruction > 0 ? "<span onclick='Dom.adventure.previousInstruction()'>&#8678;</span>&nbsp;&nbsp;" : "")+"Page "+(Dom.adventure.currentInstruction+1)+" of "+Dom.adventure.instructions.length+(Dom.adventure.currentInstruction < Dom.adventure.instructions.length-1 ? "&nbsp;&nbsp;<span onclick='Dom.adventure.nextInstruction()'>&#8680;</span>" : "")+"</p>"+Dom.adventure.instructions[Dom.adventure.currentInstruction][1]+"<p>"+(Dom.adventure.currentInstruction > 0 ? "<span onclick='Dom.adventure.previousInstruction()'>&#8678;</span>&nbsp;&nbsp;" : "")+"Page "+(Dom.adventure.currentInstruction+1)+" of "+Dom.adventure.instructions.length+(Dom.adventure.currentInstruction < Dom.adventure.instructions.length-1 ? "&nbsp;&nbsp;<span onclick='Dom.adventure.nextInstruction()'>&#8680;</span>" : "")+"</p>", Dom.adventure.currentInstruction === Dom.adventure.instructions.length-1, []);
+	Dom.text.page("", Instructions[Dom.adventure.awaitingInstructions[0]][1][Dom.adventure.currentInstruction][0], "<p>"+(Dom.adventure.currentInstruction > 0 ? "<span onclick='Dom.adventure.previousInstruction()' class='instructionArrowLeft'>&#8678;</span>" : "")+"Page "+(Dom.adventure.currentInstruction+1)+" of "+Instructions[Dom.adventure.awaitingInstructions[0]][1].length+(Dom.adventure.currentInstruction < Instructions[Dom.adventure.awaitingInstructions[0]][1].length-1 ? "<span onclick='Dom.adventure.nextInstruction()' class='instructionArrowRight'>&#8680;</span>" : "")+"</p>"+Instructions[Dom.adventure.awaitingInstructions[0]][1][Dom.adventure.currentInstruction][1], false, [Dom.adventure.currentInstruction === Instructions[Dom.adventure.awaitingInstructions[0]][1].length-1 ? "Close" : undefined], [Dom.adventure.instructionIndex]);
 }
 
 if(localStorage.getItem("instructions") === "true"){
 	document.getElementById("instructionsTitle").style.color = "#551a8b";
+}
+
+Dom.adventure.showInstructions = function(chapter){
+	Dom.adventure.awaitingInstructions.push(chapter);
+	Dom.adventure.currentInstruction = 0;
+	Dom.text.page("", Instructions[Dom.adventure.awaitingInstructions[0]][1][Dom.adventure.currentInstruction][0], "<p>"+(Dom.adventure.currentInstruction > 0 ? "<span onclick='Dom.adventure.previousInstruction()' class='instructionArrowLeft'>&#8678;</span>" : "")+"Page "+(Dom.adventure.currentInstruction+1)+" of "+Instructions[Dom.adventure.awaitingInstructions[0]][1].length+(Dom.adventure.currentInstruction < Instructions[Dom.adventure.awaitingInstructions[0]][1].length-1 ? "<span onclick='Dom.adventure.nextInstruction()' class='instructionArrowRight'>&#8680;</span>" : "")+"</p>"+Instructions[Dom.adventure.awaitingInstructions[0]][1][Dom.adventure.currentInstruction][1], false, [Dom.adventure.currentInstruction === Instructions[Dom.adventure.awaitingInstructions[0]][1].length-1 ? "Close" : undefined], [Dom.adventure.instructionIndex]);
+}
+
+Dom.adventure.instructionIndex = function(){
+	Dom.adventure.awaitingInstructions.splice(0,1);
+	if(Dom.adventure.awaitingInstructions.length > 0){
+		Dom.adventure.showInstructions(Dom.adventure.awaitingInstructions[0]);
+		Dom.adventure.awaitingInstructions.splice(0,1);
+	}else if(Player.unlockedInstructions.length > 1 && Dom.adventure.openedInstructions){
+		Dom.adventure.openedInstructions = false;
+		Dom.choose.page("Instructions", Player.unlockedInstructions, [Dom.adventure.showInstructions,Dom.adventure.showInstructions,Dom.adventure.showInstructions,Dom.adventure.showInstructions,Dom.adventure.showInstructions,], [[0],[1],[2],[3],[4],]);
+	}else{
+		Dom.changeBook(Dom.previous, true);
+	}
 }
 
 document.getElementById("instructions").onclick = function(){
@@ -2406,8 +2459,8 @@ document.getElementById("instructions").onclick = function(){
 		localStorage.setItem("instructions", true);
 	}
 	document.getElementById("instructionsTitle").style.color = "#551a8b";
-	Dom.adventure.currentInstruction = 0;
-	Dom.text.page("", Dom.adventure.instructions[Dom.adventure.currentInstruction][0], "<p>"+(Dom.adventure.currentInstruction > 0 ? "<span onclick='Dom.adventure.previousInstruction()'>&#8678;</span>&nbsp;&nbsp;" : "")+"Page "+(Dom.adventure.currentInstruction+1)+" of "+Dom.adventure.instructions.length+(Dom.adventure.currentInstruction < Dom.adventure.instructions.length-1 ? "&nbsp;&nbsp;<span onclick='Dom.adventure.nextInstruction()'>&#8680;</span>" : "")+"</p>"+Dom.adventure.instructions[Dom.adventure.currentInstruction][1]+"<p>"+(Dom.adventure.currentInstruction > 0 ? "<span onclick='Dom.adventure.previousInstruction()'>&#8678;</span>&nbsp;&nbsp;" : "")+"Page "+(Dom.adventure.currentInstruction+1)+" of "+Dom.adventure.instructions.length+(Dom.adventure.currentInstruction < Dom.adventure.instructions.length-1 ? "&nbsp;&nbsp;<span onclick='Dom.adventure.nextInstruction()'>&#8680;</span>" : "")+"</p>", Dom.adventure.currentInstruction === Dom.adventure.instructions.length-1, []);
+	Dom.adventure.openedInstructions = true;
+	Dom.choose.page("Instructions", Player.unlockedInstructions, [Dom.adventure.showInstructions,Dom.adventure.showInstructions,Dom.adventure.showInstructions,Dom.adventure.showInstructions,Dom.adventure.showInstructions,], [[0],[1],[2],[3],[4],]);
 }
 
 //
@@ -2429,6 +2482,8 @@ if(localStorage.getItem(Player.class) !== null){
 	Player = JSON.parse(localStorage.getItem(Player.class));
 	Player.name = playerName;
 	Player.skin = playerSkin;
+}else{
+	Dom.choose.page("Instructions", Player.unlockedInstructions, [Dom.adventure.showInstructions,Dom.adventure.showInstructions,Dom.adventure.showInstructions,Dom.adventure.showInstructions,Dom.adventure.showInstructions,], [[0],[1],[2],[3],[4],]);
 }
 
 //LOADS AN EXISTING CLASS

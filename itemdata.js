@@ -857,6 +857,7 @@ var Items = {
 					stat: "chosenStat",
 					multiplier: 2,
 					slots: ["helm", "chest", "greaves", "boots"],
+					text: "Doubles chosen stats",
 				},
 			],
 		},
