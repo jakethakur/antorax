@@ -2977,8 +2977,12 @@ Game.update = function (delta) {
 		this.areaTeleports[i].screenY = (this.areaTeleports[i].y - this.areaTeleports[i].height / 2) - this.camera.y;
 		
         if (this.hero.isTouching(this.areaTeleports[i])) {
-			// teleport to new area
-			this.loadArea(this.areaTeleports[i].teleportTo, {x: this.areaTeleports[i].destinationX, y: this.areaTeleports[i].destinationY});
+			if (this.areaTeleports[i].teleportCondition === undefined
+			|| (this.areaTeleports[i].teleportCondition !== undefined && this.areaTeleports.teleportCondition())) {
+				// a teleport condition has been met (if there is one)
+				// teleport to new area
+				this.loadArea(this.areaTeleports[i].teleportTo, {x: this.areaTeleports[i].destinationX, y: this.areaTeleports[i].destinationY});
+			}
 		}
     }
 	
@@ -2989,7 +2993,8 @@ Game.update = function (delta) {
 		entity.screenY = (entity.y - entity.height / 2) - this.camera.y;
 		
         if (this.hero.isTouching(entity)) {
-			entity.onPlayerTouch().bind(entity);
+			let boundOnPlayerTouch = entity.onPlayerTouch.bind(entity);
+			boundOnPlayerTouch();
 		}
 	});
 	

@@ -588,6 +588,9 @@ var Areas = {
 				teleportTo: "nilbog",
 				destinationX: 200,
 				destinationY: 760,
+				teleportCondition: function () {
+					return Game.hero.activeQuestArray.includes("Retrieval of Logs") || Game.hero.completedQuestArray.includes("Retrieval of Logs");
+				}
 			},
 		],
 		
