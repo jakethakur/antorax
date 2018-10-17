@@ -2433,6 +2433,17 @@ Dom.adventure.addInstruction = function(chapter){
 	}
 }
 
+document.getElementById("tutorialOn").onclick = function(){
+	document.getElementById("changeChat").style.display = "block";
+	document.getElementById("chatImage").hidden = false;
+	document.getElementById("changeInventory").style.display = "block";
+	document.getElementById("inventoryImage").hidden = false;
+	document.getElementById("changeQuests").style.display = "block";
+	document.getElementById("questsImage").hidden = false;
+	document.getElementById("changeReputation").style.display = "block";
+	document.getElementById("reputationImage").hidden = false;
+}
+
 Dom.adventure.nextInstruction = function(){
 	Dom.adventure.currentInstruction++;
 	Dom.text.page("", Instructions[Dom.adventure.awaitingInstructions[0]].pages[Dom.adventure.currentInstruction].title, "<p>"+(Dom.adventure.currentInstruction > 0 ? "<span onclick='Dom.adventure.previousInstruction()' class='instructionArrowLeft'>&#8678;</span>" : "")+"Page "+(Dom.adventure.currentInstruction+1)+" of "+Instructions[Dom.adventure.awaitingInstructions[0]].pages.length+(Dom.adventure.currentInstruction < Instructions[Dom.adventure.awaitingInstructions[0]].pages.length-1 ? "<span onclick='Dom.adventure.nextInstruction()' class='instructionArrowRight'>&#8680;</span>" : "")+"</p>"+Instructions[Dom.adventure.awaitingInstructions[0]].pages[Dom.adventure.currentInstruction].text, false, [Dom.adventure.currentInstruction === Instructions[Dom.adventure.awaitingInstructions[0]].pages.length-1 ? "Close" : undefined], [Dom.adventure.instructionIndex]);

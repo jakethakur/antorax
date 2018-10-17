@@ -35,7 +35,7 @@ function checkChange(){
 		previousWidth = window.innerWidth;
 		arrange();
 	}
-	if(rarity.value != previousRarity || category.value != previousCategory || min.value != previousMin || max.value != previousMax || searchBar.value != previousSearch){
+	if(rarity.value != previousRarity || category.value != previousCategory || obtained.value != previousObtained || min.value != previousMin || max.value != previousMax || searchBar.value != previousSearch){
 		previousCategory = category.value;
 		array = [];
 		if(min.value > 1 || (min.value < 1 && min.value.length > 0) || min.value.length > 1){
@@ -99,7 +99,24 @@ function checkChange(){
 				b++;
 			}
 		}
-		
+		arrayLength = array.length
+		previousObtained = obtained.value;
+		b = 0;
+		if(obtained.value != "all"){
+			for(var i = 0; i < arrayLength; i++){
+				if(obtained.value == "only"){
+					if(!JSON.parse(localStorage.getItem("archaeology")).includes(array[i-b].name)){
+						array.splice(i-b,1);
+						b++;
+					}
+				}else{
+					if(JSON.parse(localStorage.getItem("archaeology")).includes(array[i-b].name)){
+						array.splice(i-b,1);
+						b++;
+					}
+				}
+			}
+		}
 		arrayLength = array.length;
 		b = 0;
 		previousSearch = searchBar.value;
