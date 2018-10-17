@@ -2423,9 +2423,9 @@ Dom.adventure.openedInstructions = false;
 
 Dom.adventure.addInstruction = function(chapter){
 	if(Player.unlockedInstructions.length === chapter-1){
-		Player.unlockedInstructions.push(Instructions[chapter-1][0]);
+		Player.unlockedInstructions.push(Instructions[chapter-1].chapter);
 		if(!document.getElementById("tutorialOn").checked){
-			Dom.choose.page("Instructions", [Instructions[chapter-1][0]], [Dom.adventure.showInstructions], [[chapter-1]]);
+			Dom.choose.page("Instructions", [Instructions[chapter-1].chapter], [Dom.adventure.showInstructions], [[chapter-1]]);
 		}
 	}
 	if(Player.unlockedInstructions.length >= Instructions.length){
@@ -2435,12 +2435,12 @@ Dom.adventure.addInstruction = function(chapter){
 
 Dom.adventure.nextInstruction = function(){
 	Dom.adventure.currentInstruction++;
-	Dom.text.page("", Instructions[Dom.adventure.awaitingInstructions[0]][1][Dom.adventure.currentInstruction][0], "<p>"+(Dom.adventure.currentInstruction > 0 ? "<span onclick='Dom.adventure.previousInstruction()' class='instructionArrowLeft'>&#8678;</span>" : "")+"Page "+(Dom.adventure.currentInstruction+1)+" of "+Instructions[Dom.adventure.awaitingInstructions[0]][1].length+(Dom.adventure.currentInstruction < Instructions[Dom.adventure.awaitingInstructions[0]][1].length-1 ? "<span onclick='Dom.adventure.nextInstruction()' class='instructionArrowRight'>&#8680;</span>" : "")+"</p>"+Instructions[Dom.adventure.awaitingInstructions[0]][1][Dom.adventure.currentInstruction][1], false, [Dom.adventure.currentInstruction === Instructions[Dom.adventure.awaitingInstructions[0]][1].length-1 ? "Close" : undefined], [Dom.adventure.instructionIndex]);
+	Dom.text.page("", Instructions[Dom.adventure.awaitingInstructions[0]].pages[Dom.adventure.currentInstruction].title, "<p>"+(Dom.adventure.currentInstruction > 0 ? "<span onclick='Dom.adventure.previousInstruction()' class='instructionArrowLeft'>&#8678;</span>" : "")+"Page "+(Dom.adventure.currentInstruction+1)+" of "+Instructions[Dom.adventure.awaitingInstructions[0]].pages.length+(Dom.adventure.currentInstruction < Instructions[Dom.adventure.awaitingInstructions[0]].pages.length-1 ? "<span onclick='Dom.adventure.nextInstruction()' class='instructionArrowRight'>&#8680;</span>" : "")+"</p>"+Instructions[Dom.adventure.awaitingInstructions[0]].pages[Dom.adventure.currentInstruction].text, false, [Dom.adventure.currentInstruction === Instructions[Dom.adventure.awaitingInstructions[0]].pages.length-1 ? "Close" : undefined], [Dom.adventure.instructionIndex]);
 }
 
 Dom.adventure.previousInstruction = function(){
 	Dom.adventure.currentInstruction--;
-	Dom.text.page("", Instructions[Dom.adventure.awaitingInstructions[0]][1][Dom.adventure.currentInstruction][0], "<p>"+(Dom.adventure.currentInstruction > 0 ? "<span onclick='Dom.adventure.previousInstruction()' class='instructionArrowLeft'>&#8678;</span>" : "")+"Page "+(Dom.adventure.currentInstruction+1)+" of "+Instructions[Dom.adventure.awaitingInstructions[0]][1].length+(Dom.adventure.currentInstruction < Instructions[Dom.adventure.awaitingInstructions[0]][1].length-1 ? "<span onclick='Dom.adventure.nextInstruction()' class='instructionArrowRight'>&#8680;</span>" : "")+"</p>"+Instructions[Dom.adventure.awaitingInstructions[0]][1][Dom.adventure.currentInstruction][1], false, [Dom.adventure.currentInstruction === Instructions[Dom.adventure.awaitingInstructions[0]][1].length-1 ? "Close" : undefined], [Dom.adventure.instructionIndex]);
+	Dom.text.page("", Instructions[Dom.adventure.awaitingInstructions[0]].pages[Dom.adventure.currentInstruction].title, "<p>"+(Dom.adventure.currentInstruction > 0 ? "<span onclick='Dom.adventure.previousInstruction()' class='instructionArrowLeft'>&#8678;</span>" : "")+"Page "+(Dom.adventure.currentInstruction+1)+" of "+Instructions[Dom.adventure.awaitingInstructions[0]].pages.length+(Dom.adventure.currentInstruction < Instructions[Dom.adventure.awaitingInstructions[0]].pages.length-1 ? "<span onclick='Dom.adventure.nextInstruction()' class='instructionArrowRight'>&#8680;</span>" : "")+"</p>"+Instructions[Dom.adventure.awaitingInstructions[0]].pages[Dom.adventure.currentInstruction].text, false, [Dom.adventure.currentInstruction === Instructions[Dom.adventure.awaitingInstructions[0]].pages.length-1 ? "Close" : undefined], [Dom.adventure.instructionIndex]);
 }
 
 if(localStorage.getItem("instructions") === "true"){
@@ -2454,7 +2454,7 @@ Dom.adventure.showInstructions = function(chapter, reverse){
 		Dom.adventure.awaitingInstructions.push(chapter);
 	}
 	Dom.adventure.currentInstruction = 0;
-	Dom.text.page("", Instructions[Dom.adventure.awaitingInstructions[0]][1][Dom.adventure.currentInstruction][0], "<p>"+(Dom.adventure.currentInstruction > 0 ? "<span onclick='Dom.adventure.previousInstruction()' class='instructionArrowLeft'>&#8678;</span>" : "")+"Page "+(Dom.adventure.currentInstruction+1)+" of "+Instructions[Dom.adventure.awaitingInstructions[0]][1].length+(Dom.adventure.currentInstruction < Instructions[Dom.adventure.awaitingInstructions[0]][1].length-1 ? "<span onclick='Dom.adventure.nextInstruction()' class='instructionArrowRight'>&#8680;</span>" : "")+"</p>"+Instructions[Dom.adventure.awaitingInstructions[0]][1][Dom.adventure.currentInstruction][1], false, [Dom.adventure.currentInstruction === Instructions[Dom.adventure.awaitingInstructions[0]][1].length-1 ? "Close" : undefined], [Dom.adventure.instructionIndex]);
+	Dom.text.page("", Instructions[Dom.adventure.awaitingInstructions[0]].pages[Dom.adventure.currentInstruction].title, "<p>"+(Dom.adventure.currentInstruction > 0 ? "<span onclick='Dom.adventure.previousInstruction()' class='instructionArrowLeft'>&#8678;</span>" : "")+"Page "+(Dom.adventure.currentInstruction+1)+" of "+Instructions[Dom.adventure.awaitingInstructions[0]].pages.length+(Dom.adventure.currentInstruction < Instructions[Dom.adventure.awaitingInstructions[0]].pages.length-1 ? "<span onclick='Dom.adventure.nextInstruction()' class='instructionArrowRight'>&#8680;</span>" : "")+"</p>"+Instructions[Dom.adventure.awaitingInstructions[0]].pages[Dom.adventure.currentInstruction].text, false, [Dom.adventure.currentInstruction === Instructions[Dom.adventure.awaitingInstructions[0]].pages.length-1 ? "Close" : undefined], [Dom.adventure.instructionIndex]);
 }
 
 Dom.adventure.instructionIndex = function(){

@@ -553,6 +553,8 @@ var Areas = {
 		onAreaLoad: function () {
 			// start instructions chapter 4 if the player hasn't already
 			if (Player.unlockedInstructions.length < 4) {
+				document.getElementById("changeChat").style.display = "block";
+				document.getElementById("chatImage").hidden = false;
 				Dom.adventure.addInstruction(4);
 			}
 		},
