@@ -1,22 +1,4 @@
 let num = 0;
-let max = {
-	a: [
-		[-6.7,Infinity],
-		[-6.7,Infinity],
-		[20,Infinity],
-	],
-	m: [
-		[-10,20],
-		[-10,20],
-		[-20,Infinity],
-		//[-20,-6.7],
-	],
-	k: [
-		[-6.7,-10],
-		[-6.7,-10],
-		[-20,Infinity],
-	],
-}
 let selected = {
 	a: 0,
 	m: 0,
@@ -111,7 +93,7 @@ document.getElementById("knight").onclick = function(){
 }
 
 document.getElementById("image").onclick = function(){
-	if(selected[selected.class] < max[selected.class].length-1){
+	if(selected[selected.class] < Skins[selected.class].length-1){
 		selected[selected.class]++;
 	}else{
 		selected[selected.class] = 0;
@@ -136,16 +118,16 @@ function display(){
 	document.getElementById("random").style.backgroundImage = "url('assets/class-select/rm.png')";
 	if(num === 0){ // forward
 		document.getElementById("image").src="assets/class-select/"+selected.class+selected[selected.class]+"/f.png";
-		document.getElementById("image").style.left = window.innerWidth/2-document.getElementById("image").offsetWidth/2+parseInt(document.getElementById("image").width)/max[selected.class][selected[selected.class]][0]+"px";
+		document.getElementById("image").style.left = window.innerWidth/2-document.getElementById("image").offsetWidth/2+parseInt(document.getElementById("image").width)/Skins[selected.class][selected[selected.class]].position[0]+"px";
 	}else if(num === 1){ // left
 		document.getElementById("image").src="assets/class-select/"+selected.class+selected[selected.class]+"/l.png";
-		document.getElementById("image").style.left = window.innerWidth/2-document.getElementById("image").offsetWidth/2+parseInt(document.getElementById("image").width)/max[selected.class][selected[selected.class]][1]+"px";
+		document.getElementById("image").style.left = window.innerWidth/2-document.getElementById("image").offsetWidth/2+parseInt(document.getElementById("image").width)/Skins[selected.class][selected[selected.class]].position[1]+"px";
 	}else if(num === 2){ // backward
 		document.getElementById("image").src="assets/class-select/"+selected.class+selected[selected.class]+"/b.png";
-		document.getElementById("image").style.left = window.innerWidth/2-document.getElementById("image").offsetWidth/2-parseInt(document.getElementById("image").width)/max[selected.class][selected[selected.class]][0]+"px";
+		document.getElementById("image").style.left = window.innerWidth/2-document.getElementById("image").offsetWidth/2-parseInt(document.getElementById("image").width)/Skins[selected.class][selected[selected.class]].position[0]+"px";
 	}else { // right
 		document.getElementById("image").src="assets/class-select/"+selected.class+selected[selected.class]+"/r.png";
-		document.getElementById("image").style.left = window.innerWidth/2-document.getElementById("image").offsetWidth/2-parseInt(document.getElementById("image").width)/max[selected.class][selected[selected.class]][1]+"px";
+		document.getElementById("image").style.left = window.innerWidth/2-document.getElementById("image").offsetWidth/2-parseInt(document.getElementById("image").width)/Skins[selected.class][selected[selected.class]].position[1]+"px";
 	}
 }
 

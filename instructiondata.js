@@ -1,4 +1,4 @@
-Instructions = [
+var Instructions = [
 	[
 		"Chapter I: Getting Started",[
 			["Getting Started","<p>Welcome to the mystical kingdom of Antorax - a world full of immersion, magic, archaeology, and no third dimension. Regardless, in this cruel and unforgiving world, I should probably let you know how everything works, rather than drop you in unawares and let you immediately die.</p>"],

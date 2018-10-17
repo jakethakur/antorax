@@ -422,6 +422,10 @@ td{
 	width: 131px;
 	height: 51px;
 	outline: none;
+	display: none;
+}
+#changeAdventure, #changeSettings{
+	display: block;
 }
 #chatImage, #inventoryImage, #questsImage, #adventureImage, #reputationImage, #settingsImage{
 	position: absolute;

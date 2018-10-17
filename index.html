@@ -219,12 +219,12 @@
 		<center><div id="levelUpPageClose" onclick="Game.secondary.render();">Close</div></center>
 	</div>
 
-	<div id="chatImage"onclick="Dom.changeBook('chatPage', false)"></div>
+	<div id="chatImage"onclick="Dom.changeBook('chatPage', false)" hidden></div>
 	<span id="dot" onclick="Dom.changeBook('chatPage', false)" hidden></span>
-	<div id="inventoryImage"onclick="Dom.changeBook('inventoryPage', false)"></div>
-	<div id="questsImage"onclick="Dom.changeBook('questsPage', false)"></div>
+	<div id="inventoryImage"onclick="Dom.changeBook('inventoryPage', false)" hidden></div>
+	<div id="questsImage"onclick="Dom.changeBook('questsPage', false)" hidden></div>
 	<div id="adventureImage"onclick="Dom.changeBook('adventurePage', false)"></div>
-	<div id="reputationImage"onclick="Dom.changeBook('reputationPage', false)"></div>
+	<div id="reputationImage"onclick="Dom.changeBook('reputationPage', false)" hidden></div>
 	<div id="settingsImage"onclick="Dom.settings.page()"></div>
 	<svg height="51" width="131" id="changeChat" onclick="Dom.changeBook('chatPage', false)" tabindex = "0">
 		<polygon points ="0,0 0,50 100,50 130,25 100,0" style="fill:blue;stroke:black;stroke-width:1" />
@@ -246,6 +246,7 @@
 	</svg>
 	
 	<script src="./instructiondata.js"></script>
+	<script src="./skindata.js"></script>
 	<script src="./itemdata.js"></script>
 	<script src="./savedata.js"></script>
 	<script src="./questdata.js"></script>

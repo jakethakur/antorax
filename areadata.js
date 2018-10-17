@@ -280,7 +280,7 @@ var Areas = {
 				onPlayerTouch: function () {
 					// check that the "to the logging camp" quest has been started and the instructions haven't been shown before
 					if (Player.quests.activeQuestArray.includes("To the Logging Camp")
-					&& Player.unlockedInstructions.length < 1) {
+					&& Player.unlockedInstructions.length < 3) {
 						Dom.adventure.addInstruction(3); // open instructions chapter 3
 					}
 					// otherwise if the player hasn't started the quest, teleport them back to make them!

@@ -42,8 +42,8 @@ let Dom = {
 Dom.previous = "adventurePage"; // change currently displayed page
 Dom.changeBook = function(page, override, x, shouldNotBeOverriden) { // changes the page or changes the color of close buttons
 	//override says if the function should be run regardless of if the player has a quest active (e.g: declining a quest or closing a merchant)
-	if(page === Dom.previous && Dom.adventure.awaitingInstructions[0]){
-		Dom.adventure.showInstructions(Dom.adventure.awaitingInstructions[0]);
+	if(page === Dom.previous && Dom.adventure.awaitingInstructions.length > 0){
+		Dom.adventure.showInstructions(Dom.adventure.awaitingInstructions[0], true);
 		Dom.adventure.awaitingInstructions.splice(0,1);
 	}else if((this.currentlyDisplayed === "" || override) && page !== "levelUpPage") { // check the player doesn't have a quest active
 		// hide all pages
@@ -164,7 +164,9 @@ Dom.chat.insert = function(text, delay, important) { // // insert text in chat p
 		
 		if(chatPage.hidden) { // if the chat is hidden
 			if(document.getElementById("dot").innerHTML !== "<b>...</b>") { // if there are less than 100 notifications
-				document.getElementById("dot").hidden = false; // display the notifications
+				if(!document.getElementById("chatImage").hidden){
+					document.getElementById("dot").hidden = false; // display the notifications
+				}
 				document.getElementById("dot").innerHTML = parseInt(document.getElementById("dot").innerHTML) + 1; // add 1 to the notification number
 				if(parseInt(document.getElementById("dot").innerHTML) > 99) { // if there are 100 notifications
 					document.getElementById("dot").innerHTML = "<b>...</b>"; // set the notification number to "..."
@@ -1228,6 +1230,10 @@ Dom.inventory.give = function(item,num){ // gives the player the item
 						}
 						Dom.inventory.update();
 					}
+					if(item.type !== "item" && item.type !== "bag" && item.type !== "currency" && item.type !== "fish" && item.type !== "consumable" && localStorage.getItem("accept") === "true" && !Dom.inventory.archaeology.includes(item.name)){
+						Dom.inventory.archaeology.push(item.name);
+						localStorage.setItem("archaeology",JSON.stringify(Dom.inventory.archaeology));
+					}
 					break; // stops the item being placed in multiple slots
 				}
 			}
@@ -1240,6 +1246,12 @@ Dom.inventory.give = function(item,num){ // gives the player the item
 	}else{
 		return false;
 	}
+}
+
+if(localStorage.getItem("archaeology") !== null){
+	Dom.inventory.archaeology = JSON.parse(localStorage.getItem("archaeology"));
+}else{
+	Dom.inventory.archaeology = [];
 }
 
 Dom.inventory.chooseStats = function(inventoryPosition){
@@ -2435,8 +2447,12 @@ if(localStorage.getItem("instructions") === "true"){
 	document.getElementById("instructionsTitle").style.color = "#551a8b";
 }
 
-Dom.adventure.showInstructions = function(chapter){
-	Dom.adventure.awaitingInstructions.push(chapter);
+Dom.adventure.showInstructions = function(chapter, reverse){
+	if(reverse){
+		Dom.adventure.awaitingInstructions.splice(0,0,chapter);
+	}else{
+		Dom.adventure.awaitingInstructions.push(chapter);
+	}
 	Dom.adventure.currentInstruction = 0;
 	Dom.text.page("", Instructions[Dom.adventure.awaitingInstructions[0]][1][Dom.adventure.currentInstruction][0], "<p>"+(Dom.adventure.currentInstruction > 0 ? "<span onclick='Dom.adventure.previousInstruction()' class='instructionArrowLeft'>&#8678;</span>" : "")+"Page "+(Dom.adventure.currentInstruction+1)+" of "+Instructions[Dom.adventure.awaitingInstructions[0]][1].length+(Dom.adventure.currentInstruction < Instructions[Dom.adventure.awaitingInstructions[0]][1].length-1 ? "<span onclick='Dom.adventure.nextInstruction()' class='instructionArrowRight'>&#8680;</span>" : "")+"</p>"+Instructions[Dom.adventure.awaitingInstructions[0]][1][Dom.adventure.currentInstruction][1], false, [Dom.adventure.currentInstruction === Instructions[Dom.adventure.awaitingInstructions[0]][1].length-1 ? "Close" : undefined], [Dom.adventure.instructionIndex]);
 }
@@ -2444,7 +2460,7 @@ Dom.adventure.showInstructions = function(chapter){
 Dom.adventure.instructionIndex = function(){
 	Dom.adventure.awaitingInstructions.splice(0,1);
 	if(Dom.adventure.awaitingInstructions.length > 0){
-		Dom.adventure.showInstructions(Dom.adventure.awaitingInstructions[0]);
+		Dom.adventure.showInstructions(Dom.adventure.awaitingInstructions[0], true);
 		Dom.adventure.awaitingInstructions.splice(0,1);
 	}else if(Player.unlockedInstructions.length > 1 && Dom.adventure.openedInstructions){
 		Dom.adventure.openedInstructions = false;
