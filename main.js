@@ -16,21 +16,23 @@ var Loader = {
 };
 
 Loader.loadImage = function (key, src) {
-    var img = new Image();
+	if (!(key in this.images)) {
+	    var img = new Image();
 
-    var d = new Promise(function (resolve, reject) {
-        img.onload = function () {
-            this.images[key] = img;
-            resolve(img);
-        }.bind(this);
+	    var d = new Promise(function (resolve, reject) {
+	        img.onload = function () {
+	            this.images[key] = img;
+	            resolve(img);
+	        }.bind(this);
 
-        img.onerror = function () {
-            reject('Could not load image: ' + src);
-        };
-    }.bind(this));
+	        img.onerror = function () {
+	            reject('Could not load image: ' + src);
+	        };
+	    }.bind(this));
 
-    img.src = src;
-    return d;
+	    img.src = src;
+	    return d;
+	}
 };
 
 Loader.getImage = function (key) {
@@ -150,6 +152,9 @@ Game.run = function (context, secondaryContext) {
     this.secondary.ctx = secondaryContext;
 	
     this._previousElapsed = 0;
+	
+	// projectile name for hero (for use with projectile image loading)
+	this.heroProjectileName = Skins[Player.class][Player.skin].projectile;
 
     this.loadArea(Player.areaName, {x: Player.x, y: Player.y});
 };
@@ -992,7 +997,7 @@ class Hero extends Attacker {
 								width: this.class === "k" ? 60 : (this.class === "m" ? 23 : (this.class === "a" ? 10 : 0)),
 								height: this.class === "k" ? 60 : (this.class === "m" ? 23 : (this.class === "a" ? 10 : 0)),
 							},
-							image: Player.inventory.weapon[0].type === "bow" ? "projectileA" : (Player.inventory.weapon[0].type === "staff" ? "projectileM" : (Player.inventory.weapon[0].type === "sword" ? "projectileK" : "")),
+							image: Game.heroProjectileName,
 							beingChannelled: true,
 							variance: variance,
 						}));
@@ -2235,18 +2240,10 @@ Game.load = function (names, addresses) {
 		toLoad.push(Loader.loadImage("hero", "./assets/player/" + Player.class + Player.skin + ".png"));
 	}
 	
-	// check if a class projectile image has been loaded (if not, then load all class')
-	if (!Object.keys(Loader.images).includes("projectileA")) {
-		// load all necessary projectiles
-		// basic projectiles
-		toLoad.push(Loader.loadImage("projectileA", "./assets/projectiles/a.png"));
-		toLoad.push(Loader.loadImage("projectileM", "./assets/projectiles/m.png"));
-		toLoad.push(Loader.loadImage("projectileK", "./assets/projectiles/k.png"));
-		// class-specific projectiles
-		/*if (Player.class+Player.gender+Player.skin === "am1") {
-			// jungle hunter
-		}*/
-		//toLoad.push(Loader.loadImage("projectileM", "./assets/projectiles/" + (Player.class+Player.gender+Player.skin === "mm1" ? "ghostbusters" : Player.class) + ".png"));
+	// check if the class' default projectile has been loaded
+	if (!Object.keys(Loader.images).includes(this.heroProjectileName)) {
+		// load class' default projectile
+		toLoad.push(Loader.loadImage(this.heroProjectileName, "./assets/projectiles/" + this.heroProjectileName + ".png"));
 	}
 	
 	// check status image has been loaded (if not, then load it)
@@ -2270,11 +2267,10 @@ Game.loadArea = function (areaName, destination) {
 	
 	// wipe previously loaded images
 	Loader.wipeImages([
-		// images not to be wiped
+		// images not to be wiped (ignored if they haven't been loaded)
 		"hero",
-		"projectileA",
-		"projectileM",
-		"projectileK",
+		this.heroProjectileName,
+		"bobber",
 		"status",
 	]);
 	
@@ -3080,13 +3076,49 @@ Game.inventoryUpdate = function (e) {
 	if (e == undefined || isNaN(parseInt(e.dataTransfer.getData("text")))) {
 		// player stats updated
 		Game.hero.stats = Player.stats; // inefficient (should be linked)
-		if (Player.inventory.weapon[0].type !== "rod" && Game.hero.channelling === "fishing") { // if the player is no longer holding a fishing rod, remove their bobber
+		
+		// if the player is holding a weapon, set their range
+		Game.hero.stats.range = WeaponRanges[Player.inventory.weapon[0].type] + Game.hero.stats.rangeModifier;
+		
+		// if the player is now holding a weapon with a special projectile image, load that image and stop the player from attacking until this is done
+		if (Player.inventory.weapon[0].specialProjectile !== undefined && this.heroProjectileName !== Player.inventory.weapon[0].specialProjectile) {
+			// not loaded projectile image before
+			this.heroProjectileName = Player.inventory.weapon[0].specialProjectile;
+			// set weapon type to "cannotAttack" so the player is blocked from attacking
+			var oldWeaponType = Player.inventory.weapon[0].type; // must be var
+			Player.inventory.weapon[0].type = "cannotAttack";
+			// load image
+			let p = Loader.loadImage(this.heroProjectileName, "./assets/projectiles/" + this.heroProjectileName + ".png");
+			p.then(function (value) {
+				// only call once image has loaded
+				// set weapon type back to old attack
+				Player.inventory.weapon[0].type = oldWeaponType;
+			});
+		}
+		else if (this.heroProjectileName !== Skins[Player.class][Player.skin].projectile) {
+			// needs to reload default projectile image
+			this.heroProjectileName = Skins[Player.class][Player.skin].projectile;
+			// set weapon type to "cannotAttack" so the player is blocked from attacking
+			var oldWeaponType = Player.inventory.weapon[0].type; // must be var
+			Player.inventory.weapon[0].type = "cannotAttack";
+			// load image
+			let p = Loader.loadImage(this.heroProjectileName, "./assets/projectiles/" + this.heroProjectileName + ".png");
+			p.then(function (value) {
+				// only call once image has loaded
+				// set weapon type back to old attack
+				Player.inventory.weapon[0].type = oldWeaponType;
+			});
+		}
+		
+		// if the player is no longer holding a fishing rod, remove their bobber
+		if (Player.inventory.weapon[0].type !== "rod" && Game.hero.channelling === "fishing") {
 			Game.projectiles.splice(Game.searchFor(Game.hero.channellingProjectileId, Game.projectiles), 1); // remove bobber
 			
 			Game.hero.channelling = false;
 			this.channellingProjectileId = null;
 		}
-		Dom.quests.active(); // quest log updated
+		
+		Dom.quests.active(); // quest log update check
 	}
 }
 
@@ -3688,20 +3720,15 @@ Game.render = function (delta) {
 // update crosshair based on mouse distance from player (called by mouseMove event listener in init)
 Game.secondary.updateCursor = function (event) {
 	// get player's range
-	let range = 0;
-	if (Player.inventory.weapon[0].type === "rod") { // fishing
-		range = Game.hero.stats.fishingRange;
-	}
-	else if (Player.inventory.weapon[0].type === "bow" || Player.inventory.weapon[0].type === "sword" || Player.inventory.weapon[0].type === "staff") {
-		range = Game.hero.stats.range;
-	}
+	let range = Game.hero.stats.range;
 	
 	// check the player's mouse distance is within range
 	if (distance({x: Game.camera.x + event.clientX - 19, y: Game.camera.y + event.clientY - 19,}, Game.hero) < range) {
 		// mouse in range (crosshair)
-		let cursor = "crosshair";
-		if(Player.class+Player.skin == 'a1'){
-			cursor = "url('assets/cursors/jungleHunter.png') 9.5 8, auto;";
+		let cursor = Skins[Player.class][Player.skin].cursor;
+		if (cursor !== "crosshair") {
+			// cursor requires custom image
+			cursor = "url('assets/cursors/" + cursor + ".png') " + Skins[Player.class][Player.skin].cursorPosition.x + " " + Skins[Player.class][Player.skin].cursorPosition.y + ", auto;";
 		}
 		document.getElementById("secondary").setAttribute("style","cursor: " + cursor);
 	}

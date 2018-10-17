@@ -655,7 +655,8 @@ var Items = {
 			},
 			chat: {
 				kill: ["Burn with me!", "Must. Kill.", "Keep going. Please. Kill them all.", "Goblin idiots must die!", "Diseased creatures."],
-			}
+			},
+			specialProjectile: "fireball",
 		},
 	],
 	bow: [
@@ -2204,3 +2205,10 @@ var Items = {
 		},*/
 	],
 };
+
+WeaponRanges = {
+	bow: 1000,
+	staff: 200,
+	sword: 100,
+	rod: 200,
+}

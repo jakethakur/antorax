@@ -188,7 +188,7 @@ var EnemyTemplates = {
 			leashRadius: 350,
 			xpGiven: 20,
 			projectile: {
-				image: "projectileM",
+				image: "fireball",
 			},
 			lootTableTemplate: LootTables.nilbogGoblin,
 			lootTable: [
@@ -553,9 +553,10 @@ var Areas = {
 		onAreaLoad: function () {
 			// start instructions chapter 4 if the player hasn't already
 			if (Player.unlockedInstructions.length < 4) {
+				Dom.adventure.addInstruction(4);
+				// show chat tab
 				document.getElementById("changeChat").style.display = "block";
 				document.getElementById("chatImage").hidden = false;
-				Dom.adventure.addInstruction(4);
 			}
 		},
 		
@@ -1061,6 +1062,7 @@ var Areas = {
 				"hammerGoblin",
 				"melee",
 				"fireGoblin",
+				"fireball", // (ignored by loader if it is already loaded because of a mage player)
 				"goblinCorpse",
 				"mailcart",
 				"trap",
@@ -1075,6 +1077,7 @@ var Areas = {
 				"./assets/enemies/goblinBruiser.png",
 				"./assets/projectiles/melee.png",
 				"./assets/enemies/goblinPyromancer.png",
+				"./assets/projectiles/fireball.png",
 				"./assets/corpses/deadGoblin.png",
 				"./assets/objects/cartDestroyed.png",
 				"./assets/objects/trap.png",

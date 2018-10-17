@@ -59,7 +59,8 @@ var Player = {
 		damage: 0,
 		defence: 0,
 		maxHealth: 50,
-		range: playerClass === "a" ? 1000 : (playerClass === "m" ? 200 : (playerClass === "k" ? 100 : 0)),
+		range: 0, // set in Game.inventoryUpdate based off of WeaponRanges in itemdata.js
+		rangeModifier: 0, // added to the player's base range (based off of WeaponRanges)
 		reloadTime: 500, // time that must be taken between attack channel finish and channel start (in ms)
 		criticalChance: 1,
 		dodgeChance: 1,
@@ -79,7 +80,6 @@ var Player = {
 		
 		// fishing
 		fishingSkill: 0, // increased when you fish stuff up (increased by main.js)
-		fishingRange: 200, // fishing rod range (currently just a constant)
 	},
 	
 	//
