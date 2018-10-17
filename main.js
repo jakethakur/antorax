@@ -3699,9 +3699,9 @@ Game.secondary.updateCursor = function (event) {
 	// check the player's mouse distance is within range
 	if (distance({x: Game.camera.x + event.clientX - 19, y: Game.camera.y + event.clientY - 19,}, Game.hero) < range) {
 		// mouse in range (crosshair)
-		var cursor = "crosshair";
+		let cursor = "crosshair";
 		if(Player.class+Player.skin == 'a1'){
-			cursor = "url('assets/icons/cursors/jungleHunter.png') 9.5 8, auto;";
+			cursor = "url('assets/cursors/jungleHunter.png') 9.5 8, auto;";
 		}
 		document.getElementById("secondary").setAttribute("style","cursor: " + cursor);
 	}
