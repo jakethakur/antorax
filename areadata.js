@@ -555,6 +555,7 @@ var Areas = {
 			if (Player.unlockedInstructions.length < 4) {
 				Dom.adventure.addInstruction(4);
 				// show chat tab
+				Player.unlockedTabs.push("chat");
 				document.getElementById("changeChat").style.display = "block";
 				document.getElementById("chatImage").hidden = false;
 			}

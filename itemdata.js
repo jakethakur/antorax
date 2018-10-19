@@ -1237,6 +1237,7 @@ var Items = {
 					}));
 					// give quest progress for "learning to fish II"
 					Player.quests.questProgress.hasUsedBait = true;
+					Dom.expand("information");
 				}
 			}
 		},
@@ -1781,8 +1782,8 @@ var Items = {
 			type: "fish",
 			image: "assets/items/fish/22.png",
 			rarity: "junk",
-			sellPrice: 16,
-			sellQuantity: 16,
+			sellPrice: 1,
+			sellQuantity: 1,
 			stack: 264,
 			lore: "An old coin from before Antorax was formed.",
 			areas: [], 
@@ -1803,8 +1804,8 @@ var Items = {
 			type: "fish",
 			image: "assets/items/fish/23.png",
 			rarity: "junk",
-			sellPrice: 16,
-			sellQuantity: 16,
+			sellPrice: 1,
+			sellQuantity: 1,
 			stack: 264,
 			lore: "It's too tarnished to be used as currency.",
 			areas: [], 

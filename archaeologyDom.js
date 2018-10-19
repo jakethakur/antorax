@@ -156,7 +156,7 @@ function arrange(){
 		if(array[i].imageArchaeology == undefined){
 			document.getElementById("flashcardlist"+c).innerHTML += '<li class="box" '+(JSON.parse(localStorage.getItem("archaeology")).includes(array[i].name) ? "style='border: 5px solid darkgreen'" : "")+'><img src="'+array[i].image+'" class="img"><p id="name'+i+'" class="para"></p><p id="tier'+i+'" class="para"></p><p id="stats'+i+'" class="para"></p><p id="set'+i+'" class="para"></p><p id="lore'+i+'" class="para"></p></li>';
 		}else{
-			document.getElementById("flashcardlist"+c).innerHTML += '<li class="box"><img src="'+array[i].imageArchaeology+'" class="img"><p id="name'+i+'" class="para"></p><p id="tier'+i+'" class="para"></p><p id="stats'+i+'" class="para"></p><p id="set'+i+'" class="para"></p><p id="lore'+i+'" class="para"></p></li>';
+			document.getElementById("flashcardlist"+c).innerHTML += '<li class="box" '+(JSON.parse(localStorage.getItem("archaeology")).includes(array[i].name) ? "style='border: 5px solid darkgreen'" : "")+'><img src="'+array[i].imageArchaeology+'" class="img"><p id="name'+i+'" class="para"></p><p id="tier'+i+'" class="para"></p><p id="stats'+i+'" class="para"></p><p id="set'+i+'" class="para"></p><p id="lore'+i+'" class="para"></p></li>';
 		}
 		document.getElementById("flashcardlist"+c).style.left = 25+c*245+((screenSize-45)-(((Math.floor((screenSize-45)/245)))*245))/2+"px";
 		document.getElementById("name"+i).innerHTML = "<b>"+array[i].name+"</b>";

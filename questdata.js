@@ -47,6 +47,7 @@ var Quests = {
 			},
 			
 			onQuestStart: function() {
+				Player.unlockedTabs.push("quests");
 				document.getElementById("changeQuests").style.display = "block";
 				document.getElementById("questsImage").hidden = false;
 				Dom.changeBook(Dom.previous, true);
@@ -97,6 +98,7 @@ var Quests = {
 			},
 			
 			onQuestStart: function() {
+				Player.unlockedTabs.push("inventory");
 				document.getElementById("changeInventory").style.display = "block";
 				document.getElementById("inventoryImage").hidden = false;
 				Dom.changeBook(Dom.previous, true);
@@ -218,6 +220,7 @@ var Quests = {
 			],
 			
 			onQuestFinish: function() {
+				Player.unlockedTabs.push("reputation");
 				document.getElementById("changeReputation").style.display = "block";
 				document.getElementById("reputationImage").hidden = false;
 			}

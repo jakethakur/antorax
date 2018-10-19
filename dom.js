@@ -42,7 +42,7 @@ let Dom = {
 Dom.previous = "adventurePage"; // change currently displayed page
 Dom.changeBook = function(page, override, x, shouldNotBeOverriden) { // changes the page or changes the color of close buttons
 	//override says if the function should be run regardless of if the player has a quest active (e.g: declining a quest or closing a merchant)
-	if(page === Dom.previous && Dom.adventure.awaitingInstructions.length > 0){
+	if((page === "chatPage" || page === "inventoryPage" || page === "questsPage" || page === "adventurePage" || page === "reputationPage" || page === "settingsPage" || page === "settingsTwoPage") && Dom.adventure.awaitingInstructions.length > 0){
 		Dom.adventure.showInstructions(Dom.adventure.awaitingInstructions[0], true);
 		Dom.adventure.awaitingInstructions.splice(0,1);
 	}else if((this.currentlyDisplayed === "" || override) && page !== "levelUpPage") { // check the player doesn't have a quest active
@@ -1230,7 +1230,7 @@ Dom.inventory.give = function(item,num){ // gives the player the item
 						}
 						Dom.inventory.update();
 					}
-					if(item.type !== "item" && item.type !== "bag" && item.type !== "currency" && item.type !== "fish" && item.type !== "consumable" && localStorage.getItem("accept") === "true" && !Dom.inventory.archaeology.includes(item.name)){
+					if(item.type !== "item" && item.type !== "bag" && item.type !== "currency" && item.type !== "fish" && item.type !== "consumable" && localStorage.getItem("accept") === "true" && !Dom.inventory.archaeology.includes(item.name) && item.name !== undefined){
 						Dom.inventory.archaeology.push(item.name);
 						localStorage.setItem("archaeology",JSON.stringify(Dom.inventory.archaeology));
 					}
@@ -1894,7 +1894,7 @@ Dom.inventory.addEquipment = function(array){ // adds the stats of an item to th
 	}
 }
 
-Dom.inventory.check = function(ID, type, num){
+Dom.inventory.check = function(ID, type, num, noWeapons){
 	let completed = 0;
 	for(let i = 0; i < Player.inventory.items.length; i++){
 		if(Player.inventory.items[i].type === type && Player.inventory.items[i].id === ID){
@@ -1905,7 +1905,7 @@ Dom.inventory.check = function(ID, type, num){
 			//break;
 		}
 	}
-	if((Player.inventory.weapon[0].type === type && Player.inventory.weapon[0].id === ID) || (Player.inventory.helm[0].type === type && Player.inventory.helm[0].id === ID) || (Player.inventory.chest[0].type === type && Player.inventory.chest[0].id === ID) || (Player.inventory.greaves[0].type === type && Player.inventory.greaves[0].id === ID) || (Player.inventory.boots[0].type === type && Player.inventory.boots[0].id === ID)){
+	if(((Player.inventory.weapon[0].type === type && Player.inventory.weapon[0].id === ID) || (Player.inventory.helm[0].type === type && Player.inventory.helm[0].id === ID) || (Player.inventory.chest[0].type === type && Player.inventory.chest[0].id === ID) || (Player.inventory.greaves[0].type === type && Player.inventory.greaves[0].id === ID) || (Player.inventory.boots[0].type === type && Player.inventory.boots[0].id === ID)) && !noWeapons){
 		completed++;
 	}
 	if(num !== undefined){
@@ -1927,8 +1927,12 @@ if(Player.class === "a"){
 }
 
 document.getElementById("inventoryGoldXP").style.backgroundImage = 'url("./assets/class-select/'+Player.class+Player.skin+'/f.png")';
-if(Player.class+Player.skin === "a1"){
-	document.getElementById("inventoryGoldXP").style.right = "8px";
+if(Player.skin === "2"){
+	if(Player.class !== "k"){
+		document.getElementById("inventoryGoldXP").style.right = "8px";
+	}else{
+		document.getElementById("inventoryGoldXP").style.right = "14px";
+	}
 }
 document.getElementById("settingLogout").innerHTML = "<div id='settingControls' onclick='Dom.settings.page(\"settingsTwoPage\")'>Hotkey Bindings</div><br><br>You are logged in as "+Player.name+(localStorage.getItem("accept") ? "<div id='settingSave' onclick='Game.saveProgress()'>Save</div>" : "")+"<div id='settingLogoutInner' onclick='Game.saveProgress(\"logout\")'>Logout</div>"+(localStorage.getItem("accept") ? "<div id='settingDelete'>Delete</div>" : "");
 
@@ -2434,12 +2438,16 @@ Dom.adventure.addInstruction = function(chapter){
 }
 
 document.getElementById("tutorialOn").onclick = function(){
+	Player.unlockedTabs.push("chat");
 	document.getElementById("changeChat").style.display = "block";
 	document.getElementById("chatImage").hidden = false;
+	Player.unlockedTabs.push("inventory");
 	document.getElementById("changeInventory").style.display = "block";
 	document.getElementById("inventoryImage").hidden = false;
+	Player.unlockedTabs.push("quests");
 	document.getElementById("changeQuests").style.display = "block";
 	document.getElementById("questsImage").hidden = false;
+	Player.unlockedTabs.push("reputation");
 	document.getElementById("changeReputation").style.display = "block";
 	document.getElementById("reputationImage").hidden = false;
 }
@@ -2569,6 +2577,10 @@ for(let i = 0; i < document.getElementsByClassName("hotkey").length; i++){
 	}
 }
 document.getElementById("level").innerHTML = "Level "+Player.level;
+for(let i = 0; i < Player.unlockedTabs.length; i++){
+	document.getElementById("change"+Player.unlockedTabs[i][0].toUpperCase()+Player.unlockedTabs[i].slice(1)).style.display = "block";
+	document.getElementById(Player.unlockedTabs[i]+"Image").hidden = false;
+}
 
 //DELTES EXISTING CLASS
 if(document.getElementById("settingDelete") !== null){

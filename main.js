@@ -3089,11 +3089,17 @@ Game.inventoryUpdate = function (e) {
 			Player.inventory.weapon[0].type = "cannotAttack";
 			// load image
 			let p = Loader.loadImage(this.heroProjectileName, "./assets/projectiles/" + this.heroProjectileName + ".png");
-			p.then(function (value) {
-				// only call once image has loaded
-				// set weapon type back to old attack
+			if (p !== undefined) {
+				p.then(function (value) {
+					// only call once image has loaded
+					// set weapon type back to old attack
+					Player.inventory.weapon[0].type = oldWeaponType;
+				});
+			}
+			else {
+				// image already loaded; allow the player to attack anyway
 				Player.inventory.weapon[0].type = oldWeaponType;
-			});
+			}
 		}
 		else if (this.heroProjectileName !== Skins[Player.class][Player.skin].projectile) {
 			// needs to reload default projectile image

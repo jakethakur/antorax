@@ -20,6 +20,7 @@ var Player = {
 	lootTier: 1, // tier that unidentified items are from
 	
 	unlockedInstructions: ["Chapter I: Getting Started"],
+	unlockedTabs: [],
 	
 	reputation: {
 		eaglecrestLoggingCamp: {

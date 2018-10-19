@@ -57,7 +57,7 @@ var Skins = {
 			position: {x: -20, y: Infinity},
 			name: "Spirit Buster",
 			gender:	"m",
-			projectile:	undefined,
+			projectile:	"fireball", // MUST BE ADDED
 			cursor: "crosshair",
 		},
 		/*{
