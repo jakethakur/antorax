@@ -880,8 +880,17 @@ var Areas = {
 							// tbd also check that they haven't added it to the potion
 						}
 					},
+					{
+						quest: Quests.eaglecrestLoggingCamp[15], 
+						role: "questStart"
+					},
+					{
+						quest: Quests.eaglecrestLoggingCamp[15], 
+						role: "questFinish"
+					},
 				],
 				chat: {
+					chooseText: "Hello, how are you?",
 					notUnlockedRoles: "I'm not sure you have anything I can buy from you. Come back a bit later.",
 					buyerGreeting: "I'll happily buy any items that you're willing to part with.",
 				},

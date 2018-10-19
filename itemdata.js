@@ -981,7 +981,7 @@ var Items = {
 			rarity: "junk",
 			image: "assets/items/item/4.png",
 			sellPrice: 1,
-			sellQuantity: 4,
+			sellQuantity: 8,
 			stack: 64,
 		},
 		{

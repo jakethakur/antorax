@@ -493,7 +493,7 @@ var Quests = {
 			},
 			
 			howToStart: "Speak to <strong>Fisherman Tobenam</strong>.",
-			levelRequirement: 2,
+			levelRequirement: 1,
 			questRequirements: ["A Lost Fishing Rod"],
 			
 			rewards: {
@@ -538,7 +538,7 @@ var Quests = {
 			},
 			
 			howToStart: "Speak to <strong>Fisherman Tobenam</strong>.",
-			levelRequirement: 2,
+			levelRequirement: 1,
 			questRequirements: ["Learning to Fish I"],
 			
 			rewards: {
@@ -581,7 +581,7 @@ var Quests = {
 			},
 			
 			howToStart: "Speak to <strong>Fisherman Tobenam</strong>.",
-			levelRequirement: 2,
+			levelRequirement: 1,
 			questRequirements: ["Learning to Fish II"],
 			
 			rewards: {
@@ -851,6 +851,70 @@ var Quests = {
 		
 		{
 			id: 15,
+			quest: "Another Man's Treasure",
+			questArea: "eaglecrestLoggingCamp",
+			
+			startName: "Item Buyer Noledar",
+			startChat: `Hello. I've been working on my latest achievement and need some assistance if you wouldn't mind. I need to collect 8 <strong>Scraps of Cloth</strong> and 8 <strong>Polished Rocks</strong> from the goblins in <strong>The Nilbog</strong>, but I've heard it's dangerous out there and don't want to leave my cart unattended. Is there any chance you could head down there to help me? I've heard you're good around the goblins.`,
+			
+			finishName: "Item Buyer Noledar",
+			finishChat: `Thank you so much! Now, I just need to find some space in my cart...`,
+			
+			objectives: [
+				"Obtain 8 <strong>Scraps of Cloth</strong> from goblins.",
+				"Obtain 8 <strong>Polished Rocks</strong> from goblins.",
+				"Speak to <strong>Item Buyer Noledar</strong>.",
+			],
+			
+			isCompleted: function() {
+				var completed = [];
+				
+				// true or falses for each objective (apart from the turn-in objective)
+				completed.push(Dom.inventory.check(3, "item") >= 8 ? true : Dom.inventory.check(3, "item") > 0 ? " (" + Dom.inventory.check(3, "item") + "/8)" : false);
+				completed.push(Dom.inventory.check(4, "item") >= 8 ? true : Dom.inventory.check(4, "item") > 0 ? " (" + Dom.inventory.check(4, "item") + "/8)" : false);
+				
+				
+				var finished = true;
+				for(var i = 0; i < completed.length; i++) {
+					if(completed[i] !== true) {
+						finished = false;
+					}
+				}
+				
+				completed.push(finished);
+				
+				return completed;
+			},
+			
+			howToStart: "Speak to <strong>Item Buyer Noledar</strong>.",
+			levelRequirement: 1,
+			questRequirements: ["Retrieval of Logs"],
+			
+			rewards: {
+				xp: 30,
+				items: [
+					Items.currency[2],
+				],
+				itemQuantities: [
+					2,
+				],
+				reputation: {
+					eaglecrestLoggingCamp: 50,
+				},
+			},
+			
+			removeItems: [
+				Items.item[3], // scrap of cloth
+				Items.item[4], // polished rock
+			],
+			removeItemQuantity: [
+				8,
+				8,
+			],
+		},
+		
+		/*{
+			id: 15,
 			quest: "Potion Making",
 			questArea: "eaglecrestLoggingCamp",
 			
@@ -915,7 +979,7 @@ var Quests = {
 					eaglecrestLoggingCamp: 50,
 				},
 			},
-		},
+		},*/
 		
 		/*{
 			id: 2,
@@ -974,7 +1038,7 @@ var Quests = {
 			},
 			
 			howToStart: "Speak to Fisherman Tobenam.",
-			levelRequirement: 2,
+			levelRequirement: 1,
 			questRequirements: ["Learning to Fish III"],
 			repeatTime: "daily",
 			
