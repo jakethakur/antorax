@@ -1037,6 +1037,7 @@ var Items = {
 			lore: "The energy stored within this sceptre can be used to cure even the worst XP fatigue.",
 		},
 		{
+			// UNUSED
 			id: 9,
 			name: "Inert Potion",
 			type: "item",
@@ -1061,8 +1062,33 @@ var Items = {
 			rarity: "junk",
 			type: "item",
 			quest: true,
-			image: "assets/items/item/10.png",
+			image: "assets/items/item/11.png",
 			lore: "Has some alchemical uses.",
+		},
+		{
+			id: 12,
+			name: "Empty Bucket",
+			type: "item",
+			quest: true,
+			image: "assets/items/item/12.png",
+			onClickText: "Click to fill with a nearby 'scoopable' substance",
+			onClick: function (inventoryPosition) {
+				let tileNum = Game.hero.getTileAtFeet();
+				if (map.mudTiles.includes(tileNum)) {
+					// fill with mud
+					// replace it with a mud-filled version
+					Dom.inventory.remove(inventoryPosition);
+					Dom.inventory.give(Items.item[13], 1, inventoryPosition); // replaces at the same slot
+				}
+			}
+		},
+		{
+			id: 13,
+			name: "Mud-Filled Bucket",
+			type: "item",
+			quest: true,
+			image: "assets/items/item/13.png",
+			lore: "Fresh from The Nilbog."
 		},
 	],
 	consumable: [
@@ -1240,6 +1266,19 @@ var Items = {
 					Dom.expand("information");
 				}
 			}
+		},
+		{
+			id: 9,
+			name: "Samhain Pot o' Gloop",
+			type: "consumable",
+			image: "assets/items/consumable/9.png",
+			cost: 3,
+			onClickText: "Gives you a random spooky status effect",
+			charges: 3,
+			onClick: function (inventoryPosition) {
+				
+			},
+			lore: "Stick your hand in, just like your ancestors once did!",
 		},
 	],
 	fish: [
@@ -1986,7 +2025,7 @@ var Items = {
 			sellQuantity: 8,
 			stack: 64,
 			lore: "Has some alchemical uses.",
-			areas: [], 
+			areas: ["Eaglecrest Logging Camp"], 
 			waterTypes: [
 				"freshwater",
 				"brackish",

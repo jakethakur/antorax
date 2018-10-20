@@ -950,7 +950,8 @@ class Hero extends Attacker {
 	
 	// start channeling basic attack
 	startAttack (e) {
-		if (this.canAttack && Player.inventory.weapon[0].name !== "") { // checks the player has a weapon and is not currently reloading
+		if (this.canAttack && Player.inventory.weapon[0].name !== "" && !Player.inventory.weapon.cannotAttack) { // checks the player has a weapon and is not currently reloading
+			// Player.inventory.weapon.cannotAttack is set to true when the projectile image is being loaded (e.g: weapon with special projectile is equipped/unequipped)
 			if (!checkRightClick(e)) {
 				// left-click (normal) attack
 				
@@ -1256,7 +1257,7 @@ class Hero extends Attacker {
 			
 			// tilemap tiles
 			else if (interactionDone === 3) {
-				let tileNum = map.getTile(0, map.getCol(this.x), map.getRow(this.y + this.height/2));
+				let tileNum = this.getTileAtFeet();
 				if (map.interactWithTile !== undefined) {
 					map.interactWithTile(tileNum, this.x, this.y + this.height/2);
 					//Dom.quests.active();
@@ -1268,6 +1269,11 @@ class Hero extends Attacker {
 				interactionDone++;
 			}
 		}
+	}
+	
+	// map.getTile for Game.hero
+	getTileAtFeet () {
+		return map.getTile(0, map.getCol(this.x), map.getRow(this.y + this.height/2));
 	}
 	
 	// called by fishing bobber timeouts
@@ -1290,7 +1296,7 @@ class Hero extends Attacker {
 				// find the fish that should be caught
 				let fish = Items.fish;
 				fish = fish.filter(item => item.waterTypes.includes(Areas[Game.areaName].waterType)); // filter for water type
-				fish = fish.filter(item => item.areas.includes(Game.areaName) || item.areas.length === 0); // filter for area
+				fish = fish.filter(item => item.areas.includes(Player.lootArea) || item.areas.length === 0); // filter for area
 				if (random(1, 6) !== 2) { // 1 in 6 chance of getting something that might not be within fishing level range
 					fish = fish.filter(item => fishingSkill >= item.skillRequirement.min && fishingSkill <= item.skillRequirement.max); // filter for fishing skill
 				}
@@ -2551,28 +2557,40 @@ Game.init = function () {
 	window.requestAnimationFrame(this.tick);
 };
 
+//
+// Date and checkEvents
+//
+
 // check for events
-Game.checkEvents = function() {
+Game.checkEvents = function () {
 	// get date
-	var today = new Date();
-	var day = today.getDate();
-	var month = today.getMonth() + 1; // January is 0, so add 1
-	var year = today.getFullYear();
+	let today = new Date();
+	let day = today.getDate();
+	let month = today.getMonth() + 1; // January is 0, so add 1
+	let year = today.getFullYear();
 	
 	// James Day
 	// Summer Solstice
-	if (day == 21 && month == 6) {
-		Player.inventory.boots.push(Items.boots[7]);
+	if (day === 21 && month === 6) {
+		Game.event = "James";
+		console.info("Happy James Day!")
+		Dom.inventory.give(Items.boots[7], 1);
+	}
+	// Samhain (Halloween)
+	// Blood Moon
+	else if ((day >= 22 && month === 10) || (day <= 5 && month === 11)) {
+		Game.event = "Samhain";
+		console.info("Happy Samhain! Keep your eye out for a beautiful blood moon tonight.")
 	}
 }
 
 // check time (day or night)
-Game.getTime = function() {
+Game.getTime = function () {
 	// get date and time
-	var today = new Date();
-	var hour = today.getHours();
-	var day = today.getDate();
-	var month = today.getMonth() + 1; // January is 0, so add 1
+	let today = new Date();
+	let hour = today.getHours();
+	let day = today.getDate();
+	let month = today.getMonth() + 1; // January is 0, so add 1
 	
 	// Summer Solstice - sun up all day
 	if (day == 21 && month == 6) {
@@ -2753,6 +2771,7 @@ Game.update = function (delta) {
 				let questActive = false; // if one of the NPC's quests is currently active
 				let questComplete = false; // if one of the NPC's quests has been completed
 				let notUnlockedRoles = false; // if one of the NPC's roles has not been unlocked
+				let textSaid = false; // if all of the above variables should be ignored (because something else has been said instead, e.g: soul healer cannot be healed text)
 				// see below forEach for logic regarding these variables
 				
 				NPC.roles.forEach(role => { // iterate through quests involving that NPC
@@ -2883,8 +2902,9 @@ Game.update = function (delta) {
 							}
 							else {
 								if (!Dom.chat.contents.includes("<strong>" + NPC.name + "</strong>: " + NPC.chat.healedText)) {
-									// display instruction text if user cannot be healed
+									// display instruction text if user cannot be healed and hasn't just been healed
 									NPC.say(NPC.chat.cannotBeHealedText, true, 0, false);
+									textSaid = true; // do not say something in chat, as something has already been said
 								}
 							}
 						}
@@ -2892,9 +2912,17 @@ Game.update = function (delta) {
 						// identifiers
 						else if (role.role === "identifier") {
 							// identifier appears as an option for choose DOM
-							textArray.push(role.chooseText || "I'd like to identify an item.");
-							functionArray.push(Dom.identifier.page);
-							parameterArray.push([NPC, true]);
+							if (Dom.identifier.check()) {
+								// player has unidentified items
+								textArray.push(role.chooseText || "I have an item I'd like to identify.");
+								functionArray.push(Dom.identifier.page);
+								parameterArray.push([NPC, true]);
+							}
+							else {
+								// player has no unidentified items; send chat message explaining this instead==
+								NPC.say(NPC.chat.noUnidentified, true, 0, false);
+								textSaid = true; // do not say something in chat, as something has already been said
+							}
 						}
 						
 						// item buyers
@@ -2935,17 +2963,19 @@ Game.update = function (delta) {
 				}
 				else {
 					// text that the NPC says if they don't open a choose DOM
-					if (questActive) {
-						// the player has active quest(s) with the NPC and no other alternate options
-						NPC.say(NPC.chat.questProgress, true, 0, false);
-					}
-					else if (questComplete) {
-						// the player has finished quest(s) with the NPC and no other alternate options
-						NPC.say(NPC.chat.questComplete, true, 0, false);
-					}
-					else if (notUnlockedRoles) {
-						// the player has not unlocked a possible role with the NPC and no other alternate options
-						NPC.say(NPC.chat.notUnlockedRoles, true, 0, false);
+					if (!textSaid) { // check if any extra text should be said at all
+						if (questActive) {
+							// the player has active quest(s) with the NPC and no other alternate options
+							NPC.say(NPC.chat.questProgress, true, 0, false);
+						}
+						else if (questComplete) {
+							// the player has finished quest(s) with the NPC and no other alternate options
+							NPC.say(NPC.chat.questComplete, true, 0, false);
+						}
+						else if (notUnlockedRoles) {
+							// the player has not unlocked a possible role with the NPC and no other alternate options
+							NPC.say(NPC.chat.notUnlockedRoles, true, 0, false);
+						}
 					}
 				}
 			}
@@ -3084,35 +3114,33 @@ Game.inventoryUpdate = function (e) {
 		if (Player.inventory.weapon[0].specialProjectile !== undefined && this.heroProjectileName !== Player.inventory.weapon[0].specialProjectile) {
 			// not loaded projectile image before
 			this.heroProjectileName = Player.inventory.weapon[0].specialProjectile;
-			// set weapon type to "cannotAttack" so the player is blocked from attacking
-			var oldWeaponType = Player.inventory.weapon[0].type; // must be var
-			Player.inventory.weapon[0].type = "cannotAttack";
+			// set weapon property "cannotAttack" to true so the player is blocked from attacking
+			Player.inventory.weapon[0].cannotAttack = true;
 			// load image
 			let p = Loader.loadImage(this.heroProjectileName, "./assets/projectiles/" + this.heroProjectileName + ".png");
 			if (p !== undefined) {
 				p.then(function (value) {
-					// only call once image has loaded
-					// set weapon type back to old attack
-					Player.inventory.weapon[0].type = oldWeaponType;
+					// only called once image has loaded
+					// set weapon "cannotAttack" property back to false
+					Player.inventory.weapon[0].cannotAttack = false;
 				});
 			}
 			else {
 				// image already loaded; allow the player to attack anyway
-				Player.inventory.weapon[0].type = oldWeaponType;
+				Player.inventory.weapon[0].cannotAttack = false;
 			}
 		}
 		else if (this.heroProjectileName !== Skins[Player.class][Player.skin].projectile) {
 			// needs to reload default projectile image
 			this.heroProjectileName = Skins[Player.class][Player.skin].projectile;
-			// set weapon type to "cannotAttack" so the player is blocked from attacking
-			var oldWeaponType = Player.inventory.weapon[0].type; // must be var
-			Player.inventory.weapon[0].type = "cannotAttack";
+			// set weapon property "cannotAttack" to true so the player is blocked from attacking
+			Player.inventory.weapon[0].cannotAttack = true;
 			// load image
 			let p = Loader.loadImage(this.heroProjectileName, "./assets/projectiles/" + this.heroProjectileName + ".png");
 			p.then(function (value) {
-				// only call once image has loaded
-				// set weapon type back to old attack
-				Player.inventory.weapon[0].type = oldWeaponType;
+				// only called once image has loaded
+				// set weapon "cannotAttack" property back to false
+				Player.inventory.weapon[0].cannotAttack = false;
 			});
 		}
 		

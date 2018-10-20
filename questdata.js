@@ -72,19 +72,12 @@ var Quests = {
 			],
 			
 			isCompleted: function() {
-				var completed = [];
+				let completed = [];
 				
 				// true or falses for each objective (apart from the turn-in objective)
 				completed.push(Player.inventory.weapon[0].type === "bow" || Player.inventory.weapon[0].type === "staff" || Player.inventory.weapon[0].type === "sword");
 				
-				var finished = true;
-				for(var i = 0; i < completed.length; i++) {
-					if(completed[i] !== true) {
-						finished = false;
-					}
-				}
-				
-				completed.push(finished);
+				completed = checkFinished(completed);
 				
 				return completed;
 			},
@@ -123,19 +116,12 @@ var Quests = {
 			],
 			
 			isCompleted: function() {
-				var completed = [];
+				let completed = [];
 				
 				// true or falses for each objective (apart from the turn-in objective)
-				completed.push(typeof Game.dummies !== "undefined" && Game.dummies[0].damageTaken >= 20 ? true : typeof Game.dummies !== "undefined" && Game.dummies[0].damageTaken > 0 ? " (" + damageRound(Game.dummies[0].damageTaken) + "/20)" : false); // quest must be finished in Eaglecrest Logging Camp, hence Game.dummies[0] is always the right dummy
+				completed.push(typeof Game.dummies !== "undefined" && checkProgress(Game.dummies[0].damageTaken, 20)); // quest must be finished in Eaglecrest Logging Camp, hence Game.dummies[0] is always the right dummy
 				
-				var finished = true;
-				for(var i = 0; i < completed.length; i++) {
-					if(completed[i] != true) {
-						finished = false;
-					}
-				}
-				
-				completed.push(finished);
+				completed = checkFinished(completed);
 				
 				return completed;
 			},
@@ -169,19 +155,12 @@ var Quests = {
 			],
 			
 			isCompleted: function() {
-				var completed = [];
+				let completed = [];
 				
 				// true or falses for each objective (apart from the turn-in objective)
-				completed.push(Dom.inventory.check(2, "item") >= 4 ? true : Dom.inventory.check(2, "item") > 0 ? " (" + Dom.inventory.check(2, "item") + "/4)" : false);
+				completed.push(checkProgress(Dom.inventory.check(2, "item"), 4));
 				
-				var finished = true;
-				for(var i = 0; i < completed.length; i++) {
-					if(completed[i] != true) {
-						finished = false;
-					}
-				}
-				
-				completed.push(finished);
+				completed = checkFinished(completed);
 				
 				return completed;
 			},
@@ -242,19 +221,12 @@ var Quests = {
 			],
 			
 			isCompleted: function() {
-				var completed = [];
+				let completed = [];
 				
 				// true or falses for each objective (apart from the turn-in objective)
-				completed.push(Dom.inventory.check(2, "item") >= 4 ? true : Dom.inventory.check(2, "item") > 0 ? " (" + Dom.inventory.check(2, "item") + "/4)" : false);
+				completed.push(checkProgress(Dom.inventory.check(2, "item"), 4));
 				
-				var finished = true;
-				for(var i = 0; i < completed.length; i++) {
-					if(completed[i] != true) {
-						finished = false;
-					}
-				}
-				
-				completed.push(finished);
+				completed = checkFinished(completed);
 				
 				return completed;
 			},
@@ -302,23 +274,20 @@ var Quests = {
 			],
 			
 			isCompleted: function() {
-				var completed = [];
+				let completed = [];
 				
 				// true or falses for each objective (apart from the turn-in objective)
 				let peopleHelped = 0; // count number of people that the player has helped
 				if (Player.quests.completedQuestArray.includes("First Class Recovery")) { peopleHelped++; }
 				if (Player.quests.completedQuestArray.includes("Strengthening Defences")) { peopleHelped++; }
 				if (Player.quests.completedQuestArray.includes("The Sceptre of Souls")) { peopleHelped++; }
-				completed.push(peopleHelped >= 3 ? true : peopleHelped === 0 ? false : " (" + peopleHelped + "/3)");
+				if (Player.quests.completedQuestArray.includes("Another Man's Treasure")) { peopleHelped++; }
+				if (Player.quests.completedQuestArray.includes("Fire Power")) { peopleHelped++; }
+				if (Player.quests.completedQuestArray.includes("Potion Making")) { peopleHelped++; }
+				if (Player.quests.completedQuestArray.includes("A Lost Fishing Rod")) { peopleHelped++; }
+				completed.push(Dom.inventory.check(peopleHelped, 3));
 				
-				var finished = true;
-				for(var i = 0; i < completed.length; i++) {
-					if(completed[i] !== true) {
-						finished = false;
-					}
-				}
-				
-				completed.push(finished);
+				completed = checkFinished(completed);
 				
 				return completed;
 			},
@@ -360,19 +329,12 @@ var Quests = {
 			],
 			
 			isCompleted: function() {
-				var completed = [];
+				let completed = [];
 				
 				// true or falses for each objective (apart from the turn-in objective)
 				completed.push(Dom.inventory.check(6, "item", 1));
 				
-				var finished = true;
-				for(var i = 0; i < completed.length; i++) {
-					if(completed[i] !== true) {
-						finished = false;
-					}
-				}
-				
-				completed.push(finished);
+				completed = checkFinished(completed);
 				
 				return completed;
 			},
@@ -419,19 +381,12 @@ var Quests = {
 			],
 			
 			isCompleted: function() {
-				var completed = [];
+				let completed = [];
 				
 				// true or falses for each objective (apart from the turn-in objective)
 				completed.push((Dom.inventory.check(7, "item", 1)) ? true : false);
 				
-				var finished = true;
-				for(var i = 0; i < completed.length; i++) {
-					if(completed[i] !== true) {
-						finished = false;
-					}
-				}
-				
-				completed.push(finished);
+				completed = checkFinished(completed);
 				
 				return completed;
 			},
@@ -475,19 +430,12 @@ var Quests = {
 			],
 			
 			isCompleted: function() {
-				var completed = [];
+				let completed = [];
 				
 				// true or falses for each objective (apart from the turn-in objective)
 				completed.push(Player.stats.fishingSkill > 0);
 				
-				var finished = true;
-				for(var i = 0; i < completed.length; i++) {
-					if(completed[i] !== true) {
-						finished = false;
-					}
-				}
-				
-				completed.push(finished);
+				completed = checkFinished(completed);
 				
 				return completed;
 			},
@@ -519,20 +467,13 @@ var Quests = {
 			],
 			
 			isCompleted: function() {
-				var completed = [];
+				let completed = [];
 				
 				// true or falses for each objective (apart from the turn-in objective)
 				completed.push(Player.quests.questProgress.hasUsedBait || false);
 				completed.push(Player.quests.questProgress.hasCaughtFish || false);
 				
-				var finished = true;
-				for(var i = 0; i < completed.length; i++) {
-					if(completed[i] !== true) {
-						finished = false;
-					}
-				}
-				
-				completed.push(finished);
+				completed = checkFinished(completed);
 				
 				return completed;
 			},
@@ -563,19 +504,12 @@ var Quests = {
 			],
 			
 			isCompleted: function() {
-				var completed = [];
+				let completed = [];
 				
 				// true or falses for each objective (apart from the turn-in objective)
 				completed.push(Player.stats.fishingSkill >= 10 ? true : " ("+Player.stats.fishingSkill+"/10)");
 				
-				var finished = true;
-				for(var i = 0; i < completed.length; i++) {
-					if(completed[i] !== true) {
-						finished = false;
-					}
-				}
-				
-				completed.push(finished);
+				completed = checkFinished(completed);
 				
 				return completed;
 			},
@@ -606,19 +540,12 @@ var Quests = {
 			],
 			
 			isCompleted: function() {
-				var completed = [];
+				let completed = [];
 				
 				// true or falses for each objective (apart from the turn-in objective)
-				completed.push(Player.quests.questProgress.goblinTrapsPlaced === undefined ? false : Player.quests.questProgress.goblinTrapsPlaced >= 3 ? true : " (" + Player.quests.questProgress.goblinTrapsPlaced + "/3)");
+				completed.push(checkProgress(Player.quests.questProgress.goblinTrapsPlaced, 3));
 				
-				var finished = true;
-				for(var i = 0; i < completed.length; i++) {
-					if(completed[i] !== true) {
-						finished = false;
-					}
-				}
-				
-				completed.push(finished);
+				completed = checkFinished(completed);
 				
 				return completed;
 			},
@@ -664,19 +591,12 @@ var Quests = {
 			],
 			
 			isCompleted: function() {
-				var completed = [];
+				let completed = [];
 				
 				// true or falses for each objective (apart from the turn-in objective)
-				completed.push(Player.quests.questProgress.goblinTrapsPlaced === undefined ? false : Player.quests.questProgress.goblinTrapsPlaced >= 3 ? true : " (" + Player.quests.questProgress.goblinTrapsPlaced + "/3)");
+				completed.push(checkProgress(Player.quests.questProgress.goblinTrapsPlaced, 3));
 				
-				var finished = true;
-				for(var i = 0; i < completed.length; i++) {
-					if(completed[i] !== true) {
-						finished = false;
-					}
-				}
-				
-				completed.push(finished);
+				completed = checkFinished(completed);
 				
 				return completed;
 			},
@@ -728,19 +648,12 @@ var Quests = {
 			],
 			
 			isCompleted: function() {
-				var completed = [];
+				let completed = [];
 				
 				// true or falses for each objective (apart from the turn-in objective)
-				completed.push(Player.quests.questProgress.soulSceptreEnergy === undefined ? false : Player.quests.questProgress.soulSceptreEnergy >= 5 ? true : " (" + Player.quests.questProgress.soulSceptreEnergy + "/5)");
+				completed.push(checkProgress(Player.quests.questProgress.soulSceptreEnergy, 5));
 				
-				var finished = true;
-				for(var i = 0; i < completed.length; i++) {
-					if(completed[i] !== true) {
-						finished = false;
-					}
-				}
-				
-				completed.push(finished);
+				completed = checkFinished(completed);
 				
 				return completed;
 			},
@@ -796,18 +709,12 @@ var Quests = {
 			],
 			
 			isCompleted: function() {
-				var completed = [];
+				let completed = [];
 				
 				// true or falses for each objective (apart from the turn-in objective)
-				completed.push(Player.quests.questProgress.goblinsKilledWithTorch === undefined ? false : Player.quests.questProgress.goblinsKilledWithTorch >= 10 ? true : " (" + Player.quests.questProgress.goblinsKilledWithTorch + "/10)");
+				completed.push(checkProgress(Player.quests.questProgress.goblinsKilledWithTorch, 10));
 				
-				var finished = true;
-				for(var i = 0; i < completed.length; i++) {
-					if(completed[i] !== true) {
-						finished = false;
-					}
-				}
-				completed.push(finished);
+				completed = checkFinished(completed);
 				
 				return completed;
 			},
@@ -867,21 +774,13 @@ var Quests = {
 			],
 			
 			isCompleted: function() {
-				var completed = [];
+				let completed = [];
 				
 				// true or falses for each objective (apart from the turn-in objective)
-				completed.push(Dom.inventory.check(3, "item") >= 8 ? true : Dom.inventory.check(3, "item") > 0 ? " (" + Dom.inventory.check(3, "item") + "/8)" : false);
-				completed.push(Dom.inventory.check(4, "item") >= 8 ? true : Dom.inventory.check(4, "item") > 0 ? " (" + Dom.inventory.check(4, "item") + "/8)" : false);
+				completed.push(checkProgress(Dom.inventory.check(3, "item"), 8));
+				completed.push(checkProgress(Dom.inventory.check(4, "item"), 8));
 				
-				
-				var finished = true;
-				for(var i = 0; i < completed.length; i++) {
-					if(completed[i] !== true) {
-						finished = false;
-					}
-				}
-				
-				completed.push(finished);
+				completed = checkFinished(completed);
 				
 				return completed;
 			},
@@ -913,8 +812,60 @@ var Quests = {
 			],
 		},
 		
-		/*{
-			id: 15,
+		{
+			id: 16,
+			quest: "Fire Power",
+			questArea: "eaglecrestLoggingCamp",
+			
+			startName: "Identifier Gilas",
+			startChat: `As part of my research, I have been looking into what makes the <strong>fire goblin</strong> so much stronger than the other goblins. You might have seen one at the <strong>north</strong> of <strong>The Nilbog</strong>. I believe their strength is down to <strong>Fiery Rocks</strong>, which would have been sourced from the <strong>Nilbog Tower</strong>. They are potentially very strong forms of magic, but not that the goblins would know how to use them to their full potential!<br><br>Please, find one of these rocks from a fire goblin and return it to me. It will be very useful in my research.`,
+			
+			finishName: "Identifier Gilas",
+			finishChat: `Thank you. This will be very useful for my research.`,
+			
+			objectives: [
+				"Obtain a <strong>Fiery Rock</strong> from a <strong>Fire Goblin</strong>.",
+				"Speak to <strong>Identifier Gilas</strong>.",
+			],
+			
+			isCompleted: function() {
+				let completed = [];
+				
+				// true or falses for each objective (apart from the turn-in objective)
+				completed.push(Dom.inventory.check(5, "item", 1));
+				
+				completed = checkFinished(completed);
+				
+				return completed;
+			},
+			
+			howToStart: "Speak to <strong>Identifier Gilas</strong>.",
+			levelRequirement: 1,
+			questRequirements: ["Retrieval of Logs"],
+			
+			rewards: {
+				xp: 30,
+				items: [
+					Items.currency[2],
+				],
+				itemQuantities: [
+					3,
+				],
+				reputation: {
+					eaglecrestLoggingCamp: 50,
+				},
+			},
+			
+			removeItems: [
+				Items.item[5], // scrap of cloth
+			],
+			removeItemQuantity: [
+				1,
+			],
+		},
+		
+		{
+			id: 17,
 			quest: "Potion Making",
 			questArea: "eaglecrestLoggingCamp",
 			
@@ -926,46 +877,128 @@ var Quests = {
 			
 			onQuestFinish: function () {
 				Game.sayChat("Ciarra Darkbrew", "Stand back. We wouldn't want your arms to detatch so soon.", false, 1000, true);
-				Game.sayChat("Ciarra Darkbrew", "/me adds the potion ingredients to an inert vial.", false, 3000, true);
-				Dom.chat.insert("The vial fizzes rapidly.", 4000, true);
-				Dom.chat.insert("The vial explodes.", 5000, true);
+				Game.sayChat("Ciarra Darkbrew", "/me adds the potion ingredients to an inert vial.", false, 4000, true);
+				Dom.chat.insert("The vial fizzes rapidly.", 6500, true);
+				Dom.chat.insert("The vial explodes.", 8500, true);
 				setTimeout(function () {
 					// damage Ciarra
 					if (Game.areaName === "eaglecrestLoggingCamp") {
 						Game.NPCs.find(NPC => NPC.name === "Ciarra Darkbrew").takeDamage(100)
 					}
-				}, 5100);
-				Game.sayChat("Ciarra Darkbrew", "That... didn't go as planned.", false, 6000, true);
+				}, 8600);
+				Game.sayChat("Ciarra Darkbrew", "That... didn't go as planned.", false, 9500, true);
 			},
 			
 			objectives: [
 				"Gather 2 goblin eyes.",
-				"Fish up 1 direweed.",
-				"Obtain 1 vial of goblin blood. You might be able to ask a nearby NPC for one.",
+				"Fill up a bucket with mud from The Nilbog.",
+				"Obtain a vial of goblin blood. You might be able to ask a nearby NPC for one.",
 				"Speak to <strong>Ciarra Darkbrew</strong>.",
 			],
 			
 			isCompleted: function() {
-				var completed = [];
+				let completed = [];
 				
 				// true or falses for each objective (apart from the turn-in objective)
-				//completed.push(Player.quests.questProgress.soulSceptreEnergy === undefined ? false : Player.quests.questProgress.soulSceptreEnergy >= 5 ? true : " (" + Player.quests.questProgress.soulSceptreEnergy + "/5)");
+				completed.push(checkProgress(Dom.inventory.check(10, "item"), 2));
+				completed.push(Dom.inventory.check(13, "item", 1));
+				completed.push(Dom.inventory.check(11, "item", 1));
 				
-				var finished = true;
-				for(var i = 0; i < completed.length; i++) {
-					if(completed[i] !== true) {
-						finished = false;
-					}
-				}
-				
-				completed.push(finished);
+				completed = checkFinished(completed);
 				
 				return completed;
 			},
 			
 			howToStart: "Speak to <strong>Ciarra Darkbrew</strong>.",
-			levelRequirement: 2,
-			questRequirements: ["A Lost Fishing Rod"],
+			levelRequirement: 1,
+			questRequirements: ["Retrieval of Logs"],
+			
+			startRewards: {
+				items: [
+					Items.item[12],
+				],
+				itemQuantities: [
+					1,
+				],
+			},
+			
+			removeItems: [
+				Items.item[10], // goblin eye
+				Items.item[13], // bucket of Nilbog mud
+				Items.item[11], // vial of goblin blood
+			],
+			removeItemQuantity: [
+				2,
+				1,
+				1,
+			],
+			
+			rewards: {
+				xp: 50,
+				items: [
+					Items.currency[2],
+				],
+				itemQuantities: [
+					2,
+				],
+				reputation: {
+					eaglecrestLoggingCamp: 50,
+				},
+			},
+		},
+		
+		{
+			id: 18,
+			quest: "Potion Making II",
+			questArea: "eaglecrestLoggingCamp",
+			
+			startName: "Ciarra Darkbrew",
+			startChat: `Let's try again. Perhaps adding Nilbog mud wasn't a good idea. To stop such a violent reaction, <strong>direweed</strong> should be added. If you know how to fish, you can catch it from nearby waters.`,
+			
+			finishName: "Ciarra Darkbrew",
+			finishChat: `Try two. Stand back; you wouldn't want to die <em>such</em> a horrible death.`,
+			
+			onQuestFinish: function () {
+				Game.sayChat("Ciarra Darkbrew", "/me adds the potion ingredients to an inert vial.", false, 1500, true);
+				Dom.chat.insert("The vial fizzes rapidly.", 4000, true);
+				Dom.chat.insert("The vial simmers to produce a <COLOUR>-coloured liquid.", 6000, true);
+				Game.sayChat("Ciarra Darkbrew", "Excellent. If you'd like to try the potion, you can some from me. I promise it won't kill you. Probably.", false, 8000, true);
+			},
+			
+			objectives: [
+				"Gather 2 more goblin eyes.",
+				"Fish up 1 direweed.",
+				"Obtain another vial of goblin blood.",
+				"Speak to <strong>Ciarra Darkbrew</strong>.",
+			],
+			
+			isCompleted: function() {
+				let completed = [];
+				
+				// true or falses for each objective (apart from the turn-in objective)
+				completed.push(checkProgress(Dom.inventory.check(10, "item"), 2));
+				completed.push(Dom.inventory.check(28, "item", 1));
+				completed.push(Dom.inventory.check(11, "item", 1));
+				
+				completed = checkFinished(completed);
+				
+				return completed;
+			},
+			
+			howToStart: "Speak to <strong>Ciarra Darkbrew</strong>.",
+			levelRequirement: 1,
+			questRequirements: ["Potion Making"],
+			
+			removeItems: [
+				Items.item[10], // goblin eye
+				Items.fish[28], // direweed
+				Items.item[11], // vial of goblin blood
+			],
+			removeItemQuantity: [
+				2,
+				1,
+				1,
+			],
 			
 			rewards: {
 				xp: 50,
@@ -979,7 +1012,7 @@ var Quests = {
 					eaglecrestLoggingCamp: 50,
 				},
 			},
-		},*/
+		},
 		
 		/*{
 			id: 2,
@@ -1030,7 +1063,7 @@ var Quests = {
 				let completed = []; // contains true or false for all of the objectives, with the last element being if the quest is ready to complete
 				
 				// true or falses for each objective (apart from the turn-in objective)
-				completed.push(Player.quests.questProgress.itemsFishedUp === undefined ? false : Player.quests.questProgress.itemsFishedUp >= 15 ? true : " (" + Player.quests.questProgress.itemsFishedUp + "/15)");
+				completed.push(checkProgress(Player.quests.questProgress.itemsFishedUp, 15));
 				
 				completed = checkFinished(completed);
 				
@@ -1061,13 +1094,28 @@ var Quests = {
 
 // check if all of the contents of the array are true
 // adds the last value to the completed array
-function checkFinished(completed) {
-	var finished = true;
-	for(var i = 0; i < completed.length; i++) {
-		if(completed[i] !== true) {
+function checkFinished (completed) {
+	let finished = true;
+	for (let i = 0; i < completed.length; i++) {
+		if (completed[i] !== true) {
 			finished = false;
 		}
 	}
 	completed.push(finished);
 	return completed;
+}
+
+// return a string that contains the progress for a countable objectives
+// currentProgress and requiredProgress should be countable values (currentProgress can be undefined though)
+// either false, true, or (x/y)
+function checkProgress (currentProgress, requiredProgress) {
+	if (currentProgress === undefined || currentProgress === 0) {
+		return false;
+	}
+	else if (currentProgress >= requiredProgress) {
+		return true;
+	}
+	else {
+		return "(" + currentProgress + "/" + requiredProgress + ")";
+	}
 }

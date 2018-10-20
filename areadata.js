@@ -14,7 +14,7 @@ var LootTables = { // loot table templates
 		{ // gold
 			item: Items.currency[2],
 			chance: [
-				75,				// 0
+				80,				// 0
 				95,				// 1
 				Infinity,		// 2
 			],
@@ -284,7 +284,7 @@ var Areas = {
 						Dom.adventure.addInstruction(3); // open instructions chapter 3
 					}
 					// otherwise if the player hasn't started the quest, teleport them back to make them!
-					else if (!Player.quests.activeQuestArray.includes("To the Logging Camp")) {
+					else if (!Player.quests.activeQuestArray.includes("To the Logging Camp") && !Player.quests.completedQuestArray.includes("To the Logging Camp")) {
 						Game.hero.x = 2297;
 						Game.hero.y = 387;
 						Dom.alert.page("You need to start your first quest. Speak to the Cart Driver who is right next to you.")
@@ -758,10 +758,19 @@ var Areas = {
 				},
 				roles: [
 					{
+						quest: Quests.eaglecrestLoggingCamp[16], 
+						role: "questStart"
+					},
+					{
+						quest: Quests.eaglecrestLoggingCamp[16], 
+						role: "questFinish"
+					},
+					{
 						role: "identifier",
 					},
 				],
 				chat: {
+					chooseChat: "Isn't studying the environment here just fascinating? I have envy of those dendrologists.",
 					identifierGreeting: "What would you like to identify?",
 					noUnidentified: "You have no unidentified items. Kill and loot enemies to get some.",
 					identifyCommon: "Here is your item, adventurer.",
@@ -863,6 +872,14 @@ var Areas = {
 				},
 				roles: [
 					{
+						quest: Quests.eaglecrestLoggingCamp[15], 
+						role: "questStart"
+					},
+					{
+						quest: Quests.eaglecrestLoggingCamp[15], 
+						role: "questFinish"
+					},
+					{
 						role: "itemBuyer",
 						roleRequirement: function () {
 							return Player.quests.completedQuestArray.includes("Retrieval of Logs");
@@ -880,17 +897,9 @@ var Areas = {
 							// tbd also check that they haven't added it to the potion
 						}
 					},
-					{
-						quest: Quests.eaglecrestLoggingCamp[15], 
-						role: "questStart"
-					},
-					{
-						quest: Quests.eaglecrestLoggingCamp[15], 
-						role: "questFinish"
-					},
 				],
 				chat: {
-					chooseText: "Hello, how are you?",
+					chooseChat: "Hello, how are you?",
 					notUnlockedRoles: "I'm not sure you have anything I can buy from you. Come back a bit later.",
 					buyerGreeting: "I'll happily buy any items that you're willing to part with.",
 				},
@@ -909,10 +918,26 @@ var Areas = {
 				},
 				roles: [
 					{
+						quest: Quests.eaglecrestLoggingCamp[17], 
+						role: "questStart"
+					},
+					{
+						quest: Quests.eaglecrestLoggingCamp[17], 
+						role: "questFinish"
+					},
+					{
 						sold: [Items.consumable[4], Items.consumable[3], Items.consumable[2]],
 						role: "merchant",
 						roleRequirement: function () {
 							return Player.level > 2;
+						}
+					},
+					{
+						sold: [Items.consumable[9]],
+						role: "merchant",
+						roleText: "I'd like to browse your Samhain event items.",
+						roleRequirement: function () {
+							return Game.event === "Samhain";
 						}
 					},
 				],
