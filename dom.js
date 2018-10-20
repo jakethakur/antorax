@@ -39,6 +39,57 @@ let Dom = {
 	alert: {},
 };
 
+Dom.alert.page = function(text, type, values){
+	document.getElementById("alert").hidden = false;
+	if(type === 3){
+		document.getElementById("alertOptions").style.display = "block";
+		document.getElementById("alertOptions").innerHTML = values;
+		document.getElementById("alertYes").style.display = "none";
+		document.getElementById("alertNo").style.display = "none";
+		document.getElementById("alertDispose").style.display = "none";
+	}else if(type === 2){
+		document.getElementById("alertOptions").style.display = "none";
+		document.getElementById("alertYes").style.display = "inline-block";
+		document.getElementById("alertDispose").style.display = "inline-block";
+		document.getElementById("alertNo").style.display = "inline-block";
+		document.getElementById("alertNo").style.left = "0px";
+		document.getElementById("alertNo").style.bottom = "5px";
+		document.getElementById("alertNo").innerHTML = "Cancel";
+		document.getElementById("alertYes").innerHTML = values !== undefined ? values[0] : "One";
+		document.getElementById("alertDispose").innerHTML = values !== undefined ? values[1] : "All";
+	}else if(type === 1){
+		document.getElementById("alertOptions").style.display = "none";
+		document.getElementById("alertYes").style.display = "inline-block";
+		document.getElementById("alertNo").style.display = "inline-block";
+		document.getElementById("alertDispose").style.display = "none";
+		document.getElementById("alertNo").style.left = "15px";
+		document.getElementById("alertNo").innerHTML = "No";
+		document.getElementById("alertYes").innerHTML = "Yes";
+		document.getElementById("alertNo").style.bottom = "20px";
+	}else{
+		document.getElementById("alertOptions").style.display = "none";
+		document.getElementById("alertYes").style.display = "none";
+		document.getElementById("alertDispose").style.display = "none";
+		document.getElementById("alertNo").style.display = "inline-block";
+		document.getElementById("alertNo").style.left = "0px";
+		document.getElementById("alertNo").innerHTML = "OK";
+		document.getElementById("alertNo").style.bottom = "20px";
+	}
+	document.getElementById("alertText").innerHTML = text;
+}
+
+document.getElementById("settingLogout").innerHTML = "<div id='settingControls' onclick='Dom.settings.page(\"settingsTwoPage\")'>Hotkey Bindings</div><br><br>You are logged in as "+Player.name+(localStorage.getItem("accept") ? "<div id='settingSave' onclick='Game.saveProgress()'>Save</div>" : "")+"<div id='settingLogoutInner' onclick='Game.saveProgress(\"logout\")'>Logout</div>"+(localStorage.getItem("accept") ? "<div id='settingDelete'>Delete</div>" : "");
+//DELTES EXISTING CLASS
+if(document.getElementById("settingDelete") !== null){
+	document.getElementById("settingDelete").onclick = function(){
+		Dom.alert.target = function(){
+			localStorage.removeItem(Player.class);
+			window.location.replace("./selection.html");
+		}
+		Dom.alert.page("Are you sure you want to delete your progress for this class? It will be lost forever!", 1);
+	}
+}
+
 Dom.previous = "adventurePage"; // change currently displayed page
 Dom.changeBook = function(page, override, x, shouldNotBeOverriden) { // changes the page or changes the color of close buttons
 	//override says if the function should be run regardless of if the player has a quest active (e.g: declining a quest or closing a merchant)
@@ -52,6 +103,9 @@ Dom.changeBook = function(page, override, x, shouldNotBeOverriden) { // changes 
 			if(page === "settingsTwoPage"){
 				page = "settingsPage";
 				changed = true;
+			}
+			if(page === Dom.previous && Dom.adventure.openedInstructions){
+				Dom.adventure.openedInstructions = false;
 			}
 			document.getElementById("change"+Dom.previous.substring(0,1).toUpperCase()+Dom.previous.substring(1,Dom.previous.length-4)).getElementsByTagName("polygon")[0].style.strokeWidth = "1";
 			document.getElementById("change"+page.substring(0,1).toUpperCase()+page.substring(1,page.length-4)).getElementsByTagName("polygon")[0].style.strokeWidth = "3";
@@ -1934,7 +1988,6 @@ if(Player.skin === "2"){
 		document.getElementById("inventoryGoldXP").style.right = "14px";
 	}
 }
-document.getElementById("settingLogout").innerHTML = "<div id='settingControls' onclick='Dom.settings.page(\"settingsTwoPage\")'>Hotkey Bindings</div><br><br>You are logged in as "+Player.name+(localStorage.getItem("accept") ? "<div id='settingSave' onclick='Game.saveProgress()'>Save</div>" : "")+"<div id='settingLogoutInner' onclick='Game.saveProgress(\"logout\")'>Logout</div>"+(localStorage.getItem("accept") ? "<div id='settingDelete'>Delete</div>" : "");
 
 Dom.levelUp.page = function(){
 	Dom.changeBook("levelUpPage",false,0);
@@ -1955,45 +2008,6 @@ Dom.levelUp.page = function(){
 		Player.xp = LevelXP[Player.level];
 	}
 	Dom.quests.possible();
-}
-
-Dom.alert.page = function(text, type, values){
-	document.getElementById("alert").hidden = false;
-	if(type === 3){
-		document.getElementById("alertOptions").style.display = "block";
-		document.getElementById("alertOptions").innerHTML = values;
-		document.getElementById("alertYes").style.display = "none";
-		document.getElementById("alertNo").style.display = "none";
-		document.getElementById("alertDispose").style.display = "none";
-	}else if(type === 2){
-		document.getElementById("alertOptions").style.display = "none";
-		document.getElementById("alertYes").style.display = "inline-block";
-		document.getElementById("alertDispose").style.display = "inline-block";
-		document.getElementById("alertNo").style.display = "inline-block";
-		document.getElementById("alertNo").style.left = "0px";
-		document.getElementById("alertNo").style.bottom = "5px";
-		document.getElementById("alertNo").innerHTML = "Cancel";
-		document.getElementById("alertYes").innerHTML = values !== undefined ? values[0] : "One";
-		document.getElementById("alertDispose").innerHTML = values !== undefined ? values[1] : "All";
-	}else if(type === 1){
-		document.getElementById("alertOptions").style.display = "none";
-		document.getElementById("alertYes").style.display = "inline-block";
-		document.getElementById("alertNo").style.display = "inline-block";
-		document.getElementById("alertDispose").style.display = "none";
-		document.getElementById("alertNo").style.left = "15px";
-		document.getElementById("alertNo").innerHTML = "No";
-		document.getElementById("alertYes").innerHTML = "Yes";
-		document.getElementById("alertNo").style.bottom = "20px";
-	}else{
-		document.getElementById("alertOptions").style.display = "none";
-		document.getElementById("alertYes").style.display = "none";
-		document.getElementById("alertDispose").style.display = "none";
-		document.getElementById("alertNo").style.display = "inline-block";
-		document.getElementById("alertNo").style.left = "0px";
-		document.getElementById("alertNo").innerHTML = "OK";
-		document.getElementById("alertNo").style.bottom = "20px";
-	}
-	document.getElementById("alertText").innerHTML = text;
 }
 
 document.getElementById("alertYes").onclick = function(){
@@ -2427,9 +2441,9 @@ Dom.adventure.openedInstructions = false;
 
 Dom.adventure.addInstruction = function(chapter){
 	if(Player.unlockedInstructions.length === chapter-1){
-		Player.unlockedInstructions.push(Instructions[chapter-1].chapter);
+		Player.unlockedInstructions.push(Instructions[chapter-1].chapterTitle);
 		if(!document.getElementById("tutorialOn").checked){
-			Dom.choose.page("Instructions", [Instructions[chapter-1].chapter], [Dom.adventure.showInstructions], [[chapter-1]]);
+			Dom.choose.page("Instructions", [Instructions[chapter-1].chapterTitle], [Dom.adventure.showInstructions], [[chapter-1]]);
 		}
 	}
 	if(Player.unlockedInstructions.length >= Instructions.length){
@@ -2477,12 +2491,12 @@ Dom.adventure.showInstructions = function(chapter, reverse){
 }
 
 Dom.adventure.instructionIndex = function(){
+	console.log("yes");
 	Dom.adventure.awaitingInstructions.splice(0,1);
 	if(Dom.adventure.awaitingInstructions.length > 0){
 		Dom.adventure.showInstructions(Dom.adventure.awaitingInstructions[0], true);
 		Dom.adventure.awaitingInstructions.splice(0,1);
 	}else if(Player.unlockedInstructions.length > 1 && Dom.adventure.openedInstructions){
-		Dom.adventure.openedInstructions = false;
 		Dom.choose.page("Instructions", Player.unlockedInstructions, [Dom.adventure.showInstructions,Dom.adventure.showInstructions,Dom.adventure.showInstructions,Dom.adventure.showInstructions,Dom.adventure.showInstructions,], [[0],[1],[2],[3],[4],]);
 	}else{
 		Dom.changeBook(Dom.previous, true);
@@ -2581,16 +2595,8 @@ for(let i = 0; i < Player.unlockedTabs.length; i++){
 	document.getElementById("change"+Player.unlockedTabs[i][0].toUpperCase()+Player.unlockedTabs[i].slice(1)).style.display = "block";
 	document.getElementById(Player.unlockedTabs[i]+"Image").hidden = false;
 }
-
-//DELTES EXISTING CLASS
-if(document.getElementById("settingDelete") !== null){
-	document.getElementById("settingDelete").onclick = function(){
-		Dom.alert.target = function(){
-			localStorage.removeItem(Player.class);
-			window.location.replace("./selection.html");
-		}
-		Dom.alert.page("Are you sure you want to delete your progress for this class? It will be lost forever!", 1);
-	}
+if(Player.unlockedInstructions.length >= Instructions.length){
+	document.getElementById("settingTutorialHolder").hidden = true;
 }
 
 //TESTING
