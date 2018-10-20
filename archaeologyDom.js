@@ -7,12 +7,22 @@ var previousMin = "";
 var previousMax = "";
 var previousSearch = "";
 var screenSize = 245*3+45;
+var total = 0;
+var setTotal = Items.set.length-2;
+var displayed = 0;
+var progress = 0;
 if(window.innerWidth >= 245*3+45){
 	screenSize = window.innerWidth;
 }else{
 	screenSize = 245*3+45;
 }
-
+for(var i = 0; i < 7; i++){
+	for(var x = 2; x < Items[Object.keys(Items)[i]].length; x++){
+		if(!Items[Object.keys(Items)[i]][x].uncollectable){
+			total++;
+		}
+	}
+}
 function validate(strValue) {
 	var objRegExp  = /^[a-zA-Z\u00C0-\u00ff]+$/;
 	if(!objRegExp.test(strValue)){
@@ -22,7 +32,6 @@ function validate(strValue) {
 		return objRegExp.test(strValue);
 	}
 }
-
 checkChange();
 function checkChange(){
 	window.requestAnimationFrame(checkChange);
@@ -99,24 +108,6 @@ function checkChange(){
 				b++;
 			}
 		}
-		arrayLength = array.length
-		previousObtained = obtained.value;
-		b = 0;
-		if(obtained.value != "all"){
-			for(var i = 0; i < arrayLength; i++){
-				if(obtained.value == "only"){
-					if(!JSON.parse(localStorage.getItem("archaeology")).includes(array[i-b].name)){
-						array.splice(i-b,1);
-						b++;
-					}
-				}else{
-					if(JSON.parse(localStorage.getItem("archaeology")).includes(array[i-b].name)){
-						array.splice(i-b,1);
-						b++;
-					}
-				}
-			}
-		}
 		arrayLength = array.length;
 		b = 0;
 		previousSearch = searchBar.value;
@@ -128,6 +119,51 @@ function checkChange(){
 				if (a.toLowerCase().indexOf(filter) < 0) {
 					array.splice(i-b,1);
 					b++;
+				}
+			}
+		}
+		progress = 0;
+		for(var i = 0; i < array.length; i++){
+			if(localStorage.getItem("archaeology") != null && JSON.parse(localStorage.getItem("archaeology")).includes(array[i].name)){
+				progress++;
+			}else if(category.value == 8){
+				var current = true;
+				for(x = 0; x < array[i].armour.length; x++){
+					if(localStorage.getItem("archaeology") != null && !JSON.parse(localStorage.getItem("archaeology")).includes(array[i].armour[x]))
+					{
+						current = false;
+					}
+				}
+				if(current){
+					progress++;
+				}
+			}
+		}
+		displayed = array.length;
+		arrayLength = array.length;
+		previousObtained = obtained.value;
+		b = 0;
+		if(obtained.value != "all"){
+			for(var i = 0; i < arrayLength; i++){
+				var current = true;
+				if(category.value == 8){
+					for(x = 0; x < array[i-b].armour.length; x++){
+						if(localStorage.getItem("archaeology") != null && !JSON.parse(localStorage.getItem("archaeology")).includes(array[i-b].armour[x]))
+						{
+							current = false;
+						}
+					}
+				}
+				if(obtained.value == "only"){
+					if(!JSON.parse(localStorage.getItem("archaeology")).includes(array[i-b].name) && (category.value == 8 && !current || category.value != 8)){
+						array.splice(i-b,1);
+						b++;
+					}
+				}else{
+					if(JSON.parse(localStorage.getItem("archaeology")).includes(array[i-b].name) || category.value == 8 && current){
+						array.splice(i-b,1);
+						b++;
+					}
 				}
 			}
 		}
@@ -153,7 +189,22 @@ function arrange(){
 				}
 			}
 		}
-		document.getElementById("flashcardlist"+c).innerHTML += '<li class="box" '+(localStorage.getItem("archaeology") != null ? JSON.parse(localStorage.getItem("archaeology")).includes(array[i].name) ? "style='border: 5px solid darkgreen'" : "" : "")+'><img src="'+(array[i].imageArchaeology == undefined ? array[i].image : array[i].imageArchaeology)+'" class="img"><p id="name'+i+'" class="para"></p><p id="tier'+i+'" class="para"></p><p id="stats'+i+'" class="para"></p><p id="set'+i+'" class="para"></p><p id="lore'+i+'" class="para"></p></li>';
+		if(category.value != 8){
+			document.getElementById("flashcardlist"+c).innerHTML += '<li class="box" '+(localStorage.getItem("archaeology") != null ? JSON.parse(localStorage.getItem("archaeology")).includes(array[i].name) ? "style='border: 5px solid darkgreen'" : "" : "")+'><img src="'+(array[i].imageArchaeology == undefined ? array[i].image : array[i].imageArchaeology)+'" class="img"><p id="name'+i+'" class="para"></p><p id="tier'+i+'" class="para"></p><p id="stats'+i+'" class="para"></p><p id="set'+i+'" class="para"></p><p id="lore'+i+'" class="para"></p></li>';
+		}else{
+			var current = true;
+			for(x = 0; x < array[i].armour.length; x++){
+				if(localStorage.getItem("archaeology") != null && !JSON.parse(localStorage.getItem("archaeology")).includes(array[i].armour[x]))
+				{
+					current = false;
+				}
+			}
+			if(current){
+				document.getElementById("flashcardlist"+c).innerHTML += '<li class="box" style="border: 5px solid darkgreen"><img src="'+(array[i].imageArchaeology == undefined ? array[i].image : array[i].imageArchaeology)+'" class="img"><p id="name'+i+'" class="para"></p><p id="tier'+i+'" class="para"></p><p id="stats'+i+'" class="para"></p><p id="set'+i+'" class="para"></p><p id="lore'+i+'" class="para"></p></li>';
+			}else{
+				document.getElementById("flashcardlist"+c).innerHTML += '<li class="box"><img src="'+(array[i].imageArchaeology == undefined ? array[i].image : array[i].imageArchaeology)+'" class="img"><p id="name'+i+'" class="para"></p><p id="tier'+i+'" class="para"></p><p id="stats'+i+'" class="para"></p><p id="set'+i+'" class="para"></p><p id="lore'+i+'" class="para"></p></li>';
+			}
+		}
 		document.getElementById("flashcardlist"+c).style.left = 25+c*245+((screenSize-45)-(((Math.floor((screenSize-45)/245)))*245))/2+"px";
 		document.getElementById("name"+i).innerHTML = "<b>"+array[i].name+"</b>";
 		if(array[i].rarity == "common"){
@@ -197,8 +248,18 @@ function arrange(){
 		}
 	}
 	document.getElementById("filters").style.width = (((Math.floor((screenSize-45)/245)))*245)-35+"px";
+	document.getElementById("progress").style.width = (((Math.floor((screenSize-45)/245)))*245)-25+"px";
 	document.getElementById("filters").style.left = 25+((screenSize-45)-(((Math.floor((screenSize-45)/245)))*245))/2+"px";
+	document.getElementById("progress").style.left = 25+((screenSize-45)-(((Math.floor((screenSize-45)/245)))*245))/2+"px";
 	document.getElementById("searchBar").style.width = (((Math.floor((screenSize-45)/245)))*245)-95+"px";
+	var progressDisplayed = !isNaN(progress/displayed) && isFinite(progress/displayed) ? progress/displayed : 0;
+	if(category.value != 8){
+		document.getElementById("progressText").innerHTML = "You have obtained "+Math.floor(progressDisplayed*100)+"% of "+(total == displayed ? "all" : "these")+" items";
+		document.getElementById("innerProgress").style.width = progressDisplayed*((((Math.floor((screenSize-45)/245)))*245)-24.5)+"px";
+	}else{
+		document.getElementById("progressText").innerHTML = "You have obtained "+Math.floor(progressDisplayed*100)+"% of "+(setTotal == displayed ? "all" : "these")+" sets";
+		document.getElementById("innerProgress").style.width = progressDisplayed*((((Math.floor((screenSize-45)/245)))*245)-24.5)+"px";
+	}
 	if(columns == 3){
 		document.getElementById("space0").style.width = (document.getElementById("filters").offsetWidth/2)-250+"px";
 		document.getElementById("space3").style.width = (document.getElementById("filters").offsetWidth/2)-250+"px";
@@ -208,7 +269,7 @@ function arrange(){
 		document.getElementById("br").style.display = "";
 		document.getElementById("br3").style.display = "";
 		for(var i = 0; i < columns; i++){
-			document.getElementsByClassName("flashcardlist")[i].style.top = "310px";
+			document.getElementsByClassName("flashcardlist")[i].style.top = "365px";
 		}
 	}else if(columns <= 5){
 		document.getElementById("space0").style.width = (document.getElementById("filters").offsetWidth/3)-250+"px";
@@ -220,7 +281,7 @@ function arrange(){
 		document.getElementById("br").style.display = "";
 		document.getElementById("br3").style.display = "none";
 		for(var i = 0; i < columns; i++){
-			document.getElementsByClassName("flashcardlist")[i].style.top = "260px";
+			document.getElementsByClassName("flashcardlist")[i].style.top = "315px";
 		}
 	}else{
 		for(var i = 0; i < 4; i++){
@@ -232,7 +293,8 @@ function arrange(){
 		document.getElementById("br").style.display = "none";
 		document.getElementById("br3").style.display = "none";
 		for(var i = 0; i < columns; i++){
-			document.getElementsByClassName("flashcardlist")[i].style.top = "210px";
+			document.getElementsByClassName("flashcardlist")[i].style.top = "265px";
 		}
 	}
+	document.getElementById("progress").style.top = document.getElementById("filters").offsetHeight + 45 + "px";
 }

@@ -55,6 +55,27 @@ body{
 	font-size: 20px;
 	font-family: 'MedievalSharp', serif;
 }
+#progress{
+	border: 1px solid black;
+	position: absolute;
+	height: 35px;
+}
+#innerProgress{
+	height: 36px;
+	background-image: linear-gradient(to right, green, green, limegreen, green);
+	position: absolute;
+	top: -0.5px;
+	left: -0.5px;
+}
+#progressText{
+	z-index: 1;
+	position: absolute;
+	font-size: 25px;
+	line-height: 35px;
+	vertical-align: middle;
+	text-align: center;
+	width: 100%;
+}
 input[type=number]{
 	height: 25px;
 	font-size: 20px;

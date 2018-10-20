@@ -1197,17 +1197,25 @@ Dom.identifier.right = function(npc, over){ // this code is not important
 	Dom.identifier.page(npc, over); // opens and updates the identifier page
 }
 
-Dom.identifier.page = function(npc, over){ // identifier page
-	Dom.changeBook("identifierPage", over); // changes page to identifier
-	Dom.currentlyDisplayed = npc.name; // sets the currently displayed page variable to identifier
-	Dom.changeBook("identifierPage", false, 1); // stops close button being red
+Dom.identifier.check = function(){
 	Dom.identifier.unId = [];
 	for(let i = 0; i < Player.inventory.items.length; i++){
 		if(Player.inventory.items[i].unidentified){
 			Dom.identifier.unId.push(Player.inventory.items[i]);
 		}
 	}
-	if(Dom.identifier.unId.length !== 0){ // checks if the player has any unIDed items
+	if(Dom.identifier.unId.length > 0){
+		return true;
+	}else{
+		return false;
+	}
+}
+
+Dom.identifier.page = function(npc, over){ // identifier page
+	Dom.changeBook("identifierPage", over); // changes page to identifier
+	Dom.currentlyDisplayed = npc.name; // sets the currently displayed page variable to identifier
+	Dom.changeBook("identifierPage", false, 1); // stops close button being red
+	if(Dom.identifier.check();){ // checks if the player has any unIDed items
 		document.getElementById("identifierPageChat").innerHTML = npc.chat.identifierGreeting; // sets the greeting to the parameter (chat)
 		document.getElementById("identifierPageOption").innerHTML = "<img src=" + Dom.identifier.unId[Dom.identifier.displayed].image + " class='theseOptions' style='padding: 0px; margin: 0px; border: 5px solid #886622; height: 50px; width: 50px;'></img>"; // sets the image to the selected item
 		document.getElementById("identifierPageOption").onmouseover = function(){ // when the player hovers over the item...
