@@ -656,7 +656,8 @@ var Items = {
 			chat: {
 				kill: ["Burn with me!", "Must. Kill.", "Keep going. Please. Kill them all.", "Goblin idiots must die!", "Diseased creatures."],
 			},
-			specialProjectile: "fireball",
+			projectile: "fireball",
+			projectileAdjust: {x: 20, y: 20},
 		},
 	],
 	bow: [

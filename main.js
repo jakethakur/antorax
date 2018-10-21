@@ -155,6 +155,7 @@ Game.run = function (context, secondaryContext) {
 	
 	// projectile name for hero (for use with projectile image loading)
 	this.heroProjectileName = Skins[Player.class][Player.skin].projectile;
+	this.heroProjectileAdjust = Skins[Player.class][Player.skin].projectileAdjust;
 
     this.loadArea(Player.areaName, {x: Player.x, y: Player.y});
 };
@@ -987,9 +988,9 @@ class Hero extends Attacker {
 							y: projectileY,
 							rotate: projectileRotate,
 							adjust: {
-								// manually adjust position - make this per class (per projectile image) in the future ( tbd )
-								x: 20,
-								y: 20,
+								// manually adjust position (programmed for each projectile in skindata/itemdata)
+								x: Game.heroProjectileAdjust.x,
+								y: Game.heroProjectileAdjust.y,
 								towards: {x: this.x, y: this.y},
 							},
 							hitbox: { // arrow tip at mouse position
@@ -1189,7 +1190,24 @@ class Hero extends Attacker {
 			// wait for the player's reload time (1s) until they can attack again
 			setTimeout(function () {
 				this.canAttack = true;
+				// remove beam animation if there was one
+				this.beam = undefined;
 			}.bind(this), this.stats.reloadTime);
+			
+			// special animations
+			if (typeof Skins[Player.class][Player.skin].animations.onAttack !== "undefined") {
+				// on attack animation
+				let animation = Skins[Player.class][Player.skin].animations.onAttack;
+				if (animation.type === "beam") {
+					// cast a beam to the projectile for 0.5s
+					this.beam = {
+						x: shotProjectile.x,
+						y: shotProjectile.y,
+						width: animation.width * shotProjectile.expand,
+						colour: animation.colour,
+					}
+				}
+			}
 		}
 		else if (this.channelling === "block") {
 			this.channelling = false;
@@ -3111,9 +3129,10 @@ Game.inventoryUpdate = function (e) {
 		Game.hero.stats.range = WeaponRanges[Player.inventory.weapon[0].type] + Game.hero.stats.rangeModifier;
 		
 		// if the player is now holding a weapon with a special projectile image, load that image and stop the player from attacking until this is done
-		if (Player.inventory.weapon[0].specialProjectile !== undefined && this.heroProjectileName !== Player.inventory.weapon[0].specialProjectile) {
+		if (Player.inventory.weapon[0].projectile !== undefined && this.heroProjectileName !== Player.inventory.weapon[0].projectile) {
 			// not loaded projectile image before
-			this.heroProjectileName = Player.inventory.weapon[0].specialProjectile;
+			this.heroProjectileName = Player.inventory.weapon[0].projectile;
+			this.heroProjectileAdjust = Player.inventory.weapon[0].projectileAdjust;
 			// set weapon property "cannotAttack" to true so the player is blocked from attacking
 			Player.inventory.weapon[0].cannotAttack = true;
 			// load image
@@ -3133,6 +3152,7 @@ Game.inventoryUpdate = function (e) {
 		else if (this.heroProjectileName !== Skins[Player.class][Player.skin].projectile) {
 			// needs to reload default projectile image
 			this.heroProjectileName = Skins[Player.class][Player.skin].projectile;
+			this.heroProjectileAdjust = Skins[Player.class][Player.skin].projectileAdjust;
 			// set weapon property "cannotAttack" to true so the player is blocked from attacking
 			Player.inventory.weapon[0].cannotAttack = true;
 			// load image
@@ -3594,6 +3614,22 @@ Game.render = function (delta) {
 		}
 		this.ctx.lineTo(this.hero.screenX, this.hero.screenY);
 		this.ctx.stroke();
+	}
+	
+	// draw player animations
+	if (Game.hero.beam !== undefined) {
+		// set formatting
+		Game.ctx.lineWidth = Game.hero.beam.width;
+		Game.ctx.strokeStyle = Game.hero.beam.colour;
+		// draw line
+		this.ctx.beginPath();
+		this.ctx.moveTo(Game.hero.screenX, Game.hero.screenY);
+		this.ctx.lineTo(Game.hero.beam.x - Game.hero.x + Game.hero.screenX, 
+						Game.hero.beam.y - Game.hero.y + Game.hero.screenY);
+		this.ctx.stroke();
+		// reset default formatting
+		Game.ctx.lineWidth = 0.5;
+		Game.ctx.strokeStyle = "#000000";
 	}
 
     // draw main character

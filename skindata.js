@@ -6,6 +6,7 @@ var Skins = {
 			name: "Green Archer",
 			gender:	"m",
 			projectile:	"arrow",
+			projectileAdjust: {x: 20, y: 20},
 			cursor: "crosshair",
 		},
 		{
@@ -14,6 +15,7 @@ var Skins = {
 			name: "Blue Archer",
 			gender:	"f",
 			projectile:	"arrow",
+			projectileAdjust: {x: 20, y: 20},
 			cursor: "crosshair",
 		},
 		{
@@ -22,6 +24,7 @@ var Skins = {
 			name: "Jungle Hunter",
 			gender:	"m",
 			projectile:	"blueBeam",
+			projectileAdjust: {x: 20, y: 20},
 			cursor: "jungleHunter",
 			cursorPosition: {x: 9.5, y: 8},
 		},
@@ -42,6 +45,7 @@ var Skins = {
 			name: "Purple Mage",
 			gender:	"m",
 			projectile:	"fireball",
+			projectileAdjust: {x: 20, y: 20},
 			cursor: "crosshair",
 		},
 		{
@@ -50,6 +54,7 @@ var Skins = {
 			name: "Blue Mage",
 			gender:	"f",
 			projectile:	"fireball",
+			projectileAdjust: {x: 20, y: 20},
 			cursor: "crosshair",
 		},
 		{
@@ -57,8 +62,17 @@ var Skins = {
 			position: {x: -20, y: Infinity},
 			name: "Spirit Buster",
 			gender:	"m",
-			projectile:	"fireball", // MUST BE ADDED
+			projectile:	"spiritbuster",
+			projectileAdjust: {x: 0, y: 0},
 			cursor: "crosshair",
+			animations: {
+				onAttack: {
+					type: "beam",
+					width: 10,
+					colour: "#D05C05"
+					//gradient: {"0": "#e28909","1": "#e23e09",},
+				}
+			},
 		},
 		/*{
 			id: 3,
@@ -77,6 +91,7 @@ var Skins = {
 			name: "Blue Knight",
 			gender:	"m",
 			projectile:	"slash",
+			projectileAdjust: {x: 20, y: 20},
 			cursor: "crosshair",
 		},
 		{
@@ -85,6 +100,7 @@ var Skins = {
 			name: "Red Knight",
 			gender:	"f",
 			projectile:	"slash",
+			projectileAdjust: {x: 20, y: 20},
 			cursor: "crosshair",
 		},
 		{
@@ -93,6 +109,7 @@ var Skins = {
 			name: "Wisconsin Jones",
 			gender:	"m",
 			projectile:	"slash",
+			projectileAdjust: {x: 20, y: 20},
 			cursor: "crosshair",
 		},
 		/*{
