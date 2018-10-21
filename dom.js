@@ -1215,37 +1215,37 @@ Dom.identifier.page = function(npc, over){ // identifier page
 	Dom.changeBook("identifierPage", over); // changes page to identifier
 	Dom.currentlyDisplayed = npc.name; // sets the currently displayed page variable to identifier
 	Dom.changeBook("identifierPage", false, 1); // stops close button being red
-	if(Dom.identifier.check()){ // checks if the player has any unIDed items
-		document.getElementById("identifierPageChat").innerHTML = npc.chat.identifierGreeting; // sets the greeting to the parameter (chat)
-		document.getElementById("identifierPageOption").innerHTML = "<img src=" + Dom.identifier.unId[Dom.identifier.displayed].image + " class='theseOptions' style='padding: 0px; margin: 0px; border: 5px solid #886622; height: 50px; width: 50px;'></img>"; // sets the image to the selected item
-		document.getElementById("identifierPageOption").onmouseover = function(){ // when the player hovers over the item...
-			Dom.inventory.displayInformation(Dom.identifier.unId[Dom.identifier.displayed]); // ...it displays its information
-		}
-		document.getElementById("identifierPageOption").onmouseleave = function(){ // when the player stops hovering over the item...
-			Dom.expand("information"); // ...it stops displaying the information
-		}
-		document.getElementById("identifierPageBuy").style.visibility = "visible"; // shows the buy button...
-		document.getElementById("identifierPageBuy").onclick = function(){ // when the player clicks identify...
-			Dom.identifier.identify(npc); // ...it calls the identify function (below)
-		}
-		document.getElementById("leftArrow").style.top = document.getElementById("identifierPageOption").getBoundingClientRect().top - 32 +"px"; // sets the left arrows position to the same height as the image
-		document.getElementById("leftArrow").style.left = document.getElementById("identifierPageOption").getBoundingClientRect().left - 31 +"px"; // sets the left arrows position to left of the image
-		document.getElementById("leftArrow").onclick = function(){ // when the player clicks on the left arrow...
-			Dom.identifier.left(npc); // ...it changes the selected item to the previous unIDed item
-		}
-		document.getElementById("rightArrow").style.top = document.getElementById("identifierPageOption").getBoundingClientRect().top - 32 +"px"; // sets the right arrows position to the same height as the image
-		document.getElementById("rightArrow").style.left = document.getElementById("identifierPageOption").getBoundingClientRect().left + 71 +"px"; // sets the right arrows position to right of the image
-		document.getElementById("rightArrow").onclick = function(){ // when the player clicks in the right arrow...
-			Dom.identifier.right(npc); // it changes the selected item to the next unIDed item
-		}
-		document.getElementById("identifierPageBuy").innerHTML = "Identify for: "+"1"+" gold"; // sets the text inside the identify button
-	}else{
+	//if(Dom.identifier.check()){ // checks if the player has any unIDed items
+	document.getElementById("identifierPageChat").innerHTML = npc.chat.identifierGreeting; // sets the greeting to the parameter (chat)
+	document.getElementById("identifierPageOption").innerHTML = "<img src=" + Dom.identifier.unId[Dom.identifier.displayed].image + " class='theseOptions' style='padding: 0px; margin: 0px; border: 5px solid #886622; height: 50px; width: 50px;'></img>"; // sets the image to the selected item
+	document.getElementById("identifierPageOption").onmouseover = function(){ // when the player hovers over the item...
+		Dom.inventory.displayInformation(Dom.identifier.unId[Dom.identifier.displayed]); // ...it displays its information
+	}
+	document.getElementById("identifierPageOption").onmouseleave = function(){ // when the player stops hovering over the item...
+		Dom.expand("information"); // ...it stops displaying the information
+	}
+	document.getElementById("identifierPageBuy").style.visibility = "visible"; // shows the buy button...
+	document.getElementById("identifierPageBuy").onclick = function(){ // when the player clicks identify...
+		Dom.identifier.identify(npc); // ...it calls the identify function (below)
+	}
+	document.getElementById("leftArrow").style.top = document.getElementById("identifierPageOption").getBoundingClientRect().top - 32 +"px"; // sets the left arrows position to the same height as the image
+	document.getElementById("leftArrow").style.left = document.getElementById("identifierPageOption").getBoundingClientRect().left - 31 +"px"; // sets the left arrows position to left of the image
+	document.getElementById("leftArrow").onclick = function(){ // when the player clicks on the left arrow...
+		Dom.identifier.left(npc); // ...it changes the selected item to the previous unIDed item
+	}
+	document.getElementById("rightArrow").style.top = document.getElementById("identifierPageOption").getBoundingClientRect().top - 32 +"px"; // sets the right arrows position to the same height as the image
+	document.getElementById("rightArrow").style.left = document.getElementById("identifierPageOption").getBoundingClientRect().left + 71 +"px"; // sets the right arrows position to right of the image
+	document.getElementById("rightArrow").onclick = function(){ // when the player clicks in the right arrow...
+		Dom.identifier.right(npc); // it changes the selected item to the next unIDed item
+	}
+	document.getElementById("identifierPageBuy").innerHTML = "Identify for: "+"1"+" gold"; // sets the text inside the identify button
+	/*}else{
 		document.getElementById("identifierPageChat").innerHTML = npc.chat.noUnidentified;
 		document.getElementById("identifierPageOption").innerHTML = "";
 		document.getElementById("identifierPageBuy").style.visibility = "hidden";
 		document.getElementById("leftArrow").style.top = "-1000px";
 		document.getElementById("rightArrow").style.top = "-1000px";
-	}
+	}*/
 }
 
 Dom.inventory.give = function(item,num){ // gives the player the item
@@ -1435,7 +1435,11 @@ Dom.identifier.identify = function(npc){ // the page that you go to when you cli
 		}
 		document.getElementById("identifiedPageBack").onclick = function(){ // when you click on the back button...
 			Dom.identifier.displayed = 0;
-			Dom.identifier.page(npc, true); // ...the page goes back to the normal identifier
+			if(Dom.identifier.check()){
+				Dom.identifier.page(npc, true); // ...the page goes back to the normal identifier
+			}else{
+				Dom.changeBook(Dom.previous, true)
+			}
 		}
 		Dom.identifier.unId.splice(Dom.identifier.displayed, 1); // removes from the array of unidentified items
 	}else if(Dom.identifier.unId.length !== 0){ // if the player can't afford the item

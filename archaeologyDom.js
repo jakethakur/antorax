@@ -1,3 +1,12 @@
+var urlString = window.location.href;
+var url = new URL(urlString);
+var viewedItemId = url.searchParams.get("id");
+var viewedItemType = url.searchParams.get("type");
+if(viewedItemId != undefined && viewedItemType != undefined){
+	document.getElementById("filters").innerHTML = "";
+	document.getElementById("progress").hidden = true;
+}
+else{
 var array = [];
 var arrayLength = 0;
 var previousWidth = window.innerWidth;
@@ -190,7 +199,7 @@ function arrange(){
 			}
 		}
 		if(category.value != 8){
-			document.getElementById("flashcardlist"+c).innerHTML += '<li class="box" '+(localStorage.getItem("archaeology") != null ? JSON.parse(localStorage.getItem("archaeology")).includes(array[i].name) ? "style='border: 5px solid darkgreen'" : "" : "")+'><img src="'+(array[i].imageArchaeology == undefined ? array[i].image : array[i].imageArchaeology)+'" class="img"><p id="name'+i+'" class="para"></p><p id="tier'+i+'" class="para"></p><p id="stats'+i+'" class="para"></p><p id="set'+i+'" class="para"></p><p id="lore'+i+'" class="para"></p></li>';
+			document.getElementById("flashcardlist"+c).innerHTML += '<li class="box" id="box'+i+'" '+(localStorage.getItem("archaeology") != null ? JSON.parse(localStorage.getItem("archaeology")).includes(array[i].name) ? "style='border: 5px solid darkgreen'" : "" : "")+'><img src="'+(array[i].imageArchaeology == undefined ? array[i].image : array[i].imageArchaeology)+'" class="img"><p id="name'+i+'" class="para"></p><p id="tier'+i+'" class="para"></p><p id="stats'+i+'" class="para"></p><p id="set'+i+'" class="para"></p><p id="lore'+i+'" class="para"></p></li>';
 		}else{
 			var current = true;
 			for(x = 0; x < array[i].armour.length; x++){
@@ -200,9 +209,9 @@ function arrange(){
 				}
 			}
 			if(current){
-				document.getElementById("flashcardlist"+c).innerHTML += '<li class="box" style="border: 5px solid darkgreen"><img src="'+(array[i].imageArchaeology == undefined ? array[i].image : array[i].imageArchaeology)+'" class="img"><p id="name'+i+'" class="para"></p><p id="tier'+i+'" class="para"></p><p id="stats'+i+'" class="para"></p><p id="set'+i+'" class="para"></p><p id="lore'+i+'" class="para"></p></li>';
+				document.getElementById("flashcardlist"+c).innerHTML += '<li class="box" id="box'+i+'" style="border: 5px solid darkgreen"><img src="'+(array[i].imageArchaeology == undefined ? array[i].image : array[i].imageArchaeology)+'" class="img"><p id="name'+i+'" class="para"></p><p id="tier'+i+'" class="para"></p><p id="stats'+i+'" class="para"></p><p id="set'+i+'" class="para"></p><p id="lore'+i+'" class="para"></p></li>';
 			}else{
-				document.getElementById("flashcardlist"+c).innerHTML += '<li class="box"><img src="'+(array[i].imageArchaeology == undefined ? array[i].image : array[i].imageArchaeology)+'" class="img"><p id="name'+i+'" class="para"></p><p id="tier'+i+'" class="para"></p><p id="stats'+i+'" class="para"></p><p id="set'+i+'" class="para"></p><p id="lore'+i+'" class="para"></p></li>';
+				document.getElementById("flashcardlist"+c).innerHTML += '<li class="box" id="box'+i+'"><img src="'+(array[i].imageArchaeology == undefined ? array[i].image : array[i].imageArchaeology)+'" class="img"><p id="name'+i+'" class="para"></p><p id="tier'+i+'" class="para"></p><p id="stats'+i+'" class="para"></p><p id="set'+i+'" class="para"></p><p id="lore'+i+'" class="para"></p></li>';
 			}
 		}
 		document.getElementById("flashcardlist"+c).style.left = 25+c*245+((screenSize-45)-(((Math.floor((screenSize-45)/245)))*245))/2+"px";
@@ -245,6 +254,11 @@ function arrange(){
 		}
 		if(array[i].lore != undefined && array[i].lore != ""){
 			document.getElementById("lore"+i).innerHTML = "<br><i>"+array[i].lore+"</i>";
+		}
+	}
+	for(let i = 0; i < array.length; i++){
+		document.getElementById("box"+i).onclick = function(){
+			window.location += "?id="+array[i].id+"&type="+array[i].type;
 		}
 	}
 	document.getElementById("filters").style.width = (((Math.floor((screenSize-45)/245)))*245)-35+"px";
@@ -297,4 +311,5 @@ function arrange(){
 		}
 	}
 	document.getElementById("progress").style.top = document.getElementById("filters").offsetHeight + 45 + "px";
+}
 }
