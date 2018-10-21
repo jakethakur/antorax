@@ -1195,7 +1195,7 @@ class Hero extends Attacker {
 			}.bind(this), this.stats.reloadTime);
 			
 			// special animations
-			if (typeof Skins[Player.class][Player.skin].animations.onAttack !== "undefined") {
+			if (typeof Skins[Player.class][Player.skin].animations !== "undefined" && typeof Skins[Player.class][Player.skin].animations.onAttack !== "undefined") {
 				// on attack animation
 				let animation = Skins[Player.class][Player.skin].animations.onAttack;
 				if (animation.type === "beam") {
@@ -1503,6 +1503,11 @@ class Projectile extends Thing {
 							attackerDamage += c;
 						}
 						
+						// blood moon
+						if (Game.time === "bloodMoon" && attacker.hostility === "hostile") {
+							attackerDamage *= 3;
+						}
+						
 						let dmgDealt = attackerDamage - ((to[i][x].stats.defence + blockDefence) / 10); // calculate damage dealt
 						if (dmgDealt < 0) {
 							dmgDealt = 0;
@@ -1563,9 +1568,7 @@ class Projectile extends Thing {
 							}
 						}
 					}
-					if(to[i][x].name === "Training Dummy"){
-						Dom.quests.active();
-					}
+					Dom.quests.active();
 				}
 			}
 		}
@@ -2567,9 +2570,6 @@ Game.init = function () {
     this.camera = new Camera(map, this.canvas.width, this.canvas.height);
     this.camera.follow(this.hero);
 	
-	// check for in-game events
-	this.checkEvents();
-	
 	// begin game display
 	Game.secondary.render();
 	window.requestAnimationFrame(this.tick);
@@ -2604,6 +2604,9 @@ Game.checkEvents = function () {
 
 // check time (day or night)
 Game.getTime = function () {
+	// check for in-game events
+	this.checkEvents();
+
 	// get date and time
 	let today = new Date();
 	let hour = today.getHours();
@@ -2622,8 +2625,12 @@ Game.getTime = function () {
 	// day time
 	if (hour > 7 && hour < 19) {
 		return "day";
+	}
 	// night time
-	} else {
+	else if (this.event === "Samain") {
+		return "bloodMoon";
+	}
+	else {
 		return "night";
 	}
 }
@@ -3170,6 +3177,15 @@ Game.inventoryUpdate = function (e) {
 			
 			Game.hero.channelling = false;
 			this.channellingProjectileId = null;
+		}
+		
+		// set weapon variance
+		if (Player.inventory.weapon[0].type === "bow" || Player.inventory.weapon[0].variance !== undefined) {
+			Game.hero.stats.variance = Player.inventory.weapon[0].variance || 100; // 100 is default
+		}
+		else {
+			// non-bows have no variance
+			Game.hero.stats.variance = 0;
 		}
 		
 		Dom.quests.active(); // quest log update check
@@ -3818,6 +3834,11 @@ Game.secondary.render = function () {
 	if (Game.time === "night") {
 		this.ctx.fillStyle = "black";
 		this.ctx.globalAlpha = 0.35; // maybe change?
+		this.ctx.fillRect(0, 0, 600, 600);
+	}
+	else if (Game.time === "bloodMoon") {
+		this.ctx.fillStyle = "#2d0101"; // red tint
+		this.ctx.globalAlpha = 0.45;
 		this.ctx.fillRect(0, 0, 600, 600);
 	}
 	

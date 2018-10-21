@@ -1,4 +1,20 @@
 var LootTables = { // loot table templates
+	global: [
+		// all enemies have this (for events)
+		{ // ghost sheet
+			item: Items.chest[7],
+			condition: function () {
+				if (Game.time === "bloodMoon") {
+					return true; // quest is active and player doesn't already have the rod
+				}
+				return false;
+			},
+			chance: [
+				98,				// 0
+				Infinity,		// 1
+			],
+		},
+	],
 	nilbogGoblin: [
 		{ // unidentified item
 			item: {

@@ -28,15 +28,16 @@ var Skins = {
 			cursor: "jungleHunter",
 			cursorPosition: {x: 9.5, y: 8},
 		},
-		/*{
+		{
 			id: 3,
-			position: {x: Infinity, y: Infinity},
-			name: "Spider Archer",
+			position: {x: Infinity, y: Infinity}, // TBD PG
+			name: "Were-Spider",
 			gender:	"m",
-			projectile:	undefined,
+			projectile:	"arrowOrange",
+			projectileAdjust: {x: 20, y: 20},
 			cursor: "spooky",
 			cursorPosition: {x: 10, y: 10},
-		},*/
+		},
 	],
 	m: [
 		{
@@ -74,15 +75,16 @@ var Skins = {
 				}
 			},
 		},
-		/*{
+		{
 			id: 3,
 			position: {x: -20, y: -6.7},
-			name: "Witch",
+			name: "Wicked Witch",
 			gender:	"m",
-			projectile:	undefined,
+			projectile:	"fireballGreen",
+			projectileAdjust: {x: 20, y: 20},
 			cursor: "spooky",
-			cursorposition: {x: 10, y: 10},
-		},*/
+			cursorPosition: {x: 10, y: 10},
+		},
 	],
 	k: [
 		{
@@ -112,14 +114,15 @@ var Skins = {
 			projectileAdjust: {x: 20, y: 20},
 			cursor: "crosshair",
 		},
-		/*{
+		{
 			id: 3,
 			position: {x: -6.7, y: 10},
-			name: "Scarecrow",
+			name: "Animated Scarecrow",
 			gender:	"m",
-			projectile:	undefined,
+			projectile:	"bloodSlash",
+			projectileAdjust: {x: 20, y: 20},
 			cursor: "spooky",
-			cursorposition: {x: 10, y: 10},
-		},*/
+			cursorPosition: {x: 10, y: 10},
+		},
 	],
 };

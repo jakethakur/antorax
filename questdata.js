@@ -285,7 +285,7 @@ var Quests = {
 				if (Player.quests.completedQuestArray.includes("Fire Power")) { peopleHelped++; }
 				if (Player.quests.completedQuestArray.includes("Potion Making")) { peopleHelped++; }
 				if (Player.quests.completedQuestArray.includes("A Lost Fishing Rod")) { peopleHelped++; }
-				completed.push(Dom.inventory.check(peopleHelped, 3));
+				completed.push(checkProgress(peopleHelped, 3));
 				
 				completed = checkFinished(completed);
 				

@@ -204,6 +204,22 @@ var Items = {
 			},
 			onClickText: "Click to choose stat:",
 		},
+		{
+			id: 7,
+			name: "Ghost Sheet",
+			type: "chest",
+			image: "assets/items/chest/7.png",
+			tier: 1,
+			rarity: "unique",
+			sellPrice: 3,
+			//lore: "",
+			obtain: "Find as a rare drop during a Blood Moon",
+			area: "Eaglecrest Logging Camp",
+			stats: {
+				defence: "+1",
+				dodgeChance: "+40%",
+			},
+		},
 	],
 	greaves: [
 		{
