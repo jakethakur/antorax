@@ -829,7 +829,6 @@ class Hero extends Attacker {
 		
 		// fishing stats
 		this.stats.fishingSkill = properties.stats.fishingSkill || 0;
-		this.stats.fishingRange = properties.stats.fishingRange || 0;
 		
 		// where the player respawns when they die (set at any major city)
 		this.checkpoint = properties.checkpoint || "tutorial";
@@ -1009,7 +1008,7 @@ class Hero extends Attacker {
 					// fishing rod (bobber has not been cast yet)
 					this.fishingBobs = 0; // number of times that the fishing bobber has bobbed
 					
-					if (distanceToProjectile < this.stats.fishingRange && this.map.isSlowTileAtXY(projectileX, projectileY) === "water") {
+					if (distanceToProjectile < this.stats.range && this.map.isSlowTileAtXY(projectileX, projectileY) === "water") {
 						// player is in range and clicked in water
 						
 						this.channelling = "fishing";
@@ -2302,7 +2301,7 @@ Game.loadArea = function (areaName, destination) {
 	]);
 	
 	// load images
-    var p = this.load(Areas[areaName].images.names, Areas[areaName].images.addresses);
+    let p = this.load(Areas[areaName].images.names, Areas[areaName].images.addresses);
 	
 	// wait until images have been loaded
     Promise.all(p).then(function (loaded) {
@@ -2497,8 +2496,11 @@ Game.loadArea = function (areaName, destination) {
 		if (Areas[areaName].onAreaLoad !== undefined) {
 			Areas[areaName].onAreaLoad();
 		}
-    }.bind(this));
-	
+    }.bind(this))
+	.catch(function (err) {
+		// error for if the images didn't load
+	    console.error("Your images did not load correctly.", result);
+	});
 }
 
 // initialise game and variables within Game object
@@ -3149,6 +3151,9 @@ Game.inventoryUpdate = function (e) {
 					// only called once image has loaded
 					// set weapon "cannotAttack" property back to false
 					Player.inventory.weapon[0].cannotAttack = false;
+				})
+				.catch(function (err) {
+				    console.error("Your image did not load correctly.", result);
 				});
 			}
 			else {
@@ -3168,6 +3173,9 @@ Game.inventoryUpdate = function (e) {
 				// only called once image has loaded
 				// set weapon "cannotAttack" property back to false
 				Player.inventory.weapon[0].cannotAttack = false;
+			})
+			.catch(function (err) {
+				console.error("Your image did not load correctly.", result);
 			});
 		}
 		

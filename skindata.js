@@ -63,7 +63,7 @@ var Skins = {
 			position: {x: -20, y: Infinity},
 			name: "Spirit Buster",
 			gender:	"m",
-			projectile:	"spiritbuster",
+			projectile:	"spiritBuster",
 			projectileAdjust: {x: 0, y: 0},
 			cursor: "crosshair",
 			animations: {
