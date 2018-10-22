@@ -595,7 +595,8 @@ class Character extends Thing {
 		
 		// check for death
 		if (this !== Game.hero) {
-			// not player
+			// not player (assumed it is killed by player - TBD)
+			// TBD use hostility to check if it is killed by player
 			if (this.health <= 0 && !this.respawning) { // check it is not already respawning
 				// wipe status effects
 				this.statusEffects = [];
@@ -611,6 +612,11 @@ class Character extends Thing {
 				
 				// xp
 				Game.getXP(this.xpGiven / Player.level); // now that the XP has fully been added, check for a levelUp and display it on the canvas
+				
+				// on kill function
+				if (Player.inventory.weapon[0].onKill !== undefined) {
+					Player.inventory.weapon[0].onKill();
+				}
 				
 				// corpse disappears in this.stats.lootTime ms
 				setTimeout(function () {
@@ -637,10 +643,6 @@ class Character extends Thing {
 				// weapon chat message (some weapons have a chat message for when they kill something!)
 				if (Player.inventory.weapon[0].chat !== undefined && Player.inventory.weapon[0].chat.kill !== undefined) {
 					Game.sayChat(Player.inventory.weapon[0].name, Player.inventory.weapon[0].chat.kill, false, 100, false)
-				}
-				
-				if(this.subSpecies === "nilbog goblin"){
-					Dom.quests.active();
 				}
 			}
 		}
@@ -767,6 +769,7 @@ class Attacker extends Character {
 		this.stats.poisonY = properties.stats.poisonY || 0;
 		this.stats.stun = properties.stats.stun || 0;
 		this.stats.variance = properties.stats.variance || 0;
+		this.stats.lifesteal = properties.stats.lifesteal || 0;
 		
 		// information about projectile
 		// only supported for enemies - should be updated to work for player as well (TBD TBD!!!)
@@ -927,10 +930,12 @@ class Hero extends Attacker {
 			console.error("Unknown slow tile: " + slowTile);
 		}
 		
-		// swiftness status effect
-		let swiftessStatusEffect = this.statusEffects.find(statusEffect => statusEffect.title.substring(0, 9) === "Swiftness");
-		if (swiftessStatusEffect !== undefined) {
-			this.speed *= 1 + (swiftessStatusEffect.info.speedIncrease / 100);
+		// speed status effect (can be buff or debuff)
+		let speedStatusEffect = this.statusEffects.find(statusEffect =>
+			(statusEffect.image === "speedUp" || statusEffect.image === "speedDown") &&
+			statusEffect.info.speedIncrease !== undefined);
+		if (speedStatusEffect !== undefined) {
+			this.speed *= 1 + (speedStatusEffect.info.speedIncrease / 100);
 		}
 		
 		if (!collision) { return; }
@@ -1538,7 +1543,7 @@ class Projectile extends Thing {
 						
 						// lifesteal
 						if (attacker.stats.lifesteal > 0) {
-							attacker.restoreHealth(damageDealt * (attacker.stats.lifesteal / 100));
+							Game.restoreHealth(attacker, dmgDealt * (attacker.stats.lifesteal / 100));
 						}
 						
 						// poison
@@ -1564,6 +1569,13 @@ class Projectile extends Thing {
 						// re-render the second canvas if the hero has been damaged
 						if (to[i][x] == Game.hero) {
 							Game.secondary.render();
+						}
+						
+						// onAttack function
+						// perhaps make work for other non-weapon things in the future? (TBD)
+						// there should be a good system for this - maybe a list of functions called on attack or something, handled by Game.inventoryUpdate
+						if (attacker == Game.hero && Player.inventory.weapon[0].onAttack !== undefined) {
+							Player.inventory.weapon[0].onAttack(to[i][x]);
 						}
 						
 						// chat relating to being damaged (and dealing damage? TBD)
@@ -1737,6 +1749,8 @@ class Enemy extends Attacker {
 		else if (properties.lootTable !== undefined && properties.lootTableTemplate === undefined) {
 			this.lootTable = properties.lootTable;
 		}
+		// merge the loot table with the global loot table as Well
+		this.lootTable = this.lootTable.concat(LootTables.global)
 		// see generateLoot() function in Enemy for how this works
 		
 		this.xpGiven = properties.xpGiven;
@@ -1770,9 +1784,19 @@ class Enemy extends Attacker {
 			// enemy is stunned
 		}
 		else {
+			// figure out speed
+			let speed = this.speed;
+			// speed status effect (can be buff or debuff)
+			let speedStatusEffect = this.statusEffects.find(statusEffect =>
+				(statusEffect.image === "speedUp" || statusEffect.image === "speedDown") &&
+				statusEffect.info.speedIncrease !== undefined);
+			if (speedStatusEffect !== undefined) {
+				speed *= 1 + (speedStatusEffect.info.speedIncrease / 100);
+			}
+			
 			this.bearing = bearing(this, towards); // update bearing (maybe doesn't need to be done every tick?)
-			this.x += Math.cos(this.bearing) * this.speed * delta;
-			this.y += Math.sin(this.bearing) * this.speed * delta;
+			this.x += Math.cos(this.bearing) * speed * delta;
+			this.y += Math.sin(this.bearing) * speed * delta;
 		}
 	}
 	
@@ -2196,32 +2220,28 @@ Game.statusEffects.strength = function(tier, target) { // you might want to add 
 	}
 }
 
-// give target the swiftness buff (walk speed increase)
-Game.statusEffects.swiftness = function(target, effectName, percentage, time) { // you might want to add an optional time parameter in the future (to override the tier's time, i.e. for bosses)
-	// turn tier into roman numeral (function in dom)
-	tier = romanize(tier);
-	
-	// try to find an existing strength effect of the tier
+// give target a walkspeed buff/debuff
+Game.statusEffects.walkSpeed = function(target, effectTitle, speedIncrease, time) { // you might want to add an optional time parameter in the future (to override the tier's time, i.e. for bosses)
+	// try to find an existing walkSpeed effect that does the same and has the same name
 	let found = target.statusEffects.findIndex(function(element) {
-		return element.title === ("Swiftness " + tier);
+		return element.title === effectTitle && element.info.speedIncrease === speedIncrease;
 	});
-		
-	let speedIncrease = 0; // percentage (same walk speed = 0 speedIncrease)
-	let time = 0;
-	// find what tier does
-	if (tier === "I") {
-		speedIncrease = 35;
-		time = 20;
-	}
-	else {
-		console.error("Swiftness status effect tier " + tier + " has not been assigned walk speed increase and time");
-	}
 	
-	if (found === -1) { // no strength effect of that tier currently applied to the target
+	if (found === -1) { // no walkSpeed effect of that tier currently applied to the target
+		
+		// effect text
+		let effectText;
+		if (speedIncrease > 0) {
+			effectText = "+";
+		}
+		else {
+			effectText = ""; // no need for 2 '-'s
+		}
+		effectText = effectText + speedIncrease + "% walk speed";
 		
 		target.statusEffects.push(new statusEffect({
-			title: "Swiftness " + tier,
-			effect: "+" + speedIncrease + "% walk speed for " + time + " seconds.",
+			title: effectTitle,
+			effect: effectText,
 			info: {
 				speedIncrease: speedIncrease,
 				time: time,
@@ -2244,7 +2264,7 @@ Game.statusEffects.swiftness = function(target, effectName, percentage, time) { 
 					}
 				}
 			},
-			image: "speedUp",
+			image: speedIncrease > 0 ? "speedUp" : "speedDown",
 		}));
 		
 		// begin tick for every second
@@ -2415,6 +2435,10 @@ Game.loadArea = function (areaName, destination) {
 			for(var i = 0; i < Areas[areaName].enemies.length; i++) {
 				if (this.canBeShown(Areas[areaName].enemies[i])) { // check if NPC should be shown
 					Areas[areaName].enemies[i].map = map;
+					if (Game.time === "bloodMoon" && Areas[areaName].enemies[i].hostility === "hostile") {
+						// blood moon - enemies have more health
+						Areas[areaName].enemies[i].stats.maxHealth *= 2;
+					}
 					this.enemies.push(new Enemy(Areas[areaName].enemies[i]));
 				}
 			}
@@ -2648,7 +2672,7 @@ Game.getTime = function () {
 		return "day";
 	}
 	// night time
-	else if (this.event === "Samain") {
+	else if (this.event === "Samhain") {
 		return "bloodMoon";
 	}
 	else {

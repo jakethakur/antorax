@@ -612,6 +612,9 @@ Dom.inventory.displayIdentification = function(display){
 	if(Player.stats.stun !== 0){
 		document.getElementById("innerStats").innerHTML += "<br>Stun: " + Player.stats.stun + "s"; // updates the stun display
 	}
+	if(Player.stats.lifesteal !== 0){
+		document.getElementById("innerStats").innerHTML += "<br>Lifesteal: " + Player.stats.lifesteal + "%"; // updates the life steal display
+	}
 	document.getElementById("innerStats").innerHTML += "<br>Swim Speed: " + Player.stats.swimSpeed + "/s"; // updates the swim speed display
 	document.getElementById("innerStats").innerHTML += "<br>Walk Speed: " + Player.stats.walkSpeed + "/s"; // updates the walk speed display
 	if(Player.stats.fishingSkill !== 0){
@@ -664,6 +667,11 @@ Dom.inventory.displayInformation = function(item, stacked, position){
 						}
 					}
 				}
+				// special function text (e.g: onAttack)
+				if (item.functionText !== undefined) {
+					document.getElementById("stats").innerHTML += "<br>"+item.functionText;
+				}
+				
 				if(item.chooseStats !== undefined){
 					document.getElementById("stats").innerHTML += "<br><br>"+item.onClickText;
 					for(let i = 0; i < Object.keys(item.chooseStats).length; i++){
@@ -681,7 +689,8 @@ Dom.inventory.displayInformation = function(item, stacked, position){
 					}
 				}
 			}else{
-				document.getElementById("stats").innerHTML += "<br><br>Area: "+item.area; // add the tier to the information
+				// show the area of unidentified items
+				document.getElementById("stats").innerHTML += "<br><br>Area: "+item.area;
 			}
 			if(item.set !== undefined){ // if the item has a set...
 				if(position === "equip"){

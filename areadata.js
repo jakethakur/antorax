@@ -1205,12 +1205,16 @@ var Areas = {
 				},
 				roles: [
 					{
-						sold: [Items.consumable[9],Items.bow[7],Items.sword[7],Items.staff[8],Items.chest[7]],
+						sold: [Items.consumable[9],Items.chest[7],Items.bow[7],Items.sword[7],Items.staff[8]],
 						role: "merchant",
 						roleText: "I'd like to browse your Samhain event items.",
 					},
 				],
 				chat: {
+					shopGreeting: "I can exchange items from my realm with Samhain Marks for a limited time.",
+					shopLeave: "You'll be back.",
+					inventoryFull: "You cannot hold that.",
+					tooPoor: "You cannot afford that. Kill more enemies.",
 				},
 				canBeShown: function () {
 					return Game.time === "bloodMoon";

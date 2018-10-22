@@ -212,10 +212,10 @@ var Items = {
 			tier: 1,
 			rarity: "unique",
 			sellPrice: 3,
-			cost: 10,
+			cost: 5,
 			costCurrency: 4,
-			//lore: "",
-			obtain: "Find as a rare drop during a Blood Moon",
+			lore: "Evil haunted sheet. Also doubles as an evil haunted blanket.",
+			obtain: "Buy from a merchant during the Samhain event",
 			area: "Eaglecrest Logging Camp",
 			stats: {
 				defence: "+1",
@@ -568,12 +568,14 @@ var Items = {
 			imageArchaeology: "assets/items/sword/7archaeology.png",
 			tier: 1,
 			rarity: "unique",
-			obtain: "Buy from a merchant during Samhain event",
+			lore: "9/10 murderous farmers would recommend it to their friends.",
+			obtain: "Buy from a merchant during the Samhain event",
 			sellPrice: "4",
 			cost: 15,
 			costCurrency: 4,
 			stats: {
 				damage: "3",
+				lifesteal: "25%",
 			},
 		},
 	],
@@ -695,19 +697,25 @@ var Items = {
 		},
 		{
 			id: 8,
-			name: "Samhain Staff",
+			name: "Samhain Broomstick",
 			type: "staff",
 			image: "assets/items/staff/8.png",
 			imageArchaeology: "assets/items/staff/8archaeology.png",
 			tier: 1,
 			rarity: "unique",
-			obtain: "Buy from merchant during Samhain event",
+			lore: "Gives new meaning to the phrase 'a brush with death'.",
+			obtain: "Buy from a merchant during the Samhain event",
 			sellPrice: "4",
 			cost: 15,
 			costCurrency: 4,
 			stats: {
 				damage: "3.5-7",
 			},
+			onKill: function () {
+				// give speed to player
+				Game.statusEffects.walkSpeed(Game.hero, "Soul Rush", 100, 2);
+			},
+			functionText: "Gives +100% walk speed for 2 seconds when an enemy is killed"
 		},
 	],
 	bow: [
@@ -809,6 +817,7 @@ var Items = {
 			image: "assets/items/bow/7.png",
 			tier: 1,
 			rarity: "unique",
+			lore: "So this is what happens when you leave your crossbow in the shed for too long.",
 			obtain: "Buy from a merchant during the Samhain event",
 			sellPrice: "4",
 			cost: 15,
@@ -816,6 +825,11 @@ var Items = {
 			stats: {
 				damage: "3.5",
 			},
+			onAttack: function (enemy) {
+				// give slowness to enemy
+				Game.statusEffects.walkSpeed(enemy, "Webbed Up", -50, 1);
+			},
+			functionText: "Gives -50% walk speed to attacked enemies for 1 second"
 		},
 	],
 	rod: [ // fishing rod
@@ -965,7 +979,7 @@ var Items = {
 			name: "Samhain Mark",
 			type: "currency",
 			image: "assets/items/currency/4.png",
-			use: "Used to buy special Samhain items from a Samhain merchant.",
+			use: "Used to buy special Samhain event items from a Samhain merchant.",
 			stack: 256,
 		},
 	],
@@ -1209,7 +1223,7 @@ var Items = {
 				Dom.inventory.remove(inventoryPosition);
 				
 				// give swiftness I status effect to player
-				Game.statusEffects.swiftness(1, Game.hero);
+				Game.statusEffects.walkSpeed(Game.hero, "Swiftness I", 35, 20);
 			}
 		},
 		{
@@ -1265,7 +1279,7 @@ var Items = {
 						break;
 					case 1:
 						// give swiftness I status effect to player
-						Game.statusEffects.swiftness(1, Game.hero);
+						Game.statusEffects.walkSpeed(Game.hero, "Swiftness I", 35, 20);
 						break;
 					case 2:
 						// give fire I status effect to player

@@ -119,7 +119,7 @@ var Quests = {
 				let completed = [];
 				
 				// true or falses for each objective (apart from the turn-in objective)
-				completed.push(typeof Game.dummies !== "undefined" && checkProgress(Game.dummies[0].damageTaken, 20)); // quest must be finished in Eaglecrest Logging Camp, hence Game.dummies[0] is always the right dummy
+				completed.push(typeof Game.dummies[0] !== "undefined" && checkProgress(Game.dummies[0].damageTaken, 20)); // quest must be finished in Eaglecrest Logging Camp, hence Game.dummies[0] is always the right dummy
 				
 				completed = checkFinished(completed);
 				
