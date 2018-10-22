@@ -2435,11 +2435,12 @@ Game.loadArea = function (areaName, destination) {
 			for(var i = 0; i < Areas[areaName].enemies.length; i++) {
 				if (this.canBeShown(Areas[areaName].enemies[i])) { // check if NPC should be shown
 					Areas[areaName].enemies[i].map = map;
-					if (Game.time === "bloodMoon" && Areas[areaName].enemies[i].hostility === "hostile") {
-						// blood moon - enemies have more health
-						Areas[areaName].enemies[i].stats.maxHealth *= 2;
-					}
 					this.enemies.push(new Enemy(Areas[areaName].enemies[i]));
+					if (Game.time === "bloodMoon" && this.enemies[this.enemies.length - 1].hostility === "hostile") {
+						// blood moon - enemies have more health
+						this.enemies[this.enemies.length - 1].stats.health *= 2;
+						this.enemies[this.enemies.length - 1].stats.maxHealth *= 2;
+					}
 				}
 			}
 		}
