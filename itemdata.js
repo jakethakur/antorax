@@ -212,6 +212,8 @@ var Items = {
 			tier: 1,
 			rarity: "unique",
 			sellPrice: 3,
+			cost: 10,
+			costCurrency: 4,
 			//lore: "",
 			obtain: "Find as a rare drop during a Blood Moon",
 			area: "Eaglecrest Logging Camp",
@@ -558,6 +560,22 @@ var Items = {
 				blockDefence: "+15",
 			},
 		},
+		{
+			id: 7,
+			name: "Samhain Scythe",
+			type: "sword",
+			image: "assets/items/sword/7.png",
+			imageArchaeology: "assets/items/sword/7archaeology.png",
+			tier: 1,
+			rarity: "unique",
+			obtain: "Buy from a merchant during Samhain event",
+			sellPrice: "4",
+			cost: 15,
+			costCurrency: 4,
+			stats: {
+				damage: "3",
+			},
+		},
 	],
 	staff: [
 		{
@@ -675,6 +693,22 @@ var Items = {
 			projectile: "fireball",
 			projectileAdjust: {x: 20, y: 20},
 		},
+		{
+			id: 8,
+			name: "Samhain Staff",
+			type: "staff",
+			image: "assets/items/staff/8.png",
+			imageArchaeology: "assets/items/staff/8archaeology.png",
+			tier: 1,
+			rarity: "unique",
+			obtain: "Buy from merchant during Samhain event",
+			sellPrice: "4",
+			cost: 15,
+			costCurrency: 4,
+			stats: {
+				damage: "3.5-7",
+			},
+		},
 	],
 	bow: [
 		{
@@ -766,6 +800,21 @@ var Items = {
 			stats: {
 				damage: "4",
 				flaming: 1,
+			},
+		},
+		{
+			id: 7,
+			name: "Samhain Spiderbow",
+			type: "bow",
+			image: "assets/items/bow/7.png",
+			tier: 1,
+			rarity: "unique",
+			obtain: "Buy from a merchant during the Samhain event",
+			sellPrice: "4",
+			cost: 15,
+			costCurrency: 4,
+			stats: {
+				damage: "3.5",
 			},
 		},
 	],
@@ -911,6 +960,14 @@ var Items = {
 			use: "Can be used to buy fishing related items from a fisher(wo)man.",
 			stack: 256,
 		},
+		{
+			id: 4,
+			name: "Samhain Mark",
+			type: "currency",
+			image: "assets/items/currency/4.png",
+			use: "Used to buy special Samhain items from a Samhain merchant.",
+			stack: 256,
+		},
 	],
 	bag: [
 		{
@@ -950,6 +1007,8 @@ var Items = {
 			name: "Fishing Pouch",
 			type: "bag",
 			image: "assets/items/bag/4.png",
+			cost: 10,
+			costCurrency: 3,
 			sellPrice: 10,
 			rarity: "unique",
 			size: 18,
@@ -1289,7 +1348,8 @@ var Items = {
 			name: "Samhain Pot o' Gloop",
 			type: "consumable",
 			image: "assets/items/consumable/9.png",
-			cost: 3,
+			cost: 1,
+			costCurrency: 4,
 			onClickText: "Gives you a random spooky status effect",
 			charges: 3,
 			onClick: function (inventoryPosition) {

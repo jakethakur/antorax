@@ -2,15 +2,15 @@ var LootTables = { // loot table templates
 	global: [
 		// all enemies have this (for events)
 		{ // ghost sheet
-			item: Items.chest[7],
+			item: Items.currency[4],
 			condition: function () {
 				if (Game.time === "bloodMoon") {
-					return true; // quest is active and player doesn't already have the rod
+					return true;
 				}
 				return false;
 			},
 			chance: [
-				98,				// 0
+				75,				// 0
 				Infinity,		// 1
 			],
 		},
@@ -59,7 +59,7 @@ var LootTables = { // loot table templates
 		{ // goblin sewn bag
 			item: Items.bag[3],
 			chance: [
-				97,				// 0
+				98,				// 0
 				Infinity,		// 1
 			],
 		},
@@ -79,8 +79,8 @@ var LootTables = { // loot table templates
 		{ // goblin eye
 			item: Items.item[10],
 			chance: [
-				80,				// 0
-				83,				// 1
+				85,				// 0
+				87,				// 1
 				Infinity,		// 2
 			],
 		},
@@ -412,8 +412,17 @@ var Areas = {
 					{
 						sold: [Items.consumable[8]],
 						role: "merchant",
+						chooseText: "I'd like to browse your fishing items.",
 						roleRequirement: function () {
 							return Player.quests.completedQuestArray.includes("Learning to Fish II") || Player.quests.activeQuestArray.includes("Learning to Fish II");
+						},
+					},
+					{
+						sold: [Items.bag[4]],
+						role: "merchant",
+						chooseText: "I'd like to see what I can buy with fishing seals.",
+						roleRequirement: function () {
+							return Player.quests.completedQuestArray.includes("Learning to Fish III");
 						},
 					},
 				],
@@ -948,14 +957,6 @@ var Areas = {
 							return Player.level > 2;
 						}
 					},
-					{
-						sold: [Items.consumable[9]],
-						role: "merchant",
-						roleText: "I'd like to browse your Samhain event items.",
-						roleRequirement: function () {
-							return Game.event === "Samhain";
-						}
-					},
 				],
 				chat: {
 					notUnlockedRoles: "I've been told you're not a high enough level to handle my potions.",
@@ -1118,6 +1119,7 @@ var Areas = {
 				"mailcart",
 				"trap",
 				"torch",
+				"ghost"
 			],
 			
 			addresses: [
@@ -1133,6 +1135,7 @@ var Areas = {
 				"./assets/objects/cartDestroyed.png",
 				"./assets/objects/trap.png",
 				"./assets/npcs/torch.png",
+				"./assets/npcs/ghost.png",
 			],
 		},
 		
@@ -1186,6 +1189,31 @@ var Areas = {
 				},
 				canBeShown: function () {
 					return !Player.quests.activeQuestArray.includes("Partners in Goblin Destruction");
+				},
+			},
+			{
+				x: 312,
+				y: 547,
+				image: "ghost",
+				name: "Samhain Ghost",
+				hostility: "friendly",
+				level: 20,
+				stats: {
+					maxHealth: 150,
+					defence: 1,
+					dodgeChance: 40,
+				},
+				roles: [
+					{
+						sold: [Items.consumable[9],Items.bow[7],Items.sword[7],Items.staff[8],Items.chest[7]],
+						role: "merchant",
+						roleText: "I'd like to browse your Samhain event items.",
+					},
+				],
+				chat: {
+				},
+				canBeShown: function () {
+					return Game.time === "bloodMoon";
 				},
 			},
 		],
