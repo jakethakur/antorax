@@ -681,6 +681,7 @@ class Character extends Thing {
 						stacks: stacks,
 						ineffectiveAmount: ineffectiveAmount,
 					},
+					image: "xpDown",
 				}));
 				
 				Player.fatiguedXP = ineffectiveAmount;
@@ -896,7 +897,11 @@ class Hero extends Attacker {
 		else if (slowTile === "water") { // in water tile
 			this.speed = this.stats.swimSpeed;
 			if(!this.hasStatusEffect("Swimming")) { // give status effect if the player doesn't already have it
-				this.statusEffects.push(new statusEffect({title: "Swimming", effect: "Reduced movement speed",}));
+				this.statusEffects.push(new statusEffect({
+					title: "Swimming",
+					effect: "Reduced movement speed",
+					image: "water",
+				}));
 				// remove fire status effect
 				for (var i = 0; i < this.statusEffects.length; i++) {
 					if (this.statusEffects[i].title.substring(0, 4) == "Fire") {
@@ -910,7 +915,11 @@ class Hero extends Attacker {
 			// currently mud goes the same speed as swimSpeed
 			if(!this.hasStatusEffect("Stuck in the mud")) { // give status effect if the player doesn't already have it
 				this.speed = this.stats.swimSpeed;
-				this.statusEffects.push(new statusEffect({title: "Stuck in the mud", effect: "Reduced movement speed",}));
+				this.statusEffects.push(new statusEffect({
+					title: "Stuck in the mud",
+					effect: "Reduced movement speed",
+					image: "mud",
+				}));
 				this.updateStatusEffects();
 			}
 		}
@@ -1528,8 +1537,9 @@ class Projectile extends Thing {
 						}
 						
 						// lifesteal
-						#aaaaaaaaaaaa
-						attacker.restoreHealth();
+						if (attacker.stats.lifesteal > 0) {
+							attacker.restoreHealth(damageDealt * (attacker.stats.lifesteal / 100));
+						}
 						
 						// poison
 						if (attacker.stats.poisonX > 0 && attacker.stats.poisonY > 0) { // check target weapon has poison
@@ -1939,6 +1949,8 @@ function statusEffect(properties) {
 	this.info = properties.info; // extra information (e.g: poison damage and length)
 	
 	this.tick = properties.tick; // function to be carried out every second
+	
+	this.image = properties.image; // image to be shown
 }
 
 // check through owner's status effects to see which can be removed (due to having expired)
@@ -1987,6 +1999,7 @@ Game.statusEffects.poison = function(damage, time, target) {
 				}
 			}
 		},
+		image: "poison",
 	}));
 	
 	// begin poison tick
@@ -2051,6 +2064,7 @@ Game.statusEffects.fire = function(tier, target) {
 					}
 				}
 			},
+			image: "fire",
 		}));
 		
 		// begin fire tick
@@ -2100,6 +2114,7 @@ Game.statusEffects.stun = function(time, target) {
 					}
 				}
 			},
+			image: "stunned",
 		}));
 		
 		// begin tick for every 0.2 seconds
@@ -2164,6 +2179,7 @@ Game.statusEffects.strength = function(tier, target) { // you might want to add 
 					}
 				}
 			},
+			image: "damageUp",
 		}));
 		
 		// begin tick for every second
@@ -2181,7 +2197,7 @@ Game.statusEffects.strength = function(tier, target) { // you might want to add 
 }
 
 // give target the swiftness buff (walk speed increase)
-Game.statusEffects.swiftness = function(tier, target) { // you might want to add an optional time parameter in the future (to override the tier's time, i.e. for bosses)
+Game.statusEffects.swiftness = function(target, effectName, percentage, time) { // you might want to add an optional time parameter in the future (to override the tier's time, i.e. for bosses)
 	// turn tier into roman numeral (function in dom)
 	tier = romanize(tier);
 	
@@ -2228,6 +2244,7 @@ Game.statusEffects.swiftness = function(tier, target) { // you might want to add
 					}
 				}
 			},
+			image: "speedUp",
 		}));
 		
 		// begin tick for every second
@@ -2501,7 +2518,7 @@ Game.loadArea = function (areaName, destination) {
     }.bind(this))
 	.catch(function (err) {
 		// error for if the images didn't load
-	    console.error("Your images did not load correctly.", result);
+	    console.error("Your images did not load correctly.", err);
 	});
 }
 
@@ -3181,7 +3198,7 @@ Game.projectileUpdate = function () {
 				Player.inventory.weapon[0].cannotAttack = false;
 			})
 			.catch(function (err) {
-				console.error("Your image did not load correctly.", result);
+				console.error("Your image did not load correctly.", err);
 			});
 		}
 		else {
@@ -3203,7 +3220,7 @@ Game.projectileUpdate = function () {
 			Player.inventory.weapon[0].cannotAttack = false;
 		})
 		.catch(function (err) {
-			console.error("Your image did not load correctly.", result);
+			console.error("Your image did not load correctly.", err);
 		});
 	}
 }
@@ -3908,31 +3925,31 @@ Game.secondary.render = function () {
 		// status effect icons next to health bar
 		for(let i = 0; i < Game.hero.statusEffects.length; i++) {
 			let iconNum = null;
-			if (Game.hero.statusEffects[i].title == "Fish bait") {
+			if (Game.hero.statusEffects[i].image === "bait") {
 				iconNum = 0;
 			}
-			else if (Game.hero.statusEffects[i].title == "Swiftness I") {
+			else if (Game.hero.statusEffects[i].image === "speedUp") {
 				iconNum = 1;
 			}
-			else if (Game.hero.statusEffects[i].title == "Fire I") {
+			else if (Game.hero.statusEffects[i].image === "fire") {
 				iconNum = 2;
 			}
-			else if (Game.hero.statusEffects[i].title == "Stuck in the mud") {
+			else if (Game.hero.statusEffects[i].image === "mud") {
 				iconNum = 3;
 			}
-			else if (Game.hero.statusEffects[i].title == "Poisoned") {
+			else if (Game.hero.statusEffects[i].image === "poison") {
 				iconNum = 4;
 			}
-			else if (Game.hero.statusEffects[i].title == "Stunned") {
+			else if (Game.hero.statusEffects[i].image === "stunned") {
 				iconNum = 5;
 			}
-			else if (Game.hero.statusEffects[i].title == "Swimming") {
+			else if (Game.hero.statusEffects[i].image === "water") {
 				iconNum = 6;
 			}
-			else if (Game.hero.statusEffects[i].title == "XP Fatigue") {
+			else if (Game.hero.statusEffects[i].image === "xpDown") {
 				iconNum = 7;
 			}
-			else if (Game.hero.statusEffects[i].title == "Strength I") {
+			else if (Game.hero.statusEffects[i].image === "damageUp") {
 				iconNum = 8;
 			}
 			else { // no status effect image
