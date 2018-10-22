@@ -78,6 +78,7 @@ var Player = {
 		focusSpeed: 1, // archers only (speed that the variant for archer projectiles gets smaller)
 		maxDamage: 0, // mages only (damage done when channelled)
 		blockDefence: 0, // knights only
+		lifesteal: 0,
 		
 		// fishing
 		fishingSkill: 0, // increased when you fish stuff up (increased by main.js)

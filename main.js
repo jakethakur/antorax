@@ -1117,6 +1117,7 @@ class Hero extends Attacker {
 							}
 							
 							if (this.channelling.length !== undefined) {
+								Player.quests.questProgress.hasCaughtFish = true; // player has caught a fish
 								// fish give extra skill points based on their length
 								if (this.stats.fishingSkill < 50) {
 									this.stats.fishingSkill += Math.floor(this.channelling.length / 100);
@@ -1392,8 +1393,6 @@ class Hero extends Attacker {
 					if (fish.rarity === "mythic") {
 						time += 200 + 200 * clicks;
 					}
-					
-					Player.quests.questProgress.hasCaughtFish = true;
 				}
 				fish.clicksToCatch = clicks;
 				
@@ -1502,7 +1501,7 @@ class Projectile extends Thing {
 							attackerDamage += c;
 						}
 						
-						// blood moon
+						// blood moon - enemies deal more damage
 						if (Game.time === "bloodMoon" && attacker.hostility === "hostile") {
 							attackerDamage *= 3;
 						}
@@ -1528,6 +1527,9 @@ class Projectile extends Thing {
 							this.damageDealt.push({enemy: to[i][x], damage: dmgDealt, critical: false});
 						}
 						
+						// lifesteal
+						#aaaaaaaaaaaa
+						attacker.restoreHealth();
 						
 						// poison
 						if (attacker.stats.poisonX > 0 && attacker.stats.poisonY > 0) { // check target weapon has poison
@@ -3137,47 +3139,8 @@ Game.inventoryUpdate = function (e) {
 		// if the player is holding a weapon, set their range
 		Game.hero.stats.range = WeaponRanges[Player.inventory.weapon[0].type] + Game.hero.stats.rangeModifier;
 		
-		// if the player is now holding a weapon with a special projectile image, load that image and stop the player from attacking until this is done
-		if (Player.inventory.weapon[0].projectile !== undefined && this.heroProjectileName !== Player.inventory.weapon[0].projectile) {
-			// not loaded projectile image before
-			this.heroProjectileName = Player.inventory.weapon[0].projectile;
-			this.heroProjectileAdjust = Player.inventory.weapon[0].projectileAdjust;
-			// set weapon property "cannotAttack" to true so the player is blocked from attacking
-			Player.inventory.weapon[0].cannotAttack = true;
-			// load image
-			let p = Loader.loadImage(this.heroProjectileName, "./assets/projectiles/" + this.heroProjectileName + ".png");
-			if (p !== undefined) {
-				p.then(function (value) {
-					// only called once image has loaded
-					// set weapon "cannotAttack" property back to false
-					Player.inventory.weapon[0].cannotAttack = false;
-				})
-				.catch(function (err) {
-				    console.error("Your image did not load correctly.", result);
-				});
-			}
-			else {
-				// image already loaded; allow the player to attack anyway
-				Player.inventory.weapon[0].cannotAttack = false;
-			}
-		}
-		else if (this.heroProjectileName !== Skins[Player.class][Player.skin].projectile) {
-			// needs to reload default projectile image
-			this.heroProjectileName = Skins[Player.class][Player.skin].projectile;
-			this.heroProjectileAdjust = Skins[Player.class][Player.skin].projectileAdjust;
-			// set weapon property "cannotAttack" to true so the player is blocked from attacking
-			Player.inventory.weapon[0].cannotAttack = true;
-			// load image
-			let p = Loader.loadImage(this.heroProjectileName, "./assets/projectiles/" + this.heroProjectileName + ".png");
-			p.then(function (value) {
-				// only called once image has loaded
-				// set weapon "cannotAttack" property back to false
-				Player.inventory.weapon[0].cannotAttack = false;
-			})
-			.catch(function (err) {
-				console.error("Your image did not load correctly.", result);
-			});
-		}
+		// set player projectile
+		this.projectileUpdate();
 		
 		// if the player is no longer holding a fishing rod, remove their bobber
 		if (Player.inventory.weapon[0].type !== "rod" && Game.hero.channelling === "fishing") {
@@ -3197,6 +3160,51 @@ Game.inventoryUpdate = function (e) {
 		}
 		
 		Dom.quests.active(); // quest log update check
+	}
+}
+
+// set player projectile
+Game.projectileUpdate = function () {
+	// if the player is now holding a weapon with a special projectile image, load that image and stop the player from attacking until this is done
+	if (Player.inventory.weapon[0].projectile !== undefined && this.heroProjectileName !== Player.inventory.weapon[0].projectile) {
+		// not loaded projectile image before
+		this.heroProjectileName = Player.inventory.weapon[0].projectile;
+		this.heroProjectileAdjust = Player.inventory.weapon[0].projectileAdjust;
+		// set weapon property "cannotAttack" to true so the player is blocked from attacking
+		Player.inventory.weapon[0].cannotAttack = true;
+		// load image
+		let p = Loader.loadImage(this.heroProjectileName, "./assets/projectiles/" + this.heroProjectileName + ".png");
+		if (p !== undefined) {
+			p.then(function (value) {
+				// only called once image has loaded
+				// set weapon "cannotAttack" property back to false
+				Player.inventory.weapon[0].cannotAttack = false;
+			})
+			.catch(function (err) {
+				console.error("Your image did not load correctly.", result);
+			});
+		}
+		else {
+			// image already loaded; allow the player to attack anyway
+			Player.inventory.weapon[0].cannotAttack = false;
+		}
+	}
+	else if (this.heroProjectileName !== Skins[Player.class][Player.skin].projectile) {
+		// needs to reload default projectile image
+		this.heroProjectileName = Skins[Player.class][Player.skin].projectile;
+		this.heroProjectileAdjust = Skins[Player.class][Player.skin].projectileAdjust;
+		// set weapon property "cannotAttack" to true so the player is blocked from attacking
+		Player.inventory.weapon[0].cannotAttack = true;
+		// load image
+		let p = Loader.loadImage(this.heroProjectileName, "./assets/projectiles/" + this.heroProjectileName + ".png");
+		p.then(function (value) {
+			// only called once image has loaded
+			// set weapon "cannotAttack" property back to false
+			Player.inventory.weapon[0].cannotAttack = false;
+		})
+		.catch(function (err) {
+			console.error("Your image did not load correctly.", result);
+		});
 	}
 }
 
