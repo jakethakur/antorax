@@ -1089,6 +1089,53 @@ var Quests = {
 				"itemsFishedUp",
 			],
 		},
+		
+		{
+			id: 1,
+			quest: "A Big Splash",
+			questArea: "fishing",
+			
+			startName: "Fisherman Tobenam",
+			startChat: `How's your fishing going? Reel up 15 items and we'll see, heheh.`,
+			
+			finishName: "Fisherman Tobenam",
+			finishChat: `Not bad, heheh. I'm glad I taught you how to fish now!`,
+			
+			objectives: [
+				"Fish up 5 fish.",
+				"Speak to <strong>Fisherman Tobenam</strong>.",
+			],
+			
+			isCompleted: function() {
+				let completed = []; // contains true or false for all of the objectives, with the last element being if the quest is ready to complete
+				
+				// true or falses for each objective (apart from the turn-in objective)
+				completed.push(checkProgress(Player.quests.questProgress.itemsFishedUp, 15));
+				
+				completed = checkFinished(completed);
+				
+				return completed;
+			},
+			
+			howToStart: "Speak to Fisherman Tobenam.",
+			levelRequirement: 1,
+			questRequirements: ["Learning to Fish III"],
+			repeatTime: "daily",
+			
+			rewards: {
+				xp: 50,
+				items: [
+					Items.currency[3], // fishing seal
+				],
+				itemQuantities: [
+					1,
+				],
+			},
+			
+			resetVariables: [
+				"itemsFishedUp",
+			],
+		},
 	],
 };
 
