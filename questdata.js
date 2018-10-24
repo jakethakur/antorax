@@ -471,7 +471,7 @@ var Quests = {
 				
 				// true or falses for each objective (apart from the turn-in objective)
 				completed.push(Player.quests.questProgress.hasUsedBait || false);
-				completed.push(Player.quests.questProgress.hasCaughtFish || false);
+				completed.push(Player.quests.questProgress.fishCaught > 0 || false);
 				
 				completed = checkFinished(completed);
 				
@@ -493,7 +493,7 @@ var Quests = {
 			questArea: "eaglecrestLoggingCamp",
 			
 			startName: "Fisherman Tobenam",
-			startChat: "What did I say, you can't get fish all the time without practising! Keep fishing until your skill is level 10... your effort now will be made up for later, heheh.",
+			startChat: "What did I say, you can't get fish all the time without practising! Keep fishing until your skill is level 10... your effort now will be made up for later, heheh. Oh, and don't forget to use up that bait!",
 			
 			finishName: "Fisherman Tobenam",
 			finishChat: "Wow, well done! You're now a fishing master, heheh, almost. Come back to me every day and I'll give you something to do, heheh.",
@@ -1090,19 +1090,19 @@ var Quests = {
 			],
 		},
 		
-		{
+		/*{
 			id: 1,
 			quest: "A Big Splash",
 			questArea: "fishing",
 			
 			startName: "Fisherman Tobenam",
-			startChat: `How's your fishing going? Reel up 15 items and we'll see, heheh.`,
+			startChat: `Heheh, what's the point in fishing if you don't fish up fish? Fish up 10 fish! Heheh.`,
 			
 			finishName: "Fisherman Tobenam",
-			finishChat: `Not bad, heheh. I'm glad I taught you how to fish now!`,
+			finishChat: `Heheh, you're getting better and better!`,
 			
 			objectives: [
-				"Fish up 5 fish.",
+				"Fish up 10 fish.",
 				"Speak to <strong>Fisherman Tobenam</strong>.",
 			],
 			
@@ -1110,7 +1110,7 @@ var Quests = {
 				let completed = []; // contains true or false for all of the objectives, with the last element being if the quest is ready to complete
 				
 				// true or falses for each objective (apart from the turn-in objective)
-				completed.push(checkProgress(Player.quests.questProgress.itemsFishedUp, 15));
+				completed.push(checkProgress(Player.quests.questProgress.fishCaught, 10));
 				
 				completed = checkFinished(completed);
 				
@@ -1133,9 +1133,9 @@ var Quests = {
 			},
 			
 			resetVariables: [
-				"itemsFishedUp",
+				"fishCaught",
 			],
-		},
+		},*/
 	],
 };
 

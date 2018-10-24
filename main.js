@@ -1094,58 +1094,68 @@ class Hero extends Attacker {
 						// note: if the Game.hero stats were updated in the middle of this code, it **might** ignore some skill that should have been added (overwritten back to old value in savedata.js) - tbd fix this
 						// tbd make own function
 						let oldFishingSkill = this.stats.fishingSkill; // remember old fishing skill to know if it has changed by a whole number
-						if (this.stats.fishingSkill < 20) {
-							// tutorial fishing skill values (fishing skill less than 20)
-							if (this.channelling.fishingType === "waterjunk") {
-								this.stats.fishingSkill += 1;
+						// normal fishing skill values
+						if (this.channelling.fishingType === "waterjunk") {
+							if (this.stats.fishingSkill < FishingLevels[Player.lootArea]) {
+								// player's fishing skill is too low to get any other items
+								this.stats.fishingSkill++;
 							}
-							else if (this.channelling.rarity === "common") {
-								this.stats.fishingSkill += 2;
+						}
+						else if (this.channelling.rarity === "common") {
+							if (this.stats.fishingSkill >= FishingLevels[Player.lootArea] &&
+							this.stats.fishingSkill < FishingLevels[Player.lootArea] + 15) {
+								// player has only unlocked commons in this area
+								this.stats.fishingSkill++;
 							}
-							else if (this.channelling.rarity === "unique") {
-								this.stats.fishingSkill += 3;
+							else if (this.stats.fishingSkill >= FishingLevels[Player.lootArea] + 15 &&
+							this.stats.fishingSkill < FishingLevels[Player.lootArea] + 30) {
+								// player has only unlocked commons and uniques in this area
+								this.stats.fishingSkill += 0.5;
 							}
-							else if (this.channelling.rarity === "mythic") {
-								this.stats.fishingSkill += 5;
+							else if (this.stats.fishingSkill >= FishingLevels[Player.lootArea] + 30 &&
+							this.stats.fishingSkill < FishingLevels[Player.lootArea] + 45) {
+								// player has recently unlocked mythics in this area
+								this.stats.fishingSkill += 0.25;
 							}
 							else {
-								console.error("Fishing item " + this.channelling + "currently never gives any fishing skill, but probably should.");
+								// player has outleveled this area
+								this.stats.fishingSkill += 0.1;
+							}
+						}
+						else if (this.channelling.rarity === "unique") {
+							if (this.stats.fishingSkill >= FishingLevels[Player.lootArea] + 15 &&
+							this.stats.fishingSkill < FishingLevels[Player.lootArea] + 30) {
+								// player has only unlocked commons and uniques in this area
+								this.stats.fishingSkill += 2;
+							}
+							else if (this.stats.fishingSkill >= FishingLevels[Player.lootArea] + 30 &&
+							this.stats.fishingSkill < FishingLevels[Player.lootArea] + 45) {
+								// player has recently unlocked mythics in this area
+								this.stats.fishingSkill++;
+							}
+							else {
+								// player has outleveled this area
+								this.stats.fishingSkill += 0.5;
+							}
+						}
+						else if (this.channelling.rarity === "mythic") {
+							if (this.stats.fishingSkill >= FishingLevels[Player.lootArea] + 30 &&
+							this.stats.fishingSkill < FishingLevels[Player.lootArea] + 45) {
+								// player has recently unlocked mythics in this area
+								this.stats.fishingSkill += 3;
+							}
+							else {
+								// player has outleveled this area
+								this.stats.fishingSkill++;
 							}
 						}
 						else {
-							// normal fishing skill values
-							if (this.channelling.fishingType === "waterjunk") {
-								this.stats.fishingSkill += (1 / this.stats.fishingSkill);
-							}
-							else if (this.channelling.rarity === "common") {
-								this.stats.fishingSkill += (20 / this.stats.fishingSkill);
-							}
-							else if (this.channelling.rarity === "unique") {
-								this.stats.fishingSkill += (50 / this.stats.fishingSkill);
-							}
-							else if (this.channelling.rarity === "mythic") {
-								this.stats.fishingSkill += (200 / this.stats.fishingSkill);
-							}
-							else {
-								console.error("Fishing item " + this.channelling + "currently never gives any fishing skill, but probably should.");
-							}
-							
-							if (this.channelling.length !== undefined) {
-								Player.quests.questProgress.hasCaughtFish = true; // player has caught a fish
-								// fish give extra skill points based on their length
-								if (this.stats.fishingSkill < 50) {
-									this.stats.fishingSkill += Math.floor(this.channelling.length / 100);
-								}
-								else if (this.stats.fishingSkill < 100) {
-									this.stats.fishingSkill += Math.floor(this.channelling.length / 100) / 2;
-								}
-								else if (this.stats.fishingSkill < 200) {
-									this.stats.fishingSkill += Math.floor(this.channelling.length / 100) / 3;
-								}
-								else {
-									this.stats.fishingSkill += Math.floor(this.channelling.length / 100) / 4;
-								}
-							}
+							console.warn("Fishing item " + this.channelling + "currently never gives any fishing skill, but probably should.");
+						}
+						
+						if (this.channelling.length !== undefined) {
+							// player has caught a fish
+							Player.quests.questProgress.fishCaught++;
 						}
 						
 						// give fish
@@ -1325,16 +1335,53 @@ class Hero extends Attacker {
 					this.statusEffects.splice(baitStatusEffectIndex, 1);
 				}
 				
+				// find what rarities the player can fish up
+				// junk is fished up in the proportion not unlocked by common/unique/mythic
+				let raritiesAvailable = [];
+				if (this.stats.fishingSkill >= FishingLevels[Player.lootArea]) {
+					// can fish up commons
+					raritiesAvailable.push("common");
+				}
+				if (this.stats.fishingSkill >= FishingLevels[Player.lootArea] + 15) {
+					// can fish up uniques
+					raritiesAvailable.push("unique");
+				}
+				if (this.stats.fishingSkill >= FishingLevels[Player.lootArea] + 30) {
+					// can fish up mythics
+					raritiesAvailable.push("mythic");
+				}
+				
+				// pick a random rarity from the raritiesAvailable array
+				let randomNum = random(0, 6);
+				let itemRarity = "";
+				if (randomNum === 0) {
+					// 1 in 7 chance for a mythic
+					itemRarity = "mythic";
+				}
+				else if (randomNum < 3) {
+					// 2 in 7 chance for a unique
+					itemRarity = "unique";
+				}
+				else {
+					// 4 in 7 chance for a common
+					itemRarity = "common";
+				}
+				// check if the player has unlocked that rarity, otherwise give them a junk item
+				if (!raritiesAvailable.includes(itemRarity)) {
+					itemRarity = "junk";
+				}
+				
 				// find the fish that should be caught
 				let fish = Items.fish;
-				fish = fish.filter(item => item.waterTypes.includes(Areas[Game.areaName].waterType)); // filter for water type
 				fish = fish.filter(item => item.areas.includes(Player.lootArea) || item.areas.length === 0); // filter for area
-				if (random(1, 6) !== 2) { // 1 in 6 chance of getting something that might not be within fishing level range
-					fish = fish.filter(item => fishingSkill >= item.skillRequirement.min && fishingSkill <= item.skillRequirement.max); // filter for fishing skill
+				if (baitStatusEffectIndex !== -1 &&
+				Player.quests.questProgress.fishCaught === 0 || Player.quests.questProgress.fishCaught === undefined) {
+					// player is using fishing bait but has never caught a fish before
+					// guaranteed common fish!
+					fish = fish.filter(item => item.fishingType === "fish" && item.rarity === "common");
 				}
-				if (baitStatusEffectIndex !== -1 && !Player.quests.questProgress.hasCaughtFish) { // player is using fishing bait but has never caught a fish before
-					// guaranteed fish!
-					fish = fish.filter(item => item.fishingType === "fish");
+				else {
+					fish = fish.filter(item => item.rarity === itemRarity); // filter for rarity (see above)
 				}
 				fish = fish[random(0, fish.length - 1)]; // random fish that fulfils requirements above
 				fish = { ...fish }; // remove all references to itemdata in fish variable (otherwise length value changed in this will also affect itemData)!
@@ -1525,10 +1572,12 @@ class Projectile extends Thing {
 							dmgDealt = 0;
 						}
 						
-						// strength status effect
-						if (attacker.hasStatusEffect("Strength", 0, 8)) {
-							let strengthStatusEffect = attacker.statusEffects.find(statusEffect => statusEffect.title.substring(0, 8) === "Strength")
-							dmgDealt *= 1 + (strengthStatusEffect.info.damageIncrease / 100);
+						// attackDamage status effect
+						let damageStatusEffect = attacker.statusEffects.findIndex(statusEffect =>
+							(statusEffect.image === "damageUp" || statusEffect.image === "damageDown") &&
+							statusEffect.info.damageIncrease !== undefined);
+						if (damageStatusEffect !== undefined) {
+							dmgDealt *= 1 + (damageStatusEffect.info.damageIncrease / 100);
 						}
 						
 						if (random(0, 99) < attacker.stats.criticalChance) { // critical hit
@@ -1548,12 +1597,12 @@ class Projectile extends Thing {
 						
 						// poison
 						if (attacker.stats.poisonX > 0 && attacker.stats.poisonY > 0) { // check target weapon has poison
-							Game.statusEffects.poison(attacker.stats.poisonX, attacker.stats.poisonY, to[i][x]);
+							Game.statusEffects.poison(to[i][x], attacker.stats.poisonX, attacker.stats.poisonY);
 						}
 						
 						// flaming
 						if (attacker.stats.flaming > 0) { // check target weapon has flaming
-							Game.statusEffects.fire(attacker.stats.flaming, to[i][x]);
+							Game.statusEffects.fire(to[i][x], attacker.stats.flaming);
 						}
 						
 						// reflection
@@ -1562,8 +1611,8 @@ class Projectile extends Thing {
 						}
 						
 						// stun
-						if (attacker.stats.stun > 0) { // check target weapon has poison
-							Game.statusEffects.stun(attacker.stats.stun, to[i][x]);
+						if (attacker.stats.stun > 0) { // check target weapon has stun
+							Game.statusEffects.stun(to[i][x], attacker.stats.stun);
 						}
 						
 						// re-render the second canvas if the hero has been damaged
@@ -1996,7 +2045,7 @@ Game.removeStatusEffect = function (owner) {
 // give target the poison debuff
 // damage per second = damage / time
 // TBD decide if defence should affect this
-Game.statusEffects.poison = function(damage, time, target) {
+Game.statusEffects.poison = function(target, damage, time) {
 	target.statusEffects.push(new statusEffect({
 		title: "Poisoned",
 		effect: "Take " + damage + " damage over " + time + " seconds.",
@@ -2037,7 +2086,7 @@ Game.statusEffects.poison = function(damage, time, target) {
 }
 
 // give target the fire debuff
-Game.statusEffects.fire = function(tier, target) {
+Game.statusEffects.fire = function(target, tier) {
 	// turn tier into roman numeral (function in dom)
 	tier = romanize(tier);
 	
@@ -2106,7 +2155,7 @@ Game.statusEffects.fire = function(tier, target) {
 }
 
 // give target the stunned debuff
-Game.statusEffects.stun = function(time, target) {
+Game.statusEffects.stun = function(target, time) {
 	// try to find an existing stunned effect of the tier
 	let found = target.statusEffects.findIndex(function(element) {
 		return element.title === ("Stunned");
@@ -2155,32 +2204,28 @@ Game.statusEffects.stun = function(time, target) {
 	}
 }
 
-// give target the strength buff
-Game.statusEffects.strength = function(tier, target) { // you might want to add an optional time parameter in the future (to override the tier's time, i.e. for bosses)
-	// turn tier into roman numeral (function in dom)
-	tier = romanize(tier);
-	
-	// try to find an existing strength effect of the tier
+// give target the attackDamage buff/debuff
+Game.statusEffects.attackDamage = function(target, tier, damageIncrease, time) {
+	// try to find an existing attack damage effect that does the same and has the same name
 	let found = target.statusEffects.findIndex(function(element) {
-		return element.title === ("Strength " + tier);
+		return element.title === effectTitle && element.info.damageIncrease === damageIncrease;
 	});
-		
-	let damageIncrease = 0; // percentage (same damage = 0 damageIncrease)
-	let time = 0;
-	// find what tier does
-	if (tier === "I") {
-		damageIncrease = 40;
-		time = 10;
-	}
-	else {
-		console.error("Strength status effect tier " + tier + " has not been assigned damage increase and time");
-	}
 	
-	if (found === -1) { // no strength effect of that tier currently applied to the target
+	if (found === -1) { // no attackDamage effect of that tier currently applied to the target
+		
+		// effect text
+		let effectText;
+		if (damageIncrease > 0) {
+			effectText = "+";
+		}
+		else {
+			effectText = ""; // no need for 2 '-'s
+		}
+		effectText = effectText + damageIncrease + "% attack damage";
 		
 		target.statusEffects.push(new statusEffect({
-			title: "Strength " + tier,
-			effect: "+" + damageIncrease + "% damage for " + time + " seconds.",
+			title: effectTitle,
+			effect: effectText,
 			info: {
 				damageIncrease: damageIncrease,
 				time: time,
@@ -2203,7 +2248,7 @@ Game.statusEffects.strength = function(tier, target) { // you might want to add 
 					}
 				}
 			},
-			image: "damageUp",
+			image: speedIncrease > 0 ? "damageUp" : "damageDown",
 		}));
 		
 		// begin tick for every second
@@ -2211,7 +2256,7 @@ Game.statusEffects.strength = function(tier, target) { // you might want to add 
 			this.tick(owner);
 		}.bind(target.statusEffects[target.statusEffects.length - 1]), 1000, target);
 	}
-	else if (found !== -1) { // extend existing strength
+	else if (found !== -1) { // extend existing attack damage effect
 		target.statusEffects[found].info.time += time;
 	}
 	
@@ -2221,7 +2266,7 @@ Game.statusEffects.strength = function(tier, target) { // you might want to add 
 }
 
 // give target a walkspeed buff/debuff
-Game.statusEffects.walkSpeed = function(target, effectTitle, speedIncrease, time) { // you might want to add an optional time parameter in the future (to override the tier's time, i.e. for bosses)
+Game.statusEffects.walkSpeed = function(target, effectTitle, speedIncrease, time) {
 	// try to find an existing walkSpeed effect that does the same and has the same name
 	let found = target.statusEffects.findIndex(function(element) {
 		return element.title === effectTitle && element.info.speedIncrease === speedIncrease;
@@ -2272,7 +2317,7 @@ Game.statusEffects.walkSpeed = function(target, effectTitle, speedIncrease, time
 			this.tick(owner);
 		}.bind(target.statusEffects[target.statusEffects.length - 1]), 1000, target);
 	}
-	else if (found !== -1) { // extend existing strength
+	else if (found !== -1) { // extend existing speed
 		target.statusEffects[found].info.time += time;
 	}
 	
@@ -2515,7 +2560,7 @@ Game.loadArea = function (areaName, destination) {
 		
 		// loot area and tier in Player
 		if (this.areaName === "tutorial" || this.areaName === "eaglecrestLoggingCamp" || this.areaName === "nilbog") {
-			Player.lootArea = "Eaglecrest Logging Camp";
+			Player.lootArea = "loggingCamp";
 			Player.lootTier = 1;
 		}
 		

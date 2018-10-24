@@ -1,4 +1,8 @@
-var LootTables = { // loot table templates
+const FishingLevels = {
+	loggingCamp: 10,
+};
+
+const LootTables = { // loot table templates
 	global: [
 		// all enemies have this (for events)
 		{ // ghost sheet
@@ -20,7 +24,7 @@ var LootTables = { // loot table templates
 			item: {
 				name: "unidentified",
 				tier: 1,
-				area: "Eaglecrest Logging Camp",
+				area: "loggingCamp",
 			},
 			chance: [ // number rolled from 0 to 100, and then multiplied by looting (100% default)
 				60,				// 0
@@ -87,7 +91,7 @@ var LootTables = { // loot table templates
 	],
 };
 
-var EnemyTemplates = {
+const EnemyTemplates = {
 	nilbog: {
 		goblinRockthrower: {
 			image: "rockGoblin",
@@ -264,8 +268,6 @@ var Areas = {
 		
 		song_day: "./assets/music/Pippin-the-Hunchback.mp3",
 		song_night: "./assets/music/Pippin-the-Hunchback-night.mp3",
-		
-		waterType: "brackish",
 		
 		checkpoint: false,
 		player: {
@@ -566,8 +568,6 @@ var Areas = {
 		
 		song_day: "./assets/music/Pippin-the-Hunchback.mp3",
 		song_night: "./assets/music/Pippin-the-Hunchback-night.mp3",
-		
-		waterType: "freshwater",
 		
 		checkpoint: true,
 		player: {
@@ -1141,8 +1141,6 @@ var Areas = {
 		
 		song_day: "./assets/music/Pippin-the-Hunchback.mp3",
 		song_night: "./assets/music/Pippin-the-Hunchback-night.mp3",
-		
-		waterType: "freshwater",
 		
 		checkpoint: false,
 		

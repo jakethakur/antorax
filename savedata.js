@@ -1,4 +1,5 @@
-if(sessionStorage.getItem("class") == undefined){ // must be ==
+// go to class select if the user's class has not been selected yet for this session
+if (sessionStorage.getItem("class") == undefined) { // must be ==
 	window.location.replace("./selection.html");
 }
 
@@ -99,4 +100,4 @@ var Player = {
 	statusEffects: [], // updated by saved data / main [function Game.hero.updateStatusEffects()]
 };
 
-LevelXP = [0, 50, 100, 150, 200, 250]; // amount of xp required for next level (current level = array index)
+const LevelXP = [0, 50, 100, 150, 200, 250]; // amount of xp required for next level (current level = array index)

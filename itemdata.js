@@ -26,7 +26,7 @@ var Items = {
 			rarity: "common",
 			sellPrice: 1,
 			obtain: "Find as an unidentified item in Eaglecrest Logging Camp",
-			area: "Eaglecrest Logging Camp",
+			area: "loggingCamp",
 			stats: {
 				defence: "+2",
 			},
@@ -41,7 +41,7 @@ var Items = {
 			sellPrice: 3,
 			lore: "",
 			obtain: "Find as an unidentified item in Eaglecrest Logging Camp",
-			area: "Eaglecrest Logging Camp",
+			area: "loggingCamp",
 			set: 3,
 			stats: {
 				defence: "+3",
@@ -58,7 +58,7 @@ var Items = {
 			sellPrice: 3,
 			lore: "",
 			obtain: "Find as an unidentified item in Eaglecrest Logging Camp",
-			area: "Eaglecrest Logging Camp",
+			area: "loggingCamp",
 			set: 2,
 			stats: {
 				defence: "+3",
@@ -75,7 +75,7 @@ var Items = {
 			sellPrice: 5,
 			lore: "You have no idea how often those mammoth tusks need to be glued back on!",
 			obtain: "Find as an unidentified item in Eaglecrest Logging Camp",
-			area: "Eaglecrest Logging Camp",
+			area: "loggingCamp",
 			stats: {
 				defence: "+3",
 				reflection: "+50%",
@@ -128,7 +128,7 @@ var Items = {
 			rarity: "common",
 			sellPrice: 1,
 			obtain: "Find as an unidentified item in Eaglecrest Logging Camp",
-			area: "Eaglecrest Logging Camp",
+			area: "loggingCamp",
 			stats: {
 				defence: "+3",
 			},
@@ -143,7 +143,7 @@ var Items = {
 			sellPrice: 3,
 			lore: "",
 			obtain: "Find as an unidentified item in Eaglecrest Logging Camp",
-			area: "Eaglecrest Logging Camp",
+			area: "loggingCamp",
 			set: 3,
 			stats: {
 				defence: "+4",
@@ -160,7 +160,7 @@ var Items = {
 			sellPrice: 3,
 			lore: "",
 			obtain: "Find as an unidentified item in Eaglecrest Logging Camp",
-			area: "Eaglecrest Logging Camp",
+			area: "loggingCamp",
 			set: 2,
 			stats: {
 				defence: "+4",
@@ -177,7 +177,7 @@ var Items = {
 			sellPrice: 5,
 			lore: "Legend says the tattered knight is still wandering around shirtless.",
 			obtain: "Find as an unidentified item in Eaglecrest Logging Camp",
-			area: "Eaglecrest Logging Camp",
+			area: "loggingCamp",
 			stats: {
 				defence: "+8",
 				walkSpeed: "-80/s",
@@ -216,7 +216,7 @@ var Items = {
 			costCurrency: 4,
 			lore: "Evil haunted sheet. Also doubles as an evil haunted blanket.",
 			obtain: "Buy from a merchant during the Samhain event",
-			area: "Eaglecrest Logging Camp",
+			area: "loggingCamp",
 			stats: {
 				defence: "+1",
 				dodgeChance: "+40%",
@@ -249,7 +249,7 @@ var Items = {
 			rarity: "common",
 			sellPrice: 1,
 			obtain: "Find as an unidentified item in Eaglecrest Logging Camp",
-			area: "Eaglecrest Logging Camp",
+			area: "loggingCamp",
 			stats: {
 				defence: "+3",
 			},
@@ -264,7 +264,7 @@ var Items = {
 			sellPrice: 3,
 			lore: "",
 			obtain: "Find as an unidentified item in Eaglecrest Logging Camp",
-			area: "Eaglecrest Logging Camp",
+			area: "loggingCamp",
 			set: 3,
 			stats: {
 				defence: "+4",
@@ -281,7 +281,7 @@ var Items = {
 			sellPrice: 3,
 			lore: "",
 			obtain: "Find as an unidentified item in Eaglecrest Logging Camp",
-			area: "Eaglecrest Logging Camp",
+			area: "loggingCamp",
 			set: 2,
 			stats: {
 				defence: "+4",
@@ -298,7 +298,7 @@ var Items = {
 			sellPrice: 5,
 			lore: "You'll find none of those cheap MDF greaves from the Weirwood.",
 			obtain: "Find as an unidentified item in Eaglecrest Logging Camp",
-			area: "Eaglecrest Logging Camp",
+			area: "loggingCamp",
 			stats: {
 				defence: "+4",
 				dodgeChance: "+20%",
@@ -367,7 +367,7 @@ var Items = {
 			rarity: "common",
 			sellPrice: 1,
 			obtain: "Find as an unidentified item in Eaglecrest Logging Camp",
-			area: "Eaglecrest Logging Camp",
+			area: "loggingCamp",
 			stats: {
 				defence: "+2",
 			},
@@ -382,7 +382,7 @@ var Items = {
 			sellPrice: 3,
 			lore: "",
 			obtain: "Find as an unidentified item in Eaglecrest Logging Camp",
-			area: "Eaglecrest Logging Camp",
+			area: "loggingCamp",
 			set: 3,
 			stats: {
 				defence: "+3",
@@ -399,7 +399,7 @@ var Items = {
 			sellPrice: 3,
 			lore: "",
 			obtain: "Find as an unidentified item in Eaglecrest Logging Camp",
-			area: "Eaglecrest Logging Camp",
+			area: "loggingCamp",
 			set: 2,
 			stats: {
 				defence: "+3",
@@ -416,7 +416,7 @@ var Items = {
 			sellPrice: 5,
 			lore: "Marshall Teper's favourite boots. Maybe you could return them for a reward?",
 			obtain: "Find as an unidentified item in Eaglecrest Logging Camp",
-			area: "Eaglecrest Logging Camp",
+			area: "loggingCamp",
 			stats: {
 				defence: "+2",
 				criticalChance: "+10%",
@@ -503,7 +503,7 @@ var Items = {
 			rarity: "common",
 			sellPrice: 1,
 			obtain: "Find as an unidentified item in Eaglecrest Logging Camp",
-			area: "Eaglecrest Logging Camp",
+			area: "loggingCamp",
 			stats: {
 				damage: "3",
 				blockDefence: "+12",
@@ -519,7 +519,7 @@ var Items = {
 			sellPrice: 3,
 			lore: "Your hero power gives this... oh, wrong game.",
 			obtain: "Find as an unidentified item in Eaglecrest Logging Camp",
-			area: "Eaglecrest Logging Camp",
+			area: "loggingCamp",
 			stats: {
 				damage: "3",
 				poison: "1.5/3s",
@@ -536,7 +536,7 @@ var Items = {
 			sellPrice: 3,
 			lore: "It might be falling apart, but those splinters hurt!",
 			obtain: "Find as an unidentified item in Eaglecrest Logging Camp",
-			area: "Eaglecrest Logging Camp",
+			area: "loggingCamp",
 			stats: {
 				damage: "4",
 				criticalChance: "+10%",
@@ -553,7 +553,7 @@ var Items = {
 			sellPrice: 5,
 			lore: "Not to be confused with the hit movie 'Raiders of the Lost Orc'.",
 			obtain: "Find as an unidentified item in Eaglecrest Logging Camp",
-			area: "Eaglecrest Logging Camp",
+			area: "loggingCamp",
 			stats: {
 				damage: "4",
 				stun: "0.5s",
@@ -618,7 +618,7 @@ var Items = {
 			rarity: "common",
 			sellPrice: 1,
 			obtain: "Find as an unidentified item in Eaglecrest Logging Camp",
-			area: "Eaglecrest Logging Camp",
+			area: "loggingCamp",
 			stats: {
 				damage: "3-6",
 			},
@@ -634,7 +634,7 @@ var Items = {
 			sellPrice: 3,
 			lore: "",
 			obtain: "Find as an unidentified item in Eaglecrest Logging Camp",
-			area: "Eaglecrest Logging Camp",
+			area: "loggingCamp",
 			stats: {
 				damage: "3-6",
 				healthRegen: "+0.5/s",
@@ -651,7 +651,7 @@ var Items = {
 			sellPrice: 3,
 			lore: "POWER OVERWHELMING!",
 			obtain: "Find as an unidentified item in Eaglecrest Logging Camp",
-			area: "Eaglecrest Logging Camp",
+			area: "loggingCamp",
 			stats: {
 				damage: "2-7",
 				criticalChance: "+25%",
@@ -668,7 +668,7 @@ var Items = {
 			sellPrice: 5,
 			lore: "",
 			obtain: "Find as an unidentified item in Eaglecrest Logging Camp",
-			area: "Eaglecrest Logging Camp",
+			area: "loggingCamp",
 			stats: {
 				damage: "2-6",
 				looting: "+100%",
@@ -757,7 +757,7 @@ var Items = {
 			rarity: "common",
 			sellPrice: 1,
 			obtain: "Find as an unidentified item in Eaglecrest Logging Camp",
-			area: "Eaglecrest Logging Camp",
+			area: "loggingCamp",
 			stats: {
 				damage: "3",
 			},
@@ -772,7 +772,7 @@ var Items = {
 			sellPrice: 3,
 			lore: "",
 			obtain: "Find as an unidentified item in Eaglecrest Logging Camp",
-			area: "Eaglecrest Logging Camp",
+			area: "loggingCamp",
 			stats: {
 				damage: "3",
 				focusSpeed: "+1/s",
@@ -788,7 +788,7 @@ var Items = {
 			sellPrice: 3,
 			lore: "",
 			obtain: "Find as an unidentified item in Eaglecrest Logging Camp",
-			area: "Eaglecrest Logging Camp",
+			area: "loggingCamp",
 			stats: {
 				damage: "2.5",
 				criticalChance: "+70%",
@@ -804,7 +804,7 @@ var Items = {
 			sellPrice: 5,
 			lore: "",
 			obtain: "Find as an unidentified item in Eaglecrest Logging Camp",
-			area: "Eaglecrest Logging Camp",
+			area: "loggingCamp",
 			stats: {
 				damage: "4",
 				flaming: 1,
@@ -1207,7 +1207,7 @@ var Items = {
 				Dom.inventory.remove(inventoryPosition);
 				
 				// give strength I status effect to player
-				Game.statusEffects.strength(1, Game.hero);
+				Game.statusEffects.attackDamage(Game.hero, "Strength I", 40, 10);
 			}
 		},
 		{
@@ -1275,7 +1275,7 @@ var Items = {
 				switch(effectNumber) {
 					case 0:
 						// give strength I status effect to player
-						Game.statusEffects.strength(1, Game.hero);
+						Game.statusEffects.attackDamage(Game.hero, "Strength I", 40, 10);
 						break;
 					case 1:
 						// give swiftness I status effect to player
@@ -1283,11 +1283,11 @@ var Items = {
 						break;
 					case 2:
 						// give fire I status effect to player
-						Game.statusEffects.fire(1, Game.hero);
+						Game.statusEffects.fire(Game.hero, 1);
 						break;
 					case 3:
 						// deal 50 damage over 10 seconds to the player
-						Game.statusEffects.poison(50, 10, Game.hero);
+						Game.statusEffects.poison(Game.hero, 50, 10);
 						break;
 				}
 			}
@@ -1383,7 +1383,7 @@ var Items = {
 			sellPrice: 1,
 			lore: "",
 			consumption: true,
-			areas: ["Eaglecrest Logging Camp"], // empty = every area
+			areas: ["loggingCamp"], // empty = every area
 			length: {
 				min: 10,
 				avg: 19,
@@ -1400,7 +1400,7 @@ var Items = {
 			sellPrice: 3,
 			lore: "",
 			consumption: true,
-			areas: ["Eaglecrest Logging Camp"], 
+			areas: ["loggingCamp"], 
 			length: {
 				min: 50,
 				avg: 100,
@@ -1418,7 +1418,7 @@ var Items = {
 			sellPrice: 1,
 			lore: "",
 			consumption: true,
-			areas: ["Eaglecrest Logging Camp"],
+			areas: ["loggingCamp"],
 			length: {
 				min: 19,
 				avg: 27,
@@ -1436,7 +1436,7 @@ var Items = {
 			sellPrice: 1,
 			lore: "",
 			consumption: true,
-			areas: ["Eaglecrest Logging Camp"], 
+			areas: ["loggingCamp"], 
 			length: {
 				min: 40,
 				avg: 50,
@@ -1453,7 +1453,7 @@ var Items = {
 			sellPrice: 1,
 			lore: "",
 			consumption: true,
-			areas: ["Eaglecrest Logging Camp"], 
+			areas: ["loggingCamp"], 
 			length: {
 				min: 40,
 				avg: 72,
@@ -1470,7 +1470,7 @@ var Items = {
 			sellPrice: 3,
 			lore: "",
 			consumption: true,
-			areas: ["Eaglecrest Logging Camp"], 
+			areas: ["loggingCamp"], 
 			length: {
 				min: 43,
 				avg: 110,
@@ -1487,7 +1487,7 @@ var Items = {
 			sellPrice: 5,
 			lore: "",
 			consumption: false,
-			areas: ["Eaglecrest Logging Camp"], 
+			areas: ["loggingCamp"], 
 			length: {
 				min: 35,
 				avg: 100,
@@ -1607,7 +1607,7 @@ var Items = {
 			sellPrice: 2,
 			lore: "",
 			consumption: true,
-			areas: ["Eaglecrest Logging Camp"], 
+			areas: ["loggingCamp"], 
 			clicksToCatch: 2,
 			timeToCatch: 750,
 		},
@@ -1730,9 +1730,10 @@ var Items = {
 			sellQuantity: 8,
 			stack: 64,
 			lore: "Has some alchemical uses.",
-			areas: ["Eaglecrest Logging Camp"], 
+			areas: ["loggingCamp"], 
 		},
 		{
+			// blood moon only
 			id: 20,
 			name: "Samhain Zombiefish",
 			fishingType: "fish",
@@ -1740,14 +1741,15 @@ var Items = {
 			image: "assets/items/fish/20.png",
 			rarity: "unique",
 			sellPrice: 3,
-			lore: "",
+			lore: "Its red eyes glisten under the blood moon.",
 			consumption: false,
-			areas: [], // empty = every area
+			areas: [],
 			length: {
 				min: 30,
 				avg: 55,
 				max: 80,
 			},
+			timeRequirement: "bloodMoon",
 		},
 		/*{
 			id: 22,
