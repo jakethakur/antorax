@@ -959,6 +959,7 @@ var Areas = {
 					},
 				],
 				chat: {
+					chooseChat: "Making potions isn't child's play.",
 					notUnlockedRoles: "I've been told you're not a high enough level to handle my potions.",
 					shopGreeting: "Want to buy a potion? Of course you do.",
 					shopLeave: "Side effects? No. Trust me.",

@@ -1207,7 +1207,12 @@ var Items = {
 				Dom.inventory.remove(inventoryPosition);
 				
 				// give strength I status effect to player
-				Game.statusEffects.attackDamage(Game.hero, "Strength I", 40, 10);
+				Game.statusEffects.attackDamage({
+					target: Game.hero,
+					effectTitle: "Strength I",
+					damageIncrease: 40,
+					time: 10,
+				});
 			}
 		},
 		{
@@ -1275,7 +1280,12 @@ var Items = {
 				switch(effectNumber) {
 					case 0:
 						// give strength I status effect to player
-						Game.statusEffects.attackDamage(Game.hero, "Strength I", 40, 10);
+						Game.statusEffects.attackDamage({
+							target: Game.hero,
+							effectTitle: "Strength I",
+							damageIncrease: 40,
+							time: 10,
+						});
 						break;
 					case 1:
 						// give swiftness I status effect to player

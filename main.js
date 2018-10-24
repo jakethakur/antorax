@@ -1320,170 +1320,174 @@ class Hero extends Attacker {
 	
 	// called by fishing bobber timeouts
 	fish () {
-		if (this.fishingBobs < 6 && this.fishingBobs > -1) {
-			// bob fishing bobber every ~1 second
-			this.fishingBobs++;
-			
-			if (random(0, 5) < this.fishingBobs) {
-				// fish caught
+		if (this.channelling === "fishing") {
+			if (this.fishingBobs < 6 && this.fishingBobs > -1) {
+				// bob fishing bobber every ~1 second
+				this.fishingBobs++;
 				
-				// increase fishing skill if the player has a fish bait status effect
-				let fishingSkill = this.stats.fishingSkill;
-				let baitStatusEffectIndex = this.statusEffects.findIndex(statusEffect => statusEffect.title === "Fish bait");
-				if (baitStatusEffectIndex !== -1) { // check if player has a bait status effect
-					fishingSkill += this.statusEffects[baitStatusEffectIndex].info.skillIncrease;
-					this.statusEffects.splice(baitStatusEffectIndex, 1);
-				}
-				
-				// find what rarities the player can fish up
-				// junk is fished up in the proportion not unlocked by common/unique/mythic
-				let raritiesAvailable = [];
-				if (this.stats.fishingSkill >= FishingLevels[Player.lootArea]) {
-					// can fish up commons
-					raritiesAvailable.push("common");
-				}
-				if (this.stats.fishingSkill >= FishingLevels[Player.lootArea] + 15) {
-					// can fish up uniques
-					raritiesAvailable.push("unique");
-				}
-				if (this.stats.fishingSkill >= FishingLevels[Player.lootArea] + 30) {
-					// can fish up mythics
-					raritiesAvailable.push("mythic");
-				}
-				
-				// pick a random rarity from the raritiesAvailable array
-				let randomNum = random(0, 6);
-				let itemRarity = "";
-				if (randomNum === 0) {
-					// 1 in 7 chance for a mythic
-					itemRarity = "mythic";
-				}
-				else if (randomNum < 3) {
-					// 2 in 7 chance for a unique
-					itemRarity = "unique";
-				}
-				else {
-					// 4 in 7 chance for a common
-					itemRarity = "common";
-				}
-				// check if the player has unlocked that rarity, otherwise give them a junk item
-				if (!raritiesAvailable.includes(itemRarity)) {
-					itemRarity = "junk";
-				}
-				
-				// find the fish that should be caught
-				let fish = Items.fish;
-				fish = fish.filter(item => item.areas.includes(Player.lootArea) || item.areas.length === 0); // filter for area
-				if (baitStatusEffectIndex !== -1 &&
-				Player.quests.questProgress.fishCaught === 0 || Player.quests.questProgress.fishCaught === undefined) {
-					// player is using fishing bait but has never caught a fish before
-					// guaranteed common fish!
-					fish = fish.filter(item => item.fishingType === "fish" && item.rarity === "common");
-				}
-				else {
-					fish = fish.filter(item => item.rarity === itemRarity); // filter for rarity (see above)
-				}
-				fish = fish[random(0, fish.length - 1)]; // random fish that fulfils requirements above
-				fish = { ...fish }; // remove all references to itemdata in fish variable (otherwise length value changed in this will also affect itemData)!
-				
-				// calculate time to catch fish and clicks needed for fish
-				// see fish spreadsheet for how this is figured out
-				// should be moved to its own (recursive?) function
-				let clicks = 0;
-				let time = 0; // in ms
-				if (fish.fishingType === "waterjunk") { // junk fishing item (uses different algorithm for clicks and time)
-					clicks = 1;
-					time = 1000;
-				}
-				else if (fish.fishingType === "watermisc") { // misc fishing item (no length, so clicks and time specified in itemdata)
-					clicks = fish.clicksToCatch;
-					time = fish.timeToCatch;
-				}
-				else { // fish
-					// calculate fish length
-					// between min and max; biased towards average
-					let fishLength = damageRound(biasedRandom(fish.length.min, fish.length.max, fish.length.avg, 1));
-					fish.length = fishLength; // replace length object with an integer saying the fish's length
+				if (random(0, 5) < this.fishingBobs) {
+					// fish caught
 					
-					// clicks
-					if (fishLength / 25 >= 4) {
-						clicks += 4;
-						fishLength -= 100;
+					// increase fishing skill if the player has a fish bait status effect
+					let fishingSkill = this.stats.fishingSkill;
+					let baitStatusEffectIndex = this.statusEffects.findIndex(statusEffect => statusEffect.title === "Fish bait");
+					if (baitStatusEffectIndex !== -1) { // check if player has a bait status effect
+						fishingSkill += this.statusEffects[baitStatusEffectIndex].info.skillIncrease;
+						this.statusEffects.splice(baitStatusEffectIndex, 1);
+					}
+					
+					// find what rarities the player can fish up
+					// junk is fished up in the proportion not unlocked by common/unique/mythic
+					let raritiesAvailable = [];
+					if (this.stats.fishingSkill >= FishingLevels[Player.lootArea]) {
+						// can fish up commons
+						raritiesAvailable.push("common");
+					}
+					if (this.stats.fishingSkill >= FishingLevels[Player.lootArea] + 15) {
+						// can fish up uniques
+						raritiesAvailable.push("unique");
+					}
+					if (this.stats.fishingSkill >= FishingLevels[Player.lootArea] + 30) {
+						// can fish up mythics
+						raritiesAvailable.push("mythic");
+					}
+					
+					// pick a random rarity from the raritiesAvailable array
+					let randomNum = random(0, 6);
+					let itemRarity = "";
+					if (randomNum === 0) {
+						// 1 in 7 chance for a mythic
+						itemRarity = "mythic";
+					}
+					else if (randomNum < 3) {
+						// 2 in 7 chance for a unique
+						itemRarity = "unique";
+					}
+					else {
+						// 4 in 7 chance for a common
+						itemRarity = "common";
+					}
+					// check if the player has unlocked that rarity, otherwise give them a junk item
+					if (!raritiesAvailable.includes(itemRarity)) {
+						itemRarity = "junk";
+					}
+					
+					// find the fish that should be caught
+					let fish = Items.fish;
+					fish = fish.filter(item => item.areas.includes(Player.lootArea) || item.areas.length === 0); // filter for area
+					if (baitStatusEffectIndex !== -1 &&
+					Player.quests.questProgress.fishCaught === 0 || Player.quests.questProgress.fishCaught === undefined) {
+						// player is using fishing bait but has never caught a fish before
+						// guaranteed common fish!
+						fish = fish.filter(item => item.fishingType === "fish" && item.rarity === "common");
+					}
+					else {
+						fish = fish.filter(item => item.rarity === itemRarity); // filter for rarity (see above)
+					}
+					fish = fish.filter(item => item.timeRequirement === undefined || Game.time === item.timeRequirement); // filter for time that it can be fished up
+					fish = fish[random(0, fish.length - 1)]; // random fish that fulfils requirements above
+					fish = { ...fish }; // remove all references to itemdata in fish variable (otherwise length value changed in this will also affect itemData)!
+					
+					// calculate time to catch fish and clicks needed for fish
+					// see fish spreadsheet for how this is figured out
+					// should be moved to its own (recursive?) function
+					let clicks = 0;
+					let time = 0; // in ms
+					if (fish.fishingType === "waterjunk") { // junk fishing item (uses different algorithm for clicks and time)
+						clicks = 1;
+						time = 1000;
+					}
+					else if (fish.fishingType === "watermisc") { // misc fishing item (no length, so clicks and time specified in itemdata)
+						clicks = fish.clicksToCatch;
+						time = fish.timeToCatch;
+					}
+					else { // fish
+						// calculate fish length
+						// between min and max; biased towards average
+						let fishLength = damageRound(biasedRandom(fish.length.min, fish.length.max, fish.length.avg, 1));
+						fish.length = fishLength; // replace length object with an integer saying the fish's length
 						
-						if (fishLength / 50 >= 4) {
+						// clicks
+						if (fishLength / 25 >= 4) {
 							clicks += 4;
-							fishLength -= 200;
+							fishLength -= 100;
 							
-							if (fishLength / 75 >= 4) {
+							if (fishLength / 50 >= 4) {
 								clicks += 4;
-								fishLength -= 300;
+								fishLength -= 200;
 								
-								if (fishLength / 100 >= 4) {
+								if (fishLength / 75 >= 4) {
 									clicks += 4;
-									fishLength -= 400;
-									console.error("Fish length " + fish.length + " is not accounted for being so large!");
+									fishLength -= 300;
+									
+									if (fishLength / 100 >= 4) {
+										clicks += 4;
+										fishLength -= 400;
+										console.error("Fish length " + fish.length + " is not accounted for being so large!");
+									}
+									else {
+										clicks += Math.floor(fishLength / 100);
+									}
+									
 								}
 								else {
-									clicks += Math.floor(fishLength / 100);
+									clicks += Math.floor(fishLength / 75);
 								}
 								
 							}
 							else {
-								clicks += Math.floor(fishLength / 75);
+								clicks += Math.floor(fishLength / 50);
 							}
 							
 						}
 						else {
-							clicks += Math.floor(fishLength / 50);
+							clicks += Math.floor(fishLength / 25);
+							if (clicks === 0) {
+								clicks = 1; // clicks needed defaults to 1
+							}
 						}
-						
-					}
-					else {
-						clicks += Math.floor(fishLength / 25);
-						if (clicks === 0) {
-							clicks = 1; // clicks needed defaults to 1
+						// time
+						if (fish.rarity === "common") {
+							time += 500 + 500 * clicks;
+						}
+						if (fish.rarity === "unique") {
+							time += 300 + 300 * clicks;
+						}
+						if (fish.rarity === "mythic") {
+							time += 200 + 200 * clicks;
 						}
 					}
-					// time
-					if (fish.rarity === "common") {
-						time += 500 + 500 * clicks;
-					}
-					if (fish.rarity === "unique") {
-						time += 300 + 300 * clicks;
-					}
-					if (fish.rarity === "mythic") {
-						time += 200 + 200 * clicks;
-					}
+					fish.clicksToCatch = clicks;
+					
+					// fish finished! time for player to fish it up...
+					this.channelling = fish; 
+					this.fishingBobs = 100; // fishingBobs is used to see how many clicks the player has done when it is >= 100
+					
+					Game.projectiles[Game.searchFor(this.channellingProjectileId, Game.projectiles)].imageNumber = 2; // submerged image for projectile
+					
+					// timer for player clicks
+					setTimeout(function (fish) {
+						if (this.channelling === fish) { // fish has not been caught
+							// remove fishing bobber
+							Game.projectiles.splice(Game.searchFor(this.channellingProjectileId, Game.projectiles), 1);
+							this.channelling = false;
+							this.channellingProjectileId = null;
+						}
+					}.bind(this), time, fish);
 				}
-				fish.clicksToCatch = clicks;
-				
-				// fish finished! time for player to fish it up...
-				this.channelling = fish; 
-				this.fishingBobs = 100; // fishingBobs is used to see how many clicks the player has done when it is >= 100
-				
-				Game.projectiles[Game.searchFor(this.channellingProjectileId, Game.projectiles)].imageNumber = 2; // submerged image for projectile
-				
-				// timer for player clicks
-				setTimeout(function (fish) {
-					if (this.channelling === fish) { // fish has not been caught
-						// remove fishing bobber
-						Game.projectiles.splice(Game.searchFor(this.channellingProjectileId, Game.projectiles), 1);
-						this.channelling = false;
-						this.channellingProjectileId = null;
-					}
-				}.bind(this), time, fish);
-			}
-			else {
-				// timer for next bob
-				setTimeout(this.fish.bind(this), random(500, 1500));
-				
-				// tbd make searchFor only need to be run once (for efficiency)
-				Game.projectiles[Game.searchFor(this.channellingProjectileId, Game.projectiles)].imageNumber = 1; // bobbing image for projectile
-				setTimeout(function () {
-					Game.projectiles[Game.searchFor(this.channellingProjectileId, Game.projectiles)].imageNumber = 0; // set image back to normal after 150ms
-				}.bind(this), 200);
+				else {
+					// timer for next bob
+					setTimeout(this.fish.bind(this), random(500, 1500));
+					
+					// tbd make searchFor only need to be run once (for efficiency)
+					Game.projectiles[Game.searchFor(this.channellingProjectileId, Game.projectiles)].imageNumber = 1; // bobbing image for projectile
+					setTimeout(function () {
+						Game.projectiles[Game.searchFor(this.channellingProjectileId, Game.projectiles)].imageNumber = 0; // set image back to normal after 150ms
+					}.bind(this), 200);
+				}
 			}
 		}
+		
 	}
 }
 
@@ -1573,7 +1577,7 @@ class Projectile extends Thing {
 						}
 						
 						// attackDamage status effect
-						let damageStatusEffect = attacker.statusEffects.findIndex(statusEffect =>
+						let damageStatusEffect = attacker.statusEffects.find(statusEffect =>
 							(statusEffect.image === "damageUp" || statusEffect.image === "damageDown") &&
 							statusEffect.info.damageIncrease !== undefined);
 						if (damageStatusEffect !== undefined) {
@@ -2204,42 +2208,49 @@ Game.statusEffects.stun = function(target, time) {
 	}
 }
 
-// give target the attackDamage buff/debuff
-Game.statusEffects.attackDamage = function(target, tier, damageIncrease, time) {
-	// try to find an existing attack damage effect that does the same and has the same name
-	let found = target.statusEffects.findIndex(function(element) {
-		return element.title === effectTitle && element.info.damageIncrease === damageIncrease;
+// give target a buff/debuff
+// properties includes target, effectTitle, effectDescription, increasePropertyName, increasePropertyValue, time, imageName
+Game.statusEffects.generic = function (properties) {
+	// try to find an existing effect that does the same and has the same name
+	let found = properties.target.statusEffects.findIndex(function(element) {
+		return element.title === properties.effectTitle && element.info[properties.increasePropertyName] === properties.increasePropertyValue;
 	});
 	
-	if (found === -1) { // no attackDamage effect of that tier currently applied to the target
+	if (found === -1) { // no similar effect currently applied to the target
 		
 		// effect text
 		let effectText;
-		if (damageIncrease > 0) {
+		if (properties.increasePropertyValue > 0) {
 			effectText = "+";
 		}
 		else {
 			effectText = ""; // no need for 2 '-'s
 		}
-		effectText = effectText + damageIncrease + "% attack damage";
+		effectText = effectText + properties.increasePropertyValue + properties.effectDescription; // effectDescription example: "% attack damage"
 		
-		target.statusEffects.push(new statusEffect({
-			title: effectTitle,
+		properties.target.statusEffects.push(new statusEffect({
+			title: properties.effectTitle,
 			effect: effectText,
 			info: {
-				damageIncrease: damageIncrease,
-				time: time,
+				time: properties.time,
 				ticks: 0, // increased by 1 every second
 			},
-			tick: function (owner) { // decrease time
+			tick: function (owner, timeTicked) { // decrease time
 				if (damageRound(this.info.ticks) < this.info.time) { // check effect has not expired 
-					this.info.ticks++;
+					this.info.ticks += timeTicked / 1000; // timeTicked is in ms
 					if (owner.constructor.name === "Hero") { // refresh canvas status effects if the status effect was applied to player
 						Game.hero.updateStatusEffects();
 					}
+					// calculate next tick time
+					let nextTickTime = 1000;
+					if (this.info.time - this.info.ticks <= 1) {
+						// faster tick if effect is approaching its end
+						let nextTickTime = 200;
+					}
 					setTimeout(function (owner) {
-						this.tick(owner);
-					}.bind(this), 1000, owner);
+						// nextTickTime is timeTicked
+						this.tick(owner, nextTickTime);
+					}.bind(this), nextTickTime, owner, nextTickTime);
 				}
 				else { // remove effect interval
 					Game.removeStatusEffect(owner);
@@ -2248,21 +2259,46 @@ Game.statusEffects.attackDamage = function(target, tier, damageIncrease, time) {
 					}
 				}
 			},
-			image: speedIncrease > 0 ? "damageUp" : "damageDown",
+			image: properties.imageName,
 		}));
 		
-		// begin tick for every second
+		properties.target.statusEffects[properties.target.statusEffects.length - 1].info[properties.increasePropertyName] = properties.increasePropertyValue; // set the property of the status effect that does stuff
+		
+		// calculate next tick time
+		let nextTickTime = 1000;
+		if (properties.time <= 1) {
+			// faster tick if effect is approaching its end
+			let nextTickTime = 200;
+		}
+		// begin tick
 		setTimeout(function (owner) {
-			this.tick(owner);
-		}.bind(target.statusEffects[target.statusEffects.length - 1]), 1000, target);
+			// nextTickTime is timeTicked
+			this.tick(owner, nextTickTime);
+		}.bind(properties.target.statusEffects[properties.target.statusEffects.length - 1]), nextTickTime, properties.target, nextTickTime);
 	}
 	else if (found !== -1) { // extend existing attack damage effect
-		target.statusEffects[found].info.time += time;
+		properties.target.statusEffects[found].info.time += properties.time;
 	}
 	
-	if (target.constructor.name === "Hero") { // refresh canvas status effects if the status effect was applied to player
+	if (properties.target.constructor.name === "Hero") { // refresh canvas status effects if the status effect was applied to player
 		Game.hero.updateStatusEffects();
 	}
+}
+
+// give target the attackDamage buff/debuff
+// properties includes target, effectTitle, damageIncrease, time
+Game.statusEffects.attackDamage = function (properties) {
+	let newProperties = properties;
+	newProperties.effectDescription = "% attack damage";
+	newProperties.increasePropertyName = "damageIncrease";
+	newProperties.increasePropertyValue = properties.damageIncrease;
+	if (properties.damageIncrease > 0) {
+		newProperties.imageName = "damageUp";
+	}
+	else {
+		newProperties.imageName = "damageDown";
+	}
+	this.generic(newProperties)
 }
 
 // give target a walkspeed buff/debuff
