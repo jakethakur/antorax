@@ -806,6 +806,18 @@ Dom.inventory.displayInformation = function(item, stacked, position){
 	}
 }
 
+// removes one charge from an item given the inventory position of it
+// then removes the item if it has run out of charges
+Dom.inventory.removeItemCharge = function (inventoryPosition) {
+	Player.inventory.items[inventoryPosition].charges--;
+	if (Player.inventory.items[inventoryPosition].charges <= 0) {
+		// the item now has no more charges left; remove it
+		this.remove(inventoryPosition);
+	}
+	// update DOM display information to refect new amount of item charges
+	this.displayInformation(Player.inventory.items[inventoryPosition]);
+}
+
 Dom.currentlyDisplayed = ""; // the currently displayed quest, merchant, etc. (any pop up)
 Dom.quest.start = function(quest){ // display quest start page
 	if(Dom.changeBook("questStart", true/*false*/, undefined, true)) { // display quest start page

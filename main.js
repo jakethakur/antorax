@@ -2213,20 +2213,28 @@ Game.statusEffects.stun = function(target, time) {
 Game.statusEffects.generic = function (properties) {
 	// try to find an existing effect that does the same and has the same name
 	let found = properties.target.statusEffects.findIndex(function(element) {
-		return element.title === properties.effectTitle && element.info[properties.increasePropertyName] === properties.increasePropertyValue;
+		return element.title === properties.effectTitle &&
+		increasePropertyName === undefined || element.info[properties.increasePropertyName] === properties.increasePropertyValue;
 	});
 	
 	if (found === -1) { // no similar effect currently applied to the target
 		
 		// effect text
 		let effectText;
-		if (properties.increasePropertyValue > 0) {
-			effectText = "+";
+		if (properties.increasePropertyValue !== undefined) {
+			// effect text should be about a specific property being increased
+			if (properties.increasePropertyValue > 0) {
+				effectText = "+";
+			}
+			else {
+				effectText = ""; // no need for 2 '-'s
+			}
+			effectText = effectText + properties.increasePropertyValue + properties.effectDescription; // effectDescription example: "% attack damage"
 		}
 		else {
-			effectText = ""; // no need for 2 '-'s
+			// no specific property is increased - allow the effectDescription to be completely chosen
+			effectText = properties.effectDescription; // effectDescription example: "Unable to move"
 		}
-		effectText = effectText + properties.increasePropertyValue + properties.effectDescription; // effectDescription example: "% attack damage"
 		
 		properties.target.statusEffects.push(new statusEffect({
 			title: properties.effectTitle,
@@ -2243,7 +2251,7 @@ Game.statusEffects.generic = function (properties) {
 					}
 					// calculate next tick time
 					let nextTickTime = 1000;
-					if (this.info.time - this.info.ticks <= 1) {
+					if (this.info.time - this.info.ticks <= 2) {
 						// faster tick if effect is approaching its end
 						let nextTickTime = 200;
 					}
@@ -2253,6 +2261,7 @@ Game.statusEffects.generic = function (properties) {
 					}.bind(this), nextTickTime, owner, nextTickTime);
 				}
 				else { // remove effect interval
+					// remove effect
 					Game.removeStatusEffect(owner);
 					if (owner.constructor.name === "Hero") { // refresh canvas status effects if the status effect was applied to player
 						Game.hero.updateStatusEffects();
@@ -2262,11 +2271,15 @@ Game.statusEffects.generic = function (properties) {
 			image: properties.imageName,
 		}));
 		
-		properties.target.statusEffects[properties.target.statusEffects.length - 1].info[properties.increasePropertyName] = properties.increasePropertyValue; // set the property of the status effect that does stuff
+		// check if the status effect has an increaseProperty
+		if (properties.increasePropertyName !== undefined) {
+			// set the property of the status effect that says the increased stat
+			properties.target.statusEffects[properties.target.statusEffects.length - 1].info[properties.increasePropertyName] = properties.increasePropertyValue;
+		}
 		
 		// calculate next tick time
 		let nextTickTime = 1000;
-		if (properties.time <= 1) {
+		if (properties.time <= 2) {
 			// faster tick if effect is approaching its end
 			let nextTickTime = 200;
 		}
@@ -2276,7 +2289,7 @@ Game.statusEffects.generic = function (properties) {
 			this.tick(owner, nextTickTime);
 		}.bind(properties.target.statusEffects[properties.target.statusEffects.length - 1]), nextTickTime, properties.target, nextTickTime);
 	}
-	else if (found !== -1) { // extend existing attack damage effect
+	else if (found !== -1) { // extend existing status effect
 		properties.target.statusEffects[found].info.time += properties.time;
 	}
 	
@@ -2289,7 +2302,7 @@ Game.statusEffects.generic = function (properties) {
 // properties includes target, effectTitle, damageIncrease, time
 Game.statusEffects.attackDamage = function (properties) {
 	let newProperties = properties;
-	newProperties.effectDescription = "% attack damage";
+	newProperties.effectDescription = properties.effectDescription || "% attack damage";
 	newProperties.increasePropertyName = "damageIncrease";
 	newProperties.increasePropertyValue = properties.damageIncrease;
 	if (properties.damageIncrease > 0) {
@@ -2298,68 +2311,23 @@ Game.statusEffects.attackDamage = function (properties) {
 	else {
 		newProperties.imageName = "damageDown";
 	}
-	this.generic(newProperties)
+	this.generic(newProperties);
 }
 
 // give target a walkspeed buff/debuff
-Game.statusEffects.walkSpeed = function(target, effectTitle, speedIncrease, time) {
-	// try to find an existing walkSpeed effect that does the same and has the same name
-	let found = target.statusEffects.findIndex(function(element) {
-		return element.title === effectTitle && element.info.speedIncrease === speedIncrease;
-	});
-	
-	if (found === -1) { // no walkSpeed effect of that tier currently applied to the target
-		
-		// effect text
-		let effectText;
-		if (speedIncrease > 0) {
-			effectText = "+";
-		}
-		else {
-			effectText = ""; // no need for 2 '-'s
-		}
-		effectText = effectText + speedIncrease + "% walk speed";
-		
-		target.statusEffects.push(new statusEffect({
-			title: effectTitle,
-			effect: effectText,
-			info: {
-				speedIncrease: speedIncrease,
-				time: time,
-				ticks: 0, // increased by 1 every second
-			},
-			tick: function (owner) { // decrease time
-				if (damageRound(this.info.ticks) < this.info.time) { // check effect has not expired 
-					this.info.ticks++;
-					if (owner.constructor.name === "Hero") { // refresh canvas status effects if the status effect was applied to player
-						Game.hero.updateStatusEffects();
-					}
-					setTimeout(function (owner) {
-						this.tick(owner);
-					}.bind(this), 1000, owner);
-				}
-				else { // remove effect interval
-					Game.removeStatusEffect(owner);
-					if (owner.constructor.name === "Hero") { // refresh canvas status effects if the status effect was applied to player
-						Game.hero.updateStatusEffects();
-					}
-				}
-			},
-			image: speedIncrease > 0 ? "speedUp" : "speedDown",
-		}));
-		
-		// begin tick for every second
-		setTimeout(function (owner) {
-			this.tick(owner);
-		}.bind(target.statusEffects[target.statusEffects.length - 1]), 1000, target);
+// properties includes target, effectTitle, speedIncrease, time
+Game.statusEffects.walkSpeed = function(properties) {
+	let newProperties = properties;
+	newProperties.effectDescription = properties.effectDescription || "% walk speed";
+	newProperties.increasePropertyName = "speedIncrease";
+	newProperties.increasePropertyValue = properties.speedIncrease;
+	if (properties.speedIncrease > 0) {
+		newProperties.imageName = "speedUp";
 	}
-	else if (found !== -1) { // extend existing speed
-		target.statusEffects[found].info.time += time;
+	else {
+		newProperties.imageName = "speedDown";
 	}
-	
-	if (target.constructor.name === "Hero") { // refresh canvas status effects if the status effect was applied to player
-		Game.hero.updateStatusEffects();
-	}
+	this.generic(newProperties);
 }
 
 //
@@ -2668,6 +2636,9 @@ Game.init = function () {
 		// projectile (TBD)
 		projectile: {},
 	});
+	
+	// set player projectile
+	this.projectileUpdate();
 	
 	// set loaded status image
 	this.statusImage = Loader.getImage("status");

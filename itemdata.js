@@ -577,6 +577,8 @@ var Items = {
 				damage: "3",
 				lifesteal: "25%",
 			},
+			projectile: "bloodSlash",
+			projectileAdjust: {x: 20, y: 20},
 		},
 	],
 	staff: [
@@ -713,9 +715,16 @@ var Items = {
 			},
 			onKill: function () {
 				// give speed to player
-				Game.statusEffects.walkSpeed(Game.hero, "Soul Rush", 100, 2);
+				Game.statusEffects.walkSpeed({
+					target: Game.hero,
+					effectTitle: "Soul Rush",
+					speedIncrease: 100,
+					time: 2,
+				});
 			},
-			functionText: "Gives +100% walk speed for 2 seconds when an enemy is killed"
+			functionText: "Gives +100% walk speed for 2 seconds when an enemy is killed",
+			projectile: "fireballGreen",
+			projectileAdjust: {x: 20, y: 20},
 		},
 	],
 	bow: [
@@ -827,9 +836,16 @@ var Items = {
 			},
 			onAttack: function (enemy) {
 				// give slowness to enemy
-				Game.statusEffects.walkSpeed(enemy, "Webbed Up", -50, 1);
+				Game.statusEffects.walkSpeed({
+					target: enemy,
+					effectTitle: "Webbed Up",
+					speedIncrease: -50,
+					time: 1,
+				});
 			},
-			functionText: "Gives -50% walk speed to attacked enemies for 1 second"
+			functionText: "Gives -50% walk speed to attacked enemies for 1 second",
+			projectile: "arrowOrange",
+			projectileAdjust: {x: 20, y: 20},
 		},
 	],
 	rod: [ // fishing rod
@@ -1228,7 +1244,12 @@ var Items = {
 				Dom.inventory.remove(inventoryPosition);
 				
 				// give swiftness I status effect to player
-				Game.statusEffects.walkSpeed(Game.hero, "Swiftness I", 35, 20);
+				Game.statusEffects.walkSpeed({
+					target: Game.hero,
+					effectTitle: "Swiftness I",
+					speedIncrease: 35,
+					time: 20,
+				});
 			}
 		},
 		{
@@ -1289,7 +1310,12 @@ var Items = {
 						break;
 					case 1:
 						// give swiftness I status effect to player
-						Game.statusEffects.walkSpeed(Game.hero, "Swiftness I", 35, 20);
+						Game.statusEffects.walkSpeed({
+							target: Game.hero,
+							effectTitle: "Swiftness I",
+							damageIncrease: 35,
+							time: 20,
+						});
 						break;
 					case 2:
 						// give fire I status effect to player
@@ -1346,13 +1372,10 @@ var Items = {
 			onClickText: "Gives you +20 fishing skill for your next fishing attempt",
 			charges: 3,
 			onClick: function (inventoryPosition) {
+				// remove one charge from the item
+				Dom.inventory.removeItemCharge(inventoryPosition);
+				
 				if (!Game.hero.hasStatusEffect("Fish bait")) { // player does not have an existing status effect from the same item
-					// remove one charge from the item
-					Player.inventory.items[inventoryPosition].charges--;
-					if (Player.inventory.items[inventoryPosition].charges <= 0) {
-						Dom.inventory.remove(inventoryPosition);
-					}
-					Dom.inventory.displayInformation(Player.inventory.items[inventoryPosition]);
 					// give fish bait status effect
 					Game.hero.statusEffects.push(new statusEffect({
 						title: "Fish bait",
@@ -1363,6 +1386,7 @@ var Items = {
 					}));
 					// give quest progress for "learning to fish II"
 					Player.quests.questProgress.hasUsedBait = true;
+					// ??? PG
 					Dom.expand("information");
 				}
 			}
@@ -1377,7 +1401,39 @@ var Items = {
 			onClickText: "Gives you a random spooky status effect",
 			charges: 3,
 			onClick: function (inventoryPosition) {
+				// remove one charge from the item
+				Dom.inventory.removeItemCharge(inventoryPosition);
 				
+				// spooky status effect...
+				/*let effectNumber = random(0, 2);
+				switch(effectNumber) {
+					case 0:
+						// give +100% lifesteal to the player for 15s
+						Game.statusEffects.lifesteal({
+							target: Game.hero,
+							effectTitle: "Vampiric Touch",
+							lifestealIncrease: 100,
+							time: 15,
+						});
+						break;
+					case 1:
+						// give swiftness I status effect to player
+						Game.statusEffects.walkSpeed({
+							target: Game.hero,
+							effectTitle: "Swiftness I",
+							speedIncrease: 35,
+							time: 20,
+						});
+						break;
+					case 2:
+						// give fire I status effect to player
+						Game.statusEffects.fire(Game.hero, 1);
+						break;
+					case 3:
+						// deal 50 damage over 10 seconds to the player
+						Game.statusEffects.poison(Game.hero, 50, 10);
+						break;
+				}*/
 			},
 			lore: "Stick your hand in, just like your ancestors once did!",
 		},
