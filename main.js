@@ -549,6 +549,7 @@ class Character extends Thing {
 		// using || defaults to second value if first is undefined, 0 or ""
 		this.stats.dodgeChance = properties.stats.dodgeChance || 0;
 		this.stats.reflection = properties.stats.reflection || 0;
+		this.stats.stealthed = properties.stats.stealthed || false; // can't be seen
 		
 		this.chat = properties.chat || {}; // object containing properties that are inserted into chat when specific things happen
 		/* examples of chat properties:
@@ -915,7 +916,8 @@ class Hero extends Attacker {
 			}
 		}
 		else if (slowTile === "mud") { // in mud tile
-			// currently mud goes the same speed as swimSpeed
+			// currently mud goes the same speed as swimSpeedtile
+			this.speed = this.stats.swimSpeed;
 			if(!this.hasStatusEffect("Stuck in the mud")) { // give status effect if the player doesn't already have it
 				this.speed = this.stats.swimSpeed;
 				this.statusEffects.push(new statusEffect({
@@ -931,12 +933,12 @@ class Hero extends Attacker {
 		}
 		
 		// speed status effect (can be buff or debuff)
-		let speedStatusEffect = this.statusEffects.find(statusEffect =>
-			(statusEffect.image === "speedUp" || statusEffect.image === "speedDown") &&
-			statusEffect.info.speedIncrease !== undefined);
-		if (speedStatusEffect !== undefined) {
-			this.speed *= 1 + (speedStatusEffect.info.speedIncrease / 100);
-		}
+		this.statusEffects.forEach(statusEffect => {
+			if (statusEffect.info !== undefined && statusEffect.info.speedIncrease !== undefined) {
+				// increase speed if the status effect does so
+				this.speed *= 1 + (statusEffect.info.speedIncrease / 100);
+			}
+		});
 		
 		if (!collision) { return; }
 
@@ -1577,12 +1579,12 @@ class Projectile extends Thing {
 						}
 						
 						// attackDamage status effect
-						let damageStatusEffect = attacker.statusEffects.find(statusEffect =>
-							(statusEffect.image === "damageUp" || statusEffect.image === "damageDown") &&
-							statusEffect.info.damageIncrease !== undefined);
-						if (damageStatusEffect !== undefined) {
-							dmgDealt *= 1 + (damageStatusEffect.info.damageIncrease / 100);
-						}
+						attacker.statusEffects.forEach(statusEffect => {
+							if (statusEffect.info !== undefined && statusEffect.info.damageIncrease !== undefined) {
+								// increase damage dealt if the status effect does so
+								dmgDealt *= 1 + (statusEffect.info.damageIncrease / 100);
+							}
+						});
 						
 						if (random(0, 99) < attacker.stats.criticalChance) { // critical hit
 							dmgDealt *= 2
@@ -1595,7 +1597,16 @@ class Projectile extends Thing {
 						}
 						
 						// lifesteal
-						if (attacker.stats.lifesteal > 0) {
+						let lifestealPercentage = attacker.stats.lifesteal;
+						// check for status effects that increase lifesteal
+						attacker.statusEffects.forEach(statusEffect => {
+							if (statusEffect.info !== undefined && statusEffect.info.lifestealIncrease !== undefined) {
+								// increase lifesteal percentage if the status effect does so
+								lifestealPercentage += statusEffect.info.lifestealIncrease;
+							}
+						});
+						// do lifesteal stuff
+						if (lifestealPercentage > 0) {
 							Game.restoreHealth(attacker, dmgDealt * (attacker.stats.lifesteal / 100));
 						}
 						
@@ -1618,6 +1629,9 @@ class Projectile extends Thing {
 						if (attacker.stats.stun > 0) { // check target weapon has stun
 							Game.statusEffects.stun(to[i][x], attacker.stats.stun);
 						}
+						
+						// spread any curse status effects
+						Game.spreadCurse(attacker, to[i][x])
 						
 						// re-render the second canvas if the hero has been damaged
 						if (to[i][x] == Game.hero) {
@@ -1642,6 +1656,17 @@ class Projectile extends Thing {
 							else if (to[i][x].health < to[i][x].stats.maxHealth && typeof to[i][x].chat.firstDamaged !== "undefined") { // first damaged chat message
 								to[i][x].say(to[i][x].chat.firstDamaged, true, 0, false);
 							}
+						}
+						
+						// remove attacker's stealth
+						if (attacker.stats.stealthed) {
+							attacker.stats.stealthed = false;
+							Game.removeStealthEffects(attacker);
+						}
+						// remove target's stealth
+						if (to[i][x].stats.stealthed) {
+							to[i][x].stats.stealthed = false;
+							Game.removeStealthEffects(to[i][x]);
 						}
 					}
 					Dom.quests.active();
@@ -1817,7 +1842,9 @@ class Enemy extends Attacker {
 	
 	update (delta) {
 		// perhaps condense into hostile and passive ai functions (that also apply to things like villagers)?
-		if (distance(this, Game.hero) < this.stats.range) { // enemy should attack hero
+		if (distance(this, Game.hero) < this.stats.range && // hero is within range
+		(!Game.hero.stats.stealthed || this.isTouching(Game.hero))) { // hero is not stealthed OR they are and you are touching them
+			// enemy should attack hero
 			if (this.canAttack) { // projectile can be shot
 				this.shoot([[Game.hero],]);
 			}
@@ -1825,7 +1852,10 @@ class Enemy extends Attacker {
 		else if (distance(this, Game.hero) > this.leashRadius) { // enemy should move passively
 			// passive movement within given (to be given...) boundaries...
 		}
-		else if (distance(this, Game.hero) < this.leashRadius && distance(this, Game.hero) > this.stats.range) { // enemy should move towards hero
+		else if (distance(this, Game.hero) < this.leashRadius && // not outside of leashRadius from hero
+		distance(this, Game.hero) > this.stats.range && // can't yet attack hero
+		!Game.hero.stats.stealthed) { // hero is not stealthed
+			// enemy should move towards hero
 			this.move(delta, Game.hero);
 		}
 		// add spell cast
@@ -1840,12 +1870,12 @@ class Enemy extends Attacker {
 			// figure out speed
 			let speed = this.speed;
 			// speed status effect (can be buff or debuff)
-			let speedStatusEffect = this.statusEffects.find(statusEffect =>
-				(statusEffect.image === "speedUp" || statusEffect.image === "speedDown") &&
-				statusEffect.info.speedIncrease !== undefined);
-			if (speedStatusEffect !== undefined) {
-				speed *= 1 + (speedStatusEffect.info.speedIncrease / 100);
-			}
+			this.statusEffects.forEach(statusEffect => {
+				if (statusEffect.info !== undefined && statusEffect.info.speedIncrease !== undefined) {
+					// increase speed if the status effect does so
+					speed *= 1 + (statusEffect.info.speedIncrease / 100);
+				}
+			});
 			
 			this.bearing = bearing(this, towards); // update bearing (maybe doesn't need to be done every tick?)
 			this.x += Math.cos(this.bearing) * speed * delta;
@@ -2033,16 +2063,51 @@ function statusEffect(properties) {
 // check through owner's status effects to see which can be removed (due to having expired)
 // called by a status effect's own tick function
 // might need to be reworked (tbd)
+// tbd rework to be like Game.removeStealthEffects
 Game.removeStatusEffect = function (owner) {
 	for (let i = 0; i < owner.statusEffects.length; i++) { // iterate through owner's status effects
 		if (typeof owner.statusEffects[i].info !== "undefined") {
-			if (typeof owner.statusEffects[i].info.time !== "undefined" && typeof owner.statusEffects[i].info.ticks !== "undefined") { // check that the status effect can expire
-				if (owner.statusEffects[i].info.ticks >= owner.statusEffects[i].info.time) { // check if it has expired
+			// check that the status effect can expire
+			if (typeof owner.statusEffects[i].info.time !== "undefined" && typeof owner.statusEffects[i].info.ticks !== "undefined") {
+				// check if it has expired
+				if (owner.statusEffects[i].info.ticks >= owner.statusEffects[i].info.time) {
 					owner.statusEffects.splice(i, 1); // remove it
 					i--;
 				}
 			}
 		}
+	}
+	// refresh canvas status effects if the status effect was applied to player
+	if (owner.constructor.name === "Hero") {
+		Game.hero.updateStatusEffects();
+	}
+}
+
+// remove stealth status effect once stealth has expired elsewhere (this function is called when stealth expires)
+Game.removeStealthEffects = function (owner) {
+	if (!owner.stats.stealthed) { // confirm owner is not stealthed
+		// remove all stealth status effects
+		owner.statusEffects = owner.statusEffects.filter(statusEffect => statusEffect.info !== undefined && statusEffect.info.stealth !== true);
+		// refresh canvas status effects if the status effect was applied to player
+		if (owner.constructor.name === "Hero") {
+			Game.hero.updateStatusEffects();
+		}
+	}
+}
+
+// spread any curse status effects to attacked enemy (victim)
+Game.spreadCurse = function (attacker, victim) {
+	let index = -2; // placeholder
+	while (index !== -1) { // repeat until there are no more curse status effects
+		index = attacker.statusEffects.findIndex(statusEffect => statusEffect.info !== undefined && statusEffect.info.curse === true); // find a curse effect
+		if (index >= 0) { // if an effect was found...
+			victim.statusEffects.push(attacker.statusEffects[index]); // give the status effect to the victim
+			attacker.statusEffects.splice(index, 1); // remove the status effect from the attacker
+		}
+	}
+	// refresh canvas status effects if anything happened to the player
+	if (attacker.constructor.name === "Hero" || victim.constructor.name === "Hero") {
+		Game.hero.updateStatusEffects();
 	}
 }
 
@@ -2071,9 +2136,6 @@ Game.statusEffects.poison = function(target, damage, time) {
 			}
 			else { // remove poison interval
 				Game.removeStatusEffect(owner);
-				if (owner.constructor.name === "Hero") { // refresh canvas status effects if the status effect was applied to player
-					Game.hero.updateStatusEffects();
-				}
 			}
 		},
 		image: "poison",
@@ -2136,9 +2198,6 @@ Game.statusEffects.fire = function(target, tier) {
 				}
 				else { // remove effect interval
 					Game.removeStatusEffect(owner);
-					if (owner.constructor.name === "Hero") { // refresh canvas status effects if the status effect was applied to player
-						Game.hero.updateStatusEffects();
-					}
 				}
 			},
 			image: "fire",
@@ -2186,9 +2245,6 @@ Game.statusEffects.stun = function(target, time) {
 				}
 				else { // remove effect interval
 					Game.removeStatusEffect(owner);
-					if (owner.constructor.name === "Hero") { // refresh canvas status effects if the status effect was applied to player
-						Game.hero.updateStatusEffects();
-					}
 				}
 			},
 			image: "stunned",
@@ -2209,19 +2265,19 @@ Game.statusEffects.stun = function(target, time) {
 }
 
 // give target a buff/debuff
-// properties includes target, effectTitle, effectDescription, increasePropertyName, increasePropertyValue, time, imageName
+// properties includes target, effectTitle, effectDescription, increasePropertyName(optional), increasePropertyValue(optional), time(optional), imageName, onExpire(optional)
 Game.statusEffects.generic = function (properties) {
 	// try to find an existing effect that does the same and has the same name
 	let found = properties.target.statusEffects.findIndex(function(element) {
 		return element.title === properties.effectTitle &&
-		increasePropertyName === undefined || element.info[properties.increasePropertyName] === properties.increasePropertyValue;
+		properties.increasePropertyName === undefined || element.info[properties.increasePropertyName] === properties.increasePropertyValue;
 	});
 	
 	if (found === -1) { // no similar effect currently applied to the target
 		
 		// effect text
 		let effectText;
-		if (properties.increasePropertyValue !== undefined) {
+		if (typeof properties.increasePropertyValue === "number") {
 			// effect text should be about a specific property being increased
 			if (properties.increasePropertyValue > 0) {
 				effectText = "+";
@@ -2240,10 +2296,31 @@ Game.statusEffects.generic = function (properties) {
 			title: properties.effectTitle,
 			effect: effectText,
 			info: {
-				time: properties.time,
-				ticks: 0, // increased by 1 every second
+				curse: properties.curse ? true : false, // spread on to enemies on attack
 			},
-			tick: function (owner, timeTicked) { // decrease time
+			image: properties.imageName,
+		}));
+		
+		// the status effect that was just added
+		// "bound" to the original status effect - if this is editied, it is as well
+		let addedStatusEffect = properties.target.statusEffects[properties.target.statusEffects.length - 1];
+		
+		// check if the status effect has an increaseProperty
+		if (properties.increasePropertyName !== undefined) {
+			// set the property of the status effect that says the increased stat
+			addedStatusEffect.info[properties.increasePropertyName] = properties.increasePropertyValue;
+		}
+		
+		if (properties.time !== undefined) {
+			// timed status effect
+			
+			// add time properties
+			addedStatusEffect.info.time = properties.time;
+			addedStatusEffect.info.ticks = 0;
+			if (properties.onExpire !== undefined) {			
+				addedStatusEffect.onExpire = properties.onExpire.bind(addedStatusEffect);
+			}
+			addedStatusEffect.tick = function (owner, timeTicked) { // decrease time
 				if (damageRound(this.info.ticks) < this.info.time) { // check effect has not expired 
 					this.info.ticks += timeTicked / 1000; // timeTicked is in ms
 					if (owner.constructor.name === "Hero") { // refresh canvas status effects if the status effect was applied to player
@@ -2263,31 +2340,27 @@ Game.statusEffects.generic = function (properties) {
 				else { // remove effect interval
 					// remove effect
 					Game.removeStatusEffect(owner);
-					if (owner.constructor.name === "Hero") { // refresh canvas status effects if the status effect was applied to player
-						Game.hero.updateStatusEffects();
+					// call onExpire function if it exists
+					if (this.onExpire !== undefined) {
+						this.onExpire();
 					}
 				}
-			},
-			image: properties.imageName,
-		}));
+			};
+			
+			// calculate next tick time
+			let nextTickTime = 1000;
+			if (properties.time <= 2) {
+				// faster tick if effect is approaching its end
+				let nextTickTime = 200;
+			}
+			
+			// begin tick
+			setTimeout(function (owner) {
+				// nextTickTime is timeTicked
+				this.tick(owner, nextTickTime);
+			}.bind(addedStatusEffect), nextTickTime, properties.target, nextTickTime);
 		
-		// check if the status effect has an increaseProperty
-		if (properties.increasePropertyName !== undefined) {
-			// set the property of the status effect that says the increased stat
-			properties.target.statusEffects[properties.target.statusEffects.length - 1].info[properties.increasePropertyName] = properties.increasePropertyValue;
 		}
-		
-		// calculate next tick time
-		let nextTickTime = 1000;
-		if (properties.time <= 2) {
-			// faster tick if effect is approaching its end
-			let nextTickTime = 200;
-		}
-		// begin tick
-		setTimeout(function (owner) {
-			// nextTickTime is timeTicked
-			this.tick(owner, nextTickTime);
-		}.bind(properties.target.statusEffects[properties.target.statusEffects.length - 1]), nextTickTime, properties.target, nextTickTime);
 	}
 	else if (found !== -1) { // extend existing status effect
 		properties.target.statusEffects[found].info.time += properties.time;
@@ -2327,6 +2400,40 @@ Game.statusEffects.walkSpeed = function(properties) {
 	else {
 		newProperties.imageName = "speedDown";
 	}
+	this.generic(newProperties);
+}
+
+// give target a lifesteal buff
+// properties includes target, effectTitle, lifestealIncrease, time
+Game.statusEffects.lifesteal = function(properties) {
+	let newProperties = properties;
+	newProperties.effectDescription = properties.effectDescription || "% lifesteal";
+	newProperties.increasePropertyName = "lifestealIncrease";
+	newProperties.increasePropertyValue = properties.lifestealIncrease;
+	newProperties.imageName = "lifesteal";
+	this.generic(newProperties);
+}
+
+// give target a stealth buff
+// properties includes target, effectTitle, time(optional)
+Game.statusEffects.stealth = function(properties) {
+	let newProperties = properties;
+	newProperties.effectDescription = "Cannot be seen by enemies until attack";
+	newProperties.increasePropertyName = "stealth";
+	newProperties.increasePropertyValue = true;
+	newProperties.imageName = "stealth";
+	if (properties.time !== undefined) {
+		// if it is a timed stealth effect, make sure to remove the stealth when it expires
+		newProperties.onExpire = function () {
+			// remove stealth effect
+			this.target.stats.stealth = false;
+			Game.removeStealthEffects(this.target);
+		}
+		// note that onExpire is bound to the status effect (this = statusEffect)
+	}
+	// give target stealth
+	properties.target.stats.stealthed = true;
+	// add status effect
 	this.generic(newProperties);
 }
 
@@ -2487,7 +2594,7 @@ Game.loadArea = function (areaName, destination) {
 					this.enemies.push(new Enemy(Areas[areaName].enemies[i]));
 					if (Game.time === "bloodMoon" && this.enemies[this.enemies.length - 1].hostility === "hostile") {
 						// blood moon - enemies have more health
-						this.enemies[this.enemies.length - 1].stats.health *= 2;
+						this.enemies[this.enemies.length - 1].health *= 2;
 						this.enemies[this.enemies.length - 1].stats.maxHealth *= 2;
 					}
 				}
@@ -3681,8 +3788,10 @@ Game.render = function (delta) {
 		for (var x = 0; x < this[this.renderList[i]].length; x++) { // iterate through that array of things to be rendered
 		
 			let objectToRender = this[this.renderList[i]][x];
-		
-			if (Game.camera.isOnScreen(objectToRender, "image")) { // check object is on the screen hence should be rendered
+			
+			// check object should be rendered
+			if (Game.camera.isOnScreen(objectToRender, "image") && // object on screen
+			objectToRender.stats !== undefined && !objectToRender.stats.stealthed) { // object isn't stealthed
 			
 				// set character screen x and y
 				this.updateScreenPosition(objectToRender);
@@ -3743,23 +3852,27 @@ Game.render = function (delta) {
 	}
 	
 	// draw player animations
-	if (Game.hero.beam !== undefined) {
+	if (this.hero.beam !== undefined) {
 		// set formatting
-		Game.ctx.lineWidth = Game.hero.beam.width;
-		Game.ctx.strokeStyle = Game.hero.beam.colour;
+		this.ctx.lineWidth = this.hero.beam.width;
+		this.ctx.strokeStyle = this.hero.beam.colour;
 		// draw line
 		this.ctx.beginPath();
-		this.ctx.moveTo(Game.hero.screenX, Game.hero.screenY);
-		this.ctx.lineTo(Game.hero.beam.x - Game.hero.x + Game.hero.screenX, 
-						Game.hero.beam.y - Game.hero.y + Game.hero.screenY);
+		this.ctx.moveTo(this.hero.screenX, this.hero.screenY);
+		this.ctx.lineTo(this.hero.beam.x - this.hero.x + this.hero.screenX, 
+						this.hero.beam.y - this.hero.y + this.hero.screenY);
 		this.ctx.stroke();
 		// reset default formatting
-		Game.ctx.lineWidth = 0.5;
-		Game.ctx.strokeStyle = "#000000";
+		this.ctx.lineWidth = 0.5;
+		this.ctx.strokeStyle = "#000000";
 	}
 
     // draw main character
 	
+	// if player is stealthed, draw them partially transparent
+	if (this.hero.stats.stealthed) {
+		this.ctx.globalAlpha = 0.6;
+	}
 	// check what direction they are facing, then render player
 	if (this.hero.direction == 1) {
 		this.ctx.drawImage(
@@ -3800,6 +3913,8 @@ Game.render = function (delta) {
 			this.hero.width, this.hero.height,
 		);
 	}
+	// set transparency back (just in case it was changed because the player is stealthed)
+	this.ctx.globalAlpha = 1;
 	
 	// draw projectiles
     for(var i = 0; i < this.projectiles.length; i++) {
@@ -4005,29 +4120,41 @@ Game.secondary.render = function () {
 			if (Game.hero.statusEffects[i].image === "bait") {
 				iconNum = 0;
 			}
-			else if (Game.hero.statusEffects[i].image === "speedUp") {
+			else if (Game.hero.statusEffects[i].image === "speedDown") {
 				iconNum = 1;
 			}
 			else if (Game.hero.statusEffects[i].image === "fire") {
 				iconNum = 2;
 			}
-			else if (Game.hero.statusEffects[i].image === "mud") {
+			else if (Game.hero.statusEffects[i].image === "lifesteal") {
 				iconNum = 3;
 			}
-			else if (Game.hero.statusEffects[i].image === "poison") {
+			else if (Game.hero.statusEffects[i].image === "mud") {
 				iconNum = 4;
 			}
-			else if (Game.hero.statusEffects[i].image === "stunned") {
+			else if (Game.hero.statusEffects[i].image === "poison") {
 				iconNum = 5;
 			}
-			else if (Game.hero.statusEffects[i].image === "water") {
+			else if (Game.hero.statusEffects[i].image === "speedUp") {
 				iconNum = 6;
 			}
-			else if (Game.hero.statusEffects[i].image === "xpDown") {
+			else if (Game.hero.statusEffects[i].image === "stealth") {
 				iconNum = 7;
 			}
 			else if (Game.hero.statusEffects[i].image === "damageUp") {
 				iconNum = 8;
+			}
+			else if (Game.hero.statusEffects[i].image === "stunned") {
+				iconNum = 9;
+			}
+			else if (Game.hero.statusEffects[i].image === "water") {
+				iconNum = 10;
+			}
+			else if (Game.hero.statusEffects[i].image === "damageDown") {
+				iconNum = 11;
+			}
+			else if (Game.hero.statusEffects[i].image === "xpDown") {
+				iconNum = 12;
 			}
 			else { // no status effect image
 				iconNum = 2; // fire image used as placeholder
@@ -4065,6 +4192,8 @@ Game.saveProgress = function (saveType) { // if saveType is "auto" then the save
 		Player.checkpoint = Game.hero.checkpoint;
 		// save other player details that aren't otherwise saved to savedata
 		Player.health = Game.hero.health;
+		// re-link status effects (inefficient - tbd)
+		Player.statusEffects = Game.hero.statusEffects;
 		
 		// save everything in savedata.js
 		localStorage.setItem(Player.class, JSON.stringify(Player));

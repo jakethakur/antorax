@@ -1405,35 +1405,36 @@ var Items = {
 				Dom.inventory.removeItemCharge(inventoryPosition);
 				
 				// spooky status effect...
-				/*let effectNumber = random(0, 2);
+				let effectNumber = random(0, 2);
 				switch(effectNumber) {
 					case 0:
-						// give +100% lifesteal to the player for 15s
+						// give +100% lifesteal to the player for 10s
 						Game.statusEffects.lifesteal({
 							target: Game.hero,
 							effectTitle: "Vampiric Touch",
 							lifestealIncrease: 100,
-							time: 15,
+							time: 10,
 						});
 						break;
 					case 1:
-						// give swiftness I status effect to player
-						Game.statusEffects.walkSpeed({
+						// give stealth to the player
+						Game.statusEffects.stealth({
 							target: Game.hero,
-							effectTitle: "Swiftness I",
-							speedIncrease: 35,
-							time: 20,
+							effectTitle: "Ghostly Stealth",
 						});
 						break;
 					case 2:
-						// give fire I status effect to player
-						Game.statusEffects.fire(Game.hero, 1);
+						// give -50% walk speed to the player
+						// this is a curse, so when an enemy is attacked it is passed on to them instead
+						Game.statusEffects.walkSpeed({
+							target: Game.hero,
+							effectTitle: "Curse of fatigue",
+							effectDescription: "% walk speed (this is passed on to your next attacked enemy)",
+							speedIncrease: -50,
+							curse: true,
+						});
 						break;
-					case 3:
-						// deal 50 damage over 10 seconds to the player
-						Game.statusEffects.poison(Game.hero, 50, 10);
-						break;
-				}*/
+				}
 			},
 			lore: "Stick your hand in, just like your ancestors once did!",
 		},

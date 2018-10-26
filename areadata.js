@@ -1249,7 +1249,7 @@ var Areas = {
 				template: EnemyTemplates.nilbog.goblinRockthrower,
 			},
 			{
-				x: 900, // at goblin camp
+				x: 770, // at goblin camp
 				y: 300,
 				template: EnemyTemplates.nilbog.goblinSkirmisher,
 			},
