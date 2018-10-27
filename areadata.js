@@ -5,7 +5,7 @@ const FishingLevels = {
 const LootTables = { // loot table templates
 	global: [
 		// all enemies have this (for events)
-		{ // ghost sheet
+		{ // samhain mark
 			item: Items.currency[4],
 			condition: function () {
 				if (Game.time === "bloodMoon") {

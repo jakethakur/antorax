@@ -413,6 +413,20 @@ Game.areNearby = function (obj1, obj2, range) {
 	}
 }
 
+// find the closest character in an array (objArray) to another character (mainObj)
+Game.closest = function (objArray, mainObj) {
+	let closestDistance = Infinity;
+	let closestIndex = -1;
+	objArray.forEach((obj, index) => {
+		let distanceTo = distance(mainObj, obj);
+		if (distanceTo < closestDistance) {
+			closestIndex = index;
+			closestDistance = distanceTo;
+		}
+	});
+	return objArray[closestIndex];
+}
+
 // insert a message into the chat, under the format of "name: message"
 // name is emboldened via <strong> tags
 // if message is an array, a random message from the array will be chosen
@@ -934,7 +948,7 @@ class Hero extends Attacker {
 		
 		// speed status effect (can be buff or debuff)
 		this.statusEffects.forEach(statusEffect => {
-			if (statusEffect.info !== undefined && statusEffect.info.speedIncrease !== undefined) {
+			if (statusEffect.info.speedIncrease !== undefined) {
 				// increase speed if the status effect does so
 				this.speed *= 1 + (statusEffect.info.speedIncrease / 100);
 			}
@@ -1001,6 +1015,8 @@ class Hero extends Attacker {
 							map: map,
 							x: projectileX,
 							y: projectileY,
+							attacker: this,
+							targets: [Game.enemies, Game.dummies,],
 							rotate: projectileRotate,
 							adjust: {
 								// manually adjust position (programmed for each projectile in skindata/itemdata)
@@ -1202,7 +1218,7 @@ class Hero extends Attacker {
 			shotProjectile.varyPosition(); // vary projectile position based off its variance
 			
 			// damage enemies that the projectile is touching
-			shotProjectile.dealDamage(this, [Game.enemies, Game.dummies,]);
+			shotProjectile.dealDamage(shotProjectile.attacker, shotProjectile.targets);
 			
 			// after a timeout (2s), remove the projectile that was just shot
 			// this doesn't work if the user attacks too fast, though this shouldn't be a problem...
@@ -1245,7 +1261,7 @@ class Hero extends Attacker {
 		}
 	}
 	
-	// called whenever Game.hero
+	// called whenever Game.hero's status effects are updated
 	updateStatusEffects () {
 		// update secondary canvas (status effects display on it)
 		Game.secondary.render();
@@ -1304,7 +1320,6 @@ class Hero extends Attacker {
 				let tileNum = this.getTileAtFeet();
 				if (map.interactWithTile !== undefined) {
 					map.interactWithTile(tileNum, this.x, this.y + this.height/2);
-					//Dom.quests.active();
 				}
 				interactionDone = true; // interaction might not have happened, but this is always the last thing to be done anyway so it can be set to true
 			}
@@ -1498,6 +1513,11 @@ class Projectile extends Thing {
 	constructor(properties) {
 		super(properties);
 		
+		this.attacker = properties.attacker || {
+			stats: properties.stats, // for if projectile deals its own damage
+		};
+		this.targets = properties.targets; // should be array
+		
 		this.id = Game.nextProjectileId; // way that the game can identify which projectile was shot
 		Game.nextProjectileId++;
 		
@@ -1532,6 +1552,13 @@ class Projectile extends Thing {
 				height: properties.hitbox.height,
 			}
 		}
+		
+		// position the projectile should move towards
+		// this object should contain an x and y if you want the projectile to move
+		// could be set to an enemy, for example, if you want the projectile to home into that enemy
+		this.moveTowards = properties.moveTowards;
+		// speed is multiplied by delta like other speeds
+		this.moveSpeed = properties.moveSpeed;
 		
 		this.damageDealt = []; // array of damages dealt to show
 	}
@@ -1580,7 +1607,7 @@ class Projectile extends Thing {
 						
 						// attackDamage status effect
 						attacker.statusEffects.forEach(statusEffect => {
-							if (statusEffect.info !== undefined && statusEffect.info.damageIncrease !== undefined) {
+							if (statusEffect.info.damageIncrease !== undefined) {
 								// increase damage dealt if the status effect does so
 								dmgDealt *= 1 + (statusEffect.info.damageIncrease / 100);
 							}
@@ -1600,7 +1627,7 @@ class Projectile extends Thing {
 						let lifestealPercentage = attacker.stats.lifesteal;
 						// check for status effects that increase lifesteal
 						attacker.statusEffects.forEach(statusEffect => {
-							if (statusEffect.info !== undefined && statusEffect.info.lifestealIncrease !== undefined) {
+							if (statusEffect.info.lifestealIncrease !== undefined) {
 								// increase lifesteal percentage if the status effect does so
 								lifestealPercentage += statusEffect.info.lifestealIncrease;
 							}
@@ -1871,7 +1898,7 @@ class Enemy extends Attacker {
 			let speed = this.speed;
 			// speed status effect (can be buff or debuff)
 			this.statusEffects.forEach(statusEffect => {
-				if (statusEffect.info !== undefined && statusEffect.info.speedIncrease !== undefined) {
+				if (statusEffect.info.speedIncrease !== undefined) {
 					// increase speed if the status effect does so
 					speed *= 1 + (statusEffect.info.speedIncrease / 100);
 				}
@@ -1901,6 +1928,8 @@ class Enemy extends Attacker {
 			map: map,
 			x: projectileX,
 			y: projectileY,
+			attacker: this,
+			targets: at,
 			width: this.projectile.width,
 			height: this.projectile.height,
 			rotate: projectileRotate,
@@ -2053,7 +2082,7 @@ function statusEffect(properties) {
 	this.title = properties.title; // displayed title
 	this.effect = properties.effect; // displayed effect (displayed in the DOM as a description of the status effect, in player stats)
 	
-	this.info = properties.info; // extra information (e.g: poison damage and length)
+	this.info = properties.info || {}; // extra information (e.g: poison damage and length)
 	
 	this.tick = properties.tick; // function to be carried out every second
 	
@@ -2066,14 +2095,12 @@ function statusEffect(properties) {
 // tbd rework to be like Game.removeStealthEffects
 Game.removeStatusEffect = function (owner) {
 	for (let i = 0; i < owner.statusEffects.length; i++) { // iterate through owner's status effects
-		if (typeof owner.statusEffects[i].info !== "undefined") {
-			// check that the status effect can expire
-			if (typeof owner.statusEffects[i].info.time !== "undefined" && typeof owner.statusEffects[i].info.ticks !== "undefined") {
-				// check if it has expired
-				if (owner.statusEffects[i].info.ticks >= owner.statusEffects[i].info.time) {
-					owner.statusEffects.splice(i, 1); // remove it
-					i--;
-				}
+		// check that the status effect can expire
+		if (typeof owner.statusEffects[i].info.time !== "undefined" && typeof owner.statusEffects[i].info.ticks !== "undefined") {
+			// check if it has expired
+			if (owner.statusEffects[i].info.ticks >= owner.statusEffects[i].info.time) {
+				owner.statusEffects.splice(i, 1); // remove it
+				i--;
 			}
 		}
 	}
@@ -2087,7 +2114,7 @@ Game.removeStatusEffect = function (owner) {
 Game.removeStealthEffects = function (owner) {
 	if (!owner.stats.stealthed) { // confirm owner is not stealthed
 		// remove all stealth status effects
-		owner.statusEffects = owner.statusEffects.filter(statusEffect => statusEffect.info !== undefined && statusEffect.info.stealth !== true);
+		owner.statusEffects = owner.statusEffects.filter(statusEffect => statusEffect.info.stealth !== true);
 		// refresh canvas status effects if the status effect was applied to player
 		if (owner.constructor.name === "Hero") {
 			Game.hero.updateStatusEffects();
@@ -2099,7 +2126,7 @@ Game.removeStealthEffects = function (owner) {
 Game.spreadCurse = function (attacker, victim) {
 	let index = -2; // placeholder
 	while (index !== -1) { // repeat until there are no more curse status effects
-		index = attacker.statusEffects.findIndex(statusEffect => statusEffect.info !== undefined && statusEffect.info.curse === true); // find a curse effect
+		index = attacker.statusEffects.findIndex(statusEffect => statusEffect.info.curse === true); // find a curse effect
 		if (index >= 0) { // if an effect was found...
 			victim.statusEffects.push(attacker.statusEffects[index]); // give the status effect to the victim
 			attacker.statusEffects.splice(index, 1); // remove the status effect from the attacker
@@ -2755,29 +2782,37 @@ Game.init = function () {
         [Keyboard.LEFT, Keyboard.RIGHT, Keyboard.UP, Keyboard.DOWN, Keyboard.W, Keyboard.S, Keyboard.A, Keyboard.D, Keyboard.SPACE, Keyboard.SHIFT]);
 		
 	// player attack on click
-	Game.secondary.canvas.addEventListener("mousedown", Game.hero.startAttack.bind(this.hero));
-	Game.secondary.canvas.addEventListener("mouseup", Game.hero.finishAttack.bind(this.hero));
+	this.secondary.canvas.addEventListener("mousedown", Game.hero.startAttack.bind(this.hero));
+	this.secondary.canvas.addEventListener("mouseup", Game.hero.finishAttack.bind(this.hero));
 	
 	// change between default cursor and crosshair based on player range
-	Game.secondary.canvas.addEventListener("mousemove", Game.secondary.updateCursor.bind(this.secondary));
+	this.secondary.canvas.addEventListener("mousemove", Game.secondary.updateCursor.bind(this.secondary));
 	
 	// fps array (used for tracking frames per second in Game.fps())
-	Game.fpsArray = [];
+	this.fpsArray = [];
 	
 	// health regeneration every second
 	setInterval(function () {
 		if (document.hasFocus()) { // check user is focused on the game (otherwise enemies cannot damage but user can heal)
 			this.regenHealth();
 		}
-	}.bind(Game), 1000);
+	}.bind(this), 1000);
 	
 	// camera
     this.camera = new Camera(map, this.canvas.width, this.canvas.height);
     this.camera.follow(this.hero);
 	
 	// begin game display
-	Game.secondary.render();
+	this.secondary.render();
 	window.requestAnimationFrame(this.tick);
+	
+	// event console.log
+	if (this.event === "James") {
+		console.info("Happy James Day!");
+	}
+	else if (this.event === "Samhain") {
+		console.info("Happy Samhain! Keep your eye out for a beautiful blood moon tonight.");
+	}
 };
 
 //
@@ -2796,14 +2831,13 @@ Game.checkEvents = function () {
 	// Summer Solstice
 	if (day === 21 && month === 6) {
 		Game.event = "James";
-		console.info("Happy James Day!")
+		console.info("Happy James Day!");
 		Dom.inventory.give(Items.boots[7], 1);
 	}
 	// Samhain (Halloween)
 	// Blood Moon
 	else if ((day >= 22 && month === 10) || (day <= 5 && month === 11)) {
 		Game.event = "Samhain";
-		console.info("Happy Samhain! Keep your eye out for a beautiful blood moon tonight.")
 	}
 }
 
@@ -3226,6 +3260,34 @@ Game.update = function (delta) {
 		}
     }
 	
+	// move projectiles if they need to be moved
+	this.projectiles.forEach(projectile => { // iterate through projectiles
+		if (projectile.moveTowards !== undefined) {
+			// move towards the position
+			let direction = bearing(projectile, projectile.moveTowards);
+			projectile.x += Math.cos(direction) * projectile.moveSpeed * delta;
+			projectile.y += Math.sin(direction) * projectile.moveSpeed * delta;
+			
+			// only deal damage if it hasn't before
+			if (projectile.damageDealt.length === 0) {
+				// hasn't dealt damage
+				projectile.dealDamage(projectile.attacker, projectile.targets);
+				// stop moving
+				if (projectile.stopMovingOnDamage === true) {
+					projectile.moveTowards = undefined;
+				}
+				// after a timeout (2s), remove the projectile that was just shot
+				// taken from Player
+				let a = projectile.id; // maintain a variable of the currently shot projectile's id
+				setTimeout(function (a) {
+					Game.projectiles.splice(Game.searchFor(a, Game.projectiles), 1); // find the id of the to-be-removed projectile and remove it
+				}, 2000, a);
+			}
+			
+			// remove the projectile if it has moved too far
+		}
+	});
+	
 	// check collision with area teleports
 	for(var i = 0; i < this.areaTeleports.length; i++) {
 		// give area teleports a screenX and Y (should be turned into own function)
@@ -3329,11 +3391,11 @@ Game.getXP = function (xpGiven) {
 	}
 }
 
-// called whenever inventory is changed (in order to change player stats)
+// called whenever weapon/armour is changed (in order to change player stats)
 // this is called by index.html
 // PG's code
 Game.inventoryUpdate = function (e) {
-	if (e == undefined || isNaN(parseInt(e.dataTransfer.getData("text")))) {
+	if (e === undefined || isNaN(parseInt(e.dataTransfer.getData("text")))) { // check if a weapon or armour slot has been changed
 		// player stats updated
 		Game.hero.stats = Player.stats; // inefficient (should be linked)
 		
@@ -3359,9 +3421,8 @@ Game.inventoryUpdate = function (e) {
 			// non-bows have no variance
 			Game.hero.stats.variance = 0;
 		}
-		
-		Dom.quests.active(); // quest log update check
 	}
+	Dom.quests.active(); // quest log update check
 }
 
 // set player projectile
@@ -3379,7 +3440,7 @@ Game.projectileUpdate = function () {
 			p.then(function (value) {
 				// only called once image has loaded
 				// set weapon "cannotAttack" property back to false
-				Player.inventory.weapon[0].cannotAttack = false;
+				Player.inventory.weapon[0].cannotAttack = undefined;
 			})
 			.catch(function (err) {
 				console.error("Your image did not load correctly.", err);
@@ -3387,7 +3448,7 @@ Game.projectileUpdate = function () {
 		}
 		else {
 			// image already loaded; allow the player to attack anyway
-			Player.inventory.weapon[0].cannotAttack = false;
+			Player.inventory.weapon[0].cannotAttack = undefined;
 		}
 	}
 	else if (this.heroProjectileName !== Skins[Player.class][Player.skin].projectile) {
@@ -3401,7 +3462,7 @@ Game.projectileUpdate = function () {
 		p.then(function (value) {
 			// only called once image has loaded
 			// set weapon "cannotAttack" property back to false
-			Player.inventory.weapon[0].cannotAttack = false;
+			Player.inventory.weapon[0].cannotAttack = undefined;
 		})
 		.catch(function (err) {
 			console.error("Your image did not load correctly.", err);
@@ -3791,7 +3852,7 @@ Game.render = function (delta) {
 			
 			// check object should be rendered
 			if (Game.camera.isOnScreen(objectToRender, "image") && // object on screen
-			objectToRender.stats !== undefined && !objectToRender.stats.stealthed) { // object isn't stealthed
+			(objectToRender.stats === undefined || !objectToRender.stats.stealthed)) { // object isn't stealthed
 			
 				// set character screen x and y
 				this.updateScreenPosition(objectToRender);

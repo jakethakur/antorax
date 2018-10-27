@@ -1438,6 +1438,48 @@ var Items = {
 			},
 			lore: "Stick your hand in, just like your ancestors once did!",
 		},
+		{
+			id: 10,
+			name: "Bunch of Blood Bats",
+			type: "consumable",
+			image: "assets/items/consumable/10.png",
+			cost: 2,
+			costCurrency: 4,
+			onClickText: "Deals 5 damage to the nearest enemy, stunning them for 1s",
+			charges: 3,
+			onClick: function (inventoryPosition) {
+				// remove one charge from the item
+				Dom.inventory.removeItemCharge(inventoryPosition);
+				
+				// find closest enemy
+				let moveTowards = Game.closest(Game.enemies, Game.hero);
+				
+				// find bearing
+				let projectileRotate = bearing(projectile, moveTowards);
+				
+				// summon bat projectile
+				Game.projectiles.push(new Projectile({
+					map: map,
+					x: Game.hero.x,
+					y: Game.hero.y,
+					stats: {
+						damage: 5,
+						stun: 1,
+					},
+					targets: [Game.enemies],
+					rotate: projectileRotate,
+					/*adjust: {
+						x: this.projectile.adjust.x || undefined,
+						y: this.projectile.adjust.y || undefined,
+						towards: this.projectile.adjust.towards || undefined,
+					},*/
+					image: "bloodBat",
+					moveTowards: moveTowards,
+					moveSpeed: 250,
+				}));
+			},
+			lore: "",
+		},
 	],
 	fish: [
 		{
