@@ -100,7 +100,7 @@ var Items = {
 				dodgeChance: "+5%",
 				reflection: "+10%",
 			},
-			onClickText: "Click to choose stat:",
+			functionText: "Click to choose stat:",
 		},
 	],
 	chest: [
@@ -202,7 +202,7 @@ var Items = {
 				dodgeChance: "+5%",
 				reflection: "+10%",
 			},
-			onClickText: "Click to choose stat:",
+			functionText: "Click to choose stat:",
 		},
 		{
 			id: 7,
@@ -324,7 +324,7 @@ var Items = {
 				dodgeChance: "+5%",
 				reflection: "+10%",
 			},
-			onClickText: "Click to choose stat:",
+			functionText: "Click to choose stat:",
 		},
 	],
 	boots: [
@@ -460,7 +460,7 @@ var Items = {
 				dodgeChance: "+5%",
 				reflection: "+10%",
 			},
-			onClickText: "Click to choose stat:",
+			functionText: "Click to choose stat:",
 		},
 	],
 	sword: [
@@ -1123,7 +1123,7 @@ var Items = {
 			rarity: "mythic",
 			quest: true,
 			image: "assets/items/item/8.png",
-			onClickText: "Siphons the soul essence of any nearby enemy corpses.",
+			functionText: "Siphons the soul essence of any nearby enemy corpses.",
 			onClick: function () {
 				Game.enemies.forEach(enemy => {
 					if (Game.areNearby(Game.hero, enemy, 100)) { // check the player is within 2 tiles of an enemy
@@ -1177,7 +1177,7 @@ var Items = {
 			type: "item",
 			quest: true,
 			image: "assets/items/item/12.png",
-			onClickText: "Click to fill with a nearby 'scoopable' substance",
+			functionText: "Click to fill with a nearby 'scoopable' substance",
 			onClick: function (inventoryPosition) {
 				let tileNum = Game.hero.getTileAtFeet();
 				if (map.mudTiles.includes(tileNum)) {
@@ -1217,7 +1217,7 @@ var Items = {
 			image: "assets/items/consumable/2.png",
 			cost: 4,
 			sellPrice: 2,
-			onClickText: "Increases damage dealt by 40% for 10 seconds",
+			functionText: "Increases damage dealt by 40% for 10 seconds",
 			onClick: function (inventoryPosition) {
 				// remove the item
 				Dom.inventory.remove(inventoryPosition);
@@ -1238,7 +1238,7 @@ var Items = {
 			image: "assets/items/consumable/3.png",
 			cost: 2,
 			sellPrice: 1,
-			onClickText: "Increases walk speed by 35% for 20 seconds",
+			functionText: "Increases walk speed by 35% for 20 seconds",
 			onClick: function (inventoryPosition) {
 				// remove the item
 				Dom.inventory.remove(inventoryPosition);
@@ -1259,7 +1259,7 @@ var Items = {
 			image: "assets/items/consumable/4.png",
 			cost: 2,
 			sellPrice: 1,
-			onClickText: "Restores 15 health",
+			functionText: "Restores 15 health",
 			onClick: function (inventoryPosition) {
 				// remove the item
 				Dom.inventory.remove(inventoryPosition);
@@ -1273,7 +1273,7 @@ var Items = {
 			name: "Wood-Brewed Beer",
 			type: "consumable",
 			image: "assets/items/consumable/5.png",
-			onClickText: "Restores 15 health",
+			functionText: "Restores 15 health",
 			lore: "Might make you a little tipsy...",
 			onClick: function (inventoryPosition) {
 				// remove the item
@@ -1291,7 +1291,7 @@ var Items = {
 			type: "consumable",
 			image: "assets/items/consumable/6.png",
 			sellPrice: 1,
-			onClickText: "I wonder what this does?",
+			functionText: "I wonder what this does?",
 			onClick: function (inventoryPosition) {
 				// remove the item
 				Dom.inventory.remove(inventoryPosition);
@@ -1334,7 +1334,7 @@ var Items = {
 			type: "consumable",
 			image: "assets/items/consumable/7.png",
 			cost: 0,
-			onClickText: "Places a trap (can only be used in The Nilbog)",
+			functionText: "Places a trap (can only be used in The Nilbog)",
 			lore: "Like a bear trap, but ickier.",
 			onClick: function (inventoryPosition) {
 				if (Game.areaName === "nilbog") { // trap can only be placed in the nilbog
@@ -1369,7 +1369,7 @@ var Items = {
 			type: "consumable",
 			image: "assets/items/consumable/8.png",
 			cost: 4,
-			onClickText: "Gives you +20 fishing skill for your next fishing attempt",
+			functionText: "Gives you +20 fishing skill for your next fishing attempt",
 			charges: 3,
 			onClick: function (inventoryPosition) {
 				// remove one charge from the item
@@ -1398,7 +1398,7 @@ var Items = {
 			image: "assets/items/consumable/9.png",
 			cost: 1,
 			costCurrency: 4,
-			onClickText: "Gives you a random spooky status effect",
+			functionText: "Gives you a random spooky status effect",
 			charges: 3,
 			onClick: function (inventoryPosition) {
 				// remove one charge from the item

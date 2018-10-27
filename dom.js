@@ -624,7 +624,7 @@ Dom.inventory.displayIdentification = function(display){
 	if(Player.statusEffects.length !== 0){
 		document.getElementById("innerStats").innerHTML += "<br><br><strong>Status Effects:</strong>"; // adds status effects
 		for(let i = 0; i < Player.statusEffects.length; i++){
-			document.getElementById("innerStats").innerHTML += "<br>" + Player.statusEffects[i].title + ": " + Player.statusEffects[i].effect; // updates the walk speed display
+			document.getElementById("innerStats").innerHTML += "<br>" + Player.statusEffects[i].title + ": " + Player.statusEffects[i].effect + " (" + (Player.statusEffects[i].info ? Player.statusEffects[i].info.time - Player.statusEffects[i].info.ticks + "s" : "") + ")"; // updates the walk speed display
 		}
 	}
 }
@@ -673,7 +673,7 @@ Dom.inventory.displayInformation = function(item, stacked, position){
 				}
 				
 				if(item.chooseStats !== undefined){
-					document.getElementById("stats").innerHTML += "<br><br>"+item.onClickText;
+					document.getElementById("stats").innerHTML += "<br><br>"+item.functionText;
 					for(let i = 0; i < Object.keys(item.chooseStats).length; i++){
 						let color = "gray";
 						if(Object.keys(item.chooseStats)[i] === item.chosenStat){
@@ -790,8 +790,8 @@ Dom.inventory.displayInformation = function(item, stacked, position){
 		if(item.use !== undefined){
 			document.getElementById("stats").innerHTML = item.use;
 		}
-		if(item.onClickText !== undefined){
-			document.getElementById("stats").innerHTML += (document.getElementById("stats").innerHTML !== "" ? "<br><br>" : "") + item.onClickText + (item.charges !== undefined ? "<br><br>" + item.charges + " Charges" : "");
+		if(item.functionText !== undefined){
+			document.getElementById("stats").innerHTML += (document.getElementById("stats").innerHTML !== "" ? "<br><br>" : "") + item.functionText + (item.charges !== undefined ? "<br><br>" + item.charges + " Charges" : "");
 		}
 		let lorebuyer = "";
 		if(item.lore !== undefined && item.lore !== "" && !Array.isArray(item.lore)){ // if the item has a lore...
@@ -2587,6 +2587,8 @@ for(let i = 0; i < Player.inventory.items.length; i++){ // repeats the code for 
 		}
 		if(!Player.inventory.items[i].unidentified){
 			Player.inventory.items[i].onClick = Items[Player.inventory.items[i].type][Player.inventory.items[i].id].onClick;
+			Player.inventory.items[i].onKill = Items[Player.inventory.items[i].type][Player.inventory.items[i].id].onKill;
+			Player.inventory.items[i].onAttack = Items[Player.inventory.items[i].type][Player.inventory.items[i].id].onAttack;
 		}
 		document.getElementById("itemInventory").getElementsByTagName("td")[i].innerHTML = "<img src='"+Player.inventory.items[i].image+"' draggable='true' ondragstart='Dom.inventory.drag(event,"+i+")' "+(Player.inventory.items[i].onClick !== undefined ? "onclick='Player.inventory.items["+i+"].onClick("+i+")'" : "")+"></img>"; // ...puts the image in the slot
 		if(Player.inventory.items[i].stacked !== undefined && Player.inventory.items[i].stacked !== 1){
@@ -2603,6 +2605,8 @@ for(let i = 0; i < Object.keys(Player.inventory).length-1; i++){
 			Items[Player.inventory[Object.keys(Player.inventory)[i]][0].type][Player.inventory[Object.keys(Player.inventory)[i]][0].id].onClick = Dom.inventory.chooseStats;
 		}
 		Player.inventory[Object.keys(Player.inventory)[i]][0].onClick = Items[Player.inventory[Object.keys(Player.inventory)[i]][0].type][Player.inventory[Object.keys(Player.inventory)[i]][0].id].onClick;
+		Player.inventory[Object.keys(Player.inventory)[i]][0].onKill = Items[Player.inventory[Object.keys(Player.inventory)[i]][0].type][Player.inventory[Object.keys(Player.inventory)[i]][0].id].onKill;
+		Player.inventory[Object.keys(Player.inventory)[i]][0].onAttack = Items[Player.inventory[Object.keys(Player.inventory)[i]][0].type][Player.inventory[Object.keys(Player.inventory)[i]][0].id].onAttack;
 		document.getElementById(Object.keys(Player.inventory)[i]).innerHTML = "<img src='"+Player.inventory[Object.keys(Player.inventory)[i]][0].image+"' draggable='true' ondragstart='Dom.inventory.drag(event,\""+Object.keys(Player.inventory)[i]+"\")' "+(Player.inventory[Object.keys(Player.inventory)[i]][0].onClick !== undefined ? "onclick='Player.inventory."+Object.keys(Player.inventory)[i]+"[0].onClick(\""+Object.keys(Player.inventory)[i]+"\")'" : "")+"></img>"; // updates the image
 	}
 }

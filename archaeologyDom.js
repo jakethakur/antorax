@@ -138,8 +138,7 @@ function checkChange(){
 			}else if(category.value == 8){
 				var current = true;
 				for(x = 0; x < array[i].armour.length; x++){
-					if(localStorage.getItem("archaeology") != null && !JSON.parse(localStorage.getItem("archaeology")).includes(array[i].armour[x]))
-					{
+					if(localStorage.getItem("archaeology") != null && !JSON.parse(localStorage.getItem("archaeology")).includes(array[i].armour[x])){
 						current = false;
 					}
 				}
@@ -157,19 +156,18 @@ function checkChange(){
 				var current = true;
 				if(category.value == 8){
 					for(x = 0; x < array[i-b].armour.length; x++){
-						if(localStorage.getItem("archaeology") != null && !JSON.parse(localStorage.getItem("archaeology")).includes(array[i-b].armour[x]))
-						{
+						if(localStorage.getItem("archaeology") != null && !JSON.parse(localStorage.getItem("archaeology")).includes(array[i-b].armour[x])){
 							current = false;
 						}
 					}
 				}
 				if(obtained.value == "only"){
-					if(!JSON.parse(localStorage.getItem("archaeology")).includes(array[i-b].name) && (category.value == 8 && !current || category.value != 8)){
+					if((localStorage.getItem("archaeology") != null && !JSON.parse(localStorage.getItem("archaeology")).includes(array[i-b].name)) && (category.value == 8 && !current || category.value != 8)){
 						array.splice(i-b,1);
 						b++;
 					}
 				}else{
-					if(JSON.parse(localStorage.getItem("archaeology")).includes(array[i-b].name) || category.value == 8 && current){
+					if((localStorage.getItem("archaeology") != null && JSON.parse(localStorage.getItem("archaeology")).includes(array[i-b].name)) || category.value == 8 && current){
 						array.splice(i-b,1);
 						b++;
 					}
