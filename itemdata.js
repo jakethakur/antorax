@@ -25,7 +25,7 @@ var Items = {
 			tier: 1,
 			rarity: "common",
 			sellPrice: 1,
-			obtain: "Find as an unidentified item in Eaglecrest Logging Camp",
+			obtain: "Find as an unidentified item in Eaglecrest Logging Camp.",
 			area: "loggingCamp",
 			stats: {
 				defence: "+2",
@@ -40,7 +40,7 @@ var Items = {
 			rarity: "unique",
 			sellPrice: 3,
 			lore: "",
-			obtain: "Find as an unidentified item in Eaglecrest Logging Camp",
+			obtain: "Find as an unidentified item in Eaglecrest Logging Camp.",
 			area: "loggingCamp",
 			set: 3,
 			stats: {
@@ -57,7 +57,7 @@ var Items = {
 			rarity: "unique",
 			sellPrice: 3,
 			lore: "",
-			obtain: "Find as an unidentified item in Eaglecrest Logging Camp",
+			obtain: "Find as an unidentified item in Eaglecrest Logging Camp.",
 			area: "loggingCamp",
 			set: 2,
 			stats: {
@@ -74,7 +74,7 @@ var Items = {
 			rarity: "mythic",
 			sellPrice: 5,
 			lore: "You have no idea how often those mammoth tusks need to be glued back on!",
-			obtain: "Find as an unidentified item in Eaglecrest Logging Camp",
+			obtain: "Find as an unidentified item in Eaglecrest Logging Camp.",
 			area: "loggingCamp",
 			stats: {
 				defence: "+3",
@@ -90,7 +90,7 @@ var Items = {
 			rarity: "mythic",
 			sellPrice: 5,
 			lore: "",
-			obtain: "Find in a sunken chest in a tier 1 fishing area",
+			obtain: "Find in a sunken chest in a tier 1 fishing area.",
 			set: 4,
 			stats: {
 				defence: "+3",
@@ -101,6 +101,7 @@ var Items = {
 				reflection: "+10%",
 			},
 			functionText: "Click to choose stat:",
+			archaeologyFunctionText: "One of the following stats may be chosen:",
 		},
 	],
 	chest: [
@@ -127,7 +128,7 @@ var Items = {
 			tier: 1,
 			rarity: "common",
 			sellPrice: 1,
-			obtain: "Find as an unidentified item in Eaglecrest Logging Camp",
+			obtain: "Find as an unidentified item in Eaglecrest Logging Camp.",
 			area: "loggingCamp",
 			stats: {
 				defence: "+3",
@@ -142,7 +143,7 @@ var Items = {
 			rarity: "unique",
 			sellPrice: 3,
 			lore: "",
-			obtain: "Find as an unidentified item in Eaglecrest Logging Camp",
+			obtain: "Find as an unidentified item in Eaglecrest Logging Camp.",
 			area: "loggingCamp",
 			set: 3,
 			stats: {
@@ -159,7 +160,7 @@ var Items = {
 			rarity: "unique",
 			sellPrice: 3,
 			lore: "",
-			obtain: "Find as an unidentified item in Eaglecrest Logging Camp",
+			obtain: "Find as an unidentified item in Eaglecrest Logging Camp.",
 			area: "loggingCamp",
 			set: 2,
 			stats: {
@@ -176,7 +177,7 @@ var Items = {
 			rarity: "mythic",
 			sellPrice: 5,
 			lore: "Legend says the tattered knight is still wandering around shirtless.",
-			obtain: "Find as an unidentified item in Eaglecrest Logging Camp",
+			obtain: "Find as an unidentified item in Eaglecrest Logging Camp.",
 			area: "loggingCamp",
 			stats: {
 				defence: "+8",
@@ -192,7 +193,7 @@ var Items = {
 			rarity: "mythic",
 			sellPrice: 5,
 			lore: "",
-			obtain: "Find in a sunken chest in a tier 1 fishing area",
+			obtain: "Find in a sunken chest in a tier 1 fishing area.",
 			set: 4,
 			stats: {
 				defence: "+4",
@@ -203,6 +204,7 @@ var Items = {
 				reflection: "+10%",
 			},
 			functionText: "Click to choose stat:",
+			archaeologyFunctionText: "One of the following stats may be chosen:",
 		},
 		{
 			id: 7,
@@ -212,10 +214,8 @@ var Items = {
 			tier: 1,
 			rarity: "unique",
 			sellPrice: 3,
-			cost: 5,
-			costCurrency: 4,
 			lore: "Evil haunted sheet. Also doubles as an evil haunted blanket.",
-			obtain: "Buy from a merchant during the Samhain event",
+			obtain: "Buy from a merchant during the Samhain event.",
 			area: "loggingCamp",
 			stats: {
 				defence: "+1",
@@ -248,7 +248,7 @@ var Items = {
 			tier: 1,
 			rarity: "common",
 			sellPrice: 1,
-			obtain: "Find as an unidentified item in Eaglecrest Logging Camp",
+			obtain: "Find as an unidentified item in Eaglecrest Logging Camp.",
 			area: "loggingCamp",
 			stats: {
 				defence: "+3",
@@ -263,7 +263,7 @@ var Items = {
 			rarity: "unique",
 			sellPrice: 3,
 			lore: "",
-			obtain: "Find as an unidentified item in Eaglecrest Logging Camp",
+			obtain: "Find as an unidentified item in Eaglecrest Logging Camp.",
 			area: "loggingCamp",
 			set: 3,
 			stats: {
@@ -280,7 +280,7 @@ var Items = {
 			rarity: "unique",
 			sellPrice: 3,
 			lore: "",
-			obtain: "Find as an unidentified item in Eaglecrest Logging Camp",
+			obtain: "Find as an unidentified item in Eaglecrest Logging Camp.",
 			area: "loggingCamp",
 			set: 2,
 			stats: {
@@ -297,7 +297,7 @@ var Items = {
 			rarity: "mythic",
 			sellPrice: 5,
 			lore: "You'll find none of those cheap MDF greaves from the Weirwood.",
-			obtain: "Find as an unidentified item in Eaglecrest Logging Camp",
+			obtain: "Find as an unidentified item in Eaglecrest Logging Camp.",
 			area: "loggingCamp",
 			stats: {
 				defence: "+4",
@@ -314,7 +314,7 @@ var Items = {
 			rarity: "mythic",
 			sellPrice: 5,
 			lore: "",
-			obtain: "Find in a sunken chest in a tier 1 fishing area",
+			obtain: "Find in a sunken chest in a tier 1 fishing area.",
 			set: 4,
 			stats: {
 				defence: "+4",
@@ -325,6 +325,7 @@ var Items = {
 				reflection: "+10%",
 			},
 			functionText: "Click to choose stat:",
+			archaeologyFunctionText: "One of the following stats may be chosen:",
 		},
 	],
 	boots: [
@@ -352,7 +353,7 @@ var Items = {
 			rarity: "common",
 			sellPrice: 1,
 			lore: "Protects you from splinters. And goblins!",
-			obtain: "Recieve as a reward for completing quest: 'To the Logging Camp'",
+			obtain: "Receive as a reward for completing quest: 'To the Logging Camp'.",
 			stats: {
 				defence: "+1",
 				walkSpeed: "+30/s",
@@ -366,7 +367,7 @@ var Items = {
 			tier: 1,
 			rarity: "common",
 			sellPrice: 1,
-			obtain: "Find as an unidentified item in Eaglecrest Logging Camp",
+			obtain: "Find as an unidentified item in Eaglecrest Logging Camp.",
 			area: "loggingCamp",
 			stats: {
 				defence: "+2",
@@ -381,7 +382,7 @@ var Items = {
 			rarity: "unique",
 			sellPrice: 3,
 			lore: "",
-			obtain: "Find as an unidentified item in Eaglecrest Logging Camp",
+			obtain: "Find as an unidentified item in Eaglecrest Logging Camp.",
 			area: "loggingCamp",
 			set: 3,
 			stats: {
@@ -398,7 +399,7 @@ var Items = {
 			rarity: "unique",
 			sellPrice: 3,
 			lore: "",
-			obtain: "Find as an unidentified item in Eaglecrest Logging Camp",
+			obtain: "Find as an unidentified item in Eaglecrest Logging Camp.",
 			area: "loggingCamp",
 			set: 2,
 			stats: {
@@ -415,7 +416,7 @@ var Items = {
 			rarity: "mythic",
 			sellPrice: 5,
 			lore: "Marshall Teper's favourite boots. Maybe you could return them for a reward?",
-			obtain: "Find as an unidentified item in Eaglecrest Logging Camp",
+			obtain: "Find as an unidentified item in Eaglecrest Logging Camp.",
 			area: "loggingCamp",
 			stats: {
 				defence: "+2",
@@ -435,7 +436,7 @@ var Items = {
 			rarity: "unique",
 			sellPrice: 3,
 			lore: "'James just feels like poison' - Peter",
-			obtain: "Log in on James Day",
+			obtain: "Log in on James Day.",
 			stats: {
 				defence: "+4",
 				swimSpeed: "-50/s"
@@ -450,7 +451,7 @@ var Items = {
 			rarity: "mythic",
 			sellPrice: 5,
 			lore: "",
-			obtain: "Find in a sunken chest in a tier 1 fishing area",
+			obtain: "Find in a sunken chest in a tier 1 fishing area.",
 			set: 4,
 			stats: {
 				defence: "+3",
@@ -461,6 +462,7 @@ var Items = {
 				reflection: "+10%",
 			},
 			functionText: "Click to choose stat:",
+			archaeologyFunctionText: "One of the following stats may be chosen:",
 		},
 	],
 	sword: [
@@ -483,12 +485,11 @@ var Items = {
 			id: 2,
 			name: "Basic Sword",
 			type: "sword",
-			cost: 3,
 			image: "assets/items/sword/2.png",
 			tier: 1,
 			rarity: "common",
 			sellPrice: 1,
-			obtain: "Purchase from a merchant in the Fishers' Valley",
+			obtain: "Purchase from a merchant in the Fishers' Valley.",
 			stats: {
 				damage: "2",
 				blockDefence: "+10",
@@ -502,7 +503,7 @@ var Items = {
 			tier: 1,
 			rarity: "common",
 			sellPrice: 1,
-			obtain: "Find as an unidentified item in Eaglecrest Logging Camp",
+			obtain: "Find as an unidentified item in Eaglecrest Logging Camp.",
 			area: "loggingCamp",
 			stats: {
 				damage: "3",
@@ -518,7 +519,7 @@ var Items = {
 			rarity: "unique",
 			sellPrice: 3,
 			lore: "Your hero power gives this... oh, wrong game.",
-			obtain: "Find as an unidentified item in Eaglecrest Logging Camp",
+			obtain: "Find as an unidentified item in Eaglecrest Logging Camp.",
 			area: "loggingCamp",
 			stats: {
 				damage: "3",
@@ -535,7 +536,7 @@ var Items = {
 			rarity: "unique",
 			sellPrice: 3,
 			lore: "It might be falling apart, but those splinters hurt!",
-			obtain: "Find as an unidentified item in Eaglecrest Logging Camp",
+			obtain: "Find as an unidentified item in Eaglecrest Logging Camp.",
 			area: "loggingCamp",
 			stats: {
 				damage: "4",
@@ -552,7 +553,7 @@ var Items = {
 			rarity: "mythic",
 			sellPrice: 5,
 			lore: "Not to be confused with the hit movie 'Raiders of the Lost Orc'.",
-			obtain: "Find as an unidentified item in Eaglecrest Logging Camp",
+			obtain: "Find as an unidentified item in Eaglecrest Logging Camp.",
 			area: "loggingCamp",
 			stats: {
 				damage: "4",
@@ -569,10 +570,8 @@ var Items = {
 			tier: 1,
 			rarity: "unique",
 			lore: "9/10 murderous farmers would recommend it to their friends.",
-			obtain: "Buy from a merchant during the Samhain event",
+			obtain: "Buy from a merchant during the Samhain event.",
 			sellPrice: "4",
-			cost: 15,
-			costCurrency: 4,
 			stats: {
 				damage: "3",
 				lifesteal: "25%",
@@ -601,14 +600,13 @@ var Items = {
 			id: 2,
 			name: "Basic Wand",
 			type: "staff",
-			cost: 3,
 			image: "assets/items/staff/2.png",
 			tier: 1,
 			rarity: "common",
 			sellPrice: 1,
-			obtain: "Purchase from a merchant in the Fishers' Valley",
+			obtain: "Purchase from a merchant in the Fishers' Valley.",
 			stats: {
-				damage: "2-4",
+				damage: "2-6",
 			},
 		},
 		{
@@ -619,10 +617,10 @@ var Items = {
 			tier: 1,
 			rarity: "common",
 			sellPrice: 1,
-			obtain: "Find as an unidentified item in Eaglecrest Logging Camp",
+			obtain: "Find as an unidentified item in Eaglecrest Logging Camp.",
 			area: "loggingCamp",
 			stats: {
-				damage: "3-6",
+				damage: "3-9",
 			},
 		},
 		{
@@ -635,10 +633,10 @@ var Items = {
 			rarity: "unique",
 			sellPrice: 3,
 			lore: "",
-			obtain: "Find as an unidentified item in Eaglecrest Logging Camp",
+			obtain: "Find as an unidentified item in Eaglecrest Logging Camp.",
 			area: "loggingCamp",
 			stats: {
-				damage: "3-6",
+				damage: "3-9",
 				healthRegen: "+0.5/s",
 			},
 		},
@@ -652,10 +650,10 @@ var Items = {
 			rarity: "unique",
 			sellPrice: 3,
 			lore: "POWER OVERWHELMING!",
-			obtain: "Find as an unidentified item in Eaglecrest Logging Camp",
+			obtain: "Find as an unidentified item in Eaglecrest Logging Camp.",
 			area: "loggingCamp",
 			stats: {
-				damage: "2-7",
+				damage: "2-12",
 				criticalChance: "+25%",
 			},
 		},
@@ -669,10 +667,10 @@ var Items = {
 			rarity: "mythic",
 			sellPrice: 5,
 			lore: "",
-			obtain: "Find as an unidentified item in Eaglecrest Logging Camp",
+			obtain: "Find as an unidentified item in Eaglecrest Logging Camp.",
 			area: "loggingCamp",
 			stats: {
-				damage: "2-6",
+				damage: "2-8",
 				looting: "+100%",
 			},
 		},
@@ -706,12 +704,10 @@ var Items = {
 			tier: 1,
 			rarity: "unique",
 			lore: "Gives new meaning to the phrase 'a brush with death'.",
-			obtain: "Buy from a merchant during the Samhain event",
+			obtain: "Buy from a merchant during the Samhain event.",
 			sellPrice: "4",
-			cost: 15,
-			costCurrency: 4,
 			stats: {
-				damage: "3.5-7",
+				damage: "3.5-10.5",
 			},
 			onKill: function () {
 				// give speed to player
@@ -747,12 +743,11 @@ var Items = {
 			id: 2,
 			name: "Basic Bow",
 			type: "bow",
-			cost: 3,
 			image: "assets/items/bow/2.png",
 			tier: 1,
 			rarity: "common",
 			sellPrice: 1,
-			obtain: "Purchase from a merchant in the Fishers' Valley",
+			obtain: "Purchase from a merchant in the Fishers' Valley.",
 			stats: {
 				damage: "2",
 			},
@@ -765,7 +760,7 @@ var Items = {
 			tier: 1,
 			rarity: "common",
 			sellPrice: 1,
-			obtain: "Find as an unidentified item in Eaglecrest Logging Camp",
+			obtain: "Find as an unidentified item in Eaglecrest Logging Camp.",
 			area: "loggingCamp",
 			stats: {
 				damage: "3",
@@ -780,7 +775,7 @@ var Items = {
 			rarity: "unique",
 			sellPrice: 3,
 			lore: "",
-			obtain: "Find as an unidentified item in Eaglecrest Logging Camp",
+			obtain: "Find as an unidentified item in Eaglecrest Logging Camp.",
 			area: "loggingCamp",
 			stats: {
 				damage: "3",
@@ -796,7 +791,7 @@ var Items = {
 			rarity: "unique",
 			sellPrice: 3,
 			lore: "",
-			obtain: "Find as an unidentified item in Eaglecrest Logging Camp",
+			obtain: "Find as an unidentified item in Eaglecrest Logging Camp.",
 			area: "loggingCamp",
 			stats: {
 				damage: "2.5",
@@ -812,7 +807,7 @@ var Items = {
 			rarity: "mythic",
 			sellPrice: 5,
 			lore: "",
-			obtain: "Find as an unidentified item in Eaglecrest Logging Camp",
+			obtain: "Find as an unidentified item in Eaglecrest Logging Camp.",
 			area: "loggingCamp",
 			stats: {
 				damage: "4",
@@ -827,10 +822,8 @@ var Items = {
 			tier: 1,
 			rarity: "unique",
 			lore: "So this is what happens when you leave your crossbow in the shed for too long.",
-			obtain: "Buy from a merchant during the Samhain event",
+			obtain: "Buy from a merchant during the Samhain event.",
 			sellPrice: "4",
-			cost: 15,
-			costCurrency: 4,
 			stats: {
 				damage: "3.5",
 			},
@@ -903,6 +896,7 @@ var Items = {
 			image: "assets/items/set/2.png",
 			tier: 1,
 			rarity: "unique",
+			obtain: "Find the items of this set as unidentified items in Eaglecrest Logging Camp.",
 			armour: [
 				"Siege Helm",
 				"Siege Chestplate",
@@ -921,6 +915,7 @@ var Items = {
 			image: "assets/items/set/3.png",
 			tier: 1,
 			rarity: "unique",
+			obtain: "Find the items of this set as unidentified items in Eaglecrest Logging Camp.",
 			armour: [
 				"Goblin Forged Helm",
 				"Goblin Forged Chestplate",
@@ -939,6 +934,7 @@ var Items = {
 			image: "assets/items/set/4.png",
 			tier: 1,
 			rarity: "mythic",
+			obtain: "Find the items of this set in a sunken chest in a tier 1 fishing area.",
 			armour: [
 				"The Ocean Warrior's Helm",
 				"The Ocean Warrior's Chestplate",
@@ -1037,8 +1033,6 @@ var Items = {
 			name: "Fishing Pouch",
 			type: "bag",
 			image: "assets/items/bag/4.png",
-			cost: 10,
-			costCurrency: 3,
 			sellPrice: 10,
 			rarity: "unique",
 			size: 18,
@@ -1215,7 +1209,6 @@ var Items = {
 			name: "Potion of Strength I",
 			type: "consumable",
 			image: "assets/items/consumable/2.png",
-			cost: 4,
 			sellPrice: 2,
 			functionText: "Increases damage dealt by 40% for 10 seconds",
 			onClick: function (inventoryPosition) {
@@ -1236,7 +1229,6 @@ var Items = {
 			name: "Potion of Swiftness I",
 			type: "consumable",
 			image: "assets/items/consumable/3.png",
-			cost: 2,
 			sellPrice: 1,
 			functionText: "Increases walk speed by 35% for 20 seconds",
 			onClick: function (inventoryPosition) {
@@ -1257,7 +1249,6 @@ var Items = {
 			name: "Potion of Health I",
 			type: "consumable",
 			image: "assets/items/consumable/4.png",
-			cost: 2,
 			sellPrice: 1,
 			functionText: "Restores 15 health",
 			onClick: function (inventoryPosition) {
@@ -1333,7 +1324,6 @@ var Items = {
 			name: "Goblin Trap",
 			type: "consumable",
 			image: "assets/items/consumable/7.png",
-			cost: 0,
 			functionText: "Places a trap (can only be used in The Nilbog)",
 			lore: "Like a bear trap, but ickier.",
 			onClick: function (inventoryPosition) {
@@ -1368,7 +1358,6 @@ var Items = {
 			name: "Can of Worms",
 			type: "consumable",
 			image: "assets/items/consumable/8.png",
-			cost: 4,
 			functionText: "Gives you +20 fishing skill for your next fishing attempt",
 			charges: 3,
 			onClick: function (inventoryPosition) {
@@ -1396,8 +1385,6 @@ var Items = {
 			name: "Samhain Pot o' Gloop",
 			type: "consumable",
 			image: "assets/items/consumable/9.png",
-			cost: 1,
-			costCurrency: 4,
 			functionText: "Gives you a random spooky status effect",
 			charges: 3,
 			onClick: function (inventoryPosition) {
@@ -1443,8 +1430,6 @@ var Items = {
 			name: "Bunch of Blood Bats",
 			type: "consumable",
 			image: "assets/items/consumable/10.png",
-			cost: 2,
-			costCurrency: 4,
 			onClickText: "Deals 5 damage to the nearest enemy, stunning them for 1s",
 			charges: 3,
 			onClick: function (inventoryPosition) {

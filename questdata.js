@@ -1090,7 +1090,7 @@ var Quests = {
 			],
 		},
 		
-		/*{
+		{
 			id: 1,
 			quest: "A Big Splash",
 			questArea: "fishing",
@@ -1135,7 +1135,7 @@ var Quests = {
 			resetVariables: [
 				"fishCaught",
 			],
-		},*/
+		},
 	],
 };
 

@@ -348,7 +348,10 @@ var Areas = {
 				},
 				roles: [
 					{
-						sold: Player.class === "k" ? [Items.sword[2],] : (Player.class === "m" ? [Items.staff[2],] : (Player.class === "a" ? [Items.bow[2],] : [])),
+						sold: Player.class === "k" ? [{item: Items.sword[2], cost: 3},]
+						: Player.class === "m" ? [{item: Items.staff[2], cost: 3},]
+						: Player.class === "a" ? [{item: Items.bow[2], cost: 3,},]
+						: [],
 						role: "merchant",
 					},
 				],
@@ -373,46 +376,29 @@ var Areas = {
 				roles: [
 					{
 						quest: Quests.eaglecrestLoggingCamp[7], 
-						role: "questStart",
-					},
-					{
-						quest: Quests.eaglecrestLoggingCamp[7], 
-						role: "questFinish",
+						role: "questStartFinish",
 					},
 					{
 						quest: Quests.eaglecrestLoggingCamp[8], 
-						role: "questStart",
-					},
-					{
-						quest: Quests.eaglecrestLoggingCamp[8], 
-						role: "questFinish",
+						role: "questStartFinish",
 					},
 					{
 						quest: Quests.eaglecrestLoggingCamp[9], 
-						role: "questStart",
-					},
-					{
-						quest: Quests.eaglecrestLoggingCamp[9], 
-						role: "questFinish",
+						role: "questStartFinish",
 					},
 					{
 						quest: Quests.eaglecrestLoggingCamp[10], 
-						role: "questStart",
+						role: "questStartFinish",
 					},
 					{
-						quest: Quests.eaglecrestLoggingCamp[10], 
-						role: "questFinish",
+						quest: [Quests.fishing[0], Quests.fishing[1]], 
+						role: "questStartFinish",
+						newQuestFrequency: "daily",
 					},
 					{
-						quest: Quests.fishing[0], 
-						role: "questStart",
-					},
-					{
-						quest: Quests.fishing[0], 
-						role: "questFinish",
-					},
-					{
-						sold: [Items.consumable[8]],
+						sold: [
+							{item: Items.consumable[8], cost: 4}, // can of worms
+						],
 						role: "merchant",
 						chooseText: "I'd like to browse your fishing items.",
 						roleRequirement: function () {
@@ -420,7 +406,10 @@ var Areas = {
 						},
 					},
 					{
-						sold: [Items.bag[4]],
+						sold: [
+							{item: Items.currency[2], cost: 1, quantity: 3, costCurrency: 3}, // 3 gold
+							{item: Items.bag[4], cost: 10, costCurrency: 3}, // fishing pouch
+						],
 						role: "merchant",
 						chooseText: "I'd like to see what I can buy with fishing seals.",
 						roleRequirement: function () {
@@ -646,27 +635,15 @@ var Areas = {
 					},
 					{
 						quest: Quests.eaglecrestLoggingCamp[3], 
-						role: "questStart"
-					},
-					{
-						quest: Quests.eaglecrestLoggingCamp[3], 
-						role: "questFinish"
-					},
-					{
-						quest: Quests.eaglecrestLoggingCamp[5], 
-						role: "questStart"
-					},
-					{
-						quest: Quests.eaglecrestLoggingCamp[5], 
-						role: "questFinish"
+						role: "questStartFinish"
 					},
 					{
 						quest: Quests.eaglecrestLoggingCamp[4], 
-						role: "questStart"
+						role: "questStartFinish"
 					},
 					{
-						quest: Quests.eaglecrestLoggingCamp[4], 
-						role: "questFinish"
+						quest: Quests.eaglecrestLoggingCamp[5], 
+						role: "questStartFinish"
 					},
 					{
 						role: "text",
@@ -725,11 +702,7 @@ var Areas = {
 					},
 					{
 						quest: Quests.eaglecrestLoggingCamp[2], 
-						role: "questStart"
-					},
-					{
-						quest: Quests.eaglecrestLoggingCamp[2], 
-						role: "questFinish"
+						role: "questStartFinish"
 					},
 				],
 				chat: {
@@ -753,11 +726,7 @@ var Areas = {
 				roles: [
 					{
 						quest: Quests.eaglecrestLoggingCamp[6], 
-						role: "questStart"
-					},
-					{
-						quest: Quests.eaglecrestLoggingCamp[6], 
-						role: "questFinish"
+						role: "questStartFinish"
 					},
 				],
 				chat: {
@@ -784,11 +753,7 @@ var Areas = {
 				roles: [
 					{
 						quest: Quests.eaglecrestLoggingCamp[16], 
-						role: "questStart"
-					},
-					{
-						quest: Quests.eaglecrestLoggingCamp[16], 
-						role: "questFinish"
+						role: "questStartFinish"
 					},
 					{
 						role: "identifier",
@@ -819,11 +784,7 @@ var Areas = {
 				roles: [
 					{
 						quest: Quests.eaglecrestLoggingCamp[13], 
-						role: "questStart"
-					},
-					{
-						quest: Quests.eaglecrestLoggingCamp[13], 
-						role: "questFinish"
+						role: "questStartFinish"
 					},
 					{
 						role: "soulHealer",
@@ -852,22 +813,16 @@ var Areas = {
 				roles: [
 					{
 						quest: Quests.eaglecrestLoggingCamp[11], 
-						role: "questStart"
-					},
-					{
-						quest: Quests.eaglecrestLoggingCamp[11], 
-						role: "questFinish"
+						role: "questStartFinish"
 					},
 					{
 						quest: Quests.eaglecrestLoggingCamp[12], 
-						role: "questStart"
+						role: "questStartFinish"
 					},
 					{
-						quest: Quests.eaglecrestLoggingCamp[12], 
-						role: "questFinish"
-					},
-					{
-						sold: [Items.consumable[7]],
+						sold: [
+							{item: Items.consumable[7], cost: 0}, // goblin trap
+						],
 						role: "merchant",
 						roleRequirement: function () {
 							return Player.quests.activeQuestArray.includes("Strengthening Defences") || Player.quests.activeQuestArray.includes("Reinforcing Defences");
@@ -898,11 +853,7 @@ var Areas = {
 				roles: [
 					{
 						quest: Quests.eaglecrestLoggingCamp[15], 
-						role: "questStart"
-					},
-					{
-						quest: Quests.eaglecrestLoggingCamp[15], 
-						role: "questFinish"
+						role: "questStartFinish"
 					},
 					{
 						role: "itemBuyer",
@@ -944,14 +895,14 @@ var Areas = {
 				roles: [
 					{
 						quest: Quests.eaglecrestLoggingCamp[17], 
-						role: "questStart"
+						role: "questStartFinish"
 					},
 					{
-						quest: Quests.eaglecrestLoggingCamp[17], 
-						role: "questFinish"
-					},
-					{
-						sold: [Items.consumable[4], Items.consumable[3], Items.consumable[2]],
+						sold: [
+							{item: Items.consumable[4], cost: 2}, // potion of health I
+							{item: Items.consumable[3], cost: 2}, // potion of swiftness I
+							{item: Items.consumable[2], cost: 4}, // potion of strength I
+						],
 						role: "merchant",
 						roleRequirement: function () {
 							return Player.level > 2;
@@ -1173,11 +1124,7 @@ var Areas = {
 				roles: [
 					{
 						quest: Quests.eaglecrestLoggingCamp[14], 
-						role: "questStart"
-					},
-					{
-						quest: Quests.eaglecrestLoggingCamp[14], 
-						role: "questFinish"
+						role: "questStartFinish"
 					},
 				],
 				chat: {
@@ -1204,7 +1151,14 @@ var Areas = {
 				},
 				roles: [
 					{
-						sold: [Items.consumable[9],Items.chest[7],Items.bow[7],Items.sword[7],Items.staff[8]],
+						sold: [
+							{item: Items.consumable[9], cost: 1, costCurrency: 4}, // samhain pot o' gloop
+							//{item: Items.consumable[10], cost: 2, costCurrency: 4}, // bunch of blood bats
+							{item: Items.chest[7], cost: 5, costCurrency: 4}, // ghost sheet
+							{item: Items.bow[7], cost: 15, costCurrency: 4}, // samhain spiderbow
+							{item: Items.sword[7], cost: 15, costCurrency: 4}, // samhain scythe
+							{item: Items.staff[8], cost: 15, costCurrency: 4}, // samhain broomstick
+						],
 						role: "merchant",
 						roleText: "I'd like to browse your Samhain event items.",
 					},

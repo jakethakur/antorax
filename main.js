@@ -3041,24 +3041,75 @@ Game.update = function (delta) {
 				NPC.roles.forEach(role => { // iterate through quests involving that NPC
 					if (role.roleRequirement === undefined || role.roleRequirement()) {
 						// quest starts
-						if (role.role === "questStart") {
+						if (role.role === "questStart" || role.role === "questStartFinish") {
 							// quest is ready to be accepted
-							if (!Player.quests.activeQuestArray.includes(role.quest.quest) && // quest isn't currently active
-							role.quest.levelRequirement <= this.hero.level && // player is a high enough level
-							isContainedInArray(role.quest.questRequirements, Player.quests.completedQuestArray) && // quest requirements have been completed
-                            ((role.quest.repeatTime === undefined && // not a daily quest, and...
-                            !Player.quests.completedQuestArray.includes(role.quest.quest)) || // quest hasn't aleady been completed, or...
-                            (role.quest.repeatTime === "daily" && // is a daily quest, and...
-                            (Player.quests.questLastFinished[role.quest.questArea][role.quest.id] === undefined || // has not been done before, or...
-                            Player.quests.questLastFinished[role.quest.questArea][role.quest.id] < getFullDate())))) { // was done at least one day ago
+							
+							let questCanBeStarted = true; // set to false if the quest cannot be started
+							let questToBeStarted = role.quest;
+							
+							if (role.quest.constructor === Array && role.newQuestFrequency === "daily") {
+								// quest is an array (hence a random one is picked each questing time period)
+								// all of these quests are daily quests
+								if (role.quest.some(quest => Player.quests.activeQuestArray.includes(quest))) { // one of the quests is currently active
+									questCanBeStarted = false;
+									questActive = true; // for NPC dialogue
+								}
+								else if (role.quest.some(quest => Player.quests.questLastFinished[quest.questArea][quest.id] >= getFullDate())) { // one of the quests has already been done today (or after today o.O)
+									questCanBeStarted = false;
+									questComplete = true; // for NPC dialogue
+								}
 								
-								if (typeof role.quest.startRewards !== "undefined" && typeof role.quest.startRewards.items !== "undefined") {
-									if (Dom.inventory.requiredSpace(role.quest.startRewards.items, role.quest.startRewards.itemQuantities)) {
+								// pick a random one of the quests to be started
+								questToBeStarted = questToBeStarted.filter(quest => quest.levelRequirement <= this.hero.level); // filter for player level
+								questToBeStarted = questToBeStarted.filter(quest => isContainedInArray(quest.questRequirements, Player.quests.completedQuestArray)); // filter for quesst requirements
+								if (questToBeStarted.length > 0) { // at least one quest survived the level and quest requirements
+									questToBeStarted = questToBeStarted[random(0, questToBeStarted.length - 1)]; //pick random quest
+								}
+								else {
+									questCanBeStarted = false;
+								}
+							}
+							else {
+								// single quest
+								if (Player.quests.activeQuestArray.includes(role.quest.quest)) { // quest is already active
+									questCanBeStarted = false;
+									questActive = true; // for NPC dialogue
+								}
+								else if (role.quest.levelRequirement > this.hero.level) { // player is not a high enough level
+									questCanBeStarted = false;
+								}
+								else if (!isContainedInArray(role.quest.questRequirements, Player.quests.completedQuestArray)) { // quest requirements have not been completed
+									questCanBeStarted = false;
+								}
+								else {
+									// check if it is daily or one time
+									if (role.quest.repeatTime === undefined) {
+										// one time
+										if (Player.quests.completedQuestArray.includes(role.quest.quest)) { // quest has already been completed
+											questCanBeStarted = false;
+											questComplete = true; // for NPC dialogue
+										}
+									}
+									else if (role.quest.repeatTime === "daily") {
+										// daily
+										if (Player.quests.questLastFinished[role.quest.questArea][role.quest.id] >= getFullDate()) { // quest has already been done today (or after today o.O)
+											// note that if the quest has not been finished (hence questLastFinished is undefined) the condition will always return false
+											questCanBeStarted = false;;
+											questComplete = true; // for NPC dialogue
+										}
+									}
+								}
+							}
+							
+							if (questCanBeStarted) {
+								
+								if (typeof questToBeStarted.startRewards !== "undefined" && typeof questToBeStarted.startRewards.items !== "undefined") {
+									if (Dom.inventory.requiredSpace(questToBeStarted.startRewards.items, questToBeStarted.startRewards.itemQuantities)) {
 										// user has space for quest start items
 										// quest start appears as an option for choose DOM
-										textArray.push("Quest start: " + role.quest.quest);
+										textArray.push("Quest start: " + questToBeStarted.quest);
 										functionArray.push(Dom.quest.start);
-										parameterArray.push([role.quest]);
+										parameterArray.push([questToBeStarted]);
 									}
 									else {
 										// user doesn't have enough space
@@ -3068,28 +3119,40 @@ Game.update = function (delta) {
 								else {
 									// no quest start items, so user ofc has enough inventory space
 									// quest start appears as an option for choose DOM
-									textArray.push("Quest start: " + role.quest.quest);
+									textArray.push("Quest start: " + questToBeStarted.quest);
 									functionArray.push(Dom.quest.start);
-									parameterArray.push([role.quest]);
+									parameterArray.push([questToBeStarted]);
 								}
-							}
-							// quest is currently active
-							else if (Player.quests.activeQuestArray.includes(role.quest.quest)) {
-								questActive = true;
-							}
-							// quest has been completed
-							else if (Player.quests.completedQuestArray.includes(role.quest.quest)) {
-								questComplete = true;
 							}
 						}
 						
 						// quest finishes
-						else if (role.role === "questFinish") {
+						else if (role.role === "questFinish" || role.role === "questStartFinish") {
 							// check if quest is ready to be finished
-							if (Player.quests.activeQuestArray.includes(role.quest.quest) && // quest is currently active
-                            ((role.quest.repeatTime === undefined && // not a daily quest, and...
-							!Player.quests.completedQuestArray.includes(role.quest.quest)) || // quest has not already been completed, or...
-                            role.quest.repeatTime === "daily")) { // is a daily quest
+							
+							let questCanBeFinished = true; // set to false if the quest cannot be finished
+							let questToBeFinished = role.quest;
+							
+							if (role.quest.constructor === Array && role.newQuestFrequency === "daily") {
+								// quest is an array (hence a random one is picked each questing time period)
+								// all of these quests are daily quests
+								
+								let questToBeFinished = role.quest.find(quest => Player.quests.activeQuestArray.includes(quest)); // find which quest the active one is
+								
+								if (questToBeFinished === undefined) { // none of the quests are currently active
+									questCanBeFinished = false;
+								}
+								
+								// no need to check if it has already been completed as these are all daily
+							}
+							else {
+								// single quest
+								if (!Player.quests.activeQuestArray.includes(role.quest.quest)) { // quest is not already active
+									questCanBeFinished = false;
+								}
+							}
+							
+							if (questCanBeFinished) {
 								// check if quest conditions have been fulfilled
 								if (Quests[role.quest.questArea][role.quest.id].completed) {
 									if (typeof role.quest.rewards !== "undefined" && typeof role.quest.rewards.items !== "undefined") {
