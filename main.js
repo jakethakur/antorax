@@ -854,16 +854,6 @@ class Hero extends Attacker {
 	}
 	
 	move (delta, dirx, diry) {
-		// update speed if the player has selected HIGH SPEED MODE in their settings (maybe doesn't have to be done every move tick? - TBD use onclick in main instead with status effect)
-		if (document.getElementById("speedOn").checked) {
-			Player.stats.walkSpeed = 1000;
-			Player.stats.swimSpeed = 333;
-			Game.inventoryUpdate();
-		}
-		else {
-			// TBD undo ability
-		}
-		
 		// move hero
 		if (this.hasStatusEffect("Stunned") || this.isCorpse) {
 			// player cannot move
@@ -3558,6 +3548,28 @@ Game.lootClosed = function () {
 	}
 	else {
 		console.error("Dom.loot.currentId cannot be understood: " + Dom.loot.currentId);
+	}
+}
+
+// called by HIGH SPEED radio buttons with the parameter "add" (give status effect) or "remove" (remove status effect)
+Game.highSpeed = function (addRemove) {
+	if (addRemove === "add") {
+		// add status effect
+		Game.statusEffects.walkSpeed({
+			target: Game.hero,
+			effectTitle: "HIGH SPEED! (test status effect)",
+			speedIncrease: 500, // percentage increase
+		});
+	}
+	else if (addRemove === "remove") {
+		// remove status effect
+		Game.hero.statusEffects = Game.hero.statusEffects.filter(statusEffect => statusEffect.title !== "HIGH SPEED! (test status effect)");
+		// reflect this change on secondary canvas
+		Game.hero.updateStatusEffects();
+	}
+	else {
+		// unknown parameter
+		console.error("Unknown parameter for Game.highSpeed (it should be 'add' or 'remove'):", addRemove)
 	}
 }
 
