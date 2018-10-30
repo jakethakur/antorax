@@ -1464,6 +1464,10 @@ var Items = {
 				}));
 			},
 			lore: "",
+			images: { // images that should be loaded for this item
+				names: ["bloodBat"],
+				addresses: ["./assets/projectiles/bloodBat.png",],
+			},
 		},
 	],
 	fish: [

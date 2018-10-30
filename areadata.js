@@ -862,15 +862,16 @@ var Areas = {
 						}
 					},
 					{
-						role: "function",
-						chooseText: "I don't suppose you have a vial of goblin blood?",
-						onClick: function () {
-							Game.NPCs[6].say("Why yes, I have had some goblin blood handed into me. Sure, you can have it - I haven't got any use for it.")
-						},
+						sold: [
+							{item: Items.item[11], cost: 2}, // vial of goblin blood
+							{item: Items.helm[2], cost: 2}, // worn leather helm
+							{item: Items.chest[2], cost: 3}, // worn leather tunic
+							{item: Items.greaves[2], cost: 3}, // worn leather trousers
+							{item: Items.boots[2], cost: 2}, // worn leather boots
+						],
+						role: "merchant",
 						roleRequirement: function () {
-							// check that the player has "potion making" active and hasn't already got some goblin blood
-							return Player.quests.activeQuestArray.includes("Potion Making") && !Dom.inventory.check(11, "item", 1);
-							// tbd also check that they haven't added it to the potion
+							return Player.quests.completedQuestArray.includes("Retrieval of Logs");
 						}
 					},
 				],
