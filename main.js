@@ -3117,7 +3117,7 @@ Game.update = function (delta) {
 						}
 						
 						// quest finishes
-						else if (role.role === "questFinish" || role.role === "questStartFinish") {
+						if (role.role === "questFinish" || role.role === "questStartFinish") {
 							// check if quest is ready to be finished
 							
 							let questCanBeFinished = true; // set to false if the quest cannot be finished
@@ -4333,7 +4333,6 @@ Game.saveProgress = function (saveType) { // if saveType is "auto" then the save
 		
 		// save everything in savedata.js
 		localStorage.setItem(Player.class, JSON.stringify(Player));
-		
 		// message to console
 		let time = new Date();
 		console.info((saveType === "auto" ? "AUTO" : "") + "SAVE AT " + (time.getHours() < 10 ? "0" : "") + time.getHours() + ":" + (time.getMinutes() < 10 ? "0" : "") + time.getMinutes() + ":" + (time.getSeconds() < 10 ? "0" : "") + time.getSeconds());

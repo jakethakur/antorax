@@ -305,6 +305,7 @@ td{
 	padding-left: 10px;
 	padding-right: 10px;
 	width: max-content;
+	width: -moz-max-content;
 }
 #identifierPageBuy, #lootAll{
 	display: inline-block;
@@ -343,6 +344,7 @@ td{
 	font-size: 20px;
 	clear: both;
 	width: max-content;
+	width: -moz-max-content;
 	min-width: 170px;
 	padding-left: 15px;
 	padding-right: 15px;

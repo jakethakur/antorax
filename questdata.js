@@ -876,6 +876,7 @@ var Quests = {
 			finishChat: `Interesting. Let's see how this goes.`,
 			
 			onQuestFinish: function () {
+				Dom.changeBook("chatPage", true);
 				Game.sayChat("Ciarra Darkbrew", "Stand back. We wouldn't want your arms to detatch so soon.", false, 1000, true);
 				Game.sayChat("Ciarra Darkbrew", "/me adds the potion ingredients to an inert vial.", false, 4000, true);
 				Dom.chat.insert("The vial fizzes rapidly.", 6500, true);
