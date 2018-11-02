@@ -1576,7 +1576,8 @@ class Projectile extends Thing {
 						
 						let attackerDamage = attacker.stats.damage;
 						
-						if (attacker.stats.maxDamage !== undefined && attacker.stats.maxDamage > attacker.stats.damage) { // calculate damage based on channelling time (if the attacker is a mage)
+						// calculate damage based on channelling time (if the attacker is a mage)
+						if (attacker.stats.maxDamage !== undefined && attacker.stats.maxDamage > attacker.stats.damage) {
 							// this.expand - 1 = a number from 0 to 1
 							// multiply the extra damage gained by maxDamage by this fraction to see the extra damage dealt
 							let a = (attacker.stats.maxDamage - attacker.stats.damage); // possible extra damage
@@ -1590,7 +1591,21 @@ class Projectile extends Thing {
 							attackerDamage *= 3;
 						}
 						
-						let dmgDealt = attackerDamage - ((to[i][x].stats.defence + blockDefence) / 10); // calculate damage dealt
+						let targetDefence = to[i][x].stats.defence + blockDefence; // calculate target defence
+						
+						// defence status effect
+						to[i][x].statusEffects.forEach(statusEffect => {
+							if (statusEffect.info.defenceIncrease !== undefined) {
+								// increase defence if the status effect does so
+								// check what the attacker's species is (or that status effect is not geared towards a certain subspecies)
+								if (statusEffect.info.subSpecies === undefined || attacker.subSpecies === statusEffect.info.subSpecies) {
+									targetDefence *= 1 + (statusEffect.info.defenceIncrease / 100);
+								}
+							}
+						});
+						
+						// defence
+						let dmgDealt = attackerDamage - (targetDefence / 10);
 						if (dmgDealt < 0) {
 							dmgDealt = 0;
 						}
@@ -2454,6 +2469,29 @@ Game.statusEffects.stealth = function(properties) {
 	this.generic(newProperties);
 }
 
+// give target a defence buff/debuff
+// properties includes target, effectTitle, defenceIncrease, time, subSpecies (optional)
+Game.statusEffects.defence = function(properties) {
+	let newProperties = properties;
+	if (newProperties.subSpecies !== undefined) {
+		// targeted against a specific subspecies
+		newProperties.effectDescription = properties.effectDescription || "% defence agaisnt " + properties.subSpecies + "s";
+	}
+	else {
+		// general
+		newProperties.effectDescription = properties.effectDescription || "% defence";
+	}
+	newProperties.increasePropertyName = "defenceIncrease";
+	newProperties.increasePropertyValue = properties.defenceIncrease;
+	if (properties.speedIncrease > 0) {
+		newProperties.imageName = "defenceUp";
+	}
+	else {
+		newProperties.imageName = "defenceDown";
+	}
+	this.generic(newProperties);
+}
+
 //
 // Load game
 //
@@ -2759,6 +2797,8 @@ Game.init = function () {
 		
 		// projectile (TBD)
 		projectile: {},
+		
+		checkpoint: Player.checkpoint,
 	});
 	
 	// set player projectile
@@ -3181,9 +3221,13 @@ Game.update = function (delta) {
 						// merchants
 						else if (role.role === "merchant") {
 							// merchant appears as an option for choose DOM
+							
+							// filter the sold items to check that they are eligible to be sold
+							let soldItems = role.sold.filter(soldItem => soldItem.condition === undefined || soldItem.condition() === true);
+							
 							textArray.push(role.chooseText || "I'd like to browse your goods.");
 							functionArray.push(Dom.merchant.page);
-							parameterArray.push([NPC, role.sold]);
+							parameterArray.push([NPC, soldItems]);
 						}
 						
 						// soul healers

@@ -1130,6 +1130,17 @@ var Items = {
 								Player.quests.questProgress.soulSceptreEnergy++;
 							}
 							Dom.quests.active();
+							switch(random(0, 2)) {
+								case 0:
+									Dom.chat.insert("The sceptre sizzles with soul energy.");
+									break;
+								case 1:
+									Dom.chat.insert("The sceptre feels warm as soul energy rushes in.");
+									break;
+								case 2:
+									Dom.chat.insert("You hear a whoosh as the sceptre siphons energy from the nearby corpse.");
+									break;
+							}
 						}
 					}
 				});
@@ -1161,9 +1172,9 @@ var Items = {
 			name: "Vial of Goblin Blood",
 			rarity: "junk",
 			type: "item",
-			quest: true,
 			image: "assets/items/item/11.png",
 			lore: "Has some alchemical uses.",
+			sellPrice: 1,
 		},
 		{
 			id: 12,
@@ -1469,6 +1480,27 @@ var Items = {
 				addresses: ["./assets/projectiles/bloodBat.png",],
 			},
 		},
+		{
+			id: 11,
+			name: "Potion of Goblin Resistance",
+			type: "consumable",
+			image: "assets/items/consumable/11.png",
+			sellPrice: 2,
+			functionText: "Increases defence against Nilbog goblins by 40% for 10 seconds",
+			onClick: function (inventoryPosition) {
+				// remove the item
+				Dom.inventory.remove(inventoryPosition);
+				
+				// give the status effect
+				Game.statusEffects.defence({
+					target: Game.hero,
+					effectTitle: "Goblin Resistance",
+					defenceIncrease: 40,
+					time: 10,
+					subSpecies: "nilbog goblin",
+				});
+			}
+		},
 	],
 	fish: [
 		{
@@ -1674,7 +1706,7 @@ var Items = {
 			name: "Old Rusted Coin",
 			fishingType: "waterjunk",
 			type: "fish",
-			image: "assets/items/fish/14.png",
+			image: "assets/items/fish/13.png",
 			rarity: "junk",
 			sellPrice: 1,
 			sellQuantity: 1,

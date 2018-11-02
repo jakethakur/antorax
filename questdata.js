@@ -962,8 +962,8 @@ var Quests = {
 			onQuestFinish: function () {
 				Game.sayChat("Ciarra Darkbrew", "/me adds the potion ingredients to an inert vial.", false, 1500, true);
 				Dom.chat.insert("The vial fizzes rapidly.", 4000, true);
-				Dom.chat.insert("The vial simmers to produce a <COLOUR>-coloured liquid.", 6000, true);
-				Game.sayChat("Ciarra Darkbrew", "Excellent. If you'd like to try the potion, you can some from me. I promise it won't kill you. Probably.", false, 8000, true);
+				Dom.chat.insert("The vial simmers to produce a bluish-green coloured liquid.", 6000, true);
+				Game.sayChat("Ciarra Darkbrew", "Excellent. If you'd like to try the potion, you can buy some from me. I promise it won't kill you. Probably.", false, 8000, true);
 			},
 			
 			objectives: [
@@ -978,7 +978,7 @@ var Quests = {
 				
 				// true or falses for each objective (apart from the turn-in objective)
 				completed.push(checkProgress(Dom.inventory.check(10, "item"), 2));
-				completed.push(Dom.inventory.check(28, "item", 1));
+				completed.push(Dom.inventory.check(19, "fish", 1));
 				completed.push(Dom.inventory.check(11, "item", 1));
 				
 				completed = checkFinished(completed);
@@ -992,7 +992,7 @@ var Quests = {
 			
 			removeItems: [
 				Items.item[10], // goblin eye
-				Items.fish[28], // direweed
+				Items.fish[19], // direweed
 				Items.item[11], // vial of goblin blood
 			],
 			removeItemQuantity: [

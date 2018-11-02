@@ -879,6 +879,10 @@ var Areas = {
 					chooseChat: "Hello, how are you?",
 					notUnlockedRoles: "I'm not sure you have anything I can buy from you. Come back a bit later.",
 					buyerGreeting: "I'll happily buy any items that you're willing to part with.",
+					shopGreeting: "I can sell you some second-hand equipment for a reduced price.",
+					shopLeave: "Have a good day now.",
+					inventoryFull: "I'm not sure you have any space to carry that.",
+					tooPoor: "I don't think you have enough gold to buy that. Sorry.",
 				},
 			},
 			{
@@ -899,10 +903,17 @@ var Areas = {
 						role: "questStartFinish"
 					},
 					{
+						quest: Quests.eaglecrestLoggingCamp[18], 
+						role: "questStartFinish"
+					},
+					{
 						sold: [
 							{item: Items.consumable[4], cost: 2}, // potion of health I
 							{item: Items.consumable[3], cost: 2}, // potion of swiftness I
 							{item: Items.consumable[2], cost: 4}, // potion of strength I
+							{item: Items.consumable[11], cost: 4, condition: function () {
+								return Player.quests.completedQuestArray.includes("Potion Making II");
+							}}, // potion of goblin resistance II
 						],
 						role: "merchant",
 						roleRequirement: function () {
@@ -915,7 +926,8 @@ var Areas = {
 					notUnlockedRoles: "I've been told you're not a high enough level to handle my potions.",
 					shopGreeting: "Want to buy a potion? Of course you do.",
 					shopLeave: "Side effects? No. Trust me.",
-					inventoryFull: "You don't want to be spilling a potion with an inventory as full as yours. Come back with some free space.",
+					inventoryFull: "You don't want to be carrying a potion with an inventory as full as yours. Come back with some free space.",
+					tooPoor: "You're not going to be able to buy that potion without enough gold.",
 				},
 			},
 		],
