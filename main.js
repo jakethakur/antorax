@@ -812,6 +812,8 @@ class AreaTeleport extends Entity {
 		this.teleportTo = properties.teleportTo;
 		this.destinationX = properties.destinationX;
 		this.destinationY = properties.destinationY;
+		this.playerAdjustX = properties.playerAdjustX;
+		this.playerAdjustY = properties.playerAdjustY;
 	}
 }
 
@@ -3395,8 +3397,11 @@ Game.update = function (delta) {
 			if (this.areaTeleports[i].teleportCondition === undefined
 			|| (this.areaTeleports[i].teleportCondition !== undefined && this.areaTeleports.teleportCondition())) {
 				// a teleport condition has been met (if there is one)
+				// find player destination
+				let destinationX = this.areaTeleports[i].destinationX || Game.hero.x + this.areaTeleports[i].playerAdjustX;
+				let destinationY = this.areaTeleports[i].destinationY || Game.hero.y + this.areaTeleports[i].playerAdjustY;
 				// teleport to new area
-				this.loadArea(this.areaTeleports[i].teleportTo, {x: this.areaTeleports[i].destinationX, y: this.areaTeleports[i].destinationY});
+				this.loadArea(this.areaTeleports[i].teleportTo, {x: destinationX, y: destinationY});
 			}
 		}
     }
@@ -3548,7 +3553,8 @@ Game.projectileUpdate = function () {
 			Player.inventory.weapon[0].cannotAttack = undefined;
 		}
 	}
-	else if (this.heroProjectileName !== Skins[Player.class][Player.skin].projectile) {
+	// if the player is NOT holding a weapon with a special projectile image, and the skin does have a special projectile image
+	else if (Player.inventory.weapon[0].projectile !== undefined && this.heroProjectileName !== Skins[Player.class][Player.skin].projectile) {
 		// needs to reload default projectile image
 		this.heroProjectileName = Skins[Player.class][Player.skin].projectile;
 		this.heroProjectileAdjust = Skins[Player.class][Player.skin].projectileAdjust;
