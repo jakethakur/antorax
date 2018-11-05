@@ -11,12 +11,17 @@
 	<canvas id="secondary" width="600" height="600"></canvas>
 	<canvas id="game" width="600" height="600"></canvas>
 	<div id="information" hidden>
-		<div class='triangleLeft'></div>
+		<div id='outTriangle' class='triangleLeft'></div>
 		<div id='triangle' class='innerTriangleLeft'></div>
 		<p id='name' style="font-weight: bold;"></p>
 		<p id='stats'></p>
 		<p id='set'></p>
 		<p id='lore'></p>
+	</div>
+	<div id="itemIdentification" hidden>
+		<div id='outIdtriangle' class='triangleLeft'></div>
+		<div id='idtriangle' class='innerTriangleLeft'></div>
+		<p id='innerStats'></p>
 	</div>
 	<div id="alert" hidden>
 		<p id="alertText"></p>
@@ -27,18 +32,13 @@
 	</div>
 	<div id="chatPage" hidden></div>
 	<div id="inventoryPage" hidden ondrop="Dom.inventory.dispose(event)" ondragover="Dom.inventory.allowDrop(event)">
-		<div id="itemIdentification" hidden>
-			<div class='triangleLeft'></div>
-			<div id='idtriangle' class='innerTriangleLeft'></div>
-			<p id='innerStats'></p>
-		</div>
 		<div id="inventoryGoldXP"></div>
 		<div id="displayStats" onmouseover="Dom.inventory.displayIdentification(true)"onmouseleave="Dom.expand('itemIdentification')"></div>
-		<div id="weapon"onmouseover="Dom.inventory.displayInformation(Player.inventory.weapon[0], undefined, 'equip')"onmouseleave="Dom.expand('information')"ondrop="Dom.inventory.drop(event,'weapon');Game.inventoryUpdate()" ondragover="Dom.inventory.allowDrop(event)" ondrag="Dom.expand('information')"></div>
-		<div id="helm"onmouseover="Dom.inventory.displayInformation(Player.inventory.helm[0], undefined, 'equip')"onmouseleave="Dom.expand('information')"ondrop="Dom.inventory.drop(event,'helm');Game.inventoryUpdate()" ondragover="Dom.inventory.allowDrop(event)" ondrag="Dom.expand('information')"></div>
-		<div id="chest"onmouseover="Dom.inventory.displayInformation(Player.inventory.chest[0], undefined, 'equip')"onmouseleave="Dom.expand('information')"ondrop="Dom.inventory.drop(event,'chest');Game.inventoryUpdate()" ondragover="Dom.inventory.allowDrop(event)" ondrag="Dom.expand('information')"></div>
-		<div id="greaves"onmouseover="Dom.inventory.displayInformation(Player.inventory.greaves[0], undefined, 'equip')"onmouseleave="Dom.expand('information')"ondrop="Dom.inventory.drop(event,'greaves');Game.inventoryUpdate()" ondragover="Dom.inventory.allowDrop(event)" ondrag="Dom.expand('information')"></div>
-		<div id="boots"onmouseover="Dom.inventory.displayInformation(Player.inventory.boots[0], undefined, 'equip')"onmouseleave="Dom.expand('information')"ondrop="Dom.inventory.drop(event,'boots');Game.inventoryUpdate()" ondragover="Dom.inventory.allowDrop(event)" ondrag="Dom.expand('information')"></div>
+		<div id="weapon"onmouseover="Dom.inventory.displayInformation(Player.inventory.weapon, undefined, 'equip')"onmouseleave="Dom.expand('information')"ondrop="Dom.inventory.drop(event,'weapon');Game.inventoryUpdate()" ondragover="Dom.inventory.allowDrop(event)" ondrag="Dom.expand('information')"></div>
+		<div id="helm"onmouseover="Dom.inventory.displayInformation(Player.inventory.helm, undefined, 'equip')"onmouseleave="Dom.expand('information')"ondrop="Dom.inventory.drop(event,'helm');Game.inventoryUpdate()" ondragover="Dom.inventory.allowDrop(event)" ondrag="Dom.expand('information')"></div>
+		<div id="chest"onmouseover="Dom.inventory.displayInformation(Player.inventory.chest, undefined, 'equip')"onmouseleave="Dom.expand('information')"ondrop="Dom.inventory.drop(event,'chest');Game.inventoryUpdate()" ondragover="Dom.inventory.allowDrop(event)" ondrag="Dom.expand('information')"></div>
+		<div id="greaves"onmouseover="Dom.inventory.displayInformation(Player.inventory.greaves, undefined, 'equip')"onmouseleave="Dom.expand('information')"ondrop="Dom.inventory.drop(event,'greaves');Game.inventoryUpdate()" ondragover="Dom.inventory.allowDrop(event)" ondrag="Dom.expand('information')"></div>
+		<div id="boots"onmouseover="Dom.inventory.displayInformation(Player.inventory.boots, undefined, 'equip')"onmouseleave="Dom.expand('information')"ondrop="Dom.inventory.drop(event,'boots');Game.inventoryUpdate()" ondragover="Dom.inventory.allowDrop(event)" ondrag="Dom.expand('information')"></div>
 		<table id="itemInventory">
 			<tr>
 				<td ondrop="Dom.inventory.drop(event);Game.inventoryUpdate(event)" ondragover="Dom.inventory.allowDrop(event)" onmouseover="Dom.inventory.displayInformation(Player.inventory.items[0])" onmouseleave="Dom.expand('information')" ondrag="Dom.expand('information')" onclick="Game.inventoryUpdate()"></td>
@@ -101,23 +101,23 @@
 		</div>
 		<div id="settingCoords" class="settings">
 			Show co-ordinates:
-			<span class="radio1"><input type="radio" id="coordsOn" name="coordsOnOff">Yes</input></span>
-			<span class="radio2"><input type="radio" name="coordsOnOff" checked="true">No</input></span>
+			<span class="radio1"><input type="radio" id="coordsOn" name="coordsOnOff" onclick="SaveItem('coords', true)">Yes</input></span>
+			<span class="radio2"><input type="radio" name="coordsOnOff" checked="true" onclick="SaveItem('coords', false)">No</input></span>
 		</div>
 		<div id="settingFps" class="settings">
 			Show FPS:
-			<span class="radio1"><input type="radio" id="fpsOn" name="fpsOnOff">Yes</input></span>
-			<span class="radio2"><input type="radio" name="fpsOnOff" checked="true">No</input></span>
+			<span class="radio1"><input type="radio" id="fpsOn" name="fpsOnOff" onclick="SaveItem('fps', true)">Yes</input></span>
+			<span class="radio2"><input type="radio" name="fpsOnOff" checked="true" onclick="SaveItem('fps', false)">No</input></span>
 		</div>
 		<div id="settingHitboxes" class="settings">
 			Show hitboxes:
-			<span class="radio1"><input type="radio" id="hitboxesOn" name="hitboxOnOff">Yes</input></span>
-			<span class="radio2"><input type="radio" name="hitboxOnOff" checked="true">No</input></span>
+			<span class="radio1"><input type="radio" id="hitboxesOn" name="hitboxOnOff" onclick="SaveItem('hitboxes', true)">Yes</input></span>
+			<span class="radio2"><input type="radio" name="hitboxOnOff" checked="true" onclick="SaveItem('hitboxes', false)">No</input></span>
 		</div>
 		<div id="settingGrid" class="settings">
 			Show grid:
-			<span class="radio1"><input type="radio" id="gridOn" name="gridOnOff">Yes</input></span>
-			<span class="radio2"><input type="radio" name="gridOnOff" checked="true">No</input></span>
+			<span class="radio1"><input type="radio" id="gridOn" name="gridOnOff" onclick="SaveItem('grid', true)">Yes</input></span>
+			<span class="radio2"><input type="radio" name="gridOnOff" checked="true" onclick="SaveItem('grid', false)">No</input></span>
 		</div>
 		<div id="settingSpeed" class="settings">
 			HIGH SPEED:
@@ -164,7 +164,7 @@
 		<div id="questStartXP"></div><span id="xpClass">&nbsp;&nbsp;</span>
 		<div id="questStartItems"></div>
 		<div id="accept" class="closeClass" onclick="Dom.quest.accept()">Accept</div>
-		<div id="decline" class="closeClass" onclick="Dom.changeBook(Dom.previous, true)">Decline</div>
+		<div id="decline" class="closeClass" onclick="Dom.changeBook(Player.tab, true)">Decline</div>
 	</div>
 	<div id="questFinish" hidden>
 		<br><h1 id="questFinishQuest"></h1><br><br>
@@ -174,7 +174,7 @@
 		<p id="questFinishRewards"></p>
 		<div id="questFinishXP"></div><span id="xpClass">&nbsp;&nbsp;</span>
 		<div id="questFinishItems"></div>
-		<center><div id="acceptReward" class="closeClass" onclick="Game.getXP(Dom.currentlyDisplayed.rewards.xp);Dom.quest.acceptRewards();">Complete Quest</div></center>
+		<center><div id="acceptReward" class="closeClass" onclick="Dom.quest.acceptRewards();">Complete Quest</div></center>
 	</div>
 	<div id="merchantPage" hidden>
 		<br><h1 id="merchantPageTitle"></h1><br><br>
@@ -190,7 +190,7 @@
 		<center><div id="identifierPageOption"></div></center>
 		<div id="rightArrow" class="triangleRight"></div><br><br>
 		<div id="identifierPageBuy"></div><br><br><br><br>
-		<center><div id="identifierPageClose" class="closeClass" onclick="Dom.changeBook(Dom.previous, true)">Close</div></center>
+		<center><div id="identifierPageClose" class="closeClass" onclick="Dom.changeBook(Player.tab, true)">Close</div></center>
 	</div>
 	<div id="identifiedPage" hidden>
 		<br><h1 id="identifiedPageTitle">Item Identifier</h1><br><br>
@@ -202,13 +202,13 @@
 		<h1 id="lootingPageTitle"></h1>
 		<table id="loot"></table>
 		<div id="lootAll">Loot All</div>
-		<center><div id="lootingPageClose" class="closeClass" onclick="Dom.changeBook(Dom.previous, true);Game.lootClosed()">Close</div></center>
+		<center><div id="lootingPageClose" class="closeClass" onclick="Dom.changeBook(Player.tab, true);Game.lootClosed()">Close</div></center>
 	</div>
 	<div id="buyerPage" hidden>
 		<h1>Item Buyer</h1>
 		<p id="buyerPageChat"></p><br>
 		<center><table id="buyerPageInventory"></table></center><br><br>
-		<center><div id="buyerPageClose" class="closeClass" onclick="Dom.changeBook(Dom.previous, true)">Close</div></center>
+		<center><div id="buyerPageClose" class="closeClass" onclick="Dom.changeBook(Player.tab, true)">Close</div></center>
 	</div>
 	<div id="choosePage" hidden></div>
 	<div id="textPage" hidden></div>

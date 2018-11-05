@@ -190,7 +190,7 @@ function arrange(){
 			}
 		}
 		if(category.value != 8 || (viewedItemId != undefined && viewedItemType != undefined && i == 1)){
-			document.getElementById("flashcardlist"+c).innerHTML += '<li class="box" id="box'+i+'" '+(localStorage.getItem("archaeology") != null ? JSON.parse(localStorage.getItem("archaeology")).includes(array[i].name) ? "style='border: 5px solid darkgreen'" : "" : "")+'><img src="'+(array[i].imageArchaeology == undefined ? array[i].image : array[i].imageArchaeology)+'" class="img"><p id="name'+i+'" class="para"></p><p id="tier'+i+'" class="para"></p><p id="stats'+i+'" class="para"></p><p id="set'+i+'" class="para"></p><p id="lore'+i+'" class="para"></p><p id="function'+i+'" class="para"></p></li>';
+			document.getElementById("flashcardlist"+c).innerHTML += '<li class="box" id="box'+i+'" '+(localStorage.getItem("archaeology") != null ? JSON.parse(localStorage.getItem("archaeology")).includes(array[i].name) ? "style='border: 5px solid darkgreen'" : "" : "")+'><img src="'+(array[i].imageArchaeology == undefined ? array[i].image : array[i].imageArchaeology)+'" class="img"><p id="name'+i+'" class="para"></p><p id="tier'+i+'" class="para"></p><p id="stats'+i+'" class="para"></p><p id="set'+i+'" class="para"></p><p id="function'+i+'" class="para"></p><p id="lore'+i+'" class="para"></p></li>';
 		}else{
 			var current = true;
 			for(x = 0; x < array[i].armour.length; x++){
@@ -200,9 +200,9 @@ function arrange(){
 				}
 			}
 			if(current){
-				document.getElementById("flashcardlist"+c).innerHTML += '<li class="box" id="box'+i+'" style="border: 5px solid darkgreen"><img src="'+(array[i].imageArchaeology == undefined ? array[i].image : array[i].imageArchaeology)+'" class="img"><p id="name'+i+'" class="para"></p><p id="tier'+i+'" class="para"></p><p id="stats'+i+'" class="para"></p><p id="set'+i+'" class="para"></p><p id="lore'+i+'" class="para"></p><p id="function'+i+'" class="para"></p></li>';
+				document.getElementById("flashcardlist"+c).innerHTML += '<li class="box" id="box'+i+'" style="border: 5px solid darkgreen"><img src="'+(array[i].imageArchaeology == undefined ? array[i].image : array[i].imageArchaeology)+'" class="img"><p id="name'+i+'" class="para"></p><p id="tier'+i+'" class="para"></p><p id="stats'+i+'" class="para"></p><p id="set'+i+'" class="para"></p><p id="function'+i+'" class="para"></p><p id="lore'+i+'" class="para"></p></li>';
 			}else{
-				document.getElementById("flashcardlist"+c).innerHTML += '<li class="box" id="box'+i+'"><img src="'+(array[i].imageArchaeology == undefined ? array[i].image : array[i].imageArchaeology)+'" class="img"><p id="name'+i+'" class="para"></p><p id="tier'+i+'" class="para"></p><p id="stats'+i+'" class="para"></p><p id="set'+i+'" class="para"></p><p id="lore'+i+'" class="para"></p><p id="function'+i+'" class="para"></p></li>';
+				document.getElementById("flashcardlist"+c).innerHTML += '<li class="box" id="box'+i+'"><img src="'+(array[i].imageArchaeology == undefined ? array[i].image : array[i].imageArchaeology)+'" class="img"><p id="name'+i+'" class="para"></p><p id="tier'+i+'" class="para"></p><p id="stats'+i+'" class="para"></p><p id="set'+i+'" class="para"></p><p id="function'+i+'" class="para"></p><p id="lore'+i+'" class="para"></p></li>';
 			}
 		}
 		document.getElementById("flashcardlist"+c).style.left = 25+c*245+((screenSize-45)-(((Math.floor((screenSize-45)/245)))*245))/2+"px";

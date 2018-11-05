@@ -50,7 +50,7 @@ var Quests = {
 				Player.unlockedTabs.push("quests");
 				document.getElementById("changeQuests").style.display = "block";
 				document.getElementById("questsImage").hidden = false;
-				Dom.changeBook(Dom.previous, true);
+				Dom.changeBook(Player.tab, true);
 				Dom.adventure.addInstruction(2);
 			},
 		},
@@ -75,7 +75,7 @@ var Quests = {
 				let completed = [];
 				
 				// true or falses for each objective (apart from the turn-in objective)
-				completed.push(Player.inventory.weapon[0].type === "bow" || Player.inventory.weapon[0].type === "staff" || Player.inventory.weapon[0].type === "sword");
+				completed.push(Player.inventory.weapon.type === "bow" || Player.inventory.weapon.type === "staff" || Player.inventory.weapon.type === "sword");
 				
 				completed = checkFinished(completed);
 				
@@ -94,7 +94,7 @@ var Quests = {
 				Player.unlockedTabs.push("inventory");
 				document.getElementById("changeInventory").style.display = "block";
 				document.getElementById("inventoryImage").hidden = false;
-				Dom.changeBook(Dom.previous, true);
+				Dom.changeBook(Player.tab, true);
 				Dom.adventure.addInstruction(5);
 			},
 		},

@@ -629,8 +629,8 @@ class Character extends Thing {
 				Game.getXP(this.xpGiven / Player.level); // now that the XP has fully been added, check for a levelUp and display it on the canvas
 				
 				// on kill function
-				if (Player.inventory.weapon[0].onKill !== undefined) {
-					Player.inventory.weapon[0].onKill();
+				if (Player.inventory.weapon.onKill !== undefined) {
+					Player.inventory.weapon.onKill();
 				}
 				
 				// corpse disappears in this.stats.lootTime ms
@@ -645,7 +645,7 @@ class Character extends Thing {
 				
 				// quest progress
 				if (this.subSpecies = "nilbog goblin") {
-					if (JSON.stringify(Player.inventory.weapon[0]) === JSON.stringify(Items.staff[7])) { // goblin torch equipped
+					if (JSON.stringify(Player.inventory.weapon) === JSON.stringify(Items.staff[7])) { // goblin torch equipped
 						if (Player.quests.questProgress.goblinsKilledWithTorch === undefined) {
 							Player.quests.questProgress.goblinsKilledWithTorch = 1;
 						}
@@ -656,8 +656,8 @@ class Character extends Thing {
 				}
 				
 				// weapon chat message (some weapons have a chat message for when they kill something!)
-				if (Player.inventory.weapon[0].chat !== undefined && Player.inventory.weapon[0].chat.kill !== undefined) {
-					Game.sayChat(Player.inventory.weapon[0].name, Player.inventory.weapon[0].chat.kill, false, 100, false)
+				if (Player.inventory.weapon.chat !== undefined && Player.inventory.weapon.chat.kill !== undefined) {
+					Game.sayChat(Player.inventory.weapon.name, Player.inventory.weapon.chat.kill, false, 100, false)
 				}
 			}
 		}
@@ -972,7 +972,7 @@ class Hero extends Attacker {
 	
 	// start channeling basic attack
 	startAttack (e) {
-		if (this.canAttack && Player.inventory.weapon[0].name !== "" && !Player.inventory.weapon.cannotAttack) { // checks the player has a weapon and is not currently reloading
+		if (this.canAttack && Player.inventory.weapon.name !== "" && !Player.inventory.weapon.cannotAttack) { // checks the player has a weapon and is not currently reloading
 			// Player.inventory.weapon.cannotAttack is set to true when the projectile image is being loaded (e.g: weapon with special projectile is equipped/unequipped)
 			if (!checkRightClick(e)) {
 				// left-click (normal) attack
@@ -982,7 +982,7 @@ class Hero extends Attacker {
 				let projectileY = Game.camera.y + (e.clientY - 19);
 				let distanceToProjectile = distance({x: projectileX, y: projectileY,}, this);
 				
-				if (Player.inventory.weapon[0].type === "staff" || Player.inventory.weapon[0].type === "bow" || Player.inventory.weapon[0].type === "sword") {
+				if (Player.inventory.weapon.type === "staff" || Player.inventory.weapon.type === "bow" || Player.inventory.weapon.type === "sword") {
 					// player is using conventional weapon
 						
 					if (distanceToProjectile < this.stats.range) {
@@ -995,7 +995,7 @@ class Hero extends Attacker {
 						let projectileRotate = bearing(this, {x: projectileX, y: projectileY}) + Math.PI / 2;
 						
 						let variance = this.stats.variance;
-						if (Player.inventory.weapon[0].type === "bow") { // alter variance based on distance to enemy if the class is archer
+						if (Player.inventory.weapon.type === "bow") { // alter variance based on distance to enemy if the class is archer
 							let distanceFraction = distanceToProjectile / 600; // fraction of maximum variance (max variance = Playerstats.variance)
 							variance *= distanceFraction;
 						}
@@ -1028,7 +1028,7 @@ class Hero extends Attacker {
 						}));
 					}
 				}
-				else if (Player.inventory.weapon[0].type === "rod" && this.channelling === false) {
+				else if (Player.inventory.weapon.type === "rod" && this.channelling === false) {
 					// fishing rod (bobber has not been cast yet)
 					this.fishingBobs = 0; // number of times that the fishing bobber has bobbed
 					
@@ -1059,7 +1059,7 @@ class Hero extends Attacker {
 						setTimeout(this.fish.bind(this), random(500, 12000));
 					}
 				}
-				else if (Player.inventory.weapon[0].type === "rod" && this.channelling === "fishing") {
+				else if (Player.inventory.weapon.type === "rod" && this.channelling === "fishing") {
 					// fishing rod (bobber has been cast)
 					
 					/*Game.projectiles.splice(Game.searchFor(this.channellingProjectileId, Game.projectiles), 1); // remove bobber
@@ -1069,7 +1069,7 @@ class Hero extends Attacker {
 					
 					// in the future, the player should be able to remove the bobber whilst fishing
 				}
-				else if (Player.inventory.weapon[0].type === "rod" && this.channelling.fishingType !== undefined && this.fishingBobs >= 100) { // channelling.type is only defined when it is set to an item (i.e. a fishing item)
+				else if (Player.inventory.weapon.type === "rod" && this.channelling.fishingType !== undefined && this.fishingBobs >= 100) { // channelling.type is only defined when it is set to an item (i.e. a fishing item)
 					// fishing rod (fish has been caught - player is clicking to pull it up)
 					
 					this.fishingBobs++;
@@ -1188,7 +1188,7 @@ class Hero extends Attacker {
 			}
 			else {
 				// knight block attack
-				if (Player.inventory.weapon[0].type === "bow") {
+				if (Player.inventory.weapon.type === "bow") {
 					this.channelling = "block";
 				}
 			}
@@ -1675,8 +1675,8 @@ class Projectile extends Thing {
 						// onAttack function
 						// perhaps make work for other non-weapon things in the future? (TBD)
 						// there should be a good system for this - maybe a list of functions called on attack or something, handled by Game.inventoryUpdate
-						if (attacker == Game.hero && Player.inventory.weapon[0].onAttack !== undefined) {
-							Player.inventory.weapon[0].onAttack(to[i][x]);
+						if (attacker == Game.hero && Player.inventory.weapon.onAttack !== undefined) {
+							Player.inventory.weapon.onAttack(to[i][x]);
 						}
 						
 						// chat relating to being damaged (and dealing damage? TBD)
@@ -2845,6 +2845,14 @@ Game.init = function () {
 	else if (this.event === "Samhain") {
 		console.info("Happy Samhain! Keep your eye out for a beautiful blood moon tonight.");
 	}
+	
+	// function to be run when class is loaded
+	Dom.hotbar.update();
+	Dom.inventory.update();
+	Dom.quests.active();
+	Dom.quests.possible();
+	Dom.quests.completed();
+	Dom.changeBook(Player.tab);
 };
 
 //
@@ -3252,7 +3260,7 @@ Game.update = function (delta) {
 									if (Dom.inventory.check(2, "currency", Game.soulHealerCost)) {
 										Dom.inventory.removeById(2, "currency", Game.soulHealerCost);
 										Game.hero.statusEffects.splice(Game.hero.statusEffects.findIndex(statusEffect => statusEffect.title === "XP Fatigue"), 1); // remove xp fatigue effect
-										Dom.changeBook(Dom.previous, true); // close page
+										Dom.changeBook(Player.tab, true); // close page
 										Game.currentSoulHealer.say(Game.currentSoulHealer.chat.healedText, false, 0, false);
 										Game.currentSoulHealer = undefined; // reset variable that remembers which soul healer the player is speaking to
 										Game.soulHealerCost = undefined; // reset variable that remembers the cost for soul healing
@@ -3431,7 +3439,7 @@ Game.playerProjectileUpdate = function(delta) {
 			this.hero.channelTime += delta;
 		}
 
-		if (Player.inventory.weapon[0].type === "bow") { // archer weapons slowly focus as they are channelling
+		if (Player.inventory.weapon.type === "bow") { // archer weapons slowly focus as they are channelling
 			if (projectile.variance > 0 + Game.hero.stats.focusSpeed * delta * 16) { // check it won't be 0 or less
 				projectile.variance -= Game.hero.stats.focusSpeed * delta * 16;
 			}
@@ -3440,7 +3448,7 @@ Game.playerProjectileUpdate = function(delta) {
 			}
 		}
 		
-		else if (Player.inventory.weapon[0].type === "staff") { // mage weapon
+		else if (Player.inventory.weapon.type === "staff") { // mage weapon
 			if (projectile.expand < 2) { // check it won't be 0 or less
 				// takes about 1 second to fully expand
 				projectile.expand += delta;
@@ -3502,13 +3510,13 @@ Game.inventoryUpdate = function (e) {
 		Game.hero.stats = Player.stats; // inefficient (should be linked)
 		
 		// if the player is holding a weapon, set their range
-		Game.hero.stats.range = WeaponRanges[Player.inventory.weapon[0].type] + Game.hero.stats.rangeModifier;
+		Game.hero.stats.range = WeaponRanges[Player.inventory.weapon.type] + Game.hero.stats.rangeModifier;
 		
 		// set player projectile
 		this.projectileUpdate();
 		
 		// if the player is no longer holding a fishing rod, remove their bobber
-		if (Player.inventory.weapon[0].type !== "rod" && Game.hero.channelling === "fishing") {
+		if (Player.inventory.weapon.type !== "rod" && Game.hero.channelling === "fishing") {
 			Game.projectiles.splice(Game.searchFor(Game.hero.channellingProjectileId, Game.projectiles), 1); // remove bobber
 			
 			Game.hero.channelling = false;
@@ -3516,8 +3524,8 @@ Game.inventoryUpdate = function (e) {
 		}
 		
 		// set weapon variance
-		if (Player.inventory.weapon[0].type === "bow" || Player.inventory.weapon[0].variance !== undefined) {
-			Game.hero.stats.variance = Player.inventory.weapon[0].variance || 100; // 100 is default
+		if (Player.inventory.weapon.type === "bow" || Player.inventory.weapon.variance !== undefined) {
+			Game.hero.stats.variance = Player.inventory.weapon.variance || 100; // 100 is default
 		}
 		else {
 			// non-bows have no variance
@@ -3530,19 +3538,19 @@ Game.inventoryUpdate = function (e) {
 // set player projectile
 Game.projectileUpdate = function () {
 	// if the player is now holding a weapon with a special projectile image, load that image and stop the player from attacking until this is done
-	if (Player.inventory.weapon[0].projectile !== undefined && this.heroProjectileName !== Player.inventory.weapon[0].projectile) {
+	if (Player.inventory.weapon.projectile !== undefined && this.heroProjectileName !== Player.inventory.weapon.projectile) {
 		// not loaded projectile image before
-		this.heroProjectileName = Player.inventory.weapon[0].projectile;
-		this.heroProjectileAdjust = Player.inventory.weapon[0].projectileAdjust;
+		this.heroProjectileName = Player.inventory.weapon.projectile;
+		this.heroProjectileAdjust = Player.inventory.weapon.projectileAdjust;
 		// set weapon property "cannotAttack" to true so the player is blocked from attacking
-		Player.inventory.weapon[0].cannotAttack = true;
+		Player.inventory.weapon.cannotAttack = true;
 		// load image
 		let p = Loader.loadImage(this.heroProjectileName, "./assets/projectiles/" + this.heroProjectileName + ".png");
 		if (p !== undefined) {
 			p.then(function (value) {
 				// only called once image has loaded
 				// set weapon "cannotAttack" property back to false
-				Player.inventory.weapon[0].cannotAttack = undefined;
+				Player.inventory.weapon.cannotAttack = undefined;
 			})
 			.catch(function (err) {
 				console.error("Your image did not load correctly.", err);
@@ -3550,22 +3558,22 @@ Game.projectileUpdate = function () {
 		}
 		else {
 			// image already loaded; allow the player to attack anyway
-			Player.inventory.weapon[0].cannotAttack = undefined;
+			Player.inventory.weapon.cannotAttack = undefined;
 		}
 	}
 	// if the player is NOT holding a weapon with a special projectile image, and the skin does have a special projectile image
-	else if (Player.inventory.weapon[0].projectile !== undefined && this.heroProjectileName !== Skins[Player.class][Player.skin].projectile) {
+	else if (Player.inventory.weapon.projectile !== undefined && this.heroProjectileName !== Skins[Player.class][Player.skin].projectile) {
 		// needs to reload default projectile image
 		this.heroProjectileName = Skins[Player.class][Player.skin].projectile;
 		this.heroProjectileAdjust = Skins[Player.class][Player.skin].projectileAdjust;
 		// set weapon property "cannotAttack" to true so the player is blocked from attacking
-		Player.inventory.weapon[0].cannotAttack = true;
+		Player.inventory.weapon.cannotAttack = true;
 		// load image
 		let p = Loader.loadImage(this.heroProjectileName, "./assets/projectiles/" + this.heroProjectileName + ".png");
 		p.then(function (value) {
 			// only called once image has loaded
 			// set weapon "cannotAttack" property back to false
-			Player.inventory.weapon[0].cannotAttack = undefined;
+			Player.inventory.weapon.cannotAttack = undefined;
 		})
 		.catch(function (err) {
 			console.error("Your image did not load correctly.", err);
@@ -4107,7 +4115,7 @@ Game.render = function (delta) {
 		// set screen x and y
 		this.updateScreenPosition(this.projectiles[i]);
 		
-		if (Player.inventory.weapon[0].type === "bow" && this.projectiles[i].beingChannelled && Game.hero.channelling === "projectile") { // show archer red circle instead of projectile if they are currently channelling it
+		if (Player.inventory.weapon.type === "bow" && this.projectiles[i].beingChannelled && Game.hero.channelling === "projectile") { // show archer red circle instead of projectile if they are currently channelling it
 			this.ctx.strokeStyle = "red";
 			this.ctx.beginPath();
 			this.ctx.arc(this.projectiles[i].hitbox.screenX, this.projectiles[i].hitbox.screenY, this.projectiles[i].variance, 0, 2*Math.PI);
@@ -4115,7 +4123,7 @@ Game.render = function (delta) {
 		}
 		
 		else { // render projectile normally
-			if (Player.inventory.weapon[0].type === "staff" && this.projectiles[i].beingChannelled && Game.hero.channelling === "projectile") { // mage projectiles are transparent when being channelled
+			if (Player.inventory.weapon.type === "staff" && this.projectiles[i].beingChannelled && Game.hero.channelling === "projectile") { // mage projectiles are transparent when being channelled
 				this.ctx.globalAlpha = 0.6;
 			}
 		

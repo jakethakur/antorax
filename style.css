@@ -17,6 +17,7 @@ body{
 	padding-right: 10px;
 	background-color: #f9f9d0;
 	overflow: hidden;
+	position: relative;
 }
 #game, #secondary{
 	border: 1px solid black;
@@ -170,9 +171,8 @@ body{
 	padding-right: 5px;
 	height: 35px;
 	margin-top: -10px;
-	//margin-bottom: 10px;
 	font-weight: bold;
-	left: 1000px;
+	left: 320px;
 	position: absolute;
 }
 #hotkeyTexts{
@@ -180,23 +180,20 @@ body{
 }
 #inventoryGoldXP{
 	position: relative;
-	bottom: 3px;
-	right: 20px;
 	width: 80px;
-	height: 60px;
 	background-size: 80px;
 	background-repeat: no-repeat;
 }
 #displayStats{
 	position: absolute;
-	top: 60px;
+	top: 42px;
 	width: 60px;
 	height: 60px;
 }
 #itemInventory, #hotbar, #loot{
 	position: absolute;
-	top: 51px;
-	left: 779px;
+	top: 31px;
+	left: 139px;
 	background-color: #fef9b4;
 	margin-top: 10px;
 	font-size: 0px;
@@ -221,7 +218,7 @@ body{
 	background-color: #fef9b4;
 }
 #loot{
-	left: 680px;
+	left: 38px;
 	top: 90px;
 }
 td{
@@ -232,7 +229,7 @@ td{
 }
 #bagText{
 	position: absolute;
-	left: 815px;
+	left: 170px;
 }
 .goldDisplay, .xpDisplay{
 	margin-top: 25px;
@@ -260,6 +257,7 @@ td{
 	width: 50px;
 	vertical-align: middle;
 	margin-bottom: 10px;
+	position: relative;
 }
 #dot {
 	line-height: 15px;
@@ -394,7 +392,7 @@ td{
 }
 .reputationBox{
 	//top: 5px;
-	left: 875px;
+	left: 230px;
 	position: absolute;
 	height: 20px;
 	width: 250px;
@@ -575,9 +573,9 @@ td{
 }
 .instructionArrowLeft{
 	position: absolute;
-	left: 830px;
+	left: 195px;
 }
 .instructionArrowRight{
 	position: absolute;
-	left: 960px;
+	left: 311px;
 }

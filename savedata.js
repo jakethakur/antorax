@@ -22,6 +22,7 @@ var Player = {
 	
 	unlockedInstructions: ["Chapter I: Getting Started"],
 	unlockedTabs: [],
+	tab: "adventurePage",
 	
 	reputation: {
 		eaglecrestLoggingCamp: {
@@ -48,11 +49,11 @@ var Player = {
 	},
 	
 	inventory: {
-		helm: [],
-		chest: [],
-		greaves: [],
-		boots: [],
-		weapon: [],
+		helm: {},
+		chest: {},
+		greaves: {},
+		boots: {},
+		weapon: {},
 		items: [{},{},{},{},{},{}],
 	},
 	

@@ -8,6 +8,7 @@ var Skins = {
 			projectile:	"arrow",
 			projectileAdjust: {x: 20, y: 20},
 			cursor: "crosshair",
+			headAdjust: {x: 0, y: 0},
 		},
 		{
 			id: 1,
@@ -17,6 +18,7 @@ var Skins = {
 			projectile:	"arrow",
 			projectileAdjust: {x: 20, y: 20},
 			cursor: "crosshair",
+			headAdjust: {x: 0, y: 0},
 		},
 		{
 			id: 2,
@@ -27,6 +29,7 @@ var Skins = {
 			projectileAdjust: {x: 20, y: 20},
 			cursor: "jungleHunter",
 			cursorPosition: {x: 9.5, y: 8},
+			headAdjust: {x: 12, y: 0},
 		},
 		{
 			id: 3,
@@ -37,6 +40,7 @@ var Skins = {
 			projectileAdjust: {x: 20, y: 20},
 			cursor: "spooky",
 			cursorPosition: {x: 10, y: 10},
+			headAdjust: {x: 10, y: 0},
 		},
 	],
 	m: [
@@ -48,6 +52,7 @@ var Skins = {
 			projectile:	"fireball",
 			projectileAdjust: {x: 20, y: 20},
 			cursor: "crosshair",
+			headAdjust: {x: 0, y: 0},
 		},
 		{
 			id: 1,
@@ -57,6 +62,7 @@ var Skins = {
 			projectile:	"fireball",
 			projectileAdjust: {x: 20, y: 20},
 			cursor: "crosshair",
+			headAdjust: {x: 0, y: 0},
 		},
 		{
 			id: 2,
@@ -74,6 +80,7 @@ var Skins = {
 					//gradient: {"0": "#e28909","1": "#e23e09",},
 				}
 			},
+			headAdjust: {x: 8, y: 0},
 		},
 		{
 			id: 3,
@@ -84,6 +91,7 @@ var Skins = {
 			projectileAdjust: {x: 20, y: 20},
 			cursor: "spooky",
 			cursorPosition: {x: 10, y: 10},
+			headAdjust: {x: 5, y: 12},
 		},
 	],
 	k: [
@@ -95,6 +103,7 @@ var Skins = {
 			projectile:	"slash",
 			projectileAdjust: {x: 20, y: 20},
 			cursor: "crosshair",
+			headAdjust: {x: 0, y: 0},
 		},
 		{
 			id: 1,
@@ -104,6 +113,7 @@ var Skins = {
 			projectile:	"slash",
 			projectileAdjust: {x: 20, y: 20},
 			cursor: "crosshair",
+			headAdjust: {x: 0, y: 0},
 		},
 		{
 			id: 2,
@@ -113,6 +123,7 @@ var Skins = {
 			projectile:	"slash",
 			projectileAdjust: {x: 20, y: 20},
 			cursor: "crosshair",
+			headAdjust: {x: 6, y: 0},
 		},
 		{
 			id: 3,
@@ -123,6 +134,7 @@ var Skins = {
 			projectileAdjust: {x: 20, y: 20},
 			cursor: "spooky",
 			cursorPosition: {x: 10, y: 10},
+			headAdjust: {x: -2, y: 0},
 		},
 	],
 };
