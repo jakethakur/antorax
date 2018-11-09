@@ -98,10 +98,10 @@ if(document.getElementById("settingDelete") !== null){
 
 // DO NOT ADD CODE ABOVE THIS POINT
 
-Dom.changeBook = function(page, override, shouldNotBeOverriden){
+Dom.changeBook = function(page, override, shouldNotBeOverriden, levelUpOverride){
 	// if the page can be changed
 	if(this.currentlyDisplayed === "" || override){
-		if((page === "chatPage" || page === "inventoryPage" || page === "questsPage" || page === "adventurePage" || page === "reputationPage" || page === "settingsPage" || page === "settingsTwoPage") && Dom.adventure.awaitingInstructions.length > 0){
+		if((page === "chatPage" || page === "inventoryPage" || page === "questsPage" || page === "adventurePage" || page === "reputationPage" || page === "settingsPage" || page === "settingsTwoPage") && Dom.adventure.awaitingInstructions.length > 0 && levelUpOverride === undefined){
 			Dom.adventure.showInstructions(Dom.adventure.awaitingInstructions[0], true);
 			Dom.adventure.awaitingInstructions.splice(0,1);
 		}else{
@@ -164,6 +164,18 @@ Dom.changeBook = function(page, override, shouldNotBeOverriden){
 			if(!shouldNotBeOverriden){
 				Dom.currentlyDisplayed = "";
 			}
+			if(levelUpOverride !== undefined){
+				Dom.levelUp.override = true;
+				Dom.currentlyDisplayed = page;
+				setTimeout(function(){
+					Dom.levelUp.override = false;
+					Dom.currentlyDisplayed = "";
+					if(Dom.levelUp.waiting){
+						Dom.levelUp.waiting = false;
+						Dom.levelUp.page();
+					}
+				},levelUpOverride);
+			}
 			if(page === "settingsPage" && !shouldNotBeOverriden){
 				Dom.settings.page();
 			}
@@ -210,44 +222,46 @@ Dom.chat.newString = ""; // chat above the -new messages-
 Dom.chat.oldString = ""; // chat below the -new messages-
 Dom.chat.contents = []; // stores all the chat messages
 document.getElementById("dot").innerHTML = 0;
-Dom.chat.insert = function(text, delay, important){
-	if(this.contents.length > 1000){
-		// purge the oldest
-		this.contents.shift();
+Dom.chat.insert = function(text, delay, important, noRepeat){
+	if(!noRepeat || !Dom.chat.contents.includes(text)){
+		if(this.contents.length > 1000){
+			// purge the oldest
+			this.contents.shift();
+		}
+		setTimeout(function(){
+			if(chatPage.hidden && document.getElementById("dot").innerHTML !== "<b>...</b>"){
+				if(!document.getElementById("chatImage").hidden){
+					document.getElementById("dot").hidden = false;
+				}
+				document.getElementById("dot").innerHTML = parseInt(document.getElementById("dot").innerHTML) + 1;
+				if(parseInt(document.getElementById("dot").innerHTML) > 99){
+					document.getElementById("dot").innerHTML = "<b>...</b>";
+					document.getElementById("dot").style.lineHeight = "7.5px";
+				}
+			}
+			this.contents.push(text);
+			this.newString = text + "<br><br>" + this.newString;
+			chatPage.innerHTML = "<br>" + this.newString;
+			if(this.oldString !== ""){
+				chatPage.innerHTML += '-------------------- <b>New Messages</b> --------------------';
+			}
+			chatPage.innerHTML += "</p>" + this.oldString;
+			if(!chatPage.hidden){
+				// update the chat
+				Dom.changeBook("chatPage");
+			}
+			if(important && !this.borderRed && !this.borderBlack){
+				this.borderRed = setInterval(function(){
+					document.getElementById("changeChat").getElementsByTagName("polygon")[0].style.strokeWidth = "3";
+					document.getElementById("changeChat").getElementsByTagName("polygon")[0].style.stroke = "red";
+				},500);
+				this.borderBlack = setInterval(function(){
+					document.getElementById("changeChat").getElementsByTagName("polygon")[0].style.strokeWidth = "1";
+					document.getElementById("changeChat").getElementsByTagName("polygon")[0].style.stroke = "black";
+				},1000);
+			}
+		}.bind(this), delay);
 	}
-	setTimeout(function(){
-		if(chatPage.hidden && document.getElementById("dot").innerHTML !== "<b>...</b>"){
-			if(!document.getElementById("chatImage").hidden){
-				document.getElementById("dot").hidden = false;
-			}
-			document.getElementById("dot").innerHTML = parseInt(document.getElementById("dot").innerHTML) + 1;
-			if(parseInt(document.getElementById("dot").innerHTML) > 99){
-				document.getElementById("dot").innerHTML = "<b>...</b>";
-				document.getElementById("dot").style.lineHeight = "7.5px";
-			}
-		}
-		this.contents.push(text);
-		this.newString = text + "<br><br>" + this.newString;
-		chatPage.innerHTML = "<br>" + this.newString;
-		if(this.oldString !== ""){
-			chatPage.innerHTML += '-------------------- <b>New Messages</b> --------------------';
-		}
-		chatPage.innerHTML += "</p>" + this.oldString;
-		if(!chatPage.hidden){
-			// update the chat
-			Dom.changeBook("chatPage");
-		}
-		if(important && !this.borderRed && !this.borderBlack){
-			this.borderRed = setInterval(function(){
-				document.getElementById("changeChat").getElementsByTagName("polygon")[0].style.strokeWidth = "3";
-				document.getElementById("changeChat").getElementsByTagName("polygon")[0].style.stroke = "red";
-			},500);
-			this.borderBlack = setInterval(function(){
-				document.getElementById("changeChat").getElementsByTagName("polygon")[0].style.strokeWidth = "1";
-				document.getElementById("changeChat").getElementsByTagName("polygon")[0].style.stroke = "black";
-			},1000);
-		}
-	}.bind(this), delay);
 }
 
 /*
@@ -2147,35 +2161,36 @@ document.getElementById("inventoryGoldXP").style.height = 60 + Skins[Player.clas
 document.getElementById("inventoryGoldXP").style.bottom = 3 + Skins[Player.class][Player.skin].headAdjust.y + "px";
 
 Dom.levelUp.page = function(){
-	document.getElementById("levelUpPage").hidden = false; // displays over the top of other pages
-	//Dom.changeBook("levelUpPage", false);
-	if(Dom.currentlyDisplayed === ""){
-		Dom.currentlyDisplayed = Player.tab; // so that the page can't change underneath it
+	if(!Dom.levelUp.override){
+		document.getElementById("levelUpPage").hidden = false; // displays over the top of other pages
+		if(Dom.currentlyDisplayed === ""){
+			Dom.currentlyDisplayed = Player.tab; // so that the page can't change underneath it
+		}
+		document.getElementById("levelUpPageLevel").innerHTML = Player.level-1 + " &#10132; " + Player.level;
+		Dom.chat.insert("Level up: "+(Player.level-1)+" &#10132; "+Player.level);
+		let newQuests = Dom.quests.possible();
+		if(newQuests.length > 0){
+			document.getElementById("levelUpPageUnlock").innerHTML = "<strong>Quests Unlocked:</strong>";
+		}else{
+			document.getElementById("levelUpPageUnlock").innerHTML = "";
+		}
+		for(let i = 0; i < newQuests.length; i++){
+			document.getElementById("levelUpPageUnlock").innerHTML += "<br>" + newQuests[i];
+		}
+		if(document.getElementById("levelUpPageUnlock").innerHTML !== "<strong>Quests Unlocked:</strong>"){
+			document.getElementById("levelUpPageUnlock").hidden = false;
+		}else{
+			document.getElementById("levelUpPageUnlock").hidden = true;
+		}
+		Dom.quests.possible();
+	}else{
+		Dom.levelUp.waiting = true;
 	}
 	Player.stats.maxHealth += 5;
-	document.getElementById("levelUpPageLevel").innerHTML = Player.level-1 + " &#10132; " + Player.level;
-	Dom.chat.insert("Level up: "+(Player.level-1)+" &#10132; "+Player.level);
-	let newQuests = Dom.quests.possible();
-	if(newQuests.length > 0){
-		document.getElementById("levelUpPageUnlock").innerHTML = "<strong>Quests Unlocked:</strong>";
-	}else{
-		document.getElementById("levelUpPageUnlock").innerHTML = "";
-	}
-	console.log(newQuests);
-	for(let i = 0; i < newQuests.length; i++){
-		console.log(newQuests[i]);
-		document.getElementById("levelUpPageUnlock").innerHTML += "<br>" + newQuests[i];
-	}
-	if(document.getElementById("levelUpPageUnlock").innerHTML !== "<strong>Quests Unlocked:</strong>"){
-		document.getElementById("levelUpPageUnlock").hidden = false;
-	}else{
-		document.getElementById("levelUpPageUnlock").hidden = true;
-	}
 	if(Player.level >= LevelXP.length - 1){
 		// sets xp bar to fully completed because Game.getXP doesn't set it when you level up
 		Player.xp = LevelXP[Player.level];
 	}
-	Dom.quests.possible();
 }
 
 document.getElementById("alertYes").onclick = function(){
