@@ -929,7 +929,7 @@ function finish(){
 			for(var x = 0; x < Object.keys(JSON.parse(setItems[i]).stats).length; x++){ // repeat for all stats
 				var replaceStat = Object.keys(JSON.parse(setItems[i]).stats)[x].replace( /([A-Z])/g, " $1" );
 				if(Object.keys(JSON.parse(setItems[i]).stats)[x] == "flaming"){
-					document.getElementById("invStats"+i).innerHTML += '<br>'+replaceStat.charAt(0).toUpperCase() + replaceStat.slice(1)+': '+romanize(JSON.parse(setItems[i]).stats[Object.keys(JSON.parse(setItems[i]).stats)[x]]);
+					document.getElementById("invStats"+i).innerHTML += '<br>'+replaceStat.charAt(0).toUpperCase() + replaceStat.slice(1)+': '+Romanize(JSON.parse(setItems[i]).stats[Object.keys(JSON.parse(setItems[i]).stats)[x]]);
 				}else if(Object.keys(JSON.parse(setItems[i]).stats)[x] == "criticalChance" || Object.keys(JSON.parse(setItems[i]).stats)[x] == "dodgeChance" || Object.keys(JSON.parse(setItems[i]).stats)[x] == "looting" || Object.keys(JSON.parse(setItems[i]).stats)[x] == "reflection"){
 					document.getElementById("invStats"+i).innerHTML += '<br>'+replaceStat.charAt(0).toUpperCase() + replaceStat.slice(1)+': '+JSON.parse(setItems[i]).stats[Object.keys(JSON.parse(setItems[i]).stats)[x]];
 				}else if(Object.keys(JSON.parse(setItems[i]).stats)[x] == "focusSpeed" || Object.keys(JSON.parse(setItems[i]).stats)[x] == "healthRegen" || Object.keys(JSON.parse(setItems[i]).stats)[x] == "swimSpeed" || Object.keys(JSON.parse(setItems[i]).stats)[x] == "walkSpeed"){
@@ -945,7 +945,7 @@ function finish(){
 			for(var x = 1; x <= stats.length; x++){ // repeat for all stats
 				var replaceStat = stats[stats.length-x].replace( /([A-Z])/g, " $1" );
 				if(stats[stats.length-x] == "flaming"){
-					document.getElementById("invSet"+i).innerHTML += "<br>"+replaceStat.charAt(0).toUpperCase() + replaceStat.slice(1)+": "+romanize(position[4+x].value);
+					document.getElementById("invSet"+i).innerHTML += "<br>"+replaceStat.charAt(0).toUpperCase() + replaceStat.slice(1)+": "+Romanize(position[4+x].value);
 				}else if(stats[stats.length-x] == "criticalChance" || stats[stats.length-x] == "dodgeChance" || stats[stats.length-x] == "looting" || stats[stats.length-x] == "reflection"){
 					document.getElementById("invSet"+i).innerHTML += "<br>"+replaceStat.charAt(0).toUpperCase() + replaceStat.slice(1)+': '+position[4+x].value+'%';
 				}else if(stats[stats.length-x] == "focusSpeed" || stats[stats.length-x] == "healthRegen" || stats[stats.length-x] == "swimSpeed" || stats[stats.length-x] == "walkSpeed"){
@@ -1057,7 +1057,7 @@ function finish(){
 		for(var i = 1; i < stats.length + 1; i++){ // repeat for all stats
 			var replaceStat = stats[stats.length-i].replace( /([A-Z])/g, " $1" );
 			if(stats[stats.length-i] == "flaming"){
-				document.getElementById("invStats").innerHTML += '<br>'+replaceStat.charAt(0).toUpperCase() + replaceStat.slice(1)+': '+romanize(position[i+4].value);
+				document.getElementById("invStats").innerHTML += '<br>'+replaceStat.charAt(0).toUpperCase() + replaceStat.slice(1)+': '+Romanize(position[i+4].value);
 			}else if(stats[stats.length-i] == "criticalChance" || stats[stats.length-i] == "dodgeChance" || stats[stats.length-i] == "looting" || stats[stats.length-i] == "reflection"){
 				document.getElementById("invStats").innerHTML += '<br>'+replaceStat.charAt(0).toUpperCase() + replaceStat.slice(1)+': '+sign(position[i+4].value)+position[i+4].value+'%';
 			}else if(stats[stats.length-i] == "focusSpeed" || stats[stats.length-i] == "healthRegen" || stats[stats.length-i] == "swimSpeed" || stats[stats.length-i] == "walkSpeed"){
@@ -1077,7 +1077,7 @@ function finish(){
 					document.getElementById("invSet").innerHTML += "<br>"+replaceStat.charAt(0).toUpperCase() + replaceStat.slice(1)+": "+Items.set[position[7+stats.length].value].stats[Object.keys(Items.set[position[7+stats.length].value].stats)[i]];
 				}else{
 					var replaceStat = Object.keys(Items.set[position[7+stats.length].value].stats)[i].replace( /([A-Z])/g, " $1" );
-					document.getElementById("invSet").innerHTML += "<br>"+replaceStat.charAt(0).toUpperCase() + replaceStat.slice(1)+": "+romanize(Items.set[position[7+stats.length].value].stats[Object.keys(Items.set[position[7+stats.length].value].stats)[i]]);
+					document.getElementById("invSet").innerHTML += "<br>"+replaceStat.charAt(0).toUpperCase() + replaceStat.slice(1)+": "+Romanize(Items.set[position[7+stats.length].value].stats[Object.keys(Items.set[position[7+stats.length].value].stats)[i]]);
 				}
 			}
 		}else{
@@ -1100,7 +1100,7 @@ function sign(value){
 	}
 }
 
-function romanize(num){
+function Romanize(num){
   var lookup = {M:1000,CM:900,D:500,CD:400,C:100,XC:90,L:50,XL:40,X:10,IX:9,V:5,IV:4,I:1},roman = '',i;
   for(i in lookup){
     while(num >= lookup[i]){

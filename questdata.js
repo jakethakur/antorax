@@ -27,7 +27,7 @@ var Quests = {
 				return completed;
 			},
 			
-			howToStart: "Speak to the Cart Driver.",
+			howToStart: "Speak to the <strong>Cart Driver</strong>.",
 			levelRequirement: 1,
 			questRequirements: [],
 			
@@ -232,7 +232,7 @@ var Quests = {
 			},
 			
 			howToStart: "Speak to <strong>Marshall Teper</strong>.",
-			levelRequirement: 1,
+			levelRequirement: 2,
 			questRequirements: ["Retrieval of Logs"],
 			repeatTime: "daily",
 			
@@ -293,7 +293,7 @@ var Quests = {
 			},
 			
 			howToStart: "Speak to <strong>Marshall Teper</strong>.",
-			levelRequirement: 1,
+			levelRequirement: 2,
 			questRequirements: ["Retrieval of Logs"],
 			
 			rewards: {
@@ -340,7 +340,7 @@ var Quests = {
 			},
 			
 			howToStart: "Speak to the <strong>Eaglecrest Mailman</strong>.",
-			levelRequirement: 1,
+			levelRequirement: 2,
 			questRequirements: ["Retrieval of Logs"],
 			
 			rewards: {
@@ -551,7 +551,7 @@ var Quests = {
 			},
 			
 			howToStart: "Speak to <strong>Galuthel the Trap Mechanic</strong>.",
-			levelRequirement: 1,
+			levelRequirement: 2,
 			questRequirements: ["Retrieval of Logs"],
 			
 			rewards: {
@@ -659,7 +659,7 @@ var Quests = {
 			},
 			
 			howToStart: "Speak to <strong>Soul Healer Nalaa</strong>.",
-			levelRequirement: 1,
+			levelRequirement: 3,
 			questRequirements: ["Retrieval of Logs"],
 			
 			startRewards: {
@@ -720,7 +720,7 @@ var Quests = {
 			},
 			
 			howToStart: "???",
-			levelRequirement: 3,
+			levelRequirement: 5,
 			questRequirements: [],
 			
 			autofinish: true,
@@ -786,7 +786,7 @@ var Quests = {
 			},
 			
 			howToStart: "Speak to <strong>Item Buyer Noledar</strong>.",
-			levelRequirement: 1,
+			levelRequirement: 2,
 			questRequirements: ["Retrieval of Logs"],
 			
 			rewards: {
@@ -840,7 +840,7 @@ var Quests = {
 			},
 			
 			howToStart: "Speak to <strong>Identifier Gilas</strong>.",
-			levelRequirement: 1,
+			levelRequirement: 3,
 			questRequirements: ["Retrieval of Logs"],
 			
 			rewards: {
@@ -857,7 +857,7 @@ var Quests = {
 			},
 			
 			removeItems: [
-				Items.item[5], // scrap of cloth
+				Items.item[5], // fiery rock
 			],
 			removeItemQuantity: [
 				1,
@@ -911,7 +911,7 @@ var Quests = {
 			},
 			
 			howToStart: "Speak to <strong>Ciarra Darkbrew</strong>.",
-			levelRequirement: 1,
+			levelRequirement: 3,
 			questRequirements: ["Retrieval of Logs"],
 			
 			startRewards: {
@@ -987,7 +987,7 @@ var Quests = {
 			},
 			
 			howToStart: "Speak to <strong>Ciarra Darkbrew</strong>.",
-			levelRequirement: 1,
+			levelRequirement: 4,
 			questRequirements: ["Potion Making"],
 			
 			removeItems: [

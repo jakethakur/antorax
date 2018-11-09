@@ -677,7 +677,7 @@ var Areas = {
 							Game.NPCs[0].say("What, are you even allowed to keep them? I'd like my boots back!", false, 0, false); // Teper is Game.NPCs[0]
 						}],
 						roleRequirement: function () {
-							return Dom.inventory.check(6, "boots", 1); // check that the player has Marshall Teper's lost boots
+							return Dom.inventory.check(6, "boots", 1, true); // check that the player has Marshall Teper's lost boots
 						},
 					},
 				],
@@ -864,7 +864,7 @@ var Areas = {
 					{
 						role: "itemBuyer",
 						roleRequirement: function () {
-							return Player.quests.completedQuestArray.includes("Retrieval of Logs");
+							return Player.quests.completedQuestArray.includes("Another Man's Treasure");
 						}
 					},
 					{

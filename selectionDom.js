@@ -49,6 +49,11 @@ checkChange();
 
 setTimeout(function(){arrange();},10);
 function arrange(){
+	if(localStorage.getItem(selected.class) !== null){
+		document.getElementById("play").innerHTML = "Continue Your Adventure";
+	}else{
+		document.getElementById("play").innerHTML = "Begin Your Adventure";
+	}
 	document.getElementById("archer").style.width = window.innerWidth/5-54+"px";
 	document.getElementById("archer").style.height = window.innerHeight/3-58+"px";
 	document.getElementById("mage").style.width = window.innerWidth/5-54+"px";
@@ -79,17 +84,17 @@ function arrange(){
 
 document.getElementById("archer").onclick = function(){
 	selected.class = "a";
-	display();
+	arrange();
 }
 
 document.getElementById("mage").onclick = function(){
 	selected.class = "m";
-	display();
+	arrange();
 }
 
 document.getElementById("knight").onclick = function(){
 	selected.class = "k";
-	display();
+	arrange();
 }
 
 document.getElementById("image").onclick = function(){
@@ -111,6 +116,15 @@ document.getElementById("play").onclick = function(){
 		sessionStorage.setItem("skin",selected[selected.class]);
 		sessionStorage.setItem("name",document.getElementById("name").value);
 		window.location.replace("./index.html");
+	}else{
+		document.getElementById("name").style.borderColor = "red";
+		document.getElementById("random").style.borderColor = "red";
+		document.getElementById("play").style.borderColor = "red";
+		setTimeout(function(){
+			document.getElementById("name").style.borderColor = "#886622";
+			document.getElementById("random").style.borderColor = "#886622";
+			document.getElementById("play").style.borderColor = "#886622";
+		},200);
 	}
 }
 

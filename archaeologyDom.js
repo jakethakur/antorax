@@ -21,7 +21,7 @@ function validate(strValue) {
 	}
 }
 
-function romanize(num){
+function Romanize(num){
   let lookup = {M:1000,CM:900,D:500,CD:400,C:100,XC:90,L:50,XL:40,X:10,IX:9,V:5,IV:4,I:1},roman = '',i;
   for(i in lookup){
     while(num >= lookup[i]){
@@ -236,7 +236,7 @@ function arrange(){
 			if(Object.keys(array[i].stats)[a] != "flaming"){
 				document.getElementById("stats"+i).innerHTML += replaceStat.charAt(0).toUpperCase() + replaceStat.slice(1)+": "+array[i].stats[Object.keys(array[i].stats)[a]]+"<br>";
 			}else{
-				document.getElementById("stats"+i).innerHTML += "Flaming "+romanize(array[i].stats[Object.keys(array[i].stats)[a]])+"<br>";
+				document.getElementById("stats"+i).innerHTML += "Flaming "+Romanize(array[i].stats[Object.keys(array[i].stats)[a]])+"<br>";
 			}
 		}
 		if(array[i].multiplier !== undefined){

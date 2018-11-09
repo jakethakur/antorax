@@ -334,15 +334,6 @@ Camera.prototype.isOnScreen = function (object, mode) {
 // (maybe these shouldn't be global?)
 //
 
-// random number between min and max, biased around certain value (bias)
-// influence is how much influence on the random number this should have (should normally be set to 1)
-// thanks to https://stackoverflow.com/a/29325222/9713957
-function biasedRandom (min, max, bias, influence) {
-    var rnd = Math.random() * (max - min) + min,   // random in range
-        mix = Math.random() * influence;           // random mixer
-    return rnd * (1 - mix) + bias * mix;           // mix full range and bias
-}
-
 // find bearing between two entities (with x and y)
 // returns answer in radians
 function bearing (obj1, obj2) {
@@ -355,40 +346,18 @@ function distance (obj1, obj2) {
 	return Math.sqrt((obj1.x - obj2.x) * (obj1.x - obj2.x) + (obj1.y - obj2.y) * (obj1.y - obj2.y));
 }
 
-// convert to radians
-function toRadians (degrees) {
-  return degrees * (Math.PI / 180);
-}
-
-// convert to degrees
-function toDegrees (radians) {
-  return radians * (180 / Math.PI);
-}
-
-// checks if a click event was a right click
-// thanks to https://stackoverflow.com/a/4235486/9713957
-function checkRightClick (e) {
-    var rightclick;
-    if (e.which) {
-		rightclick = (e.which == 3);
-	}
-    else if (e.button) {
-		rightclick = (e.button == 2);
-	}
-    return(rightclick); // true or false, you can trap right click here by if comparison
-}
-
 // search for an entity with a specific id (first param) within an array (second param)
 // returns the array index of the first found item of the array with that id
 // only works for projectiles as of 01/07/18 (they're the only entities with ids)
 Game.searchFor = function (id, array) {
-	for (let i = 0; i < array.length; i++) {
-		if (array[i].id == id) {
-			return i;
-		}
+	let index = array.findIndex(element => element.id === id);
+	if (index >= 0) {
+		return index;
 	}
-	console.error("The requested item of id " + id + " could not be found in the following array: ", array);
-	return null;
+	else {
+		console.error("The requested item of id " + id + " could not be found in the following array: ", array);
+		return null;
+	}
 }
 
 // checks if an NPC can be shown (from their canBeShown function)
@@ -429,15 +398,15 @@ Game.closest = function (objArray, mainObj) {
 
 // insert a message into the chat, under the format of "name: message"
 // name is emboldened via <strong> tags
-// if message is an array, a random message from the array will be chosen
+// if message is an array, a Random message from the array will be chosen
 // if message begins with "/me " (including space), the format changes to "this.name message"
 // if singleUse is true, and if Dom.chat.contents contains message, the message is not sent
 // if important is true, the chat message triggers a red flashing prompt around the chat bookmark
 Game.sayChat = function (name, message, singleUse, delay, important) {
 	if (message !== undefined) {
 		if (message.constructor === Array) {
-			// if message is array, pick a random message from the array
-			message = message[random(0, message.length - 1)];
+			// if message is array, pick a Random message from the array
+			message = message[Random(0, message.length - 1)];
 		}
 		if (message.substring(0, 4) === "/me ") { // reflexive message
 			message = message.substr(4, message.length);
@@ -680,7 +649,7 @@ class Character extends Thing {
 				
 				this.health = this.stats.maxHealth;
 				
-				let ineffectiveAmount = damageRound(LevelXP[Game.hero.level] / 6); // amount of XP to be worth 50% less
+				let ineffectiveAmount = Round(LevelXP[Game.hero.level] / 6); // amount of XP to be worth 50% less
 				let stacks = 1;
 				if (existingEffect !== undefined) {
 					ineffectiveAmount += existingEffect.info.ineffectiveAmount; // stack to an effect XP fatigue effect
@@ -742,14 +711,14 @@ class Character extends Thing {
 	}
 	
 	// whee! make the character fly away from their current point
-	// if direction (in rad) is undefined, a random one is picked (more chaos!!)
+	// if direction (in rad) is undefined, a Random one is picked (more chaos!!)
 	// velocity = pixels thrown total
 	// must be called every tick with the delta as the second parameter
 	displace (velocity, delta, direction) {
 		if (!this.isBeingDisplaced) {
 			// init displacement
 			if (direction === undefined) {
-				direction = toRadians(random(0, 360));
+				direction = ToRadians(Random(0, 360));
 			}
 			let displacementY = Math.sin(direction) * velocity;
 			let displacementX = Math.cos(direction) * velocity;
@@ -974,7 +943,7 @@ class Hero extends Attacker {
 	startAttack (e) {
 		if (this.canAttack && Player.inventory.weapon.name !== "" && !Player.inventory.weapon.cannotAttack) { // checks the player has a weapon and is not currently reloading
 			// Player.inventory.weapon.cannotAttack is set to true when the projectile image is being loaded (e.g: weapon with special projectile is equipped/unequipped)
-			if (!checkRightClick(e)) {
+			if (!CheckRightClick(e)) {
 				// left-click (normal) attack
 				
 				// position of projectile
@@ -1056,7 +1025,7 @@ class Hero extends Attacker {
 						}));
 						
 						// timer for first bob
-						setTimeout(this.fish.bind(this), random(500, 12000));
+						setTimeout(this.fish.bind(this), Random(500, 12000));
 					}
 				}
 				else if (Player.inventory.weapon.type === "rod" && this.channelling === "fishing") {
@@ -1334,7 +1303,7 @@ class Hero extends Attacker {
 				// bob fishing bobber every ~1 second
 				this.fishingBobs++;
 				
-				if (random(0, 5) < this.fishingBobs) {
+				if (Random(0, 5) < this.fishingBobs) {
 					// fish caught
 					
 					// increase fishing skill if the player has a fish bait status effect
@@ -1361,14 +1330,14 @@ class Hero extends Attacker {
 						raritiesAvailable.push("mythic");
 					}
 					
-					// pick a random rarity from the raritiesAvailable array
-					let randomNum = random(0, 6);
+					// pick a Random rarity from the raritiesAvailable array
+					let RandomNum = Random(0, 6);
 					let itemRarity = "";
-					if (randomNum === 0) {
+					if (RandomNum === 0) {
 						// 1 in 7 chance for a mythic
 						itemRarity = "mythic";
 					}
-					else if (randomNum < 3) {
+					else if (RandomNum < 3) {
 						// 2 in 7 chance for a unique
 						itemRarity = "unique";
 					}
@@ -1394,7 +1363,7 @@ class Hero extends Attacker {
 						fish = fish.filter(item => item.rarity === itemRarity); // filter for rarity (see above)
 					}
 					fish = fish.filter(item => item.timeRequirement === undefined || Game.time === item.timeRequirement); // filter for time that it can be fished up
-					fish = fish[random(0, fish.length - 1)]; // random fish that fulfils requirements above
+					fish = fish[Random(0, fish.length - 1)]; // Random fish that fulfils requirements above
 					fish = { ...fish }; // remove all references to itemdata in fish variable (otherwise length value changed in this will also affect itemData)!
 					
 					// calculate time to catch fish and clicks needed for fish
@@ -1413,7 +1382,7 @@ class Hero extends Attacker {
 					else { // fish
 						// calculate fish length
 						// between min and max; biased towards average
-						let fishLength = damageRound(biasedRandom(fish.length.min, fish.length.max, fish.length.avg, 1));
+						let fishLength = Round(BiasedRandom(fish.length.min, fish.length.max, fish.length.avg, 1));
 						fish.length = fishLength; // replace length object with an integer saying the fish's length
 						
 						// clicks
@@ -1486,7 +1455,7 @@ class Hero extends Attacker {
 				}
 				else {
 					// timer for next bob
-					setTimeout(this.fish.bind(this), random(500, 1500));
+					setTimeout(this.fish.bind(this), Random(500, 1500));
 					
 					// tbd make searchFor only need to be run once (for efficiency)
 					Game.projectiles[Game.searchFor(this.channellingProjectileId, Game.projectiles)].imageNumber = 1; // bobbing image for projectile
@@ -1566,7 +1535,7 @@ class Projectile extends Thing {
 				Game.updateScreenPosition(this); // update projectile position
 				if (this.isTouching(to[i][x])) { // check projectile is touching character it wants to damage
 					
-					if (random(0, 99) < to[i][x].stats.dodgeChance) { // hit dodged
+					if (Random(0, 99) < to[i][x].stats.dodgeChance) { // hit dodged
 						this.damageDealt.push({enemy: to[i][x], damage: "hit dodged", critical: false});
 					}
 					else {
@@ -1583,7 +1552,7 @@ class Projectile extends Thing {
 							// this.expand - 1 = a number from 0 to 1
 							// multiply the extra damage gained by maxDamage by this fraction to see the extra damage dealt
 							let a = (attacker.stats.maxDamage - attacker.stats.damage); // possible extra damage
-							let b = damageRound(this.expand) - 1; // multiplier
+							let b = Round(this.expand) - 1; // multiplier
 							let c = a * b; // extra damage dealt
 							attackerDamage += c;
 						}
@@ -1620,7 +1589,7 @@ class Projectile extends Thing {
 							}
 						});
 						
-						if (random(0, 99) < attacker.stats.criticalChance) { // critical hit
+						if (Random(0, 99) < attacker.stats.criticalChance) { // critical hit
 							dmgDealt *= 2
 							to[i][x].takeDamage(dmgDealt)
 							this.damageDealt.push({enemy: to[i][x], damage: dmgDealt, critical: true});
@@ -1709,18 +1678,18 @@ class Projectile extends Thing {
 		}
 	}
 	
-	// move projectile to random position in circle, where circle is its variance
+	// move projectile to Random position in circle, where circle is its variance
 	varyPosition () {
 		if (this.variance !== undefined) {
 			if (this.variance > 0) {
-				let randomDistance = random(0, this.variance * this.variance);
-				let randomAngle = random(0, Math.PI * 2);
-				this.x += Math.sqrt(randomDistance) * Math.cos(randomAngle);
-				this.y += Math.sqrt(randomDistance) * Math.sin(randomAngle);
+				let RandomDistance = Random(0, this.variance * this.variance);
+				let RandomAngle = Random(0, Math.PI * 2);
+				this.x += Math.sqrt(RandomDistance) * Math.cos(RandomAngle);
+				this.y += Math.sqrt(RandomDistance) * Math.sin(RandomAngle);
 				
 				if (this.hitbox !== undefined) { // move special hitbox
-					this.hitbox.x += Math.sqrt(randomDistance) * Math.cos(randomAngle);
-					this.hitbox.y += Math.sqrt(randomDistance) * Math.sin(randomAngle);
+					this.hitbox.x += Math.sqrt(RandomDistance) * Math.cos(RandomAngle);
+					this.hitbox.y += Math.sqrt(RandomDistance) * Math.sin(RandomAngle);
 				}
 			}
 		}
@@ -1792,7 +1761,7 @@ class Villager extends Thing { // to be changed to character
 	updateState(type) {
 		if (type === undefined) { // NPC state has not been defined before
 			this.state = {};
-			if (random(0,1) == 0) {
+			if (Random(0,1) == 0) {
 				this.updateState("move"); // NPC will start with movement
 			}
 			else {
@@ -1803,14 +1772,14 @@ class Villager extends Thing { // to be changed to character
 		else if (type === "wait") { // NPC has just finished moving
 			this.state.x = undefined;
 			this.state.y = undefined;
-			this.state.wait = random(1000, 6000);
+			this.state.wait = Random(1000, 6000);
 		}
 		
 		else if (type === "move") { // NPC has just finished waiting
 			this.state.wait = undefined;
 			this.wait = 0;
-			this.state.x = random(this.boundary.x, this.boundary.x + this.boundary.width);
-			this.state.y = random(this.boundary.y, this.boundary.y + this.boundary.height);
+			this.state.x = Random(this.boundary.x, this.boundary.x + this.boundary.width);
+			this.state.y = Random(this.boundary.y, this.boundary.y + this.boundary.height);
 		}
 	}
 	
@@ -1983,12 +1952,12 @@ class Enemy extends Attacker {
 				}
 				
 				if (itemCanBeLooted) {
-					// for each item, a random number between 0 and 100 is generated, then multiplied by the player's looting
+					// for each item, a Random number between 0 and 100 is generated, then multiplied by the player's looting
 					// lootTable is an array of objects, where the objects have a property called chance (an array)
 					// chance contains the probability of getting x amount of that item, where x is the array index of the probability
 					// the lowest number that is higher than the roll is selected for the number of that item that the player receives
 					
-					let rollRandom = random(0, 100) * (Game.hero.stats.looting / 100); // random number to see how much of item i the player will get
+					let rollRandom = Random(0, 100) * (Game.hero.stats.looting / 100); // Random number to see how much of item i the player will get
 					let possibleDropChances = lootTable[i].chance.filter(chance => chance > rollRandom); // filter chances of getting item to see all chances the player is eligible for with their roll
 					let itemQuantity = lootTable[i].chance.indexOf(Math.min(...possibleDropChances)); // get the number of that item the player will get
 					
@@ -2188,7 +2157,7 @@ Game.statusEffects.poison = function(target, damage, time) {
 // give target the fire debuff
 Game.statusEffects.fire = function(target, tier) {
 	// turn tier into roman numeral (function in dom)
-	tier = romanize(tier);
+	tier = Romanize(tier);
 	
 	// try to find an existing flaming effect of the tier
 	let found = target.statusEffects.findIndex(function(element) {
@@ -2268,7 +2237,7 @@ Game.statusEffects.stun = function(target, time) {
 				ticks: 0, // increased by 1 every second
 			},
 			tick: function (owner) { // decrease time
-				if (damageRound(this.info.ticks) < this.info.time) { // check effect has not expired 
+				if (Round(this.info.ticks) < this.info.time) { // check effect has not expired 
 					this.info.ticks += 0.2;
 					if (owner.constructor.name === "Hero") { // refresh canvas status effects if the status effect was applied to player
 						Game.hero.updateStatusEffects();
@@ -2355,7 +2324,7 @@ Game.statusEffects.generic = function (properties) {
 				addedStatusEffect.onExpire = properties.onExpire.bind(addedStatusEffect);
 			}
 			addedStatusEffect.tick = function (owner, timeTicked) { // decrease time
-				if (damageRound(this.info.ticks) < this.info.time) { // check effect has not expired 
+				if (Round(this.info.ticks) < this.info.time) { // check effect has not expired 
 					this.info.ticks += timeTicked / 1000; // timeTicked is in ms
 					if (owner.constructor.name === "Hero") { // refresh canvas status effects if the status effect was applied to player
 						Game.hero.updateStatusEffects();
@@ -2762,9 +2731,11 @@ Game.loadArea = function (areaName, destination) {
 
 // initialise game and variables within Game object
 Game.init = function () {
-	// welcome player
-	// tbd: make it say welcome back if you've played before and it saved your progress; make it a different colour?
-	Dom.chat.insert("Welcome to Antorax, " + Player.name + "!", 0, false);
+	// clear any unintentional chat and welcome player
+	Dom.chat.oldString = "";
+	Dom.chat.newString = "";
+	Dom.chat.contents = [];
+	Dom.chat.insert("Welcome "+(localStorage.getItem(Player.class) !== null ? "back" : "to Antorax")+", " + Player.name + "!", 0, false);
 	
 	// music
 	this.playingMusic = null;
@@ -3088,22 +3059,22 @@ Game.update = function (delta) {
 							let questToBeStarted = role.quest;
 							
 							if (role.quest.constructor === Array && role.newQuestFrequency === "daily") {
-								// quest is an array (hence a random one is picked each questing time period)
+								// quest is an array (hence a Random one is picked each questing time period)
 								// all of these quests are daily quests
 								if (role.quest.some(quest => Player.quests.activeQuestArray.includes(quest))) { // one of the quests is currently active
 									questCanBeStarted = false;
 									questActive = true; // for NPC dialogue
 								}
-								else if (role.quest.some(quest => Player.quests.questLastFinished[quest.questArea][quest.id] >= getFullDate())) { // one of the quests has already been done today (or after today o.O)
+								else if (role.quest.some(quest => Player.quests.questLastFinished[quest.questArea][quest.id] >= GetFullDate())) { // one of the quests has already been done today (or after today o.O)
 									questCanBeStarted = false;
 									questComplete = true; // for NPC dialogue
 								}
 								
-								// pick a random one of the quests to be started
+								// pick a Random one of the quests to be started
 								questToBeStarted = questToBeStarted.filter(quest => quest.levelRequirement <= this.hero.level); // filter for player level
-								questToBeStarted = questToBeStarted.filter(quest => isContainedInArray(quest.questRequirements, Player.quests.completedQuestArray)); // filter for quesst requirements
+								questToBeStarted = questToBeStarted.filter(quest => IsContainedInArray(quest.questRequirements, Player.quests.completedQuestArray)); // filter for quesst requirements
 								if (questToBeStarted.length > 0) { // at least one quest survived the level and quest requirements
-									questToBeStarted = questToBeStarted[random(0, questToBeStarted.length - 1)]; //pick random quest
+									questToBeStarted = questToBeStarted[Random(0, questToBeStarted.length - 1)]; //pick Random quest
 								}
 								else {
 									questCanBeStarted = false;
@@ -3118,7 +3089,7 @@ Game.update = function (delta) {
 								else if (role.quest.levelRequirement > this.hero.level) { // player is not a high enough level
 									questCanBeStarted = false;
 								}
-								else if (!isContainedInArray(role.quest.questRequirements, Player.quests.completedQuestArray)) { // quest requirements have not been completed
+								else if (!IsContainedInArray(role.quest.questRequirements, Player.quests.completedQuestArray)) { // quest requirements have not been completed
 									questCanBeStarted = false;
 								}
 								else {
@@ -3132,7 +3103,7 @@ Game.update = function (delta) {
 									}
 									else if (role.quest.repeatTime === "daily") {
 										// daily
-										if (Player.quests.questLastFinished[role.quest.questArea][role.quest.id] >= getFullDate()) { // quest has already been done today (or after today o.O)
+										if (Player.quests.questLastFinished[role.quest.questArea][role.quest.id] >= GetFullDate()) { // quest has already been done today (or after today o.O)
 											// note that if the quest has not been finished (hence questLastFinished is undefined) the condition will always return false
 											questCanBeStarted = false;;
 											questComplete = true; // for NPC dialogue
@@ -3174,7 +3145,7 @@ Game.update = function (delta) {
 							let questToBeFinished = role.quest;
 							
 							if (role.quest.constructor === Array && role.newQuestFrequency === "daily") {
-								// quest is an array (hence a random one is picked each questing time period)
+								// quest is an array (hence a Random one is picked each questing time period)
 								// all of these quests are daily quests
 								
 								let questToBeFinished = role.quest.find(quest => Player.quests.activeQuestArray.includes(quest)); // find which quest the active one is
@@ -3785,7 +3756,7 @@ Game.fps = function (delta) {
 	let average = sum / this.fpsArray.length;
 	
 	// write on canvas
-	this.ctx.fillText("fps: " + damageRound(average), 10, 75);
+	this.ctx.fillText("fps: " + Round(average), 10, 75);
 }
 
 // reset text formatting
@@ -3930,7 +3901,7 @@ Game.drawDamageTaken = function (ctx, character, x, y, fontSize) {
 	// "\u{2694}" displays the unicode crossed swords symbol
 	// thanks to Wilfred Lee at https://stackoverflow.com/a/49667311/9713957
 	// w3schools reference for unicode special characters: https://www.w3schools.com/charsets/ref_utf_symbols.asp
-	ctx.fillText("\u{2694} " + damageRound(character.damageTaken), x, y);
+	ctx.fillText("\u{2694} " + Round(character.damageTaken), x, y);
 }
 
 // draw character's name (often positioned to be above their head
@@ -4162,7 +4133,7 @@ Game.render = function (delta) {
 				
 				let damage = this.projectiles[i].damageDealt[x].damage;
 				if (damage !== "hit dodged") {
-					damage = damageRound(damage); // round damage to 1d.p. if it is an integer value
+					damage = Round(damage); // round damage to 1d.p. if it is an integer value
 				}
 				
 				this.ctx.fillText(damage, this.projectiles[i].screenX, this.projectiles[i].screenY);
@@ -4360,7 +4331,7 @@ Game.secondary.render = function () {
 			this.ctx.textAlign = "right";
 			if (typeof Game.hero.statusEffects[i].info !== "undefined") { // variable exists
 				if (typeof Game.hero.statusEffects[i].info.time !== "undefined" && typeof Game.hero.statusEffects[i].info.ticks !== "undefined") { // variable exists
-					this.ctx.fillText(damageRound(Game.hero.statusEffects[i].info.time - Game.hero.statusEffects[i].info.ticks), 295 + i * 35, 37);
+					this.ctx.fillText(Round(Game.hero.statusEffects[i].info.time - Game.hero.statusEffects[i].info.ticks), 295 + i * 35, 37);
 				}
 			}
 			this.ctx.textAlign = "center";
