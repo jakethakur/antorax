@@ -144,7 +144,7 @@ var Quests = {
 			questArea: "eaglecrestLoggingCamp",
 			
 			startName: "Marshall Teper",
-			startChat: `You looked good enough at the training dummy to go out to <strong>The Nilbog</strong>. It's the camp of some goblins, but trust me - they're not much stronger than that dummy you just fought.<br>They recently invaded our camp in huge numbers, and managed to steal some logs of wood whilst we were fighting them off. Head east to <strong>The Nilbog</strong> and retrieve some wood from them, and return it to me.<br>This <strong>Logging Sack</strong> might be useful for you to hold the logs in, as well as any other items you might want to hold but don't have space for.`,
+			startChat: `You looked good enough at the training dummy to go out to <strong>The Nilbog</strong>. It's the camp of some goblins, but trust me - they're not much stronger than that dummy you just fought.<br>They recently invaded our camp in huge numbers, and managed to steal some logs of wood whilst we were fighting them off. Head east to <strong>The Nilbog</strong> and retrieve some wood from them, and return it to me.<br>`,
 			
 			finishName: "Marshall Teper",
 			finishChat: `Good. Now we need to make sure that a goblin attack like this won't happen again.`,
@@ -169,22 +169,15 @@ var Quests = {
 			levelRequirement: 1,
 			questRequirements: ["Combat Training"],
 			
-			startRewards: {
-				items: [
-					Items.bag[2],
-				],
-				itemQuantities: [
-					1,
-				],
-			},
-			
 			rewards: {
 				xp: 30,
 				items: [
 					Items.currency[2],
+					Items.bag[2], // logging sack
 				],
 				itemQuantities: [
 					2,
+					1,
 				],
 				reputation: {
 					eaglecrestLoggingCamp: 50,
@@ -840,7 +833,7 @@ var Quests = {
 			},
 			
 			howToStart: "Speak to <strong>Identifier Gilas</strong>.",
-			levelRequirement: 3,
+			levelRequirement: 4,
 			questRequirements: ["Retrieval of Logs"],
 			
 			rewards: {
@@ -876,7 +869,7 @@ var Quests = {
 			finishChat: `Interesting. Let's see how this goes.`,
 			
 			onQuestFinish: function () {
-				Dom.changeBook("chatPage", true);
+				Dom.changeBook("chatPage", true, false, 9500); // start cutscene
 				Game.sayChat("Ciarra Darkbrew", "Stand back. We wouldn't want your arms to detatch so soon.", false, 1000, true);
 				Game.sayChat("Ciarra Darkbrew", "/me adds the potion ingredients to an inert vial.", false, 4000, true);
 				Dom.chat.insert("The vial fizzes rapidly.", 6500, true);
@@ -987,7 +980,7 @@ var Quests = {
 			},
 			
 			howToStart: "Speak to <strong>Ciarra Darkbrew</strong>.",
-			levelRequirement: 4,
+			levelRequirement: 1,
 			questRequirements: ["Potion Making"],
 			
 			removeItems: [

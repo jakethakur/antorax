@@ -779,10 +779,16 @@ class AreaTeleport extends Entity {
 		super(properties);
 
 		this.teleportTo = properties.teleportTo;
+		// either destination or player adjust must be defined (but not both) for both x and y
 		this.destinationX = properties.destinationX;
 		this.destinationY = properties.destinationY;
 		this.playerAdjustX = properties.playerAdjustX;
 		this.playerAdjustY = properties.playerAdjustY;
+		
+		// the following are ignored if they are undefined
+		this.teleportCondition = properties.teleportCondition; // condition for the teleport to work
+		this.teleportFailText = properties.teleportFailText; // text if teleportCondition fails
+		this.teleportFailFunction = properties.teleportFailFunction; // function if teleportCondition fails
 	}
 }
 
@@ -2714,9 +2720,11 @@ Game.loadArea = function (areaName, destination) {
 			Dom.chat.insert("Checkpoint reached! Your spawn location has been set to this location.");
 		}
 		
-		// display area name
-		this.displayAreaName = Areas[areaName].data;
-		this.displayAreaName.duration = 200;
+		// display area name (if it should be displayed)
+		if (Areas[areaName].data.displayOnEnter) {
+			this.displayAreaName = Areas[areaName].data;
+			this.displayAreaName.duration = 200;
+		}
 		
 		// call onAreaLoad function if there is one
 		if (Areas[areaName].onAreaLoad !== undefined) {
@@ -2895,6 +2903,24 @@ Game.playMusic = function () {
 	if (document.getElementById("musicOn").checked) {
 		localStorage.setItem("playMusic","true");
 		// check if the new area's music is already being played
+		let song = Areas[this.areaName]["song_" + this.time];
+		if (song === undefined) {
+			// song doesn't exist - see why
+			if (Areas[this.areaName].indoors) {
+				// indoor areas always have daytime song
+				song = Areas[this.areaName]["song_day"];
+			}
+			else if (Game.time === "bloodMoon") {
+				// most areas have night song at blood moon
+				song = Areas[this.areaName]["song_night"];
+			}
+			else {
+				// no song exists
+				console.error("No song exists for the area", this.areaName, "at the time", this.time);
+				// no need to load a song
+				return;
+			}
+		}
 		if (this.playingMusic !== Areas[this.areaName]["song_" + this.time]) {
 			this.loadMusic(Areas[this.areaName]["song_" + this.time]);
 		}
@@ -3374,13 +3400,24 @@ Game.update = function (delta) {
 		
         if (this.hero.isTouching(this.areaTeleports[i])) {
 			if (this.areaTeleports[i].teleportCondition === undefined
-			|| (this.areaTeleports[i].teleportCondition !== undefined && this.areaTeleports.teleportCondition())) {
+			|| (this.areaTeleports[i].teleportCondition !== undefined && this.areaTeleports[i].teleportCondition())) {
 				// a teleport condition has been met (if there is one)
 				// find player destination
 				let destinationX = this.areaTeleports[i].destinationX || Game.hero.x + this.areaTeleports[i].playerAdjustX;
 				let destinationY = this.areaTeleports[i].destinationY || Game.hero.y + this.areaTeleports[i].playerAdjustY;
 				// teleport to new area
 				this.loadArea(this.areaTeleports[i].teleportTo, {x: destinationX, y: destinationY});
+			}
+			else {
+				// teleport condition not met
+				if (this.areaTeleports[i].teleportFailText !== undefined) {
+					// text in chat
+					Dom.chat.insert(this.areaTeleports[i].teleportFailText);
+				}
+				if (this.areaTeleports[i].teleportFailFunction !== undefined) {
+					// function
+					this.areaTeleports[i].teleportFailFunction();
+				}
 			}
 		}
     }
@@ -3434,41 +3471,46 @@ Game.playerProjectileUpdate = function(delta) {
 
 // increase player XP by xpGiven, and check for levelup, update secondary canvas, obey XP fatigue, etc.
 Game.getXP = function (xpGiven) {
-	// increase XP
-	Player.xp += xpGiven;
-	
-	// XP fatigue
-	if (Player.fatiguedXP !== 0) { // fatigued XP is worth 50% less due to a recent death
-		if (xpGiven > Player.fatiguedXP) {
-			Player.xp -= Player.fatiguedXP / 2;
-			Player.fatiguedXP = 0;
-			Game.hero.statusEffects.splice(Game.hero.statusEffects.findIndex(statusEffect => statusEffect.title === "XP Fatigue"), 1); // remove xp fatigue effect
+	if (typeof xpGiven === "number") {
+		// increase XP
+		Player.xp += xpGiven;
+		
+		// XP fatigue
+		if (Player.fatiguedXP !== 0) { // fatigued XP is worth 50% less due to a recent death
+			if (xpGiven > Player.fatiguedXP) {
+				Player.xp -= Player.fatiguedXP / 2;
+				Player.fatiguedXP = 0;
+				Game.hero.statusEffects.splice(Game.hero.statusEffects.findIndex(statusEffect => statusEffect.title === "XP Fatigue"), 1); // remove xp fatigue effect
+			}
+			else {
+				Player.xp -= xpGiven / 2;
+				Player.fatiguedXP -= xpGiven;
+			}
+		}
+		
+		// now that the XP has fully been added, check for a levelUp and display it on the canvas
+		
+		// check for level up
+		if (Player.level < LevelXP.length - 1) {
+			if (Player.xp >= LevelXP[Player.level]) {
+				// level up
+				Player.xp -= LevelXP[Player.level];
+				Player.level++;
+				Game.hero.level = Player.level;
+				Game.playLevelupSound(this.areaName);
+				Dom.levelUp.page();
+				document.getElementById("level").innerHTML = "Level "+Player.level;
+			}
+			// xp gained
+			Game.secondary.render();
 		}
 		else {
-			Player.xp -= xpGiven / 2;
-			Player.fatiguedXP -= xpGiven;
+			// max level
+			Player.xp = LevelXP[Player.level];
 		}
-	}
-	
-	// now that the XP has fully been added, check for a levelUp and display it on the canvas
-	
-	// check for level up
-	if (Player.level < LevelXP.length - 1) {
-		if (Player.xp >= LevelXP[Player.level]) {
-			// level up
-			Player.xp -= LevelXP[Player.level];
-			Player.level++;
-			Game.hero.level = Player.level;
-			Game.playLevelupSound(this.areaName);
-			Dom.levelUp.page();
-			document.getElementById("level").innerHTML = "Level "+Player.level;
-		}
-		// xp gained
-		Game.secondary.render();
 	}
 	else {
-		// max level
-		Player.xp = LevelXP[Player.level];
+		console.error("XP increase amount is not a number:", xpGiven)
 	}
 }
 
