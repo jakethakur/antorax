@@ -261,6 +261,9 @@ Dom.chat.insert = function(text, delay, important, noRepeat){
 				},1000);
 			}
 		}.bind(this), delay);
+		return true;
+	}else{
+		return false;
 	}
 }
 
@@ -593,7 +596,7 @@ Dom.inventory.displayIdentification = function(display){
 	if(Player.statusEffects.length !== 0){
 		document.getElementById("innerStats").innerHTML += "<br><br><strong>Status Effects:</strong>";
 		for(let i = 0; i < Player.statusEffects.length; i++){
-			document.getElementById("innerStats").innerHTML += "<br>" + Player.statusEffects[i].title + ": " + Player.statusEffects[i].effect + " (" + (Player.statusEffects[i].info ? Player.statusEffects[i].info.time - Player.statusEffects[i].info.ticks + "s" : "") + ")";
+			document.getElementById("innerStats").innerHTML += "<br>" + Player.statusEffects[i].title + ": " + Player.statusEffects[i].effect + (Player.statusEffects[i].info ? Player.statusEffects[i].info.time ? " (" + (Player.statusEffects[i].info.time - Player.statusEffects[i].info.ticks) + "s)" : "" : "");
 		}
 	}
 }
@@ -992,7 +995,7 @@ Dom.quests.active = function(quest){
 		Player.quests.activeQuestArray.push(quest.quest);
 	}
 	document.getElementById("activeQuestBox").style.textAlign = "left";
-	document.getElementById("activeQuestBox").innerText = "";
+	Dom.quests.activeHTML = {true: "", undefined: "",};
 	for(let x = 0; x < Player.quests.activeQuestArray.length; x++){
 		let currentQuest = "";
 		for(let i = 0; i < Object.keys(Quests).length; i++){
@@ -1003,21 +1006,17 @@ Dom.quests.active = function(quest){
 				}
 			}
 		}
-		if(x !== 0){
-			// dont put a break before the first quest
-			document.getElementById("activeQuestBox").innerHTML += "<br><br>";
-		}
-		document.getElementById("activeQuestBox").innerHTML += "<strong>" + currentQuest.quest + "</strong>";
+		Dom.quests.activeHTML[currentQuest.important] += "<br><br><strong>" + currentQuest.quest + "</strong>";
 		for(let i = 0; i < currentQuest.objectives.length; i++){
-			document.getElementById("activeQuestBox").innerHTML += "<br>" + currentQuest.objectives[i];
+			Dom.quests.activeHTML[currentQuest.important] += "<br>" + currentQuest.objectives[i];
 			if(currentQuest.isCompleted()[i] === true && i !== currentQuest.objectives.length-1){
 				if(currentQuest.autofinish){
 					Dom.choose.page(currentQuest.finishName, ["Quest Finish: " + currentQuest.quest], [Dom.quest.finish], [[currentQuest]]);
 				}else{
-					document.getElementById("activeQuestBox").innerHTML += " &#10004;";
+					Dom.quests.activeHTML[currentQuest.important] += " &#10004;";
 				}
 			}else if(currentQuest.isCompleted()[i] !== false && i !== currentQuest.objectives.length-1){
-				document.getElementById("activeQuestBox").innerHTML += " " + currentQuest.isCompleted()[i];
+				Dom.quests.activeHTML[currentQuest.important] += " " + currentQuest.isCompleted()[i];
 			}
 		}
 		if(currentQuest.wasCompleted === undefined){
@@ -1034,6 +1033,8 @@ Dom.quests.active = function(quest){
 			currentQuest.completed = false;
 		}
 	}
+	Dom.quests.activeHTML.true += Dom.quests.activeHTML.undefined;
+	document.getElementById("activeQuestBox").innerHTML = Dom.quests.activeHTML.true.substring(8);
 	if(Player.quests.activeQuestArray.length === 0){
 		document.getElementById("activeQuestBox").style.textAlign = "center";
 		document.getElementById("activeQuestBox").innerText = "You have no active quests";
@@ -1044,17 +1045,14 @@ Dom.quests.possible = function(){
 	let previousPossible = Player.quests.possibleQuestArray;
 	let newPossible = [];
 	Player.quests.possibleQuestArray = [];
-	document.getElementById("possibleQuestBox").innerHTML = "";
 	document.getElementById("possibleQuestBox").style.textAlign = "left";
+	Dom.quests.possibleHTML = {true: "", undefined: "",};
 	for(let i = 0; i < Object.keys(Quests).length; i++){
 		for(let x = 0; x < Quests[Object.keys(Quests)[i]].length; x++){
 			if((!Player.quests.completedQuestArray.includes(Quests[Object.keys(Quests)[i]][x].quest) && !Player.quests.activeQuestArray.includes(Quests[Object.keys(Quests)[i]][x].quest) && Player.level >= Quests[Object.keys(Quests)[i]][x].levelRequirement && IsContainedInArray(Quests[Object.keys(Quests)[i]][x].questRequirements,Player.quests.completedQuestArray)) || (Quests[Object.keys(Quests)[i]][x].repeatTime === "daily" && Player.quests.questLastFinished[Quests[Object.keys(Quests)[i]][x].questArea][Quests[Object.keys(Quests)[i]][x].id] && !Player.quests.completedQuestArray.includes(Quests[Object.keys(Quests)[i]][x].quest))){
-				if(Player.quests.possibleQuestArray.length !== 0){
-					document.getElementById("possibleQuestBox").innerHTML += "<br><br>";
-				}
 				// if the quest is possible it is added to the array and the box
 				Player.quests.possibleQuestArray.push(Quests[Object.keys(Quests)[i]][x].quest);
-				document.getElementById("possibleQuestBox").innerHTML += "<strong>" + Quests[Object.keys(Quests)[i]][x].quest + "</strong><br>" + Quests[Object.keys(Quests)[i]][x].howToStart;
+				Dom.quests.possibleHTML[Quests[Object.keys(Quests)[i]][x].important] += "<br><br><strong>" + Quests[Object.keys(Quests)[i]][x].quest + "</strong><br>" + Quests[Object.keys(Quests)[i]][x].howToStart;
 				if(!previousPossible.includes(Quests[Object.keys(Quests)[i]][x].quest)){
 					newPossible.push(Quests[Object.keys(Quests)[i]][x].quest);
 					Dom.chat.insert('You have unlocked the quest "' + Quests[Object.keys(Quests)[i]][x].quest + '"');
@@ -1062,6 +1060,8 @@ Dom.quests.possible = function(){
 			}
 		}
 	}
+	Dom.quests.possibleHTML[true] += Dom.quests.possibleHTML[undefined];
+	document.getElementById("possibleQuestBox").innerHTML = Dom.quests.possibleHTML[true].substring(8);
 	if(Player.quests.possibleQuestArray.length === 0){
 		document.getElementById("possibleQuestBox").style.textAlign = "center";
 		document.getElementById("possibleQuestBox").innerText = "You have no possible quests";
@@ -1372,7 +1372,7 @@ Dom.inventory.chooseStats = function(inventoryPosition){
 			}
 			Dom.alert.ev.push([Object.keys(str)[i], str[Object.keys(str)[i]]]);
 		}
-		Dom.alert.target = function(ev, num){ /// FIX AND COMMENT THIS FUNCTION
+		Dom.alert.target = function(ev, num){
 			document.getElementById("alert").hidden = true;
 			let setNum = 0;
 			if(Player.inventory[inventoryPosition].set !== undefined){
@@ -2491,6 +2491,9 @@ Dom.choose.page = function(npc, buttons, functions, parameters){
 		if(buttons.length > 1){
 			Dom.changeBook("choosePage", true/*false*/, true);
 			document.getElementById("choosePage").innerHTML = "<h1>"+name+"</h1>"+(npc.chat !== undefined ? "<p>"+npc.chat.chooseChat+"</p>" : "");
+			Dom.choose.HTML = "";
+			Dom.choose.sideHTML = "";
+			Dom.choose.dailyHTML = "";
 			for(let i = 0; i < buttons.length; i++){
 				let imagenum = 2;
 				if(functions[i] === Dom.buyer.page){
@@ -2512,9 +2515,15 @@ Dom.choose.page = function(npc, buttons, functions, parameters){
 						imagenum = 1;
 					}
 				}
-				document.getElementById("choosePage").innerHTML += "<p id='choosePageButtons"+i+"'><img src='assets/icons/choose.png' class='chooseIcon' style='clip: rect("+25*imagenum+"px, 25px, "+25*(imagenum+1)+"px, 0px); margin-top: -"+(25*imagenum+3)+"px'></img>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;"+buttons[i]+"</p>";
+				if(imagenum === 6){ /// AND IMPORTANT AND CHECK FOR DAILY IN QUEST LOG
+					document.getElementById("choosePage").innerHTML += "<p id='choosePageButtons"+i+"'><img src='assets/icons/choose.png' class='chooseIcon' style='clip: rect("+25*imagenum+"px, 25px, "+25*(imagenum+1)+"px, 0px); margin-top: -"+(25*imagenum+3)+"px'></img>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<strong>"+buttons[i]+"</strong></p>";
+				}else if(imagenum === 6){
+					Dom.choose.sideHTML += "<p id='choosePageButtons"+i+"'><img src='assets/icons/choose.png' class='chooseIcon' style='clip: rect("+25*imagenum+"px, 25px, "+25*(imagenum+1)+"px, 0px); margin-top: -"+(25*imagenum+3)+"px'></img>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;"+buttons[i]+"</p>";
+				}else if(imagenum === 0){
+					Dom.choose.dailyHTML += "<p id='choosePageButtons"+i+"'><img src='assets/icons/choose.png' class='chooseIcon' style='clip: rect("+25*imagenum+"px, 25px, "+25*(imagenum+1)+"px, 0px); margin-top: -"+(25*imagenum+3)+"px'></img>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;"+buttons[i]+"</p>";
+				}
 			}
-			document.getElementById("choosePage").innerHTML += '<br><br><center><div id="choosePageClose" class="closeClass" onclick="Dom.changeBook(Player.tab, true)">Close</div></center>';
+			document.getElementById("choosePage").innerHTML += Dom.choose.HTML + Dom.choose.sideHTML + Dom.choose.dailyHTML + '<br><br><center><div id="choosePageClose" class="closeClass" onclick="Dom.changeBook(Player.tab, true)">Close</div></center>';
 			for(let i = 0; i < buttons.length; i++){
 				document.getElementById("choosePageButtons"+i).onclick = function(){
 					functions[i](...parameters[i]);
