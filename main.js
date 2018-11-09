@@ -400,7 +400,7 @@ Game.closest = function (objArray, mainObj) {
 // name is emboldened via <strong> tags
 // if message is an array, a Random message from the array will be chosen
 // if message begins with "/me " (including space), the format changes to "this.name message"
-// if singleUse is true, and if Dom.chat.contents contains message, the message is not sent
+// if singleUse is true, and if Dom.chat.contents contains message, the message is not sent (handled by Dom.chat.insert)
 // if important is true, the chat message triggers a red flashing prompt around the chat bookmark
 Game.sayChat = function (name, message, singleUse, delay, important) {
 	if (message !== undefined) {
@@ -410,14 +410,10 @@ Game.sayChat = function (name, message, singleUse, delay, important) {
 		}
 		if (message.substring(0, 4) === "/me ") { // reflexive message
 			message = message.substr(4, message.length);
-			if (!(singleUse && Dom.chat.contents.includes("<strong>" + name + "</strong> " + message))) { // check if message should be sent (due to singleUse)
-				Dom.chat.insert("<strong>" + name + "</strong> " + message, delay, important);
-			}
+			Dom.chat.insert("<strong>" + name + "</strong> " + message, delay, important, singleUse);
 		}
 		else {
-			if (!(singleUse && Dom.chat.contents.includes("<strong>" + name + "</strong>: " + message))) { // check if message should be sent (due to singleUse)
-				Dom.chat.insert("<strong>" + name + "</strong>: " + message, delay, important);
-			}
+			Dom.chat.insert("<strong>" + name + "</strong>: " + message, delay, important, singleUse);
 		}
 	}
 	else {
@@ -614,6 +610,14 @@ class Character extends Thing {
 				
 				// quest progress
 				if (this.subSpecies = "nilbog goblin") {
+					// general goblins killed objective
+					if (Player.quests.questProgress.goblinsKilled === undefined) {
+						Player.quests.questProgress.goblinsKilled = 1;
+					}
+					else {
+						Player.quests.questProgress.goblinsKilled++;
+					}
+					// goblins killed with goblin torch objective
 					if (JSON.stringify(Player.inventory.weapon) === JSON.stringify(Items.staff[7])) { // goblin torch equipped
 						if (Player.quests.questProgress.goblinsKilledWithTorch === undefined) {
 							Player.quests.questProgress.goblinsKilledWithTorch = 1;
@@ -1323,15 +1327,15 @@ class Hero extends Attacker {
 					// find what rarities the player can fish up
 					// junk is fished up in the proportion not unlocked by common/unique/mythic
 					let raritiesAvailable = [];
-					if (this.stats.fishingSkill >= FishingLevels[Player.lootArea]) {
+					if (fishingSkill >= FishingLevels[Player.lootArea]) {
 						// can fish up commons
 						raritiesAvailable.push("common");
 					}
-					if (this.stats.fishingSkill >= FishingLevels[Player.lootArea] + 15) {
+					if (fishingSkill >= FishingLevels[Player.lootArea] + 15) {
 						// can fish up uniques
 						raritiesAvailable.push("unique");
 					}
-					if (this.stats.fishingSkill >= FishingLevels[Player.lootArea] + 30) {
+					if (fishingSkill >= FishingLevels[Player.lootArea] + 30) {
 						// can fish up mythics
 						raritiesAvailable.push("mythic");
 					}
@@ -2730,6 +2734,9 @@ Game.loadArea = function (areaName, destination) {
 		if (Areas[areaName].onAreaLoad !== undefined) {
 			Areas[areaName].onAreaLoad();
 		}
+		
+		// render secondary canvas
+		Game.secondary.render();
     }.bind(this))
 	.catch(function (err) {
 		// error for if the images didn't load
@@ -4262,13 +4269,13 @@ Game.secondary.render = function () {
 	// clear secondary canvas
 	this.ctx.clearRect(0, 0, 600, 600);
 		
-	// make canvas darker if it is night time
-	if (Game.time === "night") {
+	// make canvas darker if it is night time and the player is not indoors
+	if (Game.time === "night" && !Areas[Game.areaName].indoors) {
 		this.ctx.fillStyle = "black";
 		this.ctx.globalAlpha = 0.35; // maybe change?
 		this.ctx.fillRect(0, 0, 600, 600);
 	}
-	else if (Game.time === "bloodMoon") {
+	else if (Game.time === "bloodMoon" && !Areas[Game.areaName].indoors) {
 		this.ctx.fillStyle = "#2d0101"; // red tint
 		this.ctx.globalAlpha = 0.45;
 		this.ctx.fillRect(0, 0, 600, 600);

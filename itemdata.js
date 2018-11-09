@@ -1016,7 +1016,6 @@ var Items = {
 			type: "bag",
 			image: "assets/items/bag/2.png",
 			sellPrice: 1,
-			rarity: "common",
 			size: 6,
 		},
 		{
@@ -1025,7 +1024,6 @@ var Items = {
 			type: "bag",
 			image: "assets/items/bag/3.png",
 			sellPrice: 3,
-			rarity: "unique",
 			size: 12,
 		},
 		{
@@ -1034,8 +1032,15 @@ var Items = {
 			type: "bag",
 			image: "assets/items/bag/4.png",
 			sellPrice: 10,
-			rarity: "unique",
 			size: 18,
+		},
+		{
+			id: 5,
+			name: "Brown Backsack",
+			type: "bag",
+			image: "assets/items/bag/5.png",
+			sellPrice: 2,
+			size: 12,
 		},
 	],
 	item: [
@@ -1275,6 +1280,7 @@ var Items = {
 			name: "Wood-Brewed Beer",
 			type: "consumable",
 			image: "assets/items/consumable/5.png",
+			sellPrice: 1,
 			functionText: "Restores 15 health",
 			lore: "Might make you a little tipsy...",
 			onClick: function (inventoryPosition) {
@@ -1368,11 +1374,12 @@ var Items = {
 			id: 8,
 			name: "Can of Worms",
 			type: "consumable",
+			sellPrice: 1,
 			image: "assets/items/consumable/8.png",
 			functionText: "Gives you +20 fishing skill for your next fishing attempt",
 			charges: 3,
 			onClick: function (inventoryPosition, hotbar) {
-				if (!Game.hero.hasStatusEffect("Fish bait")) { // player does not have an existing status effect from the same item
+				if (!Game.hero.hasStatusEffect("Fish bait")) { // player does not have an existing fishing status effect
 					// remove one charge from the item
 					Dom.inventory.removeItemCharge(inventoryPosition, hotbar);
 					
@@ -1387,8 +1394,6 @@ var Items = {
 					}));
 					// give quest progress for "learning to fish II"
 					Player.quests.questProgress.hasUsedBait = true;
-					// if you click in the secondary canvas hotbar the information would display
-					//Dom.expand("information");
 				}
 			}
 		},
@@ -1396,6 +1401,7 @@ var Items = {
 			id: 9,
 			name: "Samhain Pot o' Gloop",
 			type: "consumable",
+			sellPrice: 1,
 			image: "assets/items/consumable/9.png",
 			functionText: "Gives you a random spooky status effect",
 			charges: 3,
@@ -1441,6 +1447,7 @@ var Items = {
 			id: 10,
 			name: "Bunch of Blood Bats",
 			type: "consumable",
+			sellPrice: 2, // TBC
 			image: "assets/items/consumable/10.png",
 			onClickText: "Deals 5 damage to the nearest enemy, stunning them for 1s",
 			charges: 3,
@@ -1500,6 +1507,31 @@ var Items = {
 					time: 10,
 					subSpecies: "nilbog goblin",
 				});
+			}
+		},
+		{
+			id: 12,
+			name: "Magnetised Lure",
+			type: "consumable",
+			image: "assets/items/consumable/12.png",
+			sellPrice: 1,
+			functionText: "Allows you to ONLY fish up junk items for your next fishing attempt",
+			charges: 10,
+			onClick: function (inventoryPosition, hotbar) {
+				if (!Game.hero.hasStatusEffect("Fish bait")) { // player does not have an existing fishing status effect
+					// remove one charge from the item
+					Dom.inventory.removeItemCharge(inventoryPosition, hotbar);
+					
+					// give fish bait status effect
+					Game.hero.statusEffects.push(new statusEffect({
+						title: "Fish bait",
+						effect: "You can only fish up junk items for your next fishing attempt",
+						info: {
+							skillIncrease: -1000,
+						},
+						image: "bait",
+					}));
+				}
 			}
 		},
 	],

@@ -401,6 +401,7 @@ var Areas = {
 					{
 						sold: [
 							{item: Items.consumable[8], cost: 4}, // can of worms
+							{item: Items.consumable[12], cost: 4}, // magnetised lure
 						],
 						role: "merchant",
 						chooseText: "I'd like to browse your fishing items.",
@@ -874,7 +875,8 @@ var Areas = {
 					},
 					{
 						sold: [
-							{item: Items.item[11], cost: 2}, // vial of goblin blood
+							{item: Items.item[11], cost: 2}, // vial of goblin blood[
+							{item: Items.bag[5], cost: 6}, // brown backsack
 							{item: Items.helm[2], cost: 2}, // worn leather helm
 							{item: Items.chest[2], cost: 3}, // worn leather tunic
 							{item: Items.greaves[2], cost: 3}, // worn leather trousers
@@ -1137,7 +1139,16 @@ var Areas = {
 				destinationX: 1348,
 				playerAdjustY: -360,
 			},
-			// tbd one to nilbog tower
+			{
+				// teleport to nilbog tower (tower - north east)
+				x: 1680,
+				y: 445,
+				width: 60,
+				height: 2,
+				teleportTo: "nilbogTower1",
+				destinationX: 65,
+				destinationY: 534,
+			},
 		],
 		
 		NPCs: [
@@ -1310,16 +1321,16 @@ var Areas = {
 		checkpoint: false,
 		
 		areaTeleports: [
-			/*{
-				// teleport to nilbog (out of door)
-				x: 360,
-				y: 1560,
-				width: 480,
-				height: 1200,
+			{
+				// teleport to nilbog (bottom of tower)
+				x: 240,
+				y: 649,
+				width: 240,
+				height: 2,
 				teleportTo: "nilbog",
-				destinationX: 1348,
-				destinationY: -360,
-			},*/
+				destinationX: 1650,
+				destinationY: 515,
+			},
 		],
 	},
 };

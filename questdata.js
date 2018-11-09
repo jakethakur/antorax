@@ -5,6 +5,8 @@ var Quests = {
 			quest: "To the Logging Camp",
 			questArea: "eaglecrestLoggingCamp", // name of the array this is contained in
 			
+			important: true, // appears at top of quest log and choose dom
+			
 			startName: "Cart Driver",
 			startChat: `That's it, we're here! I'm afraid you're going to have to walk to the <strong>Eaglecrest Logging Camp</strong> from here. If you walk down a bit to the west you should see the entrance to the camp.<br>You should probably buy a weapon on your way there. It looks like you have enough gold on you to do so. There's a good weaponsmith on your way to the camp, not far from here.`,
 			
@@ -60,6 +62,8 @@ var Quests = {
 			quest: "Learning from the Best",
 			questArea: "eaglecrestLoggingCamp",
 			
+			important: true,
+			
 			startName: "Mashall Teper",
 			startChat: `You're going to need to learn how to fight if you're going to be able to help us gather some wood - there are goblins out there.<br>Go and see <strong>Combat Trainer Saral</strong>. She's more skilled in combat than anyone else here. She'll be able to teach you what you need to know.`,
 			
@@ -104,6 +108,8 @@ var Quests = {
 			quest: "Combat Training",
 			questArea: "eaglecrestLoggingCamp",
 			
+			important: true,
+			
 			startName: "Combat Trainer Saral",
 			startChat: `${Player.name}, I'd like for you to deal some damage to this <strong>Training Dummy</strong>. 20 should suffice. <br>You can find out more about how you can attack in your <strong>adventure log</strong>.`,
 			
@@ -142,6 +148,8 @@ var Quests = {
 			id: 3,
 			quest: "Retrieval of Logs",
 			questArea: "eaglecrestLoggingCamp",
+			
+			important: true,
 			
 			startName: "Marshall Teper",
 			startChat: `You looked good enough at the training dummy to go out to <strong>The Nilbog</strong>. It's the camp of some goblins, but trust me - they're not much stronger than that dummy you just fought.<br>They recently invaded our camp in huge numbers, and managed to steal some logs of wood whilst we were fighting them off. Head east to <strong>The Nilbog</strong> and retrieve some wood from them, and return it to me.<br>`,
@@ -254,6 +262,8 @@ var Quests = {
 			id: 5,
 			quest: "Making Yourself Useful",
 			questArea: "eaglecrestLoggingCamp",
+			
+			important: true,
 			
 			startName: "Marshall Teper",
 			startChat: `There's lots going on around the logging camp at the moment, especially after the goblin attack. Speak to some people in the camp and see if there's anyone that could use your help.`,
@@ -1007,6 +1017,55 @@ var Quests = {
 					eaglecrestLoggingCamp: 50,
 				},
 			},
+		},
+		
+		{
+			id: 19,
+			quest: "Combat Practice",
+			questArea: "eaglecrestLoggingCamp",
+			
+			startName: "Combat Trainer Saral",
+			startChat: `We meet again, ${Player.name}. It's always important to warm up before a day of combat. Hone your skills and kill 9 goblins in The Nilbog.`,
+			
+			finishName: "Combat Trainer Saral",
+			finishChat: `Beautifully done, ${Player.name}. I love the smell of goblin blood. Same time tomorrow?`,
+			
+			objectives: [
+				"Kill 9 goblins.",
+				"Speak to <strong>Combat Trainer Saral</strong>.",
+			],
+			
+			isCompleted: function() {
+				let completed = [];
+				
+				// true or falses for each objective (apart from the turn-in objective)
+				completed.push(checkProgress(Player.quests.goblinsKilled, 2));
+				
+				completed = checkFinished(completed);
+				
+				return completed;
+			},
+			
+			howToStart: "Speak to <strong>Combat Trainer Saral</strong>.",
+			levelRequirement: 3,
+			questRequirements: [],
+			
+			rewards: {
+				xp: 30,
+				items: [
+					Items.currency[2],
+				],
+				itemQuantities: [
+					2,
+				],
+				reputation: {
+					eaglecrestLoggingCamp: 50,
+				},
+			},
+			
+			resetVariables: [
+				"goblinsKilled",
+			],
 		},
 		
 		/*{
