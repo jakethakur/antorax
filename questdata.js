@@ -1127,10 +1127,14 @@ var Quests = {
 			howToStart: "Speak to Fisherman Tobenam.",
 			levelRequirement: 1,
 			questRequirements: ["Learning to Fish III"],
+			fishingRequirement: {
+				min: 0,
+				max: 55,
+			}
 			repeatTime: "daily",
 			
 			rewards: {
-				xp: 50,
+				xp: 30,
 				items: [
 					Items.currency[3], // fishing seal
 				],
@@ -1174,6 +1178,61 @@ var Quests = {
 			howToStart: "Speak to Fisherman Tobenam.",
 			levelRequirement: 1,
 			questRequirements: ["Learning to Fish III"],
+			fishingRequirement: {
+				min: 0,
+				max: 55,
+			}
+			repeatTime: "daily",
+			
+			rewards: {
+				xp: 30,
+				items: [
+					Items.currency[3], // fishing seal
+				],
+				itemQuantities: [
+					1,
+				],
+			},
+			
+			resetVariables: [
+				"fishCaught",
+			],
+		},
+		
+		{
+			id: 2,
+			quest: "A Bigger Splash",
+			questArea: "fishing",
+			
+			startName: "Fisherman Tobenam",
+			startChat: `tbd`,
+			
+			finishName: "Fisherman Tobenam",
+			finishChat: `tbd`,
+			
+			objectives: [
+				"Fish up 25 fish.",
+				"Speak to <strong>Fisherman Tobenam</strong>.",
+			],
+			
+			isCompleted: function() {
+				let completed = []; // contains true or false for all of the objectives, with the last element being if the quest is ready to complete
+				
+				// true or falses for each objective (apart from the turn-in objective)
+				completed.push(checkProgress(Player.quests.questProgress.fishCaught, 25));
+				
+				completed = checkFinished(completed);
+				
+				return completed;
+			},
+			
+			howToStart: "Speak to Fisherman Tobenam.",
+			levelRequirement: 1,
+			questRequirements: ["Learning to Fish III"],
+			fishingRequirement: {
+				min: 0,
+				max: 55,
+			}
 			repeatTime: "daily",
 			
 			rewards: {
@@ -1182,6 +1241,111 @@ var Quests = {
 					Items.currency[3], // fishing seal
 				],
 				itemQuantities: [
+					2,
+				],
+			},
+			
+			resetVariables: [
+				"fishCaught",
+			],
+		},
+		
+		{
+			id: 3,
+			quest: "Plenty of Perch",
+			questArea: "fishing",
+			
+			startName: "Fisherman Tobenam",
+			startChat: `tbd`,
+			
+			finishName: "Fisherman Tobenam",
+			finishChat: `tbd`,
+			
+			objectives: [
+				"Fish up 3 yellow perch.",
+				"Speak to <strong>Fisherman Tobenam</strong>.",
+			],
+			
+			isCompleted: function() {
+				let completed = []; // contains true or false for all of the objectives, with the last element being if the quest is ready to complete
+				
+				// true or falses for each objective (apart from the turn-in objective)
+				completed.push(checkProgress(Player.quests.questProgress.yellowPerchCaught, 3));
+				
+				completed = checkFinished(completed);
+				
+				return completed;
+			},
+			
+			howToStart: "Speak to Fisherman Tobenam.",
+			levelRequirement: 1,
+			questRequirements: ["Learning to Fish III"],
+			fishingRequirement: {
+				min: 0,
+				max: 55,
+			}
+			repeatTime: "daily",
+			
+			rewards: {
+				xp: 30,
+				items: [
+					Items.currency[3], // fishing seal
+				],
+				itemQuantities: [
+					1,
+				],
+			},
+			
+			resetVariables: [
+				"yellowPerchCaught",
+			],
+		},
+		
+		{
+			id: 4,
+			quest: "Lots o' Fish",
+			questArea: "fishing",
+			
+			startName: "Fisherman Tobenam",
+			startChat: `tbd`,
+			
+			finishName: "Fisherman Tobenam",
+			finishChat: `tbd`,
+			
+			objectives: [
+				"Fish up 1 yellow perch.",
+				"Fish up 1 saffron cod.",
+				"Fish up 1 pink salmon.",
+				"Fish up 1 sea trout.",
+				"Speak to <strong>Fisherman Tobenam</strong>.",
+			],
+			
+			isCompleted: function() {
+				let completed = []; // contains true or false for all of the objectives, with the last element being if the quest is ready to complete
+				
+				// true or falses for each objective (apart from the turn-in objective)
+				//completed.push(checkProgress(Player.quests.questProgress.fishCaught, 25));
+				
+				completed = checkFinished(completed);
+				
+				return completed;
+			},
+			
+			howToStart: "Speak to Fisherman Tobenam.",
+			levelRequirement: 1,
+			questRequirements: ["Learning to Fish III"],
+			fishingRequirement: {
+				min: 0,
+				max: 55,
+			}
+			repeatTime: "daily",
+			
+			rewards: {
+				xp: 30,
+				items: [
+					Items.currency[3], // fishing seal
+				],
+				itemQuantities: 
 					1,
 				],
 			},
