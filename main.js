@@ -3125,6 +3125,11 @@ Game.update = function (delta) {
 								else if (!IsContainedInArray(role.quest.questRequirements, Player.quests.completedQuestArray)) { // quest requirements have not been completed
 									questCanBeStarted = false;
 								}
+								else if (role.quest.fishingRequirement !== undefined) { // fishing skill is required
+									if (Game.hero.stats.fishingSkill > role.quest.fishingRequirement.max || Game.hero.stats.fishingSkill < role.quest.fishingRequirement.min) { // fishing skill not in range
+										questCanBeStarted = false;
+									}
+								}
 								else {
 									// check if it is daily or one time
 									if (role.quest.repeatTime === undefined) {

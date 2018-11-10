@@ -394,7 +394,7 @@ var Areas = {
 						role: "questStartFinish",
 					},
 					{
-						quest: [Quests.fishing[0], Quests.fishing[1]], 
+						quest: [Quests.fishing[0], Quests.fishing[1], Quests.fishing[2]], 
 						role: "questStartFinish",
 						newQuestFrequency: "daily",
 					},

@@ -48,8 +48,9 @@ function GetFullDate () {
 	return dateString;
 }
 
-function SaveItem(name, value){
-	if(localStorage.getItem("accept") === "true"){
+// save an item to local storage
+function SaveItem (name, value) {
+	if (localStorage.getItem("accept") === "true") { // check the player has accepted local storage
 		localStorage.setItem(name, value);
 	}
 }

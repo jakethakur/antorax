@@ -1129,8 +1129,8 @@ var Quests = {
 			questRequirements: ["Learning to Fish III"],
 			fishingRequirement: {
 				min: 0,
-				max: 55,
-			}
+				max: 60,
+			},
 			repeatTime: "daily",
 			
 			rewards: {
@@ -1180,8 +1180,8 @@ var Quests = {
 			questRequirements: ["Learning to Fish III"],
 			fishingRequirement: {
 				min: 0,
-				max: 55,
-			}
+				max: 60,
+			},
 			repeatTime: "daily",
 			
 			rewards: {
@@ -1205,10 +1205,10 @@ var Quests = {
 			questArea: "fishing",
 			
 			startName: "Fisherman Tobenam",
-			startChat: `tbd`,
+			startChat: `Today feels like a lucky day, heheh! Fish up lots and test your luck!`,
 			
 			finishName: "Fisherman Tobenam",
-			finishChat: `tbd`,
+			finishChat: `Heheh, you sure were lucky!`,
 			
 			objectives: [
 				"Fish up 25 fish.",
@@ -1231,8 +1231,8 @@ var Quests = {
 			questRequirements: ["Learning to Fish III"],
 			fishingRequirement: {
 				min: 0,
-				max: 55,
-			}
+				max: 60,
+			},
 			repeatTime: "daily",
 			
 			rewards: {
@@ -1250,7 +1250,7 @@ var Quests = {
 			],
 		},
 		
-		{
+		/*{
 			id: 3,
 			quest: "Plenty of Perch",
 			questArea: "fishing",
@@ -1282,8 +1282,8 @@ var Quests = {
 			questRequirements: ["Learning to Fish III"],
 			fishingRequirement: {
 				min: 0,
-				max: 55,
-			}
+				max: 60,
+			},
 			repeatTime: "daily",
 			
 			rewards: {
@@ -1336,8 +1336,8 @@ var Quests = {
 			questRequirements: ["Learning to Fish III"],
 			fishingRequirement: {
 				min: 0,
-				max: 55,
-			}
+				max: 60,
+			},
 			repeatTime: "daily",
 			
 			rewards: {
@@ -1353,7 +1353,7 @@ var Quests = {
 			resetVariables: [
 				"fishCaught",
 			],
-		},
+		},*/
 	],
 };
 
