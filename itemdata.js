@@ -1377,7 +1377,7 @@ var Items = {
 			sellPrice: 1,
 			image: "assets/items/consumable/8.png",
 			functionText: "Gives you +20 fishing skill for your next fishing attempt",
-			charges: 3,
+			maxCharges: 3,
 			onClick: function (inventoryPosition, hotbar) {
 				if (!Game.hero.hasStatusEffect("Fish bait")) { // player does not have an existing fishing status effect
 					// remove one charge from the item
@@ -1404,7 +1404,7 @@ var Items = {
 			sellPrice: 1,
 			image: "assets/items/consumable/9.png",
 			functionText: "Gives you a random spooky status effect",
-			charges: 3,
+			maxCharges: 3,
 			onClick: function (inventoryPosition, hotbar) {
 				// remove one charge from the item
 				Dom.inventory.removeItemCharge(inventoryPosition, hotbar);
@@ -1450,7 +1450,7 @@ var Items = {
 			sellPrice: 2, // TBC
 			image: "assets/items/consumable/10.png",
 			onClickText: "Deals 5 damage to the nearest enemy, stunning them for 1s",
-			charges: 3,
+			maxCharges: 3,
 			onClick: function (inventoryPosition) {
 				// remove one charge from the item
 				Dom.inventory.removeItemCharge(inventoryPosition);
@@ -1484,7 +1484,7 @@ var Items = {
 			},
 			lore: "",
 			images: { // images that should be loaded for this item
-				names: ["bloodBat"],
+				names: ["bloodBat",],
 				addresses: ["./assets/projectiles/bloodBat.png",],
 			},
 		},
@@ -1516,7 +1516,8 @@ var Items = {
 			image: "assets/items/consumable/12.png",
 			sellPrice: 1,
 			functionText: "Allows you to ONLY fish up junk items for your next fishing attempt",
-			charges: 10,
+			maxCharges: 10,
+			chargeImages: ["assets/items/consumable/12.png","assets/items/consumable/12-1.png","assets/items/consumable/12-2.png",],
 			onClick: function (inventoryPosition, hotbar) {
 				if (!Game.hero.hasStatusEffect("Fish bait")) { // player does not have an existing fishing status effect
 					// remove one charge from the item
@@ -1532,7 +1533,7 @@ var Items = {
 						image: "bait",
 					}));
 				}
-			}
+			},
 		},
 	],
 	fish: [

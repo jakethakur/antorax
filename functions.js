@@ -7,7 +7,7 @@ var Loader = {
     images: {}
 };
 
-Loader.loadImage = function (key, src) {
+Loader.loadImage = function (key, src) { // key is name of image
 	if (!(key in this.images)) {
 	    var img = new Image();
 
@@ -46,7 +46,7 @@ Loader.wipeImages = function (exceptions) {
 			delete this.images[key];
 		}
 	}
-}
+};
 
 //
 // Misc functions

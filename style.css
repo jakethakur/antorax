@@ -358,6 +358,7 @@ td{
 	vertical-align: middle;
 	font-size: 20px;
 	clear: both;
+	margin-bottom: 20px;
 }
 #closeReputation, #closeSettings{
 	position: relative;
@@ -411,7 +412,7 @@ td{
 	left: 20px;
 }
 #decline{
-	bottom: 40px;
+	bottom: 60px;
 	left: 270px;
 }
 #acceptReward{

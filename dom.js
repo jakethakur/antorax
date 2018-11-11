@@ -773,15 +773,22 @@ Dom.inventory.displayInformation = function(item, stacked, position){
 			document.getElementById("lore").innerHTML = "";
 		}
 		if(position === "buyer" && item.sellPrice !== undefined){
-			document.getElementById("lore").innerHTML += lorebuyer+"Sell "+(item.sellQuantity !== 1 ? item.sellQuantity : "")+" for "+item.sellPrice+" gold";
+			document.getElementById("lore").innerHTML += lorebuyer+"Sell "+(item.sellQuantity !== 1 ? item.sellQuantity : "")+" for "+(item.charges === undefined ? item.sellPrice : Math.ceil(item.sellPrice / (item.maxCharges / item.charges)))+" gold";
 		}
 	}
 }
 
 Dom.inventory.removeItemCharge = function(inventoryPosition, hotbar){
 	Player.inventory.items[inventoryPosition].charges--;
-	if (Player.inventory.items[inventoryPosition].charges <= 0) {
+	if(Player.inventory.items[inventoryPosition].charges <= 0){
 		this.remove(inventoryPosition);
+	}
+	// change the image to a more used image if it has one
+	if(Player.inventory.items[inventoryPosition].chargeImages !== undefined){
+		if(Player.inventory.items[inventoryPosition].chargeImages[Math.floor((Player.inventory.items[inventoryPosition].maxCharges - Player.inventory.items[inventoryPosition].charges) / (Player.inventory.items[inventoryPosition].maxCharges / (Player.inventory.items[inventoryPosition].chargeImages.length)))] !== Player.inventory.items[inventoryPosition].image){
+			Player.inventory.items[inventoryPosition].image = Player.inventory.items[inventoryPosition].chargeImages[Math.floor((Player.inventory.items[inventoryPosition].maxCharges - Player.inventory.items[inventoryPosition].charges) / (Player.inventory.items[inventoryPosition].maxCharges / (Player.inventory.items[inventoryPosition].chargeImages.length)))];
+			document.getElementById("itemInventory").getElementsByTagName("td")[inventoryPosition].innerHTML = "<img src='"+Player.inventory.items[inventoryPosition].image+"' draggable='true' ondragstart='Dom.inventory.drag(event,"+inventoryPosition+")' "+(Player.inventory.items[inventoryPosition].onClick !== undefined ? "onclick='Player.inventory.items["+inventoryPosition+"].onClick("+inventoryPosition+")'" : "") +"></img>";
+		}
 	}
 	if(!hotbar){
 		this.displayInformation(Player.inventory.items[inventoryPosition]);
@@ -969,16 +976,6 @@ Dom.quest.acceptRewards = function(){
 	Dom.quests.completed(Dom.currentlyDisplayed);
 	Player.quests.questLastFinished[Dom.currentlyDisplayed.questArea][Dom.currentlyDisplayed.id] = GetFullDate();
 	Dom.quests.possible();
-	/*for(let i = 0; i < Object.keys(Quests).length; i++){
-		for(let x = 0; x < Quests[Object.keys(Quests)[i]].length; x++){
-			//console.log(Quests[Object.keys(Quests)[i]][x].questRequirements);
-			console.log(Dom.currentlyDisplayed.quest);
-			if(Quests[Object.keys(Quests)[i]][x].questRequirements.includes(Dom.currentlyDisplayed.quest)){
-				console.log("yes");
-				Dom.chat.insert('You have unlocked the quest "' + Quests[Object.keys(Quests)[i]][x].quest+'"');
-			}
-		}
-	}*/
 	let quest = Dom.currentlyDisplayed;
 	if (Dom.currentlyDisplayed.onQuestFinish !== undefined){
 		Dom.currentlyDisplayed.onQuestFinish();
@@ -995,12 +992,15 @@ Dom.quests.active = function(quest){
 		Player.quests.activeQuestArray.push(quest.quest);
 	}
 	document.getElementById("activeQuestBox").style.textAlign = "left";
-	Dom.quests.activeHTML = {true: "", undefined: "",};
+	Dom.quests.activeHTML = {true: "", undefined: "", daily: "",};
 	for(let x = 0; x < Player.quests.activeQuestArray.length; x++){
 		let currentQuest = "";
 		for(let i = 0; i < Object.keys(Quests).length; i++){
 			for(let y = 0; y < Quests[Object.keys(Quests)[i]].length; y++){
 				if(Quests[Object.keys(Quests)[i]][y].quest === Player.quests.activeQuestArray[x]){
+					if(Quests[Object.keys(Quests)[i]][y].repeatTime === "daily"){
+						Quests[Object.keys(Quests)[i]][y].important = "daily";
+					}
 					// the quest Object is worked out by the name saved in the activeQuestArray
 					currentQuest = Quests[Object.keys(Quests)[i]][y];
 				}
@@ -1033,7 +1033,7 @@ Dom.quests.active = function(quest){
 			currentQuest.completed = false;
 		}
 	}
-	Dom.quests.activeHTML.true += Dom.quests.activeHTML.undefined;
+	Dom.quests.activeHTML.true += Dom.quests.activeHTML.undefined + Dom.quests.activeHTML.daily;
 	document.getElementById("activeQuestBox").innerHTML = Dom.quests.activeHTML.true.substring(8);
 	if(Player.quests.activeQuestArray.length === 0){
 		document.getElementById("activeQuestBox").style.textAlign = "center";
@@ -1046,11 +1046,14 @@ Dom.quests.possible = function(){
 	let newPossible = [];
 	Player.quests.possibleQuestArray = [];
 	document.getElementById("possibleQuestBox").style.textAlign = "left";
-	Dom.quests.possibleHTML = {true: "", undefined: "",};
+	Dom.quests.possibleHTML = {true: "", undefined: "", daily: "",};
 	for(let i = 0; i < Object.keys(Quests).length; i++){
 		for(let x = 0; x < Quests[Object.keys(Quests)[i]].length; x++){
 			if((!Player.quests.completedQuestArray.includes(Quests[Object.keys(Quests)[i]][x].quest) && !Player.quests.activeQuestArray.includes(Quests[Object.keys(Quests)[i]][x].quest) && Player.level >= Quests[Object.keys(Quests)[i]][x].levelRequirement && IsContainedInArray(Quests[Object.keys(Quests)[i]][x].questRequirements,Player.quests.completedQuestArray)) || (Quests[Object.keys(Quests)[i]][x].repeatTime === "daily" && Player.quests.questLastFinished[Quests[Object.keys(Quests)[i]][x].questArea][Quests[Object.keys(Quests)[i]][x].id] && !Player.quests.completedQuestArray.includes(Quests[Object.keys(Quests)[i]][x].quest))){
 				// if the quest is possible it is added to the array and the box
+				if(Quests[Object.keys(Quests)[i]][x].repeatTime === "daily"){
+					Quests[Object.keys(Quests)[i]][x].important = "daily";
+				}
 				Player.quests.possibleQuestArray.push(Quests[Object.keys(Quests)[i]][x].quest);
 				Dom.quests.possibleHTML[Quests[Object.keys(Quests)[i]][x].important] += "<br><br><strong>" + Quests[Object.keys(Quests)[i]][x].quest + "</strong><br>" + Quests[Object.keys(Quests)[i]][x].howToStart;
 				if(!previousPossible.includes(Quests[Object.keys(Quests)[i]][x].quest)){
@@ -1060,7 +1063,7 @@ Dom.quests.possible = function(){
 			}
 		}
 	}
-	Dom.quests.possibleHTML[true] += Dom.quests.possibleHTML[undefined];
+	Dom.quests.possibleHTML.true += Dom.quests.possibleHTML.undefined + Dom.quests.possibleHTML.daily;
 	document.getElementById("possibleQuestBox").innerHTML = Dom.quests.possibleHTML[true].substring(8);
 	if(Player.quests.possibleQuestArray.length === 0){
 		document.getElementById("possibleQuestBox").style.textAlign = "center";
@@ -1249,12 +1252,16 @@ Dom.inventory.give = function(item, num, position){
 					}
 				}
 			}
+			// if the item still needs to be added
 			if(add){
 				for(let i = 0; i < Player.inventory.items.length; i++){
 					// if the slot is empty then the item is added
 					if(Player.inventory.items[i].image === undefined){
 						added = true;
 						Player.inventory.items[i] = Object.assign({},item);
+						if(Player.inventory.items[i].maxCharges !== undefined){
+							Player.inventory.items[i].charges = Player.inventory.items[i].maxCharges;
+						}
 						if(Player.inventory.items[i].chooseStats !== undefined){
 							item.onClick = Dom.inventory.chooseStats;
 						}
@@ -1280,6 +1287,11 @@ Dom.inventory.give = function(item, num, position){
 							Dom.inventory.archaeology.push(item.name);
 							localStorage.setItem("archaeology",JSON.stringify(Dom.inventory.archaeology));
 						}
+						if(item.images !== undefined){
+							for(let x = 0; x < item.images.names.length; x++){
+								Loader.loadImage(item.images.names[x], item.images.addresses[x]);
+							}
+						}
 						break; // stops the item being placed in multiple slots
 					}
 				}
@@ -1289,6 +1301,9 @@ Dom.inventory.give = function(item, num, position){
 	}else{
 		added = true;
 		Player.inventory.items[position] = Object.assign({},item);
+		if(Player.inventory.items[i].maxCharges !== undefined){
+			Player.inventory.items[i].charges = Player.inventory.items[i].maxCharges;
+		}
 		if(Player.inventory.items[position].chooseStats !== undefined){
 			item.onClick = Dom.inventory.chooseStats;
 		}
@@ -2412,7 +2427,7 @@ Dom.buyer.remove = function(i, all){
 	if(Player.inventory.items[i].sellCurrency === undefined){
 		Player.inventory.items[i].sellCurrency = 2;
 	}
-	Dom.inventory.give(Items.currency[Player.inventory.items[i].sellCurrency], (all ? Player.inventory.items[i].sellQuantity*Math.floor(Player.inventory.items[i].stacked/Player.inventory.items[i].sellQuantity)*Player.inventory.items[i].sellPrice : /*Player.inventory.items[i].sellPrice*Player.inventory.items[i].sellQuantity <= Player.inventory.items[i].stacked ?*/ Player.inventory.items[i].sellPrice /*: 0*/));
+	Dom.inventory.give(Items.currency[Player.inventory.items[i].sellCurrency], (all ? Player.inventory.items[i].sellQuantity*Math.floor(Player.inventory.items[i].stacked/Player.inventory.items[i].sellQuantity)*Player.inventory.items[i].sellPrice : (Player.inventory.items[i].charges === undefined ? Player.inventory.items[i].sellPrice : Math.ceil(Player.inventory.items[i].sellPrice / (Player.inventory.items[i].maxCharges / Player.inventory.items[i].charges)))));
 	Dom.inventory.remove(i, all ? Math.floor(Player.inventory.items[i].stacked/Player.inventory.items[i].sellQuantity)*Player.inventory.items[i].sellQuantity : /*Player.inventory.items[i].sellQuantity <= Player.inventory.items[i].stacked ?*/ Player.inventory.items[i].sellQuantity /*: 0*/);
 	Dom.buyer.page();
 }
@@ -2421,14 +2436,12 @@ Dom.buyer.page = function(npc){
 	Dom.changeBook("buyerPage", true/*false*/, true);
 	// if the buyer page is being opened not refreshed
 	if(npc !== undefined){0
-		//Dom.currentlyDisplayed = npc.name;
 		document.getElementById("buyerPageChat").innerHTML = npc.chat.buyerGreeting;
 	}
 	document.getElementById("buyerPageInventory").innerHTML = "";
 	for(let i = 0; i < document.getElementById("itemInventory").getElementsByTagName("td").length / 6; i++){
 		document.getElementById("buyerPageInventory").innerHTML += "<tr><td/><td/><td/><td/><td/><td/></tr>";
 	}
-	//document.getElementById("buyerPageClose").style.top = 50 + 55* document.getElementById("itemInventory").getElementsByTagName("td").length / 6 + "px";
 	let remove = true;
 	for(let i = 6; i < Player.inventory.items.length; i++){
 		if(Player.inventory.items[i].image !== undefined){
@@ -2459,9 +2472,9 @@ Dom.buyer.page = function(npc){
 						Dom.alert.ev = i;
 						Dom.alert.target = Dom.buyer.remove;
 						if(Player.inventory.items[i].stacked >= Player.inventory.items[i].sellQuantity*2){
-							Dom.alert.page("How many <strong>"+Player.inventory.items[i].name.toLowerCase()+"</strong> would you like to sell for <strong>"+Player.inventory.items[i].sellPrice+" "+Items.currency[Player.inventory.items[i].sellCurrency].name.toLowerCase()+"</strong> each?", 2, [Player.inventory.items[i].sellQuantity <= Player.inventory.items[i].stacked ? Player.inventory.items[i].sellQuantity : 0, Math.floor(Player.inventory.items[i].stacked/Player.inventory.items[i].sellQuantity)*Player.inventory.items[i].sellQuantity]);
+							Dom.alert.page("How many <strong>"+Player.inventory.items[i].name.toLowerCase()+"</strong> would you like to sell for <strong>"+(Player.inventory.items[i].charges === undefined ? Player.inventory.items[i].sellPrice : Math.ceil(Player.inventory.items[i].sellPrice / (Player.inventory.items[i].maxCharges / Player.inventory.items[i].charges)))+" "+Items.currency[Player.inventory.items[i].sellCurrency].name.toLowerCase()+"</strong> each?", 2, [Player.inventory.items[i].sellQuantity <= Player.inventory.items[i].stacked ? Player.inventory.items[i].sellQuantity : 0, Math.floor(Player.inventory.items[i].stacked/Player.inventory.items[i].sellQuantity)*Player.inventory.items[i].sellQuantity]);
 						}else{
-							Dom.alert.page("Are you sure you want to sell <strong>"+(Player.inventory.items[i].sellQuantity > 1 ? Player.inventory.items[i].sellQuantity+" " : "")+(Player.inventory.items[i].unidentified ? "unidentified "+Player.inventory.items[i].type : Player.inventory.items[i].name.toLowerCase())+"</strong> for <strong>"+Player.inventory.items[i].sellPrice+" "+Items.currency[Player.inventory.items[i].sellCurrency].name.toLowerCase()+"</strong>? You cannot buy it back!", 1);
+							Dom.alert.page("Are you sure you want to sell <strong>"+(Player.inventory.items[i].sellQuantity > 1 ? Player.inventory.items[i].sellQuantity+" " : "")+(Player.inventory.items[i].unidentified ? "unidentified "+Player.inventory.items[i].type : Player.inventory.items[i].name.toLowerCase())+"</strong> for <strong>"+(Player.inventory.items[i].charges === undefined ? Player.inventory.items[i].sellPrice : Math.ceil(Player.inventory.items[i].sellPrice / (Player.inventory.items[i].maxCharges / Player.inventory.items[i].charges)))+" "+Items.currency[Player.inventory.items[i].sellCurrency].name.toLowerCase()+"</strong>? You cannot buy it back!", 1);
 						}
 					}else if(!(!remove && i === 5 && Player.inventory.items[5].type === "bag")){
 						Dom.alert.page("You need "+Player.inventory.items[i].sellQuantity+" of these to sell them.");
@@ -2515,15 +2528,19 @@ Dom.choose.page = function(npc, buttons, functions, parameters){
 						imagenum = 1;
 					}
 				}
-				if(imagenum === 6){ /// AND IMPORTANT AND CHECK FOR DAILY IN QUEST LOG
-					document.getElementById("choosePage").innerHTML += "<p id='choosePageButtons"+i+"'><img src='assets/icons/choose.png' class='chooseIcon' style='clip: rect("+25*imagenum+"px, 25px, "+25*(imagenum+1)+"px, 0px); margin-top: -"+(25*imagenum+3)+"px'></img>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<strong>"+buttons[i]+"</strong></p>";
-				}else if(imagenum === 6){
-					Dom.choose.sideHTML += "<p id='choosePageButtons"+i+"'><img src='assets/icons/choose.png' class='chooseIcon' style='clip: rect("+25*imagenum+"px, 25px, "+25*(imagenum+1)+"px, 0px); margin-top: -"+(25*imagenum+3)+"px'></img>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;"+buttons[i]+"</p>";
+				if(imagenum === 6){
+					if(parameters[i][0].important){
+						document.getElementById("choosePage").innerHTML += "<p id='choosePageButtons"+i+"'><img src='assets/icons/choose.png' class='chooseIcon' style='clip: rect("+25*imagenum+"px, 25px, "+25*(imagenum+1)+"px, 0px); margin-top: -"+(25*imagenum+3)+"px'></img>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<strong>"+buttons[i]+"</strong></p>";
+					}else{
+						Dom.choose.sideHTML += "<p id='choosePageButtons"+i+"'><img src='assets/icons/choose.png' class='chooseIcon' style='clip: rect("+25*imagenum+"px, 25px, "+25*(imagenum+1)+"px, 0px); margin-top: -"+(25*imagenum+3)+"px'></img>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;"+buttons[i]+"</p>";
+					}
 				}else if(imagenum === 0){
 					Dom.choose.dailyHTML += "<p id='choosePageButtons"+i+"'><img src='assets/icons/choose.png' class='chooseIcon' style='clip: rect("+25*imagenum+"px, 25px, "+25*(imagenum+1)+"px, 0px); margin-top: -"+(25*imagenum+3)+"px'></img>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;"+buttons[i]+"</p>";
+				}else{
+					Dom.choose.HTML += "<p id='choosePageButtons"+i+"'><img src='assets/icons/choose.png' class='chooseIcon' style='clip: rect("+25*imagenum+"px, 25px, "+25*(imagenum+1)+"px, 0px); margin-top: -"+(25*imagenum+3)+"px'></img>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;"+buttons[i]+"</p>";
 				}
 			}
-			document.getElementById("choosePage").innerHTML += Dom.choose.HTML + Dom.choose.sideHTML + Dom.choose.dailyHTML + '<br><br><center><div id="choosePageClose" class="closeClass" onclick="Dom.changeBook(Player.tab, true)">Close</div></center>';
+			document.getElementById("choosePage").innerHTML += Dom.choose.sideHTML + Dom.choose.dailyHTML + Dom.choose.HTML + '<br><br><center><div id="choosePageClose" class="closeClass" onclick="Dom.changeBook(Player.tab, true)">Close</div></center>';
 			for(let i = 0; i < buttons.length; i++){
 				document.getElementById("choosePageButtons"+i).onclick = function(){
 					functions[i](...parameters[i]);
