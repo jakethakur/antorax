@@ -738,7 +738,7 @@ var Quests = {
 			},
 			
 			onQuestStart: function() {
-				Game.NPCs.splice(0, 1); // remove goblin torch NPC from the map
+				Game.npcs.splice(0, 1); // remove goblin torch NPC from the map
 			},
 			
 			rewards: {
@@ -754,7 +754,7 @@ var Quests = {
 			
 			onQuestFinish: function() {
 				if (Game.areaName === "nilbog") {
-					Game.NPCs.push(new NPC(Areas.nilbog.NPCs[0])); // add goblin torch image to the map
+					Game.npcs.push(new NPC(Areas.nilbog.npcs[0])); // add goblin torch image to the map
 				}
 			},
 		},
@@ -887,7 +887,7 @@ var Quests = {
 				setTimeout(function () {
 					// damage Ciarra
 					if (Game.areaName === "eaglecrestLoggingCamp") {
-						Game.NPCs.find(NPC => NPC.name === "Ciarra Darkbrew").takeDamage(100)
+						Game.npcs.find(NPC => NPC.name === "Ciarra Darkbrew").takeDamage(100)
 					}
 				}, 8600);
 				Game.sayChat("Ciarra Darkbrew", "That... didn't go as planned.", false, 9500, true);

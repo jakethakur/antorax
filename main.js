@@ -8,55 +8,6 @@
 // https://developer.mozilla.org/en-US/docs/Games/Techniques/Tilemaps
 
 //
-// Asset loader
-//
-
-var Loader = {
-    images: {}
-};
-
-Loader.loadImage = function (key, src) {
-	if (!(key in this.images)) {
-	    var img = new Image();
-
-	    var d = new Promise(function (resolve, reject) {
-	        img.onload = function () {
-	            this.images[key] = img;
-	            resolve(img);
-	        }.bind(this);
-
-	        img.onerror = function () {
-	            reject('Could not load image: ' + src);
-	        };
-	    }.bind(this));
-
-	    img.src = src;
-	    return d;
-	}
-};
-
-Loader.getImage = function (key) {
-	if (key in this.images) {
-		return this.images[key];
-	}
-	else {
-		console.error("Image " + key + " could not be loaded. Is it misspelt or not already loaded in?");
-		return null;
-	}
-};
-
-Loader.wipeImages = function (exceptions) {
-	//this.images = {}; // inefficient - wipes player from object
-	
-	// wipe all images from images object (apart from exceptions)
-	for (var key in this.images) {
-		if (this.images.hasOwnProperty(key) && !exceptions.includes(key)) {
-			delete this.images[key];
-		}
-	}
-}
-
-//
 // Keyboard handler
 //
 
@@ -396,6 +347,32 @@ Game.closest = function (objArray, mainObj) {
 	return objArray[closestIndex];
 }
 
+// each parameter should contain an x, y, width, and height
+Game.areTouching = function (object1, object2) {
+	/*if (this.rotate !== undefined || object.rotate !== undefined) {
+		// involves rotated hitboxes
+	}
+	potentially useful: https://gamedev.stackexchange.com/a/86784/119033
+	https://stackoverflow.com/a/12414951/9713957
+	https://yal.cc/rot-rect-vs-circle-intersection/
+	*/
+	
+	// check that the objects do not have their own special hitbox
+	if (object2.hitbox !== undefined) {
+		object2 = object2.hitbox;
+	}
+	if (object1.hitbox !== undefined) {
+		object1 = object1.hitbox;
+	}
+	
+	return !(
+        ((object1.y + object1.height) < (object2.y)) ||
+        (object1.y > (object2.y + object2.height)) ||
+        ((object1.x + object1.width) < object2.x) ||
+        (object1.x > (object2.x + object2.width))
+    );
+}
+
 // insert a message into the chat, under the format of "name: message"
 // name is emboldened via <strong> tags
 // if message is an array, a Random message from the array will be chosen
@@ -536,9 +513,9 @@ class Character extends Thing {
 			fiftyPercentHealth - said when the character goes below 50% health for the first time
 			tenPercentHealth - said when the character goes below 10% health for the first time
 			death - said when the character dies (unlimited times)
-			questProgress - said when a quest involving this NPC is in progress (mandatory for quest NPCs)
-			questComplete - said when quests involving this NPC have been finished (mandatory for quest NPCs)
-			inventoryFull - said when a quest involving this NPC adds more items than needed (mandatory for quest NPCs that add something to inventory on start or finish)
+			questProgress - said when a quest involving this NPC is in progress (mandatory for quest npcs)
+			questComplete - said when quests involving this NPC have been finished (mandatory for quest npcs)
+			inventoryFull - said when a quest involving this NPC adds more items than needed (mandatory for quest npcs that add something to inventory on start or finish)
 			shopGreeting - said (on DOM not chat) when you first speak to a merchant (mandatory for merchants)
 			shopLeave - said when you leave a merchant (mandatory for merchants)
 			more tba
@@ -865,11 +842,20 @@ class Hero extends Attacker {
 		var bottom = this.y + 100;
 
 		// check for collisions on sprite sides
-		var collision =
+		let collision =
 			this.map.isSolidTileAtXY(left, top) ||
 			this.map.isSolidTileAtXY(right, top) ||
 			this.map.isSolidTileAtXY(right, bottom) ||
 			this.map.isSolidTileAtXY(left, bottom);
+			
+		// check collision with collisions - invisible entities that cannot be passed
+		Game.collisions.forEach(entity => { // iterate though collisions
+			Game.updateScreenPosition(this);
+			// check if the player's feet are touching the collision
+			if (Game.areTouching({x: this.x + this.width / 2, y: this.y, width: this.width, height: this.height}, entity)) {
+				collision = true;
+			}
+		});
 		
 		// test for slow tiles (e.g: water, mud)
 		let slowTile = this.map.isSlowTileAtXY(this.x, this.y + 50);
@@ -2248,13 +2234,13 @@ Game.statusEffects.stun = function(target, time) {
 			},
 			tick: function (owner) { // decrease time
 				if (Round(this.info.ticks) < this.info.time) { // check effect has not expired 
-					this.info.ticks += 0.2;
+					this.info.ticks += 0.1;
 					if (owner.constructor.name === "Hero") { // refresh canvas status effects if the status effect was applied to player
 						Game.hero.updateStatusEffects();
 					}
 					setTimeout(function (owner) {
 						this.tick(owner);
-					}.bind(this), 200, owner);
+					}.bind(this), 100, owner);
 				}
 				else { // remove effect interval
 					Game.removeStatusEffect(owner);
@@ -2263,10 +2249,10 @@ Game.statusEffects.stun = function(target, time) {
 			image: "stunned",
 		}));
 		
-		// begin tick for every 0.2 seconds
+		// begin tick for every 0.1 seconds
 		setTimeout(function (owner) {
 			this.tick(owner);
-		}.bind(target.statusEffects[target.statusEffects.length - 1]), 200, target);
+		}.bind(target.statusEffects[target.statusEffects.length - 1]), 100, target);
 	}
 	else if (found !== -1) { // extend existing stunned
 		target.statusEffects[found].info.ticks = 0;
@@ -2343,7 +2329,7 @@ Game.statusEffects.generic = function (properties) {
 					let nextTickTime = 1000;
 					if (this.info.time - this.info.ticks <= 2) {
 						// faster tick if effect is approaching its end
-						let nextTickTime = 200;
+						nextTickTime = 100;
 					}
 					setTimeout(function (owner) {
 						// nextTickTime is timeTicked
@@ -2364,7 +2350,7 @@ Game.statusEffects.generic = function (properties) {
 			let nextTickTime = 1000;
 			if (properties.time <= 2) {
 				// faster tick if effect is approaching its end
-				let nextTickTime = 200;
+				let nextTickTime = 100;
 			}
 			
 			// begin tick
@@ -2572,95 +2558,103 @@ Game.loadArea = function (areaName, destination) {
 		this.tileAtlas = Loader.getImage('tiles');
 		
 		// recalibrate camera (for areas other than first area)
-		if(this.camera != undefined) {
+		if (this.camera != undefined) {
 			this.camera.maxX = map.cols * map.tsize - this.canvas.width;
 			this.camera.maxY = map.rows * map.tsize - this.canvas.height;
 		}
 		
 		// villagers (currently broken)
 		this.villagers = [];
-		if(Areas[areaName].villagers !== undefined) {
-			for(var i = 0; i < Areas[areaName].villagers.length; i++) {
-				if (this.canBeShown(Areas[areaName].villagers[i])) { // check if NPC should be shown
-					Areas[areaName].villagers[i].map = map;
-					this.villagers.push(new Villager(Areas[areaName].villagers[i]));
+		if (Areas[areaName].villagers !== undefined) {
+			Areas[areaName].villagers.forEach(villager => {
+				if (this.canBeShown(villager)) { // check if NPC should be shown
+					villager.map = map;
+					this.villagers.push(new Villager(villager));
 				}
-			}
+			});
 		}
 		
 		// things (aesthetic only)
 		this.things = [];
-		if(Areas[areaName].things !== undefined) {
-			for(var i = 0; i < Areas[areaName].things.length; i++) {
-				if (this.canBeShown(Areas[areaName].things[i])) { // check if NPC should be shown
-					Areas[areaName].things[i].map = map;
-					this.things.push(new Thing(Areas[areaName].things[i]));
+		if (Areas[areaName].things !== undefined) {
+			Areas[areaName].things.forEach(thing => {
+				if (this.canBeShown(thing)) { // check if NPC should be shown
+					thing.map = map;
+					this.things.push(new Thing(thing));
 				}
-			}
+			});
 		}
 		
-		// quest NPCs, merchants, identifiers, soul healers, item buyers, etc.
-		this.NPCs = [];
-		if(Areas[areaName].NPCs !== undefined) { // check they exist in areadata.js
-			for(var i = 0; i < Areas[areaName].NPCs.length; i++) {
-				if (this.canBeShown(Areas[areaName].NPCs[i])) { // check if NPC should be shown
-					Areas[areaName].NPCs[i].map = map;
-					this.NPCs.push(new NPC(Areas[areaName].NPCs[i]));
+		// quest npcs, merchants, identifiers, soul healers, item buyers, etc.
+		this.npcs = [];
+		if (Areas[areaName].npcs !== undefined) { // check they exist in areadata.js
+			Areas[areaName].npcs.forEach(npc => {
+				if (this.canBeShown(npc)) { // check if NPC should be shown
+					npc.map = map;
+					this.npcs.push(new NPC(npc));
 				}
-			}
+			});
 		}
 		
 		// dummies (enemies for training) - trivial (don't damage you)
 		this.dummies = [];
-		if(Areas[areaName].dummies !== undefined) {
-			for(var i = 0; i < Areas[areaName].dummies.length; i++) {
-				if (this.canBeShown(Areas[areaName].dummies[i])) { // check if NPC should be shown
-					Areas[areaName].dummies[i].map = map;
-					this.dummies.push(new Dummy(Areas[areaName].dummies[i]));
+		if (Areas[areaName].dummies !== undefined) {
+			Areas[areaName].dummies.forEach(dummy => {
+				if (this.canBeShown(dummy)) { // check if NPC should be shown
+					dummy.map = map;
+					this.dummies.push(new Dummy(dummy));
 				}
-			}
+			});
 		}
 		
 		// enemies
 		this.enemies = [];
-		if(Areas[areaName].enemies !== undefined) {
-			for(var i = 0; i < Areas[areaName].enemies.length; i++) {
-				if (this.canBeShown(Areas[areaName].enemies[i])) { // check if NPC should be shown
-					Areas[areaName].enemies[i].map = map;
-					this.enemies.push(new Enemy(Areas[areaName].enemies[i]));
-					if (Game.time === "bloodMoon" && this.enemies[this.enemies.length - 1].hostility === "hostile") {
+		if (Areas[areaName].enemies !== undefined) {
+			Areas[areaName].enemies.forEach(enemy => {
+				if (this.canBeShown(enemy)) { // check if NPC should be shown
+					enemy.map = map;
+					this.enemies.push(new Enemy(enemy));
+					// check for blood moon
+					if (Game.time === "bloodMoon" && enemy.hostility === "hostile") {
 						// blood moon - enemies have more health
 						this.enemies[this.enemies.length - 1].health *= 2;
 						this.enemies[this.enemies.length - 1].stats.maxHealth *= 2;
 					}
+				}
+			});
+			
+			for(var i = 0; i < Areas[areaName].enemies.length; i++) {
+				if (this.canBeShown(Areas[areaName].enemies[i])) { // check if NPC should be shown
+					Areas[areaName].enemies[i].map = map;
+					this.enemies.push(new Enemy(Areas[areaName].enemies[i]));
 				}
 			}
 		}
 		
 		// loot chests
 		this.chests = [];
-		if(Areas[areaName].chests !== undefined) {
-			for(var i = 0; i < Areas[areaName].chests.length; i++) {
-				if (this.canBeShown(Areas[areaName].chests[i])) { // check if NPC should be shown
-					Areas[areaName].chests[i].map = map;
-					this.chests.push(new LootChest(Areas[areaName].chests[i]));
+		if (Areas[areaName].chests !== undefined) {
+			Areas[areaName].chests.forEach(chest => {
+				if (this.canBeShown(chest)) { // check if NPC should be shown
+					chest.map = map;
+					this.chests.push(new LootChest(chest));
 				}
-			}
+			});
 		}
 		
 		// cannons
 		this.cannons = [];
-		if(Areas[areaName].cannons !== undefined) {
-			for(var i = 0; i < Areas[areaName].cannons.length; i++) {
-				if (this.canBeShown(Areas[areaName].cannons[i])) { // check if NPC should be shown
-					Areas[areaName].cannons[i].map = map;
-					this.cannons.push(new Cannon(Areas[areaName].cannons[i]));
+		if (Areas[areaName].cannons !== undefined) {
+			Areas[areaName].cannons.forEach(cannon => {
+				if (this.canBeShown(cannon)) { // check if NPC should be shown
+					cannon.map = map;
+					this.cannons.push(new Cannon(cannon));
 				}
-			}
+			});
 		}
 		
 		// reset any channelling projectile (if the player exists)
-		if(this.hero !== undefined) {
+		if (this.hero !== undefined) {
 			Game.hero.channellingProjectileId = null;
 			Game.hero.channelling = false;
 			Game.hero.canAttack = true;
@@ -2671,11 +2665,11 @@ Game.loadArea = function (areaName, destination) {
 		this.nextProjectileId = 0; // reset projectile id chain (because projectiles don't persist between areas)
 		
 		// area teleports
-		if(Areas[areaName].areaTeleports !== undefined) {
-			for(var i = 0; i < Areas[areaName].areaTeleports.length; i++) {
-				Areas[areaName].areaTeleports[i].map = map;
-				this.areaTeleports.push(new AreaTeleport(Areas[areaName].areaTeleports[i]));
-			}
+		if (Areas[areaName].areaTeleports !== undefined) {
+			Areas[areaName].areaTeleports.forEach(areaTeleport => {
+				areaTeleport.map = map;
+				this.areaTeleports.push(new AreaTeleport(areaTeleport));
+			});
 		}
 		else {
 			console.warn("This area has no areaTeleports in areaData.");
@@ -2683,11 +2677,20 @@ Game.loadArea = function (areaName, destination) {
 		
 		// tripwires (invisible; calls function when touched)
 		this.tripwires = [];
-		if(Areas[areaName].tripwires !== undefined) {
-			for(var i = 0; i < Areas[areaName].tripwires.length; i++) {
-				Areas[areaName].tripwires[i].map = map;
-				this.tripwires.push(new Tripwire(Areas[areaName].tripwires[i]));
-			}
+		if (Areas[areaName].tripwires !== undefined) {
+			Areas[areaName].tripwires.forEach(tripwire => {
+				tripwire.map = map;
+				this.tripwires.push(new Tripwire(tripwire));
+			});
+		}
+		
+		// collisions (invisible; cannot be passed)
+		this.collisions = [];
+		if (Areas[areaName].collisions !== undefined) {
+			Areas[areaName].collisions.forEach(collision => {
+				collision.map = map;
+				this.collisions.push(new Entity(collision));
+			});
 		}
 		
 		// music
@@ -2756,7 +2759,7 @@ Game.init = function () {
 	this.playingMusic = null;
 	
 	// list of basic (no extra operations to be done) things to be rendered (in order)
-	this.renderList = ["chests", "things", "villagers", "NPCs", "dummies", "enemies"];
+	this.renderList = ["chests", "things", "villagers", "npcs", "dummies", "enemies"];
 	// then player, then projectiles (in order they were shot)
 	
 	// create the player at its start x and y positions
@@ -2824,7 +2827,7 @@ Game.init = function () {
 	this.secondary.render();
 	window.requestAnimationFrame(this.tick);
 	
-	// event console.log
+	// event console.info
 	if (this.event === "James") {
 		console.info("Happy James Day!");
 	}
@@ -3005,10 +3008,10 @@ Game.regenHealth = function () {
 	// player
 	this.restoreHealth(Game.hero, Game.hero.stats.healthRegen);
 	Game.secondary.render();
-	// NPCs
-	for (let i = 0; i < Game.NPCs.length; i++) {
-		if (!Game.NPCs[i].respawning) {
-			this.restoreHealth(Game.NPCs[i], Game.NPCs[i].stats.healthRegen);
+	// npcs
+	for (let i = 0; i < Game.npcs.length; i++) {
+		if (!Game.npcs[i].respawning) {
+			this.restoreHealth(Game.npcs[i], Game.npcs[i].stats.healthRegen);
 		}
 	}
 	// dummies
@@ -3063,26 +3066,26 @@ Game.update = function (delta) {
 	// interact with touching object
     if (Keyboard.isDown(Keyboard.SPACE)) { this.hero.interact(); }
 	
-	// check collision with NPCs - includes quest givers, quest finishers, merchants, soul healers, more TBA
-	this.NPCs.forEach(NPC => { // iterate though NPCs
+	// check collision with npcs - includes quest givers, quest finishers, merchants, soul healers, more TBA
+	this.npcs.forEach(npc => { // iterate though npcs
 	
-		if (!NPC.respawning && this.hero.isTouching(NPC)) { // check npc is not dead and that hero is touching it
+		if (!npc.respawning && this.hero.isTouching(npc)) { // check npc is not dead and that hero is touching it
 			
-			if (typeof NPC.roles !== "undefined") { // check if the NPC is a functional npc (does something when touched)
+			if (typeof npc.roles !== "undefined") { // check if the npc is a functional npc (does something when touched)
 				
 				// arrays for choose DOM
 				let textArray = []; // array of text to describe that function
 				let functionArray = []; // array of functions that can be called
 				let parameterArray = []; // array of arrays of parameters for these functions (to be ...spread into the function)
 				
-				// booleans to decide NPC chat for if choose DOM doesn't open
-				let questActive = false; // if one of the NPC's quests is currently active
-				let questComplete = false; // if one of the NPC's quests has been completed
-				let notUnlockedRoles = false; // if one of the NPC's roles has not been unlocked
+				// booleans to decide npc chat for if choose DOM doesn't open
+				let questActive = false; // if one of the npc's quests is currently active
+				let questComplete = false; // if one of the npc's quests has been completed
+				let notUnlockedRoles = false; // if one of the npc's roles has not been unlocked
 				let textSaid = false; // if all of the above variables should be ignored (because something else has been said instead, e.g: soul healer cannot be healed text)
 				// see below forEach for logic regarding these variables
 				
-				NPC.roles.forEach(role => { // iterate through quests involving that NPC
+				npc.roles.forEach(role => { // iterate through quests involving that npc
 					if (role.roleRequirement === undefined || role.roleRequirement()) {
 						// quest starts
 						if (role.role === "questStart" || role.role === "questStartFinish") {
@@ -3096,11 +3099,11 @@ Game.update = function (delta) {
 								// all of these quests are daily quests
 								if (role.quest.some(quest => Player.quests.activeQuestArray.includes(quest))) { // one of the quests is currently active
 									questCanBeStarted = false;
-									questActive = true; // for NPC dialogue
+									questActive = true; // for npc dialogue
 								}
 								else if (role.quest.some(quest => Player.quests.questLastFinished[quest.questArea][quest.id] >= GetFullDate())) { // one of the quests has already been done today (or after today o.O)
 									questCanBeStarted = false;
-									questComplete = true; // for NPC dialogue
+									questComplete = true; // for npc dialogue
 								}
 								
 								// pick a Random one of the quests to be started
@@ -3117,7 +3120,7 @@ Game.update = function (delta) {
 								// single quest
 								if (Player.quests.activeQuestArray.includes(role.quest.quest)) { // quest is already active
 									questCanBeStarted = false;
-									questActive = true; // for NPC dialogue
+									questActive = true; // for npc dialogue
 								}
 								else if (role.quest.levelRequirement > this.hero.level) { // player is not a high enough level
 									questCanBeStarted = false;
@@ -3136,7 +3139,7 @@ Game.update = function (delta) {
 										// one time
 										if (Player.quests.completedQuestArray.includes(role.quest.quest)) { // quest has already been completed
 											questCanBeStarted = false;
-											questComplete = true; // for NPC dialogue
+											questComplete = true; // for npc dialogue
 										}
 									}
 									else if (role.quest.repeatTime === "daily") {
@@ -3144,7 +3147,7 @@ Game.update = function (delta) {
 										if (Player.quests.questLastFinished[role.quest.questArea][role.quest.id] >= GetFullDate()) { // quest has already been done today (or after today o.O)
 											// note that if the quest has not been finished (hence questLastFinished is undefined) the condition will always return false
 											questCanBeStarted = false;;
-											questComplete = true; // for NPC dialogue
+											questComplete = true; // for npc dialogue
 										}
 									}
 								}
@@ -3162,7 +3165,7 @@ Game.update = function (delta) {
 									}
 									else {
 										// user doesn't have enough space
-										NPC.say(NPC.chat.inventoryFull, true, 0, true);
+										npc.say(npc.chat.inventoryFull, true, 0, true);
 									}
 								}
 								else {
@@ -3214,7 +3217,7 @@ Game.update = function (delta) {
 										}
 										else {
 											// user doesn't have enough space
-											NPC.say(NPC.chat.inventoryFull, true, 0, true);
+											npc.say(npc.chat.inventoryFull, true, 0, true);
 										}
 									}
 									else {
@@ -3246,7 +3249,7 @@ Game.update = function (delta) {
 							
 							textArray.push(role.chooseText || "I'd like to browse your goods.");
 							functionArray.push(Dom.merchant.page);
-							parameterArray.push([NPC, soldItems]);
+							parameterArray.push([npc, soldItems]);
 						}
 						
 						// soul healers
@@ -3259,13 +3262,13 @@ Game.update = function (delta) {
 									this.soulHealerCost = 1;
 								}
 								
-								// save the NPC into a variable so that it can say something if the person is healed
-								this.currentSoulHealer = NPC;
+								// save the npc into a variable so that it can say something if the person is healed
+								this.currentSoulHealer = npc;
 								
 								// soul healer appears as an option for choose DOM
 								textArray.push(role.chooseText || "I'd like to remove my 'XP Fatigue' status effect.");
 								functionArray.push(Dom.text.page);
-								parameterArray.push([NPC.name, "Soul Healer", NPC.chat.canBeHealedText, true, ["Remove XP Fatigue for " + this.soulHealerCost + " gold"], [function () {
+								parameterArray.push([npc.name, "Soul Healer", npc.chat.canBeHealedText, true, ["Remove XP Fatigue for " + this.soulHealerCost + " gold"], [function () {
 									if (Dom.inventory.check(2, "currency", Game.soulHealerCost)) {
 										Dom.inventory.removeById(2, "currency", Game.soulHealerCost);
 										Game.hero.statusEffects.splice(Game.hero.statusEffects.findIndex(statusEffect => statusEffect.title === "XP Fatigue"), 1); // remove xp fatigue effect
@@ -3281,9 +3284,9 @@ Game.update = function (delta) {
 								}]]);
 							}
 							else {
-								if (!Dom.chat.contents.includes("<strong>" + NPC.name + "</strong>: " + NPC.chat.healedText)) {
+								if (!Dom.chat.contents.includes("<strong>" + npc.name + "</strong>: " + npc.chat.healedText)) {
 									// display instruction text if user cannot be healed and hasn't just been healed
-									NPC.say(NPC.chat.cannotBeHealedText, true, 0, false);
+									npc.say(npc.chat.cannotBeHealedText, true, 0, false);
 									textSaid = true; // do not say something in chat, as something has already been said
 								}
 							}
@@ -3296,11 +3299,11 @@ Game.update = function (delta) {
 								// player has unidentified items
 								textArray.push(role.chooseText || "I have an item I'd like to identify.");
 								functionArray.push(Dom.identifier.page);
-								parameterArray.push([NPC, true]);
+								parameterArray.push([npc, true]);
 							}
 							else {
 								// player has no unidentified items; send chat message explaining this instead==
-								NPC.say(NPC.chat.noUnidentified, true, 0, false);
+								npc.say(npc.chat.noUnidentified, true, 0, false);
 								textSaid = true; // do not say something in chat, as something has already been said
 							}
 						}
@@ -3310,20 +3313,20 @@ Game.update = function (delta) {
 							// item buyer appears as an option for choose DOM
 							textArray.push(role.chooseText || "I'd like to sell some items to you.");
 							functionArray.push(Dom.buyer.page);
-							parameterArray.push([NPC]);
+							parameterArray.push([npc]);
 						}
 						
 						// generic text DOM
 						else if (role.role === "text") {
-							// NPC chat appears as an option in choose DOM
+							// npc chat appears as an option in choose DOM
 							textArray.push(role.chooseText);
 							functionArray.push(Dom.text.page);
-							parameterArray.push([NPC.name, NPC.name, role.chat, role.showCloseButton, role.buttons, role.functions]);
+							parameterArray.push([npc.name, npc.name, role.chat, role.showCloseButton, role.buttons, role.functions]);
 						}
 						
 						// button just runs a function
 						else if (role.role === "function") {
-							// NPC chat appears as an option in choose DOM
+							// npc chat appears as an option in choose DOM
 							textArray.push(role.chooseText);
 							functionArray.push(role.onClick);
 							parameterArray.push([]);
@@ -3333,34 +3336,34 @@ Game.update = function (delta) {
 					else {
 						notUnlockedRoles = true;
 					}
-				}); // finished iterating through this NPC's roles
+				}); // finished iterating through this npc's roles
 				
 				if (functionArray.length > 0) {
-					// NPC can be spoken to, hence choose DOM should be opened
+					// npc can be spoken to, hence choose DOM should be opened
 					// Dom.choose.page checks whether or not the DOM is occupied, and handles red flashing of close button
-					Dom.choose.page(NPC, textArray, functionArray, parameterArray);
+					Dom.choose.page(npc, textArray, functionArray, parameterArray);
 					// if there is only one thing that can be chosen between, choose DOM handles this and just skips itself straight to that one thing
 				}
 				else {
-					// text that the NPC says if they don't open a choose DOM
+					// text that the npc says if they don't open a choose DOM
 					if (!textSaid) { // check if any extra text should be said at all
 						if (questActive) {
-							// the player has active quest(s) with the NPC and no other alternate options
-							NPC.say(NPC.chat.questProgress, true, 0, false);
+							// the player has active quest(s) with the npc and no other alternate options
+							npc.say(npc.chat.questProgress, true, 0, false);
 						}
 						else if (questComplete) {
-							// the player has finished quest(s) with the NPC and no other alternate options
-							NPC.say(NPC.chat.questComplete, true, 0, false);
+							// the player has finished quest(s) with the npc and no other alternate options
+							npc.say(npc.chat.questComplete, true, 0, false);
 						}
 						else if (notUnlockedRoles) {
-							// the player has not unlocked a possible role with the NPC and no other alternate options
-							NPC.say(NPC.chat.notUnlockedRoles, true, 0, false);
+							// the player has not unlocked a possible role with the npc and no other alternate options
+							npc.say(npc.chat.notUnlockedRoles, true, 0, false);
 						}
 					}
 				}
 			}
 		}
-	}); // finished iterating through NPCs
+	}); // finished iterating through npcs
 	
 	// update villagers
 	for(var i = 0; i < this.villagers.length; i++) {
@@ -3424,7 +3427,7 @@ Game.update = function (delta) {
 				// teleport condition not met
 				if (this.areaTeleports[i].teleportFailText !== undefined) {
 					// text in chat
-					Dom.chat.insert(this.areaTeleports[i].teleportFailText);
+					Dom.chat.insert(this.areaTeleports[i].teleportFailText, 0, false, true);
 				}
 				if (this.areaTeleports[i].teleportFailFunction !== undefined) {
 					// function
@@ -3757,6 +3760,16 @@ Game.drawHitboxes = function () {
 	for(var i = 0; i < this.tripwires.length; i++) {
 		this.ctx.strokeRect(this.tripwires[i].screenX - this.tripwires[i].width / 2, this.tripwires[i].screenY - this.tripwires[i].height / 2, this.tripwires[i].width, this.tripwires[i].height);
 	}
+	
+	// collision hitboxes
+	// maybe a special hitbox render list should be made? (tbd)
+	this.collisions.forEach(collision => {
+		// give collisions a screenX and Y (should be turned into own function)
+		collision.screenX = (collision.x - collision.width / 2) - this.camera.x;
+		collision.screenY = (collision.y - collision.height / 2) - this.camera.y;
+		
+		this.ctx.strokeRect(collision.screenX - collision.width / 2, collision.screenY - collision.height / 2, collision.width, collision.height);
+	});
 	
 	// projectile hitboxes
 	// should be added to renderList (tbd)

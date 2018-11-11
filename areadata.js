@@ -94,7 +94,7 @@ const LootTables = { // loot table templates
 const EnemyTemplates = {
 	nilbog: {
 		goblinRockthrower: {
-			image: "rockGoblin",
+			image: "goblinRockthrower",
 			deathImage: "goblinCorpse",
 			name: "Goblin Rockthrower",
 			species: "goblin",
@@ -132,7 +132,7 @@ const EnemyTemplates = {
 			inventorySpace: 8,
 		},
 		goblinSkirmisher: {
-			image: "swordGoblin",
+			image: "goblinSkirmisher",
 			deathImage: "goblinCorpse",
 			name: "Goblin Skirmisher",
 			species: "goblin",
@@ -159,7 +159,7 @@ const EnemyTemplates = {
 			inventorySpace: 8,
 		},
 		goblinBruiser: {
-			image: "hammerGoblin",
+			image: "goblinBruiser",
 			deathImage: "goblinCorpse",
 			name: "Goblin Bruiser",
 			species: "goblin",
@@ -220,6 +220,61 @@ const EnemyTemplates = {
 					],
 				},
 			],
+			inventorySpace: 8,
+		},
+		goblinTowerkeeper: {
+			image: "goblinTowerkeeper",
+			deathImage: "goblinCorpse",
+			name: "Goblin Towerkeeper",
+			species: "goblin",
+			subSpecies: "nilbog goblin",
+			hostility: "hostile",
+			level: 5,
+			stats: {
+				damage: 3.5,
+				walkSpeed: 75,
+				maxHealth: 12,
+				defence: 8,
+				range: 90,
+				healthRegen: 0.4,
+				reloadTime: 1250,
+				lootTime: 10000,
+				respawnTime: 20000,
+			},
+			leashRadius: 300,
+			xpGiven: 35,
+			projectile: {
+				image: "melee",
+			},
+			lootTableTemplate: LootTables.nilbogGoblin,
+			inventorySpace: 8,
+		},
+		goblinCrusader: {
+			image: "goblinCrusader",
+			deathImage: "goblinCorpse",
+			name: "Goblin Crusader",
+			species: "goblin",
+			subSpecies: "nilbog goblin",
+			hostility: "hostile",
+			level: 5,
+			stats: {
+				damage: 5,
+				walkSpeed: 65,
+				maxHealth: 12,
+				defence: 10,
+				range: 60,
+				healthRegen: 0.4,
+				reloadTime: 2000,
+				lootTime: 10000,
+				respawnTime: 20000,
+				stun: 0.2,
+			},
+			leashRadius: 300,
+			xpGiven: 35,
+			projectile: {
+				image: "melee",
+			},
+			lootTableTemplate: LootTables.nilbogGoblin,
 			inventorySpace: 8,
 		},
 	},
@@ -314,7 +369,7 @@ var Areas = {
 			}
 		],
 		
-		NPCs: [
+		npcs: [
 			{
 				x: 2080,
 				y: 290,
@@ -623,7 +678,7 @@ var Areas = {
 			},
 		],
 		
-		NPCs: [
+		npcs: [
 			{
 				// id: 0,
 				x: 884,
@@ -674,13 +729,13 @@ var Areas = {
 							// close page
 							Dom.changeBook(Player.tab, true); // close page
 							// chat message
-							Game.NPCs[0].say("Thank you. I hope you find these rewards useful to your progression. Now, back to work.", false, 0, false); // Teper is Game.NPCs[0]
+							Game.npcs[0].say("Thank you. I hope you find these rewards useful to your progression. Now, back to work.", false, 0, false); // Teper is Game.npcs[0]
 						},
 						function () {
 							// close page
 							Dom.changeBook(Player.tab, true); // close page
 							// chat message
-							Game.NPCs[0].say("What, are you even allowed to keep them? I'd like my boots back!", false, 0, false); // Teper is Game.NPCs[0]
+							Game.npcs[0].say("What, are you even allowed to keep them? I'd like my boots back!", false, 0, false); // Teper is Game.npcs[0]
 						}],
 						roleRequirement: function () {
 							return Dom.inventory.check(6, "boots", 1, true); // check that the player has Marshall Teper's lost boots
@@ -1018,7 +1073,7 @@ var Areas = {
 		
 		checkpoint: false, // probably in the future taverns should be the ONLY checkpoints
 		
-		NPCs: [
+		npcs: [
 			{
 				x: 165,
 				y: 65,
@@ -1092,10 +1147,10 @@ var Areas = {
 		images: {
 			names: [
 				"tiles",
-				"rockGoblin",
+				"goblinRockthrower",
 				"rock",
-				"swordGoblin",
-				"hammerGoblin",
+				"goblinSkirmisher",
+				"goblinBruiser",
 				"melee",
 				"fireGoblin",
 				"fireball", // (ignored by loader if it is already loaded because of a mage player)
@@ -1151,7 +1206,7 @@ var Areas = {
 			},
 		],
 		
-		NPCs: [
+		npcs: [
 			{
 				x: 1078,
 				y: 502,
@@ -1274,7 +1329,7 @@ var Areas = {
 				template: EnemyTemplates.nilbog.goblinBruiser,
 			},
 			{
-				x: 1290, // at goblin camp
+				x: 1350, // at goblin camp
 				y: 100,
 				template: EnemyTemplates.nilbog.fireGoblin,
 			},
@@ -1309,10 +1364,22 @@ var Areas = {
 		images: {
 			names: [
 				"tiles",
+				"stairs",
+				"painting",
+				"goblinTowerkeeper",
+				"goblinCrusader",
+				"goblinCorpse",
+				"melee",
 			],
 			
 			addresses: [
 				"./assets/tilemap/nilbogTower.png",
+				"./assets/objects/stairs.png",
+				"./assets/objects/paintingAndrews.png",
+				"./assets/enemies/goblinTowerkeeper.png",
+				"./assets/enemies/goblinCrusader.png",
+				"./assets/corpses/deadGoblin.png",
+				"./assets/projectiles/melee.png",
 			],
 		},
 		
@@ -1330,6 +1397,43 @@ var Areas = {
 				teleportTo: "nilbog",
 				destinationX: 1650,
 				destinationY: 515,
+			},
+		],
+		
+		things: [
+			{
+				x: 497,
+				y: 125,
+				image: "stairs",
+				name: "Stairs",
+			},
+			{
+				x: 560,
+				y: 180,
+				image: "painting",
+				name: "Painting",
+			},
+		],
+		
+		collisions: [
+			{
+				x: 597, // bottom of stairs
+				y: 300,
+				width: 200,
+				height: 50,
+			},
+		],
+		
+		enemies: [
+			{
+				x: 150,
+				y: 260,
+				template: EnemyTemplates.nilbog.goblinTowerkeeper,
+			},
+			{
+				x: 450,
+				y: 260,
+				template: EnemyTemplates.nilbog.goblinTowerkeeper,
 			},
 		],
 	},

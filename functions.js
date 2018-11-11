@@ -1,3 +1,57 @@
+//
+// Asset loader
+// https://developer.mozilla.org/en-US/docs/Games/Techniques/Tilemaps
+//
+
+var Loader = {
+    images: {}
+};
+
+Loader.loadImage = function (key, src) {
+	if (!(key in this.images)) {
+	    var img = new Image();
+
+	    var d = new Promise(function (resolve, reject) {
+	        img.onload = function () {
+	            this.images[key] = img;
+	            resolve(img);
+	        }.bind(this);
+
+	        img.onerror = function () {
+	            reject('Could not load image: ' + src);
+	        };
+	    }.bind(this));
+
+	    img.src = src;
+	    return d;
+	}
+};
+
+Loader.getImage = function (key) {
+	if (key in this.images) {
+		return this.images[key];
+	}
+	else {
+		console.error("Image " + key + " could not be loaded. Is it misspelt or not already loaded in?");
+		return null;
+	}
+};
+
+Loader.wipeImages = function (exceptions) {
+	//this.images = {}; // inefficient - wipes player from object
+	
+	// wipe all images from images object (apart from exceptions)
+	for (var key in this.images) {
+		if (this.images.hasOwnProperty(key) && !exceptions.includes(key)) {
+			delete this.images[key];
+		}
+	}
+}
+
+//
+// Misc functions
+//
+
 function Round (number, dp) {
     if(dp === undefined) {
 		number *= 10;
