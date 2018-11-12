@@ -1203,6 +1203,10 @@ var Areas = {
 				teleportTo: "nilbogTower1",
 				destinationX: 65,
 				destinationY: 534,
+				teleportCondition: function () {
+					return Player.quests.activeQuestArray.includes("The Goblin King") || Player.quests.completedQuestArray.includes("The Goblin King");
+				},
+				teleportFailText: "<strong>The Nilbog Tower</strong> is a dangerous area. Wait until you're a bit stronger.",
 			},
 		],
 		

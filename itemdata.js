@@ -1189,12 +1189,14 @@ var Items = {
 			image: "assets/items/item/12.png",
 			functionText: "Click to fill with a nearby 'scoopable' substance",
 			onClick: function (inventoryPosition) {
-				let tileNum = Game.hero.getTileAtFeet();
-				if (map.mudTiles.includes(tileNum)) {
-					// fill with mud
-					// replace it with a mud-filled version
-					Dom.inventory.remove(inventoryPosition);
-					Dom.inventory.give(Items.item[13], 1, inventoryPosition); // replaces at the same slot
+				if (Game.areaName === "nilbog") { // check we are in the nilbog
+					let tileNum = Game.hero.getTileAtFeet();
+					if (map.mudTiles.includes(tileNum)) {
+						// fill with mud
+						// replace it with a mud-filled version
+						Dom.inventory.remove(inventoryPosition);
+						Dom.inventory.give(Items.item[13], 1, inventoryPosition); // replaces at the same slot
+					}
 				}
 			}
 		},
