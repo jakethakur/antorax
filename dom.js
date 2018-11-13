@@ -90,7 +90,7 @@ if(document.getElementById("settingDelete") !== null){
 	document.getElementById("settingDelete").onclick = function(){
 		Dom.alert.target = function(){
 			localStorage.removeItem(Player.class);
-			window.location.replace("./selection.html");
+			window.location.replace("./selection/index.html");
 		}
 		Dom.alert.page("Are you sure you want to delete your progress for this class? It will be lost forever!", 1);
 	}
@@ -103,7 +103,7 @@ Dom.changeBook = function(page, override, shouldNotBeOverriden, levelUpOverride)
 	if(this.currentlyDisplayed === "" || override){
 		if((page === "chatPage" || page === "inventoryPage" || page === "questsPage" || page === "adventurePage" || page === "reputationPage" || page === "settingsPage" || page === "settingsTwoPage") && Dom.adventure.awaitingInstructions.length > 0 && levelUpOverride === undefined){
 			Dom.adventure.showInstructions(Dom.adventure.awaitingInstructions[0], true);
-			Dom.adventure.awaitingInstructions.splice(0,1);
+			Dom.adventure.awaitingInstructions.shift();
 		}else{
 			if(page === "chatPage" || page === "inventoryPage" || page === "questsPage" || page === "adventurePage" || page === "reputationPage" || page === "settingsPage" || page === "settingsTwoPage"){
 				let changed = false;

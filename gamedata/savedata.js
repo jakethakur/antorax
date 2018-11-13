@@ -1,6 +1,6 @@
 // go to class select if the user's class has not been selected yet for this session
 if (sessionStorage.getItem("class") == undefined) { // must be ==
-	window.location.replace("./selection.html");
+	window.location.replace("./selection/index.html");
 }
 
 let playerName = sessionStorage.getItem("name"); // avoids it having to be called multiple times from inside Player's declaration

@@ -115,7 +115,7 @@ document.getElementById("play").onclick = function(){
 		sessionStorage.setItem("class",selected.class);
 		sessionStorage.setItem("skin",selected[selected.class]);
 		sessionStorage.setItem("name",document.getElementById("name").value);
-		window.location.replace("./index.html");
+		window.location.replace("../index.html");
 	}else{
 		document.getElementById("name").style.borderColor = "red";
 		document.getElementById("random").style.borderColor = "red";

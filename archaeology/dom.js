@@ -323,7 +323,7 @@ function arrange(){
 		document.getElementById("flashcardlist0").style.top = "100px";
 		if(Items[viewedItemType][viewedItemId].set != undefined){
 			document.getElementById("box1").onclick = function(){
-				window.location.replace("./archaeology.html?id="+Items[viewedItemType][viewedItemId].set+"&type=set");
+				window.location += "?id="+Items[viewedItemType][viewedItemId].set+"&type=set";
 			}
 		}
 		if(viewedItemType != "set"){
@@ -355,7 +355,7 @@ function arrange(){
 			}
 		}
 		document.getElementById("back").onclick = function(){
-			window.location.replace("./archaeology.html");
+			window.location.replace("./index.html"); // archaeology
 		}
 		document.getElementById("box0").getElementsByTagName("img")[0].onload = function(){
 			document.getElementById("back").hidden = false;
