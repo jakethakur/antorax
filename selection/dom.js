@@ -129,18 +129,18 @@ document.getElementById("play").onclick = function(){
 }
 
 function display(){
-	document.getElementById("random").style.backgroundImage = "url('assets/class-select/rm.png')";
+	document.getElementById("random").style.backgroundImage = "url('../assets/class-select/rm.png')";
 	if(num === 0){ // forward
-		document.getElementById("image").src="assets/class-select/"+selected.class+selected[selected.class]+"/f.png";
+		document.getElementById("image").src="../assets/class-select/"+selected.class+selected[selected.class]+"/f.png";
 		document.getElementById("image").style.left = window.innerWidth/2-document.getElementById("image").offsetWidth/2+parseInt(document.getElementById("image").width)/Skins[selected.class][selected[selected.class]].position.x+"px";
 	}else if(num === 1){ // left
-		document.getElementById("image").src="assets/class-select/"+selected.class+selected[selected.class]+"/l.png";
+		document.getElementById("image").src="../assets/class-select/"+selected.class+selected[selected.class]+"/l.png";
 		document.getElementById("image").style.left = window.innerWidth/2-document.getElementById("image").offsetWidth/2+parseInt(document.getElementById("image").width)/Skins[selected.class][selected[selected.class]].position.y+"px";
 	}else if(num === 2){ // backward
-		document.getElementById("image").src="assets/class-select/"+selected.class+selected[selected.class]+"/b.png";
+		document.getElementById("image").src="../assets/class-select/"+selected.class+selected[selected.class]+"/b.png";
 		document.getElementById("image").style.left = window.innerWidth/2-document.getElementById("image").offsetWidth/2-parseInt(document.getElementById("image").width)/Skins[selected.class][selected[selected.class]].position.x+"px";
 	}else { // right
-		document.getElementById("image").src="assets/class-select/"+selected.class+selected[selected.class]+"/r.png";
+		document.getElementById("image").src="../assets/class-select/"+selected.class+selected[selected.class]+"/r.png";
 		document.getElementById("image").style.left = window.innerWidth/2-document.getElementById("image").offsetWidth/2-parseInt(document.getElementById("image").width)/Skins[selected.class][selected[selected.class]].position.y+"px";
 	}
 }
