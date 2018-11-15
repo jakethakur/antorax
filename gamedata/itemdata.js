@@ -1548,6 +1548,7 @@ var Items = {
 			rarity: "common",
 			sellPrice: 1,
 			lore: "",
+			howToCatch: "Can be fished up from areas around Eaglecrest Logging Camp.",
 			consumption: true,
 			areas: ["loggingCamp"], // empty = every area
 			length: {
@@ -1565,6 +1566,7 @@ var Items = {
 			rarity: "unique",
 			sellPrice: 3,
 			lore: "",
+			howToCatch: "Can be fished up from areas around Eaglecrest Logging Camp.",
 			consumption: true,
 			areas: ["loggingCamp"], 
 			length: {
@@ -1583,6 +1585,7 @@ var Items = {
 			rarity: "common",
 			sellPrice: 1,
 			lore: "",
+			howToCatch: "Can be fished up from areas around Eaglecrest Logging Camp.",
 			consumption: true,
 			areas: ["loggingCamp"],
 			length: {
@@ -1601,6 +1604,7 @@ var Items = {
 			rarity: "common",
 			sellPrice: 1,
 			lore: "",
+			howToCatch: "Can be fished up from areas around Eaglecrest Logging Camp.",
 			consumption: true,
 			areas: ["loggingCamp"], 
 			length: {
@@ -1618,6 +1622,7 @@ var Items = {
 			rarity: "common",
 			sellPrice: 1,
 			lore: "",
+			howToCatch: "Can be fished up from areas around Eaglecrest Logging Camp.",
 			consumption: true,
 			areas: ["loggingCamp"], 
 			length: {
@@ -1635,6 +1640,7 @@ var Items = {
 			rarity: "unique",
 			sellPrice: 3,
 			lore: "",
+			howToCatch: "Can be fished up from areas around Eaglecrest Logging Camp.",
 			consumption: true,
 			areas: ["loggingCamp"], 
 			length: {
@@ -1652,6 +1658,7 @@ var Items = {
 			rarity: "mythic",
 			sellPrice: 5,
 			lore: "",
+			howToCatch: "Can be fished up from areas around Eaglecrest Logging Camp.",
 			consumption: false,
 			areas: ["loggingCamp"], 
 			length: {
@@ -1669,6 +1676,7 @@ var Items = {
 			rarity: "mythic",
 			sellPrice: 5,
 			lore: "",
+			howToCatch: "Can be fished up anywhere.",
 			consumption: true,
 			areas: [], 
 			length: {
@@ -1908,12 +1916,16 @@ var Items = {
 			rarity: "unique",
 			sellPrice: 3,
 			lore: "Its red eyes glisten under the blood moon.",
+			howToCatch: "Can be fished up during a blood moon.",
 			consumption: false,
 			areas: [],
 			length: {
 				min: 30,
 				avg: 55,
 				max: 80,
+			},
+			onCatch: function () {
+				Game.hero.takeDamage(10);
 			},
 			timeRequirement: "bloodMoon",
 		},

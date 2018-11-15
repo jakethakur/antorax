@@ -1137,12 +1137,23 @@ class Hero extends Attacker {
 						// must be after quest progress and fishing skill
 						Dom.inventory.give(this.channelling);
 						
+						// onCatch function
+						if (this.channelling.onCatch !== undefined) {
+							this.channelling.onCatch();
+						}
+						
 						if (Math.floor(this.stats.fishingSkill) - Math.floor(oldFishingSkill) > 0) { // check if the player's fishing skill has increased to the next integer (or more)
 							Dom.chat.insert("Your fishing skill has increased to " + Math.floor(this.stats.fishingSkill) + "."); // notify them of this in chat
 						}
 						
 						// update player stats
 						Game.hero.stats = Player.stats; // inefficient (should be linked)
+						
+						// fish length for fisher's log
+						if (this.channelling.length > Dom.inventory.fish[this.channelling.id]) {
+							Dom.inventory.fish[this.channelling.id] = this.channelling.length;
+							SaveItem("fish", JSON.stringify(Dom.inventory.fish));
+						}
 						
 						// remove fishing bobber
 						Game.projectiles.splice(Game.searchFor(this.channellingProjectileId, Game.projectiles), 1);
@@ -2911,7 +2922,7 @@ Game.getTime = function () {
 Game.playMusic = function () {
 	// check the user has allowed music to play
 	if (document.getElementById("musicOn").checked) {
-		localStorage.setItem("playMusic","true");
+		SaveItem("playMusic", "true");
 		// check if the new area's music is already being played
 		let song = Areas[this.areaName]["song_" + this.time];
 		if (song === undefined) {
@@ -2958,7 +2969,7 @@ Game.loadMusic = function (song) {
 
 // stop playing current music
 Game.stopMusic = function () {
-	localStorage.setItem("playMusic","false");
+	SaveItem("playMusic", "false");
 	this.audio.pause();
 	this.playingMusic = null;
 }
@@ -4428,7 +4439,7 @@ Game.saveProgress = function (saveType) { // if saveType is "auto" then the save
 		Player.statusEffects = Game.hero.statusEffects;
 		
 		// save everything in savedata.js
-		localStorage.setItem(Player.class, JSON.stringify(Player));
+		SaveItem(Player.class, JSON.stringify(Player));
 		// message to console
 		let time = new Date();
 		console.info((saveType === "auto" ? "AUTO" : "") + "SAVE AT " + (time.getHours() < 10 ? "0" : "") + time.getHours() + ":" + (time.getMinutes() < 10 ? "0" : "") + time.getMinutes() + ":" + (time.getSeconds() < 10 ? "0" : "") + time.getSeconds());
