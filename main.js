@@ -347,32 +347,6 @@ Game.closest = function (objArray, mainObj) {
 	return objArray[closestIndex];
 }
 
-// each parameter should contain an x, y, width, and height
-Game.areTouching = function (object1, object2) {
-	/*if (this.rotate !== undefined || object.rotate !== undefined) {
-		// involves rotated hitboxes
-	}
-	potentially useful: https://gamedev.stackexchange.com/a/86784/119033
-	https://stackoverflow.com/a/12414951/9713957
-	https://yal.cc/rot-rect-vs-circle-intersection/
-	*/
-	
-	// check that the objects do not have their own special hitbox
-	if (object2.hitbox !== undefined) {
-		object2 = object2.hitbox;
-	}
-	if (object1.hitbox !== undefined) {
-		object1 = object1.hitbox;
-	}
-	
-	return !(
-        ((object1.y + object1.height) < (object2.y)) ||
-        (object1.y > (object2.y + object2.height)) ||
-        ((object1.x + object1.width) < object2.x) ||
-        (object1.x > (object2.x + object2.width))
-    );
-}
-
 // insert a message into the chat, under the format of "name: message"
 // name is emboldened via <strong> tags
 // if message is an array, a Random message from the array will be chosen
@@ -410,6 +384,9 @@ class Entity {
 		this.y = properties.y;
 		this.width = properties.width;
 		this.height = properties.height;
+		
+		this.collisionType = properties.collisionType || "body"; // "feet" = check collision with Game.heroFootHitbox
+		// collision type currently only applies to tripwires
 	}
 	
 	isTouching (object) {
@@ -816,13 +793,44 @@ class Hero extends Attacker {
 		if (this.hasStatusEffect("Stunned") || this.isCorpse) {
 			// player cannot move
 		}
+		else if (this.moveTowards !== undefined) {
+			// move towards a particular point
+			// player cannot control themselves
+			let direction = bearing(this, this.moveTowards);
+			dirx = Math.cos(direction);
+			diry = Math.sin(direction);
+			
+			// movement speed
+			this.speed = this.stats.walkSpeed;
+			// speed scalar due to moveTowards (decimal value)
+			if (this.moveTowards !== undefined && this.moveTowards.speedScalar !== undefined) {
+				this.speed *= this.moveTowards.speedScalar;
+			}
+			
+			this.x += dirx * this.speed * delta;
+			this.y += diry * this.speed * delta;
+			
+			if (Math.round(this.x) === this.moveTowards.x && Math.round(this.y) === this.moveTowards.y) {
+				// destination reached
+				// remove moveTowards
+				this.moveTowards = undefined;
+			}
+		}
 		else {
 			this.x += dirx * this.speed * delta;
 			this.y += diry * this.speed * delta;
 		}
+		
+		// set foot hitbox positions
+		Game.heroFootHitbox.x = this.x;
+		Game.heroFootHitbox.y = this.y + 50;
+		// screenX and screenY of foot hitbox
+		Game.updateScreenPosition(Game.heroFootHitbox);
 
 		// check if we walked into a non-walkable tile
-		this._collide(dirx, diry, delta);
+		if (Game.hero.moveTowards === undefined) { // hero should only collide if controlled by player
+			this._collide(dirx, diry, delta);
+		}
 
 		// clamp values
 		var maxX = this.map.cols * this.map.tsize;
@@ -850,9 +858,8 @@ class Hero extends Attacker {
 			
 		// check collision with collisions - invisible entities that cannot be passed
 		Game.collisions.forEach(entity => { // iterate though collisions
-			Game.updateScreenPosition(this);
 			// check if the player's feet are touching the collision
-			if (Game.areTouching({x: this.x + this.width / 2, y: this.y, width: this.width, height: this.height}, entity)) {
+			if (Game.heroFootHitbox.isTouching(entity)) {
 				collision = true;
 			}
 		});
@@ -2718,6 +2725,8 @@ Game.loadArea = function (areaName, destination) {
 			this.hero.x = destination.x;
 			this.hero.y = destination.y;
 		}
+		// remove player moveTowards
+		this.hero.moveTowards = undefined;
 		
 		// loot area and tier in Player
 		if (this.areaName === "tutorial" || this.areaName === "eaglecrestLoggingCamp" || this.areaName === "nilbog") {
@@ -2754,7 +2763,7 @@ Game.loadArea = function (areaName, destination) {
     }.bind(this))
 	.catch(function (err) {
 		// error for if the images didn't load
-	    console.error("Your images did not load correctly.", err);
+	    console.error("Your images did not load correctly, or there was an error in the Game.loadArea function...", err);
 	});
 }
 
@@ -2773,7 +2782,8 @@ Game.init = function () {
 	this.renderList = ["chests", "things", "villagers", "npcs", "dummies", "enemies"];
 	// then player, then projectiles (in order they were shot)
 	
-	// create the player at its start x and y positions
+	// create the player
+	// its x and y are not set until Game.loadArea resumes
 	this.hero = new Hero({
 		// properties inherited from Entity
 		map: map,
@@ -2801,6 +2811,16 @@ Game.init = function () {
 		projectile: {},
 		
 		checkpoint: Player.checkpoint,
+	});
+	
+	// hitbox for collision (hero's feet)
+	// Player.x used instead of Game.hero.x because Game.hero.x has not yet been set
+	this.heroFootHitbox = new Entity({
+		map: map,
+		x: Player.x,
+		y: Player.y + 50,
+		width: Game.hero.width,
+		height: 20,
 	});
 	
 	// set player projectile
@@ -2833,6 +2853,9 @@ Game.init = function () {
 	// camera
     this.camera = new Camera(map, this.canvas.width, this.canvas.height);
     this.camera.follow(this.hero);
+	
+	// set foot hitbox position (updated on hero move normally)
+	this.updateScreenPosition(this.heroFootHitbox);
 	
 	// begin game display
 	this.secondary.render();
@@ -3058,21 +3081,30 @@ Game.restoreHealth = function (target, health) {
 
 Game.update = function (delta) {
     // handle hero movement with arrow keys
-    var dirx = 0;
-    var diry = 0;
-    if (Keyboard.isDown(Keyboard.LEFT) || Keyboard.isDown(Keyboard.A)) { dirx = -1; this.hero.direction = 2; }
-    if (Keyboard.isDown(Keyboard.RIGHT) || Keyboard.isDown(Keyboard.D)) { dirx = 1; this.hero.direction = 4; }
-    if (Keyboard.isDown(Keyboard.UP) || Keyboard.isDown(Keyboard.W)) { diry = -1; this.hero.direction = 1; }
-    if (Keyboard.isDown(Keyboard.DOWN) || Keyboard.isDown(Keyboard.S)) { diry = 1; this.hero.direction = 3; }
-
-	if (dirx !== 0 || diry !== 0) {
-        this.hero.move(delta, dirx, diry);
-        this.hasScrolled = true;
-    }
-	else {
-        this.hasScrolled = false;
+	if (this.hero.moveTowards === undefined) {
+		// player has control over themselves
+		var dirx = 0;
+	    var diry = 0;
+	    if (Keyboard.isDown(Keyboard.LEFT) || Keyboard.isDown(Keyboard.A)) { dirx = -1; this.hero.direction = 2; }
+	    if (Keyboard.isDown(Keyboard.RIGHT) || Keyboard.isDown(Keyboard.D)) { dirx = 1; this.hero.direction = 4; }
+	    if (Keyboard.isDown(Keyboard.UP) || Keyboard.isDown(Keyboard.W)) { diry = -1; this.hero.direction = 1; }
+	    if (Keyboard.isDown(Keyboard.DOWN) || Keyboard.isDown(Keyboard.S)) { diry = 1; this.hero.direction = 3; }
+	
+		if (dirx !== 0 || diry !== 0) {
+	        this.hero.move(delta, dirx, diry);
+	        this.hasScrolled = true;
+	    }
+		else {
+	        this.hasScrolled = false;
+		}
+	    this.camera.update();
 	}
-    this.camera.update();
+	else {
+		// hero always moves until it reaches a certain destination
+		this.hero.move(delta); // no need for direction functions (found out in move)
+		this.hasScrolled = true;
+	    this.camera.update();
+	}
 	
 	// interact with touching object
     if (Keyboard.isDown(Keyboard.SPACE)) { this.hero.interact(); }
@@ -3454,7 +3486,8 @@ Game.update = function (delta) {
 		entity.screenX = (entity.x - entity.width / 2) - this.camera.x;
 		entity.screenY = (entity.y - entity.height / 2) - this.camera.y;
 		
-        if (this.hero.isTouching(entity)) {
+        if ((entity.collisionType === "body" && this.hero.isTouching(entity)) ||
+		(entity.collisionType === "feet" && this.heroFootHitbox.isTouching(entity))) {
 			let boundOnPlayerTouch = entity.onPlayerTouch.bind(entity);
 			boundOnPlayerTouch();
 		}
@@ -3793,15 +3826,9 @@ Game.drawHitboxes = function () {
 		}
 	}
 	
-	// player tile collision hitboxes
-	//this.ctx.strokeStyle="#FF00FF";
-	//this.ctx.strokeRect(this.hero.screenX - this.hero.width / 2, this.hero.screenY + 100 - this.hero.height / 2, this.hero.width, this.hero.height / 2);
-	
-		//var left = this.x - this.width / 2;
-		//var right = this.x + this.width / 2;
-		//var top = this.y + 100 - this.height / 2;
-		//var bottom = this.y + 100 + this.height / 2;
-
+	// stroke colour for hero foot hitbox
+	this.ctx.strokeStyle="#FF00FF";
+	this.ctx.strokeRect(this.heroFootHitbox.screenX - this.heroFootHitbox.width / 2, this.heroFootHitbox.screenY - this.heroFootHitbox.height / 2, this.heroFootHitbox.width, this.heroFootHitbox.height);
 }
 
 // display coordinates on canvas (settings option)
@@ -4445,6 +4472,6 @@ Game.saveProgress = function (saveType) { // if saveType is "auto" then the save
 		console.info((saveType === "auto" ? "AUTO" : "") + "SAVE AT " + (time.getHours() < 10 ? "0" : "") + time.getHours() + ":" + (time.getMinutes() < 10 ? "0" : "") + time.getMinutes() + ":" + (time.getSeconds() < 10 ? "0" : "") + time.getSeconds());
 	}
 	if (saveType === "logout") {
-		window.location.replace("./selection/index.html");
+		window.location.replace("./selection.html");
 	}
 }

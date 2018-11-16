@@ -1371,7 +1371,6 @@ var Areas = {
 				"stairs",
 				"painting",
 				"goblinTowerkeeper",
-				"goblinCrusader",
 				"goblinCorpse",
 				"melee",
 			],
@@ -1381,7 +1380,6 @@ var Areas = {
 				"./assets/objects/stairs.png",
 				"./assets/objects/paintingAndrews.png",
 				"./assets/enemies/goblinTowerkeeper.png",
-				"./assets/enemies/goblinCrusader.png",
 				"./assets/corpses/deadGoblin.png",
 				"./assets/projectiles/melee.png",
 			],
@@ -1402,6 +1400,16 @@ var Areas = {
 				destinationX: 1650,
 				destinationY: 515,
 			},
+			{
+				// teleport to floor 2
+				x: 620,
+				y: 60,
+				width: 2,
+				height: 60,
+				teleportTo: "nilbogTower2",
+				destinationX: 30,
+				destinationY: 534,
+			},
 		],
 		
 		things: [
@@ -1421,11 +1429,33 @@ var Areas = {
 		
 		collisions: [
 			{
-				x: 597, // bottom of stairs
-				y: 300,
-				width: 200,
+				x: 600, // bottom of stairs
+				y: 240,
+				width: 177,
 				height: 50,
 			},
+		],
+		
+		tripwires: [
+			{
+				// going to top of stairs
+				x: 400,
+				y: 230,
+				width: 2,
+				height: 50,
+				collisionType: "feet",
+				onPlayerTouch: function () {
+					if (Game.hero.moveTowards === undefined) {
+						// walk up stairs
+						Game.hero.direction = 4;
+						Game.hero.moveTowards = {
+							x: 600,
+							y: Game.hero.y -180,
+							speedScalar: 0.6,
+						};
+					}
+				}
+			}
 		],
 		
 		enemies: [
@@ -1434,10 +1464,132 @@ var Areas = {
 				y: 260,
 				template: EnemyTemplates.nilbog.goblinTowerkeeper,
 			},
+		],
+	},
+	
+	nilbogTower2: {
+		
+		data: {
+			name: "Nilbog Tower",
+			level: "Level 3 - 5",
+			territory: "Hostile territory",
+			displayOnEnter: false,
+		},
+		
+		indoors: true,
+
+		mapData: {
+			cols: 10,
+			rows: 10,
+			tsize: 60,
+			tilesPerRow: 2,
+			solidTiles: [1, 2, 3, 4, 6, 8, 9, 11], // walls
+			layers: [
+				[3, 9, 11, 1, 3, 9, 11, 1, 3, 1, 9, 11, 9, 11, 9, 11, 9, 11, 9, 11, 3, 1, 3, 1, 3, 1, 3, 1, 3, 1, 5, 5, 5, 5, 5, 5, 5, 5, 5, 5, 5, 5, 5, 5, 5, 5, 5, 5, 5, 5, 5, 5, 5, 5, 5, 5, 5, 5, 5, 5, 5, 5, 5, 5, 5, 5, 5, 5, 5, 5, 5, 5, 5, 5, 5, 5, 5, 5, 5, 5, 7, 5, 5, 5, 5, 5, 5, 5, 5, 5, 7, 5, 5, 5, 5, 5, 5, 5, 5, 5],
+				[],
+			],
+		},
+		
+		images: {
+			names: [
+				"tiles",
+				"stairs",
+				"painting",
+				"goblinTowerkeeper",
+				"goblinCrusader",
+				"goblinCorpse",
+				"melee",
+			],
+			
+			addresses: [
+				"./assets/tilemap/nilbogTower.png",
+				"./assets/objects/stairs.png", // TBC (flip stairs)
+				"./assets/objects/paintingAndrews.png", // TBC
+				"./assets/enemies/goblinTowerkeeper.png",
+				"./assets/enemies/goblinCrusader.png",
+				"./assets/corpses/deadGoblin.png",
+				"./assets/projectiles/melee.png",
+			],
+		},
+		
+		song_day: "./assets/music/Pippin-the-Hunchback.mp3",
+		
+		checkpoint: false,
+		
+		areaTeleports: [
 			{
-				x: 450,
-				y: 260,
-				template: EnemyTemplates.nilbog.goblinTowerkeeper,
+				// teleport to nilbog (bottom of tower)
+				x: 60, // TBC
+				y: 649, // TBC
+				width: 60,
+				height: 2,
+				teleportTo: "nilbogTower1",
+				destinationX: 360,
+				destinationY: 180,
+			},
+			/*{
+				// teleport to floor 3
+				x: 620, // TBC
+				y: 60, // TBC
+				width: 2,
+				height: 60,
+				teleportTo: "nilbogTower3",
+				destinationX: 30, // TBC
+				destinationY: 534,
+			},*/
+		],
+		
+		/*things: [
+			{
+				x: 497, // TBC
+				y: 125, // TBC
+				image: "stairs",
+				name: "Stairs",
+			},
+			{
+				x: 560, // TBC
+				y: 180, // TBC
+				image: "painting",
+				name: "Painting",
+			},
+		],
+		
+		collisions: [
+			{
+				x: 600, // bottom of stairs // TBC
+				y: 240,
+				width: 177,
+				height: 50,
+			},
+		],
+		
+		tripwires: [
+			{
+				// going to top of stairs
+				x: 400, // TBC
+				y: 230,
+				width: 2,
+				height: 50,
+				collisionType: "feet",
+				onPlayerTouch: function () {
+					if (Game.hero.moveTowards === undefined) {
+						// walk up stairs
+						Game.hero.direction = 4;
+						Game.hero.moveTowards = {
+							x: 600, // TBC
+							y: Game.hero.y -180,
+							speedScalar: 0.6,
+						};
+					}
+				}
+			}
+		],*/
+		
+		enemies: [
+			{
+				x: 300,
+				y: 200,
+				template: EnemyTemplates.nilbog.goblinCrusader,
 			},
 		],
 	},

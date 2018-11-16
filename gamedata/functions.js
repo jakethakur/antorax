@@ -7,7 +7,7 @@ var Loader = {
     images: {}
 };
 
-Loader.loadImage = function (key, src) { // key is name of image
+Loader.loadImage = function (key, src) { // key = image name; src = image source
 	if (!(key in this.images)) {
 	    var img = new Image();
 
@@ -52,18 +52,18 @@ Loader.wipeImages = function (exceptions) {
 // Misc functions
 //
 
+// second parameter optional - rounds by default to 1dp
 function Round (number, dp) {
-    if(dp === undefined) {
-		number *= 10;
-    }else{
-		number *= dp;
-	}
+    if (dp === undefined) {
+		dp = 1; // 1 dp default
+    }
+		
+	number *= Math.pow(10, dp);
+	
 	number = Math.floor(number);
-    if(dp === undefined) {
-		number /= 10;
-    }else{
-		number /= dp;
-	}
+	
+	number /= Math.pow(10, dp);
+	
 	return number;
 }
 
@@ -109,15 +109,17 @@ function SaveItem (name, value) {
 	}
 }
 
-function Romanize(num){
-  let lookup = {M:1000,CM:900,D:500,CD:400,C:100,XC:90,L:50,XL:40,X:10,IX:9,V:5,IV:4,I:1},roman = '',i;
-  for(i in lookup){
-    while(num >= lookup[i]){
-      roman += i;
-      num -= lookup[i];
-    }
-  }
-  return roman;
+// convert number to roman numerals
+// thanks to https://stackoverflow.com/a/32851198/9713957
+function Romanize (num) {
+	let lookup = {M:1000,CM:900,D:500,CD:400,C:100,XC:90,L:50,XL:40,X:10,IX:9,V:5,IV:4,I:1},roman = '',i;
+	for(i in lookup){
+		while(num >= lookup[i]){
+			roman += i;
+			num -= lookup[i];
+		}
+	}
+	return roman;
 }
 
 // random number between min and max, biased around certain value (bias)
