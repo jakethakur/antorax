@@ -1262,8 +1262,30 @@ Dom.inventory.give = function(item, num, position){
 						if(Player.inventory.items[i].maxCharges !== undefined){
 							Player.inventory.items[i].charges = Player.inventory.items[i].maxCharges;
 						}
-						if(Player.inventory.items[i].chooseStats !== undefined){
+						/*if(Player.inventory.items[i].chooseStats !== undefined){
 							item.onClick = Dom.inventory.chooseStats;
+						}*/
+						if((Player.inventory.items[i].type === "sword" || Player.inventory.items[i].type === "staff" || Player.inventory.items[i].type === "bow" || Player.inventory.items[i].type === "rod") && Player.inventory.items[i].name !== undefined){
+							item.onClick = function(i){
+								if(!isNaN(i)){
+									Dom.inventory.drop(undefined, "weapon", i);
+								}else{
+									if(Player.inventory[i].chooseStats !== undefined){
+										Dom.inventory.chooseStats(i);
+									}
+								}
+							}
+						}
+						if((Player.inventory.items[i].type === "helm" || Player.inventory.items[i].type === "chest" || Player.inventory.items[i].type === "greaves" || Player.inventory.items[i].type === "boots") && Player.inventory.items[i].name !== undefined){
+							item.onClick = function(i){
+								if(!isNaN(i)){
+									Dom.inventory.drop(undefined, Player.inventory.items[i].type, i);
+								}else{
+									if(Player.inventory[i].chooseStats !== undefined){
+										Dom.inventory.chooseStats(i);
+									}
+								}
+							}
 						}
 						Player.inventory.items[i].onClick = item.onClick;
 						if(Array.isArray(Player.inventory.items[i].lore)){
@@ -1283,9 +1305,9 @@ Dom.inventory.give = function(item, num, position){
 							}
 							Dom.inventory.update();
 						}
-						if(item.type !== "item" && item.type !== "bag" && item.type !== "currency" && item.type !== "fish" && item.type !== "consumable" && localStorage.getItem("accept") === "true" && !Dom.inventory.archaeology.includes(item.name) && item.name !== undefined){
+						if(item.type !== "item" && item.type !== "bag" && item.type !== "currency" && item.type !== "fish" && item.type !== "consumable" && !Dom.inventory.archaeology.includes(item.name) && item.name !== undefined){
 							Dom.inventory.archaeology.push(item.name);
-							localStorage.setItem("archaeology",JSON.stringify(Dom.inventory.archaeology));
+							SaveItem("archaeology", JSON.stringify(Dom.inventory.archaeology));
 						}
 						if(item.images !== undefined){
 							for(let x = 0; x < item.images.names.length; x++){
@@ -1301,11 +1323,33 @@ Dom.inventory.give = function(item, num, position){
 	}else{
 		added = true;
 		Player.inventory.items[position] = Object.assign({},item);
-		if(Player.inventory.items[i].maxCharges !== undefined){
-			Player.inventory.items[i].charges = Player.inventory.items[i].maxCharges;
+		if(Player.inventory.items[position].maxCharges !== undefined){
+			Player.inventory.items[position].charges = Player.inventory.items[position].maxCharges;
 		}
-		if(Player.inventory.items[position].chooseStats !== undefined){
+		/*if(Player.inventory.items[position].chooseStats !== undefined){
 			item.onClick = Dom.inventory.chooseStats;
+		}*/
+		if((Player.inventory.items[position].type === "sword" || Player.inventory.items[position].type === "staff" || Player.inventory.items[position].type === "bow" || Player.inventory.items[position].type === "rod") && Player.inventory.items[position].name !== undefined){
+			item.onClick = function(i){
+				if(!isNaN(i)){
+					Dom.inventory.drop(undefined, "weapon", i);
+				}else{
+					if(Player.inventory[i].chooseStats !== undefined){
+						Dom.inventory.chooseStats(i);
+					}
+				}
+			}
+		}
+		if((Player.inventory.items[position].type === "helm" || Player.inventory.items[position].type === "chest" || Player.inventory.items[position].type === "greaves" || Player.inventory.items[position].type === "boots") && Player.inventory.items[position].name !== undefined){
+			item.onClick = function(i){
+				if(!isNaN(i)){
+					Dom.inventory.drop(undefined, Player.inventory.items[i].type, i);
+				}else{
+					if(Player.inventory[i].chooseStats !== undefined){
+						Dom.inventory.chooseStats(i);
+					}
+				}
+			}
 		}
 		Player.inventory.items[position].onClick = item.onClick;
 		if(Array.isArray(Player.inventory.items[position].lore)){
@@ -1329,9 +1373,9 @@ Dom.inventory.give = function(item, num, position){
 			}
 			Dom.inventory.update();
 		}
-		if(item.type !== "item" && item.type !== "bag" && item.type !== "currency" && item.type !== "fish" && item.type !== "consumable" && localStorage.getItem("accept") === "true" && !Dom.inventory.archaeology.includes(item.name) && item.name !== undefined){
+		if(item.type !== "item" && item.type !== "bag" && item.type !== "currency" && item.type !== "fish" && item.type !== "consumable" && !Dom.inventory.archaeology.includes(item.name) && item.name !== undefined){
 			Dom.inventory.archaeology.push(item.name);
-			localStorage.setItem("archaeology",JSON.stringify(Dom.inventory.archaeology));
+			SaveItem("archaeology",JSON.stringify(Dom.inventory.archaeology));
 		}
 	}
 	Dom.hotbar.update();
@@ -1347,6 +1391,14 @@ if(localStorage.getItem("archaeology") !== null){
 	Dom.inventory.archaeology = JSON.parse(localStorage.getItem("archaeology"));
 }else{
 	Dom.inventory.archaeology = [];
+}
+if(localStorage.getItem("fish") !== null){
+	Dom.inventory.fish = JSON.parse(localStorage.getItem("fish"));
+}else{
+	Dom.inventory.fish = [];
+	for(let i = 0; i < Items.fish.length; i++){
+		Dom.inventory.fish.push(0);
+	}
 }
 
 Dom.inventory.chooseStats = function(inventoryPosition){
@@ -1666,16 +1718,25 @@ Dom.inventory.drag = function(ev, x){
 	Dom.expand("information");
 }
 
-Dom.inventory.drop = function(ev,equip){
-    ev.preventDefault(); // allows the item to drop
-	let data = ev.dataTransfer.getData("text"); // initial position of item
-	let test = ""+ev.target+""; // what it is being dropped on e.g. [object HTMLTableCellElement]
+Dom.inventory.drop = function(ev, equip, id){
+    //ev.preventDefault(); // allows the item to drop
+	let target = "";
+	let data = "";
+	// equiping by onClick
+	if(ev === undefined){
+		target = Player.inventory[equip].image === undefined ? document.getElementById(equip) : document.getElementById(equip).getElementsByTagName("td")[0];
+		data = id;
+	}else{
+		target = ev.target;
+		data = ev.dataTransfer.getData("text"); // initial position of item
+	}
+	let test = ""+target+""; // what it is being dropped on e.g. [object HTMLTableCellElement]
 	// if the item is being moved to an item inventory slot
 	if(equip === undefined){
 		// if the item is being moved from an item inventory slot
 		if(data !== "weapon" && data !== "helm" && data !== "chest" && data !== "greaves" && data !== "boots"){
 			// if there is not an item already there
-			if(test[12] === "T" && ev.target.innerHTML === ""){
+			if(test[12] === "T" && target.innerHTML === ""){
 				for(let i = 0; i < Player.inventory.items.length; i++){
 					let remove = true;
 					if((i === 5 && Player.inventory.items[i].type === "bag") || (data === "5" && Player.inventory.items[data].type === "bag")){
@@ -1687,14 +1748,15 @@ Dom.inventory.drop = function(ev,equip){
 						}
 					}
 					// if the item slot is where you are putting the item and it is not a bag which is unsafe to remove
-					if(document.getElementById("itemInventory").getElementsByTagName("td")[i] === ev.target && ((i < 6 && remove && parseInt(data) === 5 && Player.inventory.items[data].type === "bag") || !(parseInt(data) === 5 && Player.inventory.items[data].type === "bag"))){
+					if(document.getElementById("itemInventory").getElementsByTagName("td")[i] === target && ((i < 6 && remove && parseInt(data) === 5 && Player.inventory.items[data].type === "bag") || !(parseInt(data) === 5 && Player.inventory.items[data].type === "bag"))){
 						Player.inventory.items[i] = Player.inventory.items[data];
-						ev.target.innerHTML = "<img src='"+Player.inventory.items[data].image+"' draggable='true' ondragstart='Dom.inventory.drag(event,"+i+")' "+(Player.inventory.items[i].onClick !== undefined ? "onclick='Player.inventory.items["+i+"].onClick("+i+")'" : "")+"></img>";
+						Player.inventory.items[data] = {};
+						target.innerHTML = "<img src='"+Player.inventory.items[i].image+"' draggable='true' ondragstart='Dom.inventory.drag(event,"+i+")' "+(Player.inventory.items[i].onClick !== undefined ? "onclick='Player.inventory.items["+i+"].onClick("+i+")'" : "")+"></img>";
 						if(Player.inventory.items[i].stacked !== undefined && Player.inventory.items[i].stacked !== 1){
-							ev.target.innerHTML += "<div class='stackNum' id='stackNum"+i+"'>"+Player.inventory.items[i].stacked+"</div>";
+							target.innerHTML += "<div class='stackNum' id='stackNum"+i+"'>"+Player.inventory.items[i].stacked+"</div>";
 						}
 						// if a bag is being removed
-						if(parseInt(data) === 5 && Player.inventory.items[data].type === "bag"){
+						if(parseInt(data) === 5 && Player.inventory.items[i].type === "bag"){
 							document.getElementById("itemInventory").innerHTML = '<tr><td ondrop="Dom.inventory.drop(event);Game.inventoryUpdate(event)" ondragover="Dom.inventory.allowDrop(event)" onmouseover="Dom.inventory.displayInformation(Player.inventory.items[0])" onmouseleave="Dom.expand(\'information\')" ondrag="Dom.expand(\'information\')" onclick="Game.inventoryUpdate()"></td>\
 							<td ondrop="Dom.inventory.drop(event);Game.inventoryUpdate(event)" ondragover="Dom.inventory.allowDrop(event)" onmouseover="Dom.inventory.displayInformation(Player.inventory.items[1])" onmouseleave="Dom.expand(\'information\')" ondrag="Dom.expand(\'information\')" onclick="Game.inventoryUpdate()"></td>\
 							<td ondrop="Dom.inventory.drop(event);Game.inventoryUpdate(event)" ondragover="Dom.inventory.allowDrop(event)" onmouseover="Dom.inventory.displayInformation(Player.inventory.items[2])" onmouseleave="Dom.expand(\'information\')" ondrag="Dom.expand(\'information\')" onclick="Game.inventoryUpdate()"></td>\
@@ -1713,8 +1775,8 @@ Dom.inventory.drop = function(ev,equip){
 							Player.inventory.items.splice(6,Player.inventory.items.length-6);
 						}
 						// if a bag is being equipped
-						if(i === 5 && Player.inventory.items[data].type === "bag"){
-							for(let x = 0; x < Math.floor(Player.inventory.items[data].size/6); x++){
+						if(i === 5 && Player.inventory.items[i].type === "bag"){
+							for(let x = 0; x < Math.floor(Player.inventory.items[i].size/6); x++){
 								document.getElementById("itemInventory").innerHTML += '<tr><td ondrop="Dom.inventory.drop(event);Game.inventoryUpdate(event)" ondragover="Dom.inventory.allowDrop(event)" onmouseover="Dom.inventory.displayInformation(Player.inventory.items['+Player.inventory.items.length+'])" onmouseleave="Dom.expand(\'information\')" ondrag="Dom.expand(\'information\')" onclick="Game.inventoryUpdate()"></td>\
 								<td ondrop="Dom.inventory.drop(event);Game.inventoryUpdate(event)" ondragover="Dom.inventory.allowDrop(event)" onmouseover="Dom.inventory.displayInformation(Player.inventory.items['+(Player.inventory.items.length+1)+'])" onmouseleave="Dom.expand(\'information\')" ondrag="Dom.expand(\'information\')" onclick="Game.inventoryUpdate()"></td>\
 								<td ondrop="Dom.inventory.drop(event);Game.inventoryUpdate(event)" ondragover="Dom.inventory.allowDrop(event)" onmouseover="Dom.inventory.displayInformation(Player.inventory.items['+(Player.inventory.items.length+2)+'])" onmouseleave="Dom.expand(\'information\')" ondrag="Dom.expand(\'information\')" onclick="Game.inventoryUpdate()"></td>\
@@ -1724,9 +1786,8 @@ Dom.inventory.drop = function(ev,equip){
 								Player.inventory.items.push({},{},{},{},{},{});
 							}
 						}
-						Player.inventory.items[data] = {};
 						document.getElementById("itemInventory").getElementsByTagName("td")[data].innerHTML = "";
-					}else if(document.getElementById("itemInventory").getElementsByTagName("td")[i] === ev.target){
+					}else if(document.getElementById("itemInventory").getElementsByTagName("td")[i] === target){
 						Dom.alert.page("Move some items to the bank or dispose of them before you can do that.");
 					}
 				}
@@ -1766,7 +1827,7 @@ Dom.inventory.drop = function(ev,equip){
 						}
 					}
 					// if the item slot is where you are putting the item and it is not a bag which is unsafe to move
-					if(document.getElementById("itemInventory").getElementsByTagName("td")[i].innerHTML.indexOf(ev.target.outerHTML) >= 0 && ev.target.outerHTML !== "" && remove){
+					if(document.getElementById("itemInventory").getElementsByTagName("td")[i].innerHTML.indexOf(target.outerHTML) >= 0 && target.outerHTML !== "" && remove){
 						// if it is not a key being dropped on a chest
 						if(!(Player.inventory.items[data].opens !== undefined && Player.inventory.items[data].opens.type === Player.inventory.items[i].type && Player.inventory.items[data].opens.id === Player.inventory.items[i].id)){
 							// swaps the items
@@ -1945,7 +2006,7 @@ Dom.inventory.drop = function(ev,equip){
 							Dom.inventory.remove(data);
 						}
 						//break;
-					}else if(document.getElementById("itemInventory").getElementsByTagName("td")[i].innerHTML.indexOf(ev.target.outerHTML) >= 0 && ev.target.outerHTML !== ""){
+					}else if(document.getElementById("itemInventory").getElementsByTagName("td")[i].innerHTML.indexOf(target.outerHTML) >= 0 && target.outerHTML !== ""){
 						Dom.alert.page("Move some items to the bank or dispose of them before you can do that.");
 					}
 				}
@@ -1953,22 +2014,22 @@ Dom.inventory.drop = function(ev,equip){
 		// if the item is being moved from a weapon/armour slot
 		}else{
 			// if there is not an item already there
-			if(test[12] === "T" && ev.target.innerHTML === ""){
+			if(test[12] === "T" && target.innerHTML === ""){
 				for(let i = 0; i < Player.inventory.items.length; i++){
-					if(document.getElementById("itemInventory").getElementsByTagName("td")[i] === ev.target){
+					if(document.getElementById("itemInventory").getElementsByTagName("td")[i] === target){
 						Player.inventory.items[i] = Player.inventory[data];
+						Player.inventory[data] = {};
 						document.getElementById(data).innerHTML = "";
-						ev.target.innerHTML = "<img src='"+Player.inventory.items[i].image+"' draggable='true' ondragstart='Dom.inventory.drag(event,"+i+")' "+(Player.inventory.items[i].onClick !== undefined ? "onclick='Player.inventory.items["+i+"].onClick("+i+")'" : "") +"></img>";
+						target.innerHTML = "<img src='"+Player.inventory.items[i].image+"' draggable='true' ondragstart='Dom.inventory.drag(event,"+i+")' "+(Player.inventory.items[i].onClick !== undefined ? "onclick='Player.inventory.items["+i+"].onClick("+i+")'" : "") +"></img>";
 						if(Player.inventory.items[i].stacked !== undefined && Player.inventory.items[i].stacked !== 1){
-							ev.target.innerHTML += "<div class='stackNum' id='stackNum"+i+"'>"+Player.inventory.items[i].stacked+"</div>";
+							target.innerHTML += "<div class='stackNum' id='stackNum"+i+"'>"+Player.inventory.items[i].stacked+"</div>";
 						}
 						if(Player.inventory.items[i].type === "helm" || Player.inventory.items[i].type === "chest" || Player.inventory.items[i].type === "greaves" || Player.inventory.items[i].type === "boots"){
-							Dom.inventory.removeEquipment(Player.inventory[Player.inventory.items[i].type]);
-							Player.inventory[Player.inventory.items[i].type] = {};
+							Dom.inventory.removeEquipment(Player.inventory.items[i]); // has already been moved
 						// if it is a weapon
 						}else{
-							Dom.inventory.removeEquipment(Player.inventory.weapon);
-							Player.inventory.weapon = {};
+							console.log("yes");
+							Dom.inventory.removeEquipment(Player.inventory.items[i]); // has already been moved
 						}
 					}
 				}
@@ -1976,7 +2037,7 @@ Dom.inventory.drop = function(ev,equip){
 			}else{
 				for(let i = 0; i < Player.inventory.items.length; i++){
 					// if the item slot is where you are putting the item and it is allowed there
-					if(document.getElementById("itemInventory").getElementsByTagName("td")[i].innerHTML === ev.target.outerHTML && (((Player.inventory.items[i].allClasses === true || (Player.inventory.items[i].type === "sword" && Player.class === "k") || (Player.inventory.items[i].type === "staff" && Player.class === "m") || (Player.inventory.items[i].type === "bow" && Player.class === "a") || Player.inventory.items[i].type === "rod") && data === "weapon") || Player.inventory.items[i].type === data)){
+					if(document.getElementById("itemInventory").getElementsByTagName("td")[i].innerHTML === target.outerHTML && (((Player.inventory.items[i].allClasses === true || (Player.inventory.items[i].type === "sword" && Player.class === "k") || (Player.inventory.items[i].type === "staff" && Player.class === "m") || (Player.inventory.items[i].type === "bow" && Player.class === "a") || Player.inventory.items[i].type === "rod") && data === "weapon") || Player.inventory.items[i].type === data)){
 						// swaps the items
 						test = Player.inventory.items[i];
 						Player.inventory.items[i] = Player.inventory[data];
@@ -1985,15 +2046,13 @@ Dom.inventory.drop = function(ev,equip){
 						document.getElementById(data).innerHTML = "<img src='"+Player.inventory[data].image+"' draggable='true' ondragstart='Dom.inventory.drag(event,\""+data+"\")' "+(Player.inventory[data].onClick !== undefined ? "onclick='Player.inventory."+data+".onClick(\""+data+"\")'" : "")+"></img>";
 						document.getElementById("itemInventory").getElementsByTagName("td")[i].innerHTML = "<img src='"+Player.inventory.items[i].image+"' draggable='true' ondragstart='Dom.inventory.drag(event,"+i+")' "+(Player.inventory.items[i].onClick !== undefined ? "onclick='Player.inventory.items["+i+"].onClick("+i+")'" : "") +"></img>";
 						if(Player.inventory.items[i].stacked !== undefined && Player.inventory.items[i].stacked !== 1){
-							ev.target.innerHTML += "<div class='stackNum' id='stackNum"+i+"'>"+Player.inventory.items[i].stacked+"</div>";
+							target.innerHTML += "<div class='stackNum' id='stackNum"+i+"'>"+Player.inventory.items[i].stacked+"</div>";
 						}
 						if(Player.inventory.items[i].type === "helm" || Player.inventory.items[i].type === "chest" || Player.inventory.items[i].type === "greaves" || Player.inventory.items[i].type === "boots"){
-							Dom.inventory.removeEquipment(Player.inventory[Player.inventory.items[i].type]);
-							Player.inventory[Player.inventory.items[i].type] = {};
+							Dom.inventory.removeEquipment(Player.inventory.items[i]); // it has already been moved
 						// if it is a weapon
 						}else{
-							Dom.inventory.removeEquipment(Player.inventory.weapon);
-							Player.inventory.weapon = {};
+							Dom.inventory.removeEquipment(Player.inventory.items[i]); // it has already been moved
 						}
 						Dom.inventory.addEquipment(Player.inventory[data]);			
 					}
@@ -2005,13 +2064,13 @@ Dom.inventory.drop = function(ev,equip){
 		// if there is not an item already there
 		if(test[12] === "D"){
 			// if the item slot is where you are putting the item and it is allowed there
-			if((Player.inventory.items[data].type === ev.target.id || ((Player.inventory.items[data].allClasses === true || (Player.inventory.items[data].type === "sword" && Player.class === "k") || (Player.inventory.items[data].type === "staff" && Player.class === "m") || (Player.inventory.items[data].type === "bow" && Player.class === "a") || Player.inventory.items[data].type === "rod") && ev.target.id === "weapon")) && !Player.inventory.items[data].unidentified){
-				Player.inventory[ev.target.id] = Player.inventory.items[data];
-				Player.inventory[ev.target.id].onClick = Player.inventory.items[data].onClick;
+			if((Player.inventory.items[data].type === target.id || ((Player.inventory.items[data].allClasses === true || (Player.inventory.items[data].type === "sword" && Player.class === "k") || (Player.inventory.items[data].type === "staff" && Player.class === "m") || (Player.inventory.items[data].type === "bow" && Player.class === "a") || Player.inventory.items[data].type === "rod") && target.id === "weapon")) && !Player.inventory.items[data].unidentified){
+				Player.inventory[target.id] = Player.inventory.items[data];
+				Player.inventory[target.id].onClick = Player.inventory.items[data].onClick;
 				Dom.inventory.addEquipment(Player.inventory[equip]);
 				document.getElementById("itemInventory").getElementsByTagName("td")[data].innerHTML = "";
 				Player.inventory.items[data] = {};
-				document.getElementById(ev.target.id).innerHTML = "<img src='"+Player.inventory[ev.target.id].image+"' draggable='true' ondragstart='Dom.inventory.drag(event,\""+ev.target.id+"\")' "+(Player.inventory[ev.target.id].onClick !== undefined ? "onclick='Player.inventory."+ev.target.id+".onClick(\""+ev.target.id+"\")'" : "")+"></img>";
+				document.getElementById(target.id).innerHTML = "<img src='"+Player.inventory[target.id].image+"' draggable='true' ondragstart='Dom.inventory.drag(event,\""+target.id+"\")' "+(Player.inventory[target.id].onClick !== undefined ? "onclick='Player.inventory."+target.id+".onClick(\""+target.id+"\")'" : "")+"></img>";
 			}
 		// if there is already an item there
 		}else{
@@ -2022,7 +2081,7 @@ Dom.inventory.drop = function(ev,equip){
 				Player.inventory[equip] = Player.inventory.items[data];
 				Player.inventory[equip].onClick = Player.inventory.items[data].onClick;
 				Player.inventory.items[data] = test;
-				Dom.inventory.removeEquipment(Player.inventory[equip]);
+				Dom.inventory.removeEquipment(Player.inventory.items[data]);
 				Dom.inventory.addEquipment(Player.inventory[equip]);
 				document.getElementById("itemInventory").getElementsByTagName("td")[data].innerHTML = "<img src='"+Player.inventory.items[data].image+"' draggable='true' ondragstart='Dom.inventory.drag(event,\""+data+"\")' "+(Player.inventory.items[data].onClick !== undefined ? "onclick='Player.inventory.items["+data+"].onClick("+data+")'" : "")+"></img>";
 				document.getElementById(equip).innerHTML = "<img src='"+Player.inventory[equip].image+"' draggable='true' ondragstart='Dom.inventory.drag(event,\""+equip+"\")' "+(Player.inventory[equip].onClick !== undefined ? "onclick='Player.inventory."+equip+".onClick(\""+equip+"\")'" : "")+"></img>";
@@ -2754,9 +2813,31 @@ for(let i = 0; i < Player.inventory.items.length/6; i++){
 }
 for(let i = 0; i < Player.inventory.items.length; i++){
 	if(Player.inventory.items[i].image !== undefined){
-		if(Player.inventory.items[i].chooseStats !== undefined){
+		/*if(Player.inventory.items[i].chooseStats !== undefined){
 			Items[Player.inventory.items[i].type][Player.inventory.items[i].id].onClick = Dom.inventory.chooseStats;
+		}*/
+		if((Player.inventory.items[i].type === "sword" || Player.inventory.items[i].type === "staff" || Player.inventory.items[i].type === "bow" || Player.inventory.items[i].type === "rod") && Player.inventory.items[i].name !== undefined){
+			Items[Player.inventory.items[i].type][Player.inventory.items[i].id].onClick = function(i){
+				if(!isNaN(i)){
+					Dom.inventory.drop(undefined, "weapon", i);
+				}else{
+					if(Player.inventory[i].chooseStats !== undefined){
+						Dom.inventory.chooseStats(i);
+					}
+				}
+			}
 		}
+		if((Player.inventory.items[i].type === "helm" || Player.inventory.items[i].type === "chest" || Player.inventory.items[i].type === "greaves" || Player.inventory.items[i].type === "boots") && Player.inventory.items[i].name !== undefined){
+			Items[Player.inventory.items[i].type][Player.inventory.items[i].id].onClick = function(i){
+				if(!isNaN(i)){
+					Dom.inventory.drop(undefined, Player.inventory.items[i].type, i);
+				}else{
+					if(Player.inventory[i].chooseStats !== undefined){
+						Dom.inventory.chooseStats(i);
+					}
+				}
+			}
+		}		
 		if(!Player.inventory.items[i].unidentified){
 			Player.inventory.items[i].onClick = Items[Player.inventory.items[i].type][Player.inventory.items[i].id].onClick;
 			Player.inventory.items[i].onKill = Items[Player.inventory.items[i].type][Player.inventory.items[i].id].onKill;
@@ -2773,9 +2854,31 @@ for(let i = 0; i < Player.inventory.items.length; i++){
 document.getElementById("itemInventory").getElementsByTagName("td")[5].style.backgroundImage = "url('assets/items/bag/1.png')";
 for(let i = 0; i < Object.keys(Player.inventory).length-1; i++){ // repeats for each equipment slot
 	if(Player.inventory[Object.keys(Player.inventory)[i]].image !== undefined){
-		if(Player.inventory[Object.keys(Player.inventory)[i]].chooseStats !== undefined){
+		/*if(Player.inventory[Object.keys(Player.inventory)[i]].chooseStats !== undefined){
 			Items[Player.inventory[Object.keys(Player.inventory)[i]].type][Player.inventory[Object.keys(Player.inventory)[i]].id].onClick = Dom.inventory.chooseStats;
+		}*/
+		if(Player.inventory[Object.keys(Player.inventory)[i]].type === "sword" || Player.inventory[Object.keys(Player.inventory)[i]].type === "staff" || Player.inventory[Object.keys(Player.inventory)[i]].type === "bow" || Player.inventory[Object.keys(Player.inventory)[i]].type === "rod"){
+			Items[Player.inventory[Object.keys(Player.inventory)[i]].type][Player.inventory[Object.keys(Player.inventory)[i]].id].onClick = function(i){
+				if(!isNaN(i)){
+					Dom.inventory.drop(undefined, "weapon", i);
+				}else{
+					if(Player.inventory[i].chooseStats !== undefined){
+						Dom.inventory.chooseStats(i);
+					}
+				}
+			}
 		}
+		if(Player.inventory[Object.keys(Player.inventory)[i]].type === "helm" || Player.inventory[Object.keys(Player.inventory)[i]].type === "chest" || Player.inventory[Object.keys(Player.inventory)[i]].type === "greaves" || Player.inventory[Object.keys(Player.inventory)[i]].type === "boots"){
+			Items[Player.inventory[Object.keys(Player.inventory)[i]].type][Player.inventory[Object.keys(Player.inventory)[i]].id].onClick = function(i){
+				if(!isNaN(i)){
+					Dom.inventory.drop(undefined, Player.inventory.items[i].type, i);
+				}else{
+					if(Player.inventory[i].chooseStats !== undefined){
+						Dom.inventory.chooseStats(i);
+					}
+				}
+			}
+		}	
 		if(Player.inventory[Object.keys(Player.inventory)[i]].image !== undefined){
 			Player.inventory[Object.keys(Player.inventory)[i]].onClick = Items[Player.inventory[Object.keys(Player.inventory)[i]].type][Player.inventory[Object.keys(Player.inventory)[i]].id].onClick;
 			Player.inventory[Object.keys(Player.inventory)[i]].onKill = Items[Player.inventory[Object.keys(Player.inventory)[i]].type][Player.inventory[Object.keys(Player.inventory)[i]].id].onKill;

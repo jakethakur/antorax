@@ -25,7 +25,7 @@ var Items = {
 			tier: 1,
 			rarity: "common",
 			sellPrice: 1,
-			obtain: "Find as an unidentified item in areas around Eaglecrest Logging Camp.",
+			obtain: "Can be found as an unidentified item in areas around Eaglecrest Logging Camp.",
 			area: "loggingCamp",
 			stats: {
 				defence: "+2",
@@ -40,7 +40,7 @@ var Items = {
 			rarity: "unique",
 			sellPrice: 3,
 			lore: "",
-			obtain: "Find as an unidentified item in areas around Eaglecrest Logging Camp.",
+			obtain: "Can be found as an unidentified item in areas around Eaglecrest Logging Camp.",
 			area: "loggingCamp",
 			set: 3,
 			stats: {
@@ -57,7 +57,7 @@ var Items = {
 			rarity: "unique",
 			sellPrice: 3,
 			lore: "",
-			obtain: "Find as an unidentified item in areas around Eaglecrest Logging Camp.",
+			obtain: "Can be found as an unidentified item in areas around Eaglecrest Logging Camp.",
 			area: "loggingCamp",
 			set: 2,
 			stats: {
@@ -74,7 +74,7 @@ var Items = {
 			rarity: "mythic",
 			sellPrice: 5,
 			lore: "You have no idea how often those mammoth tusks need to be glued back on!",
-			obtain: "Find as an unidentified item in areas around Eaglecrest Logging Camp.",
+			obtain: "Can be found as an unidentified item in areas around Eaglecrest Logging Camp.",
 			area: "loggingCamp",
 			stats: {
 				defence: "+3",
@@ -90,7 +90,7 @@ var Items = {
 			rarity: "mythic",
 			sellPrice: 5,
 			lore: "",
-			obtain: "Find in a sunken chest in a tier 1 fishing area.",
+			obtain: "Can be found in a sunken chest in a tier 1 fishing area.",
 			set: 4,
 			stats: {
 				defence: "+3",
@@ -128,7 +128,7 @@ var Items = {
 			tier: 1,
 			rarity: "common",
 			sellPrice: 1,
-			obtain: "Find as an unidentified item in areas around Eaglecrest Logging Camp.",
+			obtain: "Can be found as an unidentified item in areas around Eaglecrest Logging Camp.",
 			area: "loggingCamp",
 			stats: {
 				defence: "+3",
@@ -143,7 +143,7 @@ var Items = {
 			rarity: "unique",
 			sellPrice: 3,
 			lore: "",
-			obtain: "Find as an unidentified item in areas around Eaglecrest Logging Camp.",
+			obtain: "Can be found as an unidentified item in areas around Eaglecrest Logging Camp.",
 			area: "loggingCamp",
 			set: 3,
 			stats: {
@@ -160,7 +160,7 @@ var Items = {
 			rarity: "unique",
 			sellPrice: 3,
 			lore: "",
-			obtain: "Find as an unidentified item in areas around Eaglecrest Logging Camp.",
+			obtain: "Can be found as an unidentified item in areas around Eaglecrest Logging Camp.",
 			area: "loggingCamp",
 			set: 2,
 			stats: {
@@ -177,7 +177,7 @@ var Items = {
 			rarity: "mythic",
 			sellPrice: 5,
 			lore: "Legend says the tattered knight is still wandering around shirtless.",
-			obtain: "Find as an unidentified item in areas around Eaglecrest Logging Camp.",
+			obtain: "Can be found as an unidentified item in areas around Eaglecrest Logging Camp.",
 			area: "loggingCamp",
 			stats: {
 				defence: "+8",
@@ -193,7 +193,7 @@ var Items = {
 			rarity: "mythic",
 			sellPrice: 5,
 			lore: "",
-			obtain: "Find in a sunken chest in a tier 1 fishing area.",
+			obtain: "Can be found in a sunken chest in a tier 1 fishing area.",
 			set: 4,
 			stats: {
 				defence: "+4",
@@ -248,7 +248,7 @@ var Items = {
 			tier: 1,
 			rarity: "common",
 			sellPrice: 1,
-			obtain: "Find as an unidentified item in areas around Eaglecrest Logging Camp.",
+			obtain: "Can be found as an unidentified item in areas around Eaglecrest Logging Camp.",
 			area: "loggingCamp",
 			stats: {
 				defence: "+3",
@@ -263,7 +263,7 @@ var Items = {
 			rarity: "unique",
 			sellPrice: 3,
 			lore: "",
-			obtain: "Find as an unidentified item in areas around Eaglecrest Logging Camp.",
+			obtain: "Can be found as an unidentified item in areas around Eaglecrest Logging Camp.",
 			area: "loggingCamp",
 			set: 3,
 			stats: {
@@ -280,7 +280,7 @@ var Items = {
 			rarity: "unique",
 			sellPrice: 3,
 			lore: "",
-			obtain: "Find as an unidentified item in areas around Eaglecrest Logging Camp.",
+			obtain: "Can be found as an unidentified item in areas around Eaglecrest Logging Camp.",
 			area: "loggingCamp",
 			set: 2,
 			stats: {
@@ -297,7 +297,7 @@ var Items = {
 			rarity: "mythic",
 			sellPrice: 5,
 			lore: "You'll find none of those cheap MDF greaves from the Weirwood.",
-			obtain: "Find as an unidentified item in areas around Eaglecrest Logging Camp.",
+			obtain: "Can be found as an unidentified item in areas around Eaglecrest Logging Camp.",
 			area: "loggingCamp",
 			stats: {
 				defence: "+4",
@@ -314,7 +314,7 @@ var Items = {
 			rarity: "mythic",
 			sellPrice: 5,
 			lore: "",
-			obtain: "Find in a sunken chest in a tier 1 fishing area.",
+			obtain: "Can be found in a sunken chest in a tier 1 fishing area.",
 			set: 4,
 			stats: {
 				defence: "+4",
@@ -367,7 +367,7 @@ var Items = {
 			tier: 1,
 			rarity: "common",
 			sellPrice: 1,
-			obtain: "Find as an unidentified item in areas around Eaglecrest Logging Camp.",
+			obtain: "Can be found as an unidentified item in areas around Eaglecrest Logging Camp.",
 			area: "loggingCamp",
 			stats: {
 				defence: "+2",
@@ -382,7 +382,7 @@ var Items = {
 			rarity: "unique",
 			sellPrice: 3,
 			lore: "",
-			obtain: "Find as an unidentified item in areas around Eaglecrest Logging Camp.",
+			obtain: "Can be found as an unidentified item in areas around Eaglecrest Logging Camp.",
 			area: "loggingCamp",
 			set: 3,
 			stats: {
@@ -399,7 +399,7 @@ var Items = {
 			rarity: "unique",
 			sellPrice: 3,
 			lore: "",
-			obtain: "Find as an unidentified item in areas around Eaglecrest Logging Camp.",
+			obtain: "Can be found as an unidentified item in areas around Eaglecrest Logging Camp.",
 			area: "loggingCamp",
 			set: 2,
 			stats: {
@@ -416,7 +416,7 @@ var Items = {
 			rarity: "mythic",
 			sellPrice: 5,
 			lore: "Marshall Teper's favourite boots. Maybe you could return them for a reward?",
-			obtain: "Find as an unidentified item in areas around Eaglecrest Logging Camp.",
+			obtain: "Can be found as an unidentified item in areas around Eaglecrest Logging Camp.",
 			area: "loggingCamp",
 			stats: {
 				defence: "+2",
@@ -451,7 +451,7 @@ var Items = {
 			rarity: "mythic",
 			sellPrice: 5,
 			lore: "",
-			obtain: "Find in a sunken chest in a tier 1 fishing area.",
+			obtain: "Can be found in a sunken chest in a tier 1 fishing area.",
 			set: 4,
 			stats: {
 				defence: "+3",
@@ -503,7 +503,7 @@ var Items = {
 			tier: 1,
 			rarity: "common",
 			sellPrice: 1,
-			obtain: "Find as an unidentified item in areas around Eaglecrest Logging Camp.",
+			obtain: "Can be found as an unidentified item in areas around Eaglecrest Logging Camp.",
 			area: "loggingCamp",
 			stats: {
 				damage: "3",
@@ -519,7 +519,7 @@ var Items = {
 			rarity: "unique",
 			sellPrice: 3,
 			lore: "Your hero power gives this... oh, wrong game.",
-			obtain: "Find as an unidentified item in areas around Eaglecrest Logging Camp.",
+			obtain: "Can be found as an unidentified item in areas around Eaglecrest Logging Camp.",
 			area: "loggingCamp",
 			stats: {
 				damage: "3",
@@ -536,7 +536,7 @@ var Items = {
 			rarity: "unique",
 			sellPrice: 3,
 			lore: "It might be falling apart, but those splinters hurt!",
-			obtain: "Find as an unidentified item in areas around Eaglecrest Logging Camp.",
+			obtain: "Can be found as an unidentified item in areas around Eaglecrest Logging Camp.",
 			area: "loggingCamp",
 			stats: {
 				damage: "4",
@@ -553,7 +553,7 @@ var Items = {
 			rarity: "mythic",
 			sellPrice: 5,
 			lore: "Not to be confused with the hit movie 'Raiders of the Lost Orc'.",
-			obtain: "Find as an unidentified item in areas around Eaglecrest Logging Camp.",
+			obtain: "Can be found as an unidentified item in areas around Eaglecrest Logging Camp.",
 			area: "loggingCamp",
 			stats: {
 				damage: "4",
@@ -617,7 +617,7 @@ var Items = {
 			tier: 1,
 			rarity: "common",
 			sellPrice: 1,
-			obtain: "Find as an unidentified item in areas around Eaglecrest Logging Camp.",
+			obtain: "Can be found as an unidentified item in areas around Eaglecrest Logging Camp.",
 			area: "loggingCamp",
 			stats: {
 				damage: "3-9",
@@ -632,8 +632,8 @@ var Items = {
 			tier: 1,
 			rarity: "unique",
 			sellPrice: 3,
-			lore: "",
-			obtain: "Find as an unidentified item in areas around Eaglecrest Logging Camp.",
+			lore: "Fresh off a tree from the Elven Woodlands.",
+			obtain: "Can be found as an unidentified item in areas around Eaglecrest Logging Camp.",
 			area: "loggingCamp",
 			stats: {
 				damage: "3-9",
@@ -650,7 +650,7 @@ var Items = {
 			rarity: "unique",
 			sellPrice: 3,
 			lore: "POWER OVERWHELMING!",
-			obtain: "Find as an unidentified item in areas around Eaglecrest Logging Camp.",
+			obtain: "Can be found as an unidentified item in areas around Eaglecrest Logging Camp.",
 			area: "loggingCamp",
 			stats: {
 				damage: "2-12",
@@ -667,7 +667,7 @@ var Items = {
 			rarity: "mythic",
 			sellPrice: 5,
 			lore: "",
-			obtain: "Find as an unidentified item in areas around Eaglecrest Logging Camp.",
+			obtain: "Can be found as an unidentified item in areas around Eaglecrest Logging Camp.",
 			area: "loggingCamp",
 			stats: {
 				damage: "2-8",
@@ -760,7 +760,7 @@ var Items = {
 			tier: 1,
 			rarity: "common",
 			sellPrice: 1,
-			obtain: "Find as an unidentified item in areas around Eaglecrest Logging Camp.",
+			obtain: "Can be found as an unidentified item in areas around Eaglecrest Logging Camp.",
 			area: "loggingCamp",
 			stats: {
 				damage: "3",
@@ -774,8 +774,8 @@ var Items = {
 			tier: 1,
 			rarity: "unique",
 			sellPrice: 3,
-			lore: "",
-			obtain: "Find as an unidentified item in areas around Eaglecrest Logging Camp.",
+			lore: "One shot, one kill.",
+			obtain: "Can be found as an unidentified item in areas around Eaglecrest Logging Camp.",
 			area: "loggingCamp",
 			stats: {
 				damage: "3",
@@ -790,8 +790,8 @@ var Items = {
 			tier: 1,
 			rarity: "unique",
 			sellPrice: 3,
-			lore: "",
-			obtain: "Find as an unidentified item in areas around Eaglecrest Logging Camp.",
+			lore: "It used to fire bolts. Now it just shoots wood.",
+			obtain: "Can be found as an unidentified item in areas around Eaglecrest Logging Camp.",
 			area: "loggingCamp",
 			stats: {
 				damage: "2.5",
@@ -807,7 +807,7 @@ var Items = {
 			rarity: "mythic",
 			sellPrice: 5,
 			lore: "",
-			obtain: "Find as an unidentified item in areas around Eaglecrest Logging Camp.",
+			obtain: "Can be found as an unidentified item in areas around Eaglecrest Logging Camp.",
 			area: "loggingCamp",
 			stats: {
 				damage: "4",
@@ -896,7 +896,7 @@ var Items = {
 			image: "assets/items/set/2.png",
 			tier: 1,
 			rarity: "unique",
-			obtain: "Find the items of this set as unidentified items in areas around Eaglecrest Logging Camp.",
+			obtain: "Can be found the items of this set as unidentified items in areas around Eaglecrest Logging Camp.",
 			armour: [
 				"Siege Helm",
 				"Siege Chestplate",
@@ -915,7 +915,7 @@ var Items = {
 			image: "assets/items/set/3.png",
 			tier: 1,
 			rarity: "unique",
-			obtain: "Find the items of this set as unidentified items in areas around Eaglecrest Logging Camp.",
+			obtain: "Can be found the items of this set as unidentified items in areas around Eaglecrest Logging Camp.",
 			armour: [
 				"Goblin Forged Helm",
 				"Goblin Forged Chestplate",
@@ -934,7 +934,7 @@ var Items = {
 			image: "assets/items/set/4.png",
 			tier: 1,
 			rarity: "mythic",
-			obtain: "Find the items of this set in a sunken chest in a tier 1 fishing area.",
+			obtain: "Can be found the items of this set in a sunken chest in a tier 1 fishing area.",
 			armour: [
 				"The Ocean Warrior's Helm",
 				"The Ocean Warrior's Chestplate",
@@ -1563,6 +1563,7 @@ var Items = {
 			fishingType: "fish",
 			type: "fish",
 			image: "assets/items/fish/1.png",
+			imageArchaeology: "assets/items/fish/1archaeology.png",
 			rarity: "unique",
 			sellPrice: 3,
 			lore: "",
@@ -1582,6 +1583,7 @@ var Items = {
 			fishingType: "fish",
 			type: "fish",
 			image: "assets/items/fish/2.png",
+			imageArchaeology: "assets/items/fish/2archaeology.png",
 			rarity: "common",
 			sellPrice: 1,
 			lore: "",
@@ -1601,6 +1603,7 @@ var Items = {
 			fishingType: "fish",
 			type: "fish",
 			image: "assets/items/fish/3.png",
+			imageArchaeology: "assets/items/fish/3archaeology.png",
 			rarity: "common",
 			sellPrice: 1,
 			lore: "",
@@ -1619,6 +1622,7 @@ var Items = {
 			fishingType: "fish",
 			type: "fish",
 			image: "assets/items/fish/4.png",
+			imageArchaeology: "assets/items/fish/4archaeology.png",
 			rarity: "common",
 			sellPrice: 1,
 			lore: "",
@@ -1637,6 +1641,7 @@ var Items = {
 			fishingType: "fish",
 			type: "fish",
 			image: "assets/items/fish/5.png",
+			imageArchaeology: "assets/items/fish/5archaeology.png",
 			rarity: "unique",
 			sellPrice: 3,
 			lore: "",
@@ -1655,6 +1660,7 @@ var Items = {
 			fishingType: "fish",
 			type: "fish",
 			image: "assets/items/fish/6.png",
+			imageArchaeology: "assets/items/fish/6archaeology.png",
 			rarity: "mythic",
 			sellPrice: 5,
 			lore: "",
@@ -1675,7 +1681,7 @@ var Items = {
 			image: "assets/items/fish/7.png",
 			rarity: "mythic",
 			sellPrice: 5,
-			lore: "",
+			lore: "It grants your wishes... if your wish is for 5 gold.",
 			howToCatch: "Can be fished up anywhere.",
 			consumption: true,
 			areas: [], 

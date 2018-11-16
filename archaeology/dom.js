@@ -215,7 +215,8 @@ function arrange(){
 			document.getElementById("name"+i).style.color = "purple";
 		}
 		document.getElementById("tier"+i).innerHTML = "";
-		if(category.value == 7){
+		if(category.value == 7){ // should be 8 but not sure if we want it
+			console.log("ERROR");
 			for(var f = 0; f < array[i].armour.length; f++){
 				document.getElementById("tier"+i).innerHTML += "<br>"+array[i].armour[f];
 			}
@@ -329,8 +330,9 @@ function arrange(){
 		if(viewedItemType != "set"){
 			document.getElementById("obtain").hidden = false;
 			document.getElementById("obtain").style.top = "100px";
-			document.getElementById("obtain").innerHTML = JSON.parse(localStorage.getItem("archaeology")).includes(Items[viewedItemType][viewedItemId].name) ? "You have obtained this item." : Items[viewedItemType][viewedItemId].obtain;
+			document.getElementById("obtain").innerHTML = JSON.parse(localStorage.getItem("archaeology")).includes(Items[viewedItemType][viewedItemId].name) ? "You have obtained this item." : "You have not yet obtained this item";
 			document.getElementById("sell").hidden = false;
+			document.getElementById("obtain").innerHTML += "<br><br>"+Items[viewedItemType][viewedItemId].obtain;
 			document.getElementById("sell").style.top = 130 + document.getElementById("obtain").offsetHeight + "px";
 			document.getElementById("sell").innerHTML = "Sells for "+Items[viewedItemType][viewedItemId].sellPrice+" gold at an item buyer.";
 		}
