@@ -1049,6 +1049,7 @@ var Quests = {
 			howToStart: "Speak to <strong>Combat Trainer Saral</strong>.",
 			levelRequirement: 3,
 			questRequirements: [],
+			repeatTime: "daily",
 			
 			rewards: {
 				xp: 30,
@@ -1066,6 +1067,53 @@ var Quests = {
 			resetVariables: [
 				"goblinsKilled",
 			],
+		},
+		
+		{
+			id: 20,
+			quest: "The Goblin King",
+			questArea: "eaglecrestLoggingCamp",
+			
+			important: true,
+			
+			startName: "Marshall Teper",
+			startChat: `The Goblin King is the ruler over the goblins. We believe it is because of their ruler that the goblins act as hostile towards us as they do. Unfortunately, the Antorax ley energy nearby means that the goblins and their ruler come back to life after killed, however killing the Goblin King will certainly offset the goblins for a while.<br>The Goblin Tower has been a dangerous place since they first took it over - it has all sorts of magical items left over that will will be unlike anything you have seen before. Moreover, only the strongest of goblins are elected to protect their ruler. I suggest not engaging them. Prepare yourself with equipment and potions, and see how you fare against the Goblin King.`,
+			
+			finishName: "Marshall Teper",
+			finishChat: `Well done. Few novices can say they have killed the Goblin King.`,
+			
+			objectives: [
+				"Kill the Goblin King at the top of the Nilbog Tower.",
+				"Speak to <strong>Marshall Teper</strong>.",
+			],
+			
+			isCompleted: function() {
+				let completed = [];
+				
+				// true or falses for each objective (apart from the turn-in objective)
+				//completed.push();
+				
+				completed = checkFinished(completed);
+				
+				return completed;
+			},
+			
+			howToStart: "Speak to <strong>Marshall Teper</strong>.",
+			levelRequirement: 4,
+			questRequirements: ["Making Yourself Useful"],
+			
+			rewards: {
+				xp: 50,
+				items: [
+					Items.currency[2],
+				],
+				itemQuantities: [
+					5,
+				],
+				reputation: {
+					eaglecrestLoggingCamp: 200,
+				},
+			},
 		},
 		
 		/*{

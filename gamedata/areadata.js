@@ -713,6 +713,10 @@ var Areas = {
 						role: "questStartFinish"
 					},
 					{
+						quest: Quests.eaglecrestLoggingCamp[20], 
+						role: "questStartFinish"
+					},
+					{
 						role: "text",
 						chooseText: "I found a pair of boots that I think might be yours.",
 						chat: "Are you sure? Give them here.<br>You're right, they were mine. They were stolen by a goblin during the recent goblin siege. Are you sure I can have them back? I will make sure that you are aptly rewarded.",

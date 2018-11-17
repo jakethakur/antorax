@@ -436,6 +436,10 @@ class Thing extends Entity {
 		this.width = properties.width || this.image.width;
 		this.height = properties.height || this.image.height;
 		
+		this.baseWidth = this.width;
+		this.baseHeight = this.height;
+		this.expand = properties.expand || 1; // width multiplier (based on base width and base height)
+		
 		this.name = properties.name;
 	}
 }
@@ -669,21 +673,36 @@ class Character extends Thing {
 	}
 	
 	// whee! make the character fly away from their current point
-	// if direction (in rad) is undefined, a Random one is picked (more chaos!!)
-	// velocity = pixels thrown total
+	// ToRadians(Random(0, 360)
+	// velocity = pixels thrown per second
+	// time = time in seconds
 	// must be called every tick with the delta as the second parameter
-	displace (velocity, delta, direction) {
-		if (!this.isBeingDisplaced) {
+	displace (delta, velocity, time, direction) {
+		if (this.isBeingDisplaced === undefined) { // not being displaced yeet
 			// init displacement
-			if (direction === undefined) {
-				direction = ToRadians(Random(0, 360));
-			}
-			let displacementY = Math.sin(direction) * velocity;
-			let displacementX = Math.cos(direction) * velocity;
-			this.isBeingDisplaced = true;
+			this.isBeingDisplaced = 0; // time the player has been displaced for
+			
+			// expand by 0.01
+			this.expand = 1.01;
+			this.width = this.baseWidth * this.expand;
+			this.height = this.baseHeight * this.expand;
 		}
-		else {
-			// begin the fun...
+		else if (this.isBeingDisplaced < time) { // displace player
+			// expand
+			let maxExpand = time * velocity / 120; // max expand
+			this.expand = -(this.isBeingDisplaced - maxExpand/2)^2 + (maxExpand/2)^2 + 1
+			
+			this.width = this.baseWidth * this.expand;
+			this.height = this.baseHeight * this.expand;
+			
+			// move
+			this.x += Math.cos(direction) * velocity * delta;
+			this.y += Math.sin(direction) * velocity * delta;
+			
+			this.isBeingDisplaced += delta;
+		}
+		else { // displacement finished
+			this.isBeingDisplaced = undefined;
 		}
 	}
 }
@@ -1495,8 +1514,6 @@ class Projectile extends Thing {
 		
 		this.id = Game.nextProjectileId; // way that the game can identify which projectile was shot
 		Game.nextProjectileId++;
-		
-		this.expand = properties.expand || 1; // size of projectile based on its image size
 		
 		this.variance = properties.variance || 0; // diameter of circle that it could fall into
 		
@@ -4072,7 +4089,9 @@ Game.render = function (delta) {
 					this.ctx.drawImage(
 						objectToRender.image,
 						objectToRender.screenX - objectToRender.width / 2,
-						objectToRender.screenY - objectToRender.height / 2
+						objectToRender.screenY - objectToRender.height / 2,
+						objectToRender.width,
+						objectToRender.height
 					);
 					
 					// render function (additional render to be carried out upon render of this entity)
@@ -4090,7 +4109,9 @@ Game.render = function (delta) {
 						this.ctx.drawImage(
 							objectToRender.deathImage,
 							objectToRender.screenX - objectToRender.deathImageWidth / 2,
-							objectToRender.screenY - objectToRender.deathImageHeight / 2
+							objectToRender.screenY - objectToRender.deathImageHeight / 2,
+							objectToRender.width,
+							objectToRender.height
 						);
 						
 						// perhaps a death render function should be added? tbd
@@ -4144,41 +4165,41 @@ Game.render = function (delta) {
 		this.ctx.globalAlpha = 0.6;
 	}
 	// check what direction they are facing, then render player
-	if (this.hero.direction == 1) {
+	if (this.hero.direction === 1) {
 		this.ctx.drawImage(
 			this.hero.image,
-			0, this.hero.height,
-			this.hero.width, this.hero.height,
+			0, this.hero.baseHeight,
+			this.hero.baseWidth, this.hero.baseHeight,
 			this.hero.screenX - this.hero.width / 2, this.hero.screenY - this.hero.height / 2,
 			this.hero.width, this.hero.height,
 		);
 	} 
 	
-	else if (this.hero.direction == 2) {
+	else if (this.hero.direction === 2) {
 		this.ctx.drawImage(
 			this.hero.image,
-			this.hero.width, this.hero.height,
-			this.hero.width, this.hero.height,
+			this.hero.baseWidth, this.hero.baseHeight,
+			this.hero.baseWidth, this.hero.baseHeight,
 			this.hero.screenX - this.hero.width / 2, this.hero.screenY - this.hero.height / 2,
 			this.hero.width, this.hero.height,
 		);
 	} 
 	
-	else if (this.hero.direction == 3) {
+	else if (this.hero.direction === 3) {
 		this.ctx.drawImage(
 			this.hero.image,
 			0, 0,
-			this.hero.width, this.hero.height,
+			this.hero.baseWidth, this.hero.baseHeight,
 			this.hero.screenX - this.hero.width / 2, this.hero.screenY - this.hero.height / 2,
 			this.hero.width, this.hero.height,
 		);
 	} 
 	
-	else if (this.hero.direction == 4) {
+	else if (this.hero.direction === 4) {
 		this.ctx.drawImage(
 			this.hero.image,
-			this.hero.width, 0,
-			this.hero.width, this.hero.height,
+			this.hero.baseWidth, 0,
+			this.hero.baseWidth, this.hero.baseHeight,
 			this.hero.screenX - this.hero.width / 2, this.hero.screenY - this.hero.height / 2,
 			this.hero.width, this.hero.height,
 		);
@@ -4472,6 +4493,6 @@ Game.saveProgress = function (saveType) { // if saveType is "auto" then the save
 		console.info((saveType === "auto" ? "AUTO" : "") + "SAVE AT " + (time.getHours() < 10 ? "0" : "") + time.getHours() + ":" + (time.getMinutes() < 10 ? "0" : "") + time.getMinutes() + ":" + (time.getSeconds() < 10 ? "0" : "") + time.getSeconds());
 	}
 	if (saveType === "logout") {
-		window.location.replace("./selection.html");
+		window.location.replace("./selection/index.html");
 	}
 }
