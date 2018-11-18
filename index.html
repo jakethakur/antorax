@@ -79,6 +79,10 @@
 			<a href="./archaeology/index.html" target="_blank">Archaeology</a><br>
 			<span style="font-size: 20px;">Uncover and collect weapons and armour.</span>
 		</div>
+		<div id="fish" class="adventure">
+			<a href="./fish/index.html" target="_blank">Fisher's Log</a><br>
+			<span style="font-size: 20px;">View the longest fish you have caught.</span>
+		</div>
 		<div id="instructions" class="adventure">
 			<span id="instructionsTitle" style="color: blue; cursor: pointer;"><u>Instructions</u></span><br>
 			<span style="font-size: 20px;">View information to help you in your journey.</span>
@@ -101,23 +105,23 @@
 		</div>
 		<div id="settingCoords" class="settings">
 			Show co-ordinates:
-			<span class="radio1"><input type="radio" id="coordsOn" name="coordsOnOff" onclick="SaveItem('coords', true)">Yes</input></span>
-			<span class="radio2"><input type="radio" name="coordsOnOff" checked="true" onclick="SaveItem('coords', false)">No</input></span>
+			<span class="radio1"><input type="radio" id="coordsOn" name="coordsOnOff" onclick="Dom.settings.save('coords', true)">Yes</input></span>
+			<span class="radio2"><input type="radio" name="coordsOnOff" checked="true" onclick="Dom.settings.save('coords', false)">No</input></span>
 		</div>
 		<div id="settingFps" class="settings">
 			Show FPS:
-			<span class="radio1"><input type="radio" id="fpsOn" name="fpsOnOff" onclick="SaveItem('fps', true)">Yes</input></span>
-			<span class="radio2"><input type="radio" name="fpsOnOff" checked="true" onclick="SaveItem('fps', false)">No</input></span>
+			<span class="radio1"><input type="radio" id="fpsOn" name="fpsOnOff" onclick="Dom.settings.save('fps', true)">Yes</input></span>
+			<span class="radio2"><input type="radio" name="fpsOnOff" checked="true" onclick="Dom.settings.save('fps', false)">No</input></span>
 		</div>
 		<div id="settingHitboxes" class="settings">
 			Show hitboxes:
-			<span class="radio1"><input type="radio" id="hitboxesOn" name="hitboxOnOff" onclick="SaveItem('hitboxes', true)">Yes</input></span>
-			<span class="radio2"><input type="radio" name="hitboxOnOff" checked="true" onclick="SaveItem('hitboxes', false)">No</input></span>
+			<span class="radio1"><input type="radio" id="hitboxesOn" name="hitboxOnOff" onclick="Dom.settings.save('hitboxes', true)">Yes</input></span>
+			<span class="radio2"><input type="radio" name="hitboxOnOff" checked="true" onclick="Dom.settings.save('hitboxes', false)">No</input></span>
 		</div>
 		<div id="settingGrid" class="settings">
 			Show grid:
-			<span class="radio1"><input type="radio" id="gridOn" name="gridOnOff" onclick="SaveItem('grid', true)">Yes</input></span>
-			<span class="radio2"><input type="radio" name="gridOnOff" checked="true" onclick="SaveItem('grid', false)">No</input></span>
+			<span class="radio1"><input type="radio" id="gridOn" name="gridOnOff" onclick="Dom.settings.save('grid', true)">Yes</input></span>
+			<span class="radio2"><input type="radio" name="gridOnOff" checked="true" onclick="Dom.settings.save('grid', false)">No</input></span>
 		</div>
 		<div id="settingSpeed" class="settings">
 			HIGH SPEED:
@@ -127,7 +131,7 @@
 		<span id="settingTutorialHolder">
 			<div id="settingTutorial" class="settings">Disable Tutorial:
 				<span class="radio1"><input type="radio" id="tutorialOn" name="tutorialOnOff">Yes</input></span>
-				<span class="radio2"><input type="radio" name="tutorialOnOff" checked="true">No</input></span>
+				<span class="radio2"><input type="radio" id="tutorialOff" name="tutorialOnOff" checked="true">No</input></span>
 			</div>
 		</span>
 		<span id="settingAcceptHolder">

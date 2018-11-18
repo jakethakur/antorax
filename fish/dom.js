@@ -1,9 +1,11 @@
 var array = [];
+var total = 0;
 
 for(var x = 0; x < Items.fish.length; x++){
 	if(Items.fish[x].fishingType === "fish"){
 		array.push(Items.fish[x]);
 	}
+	total++;
 }
 
 function checkChange(){
@@ -65,6 +67,11 @@ function arrange(){
 	}
 	document.getElementById("progress").style.width = (((Math.floor((screenSize-45)/245)))*245)-25+"px";
 	document.getElementById("progress").style.left = 25+((screenSize-45)-(((Math.floor((screenSize-45)/245)))*245))/2+"px";
+	document.getElementById("progressText").innerHTML = "You have obtained "+Math.floor(array.length/total*100)+"% of all fish";
+	document.getElementById("innerProgress").style.width = (array.length/total)*((((Math.floor((screenSize-45)/245)))*245)-24.5)+"px";
+	for(var i = 0; i < columns; i++){
+		document.getElementsByClassName("flashcardlist")[i].style.top = "85px";
+	}
 }
 
 var previousWidth = window.innerWidth;

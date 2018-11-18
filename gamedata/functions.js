@@ -113,13 +113,26 @@ function SaveItem (name, value) {
 // thanks to https://stackoverflow.com/a/32851198/9713957
 function Romanize (num) {
 	let lookup = {M:1000,CM:900,D:500,CD:400,C:100,XC:90,L:50,XL:40,X:10,IX:9,V:5,IV:4,I:1},roman = '',i;
-	for(i in lookup){
-		while(num >= lookup[i]){
+	for (i in lookup) {
+		while (num >= lookup[i]) {
 			roman += i;
 			num -= lookup[i];
 		}
 	}
 	return roman;
+}
+
+function ToCamelCase (str) {
+	let array = str.split(" ");
+	let camelCase = "";
+	for (let i = 0; i < array.length; i++) {
+		camelCase += array[i].charAt(0).toUpperCase() + array[i].slice(1);
+	}
+	return camelCase.charAt(0).toLowerCase() + camelCase.slice(1);
+}
+
+function FromCamelCase (str) {
+	return str.charAt(0).toUpperCase() + str.slice(1).replace( /([A-Z])/g, " $1" );
 }
 
 // random number between min and max, biased around certain value (bias)

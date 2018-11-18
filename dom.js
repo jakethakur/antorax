@@ -39,6 +39,28 @@ let Dom = {
 	alert: {},
 };
 
+// LOADS ALL EXISTING USER SAVEDATA
+if(localStorage.getItem("settings") !== null){
+	Dom.settings.settings = JSON.parse(localStorage.getItem("settings"));
+}else{
+	Dom.settings.settings = {
+		fps: false,
+		coords: false,
+		grid: false,
+		hitboxes: false,
+		music: false,
+		bookmarks: "bottom",
+		instructionsLink: false,
+		hotkeys: ["c","i","q","l","r","z"],
+	}
+}
+
+// save an item to the settings object in local storage
+Dom.settings.save = function(name, value){
+	Dom.settings.settings[name] = value;
+	SaveItem("settings", JSON.stringify(Dom.settings.settings));
+}
+
 Dom.alert.page = function(text, type, values){
 	document.getElementById("alert").hidden = false;
 	// text only (e.g. chooseStats)
@@ -163,6 +185,7 @@ Dom.changeBook = function(page, override, shouldNotBeOverriden, levelUpOverride)
 			// if the page is a bookmark page
 			if(!shouldNotBeOverriden){
 				Dom.currentlyDisplayed = "";
+				Dom.currentNPC = "";
 			}
 			if(levelUpOverride !== undefined){
 				Dom.levelUp.override = true;
@@ -170,6 +193,7 @@ Dom.changeBook = function(page, override, shouldNotBeOverriden, levelUpOverride)
 				setTimeout(function(){
 					Dom.levelUp.override = false;
 					Dom.currentlyDisplayed = "";
+					Dom.currentNPC = "";
 					if(Dom.levelUp.waiting){
 						Dom.levelUp.waiting = false;
 						Dom.levelUp.page();
@@ -180,7 +204,7 @@ Dom.changeBook = function(page, override, shouldNotBeOverriden, levelUpOverride)
 				Dom.settings.page();
 			}
 			if(Dom.settings.hotkey !== undefined){
-				document.getElementsByClassName("hotkey")[Dom.settings.hotkey].innerHTML = Dom.settings.bound[Dom.settings.hotkey].toUpperCase();
+				document.getElementsByClassName("hotkey")[Dom.settings.hotkey].innerHTML = Dom.settings.settings.hotkeys[Dom.settings.hotkey].toUpperCase();
 				Dom.settings.hotkey = undefined;
 			}
 			return true;
@@ -234,6 +258,7 @@ Dom.chat.insert = function(text, delay, important, noRepeat){
 					document.getElementById("dot").hidden = false;
 				}
 				document.getElementById("dot").innerHTML = parseInt(document.getElementById("dot").innerHTML) + 1;
+				document.getElementById("dot").style.lineHeight = "15px";
 				if(parseInt(document.getElementById("dot").innerHTML) > 99){
 					document.getElementById("dot").innerHTML = "<b>...</b>";
 					document.getElementById("dot").style.lineHeight = "7.5px";
@@ -291,7 +316,7 @@ Dom.expand = function(block){
 Dom.settings.bookmarkPosition = function(){
 	// arrange bookmarks at bottom of screen
 	if(document.getElementById("bottom").checked){
-		SaveItem("bookmarksPosition","bottom");
+		Dom.settings.save("bookmarks", "bottom");
 		document.getElementById("changeChat").style.top="619px";
 		document.getElementById("changeChat").style.transform="rotate(90deg)";
 		document.getElementById("changeChat").style.transformOrigin="top left";
@@ -332,7 +357,7 @@ Dom.settings.bookmarkPosition = function(){
 		document.getElementById("dot").style.left="689px";
 	// arrange bookmarks at right of screen
 	}else{
-		SaveItem("bookmarksPosition","right");
+		Dom.settings.save("bookmarks", "right");
 		document.getElementById("changeChat").style.left="1162px";
 		document.getElementById("changeChat").style.transform="rotate(0deg)";
 		document.getElementById("changeChat").style.transformOrigin="top left";
@@ -376,7 +401,7 @@ Dom.settings.bookmarkPosition = function(){
 
 if(window.innerHeight >= 754){
 	document.getElementById("bottom").checked = true;
-	if(window.innerWidth >= 1295 && localStorage.getItem("bookmarksPosition") === "right"){
+	if(window.innerWidth >= 1295 && Dom.settings.settings.bookmarks === "right"){
 		document.getElementById("right").checked = true;
 	}
 	Dom.settings.bookmarkPosition();
@@ -393,14 +418,14 @@ if(window.innerHeight >= 754){
 Dom.reputation.give = function(area, amount){
 	if(Player.reputation[area].changed){
 		Player.reputation[area].score += amount;
-		Dom.chat.insert("You have gained " + amount + " reputation with " + area.charAt(0).toUpperCase() + area.slice(1).replace( /([A-Z])/g, " $1" ));
+		Dom.chat.insert("You have gained " + amount + " reputation with " + FromCamelCase(area));
 	// add the reputation to the reputation page
 	}else{
 		Player.reputation[area].score += amount;
-		Dom.chat.insert("You have gained " + amount + " reputation with " + area.charAt(0).toUpperCase() + area.slice(1).replace( /([A-Z])/g, " $1" ));
+		Dom.chat.insert("You have gained " + amount + " reputation with " + FromCamelCase(area));
 		Player.reputation[area].changed = true;
 		if(Dom.reputation.ready){
-			document.getElementById("reputationPage").innerHTML += area.charAt(0).toUpperCase() + area.slice(1).replace( /([A-Z])/g, " $1" ) + ': <div class="widthPadding"></div> <div class="reputationBox"> <div class="reputationBar"></div> </div><br><br><br>';
+			document.getElementById("reputationPage").innerHTML += FromCamelCase(area) + ': <div class="widthPadding"></div> <div class="reputationBox"> <div class="reputationBar"></div> </div><br><br><br>';
 		}
 	}
 }
@@ -409,8 +434,7 @@ Dom.reputation.start = function(){
 	document.getElementById("reputationPage").innerHTML = "";
 	for(let i = 0; i < Object.keys(Player.reputation).length; i++){
 		if(Player.reputation[Object.keys(Player.reputation)[i]].changed){
-			let replaceStat = Object.keys(Player.reputation)[i].replace( /([A-Z])/g, " $1" );
-			document.getElementById("reputationPage").innerHTML += replaceStat.charAt(0).toUpperCase() + replaceStat.slice(1) + ':<div class="widthPadding"></div> <div class="reputationBox"> <div class="reputationBar"></div> </div><br><br><br>';
+			document.getElementById("reputationPage").innerHTML += FromCamelCase(Object.keys(Player.reputation)[i]) + ':<div class="widthPadding"></div> <div class="reputationBox"> <div class="reputationBar"></div> </div><br><br><br>';
 		}
 	}
 	Player.reputationReady = true;
@@ -472,8 +496,7 @@ Dom.reputation.upLevel = function(Area,i){
 	if(Area.level < 5){
 		Area.score -= Dom.reputation.pointsPerLevel[Player.reputation[Object.keys(Player.reputation)[i]].level];
 		Area.level++;
-		let replaceStat = Object.keys(Player.reputation)[i].replace( /([A-Z])/g, " $1" );
-		Dom.chat.insert("Your reputation with " + replaceStat.charAt(0).toUpperCase() + replaceStat.slice(1) + " has increased to " + Dom.reputation.levels[Area.level], 0, true);
+		Dom.chat.insert("Your reputation with " + FromCamelCase(Object.keys(Player.reputation)[i]) + " has increased to " + Dom.reputation.levels[Area.level], 0, true);
 		this.update();
 	}else{
 		Area.level = 6;
@@ -486,8 +509,7 @@ Dom.reputation.downLevel = function(Area,i){
 	if(Area.level > 1){
 		Area.level--;
 		Area.score += Dom.reputation.pointsPerLevel[Player.reputation[Object.keys(Player.reputation)[i]].level];
-		let replaceStat = Object.keys(Player.reputation)[i].replace( /([A-Z])/g, " $1" );
-		Dom.chat.insert("Your reputation with " + replaceStat.charAt(0).toUpperCase() + replaceStat.slice(1) + " has decreased to " + Dom.reputation.levels[Area.level], 0, true);
+		Dom.chat.insert("Your reputation with " + FromCamelCase(Object.keys(Player.reputation)[i]) + " has decreased to " + Dom.reputation.levels[Area.level], 0, true);
 		this.update();
 	}else{
 		Area.level = 0;
@@ -632,11 +654,9 @@ Dom.inventory.displayInformation = function(item, stacked, position){
 				for(let i = 0; i < Object.keys(item.stats).length; i++){
 					if(Object.keys(item.stats)[i] !== item.chosenStat){
 						if(Object.keys(item.stats)[i] !== "flaming"){
-							let replaceStat = Object.keys(item.stats)[i].replace( /([A-Z])/g, " $1" );
-							document.getElementById("stats").innerHTML += "<br>"+replaceStat.charAt(0).toUpperCase() + replaceStat.slice(1)+": "+item.stats[Object.keys(item.stats)[i]];
+							document.getElementById("stats").innerHTML += "<br>"+FromCamelCase(Object.keys(item.stats)[i])+": "+item.stats[Object.keys(item.stats)[i]];
 						}else{
-							let replaceStat = Object.keys(item.stats)[i].replace( /([A-Z])/g, " $1" );
-							document.getElementById("stats").innerHTML += "<br>"+replaceStat.charAt(0).toUpperCase() + replaceStat.slice(1)+" "+Romanize(item.stats[Object.keys(item.stats)[i]]);
+							document.getElementById("stats").innerHTML += "<br>"+FromCamelCase(Object.keys(item.stats)[i])+" "+Romanize(item.stats[Object.keys(item.stats)[i]]);
 						}
 					}
 				}
@@ -648,11 +668,9 @@ Dom.inventory.displayInformation = function(item, stacked, position){
 							color = "black";
 						}
 						if(Object.keys(item.chooseStats)[i] !== "flaming"){
-							let replaceStat = Object.keys(item.chooseStats)[i].replace( /([A-Z])/g, " $1" );
-							document.getElementById("stats").innerHTML += "<br><span style='color: "+color+"'>"+replaceStat.charAt(0).toUpperCase() + replaceStat.slice(1)+": "+item.chooseStats[Object.keys(item.chooseStats)[i]]+"</span>";
+							document.getElementById("stats").innerHTML += "<br><span style='color: "+color+"'>"+Object.keys(item.chooseStats)[i]+": "+item.chooseStats[Object.keys(item.chooseStats)[i]]+"</span>";
 						}else{
-							let replaceStat = Object.keys(item.chooseStats)[i].replace( /([A-Z])/g, " $1" );
-							document.getElementById("stats").innerHTML += "<br><span style='color: "+color+"'>"+replaceStat.charAt(0).toUpperCase() + replaceStat.slice(1)+" "+Romanize(item.chooseStats[Object.keys(item.chooseStats)[i]])+"</span>";
+							document.getElementById("stats").innerHTML += "<br><span style='color: "+color+"'>"+Object.keys(item.chooseStats)[i]+" "+Romanize(item.chooseStats[Object.keys(item.chooseStats)[i]])+"</span>";
 						}
 					}
 				}
@@ -677,11 +695,9 @@ Dom.inventory.displayInformation = function(item, stacked, position){
 						document.getElementById("set").innerHTML += "<br><br>Set Bonus:";
 						for(let i = 0; i < Object.keys(Items.set[item.set].stats).length; i++){
 							if(Object.keys(Items.set[item.set].stats)[i] !== "flaming"){
-								let replaceStat = Object.keys(Items.set[item.set].stats)[i].replace( /([A-Z])/g, " $1" );
-								document.getElementById("set").innerHTML += "<br>"+replaceStat.charAt(0).toUpperCase() + replaceStat.slice(1)+": "+Items.set[item.set].stats[Object.keys(Items.set[item.set].stats)[i]];
+								document.getElementById("set").innerHTML += "<br>"+FromCamelCase(Object.keys(Items.set[item.set].stats)[i])+": "+Items.set[item.set].stats[Object.keys(Items.set[item.set].stats)[i]];
 							}else{
-								let replaceStat = Object.keys(Items.set[item.set].stats)[i].replace( /([A-Z])/g, " $1" );
-								document.getElementById("set").innerHTML += "<br>"+replaceStat.charAt(0).toUpperCase() + replaceStat.slice(1)+" "+Romanize(Items.set[item.set].stats[Object.keys(Items.set[item.set].stats)[i]]);
+								document.getElementById("set").innerHTML += "<br>"+FromCamelCase(Object.keys(Items.set[item.set].stats)[i])+" "+Romanize(Items.set[item.set].stats[Object.keys(Items.set[item.set].stats)[i]]);
 							}
 						}
 						if(Items.set[item.set].multiplier !== undefined){
@@ -718,11 +734,9 @@ Dom.inventory.displayInformation = function(item, stacked, position){
 						document.getElementById("set").innerHTML += "<br><br>Set Bonus:";
 						for(let i = 0; i < Object.keys(Items.set[item.set].stats).length; i++){
 							if(Object.keys(Items.set[item.set].stats)[i] !== "flaming"){
-								let replaceStat = Object.keys(Items.set[item.set].stats)[i].replace( /([A-Z])/g, " $1" );
-								document.getElementById("set").innerHTML += "<br>"+replaceStat.charAt(0).toUpperCase() + replaceStat.slice(1)+": "+Items.set[item.set].stats[Object.keys(Items.set[item.set].stats)[i]];
+								document.getElementById("set").innerHTML += "<br>"+FromCamelCase(Object.keys(Items.set[item.set].stats)[i])+": "+Items.set[item.set].stats[Object.keys(Items.set[item.set].stats)[i]];
 							}else{
-								let replaceStat = Object.keys(Items.set[item.set].stats)[i].replace( /([A-Z])/g, " $1" );
-								document.getElementById("set").innerHTML += "<br>"+replaceStat.charAt(0).toUpperCase() + replaceStat.slice(1)+" "+Romanize(Items.set[item.set].stats[Object.keys(Items.set[item.set].stats)[i]]);
+								document.getElementById("set").innerHTML += "<br>"+FromCamelCase(Object.keys(Items.set[item.set].stats)[i])+" "+Romanize(Items.set[item.set].stats[Object.keys(Items.set[item.set].stats)[i]]);
 							}
 						}
 						if(Items.set[item.set].multiplier !== undefined){
@@ -796,6 +810,7 @@ Dom.inventory.removeItemCharge = function(inventoryPosition, hotbar){
 }
 
 Dom.currentlyDisplayed = "";
+Dom.currentNPC = "";
 Dom.quest.start = function(quest){
 	if(Dom.changeBook("questStart", true/*false*/, true)) {
 		document.getElementById("questStartQuest").innerHTML = quest.quest;
@@ -1410,9 +1425,9 @@ Dom.inventory.chooseStats = function(inventoryPosition){
 		// repeats for each chooseStat
 		for(let i = 0; i < Object.keys(str).length; i++){
 			if(Object.keys(str)[i] === Player.inventory.items[inventoryPosition].chosenStat){
-				values += "<strong><span onclick='Dom.alert.target(Dom.alert.ev, "+i+")'>"+str[Object.keys(str)[i]] + " " + Object.keys(str)[i][0].toUpperCase() + Object.keys(str)[i].slice(1).replace( /([A-Z])/g, " $1" )+"</span></strong><br>";
+				values += "<strong><span onclick='Dom.alert.target(Dom.alert.ev, "+i+")'>"+str[Object.keys(str)[i]] + " " + FromCamelCase(Object.keys(str)[i]) + "</span></strong><br>";
 			}else{
-				values += "<span onclick='Dom.alert.target(Dom.alert.ev, "+i+")'>"+str[Object.keys(str)[i]] + " " + Object.keys(str)[i][0].toUpperCase() + Object.keys(str)[i].slice(1).replace( /([A-Z])/g, " $1" )+"</span><br>";
+				values += "<span onclick='Dom.alert.target(Dom.alert.ev, "+i+")'>"+str[Object.keys(str)[i]] + " " + FromCamelCase(Object.keys(str)[i]) + "</span><br>";
 			}
 			Dom.alert.ev.push([Object.keys(str)[i], str[Object.keys(str)[i]]]);
 		}
@@ -1433,9 +1448,9 @@ Dom.inventory.chooseStats = function(inventoryPosition){
 		// repeats for each chosenStat
 		for(let i = 0; i < Object.keys(str).length; i++){
 			if(Object.keys(str)[i] === Player.inventory[inventoryPosition].chosenStat){
-				values += "<strong><span onclick='Dom.alert.target(Dom.alert.ev, "+i+")'>"+str[Object.keys(str)[i]] + " " + Object.keys(str)[i][0].toUpperCase() + Object.keys(str)[i].slice(1).replace( /([A-Z])/g, " $1" )+"</span></strong><br>";
+				values += "<strong><span onclick='Dom.alert.target(Dom.alert.ev, "+i+")'>"+str[Object.keys(str)[i]] + " " + FromCamelCase(Object.keys(str)[i]) + "</span></strong><br>";
 			}else{
-				values += "<span onclick='Dom.alert.target(Dom.alert.ev, "+i+")'>"+str[Object.keys(str)[i]] + " " + Object.keys(str)[i][0].toUpperCase() + Object.keys(str)[i].slice(1).replace( /([A-Z])/g, " $1" )+"</span><br>";
+				values += "<span onclick='Dom.alert.target(Dom.alert.ev, "+i+")'>"+str[Object.keys(str)[i]] + " " + FromCamelCase(Object.keys(str)[i]) + "</span><br>";
 			}
 			Dom.alert.ev.push([Object.keys(str)[i], str[Object.keys(str)[i]]]);
 		}
@@ -2307,7 +2322,7 @@ if(localStorage.getItem("accept") !== "true"){
 	document.getElementById("settingAcceptHolder").innerHTML = "";
 }
 
-if(localStorage.getItem("playMusic") === "true"){
+if(Dom.settings.settings.music === true){
 	document.getElementById("musicOn").checked = true;
 }
 
@@ -2436,6 +2451,7 @@ document.getElementById("levelUpPageClose").onclick = function(){
 	document.getElementById("levelUpPage").hidden = true; // because it was absolutely positioned over the previous page
 	if(Dom.currentlyDisplayed === Player.tab){ // because it was never changed if something was already open
 		Dom.currentlyDisplayed = "";
+		Dom.currentNPC = "";
 	}
 }
 
@@ -2560,6 +2576,7 @@ Dom.choose.page = function(npc, buttons, functions, parameters){
 	let name = npc.name !== undefined ? npc.name : npc; // for cases like Goblin Torch
 	if(Dom.currentlyDisplayed === ""){
 		Dom.currentlyDisplayed = name;
+		Dom.currentNPC = name;
 		if(buttons.length > 1){
 			Dom.changeBook("choosePage", true/*false*/, true);
 			document.getElementById("choosePage").innerHTML = "<h1>"+name+"</h1>"+(npc.chat !== undefined ? "<p>"+npc.chat.chooseChat+"</p>" : "");
@@ -2611,7 +2628,7 @@ Dom.choose.page = function(npc, buttons, functions, parameters){
 	}else{
 		if(npc === "Instructions"){
 			Dom.adventure.awaitingInstructions.push(parameters[0][0]);
-		}else if(Dom.currentlyDisplayed !== name && (npc.roles === undefined || npc.roles.find(role => role.quest ==/*==*/ Dom.currentlyDisplayed) === undefined)){
+		}else if(Dom.currentNPC !== name){
 			if(document.getElementsByClassName("closeClass")[0].style.border !== "5px solid red" && !Dom.choose.override) {
 				//Dom.changeBook("identifierPage", false);
 				Dom.choose.override = true; // overrides future updates
@@ -2631,42 +2648,38 @@ Dom.choose.page = function(npc, buttons, functions, parameters){
 	}
 }
 
-Dom.settings.bound = ["c","i","q","l","r","z"]; // hotkeys default from top to bottom
-if(localStorage.getItem("hotkeys") !== null){
-	Dom.settings.bound = JSON.parse(localStorage.getItem("hotkeys"));
-}
 window.addEventListener('keyup', function(ev){
 	// if a hotkey is being set
 	if(Dom.settings.hotkey !== undefined){
 		let availible = true;
-		for(let i = 0; i < Dom.settings.bound.length; i++){
-			if(Dom.settings.bound[i] === ev.key && i !== Dom.settings.hotkey){
+		for(let i = 0; i < Dom.settings.settings.hotkeys.length; i++){
+			if(Dom.settings.settings.hotkeys[i] === ev.key && i !== Dom.settings.hotkey){
 				// if that key is already a hot key
 				availible = false;
 			}
 		}
 		// if that key is available (not equal to shift, space, wasd, arrows)
 		if(availible && ev.keyCode !== 65 && ev.keyCode !== 83 && ev.keyCode !== 68 && ev.keyCode !== 87 && ev.keyCode !== 16 && ev.keyCode !== 32 && ev.keyCode !== 37 && ev.keyCode !== 38 && ev.keyCode !== 39 && ev.keyCode !== 40 && ev.keyCode !== 255 && ev.keyCode !== 173 && ev.keyCode !== 174 && ev.keyCode !== 175 && ev.keyCode !== 176 && ev.keyCode !== 177 && ev.keyCode !== 179 && ev.keyCode !== 44){
-			Dom.settings.bound[Dom.settings.hotkey] = ev.key;
+			Dom.settings.settings.hotkeys[Dom.settings.hotkey] = ev.key;
 			document.getElementsByClassName("hotkey")[Dom.settings.hotkey].innerHTML = ev.key.toUpperCase();
 			Dom.settings.hotkey = undefined;
-			SaveItem("hotkeys", JSON.stringify(Dom.settings.bound));
+			SaveItem("settings", JSON.stringify(Dom.settings.settings));
 		// if it is unavailable set it back to what it was
 		}else{
-			document.getElementsByClassName("hotkey")[Dom.settings.hotkey].innerHTML = Dom.settings.bound[Dom.settings.hotkey].toUpperCase();
+			document.getElementsByClassName("hotkey")[Dom.settings.hotkey].innerHTML = Dom.settings.settings.hotkeys[Dom.settings.hotkey].toUpperCase();
 			Dom.settings.hotkey = undefined;
 		}
-	}else if(ev.key === Dom.settings.bound[0]){
+	}else if(ev.key === Dom.settings.settings.hotkeys[0]){
 		Dom.changeBook("chatPage");
-	}else if(ev.key === Dom.settings.bound[1]){
+	}else if(ev.key === Dom.settings.settings.hotkeys[1]){
 		Dom.changeBook("inventoryPage");
-	}else if(ev.key === Dom.settings.bound[2]){
+	}else if(ev.key === Dom.settings.settings.hotkeys[2]){
 		Dom.changeBook("questsPage");
-	}else if(ev.key === Dom.settings.bound[3]){
+	}else if(ev.key === Dom.settings.settings.hotkeys[3]){
 		Dom.changeBook("adventurePage");
-	}else if(ev.key === Dom.settings.bound[4]){
+	}else if(ev.key === Dom.settings.settings.hotkeys[4]){
 		Dom.changeBook("reputationPage");
-	}else if(ev.key === Dom.settings.bound[5]){
+	}else if(ev.key === Dom.settings.settings.hotkeys[5]){
 		Dom.changeBook("settingsPage");
 	}
 });
@@ -2715,6 +2728,10 @@ document.getElementById("tutorialOn").onclick = function(){
 	Player.skipTutorial = true;
 }
 
+document.getElementById("tutorialOff").onclick = function(){
+	Player.skipTutorial = false;
+}
+
 Dom.adventure.nextInstruction = function(){
 	Dom.adventure.currentInstruction++;
 	Dom.text.page("", Instructions[Dom.adventure.awaitingInstructions[0]].pages[Dom.adventure.currentInstruction].title, "<p>"+(Dom.adventure.currentInstruction > 0 ? "<span onclick='Dom.adventure.previousInstruction()' class='instructionArrowLeft'>&#8678;</span>" : "")+"Page "+(Dom.adventure.currentInstruction+1)+" of "+Instructions[Dom.adventure.awaitingInstructions[0]].pages.length+(Dom.adventure.currentInstruction < Instructions[Dom.adventure.awaitingInstructions[0]].pages.length-1 ? "<span onclick='Dom.adventure.nextInstruction()' class='instructionArrowRight'>&#8680;</span>" : "")+"</p>"+Instructions[Dom.adventure.awaitingInstructions[0]].pages[Dom.adventure.currentInstruction].text, false, [Dom.adventure.currentInstruction === Instructions[Dom.adventure.awaitingInstructions[0]].pages.length-1 ? "Close" : undefined], [Dom.adventure.instructionIndex]);
@@ -2725,13 +2742,14 @@ Dom.adventure.previousInstruction = function(){
 	Dom.text.page("", Instructions[Dom.adventure.awaitingInstructions[0]].pages[Dom.adventure.currentInstruction].title, "<p>"+(Dom.adventure.currentInstruction > 0 ? "<span onclick='Dom.adventure.previousInstruction()' class='instructionArrowLeft'>&#8678;</span>" : "")+"Page "+(Dom.adventure.currentInstruction+1)+" of "+Instructions[Dom.adventure.awaitingInstructions[0]].pages.length+(Dom.adventure.currentInstruction < Instructions[Dom.adventure.awaitingInstructions[0]].pages.length-1 ? "<span onclick='Dom.adventure.nextInstruction()' class='instructionArrowRight'>&#8680;</span>" : "")+"</p>"+Instructions[Dom.adventure.awaitingInstructions[0]].pages[Dom.adventure.currentInstruction].text, false, [Dom.adventure.currentInstruction === Instructions[Dom.adventure.awaitingInstructions[0]].pages.length-1 ? "Close" : undefined], [Dom.adventure.instructionIndex]);
 }
 
-if(localStorage.getItem("instructions") === "true"){
+if(Dom.settings.settings.instructionsLink === true){
 	// link to instructions shows as purple
 	document.getElementById("instructionsTitle").style.color = "#551a8b";
 }
 
 Dom.adventure.showInstructions = function(chapter, reverse){
 	Dom.currentlyDisplayed = "";
+	Dom.currentNPC = "";
 	if(reverse){
 		Dom.adventure.awaitingInstructions.unshift(chapter);
 	}else{
@@ -2758,25 +2776,25 @@ Dom.adventure.instructionIndex = function(){
 	}
 }
 
-document.getElementById("instructions").onclick = function(){
+document.getElementById("instructionsTitle").onclick = function(){
 	// link to instruction saves as purple
-	SaveItem("instructions", true);
+	Dom.settings.save("instructionsLink", true);
 	// link to instructions shows as purple
 	document.getElementById("instructionsTitle").style.color = "#551a8b";
 	Dom.adventure.openedInstructions = true; // instructions were opened through the book
 	Dom.choose.page("Instructions", Player.unlockedInstructions, [Dom.adventure.showInstructions,Dom.adventure.showInstructions,Dom.adventure.showInstructions,Dom.adventure.showInstructions,Dom.adventure.showInstructions,], [[0],[1],[2],[3],[4],]);
 }
 
-if(localStorage.getItem("coords") === "true"){
+if(Dom.settings.settings.coords === true){
 	document.getElementById("coordsOn").checked = true;
 }
-if(localStorage.getItem("fps") === "true"){
+if(Dom.settings.settings.fps === true){
 	document.getElementById("fpsOn").checked = true;
 }
-if(localStorage.getItem("hitboxes") === "true"){
+if(Dom.settings.settings.hitboxes === true){
 	document.getElementById("hitboxesOn").checked = true;
 }
-if(localStorage.getItem("grid") === "true"){
+if(Dom.settings.settings.grid === true){
 	document.getElementById("gridOn").checked = true;
 }
 
@@ -2790,7 +2808,7 @@ for(let i = 0; i < 5; i++){
 }
 Dom.inventory.give(Items.currency[2],3);
 
-// LOADS ALL EXISTING SAVEDATA
+// LOADS ALL EXISTING CLASS SAVEDATA
 if(localStorage.getItem(Player.class) !== null){
 	Player = JSON.parse(localStorage.getItem(Player.class));
 	Player.name = playerName;
@@ -2891,19 +2909,19 @@ if(Player.reputationReady){
 	Dom.reputation.start();
 }
 for(let i = 0; i < document.getElementsByClassName("hotkey").length; i++){
-	document.getElementsByClassName("hotkey")[i].innerHTML = Dom.settings.bound[i].toUpperCase();
+	document.getElementsByClassName("hotkey")[i].innerHTML = Dom.settings.settings.hotkeys[i].toUpperCase();
 	document.getElementsByClassName("hotkey")[i].onclick = function(){
 		if(Dom.settings.hotkey === undefined){
 			document.getElementsByClassName("hotkey")[i].innerHTML = "...";
 			Dom.settings.hotkey = i;
 		}else{
-			let temp = Dom.settings.bound[Dom.settings.hotkey];
+			let temp = Dom.settings.settings.hotkeys[Dom.settings.hotkey];
 			document.getElementsByClassName("hotkey")[Dom.settings.hotkey].innerHTML = document.getElementsByClassName("hotkey")[i].innerHTML;
 			document.getElementsByClassName("hotkey")[i].innerHTML = temp.toUpperCase();
-			Dom.settings.bound[Dom.settings.hotkey] = Dom.settings.bound[i];
-			Dom.settings.bound[i] = temp;
+			Dom.settings.settings.hotkeys[Dom.settings.hotkey] = Dom.settings.settings.hotkeys[i];
+			Dom.settings.settings.hotkeys[i] = temp;
 			Dom.settings.hotkey = undefined;
-			SaveItem("hotkeys", JSON.stringify(Dom.settings.bound));
+			SaveItem("settings", JSON.stringify(Dom.settings.settings));
 		}
 	}
 }
