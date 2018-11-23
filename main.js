@@ -673,37 +673,62 @@ class Character extends Thing {
 	}
 	
 	// whee! make the character fly away from their current point
-	// ToRadians(Random(0, 360)
 	// velocity = pixels thrown per second
-	// time = time in seconds
-	// must be called every tick with the delta as the second parameter
+	// time = time in SECONDS
+	// direction = in RADIANS
+	// must be called every tick (often called by stun code in move)
+	// velocity, time, and direction ONLY need to be passed in for the first time this function is called
 	displace (delta, velocity, time, direction) {
 		if (this.isBeingDisplaced === undefined) { // not being displaced yeet
 			// init displacement
-			this.isBeingDisplaced = 0; // time the player has been displaced for
+			this.isBeingDisplaced = {
+				time: time,
+				velocity: velocity,
+				direction: direction,
+				elapsed: 0,
+			}; // time the player has been displaced for
 			
 			// expand by 0.01
 			this.expand = 1.01;
 			this.width = this.baseWidth * this.expand;
 			this.height = this.baseHeight * this.expand;
+			
+			// stunned status effect
+			Game.statusEffects.stun({
+				target: this,
+				time: time,
+				effectTitle: "Displacement",
+				effectDescription: "Being displaced",
+			});
 		}
-		else if (this.isBeingDisplaced < time) { // displace player
+		else if (this.isBeingDisplaced.elapsed < this.isBeingDisplaced.time) { // displace player
 			// expand
-			let maxExpand = time * velocity / 120; // max expand
-			this.expand = -(this.isBeingDisplaced - maxExpand/2)^2 + (maxExpand/2)^2 + 1
+			let maxExpand = this.isBeingDisplaced.time * this.isBeingDisplaced.velocity / 120; // max expand
+			this.expand = -Math.pow(this.isBeingDisplaced.elapsed*(this.isBeingDisplaced.velocity / 120) - maxExpand/2, 2) + Math.pow(maxExpand/2, 2) + 1;
+			// graph for expand over time: https://www.desmos.com/calculator/hozpfjxexk
 			
 			this.width = this.baseWidth * this.expand;
 			this.height = this.baseHeight * this.expand;
 			
 			// move
-			this.x += Math.cos(direction) * velocity * delta;
-			this.y += Math.sin(direction) * velocity * delta;
+			this.x += Math.cos(this.isBeingDisplaced.direction) * this.isBeingDisplaced.velocity * delta;
+			this.y += Math.sin(this.isBeingDisplaced.direction) * this.isBeingDisplaced.velocity * delta;
 			
-			this.isBeingDisplaced += delta;
+			this.isBeingDisplaced.elapsed += delta;
 		}
 		else { // displacement finished
 			this.isBeingDisplaced = undefined;
+			// remove stunned status effect
+			this.cleanse("Displacement", "title");
+			if (this == Game.hero) {
+				this.updateStatusEffects();
+			}
 		}
+	}
+	
+	// remove all status effects where statusEffect[key] === value
+	cleanse (value, key) {
+		this.statusEffects = this.statusEffects.filter(statusEffect => statusEffect[key] !== value);
 	}
 }
 
@@ -811,6 +836,10 @@ class Hero extends Attacker {
 		// move hero
 		if (this.hasStatusEffect("Stunned") || this.isCorpse) {
 			// player cannot move
+		}
+		else if (this.hasStatusEffect("Displacement")) {
+			// being displaced!
+			this.displace(delta);
 		}
 		else if (this.moveTowards !== undefined) {
 			// move towards a particular point
@@ -1661,7 +1690,7 @@ class Projectile extends Thing {
 						
 						// stun
 						if (attacker.stats.stun > 0) { // check target weapon has stun
-							Game.statusEffects.stun(to[i][x], attacker.stats.stun);
+							Game.statusEffects.stun({target: to[i][x], time: attacker.stats.stun});
 						}
 						
 						// spread any curse status effects
@@ -1875,46 +1904,50 @@ class Enemy extends Attacker {
 	}
 	
 	update (delta) {
-		// perhaps condense into hostile and passive ai functions (that also apply to things like villagers)?
-		if (distance(this, Game.hero) < this.stats.range && // hero is within range
-		(!Game.hero.stats.stealthed || this.isTouching(Game.hero))) { // hero is not stealthed OR they are and you are touching them
-			// enemy should attack hero
-			if (this.canAttack) { // projectile can be shot
-				this.shoot([[Game.hero],]);
+		if (this.hasStatusEffect("Stunned")) {
+			// enemy is stunned
+		}
+		else if (this.hasStatusEffect("Displacement")) {
+			// being displaced!
+			this.displace(delta);
+		}
+		else {
+			// perhaps condense into hostile and passive ai functions (that also apply to things like villagers)?
+			if (distance(this, Game.hero) < this.stats.range && // hero is within range
+			(!Game.hero.stats.stealthed || this.isTouching(Game.hero))) { // hero is not stealthed OR they are and you are touching them
+				// enemy should attack hero
+				if (this.canAttack) { // projectile can be shot
+					this.shoot([[Game.hero],]);
+				}
 			}
+			else if (distance(this, Game.hero) > this.leashRadius) { // enemy should move passively
+				// passive movement within given (to be given...) boundaries...
+			}
+			else if (distance(this, Game.hero) < this.leashRadius && // not outside of leashRadius from hero
+			distance(this, Game.hero) > this.stats.range && // can't yet attack hero
+			!Game.hero.stats.stealthed) { // hero is not stealthed
+				// enemy should move towards hero
+				this.move(delta, Game.hero);
+			}
+			// add spell cast
 		}
-		else if (distance(this, Game.hero) > this.leashRadius) { // enemy should move passively
-			// passive movement within given (to be given...) boundaries...
-		}
-		else if (distance(this, Game.hero) < this.leashRadius && // not outside of leashRadius from hero
-		distance(this, Game.hero) > this.stats.range && // can't yet attack hero
-		!Game.hero.stats.stealthed) { // hero is not stealthed
-			// enemy should move towards hero
-			this.move(delta, Game.hero);
-		}
-		// add spell cast
 	}
 	
 	// move towards entity (towards parameter)
 	move (delta, towards) {
-		if (this.hasStatusEffect("Stunned")) {
-			// enemy is stunned
-		}
-		else {
-			// figure out speed
-			let speed = this.speed;
-			// speed status effect (can be buff or debuff)
-			this.statusEffects.forEach(statusEffect => {
-				if (statusEffect.info.speedIncrease !== undefined) {
-					// increase speed if the status effect does so
-					speed *= 1 + (statusEffect.info.speedIncrease / 100);
-				}
-			});
-			
-			this.bearing = bearing(this, towards); // update bearing (maybe doesn't need to be done every tick?)
-			this.x += Math.cos(this.bearing) * speed * delta;
-			this.y += Math.sin(this.bearing) * speed * delta;
-		}
+		// figure out speed
+		let speed = this.speed;
+		// speed status effect (can be buff or debuff)
+		this.statusEffects.forEach(statusEffect => {
+			if (statusEffect.info.speedIncrease !== undefined) {
+				// increase speed if the status effect does so
+				speed *= 1 + (statusEffect.info.speedIncrease / 100);
+			}
+		});
+		
+		this.bearing = bearing(this, towards); // update bearing (maybe doesn't need to be done every tick?)
+		this.x += Math.cos(this.bearing) * speed * delta;
+		this.y += Math.sin(this.bearing) * speed * delta;
 	}
 	
 	// shoot projectile at array of arrays of enemies (at)
@@ -2251,60 +2284,13 @@ Game.statusEffects.fire = function(target, tier) {
 	}
 }
 
-// give target the stunned debuff
-Game.statusEffects.stun = function(target, time) {
-	// try to find an existing stunned effect of the tier
-	let found = target.statusEffects.findIndex(function(element) {
-		return element.title === ("Stunned");
-	});
-	
-	if (found === -1) { // no stun effect of that tier currently applied to the target
-		
-		target.statusEffects.push(new statusEffect({
-			title: "Stunned",
-			effect: "Can't move for " + time + " seconds.",
-			info: {
-				time: time,
-				ticks: 0, // increased by 1 every second
-			},
-			tick: function (owner) { // decrease time
-				if (Round(this.info.ticks) < this.info.time) { // check effect has not expired 
-					this.info.ticks += 0.1;
-					if (owner.constructor.name === "Hero") { // refresh canvas status effects if the status effect was applied to player
-						Game.hero.updateStatusEffects();
-					}
-					setTimeout(function (owner) {
-						this.tick(owner);
-					}.bind(this), 100, owner);
-				}
-				else { // remove effect interval
-					Game.removeStatusEffect(owner);
-				}
-			},
-			image: "stunned",
-		}));
-		
-		// begin tick for every 0.1 seconds
-		setTimeout(function (owner) {
-			this.tick(owner);
-		}.bind(target.statusEffects[target.statusEffects.length - 1]), 100, target);
-	}
-	else if (found !== -1) { // extend existing stunned
-		target.statusEffects[found].info.ticks = 0;
-	}
-	
-	if (target.constructor.name === "Hero") { // refresh canvas status effects if the status effect was applied to player
-		Game.hero.updateStatusEffects();
-	}
-}
-
 // give target a buff/debuff
 // properties includes target, effectTitle, effectDescription, increasePropertyName(optional), increasePropertyValue(optional), time(optional), imageName, onExpire(optional)
 Game.statusEffects.generic = function (properties) {
 	// try to find an existing effect that does the same and has the same name
 	let found = properties.target.statusEffects.findIndex(function(element) {
 		return element.title === properties.effectTitle &&
-		properties.increasePropertyName === undefined || element.info[properties.increasePropertyName] === properties.increasePropertyValue;
+		(properties.increasePropertyName === undefined || element.info[properties.increasePropertyName] === properties.increasePropertyValue);
 	});
 	
 	if (found === -1) { // no similar effect currently applied to the target
@@ -2323,7 +2309,7 @@ Game.statusEffects.generic = function (properties) {
 		}
 		else {
 			// no specific property is increased - allow the effectDescription to be completely chosen
-			effectText = properties.effectDescription; // effectDescription example: "Unable to move"
+			effectText = properties.effectDescription; // effectDescription example: "Cannot move"
 		}
 		
 		properties.target.statusEffects.push(new statusEffect({
@@ -2403,6 +2389,16 @@ Game.statusEffects.generic = function (properties) {
 	if (properties.target.constructor.name === "Hero") { // refresh canvas status effects if the status effect was applied to player
 		Game.hero.updateStatusEffects();
 	}
+}
+
+// give target the stunned debuff
+// just target and time parameters required
+Game.statusEffects.stun = function(properties) {
+	let newProperties = properties;
+	newProperties.effectTitle = properties.effectTitle || "Stunned";
+	newProperties.effectDescription = properties.effectDescription || "Cannot move";
+	newProperties.imageName = "stunned";
+	this.generic(newProperties);
 }
 
 // give target the attackDamage buff/debuff
@@ -2657,13 +2653,6 @@ Game.loadArea = function (areaName, destination) {
 					}
 				}
 			});
-			
-			for(var i = 0; i < Areas[areaName].enemies.length; i++) {
-				if (this.canBeShown(Areas[areaName].enemies[i])) { // check if NPC should be shown
-					Areas[areaName].enemies[i].map = map;
-					this.enemies.push(new Enemy(Areas[areaName].enemies[i]));
-				}
-			}
 		}
 		
 		// loot chests
@@ -2962,7 +2951,7 @@ Game.getTime = function () {
 Game.playMusic = function () {
 	// check the user has allowed music to play
 	if (document.getElementById("musicOn").checked) {
-		SaveItem("playMusic", "true");
+		Dom.settings.save("music", true);
 		// check if the new area's music is already being played
 		let song = Areas[this.areaName]["song_" + this.time];
 		if (song === undefined) {
@@ -3009,7 +2998,7 @@ Game.loadMusic = function (song) {
 
 // stop playing current music
 Game.stopMusic = function () {
-	SaveItem("playMusic", "false");
+	Dom.settings.save("music", false);
 	this.audio.pause();
 	this.playingMusic = null;
 }
@@ -3098,7 +3087,7 @@ Game.restoreHealth = function (target, health) {
 
 Game.update = function (delta) {
     // handle hero movement with arrow keys
-	if (this.hero.moveTowards === undefined) {
+	if (this.hero.moveTowards === undefined && !Game.hero.hasStatusEffect("Displacement")) {
 		// player has control over themselves
 		var dirx = 0;
 	    var diry = 0;
@@ -3328,7 +3317,7 @@ Game.update = function (delta) {
 								// soul healer appears as an option for choose DOM
 								textArray.push(role.chooseText || "I'd like to remove my 'XP Fatigue' status effect.");
 								functionArray.push(Dom.text.page);
-								parameterArray.push([npc.name, "Soul Healer", npc.chat.canBeHealedText, true, ["Remove XP Fatigue for " + this.soulHealerCost + " gold"], [function () {
+								parameterArray.push(["Soul Healer", npc.chat.canBeHealedText, true, ["Remove XP Fatigue for " + this.soulHealerCost + " gold"], [function () {
 									if (Dom.inventory.check(2, "currency", Game.soulHealerCost)) {
 										Dom.inventory.removeById(2, "currency", Game.soulHealerCost);
 										Game.hero.statusEffects.splice(Game.hero.statusEffects.findIndex(statusEffect => statusEffect.title === "XP Fatigue"), 1); // remove xp fatigue effect
@@ -3381,7 +3370,7 @@ Game.update = function (delta) {
 							// npc chat appears as an option in choose DOM
 							textArray.push(role.chooseText);
 							functionArray.push(Dom.text.page);
-							parameterArray.push([npc.name, npc.name, role.chat, role.showCloseButton, role.buttons, role.functions]);
+							parameterArray.push([npc.name, role.chat, role.showCloseButton, role.buttons, role.functions]);
 						}
 						
 						// button just runs a function

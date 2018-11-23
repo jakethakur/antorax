@@ -200,6 +200,7 @@ var Quests = {
 			],
 			
 			onQuestFinish: function() {
+				// unlock reputation tab
 				Player.unlockedTabs.push("reputation");
 				document.getElementById("changeReputation").style.display = "block";
 				document.getElementById("reputationImage").hidden = false;
@@ -885,9 +886,14 @@ var Quests = {
 				Dom.chat.insert("The vial fizzes rapidly.", 6500, true);
 				Dom.chat.insert("The vial explodes.", 8500, true);
 				setTimeout(function () {
-					// damage Ciarra
 					if (Game.areaName === "eaglecrestLoggingCamp") {
-						Game.npcs.find(NPC => NPC.name === "Ciarra Darkbrew").takeDamage(100)
+						// damage Ciarra
+						Game.npcs.find(NPC => NPC.name === "Ciarra Darkbrew").takeDamage(100);
+						// displace player if they are too close
+						let d = distance(Game.hero, {x: 1111,y: 633}); // distance from ciarra
+						if (d < 240) {
+							Game.hero.displace(0, 240-d, 1, bearing({x: 1111,y: 633}, Game.hero));
+						}
 					}
 				}, 8600);
 				Game.sayChat("Ciarra Darkbrew", "That... didn't go as planned.", false, 9500, true);

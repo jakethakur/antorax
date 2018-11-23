@@ -1376,7 +1376,7 @@ var Items = {
 			id: 8,
 			name: "Can of Worms",
 			type: "consumable",
-			sellPrice: 1,
+			sellPrice: 2,
 			image: "assets/items/consumable/8.png",
 			functionText: "Gives you +20 fishing skill for your next fishing attempt",
 			maxCharges: 3,
@@ -1516,10 +1516,9 @@ var Items = {
 			name: "Magnetised Lure",
 			type: "consumable",
 			image: "assets/items/consumable/12.png",
-			sellPrice: 1,
+			sellPrice: 2,
 			functionText: "Allows you to ONLY fish up junk items for your next fishing attempt",
 			maxCharges: 10,
-			chargeImages: ["assets/items/consumable/12.png","assets/items/consumable/12-1.png","assets/items/consumable/12-2.png",],
 			onClick: function (inventoryPosition, hotbar) {
 				if (!Game.hero.hasStatusEffect("Fish bait")) { // player does not have an existing fishing status effect
 					// remove one charge from the item
@@ -1535,6 +1534,27 @@ var Items = {
 						image: "bait",
 					}));
 				}
+			},
+		},
+		{
+			id: 13,
+			name: "Displacement Grenade",
+			type: "consumable",
+			image: "assets/items/consumable/13.png",
+			sellPrice: 1,
+			functionText: "Blows all nearby characters away from their location upon use",
+			onClick: function (inventoryPosition) {
+				// remove the item
+				Dom.inventory.remove(inventoryPosition);
+				
+				// displace player
+				Game.hero.displace(0, 180, 1.5, ToRadians(Random(0, 360)));
+				// displace enemies
+				let enemiesInRange = Game.enemies.filter(enemy => Game.areNearby(Game.hero, enemy, 180));
+				enemiesInRange.forEach(enemy => {
+					enemy.displace(0, 180, 1.5, bearing(Game.hero, enemy));
+				});
+				// tbd displace characters?
 			},
 		},
 	],

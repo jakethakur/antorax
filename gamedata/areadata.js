@@ -672,8 +672,8 @@ var Areas = {
 				},
 				teleportFailText: "You shouldn't go to <strong>The Nilbog</strong> until you're a bit stronger.",
 				teleportFailFunction: function () {
-					// teleport player away from the teleport
-					Game.hero.x -= 150;
+					// displace player away from the teleport
+					Game.hero.displace(0, 150, 1, ToRadians(180));
 				}
 			},
 		],
