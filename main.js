@@ -3412,6 +3412,15 @@ Game.update = function (delta) {
 				}
 			}
 		}
+		
+		// check if the currently displayed NPC is the current one in the foreach loop
+		if (npc.name === Dom.currentNPC) {
+			// close the DOM if the player is too far away from the NPC or if the NPC is dead
+			if (npc.respawning || distance(Game.hero, npc) > 240) {
+				// NPC is dead or player is more than 4 (TBC) tiles away from NPC
+				Dom.changeBook(Player.tab, true); // close NPC DOM
+			}
+		}
 	}); // finished iterating through npcs
 	
 	// update villagers
@@ -4099,8 +4108,8 @@ Game.render = function (delta) {
 							objectToRender.deathImage,
 							objectToRender.screenX - objectToRender.deathImageWidth / 2,
 							objectToRender.screenY - objectToRender.deathImageHeight / 2,
-							objectToRender.width,
-							objectToRender.height
+							objectToRender.deathImageWidth,
+							objectToRender.deathImageHeight
 						);
 						
 						// perhaps a death render function should be added? tbd
