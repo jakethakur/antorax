@@ -700,6 +700,8 @@ class Character extends Thing {
 				effectTitle: "Displacement",
 				effectDescription: "Being displaced",
 			});
+			
+			return {x:0, y:0};
 		}
 		else if (this.isBeingDisplaced.elapsed < this.isBeingDisplaced.time) { // displace player
 			// expand
@@ -711,10 +713,14 @@ class Character extends Thing {
 			this.height = this.baseHeight * this.expand;
 			
 			// move
-			this.x += Math.cos(this.isBeingDisplaced.direction) * this.isBeingDisplaced.velocity * delta;
-			this.y += Math.sin(this.isBeingDisplaced.direction) * this.isBeingDisplaced.velocity * delta;
+			let dirx = Math.cos(this.isBeingDisplaced.direction);
+			let diry = Math.sin(this.isBeingDisplaced.direction);
+			this.x += dirx * this.isBeingDisplaced.velocity * delta;
+			this.y += diry * this.isBeingDisplaced.velocity * delta;
 			
 			this.isBeingDisplaced.elapsed += delta;
+			
+			return {x:dirx, y:diry};
 		}
 		else { // displacement finished
 			this.isBeingDisplaced = undefined;
@@ -723,6 +729,8 @@ class Character extends Thing {
 			if (this == Game.hero) {
 				this.updateStatusEffects();
 			}
+			
+			return {x:0, y:0};
 		}
 	}
 	
@@ -833,13 +841,21 @@ class Hero extends Attacker {
 	}
 	
 	move (delta, dirx, diry) {
+		let baseSpeed = false; // whether speed should be altered by status effects and slow tiles (false means do alter)
+		// if baseSpeed is a number instead, the speed is set to that without setSpeed being called
+		
 		// move hero
 		if (this.hasStatusEffect("Stunned") || this.isCorpse) {
 			// player cannot move
 		}
 		else if (this.hasStatusEffect("Displacement")) {
-			// being displaced!
-			this.displace(delta);
+			// player being displaced!
+			let dir = this.displace(delta);
+			dirx = dir.x;
+			diry = dir.y;
+			if (this.isBeingDisplaced !== undefined) {
+				baseSpeed = this.isBeingDisplaced.velocity; // do not run setSpeed
+			}
 		}
 		else if (this.moveTowards !== undefined) {
 			// move towards a particular point
@@ -879,6 +895,14 @@ class Hero extends Attacker {
 		if (Game.hero.moveTowards === undefined) { // hero should only collide if controlled by player
 			this._collide(dirx, diry, delta);
 		}
+		
+		// set walkspeed for next move() function call
+		if (baseSpeed === false || baseSpeed === true) {
+			this.setSpeed(baseSpeed);
+		}
+		else {
+			this.speed = baseSpeed;
+		}
 
 		// clamp values
 		var maxX = this.map.cols * this.map.tsize;
@@ -906,15 +930,45 @@ class Hero extends Attacker {
 			
 		// check collision with collisions - invisible entities that cannot be passed
 		Game.collisions.forEach(entity => { // iterate though collisions
+			// give collisions a screenX and Y (should be turned into own function)
+			entity.screenX = (entity.x - entity.width / 2) - Game.camera.x;
+			entity.screenY = (entity.y - entity.height / 2) - Game.camera.y;
 			// check if the player's feet are touching the collision
 			if (Game.heroFootHitbox.isTouching(entity)) {
 				collision = true;
 			}
 		});
 		
+		if (!collision) { return; }
+
+		if (diry > 0) {
+			this.y -= this.speed * delta * diry;
+			//row = this.map.getRow(bottom);
+			//this.y = -this.height / 2 + this.map.getY(row);
+		}
+		if (diry < 0) {
+			this.y += this.speed * delta * Math.abs(diry);
+			//row = this.map.getRow(top);
+			//this.y = this.height / 2 + this.map.getY(row + 1);
+		}
+		if (dirx > 0) {
+			this.x -= this.speed * delta * dirx;
+			//col = this.map.getCol(right);
+			//this.x = -this.width / 2 + this.map.getX(col);
+		}
+		if (dirx < 0) {
+			this.x += this.speed * delta * Math.abs(dirx);
+			//col = this.map.getCol(left);
+			//this.x = this.width / 2 + this.map.getX(col + 1);
+		}
+	}
+	
+	// set player speed
+	// baseSpeed stops the speed being changed from status effects and slow tiles (e.g: displacement)
+	setSpeed (baseSpeed) {
 		// test for slow tiles (e.g: water, mud)
 		let slowTile = this.map.isSlowTileAtXY(this.x, this.y + 50);
-		if (slowTile === null) { // normal speed
+		if (slowTile === null || baseSpeed) { // normal speed
 			this.speed = this.stats.walkSpeed;
 			// remove swimming/mud status effect
 			for (var i = 0; i < this.statusEffects.length; i++) {
@@ -958,35 +1012,14 @@ class Hero extends Attacker {
 			console.error("Unknown slow tile: " + slowTile);
 		}
 		
-		// speed status effect (can be buff or debuff)
-		this.statusEffects.forEach(statusEffect => {
-			if (statusEffect.info.speedIncrease !== undefined) {
-				// increase speed if the status effect does so
-				this.speed *= 1 + (statusEffect.info.speedIncrease / 100);
-			}
-		});
-		
-		if (!collision) { return; }
-
-		if (diry > 0) {
-			this.y -= this.speed * delta;
-			//row = this.map.getRow(bottom);
-			//this.y = -this.height / 2 + this.map.getY(row);
-		}
-		if (diry < 0) {
-			this.y += this.speed * delta;
-			//row = this.map.getRow(top);
-			//this.y = this.height / 2 + this.map.getY(row + 1);
-		}
-		if (dirx > 0) {
-			this.x -= this.speed * delta;
-			//col = this.map.getCol(right);
-			//this.x = -this.width / 2 + this.map.getX(col);
-		}
-		if (dirx < 0) {
-			this.x += this.speed * delta;
-			//col = this.map.getCol(left);
-			//this.x = this.width / 2 + this.map.getX(col + 1);
+		if (!baseSpeed) {
+			// speed status effect (can be buff or debuff)
+			this.statusEffects.forEach(statusEffect => {
+				if (statusEffect.info.speedIncrease !== undefined) {
+					// increase speed if the status effect does so
+					this.speed *= 1 + (statusEffect.info.speedIncrease / 100);
+				}
+			});
 		}
 	}
 	
@@ -2371,7 +2404,7 @@ Game.statusEffects.generic = function (properties) {
 			let nextTickTime = 1000;
 			if (properties.time <= 2) {
 				// faster tick if effect is approaching its end
-				let nextTickTime = 100;
+				nextTickTime = 100;
 			}
 			
 			// begin tick
@@ -3823,10 +3856,6 @@ Game.drawHitboxes = function () {
 	// collision hitboxes
 	// maybe a special hitbox render list should be made? (tbd)
 	this.collisions.forEach(collision => {
-		// give collisions a screenX and Y (should be turned into own function)
-		collision.screenX = (collision.x - collision.width / 2) - this.camera.x;
-		collision.screenY = (collision.y - collision.height / 2) - this.camera.y;
-		
 		this.ctx.strokeRect(collision.screenX - collision.width / 2, collision.screenY - collision.height / 2, collision.width, collision.height);
 	});
 	

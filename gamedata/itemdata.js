@@ -1551,7 +1551,7 @@ var Items = {
 			name: "Displacement Grenade",
 			type: "consumable",
 			image: "assets/items/consumable/13.png",
-			sellPrice: 1,
+			sellPrice: 2,
 			functionText: "Blows all nearby characters away from their location upon use",
 			onClick: function (inventoryPosition) {
 				// remove the item
@@ -1565,6 +1565,48 @@ var Items = {
 					enemy.displace(0, 180, 1.5, bearing(Game.hero, enemy));
 				});
 				// tbd displace characters?
+			},
+		},
+		{
+			id: 14,
+			name: "Position Reverser",
+			type: "consumable",
+			image: "assets/items/consumable/14.png",
+			sellPrice: 2,
+			functionText: "Swaps your position with a random enemy in the current area",
+			onClick: function (inventoryPosition) {
+				if (Game.enemies.length > 0) { // check there is an enemy to swap with
+					// remove the item
+					Dom.inventory.remove(inventoryPosition);
+					
+					// pick random enemy
+					let enemy = Game.enemies[Random(0, Game.enemies.length-1)];
+					
+					// swap positions!
+					let enemyPositionX = enemy.x;
+					let enemyPositionY = enemy.y;
+					enemy.x = Game.hero.x;
+					enemy.y = Game.hero.y;
+					Game.hero.x = enemyPositionX;
+					Game.hero.y = enemyPositionY;
+				}
+			},
+		},
+		{
+			id: 15,
+			name: "Restorative Timepiece",
+			type: "consumable",
+			image: "assets/items/consumable/15.png",
+			sellPrice: 2,
+			functionText: "In 5 seconds, set your health to the value it is now",
+			onClick: function (inventoryPosition) {
+				// remove the item
+				Dom.inventory.remove(inventoryPosition);
+				
+				let oldHealth = Game.hero.health;
+				setTimeout(function (oldHealth) {
+					Game.hero.health = oldHealth;
+				}, 5000, oldHealth);
 			},
 		},
 	],
