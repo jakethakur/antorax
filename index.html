@@ -9,6 +9,7 @@
 </head>
 <body oncontextmenu="return false;">
 	<canvas id="secondary" width="600" height="600"></canvas>
+	<canvas id="weather" width="600" height="600"></canvas>
 	<canvas id="game" width="600" height="600"></canvas>
 	<div id="information" hidden>
 		<div id='outTriangle' class='triangleLeft'></div>
@@ -67,7 +68,7 @@
 		<div id="otherQuests"onclick="Dom.expand('otherQuestBox')">Other Quests</div>
 		<div id="otherQuestBox"hidden></div>
 	</div>
-	<div id="adventurePage">
+	<div id="adventurePage" hidden>
 		<div id="level" style="display:inline;">Level 1</div>
 		<a href="./builder/index.html" target="_blank" style="display: inline; float: right;">Achievements</a>
 		<div><br>Suggested Content:</div>
@@ -93,6 +94,7 @@
 	<p style="padding-left: 30px;padding-right: 20px;font-size: 20px;">To improve your reputation, help the people in that area by doing quests for them or by attacking their enemies. Be careful though, because if you do something to make them angry they might not forgive you easily.</p>
 	</div>
 	<div id="settingsPage" hidden>
+		<div id="settingLogout"></div>
 		<div id="settingBookmark" class="settings">
 			<p style="display:inline;">Bookmarks position:</p>
 			<span class="radio1"><input type="radio" id="bottom" name="bookmarksPosition" onclick="Dom.settings.bookmarkPosition()">Bottom</input></span>
@@ -140,7 +142,6 @@
 				<span class="radio2"><input type="radio" name="acceptOnOff" checked="true">No</input></span>
 			</div>
 		</span>
-		<div id="settingLogout"></div>
 	</div>
 	<div id="settingsTwoPage" hidden>
 		<center><h1>Hotkeys</h1></center>
@@ -214,6 +215,7 @@
 		<center><table id="buyerPageInventory"></table></center><br><br>
 		<center><div id="buyerPageClose" class="closeClass" onclick="Dom.changeBook(Player.tab, true)">Close</div></center>
 	</div>
+	<div id="mailPage" hidden></div>
 	<div id="choosePage" hidden></div>
 	<div id="textPage" hidden></div>
 	<div id="levelUpPage" hidden>

@@ -77,29 +77,36 @@ function IsContainedInArray (subArray, largeArray) {
 	return true;
 }
 
+// random integer between minimum and maximum (inclusive)
 function Random (minimum, maximum) {
     return Math.floor((Math.random() * (maximum - minimum + 1)) + minimum);
 }
 
 // get date in format ddmmyyyy
 function GetFullDate () {
-	let d = new Date();
-	let dateString = "";
-	// day
-	let mem = d.getDate();
-	if (mem.length !== 2) {
-		mem = "0" + mem;
-	}
-	dateString += mem;
-	// month
-	mem = d.getMonth()+1;
-	if (mem.length !== 2) {
-		mem = "0" + mem;
-	}
-	dateString += mem;
-	// year
-	dateString += d.getFullYear();
-	return dateString;
+    let d = new Date();
+    let dateString = "";
+    // day
+    let mem = d.getDate().toString();
+    if (mem.length !== 2) {
+        mem = "0" + mem;
+    }
+    dateString += mem;
+    // month
+    mem = (d.getMonth()+1).toString();
+    if (mem.length !== 2) {
+        mem = "0" + mem;
+    }
+    dateString += mem;
+    // year
+    dateString += d.getFullYear().toString();
+    return dateString;
+}
+
+function GetFullDateString () {
+	let date = GetFullDate();
+	const months = ["January", "February", "March", "April", "May", "June", "July", "August", "September", "October", "November", "December",];
+	return date.substring(0,2) + " " + months[parseInt(date.substring(2,4))-1] + " " + date.substring(4);
 }
 
 // save an item to local storage
@@ -157,7 +164,7 @@ function ToDegrees (radians) {
 // checks if a click event was a right click
 // thanks to https://stackoverflow.com/a/4235486/9713957
 function CheckRightClick (e) {
-    var rightclick;
+    let rightclick;
     if (e.which) {
 		rightclick = (e.which == 3);
 	}
@@ -165,4 +172,16 @@ function CheckRightClick (e) {
 		rightclick = (e.button == 2);
 	}
     return(rightclick); // true or false, you can trap right click here by if comparison
+}
+
+// thanks to https://stackoverflow.com/a/4351575
+function ExecuteFunctionByName(functionName, context, args) {
+	let namespaces = functionName.split("."); // array of function namespaces
+	let func = namespaces.pop(); // set last function namespace
+	namespaces.forEach(namespace => {
+		context = context[namespace];
+	});
+	// call function and return its return
+	//return context[func](...args);
+	return context[func].apply(context, args); // context[func] = function to be called; context = this in function; args = array of function parameters
 }

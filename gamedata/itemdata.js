@@ -1208,6 +1208,16 @@ var Items = {
 			image: "assets/items/item/13.png",
 			lore: "Fresh from The Nilbog."
 		},
+		{
+			id: 14,
+			name: "Camera",
+			type: "item",
+			image: "assets/items/item/13.png",
+			functionText: "Click to take a screenshot",
+			onClick: function () {
+				document.write('<img src="'+document.getElementById("game").toDataURL("image/png")+'"/>');
+			},
+		},
 	],
 	consumable: [
 		{

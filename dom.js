@@ -17,6 +17,7 @@ let Dom = {
 		identifiedPage: document.getElementById("identifiedPage"),
 		lootPage: document.getElementById("lootPage"),
 		buyerPage: document.getElementById("buyerPage"),
+		mailPage: document.getElementById("mailPage"),
 		choosePage: document.getElementById("choosePage"),
 		textPage: document.getElementById("textPage"),
 		levelUpPage: document.getElementById("levelUpPage"),
@@ -33,6 +34,7 @@ let Dom = {
 	identifier: {},
 	loot: {},
 	buyer: {},
+	mail: {},
 	choose: {},
 	text: {},
 	levelUp: {},
@@ -105,7 +107,7 @@ Dom.alert.page = function(text, type, values){
 }
 
 // Make the save, logout, delete buttons at the bottom of the settings page
-document.getElementById("settingLogout").innerHTML = "<div id='settingControls' onclick='Dom.settings.page(\"settingsTwoPage\")'>Hotkey Bindings</div><br><br>You are logged in as "+Player.name+(localStorage.getItem("accept") ? "<div id='settingSave' onclick='Game.saveProgress()'>Save</div>" : "")+"<div id='settingLogoutInner' onclick='Game.saveProgress(\"logout\")'>Logout</div>"+(localStorage.getItem("accept") ? "<div id='settingDelete'>Delete</div>" : "");
+document.getElementById("settingLogout").innerHTML = "You are logged in as "+Player.name+(localStorage.getItem("accept") ? "<div id='settingSave' onclick='Game.saveProgress()'>Save</div>" : "")+"<div id='settingLogoutInner' onclick='Game.saveProgress(\"logout\")'>Logout</div>"+(localStorage.getItem("accept") ? "<div id='settingDelete'>Delete</div>" : "")+"<br><br><br><div id='settingControls' onclick='Dom.settings.page(\"settingsTwoPage\")'>Hotkey Bindings</div>";
 
 // DELTES EXISTING CLASS
 if(document.getElementById("settingDelete") !== null){
@@ -157,6 +159,7 @@ Dom.changeBook = function(page, override, shouldNotBeOverriden, levelUpOverride)
 			this.elements.identifiedPage.hidden = true;
 			this.elements.lootPage.hidden = true;
 			this.elements.buyerPage.hidden = true;
+			this.elements.mailPage.hidden = true;
 			this.elements.choosePage.hidden = true;
 			this.elements.textPage.hidden = true;
 			document.getElementById(page).hidden = false;
@@ -2455,11 +2458,18 @@ document.getElementById("levelUpPageClose").onclick = function(){
 	}
 }
 
-Dom.text.page = function(npcName, name, text, close, buttons, functions){
+Dom.text.page = function(name, text, close, buttons, functions, give){
 	Dom.changeBook("textPage", true/*false*/, true);
-	//Dom.currentlyDisplayed = npcName;
 	document.getElementById("textPage").innerHTML = '<h1 id="textPageName">'+name+'</h1>'
 	document.getElementById("textPage").innerHTML += '<p id="textPageText">'+text+'</p>'
+	if(give !== undefined){
+		for(let i = 0; i < give.length; i++){
+			if(give[i][1] === undefined){
+				give[i][1] = 1;
+			}
+			document.getElementById("textPage").innerHTML += "<br><br><img src=" + give[i][0].image + " class='theseTextOptions'><div class='textStackNum'>"+(give[i][1] !== 1 ? give[i][1] : "")+"</div></img>&nbsp;&nbsp;";
+		}
+	}
 	for(let i = 0; i < buttons.length; i++){
 		if(buttons[i] !== undefined){ // because instructions page has undefined buttons meaning no buttons
 			document.getElementById("textPage").innerHTML += "<br><center><div id='buttons"+i+"' class='buttons'>"+buttons[i]+"</div></center>";
@@ -2468,11 +2478,30 @@ Dom.text.page = function(npcName, name, text, close, buttons, functions){
 	if(close){
 		document.getElementById("textPage").innerHTML += "<br><br><br><center><div class='closeClass' onclick='Dom.changeBook(Player.tab, true)'>Close</div></center>";
 	}
+	// onclicks have to be below this point because the line above resets them
 	for(let i = 0; i < buttons.length; i++){
 		if(buttons[i] !== undefined){ // because instructions page has undefined buttons meaning no buttons
 			document.getElementById("buttons"+i).onclick = function(){
 				functions[i]();
 			}
+		}
+	}
+	if(give !== undefined){
+		for(let i = 0; i < give.length; i++){
+			document.getElementsByClassName("theseTextOptions")[i].onmouseover = function(){
+				Dom.inventory.displayInformation(give[i][0], give[i][1]);
+			};
+			document.getElementsByClassName("theseTextOptions")[i].onmouseleave = function(){
+				Dom.expand("information");
+			};
+			document.getElementsByClassName("textStackNum")[i].onmouseover = function(){
+				Dom.inventory.displayInformation(give[i][0], give[i][1]);
+			};
+			document.getElementsByClassName("textStackNum")[i].onmouseleave = function(){
+				Dom.expand("information");
+			};
+			document.getElementsByClassName("textStackNum")[i].style.left = document.getElementsByClassName("theseTextOptions")[i].getBoundingClientRect().left - 635 + "px";
+			document.getElementsByClassName("textStackNum")[i].style.top = document.getElementsByClassName("theseTextOptions")[i].getBoundingClientRect().top + 15 + "px";
 		}
 	}
 }
@@ -2734,12 +2763,12 @@ document.getElementById("tutorialOff").onclick = function(){
 
 Dom.adventure.nextInstruction = function(){
 	Dom.adventure.currentInstruction++;
-	Dom.text.page("", Instructions[Dom.adventure.awaitingInstructions[0]].pages[Dom.adventure.currentInstruction].title, "<p>"+(Dom.adventure.currentInstruction > 0 ? "<span onclick='Dom.adventure.previousInstruction()' class='instructionArrowLeft'>&#8678;</span>" : "")+"Page "+(Dom.adventure.currentInstruction+1)+" of "+Instructions[Dom.adventure.awaitingInstructions[0]].pages.length+(Dom.adventure.currentInstruction < Instructions[Dom.adventure.awaitingInstructions[0]].pages.length-1 ? "<span onclick='Dom.adventure.nextInstruction()' class='instructionArrowRight'>&#8680;</span>" : "")+"</p>"+Instructions[Dom.adventure.awaitingInstructions[0]].pages[Dom.adventure.currentInstruction].text, false, [Dom.adventure.currentInstruction === Instructions[Dom.adventure.awaitingInstructions[0]].pages.length-1 ? "Close" : undefined], [Dom.adventure.instructionIndex]);
+	Dom.text.page(Instructions[Dom.adventure.awaitingInstructions[0]].pages[Dom.adventure.currentInstruction].title, "<p>"+(Dom.adventure.currentInstruction > 0 ? "<span onclick='Dom.adventure.previousInstruction()' class='instructionArrowLeft'>&#8678;</span>" : "")+"Page "+(Dom.adventure.currentInstruction+1)+" of "+Instructions[Dom.adventure.awaitingInstructions[0]].pages.length+(Dom.adventure.currentInstruction < Instructions[Dom.adventure.awaitingInstructions[0]].pages.length-1 ? "<span onclick='Dom.adventure.nextInstruction()' class='instructionArrowRight'>&#8680;</span>" : "")+"</p>"+Instructions[Dom.adventure.awaitingInstructions[0]].pages[Dom.adventure.currentInstruction].text, false, [Dom.adventure.currentInstruction === Instructions[Dom.adventure.awaitingInstructions[0]].pages.length-1 ? "Close" : undefined], [Dom.adventure.instructionIndex]);
 }
 
 Dom.adventure.previousInstruction = function(){
 	Dom.adventure.currentInstruction--;
-	Dom.text.page("", Instructions[Dom.adventure.awaitingInstructions[0]].pages[Dom.adventure.currentInstruction].title, "<p>"+(Dom.adventure.currentInstruction > 0 ? "<span onclick='Dom.adventure.previousInstruction()' class='instructionArrowLeft'>&#8678;</span>" : "")+"Page "+(Dom.adventure.currentInstruction+1)+" of "+Instructions[Dom.adventure.awaitingInstructions[0]].pages.length+(Dom.adventure.currentInstruction < Instructions[Dom.adventure.awaitingInstructions[0]].pages.length-1 ? "<span onclick='Dom.adventure.nextInstruction()' class='instructionArrowRight'>&#8680;</span>" : "")+"</p>"+Instructions[Dom.adventure.awaitingInstructions[0]].pages[Dom.adventure.currentInstruction].text, false, [Dom.adventure.currentInstruction === Instructions[Dom.adventure.awaitingInstructions[0]].pages.length-1 ? "Close" : undefined], [Dom.adventure.instructionIndex]);
+	Dom.text.page(Instructions[Dom.adventure.awaitingInstructions[0]].pages[Dom.adventure.currentInstruction].title, "<p>"+(Dom.adventure.currentInstruction > 0 ? "<span onclick='Dom.adventure.previousInstruction()' class='instructionArrowLeft'>&#8678;</span>" : "")+"Page "+(Dom.adventure.currentInstruction+1)+" of "+Instructions[Dom.adventure.awaitingInstructions[0]].pages.length+(Dom.adventure.currentInstruction < Instructions[Dom.adventure.awaitingInstructions[0]].pages.length-1 ? "<span onclick='Dom.adventure.nextInstruction()' class='instructionArrowRight'>&#8680;</span>" : "")+"</p>"+Instructions[Dom.adventure.awaitingInstructions[0]].pages[Dom.adventure.currentInstruction].text, false, [Dom.adventure.currentInstruction === Instructions[Dom.adventure.awaitingInstructions[0]].pages.length-1 ? "Close" : undefined], [Dom.adventure.instructionIndex]);
 }
 
 if(Dom.settings.settings.instructionsLink === true){
@@ -2756,7 +2785,7 @@ Dom.adventure.showInstructions = function(chapter, reverse){
 		Dom.adventure.awaitingInstructions.push(chapter);
 	}
 	Dom.adventure.currentInstruction = 0;
-	Dom.text.page("", Instructions[Dom.adventure.awaitingInstructions[0]].pages[Dom.adventure.currentInstruction].title, "<p>"+(Dom.adventure.currentInstruction > 0 ? "<span onclick='Dom.adventure.previousInstruction()' class='instructionArrowLeft'>&#8678;</span>" : "")+"Page "+(Dom.adventure.currentInstruction+1)+" of "+Instructions[Dom.adventure.awaitingInstructions[0]].pages.length+(Dom.adventure.currentInstruction < Instructions[Dom.adventure.awaitingInstructions[0]].pages.length-1 ? "<span onclick='Dom.adventure.nextInstruction()' class='instructionArrowRight'>&#8680;</span>" : "")+"</p>"+Instructions[Dom.adventure.awaitingInstructions[0]].pages[Dom.adventure.currentInstruction].text, false, [Dom.adventure.currentInstruction === Instructions[Dom.adventure.awaitingInstructions[0]].pages.length-1 ? "Close" : undefined], [Dom.adventure.instructionIndex]);
+	Dom.text.page(Instructions[Dom.adventure.awaitingInstructions[0]].pages[Dom.adventure.currentInstruction].title, "<p>"+(Dom.adventure.currentInstruction > 0 ? "<span onclick='Dom.adventure.previousInstruction()' class='instructionArrowLeft'>&#8678;</span>" : "")+"Page "+(Dom.adventure.currentInstruction+1)+" of "+Instructions[Dom.adventure.awaitingInstructions[0]].pages.length+(Dom.adventure.currentInstruction < Instructions[Dom.adventure.awaitingInstructions[0]].pages.length-1 ? "<span onclick='Dom.adventure.nextInstruction()' class='instructionArrowRight'>&#8680;</span>" : "")+"</p>"+Instructions[Dom.adventure.awaitingInstructions[0]].pages[Dom.adventure.currentInstruction].text, false, [Dom.adventure.currentInstruction === Instructions[Dom.adventure.awaitingInstructions[0]].pages.length-1 ? "Close" : undefined], [Dom.adventure.instructionIndex]);
 }
 
 Dom.adventure.instructionIndex = function(){
@@ -2798,15 +2827,75 @@ if(Dom.settings.settings.grid === true){
 	document.getElementById("gridOn").checked = true;
 }
 
+Dom.mail.page = function(){
+	Dom.changeBook("mailPage", true/*false*/, true);
+	document.getElementById("mailPage").innerHTML = "<br><h1>Mailbox</h1><br>";
+	for(let i = 0; i < Player.mail.mail.length; i++){
+		document.getElementById("mailPage").innerHTML += "<div class='mail' "+(Player.mail.opened.includes(Player.mail.mail[i].title)?"style='background-color: #fdf581;'":"")+"><div class='mailImage'></div><div class='mailTitle'><strong>"+Player.mail.mail[i].title+"</strong><br>From "+Player.mail.mail[i].sender+"<br>Received on "+Player.mail.mail[i].date+"</div><div class='mailDelete'>X</div></div>";
+	}
+	for(let i = Player.mail.mail.length-1; i >= 0; i--){
+		if(Player.mail.mail[i].image.substring(0,7) === "assets/"){
+			document.getElementsByClassName("mailImage")[i].style.backgroundImage = "url('"+Player.mail.mail[i].image+".png')";
+		}else{
+			document.getElementsByClassName("mailImage")[i].style.backgroundImage = "url('assets/npcs/"+Player.mail.mail[i].image+".png')";
+			document.getElementsByClassName("mailImage")[i].style.backgroundPosition = Offsets[Player.mail.mail[i].image].x+"%"+Offsets[Player.mail.mail[i].image].y+"%";
+		}
+		document.getElementsByClassName("mailDelete")[i].onclick = function(){
+			Dom.alert.target = function(){
+				Player.mail.mail.splice(i, 1);
+				Dom.mail.page();
+			}
+			Dom.alert.page("Are you sure you want to delete this mail? It will be lost forever!", 1);
+		}
+		document.getElementsByClassName("mail")[i].onclick = function(){
+			if(document.getElementById("alert").hidden){
+				if(!Player.mail.opened.includes(Player.mail.mail[i].title)){
+					Player.mail.opened.push(Player.mail.mail[i].title);
+					if(Player.mail.mail[i].give !== undefined){
+						for(let x = 0; x < Player.mail.mail[i].give.length; x++){
+							Dom.inventory.give(...Player.mail.mail[i].give[x]);
+						}
+					}
+				}
+				ExecuteFunctionByName(Player.mail.mail[i].openFunction, Dom, Player.mail.mail[i].openParameters);
+			}
+		}
+	}
+}
+
+Dom.mail.give = function(title, sender, image, openFunction, openParameters, give){
+	Player.mail.mail.push({
+		title: title,
+		sender: sender,
+		image: image,
+		date: GetFullDateString(),
+		openFunction: openFunction,
+		openParameters: openParameters,
+		give: give,
+	});
+	if(!Player.mail.received.includes(title)){
+		Player.mail.received.push(title);
+	}
+}
+
+Dom.mail.unread = function(){
+	let unreadMail = 0;
+	for(let i = 0; i < Player.mail.mail.length; i++){
+		if(!Player.mail.opened.includes(Player.mail.mail[i].title)){
+			unreadMail++;
+		}
+	}
+	return unreadMail;
+}
+
 //
 // DO NOT ADD CODE BELOW THIS POINT
 //
 
 // LOADS A NEW CLASS
-for(let i = 0; i < 5; i++){
-	Player.inventory[Object.keys(Player.inventory)[i]] = {};
-}
 Dom.inventory.give(Items.currency[2],3);
+Dom.mail.give("Welcome to Antorax!", "The Tinkering Guild", "galuthel", "text.page", ["Welcome to Antorax!",`Hello ${Player.name}!<br><br>It's great to have new people joining us in Antorax. I look forward to meeting you very soon in Wizard Island. Perhaps you would like to try out one of our newest inventions - the <camera name>! It's free of charge. Pop us a letter if it explodes, otherwise see you soon!<br><br>From the Tinkering Guild`, true, [], [], [[Items.item[14],2]]], [[Items.item[14],2]]);
+Dom.mail.give("Wheee!", "The Tinkering Guild", "ghost", "text.page", ["Wheee!","Hello all! Hopefully the mecha-pigeons sent this message to you. If not... nevermind. We've developed a brand new toy for you all to play with - the displacement grenade! Don't worry, this one is meant to explode. You have our guarantee!<br><br>From the Tinkering Guild", true, [], [], [[Items.consumable[13],2]]], [[Items.consumable[13],2]]);
 
 // LOADS ALL EXISTING CLASS SAVEDATA
 if(localStorage.getItem(Player.class) !== null){

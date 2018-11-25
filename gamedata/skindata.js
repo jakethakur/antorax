@@ -138,3 +138,20 @@ var Skins = {
 		},
 	],
 };
+
+var Offsets = {
+	darkbrew: {x: 30, y: -10},
+	driver: {x: 83, y: -15},
+	fisherman: {x: -10, y: -10},
+	galuthel: {x: 100, y: -5},
+	ghost: {x: 83, y: -10},
+	identifier: {x: 120, y: -10},
+	innkeeper: {x: 115, y: -20},
+	itemBuyer: {x: -5, y: -10},
+	mailman: {x: 140, y: -10},
+	saral: {x: 71, y: -10},
+	soulHealer: {x: 110, y: -10},
+	teper: {x: 117, y: -10},
+	torch: {x: 83, y: -15},
+	weaponsmith: {x: 75, y: -10},
+}

@@ -7,7 +7,7 @@ body{
 	-ms-user-select: none; /* IE10+/Edge */
 	user-select: none;
 }
-#chatPage, #inventoryPage, #questsPage, #settingsPage, #settingsTwoPage, #adventurePage, #reputationPage, #questStart, #questFinish, #merchantPage, #identifierPage, #levelUpPage, #lootPage, #buyerPage, #choosePage, #textPage, #identifiedPage {
+#chatPage, #inventoryPage, #questsPage, #settingsPage, #settingsTwoPage, #adventurePage, #reputationPage, #questStart, #questFinish, #merchantPage, #mailPage, #identifierPage, #levelUpPage, #lootPage, #buyerPage, #choosePage, #textPage, #identifiedPage {
 	float: left;
 	margin: 10px;
 	border: 1px solid black;
@@ -19,19 +19,22 @@ body{
 	overflow: hidden;
 	position: relative;
 }
-#game, #secondary{
+#game, #secondary, #weather{
 	border: 1px solid black;
 	float: left;
 	margin: 10px;
 }
-#secondary{
+#secondary, #weather{
 	position: absolute;
 	left: 8px;
+}
+#secondary{
+	z-index: 1;
 }
 #chatPage {
 	overflow-y: scroll;
 }
-#questsPage, #settingsPage{
+#questsPage{
 	border-top: 5px solid #886622;
 	width: 500px;
 	height: 596px;
@@ -40,7 +43,7 @@ body{
 	overflow-y: auto;
 	overflow-x: hidden;
 }
-#questStart, #questFinish, #merchantPage, #identifierPage, #identifiedPage, #levelUpPage, #lootPage, #buyerPage, #choosePage, #textPage{
+#questStart, #questFinish, #merchantPage, #mailPage, #identifierPage, #identifiedPage, #levelUpPage, #lootPage, #buyerPage, #choosePage, #textPage{
 	text-align: center;
 	overflow-y: auto;
 }
@@ -57,13 +60,16 @@ body{
 #questStartChat, #questFinishChat, #questStartQuest, #questFinishQuest, #questStartName, #questFinishName, #questStartObjectives, #questStartRewards, #questStartStartRewards, #questStartRewardsTitle, #questStartStartRewardsTitle, #questFinishRewardsTitle, #questFinishRewards, #merchantPageTitle, #merchantPageChat, #merchantPageOptions, #identifierPageTitle, #identifierPageChat, #leftArrow, #identifierPageOption, #rightArrow, #identifiedPageTitle, #identifiedPageChat, #identifiedPageOptions{
 	display: inline;
 }
+#settingBookmark{
+	border-top: 5px solid #886622;
+}
 .settings {
 	line-height: 30px;
 	text-align: center;
 	vertical-align: middle;
 	font-size: 20px;
 }
-.adventure, #activeQuestBox, #possibleQuestBox, #completedQuestBox, #otherQuestBox, #activeQuests, #possibleQuests, #completedQuests, #otherQuests, .settings{
+.adventure, .settings, #activeQuestBox, #possibleQuestBox, #completedQuestBox, #otherQuestBox, #activeQuests, #possibleQuests, #completedQuests, #otherQuests{
 	position: relative;
 	width: 511px;
 	border-left: 5px solid #886622;
@@ -134,7 +140,7 @@ body{
 	padding-right: 38px;
 	width: 444px;
 }
-#helm, #chest, #greaves, #boots, #weapon, #settingLogoutInner, #settingSave, #settingDelete, #settingControls{
+#helm, #chest, #greaves, #boots, #weapon, #settingLogoutInner, #settingSave, #settingDelete, #settingControls, .mailImage{
 	margin-top: 10px;
 	border: 5px solid #886622;
 	width: 50px;
@@ -249,7 +255,7 @@ td{
 #questStartItems, #questStartStartItems, #questFinishItems, #identifierPageGold{
 	display: inline-block;
 }
-.theseQuestOptions, .theseQuestFinishOptions, .theseQuestStartOptions{
+.theseQuestOptions, .theseQuestFinishOptions, .theseQuestStartOptions, .theseTextOptions{
 	margin-top: 4px;
 	border: 5px solid #886622;
 	display: inline-block;
@@ -466,6 +472,7 @@ td{
 }
 #settingLogout{
 	top: 15px;
+	height: 230px;
 }
 #settingLogoutInner, #settingSave, #settingDelete, #settingControls{
 	position: absolute;
@@ -485,7 +492,7 @@ td{
 	width: 200px;
 	left: 150px;
 }
-.stackNum, .questStackNum, .questFinishStackNum, .questStartStackNum, .lootStackNum{
+.stackNum, .questStackNum, .questFinishStackNum, .questStartStackNum, .lootStackNum, .textStackNum{
 	position: relative;
     bottom: 22px;
 	height: 20px;
@@ -494,7 +501,7 @@ td{
 	text-shadow: 1px 1px grey;
 	text-align: right;
 }
-.questStackNum, .questFinishStackNum, .questStartStackNum{
+.questStackNum, .questFinishStackNum, .questStartStackNum, .textStackNum{
 	position: absolute;
 }
 #levelUpPageTitle{
@@ -579,4 +586,39 @@ td{
 .instructionArrowRight{
 	position: absolute;
 	left: 311px;
+}
+.mail{
+	height: 100px;
+	width: 450px;
+	left: 20px;
+	position: relative;
+	background-color: #fef9b4;
+	border: 5px solid #886622;
+	margin-bottom: 20px;
+}
+.mailImage{
+	position: absolute;
+	top: 10px;
+	left: 20px;
+	background-color: #ddddff;
+	background-repeat: no-repeat;
+}
+.mailTitle{
+	text-align: left;
+	margin-left: 100px;
+	margin-top: 10px;
+	font-size: 20px;
+	line-height: 28px;
+}
+.mailDelete{
+	height: 30px;
+	width: 30px;
+	position: absolute;
+	top: 10px;
+	right: 10px;
+	background-color: #886622;
+	line-height: 32px;
+	vertical-align: middle;
+	font-weight: bold;
+	font-size: 20px;
 }

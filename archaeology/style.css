@@ -58,13 +58,11 @@ body{
 td{
 	padding: 10px;
 }
-#obtain, #sell, #stats{
+#obtain, #stats{
 	position: absolute;
 	left: 400px;
 	font-size: 25px;
 	text-align: left;
-	width: max-content;
-	width: -moz-max-content;
 }
 #searchBar{
 	height: 30px;

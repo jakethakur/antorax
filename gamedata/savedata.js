@@ -24,6 +24,12 @@ var Player = {
 	unlockedTabs: [],
 	tab: "adventurePage",
 	
+	mail: {
+		mail: [],
+		received: [],
+		opened: [],
+	},
+	
 	reputation: {
 		eaglecrestLoggingCamp: {
 			score: 60,

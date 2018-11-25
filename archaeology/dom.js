@@ -324,20 +324,19 @@ function arrange(){
 		document.getElementById("flashcardlist0").style.top = "100px";
 		if(Items[viewedItemType][viewedItemId].set != undefined){
 			document.getElementById("box1").onclick = function(){
-				window.location += "?id="+Items[viewedItemType][viewedItemId].set+"&type=set";
+				window.location = "./index.html?id="+Items[viewedItemType][viewedItemId].set+"&type=set";
 			}
 		}
 		if(viewedItemType != "set"){
 			document.getElementById("obtain").hidden = false;
 			document.getElementById("obtain").style.top = "100px";
+			document.getElementById("obtain").style.width = window.innerWidth - 500 + "px";
 			document.getElementById("obtain").innerHTML = JSON.parse(localStorage.getItem("archaeology")).includes(Items[viewedItemType][viewedItemId].name) ? "You have obtained this item." : "You have not yet obtained this item";
-			document.getElementById("sell").hidden = false;
 			document.getElementById("obtain").innerHTML += "<br><br>"+Items[viewedItemType][viewedItemId].obtain;
-			document.getElementById("sell").style.top = 130 + document.getElementById("obtain").offsetHeight + "px";
-			document.getElementById("sell").innerHTML = "Sells for "+Items[viewedItemType][viewedItemId].sellPrice+" gold at an item buyer.";
+			document.getElementById("obtain").innerHTML += "<br><br>Sells for "+Items[viewedItemType][viewedItemId].sellPrice+" gold at an item buyer.";
 		}
 		document.getElementById("stats").hidden = false;
-		document.getElementById("stats").style.top = viewedItemType != "set" ? 160 + document.getElementById("obtain").offsetHeight + document.getElementById("sell").offsetHeight + "px" : "100px";
+		document.getElementById("stats").style.top = viewedItemType != "set" ? 130 + document.getElementById("obtain").offsetHeight + "px" : "100px";
 		document.getElementById("stats").style.width = window.innerWidth - 500 + "px";
 		document.getElementById("stats").innerHTML = "";
 		for(var i = 0; i < Object.keys(Items[viewedItemType][viewedItemId].stats).length; i++){
