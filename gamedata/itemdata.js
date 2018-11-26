@@ -1212,10 +1212,13 @@ var Items = {
 			id: 14,
 			name: "Camera",
 			type: "item",
-			image: "assets/items/item/13.png",
+			image: "assets/items/item/14.png",
 			functionText: "Click to take a screenshot",
 			onClick: function () {
-				document.write('<img src="'+document.getElementById("game").toDataURL("image/png")+'"/>');
+				//document.write('<img src="'+document.getElementById("game").toDataURL("image/png")+'"/>');
+				let dataURL = document.getElementById("game").toDataURL("image/png");
+				document.getElementById('btn-download').href = dataURL;
+				Dom.alert.page("Would you like to save or discard the image?",1);
 			},
 		},
 	],

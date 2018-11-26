@@ -2894,8 +2894,8 @@ Dom.mail.unread = function(){
 
 // LOADS A NEW CLASS
 Dom.inventory.give(Items.currency[2],3);
-Dom.mail.give("Welcome to Antorax!", "The Tinkering Guild", "galuthel", "text.page", ["Welcome to Antorax!",`Hello ${Player.name}!<br><br>It's great to have new people joining us in Antorax. I look forward to meeting you very soon in Wizard Island. Perhaps you would like to try out one of our newest inventions - the <camera name>! It's free of charge. Pop us a letter if it explodes, otherwise see you soon!<br><br>From the Tinkering Guild`, true, [], [], [[Items.item[14],2]]], [[Items.item[14],2]]);
-Dom.mail.give("Wheee!", "The Tinkering Guild", "ghost", "text.page", ["Wheee!","Hello all! Hopefully the mecha-pigeons sent this message to you. If not... nevermind. We've developed a brand new toy for you all to play with - the displacement grenade! Don't worry, this one is meant to explode. You have our guarantee!<br><br>From the Tinkering Guild", true, [], [], [[Items.consumable[13],2]]], [[Items.consumable[13],2]]);
+Dom.mail.give("Welcome to Antorax!", "The Tinkering Guild", "galuthel", "text.page", ["Welcome to Antorax!",`Hello ${Player.name}!<br><br>It's great to have new people joining us in Antorax. I look forward to meeting you very soon in Wizard Island. Perhaps you would like to try out one of our newest inventions - the <camera name>! It's free of charge. Pop us a letter if it explodes, otherwise see you soon!<br><br>From the Tinkering Guild`, true, [], [], [[Items.item[14]]]], [[Items.item[14]]]);
+Dom.mail.give("Wheee!", "The Tinkering Guild", "ghost", "text.page", ["Wheee!","Hello all! Hopefully the mecha-pigeons sent this message to you. If not... nevermind. We've developed a brand new toy for you all to play with - the displacement grenade! Don't worry, this one is meant to explode. You have our guarantee!<br><br>From the Tinkering Guild", true, [], [], [[Items.consumable[13]]]], [[Items.consumable[13]]]);
 
 // LOADS ALL EXISTING CLASS SAVEDATA
 if(localStorage.getItem(Player.class) !== null){
