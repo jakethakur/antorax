@@ -385,6 +385,11 @@ class Entity {
 		this.width = properties.width;
 		this.height = properties.height;
 		
+		this.type = properties.type; // array the NPC is in (for choose DOM)
+		if (this.type !== undefined) {
+			this.id = Game[this.type].length; // array index the NPC is in (for choose DOM)
+		}
+		
 		this.collisionType = properties.collisionType || "body"; // "feet" = check collision with Game.heroFootHitbox
 		// collision type currently only applies to tripwires
 	}
@@ -826,6 +831,7 @@ class Hero extends Attacker {
 		
 		// stats
 		this.stats.looting = properties.stats.looting;
+		this.stats.domRange = 240; // distance from an entity that a DOM menu may be opened
 		
 		// optional stats
 		// using || defaults to second value if first is undefined, 0 or ""
@@ -1078,6 +1084,7 @@ class Hero extends Attacker {
 							image: Game.heroProjectileName,
 							beingChannelled: true,
 							variance: variance,
+							type: "projectiles",
 						}));
 					}
 				}
@@ -1106,6 +1113,7 @@ class Hero extends Attacker {
 							},*/
 							image: "bobber",
 							beingChannelled: true,
+							type: "projectiles",
 						}));
 						
 						// timer for first bob
@@ -2013,6 +2021,7 @@ class Enemy extends Attacker {
 			},
 			image: this.projectile.image,
 			variance: this.stats.variance,
+			type: "projectiles"
 		});
 		shotProjectile.varyPosition(); // move projectile based on its variance
 		
@@ -2136,6 +2145,7 @@ class Cannon extends Thing {
 					name: "Cannonball",
 					x: this.x,
 					y: this.y,
+					type: "thing",
 				}));
 				
 				setTimeout(function () {
@@ -2633,6 +2643,7 @@ Game.loadArea = function (areaName, destination) {
 			Areas[areaName].villagers.forEach(villager => {
 				if (this.canBeShown(villager)) { // check if NPC should be shown
 					villager.map = map;
+					villager.type = "villagers";
 					this.villagers.push(new Villager(villager));
 				}
 			});
@@ -2644,6 +2655,7 @@ Game.loadArea = function (areaName, destination) {
 			Areas[areaName].things.forEach(thing => {
 				if (this.canBeShown(thing)) { // check if NPC should be shown
 					thing.map = map;
+					thing.type = "things";
 					this.things.push(new Thing(thing));
 				}
 			});
@@ -2655,6 +2667,7 @@ Game.loadArea = function (areaName, destination) {
 			Areas[areaName].npcs.forEach(npc => {
 				if (this.canBeShown(npc)) { // check if NPC should be shown
 					npc.map = map;
+					npc.type = "npcs";
 					this.npcs.push(new NPC(npc));
 				}
 			});
@@ -2666,6 +2679,7 @@ Game.loadArea = function (areaName, destination) {
 			Areas[areaName].dummies.forEach(dummy => {
 				if (this.canBeShown(dummy)) { // check if NPC should be shown
 					dummy.map = map;
+					dummy.type = "dummies";
 					this.dummies.push(new Dummy(dummy));
 				}
 			});
@@ -2677,6 +2691,7 @@ Game.loadArea = function (areaName, destination) {
 			Areas[areaName].enemies.forEach(enemy => {
 				if (this.canBeShown(enemy)) { // check if NPC should be shown
 					enemy.map = map;
+					enemy.type = "enemies";
 					this.enemies.push(new Enemy(enemy));
 					// check for blood moon
 					if (Game.time === "bloodMoon" && enemy.hostility === "hostile") {
@@ -2694,6 +2709,7 @@ Game.loadArea = function (areaName, destination) {
 			Areas[areaName].chests.forEach(chest => {
 				if (this.canBeShown(chest)) { // check if NPC should be shown
 					chest.map = map;
+					chest.type = "chests";
 					this.chests.push(new LootChest(chest));
 				}
 			});
@@ -2705,6 +2721,7 @@ Game.loadArea = function (areaName, destination) {
 			Areas[areaName].cannons.forEach(cannon => {
 				if (this.canBeShown(cannon)) { // check if NPC should be shown
 					cannon.map = map;
+					cannon.type = "cannons";
 					this.cannons.push(new Cannon(cannon));
 				}
 			});
@@ -2725,6 +2742,7 @@ Game.loadArea = function (areaName, destination) {
 		if (Areas[areaName].areaTeleports !== undefined) {
 			Areas[areaName].areaTeleports.forEach(areaTeleport => {
 				areaTeleport.map = map;
+				areaTeleport.type = "areaTeleports";
 				this.areaTeleports.push(new AreaTeleport(areaTeleport));
 			});
 		}
@@ -2737,6 +2755,7 @@ Game.loadArea = function (areaName, destination) {
 		if (Areas[areaName].tripwires !== undefined) {
 			Areas[areaName].tripwires.forEach(tripwire => {
 				tripwire.map = map;
+				tripwire.type = "tripwires";
 				this.tripwires.push(new Tripwire(tripwire));
 			});
 		}
@@ -2746,7 +2765,18 @@ Game.loadArea = function (areaName, destination) {
 		if (Areas[areaName].collisions !== undefined) {
 			Areas[areaName].collisions.forEach(collision => {
 				collision.map = map;
+				collision.type = "collisions";
 				this.collisions.push(new Entity(collision));
+			});
+		}
+		
+		// mailboxes
+		this.mailboxes = [];
+		if (Areas[areaName].mailboxes !== undefined) {
+			Areas[areaName].mailboxes.forEach(mailbox => {
+				mailbox.map = map;
+				mailbox.type = "mailboxes";
+				this.mailboxes.push(new Thing(mailbox));
 			});
 		}
 		
@@ -2778,6 +2808,12 @@ Game.loadArea = function (areaName, destination) {
 			this.hero.respawning = false;
 			this.hero.isCorpse = false;
 			Dom.chat.insert("You died.");
+		}
+		
+		// tell the player if they have unread mail
+		let unreadMail = Dom.mail.unread();
+		if(unreadMail > 0) {
+			Dom.chat.insert("You have " + unreadMail + " new messages!"); // tbd - maybe make it more obvious that player has to check their mailbox for this?
 		}
 		
 		// if the area is a checkpoint and it is not the player's current checkpoint, update the player's checkpoint
@@ -2818,7 +2854,7 @@ Game.init = function () {
 	this.playingMusic = null;
 	
 	// list of basic (no extra operations to be done) things to be rendered (in order)
-	this.renderList = ["chests", "things", "villagers", "npcs", "dummies", "enemies"];
+	this.renderList = ["things", "mailboxes", "chests", "villagers", "npcs", "dummies", "enemies"];
 	// then player, then projectiles (in order they were shot)
 	
 	// create the player
@@ -3447,10 +3483,10 @@ Game.update = function (delta) {
 		}
 		
 		// check if the currently displayed NPC is the current one in the foreach loop
-		if (npc.name === Dom.currentNPC) {
+		if (npc.id === Dom.currentNPC.id && npc.type === Dom.currentNPC.type) {
 			// close the DOM if the player is too far away from the NPC or if the NPC is dead
-			if (npc.respawning || distance(Game.hero, npc) > 240) {
-				// NPC is dead or player is more than 4 (TBC) tiles away from NPC
+			if (npc.respawning || distance(Game.hero, npc) > Game.hero.stats.domRange) {
+				// NPC is dead or player is more than 4 (can be changed) tiles away from NPC
 				Dom.changeBook(Player.tab, true); // close NPC DOM
 			}
 		}
@@ -3464,11 +3500,20 @@ Game.update = function (delta) {
     }
 	
 	// update enemies
-	for(var i = 0; i < this.enemies.length; i++) {
-		if (!this.enemies[i].respawning) { // check enemy is not dead
-			this.enemies[i].update(delta);
+	this.enemies.forEach(enemy => {
+		if (!enemy.respawning) { // check enemy is not dead
+			enemy.update(delta);
 		}
-    }
+		
+		// check if the currently displayed DOM is for the current enemy in the foreach loop
+		if (enemy.id === Dom.currentNPC.id && enemy.type === Dom.currentNPC.type) {
+			// close the DOM if the player is too far away from the enemy or if the enemy is dead
+			if (enemy.respawning || distance(Game.hero, enemy) > Game.hero.stats.domRange) {
+				// enemy is dead or player is more than 4 tiles away from enemy
+				Dom.changeBook(Player.tab, true); // close enemy DOM
+			}
+		}
+	});
 	
 	// move projectiles if they need to be moved
 	this.projectiles.forEach(projectile => { // iterate through projectiles
@@ -3495,6 +3540,35 @@ Game.update = function (delta) {
 			}
 			
 			// remove the projectile if it has moved too far
+		}
+	});
+	
+	// check collision with mailboxes
+	this.mailboxes.forEach(mailbox => { // iterate though mailboxes
+		if (this.hero.isTouching(mailbox)) {
+			Dom.choose.page(mailbox, ["Check mail"], [Dom.mail.page], [[]]);
+		}
+		
+		// check if the currently displayed DOM is for the current mailbox in the foreach loop
+		if (mailbox.id === Dom.currentNPC.id && mailbox.type === Dom.currentNPC.type) {
+			// close the DOM if the player is too far away from the mailbox or if the mailbox is dead
+			if (distance(Game.hero, mailbox) > Game.hero.stats.domRange) {
+				// player is more than 4 tiles away from mailbox
+				Dom.changeBook(Player.tab, true); // close mailbox DOM
+			}
+		}
+	});
+	
+	// check distance from chests
+	this.chests.forEach(chest => { // iterate though tripwires
+		// check if the currently displayed DOM is for the current mailbox in the foreach loop
+		if (chest.id === Dom.currentNPC.id && chest.type === Dom.currentNPC.type) {
+			// close the DOM if the player is too far away from the chest or if the chest is dead
+			if (distance(Game.hero, chest) > Game.hero.stats.domRange) {
+				// player is more than 4 tiles away from chest
+				Dom.changeBook(Player.tab, true); // close chest DOM
+				// loot not wiped (so the player can revisit if they closed by accident)
+			}
 		}
 	});
 	

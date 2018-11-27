@@ -216,7 +216,6 @@ var Items = {
 			sellPrice: 3,
 			lore: "Evil haunted sheet. Also doubles as an evil haunted blanket.",
 			obtain: "Buy from a merchant during the Samhain event.",
-			area: "loggingCamp",
 			stats: {
 				defence: "+1",
 				dodgeChance: "+40%",
@@ -1379,6 +1378,7 @@ var Items = {
 						name: "Goblin Trap",
 						x: Game.hero.x,
 						y: Game.hero.y + 40,
+						type: "things",
 					};
 					Game.things.push(new Thing(trapObject)); // place trap in the current area
 					Areas.nilbog.things.push(trapObject); // save in areadata.js for if the player leaves and rejoins the area
@@ -1554,7 +1554,7 @@ var Items = {
 			name: "Displacement Grenade",
 			type: "consumable",
 			image: "assets/items/consumable/13.png",
-			sellPrice: 2,
+			sellPrice: 1,
 			functionText: "Blows all nearby characters away from their location upon use",
 			onClick: function (inventoryPosition) {
 				// remove the item
@@ -1575,7 +1575,7 @@ var Items = {
 			name: "Position Reverser",
 			type: "consumable",
 			image: "assets/items/consumable/14.png",
-			sellPrice: 2,
+			sellPrice: 1,
 			functionText: "Swaps your position with a random enemy in the current area",
 			onClick: function (inventoryPosition) {
 				if (Game.enemies.length > 0) { // check there is an enemy to swap with
@@ -1600,7 +1600,7 @@ var Items = {
 			name: "Restorative Timepiece",
 			type: "consumable",
 			image: "assets/items/consumable/15.png",
-			sellPrice: 2,
+			sellPrice: 1,
 			functionText: "In 5 seconds, set your health to the value it is now",
 			onClick: function (inventoryPosition) {
 				// remove the item
@@ -1936,7 +1936,7 @@ var Items = {
 				
 				// open loot page
 				Dom.loot.currentId = "x"; // x means that nothing should be done when it is closed
-				Dom.loot.page("Sunken Chest", loot, lootQuantities, 24);
+				Dom.choose.page(Game.items[16], ["Loot chest!"], [Dom.loot.page], [["Sunken Chest", loot, lootQuantities, 24]]);
 			},
 		},
 		{

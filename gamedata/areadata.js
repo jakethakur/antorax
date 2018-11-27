@@ -89,6 +89,29 @@ const LootTables = { // loot table templates
 			],
 		},
 	],
+	nilbogTowerGoblin: [ // as well as nilbogGoblin
+		{ // displacement grenade
+			item: Items.consumable[13],
+			chance: [
+				93,				// 0
+				Infinity,		// 1
+			],
+		},
+		{ // position reverser
+			item: Items.consumable[14],
+			chance: [
+				93,				// 0
+				Infinity,		// 1
+			],
+		},
+		{ // restorative timepiece
+			item: Items.consumable[15],
+			chance: [
+				93,				// 0
+				Infinity,		// 1
+			],
+		},
+	],
 };
 
 const EnemyTemplates = {
@@ -601,6 +624,7 @@ var Areas = {
 				"galuthel",
 				"itemBuyer",
 				"darkbrew",
+				"mailbox",
 			],
 			
 			addresses: [
@@ -614,6 +638,7 @@ var Areas = {
 				"./assets/npcs/galuthel.png",
 				"./assets/npcs/itemBuyer.png",
 				"./assets/npcs/darkbrew.png",
+				"./assets/objects/mailbox.png", // tbd image for flag up
 			],
 		},
 		
@@ -622,8 +647,8 @@ var Areas = {
 		
 		checkpoint: true,
 		player: {
-			x: 663,
-			y: 217,
+			x: 717,
+			y: 208,
 		},
 		
 		onAreaLoad: function () {
@@ -1019,6 +1044,15 @@ var Areas = {
 					tenPercentHealth: "/me creaks loudly",
 					death: "/me crumbles into a heap of rubble",
 				},
+			},
+		],
+		
+		mailboxes: [
+			{
+				x: 626,
+				y: 132,
+				image: "mailbox",
+				name: "Mailbox",
 			},
 		],
 		
