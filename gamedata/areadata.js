@@ -330,21 +330,11 @@ var Areas = {
 		},
 		
 		images: {
-			names: [
-				"tiles",
-				"driver",
-				"weaponsmith",
-				"cart",
-				"fisherman",
-			],
-			
-			addresses: [
-				"./assets/tilemap/tutorial.png",
-				"./assets/npcs/driver.png",
-				"./assets/npcs/weaponsmith.png",
-				"./assets/objects/cartEaglecrest.png",
-				"./assets/npcs/fisherman.png",
-			],
+			tiles: {normal: "./assets/tilemap/tutorial.png"},
+			driver: {normal: "./assets/npcs/driver.png"},
+			weaponsmith: {normal: "./assets/npcs/weaponsmith.png"},
+			cart: {normal: "./assets/objects/cartEaglecrest.png"},
+			fisherman: {normal: "./assets/npcs/fisherman.png"},
 		},
 		
 		song_day: "./assets/music/Pippin-the-Hunchback.mp3",
@@ -613,33 +603,18 @@ var Areas = {
 		},
 		
 		images: {
-			names: [
-				"tiles",
-				"teper",
-				"identifier",
-				"dummy",
-				"saral",
-				"mailman",
-				"soulHealer",
-				"galuthel",
-				"itemBuyer",
-				"darkbrew",
-				"mailbox",
-			],
-			
-			addresses: [
-				"./assets/tilemap/loggingCamp.png",
-				"./assets/npcs/teper.png",
-				"./assets/npcs/identifier.png",
-				"./assets/enemies/dummy.png",
-				"./assets/npcs/saral.png",
-				"./assets/npcs/mailman.png",
-				"./assets/npcs/soulHealer.png",
-				"./assets/npcs/galuthel.png",
-				"./assets/npcs/itemBuyer.png",
-				"./assets/npcs/darkbrew.png",
-				"./assets/objects/mailbox.png", // tbd image for flag up
-			],
+			tiles: {normal: "./assets/tilemap/loggingCamp.png"},
+			teper: {normal: "./assets/npcs/teper.png"},
+			identifier: {normal: "./assets/npcs/identifier.png"},
+			dummy: {normal: "./assets/enemies/dummy.png"},
+			saral: {normal: "./assets/npcs/saral.png"},
+			mailman: {normal: "./assets/npcs/mailman.png"},
+			soulHealer: {normal: "./assets/npcs/soulHealer.png"},
+			galuthel: {normal: "./assets/npcs/galuthel.png"},
+			itemBuyer: {normal: "./assets/npcs/itemBuyer.png"},
+			darkbrew: {normal: "./assets/npcs/darkbrew.png"},
+			mailbox: {normal: "./assets/objects/mailbox.png"},
+			mailboxUnread: {normal: "./assets/objects/mailboxUnread.png"},
 		},
 		
 		song_day: "./assets/music/Pippin-the-Hunchback.mp3",
@@ -1083,15 +1058,8 @@ var Areas = {
 		},
 		
 		images: {
-			names: [
-				"tiles",
-				"innkeeper",
-			],
-			
-			addresses: [
-				"./assets/tilemap/tavern.png",
-				"./assets/npcs/innkeeper.png",
-			],
+			tiles: {normal: "./assets/tilemap/tavern.png"},
+			innkeeper: {normal: "./assets/npcs/innkeeper.png"},
 		},
 		
 		areaTeleports: [
@@ -1183,37 +1151,19 @@ var Areas = {
 		},
 		
 		images: {
-			names: [
-				"tiles",
-				"goblinRockthrower",
-				"rock",
-				"goblinSkirmisher",
-				"goblinBruiser",
-				"melee",
-				"fireGoblin",
-				"fireball", // (ignored by loader if it is already loaded because of a mage player)
-				"goblinCorpse",
-				"mailcart",
-				"trap",
-				"torch",
-				"ghost"
-			],
-			
-			addresses: [
-				"./assets/tilemap/nilbog.png",
-				"./assets/enemies/goblinRockthrower.png",
-				"./assets/projectiles/rock.png",
-				"./assets/enemies/goblinSkirmisher.png",
-				"./assets/enemies/goblinBruiser.png",
-				"./assets/projectiles/melee.png",
-				"./assets/enemies/goblinPyromancer.png",
-				"./assets/projectiles/fireball.png",
-				"./assets/corpses/deadGoblin.png",
-				"./assets/objects/cartDestroyed.png",
-				"./assets/objects/trap.png",
-				"./assets/npcs/torch.png",
-				"./assets/npcs/ghost.png",
-			],
+			tiles: {normal: "./assets/tilemap/nilbog.png"},
+			goblinRockthrower: {normal: "./assets/enemies/goblinRockthrower.png"},
+			rock: {normal: "./assets/projectiles/rock.png"},
+			goblinSkirmisher: {normal: "./assets/enemies/goblinSkirmisher.png"},
+			goblinBruiser: {normal: "./assets/enemies/goblinBruiser.png"},
+			melee: {normal: "./assets/projectiles/melee.png"},
+			fireGoblin: {normal: "./assets/enemies/goblinPyromancer.png"},
+			fireball: {normal: "./assets/projectiles/fireball.png"}, // (ignored by loader if it is already loaded because of a mage player)
+			goblinCorpse: {normal: "./assets/corpses/deadGoblin.png"},
+			mailcart: {normal: "./assets/objects/cartDestroyed.png"},
+			trap: {normal: "./assets/objects/trap.png"},
+			torch: {normal: "./assets/npcs/torch.png"},
+			ghost: {normal: "./assets/npcs/ghost.png"}, // tbd only load in for halloween
 		},
 		
 		song_day: "./assets/music/Pippin-the-Hunchback.mp3",
@@ -1404,23 +1354,12 @@ var Areas = {
 		},
 		
 		images: {
-			names: [
-				"tiles",
-				"stairs",
-				"painting",
-				"goblinTowerkeeper",
-				"goblinCorpse",
-				"melee",
-			],
-			
-			addresses: [
-				"./assets/tilemap/nilbogTower.png",
-				"./assets/objects/stairs.png",
-				"./assets/objects/paintingAndrews.png",
-				"./assets/enemies/goblinTowerkeeper.png",
-				"./assets/corpses/deadGoblin.png",
-				"./assets/projectiles/melee.png",
-			],
+			tiles: {normal: "./assets/tilemap/nilbogTower.png"},
+			stairs: {normal: "./assets/objects/stairs.png"},
+			painting: {normal: "./assets/objects/paintingAndrews.png"},
+			goblinTowerkeeper: {normal: "./assets/enemies/goblinTowerkeeper.png"},
+			goblinCorpse: {normal: "./assets/corpses/deadGoblin.png"},
+			melee: {normal: "./assets/projectiles/melee.png"},
 		},
 		
 		song_day: "./assets/music/Pippin-the-Hunchback.mp3",
@@ -1529,25 +1468,12 @@ var Areas = {
 		},
 		
 		images: {
-			names: [
-				"tiles",
-				"stairs",
-				"painting",
-				"goblinTowerkeeper",
-				"goblinCrusader",
-				"goblinCorpse",
-				"melee",
-			],
-			
-			addresses: [
-				"./assets/tilemap/nilbogTower.png",
-				"./assets/objects/stairs.png", // TBC (flip stairs)
-				"./assets/objects/paintingAndrews.png", // TBC
-				"./assets/enemies/goblinTowerkeeper.png",
-				"./assets/enemies/goblinCrusader.png",
-				"./assets/corpses/deadGoblin.png",
-				"./assets/projectiles/melee.png",
-			],
+			tiles: {normal: "./assets/tilemap/nilbogTower.png"},
+			stairs: {normal: "./assets/objects/stairs.png"}, // TBC (flip stairs)
+			painting: {normal: "./assets/objects/paintingAndrews.png"}, // TBC
+			goblinCrusader: {normal: "./assets/enemies/goblinCrusader.png"},
+			goblinCorpse: {normal: "./assets/corpses/deadGoblin.png"},
+			melee: {normal: "./assets/projectiles/melee.png"},
 		},
 		
 		song_day: "./assets/music/Pippin-the-Hunchback.mp3",

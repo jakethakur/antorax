@@ -2592,7 +2592,18 @@ Game.loadArea = function (areaName, destination) {
 	]);
 	
 	// load images
-    let p = this.load(Areas[areaName].images.names, Areas[areaName].images.addresses);
+	let imageNames = Object.keys(Areas[areaName].images);
+	let imageAddresses = Object.values(Areas[areaName].images);
+	imageAddresses = imageAddresses.map(image => {
+		if (Game.event === "Christmas" && image.christmas !== undefined) {
+			// christmas images
+			return image.christmas;
+		}
+		else {
+			return image.normal;
+		}
+	});
+    let p = this.load(imageNames, imageAddresses);
 	
 	// wait until images have been loaded
     Promise.all(p).then(function (loaded) {
@@ -2776,6 +2787,15 @@ Game.loadArea = function (areaName, destination) {
 			Areas[areaName].mailboxes.forEach(mailbox => {
 				mailbox.map = map;
 				mailbox.type = "mailboxes";
+				// flag up if there is unread mail
+				if (Dom.mail.unread() > 0) {
+					// flag up
+					mailbox.image = "mailboxUnread";
+				}
+				else {
+					// no flag
+					mailbox.image = "mailbox";
+				}
 				this.mailboxes.push(new Thing(mailbox));
 			});
 		}
@@ -2969,13 +2989,16 @@ Game.checkEvents = function () {
 	// Summer Solstice
 	if (day === 21 && month === 6) {
 		Game.event = "James";
-		console.info("Happy James Day!");
 		Dom.inventory.give(Items.boots[7], 1);
 	}
 	// Samhain (Halloween)
 	// Blood Moon
 	else if ((day >= 22 && month === 10) || (day <= 5 && month === 11)) {
 		Game.event = "Samhain";
+	}
+	// Christmas
+	else if (month === 12) {
+		Game.event = "Christmas";
 	}
 }
 
