@@ -206,6 +206,14 @@ var map = {
 				}
 			} );
 		}
+		if (typeof this.iceTiles !== "undefined") { // check that this map contains iceTiles
+			this.iceTiles.forEach( function(element) {
+				if (tile === element) {
+					isSlow = "ice";
+					return isSlow;
+				}
+			} );
+		}
 		return isSlow;
 	},
 	setTile: function (layer, col, row, newTileNum) {
@@ -982,6 +990,17 @@ class Hero extends Attacker {
 					this.statusEffects.splice(i,1);
 					this.updateStatusEffects();
 				}
+			}
+		}
+		else if (slowTile === "ice") { // in ice tile
+			this.speed = this.stats.speed * 1.5;
+			if(!this.hasStatusEffect("Ice Skating")) { // give status effect if the player doesn't already have it
+				this.statusEffects.push(new statusEffect({
+					title: "Ice Skating",
+					effect: "Increased movement speed",
+					image: "speedUp", // TBD change this
+				}));
+				this.updateStatusEffects();
 			}
 		}
 		else if (slowTile === "water") { // in water tile
@@ -2541,14 +2560,16 @@ Game.statusEffects.defence = function(properties) {
 Game.load = function (names, addresses) {
 	this.ctx.imageSmoothingEnabled = false;
 	
-	if (names.length != addresses.length) {
+	if (names.length !== addresses.length) {
 		throw Error("Name length is not the same as address length. Consider fixing your area's images object in areadata.js?");
 	}
 	
 	let toLoad = [];
 	
-	for (var i = 0; i < names.length; i++) {
-		toLoad.push(Loader.loadImage(names[i], addresses[i]));
+	for (let i = 0; i < names.length; i++) {
+		if (addresses !== undefined) { // it might be undefined if the event for the character is not active
+			toLoad.push(Loader.loadImage(names[i], addresses[i]));
+		}
 	}
 	
 	// check player image has been loaded (if not, then load it)
@@ -2591,6 +2612,9 @@ Game.loadArea = function (areaName, destination) {
 		"status",
 	]);
 	
+	// set game time of day (day or night)
+	this.time = this.getTime();
+	
 	// load images
 	let imageNames = Object.keys(Areas[areaName].images);
 	let imageAddresses = Object.values(Areas[areaName].images);
@@ -2599,8 +2623,12 @@ Game.loadArea = function (areaName, destination) {
 			// christmas images
 			return image.christmas;
 		}
+		else if (Game.event === "Samhain" && image.samhain !== undefined) {
+			// christmas images
+			return image.samhain;
+		}
 		else {
-			return image.normal;
+			return image.normal; // if this is undefined, the image is not loaded in by Game.load
 		}
 	});
     let p = this.load(imageNames, imageAddresses);
@@ -2614,13 +2642,28 @@ Game.loadArea = function (areaName, destination) {
 		// there are some properties that some areaData areas don't have, so should be undefined rather than the old value
 		map.solidTiles = undefined;
 		map.waterTiles = undefined;
+		map.iceTiles = undefined;
 		map.mudTiles = undefined;
 		map.pathTiles = undefined;
 		// now add all properties from areaData to the map variable
 		Object.assign(map, Areas[areaName].mapData);
-	
-		// set game time of day (day or night)
-		this.time = this.getTime();
+		// ice tiles only exist if the area isIcy
+		if (Areas[areaName].isIcy !== undefined && Areas[areaName].isIcy()) {
+			// area is icy
+			// any water tiles that are also ice tiles are now no longer water tiles
+			map.waterTies = map.waterTiles.filter(tile => {
+				if (map.iceTiles.includes(tile)) {
+					return false;
+				}
+				else {
+					return true;
+				}
+			});
+		}
+		else {
+			// purge the ice!
+			map.iceTiles = undefined;
+		}
 	
 		// if it is nighttime, change all daytime tiles to their nighttime versions
 		if (this.time === "night" && typeof Areas[areaName].mapData.nightTiles !== "undefined") {
@@ -2790,11 +2833,11 @@ Game.loadArea = function (areaName, destination) {
 				// flag up if there is unread mail
 				if (Dom.mail.unread() > 0) {
 					// flag up
-					mailbox.image = "mailboxUnread";
+					mailbox.image = mailbox.unreadImage;
 				}
 				else {
 					// no flag
-					mailbox.image = "mailbox";
+					mailbox.image = mailbox.readImage;
 				}
 				this.mailboxes.push(new Thing(mailbox));
 			});
