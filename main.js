@@ -244,6 +244,11 @@ Camera.prototype.update = function () {
     // assume followed sprite should be placed at the center of the screen whenever possible
     this.following.screenX = this.width / 2;
     this.following.screenY = this.height / 2;
+	
+	// distance moved by caera in both directions (for weather to be moved by)
+	// calculated by difference in old x/y and new x/y
+	let movedX = this.x;
+	let movedY = this.y;
 
     // make the camera follow the sprite
     this.x = this.following.x - this.width / 2;
@@ -264,6 +269,14 @@ Camera.prototype.update = function () {
         this.following.y > this.maxY + this.height / 2) {
         this.following.screenY = this.following.y - this.y;
     }
+	
+	// movedX and movedY are the old position values
+	movedX = this.x - movedX;
+	movedY = this.y - movedY;
+	// move weather!
+	if (document.getElementById("weatherOn").checked && !Areas[Game.areaName].indoors) {
+		Weather.move(movedX, movedY);
+	}
 };
 
 // check if object is displayed on the screen
@@ -993,12 +1006,12 @@ class Hero extends Attacker {
 			}
 		}
 		else if (slowTile === "ice") { // in ice tile
-			this.speed = this.stats.speed * 1.5;
+			this.speed = this.stats.walkSpeed * 1.5;
 			if(!this.hasStatusEffect("Ice Skating")) { // give status effect if the player doesn't already have it
 				this.statusEffects.push(new statusEffect({
 					title: "Ice Skating",
 					effect: "Increased movement speed",
-					image: "speedUp", // TBD change this
+					image: "speedUp", // TBD change this?
 				}));
 				this.updateStatusEffects();
 			}
@@ -1303,6 +1316,12 @@ class Hero extends Attacker {
 			// damage enemies that the projectile is touching
 			shotProjectile.dealDamage(shotProjectile.attacker, shotProjectile.targets);
 			
+			// function called for all attacks whether they hit an enemy or not
+			if (Player.inventory.weapon.onAnyAttack !== undefined) {
+			    Player.inventory.weapon.onAnyAttack(shotProjectile);
+				Dom.quests.active();
+			}
+			
 			// after a timeout (2s), remove the projectile that was just shot
 			// this doesn't work if the user attacks too fast, though this shouldn't be a problem...
 			let a = this.channellingProjectileId; // maintain a variable of the currently shot projectile
@@ -1333,6 +1352,9 @@ class Hero extends Attacker {
 					}
 				}
 			}
+			
+			// update quest log
+			Dom.quests.active();
 		}
 		else if (this.channelling === "block") {
 			this.channelling = false;
@@ -1792,7 +1814,6 @@ class Projectile extends Thing {
 							Game.removeStealthEffects(to[i][x]);
 						}
 					}
-					Dom.quests.active();
 				}
 			}
 		}
@@ -2567,7 +2588,7 @@ Game.load = function (names, addresses) {
 	let toLoad = [];
 	
 	for (let i = 0; i < names.length; i++) {
-		if (addresses !== undefined) { // it might be undefined if the event for the character is not active
+		if (addresses[i] !== undefined) { // it might be undefined if the event for the character is not active
 			toLoad.push(Loader.loadImage(names[i], addresses[i]));
 		}
 	}
@@ -2651,7 +2672,7 @@ Game.loadArea = function (areaName, destination) {
 		if (Areas[areaName].isIcy !== undefined && Areas[areaName].isIcy()) {
 			// area is icy
 			// any water tiles that are also ice tiles are now no longer water tiles
-			map.waterTies = map.waterTiles.filter(tile => {
+			map.waterTiles = map.waterTiles.filter(tile => {
 				if (map.iceTiles.includes(tile)) {
 					return false;
 				}
@@ -2843,6 +2864,11 @@ Game.loadArea = function (areaName, destination) {
 			});
 		}
 		
+		// reset weather
+		if (document.getElementById("weatherOn").checked && !Areas[Game.areaName].indoors) {
+			Weather.reset();
+		}
+		
 		// music
 		// it is checked if the user has selected for music to be played in the settings within the Game.playMusic function
 		this.playMusic();
@@ -2911,7 +2937,12 @@ Game.init = function () {
 	Dom.chat.oldString = "";
 	Dom.chat.newString = "";
 	Dom.chat.contents = [];
-	Dom.chat.insert("Welcome "+(localStorage.getItem(Player.class) !== null ? "back" : "to Antorax")+", " + Player.name + "!", 0, false);
+	if (this.event === "Christmas") {
+	    Dom.chat.insert("Merry Christmas " + Player.name + "!", 0, false);
+	}
+	else {
+	    Dom.chat.insert("Welcome "+(localStorage.getItem(Player.class) !== null ? "back" : "to Antorax")+", " + Player.name + "!", 0, false);
+	}
 	
 	// music
 	this.playingMusic = null;
@@ -2994,6 +3025,9 @@ Game.init = function () {
 	
 	// set foot hitbox position (updated on hero move normally)
 	this.updateScreenPosition(this.heroFootHitbox);
+	
+	// init weather
+	Weather.init();
 	
 	// begin game display
 	this.secondary.render();
@@ -3223,9 +3257,9 @@ Game.restoreHealth = function (target, health) {
 Game.update = function (delta) {
     // handle hero movement with arrow keys
 	if (this.hero.moveTowards === undefined && !Game.hero.hasStatusEffect("Displacement")) {
+		let dirx = 0;
+		let diry = 0;
 		// player has control over themselves
-		var dirx = 0;
-	    var diry = 0;
 	    if (Keyboard.isDown(Keyboard.LEFT) || Keyboard.isDown(Keyboard.A)) { dirx = -1; this.hero.direction = 2; }
 	    if (Keyboard.isDown(Keyboard.RIGHT) || Keyboard.isDown(Keyboard.D)) { dirx = 1; this.hero.direction = 4; }
 	    if (Keyboard.isDown(Keyboard.UP) || Keyboard.isDown(Keyboard.W)) { diry = -1; this.hero.direction = 1; }
@@ -3682,6 +3716,11 @@ Game.update = function (delta) {
 	});
 	
 	this.playerProjectileUpdate(delta); // update player's currently channelling projectile
+	
+	// update weather
+	if (document.getElementById("weatherOn").checked && !Areas[Game.areaName].indoors) {
+		Weather.update(delta);
+	}
 };
 
 // update player's currently channelling projectile
@@ -3822,7 +3861,7 @@ Game.projectileUpdate = function () {
 		}
 	}
 	// if the player is NOT holding a weapon with a special projectile image, and the skin does have a special projectile image
-	else if (Player.inventory.weapon.projectile !== undefined && this.heroProjectileName !== Skins[Player.class][Player.skin].projectile) {
+	else if (Player.inventory.weapon.projectile === undefined && this.heroProjectileName !== Skins[Player.class][Player.skin].projectile) {
 		// needs to reload default projectile image
 		this.heroProjectileName = Skins[Player.class][Player.skin].projectile;
 		this.heroProjectileAdjust = Skins[Player.class][Player.skin].projectileAdjust;
@@ -3866,6 +3905,26 @@ Game.lootClosed = function () {
 	}
 	else {
 		console.error("Dom.loot.currentId cannot be understood: " + Dom.loot.currentId);
+	}
+}
+
+// called when mail is opened (the mailbox's flag might go down), or when mail is recieved (flag might go up)
+// parameter type is set to "recieved" or "read" based on what happened
+// make more efficient to not call getImage if the image is already active? TBD
+Game.mailboxUpdate = function (type) {
+	if (Dom.mail.unread() > 0) {
+		if (type === "read") {
+			this.mailboxes.forEach(mailbox => {
+				mailbox.image = Loader.getImage(mailbox.readImage);
+			});
+		}
+	}
+	else {
+		if (type === "recieved") {
+			this.mailboxes.forEach(mailbox => {
+				mailbox.image = Loader.getImage(mailbox.unreadImage);
+			});
+		}
 	}
 }
 
@@ -4479,6 +4538,11 @@ Game.render = function (delta) {
 		this.ctx.fillText(this.displayAreaName.territory, 300, 180); // area territory (hostile, neutral, allied, etc.)
 		
 		this.displayAreaName.duration--;
+	}
+	
+	// render weather
+	if (document.getElementById("weatherOn").checked && !Areas[Game.areaName].indoors) {
+		Weather.render();
 	}
 };
 

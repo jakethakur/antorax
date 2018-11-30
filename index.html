@@ -9,7 +9,9 @@
 </head>
 <body oncontextmenu="return false;">
 	<canvas id="secondary" width="600" height="600"></canvas>
-	<canvas id="weather" width="600" height="600"></canvas>
+    <canvas id="light" width="600" height="600"></canvas>
+    <canvas id="dayNight" width="600" height="600"></canvas>
+    <canvas id="weather" width="600" height="600"></canvas>
 	<canvas id="game" width="600" height="600"></canvas>
 	<div id="information" hidden>
 		<div id='outTriangle' class='triangleLeft'></div>
@@ -106,6 +108,11 @@
 			<span class="radio1"><input type="radio" id="musicOn" name="musicOnOff" onclick="Game.playMusic()">Yes</input></span>
 			<span class="radio2"><input type="radio" name="musicOnOff" checked="true" onclick="Game.stopMusic()">No</input></span>
 		</div>
+		<div id="settingWeather" class="settings">
+			Show weather:
+			<span class="radio1"><input type="radio" id="weatherOn" name="weatherOnOff" checked="true">Yes</input></span>
+			<span class="radio2"><input type="radio" name="weatherOnOff">No</input></span>
+		</div>
 		<div id="settingCoords" class="settings">
 			Show co-ordinates:
 			<span class="radio1"><input type="radio" id="coordsOn" name="coordsOnOff" onclick="Dom.settings.save('coords', true)">Yes</input></span>
@@ -132,13 +139,15 @@
 			<span class="radio2"><input type="radio" name="speedOnOff" checked="true" onclick="Game.highSpeed('remove')">No</input></span>
 		</div>
 		<span id="settingTutorialHolder">
-			<div id="settingTutorial" class="settings">Disable Tutorial:
+			<div id="settingTutorial" class="settings">
+				Disable Tutorial:
 				<span class="radio1"><input type="radio" id="tutorialOn" name="tutorialOnOff">Yes</input></span>
 				<span class="radio2"><input type="radio" id="tutorialOff" name="tutorialOnOff" checked="true">No</input></span>
 			</div>
 		</span>
 		<span id="settingAcceptHolder">
-			<div id="settingAccept" class="settings">Enable progress saving:
+			<div id="settingAccept" class="settings">
+				Enable progress saving:
 				<span class="radio1"><input type="radio" id="acceptOn" name="acceptOnOff" onclick="Dom.settings.acceptOn()">Yes</input></span>
 				<span class="radio2"><input type="radio" name="acceptOnOff" checked="true">No</input></span>
 			</div>
@@ -253,6 +262,7 @@
 	</svg>
 	
 	<script src="./gamedata/functions.js"></script>
+	<script src="./weather.js"></script>
 	<script src="./gamedata/instructiondata.js"></script>
 	<script src="./gamedata/skindata.js"></script>
 	<script src="./gamedata/itemdata.js"></script>
