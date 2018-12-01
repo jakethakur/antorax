@@ -95,12 +95,16 @@ var Game = {
 };
 Game.canvas = document.getElementById("game");
 Game.secondary.canvas = document.getElementById("secondary");
+Game.canvasLight = document.getElementById("game");
+Game.canvasDayNight = document.getElementById("game");
 
 // run game
-Game.run = function (context, secondaryContext) {
+Game.run = function (context, contextSecondary, contextDayNight, contextLight) {
     this.ctx = context;
+	this.ctxDayNight = contextDayNight;
+	this.ctxLight = contextLight;
 	
-    this.secondary.ctx = secondaryContext;
+    this.secondary.ctx = contextSecondary;
 	
     this._previousElapsed = 0;
 	
@@ -141,8 +145,10 @@ Game.tick = function (elapsed) {
 
 window.onload = function () {
     let context = Game.canvas.getContext('2d');
-	let secondaryContext = Game.secondary.canvas.getContext('2d');
-    Game.run(context, secondaryContext);
+	let contextSecondary = Game.secondary.canvas.getContext('2d');
+	let contextDayNight = Game.canvasDayNight.getContext('2d');
+	let contextLight = Game.canvasLight.getContext('2d');
+    Game.run(context, contextSecondary, contextDayNight, contextLight);
 };
 
 //
@@ -210,6 +216,14 @@ var map = {
 			this.iceTiles.forEach( function(element) {
 				if (tile === element) {
 					isSlow = "ice";
+					return isSlow;
+				}
+			} );
+		}
+		if (typeof this.pathTiles !== "undefined") { // check that this map contains pathTiles
+			this.pathTiles.forEach( function(element) {
+				if (tile === element) {
+					isSlow = "path";
 					return isSlow;
 				}
 			} );
@@ -457,6 +471,10 @@ class Thing extends Entity {
 		 
 		// if the image is a **horizontal** tileset, where all images have the same width and height, this specifies the number image to use (starting at 0 for the first image)
 		this.imageNumber = properties.imageNumber || 0; // currently only works for projectiles (TBD)
+		
+		this.canvasLayer = properties.canvasLayer || "ctx"; // Game[canvasLayer] is where the image is drawn
+		// if the image should be drawn above night/weather, this should be set to "ctxLight" (is a bright object)
+		// currently only works for things on renderList (not player) - TBD?
 		
 		// set width and height to image dimensions unless otherwise specified
 		this.width = properties.width || this.image.width;
@@ -997,21 +1015,35 @@ class Hero extends Attacker {
 		let slowTile = this.map.isSlowTileAtXY(this.x, this.y + 50);
 		if (slowTile === null || baseSpeed) { // normal speed
 			this.speed = this.stats.walkSpeed;
-			// remove swimming/mud status effect
+			// remove swimming/mud/ice/path status effect
 			for (var i = 0; i < this.statusEffects.length; i++) {
-				if (this.statusEffects[i].title == "Swimming" || this.statusEffects[i].title == "Stuck in the mud") {
+				if (this.statusEffects[i].title == "Swimming"
+				|| this.statusEffects[i].title == "Stuck in the mud"
+				|| this.statusEffects[i].title == "Ice skating"
+			  	|| this.statusEffects[i].title == "On a path") {
 					this.statusEffects.splice(i,1);
 					this.updateStatusEffects();
 				}
 			}
 		}
-		else if (slowTile === "ice") { // in ice tile
+		else if (slowTile === "ice") { // on ice tile
 			this.speed = this.stats.walkSpeed * 1.5;
-			if(!this.hasStatusEffect("Ice Skating")) { // give status effect if the player doesn't already have it
+			if(!this.hasStatusEffect("Ice skating")) { // give status effect if the player doesn't already have it
 				this.statusEffects.push(new statusEffect({
-					title: "Ice Skating",
-					effect: "Increased movement speed",
+					title: "Ice skating",
+					effect: "+50% movement speed",
 					image: "speedUp", // TBD change this?
+				}));
+				this.updateStatusEffects();
+			}
+		}
+		else if (slowTile === "path") { // on path
+			this.speed = this.stats.walkSpeed * 1.15;
+			if(!this.hasStatusEffect("On a path")) { // give status effect if the player doesn't already have it
+				this.statusEffects.push(new statusEffect({
+					title: "On a path",
+					effect: "+15% movement speed",
+					image: "speedUp",
 				}));
 				this.updateStatusEffects();
 			}
@@ -2924,6 +2956,9 @@ Game.loadArea = function (areaName, destination) {
 		
 		// render secondary canvas
 		Game.secondary.render();
+		
+		// render day/night effects
+		Game.renderDayNight();
     }.bind(this))
 	.catch(function (err) {
 		// error for if the images didn't load
@@ -3912,19 +3947,21 @@ Game.lootClosed = function () {
 // parameter type is set to "recieved" or "read" based on what happened
 // make more efficient to not call getImage if the image is already active? TBD
 Game.mailboxUpdate = function (type) {
-	if (Dom.mail.unread() > 0) {
-		if (type === "read") {
+	if (type === "read") {
+		if (Dom.mail.unread() > 0) {
 			this.mailboxes.forEach(mailbox => {
 				mailbox.image = Loader.getImage(mailbox.readImage);
 			});
 		}
 	}
+	else if (type === "recieved") {
+		// perhaps check if Dom.mail.unread is 1, because only one message will come in at a time and if it is more than 1 then it would already be a flag
+		this.mailboxes.forEach(mailbox => {
+			mailbox.image = Loader.getImage(mailbox.unreadImage);
+		});
+	}
 	else {
-		if (type === "recieved") {
-			this.mailboxes.forEach(mailbox => {
-				mailbox.image = Loader.getImage(mailbox.unreadImage);
-			});
-		}
+		console.error("Unrecognised type (should be 'read' or 'received')", type)
 	}
 }
 
@@ -4295,7 +4332,7 @@ Game.render = function (delta) {
 	this._drawLayer(0);
     //}
 	
-	// render npcs on renderList
+	// render things on renderList
 	for (var i = 0; i < this.renderList.length; i++) { // iterate through everything to be rendered (in order)
 		
 		for (var x = 0; x < this[this.renderList[i]].length; x++) { // iterate through that array of things to be rendered
@@ -4312,7 +4349,7 @@ Game.render = function (delta) {
 				if (!objectToRender.respawning) { // check character is not dead
 					
 					// draw image
-					this.ctx.drawImage(
+					this[objectToRender.canvasLayer].drawImage(
 						objectToRender.image,
 						objectToRender.screenX - objectToRender.width / 2,
 						objectToRender.screenY - objectToRender.height / 2,
@@ -4332,7 +4369,7 @@ Game.render = function (delta) {
 						this.updateScreenPosition(objectToRender);
 						
 						// draw image (corpse)
-						this.ctx.drawImage(
+						this[objectToRender.canvasLayer].drawImage(
 							objectToRender.deathImage,
 							objectToRender.screenX - objectToRender.deathImageWidth / 2,
 							objectToRender.screenY - objectToRender.deathImageHeight / 2,
@@ -4576,18 +4613,6 @@ Game.secondary.updateCursor = function (event) {
 Game.secondary.render = function () {
 	// clear secondary canvas
 	this.ctx.clearRect(0, 0, 600, 600);
-		
-	// make canvas darker if it is night time and the player is not indoors
-	if (Game.time === "night" && !Areas[Game.areaName].indoors) {
-		this.ctx.fillStyle = "black";
-		this.ctx.globalAlpha = 0.35; // maybe change?
-		this.ctx.fillRect(0, 0, 600, 600);
-	}
-	else if (Game.time === "bloodMoon" && !Areas[Game.areaName].indoors) {
-		this.ctx.fillStyle = "#2d0101"; // red tint
-		this.ctx.globalAlpha = 0.45;
-		this.ctx.fillRect(0, 0, 600, 600);
-	}
 	
 	if (!Keyboard.isDown(Keyboard.SHIFT)) { // only render the second canvas if the player isn't pressing the shift key
 		
@@ -4693,6 +4718,24 @@ Game.secondary.render = function () {
 			}
 			this.ctx.textAlign = "center";
 		}
+	}
+}
+
+// only called whenever loadArea is called (for efficiency) - called as often as getTime
+// night effect
+Game.renderDayNight = function () {
+	// wipe canvas
+	this.ctxDayNight.clearRect(0, 0, 600, 600);
+	// make canvas darker if it is night time and the player is not indoors
+	if (Game.time === "night" && !Areas[Game.areaName].indoors) {
+		this.ctxDayNight.fillStyle = "black";
+		this.ctxDayNight.globalAlpha = 0.35; // maybe change?
+		this.ctxDayNight.fillRect(0, 0, 600, 600);
+	}
+	else if (Game.time === "bloodMoon" && !Areas[Game.areaName].indoors) {
+		this.ctxDayNight.fillStyle = "#2d0101"; // red tint
+		this.ctxDayNight.globalAlpha = 0.45;
+		this.ctxDayNight.fillRect(0, 0, 600, 600);
 	}
 }
 
