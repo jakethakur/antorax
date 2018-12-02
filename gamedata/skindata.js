@@ -93,6 +93,17 @@ var Skins = {
 			cursorPosition: {x: 10, y: 10},
 			headAdjust: {x: 5, y: 12},
 		},
+		{
+			id: 4,
+			position: {x: 0, y: 0}, // TBD
+			name: "Father Christmas",
+			gender:	"m",
+			projectile:	"bauble",
+			projectileAdjust: {x: -5.5, y: -5.5},
+			cursor: "chilly",
+			cursorPosition: {x: 10, y: 10},
+			headAdjust: {x: 0, y: 0}, // TBD
+		},
 	],
 	k: [
 		{
