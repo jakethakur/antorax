@@ -95,8 +95,8 @@ var Game = {
 };
 Game.canvas = document.getElementById("game");
 Game.secondary.canvas = document.getElementById("secondary");
-Game.canvasLight = document.getElementById("game");
-Game.canvasDayNight = document.getElementById("game");
+Game.canvasLight = document.getElementById("light");
+Game.canvasDayNight = document.getElementById("dayNight");
 
 // run game
 Game.run = function (context, contextSecondary, contextDayNight, contextLight) {
@@ -3150,7 +3150,7 @@ Game.getTime = function () {
 
 	// day time
 	if (hour > 7 && hour < 19) {
-		return "night";
+		return "day";
 	}
 	// night time
 	else if (this.event === "Samhain") {
