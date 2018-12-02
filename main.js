@@ -121,6 +121,7 @@ Game.tick = function (elapsed) {
 
     // clear previous frame
     this.ctx.clearRect(0, 0, this.canvas.width, this.canvas.height);
+    this.ctxLight.clearRect(0, 0, this.canvas.width, this.canvas.height);
 
     // compute delta time in seconds -- also cap it
     var delta = (elapsed - this._previousElapsed) / 1000.0;

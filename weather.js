@@ -19,7 +19,7 @@ Weather.init = function () {
 // resets weather particle distribution
 // called on area change or non-gradual teleport (as the weather is distributed oddly due to these)
 Weather.reset = function () {
-	this.particleArray = [];
+	Weather.particleArray = []; // Weather not this because sometimes called by setTimeout
 }
 
 
