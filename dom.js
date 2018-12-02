@@ -51,6 +51,7 @@ if(localStorage.getItem("settings") !== null){
 		grid: false,
 		hitboxes: false,
 		music: false,
+		weather: true,
 		bookmarks: "bottom",
 		instructionsLink: false,
 		hotkeys: ["c","i","q","l","r","z"],
@@ -188,7 +189,7 @@ Dom.changeBook = function(page, override, shouldNotBeOverriden, levelUpOverride)
 			// if the page is a bookmark page
 			if(!shouldNotBeOverriden){
 				Dom.currentlyDisplayed = "";
-				Dom.currentNPC = "";
+				Dom.currentNPC = {};
 			}
 			if(levelUpOverride !== undefined){
 				Dom.levelUp.override = true;
@@ -196,7 +197,7 @@ Dom.changeBook = function(page, override, shouldNotBeOverriden, levelUpOverride)
 				setTimeout(function(){
 					Dom.levelUp.override = false;
 					Dom.currentlyDisplayed = "";
-					Dom.currentNPC = "";
+					Dom.currentNPC = {};
 					if(Dom.levelUp.waiting){
 						Dom.levelUp.waiting = false;
 						Dom.levelUp.page();
@@ -813,7 +814,7 @@ Dom.inventory.removeItemCharge = function(inventoryPosition, hotbar){
 }
 
 Dom.currentlyDisplayed = "";
-Dom.currentNPC = "";
+Dom.currentNPC = {};
 Dom.quest.start = function(quest){
 	if(Dom.changeBook("questStart", true/*false*/, true)) {
 		document.getElementById("questStartQuest").innerHTML = quest.quest;
@@ -2046,7 +2047,6 @@ Dom.inventory.drop = function(ev, equip, id){
 							Dom.inventory.removeEquipment(Player.inventory.items[i]); // has already been moved
 						// if it is a weapon
 						}else{
-							console.log("yes");
 							Dom.inventory.removeEquipment(Player.inventory.items[i]); // has already been moved
 						}
 					}
@@ -2454,7 +2454,7 @@ document.getElementById("levelUpPageClose").onclick = function(){
 	document.getElementById("levelUpPage").hidden = true; // because it was absolutely positioned over the previous page
 	if(Dom.currentlyDisplayed === Player.tab){ // because it was never changed if something was already open
 		Dom.currentlyDisplayed = "";
-		Dom.currentNPC = "";
+		Dom.currentNPC = {};
 	}
 }
 
@@ -2601,11 +2601,15 @@ Dom.buyer.page = function(npc){
 	}
 }
 
+Dom.currentNPC = {};
 Dom.choose.page = function(npc, buttons, functions, parameters){
 	let name = npc.name !== undefined ? npc.name : npc; // for cases like Goblin Torch
 	if(Dom.currentlyDisplayed === ""){
 		Dom.currentlyDisplayed = name;
-		Dom.currentNPC = name;
+		if(name !== npc){
+			Dom.currentNPC.type = npc.type;
+			Dom.currentNPC.id = npc.id;
+		}
 		if(buttons.length > 1){
 			Dom.changeBook("choosePage", true/*false*/, true);
 			document.getElementById("choosePage").innerHTML = "<h1>"+name+"</h1>"+(npc.chat !== undefined ? "<p>"+npc.chat.chooseChat+"</p>" : "");
@@ -2657,7 +2661,7 @@ Dom.choose.page = function(npc, buttons, functions, parameters){
 	}else{
 		if(npc === "Instructions"){
 			Dom.adventure.awaitingInstructions.push(parameters[0][0]);
-		}else if(Dom.currentNPC !== name){
+		}else if(Dom.currentNPC.type !== npc.type || Dom.currentNPC.id !== npc.id){
 			if(document.getElementsByClassName("closeClass")[0].style.border !== "5px solid red" && !Dom.choose.override) {
 				//Dom.changeBook("identifierPage", false);
 				Dom.choose.override = true; // overrides future updates
@@ -2778,7 +2782,7 @@ if(Dom.settings.settings.instructionsLink === true){
 
 Dom.adventure.showInstructions = function(chapter, reverse){
 	Dom.currentlyDisplayed = "";
-	Dom.currentNPC = "";
+	Dom.currentNPC = {};
 	if(reverse){
 		Dom.adventure.awaitingInstructions.unshift(chapter);
 	}else{
@@ -2830,24 +2834,27 @@ if(Dom.settings.settings.grid === true){
 Dom.mail.page = function(){
 	Dom.changeBook("mailPage", true/*false*/, true);
 	document.getElementById("mailPage").innerHTML = "<br><h1>Mailbox</h1><br>";
-	for(let i = 0; i < Player.mail.mail.length; i++){
-		document.getElementById("mailPage").innerHTML += "<div class='mail' "+(Player.mail.opened.includes(Player.mail.mail[i].title)?"style='background-color: #fdf581;'":"")+"><div class='mailImage'></div><div class='mailTitle'><strong>"+Player.mail.mail[i].title+"</strong><br>From "+Player.mail.mail[i].sender+"<br>Received on "+Player.mail.mail[i].date+"</div><div class='mailDelete'>X</div></div>";
-	}
 	for(let i = Player.mail.mail.length-1; i >= 0; i--){
+		document.getElementById("mailPage").innerHTML += "<div class='mail' "+(Player.mail.opened.includes(Player.mail.mail[i].title)?"style='background-color: #fef9b4;'":"")+"><div class='mailImage'></div><div class='mailTitle'><strong>"+Player.mail.mail[i].title+"</strong><br>From "+Player.mail.mail[i].sender+"<br>Received on "+Player.mail.mail[i].date+"</div><div class='mailDelete'>X</div></div>";
+	}
+	document.getElementById("mailPage").innerHTML += "<br><br><center><div class='closeClass' id='closeMail' onclick='Dom.changeBook(Player.tab, true)'>Close</div></center>";
+	for(let i = Player.mail.mail.length-1; i >= 0; i--){
+		let ii = Player.mail.mail.length-1-i;
 		if(Player.mail.mail[i].image.substring(0,7) === "assets/"){
-			document.getElementsByClassName("mailImage")[i].style.backgroundImage = "url('"+Player.mail.mail[i].image+".png')";
+			document.getElementsByClassName("mailImage")[ii].style.backgroundImage = "url('"+Player.mail.mail[i].image+".png')";
 		}else{
-			document.getElementsByClassName("mailImage")[i].style.backgroundImage = "url('assets/npcs/"+Player.mail.mail[i].image+".png')";
-			document.getElementsByClassName("mailImage")[i].style.backgroundPosition = Offsets[Player.mail.mail[i].image].x+"%"+Offsets[Player.mail.mail[i].image].y+"%";
+			document.getElementsByClassName("mailImage")[ii].style.backgroundImage = "url('assets/npcs/"+Player.mail.mail[i].image+".png')";
+			document.getElementsByClassName("mailImage")[ii].style.backgroundPosition = Offsets[Player.mail.mail[i].image].x+"%"+Offsets[Player.mail.mail[i].image].y+"%";
 		}
-		document.getElementsByClassName("mailDelete")[i].onclick = function(){
+		document.getElementsByClassName("mailDelete")[ii].onclick = function(){
 			Dom.alert.target = function(){
 				Player.mail.mail.splice(i, 1);
 				Dom.mail.page();
+				Game.mailboxUpdate("read");
 			}
 			Dom.alert.page("Are you sure you want to delete this mail? It will be lost forever!", 1);
 		}
-		document.getElementsByClassName("mail")[i].onclick = function(){
+		document.getElementsByClassName("mail")[ii].onclick = function(){
 			if(document.getElementById("alert").hidden){
 				if(!Player.mail.opened.includes(Player.mail.mail[i].title)){
 					Player.mail.opened.push(Player.mail.mail[i].title);
@@ -2858,6 +2865,7 @@ Dom.mail.page = function(){
 					}
 				}
 				ExecuteFunctionByName(Player.mail.mail[i].openFunction, Dom, Player.mail.mail[i].openParameters);
+				Game.mailboxUpdate("read");
 			}
 		}
 	}
@@ -2875,6 +2883,9 @@ Dom.mail.give = function(title, sender, image, openFunction, openParameters, giv
 	});
 	if(!Player.mail.received.includes(title)){
 		Player.mail.received.push(title);
+	}
+	if(typeof Game !== "undefined"){
+		Game.mailboxUpdate("received");
 	}
 }
 
@@ -2894,8 +2905,8 @@ Dom.mail.unread = function(){
 
 // LOADS A NEW CLASS
 Dom.inventory.give(Items.currency[2],3);
+let randomNPC = Object.keys(Offsets)[Random(0, Object.keys(Offsets).length-1)];
 Dom.mail.give("Welcome to Antorax!", "The Tinkering Guild", "galuthel", "text.page", ["Welcome to Antorax!",`Hello ${Player.name}!<br><br>It's great to have new people joining us in Antorax. I look forward to meeting you very soon in Wizard Island. Perhaps you would like to try out one of our newest inventions - the <camera name>! It's free of charge. Pop us a letter if it explodes, otherwise see you soon!<br><br>From the Tinkering Guild`, true, [], [], [[Items.item[14]]]], [[Items.item[14]]]);
-Dom.mail.give("Wheee!", "The Tinkering Guild", "ghost", "text.page", ["Wheee!","Hello all! Hopefully the mecha-pigeons sent this message to you. If not... nevermind. We've developed a brand new toy for you all to play with - the displacement grenade! Don't worry, this one is meant to explode. You have our guarantee!<br><br>From the Tinkering Guild", true, [], [], [[Items.consumable[13]]]], [[Items.consumable[13]]]);
 
 // LOADS ALL EXISTING CLASS SAVEDATA
 if(localStorage.getItem(Player.class) !== null){
@@ -2949,6 +2960,7 @@ for(let i = 0; i < Player.inventory.items.length; i++){
 			Player.inventory.items[i].onClick = Items[Player.inventory.items[i].type][Player.inventory.items[i].id].onClick;
 			Player.inventory.items[i].onKill = Items[Player.inventory.items[i].type][Player.inventory.items[i].id].onKill;
 			Player.inventory.items[i].onAttack = Items[Player.inventory.items[i].type][Player.inventory.items[i].id].onAttack;
+			Player.inventory.items[i].onAnyAttack = Items[Player.inventory.items[i].type][Player.inventory.items[i].id].onAnyAttack;
 		}
 		document.getElementById("itemInventory").getElementsByTagName("td")[i].innerHTML = "<img src='"+Player.inventory.items[i].image+"' draggable='true' ondragstart='Dom.inventory.drag(event,"+i+")' "+(Player.inventory.items[i].onClick !== undefined ? "onclick='Player.inventory.items["+i+"].onClick("+i+")'" : "")+"></img>";
 		if(Player.inventory.items[i].stacked !== undefined && Player.inventory.items[i].stacked !== 1){
@@ -2990,6 +3002,7 @@ for(let i = 0; i < Object.keys(Player.inventory).length-1; i++){ // repeats for 
 			Player.inventory[Object.keys(Player.inventory)[i]].onClick = Items[Player.inventory[Object.keys(Player.inventory)[i]].type][Player.inventory[Object.keys(Player.inventory)[i]].id].onClick;
 			Player.inventory[Object.keys(Player.inventory)[i]].onKill = Items[Player.inventory[Object.keys(Player.inventory)[i]].type][Player.inventory[Object.keys(Player.inventory)[i]].id].onKill;
 			Player.inventory[Object.keys(Player.inventory)[i]].onAttack = Items[Player.inventory[Object.keys(Player.inventory)[i]].type][Player.inventory[Object.keys(Player.inventory)[i]].id].onAttack;
+			Player.inventory[Object.keys(Player.inventory)[i]].onAnyAttack = Items[Player.inventory[Object.keys(Player.inventory)[i]].type][Player.inventory[Object.keys(Player.inventory)[i]].id].onAnyAttack;
 			document.getElementById(Object.keys(Player.inventory)[i]).innerHTML = "<img src='"+Player.inventory[Object.keys(Player.inventory)[i]].image+"' draggable='true' ondragstart='Dom.inventory.drag(event,\""+Object.keys(Player.inventory)[i]+"\")' "+(Player.inventory[Object.keys(Player.inventory)[i]].onClick !== undefined ? "onclick='Player.inventory."+Object.keys(Player.inventory)[i]+".onClick(\""+Object.keys(Player.inventory)[i]+"\")'" : "")+"></img>"; // updates the image
 		}
 	}
@@ -3029,6 +3042,12 @@ for(let i = 0; i < Player.statusEffects.length; i++){
 	if(Player.statusEffects[i].title === "HIGH SPEED! (test status effect)"){
 		document.getElementById("speedOn").checked = true;
 	}
+}
+if(GetFullDate().substring(2,4) === "12" && !Player.days.includes(GetFullDate())){
+	Dom.mail.give(25 - parseInt(GetFullDate().substring(0,2)) + " Days To Go!", FromCamelCase(randomNPC), randomNPC, "text.page", ["Merry Christmas!","This is your free daily chistmas token. Spend it wisely!", true, [], [], [[Items.currency[5]]]], [[Items.currency[5]]]);
+}
+if(!Player.days.includes(GetFullDate())){
+	Player.days.push(GetFullDate());
 }
 
 // TESTING

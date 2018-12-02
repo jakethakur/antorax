@@ -822,7 +822,7 @@ var Items = {
 			rarity: "unique",
 			lore: "So this is what happens when you leave your crossbow in the shed for too long.",
 			obtain: "Buy from a merchant during the Samhain event.",
-			sellPrice: "4",
+			sellPrice: 4,
 			stats: {
 				damage: "3.5",
 			},
@@ -838,6 +838,36 @@ var Items = {
 			functionText: "Gives -50% walk speed to attacked enemies for 1 second",
 			projectile: "arrowOrange",
 			projectileAdjust: {x: 20, y: 20},
+		},
+		{
+			id: 8,
+			name: "Snowball",
+			type: "bow",
+			image: "assets/items/bow/8.png",
+			tier: 1,
+			rarity: "common",
+			sellPrice: 1,
+			lore: "Throw it at someone you don't like",
+			stats: {
+				damage: "0",
+			},
+			onAnyAttack: function (projectile) {
+				if(projectile.isTouching(Game.npcs[0]) && Game.areaName === "eaglecrestLoggingCamp"){
+					Dom.inventory.removeById(8, "bow");
+					if(Player.quests.questProgress.hitTeper === undefined){
+						Player.quests.questProgress.hitTeper = 1;
+					}else{
+						Player.quests.questProgress.hitTeper++;
+					}
+					if(Player.quests.questProgress.hitTeper === 3){
+						Game.projectiles.splice(Game.searchFor(projectile.id, Game.projectiles), 1); // find the id of the to-be-removed projectile and remove it
+						Game.npcs[0].image = Loader.getImage("teperAngry");
+					}
+				}
+			},
+			allClasses: true,
+			projectile: "snowball",
+			projectileAdjust: {x: 0, y: 0},
 		},
 	],
 	rod: [ // fishing rod
@@ -991,6 +1021,14 @@ var Items = {
 			type: "currency",
 			image: "assets/items/currency/4.png",
 			use: "Used to buy special Samhain event items from a Samhain merchant.",
+			stack: 256,
+		},
+		{
+			id: 4,
+			name: "Christmas Token",
+			type: "currency",
+			image: "assets/items/currency/5.png",
+			use: "Used to buy special Christmas items around the Eaglecrest Logging Camp.",
 			stack: 256,
 		},
 	],
@@ -1298,6 +1336,11 @@ var Items = {
 			functionText: "Restores 15 health",
 			lore: "Might make you a little tipsy...",
 			onClick: function (inventoryPosition) {
+				// complete quest from innkeeper
+				if(Player.quests.questProgress.drunkBeer === undefined){
+					Player.quests.questProgress.drunkBeer = 1;
+				}
+				
 				// remove the item
 				Dom.inventory.remove(inventoryPosition);
 				

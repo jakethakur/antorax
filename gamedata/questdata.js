@@ -1122,18 +1122,79 @@ var Quests = {
 			},
 		},
 		
-		/*{
-			id: 2,
+		{
+			id: 21,
+			quest: "The Festive Spirit",
+			questArea: "eaglecrestLoggingCamp",
+			
+			startName: "Combat Trainer Saral",
+			startChat: "tbd",
+			
+			finishName: "Combat Trainer Saral",
+			finishChat: "tbd",
+			
+			objectives: [
+				"Make 3 snowballs from the snow gathering on the nearby rocks",
+				"Throw them all at <strong>Marshall Teper</strong>",
+				"Speak to <strong>Combat Trainer Saral</strong>.",
+			],
+			
+			isCompleted: function() {
+				let completed = [];
+				
+				// true or falses for each objective (apart from the turn-in objective)
+				completed.push(checkProgress(Player.quests.questProgress.snowCollected, 3));
+				completed.push(checkProgress(Player.quests.questProgress.hitTeper, 3));
+				
+				completed = checkFinished(completed);
+				
+				return completed;
+			},
+			
+			howToStart: "Speak to <strong>Combat Trainer Saral</strong>.",
+			levelRequirement: 2,
+			questRequirements: ["Retrieval of Logs"],
+			
+			repeatTime: "daily",
+			
+			rewards: {
+				xp: 10,
+				reputation: {
+					eaglecrestLoggingCamp: 20,
+				},
+				items: [
+					Items.currency[5],
+				],
+				itemQuantities: [
+					3,
+				],
+			},
+			
+			resetVariables: [
+				"snowCollected",
+				"hitTeper",
+			],
+		},
+	],
+	
+	tavern: [
+		{
+			id: 0,
 			quest: "A drink on us!",
+			questArea: "tavern",
 			
 			startName: "Gregor Goldenbrew",
 			startChat: "I 'aven't seen you round 'ere before! Hehe, enjoy a drink by the hearth - free on us!",
 			
+			finishName: "Gregor Goldenbrew",
+			finishChat: "tbd",
+			
 			objectives: [
 				"Take a sip from your wood-brewed beer around the hearth.",
+				"Speak to <strong>Grogor Goldenbrew</strong>.",
 			],
 			
-			howToStart: "Speak to Gregor Goldenbrew in the Treefeller's Tavern.",
+			howToStart: "Speak to <strong>Gregor Goldenbrew</strong> in the Treefeller's Tavern.",
 			levelRequirement: 1,
 			questRequirements: ["To the Logging Camp"],
 			
@@ -1141,13 +1202,25 @@ var Quests = {
 				xp: 25,
 			},
 			
+			resetVariables: [
+				"drunkBeer",
+			],
+			
+			isCompleted: function() {
+				let completed = [];
+				
+				completed.push(checkProgress(Player.quests.questProgress.drunkBeer, 1));
+				
+				completed = checkFinished(completed);
+				
+				return completed;
+			},
+			
 			onQuestStart: function() {
-				Dom.chat.insert("Gregor brews you an extra large beer. Try not to get too tipsy!", 100);
+				//Dom.chat.insert("Gregor brews you an extra large beer. Try not to get too tipsy!", 100);
 				// give the player a brew
 			},
 		},
-		
-		*/
 	],
 	
 	fishing: [

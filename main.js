@@ -468,7 +468,10 @@ class Thing extends Entity {
 		super(properties);
 
 		this.image = Loader.getImage(properties.image);
-		 
+		
+		//this.readImage = properties.readImage;
+		//this.unreadImage = properties.unreadImage;
+		
 		// if the image is a **horizontal** tileset, where all images have the same width and height, this specifies the number image to use (starting at 0 for the first image)
 		this.imageNumber = properties.imageNumber || 0; // currently only works for projectiles (TBD)
 		
@@ -962,9 +965,9 @@ class Hero extends Attacker {
 		var left = this.x - this.width / 2;
 		var right = this.x + this.width / 2;
 		//var top = this.y - this.height / 2;
-		var top = this.y + 100 - this.height / 2;
+		var top = this.y + 60;
 		//var bottom = this.y + this.height / 2;
-		var bottom = this.y + 100;
+		var bottom = this.y + 60;
 
 		// check for collisions on sprite sides
 		let collision =
@@ -2228,6 +2231,17 @@ class Cannon extends Thing {
 	}
 }
 
+// can be opened for mail
+class Mailbox extends Thing {
+    constructor(properties) {
+        super(properties);
+        
+        // image key names displayed when read/unread
+        this.readImage = properties.readImage;
+        this.unreadImage = properties.unreadImage;
+    }
+}
+
 //
 // Status effects
 //
@@ -2892,7 +2906,7 @@ Game.loadArea = function (areaName, destination) {
 					// no flag
 					mailbox.image = mailbox.readImage;
 				}
-				this.mailboxes.push(new Thing(mailbox));
+				this.mailboxes.push(new Mailbox(mailbox));
 			});
 		}
 		
@@ -2934,7 +2948,7 @@ Game.loadArea = function (areaName, destination) {
 		// tell the player if they have unread mail
 		let unreadMail = Dom.mail.unread();
 		if(unreadMail > 0) {
-			Dom.chat.insert("You have " + unreadMail + " new messages!"); // tbd - maybe make it more obvious that player has to check their mailbox for this?
+			Dom.chat.insert("You have " + unreadMail + " new messages!", 0, false); // tbd - maybe make it more obvious that player has to check their mailbox for this?
 		}
 		
 		// if the area is a checkpoint and it is not the player's current checkpoint, update the player's checkpoint
@@ -2973,10 +2987,10 @@ Game.init = function () {
 	Dom.chat.newString = "";
 	Dom.chat.contents = [];
 	if (this.event === "Christmas") {
-	    Dom.chat.insert("Merry Christmas " + Player.name + "!", 0, false);
+	    Dom.chat.insert("Merry Christmas " + Player.name + "!", 0, false, true);
 	}
 	else {
-	    Dom.chat.insert("Welcome "+(localStorage.getItem(Player.class) !== null ? "back" : "to Antorax")+", " + Player.name + "!", 0, false);
+	    Dom.chat.insert("Welcome "+(localStorage.getItem(Player.class) !== null ? "back" : "to Antorax")+", " + Player.name + "!", 0, false, true);
 	}
 	
 	// music
@@ -3136,7 +3150,7 @@ Game.getTime = function () {
 
 	// day time
 	if (hour > 7 && hour < 19) {
-		return "day";
+		return "night";
 	}
 	// night time
 	else if (this.event === "Samhain") {
@@ -3948,7 +3962,7 @@ Game.lootClosed = function () {
 // make more efficient to not call getImage if the image is already active? TBD
 Game.mailboxUpdate = function (type) {
 	if (type === "read") {
-		if (Dom.mail.unread() > 0) {
+		if (Dom.mail.unread() === 0) {
 			this.mailboxes.forEach(mailbox => {
 				mailbox.image = Loader.getImage(mailbox.readImage);
 			});

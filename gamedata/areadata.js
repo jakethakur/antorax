@@ -322,15 +322,64 @@ var Areas = {
 			tsize: 60,
 			tilesPerRow: 7,
 			waterTiles: [24, 31, 38],
+			iceTiles: [24, 31],
 			pathTiles: [2, 9, 16, 23, 30, 37, 44, 51, 58],
 			layers: [
 				[50, 1, 50, 2, 50, 1, 50, 50, 50, 50, 50, 50, 39, 24, 24, 4, 50, 1, 50, 50, 50, 50, 36, 50, 50, 5, 6, 7, 50, 50, 50, 50, 36, 50, 50, 50, 36, 50, 50, 50, 50, 50, 50, 50, 8, 50, 2, 50, 8, 50, 50, 50, 50, 26, 27, 39, 24, 38, 4, 50, 8, 50, 50, 50, 50, 50, 50, 50, 12, 13, 14, 50, 43, 50, 50, 50, 50, 36, 50, 50, 50, 50, 50, 50, 50, 50, 43, 15, 50, 2, 50, 15, 50, 26, 27, 50, 26, 27, 39, 24, 24, 4, 50, 15, 43, 50, 50, 50, 50, 50, 50, 50, 50, 50, 50, 50, 50, 50, 50, 36, 50, 50, 50, 50, 50, 50, 50, 43, 50, 27, 50, 50, 37, 2, 2, 2, 2, 2, 2, 2, 2, 10, 3, 3, 17, 2, 2, 2, 9, 50, 50, 50, 50, 50, 50, 50, 50, 50, 50, 50, 50, 50, 50, 50, 50, 50, 50, 50, 50, 50, 50, 50, 60, 26, 27, 50, 50, 50, 50, 50, 50, 50, 50, 50, 39, 24, 24, 4, 26, 27, 50, 50, 50, 50, 50, 50, 50, 50, 50, 50, 50, 19, 20, 21, 50, 50, 50, 50, 50, 50, 50, 50, 50, 50, 50, 4, 50, 50, 50, 50, 50, 50, 50, 26, 27, 43, 50, 39, 24, 24, 81, 32, 60, 50, 50, 50, 50, 50, 43, 50, 50, 50, 50, 50, 50, 22, 50, 50, 50, 50, 50, 50, 50, 50, 50, 50, 50, 50, 81, 60, 50, 50, 50, 50, 50, 26, 27, 50, 53, 32, 25, 24, 24, 24, 24, 81, 60, 50, 50, 50, 50, 50, 50, 50, 50, 5, 6, 7, 29, 43, 50, 50, 50, 50, 50, 50, 50, 50, 50, 50, 50, 24, 81, 32, 32, 32, 32, 32, 32, 32, 32, 25, 24, 24, 24, 24, 24, 24, 24, 81, 32, 60, 50, 50, 50, 50, 50, 50, 12, 13, 14, 50, 50, 50, 50, 50, 50, 50, 50, 50, 50, 36, 50, 50, 24, 24, 24, 24, 24, 24, 24, 38, 31, 24, 24, 24, 24, 24, 52, 45, 38, 24, 24, 24, 81, 32, 32, 60, 50, 50, 50, 50, 50, 50, 50, 50, 50, 50, 50, 50, 50, 50, 50, 50, 50, 50, 50, 31, 38, 24, 24, 24, 24, 24, 24, 24, 24, 24, 38, 52, 45, 52, 45, 45, 24, 31, 24, 24, 24, 24, 81, 32, 32, 32, 32, 32, 60, 50, 50, 50, 50, 50, 50, 50, 36, 50, 50, 50, 50, 36],
 				[],
 			],
+			interactWithTile: function(tileNum, x, y) { // pick up snowball from rock
+				if (tileNum === 6){ // rock top centre
+					// give snowball to player
+					if (Dom.inventory.give(Items.bow[8], 1)) { // check if player has enough inventory space
+						if(Player.quests.questProgress.snowCollected === undefined){
+							Player.quests.questProgress.snowCollected = 1;
+						}else{
+							Player.quests.questProgress.snowCollected++;
+						}
+						Dom.quests.active();
+						// replace tiles with no snow rocks
+						map.setTile(0, map.getCol(x), map.getRow(y), 34);
+						map.setTile(0, map.getCol(x + 60), map.getRow(y), 35);
+						map.setTile(0, map.getCol(x), map.getRow(y + 60), 41);
+						// add snow back after 5 minutes
+						setTimeout(function(){
+							map.setTile(0, map.getCol(x), map.getRow(y), 6);
+							map.setTile(0, map.getCol(x + 60), map.getRow(y), 7);
+							map.setTile(0, map.getCol(x), map.getRow(y + 60), 13);
+						},60000);
+					}
+				}
+				else if (tileNum === 13) { // rock bottom centre
+					// give snowball to player
+					if (Dom.inventory.give(Items.bow[8], 1)) { // check if player has enough inventory space
+						if(Player.quests.questProgress.snowCollected === undefined){
+							Player.quests.questProgress.snowCollected = 1;
+						}else{
+							Player.quests.questProgress.snowCollected++;
+						}
+						Dom.quests.active();
+						// replace tiles with no snow rocks
+						map.setTile(0, map.getCol(x), map.getRow(y - 60), 34);
+						map.setTile(0, map.getCol(x + 60), map.getRow(y - 60), 35);
+						map.setTile(0, map.getCol(x), map.getRow(y), 41);
+						// add snow back after 5 minutes
+						setTimeout(function(){
+							map.setTile(0, map.getCol(x), map.getRow(y - 60), 6);
+							map.setTile(0, map.getCol(x + 60), map.getRow(y - 60), 7);
+							map.setTile(0, map.getCol(x), map.getRow(y), 13);
+						},60000);
+					}
+				}
+			},
+		},
+		
+		isIcy: function() {
+			return Game.event === "Christmas";
 		},
 		
 		images: {
-			tiles: {normal: "./assets/tilemap/tutorial.png"},
+			tiles: {normal: "./assets/tilemap/tutorial.png", christmas: "./assets/tilemap/tutorial-christmas.png"},
 			driver: {normal: "./assets/npcs/driver.png"},
 			weaponsmith: {normal: "./assets/npcs/weaponsmith.png"},
 			cart: {normal: "./assets/objects/cartEaglecrest.png"},
@@ -376,6 +425,7 @@ var Areas = {
 					else if (!Player.quests.activeQuestArray.includes("To the Logging Camp") && !Player.quests.completedQuestArray.includes("To the Logging Camp")) {
 						Game.hero.x = 2297;
 						Game.hero.y = 387;
+						Weather.reset();
 						Dom.alert.page("You need to start your first quest. Speak to the Cart Driver who is right next to you.")
 					}
 				}
@@ -595,18 +645,68 @@ var Areas = {
 			tilesPerRow: 9,
 			solidTiles: [1, 10, 19, 28, 37, 46], // tavern building
 			waterTiles: [30, 32, 39, 41, 48, 50],
+			iceTiles: [30, 32, 39, 41, 48],
 			pathTiles: [4, 13, 22, 31, 40, 49, 58, 67, 76],
 			layers: [
 				[93, 93, 93, 93, 93, 93, 93, 93, 93, 93, 93, 10, 10, 10, 10, 10, 10, 10, 93, 93, 93, 51, 41, 59, 6, 93, 93, 93, 93, 93, 93, 93, 84, 93, 93, 93, 93, 93, 93, 25, 26, 93, 10, 46, 10, 28, 19, 46, 10, 93, 93, 93, 51, 68, 32, 6, 93, 93, 93, 93, 93, 93, 93, 93, 93, 93, 93, 93, 93, 25, 26, 93, 83, 10, 10, 10, 37, 10, 10, 10, 74, 93, 93, 51, 32, 30, 6, 84, 75, 93, 93, 93, 93, 93, 93, 93, 93, 93, 93, 93, 93, 93, 65, 2, 2, 2, 11, 2, 2, 2, 2, 2, 29, 3, 51, 32, 39, 6, 93, 93, 93, 93, 93, 93, 93, 93, 93, 93, 93, 93, 93, 93, 93, 56, 2, 2, 2, 2, 2, 2, 2, 11, 2, 29, 12, 51, 32, 48, 6, 93, 93, 93, 93, 93, 93, 93, 93, 93, 93, 93, 93, 93, 93, 84, 65, 2, 2, 2, 2, 2, 2, 2, 2, 2, 20, 21, 51, 50, 32, 6, 93, 93, 93, 93, 93, 93, 93, 93, 93, 93, 93, 93, 93, 25, 26, 65, 2, 2, 11, 2, 2, 2, 2, 2, 2, 29, 93, 51, 32, 32, 6, 93, 93, 93, 93, 93, 93, 93, 93, 93, 93, 93, 93, 93, 93, 93, 65, 2, 2, 2, 2, 2, 2, 2, 2, 2, 29, 93, 14, 5, 5, 23, 93, 93, 93, 93, 93, 93, 93, 93, 93, 93, 93, 93, 93, 93, 93, 65, 2, 2, 2, 2, 2, 2, 2, 2, 2, 29, 93, 51, 32, 32, 6, 93, 93, 93, 93, 93, 93, 93, 93, 93, 93, 93, 93, 93, 93, 93, 56, 2, 2, 2, 2, 2, 2, 2, 2, 2, 29, 93, 51, 32, 30, 6, 93, 75, 93, 93, 93, 69, 66, 93, 93, 93, 93, 93, 93, 93, 93, 56, 2, 2, 2, 2, 2, 2, 2, 11, 2, 20, 93, 51, 32, 39, 6, 75, 93, 93, 93, 69, 33, 93, 93, 57, 93, 93, 93, 57, 93, 93, 65, 2, 2, 2, 2, 2, 2, 2, 2, 2, 29, 93, 51, 41, 48, 6, 93, 93, 93, 93, 51, 32, 93, 93, 93, 93, 93, 93, 93, 93, 93, 93, 47, 47, 47, 38, 38, 38, 47, 47, 38, 93, 93, 51, 50, 41, 6, 93, 93, 84, 93, 51, 41, 93, 93, 93, 93, 66, 93, 93, 93, 93, 93, 93, 93, 93, 93, 93, 93, 93, 93, 93, 93, 93, 51, 32, 32, 6, 93, 93, 93, 93, 96, 24, 57, 93, 57, 93, 93, 93, 93, 93, 93, 93, 93, 3, 93, 93, 93, 93, 93, 3, 93, 93, 93, 51, 32, 32, 6, 93, 93, 93, 25, 26, 93, 93, 66, 93, 93, 93, 93, 93, 84, 93, 93, 93, 12, 93, 93, 93, 93, 93, 12, 93, 93, 93, 51, 32, 32, 6, 93, 93, 93, 93, 93, 93, 93, 93, 93, 93, 93, 57, 93, 93, 93, 93, 93, 21, 93, 93, 93, 93, 93, 21, 25, 26, 93, 51, 32, 59, 6, 93, 93, 93, 93, 93, 93, 93, 93, 93, 93, 93, 93, 93, 93, 93, 93, 93, 93, 93, 93, 22, 93, 93, 93, 93, 93, 93, 51, 41, 32, 6, 93, 93, 75, 93, 93, 93, 93, 93, 57, 93, 93, 93, 93, 93, 25, 26, 93, 93, 93, 93, 4, 93, 93, 93, 7, 8, 9, 51, 32, 32, 6, 93, 84, 93, 93, 93, 93, 93, 93, 93, 93, 93, 93, 93, 25, 26, 93, 25, 26, 93, 93, 4, 93, 93, 84, 16, 17, 18, 51, 32, 50, 6, 93, 93, 93, 75, 93, 93],
 				[],
 			],
+			interactWithTile: function(tileNum, x, y) { // pick up snowball from rock
+				if (tileNum === 8){ // rock top centre
+					// give snowball to player
+					if (Dom.inventory.give(Items.bow[8], 1)) { // check if player has enough inventory space
+						if(Player.quests.questProgress.snowCollected === undefined){
+							Player.quests.questProgress.snowCollected = 1;
+						}else{
+							Player.quests.questProgress.snowCollected++;
+						}
+						Dom.quests.active();
+						// replace tiles with no snow rocks
+						map.setTile(0, map.getCol(x), map.getRow(y), 35);
+						map.setTile(0, map.getCol(x + 60), map.getRow(y), 36);
+						map.setTile(0, map.getCol(x), map.getRow(y + 60), 44);
+						// add snow back after 5 minutes
+						setTimeout(function(){
+							map.setTile(0, map.getCol(x), map.getRow(y), 8);
+							map.setTile(0, map.getCol(x + 60), map.getRow(y), 9);
+							map.setTile(0, map.getCol(x), map.getRow(y + 60), 17);
+						},60000);
+					}
+				}
+				else if (tileNum === 17) { // rock bottom centre
+					// give snowball to player
+					if (Dom.inventory.give(Items.bow[8], 1)) { // check if player has enough inventory space
+						if(Player.quests.questProgress.snowCollected === undefined){
+							Player.quests.questProgress.snowCollected = 1;
+						}else{
+							Player.quests.questProgress.snowCollected++;
+						}
+						Dom.quests.active();
+						// replace tiles with no snow rocks
+						map.setTile(0, map.getCol(x), map.getRow(y - 60), 35);
+						map.setTile(0, map.getCol(x + 60), map.getRow(y - 60), 36);
+						map.setTile(0, map.getCol(x), map.getRow(y), 44);
+						// add snow back after 5 minutes
+						setTimeout(function(){
+							map.setTile(0, map.getCol(x), map.getRow(y - 60), 8);
+							map.setTile(0, map.getCol(x + 60), map.getRow(y - 60), 9);
+							map.setTile(0, map.getCol(x), map.getRow(y), 17);
+						},60000);
+					}
+				}
+			},
+		},
+		
+		isIcy: function() {
+			return Game.event === "Christmas";
 		},
 		
 		images: {
-			tiles: {normal: "./assets/tilemap/loggingCamp.png"},
+			tiles: {normal: "./assets/tilemap/loggingCamp.png", christmas: "./assets/tilemap/loggingCamp-christmas.png"},
 			teper: {normal: "./assets/npcs/teper.png"},
+			teperAngry: {christmas: "./assets/npcs/teper-angry.png"},
 			identifier: {normal: "./assets/npcs/identifier.png"},
-			dummy: {normal: "./assets/enemies/dummy.png"},
+			dummy: {normal: "./assets/enemies/dummy.png", christmas: "./assets/enemies/dummy-christmas.png"},
 			saral: {normal: "./assets/npcs/saral.png"},
 			mailman: {normal: "./assets/npcs/mailman.png"},
 			soulHealer: {normal: "./assets/npcs/soulHealer.png"},
@@ -615,6 +715,9 @@ var Areas = {
 			darkbrew: {normal: "./assets/npcs/darkbrew.png"},
 			mailbox: {normal: "./assets/objects/mailbox.png"},
 			mailboxUnread: {normal: "./assets/objects/mailboxUnread.png"},
+			christmasTree: {christmas: "./assets/objects/christmasTree.png"},
+			christmasTreeUnread: {christmas: "./assets/objects/christmasTreeUnread.png"},
+			lights: {christmas: "./assets/objects/lights.png"},
 		},
 		
 		song_day: "./assets/music/Pippin-the-Hunchback.mp3",
@@ -650,13 +753,13 @@ var Areas = {
 			},
 			{
 				// teleport to tavern (tavern door - north)
-				x: 865,
-				y: 82,
+				x: 900,
+				y: 83,
 				width: 60,
 				height: 2,
 				teleportTo: "tavern",
 				destinationX: 315,
-				destinationY: 650,
+				destinationY: 600,
 			},
 			{
 				// teleport to the nilbog (bridge - east)
@@ -773,6 +876,10 @@ var Areas = {
 					},
 					{
 						quest: Quests.eaglecrestLoggingCamp[2], 
+						role: "questStartFinish"
+					},
+					{
+						quest: Quests.eaglecrestLoggingCamp[21], 
 						role: "questStartFinish"
 					},
 				],
@@ -1026,11 +1133,34 @@ var Areas = {
 			{
 				x: 626,
 				y: 132,
-				image: "mailbox",
+				readImage: "mailbox",
+				unreadImage: "mailboxUnread",
 				name: "Mailbox",
+			},
+			{
+				x: 470,
+				y: 560,
+				readImage: "christmasTree",
+				unreadImage: "christmasTreeUnread",
+				name: "Christmas Tree",
+				canBeShown: function () {
+					return Game.event === "Christmas";
+				},
 			},
 		],
 		
+		/*things: [
+			{
+				x: 865,
+				y: 85,
+				image: "lights",
+				name: "lights",
+				canvasLayer: "ctxLight",
+				canBeShown: function () {
+					return Game.event === "Christmas";// && Game.time === "night";
+				},
+			},
+		],*/
 	},
 	
 	
@@ -1063,15 +1193,15 @@ var Areas = {
 		},
 		
 		areaTeleports: [
-			/*{
-				x: 460,
-				y: 1250,
-				width: 150,
-				height: 2,
-				teleportTo: "tutorial",
-				destinationX: 200,
-				destinationY: 100,
-			},*/
+			{
+				x: 361,
+				y: 800,
+				width: 60,
+				height: 60,
+				teleportTo: "eaglecrestLoggingCamp",
+				destinationX: 868,
+				destinationY: 200,
+			},
 		],
 		
 		song_day: "./assets/music/Tavern.mp3",
@@ -1093,12 +1223,26 @@ var Areas = {
 				},
 				roles: [
 					{
-						quest: Quests.eaglecrestLoggingCamp[1], 
-						role: "questStart"
+						quest: Quests.tavern[0], 
+						role: "questStartFinish",
+					},
+					{
+						sold: [
+							{item: Items.consumable[5], cost: 2,},
+						],
+						role: "merchant",
 					},
 				],
-				questProgressText: "Girls! Make some room by the hearth, won't ya!",
-				questCompleteText: "Oh ho ho! It's good to see ya again!",
+				chat: {
+					questProgress: "Girls! Make some room by the hearth, won't ya!",
+					questComplete: "Oh ho ho! It's good to see ya again!",
+					chooseChat: "choosetbd",
+					notUnlockedRoles: "rolestbd",
+					shopGreeting: "greettbd",
+					shopLeave: "leavetbd",
+					inventoryFull: "invtbd",
+					tooPoor: "tootbd",
+				},
 			},
 		],
 		
@@ -1122,6 +1266,7 @@ var Areas = {
 			tilesPerRow: 10,
 			solidTiles: [5, 15, 25, 35, 45], // tower
 			waterTiles: [36, 46, 56, 32, 42, 52],
+			iceTiles: [36, 46, 32, 42, 52],
 			mudTiles: [1, 11, 21, 31, 41, 51, 61, 71, 81, 91, 101, 111, 121, 131],
 			pathTiles: [4, 14, 24, 34, 44, 54, 64, 74, 84],
 			dayTiles: [3, 13, 23], // torches
@@ -1147,11 +1292,58 @@ var Areas = {
 						map.setTile(0, map.getCol(x - 60), map.getRow(y), 102);
 					}
 				}
+				// pick up snowball from rock
+				else if (tileNum === 29){ // rock top centre
+					// give snowball to player
+					if (Dom.inventory.give(Items.bow[8], 1)) { // check if player has enough inventory space
+						if(Player.quests.questProgress.snowCollected === undefined){
+							Player.quests.questProgress.snowCollected = 1;
+						}else{
+							Player.quests.questProgress.snowCollected++;
+						}
+						Dom.quests.active();
+						// replace tiles with no snow rocks
+						map.setTile(0, map.getCol(x), map.getRow(y), 59);
+						map.setTile(0, map.getCol(x + 60), map.getRow(y), 60);
+						map.setTile(0, map.getCol(x), map.getRow(y + 60), 69);
+						// add snow back after 5 minutes
+						setTimeout(function(){
+							map.setTile(0, map.getCol(x), map.getRow(y), 29);
+							map.setTile(0, map.getCol(x + 60), map.getRow(y), 30);
+							map.setTile(0, map.getCol(x), map.getRow(y + 60), 39);
+						},60000);
+					}
+				}
+				else if (tileNum === 39) { // rock bottom centre
+					// give snowball to player
+					if (Dom.inventory.give(Items.bow[8], 1)) { // check if player has enough inventory space
+						if(Player.quests.questProgress.snowCollected === undefined){
+							Player.quests.questProgress.snowCollected = 1;
+						}else{
+							Player.quests.questProgress.snowCollected++;
+						}
+						Dom.quests.active();
+						// replace tiles with no snow rocks
+						map.setTile(0, map.getCol(x), map.getRow(y - 60), 59);
+						map.setTile(0, map.getCol(x + 60), map.getRow(y - 60), 60);
+						map.setTile(0, map.getCol(x), map.getRow(y), 69);
+						// add snow back after 5 minutes
+						setTimeout(function(){
+							map.setTile(0, map.getCol(x), map.getRow(y - 60), 29);
+							map.setTile(0, map.getCol(x + 60), map.getRow(y - 60), 30);
+							map.setTile(0, map.getCol(x), map.getRow(y), 39);
+						},60000);
+					}
+				}
 			},
 		},
 		
+		isIcy: function() {
+			return Game.event === "Christmas";
+		},
+		
 		images: {
-			tiles: {normal: "./assets/tilemap/nilbog.png"},
+			tiles: {normal: "./assets/tilemap/nilbog.png", christmas: "./assets/tilemap/nilbog-christmas.png"},
 			goblinRockthrower: {normal: "./assets/enemies/goblinRockthrower.png"},
 			rock: {normal: "./assets/projectiles/rock.png"},
 			goblinSkirmisher: {normal: "./assets/enemies/goblinSkirmisher.png"},
@@ -1163,7 +1355,7 @@ var Areas = {
 			mailcart: {normal: "./assets/objects/cartDestroyed.png"},
 			trap: {normal: "./assets/objects/trap.png"},
 			torch: {normal: "./assets/npcs/torch.png"},
-			ghost: {normal: "./assets/npcs/ghost.png"}, // tbd only load in for halloween
+			ghost: {samhain: "./assets/npcs/ghost.png"},
 		},
 		
 		song_day: "./assets/music/Pippin-the-Hunchback.mp3",

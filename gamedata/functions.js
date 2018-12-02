@@ -3,15 +3,16 @@
 // https://developer.mozilla.org/en-US/docs/Games/Techniques/Tilemaps
 //
 
-var Loader = {
+let Loader = {
     images: {}
 };
 
 Loader.loadImage = function (key, src) { // key = image name; src = image source
-	if (!(key in this.images)) {
-	    var img = new Image();
+	let d; // where promise is saved
+	if (!(key in this.images)) { // check if image has already been loaded in
+	    let img = new Image();
 
-	    var d = new Promise(function (resolve, reject) {
+	    d = new Promise(function (resolve, reject) {
 	        img.onload = function () {
 	            this.images[key] = img;
 	            resolve(img);
@@ -23,8 +24,16 @@ Loader.loadImage = function (key, src) { // key = image name; src = image source
 	    }.bind(this));
 
 	    img.src = src;
-	    return d;
 	}
+	else {
+		// image has already been loaded in
+		d = new Promise(function (resolve, reject) {
+			// return a promise that resolves instantly
+			resolve('image already loaded');
+		});
+	}
+	// return the promise
+	return d;
 };
 
 Loader.getImage = function (key) {

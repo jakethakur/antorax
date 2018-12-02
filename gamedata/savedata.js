@@ -24,6 +24,8 @@ var Player = {
 	unlockedTabs: [],
 	tab: "adventurePage",
 	
+	days: [],
+	
 	mail: {
 		mail: [],
 		received: [],
@@ -50,6 +52,7 @@ var Player = {
 		questProgress: {}, // stores properties for quest objectives that cannot otherwise be tracked between saves
 		questLastFinished: { // stores the last date (format ddmmyyyy) that the quest was finished (for seeing if daily quests can be started again)
 			eaglecrestLoggingCamp: [],
+			tavern: [],
 			fishing: [],
 		},
 	},

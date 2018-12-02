@@ -163,6 +163,5 @@ var Offsets = {
 	saral: {x: 71, y: -10},
 	soulHealer: {x: 110, y: -10},
 	teper: {x: 117, y: -10},
-	torch: {x: 83, y: -15},
 	weaponsmith: {x: 75, y: -10},
 }

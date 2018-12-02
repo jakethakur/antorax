@@ -19,12 +19,12 @@ body{
 	overflow: hidden;
 	position: relative;
 }
-#game, #secondary, #weather{
+#game, #secondary, #weather, #dayNight, #light{
 	border: 1px solid black;
 	float: left;
 	margin: 10px;
 }
-#secondary, #weather{
+#secondary, #weather, #dayNight, #light{
 	position: absolute;
 	left: 8px;
 }
@@ -592,7 +592,7 @@ td{
 	width: 450px;
 	left: 20px;
 	position: relative;
-	background-color: #fef9b4;
+	background-color: #fdf581;
 	border: 5px solid #886622;
 	margin-bottom: 20px;
 }
