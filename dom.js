@@ -576,7 +576,7 @@ Dom.inventory.displayIdentification = function(display){
 		Dom.inventory.updatePosition(document.getElementById("itemIdentification"));
 	}
 	document.getElementById("innerStats").innerHTML = "<strong>Level: " + Player.level + "</strong>"+
-	"<br><strong>XP: " + Round(100*Player.xp/LevelXP[Player.level],100) + "%</strong>"+
+	"<br><strong>XP: " + Round(100*Player.xp/LevelXP[Player.level],2) + "%</strong>"+
 	"<br><br><strong>Stats:</strong>";
 	if(Player.inventory.weapon.name !== ""){
 		document.getElementById("innerStats").innerHTML += "<br>Damage: " + Player.stats.damage;
@@ -811,6 +811,7 @@ Dom.inventory.removeItemCharge = function(inventoryPosition, hotbar){
 	if(!hotbar){
 		this.displayInformation(Player.inventory.items[inventoryPosition]);
 	}
+	Dom.quests.active();
 }
 
 Dom.currentlyDisplayed = "";
@@ -1687,6 +1688,7 @@ Dom.inventory.removeById = function(ID, type, num){
 		}
 	}
 	Dom.hotbar.update();
+	Dom.quests.active();
 	if(remove){
 		return true;
 	}else{
@@ -2604,6 +2606,10 @@ Dom.buyer.page = function(npc){
 Dom.currentNPC = {};
 Dom.choose.page = function(npc, buttons, functions, parameters){
 	let name = npc.name !== undefined ? npc.name : npc; // for cases like Goblin Torch
+	if(npc.constructor.name === "NPC" && !Player.metNPCs.includes(name)){
+		Player.metNPCs.push(name);
+	}
+	
 	if(Dom.currentlyDisplayed === ""){
 		Dom.currentlyDisplayed = name;
 		if(name !== npc){
@@ -2842,8 +2848,10 @@ Dom.mail.page = function(){
 		let ii = Player.mail.mail.length-1-i;
 		if(Player.mail.mail[i].image.substring(0,7) === "assets/"){
 			document.getElementsByClassName("mailImage")[ii].style.backgroundImage = "url('"+Player.mail.mail[i].image+".png')";
+		}else if(Offsets[Player.mail.mail[i].image].image.substring(0,7) === "assets/"){
+			document.getElementsByClassName("mailImage")[ii].style.backgroundImage = "url('"+Offsets[Player.mail.mail[i].image].image+".png')";
 		}else{
-			document.getElementsByClassName("mailImage")[ii].style.backgroundImage = "url('assets/npcs/"+Player.mail.mail[i].image+".png')";
+			document.getElementsByClassName("mailImage")[ii].style.backgroundImage = "url('assets/npcs/"+Offsets[Player.mail.mail[i].image].image+".png')";
 			document.getElementsByClassName("mailImage")[ii].style.backgroundPosition = Offsets[Player.mail.mail[i].image].x+"%"+Offsets[Player.mail.mail[i].image].y+"%";
 		}
 		document.getElementsByClassName("mailDelete")[ii].onclick = function(){
@@ -2905,8 +2913,7 @@ Dom.mail.unread = function(){
 
 // LOADS A NEW CLASS
 Dom.inventory.give(Items.currency[2],3);
-let randomNPC = Object.keys(Offsets)[Random(0, Object.keys(Offsets).length-1)];
-Dom.mail.give("Welcome to Antorax!", "The Tinkering Guild", "galuthel", "text.page", ["Welcome to Antorax!",`Hello ${Player.name}!<br><br>It's great to have new people joining us in Antorax. I look forward to meeting you very soon in Wizard Island. Perhaps you would like to try out one of our newest inventions - the <camera name>! It's free of charge. Pop us a letter if it explodes, otherwise see you soon!<br><br>From the Tinkering Guild`, true, [], [], [[Items.item[14]]]], [[Items.item[14]]]);
+Dom.mail.give("Welcome to Antorax!", "The Tinkering Guild", "galuthelTheTrapMechanic", "text.page", ["Welcome to Antorax!",`Hello ${Player.name}!<br><br>It's great to have new people joining us in Antorax. I look forward to meeting you very soon in Wizard Island. Perhaps you would like to try out one of our newest inventions - the <camera name>! It's free of charge. Pop us a letter if it explodes, otherwise see you soon!<br><br>From the Tinkering Guild`, true, [], [], [[Items.item[14]]]], [[Items.item[14]]]);
 
 // LOADS ALL EXISTING CLASS SAVEDATA
 if(localStorage.getItem(Player.class) !== null){
@@ -3043,8 +3050,9 @@ for(let i = 0; i < Player.statusEffects.length; i++){
 		document.getElementById("speedOn").checked = true;
 	}
 }
+let randomNPC = Player.metNPCs[Random(0, Player.metNPCs.length-1)];
 if(GetFullDate().substring(2,4) === "12" && !Player.days.includes(GetFullDate())){
-	Dom.mail.give(25 - parseInt(GetFullDate().substring(0,2)) + " Days To Go!", FromCamelCase(randomNPC), randomNPC, "text.page", ["Merry Christmas!","This is your free daily chistmas token. Spend it wisely!", true, [], [], [[Items.currency[5]]]], [[Items.currency[5]]]);
+	Dom.mail.give(25 - parseInt(GetFullDate().substring(0,2)) + " Days To Go!", randomNPC, ToCamelCase(randomNPC), "text.page", ["Merry Christmas!","This is your free daily chistmas token. Spend it wisely!", true, [], [], [[Items.currency[5]]]], [[Items.currency[5]]]);
 }
 if(!Player.days.includes(GetFullDate())){
 	Player.days.push(GetFullDate());

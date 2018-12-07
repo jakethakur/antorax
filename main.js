@@ -966,7 +966,7 @@ class Hero extends Attacker {
 		var left = this.x - this.width / 2;
 		var right = this.x + this.width / 2;
 		//var top = this.y - this.height / 2;
-		var top = this.y + 60;
+		var top = this.y + 40;
 		//var bottom = this.y + this.height / 2;
 		var bottom = this.y + 60;
 
@@ -3658,7 +3658,7 @@ Game.update = function (delta) {
 		// check if the currently displayed DOM is for the current enemy in the foreach loop
 		if (enemy.id === Dom.currentNPC.id && enemy.type === Dom.currentNPC.type) {
 			// close the DOM if the player is too far away from the enemy or if the enemy is dead
-			if (enemy.respawning || distance(Game.hero, enemy) > Game.hero.stats.domRange) {
+			if (enemy.respawning && distance(Game.hero, enemy) > Game.hero.stats.domRange) {
 				// enemy is dead or player is more than 4 tiles away from enemy
 				Dom.changeBook(Player.tab, true); // close enemy DOM
 			}

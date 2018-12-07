@@ -1,5 +1,6 @@
 var array = [];
 var total = 0;
+var collected = 0;
 
 for(var x = 0; x < Items.fish.length; x++){
 	if(Items.fish[x].fishingType === "fish"){
@@ -55,6 +56,7 @@ function arrange(){
 		if(localStorage.getItem("fish") !== null && JSON.parse(localStorage.getItem("fish"))[i] !== 0){
 			document.getElementById("tier"+i).innerHTML = "<br>Best Length: "+JSON.parse(localStorage.getItem("fish"))[i]+"cm";
 			document.getElementById("box"+i).style.borderColor = "darkgreen";
+			collected++;
 		}else{
 			document.getElementById("tier"+i).innerHTML = "<br>You have not yet<br>obtained this item";
 			document.getElementById("box"+i).style.borderColor = "#886622";
@@ -67,8 +69,8 @@ function arrange(){
 	}
 	document.getElementById("progress").style.width = (((Math.floor((screenSize-45)/245)))*245)-25+"px";
 	document.getElementById("progress").style.left = 25+((screenSize-45)-(((Math.floor((screenSize-45)/245)))*245))/2+"px";
-	document.getElementById("progressText").innerHTML = "You have obtained "+Math.floor(array.length/total*100)+"% of all fish";
-	document.getElementById("innerProgress").style.width = (array.length/total)*((((Math.floor((screenSize-45)/245)))*245)-24.5)+"px";
+	document.getElementById("progressText").innerHTML = "You have obtained "+Math.floor(collected/array.length*100)+"% of all fish";
+	document.getElementById("innerProgress").style.width = (collected/array.length)*((((Math.floor((screenSize-45)/245)))*245)-24.5)+"px";
 	for(var i = 0; i < columns; i++){
 		document.getElementsByClassName("flashcardlist")[i].style.top = "85px";
 	}

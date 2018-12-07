@@ -848,12 +848,13 @@ var Items = {
 			rarity: "common",
 			sellPrice: 1,
 			lore: "Throw it at someone you don't like",
+			uncollectable: true,
 			stats: {
 				damage: "0",
 			},
 			onAnyAttack: function (projectile) {
+				Dom.inventory.removeById(8, "bow");
 				if(projectile.isTouching(Game.npcs[0]) && Game.areaName === "eaglecrestLoggingCamp"){
-					Dom.inventory.removeById(8, "bow");
 					if(Player.quests.questProgress.hitTeper === undefined){
 						Player.quests.questProgress.hitTeper = 1;
 					}else{
@@ -864,6 +865,17 @@ var Items = {
 						Game.npcs[0].image = Loader.getImage("teperAngry");
 					}
 				}
+				Game.inventoryUpdate();
+			},
+			functionText: "Gives -30% walk speed to hit enemies for 2 seconds",
+			onAttack: function (enemy) {
+				// give slowness to enemy
+				Game.statusEffects.walkSpeed({
+					target: enemy,
+					effectTitle: "Snow coating",
+					speedIncrease: -30,
+					time: 2,
+				});
 			},
 			allClasses: true,
 			projectile: "snowball",
@@ -1655,6 +1667,18 @@ var Items = {
 				}, 5000, oldHealth);
 			},
 		},
+		{
+			id: 16,
+			name: "Mince Pie",
+			type: "consumable",
+			image: "assets/items/consumable/16.png",
+			sellPrice: 1,
+			functionText: "A Christmas Snack",
+			onClick: function (inventoryPosition) {
+				// remove the item
+				Dom.inventory.remove(inventoryPosition);
+			},
+		},
 	],
 	fish: [
 		{
@@ -1979,7 +2003,7 @@ var Items = {
 				
 				// open loot page
 				Dom.loot.currentId = "x"; // x means that nothing should be done when it is closed
-				Dom.choose.page(Game.items[16], ["Loot chest!"], [Dom.loot.page], [["Sunken Chest", loot, lootQuantities, 24]]);
+				Dom.choose.page("Sunken Chest", ["Loot chest!"], [Dom.loot.page], [["Sunken Chest", loot, lootQuantities, 24]]);
 			},
 		},
 		{
@@ -1996,7 +2020,7 @@ var Items = {
 			timeToCatch: 1000,
 			opens: {
 				type: "fish",
-				id: 25,
+				id: 16,
 			},
 		},
 		{

@@ -29,6 +29,15 @@ body{
 	left: 8px;
 }
 #secondary{
+	z-index: 4;
+}
+#light{
+	z-index: 3;
+}
+#dayNight{
+	z-index: 2;
+}
+#weather{
 	z-index: 1;
 }
 #chatPage {
@@ -203,7 +212,7 @@ body{
 	background-color: #fef9b4;
 	margin-top: 10px;
 	font-size: 0px;
-	z-index: 1;
+	//z-index: 1;
 }
 #itemInventory, #hotbar, #buyerPageInventory, #loot, tr, th, td{
 	border: 2.5px solid #886622;
@@ -217,6 +226,7 @@ body{
 	top: 530px;
 	left: 150px;
 	opacity: 0.6;
+	z-index: 6;
 }
 #buyerPageInventory {
 	top: 90px;

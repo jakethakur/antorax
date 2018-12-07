@@ -151,17 +151,18 @@ var Skins = {
 };
 
 var Offsets = {
-	darkbrew: {x: 30, y: -10},
-	driver: {x: 83, y: -15},
-	fisherman: {x: -10, y: -10},
-	galuthel: {x: 100, y: -5},
-	ghost: {x: 83, y: -10},
-	identifier: {x: 120, y: -10},
-	innkeeper: {x: 115, y: -20},
-	itemBuyer: {x: -5, y: -10},
-	mailman: {x: 140, y: -10},
-	saral: {x: 71, y: -10},
-	soulHealer: {x: 110, y: -10},
-	teper: {x: 117, y: -10},
-	weaponsmith: {x: 75, y: -10},
-}
+	cartDriver: {image: "driver", x: 83, y: -15},
+	weaponsmith: {image: "weaponsmith", x: 75, y: -10},
+	fishermanTobenam: {image: "fisherman", x: -10, y: -10},
+	marshallTeper: {image: "teper", x: 117, y: -10},
+	combatTrainerSaral: {image: "saral", x: 71, y: -10},
+	eaglecrestMailman: {image: "mailman", x: 140, y: -10},
+	identifierGilas: {image: "identifier", x: 120, y: -10},
+	soulHealerNalaa: {image: "soulHealer", x: 110, y: -10},
+	galuthelTheTrapMechanic: {image: "galuthel", x: 100, y: -5},
+	itemBuyerNoledar: {image: "itemBuyer", x: -5, y: -10},
+	ciarraDarkbrew: {image: "darkbrew", x: 30, y: -10},
+	gregorGoldenbrew: {image: "innkeeper", x: 115, y: -20},
+	goblinTorch: {image: "assets/items/staff/7", x: 0, y: 0},
+	samhainGhost: {image: "ghost", x: 83, y: -10},
+};

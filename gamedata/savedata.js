@@ -24,7 +24,8 @@ var Player = {
 	unlockedTabs: [],
 	tab: "adventurePage",
 	
-	days: [],
+	days: [], // days logged on (ddmmyyyy)
+	metNPCs: ["Cart Driver"],
 	
 	mail: {
 		mail: [],

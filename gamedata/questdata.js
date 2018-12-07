@@ -1097,7 +1097,7 @@ var Quests = {
 				let completed = [];
 				
 				// true or falses for each objective (apart from the turn-in objective)
-				//completed.push();
+				completed.push(false); // TBD
 				
 				completed = checkFinished(completed);
 				
@@ -1128,10 +1128,10 @@ var Quests = {
 			questArea: "eaglecrestLoggingCamp",
 			
 			startName: "Combat Trainer Saral",
-			startChat: "tbd",
+			startChat: `Merry Christmas, ${Player.name}. The snow does make a beautiful weapon here in the logging camp, wouldn't you agree? Of course, snowballs won't do much against our normal target dummy at this time of year, but I have an idea for a different 'target dummy' we can use.<br>Gather some snowballs from snow gathering on nearby rocks, and toss them at <strong>Marshall Teper</strong>. It's the festive spirit, ${Player.name}!`,
 			
 			finishName: "Combat Trainer Saral",
-			finishChat: "tbd",
+			finishChat: `Nice work, ${Player.name}. I bet he got really angry!`,
 			
 			objectives: [
 				"Make 3 snowballs from the snow gathering on the nearby rocks",
@@ -1187,7 +1187,7 @@ var Quests = {
 			startChat: "I 'aven't seen you round 'ere before! Hehe, enjoy a drink by the hearth - free on us!",
 			
 			finishName: "Gregor Goldenbrew",
-			finishChat: "tbd",
+			finishChat: "Heh, yer gonna love it here!",
 			
 			objectives: [
 				"Take a sip from your wood-brewed beer around the hearth.",
@@ -1200,6 +1200,14 @@ var Quests = {
 			
 			rewards: {
 				xp: 25,
+			},
+			startRewards: {
+				items: [
+					Items.consumable[5],
+				],
+				itemQuantities: [
+					1,
+				],
 			},
 			
 			resetVariables: [
@@ -1217,8 +1225,7 @@ var Quests = {
 			},
 			
 			onQuestStart: function() {
-				//Dom.chat.insert("Gregor brews you an extra large beer. Try not to get too tipsy!", 100);
-				// give the player a brew
+				Dom.chat.insert("Gregor brews you an extra large beer. Try not to get too tipsy!", 100);
 			},
 		},
 	],

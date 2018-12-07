@@ -344,9 +344,9 @@ var Areas = {
 						map.setTile(0, map.getCol(x), map.getRow(y + 60), 41);
 						// add snow back after 5 minutes
 						setTimeout(function(){
-							map.setTile(0, map.getCol(x), map.getRow(y), 6);
-							map.setTile(0, map.getCol(x + 60), map.getRow(y), 7);
-							map.setTile(0, map.getCol(x), map.getRow(y + 60), 13);
+							SetTile("tutorial", 0, map.getCol(x), map.getRow(y), 6);
+							SetTile("tutorial", 0, map.getCol(x + 60), map.getRow(y), 7);
+							SetTile("tutorial", 0, map.getCol(x), map.getRow(y + 60), 13);
 						},60000);
 					}
 				}
@@ -365,9 +365,9 @@ var Areas = {
 						map.setTile(0, map.getCol(x), map.getRow(y), 41);
 						// add snow back after 5 minutes
 						setTimeout(function(){
-							map.setTile(0, map.getCol(x), map.getRow(y - 60), 6);
-							map.setTile(0, map.getCol(x + 60), map.getRow(y - 60), 7);
-							map.setTile(0, map.getCol(x), map.getRow(y), 13);
+							SetTile("tutorial", 0, map.getCol(x), map.getRow(y - 60), 6);
+							SetTile("tutorial", 0, map.getCol(x + 60), map.getRow(y - 60), 7);
+							SetTile("tutorial", 0, map.getCol(x), map.getRow(y), 13);
 						},60000);
 					}
 				}
@@ -425,7 +425,7 @@ var Areas = {
 					else if (!Player.quests.activeQuestArray.includes("To the Logging Camp") && !Player.quests.completedQuestArray.includes("To the Logging Camp")) {
 						Game.hero.x = 2297;
 						Game.hero.y = 387;
-						Weather.reset();
+						setTimeout(Weather.reset, 10); // timeout is used because the weather is not updated for a tick
 						Dom.alert.page("You need to start your first quest. Speak to the Cart Driver who is right next to you.")
 					}
 				}
@@ -667,9 +667,9 @@ var Areas = {
 						map.setTile(0, map.getCol(x), map.getRow(y + 60), 44);
 						// add snow back after 5 minutes
 						setTimeout(function(){
-							map.setTile(0, map.getCol(x), map.getRow(y), 8);
-							map.setTile(0, map.getCol(x + 60), map.getRow(y), 9);
-							map.setTile(0, map.getCol(x), map.getRow(y + 60), 17);
+							SetTile("eaglecrestLoggingCamp", 0, map.getCol(x), map.getRow(y), 8);
+							SetTile("eaglecrestLoggingCamp", 0, map.getCol(x + 60), map.getRow(y), 9);
+							SetTile("eaglecrestLoggingCamp", 0, map.getCol(x), map.getRow(y + 60), 17);
 						},60000);
 					}
 				}
@@ -688,9 +688,9 @@ var Areas = {
 						map.setTile(0, map.getCol(x), map.getRow(y), 44);
 						// add snow back after 5 minutes
 						setTimeout(function(){
-							map.setTile(0, map.getCol(x), map.getRow(y - 60), 8);
-							map.setTile(0, map.getCol(x + 60), map.getRow(y - 60), 9);
-							map.setTile(0, map.getCol(x), map.getRow(y), 17);
+							SetTile("eaglecrestLoggingCamp", 0, map.getCol(x), map.getRow(y - 60), 8);
+							SetTile("eaglecrestLoggingCamp", 0, map.getCol(x + 60), map.getRow(y - 60), 9);
+							SetTile("eaglecrestLoggingCamp", 0, map.getCol(x), map.getRow(y), 17);
 						},60000);
 					}
 				}
@@ -879,6 +879,10 @@ var Areas = {
 						role: "questStartFinish"
 					},
 					{
+						quest: Quests.eaglecrestLoggingCamp[19], 
+						role: "questStartFinish"
+					},
+					{
 						quest: Quests.eaglecrestLoggingCamp[21], 
 						role: "questStartFinish"
 					},
@@ -1002,6 +1006,7 @@ var Areas = {
 							{item: Items.consumable[7], cost: 0}, // goblin trap
 						],
 						role: "merchant",
+						roleText: "I need some more goblin traps.",
 						roleRequirement: function () {
 							return Player.quests.activeQuestArray.includes("Strengthening Defences") || Player.quests.activeQuestArray.includes("Reinforcing Defences");
 						}
@@ -1041,12 +1046,12 @@ var Areas = {
 					},
 					{
 						sold: [
-							{item: Items.item[11], cost: 2}, // vial of goblin blood[
+							{item: Items.item[11], cost: 2}, // vial of goblin blood
 							{item: Items.bag[5], cost: 6}, // brown backsack
 							{item: Items.helm[2], cost: 2}, // worn leather helm
 							{item: Items.chest[2], cost: 3}, // worn leather tunic
 							{item: Items.greaves[2], cost: 3}, // worn leather trousers
-							{item: Items.boots[2], cost: 2}, // worn leather boots
+							{item: Items.boots[3], cost: 2}, // worn leather boots
 						],
 						role: "merchant",
 						roleRequirement: function () {
@@ -1149,10 +1154,10 @@ var Areas = {
 			},
 		],
 		
-		/*things: [
+		things: [
 			{
-				x: 865,
-				y: 85,
+				x: 870,
+				y: 87,
 				image: "lights",
 				name: "lights",
 				canvasLayer: "ctxLight",
@@ -1160,7 +1165,7 @@ var Areas = {
 					return Game.event === "Christmas";// && Game.time === "night";
 				},
 			},
-		],*/
+		],
 	},
 	
 	
@@ -1229,19 +1234,22 @@ var Areas = {
 					{
 						sold: [
 							{item: Items.consumable[5], cost: 2,},
+							{item: Items.consumable[16], cost: 1, costCurrency: 5,},
 						],
 						role: "merchant",
+						roleRequirement: function () {
+							Dom.quests.activeQuestArray.includes("A drink on us!");
+						},
 					},
 				],
 				chat: {
 					questProgress: "Girls! Make some room by the hearth, won't ya!",
-					questComplete: "Oh ho ho! It's good to see ya again!",
-					chooseChat: "choosetbd",
-					notUnlockedRoles: "rolestbd",
-					shopGreeting: "greettbd",
-					shopLeave: "leavetbd",
-					inventoryFull: "invtbd",
-					tooPoor: "tootbd",
+					chooseChat: "Oh ho ho! It's good to see ya again!",
+					notUnlockedRoles: "I'v never seen ya 'round 'ere before!",
+					shopGreeting: "Only the finest food 'n' drink here.",
+					shopLeave: "See ya soon!",
+					inventoryFull: "How're ya gonna hold that?!",
+					tooPoor: "Ya can't afford that.",
 				},
 			},
 		],
@@ -1308,9 +1316,9 @@ var Areas = {
 						map.setTile(0, map.getCol(x), map.getRow(y + 60), 69);
 						// add snow back after 5 minutes
 						setTimeout(function(){
-							map.setTile(0, map.getCol(x), map.getRow(y), 29);
-							map.setTile(0, map.getCol(x + 60), map.getRow(y), 30);
-							map.setTile(0, map.getCol(x), map.getRow(y + 60), 39);
+							SetTile("nilbog", 0, map.getCol(x), map.getRow(y), 29);
+							SetTile("nilbog", 0, map.getCol(x + 60), map.getRow(y), 30);
+							SetTile("nilbog", 0, map.getCol(x), map.getRow(y + 60), 39);
 						},60000);
 					}
 				}
@@ -1329,9 +1337,9 @@ var Areas = {
 						map.setTile(0, map.getCol(x), map.getRow(y), 69);
 						// add snow back after 5 minutes
 						setTimeout(function(){
-							map.setTile(0, map.getCol(x), map.getRow(y - 60), 29);
-							map.setTile(0, map.getCol(x + 60), map.getRow(y - 60), 30);
-							map.setTile(0, map.getCol(x), map.getRow(y), 39);
+							SetTile("nilbog", 0, map.getCol(x), map.getRow(y - 60), 29);
+							SetTile("nilbog", 0, map.getCol(x + 60), map.getRow(y - 60), 30);
+							SetTile("nilbog", 0, map.getCol(x), map.getRow(y), 39);
 						},60000);
 					}
 				}
@@ -1750,3 +1758,8 @@ var Areas = {
 		],
 	},
 };
+
+function SetTile (area, layer, col, row, newTileNum) {
+	let map = Areas[area].mapData;
+	map.layers[layer][row * map.cols + col] = newTileNum;
+}
