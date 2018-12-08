@@ -48,7 +48,7 @@ body{
 	width: 500px;
 	height: 596px;
 }
-#questsPage, #settingsPage, #settingsTwoPage{
+#questsPage, #settingsPage, #settingsTwoPage, #adventurePage{
 	overflow-y: auto;
 	overflow-x: hidden;
 }

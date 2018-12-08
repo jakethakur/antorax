@@ -33,7 +33,7 @@ var Skins = {
 		},
 		{
 			id: 3,
-			position: {x: Infinity, y: Infinity}, // TBD PG
+			position: {x: Infinity, y: 6.7},
 			name: "Were-Spider",
 			gender:	"m",
 			projectile:	"arrowOrange",
@@ -95,14 +95,14 @@ var Skins = {
 		},
 		{
 			id: 4,
-			position: {x: 0, y: 0}, // TBD
+			position: {x: -10, y: 5},
 			name: "Father Christmas",
 			gender:	"m",
 			projectile:	"bauble",
 			projectileAdjust: {x: -5.5, y: -5.5},
 			cursor: "chilly",
 			cursorPosition: {x: 10, y: 10},
-			headAdjust: {x: 0, y: 0}, // TBD
+			headAdjust: {x: 0, y: 0},
 		},
 	],
 	k: [

@@ -996,6 +996,7 @@ Dom.quest.acceptRewards = function(){
 	Dom.quests.completed(Dom.currentlyDisplayed);
 	Player.quests.questLastFinished[Dom.currentlyDisplayed.questArea][Dom.currentlyDisplayed.id] = GetFullDate();
 	Dom.quests.possible();
+	Dom.adventure.update();
 	let quest = Dom.currentlyDisplayed;
 	if (Dom.currentlyDisplayed.onQuestFinish !== undefined){
 		Dom.currentlyDisplayed.onQuestFinish();
@@ -1278,13 +1279,14 @@ Dom.inventory.give = function(item, num, position){
 					// if the slot is empty then the item is added
 					if(Player.inventory.items[i].image === undefined){
 						added = true;
+						position = i;
 						Player.inventory.items[i] = Object.assign({},item);
 						if(Player.inventory.items[i].maxCharges !== undefined){
 							Player.inventory.items[i].charges = Player.inventory.items[i].maxCharges;
 						}
-						/*if(Player.inventory.items[i].chooseStats !== undefined){
-							item.onClick = Dom.inventory.chooseStats;
-						}*/
+						if(Player.inventory.items[i].type !== "food"){
+							item.onClick = Dom.inventory.food;
+						}
 						if((Player.inventory.items[i].type === "sword" || Player.inventory.items[i].type === "staff" || Player.inventory.items[i].type === "bow" || Player.inventory.items[i].type === "rod") && Player.inventory.items[i].name !== undefined){
 							item.onClick = function(i){
 								if(!isNaN(i)){
@@ -1346,9 +1348,9 @@ Dom.inventory.give = function(item, num, position){
 		if(Player.inventory.items[position].maxCharges !== undefined){
 			Player.inventory.items[position].charges = Player.inventory.items[position].maxCharges;
 		}
-		/*if(Player.inventory.items[position].chooseStats !== undefined){
-			item.onClick = Dom.inventory.chooseStats;
-		}*/
+		if(Player.inventory.items[i].type !== "food"){
+			item.onClick = Dom.inventory.food;
+		}
 		if((Player.inventory.items[position].type === "sword" || Player.inventory.items[position].type === "staff" || Player.inventory.items[position].type === "bow" || Player.inventory.items[position].type === "rod") && Player.inventory.items[position].name !== undefined){
 			item.onClick = function(i){
 				if(!isNaN(i)){
@@ -1401,7 +1403,7 @@ Dom.inventory.give = function(item, num, position){
 	Dom.hotbar.update();
 	Dom.quests.active();
 	if(added){
-		return true;
+		return position;
 	}else{
 		return false;
 	}
@@ -1420,6 +1422,18 @@ if(localStorage.getItem("fish") !== null){
 		Dom.inventory.fish.push(0);
 	}
 }
+
+Dom.inventory.food = function(inventoryPosition){
+	// remove the item
+	Dom.inventory.remove(inventoryPosition);
+	// eat the item
+	Game.statusEffects.food({
+		target: Game.hero,
+		effectTitle: Player.inventory.items[inventoryPosition].name,
+		healthRestore: Player.inventory.items[inventoryPosition].healthRestore,
+		time: Player.inventory.items[inventoryPosition].healthRestoreTime,
+	});
+},
 
 Dom.inventory.chooseStats = function(inventoryPosition){
 	// item inventory
@@ -2218,19 +2232,46 @@ Dom.inventory.addEquipment = function(array){
 	}
 }
 
-Dom.inventory.check = function(ID, type, num, notEquipped){
+Dom.inventory.find = function(ID, type, notEquipped, calledByCheck){
+	let index = [];
 	let completed = 0;
 	for(let i = 0; i < Player.inventory.items.length; i++){
 		if(Player.inventory.items[i].type === type && Player.inventory.items[i].id === ID){
+			index.push(i);
 			if(Player.inventory.items[i].stacked === undefined){
 				Player.inventory.items[i].stacked = 1;
 			}
 			completed += Player.inventory.items[i].stacked;
 		}
 	}
-	if(((Player.inventory.weapon.type === type && Player.inventory.weapon.id === ID) || (Player.inventory.helm.type === type && Player.inventory.helm.id === ID) || (Player.inventory.chest.type === type && Player.inventory.chest.id === ID) || (Player.inventory.greaves.type === type && Player.inventory.greaves.id === ID) || (Player.inventory.boots.type === type && Player.inventory.boots.id === ID)) && !notEquipped){
-		completed++;
+	if(!notEquipped){
+		if(Player.inventory.weapon.type === type && Player.inventory.weapon.id === ID){
+			index.push("weapon");
+			completed++;
+		}else if(Player.inventory.helm.type === type && Player.inventory.helm.id === ID){
+			index.push("staff");
+			completed++;
+		}else if(Player.inventory.chest.type === type && Player.inventory.chest.id === ID){
+			index.push("chest");
+			completed++;
+		}else if(Player.inventory.greaves.type === type && Player.inventory.greaves.id === ID){
+			index.push("greaves");
+			completed++;
+		}else if(Player.inventory.boots.type === type && Player.inventory.boots.id === ID){
+			index.push("boots");
+			completed++;
+		}
 	}
+	if(calledByCheck){
+		return completed;
+	}
+	else{
+		return index;
+	}
+}
+
+Dom.inventory.check = function(ID, type, num, notEquipped){
+	let completed = Dom.inventory.find(ID, type, notEquipped, true);
 	if(num !== undefined){
 		if(completed >= num){
 			completed = true;
@@ -2249,7 +2290,7 @@ if(Player.class === "a"){
 	document.getElementById("weapon").style.backgroundImage = "url('./assets/items/sword/1.png')";
 }
 
-document.getElementById("inventoryGoldXP").style.backgroundImage = 'url("./assets/class-select/'+Player.class+Player.skin+'/f.png")';
+document.getElementById("inventoryGoldXP").style.backgroundImage = 'url("./selection/assets/'+Player.class+Player.skin+'/f.png")';
 document.getElementById("inventoryGoldXP").style.right = 20 - Skins[Player.class][Player.skin].headAdjust.x + "px";
 document.getElementById("inventoryGoldXP").style.height = 60 + Skins[Player.class][Player.skin].headAdjust.y + "px";
 document.getElementById("inventoryGoldXP").style.bottom = 3 + Skins[Player.class][Player.skin].headAdjust.y + "px";
@@ -2843,6 +2884,9 @@ Dom.mail.page = function(){
 	for(let i = Player.mail.mail.length-1; i >= 0; i--){
 		document.getElementById("mailPage").innerHTML += "<div class='mail' "+(Player.mail.opened.includes(Player.mail.mail[i].title)?"style='background-color: #fef9b4;'":"")+"><div class='mailImage'></div><div class='mailTitle'><strong>"+Player.mail.mail[i].title+"</strong><br>From "+Player.mail.mail[i].sender+"<br>Received on "+Player.mail.mail[i].date+"</div><div class='mailDelete'>X</div></div>";
 	}
+	if(Player.mail.mail.length === 0){
+		document.getElementById("mailPage").innerHTML += "<br><br>You have no mail, come back soon.<br><br><br><br>";
+	}
 	document.getElementById("mailPage").innerHTML += "<br><br><center><div class='closeClass' id='closeMail' onclick='Dom.changeBook(Player.tab, true)'>Close</div></center>";
 	for(let i = Player.mail.mail.length-1; i >= 0; i--){
 		let ii = Player.mail.mail.length-1-i;
@@ -2905,6 +2949,21 @@ Dom.mail.unread = function(){
 		}
 	}
 	return unreadMail;
+}
+
+Dom.adventure.update = function(){
+	document.getElementById("adventurePage").innerHTML = '<div id="level" style="display:inline;">Level '+Player.level+'</div>\
+		<a href="./builder/index.html" target="_blank" style="display: inline; float: right;">Achievements</a>\
+		<div><br>Suggested Content:</div>';
+	for(let i = 0; i < Object.keys(Adventure).length; i++){
+		if(Adventure[Object.keys(Adventure)[i]].condition()){
+			let html = Adventure[Object.keys(Adventure)[i]].html;
+			if(Adventure[Object.keys(Adventure)[i]].special !== undefined){
+				html = html.replace(/SPECIAL/, Adventure[Object.keys(Adventure)[i]].special());
+			}
+			document.getElementById("adventurePage").innerHTML += html;
+		}
+	}
 }
 
 //
@@ -3062,6 +3121,8 @@ if(!Player.days.includes(GetFullDate())){
 Dom.testing = {};
 Dom.testing.completeQuest = function(quest){
 	Dom.currentlyDisplayed = quest;
+	Dom.quest.start(quest);
+	Dom.quest.accept();
 	Dom.quest.finish(quest);
 	Dom.quest.acceptRewards();
 	return quest.quest
