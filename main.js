@@ -476,10 +476,6 @@ class Thing extends Entity {
 		// if the image is a **horizontal** tileset, where all images have the same width and height, this specifies the number image to use (starting at 0 for the first image)
 		this.imageNumber = properties.imageNumber || 0; // currently only works for projectiles (TBD)
 		
-		this.canvasLayer = properties.canvasLayer || "ctx"; // Game[canvasLayer] is where the image is drawn
-		// if the image should be drawn above night/weather, this should be set to "ctxLight" (is a bright object)
-		// currently only works for things on renderList (not player) - TBD?
-		
 		// set width and height to image dimensions unless otherwise specified
 		this.width = properties.width || this.image.width;
 		this.height = properties.height || this.image.height;
@@ -489,6 +485,8 @@ class Thing extends Entity {
 		this.expand = properties.expand || 1; // width multiplier (based on base width and base height)
 		
 		this.name = properties.name;
+		
+		this.bright = properties.bright; // currently does nothing
 	}
 }
 
@@ -962,13 +960,13 @@ class Hero extends Attacker {
 	
 	_collide (dirx, diry, delta) { // update move speed based on equipment and surroundings
 		var row, col;
-		// there used to be a -1 in right and bottom is because image ranges from 0 to 59 and not up to 60
-		var left = this.x - this.width / 2;
-		var right = this.x + this.width / 2;
+		
+		let left = Game.heroFootHitbox.x - Game.heroFootHitbox.width / 2;
+		let right = Game.heroFootHitbox.x + Game.heroFootHitbox.width / 2;
 		//var top = this.y - this.height / 2;
-		var top = this.y + 40;
+		let top = Game.heroFootHitbox.y - Game.heroFootHitbox.height / 2;
 		//var bottom = this.y + this.height / 2;
-		var bottom = this.y + 60;
+		let bottom = Game.heroFootHitbox.y + Game.heroFootHitbox.height / 2;
 
 		// check for collisions on sprite sides
 		let collision =
@@ -1020,19 +1018,12 @@ class Hero extends Attacker {
 		if (slowTile === null || baseSpeed) { // normal speed
 			this.speed = this.stats.walkSpeed;
 			// remove swimming/mud/ice/path status effect
-			for (var i = 0; i < this.statusEffects.length; i++) {
-				if (this.statusEffects[i].title == "Swimming"
-				|| this.statusEffects[i].title == "Stuck in the mud"
-				|| this.statusEffects[i].title == "Ice skating"
-			  	|| this.statusEffects[i].title == "On a path") {
-					this.statusEffects.splice(i,1);
-					this.updateStatusEffects();
-				}
-			}
+			Game.removeTileStatusEffects(this);
 		}
 		else if (slowTile === "ice") { // on ice tile
 			this.speed = this.stats.walkSpeed * 1.5;
-			if(!this.hasStatusEffect("Ice skating")) { // give status effect if the player doesn't already have it
+			Game.removeTileStatusEffects(this, "Ice skating"); // remove all status effects from other tiles
+			if (!this.hasStatusEffect("Ice skating")) { // give status effect if the player doesn't already have it
 				this.statusEffects.push(new statusEffect({
 					title: "Ice skating",
 					effect: "+50% movement speed",
@@ -1043,7 +1034,8 @@ class Hero extends Attacker {
 		}
 		else if (slowTile === "path") { // on path
 			this.speed = this.stats.walkSpeed * 1.15;
-			if(!this.hasStatusEffect("On a path")) { // give status effect if the player doesn't already have it
+			Game.removeTileStatusEffects(this, "On a path"); // remove all status effects from other tiles
+			if (!this.hasStatusEffect("On a path")) { // give status effect if the player doesn't already have it
 				this.statusEffects.push(new statusEffect({
 					title: "On a path",
 					effect: "+15% movement speed",
@@ -1054,7 +1046,8 @@ class Hero extends Attacker {
 		}
 		else if (slowTile === "water") { // in water tile
 			this.speed = this.stats.swimSpeed;
-			if(!this.hasStatusEffect("Swimming")) { // give status effect if the player doesn't already have it
+			Game.removeTileStatusEffects(this, "Swimming"); // remove all status effects from other tiles
+			if (!this.hasStatusEffect("Swimming")) { // give status effect if the player doesn't already have it
 				this.statusEffects.push(new statusEffect({
 					title: "Swimming",
 					effect: "Reduced movement speed",
@@ -1072,7 +1065,8 @@ class Hero extends Attacker {
 		else if (slowTile === "mud") { // in mud tile
 			// currently mud goes the same speed as swimSpeedtile
 			this.speed = this.stats.swimSpeed;
-			if(!this.hasStatusEffect("Stuck in the mud")) { // give status effect if the player doesn't already have it
+			Game.removeTileStatusEffects(this, "Stuck in the mud"); // remove all status effects from other tiles
+			if (!this.hasStatusEffect("Stuck in the mud")) { // give status effect if the player doesn't already have it
 				this.speed = this.stats.swimSpeed;
 				this.statusEffects.push(new statusEffect({
 					title: "Stuck in the mud",
@@ -1849,6 +1843,17 @@ class Projectile extends Thing {
 							to[i][x].stats.stealthed = false;
 							Game.removeStealthEffects(to[i][x]);
 						}
+						
+						if (to[i][x] == Game.hero || attacker == Game.hero) {
+							// remove any food status effects (hero is in combat)
+							for (let i = 0; i < Game.hero.statusEffects.length; i++) {
+								if (Game.hero.statusEffects[i].image === "food") {
+									// food status effect; remove it
+									Game.hero.statusEffects.splice(i, 1);
+									i--;
+								}
+							}
+						}
 					}
 				}
 			}
@@ -2308,6 +2313,25 @@ Game.spreadCurse = function (attacker, victim) {
 	}
 }
 
+// remove all status effects associated with being on a certain map tile from the target, except those with the title of keep variables
+// keep is optional
+Game.removeTileStatusEffects = function (target, keep) {
+	for (let i = 0; i < target.statusEffects.length; i++) {
+		if ((target.statusEffects[i].title === "Swimming"
+		|| target.statusEffects[i].title === "Stuck in the mud"
+		|| target.statusEffects[i].title === "Ice skating"
+		|| target.statusEffects[i].title === "On a path")
+		&& target.statusEffects[i].title !== keep) {
+			// remove status effect
+			target.statusEffects.splice(i,1);
+			// refresh canvas status effects if target is the player
+			if (target.constructor.name === "Hero") {
+				Game.hero.updateStatusEffects();
+			}
+		}
+	}
+}
+
 // give target the poison debuff
 // damage per second = damage / time
 // TBD decide if defence should affect this
@@ -2617,6 +2641,17 @@ Game.statusEffects.defence = function(properties) {
 	else {
 		newProperties.imageName = "defenceDown";
 	}
+	this.generic(newProperties);
+}
+
+// give target a food buff
+// properties includes target, effectTitle, healthRestore, time
+Game.statusEffects.food = function(properties) {
+	let newProperties = properties;
+	newProperties.effectDescription = " health restored over time whilst not in combat";
+	newProperties.increasePropertyName = "healthRestore";
+	newProperties.increasePropertyValue = properties.healthRestore;
+	newProperties.imageName = "food";
 	this.generic(newProperties);
 }
 
@@ -2946,12 +2981,6 @@ Game.loadArea = function (areaName, destination) {
 			Dom.chat.insert("You died.");
 		}
 		
-		// tell the player if they have unread mail
-		let unreadMail = Dom.mail.unread();
-		if(unreadMail > 0) {
-			Dom.chat.insert("You have " + unreadMail + " new messages!", 0, false); // tbd - maybe make it more obvious that player has to check their mailbox for this?
-		}
-		
 		// if the area is a checkpoint and it is not the player's current checkpoint, update the player's checkpoint
 		if (Areas[areaName].checkpoint && this.hero.checkpoint !== areaName) {
 			this.hero.checkpoint = areaName;
@@ -2988,10 +3017,16 @@ Game.init = function () {
 	Dom.chat.newString = "";
 	Dom.chat.contents = [];
 	if (this.event === "Christmas") {
-	    Dom.chat.insert("Merry Christmas " + Player.name + "!", 0, false, true);
+	    Dom.chat.insert("Merry Christmas, " + Player.name + "!", 0, false, true);
 	}
 	else {
 	    Dom.chat.insert("Welcome "+(localStorage.getItem(Player.class) !== null ? "back" : "to Antorax")+", " + Player.name + "!", 0, false, true);
+	}
+	
+	// tell the player if they have unread mail
+	let unreadMail = Dom.mail.unread();
+	if (unreadMail > 0) {
+		Dom.chat.insert("You have " + unreadMail + " new messages!", 0, false); // tbd - maybe make it more obvious that player has to check their mailbox for this?
 	}
 	
 	// music
@@ -3150,7 +3185,7 @@ Game.getTime = function () {
 	}
 
 	// day time
-	if (hour > 7 && hour < 19) {
+	if (hour >= 7 && hour < 19) {
 		return "day";
 	}
 	// night time
@@ -3257,16 +3292,25 @@ Game.playLevelupSound = function (areaName) {
 }
 
 //
-// Regeneration every second
+// Health
 //
 
-// health
+// called every second
 // healthRegen = health regenerated per second
 // tbd make list of characters that regen health
 Game.regenHealth = function () {
 	// player
 	this.restoreHealth(Game.hero, Game.hero.stats.healthRegen);
+	// player food
+	for (let i = 0; i < Game.hero.statusEffects.length; i++) {
+		if (Game.hero.statusEffects[i].image === "food") {
+			// food status effect
+			this.restoreHealth(Game.hero, Round(Game.hero.statusEffects[i].info.increasePropertyValue / Game.hero.statusEffects[i].info.time, 1));
+		}
+	}
+	// update health bar display
 	Game.secondary.render();
+	
 	// npcs
 	for (let i = 0; i < Game.npcs.length; i++) {
 		if (!Game.npcs[i].respawning) {
@@ -3658,7 +3702,7 @@ Game.update = function (delta) {
 		// check if the currently displayed DOM is for the current enemy in the foreach loop
 		if (enemy.id === Dom.currentNPC.id && enemy.type === Dom.currentNPC.type) {
 			// close the DOM if the player is too far away from the enemy or if the enemy is dead
-			if (enemy.respawning && distance(Game.hero, enemy) > Game.hero.stats.domRange) {
+			if (enemy.respawning || distance(Game.hero, enemy) > Game.hero.stats.domRange) {
 				// enemy is dead or player is more than 4 tiles away from enemy
 				Dom.changeBook(Player.tab, true); // close enemy DOM
 			}
@@ -4364,7 +4408,7 @@ Game.render = function (delta) {
 				if (!objectToRender.respawning) { // check character is not dead
 					
 					// draw image
-					this[objectToRender.canvasLayer].drawImage(
+					this.ctx.drawImage(
 						objectToRender.image,
 						objectToRender.screenX - objectToRender.width / 2,
 						objectToRender.screenY - objectToRender.height / 2,
@@ -4384,7 +4428,7 @@ Game.render = function (delta) {
 						this.updateScreenPosition(objectToRender);
 						
 						// draw image (corpse)
-						this[objectToRender.canvasLayer].drawImage(
+						this.ctx.drawImage(
 							objectToRender.deathImage,
 							objectToRender.screenX - objectToRender.deathImageWidth / 2,
 							objectToRender.screenY - objectToRender.deathImageHeight / 2,
@@ -4395,7 +4439,6 @@ Game.render = function (delta) {
 						// perhaps a death render function should be added? tbd
 					}
 				}
-				
 			}
 			
 		}
@@ -4679,44 +4722,47 @@ Game.secondary.render = function () {
 		// status effect icons next to health bar
 		for(let i = 0; i < Game.hero.statusEffects.length; i++) {
 			let iconNum = null;
-			if (Game.hero.statusEffects[i].image === "bait") {
+			if (Game.hero.statusEffects[i].image === "food") {
 				iconNum = 0;
 			}
-			else if (Game.hero.statusEffects[i].image === "speedDown") {
+			else if (Game.hero.statusEffects[i].image === "bait") {
 				iconNum = 1;
 			}
-			else if (Game.hero.statusEffects[i].image === "fire") {
+			else if (Game.hero.statusEffects[i].image === "speedDown") {
 				iconNum = 2;
 			}
-			else if (Game.hero.statusEffects[i].image === "lifesteal") {
+			else if (Game.hero.statusEffects[i].image === "fire") {
 				iconNum = 3;
 			}
-			else if (Game.hero.statusEffects[i].image === "mud") {
+			else if (Game.hero.statusEffects[i].image === "lifesteal") {
 				iconNum = 4;
 			}
-			else if (Game.hero.statusEffects[i].image === "poison") {
+			else if (Game.hero.statusEffects[i].image === "mud") {
 				iconNum = 5;
 			}
-			else if (Game.hero.statusEffects[i].image === "speedUp") {
+			else if (Game.hero.statusEffects[i].image === "poison") {
 				iconNum = 6;
 			}
-			else if (Game.hero.statusEffects[i].image === "stealth") {
+			else if (Game.hero.statusEffects[i].image === "speedUp") {
 				iconNum = 7;
 			}
-			else if (Game.hero.statusEffects[i].image === "damageUp") {
+			else if (Game.hero.statusEffects[i].image === "stealth") {
 				iconNum = 8;
 			}
-			else if (Game.hero.statusEffects[i].image === "stunned") {
+			else if (Game.hero.statusEffects[i].image === "damageUp") {
 				iconNum = 9;
 			}
-			else if (Game.hero.statusEffects[i].image === "water") {
+			else if (Game.hero.statusEffects[i].image === "stunned") {
 				iconNum = 10;
 			}
-			else if (Game.hero.statusEffects[i].image === "damageDown") {
+			else if (Game.hero.statusEffects[i].image === "water") {
 				iconNum = 11;
 			}
-			else if (Game.hero.statusEffects[i].image === "xpDown") {
+			else if (Game.hero.statusEffects[i].image === "damageDown") {
 				iconNum = 12;
+			}
+			else if (Game.hero.statusEffects[i].image === "xpDown") {
+				iconNum = 13;
 			}
 			else { // no status effect image
 				iconNum = 2; // fire image used as placeholder

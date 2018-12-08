@@ -887,7 +887,7 @@ var Items = {
 			id: 0,
 			name: "Test Rod 1",
 			type: "rod",
-			image: "assets/items/rod/1.png",
+			image: "assets/items/rod/3.png",
 			rarity: "mythic",
 			lore: "",
 			stats: {
@@ -897,7 +897,7 @@ var Items = {
 			id: 1,
 			name: "Test Rod 2",
 			type: "rod",
-			image: "assets/items/rod/1.png",
+			image: "assets/items/rod/3.png",
 			rarity: "mythic",
 			lore: "",
 			stats: {
@@ -911,6 +911,28 @@ var Items = {
 			rarity: "common",
 			sellPrice: 3,
 			lore: "A fine rod.",
+			stats: {
+			},
+		},
+		{
+			id: 3,
+			name: "Basic Fishing Rod",
+			type: "rod",
+			image: "assets/items/rod/3.png",
+			rarity: "common",
+			sellPrice: 1,
+			stats: {
+			},
+		},
+		{
+			id: 4,
+			name: "Christmas Candy Rod",
+			type: "rod",
+			image: "assets/items/rod/4.png",
+			rarity: "unique",
+			sellPrice: 5,
+			functionText: "Has a small chance to fish up a Christmas Present",
+			lore: "Not for consumption.",
 			stats: {
 			},
 		},
@@ -1036,7 +1058,7 @@ var Items = {
 			stack: 256,
 		},
 		{
-			id: 4,
+			id: 5,
 			name: "Christmas Token",
 			type: "currency",
 			image: "assets/items/currency/5.png",
@@ -1171,7 +1193,7 @@ var Items = {
 			rarity: "mythic",
 			quest: true,
 			image: "assets/items/item/8.png",
-			functionText: "Siphons the soul essence of any nearby enemy corpses.",
+			functionText: "Siphons the soul essence of any nearby enemy corpses",
 			onClick: function () {
 				Game.enemies.forEach(enemy => {
 					if (Game.areNearby(Game.hero, enemy, 100)) { // check the player is within 2 tiles of an enemy
@@ -1673,10 +1695,18 @@ var Items = {
 			type: "consumable",
 			image: "assets/items/consumable/16.png",
 			sellPrice: 1,
-			functionText: "A Christmas Snack",
+			functionText: "Restores 40 health over 10 seconds (whilst not in combat)",
+			lore: "A festive snack.",
 			onClick: function (inventoryPosition) {
 				// remove the item
 				Dom.inventory.remove(inventoryPosition);
+				// eat the item
+				Game.statusEffects.food({
+					target: Game.hero,
+					effectTitle: "Mince pie",
+					healthRestore: 40,
+					time: 10,
+				});
 			},
 		},
 	],
