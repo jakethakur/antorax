@@ -1689,11 +1689,13 @@ var Items = {
 				}, 5000, oldHealth);
 			},
 		},
+	],
+	food: [
 		{
-			id: 16,
+			id: 0,
 			name: "Mince Pie",
-			type: "consumable",
-			image: "assets/items/consumable/16.png",
+			type: "food",
+			image: "assets/items/food/0.png",
 			sellPrice: 1,
 			functionText: "Restores 40 health over 10 seconds (whilst not in combat)",
 			lore: "A festive snack.",
@@ -2064,9 +2066,9 @@ var Items = {
 			lore: ["The message's ink appears to have washed off.", 
 			"The message reads: 'Dearest Audrey, I recently got into alchemy. I think I need an arm donor. Can use one of yours?'", 
 			"The message reads: 'Dearest Audrey, I hope you are well. Please send return with some gold. I will pay you back.", 
-			"The message reads: 'Dearest Audrey, I am sending this message from the Dragon Cove. We're looking for new volunteers to undertake our dragonkin convertee program. Please reply if interested.'", 
-			"The message reads: 'Dearest Audrey, I have sent four other messages to you. Please check your nearby shores for them.'"],
-			consumption: true,
+			"The message reads: 'Dearest Audrey, I am sending this message from the Dragon Cove. We're looking for new volunteers to undertake our dragonkin convertee program. Reply if interested.'", 
+			"The message reads: 'Dearest Audrey, I have sent five other messages to you. Please check your nearby shores for them.'",
+			"The message reads: 'Dearest Audrey, It is very cold at the moment so there is no sea. Decided to roll this bottle to you instead of the normal method. Please reply if it worked.'"],
 			areas: [], 
 			clicksToCatch: 1,
 			timeToCatch: 750,
@@ -2106,6 +2108,65 @@ var Items = {
 				Game.hero.takeDamage(10);
 			},
 			timeRequirement: "bloodMoon",
+		},
+		{
+			id: 21,
+			name: "Well-Wrapped Present",
+			fishingType: "watermisc",
+			type: "fish",
+			rarity: "common",
+			quest: true,
+			image: "assets/items/fish/21.png",
+			functionText: "", // added by main
+			lore: "A bit soggy.",
+			areas: ["tutorial"], 
+			clicksToCatch: 1,
+			timeToCatch: 1000,
+			catchRequirement: function () {
+				return (Game.event === "Christmas"
+				&& Player.quests.activeQuestArray.includes("Sunken Presents")
+				&& (Player.quests.questProgress.christmasPresentsCaught === undefined
+				|| Player.quests.questProgress.christmasPresentsCaught < 3)
+				&& Player.quests.questProgress.christmasPresentsCaught === Player.quests.questProgress.christmasPresentsDelivered);
+			},
+			onCatch: function (inventoryPosition) {
+				// quest variable increase
+				if (Player.quests.questProgress.christmasPresentsCaught === undefined) {
+					Player.quests.questProgress.christmasPresentsCaught = 1;
+				}
+				else {
+					Player.quests.questProgress.christmasPresentsCaught++;
+				}
+				// set function text and targetNPC
+				let targetNPC = "";
+				let forPlayer = false;
+				if (Player.quests.questProgress.christmasPresentsCaught === 1) {
+					targetNPC = "Soul Healer Nalaa";
+				}
+				else if (Player.quests.questProgress.christmasPresentsCaught === 2) {
+					targetNPC = "Item Buyer Noledar";
+				}
+				else if (Player.quests.questProgress.christmasPresentsCaught === 3) {
+					targetNPC = Player.name;
+					forPlayer = true;
+				}
+				let functionText = "To be delivered to " + targetNPC;
+				Player.inventory.items[inventoryPosition].targetNPC = targetNPC;
+				Player.inventory.items[inventoryPosition].functionText = functionText;
+				if (forPlayer) {
+					// to be delivered to player!
+					Player.inventory.items[inventoryPosition].onClickText = "<br>Click to open!";
+					// function to be called when clicked
+					Player.inventory.items[inventoryPosition].onClick = function () {
+						// generate loot
+						let loot = [Items.rod[4]];
+						let lootQuantities = [1];
+						// open loot page
+						Dom.loot.currentId = "x"; // x means that nothing should be done when it is closed
+						Dom.choose.page("Well-Wrapped Present", ["Open the present!"], [Dom.loot.page], [["Well-Wrapped Present", loot, lootQuantities, 8]]);
+					};
+				}
+			},
 		},
 		/*{
 			id: 22,

@@ -1045,7 +1045,7 @@ var Quests = {
 				let completed = [];
 				
 				// true or falses for each objective (apart from the turn-in objective)
-				completed.push(checkProgress(Player.quests.goblinsKilled, 2));
+				completed.push(checkProgress(Player.quests.goblinsKilled, 9));
 				
 				completed = checkFinished(completed);
 				
@@ -1134,8 +1134,8 @@ var Quests = {
 			finishChat: `Nice work, ${Player.name}. I bet he got really angry!`,
 			
 			objectives: [
-				"Make 3 snowballs from the snow gathering on the nearby rocks",
-				"Throw them all at <strong>Marshall Teper</strong>",
+				"Make 3 snowballs from the snow gathering on the nearby rocks.",
+				"Throw them all at <strong>Marshall Teper</strong>.",
 				"Speak to <strong>Combat Trainer Saral</strong>.",
 			],
 			
@@ -1158,10 +1158,7 @@ var Quests = {
 			repeatTime: "daily",
 			
 			rewards: {
-				xp: 10,
-				reputation: {
-					eaglecrestLoggingCamp: 20,
-				},
+				xp: 25,
 				items: [
 					Items.currency[5],
 				],
@@ -1174,6 +1171,58 @@ var Quests = {
 				"snowCollected",
 				"hitTeper",
 			],
+		},
+		
+		{
+			id: 22,
+			quest: "Sunken Presents",
+			questArea: "eaglecrestLoggingCamp",
+			
+			startName: "Fisherman Tobenam",
+			startChat: `tbd`,
+			
+			finishName: "You saved Christmas!",
+			finishChat: `The last present is for you!<br>Merry Christmas, ${Player.name}!`,
+			
+			objectives: [
+				"Fish up 3 presents from the river at Fishers' Valley.",
+				"Deliver them to their intended recipients.",
+				"Speak to <strong>Combat Trainer Saral</strong>.",
+			],
+			
+			isCompleted: function() {
+				let completed = [];
+				
+				// true or falses for each objective (apart from the turn-in objective)
+				completed.push(checkProgress(Player.quests.questProgress.christmasPresentsCaught, 3));
+				if (Player.quests.questProgress.christmasPresentsDelivered === 2 && completed[0] === true) {
+					// player has delivered first 2 presents and has caught the third
+					completed.push(true);
+				}
+				else {
+					completed.push(checkProgress(Player.quests.questProgress.christmasPresentsDelivered, 3));
+				}
+				
+				completed = checkFinished(completed);
+				
+				return completed;
+			},
+			
+			howToStart: "Speak to <strong>Fisherman Tobenam</strong>.",
+			levelRequirement: 2,
+			questRequirements: ["Learning to Fish III"],
+			
+			autofinish: true,
+			
+			rewards: {
+				xp: 50,
+				items: [
+					//"mystery",
+				],
+				itemQuantities: [
+					//1,
+				],
+			},
 		},
 	],
 	

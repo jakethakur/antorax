@@ -512,6 +512,10 @@ var Areas = {
 						role: "questStartFinish",
 					},
 					{
+						quest: Quests.eaglecrestLoggingCamp[22], 
+						role: "questStart",
+					},
+					{
 						quest: [Quests.fishing[0], Quests.fishing[1], Quests.fishing[2]], 
 						role: "questStartFinish",
 						newQuestFrequency: "daily",
@@ -718,7 +722,8 @@ var Areas = {
 			mailboxUnread: {normal: "./assets/objects/mailboxUnread.png"},
 			christmasTree: {christmas: "./assets/objects/christmasTree.png"},
 			christmasTreeUnread: {christmas: "./assets/objects/christmasTreeUnread.png"},
-			lights: {christmas: "./assets/objects/lights.png"},
+			lightsRB: {christmas: "./assets/objects/lightsRB.png"},
+			lightsGY: {christmas: "./assets/objects/lightsGY.png"},
 		},
 		
 		song_day: "./assets/music/Pippin-the-Hunchback.mp3",
@@ -972,6 +977,30 @@ var Areas = {
 					{
 						role: "soulHealer",
 					},
+					{
+						role: "function",
+						chooseText: "I found a present addressed to you!",
+						onClick: function () {
+							// remove the item
+							Dom.inventory.removeById(21, "fish", 1);
+							// quest progress
+							Player.quests.questProgress.christmasPresentsDelivered = 1; // always the first NPC to be delivered to
+							// chat
+							Dom.chat.insert("Thank you for taking the time to bring this to me.", 500);
+							Dom.chat.insert("<i>Nalaa gently unfolds the wrapping paper to reveal a brand new Scepter of Souls.</i>", 1000);
+							Dom.chat.insert("It's a new Scepter of Souls! Thank you, adventurer. May the Demigods' blessings be bestowed upon you.", 2500);
+						},
+						roleRequirement: function () {
+							let presentPositions = Dom.inventory.find(21, "fish", true); // array of present inventory positions
+							for (let i = 0; i < presentPositions.length; i++) {
+								if (Player.inventory.items[presentPositions[i]].targetNPC === "Soul Healer Nalaa") {
+									// found one for item buyer noledar
+									return true;
+								}
+							}
+							return false;
+						},
+					},
 				],
 				chat: {
 					canBeHealedText: "My blessings to you. It appears that you have a soul debt, meaning you will earn XP slower due to a recent death. If you wish, I can cleanse your soul and remove this effect for a small price.",
@@ -1058,6 +1087,30 @@ var Areas = {
 						roleRequirement: function () {
 							return Player.quests.completedQuestArray.includes("Retrieval of Logs");
 						}
+					},
+					{
+						role: "function",
+						chooseText: "I found a present addressed to you!",
+						onClick: function () {
+							// remove the item
+							Dom.inventory.removeById(21, "fish");
+							// quest progress
+							Player.quests.questProgress.christmasPresentsDelivered = 2; // always the second NPC to be delivered to
+							// chat
+							Dom.chat.insert("Wow, really? That's so nice, I don't think anyone has delivered me a present before!", 500);
+							Dom.chat.insert("<i>Noledar peels away at the wrapping paper to reveal a large heap of gold.</i>", 1000);
+							Dom.chat.insert("Wow! Gilas was right - good things <strong>can</strong> happen to ordinary people! Thank you very much, and a merry Christmas to you!", 2500);
+						},
+						roleRequirement: function () {
+							let presentPositions = Dom.inventory.find(21, "fish", true); // array of present inventory positions
+							for (let i = 0; i < presentPositions.length; i++) {
+								if (Player.inventory.items[presentPositions[i]].targetNPC === "Item Buyer Noledar") {
+									// found one for item buyer noledar
+									return true;
+								}
+							}
+							return false;
+						},
 					},
 				],
 				chat: {
@@ -1159,11 +1212,39 @@ var Areas = {
 			{
 				x: 870,
 				y: 87,
-				image: "lights",
-				name: "lights",
+				image: "lightsRB",
+				name: "Christmas Lights",
 				bright: true,
 				canBeShown: function () {
-					return Game.event === "Christmas";// && Game.time === "night";
+					return Game.event === "Christmas";
+				},
+				// change colour!
+				onLoad: function () {
+					if (Game.areaName === "eaglecrestLoggingCamp") {
+						// increase number of ticks
+						if (this.timeoutTicks === undefined || this.timeoutTicks >= 20) {
+							this.timeoutTicks = 1;
+						}
+						else {
+							this.timeoutTicks++;
+						}
+						// alternate image
+						// the first time this is called, imageName is undefined so the iamge is not changed
+						if (this.imageName === "lightsRB") {
+							this.image = Loader.getImage("lightsGY");
+							this.imageName = "lightsGY";
+						}
+						else if (this.imageName === "lightsGY") {
+							this.image = Loader.getImage("lightsRB");
+							this.imageName = "lightsRB";
+						}
+						// set another timeout
+						let timeoutTime = 1200;
+						if (this.timeoutTicks > 10) {
+							timeoutTime = 250;
+						}
+						setTimeout(this.onLoad.bind(this), timeoutTime);
+					}
 				},
 			},
 		],
@@ -1234,8 +1315,10 @@ var Areas = {
 					},
 					{
 						sold: [
-							{item: Items.consumable[5], cost: 2,},
-							{item: Items.consumable[16], cost: 1, costCurrency: 5,},
+						    {item: Items.consumable[5], cost: 2,}, // Wood-Brewed Beer
+						    {item: Items.consumable[16], cost: 1, costCurrency: 5, condition: function () { // Mince Pie
+						        return Game.event === "Christmas";
+						    }},
 						],
 						role: "merchant",
 						roleRequirement: function () {

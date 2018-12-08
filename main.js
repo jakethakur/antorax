@@ -428,6 +428,12 @@ class Entity {
 		
 		this.collisionType = properties.collisionType || "body"; // "feet" = check collision with Game.heroFootHitbox
 		// collision type currently only applies to tripwires
+		
+		// onLoad function
+		this.onLoad = properties.onLoad;
+		if (this.onLoad !== undefined) {
+			this.onLoad();
+		}
 	}
 	
 	isTouching (object) {
@@ -469,6 +475,7 @@ class Thing extends Entity {
 		super(properties);
 
 		this.image = Loader.getImage(properties.image);
+		this.imageName = properties.image;
 		
 		//this.readImage = properties.readImage;
 		//this.unreadImage = properties.unreadImage;
@@ -1293,11 +1300,12 @@ class Hero extends Attacker {
 						
 						// give fish
 						// must be after quest progress and fishing skill
-						Dom.inventory.give(this.channelling);
+						let inventoryPosition = Dom.inventory.give(this.channelling);
+						// inventory position saved for if onCatch needs it
 						
 						// onCatch function
 						if (this.channelling.onCatch !== undefined) {
-							this.channelling.onCatch();
+							this.channelling.onCatch(inventoryPosition);
 						}
 						
 						if (Math.floor(this.stats.fishingSkill) - Math.floor(oldFishingSkill) > 0) { // check if the player's fishing skill has increased to the next integer (or more)
@@ -1526,7 +1534,7 @@ class Hero extends Attacker {
 					
 					// find the fish that should be caught
 					let fish = Items.fish;
-					fish = fish.filter(item => item.areas.includes(Player.lootArea) || item.areas.length === 0); // filter for area
+					fish = fish.filter(item => item.areas.includes(Player.lootArea) || item.areas.includes(Game.areaName) || item.areas.length === 0); // filter for area (either lootArea or areaName)
 					if (baitStatusEffectIndex !== -1 &&
 					Player.quests.questProgress.fishCaught === 0 || Player.quests.questProgress.fishCaught === undefined) {
 						// player is using fishing bait but has never caught a fish before
@@ -1537,6 +1545,10 @@ class Hero extends Attacker {
 						fish = fish.filter(item => item.rarity === itemRarity); // filter for rarity (see above)
 					}
 					fish = fish.filter(item => item.timeRequirement === undefined || Game.time === item.timeRequirement); // filter for time that it can be fished up
+					fish = fish.filter(item => item.catchRequirement === undefined || item.catchRequirement()); // filter for general fishing requirement
+					
+					fish = fish.filter(item=>item.name==="Well-Wrapped Present")
+					
 					fish = fish[Random(0, fish.length - 1)]; // Random fish that fulfils requirements above
 					fish = { ...fish }; // remove all references to itemdata in fish variable (otherwise length value changed in this will also affect itemData)!
 					
@@ -3133,6 +3145,7 @@ Game.init = function () {
 	Dom.quests.possible();
 	Dom.quests.completed();
 	Dom.changeBook(Player.tab);
+	Dom.adventure.update(); // chooses what should be shown in adventurer's log
 };
 
 //
@@ -3702,7 +3715,7 @@ Game.update = function (delta) {
 		// check if the currently displayed DOM is for the current enemy in the foreach loop
 		if (enemy.id === Dom.currentNPC.id && enemy.type === Dom.currentNPC.type) {
 			// close the DOM if the player is too far away from the enemy or if the enemy is dead
-			if (enemy.respawning || distance(Game.hero, enemy) > Game.hero.stats.domRange) {
+			if (enemy.respawning && distance(Game.hero, enemy) > Game.hero.stats.domRange) {
 				// enemy is dead or player is more than 4 tiles away from enemy
 				Dom.changeBook(Player.tab, true); // close enemy DOM
 			}
@@ -4009,14 +4022,18 @@ Game.mailboxUpdate = function (type) {
 	if (type === "read") {
 		if (Dom.mail.unread() === 0) {
 			this.mailboxes.forEach(mailbox => {
+				// TBD check existing imageName
 				mailbox.image = Loader.getImage(mailbox.readImage);
+				mailbox.imageName = mailbox.readImage;
 			});
 		}
 	}
 	else if (type === "recieved") {
 		// perhaps check if Dom.mail.unread is 1, because only one message will come in at a time and if it is more than 1 then it would already be a flag
 		this.mailboxes.forEach(mailbox => {
+			// TBD check existing imageName
 			mailbox.image = Loader.getImage(mailbox.unreadImage);
+			mailbox.imageName = mailbox.unreadImage;
 		});
 	}
 	else {
