@@ -981,14 +981,16 @@ var Areas = {
 						role: "function",
 						chooseText: "I found a present addressed to you!",
 						onClick: function () {
+							// start cutscene
+							Dom.changeBook("chatPage", true, false, 5500);
 							// remove the item
 							Dom.inventory.removeById(21, "fish", 1);
 							// quest progress
 							Player.quests.questProgress.christmasPresentsDelivered = 1; // always the first NPC to be delivered to
 							// chat
-							Dom.chat.insert("Thank you for taking the time to bring this to me.", 500);
-							Dom.chat.insert("<i>Nalaa gently unfolds the wrapping paper to reveal a brand new Scepter of Souls.</i>", 1000);
-							Dom.chat.insert("It's a new Scepter of Souls! Thank you, adventurer. May the Demigods' blessings be bestowed upon you.", 2500);
+							Game.sayChat("Soul Healer Nalaa", "Thank you for taking the time to bring this to me.", false, 500, false);
+							Game.sayChat("Soul Healer Nalaa", "/me gently unfolds the wrapping paper to reveal a brand new Scepter of Souls.", false, 2000, false);
+							Game.sayChat("Soul Healer Nalaa", "It's a new Scepter of Souls! Thank you, adventurer. May the Demigods' blessings be bestowed upon you.", false, 4000, false);
 						},
 						roleRequirement: function () {
 							let presentPositions = Dom.inventory.find(21, "fish", true); // array of present inventory positions
@@ -1092,14 +1094,16 @@ var Areas = {
 						role: "function",
 						chooseText: "I found a present addressed to you!",
 						onClick: function () {
+							// start cutscene
+							Dom.changeBook("chatPage", true, false, 5500);
 							// remove the item
 							Dom.inventory.removeById(21, "fish");
 							// quest progress
 							Player.quests.questProgress.christmasPresentsDelivered = 2; // always the second NPC to be delivered to
 							// chat
-							Dom.chat.insert("Wow, really? That's so nice, I don't think anyone has delivered me a present before!", 500);
-							Dom.chat.insert("<i>Noledar peels away at the wrapping paper to reveal a large heap of gold.</i>", 1000);
-							Dom.chat.insert("Wow! Gilas was right - good things <strong>can</strong> happen to ordinary people! Thank you very much, and a merry Christmas to you!", 2500);
+							Game.sayChat("Item Buyer Noledar", "Wow, really? That's so nice, I don't think anyone has delivered me a present before!", false, 500, false);
+							Game.sayChat("Item Buyer Noledar", "/me peels away at the wrapping paper to reveal a large heap of gold.", false, 2000, false);
+							Game.sayChat("Item Buyer Noledar", "Wow! Gilas was right - good things <strong>can</strong> happen to ordinary people! Thank you very much, and a merry Christmas to you!", false, 4000, false);
 						},
 						roleRequirement: function () {
 							let presentPositions = Dom.inventory.find(21, "fish", true); // array of present inventory positions
@@ -1239,7 +1243,7 @@ var Areas = {
 							this.imageName = "lightsRB";
 						}
 						// set another timeout
-						let timeoutTime = 1200;
+						let timeoutTime = 1100;
 						if (this.timeoutTicks > 10) {
 							timeoutTime = 250;
 						}

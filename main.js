@@ -1313,7 +1313,7 @@ class Hero extends Attacker {
 						}
 						
 						// update player stats
-						Game.hero.stats = Player.stats; // inefficient (should be linked)
+						Player.stats = Game.hero.stats; // inefficient (should be linked)
 						
 						// fish length for fisher's log
 						if (this.channelling.length > Dom.inventory.fish[this.channelling.id]) {
@@ -1546,9 +1546,6 @@ class Hero extends Attacker {
 					}
 					fish = fish.filter(item => item.timeRequirement === undefined || Game.time === item.timeRequirement); // filter for time that it can be fished up
 					fish = fish.filter(item => item.catchRequirement === undefined || item.catchRequirement()); // filter for general fishing requirement
-					
-					fish = fish.filter(item=>item.name==="Well-Wrapped Present")
-					
 					fish = fish[Random(0, fish.length - 1)]; // Random fish that fulfils requirements above
 					fish = { ...fish }; // remove all references to itemdata in fish variable (otherwise length value changed in this will also affect itemData)!
 					
@@ -3610,9 +3607,11 @@ Game.update = function (delta) {
 							}
 							else {
 								if (!Dom.chat.contents.includes("<strong>" + npc.name + "</strong>: " + npc.chat.healedText)) {
-									// display instruction text if user cannot be healed and hasn't just been healed
-									npc.say(npc.chat.cannotBeHealedText, true, 0, false);
-									textSaid = true; // do not say something in chat, as something has already been said
+									if (Dom.currentlyDisplayed === "") {
+										// display instruction text if user cannot be healed and hasn't just been healed
+										npc.say(npc.chat.cannotBeHealedText, true, 0, false);
+										textSaid = true; // do not say something in chat, as something has already been said
+									}
 								}
 							}
 						}
@@ -3627,9 +3626,11 @@ Game.update = function (delta) {
 								parameterArray.push([npc, true]);
 							}
 							else {
-								// player has no unidentified items; send chat message explaining this instead==
-								npc.say(npc.chat.noUnidentified, true, 0, false);
-								textSaid = true; // do not say something in chat, as something has already been said
+								if (Dom.currentlyDisplayed === "") {
+									// player has no unidentified items; send chat message explaining this instead==
+									npc.say(npc.chat.noUnidentified, true, 0, false);
+									textSaid = true; // do not say something in chat, as something has already been said
+								}
 							}
 						}
 						
@@ -3671,7 +3672,7 @@ Game.update = function (delta) {
 				}
 				else {
 					// text that the npc says if they don't open a choose DOM
-					if (!textSaid) { // check if any extra text should be said at all
+					if (!textSaid && Dom.currentlyDisplyed === "") { // check if any extra text should be said at all
 						if (questActive) {
 							// the player has active quest(s) with the npc and no other alternate options
 							npc.say(npc.chat.questProgress, true, 0, false);

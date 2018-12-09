@@ -1307,7 +1307,7 @@ var Quests = {
 				return completed;
 			},
 			
-			howToStart: "Speak to Fisherman Tobenam.",
+			howToStart: "Speak to <strong>Fisherman Tobenam</strong>.",
 			levelRequirement: 1,
 			questRequirements: ["Learning to Fish III"],
 			fishingRequirement: {
@@ -1358,7 +1358,7 @@ var Quests = {
 				return completed;
 			},
 			
-			howToStart: "Speak to Fisherman Tobenam.",
+			howToStart: "Speak to <strong>Fisherman Tobenam</strong>.",
 			levelRequirement: 1,
 			questRequirements: ["Learning to Fish III"],
 			fishingRequirement: {
@@ -1409,7 +1409,7 @@ var Quests = {
 				return completed;
 			},
 			
-			howToStart: "Speak to Fisherman Tobenam.",
+			howToStart: "Speak to <strong>Fisherman Tobenam</strong>.",
 			levelRequirement: 1,
 			questRequirements: ["Learning to Fish III"],
 			fishingRequirement: {
@@ -1460,7 +1460,7 @@ var Quests = {
 				return completed;
 			},
 			
-			howToStart: "Speak to Fisherman Tobenam.",
+			howToStart: "Speak to <strong>Fisherman Tobenam</strong>.",
 			levelRequirement: 1,
 			questRequirements: ["Learning to Fish III"],
 			fishingRequirement: {

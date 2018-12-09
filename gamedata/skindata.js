@@ -42,6 +42,17 @@ var Skins = {
 			cursorPosition: {x: 10, y: 10},
 			headAdjust: {x: 10, y: 0},
 		},
+		{
+			id: 4,
+			position: {x: Infinity, y: Infinity},
+			name: "Snow Elf",
+			gender:	"m",
+			projectile:	"snowball",
+			projectileAdjust: {x: 0, y: 0},
+			cursor: "chilly",
+			cursorPosition: {x: 10, y: 10},
+			headAdjust: {x: 0, y: 0},
+		},
 	],
 	m: [
 		{

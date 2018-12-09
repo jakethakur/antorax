@@ -1292,6 +1292,13 @@ var Items = {
 				Dom.alert.page("Would you like to save or discard the image?",1);
 			},
 		},
+		{
+			id: 15,
+			name: "Arcane Magnet",
+			type: "item",
+			image: "assets/items/item/15.png",
+			functionText: "Drags in nearby enemies (discard to stop).",
+		},
 	],
 	consumable: [
 		{
@@ -2155,12 +2162,14 @@ var Items = {
 				Player.inventory.items[inventoryPosition].functionText = functionText;
 				if (forPlayer) {
 					// to be delivered to player!
-					Player.inventory.items[inventoryPosition].onClickText = "<br>Click to open!";
+					Player.inventory.items[inventoryPosition].functionText += "<br>Click to open!";
 					// function to be called when clicked
-					Player.inventory.items[inventoryPosition].onClick = function () {
+					Player.inventory.items[inventoryPosition].onClick = function (inventoryPosition) {
+						// remove item
+						Dom.inventory.remove(inventoryPosition);
 						// generate loot
-						let loot = [Items.rod[4]];
-						let lootQuantities = [1];
+						let loot = [Items.rod[4], Items.currency[5]];
+						let lootQuantities = [1, 5];
 						// open loot page
 						Dom.loot.currentId = "x"; // x means that nothing should be done when it is closed
 						Dom.choose.page("Well-Wrapped Present", ["Open the present!"], [Dom.loot.page], [["Well-Wrapped Present", loot, lootQuantities, 8]]);
