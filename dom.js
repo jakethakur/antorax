@@ -123,14 +123,14 @@ if(document.getElementById("settingDelete") !== null){
 
 // DO NOT ADD CODE ABOVE THIS POINT
 
-Dom.changeBook = function(page, override, shouldNotBeOverriden, levelUpOverride){
+Dom.changeBook = function(page, override, shouldNotBeOverriden, levelUpOverride){ // levelUpOverride is the amount of time that the page is locked during a cutscene
 	// if the page can be changed
 	if(this.currentlyDisplayed === "" || override){
 		if((page === "chatPage" || page === "inventoryPage" || page === "questsPage" || page === "adventurePage" || page === "reputationPage" || page === "settingsPage" || page === "settingsTwoPage") && Dom.adventure.awaitingInstructions.length > 0 && levelUpOverride === undefined){
 			Dom.adventure.showInstructions(Dom.adventure.awaitingInstructions[0], true);
 			Dom.adventure.awaitingInstructions.shift();
 		}else{
-			if(page === "chatPage" || page === "inventoryPage" || page === "questsPage" || page === "adventurePage" || page === "reputationPage" || page === "settingsPage" || page === "settingsTwoPage"){
+			if((page === "chatPage" || page === "inventoryPage" || page === "questsPage" || page === "adventurePage" || page === "reputationPage" || page === "settingsPage" || page === "settingsTwoPage") && !levelUpOverride){
 				let changed = false;
 				if(page === "settingsTwoPage"){
 					page = "settingsPage";
@@ -198,6 +198,7 @@ Dom.changeBook = function(page, override, shouldNotBeOverriden, levelUpOverride)
 					Dom.levelUp.override = false;
 					Dom.currentlyDisplayed = "";
 					Dom.currentNPC = {};
+					Dom.changeBook(Player.tab);
 					if(Dom.levelUp.waiting){
 						Dom.levelUp.waiting = false;
 						Dom.levelUp.page();
@@ -1028,25 +1029,35 @@ Dom.quests.active = function(quest){
 			}
 		}
 		Dom.quests.activeHTML[currentQuest.important] += "<br><br><strong>" + currentQuest.quest + "</strong>";
+		let completedObjectives = 0;
 		for(let i = 0; i < currentQuest.objectives.length; i++){
 			Dom.quests.activeHTML[currentQuest.important] += "<br>" + currentQuest.objectives[i];
 			if(currentQuest.isCompleted()[i] === true && i !== currentQuest.objectives.length-1){
-				if(currentQuest.autofinish){
-					Dom.choose.page(currentQuest.finishName, ["Quest Finish: " + currentQuest.quest], [Dom.quest.finish], [[currentQuest]]);
-				}else{
-					Dom.quests.activeHTML[currentQuest.important] += " &#10004;";
-				}
+				Dom.quests.activeHTML[currentQuest.important] += " &#10004;";
+				completedObjectives++;
 			}else if(currentQuest.isCompleted()[i] !== false && i !== currentQuest.objectives.length-1){
 				Dom.quests.activeHTML[currentQuest.important] += " " + currentQuest.isCompleted()[i];
 			}
 		}
+		if(currentQuest.autofinish && completedObjectives >= currentQuest.objectives.length-1){
+			Dom.choose.page(currentQuest.finishName, ["Quest Finish: " + currentQuest.quest], [Dom.quest.finish], [[currentQuest]]);
+		}
 		if(currentQuest.wasCompleted === undefined){
 			currentQuest.wasCompleted = currentQuest.isCompleted();
 		}else{
+			for(let i = 0; i < currentQuest.wasCompleted.length; i++){
+				if(currentQuest.wasCompleted[i] !== true && currentQuest.isCompleted()[i] === true){
+					Dom.chat.insert("Quest log updated", 0, true);
+					currentQuest.wasCompleted = currentQuest.isCompleted();
+					break;
+				}
+			}
+			/*
 			if(JSON.stringify(currentQuest.wasCompleted) !== JSON.stringify(currentQuest.isCompleted()) && currentQuest.isCompleted()[currentQuest.isCompleted().length-1]){
 				Dom.chat.insert("Quest log updated", 0, true);
 				currentQuest.wasCompleted = currentQuest.isCompleted();
 			}
+			*/
 		}
 		if(currentQuest.isCompleted()[currentQuest.isCompleted().length - 1]){
 			currentQuest.completed = true;
@@ -1284,7 +1295,7 @@ Dom.inventory.give = function(item, num, position){
 						if(Player.inventory.items[i].maxCharges !== undefined){
 							Player.inventory.items[i].charges = Player.inventory.items[i].maxCharges;
 						}
-						if(Player.inventory.items[i].type !== "food"){
+						if(Player.inventory.items[i].type === "food"){
 							item.onClick = Dom.inventory.food;
 						}
 						if((Player.inventory.items[i].type === "sword" || Player.inventory.items[i].type === "staff" || Player.inventory.items[i].type === "bow" || Player.inventory.items[i].type === "rod") && Player.inventory.items[i].name !== undefined){
@@ -1348,7 +1359,7 @@ Dom.inventory.give = function(item, num, position){
 		if(Player.inventory.items[position].maxCharges !== undefined){
 			Player.inventory.items[position].charges = Player.inventory.items[position].maxCharges;
 		}
-		if(Player.inventory.items[i].type !== "food"){
+		if(Player.inventory.items[position].type === "food"){
 			item.onClick = Dom.inventory.food;
 		}
 		if((Player.inventory.items[position].type === "sword" || Player.inventory.items[position].type === "staff" || Player.inventory.items[position].type === "bow" || Player.inventory.items[position].type === "rod") && Player.inventory.items[position].name !== undefined){
@@ -3120,9 +3131,20 @@ if(!Player.days.includes(GetFullDate())){
 // TESTING
 Dom.testing = {};
 Dom.testing.completeQuest = function(quest){
+	if(quest.constructor.name === "String"){
+		for(let i = 0; i < Object.keys(Quests).length; i++){
+			for(let x = 0; x < Quests[Object.keys(Quests)[i]].length; x++){
+				if(Quests[Object.keys(Quests)[i]][x].quest === quest){
+					quest = Quests[Object.keys(Quests)[i]][x];
+				}
+			}
+		}
+	}
 	Dom.currentlyDisplayed = quest;
-	Dom.quest.start(quest);
-	Dom.quest.accept();
+	if(!Player.quests.activeQuestArray.includes(quest.quest)){
+		Dom.quest.start(quest);
+		Dom.quest.accept();
+	}
 	Dom.quest.finish(quest);
 	Dom.quest.acceptRewards();
 	return quest.quest
