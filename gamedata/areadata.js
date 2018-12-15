@@ -997,6 +997,7 @@ var Areas = {
 						onClick: function () {
 							// remove the item
 							Dom.inventory.removeById(21, "fish", 1);
+							Dom.expand("information");
 							// start cutscene
 							Dom.changeBook("chatPage", true, false, 6000);
 							// quest progress
@@ -1110,6 +1111,7 @@ var Areas = {
 						onClick: function () {
 							// remove the item
 							Dom.inventory.removeById(21, "fish");
+							Dom.expand("information");
 							// start cutscene
 							Dom.changeBook("chatPage", true, false, 6000);
 							// quest progress

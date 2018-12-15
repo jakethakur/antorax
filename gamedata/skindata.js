@@ -51,7 +51,7 @@ var Skins = {
 			projectileAdjust: {x: 0, y: 0},
 			cursor: "chilly",
 			cursorPosition: {x: 10, y: 10},
-			headAdjust: {x: 0, y: 0},
+			headAdjust: {x: 10, y: 0},
 		},
 	],
 	m: [

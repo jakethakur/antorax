@@ -182,14 +182,14 @@ Dom.changeBook = function(page, override, shouldNotBeOverriden, levelUpOverride)
 			if(page === "reputationPage"){
 				Dom.reputation.update();
 			}
-			Dom.quests.active();
-			for(let i = 0; i < document.getElementsByClassName("closeClass").length; i++){
-				document.getElementsByClassName("closeClass")[i].style.border = "5px solid #886622";
-			}
 			// if the page is a bookmark page
 			if(!shouldNotBeOverriden){
 				Dom.currentlyDisplayed = "";
 				Dom.currentNPC = {};
+			}
+			Dom.quests.active();
+			for(let i = 0; i < document.getElementsByClassName("closeClass").length; i++){
+				document.getElementsByClassName("closeClass")[i].style.border = "5px solid #886622";
 			}
 			if(levelUpOverride !== undefined){
 				Dom.levelUp.override = true;
@@ -2675,8 +2675,10 @@ Dom.choose.page = function(npc, buttons, functions, parameters){
 			Dom.choose.sideHTML = "";
 			Dom.choose.dailyHTML = "";
 			for(let i = 0; i < buttons.length; i++){
-				let imagenum = 2;
-				if(functions[i] === Dom.buyer.page){
+				let imagenum = 1;
+				if(functions[i] === Dom.identifier.page){
+					imagenum = 2;
+				}else if(functions[i] === Dom.buyer.page){
 					imagenum = 3;
 				}else if(functions[i] === Dom.merchant.page){
 					imagenum = 4;
@@ -2689,11 +2691,11 @@ Dom.choose.page = function(npc, buttons, functions, parameters){
 						imagenum = 6;
 					}
 				}else if(functions[i] === Dom.text.page){
-					if(parameters[i][1] === "Soul Healer"){
+					if(parameters[i][0] === "Soul Healer"){
 						imagenum = 7;
-					}else{
+					}/*else{
 						imagenum = 1;
-					}
+					}*/
 				}
 				if(imagenum === 6){
 					if(parameters[i][0].important){
