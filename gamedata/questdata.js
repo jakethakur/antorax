@@ -1187,7 +1187,7 @@ var Quests = {
 			objectives: [
 				"Fish up 3 presents from the river at Fishers' Valley.",
 				"Deliver them to their intended recipients.",
-				"Speak to <strong>Combat Trainer Saral</strong>.",
+				"Speak to <strong>Fisherman Tobenam</strong>.",
 			],
 			
 			isCompleted: function() {
@@ -1217,9 +1217,11 @@ var Quests = {
 			rewards: {
 				xp: 50,
 				items: [
+					Items.currency[5],
 					//"mystery",
 				],
 				itemQuantities: [
+					6,
 					//1,
 				],
 			},

@@ -2011,19 +2011,23 @@ class Enemy extends Attacker {
 		this.deathImageHeight = properties.deathImageHeight || this.deathImage.height;
 		
 		// lootTable: an array of objects for each loot item - these objects contain the item ("item") and chances of looting them ("chance")
+		// if properties.lootTableTemplate is an array of lootTables (more than one template), merge them
+		let lootTableTemplate = [];
+		if (properties.lootTableTemplate !== undefined) {
+			for (let i = 0; i < properties.lootTableTemplate.length; i++) {
+				lootTableTemplate = lootTableTemplate.concat(properties.lootTableTemplate[i]);
+			}
+		}
 		// merge the arrays properties.lootTable and properties.lootTableTemplate
-		if (properties.lootTable !== undefined && properties.lootTableTemplate !== undefined) {
-			this.lootTable = properties.lootTable.concat(properties.lootTableTemplate);
+		if (properties.lootTable !== undefined) {
+			this.lootTable = properties.lootTable.concat(lootTableTemplate);
 		}
-		else if (properties.lootTable === undefined && properties.lootTableTemplate !== undefined) {
-			this.lootTable = properties.lootTableTemplate;
-		}
-		else if (properties.lootTable !== undefined && properties.lootTableTemplate === undefined) {
-			this.lootTable = properties.lootTable;
+		else {
+			this.lootTable = lootTableTemplate;
 		}
 		// merge the loot table with the global loot table as Well
 		this.lootTable = this.lootTable.concat(LootTables.global)
-		// see generateLoot() function in Enemy for how this works
+		// see generateLoot() function in Enemy for how the lootTable works
 		
 		this.xpGiven = properties.xpGiven;
 		
@@ -2061,6 +2065,20 @@ class Enemy extends Attacker {
 				this.move(delta, Game.hero);
 			}
 			// add spell cast
+		}
+		// if player has a magnet, pull in enemies
+		// stacks!
+		for (let i = 0; i < Player.inventory.items.length; i++) {
+			if (Player.inventory.items[i].magnetism !== undefined) {
+				let d = Player.inventory.items[i].range - distance(this, Game.hero);
+				if (d > 0) {
+					// in range
+					let b = bearing(this, Game.hero);
+					let speed = Items.item[15].magnetism * (d / Player.inventory.items[i].range);
+					this.x += Math.cos(b) * speed * delta;
+					this.y += Math.sin(b) * speed * delta;
+				}
+			}
 		}
 	}
 	
@@ -3419,7 +3437,7 @@ Game.update = function (delta) {
 							if (role.quest.constructor === Array && role.newQuestFrequency === "daily") {
 								// quest is an array (hence a Random one is picked each questing time period)
 								// all of these quests are daily quests
-								if (role.quest.some(quest => Player.quests.activeQuestArray.includes(quest))) { // one of the quests is currently active
+								if (role.quest.some(quest => Player.quests.activeQuestArray.includes(quest.name))) { // one of the quests is currently active
 									questCanBeStarted = false;
 									questActive = true; // for npc dialogue
 								}

@@ -93,21 +93,35 @@ const LootTables = { // loot table templates
 		{ // displacement grenade
 			item: Items.consumable[13],
 			chance: [
-				93,				// 0
+				95,				// 0
 				Infinity,		// 1
 			],
 		},
 		{ // position reverser
 			item: Items.consumable[14],
 			chance: [
-				93,				// 0
+				95,				// 0
 				Infinity,		// 1
 			],
 		},
 		{ // restorative timepiece
 			item: Items.consumable[15],
 			chance: [
-				93,				// 0
+				95,				// 0
+				Infinity,		// 1
+			],
+		},
+		{ // arcane magnet
+			item: Items.item[15],
+			chance: [
+				95,				// 0
+				Infinity,		// 1
+			],
+		},
+		{ // tattered tome
+			item: Items.item[16],
+			chance: [
+				90,				// 0
 				Infinity,		// 1
 			],
 		},
@@ -140,7 +154,7 @@ const EnemyTemplates = {
 			projectile: {
 				image: "rock",
 			},
-			lootTableTemplate: LootTables.nilbogGoblin,
+			lootTableTemplate: [LootTables.nilbogGoblin],
 			lootTable: [
 				{ // polished rock
 					item: Items.item[4],
@@ -178,7 +192,7 @@ const EnemyTemplates = {
 			projectile: {
 				image: "melee",
 			},
-			lootTableTemplate: LootTables.nilbogGoblin,
+			lootTableTemplate: [LootTables.nilbogGoblin],
 			inventorySpace: 8,
 		},
 		goblinBruiser: {
@@ -205,7 +219,7 @@ const EnemyTemplates = {
 			projectile: {
 				image: "melee",
 			},
-			lootTableTemplate: LootTables.nilbogGoblin,
+			lootTableTemplate: [LootTables.nilbogGoblin],
 			inventorySpace: 8,
 		},
 		fireGoblin: {
@@ -233,7 +247,7 @@ const EnemyTemplates = {
 			projectile: {
 				image: "fireball",
 			},
-			lootTableTemplate: LootTables.nilbogGoblin,
+			lootTableTemplate: [LootTables.nilbogGoblin],
 			lootTable: [
 				{ // firey rock
 					item: Items.item[5],
@@ -269,7 +283,7 @@ const EnemyTemplates = {
 			projectile: {
 				image: "melee",
 			},
-			lootTableTemplate: LootTables.nilbogGoblin,
+			lootTableTemplate: [LootTables.nilbogGoblin, LootTables.nilbogTowerGoblin],
 			inventorySpace: 8,
 		},
 		goblinCrusader: {
@@ -297,7 +311,7 @@ const EnemyTemplates = {
 			projectile: {
 				image: "melee",
 			},
-			lootTableTemplate: LootTables.nilbogGoblin,
+			lootTableTemplate: [LootTables.nilbogGoblin, LootTables.nilbogTowerGoblin],
 			inventorySpace: 8,
 		},
 	},
@@ -981,10 +995,10 @@ var Areas = {
 						role: "function",
 						chooseText: "I found a present addressed to you!",
 						onClick: function () {
-							// start cutscene
-							Dom.changeBook("chatPage", true, false, 5500);
 							// remove the item
 							Dom.inventory.removeById(21, "fish", 1);
+							// start cutscene
+							Dom.changeBook("chatPage", true, false, 6000);
 							// quest progress
 							Player.quests.questProgress.christmasPresentsDelivered = 1; // always the first NPC to be delivered to
 							// chat
@@ -1094,10 +1108,10 @@ var Areas = {
 						role: "function",
 						chooseText: "I found a present addressed to you!",
 						onClick: function () {
-							// start cutscene
-							Dom.changeBook("chatPage", true, false, 5500);
 							// remove the item
 							Dom.inventory.removeById(21, "fish");
+							// start cutscene
+							Dom.changeBook("chatPage", true, false, 6000);
 							// quest progress
 							Player.quests.questProgress.christmasPresentsDelivered = 2; // always the second NPC to be delivered to
 							// chat

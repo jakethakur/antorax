@@ -1297,7 +1297,21 @@ var Items = {
 			name: "Arcane Magnet",
 			type: "item",
 			image: "assets/items/item/15.png",
-			functionText: "Drags in nearby enemies (discard to stop).",
+			functionText: "Drags in nearby enemies (discard to stop)",
+			magnetism: 200, // movement per second in pixels when at 0 range
+			// linear scale between max and 0
+			range: 480,
+			sellPrice: 1,
+		},
+		{
+			id: 16,
+			name: "Tattered Tome",
+			type: "item",
+			image: "assets/items/item/16.png",
+			lore: "You can't understand what the book says.",
+			sellPrice: 1,
+			sellQuantity: 4,
+			stack: 4,
 		},
 	],
 	consumable: [
@@ -1548,7 +1562,7 @@ var Items = {
 			type: "consumable",
 			sellPrice: 2, // TBC
 			image: "assets/items/consumable/10.png",
-			onClickText: "Deals 5 damage to the nearest enemy, stunning them for 1s",
+			functionText: "Deals 5 damage to the nearest enemy, stunning them for 1s",
 			maxCharges: 3,
 			onClick: function (inventoryPosition) {
 				// remove one charge from the item
@@ -1705,18 +1719,9 @@ var Items = {
 			image: "assets/items/food/0.png",
 			sellPrice: 1,
 			functionText: "Restores 40 health over 10 seconds (whilst not in combat)",
+			healthRestore: 40,
+			time: 10,
 			lore: "A festive snack.",
-			onClick: function (inventoryPosition) {
-				// remove the item
-				Dom.inventory.remove(inventoryPosition);
-				// eat the item
-				Game.statusEffects.food({
-					target: Game.hero,
-					effectTitle: "Mince pie",
-					healthRestore: 40,
-					time: 10,
-				});
-			},
 		},
 	],
 	fish: [
@@ -2118,23 +2123,24 @@ var Items = {
 		},
 		{
 			id: 21,
-			name: "Well-Wrapped Present",
+			name: "Well-Wrapped Present", // non-openable - first 2 presents for christmas fishing quest (third is id 22)
 			fishingType: "watermisc",
 			type: "fish",
 			rarity: "common",
 			quest: true,
 			image: "assets/items/fish/21.png",
-			functionText: "", // added by main
+			functionText: "", // added by onCatch
 			lore: "A bit soggy.",
-			areas: ["tutorial"], 
+			areas: ["tutorial"],
 			clicksToCatch: 1,
 			timeToCatch: 1000,
 			catchRequirement: function () {
 				return (Game.event === "Christmas"
 				&& Player.quests.activeQuestArray.includes("Sunken Presents")
 				&& (Player.quests.questProgress.christmasPresentsCaught === undefined
-				|| Player.quests.questProgress.christmasPresentsCaught < 3)
+				|| Player.quests.questProgress.christmasPresentsCaught < 2)
 				&& Player.quests.questProgress.christmasPresentsCaught === Player.quests.questProgress.christmasPresentsDelivered);
+				// must deliver present before catching another
 			},
 			onCatch: function (inventoryPosition) {
 				// quest variable increase
@@ -2153,29 +2159,67 @@ var Items = {
 				else if (Player.quests.questProgress.christmasPresentsCaught === 2) {
 					targetNPC = "Item Buyer Noledar";
 				}
-				else if (Player.quests.questProgress.christmasPresentsCaught === 3) {
-					targetNPC = Player.name;
-					forPlayer = true;
-				}
 				let functionText = "To be delivered to " + targetNPC;
 				Player.inventory.items[inventoryPosition].targetNPC = targetNPC;
 				Player.inventory.items[inventoryPosition].functionText = functionText;
-				if (forPlayer) {
-					// to be delivered to player!
-					Player.inventory.items[inventoryPosition].functionText += "<br>Click to open!";
-					// function to be called when clicked
-					Player.inventory.items[inventoryPosition].onClick = function (inventoryPosition) {
-						// remove item
-						Dom.inventory.remove(inventoryPosition);
-						// generate loot
-						let loot = [Items.rod[4], Items.currency[5]];
-						let lootQuantities = [1, 5];
-						// open loot page
-						Dom.loot.currentId = "x"; // x means that nothing should be done when it is closed
-						Dom.choose.page("Well-Wrapped Present", ["Open the present!"], [Dom.loot.page], [["Well-Wrapped Present", loot, lootQuantities, 8]]);
-					};
+				// update quest log
+				Dom.quests.active();
+			},
+		},
+		{
+			id: 22,
+			name: "Well-Wrapped Present", // openable
+			fishingType: "watermisc",
+			type: "fish",
+			rarity: "common",
+			// quest is set to true if it is the one that gives you the fishing rod
+			image: "assets/items/fish/21.png", // same as 21
+			functionText: "Click to open!",
+			lore: "A bit soggy.",
+			areas: [],
+			clicksToCatch: 1,
+			timeToCatch: 1000,
+			catchRequirement: function () {
+				// EITHER given as the third part of the christmas fishing quest which contains the fishing rod
+				// OR given when fished up with the christmas fishing rod and these presents contain 3-5 gold
+				return ((Game.event === "Christmas"
+				&& Game.areaName === "tutorial"
+				&& Player.quests.activeQuestArray.includes("Sunken Presents")
+				&& Player.quests.questProgress.christmasPresentsCaught === 2
+				&& Player.quests.questProgress.christmasPresentsDelivered === 2)
+				|| (Player.inventory.weapon.type === "rod"
+				&& Player.inventory.weapon.id === "4"));
+			},
+			onCatch: function (inventoryPosition) {
+				if (Player.quests.questProgress.christmasPresentsCaught === 2) {
+					// third part of christmas fishing quest
+					// quest variable increase
+					Player.quests.questProgress.christmasPresentsCaught = 3;
+					// functionText
+					Player.inventory.items[inventoryPosition].functionText = "To be delivered to " + Player.name + "<br>Click to open!";
+					// autocomplete quest
+					Dom.quests.active();
 				}
 			},
+			onClick: function (inventoryPosition) {
+				// remove item
+				Dom.inventory.remove(inventoryPosition);
+				// replace at the same slot
+				let item = null;
+				let itemQuantity = 0;
+				if (!Player.quests.questProgress.christmasFishingRod) {
+					// fishing rod has been obtained
+					item = Items.rod[4];
+					itemQuantity = 1;
+				}
+				else {
+					// fishing rod has not been obtained
+					item = Items.currency[2];
+					itemQuantity = Random(3, 5);
+					Player.quests.questProgress.christmasFishingRod = true; // now obtained
+				}
+				Dom.inventory.give(item, itemQuantity, inventoryPosition);
+			}
 		},
 		/*{
 			id: 22,
