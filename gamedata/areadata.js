@@ -539,6 +539,9 @@ var Areas = {
 							{item: Items.rod[3], cost: 3}, // basic fishing rod
 							{item: Items.consumable[8], cost: 4}, // can of worms
 							{item: Items.consumable[12], cost: 4}, // magnetised lure
+							{item: Items.boots[9], cost: 10, costCurrency: 5, condition: function () { // Ice Skates
+						        return Game.event === "Christmas";
+						    }},
 						],
 						role: "merchant",
 						chooseText: "I'd like to browse your fishing items.",
@@ -911,6 +914,7 @@ var Areas = {
 					questProgress: "The dummy isn't going anywhere.",
 					questComplete: "You can always check your adventure log if you need to brush up on your combat skills.",
 					inventoryFull: "Empty your bags some. You have no space for your rewards.",
+					chooseChat: `I trust your combat is going fine, ${Player.name}.`,
 				},
 			},
 			{
@@ -1018,6 +1022,17 @@ var Areas = {
 							return false;
 						},
 					},
+					{
+						role: "merchant",
+						chooseText: "What have you got to sell this Christmas?",
+						sold: [
+							{item: Items.staff[9], cost: 25, costCurrency: 5,}, // Vulpric's Ice Staff
+							{item: Items.sword[8], cost: 25, costCurrency: 5,}, // Permafrost
+						],
+						roleRequirement: function () {
+							return Game.event === "Christmas";
+						}
+					},
 				],
 				chat: {
 					canBeHealedText: "My blessings to you. It appears that you have a soul debt, meaning you will earn XP slower due to a recent death. If you wish, I can cleanse your soul and remove this effect for a small price.",
@@ -1025,6 +1040,10 @@ var Areas = {
 					healedText: "May the purity of the demigods be with you.",
 					tooPoor: "I don't think you can afford that.",
 					questProgress: "If you use the sceptre near dead enemies, soul essence will rush inside it.",
+					chooseChat: "tbd",
+					shopGreeting: "tbd",
+					shopLeave: "tbd",
+					inventoryFull: "tbd",
 				},
 			},
 			{
@@ -1093,6 +1112,9 @@ var Areas = {
 					},
 					{
 						sold: [
+							{item: Items.helm[7], cost: 10, costCurrency: 5, condition: function () { // Santa hat
+						        return Game.event === "Christmas";
+						    }},
 							{item: Items.item[11], cost: 2}, // vial of goblin blood
 							{item: Items.bag[5], cost: 6}, // brown backsack
 							{item: Items.helm[2], cost: 2}, // worn leather helm
@@ -1172,6 +1194,9 @@ var Areas = {
 							{item: Items.consumable[11], cost: 4, condition: function () {
 								return Player.quests.completedQuestArray.includes("Potion Making II");
 							}}, // potion of goblin resistance II
+							{item: Items.consumable[17], cost: 2, costCurrency: 5, condition: function () { // Christmas Potion
+						        return Game.event === "Christmas";
+						    }},
 						],
 						role: "merchant",
 						roleRequirement: function () {
@@ -1336,7 +1361,14 @@ var Areas = {
 					{
 						sold: [
 						    {item: Items.consumable[5], cost: 2,}, // Wood-Brewed Beer
-						    {item: Items.consumable[16], cost: 1, costCurrency: 5, condition: function () { // Mince Pie
+							{item: Items.consumable[16], cost: 2, costCurrency: 5, condition: function () { // Mulled Wine
+						        return Game.event === "Christmas";
+						    }},
+						    {item: Items.food[0], cost: 2,}, // Bread
+						    {item: Items.food[1], cost: 2, costCurrency: 5, condition: function () { // Mince Pie
+						        return Game.event === "Christmas";
+						    }},
+						    {item: Items.food[2], cost: 2, costCurrency: 5, condition: function () { // Christmas Pudding
 						        return Game.event === "Christmas";
 						    }},
 						],

@@ -103,6 +103,20 @@ var Items = {
 			functionText: "Click to choose stat:",
 			archaeologyFunctionText: "One of the following stats may be chosen:",
 		},
+		{
+			id: 7,
+			name: "Santa Hat",
+			type: "helm",
+			image: "assets/items/helm/7.png",
+			tier: 1,
+			rarity: "unique",
+			lore: "Comes with Santa's experience",
+			stats: {
+				defence: "+2",
+				looting: "+10%",
+				xpBonus: "+20%",
+			},
+		},
 	],
 	chest: [
 		{
@@ -463,6 +477,19 @@ var Items = {
 			functionText: "Click to choose stat:",
 			archaeologyFunctionText: "One of the following stats may be chosen:",
 		},
+		{
+			id: 9,
+			name: "Ice Skates",
+			type: "boots",
+			image: "assets/items/boots/9.png",
+			tier: 1,
+			rarity: "unique",
+			lore: "These should keep you happy while there are less fish around",
+			stats: {
+				defence: "+3",
+				iceSpeed: "+30",
+			},
+		},
 	],
 	sword: [
 		{
@@ -574,9 +601,25 @@ var Items = {
 			stats: {
 				damage: "3",
 				lifesteal: "25%",
+				blockDefence: "+14",
 			},
 			projectile: "bloodSlash",
 			projectileAdjust: {x: 20, y: 20},
+		},
+		{
+			id: 8,
+			name: "Permafrost",
+			type: "sword",
+			image: "assets/items/sword/8.png",
+			imageArchaeology: "assets/items/sword/8archaeology.png",
+			tier: 1,
+			rarity: "unique",
+			lore: "Is that a fish in there?!",
+			stats: {
+				damage: "8",
+				reloadTime: "+500",
+				blockDefence: "+16",
+			},
 		},
 	],
 	staff: [
@@ -704,7 +747,7 @@ var Items = {
 			rarity: "unique",
 			lore: "Gives new meaning to the phrase 'a brush with death'.",
 			obtain: "Buy from a merchant during the Samhain event.",
-			sellPrice: "4",
+			sellPrice: 4,
 			stats: {
 				damage: "3.5-10.5",
 			},
@@ -720,6 +763,20 @@ var Items = {
 			functionText: "Gives +100% walk speed for 2 seconds when an enemy is killed",
 			projectile: "fireballGreen",
 			projectileAdjust: {x: 20, y: 20},
+		},
+		{
+			id: 9,
+			name: "Vulpric's Ice Staff Replica",
+			type: "staff",
+			image: "assets/items/staff/9.png",
+			imageArchaeology: "assets/items/staff/9archaeology.png",
+			tier: 1,
+			rarity: "unique",
+			lore: "A scale model of the staff wielded by the Ice King of Subterrania, Vulpric.",
+			stats: {
+				damage: "3-9",
+				frostaura: true,
+			},
 		},
 	],
 	bow: [
@@ -1298,7 +1355,7 @@ var Items = {
 			type: "item",
 			image: "assets/items/item/15.png",
 			functionText: "Drags in nearby enemies (discard to stop)",
-			magnetism: 200, // movement per second in pixels when at 0 range
+			magnetism: 100, // movement per second in pixels when at 0 range
 			// linear scale between max and 0
 			range: 480,
 			sellPrice: 1,
@@ -1387,7 +1444,6 @@ var Items = {
 			name: "Wood-Brewed Beer",
 			type: "consumable",
 			image: "assets/items/consumable/5.png",
-			sellPrice: 1,
 			functionText: "Restores 15 health",
 			lore: "Might make you a little tipsy...",
 			onClick: function (inventoryPosition) {
@@ -1710,18 +1766,72 @@ var Items = {
 				}, 5000, oldHealth);
 			},
 		},
+		{
+			id: 16,
+			name: "Mulled Wine",
+			type: "consumable",
+			image: "assets/items/consumable/16.png",
+			functionText: "Restores 20 health",
+			lore: "Don't worry, side effects are in the Christmas spirit",
+			onClick: function (inventoryPosition) {
+				// remove the item
+				Dom.inventory.remove(inventoryPosition);
+				
+				// restore the health
+				Game.restoreHealth(Game.hero, 20);
+				// make the player tipsy!
+				//tbd
+			}
+		},
+		{
+			id: 17,
+			name: "Christmas Potion",
+			type: "consumable",
+			image: "assets/items/consumable/17.png",
+			functionText: "Receive 20% more XP for 30 seconds",
+			lore: "This potion is made with a secret ingredient only found at Christmas",
+			onClick: function (inventoryPosition) {
+				// remove the item
+				Dom.inventory.remove(inventoryPosition);
+				
+				Player.stats.xpBonus += 20;
+				setTimeout(function(){
+					Player.stats.xpBonus -= 20;
+				},30000);
+				// should be a status effect
+				//tbd
+			}
+		},
 	],
 	food: [
 		{
 			id: 0,
-			name: "Mince Pie",
+			name: "Bread",
 			type: "food",
 			image: "assets/items/food/0.png",
-			sellPrice: 1,
+			functionText: "Restores 25 health over 10 seconds (whilst not in combat)",
+			healthRestore: 25,
+			healthRestoreTime: 10,
+		},
+		{
+			id: 1,
+			name: "Mince Pie",
+			type: "food",
+			image: "assets/items/food/1.png",
 			functionText: "Restores 40 health over 10 seconds (whilst not in combat)",
 			healthRestore: 40,
-			time: 10,
+			healthRestoreTime: 10,
 			lore: "A festive snack.",
+		},
+		{
+			id: 2,
+			name: "Christmas Pudding",
+			type: "food",
+			image: "assets/items/food/2.png",
+			functionText: "Restores 30 health over 5 seconds (whilst not in combat)",
+			healthRestore: 30,
+			healthRestoreTime: 5,
+			lore: "A festive pudding.",
 		},
 	],
 	fish: [

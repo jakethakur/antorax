@@ -596,6 +596,9 @@ Dom.inventory.displayIdentification = function(display){
 	if(Player.stats.flaming !== 0){
 		document.getElementById("innerStats").innerHTML += "<br>Flaming "+Romanize(Player.stats.flaming);
 	}
+	if(Player.stats.frostaura){
+		document.getElementById("innerStats").innerHTML += "<br>Frostaura";
+	}
 	if(Player.class === "a"){
 		document.getElementById("innerStats").innerHTML += "<br>Focus Speed: " + Player.stats.focusSpeed + "/s";
 	}
@@ -617,6 +620,12 @@ Dom.inventory.displayIdentification = function(display){
 	}
 	document.getElementById("innerStats").innerHTML += "<br>Swim Speed: " + Player.stats.swimSpeed + "/s";
 	document.getElementById("innerStats").innerHTML += "<br>Walk Speed: " + Player.stats.walkSpeed + "/s";
+	if(Game.event === "Christmas"){
+	document.getElementById("innerStats").innerHTML += "<br>Ice Speed: " + Player.stats.iceSpeed + "/s";
+	}
+	if(Player.stats.xpBonus !== 0){
+		document.getElementById("innerStats").innerHTML += "<br>XP Bonus: " + Player.stats.xpBonus + "%";
+	}
 	if(Player.stats.fishingSkill !== 0){
 		document.getElementById("innerStats").innerHTML += "<br>Fishing Skill: " + Round(Player.stats.fishingSkill);
 	}
@@ -649,7 +658,7 @@ Dom.inventory.displayInformation = function(item, stacked, position){
 			document.getElementById("name").style.color = "black";
 		}
 		// weapon, armour or rod
-		if(item.type !== "item" && item.type !== "bag" && item.type !== "currency" && item.type !== "fish" && item.type !== "consumable"){
+		if(item.type !== "item" && item.type !== "bag" && item.type !== "currency" && item.type !== "fish" && item.type !== "consumable" && item.type !== "food"){
 			if(item.type !== "rod"){
 				document.getElementById("stats").innerHTML = "Tier: "+item.tier;
 			}else{
@@ -1338,7 +1347,7 @@ Dom.inventory.give = function(item, num, position){
 							}
 							Dom.inventory.update();
 						}
-						if(item.type !== "item" && item.type !== "bag" && item.type !== "currency" && item.type !== "fish" && item.type !== "consumable" && !Dom.inventory.archaeology.includes(item.name) && item.name !== undefined){
+						if(item.type !== "item" && item.type !== "bag" && item.type !== "currency" && item.type !== "fish" && item.type !== "consumable" && item.type !== "food" && !Dom.inventory.archaeology.includes(item.name) && item.name !== undefined){
 							Dom.inventory.archaeology.push(item.name);
 							SaveItem("archaeology", JSON.stringify(Dom.inventory.archaeology));
 						}
@@ -1406,7 +1415,7 @@ Dom.inventory.give = function(item, num, position){
 			}
 			Dom.inventory.update();
 		}
-		if(item.type !== "item" && item.type !== "bag" && item.type !== "currency" && item.type !== "fish" && item.type !== "consumable" && !Dom.inventory.archaeology.includes(item.name) && item.name !== undefined){
+		if(item.type !== "item" && item.type !== "bag" && item.type !== "currency" && item.type !== "fish" && item.type !== "consumable" && item.type !== "food" && !Dom.inventory.archaeology.includes(item.name) && item.name !== undefined){
 			Dom.inventory.archaeology.push(item.name);
 			SaveItem("archaeology",JSON.stringify(Dom.inventory.archaeology));
 		}
@@ -1435,8 +1444,6 @@ if(localStorage.getItem("fish") !== null){
 }
 
 Dom.inventory.food = function(inventoryPosition){
-	// remove the item
-	Dom.inventory.remove(inventoryPosition);
 	// eat the item
 	Game.statusEffects.food({
 		target: Game.hero,
@@ -1444,6 +1451,8 @@ Dom.inventory.food = function(inventoryPosition){
 		healthRestore: Player.inventory.items[inventoryPosition].healthRestore,
 		time: Player.inventory.items[inventoryPosition].healthRestoreTime,
 	});
+	// remove the item
+	Dom.inventory.remove(inventoryPosition);
 },
 
 Dom.inventory.chooseStats = function(inventoryPosition){
@@ -2140,8 +2149,10 @@ Dom.inventory.drop = function(ev, equip, id){
 Dom.inventory.removeEquipment = function(array){
 	if(array.stats !== undefined){
 		for(let i = 0; i < Object.keys(array.stats).length; i++){
-			if(Object.keys(array.stats)[i] !== "poison" && Object.keys(array.stats)[i] !== "damage"){
+			if(Object.keys(array.stats)[i] !== "poison" && Object.keys(array.stats)[i] !== "damage" && Object.keys(array.stats)[i] !== "frostaura"){
 				Player.stats[Object.keys(array.stats)[i]] -= parseFloat(array.stats[Object.keys(array.stats)[i]]);
+			}else if(Object.keys(array.stats)[i] === "frostaura"){
+				Player.stats.frostaura = true;
 			}else if(Object.keys(array.stats)[i] === "damage"){
 				let split = array.stats.damage.split('-');
 				Player.stats.damage -= parseFloat(split[0]);
@@ -2165,8 +2176,10 @@ Dom.inventory.removeEquipment = function(array){
 		}
 		if(!Dom.inventory.noSet){
 			for(let i = 0; i < Object.keys(Items.set[array.set].stats).length; i++){
-				if(Object.keys(Items.set[array.set].stats)[i] !== "poison" && Object.keys(Items.set[array.set].stats)[i] !== "damage"){
+				if(Object.keys(Items.set[array.set].stats)[i] !== "poison" && Object.keys(Items.set[array.set].stats)[i] !== "damage" && Object.keys(Items.set[array.set].stats)[i] !== "frostaura"){
 					Player.stats[Object.keys(Items.set[array.set].stats)[i]] -= parseFloat(Items.set[array.set].stats[Object.keys(Items.set[array.set].stats)[i]]);
+				}else if(Object.keys(Items.set[array.set].stats)[i] === "frostaura"){
+					Player.stats.frostaura = true;
 				}else if(Object.keys(Items.set[array.set].stats)[i] === "damage"){
 					Player.stats.damage -= parseFloat(Items.set[array.set].stats.damage);
 					if(Player.class === "m"){
@@ -2193,8 +2206,10 @@ Dom.inventory.removeEquipment = function(array){
 Dom.inventory.addEquipment = function(array){
 	if(array.stats !== undefined){
 		for(let i = 0; i < Object.keys(array.stats).length; i++){
-			if(Object.keys(array.stats)[i] !== "poison" && Object.keys(array.stats)[i] !== "damage"){
+			if(Object.keys(array.stats)[i] !== "poison" && Object.keys(array.stats)[i] !== "damage" && Object.keys(array.stats)[i] !== "frostaura"){
 				Player.stats[Object.keys(array.stats)[i]] += parseFloat(array.stats[Object.keys(array.stats)[i]]);
+			}else if(Object.keys(array.stats)[i] === "frostaura"){
+				Player.stats.frostaura = true;
 			}else if(Object.keys(array.stats)[i] === "damage"){
 				let split = array.stats.damage.split('-');
 				Player.stats.damage += parseFloat(split);
@@ -2218,8 +2233,10 @@ Dom.inventory.addEquipment = function(array){
 		}
 		if(!Dom.inventory.noSet){
 			for(let i = 0; i < Object.keys(Items.set[array.set].stats).length; i++){
-				if(Object.keys(Items.set[array.set].stats)[i] !== "poison" && Object.keys(Items.set[array.set].stats)[i] !== "damage"){
+				if(Object.keys(Items.set[array.set].stats)[i] !== "poison" && Object.keys(Items.set[array.set].stats)[i] !== "damage" && Object.keys(Items.set[array.set].stats)[i] !== "frostaura"){
 					Player.stats[Object.keys(Items.set[array.set].stats)[i]] += parseFloat(Items.set[array.set].stats[Object.keys(Items.set[array.set].stats)[i]]);
+				}else if(Object.keys(Items.set[array.set].stats)[i] === "frostaura"){
+					Player.stats.frostaura = true;
 				}else if(Object.keys(Items.set[array.set].stats)[i] === "damage"){
 					Player.stats.damage += parseFloat(Items.set[array.set].stats.damage);
 					if(Player.class === "m"){
@@ -3013,6 +3030,9 @@ for(let i = 0; i < Player.inventory.items.length; i++){
 		/*if(Player.inventory.items[i].chooseStats !== undefined){
 			Items[Player.inventory.items[i].type][Player.inventory.items[i].id].onClick = Dom.inventory.chooseStats;
 		}*/
+		if(Player.inventory.items[i].type === "food"){
+			Items[Player.inventory.items[i].type][Player.inventory.items[i].id].onClick = Dom.inventory.food;
+		}
 		if((Player.inventory.items[i].type === "sword" || Player.inventory.items[i].type === "staff" || Player.inventory.items[i].type === "bow" || Player.inventory.items[i].type === "rod") && Player.inventory.items[i].name !== undefined){
 			Items[Player.inventory.items[i].type][Player.inventory.items[i].id].onClick = function(i){
 				if(!isNaN(i)){
