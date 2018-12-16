@@ -111,6 +111,8 @@ var Items = {
 			tier: 1,
 			rarity: "unique",
 			lore: "Comes with Santa's experience",
+			obtain: "Buy from a merchant during the Christmas event.",
+			sellPrice: 4,
 			stats: {
 				defence: "+2",
 				looting: "+10%",
@@ -485,6 +487,8 @@ var Items = {
 			tier: 1,
 			rarity: "unique",
 			lore: "These should keep you happy while there are less fish around",
+			obtain: "Buy from a merchant during the Christmas event.",
+			sellPrice: 4,
 			stats: {
 				defence: "+3",
 				iceSpeed: "+30",
@@ -597,7 +601,7 @@ var Items = {
 			rarity: "unique",
 			lore: "9/10 murderous farmers would recommend it to their friends.",
 			obtain: "Buy from a merchant during the Samhain event.",
-			sellPrice: "4",
+			sellPrice: 4,
 			stats: {
 				damage: "3",
 				lifesteal: "25%",
@@ -611,10 +615,11 @@ var Items = {
 			name: "Permafrost",
 			type: "sword",
 			image: "assets/items/sword/8.png",
-			imageArchaeology: "assets/items/sword/8archaeology.png",
 			tier: 1,
 			rarity: "unique",
 			lore: "Is that a fish in there?!",
+			obtain: "Buy from a merchant during the Christmas event.",
+			sellPrice: 4,
 			stats: {
 				damage: "8",
 				reloadTime: "+500",
@@ -773,6 +778,8 @@ var Items = {
 			tier: 1,
 			rarity: "unique",
 			lore: "A scale model of the staff wielded by the Ice King of Subterrania, Vulpric.",
+			obtain: "Buy from a merchant during the Christmas event.",
+			sellPrice: 4,
 			stats: {
 				damage: "3-9",
 				frostaura: true,
@@ -1446,6 +1453,7 @@ var Items = {
 			image: "assets/items/consumable/5.png",
 			functionText: "Restores 15 health",
 			lore: "Might make you a little tipsy...",
+			sellPrice: 1,
 			onClick: function (inventoryPosition) {
 				// complete quest from innkeeper
 				if(Player.quests.questProgress.drunkBeer === undefined){
@@ -1772,7 +1780,8 @@ var Items = {
 			type: "consumable",
 			image: "assets/items/consumable/16.png",
 			functionText: "Restores 20 health",
-			lore: "Don't worry, side effects are in the Christmas spirit",
+			lore: "Don't worry, side effects are in the Christmas spirit.",
+			sellPrice: 1,
 			onClick: function (inventoryPosition) {
 				// remove the item
 				Dom.inventory.remove(inventoryPosition);
@@ -1788,8 +1797,9 @@ var Items = {
 			name: "Christmas Potion",
 			type: "consumable",
 			image: "assets/items/consumable/17.png",
-			functionText: "Receive 20% more XP for 30 seconds",
-			lore: "This potion is made with a secret ingredient only found at Christmas",
+			functionText: "Increases XP gain by 20% for 30 seconds",
+			lore: "This potion is made with a secret ingredient only found at Christmas.",
+			sellPrice: 1,
 			onClick: function (inventoryPosition) {
 				// remove the item
 				Dom.inventory.remove(inventoryPosition);
@@ -1810,6 +1820,7 @@ var Items = {
 			type: "food",
 			image: "assets/items/food/0.png",
 			functionText: "Restores 25 health over 10 seconds (whilst not in combat)",
+			sellPrice: 1,
 			healthRestore: 25,
 			healthRestoreTime: 10,
 		},
@@ -1819,6 +1830,7 @@ var Items = {
 			type: "food",
 			image: "assets/items/food/1.png",
 			functionText: "Restores 40 health over 10 seconds (whilst not in combat)",
+			sellPrice: 1,
 			healthRestore: 40,
 			healthRestoreTime: 10,
 			lore: "A festive snack.",
@@ -1829,6 +1841,7 @@ var Items = {
 			type: "food",
 			image: "assets/items/food/2.png",
 			functionText: "Restores 30 health over 5 seconds (whilst not in combat)",
+			sellPrice: 1,
 			healthRestore: 30,
 			healthRestoreTime: 5,
 			lore: "A festive pudding.",

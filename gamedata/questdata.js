@@ -533,7 +533,7 @@ var Quests = {
 			questArea: "eaglecrestLoggingCamp",
 			
 			startName: "Galuthel the Trap Mechanic",
-			startChat: `Welcome to the logging camp, adventurer. I hope Teper hasn't been too harsh to you. Since the goblin attack, we've been investing in ways to stop something like it happening again. My traps are some of the best technology this area has to offer to stop those goblins.<br>Help me by taking some traps and place them around in the Nilbog. 3 should suffice. They won't arm right away, but when they do there's sure to be a huge impact.`,
+			startChat: `Welcome to the logging camp, adventurer. I hope Teper hasn't been too harsh to you. Since the goblin attack, we've been investing in ways to stop something like it happening again. My traps are some of the best technology this area has to offer to stop those goblins.<br>Help me by taking some traps and place them around in The Nilbog. 3 should suffice. They won't arm right away, but when they do there's sure to be a huge impact.`,
 			
 			finishName: "Galuthel the Trap Mechanic",
 			finishChat: `Excellent. You can always come back later if you have a bit of spare time. I'd appreciate your help.`,
@@ -1224,6 +1224,54 @@ var Quests = {
 					6,
 					//1,
 				],
+			},
+		},
+		
+		{
+			id: 23,
+			quest: "A 'Spark' of Imagination",
+			questArea: "eaglecrestLoggingCamp",
+			
+			startName: "Goblin Torch",
+			startChat: `Hello. Conscious goblin torch. Gets very bored. Please. Bring some books. Tower has books. Books cure boredom.`,
+			
+			finishName: "Goblin Torch",
+			finishChat: `This will be. Exciting. Thank you.`,
+			
+			objectives: [
+				"Gather 4 tattered tomes from goblins in the Nilbog Tower.",
+				"Bring them back to the goblin torch.",
+			],
+			
+			isCompleted: function() {
+				let completed = [];
+				
+				// true or falses for each objective (apart from the turn-in objective)
+				completed.push(checkProgress(Dom.inventory.check(16, "item"), 4));
+				
+				completed = checkFinished(completed);
+				
+				return completed;
+			},
+			
+			howToStart: "Speak to the <strong>goblin torch</strong> in The Nilbog.",
+			levelRequirement: 5,
+			questRequirements: ["The Goblin King"],
+			
+			rewards: {
+				xp: 50,
+			},
+			
+			removeItems: [
+				Items.item[16], // remove goblin torch
+			],
+			removeItemQuantity: [
+				4,
+			],
+			
+			onQuestFinish: function() {
+				// goblin torch chat line
+				Game.sayChat("Goblin Torch", "Wizard runic. Very interesting. I'll be wizard soon.", false, 2500, false);
 			},
 		},
 	],

@@ -989,13 +989,6 @@ var Areas = {
 				},
 				roles: [
 					{
-						quest: Quests.eaglecrestLoggingCamp[13], 
-						role: "questStartFinish"
-					},
-					{
-						role: "soulHealer",
-					},
-					{
 						role: "function",
 						chooseText: "I found a present addressed to you!",
 						onClick: function () {
@@ -1021,6 +1014,13 @@ var Areas = {
 							}
 							return false;
 						},
+					},
+					{
+						quest: Quests.eaglecrestLoggingCamp[13], 
+						role: "questStartFinish"
+					},
+					{
+						role: "soulHealer",
 					},
 					{
 						role: "merchant",
@@ -1101,33 +1101,6 @@ var Areas = {
 				},
 				roles: [
 					{
-						quest: Quests.eaglecrestLoggingCamp[15], 
-						role: "questStartFinish"
-					},
-					{
-						role: "itemBuyer",
-						roleRequirement: function () {
-							return Player.quests.completedQuestArray.includes("Another Man's Treasure");
-						}
-					},
-					{
-						sold: [
-							{item: Items.helm[7], cost: 10, costCurrency: 5, condition: function () { // Santa hat
-						        return Game.event === "Christmas";
-						    }},
-							{item: Items.item[11], cost: 2}, // vial of goblin blood
-							{item: Items.bag[5], cost: 6}, // brown backsack
-							{item: Items.helm[2], cost: 2}, // worn leather helm
-							{item: Items.chest[2], cost: 3}, // worn leather tunic
-							{item: Items.greaves[2], cost: 3}, // worn leather trousers
-							{item: Items.boots[3], cost: 2}, // worn leather boots
-						],
-						role: "merchant",
-						roleRequirement: function () {
-							return Player.quests.completedQuestArray.includes("Retrieval of Logs");
-						}
-					},
-					{
 						role: "function",
 						chooseText: "I found a present addressed to you!",
 						onClick: function () {
@@ -1153,6 +1126,33 @@ var Areas = {
 							}
 							return false;
 						},
+					},
+					{
+						quest: Quests.eaglecrestLoggingCamp[15], 
+						role: "questStartFinish"
+					},
+					{
+						role: "itemBuyer",
+						roleRequirement: function () {
+							return Player.quests.completedQuestArray.includes("Another Man's Treasure");
+						}
+					},
+					{
+						sold: [
+							{item: Items.helm[7], cost: 10, costCurrency: 5, condition: function () { // Santa hat
+						        return Game.event === "Christmas";
+						    }},
+							{item: Items.item[11], cost: 2}, // vial of goblin blood
+							{item: Items.bag[5], cost: 6}, // brown backsack
+							{item: Items.helm[2], cost: 2}, // worn leather helm
+							{item: Items.chest[2], cost: 3}, // worn leather tunic
+							{item: Items.greaves[2], cost: 3}, // worn leather trousers
+							{item: Items.boots[3], cost: 2}, // worn leather boots
+						],
+						role: "merchant",
+						roleRequirement: function () {
+							return Player.quests.completedQuestArray.includes("Retrieval of Logs");
+						}
 					},
 				],
 				chat: {

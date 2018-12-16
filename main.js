@@ -532,6 +532,7 @@ class Character extends Thing {
 		this.stats.healthRegen = properties.stats.healthRegen || 0;
 		this.stats.walkSpeed = properties.stats.walkSpeed || 0;
 		this.stats.swimSpeed = properties.stats.swimSpeed || 0;
+		this.stats.iceSpeed = properties.stats.iceSpeed || 0;
 		this.stats.lootTime = properties.stats.lootTime || 10000; // time that it can be looted for
 		this.stats.respawnTime = properties.stats.respawnTime || 11000; // time to respawn (should be more than lootTime)
 		
@@ -540,6 +541,7 @@ class Character extends Thing {
 		this.stats.dodgeChance = properties.stats.dodgeChance || 0;
 		this.stats.reflection = properties.stats.reflection || 0;
 		this.stats.stealthed = properties.stats.stealthed || false; // can't be seen
+		this.stats.frostaura = properties.stats.frostaura || false;
 		
 		this.chat = properties.chat || {}; // object containing properties that are inserted into chat when specific things happen
 		/* examples of chat properties:
@@ -886,6 +888,7 @@ class Hero extends Attacker {
 		this.stats.focusSpeed = properties.stats.focusSpeed || 0; // archer only
 		this.stats.maxDamage = properties.stats.maxDamage; // mage only
 		this.stats.blockDefence = properties.stats.blockDefence; // knight only
+		this.stats.xpBonus = properties.stats.xpBonus || 0; // perentage
 		
 		// fishing stats
 		this.stats.fishingSkill = properties.stats.fishingSkill || 0;
@@ -1028,7 +1031,7 @@ class Hero extends Attacker {
 			Game.removeTileStatusEffects(this);
 		}
 		else if (slowTile === "ice") { // on ice tile
-			this.speed = this.stats.walkSpeed * 1.5;
+			this.speed = this.stats.iceSpeed;
 			Game.removeTileStatusEffects(this, "Ice skating"); // remove all status effects from other tiles
 			if (!this.hasStatusEffect("Ice skating")) { // give status effect if the player doesn't already have it
 				this.statusEffects.push(new statusEffect({
@@ -3147,8 +3150,6 @@ Game.init = function () {
 	// init weather
 	Weather.init();
 	
-	// begin game display
-	this.secondary.render();
 	window.requestAnimationFrame(this.tick);
 	
 	// event console.info
@@ -3339,11 +3340,9 @@ Game.regenHealth = function () {
 	for (let i = 0; i < Game.hero.statusEffects.length; i++) {
 		if (Game.hero.statusEffects[i].image === "food") {
 			// food status effect
-			this.restoreHealth(Game.hero, Round(Game.hero.statusEffects[i].info.increasePropertyValue / Game.hero.statusEffects[i].info.time, 1));
+			this.restoreHealth(Game.hero, Round(Game.hero.statusEffects[i].info.healthRestore / Game.hero.statusEffects[i].info.time, 1));
 		}
 	}
-	// update health bar display
-	Game.secondary.render();
 	
 	// npcs
 	for (let i = 0; i < Game.npcs.length; i++) {
@@ -3368,13 +3367,22 @@ Game.regenHealth = function () {
 // restores health to the target, not allowing them to go above their maximum health
 // returns true if the target was healed for the full amount
 Game.restoreHealth = function (target, health) {
-	if (target.health + target.stats.healthRegen > target.stats.maxHealth) {
+	if (target.health + health > target.stats.maxHealth) {
 		// too much health - cap out at maximum
 		target.health = target.stats.maxHealth;
-		return false;
+		if (target.constructor.name === "Hero") {
+			// update health bar display
+			Game.secondary.render();
+			return false;
+		}
 	}
 	else {
-		target.health += target.stats.healthRegen;
+		target.health += health;
+		if (target.constructor.name === "Hero") {
+			// update health bar display
+			Game.secondary.render();
+			return true;
+		}
 	}
 }
 
@@ -3891,7 +3899,7 @@ Game.playerProjectileUpdate = function(delta) {
 Game.getXP = function (xpGiven) {
 	if (typeof xpGiven === "number") {
 		// increase XP
-		Player.xp += xpGiven;
+		Player.xp += xpGiven * (1 + Game.hero.xpBonus / 100);
 		
 		// XP fatigue
 		if (Player.fatiguedXP !== 0) { // fatigued XP is worth 50% less due to a recent death
