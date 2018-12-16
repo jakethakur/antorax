@@ -2066,8 +2066,9 @@ class Enemy extends Attacker {
 			}
 			// add spell cast
 		}
-		// if player has a magnet, pull in enemies
-		// stacks!
+		
+		// if player has a magnet, pull in enemies (even if enemy is stunned or displaced)
+		// this effect stacks!
 		for (let i = 0; i < Player.inventory.items.length; i++) {
 			if (Player.inventory.items[i].magnetism !== undefined) {
 				let d = Player.inventory.items[i].range - distance(this, Game.hero);
@@ -2084,7 +2085,7 @@ class Enemy extends Attacker {
 	
 	// move towards entity (towards parameter)
 	move (delta, towards) {
-		// figure out speed
+		// figure out speed (TBD make separate function for this?)
 		let speed = this.speed;
 		// speed status effect (can be buff or debuff)
 		this.statusEffects.forEach(statusEffect => {
@@ -2093,6 +2094,11 @@ class Enemy extends Attacker {
 				speed *= 1 + (statusEffect.info.speedIncrease / 100);
 			}
 		});
+		// frostaura
+		if (Game.hero.stats.frostaura && distance(this, Game.hero) < 150) {
+			// range of frostaura is currently 2.5 tiles
+			this.speed /= 2;
+		}
 		
 		this.bearing = bearing(this, towards); // update bearing (maybe doesn't need to be done every tick?)
 		this.x += Math.cos(this.bearing) * speed * delta;
