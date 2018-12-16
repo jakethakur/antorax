@@ -2095,9 +2095,9 @@ class Enemy extends Attacker {
 			}
 		});
 		// frostaura
-		if (Game.hero.stats.frostaura && distance(this, Game.hero) < 150) {
+		if (Game.hero.stats.frostaura === true && distance(this, Game.hero) < 150) {
 			// range of frostaura is currently 2.5 tiles
-			this.speed /= 2;
+			speed /= 2;
 		}
 		
 		this.bearing = bearing(this, towards); // update bearing (maybe doesn't need to be done every tick?)
