@@ -867,6 +867,15 @@ class Tripwire extends Entity {
 	}
 }
 
+// a thing that is a point of information or special interest
+class InfoPoint extends Thing {
+	constructor(properties) {
+		super(properties);
+		
+		this.onTouchChat = properties.onTouchChat; // inserted to chat on touch (only inserted once); NOT in the format 'name: chat'
+	}
+}
+
 // player - similar to Player global variable in saveData.js, but only contains necessary information (also has some cool functions)
 class Hero extends Attacker {
 	constructor (properties) {
@@ -931,7 +940,8 @@ class Hero extends Attacker {
 			this.x += dirx * this.speed * delta;
 			this.y += diry * this.speed * delta;
 			
-			if (Math.round(this.x) === this.moveTowards.x && Math.round(this.y) === this.moveTowards.y) {
+			if (Math.round(this.x) < this.moveTowards.x + 2 && Math.round(this.x) > this.moveTowards.x - 2
+			&& Math.round(this.y) < this.moveTowards.y + 2 && Math.round(this.y) > this.moveTowards.y - 2) {
 				// destination reached
 				// remove moveTowards
 				this.moveTowards = undefined;
@@ -2982,6 +2992,16 @@ Game.loadArea = function (areaName, destination) {
 			});
 		}
 		
+		// infoPoints
+		this.infoPoints = [];
+		if (Areas[areaName].infoPoints !== undefined) {
+			Areas[areaName].infoPoints.forEach(thing => {
+				thing.map = map;
+				thing.type = "infoPoints";
+				this.infoPoints.push(new InfoPoint(thing));
+			});
+		}
+		
 		// reset weather
 		if (document.getElementById("weatherOn").checked && !Areas[Game.areaName].indoors) {
 			Weather.reset();
@@ -3069,7 +3089,7 @@ Game.init = function () {
 	this.playingMusic = null;
 	
 	// list of basic (no extra operations to be done) things to be rendered (in order)
-	this.renderList = ["things", "mailboxes", "chests", "villagers", "npcs", "dummies", "enemies"];
+	this.renderList = ["things", "infoPoints", "mailboxes", "chests", "villagers", "npcs", "dummies", "enemies"];
 	// then player, then projectiles (in order they were shot)
 	
 	// create the player
@@ -3854,6 +3874,13 @@ Game.update = function (delta) {
 			boundOnPlayerTouch();
 		}
 	});
+	
+	// check collision with points of interest (things that insert something to chat when you touch them)
+	this.infoPoints.forEach(thing => {
+		if (this.hero.isTouching(thing)) {
+			Dom.chat.insert(thing.onTouchChat, 0, false, true); // noRepeat is true
+		}
+	})
 	
 	this.playerProjectileUpdate(delta); // update player's currently channelling projectile
 	

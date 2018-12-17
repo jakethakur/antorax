@@ -1681,10 +1681,10 @@ var Areas = {
 			cols: 10,
 			rows: 10,
 			tsize: 60,
-			tilesPerRow: 2,
-			solidTiles: [1, 2, 3, 4, 6, 8, 9, 11], // walls
+			tilesPerRow: 4,
+			solidTiles: [1, 2, 3, 5, 6, 7, 8, 9, 10, 12], // walls & downwards stairs
 			layers: [
-				[3, 9, 11, 1, 3, 9, 11, 1, 3, 1, 9, 11, 9, 11, 9, 11, 9, 11, 9, 11, 3, 1, 3, 1, 3, 1, 3, 1, 3, 1, 5, 5, 5, 5, 5, 5, 5, 5, 5, 5, 5, 5, 5, 5, 5, 5, 5, 5, 5, 5, 5, 5, 5, 5, 5, 5, 5, 5, 5, 5, 5, 5, 5, 5, 5, 5, 5, 5, 5, 5, 5, 5, 5, 5, 5, 5, 5, 5, 5, 5, 5, 5, 5, 5, 5, 5, 5, 5, 5, 5, 5, 5, 5, 5, 5, 5, 5, 5, 5, 5],
+				[10, 8, 12, 9, 10, 8, 12, 9, 10, 9, 8, 12, 8, 12, 8, 12, 8, 12, 8, 12, 10, 9, 10, 9, 10, 9, 10, 9, 10, 9, 11, 11, 11, 11, 11, 11, 11, 11, 11, 11, 4, 11, 11, 11, 11, 11, 11, 11, 11, 11, 11, 11, 11, 11, 11, 11, 11, 4, 11, 11, 11, 11, 11, 11, 11, 11, 11, 11, 11, 11, 11, 11, 4, 11, 11, 11, 11, 11, 11, 11, 11, 11, 11, 11, 11, 11, 11, 11, 11, 11, 11, 11, 11, 11, 11, 11, 11, 11, 11, 4],
 				[],
 			],
 		},
@@ -1715,28 +1715,45 @@ var Areas = {
 			},
 			{
 				// teleport to floor 2
-				x: 620,
+				x: 540,
 				y: 60,
 				width: 2,
 				height: 60,
 				teleportTo: "nilbogTower2",
-				destinationX: 30,
-				destinationY: 534,
+				destinationX: 90,
+				destinationY: 560,
 			},
 		],
 		
+		onAreaLoad: function () {
+			// stair animations
+			if (Game.hero.y < 100) {
+				// move down stairs
+				Game.hero.direction = 2;
+				Game.hero.moveTowards = {
+					x: 290,
+					y: 175,
+					speedScalar: 0.6,
+				};
+			}
+		},
+		
 		things: [
 			{
-				x: 497,
-				y: 125,
+				x: 468,
+				y: 97,
 				image: "stairs",
 				name: "Stairs",
 			},
+		],
+		
+		infoPoints: [
 			{
-				x: 560,
-				y: 180,
+				x: 546,
+				y: 157,
 				image: "painting",
 				name: "Painting",
+				onTouchChat: "A painting of Wizard Andrews, one of the most accompished wizards that has ever been known. This tower used to be his, and was overrun by goblins after he left to persue his life of wizardry."
 			},
 		],
 		
@@ -1744,7 +1761,7 @@ var Areas = {
 			{
 				x: 600, // bottom of stairs
 				y: 240,
-				width: 177,
+				width: 248,
 				height: 50,
 			},
 		],
@@ -1752,10 +1769,10 @@ var Areas = {
 		tripwires: [
 			{
 				// going to top of stairs
-				x: 400,
-				y: 230,
+				x: 338,
+				y: 220,
 				width: 2,
-				height: 50,
+				height: 40,
 				collisionType: "feet",
 				onPlayerTouch: function () {
 					if (Game.hero.moveTowards === undefined) {
@@ -1763,7 +1780,7 @@ var Areas = {
 						Game.hero.direction = 4;
 						Game.hero.moveTowards = {
 							x: 600,
-							y: Game.hero.y -180,
+							y: Game.hero.y - 240,
 							speedScalar: 0.6,
 						};
 					}
@@ -1795,18 +1812,18 @@ var Areas = {
 			cols: 10,
 			rows: 10,
 			tsize: 60,
-			tilesPerRow: 2,
-			solidTiles: [1, 2, 3, 4, 6, 8, 9, 11], // walls
-			layers: [
-				[3, 9, 11, 1, 3, 9, 11, 1, 3, 1, 9, 11, 9, 11, 9, 11, 9, 11, 9, 11, 3, 1, 3, 1, 3, 1, 3, 1, 3, 1, 5, 5, 5, 5, 5, 5, 5, 5, 5, 5, 5, 5, 5, 5, 5, 5, 5, 5, 5, 5, 5, 5, 5, 5, 5, 5, 5, 5, 5, 5, 5, 5, 5, 5, 5, 5, 5, 5, 5, 5, 5, 5, 5, 5, 5, 5, 5, 5, 5, 5, 7, 5, 5, 5, 5, 5, 5, 5, 5, 5, 7, 5, 5, 5, 5, 5, 5, 5, 5, 5],
+			tilesPerRow: 4,
+			solidTiles: [1, 2, 3, 5, 6, 7, 8, 9, 10, 12], // walls & downwards stairs
+			layers: [    
+				[10, 8, 12, 9, 10, 8, 12, 9, 10, 9, 8, 12, 8, 12, 8, 12, 8, 12, 8, 12, 10, 9, 10, 9, 10, 9, 10, 9, 10, 9, 4, 11, 11, 11, 11, 11, 11, 11, 11, 11, 11, 11, 11, 11, 4, 11, 11, 11, 11, 4, 11, 4, 11, 11, 11, 11, 4, 11, 11, 11, 11, 11, 11, 11, 11, 11, 11, 11, 11, 11, 11, 11, 11, 4, 11, 11, 11, 11, 11, 4, 11, 11, 11, 11, 11, 4, 11, 11, 11, 11, 11, 6, 7, 11, 11, 11, 11, 11, 4, 11],
 				[],
 			],
 		},
 		
 		images: {
 			tiles: {normal: "./assets/tilemap/nilbogTower.png"},
-			stairs: {normal: "./assets/objects/stairs.png"}, // TBC (flip stairs)
-			painting: {normal: "./assets/objects/paintingAndrews.png"}, // TBC
+			stairs: {normal: "./assets/objects/stairs.png"},
+			painting: {normal: "./assets/objects/paintingScorchedAzuras.png"},
 			goblinCrusader: {normal: "./assets/enemies/goblinCrusader.png"},
 			goblinCorpse: {normal: "./assets/corpses/deadGoblin.png"},
 			melee: {normal: "./assets/projectiles/melee.png"},
@@ -1818,83 +1835,100 @@ var Areas = {
 		
 		areaTeleports: [
 			{
-				// teleport to nilbog (bottom of tower)
-				x: 60, // TBC
-				y: 649, // TBC
-				width: 60,
-				height: 2,
+				// teleport to floor 1
+				x: 177,
+				y: 600,
+				width: 10,
+				height: 10,
 				teleportTo: "nilbogTower1",
-				destinationX: 360,
-				destinationY: 180,
+				destinationX: 500,
+				destinationY: 10,
 			},
-			/*{
-				// teleport to floor 3
-				x: 620, // TBC
-				y: 60, // TBC
-				width: 2,
-				height: 60,
-				teleportTo: "nilbogTower3",
-				destinationX: 30, // TBC
-				destinationY: 534,
-			},*/
 		],
 		
-		/*things: [
+		onAreaLoad: function () {
+			// stair animations
+			if (Game.hero.y > 540) {
+				// move up stairs
+				Game.hero.direction = 2;
+				Game.hero.moveTowards = {
+					x: 15,
+					y: 520,
+					speedScalar: 0.6,
+				};
+			}
+			else if (Game.hero.y < 100) {
+				// move down stairs
+				Game.hero.direction = 4;
+				Game.hero.moveTowards = {
+					x: 600,
+					y: Game.hero.y - 240,
+					speedScalar: 0.6,
+				};
+			}
+		},
+		
+		things: [
 			{
-				x: 497, // TBC
-				y: 125, // TBC
+				x: 468,
+				y: 97,
 				image: "stairs",
 				name: "Stairs",
 			},
+		],
+		
+		infoPoints: [
 			{
-				x: 560, // TBC
-				y: 180, // TBC
+				x: 546,
+				y: 157,
 				image: "painting",
 				name: "Painting",
+				onTouchChat: "A painting of Scorched Azuras, the scarred lands that were once an incredible forest. The trees were burnt down and the ground scored by a group of fire orcs, whom Andrews could not stop as a young wizard. To this day he still regrets he was unable to do something to stop them."
 			},
 		],
 		
 		collisions: [
 			{
-				x: 600, // bottom of stairs // TBC
+				x: 600, // bottom of stairs
 				y: 240,
-				width: 177,
+				width: 248,
 				height: 50,
 			},
 		],
 		
 		tripwires: [
 			{
-				// going to top of stairs
-				x: 400, // TBC
-				y: 230,
+				// going to bottom
+				x: 60,
+				y: 600,
 				width: 2,
-				height: 50,
+				height: 40,
 				collisionType: "feet",
 				onPlayerTouch: function () {
 					if (Game.hero.moveTowards === undefined) {
-						// walk up stairs
+						// walk down stairs
 						Game.hero.direction = 4;
 						Game.hero.moveTowards = {
-							x: 600, // TBC
-							y: Game.hero.y -180,
+							x: 150,
+							y: 550,
 							speedScalar: 0.6,
 						};
 					}
 				}
 			}
-		],*/
+		],
 		
 		enemies: [
 			{
 				x: 300,
-				y: 200,
+				y: 320,
 				template: EnemyTemplates.nilbog.goblinCrusader,
 			},
 		],
 	},
 };
 
+// sets a tile on the Map (specifyable area for if it is used in a setTimeout)
 function SetTile (area, layer, col, row, newTileNum) {
 	let map = Areas[area].mapData;
 	map.layers[layer][row * map.cols + col] = newTileNum;
