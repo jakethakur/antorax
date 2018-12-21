@@ -539,9 +539,6 @@ var Areas = {
 							{item: Items.rod[3], cost: 3}, // basic fishing rod
 							{item: Items.consumable[8], cost: 4}, // can of worms
 							{item: Items.consumable[12], cost: 4}, // magnetised lure
-							{item: Items.boots[9], cost: 10, costCurrency: 5, condition: function () { // Ice Skates
-						        return Game.event === "Christmas";
-						    }},
 						],
 						role: "merchant",
 						chooseText: "I'd like to browse your fishing items.",
@@ -909,12 +906,26 @@ var Areas = {
 						quest: Quests.eaglecrestLoggingCamp[21], 
 						role: "questStartFinish"
 					},
+					{
+						role: "merchant",
+						chooseText: "What have you got to sell this Christmas?",
+						sold: [
+							{item: Items.staff[9], cost: 25, costCurrency: 5,}, // Vulpric's Ice Staff
+							{item: Items.sword[8], cost: 25, costCurrency: 5,}, // Permafrost
+						],
+						roleRequirement: function () {
+							return Game.event === "Christmas";
+						}
+					},
 				],
 				chat: {
 					questProgress: "The dummy isn't going anywhere.",
 					questComplete: "You can always check your adventure log if you need to brush up on your combat skills.",
 					inventoryFull: "Empty your bags some. You have no space for your rewards.",
 					chooseChat: `I trust your combat is going fine, ${Player.name}.`,
+					shopGreeting: "I have some special weapons you can purchase this Christmas.", // TBD move to role
+					shopLeave: "I wish you the best in your battles.",
+					tooPoor: "You can't afford that. You know what to do - Kill!",
 				},
 			},
 			{
@@ -1022,17 +1033,6 @@ var Areas = {
 					{
 						role: "soulHealer",
 					},
-					{
-						role: "merchant",
-						chooseText: "What have you got to sell this Christmas?",
-						sold: [
-							{item: Items.staff[9], cost: 25, costCurrency: 5,}, // Vulpric's Ice Staff
-							{item: Items.sword[8], cost: 25, costCurrency: 5,}, // Permafrost
-						],
-						roleRequirement: function () {
-							return Game.event === "Christmas";
-						}
-					},
 				],
 				chat: {
 					canBeHealedText: "My blessings to you. It appears that you have a soul debt, meaning you will earn XP slower due to a recent death. If you wish, I can cleanse your soul and remove this effect for a small price.",
@@ -1040,10 +1040,8 @@ var Areas = {
 					healedText: "May the purity of the demigods be with you.",
 					tooPoor: "I don't think you can afford that.",
 					questProgress: "If you use the sceptre near dead enemies, soul essence will rush inside it.",
-					chooseChat: "tbd",
-					shopGreeting: "tbd",
-					shopLeave: "tbd",
-					inventoryFull: "tbd",
+					chooseChat: "Blessings to you.",
+					inventoryFull: "I don't think you have space for that.",
 				},
 			},
 			{
@@ -1142,8 +1140,11 @@ var Areas = {
 							{item: Items.helm[7], cost: 10, costCurrency: 5, condition: function () { // Santa hat
 						        return Game.event === "Christmas";
 						    }},
+							{item: Items.boots[9], cost: 10, costCurrency: 5, condition: function () { // Ice Skates
+						        return Game.event === "Christmas";
+						    }},
 							{item: Items.item[11], cost: 2}, // vial of goblin blood
-							{item: Items.bag[5], cost: 6}, // brown backsack
+							{item: Items.bag[5], cost: 7}, // brown backsack
 							{item: Items.helm[2], cost: 2}, // worn leather helm
 							{item: Items.chest[2], cost: 3}, // worn leather tunic
 							{item: Items.greaves[2], cost: 3}, // worn leather trousers
@@ -1753,7 +1754,7 @@ var Areas = {
 				y: 157,
 				image: "painting",
 				name: "Painting",
-				onTouchChat: "A painting of Wizard Andrews, one of the most accompished wizards that has ever been known. This tower used to be his, and was overrun by goblins after he left to persue his life of wizardry."
+				onTouchChat: "A painting of Wizard Andrews, one of the most accompished wizards that has ever been known. This tower used to be his, but was overrun by goblins after he left to persue his life of wizardry."
 			},
 		],
 		
@@ -1794,6 +1795,11 @@ var Areas = {
 				y: 260,
 				template: EnemyTemplates.nilbog.goblinTowerkeeper,
 			},
+			{
+				x: 450,
+				y: 260,
+				template: EnemyTemplates.nilbog.goblinTowerkeeper,
+			},
 		],
 	},
 	
@@ -1824,6 +1830,7 @@ var Areas = {
 			tiles: {normal: "./assets/tilemap/nilbogTower.png"},
 			stairs: {normal: "./assets/objects/stairs.png"},
 			painting: {normal: "./assets/objects/paintingScorchedAzuras.png"},
+			goblinTowerkeeper: {normal: "./assets/enemies/goblinTowerkeeper.png"},
 			goblinCrusader: {normal: "./assets/enemies/goblinCrusader.png"},
 			goblinCorpse: {normal: "./assets/corpses/deadGoblin.png"},
 			melee: {normal: "./assets/projectiles/melee.png"},
@@ -1844,6 +1851,16 @@ var Areas = {
 				destinationX: 500,
 				destinationY: 10,
 			},
+			{
+				// teleport to floor 3
+				x: 540,
+				y: 60,
+				width: 2,
+				height: 60,
+				teleportTo: "nilbogTower3",
+				destinationX: 90,
+				destinationY: 560,
+			},
 		],
 		
 		onAreaLoad: function () {
@@ -1859,10 +1876,10 @@ var Areas = {
 			}
 			else if (Game.hero.y < 100) {
 				// move down stairs
-				Game.hero.direction = 4;
+				Game.hero.direction = 2;
 				Game.hero.moveTowards = {
-					x: 600,
-					y: Game.hero.y - 240,
+					x: 290,
+					y: 175,
 					speedScalar: 0.6,
 				};
 			}
@@ -1915,13 +1932,381 @@ var Areas = {
 						};
 					}
 				}
-			}
+			},
+			{
+				// going to top of stairs
+				x: 338,
+				y: 220,
+				width: 2,
+				height: 40,
+				collisionType: "feet",
+				onPlayerTouch: function () {
+					if (Game.hero.moveTowards === undefined) {
+						// walk up stairs
+						Game.hero.direction = 4;
+						Game.hero.moveTowards = {
+							x: 600,
+							y: Game.hero.y - 240,
+							speedScalar: 0.6,
+						};
+					}
+				}
+			},
 		],
 		
 		enemies: [
 			{
-				x: 300,
+				x: 200,
 				y: 320,
+				template: EnemyTemplates.nilbog.goblinCrusader,
+			},
+			{
+				x: 500,
+				y: 500,
+				template: EnemyTemplates.nilbog.goblinTowerkeeper,
+			},
+		],
+	},
+	
+	nilbogTower3: {
+		
+		data: {
+			name: "Nilbog Tower",
+			level: "Level 3 - 5",
+			territory: "Hostile territory",
+			displayOnEnter: false,
+		},
+		
+		indoors: true,
+
+		mapData: {
+			cols: 10,
+			rows: 10,
+			tsize: 60,
+			tilesPerRow: 4,
+			solidTiles: [1, 2, 3, 5, 6, 7, 8, 9, 10, 12], // walls & downwards stairs
+			layers: [    
+				[10, 8, 12, 9, 10, 8, 12, 9, 10, 9, 1, 2, 8, 12, 1, 2, 8, 12, 1, 2, 3, 5, 10, 9, 3, 5, 10, 9, 3, 5, 11, 4, 11, 11, 11, 11, 11, 11, 11, 11, 11, 11, 11, 4, 11, 11, 11, 11, 11, 11, 11, 11, 11, 11, 11, 11, 11, 11, 11, 11, 11, 11, 4, 11, 11, 11, 11, 4, 11, 11, 11, 11, 11, 11, 4, 11, 11, 11, 11, 11, 11, 11, 11, 11, 11, 11, 11, 4, 11, 4, 11, 6, 7, 11, 11, 4, 11, 11, 11, 11],
+				[],
+			],
+		},
+		
+		images: {
+			tiles: {normal: "./assets/tilemap/nilbogTower.png"},
+			stairs: {normal: "./assets/objects/stairs.png"},
+			painting: {normal: "./assets/objects/paintingElvenWoodlands.png"},
+			goblinTowerkeeper: {normal: "./assets/enemies/goblinTowerkeeper.png"},
+			goblinCrusader: {normal: "./assets/enemies/goblinCrusader.png"},
+			goblinCorpse: {normal: "./assets/corpses/deadGoblin.png"},
+			melee: {normal: "./assets/projectiles/melee.png"},
+		},
+		
+		song_day: "./assets/music/Pippin-the-Hunchback.mp3",
+		
+		checkpoint: false,
+		
+		areaTeleports: [
+			{
+				// teleport to floor 2
+				x: 177,
+				y: 600,
+				width: 10,
+				height: 10,
+				teleportTo: "nilbogTower2",
+				destinationX: 500,
+				destinationY: 10,
+			},
+			{
+				// teleport to floor 4
+				x: 540,
+				y: 60,
+				width: 2,
+				height: 60,
+				teleportTo: "nilbogTower4",
+				destinationX: 90,
+				destinationY: 560,
+			},
+		],
+		
+		onAreaLoad: function () {
+			// stair animations
+			if (Game.hero.y > 540) {
+				// move up stairs
+				Game.hero.direction = 2;
+				Game.hero.moveTowards = {
+					x: 15,
+					y: 520,
+					speedScalar: 0.6,
+				};
+			}
+			else if (Game.hero.y < 100) {
+				// move down stairs
+				Game.hero.direction = 2;
+				Game.hero.moveTowards = {
+					x: 290,
+					y: 175,
+					speedScalar: 0.6,
+				};
+			}
+		},
+		
+		things: [
+			{
+				x: 468,
+				y: 97,
+				image: "stairs",
+				name: "Stairs",
+			},
+		],
+		
+		infoPoints: [
+			{
+				x: 537,
+				y: 158,
+				image: "painting",
+				name: "Painting",
+				onTouchChat: "A painting of Wizard Andrews with the Lady of Autumn, in the Forest of the Hundred Trees, Elven Woodlands. Andrews was blessed by the elves on this day for his help in the defense of Woodreach against the vampire-elf Mroll."
+			},
+		],
+		
+		collisions: [
+			{
+				x: 600, // bottom of stairs
+				y: 240,
+				width: 248,
+				height: 50,
+			},
+		],
+		
+		tripwires: [
+			{
+				// going to bottom
+				x: 60,
+				y: 600,
+				width: 2,
+				height: 40,
+				collisionType: "feet",
+				onPlayerTouch: function () {
+					if (Game.hero.moveTowards === undefined) {
+						// walk down stairs
+						Game.hero.direction = 4;
+						Game.hero.moveTowards = {
+							x: 150,
+							y: 550,
+							speedScalar: 0.6,
+						};
+					}
+				}
+			},
+			{
+				// going to top of stairs
+				x: 338,
+				y: 220,
+				width: 2,
+				height: 40,
+				collisionType: "feet",
+				onPlayerTouch: function () {
+					if (Game.hero.moveTowards === undefined) {
+						// walk up stairs
+						Game.hero.direction = 4;
+						Game.hero.moveTowards = {
+							x: 600,
+							y: Game.hero.y - 240,
+							speedScalar: 0.6,
+						};
+					}
+				}
+			},
+		],
+		
+		enemies: [
+			{
+				x: 270,
+				y: 210,
+				template: EnemyTemplates.nilbog.goblinCrusader,
+			},
+			{
+				x: 430,
+				y: 450,
+				template: EnemyTemplates.nilbog.goblinTowerkeeper,
+			},
+			{
+				x: 100,
+				y: 300,
+				template: EnemyTemplates.nilbog.goblinTowerkeeper,
+			},
+		],
+	},
+	
+	nilbogTower4: {
+		
+		data: {
+			name: "Nilbog Tower",
+			level: "Level 3 - 5",
+			territory: "Hostile territory",
+			displayOnEnter: false,
+		},
+		
+		indoors: true,
+
+		mapData: {
+			cols: 10,
+			rows: 10,
+			tsize: 60,
+			tilesPerRow: 4,
+			solidTiles: [1, 2, 3, 5, 6, 7, 8, 9, 10, 12], // walls & downwards stairs
+			layers: [    
+				[10, 8, 12, 9, 10, 8, 12, 9, 10, 9, 8, 12, 8, 12, 8, 12, 8, 12, 8, 12, 10, 9, 10, 9, 10, 9, 10, 9, 10, 9, 11, 11, 11, 11, 11, 11, 11, 11, 11, 11, 11, 4, 11, 11, 11, 11, 11, 11, 11, 11, 11, 11, 11, 11, 11, 11, 11, 11, 4, 11, 11, 11, 11, 11, 11, 11, 11, 11, 11, 11, 11, 11, 11, 11, 11, 11, 11, 11, 11, 11, 11, 11, 11, 11, 11, 4, 11, 11, 11, 11, 11, 6, 7, 11, 11, 11, 11, 11, 11, 11],
+				[],
+			],
+		},
+		
+		images: {
+			tiles: {normal: "./assets/tilemap/nilbogTower.png"},
+			stairs: {normal: "./assets/objects/stairs.png"},
+			painting: {normal: "./assets/objects/paintingDesert.png"}, // image to be renamed
+			goblinCrusader: {normal: "./assets/enemies/goblinCrusader.png"},
+			goblinCorpse: {normal: "./assets/corpses/deadGoblin.png"},
+			melee: {normal: "./assets/projectiles/melee.png"},
+		},
+		
+		song_day: "./assets/music/Pippin-the-Hunchback.mp3",
+		
+		checkpoint: false,
+		
+		areaTeleports: [
+			{
+				// teleport to floor 2
+				x: 177,
+				y: 600,
+				width: 10,
+				height: 10,
+				teleportTo: "nilbogTower3",
+				destinationX: 500,
+				destinationY: 10,
+			},
+			{
+				// teleport to floor 4
+				x: 540,
+				y: 60,
+				width: 2,
+				height: 60,
+				teleportTo: "nilbogTower5",
+				destinationX: 90,
+				destinationY: 560,
+			},
+		],
+		
+		onAreaLoad: function () {
+			// stair animations
+			if (Game.hero.y > 540) {
+				// move up stairs
+				Game.hero.direction = 2;
+				Game.hero.moveTowards = {
+					x: 15,
+					y: 520,
+					speedScalar: 0.6,
+				};
+			}
+			else if (Game.hero.y < 100) {
+				// move down stairs
+				Game.hero.direction = 2;
+				Game.hero.moveTowards = {
+					x: 290,
+					y: 175,
+					speedScalar: 0.6,
+				};
+			}
+		},
+		
+		things: [
+			{
+				x: 468,
+				y: 97,
+				image: "stairs",
+				name: "Stairs",
+			},
+		],
+		
+		infoPoints: [
+			{
+				x: 540,
+				y: 164,
+				image: "painting",
+				name: "Painting",
+				onTouchChat: "A painting of The Wastelands. They were barren lands, where Wizard Andrews fought through the barbarian tribes to destroy the Chaos Parasite and its corruption."
+			},
+		],
+		
+		collisions: [
+			{
+				x: 600, // bottom of stairs
+				y: 240,
+				width: 248,
+				height: 50,
+			},
+		],
+		
+		tripwires: [
+			{
+				// going to bottom
+				x: 60,
+				y: 600,
+				width: 2,
+				height: 40,
+				collisionType: "feet",
+				onPlayerTouch: function () {
+					if (Game.hero.moveTowards === undefined) {
+						// walk down stairs
+						Game.hero.direction = 4;
+						Game.hero.moveTowards = {
+							x: 150,
+							y: 550,
+							speedScalar: 0.6,
+						};
+					}
+				}
+			},
+			{
+				// going to top of stairs
+				x: 338,
+				y: 220,
+				width: 2,
+				height: 40,
+				collisionType: "feet",
+				onPlayerTouch: function () {
+					if (Game.hero.moveTowards === undefined) {
+						// walk up stairs
+						Game.hero.direction = 4;
+						Game.hero.moveTowards = {
+							x: 600,
+							y: Game.hero.y - 240,
+							speedScalar: 0.6,
+						};
+					}
+				}
+			},
+		],
+		
+		enemies: [
+			{
+				x: 200,
+				y: 250,
+				template: EnemyTemplates.nilbog.goblinCrusader,
+			},
+			{
+				x: 400,
+				y: 250,
+				template: EnemyTemplates.nilbog.goblinCrusader,
+			},
+			{
+				x: 200,
+				y: 450,
+				template: EnemyTemplates.nilbog.goblinCrusader,
+			},
+			{
+				x: 400,
+				y: 450,
 				template: EnemyTemplates.nilbog.goblinCrusader,
 			},
 		],

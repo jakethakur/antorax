@@ -607,7 +607,7 @@ var Items = {
 				lifesteal: "25%",
 				blockDefence: "+14",
 			},
-			projectile: "bloodSlash",
+			projectile: "slashBlood",
 			projectileAdjust: {x: 20, y: 20},
 		},
 		{
@@ -625,6 +625,8 @@ var Items = {
 				reloadTime: "+500",
 				blockDefence: "+16",
 			},
+			projectile: "slashFrost",
+			projectileAdjust: {x: 20, y: 20},
 		},
 	],
 	staff: [
@@ -784,6 +786,8 @@ var Items = {
 				damage: "3-9",
 				frostaura: true,
 			},
+			projectile: "frostball",
+			projectileAdjust: {x: 20, y: 20},
 		},
 	],
 	bow: [

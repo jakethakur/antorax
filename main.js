@@ -552,7 +552,6 @@ class Character extends Thing {
 			questProgress - said when a quest involving this NPC is in progress (mandatory for quest npcs)
 			questComplete - said when quests involving this NPC have been finished (mandatory for quest npcs)
 			inventoryFull - said when a quest involving this NPC adds more items than needed (mandatory for quest npcs that add something to inventory on start or finish)
-			shopGreeting - said (on DOM not chat) when you first speak to a merchant (mandatory for merchants)
 			shopLeave - said when you leave a merchant (mandatory for merchants)
 			more tba
 			
@@ -3877,7 +3876,8 @@ Game.update = function (delta) {
 	
 	// check collision with points of interest (things that insert something to chat when you touch them)
 	this.infoPoints.forEach(thing => {
-		if (this.hero.isTouching(thing)) {
+		if (this.hero.moveTowards === undefined && this.hero.isTouching(thing)) {
+			// does not trigger if moveTowards is active
 			Dom.chat.insert(thing.onTouchChat, 0, false, true); // noRepeat is true
 		}
 	})
@@ -3926,7 +3926,7 @@ Game.playerProjectileUpdate = function(delta) {
 Game.getXP = function (xpGiven) {
 	if (typeof xpGiven === "number") {
 		// increase XP
-		Player.xp += xpGiven * (1 + Game.hero.xpBonus / 100);
+		Player.xp += xpGiven * (1 + Game.hero.stats.xpBonus / 100);
 		
 		// XP fatigue
 		if (Player.fatiguedXP !== 0) { // fatigued XP is worth 50% less due to a recent death
