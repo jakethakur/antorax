@@ -615,13 +615,16 @@ Dom.inventory.displayIdentification = function(display){
 	if(Player.stats.reflection !== 0){
 		document.getElementById("innerStats").innerHTML += "<br>Reflection: " + Player.stats.reflection + "%";
 	}
+	if(Player.stats.reloadTime !== 500){
+		document.getElementById("innerStats").innerHTML += "<br>Reload Time: " + Player.stats.reloadTime/1000 + "s";
+	}
 	if(Player.stats.stun !== 0){
 		document.getElementById("innerStats").innerHTML += "<br>Stun: " + Player.stats.stun + "s";
 	}
 	document.getElementById("innerStats").innerHTML += "<br>Swim Speed: " + Player.stats.swimSpeed + "/s";
 	document.getElementById("innerStats").innerHTML += "<br>Walk Speed: " + Player.stats.walkSpeed + "/s";
 	if(Game.event === "Christmas"){
-	document.getElementById("innerStats").innerHTML += "<br>Ice Speed: " + Player.stats.iceSpeed + "/s";
+		document.getElementById("innerStats").innerHTML += "<br>Ice Speed: " + Player.stats.iceSpeed + "/s";
 	}
 	if(Player.stats.xpBonus !== 0){
 		document.getElementById("innerStats").innerHTML += "<br>XP Bonus: " + Player.stats.xpBonus + "%";
@@ -636,6 +639,28 @@ Dom.inventory.displayIdentification = function(display){
 		}
 	}
 }
+
+Dom.inventory.stats = function(stat, value, array){ // stat should be in Title Case
+	if(stat === "Defence" || stat === "Block Defence" || stat === "Fishing Skill"){
+		return stat+": "+value;
+	}else if(stat === "Critical Chance" || stat === "Dodge Chance" || stat === "Looting" || stat === "Reflection" || stat === "Life Steal" || stat === "Xp Bonus"){
+		return stat+": "+value+"%";
+	}else if(stat === "Health Regen" || stat === "Swim Speed" || stat === "Walk Speed" || stat === "Ice Speed" || stat === "Focus Speed"){
+		return stat+": "+value+"/s";
+	}else if(stat === "Stun"){
+		return stat+": "+value+"s";
+	}else if(stat === "Reload Time"){
+		return stat+": "+(value/500)+"s";
+	}else if(stat === "Flaming"){
+		return stat+": "+Romanize(value);
+	}else if(stat === "Poison X"){
+		return "Poison: "+value+"/"+array.poisonY+"s";
+	}else if(stat === "Damage"){
+		return stat+": "+value + (array.maxDamage > value ? "-" + array.maxDamage : "");
+	}else{
+		return "";
+	}
+};
 
 Dom.inventory.displayInformation = function(item, stacked, position){
 	document.getElementById("information").hidden = true;
@@ -667,11 +692,14 @@ Dom.inventory.displayInformation = function(item, stacked, position){
 			if(item.stats !== undefined){
 				for(let i = 0; i < Object.keys(item.stats).length; i++){
 					if(Object.keys(item.stats)[i] !== item.chosenStat){
-						if(Object.keys(item.stats)[i] !== "flaming"){
+						
+						document.getElementById("stats").innerHTML += "<br>"+Dom.inventory.stats(FromCamelCase(Object.keys(item.stats)[i]), item.stats[Object.keys(item.stats)[i]], item.stats);
+						
+						/*if(Object.keys(item.stats)[i] !== "flaming"){
 							document.getElementById("stats").innerHTML += "<br>"+FromCamelCase(Object.keys(item.stats)[i])+": "+item.stats[Object.keys(item.stats)[i]];
 						}else{
 							document.getElementById("stats").innerHTML += "<br>"+FromCamelCase(Object.keys(item.stats)[i])+" "+Romanize(item.stats[Object.keys(item.stats)[i]]);
-						}
+						}*/
 					}
 				}
 				if(item.chooseStats !== undefined){
@@ -681,11 +709,14 @@ Dom.inventory.displayInformation = function(item, stacked, position){
 						if(Object.keys(item.chooseStats)[i] === item.chosenStat){
 							color = "black";
 						}
-						if(Object.keys(item.chooseStats)[i] !== "flaming"){
+						
+						document.getElementById("stats").innerHTML += "<br><span style='color: "+color+"'>"+Dom.inventory.stats(FromCamelCase(Object.keys(item.chooseStats)[i]), item.chooseStats[Object.keys(item.chooseStats)[i]], item.chooseStats)+"</span>";
+						
+						/*if(Object.keys(item.chooseStats)[i] !== "flaming"){
 							document.getElementById("stats").innerHTML += "<br><span style='color: "+color+"'>"+Object.keys(item.chooseStats)[i]+": "+item.chooseStats[Object.keys(item.chooseStats)[i]]+"</span>";
 						}else{
 							document.getElementById("stats").innerHTML += "<br><span style='color: "+color+"'>"+Object.keys(item.chooseStats)[i]+" "+Romanize(item.chooseStats[Object.keys(item.chooseStats)[i]])+"</span>";
-						}
+						}*/
 					}
 				}
 			}else{
@@ -708,11 +739,14 @@ Dom.inventory.displayInformation = function(item, stacked, position){
 					if(setNum === Items.set[item.set].armour.length){
 						document.getElementById("set").innerHTML += "<br><br>Set Bonus:";
 						for(let i = 0; i < Object.keys(Items.set[item.set].stats).length; i++){
-							if(Object.keys(Items.set[item.set].stats)[i] !== "flaming"){
+							
+							document.getElementById("stats").innerHTML += "<br>"+Dom.inventory.stats(FromCamelCase(Object.keys(Items.set[item.set].stats)[i]), Items.set[item.set].stats[Object.keys(Items.set[item.set].stats)[i]], Items.set[item.set].stats);
+							
+							/*if(Object.keys(Items.set[item.set].stats)[i] !== "flaming"){
 								document.getElementById("set").innerHTML += "<br>"+FromCamelCase(Object.keys(Items.set[item.set].stats)[i])+": "+Items.set[item.set].stats[Object.keys(Items.set[item.set].stats)[i]];
 							}else{
 								document.getElementById("set").innerHTML += "<br>"+FromCamelCase(Object.keys(Items.set[item.set].stats)[i])+" "+Romanize(Items.set[item.set].stats[Object.keys(Items.set[item.set].stats)[i]]);
-							}
+							}*/
 						}
 						if(Items.set[item.set].multiplier !== undefined){
 							for(let i = 0; i < Items.set[item.set].multiplier.length; i++){
@@ -747,11 +781,14 @@ Dom.inventory.displayInformation = function(item, stacked, position){
 					if(setNum === Items.set[item.set].armour.length){
 						document.getElementById("set").innerHTML += "<br><br>Set Bonus:";
 						for(let i = 0; i < Object.keys(Items.set[item.set].stats).length; i++){
-							if(Object.keys(Items.set[item.set].stats)[i] !== "flaming"){
+							
+							document.getElementById("stats").innerHTML += "<br>"+Dom.inventory.stats(FromCamelCase(Object.keys(Items.set[item.set].stats)[i]), Items.set[item.set].stats[Object.keys(Items.set[item.set].stats)[i]], Items.set[item.set].stats);
+							
+							/*if(Object.keys(Items.set[item.set].stats)[i] !== "flaming"){
 								document.getElementById("set").innerHTML += "<br>"+FromCamelCase(Object.keys(Items.set[item.set].stats)[i])+": "+Items.set[item.set].stats[Object.keys(Items.set[item.set].stats)[i]];
 							}else{
 								document.getElementById("set").innerHTML += "<br>"+FromCamelCase(Object.keys(Items.set[item.set].stats)[i])+" "+Romanize(Items.set[item.set].stats[Object.keys(Items.set[item.set].stats)[i]]);
-							}
+							}*/
 						}
 						if(Items.set[item.set].multiplier !== undefined){
 							for(let i = 0; i < Items.set[item.set].multiplier.length; i++){
@@ -1458,15 +1495,16 @@ Dom.inventory.food = function(inventoryPosition){
 Dom.inventory.chooseStats = function(inventoryPosition){
 	// item inventory
 	if(!isNaN(inventoryPosition)){
+		// not currently used because ocean set is equipped onClick
 		let values = "";
 		let str = Player.inventory.items[inventoryPosition].chooseStats;
 		Dom.alert.ev = [];
 		// repeats for each chooseStat
 		for(let i = 0; i < Object.keys(str).length; i++){
 			if(Object.keys(str)[i] === Player.inventory.items[inventoryPosition].chosenStat){
-				values += "<strong><span onclick='Dom.alert.target(Dom.alert.ev, "+i+")'>"+str[Object.keys(str)[i]] + " " + FromCamelCase(Object.keys(str)[i]) + "</span></strong><br>";
+				values += "<strong><span onclick='Dom.alert.target(Dom.alert.ev, "+i+")'>"+Dom.inventory.stats(FromCamelCase(Object.keys(str)[i]), str[Object.keys(str)[i]], str) + "</span></strong><br>";
 			}else{
-				values += "<span onclick='Dom.alert.target(Dom.alert.ev, "+i+")'>"+str[Object.keys(str)[i]] + " " + FromCamelCase(Object.keys(str)[i]) + "</span><br>";
+				values += "<span onclick='Dom.alert.target(Dom.alert.ev, "+i+")'>"+Dom.inventory.stats(FromCamelCase(Object.keys(str)[i]), str[Object.keys(str)[i]], str) + "</span><br>";
 			}
 			Dom.alert.ev.push([Object.keys(str)[i], str[Object.keys(str)[i]]]);
 		}
@@ -1478,7 +1516,7 @@ Dom.inventory.chooseStats = function(inventoryPosition){
 			Player.inventory.items[inventoryPosition].chosenStat = ev[num][0];
 			Player.inventory.items[inventoryPosition].stats[ev[num][0]] = ev[num][1];
 		}
-		Dom.alert.page("Choose an effect:", 3, values)
+		Dom.alert.page("Choose an effect:", 3, values);
 	// equipped
 	}else{
 		let values = "";
@@ -1487,9 +1525,9 @@ Dom.inventory.chooseStats = function(inventoryPosition){
 		// repeats for each chosenStat
 		for(let i = 0; i < Object.keys(str).length; i++){
 			if(Object.keys(str)[i] === Player.inventory[inventoryPosition].chosenStat){
-				values += "<strong><span onclick='Dom.alert.target(Dom.alert.ev, "+i+")'>"+str[Object.keys(str)[i]] + " " + FromCamelCase(Object.keys(str)[i]) + "</span></strong><br>";
+				values += "<strong><span onclick='Dom.alert.target(Dom.alert.ev, "+i+")'>"+Dom.inventory.stats(FromCamelCase(Object.keys(str)[i]), str[Object.keys(str)[i]], str) + "</span></strong><br>";
 			}else{
-				values += "<span onclick='Dom.alert.target(Dom.alert.ev, "+i+")'>"+str[Object.keys(str)[i]] + " " + FromCamelCase(Object.keys(str)[i]) + "</span><br>";
+				values += "<span onclick='Dom.alert.target(Dom.alert.ev, "+i+")'>"+Dom.inventory.stats(FromCamelCase(Object.keys(str)[i]), str[Object.keys(str)[i]], str) + "</span><br>";
 			}
 			Dom.alert.ev.push([Object.keys(str)[i], str[Object.keys(str)[i]]]);
 		}
@@ -1561,7 +1599,7 @@ function UnId(area,tier){
 Dom.identifier.identify = function(npc){
 	if(Dom.inventory.check(2,"currency",1)/* && Dom.identifier.unId.length !== 0*/){
 		Dom.inventory.removeById(2,"currency",1);
-		Dom.changeBook("identifiedPage",true);
+		Dom.changeBook("identifiedPage", true, true);
 		Dom.currentlyDisplayed = npc.name;
 		for(let i = 0; i < Player.inventory.items.length; i++){
 			if(Player.inventory.items[i].unidentified && Player.inventory.items[i].tier === Dom.identifier.unId[Dom.identifier.displayed].tier && Player.inventory.items[i].area === Dom.identifier.unId[Dom.identifier.displayed].area && Player.inventory.items[i].rarity === Dom.identifier.unId[Dom.identifier.displayed].rarity && Player.inventory.items[i].type === Dom.identifier.unId[Dom.identifier.displayed].type){
@@ -2108,7 +2146,7 @@ Dom.inventory.drop = function(ev, equip, id){
 						}else{
 							Dom.inventory.removeEquipment(Player.inventory.items[i]); // it has already been moved
 						}
-						Dom.inventory.addEquipment(Player.inventory[data]);			
+						Dom.inventory.addEquipment(Player.inventory[data]);
 					}
 				}
 			}
@@ -2145,14 +2183,14 @@ Dom.inventory.drop = function(ev, equip, id){
 	Dom.hotbar.update();
 	Dom.inventory.update();
 }
-
+/*
 Dom.inventory.removeEquipment = function(array){
 	if(array.stats !== undefined){
 		for(let i = 0; i < Object.keys(array.stats).length; i++){
 			if(Object.keys(array.stats)[i] !== "poison" && Object.keys(array.stats)[i] !== "damage" && Object.keys(array.stats)[i] !== "frostaura"){
 				Player.stats[Object.keys(array.stats)[i]] -= parseFloat(array.stats[Object.keys(array.stats)[i]]);
 			}else if(Object.keys(array.stats)[i] === "frostaura"){
-				Player.stats.frostaura = true;
+				Player.stats.frostaura = false;
 			}else if(Object.keys(array.stats)[i] === "damage"){
 				let split = array.stats.damage.split('-');
 				Player.stats.damage -= parseFloat(split[0]);
@@ -2202,11 +2240,18 @@ Dom.inventory.removeEquipment = function(array){
 		}
 	}
 }
-
-Dom.inventory.addEquipment = function(array){
+*/
+Dom.inventory.removeEquipment = function(array){
 	if(array.stats !== undefined){
 		for(let i = 0; i < Object.keys(array.stats).length; i++){
-			if(Object.keys(array.stats)[i] !== "poison" && Object.keys(array.stats)[i] !== "damage" && Object.keys(array.stats)[i] !== "frostaura"){
+			
+			if(array.stats[Object.keys(array.stats)[i]] !== true){
+				Player.stats[Object.keys(array.stats)[i]] -= array.stats[Object.keys(array.stats)[i]];
+			}else{
+				Player.stats[Object.keys(array.stats)[i]] = false;
+			}
+			
+			/*if(Object.keys(array.stats)[i] !== "poison" && Object.keys(array.stats)[i] !== "damage" && Object.keys(array.stats)[i] !== "frostaura"){
 				Player.stats[Object.keys(array.stats)[i]] += parseFloat(array.stats[Object.keys(array.stats)[i]]);
 			}else if(Object.keys(array.stats)[i] === "frostaura"){
 				Player.stats.frostaura = true;
@@ -2220,7 +2265,7 @@ Dom.inventory.addEquipment = function(array){
 				let split = array.stats.poison.split('/');
 				Player.stats.poisonX += parseFloat(split[0]);
 				Player.stats.poisonY += parseFloat(split[1]);
-			}
+			}*/
 		}
 	}
 	if(array.set !== undefined){
@@ -2233,7 +2278,14 @@ Dom.inventory.addEquipment = function(array){
 		}
 		if(!Dom.inventory.noSet){
 			for(let i = 0; i < Object.keys(Items.set[array.set].stats).length; i++){
-				if(Object.keys(Items.set[array.set].stats)[i] !== "poison" && Object.keys(Items.set[array.set].stats)[i] !== "damage" && Object.keys(Items.set[array.set].stats)[i] !== "frostaura"){
+
+				if(Items.set[array.set].stats[Object.keys(Items.set[array.set].stats)[i]] !== true){
+					Player.stats[Object.keys(Items.set[array.set].stats)[i]] -= Items.set[array.set].stats[Object.keys(Items.set[array.set].stats)[i]];
+				}else{
+					Player.stats[Object.keys(Items.set[array.set].stats)[i]] = false;
+				}
+				
+				/*if(Object.keys(Items.set[array.set].stats)[i] !== "poison" && Object.keys(Items.set[array.set].stats)[i] !== "damage" && Object.keys(Items.set[array.set].stats)[i] !== "frostaura"){
 					Player.stats[Object.keys(Items.set[array.set].stats)[i]] += parseFloat(Items.set[array.set].stats[Object.keys(Items.set[array.set].stats)[i]]);
 				}else if(Object.keys(Items.set[array.set].stats)[i] === "frostaura"){
 					Player.stats.frostaura = true;
@@ -2246,13 +2298,86 @@ Dom.inventory.addEquipment = function(array){
 					let split = Items.set[array.set].stats.poison.split('/');
 					Player.stats.poisonX += parseFloat(split[0]);
 					Player.stats.poisonY += parseFloat(split[1]);
-				}
+				}*/
 			}
 			if(Items.set[array.set].multiplier !== undefined){
 				for(let x = 0; x < Items.set[array.set].multiplier.length; x++){
 					// repeats for each slot that the multiplier applies to (e.g. helm, chest...)
 					for(let i = 0; i < Items.set[array.set].multiplier[x].slots.length; i++){
-						Player.stats[Player.inventory[Items.set[array.set].multiplier[x].slots[i]][Items.set[array.set].multiplier[x].stat]] += parseFloat(Player.inventory[Items.set[array.set].multiplier[x].slots[i]].stats[Player.inventory[Items.set[array.set].multiplier[x].slots[i]][Items.set[array.set].multiplier[x].stat]]);
+						// adds the multiplied stat for each intended slot to the player stats
+						Player.stats[Player.inventory[Items.set[array.set].multiplier[x].slots[i]][Items.set[array.set].multiplier[x].stat]] -= (Items.set[array.set].multiplier[x].multiplier-1) * Player.inventory[Items.set[array.set].multiplier[x].slots[i]].stats[Player.inventory[Items.set[array.set].multiplier[x].slots[i]][Items.set[array.set].multiplier[x].stat]];
+					}
+				}
+			}
+		}
+	}
+}
+
+Dom.inventory.addEquipment = function(array){
+	if(array.stats !== undefined){
+		for(let i = 0; i < Object.keys(array.stats).length; i++){
+			
+			if(array.stats[Object.keys(array.stats)[i]] !== true){
+				Player.stats[Object.keys(array.stats)[i]] += array.stats[Object.keys(array.stats)[i]];
+			}else{
+				Player.stats[Object.keys(array.stats)[i]] = true;
+			}
+			
+			/*if(Object.keys(array.stats)[i] !== "poison" && Object.keys(array.stats)[i] !== "damage" && Object.keys(array.stats)[i] !== "frostaura"){
+				Player.stats[Object.keys(array.stats)[i]] += parseFloat(array.stats[Object.keys(array.stats)[i]]);
+			}else if(Object.keys(array.stats)[i] === "frostaura"){
+				Player.stats.frostaura = true;
+			}else if(Object.keys(array.stats)[i] === "damage"){
+				let split = array.stats.damage.split('-');
+				Player.stats.damage += parseFloat(split);
+				if(!isNaN(parseFloat(split[1]))){
+					Player.stats.maxDamage += parseFloat(split[1]);
+				}
+			}else{
+				let split = array.stats.poison.split('/');
+				Player.stats.poisonX += parseFloat(split[0]);
+				Player.stats.poisonY += parseFloat(split[1]);
+			}*/
+		}
+	}
+	if(array.set !== undefined){
+		Dom.inventory.noSet = false;
+		for(let i = 0; i < Items.set[array.set].armour.length; i++){
+			if(Player.inventory.helm.name !== Items.set[array.set].armour[i] && Player.inventory.chest.name !== Items.set[array.set].armour[i] && Player.inventory.greaves.name !== Items.set[array.set].armour[i] && Player.inventory.boots.name !== Items.set[array.set].armour[i]){
+				// if the set bonus is NOT active
+				Dom.inventory.noSet = true;
+			}
+		}
+		if(!Dom.inventory.noSet){
+			for(let i = 0; i < Object.keys(Items.set[array.set].stats).length; i++){
+
+				if(Items.set[array.set].stats[Object.keys(Items.set[array.set].stats)[i]] !== true){
+					Player.stats[Object.keys(Items.set[array.set].stats)[i]] += Items.set[array.set].stats[Object.keys(Items.set[array.set].stats)[i]];
+				}else{
+					Player.stats[Object.keys(Items.set[array.set].stats)[i]] = true;
+				}
+				
+				/*if(Object.keys(Items.set[array.set].stats)[i] !== "poison" && Object.keys(Items.set[array.set].stats)[i] !== "damage" && Object.keys(Items.set[array.set].stats)[i] !== "frostaura"){
+					Player.stats[Object.keys(Items.set[array.set].stats)[i]] += parseFloat(Items.set[array.set].stats[Object.keys(Items.set[array.set].stats)[i]]);
+				}else if(Object.keys(Items.set[array.set].stats)[i] === "frostaura"){
+					Player.stats.frostaura = true;
+				}else if(Object.keys(Items.set[array.set].stats)[i] === "damage"){
+					Player.stats.damage += parseFloat(Items.set[array.set].stats.damage);
+					if(Player.class === "m"){
+						Player.stats.maxDamage += parseFloat(Items.set[array.set].stats.damage);
+					}
+				}else{
+					let split = Items.set[array.set].stats.poison.split('/');
+					Player.stats.poisonX += parseFloat(split[0]);
+					Player.stats.poisonY += parseFloat(split[1]);
+				}*/
+			}
+			if(Items.set[array.set].multiplier !== undefined){
+				for(let x = 0; x < Items.set[array.set].multiplier.length; x++){
+					// repeats for each slot that the multiplier applies to (e.g. helm, chest...)
+					for(let i = 0; i < Items.set[array.set].multiplier[x].slots.length; i++){
+						// adds the multiplied stat for each intended slot to the player stats
+						Player.stats[Player.inventory[Items.set[array.set].multiplier[x].slots[i]][Items.set[array.set].multiplier[x].stat]] += (Items.set[array.set].multiplier[x].multiplier-1) * Player.inventory[Items.set[array.set].multiplier[x].slots[i]].stats[Player.inventory[Items.set[array.set].multiplier[x].slots[i]][Items.set[array.set].multiplier[x].stat]];
 					}
 				}
 			}
@@ -2672,7 +2797,6 @@ Dom.buyer.page = function(npc){
 	}
 }
 
-Dom.currentNPC = {};
 Dom.choose.page = function(npc, buttons, functions, parameters){
 	let name = npc.name !== undefined ? npc.name : npc; // for cases like Goblin Torch
 	if(npc.constructor.name === "NPC" && !Player.metNPCs.includes(name)){

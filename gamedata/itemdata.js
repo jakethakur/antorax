@@ -28,7 +28,7 @@ var Items = {
 			obtain: "Can be found as an unidentified item in areas around Eaglecrest Logging Camp.",
 			area: "loggingCamp",
 			stats: {
-				defence: "+2",
+				defence: 2,
 			},
 		},
 		{
@@ -44,8 +44,8 @@ var Items = {
 			area: "loggingCamp",
 			set: 3,
 			stats: {
-				defence: "+3",
-				looting: "+10%",
+				defence: 3,
+				looting: 10,
 			},
 		},
 		{
@@ -61,8 +61,8 @@ var Items = {
 			area: "loggingCamp",
 			set: 2,
 			stats: {
-				defence: "+3",
-				healthRegen: "+0.25/s",
+				defence: 3,
+				healthRegen: 0.25,
 			},
 		},
 		{
@@ -77,8 +77,8 @@ var Items = {
 			obtain: "Can be found as an unidentified item in areas around Eaglecrest Logging Camp.",
 			area: "loggingCamp",
 			stats: {
-				defence: "+3",
-				reflection: "+50%",
+				defence: 3,
+				reflection: 50,
 			},
 		},
 		{
@@ -93,12 +93,12 @@ var Items = {
 			obtain: "Can be found in a sunken chest in a tier 1 fishing area.",
 			set: 4,
 			stats: {
-				defence: "+3",
+				defence: 3,
 			},
 			chooseStats: {
-				criticalChance: "+5%",
-				dodgeChance: "+5%",
-				reflection: "+10%",
+				criticalChance: 5,
+				dodgeChance: 5,
+				reflection: 10,
 			},
 			functionText: "Click to choose stat:",
 			archaeologyFunctionText: "One of the following stats may be chosen:",
@@ -114,9 +114,9 @@ var Items = {
 			obtain: "Buy from a merchant during the Christmas event.",
 			sellPrice: 4,
 			stats: {
-				defence: "+2",
-				looting: "+10%",
-				xpBonus: "+20%",
+				defence: 2,
+				looting: 10,
+				xpBonus: 20,
 			},
 		},
 	],
@@ -147,7 +147,7 @@ var Items = {
 			obtain: "Can be found as an unidentified item in areas around Eaglecrest Logging Camp.",
 			area: "loggingCamp",
 			stats: {
-				defence: "+3",
+				defence: 3,
 			},
 		},
 		{
@@ -163,8 +163,8 @@ var Items = {
 			area: "loggingCamp",
 			set: 3,
 			stats: {
-				defence: "+4",
-				looting: "+10%",
+				defence: 4,
+				looting: 10,
 			},
 		},
 		{
@@ -180,8 +180,8 @@ var Items = {
 			area: "loggingCamp",
 			set: 2,
 			stats: {
-				defence: "+4",
-				healthRegen: "+0.25/s",
+				defence: 4,
+				healthRegen: 0.25,
 			},
 		},
 		{
@@ -196,8 +196,8 @@ var Items = {
 			obtain: "Can be found as an unidentified item in areas around Eaglecrest Logging Camp.",
 			area: "loggingCamp",
 			stats: {
-				defence: "+8",
-				walkSpeed: "-80/s",
+				defence: 8,
+				walkSpeed: -80,
 			},
 		},
 		{
@@ -212,12 +212,12 @@ var Items = {
 			obtain: "Can be found in a sunken chest in a tier 1 fishing area.",
 			set: 4,
 			stats: {
-				defence: "+4",
+				defence: 4,
 			},
 			chooseStats: {
-				criticalChance: "+5%",
-				dodgeChance: "+5%",
-				reflection: "+10%",
+				criticalChance: 5,
+				dodgeChance: 5,
+				reflection: 10,
 			},
 			functionText: "Click to choose stat:",
 			archaeologyFunctionText: "One of the following stats may be chosen:",
@@ -233,8 +233,8 @@ var Items = {
 			lore: "Evil haunted sheet. Also doubles as an evil haunted blanket.",
 			obtain: "Buy from a merchant during the Samhain event.",
 			stats: {
-				defence: "+1",
-				dodgeChance: "+40%",
+				defence: 1,
+				dodgeChance: 40,
 			},
 		},
 	],
@@ -252,8 +252,7 @@ var Items = {
 			name: "",
 			type: "greaves",
 			image: "assets/items/greaves/1.png",
-			stats: {
-			},
+			stats: {},
 		},
 		{
 			id: 2,
@@ -266,7 +265,7 @@ var Items = {
 			obtain: "Can be found as an unidentified item in areas around Eaglecrest Logging Camp.",
 			area: "loggingCamp",
 			stats: {
-				defence: "+3",
+				defence: 3,
 			},
 		},
 		{
@@ -282,8 +281,8 @@ var Items = {
 			area: "loggingCamp",
 			set: 3,
 			stats: {
-				defence: "+4",
-				looting: "+10%",
+				defence: 4,
+				looting: 10,
 			},
 		},
 		{
@@ -299,8 +298,8 @@ var Items = {
 			area: "loggingCamp",
 			set: 2,
 			stats: {
-				defence: "+4",
-				healthRegen: "+0.25/s",
+				defence: 4,
+				healthRegen: 0.25,
 			},
 		},
 		{
@@ -315,9 +314,9 @@ var Items = {
 			obtain: "Can be found as an unidentified item in areas around Eaglecrest Logging Camp.",
 			area: "loggingCamp",
 			stats: {
-				defence: "+4",
-				dodgeChance: "+20%",
-				healthRegen: "+0.5/s",
+				defence: 4,
+				dodgeChance: 20,
+				healthRegen: 0.5,
 			},
 		},
 		{
@@ -332,12 +331,12 @@ var Items = {
 			obtain: "Can be found in a sunken chest in a tier 1 fishing area.",
 			set: 4,
 			stats: {
-				defence: "+4",
+				defence: 4,
 			},
 			chooseStats: {
-				criticalChance: "+5%",
-				dodgeChance: "+5%",
-				reflection: "+10%",
+				criticalChance: 5,
+				dodgeChance: 5,
+				reflection: 10,
 			},
 			functionText: "Click to choose stat:",
 			archaeologyFunctionText: "One of the following stats may be chosen:",
@@ -370,8 +369,8 @@ var Items = {
 			lore: "Protects you from splinters. And goblins!",
 			obtain: "Receive as a reward for completing quest: 'To the Logging Camp'.",
 			stats: {
-				defence: "+1",
-				walkSpeed: "+30/s",
+				defence: 1,
+				walkSpeed: 30,
 			},
 		},
 		{
@@ -385,7 +384,7 @@ var Items = {
 			obtain: "Can be found as an unidentified item in areas around Eaglecrest Logging Camp.",
 			area: "loggingCamp",
 			stats: {
-				defence: "+2",
+				defence: 2,
 			},
 		},
 		{
@@ -401,8 +400,8 @@ var Items = {
 			area: "loggingCamp",
 			set: 3,
 			stats: {
-				defence: "+3",
-				looting: "+10%",
+				defence: 3,
+				looting: 10,
 			},
 		},
 		{
@@ -418,8 +417,8 @@ var Items = {
 			area: "loggingCamp",
 			set: 2,
 			stats: {
-				defence: "+3",
-				healthRegen: "+0.25/s",
+				defence: 3,
+				healthRegen: 0.25,
 			},
 		},
 		{
@@ -434,12 +433,12 @@ var Items = {
 			obtain: "Can be found as an unidentified item in areas around Eaglecrest Logging Camp.",
 			area: "loggingCamp",
 			stats: {
-				defence: "+2",
-				criticalChance: "+10%",
-				dodgeChance: "+10%",
-				healthRegen: "+0.5/s",
-				looting: "+25%",
-				walkSpeed: "+30/s",
+				defence: 2,
+				criticalChance: 10,
+				dodgeChance: 10,
+				healthRegen: 0.5,
+				looting: 25,
+				walkSpeed: 30,
 			},
 		},
 		{
@@ -453,8 +452,8 @@ var Items = {
 			lore: "'James just feels like poison' - Peter",
 			obtain: "Log in on James Day.",
 			stats: {
-				defence: "+4",
-				swimSpeed: "-50/s"
+				defence: 4,
+				swimSpeed: -50,
 			},
 		},
 		{
@@ -469,12 +468,12 @@ var Items = {
 			obtain: "Can be found in a sunken chest in a tier 1 fishing area.",
 			set: 4,
 			stats: {
-				defence: "+3",
+				defence: 3,
 			},
 			chooseStats: {
-				criticalChance: "+5%",
-				dodgeChance: "+5%",
-				reflection: "+10%",
+				criticalChance: 5,
+				dodgeChance: 5,
+				reflection: 10,
 			},
 			functionText: "Click to choose stat:",
 			archaeologyFunctionText: "One of the following stats may be chosen:",
@@ -490,8 +489,8 @@ var Items = {
 			obtain: "Buy from a merchant during the Christmas event.",
 			sellPrice: 4,
 			stats: {
-				defence: "+3",
-				iceSpeed: "+30",
+				defence: 3,
+				iceSpeed: 30,
 			},
 		},
 	],
@@ -521,8 +520,8 @@ var Items = {
 			sellPrice: 1,
 			obtain: "Purchase from a merchant in the Fishers' Valley.",
 			stats: {
-				damage: "2",
-				blockDefence: "+10",
+				damage: 2,
+				blockDefence: 10,
 			},
 		},
 		{
@@ -536,8 +535,8 @@ var Items = {
 			obtain: "Can be found as an unidentified item in areas around Eaglecrest Logging Camp.",
 			area: "loggingCamp",
 			stats: {
-				damage: "3",
-				blockDefence: "+12",
+				damage: 3,
+				blockDefence: 12,
 			},
 		},
 		{
@@ -552,9 +551,10 @@ var Items = {
 			obtain: "Can be found as an unidentified item in areas around Eaglecrest Logging Camp.",
 			area: "loggingCamp",
 			stats: {
-				damage: "3",
-				poison: "1.5/3s",
-				blockDefence: "+14",
+				damage: 3,
+				poisonX: 1.5,
+				poisonY: 3,
+				blockDefence: 14,
 			},
 		},
 		{
@@ -569,9 +569,9 @@ var Items = {
 			obtain: "Can be found as an unidentified item in areas around Eaglecrest Logging Camp.",
 			area: "loggingCamp",
 			stats: {
-				damage: "4",
-				criticalChance: "+10%",
-				blockDefence: "+8",
+				damage: 4,
+				criticalChance: 10,
+				blockDefence: 8,
 			},
 		},
 		{
@@ -586,9 +586,9 @@ var Items = {
 			obtain: "Can be found as an unidentified item in areas around Eaglecrest Logging Camp.",
 			area: "loggingCamp",
 			stats: {
-				damage: "4",
-				stun: "0.5s",
-				blockDefence: "+15",
+				damage: 4,
+				stun: 0.5,
+				blockDefence: 15,
 			},
 		},
 		{
@@ -603,9 +603,9 @@ var Items = {
 			obtain: "Buy from a merchant during the Samhain event.",
 			sellPrice: 4,
 			stats: {
-				damage: "3",
-				lifesteal: "25%",
-				blockDefence: "+14",
+				damage: 3,
+				lifesteal: 25,
+				blockDefence: 14,
 			},
 			projectile: "slashBlood",
 			projectileAdjust: {x: 20, y: 20},
@@ -621,9 +621,9 @@ var Items = {
 			obtain: "Buy from a merchant during the Christmas event.",
 			sellPrice: 4,
 			stats: {
-				damage: "8",
-				reloadTime: "+500",
-				blockDefence: "+16",
+				damage: 8,
+				reloadTime: 500,
+				blockDefence: 16,
 			},
 			projectile: "slashFrost",
 			projectileAdjust: {x: 20, y: 20},
@@ -655,7 +655,8 @@ var Items = {
 			sellPrice: 1,
 			obtain: "Purchase from a merchant in the Fishers' Valley.",
 			stats: {
-				damage: "2-6",
+				damage: 2,
+				maxDamage: 6,
 			},
 		},
 		{
@@ -669,7 +670,8 @@ var Items = {
 			obtain: "Can be found as an unidentified item in areas around Eaglecrest Logging Camp.",
 			area: "loggingCamp",
 			stats: {
-				damage: "3-9",
+				damage: 3,
+				maxDamage: 9,
 			},
 		},
 		{
@@ -685,8 +687,9 @@ var Items = {
 			obtain: "Can be found as an unidentified item in areas around Eaglecrest Logging Camp.",
 			area: "loggingCamp",
 			stats: {
-				damage: "3-9",
-				healthRegen: "+0.5/s",
+				damage: 3,
+				maxDamage: 9,
+				healthRegen: 0.5,
 			},
 		},
 		{
@@ -702,8 +705,9 @@ var Items = {
 			obtain: "Can be found as an unidentified item in areas around Eaglecrest Logging Camp.",
 			area: "loggingCamp",
 			stats: {
-				damage: "2-12",
-				criticalChance: "+25%",
+				damage: 2,
+				maxDamage: 12,
+				criticalChance: 25,
 			},
 		},
 		{
@@ -719,8 +723,9 @@ var Items = {
 			obtain: "Can be found as an unidentified item in areas around Eaglecrest Logging Camp.",
 			area: "loggingCamp",
 			stats: {
-				damage: "2-8",
-				looting: "+100%",
+				damage: 2,
+				maxDamage: 8,
+				looting: 100,
 			},
 		},
 		{
@@ -735,7 +740,7 @@ var Items = {
 			quest: true,
 			lore: "Hates the goblins just as much as you do.",
 			stats: {
-				damage: "2",
+				damage: 2,
 				flaming: 1,
 			},
 			chat: {
@@ -756,7 +761,8 @@ var Items = {
 			obtain: "Buy from a merchant during the Samhain event.",
 			sellPrice: 4,
 			stats: {
-				damage: "3.5-10.5",
+				damage: 3.5,
+				maxDamage: 10.5,
 			},
 			onKill: function () {
 				// give speed to player
@@ -783,7 +789,8 @@ var Items = {
 			obtain: "Buy from a merchant during the Christmas event.",
 			sellPrice: 4,
 			stats: {
-				damage: "3-9",
+				damage: 3,
+				maxDamage: 9,
 				frostaura: true,
 			},
 			projectile: "frostball",
@@ -816,7 +823,7 @@ var Items = {
 			sellPrice: 1,
 			obtain: "Purchase from a merchant in the Fishers' Valley.",
 			stats: {
-				damage: "2",
+				damage: 2,
 			},
 		},
 		{
@@ -830,7 +837,7 @@ var Items = {
 			obtain: "Can be found as an unidentified item in areas around Eaglecrest Logging Camp.",
 			area: "loggingCamp",
 			stats: {
-				damage: "3",
+				damage: 3,
 			},
 		},
 		{
@@ -845,8 +852,8 @@ var Items = {
 			obtain: "Can be found as an unidentified item in areas around Eaglecrest Logging Camp.",
 			area: "loggingCamp",
 			stats: {
-				damage: "3",
-				focusSpeed: "+1/s",
+				damage: 3,
+				focusSpeed: 1,
 			},
 		},
 		{
@@ -861,8 +868,8 @@ var Items = {
 			obtain: "Can be found as an unidentified item in areas around Eaglecrest Logging Camp.",
 			area: "loggingCamp",
 			stats: {
-				damage: "2.5",
-				criticalChance: "+70%",
+				damage: 2.5,
+				criticalChance: 70,
 			},
 		},
 		{
@@ -877,7 +884,7 @@ var Items = {
 			obtain: "Can be found as an unidentified item in areas around Eaglecrest Logging Camp.",
 			area: "loggingCamp",
 			stats: {
-				damage: "4",
+				damage: 4,
 				flaming: 1,
 			},
 		},
@@ -892,7 +899,7 @@ var Items = {
 			obtain: "Buy from a merchant during the Samhain event.",
 			sellPrice: 4,
 			stats: {
-				damage: "3.5",
+				damage: 3.5,
 			},
 			onAttack: function (enemy) {
 				// give slowness to enemy
@@ -918,7 +925,7 @@ var Items = {
 			lore: "Throw it at someone you don't like",
 			uncollectable: true,
 			stats: {
-				damage: "0",
+				damage: 0,
 			},
 			onAnyAttack: function (projectile) {
 				Dom.inventory.removeById(8, "bow");
@@ -958,8 +965,7 @@ var Items = {
 			image: "assets/items/rod/3.png",
 			rarity: "mythic",
 			lore: "",
-			stats: {
-			},
+			stats: {},
 		},
 		{
 			id: 1,
@@ -968,8 +974,7 @@ var Items = {
 			image: "assets/items/rod/3.png",
 			rarity: "mythic",
 			lore: "",
-			stats: {
-			},
+			stats: {},
 		},
 		{
 			id: 2,
@@ -979,8 +984,7 @@ var Items = {
 			rarity: "common",
 			sellPrice: 3,
 			lore: "A fine rod.",
-			stats: {
-			},
+			stats: {},
 		},
 		{
 			id: 3,
@@ -989,8 +993,7 @@ var Items = {
 			image: "assets/items/rod/3.png",
 			rarity: "common",
 			sellPrice: 1,
-			stats: {
-			},
+			stats: {},
 		},
 		{
 			id: 4,
@@ -1001,8 +1004,7 @@ var Items = {
 			sellPrice: 5,
 			functionText: "Has a small chance to fish up a Christmas Present",
 			lore: "Not for consumption.",
-			stats: {
-			},
+			stats: {},
 		},
 	],
 	set: [
@@ -1035,8 +1037,8 @@ var Items = {
 				"Siege Boots",
 			],
 			stats: {
-				defence: "+5",
-				healthRegen: "+0.5/s",
+				defence: 5,
+				healthRegen: 0.5,
 			},
 		},
 		{
@@ -1054,8 +1056,8 @@ var Items = {
 				"Goblin Forged Boots",
 			],
 			stats: {
-				looting: "+30%",
-				walkSpeed: "+60/s",
+				looting: 30,
+				walkSpeed: 60,
 			},
 		},
 		{
@@ -1073,7 +1075,7 @@ var Items = {
 				"The Ocean Warrior's Boots",
 			],
 			stats: {
-				swimSpeed: "+120/s", // perhaps display as water walking?
+				swimSpeed: 120, // perhaps display as water walking?
 			},
 			multiplier: [
 				// double chosen stats

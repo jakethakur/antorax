@@ -70,34 +70,34 @@ var Player = {
 	
 	// updated by DOM
 	stats: {
-		damage: 0,
-		defence: 0,
+		damage: 0, // (8)n
+		defence: 0, // (4)n
 		maxHealth: 50,
 		range: 0, // set in Game.inventoryUpdate based off of WeaponRanges in itemdata.js
 		rangeModifier: 0, // added to the player's base range (based off of WeaponRanges)
-		reloadTime: 500, // time that must be taken between attack channel finish and channel start (in ms)
-		criticalChance: 1,
-		dodgeChance: 1,
-		flaming: 0,
-		healthRegen: 0.5,
-		looting: 100,
-		poisonX: 0, // the total damage dealt after the main attack
+		reloadTime: 500, // (0.5s)s time that must be taken between attack channel finish and channel start (in ms)
+		criticalChance: 1, // (1%)n
+		dodgeChance: 1, // (1%)n
+		flaming: 0, // (I)s
+		healthRegen: 0.5, // (0.5/s)n
+		looting: 100, // (110%)n
+		poisonX: 0, // (1.5/3s)s the total damage dealt after the main attack
 		poisonY: 0, // the number of seconds that damage is dealt over after the main attack
-		reflection: 0,
-		stun: 0,
-		swimSpeed: 60,
-		walkSpeed: 180,
-		iceSpeed: 270,
+		reflection: 0, // (50%)n
+		stun: 0, // (0.5s)n
+		swimSpeed: 60, // (300/s)n
+		walkSpeed: 180, // (300/s)n
+		iceSpeed: 270, // (300/s)n
 		variance: 0, // default variance projectiles when 600px away - set to 100 by default for any archer weapons; can be overriden in itemdata
-		focusSpeed: 1, // archers only (speed that the variant for archer projectiles gets smaller)
-		maxDamage: 0, // mages only (damage done when channelled)
-		blockDefence: 0, // knights only
-		lifesteal: 0,
-		xpBonus: 0,
-		frostaura: false,
-		
+		focusSpeed: 1, // (1/s)n archers only (speed that the variant for archer projectiles gets smaller)
+		maxDamage: 0, // (3-9)s mages only (damage done when channelled)
+		blockDefence: 0, // (16)n knights only
+		lifesteal: 0, // (10%)n
+		xpBonus: 0, // (20%)n
+		frostaura: false, // s
+	
 		// fishing
-		fishingSkill: 0, // increased when you fish stuff up (increased by main.js)
+		fishingSkill: 0, // (1.1)n increased when you fish stuff up (increased by main.js)
 	},
 	
 	//

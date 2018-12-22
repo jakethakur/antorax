@@ -14,7 +14,7 @@ let previousHeight = window.innerHeight;
 let previousName = "";
 
 function validate(strValue) {
-	let objRegExp  = /^[a-zA-Z0-9_\u00C0-\u00ff]+$/;
+	let objRegExp  = /^[a-zA-Z'\u00C0-\u00ff]+$/;
 	if(!objRegExp.test(strValue)){
 		objRegExp  = /^$/;
 		return objRegExp.test(strValue);
