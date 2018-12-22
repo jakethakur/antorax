@@ -488,10 +488,10 @@ var Areas = {
 						: Player.class === "a" ? [{item: Items.bow[2], cost: 3,},]
 						: [],
 						role: "merchant",
+						shopGreeting: "Would you like to buy anything?",
 					},
 				],
 				chat: {
-					shopGreeting: "Would you like to buy anything?",
 					shopLeave: "Come back some time.",
 					inventoryFull: "Looks like your bag's too full! Empty it a bit and come back.",
 					tooPoor: "You can't afford that item. Kill some enemies and come back.",
@@ -545,6 +545,7 @@ var Areas = {
 						roleRequirement: function () {
 							return Player.quests.completedQuestArray.includes("Learning to Fish II") || Player.quests.activeQuestArray.includes("Learning to Fish II");
 						},
+						shopGreeting: "You can always buy a lure to fish up more. Heheh, that rhymed!",
 					},
 					{
 						sold: [
@@ -556,12 +557,12 @@ var Areas = {
 						roleRequirement: function () {
 							return Player.quests.completedQuestArray.includes("Learning to Fish III");
 						},
+						shopGreeting: "If you do enough fishing, you can get some rare items. Heheh.",
 					},
 				],
 				chat: {
 					notUnlockedRoles: "It's a great day to fish, heheh.",
 					chooseChat: "Caught a big one?",
-					shopGreeting: "You can always buy a lure to fish up more. Heheh, that rhymed!",
 					shopLeave: "Heheh, see you soon!",
 					inventoryFull: "You've lots of fish in your bags, but you've not any space for your rewards!",
 					tooPoor: "You can't afford that, but don't let that stop ya from fishing!",
@@ -915,7 +916,8 @@ var Areas = {
 						],
 						roleRequirement: function () {
 							return Game.event === "Christmas";
-						}
+						},
+						shopGreeting: "I have some special weapons you can purchase this Christmas.",
 					},
 				],
 				chat: {
@@ -923,7 +925,6 @@ var Areas = {
 					questComplete: "You can always check your adventure log if you need to brush up on your combat skills.",
 					inventoryFull: "Empty your bags some. You have no space for your rewards.",
 					chooseChat: `I trust your combat is going fine, ${Player.name}.`,
-					shopGreeting: "I have some special weapons you can purchase this Christmas.", // TBD move to role
 					shopLeave: "I wish you the best in your battles.",
 					tooPoor: "You can't afford that. You know what to do - Kill!",
 				},
@@ -1073,13 +1074,13 @@ var Areas = {
 						roleText: "I need some more goblin traps.",
 						roleRequirement: function () {
 							return Player.quests.activeQuestArray.includes("Strengthening Defences") || Player.quests.activeQuestArray.includes("Reinforcing Defences");
-						}
+						},
+						shopGreeting: "If you're out of traps, I'll give you some more.",
 					},
 				],
 				chat: {
 					notUnlockedRoles: "I think we have enough traps out at the moment. Come back in a bit.",
 					chooseChat: "How's it going?",
-					shopGreeting: "If you're out of traps, I'll give you some more.",
 					shopLeave: "Let's crush those goblins.",
 					inventoryFull: "Empty your inventory a bit and come back.",
 					questComplete: "I'll have more traps for you to place in a bit. Come back tomorrow.",
@@ -1153,14 +1154,14 @@ var Areas = {
 						role: "merchant",
 						roleRequirement: function () {
 							return Player.quests.completedQuestArray.includes("Retrieval of Logs");
-						}
+						},
+						shopGreeting: "I can sell you some second-hand equipment for a reduced price.",
 					},
 				],
 				chat: {
 					chooseChat: "Hello, how are you?",
 					notUnlockedRoles: "I'm not sure you have anything I can buy from you. Come back a bit later.",
 					buyerGreeting: "I'll happily buy any items that you're willing to part with.",
-					shopGreeting: "I can sell you some second-hand equipment for a reduced price.",
 					shopLeave: "Have a good day now.",
 					inventoryFull: "I'm not sure you have any space to carry that.",
 					tooPoor: "I don't think you have enough gold to buy that. Sorry.",
@@ -1202,13 +1203,13 @@ var Areas = {
 						role: "merchant",
 						roleRequirement: function () {
 							return Player.level > 2;
-						}
+						},
+						shopGreeting: "Want to buy a potion? Of course you do.",
 					},
 				],
 				chat: {
 					chooseChat: "Making potions isn't child's play.",
 					notUnlockedRoles: "I've been told you're not a high enough level to handle my potions.",
-					shopGreeting: "Want to buy a potion? Of course you do.",
 					shopLeave: "Side effects? No. Trust me.",
 					inventoryFull: "You don't want to be carrying a potion with an inventory as full as yours. Come back with some free space.",
 					tooPoor: "You're not going to be able to buy that potion without enough gold.",
@@ -1377,13 +1378,13 @@ var Areas = {
 						roleRequirement: function () {
 							return Player.quests.completedQuestArray.includes("A drink on us!");
 						},
+						shopGreeting: "Only the finest food 'n' drink here.",
 					},
 				],
 				chat: {
 					questProgress: "Girls! Make some room by the hearth, won't ya!",
 					chooseChat: "Oh ho ho! It's good to see ya again!",
 					notUnlockedRoles: "I'v never seen ya 'round 'ere before!",
-					shopGreeting: "Only the finest food 'n' drink here.",
 					shopLeave: "See ya soon!",
 					inventoryFull: "How're ya gonna hold that?!",
 					tooPoor: "Ya can't afford that.",
@@ -1587,10 +1588,10 @@ var Areas = {
 						],
 						role: "merchant",
 						roleText: "I'd like to browse your Samhain event items.",
+						shopGreeting: "I can exchange items from my realm with Samhain Marks for a limited time.",
 					},
 				],
 				chat: {
-					shopGreeting: "I can exchange items from my realm with Samhain Marks for a limited time.",
 					shopLeave: "You'll be back.",
 					inventoryFull: "You cannot hold that.",
 					tooPoor: "You cannot afford that. Kill more enemies.",
@@ -1613,6 +1614,9 @@ var Areas = {
 				disappearAfterOpened: false,
 				canBeShown: function () {
 					return (Player.quests.activeQuestArray.includes("First Class Recovery") || Player.quests.completedQuestArray.includes("First Class Recovery"));
+				},
+				canBeLooted: function () {
+					return (Player.quests.activeQuestArray.includes("First Class Recovery") && !Dom.inventory.check(6, "item", 1));
 				},
 			},
 		],
@@ -1971,7 +1975,7 @@ var Areas = {
 	nilbogTower3: {
 		
 		data: {
-			name: "Nilbog Tower",
+			name: "Nilbog Tower Library",
 			level: "Level 3 - 5",
 			territory: "Hostile territory",
 			displayOnEnter: false,
@@ -2309,6 +2313,94 @@ var Areas = {
 				y: 450,
 				template: EnemyTemplates.nilbog.goblinCrusader,
 			},
+		],
+	},
+	
+	nilbogTower5: {
+		
+		data: {
+			name: "Nilbog Tower",
+			level: "Level 3 - 5",
+			territory: "Hostile territory",
+			displayOnEnter: false,
+		},
+		
+		indoors: true,
+
+		mapData: {
+			cols: 10,
+			rows: 10,
+			tsize: 60,
+			tilesPerRow: 4,
+			solidTiles: [1, 2, 3, 5, 6, 7, 8, 9, 10, 12], // walls & downwards stairs
+			layers: [    
+				[10, 8, 12, 8, 12, 8, 12, 8, 12, 9, 8, 12, 8, 12, 8, 12, 8, 12, 8, 12, 10, 9, 10, 9, 10, 9, 10, 9, 10, 9, 11, 13, 13, 13, 13, 13, 13, 13, 13, 11, 16, 17, 18, 17, 18, 17, 18, 17, 18, 14, 16, 18, 17, 18, 17, 18, 17, 18, 17, 14, 16, 17, 18, 17, 18, 17, 18, 17, 18, 14, 16, 18, 17, 18, 17, 18, 17, 18, 17, 14, 11, 15, 15, 15, 15, 15, 15, 15, 15, 11, 11, 6, 7, 11, 11, 11, 11, 11, 11, 11],
+				[],
+			],
+		},
+		
+		images: {
+			tiles: {normal: "./assets/tilemap/nilbogTower.png"},
+			stairs: {normal: "./assets/objects/stairs.png"},
+			painting: {normal: "./assets/objects/paintingDesert.png"}, // image to be renamed
+			goblinCrusader: {normal: "./assets/enemies/goblinCrusader.png"},
+			goblinCorpse: {normal: "./assets/corpses/deadGoblin.png"},
+			melee: {normal: "./assets/projectiles/melee.png"},
+		},
+		
+		song_day: "./assets/music/Pippin-the-Hunchback-boss.mp3",
+		
+		checkpoint: false,
+		
+		areaTeleports: [
+			{
+				// teleport to floor 4
+				x: 177,
+				y: 600,
+				width: 10,
+				height: 10,
+				teleportTo: "nilbogTower4",
+				destinationX: 500,
+				destinationY: 10,
+			},
+		],
+		
+		onAreaLoad: function () {
+			// stair animations
+			if (Game.hero.y > 540) {
+				// move up stairs
+				Game.hero.direction = 2;
+				Game.hero.moveTowards = {
+					x: 15,
+					y: 520,
+					speedScalar: 0.6,
+				};
+			}
+		},
+		
+		tripwires: [
+			{
+				// going to bottom
+				x: 60,
+				y: 600,
+				width: 2,
+				height: 40,
+				collisionType: "feet",
+				onPlayerTouch: function () {
+					if (Game.hero.moveTowards === undefined) {
+						// walk down stairs
+						Game.hero.direction = 4;
+						Game.hero.moveTowards = {
+							x: 150,
+							y: 550,
+							speedScalar: 0.6,
+						};
+					}
+				}
+			},
+		],
+		
+		enemies: [
 		],
 	},
 };

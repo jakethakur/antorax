@@ -644,6 +644,11 @@ class Character extends Thing {
 				if (Player.inventory.weapon.chat !== undefined && Player.inventory.weapon.chat.kill !== undefined) {
 					Game.sayChat(Player.inventory.weapon.name, Player.inventory.weapon.chat.kill, false, 100, false)
 				}
+				
+				// death text
+				if (typeof this.chat.death !== "undefined") {
+					this.say(this.chat.death, true, 0, false);
+				}
 			}
 		}
 		else {
@@ -665,7 +670,7 @@ class Character extends Thing {
 				
 				this.health = this.stats.maxHealth;
 				
-				let ineffectiveAmount = Round(LevelXP[Game.hero.level] / 6); // amount of XP to be worth 50% less
+				let ineffectiveAmount = LevelXP[Game.hero.level] / 6; // amount of XP to be worth 50% less
 				let stacks = 1;
 				if (existingEffect !== undefined) {
 					ineffectiveAmount += existingEffect.info.ineffectiveAmount; // stack to an effect XP fatigue effect
@@ -674,6 +679,7 @@ class Character extends Thing {
 						ineffectiveAmount = LevelXP[Game.hero.level];
 					}
 				}
+				ineffectiveAmount = Math.round(ineffectiveAmount);
 				
 				// add stronger xp fatigue effect (or add one if the player doesn't already have one)
 				Game.hero.statusEffects.push(new statusEffect({
@@ -1452,9 +1458,13 @@ class Hero extends Attacker {
 			// check collision with loot chests
 			else if (interactionDone === 1) {
 				for (var i = 0; i < Game.chests.length; i++) {
-					if (this.isTouching(Game.chests[i]) && Game.chests[i].loot !== null && Dom.currentlyDisplayed === "") { // player is touching chest, chest can be looted, and DOM isn't occupied
-						Game.chests[i].openLoot(i);
-						interactionDone = true;
+					// player is touching chest, chest can be looted, and DOM isn't occupied
+					if (this.isTouching(Game.chests[i]) && Game.chests[i].loot !== null && Dom.currentlyDisplayed === "") {
+						// canBeLooted function
+						if (Game.chests[i].canBeLooted === undefined || Game.chests[i].canBeLooted()) {
+							Game.chests[i].openLoot(i);
+							interactionDone = true;
+						}
 					}
 					// should flash red if player can't loot it
 				}
@@ -1726,7 +1736,7 @@ class Projectile extends Thing {
 		for (var i = 0; i < to.length; i++) { // iterate through arrays of objects in to
 			for (var x = 0; x < to[i].length; x++) { // iterate through objects in to
 				Game.updateScreenPosition(this); // update projectile position
-				if (this.isTouching(to[i][x])) { // check projectile is touching character it wants to damage
+				if (this.isTouching(to[i][x]) && !to[i][x].respawning) { // check projectile is touching character it wants to damage
 					
 					if (Random(0, 99) < to[i][x].stats.dodgeChance) { // hit dodged
 						this.damageDealt.push({enemy: to[i][x], damage: "hit dodged", critical: false});
@@ -2223,14 +2233,16 @@ class LootChest extends Thing {
 		this.lootQuantities = properties.lootQuantities;
 		this.inventorySpace = properties.inventorySpace;
 		
-		this.disappearAfterOpened = properties.disappearAfterOpened; // whether it should hide straight after being looted
+		this.disappearAfterOpened = properties.disappearAfterOpened; // whether it should hide straight after being looted (hence deleting any remaining loot)
+		
+		this.canBeLooted = properties.canBeLooted; // optional function (returns false if the item is still shown but shouldn't be looted)
 	}
 	
 	openLoot (arrayIndex) {
 		Dom.choose.page(this, ["Loot chest"], [function (chest) {
 			Dom.loot.page(chest.name, chest.loot, chest.lootQuantities, chest.inventorySpace);
 			Dom.loot.currentId = "c"+arrayIndex;
-			// "c"+i is a string that allows the loot menu to be identified - c means enemy, and arrayIndex is the index of the enemy in Game.chests
+			// "c"+i is a string that allows the loot menu to be identified - c means chest, and arrayIndex is the index of the enemy in Game.chests
 			// the loot menu closes when the area changes anyway, so this will always work
 			// Dom.loot.currentId is only ever used in main, in the function Game.lootClosed() (called by index.html)
 		}], [[this]]);
@@ -3080,8 +3092,13 @@ Game.init = function () {
 	
 	// tell the player if they have unread mail
 	let unreadMail = Dom.mail.unread();
-	if (unreadMail > 0) {
+	if (unreadMail > 1) {
+		// plural
 		Dom.chat.insert("You have " + unreadMail + " new messages!", 0, false); // tbd - maybe make it more obvious that player has to check their mailbox for this?
+	}
+	else if (unreadMail > 0) {
+		// singular
+		Dom.chat.insert("You have " + unreadMail + " new message!", 0, false); // tbd - maybe make it more obvious that player has to check their mailbox for this?
 	}
 	
 	// music
@@ -3622,7 +3639,7 @@ Game.update = function (delta) {
 							
 							textArray.push(role.chooseText || "I'd like to browse your goods.");
 							functionArray.push(Dom.merchant.page);
-							parameterArray.push([npc, soldItems]);
+							parameterArray.push([npc, soldItems, role.shopGreeting]);
 						}
 						
 						// soul healers
@@ -3976,7 +3993,14 @@ Game.inventoryUpdate = function (e) {
 		Game.hero.stats = Player.stats; // inefficient (should be linked)
 		
 		// if the player is holding a weapon, set their range
-		Game.hero.stats.range = WeaponRanges[Player.inventory.weapon.type] + Game.hero.stats.rangeModifier;
+		if (Player.inventory.weapon.type !== undefined) {
+			// player has weapon equipped
+			Game.hero.stats.range = WeaponRanges[Player.inventory.weapon.type] + Game.hero.stats.rangeModifier;
+		}
+		else {
+			// no weapon equipped
+			Game.hero.stats.range = 0;
+		}
 		
 		// set player projectile
 		this.projectileUpdate();
@@ -4047,24 +4071,17 @@ Game.projectileUpdate = function () {
 	}
 }
 
-// called whenever a loot menu is closed, so that the remaining loot can be wiped
+// called whenever a loot menu is closed
 // called by index.html
-Game.lootClosed = function () {
+Game.lootClosed = function (itemsNotLooted) {
 	if (Dom.loot.currentId[0] === "e") {
 		// enemy loot menu closed
-		let arrayIndex = Dom.loot.currentId.substr(1);
-		Game.enemies[arrayIndex].loot = null;
-		Game.enemies[arrayIndex].lootQuantities = null;
 	}
 	else if (Dom.loot.currentId[0] === "c") {
 		// chest loot menu closed
 		let arrayIndex = Dom.loot.currentId.substr(1);
 		if (Game.chests[arrayIndex].disappearAfterOpened) {
 			Game.chests.splice(arrayIndex, 1);
-		}
-		else {
-			Game.chests[arrayIndex].loot = null;
-			Game.chests[arrayIndex].lootQuantities = null;
 		}
 	}
 	else if (Dom.loot.currentId[0] === "x") {
