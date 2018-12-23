@@ -596,11 +596,12 @@ var Areas = {
 						role: "merchant",
 						chooseText: "What have you got to sell this Christmas?",
 						sold: [
-							{item: Items.staff[9], cost: 25, costCurrency: 5,}, // Vulpric's Ice Staff
-							{item: Items.sword[8], cost: 25, costCurrency: 5,}, // Permafrost
+							{item: Items.bow[10], cost: 5, costCurrency: 5,}, // Snowball Cannon
+							{item: Items.staff[10], cost: 5, costCurrency: 5,}, // Vulpric's Ice Staff
+							{item: Items.sword[9], cost: 5, costCurrency: 5,}, // Permafrost
 						],
 						roleRequirement: function () {
-							return Game.event === "Christmas" && Player.completedQuestArray.contains("Combat Training");
+							return Game.event === "Christmas" && Player.quests.completedQuestArray.includes("Combat Training");
 						},
 						shopGreeting: "I have some special weapons you can purchase this Christmas.",
 					},
@@ -661,6 +662,19 @@ var Areas = {
 					{
 						role: "identifier",
 					},
+					{
+						role: "merchant",
+						chooseText: "tbd",
+						sold: [
+							{item: Items.bow[9], cost: 25, costCurrency: 5,}, // Snowball Cannon
+							{item: Items.staff[9], cost: 25, costCurrency: 5,}, // Vulpric's Ice Staff
+							{item: Items.sword[8], cost: 25, costCurrency: 5,}, // Permafrost
+						],
+						roleRequirement: function () {
+							return Game.event === "Christmas" && Player.quests.completedQuestArray.includes("Retrieval of Logs");
+						},
+						shopGreeting: "tbd",
+					},
 				],
 				chat: {
 					chooseChat: "Isn't studying the environment here just fascinating? I have envy of those dendrologists.",
@@ -670,6 +684,7 @@ var Areas = {
 					identifyUnique: "Hmm, this item is of rather fine quality, adventurer.",
 					identifyMythic: "Wow! Some people would pay good money for that item!",
 					tooPoor: "You don't have enough gold to identify that. Kill and loot enemies to get some.",
+					shopLeave: "tbd",
 				}
 			},
 			{

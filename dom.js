@@ -722,7 +722,7 @@ Dom.inventory.displayInformation = function(item, stacked, position){
 					}
 				}
 			}else{
-				document.getElementById("stats").innerHTML += "<br><br>Area: "+item.area;
+				document.getElementById("stats").innerHTML += "<br>Area: " + FromCamelCase(item.area);
 			}
 			if(item.set !== undefined){
 				// if the item is equipped
@@ -821,7 +821,7 @@ Dom.inventory.displayInformation = function(item, stacked, position){
 		if(item.fishingType === "fish"){
 			document.getElementById("stats").innerHTML = "Length: " + item.length + "cm";
 		}
-		if(item.quest){
+		if(item.quest !== undefined && item.quest()){
 			document.getElementById("stats").innerHTML = "<span style='color: slateblue;'>Quest item</span>" + (document.getElementById("stats").innerHTML !== "" ? "<br><br>"+document.getElementById("stats").innerHTML : "");
 		}else{
 			document.getElementById("stats").style.color = "black";
@@ -891,6 +891,9 @@ Dom.quest.start = function(quest){
 					}
 				}
 			}
+			/*if(quest.rewards.mystery){
+				document.getElementById("questStartItems").innerHTML += "<img src='assets/items/item/1.png' class='theseQuestOptions'><span class='questStackNum'></span></img>&nbsp;&nbsp;";
+			}*/
 		}else{
 			document.getElementById("questStartRewardsTitle").innerHTML = "";
 		}
@@ -965,10 +968,12 @@ Dom.quest.finish = function(quest){
 			document.getElementById("questFinishRewardsTitle").innerHTML = "<br><br><b>Quest Rewards</b><br>";
 			if(quest.rewards.items !== undefined){
 				for(let i = 0; i < quest.rewards.items.length; i++){
-					if(quest.rewards.items[i].quantity !== undefined && quest.rewards.items[i].quantity !== 1){
-						document.getElementById("questFinishItems").innerHTML += "<img src=" + quest.rewards.items[i].item.image + " class='theseQuestFinishOptions'><div class='questFinishStackNum'>"+quest.rewards.items[i].quantity+"</div></img>&nbsp;&nbsp;";
-					}else{
-						document.getElementById("questFinishItems").innerHTML += "<img src=" + quest.rewards.items[i].item.image + " class='theseQuestFinishOptions'><span class='questFinishStackNum'></span></img>&nbsp;&nbsp;";
+					if(quest.rewards.items[i].item.type !== "item" || quest.rewards.items[i].item.id !== 1){
+						if(quest.rewards.items[i].quantity !== undefined && quest.rewards.items[i].quantity !== 1){
+							document.getElementById("questFinishItems").innerHTML += "<img src=" + quest.rewards.items[i].item.image + " class='theseQuestFinishOptions'><div class='questFinishStackNum'>"+quest.rewards.items[i].quantity+"</div></img>&nbsp;&nbsp;";
+						}else{
+							document.getElementById("questFinishItems").innerHTML += "<img src=" + quest.rewards.items[i].item.image + " class='theseQuestFinishOptions'><span class='questFinishStackNum'></span></img>&nbsp;&nbsp;";
+						}
 					}
 				}
 			}
@@ -1024,7 +1029,9 @@ Dom.quest.accept = function(){
 Dom.quest.acceptRewards = function(){
 	if(Dom.currentlyDisplayed.rewards.items !== undefined){
 		for(let i = 0; i < Dom.currentlyDisplayed.rewards.items.length; i++){
-			Dom.inventory.give(Dom.currentlyDisplayed.rewards.items[i].item, Dom.currentlyDisplayed.rewards.items[i].quantity);
+			if(Dom.currentlyDisplayed.rewards.items[i].item.type !== "item" || Dom.currentlyDisplayed.rewards.items[i].item.id !== 1){
+				Dom.inventory.give(Dom.currentlyDisplayed.rewards.items[i].item, Dom.currentlyDisplayed.rewards.items[i].quantity);
+			}
 		}
 	}
 	if(Dom.currentlyDisplayed.removeItems !== undefined){
@@ -1655,7 +1662,7 @@ Dom.identifier.identify = function(npc){
 
 Dom.inventory.dispose = function(ev){
 	let quest = false;
-	if(!isNaN(parseInt(ev.dataTransfer.getData("text"))) && Player.inventory.items[parseInt(ev.dataTransfer.getData("text"))].quest){
+	if(!isNaN(parseInt(ev.dataTransfer.getData("text"))) && Player.inventory.items[parseInt(ev.dataTransfer.getData("text"))].quest !== undefined && Player.inventory.items[parseInt(ev.dataTransfer.getData("text"))].quest()){
 		// if it is a quest item
 		quest = true;
 	}
@@ -2575,7 +2582,10 @@ Dom.inventory.hideHotbar = function(hide){
 Dom.loot.page = function(name, items, space){
 	Dom.changeBook("lootPage", true/*false*/, true);
 	//Dom.currentlyDisplayed = name;
-	Dom.loot.looted = items.length;
+	Dom.loot.looted = [];
+	for(let i = 0; i < items.length; i++){
+		Dom.loot.looted.push(items[i]);
+	}
 	let spaces = [];
 	for(let i = 0; i < space; i++){
 		spaces.push(i);
@@ -2616,7 +2626,7 @@ Dom.loot.page = function(name, items, space){
 				}else{
 					Dom.alert.page("You do not have enough space in your inventory for that item.");
 				}
-				Dom.loot.looted--;
+				Dom.loot.looted.splice(document.getElementsByClassName("lootOptions")[i].id,1);
 			};
 			document.getElementsByClassName("lootStackNum")[i].onclick = function(){
 				Dom.expand("information");
@@ -2627,7 +2637,7 @@ Dom.loot.page = function(name, items, space){
 				}else{
 					Dom.alert.page("You do not have enough space in your inventory for that item.");
 				}
-				Dom.loot.looted--;
+				Dom.loot.looted.splice(document.getElementsByClassName("lootOptions")[i].id,1);
 			};
 			document.getElementsByClassName("lootOptions")[i].onmouseover = function(){
 				Dom.inventory.displayInformation(items[document.getElementsByClassName("lootOptions")[i].id].item, items[document.getElementsByClassName("lootOptions")[i].id].quantity);
@@ -2649,7 +2659,7 @@ Dom.loot.page = function(name, items, space){
 				}
 			}
 			Dom.changeBook(Player.tab, true);
-			Game.lootClosed(0);
+			Game.lootClosed([]);
 		}
 	},items ,space);
 }
@@ -3052,12 +3062,12 @@ Dom.mail.page = function(){
 	document.getElementById("mailPage").innerHTML += "<br><br><center><div class='closeClass' id='closeMail' onclick='Dom.changeBook(Player.tab, true)'>Close</div></center>";
 	for(let i = Player.mail.mail.length-1; i >= 0; i--){
 		let ii = Player.mail.mail.length-1-i;
-		if(Player.mail.mail[i].image.substring(0,7) === "assets/"){
+		if(Player.mail.mail[i].image.substring(0,2) === "./"){
 			document.getElementsByClassName("mailImage")[ii].style.backgroundImage = "url('"+Player.mail.mail[i].image+".png')";
-		}else if(Offsets[Player.mail.mail[i].image].image.substring(0,7) === "assets/"){
+		}else if(Offsets[Player.mail.mail[i].image].image.substring(0,2) === "./"){
 			document.getElementsByClassName("mailImage")[ii].style.backgroundImage = "url('"+Offsets[Player.mail.mail[i].image].image+".png')";
 		}else{
-			document.getElementsByClassName("mailImage")[ii].style.backgroundImage = "url('assets/npcs/"+Offsets[Player.mail.mail[i].image].image+".png')";
+			document.getElementsByClassName("mailImage")[ii].style.backgroundImage = "url('./assets/npcs/"+Offsets[Player.mail.mail[i].image].image+".png')";
 			document.getElementsByClassName("mailImage")[ii].style.backgroundPosition = Offsets[Player.mail.mail[i].image].x+"%"+Offsets[Player.mail.mail[i].image].y+"%";
 		}
 		document.getElementsByClassName("mailDelete")[ii].onclick = function(){
@@ -3134,7 +3144,15 @@ Dom.adventure.update = function(){
 
 // LOADS A NEW CLASS
 Dom.inventory.give(Items.currency[2],3);
-Dom.mail.give("Welcome to Antorax!", "The Tinkering Guild", "galuthelTheTrapMechanic", "text.page", ["Welcome to Antorax!",`Hello ${Player.name}!<br><br>It's great to have new people joining us in Antorax. I look forward to meeting you very soon in Wizard Island. Perhaps you would like to try out one of our newest inventions - the <camera name>! It's free of charge. Pop us a letter if it explodes, otherwise see you soon!<br><br>From the Tinkering Guild`, true, [], [], [[Items.item[14]]]], [[Items.item[14]]]);
+Dom.mail.give(
+	"Welcome to Antorax!",
+	"The Tinkering Guild",
+	"galuthelTheTrapMechanic",
+	"text.page",
+	["Welcome to Antorax!",
+	`Hello ${Player.name}!<br><br>It's great to have new people joining us in Antorax. I look forward to meeting you very soon in Wizard Island. Perhaps you would like to try out one of our newest inventions - the <camera name>! It's free of charge. Pop us a letter if it explodes, otherwise see you soon!<br><br>From the Tinkering Guild`,
+	true, [], [], [[Items.item[14]]]], [[Items.item[14]]]
+);
 
 // LOADS ALL EXISTING CLASS SAVEDATA
 if(localStorage.getItem(Player.class) !== null){
@@ -3192,6 +3210,7 @@ for(let i = 0; i < Player.inventory.items.length; i++){
 			Player.inventory.items[i].onKill = Items[Player.inventory.items[i].type][Player.inventory.items[i].id].onKill;
 			Player.inventory.items[i].onAttack = Items[Player.inventory.items[i].type][Player.inventory.items[i].id].onAttack;
 			Player.inventory.items[i].onAnyAttack = Items[Player.inventory.items[i].type][Player.inventory.items[i].id].onAnyAttack;
+			Player.inventory.items[i].quest = Items[Player.inventory.items[i].type][Player.inventory.items[i].id].quest;
 		}
 		document.getElementById("itemInventory").getElementsByTagName("td")[i].innerHTML = "<img src='"+Player.inventory.items[i].image+"' draggable='true' ondragstart='Dom.inventory.drag(event,"+i+")' "+(Player.inventory.items[i].onClick !== undefined ? "onclick='Player.inventory.items["+i+"].onClick("+i+")'" : "")+"></img>";
 		if(Player.inventory.items[i].stacked !== undefined && Player.inventory.items[i].stacked !== 1){
@@ -3234,6 +3253,7 @@ for(let i = 0; i < Object.keys(Player.inventory).length-1; i++){ // repeats for 
 			Player.inventory[Object.keys(Player.inventory)[i]].onKill = Items[Player.inventory[Object.keys(Player.inventory)[i]].type][Player.inventory[Object.keys(Player.inventory)[i]].id].onKill;
 			Player.inventory[Object.keys(Player.inventory)[i]].onAttack = Items[Player.inventory[Object.keys(Player.inventory)[i]].type][Player.inventory[Object.keys(Player.inventory)[i]].id].onAttack;
 			Player.inventory[Object.keys(Player.inventory)[i]].onAnyAttack = Items[Player.inventory[Object.keys(Player.inventory)[i]].type][Player.inventory[Object.keys(Player.inventory)[i]].id].onAnyAttack;
+			Player.inventory[Object.keys(Player.inventory)[i]].quest = Items[Player.inventory[Object.keys(Player.inventory)[i]].type][Player.inventory[Object.keys(Player.inventory)[i]].id].quest;
 			document.getElementById(Object.keys(Player.inventory)[i]).innerHTML = "<img src='"+Player.inventory[Object.keys(Player.inventory)[i]].image+"' draggable='true' ondragstart='Dom.inventory.drag(event,\""+Object.keys(Player.inventory)[i]+"\")' "+(Player.inventory[Object.keys(Player.inventory)[i]].onClick !== undefined ? "onclick='Player.inventory."+Object.keys(Player.inventory)[i]+".onClick(\""+Object.keys(Player.inventory)[i]+"\")'" : "")+"></img>"; // updates the image
 		}
 	}
@@ -3276,10 +3296,38 @@ for(let i = 0; i < Player.statusEffects.length; i++){
 }
 let randomNPC = Player.metNPCs[Random(0, Player.metNPCs.length-1)];
 if(GetFullDate().substring(2,4) === "12" && !Player.days.includes(GetFullDate())){
-	Dom.mail.give(25 - parseInt(GetFullDate().substring(0,2)) + " Days To Go!", randomNPC, ToCamelCase(randomNPC), "text.page", ["Merry Christmas!","This is your free daily chistmas token. Spend it wisely!", true, [], [], [[Items.currency[5]]]], [[Items.currency[5]]]);
+	Dom.mail.give(
+		25 - parseInt(GetFullDate().substring(0,2)) + " Days To Go!",
+		randomNPC,
+		ToCamelCase(randomNPC),
+		"text.page",
+		["Merry Christmas!",
+		"This is your free daily chistmas token. Spend it wisely!",
+		true, [], [], [[Items.currency[5]]]], [[Items.currency[5]]]
+	);
+	if(GetFullDate().substring(0,2) === "25" && !Player.days.includes(GetFullDate())){
+		Dom.mail.give(
+			"Merry Christmas!",
+			"Father Christmas",
+			"./selection/assets/m4/r",
+			"text.page",
+			["Merry Christmas!",
+			"Have a great Christmas! Please enjoy the 2018 Christmas gift.",
+			true, [], [], [[Items.item[17]]]], [[Items.item[17]]]
+		);
+	}
 }
 if(!Player.days.includes(GetFullDate())){
 	Player.days.push(GetFullDate());
+}
+
+// FIXES
+if(Player.chestsOpened === undefined){
+	Player.chestsOpened = {
+		nilbog: 0,
+		nilbogTower2: 0,
+		nilbogTower4: 0,
+	};
 }
 
 // TESTING
@@ -3300,6 +3348,6 @@ Dom.testing.completeQuest = function(quest){
 		Dom.quest.accept();
 	}
 	Dom.quest.finish(quest);
-	Dom.quest.acceptRewards();
+	//Dom.quest.acceptRewards();
 	return quest.quest
 }		

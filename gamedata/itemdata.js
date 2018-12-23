@@ -628,6 +628,22 @@ var Items = {
 			projectile: "slashFrost",
 			projectileAdjust: {x: 20, y: 20},
 		},
+		{
+			id: 9,
+			name: "Icicle",
+			type: "sword",
+			image: "assets/items/sword/9.png",
+			tier: 1,
+			rarity: "common",
+			lore: "",
+			obtain: "Buy from a merchant during the Christmas event.",
+			sellPrice: 2,
+			stats: {
+				damage: 3,
+			},
+			projectile: "slashFrost",
+			projectileAdjust: {x: 0, y: 0},
+		},
 	],
 	staff: [
 		{
@@ -737,7 +753,7 @@ var Items = {
 			allClasses: true,
 			tier: 1,
 			rarity: "unique",
-			quest: true,
+			quest: function(){return true;},
 			lore: "Hates the goblins just as much as you do.",
 			stats: {
 				damage: 2,
@@ -795,6 +811,22 @@ var Items = {
 			},
 			projectile: "frostball",
 			projectileAdjust: {x: 20, y: 20},
+		},
+		{
+			id: 10,
+			name: "Ice Staff",
+			type: "staff",
+			image: "assets/items/staff/10.png",
+			tier: 1,
+			rarity: "common",
+			lore: "",
+			obtain: "Buy from a merchant during the Christmas event.",
+			sellPrice: 2,
+			stats: {
+				damage: 3,
+			},
+			projectile: "frostball",
+			projectileAdjust: {x: 0, y: 0},
 		},
 	],
 	bow: [
@@ -956,6 +988,38 @@ var Items = {
 			projectile: "snowball",
 			projectileAdjust: {x: 0, y: 0},
 		},
+		{
+			id: 9,
+			name: "Snowball Cannon",
+			type: "bow",
+			image: "assets/items/bow/9.png",
+			tier: 1,
+			rarity: "unique",
+			lore: "Not for firing at Marshall Teper",
+			obtain: "Buy from a merchant during the Christmas event.",
+			sellPrice: 4,
+			stats: {
+				damage: 3,
+			},
+			projectile: "snowball",
+			projectileAdjust: {x: 0, y: 0},
+		},
+		{
+			id: 10,
+			name: "Crystal Bow",
+			type: "bow",
+			image: "assets/items/bow/10.png",
+			tier: 1,
+			rarity: "common",
+			lore: "",
+			obtain: "Buy from a merchant during the Christmas event.",
+			sellPrice: 2,
+			stats: {
+				damage: 3,
+			},
+			projectile: "arrowSnow",
+			projectileAdjust: {x: 0, y: 0},
+		},
 	],
 	rod: [ // fishing rod
 		{
@@ -985,6 +1049,9 @@ var Items = {
 			sellPrice: 3,
 			lore: "A fine rod.",
 			stats: {},
+			quest: function(){
+				return !Player.quests.completedQuestArray.includes("Learning to Fish I");
+			},
 		},
 		{
 			id: 3,
@@ -1195,10 +1262,11 @@ var Items = {
 		},
 		{
 			id: 1,
-			name: "Test misc item",
+			name: "",
 			type: "item",
-			image: "assets/items/staff/7.png", // perhaps give it its own image?
-			stack: 2,
+			lore: "You can earn a special item from completing this quest.",
+			image: "assets/items/item/1.png", // perhaps give it its own image?
+			stack: 1,
 		},
 		{
 			id: 2,
@@ -1244,7 +1312,7 @@ var Items = {
 			id: 6,
 			name: "Eaglecrest Mail Sack",
 			type: "item",
-			quest: true,
+			quest: function(){return true;},
 			image: "assets/items/item/6.png",
 			lore: "Contains mail to be delivered across the lands of Antorax.",
 		},
@@ -1252,7 +1320,7 @@ var Items = {
 			id: 7,
 			name: "Fisherman Tobenam's Lost Rod",
 			type: "item",
-			quest: true,
+			quest: function(){return true;},
 			image: "assets/items/item/7.png",
 			lore: "The goblins haven't looked after this rod very well...",
 		},
@@ -1261,7 +1329,7 @@ var Items = {
 			name: "The Sceptre of Souls",
 			type: "item",
 			rarity: "mythic",
-			quest: true,
+			quest: function(){return true;},
 			image: "assets/items/item/8.png",
 			functionText: "Siphons the soul essence of any nearby enemy corpses",
 			onClick: function () {
@@ -1298,7 +1366,7 @@ var Items = {
 			id: 9,
 			name: "Inert Potion",
 			type: "item",
-			quest: true,
+			quest: function(){return true;},
 			image: "assets/items/item/9.png",
 			lore: "Try adding some ingredients...",
 		},
@@ -1326,7 +1394,7 @@ var Items = {
 			id: 12,
 			name: "Empty Bucket",
 			type: "item",
-			quest: true,
+			quest: function(){return true;},
 			image: "assets/items/item/12.png",
 			functionText: "Click to fill with a nearby 'scoopable' substance",
 			onClick: function (inventoryPosition) {
@@ -1345,7 +1413,7 @@ var Items = {
 			id: 13,
 			name: "Mud-Filled Bucket",
 			type: "item",
-			quest: true,
+			quest: function(){return true;},
 			image: "assets/items/item/13.png",
 			lore: "Fresh from The Nilbog."
 		},
@@ -1488,7 +1556,10 @@ var Items = {
 				Game.restoreHealth(Game.hero, 20);
 				// make the player tipsy!
 				//tbd
-			}
+			},
+			quest: function(){
+				return !Player.quests.completedQuestArray.includes("A drink on us!");
+			},
 		},
 		{
 			id: 6,
@@ -2280,7 +2351,7 @@ var Items = {
 			fishingType: "watermisc",
 			type: "fish",
 			rarity: "common",
-			quest: true,
+			quest: function(){return true;},
 			image: "assets/items/fish/21.png",
 			functionText: "", // added by onCatch
 			lore: "A bit soggy.",
