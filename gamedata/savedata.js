@@ -29,9 +29,9 @@ var Player = {
 	metNPCs: ["Cart Driver"],
 	
 	chestsOpened: {
-		nilbog: "never",
-		nilbogTower2: "never",
-		nilbogTower4: "never",
+		nilbog: 0,
+		nilbogTower2: 0,
+		nilbogTower4: 0,
 	},
 	
 	mail: {

@@ -1383,6 +1383,21 @@ var Items = {
 			sellQuantity: 4,
 			stack: 4,
 		},
+		{
+			id: 17,
+			name: "DOM, the Gingerbread Robot",
+			type: "item",
+			image: "assets/items/item/17.png",
+			functionText: "A present from Christmas Day, 2018",
+			lore: "A trusty companion. Do not eat.",
+			chat: {
+				levelUp: "User level up. Congratulations.",
+				death: "Resummoning user. Be more careful next time.",
+				bossKill: "Skillfull.",
+				ponder: ["Incoming message from a nearby device. Commence message: 'beep boop'. End message.",
+				"Error 404: User not found. Oh. User found. Never mind.",],
+			},
+		},
 	],
 	consumable: [
 		{

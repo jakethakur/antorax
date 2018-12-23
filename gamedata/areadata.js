@@ -1185,6 +1185,7 @@ var Areas = {
 			trap: {normal: "./assets/objects/trap.png"},
 			torch: {normal: "./assets/npcs/torch.png"},
 			ghost: {samhain: "./assets/npcs/ghost.png"},
+			lootChest: {normal: "./assets/objects/chest.png"},
 		},
 		
 		song_day: "./assets/music/Pippin-the-Hunchback.mp3",
@@ -1536,6 +1537,7 @@ var Areas = {
 			goblinCrusader: {normal: "./assets/enemies/goblinCrusader.png"},
 			goblinCorpse: {normal: "./assets/corpses/deadGoblin.png"},
 			melee: {normal: "./assets/projectiles/melee.png"},
+			lootChest: {normal: "./assets/objects/chest.png"},
 		},
 		
 		song_day: "./assets/music/Pippin-the-Hunchback.mp3",
@@ -1881,6 +1883,7 @@ var Areas = {
 			goblinCrusader: {normal: "./assets/enemies/goblinCrusader.png"},
 			goblinCorpse: {normal: "./assets/corpses/deadGoblin.png"},
 			melee: {normal: "./assets/projectiles/melee.png"},
+			lootChest: {normal: "./assets/objects/chest.png"},
 		},
 		
 		song_day: "./assets/music/Pippin-the-Hunchback.mp3",

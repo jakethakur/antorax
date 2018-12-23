@@ -2183,52 +2183,7 @@ class Enemy extends Attacker {
 	// generate loot from lootTable (called when enemy dies or a chest is added)
 	generateLoot (lootTable) {
 		if (this.loot === null) {
-			this.loot = [];
-			for (let i = 0; i < lootTable.length; i++) {
-				// check if item is eligible to be looted by the player (i.e. correct quest has been started, they haven't already looted it, etc.)
-				let itemCanBeLooted = true;
-				if (lootTable[i].condition !== undefined) {
-					itemCanBeLooted = lootTable[i].condition();
-				}
-				
-				if (itemCanBeLooted) {
-					// for each item, a Random number between 0 and 100 is generated, then multiplied by the player's looting
-					// lootTable is an array of objects, where the objects have a property called chance (an array)
-					// chance contains the probability of getting x amount of that item, where x is the array index of the probability
-					// the lowest number that is higher than the roll is selected for the number of that item that the player receives
-					
-					let rollRandom = Random(0, 100) * (Game.hero.stats.looting / 100); // Random number to see how much of item i the player will get
-					let possibleDropChances = lootTable[i].chance.filter(chance => chance > rollRandom); // filter chances of getting item to see all chances the player is eligible for with their roll
-					let itemQuantity = lootTable[i].chance.indexOf(Math.min(...possibleDropChances)); // get the number of that item the player will get
-					
-					if (itemQuantity > 0) { // check that the player should recieve the item
-						// if there are multiple items in an array, pick one at random
-						let item = lootTable[i].item;
-						if (item.constructor === Array) {
-							item = item[random(0, item.length - 1)];
-						}
-						
-						if (item.name === "unidentified") {
-							// repeat separately for each unidentified item
-							for (let i = 0; i < itemQuantity; i++) {
-								let itemToBePushed = {
-									item: new UnId(item.area, item.tier), // construct unidentified item
-									quantity: 1,
-								};
-								this.loot.push(itemToBePushed);
-							}
-						}
-						else {
-							let itemToBePushed = {
-								item: item,
-								quantity: itemQuantity,
-							};
-							this.loot.push(itemToBePushed);
-						}
-					}
-				}
-				
-			}
+			this.loot = Game.generateLoot(lootTable);
 		}
 		else {
 			console.error("Expected this.loot to be null, however it was not. Loot has not been generated.");
@@ -3076,6 +3031,11 @@ Game.loadArea = function (areaName, destination) {
 			Areas[areaName].onAreaLoad();
 		}
 		
+		// load in randomly generated loot chests if the area has data for them
+		if (Areas[areaName].chestData !== undefined) {
+			this.generateChests(Areas[areaName].chestData);
+		}
+		
 		// render secondary canvas
 		Game.secondary.render();
 		
@@ -3217,6 +3177,92 @@ Game.init = function () {
 	Dom.changeBook(Player.tab);
 	Dom.adventure.update(); // chooses what should be shown in adventurer's log
 };
+
+//
+// Chests and loot
+//
+
+// generate chest(s) around area
+Game.generateChests = function (chestData) {
+	if (GetFullDate() - Player.chestsOpened[this.areaName] > 0) {
+		// chest last opened at least a day ago
+		// spawn chests
+		// some stuff in qol for this...
+		for (let i = 0; i < chestData.spawnAmount; i++) {
+			let locationIndex = Random(0, chestData.spawnLocations.length - 1);
+			let spawnLocation = chestData.spawnLocations[locationIndex];
+			chestData.spawnLocations.splice(locationIndex, 1); // so it cannot be picked by the next chest in for loop (if there is one)
+			
+			let lootTable = [];
+			for (let i = 0; i < chestData.lootTableTemplate.length; i++) {
+				lootTable = lootTable.concat(chestData.lootTableTemplate[i]);
+			}
+			
+			// make chest
+			this.chests.push(new LootChest({
+				x: spawnLocation.x,
+				y: spawnLocation.y,
+				name: "Loot Chest", // used to set the loot chest opened date
+				image: "lootChest",
+				loot: this.generateLoot(lootTable),
+				inventorySpace: chestData.inventorySpace,
+				map: map,
+				type: "chests",
+			}));
+		}
+	}
+}
+
+// for enemies and loot chests
+// returns an array with loot generated from a loot table
+Game.generateLoot = function (lootTable) {
+	let lootArray = [];
+	for (let i = 0; i < lootTable.length; i++) {
+		// check if item is eligible to be looted by the player (i.e. correct quest has been started, they haven't already looted it, etc.)
+		let itemCanBeLooted = true;
+		if (lootTable[i].condition !== undefined) {
+			itemCanBeLooted = lootTable[i].condition();
+		}
+		
+		if (itemCanBeLooted) {
+			// for each item, a Random number between 0 and 100 is generated, then multiplied by the player's looting
+			// lootTable is an array of objects, where the objects have a property called chance (an array)
+			// chance contains the probability of getting x amount of that item, where x is the array index of the probability
+			// the lowest number that is higher than the roll is selected for the number of that item that the player receives
+			
+			let rollRandom = Random(0, 100) * (Game.hero.stats.looting / 100); // Random number to see how much of item i the player will get
+			let possibleDropChances = lootTable[i].chance.filter(chance => chance > rollRandom); // filter chances of getting item to see all chances the player is eligible for with their roll
+			let itemQuantity = lootTable[i].chance.indexOf(Math.min(...possibleDropChances)); // get the number of that item the player will get
+			
+			if (itemQuantity > 0) { // check that the player should recieve the item
+				let item = lootTable[i].item;
+				if (item.constructor === Array) {
+					// if there are multiple items in an array, pick one at random
+					item = item[Random(0, item.length - 1)];
+				}
+				
+				if (item.name === "unidentified") {
+					// repeat separately for each unidentified item
+					for (let i = 0; i < itemQuantity; i++) {
+						let itemToBePushed = {
+							item: new UnId(item.area, item.tier), // construct unidentified item
+							quantity: 1,
+						};
+						lootArray.push(itemToBePushed);
+					}
+				}
+				else {
+					let itemToBePushed = {
+						item: item,
+						quantity: itemQuantity,
+					};
+					lootArray.push(itemToBePushed);
+				}
+			}
+		}
+	}
+	return lootArray;
+}
 
 //
 // Date and checkEvents
@@ -4085,15 +4131,25 @@ Game.projectileUpdate = function () {
 
 // called whenever a loot menu is closed
 // called by index.html
-Game.lootClosed = function (itemsNotLooted) {
+// itemsRemaining is the array
+Game.lootClosed = function (itemsRemaining) {
 	if (Dom.loot.currentId[0] === "e") {
 		// enemy loot menu closed
+		let arrayIndex = Dom.loot.currentId.substr(1);
+		Game.enemies[arrayIndex].loot = itemsRemaining; // update items remaining
 	}
 	else if (Dom.loot.currentId[0] === "c") {
 		// chest loot menu closed
 		let arrayIndex = Dom.loot.currentId.substr(1);
 		if (Game.chests[arrayIndex].disappearAfterOpened) {
 			Game.chests.splice(arrayIndex, 1);
+		}
+		else {
+			Game.chests[arrayIndex].loot = itemsRemaining; // update items remaining
+		}
+		// if it is a loot chest, set the day in savedata
+		if (Game.chests[arrayIndex].name === "Loot Chest") {
+			Player.chestsOpened[Game.areaName] = GetFullDate();
 		}
 	}
 	else if (Dom.loot.currentId[0] === "x") {
