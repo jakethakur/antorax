@@ -623,7 +623,7 @@ Dom.inventory.displayIdentification = function(display){
 	}
 	document.getElementById("innerStats").innerHTML += "<br>Swim Speed: " + Player.stats.swimSpeed + "/s";
 	document.getElementById("innerStats").innerHTML += "<br>Walk Speed: " + Player.stats.walkSpeed + "/s";
-	if(Game.event === "Christmas"){
+	if(Player.stats.iceSpeed !== 270){
 		document.getElementById("innerStats").innerHTML += "<br>Ice Speed: " + Player.stats.iceSpeed + "/s";
 	}
 	if(Player.stats.xpBonus !== 0){
@@ -635,28 +635,30 @@ Dom.inventory.displayIdentification = function(display){
 	if(Player.statusEffects.length !== 0){
 		document.getElementById("innerStats").innerHTML += "<br><br><strong>Status Effects:</strong>";
 		for(let i = 0; i < Player.statusEffects.length; i++){
-			document.getElementById("innerStats").innerHTML += "<br>" + Player.statusEffects[i].title + ": " + Player.statusEffects[i].effect + (Player.statusEffects[i].info ? Player.statusEffects[i].info.time ? " (" + (Player.statusEffects[i].info.time - Player.statusEffects[i].info.ticks) + "s)" : "" : "");
+			document.getElementById("innerStats").innerHTML += "<br>" + Player.statusEffects[i].title + ": " + Player.statusEffects[i].effect + (Player.statusEffects[i].info ? Player.statusEffects[i].info.time ? " (" + (Math.floor(Player.statusEffects[i].info.time) - Math.floor(Player.statusEffects[i].info.ticks)) + "s)" : "" : "");
 		}
 	}
 }
 
 Dom.inventory.stats = function(stat, value, array){ // stat should be in Title Case
 	if(stat === "Defence" || stat === "Block Defence" || stat === "Fishing Skill"){
-		return stat+": "+value;
+		return stat+": "+value+"<br>";
 	}else if(stat === "Critical Chance" || stat === "Dodge Chance" || stat === "Looting" || stat === "Reflection" || stat === "Life Steal" || stat === "Xp Bonus"){
-		return stat+": "+value+"%";
+		return stat+": "+value+"%<br>";
 	}else if(stat === "Health Regen" || stat === "Swim Speed" || stat === "Walk Speed" || stat === "Ice Speed" || stat === "Focus Speed"){
-		return stat+": "+value+"/s";
+		return stat+": "+value+"/s<br>";
 	}else if(stat === "Stun"){
-		return stat+": "+value+"s";
+		return stat+": "+value+"s<br>";
 	}else if(stat === "Reload Time"){
-		return stat+": "+(value/500)+"s";
+		return stat+": "+(value/500)+"s<br>";
 	}else if(stat === "Flaming"){
-		return stat+": "+Romanize(value);
+		return stat+": "+Romanize(value)+"<br>";
 	}else if(stat === "Poison X"){
-		return "Poison: "+value+"/"+array.poisonY+"s";
+		return "Poison: "+value+"/"+array.poisonY+"s<br>";
 	}else if(stat === "Damage"){
-		return stat+": "+value + (array.maxDamage > value ? "-" + array.maxDamage : "");
+		return stat+": "+value + (array.maxDamage > value ? "-" + array.maxDamage : "")+"<br>";
+	}else if(stat === "Frostaura"){
+		return stat+"<br>";
 	}else{
 		return "";
 	}
@@ -685,7 +687,7 @@ Dom.inventory.displayInformation = function(item, stacked, position){
 		// weapon, armour or rod
 		if(item.type !== "item" && item.type !== "bag" && item.type !== "currency" && item.type !== "fish" && item.type !== "consumable" && item.type !== "food"){
 			if(item.type !== "rod"){
-				document.getElementById("stats").innerHTML = "Tier: "+item.tier;
+				document.getElementById("stats").innerHTML = "Tier: "+item.tier+"<br>";
 			}else{
 				document.getElementById("stats").innerHTML = "";
 			}
@@ -693,7 +695,7 @@ Dom.inventory.displayInformation = function(item, stacked, position){
 				for(let i = 0; i < Object.keys(item.stats).length; i++){
 					if(Object.keys(item.stats)[i] !== item.chosenStat){
 						
-						document.getElementById("stats").innerHTML += "<br>"+Dom.inventory.stats(FromCamelCase(Object.keys(item.stats)[i]), item.stats[Object.keys(item.stats)[i]], item.stats);
+						document.getElementById("stats").innerHTML += Dom.inventory.stats(FromCamelCase(Object.keys(item.stats)[i]), item.stats[Object.keys(item.stats)[i]], item.stats);
 						
 						/*if(Object.keys(item.stats)[i] !== "flaming"){
 							document.getElementById("stats").innerHTML += "<br>"+FromCamelCase(Object.keys(item.stats)[i])+": "+item.stats[Object.keys(item.stats)[i]];
@@ -703,14 +705,14 @@ Dom.inventory.displayInformation = function(item, stacked, position){
 					}
 				}
 				if(item.chooseStats !== undefined){
-					document.getElementById("stats").innerHTML += "<br><br>"+item.functionText;
+					document.getElementById("stats").innerHTML += "<br>"+item.functionText+"<br>";
 					for(let i = 0; i < Object.keys(item.chooseStats).length; i++){
 						let color = "gray";
 						if(Object.keys(item.chooseStats)[i] === item.chosenStat){
 							color = "black";
 						}
 						
-						document.getElementById("stats").innerHTML += "<br><span style='color: "+color+"'>"+Dom.inventory.stats(FromCamelCase(Object.keys(item.chooseStats)[i]), item.chooseStats[Object.keys(item.chooseStats)[i]], item.chooseStats)+"</span>";
+						document.getElementById("stats").innerHTML += "<span style='color: "+color+"'>"+Dom.inventory.stats(FromCamelCase(Object.keys(item.chooseStats)[i]), item.chooseStats[Object.keys(item.chooseStats)[i]], item.chooseStats)+"</span>";
 						
 						/*if(Object.keys(item.chooseStats)[i] !== "flaming"){
 							document.getElementById("stats").innerHTML += "<br><span style='color: "+color+"'>"+Object.keys(item.chooseStats)[i]+": "+item.chooseStats[Object.keys(item.chooseStats)[i]]+"</span>";
@@ -737,10 +739,10 @@ Dom.inventory.displayInformation = function(item, stacked, position){
 					document.getElementById("set").innerHTML = Items.set[item.set].name + " (" + setNum + "/" + Items.set[item.set].armour.length+")";
 					// if the whole set is equipped
 					if(setNum === Items.set[item.set].armour.length){
-						document.getElementById("set").innerHTML += "<br><br>Set Bonus:";
+						document.getElementById("set").innerHTML += "<br><br>Set Bonus:<br>";
 						for(let i = 0; i < Object.keys(Items.set[item.set].stats).length; i++){
 							
-							document.getElementById("stats").innerHTML += "<br>"+Dom.inventory.stats(FromCamelCase(Object.keys(Items.set[item.set].stats)[i]), Items.set[item.set].stats[Object.keys(Items.set[item.set].stats)[i]], Items.set[item.set].stats);
+							document.getElementById("set").innerHTML += Dom.inventory.stats(FromCamelCase(Object.keys(Items.set[item.set].stats)[i]), Items.set[item.set].stats[Object.keys(Items.set[item.set].stats)[i]], Items.set[item.set].stats);
 							
 							/*if(Object.keys(Items.set[item.set].stats)[i] !== "flaming"){
 								document.getElementById("set").innerHTML += "<br>"+FromCamelCase(Object.keys(Items.set[item.set].stats)[i])+": "+Items.set[item.set].stats[Object.keys(Items.set[item.set].stats)[i]];
@@ -782,7 +784,7 @@ Dom.inventory.displayInformation = function(item, stacked, position){
 						document.getElementById("set").innerHTML += "<br><br>Set Bonus:";
 						for(let i = 0; i < Object.keys(Items.set[item.set].stats).length; i++){
 							
-							document.getElementById("stats").innerHTML += "<br>"+Dom.inventory.stats(FromCamelCase(Object.keys(Items.set[item.set].stats)[i]), Items.set[item.set].stats[Object.keys(Items.set[item.set].stats)[i]], Items.set[item.set].stats);
+							document.getElementById("set").innerHTML += Dom.inventory.stats(FromCamelCase(Object.keys(Items.set[item.set].stats)[i]), Items.set[item.set].stats[Object.keys(Items.set[item.set].stats)[i]], Items.set[item.set].stats);
 							
 							/*if(Object.keys(Items.set[item.set].stats)[i] !== "flaming"){
 								document.getElementById("set").innerHTML += "<br>"+FromCamelCase(Object.keys(Items.set[item.set].stats)[i])+": "+Items.set[item.set].stats[Object.keys(Items.set[item.set].stats)[i]];
@@ -882,10 +884,10 @@ Dom.quest.start = function(quest){
 			document.getElementById("questStartRewardsTitle").innerHTML = "<br><br><b>Quest Rewards</b><br>";
 			if(quest.rewards.items !== undefined){
 				for(let i = 0; i < quest.rewards.items.length; i++){
-					if(quest.rewards.itemQuantities[i] !== 1){
-						document.getElementById("questStartItems").innerHTML += "<img src=" + quest.rewards.items[i].image + " class='theseQuestOptions'><div class='questStackNum'>"+quest.rewards.itemQuantities[i]+"</div></img>&nbsp;&nbsp;";
+					if(quest.rewards.items[i].quantity !== undefined && quest.rewards.items[i].quantity !== 1){
+						document.getElementById("questStartItems").innerHTML += "<img src=" + quest.rewards.items[i].item.image + " class='theseQuestOptions'><div class='questStackNum'>"+quest.rewards.items[i].quantity+"</div></img>&nbsp;&nbsp;";
 					}else{
-						document.getElementById("questStartItems").innerHTML += "<img src=" + quest.rewards.items[i].image + " class='theseQuestOptions'><span class='questStackNum'></span></img>&nbsp;&nbsp;";
+						document.getElementById("questStartItems").innerHTML += "<img src=" + quest.rewards.items[i].item.image + " class='theseQuestOptions'><span class='questStackNum'></span></img>&nbsp;&nbsp;";
 					}
 				}
 			}
@@ -897,10 +899,10 @@ Dom.quest.start = function(quest){
 			document.getElementById("questStartStartRewardsTitle").innerHTML = "<br><br><b>Quest Start Rewards</b><br>";
 			if(quest.startRewards.items !== undefined){
 				for(let i = 0; i < quest.startRewards.items.length; i++){
-					if(quest.startRewards.itemQuantities[i] !== 1){
-						document.getElementById("questStartStartItems").innerHTML += "<img src=" + quest.startRewards.items[i].image + " class='theseQuestStartOptions'><div class='questStartStackNum'>"+quest.startRewards.itemQuantities[i]+"</div></img>&nbsp;&nbsp;";
+					if(quest.startRewards.items[i].quantity !== undefined && quest.startRewards.items[i].quantity !== 1){
+						document.getElementById("questStartStartItems").innerHTML += "<img src=" + quest.startRewards.items[i].item.image + " class='theseQuestStartOptions'><div class='questStartStackNum'>"+quest.startRewards.items[i].quantity+"</div></img>&nbsp;&nbsp;";
 					}else{
-						document.getElementById("questStartStartItems").innerHTML += "<img src=" + quest.startRewards.items[i].image + " class='theseQuestStartOptions'><span class='questStartStackNum'></span></img>&nbsp;&nbsp;";
+						document.getElementById("questStartStartItems").innerHTML += "<img src=" + quest.startRewards.items[i].item.image + " class='theseQuestStartOptions'><span class='questStartStackNum'></span></img>&nbsp;&nbsp;";
 					}
 				}
 			}
@@ -910,7 +912,7 @@ Dom.quest.start = function(quest){
 		// repeats for all item rewards
 		for(let x = 0; x < document.getElementsByClassName("theseQuestOptions").length; x++){
 			document.getElementsByClassName("theseQuestOptions")[x].onmouseover = function(){
-				Dom.inventory.displayInformation(quest.rewards.items[x], quest.rewards.itemQuantities[x]);
+				Dom.inventory.displayInformation(quest.rewards.items[x].item, quest.rewards.items[x].quantity);
 			};
 			document.getElementsByClassName("theseQuestOptions")[x].onmouseleave = function(){
 				Dom.expand("information");
@@ -918,7 +920,7 @@ Dom.quest.start = function(quest){
 		}
 		for(let x = 0; x < document.getElementsByClassName("theseQuestStartOptions").length; x++){
 			document.getElementsByClassName("theseQuestStartOptions")[x].onmouseover = function(){
-				Dom.inventory.displayInformation(quest.startRewards.items[x], quest.startRewards.itemQuantities[x]);
+				Dom.inventory.displayInformation(quest.startRewards.items[x].item, quest.startRewards.items[x].quantity);
 			};
 			document.getElementsByClassName("theseQuestStartOptions")[x].onmouseleave = function(){
 				Dom.expand("information");
@@ -926,7 +928,7 @@ Dom.quest.start = function(quest){
 		}
 		for(let x = 0; x < document.getElementsByClassName("questStackNum").length; x++){
 			document.getElementsByClassName("questStackNum")[x].onmouseover = function(){
-				Dom.inventory.displayInformation(quest.rewards.items[x], quest.rewards.itemQuantities[x]);
+				Dom.inventory.displayInformation(quest.rewards.items[x].item, quest.rewards.items[x].quantity);
 			};
 			document.getElementsByClassName("questStackNum")[x].onmouseleave = function(){
 				Dom.expand("information");
@@ -936,7 +938,7 @@ Dom.quest.start = function(quest){
 		}
 		for(let x = 0; x < document.getElementsByClassName("questStartStackNum").length; x++){
 			document.getElementsByClassName("questStartStackNum")[x].onmouseover = function(){
-				Dom.inventory.displayInformation(quest.startRewards.items[x], quest.startRewards.itemQuantities[x]);
+				Dom.inventory.displayInformation(quest.startRewards.items[x].item, quest.startRewards.items[x].quantity);
 			};
 			document.getElementsByClassName("questStartStackNum")[x].onmouseleave = function(){
 				Dom.expand("information");
@@ -963,10 +965,10 @@ Dom.quest.finish = function(quest){
 			document.getElementById("questFinishRewardsTitle").innerHTML = "<br><br><b>Quest Rewards</b><br>";
 			if(quest.rewards.items !== undefined){
 				for(let i = 0; i < quest.rewards.items.length; i++){
-					if(quest.rewards.itemQuantities[i] !== 1){
-						document.getElementById("questFinishItems").innerHTML += "<img src=" + quest.rewards.items[i].image + " class='theseQuestFinishOptions'><div class='questFinishStackNum'>"+quest.rewards.itemQuantities[i]+"</div></img>&nbsp;&nbsp;";
+					if(quest.rewards.items[i].quantity !== undefined && quest.rewards.items[i].quantity !== 1){
+						document.getElementById("questFinishItems").innerHTML += "<img src=" + quest.rewards.items[i].item.image + " class='theseQuestFinishOptions'><div class='questFinishStackNum'>"+quest.rewards.items[i].quantity+"</div></img>&nbsp;&nbsp;";
 					}else{
-						document.getElementById("questFinishItems").innerHTML += "<img src=" + quest.rewards.items[i].image + " class='theseQuestFinishOptions'><span class='questFinishStackNum'></span></img>&nbsp;&nbsp;";
+						document.getElementById("questFinishItems").innerHTML += "<img src=" + quest.rewards.items[i].item.image + " class='theseQuestFinishOptions'><span class='questFinishStackNum'></span></img>&nbsp;&nbsp;";
 					}
 				}
 			}
@@ -976,7 +978,7 @@ Dom.quest.finish = function(quest){
 		}
 		for(let x = 0; x < document.getElementsByClassName("theseQuestFinishOptions").length; x++){
 			document.getElementsByClassName("theseQuestFinishOptions")[x].onmouseover = function(){
-				Dom.inventory.displayInformation(quest.rewards.items[x], quest.rewards.itemQuantities[x]);
+				Dom.inventory.displayInformation(quest.rewards.items[x].item, quest.rewards.items[x].quantity);
 			};
 			document.getElementsByClassName("theseQuestFinishOptions")[x].onmouseleave = function(){
 				Dom.expand("information");
@@ -984,7 +986,7 @@ Dom.quest.finish = function(quest){
 		}
 		for(let x = 0; x < document.getElementsByClassName("questFinishStackNum").length; x++){
 			document.getElementsByClassName("questFinishStackNum")[x].onmouseover = function(){
-				Dom.inventory.displayInformation(quest.rewards.items[x], quest.rewards.itemQuantities[x]);
+				Dom.inventory.displayInformation(quest.rewards.items[x].item, quest.rewards.items[x].quantity);
 			};
 			document.getElementsByClassName("questFinishStackNum")[x].onmouseleave = function(){
 				Dom.expand("information");
@@ -1005,7 +1007,7 @@ Dom.quest.accept = function(){
 	}
 	if(Dom.currentlyDisplayed.startRewards !== undefined){
 		for(let i = 0; i < Dom.currentlyDisplayed.startRewards.items.length; i++){
-			Dom.inventory.give(Dom.currentlyDisplayed.startRewards.items[i],Dom.currentlyDisplayed.startRewards.itemQuantities[i]);
+			Dom.inventory.give(Dom.currentlyDisplayed.startRewards.items[i].item, Dom.currentlyDisplayed.startRewards.items[i].quantity);
 		}
 	}
 	Dom.quests.possible();
@@ -1022,12 +1024,12 @@ Dom.quest.accept = function(){
 Dom.quest.acceptRewards = function(){
 	if(Dom.currentlyDisplayed.rewards.items !== undefined){
 		for(let i = 0; i < Dom.currentlyDisplayed.rewards.items.length; i++){
-			Dom.inventory.give(Dom.currentlyDisplayed.rewards.items[i],Dom.currentlyDisplayed.rewards.itemQuantities[i]);
+			Dom.inventory.give(Dom.currentlyDisplayed.rewards.items[i].item, Dom.currentlyDisplayed.rewards.items[i].quantity);
 		}
 	}
 	if(Dom.currentlyDisplayed.removeItems !== undefined){
 		for(let i = 0; i < Dom.currentlyDisplayed.removeItems.length; i++){
-			Dom.inventory.removeById(Dom.currentlyDisplayed.removeItems[i].id,Dom.currentlyDisplayed.removeItems[i].type,Dom.currentlyDisplayed.removeItemQuantity[i]);
+			Dom.inventory.removeById(Dom.currentlyDisplayed.removeItems[i].item.id, Dom.currentlyDisplayed.removeItems[i].item.type, Dom.currentlyDisplayed.removeItems[i].quantity);
 		}
 	}
 	if(Dom.currentlyDisplayed.rewards.reputation !== undefined){
@@ -1187,12 +1189,12 @@ Dom.quests.other = function(){
 }
 Dom.quests.possible();
 
-Dom.merchant.page = function(npc, sold){
+Dom.merchant.page = function(npc, sold, chat){
 	Dom.changeBook("merchantPage", true/*false*/, true);
 	//Dom.currentlyDisplayed = npc.name;
 	//Dom.changeBook("merchantPage", false); // stops close button being red
 	document.getElementById("merchantPageTitle").innerHTML = npc.name;
-	document.getElementById("merchantPageChat").innerHTML = npc.chat.shopGreeting;
+	document.getElementById("merchantPageChat").innerHTML = chat;
 	document.getElementById("merchantPageOptions").innerHTML = "";
 	document.getElementById("merchantPageBuy").innerHTML = "";
 	for(let i = 0; i < sold.length; i++){
@@ -1223,7 +1225,7 @@ Dom.merchant.page = function(npc, sold){
 }
 
 Dom.merchant.buy = function(item,index,npc){
-	if(Dom.inventory.check(item.costCurrency,"currency",item.cost) && Dom.inventory.requiredSpace([item.item],[item.costQuantity])){
+	if(Dom.inventory.check(item.costCurrency,"currency",item.cost) && Dom.inventory.requiredSpace({item: item.item, quantity: item.costQuantity,})){
 		document.getElementsByClassName("buy")[index].style.backgroundColor = "#bb9933";
 		setTimeout(function(){
 			document.getElementsByClassName("buy")[index].style.backgroundColor = "#fef9b4";
@@ -1502,9 +1504,9 @@ Dom.inventory.chooseStats = function(inventoryPosition){
 		// repeats for each chooseStat
 		for(let i = 0; i < Object.keys(str).length; i++){
 			if(Object.keys(str)[i] === Player.inventory.items[inventoryPosition].chosenStat){
-				values += "<strong><span onclick='Dom.alert.target(Dom.alert.ev, "+i+")'>"+Dom.inventory.stats(FromCamelCase(Object.keys(str)[i]), str[Object.keys(str)[i]], str) + "</span></strong><br>";
+				values += "<strong><span onclick='Dom.alert.target(Dom.alert.ev, "+i+")'>"+Dom.inventory.stats(FromCamelCase(Object.keys(str)[i]), str[Object.keys(str)[i]], str) + "</span></strong>";
 			}else{
-				values += "<span onclick='Dom.alert.target(Dom.alert.ev, "+i+")'>"+Dom.inventory.stats(FromCamelCase(Object.keys(str)[i]), str[Object.keys(str)[i]], str) + "</span><br>";
+				values += "<span onclick='Dom.alert.target(Dom.alert.ev, "+i+")'>"+Dom.inventory.stats(FromCamelCase(Object.keys(str)[i]), str[Object.keys(str)[i]], str) + "</span>";
 			}
 			Dom.alert.ev.push([Object.keys(str)[i], str[Object.keys(str)[i]]]);
 		}
@@ -1525,9 +1527,9 @@ Dom.inventory.chooseStats = function(inventoryPosition){
 		// repeats for each chosenStat
 		for(let i = 0; i < Object.keys(str).length; i++){
 			if(Object.keys(str)[i] === Player.inventory[inventoryPosition].chosenStat){
-				values += "<strong><span onclick='Dom.alert.target(Dom.alert.ev, "+i+")'>"+Dom.inventory.stats(FromCamelCase(Object.keys(str)[i]), str[Object.keys(str)[i]], str) + "</span></strong><br>";
+				values += "<strong><span onclick='Dom.alert.target(Dom.alert.ev, "+i+")'>"+Dom.inventory.stats(FromCamelCase(Object.keys(str)[i]), str[Object.keys(str)[i]], str) + "</span></strong>";
 			}else{
-				values += "<span onclick='Dom.alert.target(Dom.alert.ev, "+i+")'>"+Dom.inventory.stats(FromCamelCase(Object.keys(str)[i]), str[Object.keys(str)[i]], str) + "</span><br>";
+				values += "<span onclick='Dom.alert.target(Dom.alert.ev, "+i+")'>"+Dom.inventory.stats(FromCamelCase(Object.keys(str)[i]), str[Object.keys(str)[i]], str) + "</span>";
 			}
 			Dom.alert.ev.push([Object.keys(str)[i], str[Object.keys(str)[i]]]);
 		}
@@ -1717,6 +1719,7 @@ Dom.inventory.dispose = function(ev){
 				Player.inventory.boots = {};
 				document.getElementById("boots").innerHTML = "";
 			}
+			Game.inventoryUpdate();
 		};
 		Dom.alert.ev = Object.assign({},ev.dataTransfer.getData("text"));
 		if(!isNaN(parseInt(ev.dataTransfer.getData("text")))){
@@ -1759,6 +1762,7 @@ Dom.inventory.removeById = function(ID, type, num){
 			}
 		}
 	}
+	Dom.expand("information");
 	Dom.hotbar.update();
 	Dom.quests.active();
 	if(remove){
@@ -1792,6 +1796,7 @@ Dom.inventory.remove = function(num, all){
 			}
 		}
 	}
+	Dom.expand("information");
 	Dom.hotbar.update();
 	Dom.quests.active();
 }
@@ -2535,26 +2540,26 @@ Dom.inventory.checkSpace = function(){
 	return space;
 }
 
-Dom.inventory.requiredSpace = function(items,quantities){
+Dom.inventory.requiredSpace = function(items){
 	let required = 0;
 	// repeat for each required item
 	for(let i = 0; i < items.length; i++){
-		if(items[i].stack === undefined){
-			items[i].stack = 1;
+		if(items[i].item.stack === undefined){
+			items[i].item.stack = 1;
 		}
-		if(quantities[i] === undefined){
-			quantities[i] = 1;
+		if(items[i].quantity === undefined){
+			items[i].quantity = 1;
 		}
 		let notRequired = 0;
 		for(let x = 0; x < Player.inventory.items.length; x++){
 			if(Player.inventory.items[x].stacked === undefined){
 				Player.inventory.items[x].stacked = 1;
 			}
-			if(Player.inventory.items[x].id === items[i].id && Player.inventory.items[x].type === items[i].type){
-				notRequired += items[i].stack - Player.inventory.items[x].stacked;
+			if(Player.inventory.items[x].id === items[i].item.id && Player.inventory.items[x].type === items[i].item.type){
+				notRequired += items[i].item.stack - Player.inventory.items[x].stacked;
 			}
 		}
-		required += Math.ceil((quantities[i] - notRequired) / items[i].stack); // required empty spaces for this item
+		required += Math.ceil((items[i].quantity - notRequired) / items[i].item.stack); // required empty spaces for this item
 	}
 	return required <= Dom.inventory.checkSpace();
 }
@@ -2567,9 +2572,10 @@ Dom.inventory.hideHotbar = function(hide){
 	}
 }
 
-Dom.loot.page = function(name, items, quantities, space){
+Dom.loot.page = function(name, items, space){
 	Dom.changeBook("lootPage", true/*false*/, true);
 	//Dom.currentlyDisplayed = name;
+	Dom.loot.looted = items.length;
 	let spaces = [];
 	for(let i = 0; i < space; i++){
 		spaces.push(i);
@@ -2593,39 +2599,41 @@ Dom.loot.page = function(name, items, quantities, space){
 			let currentSpaceNum = Random(0, spaces.length-1);
 			let currentSpace = spaces[currentSpaceNum]; // random slot in the table array
 			spaces.splice(currentSpaceNum,1); // removes slot from the table array so it can't be chosen again
-			if(quantities[i] !== 1){
-				document.getElementById("loot").getElementsByTagName("td")[currentSpace].innerHTML = "<img src=" + items[i].image + " class='lootOptions' id='"+i+"'><div class='lootStackNum'>"+quantities[i]+"</div></img>";
+			if(items[i].quantity !== undefined && items[i].quantity !== 1){
+				document.getElementById("loot").getElementsByTagName("td")[currentSpace].innerHTML = "<img src=" + items[i].item.image + " class='lootOptions' id='"+i+"'><div class='lootStackNum'>"+items[i].quantity+"</div></img>";
 			}else{
-				document.getElementById("loot").getElementsByTagName("td")[currentSpace].innerHTML = "<img src=" + items[i].image + " class='lootOptions' id='"+i+"'><span class='lootStackNum'></span></img>";
+				document.getElementById("loot").getElementsByTagName("td")[currentSpace].innerHTML = "<img src=" + items[i].item.image + " class='lootOptions' id='"+i+"'><span class='lootStackNum'></span></img>";
 			}
 		}
 		// repeats for each piece of loot
 		for(let i = 0; i < document.getElementsByClassName("lootOptions").length; i++){
 			document.getElementsByClassName("lootOptions")[i].onclick = function(){
 				Dom.expand("information");
-				if(Dom.inventory.requiredSpace([items[document.getElementsByClassName("lootOptions")[i].id]],[quantities[document.getElementsByClassName("lootOptions")[i].id]])){
-					Dom.inventory.give(items[document.getElementsByClassName("lootOptions")[i].id],quantities[document.getElementsByClassName("lootOptions")[i].id]);
+				if(Dom.inventory.requiredSpace([items[document.getElementsByClassName("lootOptions")[i].id]])){
+					Dom.inventory.give(items[document.getElementsByClassName("lootOptions")[i].id].item, items[document.getElementsByClassName("lootOptions")[i].id].quantity);
 					document.getElementsByClassName("lootOptions")[i].outerHTML = "<span class='lootOptions'></span>";
 					document.getElementsByClassName("lootStackNum")[i].outerHTML = "<span class='lootStackNum'></span>";
 				}else{
 					Dom.alert.page("You do not have enough space in your inventory for that item.");
 				}
+				Dom.loot.looted--;
 			};
 			document.getElementsByClassName("lootStackNum")[i].onclick = function(){
 				Dom.expand("information");
-				if(Dom.inventory.requiredSpace([items[document.getElementsByClassName("lootOptions")[i].id]],[quantities[document.getElementsByClassName("lootOptions")[i].id]])){
-					Dom.inventory.give(items[document.getElementsByClassName("lootOptions")[i].id],quantities[document.getElementsByClassName("lootOptions")[i].id]);
+				if(Dom.inventory.requiredSpace([items[document.getElementsByClassName("lootOptions")[i].id]])){
+					Dom.inventory.give(items[document.getElementsByClassName("lootOptions")[i].id].item, items[document.getElementsByClassName("lootOptions")[i].id].quantity);
 					document.getElementsByClassName("lootOptions")[i].outerHTML = "<span class='lootOptions'></span>";
 					document.getElementsByClassName("lootStackNum")[i].outerHTML = "<span class='lootStackNum'></span>";
 				}else{
 					Dom.alert.page("You do not have enough space in your inventory for that item.");
 				}
+				Dom.loot.looted--;
 			};
 			document.getElementsByClassName("lootOptions")[i].onmouseover = function(){
-				Dom.inventory.displayInformation(items[document.getElementsByClassName("lootOptions")[i].id], quantities[document.getElementsByClassName("lootOptions")[i].id]);
+				Dom.inventory.displayInformation(items[document.getElementsByClassName("lootOptions")[i].id].item, items[document.getElementsByClassName("lootOptions")[i].id].quantity);
 			}
 			document.getElementsByClassName("lootStackNum")[i].onmouseover = function(){
-				Dom.inventory.displayInformation(items[document.getElementsByClassName("lootOptions")[i].id], quantities[document.getElementsByClassName("lootOptions")[i].id]);
+				Dom.inventory.displayInformation(items[document.getElementsByClassName("lootOptions")[i].id].item, items[document.getElementsByClassName("lootOptions")[i].id].quantity);
 			}
 			document.getElementsByClassName("lootOptions")[i].onmouseleave = function(){
 				Dom.expand("information");
@@ -2641,9 +2649,9 @@ Dom.loot.page = function(name, items, quantities, space){
 				}
 			}
 			Dom.changeBook(Player.tab, true);
-			Game.lootClosed();
+			Game.lootClosed(0);
 		}
-	},items,quantities,space);
+	},items ,space);
 }
 
 document.getElementById("levelUpPageClose").onclick = function(){
@@ -3294,4 +3302,4 @@ Dom.testing.completeQuest = function(quest){
 	Dom.quest.finish(quest);
 	Dom.quest.acceptRewards();
 	return quest.quest
-}
+}		

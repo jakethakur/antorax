@@ -11,7 +11,31 @@ var min = document.getElementById("min");
 var max = document.getElementById("max");
 var searchBar = document.getElementById("searchBar");
 
-function validate(strValue) {
+function Stats(stat, value, array){ // stat should be in Title Case
+	if(stat === "Defence" || stat === "Block Defence" || stat === "Fishing Skill"){
+		return stat+": "+value+"<br>";
+	}else if(stat === "Critical Chance" || stat === "Dodge Chance" || stat === "Looting" || stat === "Reflection" || stat === "Life Steal" || stat === "Xp Bonus"){
+		return stat+": "+value+"%<br>";
+	}else if(stat === "Health Regen" || stat === "Swim Speed" || stat === "Walk Speed" || stat === "Ice Speed" || stat === "Focus Speed"){
+		return stat+": "+value+"/s<br>";
+	}else if(stat === "Stun"){
+		return stat+": "+value+"s<br>";
+	}else if(stat === "Reload Time"){
+		return stat+": "+(value/500)+"s<br>";
+	}else if(stat === "Flaming"){
+		return stat+": "+Romanize(value)+"<br>";
+	}else if(stat === "Poison X"){
+		return "Poison: "+value+"/"+array.poisonY+"s<br>";
+	}else if(stat === "Damage"){
+		return stat+": "+value + (array.maxDamage > value ? "-" + array.maxDamage : "")+"<br>";
+	}else if(stat === "Frostaura"){
+		return stat+"<br>";
+	}else{
+		return "";
+	}
+}
+
+function validate(strValue){
 	var objRegExp  = /^[a-zA-Z\u00C0-\u00ff]+$/;
 	if(!objRegExp.test(strValue)){
 		objRegExp  = /^$/;
@@ -19,17 +43,6 @@ function validate(strValue) {
 	}else{
 		return objRegExp.test(strValue);
 	}
-}
-
-function Romanize(num){
-  let lookup = {M:1000,CM:900,D:500,CD:400,C:100,XC:90,L:50,XL:40,X:10,IX:9,V:5,IV:4,I:1},roman = '',i;
-  for(i in lookup){
-    while(num >= lookup[i]){
-      roman += i;
-      num -= lookup[i];
-    }
-  }
-  return roman;
 }
 
 function checkChange(){
@@ -233,12 +246,15 @@ function arrange(){
 		}
 		document.getElementById("tier"+i).innerHTML += "<br>Tier: "+array[i].tier;
 		for(var a = 0; a < Object.keys(array[i].stats).length; a++){
-			var replaceStat = Object.keys(array[i].stats)[a].replace( /([A-Z])/g, " $1" );
+			
+			document.getElementById("stats"+i).innerHTML += Stats(FromCamelCase(Object.keys(array[i].stats)[a]), array[i].stats[Object.keys(array[i].stats)[a]], array[i].stats);
+			
+			/*var replaceStat = Object.keys(array[i].stats)[a].replace( /([A-Z])/g, " $1" );
 			if(Object.keys(array[i].stats)[a] != "flaming"){
 				document.getElementById("stats"+i).innerHTML += replaceStat.charAt(0).toUpperCase() + replaceStat.slice(1)+": "+array[i].stats[Object.keys(array[i].stats)[a]]+"<br>";
 			}else{
 				document.getElementById("stats"+i).innerHTML += "Flaming "+Romanize(array[i].stats[Object.keys(array[i].stats)[a]])+"<br>";
-			}
+			}*/
 		}
 		if(array[i].multiplier !== undefined){
 			for(let a = 0; a < array[i].multiplier.length; a++){

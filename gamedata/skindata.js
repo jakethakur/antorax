@@ -160,14 +160,14 @@ var Skins = {
 		},
 		{
 			id: 4,
-			position: {x: Infinity, y: Infinity},
+			position: {x: Infinity, y: -20},
 			name: "The Yeti",
 			gender:	"m",
 			projectile:	"slashFrost",
 			projectileAdjust: {x: 20, y: 20},
 			cursor: "chilly",
 			cursorPosition: {x: 10, y: 10},
-			headAdjust: {x: 0, y: 0},
+			headAdjust: {x: 10, y: 0},
 		},
 	],
 };

@@ -36,12 +36,8 @@ var Quests = {
 			rewards: {
 				xp: 10,
 				items: [
-					Items.currency[2],
-					Items.boots[2],
-				],
-				itemQuantities: [
-					5,
-					1,
+					{item: Items.currency[2], quantity: 5,},
+					{item: Items.boots[2],},
 				],
 				reputation: {
 					eaglecrestLoggingCamp: 50,
@@ -180,12 +176,8 @@ var Quests = {
 			rewards: {
 				xp: 30,
 				items: [
-					Items.currency[2],
-					Items.bag[2], // logging sack
-				],
-				itemQuantities: [
-					2,
-					1,
+					{item: Items.currency[2], quantity: 2,},
+					{item: Items.bag[2],}, // logging sack
 				],
 				reputation: {
 					eaglecrestLoggingCamp: 50,
@@ -193,10 +185,7 @@ var Quests = {
 			},
 			
 			removeItems: [
-				Items.item[2], // logs
-			],
-			removeItemQuantity: [
-				4,
+				{item: Items.item[2], quantity: 4,}, // logs
 			],
 			
 			onQuestFinish: function() {
@@ -241,10 +230,7 @@ var Quests = {
 			rewards: {
 				xp: 30,
 				items: [
-					Items.currency[2],
-				],
-				itemQuantities: [
-					2,
+					{item: Items.currency[2], quantity: 2,},
 				],
 				reputation: {
 					eaglecrestLoggingCamp: 50,
@@ -252,10 +238,7 @@ var Quests = {
 			},
 			
 			removeItems: [
-				Items.item[2], // logs
-			],
-			removeItemQuantity: [
-				4,
+				{item: Items.item[2], quantity: 4,}, // logs
 			],
 		},
 		
@@ -303,12 +286,8 @@ var Quests = {
 			rewards: {
 				xp: 50,
 				items: [
-					Items.currency[2],
-					Items.chest[4],
-				],
-				itemQuantities: [
-					5,
-					1,
+					{item: Items.currency[2], quantity: 5,},
+					{item: Items.chest[4],},
 				],
 				reputation: {
 					eaglecrestLoggingCamp: 100,
@@ -350,10 +329,7 @@ var Quests = {
 			rewards: {
 				xp: 30,
 				items: [
-					Items.currency[2],
-				],
-				itemQuantities: [
-					2,
+					{item: Items.currency[2], quantity: 2,},
 				],
 				reputation: {
 					eaglecrestCity: 20,
@@ -361,10 +337,7 @@ var Quests = {
 			},
 			
 			removeItems: [
-				Items.item[6], // mail sack
-			],
-			removeItemQuantity: [
-				1,
+				{item: Items.item[6],}, // mail sack
 			],
 		},
 		
@@ -402,18 +375,12 @@ var Quests = {
 			rewards: {
 				xp: 20,
 				items: [
-					Items.rod[2],
-				],
-				itemQuantities: [
-					1,
+					{item: Items.rod[2],},
 				],
 			},
 			
 			removeItems: [
-				Items.item[7], // Tobenam's Lost Fishing Rod (cleaned version given in its place)
-			],
-			removeItemQuantity: [
-				1,
+				{item: Items.item[7],}, // Tobenam's Lost Fishing Rod (cleaned version given in its place)
 			],
 		},
 		
@@ -561,10 +528,7 @@ var Quests = {
 			rewards: {
 				xp: 30,
 				items: [
-					Items.currency[2],
-				],
-				itemQuantities: [
-					2,
+					{item: Items.currency[2], quantity: 2,},
 				],
 				reputation: {
 					eaglecrestLoggingCamp: 50,
@@ -572,9 +536,6 @@ var Quests = {
 			},
 			
 			removeItems: [
-				// remove all traps
-			],
-			removeItemQuantity: [
 				// remove all traps
 			],
 		},
@@ -613,10 +574,7 @@ var Quests = {
 			rewards: {
 				xp: 30,
 				items: [
-					Items.currency[2],
-				],
-				itemQuantities: [
-					2,
+					{item: Items.currency[2], quantity: 2,},
 				],
 				reputation: {
 					eaglecrestLoggingCamp: 50,
@@ -624,9 +582,6 @@ var Quests = {
 			},
 			
 			removeItems: [
-				// remove all traps
-			],
-			removeItemQuantity: [
 				// remove all traps
 			],
 			
@@ -668,20 +623,14 @@ var Quests = {
 			
 			startRewards: {
 				items: [
-					Items.item[8], // soul sceptre
-				],
-				itemQuantities: [
-					1,
+					{item: Items.item[8],}, // soul sceptre
 				],
 			},
 			
 			rewards: {
 				xp: 30,
 				items: [
-					Items.currency[2],
-				],
-				itemQuantities: [
-					2,
+					{item: Items.currency[2], quantity: 2,},
 				],
 				reputation: {
 					eaglecrestLoggingCamp: 50,
@@ -689,10 +638,7 @@ var Quests = {
 			},
 			
 			removeItems: [
-				Items.item[8], // remove soul sceptre
-			],
-			removeItemQuantity: [
-				1,
+				{item: Items.item[8],}, // remove soul sceptre
 			],
 		},
 		
@@ -731,10 +677,7 @@ var Quests = {
 			
 			startRewards: {
 				items: [
-					Items.staff[7], // goblin torch
-				],
-				itemQuantities: [
-					1,
+					{item: Items.staff[7],}, // goblin torch
 				],
 			},
 			
@@ -747,10 +690,7 @@ var Quests = {
 			},
 			
 			removeItems: [
-				Items.staff[7], // remove goblin torch
-			],
-			removeItemQuantity: [
-				1,
+				{item: Items.staff[7],}, // remove goblin torch
 			],
 			
 			onQuestFinish: function() {
@@ -796,10 +736,7 @@ var Quests = {
 			rewards: {
 				xp: 30,
 				items: [
-					Items.currency[2],
-				],
-				itemQuantities: [
-					2,
+					{item: Items.currency[2], quantity: 2,},
 				],
 				reputation: {
 					eaglecrestLoggingCamp: 50,
@@ -807,12 +744,8 @@ var Quests = {
 			},
 			
 			removeItems: [
-				Items.item[3], // scrap of cloth
-				Items.item[4], // polished rock
-			],
-			removeItemQuantity: [
-				8,
-				8,
+				{item: Items.item[3], quantity: 8,}, // scrap of cloth
+				{item: Items.item[4], quantity: 8,}, // polished rock
 			],
 		},
 		
@@ -850,10 +783,7 @@ var Quests = {
 			rewards: {
 				xp: 30,
 				items: [
-					Items.currency[2],
-				],
-				itemQuantities: [
-					3,
+					{item: Items.currency[2], quantity: 3,},
 				],
 				reputation: {
 					eaglecrestLoggingCamp: 50,
@@ -861,10 +791,7 @@ var Quests = {
 			},
 			
 			removeItems: [
-				Items.item[5], // fiery rock
-			],
-			removeItemQuantity: [
-				1,
+				{item: Items.item[5],}, // fiery rock
 			],
 		},
 		
@@ -925,31 +852,20 @@ var Quests = {
 			
 			startRewards: {
 				items: [
-					Items.item[12],
-				],
-				itemQuantities: [
-					1,
+					{item: Items.item[12],},
 				],
 			},
 			
 			removeItems: [
-				Items.item[10], // goblin eye
-				Items.item[13], // bucket of Nilbog mud
-				Items.item[11], // vial of goblin blood
-			],
-			removeItemQuantity: [
-				2,
-				1,
-				1,
+				{item: Items.item[10], quantity: 2,}, // goblin eye
+				{item: Items.item[13],}, // bucket of Nilbog mud
+				{item: Items.item[11],}, // vial of goblin blood
 			],
 			
 			rewards: {
 				xp: 50,
 				items: [
-					Items.currency[2],
-				],
-				itemQuantities: [
-					2,
+					{item: Items.currency[2], quantity: 2,},
 				],
 				reputation: {
 					eaglecrestLoggingCamp: 50,
@@ -1001,23 +917,15 @@ var Quests = {
 			questRequirements: ["Potion Making"],
 			
 			removeItems: [
-				Items.item[10], // goblin eye
-				Items.fish[19], // direweed
-				Items.item[11], // vial of goblin blood
-			],
-			removeItemQuantity: [
-				2,
-				1,
-				1,
+				{item: Items.item[10], quantity: 2,}, // goblin eye
+				{item: Items.fish[19],}, // direweed
+				{item: Items.item[11],}, // vial of goblin blood
 			],
 			
 			rewards: {
 				xp: 50,
 				items: [
-					Items.currency[2],
-				],
-				itemQuantities: [
-					3,
+					{item: Items.currency[2], quantity: 3,},
 				],
 				reputation: {
 					eaglecrestLoggingCamp: 50,
@@ -1060,10 +968,7 @@ var Quests = {
 			rewards: {
 				xp: 30,
 				items: [
-					Items.currency[2],
-				],
-				itemQuantities: [
-					2,
+					{item: Items.currency[2], quantity: 2,},
 				],
 				reputation: {
 					eaglecrestLoggingCamp: 50,
@@ -1111,10 +1016,7 @@ var Quests = {
 			rewards: {
 				xp: 50,
 				items: [
-					Items.currency[2],
-				],
-				itemQuantities: [
-					5,
+					{item: Items.currency[2], quantity: 5,},
 				],
 				reputation: {
 					eaglecrestLoggingCamp: 200,
@@ -1160,10 +1062,7 @@ var Quests = {
 			rewards: {
 				xp: 25,
 				items: [
-					Items.currency[5],
-				],
-				itemQuantities: [
-					3,
+					{item: Items.currency[5], quantity: 3,},
 				],
 			},
 			
@@ -1217,13 +1116,9 @@ var Quests = {
 			rewards: {
 				xp: 50,
 				items: [
-					Items.currency[5],
-					//"mystery",
+					{item: Items.currency[5], quantity: 6,},
 				],
-				itemQuantities: [
-					6,
-					//1,
-				],
+				mystery: true,
 			},
 		},
 		
@@ -1263,10 +1158,7 @@ var Quests = {
 			},
 			
 			removeItems: [
-				Items.item[16], // remove goblin torch
-			],
-			removeItemQuantity: [
-				4,
+				{item: Items.item[16], quantity: 4,}, // remove goblin torch
 			],
 			
 			onQuestFinish: function() {
@@ -1302,10 +1194,7 @@ var Quests = {
 			},
 			startRewards: {
 				items: [
-					Items.consumable[5],
-				],
-				itemQuantities: [
-					1,
+					{item: Items.consumable[5],},
 				],
 			},
 			
@@ -1369,10 +1258,7 @@ var Quests = {
 			rewards: {
 				xp: 30,
 				items: [
-					Items.currency[3], // fishing seal
-				],
-				itemQuantities: [
-					1,
+					{item: Items.currency[3],}, // fishing seal
 				],
 			},
 			
@@ -1420,10 +1306,7 @@ var Quests = {
 			rewards: {
 				xp: 30,
 				items: [
-					Items.currency[3], // fishing seal
-				],
-				itemQuantities: [
-					1,
+					{item: Items.currency[3],}, // fishing seal
 				],
 			},
 			
@@ -1471,10 +1354,7 @@ var Quests = {
 			rewards: {
 				xp: 50,
 				items: [
-					Items.currency[3], // fishing seal
-				],
-				itemQuantities: [
-					2,
+					{item: Items.currency[3], quantity: 2,}, // fishing seal
 				],
 			},
 			
@@ -1522,10 +1402,7 @@ var Quests = {
 			rewards: {
 				xp: 30,
 				items: [
-					Items.currency[3], // fishing seal
-				],
-				itemQuantities: [
-					1,
+					{item: Items.currency[3],}, // fishing seal
 				],
 			},
 			
@@ -1576,10 +1453,7 @@ var Quests = {
 			rewards: {
 				xp: 30,
 				items: [
-					Items.currency[3], // fishing seal
-				],
-				itemQuantities: 
-					1,
+					{item: Items.currency[3],}, // fishing seal
 				],
 			},
 			
