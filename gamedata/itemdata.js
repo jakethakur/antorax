@@ -2120,14 +2120,14 @@ var Items = {
 			timeToCatch: 7000,			
 			onOpen: function () {
 				let loot = [];
-				let lootQuantities = [];
 				// fill up chest
 				// junk items
 				let possibleJunkItems = Items.fish.filter(item => item.fishingType === "waterjunk"); // filter for junk fishing items
 				let itemsChosen = 0; // cap out at 6 different junk items
 				possibleJunkItems.forEach(item => { 
 					if (itemsChosen < 8 && Random(0, 2) === 0) { // 1 in 3 chance of it being in the chest
-						loot.push(item);
+						let toBePushed = {};
+						toBePushed.item = item;
 						let itemStack = item.stack
 						if (itemStack === undefined) {
 							itemStack = 1;
@@ -2135,48 +2135,57 @@ var Items = {
 						else if (itemStack > 20) {
 							itemStack = 20;
 						}
-						lootQuantities.push(Random(1, itemStack));
+						toBePushed.quantity = Random(1, itemStack);
+						loot.push(toBePushed);
 						itemsChosen++;
 						if (Random(0, 1) === 0) { // 1 in 2 chance of a second stack
-							loot.push(item);
-							lootQuantities.push(Random(1, itemStack));
-							itemsChosen++;
+							toBePushed.quantity = Random(1, itemStack);
+							loot.push(toBePushed);
 						}
 					}
 				});
 				// gold
 				let goldStacks = Random(2, 5); // between 2 and 5 possible stacks of gold
 				for (let i = 0; i < goldStacks; i++) {
-					loot.push(Items.currency[2]);
-					lootQuantities.push(Random(1, 5));
+					let toBePushed = {
+						item: Items.currency[2],
+						quantity: Random(1, 5),
+					};
+					loot.push(toBePushed);
 				}
 				// unidentified items
 				let unidentifiedNumber = Random(1, 3); // between 1 and 3 unidentified items
 				for (let i = 0; i < unidentifiedNumber; i++) {
-						loot.push(new UnId(Player.lootArea, Player.lootTier));
-						lootQuantities.push(1);
+					let toBePushed = {
+						item: new UnId(Player.lootArea, Player.lootTier),
+						quantity: 1,
+					};
+					loot.push(toBePushed);
 				}
 				// Ocean Warrior's armour
 				let armourType = Random(0, 3);
+				let toBePushed = {
+					quantity: 1,
+				};
 				switch(armourType) { // pick random piece of armour from that set
 					case 0:
-						loot.push(Items.helm[6]);
+						toBePushed.item = Items.helm[6];
 						break;
 					case 1:
-						loot.push(Items.chest[6]);
+						toBePushed.item = Items.chest[6];
 						break;
 					case 2:
-						loot.push(Items.greaves[6]);
+						toBePushed.item = Items.greaves[6];
 						break;
 					case 3:
-						loot.push(Items.boots[8]);
+						toBePushed.item = Items.boots[8];
 						break;
 				}
-				lootQuantities.push(1);
+				loot.push(toBePushed);
 				
 				// open loot page
 				Dom.loot.currentId = "x"; // x means that nothing should be done when it is closed
-				Dom.choose.page("Sunken Chest", ["Loot chest!"], [Dom.loot.page], [["Sunken Chest", loot, lootQuantities, 24]]);
+				Dom.choose.page("Sunken Chest", ["Loot chest!"], [Dom.loot.page], [["Sunken Chest", loot, 24]]);
 			},
 		},
 		{

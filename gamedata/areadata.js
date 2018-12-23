@@ -2,321 +2,6 @@ const FishingLevels = {
 	loggingCamp: 10,
 };
 
-const LootTables = { // loot table templates
-	global: [
-		// all enemies have this (for events)
-		{ // samhain mark
-			item: Items.currency[4],
-			condition: function () {
-				if (Game.time === "bloodMoon") {
-					return true;
-				}
-				return false;
-			},
-			chance: [
-				75,				// 0
-				Infinity,		// 1
-			],
-		},
-	],
-	nilbogGoblin: [
-		{ // unidentified item
-			item: {
-				name: "unidentified",
-				tier: 1,
-				area: "loggingCamp",
-			},
-			chance: [ // number rolled from 0 to 100, and then multiplied by looting (100% default)
-				60,				// 0
-				Infinity,		// 1
-			],
-		},
-		{ // gold
-			item: Items.currency[2],
-			chance: [
-				80,				// 0
-				95,				// 1
-				Infinity,		// 2
-			],
-		},
-		{ // log
-			item: Items.item[2],
-			chance: [
-				80,				// 0
-				Infinity,		// 1
-			],
-		},
-		{ // scrap of cloth
-			item: Items.item[3],
-			chance: [
-				30,				// 0
-				Infinity,		// 1
-			],
-		},
-		{ // goblin brewed potion
-			item: Items.consumable[6],
-			chance: [
-				90,				// 0
-				Infinity,		// 1
-			],
-		},
-		{ // goblin sewn bag
-			item: Items.bag[3],
-			chance: [
-				98,				// 0
-				Infinity,		// 1
-			],
-		},
-		{ // Fisherman Tobenam's Lost Rod
-			item: Items.item[7],
-			condition: function () {
-				if (Player.quests.activeQuestArray.includes("A Lost Fishing Rod") && !Dom.inventory.check(7, "item", 1)) {
-					return true; // quest is active and player doesn't already have the rod
-				}
-				return false;
-			},
-			chance: [
-				65,				// 0
-				Infinity,		// 1
-			],
-		},
-		{ // goblin eye
-			item: Items.item[10],
-			chance: [
-				85,				// 0
-				87,				// 1
-				Infinity,		// 2
-			],
-		},
-	],
-	nilbogTowerGoblin: [ // as well as nilbogGoblin
-		{ // displacement grenade
-			item: Items.consumable[13],
-			chance: [
-				95,				// 0
-				Infinity,		// 1
-			],
-		},
-		{ // position reverser
-			item: Items.consumable[14],
-			chance: [
-				95,				// 0
-				Infinity,		// 1
-			],
-		},
-		{ // restorative timepiece
-			item: Items.consumable[15],
-			chance: [
-				95,				// 0
-				Infinity,		// 1
-			],
-		},
-		{ // arcane magnet
-			item: Items.item[15],
-			chance: [
-				95,				// 0
-				Infinity,		// 1
-			],
-		},
-		{ // tattered tome
-			item: Items.item[16],
-			chance: [
-				90,				// 0
-				Infinity,		// 1
-			],
-		},
-	],
-};
-
-const EnemyTemplates = {
-	nilbog: {
-		goblinRockthrower: {
-			image: "goblinRockthrower",
-			deathImage: "goblinCorpse",
-			name: "Goblin Rockthrower",
-			species: "goblin",
-			subSpecies: "nilbog goblin",
-			hostility: "hostile",
-			level: 2,
-			stats: {
-				damage: 3,
-				walkSpeed: 100,
-				maxHealth: 10,
-				range: 200,
-				healthRegen: 0.4,
-				reloadTime: 2000,
-				lootTime: 10000,
-				respawnTime: 11000,
-				variance: 100,
-			},
-			leashRadius: 350,
-			xpGiven: 10,
-			projectile: {
-				image: "rock",
-			},
-			lootTableTemplate: [LootTables.nilbogGoblin],
-			lootTable: [
-				{ // polished rock
-					item: Items.item[4],
-					chance: [
-						20,				// 0
-						70,				// 1
-						95,				// 2
-						Infinity,		// 3
-					],
-				},
-			],
-			inventorySpace: 8,
-		},
-		goblinSkirmisher: {
-			image: "goblinSkirmisher",
-			deathImage: "goblinCorpse",
-			name: "Goblin Skirmisher",
-			species: "goblin",
-			subSpecies: "nilbog goblin",
-			hostility: "hostile",
-			level: 2,
-			stats: {
-				damage: 2,
-				walkSpeed: 90,
-				maxHealth: 10,
-				defence: 2,
-				range: 60,
-				healthRegen: 0.4,
-				reloadTime: 1500,
-				lootTime: 10000,
-				respawnTime: 11000,
-			},
-			leashRadius: 350,
-			xpGiven: 10,
-			projectile: {
-				image: "melee",
-			},
-			lootTableTemplate: [LootTables.nilbogGoblin],
-			inventorySpace: 8,
-		},
-		goblinBruiser: {
-			image: "goblinBruiser",
-			deathImage: "goblinCorpse",
-			name: "Goblin Bruiser",
-			species: "goblin",
-			subSpecies: "nilbog goblin",
-			hostility: "hostile",
-			level: 3,
-			stats: {
-				damage: 4,
-				walkSpeed: 70,
-				maxHealth: 10,
-				defence: 3,
-				range: 60,
-				healthRegen: 0.4,
-				reloadTime: 2000,
-				lootTime: 10000,
-				respawnTime: 11000,
-			},
-			leashRadius: 350,
-			xpGiven: 10,
-			projectile: {
-				image: "melee",
-			},
-			lootTableTemplate: [LootTables.nilbogGoblin],
-			inventorySpace: 8,
-		},
-		fireGoblin: {
-			image: "fireGoblin",
-			deathImage: "goblinCorpse",
-			name: "Fire Goblin",
-			species: "goblin",
-			subSpecies: "nilbog goblin",
-			hostility: "hostile",
-			level: 4,
-			stats: {
-				damage: 3,
-				walkSpeed: 95,
-				maxHealth: 14,
-				defence: 1,
-				range: 140,
-				reloadTime: 2250,
-				healthRegen: 0.4,
-				flaming: 1,
-				lootTime: 10000,
-				respawnTime: 20000,
-			},
-			leashRadius: 350,
-			xpGiven: 20,
-			projectile: {
-				image: "fireball",
-			},
-			lootTableTemplate: [LootTables.nilbogGoblin],
-			lootTable: [
-				{ // firey rock
-					item: Items.item[5],
-					chance: [
-						50,				// 0
-						Infinity,		// 1
-					],
-				},
-			],
-			inventorySpace: 8,
-		},
-		goblinTowerkeeper: {
-			image: "goblinTowerkeeper",
-			deathImage: "goblinCorpse",
-			name: "Goblin Towerkeeper",
-			species: "goblin",
-			subSpecies: "nilbog goblin",
-			hostility: "hostile",
-			level: 5,
-			stats: {
-				damage: 3.5,
-				walkSpeed: 75,
-				maxHealth: 12,
-				defence: 8,
-				range: 90,
-				healthRegen: 0.4,
-				reloadTime: 1250,
-				lootTime: 10000,
-				respawnTime: 20000,
-			},
-			leashRadius: 300,
-			xpGiven: 35,
-			projectile: {
-				image: "melee",
-			},
-			lootTableTemplate: [LootTables.nilbogGoblin, LootTables.nilbogTowerGoblin],
-			inventorySpace: 8,
-		},
-		goblinCrusader: {
-			image: "goblinCrusader",
-			deathImage: "goblinCorpse",
-			name: "Goblin Crusader",
-			species: "goblin",
-			subSpecies: "nilbog goblin",
-			hostility: "hostile",
-			level: 5,
-			stats: {
-				damage: 5,
-				walkSpeed: 65,
-				maxHealth: 12,
-				defence: 10,
-				range: 60,
-				healthRegen: 0.4,
-				reloadTime: 2000,
-				lootTime: 10000,
-				respawnTime: 20000,
-				stun: 0.2,
-			},
-			leashRadius: 300,
-			xpGiven: 35,
-			projectile: {
-				image: "melee",
-			},
-			lootTableTemplate: [LootTables.nilbogGoblin, LootTables.nilbogTowerGoblin],
-			inventorySpace: 8,
-		},
-	},
-};
-
 var Areas = {
 	
 	tutorial: {
@@ -915,7 +600,7 @@ var Areas = {
 							{item: Items.sword[8], cost: 25, costCurrency: 5,}, // Permafrost
 						],
 						roleRequirement: function () {
-							return Game.event === "Christmas";
+							return Game.event === "Christmas" && Player.completedQuestArray.contains("Combat Training");
 						},
 						shopGreeting: "I have some special weapons you can purchase this Christmas.",
 					},
@@ -1006,7 +691,6 @@ var Areas = {
 						onClick: function () {
 							// remove the item
 							Dom.inventory.removeById(21, "fish", 1);
-							Dom.expand("information");
 							// start cutscene
 							Dom.changeBook("chatPage", true, false, 6000);
 							// quest progress
@@ -1105,7 +789,6 @@ var Areas = {
 						onClick: function () {
 							// remove the item
 							Dom.inventory.removeById(21, "fish");
-							Dom.expand("information");
 							// start cutscene
 							Dom.changeBook("chatPage", true, false, 6000);
 							// quest progress
@@ -1509,6 +1192,21 @@ var Areas = {
 		
 		checkpoint: false,
 		
+		chestData: {
+			spawnLocations: [
+				{x: 576, y: 30,},
+				{x: 1500, y: 150,},
+				{x: 1470, y: 640,},
+				{x: 1710, y: 340,},
+				{x: 845, y: 1373,},
+			],
+			spawnAmount: 1,
+			respawnTime: 1, // days
+			tier: 1,
+			lootTableTemplate: [ChestLootTables.nilbog],
+			inventorySpace: 16,
+		},
+		
 		areaTeleports: [
 			{
 				// teleport to logging camp (bridge - west)
@@ -1844,6 +1542,17 @@ var Areas = {
 		
 		checkpoint: false,
 		
+		chestData: {
+			spawnLocations: [
+				{x: 450, y: 475,},
+			],
+			spawnAmount: 1,
+			respawnTime: 2, // days
+			tier: 1,
+			lootTableTemplate: [ChestLootTables.nilbogTower],
+			inventorySpace: 16,
+		},
+		
 		areaTeleports: [
 			{
 				// teleport to floor 1
@@ -2177,6 +1886,17 @@ var Areas = {
 		song_day: "./assets/music/Pippin-the-Hunchback.mp3",
 		
 		checkpoint: false,
+		
+		chestData: {
+			spawnLocations: [
+				{x: 300, y: 350,},
+			],
+			spawnAmount: 1,
+			respawnTime: 2, // days
+			tier: 1,
+			lootTableTemplate: [ChestLootTables.nilbogTower],
+			inventorySpace: 16,
+		},
 		
 		areaTeleports: [
 			{

@@ -702,7 +702,6 @@ class Character extends Thing {
 	// respawn after death
 	respawn () {
 		this.loot = null;
-		this.lootQuantities = null;
 		
 		this.hasBeenSiphoned = false; // for quests
 		
@@ -1443,7 +1442,7 @@ class Hero extends Attacker {
 					if (Game.enemies[i].isCorpse) { // check enemy is a corpse (hence might be able to be looted) 
 						if (this.isTouching(Game.enemies[i]) && Game.enemies[i].loot !== null) { // player is touching enemy and enemy can be looted
 							Dom.choose.page(Game.enemies[i], ["Loot enemy"], [function () {
-								Dom.loot.page(Game.enemies[i].name, Game.enemies[i].loot, Game.enemies[i].lootQuantities, Game.enemies[i].inventorySpace);
+								Dom.loot.page(Game.enemies[i].name, Game.enemies[i].loot, Game.enemies[i].inventorySpace);
 								Dom.loot.currentId = "e"+i;
 								// "e"+i is a string that allows the loot menu to be identified - e means enemy, and i is the index of the enemy in Game.enemies
 								// the loot menu closes when the area changes anyway, so this will always work
@@ -2048,7 +2047,7 @@ class Enemy extends Attacker {
 			this.lootTable = lootTableTemplate;
 		}
 		// merge the loot table with the global loot table as Well
-		this.lootTable = this.lootTable.concat(LootTables.global)
+		this.lootTable = this.lootTable.concat(EnemyLootTables.global)
 		// see generateLoot() function in Enemy for how the lootTable works
 		
 		this.xpGiven = properties.xpGiven;
@@ -2057,7 +2056,7 @@ class Enemy extends Attacker {
 		
 		// set when the enemy dies
 		this.loot = null; // loot that can be picked up by player (null if the player cannot loot the enemy or already has)
-		this.lootQuantities = null; // quantity of each item of loot that is picked up by player
+		// loot is an array of objects, where the object has properties item and quantity
 	}
 	
 	update (delta) {
@@ -2181,11 +2180,10 @@ class Enemy extends Attacker {
 		this.channellingProjectileId = null;
 	}
 	
-	// generate loot from lootTable (called when enemy dies)
+	// generate loot from lootTable (called when enemy dies or a chest is added)
 	generateLoot (lootTable) {
-		if (this.loot === null && this.lootQuantities === null) {
+		if (this.loot === null) {
 			this.loot = [];
-			this.lootQuantities = [];
 			for (let i = 0; i < lootTable.length; i++) {
 				// check if item is eligible to be looted by the player (i.e. correct quest has been started, they haven't already looted it, etc.)
 				let itemCanBeLooted = true;
@@ -2204,14 +2202,28 @@ class Enemy extends Attacker {
 					let itemQuantity = lootTable[i].chance.indexOf(Math.min(...possibleDropChances)); // get the number of that item the player will get
 					
 					if (itemQuantity > 0) { // check that the player should recieve the item
-						if (lootTable[i].item.name === "unidentified") {
-							// construct unidentified item
-							this.loot.push(new UnId(lootTable[i].item.area, lootTable[i].item.tier));
-							this.lootQuantities.push(itemQuantity);
+						// if there are multiple items in an array, pick one at random
+						let item = lootTable[i].item;
+						if (item.constructor === Array) {
+							item = item[random(0, item.length - 1)];
+						}
+						
+						if (item.name === "unidentified") {
+							// repeat separately for each unidentified item
+							for (let i = 0; i < itemQuantity; i++) {
+								let itemToBePushed = {
+									item: new UnId(item.area, item.tier), // construct unidentified item
+									quantity: 1,
+								};
+								this.loot.push(itemToBePushed);
+							}
 						}
 						else {
-							this.loot.push(lootTable[i].item);
-							this.lootQuantities.push(itemQuantity);
+							let itemToBePushed = {
+								item: item,
+								quantity: itemQuantity,
+							};
+							this.loot.push(itemToBePushed);
 						}
 					}
 				}
@@ -2229,8 +2241,7 @@ class LootChest extends Thing {
 	constructor(properties) {
 		super(properties);
 		
-		this.loot = properties.loot; // items contained
-		this.lootQuantities = properties.lootQuantities;
+		this.loot = properties.loot; // items contained and their quantities
 		this.inventorySpace = properties.inventorySpace;
 		
 		this.disappearAfterOpened = properties.disappearAfterOpened; // whether it should hide straight after being looted (hence deleting any remaining loot)
@@ -2240,7 +2251,7 @@ class LootChest extends Thing {
 	
 	openLoot (arrayIndex) {
 		Dom.choose.page(this, ["Loot chest"], [function (chest) {
-			Dom.loot.page(chest.name, chest.loot, chest.lootQuantities, chest.inventorySpace);
+			Dom.loot.page(chest.name, chest.loot, chest.inventorySpace);
 			Dom.loot.currentId = "c"+arrayIndex;
 			// "c"+i is a string that allows the loot menu to be identified - c means chest, and arrayIndex is the index of the enemy in Game.chests
 			// the loot menu closes when the area changes anyway, so this will always work
@@ -3083,6 +3094,7 @@ Game.init = function () {
 	Dom.chat.oldString = "";
 	Dom.chat.newString = "";
 	Dom.chat.contents = [];
+	document.getElementById("dot").innerHTML = 0; // no unread messages to start
 	if (this.event === "Christmas") {
 	    Dom.chat.insert("Merry Christmas, " + Player.name + "!", 0, false, true);
 	}
@@ -3546,7 +3558,7 @@ Game.update = function (delta) {
 							if (questCanBeStarted) {
 								
 								if (typeof questToBeStarted.startRewards !== "undefined" && typeof questToBeStarted.startRewards.items !== "undefined") {
-									if (Dom.inventory.requiredSpace(questToBeStarted.startRewards.items, questToBeStarted.startRewards.itemQuantities)) {
+									if (Dom.inventory.requiredSpace(questToBeStarted.startRewards.items)) {
 										// user has space for quest start items
 										// quest start appears as an option for choose DOM
 										textArray.push("Quest start: " + questToBeStarted.quest);
@@ -3598,7 +3610,7 @@ Game.update = function (delta) {
 								// check if quest conditions have been fulfilled
 								if (Quests[role.quest.questArea][role.quest.id].completed) {
 									if (typeof role.quest.rewards !== "undefined" && typeof role.quest.rewards.items !== "undefined") {
-										if (Dom.inventory.requiredSpace(role.quest.rewards.items, role.quest.rewards.itemQuantities)) {
+										if (Dom.inventory.requiredSpace(role.quest.rewards.items)) {
 											// user has space for quest finish items
 											// quest finish appears as an option for choose DOM
 											textArray.push("Quest finish: " + role.quest.quest);
@@ -4808,10 +4820,11 @@ Game.secondary.render = function () {
 		
 		// level
 		this.ctx.font = "bold 30px MedievalSharp";
-		this.ctx.fillStyle = "lightGrey";
-		this.ctx.fillText(Player.level, 294, 519);	
-		this.ctx.fillStyle = "white";
-		this.ctx.fillText(Player.level, 292, 517);
+        this.ctx.textAlign = "center";
+        this.ctx.fillStyle = "lightGrey";
+        this.ctx.fillText(Player.level, 299, 519);    
+        this.ctx.fillStyle = "white";
+        this.ctx.fillText(Player.level, 297, 517);
 		
 		// status effect icons next to health bar
 		for(let i = 0; i < Game.hero.statusEffects.length; i++) {
