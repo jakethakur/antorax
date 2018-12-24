@@ -642,21 +642,21 @@ Dom.inventory.displayIdentification = function(display){
 
 Dom.inventory.stats = function(stat, value, array){ // stat should be in Title Case
 	if(stat === "Defence" || stat === "Block Defence" || stat === "Fishing Skill"){
-		return stat+": "+value+"<br>";
+		return stat+": "+Sign(value)+"<br>";
 	}else if(stat === "Critical Chance" || stat === "Dodge Chance" || stat === "Looting" || stat === "Reflection" || stat === "Life Steal" || stat === "Xp Bonus"){
-		return stat+": "+value+"%<br>";
+		return stat+": "+Sign(value)+"%<br>";
 	}else if(stat === "Health Regen" || stat === "Swim Speed" || stat === "Walk Speed" || stat === "Ice Speed" || stat === "Focus Speed"){
-		return stat+": "+value+"/s<br>";
+		return stat+": "+Sign(value)+"/s<br>";
 	}else if(stat === "Stun"){
-		return stat+": "+value+"s<br>";
+		return stat+": "+Sign(value)+"s<br>";
 	}else if(stat === "Reload Time"){
-		return stat+": "+(value/500)+"s<br>";
+		return stat+": "+(Sign(value/500))+"s<br>";
 	}else if(stat === "Flaming"){
-		return stat+": "+Romanize(value)+"<br>";
+		return stat+" "+Romanize(value)+"<br>";
 	}else if(stat === "Poison X"){
-		return "Poison: "+value+"/"+array.poisonY+"s<br>";
+		return "Poison: "+Sign(value)+"/"+array.poisonY+"s<br>";
 	}else if(stat === "Damage"){
-		return stat+": "+value + (array.maxDamage > value ? "-" + array.maxDamage : "")+"<br>";
+		return stat+": "+Sign(value) + (array.maxDamage > value ? "-" + array.maxDamage : "")+"<br>";
 	}else if(stat === "Frostaura"){
 		return stat+"<br>";
 	}else{
@@ -830,7 +830,7 @@ Dom.inventory.displayInformation = function(item, stacked, position){
 			document.getElementById("stats").innerHTML = item.use;
 		}
 		if(item.functionText !== undefined && item.chooseStats === undefined){
-			document.getElementById("stats").innerHTML += (document.getElementById("stats").innerHTML !== "" ? "<br><br>" : "") + item.functionText + (item.charges !== undefined ? "<br><br>" + item.charges + " Charges" : "");
+			document.getElementById("stats").innerHTML += (document.getElementById("stats").innerHTML !== "" ? "<br>" : "") + item.functionText + (item.charges !== undefined ? "<br><br>" + item.charges + " Charges" : "");
 		}
 		let lorebuyer = "";
 		if(item.lore !== undefined && item.lore !== "" && !Array.isArray(item.lore)){
@@ -2583,6 +2583,20 @@ Dom.loot.page = function(name, items, space){
 	Dom.changeBook("lootPage", true/*false*/, true);
 	//Dom.currentlyDisplayed = name;
 	Dom.loot.looted = [];
+	
+	for(let i = 0; i < items.length; i++){
+		if(items[i].item.stack === undefined){
+			items[i].item.stack = 1;
+		}
+		if(items[i].quantity === undefined){
+			items[i].quantity = 1;
+		}
+		if(items[i].quantity > items[i].item.stack){
+			items.push({item: items[i].item, quantity: items[i].quantity-items[i].item.stack,});
+			items[i].quantity = items[i].item.stack;
+		}
+	}
+	
 	for(let i = 0; i < items.length; i++){
 		Dom.loot.looted.push(items[i]);
 	}
@@ -2609,7 +2623,7 @@ Dom.loot.page = function(name, items, space){
 			let currentSpaceNum = Random(0, spaces.length-1);
 			let currentSpace = spaces[currentSpaceNum]; // random slot in the table array
 			spaces.splice(currentSpaceNum,1); // removes slot from the table array so it can't be chosen again
-			if(items[i].quantity !== undefined && items[i].quantity !== 1){
+			if(items[i].quantity !== 1){
 				document.getElementById("loot").getElementsByTagName("td")[currentSpace].innerHTML = "<img src=" + items[i].item.image + " class='lootOptions' id='"+i+"'><div class='lootStackNum'>"+items[i].quantity+"</div></img>";
 			}else{
 				document.getElementById("loot").getElementsByTagName("td")[currentSpace].innerHTML = "<img src=" + items[i].item.image + " class='lootOptions' id='"+i+"'><span class='lootStackNum'></span></img>";
@@ -2620,13 +2634,14 @@ Dom.loot.page = function(name, items, space){
 			document.getElementsByClassName("lootOptions")[i].onclick = function(){
 				Dom.expand("information");
 				if(Dom.inventory.requiredSpace([items[document.getElementsByClassName("lootOptions")[i].id]])){
-					Dom.inventory.give(items[document.getElementsByClassName("lootOptions")[i].id].item, items[document.getElementsByClassName("lootOptions")[i].id].quantity);
+					aaaDom.inventory.give(items[document.getElementsByClassName("lootOptions")[i].id].item, items[document.getElementsByClassName("lootOptions")[i].id].quantity);
 					document.getElementsByClassName("lootOptions")[i].outerHTML = "<span class='lootOptions'></span>";
 					document.getElementsByClassName("lootStackNum")[i].outerHTML = "<span class='lootStackNum'></span>";
+					console.log(Object.assign({}, Dom.loot.looted), document.getElementsByClassName("lootOptions")[i].id, i);
+					Dom.loot.looted.splice(document.getElementsByClassName("lootOptions")[i].id,1);
 				}else{
 					Dom.alert.page("You do not have enough space in your inventory for that item.");
 				}
-				Dom.loot.looted.splice(document.getElementsByClassName("lootOptions")[i].id,1);
 			};
 			document.getElementsByClassName("lootStackNum")[i].onclick = function(){
 				Dom.expand("information");
@@ -2634,10 +2649,10 @@ Dom.loot.page = function(name, items, space){
 					Dom.inventory.give(items[document.getElementsByClassName("lootOptions")[i].id].item, items[document.getElementsByClassName("lootOptions")[i].id].quantity);
 					document.getElementsByClassName("lootOptions")[i].outerHTML = "<span class='lootOptions'></span>";
 					document.getElementsByClassName("lootStackNum")[i].outerHTML = "<span class='lootStackNum'></span>";
+					Dom.loot.looted.splice(i,1);
 				}else{
 					Dom.alert.page("You do not have enough space in your inventory for that item.");
 				}
-				Dom.loot.looted.splice(document.getElementsByClassName("lootOptions")[i].id,1);
 			};
 			document.getElementsByClassName("lootOptions")[i].onmouseover = function(){
 				Dom.inventory.displayInformation(items[document.getElementsByClassName("lootOptions")[i].id].item, items[document.getElementsByClassName("lootOptions")[i].id].quantity);
@@ -2659,7 +2674,7 @@ Dom.loot.page = function(name, items, space){
 				}
 			}
 			Dom.changeBook(Player.tab, true);
-			Game.lootClosed([]);
+			Game.lootClosed(Dom.loot.looted);
 		}
 	},items ,space);
 }

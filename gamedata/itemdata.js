@@ -635,7 +635,7 @@ var Items = {
 			image: "assets/items/sword/9.png",
 			tier: 1,
 			rarity: "common",
-			lore: "",
+			lore: "This ice doesn't last forever.",
 			obtain: "Buy from a merchant during the Christmas event.",
 			sellPrice: 2,
 			stats: {
@@ -806,8 +806,8 @@ var Items = {
 			obtain: "Buy from a merchant during the Christmas event.",
 			sellPrice: 4,
 			stats: {
-				damage: 3,
-				maxDamage: 9,
+				damage: 4,
+				maxDamage: 12,
 				frostaura: true,
 			},
 			projectile: "frostball",
@@ -820,12 +820,12 @@ var Items = {
 			image: "assets/items/staff/10.png",
 			tier: 1,
 			rarity: "common",
-			lore: "",
+			lore: "This ice doesn't last forever.",
 			obtain: "Buy from a merchant during the Christmas event.",
 			sellPrice: 2,
 			stats: {
 				damage: 4,
-				maxDamage: 12,
+				maxDamage: 10,
 			},
 			projectile: "frostball",
 			projectileAdjust: {x: 0, y: 0},
@@ -1001,8 +1001,8 @@ var Items = {
 			obtain: "Buy from a merchant during the Christmas event.",
 			sellPrice: 4,
 			stats: {
-				damage: 4,
-				walkSpeed: -30,
+				damage: 3,
+				stun: 0.1,
 			},
 			projectile: "snowball",
 			projectileAdjust: {x: 0, y: 0},
@@ -1014,11 +1014,11 @@ var Items = {
 			image: "assets/items/bow/10.png",
 			tier: 1,
 			rarity: "common",
-			lore: "",
+			lore: "This ice doesn't last forever.",
 			obtain: "Buy from a merchant during the Christmas event.",
 			sellPrice: 2,
 			stats: {
-				damage: 4,
+				damage: 2.5,
 			},
 			projectile: "arrowSnow",
 			projectileAdjust: {x: 0, y: 0},
@@ -1427,9 +1427,12 @@ var Items = {
 			image: "assets/items/item/14.png",
 			functionText: "Click to take a screenshot",
 			onClick: function () {
-				//document.write('<img src="'+document.getElementById("game").toDataURL("image/png")+'"/>');
-				dataURL = document.getElementById("game").toDataURL("image/png");
-				Dom.alert.page("Would you like to save or discard the image? <img src="+dataURL+"></img>",1);
+				try{
+					dataURL = document.getElementById("game").toDataURL("image/png");
+					Dom.alert.page("Click the image to download<br><br><a href='"+dataURL+"' download><img src='"+dataURL+"' height='200px'></img></a>",0);
+				}catch(error){
+					console.error("Camera does not work on local versions. If you are using the main version please report this error.");
+				}
 			},
 		},
 		{

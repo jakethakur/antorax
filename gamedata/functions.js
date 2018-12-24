@@ -184,7 +184,7 @@ function CheckRightClick (e) {
 }
 
 // thanks to https://stackoverflow.com/a/4351575
-function ExecuteFunctionByName(functionName, context, args) {
+function ExecuteFunctionByName (functionName, context, args) {
 	let namespaces = functionName.split("."); // array of function namespaces
 	let func = namespaces.pop(); // set last function namespace
 	namespaces.forEach(namespace => {
@@ -193,4 +193,13 @@ function ExecuteFunctionByName(functionName, context, args) {
 	// call function and return its return
 	//return context[func](...args);
 	return context[func].apply(context, args); // context[func] = function to be called; context = this in function; args = array of function parameters
+}
+
+function Sign (value) {
+	if (value >= 0) {
+		return "+"+value;
+	}
+	else {
+		return value;
+	}
 }
