@@ -3296,16 +3296,7 @@ for(let i = 0; i < Player.statusEffects.length; i++){
 }
 let randomNPC = Player.metNPCs[Random(0, Player.metNPCs.length-1)];
 if(GetFullDate().substring(2,4) === "12" && !Player.days.includes(GetFullDate())){
-	Dom.mail.give(
-		25 - parseInt(GetFullDate().substring(0,2)) + " Days To Go!",
-		randomNPC,
-		ToCamelCase(randomNPC),
-		"text.page",
-		["Merry Christmas!",
-		"This is your free daily chistmas token. Spend it wisely!",
-		true, [], [], [[Items.currency[5]]]], [[Items.currency[5]]]
-	);
-	if(GetFullDate().substring(0,2) === "25" && !Player.days.includes(GetFullDate())){
+	if(GetFullDate().substring(0,2) === "25"){
 		Dom.mail.give(
 			"Merry Christmas!",
 			"Father Christmas",
@@ -3314,6 +3305,26 @@ if(GetFullDate().substring(2,4) === "12" && !Player.days.includes(GetFullDate())
 			["Merry Christmas!",
 			"Have a great Christmas! Please enjoy the 2018 Christmas gift.",
 			true, [], [], [[Items.item[17]]]], [[Items.item[17]]]
+		);
+	}else if(GetFullDate().substring(0,2) < "25"){
+		Dom.mail.give(
+			25 - parseInt(GetFullDate().substring(0,2)) + " Day"+(parseInt(GetFullDate().substring(0,2)) !== 24 ? "s" : "")+" To Go!",
+			randomNPC,
+			ToCamelCase(randomNPC),
+			"text.page",
+			["Merry Christmas!",
+			"This is your free daily chistmas token. Spend it wisely!",
+			true, [], [], [[Items.currency[5]]]], [[Items.currency[5]]]
+		);
+	}else{
+		Dom.mail.give(
+			parseInt(GetFullDate().substring(0,2)) + " of Christmas 2018",
+			randomNPC,
+			ToCamelCase(randomNPC),
+			"text.page",
+			["Merry Christmas!",
+			"This is your free daily chistmas token. Spend it wisely!",
+			true, [], [], [[Items.currency[5]]]], [[Items.currency[5]]]
 		);
 	}
 }

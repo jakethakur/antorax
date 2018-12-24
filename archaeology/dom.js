@@ -357,11 +357,11 @@ function arrange(){
 		document.getElementById("stats").innerHTML = "";
 		for(var i = 0; i < Object.keys(Items[viewedItemType][viewedItemId].stats).length; i++){
 			var replaceStat = Object.keys(Items[viewedItemType][viewedItemId].stats)[i].replace( /([A-Z])/g, " $1" );
-			if(Object.keys(Items[viewedItemType][viewedItemId].stats)[i] == "damage" && Items[viewedItemType][viewedItemId].stats.damage.includes("-")){
+			if(Object.keys(Items[viewedItemType][viewedItemId].stats)[i] == "damage" && Items[viewedItemType][viewedItemId].stats.maxDamage != undefined){
 				document.getElementById("stats").innerHTML += "<tr><td>Damage</td><td>"+StatsInfo.staffDamage+"</td></tr>";
 			}else if(Object.keys(Items[viewedItemType][viewedItemId].stats)[i] == "flaming"){
 				document.getElementById("stats").innerHTML += "<tr><td>Flaming</td><td>"+StatsInfo.flaming[Items[viewedItemType][viewedItemId].stats.flaming]+"</td></tr>";
-			}else{
+			}else if(StatsInfo[Object.keys(Items[viewedItemType][viewedItemId].stats)[i]] != undefined){
 				document.getElementById("stats").innerHTML += "<tr><td>"+replaceStat[0].toUpperCase()+replaceStat.slice(1)+"</td><td>"+StatsInfo[Object.keys(Items[viewedItemType][viewedItemId].stats)[i]]+"</td></tr>";
 			}
 		}
@@ -384,11 +384,13 @@ function arrange(){
 var StatsInfo = {
 	damage: "Changes damage dealt from a basic attack. Can interact with some spells and abilities to affect how strong they are.",
 	staffDamage: "Changes damage dealt from a basic attack. The maximum damage is achieved by channelling the projectile to its full size. Can interact with some spells and abilities to affect how strong they are.",
+	defence: "Reduces damage taken. 1 defence = 0.1 less damage taken.",
 	maxHealth: "Changes your maximum health.",
 	range: "The value that should be added to your range.",
-	defence: "Reduces damage taken. 1 defence = 0.1 less damage taken.",
+	reloadTime: "Minimum time between finishing an attack and starting a new one. Includes blocking for knight.",
 	walkSpeed: "Changes movement speed on land.",
 	swimSpeed: "Changes movement speed in water (and mud).",
+	iceSpeed: "Changes movement speed on ice.",
 	healthRegen: "Changes rate of health regeneration.",
 	looting: "Changes chance of receiving items from a corpse.",
 	focusSpeed: "Changes the speed that you can focus your shots.",
@@ -401,6 +403,8 @@ var StatsInfo = {
 	reflection: "Changes the amount of damage dealt back to enemies when you are attacked, as a percentage of the damage dealt to you. Doesn't reflect status effects.",
 	stun: "Changes the amount of time (in seconds) that you stun an enemy for after it attacks. When stunned, an enemy cannot move, attack, cast or channel. The enemy continues to regen.",
 	lifesteal: "Changes the amount of health healed for when you damage an enemy with a basic attack, as a percentage of the damage dealt. Doesn't heal for status effects.",
+	xpBonus: "Increases XP received as a percentage.",
+	frostaura: "Slows enemies by 50% within a 150px range.",
 	fishingSkill: "Changes the fish that can be fished up from a location.",
 }
 

@@ -596,9 +596,9 @@ var Areas = {
 						role: "merchant",
 						chooseText: "What have you got to sell this Christmas?",
 						sold: [
-							{item: Items.bow[10], cost: 5, costCurrency: 5,}, // Snowball Cannon
-							{item: Items.staff[10], cost: 5, costCurrency: 5,}, // Vulpric's Ice Staff
-							{item: Items.sword[9], cost: 5, costCurrency: 5,}, // Permafrost
+							{item: Items.bow[10], cost: 5, costCurrency: 5,}, // Crystal Bow
+							{item: Items.staff[10], cost: 5, costCurrency: 5,}, // Ice Staff
+							{item: Items.sword[9], cost: 5, costCurrency: 5,}, // Icicle
 						],
 						roleRequirement: function () {
 							return Game.event === "Christmas" && Player.quests.completedQuestArray.includes("Combat Training");
@@ -664,7 +664,7 @@ var Areas = {
 					},
 					{
 						role: "merchant",
-						chooseText: "tbd",
+						chooseText: "What have you got to sell this Christmas?",
 						sold: [
 							{item: Items.bow[9], cost: 25, costCurrency: 5,}, // Snowball Cannon
 							{item: Items.staff[9], cost: 25, costCurrency: 5,}, // Vulpric's Ice Staff
@@ -673,7 +673,7 @@ var Areas = {
 						roleRequirement: function () {
 							return Game.event === "Christmas" && Player.quests.completedQuestArray.includes("Retrieval of Logs");
 						},
-						shopGreeting: "tbd",
+						shopGreeting: "I have some rare weapons that you can buy this Christmas with your Christmas Tokens.",
 					},
 				],
 				chat: {
@@ -684,7 +684,7 @@ var Areas = {
 					identifyUnique: "Hmm, this item is of rather fine quality, adventurer.",
 					identifyMythic: "Wow! Some people would pay good money for that item!",
 					tooPoor: "You don't have enough gold to identify that. Kill and loot enemies to get some.",
-					shopLeave: "tbd",
+					shopLeave: "See you soon with some unidentified items!",
 				}
 			},
 			{

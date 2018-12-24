@@ -639,7 +639,8 @@ var Items = {
 			obtain: "Buy from a merchant during the Christmas event.",
 			sellPrice: 2,
 			stats: {
-				damage: 3,
+				damage: 4,
+				blockDefence: 10,
 			},
 			projectile: "slashFrost",
 			projectileAdjust: {x: 0, y: 0},
@@ -823,7 +824,8 @@ var Items = {
 			obtain: "Buy from a merchant during the Christmas event.",
 			sellPrice: 2,
 			stats: {
-				damage: 3,
+				damage: 4,
+				maxDamage: 12,
 			},
 			projectile: "frostball",
 			projectileAdjust: {x: 0, y: 0},
@@ -995,11 +997,12 @@ var Items = {
 			image: "assets/items/bow/9.png",
 			tier: 1,
 			rarity: "unique",
-			lore: "Not for firing at Marshall Teper",
+			lore: "Not for firing at Marshall Teper.",
 			obtain: "Buy from a merchant during the Christmas event.",
 			sellPrice: 4,
 			stats: {
-				damage: 3,
+				damage: 4,
+				walkSpeed: -30,
 			},
 			projectile: "snowball",
 			projectileAdjust: {x: 0, y: 0},
@@ -1015,7 +1018,7 @@ var Items = {
 			obtain: "Buy from a merchant during the Christmas event.",
 			sellPrice: 2,
 			stats: {
-				damage: 3,
+				damage: 4,
 			},
 			projectile: "arrowSnow",
 			projectileAdjust: {x: 0, y: 0},
@@ -1425,9 +1428,8 @@ var Items = {
 			functionText: "Click to take a screenshot",
 			onClick: function () {
 				//document.write('<img src="'+document.getElementById("game").toDataURL("image/png")+'"/>');
-				let dataURL = document.getElementById("game").toDataURL("image/png");
-				document.getElementById('btn-download').href = dataURL;
-				Dom.alert.page("Would you like to save or discard the image?",1);
+				dataURL = document.getElementById("game").toDataURL("image/png");
+				Dom.alert.page("Would you like to save or discard the image? <img src="+dataURL+"></img>",1);
 			},
 		},
 		{
