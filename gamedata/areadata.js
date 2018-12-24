@@ -242,7 +242,7 @@ var Areas = {
 						roleRequirement: function () {
 							return Player.quests.completedQuestArray.includes("Learning to Fish III");
 						},
-						shopGreeting: "If you do enough fishing, you can get some rare items. Heheh.",
+						shopGreeting: "If ya do enough fishing, you can get some rare items. Heheh.",
 					},
 				],
 				chat: {
@@ -253,6 +253,7 @@ var Areas = {
 					tooPoor: "You can't afford that, but don't let that stop ya from fishing!",
 					questProgress: "It's a great day to fish, heheh.",
 					// "&#9835; I'm fiiiiiiiishing in the rain! &#9835;"
+					christmasGreeting: "Heheh, what better to do on Christmas Day than to fish!",
 				},
 				canBeShown: function () {
 					return Player.quests.completedQuestArray.includes("To the Logging Camp");
@@ -424,6 +425,7 @@ var Areas = {
 			christmasTreeUnread: {christmas: "./assets/objects/christmasTreeUnread.png"},
 			lightsRB: {christmas: "./assets/objects/lightsRB.png"},
 			lightsGY: {christmas: "./assets/objects/lightsGY.png"},
+			christmasSapling: {christmas: "./assets/objects/christmasSapling.png"},
 		},
 		
 		song_day: "./assets/music/Pippin-the-Hunchback.mp3",
@@ -526,6 +528,21 @@ var Areas = {
 						role: "questStartFinish"
 					},
 					{
+						quest: Quests.eaglecrestLoggingCamp[23], 
+						role: "questStartFinish"
+					},
+					{
+						sold: [
+							{item: Items.consumable[18], cost: 0}, // christmas saplings
+						],
+						role: "merchant",
+						chooseText: "I need some more Christmas Saplings.",
+						roleRequirement: function () {
+							return Player.quests.activeQuestArray.includes("Deck the Halls!");
+						},
+						shopGreeting: "Take some Christmas Saplings to decorate the Logging Camp with.",
+					},
+					{
 						role: "text",
 						chooseText: "I found a pair of boots that I think might be yours.",
 						chat: "Are you sure? Give them here.<br>You're right, they were mine. They were stolen by a goblin during the recent goblin siege. Are you sure I can have them back? I will make sure that you are aptly rewarded.",
@@ -561,6 +578,8 @@ var Areas = {
 					questProgress: "Get on with your work!",
 					questComplete: "There's lots of work still to be done.",
 					inventoryFull: "You have no space to hold this. Empty your bags a bit and come back.",
+					shopLeave: "I expect a fine job done.",
+					christmasGreeting: "Yes, I <strong>do</strong> celebrate Christmas.",
 				},
 			},
 			{
@@ -596,9 +615,9 @@ var Areas = {
 						role: "merchant",
 						chooseText: "What have you got to sell this Christmas?",
 						sold: [
-							{item: Items.bow[10], cost: 5, costCurrency: 5,}, // Crystal Bow
-							{item: Items.staff[10], cost: 5, costCurrency: 5,}, // Ice Staff
-							{item: Items.sword[9], cost: 5, costCurrency: 5,}, // Icicle
+							{item: Items.bow[10], cost: 5, costCurrency: 3,}, // Crystal Bow
+							{item: Items.staff[10], cost: 5, costCurrency: 3,}, // Ice Staff
+							{item: Items.sword[9], cost: 5, costCurrency: 3,}, // Icicle
 						],
 						roleRequirement: function () {
 							return Game.event === "Christmas" && Player.quests.completedQuestArray.includes("Combat Training");
@@ -613,6 +632,7 @@ var Areas = {
 					chooseChat: `I trust your combat is going fine, ${Player.name}.`,
 					shopLeave: "I wish you the best in your battles.",
 					tooPoor: "You can't afford that. You know what to do - Kill!",
+					christmasGreeting: `Merry christmas, ${Player.name}! What better a day to be practising your combat.`,
 				},
 			},
 			{
@@ -685,6 +705,7 @@ var Areas = {
 					identifyMythic: "Wow! Some people would pay good money for that item!",
 					tooPoor: "You don't have enough gold to identify that. Kill and loot enemies to get some.",
 					shopLeave: "See you soon with some unidentified items!",
+					christmasGreeting: "Merry Christmas! I hope your Christmas archaeology progress is coming across nicely.",
 				}
 			},
 			{
@@ -742,6 +763,7 @@ var Areas = {
 					questProgress: "If you use the sceptre near dead enemies, soul essence will rush inside it.",
 					chooseChat: "Blessings to you.",
 					inventoryFull: "I don't think you have space for that.",
+					christmasGreeting: "You have my blessings on this sacred day.",
 				},
 			},
 			{
@@ -770,7 +792,7 @@ var Areas = {
 							{item: Items.consumable[7], cost: 0}, // goblin trap
 						],
 						role: "merchant",
-						roleText: "I need some more goblin traps.",
+						chooseText: "I need some more goblin traps.",
 						roleRequirement: function () {
 							return Player.quests.activeQuestArray.includes("Strengthening Defences") || Player.quests.activeQuestArray.includes("Reinforcing Defences");
 						},
@@ -783,6 +805,7 @@ var Areas = {
 					shopLeave: "Let's crush those goblins.",
 					inventoryFull: "Empty your inventory a bit and come back.",
 					questComplete: "I'll have more traps for you to place in a bit. Come back tomorrow.",
+					christmasGreeting: "Have a good Christmas. It's my day off for trap making today.",
 				},
 			},
 			{
@@ -863,6 +886,7 @@ var Areas = {
 					shopLeave: "Have a good day now.",
 					inventoryFull: "I'm not sure you have any space to carry that.",
 					tooPoor: "I don't think you have enough gold to buy that. Sorry.",
+					christmasGreeting: "Happy Christmas! I really hope you have a great day.",
 				},
 			},
 			{
@@ -911,6 +935,7 @@ var Areas = {
 					shopLeave: "Side effects? No. Trust me.",
 					inventoryFull: "You don't want to be carrying a potion with an inventory as full as yours. Come back with some free space.",
 					tooPoor: "You're not going to be able to buy that potion without enough gold.",
+					christmasGreeting: "My potions make a great Christmas drink.",
 				},
 			},
 		],
@@ -942,8 +967,8 @@ var Areas = {
 				name: "Mailbox",
 			},
 			{
-				x: 470,
-				y: 560,
+				x: 480,
+				y: 600,
 				readImage: "christmasTree",
 				unreadImage: "christmasTreeUnread",
 				name: "Christmas Tree",
@@ -1086,6 +1111,7 @@ var Areas = {
 					shopLeave: "See ya soon!",
 					inventoryFull: "How're ya gonna hold that?!",
 					tooPoor: "Ya can't afford that.",
+					christmasGreeting: "Ha, it's Christmas! Have a good 'un!",
 				},
 			},
 		],
@@ -1213,7 +1239,7 @@ var Areas = {
 				{x: 576, y: 30,},
 				{x: 1500, y: 150,},
 				{x: 1470, y: 640,},
-				{x: 1710, y: 340,},
+				{x: 1580, y: 1310,},
 				{x: 845, y: 1373,},
 			],
 			spawnAmount: 1,
@@ -1267,6 +1293,10 @@ var Areas = {
 						quest: Quests.eaglecrestLoggingCamp[14], 
 						role: "questStartFinish"
 					},
+					{
+						quest: Quests.eaglecrestLoggingCamp[24], 
+						role: "questStartFinish"
+					},
 				],
 				chat: {
 					notUnlockedRoles: "Very. Bored.",
@@ -1301,7 +1331,7 @@ var Areas = {
 							{item: Items.staff[8], cost: 15, costCurrency: 4}, // samhain broomstick
 						],
 						role: "merchant",
-						roleText: "I'd like to browse your Samhain event items.",
+						chooseText: "I'd like to browse your Samhain event items.",
 						shopGreeting: "I can exchange items from my realm with Samhain Marks for a limited time.",
 					},
 				],
@@ -1552,7 +1582,7 @@ var Areas = {
 			goblinCrusader: {normal: "./assets/enemies/goblinCrusader.png"},
 			goblinCorpse: {normal: "./assets/corpses/deadGoblin.png"},
 			melee: {normal: "./assets/projectiles/melee.png"},
-			lootChest: {normal: "./assets/objects/chest.png"},
+			lootChest: {normal: "./assets/objects/chestTower.png"},
 		},
 		
 		song_day: "./assets/music/Pippin-the-Hunchback.mp3",
@@ -1566,7 +1596,7 @@ var Areas = {
 			spawnAmount: 1,
 			respawnTime: 2, // days
 			tier: 1,
-			lootTableTemplate: [ChestLootTables.nilbogTower],
+			lootTableTemplate: [ChestLootTables.nilbog, ChestLootTables.nilbogTower],
 			inventorySpace: 16,
 		},
 		
@@ -1898,7 +1928,7 @@ var Areas = {
 			goblinCrusader: {normal: "./assets/enemies/goblinCrusader.png"},
 			goblinCorpse: {normal: "./assets/corpses/deadGoblin.png"},
 			melee: {normal: "./assets/projectiles/melee.png"},
-			lootChest: {normal: "./assets/objects/chest.png"},
+			lootChest: {normal: "./assets/objects/chestTower.png"},
 		},
 		
 		song_day: "./assets/music/Pippin-the-Hunchback.mp3",
@@ -1912,7 +1942,7 @@ var Areas = {
 			spawnAmount: 1,
 			respawnTime: 2, // days
 			tier: 1,
-			lootTableTemplate: [ChestLootTables.nilbogTower],
+			lootTableTemplate: [ChestLootTables.nilbog, ChestLootTables.nilbogTower],
 			inventorySpace: 16,
 		},
 		

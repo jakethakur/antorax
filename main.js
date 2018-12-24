@@ -560,6 +560,14 @@ class Character extends Thing {
 					"/me Hi" => "Character Hi"
 		*/
 		
+		// event chat changes
+		if (this.christmasDay) {
+			// chooseChat changed
+			if (this.chat.chooseChat !== undefined && this.chat.christmasGreeting !== undefined) {
+				this.chat.chooseChat = this.chat.christmasGreeting;
+			}
+		}
+		
 		this.direction = properties.direction || 0;
 		
 		this.statusEffects = [];
@@ -727,6 +735,16 @@ class Character extends Thing {
 		}
 		if (this.statusEffects.find(statusEffect => statusEffect.title.substring(startIndex, finishBeforeIndex) === title) !== undefined) {
 			return true;
+		}
+		return false;
+	}
+	
+	// check if the character has a status effect with the specific image name
+	hasStatusEffectType (imageName) {
+		for (let i = 0; i < this.statusEffects.length; i++) {
+			if (this.statusEffects[i].image === imageName) {
+				return true;
+			}
 		}
 		return false;
 	}
@@ -3055,7 +3073,7 @@ Game.init = function () {
 	Dom.chat.newString = "";
 	Dom.chat.contents = [];
 	document.getElementById("dot").innerHTML = 0; // no unread messages to start
-	if (this.event === "Christmas") {
+	if (this.christmasDay) {
 	    Dom.chat.insert("Merry Christmas, " + Player.name + "!", 0, false, true);
 	}
 	else {
@@ -3290,6 +3308,13 @@ Game.checkEvents = function () {
 	// Christmas
 	else if (month === 12) {
 		Game.event = "Christmas";
+		// Christmas Day
+		if (day === 25) {
+			Game.christmasDay = true;
+		}
+		else {
+			Game.christmasDay = false;
+		}
 	}
 }
 

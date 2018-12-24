@@ -1062,7 +1062,7 @@ var Quests = {
 			rewards: {
 				xp: 25,
 				items: [
-					{item: Items.currency[5], quantity: 3,},
+					{item: Items.currency[5], quantity: 2,},
 				],
 			},
 			
@@ -1078,7 +1078,7 @@ var Quests = {
 			questArea: "eaglecrestLoggingCamp",
 			
 			startName: "Fisherman Tobenam",
-			startChat: `tbd`,
+			startChat: `There're Christmas presents in the river! I saw it! The sleigh crashed! Heheh, maybe you could help to fish them up and deliver them!`,
 			
 			finishName: "You saved Christmas!",
 			finishChat: `The last present is for you!<br>Merry Christmas, ${Player.name}!`,
@@ -1124,6 +1124,51 @@ var Quests = {
 		
 		{
 			id: 23,
+			quest: "Deck the Halls!",
+			questArea: "eaglecrestLoggingCamp",
+			
+			startName: "Marshall Teper",
+			startChat: `Merry Christmas. For us to win the Antorax Christmas Decoration Competition in the Logging Camp this year, we're going to need to make more of an effort than this. Plant some new Christmas Trees around the camp.`,
+			
+			finishName: "Marshall Teper",
+			finishChat: `Hmm, I guess that looks fine.`,
+			
+			objectives: [
+				"Place at least 5 Christmas Saplings around the Logging Camp. <em>(click on one to place it)</em>",
+				"Speak to <strong>Marshall Teper</strong>.",
+			],
+			
+			isCompleted: function() {
+				let completed = [];
+				
+				// true or falses for each objective (apart from the turn-in objective)
+				completed.push(checkProgress(Player.quests.questProgress.christmasSaplingsPlaced, 5));
+				
+				completed = checkFinished(completed);
+				
+				return completed;
+			},
+			
+			howToStart: "Speak to <strong>Marshall Teper</strong>.",
+			levelRequirement: 2,
+			questRequirements: ["Retrieval of Logs"],
+			
+			repeatTime: "daily",
+			
+			rewards: {
+				xp: 25,
+				items: [
+					{item: Items.currency[5], quantity: 2,},
+				],
+			},
+			
+			resetVariables: [
+				"christmasSaplingsPlaced",
+			],
+		},
+		
+		{
+			id: 24,
 			quest: "A 'Spark' of Imagination",
 			questArea: "eaglecrestLoggingCamp",
 			

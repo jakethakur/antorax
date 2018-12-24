@@ -1461,14 +1461,23 @@ var Items = {
 			name: "DOM, the Gingerbread Robot",
 			type: "item",
 			image: "assets/items/item/17.png",
-			functionText: "A present from Christmas Day, 2018",
-			lore: "A trusty companion. Do not eat.",
-			chat: {
-				levelUp: "User level up. Congratulations.",
-				death: "Resummoning user. Be more careful next time.",
-				bossKill: "Skillfull.",
-				ponder: ["Incoming message from a nearby device. Commence message: 'beep boop'. End message.",
-				"Error 404: User not found. Oh. User found. Never mind.",],
+			functionText: "Restores 20 health over 10 seconds (whilst not in combat)",
+			lore: "A trusty companion. A tasty snack.<br><br>Obtained as a present from Christmas Day, 2018",
+			onClick: function (inventoryPosition) {
+				// item is NOT removed!
+				
+				// give food status effect to player if they do not have one already
+				if (!Game.hero.hasStatusEffectType("food")) {
+					Game.statusEffects.food({
+						target: Game.hero,
+						effectTitle: "Gingerbread",
+						healthRestore: 20,
+						time: 10,
+					});
+					
+					// chat message
+					Game.sayChat("DOM, the Gingerbread Robot", "Gingerbread matrices restoring.", false, 300, false);
+				}
 			},
 		},
 	],
@@ -1631,7 +1640,6 @@ var Items = {
 					
 					// place trap
 					let trapObject = {
-						map: map,
 						map: map,
 						image: "trap",
 						name: "Goblin Trap",
@@ -1907,6 +1915,40 @@ var Items = {
 				},30000);
 				// should be a status effect
 				//tbd
+			}
+		},
+		{
+			id: 18,
+			name: "Christmas Sapling",
+			type: "consumable",
+			image: "assets/items/consumable/18.png",
+			functionText: "Places a trap (can only be used in the Logging Camp)",
+			lore: "It will soon flourish into a beautiful tree!",
+			onClick: function (inventoryPosition) {
+				if (Game.areaName === "eaglecrestLoggingCamp" && Game.event === "Christmas") { // it can only be placed in the logging camp during christmas
+					// remove the item
+					Dom.inventory.remove(inventoryPosition);
+					
+					// quest progress
+					if (Player.quests.questProgress.christmasSaplingsPlaced !== undefined) {
+						Player.quests.questProgress.christmasSaplingsPlaced++;
+					}
+					else {
+						Player.quests.questProgress.christmasSaplingsPlaced = 1;
+					}
+					
+					// place sapling
+					let saplingObject = {
+						map: map,
+						image: "christmasSapling",
+						name: "Christmas Sapling",
+						x: Game.hero.x,
+						y: Game.hero.y,
+						type: "things",
+					};
+					Game.things.push(new Thing(saplingObject)); // place in the current area
+					Areas.eaglecrestLoggingCamp.things.push(saplingObject); // save in areadata.js for if the player leaves and rejoins the area
+				}
 			}
 		},
 	],
