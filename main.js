@@ -561,7 +561,7 @@ class Character extends Thing {
 		*/
 		
 		// event chat changes
-		if (this.christmasDay) {
+		if (Game.christmasDay) {
 			// chooseChat changed
 			if (this.chat.chooseChat !== undefined && this.chat.christmasGreeting !== undefined) {
 				this.chat.chooseChat = this.chat.christmasGreeting;
