@@ -195,11 +195,20 @@ function ExecuteFunctionByName (functionName, context, args) {
 	return context[func].apply(context, args); // context[func] = function to be called; context = this in function; args = array of function parameters
 }
 
-function Sign (value) {
+// ensure that value has a + or - sign before it
+// the returned value is a string (even though the inputted value is normally an int)
+function NumberSign (value) {
 	if (value >= 0) {
-		return "+"+value;
+		return "+" + value;
 	}
 	else {
+		// negative; no reason to add sign (already has)
 		return value;
 	}
+}
+
+// returns a deep clone of the object
+// this is the fastest way to do it in general - see https://stackoverflow.com/a/5344074/9713957
+function DeepCloneObject (obj) {
+	return JSON.parse(JSON.stringify(obj));
 }

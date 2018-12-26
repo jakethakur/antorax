@@ -121,6 +121,13 @@ const EnemyLootTables = {
 				Infinity,		// 1
 			],
 		},
+		{ // tower chest key
+			item: Items.item[18],
+			chance: [
+				96,				// 0
+				Infinity,		// 1
+			],
+		},
 	],
 };
 

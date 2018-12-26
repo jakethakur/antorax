@@ -642,21 +642,21 @@ Dom.inventory.displayIdentification = function(display){
 
 Dom.inventory.stats = function(stat, value, array){ // stat should be in Title Case
 	if(stat === "Defence" || stat === "Block Defence" || stat === "Fishing Skill"){
-		return stat+": "+Sign(value)+"<br>";
+		return stat+": "+NumberSign(value)+"<br>";
 	}else if(stat === "Critical Chance" || stat === "Dodge Chance" || stat === "Looting" || stat === "Reflection" || stat === "Life Steal" || stat === "Xp Bonus"){
-		return stat+": "+Sign(value)+"%<br>";
+		return stat+": "+NumberSign(value)+"%<br>";
 	}else if(stat === "Health Regen" || stat === "Swim Speed" || stat === "Walk Speed" || stat === "Ice Speed" || stat === "Focus Speed"){
-		return stat+": "+Sign(value)+"/s<br>";
+		return stat+": "+NumberSign(value)+"/s<br>";
 	}else if(stat === "Stun"){
-		return stat+": "+Sign(value)+"s<br>";
+		return stat+": "+NumberSign(value)+"s<br>";
 	}else if(stat === "Reload Time"){
-		return stat+": "+(Sign(value/500))+"s<br>";
+		return stat+": "+(NumberSign(value/500))+"s<br>";
 	}else if(stat === "Flaming"){
 		return stat+" "+Romanize(value)+"<br>";
 	}else if(stat === "Poison X"){
-		return "Poison: "+Sign(value)+"/"+array.poisonY+"s<br>";
+		return "Poison: "+NumberSign(value)+"/"+array.poisonY+"s<br>";
 	}else if(stat === "Damage"){
-		return stat+": "+Sign(value) + (array.maxDamage > value ? "-" + array.maxDamage : "")+"<br>";
+		return stat+": "+NumberSign(value) + (array.maxDamage > value ? "-" + array.maxDamage : "")+"<br>";
 	}else if(stat === "Frostaura"){
 		return stat+"<br>";
 	}else{
@@ -2435,6 +2435,9 @@ Dom.inventory.find = function(ID, type, notEquipped, calledByCheck){
 	}
 }
 
+// returns true or false depending on if an item (specified by id and type) is in player's inventory or not
+// num checks for a certain number of them (defaults to 1)
+// notEquipped means it must not be equipped (defaults to false)
 Dom.inventory.check = function(ID, type, num, notEquipped){
 	let completed = Dom.inventory.find(ID, type, notEquipped, true);
 	if(num !== undefined){
@@ -2634,7 +2637,7 @@ Dom.loot.page = function(name, items, space){
 			document.getElementsByClassName("lootOptions")[i].onclick = function(){
 				Dom.expand("information");
 				if(Dom.inventory.requiredSpace([items[document.getElementsByClassName("lootOptions")[i].id]])){
-					aaaDom.inventory.give(items[document.getElementsByClassName("lootOptions")[i].id].item, items[document.getElementsByClassName("lootOptions")[i].id].quantity);
+					Dom.inventory.give(items[document.getElementsByClassName("lootOptions")[i].id].item, items[document.getElementsByClassName("lootOptions")[i].id].quantity);
 					document.getElementsByClassName("lootOptions")[i].outerHTML = "<span class='lootOptions'></span>";
 					document.getElementsByClassName("lootStackNum")[i].outerHTML = "<span class='lootStackNum'></span>";
 					console.log(Object.assign({}, Dom.loot.looted), document.getElementsByClassName("lootOptions")[i].id, i);
@@ -3309,9 +3312,11 @@ for(let i = 0; i < Player.statusEffects.length; i++){
 		document.getElementById("speedOn").checked = true;
 	}
 }
-let randomNPC = Player.metNPCs[Random(0, Player.metNPCs.length-1)];
-if(GetFullDate().substring(2,4) === "12" && !Player.days.includes(GetFullDate())){
-	if(GetFullDate().substring(0,2) === "25"){
+
+// christmas daily rewards
+if (GetFullDate().substring(2,4) === "12" && !Player.days.includes(GetFullDate())) {
+	let randomNPC = Player.metNPCs[Random(0, Player.metNPCs.length-1)]; // NPC that sent message
+	if (GetFullDate().substring(0,2) === "25") { // christmas day
 		Dom.mail.give(
 			"Merry Christmas!",
 			"Father Christmas",
@@ -3319,9 +3324,10 @@ if(GetFullDate().substring(2,4) === "12" && !Player.days.includes(GetFullDate())
 			"text.page",
 			["Merry Christmas!",
 			"Have a great Christmas! Please enjoy the 2018 Christmas gift.",
-			true, [], [], [[Items.item[17]]]], [[Items.item[17]]]
+			true, [], [], [[Items.item[17]]]], [[Items.item[17]]] // TBD should also give 5 christmas tokens
 		);
-	}else if(GetFullDate().substring(0,2) < "25"){
+	}
+	else if (GetFullDate().substring(0,2) < "25") { // before christmas
 		Dom.mail.give(
 			25 - parseInt(GetFullDate().substring(0,2)) + " Day"+(parseInt(GetFullDate().substring(0,2)) !== 24 ? "s" : "")+" To Go!",
 			randomNPC,
@@ -3331,7 +3337,8 @@ if(GetFullDate().substring(2,4) === "12" && !Player.days.includes(GetFullDate())
 			"This is your free daily chistmas token. Spend it wisely!",
 			true, [], [], [[Items.currency[5]]]], [[Items.currency[5]]]
 		);
-	}else{
+	}
+	else { // after christmas (in december)
 		Dom.mail.give(
 			parseInt(GetFullDate().substring(0,2)) + " of Christmas 2018",
 			randomNPC,
@@ -3343,12 +3350,16 @@ if(GetFullDate().substring(2,4) === "12" && !Player.days.includes(GetFullDate())
 		);
 	}
 }
-if(!Player.days.includes(GetFullDate())){
+
+// days logged on by player
+if (!Player.days.includes(GetFullDate())) {
 	Player.days.push(GetFullDate());
 }
 
-// FIXES
-if(Player.chestsOpened === undefined){
+//
+// savedata FIXES
+//
+if (Player.chestsOpened === undefined) {
 	Player.chestsOpened = {
 		nilbog: 0,
 		nilbogTower2: 0,
@@ -3356,24 +3367,28 @@ if(Player.chestsOpened === undefined){
 	};
 }
 
-// TESTING
+//
+// TESTING functions
+//
 Dom.testing = {};
-Dom.testing.completeQuest = function(quest){
-	if(quest.constructor.name === "String"){
-		for(let i = 0; i < Object.keys(Quests).length; i++){
-			for(let x = 0; x < Quests[Object.keys(Quests)[i]].length; x++){
-				if(Quests[Object.keys(Quests)[i]][x].quest === quest){
+
+// complete a quest as if the player had done it manually
+Dom.testing.completeQuest = function(quest) {
+	if (quest.constructor.name === "String") {
+		for (let i = 0; i < Object.keys(Quests).length; i++) {
+			for (let x = 0; x < Quests[Object.keys(Quests)[i]].length; x++) {
+				if (Quests[Object.keys(Quests)[i]][x].quest === quest) {
 					quest = Quests[Object.keys(Quests)[i]][x];
 				}
 			}
 		}
 	}
 	Dom.currentlyDisplayed = quest;
-	if(!Player.quests.activeQuestArray.includes(quest.quest)){
+	if (!Player.quests.activeQuestArray.includes(quest.quest)) {
 		Dom.quest.start(quest);
 		Dom.quest.accept();
 	}
 	Dom.quest.finish(quest);
 	//Dom.quest.acceptRewards();
-	return quest.quest
-}		
+	return quest.quest;
+}

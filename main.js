@@ -1365,7 +1365,7 @@ class Hero extends Attacker {
 			}
 			else {
 				// knight block attack
-				if (Player.inventory.weapon.type === "bow") {
+				if (Player.inventory.weapon.type === "sword") {
 					this.channelling = "block";
 				}
 			}
@@ -1479,11 +1479,33 @@ class Hero extends Attacker {
 					if (this.isTouching(Game.chests[i]) && Game.chests[i].loot !== null && Dom.currentlyDisplayed === "") {
 						// canBeLooted function
 						if (Game.chests[i].canBeLooted === undefined || Game.chests[i].canBeLooted()) {
-							Game.chests[i].openLoot(i);
-							interactionDone = true;
+							// check for locked chest
+							if (!Game.chests[i].locked) {
+								// chest not locked
+							}
+							else if (Game.chests[i].locked && Dom.inventory.check(Game.chests[i].chestKey.id, Game.chests[i].chestKey.type)) {
+								// chest locked but player has key
+								// remove key
+								Dom.inventory.removeById(Game.chests[i].chestKey.id, Game.chests[i].chestKey.type);
+								// unlock chest (for if the player opens it again before changing area)
+								Game.chests[i].locked = false;
+								// chat message to tell them that a key was used
+								Dom.chat.insert("You used a <strong>" + Game.chests[i].chestKey.name + "</strong> to unlock the Loot Chest.", 0);
+							}
+							else {
+								// chest locked and doesn't have a key
+								// chat message to tell them this
+								Dom.chat.insert("The Loot Chest is locked! You need a <strong>" + Game.chests[i].chestKey.name + "</strong> to unlock it.", 0, true);
+							}
+							
+							// if the chest has been unlocked, open the chest!
+							if (!Game.chests[i].locked) {
+								Game.chests[i].openLoot(i);
+								interactionDone = true;
+							}
 						}
 					}
-					// should flash red if player can't loot it
+					// tbd should flash red if player can't loot it
 				}
 			}
 			
@@ -1835,12 +1857,19 @@ class Projectile extends Thing {
 						
 						// poison
 						if (attacker.stats.poisonX > 0 && attacker.stats.poisonY > 0) { // check target weapon has poison
-							Game.statusEffects.poison(to[i][x], attacker.stats.poisonX, attacker.stats.poisonY);
+							Game.statusEffects.poison({
+								target: to[i][x],
+								poisonDamage: attacker.stats.poisonX,
+								time: attacker.stats.poisonY,
+							});
 						}
 						
 						// flaming
 						if (attacker.stats.flaming > 0) { // check target weapon has flaming
-							Game.statusEffects.fire(to[i][x], attacker.stats.flaming);
+							Game.statusEffects.fire({
+								target: to[i][x],
+								tier: attacker.stats.flaming,
+							});
 						}
 						
 						// reflection
@@ -2220,6 +2249,16 @@ class LootChest extends Thing {
 		this.disappearAfterOpened = properties.disappearAfterOpened; // whether it should hide straight after being looted (hence deleting any remaining loot)
 		
 		this.canBeLooted = properties.canBeLooted; // optional function (returns false if the item is still shown but shouldn't be looted)
+		
+		this.chestKey = properties.chestKey; // the item required to open the chest (and removed once it is opened)
+		// if the chest cannot be opened because of the lack of a key, the player is told about this in chat
+		
+		// chest is locked if the chest requires a chestKey
+		// note that this property is reset on areaChange (hence the chest has either been removed or will be locked again when the player returns)
+		this.locked = false;
+		if (this.chestKey !== undefined) {
+			this.locked = true;
+		}
 	}
 	
 	openLoot (arrayIndex) {
@@ -2303,6 +2342,8 @@ function statusEffect(properties) {
 	this.tick = properties.tick; // function to be carried out every second
 	
 	this.image = properties.image; // image to be shown
+	
+	this.owner = properties.owner; // who the status effect was inflicted upon
 }
 
 // check through owner's status effects to see which can be removed (due to having expired)
@@ -2373,147 +2414,33 @@ Game.removeTileStatusEffects = function (target, keep) {
 	}
 }
 
-// give target the poison debuff
-// damage per second = damage / time
-// TBD decide if defence should affect this
-Game.statusEffects.poison = function(target, damage, time) {
-	target.statusEffects.push(new statusEffect({
-		title: "Poisoned",
-		effect: "Take " + damage + " damage over " + time + " seconds.",
-		info: {
-			poisonDamage: damage,
-			time: time,
-			ticks: 0, // increased by 1 every tick
-		},
-		tick: function (owner) { // deal poison damage every second
-			if (this.info.ticks < this.info.time) { // check poison has not expired
-				owner.takeDamage(this.info.poisonDamage / this.info.time);
-				this.info.ticks++;
-				if (owner.constructor.name === "Hero") { // refresh canvas status effects if the status effect was applied to player
-					Game.hero.updateStatusEffects();
-				}
-				setTimeout(function (owner) {
-					this.tick(owner);
-				}.bind(this), 1000, owner);
-			}
-			else { // remove poison interval
-				Game.removeStatusEffect(owner);
-			}
-		},
-		image: "poison",
-	}));
-	
-	// begin poison tick
-	setTimeout(function (owner) {
-		this.tick(owner);
-	}.bind(target.statusEffects[target.statusEffects.length - 1]), 1000, target);
-	
-	if (target.constructor.name === "Hero") { // refresh canvas status effects if the status effect was applied to player
-		Game.hero.updateStatusEffects();
-	}
-}
-
-// give target the fire debuff
-Game.statusEffects.fire = function(target, tier) {
-	// turn tier into roman numeral (function in dom)
-	tier = Romanize(tier);
-	
-	// try to find an existing flaming effect of the tier
-	let found = target.statusEffects.findIndex(function(element) {
-		return element.title === ("Fire " + tier);
-	});
-	
-	// see if the target is in water (hence cannot be set on fire)
-	let water = target.statusEffects.filter(statusEffect => statusEffect.title === "Swimming");
-	
-	if (found === -1 && water.length === 0) { // no fire effect of that tier currently applied to the target
-		
-		let damagePerSecond = 0;
-		let time = 0;
-		// find what tier does
-		if (tier === "I") {
-			damagePerSecond = 1;
-			time = 3;
-		}
-		else {
-			console.error("Fire status effect tier " + tier + " has not been assigned damage and time");
-		}
-		
-		target.statusEffects.push(new statusEffect({
-			title: "Fire " + tier,
-			effect: "Take " + damagePerSecond + " damage every second for " + time + " seconds.",
-			info: {
-				fireDamagePerSecond: damagePerSecond,
-				time: time,
-				ticks: 0, // increased by 1 every tick
-			},
-			tick: function (owner) { // deal fire damage every second
-				if (this.info.ticks < this.info.time) { // check effect has not expired
-					owner.takeDamage(this.info.fireDamagePerSecond);
-					this.info.ticks++;
-					if (owner.constructor.name === "Hero") { // refresh canvas status effects if the status effect was applied to player
-						Game.hero.updateStatusEffects();
-					}
-					setTimeout(function (owner) {
-						this.tick(owner);
-					}.bind(this), 1000, owner);
-				}
-				else { // remove effect interval
-					Game.removeStatusEffect(owner);
-				}
-			},
-			image: "fire",
-		}));
-		
-		// begin fire tick
-		setTimeout(function (owner) {
-			this.tick(owner);
-		}.bind(target.statusEffects[target.statusEffects.length - 1]), 1000, target);
-	}
-	else if (found !== -1) { // extend existing fire effect
-		target.statusEffects[found].info.ticks = 0;
-	}
-	
-	if (target.constructor.name === "Hero") { // refresh canvas status effects if the status effect was applied to player
-		Game.hero.updateStatusEffects();
-	}
-}
-
 // give target a buff/debuff
 // properties includes target, effectTitle, effectDescription, increasePropertyName(optional), increasePropertyValue(optional), time(optional), imageName, onExpire(optional)
 Game.statusEffects.generic = function (properties) {
-	// try to find an existing effect that does the same and has the same name
-	let found = properties.target.statusEffects.findIndex(function(element) {
-		return element.title === properties.effectTitle &&
-		(properties.increasePropertyName === undefined || element.info[properties.increasePropertyName] === properties.increasePropertyValue);
-	});
+	// check that the effect stacks (note that this is opt-out not opt-in - properties.effectStacks must be set to false if it doesn't stack)
+	let found = -1;
+	if (properties.effectStacks !== false) {
+		// effect DOES stack
+		// try to find an existing effect that does the same and has the same name
+		found = properties.target.statusEffects.findIndex(function(element) {
+			return element.title === properties.effectTitle &&
+			(properties.increasePropertyName === undefined || element.info[properties.increasePropertyName] === properties.increasePropertyValue);
+		});
+	}
 	
-	if (found === -1) { // no similar effect currently applied to the target
+	if (found === -1) { // no similar effect currently applied to the target, or effect doesn't stack
 		
-		// effect text
-		let effectText;
-		if (typeof properties.increasePropertyValue === "number") {
-			// effect text should be about a specific property being increased
-			if (properties.increasePropertyValue > 0) {
-				effectText = "+";
-			}
-			else {
-				effectText = ""; // no need for 2 '-'s
-			}
-			effectText = effectText + properties.increasePropertyValue + properties.effectDescription; // effectDescription example: "% attack damage"
-		}
-		else {
-			// no specific property is increased - allow the effectDescription to be completely chosen
-			effectText = properties.effectDescription; // effectDescription example: "Cannot move"
-		}
+		// effect description
+		let effectText = properties.effectDescription;
 		
 		properties.target.statusEffects.push(new statusEffect({
 			title: properties.effectTitle,
 			effect: effectText,
 			info: {
-				curse: properties.curse ? true : false, // spread on to enemies on attack
+				curse: properties.curse ? true : false, // transferred on to enemies on attack
 			},
 			image: properties.imageName,
+			owner: properties.target, // sometimes referred to by onTick or onExpire
 		}));
 		
 		// the status effect that was just added
@@ -2532,19 +2459,32 @@ Game.statusEffects.generic = function (properties) {
 			// add time properties
 			addedStatusEffect.info.time = properties.time;
 			addedStatusEffect.info.ticks = 0;
+			
+			// add functions
 			if (properties.onExpire !== undefined) {			
 				addedStatusEffect.onExpire = properties.onExpire.bind(addedStatusEffect);
 			}
+			if (properties.onTick !== undefined) {			
+				addedStatusEffect.onTick = properties.onTick.bind(addedStatusEffect);
+			}
+			
+			// tick properties
 			addedStatusEffect.tick = function (owner, timeTicked) { // decrease time
-				if (Round(this.info.ticks) < this.info.time) { // check effect has not expired 
+				if (Round(this.info.ticks) < this.info.time) { // check effect has not expired
+					// call onTick
+					if (this.onTick !== undefined) {
+						this.onTick();
+					}
+					
 					this.info.ticks += timeTicked / 1000; // timeTicked is in ms
 					if (owner.constructor.name === "Hero") { // refresh canvas status effects if the status effect was applied to player
 						Game.hero.updateStatusEffects();
 					}
 					// calculate next tick time
 					let nextTickTime = 1000;
-					if (this.info.time - this.info.ticks <= 2) {
-						// faster tick if effect is approaching its end
+					if (this.info.time - this.info.ticks <= 2
+					&& this.onTick === undefined) {
+						// faster tick if effect is approaching its end (and there is no onTick function)
 						nextTickTime = 100;
 					}
 					setTimeout(function (owner) {
@@ -2564,8 +2504,8 @@ Game.statusEffects.generic = function (properties) {
 			
 			// calculate next tick time
 			let nextTickTime = 1000;
-			if (properties.time <= 2) {
-				// faster tick if effect is approaching its end
+			if (properties.time <= 2 && properties.onTick === undefined) {
+				// faster tick if effect is approaching its end (and there is no onTick function)
 				nextTickTime = 100;
 			}
 			
@@ -2586,12 +2526,75 @@ Game.statusEffects.generic = function (properties) {
 	}
 }
 
+// generate an effect description from the amount that a property is increased by, and the rest of the text
+Game.statusEffects.generateEffectDescription = function (amount, text) {
+	return NumberSign(amount) + text;
+}
+
+// give target the fire debuff
+// just target and tier parameters required (however if there is no tier, damagePerSecond and time is required)
+Game.statusEffects.fire = function(properties) {
+	// see if the target is in water (hence cannot be set on fire)
+	let water = properties.target.statusEffects.filter(statusEffect => statusEffect.title === "Swimming");
+	
+	if (water.length === 0) {
+		let newProperties = properties;
+		// check if there is a tier or if stats are being set manually
+		if (properties.tier !== undefined) {
+			// tiered
+			// turn tier into roman numeral
+			newProperties.tier = Romanize(properties.tier);
+			
+			// find what tier does
+			if (newProperties.tier === "I") {
+				newProperties.increasePropertyValue = 1; // fireDamagePerSecond
+				newProperties.time = 3;
+			}
+			else {
+				console.error("Fire status effect tier " + tier + " has not been assigned damage and time");
+			}
+		}
+		else {
+			// manual stats - time and damagePerSecond should be in properties
+			newPropertier.tier = "";
+			newProperties.increasePropertyValue = properties.damagePerSecond;
+		}
+		// fire stats have now been set
+		
+		newProperties.effectTitle = properties.effectTitle || "Fire " + newProperties.tier;
+		newProperties.effectDescription = properties.effectDescription || "Take " + newProperties.increasePropertyValue + " damage per second";
+		newProperties.increasePropertyName = "fireDamagePerSecond";
+		newProperties.onTick = function () {
+			this.owner.takeDamage(this.info.fireDamagePerSecond);
+		}; // this is bound to the status effect (hence this.owner and this.info work)
+		newProperties.imageName = "fire";
+		this.generic(newProperties);
+	}
+}
+
+// give target the poison debuff
+// damage per second = poisonDamage / time
+// target, poisonDamage and time parameters are the only parameters required
+Game.statusEffects.poison = function(properties) {
+	let newProperties = properties;
+	newProperties.effectTitle = properties.effectTitle || "Poisoned";
+	newProperties.effectDescription = properties.effectDescription || "Take " + properties.poisonDamage + " damage over time";
+	newProperties.increasePropertyName = "poisonDamage";
+	newProperties.increasePropertyValue = properties.poisonDamage;
+	newProperties.onTick = function () {
+		this.owner.takeDamage(this.info.poisonDamage / this.info.time);
+	}; // this is bound to the status effect (hence this.owner and this.info work)
+	newProperties.imageName = "poison";
+	newProperties.effectStacks = false; // effect does not stack
+	this.generic(newProperties);
+}
+
 // give target the stunned debuff
 // just target and time parameters required
 Game.statusEffects.stun = function(properties) {
 	let newProperties = properties;
 	newProperties.effectTitle = properties.effectTitle || "Stunned";
-	newProperties.effectDescription = properties.effectDescription || "Cannot move";
+	newProperties.effectDescription = properties.effectDescription || "Cannot move or attack";
 	newProperties.imageName = "stunned";
 	this.generic(newProperties);
 }
@@ -2600,7 +2603,7 @@ Game.statusEffects.stun = function(properties) {
 // properties includes target, effectTitle, damageIncrease, time
 Game.statusEffects.attackDamage = function (properties) {
 	let newProperties = properties;
-	newProperties.effectDescription = properties.effectDescription || "% attack damage";
+	newProperties.effectDescription = properties.effectDescription || this.generateEffectDescription(properties.damageIncrease, "% attack damage");
 	newProperties.increasePropertyName = "damageIncrease";
 	newProperties.increasePropertyValue = properties.damageIncrease;
 	if (properties.damageIncrease > 0) {
@@ -2616,7 +2619,7 @@ Game.statusEffects.attackDamage = function (properties) {
 // properties includes target, effectTitle, speedIncrease, time
 Game.statusEffects.walkSpeed = function(properties) {
 	let newProperties = properties;
-	newProperties.effectDescription = properties.effectDescription || "% walk speed";
+	newProperties.effectDescription = properties.effectDescription || this.generateEffectDescription(properties.speedIncrease, "% walk speed");
 	newProperties.increasePropertyName = "speedIncrease";
 	newProperties.increasePropertyValue = properties.speedIncrease;
 	if (properties.speedIncrease > 0) {
@@ -2632,7 +2635,7 @@ Game.statusEffects.walkSpeed = function(properties) {
 // properties includes target, effectTitle, lifestealIncrease, time
 Game.statusEffects.lifesteal = function(properties) {
 	let newProperties = properties;
-	newProperties.effectDescription = properties.effectDescription || "% lifesteal";
+	newProperties.effectDescription = properties.effectDescription || this.generateEffectDescription(properties.lifestealIncrease, "% lifesteal");
 	newProperties.increasePropertyName = "lifestealIncrease";
 	newProperties.increasePropertyValue = properties.lifestealIncrease;
 	newProperties.imageName = "lifesteal";
@@ -2668,11 +2671,11 @@ Game.statusEffects.defence = function(properties) {
 	let newProperties = properties;
 	if (newProperties.subSpecies !== undefined) {
 		// targeted against a specific subspecies
-		newProperties.effectDescription = properties.effectDescription || "% defence agaisnt " + properties.subSpecies + "s";
+		newProperties.effectDescription = properties.effectDescription || this.generateEffectDescription(properties.defenceIncrease, "% defence against " + properties.subSpecies + "s");
 	}
 	else {
 		// general
-		newProperties.effectDescription = properties.effectDescription || "% defence";
+		newProperties.effectDescription = properties.effectDescription || this.generateEffectDescription(properties.defenceIncrease, "% defence");
 	}
 	newProperties.increasePropertyName = "defenceIncrease";
 	newProperties.increasePropertyValue = properties.defenceIncrease;
@@ -2689,10 +2692,13 @@ Game.statusEffects.defence = function(properties) {
 // properties includes target, effectTitle, healthRestore, time
 Game.statusEffects.food = function(properties) {
 	let newProperties = properties;
-	newProperties.effectDescription = " health restored over time whilst not in combat";
+	newProperties.effectDescription = this.generateEffectDescription(properties.healthRestore, " health restored over time whilst not in combat");
 	newProperties.increasePropertyName = "healthRestore";
 	newProperties.increasePropertyValue = properties.healthRestore;
 	newProperties.imageName = "food";
+	newProperties.onTick = function () {
+		Game.restoreHealth(this.owner, Round(this.info.healthRestore / this.info.time, 1));
+	}; // this is bound to the status effect (hence this.owner and this.info work)
 	this.generic(newProperties);
 }
 
@@ -3002,6 +3008,16 @@ Game.loadArea = function (areaName, destination) {
 			Weather.reset();
 		}
 		
+		// display area name (if it should be displayed)
+		// init sets displayAreaName.duration to 200 (so even if it shouldn't be displayed normally, it is on start of game)
+		this.displayAreaName = Areas[areaName].data;
+		if (Areas[areaName].data.displayOnEnter) {
+			this.displayAreaName.duration = 200;
+		}
+		else {
+			this.displayAreaName.duration = 0;
+		}
+		
 		// music
 		// it is checked if the user has selected for music to be played in the settings within the Game.playMusic function
 		this.playMusic();
@@ -3009,6 +3025,14 @@ Game.loadArea = function (areaName, destination) {
 		// init game (if it hasn't been done so already)
 		if (this.hero === undefined) {
 			this.init();
+		}
+		else {
+			// code to be called when area is accessed due to area teleport (not game load)
+			
+			// call onAreaTeleport function if there is one
+			if (Areas[areaName].onAreaTeleport !== undefined) {
+				Areas[areaName].onAreaTeleport();
+			}
 		}
 		
 		// reposition player
@@ -3036,17 +3060,6 @@ Game.loadArea = function (areaName, destination) {
 		if (Areas[areaName].checkpoint && this.hero.checkpoint !== areaName) {
 			this.hero.checkpoint = areaName;
 			Dom.chat.insert("Checkpoint reached! Your spawn location has been set to this location.");
-		}
-		
-		// display area name (if it should be displayed)
-		if (Areas[areaName].data.displayOnEnter) {
-			this.displayAreaName = Areas[areaName].data;
-			this.displayAreaName.duration = 200;
-		}
-		
-		// call onAreaLoad function if there is one
-		if (Areas[areaName].onAreaLoad !== undefined) {
-			Areas[areaName].onAreaLoad();
 		}
 		
 		// load in randomly generated loot chests if the area has data for them
@@ -3166,7 +3179,7 @@ Game.init = function () {
 		}
 	}.bind(this), 1000);
 	
-	// camera
+	// game view camera
     this.camera = new Camera(map, this.canvas.width, this.canvas.height);
     this.camera.follow(this.hero);
 	
@@ -3175,6 +3188,9 @@ Game.init = function () {
 	
 	// init weather
 	Weather.init();
+	
+	// set displayAreaName.duration to 200 (so even if it shouldn't be displayed normally, it is on start of game)
+	this.displayAreaName.duration = 200;
 	
 	window.requestAnimationFrame(this.tick);
 	
@@ -3206,10 +3222,11 @@ Game.generateChests = function (chestData) {
 		// chest last opened at least a day ago
 		// spawn chests
 		// some stuff in qol for this...
+		let spawnLocationArray = chestData.spawnLocations.slice(); // so that chestData itself is not changed
 		for (let i = 0; i < chestData.spawnAmount; i++) {
-			let locationIndex = Random(0, chestData.spawnLocations.length - 1);
-			let spawnLocation = chestData.spawnLocations[locationIndex];
-			chestData.spawnLocations.splice(locationIndex, 1); // so it cannot be picked by the next chest in for loop (if there is one)
+			let locationIndex = Random(0, spawnLocationArray.length - 1);
+			let spawnLocation = spawnLocationArray[locationIndex];
+			spawnLocationArray.splice(locationIndex, 1); // so it cannot be picked by the next chest in for loop (if there is one)
 			
 			let lootTable = [];
 			for (let i = 0; i < chestData.lootTableTemplate.length; i++) {
@@ -3226,6 +3243,7 @@ Game.generateChests = function (chestData) {
 				inventorySpace: chestData.inventorySpace,
 				map: map,
 				type: "chests",
+				chestKey: chestData.chestKey, // key required for chest opening
 			}));
 		}
 	}
@@ -3455,13 +3473,7 @@ Game.playLevelupSound = function (areaName) {
 Game.regenHealth = function () {
 	// player
 	this.restoreHealth(Game.hero, Game.hero.stats.healthRegen);
-	// player food
-	for (let i = 0; i < Game.hero.statusEffects.length; i++) {
-		if (Game.hero.statusEffects[i].image === "food") {
-			// food status effect
-			this.restoreHealth(Game.hero, Round(Game.hero.statusEffects[i].info.healthRestore / Game.hero.statusEffects[i].info.time, 1));
-		}
-	}
+	// food is done in the food status effect itself
 	
 	// npcs
 	for (let i = 0; i < Game.npcs.length; i++) {
@@ -4156,12 +4168,17 @@ Game.projectileUpdate = function () {
 
 // called whenever a loot menu is closed
 // called by index.html
-// itemsRemaining is the array
+// itemsRemaining is the array, in the same format as a loot array (object with item and quantity)
+// tbd optimise so enemy and chest are not as separate
 Game.lootClosed = function (itemsRemaining) {
 	if (Dom.loot.currentId[0] === "e") {
 		// enemy loot menu closed
 		let arrayIndex = Dom.loot.currentId.substr(1);
 		Game.enemies[arrayIndex].loot = itemsRemaining; // update items remaining
+		if (itemsRemaining.length === 0) {
+			// set loot to null so it isn't opened by the player again
+			Game.enemies[arrayIndex].loot = null;
+		}
 	}
 	else if (Dom.loot.currentId[0] === "c") {
 		// chest loot menu closed
@@ -4171,8 +4188,12 @@ Game.lootClosed = function (itemsRemaining) {
 		}
 		else {
 			Game.chests[arrayIndex].loot = itemsRemaining; // update items remaining
+			if (itemsRemaining.length === 0) {
+				// set loot to null so it isn't opened by the player again
+				Game.chests[arrayIndex].loot = null;
+			}
 		}
-		// if it is a loot chest, set the day in savedata
+		// if it is a loot chest, set the day in savedata (so one cannot be opened again in this area today)
 		if (Game.chests[arrayIndex].name === "Loot Chest") {
 			Player.chestsOpened[Game.areaName] = GetFullDate();
 		}

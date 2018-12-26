@@ -437,7 +437,7 @@ var Areas = {
 			y: 208,
 		},
 		
-		onAreaLoad: function () {
+		onAreaTeleport: function () {
 			// start instructions chapter 4 if the player hasn't already
 			if (Player.unlockedInstructions.length < 4) {
 				Dom.adventure.addInstruction(4);
@@ -615,9 +615,9 @@ var Areas = {
 						role: "merchant",
 						chooseText: "What have you got to sell this Christmas?",
 						sold: [
-							{item: Items.bow[10], cost: 5, costCurrency: 3,}, // Crystal Bow
-							{item: Items.staff[10], cost: 5, costCurrency: 3,}, // Ice Staff
-							{item: Items.sword[9], cost: 5, costCurrency: 3,}, // Icicle
+							{item: Items.bow[10], cost: 3, costCurrency: 5,}, // Crystal Bow
+							{item: Items.staff[10], cost: 3, costCurrency: 5,}, // Ice Staff
+							{item: Items.sword[9], cost: 3, costCurrency: 5,}, // Icicle
 						],
 						roleRequirement: function () {
 							return Game.event === "Christmas" && Player.quests.completedQuestArray.includes("Combat Training");
@@ -1352,7 +1352,7 @@ var Areas = {
 				y: 905,
 				image: "mailcart",
 				name: "Mail Cart",
-				loot: [Items.item[6]],
+				loot: [{item: Items.item[6]}],
 				lootQuantities: [1],
 				inventorySpace: 8,
 				disappearAfterOpened: false,
@@ -1474,7 +1474,7 @@ var Areas = {
 			},
 		],
 		
-		onAreaLoad: function () {
+		onAreaTeleport: function () {
 			// stair animations
 			if (Game.hero.y < 100) {
 				// move down stairs
@@ -1598,6 +1598,7 @@ var Areas = {
 			tier: 1,
 			lootTableTemplate: [ChestLootTables.nilbog, ChestLootTables.nilbogTower],
 			inventorySpace: 16,
+			chestKey: Items.item[18],
 		},
 		
 		areaTeleports: [
@@ -1623,7 +1624,7 @@ var Areas = {
 			},
 		],
 		
-		onAreaLoad: function () {
+		onAreaTeleport: function () {
 			// stair animations
 			if (Game.hero.y > 540) {
 				// move up stairs
@@ -1788,7 +1789,7 @@ var Areas = {
 			},
 		],
 		
-		onAreaLoad: function () {
+		onAreaTeleport: function () {
 			// stair animations
 			if (Game.hero.y > 540) {
 				// move up stairs
@@ -1944,6 +1945,7 @@ var Areas = {
 			tier: 1,
 			lootTableTemplate: [ChestLootTables.nilbog, ChestLootTables.nilbogTower],
 			inventorySpace: 16,
+			chestKey: Items.item[18],
 		},
 		
 		areaTeleports: [
@@ -1969,7 +1971,7 @@ var Areas = {
 			},
 		],
 		
-		onAreaLoad: function () {
+		onAreaTeleport: function () {
 			// stair animations
 			if (Game.hero.y > 540) {
 				// move up stairs
@@ -2133,7 +2135,7 @@ var Areas = {
 			},
 		],
 		
-		onAreaLoad: function () {
+		onAreaTeleport: function () {
 			// stair animations
 			if (Game.hero.y > 540) {
 				// move up stairs

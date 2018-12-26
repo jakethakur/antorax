@@ -587,7 +587,7 @@ var Items = {
 			area: "loggingCamp",
 			stats: {
 				damage: 4,
-				stun: 0.5,
+				stun: 0.4,
 				blockDefence: 15,
 			},
 		},
@@ -621,7 +621,7 @@ var Items = {
 			obtain: "Buy from a merchant during the Christmas event.",
 			sellPrice: 4,
 			stats: {
-				damage: 8,
+				damage: 9,
 				reloadTime: 500,
 				blockDefence: 16,
 			},
@@ -806,8 +806,8 @@ var Items = {
 			obtain: "Buy from a merchant during the Christmas event.",
 			sellPrice: 4,
 			stats: {
-				damage: 4,
-				maxDamage: 12,
+				damage: 3.5,
+				maxDamage: 10.5,
 				frostaura: true,
 			},
 			projectile: "frostball",
@@ -818,6 +818,7 @@ var Items = {
 			name: "Ice Staff",
 			type: "staff",
 			image: "assets/items/staff/10.png",
+			imageArchaeology: "assets/items/staff/10archaeology.png",
 			tier: 1,
 			rarity: "common",
 			lore: "This ice doesn't last forever.",
@@ -825,7 +826,7 @@ var Items = {
 			sellPrice: 2,
 			stats: {
 				damage: 4,
-				maxDamage: 10,
+				maxDamage: 12,
 			},
 			projectile: "frostball",
 			projectileAdjust: {x: 0, y: 0},
@@ -1002,7 +1003,17 @@ var Items = {
 			sellPrice: 4,
 			stats: {
 				damage: 3,
-				stun: 0.1,
+				stun: 0.2,
+			},
+			functionText: "Gives -30% walk speed to hit enemies for 2 seconds",
+			onAttack: function (enemy) {
+				// give slowness to enemy
+				Game.statusEffects.walkSpeed({
+					target: enemy,
+					effectTitle: "Snow coating",
+					speedIncrease: -30,
+					time: 2,
+				});
 			},
 			projectile: "snowball",
 			projectileAdjust: {x: 0, y: 0},
@@ -1018,7 +1029,7 @@ var Items = {
 			obtain: "Buy from a merchant during the Christmas event.",
 			sellPrice: 2,
 			stats: {
-				damage: 2.5,
+				damage: 4,
 			},
 			projectile: "arrowSnow",
 			projectileAdjust: {x: 0, y: 0},
@@ -1279,7 +1290,7 @@ var Items = {
 			sellPrice: 1,
 			sellQuantity: 4,
 			stack: 4,
-			lore: "Stolen from the logging camp.",
+			lore: "Was stolen from the logging camp by goblins.",
 		},
 		{
 			id: 3,
@@ -1479,6 +1490,14 @@ var Items = {
 					Game.sayChat("DOM, the Gingerbread Robot", "Gingerbread matrices restoring.", false, 300, false);
 				}
 			},
+		},
+		{
+			id: 18,
+			name: "Tower Chest Key",
+			type: "item",
+			image: "assets/items/item/18.png",
+			lore: "Can be used to open a chest in the Nilbog Tower.",
+			sellPrice: 1,
 		},
 	],
 	consumable: [
