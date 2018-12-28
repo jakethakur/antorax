@@ -11,21 +11,21 @@ var min = document.getElementById("min");
 var max = document.getElementById("max");
 var searchBar = document.getElementById("searchBar");
 
-function Stats(stat, value, array){ // stat should be in Title Case
+function Stats(stat, value, array){ // stat should be in Title Case // copied from DOM
 	if(stat === "Defence" || stat === "Block Defence" || stat === "Fishing Skill"){
-		return stat+": "+value+"<br>";
+		return stat+": "+NumberSign(value)+"<br>";
 	}else if(stat === "Critical Chance" || stat === "Dodge Chance" || stat === "Looting" || stat === "Reflection" || stat === "Life Steal" || stat === "Xp Bonus"){
-		return stat+": "+value+"%<br>";
+		return stat+": "+NumberSign(value)+"%<br>";
 	}else if(stat === "Health Regen" || stat === "Swim Speed" || stat === "Walk Speed" || stat === "Ice Speed" || stat === "Focus Speed"){
-		return stat+": "+value+"/s<br>";
+		return stat+": "+NumberSign(value)+"/s<br>";
 	}else if(stat === "Stun"){
-		return stat+": "+value+"s<br>";
+		return stat+": "+NumberSign(value)+"s<br>";
 	}else if(stat === "Reload Time"){
-		return stat+": "+(value/500)+"s<br>";
+		return stat+": "+(NumberSign(value/500))+"s<br>";
 	}else if(stat === "Flaming"){
-		return stat+": "+Romanize(value)+"<br>";
+		return stat+" "+Romanize(value)+"<br>";
 	}else if(stat === "Poison X"){
-		return "Poison: "+value+"/"+array.poisonY+"s<br>";
+		return "Poison: "+NumberSign(value)+"/"+array.poisonY+"s<br>";
 	}else if(stat === "Damage"){
 		return stat+": "+value + (array.maxDamage > value ? "-" + array.maxDamage : "")+"<br>";
 	}else if(stat === "Frostaura"){
@@ -33,7 +33,7 @@ function Stats(stat, value, array){ // stat should be in Title Case
 	}else{
 		return "";
 	}
-}
+};
 
 function validate(strValue){
 	var objRegExp  = /^[a-zA-Z\u00C0-\u00ff]+$/;
@@ -245,6 +245,9 @@ function arrange(){
 			}
 		}
 		document.getElementById("tier"+i).innerHTML += "<br>Tier: "+array[i].tier;
+		if(category.value == 8 || viewedItemType == "set"){
+			document.getElementById("tier"+i).innerHTML += "<br><br>Set Bonus:";
+		}
 		for(var a = 0; a < Object.keys(array[i].stats).length; a++){
 			
 			document.getElementById("stats"+i).innerHTML += Stats(FromCamelCase(Object.keys(array[i].stats)[a]), array[i].stats[Object.keys(array[i].stats)[a]], array[i].stats);
@@ -268,14 +271,14 @@ function arrange(){
 			document.getElementById("lore"+i).innerHTML = "<br><i>"+array[i].lore+"</i>";
 		}
 		if(array[i].archaeologyFunctionText != undefined && array[i].archaeologyFunctionText != ""){
-			document.getElementById("function"+i).innerHTML = "<br>"+array[i].archaeologyFunctionText;
+			document.getElementById("function"+i).innerHTML = "<br>"+array[i].archaeologyFunctionText+"<br>";
 		}else if(array[i].functionText != undefined && array[i].functionText != ""){
-			document.getElementById("function"+i).innerHTML = "<br>"+array[i].functionText;
+			document.getElementById("function"+i).innerHTML = "<br>"+array[i].functionText+"<br>";
 		}
 		if(array[i].chooseStats !== undefined){
 			for(var a = 0; a < Object.keys(array[i].chooseStats).length; a++){
 				var replaceStat = Object.keys(array[i].chooseStats)[a].replace( /([A-Z])/g, " $1" );
-				document.getElementById("function"+i).innerHTML += "<br>" + replaceStat.charAt(0).toUpperCase() + replaceStat.slice(1)+": "+array[i].chooseStats[Object.keys(array[i].chooseStats)[a]];
+				document.getElementById("function"+i).innerHTML += Stats(replaceStat.charAt(0).toUpperCase() + replaceStat.slice(1), array[i].chooseStats[Object.keys(array[i].chooseStats)[a]]);
 			}
 		}
 	}
@@ -335,7 +338,7 @@ function arrange(){
 			}
 		}
 		document.getElementById("progress").style.top = document.getElementById("filters").offsetHeight + 45 + "px";
-	}else{
+	}else{ // viewed item
 		document.getElementById("flashcardlist0").style.left = "100px";
 		document.getElementById("flashcardlist0").style.top = "100px";
 		if(Items[viewedItemType][viewedItemId].set != undefined){
@@ -374,9 +377,16 @@ function arrange(){
 		document.getElementById("back").onclick = function(){
 			window.location.replace("./index.html"); // archaeology
 		}
-		document.getElementById("box0").getElementsByTagName("img")[0].onload = function(){
-			document.getElementById("back").hidden = false;
-			document.getElementById("back").style.top = 105 + document.getElementById("flashcardlist0").offsetHeight + "px";
+		if(Items[viewedItemType][viewedItemId].set != undefined){
+			document.getElementById("box1").getElementsByTagName("img")[0].onload = function(){
+				document.getElementById("back").hidden = false;
+				document.getElementById("back").style.top = 105 + document.getElementById("flashcardlist0").offsetHeight + "px";
+			}
+		}else{
+			document.getElementById("box0").getElementsByTagName("img")[0].onload = function(){
+				document.getElementById("back").hidden = false;
+				document.getElementById("back").style.top = 105 + document.getElementById("flashcardlist0").offsetHeight + "px";
+			}
 		}
 	}
 }

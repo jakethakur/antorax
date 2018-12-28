@@ -2337,11 +2337,11 @@ var Items = {
 				
 				// format and position loot
 				loot = Game.formatLoot(loot);
-				loot = Game.positionLoot(loot);
+				loot = Game.positionLoot(loot, 24);
 				
 				// open loot page
 				Dom.loot.currentId = "x"; // x means that nothing should be done when it is closed
-				Dom.choose.page("Sunken Chest", ["Loot chest!"], [Dom.loot.page], [["Sunken Chest", loot, 24]]);
+				Dom.choose.page("Sunken Chest", ["Loot chest!"], [Dom.loot.page], [["Sunken Chest", loot]]);
 			},
 		},
 		{
