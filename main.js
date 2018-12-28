@@ -1460,7 +1460,7 @@ class Hero extends Attacker {
 					if (Game.enemies[i].isCorpse) { // check enemy is a corpse (hence might be able to be looted) 
 						if (this.isTouching(Game.enemies[i]) && Game.enemies[i].loot !== null) { // player is touching enemy and enemy can be looted
 							Dom.choose.page(Game.enemies[i], ["Loot enemy"], [function () {
-								Dom.loot.page(Game.enemies[i].name, Game.enemies[i].loot, Game.enemies[i].inventorySpace);
+								Dom.loot.page(Game.enemies[i].name, Game.enemies[i].loot);
 								Dom.loot.currentId = "e"+i;
 								// "e"+i is a string that allows the loot menu to be identified - e means enemy, and i is the index of the enemy in Game.enemies
 								// the loot menu closes when the area changes anyway, so this will always work
@@ -2230,7 +2230,9 @@ class Enemy extends Attacker {
 	// generate loot from lootTable (called when enemy dies or a chest is added)
 	generateLoot (lootTable) {
 		if (this.loot === null) {
-			this.loot = Game.generateLoot(lootTable);
+			let loot = Game.generateLoot(lootTable);
+			loot = Game.formatLoot(loot);
+			this.loot = Game.positionLoot(loot, this.inventorySpace);
 		}
 		else {
 			console.error("Expected this.loot to be null, however it was not. Loot has not been generated.");
@@ -2243,8 +2245,12 @@ class LootChest extends Thing {
 	constructor(properties) {
 		super(properties);
 		
-		this.loot = properties.loot; // items contained and their quantities
+		let loot = properties.loot; // items contained and their quantities
 		this.inventorySpace = properties.inventorySpace;
+		
+		// format and position loot
+		loot = Game.formatLoot(loot);
+		this.loot = Game.positionLoot(loot, this.inventorySpace);
 		
 		this.disappearAfterOpened = properties.disappearAfterOpened; // whether it should hide straight after being looted (hence deleting any remaining loot)
 		
@@ -2263,7 +2269,7 @@ class LootChest extends Thing {
 	
 	openLoot (arrayIndex) {
 		Dom.choose.page(this, ["Loot chest"], [function (chest) {
-			Dom.loot.page(chest.name, chest.loot, chest.inventorySpace);
+			Dom.loot.page(chest.name, chest.loot);
 			Dom.loot.currentId = "c"+arrayIndex;
 			// "c"+i is a string that allows the loot menu to be identified - c means chest, and arrayIndex is the index of the enemy in Game.chests
 			// the loot menu closes when the area changes anyway, so this will always work
@@ -3221,17 +3227,19 @@ Game.generateChests = function (chestData) {
 	if (GetFullDate() - Player.chestsOpened[this.areaName] > 0) {
 		// chest last opened at least a day ago
 		// spawn chests
-		// some stuff in qol for this...
 		let spawnLocationArray = chestData.spawnLocations.slice(); // so that chestData itself is not changed
 		for (let i = 0; i < chestData.spawnAmount; i++) {
 			let locationIndex = Random(0, spawnLocationArray.length - 1);
 			let spawnLocation = spawnLocationArray[locationIndex];
 			spawnLocationArray.splice(locationIndex, 1); // so it cannot be picked by the next chest in for loop (if there is one)
 			
+			// concatenate loot tables (for if there are multiple)
 			let lootTable = [];
 			for (let i = 0; i < chestData.lootTableTemplate.length; i++) {
 				lootTable = lootTable.concat(chestData.lootTableTemplate[i]);
 			}
+			// global loot table
+			lootTable = lootTable.concat(ChestLootTables.global);
 			
 			// make chest
 			this.chests.push(new LootChest({
@@ -3239,7 +3247,7 @@ Game.generateChests = function (chestData) {
 				y: spawnLocation.y,
 				name: "Loot Chest", // used to set the loot chest opened date
 				image: "lootChest",
-				loot: this.generateLoot(lootTable),
+				loot: Game.generateLoot(lootTable), // this is formatted and positioned in the loot chest class
 				inventorySpace: chestData.inventorySpace,
 				map: map,
 				type: "chests",
@@ -3298,6 +3306,45 @@ Game.generateLoot = function (lootTable) {
 		}
 	}
 	return lootArray;
+}
+
+// format array of items to have the correct quantities and stacks
+Game.formatLoot = function (items) {
+	for (let i = 0; i < items.length; i++) {
+		// default stack size is 1
+        if (items[i].item.stack === undefined) {
+            items[i].item.stack = 1;
+        }
+		// default stacked quantity value is 1
+        if (items[i].quantity === undefined) {
+            items[i].quantity = 1;
+        }
+		// if there is more stacked than allowed, split the excess
+        if (items[i].quantity > items[i].item.stack) {
+            items.push({item: items[i].item, quantity: items[i].quantity-items[i].item.stack,});
+            items[i].quantity = items[i].item.stack;
+        }
+    }
+	
+	return items;
+}
+
+// position loot ready for Dom.loot.page
+// takes array of items and places them randomly in an array with (space) indices
+// there are hence empty positions in the array (empty objects)
+Game.positionLoot = function (items, space) {
+    let spaces = [];
+    let display = [];
+    for (let i = 0; i < space; i++) {
+        spaces.push(i);
+        display.push(undefined);
+    }
+    for (let i = 0; i < items.length; i++) {
+        let rnd = Random(0, spaces.length - 1);
+        display[rnd] = items[i];
+        spaces.splice(rnd,1);
+    }
+    return display;
 }
 
 //
@@ -4175,7 +4222,7 @@ Game.lootClosed = function (itemsRemaining) {
 		// enemy loot menu closed
 		let arrayIndex = Dom.loot.currentId.substr(1);
 		Game.enemies[arrayIndex].loot = itemsRemaining; // update items remaining
-		if (itemsRemaining.length === 0) {
+		if (itemsRemaining.every(item => item === undefined)) {
 			// set loot to null so it isn't opened by the player again
 			Game.enemies[arrayIndex].loot = null;
 		}
@@ -4188,7 +4235,7 @@ Game.lootClosed = function (itemsRemaining) {
 		}
 		else {
 			Game.chests[arrayIndex].loot = itemsRemaining; // update items remaining
-			if (itemsRemaining.length === 0) {
+			if (itemsRemaining.every(item => item === undefined)) {
 				// set loot to null so it isn't opened by the player again
 				Game.chests[arrayIndex].loot = null;
 			}

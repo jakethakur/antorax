@@ -110,7 +110,7 @@ var Items = {
 			image: "assets/items/helm/7.png",
 			tier: 1,
 			rarity: "unique",
-			lore: "Comes with Santa's experience",
+			lore: "Comes with Santa's experience.",
 			obtain: "Buy from a merchant during the Christmas event.",
 			sellPrice: 4,
 			stats: {
@@ -2334,6 +2334,10 @@ var Items = {
 						break;
 				}
 				loot.push(toBePushed);
+				
+				// format and position loot
+				loot = Game.formatLoot(loot);
+				loot = Game.positionLoot(loot);
 				
 				// open loot page
 				Dom.loot.currentId = "x"; // x means that nothing should be done when it is closed
