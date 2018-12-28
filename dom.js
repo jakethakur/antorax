@@ -781,7 +781,7 @@ Dom.inventory.displayInformation = function(item, stacked, position){
 					document.getElementById("set").innerHTML = Items.set[item.set].name + " (" + setNum + "/" + Items.set[item.set].armour.length+")";
 					// if the whole set is in the inventory
 					if(setNum === Items.set[item.set].armour.length){
-						document.getElementById("set").innerHTML += "<br><br>Set Bonus:";
+						document.getElementById("set").innerHTML += "<br><br>Set Bonus:<br>";
 						for(let i = 0; i < Object.keys(Items.set[item.set].stats).length; i++){
 							
 							document.getElementById("set").innerHTML += Dom.inventory.stats(FromCamelCase(Object.keys(Items.set[item.set].stats)[i]), Items.set[item.set].stats[Object.keys(Items.set[item.set].stats)[i]], Items.set[item.set].stats);
@@ -1232,13 +1232,13 @@ Dom.merchant.page = function(npc, sold, chat){
 }
 
 Dom.merchant.buy = function(item,index,npc){
-	if(Dom.inventory.check(item.costCurrency,"currency",item.cost) && Dom.inventory.requiredSpace({item: item.item, quantity: item.costQuantity,})){
+	if(Dom.inventory.check(item.costCurrency,"currency",item.cost) && Dom.inventory.requiredSpace([{item: item.item}])){
 		document.getElementsByClassName("buy")[index].style.backgroundColor = "#bb9933";
 		setTimeout(function(){
 			document.getElementsByClassName("buy")[index].style.backgroundColor = "#fef9b4";
 		},200);
 		Dom.inventory.removeById(item.costCurrency,"currency",item.cost);
-		Dom.inventory.give(item.item,item.costQuantity);
+		Dom.inventory.give(item.item);
 		Dom.chat.insert("You bought a " + item.item.name + ".", 100);
 	}else{
 		if(!Dom.inventory.check(item.costCurrency,"currency",item.cost)){
@@ -2681,11 +2681,12 @@ Dom.text.page = function(name, text, close, buttons, functions, give){
 	document.getElementById("textPage").innerHTML = '<h1 id="textPageName">'+name+'</h1>'
 	document.getElementById("textPage").innerHTML += '<p id="textPageText">'+text+'</p>'
 	if(give !== undefined){
+		document.getElementById("textPage").innerHTML += "<br><br>";
 		for(let i = 0; i < give.length; i++){
-			if(give[i][1] === undefined){
-				give[i][1] = 1;
+			if(give[i].quantity === undefined){
+				give[i].quantity = 1;
 			}
-			document.getElementById("textPage").innerHTML += "<br><br><img src=" + give[i][0].image + " class='theseTextOptions'><div class='textStackNum'>"+(give[i][1] !== 1 ? give[i][1] : "")+"</div></img>&nbsp;&nbsp;";
+			document.getElementById("textPage").innerHTML += "<img src=" + give[i].item.image + " class='theseTextOptions'><div class='textStackNum'>"+(give[i].quantity !== 1 ? give[i].quantity : "")+"</div></img>&nbsp;&nbsp;";
 		}
 	}
 	for(let i = 0; i < buttons.length; i++){
@@ -2707,13 +2708,13 @@ Dom.text.page = function(name, text, close, buttons, functions, give){
 	if(give !== undefined){
 		for(let i = 0; i < give.length; i++){
 			document.getElementsByClassName("theseTextOptions")[i].onmouseover = function(){
-				Dom.inventory.displayInformation(give[i][0], give[i][1]);
+				Dom.inventory.displayInformation(give[i].item, give[i].quantity);
 			};
 			document.getElementsByClassName("theseTextOptions")[i].onmouseleave = function(){
 				Dom.expand("information");
 			};
 			document.getElementsByClassName("textStackNum")[i].onmouseover = function(){
-				Dom.inventory.displayInformation(give[i][0], give[i][1]);
+				Dom.inventory.displayInformation(give[i].item, give[i].quantity);
 			};
 			document.getElementsByClassName("textStackNum")[i].onmouseleave = function(){
 				Dom.expand("information");
@@ -3054,10 +3055,8 @@ Dom.mail.page = function(){
 		let ii = Player.mail.mail.length-1-i;
 		if(Player.mail.mail[i].image.substring(0,2) === "./"){
 			document.getElementsByClassName("mailImage")[ii].style.backgroundImage = "url('"+Player.mail.mail[i].image+".png')";
-		}else if(Offsets[Player.mail.mail[i].image].image.substring(0,2) === "./"){
-			document.getElementsByClassName("mailImage")[ii].style.backgroundImage = "url('"+Offsets[Player.mail.mail[i].image].image+".png')";
 		}else{
-			document.getElementsByClassName("mailImage")[ii].style.backgroundImage = "url('./assets/npcs/"+Offsets[Player.mail.mail[i].image].image+".png')";
+			document.getElementsByClassName("mailImage")[ii].style.backgroundImage = "url('"+Offsets[Player.mail.mail[i].image].image+".png')";
 			document.getElementsByClassName("mailImage")[ii].style.backgroundPosition = Offsets[Player.mail.mail[i].image].x+"%"+Offsets[Player.mail.mail[i].image].y+"%";
 		}
 		document.getElementsByClassName("mailDelete")[ii].onclick = function(){
@@ -3074,7 +3073,7 @@ Dom.mail.page = function(){
 					Player.mail.opened.push(Player.mail.mail[i].title);
 					if(Player.mail.mail[i].give !== undefined){
 						for(let x = 0; x < Player.mail.mail[i].give.length; x++){
-							Dom.inventory.give(...Player.mail.mail[i].give[x]);
+							Dom.inventory.give(Player.mail.mail[i].give[x].item, Player.mail.mail[i].give[x].quantity);
 						}
 					}
 				}
@@ -3152,8 +3151,8 @@ Dom.mail.give(
 	"galuthelTheTrapMechanic",
 	"text.page",
 	["Welcome to Antorax!",
-	`Hello ${Player.name}!<br><br>It's great to have new people joining us in Antorax. I look forward to meeting you very soon in Wizard Island. Perhaps you would like to try out one of our newest inventions - the <camera name>! It's free of charge. Pop us a letter if it explodes, otherwise see you soon!<br><br>From the Tinkering Guild`,
-	true, [], [], [[Items.item[14]]]], [[Items.item[14]]]
+	`Hello ${Player.name}!<br><br>It's great to have new people joining us in Antorax. I look forward to meeting you very soon in Wizard Island. Perhaps you would like to try out one of our newest inventions - the <camera name>! It's free of charge. Pop us a letter if it explodes, otherwise see you soon!<br><br>From the Tinkering Guild`, true, [], [],
+	[{item: Items.item[14]}]], [{item: Items.item[14]}],
 );
 
 // LOADS ALL EXISTING CLASS SAVEDATA
@@ -3304,33 +3303,32 @@ if (GetFullDate().substring(2,4) === "12" && !Player.days.includes(GetFullDate()
 		Dom.mail.give(
 			"Merry Christmas!",
 			"Father Christmas",
-			"./selection/assets/m4/r",
+			"fatherChristmas",
 			"text.page",
 			["Merry Christmas!",
-			"Have a great Christmas! Please enjoy the 2018 Christmas gift.",
-			true, [], [], [[Items.item[17]]]], [[Items.item[17]]] // TBD should also give 5 christmas tokens
+			"Have a great Christmas! Please enjoy the 2018 Christmas gift.", true, [], [],
+			[{item: Items.item[17],},{item: Items.currency[5], quantity: 5,}]],
+			[{item: Items.item[17],},{item: Items.currency[5], quantity: 5,}],
 		);
-	}
-	else if (GetFullDate().substring(0,2) < "25") { // before christmas
+	}else if (GetFullDate().substring(0,2) < "25") { // before christmas
 		Dom.mail.give(
 			25 - parseInt(GetFullDate().substring(0,2)) + " Day"+(parseInt(GetFullDate().substring(0,2)) !== 24 ? "s" : "")+" To Go!",
 			randomNPC,
 			ToCamelCase(randomNPC),
 			"text.page",
 			["Merry Christmas!",
-			"This is your free daily chistmas token. Spend it wisely!",
-			true, [], [], [[Items.currency[5]]]], [[Items.currency[5]]]
+			"This is your free daily chistmas token. Spend it wisely!", true, [], [],
+			[{item: Items.currency[5]}]], [{item: Items.currency[5]}],
 		);
-	}
-	else { // after christmas (in december)
+	}else { // after christmas (in december)
 		Dom.mail.give(
 			parseInt(GetFullDate().substring(0,2)) + " of Christmas 2018",
 			randomNPC,
 			ToCamelCase(randomNPC),
 			"text.page",
 			["Merry Christmas!",
-			"This is your free daily chistmas token. Spend it wisely!",
-			true, [], [], [[Items.currency[5]]]], [[Items.currency[5]]]
+			"This is your free daily chistmas token. Spend it wisely!", true, [], [],
+			[{item: Items.currency[5]}]], [{item: Items.currency[5]}],
 		);
 	}
 }
