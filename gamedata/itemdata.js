@@ -1892,10 +1892,19 @@ var Items = {
 				// remove the item
 				Dom.inventory.remove(inventoryPosition);
 				
-				let oldHealth = Game.hero.health;
-				setTimeout(function (oldHealth) {
-					Game.hero.health = oldHealth;
-				}, 5000, oldHealth);
+				let oldHealth = Math.round(Game.hero.health);
+				Game.statusEffects.generic({
+					target: Game.hero,
+					effectTitle: "Restorative Timepiece",
+					effectDescription: "Your health will be set to " + oldHealth + " after a delay",
+					time: 5,
+					imageName: "timer",
+					increasePropertyName: "oldHealth",
+					increasePropertyValue: oldHealth,
+					onExpire: function () {
+						Game.hero.health = this.info.oldHealth;
+					},
+				});
 			},
 		},
 		{
@@ -1928,12 +1937,12 @@ var Items = {
 				// remove the item
 				Dom.inventory.remove(inventoryPosition);
 				
-				Player.stats.xpBonus += 20;
-				setTimeout(function(){
-					Player.stats.xpBonus -= 20;
-				},30000);
-				// should be a status effect
-				//tbd
+				Game.statusEffects.xp({
+					target: Game.hero,
+					effectTitle: "XP Bonus",
+					xpIncrease: 20,
+					time: 30,
+				});
 			}
 		},
 		{

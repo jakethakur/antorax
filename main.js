@@ -2708,6 +2708,29 @@ Game.statusEffects.food = function(properties) {
 	this.generic(newProperties);
 }
 
+// give target a xp buff / debuff (changes Game.hero.stats.xpBonus)
+// properties includes target, effectTitle, xpIncrease, time
+Game.statusEffects.xp = function(properties) {
+	let newProperties = properties;
+	newProperties.effectDescription = properties.effectDescription || this.generateEffectDescription(properties.xpIncrease, "% XP gain");
+	newProperties.increasePropertyName = "xpIncrease";
+	newProperties.increasePropertyValue = properties.xpIncrease;
+	if (properties.xpIncrease > 0) {
+		newProperties.imageName = "xpUp";
+	}
+	else {
+		newProperties.imageName = "xpDown";
+	}
+	// increase XP
+	Game.hero.stats.xpBonus += properties.xpIncrease;
+	// decrease XP on expire
+	newProperties.onExpire = function () {
+		Game.hero.stats.xpBonus -= this.info.xpIncrease;
+	};
+	
+	this.generic(newProperties);
+}
+
 //
 // Load game
 //
@@ -5020,8 +5043,14 @@ Game.secondary.render = function () {
 			else if (Game.hero.statusEffects[i].image === "xpDown") {
 				iconNum = 13;
 			}
+			else if (Game.hero.statusEffects[i].image === "timer") {
+				iconNum = 14;
+			}
+			else if (Game.hero.statusEffects[i].image === "xpUp") {
+				iconNum = 15;
+			}
 			else { // no status effect image
-				iconNum = 2; // fire image used as placeholder
+				iconNum = 3; // fire image used as placeholder
 				console.error("Status effect " + Game.hero.statusEffects[i].title + " icon not found");
 			}
 			this.ctx.drawImage(Game.statusImage, 0, 27 * iconNum, 27, 27, 270 + i * 35, 10, 27, 27);
