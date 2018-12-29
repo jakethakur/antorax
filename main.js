@@ -2446,7 +2446,6 @@ Game.statusEffects.generic = function (properties) {
 				curse: properties.curse ? true : false, // transferred on to enemies on attack
 			},
 			image: properties.imageName,
-			owner: properties.target, // sometimes referred to by onTick or onExpire
 		}));
 		
 		// the status effect that was just added
@@ -2479,7 +2478,7 @@ Game.statusEffects.generic = function (properties) {
 				if (Round(this.info.ticks) < this.info.time) { // check effect has not expired
 					// call onTick
 					if (this.onTick !== undefined) {
-						this.onTick();
+						this.onTick(owner);
 					}
 					
 					this.info.ticks += timeTicked / 1000; // timeTicked is in ms
@@ -2503,7 +2502,7 @@ Game.statusEffects.generic = function (properties) {
 					Game.removeStatusEffect(owner);
 					// call onExpire function if it exists
 					if (this.onExpire !== undefined) {
-						this.onExpire();
+						this.onExpire(owner);
 					}
 				}
 			};
@@ -2570,8 +2569,8 @@ Game.statusEffects.fire = function(properties) {
 		newProperties.effectTitle = properties.effectTitle || "Fire " + newProperties.tier;
 		newProperties.effectDescription = properties.effectDescription || "Take " + newProperties.increasePropertyValue + " damage per second";
 		newProperties.increasePropertyName = "fireDamagePerSecond";
-		newProperties.onTick = function () {
-			this.owner.takeDamage(this.info.fireDamagePerSecond);
+		newProperties.onTick = function (owner) {
+			owner.takeDamage(this.info.fireDamagePerSecond);
 		}; // this is bound to the status effect (hence this.owner and this.info work)
 		newProperties.imageName = "fire";
 		this.generic(newProperties);
@@ -2587,8 +2586,8 @@ Game.statusEffects.poison = function(properties) {
 	newProperties.effectDescription = properties.effectDescription || "Take " + properties.poisonDamage + " damage over time";
 	newProperties.increasePropertyName = "poisonDamage";
 	newProperties.increasePropertyValue = properties.poisonDamage;
-	newProperties.onTick = function () {
-		this.owner.takeDamage(this.info.poisonDamage / this.info.time);
+	newProperties.onTick = function (owner) {
+		owner.takeDamage(this.info.poisonDamage / this.info.time);
 	}; // this is bound to the status effect (hence this.owner and this.info work)
 	newProperties.imageName = "poison";
 	newProperties.effectStacks = false; // effect does not stack
@@ -2658,10 +2657,10 @@ Game.statusEffects.stealth = function(properties) {
 	newProperties.imageName = "stealth";
 	if (properties.time !== undefined) {
 		// if it is a timed stealth effect, make sure to remove the stealth when it expires
-		newProperties.onExpire = function () {
+		newProperties.onExpire = function (target) {
 			// remove stealth effect
-			this.target.stats.stealth = false;
-			Game.removeStealthEffects(this.target);
+			target.stats.stealth = false;
+			Game.removeStealthEffects(target);
 		}
 		// note that onExpire is bound to the status effect (this = statusEffect)
 	}
@@ -2702,8 +2701,8 @@ Game.statusEffects.food = function(properties) {
 	newProperties.increasePropertyName = "healthRestore";
 	newProperties.increasePropertyValue = properties.healthRestore;
 	newProperties.imageName = "food";
-	newProperties.onTick = function () {
-		Game.restoreHealth(this.owner, Round(this.info.healthRestore / this.info.time, 1));
+	newProperties.onTick = function (owner) {
+		Game.restoreHealth(owner, Round(this.info.healthRestore / this.info.time, 1));
 	}; // this is bound to the status effect (hence this.owner and this.info work)
 	this.generic(newProperties);
 }
@@ -2722,10 +2721,10 @@ Game.statusEffects.xp = function(properties) {
 		newProperties.imageName = "xpDown";
 	}
 	// increase XP
-	Game.hero.stats.xpBonus += properties.xpIncrease;
+	properties.target.stats.xpBonus += properties.xpIncrease;
 	// decrease XP on expire
-	newProperties.onExpire = function () {
-		Game.hero.stats.xpBonus -= this.info.xpIncrease;
+	newProperties.onExpire = function (target) {
+		target.stats.xpBonus -= this.info.xpIncrease;
 	};
 	
 	this.generic(newProperties);
@@ -3221,7 +3220,32 @@ Game.init = function () {
 	// set displayAreaName.duration to 200 (so even if it shouldn't be displayed normally, it is on start of game)
 	this.displayAreaName.duration = 200;
 	
+	// start Game tick
 	window.requestAnimationFrame(this.tick);
+	
+	// re-start hero status effect ticks (from savedata)
+	// iterate through status effects
+	// doesn't work yet (TBD)
+	for (let i = 0; i < this.hero.statusEffects.length; i++) {
+		let statusEffect = this.hero.statusEffects[i];
+		
+		// TBD give tick function and other functions back
+		
+		if (statusEffect.tick !== undefined) { // check if status effect should tick
+			// calculate next tick time
+			let nextTickTime = 1000;
+			if (statusEffect.info.time <= 2 && statusEffect.onTick === undefined) {
+				// faster tick if effect is approaching its end (and there is no onTick function)
+				nextTickTime = 100;
+			}
+			
+			// begin tick
+			setTimeout(function (owner) {
+				// nextTickTime is timeTicked
+				statusEffect.tick(owner, nextTickTime);
+			}.bind(addedStatusEffect), nextTickTime, Game.hero, nextTickTime);
+		}
+	}
 	
 	// event console.info
 	if (this.event === "James") {
@@ -4664,10 +4688,16 @@ Game.render = function (delta) {
 	// reset text formatting (currntly done in individual functions)
 	//this.resetFormatting();
 	
+	// reset canvas distortion
+	///this.ctx.resetTransform();
+	
     // draw map background layer
     //if (this.hasScrolled) {
 	this._drawLayer(0);
     //}
+	
+	// distort canvas
+	//this.ctx.setTransform(1, -0.01, -0.01, 1, 0, 0);
 	
 	// render things on renderList
 	for (var i = 0; i < this.renderList.length; i++) { // iterate through everything to be rendered (in order)

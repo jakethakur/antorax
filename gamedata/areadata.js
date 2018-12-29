@@ -1024,7 +1024,7 @@ var Areas = {
 	tavern: {
 		
 		data: {
-			name: "Treefeller's Tavern",
+			name: "Treefellers' Tavern",
 			level: "",
 			territory: "",
 			displayOnEnter: true,
