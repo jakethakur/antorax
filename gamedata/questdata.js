@@ -535,8 +535,9 @@ var Quests = {
 				},
 			},
 			
-			removeItems: [
+			removeItems: [///c18
 				// remove all traps
+				{item: Items.consumable[7], quantity: "all",},
 			],
 		},
 		{
@@ -583,6 +584,7 @@ var Quests = {
 			
 			removeItems: [
 				// remove all traps
+				{item: Items.consumable[7], quantity: "all",},
 			],
 			
 			resetVariables: [
@@ -1165,6 +1167,11 @@ var Quests = {
 			resetVariables: [
 				"christmasSaplingsPlaced",
 			],
+			
+			removeItems: [
+				// remove all saplings
+				{item: Items.consumable[18], quantity: "all",},
+			]
 		},
 		
 		{

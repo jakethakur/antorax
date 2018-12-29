@@ -112,6 +112,41 @@ function GetFullDate () {
     return dateString;
 }
 
+// get date and time in format yyyymmddhhmmss
+function GetFullDateTime () {
+    let d = new Date();
+    let dateString = "";
+    // year
+    dateString += d.getFullYear().toString();
+    // month
+    mem = (d.getMonth()+1).toString();
+    if (mem.length !== 2) {
+        mem = "0" + mem;
+    }
+    dateString += mem;
+    // day
+    let mem = d.getDate().toString();
+    if (mem.length !== 2) {
+        mem = "0" + mem;
+    }
+    dateString += mem;
+	// hour
+	let mem = d.getHours().toString();
+	if (mem.length !== 2) {
+		mem = "0" + mem;
+	}
+	// minute
+	let mem = d.getMinutes().toString();
+	if (mem.length !== 2) {
+		mem = "0" + mem;
+	}// second
+	let mem = d.getSeconds().toString();
+	if (mem.length !== 2) {
+		mem = "0" + mem;
+	}
+    return dateString;
+}
+
 function GetFullDateString () {
 	let date = GetFullDate();
 	const months = ["January", "February", "March", "April", "May", "June", "July", "August", "September", "October", "November", "December",];

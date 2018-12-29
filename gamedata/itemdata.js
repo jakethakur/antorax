@@ -754,7 +754,7 @@ var Items = {
 			allClasses: true,
 			tier: 1,
 			rarity: "unique",
-			quest: function(){return true;},
+			quest: true,
 			lore: "Hates the goblins just as much as you do.",
 			stats: {
 				damage: 2,
@@ -1326,7 +1326,7 @@ var Items = {
 			id: 6,
 			name: "Eaglecrest Mail Sack",
 			type: "item",
-			quest: function(){return true;},
+			quest: true,
 			image: "assets/items/item/6.png",
 			lore: "Contains mail to be delivered across the lands of Antorax.",
 		},
@@ -1334,7 +1334,7 @@ var Items = {
 			id: 7,
 			name: "Fisherman Tobenam's Lost Rod",
 			type: "item",
-			quest: function(){return true;},
+			quest: true,
 			image: "assets/items/item/7.png",
 			lore: "The goblins haven't looked after this rod very well...",
 		},
@@ -1343,7 +1343,7 @@ var Items = {
 			name: "The Sceptre of Souls",
 			type: "item",
 			rarity: "mythic",
-			quest: function(){return true;},
+			quest: true,
 			image: "assets/items/item/8.png",
 			functionText: "Siphons the soul essence of any nearby enemy corpses",
 			onClick: function () {
@@ -1380,7 +1380,7 @@ var Items = {
 			id: 9,
 			name: "Inert Potion",
 			type: "item",
-			quest: function(){return true;},
+			quest: true,
 			image: "assets/items/item/9.png",
 			lore: "Try adding some ingredients...",
 		},
@@ -1408,7 +1408,7 @@ var Items = {
 			id: 12,
 			name: "Empty Bucket",
 			type: "item",
-			quest: function(){return true;},
+			quest: true,
 			image: "assets/items/item/12.png",
 			functionText: "Click to fill with a nearby 'scoopable' substance",
 			onClick: function (inventoryPosition) {
@@ -1427,7 +1427,7 @@ var Items = {
 			id: 13,
 			name: "Mud-Filled Bucket",
 			type: "item",
-			quest: function(){return true;},
+			quest: true,
 			image: "assets/items/item/13.png",
 			lore: "Fresh from The Nilbog."
 		},
@@ -1472,7 +1472,7 @@ var Items = {
 			name: "DOM, the Gingerbread Robot",
 			type: "item",
 			image: "assets/items/item/17.png",
-			functionText: "Restores 20 health over 10 seconds (whilst not in combat)",
+			functionText: "Restores 15 health over 10 seconds (whilst not in combat)",
 			lore: "A trusty companion. A tasty snack.<br><br>Obtained as a present from Christmas Day, 2018",
 			onClick: function (inventoryPosition) {
 				// item is NOT removed!
@@ -1482,7 +1482,7 @@ var Items = {
 					Game.statusEffects.food({
 						target: Game.hero,
 						effectTitle: "Gingerbread",
-						healthRestore: 20,
+						healthRestore: 15,
 						time: 10,
 					});
 					
@@ -1950,7 +1950,7 @@ var Items = {
 			name: "Christmas Sapling",
 			type: "consumable",
 			image: "assets/items/consumable/18.png",
-			functionText: "Places a trap (can only be used in the Logging Camp)",
+			functionText: "Places a christmas decoration (can only be used in the Logging Camp)",
 			lore: "It will soon flourish into a beautiful tree!",
 			onClick: function (inventoryPosition) {
 				if (Game.areaName === "eaglecrestLoggingCamp" && Game.event === "Christmas") { // it can only be placed in the logging camp during christmas
@@ -2014,6 +2014,23 @@ var Items = {
 			lore: "A festive pudding.",
 		},
 	],
+	teleport: [
+        {
+            id: 0,
+            name: "Logging Teleport Coin",
+            type: "teleport",
+            image: "assets/items/teleport/0.png",
+            functionText: "Teleports you to the Treefellers' Tavern in the Logging Camp",
+            sellPrice: 10,
+            teleport: {
+                x: 678,
+                y: 87,
+                location: "tavern",
+            },
+            cooldown: 1000000, // 1 day (dhhmmss)
+            lore: "A collectable coin.",
+        },
+    ],
 	fish: [
 		{
 			id: 0,
@@ -2430,7 +2447,7 @@ var Items = {
 			fishingType: "watermisc",
 			type: "fish",
 			rarity: "common",
-			quest: function(){return true;},
+			quest: true,
 			image: "assets/items/fish/21.png",
 			functionText: "", // added by onCatch
 			lore: "A bit soggy.",

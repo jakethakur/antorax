@@ -252,12 +252,12 @@ Dom.chat.oldString = ""; // chat below the -new messages-
 Dom.chat.contents = []; // stores all the chat messages
 document.getElementById("dot").innerHTML = 0;
 Dom.chat.insert = function(text, delay, important, noRepeat){
-	if(!noRepeat || !Dom.chat.contents.includes(text)){
-		if(this.contents.length > 1000){
-			// purge the oldest
-			this.contents.shift();
-		}
-		setTimeout(function(){
+	setTimeout(function(){
+		if(!noRepeat || !Dom.chat.contents.includes(text)){
+			if(this.contents.length >= 5){
+				// purge the oldest
+				this.contents.shift();
+			}		
 			if(chatPage.hidden && document.getElementById("dot").innerHTML !== "<b>...</b>"){
 				if(!document.getElementById("chatImage").hidden){
 					document.getElementById("dot").hidden = false;
@@ -290,11 +290,11 @@ Dom.chat.insert = function(text, delay, important, noRepeat){
 					document.getElementById("changeChat").getElementsByTagName("polygon")[0].style.stroke = "black";
 				},1000);
 			}
-		}.bind(this), delay);
-		return true;
-	}else{
-		return false;
-	}
+			return true;
+		}else{
+			return false;
+		}
+	}.bind(this), delay);
 }
 
 /*
@@ -685,7 +685,7 @@ Dom.inventory.displayInformation = function(item, stacked, position){
 			document.getElementById("name").style.color = "black";
 		}
 		// weapon, armour or rod
-		if(item.type !== "item" && item.type !== "bag" && item.type !== "currency" && item.type !== "fish" && item.type !== "consumable" && item.type !== "food"){
+		if(item.type !== "item" && item.type !== "bag" && item.type !== "currency" && item.type !== "fish" && item.type !== "consumable" && item.type !== "food" && item.type !== "teleport"){
 			if(item.type !== "rod"){
 				document.getElementById("stats").innerHTML = "Tier: "+item.tier+"<br>";
 			}else{
@@ -821,8 +821,8 @@ Dom.inventory.displayInformation = function(item, stacked, position){
 		if(item.fishingType === "fish"){
 			document.getElementById("stats").innerHTML = "Length: " + item.length + "cm";
 		}
-		if(item.quest !== undefined && item.quest()){
-			document.getElementById("stats").innerHTML = "<span style='color: slateblue;'>Quest item</span>" + (document.getElementById("stats").innerHTML !== "" ? "<br><br>"+document.getElementById("stats").innerHTML : "");
+		if(item.quest !== undefined && (item.quest === true || item.quest())){
+			document.getElementById("stats").innerHTML = "<span style='color: slateblue;'>Quest item</span><br>" + (document.getElementById("stats").innerHTML !== "" ? "<br><br>"+document.getElementById("stats").innerHTML : "");
 		}else{
 			document.getElementById("stats").style.color = "black";
 		}
@@ -1393,7 +1393,7 @@ Dom.inventory.give = function(item, num, position){
 							}
 							Dom.inventory.update();
 						}
-						if(item.type !== "item" && item.type !== "bag" && item.type !== "currency" && item.type !== "fish" && item.type !== "consumable" && item.type !== "food" && !Dom.inventory.archaeology.includes(item.name) && item.name !== undefined){
+						if(item.type !== "item" && item.type !== "bag" && item.type !== "currency" && item.type !== "fish" && item.type !== "consumable" && item.type !== "food" && item.type !== "teleport" && !Dom.inventory.archaeology.includes(item.name) && item.name !== undefined){
 							Dom.inventory.archaeology.push(item.name);
 							SaveItem("archaeology", JSON.stringify(Dom.inventory.archaeology));
 						}
@@ -1461,7 +1461,7 @@ Dom.inventory.give = function(item, num, position){
 			}
 			Dom.inventory.update();
 		}
-		if(item.type !== "item" && item.type !== "bag" && item.type !== "currency" && item.type !== "fish" && item.type !== "consumable" && item.type !== "food" && !Dom.inventory.archaeology.includes(item.name) && item.name !== undefined){
+		if(item.type !== "item" && item.type !== "bag" && item.type !== "currency" && item.type !== "fish" && item.type !== "consumable" && item.type !== "food" && item.type !== "teleport" && !Dom.inventory.archaeology.includes(item.name) && item.name !== undefined){
 			Dom.inventory.archaeology.push(item.name);
 			SaveItem("archaeology",JSON.stringify(Dom.inventory.archaeology));
 		}
@@ -1490,15 +1490,17 @@ if(localStorage.getItem("fish") !== null){
 }
 
 Dom.inventory.food = function(inventoryPosition){
-	// eat the item
-	Game.statusEffects.food({
-		target: Game.hero,
-		effectTitle: Player.inventory.items[inventoryPosition].name,
-		healthRestore: Player.inventory.items[inventoryPosition].healthRestore,
-		time: Player.inventory.items[inventoryPosition].healthRestoreTime,
-	});
-	// remove the item
-	Dom.inventory.remove(inventoryPosition);
+	if(!Game.hero.hasStatusEffectType("food")){
+		// eat the item
+		Game.statusEffects.food({
+			target: Game.hero,
+			effectTitle: Player.inventory.items[inventoryPosition].name,
+			healthRestore: Player.inventory.items[inventoryPosition].healthRestore,
+			time: Player.inventory.items[inventoryPosition].healthRestoreTime,
+		});
+		// remove the item
+		Dom.inventory.remove(inventoryPosition);
+	}
 },
 
 Dom.inventory.chooseStats = function(inventoryPosition){
@@ -1662,7 +1664,7 @@ Dom.identifier.identify = function(npc){
 
 Dom.inventory.dispose = function(ev){
 	let quest = false;
-	if(!isNaN(parseInt(ev.dataTransfer.getData("text"))) && Player.inventory.items[parseInt(ev.dataTransfer.getData("text"))].quest !== undefined && Player.inventory.items[parseInt(ev.dataTransfer.getData("text"))].quest()){
+	if(!isNaN(parseInt(ev.dataTransfer.getData("text"))) && Player.inventory.items[parseInt(ev.dataTransfer.getData("text"))].quest !== undefined && (Player.inventory.items[parseInt(ev.dataTransfer.getData("text"))].quest === true || Player.inventory.items[parseInt(ev.dataTransfer.getData("text"))].quest())){
 		// if it is a quest item
 		quest = true;
 	}
@@ -1753,7 +1755,9 @@ Dom.inventory.removeById = function(ID, type, num){
 		if(Player.inventory.items[i].type === type && Player.inventory.items[i].id === ID){
 			Dom.inventory.remove(i, num);
 			remove = true;
-			break; // stops multiple items being removed
+			if(num !== "all"){
+				break; // stops multiple items being removed
+			}
 		}
 	}
 	// if the item has not yet been removed check the equipped slots
@@ -1933,7 +1937,7 @@ Dom.inventory.drop = function(ev, equip, id){
 					}
 					// if the item slot is where you are putting the item and it is not a bag which is unsafe to move
 					if(document.getElementById("itemInventory").getElementsByTagName("td")[i].innerHTML.indexOf(target.outerHTML) >= 0 && target.outerHTML !== "" && remove){
-						// if it is not a key being dropped on a chest
+						// if it is not a key being dropped on a chest AAAAA
 						if(!(Player.inventory.items[data].opens !== undefined && Player.inventory.items[data].opens.type === Player.inventory.items[i].type && Player.inventory.items[data].opens.id === Player.inventory.items[i].id)){
 							// swaps the items
 							test = Player.inventory.items[i];
@@ -3071,10 +3075,12 @@ Dom.mail.page = function(){
 			if(document.getElementById("alert").hidden){
 				if(!Player.mail.opened.includes(Player.mail.mail[i].title)){
 					Player.mail.opened.push(Player.mail.mail[i].title);
-					if(Player.mail.mail[i].give !== undefined){
+					if(Player.mail.mail[i].give !== undefined && Dom.inventory.requiredSpace(Player.mail.mail[i].give)){
 						for(let x = 0; x < Player.mail.mail[i].give.length; x++){
 							Dom.inventory.give(Player.mail.mail[i].give[x].item, Player.mail.mail[i].give[x].quantity);
 						}
+					}else if(Player.mail.mail[i].give !== undefined){
+						Player.mail.opened.pop();
 					}
 				}
 				ExecuteFunctionByName(Player.mail.mail[i].openFunction, Dom, Player.mail.mail[i].openParameters);
