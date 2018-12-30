@@ -104,6 +104,9 @@ var Player = {
 	
 		// fishing
 		fishingSkill: 0, // (1.1) increased when you fish stuff up (increased by main.js)
+		
+		// misc
+		domRange: 240, // distance from an entity that a DOM menu may be opened
 	},
 	
 	xp: 0,

@@ -1086,6 +1086,7 @@ var Items = {
 			functionText: "Has a small chance to fish up a Christmas Present",
 			lore: "Not for consumption.",
 			stats: {},
+			projectile: "bobberChristmas",
 		},
 	],
 	set: [
@@ -1901,9 +1902,7 @@ var Items = {
 					imageName: "timer",
 					increasePropertyName: "oldHealth",
 					increasePropertyValue: oldHealth,
-					onExpire: function () {
-						Game.hero.health = this.info.oldHealth;
-					},
+					onExpire: "setHealth",
 				});
 			},
 		},
@@ -2488,7 +2487,7 @@ var Items = {
 		},
 		{
 			id: 22,
-			name: "Well-Wrapped Present", // openable
+			name: "Well-Wrapped Present", // openable by player
 			fishingType: "watermisc",
 			type: "fish",
 			rarity: "common",
@@ -2508,7 +2507,7 @@ var Items = {
 				&& Player.quests.questProgress.christmasPresentsCaught === 2
 				&& Player.quests.questProgress.christmasPresentsDelivered === 2)
 				|| (Player.inventory.weapon.type === "rod"
-				&& Player.inventory.weapon.id === "4"));
+				&& Player.inventory.weapon.id === 4));
 			},
 			onCatch: function (inventoryPosition) {
 				if (Player.quests.questProgress.christmasPresentsCaught === 2) {
@@ -2528,15 +2527,15 @@ var Items = {
 				let item = null;
 				let itemQuantity = 0;
 				if (!Player.quests.questProgress.christmasFishingRod) {
-					// fishing rod has been obtained
+					// fishing rod has not been obtained
 					item = Items.rod[4];
 					itemQuantity = 1;
+					Player.quests.questProgress.christmasFishingRod = true; // now obtained
 				}
 				else {
-					// fishing rod has not been obtained
+					// fishing rod has been obtained
 					item = Items.currency[2];
 					itemQuantity = Random(3, 5);
-					Player.quests.questProgress.christmasFishingRod = true; // now obtained
 				}
 				Dom.inventory.give(item, itemQuantity, inventoryPosition);
 			}

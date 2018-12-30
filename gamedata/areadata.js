@@ -223,7 +223,9 @@ var Areas = {
 						sold: [
 							{item: Items.rod[3], cost: 3}, // basic fishing rod
 							{item: Items.consumable[8], cost: 4}, // can of worms
-							{item: Items.consumable[12], cost: 4}, // magnetised lure
+							{item: Items.consumable[12], cost: 4, condition: function () { // magnetised lure
+						        return Player.stats.fishingSkill >= 10;
+						    }},
 						],
 						role: "merchant",
 						chooseText: "I'd like to browse your fishing items.",

@@ -148,7 +148,7 @@ var Quests = {
 			important: true,
 			
 			startName: "Marshall Teper",
-			startChat: `You looked good enough at the training dummy to go out to <strong>The Nilbog</strong>. It's the camp of some goblins, but trust me - they're not much stronger than that dummy you just fought.<br>They recently invaded our camp in huge numbers, and managed to steal some logs of wood whilst we were fighting them off. Head east to <strong>The Nilbog</strong> and retrieve some wood from them, and return it to me.<br>`,
+			startChat: `You looked good enough at the training dummy to go out to <strong>The Nilbog</strong>. It's the camp of some goblins, but trust me - they're not much stronger than that dummy you just fought.<br>They recently invaded our camp in huge numbers, and managed to steal some logs of wood whilst we were fighting them off. Head east to <strong>The Nilbog</strong> and retrieve some wood from them, and return it to me.`,
 			
 			finishName: "Marshall Teper",
 			finishChat: `Good. Now we need to make sure that a goblin attack like this won't happen again.`,
@@ -1223,7 +1223,7 @@ var Quests = {
 	tavern: [
 		{
 			id: 0,
-			quest: "A drink on us!",
+			quest: "A Drink on Us!",
 			questArea: "tavern",
 			
 			startName: "Gregor Goldenbrew",

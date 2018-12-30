@@ -111,6 +111,7 @@ Game.run = function (context, contextSecondary, contextDayNight, contextLight) {
 	// projectile name for hero (for use with projectile image loading)
 	this.heroProjectileName = Skins[Player.class][Player.skin].projectile;
 	this.heroProjectileAdjust = Skins[Player.class][Player.skin].projectileAdjust;
+	this.heroBobberName = "bobber";
 
     this.loadArea(Player.areaName, {x: Player.x, y: Player.y});
 };
@@ -912,6 +913,7 @@ class Hero extends Attacker {
 		
 		// stats
 		this.stats.looting = properties.stats.looting;
+		this.stats.rangeModifier = properties.stats.rangeModifier; // added to range
 		this.stats.domRange = 240; // distance from an entity that a DOM menu may be opened
 		
 		// optional stats
@@ -1207,15 +1209,9 @@ class Hero extends Attacker {
 							map: map,
 							x: projectileX,
 							y: projectileY,
-							width: 27,
+							width: 27, // width and height of each individual image
 							height: 23,
-							/*adjust: {
-								// manually adjust position - make this per class (per projectile image) in the future ( tbd )
-								x: 20,
-								y: 20,
-								towards: {x: this.x, y: this.y},
-							},*/
-							image: "bobber",
+							image: Game.heroBobberName,
 							beingChannelled: true,
 							type: "projectiles",
 						}));
@@ -1330,7 +1326,12 @@ class Hero extends Attacker {
 						
 						if (this.channelling.length !== undefined) {
 							// player has caught a fish
-							Player.quests.questProgress.fishCaught++;
+							if (Player.quests.questProgress.fishCaught === undefined) {
+								Player.quests.questProgress.fishCaught = 1;
+							}
+							else {
+								Player.quests.questProgress.fishCaught++;
+							}
 						}
 						
 						// give fish
@@ -1597,7 +1598,7 @@ class Hero extends Attacker {
 					let fish = Items.fish;
 					fish = fish.filter(item => item.areas.includes(Player.lootArea) || item.areas.includes(Game.areaName) || item.areas.length === 0); // filter for area (either lootArea or areaName)
 					if (baitStatusEffectIndex !== -1 &&
-					Player.quests.questProgress.fishCaught === 0 || Player.quests.questProgress.fishCaught === undefined) {
+					(Player.quests.questProgress.fishCaught === 0 || Player.quests.questProgress.fishCaught === undefined)) {
 						// player is using fishing bait but has never caught a fish before
 						// guaranteed common fish!
 						fish = fish.filter(item => item.fishingType === "fish" && item.rarity === "common");
@@ -1607,7 +1608,10 @@ class Hero extends Attacker {
 					}
 					fish = fish.filter(item => item.timeRequirement === undefined || Game.time === item.timeRequirement); // filter for time that it can be fished up
 					fish = fish.filter(item => item.catchRequirement === undefined || item.catchRequirement()); // filter for general fishing requirement
-					fish = fish[Random(0, fish.length - 1)]; // Random fish that fulfils requirements above
+					if (fish.constructor === Array) {
+						// still more fish to pick from
+						fish = fish[Random(0, fish.length - 1)]; // Random fish that fulfils requirements above
+					}
 					fish = { ...fish }; // remove all references to itemdata in fish variable (otherwise length value changed in this will also affect itemData)!
 					
 					// calculate time to catch fish and clicks needed for fish
@@ -2418,7 +2422,77 @@ Game.removeTileStatusEffects = function (target, keep) {
 			}
 		}
 	}
-}
+};
+
+// status effect function array
+// so that Hero's status effects can be saved with progress saving (and returned their functions in Game.initStatusEffects)
+Game.statusEffects.functions = {
+	// generic tick function for all timed status effects
+	tick: function (owner, timeTicked) { // decrease time
+		if (Round(this.info.ticks) < this.info.time) { // check effect has not expired
+			// call onTick
+			if (this.onTick !== undefined) {
+				this.onTick(owner);
+			}
+			
+			this.info.ticks += timeTicked / 1000; // timeTicked is in ms
+			if (owner.constructor.name === "Hero") { // refresh canvas status effects if the status effect was applied to player
+				Game.hero.updateStatusEffects();
+			}
+			// calculate next tick time
+			let nextTickTime = 1000;
+			if (this.info.time - this.info.ticks <= 2
+			&& this.onTick === undefined) {
+				// faster tick if effect is approaching its end (and there is no onTick function)
+				nextTickTime = 100;
+			}
+			setTimeout(function (owner) {
+				// nextTickTime is timeTicked
+				this.tick(owner, nextTickTime);
+			}.bind(this), nextTickTime, owner, nextTickTime);
+		}
+		else { // remove effect interval
+			// remove effect
+			Game.removeStatusEffect(owner);
+			// call onExpire function if it exists
+			if (this.onExpire !== undefined) {
+				this.onExpire(owner);
+			}
+		}
+	},
+	
+	// fire onTick
+	fireTick: function (owner) {
+		owner.takeDamage(this.info.fireDamagePerSecond);
+	},
+	
+	// poison onTick
+	poisonTick: function (owner) {
+		owner.takeDamage(this.info.poisonDamage / this.info.time);
+	},
+	
+	// food onTick
+	foodTick: function (owner) {
+		Game.restoreHealth(owner, Round(this.info.healthRestore / this.info.time, 1)); // 1dp
+	},
+	
+	// stealth onExpire
+	stealthRemove: function (target) {
+		// remove stealth effect
+		target.stats.stealth = false;
+		Game.removeStealthEffects(target);
+	},
+	
+	// xp onExpire
+	decreaseXP: function (target) {
+		target.stats.xpBonus -= this.info.xpIncrease;
+	},
+	
+	// restorative timepiece (Items.item[15]) onExpire
+	setHealth: function (target) {
+		target.health = this.info.oldHealth;
+	}
+};
 
 // give target a buff/debuff
 // properties includes target, effectTitle, effectDescription, increasePropertyName(optional), increasePropertyValue(optional), time(optional), imageName, onExpire(optional)
@@ -2466,46 +2540,23 @@ Game.statusEffects.generic = function (properties) {
 			addedStatusEffect.info.ticks = 0;
 			
 			// add functions
-			if (properties.onExpire !== undefined) {			
-				addedStatusEffect.onExpire = properties.onExpire.bind(addedStatusEffect);
+			// properties.onExpire and properties.onTick are the key names from Game.statusEffects.functions
+			if (properties.onExpire !== undefined) {
+				 // this is bound to the status effect (hence this.owner and this.info work)
+				addedStatusEffect.onExpire = this.functions[properties.onExpire].bind(addedStatusEffect);
+				// reference for savedata (used if the target is Game.hero)
+				addedStatusEffect.onExpireSource = properties.onExpire; // key name of function reference in Game.statusEffects.functions
 			}
-			if (properties.onTick !== undefined) {			
-				addedStatusEffect.onTick = properties.onTick.bind(addedStatusEffect);
+			if (properties.onTick !== undefined) {
+				 // this is bound to the status effect (hence this.owner and this.info work)
+				addedStatusEffect.onTick = this.functions[properties.onTick].bind(addedStatusEffect);
+				// reference for savedata (used if the target is Game.hero)
+				addedStatusEffect.onTickSource = properties.onTick; // key name of function reference in Game.statusEffects.functions
 			}
 			
-			// tick properties
-			addedStatusEffect.tick = function (owner, timeTicked) { // decrease time
-				if (Round(this.info.ticks) < this.info.time) { // check effect has not expired
-					// call onTick
-					if (this.onTick !== undefined) {
-						this.onTick(owner);
-					}
-					
-					this.info.ticks += timeTicked / 1000; // timeTicked is in ms
-					if (owner.constructor.name === "Hero") { // refresh canvas status effects if the status effect was applied to player
-						Game.hero.updateStatusEffects();
-					}
-					// calculate next tick time
-					let nextTickTime = 1000;
-					if (this.info.time - this.info.ticks <= 2
-					&& this.onTick === undefined) {
-						// faster tick if effect is approaching its end (and there is no onTick function)
-						nextTickTime = 100;
-					}
-					setTimeout(function (owner) {
-						// nextTickTime is timeTicked
-						this.tick(owner, nextTickTime);
-					}.bind(this), nextTickTime, owner, nextTickTime);
-				}
-				else { // remove effect interval
-					// remove effect
-					Game.removeStatusEffect(owner);
-					// call onExpire function if it exists
-					if (this.onExpire !== undefined) {
-						this.onExpire(owner);
-					}
-				}
-			};
+			// tick function
+			// reduces status effect time, removes status effect when necessary, calls onTick and onExpire when necessary
+			addedStatusEffect.tick = this.functions.tick;
 			
 			// calculate next tick time
 			let nextTickTime = 1000;
@@ -2569,9 +2620,7 @@ Game.statusEffects.fire = function(properties) {
 		newProperties.effectTitle = properties.effectTitle || "Fire " + newProperties.tier;
 		newProperties.effectDescription = properties.effectDescription || "Take " + newProperties.increasePropertyValue + " damage per second";
 		newProperties.increasePropertyName = "fireDamagePerSecond";
-		newProperties.onTick = function (owner) {
-			owner.takeDamage(this.info.fireDamagePerSecond);
-		}; // this is bound to the status effect (hence this.owner and this.info work)
+		newProperties.onTick = "fireTick";
 		newProperties.imageName = "fire";
 		this.generic(newProperties);
 	}
@@ -2586,9 +2635,7 @@ Game.statusEffects.poison = function(properties) {
 	newProperties.effectDescription = properties.effectDescription || "Take " + properties.poisonDamage + " damage over time";
 	newProperties.increasePropertyName = "poisonDamage";
 	newProperties.increasePropertyValue = properties.poisonDamage;
-	newProperties.onTick = function (owner) {
-		owner.takeDamage(this.info.poisonDamage / this.info.time);
-	}; // this is bound to the status effect (hence this.owner and this.info work)
+	newProperties.onTick = "poisonTick";
 	newProperties.imageName = "poison";
 	newProperties.effectStacks = false; // effect does not stack
 	this.generic(newProperties);
@@ -2657,12 +2704,7 @@ Game.statusEffects.stealth = function(properties) {
 	newProperties.imageName = "stealth";
 	if (properties.time !== undefined) {
 		// if it is a timed stealth effect, make sure to remove the stealth when it expires
-		newProperties.onExpire = function (target) {
-			// remove stealth effect
-			target.stats.stealth = false;
-			Game.removeStealthEffects(target);
-		}
-		// note that onExpire is bound to the status effect (this = statusEffect)
+		newProperties.onExpire = "stealthRemove";
 	}
 	// give target stealth
 	properties.target.stats.stealthed = true;
@@ -2701,9 +2743,7 @@ Game.statusEffects.food = function(properties) {
 	newProperties.increasePropertyName = "healthRestore";
 	newProperties.increasePropertyValue = properties.healthRestore;
 	newProperties.imageName = "food";
-	newProperties.onTick = function (owner) {
-		Game.restoreHealth(owner, Round(this.info.healthRestore / this.info.time, 1));
-	}; // this is bound to the status effect (hence this.owner and this.info work)
+	newProperties.onTick = "foodTick";
 	this.generic(newProperties);
 }
 
@@ -2723,9 +2763,7 @@ Game.statusEffects.xp = function(properties) {
 	// increase XP
 	properties.target.stats.xpBonus += properties.xpIncrease;
 	// decrease XP on expire
-	newProperties.onExpire = function (target) {
-		target.stats.xpBonus -= this.info.xpIncrease;
-	};
+	newProperties.onExpire = "decreaseXP";
 	
 	this.generic(newProperties);
 }
@@ -3181,7 +3219,7 @@ Game.init = function () {
 	});
 	
 	// set player projectile
-	this.projectileUpdate();
+	this.projectileImageUpdate();
 	
 	// set loaded status image
 	this.statusImage = Loader.getImage("status");
@@ -3223,15 +3261,47 @@ Game.init = function () {
 	// start Game tick
 	window.requestAnimationFrame(this.tick);
 	
-	// re-start hero status effect ticks (from savedata)
+	// re-init hero's saved status effects
+	this.initStatusEffects();
+	
+	// event console.info
+	if (this.event === "James") {
+		console.info("Happy James Day!");
+	}
+	else if (this.event === "Samhain") {
+		console.info("Happy Samhain! Keep your eye out for a beautiful blood moon tonight.");
+	}
+	
+	// DOM functions to be run when class is loaded
+	Dom.hotbar.update();
+	Dom.inventory.update();
+	// update quest log
+	Dom.quests.active();
+	Dom.quests.possible();
+	Dom.quests.completed();
+	Dom.changeBook(Player.tab); // sets tab to whatever the player was on when they last saved
+	Dom.adventure.update(); // chooses what should be shown in adventurer's log
+};
+
+// re-start hero status effect ticks (from savedata)
+Game.initStatusEffects = function () {
 	// iterate through status effects
-	// doesn't work yet (TBD)
 	for (let i = 0; i < this.hero.statusEffects.length; i++) {
 		let statusEffect = this.hero.statusEffects[i];
 		
-		// TBD give tick function and other functions back
-		
-		if (statusEffect.tick !== undefined) { // check if status effect should tick
+		if (statusEffect.info.time !== undefined) { // check if status effect should tick
+			// give the status effect the tick function
+			statusEffect.tick = this.statusEffects.functions.tick;
+			
+			// if it has an onExpire function, add it
+			if (statusEffect.onExpireSource !== undefined) {
+				statusEffect.onExpire = this.statusEffects.functions[statusEffect.onExpireSorce];
+			}
+			// if it has an onTick function, add it
+			if (statusEffect.onTickSource !== undefined) {
+				statusEffect.onTick = this.statusEffects.functions[statusEffect.onTickSource];
+			}
+			
 			// calculate next tick time
 			let nextTickTime = 1000;
 			if (statusEffect.info.time <= 2 && statusEffect.onTick === undefined) {
@@ -3243,27 +3313,10 @@ Game.init = function () {
 			setTimeout(function (owner) {
 				// nextTickTime is timeTicked
 				statusEffect.tick(owner, nextTickTime);
-			}.bind(addedStatusEffect), nextTickTime, Game.hero, nextTickTime);
+			}.bind(statusEffect), nextTickTime, Game.hero, nextTickTime);
 		}
 	}
-	
-	// event console.info
-	if (this.event === "James") {
-		console.info("Happy James Day!");
-	}
-	else if (this.event === "Samhain") {
-		console.info("Happy Samhain! Keep your eye out for a beautiful blood moon tonight.");
-	}
-	
-	// function to be run when class is loaded
-	Dom.hotbar.update();
-	Dom.inventory.update();
-	Dom.quests.active();
-	Dom.quests.possible();
-	Dom.quests.completed();
-	Dom.changeBook(Player.tab);
-	Dom.adventure.update(); // chooses what should be shown in adventurer's log
-};
+}
 
 //
 // Chests and loot
@@ -4192,7 +4245,7 @@ Game.inventoryUpdate = function (e) {
 		}
 		
 		// set player projectile
-		this.projectileUpdate();
+		this.projectileImageUpdate();
 		
 		// if the player is no longer holding a fishing rod, remove their bobber
 		if (Player.inventory.weapon.type !== "rod" && Game.hero.channelling === "fishing") {
@@ -4214,17 +4267,30 @@ Game.inventoryUpdate = function (e) {
 	Dom.quests.active(); // quest log update check
 }
 
-// set player projectile
-Game.projectileUpdate = function () {
+// set player projectile/bobber image
+Game.projectileImageUpdate = function () {
+	// figure out if it is a projectile or bobber, and save variable names for later
+	let nameAddress = "heroProjectileName";
+	let adjustAddress = "heroProjectileAdjust";
+	if (Player.inventory.weapon.type === "rod") {
+		nameAddress = "heroBobberName";
+		adjustAddress = null;
+	}
+	
 	// if the player is now holding a weapon with a special projectile image, load that image and stop the player from attacking until this is done
-	if (Player.inventory.weapon.projectile !== undefined && this.heroProjectileName !== Player.inventory.weapon.projectile) {
+	if (Player.inventory.weapon.projectile !== undefined && this[nameAddress] !== Player.inventory.weapon.projectile) {
 		// not loaded projectile image before
-		this.heroProjectileName = Player.inventory.weapon.projectile;
-		this.heroProjectileAdjust = Player.inventory.weapon.projectileAdjust;
+		this[nameAddress] = Player.inventory.weapon.projectile;
+		if (adjustAddress !== null) { // set adjust for projectiles only (not bobbers)
+			this[adjustAddress] = Player.inventory.weapon.projectileAdjust;
+			if (this[adjustAddress] === undefined) {
+				this[adjustAddress] = {x:0,y:0}; // default value
+			}
+		}
 		// set weapon property "cannotAttack" to true so the player is blocked from attacking
 		Player.inventory.weapon.cannotAttack = true;
 		// load image
-		let p = Loader.loadImage(this.heroProjectileName, "./assets/projectiles/" + this.heroProjectileName + ".png");
+		let p = Loader.loadImage(this[nameAddress], "./assets/projectiles/" + this[nameAddress] + ".png");
 		if (p !== undefined) {
 			p.then(function (value) {
 				// only called once image has loaded
@@ -4232,7 +4298,7 @@ Game.projectileUpdate = function () {
 				Player.inventory.weapon.cannotAttack = undefined;
 			})
 			.catch(function (err) {
-				console.error("Your image did not load correctly.", err);
+				console.error("Your projectile image did not load correctly.", err);
 			});
 		}
 		else {
@@ -4240,22 +4306,32 @@ Game.projectileUpdate = function () {
 			Player.inventory.weapon.cannotAttack = undefined;
 		}
 	}
+	
 	// if the player is NOT holding a weapon with a special projectile image, and the skin does have a special projectile image
-	else if (Player.inventory.weapon.projectile === undefined && this.heroProjectileName !== Skins[Player.class][Player.skin].projectile) {
+	else if (Player.inventory.weapon.projectile === undefined && this[nameAddress] !== Skins[Player.class][Player.skin].projectile) {
 		// needs to reload default projectile image
-		this.heroProjectileName = Skins[Player.class][Player.skin].projectile;
-		this.heroProjectileAdjust = Skins[Player.class][Player.skin].projectileAdjust;
+		if (nameAddress === "heroProjectileName") {
+			// weapon projectile - saved in skindata by default
+			this[nameAddress] = Skins[Player.class][Player.skin].projectile;
+		}
+		else if (nameAddress === "heroBobberName") {
+			// bobber projectile - default is always "bobber"
+			this[nameAddress] = "bobber";
+		}
+		if (adjustAddress !== null) { // set adjust for projectiles only (not bobbers)
+			this[adjustAddress] = Skins[Player.class][Player.skin].projectileAdjust;
+		}
 		// set weapon property "cannotAttack" to true so the player is blocked from attacking
 		Player.inventory.weapon.cannotAttack = true;
 		// load image
-		let p = Loader.loadImage(this.heroProjectileName, "./assets/projectiles/" + this.heroProjectileName + ".png");
+		let p = Loader.loadImage(this[nameAddress], "./assets/projectiles/" + this[nameAddress] + ".png");
 		p.then(function (value) {
 			// only called once image has loaded
 			// set weapon "cannotAttack" property back to false
 			Player.inventory.weapon.cannotAttack = undefined;
 		})
 		.catch(function (err) {
-			console.error("Your image did not load correctly.", err);
+			console.error("Your projectile image did not load correctly.", err);
 		});
 	}
 }
