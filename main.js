@@ -291,7 +291,9 @@ Camera.prototype.update = function () {
 	movedY = this.y - movedY;
 	// move weather!
 	if (document.getElementById("weatherOn").checked && !Areas[Game.areaName].indoors) {
-		Weather.move(movedX, movedY);
+		if (Weather.weatherType !== "clear") {
+			Weather.move(movedX, movedY);
+		}
 	}
 };
 
@@ -3133,6 +3135,9 @@ Game.loadArea = function (areaName, destination) {
 			this.generateChests(Areas[areaName].chestData);
 		}
 		
+		// choose weather
+		Weather.chooseWeather(areaName);
+		
 		// render secondary canvas
 		Game.secondary.render();
 		
@@ -3435,14 +3440,24 @@ Game.formatLoot = function (items) {
 Game.positionLoot = function (items, space) {
     let spaces = [];
     let display = [];
+	// generate array of possible spaces (these are removed when an item takes that random space)
     for (let i = 0; i < space; i++) {
         spaces.push(i);
         display.push(undefined);
     }
     for (let i = 0; i < items.length; i++) {
-        let rnd = Random(0, spaces.length - 1);
-        display[rnd] = items[i];
-        spaces.splice(rnd,1);
+		if (spaces.length === 0) {
+			// no spaces left
+			console.warn("An item was truncated from the loot array due to there not being enough space in the lootee's inventory.")
+			break; // end for loop
+		}
+		else {
+			// get a random position and add the item to that position
+	        let rnd = Random(0, spaces.length - 1);
+	        display[rnd] = items[i];
+			// remove the random position
+	        spaces.splice(rnd,1);
+		}
     }
     return display;
 }
@@ -4145,7 +4160,9 @@ Game.update = function (delta) {
 	
 	// update weather
 	if (document.getElementById("weatherOn").checked && !Areas[Game.areaName].indoors) {
-		Weather.update(delta);
+		if (Weather.weatherType !== "clear") {
+			Weather.update(delta);
+		}
 	}
 };
 
@@ -4339,6 +4356,7 @@ Game.projectileImageUpdate = function () {
 // called whenever a loot menu is closed
 // called by index.html
 // itemsRemaining is the array, in the same format as a loot array (object with item and quantity)
+// itemsRemaining is an array of undefined if there are no items remaining
 // tbd optimise so enemy and chest are not as separate
 Game.lootClosed = function (itemsRemaining) {
 	if (Dom.loot.currentId[0] === "e") {
@@ -4366,6 +4384,17 @@ Game.lootClosed = function (itemsRemaining) {
 		// if it is a loot chest, set the day in savedata (so one cannot be opened again in this area today)
 		if (Game.chests[arrayIndex].name === "Loot Chest") {
 			Player.chestsOpened[Game.areaName] = GetFullDate();
+		}
+	}
+	if (Dom.loot.currentId[0] === "i") {
+		// item loot menu closed (e.g. sunken chest)
+		let inventoryPosition = Dom.loot.currentId.substr(1); // inventory position of item (array index)
+		// set loot
+		Player.inventory.items[inventoryPosition].loot = itemsRemaining;
+		// remove the chest if there is no loot left
+		if (itemsRemaining.every(item => item === undefined)) {
+			// no loot left
+			Dom.inventory.remove(inventoryPosition);
 		}
 	}
 	else if (Dom.loot.currentId[0] === "x") {
@@ -5021,7 +5050,9 @@ Game.render = function (delta) {
 	
 	// render weather
 	if (document.getElementById("weatherOn").checked && !Areas[Game.areaName].indoors) {
-		Weather.render();
+		if (Weather.weatherType !== "clear") {
+			Weather.render();
+		}
 	}
 };
 

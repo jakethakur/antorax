@@ -1148,9 +1148,10 @@ var Areas = {
 				[],
 			],
 			interactWithTile: function(tileNum, x, y) { // pick up logs
+				console.log(tileNum);
 				if (tileNum === 48) { // left side of log stack
 					// give log item to player
-					if (Dom.inventory.give(Items.item[2], 1)) { // check if player has enough inventory space
+					if (Dom.inventory.give(Items.item[2], 1) !== false) { // check if player has enough inventory space
 						// replace tiles with grass
 						map.setTile(0, map.getCol(x), map.getRow(y), 102);
 						map.setTile(0, map.getCol(x + 60), map.getRow(y), 102);
@@ -1158,7 +1159,7 @@ var Areas = {
 				}
 				else if (tileNum === 49) { // right side of log stack
 					// give log item to player
-					if (Dom.inventory.give(Items.item[2], 1)) { // check if player has enough inventory space
+					if (Dom.inventory.give(Items.item[2], 1) !== false) { // check if player has enough inventory space
 						// replace tiles with grass
 						map.setTile(0, map.getCol(x), map.getRow(y), 102);
 						map.setTile(0, map.getCol(x - 60), map.getRow(y), 102);
@@ -1167,7 +1168,7 @@ var Areas = {
 				// pick up snowball from rock
 				else if (tileNum === 29){ // rock top centre
 					// give snowball to player
-					if (Dom.inventory.give(Items.bow[8], 1)) { // check if player has enough inventory space
+					if (Dom.inventory.give(Items.bow[8], 1) !== false) { // check if player has enough inventory space
 						if(Player.quests.questProgress.snowCollected === undefined){
 							Player.quests.questProgress.snowCollected = 1;
 						}else{
@@ -1188,7 +1189,7 @@ var Areas = {
 				}
 				else if (tileNum === 39) { // rock bottom centre
 					// give snowball to player
-					if (Dom.inventory.give(Items.bow[8], 1)) { // check if player has enough inventory space
+					if (Dom.inventory.give(Items.bow[8], 1) !== false) { // check if player has enough inventory space
 						if(Player.quests.questProgress.snowCollected === undefined){
 							Player.quests.questProgress.snowCollected = 1;
 						}else{

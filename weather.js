@@ -1,5 +1,6 @@
 let Weather = {};
 
+// called by Game.init
 Weather.init = function () {
 	// canvas
 	this.canvas = document.getElementById("weather");
@@ -12,8 +13,14 @@ Weather.init = function () {
 	};
 	// populate particleArray
 	this.particleArray = []; // array of precipitation particles
-	
-	this.weatherType = "snow"; // temporary - should check isIcy function for area
+}
+
+// called by Game.loadArea
+Weather.chooseWeather = function (areaName) {
+	if (Areas[areaName].isIcy !== undefined && Areas[areaName].isIcy()) {
+		// icy area
+		this.weatherType = "snow";
+	}
 }
 
 // resets weather particle distribution

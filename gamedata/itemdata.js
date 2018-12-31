@@ -2301,10 +2301,11 @@ var Items = {
 			rarity: "mythic",
 			sellPrice: 5,
 			lore: "It seems to be locked. You need a key to open it.",
+			locked: true, // can only be opened if locked is false
 			areas: [], 
 			clicksToCatch: 20,
-			timeToCatch: 7000,			
-			onOpen: function () {
+			timeToCatch: 7000,
+			onCatch: function (inventoryPosition) {
 				let loot = [];
 				// fill up chest
 				// junk items
@@ -2371,11 +2372,28 @@ var Items = {
 				
 				// format and position loot
 				loot = Game.formatLoot(loot);
-				loot = Game.positionLoot(loot, 24);
+				loot = Game.positionLoot(loot, 24); // has 24 inventory space
 				
+				// set the chest's loot
+				// 'this' cannot be used because onCatch is not bound to the chest
+				Player.inventory.items[inventoryPosition].loot = loot;
+			},	
+			onOpen: function (inventoryPosition) { // opened by key
+				if (Player.inventory.items[inventoryPosition].locked) {
+					// unlock chest
+					Player.inventory.items[inventoryPosition].locked = false;
+					Player.inventory.items[inventoryPosition].lore = "Click to open!";
+					return true; // consume key
+				}
+				else {
+					// was already unlocked
+					return false; // don't consume key
+				}
+			},
+			onClick: function (inventoryPosition) {
 				// open loot page
-				Dom.loot.currentId = "x"; // x means that nothing should be done when it is closed
-				Dom.choose.page("Sunken Chest", ["Loot chest!"], [Dom.loot.page], [["Sunken Chest", loot]]);
+				Dom.loot.currentId = "i"+inventoryPosition; // so that Game.lootClosed knows to set its loot back to whatever wasn't looted (and remove the item if there isn't anything left)
+				Dom.choose.page("Sunken Chest", ["Loot chest!"], [Dom.loot.page], [["Sunken Chest", Player.inventory.items[inventoryPosition].loot]]);
 			},
 		},
 		{
