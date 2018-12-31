@@ -1379,7 +1379,9 @@ Dom.inventory.give = function(item, num, position){
 							}
 						}
 						Player.inventory.items[i].onClickFunction = item.onClick;
-						Player.inventory.items[i].onClick = Dom.inventory.cooldown;
+						if(Player.inventory.items[i].onClickFunction !== undefined){
+							Player.inventory.items[i].onClick = Dom.inventory.cooldown;
+						}
 						if(Array.isArray(Player.inventory.items[i].lore)){
 							Player.inventory.items[i].lore = item.lore[Random(0, item.lore.length-1)];
 						}
@@ -1447,7 +1449,9 @@ Dom.inventory.give = function(item, num, position){
 			}
 		}
 		Player.inventory.items[position].onClickFunction = item.onClick;
-		Player.inventory.items[position].onClick = Dom.inventory.cooldown;
+		if(Player.inventory.items[position].onClickFunction !== undefined){
+			Player.inventory.items[position].onClick = Dom.inventory.cooldown;
+		}
 		if(Array.isArray(Player.inventory.items[position].lore)){
 			Player.inventory.items[position].lore = item.lore[Random(0, item.lore.length-1)];
 		}
@@ -1961,6 +1965,20 @@ Dom.inventory.drop = function(ev, equip, id){
 					}
 					// if the item slot is where you are putting the item and it is not a bag which is unsafe to move
 					if(document.getElementById("itemInventory").getElementsByTagName("td")[i].innerHTML.indexOf(target.outerHTML) >= 0 && target.outerHTML !== "" && remove){
+						// if the items are the same
+						if(Player.inventory.items[data].type === Player.inventory.items[i].type && Player.inventory.items[data].id === Player.inventory.items[i].id && Player.inventory.items[i].stack > 1){
+							if(Player.inventory.items[i].stacked + Player.inventory.items[data].stacked <= Player.inventory.items[i].stack){
+								Player.inventory.items[i].stacked += Player.inventory.items[data].stacked;
+								document.getElementById("itemInventory").getElementsByTagName("td")[i].innerHTML = "<img src='"+Player.inventory.items[i].image+"' draggable='true' ondragstart='Dom.inventory.drag(event,"+i+")' "+(Player.inventory.items[i].onClick !== undefined ? "onclick='Player.inventory.items["+i+"].onClick("+i+")'" : "")+"><div class='stackNum' id='stackNum"+i+"'>"+Player.inventory.items[i].stacked+"</div></img>";
+								Dom.inventory.remove(data, true);
+							}else if(Player.inventory.items[i].stacked !== Player.inventory.items[i].stack){
+								Player.inventory.items[data].stacked -= (Player.inventory.items[i].stack - Player.inventory.items[i].stacked);
+								Player.inventory.items[i].stacked = Player.inventory.items[i].stack;
+								document.getElementById("itemInventory").getElementsByTagName("td")[i].innerHTML = "<img src='"+Player.inventory.items[i].image+"' draggable='true' ondragstart='Dom.inventory.drag(event,"+i+")' "+(Player.inventory.items[i].onClick !== undefined ? "onclick='Player.inventory.items["+i+"].onClick("+i+")'" : "")+"><div class='stackNum' id='stackNum"+i+"'>"+Player.inventory.items[i].stacked+"</div></img>";
+								document.getElementById("itemInventory").getElementsByTagName("td")[data].innerHTML = "<img src='"+Player.inventory.items[data].image+"' draggable='true' ondragstart='Dom.inventory.drag(event,"+data+")' "+(Player.inventory.items[data].onClick !== undefined ? "onclick='Player.inventory.items["+data+"].onClick("+data+")'" : "")+"><div class='stackNum' id='stackNum"+data+"'>"+Player.inventory.items[data].stacked+"</div></img>";
+							}
+						}
+						else
 						// if it is not a key being dropped on a chest
 						if(!(Player.inventory.items[data].opens !== undefined && Player.inventory.items[data].opens.type === Player.inventory.items[i].type && Player.inventory.items[data].opens.id === Player.inventory.items[i].id)){
 							// swaps the items
@@ -2134,9 +2152,10 @@ Dom.inventory.drop = function(ev, equip, id){
 							}
 						// if it is a key being dropped on a chest
 						}else{
-							Items[Player.inventory.items[i].type][Player.inventory.items[i].id].onOpen();
-							Dom.inventory.remove(i);
-							Dom.inventory.remove(data);
+							if(Items[Player.inventory.items[i].type][Player.inventory.items[i].id].onOpen(i)){
+								//Dom.inventory.remove(i);
+								Dom.inventory.remove(data);
+							}
 						}
 						//break;
 					}else if(document.getElementById("itemInventory").getElementsByTagName("td")[i].innerHTML.indexOf(target.outerHTML) >= 0 && target.outerHTML !== ""){
@@ -2311,7 +2330,8 @@ Dom.inventory.removeEquipment = function(array){
 	if(array.set !== undefined){
 		Dom.inventory.noSet = false;
 		for(let i = 0; i < Items.set[array.set].armour.length; i++){
-			if(Player.inventory.helm.name !== Items.set[array.set].armour[i] && Player.inventory.chest.name !== Items.set[array.set].armour[i] && Player.inventory.greaves.name !== Items.set[array.set].armour[i] && Player.inventory.boots.name !== Items.set[array.set].armour[i]){
+			if(Player.inventory.helm.name !== Items.set[array.set].armour[i] && Player.inventory.chest.name !== Items.set[array.set].armour[i] && Player.inventory.greaves.name !== Items.set[array.set].armour[i] && Player.inventory.boots.name !== Items.set[array.set].armour[i]
+			&& array.name !== Items.set[array.set].armour[i] && array.name !== Items.set[array.set].armour[i] && array.name !== Items.set[array.set].armour[i] && array.name !== Items.set[array.set].armour[i]){
 				// if the set bonus is NOT active
 				Dom.inventory.noSet = true;
 			}
@@ -3247,7 +3267,9 @@ for(let i = 0; i < Player.inventory.items.length; i++){
 		}		
 		if(!Player.inventory.items[i].unidentified){
 			Player.inventory.items[i].onClickFunction = Items[Player.inventory.items[i].type][Player.inventory.items[i].id].onClick;
-			Player.inventory.items[i].onClick = Dom.inventory.cooldown;
+			if(Player.inventory.items[i].onClickFunction !== undefined){
+				Player.inventory.items[i].onClick = Dom.inventory.cooldown;
+			}
 			Player.inventory.items[i].onKill = Items[Player.inventory.items[i].type][Player.inventory.items[i].id].onKill;
 			Player.inventory.items[i].onAttack = Items[Player.inventory.items[i].type][Player.inventory.items[i].id].onAttack;
 			Player.inventory.items[i].onAnyAttack = Items[Player.inventory.items[i].type][Player.inventory.items[i].id].onAnyAttack;
@@ -3296,7 +3318,9 @@ for(let i = 0; i < Object.keys(Player.inventory).length-1; i++){ // repeats for 
 		}	
 		if(Player.inventory[Object.keys(Player.inventory)[i]].image !== undefined){
 			Player.inventory[Object.keys(Player.inventory)[i]].onClickFunction = Items[Player.inventory[Object.keys(Player.inventory)[i]].type][Player.inventory[Object.keys(Player.inventory)[i]].id].onClick;
-			Player.inventory[Object.keys(Player.inventory)[i]].onClick = Dom.inventory.cooldown;
+			if(Player.inventory[Object.keys(Player.inventory)[i]].onClickFunction !== undefined){
+				Player.inventory[Object.keys(Player.inventory)[i]].onClick = Dom.inventory.cooldown;
+			}
 			Player.inventory[Object.keys(Player.inventory)[i]].onKill = Items[Player.inventory[Object.keys(Player.inventory)[i]].type][Player.inventory[Object.keys(Player.inventory)[i]].id].onKill;
 			Player.inventory[Object.keys(Player.inventory)[i]].onAttack = Items[Player.inventory[Object.keys(Player.inventory)[i]].type][Player.inventory[Object.keys(Player.inventory)[i]].id].onAttack;
 			Player.inventory[Object.keys(Player.inventory)[i]].onAnyAttack = Items[Player.inventory[Object.keys(Player.inventory)[i]].type][Player.inventory[Object.keys(Player.inventory)[i]].id].onAnyAttack;
@@ -3383,6 +3407,9 @@ if (!Player.days.includes(GetFullDate())) {
 }
 
 // savedata FIXES
+if(Player.quests.completedQuestArray.includes("A drink on us!")){
+	Player.quests.completedQuestArray.splice(Player.quests.completedQuestArray.findIndex(a => a === "A drink on us!"), 1, "A Drink on Us!");
+}
 if(Player.stats.domRange === undefined){
 	Player.stats.domRange = 240;
 }

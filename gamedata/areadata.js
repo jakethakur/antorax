@@ -1098,10 +1098,11 @@ var Areas = {
 						    {item: Items.food[2], cost: 2, costCurrency: 5, condition: function () { // Christmas Pudding
 						        return Game.event === "Christmas";
 						    }},
+							{item: Items.teleport[0], cost: 30,}, // Logging Teleport Coin
 						],
 						role: "merchant",
 						roleRequirement: function () {
-							return Player.quests.completedQuestArray.includes("A drink on us!");
+							return Player.quests.completedQuestArray.includes("A Drink on Us!");
 						},
 						shopGreeting: "Only the finest food 'n' drink here.",
 					},
@@ -1148,7 +1149,6 @@ var Areas = {
 				[],
 			],
 			interactWithTile: function(tileNum, x, y) { // pick up logs
-				console.log(tileNum);
 				if (tileNum === 48) { // left side of log stack
 					// give log item to player
 					if (Dom.inventory.give(Items.item[2], 1) !== false) { // check if player has enough inventory space

@@ -485,7 +485,7 @@ var Items = {
 			image: "assets/items/boots/9.png",
 			tier: 1,
 			rarity: "unique",
-			lore: "These should keep you happy while there are less fish around",
+			lore: "These should keep you happy while there are less fish around.",
 			obtain: "Buy from a merchant during the Christmas event.",
 			sellPrice: 4,
 			stats: {
@@ -1601,7 +1601,7 @@ var Items = {
 				//tbd
 			},
 			quest: function(){
-				return !Player.quests.completedQuestArray.includes("A drink on us!");
+				return !Player.quests.completedQuestArray.includes("A Drink on Us!");
 			},
 		},
 		{
@@ -2391,10 +2391,13 @@ var Items = {
 				}
 			},
 			onClick: function (inventoryPosition) {
-				// open loot page
-				Dom.loot.currentId = "i"+inventoryPosition; // so that Game.lootClosed knows to set its loot back to whatever wasn't looted (and remove the item if there isn't anything left)
-				Dom.choose.page("Sunken Chest", ["Loot chest!"], [Dom.loot.page], [["Sunken Chest", Player.inventory.items[inventoryPosition].loot]]);
-			},
+                // check the chest is not locked
+                if (!Player.inventory.items[inventoryPosition].locked) {
+                    // open loot page
+                    Dom.loot.currentId = "i"+inventoryPosition; // so that Game.lootClosed knows to set its loot back to whatever wasn't looted (and remove the item if there isn't anything left)
+                    Dom.choose.page("Sunken Chest", ["Loot chest!"], [Dom.loot.page], [["Sunken Chest", Player.inventory.items[inventoryPosition].loot]]);
+                }
+            },
 		},
 		{
 			id: 17,

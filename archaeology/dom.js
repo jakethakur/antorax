@@ -10,6 +10,20 @@ var obtained = document.getElementById("obtained");
 var min = document.getElementById("min");
 var max = document.getElementById("max");
 var searchBar = document.getElementById("searchBar");
+var session = {};
+
+if(sessionStorage.getItem("filter") != null){
+	session = JSON.parse(sessionStorage.getItem("filter"));
+	if(viewedItemId == undefined && viewedItemType == undefined){
+		rarity.value = session.rarity
+		category.value = session.category
+		obtained.value = session.obtained
+		min.value = session.min
+		max.value = session.max
+		searchBar.value = session.searchBar
+		sessionStorage.removeItem("filter");
+	}
+}
 
 function Stats(stat, value, array){ // stat should be in Title Case // copied from DOM
 	if(stat === "Defence" || stat === "Block Defence" || stat === "Fishing Skill"){
@@ -177,6 +191,11 @@ function checkChange(){
 				}
 			}
 		}
+		array.sort(function(a, b){
+			if(a.name < b.name) { return -1; }
+			if(a.name > b.name) { return 1; }
+			return 0;
+		})
 		arrange();
 	}
 }
@@ -295,6 +314,15 @@ function arrange(){
 	if(viewedItemId == undefined || viewedItemType == undefined){
 		for(let i = 0; i < array.length; i++){
 			document.getElementById("box"+i).onclick = function(){
+				if(localStorage.getItem("accept") === "true"){
+					session.category = category.value;
+					session.rarity = rarity.value;
+					session.obtained = obtained.value;
+					session.min = min.value;
+					session.max = max.value;
+					session.searchBar = searchBar.value;
+					sessionStorage.setItem("filter", JSON.stringify(session));
+				}
 				window.location += "?id="+array[i].id+"&type="+array[i].type;
 			}
 		}
@@ -366,14 +394,14 @@ function arrange(){
 		if(viewedItemType != "set"){
 			document.getElementById("obtain").hidden = false;
 			document.getElementById("obtain").style.top = "100px";
-			document.getElementById("obtain").style.width = "1000px";
+			document.getElementById("obtain").style.width = (window.innerWidth - 500 < 1000 ? window.innerWidth - 500 : 1000) + "px";
 			document.getElementById("obtain").innerHTML = JSON.parse(localStorage.getItem("archaeology")).includes(Items[viewedItemType][viewedItemId].name) ? "You have obtained this item." : "You have not yet obtained this item";
 			document.getElementById("obtain").innerHTML += "<br><br>"+Items[viewedItemType][viewedItemId].obtain;
 			document.getElementById("obtain").innerHTML += "<br><br>Sells for "+Items[viewedItemType][viewedItemId].sellPrice+" gold at an item buyer.";
 		}
 		document.getElementById("stats").hidden = false;
 		document.getElementById("stats").style.top = viewedItemType != "set" ? 130 + document.getElementById("obtain").offsetHeight + "px" : "100px";
-		document.getElementById("stats").style.width = "1000px";
+		document.getElementById("stats").style.width = (window.innerWidth - 500 < 1000 ? window.innerWidth - 500 : 1000) + "px";
 		document.getElementById("stats").innerHTML = "";
 		for(var i = 0; i < Object.keys(Items[viewedItemType][viewedItemId].stats).length; i++){
 			var replaceStat = Object.keys(Items[viewedItemType][viewedItemId].stats)[i].replace( /([A-Z])/g, " $1" );
