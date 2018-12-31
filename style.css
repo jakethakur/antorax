@@ -376,6 +376,10 @@ td{
 	clear: both;
 	margin-bottom: 20px;
 }
+#levelUpPageClose{
+	position: absolute;
+	left: 150px;
+}
 #closeReputation, #closeSettings{
 	position: relative;
 	width: 200px;

@@ -126,9 +126,9 @@ var Adventure = {
 			if(Player.quests.completedQuestArray.includes("Learning to Fish II")){
 				return "Learning to Fish III";
 			}else if(Player.quests.completedQuestArray.includes("Learning to Fish I")){
-				return "Learnign to Fish II";
+				return "Learning to Fish II";
 			}else if(Player.quests.completedQuestArray.includes("A Lost Fishing Rod")){
-				return "Learnign to Fish I";
+				return "Learning to Fish I";
 			}else{
 				return "A Lost Fishing Rod";
 			}

@@ -644,6 +644,9 @@ var Items = {
 			},
 			projectile: "slashFrost",
 			projectileAdjust: {x: 0, y: 0},
+			deleteIf: function() {
+				return GetFullDate().substring(2,4) !== "12";
+			},
 		},
 	],
 	staff: [
@@ -830,6 +833,9 @@ var Items = {
 			},
 			projectile: "frostball",
 			projectileAdjust: {x: 0, y: 0},
+			deleteIf: function() {
+				return GetFullDate().substring(2,4) !== "12";
+			},
 		},
 	],
 	bow: [
@@ -1033,6 +1039,9 @@ var Items = {
 			},
 			projectile: "arrowSnow",
 			projectileAdjust: {x: 0, y: 0},
+			deleteIf: function() {
+				return GetFullDate().substring(2,4) !== "12";
+			},
 		},
 	],
 	rod: [ // fishing rod
@@ -2022,8 +2031,8 @@ var Items = {
             functionText: "Teleports you to the Treefellers' Tavern in the Logging Camp",
             sellPrice: 10,
             teleport: {
-                x: 678,
-                y: 87,
+                x: 360, // 678
+                y: 360, // 87
                 location: "tavern",
             },
             cooldown: 1000000, // 1 day (dhhmmss)
@@ -2481,6 +2490,7 @@ var Items = {
 				let functionText = "To be delivered to " + targetNPC;
 				Player.inventory.items[inventoryPosition].targetNPC = targetNPC;
 				Player.inventory.items[inventoryPosition].functionText = functionText;
+				Dom.alert.page("You fished up a present! Deliver it to its owner first, then try to fish up another.");
 				// update quest log
 				Dom.quests.active();
 			},

@@ -190,6 +190,13 @@ function arrange(){
 	}
 	if(viewedItemId != undefined && viewedItemType != undefined){
 		document.getElementById("all").innerHTML += '<ul id="flashcardlist0" class="flashcardlist"></ul>';
+		if(viewedItemType == "set"){
+			document.getElementById("all").innerHTML += '<ul id="flashcardlist1" class="flashcardlist"></ul>';
+			document.getElementById("all").innerHTML += '<ul id="flashcardlist2" class="flashcardlist"></ul>';
+			document.getElementById("all").innerHTML += '<ul id="flashcardlist3" class="flashcardlist"></ul>';
+			document.getElementById("all").innerHTML += '<ul id="flashcardlist4" class="flashcardlist"></ul>';
+			columns = 5;
+		}
 	}
 	for(var i = 0; i < array.length; i++){
 		for(var a = 0; a < columns; a++){
@@ -202,7 +209,7 @@ function arrange(){
 				}
 			}
 		}
-		if(category.value != 8 || (viewedItemId != undefined && viewedItemType != undefined && i == 1)){
+		if(category.value != 8 && (viewedItemId == undefined || viewedItemType == undefined || array[i].type != "set")){
 			document.getElementById("flashcardlist"+c).innerHTML += '<li class="box" id="box'+i+'" '+(localStorage.getItem("archaeology") != null ? JSON.parse(localStorage.getItem("archaeology")).includes(array[i].name) ? "style='border: 5px solid darkgreen'" : "" : "")+'><img src="../'+(array[i].imageArchaeology == undefined ? array[i].image : array[i].imageArchaeology)+'" class="img"><p id="name'+i+'" class="para"></p><p id="tier'+i+'" class="para"></p><p id="stats'+i+'" class="para"></p><p id="set'+i+'" class="para"></p><p id="function'+i+'" class="para"></p><p id="lore'+i+'" class="para"></p></li>';
 		}else{
 			var current = true;
@@ -219,6 +226,9 @@ function arrange(){
 			}
 		}
 		document.getElementById("flashcardlist"+c).style.left = 25+c*245+((screenSize-45)-(((Math.floor((screenSize-45)/245)))*245))/2+"px";
+		if(viewedItemType == "set"){
+			document.getElementById("flashcardlist"+c).style.left = 140+260*c+"px";
+		}
 		document.getElementById("name"+i).innerHTML = "<b>"+array[i].name+"</b>";
 		if(array[i].rarity == "common"){
 			document.getElementById("name"+i).style.color = "black";
@@ -346,17 +356,24 @@ function arrange(){
 				window.location = "./index.html?id="+Items[viewedItemType][viewedItemId].set+"&type=set";
 			}
 		}
+		if(viewedItemType == "set"){
+			for(let i = 1; i < 5; i++){
+				document.getElementById("box"+i).onclick = function(){
+					window.location = "./index.html?id="+array[i].id+"&type="+array[i].type;
+				}
+			}
+		}
 		if(viewedItemType != "set"){
 			document.getElementById("obtain").hidden = false;
 			document.getElementById("obtain").style.top = "100px";
-			document.getElementById("obtain").style.width = window.innerWidth - 500 + "px";
+			document.getElementById("obtain").style.width = "1000px";
 			document.getElementById("obtain").innerHTML = JSON.parse(localStorage.getItem("archaeology")).includes(Items[viewedItemType][viewedItemId].name) ? "You have obtained this item." : "You have not yet obtained this item";
 			document.getElementById("obtain").innerHTML += "<br><br>"+Items[viewedItemType][viewedItemId].obtain;
 			document.getElementById("obtain").innerHTML += "<br><br>Sells for "+Items[viewedItemType][viewedItemId].sellPrice+" gold at an item buyer.";
 		}
 		document.getElementById("stats").hidden = false;
 		document.getElementById("stats").style.top = viewedItemType != "set" ? 130 + document.getElementById("obtain").offsetHeight + "px" : "100px";
-		document.getElementById("stats").style.width = window.innerWidth - 500 + "px";
+		document.getElementById("stats").style.width = "1000px";
 		document.getElementById("stats").innerHTML = "";
 		for(var i = 0; i < Object.keys(Items[viewedItemType][viewedItemId].stats).length; i++){
 			var replaceStat = Object.keys(Items[viewedItemType][viewedItemId].stats)[i].replace( /([A-Z])/g, " $1" );
@@ -372,6 +389,11 @@ function arrange(){
 			for(var i = 0; i < Object.keys(Items[viewedItemType][viewedItemId].chooseStats).length; i++){
 				var replaceStat = Object.keys(Items[viewedItemType][viewedItemId].chooseStats)[i].replace( /([A-Z])/g, " $1" );
 				document.getElementById("stats").innerHTML += "<tr><td>"+replaceStat[0].toUpperCase()+replaceStat.slice(1)+"</td><td>"+StatsInfo[Object.keys(Items[viewedItemType][viewedItemId].chooseStats)[i]]+"</td></tr>";
+			}
+		}
+		if(viewedItemType == "set"){
+			for(var i = 1; i < 5; i++){
+				document.getElementById("flashcardlist"+i).style.top = 150 + document.getElementById("stats").offsetHeight + "px";
 			}
 		}
 		document.getElementById("back").onclick = function(){
@@ -425,6 +447,16 @@ if(viewedItemId != undefined && viewedItemType != undefined){
 	if(Items[viewedItemType][viewedItemId].set != undefined){
 		array.push(Items.set[Items[viewedItemType][viewedItemId].set]);
 	}
+	if(viewedItemType == "set"){
+		for(var i = 0; i < 4; i++){
+			for(var x = 0; x < Items[Object.keys(Items)[i]].length; x++){
+				if(Items[viewedItemType][viewedItemId].armour.includes(Items[Object.keys(Items)[i]][x].name)){
+					array.push(Items[Object.keys(Items)[i]][x]);
+				}
+			}
+		}
+	}
+	//var screenSize = window.innerWidth;
 	arrange();
 }
 else{

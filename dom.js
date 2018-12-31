@@ -1136,7 +1136,7 @@ Dom.quests.possible = function(){
 	Dom.quests.possibleHTML = {true: "", undefined: "", daily: "",};
 	for(let i = 0; i < Object.keys(Quests).length; i++){
 		for(let x = 0; x < Quests[Object.keys(Quests)[i]].length; x++){
-			if((!Player.quests.completedQuestArray.includes(Quests[Object.keys(Quests)[i]][x].quest) && !Player.quests.activeQuestArray.includes(Quests[Object.keys(Quests)[i]][x].quest) && Player.level >= Quests[Object.keys(Quests)[i]][x].levelRequirement && IsContainedInArray(Quests[Object.keys(Quests)[i]][x].questRequirements,Player.quests.completedQuestArray)) || (Quests[Object.keys(Quests)[i]][x].repeatTime === "daily" && Player.quests.questLastFinished[Quests[Object.keys(Quests)[i]][x].questArea][Quests[Object.keys(Quests)[i]][x].id] && !Player.quests.completedQuestArray.includes(Quests[Object.keys(Quests)[i]][x].quest))){
+			if((!Player.quests.completedQuestArray.includes(Quests[Object.keys(Quests)[i]][x].quest) && !Player.quests.activeQuestArray.includes(Quests[Object.keys(Quests)[i]][x].quest) && Player.level >= Quests[Object.keys(Quests)[i]][x].levelRequirement && IsContainedInArray(Quests[Object.keys(Quests)[i]][x].questRequirements,Player.quests.completedQuestArray))){// || (Quests[Object.keys(Quests)[i]][x].repeatTime === "daily" && Player.quests.questLastFinished[Quests[Object.keys(Quests)[i]][x].questArea][Quests[Object.keys(Quests)[i]][x].id] && !Player.quests.completedQuestArray.includes(Quests[Object.keys(Quests)[i]][x].quest))){
 				// if the quest is possible it is added to the array and the box
 				if(Quests[Object.keys(Quests)[i]][x].repeatTime === "daily"){
 					Quests[Object.keys(Quests)[i]][x].important = "daily";
@@ -1353,6 +1353,9 @@ Dom.inventory.give = function(item, num, position){
 						if(Player.inventory.items[i].type === "food"){
 							item.onClick = Dom.inventory.food;
 						}
+						if(Player.inventory.items[i].type === "teleport"){
+							item.onClick = Dom.inventory.teleport;
+						}
 						if((Player.inventory.items[i].type === "sword" || Player.inventory.items[i].type === "staff" || Player.inventory.items[i].type === "bow" || Player.inventory.items[i].type === "rod") && Player.inventory.items[i].name !== undefined){
 							item.onClick = function(i){
 								if(!isNaN(i)){
@@ -1375,7 +1378,8 @@ Dom.inventory.give = function(item, num, position){
 								}
 							}
 						}
-						Player.inventory.items[i].onClick = item.onClick;
+						Player.inventory.items[i].onClickFunction = item.onClick;
+						Player.inventory.items[i].onClick = Dom.inventory.cooldown;
 						if(Array.isArray(Player.inventory.items[i].lore)){
 							Player.inventory.items[i].lore = item.lore[Random(0, item.lore.length-1)];
 						}
@@ -1417,6 +1421,9 @@ Dom.inventory.give = function(item, num, position){
 		if(Player.inventory.items[position].type === "food"){
 			item.onClick = Dom.inventory.food;
 		}
+		if(Player.inventory.items[position].type === "teleport"){
+			item.onClick = Dom.inventory.teleport;
+		}
 		if((Player.inventory.items[position].type === "sword" || Player.inventory.items[position].type === "staff" || Player.inventory.items[position].type === "bow" || Player.inventory.items[position].type === "rod") && Player.inventory.items[position].name !== undefined){
 			item.onClick = function(i){
 				if(!isNaN(i)){
@@ -1439,7 +1446,8 @@ Dom.inventory.give = function(item, num, position){
 				}
 			}
 		}
-		Player.inventory.items[position].onClick = item.onClick;
+		Player.inventory.items[position].onClickFunction = item.onClick;
+		Player.inventory.items[position].onClick = Dom.inventory.cooldown;
 		if(Array.isArray(Player.inventory.items[position].lore)){
 			Player.inventory.items[position].lore = item.lore[Random(0, item.lore.length-1)];
 		}
@@ -1501,7 +1509,23 @@ Dom.inventory.food = function(inventoryPosition){
 		// remove the item
 		Dom.inventory.remove(inventoryPosition);
 	}
-},
+}
+
+Dom.inventory.teleport = function(inventoryPosition){
+	let to = Player.inventory.items[inventoryPosition].teleport;
+	Game.loadArea(to.location, {x: to.x, y: to.y});
+}
+
+Dom.inventory.cooldown = function(inventoryPosition){
+	if(Player.inventory.items[inventoryPosition].cooldown !== undefined){
+		if(Player.inventory.items[inventoryPosition].cooldownStart === undefined || parseInt(Player.inventory.items[inventoryPosition].cooldownStart) + Player.inventory.items[inventoryPosition].cooldown <= parseInt(GetFullDateTime())){
+			Player.inventory.items[inventoryPosition].cooldownStart = GetFullDateTime();
+			Player.inventory.items[inventoryPosition].onClickFunction(inventoryPosition);
+		}
+	}else{
+		Player.inventory.items[inventoryPosition].onClickFunction(inventoryPosition);
+	}
+}
 
 Dom.inventory.chooseStats = function(inventoryPosition){
 	// item inventory
@@ -1937,7 +1961,7 @@ Dom.inventory.drop = function(ev, equip, id){
 					}
 					// if the item slot is where you are putting the item and it is not a bag which is unsafe to move
 					if(document.getElementById("itemInventory").getElementsByTagName("td")[i].innerHTML.indexOf(target.outerHTML) >= 0 && target.outerHTML !== "" && remove){
-						// if it is not a key being dropped on a chest AAAAA
+						// if it is not a key being dropped on a chest
 						if(!(Player.inventory.items[data].opens !== undefined && Player.inventory.items[data].opens.type === Player.inventory.items[i].type && Player.inventory.items[data].opens.id === Player.inventory.items[i].id)){
 							// swaps the items
 							test = Player.inventory.items[i];
@@ -2489,6 +2513,7 @@ Dom.levelUp.page = function(){
 		}else{
 			document.getElementById("levelUpPageUnlock").hidden = true;
 		}
+		document.getElementById("levelUpPageClose").style.top = 275 + document.getElementById("levelUpPageUnlock").offsetHeight + "px";
 		Dom.quests.possible();
 	}else{
 		Dom.levelUp.waiting = true;
@@ -2629,7 +2654,6 @@ Dom.loot.page = function(name, items){
 						Dom.inventory.give(items[i].item, items[i].quantity);
 						document.getElementsByClassName("lootOptions")[items[i].num].outerHTML = "<span class='lootOptions'></span>";
 						document.getElementsByClassName("lootStackNum")[items[i].num].outerHTML = "<span class='lootStackNum'></span>";
-						//console.log(Object.assign({}, Dom.loot.looted), document.getElementsByClassName("lootOptions")[i].id, i);
 						Dom.loot.looted[i] = undefined;
 					}else{
 						Dom.alert.page("You do not have enough space in your inventory for that item.");
@@ -3183,12 +3207,21 @@ for(let i = 0; i < Player.inventory.items.length/6; i++){
 	</tr>"
 }
 for(let i = 0; i < Player.inventory.items.length; i++){
-	if(Player.inventory.items[i].image !== undefined){
+	// if the item has melted
+	if(Player.inventory.items[i].image !== undefined && Items[Player.inventory.items[i].type][Player.inventory.items[i].id].deleteIf !== undefined && Items[Player.inventory.items[i].type][Player.inventory.items[i].id].deleteIf()){
+		setTimeout(function(){
+			Dom.chat.insert("It's not snowy any more! Your "+Player.inventory.items[i].name+" melted.", 0, true);
+			Player.inventory.items[i] = {};
+		},1000);
+	}else if(Player.inventory.items[i].image !== undefined){
 		/*if(Player.inventory.items[i].chooseStats !== undefined){
 			Items[Player.inventory.items[i].type][Player.inventory.items[i].id].onClick = Dom.inventory.chooseStats;
 		}*/
 		if(Player.inventory.items[i].type === "food"){
 			Items[Player.inventory.items[i].type][Player.inventory.items[i].id].onClick = Dom.inventory.food;
+		}
+		if(Player.inventory.items[i].type === "teleport"){
+			Items[Player.inventory.items[i].type][Player.inventory.items[i].id].onClick = Dom.inventory.teleport;
 		}
 		if((Player.inventory.items[i].type === "sword" || Player.inventory.items[i].type === "staff" || Player.inventory.items[i].type === "bow" || Player.inventory.items[i].type === "rod") && Player.inventory.items[i].name !== undefined){
 			Items[Player.inventory.items[i].type][Player.inventory.items[i].id].onClick = function(i){
@@ -3213,7 +3246,8 @@ for(let i = 0; i < Player.inventory.items.length; i++){
 			}
 		}		
 		if(!Player.inventory.items[i].unidentified){
-			Player.inventory.items[i].onClick = Items[Player.inventory.items[i].type][Player.inventory.items[i].id].onClick;
+			Player.inventory.items[i].onClickFunction = Items[Player.inventory.items[i].type][Player.inventory.items[i].id].onClick;
+			Player.inventory.items[i].onClick = Dom.inventory.cooldown;
 			Player.inventory.items[i].onKill = Items[Player.inventory.items[i].type][Player.inventory.items[i].id].onKill;
 			Player.inventory.items[i].onAttack = Items[Player.inventory.items[i].type][Player.inventory.items[i].id].onAttack;
 			Player.inventory.items[i].onAnyAttack = Items[Player.inventory.items[i].type][Player.inventory.items[i].id].onAnyAttack;
@@ -3229,7 +3263,12 @@ for(let i = 0; i < Player.inventory.items.length; i++){
 }
 document.getElementById("itemInventory").getElementsByTagName("td")[5].style.backgroundImage = "url('assets/items/bag/1.png')";
 for(let i = 0; i < Object.keys(Player.inventory).length-1; i++){ // repeats for each equipment slot
-	if(Player.inventory[Object.keys(Player.inventory)[i]].image !== undefined){
+	if(Player.inventory[Object.keys(Player.inventory)[i]].image !== undefined && Items[Player.inventory[Object.keys(Player.inventory)[i]].type][Player.inventory[Object.keys(Player.inventory)[i]].id].deleteIf !== undefined && Items[Player.inventory[Object.keys(Player.inventory)[i]].type][Player.inventory[Object.keys(Player.inventory)[i]].id].deleteIf()){
+		setTimeout(function(){
+			Dom.chat.insert("It's not snowy any more! Your "+Player.inventory[Object.keys(Player.inventory)[i]].name+" melted.", 0, true);
+			Player.inventory[Object.keys(Player.inventory)[i]] = {};
+		},1000);
+	}else if(Player.inventory[Object.keys(Player.inventory)[i]].image !== undefined){
 		/*if(Player.inventory[Object.keys(Player.inventory)[i]].chooseStats !== undefined){
 			Items[Player.inventory[Object.keys(Player.inventory)[i]].type][Player.inventory[Object.keys(Player.inventory)[i]].id].onClick = Dom.inventory.chooseStats;
 		}*/
@@ -3256,7 +3295,8 @@ for(let i = 0; i < Object.keys(Player.inventory).length-1; i++){ // repeats for 
 			}
 		}	
 		if(Player.inventory[Object.keys(Player.inventory)[i]].image !== undefined){
-			Player.inventory[Object.keys(Player.inventory)[i]].onClick = Items[Player.inventory[Object.keys(Player.inventory)[i]].type][Player.inventory[Object.keys(Player.inventory)[i]].id].onClick;
+			Player.inventory[Object.keys(Player.inventory)[i]].onClickFunction = Items[Player.inventory[Object.keys(Player.inventory)[i]].type][Player.inventory[Object.keys(Player.inventory)[i]].id].onClick;
+			Player.inventory[Object.keys(Player.inventory)[i]].onClick = Dom.inventory.cooldown;
 			Player.inventory[Object.keys(Player.inventory)[i]].onKill = Items[Player.inventory[Object.keys(Player.inventory)[i]].type][Player.inventory[Object.keys(Player.inventory)[i]].id].onKill;
 			Player.inventory[Object.keys(Player.inventory)[i]].onAttack = Items[Player.inventory[Object.keys(Player.inventory)[i]].type][Player.inventory[Object.keys(Player.inventory)[i]].id].onAttack;
 			Player.inventory[Object.keys(Player.inventory)[i]].onAnyAttack = Items[Player.inventory[Object.keys(Player.inventory)[i]].type][Player.inventory[Object.keys(Player.inventory)[i]].id].onAnyAttack;
@@ -3301,7 +3341,6 @@ for(let i = 0; i < Player.statusEffects.length; i++){
 		document.getElementById("speedOn").checked = true;
 	}
 }
-
 // christmas daily rewards
 if (GetFullDate().substring(2,4) === "12" && !Player.days.includes(GetFullDate())) {
 	let randomNPC = Player.metNPCs[Random(0, Player.metNPCs.length-1)]; // NPC that sent message
@@ -3338,15 +3377,15 @@ if (GetFullDate().substring(2,4) === "12" && !Player.days.includes(GetFullDate()
 		);
 	}
 }
-
 // days logged on by player
 if (!Player.days.includes(GetFullDate())) {
 	Player.days.push(GetFullDate());
 }
 
-//
 // savedata FIXES
-//
+if(Player.stats.domRange === undefined){
+	Player.stats.domRange = 240;
+}
 if (Player.chestsOpened === undefined) {
 	Player.chestsOpened = {
 		nilbog: 0,
@@ -3355,11 +3394,8 @@ if (Player.chestsOpened === undefined) {
 	};
 }
 
-//
 // TESTING functions
-//
 Dom.testing = {};
-
 // complete a quest as if the player had done it manually
 Dom.testing.completeQuest = function(quest) {
 	if (quest.constructor.name === "String") {

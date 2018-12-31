@@ -119,31 +119,35 @@ function GetFullDateTime () {
     // year
     dateString += d.getFullYear().toString();
     // month
-    mem = (d.getMonth()+1).toString();
+    let mem = (d.getMonth()+1).toString();
     if (mem.length !== 2) {
         mem = "0" + mem;
     }
     dateString += mem;
     // day
-    let mem = d.getDate().toString();
+    mem = d.getDate().toString();
     if (mem.length !== 2) {
         mem = "0" + mem;
     }
     dateString += mem;
 	// hour
-	let mem = d.getHours().toString();
+	mem = d.getHours().toString();
 	if (mem.length !== 2) {
 		mem = "0" + mem;
 	}
+    dateString += mem;
 	// minute
-	let mem = d.getMinutes().toString();
-	if (mem.length !== 2) {
-		mem = "0" + mem;
-	}// second
-	let mem = d.getSeconds().toString();
+	mem = d.getMinutes().toString();
 	if (mem.length !== 2) {
 		mem = "0" + mem;
 	}
+    dateString += mem;
+	// second
+	mem = d.getSeconds().toString();
+	if (mem.length !== 2) {
+		mem = "0" + mem;
+	}
+    dateString += mem;
     return dateString;
 }
 
