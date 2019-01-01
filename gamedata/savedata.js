@@ -22,7 +22,9 @@ var Player = {
 	
 	unlockedAdventures: [], // boxes in adventure page that should show
 	unlockedInstructions: ["Chapter I: Getting Started"],
+	skippedInstructions: [],
 	unlockedTabs: [],
+	skippedTabs: [],
 	tab: "adventurePage",
 	
 	days: [], // days logged on (ddmmyyyy)

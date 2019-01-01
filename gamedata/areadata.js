@@ -28,7 +28,7 @@ var Areas = {
 				[],
 			],
 			interactWithTile: function(tileNum, x, y) { // pick up snowball from rock
-				if (tileNum === 6){ // rock top centre
+				if (tileNum === 6 && Game.event === "Christmas"){ // rock top centre
 					// give snowball to player
 					if (Dom.inventory.give(Items.bow[8], 1)) { // check if player has enough inventory space
 						if(Player.quests.questProgress.snowCollected === undefined){
@@ -49,7 +49,7 @@ var Areas = {
 						},60000);
 					}
 				}
-				else if (tileNum === 13) { // rock bottom centre
+				else if (tileNum === 13 && Game.event === "Christmas") { // rock bottom centre
 					// give snowball to player
 					if (Dom.inventory.give(Items.bow[8], 1)) { // check if player has enough inventory space
 						if(Player.quests.questProgress.snowCollected === undefined){
@@ -360,7 +360,7 @@ var Areas = {
 				[],
 			],
 			interactWithTile: function(tileNum, x, y) { // pick up snowball from rock
-				if (tileNum === 8){ // rock top centre
+				if (tileNum === 8 && Game.event === "Christmas"){ // rock top centre
 					// give snowball to player
 					if (Dom.inventory.give(Items.bow[8], 1)) { // check if player has enough inventory space
 						if(Player.quests.questProgress.snowCollected === undefined){
@@ -381,7 +381,7 @@ var Areas = {
 						},60000);
 					}
 				}
-				else if (tileNum === 17) { // rock bottom centre
+				else if (tileNum === 17 && Game.event === "Christmas") { // rock bottom centre
 					// give snowball to player
 					if (Dom.inventory.give(Items.bow[8], 1)) { // check if player has enough inventory space
 						if(Player.quests.questProgress.snowCollected === undefined){
@@ -444,9 +444,7 @@ var Areas = {
 			if (Player.unlockedInstructions.length < 4) {
 				Dom.adventure.addInstruction(4);
 				// show chat tab
-				Player.unlockedTabs.push("chat");
-				document.getElementById("changeChat").style.display = "block";
-				document.getElementById("chatImage").hidden = false;
+				Dom.adventure.unlockTab("chat");
 			}
 		},
 		
@@ -1166,7 +1164,7 @@ var Areas = {
 					}
 				}
 				// pick up snowball from rock
-				else if (tileNum === 29){ // rock top centre
+				else if (tileNum === 29 && Game.event === "Christmas"){ // rock top centre
 					// give snowball to player
 					if (Dom.inventory.give(Items.bow[8], 1) !== false) { // check if player has enough inventory space
 						if(Player.quests.questProgress.snowCollected === undefined){
@@ -1187,7 +1185,7 @@ var Areas = {
 						},60000);
 					}
 				}
-				else if (tileNum === 39) { // rock bottom centre
+				else if (tileNum === 39 && Game.event === "Christmas") { // rock bottom centre
 					// give snowball to player
 					if (Dom.inventory.give(Items.bow[8], 1) !== false) { // check if player has enough inventory space
 						if(Player.quests.questProgress.snowCollected === undefined){

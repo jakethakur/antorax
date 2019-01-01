@@ -84,7 +84,7 @@ var Skins = {
 			projectileAdjust: {x: 0, y: 0},
 			cursor: "crosshair",
 			animations: {
-				onAttack: {
+				onHit: {
 					type: "beam",
 					width: 10,
 					colour: "#D05C05"

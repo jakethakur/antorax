@@ -11,6 +11,11 @@ var min = document.getElementById("min");
 var max = document.getElementById("max");
 var searchBar = document.getElementById("searchBar");
 var session = {};
+var archaeology = JSON.parse(localStorage.getItem("archaeology"));
+
+if(archaeology === null){
+	archaeology = [];
+}
 
 if(sessionStorage.getItem("filter") != null){
 	session = JSON.parse(sessionStorage.getItem("filter"));
@@ -150,12 +155,12 @@ function checkChange(){
 		}
 		progress = 0;
 		for(var i = 0; i < array.length; i++){
-			if(localStorage.getItem("archaeology") != null && JSON.parse(localStorage.getItem("archaeology")).includes(array[i].name)){
+			if(archaeology != null && archaeology.includes(array[i].name)){
 				progress++;
 			}else if(category.value == 8){
 				var current = true;
 				for(x = 0; x < array[i].armour.length; x++){
-					if(localStorage.getItem("archaeology") != null && !JSON.parse(localStorage.getItem("archaeology")).includes(array[i].armour[x])){
+					if(archaeology != null && !archaeology.includes(array[i].armour[x])){
 						current = false;
 					}
 				}
@@ -173,18 +178,18 @@ function checkChange(){
 				var current = true;
 				if(category.value == 8){
 					for(x = 0; x < array[i-b].armour.length; x++){
-						if(localStorage.getItem("archaeology") != null && !JSON.parse(localStorage.getItem("archaeology")).includes(array[i-b].armour[x])){
+						if(archaeology != null && !archaeology.includes(array[i-b].armour[x])){
 							current = false;
 						}
 					}
 				}
 				if(obtained.value == "only"){
-					if((localStorage.getItem("archaeology") == null || !JSON.parse(localStorage.getItem("archaeology")).includes(array[i-b].name)) && (category.value == 8 && !current || category.value != 8)){
+					if((archaeology == null || !archaeology.includes(array[i-b].name)) && (category.value == 8 && !current || category.value != 8)){
 						array.splice(i-b,1);
 						b++;
 					}
 				}else{
-					if((localStorage.getItem("archaeology") != null && JSON.parse(localStorage.getItem("archaeology")).includes(array[i-b].name)) || category.value == 8 && current){
+					if((archaeology != null && archaeology.includes(array[i-b].name)) || category.value == 8 && current){
 						array.splice(i-b,1);
 						b++;
 					}
@@ -229,11 +234,11 @@ function arrange(){
 			}
 		}
 		if(category.value != 8 && (viewedItemId == undefined || viewedItemType == undefined || array[i].type != "set")){
-			document.getElementById("flashcardlist"+c).innerHTML += '<li class="box" id="box'+i+'" '+(localStorage.getItem("archaeology") != null ? JSON.parse(localStorage.getItem("archaeology")).includes(array[i].name) ? "style='border: 5px solid darkgreen'" : "" : "")+'><img src="../'+(array[i].imageArchaeology == undefined ? array[i].image : array[i].imageArchaeology)+'" class="img"><p id="name'+i+'" class="para"></p><p id="tier'+i+'" class="para"></p><p id="stats'+i+'" class="para"></p><p id="set'+i+'" class="para"></p><p id="function'+i+'" class="para"></p><p id="lore'+i+'" class="para"></p></li>';
+			document.getElementById("flashcardlist"+c).innerHTML += '<li class="box" id="box'+i+'" '+(archaeology != null ? archaeology.includes(array[i].name) ? "style='border: 5px solid darkgreen'" : "" : "")+'><img src="../'+(array[i].imageArchaeology == undefined ? array[i].image : array[i].imageArchaeology)+'" class="img"><p id="name'+i+'" class="para"></p><p id="tier'+i+'" class="para"></p><p id="stats'+i+'" class="para"></p><p id="set'+i+'" class="para"></p><p id="function'+i+'" class="para"></p><p id="lore'+i+'" class="para"></p></li>';
 		}else{
 			var current = true;
 			for(x = 0; x < array[i].armour.length; x++){
-				if(localStorage.getItem("archaeology") != null && !JSON.parse(localStorage.getItem("archaeology")).includes(array[i].armour[x]))
+				if(archaeology != null && !archaeology.includes(array[i].armour[x]))
 				{
 					current = false;
 				}
@@ -395,7 +400,7 @@ function arrange(){
 			document.getElementById("obtain").hidden = false;
 			document.getElementById("obtain").style.top = "100px";
 			document.getElementById("obtain").style.width = (window.innerWidth - 500 < 1000 ? window.innerWidth - 500 : 1000) + "px";
-			document.getElementById("obtain").innerHTML = JSON.parse(localStorage.getItem("archaeology")).includes(Items[viewedItemType][viewedItemId].name) ? "You have obtained this item." : "You have not yet obtained this item";
+			document.getElementById("obtain").innerHTML = archaeology.includes(Items[viewedItemType][viewedItemId].name) ? "You have obtained this item." : "You have not yet obtained this item";
 			document.getElementById("obtain").innerHTML += "<br><br>"+Items[viewedItemType][viewedItemId].obtain;
 			document.getElementById("obtain").innerHTML += "<br><br>Sells for "+Items[viewedItemType][viewedItemId].sellPrice+" gold at an item buyer.";
 		}

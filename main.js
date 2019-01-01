@@ -1393,8 +1393,8 @@ class Hero extends Attacker {
 			shotProjectile.dealDamage(shotProjectile.attacker, shotProjectile.targets);
 			
 			// function called for all attacks whether they hit an enemy or not
-			if (Player.inventory.weapon.onAnyAttack !== undefined) {
-			    Player.inventory.weapon.onAnyAttack(shotProjectile);
+			if (Player.inventory.weapon.onAttack !== undefined) {
+			    Player.inventory.weapon.onAttack(shotProjectile);
 				Dom.quests.active();
 			}
 			
@@ -1415,9 +1415,9 @@ class Hero extends Attacker {
 			}.bind(this), this.stats.reloadTime);
 			
 			// special animations
-			if (typeof Skins[Player.class][Player.skin].animations !== "undefined" && typeof Skins[Player.class][Player.skin].animations.onAttack !== "undefined") {
+			if (typeof Skins[Player.class][Player.skin].animations !== "undefined" && typeof Skins[Player.class][Player.skin].animations.onHit !== "undefined") {
 				// on attack animation
-				let animation = Skins[Player.class][Player.skin].animations.onAttack;
+				let animation = Skins[Player.class][Player.skin].animations.onHit;
 				if (animation.type === "beam") {
 					// cast a beam to the projectile for 0.5s
 					this.beam = {
@@ -1896,11 +1896,11 @@ class Projectile extends Thing {
 							Game.secondary.render();
 						}
 						
-						// onAttack function
+						// onHit function
 						// perhaps make work for other non-weapon things in the future? (TBD)
 						// there should be a good system for this - maybe a list of functions called on attack or something, handled by Game.inventoryUpdate
-						if (attacker == Game.hero && Player.inventory.weapon.onAttack !== undefined) {
-							Player.inventory.weapon.onAttack(to[i][x]);
+						if (attacker == Game.hero && Player.inventory.weapon.onHit !== undefined) {
+							Player.inventory.weapon.onHit(to[i][x]);
 						}
 						
 						// chat relating to being damaged (and dealing damage? TBD)
@@ -3046,18 +3046,20 @@ Game.loadArea = function (areaName, destination) {
 		this.mailboxes = [];
 		if (Areas[areaName].mailboxes !== undefined) {
 			Areas[areaName].mailboxes.forEach(mailbox => {
-				mailbox.map = map;
-				mailbox.type = "mailboxes";
-				// flag up if there is unread mail
-				if (Dom.mail.unread() > 0) {
-					// flag up
-					mailbox.image = mailbox.unreadImage;
+				if (this.canBeShown(mailbox)) { // check if mailbox should be shown
+					mailbox.map = map;
+					mailbox.type = "mailboxes";
+					// flag up if there is unread mail
+					if (Dom.mail.unread() > 0) {
+						// flag up
+						mailbox.image = mailbox.unreadImage;
+					}
+					else {
+						// no flag
+						mailbox.image = mailbox.readImage;
+					}
+					this.mailboxes.push(new Mailbox(mailbox));
 				}
-				else {
-					// no flag
-					mailbox.image = mailbox.readImage;
-				}
-				this.mailboxes.push(new Mailbox(mailbox));
 			});
 		}
 		
@@ -3779,6 +3781,9 @@ Game.update = function (delta) {
 									if (Game.hero.stats.fishingSkill > role.quest.fishingRequirement.max || Game.hero.stats.fishingSkill < role.quest.fishingRequirement.min) { // fishing skill not in range
 										questCanBeStarted = false;
 									}
+								}
+								else if (role.quest.eventRequirement !== Game.event){
+									questCanBeStarted = false;
 								}
 								else {
 									// check if it is daily or one time

@@ -645,7 +645,7 @@ var Items = {
 			projectile: "slashFrost",
 			projectileAdjust: {x: 0, y: 0},
 			deleteIf: function() {
-				return GetFullDate().substring(2,4) !== "12";
+				return GetFullDate().substring(4,6) !== "12";
 			},
 		},
 	],
@@ -834,7 +834,7 @@ var Items = {
 			projectile: "frostball",
 			projectileAdjust: {x: 0, y: 0},
 			deleteIf: function() {
-				return GetFullDate().substring(2,4) !== "12";
+				return GetFullDate().substring(4,6) !== "12";
 			},
 		},
 	],
@@ -942,7 +942,7 @@ var Items = {
 			stats: {
 				damage: 3.5,
 			},
-			onAttack: function (enemy) {
+			onHit: function (enemy) {
 				// give slowness to enemy
 				Game.statusEffects.walkSpeed({
 					target: enemy,
@@ -968,7 +968,7 @@ var Items = {
 			stats: {
 				damage: 0,
 			},
-			onAnyAttack: function (projectile) {
+			onAttack: function (projectile) {
 				Dom.inventory.removeById(8, "bow");
 				if(projectile.isTouching(Game.npcs[0]) && Game.areaName === "eaglecrestLoggingCamp"){
 					if(Player.quests.questProgress.hitTeper === undefined){
@@ -984,7 +984,7 @@ var Items = {
 				Game.inventoryUpdate();
 			},
 			functionText: "Gives -30% walk speed to hit enemies for 2 seconds",
-			onAttack: function (enemy) {
+			onHit: function (enemy) {
 				// give slowness to enemy
 				Game.statusEffects.walkSpeed({
 					target: enemy,
@@ -1012,7 +1012,7 @@ var Items = {
 				stun: 0.2,
 			},
 			functionText: "Gives -30% walk speed to hit enemies for 2 seconds",
-			onAttack: function (enemy) {
+			onHit: function (enemy) {
 				// give slowness to enemy
 				Game.statusEffects.walkSpeed({
 					target: enemy,
@@ -1040,7 +1040,7 @@ var Items = {
 			projectile: "arrowSnow",
 			projectileAdjust: {x: 0, y: 0},
 			deleteIf: function() {
-				return GetFullDate().substring(2,4) !== "12";
+				return GetFullDate().substring(4,6) !== "12";
 			},
 		},
 	],

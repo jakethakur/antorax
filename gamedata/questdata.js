@@ -45,9 +45,7 @@ var Quests = {
 			},
 			
 			onQuestStart: function() {
-				Player.unlockedTabs.push("quests");
-				document.getElementById("changeQuests").style.display = "block";
-				document.getElementById("questsImage").hidden = false;
+				Dom.adventure.unlockTab("quests");
 				Dom.changeBook(Player.tab, true);
 				Dom.adventure.addInstruction(2);
 			},
@@ -91,9 +89,7 @@ var Quests = {
 			},
 			
 			onQuestStart: function() {
-				Player.unlockedTabs.push("inventory");
-				document.getElementById("changeInventory").style.display = "block";
-				document.getElementById("inventoryImage").hidden = false;
+				Dom.adventure.unlockTab("inventory");
 				Dom.changeBook(Player.tab, true);
 				Dom.adventure.addInstruction(5);
 			},
@@ -190,9 +186,7 @@ var Quests = {
 			
 			onQuestFinish: function() {
 				// unlock reputation tab
-				Player.unlockedTabs.push("reputation");
-				document.getElementById("changeReputation").style.display = "block";
-				document.getElementById("reputationImage").hidden = false;
+				Dom.adventure.unlockTab("reputation");
 			}
 		},
 		{
@@ -1058,6 +1052,7 @@ var Quests = {
 			howToStart: "Speak to <strong>Combat Trainer Saral</strong>.",
 			levelRequirement: 2,
 			questRequirements: ["Retrieval of Logs"],
+			eventRequirement: "Christmas",
 			
 			repeatTime: "daily",
 			
@@ -1112,6 +1107,7 @@ var Quests = {
 			howToStart: "Speak to <strong>Fisherman Tobenam</strong>.",
 			levelRequirement: 2,
 			questRequirements: ["Learning to Fish III"],
+			eventRequirement: "Christmas",
 			
 			autofinish: true,
 			
@@ -1154,6 +1150,7 @@ var Quests = {
 			howToStart: "Speak to <strong>Marshall Teper</strong>.",
 			levelRequirement: 2,
 			questRequirements: ["Retrieval of Logs"],
+			eventRequirement: "Christmas",
 			
 			repeatTime: "daily",
 			

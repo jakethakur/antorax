@@ -95,20 +95,20 @@ function Random (minimum, maximum) {
 function GetFullDate () {
     let d = new Date();
     let dateString = "";
-    // day
-    let mem = d.getDate().toString();
-    if (mem.length !== 2) {
-        mem = "0" + mem;
-    }
-    dateString += mem;
-    // month
-    mem = (d.getMonth()+1).toString();
-    if (mem.length !== 2) {
-        mem = "0" + mem;
-    }
-    dateString += mem;
     // year
     dateString += d.getFullYear().toString();
+    // month
+    let mem = (d.getMonth()+1).toString();
+    if (mem.length !== 2) {
+        mem = "0" + mem;
+    }
+    dateString += mem;
+    // day
+    mem = d.getDate().toString();
+    if (mem.length !== 2) {
+        mem = "0" + mem;
+    }
+    dateString += mem;
     return dateString;
 }
 
@@ -154,7 +154,7 @@ function GetFullDateTime () {
 function GetFullDateString () {
 	let date = GetFullDate();
 	const months = ["January", "February", "March", "April", "May", "June", "July", "August", "September", "October", "November", "December",];
-	return date.substring(0,2) + " " + months[parseInt(date.substring(2,4))-1] + " " + date.substring(4);
+	return date.substring(6) + " " + months[parseInt(date.substring(4,6))-1] + " " + date.substring(0,4);
 }
 
 // save an item to local storage

@@ -1083,48 +1083,52 @@ Dom.quests.active = function(quest){
 				}
 			}
 		}
-		Dom.quests.activeHTML[currentQuest.important] += "<br><br><strong>" + currentQuest.quest + "</strong>";
-		let completedObjectives = 0;
-		for(let i = 0; i < currentQuest.objectives.length; i++){
-			Dom.quests.activeHTML[currentQuest.important] += "<br>" + currentQuest.objectives[i];
-			if(currentQuest.isCompleted()[i] === true && i !== currentQuest.objectives.length-1){
-				Dom.quests.activeHTML[currentQuest.important] += " &#10004;";
-				completedObjectives++;
-			}else if(currentQuest.isCompleted()[i] !== false && i !== currentQuest.objectives.length-1){
-				Dom.quests.activeHTML[currentQuest.important] += " " + currentQuest.isCompleted()[i];
-			}
-		}
-		if(currentQuest.autofinish && completedObjectives >= currentQuest.objectives.length-1){
-			Dom.choose.page(currentQuest.finishName, ["Quest Finish: " + currentQuest.quest], [Dom.quest.finish], [[currentQuest]]);
-		}
-		if(currentQuest.wasCompleted === undefined){
-			currentQuest.wasCompleted = currentQuest.isCompleted();
-		}else{
-			for(let i = 0; i < currentQuest.wasCompleted.length; i++){
-				if(currentQuest.wasCompleted[i] !== true && currentQuest.isCompleted()[i] === true){
-					Dom.chat.insert("Quest log updated", 0, true);
-					currentQuest.wasCompleted = currentQuest.isCompleted();
-					break;
+		if(currentQuest.eventRequirement === Game.event){
+			Dom.quests.activeHTML[currentQuest.important] += "<br><br><strong>" + currentQuest.quest + "</strong>";
+			let completedObjectives = 0;
+			for(let i = 0; i < currentQuest.objectives.length; i++){
+				Dom.quests.activeHTML[currentQuest.important] += "<br>" + currentQuest.objectives[i];
+				if(currentQuest.isCompleted()[i] === true && i !== currentQuest.objectives.length-1){
+					Dom.quests.activeHTML[currentQuest.important] += " &#10004;";
+					completedObjectives++;
+				}else if(currentQuest.isCompleted()[i] !== false && i !== currentQuest.objectives.length-1){
+					Dom.quests.activeHTML[currentQuest.important] += " " + currentQuest.isCompleted()[i];
 				}
 			}
-			/*
-			if(JSON.stringify(currentQuest.wasCompleted) !== JSON.stringify(currentQuest.isCompleted()) && currentQuest.isCompleted()[currentQuest.isCompleted().length-1]){
-				Dom.chat.insert("Quest log updated", 0, true);
-				currentQuest.wasCompleted = currentQuest.isCompleted();
+			if(currentQuest.autofinish && completedObjectives >= currentQuest.objectives.length-1){
+				Dom.choose.page(currentQuest.finishName, ["Quest Finish: " + currentQuest.quest], [Dom.quest.finish], [[currentQuest]]);
 			}
-			*/
-		}
-		if(currentQuest.isCompleted()[currentQuest.isCompleted().length - 1]){
-			currentQuest.completed = true;
+			if(currentQuest.wasCompleted === undefined){
+				currentQuest.wasCompleted = currentQuest.isCompleted();
+			}else{
+				for(let i = 0; i < currentQuest.wasCompleted.length; i++){
+					if(currentQuest.wasCompleted[i] !== true && currentQuest.isCompleted()[i] === true){
+						Dom.chat.insert("Quest log updated", 0, true);
+						currentQuest.wasCompleted = currentQuest.isCompleted();
+						break;
+					}
+				}
+				/*
+				if(JSON.stringify(currentQuest.wasCompleted) !== JSON.stringify(currentQuest.isCompleted()) && currentQuest.isCompleted()[currentQuest.isCompleted().length-1]){
+					Dom.chat.insert("Quest log updated", 0, true);
+					currentQuest.wasCompleted = currentQuest.isCompleted();
+				}
+				*/
+			}
+			if(currentQuest.isCompleted()[currentQuest.isCompleted().length - 1]){
+				currentQuest.completed = true;
+			}else{
+				currentQuest.completed = false;
+			}
+			Dom.quests.activeHTML.true += Dom.quests.activeHTML.undefined + Dom.quests.activeHTML.daily;
+			document.getElementById("activeQuestBox").innerHTML = Dom.quests.activeHTML.true.substring(8);
+			if(Player.quests.activeQuestArray.length === 0){
+				document.getElementById("activeQuestBox").style.textAlign = "center";
+				document.getElementById("activeQuestBox").innerText = "You have no active quests";
+			}
 		}else{
-			currentQuest.completed = false;
+			Player.quests.activeQuestArray.splice(x, 1);
 		}
-	}
-	Dom.quests.activeHTML.true += Dom.quests.activeHTML.undefined + Dom.quests.activeHTML.daily;
-	document.getElementById("activeQuestBox").innerHTML = Dom.quests.activeHTML.true.substring(8);
-	if(Player.quests.activeQuestArray.length === 0){
-		document.getElementById("activeQuestBox").style.textAlign = "center";
-		document.getElementById("activeQuestBox").innerText = "You have no active quests";
 	}
 }
 
@@ -1136,7 +1140,13 @@ Dom.quests.possible = function(){
 	Dom.quests.possibleHTML = {true: "", undefined: "", daily: "",};
 	for(let i = 0; i < Object.keys(Quests).length; i++){
 		for(let x = 0; x < Quests[Object.keys(Quests)[i]].length; x++){
-			if((!Player.quests.completedQuestArray.includes(Quests[Object.keys(Quests)[i]][x].quest) && !Player.quests.activeQuestArray.includes(Quests[Object.keys(Quests)[i]][x].quest) && Player.level >= Quests[Object.keys(Quests)[i]][x].levelRequirement && IsContainedInArray(Quests[Object.keys(Quests)[i]][x].questRequirements,Player.quests.completedQuestArray))){// || (Quests[Object.keys(Quests)[i]][x].repeatTime === "daily" && Player.quests.questLastFinished[Quests[Object.keys(Quests)[i]][x].questArea][Quests[Object.keys(Quests)[i]][x].id] && !Player.quests.completedQuestArray.includes(Quests[Object.keys(Quests)[i]][x].quest))){
+			if(!Player.quests.activeQuestArray.includes(Quests[Object.keys(Quests)[i]][x].quest) &&
+			Player.level >= Quests[Object.keys(Quests)[i]][x].levelRequirement &&
+			IsContainedInArray(Quests[Object.keys(Quests)[i]][x].questRequirements, Player.quests.completedQuestArray) &&
+			Quests[Object.keys(Quests)[i]][x].eventRequirement === Game.event &&
+			(!Player.quests.completedQuestArray.includes(Quests[Object.keys(Quests)[i]][x].quest) ||
+			(Quests[Object.keys(Quests)[i]][x].repeatTime === "daily" &&
+			Player.quests.questLastFinished[Quests[Object.keys(Quests)[i]][x].questArea][Quests[Object.keys(Quests)[i]][x].id] < GetFullDate()))){
 				// if the quest is possible it is added to the array and the box
 				if(Quests[Object.keys(Quests)[i]][x].repeatTime === "daily"){
 					Quests[Object.keys(Quests)[i]][x].important = "daily";
@@ -1194,7 +1204,6 @@ Dom.quests.other = function(){
 		document.getElementById("otherQuestBox").innerText = "You have unlocked every quest";
 	}
 }
-Dom.quests.possible();
 
 Dom.merchant.page = function(npc, sold, chat){
 	Dom.changeBook("merchantPage", true/*false*/, true);
@@ -1363,6 +1372,11 @@ Dom.inventory.give = function(item, num, position){
 								}else{
 									if(Player.inventory[i].chooseStats !== undefined){
 										Dom.inventory.chooseStats(i);
+									}else{
+										if(Dom.inventory.give(Player.inventory[i])){
+											Player.inventory[i] = {};
+											document.getElementById(i).innerHTML = "";
+										}
 									}
 								}
 							}
@@ -1374,6 +1388,11 @@ Dom.inventory.give = function(item, num, position){
 								}else{
 									if(Player.inventory[i].chooseStats !== undefined){
 										Dom.inventory.chooseStats(i);
+									}else{
+										if(Dom.inventory.give(Player.inventory[i])){
+											Player.inventory[i] = {};
+											document.getElementById(i).innerHTML = "";
+										}
 									}
 								}
 							}
@@ -1433,6 +1452,11 @@ Dom.inventory.give = function(item, num, position){
 				}else{
 					if(Player.inventory[i].chooseStats !== undefined){
 						Dom.inventory.chooseStats(i);
+					}else{
+						if(Dom.inventory.give(Player.inventory[i])){
+							Player.inventory[i] = {};
+							document.getElementById(i).innerHTML = "";
+						}
 					}
 				}
 			}
@@ -1444,6 +1468,11 @@ Dom.inventory.give = function(item, num, position){
 				}else{
 					if(Player.inventory[i].chooseStats !== undefined){
 						Dom.inventory.chooseStats(i);
+					}else{
+						if(Dom.inventory.give(Player.inventory[i])){
+							Player.inventory[i] = {};
+							document.getElementById(i).innerHTML = "";
+						}
 					}
 				}
 			}
@@ -1521,13 +1550,17 @@ Dom.inventory.teleport = function(inventoryPosition){
 }
 
 Dom.inventory.cooldown = function(inventoryPosition){
-	if(Player.inventory.items[inventoryPosition].cooldown !== undefined){
-		if(Player.inventory.items[inventoryPosition].cooldownStart === undefined || parseInt(Player.inventory.items[inventoryPosition].cooldownStart) + Player.inventory.items[inventoryPosition].cooldown <= parseInt(GetFullDateTime())){
-			Player.inventory.items[inventoryPosition].cooldownStart = GetFullDateTime();
-			Player.inventory.items[inventoryPosition].onClickFunction(inventoryPosition);
+	let item = Player.inventory.items;
+	if(isNaN(inventoryPosition)){
+		item = Player.inventory;
+	}
+	if(item[inventoryPosition].cooldown !== undefined){
+		if(item[inventoryPosition].cooldownStart === undefined || parseInt(item[inventoryPosition].cooldownStart) + item[inventoryPosition].cooldown <= parseInt(GetFullDateTime())){
+			item[inventoryPosition].cooldownStart = GetFullDateTime();
+			item[inventoryPosition].onClickFunction(inventoryPosition);
 		}
 	}else{
-		Player.inventory.items[inventoryPosition].onClickFunction(inventoryPosition);
+		item[inventoryPosition].onClickFunction(inventoryPosition);
 	}
 }
 
@@ -2729,7 +2762,7 @@ Dom.text.page = function(name, text, close, buttons, functions, give){
 	document.getElementById("textPage").innerHTML = '<h1 id="textPageName">'+name+'</h1>'
 	document.getElementById("textPage").innerHTML += '<p id="textPageText">'+text+'</p>'
 	if(give !== undefined){
-		document.getElementById("textPage").innerHTML += "<br><br>";
+		document.getElementById("textPage").innerHTML += "<br><br><strong>Attached Items:</strong><br><br>";
 		for(let i = 0; i < give.length; i++){
 			if(give[i].quantity === undefined){
 				give[i].quantity = 1;
@@ -3010,6 +3043,8 @@ Dom.adventure.addInstruction = function(chapter){
 		Player.unlockedInstructions.push(Instructions[chapter-1].chapterTitle);
 		if(!document.getElementById("tutorialOn").checked){
 			Dom.choose.page("Instructions", [Instructions[chapter-1].chapterTitle], [Dom.adventure.showInstructions], [[chapter-1]]);
+		}else{
+			Player.skippedInstructions.push(chapter)
 		}
 	}
 	if(Player.unlockedInstructions.length >= Instructions.length){
@@ -3017,8 +3052,25 @@ Dom.adventure.addInstruction = function(chapter){
 	}
 }
 
+Dom.adventure.unlockTab = function(tab, skip){
+	if(!Player.unlockedTabs.includes(tab)){
+		Player.unlockedTabs.push(tab);
+		document.getElementById("change"+tab[0].toUpperCase()+tab.substring(1)).style.display = "block";
+		document.getElementById(tab+"Image").hidden = false;
+		if(skip){
+			Player.skippedTabs.push(tab);
+		}
+	}else if(!skip){
+		for(let i = 0; i < Player.skippedTabs.length; i++){
+			if(Player.skippedTabs[i] === tab){
+				Player.skippedTabs.splice(i, 1);
+			}
+		}
+	}
+}
+
 document.getElementById("tutorialOn").onclick = function(){
-	Player.unlockedTabs.push("chat");
+	/*Player.unlockedTabs.push("chat");
 	document.getElementById("changeChat").style.display = "block";
 	document.getElementById("chatImage").hidden = false;
 	Player.unlockedTabs.push("inventory");
@@ -3029,12 +3081,36 @@ document.getElementById("tutorialOn").onclick = function(){
 	document.getElementById("questsImage").hidden = false;
 	Player.unlockedTabs.push("reputation");
 	document.getElementById("changeReputation").style.display = "block";
-	document.getElementById("reputationImage").hidden = false;
+	document.getElementById("reputationImage").hidden = false;*/
 	Player.skipTutorial = true;
+	Dom.adventure.unlockTab("chat", true);
+	if(Dom.chat.newString){
+		document.getElementById("dot").hidden = false;
+	}
+	Dom.adventure.unlockTab("inventory", true);
+	Dom.adventure.unlockTab("quests", true);
+	Dom.adventure.unlockTab("reputation", true);
 }
 
 document.getElementById("tutorialOff").onclick = function(){
 	Player.skipTutorial = false;
+	for(let i = 0; i < Player.skippedTabs.length; i++){
+		for(let x = 0; x < Player.unlockedTabs.length; x++){
+			if(Player.unlockedTabs[x] === Player.skippedTabs[i]){
+				Player.unlockedTabs.splice(x, 1);
+			}
+		}
+		document.getElementById("change"+Player.skippedTabs[i][0].toUpperCase()+Player.skippedTabs[i].substring(1)).style.display = "none";
+		document.getElementById(Player.skippedTabs[i]+"Image").hidden = true;
+		if(Player.skippedTabs[i] === "chat"){
+			document.getElementById("dot").hidden = true;
+		}
+	}
+	Player.skippedTabs = [];
+	for(let i = 0; i < Player.skippedInstructions.length; i++){
+		Dom.choose.page("Instructions", [Instructions[Player.skippedInstructions[i]-1].chapterTitle], [Dom.adventure.showInstructions], [[Player.skippedInstructions[i]-1]]);
+	}
+	Player.skippedInstructions = [];
 }
 
 Dom.adventure.nextInstruction = function(){
@@ -3189,6 +3265,16 @@ Dom.adventure.update = function(){
 	}
 }
 
+document.getElementById("weatherOn").onclick = function(){
+	Dom.settings.save("weather", true);
+}
+document.getElementById("weatherOff").onclick = function(){
+	Dom.settings.save("weather", false);
+}
+if(!Dom.settings.settings.weather){
+	document.getElementById("weatherOff").checked = true;
+}
+
 //
 // DO NOT ADD CODE BELOW THIS POINT
 //
@@ -3250,6 +3336,11 @@ for(let i = 0; i < Player.inventory.items.length; i++){
 				}else{
 					if(Player.inventory[i].chooseStats !== undefined){
 						Dom.inventory.chooseStats(i);
+					}else{
+						if(Dom.inventory.give(Player.inventory[i])){
+							Player.inventory[i] = {};
+							document.getElementById(i).innerHTML = "";
+						}
 					}
 				}
 			}
@@ -3261,6 +3352,11 @@ for(let i = 0; i < Player.inventory.items.length; i++){
 				}else{
 					if(Player.inventory[i].chooseStats !== undefined){
 						Dom.inventory.chooseStats(i);
+					}else{
+						if(Dom.inventory.give(Player.inventory[i])){
+							Player.inventory[i] = {};
+							document.getElementById(i).innerHTML = "";
+						}
 					}
 				}
 			}
@@ -3271,8 +3367,8 @@ for(let i = 0; i < Player.inventory.items.length; i++){
 				Player.inventory.items[i].onClick = Dom.inventory.cooldown;
 			}
 			Player.inventory.items[i].onKill = Items[Player.inventory.items[i].type][Player.inventory.items[i].id].onKill;
+			Player.inventory.items[i].onHit = Items[Player.inventory.items[i].type][Player.inventory.items[i].id].onHit;
 			Player.inventory.items[i].onAttack = Items[Player.inventory.items[i].type][Player.inventory.items[i].id].onAttack;
-			Player.inventory.items[i].onAnyAttack = Items[Player.inventory.items[i].type][Player.inventory.items[i].id].onAnyAttack;
 			Player.inventory.items[i].quest = Items[Player.inventory.items[i].type][Player.inventory.items[i].id].quest;
 		}
 		document.getElementById("itemInventory").getElementsByTagName("td")[i].innerHTML = "<img src='"+Player.inventory.items[i].image+"' draggable='true' ondragstart='Dom.inventory.drag(event,"+i+")' "+(Player.inventory.items[i].onClick !== undefined ? "onclick='Player.inventory.items["+i+"].onClick("+i+")'" : "")+"></img>";
@@ -3301,6 +3397,11 @@ for(let i = 0; i < Object.keys(Player.inventory).length-1; i++){ // repeats for 
 				}else{
 					if(Player.inventory[i].chooseStats !== undefined){
 						Dom.inventory.chooseStats(i);
+					}else{
+						if(Dom.inventory.give(Player.inventory[i])){
+							Player.inventory[i] = {};
+							document.getElementById(i).innerHTML = "";
+						}
 					}
 				}
 			}
@@ -3312,6 +3413,11 @@ for(let i = 0; i < Object.keys(Player.inventory).length-1; i++){ // repeats for 
 				}else{
 					if(Player.inventory[i].chooseStats !== undefined){
 						Dom.inventory.chooseStats(i);
+					}else{
+						if(Dom.inventory.give(Player.inventory[i])){
+							Player.inventory[i] = {};
+							document.getElementById(i).innerHTML = "";
+						}
 					}
 				}
 			}
@@ -3322,8 +3428,8 @@ for(let i = 0; i < Object.keys(Player.inventory).length-1; i++){ // repeats for 
 				Player.inventory[Object.keys(Player.inventory)[i]].onClick = Dom.inventory.cooldown;
 			}
 			Player.inventory[Object.keys(Player.inventory)[i]].onKill = Items[Player.inventory[Object.keys(Player.inventory)[i]].type][Player.inventory[Object.keys(Player.inventory)[i]].id].onKill;
+			Player.inventory[Object.keys(Player.inventory)[i]].onHit = Items[Player.inventory[Object.keys(Player.inventory)[i]].type][Player.inventory[Object.keys(Player.inventory)[i]].id].onHit;
 			Player.inventory[Object.keys(Player.inventory)[i]].onAttack = Items[Player.inventory[Object.keys(Player.inventory)[i]].type][Player.inventory[Object.keys(Player.inventory)[i]].id].onAttack;
-			Player.inventory[Object.keys(Player.inventory)[i]].onAnyAttack = Items[Player.inventory[Object.keys(Player.inventory)[i]].type][Player.inventory[Object.keys(Player.inventory)[i]].id].onAnyAttack;
 			Player.inventory[Object.keys(Player.inventory)[i]].quest = Items[Player.inventory[Object.keys(Player.inventory)[i]].type][Player.inventory[Object.keys(Player.inventory)[i]].id].quest;
 			document.getElementById(Object.keys(Player.inventory)[i]).innerHTML = "<img src='"+Player.inventory[Object.keys(Player.inventory)[i]].image+"' draggable='true' ondragstart='Dom.inventory.drag(event,\""+Object.keys(Player.inventory)[i]+"\")' "+(Player.inventory[Object.keys(Player.inventory)[i]].onClick !== undefined ? "onclick='Player.inventory."+Object.keys(Player.inventory)[i]+".onClick(\""+Object.keys(Player.inventory)[i]+"\")'" : "")+"></img>"; // updates the image
 		}
@@ -3366,9 +3472,9 @@ for(let i = 0; i < Player.statusEffects.length; i++){
 	}
 }
 // christmas daily rewards
-if (GetFullDate().substring(2,4) === "12" && !Player.days.includes(GetFullDate())) {
+if (GetFullDate().substring(4,6) === "12" && !Player.days.includes(GetFullDate())) {
 	let randomNPC = Player.metNPCs[Random(0, Player.metNPCs.length-1)]; // NPC that sent message
-	if (GetFullDate().substring(0,2) === "25") { // christmas day
+	if (GetFullDate().substring(6) === "25") { // christmas day
 		Dom.mail.give(
 			"Merry Christmas!",
 			"Father Christmas",
@@ -3379,9 +3485,9 @@ if (GetFullDate().substring(2,4) === "12" && !Player.days.includes(GetFullDate()
 			[{item: Items.item[17],},{item: Items.currency[5], quantity: 5,}]],
 			[{item: Items.item[17],},{item: Items.currency[5], quantity: 5,}],
 		);
-	}else if (GetFullDate().substring(0,2) < "25") { // before christmas
+	}else if (GetFullDate().substring(6) < "25") { // before christmas
 		Dom.mail.give(
-			25 - parseInt(GetFullDate().substring(0,2)) + " Day"+(parseInt(GetFullDate().substring(0,2)) !== 24 ? "s" : "")+" To Go!",
+			25 - parseInt(GetFullDate().substring(6)) + " Day"+(parseInt(GetFullDate().substring(6)) !== 24 ? "s" : "")+" To Go!",
 			randomNPC,
 			ToCamelCase(randomNPC),
 			"text.page",
@@ -3391,7 +3497,7 @@ if (GetFullDate().substring(2,4) === "12" && !Player.days.includes(GetFullDate()
 		);
 	}else { // after christmas (in december)
 		Dom.mail.give(
-			parseInt(GetFullDate().substring(0,2)) + " of Christmas 2018",
+			parseInt(GetFullDate().substring(6)) + " of Christmas 2018",
 			randomNPC,
 			ToCamelCase(randomNPC),
 			"text.page",
@@ -3407,6 +3513,24 @@ if (!Player.days.includes(GetFullDate())) {
 }
 
 // savedata FIXES
+if(Player.skippedInstructions === undefined){
+	Player.skippedInstructions = [];
+}
+if(Player.Tabs === undefined){
+	Player.skippedTabs = [];
+}
+for(let i = 0; i < Player.quests.questLastFinished.eaglecrestLoggingCamp.length; i++){
+	let date = Player.quests.questLastFinished.eaglecrestLoggingCamp[i];
+	if(date !== null && (date.substring(4) === "2018" || date.substring(4) === "2019")){
+		Player.quests.questLastFinished.eaglecrestLoggingCamp[i] = date.substring(4) + date.substring(2,4) + date.substring(0,2);
+	}
+}
+for(let i = 0; i < Player.quests.questLastFinished.fishing.length; i++){
+	let date = Player.quests.questLastFinished.fishing[i];
+	if(date !== null && (date.substring(4) === "2018" || date.substring(4) === "2019")){
+		Player.quests.questLastFinished.fishing[i] = date.substring(4) + date.substring(2,4) + date.substring(0,2);
+	}
+}
 if(Player.quests.completedQuestArray.includes("A drink on us!")){
 	Player.quests.completedQuestArray.splice(Player.quests.completedQuestArray.findIndex(a => a === "A drink on us!"), 1, "A Drink on Us!");
 }

@@ -107,7 +107,7 @@ document.getElementById("image").onclick = function(){
 }
 
 document.getElementById("random").onclick = function(){
-	document.getElementById("name").value = randomName();
+	document.getElementById("name").value = randomName(Skins[selected.class][selected[selected.class]].gender);
 }
 
 document.getElementById("play").onclick = function(){
@@ -129,7 +129,7 @@ document.getElementById("play").onclick = function(){
 }
 
 function display(){
-	document.getElementById("random").style.backgroundImage = "url('./assets/rm.png')";
+	document.getElementById("random").style.backgroundImage = "url('./assets/r"+Skins[selected.class][selected[selected.class]].gender+".png')";
 	if(num === 0){ // forward
 		document.getElementById("image").src="./assets/"+selected.class+selected[selected.class]+"/f.png";
 		document.getElementById("image").style.left = window.innerWidth/2-document.getElementById("image").offsetWidth/2+parseInt(document.getElementById("image").width)/Skins[selected.class][selected[selected.class]].position.x+"px";

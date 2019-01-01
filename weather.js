@@ -20,6 +20,8 @@ Weather.chooseWeather = function (areaName) {
 	if (Areas[areaName].isIcy !== undefined && Areas[areaName].isIcy()) {
 		// icy area
 		this.weatherType = "snow";
+	}else{
+		this.weatherType = "clear";
 	}
 }
 
