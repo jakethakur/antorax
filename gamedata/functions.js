@@ -58,6 +58,75 @@ Loader.wipeImages = function (exceptions) {
 };
 
 //
+// Keyboard handler
+//
+
+let Keyboard = {
+	_keys: {}
+};
+
+Keyboard.listenForEvents = function (keys) {
+    window.addEventListener('keydown', this._onKeyDown.bind(this));
+    window.addEventListener('keyup', this._onKeyUp.bind(this));
+    
+	keys.forEach(function (key) {
+		// when key is "R" keyRole is set to "REPUTATION"
+		let keyRole = undefined;
+		for(let i = 0; i < Object.keys(this.keys).length; i++){
+			if (key === this.keys[Object.keys(this.keys)[i]]){
+				keyRole = Object.keys(this.keys)[i];
+			}
+		}
+        this._keys[keyRole] = false;
+    }.bind(this));
+}
+
+Keyboard._onKeyDown = function (event) {
+    let key = Dom.settings.keyName(event); // e.g. "R"
+	// in the same example keyRole is set to "REPUTATION"
+	let keyRole = undefined;
+	for(let i = 0; i < Object.keys(this.keys).length; i++){
+		if (key === this.keys[Object.keys(this.keys)[i]]){
+			keyRole = Object.keys(this.keys)[i];
+		}
+	}
+    if (keyRole in this._keys) {
+        event.preventDefault();
+        this._keys[keyRole] = true;
+    }
+	if (keyRole in this.downFunctions){
+		this.downFunctions[keyRole](event);
+	}
+};
+
+Keyboard._onKeyUp = function (event) {
+    let key = Dom.settings.keyName(event); // e.g. "R"
+	// in the same example keyRole is set to "REPUTATION"
+	let keyRole = undefined;
+	for(let i = 0; i < Object.keys(this.keys).length; i++){
+		if (key === this.keys[Object.keys(this.keys)[i]]){
+			keyRole = Object.keys(this.keys)[i];
+		}
+	}
+    if (keyRole in this._keys) {
+        event.preventDefault();
+        this._keys[keyRole] = false;
+    }
+	if (keyRole in this.upFunctions){
+		this.upFunctions[keyRole](event);
+	}else{
+		Dom.settings.hotkeys(event);
+	}
+};
+
+Keyboard.isDown = function (key, keyRole) {
+    if (!keyRole in this._keys) {
+        throw new Error('Key ' + key + ' for ' + keyRole + ' is not being listened to');
+    }
+    return this._keys[keyRole];
+};
+
+//
 // Misc functions
 //
 

@@ -8,81 +8,6 @@
 // https://developer.mozilla.org/en-US/docs/Games/Techniques/Tilemaps
 
 //
-// Keyboard handler
-//
-
-var Keyboard = {};
-
-// arrow key movement
-Keyboard.LEFT = 37;
-Keyboard.RIGHT = 39;
-Keyboard.UP = 38;
-Keyboard.DOWN = 40;
-// wsad movement
-Keyboard.A = 65;
-Keyboard.D = 68;
-Keyboard.W = 87;
-Keyboard.S = 83;
-// space (action button)
-Keyboard.SPACE = 32;
-// shift (hide secondary canvas)
-Keyboard.SHIFT = 16;
-
-Keyboard._keys = {};
-
-Keyboard.listenForEvents = function (keys) {
-    window.addEventListener('keydown', this._onKeyDown.bind(this));
-    window.addEventListener('keyup', this._onKeyUp.bind(this));
-
-    keys.forEach(function (key) {
-        this._keys[key] = false;
-    }.bind(this));
-}
-
-Keyboard._onKeyDown = function (event) {
-    var keyCode = event.keyCode;
-    if (keyCode in this._keys) {
-        event.preventDefault();
-        this._keys[keyCode] = true;
-    }
-};
-
-Keyboard._onKeyUp = function (event) {
-    var keyCode = event.keyCode;
-    if (keyCode in this._keys) {
-        event.preventDefault();
-        this._keys[keyCode] = false;
-    }
-};
-
-Keyboard.isDown = function (keyCode) {
-    if (!keyCode in this._keys) {
-        throw new Error('Keycode ' + keyCode + ' is not being listened to');
-    }
-    return this._keys[keyCode];
-};
-
-//  hiding of second canvas when shift key is pressed
-
-window.addEventListener("keydown", function(event){
-	if(event.keyCode == 16){
-		setTimeout (function(){
-			Game.secondary.render();
-			Dom.inventory.hideHotbar(true);
-		},1);
-	}
-});
-
-window.addEventListener("keyup", function(event){
-	if(event.keyCode == 16){
-		setTimeout (function(){
-			Game.secondary.render();
-			Dom.inventory.hideHotbar();
-		},1);
-	}
-});
-
-//
 // Game object
 //
 
@@ -3233,7 +3158,7 @@ Game.init = function () {
 	
 	// detect player movement and interaction
     Keyboard.listenForEvents(
-        [Keyboard.LEFT, Keyboard.RIGHT, Keyboard.UP, Keyboard.DOWN, Keyboard.W, Keyboard.S, Keyboard.A, Keyboard.D, Keyboard.SPACE, Keyboard.SHIFT]);
+        [Keyboard.keys.LEFT, Keyboard.keys.RIGHT, Keyboard.keys.UP, Keyboard.keys.DOWN, Keyboard.keys.SPACE, Keyboard.keys.SHIFT]);
 		
 	// player attack on click
 	this.secondary.canvas.addEventListener("mousedown", Game.hero.startAttack.bind(this.hero));
@@ -3691,10 +3616,10 @@ Game.update = function (delta) {
 		let dirx = 0;
 		let diry = 0;
 		// player has control over themselves
-	    if (Keyboard.isDown(Keyboard.LEFT) || Keyboard.isDown(Keyboard.A)) { dirx = -1; this.hero.direction = 2; }
-	    if (Keyboard.isDown(Keyboard.RIGHT) || Keyboard.isDown(Keyboard.D)) { dirx = 1; this.hero.direction = 4; }
-	    if (Keyboard.isDown(Keyboard.UP) || Keyboard.isDown(Keyboard.W)) { diry = -1; this.hero.direction = 1; }
-	    if (Keyboard.isDown(Keyboard.DOWN) || Keyboard.isDown(Keyboard.S)) { diry = 1; this.hero.direction = 3; }
+	    if (Keyboard.isDown(Keyboard.keys.LEFT, "LEFT")) { dirx = -1; this.hero.direction = 2; }
+	    if (Keyboard.isDown(Keyboard.keys.RIGHT, "RIGHT")) { dirx = 1; this.hero.direction = 4; }
+	    if (Keyboard.isDown(Keyboard.keys.UP, "UP")) { diry = -1; this.hero.direction = 1; }
+	    if (Keyboard.isDown(Keyboard.keys.DOWN, "DOWN")) { diry = 1; this.hero.direction = 3; }
 	
 		if (dirx !== 0 || diry !== 0) {
 	        this.hero.move(delta, dirx, diry);
@@ -3713,7 +3638,7 @@ Game.update = function (delta) {
 	}
 	
 	// interact with touching object
-    if (Keyboard.isDown(Keyboard.SPACE)) { this.hero.interact(); }
+    if (Keyboard.isDown(Keyboard.keys.SPACE, "SPACE")) { this.hero.interact(); }
 	
 	// check collision with npcs - includes quest givers, quest finishers, merchants, soul healers, more TBA
 	this.npcs.forEach(npc => { // iterate though npcs
@@ -3782,7 +3707,7 @@ Game.update = function (delta) {
 										questCanBeStarted = false;
 									}
 								}
-								else if (role.quest.eventRequirement !== Game.event){
+								else if (role.quest.eventRequirement !== undefined && role.quest.eventRequirement !== Game.event){
 									questCanBeStarted = false;
 								}
 								else {
@@ -4391,7 +4316,7 @@ Game.lootClosed = function (itemsRemaining) {
 			Player.chestsOpened[Game.areaName] = GetFullDate();
 		}
 	}
-	if (Dom.loot.currentId[0] === "i") {
+	else if (Dom.loot.currentId[0] === "i") {
 		// item loot menu closed (e.g. sunken chest)
 		let inventoryPosition = Dom.loot.currentId.substr(1); // inventory position of item (array index)
 		// set loot
@@ -5092,7 +5017,7 @@ Game.secondary.render = function () {
 	// clear secondary canvas
 	this.ctx.clearRect(0, 0, 600, 600);
 	
-	if (!Keyboard.isDown(Keyboard.SHIFT)) { // only render the second canvas if the player isn't pressing the shift key
+	if (!Keyboard.isDown(Keyboard.keys.SHIFT, "SHIFT")) { // only render the second canvas if the player isn't pressing the shift key
 		
 		// set canvas formatting style defaults
 		this.ctx.lineWidth = 1;

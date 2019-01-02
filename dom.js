@@ -53,9 +53,58 @@ if(localStorage.getItem("settings") !== null){
 		music: false,
 		weather: true,
 		bookmarks: "bottom",
+		keyboard: {
+			LEFT: "A", // 37
+			RIGHT: "D", // 39
+			UP: "W", // 38
+			DOWN: "S", // 40
+			// wsad movement
+			/*A: "A", // 65
+			D: "D", // 68
+			W: "W", // 87
+			S: "S",  // 83*/
+			// space (action button)
+			SPACE: "SPACE", // 32
+			// shift (hide secondary canvas)
+			SHIFT: "SHIFT", // 16
+			// hotkeys
+			CHAT: "C",
+			INVENTORY: "I",
+			QUESTS: "Q",
+			ADVENTURE: "L",
+			REPUTATION: "R",
+			SETTINGS: "Z",
+		},
 		instructionsLink: false,
-		hotkeys: ["c","i","q","l","r","z"],
 	}
+}
+Keyboard.keys = Dom.settings.settings.keyboard;
+
+// user savedata FIXES (more at the bottom)
+if(Dom.settings.settings.keyboard === undefined){
+	Dom.settings.settings.keyboard = {
+		LEFT: "A", // 37
+		RIGHT: "D", // 39
+		UP: "W", // 38
+		DOWN: "S", // 40
+		// wsad movement
+		/*A: "A", // 65
+		D: "D", // 68
+		W: "W", // 87
+		S: "S",  // 83*/
+		// space (action button)
+		SPACE: "SPACE", // 32
+		// shift (hide secondary canvas)
+		SHIFT: "SHIFT", // 16
+		// hotkeys
+		CHAT: "C",
+		INVENTORY: "I",
+		QUESTS: "Q",
+		ADVENTURE: "L",
+		REPUTATION: "R",
+		SETTINGS: "Z",
+	};
+	Keyboard.keys = Dom.settings.settings.keyboard;
 }
 
 // save an item to the settings object in local storage
@@ -108,7 +157,7 @@ Dom.alert.page = function(text, type, values){
 }
 
 // Make the save, logout, delete buttons at the bottom of the settings page
-document.getElementById("settingLogout").innerHTML = "You are logged in as "+Player.name+(localStorage.getItem("accept") ? "<div id='settingSave' onclick='Game.saveProgress()'>Save</div>" : "")+"<div id='settingLogoutInner' onclick='Game.saveProgress(\"logout\")'>Logout</div>"+(localStorage.getItem("accept") ? "<div id='settingDelete'>Delete</div>" : "")+"<br><br><br><div id='settingControls' onclick='Dom.settings.page(\"settingsTwoPage\")'>Hotkey Bindings</div>";
+document.getElementById("settingLogout").innerHTML = "You are logged in as "+Player.name+(localStorage.getItem("accept") ? "<div id='settingSave' onclick='Game.saveProgress()'>Save</div>" : "")+"<div id='settingLogoutInner' onclick='Game.saveProgress(\"logout\")'>Logout</div>"+(localStorage.getItem("accept") ? "<div id='settingDelete'>Delete</div>" : "")+"<br><br><br><div id='settingControls' onclick='Dom.settings.page(\"settingsTwoPage\")'>Controls</div>";
 
 // DELTES EXISTING CLASS
 if(document.getElementById("settingDelete") !== null){
@@ -209,7 +258,7 @@ Dom.changeBook = function(page, override, shouldNotBeOverriden, levelUpOverride)
 				Dom.settings.page();
 			}
 			if(Dom.settings.hotkey !== undefined){
-				document.getElementsByClassName("hotkey")[Dom.settings.hotkey].innerHTML = Dom.settings.settings.hotkeys[Dom.settings.hotkey].toUpperCase();
+				document.getElementsByClassName("hotkey")[Dom.settings.hotkey].innerHTML = Keyboard.keys[Object.keys(Keyboard.keys)[Dom.settings.hotkey]].toUpperCase();
 				Dom.settings.hotkey = undefined;
 			}
 			return true;
@@ -1083,7 +1132,7 @@ Dom.quests.active = function(quest){
 				}
 			}
 		}
-		if(currentQuest.eventRequirement === Game.event){
+		if(currentQuest.eventRequirement === undefined || currentQuest.eventRequirement === Game.event){
 			Dom.quests.activeHTML[currentQuest.important] += "<br><br><strong>" + currentQuest.quest + "</strong>";
 			let completedObjectives = 0;
 			for(let i = 0; i < currentQuest.objectives.length; i++){
@@ -1122,13 +1171,13 @@ Dom.quests.active = function(quest){
 			}
 			Dom.quests.activeHTML.true += Dom.quests.activeHTML.undefined + Dom.quests.activeHTML.daily;
 			document.getElementById("activeQuestBox").innerHTML = Dom.quests.activeHTML.true.substring(8);
-			if(Player.quests.activeQuestArray.length === 0){
-				document.getElementById("activeQuestBox").style.textAlign = "center";
-				document.getElementById("activeQuestBox").innerText = "You have no active quests";
-			}
 		}else{
 			Player.quests.activeQuestArray.splice(x, 1);
 		}
+	}
+	if(Player.quests.activeQuestArray.length === 0){
+		document.getElementById("activeQuestBox").style.textAlign = "center";
+		document.getElementById("activeQuestBox").innerText = "You have no active quests";
 	}
 }
 
@@ -1143,7 +1192,7 @@ Dom.quests.possible = function(){
 			if(!Player.quests.activeQuestArray.includes(Quests[Object.keys(Quests)[i]][x].quest) &&
 			Player.level >= Quests[Object.keys(Quests)[i]][x].levelRequirement &&
 			IsContainedInArray(Quests[Object.keys(Quests)[i]][x].questRequirements, Player.quests.completedQuestArray) &&
-			Quests[Object.keys(Quests)[i]][x].eventRequirement === Game.event &&
+			(Quests[Object.keys(Quests)[i]][x].eventRequirement === undefined || Quests[Object.keys(Quests)[i]][x].eventRequirement === Game.event) &&
 			(!Player.quests.completedQuestArray.includes(Quests[Object.keys(Quests)[i]][x].quest) ||
 			(Quests[Object.keys(Quests)[i]][x].repeatTime === "daily" &&
 			Player.quests.questLastFinished[Quests[Object.keys(Quests)[i]][x].questArea][Quests[Object.keys(Quests)[i]][x].id] < GetFullDate()))){
@@ -2608,7 +2657,7 @@ Dom.settings.acceptOn = function(){
 	localStorage.setItem("accept","true");
 	// hide option for progress saving in settings and add save button
 	document.getElementById("settingAcceptHolder").innerHTML = "";
-	document.getElementById("settingLogout").innerHTML = "<div id='settingControls' onclick='Dom.settings.page(\"settingsTwoPage\")'>Hotkey Bindings</div><br><br>You are logged in as "+Player.name+"<div id='settingSave' onclick='Game.saveProgress()'>Save</div><div id='settingLogoutInner' onclick='Game.saveProgress(\"logout\")'>Logout</div><div id='settingDelete'>Delete</div>";
+	document.getElementById("settingLogout").innerHTML = "<div id='settingControls' onclick='Dom.settings.page(\"settingsTwoPage\")'>Controls</div><br><br>You are logged in as "+Player.name+"<div id='settingSave' onclick='Game.saveProgress()'>Save</div><div id='settingLogoutInner' onclick='Game.saveProgress(\"logout\")'>Logout</div><div id='settingDelete'>Delete</div>";
 }
 
 Dom.alert.target = Dom.settings.acceptOn;
@@ -2986,41 +3035,57 @@ Dom.choose.page = function(npc, buttons, functions, parameters){
 	}
 }
 
-window.addEventListener('keyup', function(ev){
+Dom.settings.keyName = function(ev){
+	let keyName = "SPACE";
+	if(ev.keyCode !== 32){
+		keyName = ev.key.toUpperCase();
+		/*if(keyName.toLowerCase() !== keyName && keyName.length === 1){
+			keyName = "SHIFT + " + keyName;
+		}*/
+		if(keyName.substring(0,5) === "ARROW"){
+			keyName = keyName.substring(5);
+		}
+	}
+	return keyName;
+}
+
+Dom.settings.hotkeys = function(ev){
+	let keyName = Dom.settings.keyName(ev);
 	// if a hotkey is being set
 	if(Dom.settings.hotkey !== undefined){
-		let availible = true;
-		for(let i = 0; i < Dom.settings.settings.hotkeys.length; i++){
-			if(Dom.settings.settings.hotkeys[i] === ev.key && i !== Dom.settings.hotkey){
+		let available = true;
+		for(let i = 0; i < Object.keys(Keyboard.keys).length; i++){
+			if(Keyboard.keys[Object.keys(Keyboard.keys)[i]] === keyName && i !== Dom.settings.hotkey){
 				// if that key is already a hot key
-				availible = false;
+				available = false;
 			}
 		}
-		// if that key is available (not equal to shift, space, wasd, arrows)
-		if(availible && ev.keyCode !== 65 && ev.keyCode !== 83 && ev.keyCode !== 68 && ev.keyCode !== 87 && ev.keyCode !== 16 && ev.keyCode !== 32 && ev.keyCode !== 37 && ev.keyCode !== 38 && ev.keyCode !== 39 && ev.keyCode !== 40 && ev.keyCode !== 255 && ev.keyCode !== 173 && ev.keyCode !== 174 && ev.keyCode !== 175 && ev.keyCode !== 176 && ev.keyCode !== 177 && ev.keyCode !== 179 && ev.keyCode !== 44){
-			Dom.settings.settings.hotkeys[Dom.settings.hotkey] = ev.key;
-			document.getElementsByClassName("hotkey")[Dom.settings.hotkey].innerHTML = ev.key.toUpperCase();
+		// if that key is available and not a bad key (unidentified)
+		if(available && ev.keyCode !== 255 && ev.keyCode !== 173 && ev.keyCode !== 174 && ev.keyCode !== 175 && ev.keyCode !== 176 && ev.keyCode !== 177 && ev.keyCode !== 179 && ev.keyCode !== 44){
+			Keyboard.keys[Object.keys(Keyboard.keys)[Dom.settings.hotkey]] = keyName;
+			document.getElementsByClassName("hotkey")[Dom.settings.hotkey].innerHTML = keyName.toUpperCase();
 			Dom.settings.hotkey = undefined;
+			Dom.settings.settings.keyboard = Keyboard.keys;
 			SaveItem("settings", JSON.stringify(Dom.settings.settings));
 		// if it is unavailable set it back to what it was
 		}else{
-			document.getElementsByClassName("hotkey")[Dom.settings.hotkey].innerHTML = Dom.settings.settings.hotkeys[Dom.settings.hotkey].toUpperCase();
+			document.getElementsByClassName("hotkey")[Dom.settings.hotkey].innerHTML = Keyboard.keys[Object.keys(Keyboard.keys)[Dom.settings.hotkey]].toUpperCase();
 			Dom.settings.hotkey = undefined;
 		}
-	}else if(ev.key === Dom.settings.settings.hotkeys[0]){
+	}else if(keyName === Keyboard.keys.CHAT){
 		Dom.changeBook("chatPage");
-	}else if(ev.key === Dom.settings.settings.hotkeys[1]){
+	}else if(keyName === Keyboard.keys.INVENTORY){
 		Dom.changeBook("inventoryPage");
-	}else if(ev.key === Dom.settings.settings.hotkeys[2]){
+	}else if(keyName === Keyboard.keys.QUESTS){
 		Dom.changeBook("questsPage");
-	}else if(ev.key === Dom.settings.settings.hotkeys[3]){
+	}else if(keyName === Keyboard.keys.ADVENTURE){
 		Dom.changeBook("adventurePage");
-	}else if(ev.key === Dom.settings.settings.hotkeys[4]){
+	}else if(keyName === Keyboard.keys.REPUTATION){
 		Dom.changeBook("reputationPage");
-	}else if(ev.key === Dom.settings.settings.hotkeys[5]){
+	}else if(keyName === Keyboard.keys.SETTINGS){
 		Dom.changeBook("settingsPage");
 	}
-});
+}
 
 Dom.settings.current = "settingsPage";
 Dom.settings.page = function(page){
@@ -3275,6 +3340,30 @@ if(!Dom.settings.settings.weather){
 	document.getElementById("weatherOff").checked = true;
 }
 
+Keyboard.downFunctions = {
+	SHIFT: function(){
+		setTimeout (function(){
+			Game.secondary.render();
+			Dom.inventory.hideHotbar(true);
+		},1);
+	},
+};
+
+Keyboard.upFunctions = {
+	SHIFT: function(){
+		setTimeout (function(){
+			Game.secondary.render();
+			Dom.inventory.hideHotbar();
+		},1);
+	},
+	CHAT: Dom.settings.hotkeys,
+	INVENTORY: Dom.settings.hotkeys,
+	QUESTS: Dom.settings.hotkeys,
+	ADVENTURE: Dom.settings.hotkeys,
+	REPUTATION: Dom.settings.hotkeys,
+	SETTINGS: Dom.settings.hotkeys,
+};
+
 //
 // DO NOT ADD CODE BELOW THIS POINT
 //
@@ -3314,12 +3403,12 @@ for(let i = 0; i < Player.inventory.items.length/6; i++){
 }
 for(let i = 0; i < Player.inventory.items.length; i++){
 	// if the item has melted
-	if(Player.inventory.items[i].image !== undefined && Items[Player.inventory.items[i].type][Player.inventory.items[i].id].deleteIf !== undefined && Items[Player.inventory.items[i].type][Player.inventory.items[i].id].deleteIf()){
+	/*if(Player.inventory.items[i].image !== undefined && Items[Player.inventory.items[i].type][Player.inventory.items[i].id].deleteIf !== undefined && Items[Player.inventory.items[i].type][Player.inventory.items[i].id].deleteIf()){
 		setTimeout(function(){
 			Dom.chat.insert("It's not snowy any more! Your "+Player.inventory.items[i].name+" melted.", 0, true);
 			Player.inventory.items[i] = {};
 		},1000);
-	}else if(Player.inventory.items[i].image !== undefined){
+	}else*/ if(Player.inventory.items[i].image !== undefined){
 		/*if(Player.inventory.items[i].chooseStats !== undefined){
 			Items[Player.inventory.items[i].type][Player.inventory.items[i].id].onClick = Dom.inventory.chooseStats;
 		}*/
@@ -3439,17 +3528,17 @@ if(Player.reputationReady){
 	Dom.reputation.start();
 }
 for(let i = 0; i < document.getElementsByClassName("hotkey").length; i++){
-	document.getElementsByClassName("hotkey")[i].innerHTML = Dom.settings.settings.hotkeys[i].toUpperCase();
+	document.getElementsByClassName("hotkey")[i].innerHTML = Keyboard.keys[Object.keys(Keyboard.keys)[i]].toUpperCase();
 	document.getElementsByClassName("hotkey")[i].onclick = function(){
 		if(Dom.settings.hotkey === undefined){
 			document.getElementsByClassName("hotkey")[i].innerHTML = "...";
 			Dom.settings.hotkey = i;
 		}else{
-			let temp = Dom.settings.settings.hotkeys[Dom.settings.hotkey];
+			let temp = Keyboard.keys[Object.keys(Keyboard.keys)[Dom.settings.hotkey]];
 			document.getElementsByClassName("hotkey")[Dom.settings.hotkey].innerHTML = document.getElementsByClassName("hotkey")[i].innerHTML;
 			document.getElementsByClassName("hotkey")[i].innerHTML = temp.toUpperCase();
-			Dom.settings.settings.hotkeys[Dom.settings.hotkey] = Dom.settings.settings.hotkeys[i];
-			Dom.settings.settings.hotkeys[i] = temp;
+			Keyboard.keys[Object.keys(Keyboard.keys)[Dom.settings.hotkey]] = Keyboard.keys[Object.keys(Keyboard.keys)[i]];
+			Keyboard.keys[Object.keys(Keyboard.keys)[i]] = temp;
 			Dom.settings.hotkey = undefined;
 			SaveItem("settings", JSON.stringify(Dom.settings.settings));
 		}
@@ -3512,7 +3601,7 @@ if (!Player.days.includes(GetFullDate())) {
 	Player.days.push(GetFullDate());
 }
 
-// savedata FIXES
+// player savedata FIXES (more at the top)
 if(Player.skippedInstructions === undefined){
 	Player.skippedInstructions = [];
 }

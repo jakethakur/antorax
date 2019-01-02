@@ -391,6 +391,7 @@ td{
 	vertical-align: middle;
 	font-size: 20px;
 	top: 50px;
+	margin-bottom: 20px;
 }
 #closeReputation{
 	left: 130px;
@@ -503,8 +504,7 @@ td{
 	left: 350px;
 }
 #settingControls{
-	width: 200px;
-	left: 150px;
+	left: 200px;
 }
 .stackNum, .questStackNum, .questFinishStackNum, .questStartStackNum, .lootStackNum, .textStackNum{
 	position: relative;
