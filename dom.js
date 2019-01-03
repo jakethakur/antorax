@@ -74,6 +74,12 @@ if(localStorage.getItem("settings") !== null){
 			ADVENTURE: "L",
 			REPUTATION: "R",
 			SETTINGS: "Z",
+			ONE: "1",
+			TWO: "2",
+			THREE: "3",
+			FOUR: "4",
+			FIVE: "5",
+			SIX: "6",
 		},
 		instructionsLink: false,
 	}
@@ -103,7 +109,21 @@ if(Dom.settings.settings.keyboard === undefined){
 		ADVENTURE: "L",
 		REPUTATION: "R",
 		SETTINGS: "Z",
+		ONE: "1",
+		TWO: "2",
+		THREE: "3",
+		FOUR: "4",
+		FIVE: "5",
+		SIX: "6",
 	};
+	Keyboard.keys = Dom.settings.settings.keyboard;
+}else if(Dom.settings.settings.keyboard.ONE === undefined){
+	Dom.settings.settings.keyboard.ONE = "1";
+	Dom.settings.settings.keyboard.TWO = "2";
+	Dom.settings.settings.keyboard.THREE = "3";
+	Dom.settings.settings.keyboard.FOUR = "4";
+	Dom.settings.settings.keyboard.FIVE = "5";
+	Dom.settings.settings.keyboard.SIX = "6";
 	Keyboard.keys = Dom.settings.settings.keyboard;
 }
 
@@ -363,6 +383,7 @@ Dom.expand = function(block){
 		block.hidden = true;
 	}
 	if(block === information){
+		Dom.inventory.displayTimer = false;
 		block.hidden = true;
 	}
 }
@@ -713,10 +734,14 @@ Dom.inventory.stats = function(stat, value, array){ // stat should be in Title C
 	}
 };
 
-Dom.inventory.displayInformation = function(item, stacked, position){
-	document.getElementById("information").hidden = true;
+Dom.inventory.displayInformation = function(item, stacked, position, hide){
+	if(!hide){
+		document.getElementById("information").hidden = true;
+	}
 	if(item.image !== undefined){
-		document.getElementById("information").hidden = false;
+		if(!hide){
+			document.getElementById("information").hidden = false;
+		}
 		Dom.inventory.updatePosition(document.getElementById("information"));
 		if(item.name !== undefined){
 			document.getElementById("name").innerHTML = item.name;
@@ -890,6 +915,40 @@ Dom.inventory.displayInformation = function(item, stacked, position){
 		}
 		if(position === "buyer" && item.sellPrice !== undefined){
 			document.getElementById("lore").innerHTML += lorebuyer+"Sell "+(item.sellQuantity !== 1 ? item.sellQuantity : "")+" for "+(item.charges === undefined ? item.sellPrice : Math.ceil(item.sellPrice / (item.maxCharges / item.charges)))+" gold";
+		}
+		if(item.cooldownStart !== undefined && parseInt(item.cooldownStart) + item.cooldown > parseInt(GetFullDateTime())){
+			let end = (parseInt(item.cooldownStart) + item.cooldown).toString();
+			let start = GetFullDateTime();
+			let time = (parseInt(end.substring(0,4))-parseInt(start.substring(0,4))) * 31536000;
+			time += (parseInt(end.substring(4,6))-parseInt(start.substring(4,6))) * 2592000;
+			time += (parseInt(end.substring(6,8))-parseInt(start.substring(6,8))) * 86400;
+			time += (parseInt(end.substring(8,10))-parseInt(start.substring(8,10))) * 3600;
+			time += (parseInt(end.substring(10,12))-parseInt(start.substring(10,12))) * 60;
+			time += parseInt(end.substring(12))-parseInt(start.substring(12));
+			let answer = "";
+			if(time >= 31536000){
+				answer = Math.floor(time/31536000)+" Year";
+			}else if(time >= 2592000){
+				answer = Math.floor(time/2592000)+" Month";
+			}else if(time >= 86400){
+				answer = Math.floor(time/86400)+" Day";
+			}else if(time >= 3600){
+				answer = Math.floor(time/3600)+" Hour";
+			}else if(time >= 60){
+				answer = Math.floor(time/60)+" Minute";
+			}else{
+				answer = time+" Second";
+			}
+			if(answer.substring(0,2) !== "1 "){
+				answer += "s";
+			}
+			document.getElementById("lore").innerHTML += "<br><br> " + answer;
+			Dom.inventory.displayTimer = true;
+			setTimeout(function(){
+				if(Dom.inventory.displayTimer){
+					Dom.inventory.displayInformation(item, stacked, position, true);
+				}
+			},1000);
 		}
 	}
 }
@@ -1596,6 +1655,7 @@ Dom.inventory.food = function(inventoryPosition){
 Dom.inventory.teleport = function(inventoryPosition){
 	let to = Player.inventory.items[inventoryPosition].teleport;
 	Game.loadArea(to.location, {x: to.x, y: to.y});
+	Dom.inventory.displayInformation(Player.inventory.items[inventoryPosition], undefined, undefined, true);
 }
 
 Dom.inventory.cooldown = function(inventoryPosition){
@@ -3234,7 +3294,7 @@ Dom.mail.page = function(){
 	Dom.changeBook("mailPage", true/*false*/, true);
 	document.getElementById("mailPage").innerHTML = "<br><h1>Mailbox</h1><br>";
 	for(let i = Player.mail.mail.length-1; i >= 0; i--){
-		document.getElementById("mailPage").innerHTML += "<div class='mail' "+(Player.mail.opened.includes(Player.mail.mail[i].title)?"style='background-color: #fef9b4;'":"")+"><div class='mailImage'></div><div class='mailTitle'><strong>"+Player.mail.mail[i].title+"</strong><br>From "+Player.mail.mail[i].sender+"<br>Received on "+Player.mail.mail[i].date+"</div><div class='mailDelete'>X</div></div>";
+		document.getElementById("mailPage").innerHTML += "<div "+/*(Player.mail.mail[i].flag ? "style='border-color: black'" : "")+*/"class='mail' "+(Player.mail.opened.includes(Player.mail.mail[i].title) && !Player.mail.mail[i].flag ?"style='background-color: #fef9b4;'":"")+"><div class='mailImage'></div><div class='mailTitle'><strong>"+Player.mail.mail[i].title+"</strong><br>From "+Player.mail.mail[i].sender+"<br>Received on "+Player.mail.mail[i].date+"</div><div class='mailFlag'>"+(Player.mail.mail[i].flag ? "<span style='color: #ee0000'><div class='mailPole'></div>&#9873;</span>" : "&#9872;")+"</div><div class='mailDelete'>X</div></div>";
 	}
 	if(Player.mail.mail.length === 0){
 		document.getElementById("mailPage").innerHTML += "<br><br>You have no mail, come back soon.<br><br><br><br>";
@@ -3256,8 +3316,18 @@ Dom.mail.page = function(){
 			}
 			Dom.alert.page("Are you sure you want to delete this mail? It will be lost forever!", 1);
 		}
+		document.getElementsByClassName("mailFlag")[ii].onclick = function(){
+			Dom.mail.notOpen = true;
+			if(Player.mail.mail[i].flag){
+				Player.mail.mail[i].flag = false;
+			}else{
+				Player.mail.mail[i].flag = true;
+			}
+			Dom.mail.page();
+		}
 		document.getElementsByClassName("mail")[ii].onclick = function(){
-			if(document.getElementById("alert").hidden){
+			if(document.getElementById("alert").hidden && !Dom.mail.notOpen){
+				Dom.mail.notOpen = false;
 				if(!Player.mail.opened.includes(Player.mail.mail[i].title)){
 					Player.mail.opened.push(Player.mail.mail[i].title);
 					if(Player.mail.mail[i].give !== undefined && Dom.inventory.requiredSpace(Player.mail.mail[i].give)){
@@ -3339,30 +3409,6 @@ document.getElementById("weatherOff").onclick = function(){
 if(!Dom.settings.settings.weather){
 	document.getElementById("weatherOff").checked = true;
 }
-
-Keyboard.downFunctions = {
-	SHIFT: function(){
-		setTimeout (function(){
-			Game.secondary.render();
-			Dom.inventory.hideHotbar(true);
-		},1);
-	},
-};
-
-Keyboard.upFunctions = {
-	SHIFT: function(){
-		setTimeout (function(){
-			Game.secondary.render();
-			Dom.inventory.hideHotbar();
-		},1);
-	},
-	CHAT: Dom.settings.hotkeys,
-	INVENTORY: Dom.settings.hotkeys,
-	QUESTS: Dom.settings.hotkeys,
-	ADVENTURE: Dom.settings.hotkeys,
-	REPUTATION: Dom.settings.hotkeys,
-	SETTINGS: Dom.settings.hotkeys,
-};
 
 //
 // DO NOT ADD CODE BELOW THIS POINT
@@ -3633,6 +3679,48 @@ if (Player.chestsOpened === undefined) {
 		nilbogTower4: 0,
 	};
 }
+Keyboard.downFunctions = {
+	SHIFT: function(){
+		setTimeout (function(){
+			Game.secondary.render();
+			Dom.inventory.hideHotbar(true);
+		},1);
+	},
+};
+Keyboard.upFunctions = {
+	SHIFT: function(){
+		setTimeout (function(){
+			Game.secondary.render();
+			Dom.inventory.hideHotbar();
+		},1);
+	},
+	CHAT: Dom.settings.hotkeys,
+	INVENTORY: Dom.settings.hotkeys,
+	QUESTS: Dom.settings.hotkeys,
+	ADVENTURE: Dom.settings.hotkeys,
+	REPUTATION: Dom.settings.hotkeys,
+	SETTINGS: Dom.settings.hotkeys,
+	ONE: Player.inventory.items[0].onClick,
+	TWO: Player.inventory.items[1].onClick,
+	THREE: Player.inventory.items[2].onClick,
+	FOUR: Player.inventory.items[3].onClick,
+	FIVE: Player.inventory.items[4].onClick,
+	SIX: Player.inventory.items[5].onClick,
+};
+Keyboard.parameters = {
+	CHAT: event,
+	INVENTORY: event,
+	QUESTS: event,
+	ADVENTURE: event,
+	REPUTATION: event,
+	SETTINGS: event,
+	ONE: 0,
+	TWO: 1,
+	THREE: 2,
+	FOUR: 3,
+	FIVE: 4,
+	SIX: 5,
+};
 
 // TESTING functions
 Dom.testing = {};

@@ -95,7 +95,9 @@ Keyboard._onKeyDown = function (event) {
         this._keys[keyRole] = true;
     }
 	if (keyRole in this.downFunctions){
-		this.downFunctions[keyRole](event);
+		if(this.downFunctions[keyRole] !== undefined){
+			this.downFunctions[keyRole](Keyboard.parameters[keyRole]);
+		}
 	}
 };
 
@@ -113,7 +115,9 @@ Keyboard._onKeyUp = function (event) {
         this._keys[keyRole] = false;
     }
 	if (keyRole in this.upFunctions){
-		this.upFunctions[keyRole](event);
+		if(this.upFunctions[keyRole] !== undefined){
+			this.upFunctions[keyRole](Keyboard.parameters[keyRole]);
+		}
 	}else{
 		Dom.settings.hotkeys(event);
 	}

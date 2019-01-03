@@ -624,7 +624,7 @@ td{
 	font-size: 20px;
 	line-height: 28px;
 }
-.mailDelete{
+.mailDelete, .mailFlag{
 	height: 30px;
 	width: 30px;
 	position: absolute;
@@ -635,4 +635,16 @@ td{
 	vertical-align: middle;
 	font-weight: bold;
 	font-size: 20px;
+}
+.mailFlag{
+	top: 50px;
+}
+.mailPole{
+	width: 1.5px;
+	height: 14.35px;
+	background-color: black;
+	position: absolute;
+	left: 9.5px;
+	top: 7.9px;
+	border-left: 0.5px solid #442208;
 }
