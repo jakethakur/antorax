@@ -2114,9 +2114,11 @@ var Areas = {
 			tiles: {normal: "./assets/tilemap/nilbogTower.png"},
 			stairs: {normal: "./assets/objects/stairs.png"},
 			painting: {normal: "./assets/objects/paintingDesert.png"}, // image to be renamed
-			goblinCrusader: {normal: "./assets/enemies/goblinCrusader.png"},
-			goblinCorpse: {normal: "./assets/corpses/deadGoblin.png"},
-			melee: {normal: "./assets/projectiles/melee.png"},
+			goblinKing: {normal: "./assets/enemies/goblinKing.png"},
+			goblinKingCorpse: {normal: "./assets/corpses/goblinKing.png"},
+			slash: {normal: "./assets/projectiles/slash.png"}, // (ignored by loader if it is already loaded because of a knight player)
+			fireball: {normal: "./assets/projectiles/fireball.png"}, // (ignored by loader if it is already loaded because of a mage player)
+			arrow: {normal: "./assets/projectiles/arrow.png"}, // (ignored by loader if it is already loaded because of an archer player)
 		},
 		
 		song_day: "./assets/music/Pippin-the-Hunchback-boss.mp3",
@@ -2172,6 +2174,11 @@ var Areas = {
 		],
 		
 		enemies: [
+			{
+				x: 200,
+				y: 250,
+				template: EnemyTemplates.nilbog.goblinKing,
+			},
 		],
 	},
 };

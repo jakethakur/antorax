@@ -14,6 +14,7 @@
 var Game = {
 	// function objects
 	statusEffects: {},
+	spells: {},
 	secondary: {},
 	
 	displayedStats: 0, // number of stats displayed at the top left
@@ -769,6 +770,11 @@ class Attacker extends Character {
 		this.stats.stun = properties.stats.stun || 0;
 		this.stats.variance = properties.stats.variance || 0;
 		this.stats.lifesteal = properties.stats.lifesteal || 0;
+		// functions
+		if (properties.stats.onAttack !== undefined) {
+			// bind can only be called if it is not undefined
+			this.stats.onAttack = properties.stats.onAttack.bind(this); // bound to this
+		}
 		
 		// information about projectile
 		// only supported for enemies - should be updated to work for player as well (TBD TBD!!!)
@@ -781,6 +787,46 @@ class Attacker extends Character {
 		this.projectile.adjust = properties.projectile.adjust || {};
 		
 		this.canAttack = true; // check attack is not reloading
+	}
+	
+	
+	// remove whatever is currently being channelled
+	// called when the character moves or tries to channel something else
+	// reason is set to why the channel was removed (not used yet)
+	removeChannelling (reason) {
+		if (this.channelling !== false) {
+			// remove existing channelling
+			if (this.channelling === "fishing") {
+				// remove fishing bobber
+				Game.projectiles.splice(Game.searchFor(this.channellingProjectileId, Game.projectiles), 1);
+				this.channelling = false;
+				this.channellingProjectileId = null;
+			}
+			else if (this.channelling === "projectile" || this.channelling === "block") {
+				this.finishAttack(); // for attack channelling for hero
+			}
+			else {
+				clearTimeout(this.channelling); // might not always be a timeout, but this doesn't matter (does nothing if not a timeout)
+			}
+			// now nothing is being channelled
+			this.channelling = false;
+		}
+	}
+	
+	// channel a function
+	// this.channelling is set to a unique id
+	// channelling fails if the character's channelling is set to something else
+	channel (func, parameters, time) {
+		this.removeChannelling("channel");
+		this.channelling = setTimeout(func, time, ...parameters);
+	}
+	
+	// a simpler channel for spells
+	channelSpell (spellName, spellTier, parameters) {
+		// add implicit parameters
+		parameters.caster = this;
+		parameters.spellTier = spellTier;
+		this.channel(Game.spells[spellName].func, parameters, Game.spells[spellName].channelTime[spellTier - 1])
 	}
 }
 
@@ -997,7 +1043,7 @@ class Hero extends Attacker {
 			if (!this.hasStatusEffect("Ice skating")) { // give status effect if the player doesn't already have it
 				this.statusEffects.push(new statusEffect({
 					title: "Ice skating",
-					effect: "+50% movement speed",
+					effect: "Increased movement speed",
 					image: "speedUp", // TBD change this?
 				}));
 				this.updateStatusEffects();
@@ -1301,7 +1347,7 @@ class Hero extends Attacker {
 	}
 	
 	// shoot basic attack
-	finishAttack (e) {
+	finishAttack (e) { // e is never used
 		if (this.channelling === "projectile") { // check that the player is channelling a projectile (they might not have a weapon equipped so are not channelling, for example)
 			this.channelTime = 0;
 			this.channelling = false;
@@ -1826,6 +1872,11 @@ class Projectile extends Thing {
 						// there should be a good system for this - maybe a list of functions called on attack or something, handled by Game.inventoryUpdate
 						if (attacker == Game.hero && Player.inventory.weapon.onHit !== undefined) {
 							Player.inventory.weapon.onHit(to[i][x]);
+						}
+						
+						// onAttck function for NPCs
+						if (attacker.stats.onAttack !== undefined) {
+							attacker.stats.onAttack();
 						}
 						
 						// chat relating to being damaged (and dealing damage? TBD)
@@ -2696,6 +2747,39 @@ Game.statusEffects.xp = function(properties) {
 }
 
 //
+// Spells
+//
+
+// arrays in a spell object have their index correspond to the spell tier - 1
+
+Game.spells.charge = {
+	class: "k",
+	
+	// properties should contain tier (as int value), caster, target
+	func: function (properties) {
+		let dist = distance(properties.caster, properties.target);
+		let time = this.cooldown[properties.tier-1]; // cooldown = charge time
+		let velocity = dist / time;
+		let bear = bearing(properties.caster, properties.target);
+		displace(0, velocity, time / 1000, bear); // start displacement
+	},
+	
+	channelTime: [
+		500,	// tier 1
+	],
+	
+	// TBD
+	manaCost: [
+		0,		// tier 1
+	],
+	
+	// also the time taken for the charge
+	cooldown: [
+		1000,	// tier 1
+	],
+};
+
+//
 // Load game
 //
 
@@ -3018,16 +3102,13 @@ Game.loadArea = function (areaName, destination) {
 		this.playMusic();
 		
 		// init game (if it hasn't been done so already)
+		let init = false; // set to if this is the first areaTeleport of the game
 		if (this.hero === undefined) {
 			this.init();
+			init = true;
 		}
 		else {
 			// code to be called when area is accessed due to area teleport (not game load)
-			
-			// call onAreaTeleport function if there is one
-			if (Areas[areaName].onAreaTeleport !== undefined) {
-				Areas[areaName].onAreaTeleport();
-			}
 		}
 		
 		// reposition player
@@ -3062,6 +3143,13 @@ Game.loadArea = function (areaName, destination) {
 			this.generateChests(Areas[areaName].chestData);
 		}
 		
+		// call onAreaTeleport function if there is one
+		if (!init) { // only if the area was teleported to (not game refresh)
+			if (Areas[areaName].onAreaTeleport !== undefined) {
+				Areas[areaName].onAreaTeleport();
+			}
+		}
+		
 		// choose weather
 		Weather.chooseWeather(areaName);
 		
@@ -3070,6 +3158,7 @@ Game.loadArea = function (areaName, destination) {
 		
 		// render day/night effects
 		Game.renderDayNight();
+		
     }.bind(this))
 	.catch(function (err) {
 		// error for if the images didn't load

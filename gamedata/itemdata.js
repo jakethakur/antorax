@@ -90,7 +90,7 @@ var Items = {
 			rarity: "mythic",
 			sellPrice: 5,
 			lore: "",
-			obtain: "Can be found in a sunken chest in a tier 1 fishing area.",
+			obtain: "Can be found in a sunken chest from a tier 1 fishing area.",
 			set: 4,
 			stats: {
 				defence: 3,
@@ -209,7 +209,7 @@ var Items = {
 			rarity: "mythic",
 			sellPrice: 5,
 			lore: "",
-			obtain: "Can be found in a sunken chest in a tier 1 fishing area.",
+			obtain: "Can be found in a sunken chest from a tier 1 fishing area.",
 			set: 4,
 			stats: {
 				defence: 4,
@@ -328,7 +328,7 @@ var Items = {
 			rarity: "mythic",
 			sellPrice: 5,
 			lore: "",
-			obtain: "Can be found in a sunken chest in a tier 1 fishing area.",
+			obtain: "Can be found in a sunken chest from a tier 1 fishing area.",
 			set: 4,
 			stats: {
 				defence: 4,
@@ -465,7 +465,7 @@ var Items = {
 			rarity: "mythic",
 			sellPrice: 5,
 			lore: "",
-			obtain: "Can be found in a sunken chest in a tier 1 fishing area.",
+			obtain: "Can be found in a sunken chest from a tier 1 fishing area.",
 			set: 4,
 			stats: {
 				defence: 3,

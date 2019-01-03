@@ -184,5 +184,54 @@ const EnemyTemplates = {
 			lootTableTemplate: [EnemyLootTables.nilbogGoblin, EnemyLootTables.nilbogTowerGoblin],
 			inventorySpace: 8,
 		},
+		goblinKing: {
+			image: "goblinKing",
+			deathImage: "goblinKingCorpse",
+			name: "The Goblin King",
+			species: "goblin",
+			subSpecies: "nilbog goblin",
+			hostility: "hostile",
+			//hostility: "boss", TBD
+			level: 8,
+			stats: {
+				damage: 5,
+				walkSpeed: 60,
+				maxHealth: 50,
+				defence: 10,
+				range: 60,
+				healthRegen: 0.4,
+				reloadTime: 2000,
+				lootTime: 10000,
+				respawnTime: 30000, // TBD
+				onAttack: function () {
+					// TBD projectile adjust?
+					if (this.stats.range === 60) { // was sword range
+						this.stats.range = 140; // now staff range
+						this.stats.flaming = 1;
+						this.projectile.image = "fireball";
+					}
+					else if (this.stats.range === 140) { // was staff range
+						this.stats.range = 300; // now bow range
+						this.stats.flaming = undefined;
+						this.projectile.image = "arrow";
+					}
+					else if (this.stats.range === 300) { // was bow range
+						this.stats.range = 60; // now sword range
+						this.projectile.image = "slash";
+						// charge at player
+						this.channelSpell("charge", 1, {
+							target: Game.hero,
+						});
+					}
+				},
+			},
+			leashRadius: 1000, // doesn't leash in tower
+			xpGiven: 250,
+			projectile: {
+				image: "slash",
+			},
+			lootTableTemplate: [EnemyLootTables.nilbogGoblin, EnemyLootTables.nilbogTowerGoblin],
+			inventorySpace: 16,
+		}
 	},
 };
