@@ -190,40 +190,59 @@ const EnemyTemplates = {
 			name: "The Goblin King",
 			species: "goblin",
 			subSpecies: "nilbog goblin",
-			hostility: "hostile",
-			//hostility: "boss", TBD
+			hostility: "boss",
 			level: 8,
 			stats: {
-				damage: 5,
+				damage: 9,
 				walkSpeed: 60,
-				maxHealth: 50,
+				maxHealth: 100,
 				defence: 10,
 				range: 60,
 				healthRegen: 0.4,
-				reloadTime: 2000,
+				reloadTime: 1500,
 				lootTime: 10000,
 				respawnTime: 30000, // TBD
-				onAttack: function () {
-					// TBD projectile adjust?
-					if (this.stats.range === 60) { // was sword range
-						this.stats.range = 140; // now staff range
-						this.stats.flaming = 1;
-						this.projectile.image = "fireball";
-					}
-					else if (this.stats.range === 140) { // was staff range
-						this.stats.range = 300; // now bow range
-						this.stats.flaming = undefined;
-						this.projectile.image = "arrow";
-					}
-					else if (this.stats.range === 300) { // was bow range
-						this.stats.range = 60; // now sword range
-						this.projectile.image = "slash";
-						// charge at player
-						this.channelSpell("charge", 1, {
+				alwaysMove: true,
+			},
+			spells: [
+				{
+					name: "charge",
+					tier: 1,
+					parameters: function () { // returns array of parameters
+						return {
 							target: Game.hero,
-						});
-					}
+						};
+					},
+					interval: 5000,
 				},
+			],
+			updateStats: function () { // choose attack based on distance
+				// updateStats is currently just an enemy function
+				
+				let dist = distance(this, Game.hero);
+				
+				// TBD projectile adjust?
+				if (dist < 90) {
+					// sword
+					this.stats.range = 90;
+					this.stats.damage = 9;
+					this.stats.flaming = undefined;
+					this.projectile.image = "slash";
+				}
+				else if (dist < 230) {
+					// staff
+					this.stats.range = 230;
+					this.stats.damage = 5;
+					this.stats.flaming = 1;
+					this.projectile.image = "fireball";
+				}
+				else {
+					// bow
+					this.stats.range = 1000;
+					this.stats.damage = 6;
+					this.stats.flaming = undefined;
+					this.projectile.image = "arrow";
+				}
 			},
 			leashRadius: 1000, // doesn't leash in tower
 			xpGiven: 250,

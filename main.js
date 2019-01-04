@@ -431,6 +431,8 @@ class Character extends Thing {
 	constructor(properties) {
 		super(properties);
 		
+		this.channelling = false;
+		
 		this.health = properties.health || properties.stats.maxHealth;
 		this.damageTaken = 0; // only used so far for Dummies
 		this.speed = properties.stats.walkSpeed || 0;
@@ -711,9 +713,14 @@ class Character extends Thing {
 		}
 		else if (this.isBeingDisplaced.elapsed < this.isBeingDisplaced.time) { // displace player
 			// expand
-			let maxExpand = this.isBeingDisplaced.time * this.isBeingDisplaced.velocity / 120; // max expand
-			this.expand = -Math.pow(this.isBeingDisplaced.elapsed*(this.isBeingDisplaced.velocity / 120) - maxExpand/2, 2) + Math.pow(maxExpand/2, 2) + 1;
-			// graph for expand over time: https://www.desmos.com/calculator/hozpfjxexk
+			if (this.isBeingDisplaced.time < 1) {
+				// small time displace uses different equation
+				this.expand = -Math.pow(2*this.isBeingDisplaced.elapsed-this.isBeingDisplaced.time, 2) + Math.pow(this.isBeingDisplaced.time, 2) + 1;
+			}
+			else {
+				this.expand = -Math.pow((2/this.isBeingDisplaced.time)*this.isBeingDisplaced.elapsed-1, 2) + 2;
+			}
+			// graph for expand over time: https://www.desmos.com/calculator/ygygwjtzwe
 			
 			this.width = this.baseWidth * this.expand;
 			this.height = this.baseHeight * this.expand;
@@ -735,6 +742,8 @@ class Character extends Thing {
 			if (this == Game.hero) {
 				this.updateStatusEffects();
 			}
+			
+			// reset expand just in case it was set
 			
 			return {x:0, y:0};
 		}
@@ -775,6 +784,21 @@ class Attacker extends Character {
 			// bind can only be called if it is not undefined
 			this.stats.onAttack = properties.stats.onAttack.bind(this); // bound to this
 		}
+		this.updateStats = properties.updateStats; // only works for enemies ATM
+		
+		// spells
+		this.spells = properties.spells || [];
+		for (let i = 0; i < this.spells.length; i++) {
+			if (this.spells[i].interval !== undefined) {
+				this.spells[i].ready = false; // cannot be used until intverval has finished
+				setTimeout(function (i) {
+					this.spells[i].ready = true;
+				}.bind(this), this.spells[i].interval, i);
+			}
+			else {
+				this.spells[i].ready = true;
+			}
+		}
 		
 		// information about projectile
 		// only supported for enemies - should be updated to work for player as well (TBD TBD!!!)
@@ -807,6 +831,7 @@ class Attacker extends Character {
 			}
 			else {
 				clearTimeout(this.channelling); // might not always be a timeout, but this doesn't matter (does nothing if not a timeout)
+				// N.B. this.channelling should never be an int, otherwise clearTimeout *does* mess it up
 			}
 			// now nothing is being channelled
 			this.channelling = false;
@@ -814,19 +839,28 @@ class Attacker extends Character {
 	}
 	
 	// channel a function
-	// this.channelling is set to a unique id
-	// channelling fails if the character's channelling is set to something else
+	// this.channelling is set to the timeout
+	// channelling fails (thus the timeout is cleared) if the character's channelling is set to something else or if the user moves
+	// parameters must be an array
 	channel (func, parameters, time) {
+		// remove whatever was previously channelled
 		this.removeChannelling("channel");
-		this.channelling = setTimeout(func, time, ...parameters);
+		// add line to remove channelling when channelling expires to the function
+		let channelFunction = function (parameters) {
+			func(...parameters);
+			this.channelling = false;
+		}.bind(this);
+		// set channelling to the timeout
+		this.channelling = setTimeout(channelFunction, time, parameters);
 	}
 	
 	// a simpler channel for spells
 	channelSpell (spellName, spellTier, parameters) {
 		// add implicit parameters
 		parameters.caster = this;
-		parameters.spellTier = spellTier;
-		this.channel(Game.spells[spellName].func, parameters, Game.spells[spellName].channelTime[spellTier - 1])
+		parameters.tier = spellTier;
+		// because parameters is always an object for spells, it is turned into an array for the function call
+		this.channel(Game.spells[spellName].func, [parameters], Game.spells[spellName].channelTime[spellTier - 1])
 	}
 }
 
@@ -877,9 +911,8 @@ class Hero extends Attacker {
 	constructor (properties) {
 		super(properties);
 		
-		// perhaps condense the following with enemy's canAttack?
+		// perhaps condense channelling with enemy's canAttack?
 		this.channelTime = 0;
-		this.channelling = false;
 		
 		// status effects override - mirror savedata.js' versions
 		this.statusEffects = Player.statusEffects;
@@ -1777,7 +1810,8 @@ class Projectile extends Thing {
 						}
 						
 						// blood moon - enemies deal more damage
-						if (Game.time === "bloodMoon" && attacker.hostility === "hostile") {
+						if (Game.time === "bloodMoon" &&
+						(attacker.hostility === "hostile" || attacker.hostility === "boss")) {
 							attackerDamage *= 3;
 						}
 						
@@ -1872,11 +1906,6 @@ class Projectile extends Thing {
 						// there should be a good system for this - maybe a list of functions called on attack or something, handled by Game.inventoryUpdate
 						if (attacker == Game.hero && Player.inventory.weapon.onHit !== undefined) {
 							Player.inventory.weapon.onHit(to[i][x]);
-						}
-						
-						// onAttck function for NPCs
-						if (attacker.stats.onAttack !== undefined) {
-							attacker.stats.onAttack();
 						}
 						
 						// chat relating to being damaged (and dealing damage? TBD)
@@ -2055,10 +2084,14 @@ class Enemy extends Attacker {
 		// combat traits (specific to enemy)
 		this.leashRadius = properties.leashRadius; // how far away the player has to be for the enemy to stop following them
 		
+		// stats
+		this.stats.alwaysMove = properties.stats.alwaysMove || false; // move even when in range
+		
 		this.deathImage = Loader.getImage(properties.deathImage); // corpse image
 		// set width and height to death image dimensions unless otherwise specified
 		this.deathImageWidth = properties.deathImageWidth || this.deathImage.width;
 		this.deathImageHeight = properties.deathImageHeight || this.deathImage.height;
+		
 		
 		// lootTable: an array of objects for each loot item - these objects contain the item ("item") and chances of looting them ("chance")
 		// if properties.lootTableTemplate is an array of lootTables (more than one template), merge them
@@ -2098,23 +2131,68 @@ class Enemy extends Attacker {
 		}
 		else {
 			// perhaps condense into hostile and passive ai functions (that also apply to things like villagers)?
-			if (distance(this, Game.hero) < this.stats.range && // hero is within range
-			(!Game.hero.stats.stealthed || this.isTouching(Game.hero))) { // hero is not stealthed OR they are and you are touching them
-				// enemy should attack hero
-				if (this.canAttack) { // projectile can be shot
-					this.shoot([[Game.hero],]);
+			
+			// update stats function (might be used to set the value of range, etc.)
+			if (this.updateStats !== undefined) {
+				this.updateStats();
+			}
+			
+			if (this.channelling === false) {
+				// stuff should only be done if it does not cancel something that is being channelled
+				
+				let dist = distance(this, Game.hero);
+				
+				// find a spell that is not on cooldown and can be cast
+				// TBD enemy mana
+				let spellIndex = -1;
+				if (this.spells.length !== 0) {
+					// enemy has some spells
+					spellIndex = this.spells.findIndex(spell => spell.ready &&
+						(spell.castCondition === undefined || spell.castCondition()));
 				}
+				
+				if (spellIndex !== -1) {
+					// a spell has been found that is ready
+					let spell = this.spells[spellIndex];
+					// no longer ready
+					spell.ready = false;
+					// cast the spell
+					this.channelSpell(spell.name, spell.tier, spell.parameters());
+					// spell interval (how often it is cast by enemy)
+					setTimeout(function (spellIndex) {
+						this.spells[spellIndex].ready = true;
+					}.bind(this), spell.interval, spellIndex);
+				}
+				
+				else if (dist < this.stats.range && // hero is within range
+				(!Game.hero.stats.stealthed || this.isTouching(Game.hero))) { // hero is not stealthed OR they are and you are touching them
+					// enemy should attack hero
+					// canAttack is inside if statement because otherwise the enemy moves when it is in range but cannot attack
+					if (this.canAttack) { // projectile can be shot
+						this.shoot([[Game.hero],]);
+					}
+					// alwaysMove stat means that it always moves even when in range
+					else if (this.stats.alwaysMove &&
+					dist > 20 && // stop any stuttering on top of hero
+					dist < this.leashRadius) { // not outside of leashRadius from hero
+					!Game.hero.stats.stealthed && // hero is not stealthed
+						this.move(delta, Game.hero);
+					}
+				}
+				
+				else if (dist > this.leashRadius) { // enemy should move passively
+					// passive movement within given (to be given...) boundaries...
+				}
+				
+				else if (dist < this.leashRadius && // not outside of leashRadius from hero
+				dist > this.stats.range && // can't yet attack hero
+				!Game.hero.stats.stealthed) { // hero is not stealthed
+					// enemy should move towards hero
+					this.move(delta, Game.hero);
+				}
+				
 			}
-			else if (distance(this, Game.hero) > this.leashRadius) { // enemy should move passively
-				// passive movement within given (to be given...) boundaries...
-			}
-			else if (distance(this, Game.hero) < this.leashRadius && // not outside of leashRadius from hero
-			distance(this, Game.hero) > this.stats.range && // can't yet attack hero
-			!Game.hero.stats.stealthed) { // hero is not stealthed
-				// enemy should move towards hero
-				this.move(delta, Game.hero);
-			}
-			// add spell cast
+			
 		}
 		
 		// if player has a magnet, pull in enemies (even if enemy is stunned or displaced)
@@ -2193,6 +2271,11 @@ class Enemy extends Attacker {
 		
 		// damage allies that the projectile is touching
 		shotProjectile.dealDamage(this, at);
+		
+		// onAttck function for enemy
+		if (this.stats.onAttack !== undefined) {
+			this.stats.onAttack();
+		}
 		
 		// wait to shoot next projectile
 		setTimeout(function () {
@@ -2758,11 +2841,15 @@ Game.spells.charge = {
 	// properties should contain tier (as int value), caster, target
 	func: function (properties) {
 		let dist = distance(properties.caster, properties.target);
-		let time = this.cooldown[properties.tier-1]; // cooldown = charge time
-		let velocity = dist / time;
+		let velocity = Game.spells.charge.velocity[properties.tier-1];
+		let time = dist / velocity;
 		let bear = bearing(properties.caster, properties.target);
-		displace(0, velocity, time / 1000, bear); // start displacement
+		properties.caster.displace(0, velocity, time, bear); // start displacement
 	},
+	
+	velocity: [
+		300,	// tier 1
+	],
 	
 	channelTime: [
 		500,	// tier 1
@@ -2773,9 +2860,8 @@ Game.spells.charge = {
 		0,		// tier 1
 	],
 	
-	// also the time taken for the charge
 	cooldown: [
-		1000,	// tier 1
+		1500,	// tier 1
 	],
 };
 
@@ -2975,7 +3061,7 @@ Game.loadArea = function (areaName, destination) {
 					enemy.type = "enemies";
 					this.enemies.push(new Enemy(enemy));
 					// check for blood moon
-					if (Game.time === "bloodMoon" && enemy.hostility === "hostile") {
+					if (Game.time === "bloodMoon" && (enemy.hostility === "hostile" || enemy.hostility === "boss")) {
 						// blood moon - enemies have more health
 						this.enemies[this.enemies.length - 1].health *= 2;
 						this.enemies[this.enemies.length - 1].stats.maxHealth *= 2;
@@ -4691,7 +4777,7 @@ Game.drawCharacterInformation = function (ctx, character) {
 			healthBarDrawn = 18;
 		}
 	}
-	else if (character.hostility === "hostile") {
+	else if (character.hostility === "hostile" || character.hostility === "boss") {
 		// always draw health bar
 		this.drawHealthBar(ctx, character, character.screenX - character.width * 0.5, character.screenY - character.height * 0.5 - 15, character.width, 15);
 		healthBarDrawn = 15;
@@ -4718,7 +4804,20 @@ Game.drawHealthBar = function (ctx, character, x, y, width, height) {
 	ctx.globalAlpha = 0.6;
 	
 	// health variables
-	const barValue = Math.pow(10, (character.stats.maxHealth.toString().length - 1)); // get width of each small health bar (in health)
+	
+	// get width of each small health bar (in health)
+	// there should be between 3 and 15 bars (with the exception of low health )
+	let barValue = 10;
+	let barValueFound = false;
+	while (!barValueFound) {
+		if (character.stats.maxHealth / barValue < 16) { // less than 16 little health bars with this barValue
+			barValueFound = true;
+		}
+		else { // more than 15; multiply bar size by 10 and try again
+			barValue *= 5;
+		}
+	}
+	
 	character.healthFraction = character.health / character.stats.maxHealth; // fraction of health remaining
 	
 	if (character.healthFraction > 0) { // check the character has some health to draw (we don't want to draw negative health)
@@ -4729,13 +4828,13 @@ Game.drawHealthBar = function (ctx, character, x, y, width, height) {
 		else if (barValue === 10) {
 			ctx.fillStyle = "#FF0000"; // red
 		}
-		else if (barValue === 100) {
+		else if (barValue === 50) {
 			ctx.fillStyle = "#CC0000"; // dark red
 		}
-		else if (barValue === 1000) {
+		else if (barValue === 250) {
 			ctx.fillStyle = "#800000"; // maroon (very dark red)
 		}
-		else if (barValue === 10000) {
+		else if (barValue === 1250) {
 			ctx.fillStyle = "#DAA520"; // gold
 		}
 		else {

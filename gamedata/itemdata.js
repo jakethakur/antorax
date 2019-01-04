@@ -1207,7 +1207,7 @@ var Items = {
 			name: "Fishing Seal",
 			type: "currency",
 			image: "assets/items/currency/3.png",
-			use: "Can be used to buy fishing related items from a fisher(wo)man.",
+			use: "Can be used to buy fishing related items from a fisherperson.",
 			stack: 256,
 		},
 		{
