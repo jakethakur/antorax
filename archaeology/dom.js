@@ -1,3 +1,4 @@
+document.getElementById("filters").hidden = true;
 var urlString = window.location.href;
 var url = new URL(urlString);
 var viewedItemId = url.searchParams.get("id");
@@ -55,7 +56,7 @@ function Stats(stat, value, array){ // stat should be in Title Case // copied fr
 };
 
 function validate(strValue){
-	var objRegExp  = /^[a-zA-Z\u00C0-\u00ff]+$/;
+	var objRegExp  = /^[a-zA-Z \u00C0-\u00ff]+$/;
 	if(!objRegExp.test(strValue)){
 		objRegExp  = /^$/;
 		return objRegExp.test(strValue);
@@ -134,7 +135,7 @@ function checkChange(){
 		previousMax = max.value;
 		b = 0;
 		for(var i = 0; i < arrayLength; i++){
-			if(array[i-b].tier < min.value || array[i-b].tier < max.value){
+			if(array[i-b].tier < min.value || array[i-b].tier > max.value){
 				array.splice(i-b,1);
 				b++;
 			}
@@ -146,8 +147,7 @@ function checkChange(){
 			var input = document.getElementById("searchBar");
 			var filter = input.value.toLowerCase();
 			for (var i = 0; i < arrayLength; i++) {
-				var a = array[i-b].name;
-				if (a.toLowerCase().indexOf(filter) < 0) {
+				if (array[i-b].name.toLowerCase().indexOf(filter) < 0) {
 					array.splice(i-b,1);
 					b++;
 				}
@@ -380,6 +380,7 @@ function arrange(){
 				document.getElementsByClassName("flashcardlist")[i].style.top = "265px";
 			}
 		}
+		document.getElementById("filters").hidden = false;
 		document.getElementById("progress").style.top = document.getElementById("filters").offsetHeight + 45 + "px";
 	}else{ // viewed item
 		document.getElementById("flashcardlist0").style.left = "100px";
@@ -496,6 +497,7 @@ else{
 	var previousWidth = window.innerWidth;
 	var previousCategory = "";
 	var previousRarity = "";
+	var previousObtained = "";
 	var previousMin = "";
 	var previousMax = "";
 	var previousSearch = "";

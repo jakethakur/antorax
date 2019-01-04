@@ -1,0 +1,85 @@
+@import url('https://fonts.googleapis.com/css?family=MedievalSharp');
+
+body{
+	font-family: 'MedievalSharp', serif;
+	text-align: center;
+	background-color: #f9f9d0;
+	overflow: auto;
+	-webkit-user-select: none; /* Safari */        
+	-moz-user-select: none; /* Firefox */
+	-ms-user-select: none; /* IE10+/Edge */
+	user-select: none;
+}
+.box{
+	width: 690px;
+	border: 5px solid #886622;
+	background-color: #fef9b4;
+	padding: 5px;
+	padding-top: 0px;
+	padding-bottom: 25px;
+	margin: 0px;
+	margin-bottom: 25px;
+}
+.para{
+	padding: 0px;
+	margin: 0px;
+}
+.flashcardlist{
+	position: absolute;
+    list-style: none;
+    padding: 0px;
+	margin: 0px;
+	width: 710px;
+}
+#space0, #space1, #space2, #space3{
+	display: inline-block;
+}
+#filters{
+	position: absolute;
+	background-color: #fef9b4;
+	border: 5px solid #886622;
+	top: 25px;
+	font-size: 25px;
+}
+#searchBar{
+	height: 30px;
+	font-size: 25px;
+	font-family: 'MedievalSharp', serif;
+	text-indent: 5px;
+}
+#category, #area, #event{
+	height: 30px;
+	font-size: 20px;
+	font-family: 'MedievalSharp', serif;
+}
+#progress{
+	border: 1px solid black;
+	position: absolute;
+	height: 35px;
+}
+#innerProgress{
+	height: 36px;
+	background-image: linear-gradient(to right, green, green, limegreen, green);
+	position: absolute;
+	top: -0.5px;
+	left: -0.5px;
+}
+#progressText{
+	z-index: 1;
+	position: absolute;
+	font-size: 25px;
+	line-height: 35px;
+	vertical-align: middle;
+	text-align: center;
+	width: 100%;
+}
+input[type=number]{
+	height: 25px;
+	font-size: 20px;
+	font-family: 'MedievalSharp', serif;
+	text-indent: 5px;
+	width: 55px;
+}
+input[type=number]::-webkit-inner-spin-button{  
+	opacity: 1;
+}

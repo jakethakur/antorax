@@ -2571,6 +2571,19 @@ var Items = {
 				Dom.inventory.give(item, itemQuantity, inventoryPosition);
 			}
 		},
+		{
+			id: 23,
+			name: "Soggy Tendrils",
+			fishingType: "waterjunk",
+			type: "fish",
+			image: "assets/items/fish/23.png",
+			rarity: "junk",
+			sellPrice: 1,
+			sellQuantity: 8,
+			stack: 64,
+			lore: "Dont worry! this is not the evil species.",
+			areas: ["loggingCamp"],
+		},
 		/*{
 			id: 22,
 			name: "Fourfinger Threadfin",

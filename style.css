@@ -187,11 +187,12 @@ body{
 	height: 35px;
 	margin-top: -10px;
 	font-weight: bold;
-	left: 320px;
+	left: 290px;
 	position: absolute;
 }
 #hotkeyTexts{
-	margin-left: 100px;
+	margin-right: 220px;
+	text-align: right;
 }
 #inventoryGoldXP{
 	position: relative;
