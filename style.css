@@ -521,12 +521,9 @@ td{
 }
 #levelUpPageTitle{
 	position: relative;
-	bottom: 40px;
-	font-size: 70px;
 }
 #levelUpPageLevel{
 	position: relative;
-	font-size: 40px;
 	bottom: 80px;
 }
 #levelUpPageUnlock{
@@ -640,12 +637,8 @@ td{
 .mailFlag{
 	top: 50px;
 }
-.mailPole{
-	width: 1.5px;
-	height: 14.35px;
-	background-color: black;
-	position: absolute;
-	left: 9.5px;
-	top: 7.9px;
-	border-left: 0.5px solid #442208;
+.flag{
+	position: relative;
+	top: 4px;
+	outline: none;
 }

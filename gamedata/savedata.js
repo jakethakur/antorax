@@ -36,6 +36,10 @@ var Player = {
 		nilbogTower4: 0,
 	},
 	
+	bossesKilled: {
+        goblinKing: 0,
+    },
+	
 	mail: {
 		mail: [],
 		received: [],
@@ -122,3 +126,4 @@ var Player = {
 };
 
 const LevelXP = [0, 50, 100, 150, 200, 250]; // amount of xp required for next level (current level = array index)
+const reputationPoints = [1,2500,500,100,500,2500,1]; // points to level up reputation

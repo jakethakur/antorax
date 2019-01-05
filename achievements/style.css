@@ -20,23 +20,22 @@ body{
 	margin: 0px;
 	margin-bottom: 25px;
 	height: 60px;
+	text-align: left;
 }
 .img{
 	width: 50px;
 	height: 50px;
 	border: 5px solid #886622;
-	background-color: #fef9b4;
+	background-color: #eecc77;
 	position: absolute;
+	background-repeat: no-repeat;
+	background-position: center;
 }
 .para, .date, .points{
 	padding: 0px;
 	margin: 0px;
 	margin-left: 70px;
 	font-size: 18px;
-	text-align: left;
-}
-.para{
-	margin-right: 70px;
 }
 .date{
 	position: absolute;

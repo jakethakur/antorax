@@ -494,7 +494,11 @@ Dom.reputation.give = function(area, amount){
 	if(Player.reputation[area].changed){
 		Player.reputation[area].score += amount;
 		Dom.chat.insert("You have gained " + amount + " reputation with " + FromCamelCase(area));
-	// add the reputation to the reputation page
+		if(Player.reputation[area].score > reputationPoints[Player.reputation[area].level]){
+			Dom.reputation.update();
+			Dom.levelUp.page("reputation", area, Player.reputation[area].level);
+		}
+	// first time
 	}else{
 		Player.reputation[area].score += amount;
 		Dom.chat.insert("You have gained " + amount + " reputation with " + FromCamelCase(area));
@@ -518,7 +522,6 @@ Dom.reputation.start = function(){
 }
 
 Dom.reputation.levels = ["Abhorred","Hated","Unfriendly","Neutral","Friendly","Honoured","Venerated"];
-Dom.reputation.pointsPerLevel = [1,2500,500,100,500,2500,1];
 Dom.reputation.update = function(){
 	// if the close button is not there yet
 	if(!Dom.reputation.ready && document.getElementById("reputationPage").getElementsByTagName("div").length === 0){
@@ -531,7 +534,7 @@ Dom.reputation.update = function(){
 	}
 	for(let i = 0; i < Object.keys(Player.reputation).length; i++){
 		if(Player.reputation[Object.keys(Player.reputation)[i]].changed){
-			if(Player.reputation[Object.keys(Player.reputation)[i]].score >= Dom.reputation.pointsPerLevel[Player.reputation[Object.keys(Player.reputation)[i]].level]){
+			if(Player.reputation[Object.keys(Player.reputation)[i]].score >= reputationPoints[Player.reputation[Object.keys(Player.reputation)[i]].level]){
 				this.upLevel(Player.reputation[Object.keys(Player.reputation)[i]],i);
 			}else if(Player.reputation[Object.keys(Player.reputation)[i]].score < 0){
 				this.downLevel(Player.reputation[Object.keys(Player.reputation)[i]],i);
@@ -544,20 +547,20 @@ Dom.reputation.update = function(){
 					document.getElementsByClassName("reputationBar")[i].style.backgroundColor = "gold";
 				}
 				if(Player.reputation[Object.keys(Player.reputation)[i]].level !== 6 && Player.reputation[Object.keys(Player.reputation)[i]].level !== 0){
-					document.getElementsByClassName("reputationBar")[i].innerHTML = this.levels[Player.reputation[Object.keys(Player.reputation)[i]].level] + "&nbsp;&nbsp;(" + Player.reputation[Object.keys(Player.reputation)[i]].score + "/"+Dom.reputation.pointsPerLevel[Player.reputation[Object.keys(Player.reputation)[i]].level]+")";
-					document.getElementsByClassName("widthPadding")[i].innerHTML = this.levels[Player.reputation[Object.keys(Player.reputation)[i]].level] + " (" + Player.reputation[Object.keys(Player.reputation)[i]].score + "/"+Dom.reputation.pointsPerLevel[Player.reputation[Object.keys(Player.reputation)[i]].level]+")";
+					document.getElementsByClassName("reputationBar")[i].innerHTML = this.levels[Player.reputation[Object.keys(Player.reputation)[i]].level] + "&nbsp;&nbsp;(" + Player.reputation[Object.keys(Player.reputation)[i]].score + "/"+reputationPoints[Player.reputation[Object.keys(Player.reputation)[i]].level]+")";
+					document.getElementsByClassName("widthPadding")[i].innerHTML = this.levels[Player.reputation[Object.keys(Player.reputation)[i]].level] + " (" + Player.reputation[Object.keys(Player.reputation)[i]].score + "/"+reputationPoints[Player.reputation[Object.keys(Player.reputation)[i]].level]+")";
 				}else{
 					document.getElementsByClassName("reputationBar")[i].innerHTML = this.levels[Player.reputation[Object.keys(Player.reputation)[i]].level];
 					document.getElementsByClassName("widthPadding")[i].innerHTML = this.levels[Player.reputation[Object.keys(Player.reputation)[i]].level];
 				}
 				if(Player.reputation[Object.keys(Player.reputation)[i]].level >= 3){
 					document.getElementsByClassName("reputationBar")[i].style.textIndent = ((250-document.getElementsByClassName("widthPadding")[i].clientWidth)/2) + "px";
-					document.getElementsByClassName("reputationBar")[i].style.width = Player.reputation[Object.keys(Player.reputation)[i]].score*250/Dom.reputation.pointsPerLevel[Player.reputation[Object.keys(Player.reputation)[i]].level]+"px";
+					document.getElementsByClassName("reputationBar")[i].style.width = Player.reputation[Object.keys(Player.reputation)[i]].score*250/reputationPoints[Player.reputation[Object.keys(Player.reputation)[i]].level]+"px";
 					document.getElementsByClassName("reputationBar")[i].style.left = "0px";
 				}else{
-					document.getElementsByClassName("reputationBar")[i].style.textIndent = ((250-document.getElementsByClassName("widthPadding")[i].clientWidth)/2)-Player.reputation[Object.keys(Player.reputation)[i]].score*250/Dom.reputation.pointsPerLevel[Player.reputation[Object.keys(Player.reputation)[i]].level]+ "px";
-					document.getElementsByClassName("reputationBar")[i].style.width = (Dom.reputation.pointsPerLevel[Player.reputation[Object.keys(Player.reputation)[i]].level]-Player.reputation[Object.keys(Player.reputation)[i]].score)*250/Dom.reputation.pointsPerLevel[Player.reputation[Object.keys(Player.reputation)[i]].level]+"px";
-					document.getElementsByClassName("reputationBar")[i].style.left = Player.reputation[Object.keys(Player.reputation)[i]].score*250/Dom.reputation.pointsPerLevel[Player.reputation[Object.keys(Player.reputation)[i]].level]+"px";
+					document.getElementsByClassName("reputationBar")[i].style.textIndent = ((250-document.getElementsByClassName("widthPadding")[i].clientWidth)/2)-Player.reputation[Object.keys(Player.reputation)[i]].score*250/reputationPoints[Player.reputation[Object.keys(Player.reputation)[i]].level]+ "px";
+					document.getElementsByClassName("reputationBar")[i].style.width = (reputationPoints[Player.reputation[Object.keys(Player.reputation)[i]].level]-Player.reputation[Object.keys(Player.reputation)[i]].score)*250/reputationPoints[Player.reputation[Object.keys(Player.reputation)[i]].level]+"px";
+					document.getElementsByClassName("reputationBar")[i].style.left = Player.reputation[Object.keys(Player.reputation)[i]].score*250/reputationPoints[Player.reputation[Object.keys(Player.reputation)[i]].level]+"px";
 				}
 				if(Player.reputation[Object.keys(Player.reputation)[i]].level === 6){
 					document.getElementsByClassName("reputationBar")[i].style.width = "250px";
@@ -569,7 +572,7 @@ Dom.reputation.update = function(){
 
 Dom.reputation.upLevel = function(Area,i){
 	if(Area.level < 5){
-		Area.score -= Dom.reputation.pointsPerLevel[Player.reputation[Object.keys(Player.reputation)[i]].level];
+		Area.score -= reputationPoints[Player.reputation[Object.keys(Player.reputation)[i]].level];
 		Area.level++;
 		Dom.chat.insert("Your reputation with " + FromCamelCase(Object.keys(Player.reputation)[i]) + " has increased to " + Dom.reputation.levels[Area.level], 0, true);
 		this.update();
@@ -583,7 +586,7 @@ Dom.reputation.upLevel = function(Area,i){
 Dom.reputation.downLevel = function(Area,i){
 	if(Area.level > 1){
 		Area.level--;
-		Area.score += Dom.reputation.pointsPerLevel[Player.reputation[Object.keys(Player.reputation)[i]].level];
+		Area.score += reputationPoints[Player.reputation[Object.keys(Player.reputation)[i]].level];
 		Dom.chat.insert("Your reputation with " + FromCamelCase(Object.keys(Player.reputation)[i]) + " has decreased to " + Dom.reputation.levels[Area.level], 0, true);
 		this.update();
 	}else{
@@ -1228,12 +1231,12 @@ Dom.quests.active = function(quest){
 			}else{
 				currentQuest.completed = false;
 			}
-			Dom.quests.activeHTML.true += Dom.quests.activeHTML.undefined + Dom.quests.activeHTML.daily;
-			document.getElementById("activeQuestBox").innerHTML = Dom.quests.activeHTML.true.substring(8);
 		}else{
 			Player.quests.activeQuestArray.splice(x, 1);
 		}
 	}
+	Dom.quests.activeHTML.true += Dom.quests.activeHTML.undefined + Dom.quests.activeHTML.daily;
+	document.getElementById("activeQuestBox").innerHTML = Dom.quests.activeHTML.true.substring(8);
 	if(Player.quests.activeQuestArray.length === 0){
 		document.getElementById("activeQuestBox").style.textAlign = "center";
 		document.getElementById("activeQuestBox").innerText = "You have no active quests";
@@ -1248,8 +1251,16 @@ Dom.quests.possible = function(){
 	Dom.quests.possibleHTML = {true: "", undefined: "", daily: "",};
 	for(let i = 0; i < Object.keys(Quests).length; i++){
 		for(let x = 0; x < Quests[Object.keys(Quests)[i]].length; x++){
+			let reputation = true;
+			if(Quests[Object.keys(Quests)[i]][x].reputationRequirements !== undefined){
+				for(let y = 0; y < Object.keys(Quests[Object.keys(Quests)[i]][x].reputationRequirements).length; y++){
+					if(Quests[Object.keys(Quests)[i]][x].reputationRequirements[Object.keys(Quests[Object.keys(Quests)[i]][x].reputationRequirements)[y]] > Player.reputation[Object.keys(Quests[Object.keys(Quests)[i]][x].reputationRequirements)[y]].level){
+						reputation = false;
+					}
+				}
+			}
 			if(!Player.quests.activeQuestArray.includes(Quests[Object.keys(Quests)[i]][x].quest) &&
-			Player.level >= Quests[Object.keys(Quests)[i]][x].levelRequirement &&
+			Player.level >= Quests[Object.keys(Quests)[i]][x].levelRequirement && reputation &&
 			IsContainedInArray(Quests[Object.keys(Quests)[i]][x].questRequirements, Player.quests.completedQuestArray) &&
 			(Quests[Object.keys(Quests)[i]][x].eventRequirement === undefined || Quests[Object.keys(Quests)[i]][x].eventRequirement === Game.event) &&
 			(!Player.quests.completedQuestArray.includes(Quests[Object.keys(Quests)[i]][x].quest) ||
@@ -1507,7 +1518,13 @@ Dom.inventory.give = function(item, num, position){
 						}
 						Player.inventory.items[i].onClickFunction = item.onClick;
 						if(Player.inventory.items[i].onClickFunction !== undefined){
-							Player.inventory.items[i].onClick = Dom.inventory.cooldown;
+							if(Player.inventory.items[i].channel !== undefined){
+								Player.inventory.items[i].onClick = function(inventoryPosition){
+									Game.hero.channel(Dom.inventory.cooldown, [inventoryPosition], Player.inventory.items[inventoryPosition].channel);
+								}
+							}else{
+								Player.inventory.items[i].onClick = Dom.inventory.cooldown;
+							}
 						}
 						if(Array.isArray(Player.inventory.items[i].lore)){
 							Player.inventory.items[i].lore = item.lore[Random(0, item.lore.length-1)];
@@ -1587,7 +1604,13 @@ Dom.inventory.give = function(item, num, position){
 		}
 		Player.inventory.items[position].onClickFunction = item.onClick;
 		if(Player.inventory.items[position].onClickFunction !== undefined){
-			Player.inventory.items[position].onClick = Dom.inventory.cooldown;
+			if(Player.inventory.items[position].channel !== undefined){
+				Player.inventory.items[position].onClick = function(inventoryPosition){
+					Game.hero.channel(Dom.inventory.cooldown, [inventoryPosition], Player.inventory.items[inventoryPosition].channel);
+				}
+			}else{
+				Player.inventory.items[position].onClick = Dom.inventory.cooldown;
+			}
 		}
 		if(Array.isArray(Player.inventory.items[position].lore)){
 			Player.inventory.items[position].lore = item.lore[Random(0, item.lore.length-1)];
@@ -2653,14 +2676,26 @@ document.getElementById("inventoryGoldXP").style.right = 20 - Skins[Player.class
 document.getElementById("inventoryGoldXP").style.height = 60 + Skins[Player.class][Player.skin].headAdjust.y + "px";
 document.getElementById("inventoryGoldXP").style.bottom = 3 + Skins[Player.class][Player.skin].headAdjust.y + "px";
 
-Dom.levelUp.page = function(){
+Dom.levelUp.page = function(type, area, level){
 	if(!Dom.levelUp.override){
 		document.getElementById("levelUpPage").hidden = false; // displays over the top of other pages
 		if(Dom.currentlyDisplayed === ""){
 			Dom.currentlyDisplayed = Player.tab; // so that the page can't change underneath it
 		}
-		document.getElementById("levelUpPageLevel").innerHTML = Player.level-1 + " &#10132; " + Player.level;
-		Dom.chat.insert("Level up: "+(Player.level-1)+" &#10132; "+Player.level);
+		if(type === "reputation"){
+			document.getElementById("levelUpPageTitle").innerHTML = "Reputation Level Up!";
+			document.getElementById("levelUpPageTitle").style.fontSize = "50px";
+			document.getElementById("levelUpPageTitle").style.bottom = "20px";
+			document.getElementById("levelUpPageLevel").innerHTML = "<br>"+FromCamelCase(area)+"<br><br>"+Dom.reputation.levels[level-1] + " &#10132; " + Dom.reputation.levels[level];
+			document.getElementById("levelUpPageLevel").style.fontSize = "25px";
+		}else{
+			document.getElementById("levelUpPageTitle").innerHTML = "Level Up!";
+			document.getElementById("levelUpPageTitle").style.fontSize = "70px";
+			document.getElementById("levelUpPageTitle").style.bottom = "40px";
+			document.getElementById("levelUpPageLevel").innerHTML = Player.level-1 + " &#10132; " + Player.level;
+			document.getElementById("levelUpPageLevel").style.fontSize = "40px";
+			Dom.chat.insert("Level up: "+(Player.level-1)+" &#10132; "+Player.level);
+		}
 		let newQuests = Dom.quests.possible();
 		if(newQuests.length > 0){
 			document.getElementById("levelUpPageUnlock").innerHTML = "<strong>Quests Unlocked:</strong>";
@@ -3010,7 +3045,7 @@ Dom.buyer.page = function(npc){
 	}
 }
 
-Dom.choose.page = function(npc, buttons, functions, parameters){
+Dom.choose.page = function(npc, buttons, functions, parameters, force){
 	let name = npc.name !== undefined ? npc.name : npc; // for cases like Goblin Torch
 	if(npc.constructor.name === "NPC" && !Player.metNPCs.includes(name)){
 		Player.metNPCs.push(name);
@@ -3022,7 +3057,7 @@ Dom.choose.page = function(npc, buttons, functions, parameters){
 			Dom.currentNPC.type = npc.type;
 			Dom.currentNPC.id = npc.id;
 		}
-		if(buttons.length > 1){
+		if(buttons.length > 1 || force){
 			Dom.changeBook("choosePage", true/*false*/, true);
 			document.getElementById("choosePage").innerHTML = "<h1>"+name+"</h1>"+(npc.chat !== undefined ? "<p>"+npc.chat.chooseChat+"</p>" : "");
 			Dom.choose.HTML = "";
@@ -3294,7 +3329,11 @@ Dom.mail.page = function(){
 	Dom.changeBook("mailPage", true/*false*/, true);
 	document.getElementById("mailPage").innerHTML = "<br><h1>Mailbox</h1><br>";
 	for(let i = Player.mail.mail.length-1; i >= 0; i--){
-		document.getElementById("mailPage").innerHTML += "<div "+/*(Player.mail.mail[i].flag ? "style='border-color: black'" : "")+*/"class='mail' "+(Player.mail.opened.includes(Player.mail.mail[i].title) && !Player.mail.mail[i].flag ?"style='background-color: #fef9b4;'":"")+"><div class='mailImage'></div><div class='mailTitle'><strong>"+Player.mail.mail[i].title+"</strong><br>From "+Player.mail.mail[i].sender+"<br>Received on "+Player.mail.mail[i].date+"</div><div class='mailFlag'>"+(Player.mail.mail[i].flag ? "<span style='color: #ee0000'><div class='mailPole'></div>&#9873;</span>" : "&#9872;")+"</div><div class='mailDelete'>X</div></div>";
+		document.getElementById("mailPage").innerHTML += "<div "+/*(Player.mail.mail[i].flag ? "style='border-color: black'" : "")+*/"class='mail' "+(Player.mail.opened.includes(Player.mail.mail[i].title) && !Player.mail.mail[i].flag ?"style='background-color: #fef9b4;'":"")+"><div class='mailImage'></div><div class='mailTitle'><strong>"+Player.mail.mail[i].title+"</strong><br>From "+Player.mail.mail[i].sender+"<br>Received on "+Player.mail.mail[i].date+"</div><div class='mailFlag'></div><div class='mailDelete'>X</div></div>";
+		document.getElementsByClassName("mailFlag")[Player.mail.mail.length-1-i].innerHTML +=
+		'<svg class="flag" height="22" width="15" tabindex = "0">\
+		<polygon points ="0,0 15,1 15,13 1,12 1,22 0,22 0,0 1,0 1,12" style="fill:#ee0000;stroke:black;stroke-width:1" />\
+		</svg>';
 	}
 	if(Player.mail.mail.length === 0){
 		document.getElementById("mailPage").innerHTML += "<br><br>You have no mail, come back soon.<br><br><br><br>";
@@ -3327,7 +3366,6 @@ Dom.mail.page = function(){
 		}
 		document.getElementsByClassName("mail")[ii].onclick = function(){
 			if(document.getElementById("alert").hidden && !Dom.mail.notOpen){
-				Dom.mail.notOpen = false;
 				if(!Player.mail.opened.includes(Player.mail.mail[i].title)){
 					Player.mail.opened.push(Player.mail.mail[i].title);
 					if(Player.mail.mail[i].give !== undefined && Dom.inventory.requiredSpace(Player.mail.mail[i].give)){
@@ -3340,6 +3378,8 @@ Dom.mail.page = function(){
 				}
 				ExecuteFunctionByName(Player.mail.mail[i].openFunction, Dom, Player.mail.mail[i].openParameters);
 				Game.mailboxUpdate("read");
+			}else{
+				Dom.mail.notOpen = false;
 			}
 		}
 	}
@@ -3375,7 +3415,7 @@ Dom.mail.unread = function(){
 
 Dom.adventure.update = function(){
 	document.getElementById("adventurePage").innerHTML = '<div id="level" style="display:inline;">Level '+Player.level+'</div>\
-		<a href="./builder/index.html" target="_blank" style="display: inline; float: right;">Achievements</a>\
+		<a href="./achievements/index.html" target="_blank" style="display: inline; float: right;">Achievements</a>\
 		<div><br>Suggested Content:</div>';
 	for(let i = 0; i < Object.keys(Adventure).length; i++){
 		if(Adventure[Object.keys(Adventure)[i]].condition()){
@@ -3422,7 +3462,7 @@ Dom.mail.give(
 	"galuthelTheTrapMechanic",
 	"text.page",
 	["Welcome to Antorax!",
-	`Hello ${Player.name}!<br><br>It's great to have new people joining us in Antorax. I look forward to meeting you very soon in Wizard Island. Perhaps you would like to try out one of our newest inventions - the <camera name>! It's free of charge. Pop us a letter if it explodes, otherwise see you soon!<br><br>From the Tinkering Guild`, true, [], [],
+	`Hello ${Player.name}!<br><br>It's great to have new people joining us in Antorax. I look forward to meeting you very soon in Wizard Island. Perhaps you would like to try out one of our newest inventions - the ScreenGrabber 3000! It's free of charge. Pop us a letter if it explodes, otherwise see you soon!<br><br>From the Tinkering Guild`, true, [], [],
 	[{item: Items.item[14]}]], [{item: Items.item[14]}],
 );
 
@@ -3499,7 +3539,13 @@ for(let i = 0; i < Player.inventory.items.length; i++){
 		if(!Player.inventory.items[i].unidentified){
 			Player.inventory.items[i].onClickFunction = Items[Player.inventory.items[i].type][Player.inventory.items[i].id].onClick;
 			if(Player.inventory.items[i].onClickFunction !== undefined){
-				Player.inventory.items[i].onClick = Dom.inventory.cooldown;
+				if(Player.inventory.items[i].channel !== undefined){
+					Player.inventory.items[i].onClick = function(inventoryPosition){
+						Game.hero.channel(Dom.inventory.cooldown, [inventoryPosition], Player.inventory.items[inventoryPosition].channel);
+					}
+				}else{
+					Player.inventory.items[i].onClick = Dom.inventory.cooldown;
+				}
 			}
 			Player.inventory.items[i].onKill = Items[Player.inventory.items[i].type][Player.inventory.items[i].id].onKill;
 			Player.inventory.items[i].onHit = Items[Player.inventory.items[i].type][Player.inventory.items[i].id].onHit;
@@ -3560,7 +3606,13 @@ for(let i = 0; i < Object.keys(Player.inventory).length-1; i++){ // repeats for 
 		if(Player.inventory[Object.keys(Player.inventory)[i]].image !== undefined){
 			Player.inventory[Object.keys(Player.inventory)[i]].onClickFunction = Items[Player.inventory[Object.keys(Player.inventory)[i]].type][Player.inventory[Object.keys(Player.inventory)[i]].id].onClick;
 			if(Player.inventory[Object.keys(Player.inventory)[i]].onClickFunction !== undefined){
-				Player.inventory[Object.keys(Player.inventory)[i]].onClick = Dom.inventory.cooldown;
+				if(Player.inventory[Object.keys(Player.inventory)[i]].channel !== undefined){
+					Player.inventory[Object.keys(Player.inventory)[i]].onClick = function(inventoryPosition){
+						Game.hero.channel(Dom.inventory.cooldown, [inventoryPosition], Player.inventory.items[inventoryPosition].channel);
+					}
+				}else{
+					Player.inventory[Object.keys(Player.inventory)[i]].onClick = Dom.inventory.cooldown;
+				}
 			}
 			Player.inventory[Object.keys(Player.inventory)[i]].onKill = Items[Player.inventory[Object.keys(Player.inventory)[i]].type][Player.inventory[Object.keys(Player.inventory)[i]].id].onKill;
 			Player.inventory[Object.keys(Player.inventory)[i]].onHit = Items[Player.inventory[Object.keys(Player.inventory)[i]].type][Player.inventory[Object.keys(Player.inventory)[i]].id].onHit;

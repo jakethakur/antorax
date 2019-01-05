@@ -188,4 +188,8 @@ var Offsets = {
 	goblinTorch: {image: "assets/items/staff/7", x: 0, y: 0},
 	samhainGhost: {image: "assets/npcs/ghost", x: 83, y: -10},
 	fatherChristmas: {image: "assets/player/m4", x: 13, y: -1.5},
+	goblinRockthrower: {image: "assets/enemies/goblinRockthrower", x: 45, y: -15},
+	goblinBruiser: {image: "assets/enemies/goblinBruiser", x: 10, y: -15},
+	goblinCrusader: {image: "assets/enemies/goblinCrusader", x: -200, y: -10},
+	goblinKing: {image: "assets/enemies/goblinKing", x: 57, y: 0},
 };

@@ -119,20 +119,29 @@ function arrange(){
 		document.getElementById("all").innerHTML += '<ul id="flashcardlist'+d+'" class="flashcardlist"></ul>';
 	}
 	var c = -1;
-	for(var i = 0; i < array.length; i++){
+	for(let i = 0; i < array.length; i++){
 		c++;
 		if(c >= columns){
 			c = 0;
 		}
-		document.getElementById("flashcardlist"+c).innerHTML += '<li class="box" id="box'+i+'" '+(Object.keys(obtained).includes(ToCamelCase(array[i].name)) ? "style='border: 5px solid darkgreen'" : "")+'><div class="img"></div><p id="name'+i+'" class="para"></p><p id="description'+i+'" class="para"></p><p id="date'+i+'" class="date"></p><p id="points'+i+'" class="points"></p></li>';
+		document.getElementById("flashcardlist"+c).innerHTML += '<li class="box" id="box'+i+'" '+(Object.keys(obtained).includes(ToCamelCase(array[i].name)) ? "style='border: 5px solid darkgreen'" : "")+'><div class="img" id="img'+i+'" style="background-image: url(\''+array[i].image+'\')"</img></div><p id="name'+i+'" class="para"></p><p id="description'+i+'" class="para"></p><p id="date'+i+'" class="date"></p><p id="points'+i+'" class="points"></p></li>';
 		document.getElementById("flashcardlist"+c).style.left = 25+c*490+((screenSize-45)-(((Math.floor((screenSize-45)/490)))*490))/2+"px";
 		document.getElementById("name"+i).innerHTML = "<b>"+array[i].name+"</b>";
 		document.getElementById("description"+i).innerHTML = array[i].description;
+		document.getElementById("points"+i).innerHTML = array[i].points;
 		if(obtained[ToCamelCase(array[i].name)] != undefined){
 			document.getElementById("date"+i).innerHTML = obtained[ToCamelCase(array[i].name)];
 			document.getElementById("points"+i).style.top = "17px";
 		}
-		document.getElementById("points"+i).innerHTML = array[i].points;
+		setTimeout(function(){
+			document.getElementById("description"+i).style.marginRight = 15 + document.getElementById("points"+i).offsetWidth+"px";
+		},1);
+		if(array[i].position !== undefined){
+			document.getElementById("img"+i).style.backgroundPosition = array[i].position.x+"%"+array[i].position.y+"%";
+		}
+		if(array[i].color !== undefined){
+			document.getElementById("img"+i).style.backgroundColor = array[i].color;
+		}
 	}
 	document.getElementById("filters").style.width = (((Math.floor((screenSize-45)/490)))*490)-35+"px";
 	document.getElementById("progress").style.width = (((Math.floor((screenSize-45)/490)))*490)-25+"px";

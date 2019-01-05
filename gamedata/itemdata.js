@@ -1443,7 +1443,7 @@ var Items = {
 		},
 		{
 			id: 14,
-			name: "Camera",
+			name: "ScreenGrabber 3000",
 			type: "item",
 			image: "assets/items/item/14.png",
 			functionText: "Click to take a screenshot",
@@ -2037,6 +2037,7 @@ var Items = {
             },
             cooldown: 1000000, // 1 day (dhhmmss)
             lore: "A collectable coin.",
+			channel: 5000,
         },
     ],
 	fish: [
@@ -2191,6 +2192,10 @@ var Items = {
 				avg: 25,
 				max: 50,
 			},
+			catchRequirement: function () {
+                // very rare!
+                return Random(0, 50) === 22;
+            },
 		},
 		{
 			id: 8,
@@ -2581,7 +2586,7 @@ var Items = {
 			sellPrice: 1,
 			sellQuantity: 8,
 			stack: 64,
-			lore: "Dont worry! this is not the evil species.",
+			lore: "Not an evil species.",
 			areas: ["loggingCamp"],
 		},
 		/*{
