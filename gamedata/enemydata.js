@@ -191,6 +191,7 @@ const EnemyTemplates = {
 			species: "goblin",
 			subSpecies: "nilbog goblin",
 			hostility: "boss",
+			bossKilledVariable: "goblinKing",
 			level: 8,
 			stats: {
 				damage: 9,
@@ -229,9 +230,9 @@ const EnemyTemplates = {
 					this.stats.flaming = undefined;
 					this.projectile.image = "slash";
 				}
-				else if (dist < 230) {
+				else if (dist < 210) {
 					// staff
-					this.stats.range = 230;
+					this.stats.range = 210;
 					this.stats.damage = 5;
 					this.stats.flaming = 1;
 					this.projectile.image = "fireball";
@@ -249,7 +250,7 @@ const EnemyTemplates = {
 			projectile: {
 				image: "slash",
 			},
-			lootTableTemplate: [EnemyLootTables.nilbogGoblin, EnemyLootTables.nilbogTowerGoblin],
+			lootTableTemplate: [EnemyLootTables.nilbogGoblin, EnemyLootTables.nilbogTowerGoblin, ChestLootTables.nilbog, BossLootTables.goblinKing],
 			inventorySpace: 16,
 		}
 	},

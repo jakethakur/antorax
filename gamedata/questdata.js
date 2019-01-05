@@ -949,7 +949,7 @@ var Quests = {
 				let completed = [];
 				
 				// true or falses for each objective (apart from the turn-in objective)
-				completed.push(checkProgress(Player.quests.goblinsKilled, 9));
+				completed.push(checkProgress(Player.quests.questProgress.goblinsKilled, 9));
 				
 				completed = checkFinished(completed);
 				
@@ -998,7 +998,7 @@ var Quests = {
 				let completed = [];
 				
 				// true or falses for each objective (apart from the turn-in objective)
-				completed.push(false); // TBD
+				completed.push(Player.bossesKilled.goblinKing !== 0);
 				
 				completed = checkFinished(completed);
 				
@@ -1015,7 +1015,7 @@ var Quests = {
 					{item: Items.currency[2], quantity: 5,},
 				],
 				reputation: {
-					eaglecrestLoggingCamp: 200,
+					eaglecrestLoggingCamp: 250,
 				},
 			},
 		},
@@ -1200,7 +1200,7 @@ var Quests = {
 			
 			howToStart: "Speak to the <strong>goblin torch</strong> in The Nilbog.",
 			levelRequirement: 5,
-			questRequirements: ["The Goblin King"],
+			questRequirements: ["Partners in Goblin Destruction"],
 			
 			rewards: {
 				xp: 50,

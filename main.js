@@ -554,10 +554,16 @@ class Character extends Thing {
 					this.isCorpse = false;
 				}.bind(this), this.stats.lootTime);
 				
-				// respawn in this.stats.respawnTime ms
-				setTimeout(function () {
-					this.respawn();
-				}.bind(this), this.stats.respawnTime);
+				// respawn in this.stats.respawnTime ms (if it is not a boss)
+				if (this.hostility !== "boss") {
+					setTimeout(function () {
+						this.respawn();
+					}.bind(this), this.stats.respawnTime);
+				}
+				else {
+					// set boss date killed
+					Player.bossesKilled[this.bossKilledVariable] = GetFullDate();
+				}
 				
 				// quest progress
 				if (this.subSpecies = "nilbog goblin") {
@@ -707,6 +713,7 @@ class Character extends Thing {
 				time: time,
 				effectTitle: "Displacement",
 				effectDescription: "Being displaced",
+				onExpire: "removeDisplacement",
 			});
 			
 			return {x:0, y:0};
@@ -736,15 +743,6 @@ class Character extends Thing {
 			return {x:dirx, y:diry};
 		}
 		else { // displacement finished
-			this.isBeingDisplaced = undefined;
-			// remove stunned status effect
-			this.cleanse("Displacement", "title");
-			if (this == Game.hero) {
-				this.updateStatusEffects();
-			}
-			
-			// reset expand just in case it was set
-			
 			return {x:0, y:0};
 		}
 	}
@@ -843,15 +841,17 @@ class Attacker extends Character {
 	// channelling fails (thus the timeout is cleared) if the character's channelling is set to something else or if the user moves
 	// parameters must be an array
 	channel (func, parameters, time) {
-		// remove whatever was previously channelled
-		this.removeChannelling("channel");
-		// add line to remove channelling when channelling expires to the function
-		let channelFunction = function (parameters) {
-			func(...parameters);
-			this.channelling = false;
-		}.bind(this);
-		// set channelling to the timeout
-		this.channelling = setTimeout(channelFunction, time, parameters);
+		if (!this.hasStatusEffect("Stunned")) { // cannot channel when stunned
+			// remove whatever was previously channelled
+			this.removeChannelling("channel");
+			// add line to remove channelling when channelling expires to the function
+			let channelFunction = function (parameters) {
+				func(...parameters);
+				this.channelling = false;
+			}.bind(this);
+			// set channelling to the timeout
+			this.channelling = setTimeout(channelFunction, time, parameters);
+		}
 	}
 	
 	// a simpler channel for spells
@@ -936,7 +936,10 @@ class Hero extends Attacker {
 		this.checkpoint = properties.checkpoint || "tutorial";
 	}
 	
-	move (delta, dirx, diry) {
+	move (delta, dirx, diry) { // called when being displaced, moving towards something, or player is moving hero
+		
+		this.removeChannelling("move"); // stuff cannot be channelled whilst moving
+		
 		let baseSpeed = false; // whether speed should be altered by status effects and slow tiles (false means do alter)
 		// if baseSpeed is a number instead, the speed is set to that without setSpeed being called
 		
@@ -2075,10 +2078,6 @@ class Dummy extends Character {
 // moves and attacks in a hostile way...
 class Enemy extends Attacker {
 	constructor(properties) {
-		if (properties.template !== undefined) {
-			properties = Object.assign(properties.template, properties); // add template properties to main properties object
-		}
-		
 		super(properties);
 		
 		// combat traits (specific to enemy)
@@ -2108,8 +2107,13 @@ class Enemy extends Attacker {
 		else {
 			this.lootTable = lootTableTemplate;
 		}
-		// merge the loot table with the global loot table as Well
-		this.lootTable = this.lootTable.concat(EnemyLootTables.global)
+		// merge the loot table with the global loot table as well
+		if (this.hotility === "hostile") {
+			this.lootTable = this.lootTable.concat(EnemyLootTables.global);
+		}
+		else if (this.hotility === "boss") {
+			this.lootTable = this.lootTable.concat(BossLootTables.global);
+		}
 		// see generateLoot() function in Enemy for how the lootTable works
 		
 		this.xpGiven = properties.xpGiven;
@@ -2119,6 +2123,11 @@ class Enemy extends Attacker {
 		// set when the enemy dies
 		this.loot = null; // loot that can be picked up by player (null if the player cannot loot the enemy or already has)
 		// loot is an array of objects, where the object has properties item and quantity
+		
+		// boss stuff
+		if (this.hostility === "boss") {
+			this.bossKilledVariable = properties.bossKilledVariable; // set to date killed to check it hasn't been killed today
+		}
 	}
 	
 	update (delta) {
@@ -2552,15 +2561,21 @@ Game.statusEffects.functions = {
 	// restorative timepiece (Items.item[15]) onExpire
 	setHealth: function (target) {
 		target.health = this.info.oldHealth;
-	}
+	},
+	
+	// end displacement effect
+	removeDisplacement: function (target) {
+		target.isBeingDisplaced = undefined;
+		target.expand = 1;
+	},
 };
 
 // give target a buff/debuff
 // properties includes target, effectTitle, effectDescription, increasePropertyName(optional), increasePropertyValue(optional), time(optional), imageName, onExpire(optional)
 Game.statusEffects.generic = function (properties) {
-	// check that the effect stacks (note that this is opt-out not opt-in - properties.effectStacks must be set to false if it doesn't stack)
+	// check that the effect stacks (note that this is opt-out not opt-in - properties.effectStack must be set to "noStack" if it doesn't stack)
 	let found = -1;
-	if (properties.effectStacks !== false) {
+	if (properties.effectStack !== "noStack") {
 		// effect DOES stack
 		// try to find an existing effect that does the same and has the same name
 		found = properties.target.statusEffects.findIndex(function(element) {
@@ -2635,7 +2650,14 @@ Game.statusEffects.generic = function (properties) {
 		}
 	}
 	else if (found !== -1) { // extend existing status effect
-		properties.target.statusEffects[found].info.time += properties.time;
+		if (properties.effectStack === "refresh") {
+			// refresh time instead of adding time
+			properties.target.statusEffects[found].info.ticks = 0;
+		}
+		else {
+			// default - add to max time
+			properties.target.statusEffects[found].info.time += properties.time;
+		}
 	}
 	
 	if (properties.target.constructor.name === "Hero") { // refresh canvas status effects if the status effect was applied to player
@@ -2683,6 +2705,7 @@ Game.statusEffects.fire = function(properties) {
 		newProperties.increasePropertyName = "fireDamagePerSecond";
 		newProperties.onTick = "fireTick";
 		newProperties.imageName = "fire";
+		newProperties.effectStack = "refresh"; // effect refreshes (doesn't extend time above 3s)
 		this.generic(newProperties);
 	}
 }
@@ -2698,7 +2721,7 @@ Game.statusEffects.poison = function(properties) {
 	newProperties.increasePropertyValue = properties.poisonDamage;
 	newProperties.onTick = "poisonTick";
 	newProperties.imageName = "poison";
-	newProperties.effectStacks = false; // effect does not stack
+	newProperties.effectStack = "noStack"; // effect does not stack
 	this.generic(newProperties);
 }
 
@@ -3057,14 +3080,21 @@ Game.loadArea = function (areaName, destination) {
 		if (Areas[areaName].enemies !== undefined) {
 			Areas[areaName].enemies.forEach(enemy => {
 				if (this.canBeShown(enemy)) { // check if NPC should be shown
-					enemy.map = map;
-					enemy.type = "enemies";
-					this.enemies.push(new Enemy(enemy));
-					// check for blood moon
-					if (Game.time === "bloodMoon" && (enemy.hostility === "hostile" || enemy.hostility === "boss")) {
-						// blood moon - enemies have more health
-						this.enemies[this.enemies.length - 1].health *= 2;
-						this.enemies[this.enemies.length - 1].stats.maxHealth *= 2;
+					// this is done now so that the boss can be checked
+					if (enemy.template !== undefined) {
+						enemy = Object.assign(enemy.template, enemy); // add template properties to main properties object
+					}
+					// if enemy is a boss, it is only shown if it was not killed today
+					if (enemy.hostility !== "boss" || GetFullDate() - Player.bossesKilled[enemy.bossKilledVariable] > 0) { // not a boss or it wasn't killed today
+						enemy.map = map;
+						enemy.type = "enemies";
+						this.enemies.push(new Enemy(enemy));
+						// check for blood moon
+						if (Game.time === "bloodMoon" && (enemy.hostility === "hostile" || enemy.hostility === "boss")) {
+							// blood moon - enemies have more health
+							this.enemies[this.enemies.length - 1].health *= 2;
+							this.enemies[this.enemies.length - 1].stats.maxHealth *= 2;
+						}
 					}
 				}
 			});
@@ -3476,14 +3506,16 @@ Game.generateLoot = function (lootTable) {
 		}
 		
 		if (itemCanBeLooted) {
-			// for each item, a Random number between 0 and 100 is generated, then multiplied by the player's looting
+			// for each item, a Random number between 0 and 100 is generated
 			// lootTable is an array of objects, where the objects have a property called chance (an array)
 			// chance contains the probability of getting x amount of that item, where x is the array index of the probability
-			// the lowest number that is higher than the roll is selected for the number of that item that the player receives
+			// the lowest number that the roll is higher than is selected for the number of that item that the player receives
+			// the numbers in the array are multiplied by player's looting
 			
-			let rollRandom = Random(0, 100) * (Game.hero.stats.looting / 100); // Random number to see how much of item i the player will get
-			let possibleDropChances = lootTable[i].chance.filter(chance => chance > rollRandom); // filter chances of getting item to see all chances the player is eligible for with their roll
-			let itemQuantity = lootTable[i].chance.indexOf(Math.min(...possibleDropChances)); // get the number of that item the player will get
+			let possibleDropChances = lootTable[i].chance.map(element => element * (Game.hero.stats.looting/100)); // multiply chances by looting, deep copying array in process
+			let rollRandom = Random(0, 100); // random number to see how much of item i the player will get (lower is better)
+			let eligibleDropChances = possibleDropChances.filter(chance => rollRandom > chance); // filter chances of getting item to see all chances the player is eligible for with their roll
+			let itemQuantity = possibleDropChances.indexOf(Math.max(...eligibleDropChances)); // get the number of that item the player will get
 			
 			if (itemQuantity > 0) { // check that the player should recieve the item
 				let item = lootTable[i].item;
@@ -3827,6 +3859,8 @@ Game.update = function (delta) {
 				let functionArray = []; // array of functions that can be called
 				let parameterArray = []; // array of arrays of parameters for these functions (to be ...spread into the function)
 				
+				let forceChoose = false; // whether choose dom should be forced (some roles want this)
+				
 				// booleans to decide npc chat for if choose DOM doesn't open
 				let questActive = false; // if one of the npc's quests is currently active
 				let questComplete = false; // if one of the npc's quests has been completed
@@ -4088,6 +4122,11 @@ Game.update = function (delta) {
 							parameterArray.push([]);
 						}
 						
+						
+						// force choose DOM if the role wants this
+						if (role.forceChoose === true) {
+							forceChoose = true;
+						}
 					}
 					else {
 						notUnlockedRoles = true;
@@ -4097,7 +4136,7 @@ Game.update = function (delta) {
 				if (functionArray.length > 0) {
 					// npc can be spoken to, hence choose DOM should be opened
 					// Dom.choose.page checks whether or not the DOM is occupied, and handles red flashing of close button
-					Dom.choose.page(npc, textArray, functionArray, parameterArray);
+					Dom.choose.page(npc, textArray, functionArray, parameterArray, forceChoose);
 					// if there is only one thing that can be chosen between, choose DOM handles this and just skips itself straight to that one thing
 				}
 				else {
@@ -4806,15 +4845,17 @@ Game.drawHealthBar = function (ctx, character, x, y, width, height) {
 	// health variables
 	
 	// get width of each small health bar (in health)
-	// there should be between 3 and 15 bars (with the exception of low health )
+	// there should be between 3 and 9 bars (with the exception of low health )
 	let barValue = 10;
 	let barValueFound = false;
+	let numberOfBars;
 	while (!barValueFound) {
-		if (character.stats.maxHealth / barValue < 16) { // less than 16 little health bars with this barValue
+		numberOfBars = character.stats.maxHealth / barValue;
+		if (numberOfBars < 10) { // less than 10 little health bars with this barValue
 			barValueFound = true;
 		}
-		else { // more than 15; multiply bar size by 10 and try again
-			barValue *= 5;
+		else { // more than 9; multiply bar size by 10 and try again
+			barValue *= 3;
 		}
 	}
 	
@@ -4822,19 +4863,19 @@ Game.drawHealthBar = function (ctx, character, x, y, width, height) {
 	
 	if (character.healthFraction > 0) { // check the character has some health to draw (we don't want to draw negative health)
 		// colour based on size of each bar
-		if (barValue === 1) {
+		if (barValue === 10) {
 			ctx.fillStyle = "#FF4D4D"; // light red
 		}
-		else if (barValue === 10) {
+		else if (barValue === 30) {
 			ctx.fillStyle = "#FF0000"; // red
 		}
-		else if (barValue === 50) {
+		else if (barValue === 90) {
 			ctx.fillStyle = "#CC0000"; // dark red
 		}
-		else if (barValue === 250) {
+		else if (barValue === 270) {
 			ctx.fillStyle = "#800000"; // maroon (very dark red)
 		}
-		else if (barValue === 1250) {
+		else if (barValue === 810) {
 			ctx.fillStyle = "#DAA520"; // gold
 		}
 		else {

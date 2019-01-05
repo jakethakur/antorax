@@ -548,6 +548,7 @@ var Areas = {
 						chat: "Are you sure? Give them here.<br>You're right, they were mine. They were stolen by a goblin during the recent goblin siege. Are you sure I can have them back? I will make sure that you are aptly rewarded.",
 						buttons: ["Return them", "Keep them"],
 						showCloseButton: false,
+						forceChoose: true, // forces choose dom
 						functions: [function () {
 							// remove the boots
 							Dom.inventory.removeById(6, "boots", 1);
@@ -557,18 +558,18 @@ var Areas = {
 							Dom.inventory.give(Items.currency[2], 5);
 							Dom.chat.insert("Marshall Teper has given you <strong>5 Gold</strong> for the boots.", 0);
 							// close page
-							Dom.changeBook(Player.tab, true); // close page
+							Dom.changeBook(Player.tab, true);
 							// chat message
-							Game.npcs[0].say("Thank you. I hope you find these rewards useful to your progression. Now, back to work.", false, 0, false); // Teper is Game.npcs[0]
+							Game.npcs[0].say("Thank you. I hope you find these rewards useful to your progression. Now, back to work.", false, 0, true); // Teper is Game.npcs[0]
 						},
 						function () {
 							// close page
-							Dom.changeBook(Player.tab, true); // close page
+							Dom.changeBook(Player.tab, true);
 							// chat message
 							Game.npcs[0].say("What, are you even allowed to keep them? I'd like my boots back!", false, 0, false); // Teper is Game.npcs[0]
 						}],
 						roleRequirement: function () {
-							return Dom.inventory.check(6, "boots", 1, true); // check that the player has Marshall Teper's lost boots
+							return Dom.inventory.check(6, "boots", 1, false); // check that the player has Marshall Teper's lost boots
 						},
 					},
 				],
@@ -724,6 +725,7 @@ var Areas = {
 					{
 						role: "function",
 						chooseText: "I found a present addressed to you!",
+						forceChoose: true, // forces choose dom
 						onClick: function () {
 							// remove the item
 							Dom.inventory.removeById(21, "fish", 1);
@@ -824,6 +826,7 @@ var Areas = {
 					{
 						role: "function",
 						chooseText: "I found a present addressed to you!",
+						forceChoose: true, // forces choose dom
 						onClick: function () {
 							// remove the item
 							Dom.inventory.removeById(21, "fish");
@@ -2105,7 +2108,7 @@ var Areas = {
 			tilesPerRow: 4,
 			solidTiles: [1, 2, 3, 5, 6, 7, 8, 9, 10, 12], // walls & downwards stairs
 			layers: [    
-				[10, 8, 12, 8, 12, 8, 12, 8, 12, 9, 8, 12, 8, 12, 8, 12, 8, 12, 8, 12, 10, 9, 10, 9, 10, 9, 10, 9, 10, 9, 11, 13, 13, 13, 13, 13, 13, 13, 13, 11, 16, 17, 18, 17, 18, 17, 18, 17, 18, 14, 16, 18, 17, 18, 17, 18, 17, 18, 17, 14, 16, 17, 18, 17, 18, 17, 18, 17, 18, 14, 16, 18, 17, 18, 17, 18, 17, 18, 17, 14, 11, 15, 15, 15, 15, 15, 15, 15, 15, 11, 11, 6, 7, 11, 11, 11, 11, 11, 11, 11],
+				[10, 8, 12, 8, 12, 8, 12, 8, 12, 9, 8, 12, 1, 2, 8, 12, 8, 12, 8, 12, 10, 9, 3, 5, 10, 9, 10, 9, 10, 9, 11, 13, 13, 13, 13, 13, 13, 13, 13, 11, 16, 17, 18, 17, 18, 17, 18, 17, 18, 14, 16, 18, 17, 18, 17, 18, 17, 18, 17, 14, 16, 17, 18, 17, 18, 17, 18, 17, 18, 14, 16, 18, 17, 18, 17, 18, 17, 18, 17, 14, 11, 15, 15, 15, 15, 15, 15, 15, 15, 11, 11, 6, 7, 11, 11, 11, 11, 11, 11, 11],
 				[],
 			],
 		},
@@ -2119,6 +2122,7 @@ var Areas = {
 			slash: {normal: "./assets/projectiles/slash.png"}, // (ignored by loader if it is already loaded because of a knight player)
 			fireball: {normal: "./assets/projectiles/fireball.png"}, // (ignored by loader if it is already loaded because of a mage player)
 			arrow: {normal: "./assets/projectiles/arrow.png"}, // (ignored by loader if it is already loaded because of an archer player)
+			weaponRack: {normal: "./assets/objects/weaponRack.png"},
 		},
 		
 		song_day: "./assets/music/Pippin-the-Hunchback-boss.mp3",
@@ -2175,9 +2179,17 @@ var Areas = {
 		
 		enemies: [
 			{
-				x: 200,
-				y: 250,
+				x: 300,
+				y: 150,
 				template: EnemyTemplates.nilbog.goblinKing,
+			},
+		],
+		
+		things: [
+			{
+				x: 500,
+				y: 150,
+				image: "weaponRack",
 			},
 		],
 	},

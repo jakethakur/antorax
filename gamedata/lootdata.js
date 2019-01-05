@@ -1,3 +1,8 @@
+// How chance works:
+// number rolled from 0 to 100
+// chances are multiplied by looting
+// smallest number that roll is more than is chosen for item
+
 const EnemyLootTables = {
 	global: [
 		// all enemies have this (for events)
@@ -10,8 +15,8 @@ const EnemyLootTables = {
 				return false;
 			},
 			chance: [
-				75,				// 0
-				Infinity,		// 1
+				25,				// 0
+				0,				// 1
 			],
 		},
 	],
@@ -22,45 +27,45 @@ const EnemyLootTables = {
 				tier: 1,
 				area: "loggingCamp",
 			},
-			chance: [ // number rolled from 0 to 100, and then multiplied by looting (100% default)
-				60,				// 0
-				Infinity,		// 1
+			chance: [
+				40,				// 0
+				0,				// 1
 			],
 		},
 		{ // gold
 			item: Items.currency[2],
 			chance: [
-				80,				// 0
-				95,				// 1
-				Infinity,		// 2
+				20,				// 0
+				5,				// 1
+				0,				// 2
 			],
 		},
 		{ // log
 			item: Items.item[2],
 			chance: [
-				80,				// 0
-				Infinity,		// 1
+				20,				// 0
+				0,				// 1
 			],
 		},
 		{ // scrap of cloth
 			item: Items.item[3],
 			chance: [
-				30,				// 0
-				Infinity,		// 1
+				70,				// 0
+				0,				// 1
 			],
 		},
 		{ // goblin brewed potion
 			item: Items.consumable[6],
 			chance: [
-				90,				// 0
-				Infinity,		// 1
+				10,				// 0
+				0,				// 1
 			],
 		},
 		{ // goblin sewn bag
 			item: Items.bag[3],
 			chance: [
-				98,				// 0
-				Infinity,		// 1
+				2,				// 0
+				0,				// 1
 			],
 		},
 		{ // Fisherman Tobenam's Lost Rod
@@ -72,16 +77,16 @@ const EnemyLootTables = {
 				return false;
 			},
 			chance: [
-				65,				// 0
-				Infinity,		// 1
+				35,				// 0
+				0,				// 1
 			],
 		},
 		{ // goblin eye
 			item: Items.item[10],
 			chance: [
-				85,				// 0
-				87,				// 1
-				Infinity,		// 2
+				15,				// 0
+				14,				// 1
+				0,				// 2
 			],
 		},
 	],
@@ -89,44 +94,82 @@ const EnemyLootTables = {
 		{ // displacement grenade
 			item: Items.consumable[13],
 			chance: [
-				95,				// 0
-				Infinity,		// 1
+				5,				// 0
+				0,				// 1
 			],
 		},
 		{ // position reverser
 			item: Items.consumable[14],
 			chance: [
-				95,				// 0
-				Infinity,		// 1
+				5,				// 0
+				0,				// 1
 			],
 		},
 		{ // restorative timepiece
 			item: Items.consumable[15],
 			chance: [
-				95,				// 0
-				Infinity,		// 1
+				5,				// 0
+				0,				// 1
 			],
 		},
 		{ // arcane magnet
 			item: Items.item[15],
 			chance: [
-				95,				// 0
-				Infinity,		// 1
+				5,				// 0
+				0,				// 1
 			],
 		},
 		{ // tattered tome
 			item: Items.item[16],
 			chance: [
-				90,				// 0
-				Infinity,		// 1
+				10,				// 0
+				0,				// 1
 			],
 		},
 		{ // tower chest key
 			item: Items.item[18],
 			chance: [
-				96,				// 0
-				Infinity,		// 1
+				4,				// 0
+				0,				// 1
 			],
+		},
+	],
+};
+
+const BossLootTables = {
+	global: [
+		// all bosses have this (for events)
+		{ // samhain mark
+			item: Items.currency[4],
+			condition: function () {
+				if (Game.time === "bloodMoon") {
+					return true;
+				}
+				return false;
+			},
+			chance: [
+				100,			// 0
+				100,			// 1
+				50,				// 2
+				30,				// 3
+				10,				// 4
+				0,				// 5
+			],
+		},
+	],
+	goblinKing: [
+		{ // random tier 1 mythic armour if it is the first time defeating this boss
+			item: [Items.helm[5], Items.chest[5], Items.greaves[5], Items.boots[6]],
+			chance: [
+				100,			// 0
+				0,				// 1
+			],
+			condition: function () {
+				if (Player.bossesKilled.goblinKing !== 0) {
+					return true; // goblin king has not been killed before
+				}
+				return false;
+			},
 		},
 	],
 };
@@ -143,10 +186,10 @@ const ChestLootTables = {
 				return false;
 			},
 			chance: [
-				0,				// 0
+				100,			// 0
 				50,				// 1
-				80,				// 2
-				Infinity,		// 3
+				20,				// 2
+				0,				// 3
 			],
 		},
 	],
@@ -158,27 +201,27 @@ const ChestLootTables = {
 				area: "loggingCamp",
 			},
 			chance: [
-				0,				// 0
-				70,				// 1
-				Infinity,		// 2
+				100,			// 0
+				30,				// 1
+				0,				// 2
 			],
 		},
 		{ // gold
 			item: Items.currency[2],
 			chance: [
-				0,				// 0
-				0,				// 1
-				30,				// 2
-				60,				// 3
-				90,				// 4
-				Infinity,		// 5
+				100,			// 0
+				100,			// 1
+				70,				// 2
+				40,				// 3
+				10,				// 4
+				0,				// 5
 			],
 		},
 		{ // random potion (including goblin potion)
 			item: [Items.consumable[2], Items.consumable[3], Items.consumable[4], Items.consumable[6]],
 			chance: [
-				0,				// 0
-				Infinity,		// 1
+				100,			// 0
+				0,				// 1
 			],
 		},
 	],
@@ -187,28 +230,28 @@ const ChestLootTables = {
 			item: Items.consumable[13],
 			chance: [
 				50,				// 0
-				Infinity,		// 1
+				0,				// 1
 			],
 		},
 		{ // position reverser
 			item: Items.consumable[14],
 			chance: [
 				50,				// 0
-				Infinity,		// 1
+				0,				// 1
 			],
 		},
 		{ // restorative timepiece
 			item: Items.consumable[15],
 			chance: [
 				50,				// 0
-				Infinity,		// 1
+				0,				// 1
 			],
 		},
 		{ // arcane magnet
 			item: Items.item[15],
 			chance: [
 				50,				// 0
-				Infinity,		// 1
+				0,				// 1
 			],
 		},
 	],
