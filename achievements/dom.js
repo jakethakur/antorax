@@ -22,10 +22,10 @@ function validate(strValue){
 function checkChange(){
 	window.requestAnimationFrame(checkChange);
 	if(window.innerWidth != previousWidth){
-		if(window.innerWidth >= 245*3+45){
+		if(window.innerWidth >= 490*2+45){
 			screenSize = window.innerWidth;
 		}else{
-			screenSize = 245*3+45;
+			screenSize = 490*2+45;
 		}
 		previousWidth = window.innerWidth;
 		arrange();
@@ -113,7 +113,7 @@ function checkChange(){
 }
 
 function arrange(){
-	var columns = Math.floor((screenSize-45)/735);
+	var columns = Math.floor((screenSize-45)/490);
 	document.getElementById("all").innerHTML = "";
 	for(var d = 0; d < columns; d++){
 		document.getElementById("all").innerHTML += '<ul id="flashcardlist'+d+'" class="flashcardlist"></ul>';
@@ -124,31 +124,34 @@ function arrange(){
 		if(c >= columns){
 			c = 0;
 		}
-		document.getElementById("flashcardlist"+c).innerHTML += '<li class="box" id="box'+i+'" '+(Object.keys(obtained).includes(ToCamelCase(array[i].name)) ? "style='border: 5px solid darkgreen'" : "")+'>'+/*<img src="../'+(array[i].imageArchaeology == undefined ? array[i].image : array[i].imageArchaeology)+'" class="img">*/'<p id="name'+i+'" class="para"></p><p id="description'+i+'" class="para"></p><p id="date'+i+'" class="para"></p><p id="points'+i+'" class="para"></p></li>';
-		document.getElementById("flashcardlist"+c).style.left = 25+c*735+((screenSize-45)-(((Math.floor((screenSize-45)/735)))*735))/2+"px";
+		document.getElementById("flashcardlist"+c).innerHTML += '<li class="box" id="box'+i+'" '+(Object.keys(obtained).includes(ToCamelCase(array[i].name)) ? "style='border: 5px solid darkgreen'" : "")+'><div class="img"></div><p id="name'+i+'" class="para"></p><p id="description'+i+'" class="para"></p><p id="date'+i+'" class="date"></p><p id="points'+i+'" class="points"></p></li>';
+		document.getElementById("flashcardlist"+c).style.left = 25+c*490+((screenSize-45)-(((Math.floor((screenSize-45)/490)))*490))/2+"px";
 		document.getElementById("name"+i).innerHTML = "<b>"+array[i].name+"</b>";
 		document.getElementById("description"+i).innerHTML = array[i].description;
-		document.getElementById("date"+i).innerHTML = obtained[ToCamelCase(array[i].name)] != undefined ? obtained[ToCamelCase(array[i].name)] : "";
+		if(obtained[ToCamelCase(array[i].name)] != undefined){
+			document.getElementById("date"+i).innerHTML = obtained[ToCamelCase(array[i].name)];
+			document.getElementById("points"+i).style.top = "17px";
+		}
 		document.getElementById("points"+i).innerHTML = array[i].points;
 	}
-	document.getElementById("filters").style.width = (((Math.floor((screenSize-45)/735)))*735)-35+"px";
-	document.getElementById("progress").style.width = (((Math.floor((screenSize-45)/735)))*735)-25+"px";
-	document.getElementById("filters").style.left = 25+((screenSize-45)-(((Math.floor((screenSize-45)/735)))*735))/2+"px";
-	document.getElementById("progress").style.left = 25+((screenSize-45)-(((Math.floor((screenSize-45)/735)))*735))/2+"px";
-	document.getElementById("searchBar").style.width = (((Math.floor((screenSize-45)/735)))*735)-95+"px";
+	document.getElementById("filters").style.width = (((Math.floor((screenSize-45)/490)))*490)-35+"px";
+	document.getElementById("progress").style.width = (((Math.floor((screenSize-45)/490)))*490)-25+"px";
+	document.getElementById("filters").style.left = 25+((screenSize-45)-(((Math.floor((screenSize-45)/490)))*490))/2+"px";
+	document.getElementById("progress").style.left = 25+((screenSize-45)-(((Math.floor((screenSize-45)/490)))*490))/2+"px";
+	document.getElementById("searchBar").style.width = (((Math.floor((screenSize-45)/490)))*490)-95+"px";
 	var progressDisplayed = !isNaN(progress/displayed) && isFinite(progress/displayed) ? progress/displayed : 0;
 	document.getElementById("progressText").innerHTML = "You have obtained "+Math.floor(progressDisplayed*100)+"% of "+(total == displayed ? "all" : "these")+" achievements";
-	document.getElementById("innerProgress").style.width = progressDisplayed*((((Math.floor((screenSize-45)/735)))*735)-24.5)+"px";
-	if(columns == 1){
-		document.getElementById("space0").style.width = (document.getElementById("filters").offsetWidth/2)-300+"px";
+	document.getElementById("innerProgress").style.width = progressDisplayed*((((Math.floor((screenSize-45)/490)))*490)-24.5)+"px";
+	if(columns == 2){
+		document.getElementById("space0").style.width = (document.getElementById("filters").offsetWidth/2)-430+"px";
+		document.getElementById("space1").style.width = (document.getElementById("filters").offsetWidth/2)-430+"px";
 		document.getElementById("space3").style.width = (document.getElementById("filters").offsetWidth/2)-300+"px";
-		document.getElementById("space1").style.display = "none";
 		document.getElementById("space2").style.display = "none";
-		document.getElementById("filters").style.height = "250px";
+		document.getElementById("filters").style.height = "200px";
 		document.getElementById("br").style.display = "";
-		document.getElementById("br3").style.display = "";
+		document.getElementById("br3").style.display = "none";
 		for(var i = 0; i < columns; i++){
-			document.getElementsByClassName("flashcardlist")[i].style.top = "365px";
+			document.getElementsByClassName("flashcardlist")[i].style.top = "315px";
 		}
 	/*if(columns == 1){
 		document.getElementById("space0").style.width = (document.getElementById("filters").offsetWidth/3)-270+"px";
@@ -185,14 +188,14 @@ var previousEvent = "";
 var previousMin = "";
 var previousMax = "";
 var previousSearch = "";
-var screenSize = 735+45;
+var screenSize = 490*2+45;
 var total = Achievements.length;
 var displayed = 0;
 var progress = 0;
-if(window.innerWidth >= 735+45){
+if(window.innerWidth >= 490*2+45){
 	screenSize = window.innerWidth;
 }else{
-	screenSize = 735+45;
+	screenSize = 490*2+45;
 }
 var obtained = JSON.parse(localStorage.getItem("achievements"));
 if(obtained == null){
