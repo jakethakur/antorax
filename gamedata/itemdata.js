@@ -521,7 +521,7 @@ var Items = {
 			obtain: "Purchase from a merchant in the Fishers' Valley.",
 			stats: {
 				damage: 2,
-				blockDefence: 10,
+				defence: 1,
 			},
 		},
 		{
@@ -536,7 +536,7 @@ var Items = {
 			area: "loggingCamp",
 			stats: {
 				damage: 3,
-				blockDefence: 12,
+				defence: 2,
 			},
 		},
 		{
@@ -554,7 +554,7 @@ var Items = {
 				damage: 3,
 				poisonX: 1.5,
 				poisonY: 3,
-				blockDefence: 14,
+				defence: 3,
 			},
 		},
 		{
@@ -571,7 +571,7 @@ var Items = {
 			stats: {
 				damage: 4,
 				criticalChance: 10,
-				blockDefence: 8,
+				defence: 3,
 			},
 		},
 		{
@@ -588,7 +588,7 @@ var Items = {
 			stats: {
 				damage: 4,
 				stun: 0.4,
-				blockDefence: 15,
+				defence: 4,
 			},
 		},
 		{
@@ -605,7 +605,7 @@ var Items = {
 			stats: {
 				damage: 3,
 				lifesteal: 25,
-				blockDefence: 14,
+				defence: 3,
 			},
 			projectile: "slashBlood",
 			projectileAdjust: {x: 20, y: 20},
@@ -621,9 +621,9 @@ var Items = {
 			obtain: "Buy from a merchant during the Christmas event.",
 			sellPrice: 4,
 			stats: {
-				damage: 9,
+				damage: 8,
 				reloadTime: 500,
-				blockDefence: 16,
+				defence: 5,
 			},
 			projectile: "slashFrost",
 			projectileAdjust: {x: 20, y: 20},
@@ -640,7 +640,7 @@ var Items = {
 			sellPrice: 2,
 			stats: {
 				damage: 4,
-				blockDefence: 10,
+				defence: 2,
 			},
 			projectile: "slashFrost",
 			projectileAdjust: {x: 0, y: 0},
@@ -727,7 +727,7 @@ var Items = {
 			stats: {
 				damage: 2,
 				maxDamage: 12,
-				criticalChance: 25,
+				criticalChance: 15,
 			},
 		},
 		{
@@ -1632,17 +1632,26 @@ var Items = {
 						Game.statusEffects.walkSpeed({
 							target: Game.hero,
 							effectTitle: "Swiftness I",
-							damageIncrease: 35,
+							speedIncrease: 35,
 							time: 20,
 						});
 						break;
 					case 2:
-						// give fire I status effect to player
-						Game.statusEffects.fire(Game.hero, 1);
+						// give weakness status effect to player
+						Game.statusEffects.defence({
+							target: Game.hero,
+							effectTitle: "Weakness",
+							defenceIncrease: -50,
+							time: 10,
+						});
 						break;
 					case 3:
-						// deal 50 damage over 10 seconds to the player
-						Game.statusEffects.poison(Game.hero, 50, 10);
+						// deal 25 damage over 5 seconds to the player
+						Game.statusEffects.poison({
+							target: Game.hero,
+							poisonDamage: 25,
+							time: 5,
+						});
 						break;
 				}
 			}
@@ -1879,7 +1888,8 @@ var Items = {
 					Dom.inventory.remove(inventoryPosition);
 					
 					// pick random enemy
-					let enemy = Game.enemies[Random(0, Game.enemies.length-1)];
+					let enemies = Game.enemies.filter(enemy => !enemy.respawning);
+					let enemy = enemies[Random(0, enemies-1)];
 					
 					// swap positions!
 					let enemyPositionX = enemy.x;

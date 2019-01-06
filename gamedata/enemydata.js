@@ -29,10 +29,10 @@ const EnemyTemplates = {
 				{ // polished rock
 					item: Items.item[4],
 					chance: [
-						20,				// 0
-						70,				// 1
-						95,				// 2
-						Infinity,		// 3
+						80,				// 0
+						30,				// 1
+						5,				// 2
+						0,				// 3
 					],
 				},
 			],
@@ -77,7 +77,7 @@ const EnemyTemplates = {
 				damage: 4,
 				walkSpeed: 70,
 				maxHealth: 10,
-				defence: 3,
+				defence: 4,
 				range: 60,
 				healthRegen: 0.4,
 				reloadTime: 2000,
@@ -103,8 +103,8 @@ const EnemyTemplates = {
 			stats: {
 				damage: 3,
 				walkSpeed: 95,
-				maxHealth: 14,
-				defence: 1,
+				maxHealth: 16,
+				defence: 2,
 				range: 140,
 				reloadTime: 2250,
 				healthRegen: 0.4,
@@ -123,7 +123,7 @@ const EnemyTemplates = {
 					item: Items.item[5],
 					chance: [
 						50,				// 0
-						Infinity,		// 1
+						0,				// 1
 					],
 				},
 			],
@@ -138,9 +138,9 @@ const EnemyTemplates = {
 			hostility: "hostile",
 			level: 5,
 			stats: {
-				damage: 3.5,
+				damage: 4,
 				walkSpeed: 75,
-				maxHealth: 12,
+				maxHealth: 24,
 				defence: 8,
 				range: 90,
 				healthRegen: 0.4,
@@ -165,9 +165,9 @@ const EnemyTemplates = {
 			hostility: "hostile",
 			level: 5,
 			stats: {
-				damage: 5,
+				damage: 5.5,
 				walkSpeed: 65,
-				maxHealth: 12,
+				maxHealth: 24,
 				defence: 10,
 				range: 60,
 				healthRegen: 0.4,
@@ -226,21 +226,21 @@ const EnemyTemplates = {
 				if (dist < 90) {
 					// sword
 					this.stats.range = 90;
-					this.stats.damage = 9;
+					this.stats.damage = 6;
 					this.stats.flaming = undefined;
 					this.projectile.image = "slash";
 				}
 				else if (dist < 210) {
 					// staff
 					this.stats.range = 210;
-					this.stats.damage = 5;
+					this.stats.damage = 4;
 					this.stats.flaming = 1;
 					this.projectile.image = "fireball";
 				}
 				else {
 					// bow
 					this.stats.range = 1000;
-					this.stats.damage = 6;
+					this.stats.damage = 4;
 					this.stats.flaming = undefined;
 					this.projectile.image = "arrow";
 				}

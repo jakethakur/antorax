@@ -869,7 +869,7 @@ var Areas = {
 						        return Game.event === "Christmas";
 						    }},
 							{item: Items.item[11], cost: 2}, // vial of goblin blood
-							{item: Items.bag[5], cost: 7}, // brown backsack
+							{item: Items.bag[5], cost: 15}, // brown backsack
 							{item: Items.helm[2], cost: 2}, // worn leather helm
 							{item: Items.chest[2], cost: 3}, // worn leather tunic
 							{item: Items.greaves[2], cost: 3}, // worn leather trousers

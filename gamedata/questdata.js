@@ -39,9 +39,6 @@ var Quests = {
 					{item: Items.currency[2], quantity: 5,},
 					{item: Items.boots[2],},
 				],
-				reputation: {
-					eaglecrestLoggingCamp: 50,
-				},
 			},
 			
 			onQuestStart: function() {
@@ -130,9 +127,6 @@ var Quests = {
 			
 			rewards: {
 				xp: 20,
-				reputation: {
-					eaglecrestLoggingCamp: 50,
-				},
 			},
 		},
 		
@@ -709,7 +703,7 @@ var Quests = {
 			
 			objectives: [
 				"Obtain 8 <strong>Scraps of Cloth</strong> from goblins.",
-				"Obtain 8 <strong>Polished Rocks</strong> from goblins.",
+				"Obtain 4 <strong>Polished Rocks</strong> from goblins.",
 				"Speak to <strong>Item Buyer Noledar</strong>.",
 			],
 			
@@ -718,7 +712,7 @@ var Quests = {
 				
 				// true or falses for each objective (apart from the turn-in objective)
 				completed.push(checkProgress(Dom.inventory.check(3, "item"), 8));
-				completed.push(checkProgress(Dom.inventory.check(4, "item"), 8));
+				completed.push(checkProgress(Dom.inventory.check(4, "item"), 4));
 				
 				completed = checkFinished(completed);
 				

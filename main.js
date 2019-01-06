@@ -1410,7 +1410,7 @@ class Hero extends Attacker {
 			let a = this.channellingProjectileId; // maintain a variable of the currently shot projectile
 			setTimeout(function (a) {
 				Game.projectiles.splice(Game.searchFor(a, Game.projectiles), 1); // find the id of the to-be-removed projectile and remove it
-			}, 2000, a);
+			}, 1500, a);
 			
 			this.channellingProjectileId = null;
 			
@@ -1505,7 +1505,7 @@ class Hero extends Attacker {
 							else {
 								// chest locked and doesn't have a key
 								// chat message to tell them this
-								Dom.chat.insert("The Loot Chest is locked! You need a <strong>" + Game.chests[i].chestKey.name + "</strong> to unlock it.", 0, true);
+								Dom.chat.insert("The Loot Chest is locked! You need a <strong>" + Game.chests[i].chestKey.name + "</strong> to unlock it.", 0, true, true);
 							}
 							
 							// if the chest has been unlocked, open the chest!
@@ -2296,7 +2296,7 @@ class Enemy extends Attacker {
 		let a = this.channellingProjectileId; // maintain a variable of the currently shot projectile
 		setTimeout(function (a) {
 			Game.projectiles.splice(Game.searchFor(a, Game.projectiles), 1); // find the id of the to-be-removed projectile and remove it
-		}, 2000, a);
+		}, 1500, a);
 		
 		this.channellingProjectileId = null;
 	}
@@ -4213,7 +4213,7 @@ Game.update = function (delta) {
 				let a = projectile.id; // maintain a variable of the currently shot projectile's id
 				setTimeout(function (a) {
 					Game.projectiles.splice(Game.searchFor(a, Game.projectiles), 1); // find the id of the to-be-removed projectile and remove it
-				}, 2000, a);
+				}, 1500, a);
 			}
 			
 			// remove the projectile if it has moved too far

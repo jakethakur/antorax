@@ -165,7 +165,7 @@ const BossLootTables = {
 				0,				// 1
 			],
 			condition: function () {
-				if (Player.bossesKilled.goblinKing !== 0) {
+				if (Player.bossesKilled.goblinKing === 0) {
 					return true; // goblin king has not been killed before
 				}
 				return false;
