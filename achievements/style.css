@@ -56,7 +56,7 @@ body{
 	margin: 0px;
 	width: 465px;
 }
-#space0, #space1, #space2, #space3{
+#space0, #space1, #space2, #space3, #space4{
 	display: inline-block;
 }
 #filters{
@@ -72,7 +72,7 @@ body{
 	font-family: 'MedievalSharp', serif;
 	text-indent: 5px;
 }
-#category, #area, #event{
+#category, #area, #event, #obtained{
 	height: 30px;
 	font-size: 20px;
 	font-family: 'MedievalSharp', serif;

@@ -34,7 +34,7 @@ body{
 	margin: 0px;
 	width: 220px;
 }
-#space0, #space1, #space2, #space3{
+#space0, #space1, #space2, #space3, #space4{
 	display: inline-block;
 }
 #filters, #back{
@@ -70,7 +70,7 @@ td{
 	font-family: 'MedievalSharp', serif;
 	text-indent: 5px;
 }
-#category, #rarity, #obtained{
+#category, #rarity, #event, #obtained{
 	height: 30px;
 	font-size: 20px;
 	font-family: 'MedievalSharp', serif;

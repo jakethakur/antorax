@@ -7,6 +7,7 @@ var array = [];
 var arrayLength = 1;
 var rarity = document.getElementById("rarity");
 var category = document.getElementById("category");
+var event = document.getElementById("event");
 var obtained = document.getElementById("obtained");
 var min = document.getElementById("min");
 var max = document.getElementById("max");
@@ -76,7 +77,7 @@ function checkChange(){
 		previousWidth = window.innerWidth;
 		arrange();
 	}
-	if(rarity.value != previousRarity || category.value != previousCategory || obtained.value != previousObtained || min.value != previousMin || max.value != previousMax || searchBar.value != previousSearch){
+	if(rarity.value != previousRarity || category.value != previousCategory || event.value != previousEvent || obtained.value != previousObtained || min.value != previousMin || max.value != previousMax || searchBar.value != previousSearch){
 		previousCategory = category.value;
 		array = [];
 		if(min.value > 1 || (min.value < 1 && min.value.length > 0) || min.value.length > 1){
@@ -125,6 +126,17 @@ function checkChange(){
 		if(rarity.value != "all"){
 			for(var i = 0; i < arrayLength; i++){
 				if(array[i-b].rarity != rarity.value){
+					array.splice(i-b,1);
+					b++;
+				}
+			}
+		}
+		arrayLength = array.length;
+		previousEvent = event.value;
+		var b = 0;
+		if(event.value != "all"){
+			for(var i = 0; i < arrayLength; i++){
+				if(array[i-b].event != event.value && (event.value != "none" || array[i-b].event != undefined)){
 					array.splice(i-b,1);
 					b++;
 				}
@@ -346,28 +358,34 @@ function arrange(){
 		}
 		if(columns == 3){
 			document.getElementById("space0").style.width = (document.getElementById("filters").offsetWidth/2)-250+"px";
-			document.getElementById("space3").style.width = (document.getElementById("filters").offsetWidth/2)-250+"px";
+			document.getElementById("space2").style.width = (document.getElementById("filters").offsetWidth/2)-250+"px";
+			document.getElementById("space4").style.width = (document.getElementById("filters").offsetWidth/2)-250+"px";
+			document.getElementById("space2").style.display = "";
 			document.getElementById("space1").style.display = "none";
-			document.getElementById("space2").style.display = "none";
+			document.getElementById("space3").style.display = "none";
 			document.getElementById("filters").style.height = "250px";
-			document.getElementById("br").style.display = "";
+			document.getElementById("br2").style.display = "none";
 			document.getElementById("br3").style.display = "";
+			document.getElementById("br").style.display = "";
 			for(var i = 0; i < columns; i++){
 				document.getElementsByClassName("flashcardlist")[i].style.top = "365px";
 			}
-		}else if(columns <= 5){
-			document.getElementById("space0").style.width = (document.getElementById("filters").offsetWidth/3)-250+"px";
-			document.getElementById("space1").style.width = (document.getElementById("filters").offsetWidth/3)-250+"px";
-			document.getElementById("space3").style.width = (document.getElementById("filters").offsetWidth/2)-250+"px";
+		}else/* if(columns <= 5)*/{
+			document.getElementById("space0").style.width = (document.getElementById("filters").offsetWidth/4)-150+"px";
+			document.getElementById("space1").style.width = (document.getElementById("filters").offsetWidth/4)-150+"px";
+			document.getElementById("space3").style.width = (document.getElementById("filters").offsetWidth/4)-150+"px";
+			document.getElementById("space4").style.width = (document.getElementById("filters").offsetWidth/4)-150+"px";
 			document.getElementById("space1").style.display = "";
+			document.getElementById("space3").style.display = "";
 			document.getElementById("space2").style.display = "none";
 			document.getElementById("filters").style.height = "200px";
-			document.getElementById("br").style.display = "";
+			document.getElementById("br2").style.display = "";
 			document.getElementById("br3").style.display = "none";
+			document.getElementById("br").style.display = "none";
 			for(var i = 0; i < columns; i++){
 				document.getElementsByClassName("flashcardlist")[i].style.top = "315px";
 			}
-		}else{
+		}/*else{
 			for(var i = 0; i < 4; i++){
 				document.getElementById("space"+i).style.width = (document.getElementById("filters").offsetWidth/4)-319+"px";
 			}
@@ -379,7 +397,7 @@ function arrange(){
 			for(var i = 0; i < columns; i++){
 				document.getElementsByClassName("flashcardlist")[i].style.top = "265px";
 			}
-		}
+		}*/
 		document.getElementById("filters").hidden = false;
 		document.getElementById("progress").style.top = document.getElementById("filters").offsetHeight + 45 + "px";
 	}else{ // viewed item
@@ -497,6 +515,7 @@ else{
 	var previousWidth = window.innerWidth;
 	var previousCategory = "";
 	var previousRarity = "";
+	var previousEvent = "";
 	var previousObtained = "";
 	var previousMin = "";
 	var previousMax = "";

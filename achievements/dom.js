@@ -3,6 +3,7 @@ var arrayLength = 1;
 var area = document.getElementById("area");
 var category = document.getElementById("category");
 var event = document.getElementById("event");
+var obtained = document.getElementById("obtained");
 var min = document.getElementById("min");
 var max = document.getElementById("max");
 var searchBar = document.getElementById("searchBar");
@@ -30,7 +31,7 @@ function checkChange(){
 		previousWidth = window.innerWidth;
 		arrange();
 	}
-	if(area.value != previousArea || category.value != previousCategory || event.value != previousEvent || min.value != previousMin || max.value != previousMax || searchBar.value != previousSearch){
+	if(area.value != previousArea || category.value != previousCategory || event.value != previousEvent || obtained.value != previousObtained || min.value != previousMin || max.value != previousMax || searchBar.value != previousSearch){
 		previousCategory = category.value;
 		array = [];
 		if(min.value > 100 || (min.value < 1 && min.value.length > 0) || min.value.length > 3){
@@ -98,11 +99,29 @@ function checkChange(){
 		}
 		progress = 0;
 		for(var i = 0; i < array.length; i++){
-			if(Object.keys(obtained).includes(ToCamelCase(array[i].name))){
+			if(Object.keys(archaeology).includes(ToCamelCase(array[i].name))){
 				progress++;
 			}
 		}
 		displayed = array.length;
+		arrayLength = array.length;
+		previousObtained = obtained.value;
+		b = 0;
+		if(obtained.value != "all"){
+			for(var i = 0; i < arrayLength; i++){
+				if(obtained.value == "only"){
+					if(!Object.keys(archaeology).includes(ToCamelCase(array[i-b].name))){
+						array.splice(i-b,1);
+						b++;
+					}
+				}else{
+					if(Object.keys(archaeology).includes(ToCamelCase(array[i-b].name))){
+						array.splice(i-b,1);
+						b++;
+					}
+				}
+			}
+		}
 		/*array.sort(function(a, b){
 			if(a.name < b.name) { return -1; }
 			if(a.name > b.name) { return 1; }
@@ -124,13 +143,13 @@ function arrange(){
 		if(c >= columns){
 			c = 0;
 		}
-		document.getElementById("flashcardlist"+c).innerHTML += '<li class="box" id="box'+i+'" '+(Object.keys(obtained).includes(ToCamelCase(array[i].name)) ? "style='border: 5px solid darkgreen'" : "")+'><div class="img" id="img'+i+'" style="background-image: url(\''+array[i].image+'\')"</img></div><p id="name'+i+'" class="para"></p><p id="description'+i+'" class="para"></p><p id="date'+i+'" class="date"></p><p id="points'+i+'" class="points"></p></li>';
+		document.getElementById("flashcardlist"+c).innerHTML += '<li class="box" id="box'+i+'" '+(Object.keys(archaeology).includes(ToCamelCase(array[i].name)) ? "style='border: 5px solid darkgreen'" : "")+'><div class="img" id="img'+i+'" style="background-image: url(\''+array[i].image+'\')"</img></div><p id="name'+i+'" class="para"></p><p id="description'+i+'" class="para"></p><p id="date'+i+'" class="date"></p><p id="points'+i+'" class="points"></p></li>';
 		document.getElementById("flashcardlist"+c).style.left = 25+c*490+((screenSize-45)-(((Math.floor((screenSize-45)/490)))*490))/2+"px";
 		document.getElementById("name"+i).innerHTML = "<b>"+array[i].name+"</b>";
 		document.getElementById("description"+i).innerHTML = array[i].description;
 		document.getElementById("points"+i).innerHTML = array[i].points;
-		if(obtained[ToCamelCase(array[i].name)] != undefined){
-			document.getElementById("date"+i).innerHTML = obtained[ToCamelCase(array[i].name)];
+		if(archaeology[ToCamelCase(array[i].name)] != undefined){
+			document.getElementById("date"+i).innerHTML = archaeology[ToCamelCase(array[i].name)];
 			document.getElementById("points"+i).style.top = "17px";
 		}
 		setTimeout(function(){
@@ -152,7 +171,7 @@ function arrange(){
 	document.getElementById("progressText").innerHTML = "You have obtained "+Math.floor(progressDisplayed*100)+"% of "+(total == displayed ? "all" : "these")+" achievements";
 	document.getElementById("innerProgress").style.width = progressDisplayed*((((Math.floor((screenSize-45)/490)))*490)-24.5)+"px";
 	if(columns == 2){
-		document.getElementById("space0").style.width = (document.getElementById("filters").offsetWidth/2)-430+"px";
+		/*document.getElementById("space0").style.width = (document.getElementById("filters").offsetWidth/2)-430+"px";
 		document.getElementById("space1").style.width = (document.getElementById("filters").offsetWidth/2)-430+"px";
 		document.getElementById("space3").style.width = (document.getElementById("filters").offsetWidth/2)-300+"px";
 		document.getElementById("space2").style.display = "none";
@@ -161,6 +180,19 @@ function arrange(){
 		document.getElementById("br3").style.display = "none";
 		for(var i = 0; i < columns; i++){
 			document.getElementsByClassName("flashcardlist")[i].style.top = "315px";
+		}*/
+		document.getElementById("space0").style.width = (document.getElementById("filters").offsetWidth/2)-300+"px";
+		document.getElementById("space2").style.width = (document.getElementById("filters").offsetWidth/2)-300+"px";
+		document.getElementById("space4").style.width = (document.getElementById("filters").offsetWidth/2)-300+"px";
+		document.getElementById("space2").style.display = "";
+		document.getElementById("space1").style.display = "none";
+		document.getElementById("space3").style.display = "none";
+		document.getElementById("filters").style.height = "250px";
+		document.getElementById("br2").style.display = "none";
+		document.getElementById("br3").style.display = "";
+		document.getElementById("br").style.display = "";
+		for(var i = 0; i < columns; i++){
+			document.getElementsByClassName("flashcardlist")[i].style.top = "365px";
 		}
 	/*if(columns == 1){
 		document.getElementById("space0").style.width = (document.getElementById("filters").offsetWidth/3)-270+"px";
@@ -175,7 +207,7 @@ function arrange(){
 			document.getElementsByClassName("flashcardlist")[i].style.top = "315px";
 		}*/
 	}else{
-		for(var i = 0; i < 4; i++){
+		/*for(var i = 0; i < 4; i++){
 			document.getElementById("space"+i).style.width = (document.getElementById("filters").offsetWidth/4)-350+"px";
 		}
 		document.getElementById("space1").style.display = "";
@@ -185,6 +217,20 @@ function arrange(){
 		document.getElementById("br3").style.display = "none";
 		for(var i = 0; i < columns; i++){
 			document.getElementsByClassName("flashcardlist")[i].style.top = "265px";
+		}*/
+		document.getElementById("space0").style.width = (document.getElementById("filters").offsetWidth/4)-150+"px";
+		document.getElementById("space1").style.width = (document.getElementById("filters").offsetWidth/4)-150+"px";
+		document.getElementById("space3").style.width = (document.getElementById("filters").offsetWidth/4)-150+"px";
+		document.getElementById("space4").style.width = (document.getElementById("filters").offsetWidth/4)-150+"px";
+		document.getElementById("space1").style.display = "";
+		document.getElementById("space3").style.display = "";
+		document.getElementById("space2").style.display = "none";
+		document.getElementById("filters").style.height = "200px";
+		document.getElementById("br2").style.display = "";
+		document.getElementById("br3").style.display = "none";
+		document.getElementById("br").style.display = "none";
+		for(var i = 0; i < columns; i++){
+			document.getElementsByClassName("flashcardlist")[i].style.top = "315px";
 		}
 	}
 	document.getElementById("progress").style.top = document.getElementById("filters").offsetHeight + 45 + "px";
@@ -194,6 +240,7 @@ var previousWidth = window.innerWidth;
 var previousCategory = "";
 var previousArea = "";
 var previousEvent = "";
+var previousObtained = "";
 var previousMin = "";
 var previousMax = "";
 var previousSearch = "";
@@ -206,9 +253,9 @@ if(window.innerWidth >= 490*2+45){
 }else{
 	screenSize = 490*2+45;
 }
-var obtained = JSON.parse(localStorage.getItem("achievements"));
-if(obtained == null){
-	obtained = {};
+var archaeology = JSON.parse(localStorage.getItem("achievements"));
+if(archaeology == null){
+	archaeology = {};
 }
 checkChange();
 arrange();

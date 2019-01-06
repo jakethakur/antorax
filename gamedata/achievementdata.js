@@ -23,7 +23,7 @@ var Achievements = [
 		points: 5,
 		category: ["general"],
 		area: ["global"],
-		event: ["christmas"],
+		event: ["Christmas"],
 		image: "../assets/items/food/1.png",
 		class: "single",
 	},
@@ -200,7 +200,7 @@ var Achievements = [
 		points: 15,
 		category: ["archaeology"],
 		area: ["global"],
-		event: "samhain",
+		event: "Samhain",
 		image: "../assets/items/chest/7.png",
 		class: "cumulative",	},
 	{
@@ -209,7 +209,7 @@ var Achievements = [
 		points: 15,
 		category: ["archaeology"],
 		area: ["global"],
-		event: "christmas",
+		event: "Christmas",
 		image: "../assets/items/helm/7.png",
 		class: "cumulative",	},
 		// FISHING
@@ -243,7 +243,7 @@ var Achievements = [
 		points: 5,
 		category: ["fishing", "quests"],
 		area: ["eaglecrestLoggingCamp"],
-		event: "christmas",
+		event: "Christmas",
 		image: "../assets/items/fish/21.png",
 		class: "single",	},
 	{
