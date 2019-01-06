@@ -101,6 +101,14 @@ body{
 	font-size: 20px;
 	background-color: #fff7a5;
 }
+#leftArrow{
+	top: 140px;
+	left: 200px;
+}
+#rightArrow{
+	top: 140px;
+	right: 200px;
+}
 .triangleLeft, .innerTriangleLeft, .triangleRight, .innerTriangleRight{
 	position: absolute;
 	width: 0px; 

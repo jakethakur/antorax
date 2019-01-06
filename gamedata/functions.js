@@ -96,7 +96,11 @@ Keyboard._onKeyDown = function (event) {
     }
 	if (keyRole in this.downFunctions){
 		if(this.downFunctions[keyRole] !== undefined){
-			this.downFunctions[keyRole](Keyboard.parameters[keyRole]);
+			if(Keyboard.parameters[keyRole] !== undefined){
+				this.downFunctions[keyRole](Keyboard.parameters[keyRole]);
+			}else{
+				this.downFunctions[keyRole](event);
+			}
 		}
 	}
 };
@@ -116,7 +120,11 @@ Keyboard._onKeyUp = function (event) {
     }
 	if (keyRole in this.upFunctions){
 		if(this.upFunctions[keyRole] !== undefined){
-			this.upFunctions[keyRole](Keyboard.parameters[keyRole]);
+			if(Keyboard.parameters[keyRole] !== undefined){
+				this.upFunctions[keyRole](Keyboard.parameters[keyRole]);
+			}else{
+				this.upFunctions[keyRole](event);
+			}
 		}
 	}else{
 		Dom.settings.hotkeys(event);
@@ -164,7 +172,11 @@ function Random (minimum, maximum) {
     return Math.floor((Math.random() * (maximum - minimum + 1)) + minimum);
 }
 
-// get date in format ddmmyyyy
+function GetFullDateDisplay () {
+	return GetFullDate().substring(6)+"/"+GetFullDate().substring(4,6)+"/"+GetFullDate().substring(0,4);
+}
+
+// get date in format yyyymmdd
 function GetFullDate () {
     let d = new Date();
     let dateString = "";

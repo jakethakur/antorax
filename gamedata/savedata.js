@@ -48,8 +48,8 @@ var Player = {
 	
 	reputation: {
 		eaglecrestLoggingCamp: {
-			score: 60,
-			level: 3, // default level
+			score: 0,
+			level: 4,
 		},
 		eaglecrestCity: {
 			score: 0,

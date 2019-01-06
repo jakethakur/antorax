@@ -899,7 +899,7 @@ Dom.inventory.displayInformation = function(item, stacked, position, hide){
 			document.getElementById("stats").innerHTML = "Length: " + item.length + "cm";
 		}
 		if(item.quest !== undefined && (item.quest === true || item.quest())){
-			document.getElementById("stats").innerHTML = "<span style='color: slateblue;'>Quest item</span><br>" + (document.getElementById("stats").innerHTML !== "" ? "<br><br>"+document.getElementById("stats").innerHTML : "");
+			document.getElementById("stats").innerHTML = "<span style='color: slateblue;'>Quest item</span><br>" + (document.getElementById("stats").innerHTML !== "" ? "<br>"+document.getElementById("stats").innerHTML : "");
 		}else{
 			document.getElementById("stats").style.color = "black";
 		}
@@ -1175,6 +1175,10 @@ Dom.quest.acceptRewards = function(){
 	Game.getXP(quest.rewards.xp);
 }
 
+Dom.inventory.achievements = function(){
+	
+}
+
 Dom.quests.active = function(quest){
 	if(quest !== undefined){
 		Player.quests.activeQuestArray.push(quest.quest);
@@ -1383,22 +1387,22 @@ Dom.merchant.buy = function(item,index,npc){
 }
 
 Dom.identifier.displayed = 0;
-Dom.identifier.left = function(npc, over){
+Dom.identifier.left = function(npc/*, over*/){
 	if(Dom.identifier.displayed !== 0){
 		Dom.identifier.displayed--;
 	}else{
 		Dom.identifier.displayed = Dom.identifier.unId.length-1;
 	}
-	Dom.identifier.page(npc, over);
+	Dom.identifier.page(npc/*, over*/);
 }
 
-Dom.identifier.right = function(npc, over){
+Dom.identifier.right = function(npc/*, over*/){
 	if(Dom.identifier.displayed !== Dom.identifier.unId.length-1){
 		Dom.identifier.displayed++;
 	}else{
 		Dom.identifier.displayed = 0;
 	}
-	Dom.identifier.page(npc, over);
+	Dom.identifier.page(npc/*, over*/);
 }
 
 Dom.identifier.check = function(){
@@ -1415,8 +1419,8 @@ Dom.identifier.check = function(){
 	}
 }
 
-Dom.identifier.page = function(npc, over){
-	Dom.changeBook("identifierPage", over, true);
+Dom.identifier.page = function(npc/*, over*/){
+	Dom.changeBook("identifierPage", true/*false*/, true);
 	//Dom.currentlyDisplayed = npc.name;
 	//Dom.changeBook("identifierPage", false); // stops close button being red
 	document.getElementById("identifierPageChat").innerHTML = npc.chat.identifierGreeting;
@@ -1431,17 +1435,72 @@ Dom.identifier.page = function(npc, over){
 	document.getElementById("identifierPageBuy").onclick = function(){
 		Dom.identifier.identify(npc);
 	}
-	document.getElementById("leftArrow").style.top = document.getElementById("identifierPageOption").getBoundingClientRect().top - 32 +"px";
-	document.getElementById("leftArrow").style.left = document.getElementById("identifierPageOption").getBoundingClientRect().left - 31 +"px";
+	//document.getElementById("leftArrow").style.top = document.getElementById("identifierPageOption").getBoundingClientRect().top - 32 +"px";
+	//document.getElementById("leftArrow").style.left = document.getElementById("identifierPageOption").getBoundingClientRect().left - 31 +"px";
 	document.getElementById("leftArrow").onclick = function(){
 		Dom.identifier.left(npc);
 	}
-	document.getElementById("rightArrow").style.top = document.getElementById("identifierPageOption").getBoundingClientRect().top - 32 +"px";
-	document.getElementById("rightArrow").style.left = document.getElementById("identifierPageOption").getBoundingClientRect().left + 71 +"px";
+	//document.getElementById("rightArrow").style.top = document.getElementById("identifierPageOption").getBoundingClientRect().top - 32 +"px";
+	//document.getElementById("rightArrow").style.left = document.getElementById("identifierPageOption").getBoundingClientRect().left + 71 +"px";
 	document.getElementById("rightArrow").onclick = function(){
 		Dom.identifier.right(npc);
 	}
 	document.getElementById("identifierPageBuy").innerHTML = "Identify for: 1 gold";
+}
+
+Dom.identifier.identify = function(npc){
+	if(Dom.inventory.check(2,"currency",1)/* && Dom.identifier.unId.length !== 0*/){
+		Dom.inventory.removeById(2,"currency",1);
+		Dom.changeBook("identifiedPage", true, true);
+		Dom.currentlyDisplayed = npc.name;
+		for(let i = 0; i < Player.inventory.items.length; i++){
+			if(Player.inventory.items[i].unidentified && Player.inventory.items[i].tier === Dom.identifier.unId[Dom.identifier.displayed].tier && Player.inventory.items[i].area === Dom.identifier.unId[Dom.identifier.displayed].area && Player.inventory.items[i].rarity === Dom.identifier.unId[Dom.identifier.displayed].rarity && Player.inventory.items[i].type === Dom.identifier.unId[Dom.identifier.displayed].type){
+				Player.inventory.items[i] = {};
+				document.getElementById("itemInventory").getElementsByTagName("td")[i].innerHTML = "";
+				break; // stops multiple items being removed
+			}
+		}
+		Dom.identifier.array = []; // array of possible identified items
+		if(Dom.identifier.unId[Dom.identifier.displayed].rarity === "common"){
+			document.getElementById("identifiedPageChat").innerHTML = npc.chat.identifyCommon;
+		}else if(Dom.identifier.unId[Dom.identifier.displayed].rarity === "unique"){
+			document.getElementById("identifiedPageChat").innerHTML = npc.chat.identifyUnique;
+		}else{
+			document.getElementById("identifiedPageChat").innerHTML = npc.chat.identifyMythic;
+		}
+		// repeats for every item of the same catergory (e.g. bow)
+		for(let i = 0; i < Items[Object.keys(Items)[Dom.identifier.unId[Dom.identifier.displayed].typeNum]].length; i++){
+			if(Items[Object.keys(Items)[Dom.identifier.unId[Dom.identifier.displayed].typeNum]][i].tier === Dom.identifier.unId[Dom.identifier.displayed].tier && Items[Object.keys(Items)[Dom.identifier.unId[Dom.identifier.displayed].typeNum]][i].area === Dom.identifier.unId[Dom.identifier.displayed].area && Items[Object.keys(Items)[Dom.identifier.unId[Dom.identifier.displayed].typeNum]][i].rarity === Dom.identifier.unId[Dom.identifier.displayed].rarity){
+				// add it to the array of possible items if it matches the stats
+				Dom.identifier.array.push(Items[Object.keys(Items)[Dom.identifier.unId[Dom.identifier.displayed].typeNum]][i]);
+			}
+		}
+		Dom.identifier.num = Random(0, Dom.identifier.array.length-1);
+		Dom.identifier.item = Dom.identifier.array[Dom.identifier.num]; // a random item from the array of possible items
+		document.getElementById("identifiedPageOption").innerHTML = "<img src=" + Dom.identifier.item.image + " class='theseOptions' style='padding: 0px; margin: 0px; border: 5px solid #886622; height: 50px; width: 50px;'></img>";
+		Dom.inventory.give(Dom.identifier.item);
+		document.getElementById("identifiedPageOption").getElementsByTagName("img")[0].onmouseover = function(){
+			Dom.inventory.displayInformation(Dom.identifier.array[Dom.identifier.num]);
+		}
+		document.getElementById("identifiedPageOption").getElementsByTagName("img")[0].onmouseleave = function(){
+			Dom.expand("information");
+		}
+		document.getElementById("identifiedPageBack").onclick = function(){
+			Dom.identifier.displayed = 0;
+			if(Dom.identifier.check()){
+				Dom.identifier.page(npc/*, true*/);
+			}else{
+				Dom.changeBook(Player.tab, true);
+			}
+		}
+		Dom.identifier.unId.splice(Dom.identifier.displayed, 1);
+	}else/* if(Dom.identifier.unId.length !== 0)*/{
+ 		document.getElementById("identifierPageBuy").style.border = "5px solid red";
+		setTimeout(function(){
+			document.getElementById("identifierPageBuy").style.border = "5px solid #886622";
+		},200);
+		npc.say(npc.chat.tooPoor, true, 0, true);
+	}
 }
 
 Dom.inventory.give = function(item, num, position){
@@ -1660,6 +1719,11 @@ if(localStorage.getItem("fish") !== null){
 		Dom.inventory.fish.push(0);
 	}
 }
+if(localStorage.getItem("achievements") !== null){
+	Dom.inventory.achievements = JSON.parse(localStorage.getItem("achievements"));
+}else{
+	Dom.inventory.achievements = {};
+}
 
 Dom.inventory.food = function(inventoryPosition){
 	if(!Game.hero.hasStatusEffectType("food")){
@@ -1800,66 +1864,20 @@ function UnId(area,tier){
 	this.sellPrice = 1;
 }
 
-Dom.identifier.identify = function(npc){
-	if(Dom.inventory.check(2,"currency",1)/* && Dom.identifier.unId.length !== 0*/){
-		Dom.inventory.removeById(2,"currency",1);
-		Dom.changeBook("identifiedPage", true, true);
-		Dom.currentlyDisplayed = npc.name;
-		for(let i = 0; i < Player.inventory.items.length; i++){
-			if(Player.inventory.items[i].unidentified && Player.inventory.items[i].tier === Dom.identifier.unId[Dom.identifier.displayed].tier && Player.inventory.items[i].area === Dom.identifier.unId[Dom.identifier.displayed].area && Player.inventory.items[i].rarity === Dom.identifier.unId[Dom.identifier.displayed].rarity && Player.inventory.items[i].type === Dom.identifier.unId[Dom.identifier.displayed].type){
-				Player.inventory.items[i] = {};
-				document.getElementById("itemInventory").getElementsByTagName("td")[i].innerHTML = "";
-				break; // stops multiple items being removed
-			}
-		}
-		Dom.identifier.array = []; // array of possible identified items
-		if(Dom.identifier.unId[Dom.identifier.displayed].rarity === "common"){
-			document.getElementById("identifiedPageChat").innerHTML = npc.chat.identifyCommon;
-		}else if(Dom.identifier.unId[Dom.identifier.displayed].rarity === "unique"){
-			document.getElementById("identifiedPageChat").innerHTML = npc.chat.identifyUnique;
-		}else{
-			document.getElementById("identifiedPageChat").innerHTML = npc.chat.identifyMythic;
-		}
-		// repeats for every item of the same catergory (e.g. bow)
-		for(let i = 0; i < Items[Object.keys(Items)[Dom.identifier.unId[Dom.identifier.displayed].typeNum]].length; i++){
-			if(Items[Object.keys(Items)[Dom.identifier.unId[Dom.identifier.displayed].typeNum]][i].tier === Dom.identifier.unId[Dom.identifier.displayed].tier && Items[Object.keys(Items)[Dom.identifier.unId[Dom.identifier.displayed].typeNum]][i].area === Dom.identifier.unId[Dom.identifier.displayed].area && Items[Object.keys(Items)[Dom.identifier.unId[Dom.identifier.displayed].typeNum]][i].rarity === Dom.identifier.unId[Dom.identifier.displayed].rarity){
-				// add it to the array of possible items if it matches the stats
-				Dom.identifier.array.push(Items[Object.keys(Items)[Dom.identifier.unId[Dom.identifier.displayed].typeNum]][i]);
-			}
-		}
-		Dom.identifier.num = Random(0, Dom.identifier.array.length-1);
-		Dom.identifier.item = Dom.identifier.array[Dom.identifier.num]; // a random item from the array of possible items
-		document.getElementById("identifiedPageOption").innerHTML = "<img src=" + Dom.identifier.item.image + " class='theseOptions' style='padding: 0px; margin: 0px; border: 5px solid #886622; height: 50px; width: 50px;'></img>";
-		Dom.inventory.give(Dom.identifier.item);
-		document.getElementById("identifiedPageOption").getElementsByTagName("img")[0].onmouseover = function(){
-			Dom.inventory.displayInformation(Dom.identifier.array[Dom.identifier.num]);
-		}
-		document.getElementById("identifiedPageOption").getElementsByTagName("img")[0].onmouseleave = function(){
-			Dom.expand("information");
-		}
-		document.getElementById("identifiedPageBack").onclick = function(){
-			Dom.identifier.displayed = 0;
-			if(Dom.identifier.check()){
-				Dom.identifier.page(npc, true);
-			}else{
-				Dom.changeBook(Player.tab, true);
-			}
-		}
-		Dom.identifier.unId.splice(Dom.identifier.displayed, 1);
-	}else/* if(Dom.identifier.unId.length !== 0)*/{
- 		document.getElementById("identifierPageBuy").style.border = "5px solid red";
-		setTimeout(function(){
-			document.getElementById("identifierPageBuy").style.border = "5px solid #886622";
-		},200);
-		npc.say(npc.chat.tooPoor, true, 0, true);
-	}
-}
-
 Dom.inventory.dispose = function(ev){
 	let quest = false;
-	if(!isNaN(parseInt(ev.dataTransfer.getData("text"))) && Player.inventory.items[parseInt(ev.dataTransfer.getData("text"))].quest !== undefined && (Player.inventory.items[parseInt(ev.dataTransfer.getData("text"))].quest === true || Player.inventory.items[parseInt(ev.dataTransfer.getData("text"))].quest())){
-		// if it is a quest item
-		quest = true;
+	// item inventory
+	if(!isNaN(parseInt(ev.dataTransfer.getData("text")))){
+		if(Player.inventory.items[parseInt(ev.dataTransfer.getData("text"))].quest !== undefined && (Player.inventory.items[parseInt(ev.dataTransfer.getData("text"))].quest === true || Player.inventory.items[parseInt(ev.dataTransfer.getData("text"))].quest())){
+			// if it is a quest item
+			quest = true;
+		}
+	// weapon (e.g. goblin torch)
+	}else{
+		if(Player.inventory[ev.dataTransfer.getData("text")].quest !== undefined && (Player.inventory[ev.dataTransfer.getData("text")].quest === true || Player.inventory[ev.dataTransfer.getData("text")].quest())){
+			// if it is a quest item
+			quest = true;
+		}
 	}
 	let remove = true;
 	for(let i = 6; i < Player.inventory.items.length; i++){
@@ -1981,15 +1999,16 @@ Dom.inventory.remove = function(num, all){
 	for(let i = 0; i < (isNaN(all) ? 1 : all); i++){
 		// remove item completely
 		if(Player.inventory.items[num].stacked === 1 || Player.inventory.items[num].stacked === undefined || all === true){
-			//if(Player.inventory.items[num].image !== undefined){
+			// because they are unset
+			let id = Player.inventory.items[num].id;
+			let type = Player.inventory.items[num].type;
 			document.getElementById("itemInventory").getElementsByTagName("td")[num].innerHTML = "";
 			Player.inventory.items[num] = {};
 			// if more items still need to be removed
 			if(!isNaN(all) && all - i !== 1){
 				// check for more of the same items and remove them
-				Dom.inventory.removeById(Player.inventory.items[num].id, Player.inventory.items[num].type, all - i - 1);
+				Dom.inventory.removeById(id, type, all - i - 1);
 			}
-			//}
 		// decrease stack size
 		}else{
 			Player.inventory.items[num].stacked--;
@@ -2131,11 +2150,13 @@ Dom.inventory.drop = function(ev, equip, id){
 					// if the item slot is where you are putting the item and it is not a bag which is unsafe to move
 					if(document.getElementById("itemInventory").getElementsByTagName("td")[i].innerHTML.indexOf(target.outerHTML) >= 0 && target.outerHTML !== "" && remove){
 						// if the items are the same
-						if(Player.inventory.items[data].type === Player.inventory.items[i].type && Player.inventory.items[data].id === Player.inventory.items[i].id && Player.inventory.items[i].stack > 1){
+						if(Player.inventory.items[data].type === Player.inventory.items[i].type && Player.inventory.items[data].id === Player.inventory.items[i].id && Player.inventory.items[i].stack > 1 && i !== parseInt(data)){
+							// all moves to i
 							if(Player.inventory.items[i].stacked + Player.inventory.items[data].stacked <= Player.inventory.items[i].stack){
 								Player.inventory.items[i].stacked += Player.inventory.items[data].stacked;
 								document.getElementById("itemInventory").getElementsByTagName("td")[i].innerHTML = "<img src='"+Player.inventory.items[i].image+"' draggable='true' ondragstart='Dom.inventory.drag(event,"+i+")' "+(Player.inventory.items[i].onClick !== undefined ? "onclick='Player.inventory.items["+i+"].onClick("+i+")'" : "")+"><div class='stackNum' id='stackNum"+i+"'>"+Player.inventory.items[i].stacked+"</div></img>";
 								Dom.inventory.remove(data, true);
+							// overflow stays on data
 							}else if(Player.inventory.items[i].stacked !== Player.inventory.items[i].stack){
 								Player.inventory.items[data].stacked -= (Player.inventory.items[i].stack - Player.inventory.items[i].stacked);
 								Player.inventory.items[i].stacked = Player.inventory.items[i].stack;
@@ -3020,7 +3041,9 @@ Dom.buyer.page = function(npc){
 						Dom.alert.ev = i;
 						Dom.alert.target = Dom.buyer.remove;
 						if(Player.inventory.items[i].stacked >= Player.inventory.items[i].sellQuantity*2){
-							Dom.alert.page("How many <strong>"+Player.inventory.items[i].name.toLowerCase()+"</strong> would you like to sell for <strong>"+(Player.inventory.items[i].charges === undefined ? Player.inventory.items[i].sellPrice : Math.ceil(Player.inventory.items[i].sellPrice / (Player.inventory.items[i].maxCharges / Player.inventory.items[i].charges)))+" "+Items.currency[Player.inventory.items[i].sellCurrency].name.toLowerCase()+"</strong> each?", 2, [Player.inventory.items[i].sellQuantity <= Player.inventory.items[i].stacked ? Player.inventory.items[i].sellQuantity : 0, Math.floor(Player.inventory.items[i].stacked/Player.inventory.items[i].sellQuantity)*Player.inventory.items[i].sellQuantity]);
+							Dom.alert.page("How many <strong>"+Player.inventory.items[i].name.toLowerCase()+"</strong> would you like to sell for <strong>"+(Player.inventory.items[i].charges === undefined ? Player.inventory.items[i].sellPrice : Math.ceil(Player.inventory.items[i].sellPrice / (Player.inventory.items[i].maxCharges / Player.inventory.items[i].charges)))+" "+Items.currency[Player.inventory.items[i].sellCurrency].name.toLowerCase()+"</strong> "+(Player.inventory.items[i].sellQuantity !== 1 ? "per "+Player.inventory.items[i].sellQuantity+"?" : "each?"),
+								2, [Player.inventory.items[i].sellQuantity <= Player.inventory.items[i].stacked ? Player.inventory.items[i].sellQuantity : 0, Math.floor(Player.inventory.items[i].stacked/Player.inventory.items[i].sellQuantity)*Player.inventory.items[i].sellQuantity]
+							);
 						}else{
 							Dom.alert.page("Are you sure you want to sell <strong>"+(Player.inventory.items[i].sellQuantity > 1 ? Player.inventory.items[i].sellQuantity+" " : "")+(Player.inventory.items[i].unidentified ? "unidentified "+Player.inventory.items[i].type : Player.inventory.items[i].name.toLowerCase())+"</strong> for <strong>"+(Player.inventory.items[i].charges === undefined ? Player.inventory.items[i].sellPrice : Math.ceil(Player.inventory.items[i].sellPrice / (Player.inventory.items[i].maxCharges / Player.inventory.items[i].charges)))+" "+Items.currency[Player.inventory.items[i].sellCurrency].name.toLowerCase()+"</strong>? You cannot buy it back!", 1);
 						}
@@ -3330,10 +3353,17 @@ Dom.mail.page = function(){
 	document.getElementById("mailPage").innerHTML = "<br><h1>Mailbox</h1><br>";
 	for(let i = Player.mail.mail.length-1; i >= 0; i--){
 		document.getElementById("mailPage").innerHTML += "<div "+/*(Player.mail.mail[i].flag ? "style='border-color: black'" : "")+*/"class='mail' "+(Player.mail.opened.includes(Player.mail.mail[i].title) && !Player.mail.mail[i].flag ?"style='background-color: #fef9b4;'":"")+"><div class='mailImage'></div><div class='mailTitle'><strong>"+Player.mail.mail[i].title+"</strong><br>From "+Player.mail.mail[i].sender+"<br>Received on "+Player.mail.mail[i].date+"</div><div class='mailFlag'></div><div class='mailDelete'>X</div></div>";
-		document.getElementsByClassName("mailFlag")[Player.mail.mail.length-1-i].innerHTML +=
-		'<svg class="flag" height="22" width="15" tabindex = "0">\
-		<polygon points ="0,0 15,1 15,13 1,12 1,22 0,22 0,0 1,0 1,12" style="fill:#ee0000;stroke:black;stroke-width:1" />\
-		</svg>';
+		if(Player.mail.mail[i].flag){
+			document.getElementsByClassName("mailFlag")[Player.mail.mail.length-1-i].innerHTML +=
+			'<svg class="flag" height="22" width="15" tabindex = "0">\
+			<polygon points ="0,0 15,1 15,13 1,12 1,22 0,22 0,0 1,0 1,12" style="fill:#ee0000;stroke:black;stroke-width:1" />\
+			</svg>';
+		}else{
+			document.getElementsByClassName("mailFlag")[Player.mail.mail.length-1-i].innerHTML +=
+			'<svg class="flag" height="22" width="15" tabindex = "0">\
+			<polygon points ="0,0 15,1 15,13 1,12 1,22 0,22 0,0 1,0 1,12" style="fill:#886622;stroke:black;stroke-width:1" />\
+			</svg>';
+		}
 	}
 	if(Player.mail.mail.length === 0){
 		document.getElementById("mailPage").innerHTML += "<br><br>You have no mail, come back soon.<br><br><br><br>";
@@ -3700,6 +3730,11 @@ if (!Player.days.includes(GetFullDate())) {
 }
 
 // player savedata FIXES (more at the top)
+if(Player.bossesKilled === undefined){
+	Player.bossesKilled = {
+		goblinKing: 0
+	}
+}
 if(Player.skippedInstructions === undefined){
 	Player.skippedInstructions = [];
 }
@@ -3760,12 +3795,6 @@ Keyboard.upFunctions = {
 	SIX: Player.inventory.items[5].onClick,
 };
 Keyboard.parameters = {
-	CHAT: event,
-	INVENTORY: event,
-	QUESTS: event,
-	ADVENTURE: event,
-	REPUTATION: event,
-	SETTINGS: event,
 	ONE: 0,
 	TWO: 1,
 	THREE: 2,
