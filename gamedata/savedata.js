@@ -129,6 +129,7 @@ var User = {
 	archaeology: [],
 	fish: [],
 	achievements: {},
+	progress: [],
 	settings: {
 		fps: false,
 		coords: false,
