@@ -33,7 +33,11 @@ var Achievements = [
 		category: ["quests"],
 		area: ["global"],
 		image: "../assets/icons/dailyQuests.png",
-		class: "cumulative",	},
+		class: "cumulative",
+		isCompleted: function(){
+			return User.progress.dailyQuests >= 50;
+		}
+	},
 	{
 		// id: 3,
 		name: "Questmaster I",
@@ -42,7 +46,11 @@ var Achievements = [
 		category: ["quests"],
 		area: ["global"],
 		image: "../assets/icons/quests.png",
-		class: "cumulative",	},
+		class: "cumulative",
+		isCompleted: function(){
+			return User.progress.quests >= 50;
+		}
+	},
 	{
 		// id: 4,
 		name: "Logging Camp Questmaster",
@@ -62,7 +70,8 @@ var Achievements = [
 				}
 			}
 			return progress >= 20;
-		}	},
+		}
+	},
 		// COMBAT
 	{
 		// id: 5,
@@ -72,7 +81,11 @@ var Achievements = [
 		category: ["combat"],
 		area: ["global"],
 		image: "../assets/items/sword/3.png",
-		class: "cumulative",	},
+		class: "cumulative",
+		isCompleted: function(){
+			return User.progress.enemies >= 300;
+		}
+	},
 	{
 		name: "Adept Combatant",
 		description: "Kill 1,000 enemies.",
@@ -80,7 +93,11 @@ var Achievements = [
 		category: ["combat"],
 		area: ["global"],
 		image: "../assets/items/bow/4.png",
-		class: "cumulative",	},
+		class: "cumulative",
+		isCompleted: function(){
+			return User.progress.enemies >= 1000;
+		}
+	},
 	{
 		name: "Intermediate Combatant",
 		description: "Kill 2,500 enemies.",
@@ -88,7 +105,11 @@ var Achievements = [
 		category: ["combat"],
 		area: ["global"],
 		image: "../assets/items/staff/5.png",
-		class: "cumulative",	},
+		class: "cumulative",
+		isCompleted: function(){
+			return User.progress.enemies >= 2500;
+		}
+	},
 	{
 		name: "Expert Combatant",
 		description: "Kill 5,000 enemies.",
@@ -96,7 +117,11 @@ var Achievements = [
 		category: ["combat"],
 		area: ["global"],
 		image: "../assets/items/sword/6.png",
-		class: "cumulative",	},
+		class: "cumulative",
+		isCompleted: function(){
+			return User.progress.enemies >= 5000;
+		}
+	},
 	{
 		name: "Master Combatant",
 		description: "Kill 10,000 enemies.",
@@ -104,7 +129,11 @@ var Achievements = [
 		category: ["combat"],
 		area: ["global"],
 		image: "",
-		class: "cumulative",	},
+		class: "cumulative",
+		isCompleted: function(){
+			return User.progress.enemies >= 10000;
+		}
+	},
 	{
 		name: "Goblin Slayer Bronze",
 		description: "Kill 100 Nilbog goblins.",
@@ -114,7 +143,11 @@ var Achievements = [
 		image: "../assets/enemies/goblinRockthrower.png",
 		position: {x: 45, y: -15},
 		color: "#cd7f32",
-		class: "cumulative",	},
+		class: "cumulative",
+		isCompleted: function(){
+			return User.progress.goblins >= 100;
+		}
+	},
 	{
 		name: "Goblin Slayer Silver",
 		description: "Kill 250 Nilbog goblins.",
@@ -124,7 +157,11 @@ var Achievements = [
 		image: "../assets/enemies/goblinBruiser.png",
 		position: {x: 10, y: -15},
 		color: "lightgray",
-		class: "cumulative",	},
+		class: "cumulative",
+		isCompleted: function(){
+			return User.progress.goblins >= 250;
+		}
+	},
 	{
 		name: "Goblin Slayer Gold",
 		description: "Kill 500 Nilbog goblins.",
@@ -134,7 +171,11 @@ var Achievements = [
 		image: "../assets/enemies/goblinCrusader.png",
 		position: {x: -200, y: -10},
 		color: "#fac540",
-		class: "cumulative",	},
+		class: "cumulative",
+		isCompleted: function(){
+			return User.progress.goblins >= 500;
+		}
+	},
 	{
 		name: "Green-Skinned Assault",
 		description: "Kill the Goblin King.",
@@ -147,7 +188,8 @@ var Achievements = [
 		class: "single",
 		isCompleted: function(){
 			return Player.bossesKilled.goblinKing !== 0;
-		}	},
+		}
+	},
 	{
 		name: "Outgrowing your Toys",
 		description: "???",
@@ -156,7 +198,11 @@ var Achievements = [
 		area: ["global", "eaglecrestLoggingCamp"],
 		image: "../assets/enemies/dummy.png",
 		color: "#ddddff",
-		class: "single",	},
+		class: "single",
+		isCompleted: function(){
+			return User.progress.dummies >= 1;
+		}
+	},
 		// REPUTATION
 	{
 		name: "Tree Hugger",
@@ -168,7 +214,8 @@ var Achievements = [
 		class: "single",
 		isCompleted: function(){
 			return Player.reputation.eaglecrestLoggingCamp.level >= 6;
-		}	},
+		}
+	},
 		// ARCHAEOLOGY
 	{
 		name: "Logging Camp Archaeologist",
@@ -177,7 +224,8 @@ var Achievements = [
 		category: ["archaeology"],
 		area: ["eaglecrestLoggingCamp"],
 		image: "../assets/items/helm/5.png",
-		class: "cumulative",	},
+		class: "cumulative",
+	},
 	{
 		name: "Return of the Ocean Warrior",
 		description: "Uncover the Set of the Ocean Warrior.",
@@ -185,7 +233,8 @@ var Achievements = [
 		category: ["archaeology", "fishing"],
 		area: ["global"],
 		image: "../assets/items/helm/6.png",
-		class: "single",	},
+		class: "single",
+	},
 	{
 		name: "Master Archaeologist",
 		description: "Complete archaeology.",
@@ -193,7 +242,8 @@ var Achievements = [
 		category: ["archaeology"],
 		area: ["global"],
 		image: "",
-		class: "cumulative",	},
+		class: "cumulative",
+	},
 	{
 		name: "Samhain Archaeologist I",
 		description: "Obtain all tier I Samhain items.",
@@ -202,7 +252,8 @@ var Achievements = [
 		area: ["global"],
 		event: "Samhain",
 		image: "../assets/items/chest/7.png",
-		class: "cumulative",	},
+		class: "cumulative",
+	},
 	{
 		name: "Christmas Archaeologist I",
 		description: "Obtain all tier I Christmas items.",
@@ -211,7 +262,8 @@ var Achievements = [
 		area: ["global"],
 		event: "Christmas",
 		image: "../assets/items/helm/7.png",
-		class: "cumulative",	},
+		class: "cumulative",
+	},
 		// FISHING
 	{
 		name: "Learning to Fish",
@@ -223,7 +275,8 @@ var Achievements = [
 		class: "single",
 		isCompleted: function(){
 			return Player.quests.completedQuestArray.includes("Learning to Fish III");
-		}	},
+		}
+	},
 	{
 		name: "Stacks of Seals I",
 		description: "Obtain 20 fishing seals.",
@@ -231,7 +284,11 @@ var Achievements = [
 		category: ["fishing"],
 		area: ["global"],
 		image: "../assets/items/currency/3.png",
-		class: "cumulative",	},
+		class: "cumulative",
+		isCompleted: function(){
+			return User.progress.seals >= 20;
+		}
+	},
 	{
 		name: "Logging Camp Angler",
 		description: "Fish up every fish native to Eaglecrest Logging Camp.",
@@ -239,7 +296,8 @@ var Achievements = [
 		category: ["fishing"],
 		area: ["eaglecrestLoggingCamp"],
 		image: "../assets/items/fish/6.png",
-		class: "cumulative",	},
+		class: "cumulative",
+	},
 	{
 		name: "Saviour of Christmas",
 		description: "Complete the quest <em>Sunken Presents</em>.",
@@ -251,7 +309,8 @@ var Achievements = [
 		class: "single",
 		isCompleted: function(){
 			return Player.quests.completedQuestArray.includes("Sunken Presents");
-		}	},
+		}
+	},
 	{
 		name: "Novice Fisher",
 		description: "Fish up 100 fish.",
@@ -259,7 +318,11 @@ var Achievements = [
 		category: ["fishing"],
 		area: ["global"],
 		image: "../assets/items/fish/0.png",
-		class: "cumulative",	},
+		class: "cumulative",
+		isCompleted: function(){
+			return User.progress.fish >= 100;
+		}
+	},
 	{
 		name: "Adept Fisher",
 		description: "Fish up 300 fish.",
@@ -267,7 +330,11 @@ var Achievements = [
 		category: ["fishing"],
 		area: ["global"],
 		image: "../assets/items/fish/3.png",
-		class: "cumulative",	},
+		class: "cumulative",
+		isCompleted: function(){
+			return User.progress.fish >= 300;
+		}
+	},
 	{
 		name: "Intermediate Fisher",
 		description: "Fish up 600 fish.",
@@ -275,7 +342,11 @@ var Achievements = [
 		category: ["fishing"],
 		area: ["global"],
 		image: "../assets/items/fish/2.png",
-		class: "cumulative",	},
+		class: "cumulative",
+		isCompleted: function(){
+			return User.progress.fish >= 600;
+		}
+	},
 	{
 		name: "Expert Fisher",
 		description: "Fish up 1000 fish.",
@@ -283,7 +354,11 @@ var Achievements = [
 		category: ["fishing"],
 		area: ["global"],
 		image: "../assets/items/fish/1.png",
-		class: "cumulative",	},
+		class: "cumulative",
+		isCompleted: function(){
+			return User.progress.fish >= 1000;
+		}
+	},
 	{
 		name: "Master Fisher",
 		description: "Fish up 1,500 fish.",
@@ -291,7 +366,11 @@ var Achievements = [
 		category: ["fishing"],
 		area: ["global"],
 		image: "../assets/items/fish/5.png",
-		class: "cumulative",	},
+		class: "cumulative",
+		isCompleted: function(){
+			return User.progress.fish >= 1500;
+		}
+	},
 	{
 		name: "How Chimerical!",
 		description: "Fish up a chimerafish.",
@@ -301,10 +380,12 @@ var Achievements = [
 		image: "../assets/items/fish/7.png",
 		class: "single",
 		isCompleted: function(){
-			for(let i = 0; i < Player.inventory.items.length; i++){
+			return User.fish[7] >= 1;
+			/*for(let i = 0; i < Player.inventory.items.length; i++){
 				if(Player.inventory.items[i].name === "Chimerafish"){
 					return true;
 				}
-			}
-		}	},
+			}*/
+		}
+	},
 ]
