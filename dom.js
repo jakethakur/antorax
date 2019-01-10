@@ -113,6 +113,90 @@ if(document.getElementById("settingDelete") !== null){
 
 // DO NOT ADD CODE ABOVE THIS POINT
 
+Dom.achievements.update = function(){
+	for(let i = 0; i < Achievements.length; i++){
+		if(!Object.keys(User.achievements).includes(ToCamelCase(Achievements[i].name)) && Achievements[i].isCompleted !== undefined && Achievements[i].isCompleted()){
+			User.achievements[ToCamelCase(Achievements[i].name)] = GetFullDateDisplay();
+		}
+	}
+}
+
+Dom.quests.active = function(quest){
+	if(quest !== undefined){
+		Player.quests.activeQuestArray.push(quest.quest);
+	}
+	document.getElementById("activeQuestBox").style.textAlign = "left";
+	Dom.quests.activeHTML = {true: "", undefined: "", daily: "",};
+	for(let x = 0; x < Player.quests.activeQuestArray.length; x++){
+		let currentQuest = "";
+		for(let i = 0; i < Object.keys(Quests).length; i++){
+			for(let y = 0; y < Quests[Object.keys(Quests)[i]].length; y++){
+				if(Quests[Object.keys(Quests)[i]][y].quest === Player.quests.activeQuestArray[x]){
+					if(Quests[Object.keys(Quests)[i]][y].repeatTime === "daily"){
+						Quests[Object.keys(Quests)[i]][y].important = "daily";
+					}
+					// the quest Object is worked out by the name saved in the activeQuestArray
+					currentQuest = Quests[Object.keys(Quests)[i]][y];
+				}
+			}
+		}
+		if(currentQuest.eventRequirement === undefined || currentQuest.eventRequirement === Game.event){
+			Dom.quests.activeHTML[currentQuest.important] += "<br><br><strong>" + currentQuest.quest + "</strong>";
+			let completedObjectives = 0;
+			for(let i = 0; i < currentQuest.objectives.length; i++){
+				Dom.quests.activeHTML[currentQuest.important] += "<br>" + currentQuest.objectives[i];
+				if(currentQuest.isCompleted()[i] === true && i !== currentQuest.objectives.length-1){
+					Dom.quests.activeHTML[currentQuest.important] += " &#10004;";
+					completedObjectives++;
+				}else if(currentQuest.isCompleted()[i] !== false && i !== currentQuest.objectives.length-1){
+					Dom.quests.activeHTML[currentQuest.important] += " " + currentQuest.isCompleted()[i];
+				}
+			}
+			if(currentQuest.autofinish && completedObjectives >= currentQuest.objectives.length-1){
+				Dom.choose.page(currentQuest.finishName, ["Quest Finish: " + currentQuest.quest], [Dom.quest.finish], [[currentQuest]]);
+			}
+			if(currentQuest.wasCompleted === undefined){
+				currentQuest.wasCompleted = currentQuest.isCompleted();
+			}else{
+				for(let i = 0; i < currentQuest.wasCompleted.length; i++){
+					if(currentQuest.wasCompleted[i] !== true && currentQuest.isCompleted()[i] === true){
+						Dom.chat.insert("Quest log updated", 0, true);
+						currentQuest.wasCompleted = currentQuest.isCompleted();
+						break;
+					}
+				}
+				/*
+				if(JSON.stringify(currentQuest.wasCompleted) !== JSON.stringify(currentQuest.isCompleted()) && currentQuest.isCompleted()[currentQuest.isCompleted().length-1]){
+					Dom.chat.insert("Quest log updated", 0, true);
+					currentQuest.wasCompleted = currentQuest.isCompleted();
+				}
+				*/
+			}
+			if(currentQuest.isCompleted()[currentQuest.isCompleted().length - 1]){
+				currentQuest.completed = true;
+			}else{
+				currentQuest.completed = false;
+			}
+		}else{
+			Player.quests.activeQuestArray.splice(x, 1);
+		}
+	}
+	Dom.quests.activeHTML.true += Dom.quests.activeHTML.undefined + Dom.quests.activeHTML.daily;
+	document.getElementById("activeQuestBox").innerHTML = Dom.quests.activeHTML.true.substring(8);
+	if(Player.quests.activeQuestArray.length === 0){
+		document.getElementById("activeQuestBox").style.textAlign = "center";
+		document.getElementById("activeQuestBox").innerText = "You have no active quests";
+	}
+}
+
+Dom.checkProgress = function(){
+	Dom.achievements.update();
+	Dom.quests.active();
+	if(typeof Game !== "undefined"){
+		Game.saveProgress();
+	}
+}
+
 Dom.changeBook = function(page, override, shouldNotBeOverriden, levelUpOverride){ // levelUpOverride is the amount of time that the page is locked during a cutscene
 	// if the page can be changed
 	if(this.currentlyDisplayed === "" || override){
@@ -1095,88 +1179,6 @@ Dom.quest.acceptRewards = function(){
 		Dom.changeBook(Player.tab, true);
 	}
 	Game.getXP(quest.rewards.xp);
-}
-
-Dom.achievements.update = function(){
-	for(let i = 0; i < Achievements.length; i++){
-		if(!Object.keys(User.achievements).includes(ToCamelCase(Achievements[i].name)) && Achievements[i].isCompleted !== undefined && Achievements[i].isCompleted()){
-			User.achievements[ToCamelCase(Achievements[i].name)] = GetFullDateDisplay();
-		}
-	}
-}
-
-Dom.checkProgress = function(){
-	Dom.achievements.update();
-	Dom.quests.active();
-	Game.saveProgress();
-}
-
-Dom.quests.active = function(quest){
-	if(quest !== undefined){
-		Player.quests.activeQuestArray.push(quest.quest);
-	}
-	document.getElementById("activeQuestBox").style.textAlign = "left";
-	Dom.quests.activeHTML = {true: "", undefined: "", daily: "",};
-	for(let x = 0; x < Player.quests.activeQuestArray.length; x++){
-		let currentQuest = "";
-		for(let i = 0; i < Object.keys(Quests).length; i++){
-			for(let y = 0; y < Quests[Object.keys(Quests)[i]].length; y++){
-				if(Quests[Object.keys(Quests)[i]][y].quest === Player.quests.activeQuestArray[x]){
-					if(Quests[Object.keys(Quests)[i]][y].repeatTime === "daily"){
-						Quests[Object.keys(Quests)[i]][y].important = "daily";
-					}
-					// the quest Object is worked out by the name saved in the activeQuestArray
-					currentQuest = Quests[Object.keys(Quests)[i]][y];
-				}
-			}
-		}
-		if(currentQuest.eventRequirement === undefined || currentQuest.eventRequirement === Game.event){
-			Dom.quests.activeHTML[currentQuest.important] += "<br><br><strong>" + currentQuest.quest + "</strong>";
-			let completedObjectives = 0;
-			for(let i = 0; i < currentQuest.objectives.length; i++){
-				Dom.quests.activeHTML[currentQuest.important] += "<br>" + currentQuest.objectives[i];
-				if(currentQuest.isCompleted()[i] === true && i !== currentQuest.objectives.length-1){
-					Dom.quests.activeHTML[currentQuest.important] += " &#10004;";
-					completedObjectives++;
-				}else if(currentQuest.isCompleted()[i] !== false && i !== currentQuest.objectives.length-1){
-					Dom.quests.activeHTML[currentQuest.important] += " " + currentQuest.isCompleted()[i];
-				}
-			}
-			if(currentQuest.autofinish && completedObjectives >= currentQuest.objectives.length-1){
-				Dom.choose.page(currentQuest.finishName, ["Quest Finish: " + currentQuest.quest], [Dom.quest.finish], [[currentQuest]]);
-			}
-			if(currentQuest.wasCompleted === undefined){
-				currentQuest.wasCompleted = currentQuest.isCompleted();
-			}else{
-				for(let i = 0; i < currentQuest.wasCompleted.length; i++){
-					if(currentQuest.wasCompleted[i] !== true && currentQuest.isCompleted()[i] === true){
-						Dom.chat.insert("Quest log updated", 0, true);
-						currentQuest.wasCompleted = currentQuest.isCompleted();
-						break;
-					}
-				}
-				/*
-				if(JSON.stringify(currentQuest.wasCompleted) !== JSON.stringify(currentQuest.isCompleted()) && currentQuest.isCompleted()[currentQuest.isCompleted().length-1]){
-					Dom.chat.insert("Quest log updated", 0, true);
-					currentQuest.wasCompleted = currentQuest.isCompleted();
-				}
-				*/
-			}
-			if(currentQuest.isCompleted()[currentQuest.isCompleted().length - 1]){
-				currentQuest.completed = true;
-			}else{
-				currentQuest.completed = false;
-			}
-		}else{
-			Player.quests.activeQuestArray.splice(x, 1);
-		}
-	}
-	Dom.quests.activeHTML.true += Dom.quests.activeHTML.undefined + Dom.quests.activeHTML.daily;
-	document.getElementById("activeQuestBox").innerHTML = Dom.quests.activeHTML.true.substring(8);
-	if(Player.quests.activeQuestArray.length === 0){
-		document.getElementById("activeQuestBox").style.textAlign = "center";
-		document.getElementById("activeQuestBox").innerText = "You have no active quests";
-	}
 }
 
 Dom.quests.possible = function(){
