@@ -42,8 +42,11 @@ let Dom = {
 	achievements: {},
 };
 
+for(let i = 0; i < Items.fish.length; i++){
+	User.fish.push(0);
+}
 if(localStorage.getItem("user") !== null){
-	User = localStorage.getItem("user");
+	User = JSON.parse(localStorage.getItem("user"));
 }
 
 Keyboard.keys = User.settings.keyboard;
