@@ -1361,15 +1361,16 @@ class Hero extends Attacker {
 						Player.stats = Game.hero.stats; // inefficient (should be linked)
 						
 						// fish length for fisher's log
-						if (this.channelling.length > Dom.inventory.fish[this.channelling.id]) {
-							Dom.inventory.fish[this.channelling.id] = this.channelling.length;
-							SaveItem("fish", JSON.stringify(Dom.inventory.fish));
+						if (this.channelling.length > User.fish[this.channelling.id]) {
+							User.fish[this.channelling.id] = this.channelling.length;
 						}
 						
 						// remove fishing bobber
 						Game.projectiles.splice(Game.searchFor(this.channellingProjectileId, Game.projectiles), 1);
 						this.channelling = false;
 						this.channellingProjectileId = null;
+						
+						Dom.checkProgress();
 					}
 				}
 			}
@@ -1402,7 +1403,7 @@ class Hero extends Attacker {
 			// function called for all attacks whether they hit an enemy or not
 			if (Player.inventory.weapon.onAttack !== undefined) {
 			    Player.inventory.weapon.onAttack(shotProjectile);
-				Dom.quests.active();
+				Dom.checkProgress();
 			}
 			
 			// after a timeout (2s), remove the projectile that was just shot
@@ -1437,7 +1438,7 @@ class Hero extends Attacker {
 			}
 			
 			// update quest log
-			Dom.quests.active();
+			Dom.checkProgress();
 		}
 		else if (this.channelling === "block") {
 			this.channelling = false;
@@ -3413,7 +3414,7 @@ Game.init = function () {
 	Dom.hotbar.update();
 	Dom.inventory.update();
 	// update quest log
-	Dom.quests.active();
+	Dom.checkProgress();
 	Dom.quests.possible();
 	Dom.quests.completed();
 	Dom.changeBook(Player.tab); // sets tab to whatever the player was on when they last saved
@@ -4425,7 +4426,7 @@ Game.inventoryUpdate = function (e) {
 			Game.hero.stats.variance = 0;
 		}
 	}
-	Dom.quests.active(); // quest log update check
+	Dom.checkProgress(); // quest log update check
 }
 
 // set player projectile/bobber image
@@ -5386,9 +5387,9 @@ Game.renderDayNight = function () {
 //
 
 // autosave every 1 minute
-setInterval(function() {
+/*setInterval(function() {
 	Game.saveProgress("auto");
-}, 60000);
+}, 60000);*/
 
 Game.saveProgress = function (saveType) { // if saveType is "auto" then the save is an autosave (hence has a slightly different console.info)
 	if (localStorage.getItem("accept") === "true") {
@@ -5403,10 +5404,16 @@ Game.saveProgress = function (saveType) { // if saveType is "auto" then the save
 		Player.statusEffects = Game.hero.statusEffects;
 		
 		// save everything in savedata.js
-		SaveItem(Player.class, JSON.stringify(Player));
+		localStorage.setItem(Player.class, JSON.stringify(Player));
+		localStorage.setItem("user", JSON.stringify(User));
+		
+		Game.saveTimeout = setTimeout(function(){
+			Game.saveProgress("auto")	
+		}, 60000);
+		
 		// message to console
-		let time = new Date();
-		console.info((saveType === "auto" ? "AUTO" : "") + "SAVE AT " + (time.getHours() < 10 ? "0" : "") + time.getHours() + ":" + (time.getMinutes() < 10 ? "0" : "") + time.getMinutes() + ":" + (time.getSeconds() < 10 ? "0" : "") + time.getSeconds());
+		//let time = new Date();
+		//console.info((saveType === "auto" ? "AUTO" : "") + "SAVE AT " + (time.getHours() < 10 ? "0" : "") + time.getHours() + ":" + (time.getMinutes() < 10 ? "0" : "") + time.getMinutes() + ":" + (time.getSeconds() < 10 ? "0" : "") + time.getSeconds());
 	}
 	if (saveType === "logout") {
 		window.location.replace("./selection/index.html");

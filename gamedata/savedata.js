@@ -125,5 +125,49 @@ var Player = {
 	statusEffects: [], // updated by saved data / main [function Game.hero.updateStatusEffects()]
 };
 
+var User = {
+	archaeology: [],
+	fish: [],
+	achievements: {},
+	settings: {
+		fps: false,
+		coords: false,
+		grid: false,
+		hitboxes: false,
+		music: false,
+		weather: true,
+		bookmarks: "bottom",
+		keyboard: {
+			LEFT: "A", // 37
+			RIGHT: "D", // 39
+			UP: "W", // 38
+			DOWN: "S", // 40
+			// wsad movement
+			/*A: "A", // 65
+			D: "D", // 68
+			W: "W", // 87
+			S: "S",  // 83*/
+			// space (action button)
+			SPACE: "SPACE", // 32
+			// shift (hide secondary canvas)
+			SHIFT: "SHIFT", // 16
+			// hotkeys
+			CHAT: "C",
+			INVENTORY: "I",
+			QUESTS: "Q",
+			ADVENTURE: "L",
+			REPUTATION: "R",
+			SETTINGS: "Z",
+			ONE: "1",
+			TWO: "2",
+			THREE: "3",
+			FOUR: "4",
+			FIVE: "5",
+			SIX: "6",
+		},
+		instructionsLink: false,
+	},
+}
+
 const LevelXP = [0, 50, 100, 150, 200, 250]; // amount of xp required for next level (current level = array index)
 const reputationPoints = [1,2500,500,100,500,2500,1]; // points to level up reputation

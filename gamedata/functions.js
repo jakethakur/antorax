@@ -243,11 +243,11 @@ function GetFullDateString () {
 }
 
 // save an item to local storage
-function SaveItem (name, value) {
+/*function SaveItem (name, value) {
 	if (localStorage.getItem("accept") === "true") { // check the player has accepted local storage
 		localStorage.setItem(name, value);
 	}
-}
+}*/
 
 // convert number to roman numerals
 // thanks to https://stackoverflow.com/a/32851198/9713957

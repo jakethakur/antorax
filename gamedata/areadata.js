@@ -36,7 +36,7 @@ var Areas = {
 						}else{
 							Player.quests.questProgress.snowCollected++;
 						}
-						Dom.quests.active();
+						Dom.checkProgress();
 						// replace tiles with no snow rocks
 						map.setTile(0, map.getCol(x), map.getRow(y), 34);
 						map.setTile(0, map.getCol(x + 60), map.getRow(y), 35);
@@ -57,7 +57,7 @@ var Areas = {
 						}else{
 							Player.quests.questProgress.snowCollected++;
 						}
-						Dom.quests.active();
+						Dom.checkProgress();
 						// replace tiles with no snow rocks
 						map.setTile(0, map.getCol(x), map.getRow(y - 60), 34);
 						map.setTile(0, map.getCol(x + 60), map.getRow(y - 60), 35);
@@ -368,7 +368,7 @@ var Areas = {
 						}else{
 							Player.quests.questProgress.snowCollected++;
 						}
-						Dom.quests.active();
+						Dom.checkProgress();
 						// replace tiles with no snow rocks
 						map.setTile(0, map.getCol(x), map.getRow(y), 35);
 						map.setTile(0, map.getCol(x + 60), map.getRow(y), 36);
@@ -389,7 +389,7 @@ var Areas = {
 						}else{
 							Player.quests.questProgress.snowCollected++;
 						}
-						Dom.quests.active();
+						Dom.checkProgress();
 						// replace tiles with no snow rocks
 						map.setTile(0, map.getCol(x), map.getRow(y - 60), 35);
 						map.setTile(0, map.getCol(x + 60), map.getRow(y - 60), 36);
@@ -1175,7 +1175,7 @@ var Areas = {
 						}else{
 							Player.quests.questProgress.snowCollected++;
 						}
-						Dom.quests.active();
+						Dom.checkProgress();
 						// replace tiles with no snow rocks
 						map.setTile(0, map.getCol(x), map.getRow(y), 59);
 						map.setTile(0, map.getCol(x + 60), map.getRow(y), 60);
@@ -1196,7 +1196,7 @@ var Areas = {
 						}else{
 							Player.quests.questProgress.snowCollected++;
 						}
-						Dom.quests.active();
+						Dom.checkProgress();
 						// replace tiles with no snow rocks
 						map.setTile(0, map.getCol(x), map.getRow(y - 60), 59);
 						map.setTile(0, map.getCol(x + 60), map.getRow(y - 60), 60);

@@ -1377,7 +1377,7 @@ var Items = {
 							else {
 								Player.quests.questProgress.soulSceptreEnergy++;
 							}
-							Dom.quests.active();
+							Dom.checkProgress();
 							switch(Random(0, 2)) {
 								case 0:
 									Dom.chat.insert("The sceptre sizzles with soul energy.");
@@ -2538,7 +2538,7 @@ var Items = {
 				Player.inventory.items[inventoryPosition].functionText = functionText;
 				Dom.alert.page("You fished up a present! Deliver it to its owner first, then try to fish up another.");
 				// update quest log
-				Dom.quests.active();
+				Dom.checkProgress();
 			},
 		},
 		{
@@ -2573,7 +2573,7 @@ var Items = {
 					// functionText
 					Player.inventory.items[inventoryPosition].functionText = "To be delivered to " + Player.name + "<br>Click to open!";
 					// autocomplete quest
-					Dom.quests.active();
+					Dom.checkProgress();
 				}
 			},
 			onClick: function (inventoryPosition) {

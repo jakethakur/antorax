@@ -10,10 +10,7 @@ var Achievements = [
 		image: "../assets/icons/level5.png",
 		class: "single",
 		isCompleted: function(){
-			if(Player.level >= 5 && !Object.keys(Dom.inventory.achievements).includes("level5")){
-				Dom.inventory.achievements.level5 = GetFullDateDisplay();
-				SaveItem("achievements", JSON.stringify(Dom.inventory.achievements));
-			}
+			return Player.level >= 5;
 		}
 	},
 	{
@@ -64,10 +61,7 @@ var Achievements = [
 					progress++;
 				}
 			}
-			if(progress >= 20 && !Object.keys(Dom.inventory.achievements).includes("loggingCampQuestmaster")){
-				Dom.inventory.achievements.loggingCampQuestmaster = GetFullDateDisplay();
-				SaveItem("achievements", JSON.stringify(Dom.inventory.achievements));
-			}
+			return progress >= 20;
 		}	},
 		// COMBAT
 	{
@@ -150,7 +144,10 @@ var Achievements = [
 		image: "../assets/enemies/goblinKing.png",
 		position: {x: 57, y: 0},
 		color: "#ddddff",
-		class: "single",	},
+		class: "single",
+		isCompleted: function(){
+			return Player.bossesKilled.goblinKing !== 0;
+		}	},
 	{
 		name: "Outgrowing your Toys",
 		description: "???",
@@ -168,7 +165,10 @@ var Achievements = [
 		category: ["reputation"],
 		area: ["eaglecrestLoggingCamp"],
 		image: "",
-		class: "single",	},
+		class: "single",
+		isCompleted: function(){
+			return Player.reputation.eaglecrestLoggingCamp.level >= 6;
+		}	},
 		// ARCHAEOLOGY
 	{
 		name: "Logging Camp Archaeologist",
@@ -220,7 +220,10 @@ var Achievements = [
 		category: ["fishing", "quests"],
 		area: ["global", "eaglecrestLoggingCamp"],
 		image: "../assets/items/rod/2.png",
-		class: "single",	},
+		class: "single",
+		isCompleted: function(){
+			return Player.quests.completedQuestArray.includes("Learning to Fish III");
+		}	},
 	{
 		name: "Stacks of Seals I",
 		description: "Obtain 20 fishing seals.",
@@ -245,7 +248,10 @@ var Achievements = [
 		area: ["eaglecrestLoggingCamp"],
 		event: "Christmas",
 		image: "../assets/items/fish/21.png",
-		class: "single",	},
+		class: "single",
+		isCompleted: function(){
+			return Player.quests.completedQuestArray.includes("Sunken Presents");
+		}	},
 	{
 		name: "Novice Fisher",
 		description: "Fish up 100 fish.",
@@ -293,5 +299,12 @@ var Achievements = [
 		category: ["fishing"],
 		area: ["global"],
 		image: "../assets/items/fish/7.png",
-		class: "single",	},
+		class: "single",
+		isCompleted: function(){
+			for(let i = 0; i < Player.inventory.items.length; i++){
+				if(Player.inventory.items[i].name === "Chimerafish"){
+					return true;
+				}
+			}
+		}	},
 ]

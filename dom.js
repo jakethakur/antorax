@@ -39,99 +39,20 @@ let Dom = {
 	text: {},
 	levelUp: {},
 	alert: {},
+	achievements: {},
 };
 
-// LOADS ALL EXISTING USER SAVEDATA
-if(localStorage.getItem("settings") !== null){
-	Dom.settings.settings = JSON.parse(localStorage.getItem("settings"));
-}else{
-	Dom.settings.settings = {
-		fps: false,
-		coords: false,
-		grid: false,
-		hitboxes: false,
-		music: false,
-		weather: true,
-		bookmarks: "bottom",
-		keyboard: {
-			LEFT: "A", // 37
-			RIGHT: "D", // 39
-			UP: "W", // 38
-			DOWN: "S", // 40
-			// wsad movement
-			/*A: "A", // 65
-			D: "D", // 68
-			W: "W", // 87
-			S: "S",  // 83*/
-			// space (action button)
-			SPACE: "SPACE", // 32
-			// shift (hide secondary canvas)
-			SHIFT: "SHIFT", // 16
-			// hotkeys
-			CHAT: "C",
-			INVENTORY: "I",
-			QUESTS: "Q",
-			ADVENTURE: "L",
-			REPUTATION: "R",
-			SETTINGS: "Z",
-			ONE: "1",
-			TWO: "2",
-			THREE: "3",
-			FOUR: "4",
-			FIVE: "5",
-			SIX: "6",
-		},
-		instructionsLink: false,
-	}
+if(localStorage.getItem("user") !== null){
+	User = localStorage.getItem("user");
 }
-Keyboard.keys = Dom.settings.settings.keyboard;
 
-// user savedata FIXES (more at the bottom)
-if(Dom.settings.settings.keyboard === undefined){
-	Dom.settings.settings.keyboard = {
-		LEFT: "A", // 37
-		RIGHT: "D", // 39
-		UP: "W", // 38
-		DOWN: "S", // 40
-		// wsad movement
-		/*A: "A", // 65
-		D: "D", // 68
-		W: "W", // 87
-		S: "S",  // 83*/
-		// space (action button)
-		SPACE: "SPACE", // 32
-		// shift (hide secondary canvas)
-		SHIFT: "SHIFT", // 16
-		// hotkeys
-		CHAT: "C",
-		INVENTORY: "I",
-		QUESTS: "Q",
-		ADVENTURE: "L",
-		REPUTATION: "R",
-		SETTINGS: "Z",
-		ONE: "1",
-		TWO: "2",
-		THREE: "3",
-		FOUR: "4",
-		FIVE: "5",
-		SIX: "6",
-	};
-	Keyboard.keys = Dom.settings.settings.keyboard;
-}else if(Dom.settings.settings.keyboard.ONE === undefined){
-	Dom.settings.settings.keyboard.ONE = "1";
-	Dom.settings.settings.keyboard.TWO = "2";
-	Dom.settings.settings.keyboard.THREE = "3";
-	Dom.settings.settings.keyboard.FOUR = "4";
-	Dom.settings.settings.keyboard.FIVE = "5";
-	Dom.settings.settings.keyboard.SIX = "6";
-	Keyboard.keys = Dom.settings.settings.keyboard;
-}
+Keyboard.keys = User.settings.keyboard;
 
 // save an item to the settings object in local storage
-Dom.settings.save = function(name, value){
-	Dom.settings.settings[name] = value;
-	SaveItem("settings", JSON.stringify(Dom.settings.settings));
-}
+/*Dom.settings.save = function(name, value){
+	User.settings[name] = value;
+	SaveItem("settings", JSON.stringify(User.settings));
+}*/
 
 Dom.alert.page = function(text, type, values){
 	document.getElementById("alert").hidden = false;
@@ -256,7 +177,7 @@ Dom.changeBook = function(page, override, shouldNotBeOverriden, levelUpOverride)
 				Dom.currentlyDisplayed = "";
 				Dom.currentNPC = {};
 			}
-			Dom.quests.active();
+			Dom.checkProgress();
 			for(let i = 0; i < document.getElementsByClassName("closeClass").length; i++){
 				document.getElementsByClassName("closeClass")[i].style.border = "5px solid #886622";
 			}
@@ -391,7 +312,7 @@ Dom.expand = function(block){
 Dom.settings.bookmarkPosition = function(){
 	// arrange bookmarks at bottom of screen
 	if(document.getElementById("bottom").checked){
-		Dom.settings.save("bookmarks", "bottom");
+		User.settings.bookmarks = "bottom";
 		document.getElementById("changeChat").style.top="619px";
 		document.getElementById("changeChat").style.transform="rotate(90deg)";
 		document.getElementById("changeChat").style.transformOrigin="top left";
@@ -432,7 +353,7 @@ Dom.settings.bookmarkPosition = function(){
 		document.getElementById("dot").style.left="689px";
 	// arrange bookmarks at right of screen
 	}else{
-		Dom.settings.save("bookmarks", "right");
+		User.settings.bookmarks = "right";
 		document.getElementById("changeChat").style.left="1162px";
 		document.getElementById("changeChat").style.transform="rotate(0deg)";
 		document.getElementById("changeChat").style.transformOrigin="top left";
@@ -472,11 +393,12 @@ Dom.settings.bookmarkPosition = function(){
 		document.getElementById("dot").style.top="41px";
 		document.getElementById("dot").style.left="1217px";
 	}
+	Dom.checkProgress();
 }
 
 if(window.innerHeight >= 754){
 	document.getElementById("bottom").checked = true;
-	if(window.innerWidth >= 1295 && Dom.settings.settings.bookmarks === "right"){
+	if(window.innerWidth >= 1295 && User.settings.bookmarks === "right"){
 		document.getElementById("right").checked = true;
 	}
 	Dom.settings.bookmarkPosition();
@@ -971,7 +893,7 @@ Dom.inventory.removeItemCharge = function(inventoryPosition, hotbar){
 	if(!hotbar){
 		this.displayInformation(Player.inventory.items[inventoryPosition]);
 	}
-	Dom.quests.active();
+	Dom.checkProgress();
 }
 
 Dom.currentlyDisplayed = "";
@@ -1168,15 +1090,25 @@ Dom.quest.acceptRewards = function(){
 	if (Dom.currentlyDisplayed.onQuestFinish !== undefined){
 		Dom.currentlyDisplayed.onQuestFinish();
 	}
-	//if the onQuestFinish changed the page then don't change the page
+	// if the onQuestFinish changed the page then don't change the page
 	if(Dom.currentlyDisplayed === quest){
 		Dom.changeBook(Player.tab, true);
 	}
 	Game.getXP(quest.rewards.xp);
 }
 
-Dom.inventory.achievements = function(){
-	
+Dom.achievements.update = function(){
+	for(let i = 0; i < Achievements.length; i++){
+		if(!Object.keys(User.achievements).includes(ToCamelCase(Achievements[i].name)) && Achievements[i].isCompleted !== undefined && Achievements[i].isCompleted()){
+			User.achievements[ToCamelCase(Achievements[i].name)] = GetFullDateDisplay();
+		}
+	}
+}
+
+Dom.checkProgress = function(){
+	Dom.achievements.update();
+	Dom.quests.active();
+	Game.saveProgress();
 }
 
 Dom.quests.active = function(quest){
@@ -1602,9 +1534,8 @@ Dom.inventory.give = function(item, num, position){
 							}
 							Dom.inventory.update();
 						}
-						if(item.type !== "item" && item.type !== "bag" && item.type !== "currency" && item.type !== "fish" && item.type !== "consumable" && item.type !== "food" && item.type !== "teleport" && !Dom.inventory.archaeology.includes(item.name) && item.name !== undefined){
-							Dom.inventory.archaeology.push(item.name);
-							SaveItem("archaeology", JSON.stringify(Dom.inventory.archaeology));
+						if(item.type !== "item" && item.type !== "bag" && item.type !== "currency" && item.type !== "fish" && item.type !== "consumable" && item.type !== "food" && item.type !== "teleport" && !User.archaeology.includes(item.name) && item.name !== undefined){
+							User.archaeology.push(item.name);
 						}
 						if(item.images !== undefined){
 							for(let x = 0; x < item.images.names.length; x++){
@@ -1692,13 +1623,12 @@ Dom.inventory.give = function(item, num, position){
 			}
 			Dom.inventory.update();
 		}
-		if(item.type !== "item" && item.type !== "bag" && item.type !== "currency" && item.type !== "fish" && item.type !== "consumable" && item.type !== "food" && item.type !== "teleport" && !Dom.inventory.archaeology.includes(item.name) && item.name !== undefined){
-			Dom.inventory.archaeology.push(item.name);
-			SaveItem("archaeology",JSON.stringify(Dom.inventory.archaeology));
+		if(item.type !== "item" && item.type !== "bag" && item.type !== "currency" && item.type !== "fish" && item.type !== "consumable" && item.type !== "food" && item.type !== "teleport" && !User.archaeology.includes(item.name) && item.name !== undefined){
+			User.archaeology.push(item.name);
 		}
 	}
 	Dom.hotbar.update();
-	Dom.quests.active();
+	Dom.checkProgress();
 	if(added){
 		return position;
 	}else{
@@ -1706,24 +1636,24 @@ Dom.inventory.give = function(item, num, position){
 	}
 }
 
-if(localStorage.getItem("archaeology") !== null){
-	Dom.inventory.archaeology = JSON.parse(localStorage.getItem("archaeology"));
+/*if(localStorage.getItem("archaeology") !== null){
+	User.archaeology = JSON.parse(localStorage.getItem("archaeology"));
 }else{
-	Dom.inventory.archaeology = [];
+	User.archaeology = [];
 }
 if(localStorage.getItem("fish") !== null){
-	Dom.inventory.fish = JSON.parse(localStorage.getItem("fish"));
+	User.fish = JSON.parse(localStorage.getItem("fish"));
 }else{
-	Dom.inventory.fish = [];
+	User.fish = [];
 	for(let i = 0; i < Items.fish.length; i++){
-		Dom.inventory.fish.push(0);
+		User.fish.push(0);
 	}
 }
 if(localStorage.getItem("achievements") !== null){
-	Dom.inventory.achievements = JSON.parse(localStorage.getItem("achievements"));
+	User.achievements = JSON.parse(localStorage.getItem("achievements"));
 }else{
-	Dom.inventory.achievements = {};
-}
+	User.achievements = {};
+}*/
 
 Dom.inventory.food = function(inventoryPosition){
 	if(!Game.hero.hasStatusEffectType("food")){
@@ -1986,7 +1916,7 @@ Dom.inventory.removeById = function(ID, type, num){
 	}
 	Dom.expand("information");
 	Dom.hotbar.update();
-	Dom.quests.active();
+	Dom.checkProgress();
 	if(remove){
 		return true;
 	}else{
@@ -2021,7 +1951,7 @@ Dom.inventory.remove = function(num, all){
 	}
 	Dom.expand("information");
 	Dom.hotbar.update();
-	Dom.quests.active();
+	Dom.checkProgress();
 }
 
 // updates the position of the "buy bags to get more inventory space" text
@@ -2709,6 +2639,7 @@ Dom.levelUp.page = function(type, area, level){
 			document.getElementById("levelUpPageTitle").style.bottom = "20px";
 			document.getElementById("levelUpPageLevel").innerHTML = "<br>"+FromCamelCase(area)+"<br><br>"+Dom.reputation.levels[level-1] + " &#10132; " + Dom.reputation.levels[level];
 			document.getElementById("levelUpPageLevel").style.fontSize = "25px";
+			Dom.quests.active();
 		}else{
 			document.getElementById("levelUpPageTitle").innerHTML = "Level Up!";
 			document.getElementById("levelUpPageTitle").style.fontSize = "70px";
@@ -2783,7 +2714,7 @@ if(localStorage.getItem("accept") !== "true"){
 	document.getElementById("settingAcceptHolder").innerHTML = "";
 }
 
-if(Dom.settings.settings.music === true){
+if(User.settings.music === true){
 	document.getElementById("musicOn").checked = true;
 }
 
@@ -3183,8 +3114,8 @@ Dom.settings.hotkeys = function(ev){
 			Keyboard.keys[Object.keys(Keyboard.keys)[Dom.settings.hotkey]] = keyName;
 			document.getElementsByClassName("hotkey")[Dom.settings.hotkey].innerHTML = keyName.toUpperCase();
 			Dom.settings.hotkey = undefined;
-			Dom.settings.settings.keyboard = Keyboard.keys;
-			SaveItem("settings", JSON.stringify(Dom.settings.settings));
+			User.settings.keyboard = Keyboard.keys;
+			Dom.checkProgress();
 		// if it is unavailable set it back to what it was
 		}else{
 			document.getElementsByClassName("hotkey")[Dom.settings.hotkey].innerHTML = Keyboard.keys[Object.keys(Keyboard.keys)[Dom.settings.hotkey]].toUpperCase();
@@ -3335,16 +3266,16 @@ Dom.adventure.instructionIndex = function(){
 	}
 }
 
-if(Dom.settings.settings.coords === true){
+if(User.settings.coords === true){
 	document.getElementById("coordsOn").checked = true;
 }
-if(Dom.settings.settings.fps === true){
+if(User.settings.fps === true){
 	document.getElementById("fpsOn").checked = true;
 }
-if(Dom.settings.settings.hitboxes === true){
+if(User.settings.hitboxes === true){
 	document.getElementById("hitboxesOn").checked = true;
 }
-if(Dom.settings.settings.grid === true){
+if(User.settings.grid === true){
 	document.getElementById("gridOn").checked = true;
 }
 
@@ -3456,7 +3387,7 @@ Dom.adventure.update = function(){
 			document.getElementById("adventurePage").innerHTML += html;
 		}
 	}
-	if(Dom.settings.settings.instructionsLink === true){
+	if(User.settings.instructionsLink === true){
 		// link to instructions shows as purple
 		document.getElementById("instructionsTitle").style.color = "#551a8b";
 	}
@@ -3476,7 +3407,7 @@ document.getElementById("weatherOn").onclick = function(){
 document.getElementById("weatherOff").onclick = function(){
 	Dom.settings.save("weather", false);
 }
-if(!Dom.settings.settings.weather){
+if(!User.settings.weather){
 	document.getElementById("weatherOff").checked = true;
 }
 
@@ -3668,7 +3599,6 @@ for(let i = 0; i < document.getElementsByClassName("hotkey").length; i++){
 			Keyboard.keys[Object.keys(Keyboard.keys)[Dom.settings.hotkey]] = Keyboard.keys[Object.keys(Keyboard.keys)[i]];
 			Keyboard.keys[Object.keys(Keyboard.keys)[i]] = temp;
 			Dom.settings.hotkey = undefined;
-			SaveItem("settings", JSON.stringify(Dom.settings.settings));
 		}
 	}
 }
