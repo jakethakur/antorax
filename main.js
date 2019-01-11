@@ -575,7 +575,7 @@ class Character extends Thing {
 						Player.quests.questProgress.goblinsKilled++;
 					}
 					// goblins killed with goblin torch objective
-					if (JSON.stringify(Player.inventory.weapon) === JSON.stringify(Items.staff[7])) { // goblin torch equipped
+					if (Player.inventory.weapon.type === "staff" && Player.inventory.weapon.id === 7) { // goblin torch equipped
 						if (Player.quests.questProgress.goblinsKilledWithTorch === undefined) {
 							Player.quests.questProgress.goblinsKilledWithTorch = 1;
 						}

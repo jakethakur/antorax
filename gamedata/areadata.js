@@ -918,9 +918,9 @@ var Areas = {
 							{item: Items.consumable[4], cost: 2}, // potion of health I
 							{item: Items.consumable[3], cost: 2}, // potion of swiftness I
 							{item: Items.consumable[2], cost: 4}, // potion of strength I
-							{item: Items.consumable[11], cost: 4, condition: function () {
+							{item: Items.consumable[11], cost: 4, condition: function () { // potion of goblin resistance II
 								return Player.quests.completedQuestArray.includes("Potion Making II");
-							}}, // potion of goblin resistance II
+							}},
 							{item: Items.consumable[17], cost: 2, costCurrency: 5, condition: function () { // Christmas Potion
 						        return Game.event === "Christmas";
 						    }},

@@ -36,7 +36,6 @@ var Quests = {
 			rewards: {
 				xp: 10,
 				items: [
-					{item: Items.currency[2], quantity: 5,},
 					{item: Items.boots[2],},
 				],
 			},
@@ -127,6 +126,9 @@ var Quests = {
 			
 			rewards: {
 				xp: 20,
+				items: [
+					{item: Items.currency[2], quantity: 3,},
+				],
 			},
 		},
 		
@@ -218,7 +220,7 @@ var Quests = {
 			rewards: {
 				xp: 30,
 				items: [
-					{item: Items.currency[2], quantity: 2,},
+					{item: Items.currency[2], quantity: 1,},
 				],
 				reputation: {
 					eaglecrestLoggingCamp: 50,
@@ -274,7 +276,7 @@ var Quests = {
 			rewards: {
 				xp: 50,
 				items: [
-					{item: Items.currency[2], quantity: 5,},
+					{item: Items.currency[2], quantity: 3,},
 					{item: Items.chest[4],},
 				],
 				reputation: {
@@ -317,7 +319,7 @@ var Quests = {
 			rewards: {
 				xp: 30,
 				items: [
-					{item: Items.currency[2], quantity: 2,},
+					{item: Items.currency[2], quantity: 1,},
 				],
 				reputation: {
 					eaglecrestCity: 20,
@@ -400,7 +402,7 @@ var Quests = {
 			},
 			
 			howToStart: "Speak to <strong>Fisherman Tobenam</strong>.",
-			levelRequirement: 1,
+			levelRequirement: 2,
 			questRequirements: ["A Lost Fishing Rod"],
 			
 			rewards: {
@@ -438,7 +440,7 @@ var Quests = {
 			},
 			
 			howToStart: "Speak to <strong>Fisherman Tobenam</strong>.",
-			levelRequirement: 1,
+			levelRequirement: 2,
 			questRequirements: ["Learning to Fish I"],
 			
 			rewards: {
@@ -474,7 +476,7 @@ var Quests = {
 			},
 			
 			howToStart: "Speak to <strong>Fisherman Tobenam</strong>.",
-			levelRequirement: 1,
+			levelRequirement: 2,
 			questRequirements: ["Learning to Fish II"],
 			
 			rewards: {
@@ -516,14 +518,14 @@ var Quests = {
 			rewards: {
 				xp: 30,
 				items: [
-					{item: Items.currency[2], quantity: 2,},
+					{item: Items.currency[2], quantity: 1,},
 				],
 				reputation: {
 					eaglecrestLoggingCamp: 50,
 				},
 			},
 			
-			removeItems: [///c18
+			removeItems: [
 				// remove all traps
 				{item: Items.consumable[7], quantity: "all",},
 			],
@@ -563,7 +565,7 @@ var Quests = {
 			rewards: {
 				xp: 30,
 				items: [
-					{item: Items.currency[2], quantity: 2,},
+					{item: Items.currency[2], quantity: 1,},
 				],
 				reputation: {
 					eaglecrestLoggingCamp: 50,
@@ -620,7 +622,7 @@ var Quests = {
 			rewards: {
 				xp: 30,
 				items: [
-					{item: Items.currency[2], quantity: 2,},
+					{item: Items.currency[2], quantity: 1,},
 				],
 				reputation: {
 					eaglecrestLoggingCamp: 50,
@@ -735,7 +737,7 @@ var Quests = {
 			
 			removeItems: [
 				{item: Items.item[3], quantity: 8,}, // scrap of cloth
-				{item: Items.item[4], quantity: 8,}, // polished rock
+				{item: Items.item[4], quantity: 4,}, // polished rock
 			],
 		},
 		
@@ -773,7 +775,7 @@ var Quests = {
 			rewards: {
 				xp: 30,
 				items: [
-					{item: Items.currency[2], quantity: 3,},
+					{item: Items.currency[2], quantity: 2,},
 				],
 				reputation: {
 					eaglecrestLoggingCamp: 50,
@@ -903,7 +905,7 @@ var Quests = {
 			},
 			
 			howToStart: "Speak to <strong>Ciarra Darkbrew</strong>.",
-			levelRequirement: 1,
+			levelRequirement: 3,
 			questRequirements: ["Potion Making"],
 			
 			removeItems: [
@@ -915,7 +917,7 @@ var Quests = {
 			rewards: {
 				xp: 50,
 				items: [
-					{item: Items.currency[2], quantity: 3,},
+					{item: Items.currency[2], quantity: 2,},
 				],
 				reputation: {
 					eaglecrestLoggingCamp: 50,
@@ -958,7 +960,7 @@ var Quests = {
 			rewards: {
 				xp: 30,
 				items: [
-					{item: Items.currency[2], quantity: 2,},
+					{item: Items.currency[2], quantity: 1,},
 				],
 				reputation: {
 					eaglecrestLoggingCamp: 50,
@@ -1006,7 +1008,7 @@ var Quests = {
 			rewards: {
 				xp: 50,
 				items: [
-					{item: Items.currency[2], quantity: 5,},
+					{item: Items.currency[2], quantity: 3,},
 				],
 				reputation: {
 					eaglecrestLoggingCamp: 250,
@@ -1053,7 +1055,7 @@ var Quests = {
 			rewards: {
 				xp: 25,
 				items: [
-					{item: Items.currency[5], quantity: 2,},
+					{item: Items.currency[5], quantity: 2,}, // christmas token
 				],
 			},
 			
@@ -1108,8 +1110,8 @@ var Quests = {
 			rewards: {
 				xp: 50,
 				items: [
-					{item: Items.currency[5], quantity: 6,},
-					{item: Items.item[1],},
+					{item: Items.currency[5], quantity: 6,}, // christmas token
+					{item: Items.item[1],}, // secret (fishing rod is given through present)
 				],
 			},
 		},
@@ -1151,7 +1153,7 @@ var Quests = {
 			rewards: {
 				xp: 25,
 				items: [
-					{item: Items.currency[5], quantity: 2,},
+					{item: Items.currency[5], quantity: 2,}, // christmas token
 				],
 			},
 			
@@ -1233,8 +1235,9 @@ var Quests = {
 			questRequirements: ["To the Logging Camp"],
 			
 			rewards: {
-				xp: 25,
+				xp: 10,
 			},
+			
 			startRewards: {
 				items: [
 					{item: Items.consumable[5],},

@@ -119,6 +119,51 @@ var Items = {
 				xpBonus: 20,
 			},
 		},
+		{
+			id: 8,
+			name: "Archaeologist's Hat",
+			type: "helm",
+			image: "assets/items/helm/8.png",
+			tier: 1,
+			rarity: "unique",
+			obtain: "Currently unobtainable.",
+			sellPrice: 2, // TBC
+			stats: {
+				defence: 1,
+				looting: 30,
+			},
+		},
+		{
+			id: 9,
+			name: "Master Archaeologist's Hat",
+			type: "helm",
+			image: "assets/items/helm/9.png",
+			tier: 1,
+			rarity: "mythic",
+			lore: "Only owned by the most accomplished of archaeologists.",
+			obtain: "Only awarded to the most accomplished of archaeologists...",
+			sellPrice: 20, // TBC
+			stats: {
+				defence: 2,
+				looting: 100,
+			},
+		},
+		{
+			id: 10,
+			name: "Party Hat",
+			type: "helm",
+			image: "assets/items/helm/10.png",
+			tier: 1,
+			rarity: "mythic",
+			lore: "Obtained from Antorax's third birthday, 2019.",
+			obtain: "Was sent in the mail on Antorax Day, 2019.",
+			sellPrice: 3, // equal to the age of Antorax :)
+			stats: {
+				defence: 1,
+				// TBD
+			},
+			archaeologyHidden: true,
+		},
 	],
 	chest: [
 		{
@@ -437,7 +482,7 @@ var Items = {
 				criticalChance: 10,
 				dodgeChance: 10,
 				healthRegen: 0.5,
-				looting: 25,
+				looting: 10,
 				walkSpeed: 30,
 			},
 		},
@@ -1291,7 +1336,7 @@ var Items = {
 			name: "Test junk item",
 			type: "item",
 			rarity: "junk",
-			image: "assets/items/staff/5.png", // perhaps give it its own image?
+			image: "assets/items/fish/23.png",
 			stack: 2,
 		},
 		{
@@ -1299,7 +1344,7 @@ var Items = {
 			name: "",
 			type: "item",
 			lore: "You can earn a special item from completing this quest.",
-			image: "assets/items/item/1.png", // perhaps give it its own image?
+			image: "assets/items/item/1.png",
 			stack: 1,
 		},
 		{
