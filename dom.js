@@ -127,26 +127,34 @@ if(document.getElementById("settingDelete") !== null){
 // DO NOT ADD CODE ABOVE THIS POINT
 
 Dom.achievements.page = function(i){
-	document.getElementById("achievement").innerHTML = '<div id="achievementImg" style="background-image: url(\''+Achievements[i].image.substring(1)+'\')"</img></div>\
-	<p id="achievementName"><strong>'+Achievements[i].name+'</strong></p><p id="achievementDescription">Achievement Unlocked</p><p id="achievementPoints">'+Achievements[i].points+'</p>';
-	
-	setTimeout(function(){
-		document.getElementById("achievementDescription").style.marginRight = 15 + document.getElementById("achievementPoints").offsetWidth+"px";
-	},1);
-	if(Achievements[i].position !== undefined){
-		document.getElementById("achievementImg").style.backgroundPosition = Achievements[i].position.x+"%"+Achievements[i].position.y+"%";
+	if(!Dom.achievements.wait){
+		Dom.achievements.wait = true;
+		document.getElementById("achievement").innerHTML = '<div id="achievementImg" style="background-image: url(\''+Achievements[i].image.substring(1)+'\')"</img></div>\
+		<p id="achievementName"><strong>'+Achievements[i].name+'</strong></p><p id="achievementDescription">Achievement Unlocked</p><p id="achievementPoints">'+Achievements[i].points+'</p>';
+		
+		setTimeout(function(){
+			document.getElementById("achievementDescription").style.marginRight = 15 + document.getElementById("achievementPoints").offsetWidth+"px";
+		},1);
+		if(Achievements[i].position !== undefined){
+			document.getElementById("achievementImg").style.backgroundPosition = Achievements[i].position.x+"%"+Achievements[i].position.y+"%";
+		}
+		if(Achievements[i].color !== undefined){
+			document.getElementById("achievementImg").style.backgroundColor = Achievements[i].color;
+		}
+		
+		document.getElementById("achievement").hidden = false;
+		setTimeout(function(){
+			document.getElementById("achievementDescription").innerHTML = Achievements[i].description;
+		}, 3000);
+		setTimeout(function(){
+			document.getElementById("achievement").hidden = true;
+			Dom.achievements.wait = false;
+		}, 5000);
+	}else{
+		setTimeout(function(){
+			Dom.achievements.page(i);
+		}, 6000);
 	}
-	if(Achievements[i].color !== undefined){
-		document.getElementById("achievementImg").style.backgroundColor = Achievements[i].color;
-	}
-	
-	document.getElementById("achievement").hidden = false;
-	setTimeout(function(){
-		document.getElementById("achievementDescription").innerHTML = Achievements[i].description;
-	}, 3000);
-	setTimeout(function(){
-		document.getElementById("achievement").hidden = true;
-	}, 5000);
 }
 
 Dom.achievements.update = function(){
