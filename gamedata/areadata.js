@@ -950,6 +950,7 @@ var Areas = {
 				image: "dummy",
 				name: "Training Dummy",
 				hostility: "dummy",
+				subSpecies: "dummy",
 				stats: {
 					maxHealth: 1000,
 				},
@@ -1142,7 +1143,7 @@ var Areas = {
 			waterTiles: [36, 46, 56, 32, 42, 52],
 			iceTiles: [36, 46, 32, 42, 52],
 			mudTiles: [1, 11, 21, 31, 41, 51, 61, 71, 81, 91, 101, 111, 121, 131],
-			pathTiles: [4, 6, 14, 16,  24, 26, 34, 44, 54, 64, 74, 84],
+			pathTiles: [4, 6, 14, 16, 24, 26, 34, 44, 54, 64, 74, 84],
 			dayTiles: [3, 13, 23], // torches
 			nightTiles: [33, 43, 53], // torches
 			layers: [
@@ -1417,6 +1418,49 @@ var Areas = {
 		],
 		
 		things: [], // for traps to be shown
+	},
+	
+	nilbogPast: {
+		
+		data: {
+			name: "The Nilbog",
+			level: "100 years ago...",
+			territory: "Hostil territory",
+			displayOnEnter: true,
+		},
+		
+		indoors: true, // never icy, always day (time travel)
+
+		mapData: {
+			cols: 15,
+			rows: 15,
+			tsize: 60,
+			tilesPerRow: 8,
+			solidTiles: [21, 29, 37, 45, 53, 61], // tower
+			waterTiles: [31, 39, 47],
+			mudTiles: [4, 12, 20, 28, 36, 44, 52, 60, 68, 76, 84, 92, 100, 108],
+			pathTiles: [6, 14, 22, 30, 38, 46, 54, 62, 70, 7, 15, 23],
+			layers: [
+				[47, 31, 31, 96, 72, 77, 77, 77, 77, 77, 77, 29, 53, 61, 21, 31, 55, 39, 31, 8, 77, 77, 77, 77, 77, 77, 53, 61, 53, 61, 31, 31, 31, 31, 8, 77, 77, 77, 77, 77, 77, 29, 53, 61, 21, 63, 31, 47, 16, 80, 77, 77, 77, 77, 77, 77, 53, 61, 53, 61, 31, 31, 16, 80, 77, 77, 77, 77, 77, 77, 77, 29, 53, 61, 21, 56, 56, 80, 77, 69, 77, 77, 77, 77, 77, 77, 53, 61, 53, 61, 1, 2, 3, 77, 77, 77, 77, 77, 77, 77, 77, 29, 21, 29, 21, 9, 10, 11, 77, 77, 77, 77, 77, 77, 77, 13, 21, 37, 21, 29, 77, 77, 77, 77, 77, 77, 77, 77, 1, 2, 3, 29, 45, 29, 21, 77, 77, 77, 77, 77, 77, 77, 77, 9, 10, 11, 77, 6, 77, 5, 77, 77, 77, 77, 77, 77, 13, 77, 70, 6, 6, 6, 54, 77, 77, 77, 77, 77, 77, 77, 77, 30, 6, 54, 5, 77, 77, 77, 77, 77, 77, 77, 77, 77, 77, 77, 77, 77, 77, 77, 77, 77, 108, 28, 5, 77, 77, 1, 2, 3, 77, 69, 77, 77, 77, 77, 108, 76, 52, 77, 77, 77, 9, 10, 11, 77, 77, 77, 77, 108, 20, 76, 12, 52, 77],
+				[],
+			],
+		},
+		
+		images: {
+			tiles: {normal: "./assets/tilemap/nilbogPast.png"},
+			// tattered knight
+			melee: {normal: "./assets/projectiles/melee.png"},
+		},
+		
+		song_day: "./assets/music/Pippin-the-Hunchback.mp3",
+		
+		checkpoint: false,
+		
+		areaTeleports: [
+		],
+		
+		enemies: [
+		],
 	},
 	
 	nilbogTower1: {

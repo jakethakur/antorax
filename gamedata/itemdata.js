@@ -164,6 +164,8 @@ var Items = {
 			},
 			archaeologyHidden: true,
 		},
+		
+		//Game.launchFirework({x:Game.hero.x, y:Game.hero.y, radius: 50, particles: 50, explodeTime: 1000, lingerTime: 1000, colours: ["#FF0000"]});
 	],
 	chest: [
 		{

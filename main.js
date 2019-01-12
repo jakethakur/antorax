@@ -565,8 +565,16 @@ class Character extends Thing {
 					Player.bossesKilled[this.bossKilledVariable] = GetFullDate();
 				}
 				
+				//
 				// quest progress
+				//
+				
+				// enemies killed achievement
+				User.progress.enemies++;
+				
 				if (this.subSpecies = "nilbog goblin") {
+					// goblins killed achievement
+					User.progress.goblins++;
 					// general goblins killed objective
 					if (Player.quests.questProgress.goblinsKilled === undefined) {
 						Player.quests.questProgress.goblinsKilled = 1;
@@ -583,6 +591,9 @@ class Character extends Thing {
 							Player.quests.questProgress.goblinsKilledWithTorch++;
 						}
 					}
+				}
+				else if (this.subSpecies === "dummy") {
+					User.progress.dummies++;
 				}
 				
 				// weapon chat message (some weapons have a chat message for when they kill something!)
@@ -895,6 +906,33 @@ class Tripwire extends Entity {
 		this.onPlayerTouch = properties.onPlayerTouch; // function called when touched by player (will be called multiple times)
 		// note that onPlayerTouch is bound to the entity (this = entity)
 	}
+}
+
+// drawn as a rectangle with a colour; is removed after a certain period of time
+class Particle extends Entity {
+	constructor(properties) {
+		super(properties);
+		
+		this.colour = properties.colour;
+		
+		this.moveTowards = properties.moveTowards; // optional
+		
+		this.id = Game.nextParticleId; // way that the game can identify which particle was added (without position in array being shifted)
+		Game.nextParticleId++;
+	}
+}
+
+// function used to create a particle and add it to the particles array
+Game.createParticle = function (properties) {
+	// create particle
+	let id = Game.nextParticleId; // id of added particle
+	let particle = new Particle(properties);
+	Game.particles.push(particle);
+	// set its removal time
+	setTimeout(function (id) {
+		// remove the same particle (particle of the same id)
+		Game.particles.splice(Game.searchFor(id, Game.particles), 1);
+	}, properties.removeIn, id);
 }
 
 // a thing that is a point of information or special interest
@@ -1335,6 +1373,9 @@ class Hero extends Attacker {
 						
 						if (this.channelling.length !== undefined) {
 							// player has caught a fish
+							// achievement variable
+							User.progress.fish++;
+							// quest variable
 							if (Player.quests.questProgress.fishCaught === undefined) {
 								Player.quests.questProgress.fishCaught = 1;
 							}
@@ -2890,6 +2931,52 @@ Game.spells.charge = {
 };
 
 //
+// Item functions
+//
+
+// launch a firework! (circle-shaped)
+// properties should contain x, y, radius (radius of firework circle) ... 
+// ... particles (number of particles), explodeTime (time to reach maximum radius) ...
+// ... lingerTime (time remained at maximum radius), colours (an array of hex)
+Game.launchFirework = function (properties) {
+	// sunflower seed distribution is used to randomly distribute points in a circle
+	// thanks https://stackoverflow.com/a/28572551/9713957 :)
+	let alpha = 0;
+	let b = Math.round(alpha*Math.sqrt(properties.particles)); // number of boundary points
+	let phi = (Math.sqrt(5)+1)/2; // golden ratio
+	for (let i = 0; i < properties.particles; i++) {
+		// position calculations for maximum position from centre
+		let r;
+	    if (i+1 > properties.particles - b) {
+			// place on the boundary
+			r = properties.radius;
+		}
+		else {
+			// apply square root
+			r = (Math.sqrt(i/2)/Math.sqrt(properties.particles-(b+1)/2)) * properties.radius;
+		}
+		let theta = 2*Math.PI*(i+1)/Math.pow(phi,2);
+		// positioning (net movement from properties.x and properties.y)
+		let x = r*Math.cos(theta);
+		let y = r*Math.sin(theta);
+		// create a new particle
+		this.createParticle({
+			x: properties.x,
+			y: properties.y,
+			width: 2,
+			height: 2,
+			colour: properties.colours[Random(0, properties.colours.length-1)], // random colour from array
+			moveTowards: {
+				x: x + properties.x,
+				y: y + properties.y,
+				time: properties.explodeTime,
+			},
+			removeIn: properties.explodeTime + properties.lingerTime,
+		});
+	}
+}
+
+//
 // Load game
 //
 
@@ -3124,6 +3211,10 @@ Game.loadArea = function (areaName, destination) {
 				}
 			});
 		}
+		
+		// particles
+		this.particles = [];
+		this.nextParticleId = 0; // reset particle id chain (because particles don't persist between areas)
 		
 		// reset any channelling projectile (if the player exists)
 		if (this.hero !== undefined) {
@@ -4303,6 +4394,20 @@ Game.update = function (delta) {
 	
 	this.playerProjectileUpdate(delta); // update player's currently channelling projectile
 	
+	// update particles (move them)
+	if (document.getElementById("particlesOn").checked) { // check particle setting
+		for (let i = 0; i < this.particles.length; i++) {
+			let particle = this.particles[i]; // save to variable for easy access
+			
+			if (particle.moveTowards !== undefined) {
+				// move the particle towards a location over its time period
+				let proportionTravelled = delta*1000 / particle.moveTowards.time;
+				particle.x += (particle.moveTowards.x - particle.x) * proportionTravelled;
+				particle.y += (particle.moveTowards.y - particle.y) * proportionTravelled;
+			}
+		}
+	}
+	
 	// update weather
 	if (document.getElementById("weatherOn").checked && !Areas[Game.areaName].indoors) {
 		if (Weather.weatherType !== "clear") {
@@ -5102,7 +5207,7 @@ Game.render = function (delta) {
 	this.ctx.globalAlpha = 1;
 	
 	// draw projectiles
-    for(var i = 0; i < this.projectiles.length; i++) {
+    for (let i = 0; i < this.projectiles.length; i++) {
 		// set screen x and y
 		this.updateScreenPosition(this.projectiles[i]);
 		
@@ -5140,7 +5245,7 @@ Game.render = function (delta) {
 			}
 			
 			// shows damage dealt by projectile
-			for(var x = 0; x < this.projectiles[i].damageDealt.length; x++) {
+			for (let x = 0; x < this.projectiles[i].damageDealt.length; x++) {
 				// formatting
 				if (this.projectiles[i].damageDealt[x].critical) {
 					this.ctx.fillStyle = "rgb(255, 0, 0)"; // maybe use rgba to make it fade away?
@@ -5162,6 +5267,22 @@ Game.render = function (delta) {
 			this.ctx.globalAlpha = 1; // restore transparency if it was changed above (e.g: mage channelled projectile)
 		}
     }
+	
+	// draw particles
+	// particles are drawn as rects
+	// their properties are x, y, width, height, colour (as hex)
+	if (document.getElementById("particlesOn").checked) { // check particle setting
+		for (let i = 0; i < this.particles.length; i++) {
+			let particle = this.particles[i]; // save to variable for easy access
+			
+			// update screen position of particle
+			this.updateScreenPosition(particle);
+			
+			// draw particle
+			this.ctx.fillStyle = particle.colour;
+			this.ctx.fillRect(particle.x, particle.y, particle.width, particle.height);
+		}
+	}
 
     // draw map top layer
     //this._drawLayer(1);
@@ -5171,22 +5292,22 @@ Game.render = function (delta) {
 	//
 
     // draw map grid (debug)
-    if(document.getElementById("gridOn").checked) {
+    if (document.getElementById("gridOn").checked) {
 		this._drawGrid();
     }
 	
     // draw hitboxes (debug)
-    if(document.getElementById("hitboxesOn").checked) {
+    if (document.getElementById("hitboxesOn").checked) {
 		this.drawHitboxes();
     }
 	
     // show player coords (debug)
-    if(document.getElementById("coordsOn").checked) {
+    if (document.getElementById("coordsOn").checked) {
 		this.coordinates(this.hero);
     }
 	
     // show canvas fps (debug)
-	if(document.getElementById("fpsOn").checked){
+	if (document.getElementById("fpsOn").checked){
 		this.fps(delta);
 	}
 	

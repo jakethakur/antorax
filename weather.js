@@ -20,7 +20,8 @@ Weather.chooseWeather = function (areaName) {
 	if (Areas[areaName].isIcy !== undefined && Areas[areaName].isIcy()) {
 		// icy area
 		this.weatherType = "snow";
-	}else{
+	}
+	else {
 		this.weatherType = "clear";
 	}
 }
@@ -59,7 +60,8 @@ Weather.updateWind = function () {
 // move weather particles due to camera move
 // called by Camera.update
 Weather.move = function (screenMovedX, screenMovedY) {
-	this.particleArray.forEach(particle => {
+	for (let i = 0; i < this.particleArray.length; i++) { // iterate through particle array
+		let particle = this.particleArray[i];
 		particle.x -= screenMovedX;
 		particle.y -= screenMovedY;
 		// check for particle off screen (x)
@@ -80,7 +82,7 @@ Weather.move = function (screenMovedX, screenMovedY) {
 			particle.y = 610;
 			particle.x = Random(0, 600);
 		}
-	});
+	}
 }
 
 // update weather particles
@@ -109,7 +111,8 @@ Weather.update = function (delta) {
 	}
 	
 	// move weather particles
-	this.particleArray.forEach(particle => {
+	for (let i = 0; i < this.particleArray.length; i++) { // iterate through particle array
+		let particle = this.particleArray[i];
 		if (particle.y > 610 || particle.x < -10 || particle.x > 610) {
 			// particle off screen
 			particle.y = -10;
@@ -118,15 +121,16 @@ Weather.update = function (delta) {
 		particle.y += this[this.weatherType].gravity * particle.speedMultiplier * delta;
 		particle.y += Math.sin(this.windDirection) * (this.windIntensity * this[this.weatherType].windMultiplier) * particle.speedMultiplier * delta;
 		particle.x += Math.cos(this.windDirection) * (this.windIntensity * this[this.weatherType].windMultiplier) * particle.speedMultiplier * delta;
-	});
+	}
 }
 
 // render weather particles
 Weather.render = function () {
-	this.particleArray.forEach(particle => {
+	for (let i = 0; i < this.particleArray.length; i++) { // iterate through particle array
+		let particle = this.particleArray[i];
 		if (this.weatherType === "snow") {
-			Game.ctx.fillStyle="#FFFFFF";
-			Game.ctx.fillRect(particle.x, particle.y , 2, 2);
+			this.ctx.fillStyle="#FFFFFF";
+			this.ctx.fillRect(particle.x, particle.y , 2, 2);
 		}
-	});
+	}
 }
