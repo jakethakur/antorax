@@ -87,6 +87,7 @@ var Achievements = [
 		}
 	},
 	{
+		// id: 6,
 		name: "Adept Combatant",
 		description: "Kill 1,000 enemies.",
 		points: 10,
@@ -99,6 +100,7 @@ var Achievements = [
 		}
 	},
 	{
+		// id: 7,
 		name: "Intermediate Combatant",
 		description: "Kill 2,500 enemies.",
 		points: 10,
@@ -111,6 +113,7 @@ var Achievements = [
 		}
 	},
 	{
+		// id: 8,
 		name: "Expert Combatant",
 		description: "Kill 5,000 enemies.",
 		points: 10,
@@ -123,6 +126,7 @@ var Achievements = [
 		}
 	},
 	{
+		// id: 9,
 		name: "Master Combatant",
 		description: "Kill 10,000 enemies.",
 		points: 25,
@@ -135,6 +139,7 @@ var Achievements = [
 		}
 	},
 	{
+		// id: 10,
 		name: "Goblin Slayer Bronze",
 		description: "Kill 100 Nilbog goblins.",
 		points: 10,
@@ -149,6 +154,7 @@ var Achievements = [
 		}
 	},
 	{
+		// id: 11,
 		name: "Goblin Slayer Silver",
 		description: "Kill 250 Nilbog goblins.",
 		points: 10,
@@ -163,6 +169,7 @@ var Achievements = [
 		}
 	},
 	{
+		// id: 12,
 		name: "Goblin Slayer Gold",
 		description: "Kill 500 Nilbog goblins.",
 		points: 10,
@@ -177,6 +184,7 @@ var Achievements = [
 		}
 	},
 	{
+		// id: 13,
 		name: "Green-Skinned Assault",
 		description: "Kill the Goblin King.",
 		points: 5,
@@ -191,6 +199,7 @@ var Achievements = [
 		}
 	},
 	{
+		// id: 14,
 		name: "Outgrowing your Toys",
 		description: "???",
 		points: 10,
@@ -205,6 +214,7 @@ var Achievements = [
 	},
 		// REPUTATION
 	{
+		// id: 15,
 		name: "Tree Hugger",
 		description: "Reach venerated reputation with Eaglecrest Logging Camp.",
 		points: 20,
@@ -218,6 +228,7 @@ var Achievements = [
 	},
 		// ARCHAEOLOGY
 	{
+		// id: 16,
 		name: "Logging Camp Archaeologist",
 		description: "Uncover all unidentified items in Eaglecrest Logging Camp.",
 		points: 20,
@@ -227,6 +238,7 @@ var Achievements = [
 		class: "cumulative",
 	},
 	{
+		// id: 17,
 		name: "Return of the Ocean Warrior",
 		description: "Uncover the Set of the Ocean Warrior.",
 		points: 10,
@@ -236,6 +248,7 @@ var Achievements = [
 		class: "single",
 	},
 	{
+		// id: 18,
 		name: "Master Archaeologist",
 		description: "Complete archaeology.",
 		points: 100,
@@ -245,6 +258,7 @@ var Achievements = [
 		class: "cumulative",
 	},
 	{
+		// id: 19,
 		name: "Samhain Archaeologist I",
 		description: "Obtain all tier I Samhain items.",
 		points: 15,
@@ -255,6 +269,7 @@ var Achievements = [
 		class: "cumulative",
 	},
 	{
+		// id: 20,
 		name: "Christmas Archaeologist I",
 		description: "Obtain all tier I Christmas items.",
 		points: 15,
@@ -266,6 +281,7 @@ var Achievements = [
 	},
 		// FISHING
 	{
+		// id: 21,
 		name: "Learning to Fish",
 		description: "Complete the introductory fishing quests.",
 		points: 10,
@@ -278,6 +294,7 @@ var Achievements = [
 		}
 	},
 	{
+		// id: 22,
 		name: "Stacks of Seals I",
 		description: "Obtain 20 fishing seals.",
 		points: 10,

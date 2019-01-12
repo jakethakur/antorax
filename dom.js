@@ -46,7 +46,17 @@ for(let i = 0; i < Items.fish.length; i++){
 	User.fish.push(0);
 }
 if(localStorage.getItem("user") !== null){
-	User = JSON.parse(localStorage.getItem("user"));
+	User = Object.assign(User, JSON.parse(localStorage.getItem("user")));
+}
+
+// USER SAVEDATA FIXES more at bottom
+if(localStorage.getItem("archaeology") !== null){
+	User.archaeology = JSON.parse(localStorage.getItem("archaeology"));
+	localStorage.removeItem("archaeology");
+}
+if(localStorage.getItem("fish") !== null){
+	User.archaeology = JSON.parse(localStorage.getItem("fish"));
+	localStorage.removeItem("fish");
 }
 
 Keyboard.keys = User.settings.keyboard;
@@ -103,7 +113,7 @@ Dom.alert.page = function(text, type, values){
 // Make the save, logout, delete buttons at the bottom of the settings page
 document.getElementById("settingLogout").innerHTML = "You are logged in as "+Player.name+(localStorage.getItem("accept") ? "<div id='settingSave' onclick='Game.saveProgress()'>Save</div>" : "")+"<div id='settingLogoutInner' onclick='Game.saveProgress(\"logout\")'>Logout</div>"+(localStorage.getItem("accept") ? "<div id='settingDelete'>Delete</div>" : "")+"<br><br><br><div id='settingControls' onclick='Dom.settings.page(\"settingsTwoPage\")'>Controls</div>";
 
-// DELTES EXISTING CLASS
+// DELETES EXISTING CLASS
 if(document.getElementById("settingDelete") !== null){
 	document.getElementById("settingDelete").onclick = function(){
 		Dom.alert.target = function(){
@@ -116,10 +126,34 @@ if(document.getElementById("settingDelete") !== null){
 
 // DO NOT ADD CODE ABOVE THIS POINT
 
+Dom.achievements.page = function(i){
+	document.getElementById("achievement").innerHTML = '<div id="achievementImg" style="background-image: url(\''+Achievements[i].image.substring(1)+'\')"</img></div>\
+	<p id="achievementName"><strong>'+Achievements[i].name+'</strong></p><p id="achievementDescription">Achievement Unlocked</p><p id="achievementPoints">'+Achievements[i].points+'</p>';
+	
+	setTimeout(function(){
+		document.getElementById("achievementDescription").style.marginRight = 15 + document.getElementById("achievementPoints").offsetWidth+"px";
+	},1);
+	if(Achievements[i].position !== undefined){
+		document.getElementById("achievementImg").style.backgroundPosition = Achievements[i].position.x+"%"+Achievements[i].position.y+"%";
+	}
+	if(Achievements[i].color !== undefined){
+		document.getElementById("achievementImg").style.backgroundColor = Achievements[i].color;
+	}
+	
+	document.getElementById("achievement").hidden = false;
+	setTimeout(function(){
+		document.getElementById("achievementDescription").innerHTML = Achievements[i].description;
+	}, 3000);
+	setTimeout(function(){
+		document.getElementById("achievement").hidden = true;
+	}, 5000);
+}
+
 Dom.achievements.update = function(){
 	for(let i = 0; i < Achievements.length; i++){
 		if(!Object.keys(User.achievements).includes(ToCamelCase(Achievements[i].name)) && Achievements[i].isCompleted !== undefined && Achievements[i].isCompleted()){
 			User.achievements[ToCamelCase(Achievements[i].name)] = GetFullDateDisplay();
+			Dom.achievements.page(i);
 		}
 	}
 }
@@ -503,7 +537,7 @@ Dom.reputation.give = function(area, amount){
 	if(Player.reputation[area].changed){
 		Player.reputation[area].score += amount;
 		Dom.chat.insert("You have gained " + amount + " reputation with " + FromCamelCase(area));
-		if(Player.reputation[area].score > reputationPoints[Player.reputation[area].level]){
+		if(Player.reputation[area].score > ReputationPoints[Player.reputation[area].level]){
 			Dom.reputation.update();
 			Dom.levelUp.page("reputation", area, Player.reputation[area].level);
 		}
@@ -543,7 +577,7 @@ Dom.reputation.update = function(){
 	}
 	for(let i = 0; i < Object.keys(Player.reputation).length; i++){
 		if(Player.reputation[Object.keys(Player.reputation)[i]].changed){
-			if(Player.reputation[Object.keys(Player.reputation)[i]].score >= reputationPoints[Player.reputation[Object.keys(Player.reputation)[i]].level]){
+			if(Player.reputation[Object.keys(Player.reputation)[i]].score >= ReputationPoints[Player.reputation[Object.keys(Player.reputation)[i]].level]){
 				this.upLevel(Player.reputation[Object.keys(Player.reputation)[i]],i);
 			}else if(Player.reputation[Object.keys(Player.reputation)[i]].score < 0){
 				this.downLevel(Player.reputation[Object.keys(Player.reputation)[i]],i);
@@ -556,20 +590,20 @@ Dom.reputation.update = function(){
 					document.getElementsByClassName("reputationBar")[i].style.backgroundColor = "gold";
 				}
 				if(Player.reputation[Object.keys(Player.reputation)[i]].level !== 6 && Player.reputation[Object.keys(Player.reputation)[i]].level !== 0){
-					document.getElementsByClassName("reputationBar")[i].innerHTML = this.levels[Player.reputation[Object.keys(Player.reputation)[i]].level] + "&nbsp;&nbsp;(" + Player.reputation[Object.keys(Player.reputation)[i]].score + "/"+reputationPoints[Player.reputation[Object.keys(Player.reputation)[i]].level]+")";
-					document.getElementsByClassName("widthPadding")[i].innerHTML = this.levels[Player.reputation[Object.keys(Player.reputation)[i]].level] + " (" + Player.reputation[Object.keys(Player.reputation)[i]].score + "/"+reputationPoints[Player.reputation[Object.keys(Player.reputation)[i]].level]+")";
+					document.getElementsByClassName("reputationBar")[i].innerHTML = this.levels[Player.reputation[Object.keys(Player.reputation)[i]].level] + "&nbsp;&nbsp;(" + Player.reputation[Object.keys(Player.reputation)[i]].score + "/"+ReputationPoints[Player.reputation[Object.keys(Player.reputation)[i]].level]+")";
+					document.getElementsByClassName("widthPadding")[i].innerHTML = this.levels[Player.reputation[Object.keys(Player.reputation)[i]].level] + " (" + Player.reputation[Object.keys(Player.reputation)[i]].score + "/"+ReputationPoints[Player.reputation[Object.keys(Player.reputation)[i]].level]+")";
 				}else{
 					document.getElementsByClassName("reputationBar")[i].innerHTML = this.levels[Player.reputation[Object.keys(Player.reputation)[i]].level];
 					document.getElementsByClassName("widthPadding")[i].innerHTML = this.levels[Player.reputation[Object.keys(Player.reputation)[i]].level];
 				}
 				if(Player.reputation[Object.keys(Player.reputation)[i]].level >= 3){
 					document.getElementsByClassName("reputationBar")[i].style.textIndent = ((250-document.getElementsByClassName("widthPadding")[i].clientWidth)/2) + "px";
-					document.getElementsByClassName("reputationBar")[i].style.width = Player.reputation[Object.keys(Player.reputation)[i]].score*250/reputationPoints[Player.reputation[Object.keys(Player.reputation)[i]].level]+"px";
+					document.getElementsByClassName("reputationBar")[i].style.width = Player.reputation[Object.keys(Player.reputation)[i]].score*250/ReputationPoints[Player.reputation[Object.keys(Player.reputation)[i]].level]+"px";
 					document.getElementsByClassName("reputationBar")[i].style.left = "0px";
 				}else{
-					document.getElementsByClassName("reputationBar")[i].style.textIndent = ((250-document.getElementsByClassName("widthPadding")[i].clientWidth)/2)-Player.reputation[Object.keys(Player.reputation)[i]].score*250/reputationPoints[Player.reputation[Object.keys(Player.reputation)[i]].level]+ "px";
-					document.getElementsByClassName("reputationBar")[i].style.width = (reputationPoints[Player.reputation[Object.keys(Player.reputation)[i]].level]-Player.reputation[Object.keys(Player.reputation)[i]].score)*250/reputationPoints[Player.reputation[Object.keys(Player.reputation)[i]].level]+"px";
-					document.getElementsByClassName("reputationBar")[i].style.left = Player.reputation[Object.keys(Player.reputation)[i]].score*250/reputationPoints[Player.reputation[Object.keys(Player.reputation)[i]].level]+"px";
+					document.getElementsByClassName("reputationBar")[i].style.textIndent = ((250-document.getElementsByClassName("widthPadding")[i].clientWidth)/2)-Player.reputation[Object.keys(Player.reputation)[i]].score*250/ReputationPoints[Player.reputation[Object.keys(Player.reputation)[i]].level]+ "px";
+					document.getElementsByClassName("reputationBar")[i].style.width = (ReputationPoints[Player.reputation[Object.keys(Player.reputation)[i]].level]-Player.reputation[Object.keys(Player.reputation)[i]].score)*250/ReputationPoints[Player.reputation[Object.keys(Player.reputation)[i]].level]+"px";
+					document.getElementsByClassName("reputationBar")[i].style.left = Player.reputation[Object.keys(Player.reputation)[i]].score*250/ReputationPoints[Player.reputation[Object.keys(Player.reputation)[i]].level]+"px";
 				}
 				if(Player.reputation[Object.keys(Player.reputation)[i]].level === 6){
 					document.getElementsByClassName("reputationBar")[i].style.width = "250px";
@@ -581,7 +615,7 @@ Dom.reputation.update = function(){
 
 Dom.reputation.upLevel = function(Area,i){
 	if(Area.level < 5){
-		Area.score -= reputationPoints[Player.reputation[Object.keys(Player.reputation)[i]].level];
+		Area.score -= ReputationPoints[Player.reputation[Object.keys(Player.reputation)[i]].level];
 		Area.level++;
 		Dom.chat.insert("Your reputation with " + FromCamelCase(Object.keys(Player.reputation)[i]) + " has increased to " + Dom.reputation.levels[Area.level], 0, true);
 		this.update();
@@ -595,7 +629,7 @@ Dom.reputation.upLevel = function(Area,i){
 Dom.reputation.downLevel = function(Area,i){
 	if(Area.level > 1){
 		Area.level--;
-		Area.score += reputationPoints[Player.reputation[Object.keys(Player.reputation)[i]].level];
+		Area.score += ReputationPoints[Player.reputation[Object.keys(Player.reputation)[i]].level];
 		Dom.chat.insert("Your reputation with " + FromCamelCase(Object.keys(Player.reputation)[i]) + " has decreased to " + Dom.reputation.levels[Area.level], 0, true);
 		this.update();
 	}else{
@@ -1170,6 +1204,11 @@ Dom.quest.acceptRewards = function(){
 		}
 	}
 	Dom.quests.completed(Dom.currentlyDisplayed);
+	if(Dom.currentlyDisplayed.repeatTime !== "daily"){
+		User.progress.quests++;
+	}else{
+		User.progress.dailyQuests++;
+	}
 	Player.quests.questLastFinished[Dom.currentlyDisplayed.questArea][Dom.currentlyDisplayed.id] = GetFullDate();
 	Dom.quests.possible();
 	Dom.adventure.update();
@@ -1631,6 +1670,9 @@ Dom.inventory.give = function(item, num, position){
 		if(item.type !== "item" && item.type !== "bag" && item.type !== "currency" && item.type !== "fish" && item.type !== "consumable" && item.type !== "food" && item.type !== "teleport" && !User.archaeology.includes(item.name) && item.name !== undefined){
 			User.archaeology.push(item.name);
 		}
+	}
+	if(item.name === "Fishing Seal"){
+		User.progress.seals += num;
 	}
 	Dom.hotbar.update();
 	Dom.checkProgress();
@@ -3434,7 +3476,7 @@ Dom.mail.give(
 
 // LOADS ALL EXISTING CLASS SAVEDATA
 if(localStorage.getItem(Player.class) !== null){
-	Player = JSON.parse(localStorage.getItem(Player.class));
+	Player = Object.assign(Player, JSON.parse(localStorage.getItem(Player.class)));
 	Player.name = playerName;
 	Player.skin = playerSkin;
 }else{

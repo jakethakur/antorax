@@ -13,10 +13,12 @@ var min = document.getElementById("min");
 var max = document.getElementById("max");
 var searchBar = document.getElementById("searchBar");
 var session = {};
-var archaeology = JSON.parse(localStorage.getItem("archaeology"));
+var archaeology = JSON.parse(localStorage.getItem("user"));
 
 if(archaeology === null){
 	archaeology = [];
+}else{
+	archaeology = archaeology.archaeology;
 }
 
 if(sessionStorage.getItem("filter") != null){

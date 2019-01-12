@@ -53,8 +53,8 @@ function arrange(){
 		}else{
 			document.getElementById("name"+i).style.color = "gray";
 		}
-		if(localStorage.getItem("fish") !== null && JSON.parse(localStorage.getItem("fish"))[i] !== 0){
-			document.getElementById("tier"+i).innerHTML = "<br>Best Length: "+JSON.parse(localStorage.getItem("fish"))[i]+"cm";
+		if(localStorage.getItem("user") !== null && JSON.parse(localStorage.getItem("user")).fish[i] !== 0){
+			document.getElementById("tier"+i).innerHTML = "<br>Best Length: "+JSON.parse(localStorage.getItem("user")).fish[i]+"cm";
 			document.getElementById("box"+i).style.borderColor = "darkgreen";
 			collected++;
 		}else{

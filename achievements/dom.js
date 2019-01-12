@@ -253,9 +253,11 @@ if(window.innerWidth >= 490*2+45){
 }else{
 	screenSize = 490*2+45;
 }
-var archaeology = JSON.parse(localStorage.getItem("achievements"));
+var archaeology = JSON.parse(localStorage.getItem("user"));
 if(archaeology == null){
 	archaeology = {};
+}else{
+	archaeology = archaeology.achievements;
 }
 checkChange();
 arrange();

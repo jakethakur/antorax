@@ -129,7 +129,15 @@ var User = {
 	archaeology: [],
 	fish: [],
 	achievements: {},
-	progress: [],
+	progress: {
+		quests: 0,
+		dailyQuests: 0,
+		enemies: 0,
+		goblins: 0,
+		dummies: 0,
+		fish: 0,
+		seals: 0,
+	},
 	settings: {
 		fps: false,
 		coords: false,
@@ -170,5 +178,5 @@ var User = {
 	},
 }
 
-const LevelXP = [0, 50, 100, 150, 200, 250]; // amount of xp required for next level (current level = array index)
-const reputationPoints = [1,2500,500,100,500,2500,1]; // points to level up reputation
+const LevelXP = [0, 50, 100, 200, 300, 1]; // amount of xp required for next level (current level = array index)
+const ReputationPoints = [1,2500,500,100,500,2500,1]; // points to level up reputation
