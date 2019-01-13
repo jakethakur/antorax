@@ -528,7 +528,7 @@ class Character extends Thing {
 		if (this !== Game.hero) {
 			// not player (assumed it is killed by player - TBD)
 			// TBD use hostility to check if it is killed by player
-			if (this.health <= 0 && !this.respawning) { // check it is not already respawning
+			if (this.health <= 0 && !this.respawning) { // check it is dead and not already respawning
 				// wipe status effects
 				this.statusEffects = [];
 				
@@ -609,8 +609,12 @@ class Character extends Thing {
 		}
 		else {
 			// player
-			if (this.health <= 0 && !this.respawning) { // check it is not already respawning
-				let existingEffect = this.statusEffects.find(statusEffect => statusEffect.title === "XP Fatigue"); // find existing XP fatigue effect
+			if (this.health <= 0 && !this.respawning) { // check it is dead and not already respawning
+				// save progress
+				Game.saveProgress("auto");
+				
+				// find existing xp fatigue effect
+				let existingEffect = this.statusEffects.find(statusEffect => statusEffect.title === "XP Fatigue");
 				
 				// wipe status effects (including existing XP fatigue)
 				while (this.statusEffects.length > 0) {
@@ -913,9 +917,17 @@ class Particle extends Entity {
 	constructor(properties) {
 		super(properties);
 		
-		this.colour = properties.colour;
+		if (properties.colour.constructor === Array) {
+			// pick a random colour
+			this.colour = properties.colour[Random(0, propeties.colour.length-1)];
+		}
+		else {
+			this.colour = properties.colour;
+		}
 		
 		this.moveTowards = properties.moveTowards; // optional
+		
+		this.rotation = properties.rotation; // optional; in radians; distorts coordinates of particle
 		
 		this.id = Game.nextParticleId; // way that the game can identify which particle was added (without position in array being shifted)
 		Game.nextParticleId++;
@@ -1444,7 +1456,6 @@ class Hero extends Attacker {
 			// function called for all attacks whether they hit an enemy or not
 			if (Player.inventory.weapon.onAttack !== undefined) {
 			    Player.inventory.weapon.onAttack(shotProjectile);
-				Dom.checkProgress();
 			}
 			
 			// after a timeout (2s), remove the projectile that was just shot
@@ -2965,7 +2976,7 @@ Game.launchFirework = function (properties) {
 			y: properties.y,
 			width: 2,
 			height: 2,
-			colour: properties.colours[Random(0, properties.colours.length-1)], // random colour from array
+			colour: properties.colours, // class Particle chooses random colour from array
 			moveTowards: {
 				x: x + properties.x,
 				y: y + properties.y,
@@ -2974,6 +2985,14 @@ Game.launchFirework = function (properties) {
 			removeIn: properties.explodeTime + properties.lingerTime,
 		});
 	}
+}
+
+// add a new trail particle around the character (normally called by a setInterval)
+// the particle data is saved in trailParticle
+Game.addTrailParticle = function (character, trailParticle) {
+	trailParticle.x = character.x;
+	trailParticle.y = character.y;
+	this.createParticle(trailParticle);
 }
 
 //
@@ -3474,6 +3493,13 @@ Game.init = function () {
 		}
 	}.bind(this), 1000);
 	
+	// hero trail interval
+	if (Game.hero.trail !== undefined) {
+		// hero has a trail
+		// new particle every 100ms
+		Game.trailInterval = setInterval(Game.addTrailParticle, 100, Game.hero, Game.hero.trail);
+	}
+	
 	// game view camera
     this.camera = new Camera(map, this.canvas.width, this.canvas.height);
     this.camera.follow(this.hero);
@@ -3491,15 +3517,7 @@ Game.init = function () {
 	window.requestAnimationFrame(this.tick);
 	
 	// re-init hero's saved status effects
-	this.initStatusEffects();
-	
-	// event console.info
-	if (this.event === "James") {
-		console.info("Happy James Day!");
-	}
-	else if (this.event === "Samhain") {
-		console.info("Happy Samhain! Keep your eye out for a beautiful blood moon tonight.");
-	}
+	this.initStatusEffects()
 	
 	// DOM functions to be run when class is loaded
 	Dom.hotbar.update();
@@ -3722,6 +3740,10 @@ Game.checkEvents = function () {
 			Game.christmasDay = false;
 		}
 	}
+	// Antorax Day
+	else if (month === 1 && day === 20) {
+		Game.event = "Antorax";
+	}
 }
 
 // check time (day or night)
@@ -3765,7 +3787,7 @@ Game.getTime = function () {
 Game.playMusic = function () {
 	// check the user has allowed music to play
 	if (document.getElementById("musicOn").checked) {
-		Dom.settings.save("music", true);
+		User.settings.music = true;
 		// check if the new area's music is already being played
 		let song = Areas[this.areaName]["song_" + this.time];
 		if (song === undefined) {
@@ -3812,7 +3834,7 @@ Game.loadMusic = function (song) {
 
 // stop playing current music
 Game.stopMusic = function () {
-	Dom.settings.save("music", false);
+	User.settings.music = false;
 	this.audio.pause();
 	this.playingMusic = null;
 }
@@ -4123,7 +4145,10 @@ Game.update = function (delta) {
 							// merchant appears as an option for choose DOM
 							
 							// filter the sold items to check that they are eligible to be sold
-							let soldItems = role.sold.filter(soldItem => soldItem.condition === undefined || soldItem.condition() === true);
+							let soldItems = role.sold.filter(soldItem => soldItem.eventRequirement === undefined || soldItem.eventRequirement === Game.event);
+							
+							// filter for condition
+							soldItems = soldItems.filter(soldItem => soldItem.condition === undefined || soldItem.condition() === true);
 							
 							textArray.push(role.chooseText || "I'd like to browse your goods.");
 							functionArray.push(Dom.merchant.page);
@@ -5278,9 +5303,21 @@ Game.render = function (delta) {
 			// update screen position of particle
 			this.updateScreenPosition(particle);
 			
+			// figure out how much to rotate the canvas (if any) for particle rotation
+			let rotation = 0;
+			if (particle.rotation !== undefined) {
+				rotation = particle.rotation;
+			}
+			
+			// rotate canvas
+			this.ctx.rotate(rotation);
+			
 			// draw particle
 			this.ctx.fillStyle = particle.colour;
-			this.ctx.fillRect(particle.x, particle.y, particle.width, particle.height);
+			this.ctx.fillRect(particle.screenX, particle.screenY, particle.width, particle.height);
+			
+			// rotate canvas back
+			this.ctx.rotate(-rotation);
 		}
 	}
 
@@ -5533,8 +5570,8 @@ Game.saveProgress = function (saveType) { // if saveType is "auto" then the save
 		}, 60000);
 		
 		// message to console
-		//let time = new Date();
-		//console.info((saveType === "auto" ? "AUTO" : "") + "SAVE AT " + (time.getHours() < 10 ? "0" : "") + time.getHours() + ":" + (time.getMinutes() < 10 ? "0" : "") + time.getMinutes() + ":" + (time.getSeconds() < 10 ? "0" : "") + time.getSeconds());
+		let time = new Date();
+		console.info((saveType === "auto" ? "AUTO" : "") + "SAVE AT " + (time.getHours() < 10 ? "0" : "") + time.getHours() + ":" + (time.getMinutes() < 10 ? "0" : "") + time.getMinutes() + ":" + (time.getSeconds() < 10 ? "0" : "") + time.getSeconds());
 	}
 	if (saveType === "logout") {
 		window.location.replace("./selection/index.html");

@@ -160,12 +160,17 @@ var Items = {
 			sellPrice: 3, // equal to the age of Antorax :)
 			stats: {
 				defence: 1,
-				// TBD
+			},
+			functionText: "Leaves a trail of confetti",
+			trail: {
+				width: 20,
+				height: 10,
+				colour: ["#19AB21", "#CC1DC2"], // class Particle chooses random colour from array
+				removeIn: 1000,
+				rotate: ToRadians(Random(0, 359)), // TBD
 			},
 			archaeologyHidden: true,
 		},
-		
-		//Game.launchFirework({x:Game.hero.x, y:Game.hero.y, radius: 50, particles: 50, explodeTime: 1000, lingerTime: 1000, colours: ["#FF0000"]});
 	],
 	chest: [
 		{
@@ -2054,6 +2059,60 @@ var Items = {
 				}
 			}
 		},
+		{
+			id: 19,
+			name: "Antorax Day Firework",
+			type: "consumable",
+			image: "assets/items/consumable/19.png",
+			functionText: "Launches a firework to celebrate Antorax Day.",
+			lore: "", // tbd
+            cooldown: 1, // 1 second
+			onClick: function (inventoryPosition) {
+				if (Game.event === "Antorax") { // can only be launched on Antorax Day
+					// remove the item
+					Dom.inventory.remove(inventoryPosition);
+					// set firework timeout
+					setTimeout(function () {
+						Game.launchFirework({
+							x: Game.hero.x,
+							y: Game.hero.y - 100,
+							radius: 150,
+							particles: 600,
+							explodeTime: 500,
+							lingerTime: 2000,
+							colours: ["#8cff91", "#ff82f8"], // lighter colours so they are more visible
+						});
+					}, 1000); // launch in 1 second
+				}
+			},
+		},
+		{
+			id: 20,
+			name: "Large Antorax Day Firework",
+			type: "consumable",
+			image: "assets/items/consumable/20.png",
+			functionText: "Launches a large firework to celebrate Antorax Day.",
+			lore: "Why not go bigger?",
+            cooldown: 5, // 5 seconds
+			onClick: function (inventoryPosition) {
+				if (Game.event === "Antorax") { // can only be launched on Antorax Day
+					setTimeout(function () {
+						// remove the item
+						Dom.inventory.remove(inventoryPosition);
+						// set firework timeout
+						Game.launchFirework({
+							x: Game.hero.x,
+							y: Game.hero.y - 130,
+							radius: 250,
+							particles: 1500,
+							explodeTime: 750,
+							lingerTime: 2000,
+							colours: ["#8cff91", "#ff82f8"], // lighter colours so they are more visible
+						});
+					}, 1000); // launch in 1 second
+				}
+			},
+		},
 	],
 	food: [
 		{
@@ -2061,7 +2120,6 @@ var Items = {
 			name: "Bread",
 			type: "food",
 			image: "assets/items/food/0.png",
-			functionText: "Restores 25 health over 10 seconds (whilst not in combat)",
 			sellPrice: 1,
 			healthRestore: 25,
 			healthRestoreTime: 10,
@@ -2071,7 +2129,6 @@ var Items = {
 			name: "Mince Pie",
 			type: "food",
 			image: "assets/items/food/1.png",
-			functionText: "Restores 40 health over 10 seconds (whilst not in combat)",
 			sellPrice: 1,
 			healthRestore: 40,
 			healthRestoreTime: 10,
@@ -2082,11 +2139,20 @@ var Items = {
 			name: "Christmas Pudding",
 			type: "food",
 			image: "assets/items/food/2.png",
-			functionText: "Restores 30 health over 5 seconds (whilst not in combat)",
 			sellPrice: 1,
 			healthRestore: 30,
 			healthRestoreTime: 5,
 			lore: "A festive pudding.",
+		},
+		{
+			id: 3,
+			name: "Antorax Day Birthday Cake",
+			type: "food",
+			image: "assets/items/food/3.png",
+			sellPrice: 3,
+			healthRestore: 50,
+			healthRestoreTime: 5,
+			lore: "Antorax turns three!",
 		},
 	],
 	teleport: [

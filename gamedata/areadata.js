@@ -862,12 +862,8 @@ var Areas = {
 					},
 					{
 						sold: [
-							{item: Items.helm[7], cost: 10, costCurrency: 5, condition: function () { // Santa hat
-						        return Game.event === "Christmas";
-						    }},
-							{item: Items.boots[9], cost: 10, costCurrency: 5, condition: function () { // Ice Skates
-						        return Game.event === "Christmas";
-						    }},
+							{item: Items.helm[7], cost: 10, costCurrency: 5, eventRequirement: "Christmas"}, // Santa Hat
+							{item: Items.boots[9], cost: 10, costCurrency: 5, eventRequirement: "Christmas"}, // Ice Skates
 							{item: Items.item[11], cost: 2}, // vial of goblin blood
 							{item: Items.bag[5], cost: 15}, // brown backsack
 							{item: Items.helm[2], cost: 2}, // worn leather helm
@@ -918,12 +914,10 @@ var Areas = {
 							{item: Items.consumable[4], cost: 2}, // potion of health I
 							{item: Items.consumable[3], cost: 2}, // potion of swiftness I
 							{item: Items.consumable[2], cost: 4}, // potion of strength I
-							{item: Items.consumable[11], cost: 4, condition: function () { // potion of goblin resistance II
+							{item: Items.consumable[11], cost: 4, condition: function () { // potion of goblin resistance
 								return Player.quests.completedQuestArray.includes("Potion Making II");
 							}},
-							{item: Items.consumable[17], cost: 2, costCurrency: 5, condition: function () { // Christmas Potion
-						        return Game.event === "Christmas";
-						    }},
+							{item: Items.consumable[17], cost: 2, costCurrency: 5, eventRequirement: "Christmas"}, // Christmas Potion
 						],
 						role: "merchant",
 						roleRequirement: function () {
@@ -1090,16 +1084,11 @@ var Areas = {
 					{
 						sold: [
 						    {item: Items.consumable[5], cost: 2,}, // Wood-Brewed Beer
-							{item: Items.consumable[16], cost: 2, costCurrency: 5, condition: function () { // Mulled Wine
-						        return Game.event === "Christmas";
-						    }},
+							{item: Items.consumable[16], cost: 2, costCurrency: 5, eventRequirement: "Christmas"}, // Mulled Wine
 						    {item: Items.food[0], cost: 2,}, // Bread
-						    {item: Items.food[1], cost: 2, costCurrency: 5, condition: function () { // Mince Pie
-						        return Game.event === "Christmas";
-						    }},
-						    {item: Items.food[2], cost: 2, costCurrency: 5, condition: function () { // Christmas Pudding
-						        return Game.event === "Christmas";
-						    }},
+						    {item: Items.food[1], cost: 2, costCurrency: 5, eventRequirement: "Christmas"}, // Mince Pie
+						    {item: Items.food[2], cost: 2, costCurrency: 5, eventRequirement: "Christmas"}, // Christmas Pudding
+						    {item: Items.food[3], cost: 5, eventRequirement: "Antorax"}, // Birthday Cake (changed every year)
 							{item: Items.teleport[0], cost: 30,}, // Logging Teleport Coin
 						],
 						role: "merchant",
