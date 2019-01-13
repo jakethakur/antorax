@@ -55,7 +55,7 @@ if(localStorage.getItem("archaeology") !== null){
 	localStorage.removeItem("archaeology");
 }
 if(localStorage.getItem("fish") !== null){
-	User.archaeology = JSON.parse(localStorage.getItem("fish"));
+	User.fish = JSON.parse(localStorage.getItem("fish"));
 	localStorage.removeItem("fish");
 }
 
@@ -167,8 +167,10 @@ Dom.achievements.update = function(){
 }
 
 Dom.quests.active = function(quest){
-	if(quest !== undefined){
+	if(quest !== undefined && quest !== null){
 		Player.quests.activeQuestArray.push(quest.quest);
+	}else if(quest === null){
+		console.error("Please tell Peter that you have recieved the error: quest === null");
 	}
 	document.getElementById("activeQuestBox").style.textAlign = "left";
 	Dom.quests.activeHTML = {true: "", undefined: "", daily: "",};
