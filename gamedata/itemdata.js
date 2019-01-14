@@ -167,7 +167,7 @@ var Items = {
 				height: 10,
 				colour: ["#19AB21", "#CC1DC2"], // class Particle chooses random colour from array
 				removeIn: 1000,
-				rotate: ToRadians(Random(0, 359)), // TBD
+				rotation: "random",
 			},
 			archaeologyHidden: true,
 		},

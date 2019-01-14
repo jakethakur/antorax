@@ -498,6 +498,12 @@ class Character extends Thing {
 				this.chat.chooseChat = this.chat.christmasGreeting;
 			}
 		}
+		else if (Game.event === "Antorax") { // Antorax Day
+			// chooseChat changed
+			if (this.chat.chooseChat !== undefined && this.chat.antoraxDayGreeting !== undefined) {
+				this.chat.chooseChat = this.chat.antoraxDayGreeting;
+			}
+		}
 		
 		this.direction = properties.direction || 0;
 		
@@ -927,7 +933,14 @@ class Particle extends Entity {
 		
 		this.moveTowards = properties.moveTowards; // optional
 		
-		this.rotation = properties.rotation; // optional; in radians; distorts coordinates of particle
+		// rotation: optional; in radians; distorts coordinates of particle
+		if (properties.rotation === "random") {
+			// random rotation chosen
+			this.rotation = ToRadians(Random(0, 359));
+		}
+		else {
+			this.rotation = properties.rotation;
+		}
 		
 		this.id = Game.nextParticleId; // way that the game can identify which particle was added (without position in array being shifted)
 		Game.nextParticleId++;

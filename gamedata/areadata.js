@@ -1,6 +1,30 @@
+//
+// Events
+//
+
+// get date
+let today = new Date();
+let day = today.getDate();
+let month = today.getMonth() + 1; // January is 0, so add 1
+let year = today.getFullYear();
+
+let antoraxAge = year - 2016; // used for some NPC texts (especially on Antorax Day)
+if (day < 20 && month === 1) {
+	// before Antorax day; subtract one from age
+	antoraxAge--;
+}
+
+//
+// Loot area defintion
+//
+
 const FishingLevels = {
 	loggingCamp: 10,
 };
+
+//
+// Area defintion
+//
 
 var Areas = {
 	
@@ -581,6 +605,7 @@ var Areas = {
 					inventoryFull: "You have no space to hold this. Empty your bags a bit and come back.",
 					shopLeave: "I expect a fine job done.",
 					christmasGreeting: "Yes, I <strong>do</strong> celebrate Christmas.",
+					antoraxDayGreeting: `This Logging Camp has been operating at full capacity for ${antoraxAge} years today. Don't think today will be any different.`,
 				},
 			},
 			{
@@ -633,7 +658,8 @@ var Areas = {
 					chooseChat: `I trust your combat is going fine, ${Player.name}.`,
 					shopLeave: "I wish you the best in your battles.",
 					tooPoor: "You can't afford that. You know what to do - Kill!",
-					christmasGreeting: `Merry christmas, ${Player.name}! What better a day to be practising your combat.`,
+					christmasGreeting: `Merry Christmas, ${Player.name}! What better a day to be practising your combat.`,
+					antoraxDayGreeting: `Have a jolly Antorax day, ${Player.name}. I've been killing enemies for ${antoraxAge} years - this calls for some celebration!`,
 				},
 			},
 			{
@@ -707,6 +733,7 @@ var Areas = {
 					tooPoor: "You don't have enough gold to identify that. Kill and loot enemies to get some.",
 					shopLeave: "See you soon with some unidentified items!",
 					christmasGreeting: "Merry Christmas! I hope your Christmas archaeology progress is coming across nicely.",
+					antoraxDayGreeting: `Jocund Antorax Day! Have you got your party hat from the mail? Those will be worth a lot in the coming years!`,
 				}
 			},
 			{
@@ -766,6 +793,7 @@ var Areas = {
 					chooseChat: "Blessings to you.",
 					inventoryFull: "I don't think you have space for that.",
 					christmasGreeting: "You have my blessings on this sacred day.",
+					antoraxDayGreeting: `I think many of us can say that Antorax has made us much stronger over these ${antoraxAge} years.`,
 				},
 			},
 			{
@@ -800,6 +828,18 @@ var Areas = {
 						},
 						shopGreeting: "If you're out of traps, I'll give you some more.",
 					},
+					{
+						sold: [
+							{item: Items.consumable[19], cost: 0}, // Antorax Day Firework
+							{item: Items.consumable[20], cost: 3}, // Large Antorax Day Firework
+						],
+						role: "merchant",
+						chooseText: "I'd like to buy some fireworks.",
+						roleRequirement: function () {
+							return Game.event === "Antorax";
+						},
+						shopGreeting: "More fireworks! Let's set the sky on fire this Antorax Day.",
+					},
 				],
 				chat: {
 					notUnlockedRoles: "I think we have enough traps out at the moment. Come back in a bit.",
@@ -808,6 +848,7 @@ var Areas = {
 					inventoryFull: "Empty your inventory a bit and come back.",
 					questComplete: "I'll have more traps for you to place in a bit. Come back tomorrow.",
 					christmasGreeting: "Have a good Christmas. It's my day off for trap making today.",
+					antoraxDayGreeting: `Trap making for ${antoraxAge} years? You're making me feel old.`,
 				},
 			},
 			{
@@ -886,6 +927,7 @@ var Areas = {
 					inventoryFull: "I'm not sure you have any space to carry that.",
 					tooPoor: "I don't think you have enough gold to buy that. Sorry.",
 					christmasGreeting: "Happy Christmas! I really hope you have a great day.",
+					antoraxDayGreeting: `It's Antorax Day! It's so great to be a part of this, even if I'm just an item buyer.`,
 				},
 			},
 			{
@@ -933,6 +975,7 @@ var Areas = {
 					inventoryFull: "You don't want to be carrying a potion with an inventory as full as yours. Come back with some free space.",
 					tooPoor: "You're not going to be able to buy that potion without enough gold.",
 					christmasGreeting: "My potions make a great Christmas drink.",
+					antoraxDayGreeting: "What ingredients would be in an Antorax Day potion? Dynamite, sulphur, a little bit of fire - want to try some?",
 				},
 			},
 		],
@@ -1106,6 +1149,7 @@ var Areas = {
 					inventoryFull: "How're ya gonna hold that?!",
 					tooPoor: "Ya can't afford that.",
 					christmasGreeting: "Ha, it's Christmas! Have a good 'un!",
+					antoraxDayGreeting: "Happy Antorax Day! I've lots o' birthday cakes if you want a break from all the fireworks out there.",
 				},
 			},
 		],
