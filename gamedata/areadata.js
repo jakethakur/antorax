@@ -33,7 +33,7 @@ var Areas = {
 		data: {
 			name: "Fishers' Valley",
 			level: "Level 1 - 5",
-			territory: "Neutral territory",
+			territory: "Neutral",
 			displayOnEnter: true,
 		},
 		
@@ -364,7 +364,7 @@ var Areas = {
 		data: {
 			name: "Eaglecrest Logging Camp",
 			level: "Level 1 - 5",
-			territory: "Allied territory",
+			territory: "Allied",
 			displayOnEnter: true,
 		},
 		
@@ -1161,7 +1161,7 @@ var Areas = {
 		data: {
 			name: "The Nilbog",
 			level: "Level 2 - 5",
-			territory: "Hostile territory",
+			territory: "Hostile",
 			displayOnEnter: true,
 		},
 		
@@ -1458,7 +1458,7 @@ var Areas = {
 		data: {
 			name: "The Nilbog",
 			level: "100 years ago...",
-			territory: "Hostil territory",
+			territory: "Hostile",
 			displayOnEnter: true,
 		},
 		
@@ -1501,7 +1501,7 @@ var Areas = {
 		data: {
 			name: "Nilbog Tower",
 			level: "Level 3 - 5",
-			territory: "Hostile territory",
+			territory: "Hostile",
 			displayOnEnter: true,
 		},
 		
@@ -1637,7 +1637,7 @@ var Areas = {
 		data: {
 			name: "Nilbog Tower",
 			level: "Level 3 - 5",
-			territory: "Hostile territory",
+			territory: "Hostile",
 			displayOnEnter: false,
 		},
 		
@@ -1815,7 +1815,7 @@ var Areas = {
 		data: {
 			name: "Nilbog Tower Library",
 			level: "Level 3 - 5",
-			territory: "Hostile territory",
+			territory: "Hostile",
 			displayOnEnter: false,
 		},
 		
@@ -1985,7 +1985,7 @@ var Areas = {
 		data: {
 			name: "Nilbog Tower",
 			level: "Level 3 - 5",
-			territory: "Hostile territory",
+			territory: "Hostile",
 			displayOnEnter: false,
 		},
 		
@@ -2172,7 +2172,7 @@ var Areas = {
 		data: {
 			name: "Nilbog Tower",
 			level: "Level 3 - 5",
-			territory: "Hostile territory",
+			territory: "Hostile",
 			displayOnEnter: false,
 		},
 		

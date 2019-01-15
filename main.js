@@ -925,7 +925,7 @@ class Particle extends Entity {
 		
 		if (properties.colour.constructor === Array) {
 			// pick a random colour
-			this.colour = properties.colour[Random(0, propeties.colour.length-1)];
+			this.colour = properties.colour[Random(0, properties.colour.length-1)];
 		}
 		else {
 			this.colour = properties.colour;
@@ -941,6 +941,8 @@ class Particle extends Entity {
 		else {
 			this.rotation = properties.rotation;
 		}
+		
+		this.light = properties.light || false; // if this is set to true, it is drawn on the light canvas
 		
 		this.id = Game.nextParticleId; // way that the game can identify which particle was added (without position in array being shifted)
 		Game.nextParticleId++;
@@ -2996,6 +2998,7 @@ Game.launchFirework = function (properties) {
 				time: properties.explodeTime,
 			},
 			removeIn: properties.explodeTime + properties.lingerTime,
+			light: true, // fireworks appear light
 		});
 	}
 }
@@ -3398,6 +3401,44 @@ Game.loadArea = function (areaName, destination) {
 		
 		// render day/night effects
 		Game.renderDayNight();
+		
+		// Antorax Day fireworks
+		if (Game.event === "Antorax" && Areas[areaName].data.territory === "Allied" && !Areas[areaName].indoors && Game.fireworkInterval === undefined) {
+			// Antorax Day; area is allied and indoors and a firework interval has not yet been set
+			// launch fireworks periodically at random positions
+			Game.fireworkInterval = setInterval(function () {
+				// same as Antorax Day Firework items
+				if (Random(0, 3) === 0) {
+					// large firework
+					Game.launchFirework({
+							x: Random(0, map.cols * map.tsize),
+							y: Random(0, map.rows * map.tsize),
+						radius: 250,
+						particles: 1500,
+						explodeTime: 750,
+						lingerTime: 2000,
+						colours: ["#8cff91", "#ff82f8"], // lighter colours so they are more visible
+					});
+				}
+				else {
+					// normal firework
+					Game.launchFirework({
+						x: Random(0, map.cols * map.tsize),
+						y: Random(0, map.rows * map.tsize),
+						radius: 150,
+						particles: 600,
+						explodeTime: 500,
+						lingerTime: 2000,
+						colours: ["#8cff91", "#ff82f8"], // lighter colours so they are more visible
+					});
+				}
+			}, 200, Game.areaName);
+		}
+		else if (Game.fireworkInterval !== undefined) {
+			// remove interval from a previous area
+			clearInterval(Game.fireworkInterval);
+			Game.fireworkInterval = undefined;
+		}
 		
     }.bind(this))
 	.catch(function (err) {
@@ -5322,15 +5363,24 @@ Game.render = function (delta) {
 				rotation = particle.rotation;
 			}
 			
+			let ctx;
+			if (particle.light) {
+				// draw on light canvas instead
+				ctx = this.ctxLight;
+			}
+			else {
+				ctx = this.ctx;
+			}
+			
 			// rotate canvas
-			this.ctx.rotate(rotation);
+			ctx.rotate(rotation);
 			
 			// draw particle
-			this.ctx.fillStyle = particle.colour;
-			this.ctx.fillRect(particle.screenX, particle.screenY, particle.width, particle.height);
+			ctx.fillStyle = particle.colour;
+			ctx.fillRect(particle.screenX, particle.screenY, particle.width, particle.height);
 			
 			// rotate canvas back
-			this.ctx.rotate(-rotation);
+			ctx.rotate(-rotation);
 		}
 	}
 
@@ -5374,7 +5424,9 @@ Game.render = function (delta) {
 		
 		this.ctx.font = "28px MedievalSharp";
 		this.ctx.fillText(this.displayAreaName.level, 300, 150); // area level
-		this.ctx.fillText(this.displayAreaName.territory, 300, 180); // area territory (hostile, neutral, allied, etc.)
+		if (this.displayAreaName.territory !== undefined) { // check that territory should be displayed
+			this.ctx.fillText(this.displayAreaName.territory + " territory", 300, 180); // area territory (Hostile, Neutral, Allied)
+		}
 		
 		this.displayAreaName.duration--;
 	}
