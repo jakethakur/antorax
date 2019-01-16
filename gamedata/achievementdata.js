@@ -65,10 +65,8 @@ var Achievements = [
 		isCompleted: function(){ // REMOVE FISHING QUESTS
 			let progress = 0;
 			for(let i = 0; i < Quests.eaglecrestLoggingCamp.length; i++){
-				if(Quests.eaglecrestLoggingCamp[i].eventRequirement === undefined){
-					if(Player.quests.activeQuestArray.includes(Quests.eaglecrestLoggingCamp[i].quest)){
-						progress++;
-					}
+				if(Quests.eaglecrestLoggingCamp[i].eventRequirement === undefined && Player.quests.completedQuestArray.includes(Quests.eaglecrestLoggingCamp[i].quest)){
+					progress++;
 				}
 			}
 			return progress >= 20;

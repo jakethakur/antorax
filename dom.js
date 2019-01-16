@@ -199,7 +199,7 @@ Dom.quests.active = function(quest){
 					Dom.quests.activeHTML[currentQuest.important] += " " + currentQuest.isCompleted()[i];
 				}
 			}
-			if(currentQuest.autofinish && completedObjectives >= currentQuest.objectives.length-1){
+			if(currentQuest.autofinish && completedObjectives >= currentQuest.objectives.length){
 				Dom.choose.page(currentQuest.finishName, ["Quest Finish: " + currentQuest.quest], [Dom.quest.finish], [[currentQuest]]);
 			}
 			if(currentQuest.wasCompleted === undefined){
@@ -2622,7 +2622,7 @@ Dom.inventory.addEquipment = function(array){
 		}
 	}
 	if(array.trail !== undefined){
-		Game.hero.trail = trail;
+		Game.hero.trail = array.trail;
 		Game.hero.trailInterval = setInterval(Game.addTrailParticle, 100, Game.hero, Game.hero.trail);
 	}
 }
@@ -3392,8 +3392,12 @@ Dom.mail.page = function(){
 			Dom.mail.page();
 		}
 		document.getElementsByClassName("mail")[ii].onclick = function(){
+			// if you did not click on delete or flag
 			if(document.getElementById("alert").hidden && !Dom.mail.notOpen){
+				let first = false;
+				// if it is unopened
 				if(!Player.mail.opened.includes(Player.mail.mail[i].title)){
+					first = true;
 					Player.mail.opened.push(Player.mail.mail[i].title);
 					if(Player.mail.mail[i].give !== undefined && Dom.inventory.requiredSpace(Player.mail.mail[i].give)){
 						for(let x = 0; x < Player.mail.mail[i].give.length; x++){
@@ -3405,6 +3409,10 @@ Dom.mail.page = function(){
 				}
 				ExecuteFunctionByName(Player.mail.mail[i].openFunction, Dom, Player.mail.mail[i].openParameters);
 				Game.mailboxUpdate("read");
+				if(first && Player.mail.mail[i].openFunction === "quest.start"){
+					Player.mail.mail[i].openFunction = "text.page";
+					Player.mail.mail[i].openParameters = [Player.mail.mail[i].openParameters.quest, "<strong>"+Player.mail.mail[i].startName"</strong>"+Player.mail.mail[i].startChat]
+				}
 			}else{
 				Dom.mail.notOpen = false;
 			}
