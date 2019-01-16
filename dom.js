@@ -239,9 +239,6 @@ Dom.quests.active = function(quest){
 Dom.checkProgress = function(){
 	Dom.achievements.update();
 	Dom.quests.active();
-	if(typeof Game !== "undefined"){
-		Game.saveProgress();
-	}
 }
 
 Dom.changeBook = function(page, override, shouldNotBeOverriden, levelUpOverride){ // levelUpOverride is the amount of time that the page is locked during a cutscene
@@ -524,7 +521,6 @@ Dom.settings.bookmarkPosition = function(){
 		document.getElementById("dot").style.top="41px";
 		document.getElementById("dot").style.left="1217px";
 	}
-	Dom.checkProgress();
 }
 
 if(window.innerHeight >= 754){
@@ -1024,7 +1020,6 @@ Dom.inventory.removeItemCharge = function(inventoryPosition, hotbar){
 	if(!hotbar){
 		this.displayInformation(Player.inventory.items[inventoryPosition]);
 	}
-	Dom.checkProgress();
 }
 
 Dom.currentlyDisplayed = "";
@@ -1480,6 +1475,7 @@ Dom.identifier.identify = function(npc){
 			}
 		}
 		Dom.identifier.unId.splice(Dom.identifier.displayed, 1);
+		Game.saveProgress("auto");
 	}else/* if(Dom.identifier.unId.length !== 0)*/{
  		document.getElementById("identifierPageBuy").style.border = "5px solid red";
 		setTimeout(function(){
@@ -1525,6 +1521,7 @@ Dom.inventory.give = function(item, num, position){
 						}
 						if(Player.inventory.items[i].type === "food"){
 							item.onClick = Dom.inventory.food;
+							item.functionText = "Restores "+item.healthRestore+" health over "+item.healthRestoreTime+" seconds (whilst not in combat)";
 						}
 						if(Player.inventory.items[i].type === "teleport"){
 							item.onClick = Dom.inventory.teleport;
@@ -1610,6 +1607,7 @@ Dom.inventory.give = function(item, num, position){
 		}
 		if(Player.inventory.items[position].type === "food"){
 			item.onClick = Dom.inventory.food;
+			item.functionText = "Restores "+item.healthRestore+" health over "+item.healthRestoreTime+" seconds (whilst not in combat)";
 		}
 		if(Player.inventory.items[position].type === "teleport"){
 			item.onClick = Dom.inventory.teleport;
@@ -1686,6 +1684,9 @@ Dom.inventory.give = function(item, num, position){
 	}
 	Dom.hotbar.update();
 	Dom.checkProgress();
+	if(typeof Game !== "undefined"){
+		Game.saveProgress("auto");
+	}
 	if(added){
 		return position;
 	}else{
@@ -2544,6 +2545,10 @@ Dom.inventory.removeEquipment = function(array){
 			}
 		}
 	}
+	if(array.trail !== undefined){
+		Game.hero.trail = undefined;
+		clearInterval(Game.hero.trailInterval);
+	}
 }
 
 Dom.inventory.addEquipment = function(array){
@@ -2615,6 +2620,10 @@ Dom.inventory.addEquipment = function(array){
 				}
 			}
 		}
+	}
+	if(array.trail !== undefined){
+		Game.hero.trail = trail;
+		Game.hero.trailInterval = setInterval(Game.addTrailParticle, 100, Game.hero, Game.hero.trail);
 	}
 }
 
@@ -2900,6 +2909,7 @@ Dom.loot.page = function(name, items){
 			Game.lootClosed(Dom.loot.looted);
 		}
 	},items);
+	Game.saveProgress("auto");
 }
 
 document.getElementById("levelUpPageClose").onclick = function(){
@@ -3172,7 +3182,6 @@ Dom.settings.hotkeys = function(ev){
 			document.getElementsByClassName("hotkey")[Dom.settings.hotkey].innerHTML = keyName.toUpperCase();
 			Dom.settings.hotkey = undefined;
 			User.settings.keyboard = Keyboard.keys;
-			Dom.checkProgress();
 		// if it is unavailable set it back to what it was
 		}else{
 			document.getElementsByClassName("hotkey")[Dom.settings.hotkey].innerHTML = Keyboard.keys[Object.keys(Keyboard.keys)[Dom.settings.hotkey]].toUpperCase();
@@ -3450,7 +3459,7 @@ Dom.adventure.update = function(){
 	}
 	document.getElementById("instructionsTitle").onclick = function(){
 		// link to instruction saves as purple
-		Dom.settings.save("instructionsLink", true);
+		User.settings.instructionsLink = true;
 		// link to instructions shows as purple
 		document.getElementById("instructionsTitle").style.color = "#551a8b";
 		Dom.adventure.openedInstructions = true; // instructions were opened through the book
@@ -3459,13 +3468,22 @@ Dom.adventure.update = function(){
 }
 
 document.getElementById("weatherOn").onclick = function(){
-	Dom.settings.save("weather", true);
+	User.settings.weather = true;
 }
 document.getElementById("weatherOff").onclick = function(){
-	Dom.settings.save("weather", false);
+	User.settings.weather = false;
 }
 if(!User.settings.weather){
 	document.getElementById("weatherOff").checked = true;
+}
+document.getElementById("particlesOn").onclick = function(){
+	User.settings.particles = true;
+}
+document.getElementById("particlesOff").onclick = function(){
+	User.settings.particles = false;
+}
+if(!User.settings.particles){
+	document.getElementById("particlesOff").checked = true;
 }
 
 //
@@ -3518,6 +3536,7 @@ for(let i = 0; i < Player.inventory.items.length; i++){
 		}*/
 		if(Player.inventory.items[i].type === "food"){
 			Items[Player.inventory.items[i].type][Player.inventory.items[i].id].onClick = Dom.inventory.food;
+			Items[Player.inventory.items[i].type][Player.inventory.items[i].id].functionText = "Restores "+item.healthRestore+" health over "+item.healthRestoreTime+" seconds (whilst not in combat)";
 		}
 		if(Player.inventory.items[i].type === "teleport"){
 			Items[Player.inventory.items[i].type][Player.inventory.items[i].id].onClick = Dom.inventory.teleport;

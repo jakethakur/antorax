@@ -576,9 +576,11 @@ class Character extends Thing {
 				//
 				
 				// enemies killed achievement
-				User.progress.enemies++;
+				if (this.hostility === "hostile" || this.hostility === "boss") {
+					User.progress.enemies++;
+				}
 				
-				if (this.subSpecies = "nilbog goblin") {
+				if (this.subSpecies === "nilbog goblin") {
 					// goblins killed achievement
 					User.progress.goblins++;
 					// general goblins killed objective

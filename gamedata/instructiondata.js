@@ -8,7 +8,7 @@ var Instructions = [
 			},
 			{
 				title: "Movement",
-				text: "<p>First up: moving. You’d think this would be simple, but there is, in fact, a needlessly complex control scheme: a ancient art known as the arrow keys. Up goes up, left goes left, right goes right… I bet you can’t figure out what down does! WASD also works for those of you who like to use proper controls.</p>",
+				text: "<p>First up: moving. You’d think this would be simple, but there is, in fact, a needlessly complex control scheme: an ancient art in which W goes up, A goes left, D goes right and S goes down. I guess the arrow keys were too simple! If you prefer to use keys that make sense you can change them in the controls section of settings found by clicking on the grey bookmark with a gear on it.</p>",
 			},
 			{
 				title: "Collisions with NPCs",

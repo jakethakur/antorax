@@ -66,7 +66,9 @@ var Achievements = [
 			let progress = 0;
 			for(let i = 0; i < Quests.eaglecrestLoggingCamp.length; i++){
 				if(Quests.eaglecrestLoggingCamp[i].eventRequirement === undefined){
-					progress++;
+					if(Player.quests.activeQuestArray.includes(Quests.eaglecrestLoggingCamp[i].quest)){
+						progress++;
+					}
 				}
 			}
 			return progress >= 20;
@@ -254,7 +256,7 @@ var Achievements = [
 		points: 100,
 		category: ["archaeology"],
 		area: ["global"],
-		image: "",
+		image: "../assets/items/helm/9.png",
 		class: "cumulative",
 	},
 	{

@@ -139,13 +139,14 @@ var User = {
 		seals: 0,
 	},
 	settings: {
-		fps: false,
-		coords: false,
-		grid: false,
-		hitboxes: false,
-		music: false,
-		weather: true,
 		bookmarks: "bottom",
+		music: false,
+		particles: true,
+		weather: true,
+		coords: false,
+		fps: false,
+		hitboxes: false,
+		grid: false,
 		keyboard: {
 			LEFT: "A", // 37
 			RIGHT: "D", // 39

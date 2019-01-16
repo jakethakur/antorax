@@ -59,9 +59,9 @@
 		<p id="data" hidden></p>
 	</div>
 	<table id="hotbar">
-	<tr>
-		<td onclick="Game.inventoryUpdate()" /><td onclick="Game.inventoryUpdate()" /><td onclick="Game.inventoryUpdate()" /><td onclick="Game.inventoryUpdate()" /><td onclick="Game.inventoryUpdate()" /><td onclick="Game.inventoryUpdate()" />
-	</tr>
+		<tr>
+			<td onclick="Game.inventoryUpdate()" /><td onclick="Game.inventoryUpdate()" /><td onclick="Game.inventoryUpdate()" /><td onclick="Game.inventoryUpdate()" /><td onclick="Game.inventoryUpdate()" /><td onclick="Game.inventoryUpdate()" />
+		</tr>
 	</table>
 	<div id="questsPage" hidden>
 		<div id="activeQuests"onclick="Dom.expand('activeQuestBox')">Active Quests</div>
@@ -114,23 +114,23 @@
 		</div>
 		<div id="settingCoords" class="settings">
 			Show co-ordinates:
-			<span class="radio1"><input type="radio" id="coordsOn" name="coordsOnOff" onclick="Dom.settings.save('coords', true)">Yes</input></span>
-			<span class="radio2"><input type="radio" name="coordsOnOff" checked="true" onclick="Dom.settings.save('coords', false)">No</input></span>
+			<span class="radio1"><input type="radio" id="coordsOn" name="coordsOnOff" onclick="User.settings.coords = true">Yes</input></span>
+			<span class="radio2"><input type="radio" name="coordsOnOff" checked="true" onclick="User.settings.coords = false">No</input></span>
 		</div>
 		<div id="settingFps" class="settings">
 			Show FPS:
-			<span class="radio1"><input type="radio" id="fpsOn" name="fpsOnOff" onclick="Dom.settings.save('fps', true)">Yes</input></span>
-			<span class="radio2"><input type="radio" name="fpsOnOff" checked="true" onclick="Dom.settings.save('fps', false)">No</input></span>
+			<span class="radio1"><input type="radio" id="fpsOn" name="fpsOnOff" onclick="User.settings.fps = true">Yes</input></span>
+			<span class="radio2"><input type="radio" name="fpsOnOff" checked="true" onclick="User.settings.fps = false">No</input></span>
 		</div>
 		<div id="settingHitboxes" class="settings">
 			Show hitboxes:
-			<span class="radio1"><input type="radio" id="hitboxesOn" name="hitboxOnOff" onclick="Dom.settings.save('hitboxes', true)">Yes</input></span>
-			<span class="radio2"><input type="radio" name="hitboxOnOff" checked="true" onclick="Dom.settings.save('hitboxes', false)">No</input></span>
+			<span class="radio1"><input type="radio" id="hitboxesOn" name="hitboxOnOff" onclick="User.settings.hitboxes = true">Yes</input></span>
+			<span class="radio2"><input type="radio" name="hitboxOnOff" checked="true" onclick="User.settings.hitboxes = false">No</input></span>
 		</div>
 		<div id="settingGrid" class="settings">
 			Show grid:
-			<span class="radio1"><input type="radio" id="gridOn" name="gridOnOff" onclick="Dom.settings.save('grid', true)">Yes</input></span>
-			<span class="radio2"><input type="radio" name="gridOnOff" checked="true" onclick="Dom.settings.save('grid', false)">No</input></span>
+			<span class="radio1"><input type="radio" id="gridOn" name="gridOnOff" onclick="User.settings.grid = true">Yes</input></span>
+			<span class="radio2"><input type="radio" name="gridOnOff" checked="true" onclick="User.settings.grid = false">No</input></span>
 		</div>
 		<div id="settingSpeed" class="settings">
 			HIGH SPEED:
