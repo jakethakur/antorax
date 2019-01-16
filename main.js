@@ -948,6 +948,8 @@ class Particle extends Entity {
 		
 		this.id = Game.nextParticleId; // way that the game can identify which particle was added (without position in array being shifted)
 		Game.nextParticleId++;
+		
+		this.transparency = properties.transparency || 1; // 0 (invisible) to 1 (opaque)
 	}
 }
 
@@ -3010,7 +3012,7 @@ Game.launchFirework = function (properties) {
 Game.addTrailParticle = function (character, trailParticle) {
 	trailParticle.x = character.x;
 	trailParticle.y = character.y;
-	this.createParticle(trailParticle);
+	Game.createParticle(trailParticle); // Game not this because it is called by setInterval
 }
 
 //
@@ -3074,7 +3076,7 @@ Game.loadArea = function (areaName, destination) {
 	]);
 	
 	// set game time of day (day or night)
-	this.time = this.getTime();
+	this.time = this.getTime(areaName);
 	
 	// load images
 	let imageNames = Object.keys(Areas[areaName].images);
@@ -3442,6 +3444,20 @@ Game.loadArea = function (areaName, destination) {
 			Game.fireworkInterval = undefined;
 		}
 		
+		// time travel fog
+		/*
+		if (Areas[areaName].timeTravel === true) {
+			this.createParticle({
+				x: 0,
+				y: 0,
+				width: 2,
+				height: 2,
+				colour: "#b7b7b7",
+				transparency: Random(3, 7) / 10,
+			});
+		}
+		*/
+		
     }.bind(this))
 	.catch(function (err) {
 		// error for if the images didn't load
@@ -3803,7 +3819,8 @@ Game.checkEvents = function () {
 }
 
 // check time (day or night)
-Game.getTime = function () {
+// parameter is areaName for checking the time override for the area
+Game.getTime = function (areaName) {
 	// check for in-game events
 	this.checkEvents();
 
@@ -3812,6 +3829,11 @@ Game.getTime = function () {
 	let hour = today.getHours();
 	let day = today.getDate();
 	let month = today.getMonth() + 1; // January is 0, so add 1
+	
+	// check if the area always has a specific time
+	if (Areas[areaName].time !== undefined) {
+		return Areas[areaName].time;
+	}
 	
 	// Summer Solstice - sun up all day
 	if (day == 21 && month == 6) {
@@ -5376,13 +5398,16 @@ Game.render = function (delta) {
 			
 			// rotate canvas
 			ctx.rotate(rotation);
+			// transparency
+			ctx.globalAlpha = particle.transparency;
 			
 			// draw particle
 			ctx.fillStyle = particle.colour;
 			ctx.fillRect(particle.screenX, particle.screenY, particle.width, particle.height);
 			
-			// rotate canvas back
+			// reset canvas stuff
 			ctx.rotate(-rotation);
+			ctx.globalAlpha = 1;
 		}
 	}
 
@@ -5632,9 +5657,10 @@ Game.saveProgress = function (saveType) { // if saveType is "auto" then the save
 		localStorage.setItem(Player.class, JSON.stringify(Player));
 		localStorage.setItem("user", JSON.stringify(User));
 		
-		Game.saveTimeout = setTimeout(function(){
-			Game.saveProgress("auto")	
-		}, 60000);
+		clearInterval(Game.saveTimeout); // clear the previous 60 second interval to avoid saves being too often
+		Game.saveTimeout = setTimeout(function() {
+			Game.saveProgress("auto");
+		}, 60000); // save a minute after the current save
 		
 		// message to console
 		let time = new Date();

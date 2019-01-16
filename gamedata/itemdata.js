@@ -952,7 +952,7 @@ var Items = {
 			obtain: "Can be found as an unidentified item in areas around Eaglecrest Logging Camp.",
 			area: "loggingCamp",
 			stats: {
-				damage: 3,
+				damage: 3.5,
 				focusSpeed: 1,
 			},
 		},
@@ -969,7 +969,7 @@ var Items = {
 			area: "loggingCamp",
 			stats: {
 				damage: 2.5,
-				criticalChance: 70,
+				criticalChance: 65,
 			},
 		},
 		{

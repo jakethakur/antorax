@@ -1457,12 +1457,15 @@ var Areas = {
 		
 		data: {
 			name: "The Nilbog",
-			level: "100 years ago...",
+			level: (250+antoraxAge) + " years ago...",
 			territory: "Hostile",
 			displayOnEnter: true,
 		},
 		
-		indoors: true, // never icy, always day (time travel)
+		// timey wimey stuff
+		timeTravel: true, // cloudy border
+		weather: "clear", // TBD rainy?
+		time: "day",
 
 		mapData: {
 			cols: 15,
@@ -1481,11 +1484,12 @@ var Areas = {
 		
 		images: {
 			tiles: {normal: "./assets/tilemap/nilbogPast.png"},
-			// tattered knight
-			melee: {normal: "./assets/projectiles/melee.png"},
+			tatteredKnight: {normal: "./assets/enemies/tatteredKnight.png"},
+			tatteredKnightCorpse: {normal: "./assets/corpses/tatteredKnight.png"},
+			slash: {normal: "./assets/projectiles/slash.png"}, // (ignored by loader if it is already loaded because of a knight player)
 		},
 		
-		song_day: "./assets/music/Pippin-the-Hunchback.mp3",
+		song_day: "./assets/music/Pippin-the-Hunchback-boss.mp3",
 		
 		checkpoint: false,
 		
@@ -1493,6 +1497,11 @@ var Areas = {
 		],
 		
 		enemies: [
+			{
+				x: 300, //TBD
+				y: 300,
+				template: EnemyTemplates.nilbog.tatteredKnight,
+			},
 		],
 	},
 	

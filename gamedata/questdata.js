@@ -655,6 +655,7 @@ var Quests = {
 				
 				// true or falses for each objective (apart from the turn-in objective)
 				completed.push(checkProgress(Player.quests.questProgress.goblinsKilledWithTorch, 10));
+				completed.push(completed[0]); // second objective isn't actually an objective so just mirrors the first
 				
 				completed = checkFinished(completed);
 				
@@ -1079,7 +1080,6 @@ var Quests = {
 			objectives: [
 				"Fish up 3 presents from the river at Fishers' Valley.",
 				"Deliver them to their intended recipients.",
-				"Speak to <strong>Fisherman Tobenam</strong>.",
 			],
 			
 			isCompleted: function() {
@@ -1209,6 +1209,63 @@ var Quests = {
 			onQuestFinish: function() {
 				// goblin torch chat line
 				Game.sayChat("Goblin Torch", "Wizard runic. Very interesting. I'll be wizard soon.", false, 2500, false);
+			},
+		},
+		
+		{
+			id: 25,
+			quest: "The Legend of the Tattered Knight",
+			questArea: "eaglecrestLoggingCamp",
+			
+			startName: "There once was a knight sent into exile, from the magical realm of Azuras,",
+			startChat: `He invaded towers, looted innocents, and stole from the vulnerable and young.<br>
+He was defeated by the great Wizard Andrews, near his tower in the Nilbog,<br>
+The same great wizard who would become the leader of the Wizards in Antorax.<br><br>
+Since then, many have recounted sightings of a knight in red and yellow armour,<br>
+However few have fought him, and even fewer have lived to tell the tale.<br>
+It is said that there are riches to behold for those who emerge vitorious,<br>
+In a past timezone where the knight still stands, can you reap his spoils?<br>
+<br><i>You will be teleported upon starting this quest</i>`,
+			
+			finishName: "To the victor goes the spoils!",
+			finishChat: `And thus, ${Player.name} defeats the tattered knight. However this was not his end.<br>
+Many still recount seeing a knight in red and yellow armour around Antorax and its outskirts.<br>
+After all, death is never the end in Antorax...<br>
+<br><i>You will be teleported back upon finishing this quest</i>`,
+			
+			objectives: [
+				"Defeat the Tattered Knight in Nilbog Past.",
+			],
+			
+			isCompleted: function() {
+				let completed = [];
+				
+				// true or falses for each objective (apart from the turn-in objective)
+				completed.push(Player.bossesKilled.tatteredKnight !== 0);
+				
+				completed = checkFinished(completed);
+				
+				return completed;
+			},
+			
+			howToStart: "Started from a message sent by mail.",
+			levelRequirement: 1,
+			questRequirements: [],
+			eventRequirement: "Antorax",
+			
+			autofinish: true,
+			
+			rewards: {
+				xp: 50,
+				items: {item: Items.item[1],}, // secret (items from tattered knight)
+			},
+			
+			onQuestStart: function() {
+				// teleport player there
+			},
+			
+			onQuestFinish: function() {
+				// teleport player back
 			},
 		},
 	],

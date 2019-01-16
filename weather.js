@@ -17,6 +17,10 @@ Weather.init = function () {
 
 // called by Game.loadArea
 Weather.chooseWeather = function (areaName) {
+	if (Areas[areaName].weather !== undefined) {
+		// static weather for area
+		this.weatherType = Areas[areaName].weather;
+	}
 	if (Areas[areaName].isIcy !== undefined && Areas[areaName].isIcy()) {
 		// icy area
 		this.weatherType = "snow";

@@ -38,6 +38,7 @@ var Player = {
 	
 	bossesKilled: {
         goblinKing: 0,
+		tatteredKnight: 0,
     },
 	
 	mail: {

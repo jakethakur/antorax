@@ -194,16 +194,15 @@ const EnemyTemplates = {
 			bossKilledVariable: "goblinKing",
 			level: 8,
 			stats: {
-				damage: 9,
+				damage: 6,
 				walkSpeed: 60,
 				maxHealth: 100,
 				defence: 10,
-				range: 60,
+				range: 90,
 				healthRegen: 0.4,
 				reloadTime: 1500,
 				lootTime: 10000,
-				respawnTime: 30000, // TBD
-				alwaysMove: true,
+				alwaysMove: true, // move even when in range
 			},
 			spells: [
 				{
@@ -252,6 +251,44 @@ const EnemyTemplates = {
 			},
 			lootTableTemplate: [EnemyLootTables.nilbogGoblin, EnemyLootTables.nilbogTowerGoblin, ChestLootTables.nilbog, BossLootTables.goblinKing],
 			inventorySpace: 16,
-		}
+		},
+		goblinKing: {
+			image: "tatteredKnight",
+			deathImage: "tatteredKnightCorpse",
+			name: "The Tattered Knight",
+			species: "human",
+			hostility: "boss",
+			bossKilledVariable: "tatteredKnight",
+			level: 8, // TBD level scaling
+			stats: {
+				damage: 9,
+				walkSpeed: 60,
+				maxHealth: 50,
+				defence: 20,
+				range: 90,
+				healthRegen: 0.2,
+				reloadTime: 1500,
+				lootTime: 10000,
+			},
+			spells: [
+				{
+					name: "charge",
+					tier: 1,
+					parameters: function () { // returns array of parameters
+						return {
+							target: Game.hero,
+						};
+					},
+					interval: 5000,
+				},
+			],
+			leashRadius: 1000, // doesn't leash
+			xpGiven: 250,
+			projectile: {
+				image: "slash",
+			},
+			lootTableTemplate: [EnemyLootTables.tatteredKnight],
+			inventorySpace: 24,
+		},
 	},
 };

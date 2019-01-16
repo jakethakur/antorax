@@ -2547,7 +2547,7 @@ Dom.inventory.removeEquipment = function(array){
 	}
 	if(array.trail !== undefined){
 		Game.hero.trail = undefined;
-		clearInterval(Game.hero.trailInterval);
+		clearInterval(Game.trailInterval);
 	}
 }
 
@@ -2623,7 +2623,7 @@ Dom.inventory.addEquipment = function(array){
 	}
 	if(array.trail !== undefined){
 		Game.hero.trail = array.trail;
-		Game.hero.trailInterval = setInterval(Game.addTrailParticle, 100, Game.hero, Game.hero.trail);
+		Game.trailInterval = setInterval(Game.addTrailParticle, 100, Game.hero, Game.hero.trail);
 	}
 }
 
@@ -3411,7 +3411,7 @@ Dom.mail.page = function(){
 				Game.mailboxUpdate("read");
 				if(first && Player.mail.mail[i].openFunction === "quest.start"){
 					Player.mail.mail[i].openFunction = "text.page";
-					Player.mail.mail[i].openParameters = [Player.mail.mail[i].openParameters.quest, "<strong>"+Player.mail.mail[i].startName"</strong>"+Player.mail.mail[i].startChat]
+					Player.mail.mail[i].openParameters = [Player.mail.mail[i].openParameters.quest, "<strong>"+Player.mail.mail[i].startName+"</strong>"+Player.mail.mail[i].startChat];
 				}
 			}else{
 				Dom.mail.notOpen = false;

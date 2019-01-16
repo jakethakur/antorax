@@ -172,6 +172,55 @@ const BossLootTables = {
 			},
 		},
 	],
+	tatteredKnight: [
+		{ // tattered knight's chestplate
+			item: Items.chest[5],
+			chance: [
+				100,			// 0
+				0,				// 1
+			],
+		},
+		{ // tattered tome
+			item: Items.item[16],
+			chance: [
+				100,			// 0
+				100,			// 1
+				100,			// 2
+				100,			// 3
+				80,				// 4
+				60,				// 5
+				40,				// 6
+				20,				// 7
+				0,				// 8
+			],
+		},
+		{ // gold (lots)
+			item: Items.currency[2],
+			chance: [
+				100,			// 0
+				100,			// 1
+				100,			// 2
+				70,				// 3
+				40,				// 4
+				10,				// 5
+				0,				// 6
+			],
+		},
+		{ // unidentified items
+			item: {
+				name: "unidentified",
+				tier: 1,
+				area: "loggingCamp",
+			},
+			chance: [
+				100,			// 0
+				100,			// 1
+				80,				// 2
+				0,				// 3
+				20,				// 4
+			],
+		},
+	],
 };
 
 const ChestLootTables = {
