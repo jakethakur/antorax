@@ -130,6 +130,8 @@ Weather.update = function (delta) {
 
 // render weather particles
 Weather.render = function () {
+	this.ctx.clearRect(0, 0, 600, 600);
+	this.ctx.fillStyle="#FFFFFF";
 	for (let i = 0; i < this.particleArray.length; i++) { // iterate through particle array
 		let particle = this.particleArray[i];
 		if (this.weatherType === "snow") {

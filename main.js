@@ -807,6 +807,9 @@ class Attacker extends Character {
 		}
 		this.updateStats = properties.updateStats; // only works for enemies ATM
 		
+		// trail (currently just works for hero ATM)
+		this.trail = properties.trail;
+		
 		// spells
 		this.spells = properties.spells || [];
 		for (let i = 0; i < this.spells.length; i++) {
@@ -962,7 +965,7 @@ Game.createParticle = function (properties) {
 	// set its removal time
 	setTimeout(function (id) {
 		// remove the same particle (particle of the same id)
-		Game.particles.splice(Game.searchFor(id, Game.particles), 1);
+		Game.objectRemoveTimeouts.push(Game.particles.splice(Game.searchFor(id, Game.particles), 1)); // pushed to objectProjectileTimeouts so it can be removed when the area is changed
 	}, properties.removeIn, id);
 }
 
@@ -1480,9 +1483,9 @@ class Hero extends Attacker {
 			// after a timeout (2s), remove the projectile that was just shot
 			// this doesn't work if the user attacks too fast, though this shouldn't be a problem...
 			let a = this.channellingProjectileId; // maintain a variable of the currently shot projectile
-			setTimeout(function (a) {
+			Game.objectProjectileTimeouts = setTimeout(function (a) {
 				Game.projectiles.splice(Game.searchFor(a, Game.projectiles), 1); // find the id of the to-be-removed projectile and remove it
-			}, 1500, a);
+			}, 1500, a); // pushed to objectProjectileTimeouts so it can be removed when the area is changed
 			
 			this.channellingProjectileId = null;
 			
@@ -2366,9 +2369,9 @@ class Enemy extends Attacker {
 		// after a timeout (2s), remove the projectile that was just shot
 		// taken from Player
 		let a = this.channellingProjectileId; // maintain a variable of the currently shot projectile
-		setTimeout(function (a) {
+		Game.objectProjectileTimeouts = setTimeout(function (a) {
 			Game.projectiles.splice(Game.searchFor(a, Game.projectiles), 1); // find the id of the to-be-removed projectile and remove it
-		}, 1500, a);
+		}, 1500, a); // pushed to objectProjectileTimeouts so it can be removed when the area is changed
 		
 		this.channellingProjectileId = null;
 	}
@@ -3010,8 +3013,8 @@ Game.launchFirework = function (properties) {
 // add a new trail particle around the character (normally called by a setInterval)
 // the particle data is saved in trailParticle
 Game.addTrailParticle = function (character, trailParticle) {
-	trailParticle.x = character.x;
-	trailParticle.y = character.y;
+	trailParticle.x = character.x + Random(-trailParticle.variance, trailParticle.variance);
+	trailParticle.y = character.y + Random(-trailParticle.variance, trailParticle.variance);
 	Game.createParticle(trailParticle); // Game not this because it is called by setInterval
 }
 
@@ -3251,6 +3254,14 @@ Game.loadArea = function (areaName, destination) {
 			});
 		}
 		
+		// particles and projectiles don't persist between areas - cancel their remove timeouts
+		if (this.objectRemoveTimeouts !== undefined) {
+			for (let i = 0; i < this.objectRemoveTimeouts; i++) {
+				clearTimeout(this.objectRemoveTimeouts[i]);
+			}
+		}
+		this.objectRemoveTimeouts = [];
+		
 		// particles
 		this.particles = [];
 		this.nextParticleId = 0; // reset particle id chain (because particles don't persist between areas)
@@ -3273,9 +3284,6 @@ Game.loadArea = function (areaName, destination) {
 				areaTeleport.type = "areaTeleports";
 				this.areaTeleports.push(new AreaTeleport(areaTeleport));
 			});
-		}
-		else {
-			console.warn("This area has no areaTeleports in areaData.");
 		}
 		
 		// tripwires (invisible; calls function when touched)
@@ -3396,6 +3404,12 @@ Game.loadArea = function (areaName, destination) {
 				Areas[areaName].onAreaTeleport();
 			}
 		}
+		
+		// save in 60 seconds
+		// this is set to 60 seconds if there is a save before this
+		Game.saveTimeout = setTimeout(function() {
+			Game.saveProgress("auto");
+		}, 60000);
 		
 		// choose weather
 		Weather.chooseWeather(areaName);
@@ -3522,6 +3536,8 @@ Game.init = function () {
 		// stats
 		stats: Player.stats,
 		
+		trail: Player.trail,
+		
 		// projectile (TBD)
 		projectile: {},
 		
@@ -3569,7 +3585,7 @@ Game.init = function () {
 	if (Game.hero.trail !== undefined) {
 		// hero has a trail
 		// new particle every 100ms
-		Game.trailInterval = setInterval(Game.addTrailParticle, 100, Game.hero, Game.hero.trail);
+		Game.hero.trailInterval = setInterval(Game.addTrailParticle, 100, Game.hero, Game.hero.trail);
 	}
 	
 	// game view camera
@@ -4406,9 +4422,9 @@ Game.update = function (delta) {
 				// after a timeout (2s), remove the projectile that was just shot
 				// taken from Player
 				let a = projectile.id; // maintain a variable of the currently shot projectile's id
-				setTimeout(function (a) {
+				this.objectRemoveTimeouts.push(setTimeout(function (a) {
 					Game.projectiles.splice(Game.searchFor(a, Game.projectiles), 1); // find the id of the to-be-removed projectile and remove it
-				}, 1500, a);
+				}, 1500, a)); // pushed to objectProjectileTimeouts so it can be removed when the area is changed
 			}
 			
 			// remove the projectile if it has moved too far
@@ -5396,6 +5412,8 @@ Game.render = function (delta) {
 				ctx = this.ctx;
 			}
 			
+			// transform canvas so the rotation happens around the rect itself
+			ctx.translate(particle.screenX + particle.width / 2, particle.screenY + particle.height / 2);
 			// rotate canvas
 			ctx.rotate(rotation);
 			// transparency
@@ -5403,10 +5421,11 @@ Game.render = function (delta) {
 			
 			// draw particle
 			ctx.fillStyle = particle.colour;
-			ctx.fillRect(particle.screenX, particle.screenY, particle.width, particle.height);
+			ctx.fillRect(-particle.width / 2, -particle.height / 2, particle.width, particle.height);
+			//this.ctx.drawImage(img,width / 2 * (-1),height / 2 * (-1),width,height);
 			
 			// reset canvas stuff
-			ctx.rotate(-rotation);
+			ctx.resetTransform();
 			ctx.globalAlpha = 1;
 		}
 	}
@@ -5650,6 +5669,7 @@ Game.saveProgress = function (saveType) { // if saveType is "auto" then the save
 		Player.checkpoint = Game.hero.checkpoint;
 		// save other player details that aren't otherwise saved to savedata
 		Player.health = Game.hero.health;
+		Player.trail = Game.hero.trail;
 		// re-link status effects (inefficient - tbd)
 		Player.statusEffects = Game.hero.statusEffects;
 		

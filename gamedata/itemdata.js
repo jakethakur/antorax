@@ -163,11 +163,12 @@ var Items = {
 			},
 			functionText: "Leaves a trail of confetti",
 			trail: {
-				width: 20,
-				height: 10,
+				width: 15,
+				height: 7,
 				colour: ["#19AB21", "#CC1DC2"], // class Particle chooses random colour from array
 				removeIn: 1000,
 				rotation: "random",
+				variance: 50, // variance in position (in x/y axis in one direction from player)
 			},
 			archaeologyHidden: true,
 		},
