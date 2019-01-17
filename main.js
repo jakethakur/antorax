@@ -963,10 +963,10 @@ Game.createParticle = function (properties) {
 	let particle = new Particle(properties);
 	Game.particles.push(particle);
 	// set its removal time
-	setTimeout(function (id) {
+	Game.objectRemoveTimeouts.push(setTimeout(function (id) {
 		// remove the same particle (particle of the same id)
-		Game.objectRemoveTimeouts.push(Game.particles.splice(Game.searchFor(id, Game.particles), 1)); // pushed to objectProjectileTimeouts so it can be removed when the area is changed
-	}, properties.removeIn, id);
+		Game.particles.splice(Game.searchFor(id, Game.particles), 1);
+	}, properties.removeIn, id)); // pushed to objectRemoveTimeouts so it can be removed when the area is changed
 }
 
 // a thing that is a point of information or special interest
@@ -1483,9 +1483,9 @@ class Hero extends Attacker {
 			// after a timeout (2s), remove the projectile that was just shot
 			// this doesn't work if the user attacks too fast, though this shouldn't be a problem...
 			let a = this.channellingProjectileId; // maintain a variable of the currently shot projectile
-			Game.objectProjectileTimeouts = setTimeout(function (a) {
+			Game.objectRemoveTimeouts.push(setTimeout(function (a) {
 				Game.projectiles.splice(Game.searchFor(a, Game.projectiles), 1); // find the id of the to-be-removed projectile and remove it
-			}, 1500, a); // pushed to objectProjectileTimeouts so it can be removed when the area is changed
+			}, 1500, a)); // pushed to objectRemoveTimeouts so it can be removed when the area is changed
 			
 			this.channellingProjectileId = null;
 			
@@ -2369,9 +2369,9 @@ class Enemy extends Attacker {
 		// after a timeout (2s), remove the projectile that was just shot
 		// taken from Player
 		let a = this.channellingProjectileId; // maintain a variable of the currently shot projectile
-		Game.objectProjectileTimeouts = setTimeout(function (a) {
+		Game.objectRemoveTimeouts.push(setTimeout(function (a) {
 			Game.projectiles.splice(Game.searchFor(a, Game.projectiles), 1); // find the id of the to-be-removed projectile and remove it
-		}, 1500, a); // pushed to objectProjectileTimeouts so it can be removed when the area is changed
+		}, 1500, a)); // pushed to objectRemoveTimeouts so it can be removed when the area is changed
 		
 		this.channellingProjectileId = null;
 	}
@@ -3256,7 +3256,7 @@ Game.loadArea = function (areaName, destination) {
 		
 		// particles and projectiles don't persist between areas - cancel their remove timeouts
 		if (this.objectRemoveTimeouts !== undefined) {
-			for (let i = 0; i < this.objectRemoveTimeouts; i++) {
+			for (let i = 0; i < this.objectRemoveTimeouts.length; i++) {
 				clearTimeout(this.objectRemoveTimeouts[i]);
 			}
 		}
@@ -4424,7 +4424,7 @@ Game.update = function (delta) {
 				let a = projectile.id; // maintain a variable of the currently shot projectile's id
 				this.objectRemoveTimeouts.push(setTimeout(function (a) {
 					Game.projectiles.splice(Game.searchFor(a, Game.projectiles), 1); // find the id of the to-be-removed projectile and remove it
-				}, 1500, a)); // pushed to objectProjectileTimeouts so it can be removed when the area is changed
+				}, 1500, a)); // pushed to objectRemoveTimeouts so it can be removed when the area is changed
 			}
 			
 			// remove the projectile if it has moved too far
