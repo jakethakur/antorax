@@ -46,7 +46,10 @@ for(let i = 0; i < Items.fish.length; i++){
 	User.fish.push(0);
 }
 if(localStorage.getItem("user") !== null){
-	User = Object.assign(User, JSON.parse(localStorage.getItem("user")));
+	let user = JSON.parse(localStorage.getItem("user"));
+	user.progress = Object.assign(User.progress, user.progress);
+	user.settings = Object.assign(User.settings, user.settings);
+	User = Object.assign(User, user);
 }
 
 // USER SAVEDATA FIXES more at bottom
@@ -192,10 +195,10 @@ Dom.quests.active = function(quest){
 			let completedObjectives = 0;
 			for(let i = 0; i < currentQuest.objectives.length; i++){
 				Dom.quests.activeHTML[currentQuest.important] += "<br>" + currentQuest.objectives[i];
-				if(currentQuest.isCompleted()[i] === true && i !== currentQuest.objectives.length-1){
+				if(currentQuest.isCompleted()[i] === true /*&& i !== currentQuest.objectives.length-1*/){
 					Dom.quests.activeHTML[currentQuest.important] += " &#10004;";
 					completedObjectives++;
-				}else if(currentQuest.isCompleted()[i] !== false && i !== currentQuest.objectives.length-1){
+				}else if(currentQuest.isCompleted()[i] !== false /*&& i !== currentQuest.objectives.length-1*/){
 					Dom.quests.activeHTML[currentQuest.important] += " " + currentQuest.isCompleted()[i];
 				}
 			}
@@ -1748,7 +1751,12 @@ Dom.inventory.cooldown = function(inventoryPosition){
 	}
 	if(item[inventoryPosition].cooldown !== undefined){
 		if(item[inventoryPosition].cooldownStart === undefined || parseInt(item[inventoryPosition].cooldownStart) + item[inventoryPosition].cooldown <= parseInt(GetFullDateTime())){
-			item[inventoryPosition].cooldownStart = GetFullDateTime();
+			//item[inventoryPosition].cooldownStart = GetFullDateTime();
+			for(let i = 0; i < Player.inventory.items.length; i++){
+				if(Player.inventory.items[i].type === item[inventoryPosition].type && Player.inventory.items[i].id === item[inventoryPosition].id){
+					Player.inventory.items[i].cooldownStart = GetFullDateTime();
+				}
+			}
 			item[inventoryPosition].onClickFunction(inventoryPosition);
 		}
 	}else{
@@ -3415,12 +3423,21 @@ Dom.mail.page = function(){
 						Player.mail.opened.pop();
 					}
 				}
-				ExecuteFunctionByName(Player.mail.mail[i].openFunction, Dom, Player.mail.mail[i].openParameters);
+				if(Player.mail.mail[i].openFunction !== "quest.start"){
+					ExecuteFunctionByName(Player.mail.mail[i].openFunction, Dom, Player.mail.mail[i].openParameters);
+				}else{
+					let quest = Quests[Player.mail.mail[i].openParameters[0]][Player.mail.mail[i].openParameters[1]];
+					if(Player.quests.possibleQuestArray.includes(quest.quest)){
+						ExecuteFunctionByName("quest.start", Dom, [quest]);
+					}else{
+						ExecuteFunctionByName("text.page", Dom, [quest.quest, "<strong>"+quest.startName+"</strong><br>"+quest.startChat, true, [], []]);
+					}
+				}
 				Game.mailboxUpdate("read");
-				if(first && Player.mail.mail[i].openFunction === "quest.start"){
+				/*if(first && Player.mail.mail[i].openFunction === "quest.start"){
 					Player.mail.mail[i].openFunction = "text.page";
 					Player.mail.mail[i].openParameters = [Player.mail.mail[i].openParameters.quest, "<strong>"+Player.mail.mail[i].startName+"</strong>"+Player.mail.mail[i].startChat];
-				}
+				}*/
 			}else{
 				Dom.mail.notOpen = false;
 			}
@@ -3513,7 +3530,7 @@ Dom.inventory.reEquip = function(slot){
 }
 
 /*Dom.inventory.prepare = function(){
-	
+	///
 }*/
 
 //
@@ -3534,11 +3551,14 @@ Dom.mail.give(
 
 // LOADS ALL EXISTING CLASS SAVEDATA
 if(localStorage.getItem(Player.class) !== null){
-	Player = Object.assign(Player, JSON.parse(localStorage.getItem(Player.class)));
-	Player.name = playerName;
-	Player.skin = playerSkin;
+    let savedPlayer = JSON.parse(localStorage.getItem(Player.class));
+    // bosses killed fix (if new bosses were added)
+    savedPlayer.bossesKilled = Object.assign(Player.bossesKilled, savedPlayer.bossesKilled);
+    Player = Object.assign(Player, savedPlayer); // add any new stuff added to savedata
+    Player.name = playerName;
+    Player.skin = playerSkin;
 }else{
-	Dom.choose.page("Instructions", Player.unlockedInstructions, [Dom.adventure.showInstructions,Dom.adventure.showInstructions,Dom.adventure.showInstructions,Dom.adventure.showInstructions,Dom.adventure.showInstructions,], [[0],[1],[2],[3],[4],]);
+    Dom.choose.page("Instructions", Player.unlockedInstructions, [Dom.adventure.showInstructions,Dom.adventure.showInstructions,Dom.adventure.showInstructions,Dom.adventure.showInstructions,Dom.adventure.showInstructions,], [[0],[1],[2],[3],[4],]);
 }
 
 // LOADS AN EXISTING CLASS
@@ -3555,7 +3575,7 @@ for(let i = 0; i < Player.inventory.items.length/6; i++){
 }
 for(let i = 0; i < Player.inventory.items.length; i++){
 	// if the item has melted
-	if(Player.inventory.items[i].image !== undefined && Items[Player.inventory.items[i].type][Player.inventory.items[i].id].deleteIf !== undefined && Items[Player.inventory.items[i].type][Player.inventory.items[i].id].deleteIf()){
+	if(Player.inventory.items[i].image !== undefined && !Player.inventory.items[i].unidentified && Items[Player.inventory.items[i].type][Player.inventory.items[i].id].deleteIf !== undefined && Items[Player.inventory.items[i].type][Player.inventory.items[i].id].deleteIf()){
 		setTimeout(function(){
 			Dom.chat.insert("It's not snowy any more! Your "+Player.inventory.items[i].name+" melted.", 0, true);
 			Player.inventory.items[i] = {};
@@ -3773,12 +3793,12 @@ if (GetFullDate().substring(6) === "20" && GetFullDate().substring(4,6) === "12"
     Dom.mail.give(
         "Antorax is " + antoraxAge + " today!",
         "The King of Eaglecrest",
-        eaglecrestKing (TBD),
+        "eaglecrestKing",
         "text.page",
         ["Antorax is " + antoraxAge + " today!",
         `${antoraxAge} years ago today, the realms of Antorax settled on an agreement to cooperate in the archaeology and exploration of these beautiful lands. Although there have been conflicts since then, there have been countless discoveries made by the Antorax alliance, and we endevour to continue.
-<br>This year, there have been countless advancements in the fields of Archaeology, with huge discoveries of mythic items. There have also been developments to the Eaglecrest Logging Camp, and improvements to the accessibility of Antorax for its citizens.
-<br>We hope you enjoy this special day, and that we will celebrate the many more Antorax Days to come together.`, true, [], [],
+<br><br>This year, there have been countless advancements in the fields of Archaeology, with huge discoveries of mythic items. There have also been developments to the Eaglecrest Logging Camp, and improvements to the accessibility of Antorax for its citizens.
+<br><br>We hope you enjoy this special day, and that we will celebrate the many more Antorax Days to come together.`, true, [], [],
         [{item: Items.helm[10]}]], [{item: Items.helm[10]}],
     );
 }
