@@ -1485,7 +1485,7 @@ Dom.identifier.identify = function(npc){
 	}
 }
 
-Dom.inventory.give = function(item, num, position){
+Dom.inventory.give = function(item, num, position, noSave){
 	let added = false; // true if you received the item and returned at the end of the function
 	if(num === undefined){
 		num = 1;
@@ -1534,7 +1534,9 @@ Dom.inventory.give = function(item, num, position){
 									if(Player.inventory[i].chooseStats !== undefined){
 										Dom.inventory.chooseStats(i);
 									}else{
-										if(Dom.inventory.give(Player.inventory[i])){
+										if(Dom.inventory.give(Player.inventory[i], 1, undefined, true) !== false){ // don't save while you have one equipped AND on in inventory
+											Dom.inventory.deEquip = true;
+											Dom.inventory.removeEquipment(Player.inventory[i]);
 											Player.inventory[i] = {};
 											document.getElementById(i).innerHTML = "";
 										}
@@ -1550,7 +1552,9 @@ Dom.inventory.give = function(item, num, position){
 									if(Player.inventory[i].chooseStats !== undefined){
 										Dom.inventory.chooseStats(i);
 									}else{
-										if(Dom.inventory.give(Player.inventory[i])){
+										if(Dom.inventory.give(Player.inventory[i], 1, undefined, true) !== false){ // don't save while you have one equipped AND on in inventory
+											Dom.inventory.deEquip = true;
+											Dom.inventory.removeEquipment(Player.inventory[i]);
 											Player.inventory[i] = {};
 											document.getElementById(i).innerHTML = "";
 										}
@@ -1620,7 +1624,9 @@ Dom.inventory.give = function(item, num, position){
 					if(Player.inventory[i].chooseStats !== undefined){
 						Dom.inventory.chooseStats(i);
 					}else{
-						if(Dom.inventory.give(Player.inventory[i])){
+						if(Dom.inventory.give(Player.inventory[i], 1, undefined, true) !== false){ // don't save while you have one equipped AND on in inventory
+							Dom.inventory.deEquip = true;
+							Dom.inventory.removeEquipment(Player.inventory[i]);
 							Player.inventory[i] = {};
 							document.getElementById(i).innerHTML = "";
 						}
@@ -1636,7 +1642,9 @@ Dom.inventory.give = function(item, num, position){
 					if(Player.inventory[i].chooseStats !== undefined){
 						Dom.inventory.chooseStats(i);
 					}else{
-						if(Dom.inventory.give(Player.inventory[i])){
+						if(Dom.inventory.give(Player.inventory[i], 1, undefined, true) !== false){ // don't save while you have one equipped AND on in inventory
+							Dom.inventory.deEquip = true;
+							Dom.inventory.removeEquipment(Player.inventory[i]);
 							Player.inventory[i] = {};
 							document.getElementById(i).innerHTML = "";
 						}
@@ -1684,7 +1692,7 @@ Dom.inventory.give = function(item, num, position){
 	}
 	Dom.hotbar.update();
 	Dom.checkProgress();
-	if(typeof Game !== "undefined"){
+	if(typeof Game !== "undefined" && !noSave){
 		Game.saveProgress("auto");
 	}
 	if(added){
@@ -2547,7 +2555,7 @@ Dom.inventory.removeEquipment = function(array){
 	}
 	if(array.trail !== undefined){
 		Game.hero.trail = undefined;
-		clearInterval(Game.trailInterval);
+		clearInterval(Game.hero.trailInterval);
 	}
 }
 
@@ -2623,7 +2631,7 @@ Dom.inventory.addEquipment = function(array){
 	}
 	if(array.trail !== undefined){
 		Game.hero.trail = array.trail;
-		Game.trailInterval = setInterval(Game.addTrailParticle, 100, Game.hero, Game.hero.trail);
+		Game.hero.trailInterval = setInterval(Game.addTrailParticle, 100, Game.hero, Game.hero.trail);
 	}
 }
 
@@ -3494,6 +3502,20 @@ if(!User.settings.particles){
 	document.getElementById("particlesOff").checked = true;
 }
 
+Dom.inventory.reEquip = function(slot){
+	if(!Dom.inventory.deEquip){
+		for(let i = Player.inventory.items.length-1; i >= 0; i--){
+			if(Player.inventory.items[i].type === slot || (slot === "weapon" && (Player.inventory.items[i].type === "sword" || Player.inventory.items[i].type === "staff" || Player.inventory.items[i].type === "bow" || Player.inventory.items[i].type === "rod"))){
+				Dom.inventory.drop(undefined, slot, i);
+			}
+		}
+	}
+}
+
+/*Dom.inventory.prepare = function(){
+	
+}*/
+
 //
 // DO NOT ADD CODE BELOW THIS POINT
 //
@@ -3533,12 +3555,12 @@ for(let i = 0; i < Player.inventory.items.length/6; i++){
 }
 for(let i = 0; i < Player.inventory.items.length; i++){
 	// if the item has melted
-	/*if(Player.inventory.items[i].image !== undefined && Items[Player.inventory.items[i].type][Player.inventory.items[i].id].deleteIf !== undefined && Items[Player.inventory.items[i].type][Player.inventory.items[i].id].deleteIf()){
+	if(Player.inventory.items[i].image !== undefined && Items[Player.inventory.items[i].type][Player.inventory.items[i].id].deleteIf !== undefined && Items[Player.inventory.items[i].type][Player.inventory.items[i].id].deleteIf()){
 		setTimeout(function(){
 			Dom.chat.insert("It's not snowy any more! Your "+Player.inventory.items[i].name+" melted.", 0, true);
 			Player.inventory.items[i] = {};
 		},1000);
-	}else*/ if(Player.inventory.items[i].image !== undefined){
+	}else if(Player.inventory.items[i].image !== undefined){
 		/*if(Player.inventory.items[i].chooseStats !== undefined){
 			Items[Player.inventory.items[i].type][Player.inventory.items[i].id].onClick = Dom.inventory.chooseStats;
 		}*/
@@ -3557,7 +3579,9 @@ for(let i = 0; i < Player.inventory.items.length; i++){
 					if(Player.inventory[i].chooseStats !== undefined){
 						Dom.inventory.chooseStats(i);
 					}else{
-						if(Dom.inventory.give(Player.inventory[i])){
+						if(Dom.inventory.give(Player.inventory[i], 1, undefined, true) !== false){ // don't save while you have one equipped AND on in inventory
+							Dom.inventory.deEquip = true;
+							Dom.inventory.removeEquipment(Player.inventory[i]);
 							Player.inventory[i] = {};
 							document.getElementById(i).innerHTML = "";
 						}
@@ -3573,14 +3597,16 @@ for(let i = 0; i < Player.inventory.items.length; i++){
 					if(Player.inventory[i].chooseStats !== undefined){
 						Dom.inventory.chooseStats(i);
 					}else{
-						if(Dom.inventory.give(Player.inventory[i])){
+						if(Dom.inventory.give(Player.inventory[i], 1, undefined, true) !== false){ // don't save while you have one equipped AND on in inventory
+							Dom.inventory.deEquip = true;
+							Dom.inventory.removeEquipment(Player.inventory[i]);
 							Player.inventory[i] = {};
 							document.getElementById(i).innerHTML = "";
 						}
 					}
 				}
 			}
-		}		
+		}
 		if(!Player.inventory.items[i].unidentified){
 			Player.inventory.items[i].onClickFunction = Items[Player.inventory.items[i].type][Player.inventory.items[i].id].onClick;
 			if(Player.inventory.items[i].onClickFunction !== undefined){
@@ -3624,7 +3650,9 @@ for(let i = 0; i < Object.keys(Player.inventory).length-1; i++){ // repeats for 
 					if(Player.inventory[i].chooseStats !== undefined){
 						Dom.inventory.chooseStats(i);
 					}else{
-						if(Dom.inventory.give(Player.inventory[i])){
+						if(Dom.inventory.give(Player.inventory[i], 1, undefined, true) !== false){ // don't save while you have one equipped AND on in inventory
+							Dom.inventory.deEquip = true;
+							Dom.inventory.removeEquipment(Player.inventory[i]);
 							Player.inventory[i] = {};
 							document.getElementById(i).innerHTML = "";
 						}
@@ -3640,14 +3668,16 @@ for(let i = 0; i < Object.keys(Player.inventory).length-1; i++){ // repeats for 
 					if(Player.inventory[i].chooseStats !== undefined){
 						Dom.inventory.chooseStats(i);
 					}else{
-						if(Dom.inventory.give(Player.inventory[i])){
+						if(Dom.inventory.give(Player.inventory[i], 1, undefined, true) !== false){ // don't save while you have one equipped AND on in inventory
+							Dom.inventory.deEquip = true;
+							Dom.inventory.removeEquipment(Player.inventory[i]);
 							Player.inventory[i] = {};
 							document.getElementById(i).innerHTML = "";
 						}
 					}
 				}
 			}
-		}	
+		}
 		if(Player.inventory[Object.keys(Player.inventory)[i]].image !== undefined){
 			Player.inventory[Object.keys(Player.inventory)[i]].onClickFunction = Items[Player.inventory[Object.keys(Player.inventory)[i]].type][Player.inventory[Object.keys(Player.inventory)[i]].id].onClick;
 			if(Player.inventory[Object.keys(Player.inventory)[i]].onClickFunction !== undefined){
@@ -3737,6 +3767,20 @@ if (GetFullDate().substring(4,6) === "12" && !Player.days.includes(GetFullDate()
 			[{item: Items.currency[5]}]], [{item: Items.currency[5]}],
 		);
 	}
+}
+// Antorax Day mail
+if (GetFullDate().substring(6) === "20" && GetFullDate().substring(4,6) === "12" && !Player.days.includes(GetFullDate())) {
+    Dom.mail.give(
+        "Antorax is " + antoraxAge + " today!",
+        "The King of Eaglecrest",
+        eaglecrestKing (TBD),
+        "text.page",
+        ["Antorax is " + antoraxAge + " today!",
+        `${antoraxAge} years ago today, the realms of Antorax settled on an agreement to cooperate in the archaeology and exploration of these beautiful lands. Although there have been conflicts since then, there have been countless discoveries made by the Antorax alliance, and we endevour to continue.
+<br>This year, there have been countless advancements in the fields of Archaeology, with huge discoveries of mythic items. There have also been developments to the Eaglecrest Logging Camp, and improvements to the accessibility of Antorax for its citizens.
+<br>We hope you enjoy this special day, and that we will celebrate the many more Antorax Days to come together.`, true, [], [],
+        [{item: Items.helm[10]}]], [{item: Items.helm[10]}],
+    );
 }
 // days logged on by player
 if (!Player.days.includes(GetFullDate())) {

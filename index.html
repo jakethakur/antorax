@@ -37,14 +37,14 @@
 		<div id="alertNo"></div>
 	</div>
 	<div id="chatPage" hidden></div>
-	<div id="inventoryPage" hidden ondrop="Dom.inventory.dispose(event)" ondragover="Dom.inventory.allowDrop(event)">
+	<div id="inventoryPage" hidden onclick="Dom.inventory.deEquip = false;" ondrop="Dom.inventory.dispose(event)" ondragover="Dom.inventory.allowDrop(event)">
 		<div id="inventoryGoldXP"></div>
 		<div id="displayStats" onmouseover="Dom.inventory.displayIdentification(true)"onmouseleave="Dom.expand('itemIdentification')"></div>
-		<div id="weapon"onmouseover="Dom.inventory.displayInformation(Player.inventory.weapon, undefined, 'equip')"onmouseleave="Dom.expand('information')"ondrop="Dom.inventory.drop(event,'weapon');Game.inventoryUpdate()" ondragover="Dom.inventory.allowDrop(event)" ondrag="Dom.expand('information')"></div>
-		<div id="helm"onmouseover="Dom.inventory.displayInformation(Player.inventory.helm, undefined, 'equip')"onmouseleave="Dom.expand('information')"ondrop="Dom.inventory.drop(event,'helm');Game.inventoryUpdate()" ondragover="Dom.inventory.allowDrop(event)" ondrag="Dom.expand('information')"></div>
-		<div id="chest"onmouseover="Dom.inventory.displayInformation(Player.inventory.chest, undefined, 'equip')"onmouseleave="Dom.expand('information')"ondrop="Dom.inventory.drop(event,'chest');Game.inventoryUpdate()" ondragover="Dom.inventory.allowDrop(event)" ondrag="Dom.expand('information')"></div>
-		<div id="greaves"onmouseover="Dom.inventory.displayInformation(Player.inventory.greaves, undefined, 'equip')"onmouseleave="Dom.expand('information')"ondrop="Dom.inventory.drop(event,'greaves');Game.inventoryUpdate()" ondragover="Dom.inventory.allowDrop(event)" ondrag="Dom.expand('information')"></div>
-		<div id="boots"onmouseover="Dom.inventory.displayInformation(Player.inventory.boots, undefined, 'equip')"onmouseleave="Dom.expand('information')"ondrop="Dom.inventory.drop(event,'boots');Game.inventoryUpdate()" ondragover="Dom.inventory.allowDrop(event)" ondrag="Dom.expand('information')"></div>
+		<div id="weapon" onclick="Dom.inventory.reEquip('weapon')" onmouseover="Dom.inventory.displayInformation(Player.inventory.weapon, undefined, 'equip')"onmouseleave="Dom.expand('information')"ondrop="Dom.inventory.drop(event,'weapon');Game.inventoryUpdate()" ondragover="Dom.inventory.allowDrop(event)" ondrag="Dom.expand('information')"></div>
+		<div id="helm" onclick="Dom.inventory.reEquip('helm')" onmouseover="Dom.inventory.displayInformation(Player.inventory.helm, undefined, 'equip')"onmouseleave="Dom.expand('information')"ondrop="Dom.inventory.drop(event,'helm');Game.inventoryUpdate()" ondragover="Dom.inventory.allowDrop(event)" ondrag="Dom.expand('information')"></div>
+		<div id="chest" onclick="Dom.inventory.reEquip('chest')" onmouseover="Dom.inventory.displayInformation(Player.inventory.chest, undefined, 'equip')"onmouseleave="Dom.expand('information')"ondrop="Dom.inventory.drop(event,'chest');Game.inventoryUpdate()" ondragover="Dom.inventory.allowDrop(event)" ondrag="Dom.expand('information')"></div>
+		<div id="greaves" onclick="Dom.inventory.reEquip('greaves')" onmouseover="Dom.inventory.displayInformation(Player.inventory.greaves, undefined, 'equip')"onmouseleave="Dom.expand('information')"ondrop="Dom.inventory.drop(event,'greaves');Game.inventoryUpdate()" ondragover="Dom.inventory.allowDrop(event)" ondrag="Dom.expand('information')"></div>
+		<div id="boots" onclick="Dom.inventory.reEquip('boots')" onmouseover="Dom.inventory.displayInformation(Player.inventory.boots, undefined, 'equip')"onmouseleave="Dom.expand('information')"ondrop="Dom.inventory.drop(event,'boots');Game.inventoryUpdate()" ondragover="Dom.inventory.allowDrop(event)" ondrag="Dom.expand('information')"></div>
 		<table id="itemInventory">
 			<tr>
 				<td ondrop="Dom.inventory.drop(event);Game.inventoryUpdate(event)" ondragover="Dom.inventory.allowDrop(event)" onmouseover="Dom.inventory.displayInformation(Player.inventory.items[0])" onmouseleave="Dom.expand('information')" ondrag="Dom.expand('information')" onclick="Game.inventoryUpdate()"></td>
