@@ -1234,14 +1234,18 @@ After all, death is never the end in Antorax...<br>
 <br><i>You will be teleported back upon finishing this quest</i>`,
 			
 			objectives: [
-				"Defeat the Tattered Knight in Nilbog Past.",
+				"Defeat and loot the Tattered Knight in Nilbog Past.",
 			],
 			
 			isCompleted: function() {
 				let completed = [];
 				
 				// true or falses for each objective (apart from the turn-in objective)
-				completed.push(Player.bossesKilled.tatteredKnight !== 0);
+				completed.push(Player.bossesKilled.tatteredKnight !== 0 && // boss has been killed
+				Game.areaName === "nilbogPast" && // area is nilbogPast (where boss is)
+				(Game.enemies[0] === undefined || // enemy doesn't exist (game has been refreshed) OR
+				Game.enemies[0].isCorpse === false) && // enemy's corpse has despawned (has been looted)
+				Dom.currentlyDisplayed !== "The Tattered Knight"); // DOM is not currently showing looting screen
 				
 				completed = checkFinished(completed);
 				
@@ -1257,15 +1261,24 @@ After all, death is never the end in Antorax...<br>
 			
 			rewards: {
 				xp: 50,
-				items: {item: Items.item[1],}, // secret (items from tattered knight)
+				items: [{item: Items.item[1],}], // secret (items from tattered knight)
 			},
 			
 			onQuestStart: function() {
+				// save old position
+				Game.hero.oldPosition = {
+					area: Game.areaName,
+					x: Game.hero.x,
+					y: Game.hero.y,
+				};
 				// teleport player there
+				Game.loadArea("nilbogPast", {x: 100, y: 100});
 			},
 			
 			onQuestFinish: function() {
-				// teleport player back
+				// teleport player back to their previous position
+				Game.loadArea(Game.hero.oldPosition.area, {x: Game.hero.oldPosition.x, y: Game.hero.oldPosition.y});
+				Game.hero.oldPosition = undefined;
 			},
 		},
 	],

@@ -634,6 +634,12 @@ class Character extends Thing {
 				this.respawning = true;
 				this.isCorpse = true;
 				
+				// area onDeath function
+				if (Areas[Game.areaName].onDeath !== undefined) {
+					Areas[Game.areaName].onDeath();
+				}
+				
+				// load checkpoint area
 				Game.loadArea(this.checkpoint, Areas[this.checkpoint].player);
 				
 				this.health = this.stats.maxHealth;
@@ -867,7 +873,7 @@ class Attacker extends Character {
 	// channelling fails (thus the timeout is cleared) if the character's channelling is set to something else or if the user moves
 	// parameters must be an array
 	channel (func, parameters, time) {
-		if (!this.hasStatusEffect("Stunned")) { // cannot channel when stunned
+		if (!this.hasStatusEffectType("stunned")) { // cannot channel when stunned
 			// remove whatever was previously channelled
 			this.removeChannelling("channel");
 			// add line to remove channelling when channelling expires to the function
@@ -958,15 +964,17 @@ class Particle extends Entity {
 
 // function used to create a particle and add it to the particles array
 Game.createParticle = function (properties) {
-	// create particle
-	let id = Game.nextParticleId; // id of added particle
-	let particle = new Particle(properties);
-	Game.particles.push(particle);
-	// set its removal time
-	Game.objectRemoveTimeouts.push(setTimeout(function (id) {
-		// remove the same particle (particle of the same id)
-		Game.particles.splice(Game.searchFor(id, Game.particles), 1);
-	}, properties.removeIn, id)); // pushed to objectRemoveTimeouts so it can be removed when the area is changed
+	if (document.getElementById("particlesOn").checked) { // check particle setting
+		// create particle
+		let id = Game.nextParticleId; // id of added particle
+		let particle = new Particle(properties);
+		Game.particles.push(particle);
+		// set its removal time
+		Game.objectRemoveTimeouts.push(setTimeout(function (id) {
+			// remove the same particle (particle of the same id)
+			Game.particles.splice(Game.searchFor(id, Game.particles), 1);
+		}, properties.removeIn, id)); // pushed to objectRemoveTimeouts so it can be removed when the area is changed
+	}
 }
 
 // a thing that is a point of information or special interest
@@ -1006,6 +1014,9 @@ class Hero extends Attacker {
 		
 		// where the player respawns when they die (set at any major city)
 		this.checkpoint = properties.checkpoint || "tutorial";
+		
+		// time travel teleport positions
+		this.oldPosition = properties.oldPosition; // might be undefined
 	}
 	
 	move (delta, dirx, diry) { // called when being displaced, moving towards something, or player is moving hero
@@ -1016,10 +1027,7 @@ class Hero extends Attacker {
 		// if baseSpeed is a number instead, the speed is set to that without setSpeed being called
 		
 		// move hero
-		if (this.hasStatusEffect("Stunned") || this.isCorpse) {
-			// player cannot move
-		}
-		else if (this.hasStatusEffect("Displacement")) {
+		if (this.hasStatusEffect("Displacement")) {
 			// player being displaced!
 			let dir = this.displace(delta);
 			dirx = dir.x;
@@ -1027,6 +1035,9 @@ class Hero extends Attacker {
 			if (this.isBeingDisplaced !== undefined) {
 				baseSpeed = this.isBeingDisplaced.velocity; // do not run setSpeed
 			}
+		}
+		else if (this.hasStatusEffectType("stunned") || this.isCorpse) {
+			// player cannot move (any other stun effect)
 		}
 		else if (this.moveTowards !== undefined) {
 			// move towards a particular point
@@ -1218,7 +1229,7 @@ class Hero extends Attacker {
 	
 	// start channeling basic attack
 	startAttack (e) {
-		if (this.canAttack && Player.inventory.weapon.name !== "" && !Player.inventory.weapon.cannotAttack) { // checks the player has a weapon and is not currently reloading
+		if (this.canAttack && Player.inventory.weapon.name !== "" && !Player.inventory.weapon.cannotAttack && !this.hasStatusEffectType("stunned")) { // checks the player has a weapon and is not currently reloading and is not currently stunned
 			// Player.inventory.weapon.cannotAttack is set to true when the projectile image is being loaded (e.g: weapon with special projectile is equipped/unequipped)
 			if (!CheckRightClick(e)) {
 				// left-click (normal) attack
@@ -1235,6 +1246,8 @@ class Hero extends Attacker {
 						// player is in range
 						
 						this.canAttack = false;
+						
+						this.removeChannelling("attack"); // remove anything that was previously channelling
 						
 						this.channelling = "projectile";
 						
@@ -2206,12 +2219,12 @@ class Enemy extends Attacker {
 	}
 	
 	update (delta) {
-		if (this.hasStatusEffect("Stunned")) {
-			// enemy is stunned
-		}
-		else if (this.hasStatusEffect("Displacement")) {
+		if (this.hasStatusEffect("Displacement")) {
 			// being displaced!
 			this.displace(delta);
+		}
+		else if (this.hasStatusEffectType("stunned")) {
+			// enemy is stunned
 		}
 		else {
 			// perhaps condense into hostile and passive ai functions (that also apply to things like villagers)?
@@ -2933,34 +2946,67 @@ Game.statusEffects.xp = function(properties) {
 
 // arrays in a spell object have their index correspond to the spell tier - 1
 
-Game.spells.charge = {
-	class: "k",
-	
-	// properties should contain tier (as int value), caster, target
-	func: function (properties) {
-		let dist = distance(properties.caster, properties.target);
-		let velocity = Game.spells.charge.velocity[properties.tier-1];
-		let time = dist / velocity;
-		let bear = bearing(properties.caster, properties.target);
-		properties.caster.displace(0, velocity, time, bear); // start displacement
+Game.spells = {
+	charge: {
+		class: "k",
+		
+		// properties should contain tier (as int value), caster, target
+		func: function (properties) {
+			let dist = distance(properties.caster, properties.target);
+			let velocity = Game.spells.charge.velocity[properties.tier-1];
+			let time = dist / velocity;
+			let bear = bearing(properties.caster, properties.target);
+			properties.caster.displace(0, velocity, time, bear); // start displacement
+		},
+		
+		velocity: [
+			300,	// tier 1
+		],
+		
+		channelTime: [
+			500,	// tier 1
+		],
+		
+		// TBD
+		manaCost: [
+			0,		// tier 1
+		],
+		
+		cooldown: [
+			1500,	// tier 1
+		],
 	},
 	
-	velocity: [
-		300,	// tier 1
-	],
+	unholyStrike: {
+		class: "k",
+		
+		// properties should contain tier (as int value), caster, target
+		func: function (properties) {
+			Game.statusEffects.stun({
+				effectTitle: "Unholy Strike",
+				target: properties.target,
+				time: Game.spells.unholyStrike.stunTime[properties.tier-1],
+			});
+		},
+		
+		stunTime: [
+			3,		// tier 1
+		],
+		
+		channelTime: [
+			1500,	// tier 1
+		],
+		
+		// TBD
+		manaCost: [
+			0,		// tier 1
+		],
+		
+		cooldown: [
+			10000,	// tier 1
+		],
+	},
 	
-	channelTime: [
-		500,	// tier 1
-	],
-	
-	// TBD
-	manaCost: [
-		0,		// tier 1
-	],
-	
-	cooldown: [
-		1500,	// tier 1
-	],
 };
 
 //
@@ -3542,6 +3588,8 @@ Game.init = function () {
 		projectile: {},
 		
 		checkpoint: Player.checkpoint,
+		
+		oldPosition: Player.oldPosition,
 	});
 	
 	// hitbox for collision (hero's feet)
@@ -3805,6 +3853,8 @@ Game.checkEvents = function () {
 	let day = today.getDate();
 	let month = today.getMonth() + 1; // January is 0, so add 1
 	let year = today.getFullYear();
+		
+		Game.event = "Antorax";
 	
 	// James Day
 	// Summer Solstice
@@ -4774,8 +4824,8 @@ Game.lootClosed = function (itemsRemaining) {
 	}
 }
 
-// called when mail is opened (the mailbox's flag might go down), or when mail is recieved (flag might go up)
-// parameter type is set to "recieved" or "read" based on what happened
+// called when mail is opened (the mailbox's flag might go down), or when mail is received (flag might go up)
+// parameter type is set to "received" or "read" based on what happened
 // make more efficient to not call getImage if the image is already active? TBD
 Game.mailboxUpdate = function (type) {
 	if (type === "read") {
@@ -4787,7 +4837,7 @@ Game.mailboxUpdate = function (type) {
 			});
 		}
 	}
-	else if (type === "recieved") {
+	else if (type === "received") {
 		// perhaps check if Dom.mail.unread is 1, because only one message will come in at a time and if it is more than 1 then it would already be a flag
 		this.mailboxes.forEach(mailbox => {
 			// TBD check existing imageName
@@ -5670,6 +5720,7 @@ Game.saveProgress = function (saveType) { // if saveType is "auto" then the save
 		// save other player details that aren't otherwise saved to savedata
 		Player.health = Game.hero.health;
 		Player.trail = Game.hero.trail;
+		Player.oldPosition = Game.hero.oldPosition; // time travel
 		// re-link status effects (inefficient - tbd)
 		Player.statusEffects = Game.hero.statusEffects;
 		

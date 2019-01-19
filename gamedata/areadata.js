@@ -1487,22 +1487,46 @@ var Areas = {
 			tatteredKnight: {normal: "./assets/enemies/tatteredKnight.png"},
 			tatteredKnightCorpse: {normal: "./assets/corpses/tatteredKnight.png"},
 			slash: {normal: "./assets/projectiles/slash.png"}, // (ignored by loader if it is already loaded because of a knight player)
+			mailbox: {normal: "./assets/objects/mailbox.png"},
+			mailboxUnread: {normal: "./assets/objects/mailboxUnread.png"},
 		},
 		
 		song_day: "./assets/music/Pippin-the-Hunchback-boss.mp3",
 		
 		checkpoint: false,
 		
-		areaTeleports: [
+		mailboxes: [
+			{
+				x: 460,
+				y: 600,
+				readImage: "mailbox",
+				unreadImage: "mailboxUnread",
+				name: "Mailbox",
+			},
 		],
 		
 		enemies: [
 			{
-				x: 300, //TBD
+				x: 300,
 				y: 300,
 				template: EnemyTemplates.nilbog.tatteredKnight,
 			},
 		],
+		
+		onDeath: function () {
+			// abandon "The Legend of the Tattered Knight" quest (it can be started again from the mail)
+			for (let i = 0; i < Player.quests.activeQuestArray.length; i++) {
+				if (Player.quests.activeQuestArray[i] === "The Legend of the Tattered Knight") {
+					Player.quests.activeQuestArray.splice(i, 1);
+					break;
+				}
+			}
+			Dom.quests.active();
+			Dom.quests.possible();
+			
+			// chat message to let them know
+			Dom.chat.insert("Your quest was abandoned. Re-open the mail message to have another attempt.", 0, true, false); // important param = true
+		},
 	},
 	
 	nilbogTower1: {

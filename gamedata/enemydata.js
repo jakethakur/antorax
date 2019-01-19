@@ -252,7 +252,7 @@ const EnemyTemplates = {
 			lootTableTemplate: [EnemyLootTables.nilbogGoblin, EnemyLootTables.nilbogTowerGoblin, ChestLootTables.nilbog, BossLootTables.goblinKing],
 			inventorySpace: 16,
 		},
-		goblinKing: {
+		tatteredKnight: {
 			image: "tatteredKnight",
 			deathImage: "tatteredKnightCorpse",
 			name: "The Tattered Knight",
@@ -272,22 +272,22 @@ const EnemyTemplates = {
 			},
 			spells: [
 				{
-					name: "charge",
+					name: "unholyStrike",
 					tier: 1,
 					parameters: function () { // returns array of parameters
 						return {
 							target: Game.hero,
 						};
 					},
-					interval: 5000,
+					interval: 10000,
 				},
 			],
-			leashRadius: 1000, // doesn't leash
+			leashRadius: 1500, // doesn't leash
 			xpGiven: 250,
 			projectile: {
 				image: "slash",
 			},
-			lootTableTemplate: [EnemyLootTables.tatteredKnight],
+			lootTableTemplate: [BossLootTables.tatteredKnight],
 			inventorySpace: 24,
 		},
 	},
