@@ -2091,7 +2091,7 @@ var Items = {
 			id: 20,
 			name: "Large Antorax Day Firework",
 			type: "consumable",
-			image: "assets/items/consumable/20.png",
+			image: "assets/items/consumable/19.png", // same image as normal firework (TBD)
 			functionText: "Launches a large firework to celebrate Antorax Day.",
 			lore: "Why not go bigger?",
             cooldown: 5, // 5 seconds
