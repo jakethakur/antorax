@@ -3862,7 +3862,7 @@ if (GetFullDate().substring(4,6) === "12" && !Player.days.includes(GetFullDate()
 	}
 }
 // Antorax Day mail
-if (GetFullDate().substring(6) === "20" && GetFullDate().substring(4,6) === "12" && !Player.days.includes(GetFullDate())) {
+if (GetFullDate().substring(6) === "20" && GetFullDate().substring(4,6) === "01" && !Player.days.includes(GetFullDate())) {
     Dom.mail.give(
         "Antorax is " + antoraxAge + " today!",
         "The King of Eaglecrest",

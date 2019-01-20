@@ -3853,8 +3853,6 @@ Game.checkEvents = function () {
 	let day = today.getDate();
 	let month = today.getMonth() + 1; // January is 0, so add 1
 	let year = today.getFullYear();
-		
-		Game.event = "Antorax";
 	
 	// James Day
 	// Summer Solstice
