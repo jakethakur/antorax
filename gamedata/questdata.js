@@ -655,7 +655,7 @@ var Quests = {
 				
 				// true or falses for each objective (apart from the turn-in objective)
 				completed.push(checkProgress(Player.quests.questProgress.goblinsKilledWithTorch, 10));
-				completed.push(completed[0]); // second objective isn't actually an objective so just mirrors the first
+				completed.push(completed[0] === true); // second objective isn't actually an objective so just mirrors the first
 				
 				completed = checkFinished(completed);
 				
@@ -1221,9 +1221,9 @@ var Quests = {
 			startChat: `He invaded towers, looted innocents, and stole from the vulnerable and young.<br>
 He was defeated by the great Wizard Andrews, near his tower in the Nilbog,<br>
 The same great wizard who would become the leader of the Wizards in Antorax.<br><br>
-Since then, many have recounted sightings of a knight in red and yellow armour,<br>
+Since then, many have recounted sightings of a knight in red and orange armour,<br>
 However few have fought him, and even fewer have lived to tell the tale.<br>
-It is said that there are riches to behold for those who emerge vitorious,<br>
+It is said that there are riches to behold for those who emerge victorious,<br>
 In a past timezone where the knight still stands, can you reap his spoils?<br>
 <br><i>You will be teleported upon starting this quest</i>`,
 			

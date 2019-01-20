@@ -845,6 +845,7 @@ var Areas = {
 					notUnlockedRoles: "I think we have enough traps out at the moment. Come back in a bit.",
 					chooseChat: "How's it going?",
 					shopLeave: "Let's crush those goblins.",
+					tooPoor: "You can't afford that one.",
 					inventoryFull: "Empty your inventory a bit and come back.",
 					questComplete: "I'll have more traps for you to place in a bit. Come back tomorrow.",
 					christmasGreeting: "Have a good Christmas. It's my day off for trap making today.",
@@ -905,6 +906,9 @@ var Areas = {
 						sold: [
 							{item: Items.helm[7], cost: 10, costCurrency: 5, eventRequirement: "Christmas"}, // Santa Hat
 							{item: Items.boots[9], cost: 10, costCurrency: 5, eventRequirement: "Christmas"}, // Ice Skates
+							/*{item: Items.helm[11], cost: 7, condition: function () { // Umbrella Hat
+								return Weather.weatherType === "rain";
+							}},*/
 							{item: Items.item[11], cost: 2}, // vial of goblin blood
 							{item: Items.bag[5], cost: 15}, // brown backsack
 							{item: Items.helm[2], cost: 2}, // worn leather helm

@@ -217,8 +217,8 @@ Camera.prototype.update = function () {
 	movedY = this.y - movedY;
 	// move weather!
 	if (document.getElementById("weatherOn").checked && !Areas[Game.areaName].indoors) {
-		if (Weather.weatherType !== "clear") {
-			Weather.move(movedX, movedY);
+		if (Weather.particleArray.length > 0) {
+			Weather.heroMove(movedX, movedY);
 		}
 	}
 };
@@ -558,6 +558,10 @@ class Character extends Thing {
 				// corpse disappears in this.stats.lootTime ms
 				setTimeout(function () {
 					this.isCorpse = false;
+					// call Dom.quests.active if it is needed for a quest regarding this enemy
+					if (this.name === "The Tattered Knight") {
+						Dom.quests.active();
+					}
 				}.bind(this), this.stats.lootTime);
 				
 				// respawn in this.stats.respawnTime ms (if it is not a boss)
@@ -3457,9 +3461,6 @@ Game.loadArea = function (areaName, destination) {
 			Game.saveProgress("auto");
 		}, 60000);
 		
-		// choose weather
-		Weather.chooseWeather(areaName);
-		
 		// render secondary canvas
 		Game.secondary.render();
 		
@@ -3496,7 +3497,7 @@ Game.loadArea = function (areaName, destination) {
 						colours: ["#8cff91", "#ff82f8"], // lighter colours so they are more visible
 					});
 				}
-			}, 200, Game.areaName);
+			}, 500, Game.areaName);
 		}
 		else if (Game.fireworkInterval !== undefined) {
 			// remove interval from a previous area
@@ -4577,9 +4578,7 @@ Game.update = function (delta) {
 	
 	// update weather
 	if (document.getElementById("weatherOn").checked && !Areas[Game.areaName].indoors) {
-		if (Weather.weatherType !== "clear") {
-			Weather.update(delta);
-		}
+		Weather.update(delta);
 	}
 };
 
@@ -4642,13 +4641,14 @@ Game.getXP = function (xpGiven) {
 				// level up
 				Player.xp -= LevelXP[Player.level];
 				Player.level++;
-				Game.hero.level = Player.level;
-				Game.playLevelupSound(this.areaName);
+				this.hero.level = Player.level;
+				this.playLevelupSound(this.areaName);
 				Dom.levelUp.page();
 				document.getElementById("level").innerHTML = "Level "+Player.level;
+				this.getXP(0); // levelling up multiple times
 			}
 			// xp gained
-			Game.secondary.render();
+			this.secondary.render();
 		}
 		else {
 			// max level
@@ -5527,7 +5527,7 @@ Game.render = function (delta) {
 	
 	// render weather
 	if (document.getElementById("weatherOn").checked && !Areas[Game.areaName].indoors) {
-		if (Weather.weatherType !== "clear") {
+		if (Weather.particleArray.length > 0) {
 			Weather.render();
 		}
 	}

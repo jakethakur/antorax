@@ -1,4 +1,13 @@
-let Weather = {};
+let Weather = {
+	snow: {
+		gravity: 40, // down movement per second
+		windMultiplier: 0.5, // multiplied with wind intensity
+	},
+	rain: {
+		gravity: 200,
+		windMultiplier: 0.2,
+	},
+};
 
 // called by Game.init
 Weather.init = function () {
@@ -6,13 +15,9 @@ Weather.init = function () {
 	this.canvas = document.getElementById("weather");
     this.ctx = this.canvas.getContext('2d');
 	
-	// static variables
-	this.snow = {
-		gravity: 25, // down movement per second
-		windMultiplier: 0.15, // multiplied with wind intensity
-	};
 	// populate particleArray
 	this.particleArray = []; // array of precipitation particles
+	this.update(); // includes chooshing weather and populating particleArray
 }
 
 // called by Game.loadArea
@@ -21,9 +26,15 @@ Weather.chooseWeather = function (areaName) {
 		// static weather for area
 		this.weatherType = Areas[areaName].weather;
 	}
-	if (Areas[areaName].isIcy !== undefined && Areas[areaName].isIcy()) {
-		// icy area
-		this.weatherType = "snow";
+	else if ((this.dateValue / 40) % 18 < 2) {
+		if (Areas[areaName].isIcy !== undefined && Areas[areaName].isIcy()) {
+			// icy area - snow instead of rain
+			this.weatherType = "snow";
+		}
+		else {
+			// rain
+			this.weatherType = "rain";
+		}
 	}
 	else {
 		this.weatherType = "clear";
@@ -42,9 +53,9 @@ Weather.updateSeed = function () {
 	this.date = new Date();
     this.dateValue = 0;
 	
-	this.dateValue += this.date.getFullYear();
-	this.dateValue += this.date.getMonth()*10;
-	this.dateValue += this.date.getDate()*5;
+	this.dateValue += this.date.getFullYear()*25;
+	this.dateValue += this.date.getMonth()*25;
+	this.dateValue += this.date.getDate()*25;
 	this.dateValue += this.date.getHours()*10;
 	this.dateValue += this.date.getMinutes();
 	this.dateValue += this.date.getSeconds()/100;
@@ -52,18 +63,19 @@ Weather.updateSeed = function () {
 
 Weather.updateIntensity = function () {
 	// measure for number of weather particles
-	this.intensity = (this.dateValue/2) % 350; // value from 0 to 350
+	this.intensity = (this.dateValue*6) % 400 + 100; // value from 100 to 500
 }
 
 Weather.updateWind = function () {
 	this.windDirection = ToRadians((this.dateValue * 10) % 360);
 	this.windIntensity = this.dateValue % 100; // value from 0 to 100
 	// sin/cos of windDirection * windIntensity * weather windMultiplier = distance moved due to wind
+	// currently wind only affects x movement
 }
 
 // move weather particles due to camera move
 // called by Camera.update
-Weather.move = function (screenMovedX, screenMovedY) {
+Weather.heroMove = function (screenMovedX, screenMovedY) {
 	for (let i = 0; i < this.particleArray.length; i++) { // iterate through particle array
 		let particle = this.particleArray[i];
 		particle.x -= screenMovedX;
@@ -89,15 +101,38 @@ Weather.move = function (screenMovedX, screenMovedY) {
 	}
 }
 
-// update weather particles
+// update weather
 // delta is fraction of second (where 1 is 1 second)
+// called by Weather.init and Game when there is at least 1 particle
 Weather.update = function (delta) {
-	// update variables
-	this.updateSeed();
-	this.updateIntensity();
-	this.updateWind();
+	Weather.updateVariables();
 	
+	if (this.weatherType !== "clear") {
+		Weather.updateParticleNumber();
+		
+		if (delta !== undefined) { // this function is also called by Weather.init with no delta
+			Weather.moveParticles(delta);
+		}
+	}
+}
+
+// update weather random variables
+Weather.updateVariables = function () {
+	// update random seed variable
+	this.updateSeed();
+	// weather type
+	this.chooseWeather(Game.areaName);
+	// weather conditions
+	if (this.weatherType !== "clear") {
+		this.updateIntensity();
+	}
+	this.updateWind();
+}
+
+// update the number of particles by adding/removing them
+Weather.updateParticleNumber = function () {
 	// add/remove weather particles if intensity has changed
+	// AND if weather is not clear (though this is still called so existing particles have a chance to disappear first)
 	if (this.particleArray.length < Math.round(this.intensity)) {
 		// particles need to be added
 		for (let i = 0; i < Math.round(this.intensity) - this.particleArray.length; i++) {
@@ -113,18 +148,34 @@ Weather.update = function (delta) {
 		// particles need to be removed
 		this.particleArray.splice(0, this.particleArray.length - Math.round(this.intensity));
 	}
-	
-	// move weather particles
+}
+
+// move weather particles
+Weather.moveParticles = function (delta) {
 	for (let i = 0; i < this.particleArray.length; i++) { // iterate through particle array
 		let particle = this.particleArray[i];
+		
+		// gravity
+		particle.y += this[this.weatherType].gravity * particle.speedMultiplier * delta;
+		
+		// wind (currently just affects x)
+		//particle.y += Math.sin(this.windDirection) * (this.windIntensity * this[this.weatherType].windMultiplier) * particle.speedMultiplier * delta;
+		particle.x += Math.cos(this.windDirection) * (this.windIntensity * this[this.weatherType].windMultiplier) * particle.speedMultiplier * delta;
+		
+		// check for off screen particle
 		if (particle.y > 610 || particle.x < -10 || particle.x > 610) {
 			// particle off screen
-			particle.y = -10;
-			particle.x = Random(0, 600);
+			if (Weather.weatherType !== "clear") {
+				// re-add the particle
+				particle.y = -10;
+				particle.x = Random(0, 600);
+			}
+			else {
+				// remove the particle completely
+				this.particleArray.splice(i, 1);
+				i--;
+			}
 		}
-		particle.y += this[this.weatherType].gravity * particle.speedMultiplier * delta;
-		particle.y += Math.sin(this.windDirection) * (this.windIntensity * this[this.weatherType].windMultiplier) * particle.speedMultiplier * delta;
-		particle.x += Math.cos(this.windDirection) * (this.windIntensity * this[this.weatherType].windMultiplier) * particle.speedMultiplier * delta;
 	}
 }
 
@@ -137,6 +188,10 @@ Weather.render = function () {
 		if (this.weatherType === "snow") {
 			this.ctx.fillStyle="#FFFFFF";
 			this.ctx.fillRect(particle.x, particle.y , 2, 2);
+		}
+		else if (this.weatherType === "rain") {
+			this.ctx.fillStyle="#b0d4e5";
+			this.ctx.fillRect(particle.x, particle.y , 1, 12);
 		}
 	}
 }
