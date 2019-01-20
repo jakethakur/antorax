@@ -63,13 +63,13 @@ var Achievements = [
 		color: "#ddddff",
 		class: "single",
 		isCompleted: function(){ // REMOVE FISHING QUESTS
-			let progress = 0;
+			let done = true;
 			for(let i = 0; i < Quests.eaglecrestLoggingCamp.length; i++){
-				if(Quests.eaglecrestLoggingCamp[i].eventRequirement === undefined && Player.quests.completedQuestArray.includes(Quests.eaglecrestLoggingCamp[i].quest)){
-					progress++;
+				if(Quests.eaglecrestLoggingCamp[i].eventRequirement === undefined && !Player.quests.completedQuestArray.includes(Quests.eaglecrestLoggingCamp[i].quest)){
+					done = false;
 				}
 			}
-			return progress >= 20;
+			return done;
 		}
 	},
 		// COMBAT
@@ -199,9 +199,25 @@ var Achievements = [
 		}
 	},
 	{
+        name: "The Slayer of the Tattered Knight",
+        description: "Kill the Tattered Knight.",
+        points: 5,
+        category: ["combat"],
+        area: ["eaglecrestLoggingCamp"],
+        event: "Antorax",
+        image: "../assets/enemies/tatteredKnight.png",
+        position: {x: 90, y: -1},
+        color: "#ddddff",
+        class: "single",
+        isCompleted: function(){
+            return Player.bossesKilled.tatteredKnight !== 0;
+        }
+    },
+	{
 		// id: 14,
 		name: "Outgrowing your Toys",
-		description: "???",
+		description: "Destroy a target dummy.",
+		hidden: true,
 		points: 10,
 		category: ["combat"],
 		area: ["global", "eaglecrestLoggingCamp"],
@@ -314,6 +330,15 @@ var Achievements = [
 		area: ["eaglecrestLoggingCamp"],
 		image: "../assets/items/fish/6.png",
 		class: "cumulative",
+		isCompleted: function(){
+			let done = true;
+			for(let i = 0; i < Items.fish.length; i++){
+				if(Items.fish[i].areas[0] === "loggingCamp" && Items.fish[i].areas.length === 1 && Items.fish[i].fishingType === "fish" && User.fish[i] === 0){
+					done = false;
+				}
+			}
+			return done;
+		}
 	},
 	{
 		name: "Saviour of Christmas",

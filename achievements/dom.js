@@ -146,7 +146,7 @@ function arrange(){
 		document.getElementById("flashcardlist"+c).innerHTML += '<li class="box" id="box'+i+'" '+(Object.keys(archaeology).includes(ToCamelCase(array[i].name)) ? "style='border: 5px solid darkgreen'" : "")+'><div class="img" id="img'+i+'" style="background-image: url(\''+array[i].image+'\')"</img></div><p id="name'+i+'" class="para"></p><p id="description'+i+'" class="para"></p><p id="date'+i+'" class="date"></p><p id="points'+i+'" class="points"></p></li>';
 		document.getElementById("flashcardlist"+c).style.left = 25+c*490+((screenSize-45)-(((Math.floor((screenSize-45)/490)))*490))/2+"px";
 		document.getElementById("name"+i).innerHTML = "<b>"+array[i].name+"</b>";
-		document.getElementById("description"+i).innerHTML = array[i].description;
+		document.getElementById("description"+i).innerHTML = !array[i].hidden || Object.keys(archaeology).includes(ToCamelCase(array[i].name)) ? array[i].description : "???";
 		document.getElementById("points"+i).innerHTML = array[i].points;
 		if(archaeology[ToCamelCase(array[i].name)] != undefined){
 			document.getElementById("date"+i).innerHTML = archaeology[ToCamelCase(array[i].name)];
