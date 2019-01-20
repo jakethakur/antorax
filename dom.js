@@ -3506,6 +3506,7 @@ document.getElementById("weatherOn").onclick = function(){
 }
 document.getElementById("weatherOff").onclick = function(){
 	User.settings.weather = false;
+	Weather.ctx.clearRect(0, 0, 600, 600);
 }
 if(!User.settings.weather){
 	document.getElementById("weatherOff").checked = true;
@@ -3525,6 +3526,7 @@ Dom.inventory.reEquip = function(slot){
 		for(let i = Player.inventory.items.length-1; i >= 0; i--){
 			if(Player.inventory.items[i].type === slot || (slot === "weapon" && (Player.inventory.items[i].type === "sword" || Player.inventory.items[i].type === "staff" || Player.inventory.items[i].type === "bow" || Player.inventory.items[i].type === "rod"))){
 				Dom.inventory.drop(undefined, slot, i);
+				break;
 			}
 		}
 	}
@@ -3564,7 +3566,7 @@ Dom.inventory.prepare = function(array, i, element){
 		if((array[i].type === "helm" || array[i].type === "chest" || array[i].type === "greaves" || array[i].type === "boots") && array[i].name !== undefined){
 			Items[array[i].type][array[i].id].onClick = function(i){
 				if(!isNaN(i)){
-					Dom.inventory.drop(undefined, array[i].type, i);
+					Dom.inventory.drop(undefined, Player.inventory.items[i].type, i);
 				}else{
 					if(Player.inventory[i].chooseStats !== undefined){
 						Dom.inventory.chooseStats(i);
@@ -3595,7 +3597,7 @@ Dom.inventory.prepare = function(array, i, element){
 			array[i].onAttack = Items[array[i].type][array[i].id].onAttack;
 			array[i].quest = Items[array[i].type][array[i].id].quest;
 		}
-		element.innerHTML = "<img src='"+array[i].image+"' draggable='true' ondragstart='Dom.inventory.drag(event,"+i+")' "+(array[i].onClick !== undefined ? "onclick='Player.inventory.items["+i+"].onClick("+i+")'" : "")+"></img>";
+		element.innerHTML = "<img src='"+array[i].image+"' draggable='true' ondragstart='Dom.inventory.drag(event,"+i+")' "+(array[i].onClick !== undefined ? "onclick='Player.inventory"+(array === Player.inventory.items?".items["+i+"].onClick("+i+")'":"."+i+".onClick(\""+i+"\")'") : "")+"></img>";
 		if(array[i].stacked !== undefined && array[i].stacked !== 1){
 			element.innerHTML += "<div class='stackNum' id='stackNum"+i+"'>"+array[i].stacked+"</div>";
 		}
