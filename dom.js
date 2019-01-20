@@ -3874,7 +3874,7 @@ if (GetFullDate().substring(6) === "20" && GetFullDate().substring(4,6) === "01"
 <br><br>We hope you enjoy this special day, and that we will celebrate the many more Antorax Days to come together.`, true, [], [],
         [{item: Items.helm[10]}]], [{item: Items.helm[10]}],
     );
-	if(Player.quests.completedQuestArray.includes("The Legend of the Tattered Knight")){
+	if(!Player.quests.completedQuestArray.includes("The Legend of the Tattered Knight")){
 		Dom.mail.give(
 			"The Legend of the Tattered Knight",
 			"unknown sender",
