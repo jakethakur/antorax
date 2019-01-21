@@ -622,8 +622,6 @@ class Character extends Thing {
 		else {
 			// player
 			if (this.health <= 0 && !this.respawning) { // check it is dead and not already respawning
-				// save progress
-				Game.saveProgress("auto");
 				
 				// find existing xp fatigue effect
 				let existingEffect = this.statusEffects.find(statusEffect => statusEffect.title === "XP Fatigue");
@@ -673,6 +671,9 @@ class Character extends Thing {
 				Player.fatiguedXP = ineffectiveAmount;
 				
 				Game.hero.updateStatusEffects();
+				
+				// save progress
+				Game.saveProgress("auto");
 			}
 		}
 	}
@@ -1295,6 +1296,9 @@ class Hero extends Attacker {
 				else if (Player.inventory.weapon.type === "rod" && this.channelling === false) {
 					// fishing rod (bobber has not been cast yet)
 					this.fishingBobs = 0; // number of times that the fishing bobber has bobbed
+					if (Weather.type === "rain") {
+						this.fishingBobs = 1; // faster to get fish when it is raining
+					}
 					
 					if (distanceToProjectile < this.stats.range && this.map.isSlowTileAtXY(projectileX, projectileY) === "water") {
 						// player is in range and clicked in water
@@ -1315,7 +1319,12 @@ class Hero extends Attacker {
 						}));
 						
 						// timer for first bob
-						setTimeout(this.fish.bind(this), Random(500, 12000));
+						let bobTime = Random(1000, 12000);
+						if (Weather.type === "rain") {
+							// shorter bobTime if it is raining
+							bobTime = Math.round(bobTime / 2); // now 500 to 6000
+						}
+						setTimeout(this.fish.bind(this), bobTime);
 					}
 				}
 				else if (Player.inventory.weapon.type === "rod" && this.channelling === "fishing") {
@@ -1644,7 +1653,7 @@ class Hero extends Attacker {
 	// called by fishing bobber timeouts
 	fish () {
 		if (this.channelling === "fishing") {
-			if (this.fishingBobs < 6 && this.fishingBobs > -1) {
+			if (this.fishingBobs < 7 && this.fishingBobs > -1) {
 				// bob fishing bobber every ~1 second
 				this.fishingBobs++;
 				
@@ -1804,8 +1813,10 @@ class Hero extends Attacker {
 				}
 				else {
 					// timer for next bob
-					setTimeout(this.fish.bind(this), Random(500, 1500));
+					let bobTime = Random(500, 1500);
+					setTimeout(this.fish.bind(this), bobTime);
 					
+					// set bobbing image (and set it back in 200ms)
 					// tbd make searchFor only need to be run once (for efficiency)
 					Game.projectiles[Game.searchFor(this.channellingProjectileId, Game.projectiles)].imageNumber = 1; // bobbing image for projectile
 					setTimeout(function () {
@@ -3455,12 +3466,6 @@ Game.loadArea = function (areaName, destination) {
 			}
 		}
 		
-		// save in 60 seconds
-		// this is set to 60 seconds if there is a save before this
-		Game.saveTimeout = setTimeout(function() {
-			Game.saveProgress("auto");
-		}, 60000);
-		
 		// render secondary canvas
 		Game.secondary.render();
 		
@@ -3665,6 +3670,13 @@ Game.init = function () {
 	Dom.quests.completed();
 	Dom.changeBook(Player.tab); // sets tab to whatever the player was on when they last saved
 	Dom.adventure.update(); // chooses what should be shown in adventurer's log
+		
+	// saveTimeout ensures that there is always a save at least every 60 seconds
+	// save in 60 seconds (init saveTimeout)
+	// if there is a save before this, this is set back to 60 seconds
+	Game.saveTimeout = setTimeout(function() {
+		Game.saveProgress("auto");
+	}, 60000);
 };
 
 // re-start hero status effect ticks (from savedata)

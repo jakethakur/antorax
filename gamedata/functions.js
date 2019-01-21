@@ -172,8 +172,10 @@ function Random (minimum, maximum) {
     return Math.floor((Math.random() * (maximum - minimum + 1)) + minimum);
 }
 
+// get date in format dd/mm/yyyy
 function GetFullDateDisplay () {
-	return GetFullDate().substring(6)+"/"+GetFullDate().substring(4,6)+"/"+GetFullDate().substring(0,4);
+	let fullDate = GetFullDate();
+	return fullDate.substring(6)+"/"+fullDate.substring(4,6)+"/"+fullDate.substring(0,4);
 }
 
 // get date in format yyyymmdd

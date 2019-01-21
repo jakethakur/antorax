@@ -63,7 +63,7 @@ Weather.updateSeed = function () {
 
 Weather.updateIntensity = function () {
 	// measure for number of weather particles
-	this.intensity = (this.dateValue*6) % 400 + 100; // value from 100 to 500
+	this.intensity = (this.dateValue*6) % 500 + 100; // value from 100 to 600
 }
 
 Weather.updateWind = function () {
