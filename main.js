@@ -3398,11 +3398,6 @@ Game.loadArea = function (areaName, destination) {
 			});
 		}
 		
-		// reset weather
-		if (document.getElementById("weatherOn").checked && !Areas[Game.areaName].indoors) {
-			Weather.reset();
-		}
-		
 		// display area name (if it should be displayed)
 		// init sets displayAreaName.duration to 200 (so even if it shouldn't be displayed normally, it is on start of game)
 		this.displayAreaName = Areas[areaName].data;
@@ -3425,6 +3420,11 @@ Game.loadArea = function (areaName, destination) {
 		}
 		else {
 			// code to be called when area is accessed due to area teleport (not game load)
+		
+			// reset weather
+			if (document.getElementById("weatherOn").checked) {
+				Weather.reset();
+			}
 		}
 		
 		// reposition player
@@ -5530,7 +5530,7 @@ Game.render = function (delta) {
 		
 		this.ctx.font = "28px MedievalSharp";
 		this.ctx.fillText(this.displayAreaName.level, 300, 150); // area level
-		if (this.displayAreaName.territory !== undefined) { // check that territory should be displayed
+		if (this.displayAreaName.territory !== "") { // check that territory should be displayed
 			this.ctx.fillText(this.displayAreaName.territory + " territory", 300, 180); // area territory (Hostile, Neutral, Allied)
 		}
 		
@@ -5738,7 +5738,7 @@ Game.saveProgress = function (saveType) { // if saveType is "auto" then the save
 		localStorage.setItem(Player.class, JSON.stringify(Player));
 		localStorage.setItem("user", JSON.stringify(User));
 		
-		clearInterval(Game.saveTimeout); // clear the previous 60 second interval to avoid saves being too often
+		clearTimeout(Game.saveTimeout); // clear the previous 60 second timeout to avoid saves being too often
 		Game.saveTimeout = setTimeout(function() {
 			Game.saveProgress("auto");
 		}, 60000); // save a minute after the current save

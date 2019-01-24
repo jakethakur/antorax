@@ -26,7 +26,8 @@ Weather.chooseWeather = function (areaName) {
 		// static weather for area
 		this.weatherType = Areas[areaName].weather;
 	}
-	else if ((this.dateValue / 40) % 18 < 2) {
+	//else if ((this.dateValue / 40) % 7 < 1) {
+	else if ((this.dateValue) % 1000 > 30) {
 		if (Areas[areaName].isIcy !== undefined && Areas[areaName].isIcy()) {
 			// icy area - snow instead of rain
 			this.weatherType = "snow";
@@ -44,7 +45,10 @@ Weather.chooseWeather = function (areaName) {
 // resets weather particle distribution
 // called on area change or non-gradual teleport (as the weather is distributed oddly due to these)
 Weather.reset = function () {
-	Weather.particleArray = []; // Weather not this because sometimes called by setTimeout
+	this.particleArray = []; // Weather not this because sometimes called by setTimeout
+	
+	// render this change (because otherwise render might not be called due to player being indoors)
+	this.render(); // TBD possibly this shouldn't be called until Game.render?
 }
 
 
@@ -59,6 +63,8 @@ Weather.updateSeed = function () {
 	this.dateValue += this.date.getHours()*10;
 	this.dateValue += this.date.getMinutes();
 	this.dateValue += this.date.getSeconds()/100;
+	
+		this.dateValue = this.date.getSeconds() + 1000
 }
 
 Weather.updateIntensity = function () {
@@ -107,12 +113,12 @@ Weather.heroMove = function (screenMovedX, screenMovedY) {
 Weather.update = function (delta) {
 	Weather.updateVariables();
 	
-	if (this.weatherType !== "clear") {
+	if (this.weatherType !== "clear") { // no more weather particles should be made if it is clear
 		Weather.updateParticleNumber();
+	}
 		
-		if (delta !== undefined) { // this function is also called by Weather.init with no delta
-			Weather.moveParticles(delta);
-		}
+	if (delta !== undefined) { // this function is also called by Weather.init with no delta
+		Weather.moveParticles(delta);
 	}
 }
 
@@ -141,6 +147,7 @@ Weather.updateParticleNumber = function () {
 				x: Random(0, 600),
 				y: Random(0, 600),
 				speedMultiplier: Random(6, 14) / 10, // all particles have their own speed multiplier as well
+				type: this.weatherType,
 			});
 		}
 	}
@@ -156,16 +163,16 @@ Weather.moveParticles = function (delta) {
 		let particle = this.particleArray[i];
 		
 		// gravity
-		particle.y += this[this.weatherType].gravity * particle.speedMultiplier * delta;
+		particle.y += this[particle.type].gravity * particle.speedMultiplier * delta;
 		
 		// wind (currently just affects x)
-		//particle.y += Math.sin(this.windDirection) * (this.windIntensity * this[this.weatherType].windMultiplier) * particle.speedMultiplier * delta;
-		particle.x += Math.cos(this.windDirection) * (this.windIntensity * this[this.weatherType].windMultiplier) * particle.speedMultiplier * delta;
+		//particle.y += Math.sin(this.windDirection) * (this.windIntensity * this[particle.type].windMultiplier) * particle.speedMultiplier * delta;
+		particle.x += Math.cos(this.windDirection) * (this.windIntensity * this[particle.type].windMultiplier) * particle.speedMultiplier * delta;
 		
 		// check for off screen particle
 		if (particle.y > 610 || particle.x < -10 || particle.x > 610) {
 			// particle off screen
-			if (Weather.weatherType !== "clear") {
+			if (this.weatherType !== "clear") {
 				// re-add the particle
 				particle.y = -10;
 				particle.x = Random(0, 600);
@@ -185,11 +192,11 @@ Weather.render = function () {
 	this.ctx.fillStyle="#FFFFFF";
 	for (let i = 0; i < this.particleArray.length; i++) { // iterate through particle array
 		let particle = this.particleArray[i];
-		if (this.weatherType === "snow") {
+		if (particle.type === "snow") {
 			this.ctx.fillStyle="#FFFFFF";
 			this.ctx.fillRect(particle.x, particle.y , 2, 2);
 		}
-		else if (this.weatherType === "rain") {
+		else if (particle.type === "rain") {
 			this.ctx.fillStyle="#b0d4e5";
 			this.ctx.fillRect(particle.x, particle.y , 1, 12);
 		}
