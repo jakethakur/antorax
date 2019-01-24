@@ -26,8 +26,7 @@ Weather.chooseWeather = function (areaName) {
 		// static weather for area
 		this.weatherType = Areas[areaName].weather;
 	}
-	//else if ((this.dateValue / 40) % 7 < 1) {
-	else if ((this.dateValue) % 1000 > 30) {
+	else if ((this.dateValue / 40) % 7 < 1) {
 		if (Areas[areaName].isIcy !== undefined && Areas[areaName].isIcy()) {
 			// icy area - snow instead of rain
 			this.weatherType = "snow";
@@ -63,8 +62,6 @@ Weather.updateSeed = function () {
 	this.dateValue += this.date.getHours()*10;
 	this.dateValue += this.date.getMinutes();
 	this.dateValue += this.date.getSeconds()/100;
-	
-		this.dateValue = this.date.getSeconds() + 1000
 }
 
 Weather.updateIntensity = function () {
