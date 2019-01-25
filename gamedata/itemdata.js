@@ -187,6 +187,17 @@ var Items = {
 			stats: {
 				defence: 1,
 			},
+			conditionalStats: [
+				{
+					text: "50% reflection when raining",
+					condition: function(){
+						return Weather.weatherType === "rain";
+					},
+					stats: {
+						reflection: 50,
+					},
+				},
+			],
 		},
 	],
 	chest: [
@@ -1611,6 +1622,7 @@ var Items = {
 			image: "assets/items/consumable/2.png",
 			sellPrice: 2,
 			functionText: "Increases damage dealt by 40% for 10 seconds",
+            cooldown: 20, // 20 seconds
 			onClick: function (inventoryPosition) {
 				// remove the item
 				Dom.inventory.remove(inventoryPosition);
@@ -1631,6 +1643,7 @@ var Items = {
 			image: "assets/items/consumable/3.png",
 			sellPrice: 1,
 			functionText: "Increases walk speed by 35% for 20 seconds",
+            cooldown: 20, // 20 seconds
 			onClick: function (inventoryPosition) {
 				// remove the item
 				Dom.inventory.remove(inventoryPosition);
@@ -1651,6 +1664,7 @@ var Items = {
 			image: "assets/items/consumable/4.png",
 			sellPrice: 1,
 			functionText: "Restores 15 health",
+            cooldown: 20, // 20 seconds
 			onClick: function (inventoryPosition) {
 				// remove the item
 				Dom.inventory.remove(inventoryPosition);
@@ -1692,6 +1706,7 @@ var Items = {
 			image: "assets/items/consumable/6.png",
 			sellPrice: 1,
 			functionText: "I wonder what this does?",
+            cooldown: 20, // 20 seconds
 			onClick: function (inventoryPosition) {
 				// remove the item
 				Dom.inventory.remove(inventoryPosition);
@@ -1896,6 +1911,7 @@ var Items = {
 			image: "assets/items/consumable/11.png",
 			sellPrice: 2,
 			functionText: "Increases defence against Nilbog goblins by 40% for 10 seconds",
+            cooldown: 20, // 20 seconds
 			onClick: function (inventoryPosition) {
 				// remove the item
 				Dom.inventory.remove(inventoryPosition);
@@ -2032,6 +2048,7 @@ var Items = {
 			functionText: "Increases XP gain by 20% for 30 seconds",
 			lore: "This potion is made with a secret ingredient only found at Christmas.",
 			sellPrice: 1,
+            cooldown: 20, // 20 seconds
 			onClick: function (inventoryPosition) {
 				// remove the item
 				Dom.inventory.remove(inventoryPosition);

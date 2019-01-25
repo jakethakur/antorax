@@ -122,6 +122,7 @@ Keyboard._onKeyUp = function (event) {
 		if(this.upFunctions[keyRole] !== undefined){
 			if(Keyboard.parameters[keyRole] !== undefined){
 				this.upFunctions[keyRole](Keyboard.parameters[keyRole]);
+				Keyboard.update();
 			}else{
 				this.upFunctions[keyRole](event);
 			}

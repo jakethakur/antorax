@@ -376,116 +376,6 @@ var Quests = {
 		
 		{
 			id: 8,
-			quest: "Learning to Fish I",
-			questArea: "eaglecrestLoggingCamp",
-			
-			startName: "Fisherman Tobenam",
-			startChat: "Heheh, you can't always fish up a fish right away, but you can always fish up some driftwood! Take a fish and see what you're gettin', heh.",
-			
-			finishName: "Fisherman Tobenam",
-			finishChat: "Heheh, you'll slowly improve at fishing the more you do it.",
-			
-			objectives: [
-				"Fish something up!",
-				"Speak to <strong>Fisherman Tobenam</strong>.",
-			],
-			
-			isCompleted: function() {
-				let completed = [];
-				
-				// true or falses for each objective (apart from the turn-in objective)
-				completed.push(Player.stats.fishingSkill > 0);
-				
-				completed = checkFinished(completed);
-				
-				return completed;
-			},
-			
-			howToStart: "Speak to <strong>Fisherman Tobenam</strong>.",
-			levelRequirement: 2,
-			questRequirements: ["A Lost Fishing Rod"],
-			
-			rewards: {
-				xp: 20,
-			},
-		},
-		
-		{
-			id: 9,
-			quest: "Learning to Fish II",
-			questArea: "eaglecrestLoggingCamp",
-			
-			startName: "Fisherman Tobenam",
-			startChat: "What better way to get a fish than to use some bait? Buy a <strong>Can of Worms</strong> from me, and try your luck, heheh.",
-			
-			finishName: "Fisherman Tobenam",
-			finishChat: "Heheh, your first catch! You'll be good as me in no time...",
-			
-			objectives: [
-				"Buy a can of worms from Fisherman Tobenam and use it.",
-				"Catch your first fish!",
-				"Speak to <strong>Fisherman Tobenam</strong>.",
-			],
-			
-			isCompleted: function() {
-				let completed = [];
-				
-				// true or falses for each objective (apart from the turn-in objective)
-				completed.push(Player.quests.questProgress.hasUsedBait || false);
-				completed.push(Player.quests.questProgress.fishCaught > 0 || false);
-				
-				completed = checkFinished(completed);
-				
-				return completed;
-			},
-			
-			howToStart: "Speak to <strong>Fisherman Tobenam</strong>.",
-			levelRequirement: 2,
-			questRequirements: ["Learning to Fish I"],
-			
-			rewards: {
-				xp: 20,
-			},
-		},
-		
-		{
-			id: 10,
-			quest: "Learning to Fish III",
-			questArea: "eaglecrestLoggingCamp",
-			
-			startName: "Fisherman Tobenam",
-			startChat: "What did I say, you can't get fish all the time without practising! Keep fishing until your skill is level 10... your effort now will be made up for later, heheh. Oh, and don't forget to use up that bait!",
-			
-			finishName: "Fisherman Tobenam",
-			finishChat: "Wow, well done! You're now a fishing master, heheh, almost. Come back to me every day and I'll give you something to do, heheh.",
-			
-			objectives: [
-				"Level your base fishing skill to 10.",
-				"Speak to <strong>Fisherman Tobenam</strong>.",
-			],
-			
-			isCompleted: function() {
-				let completed = [];
-				
-				// true or falses for each objective (apart from the turn-in objective)
-				completed.push(Player.stats.fishingSkill >= 10 ? true : " ("+Player.stats.fishingSkill+"/10)");
-				
-				completed = checkFinished(completed);
-				
-				return completed;
-			},
-			
-			howToStart: "Speak to <strong>Fisherman Tobenam</strong>.",
-			levelRequirement: 2,
-			questRequirements: ["Learning to Fish II"],
-			
-			rewards: {
-				xp: 50,
-			},
-		},
-		
-		{
-			id: 11,
 			quest: "Strengthening Defences",
 			questArea: "eaglecrestLoggingCamp",
 			
@@ -531,7 +421,7 @@ var Quests = {
 			],
 		},
 		{
-			id: 12,
+			id: 9,
 			quest: "Reinforcing Defences",
 			questArea: "eaglecrestLoggingCamp",
 			
@@ -583,7 +473,7 @@ var Quests = {
 		},
 		
 		{
-			id: 13,
+			id: 10,
 			quest: "The Sceptre of Souls",
 			questArea: "eaglecrestLoggingCamp",
 			
@@ -635,7 +525,7 @@ var Quests = {
 		},
 		
 		{
-			id: 14,
+			id: 11,
 			quest: "Partners in Goblin Destruction",
 			questArea: "eaglecrestLoggingCamp",
 			
@@ -694,7 +584,7 @@ var Quests = {
 		},
 		
 		{
-			id: 15,
+			id: 12,
 			quest: "Another Man's Treasure",
 			questArea: "eaglecrestLoggingCamp",
 			
@@ -743,7 +633,7 @@ var Quests = {
 		},
 		
 		{
-			id: 16,
+			id: 13,
 			quest: "Fire Power",
 			questArea: "eaglecrestLoggingCamp",
 			
@@ -789,7 +679,7 @@ var Quests = {
 		},
 		
 		{
-			id: 17,
+			id: 14,
 			quest: "Potion Making",
 			questArea: "eaglecrestLoggingCamp",
 			
@@ -867,7 +757,7 @@ var Quests = {
 		},
 		
 		{
-			id: 18,
+			id: 15,
 			quest: "Potion Making II",
 			questArea: "eaglecrestLoggingCamp",
 			
@@ -927,7 +817,7 @@ var Quests = {
 		},
 		
 		{
-			id: 19,
+			id: 16,
 			quest: "Combat Practice",
 			questArea: "eaglecrestLoggingCamp",
 			
@@ -974,7 +864,7 @@ var Quests = {
 		},
 		
 		{
-			id: 20,
+			id: 17,
 			quest: "The Goblin King",
 			questArea: "eaglecrestLoggingCamp",
 			
@@ -1018,7 +908,7 @@ var Quests = {
 		},
 		
 		{
-			id: 21,
+			id: 18,
 			quest: "The Festive Spirit",
 			questArea: "eaglecrestLoggingCamp",
 			
@@ -1067,7 +957,7 @@ var Quests = {
 		},
 		
 		{
-			id: 22,
+			id: 19,
 			quest: "Sunken Presents",
 			questArea: "eaglecrestLoggingCamp",
 			
@@ -1117,7 +1007,7 @@ var Quests = {
 		},
 		
 		{
-			id: 23,
+			id: 20,
 			quest: "Deck the Halls!",
 			questArea: "eaglecrestLoggingCamp",
 			
@@ -1168,7 +1058,7 @@ var Quests = {
 		},
 		
 		{
-			id: 24,
+			id: 21,
 			quest: "A 'Spark' of Imagination",
 			questArea: "eaglecrestLoggingCamp",
 			
@@ -1213,7 +1103,7 @@ var Quests = {
 		},
 		
 		{
-			id: 25,
+			id: 22,
 			quest: "The Legend of the Tattered Knight",
 			questArea: "eaglecrestLoggingCamp",
 			
@@ -1479,8 +1369,118 @@ After all, death is never the end in Antorax...<br>
 			],
 		},
 		
-		/*{
+		{
 			id: 3,
+			quest: "Learning to Fish I",
+			questArea: "eaglecrestLoggingCamp",
+			
+			startName: "Fisherman Tobenam",
+			startChat: "Heheh, you can't always fish up a fish right away, but you can always fish up some driftwood! Take a fish and see what you're gettin', heh.",
+			
+			finishName: "Fisherman Tobenam",
+			finishChat: "Heheh, you'll slowly improve at fishing the more you do it.",
+			
+			objectives: [
+				"Fish something up!",
+				"Speak to <strong>Fisherman Tobenam</strong>.",
+			],
+			
+			isCompleted: function() {
+				let completed = [];
+				
+				// true or falses for each objective (apart from the turn-in objective)
+				completed.push(Player.stats.fishingSkill > 0);
+				
+				completed = checkFinished(completed);
+				
+				return completed;
+			},
+			
+			howToStart: "Speak to <strong>Fisherman Tobenam</strong>.",
+			levelRequirement: 2,
+			questRequirements: ["A Lost Fishing Rod"],
+			
+			rewards: {
+				xp: 20,
+			},
+		},
+		
+		{
+			id: 4,
+			quest: "Learning to Fish II",
+			questArea: "eaglecrestLoggingCamp",
+			
+			startName: "Fisherman Tobenam",
+			startChat: "What better way to get a fish than to use some bait? Buy a <strong>Can of Worms</strong> from me, and try your luck, heheh.",
+			
+			finishName: "Fisherman Tobenam",
+			finishChat: "Heheh, your first catch! You'll be good as me in no time...",
+			
+			objectives: [
+				"Buy a can of worms from Fisherman Tobenam and use it.",
+				"Catch your first fish!",
+				"Speak to <strong>Fisherman Tobenam</strong>.",
+			],
+			
+			isCompleted: function() {
+				let completed = [];
+				
+				// true or falses for each objective (apart from the turn-in objective)
+				completed.push(Player.quests.questProgress.hasUsedBait || false);
+				completed.push(Player.quests.questProgress.fishCaught > 0 || false);
+				
+				completed = checkFinished(completed);
+				
+				return completed;
+			},
+			
+			howToStart: "Speak to <strong>Fisherman Tobenam</strong>.",
+			levelRequirement: 2,
+			questRequirements: ["Learning to Fish I"],
+			
+			rewards: {
+				xp: 20,
+			},
+		},
+		
+		{
+			id: 5,
+			quest: "Learning to Fish III",
+			questArea: "eaglecrestLoggingCamp",
+			
+			startName: "Fisherman Tobenam",
+			startChat: "What did I say, you can't get fish all the time without practising! Keep fishing until your skill is level 10... your effort now will be made up for later, heheh. Oh, and don't forget to use up that bait!",
+			
+			finishName: "Fisherman Tobenam",
+			finishChat: "Wow, well done! You're now a fishing master, heheh, almost. Come back to me every day and I'll give you something to do, heheh.",
+			
+			objectives: [
+				"Level your base fishing skill to 10.",
+				"Speak to <strong>Fisherman Tobenam</strong>.",
+			],
+			
+			isCompleted: function() {
+				let completed = [];
+				
+				// true or falses for each objective (apart from the turn-in objective)
+				completed.push(Player.stats.fishingSkill >= 10 ? true : " ("+Player.stats.fishingSkill+"/10)");
+				
+				completed = checkFinished(completed);
+				
+				return completed;
+			},
+			
+			howToStart: "Speak to <strong>Fisherman Tobenam</strong>.",
+			levelRequirement: 2,
+			questRequirements: ["Learning to Fish II"],
+			
+			rewards: {
+				xp: 50,
+			},
+		},
+		
+		/*{
+			id: 6,
 			quest: "Plenty of Perch",
 			questArea: "fishing",
 			
@@ -1528,7 +1528,7 @@ After all, death is never the end in Antorax...<br>
 		},
 		
 		{
-			id: 4,
+			id: 7,
 			quest: "Lots o' Fish",
 			questArea: "fishing",
 			

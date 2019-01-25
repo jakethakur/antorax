@@ -54,7 +54,7 @@ var Achievements = [
 	{
 		// id: 4,
 		name: "Logging Camp Questmaster",
-		description: "Complete all 20 non-event quests in Eaglecrest Logging Camp.",
+		description: "Complete all 18 non-event quests in Eaglecrest Logging Camp.",
 		points: 10,
 		category: ["quests"],
 		area: ["eaglecrestLoggingCamp"],
@@ -65,7 +65,7 @@ var Achievements = [
 		isCompleted: function(){ // REMOVE FISHING QUESTS
 			let done = true;
 			for(let i = 0; i < Quests.eaglecrestLoggingCamp.length; i++){
-				if(Quests.eaglecrestLoggingCamp[i].eventRequirement === undefined && !Player.quests.completedQuestArray.includes(Quests.eaglecrestLoggingCamp[i].quest)){
+				if(Quests.eaglecrestLoggingCamp[i].eventRequirement === undefined && Quests.eaglecrestLoggingCamp[i].repeatTime === undefined && !Player.quests.completedQuestArray.includes(Quests.eaglecrestLoggingCamp[i].quest)){
 					done = false;
 				}
 			}

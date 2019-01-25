@@ -223,19 +223,19 @@ var Areas = {
 						role: "questStartFinish",
 					},
 					{
-						quest: Quests.eaglecrestLoggingCamp[8], 
+						quest: Quests.fishing[3],
 						role: "questStartFinish",
 					},
 					{
-						quest: Quests.eaglecrestLoggingCamp[9], 
+						quest: Quests.fishing[4],
 						role: "questStartFinish",
 					},
 					{
-						quest: Quests.eaglecrestLoggingCamp[10], 
+						quest: Quests.fishing[5],
 						role: "questStartFinish",
 					},
 					{
-						quest: Quests.eaglecrestLoggingCamp[22], 
+						quest: Quests.eaglecrestLoggingCamp[19],
 						role: "questStart",
 					},
 					{
@@ -536,23 +536,23 @@ var Areas = {
 						role: "questStart"
 					},
 					{
-						quest: Quests.eaglecrestLoggingCamp[3], 
+						quest: Quests.eaglecrestLoggingCamp[3],
 						role: "questStartFinish"
 					},
 					{
-						quest: Quests.eaglecrestLoggingCamp[4], 
+						quest: Quests.eaglecrestLoggingCamp[4],
 						role: "questStartFinish"
 					},
 					{
-						quest: Quests.eaglecrestLoggingCamp[5], 
+						quest: Quests.eaglecrestLoggingCamp[5],
 						role: "questStartFinish"
 					},
 					{
-						quest: Quests.eaglecrestLoggingCamp[20], 
+						quest: Quests.eaglecrestLoggingCamp[17],
 						role: "questStartFinish"
 					},
 					{
-						quest: Quests.eaglecrestLoggingCamp[23], 
+						quest: Quests.eaglecrestLoggingCamp[20],
 						role: "questStartFinish"
 					},
 					{
@@ -630,11 +630,11 @@ var Areas = {
 						role: "questStartFinish"
 					},
 					{
-						quest: Quests.eaglecrestLoggingCamp[19], 
+						quest: Quests.eaglecrestLoggingCamp[16], 
 						role: "questStartFinish"
 					},
 					{
-						quest: Quests.eaglecrestLoggingCamp[21], 
+						quest: Quests.eaglecrestLoggingCamp[18], 
 						role: "questStartFinish"
 					},
 					{
@@ -703,7 +703,7 @@ var Areas = {
 				},
 				roles: [
 					{
-						quest: Quests.eaglecrestLoggingCamp[16], 
+						quest: Quests.eaglecrestLoggingCamp[13], 
 						role: "questStartFinish"
 					},
 					{
@@ -777,7 +777,7 @@ var Areas = {
 						},
 					},
 					{
-						quest: Quests.eaglecrestLoggingCamp[13], 
+						quest: Quests.eaglecrestLoggingCamp[10], 
 						role: "questStartFinish"
 					},
 					{
@@ -810,11 +810,11 @@ var Areas = {
 				},
 				roles: [
 					{
-						quest: Quests.eaglecrestLoggingCamp[11], 
+						quest: Quests.eaglecrestLoggingCamp[8], 
 						role: "questStartFinish"
 					},
 					{
-						quest: Quests.eaglecrestLoggingCamp[12], 
+						quest: Quests.eaglecrestLoggingCamp[9], 
 						role: "questStartFinish"
 					},
 					{
@@ -893,7 +893,7 @@ var Areas = {
 						},
 					},
 					{
-						quest: Quests.eaglecrestLoggingCamp[15], 
+						quest: Quests.eaglecrestLoggingCamp[12], 
 						role: "questStartFinish"
 					},
 					{
@@ -948,11 +948,11 @@ var Areas = {
 				},
 				roles: [
 					{
-						quest: Quests.eaglecrestLoggingCamp[17], 
+						quest: Quests.eaglecrestLoggingCamp[14], 
 						role: "questStartFinish"
 					},
 					{
-						quest: Quests.eaglecrestLoggingCamp[18], 
+						quest: Quests.eaglecrestLoggingCamp[15], 
 						role: "questStartFinish"
 					},
 					{
@@ -1332,11 +1332,11 @@ var Areas = {
 				},
 				roles: [
 					{
-						quest: Quests.eaglecrestLoggingCamp[14], 
+						quest: Quests.eaglecrestLoggingCamp[11], 
 						role: "questStartFinish"
 					},
 					{
-						quest: Quests.eaglecrestLoggingCamp[24], 
+						quest: Quests.eaglecrestLoggingCamp[21], 
 						role: "questStartFinish"
 					},
 				],

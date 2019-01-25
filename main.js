@@ -4710,6 +4710,7 @@ Game.inventoryUpdate = function (e) {
 			Game.hero.stats.variance = 0;
 		}
 	}
+	Keyboard.update(); // update hotkeys because hotbar might have changed
 	Dom.checkProgress(); // quest log update check
 }
 

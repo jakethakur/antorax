@@ -792,115 +792,76 @@ Dom.inventory.stats = function(stat, value, array){ // stat should be in Title C
 };
 
 Dom.inventory.displayInformation = function(item, stacked, position, hide){
-	if(!hide){
-		document.getElementById("information").hidden = true;
-	}
-	if(item.image !== undefined){
-		if(!hide){
-			document.getElementById("information").hidden = false;
+	if(hide !== "cooldown" || Dom.inventory.displayedInformation === item.name){
+		if(hide === undefined){
+			document.getElementById("information").hidden = true;
 		}
-		Dom.inventory.updatePosition(document.getElementById("information"));
-		if(item.name !== undefined){
-			document.getElementById("name").innerHTML = item.name;
-			if(item.rarity === "mythic"){
-				document.getElementById("name").style.color = "purple";
-			}else if(item.rarity === "unique"){
-				document.getElementById("name").style.color = "orange";
-			}else if(item.rarity === "junk"){
-				document.getElementById("name").style.color = "darkgray";
+		if(item.image !== undefined){
+			if(hide === undefined){
+				document.getElementById("information").hidden = false;
+			}
+			Dom.inventory.updatePosition(document.getElementById("information"));
+			Dom.inventory.displayedInformation = item.name;
+			if(item.name !== undefined){
+				document.getElementById("name").innerHTML = item.name;
+				if(item.rarity === "mythic"){
+					document.getElementById("name").style.color = "purple";
+				}else if(item.rarity === "unique"){
+					document.getElementById("name").style.color = "orange";
+				}else if(item.rarity === "junk"){
+					document.getElementById("name").style.color = "darkgray";
+				}else{
+					document.getElementById("name").style.color = "black";
+				}
 			}else{
+				document.getElementById("name").innerHTML = "Unidentified "+item.type.charAt(0).toUpperCase() + item.type.slice(1);
 				document.getElementById("name").style.color = "black";
 			}
-		}else{
-			document.getElementById("name").innerHTML = "Unidentified "+item.type.charAt(0).toUpperCase() + item.type.slice(1);
-			document.getElementById("name").style.color = "black";
-		}
-		// weapon, armour or rod
-		if(item.type !== "item" && item.type !== "bag" && item.type !== "currency" && item.type !== "fish" && item.type !== "consumable" && item.type !== "food" && item.type !== "teleport"){
-			if(item.type !== "rod"){
-				document.getElementById("stats").innerHTML = "Tier: "+item.tier+"<br>";
-			}else{
-				document.getElementById("stats").innerHTML = "";
-			}
-			if(item.stats !== undefined){
-				for(let i = 0; i < Object.keys(item.stats).length; i++){
-					if(Object.keys(item.stats)[i] !== item.chosenStat){
-						
-						document.getElementById("stats").innerHTML += Dom.inventory.stats(FromCamelCase(Object.keys(item.stats)[i]), item.stats[Object.keys(item.stats)[i]], item.stats);
-						
-						/*if(Object.keys(item.stats)[i] !== "flaming"){
-							document.getElementById("stats").innerHTML += "<br>"+FromCamelCase(Object.keys(item.stats)[i])+": "+item.stats[Object.keys(item.stats)[i]];
-						}else{
-							document.getElementById("stats").innerHTML += "<br>"+FromCamelCase(Object.keys(item.stats)[i])+" "+Romanize(item.stats[Object.keys(item.stats)[i]]);
-						}*/
-					}
+			// weapon, armour or rod
+			if(item.type !== "item" && item.type !== "bag" && item.type !== "currency" && item.type !== "fish" && item.type !== "consumable" && item.type !== "food" && item.type !== "teleport"){
+				if(item.type !== "rod"){
+					document.getElementById("stats").innerHTML = "Tier: "+item.tier+"<br>";
+				}else{
+					document.getElementById("stats").innerHTML = "";
 				}
-				if(item.chooseStats !== undefined){
-					document.getElementById("stats").innerHTML += "<br>"+item.functionText+"<br>";
-					for(let i = 0; i < Object.keys(item.chooseStats).length; i++){
-						let color = "gray";
-						if(Object.keys(item.chooseStats)[i] === item.chosenStat){
-							color = "black";
-						}
-						
-						document.getElementById("stats").innerHTML += "<span style='color: "+color+"'>"+Dom.inventory.stats(FromCamelCase(Object.keys(item.chooseStats)[i]), item.chooseStats[Object.keys(item.chooseStats)[i]], item.chooseStats)+"</span>";
-						
-						/*if(Object.keys(item.chooseStats)[i] !== "flaming"){
-							document.getElementById("stats").innerHTML += "<br><span style='color: "+color+"'>"+Object.keys(item.chooseStats)[i]+": "+item.chooseStats[Object.keys(item.chooseStats)[i]]+"</span>";
-						}else{
-							document.getElementById("stats").innerHTML += "<br><span style='color: "+color+"'>"+Object.keys(item.chooseStats)[i]+" "+Romanize(item.chooseStats[Object.keys(item.chooseStats)[i]])+"</span>";
-						}*/
-					}
-				}
-			}else{
-				document.getElementById("stats").innerHTML += "<br>Area: " + FromCamelCase(item.area);
-			}
-			if(item.set !== undefined){
-				// if the item is equipped
-				if(position === "equip"){
-					let setNum = 0;
-					for(let i = 0; i < Items.set[item.set].armour.length; i++){
-						for(let x = 0; x < 4; x++){
-							if(Player.inventory[Object.keys(Player.inventory)[x]].name === Items.set[item.set].armour[i]){
-								setNum++;
-								break;
-							}
-						}
-					}
-					document.getElementById("set").innerHTML = Items.set[item.set].name + " (" + setNum + "/" + Items.set[item.set].armour.length+")";
-					// if the whole set is equipped
-					if(setNum === Items.set[item.set].armour.length){
-						document.getElementById("set").innerHTML += "<br><br>Set Bonus:<br>";
-						for(let i = 0; i < Object.keys(Items.set[item.set].stats).length; i++){
+				if(item.stats !== undefined){
+					for(let i = 0; i < Object.keys(item.stats).length; i++){
+						if(Object.keys(item.stats)[i] !== item.chosenStat){
 							
-							document.getElementById("set").innerHTML += Dom.inventory.stats(FromCamelCase(Object.keys(Items.set[item.set].stats)[i]), Items.set[item.set].stats[Object.keys(Items.set[item.set].stats)[i]], Items.set[item.set].stats);
+							document.getElementById("stats").innerHTML += Dom.inventory.stats(FromCamelCase(Object.keys(item.stats)[i]), item.stats[Object.keys(item.stats)[i]], item.stats);
 							
-							/*if(Object.keys(Items.set[item.set].stats)[i] !== "flaming"){
-								document.getElementById("set").innerHTML += "<br>"+FromCamelCase(Object.keys(Items.set[item.set].stats)[i])+": "+Items.set[item.set].stats[Object.keys(Items.set[item.set].stats)[i]];
+							/*if(Object.keys(item.stats)[i] !== "flaming"){
+								document.getElementById("stats").innerHTML += "<br>"+FromCamelCase(Object.keys(item.stats)[i])+": "+item.stats[Object.keys(item.stats)[i]];
 							}else{
-								document.getElementById("set").innerHTML += "<br>"+FromCamelCase(Object.keys(Items.set[item.set].stats)[i])+" "+Romanize(Items.set[item.set].stats[Object.keys(Items.set[item.set].stats)[i]]);
+								document.getElementById("stats").innerHTML += "<br>"+FromCamelCase(Object.keys(item.stats)[i])+" "+Romanize(item.stats[Object.keys(item.stats)[i]]);
 							}*/
 						}
-						if(Items.set[item.set].multiplier !== undefined){
-							for(let i = 0; i < Items.set[item.set].multiplier.length; i++){
-								document.getElementById("set").innerHTML += "<br>"+ Items.set[item.set].multiplier[i].text;
+					}
+					if(item.chooseStats !== undefined){
+						document.getElementById("stats").innerHTML += "<br>"+item.functionText+"<br>";
+						for(let i = 0; i < Object.keys(item.chooseStats).length; i++){
+							let color = "gray";
+							if(Object.keys(item.chooseStats)[i] === item.chosenStat){
+								color = "black";
 							}
+							
+							document.getElementById("stats").innerHTML += "<span style='color: "+color+"'>"+Dom.inventory.stats(FromCamelCase(Object.keys(item.chooseStats)[i]), item.chooseStats[Object.keys(item.chooseStats)[i]], item.chooseStats)+"</span>";
+							
+							/*if(Object.keys(item.chooseStats)[i] !== "flaming"){
+								document.getElementById("stats").innerHTML += "<br><span style='color: "+color+"'>"+Object.keys(item.chooseStats)[i]+": "+item.chooseStats[Object.keys(item.chooseStats)[i]]+"</span>";
+							}else{
+								document.getElementById("stats").innerHTML += "<br><span style='color: "+color+"'>"+Object.keys(item.chooseStats)[i]+" "+Romanize(item.chooseStats[Object.keys(item.chooseStats)[i]])+"</span>";
+							}*/
 						}
 					}
-				// if the item is not equipped
 				}else{
-					let setNum = 0;
-					for(let i = 0; i < Items.set[item.set].armour.length; i++){
-						let checkUsed = true;
-						for(let x = 0; x < Player.inventory.items.length; x++){
-							if(Player.inventory.items[x].name === Items.set[item.set].armour[i]){
-								setNum++;
-								checkUsed = false;
-								break;
-							}
-						}
-						// if not in item inventory check equipped slots
-						if(checkUsed){
+					document.getElementById("stats").innerHTML += "<br>Area: " + FromCamelCase(item.area);
+				}
+				if(item.set !== undefined){
+					// if the item is equipped
+					if(position === "equip"){
+						let setNum = 0;
+						for(let i = 0; i < Items.set[item.set].armour.length; i++){
 							for(let x = 0; x < 4; x++){
 								if(Player.inventory[Object.keys(Player.inventory)[x]].name === Items.set[item.set].armour[i]){
 									setNum++;
@@ -908,104 +869,146 @@ Dom.inventory.displayInformation = function(item, stacked, position, hide){
 								}
 							}
 						}
-					}
-					document.getElementById("set").innerHTML = Items.set[item.set].name + " (" + setNum + "/" + Items.set[item.set].armour.length+")";
-					// if the whole set is in the inventory
-					if(setNum === Items.set[item.set].armour.length){
-						document.getElementById("set").innerHTML += "<br><br>Set Bonus:<br>";
-						for(let i = 0; i < Object.keys(Items.set[item.set].stats).length; i++){
-							
-							document.getElementById("set").innerHTML += Dom.inventory.stats(FromCamelCase(Object.keys(Items.set[item.set].stats)[i]), Items.set[item.set].stats[Object.keys(Items.set[item.set].stats)[i]], Items.set[item.set].stats);
-							
-							/*if(Object.keys(Items.set[item.set].stats)[i] !== "flaming"){
-								document.getElementById("set").innerHTML += "<br>"+FromCamelCase(Object.keys(Items.set[item.set].stats)[i])+": "+Items.set[item.set].stats[Object.keys(Items.set[item.set].stats)[i]];
-							}else{
-								document.getElementById("set").innerHTML += "<br>"+FromCamelCase(Object.keys(Items.set[item.set].stats)[i])+" "+Romanize(Items.set[item.set].stats[Object.keys(Items.set[item.set].stats)[i]]);
-							}*/
+						document.getElementById("set").innerHTML = Items.set[item.set].name + " (" + setNum + "/" + Items.set[item.set].armour.length+")";
+						// if the whole set is equipped
+						if(setNum === Items.set[item.set].armour.length){
+							document.getElementById("set").innerHTML += "<br><br>Set Bonus:<br>";
+							for(let i = 0; i < Object.keys(Items.set[item.set].stats).length; i++){
+								
+								document.getElementById("set").innerHTML += Dom.inventory.stats(FromCamelCase(Object.keys(Items.set[item.set].stats)[i]), Items.set[item.set].stats[Object.keys(Items.set[item.set].stats)[i]], Items.set[item.set].stats);
+								
+								/*if(Object.keys(Items.set[item.set].stats)[i] !== "flaming"){
+									document.getElementById("set").innerHTML += "<br>"+FromCamelCase(Object.keys(Items.set[item.set].stats)[i])+": "+Items.set[item.set].stats[Object.keys(Items.set[item.set].stats)[i]];
+								}else{
+									document.getElementById("set").innerHTML += "<br>"+FromCamelCase(Object.keys(Items.set[item.set].stats)[i])+" "+Romanize(Items.set[item.set].stats[Object.keys(Items.set[item.set].stats)[i]]);
+								}*/
+							}
+							if(Items.set[item.set].multiplier !== undefined){
+								for(let i = 0; i < Items.set[item.set].multiplier.length; i++){
+									document.getElementById("set").innerHTML += "<br>"+ Items.set[item.set].multiplier[i].text;
+								}
+							}
 						}
-						if(Items.set[item.set].multiplier !== undefined){
-							for(let i = 0; i < Items.set[item.set].multiplier.length; i++){
-								document.getElementById("set").innerHTML += "<br>"+ Items.set[item.set].multiplier[i].text;
+					// if the item is not equipped
+					}else{
+						let setNum = 0;
+						for(let i = 0; i < Items.set[item.set].armour.length; i++){
+							let checkUsed = true;
+							for(let x = 0; x < Player.inventory.items.length; x++){
+								if(Player.inventory.items[x].name === Items.set[item.set].armour[i]){
+									setNum++;
+									checkUsed = false;
+									break;
+								}
+							}
+							// if not in item inventory check equipped slots
+							if(checkUsed){
+								for(let x = 0; x < 4; x++){
+									if(Player.inventory[Object.keys(Player.inventory)[x]].name === Items.set[item.set].armour[i]){
+										setNum++;
+										break;
+									}
+								}
+							}
+						}
+						document.getElementById("set").innerHTML = Items.set[item.set].name + " (" + setNum + "/" + Items.set[item.set].armour.length+")";
+						// if the whole set is in the inventory
+						if(setNum === Items.set[item.set].armour.length){
+							document.getElementById("set").innerHTML += "<br><br>Set Bonus:<br>";
+							for(let i = 0; i < Object.keys(Items.set[item.set].stats).length; i++){
+								
+								document.getElementById("set").innerHTML += Dom.inventory.stats(FromCamelCase(Object.keys(Items.set[item.set].stats)[i]), Items.set[item.set].stats[Object.keys(Items.set[item.set].stats)[i]], Items.set[item.set].stats);
+								
+								/*if(Object.keys(Items.set[item.set].stats)[i] !== "flaming"){
+									document.getElementById("set").innerHTML += "<br>"+FromCamelCase(Object.keys(Items.set[item.set].stats)[i])+": "+Items.set[item.set].stats[Object.keys(Items.set[item.set].stats)[i]];
+								}else{
+									document.getElementById("set").innerHTML += "<br>"+FromCamelCase(Object.keys(Items.set[item.set].stats)[i])+" "+Romanize(Items.set[item.set].stats[Object.keys(Items.set[item.set].stats)[i]]);
+								}*/
+							}
+							if(Items.set[item.set].multiplier !== undefined){
+								for(let i = 0; i < Items.set[item.set].multiplier.length; i++){
+									document.getElementById("set").innerHTML += "<br>"+ Items.set[item.set].multiplier[i].text;
+								}
 							}
 						}
 					}
+				}else{
+					document.getElementById("set").innerHTML = "";
 				}
 			}else{
 				document.getElementById("set").innerHTML = "";
+				document.getElementById("stats").innerHTML = "";
 			}
-		}else{
-			document.getElementById("set").innerHTML = "";
-			document.getElementById("stats").innerHTML = "";
-		}
-		if(item.type === "bag"){
-			document.getElementById("stats").innerHTML = "Capacity: "+item.size;
-		}
-		if(item.type === "currency"){
-			if(stacked !== undefined){
-				document.getElementById("name").innerHTML = stacked + " " + document.getElementById("name").innerHTML;
-			}else if(item.stacked !== undefined){
-				document.getElementById("name").innerHTML = item.stacked + " " + document.getElementById("name").innerHTML;
-			}else{
-				document.getElementById("name").innerHTML = "1 " + document.getElementById("name").innerHTML;
+			if(item.type === "bag"){
+				document.getElementById("stats").innerHTML = "Capacity: "+item.size;
 			}
-		}
-		if(item.fishingType === "fish"){
-			document.getElementById("stats").innerHTML = "Length: " + item.length + "cm";
-		}
-		if(item.quest !== undefined && (item.quest === true || item.quest())){
-			document.getElementById("stats").innerHTML = "<span style='color: slateblue;'>Quest item</span><br>" + (document.getElementById("stats").innerHTML !== "" ? "<br>"+document.getElementById("stats").innerHTML : "");
-		}else{
-			document.getElementById("stats").style.color = "black";
-		}
-		if(item.use !== undefined){
-			document.getElementById("stats").innerHTML = item.use;
-		}
-		if(item.functionText !== undefined && item.chooseStats === undefined){
-			document.getElementById("stats").innerHTML += (document.getElementById("stats").innerHTML !== "" ? "<br>" : "") + item.functionText + (item.charges !== undefined ? "<br><br>" + item.charges + " Charges" : "");
-		}
-		let lorebuyer = "";
-		if(item.lore !== undefined && item.lore !== "" && !Array.isArray(item.lore)){
-			document.getElementById("lore").innerHTML = "<i>"+item.lore+"</i>";
-			lorebuyer = "<br><br>";
-		}else{
-			document.getElementById("lore").innerHTML = "";
-		}
-		if(position === "buyer" && item.sellPrice !== undefined){
-			document.getElementById("lore").innerHTML += lorebuyer+"Sell "+(item.sellQuantity !== 1 ? item.sellQuantity : "")+" for "+(item.charges === undefined ? item.sellPrice : Math.ceil(item.sellPrice / (item.maxCharges / item.charges)))+" gold";
-		}
-		if(item.cooldownStart !== undefined && parseInt(item.cooldownStart) + item.cooldown > parseInt(GetFullDateTime())){
-			let end = (parseInt(item.cooldownStart) + item.cooldown).toString();
-			let start = GetFullDateTime();
-			let time = (parseInt(end.substring(0,4))-parseInt(start.substring(0,4))) * 31536000;
-			time += (parseInt(end.substring(4,6))-parseInt(start.substring(4,6))) * 2592000;
-			time += (parseInt(end.substring(6,8))-parseInt(start.substring(6,8))) * 86400;
-			time += (parseInt(end.substring(8,10))-parseInt(start.substring(8,10))) * 3600;
-			time += (parseInt(end.substring(10,12))-parseInt(start.substring(10,12))) * 60;
-			time += parseInt(end.substring(12))-parseInt(start.substring(12));
-			let answer = "";
-			if(time >= 31536000){
-				answer = Math.floor(time/31536000)+" Year";
-			}else if(time >= 2592000){
-				answer = Math.floor(time/2592000)+" Month";
-			}else if(time >= 86400){
-				answer = Math.floor(time/86400)+" Day";
-			}else if(time >= 3600){
-				answer = Math.floor(time/3600)+" Hour";
-			}else if(time >= 60){
-				answer = Math.floor(time/60)+" Minute";
-			}else{
-				answer = time+" Second";
-			}
-			if(answer.substring(0,2) !== "1 "){
-				answer += "s";
-			}
-			document.getElementById("lore").innerHTML += "<br><br>On cooldown:<br>" + answer;
-			Dom.inventory.displayTimer = true;
-			setTimeout(function(){
-				if(Dom.inventory.displayTimer){
-					Dom.inventory.displayInformation(item, stacked, position, true);
+			if(item.type === "currency"){
+				if(stacked !== undefined){
+					document.getElementById("name").innerHTML = stacked + " " + document.getElementById("name").innerHTML;
+				}else if(item.stacked !== undefined){
+					document.getElementById("name").innerHTML = item.stacked + " " + document.getElementById("name").innerHTML;
+				}else{
+					document.getElementById("name").innerHTML = "1 " + document.getElementById("name").innerHTML;
 				}
-			},1000);
+			}
+			if(item.fishingType === "fish"){
+				document.getElementById("stats").innerHTML = "Length: " + item.length + "cm";
+			}
+			if(item.quest !== undefined && (item.quest === true || item.quest())){
+				document.getElementById("stats").innerHTML = "<span style='color: slateblue;'>Quest item</span><br>" + (document.getElementById("stats").innerHTML !== "" ? "<br>"+document.getElementById("stats").innerHTML : "");
+			}else{
+				document.getElementById("stats").style.color = "black";
+			}
+			if(item.use !== undefined){
+				document.getElementById("stats").innerHTML = item.use;
+			}
+			if(item.functionText !== undefined && item.chooseStats === undefined){
+				document.getElementById("stats").innerHTML += (document.getElementById("stats").innerHTML !== "" ? "<br>" : "") + item.functionText + (item.charges !== undefined ? "<br><br>" + item.charges + " Charges" : "");
+			}
+			let lorebuyer = "";
+			if(item.lore !== undefined && item.lore !== "" && !Array.isArray(item.lore)){
+				document.getElementById("lore").innerHTML = "<i>"+item.lore+"</i>";
+				lorebuyer = "<br><br>";
+			}else{
+				document.getElementById("lore").innerHTML = "";
+			}
+			if(position === "buyer" && item.sellPrice !== undefined){
+				document.getElementById("lore").innerHTML += lorebuyer+"Sell "+(item.sellQuantity !== 1 ? item.sellQuantity : "")+" for "+(item.charges === undefined ? item.sellPrice : Math.ceil(item.sellPrice / (item.maxCharges / item.charges)))+" gold";
+			}
+			if(item.cooldownStart !== undefined && parseInt(item.cooldownStart) + item.cooldown > parseInt(GetFullDateTime())){
+				let end = (parseInt(item.cooldownStart) + item.cooldown).toString();
+				let start = GetFullDateTime();
+				let time = (parseInt(end.substring(0,4))-parseInt(start.substring(0,4))) * 31536000;
+				time += (parseInt(end.substring(4,6))-parseInt(start.substring(4,6))) * 2592000;
+				time += (parseInt(end.substring(6,8))-parseInt(start.substring(6,8))) * 86400;
+				time += (parseInt(end.substring(8,10))-parseInt(start.substring(8,10))) * 3600;
+				time += (parseInt(end.substring(10,12))-parseInt(start.substring(10,12))) * 60;
+				time += parseInt(end.substring(12))-parseInt(start.substring(12));
+				let answer = "";
+				if(time >= 31536000){
+					answer = Math.floor(time/31536000)+" Year";
+				}else if(time >= 2592000){
+					answer = Math.floor(time/2592000)+" Month";
+				}else if(time >= 86400){
+					answer = Math.floor(time/86400)+" Day";
+				}else if(time >= 3600){
+					answer = Math.floor(time/3600)+" Hour";
+				}else if(time >= 60){
+					answer = Math.floor(time/60)+" Minute";
+				}else{
+					answer = time+" Second";
+				}
+				if(answer.substring(0,2) !== "1 "){
+					answer += "s";
+				}
+				document.getElementById("lore").innerHTML += (document.getElementById("lore").innerHTML !== "" ? "<br><br>" : "") +"On cooldown:<br>" + answer;
+				Dom.inventory.displayTimer = true;
+				setTimeout(function(){
+					if(Dom.inventory.displayTimer){
+						Dom.inventory.displayInformation(item, stacked, position, "cooldown");
+					}
+				},1000);
+			}
 		}
 	}
 }
@@ -1701,6 +1704,7 @@ Dom.inventory.give = function(item, num, position, noSave){
 		User.progress.seals += num;
 	}
 	Dom.hotbar.update();
+	Keyboard.update();
 	Dom.checkProgress();
 	if(typeof Game !== "undefined" && !noSave){
 		Game.saveProgress("auto");
@@ -2569,14 +2573,43 @@ Dom.inventory.removeEquipment = function(array){
 		}
 	}
 	if(array.conditionalStats !== undefined){
-		for(let i = 0; i < array.conditionalStats.length; i++){
-			for(let x = 0; x < Player.conditionalStats.length; x++){
-				if(JSON.stringify(array.conditionalStats[i]) === JSON.stringify(Player.conditionalStats[x])){
-					Player.conditionalStats.splice(x, 1);
-					break;
+		for(let y = 0; y < Player.conditionalStats.length; y++){
+			if(Player.conditionalStats[y].type === array.type && Player.conditionalStats[y].id === array.id){
+				
+				for(let i = 0; i < array.conditionalStats.length; i++){
+					if(Player.conditionalStats[y].active[i]){
+						Player.conditionalStats[y].active[i] = false;
+						for(let x = 0; x < Object.keys(array.conditionalStats[i].stats).length; x++){			
+							if(array.conditionalStats[i].stats[Object.keys(array.conditionalStats[i].stats)[x]] !== true){
+								Player.stats[Object.keys(array.conditionalStats[i].stats)[x]] -= array.conditionalStats[i].stats[Object.keys(array.conditionalStats[i].stats)[x]];
+							}else{
+								Player.stats[Object.keys(array.conditionalStats[i].stats)[x]] = false;
+							}
+						}
+					}
 				}
+				
+				Player.conditionalStats.splice(y, 1);
+				break;
 			}
 		}
+			/*for(let x = 0; x < Player.conditionalStats.length; x++){
+				if(array.conditionalStats[i].text === Player.conditionalStats[x].text && array.conditionalStats[i].stats === Player.conditionalStats[x].stats){
+					// remove conditionalStats from stats
+					if(Player.conditionalStats[i].active){
+						Player.conditionalStats[i].active = false;
+						for(let i = 0; i < Object.keys(Player.conditionalStats[i].stats).length; i++){			
+							if(Player.conditionalStats[i].stats[Object.keys(Player.conditionalStats[i].stats)[i]] !== true){
+								Player.stats[Object.keys(Player.conditionalStats[i].stats)[i]] -= Player.conditionalStats[i].stats[Object.keys(Player.conditionalStats[i].stats)[i]];
+							}else{
+								Player.stats[Object.keys(Player.conditionalStats[i].stats)[i]] = false;
+							}
+						}
+					}
+					Player.conditionalStats.splice(x, 1);
+					break; // stops the same stat being removed twice
+				}
+			}*/
 	}
 	if(array.trail !== undefined){
 		Game.hero.trail = undefined;
@@ -2655,7 +2688,8 @@ Dom.inventory.addEquipment = function(array){
 		}
 	}
 	if(array.conditionalStats !== undefined){
-		Player.conditionalStats.concat(array.conditionalStats);
+		Player.conditionalStats.push({type: array.type, id: array.id, active: [],});
+		Dom.inventory.conditionalStats();
 	}
 	if(array.trail !== undefined){
 		Game.hero.trail = array.trail;
@@ -3555,7 +3589,7 @@ Dom.inventory.prepare = function(array, i, element){
 	/*if(array[i].chooseStats !== undefined){
 		Items[array[i].type][array[i].id].onClick = Dom.inventory.chooseStats;
 	}*/
-	if(array[i].type === "food"){
+	if(array[i].healthRestore !== undefined && array[i].healthRestoreTime !== undefined){
 		Items[array[i].type][array[i].id].onClick = Dom.inventory.food;
 		Items[array[i].type][array[i].id].functionText = "Restores "+array[i].healthRestore+" health over "+array[i].healthRestoreTime+" seconds (whilst not in combat)";
 	}
@@ -3616,9 +3650,53 @@ Dom.inventory.prepare = function(array, i, element){
 		array[i].onAttack = Items[array[i].type][array[i].id].onAttack;
 		array[i].quest = Items[array[i].type][array[i].id].quest;
 	}
-	element.innerHTML = "<img src='"+array[i].image+"' draggable='true' ondragstart='Dom.inventory.drag(event,"+i+")' "+(array[i].onClick !== undefined ? "onclick='Player.inventory"+(array === Player.inventory.items?".items["+i+"].onClick("+i+")'":"."+i+".onClick(\""+i+"\")'") : "")+"></img>";
+	element.innerHTML = "<img src='"+array[i].image+"' draggable='true' ondragstart='Dom.inventory.drag(event,"+(array === Player.inventory.items ? i : '"'+i+'"')+")' "+(array[i].onClick !== undefined ? "onclick='Player.inventory"+(array === Player.inventory.items?".items["+i+"].onClick("+i+")'":"."+i+".onClick(\""+i+"\")'") : "")+"></img>";
 	if(array[i].stacked !== undefined && array[i].stacked !== 1){
 		element.innerHTML += "<div class='stackNum' id='stackNum"+i+"'>"+array[i].stacked+"</div>";
+	}
+}
+
+Keyboard.update = function(){
+	if(Keyboard.upFunctions !== undefined){
+		Keyboard.upFunctions.ONE = Player.inventory.items[0].onClick;
+		Keyboard.upFunctions.TWO = Player.inventory.items[1].onClick;
+		Keyboard.upFunctions.THREE = Player.inventory.items[2].onClick;
+		Keyboard.upFunctions.FOUR = Player.inventory.items[3].onClick;
+		Keyboard.upFunctions.FIVE = Player.inventory.items[4].onClick;
+		Keyboard.upFunctions.SIX = Player.inventory.items[5].onClick;
+	}
+}
+
+Dom.inventory.conditionalStats = function(){
+	for(let i = 0; i < Player.conditionalStats.length; i++){
+		for(let x = 0; x < Items[Player.conditionalStats[i].type][Player.conditionalStats[i].id].conditionalStats.length; x++){
+			let conditionalStat = Items[Player.conditionalStats[i].type][Player.conditionalStats[i].id].conditionalStats[x];
+			if(conditionalStat.condition()){
+				if(!Player.conditionalStats[i].active[x]){
+					Player.conditionalStats[i].active[x] = true;
+					// add conditionalStats to stats
+					for(let i = 0; i < Object.keys(conditionalStat.stats).length; i++){			
+						if(conditionalStat.stats[Object.keys(conditionalStat.stats)[i]] !== true){
+							Player.stats[Object.keys(conditionalStat.stats)[i]] += conditionalStat.stats[Object.keys(conditionalStat.stats)[i]];
+						}else{
+							Player.stats[Object.keys(conditionalStat.stats)[i]] = true;
+						}
+					}
+				}
+			}else{
+				if(Player.conditionalStats[i].active[x]){
+					Player.conditionalStats[i].active[x] = false;
+					// remove conditionalStats from stats
+					for(let i = 0; i < Object.keys(conditionalStat.stats).length; i++){			
+						if(conditionalStat.stats[Object.keys(conditionalStat.stats)[i]] !== true){
+							Player.stats[Object.keys(conditionalStat.stats)[i]] -= conditionalStat.stats[Object.keys(conditionalStat.stats)[i]];
+						}else{
+							Player.stats[Object.keys(conditionalStat.stats)[i]] = false;
+						}
+					}
+				}
+			}
+		}
 	}
 }
 
