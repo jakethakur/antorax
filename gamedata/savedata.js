@@ -63,13 +63,16 @@ var Player = {
 		activeQuestArray: [],
 		possibleQuestArray: [],
 		completedQuestArray: [],
+		canBeFinishedArray: [], // array of quests that can be finished (for use in main)
 		
-		questProgress: {}, // stores properties for quest objectives that cannot otherwise be tracked between saves
+		questProgress: {}, // stores properties for quest objectives (and achievements) that cannot otherwise be tracked between saves
 		questLastFinished: { // stores the last date (format ddmmyyyy) that the quest was finished (for seeing if daily quests can be started again)
 			eaglecrestLoggingCamp: [],
 			tavern: [],
 			fishing: [],
 		},
+		
+		randomDailyQuests: {}, // the random daily quest of the day (for NPCs with a random daily quest)
 	},
 	
 	inventory: {

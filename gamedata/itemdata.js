@@ -100,8 +100,6 @@ var Items = {
 				dodgeChance: 5,
 				reflection: 10,
 			},
-			functionText: "Click to choose stat:",
-			archaeologyFunctionText: "One of the following stats may be chosen:",
 		},
 		{
 			id: 7,
@@ -189,8 +187,8 @@ var Items = {
 			},
 			conditionalStats: [
 				{
-					text: "50% reflection when raining",
-					condition: function(){
+					text: "Gives the following stats when raining:",
+					condition: function () {
 						return Weather.weatherType === "rain";
 					},
 					stats: {
@@ -299,8 +297,6 @@ var Items = {
 				dodgeChance: 5,
 				reflection: 10,
 			},
-			functionText: "Click to choose stat:",
-			archaeologyFunctionText: "One of the following stats may be chosen:",
 		},
 		{
 			id: 7,
@@ -419,8 +415,6 @@ var Items = {
 				dodgeChance: 5,
 				reflection: 10,
 			},
-			functionText: "Click to choose stat:",
-			archaeologyFunctionText: "One of the following stats may be chosen:",
 		},
 	],
 	boots: [
@@ -557,8 +551,6 @@ var Items = {
 				dodgeChance: 5,
 				reflection: 10,
 			},
-			functionText: "Click to choose stat:",
-			archaeologyFunctionText: "One of the following stats may be chosen:",
 		},
 		{
 			id: 9,
@@ -1292,7 +1284,7 @@ var Items = {
 			type: "currency",
 			image: "assets/items/currency/2.png",
 			use: "The primary currency of Antorax",
-			stack: 256,
+			stack: 1024,
 		},
 		{
 			id: 3,
@@ -1389,8 +1381,6 @@ var Items = {
 			name: "Log",
 			type: "item",
 			image: "assets/items/item/2.png",
-			sellPrice: 1,
-			sellQuantity: 4,
 			stack: 4,
 			lore: "Was stolen from the logging camp by goblins.",
 		},
@@ -1401,7 +1391,7 @@ var Items = {
 			rarity: "junk",
 			image: "assets/items/item/3.png",
 			sellPrice: 1,
-			sellQuantity: 8,
+			sellQuantity: 16,
 			stack: 64,
 		},
 		{
@@ -1411,7 +1401,7 @@ var Items = {
 			rarity: "junk",
 			image: "assets/items/item/4.png",
 			sellPrice: 1,
-			sellQuantity: 8,
+			sellQuantity: 16,
 			stack: 64,
 		},
 		{
@@ -1421,7 +1411,7 @@ var Items = {
 			rarity: "junk",
 			image: "assets/items/item/5.png",
 			sellPrice: 1,
-			sellQuantity: 2,
+			sellQuantity: 8,
 			stack: 64,
 		},
 		{
@@ -1494,7 +1484,7 @@ var Items = {
 			image: "assets/items/item/10.png",
 			lore: "Has some alchemical uses.",
 			sellPrice: 1,
-			sellQuantity: 2,
+			sellQuantity: 16,
 			stack: 32,
 		},
 		{
@@ -1566,7 +1556,7 @@ var Items = {
 			image: "assets/items/item/16.png",
 			lore: "You can't understand what the book says.",
 			sellPrice: 1,
-			sellQuantity: 4,
+			sellQuantity: 8,
 			stack: 4,
 		},
 		{
@@ -2038,6 +2028,9 @@ var Items = {
 				Game.restoreHealth(Game.hero, 20);
 				// make the player tipsy!
 				//tbd
+				
+				// achievement progress
+				Player.quests.questProgress.mulledWine = true;
 			}
 		},
 		{
@@ -2169,6 +2162,10 @@ var Items = {
 			healthRestore: 40,
 			healthRestoreTime: 10,
 			lore: "A festive snack.",
+			onClick: function () {
+				// achievement progress
+			    Player.quests.questProgress.mincePie = true;
+			},
 		},
 		{
 			id: 2,
@@ -2179,6 +2176,10 @@ var Items = {
 			healthRestore: 30,
 			healthRestoreTime: 5,
 			lore: "A festive pudding.",
+			onClick: function () {
+				// achievement progress
+			    Player.quests.questProgress.christmasPudding = true;
+			},
 		},
 		{
 			id: 3,

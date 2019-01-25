@@ -1372,7 +1372,7 @@ After all, death is never the end in Antorax...<br>
 		{
 			id: 3,
 			quest: "Learning to Fish I",
-			questArea: "eaglecrestLoggingCamp",
+			questArea: "fishing",
 			
 			startName: "Fisherman Tobenam",
 			startChat: "Heheh, you can't always fish up a fish right away, but you can always fish up some driftwood! Take a fish and see what you're gettin', heh.",
@@ -1408,7 +1408,7 @@ After all, death is never the end in Antorax...<br>
 		{
 			id: 4,
 			quest: "Learning to Fish II",
-			questArea: "eaglecrestLoggingCamp",
+			questArea: "fishing",
 			
 			startName: "Fisherman Tobenam",
 			startChat: "What better way to get a fish than to use some bait? Buy a <strong>Can of Worms</strong> from me, and try your luck, heheh.",
@@ -1446,7 +1446,7 @@ After all, death is never the end in Antorax...<br>
 		{
 			id: 5,
 			quest: "Learning to Fish III",
-			questArea: "eaglecrestLoggingCamp",
+			questArea: "fishing",
 			
 			startName: "Fisherman Tobenam",
 			startChat: "What did I say, you can't get fish all the time without practising! Keep fishing until your skill is level 10... your effort now will be made up for later, heheh. Oh, and don't forget to use up that bait!",

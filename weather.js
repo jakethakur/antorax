@@ -22,6 +22,8 @@ Weather.init = function () {
 
 // called by Game.loadArea
 Weather.chooseWeather = function (areaName) {
+	let oldWeatherType = this.weatherType; // for checking if weather has changed
+	
 	if (Areas[areaName].weather !== undefined) {
 		// static weather for area
 		this.weatherType = Areas[areaName].weather;
@@ -38,6 +40,13 @@ Weather.chooseWeather = function (areaName) {
 	}
 	else {
 		this.weatherType = "clear";
+	}
+	
+	if (this.weatherType !== oldWeatherType) {
+		// weather has been updated
+		
+		// update conditional stats
+		Dom.inventory.conditionalStats();
 	}
 }
 

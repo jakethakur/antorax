@@ -118,6 +118,9 @@ var Areas = {
 			y: 387,
 		},
 		
+		lootArea: "loggingCamp",
+		lootTier: 1,
+		
 		areaTeleports: [
 			{
 				// teleport to logging camp (path - north)
@@ -139,17 +142,22 @@ var Areas = {
 				width: 1,
 				height: 600,
 				onPlayerTouch: function () {
-					// check that the "to the logging camp" quest has been started and the instructions haven't been shown before
-					if (Player.quests.activeQuestArray.includes("To the Logging Camp")
-					&& Player.unlockedInstructions.length < 3) {
+					// check that the "to the logging camp" quest has been started, weapon has been bought, and the instructions haven't been shown before
+					let questStarted = Player.quests.activeQuestArray.includes("To the Logging Camp");
+					let weaponBought = Dom.inventory.check(2, "sword", 1) || Dom.inventory.check(2, "staff", 1) || Dom.inventory.check(2, "bow", 1);
+					
+					if (questStarted && weaponBought && Player.unlockedInstructions.length < 3) {
 						Dom.adventure.addInstruction(3); // open instructions chapter 3
 					}
 					// otherwise if the player hasn't started the quest, teleport them back to make them!
-					else if (!Player.quests.activeQuestArray.includes("To the Logging Camp") && !Player.quests.completedQuestArray.includes("To the Logging Camp")) {
-						Game.hero.x = 2297;
-						Game.hero.y = 387;
-						setTimeout(Weather.reset, 10); // timeout is used because the weather is not updated for a tick
+					else if (!questStarted && !Player.quests.completedQuestArray.includes("To the Logging Camp")) {
+						Game.hero.teleport(2297, 387);
 						Dom.alert.page("You need to start your first quest. Speak to the Cart Driver who is right next to you.")
+					}
+					// otherwise if the player hasn't bought the weapon, teleport them back to make them!
+					else if (!weaponBought && !Player.quests.completedQuestArray.includes("To the Logging Camp")) {
+						Game.hero.teleport(1457, 385);
+						Dom.alert.page("You need to buy a weapon to progress in your quest. Buy one from the nearby Weaponsmith.")
 					}
 				}
 			}
@@ -242,6 +250,7 @@ var Areas = {
 						quest: [Quests.fishing[0], Quests.fishing[1], Quests.fishing[2]], 
 						role: "questStartFinish",
 						newQuestFrequency: "daily",
+						questVariable: "fishingDaily",
 					},
 					{
 						sold: [
@@ -260,7 +269,7 @@ var Areas = {
 					},
 					{
 						sold: [
-							{item: Items.currency[2], cost: 1, quantity: 3, costCurrency: 3}, // 3 gold
+							{item: Items.currency[2], cost: 1, costCurrency: 3}, // 1 gold
 							{item: Items.bag[4], cost: 10, costCurrency: 3}, // fishing pouch
 						],
 						role: "merchant",
@@ -462,6 +471,9 @@ var Areas = {
 			x: 717,
 			y: 208,
 		},
+		
+		lootArea: "loggingCamp",
+		lootTier: 1,
 		
 		onAreaTeleport: function () {
 			// start instructions chapter 4 if the player hasn't already
@@ -1276,6 +1288,9 @@ var Areas = {
 		
 		checkpoint: false,
 		
+		lootArea: "loggingCamp",
+		lootTier: 1,
+		
 		chestData: {
 			spawnLocations: [
 				{x: 576, y: 30,},
@@ -1569,6 +1584,9 @@ var Areas = {
 		
 		checkpoint: false,
 		
+		lootArea: "loggingCamp",
+		lootTier: 1,
+		
 		areaTeleports: [
 			{
 				// teleport to nilbog (bottom of tower)
@@ -1706,6 +1724,9 @@ var Areas = {
 		song_day: "./assets/music/Pippin-the-Hunchback.mp3",
 		
 		checkpoint: false,
+		
+		lootArea: "loggingCamp",
+		lootTier: 1,
 		
 		chestData: {
 			spawnLocations: [
@@ -1884,6 +1905,9 @@ var Areas = {
 		
 		checkpoint: false,
 		
+		lootArea: "loggingCamp",
+		lootTier: 1,
+		
 		areaTeleports: [
 			{
 				// teleport to floor 2
@@ -2054,6 +2078,9 @@ var Areas = {
 		
 		checkpoint: false,
 		
+		lootArea: "loggingCamp",
+		lootTier: 1,
+		
 		chestData: {
 			spawnLocations: [
 				{x: 300, y: 350,},
@@ -2068,7 +2095,7 @@ var Areas = {
 		
 		areaTeleports: [
 			{
-				// teleport to floor 2
+				// teleport to floor 3
 				x: 177,
 				y: 600,
 				width: 10,
@@ -2078,7 +2105,7 @@ var Areas = {
 				destinationY: 10,
 			},
 			{
-				// teleport to floor 4
+				// teleport to floor 5
 				x: 540,
 				y: 60,
 				width: 2,
@@ -2242,6 +2269,9 @@ var Areas = {
 		song_day: "./assets/music/Pippin-the-Hunchback-boss.mp3",
 		
 		checkpoint: false,
+		
+		lootArea: "loggingCamp",
+		lootTier: 1,
 		
 		areaTeleports: [
 			{

@@ -710,10 +710,10 @@ class Character extends Thing {
 		return false;
 	}
 	
-	// check if the character has a status effect with the specific image name
-	hasStatusEffectType (imageName) {
+	// check if the character has a status effect of the specified type
+	hasStatusEffectType (type) {
 		for (let i = 0; i < this.statusEffects.length; i++) {
-			if (this.statusEffects[i].image === imageName) {
+			if (this.statusEffects[i].type === type) {
 				return true;
 			}
 		}
@@ -878,7 +878,7 @@ class Attacker extends Character {
 	// channelling fails (thus the timeout is cleared) if the character's channelling is set to something else or if the user moves
 	// parameters must be an array
 	channel (func, parameters, time) {
-		if (!this.hasStatusEffectType("stunned")) { // cannot channel when stunned
+		if (!this.hasStatusEffectType("stun")) { // cannot channel when stunned
 			// remove whatever was previously channelled
 			this.removeChannelling("channel");
 			// add line to remove channelling when channelling expires to the function
@@ -1041,7 +1041,7 @@ class Hero extends Attacker {
 				baseSpeed = this.isBeingDisplaced.velocity; // do not run setSpeed
 			}
 		}
-		else if (this.hasStatusEffectType("stunned") || this.isCorpse) {
+		else if (this.hasStatusEffectType("stun") || this.isCorpse) {
 			// player cannot move (any other stun effect)
 		}
 		else if (this.moveTowards !== undefined) {
@@ -1234,7 +1234,7 @@ class Hero extends Attacker {
 	
 	// start channeling basic attack
 	startAttack (e) {
-		if (this.canAttack && Player.inventory.weapon.name !== "" && !Player.inventory.weapon.cannotAttack && !this.hasStatusEffectType("stunned")) { // checks the player has a weapon and is not currently reloading and is not currently stunned
+		if (this.canAttack && Player.inventory.weapon.name !== "" && !Player.inventory.weapon.cannotAttack && !this.hasStatusEffectType("stun")) { // checks the player has a weapon and is not currently reloading and is not currently stunned
 			// Player.inventory.weapon.cannotAttack is set to true when the projectile image is being loaded (e.g: weapon with special projectile is equipped/unequipped)
 			if (!CheckRightClick(e)) {
 				// left-click (normal) attack
@@ -1291,6 +1291,8 @@ class Hero extends Attacker {
 							variance: variance,
 							type: "projectiles",
 						}));
+						
+						Game.secondary.updateCursor(e); // no longer crosshair because attack is reloading
 					}
 				}
 				else if (Player.inventory.weapon.type === "rod" && this.channelling === false) {
@@ -1516,11 +1518,13 @@ class Hero extends Attacker {
 			this.channellingProjectileId = null;
 			
 			// wait for the player's reload time (1s) until they can attack again
-			setTimeout(function () {
+			setTimeout(function (e) {
 				this.canAttack = true;
 				// remove beam animation if there was one
 				this.beam = undefined;
-			}.bind(this), this.stats.reloadTime);
+				// add back crosshair to cursor (if mouse is in range)
+				Game.secondary.updateCursor(e);
+			}.bind(this), this.stats.reloadTime, e);
 			
 			// special animations
 			if (typeof Skins[Player.class][Player.skin].animations !== "undefined" && typeof Skins[Player.class][Player.skin].animations.onHit !== "undefined") {
@@ -1544,9 +1548,11 @@ class Hero extends Attacker {
 			this.channelling = false;
 			
 			// wait for the player's reload time (1s) until they can attack again
-			setTimeout(function () {
+			setTimeout(function (e) {
 				this.canAttack = true;
-			}.bind(this), this.stats.reloadTime);
+				// add back crosshair to cursor (if mouse is in range)
+				Game.secondary.updateCursor(e);
+			}.bind(this), this.stats.reloadTime, e);
 		}
 	}
 	
@@ -1825,7 +1831,13 @@ class Hero extends Attacker {
 				}
 			}
 		}
-		
+	}
+	
+	// teleport to x y position
+	teleport (x, y) {
+		this.x = x;
+		this.y = y;
+		setTimeout(Weather.reset, 10); // timeout is used because the weather is not updated for a tick
 	}
 }
 
@@ -2238,7 +2250,7 @@ class Enemy extends Attacker {
 			// being displaced!
 			this.displace(delta);
 		}
-		else if (this.hasStatusEffectType("stunned")) {
+		else if (this.hasStatusEffectType("stun")) {
 			// enemy is stunned
 		}
 		else {
@@ -2526,7 +2538,7 @@ function statusEffect(properties) {
 	
 	this.image = properties.image; // image to be shown
 	
-	this.owner = properties.owner; // who the status effect was inflicted upon
+	this.type = properties.type; // status effect type
 }
 
 // check through owner's status effects to see which can be removed (due to having expired)
@@ -2699,6 +2711,7 @@ Game.statusEffects.generic = function (properties) {
 				curse: properties.curse ? true : false, // transferred on to enemies on attack
 			},
 			image: properties.imageName,
+			type: properties.type
 		}));
 		
 		// the status effect that was just added
@@ -2808,6 +2821,7 @@ Game.statusEffects.fire = function(properties) {
 		newProperties.increasePropertyName = "fireDamagePerSecond";
 		newProperties.onTick = "fireTick";
 		newProperties.imageName = "fire";
+		newProperties.type = "fire";
 		newProperties.effectStack = "refresh"; // effect refreshes (doesn't extend time above 3s)
 		this.generic(newProperties);
 	}
@@ -2824,6 +2838,7 @@ Game.statusEffects.poison = function(properties) {
 	newProperties.increasePropertyValue = properties.poisonDamage;
 	newProperties.onTick = "poisonTick";
 	newProperties.imageName = "poison";
+	newProperties.type = "poison";
 	newProperties.effectStack = "noStack"; // effect does not stack
 	this.generic(newProperties);
 }
@@ -2835,6 +2850,7 @@ Game.statusEffects.stun = function(properties) {
 	newProperties.effectTitle = properties.effectTitle || "Stunned";
 	newProperties.effectDescription = properties.effectDescription || "Cannot move or attack";
 	newProperties.imageName = "stunned";
+	newProperties.type = "stun";
 	this.generic(newProperties);
 }
 
@@ -2847,9 +2863,11 @@ Game.statusEffects.attackDamage = function (properties) {
 	newProperties.increasePropertyValue = properties.damageIncrease;
 	if (properties.damageIncrease > 0) {
 		newProperties.imageName = "damageUp";
+		newProperties.type = "strength";
 	}
 	else {
 		newProperties.imageName = "damageDown";
+		newProperties.type = "weakness";
 	}
 	this.generic(newProperties);
 }
@@ -2863,9 +2881,11 @@ Game.statusEffects.walkSpeed = function(properties) {
 	newProperties.increasePropertyValue = properties.speedIncrease;
 	if (properties.speedIncrease > 0) {
 		newProperties.imageName = "speedUp";
+		newProperties.type = "speed";
 	}
 	else {
 		newProperties.imageName = "speedDown";
+		newProperties.type = "slow";
 	}
 	this.generic(newProperties);
 }
@@ -2878,6 +2898,7 @@ Game.statusEffects.lifesteal = function(properties) {
 	newProperties.increasePropertyName = "lifestealIncrease";
 	newProperties.increasePropertyValue = properties.lifestealIncrease;
 	newProperties.imageName = "lifesteal";
+	newProperties.type = "lifesteal";
 	this.generic(newProperties);
 }
 
@@ -2889,6 +2910,7 @@ Game.statusEffects.stealth = function(properties) {
 	newProperties.increasePropertyName = "stealth";
 	newProperties.increasePropertyValue = true;
 	newProperties.imageName = "stealth";
+	newProperties.type = "stealth";
 	if (properties.time !== undefined) {
 		// if it is a timed stealth effect, make sure to remove the stealth when it expires
 		newProperties.onExpire = "stealthRemove";
@@ -2915,9 +2937,11 @@ Game.statusEffects.defence = function(properties) {
 	newProperties.increasePropertyValue = properties.defenceIncrease;
 	if (properties.speedIncrease > 0) {
 		newProperties.imageName = "defenceUp";
+		newProperties.type = "strength";
 	}
 	else {
 		newProperties.imageName = "defenceDown";
+		newProperties.type = "vulnerability";
 	}
 	this.generic(newProperties);
 }
@@ -2930,6 +2954,7 @@ Game.statusEffects.food = function(properties) {
 	newProperties.increasePropertyName = "healthRestore";
 	newProperties.increasePropertyValue = properties.healthRestore;
 	newProperties.imageName = "food";
+	newProperties.type = "food";
 	newProperties.onTick = "foodTick";
 	this.generic(newProperties);
 }
@@ -2943,9 +2968,11 @@ Game.statusEffects.xp = function(properties) {
 	newProperties.increasePropertyValue = properties.xpIncrease;
 	if (properties.xpIncrease > 0) {
 		newProperties.imageName = "xpUp";
+		newProperties.type = "xpUp";
 	}
 	else {
 		newProperties.imageName = "xpDown";
+		newProperties.type = "xpDown";
 	}
 	// increase XP
 	properties.target.stats.xpBonus += properties.xpIncrease;
@@ -3435,11 +3462,8 @@ Game.loadArea = function (areaName, destination) {
 		// remove player moveTowards
 		this.hero.moveTowards = undefined;
 		
-		// loot area and tier in Player
-		if (this.areaName === "tutorial" || this.areaName === "eaglecrestLoggingCamp" || this.areaName === "nilbog") {
-			Player.lootArea = "loggingCamp";
-			Player.lootTier = 1;
-		}
+		Player.lootArea = Areas[areaName].lootArea;
+		Player.lootTier = Areas[areaName].lootTier;
 		
 		// allow hero to move again if they died
 		if (this.hero.respawning) {
@@ -4147,9 +4171,9 @@ Game.update = function (delta) {
 							let questToBeStarted = role.quest;
 							
 							if (role.quest.constructor === Array && role.newQuestFrequency === "daily") {
-								// quest is an array (hence a Random one is picked each questing time period)
+								// quest is an array (hence a random one is picked each questing time period)
 								// all of these quests are daily quests
-								if (role.quest.some(quest => Player.quests.activeQuestArray.includes(quest.name))) { // one of the quests is currently active
+								if (role.quest.some(quest => Player.quests.activeQuestArray.includes(quest.quest))) { // one of the quests is currently active
 									questCanBeStarted = false;
 									questActive = true; // for npc dialogue
 								}
@@ -4157,15 +4181,24 @@ Game.update = function (delta) {
 									questCanBeStarted = false;
 									questComplete = true; // for npc dialogue
 								}
-								
-								// pick a Random one of the quests to be started
-								questToBeStarted = questToBeStarted.filter(quest => quest.levelRequirement <= this.hero.level); // filter for player level
-								questToBeStarted = questToBeStarted.filter(quest => IsContainedInArray(quest.questRequirements, Player.quests.completedQuestArray)); // filter for quesst requirements
-								if (questToBeStarted.length > 0) { // at least one quest survived the level and quest requirements
-									questToBeStarted = questToBeStarted[Random(0, questToBeStarted.length - 1)]; //pick Random quest
-								}
 								else {
-									questCanBeStarted = false;
+									// pick a quest to be started
+									if (Player.quests.randomDailyQuests[role.questVariable] !== undefined) {
+										// a quest has already been chosen for the player today
+										questToBeStarted = questToBeStarted.find(quest => quest.quest === Player.quests.randomDailyQuests[role.questVariable]);
+									}
+									else {
+										// a quest has not been chosen for the player today
+										questToBeStarted = questToBeStarted.filter(quest => Player.quests.possibleQuestArray.includes(quest.quest));
+										if (questToBeStarted.length > 0) { // at least one quest survived the level and quest requirements
+											questToBeStarted = questToBeStarted[Random(0, questToBeStarted.length - 1)]; // pick random quest
+											// set variable so future quests today are the same
+											Player.quests.randomDailyQuests[role.questVariable] = questToBeStarted.quest;
+										}
+										else {
+											questCanBeStarted = false;
+										}
+									}
 								}
 							}
 							else {
@@ -4244,7 +4277,7 @@ Game.update = function (delta) {
 								// quest is an array (hence a Random one is picked each questing time period)
 								// all of these quests are daily quests
 								
-								let questToBeFinished = role.quest.find(quest => Player.quests.activeQuestArray.includes(quest)); // find which quest the active one is
+								questToBeFinished = role.quest.find(quest => Player.quests.activeQuestArray.includes(quest.quest)); // find which quest the active one is
 								
 								if (questToBeFinished === undefined) { // none of the quests are currently active
 									questCanBeFinished = false;
@@ -4261,7 +4294,9 @@ Game.update = function (delta) {
 							
 							if (questCanBeFinished) {
 								// check if quest conditions have been fulfilled
-								if (Quests[role.quest.questArea][role.quest.id].completed) {
+								// canBeFinishedArray used for efficiency
+								if (Player.quests.canBeFinishedArray.includes(questToBeFinished.quest)) {
+									
 									if (typeof role.quest.rewards !== "undefined" && typeof role.quest.rewards.items !== "undefined") {
 										if (Dom.inventory.requiredSpace(role.quest.rewards.items)) {
 											// user has space for quest finish items
@@ -4278,9 +4313,9 @@ Game.update = function (delta) {
 									else {
 										// no quest item rewards, so user ofc has enough inventory space
 										// quest finish appears as an option for choose DOM
-										textArray.push("Quest finish: " + role.quest.quest);
+										textArray.push("Quest finish: " + questToBeFinished.quest);
 										functionArray.push(Dom.quest.finish);
-										parameterArray.push([role.quest]);
+										parameterArray.push([questToBeFinished]);
 									}
 								}
 								// quest conditions have not been fulfilled
@@ -4627,10 +4662,16 @@ Game.playerProjectileUpdate = function(delta) {
 }
 
 // increase player XP by xpGiven, and check for levelup, update secondary canvas, obey XP fatigue, etc.
-Game.getXP = function (xpGiven) {
+// xpBonus is set to false if there is no XP bonus given by xp multiplier
+Game.getXP = function (xpGiven, xpBonus) {
 	if (typeof xpGiven === "number") {
+		// xp bonus
+		if (xpBonus === false) {
+			xpGiven *= (1 + Game.hero.stats.xpBonus / 100)
+		}
+		
 		// increase XP
-		Player.xp += xpGiven * (1 + Game.hero.stats.xpBonus / 100);
+		Player.xp += xpGiven;
 		
 		// XP fatigue
 		if (Player.fatiguedXP !== 0) { // fatigued XP is worth 50% less due to a recent death
@@ -5551,13 +5592,15 @@ Game.render = function (delta) {
 //
 
 // update crosshair based on mouse distance from player (called by mouseMove event listener in init)
+// cursor is also updated based on whether player can attack or not
 Game.secondary.updateCursor = function (event) {
-	// get player's range
+	// get player's range and mouse distance
+	let mouseDistanceFromHero = distance({x: Game.camera.x + event.clientX - 19, y: Game.camera.y + event.clientY - 19,}, Game.hero);
 	let range = Game.hero.stats.range;
 	
-	// check the player's mouse distance is within range
-	if (distance({x: Game.camera.x + event.clientX - 19, y: Game.camera.y + event.clientY - 19,}, Game.hero) < range) {
-		// mouse in range (crosshair)
+	// check the player's mouse distance is within range and they are not reloading
+	if (mouseDistanceFromHero < range && Game.hero.canAttack) {
+		// mouse in range and hero can attack (crosshair)
 		let cursor = Skins[Player.class][Player.skin].cursor;
 		if (cursor !== "crosshair") {
 			// cursor requires custom image
@@ -5566,7 +5609,7 @@ Game.secondary.updateCursor = function (event) {
 		document.getElementById("secondary").setAttribute("style","cursor: " + cursor);
 	}
 	else {
-		// mouse not in range (normal cursor)
+		// mouse not in range or hero cannot attack (normal cursor)
 		document.getElementById("secondary").style.cursor = "default";
 	}
 }

@@ -259,11 +259,9 @@ const ChestLootTables = {
 			item: Items.currency[2],
 			chance: [
 				100,			// 0
-				100,			// 1
-				70,				// 2
-				40,				// 3
-				10,				// 4
-				0,				// 5
+				70,				// 1
+				30,				// 2
+				0,				// 3
 			],
 		},
 		{ // random potion (including goblin potion)
