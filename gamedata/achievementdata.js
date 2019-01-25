@@ -23,6 +23,9 @@ var Achievements = [
 		event: ["Christmas"],
 		image: "../assets/items/food/1.png",
 		class: "single",
+		isCompleted: function(){
+			return Player.quests.questProgress.mincePie && Player.quests.questProgress.christmasPudding && Player.quests.questProgress.mulledWine;
+		}
 	},
 		// QUESTS
 	{

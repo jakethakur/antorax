@@ -205,6 +205,8 @@ Dom.quests.active = function(quest){
 			}
 			if(currentQuest.autofinish && completedObjectives >= currentQuest.objectives.length){
 				Dom.choose.page(currentQuest.finishName, ["Quest Finish: " + currentQuest.quest], [Dom.quest.finish], [[currentQuest]]);
+			}else if(completedObjectives >= currentQuest.objectives.length-1){
+				Player.quests.canBeFinishedArray.push(currentQuest.quest);
 			}
 			if(currentQuest.wasCompleted === undefined){
 				currentQuest.wasCompleted = isCompleted;
@@ -838,20 +840,35 @@ Dom.inventory.displayInformation = function(item, stacked, position, hide){
 						}
 					}
 					if(item.chooseStats !== undefined){
-						document.getElementById("stats").innerHTML += "<br>"+item.functionText+"<br>";
+						document.getElementById("stats").innerHTML += "<br>Click to choose stat:<br>";
 						for(let i = 0; i < Object.keys(item.chooseStats).length; i++){
 							let color = "gray";
 							if(Object.keys(item.chooseStats)[i] === item.chosenStat){
 								color = "black";
 							}
-							
 							document.getElementById("stats").innerHTML += "<span style='color: "+color+"'>"+Dom.inventory.stats(FromCamelCase(Object.keys(item.chooseStats)[i]), item.chooseStats[Object.keys(item.chooseStats)[i]], item.chooseStats)+"</span>";
-							
 							/*if(Object.keys(item.chooseStats)[i] !== "flaming"){
 								document.getElementById("stats").innerHTML += "<br><span style='color: "+color+"'>"+Object.keys(item.chooseStats)[i]+": "+item.chooseStats[Object.keys(item.chooseStats)[i]]+"</span>";
 							}else{
 								document.getElementById("stats").innerHTML += "<br><span style='color: "+color+"'>"+Object.keys(item.chooseStats)[i]+" "+Romanize(item.chooseStats[Object.keys(item.chooseStats)[i]])+"</span>";
 							}*/
+						}
+					}
+					if(item.conditionalStats !== undefined){
+						for(let x = 0; x < item.conditionalStats.length; x++){
+							document.getElementById("stats").innerHTML += "<br>"+item.conditionalStats[x].text+"<br>";
+							for(let i = 0; i < Object.keys(item.conditionalStats[x].stats).length; i++){
+								let color = "gray";
+								if(Items[item.type][item.id].conditionalStats[x].condition()){
+									color = "black";
+								}
+								document.getElementById("stats").innerHTML += "<span style='color: "+color+"'>"+Dom.inventory.stats(FromCamelCase(Object.keys(item.conditionalStats[x].stats)[i]), item.conditionalStats[x].stats[Object.keys(item.conditionalStats[x].stats)[i]], item.conditionalStats[x].stats)+"</span>";
+								/*if(Object.keys(item.chooseStats)[i] !== "flaming"){
+									document.getElementById("stats").innerHTML += "<br><span style='color: "+color+"'>"+Object.keys(item.chooseStats)[i]+": "+item.chooseStats[Object.keys(item.chooseStats)[i]]+"</span>";
+								}else{
+									document.getElementById("stats").innerHTML += "<br><span style='color: "+color+"'>"+Object.keys(item.chooseStats)[i]+" "+Romanize(item.chooseStats[Object.keys(item.chooseStats)[i]])+"</span>";
+								}*/
+							}
 						}
 					}
 				}else{
@@ -1233,7 +1250,7 @@ Dom.quest.acceptRewards = function(){
 	if(Dom.currentlyDisplayed === quest){
 		Dom.changeBook(Player.tab, true);
 	}
-	Game.getXP(quest.rewards.xp);
+	Game.getXP(quest.rewards.xp, false); // not affected by XP Bonus
 }
 
 Dom.quests.possible = function(){
@@ -1244,22 +1261,56 @@ Dom.quests.possible = function(){
 	Dom.quests.possibleHTML = {true: "", undefined: "", daily: "",};
 	for(let i = 0; i < Object.keys(Quests).length; i++){
 		for(let x = 0; x < Quests[Object.keys(Quests)[i]].length; x++){
-			let reputation = true;
-			if(Quests[Object.keys(Quests)[i]][x].reputationRequirements !== undefined){
-				for(let y = 0; y < Object.keys(Quests[Object.keys(Quests)[i]][x].reputationRequirements).length; y++){
-					if(Quests[Object.keys(Quests)[i]][x].reputationRequirements[Object.keys(Quests[Object.keys(Quests)[i]][x].reputationRequirements)[y]] > Player.reputation[Object.keys(Quests[Object.keys(Quests)[i]][x].reputationRequirements)[y]].level){
-						reputation = false;
-					}
-				}
-			}
-			if(!Player.quests.activeQuestArray.includes(Quests[Object.keys(Quests)[i]][x].quest) &&
+			//let reputation = true;
+			/*if(!Player.quests.activeQuestArray.includes(Quests[Object.keys(Quests)[i]][x].quest) &&
 			Player.level >= Quests[Object.keys(Quests)[i]][x].levelRequirement && reputation &&
 			IsContainedInArray(Quests[Object.keys(Quests)[i]][x].questRequirements, Player.quests.completedQuestArray) &&
 			(Quests[Object.keys(Quests)[i]][x].eventRequirement === undefined || Quests[Object.keys(Quests)[i]][x].eventRequirement === Game.event) &&
 			(!Player.quests.completedQuestArray.includes(Quests[Object.keys(Quests)[i]][x].quest) ||
 			(Quests[Object.keys(Quests)[i]][x].repeatTime === "daily" &&
-			Player.quests.questLastFinished[Quests[Object.keys(Quests)[i]][x].questArea][Quests[Object.keys(Quests)[i]][x].id] < GetFullDate()))){
-				// if the quest is possible it is added to the array and the box
+			Player.quests.questLastFinished[Quests[Object.keys(Quests)[i]][x].questArea][Quests[Object.keys(Quests)[i]][x].id] < GetFullDate()))){*/
+			let questCanBeStarted = true;
+			if (Player.quests.activeQuestArray.includes(Quests[Object.keys(Quests)[i]][x].quest)) { // quest is already active
+				questCanBeStarted = false;
+			}
+			else if (Quests[Object.keys(Quests)[i]][x].levelRequirement > Player.level) { // player is not a high enough level
+				questCanBeStarted = false;
+			}
+			else if (!IsContainedInArray(Quests[Object.keys(Quests)[i]][x].questRequirements, Player.quests.completedQuestArray)) { // quest requirements have not been completed
+				questCanBeStarted = false;
+			}
+			else if(Quests[Object.keys(Quests)[i]][x].reputationRequirements !== undefined){
+				for(let y = 0; y < Object.keys(Quests[Object.keys(Quests)[i]][x].reputationRequirements).length; y++){
+					if(Quests[Object.keys(Quests)[i]][x].reputationRequirements[Object.keys(Quests[Object.keys(Quests)[i]][x].reputationRequirements)[y]] > Player.reputation[Object.keys(Quests[Object.keys(Quests)[i]][x].reputationRequirements)[y]].level){
+						questCanBeStarted = false;
+					}
+				}
+			}
+			else if (Quests[Object.keys(Quests)[i]][x].fishingRequirement !== undefined) { // fishing skill is required
+				if (Player.stats.fishingSkill > Quests[Object.keys(Quests)[i]][x].fishingRequirement.max || Player.stats.fishingSkill < Quests[Object.keys(Quests)[i]][x].fishingRequirement.min) { // fishing skill not in range
+					questCanBeStarted = false;
+				}
+			}
+			else if (Quests[Object.keys(Quests)[i]][x].eventRequirement !== undefined && Quests[Object.keys(Quests)[i]][x].eventRequirement !== Game.event){
+				questCanBeStarted = false;
+			}
+			else {
+				// check if it is daily or one time
+				if (Quests[Object.keys(Quests)[i]][x].repeatTime === undefined) {
+					// one time
+					if (Player.quests.completedQuestArray.includes(Quests[Object.keys(Quests)[i]][x].quest)) { // quest has already been completed
+						questCanBeStarted = false;
+					}
+				}
+				else if (Quests[Object.keys(Quests)[i]][x].repeatTime === "daily") {
+					// daily
+					if (Player.quests.questLastFinished[Quests[Object.keys(Quests)[i]][x].questArea][Quests[Object.keys(Quests)[i]][x].id] >= GetFullDate()) { // quest has already been done today (or after today o.O)
+						// note that if the quest has not been finished (hence questLastFinished is undefined) the condition will always return false
+						questCanBeStarted = false;
+					}
+				}
+			}
+			if(questCanBeStarted){
 				if(Quests[Object.keys(Quests)[i]][x].repeatTime === "daily"){
 					Quests[Object.keys(Quests)[i]][x].important = "daily";
 				}
@@ -1737,6 +1788,10 @@ if(localStorage.getItem("achievements") !== null){
 
 Dom.inventory.food = function(inventoryPosition){
 	if(!Game.hero.hasStatusEffectType("food")){
+		// update achievement progress
+		if(Player.inventory.items[inventoryPosition].secondClickFunction !== undefined){
+			Player.inventory.items[inventoryPosition].secondClickFunction(inventoryPosition);
+		}
 		// eat the item
 		Game.statusEffects.food({
 			target: Game.hero,
@@ -1863,9 +1918,16 @@ Dom.inventory.constructUnId = function(area,tier){
 function UnId(area,tier){
 	this.area = area;
 	this.tier = tier;
-	let types = ["helm","chest","greaves","boots","sword","staff","bow"];
-	this.typeNum = Random(0, 7-1);
-	this.type = types[this.typeNum].toLowerCase();
+	let types = ["helm", "chest", "greaves", "boots", "sword", "staff", "bow"];
+	this.typeNum = Random(0, 4);
+	if(this.typeNum === 4){
+		if(Player.class === "m"){
+			this.typeNum++;
+		}else if(Player.class === "a"){
+			this.typeNum += 2;
+		}
+	}
+	this.type = types[this.typeNum];
 	this.image = "assets/items/"+this.type+"/unidentified.png";
 	this.rarityNum = Random(0, 25-1);
 	if(this.rarityNum < 18){
@@ -3590,8 +3652,9 @@ Dom.inventory.prepare = function(array, i, element){
 		Items[array[i].type][array[i].id].onClick = Dom.inventory.chooseStats;
 	}*/
 	if(array[i].healthRestore !== undefined && array[i].healthRestoreTime !== undefined){
+		array[i].secondClickFunction = Items[array[i].type][array[i].id].onClick;
 		Items[array[i].type][array[i].id].onClick = Dom.inventory.food;
-		Items[array[i].type][array[i].id].functionText = "Restores "+array[i].healthRestore+" health over "+array[i].healthRestoreTime+" seconds (whilst not in combat)";
+		array[i].functionText = "Restores "+array[i].healthRestore+" health over "+array[i].healthRestoreTime+" seconds (whilst not in combat)";
 	}
 	if(array[i].type === "teleport"){
 		Items[array[i].type][array[i].id].onClick = Dom.inventory.teleport;
@@ -3610,6 +3673,7 @@ Dom.inventory.prepare = function(array, i, element){
 						Dom.inventory.removeEquipment(Player.inventory[i]);
 						Player.inventory[i] = {};
 						document.getElementById(i).innerHTML = "";
+						Game.inventoryUpdate();
 					}
 				}
 			}
@@ -3629,6 +3693,7 @@ Dom.inventory.prepare = function(array, i, element){
 						Dom.inventory.removeEquipment(Player.inventory[i]);
 						Player.inventory[i] = {};
 						document.getElementById(i).innerHTML = "";
+						Game.inventoryUpdate();
 					}
 				}
 			}
@@ -3656,14 +3721,19 @@ Dom.inventory.prepare = function(array, i, element){
 	}
 }
 
+Keyboard.hotbar = function(num){
+	Player.inventory.items[num].onClick(num);
+	Game.inventoryUpdate();
+}
+
 Keyboard.update = function(){
 	if(Keyboard.upFunctions !== undefined){
-		Keyboard.upFunctions.ONE = Player.inventory.items[0].onClick;
-		Keyboard.upFunctions.TWO = Player.inventory.items[1].onClick;
-		Keyboard.upFunctions.THREE = Player.inventory.items[2].onClick;
-		Keyboard.upFunctions.FOUR = Player.inventory.items[3].onClick;
-		Keyboard.upFunctions.FIVE = Player.inventory.items[4].onClick;
-		Keyboard.upFunctions.SIX = Player.inventory.items[5].onClick;
+		Keyboard.upFunctions.ONE = Keyboard.hotbar;
+		Keyboard.upFunctions.TWO = Keyboard.hotbar;
+		Keyboard.upFunctions.THREE = Keyboard.hotbar;
+		Keyboard.upFunctions.FOUR = Keyboard.hotbar;
+		Keyboard.upFunctions.FIVE = Keyboard.hotbar;
+		Keyboard.upFunctions.SIX = Keyboard.hotbar;
 	}
 }
 
@@ -3983,6 +4053,7 @@ if (GetFullDate().substring(6) === "20" && GetFullDate().substring(4,6) === "01"
 // days logged on by player
 if (!Player.days.includes(GetFullDate())) {
 	Player.days.push(GetFullDate());
+	Player.quests.randomDailyQuest = {}
 }
 
 // player savedata FIXES (more at the top)
@@ -4043,12 +4114,12 @@ Keyboard.upFunctions = {
 	ADVENTURE: Dom.settings.hotkeys,
 	REPUTATION: Dom.settings.hotkeys,
 	SETTINGS: Dom.settings.hotkeys,
-	ONE: Player.inventory.items[0].onClick,
-	TWO: Player.inventory.items[1].onClick,
-	THREE: Player.inventory.items[2].onClick,
-	FOUR: Player.inventory.items[3].onClick,
-	FIVE: Player.inventory.items[4].onClick,
-	SIX: Player.inventory.items[5].onClick,
+	ONE: Keyboard.hotbar,
+	TWO: Keyboard.hotbar,
+	THREE: Keyboard.hotbar,
+	FOUR: Keyboard.hotbar,
+	FIVE: Keyboard.hotbar,
+	SIX: Keyboard.hotbar,
 };
 Keyboard.parameters = {
 	ONE: 0,
@@ -4062,7 +4133,7 @@ Keyboard.parameters = {
 // TESTING functions
 Dom.testing = {};
 // complete a quest as if the player had done it manually
-Dom.testing.completeQuest = function(quest) {
+Dom.testing.completeQuest = function(quest, acceptRewards) {
 	if (quest.constructor.name === "String") {
 		for (let i = 0; i < Object.keys(Quests).length; i++) {
 			for (let x = 0; x < Quests[Object.keys(Quests)[i]].length; x++) {
@@ -4078,6 +4149,8 @@ Dom.testing.completeQuest = function(quest) {
 		Dom.quest.accept();
 	}
 	Dom.quest.finish(quest);
-	//Dom.quest.acceptRewards();
+	if(!acceptRewards){
+		Dom.quest.acceptRewards();
+	}
 	return quest.quest;
 }

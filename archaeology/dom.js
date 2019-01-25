@@ -323,10 +323,19 @@ function arrange(){
 		}else if(array[i].functionText != undefined && array[i].functionText != ""){
 			document.getElementById("function"+i).innerHTML = "<br>"+array[i].functionText+"<br>";
 		}
-		if(array[i].chooseStats !== undefined){
+		if(array[i].chooseStats != undefined){
+			document.getElementById("function"+i).innerHTML += "<br>One of the following stats may be chosen:<br>";
 			for(var a = 0; a < Object.keys(array[i].chooseStats).length; a++){
 				var replaceStat = Object.keys(array[i].chooseStats)[a].replace( /([A-Z])/g, " $1" );
 				document.getElementById("function"+i).innerHTML += Stats(replaceStat.charAt(0).toUpperCase() + replaceStat.slice(1), array[i].chooseStats[Object.keys(array[i].chooseStats)[a]]);
+			}
+		}
+		if(array[i].conditionalStats != undefined){
+			for(var x = 0; x < array[i].conditionalStats.length; x++){
+				document.getElementById("function"+i).innerHTML += "<br>"+array[i].conditionalStats[x].text+"<br>";
+				for(var a = 0; a < Object.keys(array[i].conditionalStats[x].stats).length; a++){
+					document.getElementById("function"+i).innerHTML += Stats(FromCamelCase(Object.keys(array[i].conditionalStats[x].stats)[a]), array[i].conditionalStats[x].stats[Object.keys(array[i].conditionalStats[x].stats)[a]], array[i].conditionalStats[x].stats)+"</span>";
+				}
 			}
 		}
 	}
