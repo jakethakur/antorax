@@ -1257,7 +1257,7 @@ After all, death is never the end in Antorax...<br>
 			questRequirements: ["Learning to Fish III"],
 			fishingRequirement: {
 				min: 0,
-				max: 60,
+				max: 1000,
 			},
 			repeatTime: "daily",
 			
@@ -1305,7 +1305,7 @@ After all, death is never the end in Antorax...<br>
 			questRequirements: ["Learning to Fish III"],
 			fishingRequirement: {
 				min: 0,
-				max: 60,
+				max: 1000,
 			},
 			repeatTime: "daily",
 			
@@ -1353,7 +1353,7 @@ After all, death is never the end in Antorax...<br>
 			questRequirements: ["Learning to Fish III"],
 			fishingRequirement: {
 				min: 0,
-				max: 60,
+				max: 1000,
 			},
 			repeatTime: "daily",
 			

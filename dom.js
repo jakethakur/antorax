@@ -1270,55 +1270,56 @@ Dom.quests.possible = function(){
 			(Quests[Object.keys(Quests)[i]][x].repeatTime === "daily" &&
 			Player.quests.questLastFinished[Quests[Object.keys(Quests)[i]][x].questArea][Quests[Object.keys(Quests)[i]][x].id] < GetFullDate()))){*/
 			let questCanBeStarted = true;
-			if (Player.quests.activeQuestArray.includes(Quests[Object.keys(Quests)[i]][x].quest)) { // quest is already active
+			let quest = Quests[Object.keys(Quests)[i]][x];
+			if (Player.quests.activeQuestArray.includes(quest.quest)) { // quest is already active
 				questCanBeStarted = false;
 			}
-			else if (Quests[Object.keys(Quests)[i]][x].levelRequirement > Player.level) { // player is not a high enough level
+			else if (quest.levelRequirement > Player.level) { // player is not a high enough level
 				questCanBeStarted = false;
 			}
-			else if (!IsContainedInArray(Quests[Object.keys(Quests)[i]][x].questRequirements, Player.quests.completedQuestArray)) { // quest requirements have not been completed
+			else if (!IsContainedInArray(quest.questRequirements, Player.quests.completedQuestArray)) { // quest requirements have not been completed
 				questCanBeStarted = false;
 			}
-			else if(Quests[Object.keys(Quests)[i]][x].reputationRequirements !== undefined){
-				for(let y = 0; y < Object.keys(Quests[Object.keys(Quests)[i]][x].reputationRequirements).length; y++){
-					if(Quests[Object.keys(Quests)[i]][x].reputationRequirements[Object.keys(Quests[Object.keys(Quests)[i]][x].reputationRequirements)[y]] > Player.reputation[Object.keys(Quests[Object.keys(Quests)[i]][x].reputationRequirements)[y]].level){
+			else if(quest.reputationRequirements !== undefined){
+				for(let y = 0; y < Object.keys(quest.reputationRequirements).length; y++){
+					if(quest.reputationRequirements[Object.keys(quest.reputationRequirements)[y]] > Player.reputation[Object.keys(quest.reputationRequirements)[y]].level){
 						questCanBeStarted = false;
 					}
 				}
 			}
-			else if (Quests[Object.keys(Quests)[i]][x].fishingRequirement !== undefined) { // fishing skill is required
-				if (Player.stats.fishingSkill > Quests[Object.keys(Quests)[i]][x].fishingRequirement.max || Player.stats.fishingSkill < Quests[Object.keys(Quests)[i]][x].fishingRequirement.min) { // fishing skill not in range
+			else if (quest.fishingRequirement !== undefined) { // fishing skill is required
+				if (Player.stats.fishingSkill > quest.fishingRequirement.max || Player.stats.fishingSkill < quest.fishingRequirement.min) { // fishing skill not in range
 					questCanBeStarted = false;
 				}
 			}
-			else if (Quests[Object.keys(Quests)[i]][x].eventRequirement !== undefined && Quests[Object.keys(Quests)[i]][x].eventRequirement !== Game.event){
+			else if (quest.eventRequirement !== undefined && quest.eventRequirement !== Game.event){
 				questCanBeStarted = false;
 			}
 			else {
 				// check if it is daily or one time
-				if (Quests[Object.keys(Quests)[i]][x].repeatTime === undefined) {
+				if (quest.repeatTime === undefined) {
 					// one time
-					if (Player.quests.completedQuestArray.includes(Quests[Object.keys(Quests)[i]][x].quest)) { // quest has already been completed
+					if (Player.quests.completedQuestArray.includes(quest.quest)) { // quest has already been completed
 						questCanBeStarted = false;
 					}
 				}
-				else if (Quests[Object.keys(Quests)[i]][x].repeatTime === "daily") {
+				else if (quest.repeatTime === "daily") {
 					// daily
-					if (Player.quests.questLastFinished[Quests[Object.keys(Quests)[i]][x].questArea][Quests[Object.keys(Quests)[i]][x].id] >= GetFullDate()) { // quest has already been done today (or after today o.O)
+					if (Player.quests.questLastFinished[quest.questArea][quest.id] >= GetFullDate()) { // quest has already been done today (or after today o.O)
 						// note that if the quest has not been finished (hence questLastFinished is undefined) the condition will always return false
 						questCanBeStarted = false;
 					}
 				}
 			}
 			if(questCanBeStarted){
-				if(Quests[Object.keys(Quests)[i]][x].repeatTime === "daily"){
-					Quests[Object.keys(Quests)[i]][x].important = "daily";
+				if(quest.repeatTime === "daily"){
+					quest.important = "daily";
 				}
-				Player.quests.possibleQuestArray.push(Quests[Object.keys(Quests)[i]][x].quest);
-				Dom.quests.possibleHTML[Quests[Object.keys(Quests)[i]][x].important] += "<br><br><strong>" + Quests[Object.keys(Quests)[i]][x].quest + "</strong><br>" + Quests[Object.keys(Quests)[i]][x].howToStart;
-				if(!previousPossible.includes(Quests[Object.keys(Quests)[i]][x].quest)){
-					newPossible.push(Quests[Object.keys(Quests)[i]][x].quest);
-					Dom.chat.insert('You have unlocked the quest "' + Quests[Object.keys(Quests)[i]][x].quest + '"');
+				Player.quests.possibleQuestArray.push(quest.quest);
+				Dom.quests.possibleHTML[quest.important] += "<br><br><strong>" + quest.quest + "</strong><br>" + quest.howToStart;
+				if(!previousPossible.includes(quest.quest)){
+					newPossible.push(quest.quest);
+					Dom.chat.insert('You have unlocked the quest "' + quest.quest + '"');
 				}
 			}
 		}
@@ -4053,7 +4054,7 @@ if (GetFullDate().substring(6) === "20" && GetFullDate().substring(4,6) === "01"
 // days logged on by player
 if (!Player.days.includes(GetFullDate())) {
 	Player.days.push(GetFullDate());
-	Player.quests.randomDailyQuest = {}
+	Player.quests.randomDailyQuests = {}
 }
 
 // player savedata FIXES (more at the top)

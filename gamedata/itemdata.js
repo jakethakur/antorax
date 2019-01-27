@@ -2507,14 +2507,14 @@ var Items = {
 					}
 				});
 				// gold
-				let goldStacks = Random(2, 5); // between 2 and 5 possible stacks of gold
+				/*let goldStacks = Random(2, 5); // between 2 and 5 possible stacks of gold
 				for (let i = 0; i < goldStacks; i++) {
 					let toBePushed = {
 						item: Items.currency[2],
 						quantity: Random(1, 5),
 					};
 					loot.push(toBePushed);
-				}
+				}*/
 				// unidentified items
 				let unidentifiedNumber = Random(1, 3); // between 1 and 3 unidentified items
 				for (let i = 0; i < unidentifiedNumber; i++) {
