@@ -125,7 +125,7 @@ var Items = {
 			image: "assets/items/helm/8.png",
 			tier: 1,
 			rarity: "unique",
-			lore: "No matter how accomplished you are, you're not a proper archaeologist until you have a hat.",
+			lore: "No matter how accomplished, you're not a proper archaeologist until you have a hat.",
 			obtain: "Currently unobtainable.",
 			sellPrice: 2, // TBC
 			stats: {
@@ -193,6 +193,7 @@ var Items = {
 					},
 					stats: {
 						reflection: 50,
+						xpBonus: 50,
 					},
 				},
 			],
@@ -2162,7 +2163,7 @@ var Items = {
 			healthRestore: 40,
 			healthRestoreTime: 10,
 			lore: "A festive snack.",
-			onClick: function () {
+			secondClick: function () {
 				// achievement progress
 			    Player.quests.questProgress.mincePie = true;
 			},
@@ -2176,7 +2177,7 @@ var Items = {
 			healthRestore: 30,
 			healthRestoreTime: 5,
 			lore: "A festive pudding.",
-			onClick: function () {
+			secondClick: function () {
 				// achievement progress
 			    Player.quests.questProgress.christmasPudding = true;
 			},
@@ -2364,7 +2365,7 @@ var Items = {
 			},
 			catchRequirement: function () {
                 // very rare!
-                return Random(0, 50) === 22;
+                return Random(0, 45) === 22;
             },
 		},
 		{

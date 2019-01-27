@@ -432,6 +432,7 @@ class Character extends Thing {
 		super(properties);
 		
 		this.channelling = false;
+		this.channellingInfo = false;
 		
 		this.health = properties.health || properties.stats.maxHealth;
 		this.damageTaken = 0; // only used so far for Dummies
@@ -811,6 +812,7 @@ class Attacker extends Character {
 		this.stats.stun = properties.stats.stun || 0;
 		this.stats.variance = properties.stats.variance || 0;
 		this.stats.lifesteal = properties.stats.lifesteal || 0;
+		this.stats.penetration = properties.stats.penetration || true; // if projectile damages more than one thing
 		// functions
 		if (properties.stats.onAttack !== undefined) {
 			// bind can only be called if it is not undefined
@@ -870,6 +872,7 @@ class Attacker extends Character {
 			}
 			// now nothing is being channelled
 			this.channelling = false;
+			this.channellingInfo = false;
 		}
 	}
 	
@@ -877,7 +880,9 @@ class Attacker extends Character {
 	// this.channelling is set to the timeout
 	// channelling fails (thus the timeout is cleared) if the character's channelling is set to something else or if the user moves
 	// parameters must be an array
-	channel (func, parameters, time) {
+	// description is a short description shown on the channelling bar
+	// description is set to false if a bar should not be shown
+	channel (func, parameters, time, description) {
 		if (!this.hasStatusEffectType("stun")) { // cannot channel when stunned
 			// remove whatever was previously channelled
 			this.removeChannelling("channel");
@@ -885,9 +890,20 @@ class Attacker extends Character {
 			let channelFunction = function (parameters) {
 				func(...parameters);
 				this.channelling = false;
+				this.channellingInfo = false;
 			}.bind(this);
 			// set channelling to the timeout
 			this.channelling = setTimeout(channelFunction, time, parameters);
+			
+			// channelling progress bar information
+			if (description !== false) {
+				// channelling bar should be shown
+				this.channellingInfo = {
+					description: description,
+					time: time,
+					start: Date.now(),
+				};
+			}
 		}
 	}
 	
@@ -897,7 +913,7 @@ class Attacker extends Character {
 		parameters.caster = this;
 		parameters.tier = spellTier;
 		// because parameters is always an object for spells, it is turned into an array for the function call
-		this.channel(Game.spells[spellName].func, [parameters], Game.spells[spellName].channelTime[spellTier - 1])
+		this.channel(Game.spells[spellName].func, [parameters], Game.spells[spellName].channelTime[spellTier - 1], FromCamelCase(spellName));
 	}
 }
 
@@ -1690,19 +1706,19 @@ class Hero extends Attacker {
 						raritiesAvailable.push("mythic");
 					}
 					
-					// pick a Random rarity from the raritiesAvailable array
-					let RandomNum = Random(0, 6);
+					// pick a random rarity from the raritiesAvailable array
+					let RandomNum = Random(0, 7);
 					let itemRarity = "";
 					if (RandomNum === 0) {
-						// 1 in 7 chance for a mythic
+						// 1 in 8 chance for a mythic
 						itemRarity = "mythic";
 					}
 					else if (RandomNum < 3) {
-						// 2 in 7 chance for a unique
+						// 2 in 8 chance for a unique
 						itemRarity = "unique";
 					}
 					else {
-						// 4 in 7 chance for a common
+						// 5 in 8 chance for a common
 						itemRarity = "common";
 					}
 					// check if the player has unlocked that rarity, otherwise give them a junk item
@@ -1900,8 +1916,10 @@ class Projectile extends Thing {
 	// make sure that attacker and to are at least Characters in the inheritance chain (not Entities or Things)
 	// hence, if you want to damage a single target still put it in an array, e.g: dealDamage(attacker, [[Game.hero]])
 	dealDamage (attacker, to) {
-		for (var i = 0; i < to.length; i++) { // iterate through arrays of objects in to
-			for (var x = 0; x < to[i].length; x++) { // iterate through objects in to
+		let endLoops = false; // set to true if loops should be ended (e.g. after dealing damage with penetration = false)
+		
+		for (let i = 0; i < to.length && !endLoops; i++) { // iterate through arrays of objects in to
+			for (let x = 0; x < to[i].length && !endLoops; x++) { // iterate through objects in to
 				Game.updateScreenPosition(this); // update projectile position
 				if (this.isTouching(to[i][x]) && !to[i][x].respawning) { // check projectile is touching character it wants to damage
 					
@@ -2060,6 +2078,11 @@ class Projectile extends Thing {
 								}
 							}
 						}
+					}
+					
+					if (attacker.stats.penetration === false) {
+						// only one enemy should be damaged
+						endLoops = true;
 					}
 				}
 			}
@@ -4120,6 +4143,23 @@ Game.update = function (delta) {
 	    if (Keyboard.isDown(Keyboard.keys.RIGHT, "RIGHT")) { dirx = 1; this.hero.direction = 4; }
 	    if (Keyboard.isDown(Keyboard.keys.UP, "UP")) { diry = -1; this.hero.direction = 1; }
 	    if (Keyboard.isDown(Keyboard.keys.DOWN, "DOWN")) { diry = 1; this.hero.direction = 3; }
+		
+		// strafing is slower
+		if (dirx !== 0 && diry !== 0) {
+			// strafing
+			if (dirx === 1) {
+				dirx = 0.71; // ~sqrt(0.5)
+			}
+			else if (dirx === -1) {
+				dirx = -0.71;
+			}
+			if (diry === 1) {
+				diry = 0.71;
+			}
+			else if (diry === -1) {
+				diry = -0.71;
+			}
+		}
 	
 		if (dirx !== 0 || diry !== 0) {
 	        this.hero.move(delta, dirx, diry);
@@ -4750,6 +4790,15 @@ Game.inventoryUpdate = function (e) {
 			// non-bows have no variance
 			Game.hero.stats.variance = 0;
 		}
+		
+		// set weapon penetration
+		if (Player.inventory.weapon.type === "bow" || Player.inventory.weapon.penetration !== undefined) {
+			Game.hero.stats.penetration = Player.inventory.weapon.penentration || false;
+		}
+		else {
+			// non-bows do penetrate
+			Game.hero.stats.penetration = true;
+		}
 	}
 	Keyboard.update(); // update hotkeys because hotbar might have changed
 	Dom.checkProgress(); // quest log update check
@@ -5127,13 +5176,15 @@ Game.updateScreenPosition = function (entity) {
 
 // draw character health bar and name in correct placed
 Game.drawCharacterInformation = function (ctx, character) {
-	let healthBarDrawn = false; // size of healthbar or other similar thing (e.g: damage taken), so that it is known how much to offset character's name by (in y axis)
+	let healthBarDrawn = 0; // size of healthbar or other similar thing (e.g: damage taken), so that it is known how much to offset character's name by (in y axis)
+	let channellingBarDrawn = 0;
 	
 	if (character.hostility === "friendly" || character.hostility === "neutral") {
 		// only draw health bar if character is damaged
 		if (character.health !== character.stats.maxHealth) {
 			this.drawHealthBar(ctx, character, character.screenX - character.width * 0.5, character.screenY - character.height * 0.5 - 15, character.width, 15);
 			healthBarDrawn = 15;
+			healthBarDrawn += 3; // padding
 		}
 	}
 	else if (character.hostility === "dummy") {
@@ -5141,22 +5192,31 @@ Game.drawCharacterInformation = function (ctx, character) {
 		if (character.damageTaken > 0) {
 			this.drawDamageTaken(ctx, character, character.screenX, character.screenY - character.height / 2 - 1, 18);
 			healthBarDrawn = 18;
+			healthBarDrawn += 3; // padding
 		}
 	}
 	else if (character.hostility === "hostile" || character.hostility === "boss") {
 		// always draw health bar
 		this.drawHealthBar(ctx, character, character.screenX - character.width * 0.5, character.screenY - character.height * 0.5 - 15, character.width, 15);
 		healthBarDrawn = 15;
+		healthBarDrawn += 3; // padding
 	}
 	else {
 		console.error("Unknown character hostility: ", character.hostility);
 	}
 	
-	/*if (healthBarDrawn !== false) { // !healthBarDrawn is not used, as healthBarDrawn is set to a number (not true) if it isn't false
+	if (character.channellingInfo !== false) {
+		// character is channelling something
+		this.drawChannellingBar(ctx, character, character.screenX - character.width * 0.5, character.screenY - character.height * 0.5 - 15 - healthBarDrawn, character.width, 15);
+		channellingBarDrawn = 15;
+		channellingBarDrawn += 3; // padding
+	}
+	
+	/*if (healthBarDrawn !== 0) { // !healthBarDrawn is not used, as healthBarDrawn is set to a number (not true) if it isn't false
 		healthBarDrawn += 3; // padding for name (currently not seen as necessary, so this has been commented out)
 	}*/
 	
-	this.drawCharacterName(ctx, character, character.screenX, character.screenY - character.height / 2 - healthBarDrawn - 3);
+	this.drawCharacterName(ctx, character, character.screenX, character.screenY - character.height / 2 - healthBarDrawn - channellingBarDrawn - 3);
 }
 
 // draw a health bar (on given context, for given character, at given position, with given dimensions)
@@ -5272,6 +5332,38 @@ Game.drawCharacterName = function (ctx, character, x, y) {
 	ctx.fillText(character.name, x, y);
 	// black border (easier to read)
 	ctx.strokeText(character.name, x, y);
+}
+
+// draw a channelling bar (on given context, for given character, at given position, with given dimensions)
+Game.drawChannellingBar = function (ctx, character, x, y, width, height) {
+	const oldGlobalAlpha = ctx.globalAlpha;
+	
+	// figure out elapsed and remaining values (in ms)
+	const elapsed = Date.now() - character.channellingInfo.start;
+	//const remaining = Game.hero.channellingInfo.time - elapsed;
+	const completedFraction = elapsed / character.channellingInfo.time;
+	
+	// fill colour (purple)
+	ctx.fillStyle = "#f442c2";
+	ctx.strokeStyle = "black";
+	
+	ctx.globalAlpha = 0.6;
+	ctx.lineWidth = 1;
+	
+	// bar body
+	ctx.fillRect(x, y, completedFraction * width, height);
+
+	// bar border
+	ctx.globalAlpha = 0.8;
+	ctx.strokeRect(x, y, width-1, height);
+	
+	// text
+	this.ctx.font = "bold " + height + "px MedievalSharp";
+	this.ctx.textAlign = "center";
+	this.ctx.fillStyle = "white";
+	this.ctx.fillText(character.channellingInfo.description, x + width / 2, y + height / 4 * 3);
+	
+	this.ctx.globalAlpha = oldGlobalAlpha;
 }
 
 // draw images on canvas
@@ -5535,48 +5627,56 @@ Game.render = function (delta) {
     // draw map top layer
     //this._drawLayer(1);
 	
-	//
-	// Setting options
-	//
+	if (!Keyboard.isDown(Keyboard.keys.SHIFT, "SHIFT")) { // only render this if the player isn't pressing the shift key
 
-    // draw map grid (debug)
-    if (document.getElementById("gridOn").checked) {
-		this._drawGrid();
-    }
-	
-    // draw hitboxes (debug)
-    if (document.getElementById("hitboxesOn").checked) {
-		this.drawHitboxes();
-    }
-	
-    // show player coords (debug)
-    if (document.getElementById("coordsOn").checked) {
-		this.coordinates(this.hero);
-    }
-	
-    // show canvas fps (debug)
-	if (document.getElementById("fpsOn").checked){
-		this.fps(delta);
-	}
-	
-	
-	
-	// display area name (if the player has just gone to a new area)
-	if (this.displayAreaName.duration > 0) {
-		// formatting
-		this.ctx.fillStyle = "rgba(0, 0, 0, " + this.displayAreaName.duration / 100 + ")";
-		this.ctx.textAlign = "center";
-		this.ctx.font = "48px MedievalSharp";
+		//
+		// Setting options
+		//
 		
-		this.ctx.fillText(this.displayAreaName.name, 300, 100); // area name
+	    // draw map grid (debug)
+	    if (document.getElementById("gridOn").checked) {
+			this._drawGrid();
+	    }
 		
-		this.ctx.font = "28px MedievalSharp";
-		this.ctx.fillText(this.displayAreaName.level, 300, 150); // area level
-		if (this.displayAreaName.territory !== "") { // check that territory should be displayed
-			this.ctx.fillText(this.displayAreaName.territory + " territory", 300, 180); // area territory (Hostile, Neutral, Allied)
+	    // draw hitboxes (debug)
+	    if (document.getElementById("hitboxesOn").checked) {
+			this.drawHitboxes();
+	    }
+		
+	    // show player coords (debug)
+	    if (document.getElementById("coordsOn").checked) {
+			this.coordinates(this.hero);
+	    }
+		
+	    // show canvas fps (debug)
+		if (document.getElementById("fpsOn").checked){
+			this.fps(delta);
 		}
 		
-		this.displayAreaName.duration--;
+		
+		// hero channelling bar above xp bar
+		if (Game.hero.channellingInfo !== false) {
+			Game.drawChannellingBar(this.ctx, this.hero, 132, 488, 335, 12);
+		}
+		
+		
+		// display area name (if the player has just gone to a new area)
+		if (this.displayAreaName.duration > 0) {
+			// formatting
+			this.ctx.fillStyle = "rgba(0, 0, 0, " + this.displayAreaName.duration / 100 + ")";
+			this.ctx.textAlign = "center";
+			this.ctx.font = "48px MedievalSharp";
+			
+			this.ctx.fillText(this.displayAreaName.name, 300, 100); // area name
+			
+			this.ctx.font = "28px MedievalSharp";
+			this.ctx.fillText(this.displayAreaName.level, 300, 150); // area level
+			if (this.displayAreaName.territory !== "") { // check that territory should be displayed
+				this.ctx.fillText(this.displayAreaName.territory + " territory", 300, 180); // area territory (Hostile, Neutral, Allied)
+			}
+			
+			this.displayAreaName.duration--;
+		}
 	}
 	
 	// render weather
@@ -5637,15 +5737,17 @@ Game.secondary.render = function () {
 		Player.xpFraction = Player.xp / LevelXP[Player.level]; // fraction of XP for current level
 		
 		// rainbow gradient
-		var grd = this.ctx.createLinearGradient(totalLeft, 0, totalLeft+totalWidth-1, 0);
-		if(Player.level < LevelXP.length - 1){
+		// tbd make more efficient
+		let grd = this.ctx.createLinearGradient(totalLeft, 0, totalLeft+totalWidth-1, 0);
+		if (Player.level < LevelXP.length - 1) {
 			grd.addColorStop(0, "red");
 			grd.addColorStop("0.2", "yellow");
 			grd.addColorStop("0.4", "green");
 			grd.addColorStop("0.6", "blue");
 			grd.addColorStop("0.8", "magenta");
 			grd.addColorStop(1, "indigo");
-		}else{
+		}
+		else {
 			grd.addColorStop(0, "#daa520");
 			grd.addColorStop(0.6, "#daa520");
 			grd.addColorStop(0.8, "#e8c264");
@@ -5657,8 +5759,9 @@ Game.secondary.render = function () {
 		this.ctx.fillRect(totalLeft, totalTop, Player.xpFraction * totalWidth, totalHeight);
 
 		// xp bar border
+		this.ctx.globalAlpha = 0.8;
 		this.ctx.strokeRect(totalLeft, totalTop, totalWidth-1, totalHeight);
-		this.ctx.strokeRect(totalLeft, totalTop, totalWidth-1, totalHeight);
+		this.ctx.globalAlpha = 0.6;
 		
 		// level
 		this.ctx.font = "bold 30px MedievalSharp";

@@ -918,9 +918,9 @@ var Areas = {
 						sold: [
 							{item: Items.helm[7], cost: 10, costCurrency: 5, eventRequirement: "Christmas"}, // Santa Hat
 							{item: Items.boots[9], cost: 10, costCurrency: 5, eventRequirement: "Christmas"}, // Ice Skates
-							/*{item: Items.helm[11], cost: 7, condition: function () { // Umbrella Hat
+							{item: Items.helm[11], cost: 7, condition: function () { // Umbrella Hat
 								return Weather.weatherType === "rain";
-							}},*/
+							}},
 							{item: Items.item[11], cost: 2}, // vial of goblin blood
 							{item: Items.bag[5], cost: 15}, // brown backsack
 							{item: Items.helm[2], cost: 2}, // worn leather helm
