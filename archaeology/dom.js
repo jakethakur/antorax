@@ -171,7 +171,7 @@ function checkChange(){
 		for(var i = 0; i < array.length; i++){
 			if(archaeology != null && archaeology.includes(array[i].name)){
 				progress++;
-			}else if(category.value == 8){
+			}/*else if(category.value == 8){
 				var current = true;
 				for(x = 0; x < array[i].armour.length; x++){
 					if(archaeology != null && !archaeology.includes(array[i].armour[x])){
@@ -181,7 +181,7 @@ function checkChange(){
 				if(current){
 					progress++;
 				}
-			}
+			}*/
 		}
 		displayed = array.length;
 		arrayLength = array.length;
@@ -189,21 +189,21 @@ function checkChange(){
 		b = 0;
 		if(obtained.value != "all"){
 			for(var i = 0; i < arrayLength; i++){
-				var current = true;
+				/*var current = true;
 				if(category.value == 8){
 					for(x = 0; x < array[i-b].armour.length; x++){
 						if(archaeology != null && !archaeology.includes(array[i-b].armour[x])){
 							current = false;
 						}
 					}
-				}
+				}*/
 				if(obtained.value == "only"){
-					if((archaeology == null || !archaeology.includes(array[i-b].name)) && (category.value == 8 && !current || category.value != 8)){
+					if(archaeology == null || !archaeology.includes(array[i-b].name)/* && (category.value == 8 && !current || category.value != 8)*/){
 						array.splice(i-b,1);
 						b++;
 					}
 				}else{
-					if((archaeology != null && archaeology.includes(array[i-b].name)) || category.value == 8 && current){
+					if((archaeology != null && archaeology.includes(array[i-b].name))/* || category.value == 8 && current*/){
 						array.splice(i-b,1);
 						b++;
 					}
@@ -247,9 +247,9 @@ function arrange(){
 				}
 			}
 		}
-		if(category.value != 8 && (viewedItemId == undefined || viewedItemType == undefined || array[i].type != "set")){
+		//if(category.value != 8 && (viewedItemId == undefined || viewedItemType == undefined || array[i].type != "set")){
 			document.getElementById("flashcardlist"+c).innerHTML += '<li class="box" id="box'+i+'" '+(archaeology != null ? archaeology.includes(array[i].name) ? "style='border: 5px solid darkgreen'" : "" : "")+'><img src="../'+(array[i].imageArchaeology == undefined ? array[i].image : array[i].imageArchaeology)+'" class="img"><p id="name'+i+'" class="para"></p><p id="tier'+i+'" class="para"></p><p id="stats'+i+'" class="para"></p><p id="set'+i+'" class="para"></p><p id="function'+i+'" class="para"></p><p id="lore'+i+'" class="para"></p></li>';
-		}else{
+		/*}else{
 			var current = true;
 			for(x = 0; x < array[i].armour.length; x++){
 				if(archaeology != null && !archaeology.includes(array[i].armour[x]))
@@ -262,7 +262,7 @@ function arrange(){
 			}else{
 				document.getElementById("flashcardlist"+c).innerHTML += '<li class="box" id="box'+i+'"><img src="../'+(array[i].imageArchaeology == undefined ? array[i].image : array[i].imageArchaeology)+'" class="img"><p id="name'+i+'" class="para"></p><p id="tier'+i+'" class="para"></p><p id="stats'+i+'" class="para"></p><p id="set'+i+'" class="para"></p><p id="function'+i+'" class="para"></p><p id="lore'+i+'" class="para"></p></li>';
 			}
-		}
+		}*/
 		document.getElementById("flashcardlist"+c).style.left = 25+c*245+((screenSize-45)-(((Math.floor((screenSize-45)/245)))*245))/2+"px";
 		if(viewedItemType == "set"){
 			document.getElementById("flashcardlist"+c).style.left = 140+260*c+"px";

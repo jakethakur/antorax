@@ -161,6 +161,9 @@ function arrange(){
 		if(array[i].color !== undefined){
 			document.getElementById("img"+i).style.backgroundColor = array[i].color;
 		}
+		if(array[i].size !== undefined){
+			document.getElementById("img"+i).style.backgroundSize = array[i].size;
+		}
 	}
 	document.getElementById("filters").style.width = (((Math.floor((screenSize-45)/490)))*490)-35+"px";
 	document.getElementById("progress").style.width = (((Math.floor((screenSize-45)/490)))*490)-25+"px";

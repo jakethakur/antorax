@@ -7,7 +7,7 @@ var Achievements = [
 		points: 5,
 		category: ["general"],
 		area: ["global"],
-		image: "../assets/icons/level5.png",
+		image: "./assets/level5.png",
 		class: "single",
 		isCompleted: function(){
 			return Player.level >= 5;
@@ -122,7 +122,7 @@ var Achievements = [
 		points: 10,
 		category: ["combat"],
 		area: ["global"],
-		image: "../assets/items/sword/6.png",
+		image: "../assets/items/sword/4.png",
 		class: "cumulative",
 		isCompleted: function(){
 			return User.progress.enemies >= 5000;
@@ -135,7 +135,7 @@ var Achievements = [
 		points: 25,
 		category: ["combat"],
 		area: ["global"],
-		image: "",
+		image: "./assets/masterCombatant.png",
 		class: "cumulative",
 		isCompleted: function(){
 			return User.progress.enemies >= 10000;
@@ -239,7 +239,8 @@ var Achievements = [
 		points: 20,
 		category: ["reputation"],
 		area: ["eaglecrestLoggingCamp"],
-		image: "",
+		image: "./assets/loggingCamp.png",
+		size: "contain",
 		class: "single",
 		isCompleted: function(){
 			return Player.reputation.eaglecrestLoggingCamp.level >= 6;
@@ -255,6 +256,17 @@ var Achievements = [
 		area: ["eaglecrestLoggingCamp"],
 		image: "../assets/items/helm/5.png",
 		class: "cumulative",
+		isCompleted: function(){
+			let done = true;
+			for(let i = 0; i < 7; i++){
+				for(let x = 0; x < Items[Object.keys(Items)[i]].length; x++){
+					if(Items[Object.keys(Items)[i]][x].area === "loggingCamp" && !User.archaeology.includes(Items[Object.keys(Items)[i]][x].name)){
+						done = false;
+					}
+				}
+			}
+			return done;
+		}
 	},
 	{
 		// id: 17,
@@ -265,6 +277,9 @@ var Achievements = [
 		area: ["global"],
 		image: "../assets/items/helm/6.png",
 		class: "single",
+		isCompleted: function(){
+			return User.archaeology.includes("The Set of the Ocean Warrior");
+		}
 	},
 	{
 		// id: 18,
@@ -275,6 +290,29 @@ var Achievements = [
 		area: ["global"],
 		image: "../assets/items/helm/9.png",
 		class: "cumulative",
+		isCompleted: function(){
+			let done = true;
+			for(let i = 0; i < 7; i++){
+				for(let x = 0; x < Items[Object.keys(Items)[i]].length; x++){
+					if(!Items[Object.keys(Items)[i]][x].uncollectable && !User.archaeology.includes(Items[Object.keys(Items)[i]][x].name) && Items[Object.keys(Items)[i]][x].name !== "Master Archaeologist's Hat"){
+						done = false;
+					}
+				}
+			}
+			if(done){
+				Dom.mail.give(
+					"Master Archaeologist",
+					"Archaeologist",
+					"eaglecrestKing",
+					"text.page",
+					["Master Archaeologist",
+					"TBD", true, [], [],
+					[{item: Items.helm[9]}]],
+					[{item: Items.helm[9]}],
+				);
+			}
+			return done;
+		}
 	},
 	{
 		// id: 19,
@@ -286,6 +324,17 @@ var Achievements = [
 		event: "Samhain",
 		image: "../assets/items/chest/7.png",
 		class: "cumulative",
+		isCompleted: function(){
+			let done = true;
+			for(let i = 0; i < 7; i++){
+				for(let x = 0; x < Items[Object.keys(Items)[i]].length; x++){
+					if(Items[Object.keys(Items)[i]][x].event === "Samhain" && !User.archaeology.includes(Items[Object.keys(Items)[i]][x].name)){
+						done = false;
+					}
+				}
+			}
+			return done;
+		}
 	},
 	{
 		// id: 20,
@@ -297,6 +346,17 @@ var Achievements = [
 		event: "Christmas",
 		image: "../assets/items/helm/7.png",
 		class: "cumulative",
+		isCompleted: function(){
+			let done = true;
+			for(let i = 0; i < 7; i++){
+				for(let x = 0; x < Items[Object.keys(Items)[i]].length; x++){
+					if(Items[Object.keys(Items)[i]][x].event === "Christmas" && !User.archaeology.includes(Items[Object.keys(Items)[i]][x].name)){
+						done = false;
+					}
+				}
+			}
+			return done;
+		}
 	},
 		// FISHING
 	{
