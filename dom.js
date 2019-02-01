@@ -547,11 +547,15 @@ if(window.innerHeight >= 754){
 
 Dom.reputation.give = function(area, amount){
 	if(Player.reputation[area].changed){
-		Player.reputation[area].score += amount;
-		Dom.chat.insert("You have gained " + amount + " reputation with " + FromCamelCase(area));
-		if(Player.reputation[area].score > ReputationPoints[Player.reputation[area].level]){
-			Dom.reputation.update();
-			Dom.levelUp.page("reputation", area, Player.reputation[area].level);
+		if(Player.reputation[area].level !== 6 || amount < 0){
+			Player.reputation[area].score += amount;
+			Dom.chat.insert("You have gained " + amount + " reputation with " + FromCamelCase(area));
+			if(Player.reputation[area].score > ReputationPoints[Player.reputation[area].level] && Player.reputation[area].level !== 6){
+				Dom.reputation.update();
+				Dom.levelUp.page("reputation", area, Player.reputation[area].level);
+			}else if(Player.reputation[area].score < 0){
+				Dom.reputation.update();
+			}
 		}
 	// first time
 	}else{
@@ -2485,12 +2489,11 @@ Dom.inventory.drop = function(ev, equip, id){
 					// if the item slot is where you are putting the item and it is allowed there
 					if(document.getElementById("itemInventory").getElementsByTagName("td")[i].innerHTML === target.outerHTML && (((Player.inventory.items[i].allClasses === true || (Player.inventory.items[i].type === "sword" && Player.class === "k") || (Player.inventory.items[i].type === "staff" && Player.class === "m") || (Player.inventory.items[i].type === "bow" && Player.class === "a") || Player.inventory.items[i].type === "rod") && data === "weapon") || Player.inventory.items[i].type === data)){
 						if(Player.inventory[data].type === "helm" || Player.inventory[data].type === "chest" || Player.inventory[data].type === "greaves" || Player.inventory[data].type === "boots"){
-							Dom.inventory.removeEquipment(Player.inventory[data]); // it has already been moved
+							Dom.inventory.removeEquipment(Player.inventory[data]);
 						// if it is a weapon
 						}else{
-							Dom.inventory.removeEquipment(Player.inventory[data]); // it has already been moved
+							Dom.inventory.removeEquipment(Player.inventory[data]);
 						}
-						Dom.inventory.addEquipment(Player.inventory.items[i]);
 						// swaps the items
 						test = Player.inventory.items[i];
 						Player.inventory.items[i] = Player.inventory[data];
@@ -2501,6 +2504,7 @@ Dom.inventory.drop = function(ev, equip, id){
 						if(Player.inventory.items[i].stacked !== undefined && Player.inventory.items[i].stacked !== 1){
 							target.innerHTML += "<div class='stackNum' id='stackNum"+i+"'>"+Player.inventory.items[i].stacked+"</div>";
 						}
+						Dom.inventory.addEquipment(Player.inventory[data]);
 					}
 				}
 			}
@@ -2523,7 +2527,6 @@ Dom.inventory.drop = function(ev, equip, id){
 			// if the item slot is where you are putting the item and it is allowed there
 			if((Player.inventory.items[data].type === equip || ((Player.inventory.items[data].allClasses === true || (Player.inventory.items[data].type === "sword" && Player.class === "k") || (Player.inventory.items[data].type === "staff" && Player.class === "m") || (Player.inventory.items[data].type === "bow" && Player.class === "a") || Player.inventory.items[data].type === "rod") && equip === "weapon")) && !Player.inventory.items[data].unidentified){
 				Dom.inventory.removeEquipment(Player.inventory[equip]);
-				Dom.inventory.addEquipment(Player.inventory.items[data]);
 				// swaps the items
 				test = Player.inventory[equip];
 				Player.inventory[equip] = Player.inventory.items[data];
@@ -2531,6 +2534,7 @@ Dom.inventory.drop = function(ev, equip, id){
 				Player.inventory.items[data] = test;
 				document.getElementById("itemInventory").getElementsByTagName("td")[data].innerHTML = "<img src='"+Player.inventory.items[data].image+"' draggable='true' ondragstart='Dom.inventory.drag(event,\""+data+"\")' "+(Player.inventory.items[data].onClick !== undefined ? "onclick='Player.inventory.items["+data+"].onClick("+data+")'" : "")+"></img>";
 				document.getElementById(equip).innerHTML = "<img src='"+Player.inventory[equip].image+"' draggable='true' ondragstart='Dom.inventory.drag(event,\""+equip+"\")' "+(Player.inventory[equip].onClick !== undefined ? "onclick='Player.inventory."+equip+".onClick(\""+equip+"\")'" : "")+"></img>";
+				Dom.inventory.addEquipment(Player.inventory[equip]);
 			}
 		}
 	}
@@ -4025,67 +4029,89 @@ for(let i = 0; i < Player.statusEffects.length; i++){
 		document.getElementById("speedOn").checked = true;
 	}
 }
-// christmas daily rewards
-if (GetFullDate().substring(4,6) === "12" && !Player.days.includes(GetFullDate())) {
-	let randomNPC = Player.metNPCs[Random(0, Player.metNPCs.length-1)]; // NPC that sent message
-	if (GetFullDate().substring(6) === "25") { // christmas day
-		Dom.mail.give(
-			"Merry Christmas!",
-			"Father Christmas",
-			"fatherChristmas",
-			"text.page",
-			["Merry Christmas!",
-			"Have a great Christmas! Please enjoy the 2018 Christmas gift.", true, [], [],
-			[{item: Items.item[17],},{item: Items.currency[5], quantity: 5,}]],
-			[{item: Items.item[17],},{item: Items.currency[5], quantity: 5,}],
-		);
-	}else if (GetFullDate().substring(6) < "25") { // before christmas
-		Dom.mail.give(
-			25 - parseInt(GetFullDate().substring(6)) + " Day"+(parseInt(GetFullDate().substring(6)) !== 24 ? "s" : "")+" To Go!",
-			randomNPC,
-			ToCamelCase(randomNPC),
-			"text.page",
-			["Merry Christmas!",
-			"This is your free daily chistmas token. Spend it wisely!", true, [], [],
-			[{item: Items.currency[5]}]], [{item: Items.currency[5]}],
-		);
-	}else { // after christmas (in december)
-		Dom.mail.give(
-			parseInt(GetFullDate().substring(6)) + " of Christmas 2018",
-			randomNPC,
-			ToCamelCase(randomNPC),
-			"text.page",
-			["Merry Christmas!",
-			"This is your free daily chistmas token. Spend it wisely!", true, [], [],
-			[{item: Items.currency[5]}]], [{item: Items.currency[5]}],
-		);
-	}
-}
-// Antorax Day mail
-if (GetFullDate().substring(6) === "20" && GetFullDate().substring(4,6) === "01" && !Player.days.includes(GetFullDate())) {
-    Dom.mail.give(
-        "Antorax is " + antoraxAge + " today!",
-        "The King of Eaglecrest",
-        "eaglecrestKing",
-        "text.page",
-        ["Antorax is " + antoraxAge + " today!",
-        `${antoraxAge} years ago today, the realms of Antorax settled on an agreement to cooperate in the archaeology and exploration of these beautiful lands. Although there have been conflicts since then, there have been countless discoveries made by the Antorax alliance, and we endevour to continue.
-<br><br>This year, there have been countless advancements in the fields of Archaeology, with huge discoveries of mythic items. There have also been developments to the Eaglecrest Logging Camp, and improvements to the accessibility of Antorax for its citizens.
-<br><br>We hope you enjoy this special day, and that we will celebrate the many more Antorax Days to come together.`, true, [], [],
-        [{item: Items.helm[10]}]], [{item: Items.helm[10]}],
-    );
-	if(!Player.quests.completedQuestArray.includes("The Legend of the Tattered Knight")){
-		Dom.mail.give(
-			"The Legend of the Tattered Knight",
-			"unknown sender",
-			"./assets/items/item/16",
-			"quest.start",
-			["eaglecrestLoggingCamp", 25],
-		);
-	}
-}
-// days logged on by player
+// the first time the player logs on each day
 if (!Player.days.includes(GetFullDate())) {
+	// christmas daily rewards
+	if (GetFullDate().substring(4,6) === "12") {
+		let randomNPC = Player.metNPCs[Random(0, Player.metNPCs.length-1)]; // NPC that sent message
+		if (GetFullDate().substring(6) === "25") { // christmas day
+			Dom.mail.give(
+				"Merry Christmas!",
+				"Father Christmas",
+				"fatherChristmas",
+				"text.page",
+				["Merry Christmas!",
+				"Have a great Christmas! Please enjoy the 2018 Christmas gift.", true, [], [],
+				[{item: Items.item[17],},{item: Items.currency[5], quantity: 5,}]],
+				[{item: Items.item[17],},{item: Items.currency[5], quantity: 5,}],
+			);
+		}else if (GetFullDate().substring(6) < "25") { // before christmas
+			Dom.mail.give(
+				25 - parseInt(GetFullDate().substring(6)) + " Day"+(parseInt(GetFullDate().substring(6)) !== 24 ? "s" : "")+" To Go!",
+				randomNPC,
+				ToCamelCase(randomNPC),
+				"text.page",
+				["Merry Christmas!",
+				"This is your free daily chistmas token. Spend it wisely!", true, [], [],
+				[{item: Items.currency[5]}]], [{item: Items.currency[5]}],
+			);
+		}else { // after christmas (in december)
+			Dom.mail.give(
+				parseInt(GetFullDate().substring(6)) + " of Christmas 2018",
+				randomNPC,
+				ToCamelCase(randomNPC),
+				"text.page",
+				["Merry Christmas!",
+				"This is your free daily chistmas token. Spend it wisely!", true, [], [],
+				[{item: Items.currency[5]}]], [{item: Items.currency[5]}],
+			);
+		}
+	}
+	// Antorax Day mail
+	if (GetFullDate().substring(6) === "20" && GetFullDate().substring(4,6) === "01") {
+		Dom.mail.give(
+			"Antorax is " + antoraxAge + " today!",
+			"The King of Eaglecrest",
+			"eaglecrestKing",
+			"text.page",
+			["Antorax is " + antoraxAge + " today!",
+			`${antoraxAge} years ago today, the realms of Antorax settled on an agreement to cooperate in the archaeology and exploration of these beautiful lands. Although there have been conflicts since then, there have been countless discoveries made by the Antorax alliance, and we endevour to continue.
+			<br><br>This year, there have been countless advancements in the fields of Archaeology, with huge discoveries of mythic items. There have also been developments to the Eaglecrest Logging Camp, and improvements to the accessibility of Antorax for its citizens.
+			<br><br>We hope you enjoy this special day, and that we will celebrate the many more Antorax Days to come together.`, true, [], [],
+			[{item: Items.helm[10]}]], [{item: Items.helm[10]}],
+		);
+		if(!Player.quests.completedQuestArray.includes("The Legend of the Tattered Knight")){
+			Dom.mail.give(
+				"The Legend of the Tattered Knight",
+				"unknown sender",
+				"./assets/items/item/16",
+				"quest.start",
+				["eaglecrestLoggingCamp", 25],
+			);
+		}
+	}
+	// Archaeology mail
+	let done = true;
+	for(let i = 0; i < 7; i++){
+		for(let x = 0; x < Items[Object.keys(Items)[i]].length; x++){
+			if(!Items[Object.keys(Items)[i]][x].uncollectable && !User.archaeology.includes(Items[Object.keys(Items)[i]][x].name) && Items[Object.keys(Items)[i]][x].name !== "Master Archaeologist's Hat"){
+				done = false;
+			}
+		}
+	}
+	if(done){
+		Dom.mail.give(
+			"Master Archaeologist",
+			"!!!",
+			"eaglecrestKing",
+			"text.page",
+			["Master Archaeologist",
+			`Dear ${playerName},
+			<br><br>I am !!!, the lead archaeologist of Antorax. I have noticed your incredible contributions to Antorax's archaeology effort, and would like to congratulate and thank you for them. Without you, we would not have uncovered many of the rare and significant items that are currently residing in the Great Museum, Wizard Island. I trust that we will continue to receive contributions from you in the years to come - there is still lots that has not been discovered.
+			<br><br>I have attached a <strong>Master Archaeologist's Hat</strong>, which I hope you will find of use when uncovering items in the future. A hat like this is incredibly rare and incredibly powerful, only owned by the most accomplished of archaeologists. Many who have worn it say they find themselves to be much luckier with their archaeological finds...`, true, [], [],
+			[{item: Items.helm[9]}]], [{item: Items.helm[9]}],
+		);
+	}
 	Player.days.push(GetFullDate());
 	Player.quests.randomDailyQuests = {}
 }

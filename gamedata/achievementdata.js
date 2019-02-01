@@ -291,27 +291,7 @@ var Achievements = [
 		image: "../assets/items/helm/9.png",
 		class: "cumulative",
 		isCompleted: function(){
-			let done = true;
-			for(let i = 0; i < 7; i++){
-				for(let x = 0; x < Items[Object.keys(Items)[i]].length; x++){
-					if(!Items[Object.keys(Items)[i]][x].uncollectable && !User.archaeology.includes(Items[Object.keys(Items)[i]][x].name) && Items[Object.keys(Items)[i]][x].name !== "Master Archaeologist's Hat"){
-						done = false;
-					}
-				}
-			}
-			if(done){
-				Dom.mail.give(
-					"Master Archaeologist",
-					"Archaeologist",
-					"eaglecrestKing",
-					"text.page",
-					["Master Archaeologist",
-					"TBD", true, [], [],
-					[{item: Items.helm[9]}]],
-					[{item: Items.helm[9]}],
-				);
-			}
-			return done;
+			return User.archaeology.includes("Master Archaeologist's Hat");
 		}
 	},
 	{
