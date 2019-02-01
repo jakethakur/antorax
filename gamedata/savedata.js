@@ -30,10 +30,9 @@ var Player = {
 	days: [], // days logged on (ddmmyyyy)
 	metNPCs: ["Cart Driver"],
 	
-	chestsOpened: {
-		nilbog: 0,
-		nilbogTower2: 0,
-		nilbogTower4: 0,
+	chests: {
+		opened: {},
+		locations: {},
 	},
 	
 	bossesKilled: {

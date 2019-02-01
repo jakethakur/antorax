@@ -1503,7 +1503,7 @@ class Hero extends Attacker {
 	}
 	
 	// shoot basic attack
-	finishAttack (e) { // e is never used
+	finishAttack (e) {
 		if (this.channelling === "projectile") { // check that the player is channelling a projectile (they might not have a weapon equipped so are not channelling, for example)
 			this.channelTime = 0;
 			this.channelling = false;
@@ -3121,6 +3121,61 @@ Game.launchFirework = function (properties) {
 	}
 }
 
+// launch some fireworks to celebrate the player levelling up!
+// fireworks launched every 500ms - number remaining tracked by parameter
+Game.levelUpFireworks = function (numberRemaining) {
+	let colourArray = []; // array of firework colours
+	if (Game.hero.level === LevelXP.length - 1) {
+		// golden fireworks if they are max level
+		colourArray.push("#f9ff54");
+	}
+	else if (numberRemaining % 5 === 0) {
+		// multiple of 5 remaining - multicoloured firework!
+		colourArray.push("#ff0000", "#ff7b00", "#ffff00", "#00ff00", "#00ffff", "7b00ff", "#ff00ff");
+	}
+	else {
+		// random colour in the rainbow...
+		switch (Random(0, 6)) {
+			case 0:
+				colourArray.push("#ff0000");
+				break;
+			case 1:
+				colourArray.push("#ff7b00");
+				break;
+			case 2:
+				colourArray.push("#ffff00");
+				break;
+			case 3:
+				colourArray.push("#00ff00");
+				break;
+			case 4:
+				colourArray.push("#00ffff");
+				break;
+			case 5:
+				colourArray.push("#7b00ff");
+				break;
+			case 6:
+				colourArray.push("#ff00ff");
+				break;
+		}
+	}
+	
+	Game.launchFirework({
+		x: Random(Game.hero.x - 300, Game.hero.x + 300),
+		y: Random(Game.hero.y - 300, Game.hero.y + 300),
+		radius: Random(125, 175),
+		particles: 500,
+		explodeTime: 500,
+		lingerTime: 1000,
+		colours: colourArray,
+	});
+	
+	if (numberRemaining > 1) {
+		// more fireworks to be launched in 500ms
+		setTimeout(Game.levelUpFireworks, 500, numberRemaining - 1)
+	}
+}
+
 // add a new trail particle around the character (normally called by a setInterval)
 // the particle data is saved in trailParticle
 Game.addTrailParticle = function (character, trailParticle) {
@@ -3522,34 +3577,34 @@ Game.loadArea = function (areaName, destination) {
 		// Antorax Day fireworks
 		if (Game.event === "Antorax" && Areas[areaName].data.territory === "Allied" && !Areas[areaName].indoors && Game.fireworkInterval === undefined) {
 			// Antorax Day; area is allied and indoors and a firework interval has not yet been set
-			// launch fireworks periodically at random positions
+			// launch fireworks periodically at random positions on the player's screen
 			Game.fireworkInterval = setInterval(function () {
 				// same as Antorax Day Firework items
 				if (Random(0, 3) === 0) {
 					// large firework
 					Game.launchFirework({
-							x: Random(0, map.cols * map.tsize),
-							y: Random(0, map.rows * map.tsize),
+						x: Random(Game.hero.x - 300, Game.hero.x + 300),
+						y: Random(Game.hero.y - 300, Game.hero.y + 300),
 						radius: 250,
 						particles: 1500,
 						explodeTime: 750,
-						lingerTime: 2000,
+						lingerTime: 1000,
 						colours: ["#8cff91", "#ff82f8"], // lighter colours so they are more visible
 					});
 				}
 				else {
 					// normal firework
 					Game.launchFirework({
-						x: Random(0, map.cols * map.tsize),
-						y: Random(0, map.rows * map.tsize),
+						x: Random(Game.hero.x - 300, Game.hero.x + 300),
+						y: Random(Game.hero.y - 300, Game.hero.y + 300),
 						radius: 150,
 						particles: 600,
 						explodeTime: 500,
-						lingerTime: 2000,
+						lingerTime: 1000,
 						colours: ["#8cff91", "#ff82f8"], // lighter colours so they are more visible
 					});
 				}
-			}, 500, Game.areaName);
+			}, 1500, Game.areaName);
 		}
 		else if (Game.fireworkInterval !== undefined) {
 			// remove interval from a previous area
@@ -3767,14 +3822,25 @@ Game.initStatusEffects = function () {
 
 // generate chest(s) around area
 Game.generateChests = function (chestData) {
-	if (GetFullDate() - Player.chestsOpened[this.areaName] > 0) {
-		// chest last opened at least a day ago
+	if (Player.chests.opened[this.areaName] === undefined || GetFullDate() - Player.chests.opened[this.areaName] > 0) {
+		// chest last opened at least a day ago (or hasn't been opened before)
 		// spawn chests
 		let spawnLocationArray = chestData.spawnLocations.slice(); // so that chestData itself is not changed
 		for (let i = 0; i < chestData.spawnAmount; i++) {
-			let locationIndex = Random(0, spawnLocationArray.length - 1);
-			let spawnLocation = spawnLocationArray[locationIndex];
-			spawnLocationArray.splice(locationIndex, 1); // so it cannot be picked by the next chest in for loop (if there is one)
+			let spawnLocation;
+			if (Player.chests.locations[this.areaName] !== undefined) {
+				// chest has already been set a position for today
+				spawnLocation = Player.chests.locations[this.areaName];
+			}
+			else {
+				// chest has not been set a position yet today
+				let locationIndex = Random(0, spawnLocationArray.length - 1);
+				spawnLocation = spawnLocationArray[locationIndex];
+				spawnLocationArray.splice(locationIndex, 1); // so it cannot be picked by the next chest in for loop (if there is one)
+				
+				// set save variable so chest is in same position for rest of day
+				Player.chests.locations[this.areaName] = spawnLocation;
+			}
 			
 			// concatenate loot tables (for if there are multiple)
 			let lootTable = [];
@@ -4243,41 +4309,31 @@ Game.update = function (delta) {
 							}
 							else {
 								// single quest
-								if (Player.quests.activeQuestArray.includes(role.quest.quest)) { // quest is already active
+								if (!Player.quests.possibleQuestArray.includes(role.quest.quest)) {
+									// quest is not possible
 									questCanBeStarted = false;
-									questActive = true; // for npc dialogue
-								}
-								else if (role.quest.levelRequirement > this.hero.level) { // player is not a high enough level
-									questCanBeStarted = false;
-								}
-								else if (!IsContainedInArray(role.quest.questRequirements, Player.quests.completedQuestArray)) { // quest requirements have not been completed
-									questCanBeStarted = false;
-								}
-								else if (role.quest.fishingRequirement !== undefined) { // fishing skill is required
-									if (Game.hero.stats.fishingSkill > role.quest.fishingRequirement.max || Game.hero.stats.fishingSkill < role.quest.fishingRequirement.min) { // fishing skill not in range
-										questCanBeStarted = false;
+									
+									// figure out what NPC should say to the player
+									if (Player.quests.activeQuestArray.includes(role.quest.quest)) { // quest is already active
+										questActive = true; // for npc dialogue
 									}
-								}
-								else if (role.quest.eventRequirement !== undefined && role.quest.eventRequirement !== Game.event){
-									questCanBeStarted = false;
-								}
-								else {
-									// check if it is daily or one time
-									if (role.quest.repeatTime === undefined) {
-										// one time
-										if (Player.quests.completedQuestArray.includes(role.quest.quest)) { // quest has already been completed
-											questCanBeStarted = false;
-											questComplete = true; // for npc dialogue
+									else {
+										// check if it is daily or one time
+										if (role.quest.repeatTime === undefined) {
+											// one time
+											if (Player.quests.completedQuestArray.includes(role.quest.quest)) { // quest has already been completed
+												questComplete = true; // for npc dialogue
+											}
+										}
+										else if (role.quest.repeatTime === "daily") {
+											// daily
+											if (Player.quests.questLastFinished[role.quest.questArea][role.quest.id] >= GetFullDate()) { // quest has already been done today (or after today o.O)
+												// note that if the quest has not been finished (hence questLastFinished is undefined) the condition will always return false
+												questComplete = true; // for npc dialogue
+											}
 										}
 									}
-									else if (role.quest.repeatTime === "daily") {
-										// daily
-										if (Player.quests.questLastFinished[role.quest.questArea][role.quest.id] >= GetFullDate()) { // quest has already been done today (or after today o.O)
-											// note that if the quest has not been finished (hence questLastFinished is undefined) the condition will always return false
-											questCanBeStarted = false;;
-											questComplete = true; // for npc dialogue
-										}
-									}
+									
 								}
 							}
 							
@@ -4735,9 +4791,14 @@ Game.getXP = function (xpGiven, xpBonus) {
 				Player.xp -= LevelXP[Player.level];
 				Player.level++;
 				this.hero.level = Player.level;
+				
+				// level up stuff
 				this.playLevelupSound(this.areaName);
+				this.levelUpFireworks(Player.level);
 				Dom.levelUp.page();
+				
 				document.getElementById("level").innerHTML = "Level "+Player.level;
+				
 				this.getXP(0); // levelling up multiple times
 			}
 			// xp gained
@@ -4903,8 +4964,11 @@ Game.lootClosed = function (itemsRemaining) {
 		}
 		// if it is a loot chest, set the day in savedata (so one cannot be opened again in this area today)
 		if (Game.chests[arrayIndex].name === "Loot Chest") {
-			Player.chestsOpened[Game.areaName] = GetFullDate();
+			Player.chests.opened[Game.areaName] = GetFullDate();
 		}
+		
+		// save to stop them getting infinite loot from chests
+		Game.saveProgress("auto");
 	}
 	else if (Dom.loot.currentId[0] === "i") {
 		// item loot menu closed (e.g. sunken chest)
@@ -4916,6 +4980,9 @@ Game.lootClosed = function (itemsRemaining) {
 			// no loot left
 			Dom.inventory.remove(inventoryPosition);
 		}
+		
+		// save to stop them getting infinite loot from the item
+		Game.saveProgress("auto");
 	}
 	else if (Dom.loot.currentId[0] === "x") {
 		// do nothing
@@ -5694,6 +5761,21 @@ Game.render = function (delta) {
 // update crosshair based on mouse distance from player (called by mouseMove event listener in init)
 // cursor is also updated based on whether player can attack or not
 Game.secondary.updateCursor = function (event) {
+	// if event is undefined, set it to the previous known mouse position
+	if (event === undefined) {
+		event = {
+			clientX: Game.previousMousePosition.x,
+			clientY: Game.previousMousePosition.y
+		};
+	}
+	else {
+		// set the know mouse position in case it i sneeded for the future
+		Game.previousMousePosition = {
+			x: event.clientX,
+			y: event.clientY
+		};
+	}
+	
 	// get player's range and mouse distance
 	let mouseDistanceFromHero = distance({x: Game.camera.x + event.clientX - 19, y: Game.camera.y + event.clientY - 19,}, Game.hero);
 	let range = Game.hero.stats.range;

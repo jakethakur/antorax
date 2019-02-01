@@ -89,7 +89,7 @@ var Items = {
 			tier: 1,
 			rarity: "mythic",
 			sellPrice: 5,
-			lore: "",
+			lore: "The Ocean Warrior came from the sea<br>His blade was sharp, no-one could stop his quest",
 			obtain: "Can be found in a sunken chest from a tier 1 fishing area.",
 			set: 4,
 			stats: {
@@ -170,7 +170,7 @@ var Items = {
 				rotation: "random",
 				variance: 50, // variance in position (in x/y axis in one direction from player)
 			},
-			archaeologyHidden: true,
+			limitedEdition: true,
 		},
 		{
 			id: 11,
@@ -287,7 +287,7 @@ var Items = {
 			tier: 1,
 			rarity: "mythic",
 			sellPrice: 5,
-			lore: "",
+			lore: "He ruled the land with great ferocity<br>'till one day he arrived at eaglecrest",
 			obtain: "Can be found in a sunken chest from a tier 1 fishing area.",
 			set: 4,
 			stats: {
@@ -405,7 +405,7 @@ var Items = {
 			tier: 1,
 			rarity: "mythic",
 			sellPrice: 5,
-			lore: "",
+			lore: "A hero met him, he was pure and brave<br>They fought and fought, a duel for all mankind",
 			obtain: "Can be found in a sunken chest from a tier 1 fishing area.",
 			set: 4,
 			stats: {
@@ -541,7 +541,7 @@ var Items = {
 			tier: 1,
 			rarity: "mythic",
 			sellPrice: 5,
-			lore: "",
+			lore: "The the villain lost, he fled back to the waves<br>His set of armour simply left behind",
 			obtain: "Can be found in a sunken chest from a tier 1 fishing area.",
 			set: 4,
 			stats: {
@@ -2109,7 +2109,7 @@ var Items = {
 							radius: 150,
 							particles: 600,
 							explodeTime: 500,
-							lingerTime: 2000,
+							lingerTime: 1000,
 							colours: ["#8cff91", "#ff82f8"], // lighter colours so they are more visible
 						});
 					}, 1000); // launch in 1 second
@@ -2136,7 +2136,7 @@ var Items = {
 							radius: 250,
 							particles: 1500,
 							explodeTime: 750,
-							lingerTime: 2000,
+							lingerTime: 1000,
 							colours: ["#8cff91", "#ff82f8"], // lighter colours so they are more visible
 						});
 					}, 1000); // launch in 1 second
