@@ -1,5 +1,5 @@
 // go to class select if the user's class has not been selected yet for this session
-if (sessionStorage.getItem("class") == undefined) { // must be ==
+if (sessionStorage.getItem("class") === null) {
 	window.location.replace("./selection/index.html");
 }
 

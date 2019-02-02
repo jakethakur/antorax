@@ -493,13 +493,13 @@ class Character extends Thing {
 		*/
 		
 		// event chat changes
-		if (Game.christmasDay) {
+		if (Event.christmasDay) {
 			// chooseChat changed
 			if (this.chat.chooseChat !== undefined && this.chat.christmasGreeting !== undefined) {
 				this.chat.chooseChat = this.chat.christmasGreeting;
 			}
 		}
-		else if (Game.event === "Antorax") { // Antorax Day
+		else if (Event.event === "Antorax") { // Antorax Day
 			// chooseChat changed
 			if (this.chat.chooseChat !== undefined && this.chat.antoraxDayGreeting !== undefined) {
 				this.chat.chooseChat = this.chat.antoraxDayGreeting;
@@ -1738,7 +1738,7 @@ class Hero extends Attacker {
 					else {
 						fish = fish.filter(item => item.rarity === itemRarity); // filter for rarity (see above)
 					}
-					fish = fish.filter(item => item.timeRequirement === undefined || Game.time === item.timeRequirement); // filter for time that it can be fished up
+					fish = fish.filter(item => item.timeRequirement === undefined || Event.time === item.timeRequirement); // filter for time that it can be fished up
 					fish = fish.filter(item => item.catchRequirement === undefined || item.catchRequirement()); // filter for general fishing requirement
 					if (fish.constructor === Array) {
 						// still more fish to pick from
@@ -1946,7 +1946,7 @@ class Projectile extends Thing {
 						}
 						
 						// blood moon - enemies deal more damage
-						if (Game.time === "bloodMoon" &&
+						if (Event.time === "bloodMoon" &&
 						(attacker.hostility === "hostile" || attacker.hostility === "boss")) {
 							attackerDamage *= 3;
 						}
@@ -3244,18 +3244,19 @@ Game.loadArea = function (areaName, destination) {
 		"status",
 	]);
 	
-	// set game time of day (day or night)
-	this.time = this.getTime(areaName);
+	// set game time of day and event
+	Event.updateEvent();
+	Event.updateTime(areaName);
 	
 	// load images
 	let imageNames = Object.keys(Areas[areaName].images);
 	let imageAddresses = Object.values(Areas[areaName].images);
 	imageAddresses = imageAddresses.map(image => {
-		if (Game.event === "Christmas" && image.christmas !== undefined) {
+		if (Event.event === "Christmas" && image.christmas !== undefined) {
 			// christmas images
 			return image.christmas;
 		}
-		else if (Game.event === "Samhain" && image.samhain !== undefined) {
+		else if (Event.event === "Samhain" && image.samhain !== undefined) {
 			// christmas images
 			return image.samhain;
 		}
@@ -3298,7 +3299,7 @@ Game.loadArea = function (areaName, destination) {
 		}
 	
 		// if it is nighttime, change all daytime tiles to their nighttime versions
-		if (this.time === "night" && typeof Areas[areaName].mapData.nightTiles !== "undefined") {
+		if (Event.time === "night" && typeof Areas[areaName].mapData.nightTiles !== "undefined") {
 			if (Areas[areaName].mapData.nightTiles.length === Areas[areaName].mapData.dayTiles.length) {
 				for (let replaceIndex = 0; replaceIndex < Areas[areaName].mapData.nightTiles.length; replaceIndex++) { // iterate through tiles to replace
 					for (let tileIndex = 0; tileIndex < Areas[areaName].mapData.layers[0].length; tileIndex++) { // iterate through area's tiles to find those that need replacing
@@ -3386,7 +3387,7 @@ Game.loadArea = function (areaName, destination) {
 						enemy.type = "enemies";
 						this.enemies.push(new Enemy(enemy));
 						// check for blood moon
-						if (Game.time === "bloodMoon" && (enemy.hostility === "hostile" || enemy.hostility === "boss")) {
+						if (Event.time === "bloodMoon" && (enemy.hostility === "hostile" || enemy.hostility === "boss")) {
 							// blood moon - enemies have more health
 							this.enemies[this.enemies.length - 1].health *= 2;
 							this.enemies[this.enemies.length - 1].stats.maxHealth *= 2;
@@ -3575,7 +3576,7 @@ Game.loadArea = function (areaName, destination) {
 		Game.renderDayNight();
 		
 		// Antorax Day fireworks
-		if (Game.event === "Antorax" && Areas[areaName].data.territory === "Allied" && !Areas[areaName].indoors && Game.fireworkInterval === undefined) {
+		if (Event.event === "Antorax" && Areas[areaName].data.territory === "Allied" && !Areas[areaName].indoors && Game.fireworkInterval === undefined) {
 			// Antorax Day; area is allied and indoors and a firework interval has not yet been set
 			// launch fireworks periodically at random positions on the player's screen
 			Game.fireworkInterval = setInterval(function () {
@@ -3633,30 +3634,10 @@ Game.loadArea = function (areaName, destination) {
 	});
 }
 
-// initialise game and variables within Game object
+// initialise game and DOM
 Game.init = function () {
-	// clear any unintentional chat and welcome player
-	Dom.chat.oldString = "";
-	Dom.chat.newString = "";
-	Dom.chat.contents = [];
-	document.getElementById("dot").innerHTML = 0; // no unread messages to start
-	if (this.christmasDay) {
-	    Dom.chat.insert("Merry Christmas, " + Player.name + "!", 0, false, true);
-	}
-	else {
-	    Dom.chat.insert("Welcome "+(localStorage.getItem(Player.class) !== null ? "back" : "to Antorax")+", " + Player.name + "!", 0, false, true);
-	}
-	
-	// tell the player if they have unread mail
-	let unreadMail = Dom.mail.unread();
-	if (unreadMail > 1) {
-		// plural
-		Dom.chat.insert("You have " + unreadMail + " new messages!", 0, false); // tbd - maybe make it more obvious that player has to check their mailbox for this?
-	}
-	else if (unreadMail > 0) {
-		// singular
-		Dom.chat.insert("You have " + unreadMail + " new message!", 0, false); // tbd - maybe make it more obvious that player has to check their mailbox for this?
-	}
+	// init DOM
+	Dom.init();
 	
 	// music
 	this.playingMusic = null;
@@ -3757,21 +3738,11 @@ Game.init = function () {
 	// set displayAreaName.duration to 200 (so even if it shouldn't be displayed normally, it is on start of game)
 	this.displayAreaName.duration = 200;
 	
+	// re-init hero's saved status effects
+	this.initStatusEffects();
+	
 	// start Game tick
 	window.requestAnimationFrame(this.tick);
-	
-	// re-init hero's saved status effects
-	this.initStatusEffects()
-	
-	// DOM functions to be run when class is loaded
-	Dom.hotbar.update();
-	Dom.inventory.update();
-	// update quest log
-	Dom.checkProgress();
-	Dom.quests.possible();
-	Dom.quests.completed();
-	Dom.changeBook(Player.tab); // sets tab to whatever the player was on when they last saved
-	Dom.adventure.update(); // chooses what should be shown in adventurer's log
 		
 	// saveTimeout ensures that there is always a save at least every 60 seconds
 	// save in 60 seconds (init saveTimeout)
@@ -3969,85 +3940,6 @@ Game.positionLoot = function (items, space) {
 }
 
 //
-// Date and checkEvents
-//
-
-// check for events
-Game.checkEvents = function () {
-	// get date
-	let today = new Date();
-	let day = today.getDate();
-	let month = today.getMonth() + 1; // January is 0, so add 1
-	let year = today.getFullYear();
-	
-	// James Day
-	// Summer Solstice
-	if (day === 21 && month === 6) {
-		Game.event = "James";
-		Dom.inventory.give(Items.boots[7], 1);
-	}
-	// Samhain (Halloween)
-	// Blood Moon
-	else if ((day >= 22 && month === 10) || (day <= 5 && month === 11)) {
-		Game.event = "Samhain";
-	}
-	// Christmas
-	else if (month === 12) {
-		Game.event = "Christmas";
-		// Christmas Day
-		if (day === 25) {
-			Game.christmasDay = true;
-		}
-		else {
-			Game.christmasDay = false;
-		}
-	}
-	// Antorax Day
-	else if (month === 1 && day === 20) {
-		Game.event = "Antorax";
-	}
-}
-
-// check time (day or night)
-// parameter is areaName for checking the time override for the area
-Game.getTime = function (areaName) {
-	// check for in-game events
-	this.checkEvents();
-
-	// get date and time
-	let today = new Date();
-	let hour = today.getHours();
-	let day = today.getDate();
-	let month = today.getMonth() + 1; // January is 0, so add 1
-	
-	// check if the area always has a specific time
-	if (Areas[areaName].time !== undefined) {
-		return Areas[areaName].time;
-	}
-	
-	// Summer Solstice - sun up all day
-	if (day == 21 && month == 6) {
-		return "day";
-	}
-	// Winter Solstice - sun down all day
-	else if (day == 21 && month == 12) {
-		return "night";
-	}
-
-	// day time
-	if (hour >= 7 && hour < 19) {
-		return "day";
-	}
-	// night time
-	else if (this.event === "Samhain") {
-		return "bloodMoon";
-	}
-	else {
-		return "night";
-	}
-}
-
-//
 // Music
 //
 
@@ -4057,26 +3949,26 @@ Game.playMusic = function () {
 	if (document.getElementById("musicOn").checked) {
 		User.settings.music = true;
 		// check if the new area's music is already being played
-		let song = Areas[this.areaName]["song_" + this.time];
+		let song = Areas[this.areaName]["song_" + Event.time];
 		if (song === undefined) {
 			// song doesn't exist - see why
 			if (Areas[this.areaName].indoors) {
 				// indoor areas always have daytime song
 				song = Areas[this.areaName]["song_day"];
 			}
-			else if (Game.time === "bloodMoon") {
+			else if (Event.time === "bloodMoon") {
 				// most areas have night song at blood moon
 				song = Areas[this.areaName]["song_night"];
 			}
 			else {
 				// no song exists
-				console.error("No song exists for the area", this.areaName, "at the time", this.time);
+				console.error("No song exists for the area", this.areaName, "at the time", Event.time);
 				// no need to load a song
 				return;
 			}
 		}
-		if (this.playingMusic !== Areas[this.areaName]["song_" + this.time]) {
-			this.loadMusic(Areas[this.areaName]["song_" + this.time]);
+		if (this.playingMusic !== Areas[this.areaName]["song_" + Event.time]) {
+			this.loadMusic(Areas[this.areaName]["song_" + Event.time]);
 		}
 	}
 }
@@ -4431,7 +4323,7 @@ Game.update = function (delta) {
 							// merchant appears as an option for choose DOM
 							
 							// filter the sold items to check that they are eligible to be sold
-							let soldItems = role.sold.filter(soldItem => soldItem.eventRequirement === undefined || soldItem.eventRequirement === Game.event);
+							let soldItems = role.sold.filter(soldItem => soldItem.eventRequirement === undefined || soldItem.eventRequirement === Event.event);
 							
 							// filter for condition
 							soldItems = soldItems.filter(soldItem => soldItem.condition === undefined || soldItem.condition() === true);
@@ -5928,12 +5820,12 @@ Game.renderDayNight = function () {
 	// wipe canvas
 	this.ctxDayNight.clearRect(0, 0, 600, 600);
 	// make canvas darker if it is night time and the player is not indoors
-	if (Game.time === "night" && !Areas[Game.areaName].indoors) {
+	if (Event.time === "night" && !Areas[Game.areaName].indoors) {
 		this.ctxDayNight.fillStyle = "black";
 		this.ctxDayNight.globalAlpha = 0.35; // maybe change?
 		this.ctxDayNight.fillRect(0, 0, 600, 600);
 	}
-	else if (Game.time === "bloodMoon" && !Areas[Game.areaName].indoors) {
+	else if (Event.time === "bloodMoon" && !Areas[Game.areaName].indoors) {
 		this.ctxDayNight.fillStyle = "#2d0101"; // red tint
 		this.ctxDayNight.globalAlpha = 0.45;
 		this.ctxDayNight.fillRect(0, 0, 600, 600);

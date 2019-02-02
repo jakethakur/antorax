@@ -1,18 +1,100 @@
 //
-// Events
+// Events and Time
 //
 
-// get date
-let today = new Date();
-let day = today.getDate();
-let month = today.getMonth() + 1; // January is 0, so add 1
-let year = today.getFullYear();
+let Event = {
+	// return variable with dates for use in event setting functions
+	getDate: function () {
+		let d = {};
+		d.today = new Date();
+		d.hour = d.today.getHours();
+		d.day = d.today.getDate();
+		d.month = d.today.getMonth() + 1; // January is 0, so add 1
+		d.year = d.today.getFullYear();
+		return d;
+	},
+	
+	// init variables required for Areas definition (called straight away)
+	init: function () {
+		// get date
+		let d = this.getDate();
+		
+		// antorax age
+		this.antoraxAge = d.year - 2016; // used for some NPC texts (especially on Antorax Day)
+		if (d.day < 20 && d.month === 1) {
+			// before Antorax day; subtract one from age
+			this.antoraxAge--;
+		}
+	},
+	
+	// update time (called on loadArea)
+	// areaName passed in as parameter because Game.areaName has not been set yet by laodArea
+	updateTime: function (areaName) {
+		// get date
+		let d = this.getDate();
+		
+		// check if the area always has a specific time
+		if (Areas[areaName].time !== undefined) {
+			this.time = Areas[areaName].time;
+		}
+		
+		// Summer Solstice - sun up all day
+		if (d.day == 21 && d.month == 6) {
+			this.time = "day";
+		}
+		// Winter Solstice - sun down all day
+		else if (d.day == 21 && d.month == 12) {
+			this.time = "night";
+		}
+	
+		// day time
+		if (d.hour >= 7 && d.hour < 19) {
+			this.time = "day";
+		}
+		// night time
+		else if (this.event === "Samhain") {
+			this.time = "bloodMoon";
+		}
+		else {
+			this.time = "night";
+		}
+	},
+	
+	// update event (called on loadArea)
+	updateEvent: function () {
+		// get date
+		let d = this.getDate();
+		
+		// James Day
+		// Summer Solstice
+		if (d.day === 21 && d.month === 6) {
+			this.event = "James";
+		}
+		// Samhain (Halloween)
+		// Blood Moon
+		else if ((d.day >= 22 && d.month === 10) || (d.day <= 5 && d.month === 11)) {
+			this.event = "Samhain";
+		}
+		// Christmas
+		else if (d.month === 12) {
+			this.event = "Christmas";
+			// Christmas Day
+			if (d.day === 25) {
+				this.christmasDay = true;
+			}
+			else {
+				this.christmasDay = false;
+			}
+		}
+		// Antorax Day
+		else if (d.month === 1 && d.day === 20) {
+			this.event = "Antorax";
+		}
+	}
+};
 
-let antoraxAge = year - 2016; // used for some NPC texts (especially on Antorax Day)
-if (day < 20 && month === 1) {
-	// before Antorax day; subtract one from age
-	antoraxAge--;
-}
+// init event variables needed for Area definition
+Event.init();
 
 //
 // Loot area defintion
@@ -52,7 +134,7 @@ var Areas = {
 				[],
 			],
 			interactWithTile: function(tileNum, x, y) { // pick up snowball from rock
-				if (tileNum === 6 && Game.event === "Christmas"){ // rock top centre
+				if (tileNum === 6 && Event.event === "Christmas"){ // rock top centre
 					// give snowball to player
 					if (Dom.inventory.give(Items.bow[8], 1)) { // check if player has enough inventory space
 						if(Player.quests.questProgress.snowCollected === undefined){
@@ -73,7 +155,7 @@ var Areas = {
 						},60000);
 					}
 				}
-				else if (tileNum === 13 && Game.event === "Christmas") { // rock bottom centre
+				else if (tileNum === 13 && Event.event === "Christmas") { // rock bottom centre
 					// give snowball to player
 					if (Dom.inventory.give(Items.bow[8], 1)) { // check if player has enough inventory space
 						if(Player.quests.questProgress.snowCollected === undefined){
@@ -98,7 +180,7 @@ var Areas = {
 		},
 		
 		isIcy: function() {
-			return Game.event === "Christmas";
+			return Event.event === "Christmas";
 		},
 		
 		images: {
@@ -393,7 +475,7 @@ var Areas = {
 				[],
 			],
 			interactWithTile: function(tileNum, x, y) { // pick up snowball from rock
-				if (tileNum === 8 && Game.event === "Christmas"){ // rock top centre
+				if (tileNum === 8 && Event.event === "Christmas"){ // rock top centre
 					// give snowball to player
 					if (Dom.inventory.give(Items.bow[8], 1)) { // check if player has enough inventory space
 						if(Player.quests.questProgress.snowCollected === undefined){
@@ -414,7 +496,7 @@ var Areas = {
 						},60000);
 					}
 				}
-				else if (tileNum === 17 && Game.event === "Christmas") { // rock bottom centre
+				else if (tileNum === 17 && Event.event === "Christmas") { // rock bottom centre
 					// give snowball to player
 					if (Dom.inventory.give(Items.bow[8], 1)) { // check if player has enough inventory space
 						if(Player.quests.questProgress.snowCollected === undefined){
@@ -439,7 +521,7 @@ var Areas = {
 		},
 		
 		isIcy: function() {
-			return Game.event === "Christmas";
+			return Event.event === "Christmas";
 		},
 		
 		images: {
@@ -617,7 +699,7 @@ var Areas = {
 					inventoryFull: "You have no space to hold this. Empty your bags a bit and come back.",
 					shopLeave: "I expect a fine job done.",
 					christmasGreeting: "Yes, I <strong>do</strong> celebrate Christmas.",
-					antoraxDayGreeting: `This Logging Camp has been operating at full capacity for ${antoraxAge} years today. Don't think today will be any different.`,
+					antoraxDayGreeting: `This Logging Camp has been operating at full capacity for ${Event.antoraxAge} years today. Don't think today will be any different.`,
 				},
 			},
 			{
@@ -658,7 +740,7 @@ var Areas = {
 							{item: Items.sword[9], cost: 3, costCurrency: 5,}, // Icicle
 						],
 						roleRequirement: function () {
-							return Game.event === "Christmas" && Player.quests.completedQuestArray.includes("Combat Training");
+							return Event.event === "Christmas" && Player.quests.completedQuestArray.includes("Combat Training");
 						},
 						shopGreeting: "I have some special weapons you can purchase this Christmas.",
 					},
@@ -671,7 +753,7 @@ var Areas = {
 					shopLeave: "I wish you the best in your battles.",
 					tooPoor: "You can't afford that. You know what to do - Kill!",
 					christmasGreeting: `Merry Christmas, ${Player.name}! What better a day to be practising your combat.`,
-					antoraxDayGreeting: `Have a jolly Antorax day, ${Player.name}. I've been killing enemies for ${antoraxAge} years - this calls for some celebration!`,
+					antoraxDayGreeting: `Have a jolly Antorax day, ${Player.name}. I've been killing enemies for ${Event.antoraxAge} years - this calls for some celebration!`,
 				},
 			},
 			{
@@ -730,7 +812,7 @@ var Areas = {
 							{item: Items.sword[8], cost: 25, costCurrency: 5,}, // Permafrost
 						],
 						roleRequirement: function () {
-							return Game.event === "Christmas" && Player.quests.completedQuestArray.includes("Retrieval of Logs");
+							return Event.event === "Christmas" && Player.quests.completedQuestArray.includes("Retrieval of Logs");
 						},
 						shopGreeting: "I have some rare weapons that you can buy this Christmas with your Christmas Tokens.",
 					},
@@ -805,7 +887,7 @@ var Areas = {
 					chooseChat: "Blessings to you.",
 					inventoryFull: "I don't think you have space for that.",
 					christmasGreeting: "You have my blessings on this sacred day.",
-					antoraxDayGreeting: `I think many of us can say that Antorax has made us much stronger over these ${antoraxAge} years.`,
+					antoraxDayGreeting: `I think many of us can say that Antorax has made us much stronger over these ${Event.antoraxAge} years.`,
 				},
 			},
 			{
@@ -848,7 +930,7 @@ var Areas = {
 						role: "merchant",
 						chooseText: "I'd like to buy some fireworks.",
 						roleRequirement: function () {
-							return Game.event === "Antorax";
+							return Event.event === "Antorax";
 						},
 						shopGreeting: "More fireworks! Let's set the sky on fire this Antorax Day.",
 					},
@@ -861,7 +943,7 @@ var Areas = {
 					inventoryFull: "Empty your inventory a bit and come back.",
 					questComplete: "I'll have more traps for you to place in a bit. Come back tomorrow.",
 					christmasGreeting: "Have a good Christmas. It's my day off for trap making today.",
-					antoraxDayGreeting: `Trap making for ${antoraxAge} years? You're making me feel old.`,
+					antoraxDayGreeting: `Trap making for ${Event.antoraxAge} years? You're making me feel old.`,
 				},
 			},
 			{
@@ -1030,7 +1112,7 @@ var Areas = {
 				unreadImage: "christmasTreeUnread",
 				name: "Christmas Tree",
 				canBeShown: function () {
-					return Game.event === "Christmas";
+					return Event.event === "Christmas";
 				},
 			},
 		],
@@ -1043,7 +1125,7 @@ var Areas = {
 				name: "Christmas Lights",
 				bright: true,
 				canBeShown: function () {
-					return Game.event === "Christmas";
+					return Event.event === "Christmas";
 				},
 				// change colour!
 				onLoad: function () {
@@ -1217,7 +1299,7 @@ var Areas = {
 					}
 				}
 				// pick up snowball from rock
-				else if (tileNum === 29 && Game.event === "Christmas"){ // rock top centre
+				else if (tileNum === 29 && Event.event === "Christmas"){ // rock top centre
 					// give snowball to player
 					if (Dom.inventory.give(Items.bow[8], 1) !== false) { // check if player has enough inventory space
 						if(Player.quests.questProgress.snowCollected === undefined){
@@ -1238,7 +1320,7 @@ var Areas = {
 						},60000);
 					}
 				}
-				else if (tileNum === 39 && Game.event === "Christmas") { // rock bottom centre
+				else if (tileNum === 39 && Event.event === "Christmas") { // rock bottom centre
 					// give snowball to player
 					if (Dom.inventory.give(Items.bow[8], 1) !== false) { // check if player has enough inventory space
 						if(Player.quests.questProgress.snowCollected === undefined){
@@ -1263,7 +1345,7 @@ var Areas = {
 		},
 		
 		isIcy: function() {
-			return Game.event === "Christmas";
+			return Event.event === "Christmas";
 		},
 		
 		images: {
@@ -1476,7 +1558,7 @@ var Areas = {
 		
 		data: {
 			name: "The Nilbog",
-			level: (250+antoraxAge) + " years ago...",
+			level: (250+Event.antoraxAge) + " years ago...",
 			territory: "Hostile",
 			displayOnEnter: true,
 		},
