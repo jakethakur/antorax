@@ -149,7 +149,7 @@ var Adventure = {
 			<span style="font-size: 20px;">Celebrate Christmas with the logging camp.</span>\
 		</div>',
 		condition: function () {
-			return Game.event === "Christmas";
+			return Event.event === "Christmas";
 		},
 	}
 };

@@ -7,6 +7,9 @@ var obtained = document.getElementById("obtained");
 var min = document.getElementById("min");
 var max = document.getElementById("max");
 var searchBar = document.getElementById("searchBar");
+var Archer = JSON.parse(localStorage.getItem("a"));
+var Mage = JSON.parse(localStorage.getItem("m"));
+var Knight = JSON.parse(localStorage.getItem("k"));
 
 //array = Achievements;
 
@@ -163,6 +166,33 @@ function arrange(){
 		}
 		if(array[i].size !== undefined){
 			document.getElementById("img"+i).style.backgroundSize = array[i].size;
+		}
+		if(array[i].expand !== undefined){
+			if(array[i].expand.type === "progressBar"){
+				document.getElementById("box"+i).innerHTML += "<div class='progressBar' id='progressBar"+i+"' hidden><div class='innerProgressBar' style='width: "+(array[i].expand.value/array[i].expand.total*433)+"px;'></div><div class='progressBarText'>"+array[i].expand.value+"/"+array[i].expand.total+"</div></div>";
+			}else if(array[i].expand.type === "checkList"){
+				document.getElementById("box"+i).innerHTML += "<div class='checkList' id='progressBar"+i+"' hidden></div>";
+				for(let x = 0; x < array[i].expand.text.length; x++){
+					document.getElementById("progressBar"+i).innerHTML += array[i].expand.text[x]+"<strong>"+(Archer.quests.questProgress[array[i].expand.complete[x]] ? "&#10166" : "")+(Mage.quests.questProgress[array[i].expand.complete[x]] ? "&#9882" : "")+(Knight.quests.questProgress[array[i].expand.complete[x]] ? "&#9876" : "")+"</strong><br>";
+				}
+			}
+		}
+	}
+	for(let i = 0; i < array.length; i++){
+		if(array[i].expand !== undefined){
+			document.getElementById("box"+i).onclick = function(){
+				if(document.getElementById("progressBar"+i).hidden){
+					if(array[i].expand.type === "progressBar"){
+						document.getElementById("box"+i).style.height = "100px";
+					}else{
+						document.getElementById("box"+i).style.height = "100%";
+					}
+					document.getElementById("progressBar"+i).hidden = false;
+				}else{
+					document.getElementById("box"+i).style.height = "60px";
+					document.getElementById("progressBar"+i).hidden = true;
+				}
+			}
 		}
 	}
 	document.getElementById("filters").style.width = (((Math.floor((screenSize-45)/490)))*490)-35+"px";

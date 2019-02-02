@@ -9,7 +9,7 @@ const EnemyLootTables = {
 		{ // samhain mark
 			item: Items.currency[4],
 			condition: function () {
-				if (Game.time === "bloodMoon") {
+				if (Event.time === "bloodMoon") {
 					return true;
 				}
 				return false;
@@ -142,7 +142,7 @@ const BossLootTables = {
 		{ // samhain mark
 			item: Items.currency[4],
 			condition: function () {
-				if (Game.time === "bloodMoon") {
+				if (Event.time === "bloodMoon") {
 					return true;
 				}
 				return false;
@@ -229,7 +229,7 @@ const ChestLootTables = {
 		{ // samhain mark
 			item: Items.currency[4],
 			condition: function () {
-				if (Game.time === "bloodMoon") {
+				if (Event.time === "bloodMoon") {
 					return true;
 				}
 				return false;

@@ -8,6 +8,33 @@ body{
 	-ms-user-select: none; /* IE10+/Edge */
 	user-select: none;
 }
+.progressBar{
+	border: 1px solid black;
+	width: 433px;
+	height: 20px;
+	top: 32px;
+	left: 5px;
+	position: relative;
+	text-align: center;
+}
+.innerProgressBar{
+	position: absolute;
+	//top: -0.5px;
+	//left: -0.5px;
+	height: 100%;
+	background-color: purple;
+	max-width: 433px;
+}
+.progressBarText{
+	position: relative;
+	display: inline-block;
+}
+.checkList{
+	font-size: 18px;
+	columns: 2;
+	margin: 5px;
+	margin-top: 10px;
+}
 .box{
 	position: relative;
 	width: 445px;

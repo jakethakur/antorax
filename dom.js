@@ -190,7 +190,7 @@ Dom.quests.active = function(quest){
 				}
 			}
 		}
-		if(currentQuest.eventRequirement === undefined || currentQuest.eventRequirement === Game.event){
+		if(currentQuest.eventRequirement === undefined || currentQuest.eventRequirement === Event.event){
 			let isCompleted = currentQuest.isCompleted();
 			Dom.quests.activeHTML[currentQuest.important] += "<br><br><strong>" + currentQuest.quest + "</strong>";
 			let completedObjectives = 0;
@@ -1270,7 +1270,7 @@ Dom.quests.possible = function(){
 			/*if(!Player.quests.activeQuestArray.includes(Quests[Object.keys(Quests)[i]][x].quest) &&
 			Player.level >= Quests[Object.keys(Quests)[i]][x].levelRequirement && reputation &&
 			IsContainedInArray(Quests[Object.keys(Quests)[i]][x].questRequirements, Player.quests.completedQuestArray) &&
-			(Quests[Object.keys(Quests)[i]][x].eventRequirement === undefined || Quests[Object.keys(Quests)[i]][x].eventRequirement === Game.event) &&
+			(Quests[Object.keys(Quests)[i]][x].eventRequirement === undefined || Quests[Object.keys(Quests)[i]][x].eventRequirement === Event.event) &&
 			(!Player.quests.completedQuestArray.includes(Quests[Object.keys(Quests)[i]][x].quest) ||
 			(Quests[Object.keys(Quests)[i]][x].repeatTime === "daily" &&
 			Player.quests.questLastFinished[Quests[Object.keys(Quests)[i]][x].questArea][Quests[Object.keys(Quests)[i]][x].id] < GetFullDate()))){*/
@@ -1297,7 +1297,7 @@ Dom.quests.possible = function(){
 					questCanBeStarted = false;
 				}
 			}
-			else if (quest.eventRequirement !== undefined && quest.eventRequirement !== Game.event){
+			else if (quest.eventRequirement !== undefined && quest.eventRequirement !== Event.event){
 				questCanBeStarted = false;
 			}
 			else {
@@ -1587,7 +1587,7 @@ Dom.inventory.give = function(item, num, position, noSave){
 						if(Array.isArray(Player.inventory.items[i].lore)){
 							Player.inventory.items[i].lore = item.lore[Random(0, item.lore.length-1)];
 						}
-						if(item.set !== undefined){
+						if(item.set !== undefined && !User.archaeology.includes(Items.set[item.set].name)){
 							let obtained = true;
 							for(let x = 0; x < Items.set[item.set].armour.length; x++){
 								if(!Dom.inventory.find(-1, -1, undefined, undefined, Items.set[item.set].armour[x])){
@@ -1667,7 +1667,7 @@ Dom.inventory.give = function(item, num, position, noSave){
 							}
 							Dom.inventory.update();
 						}
-						if(item.type === "helm" || item.type === "chest" || item.type === "greaves" || item.type === "boots" || item.type === "sword" || item.type === "staff" || item.type === "bow" && !User.archaeology.includes(item.name) && item.name !== undefined){
+						if((item.type === "helm" || item.type === "chest" || item.type === "greaves" || item.type === "boots" || item.type === "sword" || item.type === "staff" || item.type === "bow") && !User.archaeology.includes(item.name) && item.name !== undefined){
 							User.archaeology.push(item.name);
 						}
 						if(item.images !== undefined){
@@ -1690,7 +1690,7 @@ Dom.inventory.give = function(item, num, position, noSave){
 		if(Array.isArray(Player.inventory.items[position].lore)){
 			Player.inventory.items[position].lore = item.lore[Random(0, item.lore.length-1)];
 		}
-		if(item.set !== undefined){
+		if(item.set !== undefined && !User.archaeology.includes(Items.set[item.set].name)){
 			let obtained = true;
 			for(let x = 0; x < Items.set[item.set].armour.length; x++){
 				if(!Dom.inventory.find(-1, -1, undefined, undefined, Items.set[item.set].armour[x])){
@@ -1775,7 +1775,7 @@ Dom.inventory.give = function(item, num, position, noSave){
 			}
 			Dom.inventory.update();
 		}
-		if(item.type === "helm" || item.type === "chest" || item.type === "greaves" || item.type === "boots" || item.type === "sword" || item.type === "staff" || item.type === "bow" && !User.archaeology.includes(item.name) && item.name !== undefined){
+		if((item.type === "helm" || item.type === "chest" || item.type === "greaves" || item.type === "boots" || item.type === "sword" || item.type === "staff" || item.type === "bow") && !User.archaeology.includes(item.name) && item.name !== undefined){
 			User.archaeology.push(item.name);
 		}
 	}
@@ -1852,14 +1852,18 @@ Dom.inventory.cooldown = function(inventoryPosition, check){
 						Player.inventory.items[i].cooldownStart = GetFullDateTime();
 					}
 				}
-				item[inventoryPosition].onClickFunction(inventoryPosition);
+				if((item[inventoryPosition].onClickEventRequirement === undefined || item[inventoryPosition].onClickEventRequirement === Event.event) && (item[inventoryPosition].onClickAreaRequirement === undefined || item[inventoryPosition].onClickAreaRequirement.includes(Game.area))){
+					item[inventoryPosition].onClickFunction(inventoryPosition);
+				}
 			}else{
 				return true;
 			}
 		}
 	}else{
 		if(!check){
-			item[inventoryPosition].onClickFunction(inventoryPosition);
+			if((item[inventoryPosition].onClickEventRequirement === undefined || item[inventoryPosition].onClickEventRequirement === Event.event) && (item[inventoryPosition].onClickAreaRequirement === undefined || item[inventoryPosition].onClickAreaRequirement.includes(Game.area))){
+				item[inventoryPosition].onClickFunction(inventoryPosition);
+			}
 		}else{
 			return true;
 		}
@@ -3573,6 +3577,7 @@ Dom.mail.page = function(){
 						}
 					}else if(Player.mail.mail[i].give !== undefined){
 						Player.mail.opened.pop();
+						Dom.alert.page("You do not have sufficient inventory space to hold the items attached to this mail. Come back to collect them when you have more space.", 0);
 					}
 				}
 				if(Player.mail.mail[i].openFunction !== "quest.start"){
@@ -3837,283 +3842,315 @@ if(localStorage.getItem(Player.class) !== null){
 }
 
 // LOADS AN EXISTING CLASS
-document.getElementById("itemInventory").innerHTML = "";
-for(let i = 0; i < Player.inventory.items.length/6; i++){
-	document.getElementById("itemInventory").innerHTML += "<tr>\
-		<td ondrop=\"Dom.inventory.drop(event);Game.inventoryUpdate(event)\" ondragover=\"Dom.inventory.allowDrop(event)\" onmouseover=\"Dom.inventory.displayInformation(Player.inventory.items["+6*i+"])\" onmouseleave=\"Dom.expand('information')\" ondrag=\"Dom.expand('information')\" onclick=\"Game.inventoryUpdate()\"></td>\
-		<td ondrop=\"Dom.inventory.drop(event);Game.inventoryUpdate(event)\" ondragover=\"Dom.inventory.allowDrop(event)\" onmouseover=\"Dom.inventory.displayInformation(Player.inventory.items["+(6*i+1)+"])\" onmouseleave=\"Dom.expand('information')\" ondrag=\"Dom.expand('information')\" onclick=\"Game.inventoryUpdate()\"></td>\
-		<td ondrop=\"Dom.inventory.drop(event);Game.inventoryUpdate(event)\" ondragover=\"Dom.inventory.allowDrop(event)\" onmouseover=\"Dom.inventory.displayInformation(Player.inventory.items["+(6*i+2)+"])\" onmouseleave=\"Dom.expand('information')\" ondrag=\"Dom.expand('information')\" onclick=\"Game.inventoryUpdate()\"></td>\
-		<td ondrop=\"Dom.inventory.drop(event);Game.inventoryUpdate(event)\" ondragover=\"Dom.inventory.allowDrop(event)\" onmouseover=\"Dom.inventory.displayInformation(Player.inventory.items["+(6*i+3)+"])\" onmouseleave=\"Dom.expand('information')\" ondrag=\"Dom.expand('information')\" onclick=\"Game.inventoryUpdate()\"></td>\
-		<td ondrop=\"Dom.inventory.drop(event);Game.inventoryUpdate(event)\" ondragover=\"Dom.inventory.allowDrop(event)\" onmouseover=\"Dom.inventory.displayInformation(Player.inventory.items["+(6*i+4)+"])\" onmouseleave=\"Dom.expand('information')\" ondrag=\"Dom.expand('information')\" onclick=\"Game.inventoryUpdate()\"></td>\
-		<td ondrop=\"Dom.inventory.drop(event);Game.inventoryUpdate(event)\" ondragover=\"Dom.inventory.allowDrop(event)\" onmouseover=\"Dom.inventory.displayInformation(Player.inventory.items["+(6*i+5)+"])\" onmouseleave=\"Dom.expand('information')\" ondrag=\"Dom.expand('information')\" onclick=\"Game.inventoryUpdate()\"></td>\
-	</tr>"
-}
-for(let i = 0; i < Player.inventory.items.length; i++){
-	// if the item has melted
-	if(Player.inventory.items[i].image !== undefined && !Player.inventory.items[i].unidentified && Items[Player.inventory.items[i].type][Player.inventory.items[i].id].deleteIf !== undefined && Items[Player.inventory.items[i].type][Player.inventory.items[i].id].deleteIf()){
-		setTimeout(function(){
-			Dom.chat.insert("It's not snowy any more! Your "+Player.inventory.items[i].name+" melted.", 0, true);
-			Player.inventory.items[i] = {};
-		},1000);
-	}else if(Player.inventory.items[i].image !== undefined){
-		Dom.inventory.prepare(Player.inventory.items, i, document.getElementById("itemInventory").getElementsByTagName("td")[i]);
-		/*if(Player.inventory.items[i].chooseStats !== undefined){
-			Items[Player.inventory.items[i].type][Player.inventory.items[i].id].onClick = Dom.inventory.chooseStats;
-		}*/
-		/*if(Player.inventory.items[i].type === "food"){
-			Items[Player.inventory.items[i].type][Player.inventory.items[i].id].onClick = Dom.inventory.food;
-			Items[Player.inventory.items[i].type][Player.inventory.items[i].id].functionText = "Restores "+item.healthRestore+" health over "+item.healthRestoreTime+" seconds (whilst not in combat)";
-		}
-		if(Player.inventory.items[i].type === "teleport"){
-			Items[Player.inventory.items[i].type][Player.inventory.items[i].id].onClick = Dom.inventory.teleport;
-		}
-		if((Player.inventory.items[i].type === "sword" || Player.inventory.items[i].type === "staff" || Player.inventory.items[i].type === "bow" || Player.inventory.items[i].type === "rod") && Player.inventory.items[i].name !== undefined){
-			Items[Player.inventory.items[i].type][Player.inventory.items[i].id].onClick = function(i){
-				if(!isNaN(i)){
-					Dom.inventory.drop(undefined, "weapon", i);
-				}else{
-					if(Player.inventory[i].chooseStats !== undefined){
-						Dom.inventory.chooseStats(i);
-					}else{
-						if(Dom.inventory.give(Player.inventory[i], 1, undefined, true) !== false){ // don't save while you have one equipped AND on in inventory
-							Dom.inventory.deEquip = true;
-							Dom.inventory.removeEquipment(Player.inventory[i]);
-							Player.inventory[i] = {};
-							document.getElementById(i).innerHTML = "";
-						}
-					}
-				}
-			}
-		}
-		if((Player.inventory.items[i].type === "helm" || Player.inventory.items[i].type === "chest" || Player.inventory.items[i].type === "greaves" || Player.inventory.items[i].type === "boots") && Player.inventory.items[i].name !== undefined){
-			Items[Player.inventory.items[i].type][Player.inventory.items[i].id].onClick = function(i){
-				if(!isNaN(i)){
-					Dom.inventory.drop(undefined, Player.inventory.items[i].type, i);
-				}else{
-					if(Player.inventory[i].chooseStats !== undefined){
-						Dom.inventory.chooseStats(i);
-					}else{
-						if(Dom.inventory.give(Player.inventory[i], 1, undefined, true) !== false){ // don't save while you have one equipped AND on in inventory
-							Dom.inventory.deEquip = true;
-							Dom.inventory.removeEquipment(Player.inventory[i]);
-							Player.inventory[i] = {};
-							document.getElementById(i).innerHTML = "";
-						}
-					}
-				}
-			}
-		}
-		if(!Player.inventory.items[i].unidentified){
-			Player.inventory.items[i].onClickFunction = Items[Player.inventory.items[i].type][Player.inventory.items[i].id].onClick;
-			if(Player.inventory.items[i].onClickFunction !== undefined){
-				if(Player.inventory.items[i].channel !== undefined){
-					Player.inventory.items[i].onClick = function(inventoryPosition){
-						Game.hero.channel(Dom.inventory.cooldown, [inventoryPosition], Player.inventory.items[inventoryPosition].channel);
-					}
-				}else{
-					Player.inventory.items[i].onClick = Dom.inventory.cooldown;
-				}
-			}
-			Player.inventory.items[i].onKill = Items[Player.inventory.items[i].type][Player.inventory.items[i].id].onKill;
-			Player.inventory.items[i].onHit = Items[Player.inventory.items[i].type][Player.inventory.items[i].id].onHit;
-			Player.inventory.items[i].onAttack = Items[Player.inventory.items[i].type][Player.inventory.items[i].id].onAttack;
-			Player.inventory.items[i].quest = Items[Player.inventory.items[i].type][Player.inventory.items[i].id].quest;
-		}
-		document.getElementById("itemInventory").getElementsByTagName("td")[i].innerHTML = "<img src='"+Player.inventory.items[i].image+"' draggable='true' ondragstart='Dom.inventory.drag(event,"+i+")' "+(Player.inventory.items[i].onClick !== undefined ? "onclick='Player.inventory.items["+i+"].onClick("+i+")'" : "")+"></img>";
-		if(Player.inventory.items[i].stacked !== undefined && Player.inventory.items[i].stacked !== 1){
-			document.getElementById("itemInventory").getElementsByTagName("td")[i].innerHTML += "<div class='stackNum' id='stackNum"+i+"'>"+Player.inventory.items[i].stacked+"</div>";
-		}
-	}else{
-		document.getElementById("itemInventory").getElementsByTagName("td")[i].innerHTML = "";*/
+Dom.init = function(){
+	document.getElementById("itemInventory").innerHTML = "";
+	for(let i = 0; i < Player.inventory.items.length/6; i++){
+		document.getElementById("itemInventory").innerHTML += "<tr>\
+			<td ondrop=\"Dom.inventory.drop(event);Game.inventoryUpdate(event)\" ondragover=\"Dom.inventory.allowDrop(event)\" onmouseover=\"Dom.inventory.displayInformation(Player.inventory.items["+6*i+"])\" onmouseleave=\"Dom.expand('information')\" ondrag=\"Dom.expand('information')\" onclick=\"Game.inventoryUpdate()\"></td>\
+			<td ondrop=\"Dom.inventory.drop(event);Game.inventoryUpdate(event)\" ondragover=\"Dom.inventory.allowDrop(event)\" onmouseover=\"Dom.inventory.displayInformation(Player.inventory.items["+(6*i+1)+"])\" onmouseleave=\"Dom.expand('information')\" ondrag=\"Dom.expand('information')\" onclick=\"Game.inventoryUpdate()\"></td>\
+			<td ondrop=\"Dom.inventory.drop(event);Game.inventoryUpdate(event)\" ondragover=\"Dom.inventory.allowDrop(event)\" onmouseover=\"Dom.inventory.displayInformation(Player.inventory.items["+(6*i+2)+"])\" onmouseleave=\"Dom.expand('information')\" ondrag=\"Dom.expand('information')\" onclick=\"Game.inventoryUpdate()\"></td>\
+			<td ondrop=\"Dom.inventory.drop(event);Game.inventoryUpdate(event)\" ondragover=\"Dom.inventory.allowDrop(event)\" onmouseover=\"Dom.inventory.displayInformation(Player.inventory.items["+(6*i+3)+"])\" onmouseleave=\"Dom.expand('information')\" ondrag=\"Dom.expand('information')\" onclick=\"Game.inventoryUpdate()\"></td>\
+			<td ondrop=\"Dom.inventory.drop(event);Game.inventoryUpdate(event)\" ondragover=\"Dom.inventory.allowDrop(event)\" onmouseover=\"Dom.inventory.displayInformation(Player.inventory.items["+(6*i+4)+"])\" onmouseleave=\"Dom.expand('information')\" ondrag=\"Dom.expand('information')\" onclick=\"Game.inventoryUpdate()\"></td>\
+			<td ondrop=\"Dom.inventory.drop(event);Game.inventoryUpdate(event)\" ondragover=\"Dom.inventory.allowDrop(event)\" onmouseover=\"Dom.inventory.displayInformation(Player.inventory.items["+(6*i+5)+"])\" onmouseleave=\"Dom.expand('information')\" ondrag=\"Dom.expand('information')\" onclick=\"Game.inventoryUpdate()\"></td>\
+		</tr>"
 	}
-}
-document.getElementById("itemInventory").getElementsByTagName("td")[5].style.backgroundImage = "url('assets/items/bag/1.png')";
-for(let i = 0; i < Object.keys(Player.inventory).length-1; i++){ // repeats for each equipment slot
-	if(Player.inventory[Object.keys(Player.inventory)[i]].image !== undefined && Items[Player.inventory[Object.keys(Player.inventory)[i]].type][Player.inventory[Object.keys(Player.inventory)[i]].id].deleteIf !== undefined && Items[Player.inventory[Object.keys(Player.inventory)[i]].type][Player.inventory[Object.keys(Player.inventory)[i]].id].deleteIf()){
-		setTimeout(function(){
-			Dom.chat.insert("It's not snowy any more! Your "+Player.inventory[Object.keys(Player.inventory)[i]].name+" melted.", 0, true);
-			Player.inventory[Object.keys(Player.inventory)[i]] = {};
-		},1000);
-	}else if(Player.inventory[Object.keys(Player.inventory)[i]].image !== undefined){
-		Dom.inventory.prepare(Player.inventory, Object.keys(Player.inventory)[i], document.getElementById(Object.keys(Player.inventory)[i]));
-		/*if(Player.inventory[Object.keys(Player.inventory)[i]].chooseStats !== undefined){
-			Items[Player.inventory[Object.keys(Player.inventory)[i]].type][Player.inventory[Object.keys(Player.inventory)[i]].id].onClick = Dom.inventory.chooseStats;
-		}*/
-		/*if(Player.inventory[Object.keys(Player.inventory)[i]].type === "sword" || Player.inventory[Object.keys(Player.inventory)[i]].type === "staff" || Player.inventory[Object.keys(Player.inventory)[i]].type === "bow" || Player.inventory[Object.keys(Player.inventory)[i]].type === "rod"){
-			Items[Player.inventory[Object.keys(Player.inventory)[i]].type][Player.inventory[Object.keys(Player.inventory)[i]].id].onClick = function(i){
-				if(!isNaN(i)){
-					Dom.inventory.drop(undefined, "weapon", i);
-				}else{
-					if(Player.inventory[i].chooseStats !== undefined){
-						Dom.inventory.chooseStats(i);
+	for(let i = 0; i < Player.inventory.items.length; i++){
+		// if the item has melted
+		if(Player.inventory.items[i].image !== undefined && !Player.inventory.items[i].unidentified && Items[Player.inventory.items[i].type][Player.inventory.items[i].id].deleteIf !== undefined && Items[Player.inventory.items[i].type][Player.inventory.items[i].id].deleteIf()){
+			setTimeout(function(){
+				Dom.chat.insert("It's not snowy any more! Your "+Player.inventory.items[i].name+" melted.", 0, true);
+				Player.inventory.items[i] = {};
+			},1000);
+		}else if(Player.inventory.items[i].image !== undefined){
+			Dom.inventory.prepare(Player.inventory.items, i, document.getElementById("itemInventory").getElementsByTagName("td")[i]);
+			/*if(Player.inventory.items[i].chooseStats !== undefined){
+				Items[Player.inventory.items[i].type][Player.inventory.items[i].id].onClick = Dom.inventory.chooseStats;
+			}*/
+			/*if(Player.inventory.items[i].type === "food"){
+				Items[Player.inventory.items[i].type][Player.inventory.items[i].id].onClick = Dom.inventory.food;
+				Items[Player.inventory.items[i].type][Player.inventory.items[i].id].functionText = "Restores "+item.healthRestore+" health over "+item.healthRestoreTime+" seconds (whilst not in combat)";
+			}
+			if(Player.inventory.items[i].type === "teleport"){
+				Items[Player.inventory.items[i].type][Player.inventory.items[i].id].onClick = Dom.inventory.teleport;
+			}
+			if((Player.inventory.items[i].type === "sword" || Player.inventory.items[i].type === "staff" || Player.inventory.items[i].type === "bow" || Player.inventory.items[i].type === "rod") && Player.inventory.items[i].name !== undefined){
+				Items[Player.inventory.items[i].type][Player.inventory.items[i].id].onClick = function(i){
+					if(!isNaN(i)){
+						Dom.inventory.drop(undefined, "weapon", i);
 					}else{
-						if(Dom.inventory.give(Player.inventory[i], 1, undefined, true) !== false){ // don't save while you have one equipped AND on in inventory
-							Dom.inventory.deEquip = true;
-							Dom.inventory.removeEquipment(Player.inventory[i]);
-							Player.inventory[i] = {};
-							document.getElementById(i).innerHTML = "";
+						if(Player.inventory[i].chooseStats !== undefined){
+							Dom.inventory.chooseStats(i);
+						}else{
+							if(Dom.inventory.give(Player.inventory[i], 1, undefined, true) !== false){ // don't save while you have one equipped AND on in inventory
+								Dom.inventory.deEquip = true;
+								Dom.inventory.removeEquipment(Player.inventory[i]);
+								Player.inventory[i] = {};
+								document.getElementById(i).innerHTML = "";
+							}
 						}
 					}
 				}
 			}
-		}
-		if(Player.inventory[Object.keys(Player.inventory)[i]].type === "helm" || Player.inventory[Object.keys(Player.inventory)[i]].type === "chest" || Player.inventory[Object.keys(Player.inventory)[i]].type === "greaves" || Player.inventory[Object.keys(Player.inventory)[i]].type === "boots"){
-			Items[Player.inventory[Object.keys(Player.inventory)[i]].type][Player.inventory[Object.keys(Player.inventory)[i]].id].onClick = function(i){
-				if(!isNaN(i)){
-					Dom.inventory.drop(undefined, Player.inventory.items[i].type, i);
-				}else{
-					if(Player.inventory[i].chooseStats !== undefined){
-						Dom.inventory.chooseStats(i);
+			if((Player.inventory.items[i].type === "helm" || Player.inventory.items[i].type === "chest" || Player.inventory.items[i].type === "greaves" || Player.inventory.items[i].type === "boots") && Player.inventory.items[i].name !== undefined){
+				Items[Player.inventory.items[i].type][Player.inventory.items[i].id].onClick = function(i){
+					if(!isNaN(i)){
+						Dom.inventory.drop(undefined, Player.inventory.items[i].type, i);
 					}else{
-						if(Dom.inventory.give(Player.inventory[i], 1, undefined, true) !== false){ // don't save while you have one equipped AND on in inventory
-							Dom.inventory.deEquip = true;
-							Dom.inventory.removeEquipment(Player.inventory[i]);
-							Player.inventory[i] = {};
-							document.getElementById(i).innerHTML = "";
+						if(Player.inventory[i].chooseStats !== undefined){
+							Dom.inventory.chooseStats(i);
+						}else{
+							if(Dom.inventory.give(Player.inventory[i], 1, undefined, true) !== false){ // don't save while you have one equipped AND on in inventory
+								Dom.inventory.deEquip = true;
+								Dom.inventory.removeEquipment(Player.inventory[i]);
+								Player.inventory[i] = {};
+								document.getElementById(i).innerHTML = "";
+							}
 						}
 					}
 				}
 			}
-		}
-		if(Player.inventory[Object.keys(Player.inventory)[i]].image !== undefined){
-			Player.inventory[Object.keys(Player.inventory)[i]].onClickFunction = Items[Player.inventory[Object.keys(Player.inventory)[i]].type][Player.inventory[Object.keys(Player.inventory)[i]].id].onClick;
-			if(Player.inventory[Object.keys(Player.inventory)[i]].onClickFunction !== undefined){
-				if(Player.inventory[Object.keys(Player.inventory)[i]].channel !== undefined){
-					Player.inventory[Object.keys(Player.inventory)[i]].onClick = function(inventoryPosition){
-						Game.hero.channel(Dom.inventory.cooldown, [inventoryPosition], Player.inventory.items[inventoryPosition].channel);
+			if(!Player.inventory.items[i].unidentified){
+				Player.inventory.items[i].onClickFunction = Items[Player.inventory.items[i].type][Player.inventory.items[i].id].onClick;
+				if(Player.inventory.items[i].onClickFunction !== undefined){
+					if(Player.inventory.items[i].channel !== undefined){
+						Player.inventory.items[i].onClick = function(inventoryPosition){
+							Game.hero.channel(Dom.inventory.cooldown, [inventoryPosition], Player.inventory.items[inventoryPosition].channel);
+						}
+					}else{
+						Player.inventory.items[i].onClick = Dom.inventory.cooldown;
 					}
-				}else{
-					Player.inventory[Object.keys(Player.inventory)[i]].onClick = Dom.inventory.cooldown;
 				}
+				Player.inventory.items[i].onKill = Items[Player.inventory.items[i].type][Player.inventory.items[i].id].onKill;
+				Player.inventory.items[i].onHit = Items[Player.inventory.items[i].type][Player.inventory.items[i].id].onHit;
+				Player.inventory.items[i].onAttack = Items[Player.inventory.items[i].type][Player.inventory.items[i].id].onAttack;
+				Player.inventory.items[i].quest = Items[Player.inventory.items[i].type][Player.inventory.items[i].id].quest;
 			}
-			Player.inventory[Object.keys(Player.inventory)[i]].onKill = Items[Player.inventory[Object.keys(Player.inventory)[i]].type][Player.inventory[Object.keys(Player.inventory)[i]].id].onKill;
-			Player.inventory[Object.keys(Player.inventory)[i]].onHit = Items[Player.inventory[Object.keys(Player.inventory)[i]].type][Player.inventory[Object.keys(Player.inventory)[i]].id].onHit;
-			Player.inventory[Object.keys(Player.inventory)[i]].onAttack = Items[Player.inventory[Object.keys(Player.inventory)[i]].type][Player.inventory[Object.keys(Player.inventory)[i]].id].onAttack;
-			Player.inventory[Object.keys(Player.inventory)[i]].quest = Items[Player.inventory[Object.keys(Player.inventory)[i]].type][Player.inventory[Object.keys(Player.inventory)[i]].id].quest;
-			document.getElementById(Object.keys(Player.inventory)[i]).innerHTML = "<img src='"+Player.inventory[Object.keys(Player.inventory)[i]].image+"' draggable='true' ondragstart='Dom.inventory.drag(event,\""+Object.keys(Player.inventory)[i]+"\")' "+(Player.inventory[Object.keys(Player.inventory)[i]].onClick !== undefined ? "onclick='Player.inventory."+Object.keys(Player.inventory)[i]+".onClick(\""+Object.keys(Player.inventory)[i]+"\")'" : "")+"></img>"; // updates the image
-		}*/
-	}
-}
-if(Player.reputationReady){
-	Dom.reputation.start();
-}
-for(let i = 0; i < document.getElementsByClassName("hotkey").length; i++){
-	document.getElementsByClassName("hotkey")[i].innerHTML = Keyboard.keys[Object.keys(Keyboard.keys)[i]].toUpperCase();
-	document.getElementsByClassName("hotkey")[i].onclick = function(){
-		if(Dom.settings.hotkey === undefined){
-			document.getElementsByClassName("hotkey")[i].innerHTML = "...";
-			Dom.settings.hotkey = i;
+			document.getElementById("itemInventory").getElementsByTagName("td")[i].innerHTML = "<img src='"+Player.inventory.items[i].image+"' draggable='true' ondragstart='Dom.inventory.drag(event,"+i+")' "+(Player.inventory.items[i].onClick !== undefined ? "onclick='Player.inventory.items["+i+"].onClick("+i+")'" : "")+"></img>";
+			if(Player.inventory.items[i].stacked !== undefined && Player.inventory.items[i].stacked !== 1){
+				document.getElementById("itemInventory").getElementsByTagName("td")[i].innerHTML += "<div class='stackNum' id='stackNum"+i+"'>"+Player.inventory.items[i].stacked+"</div>";
+			}
 		}else{
-			let temp = Keyboard.keys[Object.keys(Keyboard.keys)[Dom.settings.hotkey]];
-			document.getElementsByClassName("hotkey")[Dom.settings.hotkey].innerHTML = document.getElementsByClassName("hotkey")[i].innerHTML;
-			document.getElementsByClassName("hotkey")[i].innerHTML = temp.toUpperCase();
-			Keyboard.keys[Object.keys(Keyboard.keys)[Dom.settings.hotkey]] = Keyboard.keys[Object.keys(Keyboard.keys)[i]];
-			Keyboard.keys[Object.keys(Keyboard.keys)[i]] = temp;
-			Dom.settings.hotkey = undefined;
+			document.getElementById("itemInventory").getElementsByTagName("td")[i].innerHTML = "";*/
 		}
 	}
-}
-document.getElementById("level").innerHTML = "Level "+Player.level;
-for(let i = 0; i < Player.unlockedTabs.length; i++){
-	document.getElementById("change"+Player.unlockedTabs[i][0].toUpperCase()+Player.unlockedTabs[i].slice(1)).style.display = "block";
-	document.getElementById(Player.unlockedTabs[i]+"Image").hidden = false;
-}
-if(Player.unlockedInstructions.length >= Instructions.length){
-	document.getElementById("settingTutorialHolder").hidden = true;
-}
-if(Player.skipTutorial){
-	document.getElementById("tutorialOn").checked = true;
-}
-for(let i = 0; i < Player.statusEffects.length; i++){
-	if(Player.statusEffects[i].title === "HIGH SPEED! (test status effect)"){
-		document.getElementById("speedOn").checked = true;
-	}
-}
-// the first time the player logs on each day
-if (!Player.days.includes(GetFullDate())) {
-	// christmas daily rewards
-	if (GetFullDate().substring(4,6) === "12") {
-		let randomNPC = Player.metNPCs[Random(0, Player.metNPCs.length-1)]; // NPC that sent message
-		if (GetFullDate().substring(6) === "25") { // christmas day
-			Dom.mail.give(
-				"Merry Christmas!",
-				"Father Christmas",
-				"fatherChristmas",
-				"text.page",
-				["Merry Christmas!",
-				"Have a great Christmas! Please enjoy the 2018 Christmas gift.", true, [], [],
-				[{item: Items.item[17],},{item: Items.currency[5], quantity: 5,}]],
-				[{item: Items.item[17],},{item: Items.currency[5], quantity: 5,}],
-			);
-		}else if (GetFullDate().substring(6) < "25") { // before christmas
-			Dom.mail.give(
-				25 - parseInt(GetFullDate().substring(6)) + " Day"+(parseInt(GetFullDate().substring(6)) !== 24 ? "s" : "")+" To Go!",
-				randomNPC,
-				ToCamelCase(randomNPC),
-				"text.page",
-				["Merry Christmas!",
-				"This is your free daily chistmas token. Spend it wisely!", true, [], [],
-				[{item: Items.currency[5]}]], [{item: Items.currency[5]}],
-			);
-		}else { // after christmas (in december)
-			Dom.mail.give(
-				parseInt(GetFullDate().substring(6)) + " of Christmas 2018",
-				randomNPC,
-				ToCamelCase(randomNPC),
-				"text.page",
-				["Merry Christmas!",
-				"This is your free daily chistmas token. Spend it wisely!", true, [], [],
-				[{item: Items.currency[5]}]], [{item: Items.currency[5]}],
-			);
+	document.getElementById("itemInventory").getElementsByTagName("td")[5].style.backgroundImage = "url('assets/items/bag/1.png')";
+	for(let i = 0; i < Object.keys(Player.inventory).length-1; i++){ // repeats for each equipment slot
+		if(Player.inventory[Object.keys(Player.inventory)[i]].image !== undefined && Items[Player.inventory[Object.keys(Player.inventory)[i]].type][Player.inventory[Object.keys(Player.inventory)[i]].id].deleteIf !== undefined && Items[Player.inventory[Object.keys(Player.inventory)[i]].type][Player.inventory[Object.keys(Player.inventory)[i]].id].deleteIf()){
+			setTimeout(function(){
+				Dom.chat.insert("It's not snowy any more! Your "+Player.inventory[Object.keys(Player.inventory)[i]].name+" melted.", 0, true);
+				Player.inventory[Object.keys(Player.inventory)[i]] = {};
+			},1000);
+		}else if(Player.inventory[Object.keys(Player.inventory)[i]].image !== undefined){
+			Dom.inventory.prepare(Player.inventory, Object.keys(Player.inventory)[i], document.getElementById(Object.keys(Player.inventory)[i]));
+			/*if(Player.inventory[Object.keys(Player.inventory)[i]].chooseStats !== undefined){
+				Items[Player.inventory[Object.keys(Player.inventory)[i]].type][Player.inventory[Object.keys(Player.inventory)[i]].id].onClick = Dom.inventory.chooseStats;
+			}*/
+			/*if(Player.inventory[Object.keys(Player.inventory)[i]].type === "sword" || Player.inventory[Object.keys(Player.inventory)[i]].type === "staff" || Player.inventory[Object.keys(Player.inventory)[i]].type === "bow" || Player.inventory[Object.keys(Player.inventory)[i]].type === "rod"){
+				Items[Player.inventory[Object.keys(Player.inventory)[i]].type][Player.inventory[Object.keys(Player.inventory)[i]].id].onClick = function(i){
+					if(!isNaN(i)){
+						Dom.inventory.drop(undefined, "weapon", i);
+					}else{
+						if(Player.inventory[i].chooseStats !== undefined){
+							Dom.inventory.chooseStats(i);
+						}else{
+							if(Dom.inventory.give(Player.inventory[i], 1, undefined, true) !== false){ // don't save while you have one equipped AND on in inventory
+								Dom.inventory.deEquip = true;
+								Dom.inventory.removeEquipment(Player.inventory[i]);
+								Player.inventory[i] = {};
+								document.getElementById(i).innerHTML = "";
+							}
+						}
+					}
+				}
+			}
+			if(Player.inventory[Object.keys(Player.inventory)[i]].type === "helm" || Player.inventory[Object.keys(Player.inventory)[i]].type === "chest" || Player.inventory[Object.keys(Player.inventory)[i]].type === "greaves" || Player.inventory[Object.keys(Player.inventory)[i]].type === "boots"){
+				Items[Player.inventory[Object.keys(Player.inventory)[i]].type][Player.inventory[Object.keys(Player.inventory)[i]].id].onClick = function(i){
+					if(!isNaN(i)){
+						Dom.inventory.drop(undefined, Player.inventory.items[i].type, i);
+					}else{
+						if(Player.inventory[i].chooseStats !== undefined){
+							Dom.inventory.chooseStats(i);
+						}else{
+							if(Dom.inventory.give(Player.inventory[i], 1, undefined, true) !== false){ // don't save while you have one equipped AND on in inventory
+								Dom.inventory.deEquip = true;
+								Dom.inventory.removeEquipment(Player.inventory[i]);
+								Player.inventory[i] = {};
+								document.getElementById(i).innerHTML = "";
+							}
+						}
+					}
+				}
+			}
+			if(Player.inventory[Object.keys(Player.inventory)[i]].image !== undefined){
+				Player.inventory[Object.keys(Player.inventory)[i]].onClickFunction = Items[Player.inventory[Object.keys(Player.inventory)[i]].type][Player.inventory[Object.keys(Player.inventory)[i]].id].onClick;
+				if(Player.inventory[Object.keys(Player.inventory)[i]].onClickFunction !== undefined){
+					if(Player.inventory[Object.keys(Player.inventory)[i]].channel !== undefined){
+						Player.inventory[Object.keys(Player.inventory)[i]].onClick = function(inventoryPosition){
+							Game.hero.channel(Dom.inventory.cooldown, [inventoryPosition], Player.inventory.items[inventoryPosition].channel);
+						}
+					}else{
+						Player.inventory[Object.keys(Player.inventory)[i]].onClick = Dom.inventory.cooldown;
+					}
+				}
+				Player.inventory[Object.keys(Player.inventory)[i]].onKill = Items[Player.inventory[Object.keys(Player.inventory)[i]].type][Player.inventory[Object.keys(Player.inventory)[i]].id].onKill;
+				Player.inventory[Object.keys(Player.inventory)[i]].onHit = Items[Player.inventory[Object.keys(Player.inventory)[i]].type][Player.inventory[Object.keys(Player.inventory)[i]].id].onHit;
+				Player.inventory[Object.keys(Player.inventory)[i]].onAttack = Items[Player.inventory[Object.keys(Player.inventory)[i]].type][Player.inventory[Object.keys(Player.inventory)[i]].id].onAttack;
+				Player.inventory[Object.keys(Player.inventory)[i]].quest = Items[Player.inventory[Object.keys(Player.inventory)[i]].type][Player.inventory[Object.keys(Player.inventory)[i]].id].quest;
+				document.getElementById(Object.keys(Player.inventory)[i]).innerHTML = "<img src='"+Player.inventory[Object.keys(Player.inventory)[i]].image+"' draggable='true' ondragstart='Dom.inventory.drag(event,\""+Object.keys(Player.inventory)[i]+"\")' "+(Player.inventory[Object.keys(Player.inventory)[i]].onClick !== undefined ? "onclick='Player.inventory."+Object.keys(Player.inventory)[i]+".onClick(\""+Object.keys(Player.inventory)[i]+"\")'" : "")+"></img>"; // updates the image
+			}*/
 		}
 	}
-	// Antorax Day mail
-	if (GetFullDate().substring(6) === "20" && GetFullDate().substring(4,6) === "01") {
-		Dom.mail.give(
-			"Antorax is " + antoraxAge + " today!",
-			"The King of Eaglecrest",
-			"eaglecrestKing",
-			"text.page",
-			["Antorax is " + antoraxAge + " today!",
-			`${antoraxAge} years ago today, the realms of Antorax settled on an agreement to cooperate in the archaeology and exploration of these beautiful lands. Although there have been conflicts since then, there have been countless discoveries made by the Antorax alliance, and we endevour to continue.
-			<br><br>This year, there have been countless advancements in the fields of Archaeology, with huge discoveries of mythic items. There have also been developments to the Eaglecrest Logging Camp, and improvements to the accessibility of Antorax for its citizens.
-			<br><br>We hope you enjoy this special day, and that we will celebrate the many more Antorax Days to come together.`, true, [], [],
-			[{item: Items.helm[10]}]], [{item: Items.helm[10]}],
-		);
-		if(!Player.quests.completedQuestArray.includes("The Legend of the Tattered Knight")){
-			Dom.mail.give(
-				"The Legend of the Tattered Knight",
-				"unknown sender",
-				"./assets/items/item/16",
-				"quest.start",
-				["eaglecrestLoggingCamp", 25],
-			);
-		}
+	if(Player.reputationReady){
+		Dom.reputation.start();
 	}
-	// Archaeology mail
-	let done = true;
-	for(let i = 0; i < 7; i++){
-		for(let x = 0; x < Items[Object.keys(Items)[i]].length; x++){
-			if(!Items[Object.keys(Items)[i]][x].uncollectable && !User.archaeology.includes(Items[Object.keys(Items)[i]][x].name) && Items[Object.keys(Items)[i]][x].name !== "Master Archaeologist's Hat"){
-				done = false;
+	for(let i = 0; i < document.getElementsByClassName("hotkey").length; i++){
+		document.getElementsByClassName("hotkey")[i].innerHTML = Keyboard.keys[Object.keys(Keyboard.keys)[i]].toUpperCase();
+		document.getElementsByClassName("hotkey")[i].onclick = function(){
+			if(Dom.settings.hotkey === undefined){
+				document.getElementsByClassName("hotkey")[i].innerHTML = "...";
+				Dom.settings.hotkey = i;
+			}else{
+				let temp = Keyboard.keys[Object.keys(Keyboard.keys)[Dom.settings.hotkey]];
+				document.getElementsByClassName("hotkey")[Dom.settings.hotkey].innerHTML = document.getElementsByClassName("hotkey")[i].innerHTML;
+				document.getElementsByClassName("hotkey")[i].innerHTML = temp.toUpperCase();
+				Keyboard.keys[Object.keys(Keyboard.keys)[Dom.settings.hotkey]] = Keyboard.keys[Object.keys(Keyboard.keys)[i]];
+				Keyboard.keys[Object.keys(Keyboard.keys)[i]] = temp;
+				Dom.settings.hotkey = undefined;
 			}
 		}
 	}
-	if(done){
-		Dom.mail.give(
-			"Master Archaeologist",
-			"!!!",
-			"eaglecrestKing",
-			"text.page",
-			["Master Archaeologist",
-			`Dear ${playerName},
-			<br><br>I am !!!, the lead archaeologist of Antorax. I have noticed your incredible contributions to Antorax's archaeology effort, and would like to congratulate and thank you for them. Without you, we would not have uncovered many of the rare and significant items that are currently residing in the Great Museum, Wizard Island. I trust that we will continue to receive contributions from you in the years to come - there is still lots that has not been discovered.
-			<br><br>I have attached a <strong>Master Archaeologist's Hat</strong>, which I hope you will find of use when uncovering items in the future. A hat like this is incredibly rare and incredibly powerful, only owned by the most accomplished of archaeologists. Many who have worn it say they find themselves to be much luckier with their archaeological finds...`, true, [], [],
-			[{item: Items.helm[9]}]], [{item: Items.helm[9]}],
-		);
+	document.getElementById("level").innerHTML = "Level "+Player.level;
+	for(let i = 0; i < Player.unlockedTabs.length; i++){
+		document.getElementById("change"+Player.unlockedTabs[i][0].toUpperCase()+Player.unlockedTabs[i].slice(1)).style.display = "block";
+		document.getElementById(Player.unlockedTabs[i]+"Image").hidden = false;
 	}
-	Player.days.push(GetFullDate());
-	Player.quests.randomDailyQuests = {}
+	if(Player.unlockedInstructions.length >= Instructions.length){
+		document.getElementById("settingTutorialHolder").hidden = true;
+	}
+	if(Player.skipTutorial){
+		document.getElementById("tutorialOn").checked = true;
+	}
+	for(let i = 0; i < Player.statusEffects.length; i++){
+		if(Player.statusEffects[i].title === "HIGH SPEED! (test status effect)"){
+			document.getElementById("speedOn").checked = true;
+		}
+	}
+	let date = GetFullDate();
+	// the first time the player logs on each day
+	if (!Player.days.includes(date)) {
+		// christmas daily rewards
+		if (Event.event === "Christmas") {
+			let randomNPC = Player.metNPCs[Random(0, Player.metNPCs.length-1)]; // NPC that sent message
+			if (Event.christmasDay) { // christmas day
+				Dom.mail.give(
+					"Merry Christmas!",
+					"Father Christmas",
+					"fatherChristmas",
+					"text.page",
+					["Merry Christmas!",
+					"Have a great Christmas! Please enjoy the 2018 Christmas gift.", true, [], [],
+					[{item: Items.item[17],},{item: Items.currency[5], quantity: 5,}]],
+					[{item: Items.item[17],},{item: Items.currency[5], quantity: 5,}],
+				);
+			}else if (date.substring(6) < "25") { // before christmas
+				Dom.mail.give(
+					25 - parseInt(date.substring(6)) + " Day"+(parseInt(date.substring(6)) !== 24 ? "s" : "")+" To Go!",
+					randomNPC,
+					ToCamelCase(randomNPC),
+					"text.page",
+					["Merry Christmas!",
+					"This is your free daily chistmas token. Spend it wisely!", true, [], [],
+					[{item: Items.currency[5]}]], [{item: Items.currency[5]}],
+				);
+			}else { // after christmas (in december)
+				Dom.mail.give(
+					parseInt(date.substring(6)) + " of Christmas 2018",
+					randomNPC,
+					ToCamelCase(randomNPC),
+					"text.page",
+					["Merry Christmas!",
+					"This is your free daily chistmas token. Spend it wisely!", true, [], [],
+					[{item: Items.currency[5]}]], [{item: Items.currency[5]}],
+				);
+			}
+		}
+		// Antorax Day mail
+		if (Event.event === "Antorax") {
+			Dom.mail.give(
+				"Antorax is " + Event.antoraxAge + " today!",
+				"The King of Eaglecrest",
+				"eaglecrestKing",
+				"text.page",
+				["Antorax is " + Event.antoraxAge + " today!",
+				`${Event.antoraxAge} years ago today, the realms of Antorax settled on an agreement to cooperate in the archaeology and exploration of these beautiful lands. Although there have been conflicts since then, there have been countless discoveries made by the Antorax alliance, and we endevour to continue.
+				<br><br>This year, there have been countless advancements in the fields of Archaeology, with huge discoveries of mythic items. There have also been developments to the Eaglecrest Logging Camp, and improvements to the accessibility of Antorax for its citizens.
+				<br><br>We hope you enjoy this special day, and that we will celebrate the many more Antorax Days to come together.`, true, [], [],
+				[{item: Items.helm[10]}]], [{item: Items.helm[10]}],
+			);
+			if(!Player.quests.completedQuestArray.includes("The Legend of the Tattered Knight")){
+				Dom.mail.give(
+					"The Legend of the Tattered Knight",
+					"unknown sender",
+					"./assets/items/item/16",
+					"quest.start",
+					["eaglecrestLoggingCamp", 25],
+				);
+			}
+		}
+		// Archaeology mail
+		let done = true;
+		for(let i = 0; i < 7; i++){
+			for(let x = 0; x < Items[Object.keys(Items)[i]].length; x++){
+				if(!Items[Object.keys(Items)[i]][x].uncollectable && !User.archaeology.includes(Items[Object.keys(Items)[i]][x].name) && Items[Object.keys(Items)[i]][x].name !== "Master Archaeologist's Hat"){
+					done = false;
+				}
+			}
+		}
+		if(done){
+			Dom.mail.give(
+				"Master Archaeologist",
+				"!!!",
+				"eaglecrestKing",
+				"text.page",
+				["Master Archaeologist",
+				`Dear ${playerName},
+				<br><br>I am !!!, the lead archaeologist of Antorax. I have noticed your incredible contributions to Antorax's archaeology effort, and would like to congratulate and thank you for them. Without you, we would not have uncovered many of the rare and significant items that are currently residing in the Great Museum, Wizard Island. I trust that we will continue to receive contributions from you in the years to come - there is still lots that has not been discovered.
+				<br><br>I have attached a <strong>Master Archaeologist's Hat</strong>, which I hope you will find of use when uncovering items in the future. A hat like this is incredibly rare and incredibly powerful, only owned by the most accomplished of archaeologists. Many who have worn it say they find themselves to be much luckier with their archaeological finds...`, true, [], [],
+				[{item: Items.helm[9]}]], [{item: Items.helm[9]}],
+			);
+		}
+		Player.days.push(date);
+		Player.quests.randomDailyQuests = {};
+		Player.chests.positions = {}; // chests change position each day
+	}
+	Dom.hotbar.update();
+	Dom.inventory.update();
+	Dom.checkProgress();
+	Dom.quests.possible();
+	Dom.quests.completed();
+	Dom.changeBook(Player.tab); // sets tab to whatever the player was on when they last saved
+	Dom.adventure.update(); // chooses what should be shown in adventurer's log
+	// clear any unintentional chat and welcome player
+	Dom.chat.oldString = "";
+	Dom.chat.newString = "";
+	Dom.chat.contents = [];
+	document.getElementById("dot").innerHTML = 0; // no unread messages to start
+	if (Event.christmasDay) {
+	    Dom.chat.insert("Merry Christmas, " + Player.name + "!", 0, false, true);
+	}
+	else {
+	    Dom.chat.insert("Welcome "+(localStorage.getItem(Player.class) !== null ? "back" : "to Antorax")+", " + Player.name + "!", 0, false, true);
+	}
+	// tell the player if they have unread mail
+	let unreadMail = Dom.mail.unread();
+	if (unreadMail > 1) {
+		// plural
+		Dom.chat.insert("You have " + unreadMail + " new messages!", 0, false); // tbd - maybe make it more obvious that player has to check their mailbox for this?
+	}
+	else if (unreadMail > 0) {
+		// singular
+		Dom.chat.insert("You have " + unreadMail + " new message!", 0, false); // tbd - maybe make it more obvious that player has to check their mailbox for this?
+	}
 }
 
 // player savedata FIXES (more at the top)
@@ -4149,13 +4186,15 @@ if(Player.quests.completedQuestArray.includes("A drink on us!")){
 if(Player.stats.domRange === undefined){
 	Player.stats.domRange = 240;
 }
-if (Player.chestsOpened === undefined) {
+/*if (Player.chestsOpened === undefined) {
 	Player.chestsOpened = {
 		nilbog: 0,
 		nilbogTower2: 0,
 		nilbogTower4: 0,
 	};
-}
+}*/
+
+// Keyboard functions
 Keyboard.downFunctions = {
 	SHIFT: function(){
 		setTimeout (function(){

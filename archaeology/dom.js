@@ -1,4 +1,4 @@
-document.getElementById("filters").hidden = true;
+document.getElementById("progress").hidden = false;
 var urlString = window.location.href;
 var url = new URL(urlString);
 var viewedItemId = url.searchParams.get("id");
@@ -94,7 +94,7 @@ function checkChange(){
 		if(category.value == "all"){
 			for(var i = 0; i < 7; i++){
 				for(var x = 2; x < Items[Object.keys(Items)[i]].length; x++){
-					if(!Items[Object.keys(Items)[i]][x].uncollectable){
+					if(!Items[Object.keys(Items)[i]][x].uncollectable && (!Items[Object.keys(Items)[i]][x].limitedEdition || archaeology.includes(Items[Object.keys(Items)[i]][x].name))){
 						array.push(Items[Object.keys(Items)[i]][x]);
 					}
 				}
@@ -102,7 +102,7 @@ function checkChange(){
 		}else if(category.value == "armour"){
 			for(var i = 0; i < 4; i++){
 				for(var x = 2; x < Items[Object.keys(Items)[i]].length; x++){
-					if(!Items[Object.keys(Items)[i]][x].uncollectable){
+					if(!Items[Object.keys(Items)[i]][x].uncollectable && (!Items[Object.keys(Items)[i]][x].limitedEdition || archaeology.includes(Items[Object.keys(Items)[i]][x].name))){
 						array.push(Items[Object.keys(Items)[i]][x]);
 					}
 				}
@@ -110,14 +110,14 @@ function checkChange(){
 		}else if(category.value == "weapon"){
 			for(var i = 4; i < 7; i++){
 				for(var x = 2; x < Items[Object.keys(Items)[i]].length; x++){
-					if(!Items[Object.keys(Items)[i]][x].uncollectable){
+					if(!Items[Object.keys(Items)[i]][x].uncollectable && (!Items[Object.keys(Items)[i]][x].limitedEdition || archaeology.includes(Items[Object.keys(Items)[i]][x].name))){
 						array.push(Items[Object.keys(Items)[i]][x]);
 					}
 				}
 			}
 		}else{
 			for(var x = 2; x < Items[Object.keys(Items)[category.value]].length; x++){
-				if(!Items[Object.keys(Items)[category.value]][x].uncollectable){
+				if(!Items[Object.keys(Items)[category.value]][x].uncollectable && (!Items[Object.keys(Items)[category.value]][x].limitedEdition || archaeology.includes(Items[Object.keys(Items)[category.value]][x].name))){
 					array.push(Items[Object.keys(Items)[category.value]][x]);
 				}
 			}

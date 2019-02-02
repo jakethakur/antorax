@@ -1,3 +1,4 @@
+var User = JSON.parse(localStorage.getItem("user"));
 var Achievements = [
 		// GENERAL
 	{
@@ -7,7 +8,7 @@ var Achievements = [
 		points: 5,
 		category: ["general"],
 		area: ["global"],
-		image: "./assets/level5.png",
+		image: "../assets/achievements/level5.png",
 		class: "single",
 		isCompleted: function(){
 			return Player.level >= 5;
@@ -25,7 +26,12 @@ var Achievements = [
 		class: "single",
 		isCompleted: function(){
 			return Player.quests.questProgress.mincePie && Player.quests.questProgress.christmasPudding && Player.quests.questProgress.mulledWine;
-		}
+		},
+		expand: {
+			type: "checkList",
+			text: ["Mince Pie", "Christmas Pudding", "Mulled Wine"],
+			complete: ["mincePie", "christmasPudding", "mulledWine"],
+		},
 	},
 		// QUESTS
 	{
@@ -39,7 +45,12 @@ var Achievements = [
 		class: "cumulative",
 		isCompleted: function(){
 			return User.progress.dailyQuests >= 50;
-		}
+		},
+		expand: {
+			type: "progressBar",
+			value: User.progress.dailyQuests,
+			total: 50,
+		},
 	},
 	{
 		// id: 3,
@@ -52,7 +63,12 @@ var Achievements = [
 		class: "cumulative",
 		isCompleted: function(){
 			return User.progress.quests >= 50;
-		}
+		},
+		expand: {
+			type: "progressBar",
+			value: User.progress.quests,
+			total: 50,
+		},
 	},
 	{
 		// id: 4,
@@ -87,7 +103,12 @@ var Achievements = [
 		class: "cumulative",
 		isCompleted: function(){
 			return User.progress.enemies >= 300;
-		}
+		},
+		expand: {
+			type: "progressBar",
+			value: User.progress.enemies,
+			total: 300,
+		},
 	},
 	{
 		// id: 6,
@@ -100,7 +121,12 @@ var Achievements = [
 		class: "cumulative",
 		isCompleted: function(){
 			return User.progress.enemies >= 1000;
-		}
+		},
+		expand: {
+			type: "progressBar",
+			value: User.progress.enemies,
+			total: 1000,
+		},
 	},
 	{
 		// id: 7,
@@ -113,7 +139,12 @@ var Achievements = [
 		class: "cumulative",
 		isCompleted: function(){
 			return User.progress.enemies >= 2500;
-		}
+		},
+		expand: {
+			type: "progressBar",
+			value: User.progress.enemies,
+			total: 2500,
+		},
 	},
 	{
 		// id: 8,
@@ -126,7 +157,12 @@ var Achievements = [
 		class: "cumulative",
 		isCompleted: function(){
 			return User.progress.enemies >= 5000;
-		}
+		},
+		expand: {
+			type: "progressBar",
+			value: User.progress.enemies,
+			total: 5000,
+		},
 	},
 	{
 		// id: 9,
@@ -135,11 +171,16 @@ var Achievements = [
 		points: 25,
 		category: ["combat"],
 		area: ["global"],
-		image: "./assets/masterCombatant.png",
+		image: "../assets/achievements/masterCombatant.png",
 		class: "cumulative",
 		isCompleted: function(){
 			return User.progress.enemies >= 10000;
-		}
+		},
+		expand: {
+			type: "progressBar",
+			value: User.progress.enemies,
+			total: 10000,
+		},
 	},
 	{
 		// id: 10,
@@ -154,7 +195,12 @@ var Achievements = [
 		class: "cumulative",
 		isCompleted: function(){
 			return User.progress.goblins >= 100;
-		}
+		},
+		expand: {
+			type: "progressBar",
+			value: User.progress.goblins,
+			total: 100,
+		},
 	},
 	{
 		// id: 11,
@@ -169,7 +215,12 @@ var Achievements = [
 		class: "cumulative",
 		isCompleted: function(){
 			return User.progress.goblins >= 250;
-		}
+		},
+		expand: {
+			type: "progressBar",
+			value: User.progress.goblins,
+			total: 250,
+		},
 	},
 	{
 		// id: 12,
@@ -184,7 +235,12 @@ var Achievements = [
 		class: "cumulative",
 		isCompleted: function(){
 			return User.progress.goblins >= 500;
-		}
+		},
+		expand: {
+			type: "progressBar",
+			value: User.progress.goblins,
+			total: 500,
+		},
 	},
 	{
 		// id: 13,
@@ -239,7 +295,7 @@ var Achievements = [
 		points: 20,
 		category: ["reputation"],
 		area: ["eaglecrestLoggingCamp"],
-		image: "./assets/loggingCamp.png",
+		image: "../assets/achievements/loggingCamp.png",
 		size: "contain",
 		class: "single",
 		isCompleted: function(){
@@ -363,7 +419,12 @@ var Achievements = [
 		class: "cumulative",
 		isCompleted: function(){
 			return User.progress.seals >= 20;
-		}
+		},
+		expand: {
+			type: "progressBar",
+			value: User.progress.seals,
+			total: 20,
+		},
 	},
 	{
 		name: "Logging Camp Angler",
@@ -406,7 +467,12 @@ var Achievements = [
 		class: "cumulative",
 		isCompleted: function(){
 			return User.progress.fish >= 100;
-		}
+		},
+		expand: {
+			type: "progressBar",
+			value: User.progress.fish,
+			total: 100,
+		},
 	},
 	{
 		name: "Adept Fisher",
@@ -418,7 +484,12 @@ var Achievements = [
 		class: "cumulative",
 		isCompleted: function(){
 			return User.progress.fish >= 300;
-		}
+		},
+		expand: {
+			type: "progressBar",
+			value: User.progress.fish,
+			total: 300,
+		},
 	},
 	{
 		name: "Intermediate Fisher",
@@ -430,7 +501,12 @@ var Achievements = [
 		class: "cumulative",
 		isCompleted: function(){
 			return User.progress.fish >= 600;
-		}
+		},
+		expand: {
+			type: "progressBar",
+			value: User.progress.fish,
+			total: 600,
+		},
 	},
 	{
 		name: "Expert Fisher",
@@ -442,7 +518,12 @@ var Achievements = [
 		class: "cumulative",
 		isCompleted: function(){
 			return User.progress.fish >= 1000;
-		}
+		},
+		expand: {
+			type: "progressBar",
+			value: User.progress.fish,
+			total: 1000,
+		},
 	},
 	{
 		name: "Master Fisher",
@@ -454,7 +535,12 @@ var Achievements = [
 		class: "cumulative",
 		isCompleted: function(){
 			return User.progress.fish >= 1500;
-		}
+		},
+		expand: {
+			type: "progressBar",
+			value: User.progress.fish,
+			total: 1500,
+		},
 	},
 	{
 		name: "How Chimerical!",

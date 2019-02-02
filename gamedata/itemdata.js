@@ -2062,8 +2062,10 @@ var Items = {
 			image: "assets/items/consumable/18.png",
 			functionText: "Places a christmas decoration (can only be used in the Logging Camp)",
 			lore: "It will soon flourish into a beautiful tree!",
+			onClickEventRequirement: "Christmas",
+			onClickAreaRequirement: ["eaglecrestLoggingCamp"],
 			onClick: function (inventoryPosition) {
-				if (Game.areaName === "eaglecrestLoggingCamp" && Game.event === "Christmas") { // it can only be placed in the logging camp during christmas
+				//if (Game.areaName === "eaglecrestLoggingCamp" && Event.event === "Christmas") { // it can only be placed in the logging camp during christmas
 					// remove the item
 					Dom.inventory.remove(inventoryPosition);
 					
@@ -2086,7 +2088,7 @@ var Items = {
 					};
 					Game.things.push(new Thing(saplingObject)); // place in the current area
 					Areas.eaglecrestLoggingCamp.things.push(saplingObject); // save in areadata.js for if the player leaves and rejoins the area
-				}
+				//}
 			}
 		},
 		{
@@ -2097,8 +2099,9 @@ var Items = {
 			functionText: "Launches a firework to celebrate Antorax Day.",
 			lore: "", // tbd
             cooldown: 1, // 1 second
+			onClickEventRequirement: "Antorax",
 			onClick: function (inventoryPosition) {
-				if (Game.event === "Antorax") { // can only be launched on Antorax Day
+				//if (Event.event === "Antorax") { // can only be launched on Antorax Day
 					// remove the item
 					Dom.inventory.remove(inventoryPosition);
 					// set firework timeout
@@ -2113,7 +2116,7 @@ var Items = {
 							colours: ["#8cff91", "#ff82f8"], // lighter colours so they are more visible
 						});
 					}, 1000); // launch in 1 second
-				}
+				//}
 			},
 		},
 		{
@@ -2124,8 +2127,9 @@ var Items = {
 			functionText: "Launches a large firework to celebrate Antorax Day.",
 			lore: "Why not go bigger?",
             cooldown: 5, // 5 seconds
+			onClickEventRequirement: "Antorax",
 			onClick: function (inventoryPosition) {
-				if (Game.event === "Antorax") { // can only be launched on Antorax Day
+				//if (Event.event === "Antorax") { // can only be launched on Antorax Day
 					setTimeout(function () {
 						// remove the item
 						Dom.inventory.remove(inventoryPosition);
@@ -2140,7 +2144,7 @@ var Items = {
 							colours: ["#8cff91", "#ff82f8"], // lighter colours so they are more visible
 						});
 					}, 1000); // launch in 1 second
-				}
+				//}
 			},
 		},
 	],
@@ -2660,7 +2664,7 @@ var Items = {
 			clicksToCatch: 1,
 			timeToCatch: 1000,
 			catchRequirement: function () {
-				return (Game.event === "Christmas"
+				return (Event.event === "Christmas"
 				&& Player.quests.activeQuestArray.includes("Sunken Presents")
 				&& (Player.quests.questProgress.christmasPresentsCaught === undefined
 				|| Player.quests.questProgress.christmasPresentsCaught < 2)
@@ -2708,7 +2712,7 @@ var Items = {
 			catchRequirement: function () {
 				// EITHER given as the third part of the christmas fishing quest which contains the fishing rod
 				// OR given when fished up with the christmas fishing rod and these presents contain 3-5 gold
-				return ((Game.event === "Christmas"
+				return ((Event.event === "Christmas"
 				&& Game.areaName === "tutorial"
 				&& Player.quests.activeQuestArray.includes("Sunken Presents")
 				&& Player.quests.questProgress.christmasPresentsCaught === 2
