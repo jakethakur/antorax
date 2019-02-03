@@ -188,7 +188,7 @@ var Areas = {
 			driver: {normal: "./assets/npcs/driver.png"},
 			weaponsmith: {normal: "./assets/npcs/weaponsmith.png"},
 			cart: {normal: "./assets/objects/cartEaglecrest.png"},
-			fisherman: {normal: "./assets/npcs/fisherman.png"},
+			fisherman: {normal: "./assets/npcs/tobenam.png"},
 		},
 		
 		song_day: "./assets/music/Pippin-the-Hunchback.mp3",
@@ -528,13 +528,13 @@ var Areas = {
 			tiles: {normal: "./assets/tilemap/loggingCamp.png", christmas: "./assets/tilemap/loggingCamp-christmas.png"},
 			teper: {normal: "./assets/npcs/teper.png"},
 			teperAngry: {christmas: "./assets/npcs/teper-angry.png"},
-			identifier: {normal: "./assets/npcs/identifier.png"},
+			identifier: {normal: "./assets/npcs/gilas.png"},
 			dummy: {normal: "./assets/enemies/dummy.png", christmas: "./assets/enemies/dummy-christmas.png"},
 			saral: {normal: "./assets/npcs/saral.png"},
 			mailman: {normal: "./assets/npcs/mailman.png"},
-			soulHealer: {normal: "./assets/npcs/soulHealer.png"},
+			soulHealer: {normal: "./assets/npcs/nalaa.png"},
 			galuthel: {normal: "./assets/npcs/galuthel.png"},
-			itemBuyer: {normal: "./assets/npcs/itemBuyer.png"},
+			itemBuyer: {normal: "./assets/npcs/noledar.png"},
 			darkbrew: {normal: "./assets/npcs/darkbrew.png"},
 			mailbox: {normal: "./assets/objects/mailbox.png"},
 			mailboxUnread: {normal: "./assets/objects/mailboxUnread.png"},
@@ -543,6 +543,8 @@ var Areas = {
 			lightsRB: {christmas: "./assets/objects/lightsRB.png"},
 			lightsGY: {christmas: "./assets/objects/lightsGY.png"},
 			christmasSapling: {christmas: "./assets/objects/christmasSapling.png"},
+			cart: {normal: "./assets/objects/cartEaglecrest2.png"},
+			driver: {normal: "./assets/npcs/alaran.png"},
 		},
 		
 		song_day: "./assets/music/Pippin-the-Hunchback.mp3",
@@ -648,6 +650,10 @@ var Areas = {
 					{
 						quest: Quests.eaglecrestLoggingCamp[20],
 						role: "questStartFinish"
+					},
+					{
+						quest: Quests.eaglecrestLoggingCamp[23],
+						role: "questStart"
 					},
 					{
 						sold: [
@@ -1003,6 +1009,9 @@ var Areas = {
 							{item: Items.helm[11], cost: 7, condition: function () { // Umbrella Hat
 								return Weather.weatherType === "rain";
 							}},
+							{item: Items.boots[10], cost: 7, condition: function () { // Wellington Boots
+								return Weather.weatherType === "rain";
+							}},
 							{item: Items.item[11], cost: 2}, // vial of goblin blood
 							{item: Items.bag[5], cost: 15}, // brown backsack
 							{item: Items.helm[2], cost: 2}, // worn leather helm
@@ -1076,6 +1085,48 @@ var Areas = {
 					antoraxDayGreeting: "What ingredients would be in an Antorax Day potion? Dynamite, sulphur, a little bit of fire - want to try some?",
 				},
 			},
+			{
+				// id: 8,
+				x: 220,
+				y: 138,
+				image: "driver",
+				name: "Cart Driver Alaran",
+				hostility: "friendly",
+				level: 20,
+				stats: {
+					maxHealth: 150,
+					defence: 4,
+				},
+				roles: [
+					{
+						role: "driver",
+						roleRequirement: function () {
+							return Player.quests.activeQuestArray.includes("To Eaglecrest, and Beyond!") || Player.quests.completedQuestArray.includes("To Eaglecrest, and Beyond!");
+						},
+						destinations: [
+							{
+								destinationName: "eaglecrestCarts",
+								destinationPosition: {
+									x: 300,
+									y: 300,
+								},
+								title: "Eaglecrest",
+								description: "The capital city of Antorax! One can visit the resplendent Eaglecrest Monastery, buy from the impressive range of merchants, and taste the finest beetroot pies of Antorax.",
+								image: "achievements/eaglecrest.png",
+								cost: 5,
+							},
+						],
+					},
+				],
+				chat: {
+					notUnlockedRoles: "Hey, I just need to service the cart then we can head to Eaglecrest. You'll love it there!",
+					driverText: "Where are you heading?",
+					tooPoor: "Oh, you don't have enough gold for that.",
+					chooseChat: "Hey, how are you doing?",
+					christmasGreeting: "Heading anywhere this Christmas?",
+					antoraxDayGreeting: "Hey, happy Antorax Day! The fireworks are really spectacular in Eaglecrest - planning on heading there today?",
+				},
+			},
 		],
 		
 		dummies: [
@@ -1118,6 +1169,12 @@ var Areas = {
 		],
 		
 		things: [
+			{
+				x: 100,
+				y: 100,
+				image: "cart",
+				name: "Cart",
+			},
 			{
 				x: 870,
 				y: 87,
@@ -1185,7 +1242,7 @@ var Areas = {
 		
 		images: {
 			tiles: {normal: "./assets/tilemap/tavern.png"},
-			innkeeper: {normal: "./assets/npcs/innkeeper.png"},
+			innkeeper: {normal: "./assets/npcs/gregor.png"},
 		},
 		
 		areaTeleports: [

@@ -1171,6 +1171,44 @@ After all, death is never the end in Antorax...<br>
 				Game.hero.oldPosition = undefined;
 			},
 		},
+		
+		{
+			id: 23,
+			quest: "To Eaglecrest, and Beyond!",
+			questArea: "eaglecrestLoggingCamp",
+			
+			important: true,
+			
+			startName: "Marshall Teper",
+			startChat: `You've done fine with your work here in the Logging Camp, but it's time for you to head to Eaglecrest. Finish off anything you want to here, then speak to <strong>Cart Driver Alaran</strong> to take a cart to Eaglecrest, the capital city of Antorax.<br>You'll always be able to come back here in the future; just speak to Alaran in Eaglecrest and he can take you over. There's always work to be done and goblins to be defended against. I hope we'll be seeing you again soon.`,
+			
+			finishName: "Cart Driver Alaran",
+			finishChat: `Here we are, Eaglecrest! You'll love it here.`,
+			
+			objectives: [
+				"Take a cart to Eaglecrest.",
+				"Speak to <strongCart Driver Alaran</strong>.",
+			],
+			
+			isCompleted: function() {
+				let completed = [];
+				
+				// true or falses for each objective (apart from the turn-in objective)
+				completed.push(Game.area === "eaglecrestCarts");
+				
+				completed = checkFinished(completed);
+				
+				return completed;
+			},
+			
+			howToStart: "Speak to <strong>Marshall Teper</strong>.",
+			levelRequirement: 4,
+			questRequirements: ["The Goblin King"],
+			
+			rewards: {
+				xp: 10,
+			},
+		},
 	],
 	
 	tavern: [

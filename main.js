@@ -4141,7 +4141,7 @@ Game.update = function (delta) {
 	// check collision with npcs - includes quest givers, quest finishers, merchants, soul healers, more TBA
 	this.npcs.forEach(npc => { // iterate though npcs
 	
-		if (!npc.respawning && this.hero.isTouching(npc)) { // check npc is not dead and that hero is touching it
+		if (Dom.currentlyDisplayed !== npc.name && !npc.respawning && this.hero.isTouching(npc)) { // check npc is not dead, that hero is touching it, and that it is not already currently displayed
 			
 			if (typeof npc.roles !== "undefined") { // check if the npc is a functional npc (does something when touched)
 				
@@ -4401,6 +4401,14 @@ Game.update = function (delta) {
 							parameterArray.push([npc]);
 						}
 						
+						// drivers
+						else if (role.role === "driver") {
+							// driver appears as an option for choose DOM
+							textArray.push(role.chooseText || "I'd like to ride your cart to somewhere.");
+							functionArray.push(Dom.driver.page);
+							parameterArray.push([npc, role.destinations]);
+						}
+						
 						// generic text DOM
 						else if (role.role === "text") {
 							// npc chat appears as an option in choose DOM
@@ -4436,7 +4444,7 @@ Game.update = function (delta) {
 				}
 				else {
 					// text that the npc says if they don't open a choose DOM
-					if (!textSaid && Dom.currentlyDisplyed === "") { // check if any extra text should be said at all
+					if (!textSaid && Dom.currentlyDisplayed === "") { // check if any extra text should be said at all
 						if (questActive) {
 							// the player has active quest(s) with the npc and no other alternate options
 							npc.say(npc.chat.questProgress, true, 0, false);
@@ -4446,7 +4454,7 @@ Game.update = function (delta) {
 							npc.say(npc.chat.questComplete, true, 0, false);
 						}
 						else if (notUnlockedRoles) {
-							// the player has not unlocked a possible role with the npc and no other alternate options
+							// the player has not unlocked a possible role with the npc
 							npc.say(npc.chat.notUnlockedRoles, true, 0, false);
 						}
 					}
@@ -5237,7 +5245,8 @@ Game.drawHealthBar = function (ctx, character, x, y, width, height) {
 	// health bar border
 	ctx.strokeStyle = "black";
 	ctx.strokeRect(x, y, width, height); // general border around the whole thing
-	for (var i = 0; i < character.stats.maxHealth / barValue - 1; i++) {
+	let i; // defined for use outside of for loop
+	for (i = 0; i < character.stats.maxHealth / barValue - 1; i++) {
 		ctx.strokeRect(x + barValue / character.stats.maxHealth * width * i, y, barValue / character.stats.maxHealth * width, height);
 	}
 	

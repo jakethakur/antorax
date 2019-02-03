@@ -569,6 +569,32 @@ var Items = {
 				iceSpeed: 30,
 			},
 		},
+		{
+			id: 10,
+			name: "Wellington Boots",
+			type: "boots",
+			image: "assets/items/boots/10.png",
+			tier: 1,
+			rarity: "unique",
+			lore: "Great for jumping in puddles and lakes.",
+			obtain: "Can be bought from a merchant when it is raining.",
+			sellPrice: 3,
+			stats: {
+				defence: 1,
+			},
+			conditionalStats: [
+				{
+					text: "Gives the following stats when raining:",
+					condition: function () {
+						return Weather.weatherType === "rain";
+					},
+					stats: {
+						walkSpeed: 50,
+						swimSpeed: 50,
+					},
+				},
+			],
+		},
 	],
 	sword: [
 		{
@@ -2499,13 +2525,13 @@ var Items = {
 						if (itemStack === undefined) {
 							itemStack = 1;
 						}
-						else if (itemStack > 20) {
-							itemStack = 20;
+						else if (itemStack > 12) { // cap stack size at 12
+							itemStack = 12;
 						}
 						toBePushed.quantity = Random(1, itemStack);
 						loot.push(toBePushed);
 						itemsChosen++;
-						if (Random(0, 1) === 0) { // 1 in 2 chance of a second stack
+						if (Random(0, 2) === 0) { // 1 in 3 chance of a second stack
 							toBePushed.quantity = Random(1, itemStack);
 							loot.push(toBePushed);
 						}
@@ -2604,6 +2630,7 @@ var Items = {
 			image: "assets/items/fish/18.png",
 			rarity: "junk",
 			sellPrice: 1,
+			sellQuantity: 4,
 			lore: ["The message's ink appears to have washed off.", 
 			"The message reads: 'Dearest Audrey, I recently got into alchemy. I think I need an arm donor. Can use one of yours?'", 
 			"The message reads: 'Dearest Audrey, I hope you are well. Please send return with some gold. I will pay you back.", 

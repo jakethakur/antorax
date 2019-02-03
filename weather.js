@@ -28,7 +28,7 @@ Weather.chooseWeather = function (areaName) {
 		// static weather for area
 		this.weatherType = Areas[areaName].weather;
 	}
-	else if ((this.dateValue / 40) % 7 < 1) {
+	else if ((this.dateValue / 40) % 6 < 1) {
 		if (Areas[areaName].isIcy !== undefined && Areas[areaName].isIcy()) {
 			// icy area - snow instead of rain
 			this.weatherType = "snow";
