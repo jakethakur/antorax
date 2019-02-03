@@ -5,7 +5,7 @@ body{
 	-ms-user-select: none; /* IE10+/Edge */
 	user-select: none;
 }
-#chatPage, #inventoryPage, #questsPage, #settingsPage, #settingsTwoPage, #adventurePage, #reputationPage, #questStart, #questFinish, #merchantPage, #mailPage, #identifierPage, #levelUpPage, #lootPage, #buyerPage, #choosePage, #textPage, #identifiedPage {
+#chatPage, #inventoryPage, #questsPage, #settingsPage, #settingsTwoPage, #adventurePage, #reputationPage, #questStart, #questFinish, #merchantPage, #mailPage, #driverPage, #identifierPage, #levelUpPage, #lootPage, #buyerPage, #choosePage, #textPage, #identifiedPage {
 	float: left;
 	margin: 10px;
 	border: 1px solid black;
@@ -50,7 +50,7 @@ body{
 	overflow-y: auto;
 	overflow-x: hidden;
 }
-#questStart, #questFinish, #merchantPage, #mailPage, #identifierPage, #identifiedPage, #levelUpPage, #lootPage, #buyerPage, #choosePage, #textPage{
+#questStart, #questFinish, #merchantPage, #mailPage, #driverPage, #identifierPage, #identifiedPage, #levelUpPage, #lootPage, #buyerPage, #choosePage, #textPage{
 	text-align: center;
 	overflow-y: auto;
 }
@@ -155,7 +155,7 @@ body{
 	padding-right: 38px;
 	width: 444px;
 }
-#helm, #chest, #greaves, #boots, #weapon, #settingLogoutInner, #settingSave, #settingDelete, #settingControls, .mailImage{
+#helm, #chest, #greaves, #boots, #weapon, #settingLogoutInner, #settingSave, #settingDelete, #settingControls, .mailImage, .driverImage{
 	margin-top: 10px;
 	border: 5px solid #886622;
 	width: 50px;
@@ -313,7 +313,7 @@ td{
 #questStartXP, #questFinishXP{
 	background-image: url("./assets/icons/xp.png");
 }
-.buy, #identifierPageBuy, #lootAll{
+.buy, #identifierPageBuy, #lootAll, #driverPageBuy{
 	height: 50px;
 	background-color: #fef9b4;
 	border: 5px solid #886622;
@@ -328,7 +328,7 @@ td{
 	width: max-content;
 	width: -moz-max-content;
 }
-#identifierPageBuy, #lootAll{
+#identifierPageBuy, #lootAll, #driverPageBuy{
 	display: inline-block;
 	margin-top: 25px;
 	margin-bottom: 0px;
@@ -605,7 +605,7 @@ td{
 	position: absolute;
 	left: 311px;
 }
-.mail{
+.mail, .driver{
 	height: 100px;
 	width: 450px;
 	left: 20px;
@@ -614,12 +614,34 @@ td{
 	border: 5px solid #886622;
 	margin-bottom: 20px;
 }
-.mailImage{
+.driver{
+	background-color: #fef9b4;
+	height: 100%;
+}
+.mailImage, .driverImage{
 	position: absolute;
 	top: 10px;
 	left: 20px;
 	background-color: #ddddff;
 	background-repeat: no-repeat;
+}
+.driverImage{
+	background-repeat: repeat;
+}
+.driverDescription{
+	margin-left: 100px;
+	text-align: left;
+	height: 60px;
+	overflow: auto;
+    //display: -webkit-box;
+    //-webkit-line-clamp: 3;
+    //-webkit-box-orient: vertical;  
+}
+.driverDescription2{
+	text-align: left;
+	margin-top: -6px;
+	margin-left: 20px;
+	margin-bottom: 10px;
 }
 .mailTitle{
 	text-align: left;

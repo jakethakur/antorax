@@ -201,7 +201,7 @@ function arrange(){
 					}
 				}else{
 					for(let x = 0; x < array[i].expand.text.length; x++){
-						document.getElementById("progressBar"+i).innerHTML += array[i].expand.text[x]+"<strong>"+(User.fish[array[i].expand.complete[x]] ? "&#10166" : "")+"</strong><br>";
+						document.getElementById("progressBar"+i).innerHTML += array[i].expand.text[x]+(User.fish[array[i].expand.complete[x]] ? " &#10004;" : "")+"<br>";
 					}
 				}
 			}

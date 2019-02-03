@@ -18,6 +18,7 @@ let Dom = {
 		lootPage: document.getElementById("lootPage"),
 		buyerPage: document.getElementById("buyerPage"),
 		mailPage: document.getElementById("mailPage"),
+		driverPage: document.getElementById("driverPage"),
 		choosePage: document.getElementById("choosePage"),
 		textPage: document.getElementById("textPage"),
 		levelUpPage: document.getElementById("levelUpPage"),
@@ -35,6 +36,7 @@ let Dom = {
 	loot: {},
 	buyer: {},
 	mail: {},
+	driver: {},
 	choose: {},
 	text: {},
 	levelUp: {},
@@ -285,6 +287,7 @@ Dom.changeBook = function(page, override, shouldNotBeOverriden, levelUpOverride)
 			this.elements.lootPage.hidden = true;
 			this.elements.buyerPage.hidden = true;
 			this.elements.mailPage.hidden = true;
+			this.elements.driverPage.hidden = true;
 			this.elements.choosePage.hidden = true;
 			this.elements.textPage.hidden = true;
 			document.getElementById(page).hidden = false;
@@ -3257,24 +3260,26 @@ Dom.choose.page = function(npc, buttons, functions, parameters, force){
 			Dom.choose.sideHTML = "";
 			Dom.choose.dailyHTML = "";
 			for(let i = 0; i < buttons.length; i++){
-				let imagenum = 1;
-				if(functions[i] === Dom.identifier.page){
-					imagenum = 2;
-				}else if(functions[i] === Dom.buyer.page){
+				let imagenum = 2;
+				if(functions[i] === Dom.driver.page){
+					imagenum = 0;
+				}else if(functions[i] === Dom.identifier.page){
 					imagenum = 3;
-				}else if(functions[i] === Dom.merchant.page){
+				}else if(functions[i] === Dom.buyer.page){
 					imagenum = 4;
-				}else if(functions[i] === Dom.quest.finish){
+				}else if(functions[i] === Dom.merchant.page){
 					imagenum = 5;
+				}else if(functions[i] === Dom.quest.finish){
+					imagenum = 6;
 				}else if(functions[i] === Dom.quest.start){
 					if(parameters[i][0].repeatTime === "daily"){
-						imagenum = 0;
+						imagenum = 1;
 					}else{
-						imagenum = 6;
+						imagenum = 7;
 					}
 				}else if(functions[i] === Dom.text.page){
 					if(parameters[i][0] === "Soul Healer"){
-						imagenum = 7;
+						imagenum = 8;
 					}/*else{
 						imagenum = 1;
 					}*/
@@ -3515,6 +3520,43 @@ if(User.settings.hitboxes === true){
 }
 if(User.settings.grid === true){
 	document.getElementById("gridOn").checked = true;
+}
+
+Dom.driver.page = function(npc, destinations){
+	Dom.changeBook("driverPage", true/*false*/, true);
+	document.getElementById("driverPageBuy").style.display = "none";
+	document.getElementById("driverPageMain").innerHTML = "<br><h1>"+npc.name+"</h1>";
+	document.getElementById("driverPageMain").innerHTML += "<p>"+npc.chat.driverText+"<p><br>";
+	for(let i = 0; i < destinations.length; i++){
+		document.getElementById("driverPageMain").innerHTML += "<div class='driver' ><div class='driverImage' style='background-image: url(\"./assets/"+destinations[i].image+"\")'></div><div class='mailTitle'><strong>"+destinations[i].title+"</strong></div><div class='driverDescription'>"+destinations[i].description+"</div><div class='driverDescription2'></div></div>";
+		while(document.getElementsByClassName("driverDescription")[i].scrollHeight > document.getElementsByClassName("driverDescription")[i].offsetHeight){
+			document.getElementsByClassName("driverDescription2")[i].innerHTML = document.getElementsByClassName("driverDescription")[i].innerHTML.substring(document.getElementsByClassName("driverDescription")[i].innerHTML.lastIndexOf(" ")) + document.getElementsByClassName("driverDescription2")[i].innerHTML;
+			document.getElementsByClassName("driverDescription")[i].innerHTML = document.getElementsByClassName("driverDescription")[i].innerHTML.substring(0, document.getElementsByClassName("driverDescription")[i].innerHTML.lastIndexOf(" "));
+		}
+	}
+	for(let i = 0; i < destinations.length; i++){
+		document.getElementsByClassName("driver")[i].onclick = function(){
+			if(Dom.driver.previous !== undefined){
+				document.getElementsByClassName("driver")[Dom.driver.previous].style.backgroundColor = "#fef9b4";
+			}
+			if(Dom.driver.previous !== i){
+				Dom.driver.previous = i;
+				document.getElementsByClassName("driver")[i].style.backgroundColor = "#fdf581";
+				document.getElementById("driverPageBuy").innerHTML = "Go to <strong>"+destinations[i].title+"</strong> for <strong>"+destinations[i].cost+"</strong> gold";
+				document.getElementById("driverPageBuy").style.display = "";
+			}else{
+				Dom.driver.previous = undefined;
+				document.getElementById("driverPageBuy").style.display = "none";
+			}
+		}
+	}
+	document.getElementById("driverPageBuy").onclick = function(){
+		Dom.alert.target = function(destination){
+			Game.loadArea(destination.destinationName, destination.destinationPosition);
+		}
+		Dom.alert.ev = destinations[Dom.driver.previous];
+		Dom.alert.page("Are you sure you want to go to <strong>"+destinations[Dom.driver.previous].title+"</strong> for <strong>"+destinations[Dom.driver.previous].cost+"</strong> gold", 1);
+	}
 }
 
 Dom.mail.page = function(){
