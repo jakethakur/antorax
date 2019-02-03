@@ -12,7 +12,7 @@ body{
 	border: 1px solid black;
 	width: 433px;
 	height: 20px;
-	top: 32px;
+	top: 31px;
 	left: 5px;
 	position: relative;
 	text-align: center;
@@ -30,7 +30,7 @@ body{
 	display: inline-block;
 }
 .checkList{
-	font-size: 18px;
+	font-size: 15px;
 	columns: 2;
 	margin: 5px;
 	margin-top: 10px;

@@ -73,7 +73,7 @@ var Achievements = [
 	{
 		// id: 4,
 		name: "Logging Camp Questmaster",
-		description: "Complete all 18 non-event quests in Eaglecrest Logging Camp.",
+		description: "Complete all 16 non-event quests in Eaglecrest Logging Camp.",
 		points: 10,
 		category: ["quests"],
 		area: ["eaglecrestLoggingCamp"],
@@ -89,7 +89,13 @@ var Achievements = [
 				}
 			}
 			return done;
-		}
+		},
+		expand: {
+			type: "checkList",
+			text: ["To the Logging Camp", "Learning from the Best", "Combat Training", "Retrieval of Logs", "Making Yourself Useful", "First Class Recovery", "A Lost Fishing Rod", "Strengthening Defences", "The Sceptre of Souls", "Another Man's Treasure", "Fire Power", "Potion Making", "Potion Making II", "The Goblin King", "Partners in Goblin Destruction", "A 'Spark' of Imagination"],
+			complete: ["To the Logging Camp", "Learning from the Best", "Combat Training", "Retrieval of Logs", "Making Yourself Useful", "First Class Recovery", "A Lost Fishing Rod", "Strengthening Defences", "The Sceptre of Souls", "Another Man's Treasure", "Fire Power", "Potion Making", "Potion Making II", "The Goblin King", "Partners in Goblin Destruction", "A 'Spark' of Imagination"],
+			saved: "quest",
+		},
 	},
 		// COMBAT
 	{
@@ -442,7 +448,13 @@ var Achievements = [
 				}
 			}
 			return done;
-		}
+		},
+		expand: {
+			type: "checkList",
+			text: ["Yellow Perch", "Milkfish", "Saffron Cod", "Pink Salmon", "Sea Trout", "Cobia", "Dolphinfish"],
+			complete: [0, 1, 2, 3, 4, 5, 6],
+			//saved: "fish",
+		},
 	},
 	{
 		name: "Saviour of Christmas",

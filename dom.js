@@ -2803,7 +2803,7 @@ Dom.inventory.find = function(ID, type, notEquipped, calledByCheck, name){
 	let index = [];
 	let completed = 0;
 	for(let i = 0; i < Player.inventory.items.length; i++){
-		if((Player.inventory.items[i].type === type && Player.inventory.items[i].id === ID) || Player.inventory.items[i].name === name){
+		if((Player.inventory.items[i].type === type && Player.inventory.items[i].id === ID) || (Player.inventory.items[i].name === name && name !== undefined)){
 			index.push(i);
 			if(Player.inventory.items[i].stacked === undefined){
 				Player.inventory.items[i].stacked = 1;
@@ -2812,19 +2812,19 @@ Dom.inventory.find = function(ID, type, notEquipped, calledByCheck, name){
 		}
 	}
 	if(!notEquipped){
-		if((Player.inventory.weapon.type === type && Player.inventory.weapon.id === ID) || Player.inventory.weapon.name === name){
+		if((Player.inventory.weapon.type === type && Player.inventory.weapon.id === ID) || (Player.inventory.weapon.name === name && name !== undefined)){
 			index.push("weapon");
 			completed++;
-		}else if((Player.inventory.helm.type === type && Player.inventory.helm.id === ID) || Player.inventory.helm.name === name){
+		}else if((Player.inventory.helm.type === type && Player.inventory.helm.id === ID) || (Player.inventory.helm.name === name && name !== undefined)){
 			index.push("helm");
 			completed++;
-		}else if((Player.inventory.chest.type === type && Player.inventory.chest.id === ID) || Player.inventory.chest.name === name){
+		}else if((Player.inventory.chest.type === type && Player.inventory.chest.id === ID) || (Player.inventory.chest.name === name && name !== undefined)){
 			index.push("chest");
 			completed++;
-		}else if((Player.inventory.greaves.type === type && Player.inventory.greaves.id === ID) || Player.inventory.greaves.name === name){
+		}else if((Player.inventory.greaves.type === type && Player.inventory.greaves.id === ID) || (Player.inventory.greaves.name === name && name !== undefined)){
 			index.push("greaves");
 			completed++;
-		}else if((Player.inventory.boots.type === type && Player.inventory.boots.id === ID) || Player.inventory.boots.name === name){
+		}else if((Player.inventory.boots.type === type && Player.inventory.boots.id === ID) || (Player.inventory.boots.name === name && name !== undefined)){
 			index.push("boots");
 			completed++;
 		}

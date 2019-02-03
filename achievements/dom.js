@@ -172,8 +172,37 @@ function arrange(){
 				document.getElementById("box"+i).innerHTML += "<div class='progressBar' id='progressBar"+i+"' hidden><div class='innerProgressBar' style='width: "+(array[i].expand.value/array[i].expand.total*433)+"px;'></div><div class='progressBarText'>"+array[i].expand.value+"/"+array[i].expand.total+"</div></div>";
 			}else if(array[i].expand.type === "checkList"){
 				document.getElementById("box"+i).innerHTML += "<div class='checkList' id='progressBar"+i+"' hidden></div>";
-				for(let x = 0; x < array[i].expand.text.length; x++){
-					document.getElementById("progressBar"+i).innerHTML += array[i].expand.text[x]+"<strong>"+(Archer.quests.questProgress[array[i].expand.complete[x]] ? "&#10166" : "")+(Mage.quests.questProgress[array[i].expand.complete[x]] ? "&#9882" : "")+(Knight.quests.questProgress[array[i].expand.complete[x]] ? "&#9876" : "")+"</strong><br>";
+				if(array[i].class === "single"){
+					if(array[i].expand.saved === "quest"){
+						for(let x = 0; x < array[i].expand.text.length; x++){
+							generateList(i, x, Archer.quests.completedQuestArray.includes(array[i].expand.complete[x]), Mage.quests.completedQuestArray.includes(array[i].expand.complete[x]), Knight.quests.completedQuestArray.includes(array[i].expand.complete[x]))
+						}
+							/*let text = array[i].expand.text[x];
+							let text2 = " <strong>";
+							let length = 0;
+							if(Archer.quests.completedQuestArray.includes(array[i].expand.complete[x])){
+								length++;
+								text2 += "&#10166";
+							}
+							if(Mage.quests.completedQuestArray.includes(array[i].expand.complete[x])){
+								length++;
+								text2 += "&#9882";
+							}
+							if(Knight.quests.completedQuestArray.includes(array[i].expand.complete[x])){
+								length++;
+								text2 += "&#9876";
+							}
+							document.getElementById("progressBar"+i).innerHTML += (text.length + (length > 0 ? length*2+2 : 0) > 30 ? text.substring(0, 30-(length > 0 ? length*2+2 : 0))+"..." : text)+text2+"</strong><br>";*/
+					}else{
+						for(let x = 0; x < array[i].expand.text.length; x++){
+							//document.getElementById("progressBar"+i).innerHTML += array[i].expand.text[x]+"&nbsp;<strong>"+(Archer.quests.questProgress[array[i].expand.complete[x]] ? "&#10166" : "")+(Mage.quests.questProgress[array[i].expand.complete[x]] ? "&#9882" : "")+(Knight.quests.questProgress[array[i].expand.complete[x]] ? "&#9876" : "")+"</strong><br>";
+							generateList(i, x, Archer.quests.questProgress[array[i].expand.complete[x]], Mage.quests.questProgress[array[i].expand.complete[x]], Knight.quests.questProgress[array[i].expand.complete[x]])
+						}
+					}
+				}else{
+					for(let x = 0; x < array[i].expand.text.length; x++){
+						document.getElementById("progressBar"+i).innerHTML += array[i].expand.text[x]+"<strong>"+(User.fish[array[i].expand.complete[x]] ? "&#10166" : "")+"</strong><br>";
+					}
 				}
 			}
 		}
@@ -183,7 +212,7 @@ function arrange(){
 			document.getElementById("box"+i).onclick = function(){
 				if(document.getElementById("progressBar"+i).hidden){
 					if(array[i].expand.type === "progressBar"){
-						document.getElementById("box"+i).style.height = "100px";
+						document.getElementById("box"+i).style.height = "99px";
 					}else{
 						document.getElementById("box"+i).style.height = "100%";
 					}
@@ -267,6 +296,25 @@ function arrange(){
 		}
 	}
 	document.getElementById("progress").style.top = document.getElementById("filters").offsetHeight + 45 + "px";
+}
+
+function generateList (i, x, archerIf, mageIf, knightIf) {
+	let text = array[i].expand.text[x];
+	let text2 = " <strong>";
+	let length = 0;
+	if(archerIf){
+		length++;
+		text2 += "&#10166";
+	}
+	if(mageIf){
+		length++;
+		text2 += "&#9882";
+	}
+	if(knightIf){
+		length++;
+		text2 += "&#9876";
+	}
+	document.getElementById("progressBar"+i).innerHTML += (text.length + (length > 0 ? length*2+2 : 0) > 30 ? text.substring(0, 30-(length > 0 ? length*2+2 : 0))+"..." : text)+text2+"</strong><br>";
 }
 
 var previousWidth = window.innerWidth;
