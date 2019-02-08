@@ -1187,14 +1187,14 @@ After all, death is never the end in Antorax...<br>
 			
 			objectives: [
 				"Take a cart to Eaglecrest.",
-				"Speak to <strongCart Driver Alaran</strong>.",
+				"Speak to <strong>Cart Driver Alaran</strong>.",
 			],
 			
 			isCompleted: function() {
 				let completed = [];
 				
 				// true or falses for each objective (apart from the turn-in objective)
-				completed.push(Game.area === "eaglecrestCarts");
+				completed.push(Game.area === "eaglecrest");
 				
 				completed = checkFinished(completed);
 				
@@ -1419,8 +1419,6 @@ After all, death is never the end in Antorax...<br>
 			resetVariables: [
 				"itemsFishedUp",
 			],
-			
-			randomGroup: "fishingDaily",
 		},
 		
 		{
@@ -1469,8 +1467,6 @@ After all, death is never the end in Antorax...<br>
 			resetVariables: [
 				"fishCaught",
 			],
-			
-			randomGroup: "fishingDaily",
 		},
 		
 		{
@@ -1519,8 +1515,6 @@ After all, death is never the end in Antorax...<br>
 			resetVariables: [
 				"fishCaught",
 			],
-			
-			randomGroup: "fishingDaily",
 		},
 		
 		/*{

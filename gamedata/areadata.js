@@ -1105,10 +1105,10 @@ var Areas = {
 						},
 						destinations: [
 							{
-								destinationName: "eaglecrestCarts",
+								destinationName: "eaglecrest",
 								destinationPosition: {
-									x: 300,
-									y: 300,
+									x: 86,
+									y: 1381,
 								},
 								title: "Eaglecrest",
 								description: "The capital city of Antorax! One can visit the resplendent Eaglecrest Monastery, buy from the impressive range of merchants, and taste the finest beetroot pies of Antorax.",
@@ -2473,6 +2473,117 @@ var Areas = {
 				x: 500,
 				y: 150,
 				image: "weaponRack",
+			},
+		],
+	},
+	
+	eaglecrest: {
+		
+		data: {
+			name: "Eaglecrest",
+			level: "Level 1 - 10",
+			territory: "Friendly",
+		},
+		
+		indoors: false,
+		
+		mapData: {
+			cols: 25,
+			rows: 25,
+			tsize: 60,
+			tilesPerRow: 3,
+			solidTiles: [1, 2, 3, 4, 5, 6, 7, 8, 11, 13, 14, 16, 17, 19, 22], // wall
+			dayTiles: [14, 17, 6, 18, 22], // windows and lights
+			nightTiles: [2, 8, 3, 9, 19], // windows and lights
+			layers: [
+				[16, 16, 16, 16, 16, 16, 16, 16, 16, 16, 16, 16, 16, 16, 16, 16, 16, 16, 16, 16, 16, 16, 16, 16, 16, 13, 13, 13, 13, 13, 13, 13, 13, 13, 13, 13, 13, 13, 13, 13, 13, 13, 13, 13, 13, 13, 13, 13, 13, 13, 6, 16, 16, 16, 16, 16, 16, 16, 16, 6, 16, 16, 16, 16, 16, 6, 16, 16, 16, 16, 16, 16, 16, 16, 6, 16, 16, 22, 16, 17, 14, 7, 22, 16, 16, 16, 16, 4, 16, 16, 16, 16, 22, 16, 17, 14, 1, 22, 16, 16, 16, 16, 16, 16, 11, 5, 16, 16, 16, 16, 16, 16, 16, 16, 16, 16, 16, 16, 16, 11, 5, 16, 16, 16, 16, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 18, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 18, 10, 10, 12, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 12, 10, 10, 15, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 15, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 18, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 18, 10, 10, 12, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 12, 10, 10, 15, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 15, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 18, 10, 10, 10, 10, 10, 10, 10, 18, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 12, 10, 10, 10, 10, 10, 10, 10, 12, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 15, 10, 10, 10, 10, 10, 10, 10, 15, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10],
+				[],
+			],
+		},
+		
+		isIcy: function() {
+			return Event.event === "Christmas";
+		},
+		
+		images: {
+			tiles: {normal: "./assets/tilemap/eaglecrestCity.png"},
+			cart1: {normal: "./assets/objects/cartEaglecrest.png"},
+			cart2: {normal: "./assets/objects/cartEaglecrest2.png"},
+			cart3: {normal: "./assets/objects/cartEaglecrest3.png"},
+			driver: {normal: "./assets/npcs/alaran.png"},
+		},
+		
+		song_day: "./assets/music/Eaglecrest.mp3",
+		song_night: "./assets/music/Eaglecrest.mp3",
+		
+		checkpoint: true,
+		player: {
+			x: 400,
+			y: 400,
+		},
+		
+		lootArea: "eaglecrest",
+		lootTier: 1,
+		
+		areaTeleports: [
+		],
+		
+		npcs: [
+			{
+				// id: 0,
+				x: 200,
+				y: 1320,
+				image: "driver",
+				name: "Cart Driver Alaran",
+				hostility: "friendly",
+				level: 20,
+				stats: {
+					maxHealth: 150,
+					defence: 4,
+				},
+				roles: [
+					{
+						role: "driver",
+						destinations: [
+							{
+								destinationName: "eaglecrestLoggingCamp",
+								destinationPosition: {
+									x: 107,
+									y: 197,
+								},
+								title: "Eaglecrest Logging Camp",
+								description: "The Logging Camp outside of Antorax. Help out with the logging, and observe the tower that once belonged to Wizard Andrews!",
+								image: "achievements/loggingCamp.png",
+								cost: 5,
+							},
+						],
+					},
+				],
+				chat: {
+					driverText: "Where are you heading?",
+					tooPoor: "Oh, you don't have enough gold for that.",
+					chooseChat: "Hey, how are you doing?",
+					christmasGreeting: "Heading anywhere this Christmas?",
+					antoraxDayGreeting: "Hey, happy Antorax Day! The fireworks are really spectacular in Eaglecrest - planning on heading there today?",
+				},
+			},	
+		],
+		
+		things: [
+			{
+				x: 300,
+				y: 1280,
+				image: "cart2",
+			},
+			{
+				x: 1320,
+				y: 1060,
+				image: "cart3",
+			},
+			{
+				x: 1380,
+				y: 1395,
+				image: "cart1",
 			},
 		],
 	},
