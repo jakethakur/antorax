@@ -19,6 +19,8 @@ let Dom = {
 		buyerPage: document.getElementById("buyerPage"),
 		mailPage: document.getElementById("mailPage"),
 		driverPage: document.getElementById("driverPage"),
+		bankDepositPage: document.getElementById("bankDepositPage"),
+		bankWithdrawPage: document.getElementById("bankWithdrawPage"),
 		choosePage: document.getElementById("choosePage"),
 		textPage: document.getElementById("textPage"),
 		levelUpPage: document.getElementById("levelUpPage"),
@@ -37,6 +39,7 @@ let Dom = {
 	buyer: {},
 	mail: {},
 	driver: {},
+	bank: {},
 	choose: {},
 	text: {},
 	levelUp: {},
@@ -46,12 +49,6 @@ let Dom = {
 
 for(let i = 0; i < Items.fish.length; i++){
 	User.fish.push(0);
-}
-if(localStorage.getItem("user") !== null){
-	let user = JSON.parse(localStorage.getItem("user"));
-	user.progress = Object.assign(User.progress, user.progress);
-	user.settings = Object.assign(User.settings, user.settings);
-	User = Object.assign(User, user);
 }
 
 // USER SAVEDATA FIXES more at bottom
@@ -198,10 +195,10 @@ Dom.quests.active = function(quest){
 			let completedObjectives = 0;
 			for(let i = 0; i < currentQuest.objectives.length; i++){
 				Dom.quests.activeHTML[currentQuest.important] += "<br>" + currentQuest.objectives[i];
-				if(isCompleted[i] === true /*&& i !== currentQuest.objectives.length-1*/){
+				if(isCompleted[i] === true && i !== currentQuest.objectives.length-1){
 					Dom.quests.activeHTML[currentQuest.important] += " &#10004;";
 					completedObjectives++;
-				}else if(isCompleted[i] !== false /*&& i !== currentQuest.objectives.length-1*/){
+				}else if(isCompleted[i] !== false && i !== currentQuest.objectives.length-1){
 					Dom.quests.activeHTML[currentQuest.important] += " " + isCompleted[i];
 				}
 			}
@@ -288,6 +285,8 @@ Dom.changeBook = function(page, override, shouldNotBeOverriden, levelUpOverride)
 			this.elements.buyerPage.hidden = true;
 			this.elements.mailPage.hidden = true;
 			this.elements.driverPage.hidden = true;
+			this.elements.bankDepositPage.hidden = true;
+			this.elements.bankWithdrawPage.hidden = true;
 			this.elements.choosePage.hidden = true;
 			this.elements.textPage.hidden = true;
 			document.getElementById(page).hidden = false;
@@ -988,6 +987,8 @@ Dom.inventory.displayInformation = function(item, stacked, position, hide){
 			}
 			if(item.functionText !== undefined && item.chooseStats === undefined){
 				document.getElementById("stats").innerHTML += (document.getElementById("stats").innerHTML !== "" ? "<br>" : "") + item.functionText + (item.charges !== undefined ? "<br><br>" + item.charges + " Charges" : "");
+			}else if(item.healthRestore !== undefined && item.healthRestoreTime !== undefined){
+				document.getElementById("stats").innerHTML += "Restores "+item.healthRestore+" health over "+item.healthRestoreTime+" seconds (whilst not in combat)";
 			}
 			let lorebuyer = "";
 			if(item.lore !== undefined && item.lore !== "" && !Array.isArray(item.lore)){
@@ -1288,19 +1289,13 @@ Dom.quests.possible = function(){
 			else if (!IsContainedInArray(quest.questRequirements, Player.quests.completedQuestArray)) { // quest requirements have not been completed
 				questCanBeStarted = false;
 			}
-			else if(quest.reputationRequirements !== undefined){
-				for(let y = 0; y < Object.keys(quest.reputationRequirements).length; y++){
-					if(quest.reputationRequirements[Object.keys(quest.reputationRequirements)[y]] > Player.reputation[Object.keys(quest.reputationRequirements)[y]].level){
-						questCanBeStarted = false;
-					}
-				}
-			}
-			else if (quest.fishingRequirement !== undefined) { // fishing skill is required
-				if (Player.stats.fishingSkill > quest.fishingRequirement.max || Player.stats.fishingSkill < quest.fishingRequirement.min) { // fishing skill not in range
-					questCanBeStarted = false;
-				}
+			else if (quest.fishingRequirement !== undefined && (Player.stats.fishingSkill > quest.fishingRequirement.max || Player.stats.fishingSkill < quest.fishingRequirement.min)) { // fishing skill not in range
+				questCanBeStarted = false;
 			}
 			else if (quest.eventRequirement !== undefined && quest.eventRequirement !== Event.event){
+				questCanBeStarted = false;
+			}
+			else if(quest.randomGroup !== undefined && Player.quests.randomDailyQuests[quest.randomGroup] !== quest.quest) {
 				questCanBeStarted = false;
 			}
 			else {
@@ -1319,6 +1314,14 @@ Dom.quests.possible = function(){
 					}
 				}
 			}
+			if(quest.reputationRequirements !== undefined){
+				for(let y = 0; y < Object.keys(quest.reputationRequirements).length; y++){
+					if(quest.reputationRequirements[Object.keys(quest.reputationRequirements)[y]] > Player.reputation[Object.keys(quest.reputationRequirements)[y]].level){
+						questCanBeStarted = false;
+					}
+				}
+			}
+			
 			if(questCanBeStarted){
 				if(quest.repeatTime === "daily"){
 					quest.important = "daily";
@@ -1588,7 +1591,15 @@ Dom.inventory.give = function(item, num, position, noSave){
 							Player.inventory.items[i].charges = Player.inventory.items[i].maxCharges;
 						}
 						if(Array.isArray(Player.inventory.items[i].lore)){
-							Player.inventory.items[i].lore = item.lore[Random(0, item.lore.length-1)];
+							let lores = item.lore;
+							if(Player.inventory.items[i].loreEventRequirements !== undefined){
+								for(let x = 0; x < Player.inventory.items[i].lore.length; x++){
+									if(Player.inventory.items[i].loreEventRequirements[x] !== "" && Player.inventory.items[i].loreEventRequirements[x] !== Event.event){
+										lores.splice(x, 1);
+									}
+								}
+							}
+							Player.inventory.items[i].lore = lores[Random(0, lores.length-1)];
 						}
 						if(item.set !== undefined && !User.archaeology.includes(Items.set[item.set].name)){
 							let obtained = true;
@@ -1691,7 +1702,15 @@ Dom.inventory.give = function(item, num, position, noSave){
 			Player.inventory.items[position].charges = Player.inventory.items[position].maxCharges;
 		}
 		if(Array.isArray(Player.inventory.items[position].lore)){
-			Player.inventory.items[position].lore = item.lore[Random(0, item.lore.length-1)];
+			let lores = item.lore;
+			if(Player.inventory.items[position].loreEventRequirements !== undefined){
+				for(let x = 0; x < Player.inventory.items[position].lore.length; x++){
+					if(Player.inventory.items[position].loreEventRequirements[x] !== "" && Player.inventory.items[position].loreEventRequirements[x] !== Event.event){
+						lores.splice(x, 1);
+					}
+				}
+			}
+			Player.inventory.items[position].lore = lores[Random(0, lores.length-1)];
 		}
 		if(item.set !== undefined && !User.archaeology.includes(Items.set[item.set].name)){
 			let obtained = true;
@@ -1841,7 +1860,7 @@ Dom.inventory.teleport = function(inventoryPosition){
 	Dom.inventory.displayInformation(Player.inventory.items[inventoryPosition], undefined, undefined, true);
 }
 
-Dom.inventory.cooldown = function(inventoryPosition, check){
+Dom.inventory.cooldown = function(inventoryPosition, hotbar, check){
 	let item = Player.inventory.items;
 	if(isNaN(inventoryPosition)){
 		item = Player.inventory;
@@ -1856,7 +1875,7 @@ Dom.inventory.cooldown = function(inventoryPosition, check){
 					}
 				}
 				if((item[inventoryPosition].onClickEventRequirement === undefined || item[inventoryPosition].onClickEventRequirement === Event.event) && (item[inventoryPosition].onClickAreaRequirement === undefined || item[inventoryPosition].onClickAreaRequirement.includes(Game.area))){
-					item[inventoryPosition].onClickFunction(inventoryPosition);
+					item[inventoryPosition].onClickFunction(inventoryPosition, hotbar);
 				}
 			}else{
 				return true;
@@ -1865,7 +1884,7 @@ Dom.inventory.cooldown = function(inventoryPosition, check){
 	}else{
 		if(!check){
 			if((item[inventoryPosition].onClickEventRequirement === undefined || item[inventoryPosition].onClickEventRequirement === Event.event) && (item[inventoryPosition].onClickAreaRequirement === undefined || item[inventoryPosition].onClickAreaRequirement.includes(Game.area))){
-				item[inventoryPosition].onClickFunction(inventoryPosition);
+				item[inventoryPosition].onClickFunction(inventoryPosition, hotbar);
 			}
 		}else{
 			return true;
@@ -3522,6 +3541,11 @@ if(User.settings.grid === true){
 	document.getElementById("gridOn").checked = true;
 }
 
+Dom.bank.deposit = function(){
+	Dom.changeBook("bankDepositPage", true/*false*/, true);
+	document.getElementById("bankDepositPage").innerHTML = document.getElementById("itemInventoryWrapper").innerHTML;
+}
+
 Dom.driver.page = function(npc, destinations){
 	Dom.changeBook("driverPage", true/*false*/, true);
 	document.getElementById("driverPageBuy").style.display = "none";
@@ -3737,7 +3761,7 @@ Dom.inventory.prepare = function(array, i, element){
 	if(array[i].healthRestore !== undefined && array[i].healthRestoreTime !== undefined){
 		//array[i].secondClickFunction = Items[array[i].type][array[i].id].onClick;
 		Items[array[i].type][array[i].id].onClick = Dom.inventory.food;
-		array[i].functionText = "Restores "+array[i].healthRestore+" health over "+array[i].healthRestoreTime+" seconds (whilst not in combat)";
+		//array[i].functionText = "Restores "+array[i].healthRestore+" health over "+array[i].healthRestoreTime+" seconds (whilst not in combat)";
 	}
 	if(array[i].type === "teleport"){
 		Items[array[i].type][array[i].id].onClick = Dom.inventory.teleport;
@@ -3787,7 +3811,7 @@ Dom.inventory.prepare = function(array, i, element){
 		if(array[i].onClickFunction !== undefined){
 			if(array[i].channel !== undefined){
 				array[i].onClick = function(inventoryPosition){
-					if(Dom.inventory.cooldown(inventoryPosition, true)){
+					if(Dom.inventory.cooldown(inventoryPosition, false, true)){
 						Game.hero.channel(Dom.inventory.cooldown, [inventoryPosition], Player.inventory.items[inventoryPosition].channel, Player.inventory.items[inventoryPosition].name);
 					}
 				}

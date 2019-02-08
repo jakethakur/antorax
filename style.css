@@ -5,7 +5,7 @@ body{
 	-ms-user-select: none; /* IE10+/Edge */
 	user-select: none;
 }
-#chatPage, #inventoryPage, #questsPage, #settingsPage, #settingsTwoPage, #adventurePage, #reputationPage, #questStart, #questFinish, #merchantPage, #mailPage, #driverPage, #identifierPage, #levelUpPage, #lootPage, #buyerPage, #choosePage, #textPage, #identifiedPage {
+#chatPage, #inventoryPage, #questsPage, #settingsPage, #settingsTwoPage, #adventurePage, #reputationPage, #questStart, #questFinish, #merchantPage, #mailPage, #driverPage, #bankDepositPage, #bankWithdrawPage, #identifierPage, #levelUpPage, #lootPage, #buyerPage, #choosePage, #textPage, #identifiedPage {
 	float: left;
 	margin: 10px;
 	border: 1px solid black;
@@ -50,7 +50,7 @@ body{
 	overflow-y: auto;
 	overflow-x: hidden;
 }
-#questStart, #questFinish, #merchantPage, #mailPage, #driverPage, #identifierPage, #identifiedPage, #levelUpPage, #lootPage, #buyerPage, #choosePage, #textPage{
+#questStart, #questFinish, #merchantPage, #mailPage, #driverPage, #bankDepositPage, #bankWithdrawPage, #identifierPage, #identifiedPage, #levelUpPage, #lootPage, #buyerPage, #choosePage, #textPage{
 	text-align: center;
 	overflow-y: auto;
 }

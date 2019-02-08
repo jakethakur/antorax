@@ -1419,6 +1419,8 @@ After all, death is never the end in Antorax...<br>
 			resetVariables: [
 				"itemsFishedUp",
 			],
+			
+			randomGroup: "fishingDaily",
 		},
 		
 		{
@@ -1467,6 +1469,8 @@ After all, death is never the end in Antorax...<br>
 			resetVariables: [
 				"fishCaught",
 			],
+			
+			randomGroup: "fishingDaily",
 		},
 		
 		{
@@ -1515,6 +1519,8 @@ After all, death is never the end in Antorax...<br>
 			resetVariables: [
 				"fishCaught",
 			],
+			
+			randomGroup: "fishingDaily",
 		},
 		
 		/*{

@@ -7,9 +7,35 @@ var obtained = document.getElementById("obtained");
 var min = document.getElementById("min");
 var max = document.getElementById("max");
 var searchBar = document.getElementById("searchBar");
-var Archer = JSON.parse(localStorage.getItem("a"));
-var Mage = JSON.parse(localStorage.getItem("m"));
-var Knight = JSON.parse(localStorage.getItem("k"));
+
+if(localStorage.getItem("a") !== null){
+    let savedPlayer = JSON.parse(localStorage.getItem("a"));
+    // bosses killed fix (if new bosses were added)
+    savedPlayer.bossesKilled = Object.assign(Player.bossesKilled, savedPlayer.bossesKilled);
+    Archer = Object.assign(Player, savedPlayer); // add any new stuff added to savedata
+}else{
+    Archer = Player;
+}
+if(localStorage.getItem("m") !== null){
+    let savedPlayer = JSON.parse(localStorage.getItem("m"));
+    // bosses killed fix (if new bosses were added)
+    savedPlayer.bossesKilled = Object.assign(Player.bossesKilled, savedPlayer.bossesKilled);
+    Mage = Object.assign(Player, savedPlayer); // add any new stuff added to savedata
+}else{
+    Mage = Player;
+}
+if(localStorage.getItem("k") !== null){
+    let savedPlayer = JSON.parse(localStorage.getItem("k"));
+    // bosses killed fix (if new bosses were added)
+    savedPlayer.bossesKilled = Object.assign(Player.bossesKilled, savedPlayer.bossesKilled);
+    Knight = Object.assign(Player, savedPlayer); // add any new stuff added to savedata
+}else{
+    Knight = Player;
+}
+
+//var Archer = JSON.parse(localStorage.getItem("a")) !== null ? JSON.parse(localStorage.getItem("a")) : Player;
+//var Mage = JSON.parse(localStorage.getItem("m")) !== null ? JSON.parse(localStorage.getItem("m")) : Player;
+//var Knight = JSON.parse(localStorage.getItem("k")) !== null ? JSON.parse(localStorage.getItem("k")) : Player;
 
 //array = Achievements;
 
@@ -168,6 +194,7 @@ function arrange(){
 			document.getElementById("img"+i).style.backgroundSize = array[i].size;
 		}
 		if(array[i].expand !== undefined){
+			document.getElementById("box"+i).style.cursor = "pointer";
 			if(array[i].expand.type === "progressBar"){
 				document.getElementById("box"+i).innerHTML += "<div class='progressBar' id='progressBar"+i+"' hidden><div class='innerProgressBar' style='width: "+(array[i].expand.value/array[i].expand.total*433)+"px;'></div><div class='progressBarText'>"+array[i].expand.value+"/"+array[i].expand.total+"</div></div>";
 			}else if(array[i].expand.type === "checkList"){

@@ -1,4 +1,10 @@
-var User = JSON.parse(localStorage.getItem("user"));
+if(JSON.parse(localStorage.getItem("user")) !== null){
+	let user = JSON.parse(localStorage.getItem("user"));
+	user.progress = Object.assign(User.progress, user.progress);
+	user.settings = Object.assign(User.settings, user.settings);
+	User = Object.assign(User, user);
+}
+
 var Achievements = [
 		// GENERAL
 	{
