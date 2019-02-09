@@ -682,13 +682,13 @@ var Areas = {
 							Dom.inventory.give(Items.currency[2], 5);
 							Dom.chat.insert("Marshall Teper has given you <strong>5 Gold</strong> for the boots.", 0);
 							// close page
-							Dom.changeBook(Player.tab, true);
+							Dom.changeBook("", true);
 							// chat message
 							Game.npcs[0].say("Thank you. I hope you find these rewards useful to your progression. Now, back to work.", false, 0, true); // Teper is Game.npcs[0]
 						},
 						function () {
 							// close page
-							Dom.changeBook(Player.tab, true);
+							Dom.changeBook("", true);
 							// chat message
 							Game.npcs[0].say("What, are you even allowed to keep them? I'd like my boots back!", false, 0, false); // Teper is Game.npcs[0]
 						}],
@@ -1108,7 +1108,7 @@ var Areas = {
 								destinationName: "eaglecrest",
 								destinationPosition: {
 									x: 86,
-									y: 1381,
+									y: 1201,
 								},
 								title: "Eaglecrest",
 								description: "The capital city of Antorax! One can visit the resplendent Eaglecrest Monastery, buy from the impressive range of merchants, and taste the finest beetroot pies of Antorax.",
@@ -2480,23 +2480,23 @@ var Areas = {
 	eaglecrest: {
 		
 		data: {
-			name: "Eaglecrest",
+			name: "Eaglecrest City",
 			level: "Level 1 - 10",
-			territory: "Friendly",
+			territory: "Allied",
 		},
 		
 		indoors: false,
 		
 		mapData: {
 			cols: 25,
-			rows: 25,
+			rows: 22,
 			tsize: 60,
 			tilesPerRow: 3,
 			solidTiles: [1, 2, 3, 4, 5, 6, 7, 8, 11, 13, 14, 16, 17, 19, 22], // wall
 			dayTiles: [14, 17, 6, 18, 22], // windows and lights
 			nightTiles: [2, 8, 3, 9, 19], // windows and lights
 			layers: [
-				[16, 16, 16, 16, 16, 16, 16, 16, 16, 16, 16, 16, 16, 16, 16, 16, 16, 16, 16, 16, 16, 16, 16, 16, 16, 13, 13, 13, 13, 13, 13, 13, 13, 13, 13, 13, 13, 13, 13, 13, 13, 13, 13, 13, 13, 13, 13, 13, 13, 13, 6, 16, 16, 16, 16, 16, 16, 16, 16, 6, 16, 16, 16, 16, 16, 6, 16, 16, 16, 16, 16, 16, 16, 16, 6, 16, 16, 22, 16, 17, 14, 7, 22, 16, 16, 16, 16, 4, 16, 16, 16, 16, 22, 16, 17, 14, 1, 22, 16, 16, 16, 16, 16, 16, 11, 5, 16, 16, 16, 16, 16, 16, 16, 16, 16, 16, 16, 16, 16, 11, 5, 16, 16, 16, 16, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 18, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 18, 10, 10, 12, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 12, 10, 10, 15, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 15, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 18, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 18, 10, 10, 12, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 12, 10, 10, 15, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 15, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 18, 10, 10, 10, 10, 10, 10, 10, 18, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 12, 10, 10, 10, 10, 10, 10, 10, 12, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 15, 10, 10, 10, 10, 10, 10, 10, 15, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10],
+				[16, 16, 16, 16, 16, 16, 16, 16, 16, 16, 16, 16, 16, 16, 16, 16, 16, 16, 16, 16, 16, 16, 16, 16, 16, 13, 13, 13, 13, 13, 13, 13, 13, 13, 13, 13, 13, 13, 13, 13, 13, 13, 13, 13, 13, 13, 13, 13, 13, 13, 6, 16, 16, 16, 16, 16, 16, 16, 16, 6, 16, 16, 16, 16, 16, 6, 16, 16, 16, 16, 16, 16, 16, 16, 6, 16, 16, 22, 16, 17, 14, 7, 22, 16, 16, 16, 16, 4, 16, 16, 16, 16, 22, 16, 17, 14, 1, 22, 16, 16, 16, 16, 16, 16, 11, 5, 16, 16, 16, 16, 16, 16, 16, 16, 16, 16, 16, 16, 16, 11, 5, 16, 16, 16, 16, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 18, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 18, 10, 10, 12, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 12, 10, 10, 15, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 15, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 18, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 18, 10, 10, 12, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 12, 10, 10, 15, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 15, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 18, 10, 10, 10, 10, 10, 10, 10, 18, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 12, 10, 10, 10, 10, 10, 10, 10, 12, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 15, 10, 10, 10, 10, 10, 10, 10, 15, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10],
 				[],
 			],
 		},
@@ -2511,6 +2511,10 @@ var Areas = {
 			cart2: {normal: "./assets/objects/cartEaglecrest2.png"},
 			cart3: {normal: "./assets/objects/cartEaglecrest3.png"},
 			driver: {normal: "./assets/npcs/alaran.png"},
+			guard1: {normal: "./assets/npcs/eaglecrestGuard.png"},
+			guard2: {normal: "./assets/npcs/eaglecrestGuard2.png"},
+			mailbox: {normal: "./assets/objects/mailbox.png"},
+			mailboxUnread: {normal: "./assets/objects/mailboxUnread.png"},
 		},
 		
 		song_day: "./assets/music/Eaglecrest.mp3",
@@ -2526,13 +2530,23 @@ var Areas = {
 		lootTier: 1,
 		
 		areaTeleports: [
+			{
+				// teleport to bank
+				x: 1260,
+				y: 210,
+				width: 120,
+				height: 2,
+				teleportTo: "eaglecrestBank",
+				destinationX: 515,
+				destinationY: 830,
+			},
 		],
 		
 		npcs: [
 			{
 				// id: 0,
 				x: 200,
-				y: 1320,
+				y: 1140,
 				image: "driver",
 				name: "Cart Driver Alaran",
 				hostility: "friendly",
@@ -2566,24 +2580,216 @@ var Areas = {
 					christmasGreeting: "Heading anywhere this Christmas?",
 					antoraxDayGreeting: "Hey, happy Antorax Day! The fireworks are really spectacular in Eaglecrest - planning on heading there today?",
 				},
-			},	
+			},
+			{
+				// id: 1,
+				x: 940,
+				y: 1190,
+				image: "guard1",
+				name: "Eaglecrest Guard",
+				hostility: "friendly",
+				level: 50,
+				stats: {
+					maxHealth: 300,
+					defence: 20,
+				},
+			},
+			{
+				// id: 2,
+				x: 560,
+				y: 1190,
+				image: "guard2",
+				name: "Eaglecrest Guard",
+				hostility: "friendly",
+				level: 50,
+				stats: {
+					maxHealth: 300,
+					defence: 20,
+				},
+			},
+			{
+				// id: 3,
+				x: 130,
+				y: 500,
+				image: "guard1",
+				name: "Eaglecrest Guard",
+				hostility: "friendly",
+				level: 50,
+				stats: {
+					maxHealth: 300,
+					defence: 20,
+				},
+			},
+			{
+				// id: 4,
+				x: 1375,
+				y: 500,
+				image: "guard2",
+				name: "Eaglecrest Guard",
+				hostility: "friendly",
+				level: 50,
+				stats: {
+					maxHealth: 300,
+					defence: 20,
+				},
+			},
+			{
+				// id: 5,
+				x: 895,
+				y: 275,
+				image: "guard1",
+				name: "Eaglecrest Guard",
+				hostility: "friendly",
+				level: 50,
+				stats: {
+					maxHealth: 300,
+					defence: 20,
+				},
+			},
+			{
+				// id: 6,
+				x: 605,
+				y: 275,
+				image: "guard2",
+				name: "Eaglecrest Guard",
+				hostility: "friendly",
+				level: 50,
+				stats: {
+					maxHealth: 300,
+					defence: 20,
+				},
+			},
+		],
+		
+		mailboxes: [
+			{
+				x: 130,
+				y: 870,
+				readImage: "mailbox",
+				unreadImage: "mailboxUnread",
+				name: "Mailbox",
+			},
 		],
 		
 		things: [
 			{
 				x: 300,
-				y: 1280,
+				y: 1100,
 				image: "cart2",
 			},
 			{
 				x: 1320,
-				y: 1060,
+				y: 920,
 				image: "cart3",
 			},
 			{
 				x: 1380,
-				y: 1395,
+				y: 1175,
 				image: "cart1",
+			},
+		],
+	},
+	
+	eaglecrestBank: {
+		
+		data: {
+			name: "Eaglecrest Bank",
+			level: "",
+			territory: "",
+		},
+		
+		indoors: true,
+		
+		mapData: {
+			cols: 17,
+			rows: 15,
+			tsize: 60,
+			tilesPerRow: 1,
+			solidTiles: [1], // wall
+			layers: [
+				[1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 5, 5, 1, 1, 5, 5, 1, 1, 1, 5, 5, 1, 1, 5, 5, 1, 1, 5, 5, 1, 1, 5, 5, 1, 1, 1, 5, 5, 1, 1, 5, 5, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 2, 3, 2, 3, 2, 3, 2, 3, 2, 3, 2, 3, 2, 3, 2, 3, 2, 3, 2, 3, 2, 3, 2, 3, 2, 3, 2, 3, 2, 3, 2, 3, 2, 3, 4, 4, 4, 4, 4, 4, 2, 3, 2, 3, 2, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 2, 3, 2, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 3, 2, 3, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 2, 3, 2, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 3, 2, 3, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 2, 3, 2, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 3, 2, 3, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 2, 3, 2, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 2, 3, 2, 3, 2, 4, 4, 4, 4, 4, 4],
+				[],
+			],
+		},
+		
+		images: {
+			tiles: {normal: "./assets/tilemap/eaglecrestBank.png"},
+			banker1: {normal: "./assets/npcs/eaglecrestBanker.png"},
+			banker2: {normal: "./assets/npcs/eaglecrestBanker2.png"},
+			banker3: {normal: "./assets/npcs/eaglecrestBanker3.png"},
+			banker4: {normal: "./assets/npcs/eaglecrestBanker4.png"},
+		},
+		
+		song_day: "./assets/music/Eaglecrest.mp3",
+		song_night: "./assets/music/Eaglecrest.mp3",
+		
+		checkpoint: false,
+		
+		areaTeleports: [
+			{
+				// teleport to eaglecrest plaza
+				x: 540,
+				y: 949,
+				width: 240,
+				height: 2,
+				teleportTo: "eaglecrest",
+				destinationX: 1200,
+				destinationY: 280,
+			},
+		],
+		
+		npcs: [
+			{
+				// id: 0,
+				x: 900,
+				y: 142,
+				image: "banker4",
+				name: "Eaglecrest Banker",
+				hostility: "friendly",
+				level: 25,
+				stats: {
+					maxHealth: 175,
+					defence: 5,
+				},
+			},
+			{
+				// id: 1,
+				x: 660,
+				y: 139,
+				image: "banker1",
+				name: "Eaglecrest Banker",
+				hostility: "friendly",
+				level: 25,
+				stats: {
+					maxHealth: 175,
+					defence: 5,
+				},
+			},
+			{
+				// id: 2,
+				x: 360,
+				y: 137,
+				image: "banker3",
+				name: "Eaglecrest Banker",
+				hostility: "friendly",
+				level: 25,
+				stats: {
+					maxHealth: 175,
+					defence: 5,
+				},
+			},
+			{
+				// id: 3,
+				x: 120,
+				y: 151,
+				image: "banker2",
+				name: "Eaglecrest Banker",
+				hostility: "friendly",
+				level: 25,
+				stats: {
+					maxHealth: 175,
+					defence: 5,
+				},
 			},
 		],
 	},

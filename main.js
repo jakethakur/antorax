@@ -187,8 +187,8 @@ Camera.prototype.follow = function (sprite) {
 
 Camera.prototype.update = function () {
     // assume followed sprite should be placed at the center of the screen whenever possible
-    this.following.screenX = this.width / 2;
-    this.following.screenY = this.height / 2;
+    this.following.screenX = this.width / 2 + Game.viewportOffsetX;
+    this.following.screenY = this.height / 2 + Game.viewportOffsetY;
 	
 	// distance moved by caera in both directions (for weather to be moved by)
 	// calculated by difference in old x/y and new x/y
@@ -207,12 +207,12 @@ Camera.prototype.update = function () {
     // left and right sides
     if (this.following.x < this.width / 2 ||
         this.following.x > this.maxX + this.width / 2) {
-        this.following.screenX = this.following.x - this.x;
+        this.following.screenX = this.following.x - this.x + Game.viewportOffsetX;
     }
     // top and bottom sides
     if (this.following.y < this.height / 2 ||
         this.following.y > this.maxY + this.height / 2) {
-        this.following.screenY = this.following.y - this.y;
+        this.following.screenY = this.following.y - this.y + Game.viewportOffsetY;
     }
 	
 	// movedX and movedY are the old position values
@@ -1138,8 +1138,8 @@ class Hero extends Attacker {
 		// check collision with collisions - invisible entities that cannot be passed
 		Game.collisions.forEach(entity => { // iterate though collisions
 			// give collisions a screenX and Y (should be turned into own function)
-			entity.screenX = (entity.x - entity.width / 2) - Game.camera.x;
-			entity.screenY = (entity.y - entity.height / 2) - Game.camera.y;
+			entity.screenX = (entity.x - entity.width / 2) - Game.camera.x + Game.viewportOffsetX;
+			entity.screenY = (entity.y - entity.height / 2) - Game.camera.y + Game.viewportOffsetY;
 			// check if the player's feet are touching the collision
 			if (Game.heroFootHitbox.isTouching(entity)) {
 				collision = true;
@@ -1259,8 +1259,8 @@ class Hero extends Attacker {
 				// left-click (normal) attack
 				
 				// position of projectile
-				let projectileX = Game.camera.x + (e.clientX - 19); // subtract 19 from the mouse position because this is the margin of the canvas
-				let projectileY = Game.camera.y + (e.clientY - 19);
+				let projectileX = Game.camera.x + e.clientX - Game.viewportOffsetX;
+				let projectileY = Game.camera.y + e.clientY - Game.viewportOffsetY;
 				let distanceToProjectile = distance({x: projectileX, y: projectileY,}, this);
 				
 				if (Player.inventory.weapon.type === "staff" || Player.inventory.weapon.type === "bow" || Player.inventory.weapon.type === "sword") {
@@ -1537,13 +1537,13 @@ class Hero extends Attacker {
 			this.channellingProjectileId = null;
 			
 			// wait for the player's reload time (1s) until they can attack again
-			setTimeout(function (e) {
+			setTimeout(function () {
 				this.canAttack = true;
 				// remove beam animation if there was one
 				this.beam = undefined;
 				// add back crosshair to cursor (if mouse is in range)
-				Game.secondary.updateCursor(e);
-			}.bind(this), this.stats.reloadTime, e);
+				Game.secondary.updateCursor();
+			}.bind(this), this.stats.reloadTime);
 			
 			// special animations
 			if (typeof Skins[Player.class][Player.skin].animations !== "undefined" && typeof Skins[Player.class][Player.skin].animations.onHit !== "undefined") {
@@ -1567,11 +1567,11 @@ class Hero extends Attacker {
 			this.channelling = false;
 			
 			// wait for the player's reload time (1s) until they can attack again
-			setTimeout(function (e) {
+			setTimeout(function () {
 				this.canAttack = true;
 				// add back crosshair to cursor (if mouse is in range)
-				Game.secondary.updateCursor(e);
-			}.bind(this), this.stats.reloadTime, e);
+				Game.secondary.updateCursor();
+			}.bind(this), this.stats.reloadTime);
 		}
 	}
 	
@@ -3536,6 +3536,21 @@ Game.loadArea = function (areaName, destination) {
 			}
 		}
 		
+		// if the area is too small so does not fit in the screen, it should be moved to the centre of the screen
+		// calculate the variables of offset so the drawn sprites and tilemap can be adjusted by this
+		this.viewportOffsetX = 0;
+		this.viewportOffsetY = 0;
+		if (map.tsize * map.cols < this.camera.width) {
+			// area width not big enough to fill camera
+			// set offset so the canvas is drawn in the centre of screen
+			this.viewportOffsetX = (this.camera.width - (map.tsize * map.cols)) / 2;
+		}
+		if (map.tsize * map.rows < this.camera.height) {
+			// area height not big enough to fill camera
+			// set offset so the canvas is drawn in the centre of screen
+			this.viewportOffsetY = (this.camera.height - (map.tsize * map.rows)) / 2;
+		}
+		
 		// reposition player
 		if (destination !== undefined) {
 			this.hero.x = destination.x;
@@ -3728,7 +3743,7 @@ Game.init = function () {
 		Game.hero.trailInterval = setInterval(Game.addTrailParticle, 100, Game.hero, Game.hero.trail);
 	}
 	
-	// game view camera
+	// game viewport camera
     this.camera = new Camera(map, Dom.canvas.width, Dom.canvas.height);
     this.camera.follow(this.hero);
 	
@@ -4556,10 +4571,9 @@ Game.update = function (delta) {
 	});
 	
 	// check collision with area teleports
-	for(var i = 0; i < this.areaTeleports.length; i++) {
-		// give area teleports a screenX and Y (should be turned into own function)
-		this.areaTeleports[i].screenX = (this.areaTeleports[i].x - this.areaTeleports[i].width / 2) - this.camera.x;
-		this.areaTeleports[i].screenY = (this.areaTeleports[i].y - this.areaTeleports[i].height / 2) - this.camera.y;
+	for (let i = 0; i < this.areaTeleports.length; i++) {
+		// give area teleports a screen X and Y
+		this.updateScreenPosition(this.areaTeleports[i]);
 		
         if (this.hero.isTouching(this.areaTeleports[i])) {
 			if (this.areaTeleports[i].teleportCondition === undefined
@@ -4587,9 +4601,8 @@ Game.update = function (delta) {
 	
 	// check collision with tripwires - invisible entities that call a function when touched
 	this.tripwires.forEach(entity => { // iterate though tripwires
-		// give area teleports a screenX and Y (should be turned into own function)
-		entity.screenX = (entity.x - entity.width / 2) - this.camera.x;
-		entity.screenY = (entity.y - entity.height / 2) - this.camera.y;
+		// give tripwires a screen X and Y
+		this.updateScreenPosition(entity);
 		
         if ((entity.collisionType === "body" && this.hero.isTouching(entity)) ||
 		(entity.collisionType === "feet" && this.heroFootHitbox.isTouching(entity))) {
@@ -4948,25 +4961,57 @@ Game.highSpeed = function (addRemove) {
 //
 
 Game._drawLayer = function (layer) {
-    var startCol = Math.floor(this.camera.x / map.tsize);
-    var endCol = startCol + Math.ceil(this.camera.width / map.tsize);
-    var startRow = Math.floor(this.camera.y / map.tsize);
-    var endRow = startRow + Math.ceil(this.camera.height / map.tsize);
-    var offsetX = -this.camera.x + startCol * map.tsize;
-    var offsetY = -this.camera.y + startRow * map.tsize;
+	let startCol, endCol, startRow, endRow;
+	let offsetX = 0;
+	let offsetY = 0;
+	
+	// start and end positions of tilemap to draw (tiles on screen)
+	
+	startCol = Math.floor(this.camera.x / map.tsize);
+	if (this.viewportOffsetX > 0) {
+		// area width not big enough to fill camera
+		// set end column so canvas drawing does not loop
+		endCol = map.cols - 1;
+		// add to offset so the canvas is drawn in the centre of screen
+		offsetX += this.viewportOffsetX;
+	}
+	else {
+	    endCol = startCol + Math.ceil(this.camera.width / map.tsize);
+	}
+	
+	startRow = Math.floor(this.camera.y / map.tsize);
+	if (this.viewportOffsetY > 0) {
+		// area height not big enough to fill camera
+		// set end column so canvas drawing does not loop
+		endRow = map.rows - 1;
+		// add to offset so the canvas is drawn in the centre of screen
+		offsetY += this.viewportOffsetY;
+	}
+	else {
+	    endRow = startRow + Math.ceil(this.camera.height / map.tsize);
+	}
+	
+	// tile draw offset
+    offsetX += -this.camera.x + startCol * map.tsize;
+    offsetY += -this.camera.y + startRow * map.tsize;
 
-    for (var c = startCol; c <= endCol; c++) {
-        for (var r = startRow; r <= endRow; r++) {
-            var tile = map.getTile(layer, c, r);
-            var x = (c - startCol) * map.tsize + offsetX;
-            var y = (r - startRow) * map.tsize + offsetY;
-            if (tile !== 0) { // 0 => empty tile
+    for (let c = startCol; c <= endCol; c++) {
+        for (let r = startRow; r <= endRow; r++) {
+            let tile = map.getTile(layer, c, r); // tile number
+            
+			// draw position
+			let x = (c - startCol) * map.tsize + offsetX;
+            let y = (r - startRow) * map.tsize + offsetY;
+			
+            if (tile !== 0) { // 0 is empty tile
                 this.ctx.drawImage(
                     this.tileAtlas, // image
+					// cropping
                     ((tile - 1) % map.tilesPerRow) * map.tsize, // source x
                     Math.floor((tile - 1) / map.tilesPerRow) * map.tsize, // source y
                     map.tsize, // source width
                     map.tsize, // source height
+					// drawing
                     Math.round(x),  // target x
                     Math.round(y), // target y
                     map.tsize, // target width
@@ -4981,10 +5026,10 @@ Game._drawGrid = function () {
 	// stroke colour
 	this.ctx.strokeStyle="#0000ff";
 	
-    var width = map.cols * map.tsize;
-    var height = map.rows * map.tsize;
-    var x, y;
-    for (var r = 0; r < map.rows; r++) {
+    let width = map.cols * map.tsize;
+    let height = map.rows * map.tsize;
+    let x, y;
+    for (let r = 0; r < map.rows; r++) {
         x = - this.camera.x;
         y = r * map.tsize - this.camera.y;
         this.ctx.beginPath();
@@ -4992,7 +5037,7 @@ Game._drawGrid = function () {
         this.ctx.lineTo(width, y);
         this.ctx.stroke();
     }
-    for (var c = 0; c < map.cols; c++) {
+    for (let c = 0; c < map.cols; c++) {
         x = c * map.tsize - this.camera.x;
         y = - this.camera.y;
         this.ctx.beginPath();
@@ -5012,9 +5057,9 @@ Game.drawHitboxes = function () {
 	this.ctx.strokeRect(this.hero.screenX - this.hero.width / 2, this.hero.screenY - this.hero.height / 2, this.hero.width, this.hero.height);
 	
 	// render npcs on renderList
-	for (var i = 0; i < this.renderList.length; i++) { // iterate through everything to be rendered (in order)
+	for (let i = 0; i < this.renderList.length; i++) { // iterate through everything to be rendered (in order)
 		
-		for (var x = 0; x < this[this.renderList[i]].length; x++) { // iterate through that array of things to be rendered
+		for (let x = 0; x < this[this.renderList[i]].length; x++) { // iterate through that array of things to be rendered
 		
 			let objectToRender = this[this.renderList[i]][x];
 		
@@ -5035,13 +5080,13 @@ Game.drawHitboxes = function () {
 	
 	// area teleport hitboxes
 	// maybe a special hitbox render list should be made? (tbd)
-	for(var i = 0; i < this.areaTeleports.length; i++) {
+	for (let i = 0; i < this.areaTeleports.length; i++) {
 		this.ctx.strokeRect(this.areaTeleports[i].screenX - this.areaTeleports[i].width / 2, this.areaTeleports[i].screenY - this.areaTeleports[i].height / 2, this.areaTeleports[i].width, this.areaTeleports[i].height);
 	}
 	
 	// tripwire hitboxes
 	// maybe a special hitbox render list should be made? (tbd)
-	for(var i = 0; i < this.tripwires.length; i++) {
+	for (let i = 0; i < this.tripwires.length; i++) {
 		this.ctx.strokeRect(this.tripwires[i].screenX - this.tripwires[i].width / 2, this.tripwires[i].screenY - this.tripwires[i].height / 2, this.tripwires[i].width, this.tripwires[i].height);
 	}
 	
@@ -5130,8 +5175,9 @@ Game.drawImageRotated = function (img, x, y, width, height, rad) {
 // update entity's screen position (called every time it is rendered, and also in functions like dealDamage)
 // screenX and screenY are the CENTRE of the object (hence width/2 or height/2 are subtracted when drawing images to get the top left), as are x and y
 Game.updateScreenPosition = function (entity) {
-	entity.screenX = (entity.x) - this.camera.x;
-	entity.screenY = (entity.y) - this.camera.y;
+	entity.screenX = (entity.x) - this.camera.x + this.viewportOffsetX;
+	entity.screenY = (entity.y) - this.camera.y + this.viewportOffsetY;
+	
 	if (typeof entity.adjust !== "undefined") { // adjust postiion
 		let angle = bearing(entity, entity.adjust.towards);
 		entity.screenX += entity.adjust.x * Math.cos(angle);
@@ -5139,8 +5185,8 @@ Game.updateScreenPosition = function (entity) {
 	}
 	
 	if (typeof entity.hitbox !== "undefined") { // special hitbox
-		entity.hitbox.screenX = (entity.hitbox.x) - this.camera.x;
-		entity.hitbox.screenY = (entity.hitbox.y) - this.camera.y;
+		entity.hitbox.screenX = (entity.hitbox.x) - this.camera.x + this.viewportOffsetX;
+		entity.hitbox.screenY = (entity.hitbox.y) - this.camera.y + this.viewportOffsetY;
 	}
 }
 
@@ -5673,7 +5719,7 @@ Game.secondary.updateCursor = function (event) {
 		};
 	}
 	else {
-		// set the know mouse position in case it i sneeded for the future
+		// set the know mouse position in case it is needed for the future
 		Game.previousMousePosition = {
 			x: event.clientX,
 			y: event.clientY
@@ -5681,7 +5727,7 @@ Game.secondary.updateCursor = function (event) {
 	}
 	
 	// get player's range and mouse distance
-	let mouseDistanceFromHero = distance({x: Game.camera.x + event.clientX - 19, y: Game.camera.y + event.clientY - 19,}, Game.hero);
+	let mouseDistanceFromHero = distance({x: Game.camera.x + event.clientX - Game.viewportOffsetX, y: Game.camera.y + event.clientY - Game.viewportOffsetY,}, Game.hero);
 	let range = Game.hero.stats.range;
 	
 	// check the player's mouse distance is within range and they are not reloading
