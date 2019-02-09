@@ -63,7 +63,7 @@ var Instructions = [
 			},
 			{
 				title: "Settings",
-				text: "<p>Clicking the grey bookmark with the gear will take you to the settings. Here is where you can adjust different things about the game, such as music, what information to view, where your bookmarks are displayed and… really? That’s it? Well, it is a simple 2D RPG…</p>",
+				text: "<p>Clicking the grey bookmark with the gear will take you to the settings. Here is where you can adjust different things about the game, such as music, what information to view, particles and weather?</p>",
 			},
 		],
 	},

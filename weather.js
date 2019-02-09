@@ -93,22 +93,22 @@ Weather.heroMove = function (screenMovedX, screenMovedY) {
 		particle.x -= screenMovedX;
 		particle.y -= screenMovedY;
 		// check for particle off screen (x)
-		if (particle.x > 610) {
+		if (particle.x > Dom.canvas.width + 10) {
 			particle.x = -10;
-			particle.y = Random(0, 600); // simulates it being a new particle
+			particle.y = Random(0, Dom.canvas.height); // simulates it being a new particle
 		}
 		else if (particle.x < -10) {
-			particle.x = 610;
-			particle.y = Random(0, 600);
+			particle.x = Dom.canvas.width + 10;
+			particle.y = Random(0, Dom.canvas.height);
 		}
 		// check for particle off screen (y)
-		if (particle.y > 610) {
+		if (particle.y > Dom.canvas.height + 10) {
 			particle.y = -10;
-			particle.x = Random(0, 600);
+			particle.x = Random(0, Dom.canvas.width);
 		}
 		else if (particle.y < -10) {
-			particle.y = 610;
-			particle.x = Random(0, 600);
+			particle.y = Dom.canvas.height + 10;
+			particle.x = Random(0, Dom.canvas.width);
 		}
 	}
 }
@@ -150,8 +150,8 @@ Weather.updateParticleNumber = function () {
 		for (let i = 0; i < Math.round(this.intensity) - this.particleArray.length; i++) {
 			// add a particle, ensuring even distribution of them
 			this.particleArray.push({
-				x: Random(0, 600),
-				y: Random(0, 600),
+				x: Random(0, Dom.canvas.width),
+				y: Random(0, Dom.canvas.height),
 				speedMultiplier: Random(6, 14) / 10, // all particles have their own speed multiplier as well
 				type: this.weatherType,
 			});
@@ -176,12 +176,12 @@ Weather.moveParticles = function (delta) {
 		particle.x += Math.cos(this.windDirection) * (this.windIntensity * this[particle.type].windMultiplier) * particle.speedMultiplier * delta;
 		
 		// check for off screen particle
-		if (particle.y > 610 || particle.x < -10 || particle.x > 610) {
+		if (particle.y > Dom.canvas.height + 10 || particle.x < -10 || particle.x > Dom.canvas.width + 10) {
 			// particle off screen
 			if (this.weatherType !== "clear") {
 				// re-add the particle
 				particle.y = -10;
-				particle.x = Random(0, 600);
+				particle.x = Random(0, Dom.canvas.width);
 			}
 			else {
 				// remove the particle completely
@@ -194,7 +194,7 @@ Weather.moveParticles = function (delta) {
 
 // render weather particles
 Weather.render = function () {
-	this.ctx.clearRect(0, 0, 600, 600);
+	this.ctx.clearRect(0, 0, Dom.canvas.width, Dom.canvas.height);
 	this.ctx.fillStyle="#FFFFFF";
 	for (let i = 0; i < this.particleArray.length; i++) { // iterate through particle array
 		let particle = this.particleArray[i];

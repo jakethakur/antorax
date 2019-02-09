@@ -1,8 +1,3 @@
-// go to class select if the user's class has not been selected yet for this session
-if (sessionStorage.getItem("class") === null) {
-	window.location.replace("./selection/index.html");
-}
-
 let playerName = sessionStorage.getItem("name"); // avoids it having to be called multiple times from inside Player's declaration
 let playerClass = sessionStorage.getItem("class"); // avoids it having to be called multiple times from inside Player's declaration
 let playerSkin = sessionStorage.getItem("skin"); // avoids it having to be called multiple times from inside Player's declaration
@@ -25,7 +20,6 @@ var Player = {
 	skippedInstructions: [],
 	unlockedTabs: [],
 	skippedTabs: [],
-	tab: "adventurePage",
 	
 	days: [], // days logged on (ddmmyyyy)
 	metNPCs: ["Cart Driver"],
@@ -144,7 +138,6 @@ var User = {
 		seals: 0,
 	},
 	settings: {
-		bookmarks: "bottom",
 		music: false,
 		particles: true,
 		weather: true,
@@ -152,6 +145,7 @@ var User = {
 		fps: false,
 		hitboxes: false,
 		grid: false,
+		transparency: false,
 		keyboard: {
 			LEFT: "A", // 37
 			RIGHT: "D", // 39

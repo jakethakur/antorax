@@ -47,9 +47,12 @@ Game.tick = function (elapsed) {
     window.requestAnimationFrame(this.tick);
 
     // clear previous frame
-    this.ctx.clearRect(0, 0, this.canvas.width, this.canvas.height);
-    this.ctxLight.clearRect(0, 0, this.canvas.width, this.canvas.height);
-
+    this.ctx.clearRect(0, 0, Dom.canvas.width, Dom.canvas.height);
+    this.ctxLight.clearRect(0, 0, Dom.canvas.width, Dom.canvas.height);
+    // fill canvas background colour as black
+    this.ctx.fillStyle = "black";
+    this.ctx.fillRect(0, 0, Dom.canvas.width, Dom.canvas.height);
+	
     // compute delta time in seconds -- also cap it
     var delta = (elapsed - this._previousElapsed) / 1000.0;
     delta = Math.min(delta, 0.25); // maximum delta of 250 ms
@@ -229,7 +232,7 @@ Camera.prototype.isOnScreen = function (object, mode) {
 	if (mode === "hitbox" && object.hitbox !== undefined) {
 		// hitbox mode
 		if (object.hitbox.x + object.hitbox.width / 2 > this.x && object.hitbox.y + object.hitbox.height / 2 > this.y) { // object's x and y are big enough
-			if (object.hitbox.x - object.hitbox.width / 2 < this.x + 600 && object.hitbox.y - object.hitbox.height / 2 < this.y + 600) { // object's x and y are also small enough
+			if (object.hitbox.x - object.hitbox.width / 2 < this.x + Dom.canvas.width && object.hitbox.y - object.hitbox.height / 2 < this.y + Dom.canvas.height) { // object's x and y are also small enough
 				return true;
 			}
 		}
@@ -237,7 +240,7 @@ Camera.prototype.isOnScreen = function (object, mode) {
 	else {
 		// image mode
 		if (object.x + object.width / 2 > this.x && object.y + object.height / 2 > this.y) { // object's x and y are big enough
-			if (object.x - object.width / 2 < this.x + 600 && object.y - object.height / 2 < this.y + 600) { // object's x and y are also small enough
+			if (object.x - object.width / 2 < this.x + Dom.canvas.width && object.y - object.height / 2 < this.y + Dom.canvas.height) { // object's x and y are also small enough
 				return true;
 			}
 		}
@@ -3161,8 +3164,8 @@ Game.levelUpFireworks = function (numberRemaining) {
 	}
 	
 	Game.launchFirework({
-		x: Random(Game.hero.x - 300, Game.hero.x + 300),
-		y: Random(Game.hero.y - 300, Game.hero.y + 300),
+		x: Random(Game.hero.x - Dom.canvas.width / 2, Game.hero.x + Dom.canvas.width / 2),
+		y: Random(Game.hero.y - Dom.canvas.height / 2, Game.hero.y + Dom.canvas.height / 2),
 		radius: Random(125, 175),
 		particles: 500,
 		explodeTime: 500,
@@ -3320,8 +3323,8 @@ Game.loadArea = function (areaName, destination) {
 		
 		// recalibrate camera (for areas other than first area)
 		if (this.camera != undefined) {
-			this.camera.maxX = map.cols * map.tsize - this.canvas.width;
-			this.camera.maxY = map.rows * map.tsize - this.canvas.height;
+			this.camera.maxX = map.cols * map.tsize - Dom.canvas.width;
+			this.camera.maxY = map.rows * map.tsize - Dom.canvas.height;
 		}
 		
 		// villagers (currently broken)
@@ -3584,8 +3587,8 @@ Game.loadArea = function (areaName, destination) {
 				if (Random(0, 3) === 0) {
 					// large firework
 					Game.launchFirework({
-						x: Random(Game.hero.x - 300, Game.hero.x + 300),
-						y: Random(Game.hero.y - 300, Game.hero.y + 300),
+						x: Random(Game.hero.x - Dom.canvas.width / 2, Game.hero.x + Dom.canvas.width / 2),
+						y: Random(Game.hero.y - Dom.canvas.height / 2, Game.hero.y + Dom.canvas.height / 2),
 						radius: 250,
 						particles: 1500,
 						explodeTime: 750,
@@ -3596,8 +3599,8 @@ Game.loadArea = function (areaName, destination) {
 				else {
 					// normal firework
 					Game.launchFirework({
-						x: Random(Game.hero.x - 300, Game.hero.x + 300),
-						y: Random(Game.hero.y - 300, Game.hero.y + 300),
+						x: Random(Game.hero.x - Dom.canvas.width / 2, Game.hero.x + Dom.canvas.width / 2),
+						y: Random(Game.hero.y - Dom.canvas.height / 2, Game.hero.y + Dom.canvas.height / 2),
 						radius: 150,
 						particles: 600,
 						explodeTime: 500,
@@ -3726,7 +3729,7 @@ Game.init = function () {
 	}
 	
 	// game view camera
-    this.camera = new Camera(map, this.canvas.width, this.canvas.height);
+    this.camera = new Camera(map, Dom.canvas.width, Dom.canvas.height);
     this.camera.follow(this.hero);
 	
 	// set foot hitbox position (updated on hero move normally)
@@ -4353,7 +4356,7 @@ Game.update = function (delta) {
 									if (Dom.inventory.check(2, "currency", Game.soulHealerCost)) {
 										Dom.inventory.removeById(2, "currency", Game.soulHealerCost);
 										Game.hero.statusEffects.splice(Game.hero.statusEffects.findIndex(statusEffect => statusEffect.title === "XP Fatigue"), 1); // remove xp fatigue effect
-										Dom.changeBook(Player.tab, true); // close page
+										Dom.changeBook("", true); // close page
 										Game.currentSoulHealer.say(Game.currentSoulHealer.chat.healedText, false, 0, false);
 										Game.currentSoulHealer = undefined; // reset variable that remembers which soul healer the player is speaking to
 										Game.soulHealerCost = undefined; // reset variable that remembers the cost for soul healing
@@ -4467,7 +4470,7 @@ Game.update = function (delta) {
 			// close the DOM if the player is too far away from the NPC or if the NPC is dead
 			if (npc.respawning || distance(Game.hero, npc) > Game.hero.stats.domRange) {
 				// NPC is dead or player is more than 4 (can be changed) tiles away from NPC
-				Dom.changeBook(Player.tab, true); // close NPC DOM
+				Dom.changeBook("", true); // close NPC DOM
 			}
 		}
 	}); // finished iterating through npcs
@@ -4490,7 +4493,7 @@ Game.update = function (delta) {
 			// close the DOM if the player is too far away from the enemy or if the enemy is dead
 			if (enemy.respawning && distance(Game.hero, enemy) > Game.hero.stats.domRange) {
 				// enemy is dead or player is more than 4 tiles away from enemy
-				Dom.changeBook(Player.tab, true); // close enemy DOM
+				Dom.changeBook("", true); // close enemy DOM
 			}
 		}
 	});
@@ -4534,7 +4537,7 @@ Game.update = function (delta) {
 			// close the DOM if the player is too far away from the mailbox or if the mailbox is dead
 			if (distance(Game.hero, mailbox) > Game.hero.stats.domRange) {
 				// player is more than 4 tiles away from mailbox
-				Dom.changeBook(Player.tab, true); // close mailbox DOM
+				Dom.changeBook("", true); // close mailbox DOM
 			}
 		}
 	});
@@ -4546,7 +4549,7 @@ Game.update = function (delta) {
 			// close the DOM if the player is too far away from the chest or if the chest is dead
 			if (distance(Game.hero, chest) > Game.hero.stats.domRange) {
 				// player is more than 4 tiles away from chest
-				Dom.changeBook(Player.tab, true); // close chest DOM
+				Dom.changeBook("", true); // close chest DOM
 				// loot not wiped (so the player can revisit if they closed by accident)
 			}
 		}
@@ -4946,9 +4949,9 @@ Game.highSpeed = function (addRemove) {
 
 Game._drawLayer = function (layer) {
     var startCol = Math.floor(this.camera.x / map.tsize);
-    var endCol = startCol + (this.camera.width / map.tsize);
+    var endCol = startCol + Math.ceil(this.camera.width / map.tsize);
     var startRow = Math.floor(this.camera.y / map.tsize);
-    var endRow = startRow + (this.camera.height / map.tsize);
+    var endRow = startRow + Math.ceil(this.camera.height / map.tsize);
     var offsetX = -this.camera.x + startCol * map.tsize;
     var offsetY = -this.camera.y + startRow * map.tsize;
 
@@ -5624,7 +5627,7 @@ Game.render = function (delta) {
 		
 		// hero channelling bar above xp bar
 		if (Game.hero.channellingInfo !== false) {
-			Game.drawChannellingBar(this.ctx, this.hero, 132, 488, 335, 12);
+			Game.drawChannellingBar(this.ctx, this.hero, Dom.canvas.width/2-185, Dom.canvas.height-124, 335, 12);
 		}
 		
 		
@@ -5635,12 +5638,12 @@ Game.render = function (delta) {
 			this.ctx.textAlign = "center";
 			this.ctx.font = "48px MedievalSharp";
 			
-			this.ctx.fillText(this.displayAreaName.name, 300, 100); // area name
+			this.ctx.fillText(this.displayAreaName.name, Dom.canvas.width / 2, 100); // area name
 			
 			this.ctx.font = "28px MedievalSharp";
-			this.ctx.fillText(this.displayAreaName.level, 300, 150); // area level
+			this.ctx.fillText(this.displayAreaName.level, Dom.canvas.width / 2, 150); // area level
 			if (this.displayAreaName.territory !== "") { // check that territory should be displayed
-				this.ctx.fillText(this.displayAreaName.territory + " territory", 300, 180); // area territory (Hostile, Neutral, Allied)
+				this.ctx.fillText(this.displayAreaName.territory + " territory", Dom.canvas.width / 2, 180); // area territory (Hostile, Neutral, Allied)
 			}
 			
 			this.displayAreaName.duration--;
@@ -5701,7 +5704,7 @@ Game.secondary.updateCursor = function (event) {
 // mainly PG code
 Game.secondary.render = function () {
 	// clear secondary canvas
-	this.ctx.clearRect(0, 0, 600, 600);
+	this.ctx.clearRect(0, 0, Dom.canvas.width, Dom.canvas.height);
 	
 	if (!Keyboard.isDown(Keyboard.keys.SHIFT, "SHIFT")) { // only render the second canvas if the player isn't pressing the shift key
 		
@@ -5715,8 +5718,8 @@ Game.secondary.render = function () {
 		// set xp variables
 		const totalWidth = 335; // total width of xp bar
 		const totalHeight = 8; // total height of xp bar
-		const totalLeft = 132; // total height of xp bar
-		const totalTop = 507; // total height of xp bar
+		const totalLeft = Dom.canvas.width/2-185; // total left of xp bar
+		const totalTop = Dom.canvas.height-105; // total top of xp bar
 		Player.xpFraction = Player.xp / LevelXP[Player.level]; // fraction of XP for current level
 		
 		// rainbow gradient
@@ -5750,9 +5753,9 @@ Game.secondary.render = function () {
 		this.ctx.font = "bold 30px MedievalSharp";
         this.ctx.textAlign = "center";
         this.ctx.fillStyle = "lightGrey";
-        this.ctx.fillText(Player.level, 299, 519);    
+        this.ctx.fillText(Player.level, Dom.canvas.width/2-18, Dom.canvas.height-94);
         this.ctx.fillStyle = "white";
-        this.ctx.fillText(Player.level, 297, 517);
+        this.ctx.fillText(Player.level, Dom.canvas.width/2-20, Dom.canvas.height-96);
 		
 		// status effect icons next to health bar
 		for(let i = 0; i < Game.hero.statusEffects.length; i++) {
@@ -5827,17 +5830,17 @@ Game.secondary.render = function () {
 // night effect
 Game.renderDayNight = function () {
 	// wipe canvas
-	this.ctxDayNight.clearRect(0, 0, 600, 600);
+	this.ctxDayNight.clearRect(0, 0, Dom.canvas.width, Dom.canvas.height);
 	// make canvas darker if it is night time and the player is not indoors
 	if (Event.time === "night" && !Areas[Game.areaName].indoors) {
 		this.ctxDayNight.fillStyle = "black";
 		this.ctxDayNight.globalAlpha = 0.35; // maybe change?
-		this.ctxDayNight.fillRect(0, 0, 600, 600);
+		this.ctxDayNight.fillRect(0, 0, Dom.canvas.width, Dom.canvas.height);
 	}
 	else if (Event.time === "bloodMoon" && !Areas[Game.areaName].indoors) {
 		this.ctxDayNight.fillStyle = "#2d0101"; // red tint
 		this.ctxDayNight.globalAlpha = 0.45;
-		this.ctxDayNight.fillRect(0, 0, 600, 600);
+		this.ctxDayNight.fillRect(0, 0, Dom.canvas.width, Dom.canvas.height);
 	}
 }
 

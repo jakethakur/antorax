@@ -4,8 +4,9 @@ body{
 	-moz-user-select: none; /* Firefox */
 	-ms-user-select: none; /* IE10+/Edge */
 	user-select: none;
+	overflow: hidden;
 }
-#chatPage, #inventoryPage, #questsPage, #settingsPage, #settingsTwoPage, #adventurePage, #reputationPage, #questStart, #questFinish, #merchantPage, #mailPage, #driverPage, #bankDepositPage, #bankWithdrawPage, #identifierPage, #levelUpPage, #lootPage, #buyerPage, #choosePage, #textPage, #identifiedPage {
+.DOM{
 	float: left;
 	margin: 10px;
 	border: 1px solid black;
@@ -16,15 +17,14 @@ body{
 	background-color: #f9f9d0;
 	overflow: hidden;
 	position: relative;
+	z-index: 6;
+	//opacity: 0.6;
 }
 #game, #secondary, #weather, #dayNight, #light{
 	border: 1px solid black;
 	float: left;
-	margin: 10px;
-}
-#secondary, #weather, #dayNight, #light{
+	margin: -8px;
 	position: absolute;
-	left: 8px;
 }
 #secondary{
 	z-index: 4;
@@ -67,7 +67,7 @@ body{
 #questStartChat, #questFinishChat, #questStartQuest, #questFinishQuest, #questStartName, #questFinishName, #questStartObjectives, #questStartRewards, #questStartStartRewards, #questStartRewardsTitle, #questStartStartRewardsTitle, #questFinishRewardsTitle, #questFinishRewards, #merchantPageTitle, #merchantPageChat, #merchantPageOptions, #identifierPageTitle, #identifierPageChat, #leftArrow, #identifierPageOption, #rightArrow, #identifiedPageTitle, #identifiedPageChat, #identifiedPageOptions{
 	display: inline;
 }
-#settingBookmark{
+#settingMusic{
 	border-top: 5px solid #886622;
 }
 .settings {
@@ -230,10 +230,11 @@ body{
 	padding: 0px;
 }
 #hotbar{
-	top: 530px;
-	left: 150px;
+	//bottom: 100px;
+	//left: 150px;
 	opacity: 0.6;
 	z-index: 6;
+	//position: absolute;
 }
 #buyerPageInventory {
 	top: 90px;
@@ -287,7 +288,7 @@ td{
 	vertical-align: middle;
 	text-align: center;
 	font-size: 10px;
-	z-index: 2;
+	z-index: 8;
 	position: absolute;
 	height: 13px;
 	width: 13px;
@@ -352,7 +353,11 @@ td{
 	padding-left: 10px;
 	padding-right: 10px;
 	text-align: left;
-	z-index: 2;
+	z-index: 7;
+}
+#inventoryPageClose{
+	bottom: 60px;
+	left: 30px;
 }
 .buttons{
 	position: relative;
@@ -448,10 +453,12 @@ td{
 }
 #changeChat, #changeInventory, #changeQuests, #changeAdventure, #changeReputation, #changeAdventure, #changeSettings{
 	position: absolute;
-	width: 131px;
-	height: 51px;
+	//width: 131px;
+	//height: 51px;
 	outline: none;
-	display: none;
+	//display: none;
+	opacity: 0.6;
+	z-index: 6;
 }
 #changeAdventure, #changeSettings{
 	display: block;
@@ -459,7 +466,7 @@ td{
 #chatImage, #inventoryImage, #questsImage, #adventureImage, #reputationImage, #settingsImage{
 	position: absolute;
 	height: 40px;
-	z-index: 1;
+	z-index: 7;
 }
 #chatImage {
 	background-image: url("./assets/icons/chat.png");
@@ -547,7 +554,7 @@ td{
 	font-size: 25px;
 	padding: 20px;
 	padding-bottom: 10px;
-	z-index: 3;
+	z-index: 8;
 	text-align: center;
 }
 #alertYes, #alertNo, #alertDispose{
@@ -670,18 +677,17 @@ td{
 	top: 4px;
 	outline: none;
 }
-#gap{
+/*#gap{
 	position: absolute;
 	left: 620px;
 	top: 18px;
 	height: 602px;
 	width: 20px;
 	background-color: white;
-}
+}*/
 #achievement{
 	position: absolute;
 	top: 63px;
-	left: 160px;
 	width: 445px;
 	border: 5px solid #886622;
 	background-color: #fef9b4;
@@ -692,9 +698,10 @@ td{
 	height: 60px;
 	text-align: left;
 	animation: animation 2s linear 1;
+	z-index: 7;
 }
 @keyframes animation{
-  0%   {left: 620px;}
+  0%   {left: 100vw;}
 }
 #achievementImg{
 	width: 50px;
