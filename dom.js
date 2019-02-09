@@ -2017,97 +2017,99 @@ function UnId(area,tier){
 }
 
 Dom.inventory.dispose = function(ev){
-	let quest = false;
-	// item inventory
-	if(!isNaN(parseInt(ev.dataTransfer.getData("text")))){
-		if(Player.inventory.items[parseInt(ev.dataTransfer.getData("text"))].quest !== undefined && (Player.inventory.items[parseInt(ev.dataTransfer.getData("text"))].quest === true || Player.inventory.items[parseInt(ev.dataTransfer.getData("text"))].quest())){
-			// if it is a quest item
-			quest = true;
-		}
-	// weapon (e.g. goblin torch)
-	}else{
-		if(Player.inventory[ev.dataTransfer.getData("text")].quest !== undefined && (Player.inventory[ev.dataTransfer.getData("text")].quest === true || Player.inventory[ev.dataTransfer.getData("text")].quest())){
-			// if it is a quest item
-			quest = true;
-		}
-	}
-	let remove = true;
-	for(let i = 6; i < Player.inventory.items.length; i++){
-		if(Player.inventory.items[i].image !== undefined){
-			// if it is safe to dispose of the bag
-			remove = false;
-		}
-	}
-	ev.preventDefault(); // allows the item to drop
-	if((ev.target.id === "inventoryPage" || ev.target.id === "displayStats" || ev.target.id === "bagText") && !(!remove && ev.dataTransfer.getData("text") === "5" && Player.inventory.items[5].type === "bag") && !quest){
-		Dom.alert.target = function(ev, all){
-			// item inventory
-			if(!isNaN(parseInt(ev[0]))){
-				// if you dispose of the bag then reset the inventory
-				if(parseInt(ev[0]) === 5 && Player.inventory.items[5].type === "bag"){
-					document.getElementById("itemInventory").innerHTML = '<tr><td ondrop="Dom.inventory.drop(event);Game.inventoryUpdate(event)" ondragover="Dom.inventory.allowDrop(event)" onmouseover="Dom.inventory.displayInformation(Player.inventory.items[0])" onmouseleave="Dom.expand(\'information\')" ondrag="Dom.expand(\'information\')" onclick="Game.inventoryUpdate()"></td>\
-					<td ondrop="Dom.inventory.drop(event);Game.inventoryUpdate(event)" ondragover="Dom.inventory.allowDrop(event)" onmouseover="Dom.inventory.displayInformation(Player.inventory.items[1])" onmouseleave="Dom.expand(\'information\')" ondrag="Dom.expand(\'information\')" onclick="Game.inventoryUpdate()"></td>\
-					<td ondrop="Dom.inventory.drop(event);Game.inventoryUpdate(event)" ondragover="Dom.inventory.allowDrop(event)" onmouseover="Dom.inventory.displayInformation(Player.inventory.items[2])" onmouseleave="Dom.expand(\'information\')" ondrag="Dom.expand(\'information\')" onclick="Game.inventoryUpdate()"></td>\
-					<td ondrop="Dom.inventory.drop(event);Game.inventoryUpdate(event)" ondragover="Dom.inventory.allowDrop(event)" onmouseover="Dom.inventory.displayInformation(Player.inventory.items[3])" onmouseleave="Dom.expand(\'information\')" ondrag="Dom.expand(\'information\')" onclick="Game.inventoryUpdate()"></td>\
-					<td ondrop="Dom.inventory.drop(event);Game.inventoryUpdate(event)" ondragover="Dom.inventory.allowDrop(event)" onmouseover="Dom.inventory.displayInformation(Player.inventory.items[4])" onmouseleave="Dom.expand(\'information\')" ondrag="Dom.expand(\'information\')" onclick="Game.inventoryUpdate()"></td>\
-					<td ondrop="Dom.inventory.drop(event);Game.inventoryUpdate(event)" ondragover="Dom.inventory.allowDrop(event)" onmouseover="Dom.inventory.displayInformation(Player.inventory.items[5])" onmouseleave="Dom.expand(\'information\')" ondrag="Dom.expand(\'information\')" onclick="Game.inventoryUpdate()"></td></tr>';
-					document.getElementById("itemInventory").getElementsByTagName("td")[5].style.backgroundImage = "url('assets/items/bag/1.png')";
-					for(let x = 0; x < 6; x++){
-						if(Player.inventory.items[x].image !== undefined){
-							document.getElementById("itemInventory").getElementsByTagName("td")[x].innerHTML = '<img src="'+Player.inventory.items[x].image+'" draggable="true" ondragstart="Dom.inventory.drag(event,'+x+')"></img>';
-							if(Player.inventory.items[x].stacked !== undefined && Player.inventory.items[x].stacked !== 1){
-								document.getElementById("itemInventory").getElementsByTagName("td")[x].innerHTML += "<div class='stackNum' id='stackNum"+x+"'>"+Player.inventory.items[x].stacked+"</div>";
-							}					
-						}
-					}
-					Player.inventory.items.splice(6,Player.inventory.items.length-6);
-					Dom.inventory.update();
-				}
-				if(ev.length === 1){
-					// removes the item from slot 0 to 9
-					Dom.inventory.remove(parseInt(ev[0]), all);
-				}else{
-					// removes the item from slot 10 to 99
-					Dom.inventory.remove(parseInt(ev[0]+ev[1]), all);
-				}
-			}else if(ev[0] === "w"){
-				Dom.inventory.removeEquipment(Player.inventory.weapon);
-				Player.inventory.weapon = {};
-				document.getElementById("weapon").innerHTML = "";
-			}else if(ev[0] === "h"){
-				Dom.inventory.removeEquipment(Player.inventory.helm);
-				Player.inventory.helm = {};
-				document.getElementById("helm").innerHTML = "";
-			}else if(ev[0] === "c"){
-				Dom.inventory.removeEquipment(Player.inventory.chest);
-				Player.inventory.chest = {};
-				document.getElementById("chest").innerHTML = "";
-			}else if(ev[0] === "g"){
-				Dom.inventory.removeEquipment(Player.inventory.greaves);
-				Player.inventory.greaves = {};
-				document.getElementById("greaves").innerHTML = "";
-			}else{
-				Dom.inventory.removeEquipment(Player.inventory.boots);
-				Player.inventory.boots = {};
-				document.getElementById("boots").innerHTML = "";
-			}
-			Game.inventoryUpdate();
-		};
-		Dom.alert.ev = Object.assign({},ev.dataTransfer.getData("text"));
+	if(ev.dataTransfer.getData("text") !== ""){
+		let quest = false;
+		// item inventory
 		if(!isNaN(parseInt(ev.dataTransfer.getData("text")))){
-			if(Player.inventory.items[parseInt(ev.dataTransfer.getData("text"))].stacked > 1){
-				Dom.alert.page("How many would you like to drop?", 2);
+			if(Player.inventory.items[parseInt(ev.dataTransfer.getData("text"))].quest !== undefined && (Player.inventory.items[parseInt(ev.dataTransfer.getData("text"))].quest === true || Player.inventory.items[parseInt(ev.dataTransfer.getData("text"))].quest())){
+				// if it is a quest item
+				quest = true;
+			}
+		// weapon (e.g. goblin torch)
+		}else{
+			if(Player.inventory[ev.dataTransfer.getData("text")].quest !== undefined && (Player.inventory[ev.dataTransfer.getData("text")].quest === true || Player.inventory[ev.dataTransfer.getData("text")].quest())){
+				// if it is a quest item
+				quest = true;
+			}
+		}
+		let remove = true;
+		for(let i = 6; i < Player.inventory.items.length; i++){
+			if(Player.inventory.items[i].image !== undefined){
+				// if it is safe to dispose of the bag
+				remove = false;
+			}
+		}
+		ev.preventDefault(); // allows the item to drop
+		if(ev.target.id !== "" && !(!remove && ev.dataTransfer.getData("text") === "5" && Player.inventory.items[5].type === "bag") && !quest){
+			Dom.alert.target = function(ev, all){
+				// item inventory
+				if(!isNaN(parseInt(ev[0]))){
+					// if you dispose of the bag then reset the inventory
+					if(parseInt(ev[0]) === 5 && Player.inventory.items[5].type === "bag"){
+						document.getElementById("itemInventory").innerHTML = '<tr><td ondrop="Dom.inventory.drop(event);Game.inventoryUpdate(event)" ondragover="Dom.inventory.allowDrop(event)" onmouseover="Dom.inventory.displayInformation(Player.inventory.items[0])" onmouseleave="Dom.expand(\'information\')" ondrag="Dom.expand(\'information\')" onclick="Game.inventoryUpdate()"></td>\
+						<td ondrop="Dom.inventory.drop(event);Game.inventoryUpdate(event)" ondragover="Dom.inventory.allowDrop(event)" onmouseover="Dom.inventory.displayInformation(Player.inventory.items[1])" onmouseleave="Dom.expand(\'information\')" ondrag="Dom.expand(\'information\')" onclick="Game.inventoryUpdate()"></td>\
+						<td ondrop="Dom.inventory.drop(event);Game.inventoryUpdate(event)" ondragover="Dom.inventory.allowDrop(event)" onmouseover="Dom.inventory.displayInformation(Player.inventory.items[2])" onmouseleave="Dom.expand(\'information\')" ondrag="Dom.expand(\'information\')" onclick="Game.inventoryUpdate()"></td>\
+						<td ondrop="Dom.inventory.drop(event);Game.inventoryUpdate(event)" ondragover="Dom.inventory.allowDrop(event)" onmouseover="Dom.inventory.displayInformation(Player.inventory.items[3])" onmouseleave="Dom.expand(\'information\')" ondrag="Dom.expand(\'information\')" onclick="Game.inventoryUpdate()"></td>\
+						<td ondrop="Dom.inventory.drop(event);Game.inventoryUpdate(event)" ondragover="Dom.inventory.allowDrop(event)" onmouseover="Dom.inventory.displayInformation(Player.inventory.items[4])" onmouseleave="Dom.expand(\'information\')" ondrag="Dom.expand(\'information\')" onclick="Game.inventoryUpdate()"></td>\
+						<td ondrop="Dom.inventory.drop(event);Game.inventoryUpdate(event)" ondragover="Dom.inventory.allowDrop(event)" onmouseover="Dom.inventory.displayInformation(Player.inventory.items[5])" onmouseleave="Dom.expand(\'information\')" ondrag="Dom.expand(\'information\')" onclick="Game.inventoryUpdate()"></td></tr>';
+						document.getElementById("itemInventory").getElementsByTagName("td")[5].style.backgroundImage = "url('assets/items/bag/1.png')";
+						for(let x = 0; x < 6; x++){
+							if(Player.inventory.items[x].image !== undefined){
+								document.getElementById("itemInventory").getElementsByTagName("td")[x].innerHTML = '<img src="'+Player.inventory.items[x].image+'" draggable="true" ondragstart="Dom.inventory.drag(event,'+x+')"></img>';
+								if(Player.inventory.items[x].stacked !== undefined && Player.inventory.items[x].stacked !== 1){
+									document.getElementById("itemInventory").getElementsByTagName("td")[x].innerHTML += "<div class='stackNum' id='stackNum"+x+"'>"+Player.inventory.items[x].stacked+"</div>";
+								}					
+							}
+						}
+						Player.inventory.items.splice(6,Player.inventory.items.length-6);
+						Dom.inventory.update();
+					}
+					if(ev.length === 1){
+						// removes the item from slot 0 to 9
+						Dom.inventory.remove(parseInt(ev[0]), all);
+					}else{
+						// removes the item from slot 10 to 99
+						Dom.inventory.remove(parseInt(ev[0]+ev[1]), all);
+					}
+				}else if(ev[0] === "w"){
+					Dom.inventory.removeEquipment(Player.inventory.weapon);
+					Player.inventory.weapon = {};
+					document.getElementById("weapon").innerHTML = "";
+				}else if(ev[0] === "h"){
+					Dom.inventory.removeEquipment(Player.inventory.helm);
+					Player.inventory.helm = {};
+					document.getElementById("helm").innerHTML = "";
+				}else if(ev[0] === "c"){
+					Dom.inventory.removeEquipment(Player.inventory.chest);
+					Player.inventory.chest = {};
+					document.getElementById("chest").innerHTML = "";
+				}else if(ev[0] === "g"){
+					Dom.inventory.removeEquipment(Player.inventory.greaves);
+					Player.inventory.greaves = {};
+					document.getElementById("greaves").innerHTML = "";
+				}else{
+					Dom.inventory.removeEquipment(Player.inventory.boots);
+					Player.inventory.boots = {};
+					document.getElementById("boots").innerHTML = "";
+				}
+				Game.inventoryUpdate();
+			};
+			Dom.alert.ev = Object.assign({},ev.dataTransfer.getData("text"));
+			if(!isNaN(parseInt(ev.dataTransfer.getData("text")))){
+				if(Player.inventory.items[parseInt(ev.dataTransfer.getData("text"))].stacked > 1){
+					Dom.alert.page("How many would you like to drop?", 2);
+				}else{
+					Dom.alert.page("Are you sure you want to drop this item? It will be lost forever!", 1);
+				}
 			}else{
 				Dom.alert.page("Are you sure you want to drop this item? It will be lost forever!", 1);
 			}
-		}else{
-			Dom.alert.page("Are you sure you want to drop this item? It will be lost forever!", 1);
-		}
-	}else if(ev.target.id === "inventoryPage" || ev.target.id === "displayStats" || ev.target.id === "bagText"){
-		if(!quest){
-			Dom.alert.page("Move some items to the bank, sell or dispose of them before you can do that.");
-		}else{
-			Dom.alert.page("You cannot dispose of this item because you need it for a quest.");
+		}else if(ev.target.id !== ""){
+			if(!quest){
+				Dom.alert.page("Move some items to the bank, sell or dispose of them before you can do that.");
+			}else{
+				Dom.alert.page("You cannot dispose of this item because you need it for a quest.");
+			}
 		}
 	}
 }
@@ -2175,6 +2177,58 @@ Dom.inventory.remove = function(num, all){
 	Dom.hotbar.update();
 	Dom.checkProgress();
 }
+/*
+Dom.draggedPage = "";
+Dom.draggedPageX = "";
+Dom.draggedPageY = "";
+for(let i = 0; i < document.getElementsByClassName("DOM").length; i++){
+	document.getElementsByClassName("DOM")[i].style.left = "0px";
+	document.getElementsByClassName("DOM")[i].style.top = "0px";
+	console.log(document.getElementsByClassName("DOM")[i].id);
+	document.getElementsByClassName("DOM")[i].ondragstart = function(ev){
+		Dom.draggedPage = document.getElementsByClassName("DOM")[i];
+		Dom.draggedPageX = ev.screenX-document.getElementsByClassName("DOM")[i].offsetLeft;
+		Dom.draggedPageY = ev.screenY-document.getElementsByClassName("DOM")[i].offsetTop-70;
+		let a = 0;
+	}
+}*/
+Dom.canvas.drop = function(ev){
+	if(ev.dataTransfer.getData("text") !== ""){
+		Dom.inventory.dispose(ev);
+	}/*else if(ev.target.id === "secondary"){
+		Dom.draggedPage.style.left = ev.clientX-Dom.draggedPageX+"px" //= ev.clientX-Dom.draggedPageX-20+"px";
+		Dom.draggedPage.style.top = ev.clientY-Dom.draggedPageY+"px";
+		Dom.draggedPage = "";
+		Dom.draggedPageX = "";
+		Dom.draggedPageY = "";
+	}*/
+}
+
+for(let i = 0; i < document.getElementsByClassName("DOM").length; i++){
+	document.getElementsByClassName("DOM")[i].onmousedown = function(event){
+		Dom.canvas.dragPageX = event.clientX-document.getElementsByClassName("DOM")[i].offsetLeft+18;
+		Dom.canvas.dragPageY = event.clientY-document.getElementsByClassName("DOM")[i].offsetTop+18;
+		Dom.canvas.stopMove = false;
+		Dom.canvas.moveDom(document.getElementsByClassName("DOM")[i]);
+		//document.getElementById("inventoryPage").style.left = event.clientX-18+"px";
+		//document.getElementById("inventoryPage").style.top = event.clientY-18+"px";
+	}
+}
+
+Dom.canvas.moveDom = function(object){
+	object.style.left = window.mouseX - Dom.canvas.dragPageX + "px";
+	object.style.top = window.mouseY - Dom.canvas.dragPageY + "px";
+	if(!Dom.canvas.stopMove){
+		setTimeout(function(){
+			Dom.canvas.moveDom(object);
+		},1);
+	}else{
+		document.onmouseup = undefined;
+	}
+	document.onmouseup = function(){
+		Dom.canvas.stopMove = true;
+	}
+}
 
 // updates the position of the "buy bags to get more inventory space" text
 Dom.inventory.update = function(){
@@ -2192,281 +2246,64 @@ Dom.inventory.drag = function(ev, x){
 }
 
 Dom.inventory.drop = function(ev, equip, id){
-    //ev.preventDefault(); // allows the item to drop
-	let target = "";
-	let data = "";
-	// equiping by onClick
-	if(ev === undefined){
-		target = Player.inventory[equip].image === undefined ? document.getElementById(equip) : document.getElementById(equip).getElementsByTagName("td")[0];
-		data = id;
-	}else{
-		target = ev.target;
-		data = ev.dataTransfer.getData("text"); // initial position of item
-	}
-	let test = ""+target+""; // what it is being dropped on e.g. [object HTMLTableCellElement]
-	// if the item is being moved to an item inventory slot
-	if(equip === undefined){
-		// if the item is being moved from an item inventory slot
-		if(data !== "weapon" && data !== "helm" && data !== "chest" && data !== "greaves" && data !== "boots"){
-			// if there is not an item already there
-			if(test[12] === "T" && target.innerHTML === ""){
-				for(let i = 0; i < Player.inventory.items.length; i++){
-					let remove = true;
-					if((i === 5 && Player.inventory.items[i].type === "bag") || (data === "5" && Player.inventory.items[data].type === "bag")){
-						for(let i = 6; i < Player.inventory.items.length; i++){
-							if(Player.inventory.items[i].image !== undefined){
-								// if a bag is being removed and is unsafe to remove
-								remove = false;
-							}
-						}
-					}
-					// if the item slot is where you are putting the item and it is not a bag which is unsafe to remove
-					if(document.getElementById("itemInventory").getElementsByTagName("td")[i] === target && ((i < 6 && remove && parseInt(data) === 5 && Player.inventory.items[data].type === "bag") || !(parseInt(data) === 5 && Player.inventory.items[data].type === "bag"))){
-						Player.inventory.items[i] = Player.inventory.items[data];
-						Player.inventory.items[data] = {};
-						target.innerHTML = "<img src='"+Player.inventory.items[i].image+"' draggable='true' ondragstart='Dom.inventory.drag(event,"+i+")' "+(Player.inventory.items[i].onClick !== undefined ? "onclick='Player.inventory.items["+i+"].onClick("+i+")'" : "")+"></img>";
-						if(Player.inventory.items[i].stacked !== undefined && Player.inventory.items[i].stacked !== 1){
-							target.innerHTML += "<div class='stackNum' id='stackNum"+i+"'>"+Player.inventory.items[i].stacked+"</div>";
-						}
-						// if a bag is being removed
-						if(parseInt(data) === 5 && Player.inventory.items[i].type === "bag"){
-							document.getElementById("itemInventory").innerHTML = '<tr><td ondrop="Dom.inventory.drop(event);Game.inventoryUpdate(event)" ondragover="Dom.inventory.allowDrop(event)" onmouseover="Dom.inventory.displayInformation(Player.inventory.items[0])" onmouseleave="Dom.expand(\'information\')" ondrag="Dom.expand(\'information\')" onclick="Game.inventoryUpdate()"></td>\
-							<td ondrop="Dom.inventory.drop(event);Game.inventoryUpdate(event)" ondragover="Dom.inventory.allowDrop(event)" onmouseover="Dom.inventory.displayInformation(Player.inventory.items[1])" onmouseleave="Dom.expand(\'information\')" ondrag="Dom.expand(\'information\')" onclick="Game.inventoryUpdate()"></td>\
-							<td ondrop="Dom.inventory.drop(event);Game.inventoryUpdate(event)" ondragover="Dom.inventory.allowDrop(event)" onmouseover="Dom.inventory.displayInformation(Player.inventory.items[2])" onmouseleave="Dom.expand(\'information\')" ondrag="Dom.expand(\'information\')" onclick="Game.inventoryUpdate()"></td>\
-							<td ondrop="Dom.inventory.drop(event);Game.inventoryUpdate(event)" ondragover="Dom.inventory.allowDrop(event)" onmouseover="Dom.inventory.displayInformation(Player.inventory.items[3])" onmouseleave="Dom.expand(\'information\')" ondrag="Dom.expand(\'information\')" onclick="Game.inventoryUpdate()"></td>\
-							<td ondrop="Dom.inventory.drop(event);Game.inventoryUpdate(event)" ondragover="Dom.inventory.allowDrop(event)" onmouseover="Dom.inventory.displayInformation(Player.inventory.items[4])" onmouseleave="Dom.expand(\'information\')" ondrag="Dom.expand(\'information\')" onclick="Game.inventoryUpdate()"></td>\
-							<td ondrop="Dom.inventory.drop(event);Game.inventoryUpdate(event)" ondragover="Dom.inventory.allowDrop(event)" onmouseover="Dom.inventory.displayInformation(Player.inventory.items[5])" onmouseleave="Dom.expand(\'information\')" ondrag="Dom.expand(\'information\')" onclick="Game.inventoryUpdate()"></td></tr>';
-							document.getElementById("itemInventory").getElementsByTagName("td")[5].style.backgroundImage = "url('assets/items/bag/1.png')";
-							for(let x = 0; x < 6; x++){
-								if(Player.inventory.items[x].image !== undefined){
-									document.getElementById("itemInventory").getElementsByTagName("td")[x].innerHTML = '<img src="'+Player.inventory.items[x].image+'" draggable="true" ondragstart="Dom.inventory.drag(event,'+x+')"></img>';
-									if(Player.inventory.items[x].stacked !== undefined && Player.inventory.items[x].stacked !== 1){
-										document.getElementById("itemInventory").getElementsByTagName("td")[x].innerHTML += "<div class='stackNum' id='stackNum"+x+"'>"+Player.inventory.items[x].stacked+"</div>";
-									}					
-								}
-							}
-							Player.inventory.items.splice(6,Player.inventory.items.length-6);
-						}
-						// if a bag is being equipped
-						if(i === 5 && Player.inventory.items[i].type === "bag"){
-							for(let x = 0; x < Math.floor(Player.inventory.items[i].size/6); x++){
-								document.getElementById("itemInventory").innerHTML += '<tr><td ondrop="Dom.inventory.drop(event);Game.inventoryUpdate(event)" ondragover="Dom.inventory.allowDrop(event)" onmouseover="Dom.inventory.displayInformation(Player.inventory.items['+Player.inventory.items.length+'])" onmouseleave="Dom.expand(\'information\')" ondrag="Dom.expand(\'information\')" onclick="Game.inventoryUpdate()"></td>\
-								<td ondrop="Dom.inventory.drop(event);Game.inventoryUpdate(event)" ondragover="Dom.inventory.allowDrop(event)" onmouseover="Dom.inventory.displayInformation(Player.inventory.items['+(Player.inventory.items.length+1)+'])" onmouseleave="Dom.expand(\'information\')" ondrag="Dom.expand(\'information\')" onclick="Game.inventoryUpdate()"></td>\
-								<td ondrop="Dom.inventory.drop(event);Game.inventoryUpdate(event)" ondragover="Dom.inventory.allowDrop(event)" onmouseover="Dom.inventory.displayInformation(Player.inventory.items['+(Player.inventory.items.length+2)+'])" onmouseleave="Dom.expand(\'information\')" ondrag="Dom.expand(\'information\')" onclick="Game.inventoryUpdate()"></td>\
-								<td ondrop="Dom.inventory.drop(event);Game.inventoryUpdate(event)" ondragover="Dom.inventory.allowDrop(event)" onmouseover="Dom.inventory.displayInformation(Player.inventory.items['+(Player.inventory.items.length+3)+'])" onmouseleave="Dom.expand(\'information\')" ondrag="Dom.expand(\'information\')" onclick="Game.inventoryUpdate()"></td>\
-								<td ondrop="Dom.inventory.drop(event);Game.inventoryUpdate(event)" ondragover="Dom.inventory.allowDrop(event)" onmouseover="Dom.inventory.displayInformation(Player.inventory.items['+(Player.inventory.items.length+4)+'])" onmouseleave="Dom.expand(\'information\')" ondrag="Dom.expand(\'information\')" onclick="Game.inventoryUpdate()"></td>\
-								<td ondrop="Dom.inventory.drop(event);Game.inventoryUpdate(event)" ondragover="Dom.inventory.allowDrop(event)" onmouseover="Dom.inventory.displayInformation(Player.inventory.items['+(Player.inventory.items.length+5)+'])" onmouseleave="Dom.expand(\'information\')" ondrag="Dom.expand(\'information\')" onclick="Game.inventoryUpdate()"></td></tr>';
-								Player.inventory.items.push({},{},{},{},{},{});
-							}
-						}
-						document.getElementById("itemInventory").getElementsByTagName("td")[data].innerHTML = "";
-					}else if(document.getElementById("itemInventory").getElementsByTagName("td")[i] === target){
-						Dom.alert.page("Move some items to the bank or dispose of them before you can do that.");
-					}
-				}
-			// if there is an item already there
-			}else{
-				for(let i = 0; i < Player.inventory.items.length; i++){
-					let remove = true;
-					if((i === 5 && Player.inventory.items[i].type === "bag") || (data === "5" && Player.inventory.items[data].type === "bag")){
-						for(let x = 6; x < Player.inventory.items.length; x++){
-							if(Player.inventory.items[x].image !== undefined){
-								// two bags are being swapped at the bag slot
-								if(i === 5 && Player.inventory.items[i].type === "bag" && Player.inventory.items[data].type === "bag"){
-									// if the new bag is smaller than the old bag
-									if(Player.inventory.items[i].size > Player.inventory.items[data].size){
-										// if the item is outside the new bag size
-										if(x >= Player.inventory.items[i].size){
-											// dont let the bags be swapped
-											remove = false;
-										}
-									}
-								// two bags are being swapped
-								}else if(data === "5" && Player.inventory.items[data].type === "bag" && Player.inventory.items[i].type === "bag"){
-									// if the new bag is smaller than the old bag
-									if(Player.inventory.items[data].size > Player.inventory.items[i].size){
-										// if the item is outside the new bag size
-										if(x >= Player.inventory.items[data].size){
-											// dont let the bags be swapped
-											remove = false;
-										}
-									}
-								// a bag is being removed and not replaced
-								}else{
-									// dont let the bag be removed
+	if(ev.dataTransfer.getData("text") !== ""){
+		//ev.preventDefault(); // allows the item to drop
+		let target = "";
+		let data = "";
+		// equiping by onClick
+		if(ev === undefined){
+			target = Player.inventory[equip].image === undefined ? document.getElementById(equip) : document.getElementById(equip).getElementsByTagName("td")[0];
+			data = id;
+		}else{
+			target = ev.target;
+			data = ev.dataTransfer.getData("text"); // initial position of item
+		}
+		let test = ""+target+""; // what it is being dropped on e.g. [object HTMLTableCellElement]
+		// if the item is being moved to an item inventory slot
+		if(equip === undefined){
+			// if the item is being moved from an item inventory slot
+			if(data !== "weapon" && data !== "helm" && data !== "chest" && data !== "greaves" && data !== "boots"){
+				// if there is not an item already there
+				if(test[12] === "T" && target.innerHTML === ""){
+					for(let i = 0; i < Player.inventory.items.length; i++){
+						let remove = true;
+						if((i === 5 && Player.inventory.items[i].type === "bag") || (data === "5" && Player.inventory.items[data].type === "bag")){
+							for(let i = 6; i < Player.inventory.items.length; i++){
+								if(Player.inventory.items[i].image !== undefined){
+									// if a bag is being removed and is unsafe to remove
 									remove = false;
 								}
 							}
 						}
-					}
-					// if the item slot is where you are putting the item and it is not a bag which is unsafe to move
-					if(document.getElementById("itemInventory").getElementsByTagName("td")[i].innerHTML.indexOf(target.outerHTML) >= 0 && target.outerHTML !== "" && remove){
-						// if the items are the same
-						if(Player.inventory.items[data].type === Player.inventory.items[i].type && Player.inventory.items[data].id === Player.inventory.items[i].id && Player.inventory.items[i].stack > 1 && i !== parseInt(data)){
-							// all moves to i
-							if(Player.inventory.items[i].stacked + Player.inventory.items[data].stacked <= Player.inventory.items[i].stack){
-								Player.inventory.items[i].stacked += Player.inventory.items[data].stacked;
-								document.getElementById("itemInventory").getElementsByTagName("td")[i].innerHTML = "<img src='"+Player.inventory.items[i].image+"' draggable='true' ondragstart='Dom.inventory.drag(event,"+i+")' "+(Player.inventory.items[i].onClick !== undefined ? "onclick='Player.inventory.items["+i+"].onClick("+i+")'" : "")+"><div class='stackNum' id='stackNum"+i+"'>"+Player.inventory.items[i].stacked+"</div></img>";
-								Dom.inventory.remove(data, true);
-							// overflow stays on data
-							}else if(Player.inventory.items[i].stacked !== Player.inventory.items[i].stack){
-								Player.inventory.items[data].stacked -= (Player.inventory.items[i].stack - Player.inventory.items[i].stacked);
-								Player.inventory.items[i].stacked = Player.inventory.items[i].stack;
-								document.getElementById("itemInventory").getElementsByTagName("td")[i].innerHTML = "<img src='"+Player.inventory.items[i].image+"' draggable='true' ondragstart='Dom.inventory.drag(event,"+i+")' "+(Player.inventory.items[i].onClick !== undefined ? "onclick='Player.inventory.items["+i+"].onClick("+i+")'" : "")+"><div class='stackNum' id='stackNum"+i+"'>"+Player.inventory.items[i].stacked+"</div></img>";
-								document.getElementById("itemInventory").getElementsByTagName("td")[data].innerHTML = "<img src='"+Player.inventory.items[data].image+"' draggable='true' ondragstart='Dom.inventory.drag(event,"+data+")' "+(Player.inventory.items[data].onClick !== undefined ? "onclick='Player.inventory.items["+data+"].onClick("+data+")'" : "")+"><div class='stackNum' id='stackNum"+data+"'>"+Player.inventory.items[data].stacked+"</div></img>";
-							}
-						}
-						else
-						// if it is not a key being dropped on a chest
-						if(!(Player.inventory.items[data].opens !== undefined && Player.inventory.items[data].opens.type === Player.inventory.items[i].type && Player.inventory.items[data].opens.id === Player.inventory.items[i].id)){
-							// swaps the items
-							test = Player.inventory.items[i];
+						// if the item slot is where you are putting the item and it is not a bag which is unsafe to remove
+						if(document.getElementById("itemInventory").getElementsByTagName("td")[i] === target && ((i < 6 && remove && parseInt(data) === 5 && Player.inventory.items[data].type === "bag") || !(parseInt(data) === 5 && Player.inventory.items[data].type === "bag"))){
 							Player.inventory.items[i] = Player.inventory.items[data];
-							Player.inventory.items[data] = test;
-							// swaps the items images
-							document.getElementById("itemInventory").getElementsByTagName("td")[data].innerHTML = "<img src='"+Player.inventory.items[data].image+"' draggable='true' ondragstart='Dom.inventory.drag(event,"+data+")' "+(Player.inventory.items[data].onClick !== undefined ? "onclick='Player.inventory.items["+data+"].onClick("+data+")'" : "")+"></img>";
-							if(Player.inventory.items[data].stacked !== undefined && Player.inventory.items[data].stacked !== 1){
-								document.getElementById("itemInventory").getElementsByTagName("td")[data].innerHTML += "<div class='stackNum' id='stackNum"+data+"'>"+Player.inventory.items[data].stacked+"</div>";
-							}
-							document.getElementById("itemInventory").getElementsByTagName("td")[i].innerHTML = "<img src='"+Player.inventory.items[i].image+"' draggable='true' ondragstart='Dom.inventory.drag(event,"+i+")' "+(Player.inventory.items[i].onClick !== undefined ? "onclick='Player.inventory.items["+i+"].onClick("+i+")'" : "")+"></img>";
+							Player.inventory.items[data] = {};
+							target.innerHTML = "<img src='"+Player.inventory.items[i].image+"' draggable='true' ondragstart='Dom.inventory.drag(event,"+i+")' "+(Player.inventory.items[i].onClick !== undefined ? "onclick='Player.inventory.items["+i+"].onClick("+i+")'" : "")+"></img>";
 							if(Player.inventory.items[i].stacked !== undefined && Player.inventory.items[i].stacked !== 1){
-								document.getElementById("itemInventory").getElementsByTagName("td")[i].innerHTML += "<div class='stackNum' id='stackNum"+i+"'>"+Player.inventory.items[i].stacked+"</div>";
+								target.innerHTML += "<div class='stackNum' id='stackNum"+i+"'>"+Player.inventory.items[i].stacked+"</div>";
 							}
-							// bag cases
-							// going from the bag slot from a bag
+							// if a bag is being removed
 							if(parseInt(data) === 5 && Player.inventory.items[i].type === "bag"){
-								// if it is being swapped with another bag
-								if(Player.inventory.items[data].type === "bag"){
-									// if the new bag is bigger than the old bag
-									if(Player.inventory.items[data].size >= Player.inventory.items[i].size){
-										for(let x = 0; x < (Player.inventory.items[data].size - Player.inventory.items[i].size)/6; x++){
-											document.getElementById("itemInventory").innerHTML += '<tr><td ondrop="Dom.inventory.drop(event);Game.inventoryUpdate(event)" ondragover="Dom.inventory.allowDrop(event)" onmouseover="Dom.inventory.displayInformation(Player.inventory.items['+Player.inventory.items.length+'])" onmouseleave="Dom.expand(\'information\')" ondrag="Dom.expand(\'information\')" onclick="Game.inventoryUpdate()"></td>\
-											<td ondrop="Dom.inventory.drop(event);Game.inventoryUpdate(event)" ondragover="Dom.inventory.allowDrop(event)" onmouseover="Dom.inventory.displayInformation(Player.inventory.items['+(Player.inventory.items.length+1)+'])" onmouseleave="Dom.expand(\'information\')" ondrag="Dom.expand(\'information\')" onclick="Game.inventoryUpdate()"></td>\
-											<td ondrop="Dom.inventory.drop(event);Game.inventoryUpdate(event)" ondragover="Dom.inventory.allowDrop(event)" onmouseover="Dom.inventory.displayInformation(Player.inventory.items['+(Player.inventory.items.length+2)+'])" onmouseleave="Dom.expand(\'information\')" ondrag="Dom.expand(\'information\')" onclick="Game.inventoryUpdate()"></td>\
-											<td ondrop="Dom.inventory.drop(event);Game.inventoryUpdate(event)" ondragover="Dom.inventory.allowDrop(event)" onmouseover="Dom.inventory.displayInformation(Player.inventory.items['+(Player.inventory.items.length+3)+'])" onmouseleave="Dom.expand(\'information\')" ondrag="Dom.expand(\'information\')" onclick="Game.inventoryUpdate()"></td>\
-											<td ondrop="Dom.inventory.drop(event);Game.inventoryUpdate(event)" ondragover="Dom.inventory.allowDrop(event)" onmouseover="Dom.inventory.displayInformation(Player.inventory.items['+(Player.inventory.items.length+4)+'])" onmouseleave="Dom.expand(\'information\')" ondrag="Dom.expand(\'information\')" onclick="Game.inventoryUpdate()"></td>\
-											<td ondrop="Dom.inventory.drop(event);Game.inventoryUpdate(event)" ondragover="Dom.inventory.allowDrop(event)" onmouseover="Dom.inventory.displayInformation(Player.inventory.items['+(Player.inventory.items.length+5)+'])" onmouseleave="Dom.expand(\'information\')" ondrag="Dom.expand(\'information\')" onclick="Game.inventoryUpdate()"></td></tr>';
-											Player.inventory.items.push({},{},{},{},{},{});
-										}
-									// if the new bag is smaller than the old bag
-									}else{
-										// removes the code from the rest of the inventory
-										Player.inventory.items.splice(6+Player.inventory.items[data].size,Player.inventory.items[i].size - Player.inventory.items[data].size);
-										// rebuilds the inventory
-										document.getElementById("itemInventory").innerHTML = '<tr><td ondrop="Dom.inventory.drop(event);Game.inventoryUpdate(event)" ondragover="Dom.inventory.allowDrop(event)" onmouseover="Dom.inventory.displayInformation(Player.inventory.items[0])" onmouseleave="Dom.expand(\'information\')" ondrag="Dom.expand(\'information\')" onclick="Game.inventoryUpdate()"></td>\
-										<td ondrop="Dom.inventory.drop(event);Game.inventoryUpdate(event)" ondragover="Dom.inventory.allowDrop(event)" onmouseover="Dom.inventory.displayInformation(Player.inventory.items[1])" onmouseleave="Dom.expand(\'information\')" ondrag="Dom.expand(\'information\')" onclick="Game.inventoryUpdate()"></td>\
-										<td ondrop="Dom.inventory.drop(event);Game.inventoryUpdate(event)" ondragover="Dom.inventory.allowDrop(event)" onmouseover="Dom.inventory.displayInformation(Player.inventory.items[2])" onmouseleave="Dom.expand(\'information\')" ondrag="Dom.expand(\'information\')" onclick="Game.inventoryUpdate()"></td>\
-										<td ondrop="Dom.inventory.drop(event);Game.inventoryUpdate(event)" ondragover="Dom.inventory.allowDrop(event)" onmouseover="Dom.inventory.displayInformation(Player.inventory.items[3])" onmouseleave="Dom.expand(\'information\')" ondrag="Dom.expand(\'information\')" onclick="Game.inventoryUpdate()"></td>\
-										<td ondrop="Dom.inventory.drop(event);Game.inventoryUpdate(event)" ondragover="Dom.inventory.allowDrop(event)" onmouseover="Dom.inventory.displayInformation(Player.inventory.items[4])" onmouseleave="Dom.expand(\'information\')" ondrag="Dom.expand(\'information\')" onclick="Game.inventoryUpdate()"></td>\
-										<td ondrop="Dom.inventory.drop(event);Game.inventoryUpdate(event)" ondragover="Dom.inventory.allowDrop(event)" onmouseover="Dom.inventory.displayInformation(Player.inventory.items[5])" onmouseleave="Dom.expand(\'information\')" ondrag="Dom.expand(\'information\')" onclick="Game.inventoryUpdate()"></td></tr>';
-										for(let y = 1; y < (Player.inventory.items[data].size/6)+1; y++){
-											document.getElementById("itemInventory").innerHTML += '<tr><td ondrop="Dom.inventory.drop(event);Game.inventoryUpdate(event)" ondragover="Dom.inventory.allowDrop(event)" onmouseover="Dom.inventory.displayInformation(Player.inventory.items['+(0+6*y)+'])" onmouseleave="Dom.expand(\'information\')" ondrag="Dom.expand(\'information\')" onclick="Game.inventoryUpdate()"></td>\
-											<td ondrop="Dom.inventory.drop(event);Game.inventoryUpdate(event)" ondragover="Dom.inventory.allowDrop(event)" onmouseover="Dom.inventory.displayInformation(Player.inventory.items['+(1+6*y)+'])" onmouseleave="Dom.expand(\'information\')" ondrag="Dom.expand(\'information\')" onclick="Game.inventoryUpdate()"></td>\
-											<td ondrop="Dom.inventory.drop(event);Game.inventoryUpdate(event)" ondragover="Dom.inventory.allowDrop(event)" onmouseover="Dom.inventory.displayInformation(Player.inventory.items['+(2+6*y)+'])" onmouseleave="Dom.expand(\'information\')" ondrag="Dom.expand(\'information\')" onclick="Game.inventoryUpdate()"></td>\
-											<td ondrop="Dom.inventory.drop(event);Game.inventoryUpdate(event)" ondragover="Dom.inventory.allowDrop(event)" onmouseover="Dom.inventory.displayInformation(Player.inventory.items['+(3+6*y)+'])" onmouseleave="Dom.expand(\'information\')" ondrag="Dom.expand(\'information\')" onclick="Game.inventoryUpdate()"></td>\
-											<td ondrop="Dom.inventory.drop(event);Game.inventoryUpdate(event)" ondragover="Dom.inventory.allowDrop(event)" onmouseover="Dom.inventory.displayInformation(Player.inventory.items['+(4+6*y)+'])" onmouseleave="Dom.expand(\'information\')" ondrag="Dom.expand(\'information\')" onclick="Game.inventoryUpdate()"></td>\
-											<td ondrop="Dom.inventory.drop(event);Game.inventoryUpdate(event)" ondragover="Dom.inventory.allowDrop(event)" onmouseover="Dom.inventory.displayInformation(Player.inventory.items['+(5+6*y)+'])" onmouseleave="Dom.expand(\'information\')" ondrag="Dom.expand(\'information\')" onclick="Game.inventoryUpdate()"></td></tr>';
-										}
-										for(let y = 0; y < Player.inventory.items.length; y++){
-											if(Object.keys(Player.inventory.items[y]).length !== 0){
-												document.getElementById("itemInventory").getElementsByTagName("td")[y].innerHTML = '<img src="'+Player.inventory.items[y].image+'" draggable="true" ondragstart="Dom.inventory.drag(event,'+y+')"></img>';
-												if(Player.inventory.items[y].stacked !== undefined && Player.inventory.items[y].stacked !== 1){
-													document.getElementById("itemInventory").getElementsByTagName("td")[y].innerHTML += "<div class='stackNum' id='stackNum"+y+"'>"+Player.inventory.items[y].stacked+"</div>";
-												}
-											}
-										}
+								document.getElementById("itemInventory").innerHTML = '<tr><td ondrop="Dom.inventory.drop(event);Game.inventoryUpdate(event)" ondragover="Dom.inventory.allowDrop(event)" onmouseover="Dom.inventory.displayInformation(Player.inventory.items[0])" onmouseleave="Dom.expand(\'information\')" ondrag="Dom.expand(\'information\')" onclick="Game.inventoryUpdate()"></td>\
+								<td ondrop="Dom.inventory.drop(event);Game.inventoryUpdate(event)" ondragover="Dom.inventory.allowDrop(event)" onmouseover="Dom.inventory.displayInformation(Player.inventory.items[1])" onmouseleave="Dom.expand(\'information\')" ondrag="Dom.expand(\'information\')" onclick="Game.inventoryUpdate()"></td>\
+								<td ondrop="Dom.inventory.drop(event);Game.inventoryUpdate(event)" ondragover="Dom.inventory.allowDrop(event)" onmouseover="Dom.inventory.displayInformation(Player.inventory.items[2])" onmouseleave="Dom.expand(\'information\')" ondrag="Dom.expand(\'information\')" onclick="Game.inventoryUpdate()"></td>\
+								<td ondrop="Dom.inventory.drop(event);Game.inventoryUpdate(event)" ondragover="Dom.inventory.allowDrop(event)" onmouseover="Dom.inventory.displayInformation(Player.inventory.items[3])" onmouseleave="Dom.expand(\'information\')" ondrag="Dom.expand(\'information\')" onclick="Game.inventoryUpdate()"></td>\
+								<td ondrop="Dom.inventory.drop(event);Game.inventoryUpdate(event)" ondragover="Dom.inventory.allowDrop(event)" onmouseover="Dom.inventory.displayInformation(Player.inventory.items[4])" onmouseleave="Dom.expand(\'information\')" ondrag="Dom.expand(\'information\')" onclick="Game.inventoryUpdate()"></td>\
+								<td ondrop="Dom.inventory.drop(event);Game.inventoryUpdate(event)" ondragover="Dom.inventory.allowDrop(event)" onmouseover="Dom.inventory.displayInformation(Player.inventory.items[5])" onmouseleave="Dom.expand(\'information\')" ondrag="Dom.expand(\'information\')" onclick="Game.inventoryUpdate()"></td></tr>';
+								document.getElementById("itemInventory").getElementsByTagName("td")[5].style.backgroundImage = "url('assets/items/bag/1.png')";
+								for(let x = 0; x < 6; x++){
+									if(Player.inventory.items[x].image !== undefined){
+										document.getElementById("itemInventory").getElementsByTagName("td")[x].innerHTML = '<img src="'+Player.inventory.items[x].image+'" draggable="true" ondragstart="Dom.inventory.drag(event,'+x+')"></img>';
+										if(Player.inventory.items[x].stacked !== undefined && Player.inventory.items[x].stacked !== 1){
+											document.getElementById("itemInventory").getElementsByTagName("td")[x].innerHTML += "<div class='stackNum' id='stackNum"+x+"'>"+Player.inventory.items[x].stacked+"</div>";
+										}					
 									}
-								// if the bag is bing removed and not replaced
-								}else/* if(remove)*/{ 
-									// removes the code from the rest of the inventory
-									Player.inventory.items.splice(6,Player.inventory.items.length-6);
-									// rebuilds the hotbar
-									document.getElementById("itemInventory").innerHTML = '<tr><td ondrop="Dom.inventory.drop(event);Game.inventoryUpdate(event)" ondragover="Dom.inventory.allowDrop(event)" onmouseover="Dom.inventory.displayInformation(Player.inventory.items[0])" onmouseleave="Dom.expand(\'information\')" ondrag="Dom.expand(\'information\')" onclick="Game.inventoryUpdate()"></td>\
-									<td ondrop="Dom.inventory.drop(event);Game.inventoryUpdate(event)" ondragover="Dom.inventory.allowDrop(event)" onmouseover="Dom.inventory.displayInformation(Player.inventory.items[1])" onmouseleave="Dom.expand(\'information\')" ondrag="Dom.expand(\'information\')" onclick="Game.inventoryUpdate()"></td>\
-									<td ondrop="Dom.inventory.drop(event);Game.inventoryUpdate(event)" ondragover="Dom.inventory.allowDrop(event)" onmouseover="Dom.inventory.displayInformation(Player.inventory.items[2])" onmouseleave="Dom.expand(\'information\')" ondrag="Dom.expand(\'information\')" onclick="Game.inventoryUpdate()"></td>\
-									<td ondrop="Dom.inventory.drop(event);Game.inventoryUpdate(event)" ondragover="Dom.inventory.allowDrop(event)" onmouseover="Dom.inventory.displayInformation(Player.inventory.items[3])" onmouseleave="Dom.expand(\'information\')" ondrag="Dom.expand(\'information\')" onclick="Game.inventoryUpdate()"></td>\
-									<td ondrop="Dom.inventory.drop(event);Game.inventoryUpdate(event)" ondragover="Dom.inventory.allowDrop(event)" onmouseover="Dom.inventory.displayInformation(Player.inventory.items[4])" onmouseleave="Dom.expand(\'information\')" ondrag="Dom.expand(\'information\')" onclick="Game.inventoryUpdate()"></td>\
-									<td ondrop="Dom.inventory.drop(event);Game.inventoryUpdate(event)" ondragover="Dom.inventory.allowDrop(event)" onmouseover="Dom.inventory.displayInformation(Player.inventory.items[5])" onmouseleave="Dom.expand(\'information\')" ondrag="Dom.expand(\'information\')" onclick="Game.inventoryUpdate()"></td></tr>';
-									document.getElementById("itemInventory").getElementsByTagName("td")[5].style.backgroundImage = "url('assets/items/bag/1.png')";
-									for(let x = 0; x < 6; x++){
-										if(Player.inventory.items[x].image !== undefined){
-											document.getElementById("itemInventory").getElementsByTagName("td")[x].innerHTML = '<img src="'+Player.inventory.items[x].image+'" draggable="true" ondragstart="Dom.inventory.drag(event,'+x+')"></img>';
-											if(Player.inventory.items[x].stacked !== undefined && Player.inventory.items[x].stacked !== 1){
-												document.getElementById("itemInventory").getElementsByTagName("td")[x].innerHTML += "<div class='stackNum' id='stackNum"+x+"'>"+Player.inventory.items[x].stacked+"</div>";
-											}
-										}
-									}
-								}/*else{
-									Dom.alert.page("Move some items to the bank or dispose of them before you can do that.");
-								}*/
-							// going to the bag slot to a bag
-							}else if(i === 5 && Player.inventory.items[data].type === "bag"){
-								// if it is being swapped with another bag
-								if(Player.inventory.items[i].type === "bag"){
-									// if the new bag is bigger than the old bag
-									if(Player.inventory.items[i].size >= Player.inventory.items[data].size){
-										for(let x = 0; x < (Player.inventory.items[i].size - Player.inventory.items[data].size)/6; x++){
-											document.getElementById("itemInventory").innerHTML += '<tr><td ondrop="Dom.inventory.drop(event);Game.inventoryUpdate(event)" ondragover="Dom.inventory.allowDrop(event)" onmouseover="Dom.inventory.displayInformation(Player.inventory.items['+Player.inventory.items.length+'])" onmouseleave="Dom.expand(\'information\')" ondrag="Dom.expand(\'information\')" onclick="Game.inventoryUpdate()"></td>\
-											<td ondrop="Dom.inventory.drop(event);Game.inventoryUpdate(event)" ondragover="Dom.inventory.allowDrop(event)" onmouseover="Dom.inventory.displayInformation(Player.inventory.items['+(Player.inventory.items.length+1)+'])" onmouseleave="Dom.expand(\'information\')" ondrag="Dom.expand(\'information\')" onclick="Game.inventoryUpdate()"></td>\
-											<td ondrop="Dom.inventory.drop(event);Game.inventoryUpdate(event)" ondragover="Dom.inventory.allowDrop(event)" onmouseover="Dom.inventory.displayInformation(Player.inventory.items['+(Player.inventory.items.length+2)+'])" onmouseleave="Dom.expand(\'information\')" ondrag="Dom.expand(\'information\')" onclick="Game.inventoryUpdate()"></td>\
-											<td ondrop="Dom.inventory.drop(event);Game.inventoryUpdate(event)" ondragover="Dom.inventory.allowDrop(event)" onmouseover="Dom.inventory.displayInformation(Player.inventory.items['+(Player.inventory.items.length+3)+'])" onmouseleave="Dom.expand(\'information\')" ondrag="Dom.expand(\'information\')" onclick="Game.inventoryUpdate()"></td>\
-											<td ondrop="Dom.inventory.drop(event);Game.inventoryUpdate(event)" ondragover="Dom.inventory.allowDrop(event)" onmouseover="Dom.inventory.displayInformation(Player.inventory.items['+(Player.inventory.items.length+4)+'])" onmouseleave="Dom.expand(\'information\')" ondrag="Dom.expand(\'information\')" onclick="Game.inventoryUpdate()"></td>\
-											<td ondrop="Dom.inventory.drop(event);Game.inventoryUpdate(event)" ondragover="Dom.inventory.allowDrop(event)" onmouseover="Dom.inventory.displayInformation(Player.inventory.items['+(Player.inventory.items.length+5)+'])" onmouseleave="Dom.expand(\'information\')" ondrag="Dom.expand(\'information\')" onclick="Game.inventoryUpdate()"></td></tr>';
-											Player.inventory.items.push({},{},{},{},{},{});
-										}
-									// if the new bag is smaller than the old bag
-									}else{
-										// removes the code from the rest of the inventory
-										Player.inventory.items.splice(6+Player.inventory.items[i].size,Player.inventory.items[data].size - Player.inventory.items[i].size);
-										// rebuilds the inventory
-										document.getElementById("itemInventory").innerHTML = '<tr><td ondrop="Dom.inventory.drop(event);Game.inventoryUpdate(event)" ondragover="Dom.inventory.allowDrop(event)" onmouseover="Dom.inventory.displayInformation(Player.inventory.items[0])" onmouseleave="Dom.expand(\'information\')" ondrag="Dom.expand(\'information\')" onclick="Game.inventoryUpdate()"></td>\
-										<td ondrop="Dom.inventory.drop(event);Game.inventoryUpdate(event)" ondragover="Dom.inventory.allowDrop(event)" onmouseover="Dom.inventory.displayInformation(Player.inventory.items[1])" onmouseleave="Dom.expand(\'information\')" ondrag="Dom.expand(\'information\')" onclick="Game.inventoryUpdate()"></td>\
-										<td ondrop="Dom.inventory.drop(event);Game.inventoryUpdate(event)" ondragover="Dom.inventory.allowDrop(event)" onmouseover="Dom.inventory.displayInformation(Player.inventory.items[2])" onmouseleave="Dom.expand(\'information\')" ondrag="Dom.expand(\'information\')" onclick="Game.inventoryUpdate()"></td>\
-										<td ondrop="Dom.inventory.drop(event);Game.inventoryUpdate(event)" ondragover="Dom.inventory.allowDrop(event)" onmouseover="Dom.inventory.displayInformation(Player.inventory.items[3])" onmouseleave="Dom.expand(\'information\')" ondrag="Dom.expand(\'information\')" onclick="Game.inventoryUpdate()"></td>\
-										<td ondrop="Dom.inventory.drop(event);Game.inventoryUpdate(event)" ondragover="Dom.inventory.allowDrop(event)" onmouseover="Dom.inventory.displayInformation(Player.inventory.items[4])" onmouseleave="Dom.expand(\'information\')" ondrag="Dom.expand(\'information\')" onclick="Game.inventoryUpdate()"></td>\
-										<td ondrop="Dom.inventory.drop(event);Game.inventoryUpdate(event)" ondragover="Dom.inventory.allowDrop(event)" onmouseover="Dom.inventory.displayInformation(Player.inventory.items[5])" onmouseleave="Dom.expand(\'information\')" ondrag="Dom.expand(\'information\')" onclick="Game.inventoryUpdate()"></td></tr>';
-										for(let y = 1; y < (Player.inventory.items[i].size/6)+1; y++){
-											document.getElementById("itemInventory").innerHTML += '<tr><td ondrop="Dom.inventory.drop(event);Game.inventoryUpdate(event)" ondragover="Dom.inventory.allowDrop(event)" onmouseover="Dom.inventory.displayInformation(Player.inventory.items['+(0+6*y)+'])" onmouseleave="Dom.expand(\'information\')" ondrag="Dom.expand(\'information\')" onclick="Game.inventoryUpdate()"></td>\
-											<td ondrop="Dom.inventory.drop(event);Game.inventoryUpdate(event)" ondragover="Dom.inventory.allowDrop(event)" onmouseover="Dom.inventory.displayInformation(Player.inventory.items['+(1+6*y)+'])" onmouseleave="Dom.expand(\'information\')" ondrag="Dom.expand(\'information\')" onclick="Game.inventoryUpdate()"></td>\
-											<td ondrop="Dom.inventory.drop(event);Game.inventoryUpdate(event)" ondragover="Dom.inventory.allowDrop(event)" onmouseover="Dom.inventory.displayInformation(Player.inventory.items['+(2+6*y)+'])" onmouseleave="Dom.expand(\'information\')" ondrag="Dom.expand(\'information\')" onclick="Game.inventoryUpdate()"></td>\
-											<td ondrop="Dom.inventory.drop(event);Game.inventoryUpdate(event)" ondragover="Dom.inventory.allowDrop(event)" onmouseover="Dom.inventory.displayInformation(Player.inventory.items['+(3+6*y)+'])" onmouseleave="Dom.expand(\'information\')" ondrag="Dom.expand(\'information\')" onclick="Game.inventoryUpdate()"></td>\
-											<td ondrop="Dom.inventory.drop(event);Game.inventoryUpdate(event)" ondragover="Dom.inventory.allowDrop(event)" onmouseover="Dom.inventory.displayInformation(Player.inventory.items['+(4+6*y)+'])" onmouseleave="Dom.expand(\'information\')" ondrag="Dom.expand(\'information\')" onclick="Game.inventoryUpdate()"></td>\
-											<td ondrop="Dom.inventory.drop(event);Game.inventoryUpdate(event)" ondragover="Dom.inventory.allowDrop(event)" onmouseover="Dom.inventory.displayInformation(Player.inventory.items['+(5+6*y)+'])" onmouseleave="Dom.expand(\'information\')" ondrag="Dom.expand(\'information\')" onclick="Game.inventoryUpdate()"></td></tr>';
-										}
-										for(let y = 0; y < Player.inventory.items.length; y++){
-											if(Object.keys(Player.inventory.items[y]).length !== 0){
-												document.getElementById("itemInventory").getElementsByTagName("td")[y].innerHTML = '<img src="'+Player.inventory.items[y].image+'" draggable="true" ondragstart="Dom.inventory.drag(event,'+y+')"></img>';
-												if(Player.inventory.items[y].stacked !== undefined && Player.inventory.items[y].stacked !== 1){
-													document.getElementById("itemInventory").getElementsByTagName("td")[y].innerHTML += "<div class='stackNum' id='stackNum"+y+"'>"+Player.inventory.items[y].stacked+"</div>";
-												}
-											}
-										}
-									}
-								// if the bag is being removed and not replaced
-								}else/* if(remove)*/{
-									// removes the code from the rest of the inventory
-									Player.inventory.items.splice(6,Player.inventory.items.length-6);
-									// rebuilds the hotbar
-									document.getElementById("itemInventory").innerHTML = '<tr><td ondrop="Dom.inventory.drop(event);Game.inventoryUpdate(event)" ondragover="Dom.inventory.allowDrop(event)" onmouseover="Dom.inventory.displayInformation(Player.inventory.items[0])" onmouseleave="Dom.expand(\'information\')" ondrag="Dom.expand(\'information\')" onclick="Game.inventoryUpdate()"></td>\
-									<td ondrop="Dom.inventory.drop(event);Game.inventoryUpdate(event)" ondragover="Dom.inventory.allowDrop(event)" onmouseover="Dom.inventory.displayInformation(Player.inventory.items[1])" onmouseleave="Dom.expand(\'information\')" ondrag="Dom.expand(\'information\')" onclick="Game.inventoryUpdate()"></td>\
-									<td ondrop="Dom.inventory.drop(event);Game.inventoryUpdate(event)" ondragover="Dom.inventory.allowDrop(event)" onmouseover="Dom.inventory.displayInformation(Player.inventory.items[2])" onmouseleave="Dom.expand(\'information\')" ondrag="Dom.expand(\'information\')" onclick="Game.inventoryUpdate()"></td>\
-									<td ondrop="Dom.inventory.drop(event);Game.inventoryUpdate(event)" ondragover="Dom.inventory.allowDrop(event)" onmouseover="Dom.inventory.displayInformation(Player.inventory.items[3])" onmouseleave="Dom.expand(\'information\')" ondrag="Dom.expand(\'information\')" onclick="Game.inventoryUpdate()"></td>\
-									<td ondrop="Dom.inventory.drop(event);Game.inventoryUpdate(event)" ondragover="Dom.inventory.allowDrop(event)" onmouseover="Dom.inventory.displayInformation(Player.inventory.items[4])" onmouseleave="Dom.expand(\'information\')" ondrag="Dom.expand(\'information\')" onclick="Game.inventoryUpdate()"></td>\
-									<td ondrop="Dom.inventory.drop(event);Game.inventoryUpdate(event)" ondragover="Dom.inventory.allowDrop(event)" onmouseover="Dom.inventory.displayInformation(Player.inventory.items[5])" onmouseleave="Dom.expand(\'information\')" ondrag="Dom.expand(\'information\')" onclick="Game.inventoryUpdate()"></td></tr>';
-									document.getElementById("itemInventory").getElementsByTagName("td")[5].style.backgroundImage = "url('assets/items/bag/1.png')";
-									for(let x = 0; x < 6; x++){
-										if(Player.inventory.items[x].image !== undefined){
-											document.getElementById("itemInventory").getElementsByTagName("td")[x].innerHTML = '<img src="'+Player.inventory.items[x].image+'" draggable="true" ondragstart="Dom.inventory.drag(event,'+x+')"></img>';
-											if(Player.inventory.items[x].stacked !== undefined && Player.inventory.items[x].stacked !== 1){
-												document.getElementById("itemInventory").getElementsByTagName("td")[x].innerHTML += "<div class='stackNum' id='stackNum"+x+"'>"+Player.inventory.items[x].stacked+"</div>";
-											}
-										}
-									}
-								}/*else{
-									Dom.alert.page("Move some items to the bank or dispose of them before you can do that.");
-								}*/
-							// going to the bag slot from a bag and not swapping
-							}else if(i === 5 && Player.inventory.items[i].type === "bag"){
+								}
+								Player.inventory.items.splice(6,Player.inventory.items.length-6);
+							}
+							// if a bag is being equipped
+							if(i === 5 && Player.inventory.items[i].type === "bag"){
 								for(let x = 0; x < Math.floor(Player.inventory.items[i].size/6); x++){
 									document.getElementById("itemInventory").innerHTML += '<tr><td ondrop="Dom.inventory.drop(event);Game.inventoryUpdate(event)" ondragover="Dom.inventory.allowDrop(event)" onmouseover="Dom.inventory.displayInformation(Player.inventory.items['+Player.inventory.items.length+'])" onmouseleave="Dom.expand(\'information\')" ondrag="Dom.expand(\'information\')" onclick="Game.inventoryUpdate()"></td>\
 									<td ondrop="Dom.inventory.drop(event);Game.inventoryUpdate(event)" ondragover="Dom.inventory.allowDrop(event)" onmouseover="Dom.inventory.displayInformation(Player.inventory.items['+(Player.inventory.items.length+1)+'])" onmouseleave="Dom.expand(\'information\')" ondrag="Dom.expand(\'information\')" onclick="Game.inventoryUpdate()"></td>\
@@ -2476,109 +2313,328 @@ Dom.inventory.drop = function(ev, equip, id){
 									<td ondrop="Dom.inventory.drop(event);Game.inventoryUpdate(event)" ondragover="Dom.inventory.allowDrop(event)" onmouseover="Dom.inventory.displayInformation(Player.inventory.items['+(Player.inventory.items.length+5)+'])" onmouseleave="Dom.expand(\'information\')" ondrag="Dom.expand(\'information\')" onclick="Game.inventoryUpdate()"></td></tr>';
 									Player.inventory.items.push({},{},{},{},{},{});
 								}
-							// going from the bag slot to a bag and not swapping
-							}else if(parseInt(data) === 5 && Player.inventory.items[data].type === "bag"){
-								for(let x = 0; x < Math.floor(Player.inventory.items[data].size/6); x++){
-									document.getElementById("itemInventory").innerHTML += '<tr><td ondrop="Dom.inventory.drop(event);Game.inventoryUpdate(event)" ondragover="Dom.inventory.allowDrop(event)" onmouseover="Dom.inventory.displayInformation(Player.inventory.items['+Player.inventory.items.length+'])" onmouseleave="Dom.expand(\'information\')" ondrag="Dom.expand(\'information\')" onclick="Game.inventoryUpdate()"></td>\
-									<td ondrop="Dom.inventory.drop(event);Game.inventoryUpdate(event)" ondragover="Dom.inventory.allowDrop(event)" onmouseover="Dom.inventory.displayInformation(Player.inventory.items['+(Player.inventory.items.length+1)+'])" onmouseleave="Dom.expand(\'information\')" ondrag="Dom.expand(\'information\')" onclick="Game.inventoryUpdate()"></td>\
-									<td ondrop="Dom.inventory.drop(event);Game.inventoryUpdate(event)" ondragover="Dom.inventory.allowDrop(event)" onmouseover="Dom.inventory.displayInformation(Player.inventory.items['+(Player.inventory.items.length+2)+'])" onmouseleave="Dom.expand(\'information\')" ondrag="Dom.expand(\'information\')" onclick="Game.inventoryUpdate()"></td>\
-									<td ondrop="Dom.inventory.drop(event);Game.inventoryUpdate(event)" ondragover="Dom.inventory.allowDrop(event)" onmouseover="Dom.inventory.displayInformation(Player.inventory.items['+(Player.inventory.items.length+3)+'])" onmouseleave="Dom.expand(\'information\')" ondrag="Dom.expand(\'information\')" onclick="Game.inventoryUpdate()"></td>\
-									<td ondrop="Dom.inventory.drop(event);Game.inventoryUpdate(event)" ondragover="Dom.inventory.allowDrop(event)" onmouseover="Dom.inventory.displayInformation(Player.inventory.items['+(Player.inventory.items.length+4)+'])" onmouseleave="Dom.expand(\'information\')" ondrag="Dom.expand(\'information\')" onclick="Game.inventoryUpdate()"></td>\
-									<td ondrop="Dom.inventory.drop(event);Game.inventoryUpdate(event)" ondragover="Dom.inventory.allowDrop(event)" onmouseover="Dom.inventory.displayInformation(Player.inventory.items['+(Player.inventory.items.length+5)+'])" onmouseleave="Dom.expand(\'information\')" ondrag="Dom.expand(\'information\')" onclick="Game.inventoryUpdate()"></td></tr>';
-									Player.inventory.items.push({},{},{},{},{},{});
+							}
+							document.getElementById("itemInventory").getElementsByTagName("td")[data].innerHTML = "";
+						}else if(document.getElementById("itemInventory").getElementsByTagName("td")[i] === target){
+							Dom.alert.page("Move some items to the bank or dispose of them before you can do that.");
+						}
+					}
+				// if there is an item already there
+				}else{
+					for(let i = 0; i < Player.inventory.items.length; i++){
+						let remove = true;
+						if((i === 5 && Player.inventory.items[i].type === "bag") || (data === "5" && Player.inventory.items[data].type === "bag")){
+							for(let x = 6; x < Player.inventory.items.length; x++){
+								if(Player.inventory.items[x].image !== undefined){
+									// two bags are being swapped at the bag slot
+									if(i === 5 && Player.inventory.items[i].type === "bag" && Player.inventory.items[data].type === "bag"){
+										// if the new bag is smaller than the old bag
+										if(Player.inventory.items[i].size > Player.inventory.items[data].size){
+											// if the item is outside the new bag size
+											if(x >= Player.inventory.items[i].size){
+												// dont let the bags be swapped
+												remove = false;
+											}
+										}
+									// two bags are being swapped
+									}else if(data === "5" && Player.inventory.items[data].type === "bag" && Player.inventory.items[i].type === "bag"){
+										// if the new bag is smaller than the old bag
+										if(Player.inventory.items[data].size > Player.inventory.items[i].size){
+											// if the item is outside the new bag size
+											if(x >= Player.inventory.items[data].size){
+												// dont let the bags be swapped
+												remove = false;
+											}
+										}
+									// a bag is being removed and not replaced
+									}else{
+										// dont let the bag be removed
+										remove = false;
+									}
 								}
 							}
-						// if it is a key being dropped on a chest
-						}else{
-							if(Items[Player.inventory.items[i].type][Player.inventory.items[i].id].onOpen(i)){
-								//Dom.inventory.remove(i);
-								Dom.inventory.remove(data);
+						}
+						// if the item slot is where you are putting the item and it is not a bag which is unsafe to move
+						if(document.getElementById("itemInventory").getElementsByTagName("td")[i].innerHTML.indexOf(target.outerHTML) >= 0 && target.outerHTML !== "" && remove){
+							// if the items are the same
+							if(Player.inventory.items[data].type === Player.inventory.items[i].type && Player.inventory.items[data].id === Player.inventory.items[i].id && Player.inventory.items[i].stack > 1 && i !== parseInt(data)){
+								// all moves to i
+								if(Player.inventory.items[i].stacked + Player.inventory.items[data].stacked <= Player.inventory.items[i].stack){
+									Player.inventory.items[i].stacked += Player.inventory.items[data].stacked;
+									document.getElementById("itemInventory").getElementsByTagName("td")[i].innerHTML = "<img src='"+Player.inventory.items[i].image+"' draggable='true' ondragstart='Dom.inventory.drag(event,"+i+")' "+(Player.inventory.items[i].onClick !== undefined ? "onclick='Player.inventory.items["+i+"].onClick("+i+")'" : "")+"><div class='stackNum' id='stackNum"+i+"'>"+Player.inventory.items[i].stacked+"</div></img>";
+									Dom.inventory.remove(data, true);
+								// overflow stays on data
+								}else if(Player.inventory.items[i].stacked !== Player.inventory.items[i].stack){
+									Player.inventory.items[data].stacked -= (Player.inventory.items[i].stack - Player.inventory.items[i].stacked);
+									Player.inventory.items[i].stacked = Player.inventory.items[i].stack;
+									document.getElementById("itemInventory").getElementsByTagName("td")[i].innerHTML = "<img src='"+Player.inventory.items[i].image+"' draggable='true' ondragstart='Dom.inventory.drag(event,"+i+")' "+(Player.inventory.items[i].onClick !== undefined ? "onclick='Player.inventory.items["+i+"].onClick("+i+")'" : "")+"><div class='stackNum' id='stackNum"+i+"'>"+Player.inventory.items[i].stacked+"</div></img>";
+									document.getElementById("itemInventory").getElementsByTagName("td")[data].innerHTML = "<img src='"+Player.inventory.items[data].image+"' draggable='true' ondragstart='Dom.inventory.drag(event,"+data+")' "+(Player.inventory.items[data].onClick !== undefined ? "onclick='Player.inventory.items["+data+"].onClick("+data+")'" : "")+"><div class='stackNum' id='stackNum"+data+"'>"+Player.inventory.items[data].stacked+"</div></img>";
+								}
+							}
+							else
+							// if it is not a key being dropped on a chest
+							if(!(Player.inventory.items[data].opens !== undefined && Player.inventory.items[data].opens.type === Player.inventory.items[i].type && Player.inventory.items[data].opens.id === Player.inventory.items[i].id)){
+								// swaps the items
+								test = Player.inventory.items[i];
+								Player.inventory.items[i] = Player.inventory.items[data];
+								Player.inventory.items[data] = test;
+								// swaps the items images
+								document.getElementById("itemInventory").getElementsByTagName("td")[data].innerHTML = "<img src='"+Player.inventory.items[data].image+"' draggable='true' ondragstart='Dom.inventory.drag(event,"+data+")' "+(Player.inventory.items[data].onClick !== undefined ? "onclick='Player.inventory.items["+data+"].onClick("+data+")'" : "")+"></img>";
+								if(Player.inventory.items[data].stacked !== undefined && Player.inventory.items[data].stacked !== 1){
+									document.getElementById("itemInventory").getElementsByTagName("td")[data].innerHTML += "<div class='stackNum' id='stackNum"+data+"'>"+Player.inventory.items[data].stacked+"</div>";
+								}
+								document.getElementById("itemInventory").getElementsByTagName("td")[i].innerHTML = "<img src='"+Player.inventory.items[i].image+"' draggable='true' ondragstart='Dom.inventory.drag(event,"+i+")' "+(Player.inventory.items[i].onClick !== undefined ? "onclick='Player.inventory.items["+i+"].onClick("+i+")'" : "")+"></img>";
+								if(Player.inventory.items[i].stacked !== undefined && Player.inventory.items[i].stacked !== 1){
+									document.getElementById("itemInventory").getElementsByTagName("td")[i].innerHTML += "<div class='stackNum' id='stackNum"+i+"'>"+Player.inventory.items[i].stacked+"</div>";
+								}
+								// bag cases
+								// going from the bag slot from a bag
+								if(parseInt(data) === 5 && Player.inventory.items[i].type === "bag"){
+									// if it is being swapped with another bag
+									if(Player.inventory.items[data].type === "bag"){
+										// if the new bag is bigger than the old bag
+										if(Player.inventory.items[data].size >= Player.inventory.items[i].size){
+											for(let x = 0; x < (Player.inventory.items[data].size - Player.inventory.items[i].size)/6; x++){
+												document.getElementById("itemInventory").innerHTML += '<tr><td ondrop="Dom.inventory.drop(event);Game.inventoryUpdate(event)" ondragover="Dom.inventory.allowDrop(event)" onmouseover="Dom.inventory.displayInformation(Player.inventory.items['+Player.inventory.items.length+'])" onmouseleave="Dom.expand(\'information\')" ondrag="Dom.expand(\'information\')" onclick="Game.inventoryUpdate()"></td>\
+												<td ondrop="Dom.inventory.drop(event);Game.inventoryUpdate(event)" ondragover="Dom.inventory.allowDrop(event)" onmouseover="Dom.inventory.displayInformation(Player.inventory.items['+(Player.inventory.items.length+1)+'])" onmouseleave="Dom.expand(\'information\')" ondrag="Dom.expand(\'information\')" onclick="Game.inventoryUpdate()"></td>\
+												<td ondrop="Dom.inventory.drop(event);Game.inventoryUpdate(event)" ondragover="Dom.inventory.allowDrop(event)" onmouseover="Dom.inventory.displayInformation(Player.inventory.items['+(Player.inventory.items.length+2)+'])" onmouseleave="Dom.expand(\'information\')" ondrag="Dom.expand(\'information\')" onclick="Game.inventoryUpdate()"></td>\
+												<td ondrop="Dom.inventory.drop(event);Game.inventoryUpdate(event)" ondragover="Dom.inventory.allowDrop(event)" onmouseover="Dom.inventory.displayInformation(Player.inventory.items['+(Player.inventory.items.length+3)+'])" onmouseleave="Dom.expand(\'information\')" ondrag="Dom.expand(\'information\')" onclick="Game.inventoryUpdate()"></td>\
+												<td ondrop="Dom.inventory.drop(event);Game.inventoryUpdate(event)" ondragover="Dom.inventory.allowDrop(event)" onmouseover="Dom.inventory.displayInformation(Player.inventory.items['+(Player.inventory.items.length+4)+'])" onmouseleave="Dom.expand(\'information\')" ondrag="Dom.expand(\'information\')" onclick="Game.inventoryUpdate()"></td>\
+												<td ondrop="Dom.inventory.drop(event);Game.inventoryUpdate(event)" ondragover="Dom.inventory.allowDrop(event)" onmouseover="Dom.inventory.displayInformation(Player.inventory.items['+(Player.inventory.items.length+5)+'])" onmouseleave="Dom.expand(\'information\')" ondrag="Dom.expand(\'information\')" onclick="Game.inventoryUpdate()"></td></tr>';
+												Player.inventory.items.push({},{},{},{},{},{});
+											}
+										// if the new bag is smaller than the old bag
+										}else{
+											// removes the code from the rest of the inventory
+											Player.inventory.items.splice(6+Player.inventory.items[data].size,Player.inventory.items[i].size - Player.inventory.items[data].size);
+											// rebuilds the inventory
+											document.getElementById("itemInventory").innerHTML = '<tr><td ondrop="Dom.inventory.drop(event);Game.inventoryUpdate(event)" ondragover="Dom.inventory.allowDrop(event)" onmouseover="Dom.inventory.displayInformation(Player.inventory.items[0])" onmouseleave="Dom.expand(\'information\')" ondrag="Dom.expand(\'information\')" onclick="Game.inventoryUpdate()"></td>\
+											<td ondrop="Dom.inventory.drop(event);Game.inventoryUpdate(event)" ondragover="Dom.inventory.allowDrop(event)" onmouseover="Dom.inventory.displayInformation(Player.inventory.items[1])" onmouseleave="Dom.expand(\'information\')" ondrag="Dom.expand(\'information\')" onclick="Game.inventoryUpdate()"></td>\
+											<td ondrop="Dom.inventory.drop(event);Game.inventoryUpdate(event)" ondragover="Dom.inventory.allowDrop(event)" onmouseover="Dom.inventory.displayInformation(Player.inventory.items[2])" onmouseleave="Dom.expand(\'information\')" ondrag="Dom.expand(\'information\')" onclick="Game.inventoryUpdate()"></td>\
+											<td ondrop="Dom.inventory.drop(event);Game.inventoryUpdate(event)" ondragover="Dom.inventory.allowDrop(event)" onmouseover="Dom.inventory.displayInformation(Player.inventory.items[3])" onmouseleave="Dom.expand(\'information\')" ondrag="Dom.expand(\'information\')" onclick="Game.inventoryUpdate()"></td>\
+											<td ondrop="Dom.inventory.drop(event);Game.inventoryUpdate(event)" ondragover="Dom.inventory.allowDrop(event)" onmouseover="Dom.inventory.displayInformation(Player.inventory.items[4])" onmouseleave="Dom.expand(\'information\')" ondrag="Dom.expand(\'information\')" onclick="Game.inventoryUpdate()"></td>\
+											<td ondrop="Dom.inventory.drop(event);Game.inventoryUpdate(event)" ondragover="Dom.inventory.allowDrop(event)" onmouseover="Dom.inventory.displayInformation(Player.inventory.items[5])" onmouseleave="Dom.expand(\'information\')" ondrag="Dom.expand(\'information\')" onclick="Game.inventoryUpdate()"></td></tr>';
+											for(let y = 1; y < (Player.inventory.items[data].size/6)+1; y++){
+												document.getElementById("itemInventory").innerHTML += '<tr><td ondrop="Dom.inventory.drop(event);Game.inventoryUpdate(event)" ondragover="Dom.inventory.allowDrop(event)" onmouseover="Dom.inventory.displayInformation(Player.inventory.items['+(0+6*y)+'])" onmouseleave="Dom.expand(\'information\')" ondrag="Dom.expand(\'information\')" onclick="Game.inventoryUpdate()"></td>\
+												<td ondrop="Dom.inventory.drop(event);Game.inventoryUpdate(event)" ondragover="Dom.inventory.allowDrop(event)" onmouseover="Dom.inventory.displayInformation(Player.inventory.items['+(1+6*y)+'])" onmouseleave="Dom.expand(\'information\')" ondrag="Dom.expand(\'information\')" onclick="Game.inventoryUpdate()"></td>\
+												<td ondrop="Dom.inventory.drop(event);Game.inventoryUpdate(event)" ondragover="Dom.inventory.allowDrop(event)" onmouseover="Dom.inventory.displayInformation(Player.inventory.items['+(2+6*y)+'])" onmouseleave="Dom.expand(\'information\')" ondrag="Dom.expand(\'information\')" onclick="Game.inventoryUpdate()"></td>\
+												<td ondrop="Dom.inventory.drop(event);Game.inventoryUpdate(event)" ondragover="Dom.inventory.allowDrop(event)" onmouseover="Dom.inventory.displayInformation(Player.inventory.items['+(3+6*y)+'])" onmouseleave="Dom.expand(\'information\')" ondrag="Dom.expand(\'information\')" onclick="Game.inventoryUpdate()"></td>\
+												<td ondrop="Dom.inventory.drop(event);Game.inventoryUpdate(event)" ondragover="Dom.inventory.allowDrop(event)" onmouseover="Dom.inventory.displayInformation(Player.inventory.items['+(4+6*y)+'])" onmouseleave="Dom.expand(\'information\')" ondrag="Dom.expand(\'information\')" onclick="Game.inventoryUpdate()"></td>\
+												<td ondrop="Dom.inventory.drop(event);Game.inventoryUpdate(event)" ondragover="Dom.inventory.allowDrop(event)" onmouseover="Dom.inventory.displayInformation(Player.inventory.items['+(5+6*y)+'])" onmouseleave="Dom.expand(\'information\')" ondrag="Dom.expand(\'information\')" onclick="Game.inventoryUpdate()"></td></tr>';
+											}
+											for(let y = 0; y < Player.inventory.items.length; y++){
+												if(Object.keys(Player.inventory.items[y]).length !== 0){
+													document.getElementById("itemInventory").getElementsByTagName("td")[y].innerHTML = '<img src="'+Player.inventory.items[y].image+'" draggable="true" ondragstart="Dom.inventory.drag(event,'+y+')"></img>';
+													if(Player.inventory.items[y].stacked !== undefined && Player.inventory.items[y].stacked !== 1){
+														document.getElementById("itemInventory").getElementsByTagName("td")[y].innerHTML += "<div class='stackNum' id='stackNum"+y+"'>"+Player.inventory.items[y].stacked+"</div>";
+													}
+												}
+											}
+										}
+									// if the bag is bing removed and not replaced
+									}else/* if(remove)*/{ 
+										// removes the code from the rest of the inventory
+										Player.inventory.items.splice(6,Player.inventory.items.length-6);
+										// rebuilds the hotbar
+										document.getElementById("itemInventory").innerHTML = '<tr><td ondrop="Dom.inventory.drop(event);Game.inventoryUpdate(event)" ondragover="Dom.inventory.allowDrop(event)" onmouseover="Dom.inventory.displayInformation(Player.inventory.items[0])" onmouseleave="Dom.expand(\'information\')" ondrag="Dom.expand(\'information\')" onclick="Game.inventoryUpdate()"></td>\
+										<td ondrop="Dom.inventory.drop(event);Game.inventoryUpdate(event)" ondragover="Dom.inventory.allowDrop(event)" onmouseover="Dom.inventory.displayInformation(Player.inventory.items[1])" onmouseleave="Dom.expand(\'information\')" ondrag="Dom.expand(\'information\')" onclick="Game.inventoryUpdate()"></td>\
+										<td ondrop="Dom.inventory.drop(event);Game.inventoryUpdate(event)" ondragover="Dom.inventory.allowDrop(event)" onmouseover="Dom.inventory.displayInformation(Player.inventory.items[2])" onmouseleave="Dom.expand(\'information\')" ondrag="Dom.expand(\'information\')" onclick="Game.inventoryUpdate()"></td>\
+										<td ondrop="Dom.inventory.drop(event);Game.inventoryUpdate(event)" ondragover="Dom.inventory.allowDrop(event)" onmouseover="Dom.inventory.displayInformation(Player.inventory.items[3])" onmouseleave="Dom.expand(\'information\')" ondrag="Dom.expand(\'information\')" onclick="Game.inventoryUpdate()"></td>\
+										<td ondrop="Dom.inventory.drop(event);Game.inventoryUpdate(event)" ondragover="Dom.inventory.allowDrop(event)" onmouseover="Dom.inventory.displayInformation(Player.inventory.items[4])" onmouseleave="Dom.expand(\'information\')" ondrag="Dom.expand(\'information\')" onclick="Game.inventoryUpdate()"></td>\
+										<td ondrop="Dom.inventory.drop(event);Game.inventoryUpdate(event)" ondragover="Dom.inventory.allowDrop(event)" onmouseover="Dom.inventory.displayInformation(Player.inventory.items[5])" onmouseleave="Dom.expand(\'information\')" ondrag="Dom.expand(\'information\')" onclick="Game.inventoryUpdate()"></td></tr>';
+										document.getElementById("itemInventory").getElementsByTagName("td")[5].style.backgroundImage = "url('assets/items/bag/1.png')";
+										for(let x = 0; x < 6; x++){
+											if(Player.inventory.items[x].image !== undefined){
+												document.getElementById("itemInventory").getElementsByTagName("td")[x].innerHTML = '<img src="'+Player.inventory.items[x].image+'" draggable="true" ondragstart="Dom.inventory.drag(event,'+x+')"></img>';
+												if(Player.inventory.items[x].stacked !== undefined && Player.inventory.items[x].stacked !== 1){
+													document.getElementById("itemInventory").getElementsByTagName("td")[x].innerHTML += "<div class='stackNum' id='stackNum"+x+"'>"+Player.inventory.items[x].stacked+"</div>";
+												}
+											}
+										}
+									}/*else{
+										Dom.alert.page("Move some items to the bank or dispose of them before you can do that.");
+									}*/
+								// going to the bag slot to a bag
+								}else if(i === 5 && Player.inventory.items[data].type === "bag"){
+									// if it is being swapped with another bag
+									if(Player.inventory.items[i].type === "bag"){
+										// if the new bag is bigger than the old bag
+										if(Player.inventory.items[i].size >= Player.inventory.items[data].size){
+											for(let x = 0; x < (Player.inventory.items[i].size - Player.inventory.items[data].size)/6; x++){
+												document.getElementById("itemInventory").innerHTML += '<tr><td ondrop="Dom.inventory.drop(event);Game.inventoryUpdate(event)" ondragover="Dom.inventory.allowDrop(event)" onmouseover="Dom.inventory.displayInformation(Player.inventory.items['+Player.inventory.items.length+'])" onmouseleave="Dom.expand(\'information\')" ondrag="Dom.expand(\'information\')" onclick="Game.inventoryUpdate()"></td>\
+												<td ondrop="Dom.inventory.drop(event);Game.inventoryUpdate(event)" ondragover="Dom.inventory.allowDrop(event)" onmouseover="Dom.inventory.displayInformation(Player.inventory.items['+(Player.inventory.items.length+1)+'])" onmouseleave="Dom.expand(\'information\')" ondrag="Dom.expand(\'information\')" onclick="Game.inventoryUpdate()"></td>\
+												<td ondrop="Dom.inventory.drop(event);Game.inventoryUpdate(event)" ondragover="Dom.inventory.allowDrop(event)" onmouseover="Dom.inventory.displayInformation(Player.inventory.items['+(Player.inventory.items.length+2)+'])" onmouseleave="Dom.expand(\'information\')" ondrag="Dom.expand(\'information\')" onclick="Game.inventoryUpdate()"></td>\
+												<td ondrop="Dom.inventory.drop(event);Game.inventoryUpdate(event)" ondragover="Dom.inventory.allowDrop(event)" onmouseover="Dom.inventory.displayInformation(Player.inventory.items['+(Player.inventory.items.length+3)+'])" onmouseleave="Dom.expand(\'information\')" ondrag="Dom.expand(\'information\')" onclick="Game.inventoryUpdate()"></td>\
+												<td ondrop="Dom.inventory.drop(event);Game.inventoryUpdate(event)" ondragover="Dom.inventory.allowDrop(event)" onmouseover="Dom.inventory.displayInformation(Player.inventory.items['+(Player.inventory.items.length+4)+'])" onmouseleave="Dom.expand(\'information\')" ondrag="Dom.expand(\'information\')" onclick="Game.inventoryUpdate()"></td>\
+												<td ondrop="Dom.inventory.drop(event);Game.inventoryUpdate(event)" ondragover="Dom.inventory.allowDrop(event)" onmouseover="Dom.inventory.displayInformation(Player.inventory.items['+(Player.inventory.items.length+5)+'])" onmouseleave="Dom.expand(\'information\')" ondrag="Dom.expand(\'information\')" onclick="Game.inventoryUpdate()"></td></tr>';
+												Player.inventory.items.push({},{},{},{},{},{});
+											}
+										// if the new bag is smaller than the old bag
+										}else{
+											// removes the code from the rest of the inventory
+											Player.inventory.items.splice(6+Player.inventory.items[i].size,Player.inventory.items[data].size - Player.inventory.items[i].size);
+											// rebuilds the inventory
+											document.getElementById("itemInventory").innerHTML = '<tr><td ondrop="Dom.inventory.drop(event);Game.inventoryUpdate(event)" ondragover="Dom.inventory.allowDrop(event)" onmouseover="Dom.inventory.displayInformation(Player.inventory.items[0])" onmouseleave="Dom.expand(\'information\')" ondrag="Dom.expand(\'information\')" onclick="Game.inventoryUpdate()"></td>\
+											<td ondrop="Dom.inventory.drop(event);Game.inventoryUpdate(event)" ondragover="Dom.inventory.allowDrop(event)" onmouseover="Dom.inventory.displayInformation(Player.inventory.items[1])" onmouseleave="Dom.expand(\'information\')" ondrag="Dom.expand(\'information\')" onclick="Game.inventoryUpdate()"></td>\
+											<td ondrop="Dom.inventory.drop(event);Game.inventoryUpdate(event)" ondragover="Dom.inventory.allowDrop(event)" onmouseover="Dom.inventory.displayInformation(Player.inventory.items[2])" onmouseleave="Dom.expand(\'information\')" ondrag="Dom.expand(\'information\')" onclick="Game.inventoryUpdate()"></td>\
+											<td ondrop="Dom.inventory.drop(event);Game.inventoryUpdate(event)" ondragover="Dom.inventory.allowDrop(event)" onmouseover="Dom.inventory.displayInformation(Player.inventory.items[3])" onmouseleave="Dom.expand(\'information\')" ondrag="Dom.expand(\'information\')" onclick="Game.inventoryUpdate()"></td>\
+											<td ondrop="Dom.inventory.drop(event);Game.inventoryUpdate(event)" ondragover="Dom.inventory.allowDrop(event)" onmouseover="Dom.inventory.displayInformation(Player.inventory.items[4])" onmouseleave="Dom.expand(\'information\')" ondrag="Dom.expand(\'information\')" onclick="Game.inventoryUpdate()"></td>\
+											<td ondrop="Dom.inventory.drop(event);Game.inventoryUpdate(event)" ondragover="Dom.inventory.allowDrop(event)" onmouseover="Dom.inventory.displayInformation(Player.inventory.items[5])" onmouseleave="Dom.expand(\'information\')" ondrag="Dom.expand(\'information\')" onclick="Game.inventoryUpdate()"></td></tr>';
+											for(let y = 1; y < (Player.inventory.items[i].size/6)+1; y++){
+												document.getElementById("itemInventory").innerHTML += '<tr><td ondrop="Dom.inventory.drop(event);Game.inventoryUpdate(event)" ondragover="Dom.inventory.allowDrop(event)" onmouseover="Dom.inventory.displayInformation(Player.inventory.items['+(0+6*y)+'])" onmouseleave="Dom.expand(\'information\')" ondrag="Dom.expand(\'information\')" onclick="Game.inventoryUpdate()"></td>\
+												<td ondrop="Dom.inventory.drop(event);Game.inventoryUpdate(event)" ondragover="Dom.inventory.allowDrop(event)" onmouseover="Dom.inventory.displayInformation(Player.inventory.items['+(1+6*y)+'])" onmouseleave="Dom.expand(\'information\')" ondrag="Dom.expand(\'information\')" onclick="Game.inventoryUpdate()"></td>\
+												<td ondrop="Dom.inventory.drop(event);Game.inventoryUpdate(event)" ondragover="Dom.inventory.allowDrop(event)" onmouseover="Dom.inventory.displayInformation(Player.inventory.items['+(2+6*y)+'])" onmouseleave="Dom.expand(\'information\')" ondrag="Dom.expand(\'information\')" onclick="Game.inventoryUpdate()"></td>\
+												<td ondrop="Dom.inventory.drop(event);Game.inventoryUpdate(event)" ondragover="Dom.inventory.allowDrop(event)" onmouseover="Dom.inventory.displayInformation(Player.inventory.items['+(3+6*y)+'])" onmouseleave="Dom.expand(\'information\')" ondrag="Dom.expand(\'information\')" onclick="Game.inventoryUpdate()"></td>\
+												<td ondrop="Dom.inventory.drop(event);Game.inventoryUpdate(event)" ondragover="Dom.inventory.allowDrop(event)" onmouseover="Dom.inventory.displayInformation(Player.inventory.items['+(4+6*y)+'])" onmouseleave="Dom.expand(\'information\')" ondrag="Dom.expand(\'information\')" onclick="Game.inventoryUpdate()"></td>\
+												<td ondrop="Dom.inventory.drop(event);Game.inventoryUpdate(event)" ondragover="Dom.inventory.allowDrop(event)" onmouseover="Dom.inventory.displayInformation(Player.inventory.items['+(5+6*y)+'])" onmouseleave="Dom.expand(\'information\')" ondrag="Dom.expand(\'information\')" onclick="Game.inventoryUpdate()"></td></tr>';
+											}
+											for(let y = 0; y < Player.inventory.items.length; y++){
+												if(Object.keys(Player.inventory.items[y]).length !== 0){
+													document.getElementById("itemInventory").getElementsByTagName("td")[y].innerHTML = '<img src="'+Player.inventory.items[y].image+'" draggable="true" ondragstart="Dom.inventory.drag(event,'+y+')"></img>';
+													if(Player.inventory.items[y].stacked !== undefined && Player.inventory.items[y].stacked !== 1){
+														document.getElementById("itemInventory").getElementsByTagName("td")[y].innerHTML += "<div class='stackNum' id='stackNum"+y+"'>"+Player.inventory.items[y].stacked+"</div>";
+													}
+												}
+											}
+										}
+									// if the bag is being removed and not replaced
+									}else/* if(remove)*/{
+										// removes the code from the rest of the inventory
+										Player.inventory.items.splice(6,Player.inventory.items.length-6);
+										// rebuilds the hotbar
+										document.getElementById("itemInventory").innerHTML = '<tr><td ondrop="Dom.inventory.drop(event);Game.inventoryUpdate(event)" ondragover="Dom.inventory.allowDrop(event)" onmouseover="Dom.inventory.displayInformation(Player.inventory.items[0])" onmouseleave="Dom.expand(\'information\')" ondrag="Dom.expand(\'information\')" onclick="Game.inventoryUpdate()"></td>\
+										<td ondrop="Dom.inventory.drop(event);Game.inventoryUpdate(event)" ondragover="Dom.inventory.allowDrop(event)" onmouseover="Dom.inventory.displayInformation(Player.inventory.items[1])" onmouseleave="Dom.expand(\'information\')" ondrag="Dom.expand(\'information\')" onclick="Game.inventoryUpdate()"></td>\
+										<td ondrop="Dom.inventory.drop(event);Game.inventoryUpdate(event)" ondragover="Dom.inventory.allowDrop(event)" onmouseover="Dom.inventory.displayInformation(Player.inventory.items[2])" onmouseleave="Dom.expand(\'information\')" ondrag="Dom.expand(\'information\')" onclick="Game.inventoryUpdate()"></td>\
+										<td ondrop="Dom.inventory.drop(event);Game.inventoryUpdate(event)" ondragover="Dom.inventory.allowDrop(event)" onmouseover="Dom.inventory.displayInformation(Player.inventory.items[3])" onmouseleave="Dom.expand(\'information\')" ondrag="Dom.expand(\'information\')" onclick="Game.inventoryUpdate()"></td>\
+										<td ondrop="Dom.inventory.drop(event);Game.inventoryUpdate(event)" ondragover="Dom.inventory.allowDrop(event)" onmouseover="Dom.inventory.displayInformation(Player.inventory.items[4])" onmouseleave="Dom.expand(\'information\')" ondrag="Dom.expand(\'information\')" onclick="Game.inventoryUpdate()"></td>\
+										<td ondrop="Dom.inventory.drop(event);Game.inventoryUpdate(event)" ondragover="Dom.inventory.allowDrop(event)" onmouseover="Dom.inventory.displayInformation(Player.inventory.items[5])" onmouseleave="Dom.expand(\'information\')" ondrag="Dom.expand(\'information\')" onclick="Game.inventoryUpdate()"></td></tr>';
+										document.getElementById("itemInventory").getElementsByTagName("td")[5].style.backgroundImage = "url('assets/items/bag/1.png')";
+										for(let x = 0; x < 6; x++){
+											if(Player.inventory.items[x].image !== undefined){
+												document.getElementById("itemInventory").getElementsByTagName("td")[x].innerHTML = '<img src="'+Player.inventory.items[x].image+'" draggable="true" ondragstart="Dom.inventory.drag(event,'+x+')"></img>';
+												if(Player.inventory.items[x].stacked !== undefined && Player.inventory.items[x].stacked !== 1){
+													document.getElementById("itemInventory").getElementsByTagName("td")[x].innerHTML += "<div class='stackNum' id='stackNum"+x+"'>"+Player.inventory.items[x].stacked+"</div>";
+												}
+											}
+										}
+									}/*else{
+										Dom.alert.page("Move some items to the bank or dispose of them before you can do that.");
+									}*/
+								// going to the bag slot from a bag and not swapping
+								}else if(i === 5 && Player.inventory.items[i].type === "bag"){
+									for(let x = 0; x < Math.floor(Player.inventory.items[i].size/6); x++){
+										document.getElementById("itemInventory").innerHTML += '<tr><td ondrop="Dom.inventory.drop(event);Game.inventoryUpdate(event)" ondragover="Dom.inventory.allowDrop(event)" onmouseover="Dom.inventory.displayInformation(Player.inventory.items['+Player.inventory.items.length+'])" onmouseleave="Dom.expand(\'information\')" ondrag="Dom.expand(\'information\')" onclick="Game.inventoryUpdate()"></td>\
+										<td ondrop="Dom.inventory.drop(event);Game.inventoryUpdate(event)" ondragover="Dom.inventory.allowDrop(event)" onmouseover="Dom.inventory.displayInformation(Player.inventory.items['+(Player.inventory.items.length+1)+'])" onmouseleave="Dom.expand(\'information\')" ondrag="Dom.expand(\'information\')" onclick="Game.inventoryUpdate()"></td>\
+										<td ondrop="Dom.inventory.drop(event);Game.inventoryUpdate(event)" ondragover="Dom.inventory.allowDrop(event)" onmouseover="Dom.inventory.displayInformation(Player.inventory.items['+(Player.inventory.items.length+2)+'])" onmouseleave="Dom.expand(\'information\')" ondrag="Dom.expand(\'information\')" onclick="Game.inventoryUpdate()"></td>\
+										<td ondrop="Dom.inventory.drop(event);Game.inventoryUpdate(event)" ondragover="Dom.inventory.allowDrop(event)" onmouseover="Dom.inventory.displayInformation(Player.inventory.items['+(Player.inventory.items.length+3)+'])" onmouseleave="Dom.expand(\'information\')" ondrag="Dom.expand(\'information\')" onclick="Game.inventoryUpdate()"></td>\
+										<td ondrop="Dom.inventory.drop(event);Game.inventoryUpdate(event)" ondragover="Dom.inventory.allowDrop(event)" onmouseover="Dom.inventory.displayInformation(Player.inventory.items['+(Player.inventory.items.length+4)+'])" onmouseleave="Dom.expand(\'information\')" ondrag="Dom.expand(\'information\')" onclick="Game.inventoryUpdate()"></td>\
+										<td ondrop="Dom.inventory.drop(event);Game.inventoryUpdate(event)" ondragover="Dom.inventory.allowDrop(event)" onmouseover="Dom.inventory.displayInformation(Player.inventory.items['+(Player.inventory.items.length+5)+'])" onmouseleave="Dom.expand(\'information\')" ondrag="Dom.expand(\'information\')" onclick="Game.inventoryUpdate()"></td></tr>';
+										Player.inventory.items.push({},{},{},{},{},{});
+									}
+								// going from the bag slot to a bag and not swapping
+								}else if(parseInt(data) === 5 && Player.inventory.items[data].type === "bag"){
+									for(let x = 0; x < Math.floor(Player.inventory.items[data].size/6); x++){
+										document.getElementById("itemInventory").innerHTML += '<tr><td ondrop="Dom.inventory.drop(event);Game.inventoryUpdate(event)" ondragover="Dom.inventory.allowDrop(event)" onmouseover="Dom.inventory.displayInformation(Player.inventory.items['+Player.inventory.items.length+'])" onmouseleave="Dom.expand(\'information\')" ondrag="Dom.expand(\'information\')" onclick="Game.inventoryUpdate()"></td>\
+										<td ondrop="Dom.inventory.drop(event);Game.inventoryUpdate(event)" ondragover="Dom.inventory.allowDrop(event)" onmouseover="Dom.inventory.displayInformation(Player.inventory.items['+(Player.inventory.items.length+1)+'])" onmouseleave="Dom.expand(\'information\')" ondrag="Dom.expand(\'information\')" onclick="Game.inventoryUpdate()"></td>\
+										<td ondrop="Dom.inventory.drop(event);Game.inventoryUpdate(event)" ondragover="Dom.inventory.allowDrop(event)" onmouseover="Dom.inventory.displayInformation(Player.inventory.items['+(Player.inventory.items.length+2)+'])" onmouseleave="Dom.expand(\'information\')" ondrag="Dom.expand(\'information\')" onclick="Game.inventoryUpdate()"></td>\
+										<td ondrop="Dom.inventory.drop(event);Game.inventoryUpdate(event)" ondragover="Dom.inventory.allowDrop(event)" onmouseover="Dom.inventory.displayInformation(Player.inventory.items['+(Player.inventory.items.length+3)+'])" onmouseleave="Dom.expand(\'information\')" ondrag="Dom.expand(\'information\')" onclick="Game.inventoryUpdate()"></td>\
+										<td ondrop="Dom.inventory.drop(event);Game.inventoryUpdate(event)" ondragover="Dom.inventory.allowDrop(event)" onmouseover="Dom.inventory.displayInformation(Player.inventory.items['+(Player.inventory.items.length+4)+'])" onmouseleave="Dom.expand(\'information\')" ondrag="Dom.expand(\'information\')" onclick="Game.inventoryUpdate()"></td>\
+										<td ondrop="Dom.inventory.drop(event);Game.inventoryUpdate(event)" ondragover="Dom.inventory.allowDrop(event)" onmouseover="Dom.inventory.displayInformation(Player.inventory.items['+(Player.inventory.items.length+5)+'])" onmouseleave="Dom.expand(\'information\')" ondrag="Dom.expand(\'information\')" onclick="Game.inventoryUpdate()"></td></tr>';
+										Player.inventory.items.push({},{},{},{},{},{});
+									}
+								}
+							// if it is a key being dropped on a chest
+							}else{
+								if(Items[Player.inventory.items[i].type][Player.inventory.items[i].id].onOpen(i)){
+									//Dom.inventory.remove(i);
+									Dom.inventory.remove(data);
+								}
+							}
+							//break;
+						}else if(document.getElementById("itemInventory").getElementsByTagName("td")[i].innerHTML.indexOf(target.outerHTML) >= 0 && target.outerHTML !== ""){
+							Dom.alert.page("Move some items to the bank or dispose of them before you can do that.");
+						}
+					}
+				}
+			// if the item is being moved from a weapon/armour slot
+			}else{
+				// if there is not an item already there
+				if(test[12] === "T" && target.innerHTML === ""){
+					for(let i = 0; i < Player.inventory.items.length; i++){
+						if(document.getElementById("itemInventory").getElementsByTagName("td")[i] === target){
+							if(Player.inventory[data].type === "helm" || Player.inventory[data].type === "chest" || Player.inventory[data].type === "greaves" || Player.inventory[data].type === "boots"){
+								Dom.inventory.removeEquipment(Player.inventory[data]); // has already been moved
+							// if it is a weapon
+							}else{
+								Dom.inventory.removeEquipment(Player.inventory[data]); // has already been moved
+							}
+							Player.inventory.items[i] = Player.inventory[data];
+							Player.inventory[data] = {};
+							document.getElementById(data).innerHTML = "";
+							target.innerHTML = "<img src='"+Player.inventory.items[i].image+"' draggable='true' ondragstart='Dom.inventory.drag(event,"+i+")' "+(Player.inventory.items[i].onClick !== undefined ? "onclick='Player.inventory.items["+i+"].onClick("+i+")'" : "") +"></img>";
+							if(Player.inventory.items[i].stacked !== undefined && Player.inventory.items[i].stacked !== 1){
+								target.innerHTML += "<div class='stackNum' id='stackNum"+i+"'>"+Player.inventory.items[i].stacked+"</div>";
 							}
 						}
-						//break;
-					}else if(document.getElementById("itemInventory").getElementsByTagName("td")[i].innerHTML.indexOf(target.outerHTML) >= 0 && target.outerHTML !== ""){
-						Dom.alert.page("Move some items to the bank or dispose of them before you can do that.");
+					}
+				// if there is an item already there
+				}else{
+					for(let i = 0; i < Player.inventory.items.length; i++){
+						// if the item slot is where you are putting the item and it is allowed there
+						if(document.getElementById("itemInventory").getElementsByTagName("td")[i].innerHTML === target.outerHTML && (((Player.inventory.items[i].allClasses === true || (Player.inventory.items[i].type === "sword" && Player.class === "k") || (Player.inventory.items[i].type === "staff" && Player.class === "m") || (Player.inventory.items[i].type === "bow" && Player.class === "a") || Player.inventory.items[i].type === "rod") && data === "weapon") || Player.inventory.items[i].type === data)){
+							if(Player.inventory[data].type === "helm" || Player.inventory[data].type === "chest" || Player.inventory[data].type === "greaves" || Player.inventory[data].type === "boots"){
+								Dom.inventory.removeEquipment(Player.inventory[data]);
+							// if it is a weapon
+							}else{
+								Dom.inventory.removeEquipment(Player.inventory[data]);
+							}
+							// swaps the items
+							test = Player.inventory.items[i];
+							Player.inventory.items[i] = Player.inventory[data];
+							Player.inventory[data] = test;
+							// swaps the items images
+							document.getElementById(data).innerHTML = "<img src='"+Player.inventory[data].image+"' draggable='true' ondragstart='Dom.inventory.drag(event,\""+data+"\")' "+(Player.inventory[data].onClick !== undefined ? "onclick='Player.inventory."+data+".onClick(\""+data+"\")'" : "")+"></img>";
+							document.getElementById("itemInventory").getElementsByTagName("td")[i].innerHTML = "<img src='"+Player.inventory.items[i].image+"' draggable='true' ondragstart='Dom.inventory.drag(event,"+i+")' "+(Player.inventory.items[i].onClick !== undefined ? "onclick='Player.inventory.items["+i+"].onClick("+i+")'" : "") +"></img>";
+							if(Player.inventory.items[i].stacked !== undefined && Player.inventory.items[i].stacked !== 1){
+								target.innerHTML += "<div class='stackNum' id='stackNum"+i+"'>"+Player.inventory.items[i].stacked+"</div>";
+							}
+							Dom.inventory.addEquipment(Player.inventory[data]);
+						}
 					}
 				}
 			}
-		// if the item is being moved from a weapon/armour slot
-		}else{
+		// if the item is being moved to a weapon/armour slot
+		}else if(data !== "weapon" && data !== "helm" && data !== "chest" && data !== "greaves" && data !== "boots"){
 			// if there is not an item already there
-			if(test[12] === "T" && target.innerHTML === ""){
-				for(let i = 0; i < Player.inventory.items.length; i++){
-					if(document.getElementById("itemInventory").getElementsByTagName("td")[i] === target){
-						if(Player.inventory[data].type === "helm" || Player.inventory[data].type === "chest" || Player.inventory[data].type === "greaves" || Player.inventory[data].type === "boots"){
-							Dom.inventory.removeEquipment(Player.inventory[data]); // has already been moved
-						// if it is a weapon
-						}else{
-							Dom.inventory.removeEquipment(Player.inventory[data]); // has already been moved
-						}
-						Player.inventory.items[i] = Player.inventory[data];
-						Player.inventory[data] = {};
-						document.getElementById(data).innerHTML = "";
-						target.innerHTML = "<img src='"+Player.inventory.items[i].image+"' draggable='true' ondragstart='Dom.inventory.drag(event,"+i+")' "+(Player.inventory.items[i].onClick !== undefined ? "onclick='Player.inventory.items["+i+"].onClick("+i+")'" : "") +"></img>";
-						if(Player.inventory.items[i].stacked !== undefined && Player.inventory.items[i].stacked !== 1){
-							target.innerHTML += "<div class='stackNum' id='stackNum"+i+"'>"+Player.inventory.items[i].stacked+"</div>";
-						}
-					}
+			if(test[12] === "D"){
+				// if the item slot is where you are putting the item and it is allowed there
+				if((Player.inventory.items[data].type === target.id || ((Player.inventory.items[data].allClasses === true || (Player.inventory.items[data].type === "sword" && Player.class === "k") || (Player.inventory.items[data].type === "staff" && Player.class === "m") || (Player.inventory.items[data].type === "bow" && Player.class === "a") || Player.inventory.items[data].type === "rod") && target.id === "weapon")) && !Player.inventory.items[data].unidentified){
+					Player.inventory[target.id] = Player.inventory.items[data];
+					Player.inventory[target.id].onClick = Player.inventory.items[data].onClick;
+					Dom.inventory.addEquipment(Player.inventory[equip]);
+					document.getElementById("itemInventory").getElementsByTagName("td")[data].innerHTML = "";
+					Player.inventory.items[data] = {};
+					document.getElementById(target.id).innerHTML = "<img src='"+Player.inventory[target.id].image+"' draggable='true' ondragstart='Dom.inventory.drag(event,\""+target.id+"\")' "+(Player.inventory[target.id].onClick !== undefined ? "onclick='Player.inventory."+target.id+".onClick(\""+target.id+"\")'" : "")+"></img>";
 				}
-			// if there is an item already there
+			// if there is already an item there
 			}else{
-				for(let i = 0; i < Player.inventory.items.length; i++){
-					// if the item slot is where you are putting the item and it is allowed there
-					if(document.getElementById("itemInventory").getElementsByTagName("td")[i].innerHTML === target.outerHTML && (((Player.inventory.items[i].allClasses === true || (Player.inventory.items[i].type === "sword" && Player.class === "k") || (Player.inventory.items[i].type === "staff" && Player.class === "m") || (Player.inventory.items[i].type === "bow" && Player.class === "a") || Player.inventory.items[i].type === "rod") && data === "weapon") || Player.inventory.items[i].type === data)){
-						if(Player.inventory[data].type === "helm" || Player.inventory[data].type === "chest" || Player.inventory[data].type === "greaves" || Player.inventory[data].type === "boots"){
-							Dom.inventory.removeEquipment(Player.inventory[data]);
-						// if it is a weapon
-						}else{
-							Dom.inventory.removeEquipment(Player.inventory[data]);
-						}
-						// swaps the items
-						test = Player.inventory.items[i];
-						Player.inventory.items[i] = Player.inventory[data];
-						Player.inventory[data] = test;
-						// swaps the items images
-						document.getElementById(data).innerHTML = "<img src='"+Player.inventory[data].image+"' draggable='true' ondragstart='Dom.inventory.drag(event,\""+data+"\")' "+(Player.inventory[data].onClick !== undefined ? "onclick='Player.inventory."+data+".onClick(\""+data+"\")'" : "")+"></img>";
-						document.getElementById("itemInventory").getElementsByTagName("td")[i].innerHTML = "<img src='"+Player.inventory.items[i].image+"' draggable='true' ondragstart='Dom.inventory.drag(event,"+i+")' "+(Player.inventory.items[i].onClick !== undefined ? "onclick='Player.inventory.items["+i+"].onClick("+i+")'" : "") +"></img>";
-						if(Player.inventory.items[i].stacked !== undefined && Player.inventory.items[i].stacked !== 1){
-							target.innerHTML += "<div class='stackNum' id='stackNum"+i+"'>"+Player.inventory.items[i].stacked+"</div>";
-						}
-						Dom.inventory.addEquipment(Player.inventory[data]);
-					}
+				// if the item slot is where you are putting the item and it is allowed there
+				if((Player.inventory.items[data].type === equip || ((Player.inventory.items[data].allClasses === true || (Player.inventory.items[data].type === "sword" && Player.class === "k") || (Player.inventory.items[data].type === "staff" && Player.class === "m") || (Player.inventory.items[data].type === "bow" && Player.class === "a") || Player.inventory.items[data].type === "rod") && equip === "weapon")) && !Player.inventory.items[data].unidentified){
+					Dom.inventory.removeEquipment(Player.inventory[equip]);
+					// swaps the items
+					test = Player.inventory[equip];
+					Player.inventory[equip] = Player.inventory.items[data];
+					Player.inventory[equip].onClick = Player.inventory.items[data].onClick;
+					Player.inventory.items[data] = test;
+					document.getElementById("itemInventory").getElementsByTagName("td")[data].innerHTML = "<img src='"+Player.inventory.items[data].image+"' draggable='true' ondragstart='Dom.inventory.drag(event,\""+data+"\")' "+(Player.inventory.items[data].onClick !== undefined ? "onclick='Player.inventory.items["+data+"].onClick("+data+")'" : "")+"></img>";
+					document.getElementById(equip).innerHTML = "<img src='"+Player.inventory[equip].image+"' draggable='true' ondragstart='Dom.inventory.drag(event,\""+equip+"\")' "+(Player.inventory[equip].onClick !== undefined ? "onclick='Player.inventory."+equip+".onClick(\""+equip+"\")'" : "")+"></img>";
+					Dom.inventory.addEquipment(Player.inventory[equip]);
 				}
 			}
 		}
-	// if the item is being moved to a weapon/armour slot
-	}else if(data !== "weapon" && data !== "helm" && data !== "chest" && data !== "greaves" && data !== "boots"){
-		// if there is not an item already there
-		if(test[12] === "D"){
-			// if the item slot is where you are putting the item and it is allowed there
-			if((Player.inventory.items[data].type === target.id || ((Player.inventory.items[data].allClasses === true || (Player.inventory.items[data].type === "sword" && Player.class === "k") || (Player.inventory.items[data].type === "staff" && Player.class === "m") || (Player.inventory.items[data].type === "bow" && Player.class === "a") || Player.inventory.items[data].type === "rod") && target.id === "weapon")) && !Player.inventory.items[data].unidentified){
-				Player.inventory[target.id] = Player.inventory.items[data];
-				Player.inventory[target.id].onClick = Player.inventory.items[data].onClick;
-				Dom.inventory.addEquipment(Player.inventory[equip]);
-				document.getElementById("itemInventory").getElementsByTagName("td")[data].innerHTML = "";
-				Player.inventory.items[data] = {};
-				document.getElementById(target.id).innerHTML = "<img src='"+Player.inventory[target.id].image+"' draggable='true' ondragstart='Dom.inventory.drag(event,\""+target.id+"\")' "+(Player.inventory[target.id].onClick !== undefined ? "onclick='Player.inventory."+target.id+".onClick(\""+target.id+"\")'" : "")+"></img>";
-			}
-		// if there is already an item there
-		}else{
-			// if the item slot is where you are putting the item and it is allowed there
-			if((Player.inventory.items[data].type === equip || ((Player.inventory.items[data].allClasses === true || (Player.inventory.items[data].type === "sword" && Player.class === "k") || (Player.inventory.items[data].type === "staff" && Player.class === "m") || (Player.inventory.items[data].type === "bow" && Player.class === "a") || Player.inventory.items[data].type === "rod") && equip === "weapon")) && !Player.inventory.items[data].unidentified){
-				Dom.inventory.removeEquipment(Player.inventory[equip]);
-				// swaps the items
-				test = Player.inventory[equip];
-				Player.inventory[equip] = Player.inventory.items[data];
-				Player.inventory[equip].onClick = Player.inventory.items[data].onClick;
-				Player.inventory.items[data] = test;
-				document.getElementById("itemInventory").getElementsByTagName("td")[data].innerHTML = "<img src='"+Player.inventory.items[data].image+"' draggable='true' ondragstart='Dom.inventory.drag(event,\""+data+"\")' "+(Player.inventory.items[data].onClick !== undefined ? "onclick='Player.inventory.items["+data+"].onClick("+data+")'" : "")+"></img>";
-				document.getElementById(equip).innerHTML = "<img src='"+Player.inventory[equip].image+"' draggable='true' ondragstart='Dom.inventory.drag(event,\""+equip+"\")' "+(Player.inventory[equip].onClick !== undefined ? "onclick='Player.inventory."+equip+".onClick(\""+equip+"\")'" : "")+"></img>";
-				Dom.inventory.addEquipment(Player.inventory[equip]);
-			}
-		}
+		Dom.hotbar.update();
+		Dom.inventory.update();
 	}
-	Dom.hotbar.update();
-	Dom.inventory.update();
 }
 /*
 Dom.inventory.removeEquipment = function(array){
@@ -3746,26 +3802,6 @@ Dom.adventure.update = function(){
 	document.getElementById("adventurePage").innerHTML += '<br><center><div id="adventurePageClose" class="closeClass" onclick="Dom.changeBook(\'\', true)">Close</div></center>';
 }
 
-document.getElementById("weatherOn").onclick = function(){
-	User.settings.weather = true;
-}
-document.getElementById("weatherOff").onclick = function(){
-	User.settings.weather = false;
-	Weather.ctx.clearRect(0, 0, 600, 600);
-}
-if(!User.settings.weather){
-	document.getElementById("weatherOff").checked = true;
-}
-document.getElementById("particlesOn").onclick = function(){
-	User.settings.particles = true;
-}
-document.getElementById("particlesOff").onclick = function(){
-	User.settings.particles = false;
-}
-if(!User.settings.particles){
-	document.getElementById("particlesOff").checked = true;
-}
-
 Dom.inventory.reEquip = function(slot){
 	if(!Dom.inventory.deEquip){
 		for(let i = Player.inventory.items.length-1; i >= 0; i--){
@@ -4169,6 +4205,29 @@ Dom.init = function(){
 	else if (unreadMail > 0) {
 		// singular
 		Dom.chat.insert("You have " + unreadMail + " new message!", 0, false); // tbd - maybe make it more obvious that player has to check their mailbox for this?
+	}
+	document.getElementById("weatherOn").onclick = function(){
+		User.settings.weather = true;
+	}
+	document.getElementById("weatherOff").onclick = function(){
+		User.settings.weather = false;
+		Weather.ctx.clearRect(0, 0, 600, 600);
+	}
+	if(!User.settings.weather){
+		document.getElementById("weatherOff").checked = true;
+	}
+	document.getElementById("particlesOn").onclick = function(){
+		User.settings.particles = true;
+	}
+	document.getElementById("particlesOff").onclick = function(){
+		User.settings.particles = false;
+	}
+	if(!User.settings.particles){
+		document.getElementById("particlesOff").checked = true;
+	}
+	if(User.settings.transparency){
+		document.getElementById("transparencyOn").checked = true;
+		Dom.settings.transparency();
 	}
 }
 

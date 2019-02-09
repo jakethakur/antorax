@@ -112,6 +112,11 @@
 			<span class="radio1"><input type="radio" id="weatherOn" name="weatherOnOff" checked="true">Yes</input></span>
 			<span class="radio2"><input type="radio" id="weatherOff" name="weatherOnOff">No</input></span>
 		</div>
+		<div id="settingTransparency" class="settings">
+			Page transparency:
+			<span class="radio1"><input type="radio" id="transparencyOn" name="transparencyOnOff" onclick="User.settings.transparency = true;Dom.settings.transparency()">On</input></span>
+			<span class="radio2"><input type="radio" id="transparencyOff" name="transparencyOnOff" checked="true" onclick="User.settings.transparency = false;Dom.settings.transparency()">Off</input></span>
+		</div>
 		<div id="settingCoords" class="settings">
 			Show co-ordinates:
 			<span class="radio1"><input type="radio" id="coordsOn" name="coordsOnOff" onclick="User.settings.coords = true">Yes</input></span>
@@ -137,11 +142,6 @@
 			<span class="radio1"><input type="radio" id="speedOn" name="speedOnOff" onclick="Game.highSpeed('add')">Whee!</input></span>
 			<span class="radio2"><input type="radio" name="speedOnOff" checked="true" onclick="Game.highSpeed('remove')">No</input></span>
 		</div>
-		<div id="settingTransparency" class="settings">
-			Page Transparency:
-			<span class="radio1"><input type="radio" id="transparencyOn" name="transparencyOnOff" onclick="Dom.settings.transparency()">On</input></span>
-			<span class="radio2"><input type="radio" name="transparencyOnOff" checked="true" onclick="Dom.settings.transparency()">Off</input></span>
-		</div>      
 		<span id="settingTutorialHolder">
 			<div id="settingTutorial" class="settings">
 				Disable Tutorial:
