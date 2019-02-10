@@ -10,7 +10,7 @@
 </head>
 <body oncontextmenu="return false;">
 	<div id="achievement" hidden></div>
-	<canvas id="secondary"></canvas>
+	<canvas id="secondary" ondrop="Dom.inventory.dispose(event)" ondragover="Dom.inventory.allowDrop(event)"></canvas>
     <canvas id="light"></canvas>
     <canvas id="dayNight"></canvas>
     <canvas id="weather"></canvas>

@@ -2206,12 +2206,14 @@ Dom.canvas.drop = function(ev){
 
 for(let i = 0; i < document.getElementsByClassName("DOM").length; i++){
 	document.getElementsByClassName("DOM")[i].onmousedown = function(event){
-		Dom.canvas.dragPageX = event.clientX-document.getElementsByClassName("DOM")[i].offsetLeft+18;
-		Dom.canvas.dragPageY = event.clientY-document.getElementsByClassName("DOM")[i].offsetTop+18;
-		Dom.canvas.stopMove = false;
-		Dom.canvas.moveDom(document.getElementsByClassName("DOM")[i]);
-		//document.getElementById("inventoryPage").style.left = event.clientX-18+"px";
-		//document.getElementById("inventoryPage").style.top = event.clientY-18+"px";
+		if(event.target === document.getElementsByClassName("DOM")[i]){
+			Dom.canvas.dragPageX = event.clientX-document.getElementsByClassName("DOM")[i].offsetLeft+18;
+			Dom.canvas.dragPageY = event.clientY-document.getElementsByClassName("DOM")[i].offsetTop+18;
+			Dom.canvas.stopMove = false;
+			Dom.canvas.moveDom(document.getElementsByClassName("DOM")[i]);
+			//document.getElementById("inventoryPage").style.left = event.clientX-18+"px";
+			//document.getElementById("inventoryPage").style.top = event.clientY-18+"px";
+		}
 	}
 }
 
