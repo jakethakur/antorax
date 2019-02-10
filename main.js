@@ -3531,6 +3531,9 @@ Game.loadArea = function (areaName, destination) {
 			if (document.getElementById("weatherOn").checked) {
 				Weather.reset();
 			}
+			
+			// close NPC pages
+            Dom.closeNPCPages();
 		}
 		
 		// if the area is too small so does not fit in the screen, it should be moved to the centre of the screen
@@ -4376,7 +4379,7 @@ Game.update = function (delta) {
 									if (Dom.inventory.check(2, "currency", Game.soulHealerCost)) {
 										Dom.inventory.removeById(2, "currency", Game.soulHealerCost);
 										Game.hero.statusEffects.splice(Game.hero.statusEffects.findIndex(statusEffect => statusEffect.title === "XP Fatigue"), 1); // remove xp fatigue effect
-										Dom.changeBook("", true); // close page
+										Dom.closePage("textPage");
 										Game.currentSoulHealer.say(Game.currentSoulHealer.chat.healedText, false, 0, false);
 										Game.currentSoulHealer = undefined; // reset variable that remembers which soul healer the player is speaking to
 										Game.soulHealerCost = undefined; // reset variable that remembers the cost for soul healing
@@ -4490,7 +4493,7 @@ Game.update = function (delta) {
 			// close the DOM if the player is too far away from the NPC or if the NPC is dead
 			if (npc.respawning || distance(Game.hero, npc) > Game.hero.stats.domRange) {
 				// NPC is dead or player is more than 4 (can be changed) tiles away from NPC
-				Dom.changeBook("", true); // close NPC DOM
+				Dom.closeNPCPages();
 			}
 		}
 	}); // finished iterating through npcs
@@ -4513,7 +4516,7 @@ Game.update = function (delta) {
 			// close the DOM if the player is too far away from the enemy or if the enemy is dead
 			if (enemy.respawning && distance(Game.hero, enemy) > Game.hero.stats.domRange) {
 				// enemy is dead or player is more than 4 tiles away from enemy
-				Dom.changeBook("", true); // close enemy DOM
+				Dom.closeNPCPages();
 			}
 		}
 	});
@@ -4557,7 +4560,7 @@ Game.update = function (delta) {
 			// close the DOM if the player is too far away from the mailbox or if the mailbox is dead
 			if (distance(Game.hero, mailbox) > Game.hero.stats.domRange) {
 				// player is more than 4 tiles away from mailbox
-				Dom.changeBook("", true); // close mailbox DOM
+				Dom.closeNPCPages();
 			}
 		}
 	});
@@ -4569,7 +4572,7 @@ Game.update = function (delta) {
 			// close the DOM if the player is too far away from the chest or if the chest is dead
 			if (distance(Game.hero, chest) > Game.hero.stats.domRange) {
 				// player is more than 4 tiles away from chest
-				Dom.changeBook("", true); // close chest DOM
+				Dom.closeNPCPages();
 				// loot not wiped (so the player can revisit if they closed by accident)
 			}
 		}

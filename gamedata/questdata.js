@@ -42,7 +42,7 @@ var Quests = {
 			
 			onQuestStart: function() {
 				Dom.adventure.unlockTab("quests");
-				Dom.changeBook("", true);
+				Dom.closePage('questStart');
 				Dom.adventure.addInstruction(2);
 			},
 		},
@@ -86,7 +86,7 @@ var Quests = {
 			
 			onQuestStart: function() {
 				Dom.adventure.unlockTab("inventory");
-				Dom.changeBook("", true);
+				Dom.closePage('questStart');
 				Dom.adventure.addInstruction(5);
 			},
 		},

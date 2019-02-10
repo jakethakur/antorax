@@ -252,7 +252,55 @@ Dom.checkProgress = function(){
 	Dom.quests.active();
 }
 
-Dom.previous = "";
+Dom.closeNPCPages = function(){
+	this.elements.questStart.hidden = true;
+	this.elements.questFinish.hidden = true;
+	this.elements.merchantPage.hidden = true;
+	this.elements.identifierPage.hidden = true;
+	this.elements.identifiedPage.hidden = true;
+	this.elements.lootPage.hidden = true;
+	this.elements.buyerPage.hidden = true;
+	this.elements.mailPage.hidden = true;
+	this.elements.driverPage.hidden = true;
+	this.elements.bankDepositPage.hidden = true;
+	this.elements.bankWithdrawPage.hidden = true;
+	this.elements.choosePage.hidden = true;
+	this.elements.textPage.hidden = true;
+}
+
+Dom.closePage = function(page){
+	if(page === "chatPage" || page === "inventoryPage" || page === "questsPage" || page === "adventurePage" || page === "reputationPage" || page === "settingsPage" || page === "settingsTwoPage"){
+		let tab = page
+		if(page === "settingsTwoPage"){
+			tab = "settingsPage";
+		}
+		document.getElementById("change"+tab.substring(0,1).toUpperCase()+tab.substring(1,tab.length-4)).style.opacity = 0.6;
+	}
+	document.getElementById(page).hidden = true;
+}
+
+Dom.changeBook = function(page, openClose){
+	if(page === "chatPage" || page === "inventoryPage" || page === "questsPage" || page === "adventurePage" || page === "reputationPage" || page === "settingsPage" || page === "settingsTwoPage"){
+		let tab = page
+		if(page === "settingsTwoPage"){
+			tab = "settingsPage";
+		}
+		document.getElementById("change"+tab.substring(0,1).toUpperCase()+tab.substring(1,tab.length-4)).style.opacity = 1;
+	}
+	if(!openClose || document.getElementById(page).hidden === true){
+		document.getElementById(page).hidden = false;
+		for(let x = 0; x < document.getElementsByClassName("DOM").length; x++){
+			if(parseInt(document.getElementsByClassName("DOM")[x].style.zIndex) >= parseInt(document.getElementById(page).style.zIndex)){
+				document.getElementsByClassName("DOM")[x].style.zIndex--;
+			}
+		}
+		document.getElementById(page).style.zIndex = 6+document.getElementsByClassName("DOM").length-1;
+	}else{
+		Dom.closePage(page);
+	}
+}
+
+/*Dom.previous = "";
 Dom.changeBook = function(page, override, shouldNotBeOverriden, levelUpOverride){ // levelUpOverride is the amount of time that the page is locked during a cutscene
 	// if the page can be changed
 	if(this.currentlyDisplayed === "" || override){
@@ -368,7 +416,7 @@ Dom.changeBook = function(page, override, shouldNotBeOverriden, levelUpOverride)
 		},200);
 		return false;
 	}
-}
+}*/
 
 Dom.hotbar.update = function(){
 	for(let i = 0; i < 6; i++){
@@ -412,7 +460,7 @@ Dom.chat.insert = function(text, delay, important, noRepeat){
 			if(this.oldString !== ""){
 				chatPage.innerHTML += '-------------------- <b>New Messages</b> --------------------';
 			}
-			chatPage.innerHTML += "</p>" + this.oldString + '<br><br><center><div id="chatPageClose" class="closeClass" onclick="Dom.changeBook(\'\', true)">Close</div></center>';
+			chatPage.innerHTML += "</p>" + this.oldString + '<br><br><center><div id="chatPageClose" class="closeClass" onclick="Dom.closePage(\'chatPage\')">Close</div></center>';
 			if(!chatPage.hidden){
 				// update the chat
 				Dom.changeBook("chatPage");
@@ -588,7 +636,7 @@ Dom.reputation.start = function(){
 			document.getElementById("reputationPage").innerHTML += FromCamelCase(Object.keys(Player.reputation)[i]) + ':<div class="widthPadding"></div> <div class="reputationBox"> <div class="reputationBar"></div> </div><br><br><br>';
 		}
 	}
-	document.getElementById("reputationPage").innerHTML += '<center><div id="reputationPageClose" class="closeClass" onclick="Dom.changeBook(\'\', true)">Close</div></center>';
+	document.getElementById("reputationPage").innerHTML += '<center><div id="reputationPageClose" class="closeClass" onclick="Dom.closePage(\'reputationPage\')">Close</div></center>';
 	Player.reputationReady = true;
 	Dom.reputation.ready = true;
 	Dom.reputation.update();
@@ -1227,7 +1275,7 @@ Dom.quest.accept = function(){
 	}
 	// if the onQuestStart changed the page then don't change the page
 	if(Dom.currentlyDisplayed === quest){
-		Dom.changeBook("", true);
+		Dom.closePage('questStart');
 	}
 }
 
@@ -1270,7 +1318,7 @@ Dom.quest.acceptRewards = function(){
 	}
 	// if the onQuestFinish changed the page then don't change the page
 	if(Dom.currentlyDisplayed === quest){
-		Dom.changeBook("", true);
+		Dom.closePage('questFinish');
 	}
 	Game.getXP(quest.rewards.xp, false); // not affected by XP Bonus
 }
@@ -1422,7 +1470,7 @@ Dom.merchant.page = function(npc, sold, chat){
 			}
 		}
 		document.getElementById("close").onclick = function(){
-			Dom.changeBook("", true);
+			Dom.closePage('merchantPage');
 			npc.say(npc.chat.shopLeave, true, 0, false);
 		}
 	}
@@ -1555,7 +1603,7 @@ Dom.identifier.identify = function(npc){
 			if(Dom.identifier.check()){
 				Dom.identifier.page(npc/*, true*/);
 			}else{
-				Dom.changeBook("", true);
+				Dom.closePage('idenfierPage');
 			}
 		}
 		Dom.identifier.unId.splice(Dom.identifier.displayed, 1);
@@ -2205,11 +2253,18 @@ Dom.canvas.drop = function(ev){
 }
 
 for(let i = 0; i < document.getElementsByClassName("DOM").length; i++){
+	document.getElementsByClassName("DOM")[i].style.zIndex = 6+i;
 	document.getElementsByClassName("DOM")[i].onmousedown = function(event){
-		if(event.target === document.getElementsByClassName("DOM")[i]){
-			Dom.canvas.dragPageX = event.clientX-document.getElementsByClassName("DOM")[i].offsetLeft+18;
-			Dom.canvas.dragPageY = event.clientY-document.getElementsByClassName("DOM")[i].offsetTop+18;
+		if(!event.target.draggable){ // === document.getElementsByClassName("DOM")[i]){
+			Dom.canvas.dragPageX = event.clientX-document.getElementsByClassName("DOM")[i].offsetLeft;
+			Dom.canvas.dragPageY = event.clientY-document.getElementsByClassName("DOM")[i].offsetTop;
 			Dom.canvas.stopMove = false;
+			for(let x = 0; x < document.getElementsByClassName("DOM").length; x++){
+				if(parseInt(document.getElementsByClassName("DOM")[x].style.zIndex) >= parseInt(document.getElementsByClassName("DOM")[i].style.zIndex)){
+					document.getElementsByClassName("DOM")[x].style.zIndex--;
+				}
+			}
+			document.getElementsByClassName("DOM")[i].style.zIndex = 6+document.getElementsByClassName("DOM").length-1;
 			Dom.canvas.moveDom(document.getElementsByClassName("DOM")[i]);
 			//document.getElementById("inventoryPage").style.left = event.clientX-18+"px";
 			//document.getElementById("inventoryPage").style.top = event.clientY-18+"px";
@@ -3170,7 +3225,7 @@ Dom.loot.page = function(name, items){
 					document.getElementsByClassName("lootOptions")[i].onclick();
 				}
 			}
-			Dom.changeBook("", true);
+			Dom.closePage('lootPage');
 			Game.lootClosed(Dom.loot.looted);
 		}
 	},items);
@@ -3178,7 +3233,7 @@ Dom.loot.page = function(name, items){
 }
 
 document.getElementById("levelUpPageClose").onclick = function(){
-	document.getElementById("levelUpPage").hidden = true; // because it was absolutely positioned over the previous page
+	Dom.closePage('levelUpPage'); // because it was absolutely positioned over the previous page
 	//if(Dom.currentlyDisplayed === Player.tab){ // because it was never changed if something was already open
 		//Dom.currentlyDisplayed = "";
 		//Dom.currentNPC = {};
@@ -3204,7 +3259,7 @@ Dom.text.page = function(name, text, close, buttons, functions, give){
 		}
 	}
 	if(close){
-		document.getElementById("textPage").innerHTML += "<br><br><br><center><div class='closeClass' onclick='Dom.changeBook(\"\", true)'>Close</div></center>";
+		document.getElementById("textPage").innerHTML += "<br><br><br><center><div class='closeClass' onclick='Dom.closePage(\'textPage\'), true)'>Close</div></center>";
 	}
 	// onclicks have to be below this point because the line above resets them
 	for(let i = 0; i < buttons.length; i++){
@@ -3386,7 +3441,7 @@ Dom.choose.page = function(npc, buttons, functions, parameters, force){
 					Dom.choose.HTML += "<p id='choosePageButtons"+i+"'><img src='assets/icons/choose.png' class='chooseIcon' style='clip: rect("+25*imagenum+"px, 25px, "+25*(imagenum+1)+"px, 0px); margin-top: -"+(25*imagenum+3)+"px'></img>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;"+buttons[i]+"</p>";
 				}
 			}
-			document.getElementById("choosePage").innerHTML += Dom.choose.sideHTML + Dom.choose.dailyHTML + Dom.choose.HTML + '<br><br><center><div id="choosePageClose" class="closeClass" onclick="Dom.changeBook(\'\', true)">Close</div></center>';
+			document.getElementById("choosePage").innerHTML += Dom.choose.sideHTML + Dom.choose.dailyHTML + Dom.choose.HTML + '<br><br><center><div id="choosePageClose" class="closeClass" onclick="Dom.closePage(\'choosePage\')">Close</div></center>';
 			for(let i = 0; i < buttons.length; i++){
 				document.getElementById("choosePageButtons"+i).onclick = function(){
 					functions[i](...parameters[i]);
@@ -3473,11 +3528,12 @@ Dom.settings.current = "settingsPage";
 Dom.settings.page = function(page){
 	if(page !== undefined){
 		// change to a specific settings page
-		Dom.settings.current = page
-		Dom.changeBook(page, undefined, true);
+		Dom.closePage(Dom.settings.current);
+		Dom.settings.current = page;
+		Dom.changeBook(page, true);
 	}else{
 		// change to the last settings page that was open
-		Dom.changeBook(Dom.settings.current, undefined, true);
+		Dom.changeBook(Dom.settings.current, true);
 	}
 }
 
@@ -3595,7 +3651,7 @@ Dom.adventure.instructionIndex = function(){
 	}else if(Player.unlockedInstructions.length > 1 && Dom.adventure.openedInstructions){
 		Dom.choose.page("Instructions", Player.unlockedInstructions, [Dom.adventure.showInstructions,Dom.adventure.showInstructions,Dom.adventure.showInstructions,Dom.adventure.showInstructions,Dom.adventure.showInstructions,], [[0],[1],[2],[3],[4],]);
 	}else{
-		Dom.changeBook("", true);
+		Dom.closePage('textPage');
 	}
 }
 
@@ -3650,7 +3706,6 @@ Dom.driver.page = function(npc, destinations){
 			Dom.alert.target = function(destination){
 				Dom.inventory.removeById(2, "currency", destinations[Dom.driver.previous].cost);
 				Game.loadArea(destination.destinationName, destination.destinationPosition);
-				Dom.changeBook("", true);
 			}
 			Dom.alert.ev = destinations[Dom.driver.previous];
 			Dom.alert.page("Are you sure you want to go to <strong>"+destinations[Dom.driver.previous].title+"</strong> for <strong>"+destinations[Dom.driver.previous].cost+"</strong> gold?", 1);
@@ -3683,7 +3738,7 @@ Dom.mail.page = function(){
 	if(Player.mail.mail.length === 0){
 		document.getElementById("mailPage").innerHTML += "<br><br>You have no mail, come back soon.<br><br><br><br>";
 	}
-	document.getElementById("mailPage").innerHTML += "<br><br><center><div class='closeClass' id='closeMail' onclick='Dom.changeBook(\"\", true)'>Close</div></center>";
+	document.getElementById("mailPage").innerHTML += "<br><br><center><div class='closeClass' id='closeMail' onclick='Dom.closePage(\'mailPage\')'>Close</div></center>";
 	for(let i = Player.mail.mail.length-1; i >= 0; i--){
 		let ii = Player.mail.mail.length-1-i;
 		if(Player.mail.mail[i].image.substring(0,2) === "./"){
@@ -3801,7 +3856,7 @@ Dom.adventure.update = function(){
 		Dom.adventure.openedInstructions = true; // instructions were opened through the book
 		Dom.choose.page("Instructions", Player.unlockedInstructions, [Dom.adventure.showInstructions,Dom.adventure.showInstructions,Dom.adventure.showInstructions,Dom.adventure.showInstructions,Dom.adventure.showInstructions,], [[0],[1],[2],[3],[4],]);
 	}
-	document.getElementById("adventurePage").innerHTML += '<br><center><div id="adventurePageClose" class="closeClass" onclick="Dom.changeBook(\'\', true)">Close</div></center>';
+	document.getElementById("adventurePage").innerHTML += '<br><center><div id="adventurePageClose" class="closeClass" onclick="Dom.closePage(\'adventurePage\')">Close</div></center>';
 }
 
 Dom.inventory.reEquip = function(slot){
@@ -3984,10 +4039,11 @@ if(localStorage.getItem(Player.class) !== null){
 Dom.init = function(){
 	Dom.canvas.width = window.innerWidth-2;
 	Dom.canvas.height = window.innerHeight-3;
+	if(navigator.userAgent.indexOf("Firefox") !== -1){
+		Dom.canvas.height = window.innerHeight-1;
+	}
 	document.getElementById("game").width = Dom.canvas.width;
 	document.getElementById("game").height = Dom.canvas.height;
-	document.getElementById("weather").width = Dom.canvas.width;
-	document.getElementById("weather").height = Dom.canvas.height;
 	document.getElementById("dayNight").width = Dom.canvas.width;
 	document.getElementById("dayNight").height = Dom.canvas.height;
 	document.getElementById("light").width = Dom.canvas.width;
@@ -4213,7 +4269,7 @@ Dom.init = function(){
 	}
 	document.getElementById("weatherOff").onclick = function(){
 		User.settings.weather = false;
-		Weather.ctx.clearRect(0, 0, 600, 600);
+		//Weather.ctx.clearRect(0, 0, 600, 600);
 	}
 	if(!User.settings.weather){
 		document.getElementById("weatherOff").checked = true;
