@@ -1,7 +1,7 @@
 let Weather = {
 	snow: {
-		gravity: 40, // down movement per second
-		windMultiplier: 0.5, // multiplied with wind intensity
+		gravity: 50, // down movement per second
+		windMultiplier: 0.4, // multiplied with wind intensity
 	},
 	rain: {
 		gravity: 200,
@@ -11,10 +11,6 @@ let Weather = {
 
 // called by Game.init
 Weather.init = function () {
-	// canvas
-	this.canvas = document.getElementById("weather");
-    this.ctx = this.canvas.getContext('2d');
-	
 	// populate particleArray
 	this.particleArray = []; // array of precipitation particles
 	this.update(); // includes chooshing weather and populating particleArray
@@ -74,12 +70,20 @@ Weather.updateSeed = function () {
 }
 
 Weather.updateIntensity = function () {
-	// measure for number of weather particles
-	this.intensity = (this.dateValue*6) % 500 + 100; // value from 100 to 600
+	// measure for number of weather particles per 36000 pixels squared (600*600 canvas)
+	// intensity loops forward and back
+	this.intensity = (this.dateValue*3) % 260 + 20; // between 20 and 280
+	if (this.intensity > 150) { // intensity is looping backwards
+		this.intensity = 300 - this.intensity; // now between 20 and 150
+	}
+	// final intensity value is from 20 to 150
+	
+	// scale it up based on canvas size
+	this.intensity *= (Game.canvasArea / 36000);
 }
 
 Weather.updateWind = function () {
-	this.windDirection = ToRadians((this.dateValue * 10) % 360);
+	this.windDirection = ToRadians((this.dateValue * 10) % 360); // 0 = to the right
 	this.windIntensity = this.dateValue % 100; // value from 0 to 100
 	// sin/cos of windDirection * windIntensity * weather windMultiplier = distance moved due to wind
 	// currently wind only affects x movement
@@ -92,24 +96,8 @@ Weather.heroMove = function (screenMovedX, screenMovedY) {
 		let particle = this.particleArray[i];
 		particle.x -= screenMovedX;
 		particle.y -= screenMovedY;
-		// check for particle off screen (x)
-		if (particle.x > Dom.canvas.width + 10) {
-			particle.x = -10;
-			particle.y = Random(0, Dom.canvas.height); // simulates it being a new particle
-		}
-		else if (particle.x < -10) {
-			particle.x = Dom.canvas.width + 10;
-			particle.y = Random(0, Dom.canvas.height);
-		}
-		// check for particle off screen (y)
-		if (particle.y > Dom.canvas.height + 10) {
-			particle.y = -10;
-			particle.x = Random(0, Dom.canvas.width);
-		}
-		else if (particle.y < -10) {
-			particle.y = Dom.canvas.height + 10;
-			particle.x = Random(0, Dom.canvas.width);
-		}
+		// check for particle off screen
+		this.respawnParticle(particle);
 	}
 }
 
@@ -117,14 +105,14 @@ Weather.heroMove = function (screenMovedX, screenMovedY) {
 // delta is fraction of second (where 1 is 1 second)
 // called by Weather.init and Game when there is at least 1 particle
 Weather.update = function (delta) {
-	Weather.updateVariables();
+	this.updateVariables();
 	
 	if (this.weatherType !== "clear") { // no more weather particles should be made if it is clear
-		Weather.updateParticleNumber();
+		this.updateParticleNumber();
 	}
 		
 	if (delta !== undefined) { // this function is also called by Weather.init with no delta
-		Weather.moveParticles(delta);
+		this.moveParticles(delta);
 	}
 }
 
@@ -176,35 +164,49 @@ Weather.moveParticles = function (delta) {
 		particle.x += Math.cos(this.windDirection) * (this.windIntensity * this[particle.type].windMultiplier) * particle.speedMultiplier * delta;
 		
 		// check for off screen particle
-		if (particle.y > Dom.canvas.height + 10 || particle.x < -10 || particle.x > Dom.canvas.width + 10) {
-			// particle off screen
-			if (this.weatherType !== "clear") {
-				// re-add the particle
-				particle.y = -10;
-				particle.x = Random(0, Dom.canvas.width);
-			}
-			else {
-				// remove the particle completely
-				this.particleArray.splice(i, 1);
-				i--;
-			}
-		}
+		this.respawnParticle(particle)
 	}
 }
 
-// render weather particles
+// reset the position of an off screen particle
+Weather.respawnParticle = function (particle) {
+	// set off screen variables
+	let top = -10 + Game.viewportOffsetY;
+	let bottom = Dom.canvas.height + 10 - Game.viewportOffsetY;
+	let left = -10 + Game.viewportOffsetX;
+	let right = Dom.canvas.width + 10 - Game.viewportOffsetX;
+	// check for particle off screen (x)
+	if (particle.x > right) {
+		particle.x = left;
+		particle.y = Random(top, bottom); // simulates it being a new particle
+	}
+	else if (particle.x < left) {
+		particle.x = right;
+		particle.y = Random(top, bottom);
+	}
+	// check for particle off screen (y)
+	if (particle.y > bottom) {
+		particle.x = Random(left, right);
+		particle.y = top;
+	}
+	else if (particle.y < top) {
+		particle.x = Random(left, right);
+		particle.y = bottom;
+	}
+}
+
+// render weather particles onto Game canvas
 Weather.render = function () {
-	this.ctx.clearRect(0, 0, Dom.canvas.width, Dom.canvas.height);
-	this.ctx.fillStyle="#FFFFFF";
+	Game.ctx.fillStyle="#FFFFFF";
 	for (let i = 0; i < this.particleArray.length; i++) { // iterate through particle array
 		let particle = this.particleArray[i];
 		if (particle.type === "snow") {
-			this.ctx.fillStyle="#FFFFFF";
-			this.ctx.fillRect(particle.x, particle.y , 2, 2);
+			Game.ctx.fillStyle = "#FFFFFF";
+			Game.ctx.fillRect(particle.x, particle.y , 2, 2);
 		}
 		else if (particle.type === "rain") {
-			this.ctx.fillStyle="#b0d4e5";
-			this.ctx.fillRect(particle.x, particle.y , 1, 12);
+			Game.ctx.fillStyle = "#b0d4e5";
+			Game.ctx.fillRect(particle.x, particle.y , 1, 12);
 		}
 	}
 }

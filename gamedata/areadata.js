@@ -206,7 +206,7 @@ var Areas = {
 		areaTeleports: [
 			{
 				// teleport to logging camp (path - north)
-				x: 315,
+				x: 210,
 				y: -49,
 				width: 210,
 				height: 2,
@@ -220,7 +220,7 @@ var Areas = {
 			{
 				// instructions pop up when bridge is moved to
 				x: 1100,
-				y: 600,
+				y: 300,
 				width: 1,
 				height: 600,
 				onPlayerTouch: function () {
@@ -571,7 +571,7 @@ var Areas = {
 		areaTeleports: [
 			{
 				// teleport to fishers' valley (path - south)
-				x: 1020,
+				x: 900,
 				y: 1249,
 				width: 240,
 				height: 2,
@@ -581,7 +581,7 @@ var Areas = {
 			},
 			{
 				// teleport to tavern (tavern door - north)
-				x: 900,
+				x: 870,
 				y: 87,
 				width: 60,
 				height: 2,
@@ -591,8 +591,8 @@ var Areas = {
 			},
 			{
 				// teleport to the nilbog (bridge - east)
-				x: 1550,
-				y: 1200,
+				x: 1490,
+				y: 600,
 				width: 120,
 				height: 1200,
 				teleportTo: "nilbog",
@@ -1247,8 +1247,8 @@ var Areas = {
 		
 		areaTeleports: [
 			{
-				x: 361,
-				y: 800,
+				x: 331,
+				y: 770,
 				width: 60,
 				height: 60,
 				teleportTo: "eaglecrestLoggingCamp",
@@ -1434,7 +1434,7 @@ var Areas = {
 			spawnLocations: [
 				{x: 576, y: 30,},
 				{x: 1500, y: 150,},
-				{x: 1470, y: 640,},
+				{x: 1470, y: 670,},
 				{x: 1580, y: 1310,},
 				{x: 845, y: 1373,},
 			],
@@ -1448,8 +1448,8 @@ var Areas = {
 		areaTeleports: [
 			{
 				// teleport to logging camp (bridge - west)
-				x: 360,
-				y: 1560,
+				x: 120,
+				y: 960,
 				width: 480,
 				height: 1200,
 				teleportTo: "eaglecrestLoggingCamp",
@@ -1458,7 +1458,7 @@ var Areas = {
 			},
 			{
 				// teleport to nilbog tower (tower - north east)
-				x: 1680,
+				x: 1650,
 				y: 445,
 				width: 60,
 				height: 2,
@@ -1729,7 +1729,7 @@ var Areas = {
 		areaTeleports: [
 			{
 				// teleport to nilbog (bottom of tower)
-				x: 240,
+				x: 120,
 				y: 649,
 				width: 240,
 				height: 2,
@@ -1740,7 +1740,7 @@ var Areas = {
 			{
 				// teleport to floor 2
 				x: 540,
-				y: 60,
+				y: 30,
 				width: 2,
 				height: 60,
 				teleportTo: "nilbogTower2",
@@ -1793,8 +1793,8 @@ var Areas = {
 		tripwires: [
 			{
 				// going to top of stairs
-				x: 338,
-				y: 220,
+				x: 337,
+				y: 200,
 				width: 2,
 				height: 40,
 				collisionType: "feet",
@@ -1882,8 +1882,8 @@ var Areas = {
 		areaTeleports: [
 			{
 				// teleport to floor 1
-				x: 177,
-				y: 600,
+				x: 172,
+				y: 595,
 				width: 10,
 				height: 10,
 				teleportTo: "nilbogTower1",
@@ -1893,7 +1893,7 @@ var Areas = {
 			{
 				// teleport to floor 3
 				x: 540,
-				y: 60,
+				y: 30,
 				width: 2,
 				height: 60,
 				teleportTo: "nilbogTower3",
@@ -1955,8 +1955,8 @@ var Areas = {
 		tripwires: [
 			{
 				// going to bottom
-				x: 60,
-				y: 600,
+				x: 59,
+				y: 580,
 				width: 2,
 				height: 40,
 				collisionType: "feet",
@@ -1974,8 +1974,8 @@ var Areas = {
 			},
 			{
 				// going to top of stairs
-				x: 338,
-				y: 220,
+				x: 337,
+				y: 200,
 				width: 2,
 				height: 40,
 				collisionType: "feet",
@@ -2050,8 +2050,8 @@ var Areas = {
 		areaTeleports: [
 			{
 				// teleport to floor 2
-				x: 177,
-				y: 600,
+				x: 172,
+				y: 595,
 				width: 10,
 				height: 10,
 				teleportTo: "nilbogTower2",
@@ -2061,7 +2061,7 @@ var Areas = {
 			{
 				// teleport to floor 4
 				x: 540,
-				y: 60,
+				y: 30,
 				width: 2,
 				height: 60,
 				teleportTo: "nilbogTower4",
@@ -2123,8 +2123,8 @@ var Areas = {
 		tripwires: [
 			{
 				// going to bottom
-				x: 60,
-				y: 600,
+				x: 59,
+				y: 580,
 				width: 2,
 				height: 40,
 				collisionType: "feet",
@@ -2142,8 +2142,8 @@ var Areas = {
 			},
 			{
 				// going to top of stairs
-				x: 338,
-				y: 220,
+				x: 337,
+				y: 200,
 				width: 2,
 				height: 40,
 				collisionType: "feet",
@@ -2235,8 +2235,8 @@ var Areas = {
 		areaTeleports: [
 			{
 				// teleport to floor 3
-				x: 177,
-				y: 600,
+				x: 172,
+				y: 595,
 				width: 10,
 				height: 10,
 				teleportTo: "nilbogTower3",
@@ -2246,7 +2246,7 @@ var Areas = {
 			{
 				// teleport to floor 5
 				x: 540,
-				y: 60,
+				y: 30,
 				width: 2,
 				height: 60,
 				teleportTo: "nilbogTower5",
@@ -2308,8 +2308,8 @@ var Areas = {
 		tripwires: [
 			{
 				// going to bottom
-				x: 60,
-				y: 600,
+				x: 59,
+				y: 580,
 				width: 2,
 				height: 40,
 				collisionType: "feet",
@@ -2327,8 +2327,8 @@ var Areas = {
 			},
 			{
 				// going to top of stairs
-				x: 338,
-				y: 220,
+				x: 337,
+				y: 200,
 				width: 2,
 				height: 40,
 				collisionType: "feet",
@@ -2415,8 +2415,8 @@ var Areas = {
 		areaTeleports: [
 			{
 				// teleport to floor 4
-				x: 177,
-				y: 600,
+				x: 172,
+				y: 595,
 				width: 10,
 				height: 10,
 				teleportTo: "nilbogTower4",
@@ -2441,8 +2441,8 @@ var Areas = {
 		tripwires: [
 			{
 				// going to bottom
-				x: 60,
-				y: 600,
+				x: 59,
+				y: 580,
 				width: 2,
 				height: 40,
 				collisionType: "feet",
@@ -2532,7 +2532,7 @@ var Areas = {
 		areaTeleports: [
 			{
 				// teleport to bank
-				x: 1260,
+				x: 1200,
 				y: 210,
 				width: 120,
 				height: 2,
@@ -2728,7 +2728,7 @@ var Areas = {
 		areaTeleports: [
 			{
 				// teleport to eaglecrest plaza
-				x: 540,
+				x: 420,
 				y: 949,
 				width: 240,
 				height: 2,

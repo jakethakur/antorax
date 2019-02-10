@@ -49,9 +49,6 @@ Game.tick = function (elapsed) {
     // clear previous frame
     this.ctx.clearRect(0, 0, Dom.canvas.width, Dom.canvas.height);
     this.ctxLight.clearRect(0, 0, Dom.canvas.width, Dom.canvas.height);
-    // fill canvas background colour as black
-    this.ctx.fillStyle = "black";
-    this.ctx.fillRect(0, 0, Dom.canvas.width, Dom.canvas.height);
 	
     // compute delta time in seconds -- also cap it
     var delta = (elapsed - this._previousElapsed) / 1000.0;
@@ -3508,10 +3505,10 @@ Game.loadArea = function (areaName, destination) {
 		}
 		
 		// display area name (if it should be displayed)
-		// init sets displayAreaName.duration to 200 (so even if it shouldn't be displayed normally, it is on start of game)
+		// init sets displayAreaName.duration to 2s (so even if it shouldn't be displayed normally, it is on start of game)
 		this.displayAreaName = Areas[areaName].data;
 		if (Areas[areaName].data.displayOnEnter) {
-			this.displayAreaName.duration = 200;
+			this.displayAreaName.duration = 2;
 		}
 		else {
 			this.displayAreaName.duration = 0;
@@ -3538,6 +3535,7 @@ Game.loadArea = function (areaName, destination) {
 		
 		// if the area is too small so does not fit in the screen, it should be moved to the centre of the screen
 		// calculate the variables of offset so the drawn sprites and tilemap can be adjusted by this
+		// note this is the width of black on each side
 		this.viewportOffsetX = 0;
 		this.viewportOffsetY = 0;
 		if (map.tsize * map.cols < this.camera.width) {
@@ -3550,6 +3548,10 @@ Game.loadArea = function (areaName, destination) {
 			// set offset so the canvas is drawn in the centre of screen
 			this.viewportOffsetY = (this.camera.height - (map.tsize * map.rows)) / 2;
 		}
+		
+		// set area of canvas using this viewportOffset
+		// currently used for weather particles
+		this.canvasArea = (Dom.canvas.width - Game.viewportOffsetX*2) * (Dom.canvas.height - Game.viewportOffsetY*2);
 		
 		// reposition player
 		if (destination !== undefined) {
@@ -3753,8 +3755,8 @@ Game.init = function () {
 	// init weather
 	Weather.init();
 	
-	// set displayAreaName.duration to 200 (so even if it shouldn't be displayed normally, it is on start of game)
-	this.displayAreaName.duration = 200;
+	// set displayAreaName.duration to 2s (so even if it shouldn't be displayed normally, it is on start of game)
+	this.displayAreaName.duration = 2;
 	
 	// re-init hero's saved status effects
 	this.initStatusEffects();
@@ -4086,21 +4088,24 @@ Game.regenHealth = function () {
 // restores health to the target, not allowing them to go above their maximum health
 // returns true if the target was healed for the full amount
 Game.restoreHealth = function (target, health) {
-	if (target.health + health > target.stats.maxHealth) {
-		// too much health - cap out at maximum
-		target.health = target.stats.maxHealth;
-		if (target.constructor.name === "Hero") {
-			// update health bar display
-			Game.secondary.render();
-			return false;
+	if (target.health !== target.stats.maxHealth) {
+		// health can be restored
+		if (target.health + health > target.stats.maxHealth) {
+			// too much health - cap out at maximum
+			target.health = target.stats.maxHealth;
+			if (target.constructor.name === "Hero") {
+				// update health bar display
+				Game.secondary.render();
+				return false;
+			}
 		}
-	}
-	else {
-		target.health += health;
-		if (target.constructor.name === "Hero") {
-			// update health bar display
-			Game.secondary.render();
-			return true;
+		else {
+			target.health += health;
+			if (target.constructor.name === "Hero") {
+				// update health bar display
+				Game.secondary.render();
+				return true;
+			}
 		}
 	}
 }
@@ -5117,6 +5122,11 @@ Game.coordinates = function (character) {
 	// reset text formatting
 	this.resetFormatting();
 	
+	// set text to white if there is a black background
+	if (this.viewportOffsetX > 0) {
+		this.ctx.fillStyle = "white";
+	}
+	
 	this.ctx.fillText("x: " + Math.round(character.x), 10, 50);
 	this.ctx.fillText("y: " + Math.round(character.y), 10, 60);
 }
@@ -5127,6 +5137,11 @@ Game.coordinates = function (character) {
 Game.fps = function (delta) {
 	// reset text formatting
 	this.resetFormatting();
+	
+	// set text to white if there is a black background
+	if (this.viewportOffsetX > 0) {
+		this.ctx.fillStyle = "white";
+	}
 	
 	// add current fps value to fps array
 	this.fpsArray.push(Math.round(1 / delta));
@@ -5680,19 +5695,21 @@ Game.render = function (delta) {
 		// display area name (if the player has just gone to a new area)
 		if (this.displayAreaName.duration > 0) {
 			// formatting
-			this.ctx.fillStyle = "rgba(0, 0, 0, " + this.displayAreaName.duration / 100 + ")";
+			this.ctx.fillStyle = "rgba(0, 0, 0, " + this.displayAreaName.duration + ")";
 			this.ctx.textAlign = "center";
 			this.ctx.font = "48px MedievalSharp";
 			
-			this.ctx.fillText(this.displayAreaName.name, Dom.canvas.width / 2, 100); // area name
+			let drawY = 100 + this.viewportOffsetY; // y position for top of area information
+			
+			this.ctx.fillText(this.displayAreaName.name, Dom.canvas.width / 2, drawY); // area name
 			
 			this.ctx.font = "28px MedievalSharp";
-			this.ctx.fillText(this.displayAreaName.level, Dom.canvas.width / 2, 150); // area level
+			this.ctx.fillText(this.displayAreaName.level, Dom.canvas.width / 2, drawY + 50); // area level
 			if (this.displayAreaName.territory !== "") { // check that territory should be displayed
-				this.ctx.fillText(this.displayAreaName.territory + " territory", Dom.canvas.width / 2, 180); // area territory (Hostile, Neutral, Allied)
+				this.ctx.fillText(this.displayAreaName.territory + " territory", Dom.canvas.width / 2, drawY + 80); // area territory (Hostile, Neutral, Allied)
 			}
 			
-			this.displayAreaName.duration--;
+			this.displayAreaName.duration -= delta;
 		}
 	}
 	
@@ -5701,6 +5718,17 @@ Game.render = function (delta) {
 		if (Weather.particleArray.length > 0) {
 			Weather.render();
 		}
+	}
+	
+    // fill canvas 'background colour' as black
+    this.ctx.fillStyle = "black";
+	if (this.viewportOffsetX > 0) {
+    	this.ctx.fillRect(0, 0, this.viewportOffsetX / 2, Dom.canvas.height);
+    	this.ctx.fillRect(this.viewportOffsetX + map.cols * map.tsize, 0, this.viewportOffsetX, Dom.canvas.height);
+	}
+	if (this.viewportOffsetY > 0) {
+    	this.ctx.fillRect(0, 0, Dom.canvas.width, this.viewportOffsetY);
+    	this.ctx.fillRect(0, this.viewportOffsetY+ map.rows * map.tsize, Dom.canvas.width, this.viewportOffsetY);
 	}
 };
 
