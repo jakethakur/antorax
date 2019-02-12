@@ -5691,7 +5691,7 @@ Game.render = function (delta) {
 		
 		// hero channelling bar above xp bar
 		if (Game.hero.channellingInfo !== false) {
-			Game.drawChannellingBar(this.ctx, this.hero, Dom.canvas.width/2-185, Dom.canvas.height-124, 335, 12);
+			Game.drawChannellingBar(this.ctx, this.hero, Dom.canvas.width/2-185, Dom.canvas.height-104, 335, 12);
 		}
 		
 		
@@ -5796,7 +5796,7 @@ Game.secondary.render = function () {
 		const totalWidth = 335; // total width of xp bar
 		const totalHeight = 8; // total height of xp bar
 		const totalLeft = Dom.canvas.width/2-185; // total left of xp bar
-		const totalTop = Dom.canvas.height-105; // total top of xp bar
+		const totalTop = Dom.canvas.height-85; // total top of xp bar
 		Player.xpFraction = Player.xp / LevelXP[Player.level]; // fraction of XP for current level
 		
 		// rainbow gradient
@@ -5830,9 +5830,9 @@ Game.secondary.render = function () {
 		this.ctx.font = "bold 30px MedievalSharp";
         this.ctx.textAlign = "center";
         this.ctx.fillStyle = "lightGrey";
-        this.ctx.fillText(Player.level, Dom.canvas.width/2-18, Dom.canvas.height-94);
+        this.ctx.fillText(Player.level, Dom.canvas.width/2-18, Dom.canvas.height-74);
         this.ctx.fillStyle = "white";
-        this.ctx.fillText(Player.level, Dom.canvas.width/2-20, Dom.canvas.height-96);
+        this.ctx.fillText(Player.level, Dom.canvas.width/2-20, Dom.canvas.height-76);
 		
 		// status effect icons next to health bar
 		for(let i = 0; i < Game.hero.statusEffects.length; i++) {

@@ -275,6 +275,9 @@ Dom.closePage = function(page){
 			tab = "settingsPage";
 		}
 		document.getElementById("change"+tab.substring(0,1).toUpperCase()+tab.substring(1,tab.length-4)).style.opacity = 0.6;
+	}else{
+		Dom.currentlyDisplayed = "";
+		Dom.currentNPC = {};
 	}
 	document.getElementById(page).hidden = true;
 }
@@ -295,6 +298,7 @@ Dom.changeBook = function(page, openClose){
 			}
 		}
 		document.getElementById(page).style.zIndex = 6+document.getElementsByClassName("DOM").length-1;
+		return true;
 	}else{
 		Dom.closePage(page);
 	}
@@ -3259,7 +3263,7 @@ Dom.text.page = function(name, text, close, buttons, functions, give){
 		}
 	}
 	if(close){
-		document.getElementById("textPage").innerHTML += "<br><br><br><center><div class='closeClass' onclick='Dom.closePage(\'textPage\'), true)'>Close</div></center>";
+		document.getElementById("textPage").innerHTML += "<br><br><br><center><div class='closeClass' onclick='Dom.closePage(\"textPage\"), true)'>Close</div></center>";
 	}
 	// onclicks have to be below this point because the line above resets them
 	for(let i = 0; i < buttons.length; i++){
@@ -3738,7 +3742,7 @@ Dom.mail.page = function(){
 	if(Player.mail.mail.length === 0){
 		document.getElementById("mailPage").innerHTML += "<br><br>You have no mail, come back soon.<br><br><br><br>";
 	}
-	document.getElementById("mailPage").innerHTML += "<br><br><center><div class='closeClass' id='closeMail' onclick='Dom.closePage(\'mailPage\')'>Close</div></center>";
+	document.getElementById("mailPage").innerHTML += "<br><br><center><div class='closeClass' id='closeMail' onclick='Dom.closePage(\"mailPage\")'>Close</div></center>";
 	for(let i = Player.mail.mail.length-1; i >= 0; i--){
 		let ii = Player.mail.mail.length-1-i;
 		if(Player.mail.mail[i].image.substring(0,2) === "./"){
@@ -4052,7 +4056,7 @@ Dom.init = function(){
 	document.getElementById("secondary").height = Dom.canvas.height;
 	document.getElementById("itemInventory").innerHTML = "";
 	document.getElementById("hotbar").style.left = Dom.canvas.width/2-185+"px";
-	document.getElementById("hotbar").style.top = Dom.canvas.height-100+"px";
+	document.getElementById("hotbar").style.top = Dom.canvas.height-80+"px";
 	document.getElementById("chatImage").style.left= Dom.canvas.width/2+210+"px";
 	document.getElementById("inventoryImage").style.left= Dom.canvas.width/2+278+"px";
 	document.getElementById("questsImage").style.left= Dom.canvas.width/2+360+"px";
