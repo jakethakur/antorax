@@ -857,7 +857,7 @@ var Areas = {
 							// remove the item
 							Dom.inventory.removeById(21, "fish", 1);
 							// start cutscene
-							Dom.changeBook("chatPage", true, false, 6000);
+							Dom.changeBook("chatPage");//, true, false, 6000);
 							// quest progress
 							Player.quests.questProgress.christmasPresentsDelivered = 1; // always the first NPC to be delivered to
 							// chat
@@ -973,7 +973,7 @@ var Areas = {
 							// remove the item
 							Dom.inventory.removeById(21, "fish");
 							// start cutscene
-							Dom.changeBook("chatPage", true, false, 6000);
+							Dom.changeBook("chatPage");//, true, false, 6000);
 							// quest progress
 							Player.quests.questProgress.christmasPresentsDelivered = 2; // always the second NPC to be delivered to
 							// chat

@@ -268,14 +268,14 @@ Dom.closeNPCPages = function(){
 	this.elements.textPage.hidden = true;
 }
 
-Dom.closePage = function(page){
+Dom.closePage = function(page, notClose){
 	if(page === "chatPage" || page === "inventoryPage" || page === "questsPage" || page === "adventurePage" || page === "reputationPage" || page === "settingsPage" || page === "settingsTwoPage"){
 		let tab = page
 		if(page === "settingsTwoPage"){
 			tab = "settingsPage";
 		}
 		document.getElementById("change"+tab.substring(0,1).toUpperCase()+tab.substring(1,tab.length-4)).style.opacity = 0.6;
-	}else{
+	}else if(!notClose){
 		Dom.currentlyDisplayed = "";
 		Dom.currentNPC = {};
 	}
@@ -290,7 +290,7 @@ Dom.changeBook = function(page, openClose){
 		}
 		document.getElementById("change"+tab.substring(0,1).toUpperCase()+tab.substring(1,tab.length-4)).style.opacity = 1;
 	}
-	if(!openClose || document.getElementById(page).hidden === true){
+	if(document.getElementById(page).hidden === true){
 		document.getElementById(page).hidden = false;
 		for(let x = 0; x < document.getElementsByClassName("DOM").length; x++){
 			if(parseInt(document.getElementsByClassName("DOM")[x].style.zIndex) >= parseInt(document.getElementById(page).style.zIndex)){
@@ -298,8 +298,34 @@ Dom.changeBook = function(page, openClose){
 			}
 		}
 		document.getElementById(page).style.zIndex = 6+document.getElementsByClassName("DOM").length-1;
+		if(Dom.canvas.coveredLeft > 620){
+			Dom.canvas.coveredLeft = 10;
+		}else if(Dom.canvas.coveredRight < Dom.canvas.width-620){
+			document.getElementById(page).style.left = Dom.canvas.width-610+"px";
+			Dom.canvas.coveredRight = document.getElementById(page).offsetLeft+600;
+		}else{
+			Dom.canvas.topLeft++;
+			document.getElementById(page).style.left = 10+20*Dom.canvas.topLeft+"px";
+			document.getElementById(page).style.top = 10+20*Dom.canvas.topLeft+"px";
+		}
+		
+		/*
+		if(Dom.canvas.coveredLeft > document.getElementById(page).offsetLeft+600){
+			Dom.canvas.coveredLeft = document.getElementById(page).offsetLeft;
+		}
+		if(Dom.canvas.coveredRight < document.getElementById(page).offsetLeft){
+			Dom.canvas.coveredRight = document.getElementById(page).offsetLeft+600;
+		}
+		
+		if(Dom.canvas.coveredLeft > document.getElementById(page).offsetLeft){
+			Dom.canvas.coveredLeft = document.getElementById(page).offsetLeft;
+		}
+		if(Dom.canvas.coveredRight < document.getElementById(page).offsetLeft+600){
+			Dom.canvas.coveredRight = document.getElementById(page).offsetLeft+600;
+		}
+		*/
 		return true;
-	}else{
+	}else if(openClose){
 		Dom.closePage(page);
 	}
 }
@@ -1123,7 +1149,7 @@ Dom.inventory.removeItemCharge = function(inventoryPosition, hotbar){
 Dom.currentlyDisplayed = "";
 Dom.currentNPC = {};
 Dom.quest.start = function(quest){
-	if(Dom.changeBook("questStart", true/*false*/, true)) {
+	if(Dom.changeBook("questStart")){//, true/*false*/, true)) {
 		document.getElementById("questStartQuest").innerHTML = quest.quest;
 		document.getElementById("questStartName").innerHTML = quest.startName;
 		document.getElementById("questStartChat").innerHTML = quest.startChat;
@@ -1211,7 +1237,7 @@ Dom.quest.start = function(quest){
 }
 
 Dom.quest.finish = function(quest){
-	if(Dom.changeBook("questFinish", true/*false*/, true)){
+	if(Dom.changeBook("questFinish")){//, true/*false*/, true)){
 		document.getElementById("questFinishQuest").innerHTML = quest.quest;
 		document.getElementById("questFinishName").innerHTML = quest.finishName;
 		document.getElementById("questFinishChat").innerHTML = quest.finishChat;
@@ -1446,36 +1472,37 @@ Dom.quests.other = function(){
 }
 
 Dom.merchant.page = function(npc, sold, chat){
-	Dom.changeBook("merchantPage", true/*false*/, true);
-	//Dom.currentlyDisplayed = npc.name;
-	//Dom.changeBook("merchantPage", false); // stops close button being red
-	document.getElementById("merchantPageTitle").innerHTML = npc.name;
-	document.getElementById("merchantPageChat").innerHTML = chat;
-	document.getElementById("merchantPageOptions").innerHTML = "";
-	document.getElementById("merchantPageBuy").innerHTML = "";
-	for(let i = 0; i < sold.length; i++){
-		document.getElementById("merchantPageOptions").innerHTML += "<img src=" + sold[i].item.image + " class='theseOptions' style='border: 5px solid #886622;'></img><br><br>";
-		if(sold[i].costCurrency === undefined){
-			sold[i].costCurrency = 2;
-		}
-		document.getElementById("merchantPageBuy").innerHTML += "<div class='buy'>Buy for: " + sold[i].cost + " " + Items.currency[sold[i].costCurrency].name + "</div><br>";
-		for(let x = 0; x < document.getElementsByClassName("buy").length; x++){
-			document.getElementsByClassName("buy")[x].onclick = function(){
-				Dom.merchant.buy(sold[x], x, npc);
-			};
-		}
-		// repeats for every image
-		for(let x = 0; x < document.getElementsByClassName("theseOptions").length; x++){
-			document.getElementsByClassName("theseOptions")[x].onmouseover = function(){
-				Dom.inventory.displayInformation(sold[x].item);
-			};
-			document.getElementsByClassName("theseOptions")[x].onmouseleave = function(){
-				Dom.expand("information");
+	if(Dom.changeBook("merchantPage")){//, true/*false*/, true);
+		//Dom.currentlyDisplayed = npc.name;
+		//Dom.changeBook("merchantPage", false); // stops close button being red
+		document.getElementById("merchantPageTitle").innerHTML = npc.name;
+		document.getElementById("merchantPageChat").innerHTML = chat;
+		document.getElementById("merchantPageOptions").innerHTML = "";
+		document.getElementById("merchantPageBuy").innerHTML = "";
+		for(let i = 0; i < sold.length; i++){
+			document.getElementById("merchantPageOptions").innerHTML += "<img src=" + sold[i].item.image + " class='theseOptions' style='border: 5px solid #886622;'></img><br><br>";
+			if(sold[i].costCurrency === undefined){
+				sold[i].costCurrency = 2;
 			}
-		}
-		document.getElementById("close").onclick = function(){
-			Dom.closePage('merchantPage');
-			npc.say(npc.chat.shopLeave, true, 0, false);
+			document.getElementById("merchantPageBuy").innerHTML += "<div class='buy'>Buy for: " + sold[i].cost + " " + Items.currency[sold[i].costCurrency].name + "</div><br>";
+			for(let x = 0; x < document.getElementsByClassName("buy").length; x++){
+				document.getElementsByClassName("buy")[x].onclick = function(){
+					Dom.merchant.buy(sold[x], x, npc);
+				};
+			}
+			// repeats for every image
+			for(let x = 0; x < document.getElementsByClassName("theseOptions").length; x++){
+				document.getElementsByClassName("theseOptions")[x].onmouseover = function(){
+					Dom.inventory.displayInformation(sold[x].item);
+				};
+				document.getElementsByClassName("theseOptions")[x].onmouseleave = function(){
+					Dom.expand("information");
+				}
+			}
+			document.getElementById("close").onclick = function(){
+				Dom.closePage('merchantPage');
+				npc.say(npc.chat.shopLeave, true, 0, false);
+			}
 		}
 	}
 }
@@ -1537,38 +1564,39 @@ Dom.identifier.check = function(){
 }
 
 Dom.identifier.page = function(npc/*, over*/){
-	Dom.changeBook("identifierPage", true/*false*/, true);
-	//Dom.currentlyDisplayed = npc.name;
-	//Dom.changeBook("identifierPage", false); // stops close button being red
-	document.getElementById("identifierPageChat").innerHTML = npc.chat.identifierGreeting;
-	document.getElementById("identifierPageOption").innerHTML = "<img src=" + Dom.identifier.unId[Dom.identifier.displayed].image + " class='theseOptions' style='padding: 0px; margin: 0px; border: 5px solid #886622; height: 50px; width: 50px;'></img>";
-	document.getElementById("identifierPageOption").onmouseover = function(){
-		Dom.inventory.displayInformation(Dom.identifier.unId[Dom.identifier.displayed]);
+	if(Dom.changeBook("identifierPage")){//, true/*false*/, true);
+		//Dom.currentlyDisplayed = npc.name;
+		//Dom.changeBook("identifierPage", false); // stops close button being red
+		document.getElementById("identifierPageChat").innerHTML = npc.chat.identifierGreeting;
+		document.getElementById("identifierPageOption").innerHTML = "<img src=" + Dom.identifier.unId[Dom.identifier.displayed].image + " class='theseOptions' style='padding: 0px; margin: 0px; border: 5px solid #886622; height: 50px; width: 50px;'></img>";
+		document.getElementById("identifierPageOption").onmouseover = function(){
+			Dom.inventory.displayInformation(Dom.identifier.unId[Dom.identifier.displayed]);
+		}
+		document.getElementById("identifierPageOption").onmouseleave = function(){
+			Dom.expand("information");
+		}
+		document.getElementById("identifierPageBuy").style.visibility = "visible";
+		document.getElementById("identifierPageBuy").onclick = function(){
+			Dom.identifier.identify(npc);
+		}
+		//document.getElementById("leftArrow").style.top = document.getElementById("identifierPageOption").getBoundingClientRect().top - 32 +"px";
+		//document.getElementById("leftArrow").style.left = document.getElementById("identifierPageOption").getBoundingClientRect().left - 31 +"px";
+		document.getElementById("leftArrow").onclick = function(){
+			Dom.identifier.left(npc);
+		}
+		//document.getElementById("rightArrow").style.top = document.getElementById("identifierPageOption").getBoundingClientRect().top - 32 +"px";
+		//document.getElementById("rightArrow").style.left = document.getElementById("identifierPageOption").getBoundingClientRect().left + 71 +"px";
+		document.getElementById("rightArrow").onclick = function(){
+			Dom.identifier.right(npc);
+		}
+		document.getElementById("identifierPageBuy").innerHTML = "Identify for: 1 gold";
 	}
-	document.getElementById("identifierPageOption").onmouseleave = function(){
-		Dom.expand("information");
-	}
-	document.getElementById("identifierPageBuy").style.visibility = "visible";
-	document.getElementById("identifierPageBuy").onclick = function(){
-		Dom.identifier.identify(npc);
-	}
-	//document.getElementById("leftArrow").style.top = document.getElementById("identifierPageOption").getBoundingClientRect().top - 32 +"px";
-	//document.getElementById("leftArrow").style.left = document.getElementById("identifierPageOption").getBoundingClientRect().left - 31 +"px";
-	document.getElementById("leftArrow").onclick = function(){
-		Dom.identifier.left(npc);
-	}
-	//document.getElementById("rightArrow").style.top = document.getElementById("identifierPageOption").getBoundingClientRect().top - 32 +"px";
-	//document.getElementById("rightArrow").style.left = document.getElementById("identifierPageOption").getBoundingClientRect().left + 71 +"px";
-	document.getElementById("rightArrow").onclick = function(){
-		Dom.identifier.right(npc);
-	}
-	document.getElementById("identifierPageBuy").innerHTML = "Identify for: 1 gold";
 }
 
 Dom.identifier.identify = function(npc){
 	if(Dom.inventory.check(2,"currency",1)/* && Dom.identifier.unId.length !== 0*/){
 		Dom.inventory.removeById(2,"currency",1);
-		Dom.changeBook("identifiedPage", true, true);
+		Dom.changeBook("identifiedPage")//, true, true);
 		Dom.currentlyDisplayed = npc.name;
 		for(let i = 0; i < Player.inventory.items.length; i++){
 			if(Player.inventory.items[i].unidentified && Player.inventory.items[i].tier === Dom.identifier.unId[Dom.identifier.displayed].tier && Player.inventory.items[i].area === Dom.identifier.unId[Dom.identifier.displayed].area && Player.inventory.items[i].rarity === Dom.identifier.unId[Dom.identifier.displayed].rarity && Player.inventory.items[i].type === Dom.identifier.unId[Dom.identifier.displayed].type){
@@ -3151,89 +3179,90 @@ Dom.inventory.hideHotbar = function(hide){
 }
 
 Dom.loot.page = function(name, items){
-	Dom.changeBook("lootPage", true/*false*/, true);
-	//Dom.currentlyDisplayed = name;
-	Dom.loot.looted = items;
-	document.getElementById("lootingPageTitle").innerHTML = name;
-	let lootSpaces = "";
-	for(let i = 0; i < items.length; i+=8){
-		lootSpaces += "<tr><td></td><td></td><td></td><td></td><td></td><td></td><td></td><td></td></tr>";
+	if(Dom.changeBook("lootPage")){//, true/*false*/, true);
+		//Dom.currentlyDisplayed = name;
+		Dom.loot.looted = items;
+		document.getElementById("lootingPageTitle").innerHTML = name;
+		let lootSpaces = "";
+		for(let i = 0; i < items.length; i+=8){
+			lootSpaces += "<tr><td></td><td></td><td></td><td></td><td></td><td></td><td></td><td></td></tr>";
+		}
+		document.getElementById("lootingPageClose").style.top = 55 * items.length/8 + "px";
+		document.getElementById("lootAll").style.top = 55 * items.length/8 - 50 + "px";
+		let promise = new Promise(function(resolve, reject){
+			document.getElementById("loot").innerHTML = lootSpaces;
+			resolve("resolved");
+		// when the table has been drawn...
+		}).then(function(result){
+			/*if(items.length > space){
+				console.warn(name+" has generated too much loot for its space of "+space);
+			}*/
+			for(let i = 0; i < items.length; i++){
+				//let currentSpaceNum = Random(0, spaces.length-1);
+				//let currentSpace = spaces[currentSpaceNum]; // random slot in the table array
+				//spaces.splice(currentSpaceNum,1); // removes slot from the table array so it can't be chosen again
+				if(items[i] !== undefined && items[i] !== null){
+					if(items[i].quantity !== 1){
+						document.getElementById("loot").getElementsByTagName("td")[i].innerHTML = "<img src=" + items[i].item.image + " class='lootOptions'><div class='lootStackNum'>"+items[i].quantity+"</div></img>";
+					}else{
+						document.getElementById("loot").getElementsByTagName("td")[i].innerHTML = "<img src=" + items[i].item.image + " class='lootOptions'><span class='lootStackNum'></span></img>";
+					}
+				}
+			}
+			// repeats for each piece of loot
+			let num = -1;
+			for(let i = 0; i < items.length; i++){
+				if(items[i] !== undefined && items[i] !== null){
+					num++;
+					items[i].num = num;
+					document.getElementsByClassName("lootOptions")[num].onclick = function(){
+						Dom.expand("information");
+						if(Dom.inventory.requiredSpace([items[i]])){
+							Dom.inventory.give(items[i].item, items[i].quantity);
+							document.getElementsByClassName("lootOptions")[items[i].num].outerHTML = "<span class='lootOptions'></span>";
+							document.getElementsByClassName("lootStackNum")[items[i].num].outerHTML = "<span class='lootStackNum'></span>";
+							Dom.loot.looted[i] = undefined;
+						}else{
+							Dom.alert.page("You do not have enough space in your inventory for that item.");
+						}
+					};
+					document.getElementsByClassName("lootStackNum")[num].onclick = function(){
+						Dom.expand("information");
+						if(Dom.inventory.requiredSpace([items[i]])){
+							Dom.inventory.give(items[i].item, items[i].quantity);
+							document.getElementsByClassName("lootOptions")[items[i].num].outerHTML = "<span class='lootOptions'></span>";
+							document.getElementsByClassName("lootStackNum")[items[i].num].outerHTML = "<span class='lootStackNum'></span>";
+							Dom.loot.looted[i] = undefined;
+						}else{
+							Dom.alert.page("You do not have enough space in your inventory for that item.");
+						}
+					};
+					document.getElementsByClassName("lootOptions")[num].onmouseover = function(){
+						Dom.inventory.displayInformation(items[i].item, items[i].quantity);
+					}
+					document.getElementsByClassName("lootStackNum")[num].onmouseover = function(){
+						Dom.inventory.displayInformation(items[i].item, items[i].quantity);
+					}
+					document.getElementsByClassName("lootOptions")[num].onmouseleave = function(){
+						Dom.expand("information");
+					}
+					document.getElementsByClassName("lootStackNum")[num].onmouseleave = function(){
+						Dom.expand("information");
+					}
+				}
+			}
+			document.getElementById("lootAll").onclick = function(){
+				for(let i = 0; i < document.getElementsByClassName("lootOptions").length; i++){
+					if(document.getElementsByClassName("lootOptions")[i].onclick !== null){
+						document.getElementsByClassName("lootOptions")[i].onclick();
+					}
+				}
+				Dom.closePage('lootPage');
+				Game.lootClosed(Dom.loot.looted);
+			}
+		},items);
+		Game.saveProgress("auto");
 	}
-	document.getElementById("lootingPageClose").style.top = 55 * items.length/8 + "px";
-	document.getElementById("lootAll").style.top = 55 * items.length/8 - 50 + "px";
-	let promise = new Promise(function(resolve, reject){
-		document.getElementById("loot").innerHTML = lootSpaces;
-		resolve("resolved");
-	// when the table has been drawn...
-	}).then(function(result){
-		/*if(items.length > space){
-			console.warn(name+" has generated too much loot for its space of "+space);
-		}*/
-		for(let i = 0; i < items.length; i++){
-			//let currentSpaceNum = Random(0, spaces.length-1);
-			//let currentSpace = spaces[currentSpaceNum]; // random slot in the table array
-			//spaces.splice(currentSpaceNum,1); // removes slot from the table array so it can't be chosen again
-			if(items[i] !== undefined && items[i] !== null){
-				if(items[i].quantity !== 1){
-					document.getElementById("loot").getElementsByTagName("td")[i].innerHTML = "<img src=" + items[i].item.image + " class='lootOptions'><div class='lootStackNum'>"+items[i].quantity+"</div></img>";
-				}else{
-					document.getElementById("loot").getElementsByTagName("td")[i].innerHTML = "<img src=" + items[i].item.image + " class='lootOptions'><span class='lootStackNum'></span></img>";
-				}
-			}
-		}
-		// repeats for each piece of loot
-		let num = -1;
-		for(let i = 0; i < items.length; i++){
-			if(items[i] !== undefined && items[i] !== null){
-				num++;
-				items[i].num = num;
-				document.getElementsByClassName("lootOptions")[num].onclick = function(){
-					Dom.expand("information");
-					if(Dom.inventory.requiredSpace([items[i]])){
-						Dom.inventory.give(items[i].item, items[i].quantity);
-						document.getElementsByClassName("lootOptions")[items[i].num].outerHTML = "<span class='lootOptions'></span>";
-						document.getElementsByClassName("lootStackNum")[items[i].num].outerHTML = "<span class='lootStackNum'></span>";
-						Dom.loot.looted[i] = undefined;
-					}else{
-						Dom.alert.page("You do not have enough space in your inventory for that item.");
-					}
-				};
-				document.getElementsByClassName("lootStackNum")[num].onclick = function(){
-					Dom.expand("information");
-					if(Dom.inventory.requiredSpace([items[i]])){
-						Dom.inventory.give(items[i].item, items[i].quantity);
-						document.getElementsByClassName("lootOptions")[items[i].num].outerHTML = "<span class='lootOptions'></span>";
-						document.getElementsByClassName("lootStackNum")[items[i].num].outerHTML = "<span class='lootStackNum'></span>";
-						Dom.loot.looted[i] = undefined;
-					}else{
-						Dom.alert.page("You do not have enough space in your inventory for that item.");
-					}
-				};
-				document.getElementsByClassName("lootOptions")[num].onmouseover = function(){
-					Dom.inventory.displayInformation(items[i].item, items[i].quantity);
-				}
-				document.getElementsByClassName("lootStackNum")[num].onmouseover = function(){
-					Dom.inventory.displayInformation(items[i].item, items[i].quantity);
-				}
-				document.getElementsByClassName("lootOptions")[num].onmouseleave = function(){
-					Dom.expand("information");
-				}
-				document.getElementsByClassName("lootStackNum")[num].onmouseleave = function(){
-					Dom.expand("information");
-				}
-			}
-		}
-		document.getElementById("lootAll").onclick = function(){
-			for(let i = 0; i < document.getElementsByClassName("lootOptions").length; i++){
-				if(document.getElementsByClassName("lootOptions")[i].onclick !== null){
-					document.getElementsByClassName("lootOptions")[i].onclick();
-				}
-			}
-			Dom.closePage('lootPage');
-			Game.lootClosed(Dom.loot.looted);
-		}
-	},items);
-	Game.saveProgress("auto");
 }
 
 document.getElementById("levelUpPageClose").onclick = function(){
@@ -3245,50 +3274,51 @@ document.getElementById("levelUpPageClose").onclick = function(){
 }
 
 Dom.text.page = function(name, text, close, buttons, functions, give){
-	Dom.changeBook("textPage", true/*false*/, true);
-	document.getElementById("textPage").innerHTML = '<h1 id="textPageName">'+name+'</h1>'
-	document.getElementById("textPage").innerHTML += '<p id="textPageText">'+text+'</p>'
-	if(give !== undefined){
-		document.getElementById("textPage").innerHTML += "<br><br><strong>Attached Items:</strong><br><br>";
-		for(let i = 0; i < give.length; i++){
-			if(give[i].quantity === undefined){
-				give[i].quantity = 1;
-			}
-			document.getElementById("textPage").innerHTML += "<img src=" + give[i].item.image + " class='theseTextOptions'><div class='textStackNum'>"+(give[i].quantity !== 1 ? give[i].quantity : "")+"</div></img>&nbsp;&nbsp;";
-		}
-	}
-	for(let i = 0; i < buttons.length; i++){
-		if(buttons[i] !== undefined){ // because instructions page has undefined buttons meaning no buttons
-			document.getElementById("textPage").innerHTML += "<br><center><div id='buttons"+i+"' class='buttons'>"+buttons[i]+"</div></center>";
-		}
-	}
-	if(close){
-		document.getElementById("textPage").innerHTML += "<br><br><br><center><div class='closeClass' onclick='Dom.closePage(\"textPage\"), true)'>Close</div></center>";
-	}
-	// onclicks have to be below this point because the line above resets them
-	for(let i = 0; i < buttons.length; i++){
-		if(buttons[i] !== undefined){ // because instructions page has undefined buttons meaning no buttons
-			document.getElementById("buttons"+i).onclick = function(){
-				functions[i]();
+	if(Dom.changeBook("textPage")){//, true/*false*/, true);
+		document.getElementById("textPage").innerHTML = '<h1 id="textPageName">'+name+'</h1>'
+		document.getElementById("textPage").innerHTML += '<p id="textPageText">'+text+'</p>'
+		if(give !== undefined){
+			document.getElementById("textPage").innerHTML += "<br><br><strong>Attached Items:</strong><br><br>";
+			for(let i = 0; i < give.length; i++){
+				if(give[i].quantity === undefined){
+					give[i].quantity = 1;
+				}
+				document.getElementById("textPage").innerHTML += "<img src=" + give[i].item.image + " class='theseTextOptions'><div class='textStackNum'>"+(give[i].quantity !== 1 ? give[i].quantity : "")+"</div></img>&nbsp;&nbsp;";
 			}
 		}
-	}
-	if(give !== undefined){
-		for(let i = 0; i < give.length; i++){
-			document.getElementsByClassName("theseTextOptions")[i].onmouseover = function(){
-				Dom.inventory.displayInformation(give[i].item, give[i].quantity);
-			};
-			document.getElementsByClassName("theseTextOptions")[i].onmouseleave = function(){
-				Dom.expand("information");
-			};
-			document.getElementsByClassName("textStackNum")[i].onmouseover = function(){
-				Dom.inventory.displayInformation(give[i].item, give[i].quantity);
-			};
-			document.getElementsByClassName("textStackNum")[i].onmouseleave = function(){
-				Dom.expand("information");
-			};
-			document.getElementsByClassName("textStackNum")[i].style.left = document.getElementsByClassName("theseTextOptions")[i].getBoundingClientRect().left - 635 + "px";
-			document.getElementsByClassName("textStackNum")[i].style.top = document.getElementsByClassName("theseTextOptions")[i].getBoundingClientRect().top + 15 + "px";
+		for(let i = 0; i < buttons.length; i++){
+			if(buttons[i] !== undefined){ // because instructions page has undefined buttons meaning no buttons
+				document.getElementById("textPage").innerHTML += "<br><center><div id='buttons"+i+"' class='buttons'>"+buttons[i]+"</div></center>";
+			}
+		}
+		if(close){
+			document.getElementById("textPage").innerHTML += "<br><br><br><center><div class='closeClass' onclick='Dom.closePage(\"textPage\")'>Close</div></center>";
+		}
+		// onclicks have to be below this point because the line above resets them
+		for(let i = 0; i < buttons.length; i++){
+			if(buttons[i] !== undefined){ // because instructions page has undefined buttons meaning no buttons
+				document.getElementById("buttons"+i).onclick = function(){
+					functions[i]();
+				}
+			}
+		}
+		if(give !== undefined){
+			for(let i = 0; i < give.length; i++){
+				document.getElementsByClassName("theseTextOptions")[i].onmouseover = function(){
+					Dom.inventory.displayInformation(give[i].item, give[i].quantity);
+				};
+				document.getElementsByClassName("theseTextOptions")[i].onmouseleave = function(){
+					Dom.expand("information");
+				};
+				document.getElementsByClassName("textStackNum")[i].onmouseover = function(){
+					Dom.inventory.displayInformation(give[i].item, give[i].quantity);
+				};
+				document.getElementsByClassName("textStackNum")[i].onmouseleave = function(){
+					Dom.expand("information");
+				};
+				document.getElementsByClassName("textStackNum")[i].style.left = document.getElementsByClassName("theseTextOptions")[i].getBoundingClientRect().left - 635 + "px";
+				document.getElementsByClassName("textStackNum")[i].style.top = document.getElementsByClassName("theseTextOptions")[i].getBoundingClientRect().top + 15 + "px";
+			}
 		}
 	}
 }
@@ -3324,67 +3354,68 @@ Dom.buyer.remove = function(i, all){
 }
 
 Dom.buyer.page = function(npc){
-	Dom.changeBook("buyerPage", true/*false*/, true);
-	// if the buyer page is being opened not refreshed
-	if(npc !== undefined){0
-		document.getElementById("buyerPageChat").innerHTML = npc.chat.buyerGreeting;
-	}
-	document.getElementById("buyerPageInventory").innerHTML = "";
-	for(let i = 0; i < document.getElementById("itemInventory").getElementsByTagName("td").length / 6; i++){
-		document.getElementById("buyerPageInventory").innerHTML += "<tr><td/><td/><td/><td/><td/><td/></tr>";
-	}
-	let remove = true;
-	for(let i = 6; i < Player.inventory.items.length; i++){
-		if(Player.inventory.items[i].image !== undefined){
-			// if the bag is unsafe to remove
-			remove = false;
+	if(Dom.changeBook("buyerPage")){//, true/*false*/, true);
+		// if the buyer page is being opened not refreshed
+		if(npc !== undefined){0
+			document.getElementById("buyerPageChat").innerHTML = npc.chat.buyerGreeting;
 		}
-	}
-	for(let i = 0; i < Player.inventory.items.length; i++){
-		if(Player.inventory.items[i].image !== undefined){
-			// building the table
-			document.getElementById("buyerPageInventory").getElementsByTagName("td")[i].innerHTML = "<img src='"+Player.inventory.items[i].image+"' draggable='true' ondragstart='Dom.inventory.drag(event,"+i+")'></img>";;
-			if(Player.inventory.items[i].stacked !== undefined && Player.inventory.items[i].stacked !== 1){
-				document.getElementById("buyerPageInventory").getElementsByTagName("td")[i].innerHTML += "<div class='stackNum' id='stackNum"+i+"'>"+Player.inventory.items[i].stacked+"</div>";
+		document.getElementById("buyerPageInventory").innerHTML = "";
+		for(let i = 0; i < document.getElementById("itemInventory").getElementsByTagName("td").length / 6; i++){
+			document.getElementById("buyerPageInventory").innerHTML += "<tr><td/><td/><td/><td/><td/><td/></tr>";
+		}
+		let remove = true;
+		for(let i = 6; i < Player.inventory.items.length; i++){
+			if(Player.inventory.items[i].image !== undefined){
+				// if the bag is unsafe to remove
+				remove = false;
 			}
-			document.getElementById("buyerPageInventory").getElementsByTagName("td")[i].getElementsByTagName("img")[0].setAttribute('draggable', false);
-			if(Player.inventory.items[i].sellPrice !== undefined){
-				if(Player.inventory.items[i].sellCurrency === undefined){
-					Player.inventory.items[i].sellCurrency = 2;
+		}
+		for(let i = 0; i < Player.inventory.items.length; i++){
+			if(Player.inventory.items[i].image !== undefined){
+				// building the table
+				document.getElementById("buyerPageInventory").getElementsByTagName("td")[i].innerHTML = "<img src='"+Player.inventory.items[i].image+"' draggable='true' ondragstart='Dom.inventory.drag(event,"+i+")'></img>";;
+				if(Player.inventory.items[i].stacked !== undefined && Player.inventory.items[i].stacked !== 1){
+					document.getElementById("buyerPageInventory").getElementsByTagName("td")[i].innerHTML += "<div class='stackNum' id='stackNum"+i+"'>"+Player.inventory.items[i].stacked+"</div>";
 				}
-				if(Player.inventory.items[i].sellQuantity === undefined){
-					Player.inventory.items[i].sellQuantity = 1;
-				}
-				if(Player.inventory.items[i].stacked === undefined){
-					Player.inventory.items[i].stacked = 1;
-				}
-				document.getElementById("buyerPageInventory").getElementsByTagName("td")[i].onclick = function(){
-					if(!(!remove && i === 5 && Player.inventory.items[5].type === "bag") && Dom.inventory.check(Player.inventory.items[i].id, Player.inventory.items[i].type, Player.inventory.items[i].sellQuantity)){
-						Dom.alert.ev = i;
-						Dom.alert.target = Dom.buyer.remove;
-						if(Player.inventory.items[i].stacked >= Player.inventory.items[i].sellQuantity*2){
-							Dom.alert.page("How many <strong>"+Player.inventory.items[i].name.toLowerCase()+"</strong> would you like to sell for <strong>"+(Player.inventory.items[i].charges === undefined ? Player.inventory.items[i].sellPrice : Math.ceil(Player.inventory.items[i].sellPrice / (Player.inventory.items[i].maxCharges / Player.inventory.items[i].charges)))+" "+Items.currency[Player.inventory.items[i].sellCurrency].name.toLowerCase()+"</strong> "+(Player.inventory.items[i].sellQuantity !== 1 ? "per "+Player.inventory.items[i].sellQuantity+"?" : "each?"),
-								2, [Player.inventory.items[i].sellQuantity <= Player.inventory.items[i].stacked ? Player.inventory.items[i].sellQuantity : 0, Math.floor(Player.inventory.items[i].stacked/Player.inventory.items[i].sellQuantity)*Player.inventory.items[i].sellQuantity]
-							);
+				document.getElementById("buyerPageInventory").getElementsByTagName("td")[i].getElementsByTagName("img")[0].setAttribute('draggable', false);
+				if(Player.inventory.items[i].sellPrice !== undefined){
+					if(Player.inventory.items[i].sellCurrency === undefined){
+						Player.inventory.items[i].sellCurrency = 2;
+					}
+					if(Player.inventory.items[i].sellQuantity === undefined){
+						Player.inventory.items[i].sellQuantity = 1;
+					}
+					if(Player.inventory.items[i].stacked === undefined){
+						Player.inventory.items[i].stacked = 1;
+					}
+					document.getElementById("buyerPageInventory").getElementsByTagName("td")[i].onclick = function(){
+						if(!(!remove && i === 5 && Player.inventory.items[5].type === "bag") && Dom.inventory.check(Player.inventory.items[i].id, Player.inventory.items[i].type, Player.inventory.items[i].sellQuantity)){
+							Dom.alert.ev = i;
+							Dom.alert.target = Dom.buyer.remove;
+							if(Player.inventory.items[i].stacked >= Player.inventory.items[i].sellQuantity*2){
+								Dom.alert.page("How many <strong>"+Player.inventory.items[i].name.toLowerCase()+"</strong> would you like to sell for <strong>"+(Player.inventory.items[i].charges === undefined ? Player.inventory.items[i].sellPrice : Math.ceil(Player.inventory.items[i].sellPrice / (Player.inventory.items[i].maxCharges / Player.inventory.items[i].charges)))+" "+Items.currency[Player.inventory.items[i].sellCurrency].name.toLowerCase()+"</strong> "+(Player.inventory.items[i].sellQuantity !== 1 ? "per "+Player.inventory.items[i].sellQuantity+"?" : "each?"),
+									2, [Player.inventory.items[i].sellQuantity <= Player.inventory.items[i].stacked ? Player.inventory.items[i].sellQuantity : 0, Math.floor(Player.inventory.items[i].stacked/Player.inventory.items[i].sellQuantity)*Player.inventory.items[i].sellQuantity]
+								);
+							}else{
+								Dom.alert.page("Are you sure you want to sell <strong>"+(Player.inventory.items[i].sellQuantity > 1 ? Player.inventory.items[i].sellQuantity+" " : "")+(Player.inventory.items[i].unidentified ? "unidentified "+Player.inventory.items[i].type : Player.inventory.items[i].name.toLowerCase())+"</strong> for <strong>"+(Player.inventory.items[i].charges === undefined ? Player.inventory.items[i].sellPrice : Math.ceil(Player.inventory.items[i].sellPrice / (Player.inventory.items[i].maxCharges / Player.inventory.items[i].charges)))+" "+Items.currency[Player.inventory.items[i].sellCurrency].name.toLowerCase()+"</strong>? You cannot buy it back!", 1);
+							}
+						}else if(!(!remove && i === 5 && Player.inventory.items[5].type === "bag")){
+							Dom.alert.page("You need "+Player.inventory.items[i].sellQuantity+" of these to sell them.");
 						}else{
-							Dom.alert.page("Are you sure you want to sell <strong>"+(Player.inventory.items[i].sellQuantity > 1 ? Player.inventory.items[i].sellQuantity+" " : "")+(Player.inventory.items[i].unidentified ? "unidentified "+Player.inventory.items[i].type : Player.inventory.items[i].name.toLowerCase())+"</strong> for <strong>"+(Player.inventory.items[i].charges === undefined ? Player.inventory.items[i].sellPrice : Math.ceil(Player.inventory.items[i].sellPrice / (Player.inventory.items[i].maxCharges / Player.inventory.items[i].charges)))+" "+Items.currency[Player.inventory.items[i].sellCurrency].name.toLowerCase()+"</strong>? You cannot buy it back!", 1);
+							Dom.alert.page("Move some items to the bank, sell or dispose of them before you can do that.");
 						}
-					}else if(!(!remove && i === 5 && Player.inventory.items[5].type === "bag")){
-						Dom.alert.page("You need "+Player.inventory.items[i].sellQuantity+" of these to sell them.");
-					}else{
-						Dom.alert.page("Move some items to the bank, sell or dispose of them before you can do that.");
+					}
+				}else{
+					document.getElementById("buyerPageInventory").getElementsByTagName("td")[i].onclick = function(){
+						Dom.alert.page("You cannot sell that item.");
 					}
 				}
-			}else{
-				document.getElementById("buyerPageInventory").getElementsByTagName("td")[i].onclick = function(){
-					Dom.alert.page("You cannot sell that item.");
+				document.getElementById("buyerPageInventory").getElementsByTagName("td")[i].onmouseover = function(){
+					Dom.inventory.displayInformation(Player.inventory.items[i], undefined, "buyer");
 				}
-			}
-			document.getElementById("buyerPageInventory").getElementsByTagName("td")[i].onmouseover = function(){
-				Dom.inventory.displayInformation(Player.inventory.items[i], undefined, "buyer");
-			}
-			document.getElementById("buyerPageInventory").getElementsByTagName("td")[i].onmouseleave = function(){
-				Dom.expand("information");
+				document.getElementById("buyerPageInventory").getElementsByTagName("td")[i].onmouseleave = function(){
+					Dom.expand("information");
+				}
 			}
 		}
 	}
@@ -3403,7 +3434,76 @@ Dom.choose.page = function(npc, buttons, functions, parameters, force){
 			Dom.currentNPC.id = npc.id;
 		}
 		if(buttons.length > 1 || force){
-			Dom.changeBook("choosePage", true/*false*/, true);
+			if(Dom.changeBook("choosePage")){
+				document.getElementById("choosePage").innerHTML = "<h1>"+name+"</h1>"+(npc.chat !== undefined ? "<p>"+npc.chat.chooseChat+"</p>" : "");
+				Dom.choose.HTML = "";
+				Dom.choose.sideHTML = "";
+				Dom.choose.dailyHTML = "";
+				for(let i = 0; i < buttons.length; i++){
+					let imagenum = 2;
+					if(functions[i] === Dom.driver.page){
+						imagenum = 0;
+					}else if(functions[i] === Dom.identifier.page){
+						imagenum = 3;
+					}else if(functions[i] === Dom.buyer.page){
+						imagenum = 4;
+					}else if(functions[i] === Dom.merchant.page){
+						imagenum = 5;
+					}else if(functions[i] === Dom.quest.finish){
+						imagenum = 6;
+					}else if(functions[i] === Dom.quest.start){
+						if(parameters[i][0].repeatTime === "daily"){
+							imagenum = 1;
+						}else{
+							imagenum = 7;
+						}
+					}else if(functions[i] === Dom.text.page){
+						if(parameters[i][0] === "Soul Healer"){
+							imagenum = 8;
+						}/*else{
+							imagenum = 1;
+						}*/
+					}
+					if(imagenum === 6){
+						if(parameters[i][0].important){
+							document.getElementById("choosePage").innerHTML += "<p id='choosePageButtons"+i+"'><img src='assets/icons/choose.png' class='chooseIcon' style='clip: rect("+25*imagenum+"px, 25px, "+25*(imagenum+1)+"px, 0px); margin-top: -"+(25*imagenum+3)+"px'></img>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<strong>"+buttons[i]+"</strong></p>";
+						}else{
+							Dom.choose.sideHTML += "<p id='choosePageButtons"+i+"'><img src='assets/icons/choose.png' class='chooseIcon' style='clip: rect("+25*imagenum+"px, 25px, "+25*(imagenum+1)+"px, 0px); margin-top: -"+(25*imagenum+3)+"px'></img>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;"+buttons[i]+"</p>";
+						}
+					}else if(imagenum === 0){
+						Dom.choose.dailyHTML += "<p id='choosePageButtons"+i+"'><img src='assets/icons/choose.png' class='chooseIcon' style='clip: rect("+25*imagenum+"px, 25px, "+25*(imagenum+1)+"px, 0px); margin-top: -"+(25*imagenum+3)+"px'></img>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;"+buttons[i]+"</p>";
+					}else{
+						Dom.choose.HTML += "<p id='choosePageButtons"+i+"'><img src='assets/icons/choose.png' class='chooseIcon' style='clip: rect("+25*imagenum+"px, 25px, "+25*(imagenum+1)+"px, 0px); margin-top: -"+(25*imagenum+3)+"px'></img>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;"+buttons[i]+"</p>";
+					}
+				}
+				document.getElementById("choosePage").innerHTML += Dom.choose.sideHTML + Dom.choose.dailyHTML + Dom.choose.HTML + '<br><br><center><div id="choosePageClose" class="closeClass" onclick="Dom.closePage(\'choosePage\')">Close</div></center>';
+				for(let i = 0; i < buttons.length; i++){
+					document.getElementById("choosePageButtons"+i).onclick = function(){
+						Dom.closePage("choosePage", true);
+						functions[i](...parameters[i]);
+					}
+				}
+			}
+		}else{
+			functions[0](...parameters[0]);
+		}
+	}
+}
+
+/*Dom.choose.page = function(npc, buttons, functions, parameters, force){
+	let name = npc.name !== undefined ? npc.name : npc; // for cases like Goblin Torch
+	if(npc.constructor.name === "NPC" && !Player.metNPCs.includes(name)){
+		Player.metNPCs.push(name);
+	}
+	
+	if(Dom.currentlyDisplayed === ""){
+		Dom.currentlyDisplayed = name;
+		if(name !== npc){
+			Dom.currentNPC.type = npc.type;
+			Dom.currentNPC.id = npc.id;
+		}
+		if(buttons.length > 1 || force){
+			Dom.changeBook("choosePage", true, true);
 			document.getElementById("choosePage").innerHTML = "<h1>"+name+"</h1>"+(npc.chat !== undefined ? "<p>"+npc.chat.chooseChat+"</p>" : "");
 			Dom.choose.HTML = "";
 			Dom.choose.sideHTML = "";
@@ -3429,9 +3529,7 @@ Dom.choose.page = function(npc, buttons, functions, parameters, force){
 				}else if(functions[i] === Dom.text.page){
 					if(parameters[i][0] === "Soul Healer"){
 						imagenum = 8;
-					}/*else{
-						imagenum = 1;
-					}*/
+					}
 				}
 				if(imagenum === 6){
 					if(parameters[i][0].important){
@@ -3475,7 +3573,7 @@ Dom.choose.page = function(npc, buttons, functions, parameters, force){
 			}
 		}
 	}
-}
+}*/
 
 Dom.settings.keyName = function(ev){
 	let keyName = "SPACE";
@@ -3514,17 +3612,17 @@ Dom.settings.hotkeys = function(ev){
 			Dom.settings.hotkey = undefined;
 		}
 	}else if(keyName === Keyboard.keys.CHAT){
-		Dom.changeBook("chatPage");
+		Dom.changeBook("chatPage", true);
 	}else if(keyName === Keyboard.keys.INVENTORY){
-		Dom.changeBook("inventoryPage");
+		Dom.changeBook("inventoryPage", true);
 	}else if(keyName === Keyboard.keys.QUESTS){
-		Dom.changeBook("questsPage");
+		Dom.changeBook("questsPage", true);
 	}else if(keyName === Keyboard.keys.ADVENTURE){
-		Dom.changeBook("adventurePage");
+		Dom.changeBook("adventurePage", true);
 	}else if(keyName === Keyboard.keys.REPUTATION){
-		Dom.changeBook("reputationPage");
+		Dom.changeBook("reputationPage", true);
 	}else if(keyName === Keyboard.keys.SETTINGS){
-		Dom.changeBook("settingsPage");
+		Dom.changeBook("settingsPage", true);
 	}
 }
 
@@ -3678,130 +3776,132 @@ Dom.bank.deposit = function(){
 }
 
 Dom.driver.page = function(npc, destinations){
-	Dom.changeBook("driverPage", true/*false*/, true);
-	document.getElementById("driverPageBuy").style.display = "none";
-	document.getElementById("driverPageMain").innerHTML = "<br><h1>"+npc.name+"</h1>";
-	document.getElementById("driverPageMain").innerHTML += "<p>"+npc.chat.driverText+"<p><br>";
-	for(let i = 0; i < destinations.length; i++){
-		document.getElementById("driverPageMain").innerHTML += "<div class='driver' ><div class='driverImage' style='background-image: url(\"./assets/"+destinations[i].image+"\")'></div><div class='mailTitle'><strong>"+destinations[i].title+"</strong></div><div class='driverDescription'>"+destinations[i].description+"</div><div class='driverDescription2'></div></div>";
-		while(document.getElementsByClassName("driverDescription")[i].scrollHeight > document.getElementsByClassName("driverDescription")[i].offsetHeight){
-			document.getElementsByClassName("driverDescription2")[i].innerHTML = document.getElementsByClassName("driverDescription")[i].innerHTML.substring(document.getElementsByClassName("driverDescription")[i].innerHTML.lastIndexOf(" ")) + document.getElementsByClassName("driverDescription2")[i].innerHTML;
-			document.getElementsByClassName("driverDescription")[i].innerHTML = document.getElementsByClassName("driverDescription")[i].innerHTML.substring(0, document.getElementsByClassName("driverDescription")[i].innerHTML.lastIndexOf(" "));
-		}
-	}
-	for(let i = 0; i < destinations.length; i++){
-		document.getElementsByClassName("driver")[i].onclick = function(){
-			if(Dom.driver.previous !== undefined){
-				document.getElementsByClassName("driver")[Dom.driver.previous].style.backgroundColor = "#fef9b4";
+	if(Dom.changeBook("driverPage")){//, true/*false*/, true);
+		document.getElementById("driverPageBuy").style.display = "none";
+		document.getElementById("driverPageMain").innerHTML = "<br><h1>"+npc.name+"</h1>";
+		document.getElementById("driverPageMain").innerHTML += "<p>"+npc.chat.driverText+"<p><br>";
+		for(let i = 0; i < destinations.length; i++){
+			document.getElementById("driverPageMain").innerHTML += "<div class='driver' ><div class='driverImage' style='background-image: url(\"./assets/"+destinations[i].image+"\")'></div><div class='mailTitle'><strong>"+destinations[i].title+"</strong></div><div class='driverDescription'>"+destinations[i].description+"</div><div class='driverDescription2'></div></div>";
+			while(document.getElementsByClassName("driverDescription")[i].scrollHeight > document.getElementsByClassName("driverDescription")[i].offsetHeight){
+				document.getElementsByClassName("driverDescription2")[i].innerHTML = document.getElementsByClassName("driverDescription")[i].innerHTML.substring(document.getElementsByClassName("driverDescription")[i].innerHTML.lastIndexOf(" ")) + document.getElementsByClassName("driverDescription2")[i].innerHTML;
+				document.getElementsByClassName("driverDescription")[i].innerHTML = document.getElementsByClassName("driverDescription")[i].innerHTML.substring(0, document.getElementsByClassName("driverDescription")[i].innerHTML.lastIndexOf(" "));
 			}
-			if(Dom.driver.previous !== i){
-				Dom.driver.previous = i;
-				document.getElementsByClassName("driver")[i].style.backgroundColor = "#fdf581";
-				document.getElementById("driverPageBuy").innerHTML = "Go to <strong>"+destinations[i].title+"</strong> for <strong>"+destinations[i].cost+"</strong> gold";
-				document.getElementById("driverPageBuy").style.display = "";
+		}
+		for(let i = 0; i < destinations.length; i++){
+			document.getElementsByClassName("driver")[i].onclick = function(){
+				if(Dom.driver.previous !== undefined){
+					document.getElementsByClassName("driver")[Dom.driver.previous].style.backgroundColor = "#fef9b4";
+				}
+				if(Dom.driver.previous !== i){
+					Dom.driver.previous = i;
+					document.getElementsByClassName("driver")[i].style.backgroundColor = "#fdf581";
+					document.getElementById("driverPageBuy").innerHTML = "Go to <strong>"+destinations[i].title+"</strong> for <strong>"+destinations[i].cost+"</strong> gold";
+					document.getElementById("driverPageBuy").style.display = "";
+				}else{
+					Dom.driver.previous = undefined;
+					document.getElementById("driverPageBuy").style.display = "none";
+				}
+			}
+		}
+		document.getElementById("driverPageBuy").onclick = function(){
+			if(Dom.inventory.check(2, "currency", destinations[Dom.driver.previous].cost)){
+				Dom.alert.target = function(destination){
+					Dom.inventory.removeById(2, "currency", destinations[Dom.driver.previous].cost);
+					Game.loadArea(destination.destinationName, destination.destinationPosition);
+				}
+				Dom.alert.ev = destinations[Dom.driver.previous];
+				Dom.alert.page("Are you sure you want to go to <strong>"+destinations[Dom.driver.previous].title+"</strong> for <strong>"+destinations[Dom.driver.previous].cost+"</strong> gold?", 1);
 			}else{
-				Dom.driver.previous = undefined;
-				document.getElementById("driverPageBuy").style.display = "none";
+				document.getElementById("driverPageBuy").style.borderColor = "red";
+				setTimeout(function(){
+					document.getElementById("driverPageBuy").style.borderColor = "#886622";
+				},200);
 			}
-		}
-	}
-	document.getElementById("driverPageBuy").onclick = function(){
-		if(Dom.inventory.check(2, "currency", destinations[Dom.driver.previous].cost)){
-			Dom.alert.target = function(destination){
-				Dom.inventory.removeById(2, "currency", destinations[Dom.driver.previous].cost);
-				Game.loadArea(destination.destinationName, destination.destinationPosition);
-			}
-			Dom.alert.ev = destinations[Dom.driver.previous];
-			Dom.alert.page("Are you sure you want to go to <strong>"+destinations[Dom.driver.previous].title+"</strong> for <strong>"+destinations[Dom.driver.previous].cost+"</strong> gold?", 1);
-		}else{
-			document.getElementById("driverPageBuy").style.borderColor = "red";
-			setTimeout(function(){
-				document.getElementById("driverPageBuy").style.borderColor = "#886622";
-			},200);
 		}
 	}
 }
 
 Dom.mail.page = function(){
-	Dom.changeBook("mailPage", true/*false*/, true);
-	document.getElementById("mailPage").innerHTML = "<br><h1>Mailbox</h1><br>";
-	for(let i = Player.mail.mail.length-1; i >= 0; i--){
-		document.getElementById("mailPage").innerHTML += "<div "+/*(Player.mail.mail[i].flag ? "style='border-color: black'" : "")+*/"class='mail' "+(Player.mail.opened.includes(Player.mail.mail[i].title) && !Player.mail.mail[i].flag ?"style='background-color: #fef9b4;'":"")+"><div class='mailImage'></div><div class='mailTitle'><strong>"+Player.mail.mail[i].title+"</strong><br>From "+Player.mail.mail[i].sender+"<br>Received on "+Player.mail.mail[i].date+"</div><div class='mailFlag'></div><div class='mailDelete'>X</div></div>";
-		if(Player.mail.mail[i].flag){
-			document.getElementsByClassName("mailFlag")[Player.mail.mail.length-1-i].innerHTML +=
-			'<svg class="flag" height="22" width="15" tabindex = "0">\
-			<polygon points ="0,0 15,1 15,13 1,12 1,22 0,22 0,0 1,0 1,12" style="fill:#ee0000;stroke:black;stroke-width:1" />\
-			</svg>';
-		}else{
-			document.getElementsByClassName("mailFlag")[Player.mail.mail.length-1-i].innerHTML +=
-			'<svg class="flag" height="22" width="15" tabindex = "0">\
-			<polygon points ="0,0 15,1 15,13 1,12 1,22 0,22 0,0 1,0 1,12" style="fill:#886622;stroke:black;stroke-width:1" />\
-			</svg>';
-		}
-	}
-	if(Player.mail.mail.length === 0){
-		document.getElementById("mailPage").innerHTML += "<br><br>You have no mail, come back soon.<br><br><br><br>";
-	}
-	document.getElementById("mailPage").innerHTML += "<br><br><center><div class='closeClass' id='closeMail' onclick='Dom.closePage(\"mailPage\")'>Close</div></center>";
-	for(let i = Player.mail.mail.length-1; i >= 0; i--){
-		let ii = Player.mail.mail.length-1-i;
-		if(Player.mail.mail[i].image.substring(0,2) === "./"){
-			document.getElementsByClassName("mailImage")[ii].style.backgroundImage = "url('"+Player.mail.mail[i].image+".png')";
-		}else{
-			document.getElementsByClassName("mailImage")[ii].style.backgroundImage = "url('"+Offsets[Player.mail.mail[i].image].image+".png')";
-			document.getElementsByClassName("mailImage")[ii].style.backgroundPosition = Offsets[Player.mail.mail[i].image].x+"%"+Offsets[Player.mail.mail[i].image].y+"%";
-		}
-		document.getElementsByClassName("mailDelete")[ii].onclick = function(){
-			Dom.alert.target = function(){
-				Player.mail.mail.splice(i, 1);
-				Dom.mail.page();
-				Game.mailboxUpdate("read");
-			}
-			Dom.alert.page("Are you sure you want to delete this mail? It will be lost forever!", 1);
-		}
-		document.getElementsByClassName("mailFlag")[ii].onclick = function(){
-			Dom.mail.notOpen = true;
+	if(Dom.changeBook("mailPage")){//, true/*false*/, true);
+		document.getElementById("mailPage").innerHTML = "<br><h1>Mailbox</h1><br>";
+		for(let i = Player.mail.mail.length-1; i >= 0; i--){
+			document.getElementById("mailPage").innerHTML += "<div "+/*(Player.mail.mail[i].flag ? "style='border-color: black'" : "")+*/"class='mail' "+(Player.mail.opened.includes(Player.mail.mail[i].title) && !Player.mail.mail[i].flag ?"style='background-color: #fef9b4;'":"")+"><div class='mailImage'></div><div class='mailTitle'><strong>"+Player.mail.mail[i].title+"</strong><br>From "+Player.mail.mail[i].sender+"<br>Received on "+Player.mail.mail[i].date+"</div><div class='mailFlag'></div><div class='mailDelete'>X</div></div>";
 			if(Player.mail.mail[i].flag){
-				Player.mail.mail[i].flag = false;
+				document.getElementsByClassName("mailFlag")[Player.mail.mail.length-1-i].innerHTML +=
+				'<svg class="flag" height="22" width="15" tabindex = "0">\
+				<polygon points ="0,0 15,1 15,13 1,12 1,22 0,22 0,0 1,0 1,12" style="fill:#ee0000;stroke:black;stroke-width:1" />\
+				</svg>';
 			}else{
-				Player.mail.mail[i].flag = true;
+				document.getElementsByClassName("mailFlag")[Player.mail.mail.length-1-i].innerHTML +=
+				'<svg class="flag" height="22" width="15" tabindex = "0">\
+				<polygon points ="0,0 15,1 15,13 1,12 1,22 0,22 0,0 1,0 1,12" style="fill:#886622;stroke:black;stroke-width:1" />\
+				</svg>';
 			}
-			Dom.mail.page();
 		}
-		document.getElementsByClassName("mail")[ii].onclick = function(){
-			// if you did not click on delete or flag
-			if(document.getElementById("alert").hidden && !Dom.mail.notOpen){
-				let first = false;
-				// if it is unopened
-				if(!Player.mail.opened.includes(Player.mail.mail[i].title)){
-					first = true;
-					Player.mail.opened.push(Player.mail.mail[i].title);
-					if(Player.mail.mail[i].give !== undefined && Dom.inventory.requiredSpace(Player.mail.mail[i].give)){
-						for(let x = 0; x < Player.mail.mail[i].give.length; x++){
-							Dom.inventory.give(Player.mail.mail[i].give[x].item, Player.mail.mail[i].give[x].quantity);
-						}
-					}else if(Player.mail.mail[i].give !== undefined){
-						Player.mail.opened.pop();
-						Dom.alert.page("You do not have sufficient inventory space to hold the items attached to this mail. Come back to collect them when you have more space.", 0);
-					}
-				}
-				if(Player.mail.mail[i].openFunction !== "quest.start"){
-					ExecuteFunctionByName(Player.mail.mail[i].openFunction, Dom, Player.mail.mail[i].openParameters);
-				}else{
-					let quest = Quests[Player.mail.mail[i].openParameters[0]][Player.mail.mail[i].openParameters[1]];
-					if(Player.quests.possibleQuestArray.includes(quest.quest)){
-						ExecuteFunctionByName("quest.start", Dom, [quest]);
-					}else{
-						ExecuteFunctionByName("text.page", Dom, [quest.quest, "<strong>"+quest.startName+"</strong><br>"+quest.startChat, true, [], []]);
-					}
-				}
-				Game.mailboxUpdate("read");
-				/*if(first && Player.mail.mail[i].openFunction === "quest.start"){
-					Player.mail.mail[i].openFunction = "text.page";
-					Player.mail.mail[i].openParameters = [Player.mail.mail[i].openParameters.quest, "<strong>"+Player.mail.mail[i].startName+"</strong>"+Player.mail.mail[i].startChat];
-				}*/
+		if(Player.mail.mail.length === 0){
+			document.getElementById("mailPage").innerHTML += "<br><br>You have no mail, come back soon.<br><br><br><br>";
+		}
+		document.getElementById("mailPage").innerHTML += "<br><br><center><div class='closeClass' id='closeMail' onclick='Dom.closePage(\"mailPage\")'>Close</div></center>";
+		for(let i = Player.mail.mail.length-1; i >= 0; i--){
+			let ii = Player.mail.mail.length-1-i;
+			if(Player.mail.mail[i].image.substring(0,2) === "./"){
+				document.getElementsByClassName("mailImage")[ii].style.backgroundImage = "url('"+Player.mail.mail[i].image+".png')";
 			}else{
-				Dom.mail.notOpen = false;
+				document.getElementsByClassName("mailImage")[ii].style.backgroundImage = "url('"+Offsets[Player.mail.mail[i].image].image+".png')";
+				document.getElementsByClassName("mailImage")[ii].style.backgroundPosition = Offsets[Player.mail.mail[i].image].x+"%"+Offsets[Player.mail.mail[i].image].y+"%";
+			}
+			document.getElementsByClassName("mailDelete")[ii].onclick = function(){
+				Dom.alert.target = function(){
+					Player.mail.mail.splice(i, 1);
+					Dom.mail.page();
+					Game.mailboxUpdate("read");
+				}
+				Dom.alert.page("Are you sure you want to delete this mail? It will be lost forever!", 1);
+			}
+			document.getElementsByClassName("mailFlag")[ii].onclick = function(){
+				Dom.mail.notOpen = true;
+				if(Player.mail.mail[i].flag){
+					Player.mail.mail[i].flag = false;
+				}else{
+					Player.mail.mail[i].flag = true;
+				}
+				Dom.mail.page();
+			}
+			document.getElementsByClassName("mail")[ii].onclick = function(){
+				// if you did not click on delete or flag
+				if(document.getElementById("alert").hidden && !Dom.mail.notOpen){
+					let first = false;
+					// if it is unopened
+					if(!Player.mail.opened.includes(Player.mail.mail[i].title)){
+						first = true;
+						Player.mail.opened.push(Player.mail.mail[i].title);
+						if(Player.mail.mail[i].give !== undefined && Dom.inventory.requiredSpace(Player.mail.mail[i].give)){
+							for(let x = 0; x < Player.mail.mail[i].give.length; x++){
+								Dom.inventory.give(Player.mail.mail[i].give[x].item, Player.mail.mail[i].give[x].quantity);
+							}
+						}else if(Player.mail.mail[i].give !== undefined){
+							Player.mail.opened.pop();
+							Dom.alert.page("You do not have sufficient inventory space to hold the items attached to this mail. Come back to collect them when you have more space.", 0);
+						}
+					}
+					if(Player.mail.mail[i].openFunction !== "quest.start"){
+						ExecuteFunctionByName(Player.mail.mail[i].openFunction, Dom, Player.mail.mail[i].openParameters);
+					}else{
+						let quest = Quests[Player.mail.mail[i].openParameters[0]][Player.mail.mail[i].openParameters[1]];
+						if(Player.quests.possibleQuestArray.includes(quest.quest)){
+							ExecuteFunctionByName("quest.start", Dom, [quest]);
+						}else{
+							ExecuteFunctionByName("text.page", Dom, [quest.quest, "<strong>"+quest.startName+"</strong><br>"+quest.startChat, true, [], []]);
+						}
+					}
+					Game.mailboxUpdate("read");
+					/*if(first && Player.mail.mail[i].openFunction === "quest.start"){
+						Player.mail.mail[i].openFunction = "text.page";
+						Player.mail.mail[i].openParameters = [Player.mail.mail[i].openParameters.quest, "<strong>"+Player.mail.mail[i].startName+"</strong>"+Player.mail.mail[i].startChat];
+					}*/
+				}else{
+					Dom.mail.notOpen = false;
+				}
 			}
 		}
 	}

@@ -690,7 +690,7 @@ var Quests = {
 			finishChat: `Interesting. Let's see how this goes.`,
 			
 			onQuestFinish: function () {
-				Dom.changeBook("chatPage", true, false, 11000); // start cutscene
+				Dom.changeBook("chatPage");//, true, false, 11000); // start cutscene
 				Game.sayChat("Ciarra Darkbrew", "Stand back. We wouldn't want your arms to detatch so soon.", false, 1000, true);
 				Game.sayChat("Ciarra Darkbrew", "/me adds the potion ingredients to an inert vial.", false, 4000, true);
 				Dom.chat.insert("The vial fizzes rapidly.", 6500, true);
@@ -768,7 +768,7 @@ var Quests = {
 			finishChat: `Try two. Stand back; you wouldn't want to die <em>such</em> a horrible death.`,
 			
 			onQuestFinish: function () {
-				Dom.changeBook("chatPage", true, false, 10000);
+				Dom.changeBook("chatPage");//, true, false, 10000);
 				Game.sayChat("Ciarra Darkbrew", "/me adds the potion ingredients to an inert vial.", false, 1500, true);
 				Dom.chat.insert("The vial fizzes rapidly.", 4000, true);
 				Dom.chat.insert("The vial simmers to produce a bluish-green coloured liquid.", 6000, true);
