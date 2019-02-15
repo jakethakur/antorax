@@ -1559,7 +1559,7 @@ var Items = {
 			onClick: function () {
 				try{
 					dataURL = document.getElementById("game").toDataURL("image/png");
-					Dom.alert.page("Click the image to download<br><br><a href='"+dataURL+"' download><img src='"+dataURL+"' height='200px'></img></a>",0);
+					Dom.alert.page("Click the image to download<br><br><a href='"+dataURL+"' download><img src='"+dataURL+"' height='200px'></img></a>", 0, undefined, "inventoryPage");
 				}catch(error){
 					console.error("Camera does not work on local versions. If you are using the main version please report this error.");
 				}
@@ -2718,7 +2718,7 @@ var Items = {
 				let functionText = "To be delivered to " + targetNPC;
 				Player.inventory.items[inventoryPosition].targetNPC = targetNPC;
 				Player.inventory.items[inventoryPosition].functionText = functionText;
-				Dom.alert.page("You fished up a present! Deliver it to its owner first, then try to fish up another.");
+				Dom.alert.page("You fished up a present! Deliver it to its owner first, then try to fish up another.", 0, undefined, "game");
 				// update quest log
 				Dom.checkProgress();
 			},
