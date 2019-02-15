@@ -11,9 +11,17 @@ let Weather = {
 
 // called by Game.init
 Weather.init = function () {
-	// populate particleArray
 	this.particleArray = []; // array of precipitation particles
-	this.update(); // includes chooshing weather and populating particleArray
+	// updateVariables called by loadArea to populate particleArray and decide on weather
+	
+	// set a timeout for updating weather and time (for efficiency)
+	// every 10s
+	setInterval(function () {
+		Weather.updateVariables();
+		Event.updateTime(Game.areaName);
+		Game.renderDayNight();
+		map.setDayNightTiles();
+	}, 10000);
 }
 
 // called by Game.loadArea
@@ -101,21 +109,6 @@ Weather.heroMove = function (screenMovedX, screenMovedY) {
 	}
 }
 
-// update weather
-// delta is fraction of second (where 1 is 1 second)
-// called by Weather.init and Game when there is at least 1 particle
-Weather.update = function (delta) {
-	this.updateVariables();
-	
-	if (this.weatherType !== "clear") { // no more weather particles should be made if it is clear
-		this.updateParticleNumber();
-	}
-		
-	if (delta !== undefined) { // this function is also called by Weather.init with no delta
-		this.moveParticles(delta);
-	}
-}
-
 // update weather random variables
 Weather.updateVariables = function () {
 	// update random seed variable
@@ -125,11 +118,14 @@ Weather.updateVariables = function () {
 	// weather conditions
 	if (this.weatherType !== "clear") {
 		this.updateIntensity();
+		// add or remove weather particles
+		this.updateParticleNumber();
 	}
 	this.updateWind();
 }
 
 // update the number of particles by adding/removing them
+// called by Weather.updateVariables (if the weather is not clear)
 Weather.updateParticleNumber = function () {
 	// add/remove weather particles if intensity has changed
 	// AND if weather is not clear (though this is still called so existing particles have a chance to disappear first)
@@ -152,6 +148,8 @@ Weather.updateParticleNumber = function () {
 }
 
 // move weather particles
+// called by Game.update
+// delta is fraction of second (where 1 is 1 second)
 Weather.moveParticles = function (delta) {
 	for (let i = 0; i < this.particleArray.length; i++) { // iterate through particle array
 		let particle = this.particleArray[i];
@@ -200,6 +198,7 @@ Weather.render = function () {
 	Game.ctx.fillStyle="#FFFFFF";
 	for (let i = 0; i < this.particleArray.length; i++) { // iterate through particle array
 		let particle = this.particleArray[i];
+		
 		if (particle.type === "snow") {
 			Game.ctx.fillStyle = "#FFFFFF";
 			Game.ctx.fillRect(particle.x, particle.y , 2, 2);

@@ -7,6 +7,7 @@ let Event = {
 	getDate: function () {
 		let d = {};
 		d.today = new Date();
+		d.minute = d.today.getMinutes();
 		d.hour = d.today.getHours();
 		d.day = d.today.getDate();
 		d.month = d.today.getMonth() + 1; // January is 0, so add 1
@@ -33,31 +34,95 @@ let Event = {
 		// get date
 		let d = this.getDate();
 		
-		// check if the area always has a specific time
 		if (Areas[areaName].time !== undefined) {
+			// area always has a specific time
 			this.time = Areas[areaName].time;
 		}
 		
-		// Summer Solstice - sun up all day
-		if (d.day == 21 && d.month == 6) {
+		else if (d.day == 21 && d.month == 6) {
+			// Summer Solstice - sun up all day
 			this.time = "day";
 		}
-		// Winter Solstice - sun down all day
 		else if (d.day == 21 && d.month == 12) {
+			// Winter Solstice - sun down all day
 			this.time = "night";
 		}
-	
-		// day time
-		if (d.hour >= 7 && d.hour < 19) {
+		
+		else if (d.hour >= 7 && d.hour < 19) {
+			// day time
 			this.time = "day";
 		}
-		// night time
 		else if (this.event === "Samhain") {
+			// halloween night time
 			this.time = "bloodMoon";
 		}
 		else {
+			// night time
 			this.time = "night";
 		}
+		
+		this.updateDarkness(d); // update how dark the canvas is
+	},
+	
+	// update how dark the canvas is (called automatically by updateTime)
+	updateDarkness: function (d) {
+		// 0.40 darkness is max
+		// lights turn on at 0.20 darkness
+		
+		if (d === undefined) {
+			// no date parameter
+			// get date
+			let d = this.getDate();
+		}
+		
+		let timeDarkness = 0; // darkness due to time
+		
+		if (d.hour === 18 && d.minute > 30) {
+			timeDarkness = 0.2 - ((60 - d.minute) * 0.2 / 30);
+			// linear darkness progression from 18:30 to 19:00 of 0.00 to 0.20
+		}
+		else if (d.hour === 19 && d.minute < 30) {
+			timeDarkness = 0.4 - ((30 - d.minute) * 0.2 / 30);
+			// linear darkness progression from 19:00 to 19:30 of 0.20 to 0.40
+		}
+		else if (d.hour === 6 && d.minute > 30) {
+			timeDarkness = 0.4 - ((60 - d.minute) * 0.2 / 30);
+			// linear darkness progression from 06:30 to 07:00 of 0.40 to 0.20
+		}
+		else if (d.hour === 7 && d.minute < 30) {
+			timeDarkness = 0.2 - ((30 - d.minute) * 0.2 / 30);
+			// linear darkness progression from 07:00 to 07:30 of 0.20 to 0.00
+		}
+		else if (this.time === "night" || this.time === "bloodMoon") {
+			// completely dark
+			timeDarkness = 0.4;
+		}
+		else { // time must be day
+			// completely light
+			timeDarkness = 0;
+		}
+		
+		// if it is halloween and it is dark due to time, notify Game to make the sky blood dark for blood moon
+		// Game can't check Event.time because it isn't blood moon 30 mins before and after when it is getting dark
+		if (this.event === "Samhain" && timeDarkness > 0) {
+			this.redSky = true;
+		}
+		else {
+			this.redSky = false;
+		}
+		
+		let weatherDarkness = 0; // darkness due to weather
+		
+		if (Weather.weatherType === "rain") {
+			weatherDarkness = 0.3 * (Weather.intensity / 150) / (Game.canvasArea / 36000);
+			// 0.30 darkness if the weather is at its hightest intensity
+		}
+		else {
+			// completely light
+			weatherDarkness = 0;
+		}
+		
+		this.darkness = Math.max(timeDarkness, weatherDarkness); // take the darkest of the two
 	},
 	
 	// update event (called on loadArea)
@@ -206,7 +271,7 @@ var Areas = {
 		areaTeleports: [
 			{
 				// teleport to logging camp (path - north)
-				x: 315,
+				x: 210,
 				y: -49,
 				width: 210,
 				height: 2,
@@ -220,7 +285,7 @@ var Areas = {
 			{
 				// instructions pop up when bridge is moved to
 				x: 1100,
-				y: 600,
+				y: 300,
 				width: 1,
 				height: 600,
 				onPlayerTouch: function () {
@@ -234,12 +299,12 @@ var Areas = {
 					// otherwise if the player hasn't started the quest, teleport them back to make them!
 					else if (!questStarted && !Player.quests.completedQuestArray.includes("To the Logging Camp")) {
 						Game.hero.teleport(2297, 387);
-						Dom.alert.page("You need to start your first quest. Speak to the Cart Driver who is right next to you.")
+						Dom.alert.page("You need to start your first quest. Speak to the Cart Driver who is right next to you.", 0, undefined, "game")
 					}
 					// otherwise if the player hasn't bought the weapon, teleport them back to make them!
 					else if (!weaponBought && !Player.quests.completedQuestArray.includes("To the Logging Camp")) {
 						Game.hero.teleport(1457, 385);
-						Dom.alert.page("You need to buy a weapon to progress in your quest. Buy one from the nearby Weaponsmith.")
+						Dom.alert.page("You need to buy a weapon to progress in your quest. Buy one from the nearby Weaponsmith.", 0, undefined, "game")
 					}
 				}
 			}
@@ -571,7 +636,7 @@ var Areas = {
 		areaTeleports: [
 			{
 				// teleport to fishers' valley (path - south)
-				x: 1020,
+				x: 900,
 				y: 1249,
 				width: 240,
 				height: 2,
@@ -581,7 +646,7 @@ var Areas = {
 			},
 			{
 				// teleport to tavern (tavern door - north)
-				x: 900,
+				x: 870,
 				y: 87,
 				width: 60,
 				height: 2,
@@ -591,8 +656,8 @@ var Areas = {
 			},
 			{
 				// teleport to the nilbog (bridge - east)
-				x: 1550,
-				y: 1200,
+				x: 1490,
+				y: 600,
 				width: 120,
 				height: 1200,
 				teleportTo: "nilbog",
@@ -857,7 +922,7 @@ var Areas = {
 							// remove the item
 							Dom.inventory.removeById(21, "fish", 1);
 							// start cutscene
-							Dom.changeBook("chatPage");//, true, false, 6000);
+							Dom.changeBook("chatPage");
 							// quest progress
 							Player.quests.questProgress.christmasPresentsDelivered = 1; // always the first NPC to be delivered to
 							// chat
@@ -973,7 +1038,7 @@ var Areas = {
 							// remove the item
 							Dom.inventory.removeById(21, "fish");
 							// start cutscene
-							Dom.changeBook("chatPage");//, true, false, 6000);
+							Dom.changeBook("chatPage");
 							// quest progress
 							Player.quests.questProgress.christmasPresentsDelivered = 2; // always the second NPC to be delivered to
 							// chat
@@ -1247,8 +1312,8 @@ var Areas = {
 		
 		areaTeleports: [
 			{
-				x: 361,
-				y: 800,
+				x: 331,
+				y: 770,
 				width: 60,
 				height: 60,
 				teleportTo: "eaglecrestLoggingCamp",
@@ -1434,7 +1499,7 @@ var Areas = {
 			spawnLocations: [
 				{x: 576, y: 30,},
 				{x: 1500, y: 150,},
-				{x: 1470, y: 640,},
+				{x: 1470, y: 670,},
 				{x: 1580, y: 1310,},
 				{x: 845, y: 1373,},
 			],
@@ -1448,8 +1513,8 @@ var Areas = {
 		areaTeleports: [
 			{
 				// teleport to logging camp (bridge - west)
-				x: 360,
-				y: 1560,
+				x: 120,
+				y: 960,
 				width: 480,
 				height: 1200,
 				teleportTo: "eaglecrestLoggingCamp",
@@ -1458,7 +1523,7 @@ var Areas = {
 			},
 			{
 				// teleport to nilbog tower (tower - north east)
-				x: 1680,
+				x: 1650,
 				y: 445,
 				width: 60,
 				height: 2,
@@ -1729,7 +1794,7 @@ var Areas = {
 		areaTeleports: [
 			{
 				// teleport to nilbog (bottom of tower)
-				x: 240,
+				x: 120,
 				y: 649,
 				width: 240,
 				height: 2,
@@ -1740,7 +1805,7 @@ var Areas = {
 			{
 				// teleport to floor 2
 				x: 540,
-				y: 60,
+				y: 30,
 				width: 2,
 				height: 60,
 				teleportTo: "nilbogTower2",
@@ -1793,8 +1858,8 @@ var Areas = {
 		tripwires: [
 			{
 				// going to top of stairs
-				x: 338,
-				y: 220,
+				x: 337,
+				y: 200,
 				width: 2,
 				height: 40,
 				collisionType: "feet",
@@ -1882,8 +1947,8 @@ var Areas = {
 		areaTeleports: [
 			{
 				// teleport to floor 1
-				x: 177,
-				y: 600,
+				x: 172,
+				y: 595,
 				width: 10,
 				height: 10,
 				teleportTo: "nilbogTower1",
@@ -1893,7 +1958,7 @@ var Areas = {
 			{
 				// teleport to floor 3
 				x: 540,
-				y: 60,
+				y: 30,
 				width: 2,
 				height: 60,
 				teleportTo: "nilbogTower3",
@@ -1955,8 +2020,8 @@ var Areas = {
 		tripwires: [
 			{
 				// going to bottom
-				x: 60,
-				y: 600,
+				x: 59,
+				y: 580,
 				width: 2,
 				height: 40,
 				collisionType: "feet",
@@ -1974,8 +2039,8 @@ var Areas = {
 			},
 			{
 				// going to top of stairs
-				x: 338,
-				y: 220,
+				x: 337,
+				y: 200,
 				width: 2,
 				height: 40,
 				collisionType: "feet",
@@ -2050,8 +2115,8 @@ var Areas = {
 		areaTeleports: [
 			{
 				// teleport to floor 2
-				x: 177,
-				y: 600,
+				x: 172,
+				y: 595,
 				width: 10,
 				height: 10,
 				teleportTo: "nilbogTower2",
@@ -2061,7 +2126,7 @@ var Areas = {
 			{
 				// teleport to floor 4
 				x: 540,
-				y: 60,
+				y: 30,
 				width: 2,
 				height: 60,
 				teleportTo: "nilbogTower4",
@@ -2123,8 +2188,8 @@ var Areas = {
 		tripwires: [
 			{
 				// going to bottom
-				x: 60,
-				y: 600,
+				x: 59,
+				y: 580,
 				width: 2,
 				height: 40,
 				collisionType: "feet",
@@ -2142,8 +2207,8 @@ var Areas = {
 			},
 			{
 				// going to top of stairs
-				x: 338,
-				y: 220,
+				x: 337,
+				y: 200,
 				width: 2,
 				height: 40,
 				collisionType: "feet",
@@ -2235,8 +2300,8 @@ var Areas = {
 		areaTeleports: [
 			{
 				// teleport to floor 3
-				x: 177,
-				y: 600,
+				x: 172,
+				y: 595,
 				width: 10,
 				height: 10,
 				teleportTo: "nilbogTower3",
@@ -2246,7 +2311,7 @@ var Areas = {
 			{
 				// teleport to floor 5
 				x: 540,
-				y: 60,
+				y: 30,
 				width: 2,
 				height: 60,
 				teleportTo: "nilbogTower5",
@@ -2308,8 +2373,8 @@ var Areas = {
 		tripwires: [
 			{
 				// going to bottom
-				x: 60,
-				y: 600,
+				x: 59,
+				y: 580,
 				width: 2,
 				height: 40,
 				collisionType: "feet",
@@ -2327,8 +2392,8 @@ var Areas = {
 			},
 			{
 				// going to top of stairs
-				x: 338,
-				y: 220,
+				x: 337,
+				y: 200,
 				width: 2,
 				height: 40,
 				collisionType: "feet",
@@ -2415,8 +2480,8 @@ var Areas = {
 		areaTeleports: [
 			{
 				// teleport to floor 4
-				x: 177,
-				y: 600,
+				x: 172,
+				y: 595,
 				width: 10,
 				height: 10,
 				teleportTo: "nilbogTower4",
@@ -2441,8 +2506,8 @@ var Areas = {
 		tripwires: [
 			{
 				// going to bottom
-				x: 60,
-				y: 600,
+				x: 59,
+				y: 580,
 				width: 2,
 				height: 40,
 				collisionType: "feet",
@@ -2515,6 +2580,10 @@ var Areas = {
 			guard2: {normal: "./assets/npcs/eaglecrestGuard2.png"},
 			mailbox: {normal: "./assets/objects/mailbox.png"},
 			mailboxUnread: {normal: "./assets/objects/mailboxUnread.png"},
+			fountain1: {normal: "./assets/objects/fountainFlowing1.png"},
+			fountain2: {normal: "./assets/objects/fountainFlowing2.png"},
+			fountain3: {normal: "./assets/objects/fountainFlowing3.png"},
+			fountain4: {normal: "./assets/objects/fountainFlowing4.png"},
 		},
 		
 		song_day: "./assets/music/Eaglecrest.mp3",
@@ -2532,7 +2601,7 @@ var Areas = {
 		areaTeleports: [
 			{
 				// teleport to bank
-				x: 1260,
+				x: 1200,
 				y: 210,
 				width: 120,
 				height: 2,
@@ -2687,6 +2756,34 @@ var Areas = {
 				y: 1175,
 				image: "cart1",
 			},
+			{
+				x: 750,
+				y: 700,
+				image: "fountain1",
+				name: "Water Fountain",
+				// animation!
+				onLoad: function () {
+					if (Game.areaName === "eaglecrest") {
+						if (this.imageName === "fountain1") {
+							this.image = Loader.getImage("fountain2");
+							this.imageName = "fountain2";
+						}
+						else if (this.imageName === "fountain2") {
+							this.image = Loader.getImage("fountain3");
+							this.imageName = "fountain3";
+						}
+						else if (this.imageName === "fountain3") {
+							this.image = Loader.getImage("fountain4");
+							this.imageName = "fountain4";
+						}
+						else if (this.imageName === "fountain4") {
+							this.image = Loader.getImage("fountain1");
+							this.imageName = "fountain1";
+						}
+					}
+					setTimeout(this.onLoad.bind(this), 300); // change image every 500ms
+				},
+			},
 		],
 	},
 	
@@ -2728,7 +2825,7 @@ var Areas = {
 		areaTeleports: [
 			{
 				// teleport to eaglecrest plaza
-				x: 540,
+				x: 420,
 				y: 949,
 				width: 240,
 				height: 2,

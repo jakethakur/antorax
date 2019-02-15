@@ -161,6 +161,41 @@ var map = {
 	setTile: function (layer, col, row, newTileNum) {
         this.layers[layer][row * map.cols + col] = newTileNum;
     },
+	// set tiles to day or night versions (called on time update by weather interval)
+	setDayNightTiles: function () {
+		// tiles changed to night versions if darkness > 0.2 (due to weather or night)
+		if (Areas[Game.areaName].mapData.nightTiles !== undefined) {
+			
+			// tiles to be changed
+			if (Areas[Game.areaName].mapData.nightTiles.length === Areas[Game.areaName].mapData.dayTiles.length) {
+				// iterate through tiles to replace
+				for (let replaceIndex = 0; replaceIndex < Areas[Game.areaName].mapData.nightTiles.length; replaceIndex++) {
+					// iterate through area's tiles to find those that need replacing
+					for (let tileIndex = 0; tileIndex < Areas[Game.areaName].mapData.layers[0].length; tileIndex++) {
+						// check day or night versions
+						if (Event.darkness >= 0.2) {
+							// night time
+							if (this.layers[0][tileIndex] === Areas[Game.areaName].mapData.dayTiles[replaceIndex]) {
+								// tile needs replacing
+								this.layers[0][tileIndex] = Areas[Game.areaName].mapData.nightTiles[replaceIndex];
+							}
+						}
+						else {
+							// day time
+							if (this.layers[0][tileIndex] === Areas[Game.areaName].mapData.nightTiles[replaceIndex]) {
+								// tile needs replacing
+								this.layers[0][tileIndex] = Areas[Game.areaName].mapData.dayTiles[replaceIndex];
+							}
+						}
+					}
+				}
+			}
+			else {
+				console.error("dayTiles and nightTiles should have the same length in areadata.js for area " + areaName + ", but do not");
+			}
+			
+		}
+	}
 };
 
 //
@@ -3299,21 +3334,7 @@ Game.loadArea = function (areaName, destination) {
 		}
 	
 		// if it is nighttime, change all daytime tiles to their nighttime versions
-		if (Event.time === "night" && typeof Areas[areaName].mapData.nightTiles !== "undefined") {
-			if (Areas[areaName].mapData.nightTiles.length === Areas[areaName].mapData.dayTiles.length) {
-				for (let replaceIndex = 0; replaceIndex < Areas[areaName].mapData.nightTiles.length; replaceIndex++) { // iterate through tiles to replace
-					for (let tileIndex = 0; tileIndex < Areas[areaName].mapData.layers[0].length; tileIndex++) { // iterate through area's tiles to find those that need replacing
-						if (map.layers[0][tileIndex] == Areas[areaName].mapData.dayTiles[replaceIndex]) {
-							// tile needs replacing
-							map.layers[0][tileIndex] = Areas[areaName].mapData.nightTiles[replaceIndex];
-						}
-					}
-				}
-			}
-			else {
-				console.error("dayTiles and nightTiles should have the same length in areadata.js for area " + areaName + ", but do not");
-			}
-		}
+		map.setDayNightTiles();
 		
 		// set tileset
 		this.tileAtlas = Loader.getImage('tiles');
@@ -3593,9 +3614,14 @@ Game.loadArea = function (areaName, destination) {
 		}
 		
 		// render secondary canvas
-		Game.secondary.render();
+		this.secondary.render();
 		
-		// render day/night effects
+		// decide on weather
+		Weather.updateVariables(); // includes choosing weather and populating particleArray
+		// incorporate weather into time
+		Event.updateTime(areaName);
+		
+		// render day night
 		Game.renderDayNight();
 		
 		// Antorax Day fireworks
@@ -4643,9 +4669,9 @@ Game.update = function (delta) {
 		}
 	}
 	
-	// update weather
+	// update weather particles
 	if (document.getElementById("weatherOn").checked && !Areas[Game.areaName].indoors) {
-		Weather.update(delta);
+		Weather.moveParticles(delta);
 	}
 };
 
@@ -5722,17 +5748,6 @@ Game.render = function (delta) {
 			Weather.render();
 		}
 	}
-	
-    // fill canvas 'background colour' as black
-    this.ctx.fillStyle = "black";
-	if (this.viewportOffsetX > 0) {
-    	this.ctx.fillRect(0, 0, this.viewportOffsetX / 2, Dom.canvas.height);
-    	this.ctx.fillRect(this.viewportOffsetX + map.cols * map.tsize, 0, this.viewportOffsetX, Dom.canvas.height);
-	}
-	if (this.viewportOffsetY > 0) {
-    	this.ctx.fillRect(0, 0, Dom.canvas.width, this.viewportOffsetY);
-    	this.ctx.fillRect(0, this.viewportOffsetY+ map.rows * map.tsize, Dom.canvas.width, this.viewportOffsetY);
-	}
 };
 
 //
@@ -5782,6 +5797,18 @@ Game.secondary.updateCursor = function (event) {
 Game.secondary.render = function () {
 	// clear secondary canvas
 	this.ctx.clearRect(0, 0, Dom.canvas.width, Dom.canvas.height);
+	
+    // fill canvas 'background colour' as black
+    this.ctx.fillStyle = "black";
+	this.ctx.globalAlpha = 1;
+	if (Game.viewportOffsetX > 0) {
+    	this.ctx.fillRect(0, 0, Game.viewportOffsetX, Dom.canvas.height);
+    	this.ctx.fillRect(Game.viewportOffsetX + map.cols * map.tsize, 0, Game.viewportOffsetX, Dom.canvas.height);
+	}
+	if (Game.viewportOffsetY > 0) {
+    	this.ctx.fillRect(0, 0, Dom.canvas.width, Game.viewportOffsetY);
+    	this.ctx.fillRect(0, Game.viewportOffsetY + map.rows * map.tsize, Dom.canvas.width, Game.viewportOffsetY);
+	}
 	
 	if (!Keyboard.isDown(Keyboard.keys.SHIFT, "SHIFT")) { // only render the second canvas if the player isn't pressing the shift key
 		
@@ -5909,15 +5936,18 @@ Game.renderDayNight = function () {
 	// wipe canvas
 	this.ctxDayNight.clearRect(0, 0, Dom.canvas.width, Dom.canvas.height);
 	// make canvas darker if it is night time and the player is not indoors
-	if (Event.time === "night" && !Areas[Game.areaName].indoors) {
-		this.ctxDayNight.fillStyle = "black";
-		this.ctxDayNight.globalAlpha = 0.35; // maybe change?
-		this.ctxDayNight.fillRect(0, 0, Dom.canvas.width, Dom.canvas.height);
-	}
-	else if (Event.time === "bloodMoon" && !Areas[Game.areaName].indoors) {
-		this.ctxDayNight.fillStyle = "#2d0101"; // red tint
-		this.ctxDayNight.globalAlpha = 0.45;
-		this.ctxDayNight.fillRect(0, 0, Dom.canvas.width, Dom.canvas.height);
+	if (!Areas[Game.areaName].indoors) {
+		if (Event.redSky === true) {
+			// blood moon (or one developing)
+			this.ctxDayNight.fillStyle = "#2d0101"; // red tint
+			this.ctxDayNight.globalAlpha = Event.darkness;
+			this.ctxDayNight.fillRect(0, 0, Dom.canvas.width, Dom.canvas.height);
+		}
+		else {
+			this.ctxDayNight.fillStyle = "black";
+			this.ctxDayNight.globalAlpha = Event.darkness;
+			this.ctxDayNight.fillRect(0, 0, Dom.canvas.width, Dom.canvas.height);
+		}
 	}
 }
 
