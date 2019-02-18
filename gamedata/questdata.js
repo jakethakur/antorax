@@ -42,8 +42,8 @@ var Quests = {
 			
 			onQuestStart: function() {
 				//Dom.adventure.unlockTab("quests");
-				//Dom.closePage('questStart');
-				//Dom.adventure.addInstruction(2);
+				Dom.closePage('questStart'); // so the instructions appear where the quest was
+				Dom.instructions.page(1);
 			},
 		},
 		
@@ -86,8 +86,8 @@ var Quests = {
 			
 			onQuestStart: function() {
 				//Dom.adventure.unlockTab("inventory");
-				//Dom.closePage('questStart');
-				//Dom.adventure.addInstruction(5);
+				Dom.closePage('questStart'); // so the instructions appear where the quest was
+				Dom.instructions.page(4);
 			},
 		},
 		

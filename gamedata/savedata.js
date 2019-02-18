@@ -15,9 +15,7 @@ var Player = {
 	lootArea: "Eaglecrest Logging Camp", // general area that unidentified items are from
 	lootTier: 1, // tier that unidentified items are from
 	
-	unlockedAdventures: [], // boxes in adventure page that should show
-	unlockedInstructions: ["Chapter I: Getting Started"],
-	skippedInstructions: [],
+	unlockedInstructions: [],
 	unlockedTabs: [],
 	skippedTabs: [],
 	

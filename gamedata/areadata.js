@@ -294,7 +294,7 @@ var Areas = {
 					let weaponBought = Dom.inventory.check(2, "sword", 1) || Dom.inventory.check(2, "staff", 1) || Dom.inventory.check(2, "bow", 1);
 					
 					if (questStarted && weaponBought && Player.unlockedInstructions.length < 3) {
-						//Dom.adventure.addInstruction(3); // open instructions chapter 3
+						Dom.instructions.page(2); // open instructions chapter 3
 					}
 					// otherwise if the player hasn't started the quest, teleport them back to make them!
 					else if (!questStarted && !Player.quests.completedQuestArray.includes("To the Logging Camp")) {
@@ -627,7 +627,7 @@ var Areas = {
 		onAreaTeleport: function () {
 			// start instructions chapter 4 if the player hasn't already
 			if (Player.unlockedInstructions.length < 4) {
-				//Dom.adventure.addInstruction(4);
+				Dom.instructions.page(3);
 				// show chat tab
 				//Dom.adventure.unlockTab("chat");
 			}

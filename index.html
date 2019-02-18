@@ -10,6 +10,7 @@
 </head>
 <body oncontextmenu="return false;">
 	<div id="achievement" hidden></div>
+	<div id="click"></div>
 	<canvas id="secondary" ondrop="Dom.inventory.dispose(event)" ondragover="Dom.inventory.allowDrop(event)"></canvas>
     <canvas id="light"></canvas>
     <canvas id="dayNight"></canvas>
@@ -35,7 +36,7 @@
 		<div id="alertOptions" onclick="Game.inventoryUpdate()"></div>
 		<div id="alertNo"></div>
 	</div>
-	<div id="chat" hidden></div>
+	<ul id="chat"></ul>
 	<div id="chatPage" hidden class="DOM"></div>
 	<div id="inventoryPage" hidden class="DOM" onclick="Dom.inventory.deEquip = false;" ondrop="Dom.inventory.dispose(event)" ondragover="Dom.inventory.allowDrop(event)">
 		<div id="inventoryGoldXP"></div>
@@ -182,6 +183,7 @@
 		</div>
 		<center><div id="closeSettings" onclick="Dom.settings.page('settingsPage')">Close</div></center>
 	</div>
+	<div id="instructionsPage" hidden class="DOM"></div>
 	<div id="questStart" hidden class="DOM">
 		<br><h1 id="questStartQuest"></h1><br><br>
 		<b id="questStartName"></b><br>
@@ -234,7 +236,7 @@
 		<h1 id="lootingPageTitle"></h1>
 		<table id="loot"></table>
 		<div id="lootAll">Loot All</div>
-		<center><div id="lootingPageClose" class="closeClass" onclick="Dom.closePage('identifiedPage');Game.lootClosed(Dom.loot.looted)">Close</div></center>
+		<center><div id="lootingPageClose" class="closeClass" onclick="Dom.closePage('lootPage');Game.lootClosed(Dom.loot.looted)">Close</div></center>
 	</div>
 	<div id="buyerPage" hidden class="DOM">
 		<h1>Item Buyer</h1>
@@ -260,7 +262,7 @@
 	</div>
 
 	<div id="chatImage"onclick="Dom.changeBook('chatPage', true)"></div>
-	<span id="dot" onclick="Dom.changeBook('chatPage', true)"></span>
+	<span id="dot" onclick="Dom.changeBook('chatPage', true)" hidden></span>
 	<div id="inventoryImage"onclick="Dom.changeBook('inventoryPage', true)"></div>
 	<div id="questsImage"onclick="Dom.changeBook('questsPage', true)"></div>
 	<div id="adventureImage"onclick="Dom.changeBook('adventurePage', true)"></div>

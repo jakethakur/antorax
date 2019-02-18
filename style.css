@@ -20,7 +20,7 @@ body{
 	//z-index: 6;
 	//opacity: 0.6;
 }
-#game, #secondary, #dayNight, #light{
+#game, #secondary, #dayNight, #light, #click{
 	border: 1px solid black;
 	float: left;
 	margin: -8px;
@@ -37,6 +37,8 @@ body{
 }
 #chatPage {
 	overflow-y: scroll;
+	padding-top: 10px;
+	height: 590px;
 }
 #questsPage{
 	border-top: 5px solid #886622;
@@ -601,11 +603,11 @@ td{
 	width: 480px;
 	height: 560px;
 }
-.instructionArrowLeft{
+#instructionArrowLeft{
 	position: absolute;
 	left: 195px;
 }
-.instructionArrowRight{
+#instructionArrowRight{
 	position: absolute;
 	left: 311px;
 }
@@ -722,20 +724,27 @@ td{
 	top: 10px;
 }
 #chat{
-	background-color: black;
-	opacity: 0;
 	max-height: 50vh;
-	height: max-content;
 	position: absolute;
 	bottom: 10px;
+	vertical-align: bottom;
+	z-index: 3;
+	list-style-type: none;
+	padding: 0px;
+	margin: 0px;
+}
+.chatBox{
+	background-color: black;
+	opacity: 0.6;
+	height: max-content;
 	color: white;
 	padding: 10px;
-	vertical-align: bottom;
-	overflow: auto;
-	z-index: 5;
-	animation: chatFade 5s linear 1;
 }
-@keyframes chatFade{
-  0%   {opacity: 0.6;}
-  70%   {opacity: 0.6;}
+#instructionsPage{
+	text-align: center;
+}
+#click{
+	z-index: 4;
+	width: 100vw;
+	height: 100vh;
 }

@@ -73,8 +73,7 @@ Game.loadPlayer = function () {
             [{item: Items.item[14]}]], [{item: Items.item[14]}],
         );
 		
-        // TBD
-        //Dom.choose.page("Instructions", Player.unlockedInstructions, [Dom.adventure.showInstructions,Dom.adventure.showInstructions,Dom.adventure.showInstructions,Dom.adventure.showInstructions,Dom.adventure.showInstructions,], [[0],[1],[2],[3],[4],]);
+		Dom.instructions.page(0);
     }
 }
 
@@ -3802,11 +3801,11 @@ Game.init = function () {
         [Keyboard.keys.LEFT, Keyboard.keys.RIGHT, Keyboard.keys.UP, Keyboard.keys.DOWN, Keyboard.keys.SPACE, Keyboard.keys.SHIFT]);
 		
 	// player attack on click
-	this.secondary.canvas.addEventListener("mousedown", Game.hero.startAttack.bind(this.hero));
-	this.secondary.canvas.addEventListener("mouseup", Game.hero.finishAttack.bind(this.hero));
+	document.getElementById("click").addEventListener("mousedown", Game.hero.startAttack.bind(this.hero));
+	document.getElementById("click").addEventListener("mouseup", Game.hero.finishAttack.bind(this.hero));
 	
 	// change between default cursor and crosshair based on player range
-	this.secondary.canvas.addEventListener("mousemove", Game.secondary.updateCursor.bind(this.secondary));
+	document.getElementById("click").addEventListener("mousemove", Game.secondary.updateCursor.bind(document.getElementById("click")));
 	
 	// fps array (used for tracking frames per second in Game.fps())
 	this.fpsArray = [];
@@ -5885,11 +5884,11 @@ Game.secondary.updateCursor = function (event) {
 			// cursor requires custom image
 			cursor = "url('assets/cursors/" + cursor + ".png') " + Skins[Player.class][Player.skin].cursorPosition.x + " " + Skins[Player.class][Player.skin].cursorPosition.y + ", auto;";
 		}
-		document.getElementById("secondary").setAttribute("style","cursor: " + cursor);
+		document.getElementById("click").setAttribute("style","cursor: " + cursor);
 	}
 	else {
 		// mouse not in range or hero cannot attack (normal cursor)
-		document.getElementById("secondary").style.cursor = "default";
+		document.getElementById("click").style.cursor = "default";
 	}
 }
 
