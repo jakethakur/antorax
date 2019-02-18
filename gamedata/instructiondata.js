@@ -86,39 +86,67 @@ var Instructions = [
 		},*/
 ];
 
+// Adventurer's Log
 var Adventure = {
+	
+	// questing areas
+	
 	eaglecrestLoggingCamp: {
-		html: '<div id="eaglecrestLoggingCamp" class="adventure">\
-			Eaglecrest Logging Camp<br>\
-			<span style="font-size: 20px;">Help the logging camp defend against goblins.</span>\
-		</div>',
+		html: `<div id="eaglecrestLoggingCampAL" class="adventure">
+			Eaglecrest Logging Camp<br>
+			<span style="font-size: 20px;">Help the logging camp defend against goblins.</span>
+		</div>`,
 		condition: function () {
 			return !Player.quests.completedQuestArray.includes("The Goblin King");
 		},
 	},
+	
+	// events
+	
+	samhain: {
+		html: `<div id="samhainAL" class="adventure">
+			Samhain Event<br>
+			<span style="font-size: 20px;">Kill stronger enemies during a blood moon and buy limited edition items.</span>
+		</div>`,
+		condition: function () {
+			return Event.event === "Samhain";
+		},
+	},
+	christmas: {
+		html: `<div id="christmasAL" class="adventure">
+			Samhain Event<br>
+			<span style="font-size: 20px;">Celebrate Christmas with the logging camp.</span>
+		</div>`,
+		condition: function () {
+			return Event.event === "Christmas";
+		},
+	},
+	
+	// external pages
+	
 	archaeology: {
-		html: '<div id="archaeology" class="adventure">\
-			<a href="./archaeology/index.html" target="_blank">Archaeology</a><br>\
-			<span style="font-size: 20px;">Uncover and collect weapons and armour.</span>\
-		</div>',
+		html: `<div id="archaeologyAL" class="adventure">
+			<a href="./archaeology/index.html" target="_blank">Archaeology</a><br>
+			<span style="font-size: 20px;">Uncover and collect weapons and armour.</span>
+		</div>`,
 		condition: function () {
 			return true;
 		},
 	},
 	fishersLog: {
-		html: '<div id="fish" class="adventure">\
-			<a href="./fish/index.html" target="_blank">Fisher\'s Log</a><br>\
-			<span style="font-size: 20px;">View the longest fish you have caught.</span>\
-		</div>',
+		html: `<div id="fishAL" class="adventure">
+			<a href="./fish/index.html" target="_blank">Fisher's Log</a><br>
+			<span style="font-size: 20px;">View the longest fish you have caught.</span>
+		</div>`,
 		condition: function () {
 			return Player.quests.completedQuestArray.includes("Learning to Fish III");
 		},
 	},
 	fishingQuests: {
-		html: '<div id="fish" class="adventure">\
-			Learning to Fish<br>\
-			<span style="font-size: 20px;">Complete the quest: SPECIAL.</span>\
-		</div>',
+		html: `<div id="fishAL" class="adventure">
+			Learning to Fish<br>
+			<span style="font-size: 20px;">Complete the quest: SPECIAL.</span>
+		</div>`,
 		condition: function () {
 			return !Player.quests.completedQuestArray.includes("Learning to Fish III") && Player.quests.completedQuestArray.includes("Retrieval of Logs");
 		},
@@ -135,21 +163,12 @@ var Adventure = {
 		},
 	},
 	instructions: {
-		html: '<div id="instructions" class="adventure">\
-			<span id="instructionsTitle" style="color: blue; cursor: pointer;"><u>Instructions</u></span><br>\
-			<span style="font-size: 20px;">View information to help you in your journey.</span>\
-		</div>',
+		html: `<div id="instructionsAL" class="adventure">
+			<span id="instructionsTitle" style="color: blue; cursor: pointer;"><u>Instructions</u></span><br>
+			<span style="font-size: 20px;">View information to help you in your journey.</span>
+		</div>`,
 		condition: function () {
 			return true;
 		},
 	},
-	christmas: {
-		html: '<div id="christmas" class="adventure">\
-			Christmas Event<br>\
-			<span style="font-size: 20px;">Celebrate Christmas with the logging camp.</span>\
-		</div>',
-		condition: function () {
-			return Event.event === "Christmas";
-		},
-	}
 };

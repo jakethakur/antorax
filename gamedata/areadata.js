@@ -294,7 +294,7 @@ var Areas = {
 					let weaponBought = Dom.inventory.check(2, "sword", 1) || Dom.inventory.check(2, "staff", 1) || Dom.inventory.check(2, "bow", 1);
 					
 					if (questStarted && weaponBought && Player.unlockedInstructions.length < 3) {
-						Dom.adventure.addInstruction(3); // open instructions chapter 3
+						//Dom.adventure.addInstruction(3); // open instructions chapter 3
 					}
 					// otherwise if the player hasn't started the quest, teleport them back to make them!
 					else if (!questStarted && !Player.quests.completedQuestArray.includes("To the Logging Camp")) {
@@ -627,9 +627,9 @@ var Areas = {
 		onAreaTeleport: function () {
 			// start instructions chapter 4 if the player hasn't already
 			if (Player.unlockedInstructions.length < 4) {
-				Dom.adventure.addInstruction(4);
+				//Dom.adventure.addInstruction(4);
 				// show chat tab
-				Dom.adventure.unlockTab("chat");
+				//Dom.adventure.unlockTab("chat");
 			}
 		},
 		
@@ -817,6 +817,7 @@ var Areas = {
 					},
 				],
 				chat: {
+					notUnlockedRoles: "Hmm, you look new around here. Don't worry, you'll be a combatant in no time.",
 					questProgress: "The dummy isn't going anywhere.",
 					questComplete: "You can always check your adventure log if you need to brush up on your combat skills.",
 					inventoryFull: "Empty your bags some. You have no space for your rewards.",
@@ -1327,6 +1328,8 @@ var Areas = {
 		
 		checkpoint: false, // probably in the future taverns should be the ONLY checkpoints
 		
+		lootArea: "loggingCamp", // for level up music
+		
 		npcs: [
 			{
 				x: 165,
@@ -1717,6 +1720,9 @@ var Areas = {
 		song_day: "./assets/music/Pippin-the-Hunchback-boss.mp3",
 		
 		checkpoint: false,
+		
+		lootArea: "loggingCamp",
+		lootTier: 1,
 		
 		mailboxes: [
 			{
@@ -2821,6 +2827,8 @@ var Areas = {
 		song_night: "./assets/music/Eaglecrest.mp3",
 		
 		checkpoint: false,
+		
+		lootArea: "eaglecrest",
 		
 		areaTeleports: [
 			{

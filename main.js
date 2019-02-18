@@ -25,6 +25,7 @@ Game.canvasLight = document.getElementById("light");
 Game.canvasDayNight = document.getElementById("dayNight");
 
 // run game
+// anything that needs to be done before images are loaded
 Game.run = function (context, contextSecondary, contextDayNight, contextLight) {
     this.ctx = context;
 	this.ctxDayNight = contextDayNight;
@@ -34,6 +35,8 @@ Game.run = function (context, contextSecondary, contextDayNight, contextLight) {
 	
     this._previousElapsed = 0;
 	
+	this.loadPlayer(); // load the player from local storage
+	
 	// projectile name for hero (for use with projectile image loading)
 	this.heroProjectileName = Skins[Player.class][Player.skin].projectile;
 	this.heroProjectileAdjust = Skins[Player.class][Player.skin].projectileAdjust;
@@ -41,6 +44,39 @@ Game.run = function (context, contextSecondary, contextDayNight, contextLight) {
 
     this.loadArea(Player.areaName, {x: Player.x, y: Player.y});
 };
+
+// load the player by setting the necessary variables (either from local storage or from template if class is new)
+Game.loadPlayer = function () {
+	if (localStorage.getItem(Player.class) !== null) {
+		// load existing class
+        let savedPlayer = JSON.parse(localStorage.getItem(Player.class));
+		
+        // add anything new that has been added in savedata to Player
+        savedPlayer.bossesKilled = Object.assign(Player.bossesKilled, savedPlayer.bossesKilled);
+        Player = Object.assign(Player, savedPlayer);
+		
+        Player.name = playerName;
+        Player.skin = playerSkin;
+    }
+	else {
+        // load a brand new class
+		
+		// starting items and mail
+        Dom.inventory.give(Items.currency[2],3);
+        Dom.mail.give(
+            "Welcome to Antorax!",
+            "The Tinkering Guild",
+            "galuthelTheTrapMechanic",
+            "text.page",
+            ["Welcome to Antorax!",
+            `Hello ${Player.name}!<br><br>It's great to have new people joining us in Antorax. I look forward to meeting you very soon in Wizard Island. Perhaps you would like to try out one of our newest inventions - the ScreenGrabber 3000! It's free of charge. Pop us a letter if it explodes, otherwise see you soon!<br><br>From the Tinkering Guild`, true, [], [],
+            [{item: Items.item[14]}]], [{item: Items.item[14]}],
+        );
+		
+        // TBD
+        //Dom.choose.page("Instructions", Player.unlockedInstructions, [Dom.adventure.showInstructions,Dom.adventure.showInstructions,Dom.adventure.showInstructions,Dom.adventure.showInstructions,Dom.adventure.showInstructions,], [[0],[1],[2],[3],[4],]);
+    }
+}
 
 // calculate current tick length and update/render canvas accordingly
 Game.tick = function (elapsed) {
@@ -56,8 +92,8 @@ Game.tick = function (elapsed) {
     this._previousElapsed = elapsed;
 	
 	
-	this.update(delta); //update game state
-	this.render(delta); //render game display
+	this.update(delta); // update game state
+	this.render(delta); // render game display
 	
 	
 	// reset text formatting
@@ -217,12 +253,14 @@ Camera.prototype.follow = function (sprite) {
     sprite.screenY = 0;
 };
 
-Camera.prototype.update = function () {
+// called on loadArea or hero move
+// parameter init is set to true if this is being called on area change
+Camera.prototype.update = function (init) {
     // assume followed sprite should be placed at the center of the screen whenever possible
     this.following.screenX = this.width / 2 + Game.viewportOffsetX;
     this.following.screenY = this.height / 2 + Game.viewportOffsetY;
 	
-	// distance moved by caera in both directions (for weather to be moved by)
+	// distance moved by camera in both directions (for weather to be moved by)
 	// calculated by difference in old x/y and new x/y
 	let movedX = this.x;
 	let movedY = this.y;
@@ -252,7 +290,7 @@ Camera.prototype.update = function () {
 	movedY = this.y - movedY;
 	// move weather!
 	if (document.getElementById("weatherOn").checked && !Areas[Game.areaName].indoors) {
-		if (Weather.particleArray.length > 0) {
+		if (Weather.particleArray.length > 0 && init !== true) {
 			Weather.heroMove(movedX, movedY);
 		}
 	}
@@ -3525,15 +3563,18 @@ Game.loadArea = function (areaName, destination) {
 			});
 		}
 		
-		// display area name (if it should be displayed)
-		// init sets displayAreaName.duration to 2s (so even if it shouldn't be displayed normally, it is on start of game)
-		this.displayAreaName = Areas[areaName].data;
-		if (Areas[areaName].data.displayOnEnter) {
-			this.displayAreaName.duration = 2;
+		// display area name
+		// it is checked if this should be displayed or not below
+		// it is always displayed on init (thus only checked if init is not called)
+		let title = Areas[areaName].data.name;
+		let subtitles = [];
+		subtitles.push(Areas[areaName].data.level);
+		if (Areas[areaName].data.territory !== undefined) {
+			// only show territory if it is defined for the area
+			subtitles.push(Areas[areaName].data.territory + " territory");
 		}
-		else {
-			this.displayAreaName.duration = 0;
-		}
+		// function to set the variable
+		this.displayOnCanvas(title, subtitles, 2);
 		
 		// music
 		// it is checked if the user has selected for music to be played in the settings within the Game.playMusic function
@@ -3555,6 +3596,13 @@ Game.loadArea = function (areaName, destination) {
 			
 			// close NPC pages
             Dom.closeNPCPages();
+			
+			// if the display area information should not be shown, stop it from being shown
+			// this is done here because it is always shown on init
+			if (Areas[areaName].data.displayOnEnter === false) {
+				// don't show
+				this.canvasDisplay = {};
+			}
 		}
 		
 		// if the area is too small so does not fit in the screen, it should be moved to the centre of the screen
@@ -3612,6 +3660,9 @@ Game.loadArea = function (areaName, destination) {
 				Areas[areaName].onAreaTeleport();
 			}
 		}
+		
+		// update camera position
+		this.camera.update(true);
 		
 		// render secondary canvas
 		this.secondary.render();
@@ -3783,9 +3834,6 @@ Game.init = function () {
 	
 	// init weather
 	Weather.init();
-	
-	// set displayAreaName.duration to 2s (so even if it shouldn't be displayed normally, it is on start of game)
-	this.displayAreaName.duration = 2;
 	
 	// re-init hero's saved status effects
 	this.initStatusEffects();
@@ -4054,17 +4102,16 @@ Game.playLevelupSound = function (areaName) {
 	// check the user has allowed music to play
 	if (document.getElementById("musicOn").checked) {
 		
+		let levelUp = false;
+		
 		// find level up sound to play
-		switch (areaName) {
+		switch (lootArea) {
 			
-			case "tutorial":
-			case "eaglecrestLoggingCamp":
-			case "nilbog":
-				var levelUp = new Audio("./assets/sounds/loggingCampLevelup.mp3");
+			case "loggingCamp":
+				levelUp = new Audio("./assets/sounds/loggingCampLevelup.mp3");
 				break;
 			
 			default:
-				var levelUp = false;
 				console.error("No level up sound for current area - add it to the switch statement in Game.playLevelupSound");
 			
 		}
@@ -4174,11 +4221,11 @@ Game.update = function (delta) {
 		if (dirx !== 0 || diry !== 0) {
 	        this.hero.move(delta, dirx, diry);
 	        this.hasScrolled = true;
+		    this.camera.update();
 	    }
 		else {
 	        this.hasScrolled = false;
 		}
-	    this.camera.update();
 	}
 	else {
 		// hero always moves until it reaches a certain destination
@@ -4742,12 +4789,26 @@ Game.getXP = function (xpGiven, xpBonus) {
 				Player.level++;
 				this.hero.level = Player.level;
 				
-				// level up stuff
+				// level up cosmetic stuff
 				this.playLevelupSound(this.areaName);
 				this.levelUpFireworks(Player.level);
-				Dom.levelUp.page();
+				this.displayOnCanvas("Level Up!", (Player.level-1) + " \u{2794} " + Player.level, 4); // display on canvas for 34
+				
+				// increase player health
+				Player.stats.maxHealth += 5;
+				
+				if(Player.level >= LevelXP.length - 1){
+					// sets xp bar to fully completed because Game.getXP doesn't set it when you level up
+					Player.xp = LevelXP[Player.level];
+				}
 				
 				document.getElementById("level").innerHTML = "Level "+Player.level;
+				
+				// chat message for level up
+				Dom.chat.insert("Level up: "+(Player.level-1)+" &#10132; "+Player.level);
+				
+				// update possible quests
+				Dom.quests.possible();
 				
 				this.getXP(0); // levelling up multiple times
 			}
@@ -4942,29 +5003,32 @@ Game.lootClosed = function (itemsRemaining) {
 	}
 }
 
+// updates mailbox images
 // called when mail is opened (the mailbox's flag might go down), or when mail is received (flag might go up)
 // parameter type is set to "received" or "read" based on what happened
 // make more efficient to not call getImage if the image is already active? TBD
 Game.mailboxUpdate = function (type) {
-	if (type === "read") {
-		if (Dom.mail.unread() === 0) {
+	if (this.mailboxes !== undefined) {
+		if (type === "read") {
+			if (Dom.mail.unread() === 0) {
+				this.mailboxes.forEach(mailbox => {
+					// TBD check existing imageName
+					mailbox.image = Loader.getImage(mailbox.readImage);
+					mailbox.imageName = mailbox.readImage;
+				});
+			}
+		}
+		else if (type === "received") {
+			// perhaps check if Dom.mail.unread is 1, because only one message will come in at a time and if it is more than 1 then it would already be a flag
 			this.mailboxes.forEach(mailbox => {
 				// TBD check existing imageName
-				mailbox.image = Loader.getImage(mailbox.readImage);
-				mailbox.imageName = mailbox.readImage;
+				mailbox.image = Loader.getImage(mailbox.unreadImage);
+				mailbox.imageName = mailbox.unreadImage;
 			});
 		}
-	}
-	else if (type === "received") {
-		// perhaps check if Dom.mail.unread is 1, because only one message will come in at a time and if it is more than 1 then it would already be a flag
-		this.mailboxes.forEach(mailbox => {
-			// TBD check existing imageName
-			mailbox.image = Loader.getImage(mailbox.unreadImage);
-			mailbox.imageName = mailbox.unreadImage;
-		});
-	}
-	else {
-		console.error("Unrecognised type (should be 'read' or 'received')", type)
+		else {
+			console.error("Unrecognised parameter (should be 'read' or 'received')", type)
+		}
 	}
 }
 
@@ -5063,20 +5127,22 @@ Game._drawGrid = function () {
     let width = map.cols * map.tsize;
     let height = map.rows * map.tsize;
     let x, y;
+	// horizontal lines
     for (let r = 0; r < map.rows; r++) {
-        x = - this.camera.x;
-        y = r * map.tsize - this.camera.y;
+        x = - this.camera.x + this.viewportOffsetX;
+        y = r * map.tsize - this.camera.y + this.viewportOffsetY;
         this.ctx.beginPath();
         this.ctx.moveTo(x, y);
-        this.ctx.lineTo(width, y);
+        this.ctx.lineTo(width + this.viewportOffsetX, y);
         this.ctx.stroke();
     }
+	// vertical lines
     for (let c = 0; c < map.cols; c++) {
-        x = c * map.tsize - this.camera.x;
-        y = - this.camera.y;
+        x = c * map.tsize - this.camera.x + this.viewportOffsetX;
+        y = - this.camera.y + this.viewportOffsetY;
         this.ctx.beginPath();
         this.ctx.moveTo(x, y);
-        this.ctx.lineTo(x, height);
+        this.ctx.lineTo(x, height + this.viewportOffsetY);
         this.ctx.stroke();
     }
 };
@@ -5152,7 +5218,7 @@ Game.coordinates = function (character) {
 	this.resetFormatting();
 	
 	// set text to white if there is a black background
-	if (this.viewportOffsetX > 0) {
+	if (this.viewportOffsetX > 0 || this.viewportOffsetY > 0) {
 		this.ctx.fillStyle = "white";
 	}
 	
@@ -5168,7 +5234,7 @@ Game.fps = function (delta) {
 	this.resetFormatting();
 	
 	// set text to white if there is a black background
-	if (this.viewportOffsetX > 0) {
+	if (this.viewportOffsetX > 0 || this.viewportOffsetY > 0) {
 		this.ctx.fillStyle = "white";
 	}
 	
@@ -5425,6 +5491,20 @@ Game.drawChannellingBar = function (ctx, character, x, y, width, height) {
 	this.ctx.fillText(character.channellingInfo.description, x + width / 2, y + height / 4 * 3);
 	
 	this.ctx.globalAlpha = oldGlobalAlpha;
+}
+
+// displays information on canvas
+// subtitles should either be a single string or an array of strings
+// duration is in seconds
+Game.displayOnCanvas = function (title, subtitles, duration) {
+	if (subtitles.constructor !== Array) {
+		subtitles = [subtitles]; // make sure it is in array form
+	}
+	this.canvasDisplay = {
+		title: title,
+		subtitles: subtitles,
+		duration: duration, // starts to fade over the last second
+	};
 }
 
 // draw images on canvas
@@ -5721,7 +5801,7 @@ Game.render = function (delta) {
 		}
 		
 		
-		// display area name (if the player has just gone to a new area)
+		/*// display area name (if the player has just gone to a new area)
 		if (this.displayAreaName.duration > 0) {
 			// formatting
 			this.ctx.fillStyle = "rgba(0, 0, 0, " + this.displayAreaName.duration + ")";
@@ -5739,6 +5819,27 @@ Game.render = function (delta) {
 			}
 			
 			this.displayAreaName.duration -= delta;
+		}*/
+		
+		// display area information or level up information
+		if (this.canvasDisplay.duration > 0) {
+			// formatting
+			this.ctx.fillStyle = "rgba(0, 0, 0, " + this.canvasDisplay.duration + ")"; // fades over last second
+			this.ctx.textAlign = "center";
+			
+			let drawY = 100 + this.viewportOffsetY; // y position for top of information
+			
+			this.ctx.font = "48px MedievalSharp"; // for title
+			this.ctx.fillText(this.canvasDisplay.title, Dom.canvas.width / 2, drawY); // area name
+			
+			this.ctx.font = "28px MedievalSharp"; // for subtitles
+			for (let i = 0; i < this.canvasDisplay.subtitles.length; i++) {
+				// can display multiple subtitles
+				
+				this.ctx.fillText(this.canvasDisplay.subtitles[i], Dom.canvas.width / 2, drawY + 20 + 30*(i+1)); // area level
+			}
+			
+			this.canvasDisplay.duration -= delta;
 		}
 	}
 	

@@ -41,9 +41,9 @@ var Quests = {
 			},
 			
 			onQuestStart: function() {
-				Dom.adventure.unlockTab("quests");
-				Dom.closePage('questStart');
-				Dom.adventure.addInstruction(2);
+				//Dom.adventure.unlockTab("quests");
+				//Dom.closePage('questStart');
+				//Dom.adventure.addInstruction(2);
 			},
 		},
 		
@@ -85,9 +85,9 @@ var Quests = {
 			},
 			
 			onQuestStart: function() {
-				Dom.adventure.unlockTab("inventory");
-				Dom.closePage('questStart');
-				Dom.adventure.addInstruction(5);
+				//Dom.adventure.unlockTab("inventory");
+				//Dom.closePage('questStart');
+				//Dom.adventure.addInstruction(5);
 			},
 		},
 		
@@ -182,7 +182,7 @@ var Quests = {
 			
 			onQuestFinish: function() {
 				// unlock reputation tab
-				Dom.adventure.unlockTab("reputation");
+				//Dom.adventure.unlockTab("reputation");
 			}
 		},
 		{
@@ -690,7 +690,6 @@ var Quests = {
 			finishChat: `Interesting. Let's see how this goes.`,
 			
 			onQuestFinish: function () {
-				Dom.changeBook("chatPage"); // start cutscene
 				Game.sayChat("Ciarra Darkbrew", "Stand back. We wouldn't want your arms to detatch so soon.", false, 1000, true);
 				Game.sayChat("Ciarra Darkbrew", "/me adds the potion ingredients to an inert vial.", false, 4000, true);
 				Dom.chat.insert("The vial fizzes rapidly.", 6500, true);
