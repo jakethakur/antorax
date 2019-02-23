@@ -321,6 +321,7 @@ var Areas = {
 				stats: {
 					maxHealth: 100,
 					defence: 1,
+					healthRegen: 0.3,
 				},
 				roles: [
 					{
@@ -344,6 +345,7 @@ var Areas = {
 				stats: {
 					maxHealth: 100,
 					defence: 2,
+					healthRegen: 0.5,
 				},
 				roles: [
 					{
@@ -371,6 +373,7 @@ var Areas = {
 				stats: {
 					maxHealth: 125,
 					defence: 3,
+					healthRegen: 0.5,
 				},
 				roles: [
 					{
@@ -629,7 +632,7 @@ var Areas = {
 			if (Player.unlockedInstructions.length < 4) {
 				Dom.instructions.page(3);
 				// show chat tab
-				//Dom.adventure.unlockTab("chat");
+				Dom.instructions.unlockTab("chat");
 			}
 		},
 		
@@ -686,6 +689,7 @@ var Areas = {
 				stats: {
 					maxHealth: 300,
 					defence: 10,
+					healthRegen: 0.5,
 				},
 				roles: [
 					{
@@ -784,6 +788,7 @@ var Areas = {
 				stats: {
 					maxHealth: 250,
 					defence: 10,
+					healthRegen: 1,
 				},
 				roles: [
 					{
@@ -839,6 +844,7 @@ var Areas = {
 				stats: {
 					maxHealth: 100,
 					defence: 5,
+					healthRegen: 0.5,
 				},
 				roles: [
 					{
@@ -866,6 +872,7 @@ var Areas = {
 				stats: {
 					maxHealth: 200,
 					defence: 3,
+					healthRegen: 0.5,
 				},
 				roles: [
 					{
@@ -913,6 +920,7 @@ var Areas = {
 				stats: {
 					maxHealth: 175,
 					defence: 5,
+					healthRegen: 0.5,
 				},
 				roles: [
 					{
@@ -973,6 +981,7 @@ var Areas = {
 				stats: {
 					maxHealth: 175,
 					defence: 10,
+					healthRegen: 0.5,
 				},
 				roles: [
 					{
@@ -1029,6 +1038,7 @@ var Areas = {
 				stats: {
 					maxHealth: 125,
 					defence: 3,
+					healthRegen: 0.5,
 				},
 				roles: [
 					{
@@ -1114,6 +1124,7 @@ var Areas = {
 				stats: {
 					maxHealth: 150,
 					defence: 6,
+					healthRegen: 0.5,
 				},
 				roles: [
 					{
@@ -1162,6 +1173,7 @@ var Areas = {
 				stats: {
 					maxHealth: 150,
 					defence: 4,
+					healthRegen: 0.5,
 				},
 				roles: [
 					{
@@ -1341,6 +1353,7 @@ var Areas = {
 				stats: {
 					maxHealth: 100,
 					defence: 2,
+					healthRegen: 0.5,
 				},
 				roles: [
 					{
@@ -1551,6 +1564,7 @@ var Areas = {
 				stats: {
 					maxHealth: 75,
 					defence: 5,
+					healthRegen: 0.1,
 				},
 				roles: [
 					{
@@ -1583,6 +1597,7 @@ var Areas = {
 					maxHealth: 150,
 					defence: 1,
 					dodgeChance: 40,
+					healthRegen: 30,
 				},
 				roles: [
 					{
@@ -2629,6 +2644,7 @@ var Areas = {
 				stats: {
 					maxHealth: 150,
 					defence: 4,
+					healthRegen: 0.5,
 				},
 				roles: [
 					{
@@ -2667,6 +2683,7 @@ var Areas = {
 				stats: {
 					maxHealth: 300,
 					defence: 20,
+					healthRegen: 0.5,
 				},
 			},
 			{
@@ -2680,6 +2697,7 @@ var Areas = {
 				stats: {
 					maxHealth: 300,
 					defence: 20,
+					healthRegen: 0.5,
 				},
 			},
 			{
@@ -2693,6 +2711,7 @@ var Areas = {
 				stats: {
 					maxHealth: 300,
 					defence: 20,
+					healthRegen: 0.5,
 				},
 			},
 			{
@@ -2706,6 +2725,7 @@ var Areas = {
 				stats: {
 					maxHealth: 300,
 					defence: 20,
+					healthRegen: 0.5,
 				},
 			},
 			{
@@ -2719,6 +2739,7 @@ var Areas = {
 				stats: {
 					maxHealth: 300,
 					defence: 20,
+					healthRegen: 0.5,
 				},
 			},
 			{
@@ -2732,6 +2753,7 @@ var Areas = {
 				stats: {
 					maxHealth: 300,
 					defence: 20,
+					healthRegen: 0.5,
 				},
 			},
 		],
@@ -2855,7 +2877,13 @@ var Areas = {
 				stats: {
 					maxHealth: 175,
 					defence: 5,
+					healthRegen: 0.5,
 				},
+				roles: [
+					{
+						role: "banker",
+					},
+				],
 			},
 			{
 				// id: 1,
@@ -2868,7 +2896,13 @@ var Areas = {
 				stats: {
 					maxHealth: 175,
 					defence: 5,
+					healthRegen: 0.5,
 				},
+				roles: [
+					{
+						role: "banker",
+					},
+				],
 			},
 			{
 				// id: 2,
@@ -2881,7 +2915,13 @@ var Areas = {
 				stats: {
 					maxHealth: 175,
 					defence: 5,
+					healthRegen: 0.5,
 				},
+				roles: [
+					{
+						role: "banker",
+					},
+				],
 			},
 			{
 				// id: 3,
@@ -2894,7 +2934,13 @@ var Areas = {
 				stats: {
 					maxHealth: 175,
 					defence: 5,
+					healthRegen: 0.5,
 				},
+				roles: [
+					{
+						role: "banker",
+					},
+				],
 			},
 		],
 	},

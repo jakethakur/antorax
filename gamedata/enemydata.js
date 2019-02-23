@@ -1,11 +1,34 @@
+// used with enemy templates
+const SpeciesTemplates = {
+	nilbogGoblin: {
+		species: "goblin",
+		subSpecies: "nilbog goblin",
+		// check for traps
+		checkTouching: [{
+			arrayName: "things",
+			objectName: "Goblin Trap",
+			isTouchingFunction: function (index) {
+				// remove the trap
+				Game.things.splice(index, 1);
+				Areas[Game.areaName].things.splice(index, 1);
+				// stun goblin
+				Game.statusEffects.stun({
+					target: this,
+					time: 2.5,
+					effectTitle: "Goblin Trapped",
+				});
+			},
+		}],
+	},
+};
+
 const EnemyTemplates = {
 	nilbog: {
 		goblinRockthrower: {
+			speciesTemplate: SpeciesTemplates.nilbogGoblin,
 			image: "goblinRockthrower",
 			deathImage: "goblinCorpse",
 			name: "Goblin Rockthrower",
-			species: "goblin",
-			subSpecies: "nilbog goblin",
 			hostility: "hostile",
 			level: 2,
 			stats: {
@@ -39,11 +62,10 @@ const EnemyTemplates = {
 			inventorySpace: 8,
 		},
 		goblinSkirmisher: {
+			speciesTemplate: SpeciesTemplates.nilbogGoblin,
 			image: "goblinSkirmisher",
 			deathImage: "goblinCorpse",
 			name: "Goblin Skirmisher",
-			species: "goblin",
-			subSpecies: "nilbog goblin",
 			hostility: "hostile",
 			level: 2,
 			stats: {
@@ -66,11 +88,10 @@ const EnemyTemplates = {
 			inventorySpace: 8,
 		},
 		goblinBruiser: {
+			speciesTemplate: SpeciesTemplates.nilbogGoblin,
 			image: "goblinBruiser",
 			deathImage: "goblinCorpse",
 			name: "Goblin Bruiser",
-			species: "goblin",
-			subSpecies: "nilbog goblin",
 			hostility: "hostile",
 			level: 3,
 			stats: {
@@ -93,11 +114,10 @@ const EnemyTemplates = {
 			inventorySpace: 8,
 		},
 		fireGoblin: {
+			speciesTemplate: SpeciesTemplates.nilbogGoblin,
 			image: "fireGoblin",
 			deathImage: "goblinCorpse",
 			name: "Fire Goblin",
-			species: "goblin",
-			subSpecies: "nilbog goblin",
 			hostility: "hostile",
 			level: 4,
 			stats: {
@@ -130,11 +150,10 @@ const EnemyTemplates = {
 			inventorySpace: 8,
 		},
 		goblinTowerkeeper: {
+			speciesTemplate: SpeciesTemplates.nilbogGoblin,
 			image: "goblinTowerkeeper",
 			deathImage: "goblinCorpse",
 			name: "Goblin Towerkeeper",
-			species: "goblin",
-			subSpecies: "nilbog goblin",
 			hostility: "hostile",
 			level: 5,
 			stats: {
@@ -157,11 +176,10 @@ const EnemyTemplates = {
 			inventorySpace: 8,
 		},
 		goblinCrusader: {
+			speciesTemplate: SpeciesTemplates.nilbogGoblin,
 			image: "goblinCrusader",
 			deathImage: "goblinCorpse",
 			name: "Goblin Crusader",
-			species: "goblin",
-			subSpecies: "nilbog goblin",
 			hostility: "hostile",
 			level: 5,
 			stats: {
@@ -185,11 +203,10 @@ const EnemyTemplates = {
 			inventorySpace: 8,
 		},
 		goblinKing: {
+			speciesTemplate: SpeciesTemplates.nilbogGoblin,
 			image: "goblinKing",
 			deathImage: "goblinKingCorpse",
 			name: "The Goblin King",
-			species: "goblin",
-			subSpecies: "nilbog goblin",
 			hostility: "boss",
 			bossKilledVariable: "goblinKing",
 			level: 8,

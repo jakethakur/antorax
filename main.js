@@ -468,6 +468,17 @@ class Entity {
 			return false;
 		}
 	}
+	
+	// confirm that nothing is being touched in a particular array
+	isTouchingType (array) {
+		for (let i = 0; i < array.length; i++) {
+			if (this.isTouching(array[i])) {
+				return true;
+			}
+		}
+		// not touching any of them 
+		return false;
+	}
 }
 
 // a version of entity that can be seen
@@ -1991,8 +2002,11 @@ class Projectile extends Thing {
 		let endLoops = false; // set to true if loops should be ended (e.g. after dealing damage with penetration = false)
 		
 		for (let i = 0; i < to.length && !endLoops; i++) { // iterate through arrays of objects in to
-			for (let x = 0; x < to[i].length && !endLoops; x++) { // iterate through objects in to
+			// the following loop is iterated through backwards so that, if there is no penetration, the top enemy is hit not bottom
+			for (let x = to[i].length-1; x >= 0 && !endLoops; x--) { // iterate through objects in to
+				
 				Game.updateScreenPosition(this); // update projectile position
+				
 				if (this.isTouching(to[i][x]) && !to[i][x].respawning) { // check projectile is touching character it wants to damage
 					
 					if (Random(0, 99) < to[i][x].stats.dodgeChance) { // hit dodged
@@ -2333,6 +2347,14 @@ class Enemy extends Attacker {
 		// set when the enemy dies
 		this.loot = null; // loot that can be picked up by player (null if the player cannot loot the enemy or already has)
 		// loot is an array of objects, where the object has properties item and quantity
+		
+		/* array of objects, where objects are in following format:
+		{
+			arrayName: (name of array in Game, i.e. "things" for Game.things)
+			objectName: (optional, objects of only a specific name in that array)
+			isTouchingFunction: (passed in object index as parameter, bound to this using call)
+		}*/
+		this.checkTouching = properties.checkTouching;
 		
 		// boss stuff
 		if (this.hostility === "boss") {
@@ -2940,13 +2962,16 @@ Game.statusEffects.poison = function(properties) {
 
 // give target the stunned debuff
 // just target and time parameters required
-Game.statusEffects.stun = function(properties) {
+Game.statusEffects.stun = function (properties) {
 	let newProperties = properties;
 	newProperties.effectTitle = properties.effectTitle || "Stunned";
 	newProperties.effectDescription = properties.effectDescription || "Cannot move or attack";
 	newProperties.imageName = "stunned";
 	newProperties.type = "stun";
 	this.generic(newProperties);
+	
+	// remove what target is channelling
+	properties.target.removeChannelling("stun");
 }
 
 // give target the attackDamage buff/debuff
@@ -3435,17 +3460,16 @@ Game.loadArea = function (areaName, destination) {
 		if (Areas[areaName].enemies !== undefined) {
 			Areas[areaName].enemies.forEach(enemy => {
 				if (this.canBeShown(enemy)) { // check if NPC should be shown
-					// this is done now so that the boss can be checked
-					if (enemy.template !== undefined) {
-						enemy = Object.assign(enemy.template, enemy); // add template properties to main properties object
-					}
+					// set template information
+					// this is done now so that it can be checked if it is a boss
+					this.setInformationFromTemplate(enemy);
 					// if enemy is a boss, it is only shown if it was not killed today
 					if (enemy.hostility !== "boss" || GetFullDate() - Player.bossesKilled[enemy.bossKilledVariable] > 0) { // not a boss or it wasn't killed today
 						enemy.map = map;
 						enemy.type = "enemies";
 						this.enemies.push(new Enemy(enemy));
 						// check for blood moon
-						if (Event.time === "bloodMoon" && (enemy.hostility === "hostile" || enemy.hostility === "boss")) {
+						if (Event.time === "bloodMoon") {
 							// blood moon - enemies have more health
 							this.enemies[this.enemies.length - 1].health *= 2;
 							this.enemies[this.enemies.length - 1].stats.maxHealth *= 2;
@@ -3562,19 +3586,6 @@ Game.loadArea = function (areaName, destination) {
 			});
 		}
 		
-		// display area name
-		// it is checked if this should be displayed or not below
-		// it is always displayed on init (thus only checked if init is not called)
-		let title = Areas[areaName].data.name;
-		let subtitles = [];
-		subtitles.push(Areas[areaName].data.level);
-		if (Areas[areaName].data.territory !== undefined) {
-			// only show territory if it is defined for the area
-			subtitles.push(Areas[areaName].data.territory + " territory");
-		}
-		// function to set the variable
-		this.displayOnCanvas(title, subtitles, 2);
-		
 		// music
 		// it is checked if the user has selected for music to be played in the settings within the Game.playMusic function
 		this.playMusic();
@@ -3603,6 +3614,19 @@ Game.loadArea = function (areaName, destination) {
 				this.canvasDisplay = {};
 			}
 		}
+		
+		// display area name
+		// it is checked if this should be displayed or not below
+		// it is always displayed on init (thus only checked if init is not called)
+		let title = Areas[areaName].data.name;
+		let subtitles = [];
+		subtitles.push(Areas[areaName].data.level);
+		if (Areas[areaName].data.territory !== undefined) {
+			// only show territory if it is defined for the area
+			subtitles.push(Areas[areaName].data.territory + " territory");
+		}
+		// function to set the variable
+		this.displayOnCanvas(title, subtitles, 2);
 		
 		// if the area is too small so does not fit in the screen, it should be moved to the centre of the screen
 		// calculate the variables of offset so the drawn sprites and tilemap can be adjusted by this
@@ -3810,6 +3834,10 @@ Game.init = function () {
 	// fps array (used for tracking frames per second in Game.fps())
 	this.fpsArray = [];
 	
+	// init canvas display variables (used by displayOnCanvas)
+	this.canvasDisplay = {};
+	this.canvasDisplayQueue = [];
+	
 	// health regeneration every second
 	setInterval(function () {
 		if (document.hasFocus()) { // check user is focused on the game (otherwise enemies cannot damage but user can heal)
@@ -3881,6 +3909,26 @@ Game.initStatusEffects = function () {
 			}.bind(statusEffect), nextTickTime, Game.hero, nextTickTime);
 		}
 	}
+}
+
+// set the properties of a character from its template
+Game.setInformationFromTemplate = function (properties) {
+	if (properties.template !== undefined) {
+		// a template exists
+		// add template properties to main properties object
+		Object.assign(properties.template.stats, properties.stats); // template updated
+		Object.assign(properties, properties.template); // properties updated
+		
+		if (properties.speciesTemplate !== undefined) {
+			// a second template, specific to the species
+			if (properties.speciesTemplate.stats !== undefined) {
+				Object.assign(properties.speciesTemplate.stats, properties.stats); // species template updated
+			}
+			Object.assign(properties, properties.speciesTemplate); // properties updated
+		}
+	}
+	
+	return properties;
 }
 
 //
@@ -4507,6 +4555,14 @@ Game.update = function (delta) {
 							parameterArray.push([npc, role.destinations]);
 						}
 						
+						// bankers
+                        else if (role.role === "banker") {
+                            // bank appears as an option for choose DOM
+                            textArray.push(role.chooseText || "I'd like to access my bank storage.");
+                            functionArray.push(Dom.bank.page);
+                            parameterArray.push([]);
+                        }
+						
 						// generic text DOM
 						else if (role.role === "text") {
 							// npc chat appears as an option in choose DOM
@@ -4578,7 +4634,9 @@ Game.update = function (delta) {
     }
 	
 	// update enemies
-	this.enemies.forEach(enemy => {
+	for (let i = 0; i < this.enemies.length; i++) {
+		let enemy = this.enemies[i];
+		
 		if (!enemy.respawning) { // check enemy is not dead
 			enemy.update(delta);
 		}
@@ -4591,10 +4649,35 @@ Game.update = function (delta) {
 				Dom.closeNPCPages();
 			}
 		}
-	});
+		
+		// checkTouching
+		if (enemy.checkTouching !== undefined) {
+			// iterate through each separate thing that should be checked
+			for (let x = 0; x < enemy.checkTouching.length; x++) {
+				// array of things to check
+				let touchingArray = Game[enemy.checkTouching[x].arrayName];
+				if (enemy.checkTouching[x].objectName !== undefined) {
+					// particular name for object in array
+					touchingArray = touchingArray.filter(obj => obj.name === enemy.checkTouching[x].objectName);
+				}
+				
+				// check if any of them are being touched
+				for (let y = 0; y < touchingArray.length; y++) {
+					if (enemy.isTouching(touchingArray[y])) {
+						// it is touching it
+						// passes in index of object to function
+						// call is used to bind it to enemy
+						enemy.checkTouching[x].isTouchingFunction.call(enemy, y);
+					}
+				}
+			}
+		}
+	}
 	
 	// move projectiles if they need to be moved
-	this.projectiles.forEach(projectile => { // iterate through projectiles
+	for (let i = 0; i < this.projectiles.length; i++) {
+		let projectile = this.projectiles[i];
+		
 		if (projectile.moveTowards !== undefined) {
 			// move towards the position
 			let direction = bearing(projectile, projectile.moveTowards);
@@ -4619,10 +4702,12 @@ Game.update = function (delta) {
 			
 			// remove the projectile if it has moved too far
 		}
-	});
+	}
 	
 	// check collision with mailboxes
-	this.mailboxes.forEach(mailbox => { // iterate though mailboxes
+	for (let i = 0; i < this.mailboxes.length; i++) {
+		let mailbox = this.mailboxes[i];
+		
 		if (this.hero.isTouching(mailbox)) {
 			Dom.choose.page(mailbox, ["Check mail"], [Dom.mail.page], [[]]);
 		}
@@ -4635,10 +4720,12 @@ Game.update = function (delta) {
 				Dom.closeNPCPages();
 			}
 		}
-	});
+	}
 	
 	// check distance from chests
-	this.chests.forEach(chest => { // iterate though tripwires
+	for (let i = 0; i < this.chests.length; i++) {
+		let chest = this.chests[i];
+		
 		// check if the currently displayed DOM is for the current mailbox in the foreach loop
 		if (chest.id === Dom.currentNPC.id && chest.type === Dom.currentNPC.type) {
 			// close the DOM if the player is too far away from the chest or if the chest is dead
@@ -4648,7 +4735,7 @@ Game.update = function (delta) {
 				// loot not wiped (so the player can revisit if they closed by accident)
 			}
 		}
-	});
+	}
 	
 	// check collision with area teleports
 	for (let i = 0; i < this.areaTeleports.length; i++) {
@@ -4680,7 +4767,9 @@ Game.update = function (delta) {
     }
 	
 	// check collision with tripwires - invisible entities that call a function when touched
-	this.tripwires.forEach(entity => { // iterate though tripwires
+	for (let i = 0; i < this.tripwires.length; i++) {
+		let entity = this.tripwires[i];
+		
 		// give tripwires a screen X and Y
 		this.updateScreenPosition(entity);
 		
@@ -4689,15 +4778,17 @@ Game.update = function (delta) {
 			let boundOnPlayerTouch = entity.onPlayerTouch.bind(entity);
 			boundOnPlayerTouch();
 		}
-	});
+	}
 	
 	// check collision with points of interest (things that insert something to chat when you touch them)
-	this.infoPoints.forEach(thing => {
+	for (let i = 0; i < this.infoPoints.length; i++) {
+		let thing = this.infoPoints[i];
+		
 		if (this.hero.moveTowards === undefined && this.hero.isTouching(thing)) {
 			// does not trigger if moveTowards is active
 			Dom.chat.insert(thing.onTouchChat, 0, false, true); // noRepeat is true
 		}
-	})
+	}
 	
 	this.playerProjectileUpdate(delta); // update player's currently channelling projectile
 	
@@ -4791,7 +4882,7 @@ Game.getXP = function (xpGiven, xpBonus) {
 				// level up cosmetic stuff
 				this.playLevelupSound(this.areaName);
 				this.levelUpFireworks(Player.level);
-				this.displayOnCanvas("Level Up!", (Player.level-1) + " \u{2794} " + Player.level, 4); // display on canvas for 34
+				this.displayOnCanvas("Level Up!", (Player.level-1) + " \u{2794} " + Player.level, 4, true); // display on canvas for 34
 				
 				// increase player health
 				Player.stats.maxHealth += 5;
@@ -5495,15 +5586,56 @@ Game.drawChannellingBar = function (ctx, character, x, y, width, height) {
 // displays information on canvas
 // subtitles should either be a single string or an array of strings
 // duration is in seconds
-Game.displayOnCanvas = function (title, subtitles, duration) {
+Game.displayOnCanvas = function (title, subtitles, duration, important) {
 	if (subtitles.constructor !== Array) {
 		subtitles = [subtitles]; // make sure it is in array form
 	}
-	this.canvasDisplay = {
+	
+	if (important === false) {
+		// important is checked to be undefined not false, fix this problem
+		console.warn("'Important' parameter should be undefined, not false.");
+		important = undefined;
+	}
+	
+	// value to be set
+	let displayVariable = {
 		title: title,
 		subtitles: subtitles,
 		duration: duration, // starts to fade over the last second
+		important: important,
 	};
+	
+	if (important) {
+		// it should not be overriden and should always be displayed (might be placed in queue)
+		if (this.canvasDisplay.important !== undefined) {
+			// there is currently another important message being displayed
+			// add this message to queue to be displayed after it
+			this.canvasDisplayQueue.push(displayVariable);
+		}
+		else {
+			// even if there is an unimportant message showing, overwrite it
+			
+			// set the variable to be handled by Game.render
+			this.canvasDisplay = displayVariable;
+		}
+	}
+	else {
+		// not integral it is shown
+		if (this.canvasDisplay.important === undefined) {
+			// set the variable to be handled by Game.render
+			this.canvasDisplay = displayVariable;
+		}
+	}
+}
+
+// called once the current canvas display has finished, for a new one to be added from the queue
+Game.canvasDisplayFinished = function () {
+	this.canvasDisplay = {};
+	
+	if (this.canvasDisplayQueue.length > 0) {
+		// another message should take its place
+		this.canvasDisplay = this.canvasDisplayQueue.shift();
+	}
 }
 
 // draw images on canvas
@@ -5793,32 +5925,10 @@ Game.render = function (delta) {
 			this.fps(delta);
 		}
 		
-		
 		// hero channelling bar above xp bar
 		if (Game.hero.channellingInfo !== false) {
 			Game.drawChannellingBar(this.ctx, this.hero, Dom.canvas.width/2-185, Dom.canvas.height-104, 335, 12);
 		}
-		
-		
-		/*// display area name (if the player has just gone to a new area)
-		if (this.displayAreaName.duration > 0) {
-			// formatting
-			this.ctx.fillStyle = "rgba(0, 0, 0, " + this.displayAreaName.duration + ")";
-			this.ctx.textAlign = "center";
-			this.ctx.font = "48px MedievalSharp";
-			
-			let drawY = 100 + this.viewportOffsetY; // y position for top of area information
-			
-			this.ctx.fillText(this.displayAreaName.name, Dom.canvas.width / 2, drawY); // area name
-			
-			this.ctx.font = "28px MedievalSharp";
-			this.ctx.fillText(this.displayAreaName.level, Dom.canvas.width / 2, drawY + 50); // area level
-			if (this.displayAreaName.territory !== "") { // check that territory should be displayed
-				this.ctx.fillText(this.displayAreaName.territory + " territory", Dom.canvas.width / 2, drawY + 80); // area territory (Hostile, Neutral, Allied)
-			}
-			
-			this.displayAreaName.duration -= delta;
-		}*/
 		
 		// display area information or level up information
 		if (this.canvasDisplay.duration > 0) {
@@ -5839,6 +5949,11 @@ Game.render = function (delta) {
 			}
 			
 			this.canvasDisplay.duration -= delta;
+			
+			if (this.canvasDisplay.duration <= 0) {
+				// has expired; remove it and replace it with what is next in queue (if applicable)
+				this.canvasDisplayFinished();
+			}
 		}
 	}
 	

@@ -1079,13 +1079,14 @@ var Items = {
 			},
 			onAttack: function (projectile) {
 				Dom.inventory.removeById(8, "bow");
-				if(projectile.isTouching(Game.npcs[0]) && Game.areaName === "eaglecrestLoggingCamp"){
-					if(Player.quests.questProgress.hitTeper === undefined){
+				if (projectile.isTouching(Game.npcs[0]) && Game.areaName === "eaglecrestLoggingCamp") {
+					if (Player.quests.questProgress.hitTeper === undefined) {
 						Player.quests.questProgress.hitTeper = 1;
-					}else{
+					}
+					else {
 						Player.quests.questProgress.hitTeper++;
 					}
-					if(Player.quests.questProgress.hitTeper === 3){
+					if (Player.quests.questProgress.hitTeper === 3) {
 						Game.projectiles.splice(Game.searchFor(projectile.id, Game.projectiles), 1); // find the id of the to-be-removed projectile and remove it
 						Game.npcs[0].image = Loader.getImage("teperAngry");
 					}
@@ -1776,8 +1777,11 @@ var Items = {
 			image: "assets/items/consumable/7.png",
 			functionText: "Places a trap (can only be used in The Nilbog)",
 			lore: "Like a bear trap, but ickier.",
+			onClickAreaRequirement: ["nilbog"],
 			onClick: function (inventoryPosition) {
-				if (Game.areaName === "nilbog") { // trap can only be placed in the nilbog
+				// check it would not touch an existing trap
+				let trapArray = Game.things.filter(thing => thing.name === "Goblin Trap");
+				if (!Game.hero.isTouchingType(trapArray)) {
 					// remove the item
 					Dom.inventory.remove(inventoryPosition);
 					
@@ -2086,12 +2090,14 @@ var Items = {
 			name: "Christmas Sapling",
 			type: "consumable",
 			image: "assets/items/consumable/18.png",
-			functionText: "Places a christmas decoration (can only be used in the Logging Camp)",
+			functionText: "Places a christmas decoration in the Logging Camp.",
 			lore: "It will soon flourish into a beautiful tree!",
 			onClickEventRequirement: "Christmas",
 			onClickAreaRequirement: ["eaglecrestLoggingCamp"],
 			onClick: function (inventoryPosition) {
-				//if (Game.areaName === "eaglecrestLoggingCamp" && Event.event === "Christmas") { // it can only be placed in the logging camp during christmas
+				// check it would not touch an existing tree
+				let treeArray = Game.things.filter(thing => thing.name === "Christmas Sapling");
+				if (!Game.hero.isTouchingType(treeArray)) {
 					// remove the item
 					Dom.inventory.remove(inventoryPosition);
 					
@@ -2114,7 +2120,7 @@ var Items = {
 					};
 					Game.things.push(new Thing(saplingObject)); // place in the current area
 					Areas.eaglecrestLoggingCamp.things.push(saplingObject); // save in areadata.js for if the player leaves and rejoins the area
-				//}
+				}
 			}
 		},
 		{
@@ -2127,22 +2133,20 @@ var Items = {
             cooldown: 1, // 1 second
 			onClickEventRequirement: "Antorax",
 			onClick: function (inventoryPosition) {
-				//if (Event.event === "Antorax") { // can only be launched on Antorax Day
-					// remove the item
-					Dom.inventory.remove(inventoryPosition);
-					// set firework timeout
-					setTimeout(function () {
-						Game.launchFirework({
-							x: Game.hero.x,
-							y: Game.hero.y - 100,
-							radius: 150,
-							particles: 600,
-							explodeTime: 500,
-							lingerTime: 1000,
-							colours: ["#8cff91", "#ff82f8"], // lighter colours so they are more visible
-						});
-					}, 1000); // launch in 1 second
-				//}
+				// remove the item
+				Dom.inventory.remove(inventoryPosition);
+				// set firework timeout
+				setTimeout(function () {
+					Game.launchFirework({
+						x: Game.hero.x,
+						y: Game.hero.y - 100,
+						radius: 150,
+						particles: 600,
+						explodeTime: 500,
+						lingerTime: 1000,
+						colours: ["#8cff91", "#ff82f8"], // lighter colours so they are more visible
+					});
+				}, 1000); // launch in 1 second
 			},
 		},
 		{
@@ -2155,22 +2159,20 @@ var Items = {
             cooldown: 5, // 5 seconds
 			onClickEventRequirement: "Antorax",
 			onClick: function (inventoryPosition) {
-				//if (Event.event === "Antorax") { // can only be launched on Antorax Day
-					setTimeout(function () {
-						// remove the item
-						Dom.inventory.remove(inventoryPosition);
-						// set firework timeout
-						Game.launchFirework({
-							x: Game.hero.x,
-							y: Game.hero.y - 130,
-							radius: 250,
-							particles: 1500,
-							explodeTime: 750,
-							lingerTime: 1000,
-							colours: ["#8cff91", "#ff82f8"], // lighter colours so they are more visible
-						});
-					}, 1000); // launch in 1 second
-				//}
+				setTimeout(function () {
+					// remove the item
+					Dom.inventory.remove(inventoryPosition);
+					// set firework timeout
+					Game.launchFirework({
+						x: Game.hero.x,
+						y: Game.hero.y - 130,
+						radius: 250,
+						particles: 1500,
+						explodeTime: 750,
+						lingerTime: 1000,
+						colours: ["#8cff91", "#ff82f8"], // lighter colours so they are more visible
+					});
+				}, 1000); // launch in 1 second
 			},
 		},
 	],
@@ -2418,7 +2420,7 @@ var Items = {
 			image: "assets/items/fish/9.png",
 			rarity: "junk",
 			sellPrice: 1,
-			sellQuantity: 8,
+			sellQuantity: 16,
 			stack: 64,
 			areas: [], 
 		},
@@ -2430,7 +2432,7 @@ var Items = {
 			image: "assets/items/fish/10.png",
 			rarity: "junk",
 			sellPrice: 1,
-			sellQuantity: 4,
+			sellQuantity: 16,
 			stack: 16,
 			areas: [], 
 		},
@@ -2442,7 +2444,7 @@ var Items = {
 			image: "assets/items/fish/11.png",
 			rarity: "junk",
 			sellPrice: 1,
-			sellQuantity: 4,
+			sellQuantity: 16,
 			stack: 16,
 			areas: [], 
 		},
@@ -2454,7 +2456,7 @@ var Items = {
 			image: "assets/items/fish/12.png",
 			rarity: "junk",
 			sellPrice: 1,
-			sellQuantity: 4,
+			sellQuantity: 16,
 			stack: 16,
 			areas: [], 
 		},
@@ -2466,7 +2468,7 @@ var Items = {
 			image: "assets/items/fish/13.png",
 			rarity: "junk",
 			sellPrice: 1,
-			sellQuantity: 4,
+			sellQuantity: 16,
 			stack: 264,
 			lore: "An old coin from before Antorax was formed.",
 			areas: [], 
@@ -2518,7 +2520,7 @@ var Items = {
 				let possibleJunkItems = Items.fish.filter(item => item.fishingType === "waterjunk"); // filter for junk fishing items
 				let itemsChosen = 0; // cap out at 6 different junk items
 				possibleJunkItems.forEach(item => { 
-					if (itemsChosen < 8 && Random(0, 2) === 0) { // 1 in 3 chance of it being in the chest
+					if (itemsChosen < 6 && Random(0, 2) === 0) { // 1 in 3 chance of it being in the chest
 						let toBePushed = {};
 						toBePushed.item = item;
 						let itemStack = item.stack
@@ -2529,11 +2531,12 @@ var Items = {
 							itemStack = 12;
 						}
 						toBePushed.quantity = Random(1, itemStack);
-						loot.push(toBePushed);
+						loot.push(DeepCloneObject(toBePushed));
 						itemsChosen++;
 						if (Random(0, 2) === 0) { // 1 in 3 chance of a second stack
 							toBePushed.quantity = Random(1, itemStack);
-							loot.push(toBePushed);
+							loot.push(DeepCloneObject(toBePushed));
+							itemsChosen++;
 						}
 					}
 				});
@@ -2649,7 +2652,7 @@ var Items = {
 			image: "assets/items/fish/19.png",
 			rarity: "junk",
 			sellPrice: 1,
-			sellQuantity: 8,
+			sellQuantity: 16,
 			stack: 64,
 			lore: "Has some alchemical uses.",
 			areas: ["loggingCamp"], 
@@ -2786,7 +2789,7 @@ var Items = {
 			image: "assets/items/fish/23.png",
 			rarity: "junk",
 			sellPrice: 1,
-			sellQuantity: 8,
+			sellQuantity: 16,
 			stack: 64,
 			lore: "Not an evil species.",
 			areas: ["loggingCamp"],
