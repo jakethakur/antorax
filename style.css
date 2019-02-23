@@ -731,7 +731,7 @@ td{
 	top: 10px;
 }
 #chat{
-	max-height: 50vh;
+	//max-height: 50vh;
 	position: absolute;
 	bottom: 10px;
 	vertical-align: bottom;
