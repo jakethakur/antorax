@@ -10,8 +10,8 @@
 </head>
 <body oncontextmenu="return false;">
 	<div id="achievement" hidden></div>
-	<div id="click"></div>
-	<canvas id="secondary" ondrop="Dom.inventory.dispose(event)" ondragover="Dom.inventory.allowDrop(event)"></canvas>
+	<div id="click" ondrop="Dom.inventory.dispose(event)" ondragover="Dom.inventory.allowDrop(event)"></div>
+	<canvas id="secondary"></canvas>
     <canvas id="light"></canvas>
     <canvas id="dayNight"></canvas>
 	<canvas id="game"></canvas>
@@ -59,7 +59,6 @@
 			</table>
 		</span>
 		<p id="bagText">Buy bags to get more inventory space</p>
-		<center><div id="inventoryPageClose" class="closeClass" onclick="Dom.closePage('inventoryPage')">Close</div></center>
 	</div>
 	<table id="hotbar">
 		<tr>
@@ -75,7 +74,6 @@
 		<div id="completedQuestBox"hidden><center>You have no completed quests</center></div>
 		<div id="otherQuests"onclick="Dom.expand('otherQuestBox')">Other Quests</div>
 		<div id="otherQuestBox"hidden></div>
-		<br><br><center><div id="questsPageClose" class="closeClass" onclick="Dom.closePage('questsPage')">Close</div></center>
 	</div>
 	<div id="adventurePage" hidden class="DOM">
 		<div id="level" style="display:inline;">Level 1</div>
@@ -86,15 +84,13 @@
 			<span style="font-size: 20px;">Uncover and collect weapons and armour.</span>
 		</div>
 		<div id="instructions" class="adventure">
-			<span id="instructionsTitle" style="color: blue; cursor: pointer;"><u>Instructions</u></span><br>
+			<span id="instructionsTitle" style="color: blue; cursor: pointer;" onclick="Dom.instructions.index();"><u>Instructions</u></span><br>
 			<span style="font-size: 20px;">View information to help you in your journey.</span>
 		</div>
-		<br><center><div id="adventurePageClose" class="closeClass" onclick="Dom.closePage('adventurePage')">Close</div></center>
 	</div>
 	<div id="reputationPage" hidden class="DOM">
 		<br><p style="padding-left: 30px;padding-right: 20px;font-size: 20px;">Here you can see your reputation with the different factions of Antorax. If you have a good reputation you may receive discounts from local merchants and the villagers may trust you enough to help them for a reward.</p><br>
 		<p style="padding-left: 30px;padding-right: 20px;font-size: 20px;">To improve your reputation, help the people in that area by doing quests for them or by attacking their enemies. Be careful though, because if you do something to make them angry they might not forgive you easily.</p>
-		<center><div id="reputationPageClose" class="closeClass" onclick="Dom.closePage('reputationPage')">Close</div></center>
 	</div>
 	<div id="settingsPage" hidden class="DOM">
 		<div id="settingLogout"></div>
@@ -157,7 +153,6 @@
 				<span class="radio2"><input type="radio" name="acceptOnOff" checked="true">No</input></span>
 			</div>
 		</span>
-		<br><br><center><div id="settingsPageClose" class="closeClass" onclick="Dom.closePage('settingsPage')">Close</div></center>
 	</div>
 	<div id="settingsTwoPage" hidden class="DOM">
 		<center><h1>Controls</h1></center>
@@ -250,23 +245,18 @@
 		<div id="driverPageBuy"></div>
 		<br><br><br><center><div class='closeClass' id='closeDriver' onclick="Dom.closePage('driverPage')">Close</div></center>
 	</div>
-	<div id="bankDepositPage" hidden class="DOM"></div>
-	<div id="bankWithdrawPage" hidden class="DOM"></div>
+	<div id="bankPage" hidden class="DOM">
+		<table id="bankPageInventory"></table>
+	</div>
 	<div id="choosePage" hidden class="DOM"></div>
 	<div id="textPage" hidden class="DOM"></div>
-	<div id="levelUpPage" hidden class="DOM">
-		<p id="levelUpPageTitle">Level Up!</p>
-		<p id="levelUpPageLevel"></p>
-		<p id="levelUpPageUnlock"></p>
-		<center><div id="levelUpPageClose" onclick="Game.secondary.render();">Close</div></center>
-	</div>
 
-	<div id="chatImage"onclick="Dom.changeBook('chatPage', true)"></div>
+	<div id="chatImage"onclick="Dom.changeBook('chatPage', true)" hidden></div>
 	<span id="dot" onclick="Dom.changeBook('chatPage', true)" hidden></span>
-	<div id="inventoryImage"onclick="Dom.changeBook('inventoryPage', true)"></div>
-	<div id="questsImage"onclick="Dom.changeBook('questsPage', true)"></div>
+	<div id="inventoryImage"onclick="Dom.changeBook('inventoryPage', true)" hidden></div>
+	<div id="questsImage"onclick="Dom.changeBook('questsPage', true)" hidden></div>
 	<div id="adventureImage"onclick="Dom.changeBook('adventurePage', true)"></div>
-	<div id="reputationImage"onclick="Dom.changeBook('reputationPage', true)"></div>
+	<div id="reputationImage"onclick="Dom.changeBook('reputationPage', true)" hidden></div>
 	<div id="settingsImage"onclick="Dom.settings.page()"></div>
 	<svg width="51" height="131" id="changeChat" onclick="Dom.changeBook('chatPage', true)" tabindex = "0">
 		<polygon points ="0,130 0,30 25,0 50,30 50,130" style="fill:blue;stroke:black;stroke-width:1" />
@@ -290,7 +280,7 @@
 	
 	<script src="./gamedata/functions.js"></script>
 	<script src="./weather.js"></script>
-	<script src="./gamedata/instructiondata.js"></script>
+	<script src="./gamedata/adventuredata.js"></script>
 	<script src="./gamedata/skindata.js"></script>
 	<script src="./gamedata/itemdata.js"></script>
 	<script src="./gamedata/lootdata.js"></script>

@@ -41,7 +41,7 @@ var Quests = {
 			},
 			
 			onQuestStart: function() {
-				//Dom.adventure.unlockTab("quests");
+				Dom.instructions.unlockTab("quests");
 				Dom.closePage('questStart'); // so the instructions appear where the quest was
 				Dom.instructions.page(1);
 			},
@@ -85,7 +85,7 @@ var Quests = {
 			},
 			
 			onQuestStart: function() {
-				//Dom.adventure.unlockTab("inventory");
+				Dom.instructions.unlockTab("inventory");
 				Dom.closePage('questStart'); // so the instructions appear where the quest was
 				Dom.instructions.page(4);
 			},
@@ -182,7 +182,7 @@ var Quests = {
 			
 			onQuestFinish: function() {
 				// unlock reputation tab
-				//Dom.adventure.unlockTab("reputation");
+				Dom.instructions.unlockTab("reputation");
 			}
 		},
 		{

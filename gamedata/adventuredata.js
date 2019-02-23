@@ -1,3 +1,90 @@
+// Adventurer's Log
+var Adventure = {
+	
+	// questing areas
+	
+	eaglecrestLoggingCamp: {
+		html: `<div id="eaglecrestLoggingCampAL" class="adventure">
+			Eaglecrest Logging Camp<br>
+			<span style="font-size: 20px;">Help the logging camp defend against goblins.</span>
+		</div>`,
+		condition: function () {
+			return !Player.quests.completedQuestArray.includes("The Goblin King");
+		},
+	},
+	
+	// events
+	
+	samhain: {
+		html: `<div id="samhainAL" class="adventure">
+			Samhain Event<br>
+			<span style="font-size: 20px;">Kill stronger enemies during a blood moon and buy limited edition items.</span>
+		</div>`,
+		condition: function () {
+			return Event.event === "Samhain";
+		},
+	},
+	christmas: {
+		html: `<div id="christmasAL" class="adventure">
+			Samhain Event<br>
+			<span style="font-size: 20px;">Celebrate Christmas with the logging camp.</span>
+		</div>`,
+		condition: function () {
+			return Event.event === "Christmas";
+		},
+	},
+	
+	// external pages
+	
+	archaeology: {
+		html: `<div id="archaeologyAL" class="adventure">
+			<a href="./archaeology/index.html" target="_blank">Archaeology</a><br>
+			<span style="font-size: 20px;">Uncover and collect weapons and armour.</span>
+		</div>`,
+		condition: function () {
+			return true;
+		},
+	},
+	fishersLog: {
+		html: `<div id="fishAL" class="adventure">
+			<a href="./fish/index.html" target="_blank">Fisher's Log</a><br>
+			<span style="font-size: 20px;">View the longest fish you have caught.</span>
+		</div>`,
+		condition: function () {
+			return Player.quests.completedQuestArray.includes("Learning to Fish III");
+		},
+	},
+	fishingQuests: {
+		html: `<div id="fishAL" class="adventure">
+			Learning to Fish<br>
+			<span style="font-size: 20px;">Complete the quest: SPECIAL.</span>
+		</div>`,
+		condition: function () {
+			return !Player.quests.completedQuestArray.includes("Learning to Fish III") && Player.quests.completedQuestArray.includes("Retrieval of Logs");
+		},
+		special: function () {
+			if(Player.quests.completedQuestArray.includes("Learning to Fish II")){
+				return "Learning to Fish III";
+			}else if(Player.quests.completedQuestArray.includes("Learning to Fish I")){
+				return "Learning to Fish II";
+			}else if(Player.quests.completedQuestArray.includes("A Lost Fishing Rod")){
+				return "Learning to Fish I";
+			}else{
+				return "A Lost Fishing Rod";
+			}
+		},
+	},
+	instructions: {
+		html: `<div id="instructionsAL" class="adventure">
+			<span id="instructionsTitle" style="color: blue; cursor: pointer;" onclick="Dom.instructions.index();"><u>Instructions</u></span><br>
+			<span style="font-size: 20px;">View information to help you in your journey.</span>
+		</div>`,
+		condition: function () {
+			return true;
+		},
+	},
+};
+
 var Instructions = [
 	{
 		chapterTitle: "Chapter I: Getting Started",
@@ -85,90 +172,3 @@ var Instructions = [
 			text: "<p>Kind of like a bad girlfriend, the more good stuff you do for an area or their allies, the more the people there will like you. However, also like a bad girlfriend, the more bad stuff you do, or the more you help their enemies, the less they will be willing to forgive you and will eventually come to hate you and never want to see your stupid face ever again, you naughty person! To see a convenient list of your current reputations, click on the purple bookmark with some shaking hands on it.</p>",
 		},*/
 ];
-
-// Adventurer's Log
-var Adventure = {
-	
-	// questing areas
-	
-	eaglecrestLoggingCamp: {
-		html: `<div id="eaglecrestLoggingCampAL" class="adventure">
-			Eaglecrest Logging Camp<br>
-			<span style="font-size: 20px;">Help the logging camp defend against goblins.</span>
-		</div>`,
-		condition: function () {
-			return !Player.quests.completedQuestArray.includes("The Goblin King");
-		},
-	},
-	
-	// events
-	
-	samhain: {
-		html: `<div id="samhainAL" class="adventure">
-			Samhain Event<br>
-			<span style="font-size: 20px;">Kill stronger enemies during a blood moon and buy limited edition items.</span>
-		</div>`,
-		condition: function () {
-			return Event.event === "Samhain";
-		},
-	},
-	christmas: {
-		html: `<div id="christmasAL" class="adventure">
-			Samhain Event<br>
-			<span style="font-size: 20px;">Celebrate Christmas with the logging camp.</span>
-		</div>`,
-		condition: function () {
-			return Event.event === "Christmas";
-		},
-	},
-	
-	// external pages
-	
-	archaeology: {
-		html: `<div id="archaeologyAL" class="adventure">
-			<a href="./archaeology/index.html" target="_blank">Archaeology</a><br>
-			<span style="font-size: 20px;">Uncover and collect weapons and armour.</span>
-		</div>`,
-		condition: function () {
-			return true;
-		},
-	},
-	fishersLog: {
-		html: `<div id="fishAL" class="adventure">
-			<a href="./fish/index.html" target="_blank">Fisher's Log</a><br>
-			<span style="font-size: 20px;">View the longest fish you have caught.</span>
-		</div>`,
-		condition: function () {
-			return Player.quests.completedQuestArray.includes("Learning to Fish III");
-		},
-	},
-	fishingQuests: {
-		html: `<div id="fishAL" class="adventure">
-			Learning to Fish<br>
-			<span style="font-size: 20px;">Complete the quest: SPECIAL.</span>
-		</div>`,
-		condition: function () {
-			return !Player.quests.completedQuestArray.includes("Learning to Fish III") && Player.quests.completedQuestArray.includes("Retrieval of Logs");
-		},
-		special: function () {
-			if(Player.quests.completedQuestArray.includes("Learning to Fish II")){
-				return "Learning to Fish III";
-			}else if(Player.quests.completedQuestArray.includes("Learning to Fish I")){
-				return "Learning to Fish II";
-			}else if(Player.quests.completedQuestArray.includes("A Lost Fishing Rod")){
-				return "Learning to Fish I";
-			}else{
-				return "A Lost Fishing Rod";
-			}
-		},
-	},
-	instructions: {
-		html: `<div id="instructionsAL" class="adventure">
-			<span id="instructionsTitle" style="color: blue; cursor: pointer;"><u>Instructions</u></span><br>
-			<span style="font-size: 20px;">View information to help you in your journey.</span>
-		</div>`,
-		condition: function () {
-			return true;
-		},
-	},
-};

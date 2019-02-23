@@ -220,7 +220,7 @@ body{
 	font-size: 0px;
 	//z-index: 1;
 }
-#itemInventory, #hotbar, #buyerPageInventory, #loot, tr, th, td{
+#itemInventory, #hotbar, #buyerPageInventory, #bankPageInventory, #loot, tr, th, td{
 	border: 2.5px solid #886622;
 	border-collapse: separate;
 	border-spacing: 0px;
@@ -235,10 +235,17 @@ body{
 	z-index: 5;
 	//position: absolute;
 }
-#buyerPageInventory {
+#buyerPageInventory{
 	top: 90px;
 	left: 735px;
 	background-color: #fef9b4;
+}
+#bankPage{
+	text-align: center;
+}
+#bankPageInventory{
+	display: inline-block;
+	margin-top: 50px;
 }
 #loot{
 	left: 38px;
@@ -455,7 +462,7 @@ td{
 	//width: 131px;
 	//height: 51px;
 	outline: none;
-	//display: none;
+	display: none;
 	opacity: 0.6;
 	z-index: 5;
 }

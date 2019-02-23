@@ -16,6 +16,7 @@ var Player = {
 	lootTier: 1, // tier that unidentified items are from
 	
 	unlockedInstructions: [],
+	skippedInstructions: [],
 	unlockedTabs: [],
 	skippedTabs: [],
 	
@@ -73,6 +74,11 @@ var Player = {
 		boots: {},
 		weapon: {},
 		items: [{},{},{},{},{},{}],
+	},
+	
+	bank: {
+		unlockedSlots: 0,
+		items: [],
 	},
 	
 	// updated by DOM
