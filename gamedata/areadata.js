@@ -693,11 +693,11 @@ var Areas = {
 				},
 				roles: [
 					{
-						quest: Quests.eaglecrestLoggingCamp[0], 
+						quest: Quests.eaglecrestLoggingCamp[0],
 						role: "questFinish"
 					},
 					{
-						quest: Quests.eaglecrestLoggingCamp[1], 
+						quest: Quests.eaglecrestLoggingCamp[1],
 						role: "questStart"
 					},
 					{
@@ -1089,7 +1089,7 @@ var Areas = {
 								return Weather.weatherType === "rain";
 							}},
 							{item: Items.item[11], cost: 2}, // vial of goblin blood
-							{item: Items.bag[5], cost: 15}, // brown backsack
+							{item: Items.bag[5], cost: 10}, // brown backsack
 							{item: Items.helm[2], cost: 2}, // worn leather helm
 							{item: Items.chest[2], cost: 3}, // worn leather tunic
 							{item: Items.greaves[2], cost: 3}, // worn leather trousers
@@ -2647,6 +2647,10 @@ var Areas = {
 					healthRegen: 0.5,
 				},
 				roles: [
+					{
+						quest: Quests.eaglecrestLoggingCamp[23],
+						role: "questFinish",
+					},
 					{
 						role: "driver",
 						destinations: [

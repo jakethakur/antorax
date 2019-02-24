@@ -733,6 +733,7 @@ class Character extends Thing {
 				let ineffectiveAmount = LevelXP[Game.hero.level] / 6; // amount of XP to be worth 50% less
 				let stacks = 1;
 				if (existingEffect !== undefined) {
+					// existing xp fatigue effect
 					ineffectiveAmount += existingEffect.info.ineffectiveAmount; // stack to an effect XP fatigue effect
 					stacks = existingEffect.info.stacks + 1;
 					if (ineffectiveAmount > LevelXP[Game.hero.level]) { // caps out at the total XP to your next level
@@ -3621,7 +3622,7 @@ Game.loadArea = function (areaName, destination) {
 		let title = Areas[areaName].data.name;
 		let subtitles = [];
 		subtitles.push(Areas[areaName].data.level);
-		if (Areas[areaName].data.territory !== undefined) {
+		if (Areas[areaName].data.territory !== "") {
 			// only show territory if it is defined for the area
 			subtitles.push(Areas[areaName].data.territory + " territory");
 		}
@@ -4000,7 +4001,7 @@ Game.generateLoot = function (lootTable) {
 			// the numbers in the array are multiplied by player's looting
 			
 			let possibleDropChances = lootTable[i].chance.map(element => element * (Game.hero.stats.looting/100)); // multiply chances by looting, deep copying array in process
-			let rollRandom = Random(0, 100); // random number to see how much of item i the player will get (lower is better)
+			let rollRandom = Random(1, 100); // random number to see how much of item i the player will get (lower is better)
 			let eligibleDropChances = possibleDropChances.filter(chance => rollRandom > chance); // filter chances of getting item to see all chances the player is eligible for with their roll
 			let itemQuantity = possibleDropChances.indexOf(Math.max(...eligibleDropChances)); // get the number of that item the player will get
 			
@@ -5991,8 +5992,18 @@ Game.secondary.updateCursor = function (event) {
 	let mouseDistanceFromHero = distance({x: Game.camera.x + event.clientX - Game.viewportOffsetX, y: Game.camera.y + event.clientY - Game.viewportOffsetY,}, Game.hero);
 	let range = Game.hero.stats.range;
 	
+	// if the weapon is a fishing rod, check the mouse is in water
+	let rodInWater = true;
+	if (Player.inventory.weapon.type === "rod") {
+		// rod equipped
+		if (map.isSlowTileAtXY(event.clientX + Game.camera.x, event.clientY + Game.camera.y) !== "water") {
+			// no water tile at mouse pointer
+			rodInWater = false;
+		}
+	}
+	
 	// check the player's mouse distance is within range and they are not reloading
-	if (mouseDistanceFromHero < range && Game.hero.canAttack) {
+	if (mouseDistanceFromHero < range && Game.hero.canAttack && rodInWater) {
 		// mouse in range and hero can attack (crosshair)
 		let cursor = Skins[Player.class][Player.skin].cursor;
 		if (cursor !== "crosshair") {

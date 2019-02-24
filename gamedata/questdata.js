@@ -592,7 +592,7 @@ var Quests = {
 			startChat: `Hello. I've been working on my latest achievement and need some assistance if you wouldn't mind. I need to collect 8 <strong>Scraps of Cloth</strong> and 8 <strong>Polished Rocks</strong> from the goblins in <strong>The Nilbog</strong>, but I've heard it's dangerous out there and don't want to leave my cart unattended. Is there any chance you could head down there to help me? I've heard you're good around the goblins.`,
 			
 			finishName: "Item Buyer Noledar",
-			finishChat: `Thank you so much! Now, I just need to find some space in my cart...`,
+			finishChat: `Thank you so much! Now, I just need to find some space in my cart...<br>If you ever have more items you don't want, you can come and visit me to sell them any time.`,
 			
 			objectives: [
 				"Obtain 8 <strong>Scraps of Cloth</strong> from goblins.",
@@ -666,7 +666,7 @@ var Quests = {
 			rewards: {
 				xp: 30,
 				items: [
-					{item: Items.currency[2], quantity: 2,},
+					{item: Items.currency[2], quantity: 1,},
 				],
 				reputation: {
 					eaglecrestLoggingCamp: 50,
@@ -690,6 +690,7 @@ var Quests = {
 			finishChat: `Interesting. Let's see how this goes.`,
 			
 			onQuestFinish: function () {
+				Dom.cutscene(10000);
 				Game.sayChat("Ciarra Darkbrew", "Stand back. We wouldn't want your arms to detatch so soon.", false, 1000, true);
 				Game.sayChat("Ciarra Darkbrew", "/me adds the potion ingredients to an inert vial.", false, 4000, true);
 				Dom.chat.insert("The vial fizzes rapidly.", 6500, true);
@@ -739,13 +740,13 @@ var Quests = {
 			},
 			
 			removeItems: [
-				{item: Items.item[10], quantity: 2,}, // goblin eye
+				{item: Items.item[10], quantity: 1,}, // goblin eye
 				{item: Items.item[13],}, // bucket of Nilbog mud
 				{item: Items.item[11],}, // vial of goblin blood
 			],
 			
 			rewards: {
-				xp: 50,
+				xp: 30,
 				items: [
 					{item: Items.currency[2], quantity: 2,},
 				],
@@ -767,7 +768,7 @@ var Quests = {
 			finishChat: `Try two. Stand back; you wouldn't want to die <em>such</em> a horrible death.`,
 			
 			onQuestFinish: function () {
-				Dom.changeBook("chatPage");
+				Dom.cutscene(8500);
 				Game.sayChat("Ciarra Darkbrew", "/me adds the potion ingredients to an inert vial.", false, 1500, true);
 				Dom.chat.insert("The vial fizzes rapidly.", 4000, true);
 				Dom.chat.insert("The vial simmers to produce a bluish-green coloured liquid.", 6000, true);

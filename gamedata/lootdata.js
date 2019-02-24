@@ -1,7 +1,7 @@
 // How chance works:
-// number rolled from 0 to 100
+// number rolled from 1 to 100
 // chances are multiplied by looting
-// smallest number that roll is more than is chosen for item
+// largest number that roll is more than is chosen for item
 
 const EnemyLootTables = {
 	global: [
@@ -259,7 +259,7 @@ const ChestLootTables = {
 			item: Items.currency[2],
 			chance: [
 				100,			// 0
-				70,				// 1
+				60,				// 1
 				30,				// 2
 				0,				// 3
 			],

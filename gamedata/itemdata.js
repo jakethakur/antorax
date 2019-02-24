@@ -1181,7 +1181,7 @@ var Items = {
 			type: "rod",
 			image: "assets/items/rod/2.png",
 			rarity: "common",
-			sellPrice: 3,
+			sellPrice: 2,
 			lore: "A fine rod.",
 			stats: {},
 			quest: function(){
@@ -1468,7 +1468,7 @@ var Items = {
 			functionText: "Siphons the soul essence of any nearby enemy corpses",
 			onClick: function () {
 				Game.enemies.forEach(enemy => {
-					if (Game.areNearby(Game.hero, enemy, 100)) { // check the player is within 2 tiles of an enemy
+					if (Game.areNearby(Game.hero, enemy, 180)) { // check the player is within 3 tiles of an enemy
 						if (enemy.isCorpse && !enemy.hasBeenSiphoned) { // check the enemy is a corpse
 							enemy.hasBeenSiphoned = true;
 							if (Player.quests.questProgress.soulSceptreEnergy === undefined) {
@@ -1585,7 +1585,7 @@ var Items = {
 			lore: "You can't understand what the book says.",
 			sellPrice: 1,
 			sellQuantity: 8,
-			stack: 4,
+			stack: 8,
 		},
 		{
 			id: 17,
@@ -1751,10 +1751,10 @@ var Items = {
 						});
 						break;
 					case 2:
-						// give weakness status effect to player
+						// give vulnerability status effect to player
 						Game.statusEffects.defence({
 							target: Game.hero,
-							effectTitle: "Weakness",
+							effectTitle: "Vulnerability",
 							defenceIncrease: -50,
 							time: 10,
 						});
@@ -1931,7 +1931,7 @@ var Items = {
 			type: "consumable",
 			image: "assets/items/consumable/11.png",
 			sellPrice: 2,
-			functionText: "Increases defence against Nilbog goblins by 40% for 10 seconds",
+			functionText: "Increases defence against Nilbog goblins by 50% for 10 seconds",
             cooldown: 20, // 20 seconds
 			onClick: function (inventoryPosition) {
 				// remove the item
@@ -1941,7 +1941,7 @@ var Items = {
 				Game.statusEffects.defence({
 					target: Game.hero,
 					effectTitle: "Goblin Resistance",
-					defenceIncrease: 40,
+					defenceIncrease: 50,
 					time: 10,
 					subSpecies: "nilbog goblin",
 				});
@@ -1952,7 +1952,7 @@ var Items = {
 			name: "Magnetised Lure",
 			type: "consumable",
 			image: "assets/items/consumable/12.png",
-			sellPrice: 2,
+			sellPrice: 2, // sells for less with less charges
 			functionText: "Allows you to ONLY fish up junk items for your next fishing attempt",
 			maxCharges: 10,
 			onClick: function (inventoryPosition, hotbar) {
