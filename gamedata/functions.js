@@ -48,7 +48,7 @@ Loader.getImage = function (key) {
 
 Loader.wipeImages = function (exceptions) {
 	//this.images = {}; // inefficient - wipes player from object
-	
+
 	// wipe all images from images object (apart from exceptions)
 	for (var key in this.images) {
 		if (this.images.hasOwnProperty(key) && !exceptions.includes(key)) {
@@ -68,7 +68,7 @@ let Keyboard = {
 Keyboard.listenForEvents = function (keys) {
     window.addEventListener('keydown', this._onKeyDown.bind(this));
     window.addEventListener('keyup', this._onKeyUp.bind(this));
-    
+
 	keys.forEach(function (key) {
 		// when key is "R" keyRole is set to "REPUTATION"
 		let keyRole = undefined;
@@ -148,13 +148,13 @@ function Round (number, dp) {
     if (dp === undefined) {
 		dp = 1; // 1 dp default
     }
-		
+
 	number *= Math.pow(10, dp);
-	
+
 	number = Math.floor(number);
-	
+
 	number /= Math.pow(10, dp);
-	
+
 	return number;
 }
 
@@ -338,4 +338,22 @@ function NumberSign (value) {
 // this is the fastest way to do it in general - see https://stackoverflow.com/a/5344074/9713957
 function DeepCloneObject (obj) {
 	return JSON.parse(JSON.stringify(obj));
+}
+
+// increases a variable (e.g. quest variable) even if it is undefined
+// undefined is seen as 0
+// amount is optional (specifies a value other than 1)
+function Increment (variable, amount) {
+	if (amount === undefined) {
+		amount = 1; // default
+	}
+
+	if (variable === undefined) {
+		variable = amount;
+	}
+	else {
+		variable += amount;
+	}
+
+	return variable
 }

@@ -16,7 +16,7 @@ var Game = {
 	statusEffects: {},
 	spells: {},
 	secondary: {},
-	
+
 	displayedStats: 0, // number of stats displayed at the top left
 };
 Game.canvas = document.getElementById("game");
@@ -30,13 +30,13 @@ Game.run = function (context, contextSecondary, contextDayNight, contextLight) {
     this.ctx = context;
 	this.ctxDayNight = contextDayNight;
 	this.ctxLight = contextLight;
-	
+
     this.secondary.ctx = contextSecondary;
-	
+
     this._previousElapsed = 0;
-	
+
 	this.loadPlayer(); // load the player from local storage
-	
+
 	// projectile name for hero (for use with projectile image loading)
 	this.heroProjectileName = Skins[Player.class][Player.skin].projectile;
 	this.heroProjectileAdjust = Skins[Player.class][Player.skin].projectileAdjust;
@@ -50,17 +50,17 @@ Game.loadPlayer = function () {
 	if (localStorage.getItem(Player.class) !== null) {
 		// load existing class
         let savedPlayer = JSON.parse(localStorage.getItem(Player.class));
-		
+
         // add anything new that has been added in savedata to Player
         savedPlayer.bossesKilled = Object.assign(Player.bossesKilled, savedPlayer.bossesKilled);
         Player = Object.assign(Player, savedPlayer);
-		
+
         Player.name = playerName;
         Player.skin = playerSkin;
     }
 	else {
         // load a brand new class
-		
+
 		// starting items and mail
         Dom.inventory.give(Items.currency[2],3);
         Dom.mail.give(
@@ -72,7 +72,7 @@ Game.loadPlayer = function () {
             `Hello ${Player.name}!<br><br>It's great to have new people joining us in Antorax. I look forward to meeting you very soon in Wizard Island. Perhaps you would like to try out one of our newest inventions - the ScreenGrabber 3000! It's free of charge. Pop us a letter if it explodes, otherwise see you soon!<br><br>From the Tinkering Guild`, true, [], [],
             [{item: Items.item[14]}]], [{item: Items.item[14]}],
         );
-		
+
 		Dom.instructions.page(0);
     }
 }
@@ -84,20 +84,20 @@ Game.tick = function (elapsed) {
     // clear previous frame
     this.ctx.clearRect(0, 0, Dom.canvas.width, Dom.canvas.height);
     this.ctxLight.clearRect(0, 0, Dom.canvas.width, Dom.canvas.height);
-	
+
     // compute delta time in seconds -- also cap it
     var delta = (elapsed - this._previousElapsed) / 1000.0;
     delta = Math.min(delta, 0.25); // maximum delta of 250 ms
     this._previousElapsed = elapsed;
-	
-	
+
+
 	this.update(delta); // update game state
 	this.render(delta); // render game display
-	
-	
+
+
 	// reset text formatting
 	this.resetFormatting();
-	
+
 	// display delta time (debug)
 	//this.ctx.fillText("delta: " + Math.round(delta * 1000) / 1000, 10, 30);
 }.bind(Game);
@@ -200,7 +200,7 @@ var map = {
 	setDayNightTiles: function () {
 		// tiles changed to night versions if darkness > 0.2 (due to weather or night)
 		if (Areas[Game.areaName].mapData.nightTiles !== undefined) {
-			
+
 			// tiles to be changed
 			if (Areas[Game.areaName].mapData.nightTiles.length === Areas[Game.areaName].mapData.dayTiles.length) {
 				// iterate through tiles to replace
@@ -228,7 +228,7 @@ var map = {
 			else {
 				console.error("dayTiles and nightTiles should have the same length in areadata.js for area " + areaName + ", but do not");
 			}
-			
+
 		}
 	}
 };
@@ -258,7 +258,7 @@ Camera.prototype.update = function (init) {
     // assume followed sprite should be placed at the center of the screen whenever possible
     this.following.screenX = this.width / 2 + Game.viewportOffsetX;
     this.following.screenY = this.height / 2 + Game.viewportOffsetY;
-	
+
 	// distance moved by camera in both directions (for weather to be moved by)
 	// calculated by difference in old x/y and new x/y
 	let movedX = this.x;
@@ -283,7 +283,7 @@ Camera.prototype.update = function (init) {
         this.following.y > this.maxY + this.height / 2) {
         this.following.screenY = this.following.y - this.y + Game.viewportOffsetY;
     }
-	
+
 	// movedX and movedY are the old position values
 	movedX = this.x - movedX;
 	movedY = this.y - movedY;
@@ -421,22 +421,22 @@ class Entity {
 		this.y = properties.y;
 		this.width = properties.width;
 		this.height = properties.height;
-		
+
 		this.type = properties.type; // array the NPC is in (for choose DOM)
 		if (this.type !== undefined) {
 			this.id = Game[this.type].length; // array index the NPC is in (for choose DOM)
 		}
-		
+
 		this.collisionType = properties.collisionType || "body"; // "feet" = check collision with Game.heroFootHitbox
 		// collision type currently only applies to tripwires
-		
+
 		// onLoad function
 		this.onLoad = properties.onLoad;
 		if (this.onLoad !== undefined) {
 			this.onLoad();
 		}
 	}
-	
+
 	isTouching (object) {
 		/*if (this.rotate !== undefined || object.rotate !== undefined) {
 			// involves rotated hitboxes
@@ -445,11 +445,11 @@ class Entity {
 		https://stackoverflow.com/a/12414951/9713957
 		https://yal.cc/rot-rect-vs-circle-intersection/
 		*/
-		
+
 		// make a copy of the two things to check collision on
 		let object1 = object;
 		let object2 = this;
-		
+
 		// check that the objects do not have their own special hitbox
 		if (this.hitbox !== undefined) {
 			object2 = this.hitbox;
@@ -457,7 +457,7 @@ class Entity {
 		if (object.hitbox !== undefined) {
 			object1 = object.hitbox;
 		}
-		
+
 		if (object2.screenX - object2.width / 2 < object1.screenX + object1.width / 2 &&
 	    object2.screenX + object2.width / 2 > object1.screenX - object1.width / 2 &&
 	    object2.screenY - object2.height / 2 < object1.screenY + object1.height / 2 &&
@@ -468,7 +468,7 @@ class Entity {
 			return false;
 		}
 	}
-	
+
 	// confirm that nothing is being touched in a particular array
 	isTouchingType (array) {
 		for (let i = 0; i < array.length; i++) {
@@ -476,7 +476,7 @@ class Entity {
 				return true;
 			}
 		}
-		// not touching any of them 
+		// not touching any of them
 		return false;
 	}
 }
@@ -488,24 +488,36 @@ class Thing extends Entity {
 
 		this.image = Loader.getImage(properties.image);
 		this.imageName = properties.image;
-		
+
 		//this.readImage = properties.readImage;
 		//this.unreadImage = properties.unreadImage;
-		
+
 		// if the image is a **horizontal** tileset, where all images have the same width and height, this specifies the number image to use (starting at 0 for the first image)
 		this.imageNumber = properties.imageNumber || 0; // currently only works for projectiles (TBD)
-		
+
 		// set width and height to image dimensions unless otherwise specified
 		this.width = properties.width || this.image.width;
 		this.height = properties.height || this.image.height;
-		
+
 		this.baseWidth = this.width;
 		this.baseHeight = this.height;
 		this.expand = properties.expand || 1; // width multiplier (based on base width and base height)
-		
+
 		this.name = properties.name;
-		
+
 		this.bright = properties.bright; // currently does nothing
+
+		if (properties.animationFrameTime !== undefined) {
+			// animation (tick is every 250s)
+
+			this.animationFrameTime = properties.animationFrameTime; // time until next animation frame (can be changed by animate function)
+			this.lastAnimated = 0; // in ms, time it was last animated (used with animationFrameTime)
+
+			this.animate = properties.animateFunction;
+
+			// let Game know this should be animated in animationTick (and that there should be an animationTick at all)
+			Game.animationList.push(this);
+		}
 	}
 }
 
@@ -513,35 +525,35 @@ class Thing extends Entity {
 class Character extends Thing {
 	constructor(properties) {
 		super(properties);
-		
+
 		this.channelling = false;
 		this.channellingInfo = false;
-		
+
 		this.health = properties.health || properties.stats.maxHealth;
 		this.damageTaken = 0; // only used so far for Dummies
 		this.speed = properties.stats.walkSpeed || 0;
-		
+
 		this.level = properties.level;
-		
+
 		this.class = properties.class;
-		
+
 		this.species = properties.species; // "human", "goblin", "orc", etc.
 		this.subSpecies = properties.subSpecies; // "nilbog goblin", "fire orc", etc.
-		
+
 		this.hostility = properties.hostility; // used for name colour
-		
+
 		this.spawnX = properties.x;
 		this.spawnY = properties.y;
-		
+
 		this.respawning = false;
 		this.isCorpse = false;
 
 		// stats
 		this.stats = {};
-		
+
 		// these stats must have a value
 		this.stats.maxHealth = properties.stats.maxHealth;
-		
+
 		// it is recommended that you pick a value for these, but not necessary
 		this.stats.defence = properties.stats.defence || 0;
 		this.stats.healthRegen = properties.stats.healthRegen || 0;
@@ -550,14 +562,14 @@ class Character extends Thing {
 		this.stats.iceSpeed = properties.stats.iceSpeed || 0;
 		this.stats.lootTime = properties.stats.lootTime || 10000; // time that it can be looted for
 		this.stats.respawnTime = properties.stats.respawnTime || 11000; // time to respawn (should be more than lootTime)
-		
+
 		// optional stats
 		// using || defaults to second value if first is undefined, 0 or ""
 		this.stats.dodgeChance = properties.stats.dodgeChance || 0;
 		this.stats.reflection = properties.stats.reflection || 0;
 		this.stats.stealthed = properties.stats.stealthed || false; // can't be seen
 		this.stats.frostaura = properties.stats.frostaura || false;
-		
+
 		this.chat = properties.chat || {}; // object containing properties that are inserted into chat when specific things happen
 		/* examples of chat properties:
 			firstDamaged - said when the character is damaged for the first time
@@ -569,12 +581,12 @@ class Character extends Thing {
 			inventoryFull - said when a quest involving this NPC adds more items than needed (mandatory for quest npcs that add something to inventory on start or finish)
 			shopLeave - said when you leave a merchant (mandatory for merchants)
 			more tba
-			
+
 			use "/me " at the start of the chat to make the chat reflexive
 			e.g:	"Hi" => "Character: Hi"
 					"/me Hi" => "Character Hi"
 		*/
-		
+
 		// event chat changes
 		if (Event.christmasDay) {
 			// chooseChat changed
@@ -588,12 +600,12 @@ class Character extends Thing {
 				this.chat.chooseChat = this.chat.antoraxDayGreeting;
 			}
 		}
-		
+
 		this.direction = properties.direction || 0;
-		
+
 		this.statusEffects = [];
 	}
-	
+
 	// insert a message into the chat, under the format of "this.name: message"
 	// this.name is emboldened via <strong> tags
 	// if message begins with "/me " (including space), the format changes to "this.name message"
@@ -602,18 +614,18 @@ class Character extends Thing {
 	say (message, singleUse, delay, important) {
 		Game.sayChat(this.name, message, singleUse, delay, important);
 	}
-	
+
 	// function to be carried out during Game.render()
 	renderFunction () {
 		// show health bar and character name above head
 		Game.drawCharacterInformation(Game.ctx, this);
 	}
-	
+
 	// take damage
 	takeDamage (damage) {
 		this.health -= damage;
 		this.damageTaken += damage;
-		
+
 		// check for death
 		if (this !== Game.hero) {
 			// not player (assumed it is killed by player - TBD)
@@ -621,24 +633,24 @@ class Character extends Thing {
 			if (this.health <= 0 && !this.respawning) { // check it is dead and not already respawning
 				// wipe status effects
 				this.statusEffects = [];
-				
+
 				// death
 				this.respawning = true;
 				this.isCorpse = true;
-				
+
 				// loot
 				if (this.lootTable !== undefined) {
 					this.generateLoot(this.lootTable);
 				}
-				
+
 				// xp
 				Game.getXP(this.xpGiven / Player.level); // now that the XP has fully been added, check for a levelUp and display it on the canvas
-				
+
 				// on kill function
 				if (Player.inventory.weapon.onKill !== undefined) {
 					Player.inventory.weapon.onKill();
 				}
-				
+
 				// corpse disappears in this.stats.lootTime ms
 				setTimeout(function () {
 					this.isCorpse = false;
@@ -647,7 +659,7 @@ class Character extends Thing {
 						Dom.quests.active();
 					}
 				}.bind(this), this.stats.lootTime);
-				
+
 				// respawn in this.stats.respawnTime ms (if it is not a boss)
 				if (this.hostility !== "boss") {
 					setTimeout(function () {
@@ -658,45 +670,35 @@ class Character extends Thing {
 					// set boss date killed
 					Player.bossesKilled[this.bossKilledVariable] = GetFullDate();
 				}
-				
+
 				//
 				// quest progress
 				//
-				
+
 				// enemies killed achievement
 				if (this.hostility === "hostile" || this.hostility === "boss") {
-					User.progress.enemies++;
+					User.progress.enemies = Increment(User.progress.enemies);
 				}
-				
+
 				if (this.subSpecies === "nilbog goblin") {
 					// goblins killed achievement
-					User.progress.goblins++;
+					User.progress.goblins = Increment(User.progress.goblins);
 					// general goblins killed objective
-					if (Player.quests.questProgress.goblinsKilled === undefined) {
-						Player.quests.questProgress.goblinsKilled = 1;
-					}
-					else {
-						Player.quests.questProgress.goblinsKilled++;
-					}
+					Player.quests.questProgress.goblinsKilled = Increment(Player.quests.questProgress.goblinsKilled);
 					// goblins killed with goblin torch objective
 					if (Player.inventory.weapon.type === "staff" && Player.inventory.weapon.id === 7) { // goblin torch equipped
-						if (Player.quests.questProgress.goblinsKilledWithTorch === undefined) {
-							Player.quests.questProgress.goblinsKilledWithTorch = 1;
-						}
-						else {
-							Player.quests.questProgress.goblinsKilledWithTorch++;
-						}
+						Player.quests.questProgress.goblinsKilledWithTorch = Increment(Player.quests.questProgress.goblinsKilledWithTorch);
 					}
 				}
 				else if (this.subSpecies === "dummy") {
-					User.progress.dummies++;
+					User.progress.dummies = Increment(User.progress.dummies);
 				}
-				
+
 				// weapon chat message (some weapons have a chat message for when they kill something!)
 				if (Player.inventory.weapon.chat !== undefined && Player.inventory.weapon.chat.kill !== undefined) {
 					Game.sayChat(Player.inventory.weapon.name, Player.inventory.weapon.chat.kill, false, 100, false)
 				}
-				
+
 				// death text
 				if (typeof this.chat.death !== "undefined") {
 					this.say(this.chat.death, true, 0, false);
@@ -706,30 +708,30 @@ class Character extends Thing {
 		else {
 			// player
 			if (this.health <= 0 && !this.respawning) { // check it is dead and not already respawning
-				
+
 				// find existing xp fatigue effect
 				let existingEffect = this.statusEffects.find(statusEffect => statusEffect.title === "XP Fatigue");
-				
+
 				// wipe status effects (including existing XP fatigue)
 				while (this.statusEffects.length > 0) {
 					// cannot be set to [], otherwise it no longer mirrors player
 					this.statusEffects.splice(0, 1);
 				}
-				
+
 				// death
 				this.respawning = true;
 				this.isCorpse = true;
-				
+
 				// area onDeath function
 				if (Areas[Game.areaName].onDeath !== undefined) {
 					Areas[Game.areaName].onDeath();
 				}
-				
+
 				// load checkpoint area
 				Game.loadArea(this.checkpoint, Areas[this.checkpoint].player);
-				
+
 				this.health = this.stats.maxHealth;
-				
+
 				let ineffectiveAmount = LevelXP[Game.hero.level] / 6; // amount of XP to be worth 50% less
 				let stacks = 1;
 				if (existingEffect !== undefined) {
@@ -741,7 +743,7 @@ class Character extends Thing {
 					}
 				}
 				ineffectiveAmount = Math.round(ineffectiveAmount);
-				
+
 				// add stronger xp fatigue effect (or add one if the player doesn't already have one)
 				Game.hero.statusEffects.push(new statusEffect({
 					title: "XP Fatigue",
@@ -752,34 +754,34 @@ class Character extends Thing {
 					},
 					image: "xpDown",
 				}));
-				
+
 				Player.fatiguedXP = ineffectiveAmount;
-				
+
 				Game.hero.updateStatusEffects();
-				
+
 				// save progress
 				Game.saveProgress("auto");
 			}
 		}
 	}
-	
+
 	// respawn after death
 	respawn () {
 		this.loot = null;
-		
+
 		this.hasBeenSiphoned = false; // for quests
-		
+
 		this.x = this.spawnX;
 		this.y = this.spawnY;
-		
+
 		this.health = this.stats.maxHealth;
 		this.damageTaken = 0;
-		
+
 		this.speed = this.stats.walkSpeed || 0;
-		
+
 		this.respawning = false;
 	}
-	
+
 	// check if the character has a status effect with the specific title
 	hasStatusEffect (title, startIndex, finishBeforeIndex) {
 		// startIndex and finishBeforeIndex are the same as String.substring parameters
@@ -794,7 +796,7 @@ class Character extends Thing {
 		}
 		return false;
 	}
-	
+
 	// check if the character has a status effect of the specified type
 	hasStatusEffectType (type) {
 		for (let i = 0; i < this.statusEffects.length; i++) {
@@ -804,7 +806,7 @@ class Character extends Thing {
 		}
 		return false;
 	}
-	
+
 	// whee! make the character fly away from their current point
 	// velocity = pixels thrown per second
 	// time = time in SECONDS
@@ -820,12 +822,12 @@ class Character extends Thing {
 				direction: direction,
 				elapsed: 0,
 			}; // time the player has been displaced for
-			
+
 			// expand by 0.01
 			this.expand = 1.01;
 			this.width = this.baseWidth * this.expand;
 			this.height = this.baseHeight * this.expand;
-			
+
 			// stunned status effect
 			Game.statusEffects.stun({
 				target: this,
@@ -834,7 +836,7 @@ class Character extends Thing {
 				effectDescription: "Being displaced",
 				onExpire: "removeDisplacement",
 			});
-			
+
 			return {x:0, y:0};
 		}
 		else if (this.isBeingDisplaced.elapsed < this.isBeingDisplaced.time) { // displace player
@@ -847,25 +849,25 @@ class Character extends Thing {
 				this.expand = -Math.pow((2/this.isBeingDisplaced.time)*this.isBeingDisplaced.elapsed-1, 2) + 2;
 			}
 			// graph for expand over time: https://www.desmos.com/calculator/ygygwjtzwe
-			
+
 			this.width = this.baseWidth * this.expand;
 			this.height = this.baseHeight * this.expand;
-			
+
 			// move
 			let dirx = Math.cos(this.isBeingDisplaced.direction);
 			let diry = Math.sin(this.isBeingDisplaced.direction);
 			this.x += dirx * this.isBeingDisplaced.velocity * delta;
 			this.y += diry * this.isBeingDisplaced.velocity * delta;
-			
+
 			this.isBeingDisplaced.elapsed += delta;
-			
+
 			return {x:dirx, y:diry};
 		}
 		else { // displacement finished
 			return {x:0, y:0};
 		}
 	}
-	
+
 	// remove all status effects where statusEffect[key] === value
 	cleanse (value, key) {
 		this.statusEffects = this.statusEffects.filter(statusEffect => statusEffect[key] !== value);
@@ -876,17 +878,17 @@ class Character extends Thing {
 class Attacker extends Character {
 	constructor(properties) {
 		super(properties);
-		
+
 		// stats
 		if (this.stats === undefined) {
 			this.stats = {};
 		}
-		
+
 		// these stats must have a value
 		this.stats.damage = properties.stats.damage;
 		this.stats.range = properties.stats.range;
 		this.stats.reloadTime = properties.stats.reloadTime; // time in ms to attack again
-		
+
 		// optional stats
 		// using || defaults to second value if first is undefined, 0 or ""
 		this.stats.criticalChance = properties.stats.criticalChance || 0;
@@ -903,10 +905,10 @@ class Attacker extends Character {
 			this.stats.onAttack = properties.stats.onAttack.bind(this); // bound to this
 		}
 		this.updateStats = properties.updateStats; // only works for enemies ATM
-		
+
 		// trail (currently just works for hero ATM)
 		this.trail = properties.trail;
-		
+
 		// spells
 		this.spells = properties.spells || [];
 		for (let i = 0; i < this.spells.length; i++) {
@@ -920,7 +922,7 @@ class Attacker extends Character {
 				this.spells[i].ready = true;
 			}
 		}
-		
+
 		// information about projectile
 		// only supported for enemies - should be updated to work for player as well (TBD TBD!!!)
 		this.projectile = {};
@@ -930,11 +932,11 @@ class Attacker extends Character {
 		this.projectile.height = properties.projectile.height;
 		// not necessary (defaults to x: 0 and y: 0 later on if it is undefined)
 		this.projectile.adjust = properties.projectile.adjust || {};
-		
+
 		this.canAttack = true; // check attack is not reloading
 	}
-	
-	
+
+
 	// remove whatever is currently being channelled
 	// called when the character moves or tries to channel something else
 	// reason is set to why the channel was removed (not used yet)
@@ -959,7 +961,7 @@ class Attacker extends Character {
 			this.channellingInfo = false;
 		}
 	}
-	
+
 	// channel a function
 	// this.channelling is set to the timeout
 	// channelling fails (thus the timeout is cleared) if the character's channelling is set to something else or if the user moves
@@ -978,7 +980,7 @@ class Attacker extends Character {
 			}.bind(this);
 			// set channelling to the timeout
 			this.channelling = setTimeout(channelFunction, time, parameters);
-			
+
 			// channelling progress bar information
 			if (description !== false) {
 				// channelling bar should be shown
@@ -990,7 +992,7 @@ class Attacker extends Character {
 			}
 		}
 	}
-	
+
 	// a simpler channel for spells
 	channelSpell (spellName, spellTier, parameters) {
 		// add implicit parameters
@@ -1016,7 +1018,7 @@ class AreaTeleport extends Entity {
 		this.destinationY = properties.destinationY;
 		this.playerAdjustX = properties.playerAdjustX;
 		this.playerAdjustY = properties.playerAdjustY;
-		
+
 		// the following are ignored if they are undefined
 		this.teleportCondition = properties.teleportCondition; // condition for the teleport to work
 		this.teleportFailText = properties.teleportFailText; // text if teleportCondition fails
@@ -1028,7 +1030,7 @@ class AreaTeleport extends Entity {
 class Tripwire extends Entity {
 	constructor(properties) {
 		super(properties);
-		
+
 		this.onPlayerTouch = properties.onPlayerTouch; // function called when touched by player (will be called multiple times)
 		// note that onPlayerTouch is bound to the entity (this = entity)
 	}
@@ -1038,7 +1040,7 @@ class Tripwire extends Entity {
 class Particle extends Entity {
 	constructor(properties) {
 		super(properties);
-		
+
 		if (properties.colour.constructor === Array) {
 			// pick a random colour
 			this.colour = properties.colour[Random(0, properties.colour.length-1)];
@@ -1046,9 +1048,9 @@ class Particle extends Entity {
 		else {
 			this.colour = properties.colour;
 		}
-		
+
 		this.moveTowards = properties.moveTowards; // optional
-		
+
 		// rotation: optional; in radians; distorts coordinates of particle
 		if (properties.rotation === "random") {
 			// random rotation chosen
@@ -1057,12 +1059,12 @@ class Particle extends Entity {
 		else {
 			this.rotation = properties.rotation;
 		}
-		
+
 		this.light = properties.light || false; // if this is set to true, it is drawn on the light canvas
-		
+
 		this.id = Game.nextParticleId; // way that the game can identify which particle was added (without position in array being shifted)
 		Game.nextParticleId++;
-		
+
 		this.transparency = properties.transparency || 1; // 0 (invisible) to 1 (opaque)
 	}
 }
@@ -1086,7 +1088,7 @@ Game.createParticle = function (properties) {
 class InfoPoint extends Thing {
 	constructor(properties) {
 		super(properties);
-		
+
 		this.onTouchChat = properties.onTouchChat; // inserted to chat on touch (only inserted once); NOT in the format 'name: chat'
 	}
 }
@@ -1095,42 +1097,42 @@ class InfoPoint extends Thing {
 class Hero extends Attacker {
 	constructor (properties) {
 		super(properties);
-		
+
 		// perhaps condense channelling with enemy's canAttack?
 		this.channelTime = 0;
-		
+
 		// status effects override - mirror savedata.js' versions
 		this.statusEffects = Player.statusEffects;
-		
+
 		// stats
 		this.stats.looting = properties.stats.looting;
 		this.stats.rangeModifier = properties.stats.rangeModifier; // added to range
 		this.stats.domRange = 240; // distance from an entity that a DOM menu may be opened
-		
+
 		// optional stats
 		// using || defaults to second value if first is undefined, 0 or ""
 		this.stats.focusSpeed = properties.stats.focusSpeed || 0; // archer only
 		this.stats.maxDamage = properties.stats.maxDamage; // mage only
 		this.stats.blockDefence = properties.stats.blockDefence; // knight only
 		this.stats.xpBonus = properties.stats.xpBonus || 0; // perentage
-		
+
 		// fishing stats
 		this.stats.fishingSkill = properties.stats.fishingSkill || 0;
-		
+
 		// where the player respawns when they die (set at any major city)
 		this.checkpoint = properties.checkpoint || "tutorial";
-		
+
 		// time travel teleport positions
 		this.oldPosition = properties.oldPosition; // might be undefined
 	}
-	
+
 	move (delta, dirx, diry) { // called when being displaced, moving towards something, or player is moving hero
-		
+
 		this.removeChannelling("move"); // stuff cannot be channelled whilst moving
-		
+
 		let baseSpeed = false; // whether speed should be altered by status effects and slow tiles (false means do alter)
 		// if baseSpeed is a number instead, the speed is set to that without setSpeed being called
-		
+
 		// move hero
 		if (this.hasStatusEffect("Displacement")) {
 			// player being displaced!
@@ -1150,17 +1152,17 @@ class Hero extends Attacker {
 			let direction = bearing(this, this.moveTowards);
 			dirx = Math.cos(direction);
 			diry = Math.sin(direction);
-			
+
 			// movement speed
 			this.speed = this.stats.walkSpeed;
 			// speed scalar due to moveTowards (decimal value)
 			if (this.moveTowards !== undefined && this.moveTowards.speedScalar !== undefined) {
 				this.speed *= this.moveTowards.speedScalar;
 			}
-			
+
 			this.x += dirx * this.speed * delta;
 			this.y += diry * this.speed * delta;
-			
+
 			if (Math.round(this.x) < this.moveTowards.x + 2 && Math.round(this.x) > this.moveTowards.x - 2
 			&& Math.round(this.y) < this.moveTowards.y + 2 && Math.round(this.y) > this.moveTowards.y - 2) {
 				// destination reached
@@ -1172,7 +1174,7 @@ class Hero extends Attacker {
 			this.x += dirx * this.speed * delta;
 			this.y += diry * this.speed * delta;
 		}
-		
+
 		// set foot hitbox positions
 		Game.heroFootHitbox.x = this.x;
 		Game.heroFootHitbox.y = this.y + 50;
@@ -1183,7 +1185,7 @@ class Hero extends Attacker {
 		if (Game.hero.moveTowards === undefined) { // hero should only collide if controlled by player
 			this._collide(dirx, diry, delta);
 		}
-		
+
 		// set walkspeed for next move() function call
 		if (baseSpeed === false || baseSpeed === true) {
 			this.setSpeed(baseSpeed);
@@ -1198,10 +1200,10 @@ class Hero extends Attacker {
 		this.x = Math.max(0, Math.min(this.x, maxX));
 		this.y = Math.max(0, Math.min(this.y, maxY));
 	}
-	
+
 	_collide (dirx, diry, delta) { // update move speed based on equipment and surroundings
 		var row, col;
-		
+
 		let left = Game.heroFootHitbox.x - Game.heroFootHitbox.width / 2;
 		let right = Game.heroFootHitbox.x + Game.heroFootHitbox.width / 2;
 		//var top = this.y - this.height / 2;
@@ -1215,7 +1217,7 @@ class Hero extends Attacker {
 			this.map.isSolidTileAtXY(right, top) ||
 			this.map.isSolidTileAtXY(right, bottom) ||
 			this.map.isSolidTileAtXY(left, bottom);
-			
+
 		// check collision with collisions - invisible entities that cannot be passed
 		Game.collisions.forEach(entity => { // iterate though collisions
 			// give collisions a screenX and Y (should be turned into own function)
@@ -1226,7 +1228,7 @@ class Hero extends Attacker {
 				collision = true;
 			}
 		});
-		
+
 		if (!collision) { return; }
 
 		if (diry > 0) {
@@ -1250,7 +1252,7 @@ class Hero extends Attacker {
 			//this.x = this.width / 2 + this.map.getX(col + 1);
 		}
 	}
-	
+
 	// set player speed
 	// baseSpeed stops the speed being changed from status effects and slow tiles (e.g: displacement)
 	setSpeed (baseSpeed) {
@@ -1320,7 +1322,7 @@ class Hero extends Attacker {
 		else {
 			console.error("Unknown slow tile: " + slowTile);
 		}
-		
+
 		if (!baseSpeed) {
 			// speed status effect (can be buff or debuff)
 			this.statusEffects.forEach(statusEffect => {
@@ -1331,39 +1333,39 @@ class Hero extends Attacker {
 			});
 		}
 	}
-	
+
 	// start channeling basic attack
 	startAttack (e) {
 		if (this.canAttack && Player.inventory.weapon.name !== "" && !Player.inventory.weapon.cannotAttack && !this.hasStatusEffectType("stun")) { // checks the player has a weapon and is not currently reloading and is not currently stunned
 			// Player.inventory.weapon.cannotAttack is set to true when the projectile image is being loaded (e.g: weapon with special projectile is equipped/unequipped)
 			if (!CheckRightClick(e)) {
 				// left-click (normal) attack
-				
+
 				// position of projectile
 				let projectileX = Game.camera.x + e.clientX - Game.viewportOffsetX;
 				let projectileY = Game.camera.y + e.clientY - Game.viewportOffsetY;
 				let distanceToProjectile = distance({x: projectileX, y: projectileY,}, this);
-				
+
 				if (Player.inventory.weapon.type === "staff" || Player.inventory.weapon.type === "bow" || Player.inventory.weapon.type === "sword") {
 					// player is using conventional weapon
-						
+
 					if (distanceToProjectile < this.stats.range) {
 						// player is in range
-						
+
 						this.canAttack = false;
-						
+
 						this.removeChannelling("attack"); // remove anything that was previously channelling
-						
+
 						this.channelling = "projectile";
-						
+
 						let projectileRotate = bearing(this, {x: projectileX, y: projectileY}) + Math.PI / 2;
-						
+
 						let variance = this.stats.variance;
 						if (Player.inventory.weapon.type === "bow") { // alter variance based on distance to enemy if the class is archer
 							let distanceFraction = distanceToProjectile / 600; // fraction of maximum variance (max variance = Playerstats.variance)
 							variance *= distanceFraction;
 						}
-						
+
 						this.channellingProjectileId = Game.nextProjectileId;
 
 						// tbd make work the same as enemy projectile
@@ -1391,7 +1393,7 @@ class Hero extends Attacker {
 							variance: variance,
 							type: "projectiles",
 						}));
-						
+
 						Game.secondary.updateCursor(e); // no longer crosshair because attack is reloading
 					}
 				}
@@ -1401,14 +1403,14 @@ class Hero extends Attacker {
 					if (Weather.type === "rain") {
 						this.fishingBobs = 1; // faster to get fish when it is raining
 					}
-					
+
 					if (distanceToProjectile < this.stats.range && this.map.isSlowTileAtXY(projectileX, projectileY) === "water") {
 						// player is in range and clicked in water
-						
+
 						this.channelling = "fishing";
-						
+
 						this.channellingProjectileId = Game.nextProjectileId;
-					
+
 						Game.projectiles.push(new Projectile({
 							map: map,
 							x: projectileX,
@@ -1419,7 +1421,7 @@ class Hero extends Attacker {
 							beingChannelled: true,
 							type: "projectiles",
 						}));
-						
+
 						// timer for first bob
 						let bobTime = Random(1000, 12000);
 						if (Weather.type === "rain") {
@@ -1431,30 +1433,25 @@ class Hero extends Attacker {
 				}
 				else if (Player.inventory.weapon.type === "rod" && this.channelling === "fishing") {
 					// fishing rod (bobber has been cast)
-					
+
 					/*Game.projectiles.splice(Game.searchFor(this.channellingProjectileId, Game.projectiles), 1); // remove bobber
-					
+
 					this.channelling = false;
 					this.channellingProjectileId = null;*/
-					
+
 					// in the future, the player should be able to remove the bobber whilst fishing
 				}
 				else if (Player.inventory.weapon.type === "rod" && this.channelling.fishingType !== undefined && this.fishingBobs >= 100) { // channelling.type is only defined when it is set to an item (i.e. a fishing item)
 					// fishing rod (fish has been caught - player is clicking to pull it up)
-					
+
 					this.fishingBobs++;
-					
+
 					if (this.fishingBobs >= 100 + this.channelling.clicksToCatch) {
 						// fish caught
-						
+
 						// quest progress
-						if (Player.quests.questProgress.itemsFishedUp !== undefined) {
-							Player.quests.questProgress.itemsFishedUp++;
-						}
-						else {
-							Player.quests.questProgress.itemsFishedUp = 1;
-						}
-						
+						Player.quests.questProgress.itemsFishedUp = Increment(Player.quests.questProgress.itemsFishedUp);
+
 						// chat message
 						if (this.channelling.fishingType === "fish") { // fish
 							Dom.chat.insert("You caught a " + this.channelling.length + "cm <strong>" + this.channelling.name + "</strong>!");
@@ -1468,7 +1465,7 @@ class Hero extends Attacker {
 						else {
 							console.error("It is not known that an item of fishingType " + channelling.fishingType + " can be fished up.");
 						}
-						
+
 						// increase fishing skill
 						// see fish spreadsheet for algorithm
 						// note: if the Game.hero stats were updated in the middle of this code, it **might** ignore some skill that should have been added (overwritten back to old value in savedata.js) - tbd fix this
@@ -1532,47 +1529,42 @@ class Hero extends Attacker {
 						else {
 							console.warn("Fishing item " + this.channelling + "currently never gives any fishing skill, but probably should.");
 						}
-						
+
 						if (this.channelling.length !== undefined) {
 							// player has caught a fish
 							// achievement variable
-							User.progress.fish++;
+							User.progress.fish = Increment(User.progress.fish);
 							// quest variable
-							if (Player.quests.questProgress.fishCaught === undefined) {
-								Player.quests.questProgress.fishCaught = 1;
-							}
-							else {
-								Player.quests.questProgress.fishCaught++;
-							}
+							Player.quests.questProgress.fishCaught = Increment(Player.quests.questProgress.fishCaught);
 						}
-						
+
 						// give fish
 						// must be after quest progress and fishing skill
 						let inventoryPosition = Dom.inventory.give(this.channelling);
 						// inventory position saved for if onCatch needs it
-						
+
 						// onCatch function
 						if (this.channelling.onCatch !== undefined) {
 							this.channelling.onCatch(inventoryPosition);
 						}
-						
+
 						if (Math.floor(this.stats.fishingSkill) - Math.floor(oldFishingSkill) > 0) { // check if the player's fishing skill has increased to the next integer (or more)
 							Dom.chat.insert("Your fishing skill has increased to " + Math.floor(this.stats.fishingSkill) + "."); // notify them of this in chat
 						}
-						
+
 						// update player stats
 						Player.stats = Game.hero.stats; // inefficient (should be linked)
-						
+
 						// fish length for fisher's log
 						if (this.channelling.length > User.fish[this.channelling.id]) {
 							User.fish[this.channelling.id] = this.channelling.length;
 						}
-						
+
 						// remove fishing bobber
 						Game.projectiles.splice(Game.searchFor(this.channellingProjectileId, Game.projectiles), 1);
 						this.channelling = false;
 						this.channellingProjectileId = null;
-						
+
 						Dom.checkProgress();
 					}
 				}
@@ -1585,38 +1577,38 @@ class Hero extends Attacker {
 			}
 		}
 	}
-	
+
 	// shoot basic attack
 	finishAttack (e) {
 		if (this.channelling === "projectile") { // check that the player is channelling a projectile (they might not have a weapon equipped so are not channelling, for example)
 			this.channelTime = 0;
 			this.channelling = false;
-			
+
 			// get projectile
 			let shotProjectile = Game.projectiles[Game.searchFor(this.channellingProjectileId, Game.projectiles)];
-			
+
 			// set projectile as not channelling
 			shotProjectile.beingChannelled = false;
-			
+
 			shotProjectile.varyPosition(); // vary projectile position based off its variance
-			
+
 			// damage enemies that the projectile is touching
 			shotProjectile.dealDamage(shotProjectile.attacker, shotProjectile.targets);
-			
+
 			// function called for all attacks whether they hit an enemy or not
 			if (Player.inventory.weapon.onAttack !== undefined) {
 			    Player.inventory.weapon.onAttack(shotProjectile);
 			}
-			
+
 			// after a timeout (2s), remove the projectile that was just shot
 			// this doesn't work if the user attacks too fast, though this shouldn't be a problem...
 			let a = this.channellingProjectileId; // maintain a variable of the currently shot projectile
 			Game.objectRemoveTimeouts.push(setTimeout(function (a) {
 				Game.projectiles.splice(Game.searchFor(a, Game.projectiles), 1); // find the id of the to-be-removed projectile and remove it
 			}, 1500, a)); // pushed to objectRemoveTimeouts so it can be removed when the area is changed
-			
+
 			this.channellingProjectileId = null;
-			
+
 			// wait for the player's reload time (1s) until they can attack again
 			setTimeout(function () {
 				this.canAttack = true;
@@ -1625,7 +1617,7 @@ class Hero extends Attacker {
 				// add back crosshair to cursor (if mouse is in range)
 				Game.secondary.updateCursor();
 			}.bind(this), this.stats.reloadTime);
-			
+
 			// special animations
 			if (typeof Skins[Player.class][Player.skin].animations !== "undefined" && typeof Skins[Player.class][Player.skin].animations.onHit !== "undefined") {
 				// on attack animation
@@ -1640,13 +1632,13 @@ class Hero extends Attacker {
 					}
 				}
 			}
-			
+
 			// update quest log
 			Dom.checkProgress();
 		}
 		else if (this.channelling === "block") {
 			this.channelling = false;
-			
+
 			// wait for the player's reload time (1s) until they can attack again
 			setTimeout(function () {
 				this.canAttack = true;
@@ -1655,26 +1647,26 @@ class Hero extends Attacker {
 			}.bind(this), this.stats.reloadTime);
 		}
 	}
-	
+
 	// called whenever Game.hero's status effects are updated
 	updateStatusEffects () {
 		// update secondary canvas (status effects display on it)
 		Game.secondary.render();
-		
+
 		// update dom
 		Dom.inventory.displayIdentification();
 	}
-	
+
 	// space bar
 	interact () {
 		let interactionDone = 0; // set to true if the player has interacted with something, iterated by 1 each time to show what should be tried to be interacted with each time
 		// this is done so that only 1 interaction can happen per space press
-		
+
 		while (interactionDone !== true) {
 			// enemy looting
 			if (interactionDone === 0) {
 				for (var i = 0; i < Game.enemies.length; i++) {
-					if (Game.enemies[i].isCorpse) { // check enemy is a corpse (hence might be able to be looted) 
+					if (Game.enemies[i].isCorpse) { // check enemy is a corpse (hence might be able to be looted)
 						if (this.isTouching(Game.enemies[i]) && Game.enemies[i].loot !== null) { // player is touching enemy and enemy can be looted
 							Dom.choose.page(Game.enemies[i], ["Loot enemy"], [function () {
 								Dom.loot.page(Game.enemies[i].name, Game.enemies[i].loot);
@@ -1688,7 +1680,7 @@ class Hero extends Attacker {
 					}
 				}
 			}
-			
+
 			// check collision with loot chests
 			else if (interactionDone === 1) {
 				for (var i = 0; i < Game.chests.length; i++) {
@@ -1714,7 +1706,7 @@ class Hero extends Attacker {
 								// chat message to tell them this
 								Dom.chat.insert("The Loot Chest is locked! You need a <strong>" + Game.chests[i].chestKey.name + "</strong> to unlock it.", 0, true, true);
 							}
-							
+
 							// if the chest has been unlocked, open the chest!
 							if (!Game.chests[i].locked) {
 								Game.chests[i].openLoot(i);
@@ -1725,7 +1717,7 @@ class Hero extends Attacker {
 					// tbd should flash red if player can't loot it
 				}
 			}
-			
+
 			// cannon firing
 			else if (interactionDone === 2) {
 				for (var i = 0; i < Game.cannons.length; i++) {
@@ -1735,7 +1727,7 @@ class Hero extends Attacker {
 					}
 				}
 			}
-			
+
 			// tilemap tiles
 			else if (interactionDone === 3) {
 				let tileNum = this.getTileAtFeet();
@@ -1744,28 +1736,28 @@ class Hero extends Attacker {
 				}
 				interactionDone = true; // interaction might not have happened, but this is always the last thing to be done anyway so it can be set to true
 			}
-			
+
 			if (interactionDone !== true) {
 				interactionDone++;
 			}
 		}
 	}
-	
+
 	// map.getTile for Game.hero
 	getTileAtFeet () {
 		return map.getTile(0, map.getCol(this.x), map.getRow(this.y + this.height/2));
 	}
-	
+
 	// called by fishing bobber timeouts
 	fish () {
 		if (this.channelling === "fishing") {
 			if (this.fishingBobs < 7 && this.fishingBobs > -1) {
 				// bob fishing bobber every ~1 second
 				this.fishingBobs++;
-				
+
 				if (Random(0, 5) < this.fishingBobs) {
 					// fish caught
-					
+
 					// increase fishing skill if the player has a fish bait status effect
 					let fishingSkill = this.stats.fishingSkill;
 					let baitStatusEffectIndex = this.statusEffects.findIndex(statusEffect => statusEffect.title === "Fish bait");
@@ -1773,7 +1765,7 @@ class Hero extends Attacker {
 						fishingSkill += this.statusEffects[baitStatusEffectIndex].info.skillIncrease;
 						this.statusEffects.splice(baitStatusEffectIndex, 1);
 					}
-					
+
 					// find what rarities the player can fish up
 					// junk is fished up in the proportion not unlocked by common/unique/mythic
 					let raritiesAvailable = [];
@@ -1789,7 +1781,7 @@ class Hero extends Attacker {
 						// can fish up mythics
 						raritiesAvailable.push("mythic");
 					}
-					
+
 					// pick a random rarity from the raritiesAvailable array
 					let RandomNum = Random(0, 7);
 					let itemRarity = "";
@@ -1809,7 +1801,7 @@ class Hero extends Attacker {
 					if (!raritiesAvailable.includes(itemRarity)) {
 						itemRarity = "junk";
 					}
-					
+
 					// find the fish that should be caught
 					let fish = Items.fish;
 					fish = fish.filter(item => item.areas.includes(Player.lootArea) || item.areas.includes(Game.areaName) || item.areas.length === 0); // filter for area (either lootArea or areaName)
@@ -1829,7 +1821,7 @@ class Hero extends Attacker {
 						fish = fish[Random(0, fish.length - 1)]; // Random fish that fulfils requirements above
 					}
 					fish = { ...fish }; // remove all references to itemdata in fish variable (otherwise length value changed in this will also affect itemData)!
-					
+
 					// calculate time to catch fish and clicks needed for fish
 					// see fish spreadsheet for how this is figured out
 					// should be moved to its own (recursive?) function
@@ -1848,20 +1840,20 @@ class Hero extends Attacker {
 						// between min and max; biased towards average
 						let fishLength = Round(BiasedRandom(fish.length.min, fish.length.max, fish.length.avg, 1));
 						fish.length = fishLength; // replace length object with an integer saying the fish's length
-						
+
 						// clicks
 						if (fishLength / 25 >= 4) {
 							clicks += 4;
 							fishLength -= 100;
-							
+
 							if (fishLength / 50 >= 4) {
 								clicks += 4;
 								fishLength -= 200;
-								
+
 								if (fishLength / 75 >= 4) {
 									clicks += 4;
 									fishLength -= 300;
-									
+
 									if (fishLength / 100 >= 4) {
 										clicks += 4;
 										fishLength -= 400;
@@ -1870,17 +1862,17 @@ class Hero extends Attacker {
 									else {
 										clicks += Math.floor(fishLength / 100);
 									}
-									
+
 								}
 								else {
 									clicks += Math.floor(fishLength / 75);
 								}
-								
+
 							}
 							else {
 								clicks += Math.floor(fishLength / 50);
 							}
-							
+
 						}
 						else {
 							clicks += Math.floor(fishLength / 25);
@@ -1900,13 +1892,13 @@ class Hero extends Attacker {
 						}
 					}
 					fish.clicksToCatch = clicks;
-					
+
 					// fish finished! time for player to fish it up...
-					this.channelling = fish; 
+					this.channelling = fish;
 					this.fishingBobs = 100; // fishingBobs is used to see how many clicks the player has done when it is >= 100
-					
+
 					Game.projectiles[Game.searchFor(this.channellingProjectileId, Game.projectiles)].imageNumber = 2; // submerged image for projectile
-					
+
 					// timer for player clicks
 					setTimeout(function (fish) {
 						if (this.channelling === fish) { // fish has not been caught
@@ -1921,7 +1913,7 @@ class Hero extends Attacker {
 					// timer for next bob
 					let bobTime = Random(500, 1500);
 					setTimeout(this.fish.bind(this), bobTime);
-					
+
 					// set bobbing image (and set it back in 200ms)
 					// tbd make searchFor only need to be run once (for efficiency)
 					Game.projectiles[Game.searchFor(this.channellingProjectileId, Game.projectiles)].imageNumber = 1; // bobbing image for projectile
@@ -1932,7 +1924,7 @@ class Hero extends Attacker {
 			}
 		}
 	}
-	
+
 	// teleport to x y position
 	teleport (x, y) {
 		this.x = x;
@@ -1945,25 +1937,25 @@ class Hero extends Attacker {
 class Projectile extends Thing {
 	constructor(properties) {
 		super(properties);
-		
+
 		this.attacker = properties.attacker || {
 			stats: properties.stats, // for if projectile deals its own damage
 		};
 		this.targets = properties.targets; // should be array
-		
+
 		this.id = Game.nextProjectileId; // way that the game can identify which projectile was shot
 		Game.nextProjectileId++;
-		
+
 		this.variance = properties.variance || 0; // diameter of circle that it could fall into
-		
+
 		this.rotate = properties.rotate || 0;
-		
+
 		this.beingChannelled = properties.beingChannelled || false;
-		
+
 		// set width and height to death image dimensions unless otherwise specified
 		this.width = properties.width || this.image.width;
 		this.height = properties.height || this.image.height;
-		
+
 		// adjust position to make it move towards a point (e.g: move arrow so that the point hits the target
 		if (properties.adjust === undefined) {
 			properties.adjust = {}; // stop undefined error from trying to set adjust x/y/towards
@@ -1973,7 +1965,7 @@ class Projectile extends Thing {
 			y: properties.adjust.y || 0,
 			towards: properties.adjust.towards || {x:0,y:0},
 		};
-		
+
 		// custom hitbox
 		if (properties.hitbox !== undefined) {
 			this.hitbox = {
@@ -1983,17 +1975,17 @@ class Projectile extends Thing {
 				height: properties.hitbox.height,
 			}
 		}
-		
+
 		// position the projectile should move towards
 		// this object should contain an x and y if you want the projectile to move
 		// could be set to an enemy, for example, if you want the projectile to home into that enemy
 		this.moveTowards = properties.moveTowards;
 		// speed is multiplied by delta like other speeds
 		this.moveSpeed = properties.moveSpeed;
-		
+
 		this.damageDealt = []; // array of damages dealt to show
 	}
-	
+
 	// deal damage to array of entities (to)
 	// attacker = whose stats to use when dealing damage
 	// to = array of arrays of objects to deal damage to
@@ -2001,15 +1993,15 @@ class Projectile extends Thing {
 	// hence, if you want to damage a single target still put it in an array, e.g: dealDamage(attacker, [[Game.hero]])
 	dealDamage (attacker, to) {
 		let endLoops = false; // set to true if loops should be ended (e.g. after dealing damage with penetration = false)
-		
+
 		for (let i = 0; i < to.length && !endLoops; i++) { // iterate through arrays of objects in to
 			// the following loop is iterated through backwards so that, if there is no penetration, the top enemy is hit not bottom
 			for (let x = to[i].length-1; x >= 0 && !endLoops; x--) { // iterate through objects in to
-				
+
 				Game.updateScreenPosition(this); // update projectile position
-				
+
 				if (this.isTouching(to[i][x]) && !to[i][x].respawning) { // check projectile is touching character it wants to damage
-					
+
 					if (Random(0, 99) < to[i][x].stats.dodgeChance) { // hit dodged
 						this.damageDealt.push({enemy: to[i][x], damage: "hit dodged", critical: false});
 					}
@@ -2019,9 +2011,9 @@ class Projectile extends Thing {
 						if (to[i][x].channelling === "block") { // add block defence if the target is blocking
 							blockDefence = to[i][x].stats.blockDefence;
 						}
-						
+
 						let attackerDamage = attacker.stats.damage;
-						
+
 						// calculate damage based on channelling time (if the attacker is a mage)
 						if (attacker.stats.maxDamage !== undefined && attacker.stats.maxDamage > attacker.stats.damage) {
 							// this.expand - 1 = a number from 0 to 1
@@ -2031,15 +2023,15 @@ class Projectile extends Thing {
 							let c = a * b; // extra damage dealt
 							attackerDamage += c;
 						}
-						
+
 						// blood moon - enemies deal more damage
 						if (Event.time === "bloodMoon" &&
 						(attacker.hostility === "hostile" || attacker.hostility === "boss")) {
 							attackerDamage *= 3;
 						}
-						
+
 						let targetDefence = to[i][x].stats.defence + blockDefence; // calculate target defence
-						
+
 						// defence status effect
 						to[i][x].statusEffects.forEach(statusEffect => {
 							if (statusEffect.info.defenceIncrease !== undefined) {
@@ -2050,31 +2042,34 @@ class Projectile extends Thing {
 								}
 							}
 						});
-						
+
 						// defence
 						let dmgDealt = attackerDamage - (targetDefence / 10);
 						if (dmgDealt < 0) {
 							dmgDealt = 0;
 						}
-						
+
 						// attackDamage status effect
 						attacker.statusEffects.forEach(statusEffect => {
 							if (statusEffect.info.damageIncrease !== undefined) {
 								// increase damage dealt if the status effect does so
 								dmgDealt *= 1 + (statusEffect.info.damageIncrease / 100);
+								if (dmgDealt < 0) {
+									dmgDealt = 0;
+								}
 							}
 						});
-						
+
+						let critical = false
 						if (Random(0, 99) < attacker.stats.criticalChance) { // critical hit
 							dmgDealt *= 2
-							to[i][x].takeDamage(dmgDealt)
-							this.damageDealt.push({enemy: to[i][x], damage: dmgDealt, critical: true});
+							critical = true;
 						}
-						else {
-							to[i][x].takeDamage(dmgDealt)
-							this.damageDealt.push({enemy: to[i][x], damage: dmgDealt, critical: false});
-						}
-						
+
+						// deal the damage!
+						to[i][x].takeDamage(dmgDealt);
+						this.damageDealt.push({enemy: to[i][x], damage: dmgDealt, critical: critical});
+
 						// lifesteal
 						let lifestealPercentage = attacker.stats.lifesteal;
 						// check for status effects that increase lifesteal
@@ -2088,7 +2083,7 @@ class Projectile extends Thing {
 						if (lifestealPercentage > 0) {
 							Game.restoreHealth(attacker, dmgDealt * (attacker.stats.lifesteal / 100));
 						}
-						
+
 						// poison
 						if (attacker.stats.poisonX > 0 && attacker.stats.poisonY > 0) { // check target weapon has poison
 							Game.statusEffects.poison({
@@ -2097,7 +2092,7 @@ class Projectile extends Thing {
 								time: attacker.stats.poisonY,
 							});
 						}
-						
+
 						// flaming
 						if (attacker.stats.flaming > 0) { // check target weapon has flaming
 							Game.statusEffects.fire({
@@ -2105,32 +2100,32 @@ class Projectile extends Thing {
 								tier: attacker.stats.flaming,
 							});
 						}
-						
+
 						// reflection
 						if (to[i][x].stats.reflection > 0) { // check target has reflection
 							attacker.takeDamage(dmgDealt * (to[i][x].stats.reflection / 100))
 						}
-						
+
 						// stun
 						if (attacker.stats.stun > 0) { // check target weapon has stun
 							Game.statusEffects.stun({target: to[i][x], time: attacker.stats.stun});
 						}
-						
+
 						// spread any curse status effects
 						Game.spreadCurse(attacker, to[i][x])
-						
+
 						// re-render the second canvas if the hero has been damaged
 						if (to[i][x] == Game.hero) {
 							Game.secondary.render();
 						}
-						
+
 						// onHit function
 						// perhaps make work for other non-weapon things in the future? (TBD)
 						// there should be a good system for this - maybe a list of functions called on attack or something, handled by Game.inventoryUpdate
 						if (attacker == Game.hero && Player.inventory.weapon.onHit !== undefined) {
 							Player.inventory.weapon.onHit(to[i][x]);
 						}
-						
+
 						// chat relating to being damaged (and dealing damage? TBD)
 						if (typeof to[i][x].chat !== "undefined") { // check the character has been given text to say about being damaged
 							if (to[i][x].health < to[i][x].stats.maxHealth / 10 && typeof to[i][x].chat.tenPercentHealth !== "undefined") { // 10% health chat message
@@ -2143,7 +2138,7 @@ class Projectile extends Thing {
 								to[i][x].say(to[i][x].chat.firstDamaged, true, 0, false);
 							}
 						}
-						
+
 						// remove attacker's stealth
 						if (attacker.stats.stealthed) {
 							attacker.stats.stealthed = false;
@@ -2154,7 +2149,7 @@ class Projectile extends Thing {
 							to[i][x].stats.stealthed = false;
 							Game.removeStealthEffects(to[i][x]);
 						}
-						
+
 						if (to[i][x] == Game.hero || attacker == Game.hero) {
 							// remove any food status effects (hero is in combat)
 							for (let i = 0; i < Game.hero.statusEffects.length; i++) {
@@ -2166,7 +2161,7 @@ class Projectile extends Thing {
 							}
 						}
 					}
-					
+
 					if (attacker.stats.penetration === false) {
 						// only one enemy should be damaged
 						endLoops = true;
@@ -2175,7 +2170,7 @@ class Projectile extends Thing {
 			}
 		}
 	}
-	
+
 	// move projectile to Random position in circle, where circle is its variance
 	varyPosition () {
 		if (this.variance !== undefined) {
@@ -2184,7 +2179,7 @@ class Projectile extends Thing {
 				let RandomAngle = Random(0, Math.PI * 2);
 				this.x += Math.sqrt(RandomDistance) * Math.cos(RandomAngle);
 				this.y += Math.sqrt(RandomDistance) * Math.sin(RandomAngle);
-				
+
 				if (this.hitbox !== undefined) { // move special hitbox
 					this.hitbox.x += Math.sqrt(RandomDistance) * Math.cos(RandomAngle);
 					this.hitbox.y += Math.sqrt(RandomDistance) * Math.sin(RandomAngle);
@@ -2198,7 +2193,7 @@ class Projectile extends Thing {
 class NPC extends Character {
 	constructor(properties) {
 		super(properties);
-		
+
 		this.roles = properties.roles; // array of objects, containing anything that can happen when the NPC is touched
 	}
 }
@@ -2208,52 +2203,52 @@ class NPC extends Character {
 class Villager extends Thing { // to be changed to character
 	constructor(properties) {
 		super(properties);
-		
+
 		this.speed = properties.speed;
-		
+
 		this.wait = 0; // total time spent waiting
-		
+
 		this.boundary = properties.boundary; // object of circle or rectangle that the npc cannot walk out of (specified by type: "ellipse")
 		// currently just rect
 		//https://developer.mozilla.org/en-US/docs/Web/API/CanvasRenderingContext2D/ellipse
 	}
-	
+
 	// co-ordinate movement
 	update(delta) {
 		// check if the NPC's movement state needs to be reassigned
 		if (this.state === undefined) { // state has never been assigned
 			this.updateState(undefined);
 		}
-		
+
 		// movement
 		else if (this.state.x !== undefined) {
-		
+
 			if (Math.round(this.x / 10) == Math.round(this.state.x / 10) && Math.round(this.y / 10) == Math.round(this.state.y / 10)) { // movement destination reached (to nearest 10px)
 				this.updateState("wait");
 			}
-			
+
 			else { // move towards destination
 				this.move(delta);
 			}
-			
+
 		}
-		
+
 		// waiting
 		else if (this.state.wait !== undefined) {
-		
+
 			if (this.state.wait >= this.wait) { // waiting duration reached
 				this.updateState("move");
 			}
-			
+
 			else { // wait
 				this.wait++;
 				// ...
 			}
-			
+
 		}
-		
+
 	}
-	
+
 	// update movement state if the NPC has finished previous action
 	// parameter = new state type
 	updateState(type) {
@@ -2266,13 +2261,13 @@ class Villager extends Thing { // to be changed to character
 				this.updateState("wait"); // NPC will start with waiting
 			}
 		}
-		
+
 		else if (type === "wait") { // NPC has just finished moving
 			this.state.x = undefined;
 			this.state.y = undefined;
 			this.state.wait = Random(1000, 6000);
 		}
-		
+
 		else if (type === "move") { // NPC has just finished waiting
 			this.state.wait = undefined;
 			this.wait = 0;
@@ -2280,7 +2275,7 @@ class Villager extends Thing { // to be changed to character
 			this.state.y = Random(this.boundary.y, this.boundary.y + this.boundary.height);
 		}
 	}
-	
+
 	move (delta) {
 		this.bearing = bearing(this, {x: this.state.x, y: this.state.y}); // update bearing (maybe doesn't need to be done every tick?)
 		if (Math.round(this.x / 100) != Math.round(this.state.x / 100)) {
@@ -2304,19 +2299,19 @@ class Dummy extends Character {
 class Enemy extends Attacker {
 	constructor(properties) {
 		super(properties);
-		
+
 		// combat traits (specific to enemy)
 		this.leashRadius = properties.leashRadius; // how far away the player has to be for the enemy to stop following them
-		
+
 		// stats
 		this.stats.alwaysMove = properties.stats.alwaysMove || false; // move even when in range
-		
+
 		this.deathImage = Loader.getImage(properties.deathImage); // corpse image
 		// set width and height to death image dimensions unless otherwise specified
 		this.deathImageWidth = properties.deathImageWidth || this.deathImage.width;
 		this.deathImageHeight = properties.deathImageHeight || this.deathImage.height;
-		
-		
+
+
 		// lootTable: an array of objects for each loot item - these objects contain the item ("item") and chances of looting them ("chance")
 		// if properties.lootTableTemplate is an array of lootTables (more than one template), merge them
 		let lootTableTemplate = [];
@@ -2340,15 +2335,15 @@ class Enemy extends Attacker {
 			this.lootTable = this.lootTable.concat(BossLootTables.global);
 		}
 		// see generateLoot() function in Enemy for how the lootTable works
-		
+
 		this.xpGiven = properties.xpGiven;
-		
+
 		this.inventorySpace = properties.inventorySpace;
-		
+
 		// set when the enemy dies
 		this.loot = null; // loot that can be picked up by player (null if the player cannot loot the enemy or already has)
 		// loot is an array of objects, where the object has properties item and quantity
-		
+
 		/* array of objects, where objects are in following format:
 		{
 			arrayName: (name of array in Game, i.e. "things" for Game.things)
@@ -2356,13 +2351,13 @@ class Enemy extends Attacker {
 			isTouchingFunction: (passed in object index as parameter, bound to this using call)
 		}*/
 		this.checkTouching = properties.checkTouching;
-		
+
 		// boss stuff
 		if (this.hostility === "boss") {
 			this.bossKilledVariable = properties.bossKilledVariable; // set to date killed to check it hasn't been killed today
 		}
 	}
-	
+
 	update (delta) {
 		if (this.hasStatusEffect("Displacement")) {
 			// being displaced!
@@ -2373,17 +2368,17 @@ class Enemy extends Attacker {
 		}
 		else {
 			// perhaps condense into hostile and passive ai functions (that also apply to things like villagers)?
-			
+
 			// update stats function (might be used to set the value of range, etc.)
 			if (this.updateStats !== undefined) {
 				this.updateStats();
 			}
-			
+
 			if (this.channelling === false) {
 				// stuff should only be done if it does not cancel something that is being channelled
-				
+
 				let dist = distance(this, Game.hero);
-				
+
 				// find a spell that is not on cooldown and can be cast
 				// TBD enemy mana
 				let spellIndex = -1;
@@ -2392,7 +2387,7 @@ class Enemy extends Attacker {
 					spellIndex = this.spells.findIndex(spell => spell.ready &&
 						(spell.castCondition === undefined || spell.castCondition()));
 				}
-				
+
 				if (spellIndex !== -1) {
 					// a spell has been found that is ready
 					let spell = this.spells[spellIndex];
@@ -2405,7 +2400,7 @@ class Enemy extends Attacker {
 						this.spells[spellIndex].ready = true;
 					}.bind(this), spell.interval, spellIndex);
 				}
-				
+
 				else if (dist < this.stats.range && // hero is within range
 				(!Game.hero.stats.stealthed || this.isTouching(Game.hero))) { // hero is not stealthed OR they are and you are touching them
 					// enemy should attack hero
@@ -2421,22 +2416,22 @@ class Enemy extends Attacker {
 						this.move(delta, Game.hero);
 					}
 				}
-				
+
 				else if (dist > this.leashRadius) { // enemy should move passively
 					// passive movement within given (to be given...) boundaries...
 				}
-				
+
 				else if (dist < this.leashRadius && // not outside of leashRadius from hero
 				dist > this.stats.range && // can't yet attack hero
 				!Game.hero.stats.stealthed) { // hero is not stealthed
 					// enemy should move towards hero
 					this.move(delta, Game.hero);
 				}
-				
+
 			}
-			
+
 		}
-		
+
 		// if player has a magnet, pull in enemies (even if enemy is stunned or displaced)
 		// this effect stacks!
 		for (let i = 0; i < Player.inventory.items.length; i++) {
@@ -2452,7 +2447,7 @@ class Enemy extends Attacker {
 			}
 		}
 	}
-	
+
 	// move towards entity (towards parameter)
 	move (delta, towards) {
 		// figure out speed (TBD make separate function for this?)
@@ -2469,23 +2464,23 @@ class Enemy extends Attacker {
 			// range of frostaura is currently 2.5 tiles
 			speed /= 2;
 		}
-		
+
 		this.bearing = bearing(this, towards); // update bearing (maybe doesn't need to be done every tick?)
 		this.x += Math.cos(this.bearing) * speed * delta;
 		this.y += Math.sin(this.bearing) * speed * delta;
 	}
-	
+
 	// shoot projectile at array of arrays of enemies (at)
 	// currently just the first thing in at is shot at - tbd
 	shoot (at) {
 		this.canAttack = false;
-		
+
 		var projectileX, projectileY, projectileRotate;
-		
+
 		projectileX = at[0][0].x;
 		projectileY = at[0][0].y;
 		projectileRotate = bearing(this, {x: projectileX, y: projectileY}) + Math.PI / 2;
-		
+
 		this.channellingProjectileId = Game.nextProjectileId;
 
 		// save projectile into variable
@@ -2508,32 +2503,32 @@ class Enemy extends Attacker {
 			type: "projectiles"
 		});
 		shotProjectile.varyPosition(); // move projectile based on its variance
-		
+
 		Game.projectiles.push(shotProjectile); // add projectile to array of projectiles
-		
+
 		// damage allies that the projectile is touching
 		shotProjectile.dealDamage(this, at);
-		
+
 		// onAttck function for enemy
 		if (this.stats.onAttack !== undefined) {
 			this.stats.onAttack();
 		}
-		
+
 		// wait to shoot next projectile
 		setTimeout(function () {
 			this.canAttack = true;
 		}.bind(this), this.stats.reloadTime);
-		
+
 		// after a timeout (2s), remove the projectile that was just shot
 		// taken from Player
 		let a = this.channellingProjectileId; // maintain a variable of the currently shot projectile
 		Game.objectRemoveTimeouts.push(setTimeout(function (a) {
 			Game.projectiles.splice(Game.searchFor(a, Game.projectiles), 1); // find the id of the to-be-removed projectile and remove it
 		}, 1500, a)); // pushed to objectRemoveTimeouts so it can be removed when the area is changed
-		
+
 		this.channellingProjectileId = null;
 	}
-	
+
 	// generate loot from lootTable (called when enemy dies or a chest is added)
 	generateLoot (lootTable) {
 		if (this.loot === null) {
@@ -2551,21 +2546,21 @@ class Enemy extends Attacker {
 class LootChest extends Thing {
 	constructor(properties) {
 		super(properties);
-		
+
 		let loot = properties.loot; // items contained and their quantities
 		this.inventorySpace = properties.inventorySpace;
-		
+
 		// format and position loot
 		loot = Game.formatLoot(loot);
 		this.loot = Game.positionLoot(loot, this.inventorySpace);
-		
+
 		this.disappearAfterOpened = properties.disappearAfterOpened; // whether it should hide straight after being looted (hence deleting any remaining loot)
-		
+
 		this.canBeLooted = properties.canBeLooted; // optional function (returns false if the item is still shown but shouldn't be looted)
-		
+
 		this.chestKey = properties.chestKey; // the item required to open the chest (and removed once it is opened)
 		// if the chest cannot be opened because of the lack of a key, the player is told about this in chat
-		
+
 		// chest is locked if the chest requires a chestKey
 		// note that this property is reset on areaChange (hence the chest has either been removed or will be locked again when the player returns)
 		this.locked = false;
@@ -2573,7 +2568,7 @@ class LootChest extends Thing {
 			this.locked = true;
 		}
 	}
-	
+
 	openLoot (arrayIndex) {
 		Dom.choose.page(this, ["Loot chest"], [function (chest) {
 			Dom.loot.page(chest.name, chest.loot);
@@ -2589,15 +2584,15 @@ class LootChest extends Thing {
 class Cannon extends Thing {
 	constructor(properties) {
 		super(properties);
-		
+
 		this.firingStatus = 0; // 0 = not loaded; 1 = loaded
-		
+
 		this.canBeInteractedWith = true; // set to false during timeout
-		
+
 		this.levelRequirement = properties.levelRequirement; // level requirement to use cannon
 		// maybe introduce quest requirement in future?
 	}
-	
+
 	interact () {
 		if (this.canBeInteractedWith) {
 			if (this.firingStatus === 0) {
@@ -2612,7 +2607,7 @@ class Cannon extends Thing {
 				// fire cannon
 				this.firingStatus = 0;
 				this.canBeInteractedWith = false;
-				
+
 				// cannonball
 				Game.things.push(new Thing({
 					//image: ,
@@ -2621,7 +2616,7 @@ class Cannon extends Thing {
 					y: this.y,
 					type: "thing",
 				}));
-				
+
 				setTimeout(function () {
 					this.canBeInteractedWith = true;
 				}.bind(this), 1000);
@@ -2634,7 +2629,7 @@ class Cannon extends Thing {
 class Mailbox extends Thing {
     constructor(properties) {
         super(properties);
-        
+
         // image key names displayed when read/unread
         this.readImage = properties.readImage;
         this.unreadImage = properties.unreadImage;
@@ -2649,13 +2644,13 @@ class Mailbox extends Thing {
 function statusEffect(properties) {
 	this.title = properties.title; // displayed title
 	this.effect = properties.effect; // displayed effect (displayed in the DOM as a description of the status effect, in player stats)
-	
+
 	this.info = properties.info || {}; // extra information (e.g: poison damage and length)
-	
+
 	this.tick = properties.tick; // function to be carried out every second
-	
+
 	this.image = properties.image; // image to be shown
-	
+
 	this.type = properties.type; // status effect type
 }
 
@@ -2737,7 +2732,7 @@ Game.statusEffects.functions = {
 			if (this.onTick !== undefined) {
 				this.onTick(owner);
 			}
-			
+
 			this.info.ticks += timeTicked / 1000; // timeTicked is in ms
 			if (owner.constructor.name === "Hero") { // refresh canvas status effects if the status effect was applied to player
 				Game.hero.updateStatusEffects();
@@ -2763,39 +2758,39 @@ Game.statusEffects.functions = {
 			}
 		}
 	},
-	
+
 	// fire onTick
 	fireTick: function (owner) {
 		owner.takeDamage(this.info.fireDamagePerSecond);
 	},
-	
+
 	// poison onTick
 	poisonTick: function (owner) {
 		owner.takeDamage(this.info.poisonDamage / this.info.time);
 	},
-	
+
 	// food onTick
 	foodTick: function (owner) {
 		Game.restoreHealth(owner, Round(this.info.healthRestore / this.info.time, 1)); // 1dp
 	},
-	
+
 	// stealth onExpire
 	stealthRemove: function (target) {
 		// remove stealth effect
 		target.stats.stealth = false;
 		Game.removeStealthEffects(target);
 	},
-	
+
 	// xp onExpire
 	decreaseXP: function (target) {
 		target.stats.xpBonus -= this.info.xpIncrease;
 	},
-	
+
 	// restorative timepiece (Items.item[15]) onExpire
 	setHealth: function (target) {
 		target.health = this.info.oldHealth;
 	},
-	
+
 	// end displacement effect
 	removeDisplacement: function (target) {
 		target.isBeingDisplaced = undefined;
@@ -2816,12 +2811,12 @@ Game.statusEffects.generic = function (properties) {
 			(properties.increasePropertyName === undefined || element.info[properties.increasePropertyName] === properties.increasePropertyValue);
 		});
 	}
-	
+
 	if (found === -1) { // no similar effect currently applied to the target, or effect doesn't stack
-		
+
 		// effect description
 		let effectText = properties.effectDescription;
-		
+
 		properties.target.statusEffects.push(new statusEffect({
 			title: properties.effectTitle,
 			effect: effectText,
@@ -2831,24 +2826,24 @@ Game.statusEffects.generic = function (properties) {
 			image: properties.imageName,
 			type: properties.type
 		}));
-		
+
 		// the status effect that was just added
 		// "bound" to the original status effect - if this is editied, it is as well
 		let addedStatusEffect = properties.target.statusEffects[properties.target.statusEffects.length - 1];
-		
+
 		// check if the status effect has an increaseProperty
 		if (properties.increasePropertyName !== undefined) {
 			// set the property of the status effect that says the increased stat
 			addedStatusEffect.info[properties.increasePropertyName] = properties.increasePropertyValue;
 		}
-		
+
 		if (properties.time !== undefined) {
 			// timed status effect
-			
+
 			// add time properties
 			addedStatusEffect.info.time = properties.time;
 			addedStatusEffect.info.ticks = 0;
-			
+
 			// add functions
 			// properties.onExpire and properties.onTick are the key names from Game.statusEffects.functions
 			if (properties.onExpire !== undefined) {
@@ -2863,24 +2858,24 @@ Game.statusEffects.generic = function (properties) {
 				// reference for savedata (used if the target is Game.hero)
 				addedStatusEffect.onTickSource = properties.onTick; // key name of function reference in Game.statusEffects.functions
 			}
-			
+
 			// tick function
 			// reduces status effect time, removes status effect when necessary, calls onTick and onExpire when necessary
 			addedStatusEffect.tick = this.functions.tick;
-			
+
 			// calculate next tick time
 			let nextTickTime = 1000;
 			if (properties.time <= 2 && properties.onTick === undefined) {
 				// faster tick if effect is approaching its end (and there is no onTick function)
 				nextTickTime = 100;
 			}
-			
+
 			// begin tick
 			setTimeout(function (owner) {
 				// nextTickTime is timeTicked
 				this.tick(owner, nextTickTime);
 			}.bind(addedStatusEffect), nextTickTime, properties.target, nextTickTime);
-		
+
 		}
 	}
 	else if (found !== -1) { // extend existing status effect
@@ -2888,12 +2883,18 @@ Game.statusEffects.generic = function (properties) {
 			// refresh time instead of adding time
 			properties.target.statusEffects[found].info.ticks = 0;
 		}
+		else if (properties.effectStack === "multiply") {
+			// add to max time and make the effect stronger
+			properties.target.statusEffects[found].info.time += properties.time;
+			properties.target.statusEffects[found].info[properties.increasePropertyName] += properties.increasePropertyValue;
+			// tbd update description as well
+		}
 		else {
 			// default - add to max time
 			properties.target.statusEffects[found].info.time += properties.time;
 		}
 	}
-	
+
 	if (properties.target.constructor.name === "Hero") { // refresh canvas status effects if the status effect was applied to player
 		Game.hero.updateStatusEffects();
 	}
@@ -2909,7 +2910,7 @@ Game.statusEffects.generateEffectDescription = function (amount, text) {
 Game.statusEffects.fire = function(properties) {
 	// see if the target is in water (hence cannot be set on fire)
 	let water = properties.target.statusEffects.filter(statusEffect => statusEffect.title === "Swimming");
-	
+
 	if (water.length === 0) {
 		let newProperties = properties;
 		// check if there is a tier or if stats are being set manually
@@ -2917,7 +2918,7 @@ Game.statusEffects.fire = function(properties) {
 			// tiered
 			// turn tier into roman numeral
 			newProperties.tier = Romanize(properties.tier);
-			
+
 			// find what tier does
 			if (newProperties.tier === "I") {
 				newProperties.increasePropertyValue = 1; // fireDamagePerSecond
@@ -2933,7 +2934,7 @@ Game.statusEffects.fire = function(properties) {
 			newProperties.increasePropertyValue = properties.damagePerSecond;
 		}
 		// fire stats have now been set
-		
+
 		newProperties.effectTitle = properties.effectTitle || "Fire " + newProperties.tier;
 		newProperties.effectDescription = properties.effectDescription || "Take " + newProperties.increasePropertyValue + " damage per second";
 		newProperties.increasePropertyName = "fireDamagePerSecond";
@@ -2970,7 +2971,7 @@ Game.statusEffects.stun = function (properties) {
 	newProperties.imageName = "stunned";
 	newProperties.type = "stun";
 	this.generic(newProperties);
-	
+
 	// remove what target is channelling
 	properties.target.removeChannelling("stun");
 }
@@ -3099,7 +3100,7 @@ Game.statusEffects.xp = function(properties) {
 	properties.target.stats.xpBonus += properties.xpIncrease;
 	// decrease XP on expire
 	newProperties.onExpire = "decreaseXP";
-	
+
 	this.generic(newProperties);
 }
 
@@ -3112,7 +3113,7 @@ Game.statusEffects.xp = function(properties) {
 Game.spells = {
 	charge: {
 		class: "k",
-		
+
 		// properties should contain tier (as int value), caster, target
 		func: function (properties) {
 			let dist = distance(properties.caster, properties.target);
@@ -3121,28 +3122,28 @@ Game.spells = {
 			let bear = bearing(properties.caster, properties.target);
 			properties.caster.displace(0, velocity, time, bear); // start displacement
 		},
-		
+
 		velocity: [
 			300,	// tier 1
 		],
-		
+
 		channelTime: [
 			500,	// tier 1
 		],
-		
+
 		// TBD
 		manaCost: [
 			0,		// tier 1
 		],
-		
+
 		cooldown: [
 			1500,	// tier 1
 		],
 	},
-	
+
 	unholyStrike: {
 		class: "k",
-		
+
 		// properties should contain tier (as int value), caster, target
 		func: function (properties) {
 			Game.statusEffects.stun({
@@ -3151,25 +3152,25 @@ Game.spells = {
 				time: Game.spells.unholyStrike.stunTime[properties.tier-1],
 			});
 		},
-		
+
 		stunTime: [
 			3,		// tier 1
 		],
-		
+
 		channelTime: [
 			1500,	// tier 1
 		],
-		
+
 		// TBD
 		manaCost: [
 			0,		// tier 1
 		],
-		
+
 		cooldown: [
 			10000,	// tier 1
 		],
 	},
-	
+
 };
 
 //
@@ -3177,7 +3178,7 @@ Game.spells = {
 //
 
 // launch a firework! (circle-shaped)
-// properties should contain x, y, radius (radius of firework circle) ... 
+// properties should contain x, y, radius (radius of firework circle) ...
 // ... particles (number of particles), explodeTime (time to reach maximum radius) ...
 // ... lingerTime (time remained at maximum radius), colours (an array of hex)
 Game.launchFirework = function (properties) {
@@ -3257,7 +3258,7 @@ Game.levelUpFireworks = function (numberRemaining) {
 				break;
 		}
 	}
-	
+
 	Game.launchFirework({
 		x: Random(Game.hero.x - Dom.canvas.width / 2, Game.hero.x + Dom.canvas.width / 2),
 		y: Random(Game.hero.y - Dom.canvas.height / 2, Game.hero.y + Dom.canvas.height / 2),
@@ -3267,7 +3268,7 @@ Game.levelUpFireworks = function (numberRemaining) {
 		lingerTime: 1000,
 		colours: colourArray,
 	});
-	
+
 	if (numberRemaining > 1) {
 		// more fireworks to be launched in 500ms
 		setTimeout(Game.levelUpFireworks, 500, numberRemaining - 1)
@@ -3289,50 +3290,56 @@ Game.addTrailParticle = function (character, trailParticle) {
 // load game for the first time
 Game.load = function (names, addresses) {
 	this.ctx.imageSmoothingEnabled = false;
-	
+
 	if (names.length !== addresses.length) {
 		throw Error("Name length is not the same as address length. Consider fixing your area's images object in areadata.js?");
 	}
-	
+
 	let toLoad = [];
-	
+
 	for (let i = 0; i < names.length; i++) {
 		if (addresses[i] !== undefined) { // it might be undefined if the event for the character is not active
 			toLoad.push(Loader.loadImage(names[i], addresses[i]));
 		}
 	}
-	
+
 	// check player image has been loaded (if not, then load it)
 	if (!Object.keys(Loader.images).includes("hero")) {
 		// load image based on class
 		toLoad.push(Loader.loadImage("hero", "./assets/player/" + Player.class + Player.skin + ".png"));
 	}
-	
+
 	// check if the class' default projectile has been loaded
 	if (!Object.keys(Loader.images).includes(this.heroProjectileName)) {
 		// load class' default projectile
 		toLoad.push(Loader.loadImage(this.heroProjectileName, "./assets/projectiles/" + this.heroProjectileName + ".png"));
 	}
-	
+
 	// check status image has been loaded (if not, then load it)
 	if (!Object.keys(Loader.images).includes("status")) {
 		toLoad.push(Loader.loadImage("status", "./assets/icons/status.png"));
 	}
-	
+
 	// check fishing bobber has been loaded (if not, then load it)
 	// maybe this should just be done if the player has a fishing rod? - tbd
 	if (!Object.keys(Loader.images).includes("bobber")) {
 		toLoad.push(Loader.loadImage("bobber", "./assets/projectiles/bobber.png"));
 	}
-	
+
     return toLoad;
 };
 
 // pull data from areadata.js
 Game.loadArea = function (areaName, destination) {
-	
+
 	this.areaTeleports = []; // stop player from teleporting again during promise
-	
+
+	// remove animationTick if one exists, to stop unloaded images being tried to be used
+	if (this.animationTick !== undefined) {
+		clearInterval(this.animationTick);
+		this.animationTick = undefined;
+	}
+
 	// wipe previously loaded images
 	Loader.wipeImages([
 		// images not to be wiped (ignored if they haven't been loaded)
@@ -3341,11 +3348,11 @@ Game.loadArea = function (areaName, destination) {
 		"bobber",
 		"status",
 	]);
-	
+
 	// set game time of day and event
 	Event.updateEvent();
 	Event.updateTime(areaName);
-	
+
 	// load images
 	let imageNames = Object.keys(Areas[areaName].images);
 	let imageAddresses = Object.values(Areas[areaName].images);
@@ -3363,12 +3370,12 @@ Game.loadArea = function (areaName, destination) {
 		}
 	});
     let p = this.load(imageNames, imageAddresses);
-	
+
 	// wait until images have been loaded
     Promise.all(p).then(function (loaded) {
-		
+
 		this.areaName = areaName;
-		
+
 		// map
 		// there are some properties that some areaData areas don't have, so should be undefined rather than the old value
 		map.solidTiles = undefined;
@@ -3395,19 +3402,22 @@ Game.loadArea = function (areaName, destination) {
 			// purge the ice!
 			map.iceTiles = undefined;
 		}
-	
+
 		// if it is nighttime, change all daytime tiles to their nighttime versions
 		map.setDayNightTiles();
-		
+
 		// set tileset
 		this.tileAtlas = Loader.getImage('tiles');
-		
+
 		// recalibrate camera (for areas other than first area)
 		if (this.camera != undefined) {
 			this.camera.maxX = map.cols * map.tsize - Dom.canvas.width;
 			this.camera.maxY = map.rows * map.tsize - Dom.canvas.height;
 		}
-		
+
+		// list of objects to be animated (with a .animate function)
+		this.animationList = [];
+
 		// villagers (currently broken)
 		this.villagers = [];
 		if (Areas[areaName].villagers !== undefined) {
@@ -3419,7 +3429,7 @@ Game.loadArea = function (areaName, destination) {
 				}
 			});
 		}
-		
+
 		// things (aesthetic only)
 		this.things = [];
 		if (Areas[areaName].things !== undefined) {
@@ -3431,7 +3441,7 @@ Game.loadArea = function (areaName, destination) {
 				}
 			});
 		}
-		
+
 		// quest npcs, merchants, identifiers, soul healers, item buyers, etc.
 		this.npcs = [];
 		if (Areas[areaName].npcs !== undefined) { // check they exist in areadata.js
@@ -3443,7 +3453,7 @@ Game.loadArea = function (areaName, destination) {
 				}
 			});
 		}
-		
+
 		// dummies (enemies for training) - trivial (don't damage you)
 		this.dummies = [];
 		if (Areas[areaName].dummies !== undefined) {
@@ -3455,7 +3465,7 @@ Game.loadArea = function (areaName, destination) {
 				}
 			});
 		}
-		
+
 		// enemies
 		this.enemies = [];
 		if (Areas[areaName].enemies !== undefined) {
@@ -3479,7 +3489,7 @@ Game.loadArea = function (areaName, destination) {
 				}
 			});
 		}
-		
+
 		// loot chests
 		this.chests = [];
 		if (Areas[areaName].chests !== undefined) {
@@ -3491,7 +3501,7 @@ Game.loadArea = function (areaName, destination) {
 				}
 			});
 		}
-		
+
 		// cannons
 		this.cannons = [];
 		if (Areas[areaName].cannons !== undefined) {
@@ -3503,7 +3513,7 @@ Game.loadArea = function (areaName, destination) {
 				}
 			});
 		}
-		
+
 		// particles and projectiles don't persist between areas - cancel their remove timeouts
 		if (this.objectRemoveTimeouts !== undefined) {
 			for (let i = 0; i < this.objectRemoveTimeouts.length; i++) {
@@ -3511,22 +3521,22 @@ Game.loadArea = function (areaName, destination) {
 			}
 		}
 		this.objectRemoveTimeouts = [];
-		
+
 		// particles
 		this.particles = [];
 		this.nextParticleId = 0; // reset particle id chain (because particles don't persist between areas)
-		
+
 		// reset any channelling projectile (if the player exists)
 		if (this.hero !== undefined) {
-			Game.hero.channellingProjectileId = null;
-			Game.hero.channelling = false;
-			Game.hero.canAttack = true;
+			this.hero.channellingProjectileId = null;
+			this.hero.channelling = false;
+			this.hero.canAttack = true;
 		}
-		
+
 		// projectiles
 		this.projectiles = [];
 		this.nextProjectileId = 0; // reset projectile id chain (because projectiles don't persist between areas)
-		
+
 		// area teleports
 		if (Areas[areaName].areaTeleports !== undefined) {
 			Areas[areaName].areaTeleports.forEach(areaTeleport => {
@@ -3535,7 +3545,7 @@ Game.loadArea = function (areaName, destination) {
 				this.areaTeleports.push(new AreaTeleport(areaTeleport));
 			});
 		}
-		
+
 		// tripwires (invisible; calls function when touched)
 		this.tripwires = [];
 		if (Areas[areaName].tripwires !== undefined) {
@@ -3545,7 +3555,7 @@ Game.loadArea = function (areaName, destination) {
 				this.tripwires.push(new Tripwire(tripwire));
 			});
 		}
-		
+
 		// collisions (invisible; cannot be passed)
 		this.collisions = [];
 		if (Areas[areaName].collisions !== undefined) {
@@ -3555,7 +3565,7 @@ Game.loadArea = function (areaName, destination) {
 				this.collisions.push(new Entity(collision));
 			});
 		}
-		
+
 		// mailboxes
 		this.mailboxes = [];
 		if (Areas[areaName].mailboxes !== undefined) {
@@ -3576,7 +3586,7 @@ Game.loadArea = function (areaName, destination) {
 				}
 			});
 		}
-		
+
 		// infoPoints
 		this.infoPoints = [];
 		if (Areas[areaName].infoPoints !== undefined) {
@@ -3586,11 +3596,11 @@ Game.loadArea = function (areaName, destination) {
 				this.infoPoints.push(new InfoPoint(thing));
 			});
 		}
-		
+
 		// music
 		// it is checked if the user has selected for music to be played in the settings within the Game.playMusic function
 		this.playMusic();
-		
+
 		// init game (if it hasn't been done so already)
 		let init = false; // set to if this is the first areaTeleport of the game
 		if (this.hero === undefined) {
@@ -3599,15 +3609,15 @@ Game.loadArea = function (areaName, destination) {
 		}
 		else {
 			// code to be called when area is accessed due to area teleport (not game load)
-		
+
 			// reset weather
 			if (document.getElementById("weatherOn").checked) {
 				Weather.reset();
 			}
-			
+
 			// close NPC pages
             Dom.closeNPCPages();
-			
+
 			// if the display area information should not be shown, stop it from being shown
 			// this is done here because it is always shown on init
 			if (Areas[areaName].data.displayOnEnter === false) {
@@ -3615,7 +3625,7 @@ Game.loadArea = function (areaName, destination) {
 				this.canvasDisplay = {};
 			}
 		}
-		
+
 		// display area name
 		// it is checked if this should be displayed or not below
 		// it is always displayed on init (thus only checked if init is not called)
@@ -3628,7 +3638,7 @@ Game.loadArea = function (areaName, destination) {
 		}
 		// function to set the variable
 		this.displayOnCanvas(title, subtitles, 2);
-		
+
 		// if the area is too small so does not fit in the screen, it should be moved to the centre of the screen
 		// calculate the variables of offset so the drawn sprites and tilemap can be adjusted by this
 		// note this is the width of black on each side
@@ -3644,11 +3654,11 @@ Game.loadArea = function (areaName, destination) {
 			// set offset so the canvas is drawn in the centre of screen
 			this.viewportOffsetY = (this.camera.height - (map.tsize * map.rows)) / 2;
 		}
-		
+
 		// set area of canvas using this viewportOffset
 		// currently used for weather particles
-		this.canvasArea = (Dom.canvas.width - Game.viewportOffsetX*2) * (Dom.canvas.height - Game.viewportOffsetY*2);
-		
+		this.canvasArea = (Dom.canvas.width - this.viewportOffsetX*2) * (Dom.canvas.height - this.viewportOffsetY*2);
+
 		// reposition player
 		if (destination !== undefined) {
 			this.hero.x = destination.x;
@@ -3656,60 +3666,60 @@ Game.loadArea = function (areaName, destination) {
 		}
 		// remove player moveTowards
 		this.hero.moveTowards = undefined;
-		
+
 		Player.lootArea = Areas[areaName].lootArea;
 		Player.lootTier = Areas[areaName].lootTier;
-		
+
 		// allow hero to move again if they died
 		if (this.hero.respawning) {
 			this.hero.respawning = false;
 			this.hero.isCorpse = false;
 			Dom.chat.insert("You died.");
 		}
-		
+
 		// if the area is a checkpoint and it is not the player's current checkpoint, update the player's checkpoint
 		if (Areas[areaName].checkpoint && this.hero.checkpoint !== areaName) {
 			this.hero.checkpoint = areaName;
 			Dom.chat.insert("Checkpoint reached! Your spawn location has been set to this location.");
 		}
-		
+
 		// load in randomly generated loot chests if the area has data for them
 		if (Areas[areaName].chestData !== undefined) {
 			this.generateChests(Areas[areaName].chestData);
 		}
-		
+
 		// call onAreaTeleport function if there is one
 		if (!init) { // only if the area was teleported to (not game refresh)
 			if (Areas[areaName].onAreaTeleport !== undefined) {
 				Areas[areaName].onAreaTeleport();
 			}
 		}
-		
+
 		// update camera position
 		this.camera.update(true);
-		
+
 		// render secondary canvas
 		this.secondary.render();
-		
+
 		// decide on weather
 		Weather.updateVariables(); // includes choosing weather and populating particleArray
 		// incorporate weather into time
 		Event.updateTime(areaName);
-		
+
 		// render day night
-		Game.renderDayNight();
-		
+		this.renderDayNight();
+
 		// Antorax Day fireworks
-		if (Event.event === "Antorax" && Areas[areaName].data.territory === "Allied" && !Areas[areaName].indoors && Game.fireworkInterval === undefined) {
+		if (Event.event === "Antorax" && Areas[areaName].data.territory === "Allied" && !Areas[areaName].indoors && this.fireworkInterval === undefined) {
 			// Antorax Day; area is allied and indoors and a firework interval has not yet been set
 			// launch fireworks periodically at random positions on the player's screen
-			Game.fireworkInterval = setInterval(function () {
+			this.fireworkInterval = setInterval(function () {
 				// same as Antorax Day Firework items
 				if (Random(0, 3) === 0) {
 					// large firework
-					Game.launchFirework({
-						x: Random(Game.hero.x - Dom.canvas.width / 2, Game.hero.x + Dom.canvas.width / 2),
-						y: Random(Game.hero.y - Dom.canvas.height / 2, Game.hero.y + Dom.canvas.height / 2),
+					this.launchFirework({
+						x: Random(this.hero.x - Dom.canvas.width / 2, this.hero.x + Dom.canvas.width / 2),
+						y: Random(this.hero.y - Dom.canvas.height / 2, this.hero.y + Dom.canvas.height / 2),
 						radius: 250,
 						particles: 1500,
 						explodeTime: 750,
@@ -3719,9 +3729,9 @@ Game.loadArea = function (areaName, destination) {
 				}
 				else {
 					// normal firework
-					Game.launchFirework({
-						x: Random(Game.hero.x - Dom.canvas.width / 2, Game.hero.x + Dom.canvas.width / 2),
-						y: Random(Game.hero.y - Dom.canvas.height / 2, Game.hero.y + Dom.canvas.height / 2),
+					this.launchFirework({
+						x: Random(this.hero.x - Dom.canvas.width / 2, this.hero.x + Dom.canvas.width / 2),
+						y: Random(this.hero.y - Dom.canvas.height / 2, this.hero.y + Dom.canvas.height / 2),
 						radius: 150,
 						particles: 600,
 						explodeTime: 500,
@@ -3729,14 +3739,32 @@ Game.loadArea = function (areaName, destination) {
 						colours: ["#8cff91", "#ff82f8"], // lighter colours so they are more visible
 					});
 				}
-			}, 1500, Game.areaName);
+			}, 1500, this.areaName);
 		}
-		else if (Game.fireworkInterval !== undefined) {
+		else if (this.fireworkInterval !== undefined) {
 			// remove interval from a previous area
-			clearInterval(Game.fireworkInterval);
-			Game.fireworkInterval = undefined;
+			clearInterval(this.fireworkInterval);
+			this.fireworkInterval = undefined;
 		}
-		
+
+		// animations
+		// tick called every 250s (perhaps change in future?)
+		if (this.animationList.length > 0) {
+			this.totalAnimationTime = 0; // used to find if animate should be called for an object
+
+			this.animationTick = setInterval(function () {
+				Game.totalAnimationTime += 250;
+
+				for (let i = 0; i < Game.animationList.length; i++) {
+					if (Game.animationList[i].lastAnimated + Game.animationList[i].animationFrameTime <= Game.totalAnimationTime) {
+						// should be animated
+						Game.animationList[i].animate();
+						Game.animationList[i].lastAnimated = Game.totalAnimationTime;
+					}
+				}
+			}, 250);
+		}
+
 		// time travel fog
 		/*
 		if (Areas[areaName].timeTravel === true) {
@@ -3750,7 +3778,7 @@ Game.loadArea = function (areaName, destination) {
 			});
 		}
 		*/
-		
+
     }.bind(this))
 	.catch(function (err) {
 		// error for if the images didn't load
@@ -3762,14 +3790,14 @@ Game.loadArea = function (areaName, destination) {
 Game.init = function () {
 	// init DOM
 	Dom.init();
-	
+
 	// music
 	this.playingMusic = null;
-	
+
 	// list of basic (no extra operations to be done) things to be rendered (in order)
 	this.renderList = ["things", "infoPoints", "mailboxes", "chests", "villagers", "npcs", "dummies", "enemies"];
 	// then player, then projectiles (in order they were shot)
-	
+
 	// create the player
 	// its x and y are not set until Game.loadArea resumes
 	this.hero = new Hero({
@@ -3779,32 +3807,32 @@ Game.init = function () {
 		y: Areas[this.areaName].player !== undefined ? Areas[this.areaName].player.y : 0,
 		width: 57,
 		height: 120,
-		
+
 		// properties inheritied from Thing
 		image: "hero",
-		
+
 		// properties inherited from Character
 		direction: 3,
 		health: Player.health,
 		name: Player.name,
 		level: Player.level,
 		class: Player.class,
-		
+
 		// properties inherited from Attacker
-		
+
 		// stats
 		stats: Player.stats,
-		
+
 		trail: Player.trail,
-		
+
 		// projectile (TBD)
 		projectile: {},
-		
+
 		checkpoint: Player.checkpoint,
-		
+
 		oldPosition: Player.oldPosition,
 	});
-	
+
 	// hitbox for collision (hero's feet)
 	// Player.x used instead of Game.hero.x because Game.hero.x has not yet been set
 	this.heroFootHitbox = new Entity({
@@ -3814,61 +3842,61 @@ Game.init = function () {
 		width: Game.hero.width,
 		height: 20,
 	});
-	
+
 	// set player projectile
 	this.projectileImageUpdate();
-	
+
 	// set loaded status image
 	this.statusImage = Loader.getImage("status");
-	
+
 	// detect player movement and interaction
     Keyboard.listenForEvents(
         [Keyboard.keys.LEFT, Keyboard.keys.RIGHT, Keyboard.keys.UP, Keyboard.keys.DOWN, Keyboard.keys.SPACE, Keyboard.keys.SHIFT]);
-		
+
 	// player attack on click
 	document.getElementById("click").addEventListener("mousedown", Game.hero.startAttack.bind(this.hero));
 	document.getElementById("click").addEventListener("mouseup", Game.hero.finishAttack.bind(this.hero));
-	
+
 	// change between default cursor and crosshair based on player range
 	document.getElementById("click").addEventListener("mousemove", Game.secondary.updateCursor.bind(document.getElementById("click")));
-	
+
 	// fps array (used for tracking frames per second in Game.fps())
 	this.fpsArray = [];
-	
+
 	// init canvas display variables (used by displayOnCanvas)
 	this.canvasDisplay = {};
 	this.canvasDisplayQueue = [];
-	
+
 	// health regeneration every second
 	setInterval(function () {
 		if (document.hasFocus()) { // check user is focused on the game (otherwise enemies cannot damage but user can heal)
 			this.regenHealth();
 		}
 	}.bind(this), 1000);
-	
+
 	// hero trail interval
 	if (Game.hero.trail !== undefined) {
 		// hero has a trail
 		// new particle every 100ms
 		Game.hero.trailInterval = setInterval(Game.addTrailParticle, 100, Game.hero, Game.hero.trail);
 	}
-	
+
 	// game viewport camera
     this.camera = new Camera(map, Dom.canvas.width, Dom.canvas.height);
     this.camera.follow(this.hero);
-	
+
 	// set foot hitbox position (updated on hero move normally)
 	this.updateScreenPosition(this.heroFootHitbox);
-	
+
 	// init weather
 	Weather.init();
-	
+
 	// re-init hero's saved status effects
 	this.initStatusEffects();
-	
+
 	// start Game tick
 	window.requestAnimationFrame(this.tick);
-		
+
 	// saveTimeout ensures that there is always a save at least every 60 seconds
 	// save in 60 seconds (init saveTimeout)
 	// if there is a save before this, this is set back to 60 seconds
@@ -3882,11 +3910,11 @@ Game.initStatusEffects = function () {
 	// iterate through status effects
 	for (let i = 0; i < this.hero.statusEffects.length; i++) {
 		let statusEffect = this.hero.statusEffects[i];
-		
+
 		if (statusEffect.info.time !== undefined) { // check if status effect should tick
 			// give the status effect the tick function
 			statusEffect.tick = this.statusEffects.functions.tick;
-			
+
 			// if it has an onExpire function, add it
 			if (statusEffect.onExpireSource !== undefined) {
 				statusEffect.onExpire = this.statusEffects.functions[statusEffect.onExpireSorce];
@@ -3895,14 +3923,14 @@ Game.initStatusEffects = function () {
 			if (statusEffect.onTickSource !== undefined) {
 				statusEffect.onTick = this.statusEffects.functions[statusEffect.onTickSource];
 			}
-			
+
 			// calculate next tick time
 			let nextTickTime = 1000;
 			if (statusEffect.info.time <= 2 && statusEffect.onTick === undefined) {
 				// faster tick if effect is approaching its end (and there is no onTick function)
 				nextTickTime = 100;
 			}
-			
+
 			// begin tick
 			setTimeout(function (owner) {
 				// nextTickTime is timeTicked
@@ -3919,7 +3947,7 @@ Game.setInformationFromTemplate = function (properties) {
 		// add template properties to main properties object
 		Object.assign(properties.template.stats, properties.stats); // template updated
 		Object.assign(properties, properties.template); // properties updated
-		
+
 		if (properties.speciesTemplate !== undefined) {
 			// a second template, specific to the species
 			if (properties.speciesTemplate.stats !== undefined) {
@@ -3928,7 +3956,7 @@ Game.setInformationFromTemplate = function (properties) {
 			Object.assign(properties, properties.speciesTemplate); // properties updated
 		}
 	}
-	
+
 	return properties;
 }
 
@@ -3953,11 +3981,11 @@ Game.generateChests = function (chestData) {
 				let locationIndex = Random(0, spawnLocationArray.length - 1);
 				spawnLocation = spawnLocationArray[locationIndex];
 				spawnLocationArray.splice(locationIndex, 1); // so it cannot be picked by the next chest in for loop (if there is one)
-				
+
 				// set save variable so chest is in same position for rest of day
 				Player.chests.locations[this.areaName] = spawnLocation;
 			}
-			
+
 			// concatenate loot tables (for if there are multiple)
 			let lootTable = [];
 			for (let i = 0; i < chestData.lootTableTemplate.length; i++) {
@@ -3965,7 +3993,7 @@ Game.generateChests = function (chestData) {
 			}
 			// global loot table
 			lootTable = lootTable.concat(ChestLootTables.global);
-			
+
 			// make chest
 			this.chests.push(new LootChest({
 				x: spawnLocation.x,
@@ -3992,26 +4020,26 @@ Game.generateLoot = function (lootTable) {
 		if (lootTable[i].condition !== undefined) {
 			itemCanBeLooted = lootTable[i].condition();
 		}
-		
+
 		if (itemCanBeLooted) {
 			// for each item, a Random number between 0 and 100 is generated
 			// lootTable is an array of objects, where the objects have a property called chance (an array)
 			// chance contains the probability of getting x amount of that item, where x is the array index of the probability
 			// the lowest number that the roll is higher than is selected for the number of that item that the player receives
 			// the numbers in the array are multiplied by player's looting
-			
+
 			let possibleDropChances = lootTable[i].chance.map(element => element * (Game.hero.stats.looting/100)); // multiply chances by looting, deep copying array in process
 			let rollRandom = Random(1, 100); // random number to see how much of item i the player will get (lower is better)
 			let eligibleDropChances = possibleDropChances.filter(chance => rollRandom > chance); // filter chances of getting item to see all chances the player is eligible for with their roll
 			let itemQuantity = possibleDropChances.indexOf(Math.max(...eligibleDropChances)); // get the number of that item the player will get
-			
+
 			if (itemQuantity > 0) { // check that the player should recieve the item
 				let item = lootTable[i].item;
 				if (item.constructor === Array) {
 					// if there are multiple items in an array, pick one at random
 					item = item[Random(0, item.length - 1)];
 				}
-				
+
 				if (item.name === "unidentified") {
 					// repeat separately for each unidentified item
 					for (let i = 0; i < itemQuantity; i++) {
@@ -4052,7 +4080,7 @@ Game.formatLoot = function (items) {
             items[i].quantity = items[i].item.stack;
         }
     }
-	
+
 	return items;
 }
 
@@ -4124,15 +4152,15 @@ Game.loadMusic = function (song) {
 	if (this.audio !== undefined) {
 		this.stopMusic(); // possibly inefficient? might not unload old audio
 	}
-	
+
 	this.audio = new Audio(song);
-	
+
 	// set music to repeat
 	this.audio.addEventListener('ended', function() {
 		this.currentTime = 0;
 		this.play();
 	}, false);
-	
+
 	this.audio.play();
 	this.playingMusic = song;
 }
@@ -4149,31 +4177,31 @@ Game.stopMusic = function () {
 Game.playLevelupSound = function (areaName) {
 	// check the user has allowed music to play
 	if (document.getElementById("musicOn").checked) {
-		
+
 		let levelUp = false;
-		
+
 		// find level up sound to play
 		switch (lootArea) {
-			
+
 			case "loggingCamp":
 				levelUp = new Audio("./assets/sounds/loggingCampLevelup.mp3");
 				break;
-			
+
 			default:
 				console.error("No level up sound for current area - add it to the switch statement in Game.playLevelupSound");
-			
+
 		}
-		
+
 		if (levelUp !== false) { // check that the area has been added to the switch statement
-		
+
 			this.audio.pause(); // pause currently playing song
 			levelUp.play(); //  play levelup sound
 			levelUp.addEventListener('ended', function() { // resume area's song when levelup sound has finished
 				this.audio.play();
 			}.bind(Game), false);
-			
+
 		}
-		
+
 	}
 }
 
@@ -4188,7 +4216,7 @@ Game.regenHealth = function () {
 	// player
 	this.restoreHealth(Game.hero, Game.hero.stats.healthRegen);
 	// food is done in the food status effect itself
-	
+
 	// npcs
 	for (let i = 0; i < Game.npcs.length; i++) {
 		if (!Game.npcs[i].respawning) {
@@ -4248,7 +4276,7 @@ Game.update = function (delta) {
 	    if (Keyboard.isDown(Keyboard.keys.RIGHT, "RIGHT")) { dirx = 1; this.hero.direction = 4; }
 	    if (Keyboard.isDown(Keyboard.keys.UP, "UP")) { diry = -1; this.hero.direction = 1; }
 	    if (Keyboard.isDown(Keyboard.keys.DOWN, "DOWN")) { diry = 1; this.hero.direction = 3; }
-		
+
 		// strafing is slower
 		if (dirx !== 0 && diry !== 0) {
 			// strafing
@@ -4265,7 +4293,7 @@ Game.update = function (delta) {
 				diry = -0.71;
 			}
 		}
-	
+
 		if (dirx !== 0 || diry !== 0) {
 	        this.hero.move(delta, dirx, diry);
 	        this.hasScrolled = true;
@@ -4281,40 +4309,40 @@ Game.update = function (delta) {
 		this.hasScrolled = true;
 	    this.camera.update();
 	}
-	
+
 	// interact with touching object
     if (Keyboard.isDown(Keyboard.keys.SPACE, "SPACE")) { this.hero.interact(); }
-	
+
 	// check collision with npcs - includes quest givers, quest finishers, merchants, soul healers, more TBA
 	this.npcs.forEach(npc => { // iterate though npcs
-	
+
 		if (Dom.currentlyDisplayed !== npc.name && !npc.respawning && this.hero.isTouching(npc)) { // check npc is not dead, that hero is touching it, and that it is not already currently displayed
-			
+
 			if (typeof npc.roles !== "undefined") { // check if the npc is a functional npc (does something when touched)
-				
+
 				// arrays for choose DOM
 				let textArray = []; // array of text to describe that function
 				let functionArray = []; // array of functions that can be called
 				let parameterArray = []; // array of arrays of parameters for these functions (to be ...spread into the function)
-				
+
 				let forceChoose = false; // whether choose dom should be forced (some roles want this)
-				
+
 				// booleans to decide npc chat for if choose DOM doesn't open
 				let questActive = false; // if one of the npc's quests is currently active
 				let questComplete = false; // if one of the npc's quests has been completed
 				let notUnlockedRoles = false; // if one of the npc's roles has not been unlocked
 				let textSaid = false; // if all of the above variables should be ignored (because something else has been said instead, e.g: soul healer cannot be healed text)
 				// see below forEach for logic regarding these variables
-				
+
 				npc.roles.forEach(role => { // iterate through quests involving that npc
 					if (role.roleRequirement === undefined || role.roleRequirement()) {
 						// quest starts
 						if (role.role === "questStart" || role.role === "questStartFinish") {
 							// quest is ready to be accepted
-							
+
 							let questCanBeStarted = true; // set to false if the quest cannot be started
 							let questToBeStarted = role.quest;
-							
+
 							if (role.quest.constructor === Array && role.newQuestFrequency === "daily") {
 								// quest is an array (hence a random one is picked each questing time period)
 								// all of these quests are daily quests
@@ -4351,7 +4379,7 @@ Game.update = function (delta) {
 								if (!Player.quests.possibleQuestArray.includes(role.quest.quest)) {
 									// quest is not possible
 									questCanBeStarted = false;
-									
+
 									// figure out what NPC should say to the player
 									if (Player.quests.activeQuestArray.includes(role.quest.quest)) { // quest is already active
 										questActive = true; // for npc dialogue
@@ -4372,12 +4400,12 @@ Game.update = function (delta) {
 											}
 										}
 									}
-									
+
 								}
 							}
-							
+
 							if (questCanBeStarted) {
-								
+
 								if (typeof questToBeStarted.startRewards !== "undefined" && typeof questToBeStarted.startRewards.items !== "undefined") {
 									if (Dom.inventory.requiredSpace(questToBeStarted.startRewards.items)) {
 										// user has space for quest start items
@@ -4400,24 +4428,24 @@ Game.update = function (delta) {
 								}
 							}
 						}
-						
+
 						// quest finishes
 						if (role.role === "questFinish" || role.role === "questStartFinish") {
 							// check if quest is ready to be finished
-							
+
 							let questCanBeFinished = true; // set to false if the quest cannot be finished
 							let questToBeFinished = role.quest;
-							
+
 							if (role.quest.constructor === Array && role.newQuestFrequency === "daily") {
 								// quest is an array (hence a Random one is picked each questing time period)
 								// all of these quests are daily quests
-								
+
 								questToBeFinished = role.quest.find(quest => Player.quests.activeQuestArray.includes(quest.quest)); // find which quest the active one is
-								
+
 								if (questToBeFinished === undefined) { // none of the quests are currently active
 									questCanBeFinished = false;
 								}
-								
+
 								// no need to check if it has already been completed as these are all daily
 							}
 							else {
@@ -4426,12 +4454,12 @@ Game.update = function (delta) {
 									questCanBeFinished = false;
 								}
 							}
-							
+
 							if (questCanBeFinished) {
 								// check if quest conditions have been fulfilled
 								// canBeFinishedArray used for efficiency
 								if (Player.quests.canBeFinishedArray.includes(questToBeFinished.quest)) {
-									
+
 									if (typeof role.quest.rewards !== "undefined" && typeof role.quest.rewards.items !== "undefined") {
 										if (Dom.inventory.requiredSpace(role.quest.rewards.items)) {
 											// user has space for quest finish items
@@ -4457,29 +4485,29 @@ Game.update = function (delta) {
 								else {
 									questActive = true;
 								}
-								
+
 							}
 							// quest has already been completed
 							else if (Player.quests.completedQuestArray.includes(role.quest.quest)) {
 								questComplete = true;
 							}
 						}
-						
+
 						// merchants
 						else if (role.role === "merchant") {
 							// merchant appears as an option for choose DOM
-							
+
 							// filter the sold items to check that they are eligible to be sold
 							let soldItems = role.sold.filter(soldItem => soldItem.eventRequirement === undefined || soldItem.eventRequirement === Event.event);
-							
+
 							// filter for condition
 							soldItems = soldItems.filter(soldItem => soldItem.condition === undefined || soldItem.condition() === true);
-							
+
 							textArray.push(role.chooseText || "I'd like to browse your goods.");
 							functionArray.push(Dom.merchant.page);
 							parameterArray.push([npc, soldItems, role.shopGreeting]);
 						}
-						
+
 						// soul healers
 						else if (role.role === "soulHealer") {
 							let statusEffect = Game.hero.statusEffects.find(statusEffect => statusEffect.title === "XP Fatigue"); // try to find xp fatigue effect
@@ -4489,10 +4517,10 @@ Game.update = function (delta) {
 								if (this.soulHealerCost < 1) {
 									this.soulHealerCost = 1;
 								}
-								
+
 								// save the npc into a variable so that it can say something if the person is healed
 								this.currentSoulHealer = npc;
-								
+
 								// soul healer appears as an option for choose DOM
 								textArray.push(role.chooseText || "I'd like to remove my 'XP Fatigue' status effect.");
 								functionArray.push(Dom.text.page);
@@ -4521,7 +4549,7 @@ Game.update = function (delta) {
 								}
 							}
 						}
-						
+
 						// identifiers
 						else if (role.role === "identifier") {
 							// identifier appears as an option for choose DOM
@@ -4539,7 +4567,7 @@ Game.update = function (delta) {
 								}
 							}
 						}
-						
+
 						// item buyers
 						else if (role.role === "itemBuyer") {
 							// item buyer appears as an option for choose DOM
@@ -4547,7 +4575,7 @@ Game.update = function (delta) {
 							functionArray.push(Dom.buyer.page);
 							parameterArray.push([npc]);
 						}
-						
+
 						// drivers
 						else if (role.role === "driver") {
 							// driver appears as an option for choose DOM
@@ -4555,7 +4583,7 @@ Game.update = function (delta) {
 							functionArray.push(Dom.driver.page);
 							parameterArray.push([npc, role.destinations]);
 						}
-						
+
 						// bankers
                         else if (role.role === "banker") {
                             // bank appears as an option for choose DOM
@@ -4563,7 +4591,7 @@ Game.update = function (delta) {
                             functionArray.push(Dom.bank.page);
                             parameterArray.push([]);
                         }
-						
+
 						// generic text DOM
 						else if (role.role === "text") {
 							// npc chat appears as an option in choose DOM
@@ -4571,7 +4599,7 @@ Game.update = function (delta) {
 							functionArray.push(Dom.text.page);
 							parameterArray.push([npc.name, role.chat, role.showCloseButton, role.buttons, role.functions]);
 						}
-						
+
 						// button just runs a function
 						else if (role.role === "function") {
 							// npc chat appears as an option in choose DOM
@@ -4579,8 +4607,8 @@ Game.update = function (delta) {
 							functionArray.push(role.onClick);
 							parameterArray.push([]);
 						}
-						
-						
+
+
 						// force choose DOM if the role wants this
 						if (role.forceChoose === true) {
 							forceChoose = true;
@@ -4590,7 +4618,7 @@ Game.update = function (delta) {
 						notUnlockedRoles = true;
 					}
 				}); // finished iterating through this npc's roles
-				
+
 				if (functionArray.length > 0) {
 					// npc can be spoken to, hence choose DOM should be opened
 					// Dom.choose.page checks whether or not the DOM is occupied, and handles red flashing of close button
@@ -4616,7 +4644,7 @@ Game.update = function (delta) {
 				}
 			}
 		}
-		
+
 		// check if the currently displayed NPC is the current one in the foreach loop
 		if (npc.id === Dom.currentNPC.id && npc.type === Dom.currentNPC.type) {
 			// close the DOM if the player is too far away from the NPC or if the NPC is dead
@@ -4626,22 +4654,22 @@ Game.update = function (delta) {
 			}
 		}
 	}); // finished iterating through npcs
-	
+
 	// update villagers
 	for(var i = 0; i < this.villagers.length; i++) {
 		if (!this.villagers[i].respawning) { // check villager is not dead
 			this.villagers[i].update(delta);
 		}
     }
-	
+
 	// update enemies
 	for (let i = 0; i < this.enemies.length; i++) {
 		let enemy = this.enemies[i];
-		
+
 		if (!enemy.respawning) { // check enemy is not dead
 			enemy.update(delta);
 		}
-		
+
 		// check if the currently displayed DOM is for the current enemy in the foreach loop
 		if (enemy.id === Dom.currentNPC.id && enemy.type === Dom.currentNPC.type) {
 			// close the DOM if the player is too far away from the enemy or if the enemy is dead
@@ -4650,7 +4678,7 @@ Game.update = function (delta) {
 				Dom.closeNPCPages();
 			}
 		}
-		
+
 		// checkTouching
 		if (enemy.checkTouching !== undefined) {
 			// iterate through each separate thing that should be checked
@@ -4661,7 +4689,7 @@ Game.update = function (delta) {
 					// particular name for object in array
 					touchingArray = touchingArray.filter(obj => obj.name === enemy.checkTouching[x].objectName);
 				}
-				
+
 				// check if any of them are being touched
 				for (let y = 0; y < touchingArray.length; y++) {
 					if (enemy.isTouching(touchingArray[y])) {
@@ -4674,17 +4702,17 @@ Game.update = function (delta) {
 			}
 		}
 	}
-	
+
 	// move projectiles if they need to be moved
 	for (let i = 0; i < this.projectiles.length; i++) {
 		let projectile = this.projectiles[i];
-		
+
 		if (projectile.moveTowards !== undefined) {
 			// move towards the position
 			let direction = bearing(projectile, projectile.moveTowards);
 			projectile.x += Math.cos(direction) * projectile.moveSpeed * delta;
 			projectile.y += Math.sin(direction) * projectile.moveSpeed * delta;
-			
+
 			// only deal damage if it hasn't before
 			if (projectile.damageDealt.length === 0) {
 				// hasn't dealt damage
@@ -4700,19 +4728,19 @@ Game.update = function (delta) {
 					Game.projectiles.splice(Game.searchFor(a, Game.projectiles), 1); // find the id of the to-be-removed projectile and remove it
 				}, 1500, a)); // pushed to objectRemoveTimeouts so it can be removed when the area is changed
 			}
-			
+
 			// remove the projectile if it has moved too far
 		}
 	}
-	
+
 	// check collision with mailboxes
 	for (let i = 0; i < this.mailboxes.length; i++) {
 		let mailbox = this.mailboxes[i];
-		
+
 		if (this.hero.isTouching(mailbox)) {
 			Dom.choose.page(mailbox, ["Check mail"], [Dom.mail.page], [[]]);
 		}
-		
+
 		// check if the currently displayed DOM is for the current mailbox in the foreach loop
 		if (mailbox.id === Dom.currentNPC.id && mailbox.type === Dom.currentNPC.type) {
 			// close the DOM if the player is too far away from the mailbox or if the mailbox is dead
@@ -4722,11 +4750,11 @@ Game.update = function (delta) {
 			}
 		}
 	}
-	
+
 	// check distance from chests
 	for (let i = 0; i < this.chests.length; i++) {
 		let chest = this.chests[i];
-		
+
 		// check if the currently displayed DOM is for the current mailbox in the foreach loop
 		if (chest.id === Dom.currentNPC.id && chest.type === Dom.currentNPC.type) {
 			// close the DOM if the player is too far away from the chest or if the chest is dead
@@ -4737,12 +4765,12 @@ Game.update = function (delta) {
 			}
 		}
 	}
-	
+
 	// check collision with area teleports
 	for (let i = 0; i < this.areaTeleports.length; i++) {
 		// give area teleports a screen X and Y
 		this.updateScreenPosition(this.areaTeleports[i]);
-		
+
         if (this.hero.isTouching(this.areaTeleports[i])) {
 			if (this.areaTeleports[i].teleportCondition === undefined
 			|| (this.areaTeleports[i].teleportCondition !== undefined && this.areaTeleports[i].teleportCondition())) {
@@ -4766,38 +4794,38 @@ Game.update = function (delta) {
 			}
 		}
     }
-	
+
 	// check collision with tripwires - invisible entities that call a function when touched
 	for (let i = 0; i < this.tripwires.length; i++) {
 		let entity = this.tripwires[i];
-		
+
 		// give tripwires a screen X and Y
 		this.updateScreenPosition(entity);
-		
+
         if ((entity.collisionType === "body" && this.hero.isTouching(entity)) ||
 		(entity.collisionType === "feet" && this.heroFootHitbox.isTouching(entity))) {
 			let boundOnPlayerTouch = entity.onPlayerTouch.bind(entity);
 			boundOnPlayerTouch();
 		}
 	}
-	
+
 	// check collision with points of interest (things that insert something to chat when you touch them)
 	for (let i = 0; i < this.infoPoints.length; i++) {
 		let thing = this.infoPoints[i];
-		
+
 		if (this.hero.moveTowards === undefined && this.hero.isTouching(thing)) {
 			// does not trigger if moveTowards is active
 			Dom.chat.insert(thing.onTouchChat, 0, false, true); // noRepeat is true
 		}
 	}
-	
+
 	this.playerProjectileUpdate(delta); // update player's currently channelling projectile
-	
+
 	// update particles (move them)
 	if (document.getElementById("particlesOn").checked) { // check particle setting
 		for (let i = 0; i < this.particles.length; i++) {
 			let particle = this.particles[i]; // save to variable for easy access
-			
+
 			if (particle.moveTowards !== undefined) {
 				// move the particle towards a location over its time period
 				let proportionTravelled = delta*1000 / particle.moveTowards.time;
@@ -4806,7 +4834,7 @@ Game.update = function (delta) {
 			}
 		}
 	}
-	
+
 	// update weather particles
 	if (document.getElementById("weatherOn").checked && !Areas[Game.areaName].indoors) {
 		Weather.moveParticles(delta);
@@ -4817,7 +4845,7 @@ Game.update = function (delta) {
 Game.playerProjectileUpdate = function(delta) {
 	if (Game.hero.channellingProjectileId !== null && Game.hero.channellingProjectileId !== undefined && Game.hero.channelling === "projectile") { // check that the player is currently channelling a projectile
 		let projectile = Game.projectiles[Game.searchFor(Game.hero.channellingProjectileId, Game.projectiles)];
-		
+
 		// increase player channelTime if they are holding their mouse down
 		if (this.hero.channelling) {
 			this.hero.channelTime += delta;
@@ -4831,7 +4859,7 @@ Game.playerProjectileUpdate = function(delta) {
 				projectile.variance = 1;
 			}
 		}
-		
+
 		else if (Player.inventory.weapon.type === "staff") { // mage weapon
 			if (projectile.expand < 2) { // check it won't be 0 or less
 				// takes about 1 second to fully expand
@@ -4853,10 +4881,10 @@ Game.getXP = function (xpGiven, xpBonus) {
 		if (xpBonus === false) {
 			xpGiven *= (1 + Game.hero.stats.xpBonus / 100)
 		}
-		
+
 		// increase XP
 		Player.xp += xpGiven;
-		
+
 		// XP fatigue
 		if (Player.fatiguedXP !== 0) { // fatigued XP is worth 50% less due to a recent death
 			if (xpGiven > Player.fatiguedXP) {
@@ -4869,9 +4897,9 @@ Game.getXP = function (xpGiven, xpBonus) {
 				Player.fatiguedXP -= xpGiven;
 			}
 		}
-		
+
 		// now that the XP has fully been added, check for a levelUp and display it on the canvas
-		
+
 		// check for level up
 		if (Player.level < LevelXP.length - 1) {
 			if (Player.xp >= LevelXP[Player.level]) {
@@ -4879,28 +4907,28 @@ Game.getXP = function (xpGiven, xpBonus) {
 				Player.xp -= LevelXP[Player.level];
 				Player.level++;
 				this.hero.level = Player.level;
-				
+
 				// level up cosmetic stuff
 				this.playLevelupSound(this.areaName);
 				this.levelUpFireworks(Player.level);
 				this.displayOnCanvas("Level Up!", (Player.level-1) + " \u{2794} " + Player.level, 4, true); // display on canvas for 34
-				
+
 				// increase player health
 				Player.stats.maxHealth += 5;
-				
+
 				if(Player.level >= LevelXP.length - 1){
 					// sets xp bar to fully completed because Game.getXP doesn't set it when you level up
 					Player.xp = LevelXP[Player.level];
 				}
-				
+
 				document.getElementById("level").innerHTML = "Level "+Player.level;
-				
+
 				// chat message for level up
 				Dom.chat.insert("Level up: "+(Player.level-1)+" &#10132; "+Player.level);
-				
+
 				// update possible quests
 				Dom.quests.possible();
-				
+
 				this.getXP(0); // levelling up multiple times
 			}
 			// xp gained
@@ -4923,7 +4951,7 @@ Game.inventoryUpdate = function (e) {
 	if (e === undefined || isNaN(parseInt(e.dataTransfer.getData("text")))) { // check if a weapon or armour slot has been changed
 		// player stats updated
 		Game.hero.stats = Player.stats; // inefficient (should be linked)
-		
+
 		// if the player is holding a weapon, set their range
 		if (Player.inventory.weapon.type !== undefined) {
 			// player has weapon equipped
@@ -4933,18 +4961,18 @@ Game.inventoryUpdate = function (e) {
 			// no weapon equipped
 			Game.hero.stats.range = 0;
 		}
-		
+
 		// set player projectile
 		this.projectileImageUpdate();
-		
+
 		// if the player is no longer holding a fishing rod, remove their bobber
 		if (Player.inventory.weapon.type !== "rod" && Game.hero.channelling === "fishing") {
 			Game.projectiles.splice(Game.searchFor(Game.hero.channellingProjectileId, Game.projectiles), 1); // remove bobber
-			
+
 			Game.hero.channelling = false;
 			this.channellingProjectileId = null;
 		}
-		
+
 		// set weapon variance
 		if (Player.inventory.weapon.type === "bow" || Player.inventory.weapon.variance !== undefined) {
 			Game.hero.stats.variance = Player.inventory.weapon.variance || 100; // 100 is default
@@ -4953,7 +4981,7 @@ Game.inventoryUpdate = function (e) {
 			// non-bows have no variance
 			Game.hero.stats.variance = 0;
 		}
-		
+
 		// set weapon penetration
 		if (Player.inventory.weapon.type === "bow" || Player.inventory.weapon.penetration !== undefined) {
 			Game.hero.stats.penetration = Player.inventory.weapon.penentration || false;
@@ -4976,7 +5004,7 @@ Game.projectileImageUpdate = function () {
 		nameAddress = "heroBobberName";
 		adjustAddress = null;
 	}
-	
+
 	// if the player is now holding a weapon with a special projectile image, load that image and stop the player from attacking until this is done
 	if (Player.inventory.weapon.projectile !== undefined && this[nameAddress] !== Player.inventory.weapon.projectile) {
 		// not loaded projectile image before
@@ -5006,7 +5034,7 @@ Game.projectileImageUpdate = function () {
 			Player.inventory.weapon.cannotAttack = undefined;
 		}
 	}
-	
+
 	// if the player is NOT holding a weapon with a special projectile image, and the skin does have a special projectile image
 	else if (Player.inventory.weapon.projectile === undefined && this[nameAddress] !== Skins[Player.class][Player.skin].projectile) {
 		// needs to reload default projectile image
@@ -5068,7 +5096,7 @@ Game.lootClosed = function (itemsRemaining) {
 		if (Game.chests[arrayIndex].name === "Loot Chest") {
 			Player.chests.opened[Game.areaName] = GetFullDate();
 		}
-		
+
 		// save to stop them getting infinite loot from chests
 		Game.saveProgress("auto");
 	}
@@ -5082,7 +5110,7 @@ Game.lootClosed = function (itemsRemaining) {
 			// no loot left
 			Dom.inventory.remove(inventoryPosition);
 		}
-		
+
 		// save to stop them getting infinite loot from the item
 		Game.saveProgress("auto");
 	}
@@ -5153,9 +5181,9 @@ Game._drawLayer = function (layer) {
 	let startCol, endCol, startRow, endRow;
 	let offsetX = 0;
 	let offsetY = 0;
-	
+
 	// start and end positions of tilemap to draw (tiles on screen)
-	
+
 	startCol = Math.floor(this.camera.x / map.tsize);
 	if (this.viewportOffsetX > 0) {
 		// area width not big enough to fill camera
@@ -5167,7 +5195,7 @@ Game._drawLayer = function (layer) {
 	else {
 	    endCol = startCol + Math.ceil(this.camera.width / map.tsize);
 	}
-	
+
 	startRow = Math.floor(this.camera.y / map.tsize);
 	if (this.viewportOffsetY > 0) {
 		// area height not big enough to fill camera
@@ -5179,7 +5207,7 @@ Game._drawLayer = function (layer) {
 	else {
 	    endRow = startRow + Math.ceil(this.camera.height / map.tsize);
 	}
-	
+
 	// tile draw offset
     offsetX += -this.camera.x + startCol * map.tsize;
     offsetY += -this.camera.y + startRow * map.tsize;
@@ -5187,11 +5215,11 @@ Game._drawLayer = function (layer) {
     for (let c = startCol; c <= endCol; c++) {
         for (let r = startRow; r <= endRow; r++) {
             let tile = map.getTile(layer, c, r); // tile number
-            
+
 			// draw position
 			let x = (c - startCol) * map.tsize + offsetX;
             let y = (r - startRow) * map.tsize + offsetY;
-			
+
             if (tile !== 0) { // 0 is empty tile
                 this.ctx.drawImage(
                     this.tileAtlas, // image
@@ -5214,7 +5242,7 @@ Game._drawLayer = function (layer) {
 Game._drawGrid = function () {
 	// stroke colour
 	this.ctx.strokeStyle="#0000ff";
-	
+
     let width = map.cols * map.tsize;
     let height = map.rows * map.tsize;
     let x, y;
@@ -5241,52 +5269,52 @@ Game._drawGrid = function () {
 Game.drawHitboxes = function () {
 	// stroke colour
 	this.ctx.strokeStyle="#FF0000";
-	
+
 	// TBD change this to work off of renderList
-	
+
 	// player hitbox (add to renderlist tbd)
 	this.ctx.strokeRect(this.hero.screenX - this.hero.width / 2, this.hero.screenY - this.hero.height / 2, this.hero.width, this.hero.height);
-	
+
 	// render npcs on renderList
 	for (let i = 0; i < this.renderList.length; i++) { // iterate through everything to be rendered (in order)
-		
+
 		for (let x = 0; x < this[this.renderList[i]].length; x++) { // iterate through that array of things to be rendered
-		
+
 			let objectToRender = this[this.renderList[i]][x];
-		
+
 			if (Game.camera.isOnScreen(objectToRender, "hitbox")) { // check object hitbox is on the screen hence should be rendered
-			
+
 				if (objectToRender.hitbox !== undefined) { // check if the object has a special hitbox that should be drawn instead
 					this.ctx.strokeRect(objectToRender.hitbox.screenX - objectToRender.hitbox.width / 2, objectToRender.hitbox.screenY - objectToRender.hitbox.height / 2, objectToRender.hitbox.width, objectToRender.hitbox.height);
 				}
 				else {
 					this.ctx.strokeRect(objectToRender.screenX - objectToRender.width / 2, objectToRender.screenY - objectToRender.height / 2, objectToRender.width, objectToRender.height);
 				}
-				
+
 			}
-			
+
 		}
-		
+
 	}
-	
+
 	// area teleport hitboxes
 	// maybe a special hitbox render list should be made? (tbd)
 	for (let i = 0; i < this.areaTeleports.length; i++) {
 		this.ctx.strokeRect(this.areaTeleports[i].screenX - this.areaTeleports[i].width / 2, this.areaTeleports[i].screenY - this.areaTeleports[i].height / 2, this.areaTeleports[i].width, this.areaTeleports[i].height);
 	}
-	
+
 	// tripwire hitboxes
 	// maybe a special hitbox render list should be made? (tbd)
 	for (let i = 0; i < this.tripwires.length; i++) {
 		this.ctx.strokeRect(this.tripwires[i].screenX - this.tripwires[i].width / 2, this.tripwires[i].screenY - this.tripwires[i].height / 2, this.tripwires[i].width, this.tripwires[i].height);
 	}
-	
+
 	// collision hitboxes
 	// maybe a special hitbox render list should be made? (tbd)
 	this.collisions.forEach(collision => {
 		this.ctx.strokeRect(collision.screenX - collision.width / 2, collision.screenY - collision.height / 2, collision.width, collision.height);
 	});
-	
+
 	// projectile hitboxes
 	// should be added to renderList (tbd)
 	for(var i = 0; i < this.projectiles.length; i++) {
@@ -5297,7 +5325,7 @@ Game.drawHitboxes = function () {
 			this.ctx.strokeRect(this.projectiles[i].screenX - this.projectiles[i].width / 2, this.projectiles[i].screenY - this.projectiles[i].height / 2, this.projectiles[i].width, this.projectiles[i].height);
 		}
 	}
-	
+
 	// stroke colour for hero foot hitbox
 	this.ctx.strokeStyle="#FF00FF";
 	this.ctx.strokeRect(this.heroFootHitbox.screenX - this.heroFootHitbox.width / 2, this.heroFootHitbox.screenY - this.heroFootHitbox.height / 2, this.heroFootHitbox.width, this.heroFootHitbox.height);
@@ -5307,12 +5335,12 @@ Game.drawHitboxes = function () {
 Game.coordinates = function (character) {
 	// reset text formatting
 	this.resetFormatting();
-	
+
 	// set text to white if there is a black background
 	if (this.viewportOffsetX > 0 || this.viewportOffsetY > 0) {
 		this.ctx.fillStyle = "white";
 	}
-	
+
 	this.ctx.fillText("x: " + Math.round(character.x), 10, 50);
 	this.ctx.fillText("y: " + Math.round(character.y), 10, 60);
 }
@@ -5323,25 +5351,25 @@ Game.coordinates = function (character) {
 Game.fps = function (delta) {
 	// reset text formatting
 	this.resetFormatting();
-	
+
 	// set text to white if there is a black background
 	if (this.viewportOffsetX > 0 || this.viewportOffsetY > 0) {
 		this.ctx.fillStyle = "white";
 	}
-	
+
 	// add current fps value to fps array
 	this.fpsArray.push(Math.round(1 / delta));
 	if (this.fpsArray.length >= 100) {
 		this.fpsArray.shift();
 	}
-	
-	// calculate average 
+
+	// calculate average
 	let sum = 0;
 	for (let i = 0; i < this.fpsArray.length; i++) {
 		sum += this.fpsArray[i];
 	}
 	let average = sum / this.fpsArray.length;
-	
+
 	// write on canvas
 	this.ctx.fillText("fps: " + Round(average), 10, 75);
 }
@@ -5356,7 +5384,7 @@ Game.resetFormatting = function () {
 // draw a rotated image (rotated in radians)
 // source: https://stackoverflow.com/a/11985464/9713957 --- thank you! <3
 Game.drawImageRotated = function (img, x, y, width, height, rad) {
-    // convert degrees to radian 
+    // convert degrees to radian
     //var rad = deg * Math.PI / 180;
 
     // set the origin to the center of the image
@@ -5368,7 +5396,7 @@ Game.drawImageRotated = function (img, x, y, width, height, rad) {
     // draw the image
     this.ctx.drawImage(img,width / 2 * (-1),height / 2 * (-1),width,height);
 
-    // reset the canvas  
+    // reset the canvas
     this.ctx.rotate(rad * ( -1 ) );
     this.ctx.translate((x + width / 2) * (-1), (y + height / 2) * (-1));
 }
@@ -5378,13 +5406,13 @@ Game.drawImageRotated = function (img, x, y, width, height, rad) {
 Game.updateScreenPosition = function (entity) {
 	entity.screenX = (entity.x) - this.camera.x + this.viewportOffsetX;
 	entity.screenY = (entity.y) - this.camera.y + this.viewportOffsetY;
-	
+
 	if (typeof entity.adjust !== "undefined") { // adjust postiion
 		let angle = bearing(entity, entity.adjust.towards);
 		entity.screenX += entity.adjust.x * Math.cos(angle);
 		entity.screenY += entity.adjust.y * Math.sin(angle);
 	}
-	
+
 	if (typeof entity.hitbox !== "undefined") { // special hitbox
 		entity.hitbox.screenX = (entity.hitbox.x) - this.camera.x + this.viewportOffsetX;
 		entity.hitbox.screenY = (entity.hitbox.y) - this.camera.y + this.viewportOffsetY;
@@ -5395,7 +5423,7 @@ Game.updateScreenPosition = function (entity) {
 Game.drawCharacterInformation = function (ctx, character) {
 	let healthBarDrawn = 0; // size of healthbar or other similar thing (e.g: damage taken), so that it is known how much to offset character's name by (in y axis)
 	let channellingBarDrawn = 0;
-	
+
 	if (character.hostility === "friendly" || character.hostility === "neutral") {
 		// only draw health bar if character is damaged
 		if (character.health !== character.stats.maxHealth) {
@@ -5421,18 +5449,18 @@ Game.drawCharacterInformation = function (ctx, character) {
 	else {
 		console.error("Unknown character hostility: ", character.hostility);
 	}
-	
+
 	if (character.channellingInfo !== false) {
 		// character is channelling something
 		this.drawChannellingBar(ctx, character, character.screenX - character.width * 0.5, character.screenY - character.height * 0.5 - 15 - healthBarDrawn, character.width, 15);
 		channellingBarDrawn = 15;
 		channellingBarDrawn += 3; // padding
 	}
-	
+
 	/*if (healthBarDrawn !== 0) { // !healthBarDrawn is not used, as healthBarDrawn is set to a number (not true) if it isn't false
 		healthBarDrawn += 3; // padding for name (currently not seen as necessary, so this has been commented out)
 	}*/
-	
+
 	this.drawCharacterName(ctx, character, character.screenX, character.screenY - character.height / 2 - healthBarDrawn - channellingBarDrawn - 3);
 }
 
@@ -5441,13 +5469,13 @@ Game.drawCharacterInformation = function (ctx, character) {
 Game.drawHealthBar = function (ctx, character, x, y, width, height) {
 	// remember previous canvas transparency preferences
 	const oldGlobalAlpha = ctx.globalAlpha;
-	
+
 	// canvas formatting
 	ctx.lineWidth = 1;
 	ctx.globalAlpha = 0.6;
-	
+
 	// health variables
-	
+
 	// get width of each small health bar (in health)
 	// there should be between 3 and 9 bars (with the exception of low health )
 	let barValue = 10;
@@ -5462,9 +5490,9 @@ Game.drawHealthBar = function (ctx, character, x, y, width, height) {
 			barValue *= 3;
 		}
 	}
-	
+
 	character.healthFraction = character.health / character.stats.maxHealth; // fraction of health remaining
-	
+
 	if (character.healthFraction > 0) { // check the character has some health to draw (we don't want to draw negative health)
 		// colour based on size of each bar
 		if (barValue === 10) {
@@ -5487,11 +5515,11 @@ Game.drawHealthBar = function (ctx, character, x, y, width, height) {
 			ctx.fillStyle = "FFFF00";
 			console.warn("No dedicated health bar colour for bar size " + barValue);
 		}
-		
+
 		// health bar body
 		ctx.fillRect(x, y, character.healthFraction * width, height);
 	}
-	
+
 	// health bar border
 	ctx.strokeStyle = "black";
 	ctx.strokeRect(x, y, width, height); // general border around the whole thing
@@ -5499,10 +5527,10 @@ Game.drawHealthBar = function (ctx, character, x, y, width, height) {
 	for (i = 0; i < character.stats.maxHealth / barValue - 1; i++) {
 		ctx.strokeRect(x + barValue / character.stats.maxHealth * width * i, y, barValue / character.stats.maxHealth * width, height);
 	}
-	
+
 	// final bar
 	ctx.strokeRect(x + barValue / character.stats.maxHealth * width * i, y, width - (barValue / character.stats.maxHealth * width * i), height);
-	
+
 	// restore previous canvas transparency preferences
 	ctx.globalAlpha = oldGlobalAlpha;
 }
@@ -5512,7 +5540,7 @@ Game.drawDamageTaken = function (ctx, character, x, y, fontSize) {
 	ctx.fillStyle = "rgb(0, 0, 0)";
 	ctx.textAlign = "center";
 	ctx.font = "bold " + fontSize + "px MedievalSharp";
-	
+
 	// "\u{2694}" displays the unicode crossed swords symbol
 	// thanks to Wilfred Lee at https://stackoverflow.com/a/49667311/9713957
 	// w3schools reference for unicode special characters: https://www.w3schools.com/charsets/ref_utf_symbols.asp
@@ -5522,7 +5550,7 @@ Game.drawDamageTaken = function (ctx, character, x, y, fontSize) {
 // draw character's name (often positioned to be above their head
 // tbd : change colour for friendly characters?
 Game.drawCharacterName = function (ctx, character, x, y) {
-	
+
 	// text formatting
 	ctx.font = "13px MedievalSharp";
 	ctx.textAlign = "center";
@@ -5544,8 +5572,8 @@ Game.drawCharacterName = function (ctx, character, x, y) {
 	else {
 		ctx.fillStyle = "black";
 	}
-	
-	
+
+
 	// draw text
 	ctx.fillText(character.name, x, y);
 	// black border (easier to read)
@@ -5555,32 +5583,32 @@ Game.drawCharacterName = function (ctx, character, x, y) {
 // draw a channelling bar (on given context, for given character, at given position, with given dimensions)
 Game.drawChannellingBar = function (ctx, character, x, y, width, height) {
 	const oldGlobalAlpha = ctx.globalAlpha;
-	
+
 	// figure out elapsed and remaining values (in ms)
 	const elapsed = Date.now() - character.channellingInfo.start;
 	//const remaining = Game.hero.channellingInfo.time - elapsed;
 	const completedFraction = elapsed / character.channellingInfo.time;
-	
+
 	// fill colour (purple)
 	ctx.fillStyle = "#f442c2";
 	ctx.strokeStyle = "black";
-	
+
 	ctx.globalAlpha = 0.6;
 	ctx.lineWidth = 1;
-	
+
 	// bar body
 	ctx.fillRect(x, y, completedFraction * width, height);
 
 	// bar border
 	ctx.globalAlpha = 0.8;
 	ctx.strokeRect(x, y, width-1, height);
-	
+
 	// text
 	this.ctx.font = "bold " + height + "px MedievalSharp";
 	this.ctx.textAlign = "center";
 	this.ctx.fillStyle = "white";
 	this.ctx.fillText(character.channellingInfo.description, x + width / 2, y + height / 4 * 3);
-	
+
 	this.ctx.globalAlpha = oldGlobalAlpha;
 }
 
@@ -5591,13 +5619,13 @@ Game.displayOnCanvas = function (title, subtitles, duration, important) {
 	if (subtitles.constructor !== Array) {
 		subtitles = [subtitles]; // make sure it is in array form
 	}
-	
+
 	if (important === false) {
 		// important is checked to be undefined not false, fix this problem
 		console.warn("'Important' parameter should be undefined, not false.");
 		important = undefined;
 	}
-	
+
 	// value to be set
 	let displayVariable = {
 		title: title,
@@ -5605,7 +5633,7 @@ Game.displayOnCanvas = function (title, subtitles, duration, important) {
 		duration: duration, // starts to fade over the last second
 		important: important,
 	};
-	
+
 	if (important) {
 		// it should not be overriden and should always be displayed (might be placed in queue)
 		if (this.canvasDisplay.important !== undefined) {
@@ -5615,7 +5643,7 @@ Game.displayOnCanvas = function (title, subtitles, duration, important) {
 		}
 		else {
 			// even if there is an unimportant message showing, overwrite it
-			
+
 			// set the variable to be handled by Game.render
 			this.canvasDisplay = displayVariable;
 		}
@@ -5632,7 +5660,7 @@ Game.displayOnCanvas = function (title, subtitles, duration, important) {
 // called once the current canvas display has finished, for a new one to be added from the queue
 Game.canvasDisplayFinished = function () {
 	this.canvasDisplay = {};
-	
+
 	if (this.canvasDisplayQueue.length > 0) {
 		// another message should take its place
 		this.canvasDisplay = this.canvasDisplayQueue.shift();
@@ -5643,34 +5671,34 @@ Game.canvasDisplayFinished = function () {
 Game.render = function (delta) {
 	// reset text formatting (currntly done in individual functions)
 	//this.resetFormatting();
-	
+
 	// reset canvas distortion
 	///this.ctx.resetTransform();
-	
+
     // draw map background layer
     //if (this.hasScrolled) {
 	this._drawLayer(0);
     //}
-	
+
 	// distort canvas
 	//this.ctx.setTransform(1, -0.01, -0.01, 1, 0, 0);
-	
+
 	// render things on renderList
 	for (var i = 0; i < this.renderList.length; i++) { // iterate through everything to be rendered (in order)
-		
+
 		for (var x = 0; x < this[this.renderList[i]].length; x++) { // iterate through that array of things to be rendered
-		
+
 			let objectToRender = this[this.renderList[i]][x];
-			
+
 			// check object should be rendered
 			if (Game.camera.isOnScreen(objectToRender, "image") && // object on screen
 			(objectToRender.stats === undefined || !objectToRender.stats.stealthed)) { // object isn't stealthed
-			
+
 				// set character screen x and y
 				this.updateScreenPosition(objectToRender);
-			
+
 				if (!objectToRender.respawning) { // check character is not dead
-					
+
 					// draw image
 					this.ctx.drawImage(
 						objectToRender.image,
@@ -5679,18 +5707,18 @@ Game.render = function (delta) {
 						objectToRender.width,
 						objectToRender.height
 					);
-					
+
 					// render function (additional render to be carried out upon render of this entity)
 					if (objectToRender.renderFunction !== undefined) {
 						objectToRender.renderFunction();
 					}
 				}
-				
+
 				else {
 					if (objectToRender.deathImage !== undefined && objectToRender.isCorpse) { // display corpse
 						// set character screen x and y
 						this.updateScreenPosition(objectToRender);
-						
+
 						// draw image (corpse)
 						this.ctx.drawImage(
 							objectToRender.deathImage,
@@ -5699,16 +5727,16 @@ Game.render = function (delta) {
 							objectToRender.deathImageWidth,
 							objectToRender.deathImageHeight
 						);
-						
+
 						// perhaps a death render function should be added? tbd
 					}
 				}
 			}
-			
+
 		}
-		
+
 	}
-	
+
 	if (this.hero.channelling === "fishing" || (this.hero.channelling.type !== undefined && this.hero.fishingBobs >= 100)) { // check player's fishing bobber is out
 		// line between fishing bobber and player
 		let projectile = this.projectiles[this.searchFor(this.hero.channellingProjectileId, this.projectiles)];
@@ -5726,7 +5754,7 @@ Game.render = function (delta) {
 		this.ctx.lineTo(this.hero.screenX, this.hero.screenY);
 		this.ctx.stroke();
 	}
-	
+
 	// draw player animations
 	if (this.hero.beam !== undefined) {
 		// set formatting
@@ -5735,7 +5763,7 @@ Game.render = function (delta) {
 		// draw line
 		this.ctx.beginPath();
 		this.ctx.moveTo(this.hero.screenX, this.hero.screenY);
-		this.ctx.lineTo(this.hero.beam.x - this.hero.x + this.hero.screenX, 
+		this.ctx.lineTo(this.hero.beam.x - this.hero.x + this.hero.screenX,
 						this.hero.beam.y - this.hero.y + this.hero.screenY);
 		this.ctx.stroke();
 		// reset default formatting
@@ -5744,7 +5772,7 @@ Game.render = function (delta) {
 	}
 
     // draw main character
-	
+
 	// if player is stealthed, draw them partially transparent
 	if (this.hero.stats.stealthed) {
 		this.ctx.globalAlpha = 0.6;
@@ -5758,8 +5786,8 @@ Game.render = function (delta) {
 			this.hero.screenX - this.hero.width / 2, this.hero.screenY - this.hero.height / 2,
 			this.hero.width, this.hero.height,
 		);
-	} 
-	
+	}
+
 	else if (this.hero.direction === 2) {
 		this.ctx.drawImage(
 			this.hero.image,
@@ -5768,8 +5796,8 @@ Game.render = function (delta) {
 			this.hero.screenX - this.hero.width / 2, this.hero.screenY - this.hero.height / 2,
 			this.hero.width, this.hero.height,
 		);
-	} 
-	
+	}
+
 	else if (this.hero.direction === 3) {
 		this.ctx.drawImage(
 			this.hero.image,
@@ -5778,8 +5806,8 @@ Game.render = function (delta) {
 			this.hero.screenX - this.hero.width / 2, this.hero.screenY - this.hero.height / 2,
 			this.hero.width, this.hero.height,
 		);
-	} 
-	
+	}
+
 	else if (this.hero.direction === 4) {
 		this.ctx.drawImage(
 			this.hero.image,
@@ -5791,24 +5819,24 @@ Game.render = function (delta) {
 	}
 	// set transparency back (just in case it was changed because the player is stealthed)
 	this.ctx.globalAlpha = 1;
-	
+
 	// draw projectiles
     for (let i = 0; i < this.projectiles.length; i++) {
 		// set screen x and y
 		this.updateScreenPosition(this.projectiles[i]);
-		
+
 		if (Player.inventory.weapon.type === "bow" && this.projectiles[i].beingChannelled && Game.hero.channelling === "projectile") { // show archer red circle instead of projectile if they are currently channelling it
 			this.ctx.strokeStyle = "red";
 			this.ctx.beginPath();
 			this.ctx.arc(this.projectiles[i].hitbox.screenX, this.projectiles[i].hitbox.screenY, this.projectiles[i].variance, 0, 2*Math.PI);
 			this.ctx.stroke();
 		}
-		
+
 		else { // render projectile normally
 			if (Player.inventory.weapon.type === "staff" && this.projectiles[i].beingChannelled && Game.hero.channelling === "projectile") { // mage projectiles are transparent when being channelled
 				this.ctx.globalAlpha = 0.6;
 			}
-		
+
 			if (this.projectiles[i].rotate !== 0) {
 				this.drawImageRotated( // rotate projectile and draw
 					this.projectiles[i].image,
@@ -5829,7 +5857,7 @@ Game.render = function (delta) {
 					this.projectiles[i].width, this.projectiles[i].height,
 				);
 			}
-			
+
 			// shows damage dealt by projectile
 			for (let x = 0; x < this.projectiles[i].damageDealt.length; x++) {
 				// formatting
@@ -5841,35 +5869,35 @@ Game.render = function (delta) {
 				}
 				this.ctx.textAlign = "left";
 				this.ctx.font = "18px MedievalSharp";
-				
+
 				let damage = this.projectiles[i].damageDealt[x].damage;
 				if (damage !== "hit dodged") {
 					damage = Round(damage); // round damage to 1d.p. if it is an integer value
 				}
-				
+
 				this.ctx.fillText(damage, this.projectiles[i].screenX, this.projectiles[i].screenY);
 			}
-			
+
 			this.ctx.globalAlpha = 1; // restore transparency if it was changed above (e.g: mage channelled projectile)
 		}
     }
-	
+
 	// draw particles
 	// particles are drawn as rects
 	// their properties are x, y, width, height, colour (as hex)
 	if (document.getElementById("particlesOn").checked) { // check particle setting
 		for (let i = 0; i < this.particles.length; i++) {
 			let particle = this.particles[i]; // save to variable for easy access
-			
+
 			// update screen position of particle
 			this.updateScreenPosition(particle);
-			
+
 			// figure out how much to rotate the canvas (if any) for particle rotation
 			let rotation = 0;
 			if (particle.rotation !== undefined) {
 				rotation = particle.rotation;
 			}
-			
+
 			let ctx;
 			if (particle.light) {
 				// draw on light canvas instead
@@ -5878,19 +5906,19 @@ Game.render = function (delta) {
 			else {
 				ctx = this.ctx;
 			}
-			
+
 			// transform canvas so the rotation happens around the rect itself
 			ctx.translate(particle.screenX + particle.width / 2, particle.screenY + particle.height / 2);
 			// rotate canvas
 			ctx.rotate(rotation);
 			// transparency
 			ctx.globalAlpha = particle.transparency;
-			
+
 			// draw particle
 			ctx.fillStyle = particle.colour;
 			ctx.fillRect(-particle.width / 2, -particle.height / 2, particle.width, particle.height);
 			//this.ctx.drawImage(img,width / 2 * (-1),height / 2 * (-1),width,height);
-			
+
 			// reset canvas stuff
 			ctx.resetTransform();
 			ctx.globalAlpha = 1;
@@ -5899,65 +5927,65 @@ Game.render = function (delta) {
 
     // draw map top layer
     //this._drawLayer(1);
-	
+
 	if (!Keyboard.isDown(Keyboard.keys.SHIFT, "SHIFT")) { // only render this if the player isn't pressing the shift key
 
 		//
 		// Setting options
 		//
-		
+
 	    // draw map grid (debug)
 	    if (document.getElementById("gridOn").checked) {
 			this._drawGrid();
 	    }
-		
+
 	    // draw hitboxes (debug)
 	    if (document.getElementById("hitboxesOn").checked) {
 			this.drawHitboxes();
 	    }
-		
+
 	    // show player coords (debug)
 	    if (document.getElementById("coordsOn").checked) {
 			this.coordinates(this.hero);
 	    }
-		
+
 	    // show canvas fps (debug)
 		if (document.getElementById("fpsOn").checked){
 			this.fps(delta);
 		}
-		
+
 		// hero channelling bar above xp bar
 		if (Game.hero.channellingInfo !== false) {
 			Game.drawChannellingBar(this.ctx, this.hero, Dom.canvas.width/2-185, Dom.canvas.height-104, 335, 12);
 		}
-		
+
 		// display area information or level up information
 		if (this.canvasDisplay.duration > 0) {
 			// formatting
 			this.ctx.fillStyle = "rgba(0, 0, 0, " + this.canvasDisplay.duration + ")"; // fades over last second
 			this.ctx.textAlign = "center";
-			
+
 			let drawY = 100 + this.viewportOffsetY; // y position for top of information
-			
+
 			this.ctx.font = "48px MedievalSharp"; // for title
 			this.ctx.fillText(this.canvasDisplay.title, Dom.canvas.width / 2, drawY); // area name
-			
+
 			this.ctx.font = "28px MedievalSharp"; // for subtitles
 			for (let i = 0; i < this.canvasDisplay.subtitles.length; i++) {
 				// can display multiple subtitles
-				
+
 				this.ctx.fillText(this.canvasDisplay.subtitles[i], Dom.canvas.width / 2, drawY + 20 + 30*(i+1)); // area level
 			}
-			
+
 			this.canvasDisplay.duration -= delta;
-			
+
 			if (this.canvasDisplay.duration <= 0) {
 				// has expired; remove it and replace it with what is next in queue (if applicable)
 				this.canvasDisplayFinished();
 			}
 		}
 	}
-	
+
 	// render weather
 	if (document.getElementById("weatherOn").checked && !Areas[Game.areaName].indoors) {
 		if (Weather.particleArray.length > 0) {
@@ -5987,11 +6015,11 @@ Game.secondary.updateCursor = function (event) {
 			y: event.clientY
 		};
 	}
-	
+
 	// get player's range and mouse distance
 	let mouseDistanceFromHero = distance({x: Game.camera.x + event.clientX - Game.viewportOffsetX, y: Game.camera.y + event.clientY - Game.viewportOffsetY,}, Game.hero);
 	let range = Game.hero.stats.range;
-	
+
 	// if the weapon is a fishing rod, check the mouse is in water
 	let rodInWater = true;
 	if (Player.inventory.weapon.type === "rod") {
@@ -6001,7 +6029,7 @@ Game.secondary.updateCursor = function (event) {
 			rodInWater = false;
 		}
 	}
-	
+
 	// check the player's mouse distance is within range and they are not reloading
 	if (mouseDistanceFromHero < range && Game.hero.canAttack && rodInWater) {
 		// mouse in range and hero can attack (crosshair)
@@ -6023,7 +6051,7 @@ Game.secondary.updateCursor = function (event) {
 Game.secondary.render = function () {
 	// clear secondary canvas
 	this.ctx.clearRect(0, 0, Dom.canvas.width, Dom.canvas.height);
-	
+
     // fill canvas 'background colour' as black
     this.ctx.fillStyle = "black";
 	this.ctx.globalAlpha = 1;
@@ -6035,23 +6063,23 @@ Game.secondary.render = function () {
     	this.ctx.fillRect(0, 0, Dom.canvas.width, Game.viewportOffsetY);
     	this.ctx.fillRect(0, Game.viewportOffsetY + map.rows * map.tsize, Dom.canvas.width, Game.viewportOffsetY);
 	}
-	
+
 	if (!Keyboard.isDown(Keyboard.keys.SHIFT, "SHIFT")) { // only render the second canvas if the player isn't pressing the shift key
-		
+
 		// set canvas formatting style defaults
 		this.ctx.lineWidth = 1;
 		this.ctx.globalAlpha = 0.6;
-		
+
 		// player health bar at top-left
 		Game.drawHealthBar(this.ctx, Game.hero, 10, 10, 250, 25);
-		
+
 		// set xp variables
 		const totalWidth = 335; // total width of xp bar
 		const totalHeight = 8; // total height of xp bar
 		const totalLeft = Dom.canvas.width/2-185; // total left of xp bar
 		const totalTop = Dom.canvas.height-85; // total top of xp bar
 		Player.xpFraction = Player.xp / LevelXP[Player.level]; // fraction of XP for current level
-		
+
 		// rainbow gradient
 		// tbd make more efficient
 		let grd = this.ctx.createLinearGradient(totalLeft, 0, totalLeft+totalWidth-1, 0);
@@ -6070,7 +6098,7 @@ Game.secondary.render = function () {
 			grd.addColorStop(1, "#daa520");
 		}
 		this.ctx.fillStyle = grd;
-		
+
 		// xp bar body
 		this.ctx.fillRect(totalLeft, totalTop, Player.xpFraction * totalWidth, totalHeight);
 
@@ -6078,7 +6106,7 @@ Game.secondary.render = function () {
 		this.ctx.globalAlpha = 0.8;
 		this.ctx.strokeRect(totalLeft, totalTop, totalWidth-1, totalHeight);
 		this.ctx.globalAlpha = 0.6;
-		
+
 		// level
 		this.ctx.font = "bold 30px MedievalSharp";
         this.ctx.textAlign = "center";
@@ -6086,14 +6114,14 @@ Game.secondary.render = function () {
         this.ctx.fillText(Player.level, Dom.canvas.width/2-18, Dom.canvas.height-74);
         this.ctx.fillStyle = "white";
         this.ctx.fillText(Player.level, Dom.canvas.width/2-20, Dom.canvas.height-76);
-		
+
 		// status effect icons next to health bar
 		for(let i = 0; i < Game.hero.statusEffects.length; i++) {
 			let iconNum = null;
-			if (Game.hero.statusEffects[i].image === "food") {
+			if (Game.hero.statusEffects[i].image === "bait") {
 				iconNum = 0;
 			}
-			else if (Game.hero.statusEffects[i].image === "bait") {
+			else if (Game.hero.statusEffects[i].image === "defenceUp") {
 				iconNum = 1;
 			}
 			else if (Game.hero.statusEffects[i].image === "speedDown") {
@@ -6102,41 +6130,47 @@ Game.secondary.render = function () {
 			else if (Game.hero.statusEffects[i].image === "fire") {
 				iconNum = 3;
 			}
-			else if (Game.hero.statusEffects[i].image === "lifesteal") {
+			else if (Game.hero.statusEffects[i].image === "food") {
 				iconNum = 4;
 			}
-			else if (Game.hero.statusEffects[i].image === "mud") {
+			else if (Game.hero.statusEffects[i].image === "lifesteal") {
 				iconNum = 5;
 			}
-			else if (Game.hero.statusEffects[i].image === "poison") {
+			else if (Game.hero.statusEffects[i].image === "mud") {
 				iconNum = 6;
 			}
-			else if (Game.hero.statusEffects[i].image === "speedUp") {
+			else if (Game.hero.statusEffects[i].image === "poison") {
 				iconNum = 7;
 			}
-			else if (Game.hero.statusEffects[i].image === "stealth") {
+			else if (Game.hero.statusEffects[i].image === "speedUp") {
 				iconNum = 8;
 			}
-			else if (Game.hero.statusEffects[i].image === "damageUp") {
+			else if (Game.hero.statusEffects[i].image === "stealth") {
 				iconNum = 9;
 			}
-			else if (Game.hero.statusEffects[i].image === "stunned") {
+			else if (Game.hero.statusEffects[i].image === "damageUp") {
 				iconNum = 10;
 			}
-			else if (Game.hero.statusEffects[i].image === "water") {
+			else if (Game.hero.statusEffects[i].image === "stunned") {
 				iconNum = 11;
 			}
-			else if (Game.hero.statusEffects[i].image === "damageDown") {
+			else if (Game.hero.statusEffects[i].image === "timer") {
 				iconNum = 12;
 			}
-			else if (Game.hero.statusEffects[i].image === "xpDown") {
+			else if (Game.hero.statusEffects[i].image === "defenceDown") {
 				iconNum = 13;
 			}
-			else if (Game.hero.statusEffects[i].image === "timer") {
+			else if (Game.hero.statusEffects[i].image === "water") {
 				iconNum = 14;
 			}
-			else if (Game.hero.statusEffects[i].image === "xpUp") {
+			else if (Game.hero.statusEffects[i].image === "damageDown") {
 				iconNum = 15;
+			}
+			else if (Game.hero.statusEffects[i].image === "xpUp") {
+				iconNum = 16;
+			}
+			else if (Game.hero.statusEffects[i].image === "xpDown") {
+				iconNum = 17;
 			}
 			else { // no status effect image
 				iconNum = 3; // fire image used as placeholder
@@ -6199,16 +6233,16 @@ Game.saveProgress = function (saveType) { // if saveType is "auto" then the save
 		Player.oldPosition = Game.hero.oldPosition; // time travel
 		// re-link status effects (inefficient - tbd)
 		Player.statusEffects = Game.hero.statusEffects;
-		
+
 		// save everything in savedata.js
 		localStorage.setItem(Player.class, JSON.stringify(Player));
 		localStorage.setItem("user", JSON.stringify(User));
-		
+
 		clearTimeout(Game.saveTimeout); // clear the previous 60 second timeout to avoid saves being too often
 		Game.saveTimeout = setTimeout(function() {
 			Game.saveProgress("auto");
 		}, 60000); // save a minute after the current save
-		
+
 		// message to console
 		let time = new Date();
 		console.info((saveType === "auto" ? "AUTO" : "") + "SAVE AT " + (time.getHours() < 10 ? "0" : "") + time.getHours() + ":" + (time.getMinutes() < 10 ? "0" : "") + time.getMinutes() + ":" + (time.getSeconds() < 10 ? "0" : "") + time.getSeconds());

@@ -14,12 +14,12 @@ let Event = {
 		d.year = d.today.getFullYear();
 		return d;
 	},
-	
+
 	// init variables required for Areas definition (called straight away)
 	init: function () {
 		// get date
 		let d = this.getDate();
-		
+
 		// antorax age
 		this.antoraxAge = d.year - 2016; // used for some NPC texts (especially on Antorax Day)
 		if (d.day < 20 && d.month === 1) {
@@ -27,18 +27,18 @@ let Event = {
 			this.antoraxAge--;
 		}
 	},
-	
+
 	// update time (called on loadArea)
 	// areaName passed in as parameter because Game.areaName has not been set yet by laodArea
 	updateTime: function (areaName) {
 		// get date
 		let d = this.getDate();
-		
+
 		if (Areas[areaName].time !== undefined) {
 			// area always has a specific time
 			this.time = Areas[areaName].time;
 		}
-		
+
 		else if (d.day == 21 && d.month == 6) {
 			// Summer Solstice - sun up all day
 			this.time = "day";
@@ -47,7 +47,7 @@ let Event = {
 			// Winter Solstice - sun down all day
 			this.time = "night";
 		}
-		
+
 		else if (d.hour >= 7 && d.hour < 19) {
 			// day time
 			this.time = "day";
@@ -60,23 +60,23 @@ let Event = {
 			// night time
 			this.time = "night";
 		}
-		
+
 		this.updateDarkness(d); // update how dark the canvas is
 	},
-	
+
 	// update how dark the canvas is (called automatically by updateTime)
 	updateDarkness: function (d) {
 		// 0.40 darkness is max
 		// lights turn on at 0.20 darkness
-		
+
 		if (d === undefined) {
 			// no date parameter
 			// get date
 			let d = this.getDate();
 		}
-		
+
 		let timeDarkness = 0; // darkness due to time
-		
+
 		if (d.hour === 18 && d.minute > 30) {
 			timeDarkness = 0.2 - ((60 - d.minute) * 0.2 / 30);
 			// linear darkness progression from 18:30 to 19:00 of 0.00 to 0.20
@@ -101,7 +101,7 @@ let Event = {
 			// completely light
 			timeDarkness = 0;
 		}
-		
+
 		// if it is halloween and it is dark due to time, notify Game to make the sky blood dark for blood moon
 		// Game can't check Event.time because it isn't blood moon 30 mins before and after when it is getting dark
 		if (this.event === "Samhain" && timeDarkness > 0) {
@@ -110,9 +110,9 @@ let Event = {
 		else {
 			this.redSky = false;
 		}
-		
+
 		let weatherDarkness = 0; // darkness due to weather
-		
+
 		if (Weather.weatherType === "rain") {
 			weatherDarkness = 0.3 * (Weather.intensity / 150) / (Game.canvasArea / 36000);
 			// 0.30 darkness if the weather is at its hightest intensity
@@ -121,15 +121,15 @@ let Event = {
 			// completely light
 			weatherDarkness = 0;
 		}
-		
+
 		this.darkness = Math.max(timeDarkness, weatherDarkness); // take the darkest of the two
 	},
-	
+
 	// update event (called on loadArea)
 	updateEvent: function () {
 		// get date
 		let d = this.getDate();
-		
+
 		// James Day
 		// Summer Solstice
 		if (d.day === 21 && d.month === 6) {
@@ -174,16 +174,16 @@ const FishingLevels = {
 //
 
 var Areas = {
-	
+
 	tutorial: {
-		
+
 		data: {
 			name: "Fishers' Valley",
 			level: "Level 1 - 5",
 			territory: "Neutral",
 			displayOnEnter: true,
 		},
-		
+
 		indoors: false,
 
 		mapData: {
@@ -198,56 +198,55 @@ var Areas = {
 				[50, 1, 50, 2, 50, 1, 50, 50, 50, 50, 50, 50, 39, 24, 24, 4, 50, 1, 50, 50, 50, 50, 36, 50, 50, 5, 6, 7, 50, 50, 50, 50, 36, 50, 50, 50, 36, 50, 50, 50, 50, 50, 50, 50, 8, 50, 2, 50, 8, 50, 50, 50, 50, 26, 27, 39, 24, 38, 4, 50, 8, 50, 50, 50, 50, 50, 50, 50, 12, 13, 14, 50, 43, 50, 50, 50, 50, 36, 50, 50, 50, 50, 50, 50, 50, 50, 43, 15, 50, 2, 50, 15, 50, 26, 27, 50, 26, 27, 39, 24, 24, 4, 50, 15, 43, 50, 50, 50, 50, 50, 50, 50, 50, 50, 50, 50, 50, 50, 50, 36, 50, 50, 50, 50, 50, 50, 50, 43, 50, 27, 50, 50, 37, 2, 2, 2, 2, 2, 2, 2, 2, 10, 3, 3, 17, 2, 2, 2, 9, 50, 50, 50, 50, 50, 50, 50, 50, 50, 50, 50, 50, 50, 50, 50, 50, 50, 50, 50, 50, 50, 50, 50, 60, 26, 27, 50, 50, 50, 50, 50, 50, 50, 50, 50, 39, 24, 24, 4, 26, 27, 50, 50, 50, 50, 50, 50, 50, 50, 50, 50, 50, 19, 20, 21, 50, 50, 50, 50, 50, 50, 50, 50, 50, 50, 50, 4, 50, 50, 50, 50, 50, 50, 50, 26, 27, 43, 50, 39, 24, 24, 81, 32, 60, 50, 50, 50, 50, 50, 43, 50, 50, 50, 50, 50, 50, 22, 50, 50, 50, 50, 50, 50, 50, 50, 50, 50, 50, 50, 81, 60, 50, 50, 50, 50, 50, 26, 27, 50, 53, 32, 25, 24, 24, 24, 24, 81, 60, 50, 50, 50, 50, 50, 50, 50, 50, 5, 6, 7, 29, 43, 50, 50, 50, 50, 50, 50, 50, 50, 50, 50, 50, 24, 81, 32, 32, 32, 32, 32, 32, 32, 32, 25, 24, 24, 24, 24, 24, 24, 24, 81, 32, 60, 50, 50, 50, 50, 50, 50, 12, 13, 14, 50, 50, 50, 50, 50, 50, 50, 50, 50, 50, 36, 50, 50, 24, 24, 24, 24, 24, 24, 24, 38, 31, 24, 24, 24, 24, 24, 52, 45, 38, 24, 24, 24, 81, 32, 32, 60, 50, 50, 50, 50, 50, 50, 50, 50, 50, 50, 50, 50, 50, 50, 50, 50, 50, 50, 50, 31, 38, 24, 24, 24, 24, 24, 24, 24, 24, 24, 38, 52, 45, 52, 45, 45, 24, 31, 24, 24, 24, 24, 81, 32, 32, 32, 32, 32, 60, 50, 50, 50, 50, 50, 50, 50, 36, 50, 50, 50, 50, 36],
 				[],
 			],
-			interactWithTile: function(tileNum, x, y) { // pick up snowball from rock
-				if (tileNum === 6 && Event.event === "Christmas"){ // rock top centre
-					// give snowball to player
-					if (Dom.inventory.give(Items.bow[8], 1)) { // check if player has enough inventory space
-						if(Player.quests.questProgress.snowCollected === undefined){
-							Player.quests.questProgress.snowCollected = 1;
-						}else{
-							Player.quests.questProgress.snowCollected++;
+			interactWithTile: function(tileNum, x, y) {
+				// pick up snowball from rock
+				if (tileNum === 29 && Event.event === "Christmas") { // rock top centre
+					// channel for 1 second
+					Game.hero.channel(function () {
+						// give snowball to player
+						if (Dom.inventory.give(Items.bow[8], 1) !== false) { // check if player has enough inventory space
+							Player.quests.questProgress.snowCollected = Increment(Player.quests.questProgress.snowCollected);
+							Dom.checkProgress();
+							// replace tiles with no snow rocks
+							map.setTile(0, map.getCol(x), map.getRow(y), 59);
+							map.setTile(0, map.getCol(x + 60), map.getRow(y), 60);
+							map.setTile(0, map.getCol(x), map.getRow(y + 60), 69);
+							// add snow back after 5 minutes
+							setTimeout(function() {
+								SetTile("nilbog", 0, map.getCol(x), map.getRow(y), 29);
+								SetTile("nilbog", 0, map.getCol(x + 60), map.getRow(y), 30);
+								SetTile("nilbog", 0, map.getCol(x), map.getRow(y + 60), 39);
+							},60000);
 						}
-						Dom.checkProgress();
-						// replace tiles with no snow rocks
-						map.setTile(0, map.getCol(x), map.getRow(y), 34);
-						map.setTile(0, map.getCol(x + 60), map.getRow(y), 35);
-						map.setTile(0, map.getCol(x), map.getRow(y + 60), 41);
-						// add snow back after 5 minutes
-						setTimeout(function(){
-							SetTile("tutorial", 0, map.getCol(x), map.getRow(y), 6);
-							SetTile("tutorial", 0, map.getCol(x + 60), map.getRow(y), 7);
-							SetTile("tutorial", 0, map.getCol(x), map.getRow(y + 60), 13);
-						},60000);
-					}
+					}, [], 1000, "Making a Snowball");
 				}
-				else if (tileNum === 13 && Event.event === "Christmas") { // rock bottom centre
+				else if (tileNum === 39 && Event.event === "Christmas") { // rock bottom centre
+					// channel for 1 second
+					Game.hero.channel(function () {
 					// give snowball to player
-					if (Dom.inventory.give(Items.bow[8], 1)) { // check if player has enough inventory space
-						if(Player.quests.questProgress.snowCollected === undefined){
-							Player.quests.questProgress.snowCollected = 1;
-						}else{
-							Player.quests.questProgress.snowCollected++;
+						if (Dom.inventory.give(Items.bow[8], 1) !== false) { // check if player has enough inventory space
+							Player.quests.questProgress.snowCollected = Increment(Player.quests.questProgress.snowCollected);
+							Dom.checkProgress();
+							// replace tiles with no snow rocks
+							map.setTile(0, map.getCol(x), map.getRow(y - 60), 59);
+							map.setTile(0, map.getCol(x + 60), map.getRow(y - 60), 60);
+							map.setTile(0, map.getCol(x), map.getRow(y), 69);
+							// add snow back after 5 minutes
+							setTimeout(function() {
+								SetTile("nilbog", 0, map.getCol(x), map.getRow(y - 60), 29);
+								SetTile("nilbog", 0, map.getCol(x + 60), map.getRow(y - 60), 30);
+								SetTile("nilbog", 0, map.getCol(x), map.getRow(y), 39);
+							}, 60000);
 						}
-						Dom.checkProgress();
-						// replace tiles with no snow rocks
-						map.setTile(0, map.getCol(x), map.getRow(y - 60), 34);
-						map.setTile(0, map.getCol(x + 60), map.getRow(y - 60), 35);
-						map.setTile(0, map.getCol(x), map.getRow(y), 41);
-						// add snow back after 5 minutes
-						setTimeout(function(){
-							SetTile("tutorial", 0, map.getCol(x), map.getRow(y - 60), 6);
-							SetTile("tutorial", 0, map.getCol(x + 60), map.getRow(y - 60), 7);
-							SetTile("tutorial", 0, map.getCol(x), map.getRow(y), 13);
-						},60000);
-					}
+					}, [], 1000, "Making a Snowball");
 				}
 			},
 		},
-		
+
 		isIcy: function() {
 			return Event.event === "Christmas";
 		},
-		
+
 		images: {
 			tiles: {normal: "./assets/tilemap/tutorial.png", christmas: "./assets/tilemap/tutorial-christmas.png"},
 			driver: {normal: "./assets/npcs/driver.png"},
@@ -255,19 +254,19 @@ var Areas = {
 			cart: {normal: "./assets/objects/cartEaglecrest.png"},
 			fisherman: {normal: "./assets/npcs/tobenam.png"},
 		},
-		
+
 		song_day: "./assets/music/Pippin-the-Hunchback.mp3",
 		song_night: "./assets/music/Pippin-the-Hunchback-night.mp3",
-		
+
 		checkpoint: false,
 		player: {
 			x: 2297,
 			y: 387,
 		},
-		
+
 		lootArea: "loggingCamp",
 		lootTier: 1,
-		
+
 		areaTeleports: [
 			{
 				// teleport to logging camp (path - north)
@@ -280,7 +279,7 @@ var Areas = {
 				destinationY: 1100,
 			},
 		],
-		
+
 		tripwires: [
 			{
 				// instructions pop up when bridge is moved to
@@ -292,7 +291,7 @@ var Areas = {
 					// check that the "to the logging camp" quest has been started, weapon has been bought, and the instructions haven't been shown before
 					let questStarted = Player.quests.activeQuestArray.includes("To the Logging Camp");
 					let weaponBought = Dom.inventory.check(2, "sword", 1) || Dom.inventory.check(2, "staff", 1) || Dom.inventory.check(2, "bow", 1);
-					
+
 					if (questStarted && weaponBought && Player.unlockedInstructions.length < 3) {
 						Dom.instructions.page(2); // open instructions chapter 3
 					}
@@ -309,7 +308,7 @@ var Areas = {
 				}
 			}
 		],
-		
+
 		npcs: [
 			{
 				x: 2080,
@@ -325,7 +324,7 @@ var Areas = {
 				},
 				roles: [
 					{
-						quest: Quests.eaglecrestLoggingCamp[0], 
+						quest: Quests.eaglecrestLoggingCamp[0],
 						role: "questStart",
 					},
 				],
@@ -377,7 +376,7 @@ var Areas = {
 				},
 				roles: [
 					{
-						quest: Quests.eaglecrestLoggingCamp[7], 
+						quest: Quests.eaglecrestLoggingCamp[7],
 						role: "questStartFinish",
 					},
 					{
@@ -445,7 +444,7 @@ var Areas = {
 				},
 			},
 		],
-		
+
 		things: [
 			{
 				x: 2290,
@@ -454,7 +453,7 @@ var Areas = {
 				name: "Cart",
 			},
 		],
-		
+
 		chests: [
 			/*{
 				x: 1690,
@@ -467,7 +466,7 @@ var Areas = {
 				disappearAfterOpened: true,
 			},*/
 		],
-		
+
 		villagers: [
 			/*{
 				// out of date
@@ -486,7 +485,7 @@ var Areas = {
 				},
 			},*/
 		],
-		
+
 		enemies: [
 			/*{
 				x: 2200,
@@ -516,19 +515,19 @@ var Areas = {
 			}*/
 		],
 	},
-	
-	
+
+
 	eaglecrestLoggingCamp: {
-		
+
 		data: {
 			name: "Eaglecrest Logging Camp",
 			level: "Level 1 - 5",
 			territory: "Allied",
 			displayOnEnter: true,
 		},
-		
+
 		indoors: false,
-		
+
 		mapData: {
 			cols: 31,
 			rows: 20,
@@ -542,56 +541,55 @@ var Areas = {
 				[93, 93, 93, 93, 93, 93, 93, 93, 93, 93, 93, 10, 10, 10, 10, 10, 10, 10, 93, 93, 93, 51, 41, 59, 6, 93, 93, 93, 93, 93, 93, 93, 84, 93, 93, 93, 93, 93, 93, 25, 26, 93, 10, 46, 10, 28, 19, 46, 10, 93, 93, 93, 51, 68, 32, 6, 93, 93, 93, 93, 93, 93, 93, 93, 93, 93, 93, 93, 93, 25, 26, 93, 83, 10, 10, 10, 37, 10, 10, 10, 74, 93, 93, 51, 32, 30, 6, 84, 75, 93, 93, 93, 93, 93, 93, 93, 93, 93, 93, 93, 93, 93, 65, 2, 2, 2, 11, 2, 2, 2, 2, 2, 29, 3, 51, 32, 39, 6, 93, 93, 93, 93, 93, 93, 93, 93, 93, 93, 93, 93, 93, 93, 93, 56, 2, 2, 2, 2, 2, 2, 2, 11, 2, 29, 12, 51, 32, 48, 6, 93, 93, 93, 93, 93, 93, 93, 93, 93, 93, 93, 93, 93, 93, 84, 65, 2, 2, 2, 2, 2, 2, 2, 2, 2, 20, 21, 51, 50, 32, 6, 93, 93, 93, 93, 93, 93, 93, 93, 93, 93, 93, 93, 93, 25, 26, 65, 2, 2, 11, 2, 2, 2, 2, 2, 2, 29, 93, 51, 32, 32, 6, 93, 93, 93, 93, 93, 93, 93, 93, 93, 93, 93, 93, 93, 93, 93, 65, 2, 2, 2, 2, 2, 2, 2, 2, 2, 29, 93, 14, 5, 5, 23, 93, 93, 93, 93, 93, 93, 93, 93, 93, 93, 93, 93, 93, 93, 93, 65, 2, 2, 2, 2, 2, 2, 2, 2, 2, 29, 93, 51, 32, 32, 6, 93, 93, 93, 93, 93, 93, 93, 93, 93, 93, 93, 93, 93, 93, 93, 56, 2, 2, 2, 2, 2, 2, 2, 2, 2, 29, 93, 51, 32, 30, 6, 93, 75, 93, 93, 93, 69, 66, 93, 93, 93, 93, 93, 93, 93, 93, 56, 2, 2, 2, 2, 2, 2, 2, 11, 2, 20, 93, 51, 32, 39, 6, 75, 93, 93, 93, 69, 33, 93, 93, 57, 93, 93, 93, 57, 93, 93, 65, 2, 2, 2, 2, 2, 2, 2, 2, 2, 29, 93, 51, 41, 48, 6, 93, 93, 93, 93, 51, 32, 93, 93, 93, 93, 93, 93, 93, 93, 93, 93, 47, 47, 47, 38, 38, 38, 47, 47, 38, 93, 93, 51, 50, 41, 6, 93, 93, 84, 93, 51, 41, 93, 93, 93, 93, 66, 93, 93, 93, 93, 93, 93, 93, 93, 93, 93, 93, 93, 93, 93, 93, 93, 51, 32, 32, 6, 93, 93, 93, 93, 96, 24, 57, 93, 57, 93, 93, 93, 93, 93, 93, 93, 93, 3, 93, 93, 93, 93, 93, 3, 93, 93, 93, 51, 32, 32, 6, 93, 93, 93, 25, 26, 93, 93, 66, 93, 93, 93, 93, 93, 84, 93, 93, 93, 12, 93, 93, 93, 93, 93, 12, 93, 93, 93, 51, 32, 32, 6, 93, 93, 93, 93, 93, 93, 93, 93, 93, 93, 93, 57, 93, 93, 93, 93, 93, 21, 93, 93, 93, 93, 93, 21, 25, 26, 93, 51, 32, 59, 6, 93, 93, 93, 93, 93, 93, 93, 93, 93, 93, 93, 93, 93, 93, 93, 93, 93, 93, 93, 93, 22, 93, 93, 93, 93, 93, 93, 51, 41, 32, 6, 93, 93, 75, 93, 93, 93, 93, 93, 57, 93, 93, 93, 93, 93, 25, 26, 93, 93, 93, 93, 4, 93, 93, 93, 7, 8, 9, 51, 32, 32, 6, 93, 84, 93, 93, 93, 93, 93, 93, 93, 93, 93, 93, 93, 25, 26, 93, 25, 26, 93, 93, 4, 93, 93, 84, 16, 17, 18, 51, 32, 50, 6, 93, 93, 93, 75, 93, 93],
 				[],
 			],
-			interactWithTile: function(tileNum, x, y) { // pick up snowball from rock
-				if (tileNum === 8 && Event.event === "Christmas"){ // rock top centre
-					// give snowball to player
-					if (Dom.inventory.give(Items.bow[8], 1)) { // check if player has enough inventory space
-						if(Player.quests.questProgress.snowCollected === undefined){
-							Player.quests.questProgress.snowCollected = 1;
-						}else{
-							Player.quests.questProgress.snowCollected++;
+			interactWithTile: function(tileNum, x, y) {
+				// pick up snowball from rock
+				if (tileNum === 29 && Event.event === "Christmas") { // rock top centre
+					// channel for 1 second
+					Game.hero.channel(function () {
+						// give snowball to player
+						if (Dom.inventory.give(Items.bow[8], 1) !== false) { // check if player has enough inventory space
+							Player.quests.questProgress.snowCollected = Increment(Player.quests.questProgress.snowCollected);
+							Dom.checkProgress();
+							// replace tiles with no snow rocks
+							map.setTile(0, map.getCol(x), map.getRow(y), 59);
+							map.setTile(0, map.getCol(x + 60), map.getRow(y), 60);
+							map.setTile(0, map.getCol(x), map.getRow(y + 60), 69);
+							// add snow back after 5 minutes
+							setTimeout(function() {
+								SetTile("nilbog", 0, map.getCol(x), map.getRow(y), 29);
+								SetTile("nilbog", 0, map.getCol(x + 60), map.getRow(y), 30);
+								SetTile("nilbog", 0, map.getCol(x), map.getRow(y + 60), 39);
+							},60000);
 						}
-						Dom.checkProgress();
-						// replace tiles with no snow rocks
-						map.setTile(0, map.getCol(x), map.getRow(y), 35);
-						map.setTile(0, map.getCol(x + 60), map.getRow(y), 36);
-						map.setTile(0, map.getCol(x), map.getRow(y + 60), 44);
-						// add snow back after 5 minutes
-						setTimeout(function(){
-							SetTile("eaglecrestLoggingCamp", 0, map.getCol(x), map.getRow(y), 8);
-							SetTile("eaglecrestLoggingCamp", 0, map.getCol(x + 60), map.getRow(y), 9);
-							SetTile("eaglecrestLoggingCamp", 0, map.getCol(x), map.getRow(y + 60), 17);
-						},60000);
-					}
+					}, [], 1000, "Making a Snowball");
 				}
-				else if (tileNum === 17 && Event.event === "Christmas") { // rock bottom centre
-					// give snowball to player
-					if (Dom.inventory.give(Items.bow[8], 1)) { // check if player has enough inventory space
-						if(Player.quests.questProgress.snowCollected === undefined){
-							Player.quests.questProgress.snowCollected = 1;
-						}else{
-							Player.quests.questProgress.snowCollected++;
+				else if (tileNum === 39 && Event.event === "Christmas") { // rock bottom centre
+					// channel for 1 second
+					Game.hero.channel(function () {
+						// give snowball to player
+						if (Dom.inventory.give(Items.bow[8], 1) !== false) { // check if player has enough inventory space
+							Player.quests.questProgress.snowCollected = Increment(Player.quests.questProgress.snowCollected);
+							Dom.checkProgress();
+							// replace tiles with no snow rocks
+							map.setTile(0, map.getCol(x), map.getRow(y - 60), 59);
+							map.setTile(0, map.getCol(x + 60), map.getRow(y - 60), 60);
+							map.setTile(0, map.getCol(x), map.getRow(y), 69);
+							// add snow back after 5 minutes
+							setTimeout(function() {
+								SetTile("nilbog", 0, map.getCol(x), map.getRow(y - 60), 29);
+								SetTile("nilbog", 0, map.getCol(x + 60), map.getRow(y - 60), 30);
+								SetTile("nilbog", 0, map.getCol(x), map.getRow(y), 39);
+							}, 60000);
 						}
-						Dom.checkProgress();
-						// replace tiles with no snow rocks
-						map.setTile(0, map.getCol(x), map.getRow(y - 60), 35);
-						map.setTile(0, map.getCol(x + 60), map.getRow(y - 60), 36);
-						map.setTile(0, map.getCol(x), map.getRow(y), 44);
-						// add snow back after 5 minutes
-						setTimeout(function(){
-							SetTile("eaglecrestLoggingCamp", 0, map.getCol(x), map.getRow(y - 60), 8);
-							SetTile("eaglecrestLoggingCamp", 0, map.getCol(x + 60), map.getRow(y - 60), 9);
-							SetTile("eaglecrestLoggingCamp", 0, map.getCol(x), map.getRow(y), 17);
-						},60000);
-					}
+					}, [], 1000, "Making a Snowball");
 				}
 			},
 		},
-		
+
 		isIcy: function() {
 			return Event.event === "Christmas";
 		},
-		
+
 		images: {
 			tiles: {normal: "./assets/tilemap/loggingCamp.png", christmas: "./assets/tilemap/loggingCamp-christmas.png"},
 			teper: {normal: "./assets/npcs/teper.png"},
@@ -614,19 +612,19 @@ var Areas = {
 			cart: {normal: "./assets/objects/cartEaglecrest2.png"},
 			driver: {normal: "./assets/npcs/alaran.png"},
 		},
-		
+
 		song_day: "./assets/music/Pippin-the-Hunchback.mp3",
 		song_night: "./assets/music/Pippin-the-Hunchback-night.mp3",
-		
+
 		checkpoint: true,
 		player: {
 			x: 717,
 			y: 208,
 		},
-		
+
 		lootArea: "loggingCamp",
 		lootTier: 1,
-		
+
 		onAreaTeleport: function () {
 			// start instructions chapter 4 if the player hasn't already
 			if (Player.unlockedInstructions.length < 4) {
@@ -635,7 +633,7 @@ var Areas = {
 				Dom.instructions.unlockTab("chat");
 			}
 		},
-		
+
 		areaTeleports: [
 			{
 				// teleport to fishers' valley (path - south)
@@ -676,7 +674,7 @@ var Areas = {
 				}
 			},
 		],
-		
+
 		npcs: [
 			{
 				// id: 0,
@@ -792,19 +790,19 @@ var Areas = {
 				},
 				roles: [
 					{
-						quest: Quests.eaglecrestLoggingCamp[1], 
+						quest: Quests.eaglecrestLoggingCamp[1],
 						role: "questFinish"
 					},
 					{
-						quest: Quests.eaglecrestLoggingCamp[2], 
+						quest: Quests.eaglecrestLoggingCamp[2],
 						role: "questStartFinish"
 					},
 					{
-						quest: Quests.eaglecrestLoggingCamp[16], 
+						quest: Quests.eaglecrestLoggingCamp[16],
 						role: "questStartFinish"
 					},
 					{
-						quest: Quests.eaglecrestLoggingCamp[18], 
+						quest: Quests.eaglecrestLoggingCamp[18],
 						role: "questStartFinish"
 					},
 					{
@@ -848,7 +846,7 @@ var Areas = {
 				},
 				roles: [
 					{
-						quest: Quests.eaglecrestLoggingCamp[6], 
+						quest: Quests.eaglecrestLoggingCamp[6],
 						role: "questStartFinish"
 					},
 				],
@@ -876,7 +874,7 @@ var Areas = {
 				},
 				roles: [
 					{
-						quest: Quests.eaglecrestLoggingCamp[13], 
+						quest: Quests.eaglecrestLoggingCamp[13],
 						role: "questStartFinish"
 					},
 					{
@@ -951,7 +949,7 @@ var Areas = {
 						},
 					},
 					{
-						quest: Quests.eaglecrestLoggingCamp[10], 
+						quest: Quests.eaglecrestLoggingCamp[10],
 						role: "questStartFinish"
 					},
 					{
@@ -985,11 +983,11 @@ var Areas = {
 				},
 				roles: [
 					{
-						quest: Quests.eaglecrestLoggingCamp[8], 
+						quest: Quests.eaglecrestLoggingCamp[8],
 						role: "questStartFinish"
 					},
 					{
-						quest: Quests.eaglecrestLoggingCamp[9], 
+						quest: Quests.eaglecrestLoggingCamp[9],
 						role: "questStartFinish"
 					},
 					{
@@ -1069,7 +1067,7 @@ var Areas = {
 						},
 					},
 					{
-						quest: Quests.eaglecrestLoggingCamp[12], 
+						quest: Quests.eaglecrestLoggingCamp[12],
 						role: "questStartFinish"
 					},
 					{
@@ -1128,11 +1126,11 @@ var Areas = {
 				},
 				roles: [
 					{
-						quest: Quests.eaglecrestLoggingCamp[14], 
+						quest: Quests.eaglecrestLoggingCamp[14],
 						role: "questStartFinish"
 					},
 					{
-						quest: Quests.eaglecrestLoggingCamp[15], 
+						quest: Quests.eaglecrestLoggingCamp[15],
 						role: "questStartFinish"
 					},
 					{
@@ -1206,7 +1204,7 @@ var Areas = {
 				},
 			},
 		],
-		
+
 		dummies: [
 			{
 				x: 230,
@@ -1225,7 +1223,7 @@ var Areas = {
 				},
 			},
 		],
-		
+
 		mailboxes: [
 			{
 				x: 626,
@@ -1245,7 +1243,7 @@ var Areas = {
 				},
 			},
 		],
-		
+
 		things: [
 			{
 				x: 100,
@@ -1263,49 +1261,49 @@ var Areas = {
 					return Event.event === "Christmas";
 				},
 				// change colour!
-				onLoad: function () {
-					if (Game.areaName === "eaglecrestLoggingCamp") {
-						// increase number of ticks
-						if (this.timeoutTicks === undefined || this.timeoutTicks >= 20) {
-							this.timeoutTicks = 1;
-						}
-						else {
-							this.timeoutTicks++;
-						}
-						// alternate image
-						// the first time this is called, imageName is undefined so the iamge is not changed
-						if (this.imageName === "lightsRB") {
-							this.image = Loader.getImage("lightsGY");
-							this.imageName = "lightsGY";
-						}
-						else if (this.imageName === "lightsGY") {
-							this.image = Loader.getImage("lightsRB");
-							this.imageName = "lightsRB";
-						}
-						// set another timeout
-						let timeoutTime = 1100;
-						if (this.timeoutTicks > 10) {
-							timeoutTime = 250;
-						}
-						setTimeout(this.onLoad.bind(this), timeoutTime);
+				animateFunction: function () {
+					// increase number of ticks
+					if (this.timeoutTicks === undefined || this.timeoutTicks >= 20) {
+						this.timeoutTicks = 1;
+					}
+					else {
+						this.timeoutTicks++;
+					}
+					// alternate image
+					// the first time this is called, imageName is undefined so the image is not changed
+					if (this.imageName === "lightsRB") {
+						this.image = Loader.getImage("lightsGY");
+						this.imageName = "lightsGY";
+					}
+					else if (this.imageName === "lightsGY") {
+						this.image = Loader.getImage("lightsRB");
+						this.imageName = "lightsRB";
+					}
+					// time for next animation frame
+					if (this.timeoutTicks > 10) {
+						this.animationFrameTime = 250;
+					}
+					else {
+						this.animationFrameTime = 1250; // formerly 1100
 					}
 				},
+				animationFrameTime: 1250, // formerly 1100
 			},
 		],
 	},
-	
-	
+
+
 	tavern: {
-		
+
 		data: {
 			name: "Treefellers' Tavern",
 			level: "",
 			territory: "",
 			displayOnEnter: true,
 		},
-		
+
 		indoors: true,
-		
+
 		mapData: {
 			cols: 12,
 			rows: 12,
@@ -1317,12 +1315,12 @@ var Areas = {
 				[],
 			],
 		},
-		
+
 		images: {
 			tiles: {normal: "./assets/tilemap/tavern.png"},
 			innkeeper: {normal: "./assets/npcs/gregor.png"},
 		},
-		
+
 		areaTeleports: [
 			{
 				x: 331,
@@ -1334,14 +1332,14 @@ var Areas = {
 				destinationY: 200,
 			},
 		],
-		
+
 		song_day: "./assets/music/Tavern.mp3",
 		song_night: "./assets/music/Tavern.mp3",
-		
+
 		checkpoint: false, // probably in the future taverns should be the ONLY checkpoints
-		
+
 		lootArea: "loggingCamp", // for level up music
-		
+
 		npcs: [
 			{
 				x: 165,
@@ -1357,7 +1355,7 @@ var Areas = {
 				},
 				roles: [
 					{
-						quest: Quests.tavern[0], 
+						quest: Quests.tavern[0],
 						role: "questStartFinish",
 					},
 					{
@@ -1389,18 +1387,18 @@ var Areas = {
 				},
 			},
 		],
-		
+
 	},
-	
+
 	nilbog: {
-		
+
 		data: {
 			name: "The Nilbog",
 			level: "Level 2 - 5",
 			territory: "Hostile",
 			displayOnEnter: true,
 		},
-		
+
 		indoors: false,
 
 		mapData: {
@@ -1421,71 +1419,75 @@ var Areas = {
 			],
 			interactWithTile: function(tileNum, x, y) { // pick up logs
 				if (tileNum === 48) { // left side of log stack
-					// give log item to player
-					if (Dom.inventory.give(Items.item[2], 1) !== false) { // check if player has enough inventory space
-						// replace tiles with grass
-						map.setTile(0, map.getCol(x), map.getRow(y), 102);
-						map.setTile(0, map.getCol(x + 60), map.getRow(y), 102);
-					}
+					// channel for 1 second
+					Game.hero.channel(function () {
+						// give log item to player
+						if (Dom.inventory.give(Items.item[2], 1) !== false) { // check if player has enough inventory space
+							// replace tiles with grass
+							map.setTile(0, map.getCol(x), map.getRow(y), 102);
+							map.setTile(0, map.getCol(x + 60), map.getRow(y), 102);
+						}
+					}, [], 1000, "Retrieving Logs");
 				}
 				else if (tileNum === 49) { // right side of log stack
-					// give log item to player
-					if (Dom.inventory.give(Items.item[2], 1) !== false) { // check if player has enough inventory space
-						// replace tiles with grass
-						map.setTile(0, map.getCol(x), map.getRow(y), 102);
-						map.setTile(0, map.getCol(x - 60), map.getRow(y), 102);
-					}
+					// channel for 1 second
+					Game.hero.channel(function () {
+						// give log item to player
+						if (Dom.inventory.give(Items.item[2], 1) !== false) { // check if player has enough inventory space
+							// replace tiles with grass
+							map.setTile(0, map.getCol(x), map.getRow(y), 102);
+							map.setTile(0, map.getCol(x - 60), map.getRow(y), 102);
+						}
+					}, [], 1000, "Retrieving Logs");
 				}
 				// pick up snowball from rock
-				else if (tileNum === 29 && Event.event === "Christmas"){ // rock top centre
-					// give snowball to player
-					if (Dom.inventory.give(Items.bow[8], 1) !== false) { // check if player has enough inventory space
-						if(Player.quests.questProgress.snowCollected === undefined){
-							Player.quests.questProgress.snowCollected = 1;
-						}else{
-							Player.quests.questProgress.snowCollected++;
+				else if (tileNum === 29 && Event.event === "Christmas") { // rock top centre
+					// channel for 1 second
+					Game.hero.channel(function () {
+						// give snowball to player
+						if (Dom.inventory.give(Items.bow[8], 1) !== false) { // check if player has enough inventory space
+							Player.quests.questProgress.snowCollected = Increment(Player.quests.questProgress.snowCollected);
+							Dom.checkProgress();
+							// replace tiles with no snow rocks
+							map.setTile(0, map.getCol(x), map.getRow(y), 59);
+							map.setTile(0, map.getCol(x + 60), map.getRow(y), 60);
+							map.setTile(0, map.getCol(x), map.getRow(y + 60), 69);
+							// add snow back after 5 minutes
+							setTimeout(function() {
+								SetTile("nilbog", 0, map.getCol(x), map.getRow(y), 29);
+								SetTile("nilbog", 0, map.getCol(x + 60), map.getRow(y), 30);
+								SetTile("nilbog", 0, map.getCol(x), map.getRow(y + 60), 39);
+							},60000);
 						}
-						Dom.checkProgress();
-						// replace tiles with no snow rocks
-						map.setTile(0, map.getCol(x), map.getRow(y), 59);
-						map.setTile(0, map.getCol(x + 60), map.getRow(y), 60);
-						map.setTile(0, map.getCol(x), map.getRow(y + 60), 69);
-						// add snow back after 5 minutes
-						setTimeout(function(){
-							SetTile("nilbog", 0, map.getCol(x), map.getRow(y), 29);
-							SetTile("nilbog", 0, map.getCol(x + 60), map.getRow(y), 30);
-							SetTile("nilbog", 0, map.getCol(x), map.getRow(y + 60), 39);
-						},60000);
-					}
+					}, [], 1000, "Making a Snowball");
 				}
 				else if (tileNum === 39 && Event.event === "Christmas") { // rock bottom centre
+					// channel for 1 second
+					Game.hero.channel(function () {
 					// give snowball to player
-					if (Dom.inventory.give(Items.bow[8], 1) !== false) { // check if player has enough inventory space
-						if(Player.quests.questProgress.snowCollected === undefined){
-							Player.quests.questProgress.snowCollected = 1;
-						}else{
-							Player.quests.questProgress.snowCollected++;
+						if (Dom.inventory.give(Items.bow[8], 1) !== false) { // check if player has enough inventory space
+							Player.quests.questProgress.snowCollected = Increment(Player.quests.questProgress.snowCollected);
+							Dom.checkProgress();
+							// replace tiles with no snow rocks
+							map.setTile(0, map.getCol(x), map.getRow(y - 60), 59);
+							map.setTile(0, map.getCol(x + 60), map.getRow(y - 60), 60);
+							map.setTile(0, map.getCol(x), map.getRow(y), 69);
+							// add snow back after 5 minutes
+							setTimeout(function() {
+								SetTile("nilbog", 0, map.getCol(x), map.getRow(y - 60), 29);
+								SetTile("nilbog", 0, map.getCol(x + 60), map.getRow(y - 60), 30);
+								SetTile("nilbog", 0, map.getCol(x), map.getRow(y), 39);
+							}, 60000);
 						}
-						Dom.checkProgress();
-						// replace tiles with no snow rocks
-						map.setTile(0, map.getCol(x), map.getRow(y - 60), 59);
-						map.setTile(0, map.getCol(x + 60), map.getRow(y - 60), 60);
-						map.setTile(0, map.getCol(x), map.getRow(y), 69);
-						// add snow back after 5 minutes
-						setTimeout(function(){
-							SetTile("nilbog", 0, map.getCol(x), map.getRow(y - 60), 29);
-							SetTile("nilbog", 0, map.getCol(x + 60), map.getRow(y - 60), 30);
-							SetTile("nilbog", 0, map.getCol(x), map.getRow(y), 39);
-						},60000);
-					}
+					}, [], 1000, "Making a Snowball");
 				}
 			},
 		},
-		
+
 		isIcy: function() {
 			return Event.event === "Christmas";
 		},
-		
+
 		images: {
 			tiles: {normal: "./assets/tilemap/nilbog.png", christmas: "./assets/tilemap/nilbog-christmas.png"},
 			goblinRockthrower: {normal: "./assets/enemies/goblinRockthrower.png"},
@@ -1502,15 +1504,15 @@ var Areas = {
 			ghost: {samhain: "./assets/npcs/ghost.png"},
 			lootChest: {normal: "./assets/objects/chest.png"},
 		},
-		
+
 		song_day: "./assets/music/Pippin-the-Hunchback.mp3",
 		song_night: "./assets/music/Pippin-the-Hunchback-night.mp3",
-		
+
 		checkpoint: false,
-		
+
 		lootArea: "loggingCamp",
 		lootTier: 1,
-		
+
 		chestData: {
 			spawnLocations: [
 				{x: 576, y: 30,},
@@ -1525,7 +1527,7 @@ var Areas = {
 			lootTableTemplate: [ChestLootTables.nilbog],
 			inventorySpace: 16,
 		},
-		
+
 		areaTeleports: [
 			{
 				// teleport to logging camp (bridge - west)
@@ -1552,7 +1554,7 @@ var Areas = {
 				teleportFailText: "<strong>The Nilbog Tower</strong> is a dangerous area. Wait until you're a bit stronger.",
 			},
 		],
-		
+
 		npcs: [
 			{
 				x: 1078,
@@ -1568,11 +1570,11 @@ var Areas = {
 				},
 				roles: [
 					{
-						quest: Quests.eaglecrestLoggingCamp[11], 
+						quest: Quests.eaglecrestLoggingCamp[11],
 						role: "questStartFinish"
 					},
 					{
-						quest: Quests.eaglecrestLoggingCamp[21], 
+						quest: Quests.eaglecrestLoggingCamp[21],
 						role: "questStartFinish"
 					},
 				],
@@ -1624,7 +1626,7 @@ var Areas = {
 				},
 			},
 		],
-		
+
 		chests: [
 			{
 				x: 1380,
@@ -1643,7 +1645,7 @@ var Areas = {
 				},
 			},
 		],
-		
+
 		enemies: [
 			{
 				x: 1310, // at goblin camp
@@ -1690,19 +1692,19 @@ var Areas = {
 				template: EnemyTemplates.nilbog.fireGoblin,
 			},
 		],
-		
+
 		things: [], // for traps to be shown
 	},
-	
+
 	nilbogPast: {
-		
+
 		data: {
 			name: "The Nilbog",
 			level: (250+Event.antoraxAge) + " years ago...",
 			territory: "Hostile",
 			displayOnEnter: true,
 		},
-		
+
 		// timey wimey stuff
 		timeTravel: true, // cloudy border
 		weather: "clear", // TBD rainy?
@@ -1722,7 +1724,7 @@ var Areas = {
 				[],
 			],
 		},
-		
+
 		images: {
 			tiles: {normal: "./assets/tilemap/nilbogPast.png"},
 			tatteredKnight: {normal: "./assets/enemies/tatteredKnight.png"},
@@ -1731,14 +1733,14 @@ var Areas = {
 			mailbox: {normal: "./assets/objects/mailbox.png"},
 			mailboxUnread: {normal: "./assets/objects/mailboxUnread.png"},
 		},
-		
+
 		song_day: "./assets/music/Pippin-the-Hunchback-boss.mp3",
-		
+
 		checkpoint: false,
-		
+
 		lootArea: "loggingCamp",
 		lootTier: 1,
-		
+
 		mailboxes: [
 			{
 				x: 460,
@@ -1748,7 +1750,7 @@ var Areas = {
 				name: "Mailbox",
 			},
 		],
-		
+
 		enemies: [
 			{
 				x: 300,
@@ -1756,7 +1758,7 @@ var Areas = {
 				template: EnemyTemplates.nilbog.tatteredKnight,
 			},
 		],
-		
+
 		onDeath: function () {
 			// abandon "The Legend of the Tattered Knight" quest (it can be started again from the mail)
 			for (let i = 0; i < Player.quests.activeQuestArray.length; i++) {
@@ -1767,21 +1769,21 @@ var Areas = {
 			}
 			Dom.quests.active();
 			Dom.quests.possible();
-			
+
 			// chat message to let them know
 			Dom.chat.insert("Your quest was abandoned. Re-open the mail message to have another attempt.", 0, true, false); // important param = true
 		},
 	},
-	
+
 	nilbogTower1: {
-		
+
 		data: {
 			name: "Nilbog Tower",
 			level: "Level 3 - 5",
 			territory: "Hostile",
 			displayOnEnter: true,
 		},
-		
+
 		indoors: true,
 
 		mapData: {
@@ -1795,7 +1797,7 @@ var Areas = {
 				[],
 			],
 		},
-		
+
 		images: {
 			tiles: {normal: "./assets/tilemap/nilbogTower.png"},
 			stairs: {normal: "./assets/objects/stairs.png"},
@@ -1804,14 +1806,14 @@ var Areas = {
 			goblinCorpse: {normal: "./assets/corpses/deadGoblin.png"},
 			melee: {normal: "./assets/projectiles/melee.png"},
 		},
-		
+
 		song_day: "./assets/music/Pippin-the-Hunchback.mp3",
-		
+
 		checkpoint: false,
-		
+
 		lootArea: "loggingCamp",
 		lootTier: 1,
-		
+
 		areaTeleports: [
 			{
 				// teleport to nilbog (bottom of tower)
@@ -1834,7 +1836,7 @@ var Areas = {
 				destinationY: 560,
 			},
 		],
-		
+
 		onAreaTeleport: function () {
 			// stair animations
 			if (Game.hero.y < 100) {
@@ -1847,7 +1849,7 @@ var Areas = {
 				};
 			}
 		},
-		
+
 		things: [
 			{
 				x: 468,
@@ -1856,7 +1858,7 @@ var Areas = {
 				name: "Stairs",
 			},
 		],
-		
+
 		infoPoints: [
 			{
 				x: 546,
@@ -1866,7 +1868,7 @@ var Areas = {
 				onTouchChat: "A painting of Wizard Andrews, one of the most accompished wizards that has ever been known. This tower used to be his, but was overrun by goblins after he left to persue his life of wizardry."
 			},
 		],
-		
+
 		collisions: [
 			{
 				x: 600, // bottom of stairs
@@ -1875,7 +1877,7 @@ var Areas = {
 				height: 50,
 			},
 		],
-		
+
 		tripwires: [
 			{
 				// going to top of stairs
@@ -1897,7 +1899,7 @@ var Areas = {
 				}
 			}
 		],
-		
+
 		enemies: [
 			{
 				x: 150,
@@ -1911,16 +1913,16 @@ var Areas = {
 			},
 		],
 	},
-	
+
 	nilbogTower2: {
-		
+
 		data: {
 			name: "Nilbog Tower",
 			level: "Level 3 - 5",
 			territory: "Hostile",
 			displayOnEnter: false,
 		},
-		
+
 		indoors: true,
 
 		mapData: {
@@ -1929,12 +1931,12 @@ var Areas = {
 			tsize: 60,
 			tilesPerRow: 4,
 			solidTiles: [1, 2, 3, 5, 6, 7, 8, 9, 10, 12], // walls & downwards stairs
-			layers: [    
+			layers: [
 				[10, 8, 12, 9, 10, 8, 12, 9, 10, 9, 8, 12, 8, 12, 8, 12, 8, 12, 8, 12, 10, 9, 10, 9, 10, 9, 10, 9, 10, 9, 4, 11, 11, 11, 11, 11, 11, 11, 11, 11, 11, 11, 11, 11, 4, 11, 11, 11, 11, 4, 11, 4, 11, 11, 11, 11, 4, 11, 11, 11, 11, 11, 11, 11, 11, 11, 11, 11, 11, 11, 11, 11, 11, 4, 11, 11, 11, 11, 11, 4, 11, 11, 11, 11, 11, 4, 11, 11, 11, 11, 11, 6, 7, 11, 11, 11, 11, 11, 4, 11],
 				[],
 			],
 		},
-		
+
 		images: {
 			tiles: {normal: "./assets/tilemap/nilbogTower.png"},
 			stairs: {normal: "./assets/objects/stairs.png"},
@@ -1945,14 +1947,14 @@ var Areas = {
 			melee: {normal: "./assets/projectiles/melee.png"},
 			lootChest: {normal: "./assets/objects/chestTower.png"},
 		},
-		
+
 		song_day: "./assets/music/Pippin-the-Hunchback.mp3",
-		
+
 		checkpoint: false,
-		
+
 		lootArea: "loggingCamp",
 		lootTier: 1,
-		
+
 		chestData: {
 			spawnLocations: [
 				{x: 450, y: 475,},
@@ -1964,7 +1966,7 @@ var Areas = {
 			inventorySpace: 16,
 			chestKey: Items.item[18],
 		},
-		
+
 		areaTeleports: [
 			{
 				// teleport to floor 1
@@ -1987,7 +1989,7 @@ var Areas = {
 				destinationY: 560,
 			},
 		],
-		
+
 		onAreaTeleport: function () {
 			// stair animations
 			if (Game.hero.y > 540) {
@@ -2009,7 +2011,7 @@ var Areas = {
 				};
 			}
 		},
-		
+
 		things: [
 			{
 				x: 468,
@@ -2018,7 +2020,7 @@ var Areas = {
 				name: "Stairs",
 			},
 		],
-		
+
 		infoPoints: [
 			{
 				x: 546,
@@ -2028,7 +2030,7 @@ var Areas = {
 				onTouchChat: "A painting of Scorched Azuras, the scarred lands that were once an incredible forest. The trees were burnt down and the ground scored by a group of fire orcs, whom Andrews could not stop as a young wizard. To this day he still regrets he was unable to do something to stop them."
 			},
 		],
-		
+
 		collisions: [
 			{
 				x: 600, // bottom of stairs
@@ -2037,7 +2039,7 @@ var Areas = {
 				height: 50,
 			},
 		],
-		
+
 		tripwires: [
 			{
 				// going to bottom
@@ -2078,7 +2080,7 @@ var Areas = {
 				}
 			},
 		],
-		
+
 		enemies: [
 			{
 				x: 200,
@@ -2092,16 +2094,16 @@ var Areas = {
 			},
 		],
 	},
-	
+
 	nilbogTower3: {
-		
+
 		data: {
 			name: "Nilbog Tower Library",
 			level: "Level 3 - 5",
 			territory: "Hostile",
 			displayOnEnter: false,
 		},
-		
+
 		indoors: true,
 
 		mapData: {
@@ -2110,12 +2112,12 @@ var Areas = {
 			tsize: 60,
 			tilesPerRow: 4,
 			solidTiles: [1, 2, 3, 5, 6, 7, 8, 9, 10, 12], // walls & downwards stairs
-			layers: [    
+			layers: [
 				[10, 8, 12, 9, 10, 8, 12, 9, 10, 9, 1, 2, 8, 12, 1, 2, 8, 12, 1, 2, 3, 5, 10, 9, 3, 5, 10, 9, 3, 5, 11, 4, 11, 11, 11, 11, 11, 11, 11, 11, 11, 11, 11, 4, 11, 11, 11, 11, 11, 11, 11, 11, 11, 11, 11, 11, 11, 11, 11, 11, 11, 11, 4, 11, 11, 11, 11, 4, 11, 11, 11, 11, 11, 11, 4, 11, 11, 11, 11, 11, 11, 11, 11, 11, 11, 11, 11, 4, 11, 4, 11, 6, 7, 11, 11, 4, 11, 11, 11, 11],
 				[],
 			],
 		},
-		
+
 		images: {
 			tiles: {normal: "./assets/tilemap/nilbogTower.png"},
 			stairs: {normal: "./assets/objects/stairs.png"},
@@ -2125,14 +2127,14 @@ var Areas = {
 			goblinCorpse: {normal: "./assets/corpses/deadGoblin.png"},
 			melee: {normal: "./assets/projectiles/melee.png"},
 		},
-		
+
 		song_day: "./assets/music/Pippin-the-Hunchback.mp3",
-		
+
 		checkpoint: false,
-		
+
 		lootArea: "loggingCamp",
 		lootTier: 1,
-		
+
 		areaTeleports: [
 			{
 				// teleport to floor 2
@@ -2155,7 +2157,7 @@ var Areas = {
 				destinationY: 560,
 			},
 		],
-		
+
 		onAreaTeleport: function () {
 			// stair animations
 			if (Game.hero.y > 540) {
@@ -2177,7 +2179,7 @@ var Areas = {
 				};
 			}
 		},
-		
+
 		things: [
 			{
 				x: 468,
@@ -2186,7 +2188,7 @@ var Areas = {
 				name: "Stairs",
 			},
 		],
-		
+
 		infoPoints: [
 			{
 				x: 537,
@@ -2196,7 +2198,7 @@ var Areas = {
 				onTouchChat: "A painting of Wizard Andrews with the Lady of Autumn, in the Forest of the Hundred Trees, Elven Woodlands. Andrews was blessed by the elves on this day for his help in the defense of Woodreach against the vampire-elf Mroll."
 			},
 		],
-		
+
 		collisions: [
 			{
 				x: 600, // bottom of stairs
@@ -2205,7 +2207,7 @@ var Areas = {
 				height: 50,
 			},
 		],
-		
+
 		tripwires: [
 			{
 				// going to bottom
@@ -2246,7 +2248,7 @@ var Areas = {
 				}
 			},
 		],
-		
+
 		enemies: [
 			{
 				x: 270,
@@ -2265,16 +2267,16 @@ var Areas = {
 			},
 		],
 	},
-	
+
 	nilbogTower4: {
-		
+
 		data: {
 			name: "Nilbog Tower",
 			level: "Level 3 - 5",
 			territory: "Hostile",
 			displayOnEnter: false,
 		},
-		
+
 		indoors: true,
 
 		mapData: {
@@ -2283,12 +2285,12 @@ var Areas = {
 			tsize: 60,
 			tilesPerRow: 4,
 			solidTiles: [1, 2, 3, 5, 6, 7, 8, 9, 10, 12], // walls & downwards stairs
-			layers: [    
+			layers: [
 				[10, 8, 12, 9, 10, 8, 12, 9, 10, 9, 8, 12, 8, 12, 8, 12, 8, 12, 8, 12, 10, 9, 10, 9, 10, 9, 10, 9, 10, 9, 11, 11, 11, 11, 11, 11, 11, 11, 11, 11, 11, 4, 11, 11, 11, 11, 11, 11, 11, 11, 11, 11, 11, 11, 11, 11, 11, 11, 4, 11, 11, 11, 11, 11, 11, 11, 11, 11, 11, 11, 11, 11, 11, 11, 11, 11, 11, 11, 11, 11, 11, 11, 11, 11, 11, 4, 11, 11, 11, 11, 11, 6, 7, 11, 11, 11, 11, 11, 11, 11],
 				[],
 			],
 		},
-		
+
 		images: {
 			tiles: {normal: "./assets/tilemap/nilbogTower.png"},
 			stairs: {normal: "./assets/objects/stairs.png"},
@@ -2298,14 +2300,14 @@ var Areas = {
 			melee: {normal: "./assets/projectiles/melee.png"},
 			lootChest: {normal: "./assets/objects/chestTower.png"},
 		},
-		
+
 		song_day: "./assets/music/Pippin-the-Hunchback.mp3",
-		
+
 		checkpoint: false,
-		
+
 		lootArea: "loggingCamp",
 		lootTier: 1,
-		
+
 		chestData: {
 			spawnLocations: [
 				{x: 300, y: 350,},
@@ -2317,7 +2319,7 @@ var Areas = {
 			inventorySpace: 16,
 			chestKey: Items.item[18],
 		},
-		
+
 		areaTeleports: [
 			{
 				// teleport to floor 3
@@ -2340,7 +2342,7 @@ var Areas = {
 				destinationY: 560,
 			},
 		],
-		
+
 		onAreaTeleport: function () {
 			// stair animations
 			if (Game.hero.y > 540) {
@@ -2362,7 +2364,7 @@ var Areas = {
 				};
 			}
 		},
-		
+
 		things: [
 			{
 				x: 468,
@@ -2371,7 +2373,7 @@ var Areas = {
 				name: "Stairs",
 			},
 		],
-		
+
 		infoPoints: [
 			{
 				x: 540,
@@ -2381,7 +2383,7 @@ var Areas = {
 				onTouchChat: "A painting of The Wastelands. They were barren lands, where Wizard Andrews fought through the barbarian tribes to destroy the Chaos Parasite and its corruption."
 			},
 		],
-		
+
 		collisions: [
 			{
 				x: 600, // bottom of stairs
@@ -2390,7 +2392,7 @@ var Areas = {
 				height: 50,
 			},
 		],
-		
+
 		tripwires: [
 			{
 				// going to bottom
@@ -2431,7 +2433,7 @@ var Areas = {
 				}
 			},
 		],
-		
+
 		enemies: [
 			{
 				x: 200,
@@ -2455,16 +2457,16 @@ var Areas = {
 			},
 		],
 	},
-	
+
 	nilbogTower5: {
-		
+
 		data: {
 			name: "Nilbog Tower",
 			level: "Level 3 - 5",
 			territory: "Hostile",
 			displayOnEnter: false,
 		},
-		
+
 		indoors: true,
 
 		mapData: {
@@ -2473,12 +2475,12 @@ var Areas = {
 			tsize: 60,
 			tilesPerRow: 4,
 			solidTiles: [1, 2, 3, 5, 6, 7, 8, 9, 10, 12], // walls & downwards stairs
-			layers: [    
+			layers: [
 				[10, 8, 12, 8, 12, 8, 12, 8, 12, 9, 8, 12, 1, 2, 8, 12, 8, 12, 8, 12, 10, 9, 3, 5, 10, 9, 10, 9, 10, 9, 11, 13, 13, 13, 13, 13, 13, 13, 13, 11, 16, 17, 18, 17, 18, 17, 18, 17, 18, 14, 16, 18, 17, 18, 17, 18, 17, 18, 17, 14, 16, 17, 18, 17, 18, 17, 18, 17, 18, 14, 16, 18, 17, 18, 17, 18, 17, 18, 17, 14, 11, 15, 15, 15, 15, 15, 15, 15, 15, 11, 11, 6, 7, 11, 11, 11, 11, 11, 11, 11],
 				[],
 			],
 		},
-		
+
 		images: {
 			tiles: {normal: "./assets/tilemap/nilbogTower.png"},
 			stairs: {normal: "./assets/objects/stairs.png"},
@@ -2490,14 +2492,14 @@ var Areas = {
 			arrow: {normal: "./assets/projectiles/arrow.png"}, // (ignored by loader if it is already loaded because of an archer player)
 			weaponRack: {normal: "./assets/objects/weaponRack.png"},
 		},
-		
+
 		song_day: "./assets/music/Pippin-the-Hunchback-boss.mp3",
-		
+
 		checkpoint: false,
-		
+
 		lootArea: "loggingCamp",
 		lootTier: 1,
-		
+
 		areaTeleports: [
 			{
 				// teleport to floor 4
@@ -2510,7 +2512,7 @@ var Areas = {
 				destinationY: 10,
 			},
 		],
-		
+
 		onAreaTeleport: function () {
 			// stair animations
 			if (Game.hero.y > 540) {
@@ -2523,7 +2525,7 @@ var Areas = {
 				};
 			}
 		},
-		
+
 		tripwires: [
 			{
 				// going to bottom
@@ -2545,7 +2547,7 @@ var Areas = {
 				}
 			},
 		],
-		
+
 		enemies: [
 			{
 				x: 300,
@@ -2553,7 +2555,7 @@ var Areas = {
 				template: EnemyTemplates.nilbog.goblinKing,
 			},
 		],
-		
+
 		things: [
 			{
 				x: 500,
@@ -2562,17 +2564,17 @@ var Areas = {
 			},
 		],
 	},
-	
+
 	eaglecrest: {
-		
+
 		data: {
 			name: "Eaglecrest City",
 			level: "Level 1 - 10",
 			territory: "Allied",
 		},
-		
+
 		indoors: false,
-		
+
 		mapData: {
 			cols: 25,
 			rows: 22,
@@ -2586,11 +2588,11 @@ var Areas = {
 				[],
 			],
 		},
-		
+
 		isIcy: function() {
 			return Event.event === "Christmas";
 		},
-		
+
 		images: {
 			tiles: {normal: "./assets/tilemap/eaglecrestCity.png"},
 			cart1: {normal: "./assets/objects/cartEaglecrest.png"},
@@ -2606,19 +2608,19 @@ var Areas = {
 			fountain3: {normal: "./assets/objects/fountainFlowing3.png"},
 			fountain4: {normal: "./assets/objects/fountainFlowing4.png"},
 		},
-		
+
 		song_day: "./assets/music/Eaglecrest.mp3",
 		song_night: "./assets/music/Eaglecrest.mp3",
-		
+
 		checkpoint: true,
 		player: {
 			x: 400,
 			y: 400,
 		},
-		
+
 		lootArea: "eaglecrest",
 		lootTier: 1,
-		
+
 		areaTeleports: [
 			{
 				// teleport to bank
@@ -2631,7 +2633,7 @@ var Areas = {
 				destinationY: 830,
 			},
 		],
-		
+
 		npcs: [
 			{
 				// id: 0,
@@ -2761,7 +2763,7 @@ var Areas = {
 				},
 			},
 		],
-		
+
 		mailboxes: [
 			{
 				x: 130,
@@ -2771,7 +2773,7 @@ var Areas = {
 				name: "Mailbox",
 			},
 		],
-		
+
 		things: [
 			{
 				x: 300,
@@ -2794,41 +2796,39 @@ var Areas = {
 				image: "fountain1",
 				name: "Water Fountain",
 				// animation!
-				onLoad: function () {
-					if (Game.areaName === "eaglecrest") {
-						if (this.imageName === "fountain1") {
-							this.image = Loader.getImage("fountain2");
-							this.imageName = "fountain2";
-						}
-						else if (this.imageName === "fountain2") {
-							this.image = Loader.getImage("fountain3");
-							this.imageName = "fountain3";
-						}
-						else if (this.imageName === "fountain3") {
-							this.image = Loader.getImage("fountain4");
-							this.imageName = "fountain4";
-						}
-						else if (this.imageName === "fountain4") {
-							this.image = Loader.getImage("fountain1");
-							this.imageName = "fountain1";
-						}
+				animateFunction: function () {
+					if (this.imageName === "fountain1") {
+						this.image = Loader.getImage("fountain2");
+						this.imageName = "fountain2";
 					}
-					setTimeout(this.onLoad.bind(this), 300); // change image every 500ms
+					else if (this.imageName === "fountain2") {
+						this.image = Loader.getImage("fountain3");
+						this.imageName = "fountain3";
+					}
+					else if (this.imageName === "fountain3") {
+						this.image = Loader.getImage("fountain4");
+						this.imageName = "fountain4";
+					}
+					else if (this.imageName === "fountain4") {
+						this.image = Loader.getImage("fountain1");
+						this.imageName = "fountain1";
+					}
 				},
+				animationFrameTime: 250, // formerly 300
 			},
 		],
 	},
-	
+
 	eaglecrestBank: {
-		
+
 		data: {
 			name: "Eaglecrest Bank",
 			level: "",
 			territory: "",
 		},
-		
+
 		indoors: true,
-		
+
 		mapData: {
 			cols: 17,
 			rows: 15,
@@ -2840,7 +2840,7 @@ var Areas = {
 				[],
 			],
 		},
-		
+
 		images: {
 			tiles: {normal: "./assets/tilemap/eaglecrestBank.png"},
 			banker1: {normal: "./assets/npcs/eaglecrestBanker.png"},
@@ -2848,14 +2848,14 @@ var Areas = {
 			banker3: {normal: "./assets/npcs/eaglecrestBanker3.png"},
 			banker4: {normal: "./assets/npcs/eaglecrestBanker4.png"},
 		},
-		
+
 		song_day: "./assets/music/Eaglecrest.mp3",
 		song_night: "./assets/music/Eaglecrest.mp3",
-		
+
 		checkpoint: false,
-		
+
 		lootArea: "eaglecrest",
-		
+
 		areaTeleports: [
 			{
 				// teleport to eaglecrest plaza
@@ -2868,7 +2868,7 @@ var Areas = {
 				destinationY: 280,
 			},
 		],
-		
+
 		npcs: [
 			{
 				// id: 0,

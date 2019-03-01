@@ -1080,12 +1080,7 @@ var Items = {
 			onAttack: function (projectile) {
 				Dom.inventory.removeById(8, "bow");
 				if (projectile.isTouching(Game.npcs[0]) && Game.areaName === "eaglecrestLoggingCamp") {
-					if (Player.quests.questProgress.hitTeper === undefined) {
-						Player.quests.questProgress.hitTeper = 1;
-					}
-					else {
-						Player.quests.questProgress.hitTeper++;
-					}
+					Player.quests.questProgress.hitTeper = Increment(Player.quests.questProgress.hitTeper);
 					if (Player.quests.questProgress.hitTeper === 3) {
 						Game.projectiles.splice(Game.searchFor(projectile.id, Game.projectiles), 1); // find the id of the to-be-removed projectile and remove it
 						Game.npcs[0].image = Loader.getImage("teperAngry");
@@ -1471,12 +1466,7 @@ var Items = {
 					if (Game.areNearby(Game.hero, enemy, 180)) { // check the player is within 3 tiles of an enemy
 						if (enemy.isCorpse && !enemy.hasBeenSiphoned) { // check the enemy is a corpse
 							enemy.hasBeenSiphoned = true;
-							if (Player.quests.questProgress.soulSceptreEnergy === undefined) {
-								Player.quests.questProgress.soulSceptreEnergy = 1;
-							}
-							else {
-								Player.quests.questProgress.soulSceptreEnergy++;
-							}
+							Player.quests.questProgress.soulSceptreEnergy = Increment(Player.quests.questProgress.soulSceptreEnergy);
 							Dom.checkProgress();
 							switch(Random(0, 2)) {
 								case 0:
@@ -1596,7 +1586,7 @@ var Items = {
 			lore: "A trusty companion. A tasty snack.<br><br>Obtained as a present from Christmas Day, 2018",
 			onClick: function (inventoryPosition) {
 				// item is NOT removed!
-				
+
 				// give food status effect to player if they do not have one already
 				if (!Game.hero.hasStatusEffectType("food")) {
 					Game.statusEffects.food({
@@ -1605,7 +1595,7 @@ var Items = {
 						healthRestore: 15,
 						time: 10,
 					});
-					
+
 					// chat message
 					Game.sayChat("DOM, the Gingerbread Robot", "Gingerbread matrices restoring.", false, 300, false);
 				}
@@ -1644,7 +1634,7 @@ var Items = {
 			onClick: function (inventoryPosition) {
 				// remove the item
 				Dom.inventory.remove(inventoryPosition);
-				
+
 				// give strength I status effect to player
 				Game.statusEffects.attackDamage({
 					target: Game.hero,
@@ -1665,7 +1655,7 @@ var Items = {
 			onClick: function (inventoryPosition) {
 				// remove the item
 				Dom.inventory.remove(inventoryPosition);
-				
+
 				// give swiftness I status effect to player
 				Game.statusEffects.walkSpeed({
 					target: Game.hero,
@@ -1686,7 +1676,7 @@ var Items = {
 			onClick: function (inventoryPosition) {
 				// remove the item
 				Dom.inventory.remove(inventoryPosition);
-				
+
 				// restore the health
 				Game.restoreHealth(Game.hero, 15);
 			}
@@ -1701,17 +1691,21 @@ var Items = {
 			sellPrice: 1,
 			onClick: function (inventoryPosition) {
 				// complete quest from innkeeper
-				if(Player.quests.questProgress.drunkBeer === undefined){
-					Player.quests.questProgress.drunkBeer = 1;
-				}
-				
+				Player.quests.questProgress.drunkBeer = Increment(Player.quests.questProgress.drunkBeer);
+
 				// remove the item
 				Dom.inventory.remove(inventoryPosition);
-				
+
 				// restore the health
-				Game.restoreHealth(Game.hero, 20);
+				Game.restoreHealth(Game.hero, 15);
 				// make the player tipsy!
-				//tbd
+				Game.statusEffects.attackDamage({
+					target: Game.hero,
+					effectTitle: "Tipsy",
+					damageIncrease: -20,
+					time: 60,
+					effectStack: "multiply",
+				});
 			},
 			quest: function(){
 				return !Player.quests.completedQuestArray.includes("A Drink on Us!");
@@ -1728,7 +1722,7 @@ var Items = {
 			onClick: function (inventoryPosition) {
 				// remove the item
 				Dom.inventory.remove(inventoryPosition);
-				
+
 				// do something crazy!
 				let effectNumber = Random(0, 3);
 				switch(effectNumber) {
@@ -1784,15 +1778,10 @@ var Items = {
 				if (!Game.hero.isTouchingType(trapArray)) {
 					// remove the item
 					Dom.inventory.remove(inventoryPosition);
-					
+
 					// quest progress
-					if (Player.quests.questProgress.goblinTrapsPlaced !== undefined) {
-						Player.quests.questProgress.goblinTrapsPlaced++;
-					}
-					else {
-						Player.quests.questProgress.goblinTrapsPlaced = 1;
-					}
-					
+					Player.quests.questProgress.goblinTrapsPlaced = Increment(Player.quests.questProgress.goblinTrapsPlaced);
+
 					// place trap
 					let trapObject = {
 						map: map,
@@ -1819,7 +1808,7 @@ var Items = {
 				if (!Game.hero.hasStatusEffect("Fish bait")) { // player does not have an existing fishing status effect
 					// remove one charge from the item
 					Dom.inventory.removeItemCharge(inventoryPosition, hotbar);
-					
+
 					// give fish bait status effect
 					Game.hero.statusEffects.push(new statusEffect({
 						title: "Fish bait",
@@ -1845,7 +1834,7 @@ var Items = {
 			onClick: function (inventoryPosition, hotbar) {
 				// remove one charge from the item
 				Dom.inventory.removeItemCharge(inventoryPosition, hotbar);
-				
+
 				// spooky status effect...
 				let effectNumber = Random(0, 2);
 				switch(effectNumber) {
@@ -1891,13 +1880,13 @@ var Items = {
 			onClick: function (inventoryPosition) {
 				// remove one charge from the item
 				Dom.inventory.removeItemCharge(inventoryPosition);
-				
+
 				// find closest enemy
 				let moveTowards = Game.closest(Game.enemies, Game.hero);
-				
+
 				// find bearing
 				let projectileRotate = bearing(projectile, moveTowards);
-				
+
 				// summon bat projectile
 				Game.projectiles.push(new Projectile({
 					map: map,
@@ -1936,7 +1925,7 @@ var Items = {
 			onClick: function (inventoryPosition) {
 				// remove the item
 				Dom.inventory.remove(inventoryPosition);
-				
+
 				// give the status effect
 				Game.statusEffects.defence({
 					target: Game.hero,
@@ -1959,7 +1948,7 @@ var Items = {
 				if (!Game.hero.hasStatusEffect("Fish bait")) { // player does not have an existing fishing status effect
 					// remove one charge from the item
 					Dom.inventory.removeItemCharge(inventoryPosition, hotbar);
-					
+
 					// give fish bait status effect
 					Game.hero.statusEffects.push(new statusEffect({
 						title: "Fish bait",
@@ -1982,7 +1971,7 @@ var Items = {
 			onClick: function (inventoryPosition) {
 				// remove the item
 				Dom.inventory.remove(inventoryPosition);
-				
+
 				// displace player
 				Game.hero.displace(0, 180, 1.5, ToRadians(Random(0, 360)));
 				// displace enemies
@@ -2004,11 +1993,11 @@ var Items = {
 				if (Game.enemies.length > 0) { // check there is an enemy to swap with
 					// remove the item
 					Dom.inventory.remove(inventoryPosition);
-					
+
 					// pick random enemy
 					let enemies = Game.enemies.filter(enemy => !enemy.respawning);
 					let enemy = enemies[Random(0, enemies-1)];
-					
+
 					// swap positions!
 					let enemyPositionX = enemy.x;
 					let enemyPositionY = enemy.y;
@@ -2029,7 +2018,7 @@ var Items = {
 			onClick: function (inventoryPosition) {
 				// remove the item
 				Dom.inventory.remove(inventoryPosition);
-				
+
 				let oldHealth = Math.round(Game.hero.health);
 				Game.statusEffects.generic({
 					target: Game.hero,
@@ -2054,12 +2043,18 @@ var Items = {
 			onClick: function (inventoryPosition) {
 				// remove the item
 				Dom.inventory.remove(inventoryPosition);
-				
+
 				// restore the health
 				Game.restoreHealth(Game.hero, 20);
 				// make the player tipsy!
-				//tbd
-				
+				Game.statusEffects.attackDamage({
+					target: Game.hero,
+					effectTitle: "Tipsy",
+					damageIncrease: -20,
+					time: 60,
+					effectStack: "multiply",
+				});
+
 				// achievement progress
 				Player.quests.questProgress.mulledWine = true;
 			}
@@ -2076,7 +2071,7 @@ var Items = {
 			onClick: function (inventoryPosition) {
 				// remove the item
 				Dom.inventory.remove(inventoryPosition);
-				
+
 				Game.statusEffects.xp({
 					target: Game.hero,
 					effectTitle: "XP Bonus",
@@ -2100,15 +2095,10 @@ var Items = {
 				if (!Game.hero.isTouchingType(treeArray)) {
 					// remove the item
 					Dom.inventory.remove(inventoryPosition);
-					
+
 					// quest progress
-					if (Player.quests.questProgress.christmasSaplingsPlaced !== undefined) {
-						Player.quests.questProgress.christmasSaplingsPlaced++;
-					}
-					else {
-						Player.quests.questProgress.christmasSaplingsPlaced = 1;
-					}
-					
+					Player.quests.questProgress.christmasSaplingsPlaced = Increment(Player.quests.questProgress.christmasSaplingsPlaced);
+
 					// place sapling
 					let saplingObject = {
 						map: map,
@@ -2220,8 +2210,8 @@ var Items = {
 			type: "food",
 			image: "assets/items/food/3.png",
 			sellPrice: 3,
-			healthRestore: 50,
-			healthRestoreTime: 5,
+			healthRestore: 33,
+			healthRestoreTime: 3,
 			lore: "Antorax turns three!",
 		},
 	],
@@ -2274,7 +2264,7 @@ var Items = {
 			lore: "",
 			howToCatch: "Can be fished up from areas around Eaglecrest Logging Camp.",
 			consumption: true,
-			areas: ["loggingCamp"], 
+			areas: ["loggingCamp"],
 			length: {
 				min: 50,
 				avg: 100,
@@ -2314,7 +2304,7 @@ var Items = {
 			lore: "",
 			howToCatch: "Can be fished up from areas around Eaglecrest Logging Camp.",
 			consumption: true,
-			areas: ["loggingCamp"], 
+			areas: ["loggingCamp"],
 			length: {
 				min: 40,
 				avg: 50,
@@ -2333,7 +2323,7 @@ var Items = {
 			lore: "",
 			howToCatch: "Can be fished up from areas around Eaglecrest Logging Camp.",
 			consumption: true,
-			areas: ["loggingCamp"], 
+			areas: ["loggingCamp"],
 			length: {
 				min: 40,
 				avg: 72,
@@ -2352,7 +2342,7 @@ var Items = {
 			lore: "",
 			howToCatch: "Can be fished up from areas around Eaglecrest Logging Camp.",
 			consumption: true,
-			areas: ["loggingCamp"], 
+			areas: ["loggingCamp"],
 			length: {
 				min: 43,
 				avg: 110,
@@ -2371,7 +2361,7 @@ var Items = {
 			lore: "",
 			howToCatch: "Can be fished up from areas around Eaglecrest Logging Camp.",
 			consumption: false,
-			areas: ["loggingCamp"], 
+			areas: ["loggingCamp"],
 			length: {
 				min: 35,
 				avg: 100,
@@ -2389,7 +2379,7 @@ var Items = {
 			lore: "It grants your wishes... if your wish is for 5 gold.",
 			howToCatch: "Can be fished up anywhere.",
 			consumption: true,
-			areas: [], 
+			areas: [],
 			length: {
 				min: 10,
 				avg: 25,
@@ -2410,7 +2400,7 @@ var Items = {
 			sellPrice: 1,
 			sellQuantity: 2,
 			lore: "I wonder who this belongs to?",
-			areas: [], 
+			areas: [],
 		},
 		{
 			id: 9,
@@ -2422,7 +2412,7 @@ var Items = {
 			sellPrice: 1,
 			sellQuantity: 16,
 			stack: 64,
-			areas: [], 
+			areas: [],
 		},
 		{
 			id: 10,
@@ -2434,7 +2424,7 @@ var Items = {
 			sellPrice: 1,
 			sellQuantity: 16,
 			stack: 16,
-			areas: [], 
+			areas: [],
 		},
 		{
 			id: 11,
@@ -2446,7 +2436,7 @@ var Items = {
 			sellPrice: 1,
 			sellQuantity: 16,
 			stack: 16,
-			areas: [], 
+			areas: [],
 		},
 		{
 			id: 12,
@@ -2458,7 +2448,7 @@ var Items = {
 			sellPrice: 1,
 			sellQuantity: 16,
 			stack: 16,
-			areas: [], 
+			areas: [],
 		},
 		{
 			id: 13,
@@ -2471,7 +2461,7 @@ var Items = {
 			sellQuantity: 16,
 			stack: 264,
 			lore: "An old coin from before Antorax was formed.",
-			areas: [], 
+			areas: [],
 		},
 		{
 			id: 14,
@@ -2484,7 +2474,7 @@ var Items = {
 			sellQuantity: 1,
 			stack: 264,
 			lore: "It's too tarnished to be used as currency.",
-			areas: [], 
+			areas: [],
 		},
 		{
 			id: 15,
@@ -2496,7 +2486,7 @@ var Items = {
 			sellPrice: 1,
 			lore: "",
 			consumption: true,
-			areas: ["loggingCamp"], 
+			areas: ["loggingCamp"],
 			clicksToCatch: 2,
 			timeToCatch: 750,
 		},
@@ -2510,7 +2500,7 @@ var Items = {
 			sellPrice: 3,
 			lore: "It seems to be locked. You need a key to open it.",
 			locked: true, // can only be opened if locked is false
-			areas: [], 
+			areas: [],
 			clicksToCatch: 20,
 			timeToCatch: 7000,
 			onCatch: function (inventoryPosition) {
@@ -2519,7 +2509,7 @@ var Items = {
 				// junk items
 				let possibleJunkItems = Items.fish.filter(item => item.fishingType === "waterjunk"); // filter for junk fishing items
 				let itemsChosen = 0; // cap out at 6 different junk items
-				possibleJunkItems.forEach(item => { 
+				possibleJunkItems.forEach(item => {
 					if (itemsChosen < 6 && Random(0, 2) === 0) { // 1 in 3 chance of it being in the chest
 						let toBePushed = {};
 						toBePushed.item = item;
@@ -2578,15 +2568,15 @@ var Items = {
 						break;
 				}
 				loot.push(toBePushed);
-				
+
 				// format and position loot
 				loot = Game.formatLoot(loot);
 				loot = Game.positionLoot(loot, 24); // has 24 inventory space
-				
+
 				// set the chest's loot
 				// 'this' cannot be used because onCatch is not bound to the chest
 				Player.inventory.items[inventoryPosition].loot = loot;
-			},	
+			},
 			onOpen: function (inventoryPosition) { // opened by key
 				if (Player.inventory.items[inventoryPosition].locked) {
 					// unlock chest
@@ -2617,7 +2607,7 @@ var Items = {
 			rarity: "mythic",
 			sellPrice: 1,
 			lore: "I wonder what this opens?",
-			areas: [], 
+			areas: [],
 			clicksToCatch: 1,
 			timeToCatch: 1000,
 			opens: {
@@ -2634,13 +2624,13 @@ var Items = {
 			rarity: "junk",
 			sellPrice: 1,
 			sellQuantity: 4,
-			lore: ["The message's ink appears to have washed off.", 
-			"The message reads: 'Dearest Audrey, I recently got into alchemy. I think I need an arm donor. Can use one of yours?'", 
-			"The message reads: 'Dearest Audrey, I hope you are well. Please send return with some gold. I will pay you back.", 
-			"The message reads: 'Dearest Audrey, I am sending this message from the Dragon Cove. We're looking for new volunteers to undertake our dragonkin convertee program. Reply if interested.'", 
+			lore: ["The message's ink appears to have washed off.",
+			"The message reads: 'Dearest Audrey, I recently got into alchemy. I think I need an arm donor. Can use one of yours?'",
+			"The message reads: 'Dearest Audrey, I hope you are well. Please send return with some gold. I will pay you back.",
+			"The message reads: 'Dearest Audrey, I am sending this message from the Dragon Cove. We're looking for new volunteers to undertake our dragonkin convertee program. Reply if interested.'",
 			"The message reads: 'Dearest Audrey, I have sent five other messages to you. Please check your nearby shores for them.'",
 			"The message reads: 'Dearest Audrey, It is very cold at the moment so there is no sea. Decided to roll this bottle to you instead of the normal method. Please reply if it worked.'"],
-			areas: [], 
+			areas: [],
 			clicksToCatch: 1,
 			timeToCatch: 750,
 		},
@@ -2655,7 +2645,7 @@ var Items = {
 			sellQuantity: 16,
 			stack: 64,
 			lore: "Has some alchemical uses.",
-			areas: ["loggingCamp"], 
+			areas: ["loggingCamp"],
 		},
 		{
 			// blood moon only
@@ -2703,12 +2693,7 @@ var Items = {
 			},
 			onCatch: function (inventoryPosition) {
 				// quest variable increase
-				if (Player.quests.questProgress.christmasPresentsCaught === undefined) {
-					Player.quests.questProgress.christmasPresentsCaught = 1;
-				}
-				else {
-					Player.quests.questProgress.christmasPresentsCaught++;
-				}
+				Player.quests.questProgress.christmasPresentsCaught = Increment(Player.quests.questProgress.christmasPresentsCaught);
 				// set function text and targetNPC
 				let targetNPC = "";
 				let forPlayer = false;
@@ -2802,7 +2787,7 @@ var Items = {
 			rarity: "unique",
 			lore: "",
 			consumption: true,
-			areas: [], 
+			areas: [],
 			waterTypes: [
 				"freshwater",
 				"brackish",
@@ -2822,7 +2807,7 @@ var Items = {
 			rarity: "common",
 			lore: "",
 			consumption: true,
-			areas: [], 
+			areas: [],
 			waterTypes: [
 				"marine",
 			],
@@ -2840,7 +2825,7 @@ var Items = {
 			rarity: "common",
 			lore: "",
 			consumption: false,
-			areas: [], 
+			areas: [],
 			waterTypes: [
 				"freshwater",
 				"brackish",
@@ -2859,7 +2844,7 @@ var Items = {
 			rarity: "common",
 			lore: "",
 			consumption: true,
-			areas: [], 
+			areas: [],
 			waterTypes: [
 				"freshwater",
 			],
@@ -2877,7 +2862,7 @@ var Items = {
 			rarity: "common",
 			lore: "",
 			consumption: false,
-			areas: [], 
+			areas: [],
 			waterTypes: [
 				"freshwater",
 				"brackish",
@@ -2897,7 +2882,7 @@ var Items = {
 			rarity: "unique",
 			lore: "",
 			consumption: true,
-			areas: [], 
+			areas: [],
 			waterTypes: [
 				"marine",
 			],
@@ -2915,7 +2900,7 @@ var Items = {
 			rarity: "common",
 			lore: "",
 			consumption: false,
-			areas: [], 
+			areas: [],
 			waterTypes: [
 				"freshwater",
 				"brackish",
@@ -2935,7 +2920,7 @@ var Items = {
 			rarity: "common",
 			lore: "",
 			consumption: true,
-			areas: [], 
+			areas: [],
 			waterTypes: [
 				"freshwater",
 				"brackish",
@@ -2954,7 +2939,7 @@ var Items = {
 			rarity: "common",
 			lore: "",
 			consumption: true,
-			areas: [], 
+			areas: [],
 			waterTypes: [
 				"marine",
 			],
@@ -2972,7 +2957,7 @@ var Items = {
 			rarity: "common",
 			lore: "",
 			consumption: true,
-			areas: [], 
+			areas: [],
 			waterTypes: [
 				"brackish",
 				"marine",
@@ -2991,7 +2976,7 @@ var Items = {
 			rarity: "common",
 			lore: "",
 			consumption: false,
-			areas: [], 
+			areas: [],
 			waterTypes: [
 				"freshwater",
 			],
@@ -3011,7 +2996,7 @@ var Items = {
 			sellPrice: 10,
 			lore: "",
 			consumption: true,
-			areas: [], 
+			areas: [],
 			waterTypes: [
 				"freshwater",
 			],
@@ -3035,7 +3020,7 @@ var Items = {
 			sellPrice: 5,
 			lore: "",
 			consumption: true,
-			areas: [], 
+			areas: [],
 			waterTypes: [
 				"freshwater",
 				"brackish",
@@ -3061,7 +3046,7 @@ var Items = {
 			sellPrice: 2,
 			lore: "",
 			consumption: false,
-			areas: [], 
+			areas: [],
 			waterTypes: [
 				"brackish",
 				"marine",
@@ -3086,7 +3071,7 @@ var Items = {
 			sellPrice: 10,
 			lore: "",
 			consumption: true,
-			areas: [], 
+			areas: [],
 			waterTypes: [
 				"marine",
 			],
@@ -3110,7 +3095,7 @@ var Items = {
 			sellPrice: 2,
 			lore: "",
 			consumption: false,
-			areas: [], 
+			areas: [],
 			waterTypes: [
 				"marine",
 			],
@@ -3134,7 +3119,7 @@ var Items = {
 			sellPrice: 5,
 			lore: "",
 			consumption: false,
-			areas: [], 
+			areas: [],
 			waterTypes: [
 				"brackish",
 				"marine",
@@ -3159,7 +3144,7 @@ var Items = {
 			sellPrice: 5,
 			lore: "",
 			consumption: false,
-			areas: [], 
+			areas: [],
 			waterTypes: [
 				"marine",
 			],
@@ -3183,7 +3168,7 @@ var Items = {
 			sellPrice: 2,
 			lore: "",
 			consumption: true,
-			areas: [], 
+			areas: [],
 			waterTypes: [
 				"marine",
 			],
@@ -3207,7 +3192,7 @@ var Items = {
 			sellPrice: 2,
 			lore: "",
 			consumption: true,
-			areas: [], 
+			areas: [],
 			waterTypes: [
 				"brackish",
 				"marine",
