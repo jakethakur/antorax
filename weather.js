@@ -1,6 +1,6 @@
 let Weather = {
 	snow: {
-		gravity: 50, // down movement per second
+		gravity: 70, // down movement per second
 		windMultiplier: 0.4, // multiplied with wind intensity
 	},
 	rain: {
@@ -13,7 +13,7 @@ let Weather = {
 Weather.init = function () {
 	this.particleArray = []; // array of precipitation particles
 	// updateVariables called by loadArea to populate particleArray and decide on weather
-	
+
 	// set a timeout for updating weather and time (for efficiency)
 	// every 10s
 	setInterval(function () {
@@ -27,7 +27,7 @@ Weather.init = function () {
 // called by Game.loadArea
 Weather.chooseWeather = function (areaName) {
 	let oldWeatherType = this.weatherType; // for checking if weather has changed
-	
+
 	if (Areas[areaName].weather !== undefined) {
 		// static weather for area
 		this.weatherType = Areas[areaName].weather;
@@ -45,10 +45,10 @@ Weather.chooseWeather = function (areaName) {
 	else {
 		this.weatherType = "clear";
 	}
-	
+
 	if (this.weatherType !== oldWeatherType) {
 		// weather has been updated
-		
+
 		// update conditional stats
 		Dom.inventory.conditionalStats();
 	}
@@ -58,7 +58,7 @@ Weather.chooseWeather = function (areaName) {
 // called on area change or non-gradual teleport (as the weather is distributed oddly due to these)
 Weather.reset = function () {
 	this.particleArray = []; // Weather not this because sometimes called by setTimeout
-	
+
 	// render this change (because otherwise render might not be called due to player being indoors)
 	this.render(); // TBD possibly this shouldn't be called until Game.render?
 }
@@ -68,7 +68,7 @@ Weather.reset = function () {
 Weather.updateSeed = function () {
 	this.date = new Date();
     this.dateValue = 0;
-	
+
 	this.dateValue += this.date.getFullYear()*25;
 	this.dateValue += this.date.getMonth()*25;
 	this.dateValue += this.date.getDate()*25;
@@ -85,7 +85,7 @@ Weather.updateIntensity = function () {
 		this.intensity = 300 - this.intensity; // now between 20 and 150
 	}
 	// final intensity value is from 20 to 150
-	
+
 	// scale it up based on canvas size
 	this.intensity *= (Game.canvasArea / 36000);
 }
@@ -153,52 +153,80 @@ Weather.updateParticleNumber = function () {
 Weather.moveParticles = function (delta) {
 	for (let i = 0; i < this.particleArray.length; i++) { // iterate through particle array
 		let particle = this.particleArray[i];
-		
+
 		// gravity
 		particle.y += this[particle.type].gravity * particle.speedMultiplier * delta;
-		
+
 		// wind (currently just affects x)
 		//particle.y += Math.sin(this.windDirection) * (this.windIntensity * this[particle.type].windMultiplier) * particle.speedMultiplier * delta;
 		particle.x += Math.cos(this.windDirection) * (this.windIntensity * this[particle.type].windMultiplier) * particle.speedMultiplier * delta;
-		
+
 		// check for off screen particle
-		this.respawnParticle(particle)
+		this.respawnParticle(particle, i);
 	}
 }
 
 // reset the position of an off screen particle
-Weather.respawnParticle = function (particle) {
+Weather.respawnParticle = function (particle, index) {
 	// set off screen variables
 	let top = -10 + Game.viewportOffsetY;
 	let bottom = Dom.canvas.height + 10 - Game.viewportOffsetY;
 	let left = -10 + Game.viewportOffsetX;
 	let right = Dom.canvas.width + 10 - Game.viewportOffsetX;
+
+	let removeParticle = false; // whether particle should be removed (weather now clear)
+
 	// check for particle off screen (x)
 	if (particle.x > right) {
-		particle.x = left;
-		particle.y = Random(top, bottom); // simulates it being a new particle
+		if (this.weatherType !== "clear") {
+			particle.x = left;
+			particle.y = Random(top, bottom); // simulates it being a new particle
+		}
+		else {
+			removeParticle = true;
+		}
 	}
 	else if (particle.x < left) {
-		particle.x = right;
-		particle.y = Random(top, bottom);
+		if (this.weatherType !== "clear") {
+			particle.x = right;
+			particle.y = Random(top, bottom);
+		}
+		else {
+			removeParticle = true;
+		}
 	}
 	// check for particle off screen (y)
 	if (particle.y > bottom) {
-		particle.x = Random(left, right);
-		particle.y = top;
+		if (this.weatherType !== "clear") {
+			particle.x = Random(left, right);
+			particle.y = top;
+		}
+		else {
+			removeParticle = true;
+		}
 	}
 	else if (particle.y < top) {
-		particle.x = Random(left, right);
-		particle.y = bottom;
+		if (this.weatherType !== "clear") {
+			particle.x = Random(left, right);
+			particle.y = bottom;
+		}
+		else {
+			removeParticle = true;
+		}
+	}
+
+	// remove particle if it is offscreen and weather is now clear
+	if (removeParticle) {
+		this.particeArray.splice(index, 1);
+		i--; // change for loop index
 	}
 }
 
 // render weather particles onto Game canvas
 Weather.render = function () {
-	Game.ctx.fillStyle="#FFFFFF";
 	for (let i = 0; i < this.particleArray.length; i++) { // iterate through particle array
 		let particle = this.particleArray[i];
-		
+
 		if (particle.type === "snow") {
 			Game.ctx.fillStyle = "#FFFFFF";
 			Game.ctx.fillRect(particle.x, particle.y , 2, 2);

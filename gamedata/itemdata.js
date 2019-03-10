@@ -198,6 +198,45 @@ var Items = {
 				},
 			],
 		},
+		{
+			id: 12,
+			name: "Night Owl Mask",
+			type: "helm",
+			image: "assets/items/helm/12.png",
+			tier: 1,
+			rarity: "common",
+			obtain: "Can be bought from a mask seller.",
+			sellPrice: 1,
+			stats: {
+				dodgeChance: 20,
+			},
+		},
+		{
+			id: 13,
+			name: "Light Idol Mask",
+			type: "helm",
+			image: "assets/items/helm/13.png",
+			tier: 1,
+			rarity: "common",
+			obtain: "Can be bought from a mask seller.",
+			sellPrice: 1,
+			stats: {
+				healthRegen: 0.75,
+			},
+		},
+		{
+			id: 14,
+			name: "Dragon Flame Mask",
+			type: "helm",
+			image: "assets/items/helm/14.png",
+			tier: 1,
+			rarity: "common",
+			obtain: "Can be bought from a mask seller.",
+			sellPrice: 1,
+			stats: {
+				criticalChance: 20,
+			},
+		},
 	],
 	chest: [
 		{
@@ -312,7 +351,7 @@ var Items = {
 			event: "Samhain",
 			stats: {
 				defence: 1,
-				dodgeChance: 40,
+				dodgeChance: 30,
 			},
 		},
 	],
@@ -512,7 +551,7 @@ var Items = {
 				defence: 2,
 				criticalChance: 10,
 				dodgeChance: 10,
-				healthRegen: 0.5,
+				healthRegen: 0.25,
 				looting: 10,
 				walkSpeed: 30,
 			},

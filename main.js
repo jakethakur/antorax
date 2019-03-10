@@ -2,7 +2,7 @@
 
 //
 // Realms of Antorax canvas code
-// Jake Thakur 2018
+// Jake Thakur 2018-2019
 //
 
 // https://developer.mozilla.org/en-US/docs/Games/Techniques/Tilemaps
@@ -232,90 +232,6 @@ var map = {
 		}
 	}
 };
-
-//
-// Camera
-//
-
-function Camera(map, width, height) {
-    this.x = 0;
-    this.y = 0;
-    this.width = width;
-    this.height = height;
-    this.maxX = map.cols * map.tsize - width;
-    this.maxY = map.rows * map.tsize - height;
-}
-
-Camera.prototype.follow = function (sprite) {
-    this.following = sprite;
-    sprite.screenX = 0;
-    sprite.screenY = 0;
-};
-
-// called on loadArea or hero move
-// parameter init is set to true if this is being called on area change
-Camera.prototype.update = function (init) {
-    // assume followed sprite should be placed at the center of the screen whenever possible
-    this.following.screenX = this.width / 2 + Game.viewportOffsetX;
-    this.following.screenY = this.height / 2 + Game.viewportOffsetY;
-
-	// distance moved by camera in both directions (for weather to be moved by)
-	// calculated by difference in old x/y and new x/y
-	let movedX = this.x;
-	let movedY = this.y;
-
-    // make the camera follow the sprite
-    this.x = this.following.x - this.width / 2;
-    this.y = this.following.y - this.height / 2;
-    // clamp values
-    this.x = Math.max(0, Math.min(this.x, this.maxX));
-    this.y = Math.max(0, Math.min(this.y, this.maxY));
-
-    // in map corners, the sprite cannot be placed in the center of the screen and we have to change its screen coordinates
-
-    // left and right sides
-    if (this.following.x < this.width / 2 ||
-        this.following.x > this.maxX + this.width / 2) {
-        this.following.screenX = this.following.x - this.x + Game.viewportOffsetX;
-    }
-    // top and bottom sides
-    if (this.following.y < this.height / 2 ||
-        this.following.y > this.maxY + this.height / 2) {
-        this.following.screenY = this.following.y - this.y + Game.viewportOffsetY;
-    }
-
-	// movedX and movedY are the old position values
-	movedX = this.x - movedX;
-	movedY = this.y - movedY;
-	// move weather!
-	if (document.getElementById("weatherOn").checked && !Areas[Game.areaName].indoors) {
-		if (Weather.particleArray.length > 0 && init !== true) {
-			Weather.heroMove(movedX, movedY);
-		}
-	}
-};
-
-// check if object is displayed on the screen
-// if mode is "hitbox", it is checked if the hitbox is on the screen instead of the image (for hitbox rendering)
-Camera.prototype.isOnScreen = function (object, mode) {
-	if (mode === "hitbox" && object.hitbox !== undefined) {
-		// hitbox mode
-		if (object.hitbox.x + object.hitbox.width / 2 > this.x && object.hitbox.y + object.hitbox.height / 2 > this.y) { // object's x and y are big enough
-			if (object.hitbox.x - object.hitbox.width / 2 < this.x + Dom.canvas.width && object.hitbox.y - object.hitbox.height / 2 < this.y + Dom.canvas.height) { // object's x and y are also small enough
-				return true;
-			}
-		}
-	}
-	else {
-		// image mode
-		if (object.x + object.width / 2 > this.x && object.y + object.height / 2 > this.y) { // object's x and y are big enough
-			if (object.x - object.width / 2 < this.x + Dom.canvas.width && object.y - object.height / 2 < this.y + Dom.canvas.height) { // object's x and y are also small enough
-				return true;
-			}
-		}
-	}
-	return false;
-}
 
 //
 // Global functions
@@ -556,7 +472,7 @@ class Character extends Thing {
 
 		// it is recommended that you pick a value for these, but not necessary
 		this.stats.defence = properties.stats.defence || 0;
-		this.stats.healthRegen = properties.stats.healthRegen || 0;
+		this.stats.healthRegen = properties.stats.healthRegen || 0.5;
 		this.stats.walkSpeed = properties.stats.walkSpeed || 0;
 		this.stats.swimSpeed = properties.stats.swimSpeed || 0;
 		this.stats.iceSpeed = properties.stats.iceSpeed || 0;
@@ -1195,8 +1111,10 @@ class Hero extends Attacker {
 		}
 
 		// clamp values
-		var maxX = this.map.cols * this.map.tsize;
-		var maxY = this.map.rows * this.map.tsize;
+		//let maxX = this.map.cols * this.map.tsize;
+		//let maxY = this.map.rows * this.map.tsize;
+		let maxX = Game.camera.maxX + Game.camera.width;
+		let maxY = Game.camera.maxY + Game.camera.height;
 		this.x = Math.max(0, Math.min(this.x, maxX));
 		this.y = Math.max(0, Math.min(this.y, maxY));
 	}
@@ -2637,6 +2555,110 @@ class Mailbox extends Thing {
 }
 
 //
+// Camera
+//
+
+class Camera extends Entity {
+	constructor(properties) {
+		super(properties);
+
+		// set maxX and maxY variables, the maximum x and y positions of the camera
+		this.setMaxClampValues();
+	}
+
+	// maximum x and y positions
+	// sets this.maxX and this.maxY
+	setMaxClampValues () {
+		if (this.map.scrollX === false) {
+			// do not scroll in the x axis
+			this.maxX = 0;
+		}
+		else {
+			this.maxX = this.map.cols * this.map.tsize - this.width;
+		}
+
+		if (this.map.scrollY === false) {
+			// do not scroll in the y axis
+			this.maxY = 0;
+		}
+		else {
+			this.maxY = this.map.rows * this.map.tsize - this.height;
+		}
+	}
+
+	follow (sprite) {
+	    this.following = sprite;
+	    sprite.screenX = 0;
+	    sprite.screenY = 0;
+	}
+
+	// called on loadArea or hero move
+	// parameter init is set to true if this is being called on area change
+	update (init) {
+	    // assume followed sprite should be placed at the center of the screen whenever possible
+	    this.following.screenX = this.width / 2 + Game.viewportOffsetX;
+	    this.following.screenY = this.height / 2 + Game.viewportOffsetY;
+
+		// distance moved by camera in both directions (for weather to be moved by)
+		// calculated by difference in old x/y and new x/y
+		let movedX = this.x;
+		let movedY = this.y;
+
+	    // make the camera follow the sprite
+	    this.x = this.following.x - this.width / 2;
+	    this.y = this.following.y - this.height / 2;
+	    // clamp values
+	    this.x = Math.max(0, Math.min(this.x, this.maxX));
+	    this.y = Math.max(0, Math.min(this.y, this.maxY));
+
+	    // in map corners, the sprite cannot be placed in the center of the screen and we have to change its screen coordinates
+
+	    // left and right sides
+	    if (this.following.x < this.width / 2 ||
+	        this.following.x > this.maxX + this.width / 2) {
+	        this.following.screenX = this.following.x - this.x + Game.viewportOffsetX;
+	    }
+	    // top and bottom sides
+	    if (this.following.y < this.height / 2 ||
+	        this.following.y > this.maxY + this.height / 2) {
+	        this.following.screenY = this.following.y - this.y + Game.viewportOffsetY;
+	    }
+
+		// movedX and movedY are the old position values
+		movedX = this.x - movedX;
+		movedY = this.y - movedY;
+		// move weather!
+		if (document.getElementById("weatherOn").checked && !Areas[Game.areaName].indoors) {
+			if (Weather.particleArray.length > 0 && init !== true) {
+				Weather.heroMove(movedX, movedY);
+			}
+		}
+	}
+
+	// check if object is displayed on the screen
+	// if mode is "hitbox", it is checked if the hitbox is on the screen instead of the image (for hitbox rendering)
+	isOnScreen (object, mode) {
+		if (mode === "hitbox" && object.hitbox !== undefined) {
+			// hitbox mode
+			if (object.hitbox.x + object.hitbox.width / 2 > this.x && object.hitbox.y + object.hitbox.height / 2 > this.y) { // object's x and y are big enough
+				if (object.hitbox.x - object.hitbox.width / 2 < this.x + Dom.canvas.width && object.hitbox.y - object.hitbox.height / 2 < this.y + Dom.canvas.height) { // object's x and y are also small enough
+					return true;
+				}
+			}
+		}
+		else {
+			// image mode
+			if (object.x + object.width / 2 > this.x && object.y + object.height / 2 > this.y) { // object's x and y are big enough
+				if (object.x - object.width / 2 < this.x + Dom.canvas.width && object.y - object.height / 2 < this.y + Dom.canvas.height) { // object's x and y are also small enough
+					return true;
+				}
+			}
+		}
+		return false;
+	}
+}
+
+//
 // Status effects
 //
 
@@ -3383,6 +3405,8 @@ Game.loadArea = function (areaName, destination) {
 		map.iceTiles = undefined;
 		map.mudTiles = undefined;
 		map.pathTiles = undefined;
+		map.scrollX = undefined;
+		map.scrollY = undefined;
 		// now add all properties from areaData to the map variable
 		Object.assign(map, Areas[areaName].mapData);
 		// ice tiles only exist if the area isIcy
@@ -3410,9 +3434,9 @@ Game.loadArea = function (areaName, destination) {
 		this.tileAtlas = Loader.getImage('tiles');
 
 		// recalibrate camera (for areas other than first area)
-		if (this.camera != undefined) {
-			this.camera.maxX = map.cols * map.tsize - Dom.canvas.width;
-			this.camera.maxY = map.rows * map.tsize - Dom.canvas.height;
+		if (this.camera !== undefined) {
+			// set maximum x and y positions of camera
+			this.camera.setMaxClampValues();
 		}
 
 		// list of objects to be animated (with a .animate function)
@@ -3617,27 +3641,21 @@ Game.loadArea = function (areaName, destination) {
 
 			// close NPC pages
             Dom.closeNPCPages();
-
-			// if the display area information should not be shown, stop it from being shown
-			// this is done here because it is always shown on init
-			if (Areas[areaName].data.displayOnEnter === false) {
-				// don't show
-				this.canvasDisplay = {};
-			}
 		}
 
 		// display area name
-		// it is checked if this should be displayed or not below
-		// it is always displayed on init (thus only checked if init is not called)
-		let title = Areas[areaName].data.name;
-		let subtitles = [];
-		subtitles.push(Areas[areaName].data.level);
-		if (Areas[areaName].data.territory !== "") {
-			// only show territory if it is defined for the area
-			subtitles.push(Areas[areaName].data.territory + " territory");
+		// it is always displayed on init (thus only checked if it should be displayed if init is not called)
+		if (Areas[areaName].data.displayOnEnter !== false || init) {
+			let title = Areas[areaName].data.name;
+			let subtitles = [];
+			subtitles.push(Areas[areaName].data.level);
+			if (Areas[areaName].data.territory !== "") {
+				// only show territory if it is defined for the area
+				subtitles.push(Areas[areaName].data.territory + " territory");
+			}
+			// function to set the variable
+			this.displayOnCanvas(title, subtitles, 2);
 		}
-		// function to set the variable
-		this.displayOnCanvas(title, subtitles, 2);
 
 		// if the area is too small so does not fit in the screen, it should be moved to the centre of the screen
 		// calculate the variables of offset so the drawn sprites and tilemap can be adjusted by this
@@ -3882,7 +3900,7 @@ Game.init = function () {
 	}
 
 	// game viewport camera
-    this.camera = new Camera(map, Dom.canvas.width, Dom.canvas.height);
+    this.camera = new Camera({map: map, width: Dom.canvas.width, height: Dom.canvas.height});
     this.camera.follow(this.hero);
 
 	// set foot hitbox position (updated on hero move normally)
@@ -3955,6 +3973,9 @@ Game.setInformationFromTemplate = function (properties) {
 			}
 			Object.assign(properties, properties.speciesTemplate); // properties updated
 		}
+	}
+	else {
+		console.warn("No template exists for object " + properties.name);
 	}
 
 	return properties;
@@ -5336,13 +5357,8 @@ Game.coordinates = function (character) {
 	// reset text formatting
 	this.resetFormatting();
 
-	// set text to white if there is a black background
-	if (this.viewportOffsetX > 0 || this.viewportOffsetY > 0) {
-		this.ctx.fillStyle = "white";
-	}
-
-	this.ctx.fillText("x: " + Math.round(character.x), 10, 50);
-	this.ctx.fillText("y: " + Math.round(character.y), 10, 60);
+	this.ctx.fillText("x: " + Math.round(character.x), 10 + this.viewportOffsetX, 50 + this.viewportOffsetY);
+	this.ctx.fillText("y: " + Math.round(character.y), 10 + this.viewportOffsetX, 60 + this.viewportOffsetY);
 }
 
 // display frames per second on canvas (settings option)
@@ -5351,11 +5367,6 @@ Game.coordinates = function (character) {
 Game.fps = function (delta) {
 	// reset text formatting
 	this.resetFormatting();
-
-	// set text to white if there is a black background
-	if (this.viewportOffsetX > 0 || this.viewportOffsetY > 0) {
-		this.ctx.fillStyle = "white";
-	}
 
 	// add current fps value to fps array
 	this.fpsArray.push(Math.round(1 / delta));
@@ -5371,7 +5382,7 @@ Game.fps = function (delta) {
 	let average = sum / this.fpsArray.length;
 
 	// write on canvas
-	this.ctx.fillText("fps: " + Round(average), 10, 75);
+	this.ctx.fillText("fps: " + Round(average), 10 + this.viewportOffsetX, 75 + this.viewportOffsetY);
 }
 
 // reset text formatting
@@ -6233,6 +6244,8 @@ Game.saveProgress = function (saveType) { // if saveType is "auto" then the save
 		Player.oldPosition = Game.hero.oldPosition; // time travel
 		// re-link status effects (inefficient - tbd)
 		Player.statusEffects = Game.hero.statusEffects;
+		// re-link player stats (inefficient - tbd)
+		Player.stats = Game.hero.stats;
 
 		// save everything in savedata.js
 		localStorage.setItem(Player.class, JSON.stringify(Player));
