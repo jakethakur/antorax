@@ -50,7 +50,7 @@ Loader.wipeImages = function (exceptions) {
 	//this.images = {}; // inefficient - wipes player from object
 
 	// wipe all images from images object (apart from exceptions)
-	for (var key in this.images) {
+	for (let key in this.images) {
 		if (this.images.hasOwnProperty(key) && !exceptions.includes(key)) {
 			delete this.images[key];
 		}

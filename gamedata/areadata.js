@@ -155,6 +155,11 @@ let Event = {
 		else if (d.month === 1 && d.day === 20) {
 			this.event = "Antorax";
 		}
+		// Fish Day
+		else if (d.month === 4 && d.day === 1) {
+			this.event = "Fish";
+		}
+			this.event = "Fish";
 	}
 };
 
@@ -604,7 +609,7 @@ var Areas = {
 			},
 			{
 				// teleport to tavern (tavern door - north)
-				x: 1470,
+				x: 1350,
 				y: 87,
 				width: 60,
 				height: 2,
@@ -1277,7 +1282,7 @@ var Areas = {
 				width: 60,
 				height: 60,
 				teleportTo: "eaglecrestLoggingCamp",
-				destinationX: 1048,
+				destinationX: 1348,
 				destinationY: 200,
 			},
 		],
@@ -1853,8 +1858,8 @@ var Areas = {
 
 		collisions: [
 			{
-				x: 600, // bottom of stairs
-				y: 240,
+				x: 476, // bottom of stairs
+				y: 215,
 				width: 248,
 				height: 50,
 			},
@@ -2015,8 +2020,8 @@ var Areas = {
 
 		collisions: [
 			{
-				x: 600, // bottom of stairs
-				y: 240,
+				x: 476, // bottom of stairs
+				y: 215,
 				width: 248,
 				height: 50,
 			},
@@ -2183,8 +2188,8 @@ var Areas = {
 
 		collisions: [
 			{
-				x: 600, // bottom of stairs
-				y: 240,
+				x: 476, // bottom of stairs
+				y: 215,
 				width: 248,
 				height: 50,
 			},
@@ -2368,8 +2373,8 @@ var Areas = {
 
 		collisions: [
 			{
-				x: 600, // bottom of stairs
-				y: 240,
+				x: 476, // bottom of stairs
+				y: 215,
 				width: 248,
 				height: 50,
 			},
@@ -2590,6 +2595,7 @@ var Areas = {
 			fountain2: {normal: "./assets/objects/fountainFlowing2.png"},
 			fountain3: {normal: "./assets/objects/fountainFlowing3.png"},
 			fountain4: {normal: "./assets/objects/fountainFlowing4.png"},
+			identifier: {normal: "./assets/npcs/hranatha.png"},
 		},
 
 		song_day: "./assets/music/Eaglecrest.mp3",
@@ -2625,13 +2631,23 @@ var Areas = {
 				destinationX: 1240,
 				playerAdjustY: -190,
 			},
+			{
+				// teleport to eaglecrest east street
+				x: 1520,
+				y: 690,
+				width: 2,
+				height: 360,
+				teleportTo: "eaglecrestEast",
+				destinationX: 20,
+				playerAdjustY: -190,
+			},
 		],
 
 		collisions: [
 			// temporary - change when positioning is based on y value
 			{
-				x: 835, // waterfall
-				y: 800,
+				x: 750, // waterfall
+				y: 690,
 				width: 170,
 				height: 220,
 			},
@@ -2758,6 +2774,32 @@ var Areas = {
 					defence: 20,
 				},
 			},
+			{
+				// id: 7,
+				x: 920,
+				y: 785,
+				image: "identifier",
+				name: "Identifier Hranatha",
+				hostility: "friendly",
+				level: 35,
+				stats: {
+					maxHealth: 225,
+					defence: 5,
+				},
+				roles: [
+					{
+						role: "identifier",
+					},
+				],
+				chat: {
+					identifierGreeting: "Something for me to identify for you, hm?",
+					noUnidentified: "There's nothing for me to identify. Find some items and come back to me.",
+					identifyCommon: "Nothing special this time.",
+					identifyUnique: "Hm, a unique item. Nice.",
+					identifyMythic: "Ooh! It's been a while since I last saw one of them!",
+					tooPoor: "I can't itentify that for free, you know.",
+				},
+			},
 		],
 
 		mailboxes: [
@@ -2843,8 +2885,6 @@ var Areas = {
 		images: {
 			tiles: {normal: "./assets/tilemap/eaglecrestCity.png"},
 			maskSalesman: {normal: "./assets/npcs/maskSalesman.png"},
-			guard1: {normal: "./assets/npcs/eaglecrestGuard.png"},
-			guard2: {normal: "./assets/npcs/eaglecrestGuard2.png"},
 		},
 
 		song_day: "./assets/music/Eaglecrest.mp3",
@@ -2895,6 +2935,85 @@ var Areas = {
 					shopLeave: "Come back soon. There'll be more masks for you to choose from.",
 					inventoryFull: "You don't have enough space to hold that mask.",
 					tooPoor: "That mask seems out of your price range. Kill something and return.",
+				},
+			},
+		],
+	},
+
+	eaglecrestEast: {
+
+		data: {
+			name: "Eaglecrest City",
+			level: "Level 1 - 10",
+			territory: "Allied",
+			displayOnEnter: false,
+		},
+
+		indoors: false,
+
+		mapData: {
+			cols: 21,
+			rows: 11,
+			tsize: 60,
+			tilesPerRow: 3,
+			solidTiles: [1, 2, 3, 4, 5, 6, 7, 8, 11, 13, 14, 16, 17, 19, 22], // wall
+			dayTiles: [14, 17, 6, 18, 22], // windows and lights
+			nightTiles: [2, 8, 3, 9, 19], // windows and lights
+			layers: [
+				[16, 16, 16, 16, 16, 16, 16, 16, 16, 16, 16, 16, 16, 16, 16, 16, 16, 16, 16, 16, 16, 13, 13, 13, 13, 13, 13, 13, 13, 13, 13, 13, 13, 13, 13, 13, 13, 13, 13, 13, 13, 13, 6, 16, 16, 16, 16, 4, 16, 16, 16, 16, 6, 16, 16, 16, 16, 4, 16, 16, 16, 16, 6, 16, 16, 16, 22, 16, 17, 16, 22, 16, 16, 16, 16, 16, 22, 16, 14, 16, 22, 16, 16, 16, 16, 16, 16, 16, 16, 11, 16, 16, 16, 16, 16, 16, 16, 16, 16, 5, 16, 16, 16, 16, 16, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10],
+				[],
+			],
+		},
+
+		images: {
+			tiles: {normal: "./assets/tilemap/eaglecrestCity.png"},
+			itemBuyer: {normal: "./assets/npcs/nhkghghh.png"},
+		},
+
+		song_day: "./assets/music/Eaglecrest.mp3",
+		song_night: "./assets/music/Eaglecrest.mp3",
+
+		checkpoint: false,
+
+		lootArea: "eaglecrest",
+
+		areaTeleports: [
+			{
+				// teleport to eaglecrest plaza
+				x: -20,
+				y: 480,
+				width: 2,
+				height: 360,
+				teleportTo: "eaglecrest",
+				destinationX: 1480,
+				playerAdjustY: 190,
+			},
+		],
+
+		npcs: [
+			{
+				// id: 6,
+				x: 540,
+				y: 313,
+				image: "itemBuyer",
+				name: "Item Buyer Nhkghghh",
+				hostility: "friendly",
+				level: 15,
+				stats: {
+					maxHealth: 125,
+					defence: 5,
+				},
+				roles: [
+					{
+						role: "itemBuyer",
+						roleRequirement: function () {
+							return Player.quests.completedQuestArray.includes("TBD");
+						}
+					},
+				],
+				chat: {
+					notUnlockedRoles: "I promise I'm not like other goblins. I just buy stuff. Lots of good stuff to collect. I'm trying to make my own armour. Can you help?",
+					buyerGreeting: "Loot loot loot. Some for me, perhaps?",
 				},
 			},
 		],

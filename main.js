@@ -128,14 +128,16 @@ var map = {
 
         // loop through all layers and return TRUE if any tile is solid
         return this.layers.reduce(function (res, layer, index) { // idk what res is TBD find out
-            var tile = this.getTile(index, col, row);
-			var isSolid = false;
+            let tile = this.getTile(index, col, row);
+			let isSolid = false;
 			if (typeof this.solidTiles !== "undefined") { // check that this map contains solidTiles
-				this.solidTiles.forEach( function(element) {
-					if (tile === element) {
+				for (let i = 0; i < this.solidTiles.length; i++) {
+					if (tile === this.solidTiles[i]) {
+						// solid tile found
 						isSolid = true;
+						break;
 					}
-				} );
+				}
 			}
             return res || isSolid;
         }.bind(this), false);
@@ -160,36 +162,40 @@ var map = {
         var tile = this.getTile(0, col, row);
 		var isSlow = null;
 		if (typeof this.waterTiles !== "undefined") { // check that this map contains waterTiles
-			this.waterTiles.forEach( function(element) {
-				if (tile === element) {
+			for (let i = 0; i < this.waterTiles.length; i++) {
+				if (tile === this.waterTiles[i]) {
+					// water tile found
 					isSlow = "water";
-					return isSlow;
+					break;
 				}
-			} );
+			}
 		}
 		if (typeof this.mudTiles !== "undefined") { // check that this map contains mudTiles
-			this.mudTiles.forEach( function(element) {
-				if (tile === element) {
+			for (let i = 0; i < this.mudTiles.length; i++) {
+				if (tile === this.mudTiles[i]) {
+					// mud tile found
 					isSlow = "mud";
-					return isSlow;
+					break;
 				}
-			} );
+			}
 		}
 		if (typeof this.iceTiles !== "undefined") { // check that this map contains iceTiles
-			this.iceTiles.forEach( function(element) {
-				if (tile === element) {
+			for (let i = 0; i < this.iceTiles.length; i++) {
+				if (tile === this.iceTiles[i]) {
+					// ice tile found
 					isSlow = "ice";
-					return isSlow;
+					break;
 				}
-			} );
+			}
 		}
 		if (typeof this.pathTiles !== "undefined") { // check that this map contains pathTiles
-			this.pathTiles.forEach( function(element) {
-				if (tile === element) {
+			for (let i = 0; i < this.pathTiles.length; i++) {
+				if (tile === this.pathTiles[i]) {
+					// path tile found
 					isSlow = "path";
-					return isSlow;
+					break;
 				}
-			} );
+			}
 		}
 		return isSlow;
 	},
@@ -286,17 +292,17 @@ Game.areNearby = function (obj1, obj2, range) {
 	}
 }
 
-// find the closest character in an array (objArray) to another character (mainObj)
+// find the closest entity in an array (objArray) to another entity (mainObj)
 Game.closest = function (objArray, mainObj) {
 	let closestDistance = Infinity;
 	let closestIndex = -1;
-	objArray.forEach((obj, index) => {
-		let distanceTo = distance(mainObj, obj);
+	for (let i = 0; i < objArray.length; i++) {
+		let distanceTo = distance(mainObj, objArray[i]);
 		if (distanceTo < closestDistance) {
-			closestIndex = index;
+			closestIndex = i;
 			closestDistance = distanceTo;
 		}
-	});
+	}
 	return objArray[closestIndex];
 }
 
@@ -1120,7 +1126,7 @@ class Hero extends Attacker {
 	}
 
 	_collide (dirx, diry, delta) { // update move speed based on equipment and surroundings
-		var row, col;
+		let row, col;
 
 		let left = Game.heroFootHitbox.x - Game.heroFootHitbox.width / 2;
 		let right = Game.heroFootHitbox.x + Game.heroFootHitbox.width / 2;
@@ -1137,37 +1143,28 @@ class Hero extends Attacker {
 			this.map.isSolidTileAtXY(left, bottom);
 
 		// check collision with collisions - invisible entities that cannot be passed
-		Game.collisions.forEach(entity => { // iterate though collisions
-			// give collisions a screenX and Y (should be turned into own function)
-			entity.screenX = (entity.x - entity.width / 2) - Game.camera.x + Game.viewportOffsetX;
-			entity.screenY = (entity.y - entity.height / 2) - Game.camera.y + Game.viewportOffsetY;
+		for (let i = 0; i < Game.collisions.length; i++) {
+			// give collisions a screenX and Y
+			Game.updateScreenPosition(Game.collisions[i]);
 			// check if the player's feet are touching the collision
-			if (Game.heroFootHitbox.isTouching(entity)) {
+			if (Game.heroFootHitbox.isTouching(Game.collisions[i])) {
 				collision = true;
 			}
-		});
+		}
 
 		if (!collision) { return; }
 
 		if (diry > 0) {
 			this.y -= this.speed * delta * diry;
-			//row = this.map.getRow(bottom);
-			//this.y = -this.height / 2 + this.map.getY(row);
 		}
 		if (diry < 0) {
 			this.y += this.speed * delta * Math.abs(diry);
-			//row = this.map.getRow(top);
-			//this.y = this.height / 2 + this.map.getY(row + 1);
 		}
 		if (dirx > 0) {
 			this.x -= this.speed * delta * dirx;
-			//col = this.map.getCol(right);
-			//this.x = -this.width / 2 + this.map.getX(col);
 		}
 		if (dirx < 0) {
 			this.x += this.speed * delta * Math.abs(dirx);
-			//col = this.map.getCol(left);
-			//this.x = this.width / 2 + this.map.getX(col + 1);
 		}
 	}
 
@@ -1176,13 +1173,16 @@ class Hero extends Attacker {
 	setSpeed (baseSpeed) {
 		// test for slow tiles (e.g: water, mud)
 		let slowTile = this.map.isSlowTileAtXY(this.x, this.y + 50);
+
 		if (slowTile === null || baseSpeed) { // normal speed
 			this.speed = this.stats.walkSpeed;
 			// remove swimming/mud/ice/path status effect
 			Game.removeTileStatusEffects(this);
 		}
+
 		else if (slowTile === "ice") { // on ice tile
 			this.speed = this.stats.iceSpeed;
+
 			Game.removeTileStatusEffects(this, "Ice skating"); // remove all status effects from other tiles
 			if (!this.hasStatusEffect("Ice skating")) { // give status effect if the player doesn't already have it
 				this.statusEffects.push(new statusEffect({
@@ -1193,8 +1193,10 @@ class Hero extends Attacker {
 				this.updateStatusEffects();
 			}
 		}
+
 		else if (slowTile === "path") { // on path
 			this.speed = this.stats.walkSpeed * 1.15;
+
 			Game.removeTileStatusEffects(this, "On a path"); // remove all status effects from other tiles
 			if (!this.hasStatusEffect("On a path")) { // give status effect if the player doesn't already have it
 				this.statusEffects.push(new statusEffect({
@@ -1207,6 +1209,7 @@ class Hero extends Attacker {
 		}
 		else if (slowTile === "water") { // in water tile
 			this.speed = this.stats.swimSpeed;
+
 			Game.removeTileStatusEffects(this, "Swimming"); // remove all status effects from other tiles
 			if (!this.hasStatusEffect("Swimming")) { // give status effect if the player doesn't already have it
 				this.statusEffects.push(new statusEffect({
@@ -1215,7 +1218,7 @@ class Hero extends Attacker {
 					image: "water",
 				}));
 				// remove fire status effect
-				for (var i = 0; i < this.statusEffects.length; i++) {
+				for (let i = 0; i < this.statusEffects.length; i++) {
 					if (this.statusEffects[i].title.substring(0, 4) == "Fire") {
 						this.statusEffects.splice(i,1);
 					}
@@ -1223,9 +1226,11 @@ class Hero extends Attacker {
 				this.updateStatusEffects();
 			}
 		}
+
 		else if (slowTile === "mud") { // in mud tile
-			// currently mud goes the same speed as swimSpeedtile
+			// currently mud goes the same speed as in a water tile
 			this.speed = this.stats.swimSpeed;
+
 			Game.removeTileStatusEffects(this, "Stuck in the mud"); // remove all status effects from other tiles
 			if (!this.hasStatusEffect("Stuck in the mud")) { // give status effect if the player doesn't already have it
 				this.speed = this.stats.swimSpeed;
@@ -1243,12 +1248,16 @@ class Hero extends Attacker {
 
 		if (!baseSpeed) {
 			// speed status effect (can be buff or debuff)
-			this.statusEffects.forEach(statusEffect => {
+			let oldSpeed = this.speed; // not a compound increase
+
+			for (let i = 0; i < this.statusEffects.length; i++) {
+				let statusEffect = this.statusEffects[i];
 				if (statusEffect.info.speedIncrease !== undefined) {
 					// increase speed if the status effect does so
-					this.speed *= 1 + (statusEffect.info.speedIncrease / 100);
+					// status effect is in percentage
+					this.speed += oldSpeed * (statusEffect.info.speedIncrease / 100);
 				}
-			});
+			}
 		}
 	}
 
@@ -2371,12 +2380,12 @@ class Enemy extends Attacker {
 		// figure out speed (TBD make separate function for this?)
 		let speed = this.speed;
 		// speed status effect (can be buff or debuff)
-		this.statusEffects.forEach(statusEffect => {
-			if (statusEffect.info.speedIncrease !== undefined) {
+		for (let i = 0; i < this.statusEffects.length; i++) {
+			if (this.statusEffects[i].info.speedIncrease !== undefined) {
 				// increase speed if the status effect does so
-				speed *= 1 + (statusEffect.info.speedIncrease / 100);
+				speed *= 1 + (this.statusEffects[i].info.speedIncrease / 100);
 			}
-		});
+		}
 		// frostaura
 		if (Game.hero.stats.frostaura === true && distance(this, Game.hero) < 150) {
 			// range of frostaura is currently 2.5 tiles
@@ -3369,6 +3378,8 @@ Game.loadArea = function (areaName, destination) {
 		this.heroProjectileName,
 		"bobber",
 		"status",
+		"weatherImage", // image for an additional weather particle (handled separately by weather)
+		// TBD this is inefficient since this is then never unloaded even when weather changes
 	]);
 
 	// set game time of day and event
@@ -3445,64 +3456,54 @@ Game.loadArea = function (areaName, destination) {
 		// villagers (currently broken)
 		this.villagers = [];
 		if (Areas[areaName].villagers !== undefined) {
-			Areas[areaName].villagers.forEach(villager => {
-				if (this.canBeShown(villager)) { // check if NPC should be shown
-					villager.map = map;
-					villager.type = "villagers";
-					this.villagers.push(new Villager(villager));
+			for (let i = 0; i < Areas[areaName].villagers.length; i++) {
+				if (this.prepareNPC(Areas[areaName].villagers[i], "villagers")) {
+					this.villagers.push(new Villager(Areas[areaName].villagers[i]));
 				}
-			});
+			}
 		}
 
 		// things (aesthetic only)
 		this.things = [];
 		if (Areas[areaName].things !== undefined) {
-			Areas[areaName].things.forEach(thing => {
-				if (this.canBeShown(thing)) { // check if NPC should be shown
-					thing.map = map;
-					thing.type = "things";
-					this.things.push(new Thing(thing));
+			for (let i = 0; i < Areas[areaName].things.length; i++) {
+				if (this.prepareNPC(Areas[areaName].things[i], "things")) {
+					this.things.push(new Thing(Areas[areaName].things[i]));
 				}
-			});
+			}
 		}
 
 		// quest npcs, merchants, identifiers, soul healers, item buyers, etc.
 		this.npcs = [];
 		if (Areas[areaName].npcs !== undefined) { // check they exist in areadata.js
-			Areas[areaName].npcs.forEach(npc => {
-				if (this.canBeShown(npc)) { // check if NPC should be shown
-					npc.map = map;
-					npc.type = "npcs";
-					this.npcs.push(new NPC(npc));
+			for (let i = 0; i < Areas[areaName].npcs.length; i++) {
+				if (this.prepareNPC(Areas[areaName].npcs[i], "npcs")) {
+					this.npcs.push(new NPC(Areas[areaName].npcs[i]));
 				}
-			});
+			}
 		}
 
 		// dummies (enemies for training) - trivial (don't damage you)
 		this.dummies = [];
 		if (Areas[areaName].dummies !== undefined) {
-			Areas[areaName].dummies.forEach(dummy => {
-				if (this.canBeShown(dummy)) { // check if NPC should be shown
-					dummy.map = map;
-					dummy.type = "dummies";
-					this.dummies.push(new Dummy(dummy));
+			for (let i = 0; i < Areas[areaName].dummies.length; i++) {
+				if (this.prepareNPC(Areas[areaName].dummies[i], "dummies")) {
+					this.dummies.push(new Dummy(Areas[areaName].dummies[i]));
 				}
-			});
+			}
 		}
 
 		// enemies
 		this.enemies = [];
 		if (Areas[areaName].enemies !== undefined) {
-			Areas[areaName].enemies.forEach(enemy => {
-				if (this.canBeShown(enemy)) { // check if NPC should be shown
-					// set template information
-					// this is done now so that it can be checked if it is a boss
-					this.setInformationFromTemplate(enemy);
-					// if enemy is a boss, it is only shown if it was not killed today
-					if (enemy.hostility !== "boss" || GetFullDate() - Player.bossesKilled[enemy.bossKilledVariable] > 0) { // not a boss or it wasn't killed today
-						enemy.map = map;
-						enemy.type = "enemies";
-						this.enemies.push(new Enemy(enemy));
+			for (let i = 0; i < Areas[areaName].enemies.length; i++) {
+				if (this.prepareNPC(Areas[areaName].enemies[i], "enemies")) {
+
+					// bosses only can be killed once a day
+					if (Areas[areaName].enemies[i].hostility !== "boss" ||
+						GetFullDate() - Player.bossesKilled[Areas[areaName].enemies[i].bossKilledVariable] > 0) {
+						this.enemies.push(new Enemy(Areas[areaName].enemies[i]));
+
 						// check for blood moon
 						if (Event.time === "bloodMoon") {
 							// blood moon - enemies have more health
@@ -3511,22 +3512,20 @@ Game.loadArea = function (areaName, destination) {
 						}
 					}
 				}
-			});
+			}
 		}
 
 		// loot chests
 		this.chests = [];
 		if (Areas[areaName].chests !== undefined) {
-			Areas[areaName].chests.forEach(chest => {
-				if (this.canBeShown(chest)) { // check if NPC should be shown
-					chest.map = map;
-					chest.type = "chests";
-					this.chests.push(new LootChest(chest));
+			for (let i = 0; i < Areas[areaName].chests.length; i++) {
+				if (this.prepareNPC(Areas[areaName].chests[i], "chests")) {
+					this.chests.push(new LootChest(Areas[areaName].chests[i]));
 				}
-			});
+			}
 		}
 
-		// cannons
+		// cannons (outdated)
 		this.cannons = [];
 		if (Areas[areaName].cannons !== undefined) {
 			Areas[areaName].cannons.forEach(cannon => {
@@ -3563,62 +3562,62 @@ Game.loadArea = function (areaName, destination) {
 
 		// area teleports
 		if (Areas[areaName].areaTeleports !== undefined) {
-			Areas[areaName].areaTeleports.forEach(areaTeleport => {
-				areaTeleport.map = map;
-				areaTeleport.type = "areaTeleports";
-				this.areaTeleports.push(new AreaTeleport(areaTeleport));
-			});
+			for (let i = 0; i < Areas[areaName].areaTeleports.length; i++) {
+				if (this.prepareNPC(Areas[areaName].areaTeleports[i], "areaTeleports")) {
+					this.areaTeleports.push(new AreaTeleport(Areas[areaName].areaTeleports[i]));
+				}
+			}
 		}
 
 		// tripwires (invisible; calls function when touched)
 		this.tripwires = [];
 		if (Areas[areaName].tripwires !== undefined) {
-			Areas[areaName].tripwires.forEach(tripwire => {
-				tripwire.map = map;
-				tripwire.type = "tripwires";
-				this.tripwires.push(new Tripwire(tripwire));
-			});
+			for (let i = 0; i < Areas[areaName].tripwires.length; i++) {
+				if (this.prepareNPC(Areas[areaName].tripwires[i], "tripwires")) {
+					this.tripwires.push(new Tripwire(Areas[areaName].tripwires[i]));
+				}
+			}
 		}
 
 		// collisions (invisible; cannot be passed)
 		this.collisions = [];
 		if (Areas[areaName].collisions !== undefined) {
-			Areas[areaName].collisions.forEach(collision => {
-				collision.map = map;
-				collision.type = "collisions";
-				this.collisions.push(new Entity(collision));
-			});
+			for (let i = 0; i < Areas[areaName].collisions.length; i++) {
+				if (this.prepareNPC(Areas[areaName].collisions[i], "collisions")) {
+					this.collisions.push(new Entity(Areas[areaName].collisions[i]));
+				}
+			}
 		}
 
 		// mailboxes
 		this.mailboxes = [];
 		if (Areas[areaName].mailboxes !== undefined) {
-			Areas[areaName].mailboxes.forEach(mailbox => {
-				if (this.canBeShown(mailbox)) { // check if mailbox should be shown
-					mailbox.map = map;
-					mailbox.type = "mailboxes";
+			for (let i = 0; i < Areas[areaName].mailboxes.length; i++) {
+				if (this.prepareNPC(Areas[areaName].mailboxes[i], "mailboxes")) {
+
 					// flag up if there is unread mail
 					if (Dom.mail.unread() > 0) {
 						// flag up
-						mailbox.image = mailbox.unreadImage;
+						Areas[areaName].mailboxes[i].image = Areas[areaName].mailboxes[i].unreadImage;
 					}
 					else {
 						// no flag
-						mailbox.image = mailbox.readImage;
+						Areas[areaName].mailboxes[i].image = Areas[areaName].mailboxes[i].readImage;
 					}
-					this.mailboxes.push(new Mailbox(mailbox));
+
+					this.mailboxes.push(new Mailbox(Areas[areaName].mailboxes[i]));
 				}
-			});
+			}
 		}
 
 		// infoPoints
 		this.infoPoints = [];
 		if (Areas[areaName].infoPoints !== undefined) {
-			Areas[areaName].infoPoints.forEach(thing => {
-				thing.map = map;
-				thing.type = "infoPoints";
-				this.infoPoints.push(new InfoPoint(thing));
-			});
+			for (let i = 0; i < Areas[areaName].infoPoints.length; i++) {
+				if (this.prepareNPC(Areas[areaName].infoPoints[i], "infoPoints")) {
+					this.infoPoints.push(new InfoPoint(Areas[areaName].infoPoints[i]));
+				}
+			}
 		}
 
 		// music
@@ -3715,6 +3714,9 @@ Game.loadArea = function (areaName, destination) {
 
 		// update camera position
 		this.camera.update(true);
+
+		// set foot hitbox position (updated on hero move normally)
+		this.updateScreenPosition(this.heroFootHitbox);
 
 		// render secondary canvas
 		this.secondary.render();
@@ -3903,9 +3905,6 @@ Game.init = function () {
     this.camera = new Camera({map: map, width: Dom.canvas.width, height: Dom.canvas.height});
     this.camera.follow(this.hero);
 
-	// set foot hitbox position (updated on hero move normally)
-	this.updateScreenPosition(this.heroFootHitbox);
-
 	// init weather
 	Weather.init();
 
@@ -3958,7 +3957,20 @@ Game.initStatusEffects = function () {
 	}
 }
 
+// init an NPC for being added by loadArea
+// returns true/false depending on if the NPC should be shown
+Game.prepareNPC = function (npc, type) {
+	if (this.canBeShown(npc)) {
+		this.setInformationFromTemplate(npc);
+		npc.map = map;
+		npc.type = type;
+		return true;
+	}
+	return false;
+}
+
 // set the properties of a character from its template
+// called by prepareNPC
 Game.setInformationFromTemplate = function (properties) {
 	if (properties.template !== undefined) {
 		// a template exists
@@ -3973,9 +3985,6 @@ Game.setInformationFromTemplate = function (properties) {
 			}
 			Object.assign(properties, properties.speciesTemplate); // properties updated
 		}
-	}
-	else {
-		console.warn("No template exists for object " + properties.name);
 	}
 
 	return properties;
@@ -4335,11 +4344,13 @@ Game.update = function (delta) {
     if (Keyboard.isDown(Keyboard.keys.SPACE, "SPACE")) { this.hero.interact(); }
 
 	// check collision with npcs - includes quest givers, quest finishers, merchants, soul healers, more TBA
-	this.npcs.forEach(npc => { // iterate though npcs
+	for (let i = 0; i < this.npcs.length; i++) { // iterate though npcs
+
+		let npc = this.npcs[i];
 
 		if (Dom.currentlyDisplayed !== npc.name && !npc.respawning && this.hero.isTouching(npc)) { // check npc is not dead, that hero is touching it, and that it is not already currently displayed
 
-			if (typeof npc.roles !== "undefined") { // check if the npc is a functional npc (does something when touched)
+			if (npc.roles !== undefined) { // check if the npc is a functional npc (does something when touched)
 
 				// arrays for choose DOM
 				let textArray = []; // array of text to describe that function
@@ -4353,9 +4364,11 @@ Game.update = function (delta) {
 				let questComplete = false; // if one of the npc's quests has been completed
 				let notUnlockedRoles = false; // if one of the npc's roles has not been unlocked
 				let textSaid = false; // if all of the above variables should be ignored (because something else has been said instead, e.g: soul healer cannot be healed text)
-				// see below forEach for logic regarding these variables
+				// see below for loop for logic regarding these variables
 
-				npc.roles.forEach(role => { // iterate through quests involving that npc
+				for (let x = 0; x < npc.roles.length; x++) { // iterate through quests involving that npc
+					let role = npc.roles[x];
+
 					if (role.roleRequirement === undefined || role.roleRequirement()) {
 						// quest starts
 						if (role.role === "questStart" || role.role === "questStartFinish") {
@@ -4638,7 +4651,7 @@ Game.update = function (delta) {
 					else {
 						notUnlockedRoles = true;
 					}
-				}); // finished iterating through this npc's roles
+				} // finished iterating through this npc's roles
 
 				if (functionArray.length > 0) {
 					// npc can be spoken to, hence choose DOM should be opened
@@ -4666,7 +4679,7 @@ Game.update = function (delta) {
 			}
 		}
 
-		// check if the currently displayed NPC is the current one in the foreach loop
+		// check if the currently displayed NPC is the current one in the for loop
 		if (npc.id === Dom.currentNPC.id && npc.type === Dom.currentNPC.type) {
 			// close the DOM if the player is too far away from the NPC or if the NPC is dead
 			if (npc.respawning || distance(Game.hero, npc) > Game.hero.stats.domRange) {
@@ -4674,10 +4687,10 @@ Game.update = function (delta) {
 				Dom.closeNPCPages();
 			}
 		}
-	}); // finished iterating through npcs
+	} // finished iterating through npcs
 
 	// update villagers
-	for(var i = 0; i < this.villagers.length; i++) {
+	for (let i = 0; i < this.villagers.length; i++) {
 		if (!this.villagers[i].respawning) { // check villager is not dead
 			this.villagers[i].update(delta);
 		}
@@ -4691,7 +4704,7 @@ Game.update = function (delta) {
 			enemy.update(delta);
 		}
 
-		// check if the currently displayed DOM is for the current enemy in the foreach loop
+		// check if the currently displayed DOM is for the current enemy in the for loop
 		if (enemy.id === Dom.currentNPC.id && enemy.type === Dom.currentNPC.type) {
 			// close the DOM if the player is too far away from the enemy or if the enemy is dead
 			if (enemy.respawning && distance(Game.hero, enemy) > Game.hero.stats.domRange) {
@@ -4762,7 +4775,7 @@ Game.update = function (delta) {
 			Dom.choose.page(mailbox, ["Check mail"], [Dom.mail.page], [[]]);
 		}
 
-		// check if the currently displayed DOM is for the current mailbox in the foreach loop
+		// check if the currently displayed DOM is for the current mailbox in the for loop
 		if (mailbox.id === Dom.currentNPC.id && mailbox.type === Dom.currentNPC.type) {
 			// close the DOM if the player is too far away from the mailbox or if the mailbox is dead
 			if (distance(Game.hero, mailbox) > Game.hero.stats.domRange) {
@@ -4776,7 +4789,7 @@ Game.update = function (delta) {
 	for (let i = 0; i < this.chests.length; i++) {
 		let chest = this.chests[i];
 
-		// check if the currently displayed DOM is for the current mailbox in the foreach loop
+		// check if the currently displayed DOM is for the current mailbox in the for loop
 		if (chest.id === Dom.currentNPC.id && chest.type === Dom.currentNPC.type) {
 			// close the DOM if the player is too far away from the chest or if the chest is dead
 			if (distance(Game.hero, chest) > Game.hero.stats.domRange) {
@@ -5151,20 +5164,20 @@ Game.mailboxUpdate = function (type) {
 	if (this.mailboxes !== undefined) {
 		if (type === "read") {
 			if (Dom.mail.unread() === 0) {
-				this.mailboxes.forEach(mailbox => {
+				for (let i = 0; i < this.mailboxes.length; i++) {
 					// TBD check existing imageName
-					mailbox.image = Loader.getImage(mailbox.readImage);
-					mailbox.imageName = mailbox.readImage;
-				});
+					this.mailboxes[i].image = Loader.getImage(this.mailboxes[i].readImage);
+					this.mailboxes[i].imageName = this.mailboxes[i].readImage;
+				}
 			}
 		}
 		else if (type === "received") {
 			// perhaps check if Dom.mail.unread is 1, because only one message will come in at a time and if it is more than 1 then it would already be a flag
-			this.mailboxes.forEach(mailbox => {
+			for (let i = 0; i < this.mailboxes.length; i++) {
 				// TBD check existing imageName
-				mailbox.image = Loader.getImage(mailbox.unreadImage);
-				mailbox.imageName = mailbox.unreadImage;
-			});
+				this.mailboxes[i].image = Loader.getImage(this.mailboxes[i].unreadImage);
+				this.mailboxes[i].imageName = this.mailboxes[i].unreadImage;
+			}
 		}
 		else {
 			console.error("Unrecognised parameter (should be 'read' or 'received')", type)
@@ -5332,13 +5345,13 @@ Game.drawHitboxes = function () {
 
 	// collision hitboxes
 	// maybe a special hitbox render list should be made? (tbd)
-	this.collisions.forEach(collision => {
-		this.ctx.strokeRect(collision.screenX - collision.width / 2, collision.screenY - collision.height / 2, collision.width, collision.height);
-	});
+	for (let i = 0; i < this.collisions.length; i++) {
+		this.ctx.strokeRect(this.collisions[i].screenX - this.collisions[i].width / 2, this.collisions[i].screenY - this.collisions[i].height / 2, this.collisions[i].width, this.collisions[i].height);
+	}
 
 	// projectile hitboxes
 	// should be added to renderList (tbd)
-	for(var i = 0; i < this.projectiles.length; i++) {
+	for (let i = 0; i < this.projectiles.length; i++) {
 		if (this.projectiles[i].hitbox !== undefined) { // this should be checked for everything in the future (when this function is reworked to work with renderList)
 			this.ctx.strokeRect(this.projectiles[i].hitbox.screenX - this.projectiles[i].hitbox.width / 2, this.projectiles[i].hitbox.screenY - this.projectiles[i].hitbox.height / 2, this.projectiles[i].hitbox.width, this.projectiles[i].hitbox.height);
 		}
@@ -5394,22 +5407,22 @@ Game.resetFormatting = function () {
 
 // draw a rotated image (rotated in radians)
 // source: https://stackoverflow.com/a/11985464/9713957 --- thank you! <3
-Game.drawImageRotated = function (img, x, y, width, height, rad) {
+Game.drawImageRotated = function (ctx, img, x, y, width, height, rad) {
     // convert degrees to radian
     //var rad = deg * Math.PI / 180;
 
     // set the origin to the center of the image
-    this.ctx.translate(x + width / 2, y + height / 2);
+    ctx.translate(x + width / 2, y + height / 2);
 
     // rotate the canvas around the origin
-    this.ctx.rotate(rad);
+    ctx.rotate(rad);
 
     // draw the image
-    this.ctx.drawImage(img,width / 2 * (-1),height / 2 * (-1),width,height);
+    ctx.drawImage(img,width / 2 * (-1),height / 2 * (-1),width,height);
 
     // reset the canvas
-    this.ctx.rotate(rad * ( -1 ) );
-    this.ctx.translate((x + width / 2) * (-1), (y + height / 2) * (-1));
+    ctx.rotate(rad * ( -1 ) );
+    ctx.translate((x + width / 2) * (-1), (y + height / 2) * (-1));
 }
 
 // update entity's screen position (called every time it is rendered, and also in functions like dealDamage)
@@ -5695,9 +5708,9 @@ Game.render = function (delta) {
 	//this.ctx.setTransform(1, -0.01, -0.01, 1, 0, 0);
 
 	// render things on renderList
-	for (var i = 0; i < this.renderList.length; i++) { // iterate through everything to be rendered (in order)
+	for (let i = 0; i < this.renderList.length; i++) { // iterate through everything to be rendered (in order)
 
-		for (var x = 0; x < this[this.renderList[i]].length; x++) { // iterate through that array of things to be rendered
+		for (let x = 0; x < this[this.renderList[i]].length; x++) { // iterate through that array of things to be rendered
 
 			let objectToRender = this[this.renderList[i]][x];
 
@@ -5725,22 +5738,18 @@ Game.render = function (delta) {
 					}
 				}
 
-				else {
-					if (objectToRender.deathImage !== undefined && objectToRender.isCorpse) { // display corpse
-						// set character screen x and y
-						this.updateScreenPosition(objectToRender);
+				else if (objectToRender.deathImage !== undefined && objectToRender.isCorpse) { // display corpse
 
-						// draw image (corpse)
-						this.ctx.drawImage(
-							objectToRender.deathImage,
-							objectToRender.screenX - objectToRender.deathImageWidth / 2,
-							objectToRender.screenY - objectToRender.deathImageHeight / 2,
-							objectToRender.deathImageWidth,
-							objectToRender.deathImageHeight
-						);
+					// draw image (corpse)
+					this.ctx.drawImage(
+						objectToRender.deathImage,
+						objectToRender.screenX - objectToRender.deathImageWidth / 2,
+						objectToRender.screenY - objectToRender.deathImageHeight / 2,
+						objectToRender.deathImageWidth,
+						objectToRender.deathImageHeight
+					);
 
-						// perhaps a death render function should be added? tbd
-					}
+					// perhaps a death render function should be added? tbd
 				}
 			}
 
@@ -5850,6 +5859,7 @@ Game.render = function (delta) {
 
 			if (this.projectiles[i].rotate !== 0) {
 				this.drawImageRotated( // rotate projectile and draw
+					this.ctx,
 					this.projectiles[i].image,
 					this.projectiles[i].screenX - this.projectiles[i].width / 2,
 					this.projectiles[i].screenY - this.projectiles[i].height / 2,
