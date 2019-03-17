@@ -159,7 +159,6 @@ let Event = {
 		else if (d.month === 4 && d.day === 1) {
 			this.event = "Fish";
 		}
-			this.event = "Fish";
 	}
 };
 
