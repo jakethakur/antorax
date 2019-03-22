@@ -3511,7 +3511,7 @@ Dom.bank.inOut = function (direction, num) {
 		
 		for (let i = 0; i < Player.bank.items.length; i++) {
 			if (Player.bank.items[i].image === undefined) {
-				Dom.inventory.drop(document.getElementById("bankPageInventory").getElementsByTagName("td")[i], Player.bank.items, i, document.getElementById("itemInventory").getElementsByTagName("td")[num], array, num) UPDATE // to, from
+				Dom.inventory.drop(document.getElementById("bankPageInventory").getElementsByTagName("td")[i], Player.bank.items, i, document.getElementById("itemInventory").getElementsByTagName("td")[num], array, num) ///UPDATE // to, from
 				break;
 			}
 		}
