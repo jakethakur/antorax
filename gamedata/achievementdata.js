@@ -299,6 +299,24 @@ var Achievements = [
 			return User.progress.dummies >= 1;
 		}
 	},
+	{
+        name: "Time to Krill",
+        description: "Kill 10 enemies with a fish.",
+        points: 5,
+        category: ["combat"],
+        area: ["global"],
+        event: "Fish",
+        image: "../assets/items/sword/10.png",
+		class: "cumulative",
+		isCompleted: function(){
+			return User.progress.enemiesKilledWithFish >= 10;
+		},
+		expand: {
+			type: "progressBar",
+			value: User.progress.enemiesKilledWithFish,
+			total: 10,
+		},
+    },
 		// REPUTATION
 	{
 		// id: 15,

@@ -792,6 +792,25 @@ var Items = {
 				return GetFullDate().substring(4,6) !== "12";
 			},
 		},
+		{
+			id: 10,
+			name: "Fishy",
+			type: "sword",
+			image: "assets/items/sword/10.png",
+			uncollectable: true,
+			allClasses: true,
+			tier: 1,
+			rarity: "common",
+			lore: "A fin-tastic weapon.",
+			obtain: "Can be found during a rare fish rain storm.",
+			event: "Fish",
+			sellPrice: 1,
+			stats: {
+				damage: 2,
+			},
+			projectile: "slashWater",
+			projectileAdjust: {x: 0, y: 0},
+		},
 	],
 	staff: [
 		{
@@ -1113,6 +1132,7 @@ var Items = {
 			sellPrice: 1,
 			lore: "Throw it at someone you don't like",
 			uncollectable: true,
+			event: "Christmas",
 			stats: {
 				damage: 0,
 			},

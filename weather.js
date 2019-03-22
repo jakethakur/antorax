@@ -12,8 +12,8 @@ let Weather = {
 		fish: {
 			gravity: 300,
 			windMultiplier: 0.1,
-			chance: 500, // chance that a particle is this one
-			// TBD - remove fish once they have fallen
+			chance: 35, // chance that a particle is this one
+			removeOnceFallen: true,
 		},
 	}
 };
@@ -50,6 +50,7 @@ Weather.chooseWeather = function (areaName) {
 		let p = Loader.loadImage("weatherImage", "./assets/objects/fishRain.png");
 
 		// wait until images have been loaded
+		// TBD make this into function?
 	    p.then(function (loaded) {
 			this.weatherAdditional = "fish";
 		}.bind(this))
@@ -110,11 +111,11 @@ Weather.updateSeed = function () {
 Weather.updateIntensity = function () {
 	// measure for number of weather particles per 36000 pixels squared (600*600 canvas)
 	// intensity loops forward and back
-	this.intensity = (this.dateValue*3) % 260 + 20; // between 20 and 280
-	if (this.intensity > 150) { // intensity is looping backwards
-		this.intensity = 300 - this.intensity; // now between 20 and 150
+	this.intensity = (this.dateValue % 120) + 20; // between 20 and 140
+	if (this.intensity > 80) { // intensity is looping backwards
+		this.intensity = 160 - this.intensity; // now between 20 and 80
 	}
-	// final intensity value is from 20 to 150
+	// final intensity value is from 20 to 80
 
 	// scale it up based on canvas size
 	this.intensity *= (Game.canvasArea / 36000);
@@ -161,33 +162,37 @@ Weather.updateParticleNumber = function () {
 	// AND if weather is not clear (though this is still called so existing particles have a chance to disappear first)
 	if (this.particleArray.length < Math.round(this.intensity)) {
 		// particles need to be added
-		for (let i = 0; i < Math.round(this.intensity) - this.particleArray.length; i++) {
+		let numberOfParticles = this.particleArray.length;
+		for (let i = 0; i < Math.round(this.intensity) - numberOfParticles; i++) {
 			// add a particle, ensuring even distribution of them
 
-			if (typeof this.weatherAdditional !== "undefined"
-				&& Random(1, this.particleData[this.weatherAdditional].chance) === 1) { // find proportion of particles that are this one
-
-				this.particleArray.push({
-					x: Random(0, Dom.canvas.width),
-					y: Random(0, Dom.canvas.height),
-					speedMultiplier: Random(6, 14) / 10, // all particles have their own speed multiplier as well
-					type: this.weatherAdditional,
-				});
-			}
-
-			else {
-				this.particleArray.push({
-					x: Random(0, Dom.canvas.width),
-					y: Random(0, Dom.canvas.height),
-					speedMultiplier: Random(6, 14) / 10, // all particles have their own speed multiplier as well
-					type: this.weatherType,
-				});
-			}
+			this.particleArray.push({
+				x: Random(0, Dom.canvas.width),
+				y: Random(0, Dom.canvas.height),
+				speedMultiplier: Random(6, 14) / 10, // all particles have their own speed multiplier as well
+				type: this.weatherType,
+			});
 		}
 	}
 	else if (this.particleArray.length > Math.round(this.intensity)) {
 		// particles need to be removed
 		this.particleArray.splice(0, this.particleArray.length - Math.round(this.intensity));
+	}
+}
+
+// additional particles are often removed after falling once
+// called every game update tick to see if an "additional" particle should be added (e.g. a fish)
+// called before Weather.moveParticles
+Weather.addAdditionalParticles = function () {
+	if (typeof this.weatherAdditional !== "undefined"
+		&& Random(1, this.particleData[this.weatherAdditional].chance) === 1) {
+
+		this.particleArray.push({
+			x: Random(0, Dom.canvas.width),
+			y: 0,
+			speedMultiplier: Random(6, 14) / 10, // all particles have their own speed multiplier as well
+			type: this.weatherAdditional,
+		});
 	}
 }
 
@@ -220,10 +225,13 @@ Weather.respawnParticle = function (particle, index) {
 
 	let removeParticle = false; // whether particle should be removed (weather now clear)
 
+	// particle always removed instead of being respawned
+	let neverRespawnParticle = Weather.particleData[particle.type].removeOnceFallen === true;
+
 	// check for particle off screen (x)
 	if (particle.x > right) {
-		if (this.weatherType !== "clear") {
-			particle.x = left;
+		if (this.weatherType !== "clear" && !neverRespawnParticle) {
+			particle.x = left + 10;
 			particle.y = Random(top, bottom); // simulates it being a new particle
 		}
 		else {
@@ -231,8 +239,8 @@ Weather.respawnParticle = function (particle, index) {
 		}
 	}
 	else if (particle.x < left) {
-		if (this.weatherType !== "clear") {
-			particle.x = right;
+		if (this.weatherType !== "clear" && !neverRespawnParticle) {
+			particle.x = right - 10;
 			particle.y = Random(top, bottom);
 		}
 		else {
@@ -241,18 +249,18 @@ Weather.respawnParticle = function (particle, index) {
 	}
 	// check for particle off screen (y)
 	if (particle.y > bottom) {
-		if (this.weatherType !== "clear") {
+		if (this.weatherType !== "clear" && !neverRespawnParticle) {
 			particle.x = Random(left, right);
-			particle.y = top;
+			particle.y = top + 10;
 		}
 		else {
 			removeParticle = true;
 		}
 	}
 	else if (particle.y < top) {
-		if (this.weatherType !== "clear") {
+		if (this.weatherType !== "clear" && !neverRespawnParticle) {
 			particle.x = Random(left, right);
-			particle.y = bottom;
+			particle.y = bottom - 10;
 		}
 		else {
 			removeParticle = true;
@@ -280,11 +288,7 @@ Weather.render = function () {
 			Game.ctx.fillRect(particle.x, particle.y , 1, 12);
 		}
 		else if (particle.type === "fish") {
-			if (typeof particle.rotation === "undefined") {
-				particle.rotation = 0;
-			}
 			let img = Loader.getImage("weatherImage");
-			//Game.drawImageRotated(Game.ctx, Loader.getImage("weatherImage"), particle.x, particle.y, particle.width, particle.height, particle.rotation);
 			Game.ctx.drawImage(img, particle.x, particle.y, img.width, img.height);
 		}
 	}

@@ -600,6 +600,11 @@ class Character extends Thing {
 				// enemies killed achievement
 				if (this.hostility === "hostile" || this.hostility === "boss") {
 					User.progress.enemies = Increment(User.progress.enemies);
+
+					// enemies killed with fish achievement
+					if (Player.inventory.weapon.type === "sword" && Player.inventory.weapon.id === 10) { // fishy equipped
+						User.progress.enemiesKilledWithFish = Increment(User.progress.enemiesKilledWithFish);
+					}
 				}
 
 				if (this.subSpecies === "nilbog goblin") {
@@ -3438,9 +3443,6 @@ Game.loadArea = function (areaName, destination) {
 			map.iceTiles = undefined;
 		}
 
-		// if it is nighttime, change all daytime tiles to their nighttime versions
-		map.setDayNightTiles();
-
 		// set tileset
 		this.tileAtlas = Loader.getImage('tiles');
 
@@ -3725,6 +3727,9 @@ Game.loadArea = function (areaName, destination) {
 		Weather.updateVariables(); // includes choosing weather and populating particleArray
 		// incorporate weather into time
 		Event.updateTime(areaName);
+
+		// if it is nighttime, change all daytime tiles to their nighttime versions
+		map.setDayNightTiles();
 
 		// render day night
 		this.renderDayNight();
@@ -4871,6 +4876,7 @@ Game.update = function (delta) {
 
 	// update weather particles
 	if (document.getElementById("weatherOn").checked && !Areas[Game.areaName].indoors) {
+		Weather.addAdditionalParticles();
 		Weather.moveParticles(delta);
 	}
 };
