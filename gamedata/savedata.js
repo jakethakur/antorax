@@ -132,15 +132,7 @@ var User = {
 	archaeology: [],
 	fish: [],
 	achievements: {},
-	progress: {
-		quests: 0,
-		dailyQuests: 0,
-		enemies: 0,
-		goblins: 0,
-		dummies: 0,
-		fish: 0,
-		seals: 0,
-	},
+	progress: {},
 	settings: {
 		music: false,
 		particles: true,

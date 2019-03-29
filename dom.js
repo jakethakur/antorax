@@ -1421,9 +1421,9 @@ Dom.quest.acceptRewards = function () {
 	}
 	Dom.quests.completed(Dom.currentlyDisplayed);
 	if (Dom.currentlyDisplayed.repeatTime !== "daily") {
-		User.progress.quests++;
+		User.progress.quests = Increment(User.progress.quests);
 	}else{
-		User.progress.dailyQuests++;
+		User.progress.dailyQuests = Increment(User.progress.dailyQuests);
 	}
 	Player.quests.questLastFinished[Dom.currentlyDisplayed.questArea][Dom.currentlyDisplayed.id] = GetFullDate();
 	Dom.checkProgress();
@@ -1880,7 +1880,7 @@ Dom.inventory.give = function (item, num, position, noSave) {
 		}
 	}
 	if (item.name === "Fishing Seal") {
-		User.progress.seals += num;
+		User.progress.seals = Increment(User.progress.seals, num);
 	}
 	Dom.hotbar.update();
 	Keyboard.update();
@@ -1945,7 +1945,7 @@ Dom.inventory.cooldown = function (inventoryPosition, hotbar, check) {
 	}
 	
 	if (Dom.bank.active) {
-		Dom.bank.inOut("in", inventoryPosition);
+		Dom.bank.inOut(item, inventoryPosition);
 	}
 	else if (item[inventoryPosition].cooldown !== undefined) {
 		if (item[inventoryPosition].cooldownStart === undefined || parseInt(item[inventoryPosition].cooldownStart) + item[inventoryPosition].cooldown <= parseInt(GetFullDateTime())) {
@@ -1957,7 +1957,9 @@ Dom.inventory.cooldown = function (inventoryPosition, hotbar, check) {
 					}
 				}
 				if ((item[inventoryPosition].onClickEventRequirement === undefined || item[inventoryPosition].onClickEventRequirement === Event.event) && (item[inventoryPosition].onClickAreaRequirement === undefined || item[inventoryPosition].onClickAreaRequirement.includes(Game.areaName))) {
-					item[inventoryPosition].onClickFunction(inventoryPosition, hotbar);
+					if (item[inventoryPosition].onClickFunction !== undefined) {
+						item[inventoryPosition].onClickFunction(inventoryPosition, hotbar);
+					}
 				}
 			}else{
 				return true;
@@ -1966,7 +1968,9 @@ Dom.inventory.cooldown = function (inventoryPosition, hotbar, check) {
 	}else{
 		if (!check) {
 			if ((item[inventoryPosition].onClickEventRequirement === undefined || item[inventoryPosition].onClickEventRequirement === Event.event) && (item[inventoryPosition].onClickAreaRequirement === undefined || item[inventoryPosition].onClickAreaRequirement.includes(Game.areaName))) {
-				item[inventoryPosition].onClickFunction(inventoryPosition, hotbar);
+				if (item[inventoryPosition].onClickFunction !== undefined) {
+					item[inventoryPosition].onClickFunction(inventoryPosition, hotbar);
+				}
 			}
 		}else{
 			return true;
@@ -2471,7 +2475,7 @@ Dom.inventory.validateSwap = function () {
 	// invalid drag from equip slot
 	if (Dom.inventory.fromArray.weapon !== undefined) {
 		if (!((Dom.inventory.fromId === Dom.inventory.toArray[Dom.inventory.toId].type || ((Dom.inventory.toArray[Dom.inventory.toId].allClasses === true ||
-		(Dom.inventory.toArray[Dom.inventory.toId].type === "sword" && Player.class === "k") || (Dom.inventory.toArray[Dom.inventory.toId].type === "staff" && Player.class === "m") || (Dom.inventory.toArray[Dom.inventory.toId].type === "bow" && Player.class === "a") || Dom.inventory.toArray[Dom.inventory.toId].type === "rod") && Dom.inventory.fromId === "weapon")) && !Dom.inventory.toArray[Dom.inventory.fromId].unidentified)
+		(Dom.inventory.toArray[Dom.inventory.toId].type === "sword" && Player.class === "k") || (Dom.inventory.toArray[Dom.inventory.toId].type === "staff" && Player.class === "m") || (Dom.inventory.toArray[Dom.inventory.toId].type === "bow" && Player.class === "a") || Dom.inventory.toArray[Dom.inventory.toId].type === "rod") && Dom.inventory.fromId === "weapon")) && !Dom.inventory.toArray[Dom.inventory.toId].unidentified)
 		&& Dom.inventory.toArray[Dom.inventory.toId].image !== undefined) { // checking if it exists
 			return false;
 		}
@@ -2482,6 +2486,16 @@ Dom.inventory.validateSwap = function () {
 		if (!Dom.inventory.validateBags()) {
 			return false;
 		}
+	}
+	
+	// key dropped on chest
+	if (Dom.inventory.fromArray[Dom.inventory.fromId].opens !== undefined &&
+	Dom.inventory.fromArray[Dom.inventory.fromId].opens.type === Dom.inventory.toArray[Dom.inventory.toId].type &&
+	Dom.inventory.fromArray[Dom.inventory.fromId].opens.id === Dom.inventory.toArray[Dom.inventory.toId].id) {
+		Dom.inventory.fromArray[Dom.inventory.fromId] = {};
+		Dom.inventory.fromElement.innerHTML = "";
+		Dom.inventory.toArray[Dom.inventory.toId].onOpen(Dom.inventory.toId);
+		return false;
 	}
 	
 	return true;
@@ -2516,19 +2530,37 @@ Dom.inventory.drop = function (toElement, toArray, toId, fromElement, fromArray,
 		// generate the elements for the items
 		if (this.toElement.innerHTML !== "") {
 			this.fromElement.innerHTML = "<img src='"+this.fromArray[this.fromId].image+"' draggable='true' ></img>";
+			if (this.fromArray[this.fromId].stacked > 1) {
+				this.fromElement.innerHTML += "<div class='stackNum' id='stackNum"+this.fromId+"'>"+this.fromArray[this.fromId].stacked+"</div>";
+			}
 			this.setItemFunctions(this.fromElement.getElementsByTagName("img")[0], this.fromArray, this.fromId);
 		}else{
 			this.fromElement.innerHTML = "";
 		}
 		this.toElement.innerHTML = "<img src='"+this.toArray[this.toId].image+"' draggable='true' ></img>";
+		if (this.toArray[this.toId].stacked > 1) {
+			this.toElement.innerHTML += "<div class='stackNum' id='stackNum"+this.toId+"'>"+this.toArray[this.toId].stacked+"</div>";
+		}
 		this.setItemFunctions(this.toElement.getElementsByTagName("img")[0], this.toArray, this.toId);
+		
+		// update stats
+		if (Dom.inventory.fromArray === Player.inventory) {
+			Dom.inventory.removeEquipment(Dom.inventory.toArray[Dom.inventory.toId]);
+			if (Dom.inventory.fromArray[Dom.inventory.fromId].image !== undefined) {
+				Dom.inventory.addEquipment(Dom.inventory.fromArray[Dom.inventory.fromId]);
+			}
+		}
+		else if (Dom.inventory.toArray === Player.inventory) {
+			Dom.inventory.addEquipment(Dom.inventory.toArray[Dom.inventory.toId]);
+			if (Dom.inventory.fromArray[Dom.inventory.fromId].image !== undefined) {
+				Dom.inventory.removeEquipment(Dom.inventory.fromArray[Dom.inventory.fromId]);
+			}
+		}
 		
 		// bag cases
 		if ((Dom.inventory.toArray === Player.inventory.items && Dom.inventory.toId === 5) || (Dom.inventory.fromArray === Player.inventory.items && Dom.inventory.fromId === 5)) {
 			Dom.inventory.bagCases();
 		}
-		
-		/// TBD Key on chest???
 		
 		// reset variables for new drag incase next drag has none
 		Dom.inventory.fromElement = undefined;
@@ -2545,9 +2577,6 @@ Dom.inventory.setItemFunctions = function (element, array, id) {
 		element.onclick = function () {
 			array[id].onClick(id);
 		}
-	}
-	if (array[id].stacked > 1) {
-		element.innerHTML = "<div class='stackNum' id='stackNum"+id+"'>"+array[id].stacked+"</div>"
 	}
 }
 
@@ -2612,23 +2641,6 @@ Dom.inventory.removeEquipment = function (array) {
 				break;
 			}
 		}
-			/*for (let x = 0; x < Player.conditionalStats.length; x++) {
-				if (array.conditionalStats[i].text === Player.conditionalStats[x].text && array.conditionalStats[i].stats === Player.conditionalStats[x].stats) {
-					// remove conditionalStats from stats
-					if (Player.conditionalStats[i].active) {
-						Player.conditionalStats[i].active = false;
-						for (let i = 0; i < Object.keys(Player.conditionalStats[i].stats).length; i++) {			
-							if (Player.conditionalStats[i].stats[Object.keys(Player.conditionalStats[i].stats)[i]] !== true) {
-								Player.stats[Object.keys(Player.conditionalStats[i].stats)[i]] -= Player.conditionalStats[i].stats[Object.keys(Player.conditionalStats[i].stats)[i]];
-							}else{
-								Player.stats[Object.keys(Player.conditionalStats[i].stats)[i]] = false;
-							}
-						}
-					}
-					Player.conditionalStats.splice(x, 1);
-					break; // stops the same stat being removed twice
-				}
-			}*/
 	}
 	if (array.trail !== undefined) {
 		Game.hero.trail = undefined;
@@ -2645,22 +2657,6 @@ Dom.inventory.addEquipment = function (array) {
 			}else{
 				Player.stats[Object.keys(array.stats)[i]] = true;
 			}
-			
-			/*if (Object.keys(array.stats)[i] !== "poison" && Object.keys(array.stats)[i] !== "damage" && Object.keys(array.stats)[i] !== "frostaura") {
-				Player.stats[Object.keys(array.stats)[i]] += parseFloat(array.stats[Object.keys(array.stats)[i]]);
-			}else if (Object.keys(array.stats)[i] === "frostaura") {
-				Player.stats.frostaura = true;
-			}else if (Object.keys(array.stats)[i] === "damage") {
-				let split = array.stats.damage.split('-');
-				Player.stats.damage += parseFloat(split);
-				if (!isNaN(parseFloat(split[1]))) {
-					Player.stats.maxDamage += parseFloat(split[1]);
-				}
-			}else{
-				let split = array.stats.poison.split('/');
-				Player.stats.poisonX += parseFloat(split[0]);
-				Player.stats.poisonY += parseFloat(split[1]);
-			}*/
 		}
 	}
 	if (array.set !== undefined) {
@@ -2679,21 +2675,6 @@ Dom.inventory.addEquipment = function (array) {
 				}else{
 					Player.stats[Object.keys(Items.set[array.set].stats)[i]] = true;
 				}
-				
-				/*if (Object.keys(Items.set[array.set].stats)[i] !== "poison" && Object.keys(Items.set[array.set].stats)[i] !== "damage" && Object.keys(Items.set[array.set].stats)[i] !== "frostaura") {
-					Player.stats[Object.keys(Items.set[array.set].stats)[i]] += parseFloat(Items.set[array.set].stats[Object.keys(Items.set[array.set].stats)[i]]);
-				}else if (Object.keys(Items.set[array.set].stats)[i] === "frostaura") {
-					Player.stats.frostaura = true;
-				}else if (Object.keys(Items.set[array.set].stats)[i] === "damage") {
-					Player.stats.damage += parseFloat(Items.set[array.set].stats.damage);
-					if (Player.class === "m") {
-						Player.stats.maxDamage += parseFloat(Items.set[array.set].stats.damage);
-					}
-				}else{
-					let split = Items.set[array.set].stats.poison.split('/');
-					Player.stats.poisonX += parseFloat(split[0]);
-					Player.stats.poisonY += parseFloat(split[1]);
-				}*/
 			}
 			if (Items.set[array.set].multiplier !== undefined) {
 				for (let x = 0; x < Items.set[array.set].multiplier.length; x++) {
@@ -3502,16 +3483,29 @@ if (User.settings.grid === true) {
 	document.getElementById("gridOn").checked = true;
 }
 
-Dom.bank.inOut = function (direction, num) {
-	if (direction === "in" ) {
-		let array = Player.inventory.items;
-		if (isNan(num)) {
-			array = Player.inventory;
+Dom.bank.inOut = function (array, num) {
+	if (array !== Player.bank.items) {
+		
+		let element = "";
+		if (isNaN(num)) {
+			element = document.getElementById(num);
+		}
+		else {
+			element = document.getElementById("itemInventory").getElementsByTagName("td")[num];
 		}
 		
 		for (let i = 0; i < Player.bank.items.length; i++) {
 			if (Player.bank.items[i].image === undefined) {
-				Dom.inventory.drop(document.getElementById("bankPageInventory").getElementsByTagName("td")[i], Player.bank.items, i, document.getElementById("itemInventory").getElementsByTagName("td")[num], array, num) ///UPDATE // to, from
+				Dom.inventory.drop(document.getElementById("bankPageInventory").getElementsByTagName("td")[i], Player.bank.items, i, element, array, num) ///UPDATE // to, from
+				break;
+			}
+		}
+	}
+	
+	else {
+		for (let i = 0; i < Player.inventory.items.length; i++) {
+			if (Player.inventory.items[i].image === undefined) {
+				Dom.inventory.drop(document.getElementById("itemInventory").getElementsByTagName("td")[i], Player.inventory.items, i, document.getElementById("bankPageInventory").getElementsByTagName("td")[num], Player.bank.items, num) ///UPDATE // to, from
 				break;
 			}
 		}
@@ -3765,7 +3759,7 @@ Dom.inventory.prepare = function (array, i, element) {
 	if ((array[i].type === "sword" || array[i].type === "staff" || array[i].type === "bow" || array[i].type === "rod") && array[i].name !== undefined) {
 		Items[array[i].type][array[i].id].onClick = function (i) {
 			if (Dom.bank.active) {
-				Dom.bank.inOut("in", i);
+				Dom.bank.inOut(array, i);
 			}
 			else if (!isNaN(i)) {
 				Dom.inventory.drop(document.getElementById("weapon"), Player.inventory, "weapon", document.getElementById("itemInventory").getElementsByTagName("td")[i], Player.inventory.items, i); // to, from
@@ -3789,7 +3783,7 @@ Dom.inventory.prepare = function (array, i, element) {
 	if ((array[i].type === "helm" || array[i].type === "chest" || array[i].type === "greaves" || array[i].type === "boots") && array[i].name !== undefined) {
 		Items[array[i].type][array[i].id].onClick = function (i) {
 			if (Dom.bank.active) {
-				Dom.bank.inOut("in", i);
+				Dom.bank.inOut(array, i);
 			}
 			else if (!isNaN(i)) {
 				Dom.inventory.drop(document.getElementById(Player.inventory.items[i].type), Player.inventory, Player.inventory.items[i].type, document.getElementById("itemInventory").getElementsByTagName("td")[i], Player.inventory.items, i); // to, from
@@ -3811,7 +3805,7 @@ Dom.inventory.prepare = function (array, i, element) {
 	}
 	if (!array[i].unidentified) {
 		array[i].onClickFunction = Items[array[i].type][array[i].id].onClick;
-		if (array[i].onClickFunction !== undefined) {
+		//if (array[i].onClickFunction !== undefined) {
 			if (array[i].channel !== undefined) {
 				array[i].onClick = function (inventoryPosition) {
 					if (Dom.inventory.cooldown(inventoryPosition, false, true)) {
@@ -3821,7 +3815,7 @@ Dom.inventory.prepare = function (array, i, element) {
 			}else{
 				array[i].onClick = Dom.inventory.cooldown;
 			}
-		}
+		//}
 		array[i].onKill = Items[array[i].type][array[i].id].onKill;
 		array[i].onHit = Items[array[i].type][array[i].id].onHit;
 		array[i].onAttack = Items[array[i].type][array[i].id].onAttack;
@@ -4138,6 +4132,18 @@ Dom.init = function () {
 				);
 			}
 		}
+		// Fish mail
+        else if (Event.event === "Fish") {
+            Dom.mail.give(
+                "A Soggy Surprise...",
+                "unknown sender",
+                "./assets/items/sword/10",
+                "text.page",
+                ["A Soggy Surprise...",
+                `A fish fell in your mailbox!`, true, [], [],
+                [{item: Items.sword[10]}]], [{item: Items.sword[10]}],
+            );
+        }
 		// Archaeology mail
 		let done = true;
 		for (let i = 0; i < 7; i++) {
@@ -4183,6 +4189,9 @@ Dom.init = function () {
 	}
 	else {
 	    Dom.chat.insert("Welcome "+(localStorage.getItem(Player.class) !== null ? "back" : "to Antorax")+", " + Player.name + "!", 0, false, true);
+	}
+	if (Event.event === "fish") {
+	    Dom.chat.insert("Something <em>fishy</em> is going on...", 1000, false, true);
 	}
 	
 	// tell the player if they have unread mail

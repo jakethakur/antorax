@@ -58,7 +58,7 @@ function arrange(){
 			document.getElementById("box"+i).style.borderColor = "darkgreen";
 			collected++;
 		}else{
-			document.getElementById("tier"+i).innerHTML = "<br>You have not yet<br>obtained this item";
+			document.getElementById("tier"+i).innerHTML = "<br>You have not yet<br>caught this fish";
 			document.getElementById("box"+i).style.borderColor = "#886622";
 		}
 		document.getElementById("tier"+i).innerHTML += "<br><br>"+array[i].howToCatch;
