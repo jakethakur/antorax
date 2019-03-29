@@ -34,6 +34,8 @@ const EnemyTemplates = {
 			stats: {
 				damage: 3,
 				walkSpeed: 100,
+				swimSpeed: 45,
+				iceSpeed: 170,
 				maxHealth: 10,
 				range: 200,
 				healthRegen: 0.4,
@@ -71,6 +73,8 @@ const EnemyTemplates = {
 			stats: {
 				damage: 2,
 				walkSpeed: 90,
+				swimSpeed: 40,
+				iceSpeed: 160,
 				maxHealth: 10,
 				defence: 2,
 				range: 60,
@@ -97,6 +101,8 @@ const EnemyTemplates = {
 			stats: {
 				damage: 4,
 				walkSpeed: 70,
+				swimSpeed: 35,
+				iceSpeed: 145,
 				maxHealth: 10,
 				defence: 4,
 				range: 60,
@@ -123,6 +129,8 @@ const EnemyTemplates = {
 			stats: {
 				damage: 3,
 				walkSpeed: 95,
+				swimSpeed: 40,
+				iceSpeed: 160,
 				maxHealth: 16,
 				defence: 2,
 				range: 140,
@@ -159,6 +167,8 @@ const EnemyTemplates = {
 			stats: {
 				damage: 4,
 				walkSpeed: 75,
+				swimSpeed: 35,
+				iceSpeed: 145,
 				maxHealth: 24,
 				defence: 8,
 				range: 90,
@@ -185,6 +195,8 @@ const EnemyTemplates = {
 			stats: {
 				damage: 5.5,
 				walkSpeed: 65,
+				swimSpeed: 35,
+				iceSpeed: 145,
 				maxHealth: 24,
 				defence: 10,
 				range: 60,
@@ -213,6 +225,8 @@ const EnemyTemplates = {
 			stats: {
 				damage: 6,
 				walkSpeed: 60,
+				swimSpeed: 30,
+				iceSpeed: 130,
 				maxHealth: 100,
 				defence: 10,
 				range: 90,
@@ -235,9 +249,9 @@ const EnemyTemplates = {
 			],
 			updateStats: function () { // choose attack based on distance
 				// updateStats is currently just an enemy function
-				
+
 				let dist = distance(this, Game.hero);
-				
+
 				// TBD projectile adjust?
 				if (dist < 90) {
 					// sword
@@ -280,6 +294,8 @@ const EnemyTemplates = {
 			stats: {
 				damage: 9,
 				walkSpeed: 60,
+				swimSpeed: 30,
+				iceSpeed: 120,
 				maxHealth: 50,
 				defence: 20,
 				range: 90,

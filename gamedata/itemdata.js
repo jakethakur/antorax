@@ -1944,7 +1944,7 @@ var Items = {
 				let moveTowards = Game.closest(Game.enemies, Game.hero);
 
 				// find bearing
-				let projectileRotate = bearing(projectile, moveTowards);
+				let projectileRotate = Game.bearing(projectile, moveTowards);
 
 				// summon bat projectile
 				Game.projectiles.push(new Projectile({
@@ -2036,7 +2036,7 @@ var Items = {
 				// displace enemies
 				let enemiesInRange = Game.enemies.filter(enemy => Game.areNearby(Game.hero, enemy, 180));
 				enemiesInRange.forEach(enemy => {
-					enemy.displace(0, 180, 1.5, bearing(Game.hero, enemy));
+					enemy.displace(0, 180, 1.5, Game.bearing(Game.hero, enemy));
 				});
 				// tbd displace characters?
 			},

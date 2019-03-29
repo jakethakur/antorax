@@ -33,7 +33,7 @@ Game.run = function (context, contextSecondary, contextDayNight, contextLight) {
 
     this.secondary.ctx = contextSecondary;
 
-    this._previousElapsed = 0;
+    this.previousElapsed = 0;
 
 	this.loadPlayer(); // load the player from local storage
 
@@ -86,9 +86,9 @@ Game.tick = function (elapsed) {
     this.ctxLight.clearRect(0, 0, Dom.canvas.width, Dom.canvas.height);
 
     // compute delta time in seconds -- also cap it
-    var delta = (elapsed - this._previousElapsed) / 1000.0;
+    let delta = (elapsed - this.previousElapsed) / 1000.0;
     delta = Math.min(delta, 0.25); // maximum delta of 250 ms
-    this._previousElapsed = elapsed;
+    this.previousElapsed = elapsed;
 
 
 	this.update(delta); // update game state
@@ -122,16 +122,35 @@ var map = {
     getTile: function (layer, col, row) {
         return this.layers[layer][row * map.cols + col];
     },
-    isSolidTileAtXY: function (x, y) {
-        var col = Math.floor(x / this.tsize);
-        var row = Math.floor(y / this.tsize);
 
-        // loop through all layers and return TRUE if any tile is solid
-        return this.layers.reduce(function (res, layer, index) { // idk what res is TBD find out
-            let tile = this.getTile(index, col, row);
-			let isSolid = false;
+    getCol: function (x) {
+        return Math.floor(x / this.tsize);
+    },
+    getRow: function (y) {
+        return Math.floor(y / this.tsize);
+    },
+
+	// top/left of tile
+    getX: function (col) {
+        return col * this.tsize;
+    },
+    getY: function (row) {
+        return row * this.tsize;
+    },
+
+	isSolidTileAtXY: function (x, y) {
+        let col = this.getCol(x);
+        let row = this.getRow(y);
+
+		let isSolid = false; // set to true if any tile is unpassable (on any layer)
+
+		// loop through all layers and return TRUE if any tile is solid
+		for (let layer = 0; layer < this.layers.length; layer++) {
+			let tile = this.getTile(layer, col, row);
+
 			if (typeof this.solidTiles !== "undefined") { // check that this map contains solidTiles
 				for (let i = 0; i < this.solidTiles.length; i++) {
+					// looping through solid tiles
 					if (tile === this.solidTiles[i]) {
 						// solid tile found
 						isSolid = true;
@@ -139,28 +158,19 @@ var map = {
 					}
 				}
 			}
-            return res || isSolid;
-        }.bind(this), false);
-    },
-    getCol: function (x) {
-        return Math.floor(x / this.tsize);
-    },
-    getRow: function (y) {
-        return Math.floor(y / this.tsize);
-    },
-    getX: function (col) {
-        return col * this.tsize;
-    },
-    getY: function (row) {
-        return row * this.tsize;
-    },
+		}
+
+		return isSolid;
+	},
 	isSlowTileAtXY: function (x, y) {
-        var col = Math.floor(x / this.tsize);
-        var row = Math.floor(y / this.tsize);
+        let col = this.getCol(x);
+        let row = this.getRow(y);
 
         // check first layer only and return TRUE if any tile is a slowing tile
-        var tile = this.getTile(0, col, row);
-		var isSlow = null;
+        let tile = this.getTile(0, col, row);
+
+		let isSlow = null; // set to a string for any slow/fast tile being touched
+
 		if (typeof this.waterTiles !== "undefined") { // check that this map contains waterTiles
 			for (let i = 0; i < this.waterTiles.length; i++) {
 				if (tile === this.waterTiles[i]) {
@@ -199,9 +209,11 @@ var map = {
 		}
 		return isSlow;
 	},
+
 	setTile: function (layer, col, row, newTileNum) {
         this.layers[layer][row * map.cols + col] = newTileNum;
     },
+
 	// set tiles to day or night versions (called on time update by weather interval)
 	setDayNightTiles: function () {
 		// tiles changed to night versions if darkness > 0.2 (due to weather or night)
@@ -246,13 +258,13 @@ var map = {
 
 // find bearing between two entities (with x and y)
 // returns answer in radians
-function bearing (obj1, obj2) {
+Game.bearing = function (obj1, obj2) {
 	let bearing = Math.atan2(obj2.y - obj1.y, obj2.x - obj1.x);
 	return bearing;
 }
 
 // find distance between two entities (with x and y) - pythagoras' theorem
-function distance (obj1, obj2) {
+Game.distance = function (obj1, obj2) {
 	return Math.sqrt((obj1.x - obj2.x) * (obj1.x - obj2.x) + (obj1.y - obj2.y) * (obj1.y - obj2.y));
 }
 
@@ -283,7 +295,7 @@ Game.canBeShown = function (NPC) {
 
 // checks if two objects are within a certain range of each other
 Game.areNearby = function (obj1, obj2, range) {
-	let distanceValue = distance(obj1, obj2);
+	let distanceValue = this.distance(obj1, obj2);
 	if (distanceValue <= range) {
 		return true;
 	}
@@ -297,7 +309,7 @@ Game.closest = function (objArray, mainObj) {
 	let closestDistance = Infinity;
 	let closestIndex = -1;
 	for (let i = 0; i < objArray.length; i++) {
-		let distanceTo = distance(mainObj, objArray[i]);
+		let distanceTo = this.distance(mainObj, objArray[i]);
 		if (distanceTo < closestDistance) {
 			closestIndex = i;
 			closestDistance = distanceTo;
@@ -349,7 +361,7 @@ class Entity {
 			this.id = Game[this.type].length; // array index the NPC is in (for choose DOM)
 		}
 
-		this.collisionType = properties.collisionType || "body"; // "feet" = check collision with Game.heroFootHitbox
+		this.collisionType = properties.collisionType || "body"; // "feet" = check collision with Game.hero.footHitbox
 		// collision type currently only applies to tripwires
 
 		// onLoad function
@@ -401,6 +413,18 @@ class Entity {
 		// not touching any of them
 		return false;
 	}
+
+	// get top, bottom, left, and right positions in pixels
+	// based on x and y (not screenX and screenY)
+	getBoundaries () {
+		let boundaries = {
+			left: this.x - this.width / 2,
+			right: this.x + this.width / 2,
+			top: this.y - this.height / 2,
+			bottom: this.y + this.height / 2,
+		};
+		return boundaries;
+	}
 }
 
 // a version of entity that can be seen
@@ -448,6 +472,17 @@ class Character extends Thing {
 	constructor(properties) {
 		super(properties);
 
+		// foot collision (for tile speeds/collisions)
+		// x and y positions are in centre
+		let footHeight = properties.footHeight || 20; // distance from bottom boundary of player of foot hitbox
+		this.footHitbox = new Entity({
+			map: map,
+			x: this.x,
+			y: this.y + this.height/2 - footHeight/2,
+			width: this.width,
+			height: footHeight,
+		});
+
 		this.channelling = false;
 		this.channellingInfo = false;
 
@@ -479,9 +514,9 @@ class Character extends Thing {
 		// it is recommended that you pick a value for these, but not necessary
 		this.stats.defence = properties.stats.defence || 0;
 		this.stats.healthRegen = properties.stats.healthRegen || 0.5;
-		this.stats.walkSpeed = properties.stats.walkSpeed || 0;
-		this.stats.swimSpeed = properties.stats.swimSpeed || 0;
-		this.stats.iceSpeed = properties.stats.iceSpeed || 0;
+		this.stats.walkSpeed = properties.stats.walkSpeed || 180; // base speed values are same as player
+		this.stats.swimSpeed = properties.stats.swimSpeed || 60;
+		this.stats.iceSpeed = properties.stats.iceSpeed || 270;
 		this.stats.lootTime = properties.stats.lootTime || 10000; // time that it can be looted for
 		this.stats.respawnTime = properties.stats.respawnTime || 11000; // time to respawn (should be more than lootTime)
 
@@ -541,6 +576,13 @@ class Character extends Thing {
 	renderFunction () {
 		// show health bar and character name above head
 		Game.drawCharacterInformation(Game.ctx, this);
+	}
+
+	// update x, y, screenX and screenY of foot hitbox
+	updateFootHitbox () {
+		this.footHitbox.x = this.x;
+		this.footHitbox.y = this.y + this.height/2 - this.footHitbox.height/2;
+		Game.updateScreenPosition(this.footHitbox);
 	}
 
 	// take damage
@@ -632,8 +674,8 @@ class Character extends Thing {
 				}
 			}
 		}
+		// player
 		else {
-			// player
 			if (this.health <= 0 && !this.respawning) { // check it is dead and not already respawning
 
 				// find existing xp fatigue effect
@@ -732,6 +774,117 @@ class Character extends Thing {
 			}
 		}
 		return false;
+	}
+
+	// set character speed
+	// baseSpeed stops the speed being changed from status effects and slow tiles (e.g. for displacement)
+	setSpeed (baseSpeed) {
+		let footY = this.y + this.height/2 - this.footHitbox.width/2; // y position of feet
+
+		// test for slow tiles (e.g: water, mud)
+		let slowTile = this.map.isSlowTileAtXY(this.x, footY);
+
+		if (slowTile === null || baseSpeed) { // normal speed
+			this.speed = this.stats.walkSpeed;
+			// remove swimming/mud/ice/path status effect
+			Game.removeTileStatusEffects(this);
+		}
+
+		else if (slowTile === "ice") { // on ice tile
+			this.speed = this.stats.iceSpeed;
+
+			Game.removeTileStatusEffects(this, "Ice skating"); // remove all status effects from other tiles
+			if (!this.hasStatusEffect("Ice skating")) { // give status effect if the player doesn't already have it
+				Game.statusEffects.generic({
+					target: this,
+					effectTitle: "Ice skating",
+					effectDescription: "Increased movement speed",
+					imageName: "speedUp", // TBD change this?
+					type: "ice",
+					effectStack: "noStack",
+				});
+			}
+		}
+
+		else if (slowTile === "path") { // on path
+			this.speed = this.stats.walkSpeed * 1.15;
+
+			Game.removeTileStatusEffects(this, "On a path"); // remove all status effects from other tiles
+			if (!this.hasStatusEffect("On a path")) { // give status effect if the player doesn't already have it
+				Game.statusEffects.generic({
+					target: this,
+					effectTitle: "On a path",
+					effectDescription: "+15% movement speed",
+					imageName: "speedUp",
+					type: "path",
+					effectStack: "noStack",
+				});
+			}
+		}
+
+		else if (slowTile === "water") { // in water tile
+			this.speed = this.stats.swimSpeed;
+
+			Game.removeTileStatusEffects(this, "Swimming"); // remove all status effects from other tiles
+			if (!this.hasStatusEffect("Swimming")) { // give status effect if the player doesn't already have it
+				// remove fire status effect
+				for (let i = 0; i < this.statusEffects.length; i++) {
+					if (this.statusEffects[i].title.substring(0, 4) == "Fire") {
+						this.statusEffects.splice(i,1);
+					}
+				}
+				// add water status effect
+				Game.statusEffects.generic({
+					target: this,
+					effectTitle: "Swimming",
+					effectDescription: "Reduced movement speed",
+					imageName: "water",
+					type: "water",
+					effectStack: "noStack",
+				});
+			}
+		}
+
+		else if (slowTile === "mud") { // in mud tile
+			// currently mud goes the same speed as in a water tile
+			this.speed = this.stats.swimSpeed;
+
+			Game.removeTileStatusEffects(this, "Stuck in the mud"); // remove all status effects from other tiles
+			if (!this.hasStatusEffect("Stuck in the mud")) { // give status effect if the player doesn't already have it
+				Game.statusEffects.generic({
+					target: this,
+					effectTitle: "Stuck in the mud",
+					effectDescription: "Reduced movement speed",
+					imageName: "mud",
+					type: "mud",
+					effectStack: "noStack",
+				});
+			}
+		}
+
+		else {
+			console.error("Unknown slow tile: " + slowTile);
+		}
+
+		if (!baseSpeed) {
+			// speed status effects (can be buff or debuff)
+			let oldSpeed = this.speed; // not a compound increase
+			for (let i = 0; i < this.statusEffects.length; i++) {
+				let statusEffect = this.statusEffects[i];
+				if (statusEffect.info.speedIncrease !== undefined) {
+					// increase speed if the status effect does so
+					// status effect is in percentage
+					this.speed += oldSpeed * (statusEffect.info.speedIncrease / 100);
+				}
+			}
+
+			// frostaura (for enemie only)
+			if ((this.hostility === "hostile" || this.hostility === "boss") &&
+			Game.hero.stats.frostaura === true && Game.distance(this, Game.hero) < 150) {
+				// range of frostaura is currently 2.5 tiles
+				this.speed /= 2; // currently applied at end, TBD change?
+			}
+		}
 	}
 
 	// whee! make the character fly away from their current point
@@ -928,6 +1081,51 @@ class Attacker extends Character {
 		// because parameters is always an object for spells, it is turned into an array for the function call
 		this.channel(Game.spells[spellName].func, [parameters], Game.spells[spellName].channelTime[spellTier - 1], FromCamelCase(spellName));
 	}
+
+	// collide with solid tiles
+	// returns true/false depending on whether it collided or not (currently unused)
+	collide (dirx, diry, delta) {
+		let row, col;
+
+		// update foot hitbox position
+		this.updateFootHitbox();
+		let boundaries = this.footHitbox.getBoundaries();
+
+		// check for collisions on sprite sides
+		let collision =
+			this.map.isSolidTileAtXY(boundaries.left, boundaries.top) ||
+			this.map.isSolidTileAtXY(boundaries.right, boundaries.top) ||
+			this.map.isSolidTileAtXY(boundaries.right, boundaries.bottom) ||
+			this.map.isSolidTileAtXY(boundaries.left, boundaries.bottom);
+
+		// check collision with collisions - invisible entities that cannot be passed
+		for (let i = 0; i < Game.collisions.length; i++) {
+			// check if the player's feet are touching the collision
+			if (this.footHitbox.isTouching(Game.collisions[i])) {
+				collision = true;
+			}
+		}
+
+		if (!collision) {
+			// do not carry out the following code if there is no collision
+			return collision;
+		}
+
+		if (diry > 0) {
+			this.y -= this.speed * delta * diry;
+		}
+		else if (diry < 0) {
+			this.y += this.speed * delta * Math.abs(diry);
+		}
+		if (dirx > 0) {
+			this.x -= this.speed * delta * dirx;
+		}
+		else if (dirx < 0) {
+			this.x += this.speed * delta * Math.abs(dirx);
+		}
+
+		return collision;
+	}
 }
 
 //
@@ -1076,7 +1274,7 @@ class Hero extends Attacker {
 		else if (this.moveTowards !== undefined) {
 			// move towards a particular point
 			// player cannot control themselves
-			let direction = bearing(this, this.moveTowards);
+			let direction = Game.bearing(this, this.moveTowards);
 			dirx = Math.cos(direction);
 			diry = Math.sin(direction);
 
@@ -1102,15 +1300,9 @@ class Hero extends Attacker {
 			this.y += diry * this.speed * delta;
 		}
 
-		// set foot hitbox positions
-		Game.heroFootHitbox.x = this.x;
-		Game.heroFootHitbox.y = this.y + 50;
-		// screenX and screenY of foot hitbox
-		Game.updateScreenPosition(Game.heroFootHitbox);
-
 		// check if we walked into a non-walkable tile
 		if (Game.hero.moveTowards === undefined) { // hero should only collide if controlled by player
-			this._collide(dirx, diry, delta);
+			this.collide(dirx, diry, delta);
 		}
 
 		// set walkspeed for next move() function call
@@ -1130,142 +1322,6 @@ class Hero extends Attacker {
 		this.y = Math.max(0, Math.min(this.y, maxY));
 	}
 
-	_collide (dirx, diry, delta) { // update move speed based on equipment and surroundings
-		let row, col;
-
-		let left = Game.heroFootHitbox.x - Game.heroFootHitbox.width / 2;
-		let right = Game.heroFootHitbox.x + Game.heroFootHitbox.width / 2;
-		//var top = this.y - this.height / 2;
-		let top = Game.heroFootHitbox.y - Game.heroFootHitbox.height / 2;
-		//var bottom = this.y + this.height / 2;
-		let bottom = Game.heroFootHitbox.y + Game.heroFootHitbox.height / 2;
-
-		// check for collisions on sprite sides
-		let collision =
-			this.map.isSolidTileAtXY(left, top) ||
-			this.map.isSolidTileAtXY(right, top) ||
-			this.map.isSolidTileAtXY(right, bottom) ||
-			this.map.isSolidTileAtXY(left, bottom);
-
-		// check collision with collisions - invisible entities that cannot be passed
-		for (let i = 0; i < Game.collisions.length; i++) {
-			// give collisions a screenX and Y
-			Game.updateScreenPosition(Game.collisions[i]);
-			// check if the player's feet are touching the collision
-			if (Game.heroFootHitbox.isTouching(Game.collisions[i])) {
-				collision = true;
-			}
-		}
-
-		if (!collision) { return; }
-
-		if (diry > 0) {
-			this.y -= this.speed * delta * diry;
-		}
-		if (diry < 0) {
-			this.y += this.speed * delta * Math.abs(diry);
-		}
-		if (dirx > 0) {
-			this.x -= this.speed * delta * dirx;
-		}
-		if (dirx < 0) {
-			this.x += this.speed * delta * Math.abs(dirx);
-		}
-	}
-
-	// set player speed
-	// baseSpeed stops the speed being changed from status effects and slow tiles (e.g: displacement)
-	setSpeed (baseSpeed) {
-		// test for slow tiles (e.g: water, mud)
-		let slowTile = this.map.isSlowTileAtXY(this.x, this.y + 50);
-
-		if (slowTile === null || baseSpeed) { // normal speed
-			this.speed = this.stats.walkSpeed;
-			// remove swimming/mud/ice/path status effect
-			Game.removeTileStatusEffects(this);
-		}
-
-		else if (slowTile === "ice") { // on ice tile
-			this.speed = this.stats.iceSpeed;
-
-			Game.removeTileStatusEffects(this, "Ice skating"); // remove all status effects from other tiles
-			if (!this.hasStatusEffect("Ice skating")) { // give status effect if the player doesn't already have it
-				this.statusEffects.push(new statusEffect({
-					title: "Ice skating",
-					effect: "Increased movement speed",
-					image: "speedUp", // TBD change this?
-				}));
-				this.updateStatusEffects();
-			}
-		}
-
-		else if (slowTile === "path") { // on path
-			this.speed = this.stats.walkSpeed * 1.15;
-
-			Game.removeTileStatusEffects(this, "On a path"); // remove all status effects from other tiles
-			if (!this.hasStatusEffect("On a path")) { // give status effect if the player doesn't already have it
-				this.statusEffects.push(new statusEffect({
-					title: "On a path",
-					effect: "+15% movement speed",
-					image: "speedUp",
-				}));
-				this.updateStatusEffects();
-			}
-		}
-		else if (slowTile === "water") { // in water tile
-			this.speed = this.stats.swimSpeed;
-
-			Game.removeTileStatusEffects(this, "Swimming"); // remove all status effects from other tiles
-			if (!this.hasStatusEffect("Swimming")) { // give status effect if the player doesn't already have it
-				this.statusEffects.push(new statusEffect({
-					title: "Swimming",
-					effect: "Reduced movement speed",
-					image: "water",
-				}));
-				// remove fire status effect
-				for (let i = 0; i < this.statusEffects.length; i++) {
-					if (this.statusEffects[i].title.substring(0, 4) == "Fire") {
-						this.statusEffects.splice(i,1);
-					}
-				}
-				this.updateStatusEffects();
-			}
-		}
-
-		else if (slowTile === "mud") { // in mud tile
-			// currently mud goes the same speed as in a water tile
-			this.speed = this.stats.swimSpeed;
-
-			Game.removeTileStatusEffects(this, "Stuck in the mud"); // remove all status effects from other tiles
-			if (!this.hasStatusEffect("Stuck in the mud")) { // give status effect if the player doesn't already have it
-				this.speed = this.stats.swimSpeed;
-				this.statusEffects.push(new statusEffect({
-					title: "Stuck in the mud",
-					effect: "Reduced movement speed",
-					image: "mud",
-				}));
-				this.updateStatusEffects();
-			}
-		}
-		else {
-			console.error("Unknown slow tile: " + slowTile);
-		}
-
-		if (!baseSpeed) {
-			// speed status effect (can be buff or debuff)
-			let oldSpeed = this.speed; // not a compound increase
-
-			for (let i = 0; i < this.statusEffects.length; i++) {
-				let statusEffect = this.statusEffects[i];
-				if (statusEffect.info.speedIncrease !== undefined) {
-					// increase speed if the status effect does so
-					// status effect is in percentage
-					this.speed += oldSpeed * (statusEffect.info.speedIncrease / 100);
-				}
-			}
-		}
-	}
-
 	// start channeling basic attack
 	startAttack (e) {
 		if (this.canAttack && Player.inventory.weapon.name !== "" && !Player.inventory.weapon.cannotAttack && !this.hasStatusEffectType("stun")) { // checks the player has a weapon and is not currently reloading and is not currently stunned
@@ -1276,7 +1332,7 @@ class Hero extends Attacker {
 				// position of projectile
 				let projectileX = Game.camera.x + e.clientX - Game.viewportOffsetX;
 				let projectileY = Game.camera.y + e.clientY - Game.viewportOffsetY;
-				let distanceToProjectile = distance({x: projectileX, y: projectileY,}, this);
+				let distanceToProjectile = Game.distance({x: projectileX, y: projectileY,}, this);
 
 				if (Player.inventory.weapon.type === "staff" || Player.inventory.weapon.type === "bow" || Player.inventory.weapon.type === "sword") {
 					// player is using conventional weapon
@@ -1290,7 +1346,7 @@ class Hero extends Attacker {
 
 						this.channelling = "projectile";
 
-						let projectileRotate = bearing(this, {x: projectileX, y: projectileY}) + Math.PI / 2;
+						let projectileRotate = Game.bearing(this, {x: projectileX, y: projectileY}) + Math.PI / 2;
 
 						let variance = this.stats.variance;
 						if (Player.inventory.weapon.type === "bow") { // alter variance based on distance to enemy if the class is archer
@@ -2209,7 +2265,7 @@ class Villager extends Thing { // to be changed to character
 	}
 
 	move (delta) {
-		this.bearing = bearing(this, {x: this.state.x, y: this.state.y}); // update bearing (maybe doesn't need to be done every tick?)
+		this.bearing = Game.bearing(this, {x: this.state.x, y: this.state.y}); // update bearing (maybe doesn't need to be done every tick?)
 		if (Math.round(this.x / 100) != Math.round(this.state.x / 100)) {
 			this.x += Math.cos(this.bearing) * this.speed * delta;
 		}
@@ -2309,7 +2365,7 @@ class Enemy extends Attacker {
 			if (this.channelling === false) {
 				// stuff should only be done if it does not cancel something that is being channelled
 
-				let dist = distance(this, Game.hero);
+				let dist = Game.distance(this, Game.hero);
 
 				// find a spell that is not on cooldown and can be cast
 				// TBD enemy mana
@@ -2368,10 +2424,10 @@ class Enemy extends Attacker {
 		// this effect stacks!
 		for (let i = 0; i < Player.inventory.items.length; i++) {
 			if (Player.inventory.items[i].magnetism !== undefined) {
-				let d = Player.inventory.items[i].range - distance(this, Game.hero);
+				let d = Player.inventory.items[i].range - Game.distance(this, Game.hero);
 				if (d > 0) {
 					// in range
-					let b = bearing(this, Game.hero);
+					let b = Game.bearing(this, Game.hero);
 					let speed = Items.item[15].magnetism * (d / Player.inventory.items[i].range);
 					this.x += Math.cos(b) * speed * delta;
 					this.y += Math.sin(b) * speed * delta;
@@ -2382,24 +2438,42 @@ class Enemy extends Attacker {
 
 	// move towards entity (towards parameter)
 	move (delta, towards) {
-		// figure out speed (TBD make separate function for this?)
-		let speed = this.speed;
-		// speed status effect (can be buff or debuff)
-		for (let i = 0; i < this.statusEffects.length; i++) {
-			if (this.statusEffects[i].info.speedIncrease !== undefined) {
-				// increase speed if the status effect does so
-				speed *= 1 + (this.statusEffects[i].info.speedIncrease / 100);
+		// figure out speed
+		this.setSpeed();
+
+		this.bearing = Game.bearing(this, towards); // update bearing (maybe doesn't need to be done every tick?)
+
+		let dirx = Math.cos(this.bearing);
+		let diry = Math.sin(this.bearing);
+
+		this.x += dirx * this.speed * delta;
+		this.y += diry * this.speed * delta;
+
+		// collide with solid tiles
+		this.collide(dirx, diry, delta);
+		/*let collisionDirection = this.collide(dirx, diry, delta);
+
+		// if a collision happened, move more in the orthogonal direction instead
+		if (collisionDirection === "horizontal") {
+			// left or right collison
+			// move up or down only
+			if (diry > 0) {
+				this.y += this.speed * delta; // no use of dirx because movement is now only in y axis
+			}
+			else if (diry < 0) {
+				this.y += this.speed * delta; // no use of dirx because movement is now only in y axis
 			}
 		}
-		// frostaura
-		if (Game.hero.stats.frostaura === true && distance(this, Game.hero) < 150) {
-			// range of frostaura is currently 2.5 tiles
-			speed /= 2;
-		}
-
-		this.bearing = bearing(this, towards); // update bearing (maybe doesn't need to be done every tick?)
-		this.x += Math.cos(this.bearing) * speed * delta;
-		this.y += Math.sin(this.bearing) * speed * delta;
+		else if (collisionDirection === "vertical") {
+			// up or down collison
+			// move left or right only
+			if (dirx > 0) {
+				this.x += this.speed * delta; // no use of dirx because movement is now only in x axis
+			}
+			else if (dirx < 0) {
+				this.x += this.speed * delta; // no use of dirx because movement is now only in x axis
+			}
+		}*/
 	}
 
 	// shoot projectile at array of arrays of enemies (at)
@@ -2407,11 +2481,11 @@ class Enemy extends Attacker {
 	shoot (at) {
 		this.canAttack = false;
 
-		var projectileX, projectileY, projectileRotate;
+		let projectileX, projectileY, projectileRotate;
 
 		projectileX = at[0][0].x;
 		projectileY = at[0][0].y;
-		projectileRotate = bearing(this, {x: projectileX, y: projectileY}) + Math.PI / 2;
+		projectileRotate = Game.bearing(this, {x: projectileX, y: projectileY}) + Math.PI / 2;
 
 		this.channellingProjectileId = Game.nextProjectileId;
 
@@ -3152,10 +3226,10 @@ Game.spells = {
 
 		// properties should contain tier (as int value), caster, target
 		func: function (properties) {
-			let dist = distance(properties.caster, properties.target);
+			let dist = Game.distance(properties.caster, properties.target);
 			let velocity = Game.spells.charge.velocity[properties.tier-1];
 			let time = dist / velocity;
-			let bear = bearing(properties.caster, properties.target);
+			let bear = Game.bearing(properties.caster, properties.target);
 			properties.caster.displace(0, velocity, time, bear); // start displacement
 		},
 
@@ -3718,7 +3792,7 @@ Game.loadArea = function (areaName, destination) {
 		this.camera.update(true);
 
 		// set foot hitbox position (updated on hero move normally)
-		this.updateScreenPosition(this.heroFootHitbox);
+		this.updateScreenPosition(this.hero.footHitbox);
 
 		// render secondary canvas
 		this.secondary.render();
@@ -3856,16 +3930,6 @@ Game.init = function () {
 		checkpoint: Player.checkpoint,
 
 		oldPosition: Player.oldPosition,
-	});
-
-	// hitbox for collision (hero's feet)
-	// Player.x used instead of Game.hero.x because Game.hero.x has not yet been set
-	this.heroFootHitbox = new Entity({
-		map: map,
-		x: Player.x,
-		y: Player.y + 50,
-		width: Game.hero.width,
-		height: 20,
 	});
 
 	// set player projectile
@@ -4302,6 +4366,11 @@ Game.restoreHealth = function (target, health) {
 //
 
 Game.update = function (delta) {
+	// update collision positions
+	for (let i = 0; i < this.collisions.length; i++) {
+		this.updateScreenPosition(this.collisions[i]);
+	}
+
     // handle hero movement with arrow keys
 	if (this.hero.moveTowards === undefined && !Game.hero.hasStatusEffect("Displacement")) {
 		let dirx = 0;
@@ -4687,7 +4756,7 @@ Game.update = function (delta) {
 		// check if the currently displayed NPC is the current one in the for loop
 		if (npc.id === Dom.currentNPC.id && npc.type === Dom.currentNPC.type) {
 			// close the DOM if the player is too far away from the NPC or if the NPC is dead
-			if (npc.respawning || distance(Game.hero, npc) > Game.hero.stats.domRange) {
+			if (npc.respawning || this.distance(this.hero, npc) > this.hero.stats.domRange) {
 				// NPC is dead or player is more than 4 (can be changed) tiles away from NPC
 				Dom.closeNPCPages();
 			}
@@ -4712,7 +4781,7 @@ Game.update = function (delta) {
 		// check if the currently displayed DOM is for the current enemy in the for loop
 		if (enemy.id === Dom.currentNPC.id && enemy.type === Dom.currentNPC.type) {
 			// close the DOM if the player is too far away from the enemy or if the enemy is dead
-			if (enemy.respawning && distance(Game.hero, enemy) > Game.hero.stats.domRange) {
+			if (enemy.respawning && this.distance(Game.hero, enemy) > this.hero.stats.domRange) {
 				// enemy is dead or player is more than 4 tiles away from enemy
 				Dom.closeNPCPages();
 			}
@@ -4723,7 +4792,7 @@ Game.update = function (delta) {
 			// iterate through each separate thing that should be checked
 			for (let x = 0; x < enemy.checkTouching.length; x++) {
 				// array of things to check
-				let touchingArray = Game[enemy.checkTouching[x].arrayName];
+				let touchingArray = this[enemy.checkTouching[x].arrayName];
 				if (enemy.checkTouching[x].objectName !== undefined) {
 					// particular name for object in array
 					touchingArray = touchingArray.filter(obj => obj.name === enemy.checkTouching[x].objectName);
@@ -4748,7 +4817,7 @@ Game.update = function (delta) {
 
 		if (projectile.moveTowards !== undefined) {
 			// move towards the position
-			let direction = bearing(projectile, projectile.moveTowards);
+			let direction = this.bearing(projectile, projectile.moveTowards);
 			projectile.x += Math.cos(direction) * projectile.moveSpeed * delta;
 			projectile.y += Math.sin(direction) * projectile.moveSpeed * delta;
 
@@ -4783,7 +4852,7 @@ Game.update = function (delta) {
 		// check if the currently displayed DOM is for the current mailbox in the for loop
 		if (mailbox.id === Dom.currentNPC.id && mailbox.type === Dom.currentNPC.type) {
 			// close the DOM if the player is too far away from the mailbox or if the mailbox is dead
-			if (distance(Game.hero, mailbox) > Game.hero.stats.domRange) {
+			if (this.distance(Game.hero, mailbox) > Game.hero.stats.domRange) {
 				// player is more than 4 tiles away from mailbox
 				Dom.closeNPCPages();
 			}
@@ -4797,7 +4866,7 @@ Game.update = function (delta) {
 		// check if the currently displayed DOM is for the current mailbox in the for loop
 		if (chest.id === Dom.currentNPC.id && chest.type === Dom.currentNPC.type) {
 			// close the DOM if the player is too far away from the chest or if the chest is dead
-			if (distance(Game.hero, chest) > Game.hero.stats.domRange) {
+			if (this.distance(Game.hero, chest) > Game.hero.stats.domRange) {
 				// player is more than 4 tiles away from chest
 				Dom.closeNPCPages();
 				// loot not wiped (so the player can revisit if they closed by accident)
@@ -4842,7 +4911,7 @@ Game.update = function (delta) {
 		this.updateScreenPosition(entity);
 
         if ((entity.collisionType === "body" && this.hero.isTouching(entity)) ||
-		(entity.collisionType === "feet" && this.heroFootHitbox.isTouching(entity))) {
+		(entity.collisionType === "feet" && this.hero.footHitbox.isTouching(entity))) {
 			let boundOnPlayerTouch = entity.onPlayerTouch.bind(entity);
 			boundOnPlayerTouch();
 		}
@@ -5217,7 +5286,7 @@ Game.highSpeed = function (addRemove) {
 // Render game (draw onto canvas)
 //
 
-Game._drawLayer = function (layer) {
+Game.drawLayer = function (layer) {
 	let startCol, endCol, startRow, endRow;
 	let offsetX = 0;
 	let offsetY = 0;
@@ -5279,7 +5348,7 @@ Game._drawLayer = function (layer) {
     }
 };
 
-Game._drawGrid = function () {
+Game.drawGrid = function () {
 	// stroke colour
 	this.ctx.strokeStyle="#0000ff";
 
@@ -5313,7 +5382,7 @@ Game.drawHitboxes = function () {
 	// TBD change this to work off of renderList
 
 	// player hitbox (add to renderlist tbd)
-	this.ctx.strokeRect(this.hero.screenX - this.hero.width / 2, this.hero.screenY - this.hero.height / 2, this.hero.width, this.hero.height);
+	this.drawhitbox(this.hero);
 
 	// render npcs on renderList
 	for (let i = 0; i < this.renderList.length; i++) { // iterate through everything to be rendered (in order)
@@ -5325,10 +5394,10 @@ Game.drawHitboxes = function () {
 			if (Game.camera.isOnScreen(objectToRender, "hitbox")) { // check object hitbox is on the screen hence should be rendered
 
 				if (objectToRender.hitbox !== undefined) { // check if the object has a special hitbox that should be drawn instead
-					this.ctx.strokeRect(objectToRender.hitbox.screenX - objectToRender.hitbox.width / 2, objectToRender.hitbox.screenY - objectToRender.hitbox.height / 2, objectToRender.hitbox.width, objectToRender.hitbox.height);
+					this.drawhitbox(objectToRender.hitbox);
 				}
 				else {
-					this.ctx.strokeRect(objectToRender.screenX - objectToRender.width / 2, objectToRender.screenY - objectToRender.height / 2, objectToRender.width, objectToRender.height);
+					this.drawhitbox(objectToRender);
 				}
 
 			}
@@ -5340,35 +5409,40 @@ Game.drawHitboxes = function () {
 	// area teleport hitboxes
 	// maybe a special hitbox render list should be made? (tbd)
 	for (let i = 0; i < this.areaTeleports.length; i++) {
-		this.ctx.strokeRect(this.areaTeleports[i].screenX - this.areaTeleports[i].width / 2, this.areaTeleports[i].screenY - this.areaTeleports[i].height / 2, this.areaTeleports[i].width, this.areaTeleports[i].height);
+		this.drawhitbox(this.areaTeleports[i]);
 	}
 
 	// tripwire hitboxes
 	// maybe a special hitbox render list should be made? (tbd)
 	for (let i = 0; i < this.tripwires.length; i++) {
-		this.ctx.strokeRect(this.tripwires[i].screenX - this.tripwires[i].width / 2, this.tripwires[i].screenY - this.tripwires[i].height / 2, this.tripwires[i].width, this.tripwires[i].height);
+		this.drawhitbox(this.tripwires[i]);
 	}
 
 	// collision hitboxes
 	// maybe a special hitbox render list should be made? (tbd)
 	for (let i = 0; i < this.collisions.length; i++) {
-		this.ctx.strokeRect(this.collisions[i].screenX - this.collisions[i].width / 2, this.collisions[i].screenY - this.collisions[i].height / 2, this.collisions[i].width, this.collisions[i].height);
+		this.drawhitbox(this.collisions[i]);
 	}
 
 	// projectile hitboxes
 	// should be added to renderList (tbd)
 	for (let i = 0; i < this.projectiles.length; i++) {
 		if (this.projectiles[i].hitbox !== undefined) { // this should be checked for everything in the future (when this function is reworked to work with renderList)
-			this.ctx.strokeRect(this.projectiles[i].hitbox.screenX - this.projectiles[i].hitbox.width / 2, this.projectiles[i].hitbox.screenY - this.projectiles[i].hitbox.height / 2, this.projectiles[i].hitbox.width, this.projectiles[i].hitbox.height);
+			this.drawhitbox(this.projectiles[i].hitbox);
 		}
 		else {
-			this.ctx.strokeRect(this.projectiles[i].screenX - this.projectiles[i].width / 2, this.projectiles[i].screenY - this.projectiles[i].height / 2, this.projectiles[i].width, this.projectiles[i].height);
+			this.drawhitbox(this.projectiles[i]);
 		}
 	}
 
 	// stroke colour for hero foot hitbox
 	this.ctx.strokeStyle="#FF00FF";
-	this.ctx.strokeRect(this.heroFootHitbox.screenX - this.heroFootHitbox.width / 2, this.heroFootHitbox.screenY - this.heroFootHitbox.height / 2, this.heroFootHitbox.width, this.heroFootHitbox.height);
+	this.drawhitbox(this.hero.footHitbox);
+}
+
+// draw an entity's hitbox
+Game.drawhitbox = function(entity) {
+	this.ctx.strokeRect(entity.screenX - entity.width / 2, entity.screenY - entity.height / 2, entity.width, entity.height);
 }
 
 // display coordinates on canvas (settings option)
@@ -5438,7 +5512,7 @@ Game.updateScreenPosition = function (entity) {
 	entity.screenY = (entity.y) - this.camera.y + this.viewportOffsetY;
 
 	if (typeof entity.adjust !== "undefined") { // adjust postiion
-		let angle = bearing(entity, entity.adjust.towards);
+		let angle = this.bearing(entity, entity.adjust.towards);
 		entity.screenX += entity.adjust.x * Math.cos(angle);
 		entity.screenY += entity.adjust.y * Math.sin(angle);
 	}
@@ -5707,7 +5781,7 @@ Game.render = function (delta) {
 
     // draw map background layer
     //if (this.hasScrolled) {
-	this._drawLayer(0);
+	this.drawLayer(0);
     //}
 
 	// distort canvas
@@ -5953,7 +6027,7 @@ Game.render = function (delta) {
 	}
 
     // draw map top layer
-    //this._drawLayer(1);
+    //this.drawLayer(1);
 
 	if (!Keyboard.isDown(Keyboard.keys.SHIFT, "SHIFT")) { // only render this if the player isn't pressing the shift key
 
@@ -5963,7 +6037,7 @@ Game.render = function (delta) {
 
 	    // draw map grid (debug)
 	    if (document.getElementById("gridOn").checked) {
-			this._drawGrid();
+			this.drawGrid();
 	    }
 
 	    // draw hitboxes (debug)
@@ -6044,7 +6118,7 @@ Game.secondary.updateCursor = function (event) {
 	}
 
 	// get player's range and mouse distance
-	let mouseDistanceFromHero = distance({x: Game.camera.x + event.clientX - Game.viewportOffsetX, y: Game.camera.y + event.clientY - Game.viewportOffsetY,}, Game.hero);
+	let mouseDistanceFromHero = Game.distance({x: Game.camera.x + event.clientX - Game.viewportOffsetX, y: Game.camera.y + event.clientY - Game.viewportOffsetY,}, Game.hero);
 	let range = Game.hero.stats.range;
 
 	// if the weapon is a fishing rod, check the mouse is in water
