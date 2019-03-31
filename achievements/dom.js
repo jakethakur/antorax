@@ -196,7 +196,7 @@ function arrange(){
 		if(array[i].expand !== undefined){
 			document.getElementById("box"+i).style.cursor = "pointer";
 			if(array[i].expand.type === "progressBar"){
-				document.getElementById("box"+i).innerHTML += "<div class='progressBar' id='progressBar"+i+"' hidden><div class='innerProgressBar' style='width: "+(array[i].expand.value/array[i].expand.total*433)+"px;'></div><div class='progressBarText'>"+array[i].expand.value+"/"+array[i].expand.total+"</div></div>";
+				document.getElementById("box"+i).innerHTML += "<div class='progressBar' id='progressBar"+i+"' hidden><div class='innerProgressBar' style='width: "+(array[i].expand.value/array[i].expand.total*433)+"px;'></div><div class='progressBarText'>"+(array[i].expand.value !== undefined ? array[i].expand.value : 0)+"/"+array[i].expand.total+"</div></div>";
 			}else if(array[i].expand.type === "checkList"){
 				document.getElementById("box"+i).innerHTML += "<div class='checkList' id='progressBar"+i+"' hidden></div>";
 				if(array[i].class === "single"){

@@ -250,7 +250,7 @@ const EnemyTemplates = {
 			updateStats: function () { // choose attack based on distance
 				// updateStats is currently just an enemy function
 
-				let dist = distance(this, Game.hero);
+				let dist = Game.distance(this, Game.hero);
 
 				// TBD projectile adjust?
 				if (dist < 90) {

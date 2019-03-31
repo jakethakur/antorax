@@ -779,7 +779,7 @@ class Character extends Thing {
 	// set character speed
 	// baseSpeed stops the speed being changed from status effects and slow tiles (e.g. for displacement)
 	setSpeed (baseSpeed) {
-		let footY = this.y + this.height/2 - this.footHitbox.width/2; // y position of feet
+		let footY = this.y + this.height/2 - this.footHitbox.height/2; // y position of feet
 
 		// test for slow tiles (e.g: water, mud)
 		let slowTile = this.map.isSlowTileAtXY(this.x, footY);

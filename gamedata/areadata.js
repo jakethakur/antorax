@@ -265,8 +265,8 @@ var Areas = {
 
 		checkpoint: false,
 		player: {
-			x: 2777,
-			y: 387,
+			x: 3838,
+			y: 318,
 		},
 
 		lootArea: "loggingCamp",
@@ -302,12 +302,12 @@ var Areas = {
 					}
 					// otherwise if the player hasn't started the quest, teleport them back to make them!
 					else if (!questStarted && !Player.quests.completedQuestArray.includes("To the Logging Camp")) {
-						Game.hero.teleport(2297, 387);
+						Game.hero.teleport(3838, 318);
 						Dom.alert.page("You need to start your first quest. Speak to the Cart Driver who is right next to you.", 0, undefined, "game")
 					}
 					// otherwise if the player hasn't bought the weapon, teleport them back to make them!
 					else if (!weaponBought && !Player.quests.completedQuestArray.includes("To the Logging Camp")) {
-						Game.hero.teleport(1457, 385);
+						Game.hero.teleport(2369, 243);
 						Dom.alert.page("You need to buy a weapon to progress in your quest. Buy one from the nearby Weaponsmith.", 0, undefined, "game")
 					}
 				}

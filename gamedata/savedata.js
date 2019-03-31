@@ -6,39 +6,39 @@ var Player = {
 	name: playerName,
 	class: playerClass,
 	skin: playerSkin,
-	
+
 	// updated by saved progress
-	x: 2297, // start coords
-	y: 387,
+	x: 3838, // start coords
+	y: 318,
 	areaName: "tutorial",
-	
+
 	lootArea: "Eaglecrest Logging Camp", // general area that unidentified items are from
 	lootTier: 1, // tier that unidentified items are from
-	
+
 	unlockedInstructions: [],
 	skippedInstructions: [],
 	unlockedTabs: [],
 	skippedTabs: [],
-	
+
 	days: [], // days logged on (ddmmyyyy)
 	metNPCs: ["Cart Driver"],
-	
+
 	chests: {
 		opened: {},
 		locations: {},
 	},
-	
+
 	bossesKilled: {
         goblinKing: 0,
 		tatteredKnight: 0,
     },
-	
+
 	mail: {
 		mail: [],
 		received: [],
 		opened: [],
 	},
-	
+
 	reputation: {
 		eaglecrestLoggingCamp: {
 			score: 0,
@@ -50,23 +50,23 @@ var Player = {
 		},
 	},
 	reputationReady: false, // if player has dismissed reputation tutorial text
-	
+
 	quests: {
 		activeQuestArray: [],
 		possibleQuestArray: [],
 		completedQuestArray: [],
 		canBeFinishedArray: [], // array of quests that can be finished (for use in main)
-		
+
 		questProgress: {}, // stores properties for quest objectives (and achievements) that cannot otherwise be tracked between saves
 		questLastFinished: { // stores the last date (format ddmmyyyy) that the quest was finished (for seeing if daily quests can be started again)
 			eaglecrestLoggingCamp: [],
 			tavern: [],
 			fishing: [],
 		},
-		
+
 		randomDailyQuests: {}, // the random daily quest of the day (for NPCs with a random daily quest)
 	},
-	
+
 	inventory: {
 		helm: {},
 		chest: {},
@@ -75,12 +75,12 @@ var Player = {
 		weapon: {},
 		items: [{},{},{},{},{},{}],
 	},
-	
+
 	bank: {
 		unlockedSlots: 0,
 		items: [{},{},{},{},{},{}],
 	},
-	
+
 	// updated by DOM
 	stats: {
 		damage: 0, // (8)
@@ -109,22 +109,22 @@ var Player = {
 		xpBonus: 0, // (20%)
 		frostaura: false, // boolean
 		penetration: false, // boolean (if projectile damages more than one enemy)
-		
+
 		// fishing
 		fishingSkill: 0, // (1.1) increased when you fish stuff up (increased by main.js)
-		
+
 		// misc
 		domRange: 240, // distance from an entity that a DOM menu may be opened
 	},
 	conditionalStats: [],
-	
+
 	xp: 0,
 	level: 1,
-	
+
 	fatiguedXP: 0, // this amount of xp is worth 50% less due to a death
-    
+
 	health: 50, // should be set to whatever stats.maxHealth is set to (but didn't work)
-	
+
 	statusEffects: [], // updated by saved data / main [function Game.hero.updateStatusEffects()]
 };
 
