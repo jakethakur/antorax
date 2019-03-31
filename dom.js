@@ -1945,7 +1945,7 @@ Dom.inventory.cooldown = function (inventoryPosition, hotbar, check) {
 	}
 	
 	if (Dom.bank.active) {
-		Dom.bank.inOut(item, inventoryPosition);
+		Dom.bank.inOut("in", inventoryPosition);
 	}
 	else if (item[inventoryPosition].cooldown !== undefined) {
 		if (item[inventoryPosition].cooldownStart === undefined || parseInt(item[inventoryPosition].cooldownStart) + item[inventoryPosition].cooldown <= parseInt(GetFullDateTime())) {
@@ -2352,24 +2352,79 @@ Dom.inventory.drag = function (fromElement, fromArray, fromId) {
 	Dom.expand("information");
 }
 
-Dom.inventory.bagSwaps = function (to, from) {
+Dom.inventory.bagSwaps = function (to, from, array) {
 	// if is being swapped with another bag
 	if (to.type === "bag") {
 		// if the new bag is bigger than the old bag
 		if (to.size >= from.size) {
 			for (let i = 0; i < (to.size - from.size); i++) {
-				Player.inventory.items.push({});
+				array.push({});
 			}
 		}
 		// if the new bag is smaller than the old bag
 		else {
-			Player.inventory.items.splice(6 + to.size);
+			array.splice(array.length - from.size + to.size);
 		}
 	}
 	// if the bag is being removed and not replaced
 	else {
 		// removes the code from the rest of the inventory
-		Player.inventory.items.splice(6);
+		array.splice(array.length - from.size);
+	}
+}
+
+Dom.bank.bagCases = function () {
+	//let changed = true;
+	// going from the bag slot from a bag
+	if (Dom.inventory.fromArray === Player.bank.items && Dom.inventory.fromId < 6 && Dom.inventory.toArray[Dom.inventory.toId].type === "bag") {
+		Dom.inventory.bagSwaps(Dom.inventory.fromArray[Dom.inventory.fromId], Dom.inventory.toArray[Dom.inventory.toId], Player.bank.items);
+	}
+	// going to the bag slot to a bag
+	if (Dom.inventory.toArray === Player.bank.items && Dom.inventory.toId < 6 && Dom.inventory.fromArray[Dom.inventory.fromId].type === "bag") {
+		Dom.inventory.bagSwaps(Dom.inventory.toArray[Dom.inventory.toId], Dom.inventory.fromArray[Dom.inventory.fromId], Player.bank.items);
+	}
+	// going to the bag slot from a bag and not swapping
+	else if (Dom.inventory.toArray === Player.bank.items && Dom.inventory.toId < 6 && Dom.inventory.toArray[Dom.inventory.toId].type === "bag") {
+		for (let y = 0; y < Dom.inventory.toArray[Dom.inventory.toId].size; y++) {
+			Player.bank.items.push({});
+		}
+	}
+	// going from the bag slot to a bag and not swapping
+	else if (Dom.inventory.fromArray === Player.bank.items && Dom.inventory.fromId < 6 && Dom.inventory.fromArray[Dom.inventory.fromId].type === "bag") {
+		for (let y = 0; y < Dom.inventory.fromArray[Dom.inventory.fromId].size; y++) {
+			Player.bank.items.push({});
+		}
+	}
+	// no bags changed
+	/*else {
+		changed = false;
+	}*/
+	
+	// redraw the bank if a bag has been changed
+	document.getElementById("bankPageInventory").innerHTML = "";
+	for (let i = 0; i < Player.bank.items.length; i+=6) {
+		let str = "<tr>";
+		for (let inv = i; inv < i+6; inv++) {
+			str += '<td ondrop="Dom.inventory.drop(event, Player.bank.items, '+inv+');Game.inventoryUpdate(event)" ondragover="Dom.inventory.allowDrop(event)" onmouseover="Dom.inventory.displayInformation(Player.bank.items['+inv+'], undefined, \'bankPage\')" onmouseleave="Dom.expand(\'information\')" ondrag="Dom.expand(\'information\')" onclick="Game.inventoryUpdate()"></td>';
+		}
+		document.getElementById("bankPageInventory").innerHTML += str+"</tr>";
+	}
+	for (let i = 0; i < 6; i++) {
+		if (i < Player.bank.unlockedSlots) {
+			document.getElementById("bankPageInventory").getElementsByTagName("td")[i].style.backgroundImage = "url('./assets/items/bag/1.png')";
+		}
+		else {
+			document.getElementById("bankPageInventory").getElementsByTagName("td")[i].style.backgroundImage = "url('./assets/items/bag/0.png')";
+		}
+	}
+	for (let i = 0; i < Player.bank.items.length; i++) {
+		if (Player.bank.items[i].image !== undefined) {
+			// building the table
+			document.getElementById("bankPageInventory").getElementsByTagName("td")[i].innerHTML = "<img src='"+Player.bank.items[i].image+"' draggable='true' ondragstart='Dom.inventory.drag(event, Player.bank.items, "+i+")' onclick='Dom.bank.inOut(\"out\", "+i+")'></img>";
+			if (Player.bank.items[i].stacked !== undefined && Player.bank.items[i].stacked !== 1) {
+				document.getElementById("bankPageInventory").getElementsByTagName("td")[i].innerHTML += "<div class='stackNum' id='bankStackNum"+i+"'>"+Player.bank.items[i].stacked+"</div>";
+			}
+		}
 	}
 }
 
@@ -2377,11 +2432,11 @@ Dom.inventory.bagCases = function () {
 	let changed = true;
 	// going from the bag slot from a bag
 	if (this.fromArray === Player.inventory.items && this.fromId === 5 && this.toArray[this.toId].type === "bag") {
-		Dom.inventory.bagSwaps(this.fromArray[this.fromId], this.toArray[this.toId]);
+		Dom.inventory.bagSwaps(this.fromArray[this.fromId], this.toArray[this.toId], Player.inventory.items);
 	}
 	// going to the bag slot to a bag
 	else if (this.toArray === Player.inventory.items && this.toId === 5 && this.fromArray[this.fromId].type === "bag") {
-		Dom.inventory.bagSwaps(this.toArray[this.toId], this.fromArray[this.fromId]);
+		Dom.inventory.bagSwaps(this.toArray[this.toId], this.fromArray[this.fromId], Player.inventory.items);
 	}
 	// going to the bag slot from a bag and not swapping
 	else if (this.toArray === Player.inventory.items && this.toId === 5 && this.toArray[this.toId].type === "bag") {
@@ -2412,19 +2467,27 @@ Dom.inventory.bagCases = function () {
 		}
 		for (let i = 0; i < Player.inventory.items.length; i++) {
 			if (Player.inventory.items[i].image !== undefined) {
-				document.getElementById("itemInventory").getElementsByTagName("td")[i].innerHTML = '<img src="'+Player.inventory.items[i].image+'" draggable="true" ondragstart="Dom.inventory.drag(event, Player.inventory.items, '+i+')"></img>';
+				document.getElementById("itemInventory").getElementsByTagName("td")[i].innerHTML = '<img src="'+Player.inventory.items[i].image+'" draggable="true" ondragstart="Dom.inventory.drag(event, Player.inventory.items, '+i+')" onclick="Player.inventory.items['+i+'].onClick('+i+')"></img>';
 				if (Player.inventory.items[i].stacked !== undefined && Player.inventory.items[i].stacked !== 1) {
 					document.getElementById("itemInventory").getElementsByTagName("td")[i].innerHTML += "<div class='stackNum' id='stackNum"+i+"'>"+Player.inventory.items[i].stacked+"</div>";
 				}
 			}
 		}
+		document.getElementById("itemInventory").getElementsByTagName("td")[5].style.backgroundImage = "url('assets/items/bag/1.png')";
 	}
+}
+
+Dom.bank.validateBags = function () {
+	if (Dom.inventory.toArray === Player.bank.items && (Dom.inventory.fromArray[Dom.inventory.fromId].type !== "bag" || Dom.inventory.toId >= Player.bank.unlockedSlots)){
+		return false;
+	}
+	return true;
 }
 
 Dom.inventory.validateBags = function () {
 	let highest = 0;
 	if ((Dom.inventory.toId === 5 && Dom.inventory.toArray[Dom.inventory.toId].type === "bag") || (Dom.inventory.fromId === 5 && Dom.inventory.fromArray[Dom.inventory.fromId].type === "bag")) {
-		// checks position the last item in the inventory
+		// checks position of the last item in the inventory
 		for (let x = Player.inventory.items.length-1; x >= 6; x--) {
 			if (Player.inventory.items[x].image !== undefined || Dom.inventory.toId === x) {
 				highest = x;
@@ -2484,6 +2547,13 @@ Dom.inventory.validateSwap = function () {
 	// inventory bag slot
 	if ((Dom.inventory.toArray === Player.inventory.items && Dom.inventory.toId === 5) || (Dom.inventory.fromArray === Player.inventory.items && Dom.inventory.fromId === 5)) {
 		if (!Dom.inventory.validateBags()) {
+			return false;
+		}
+	}
+	
+	// bank bag slot
+	if ((Dom.inventory.toArray === Player.bank.items && Dom.inventory.toId < 6) || (Dom.inventory.fromArray === Player.bank.items && Dom.inventory.fromId < 6)) {
+		if (!Dom.bank.validateBags()) {
 			return false;
 		}
 	}
@@ -2557,9 +2627,14 @@ Dom.inventory.drop = function (toElement, toArray, toId, fromElement, fromArray,
 			}
 		}
 		
-		// bag cases
+		// inventory bag cases
 		if ((Dom.inventory.toArray === Player.inventory.items && Dom.inventory.toId === 5) || (Dom.inventory.fromArray === Player.inventory.items && Dom.inventory.fromId === 5)) {
 			Dom.inventory.bagCases();
+		}
+		
+		// bank bag cases
+		if ((Dom.inventory.toArray === Player.bank.items && Dom.inventory.toId < 6) || (Dom.inventory.fromArray === Player.bank.items && Dom.inventory.fromId < 6)) {
+			Dom.bank.bagCases();
 		}
 		
 		// reset variables for new drag incase next drag has none
@@ -2573,9 +2648,14 @@ Dom.inventory.setItemFunctions = function (element, array, id) {
 	element.ondragstart = function (event) {
 		Dom.inventory.drag(event, array, id);
 	}
-	if (array[id].onClick !== undefined) {
+	if (array[id].onClick !== undefined && (array === Player.inventory.items || array === Player.inventory)) {
 		element.onclick = function () {
 			array[id].onClick(id);
+		}
+	}
+	else {
+		element.onclick = function () {
+			Dom.bank.inOut("out", id);
 		}
 	}
 }
@@ -2697,16 +2777,22 @@ Dom.inventory.addEquipment = function (array) {
 	}
 }
 
-Dom.inventory.find = function (ID, type, notEquipped, calledByCheck, name) {
+Dom.inventory.find = function (ID, type, notEquipped, calledByCheck, name, array) {
+	if (array === undefined) {
+		array = Player.inventory.items;
+	}
+	else {
+		notEquipped = true;
+	}
 	let index = [];
 	let completed = 0;
-	for (let i = 0; i < Player.inventory.items.length; i++) {
-		if ((Player.inventory.items[i].type === type && Player.inventory.items[i].id === ID) || (Player.inventory.items[i].name === name && name !== undefined)) {
+	for (let i = 0; i < array.length; i++) {
+		if ((array[i].type === type && array[i].id === ID) || (array[i].name === name && name !== undefined)) {
 			index.push(i);
-			if (Player.inventory.items[i].stacked === undefined) {
-				Player.inventory.items[i].stacked = 1;
+			if (array[i].stacked === undefined) {
+				array[i].stacked = 1;
 			}
-			completed += Player.inventory.items[i].stacked;
+			completed += array[i].stacked;
 		}
 	}
 	if (!notEquipped) {
@@ -2738,8 +2824,8 @@ Dom.inventory.find = function (ID, type, notEquipped, calledByCheck, name) {
 // returns true or false depending on if an item (specified by id and type) is in player's inventory or not
 // num checks for a certain number of them (defaults to 1)
 // notEquipped means it must not be equipped (defaults to false)
-Dom.inventory.check = function (ID, type, num, notEquipped) {
-	let completed = Dom.inventory.find(ID, type, notEquipped, true);
+Dom.inventory.check = function (ID, type, num, notEquipped, array) {
+	let completed = Dom.inventory.find(ID, type, notEquipped, true, array);
 	if (num !== undefined) {
 		if (completed >= num) {
 			completed = true;
@@ -3483,21 +3569,36 @@ if (User.settings.grid === true) {
 	document.getElementById("gridOn").checked = true;
 }
 
-Dom.bank.inOut = function (array, num) {
-	if (array !== Player.bank.items) {
+Dom.bank.inOut = function (direction, num) {
+	if (direction === "in") {
 		
+		let array = "";
 		let element = "";
 		if (isNaN(num)) {
+			array = Player.inventory;
 			element = document.getElementById(num);
 		}
 		else {
+			array = Player.inventory.items;
 			element = document.getElementById("itemInventory").getElementsByTagName("td")[num];
 		}
 		
-		for (let i = 0; i < Player.bank.items.length; i++) {
-			if (Player.bank.items[i].image === undefined) {
-				Dom.inventory.drop(document.getElementById("bankPageInventory").getElementsByTagName("td")[i], Player.bank.items, i, element, array, num) ///UPDATE // to, from
-				break;
+		let notBag = true;
+		if (array[num].type === "bag") {
+			for (let i = 0; i < Player.bank.unlockedSlots; i++) {
+				if (Player.bank.items[i].image === undefined) {
+					Dom.inventory.drop(document.getElementById("bankPageInventory").getElementsByTagName("td")[i], Player.bank.items, i, element, array, num)
+					notBag = false;
+					break;
+				}
+			}
+		}
+		if (notBag) {
+			for (let i = 6; i < Player.bank.items.length; i++) {
+				if (Player.bank.items[i].image === undefined) {
+					Dom.inventory.drop(document.getElementById("bankPageInventory").getElementsByTagName("td")[i], Player.bank.items, i, element, array, num)
+					break;
+				}
 			}
 		}
 	}
@@ -3532,18 +3633,41 @@ Dom.bank.page = function () {
 			remove = false;
 		}
 	}*/
+	let nextUnlock = true;
 	for (let i = 0; i < 6; i++) {
 		if (i < Player.bank.unlockedSlots) {
 			document.getElementById("bankPageInventory").getElementsByTagName("td")[i].style.backgroundImage = "url('./assets/items/bag/1.png')";
 		}
 		else {
 			document.getElementById("bankPageInventory").getElementsByTagName("td")[i].style.backgroundImage = "url('./assets/items/bag/0.png')";
+			if (nextUnlock) {
+				document.getElementById("bankPageInventory").getElementsByTagName("td")[i].onclick = function () {
+					if (Dom.inventory.check(2, "currency") + Dom.inventory.check(2, "currency", undefined, undefined, Player.bank.items) >= BagSlotCosts[i]) {
+						Dom.alert.ev = i;
+						Dom.alert.target = function () {
+							Dom.inventory.removeById(2, "currency", BagSlotCosts[i]);
+							Player.bank.unlockedSlots++;
+							Dom.bank.page();
+						}
+						Dom.alert.page("Would you like to buy this bag slot for "+BagSlotCosts[i]+" gold?", 2, undefined, "bankPage");
+					}
+					else {
+						Dom.alert.page("You cannot afford this bag slot. Come back when you have "+BagSlotCosts[i]+" gold", undefined, undefined, "bankPage");
+					}
+				}
+				nextUnlock = false;
+			}
+			else {
+				document.getElementById("bankPageInventory").getElementsByTagName("td")[i].onclick = function () {
+					Dom.alert.page("You cannot unlock this bag slot.", undefined, undefined, "bankPage");
+				}
+			}
 		}
 	}
 	for (let i = 0; i < Player.bank.items.length; i++) {
 		if (Player.bank.items[i].image !== undefined) {
 			// building the table
-			document.getElementById("bankPageInventory").getElementsByTagName("td")[i].innerHTML = "<img src='"+Player.bank.items[i].image+"' draggable='true' ondragstart='Dom.inventory.drag(event, Player.bank.items, "+i+")'></img>";
+			document.getElementById("bankPageInventory").getElementsByTagName("td")[i].innerHTML = "<img src='"+Player.bank.items[i].image+"' draggable='true' ondragstart='Dom.inventory.drag(event, Player.bank.items, "+i+")' onclick='Dom.bank.inOut(\"out\", "+i+")'></img>";
 			if (Player.bank.items[i].stacked !== undefined && Player.bank.items[i].stacked !== 1) {
 				document.getElementById("bankPageInventory").getElementsByTagName("td")[i].innerHTML += "<div class='stackNum' id='bankStackNum"+i+"'>"+Player.bank.items[i].stacked+"</div>";
 			}
@@ -3759,7 +3883,7 @@ Dom.inventory.prepare = function (array, i, element) {
 	if ((array[i].type === "sword" || array[i].type === "staff" || array[i].type === "bow" || array[i].type === "rod") && array[i].name !== undefined) {
 		Items[array[i].type][array[i].id].onClick = function (i) {
 			if (Dom.bank.active) {
-				Dom.bank.inOut(array, i);
+				Dom.bank.inOut("in", i);
 			}
 			else if (!isNaN(i)) {
 				Dom.inventory.drop(document.getElementById("weapon"), Player.inventory, "weapon", document.getElementById("itemInventory").getElementsByTagName("td")[i], Player.inventory.items, i); // to, from
@@ -3783,7 +3907,7 @@ Dom.inventory.prepare = function (array, i, element) {
 	if ((array[i].type === "helm" || array[i].type === "chest" || array[i].type === "greaves" || array[i].type === "boots") && array[i].name !== undefined) {
 		Items[array[i].type][array[i].id].onClick = function (i) {
 			if (Dom.bank.active) {
-				Dom.bank.inOut(array, i);
+				Dom.bank.inOut("in", i);
 			}
 			else if (!isNaN(i)) {
 				Dom.inventory.drop(document.getElementById(Player.inventory.items[i].type), Player.inventory, Player.inventory.items[i].type, document.getElementById("itemInventory").getElementsByTagName("td")[i], Player.inventory.items, i); // to, from
@@ -3821,9 +3945,11 @@ Dom.inventory.prepare = function (array, i, element) {
 		array[i].onAttack = Items[array[i].type][array[i].id].onAttack;
 		array[i].quest = Items[array[i].type][array[i].id].quest;
 	}
-	element.innerHTML = "<img src='"+array[i].image+"' draggable='true' ondragstart='Dom.inventory.drag(event,"+(array === Player.inventory.items ? "Player.inventory.items,"+i : 'Player.inventory, "'+i+'"')+")' "+(array[i].onClick !== undefined ? "onclick='Player.inventory"+(array === Player.inventory.items?".items["+i+"].onClick("+i+")'":"."+i+".onClick(\""+i+"\")'") : "")+"></img>";
-	if (array[i].stacked !== undefined && array[i].stacked !== 1) {
-		element.innerHTML += "<div class='stackNum' id='stackNum"+i+"'>"+array[i].stacked+"</div>";
+	if (element !== undefined) {
+		element.innerHTML = "<img src='"+array[i].image+"' draggable='true' ondragstart='Dom.inventory.drag(event,"+(array === Player.inventory.items ? "Player.inventory.items,"+i : 'Player.inventory, "'+i+'"')+")' "+(array[i].onClick !== undefined ? "onclick='Player.inventory"+(array === Player.inventory.items?".items["+i+"].onClick("+i+")'":"."+i+".onClick(\""+i+"\")'") : "")+"></img>";
+		if (array[i].stacked !== undefined && array[i].stacked !== 1) {
+			element.innerHTML += "<div class='stackNum' id='stackNum"+i+"'>"+array[i].stacked+"</div>";
+		}
 	}
 }
 
@@ -4015,6 +4141,7 @@ Dom.init = function () {
 		}
 	}
 	document.getElementById("itemInventory").getElementsByTagName("td")[5].style.backgroundImage = "url('assets/items/bag/1.png')";
+	
 	// prepare the equipments slots
 	for (let i = 0; i < Object.keys(Player.inventory).length-1; i++) { // repeats for each equipment slot
 		// if the item has melted
@@ -4025,6 +4152,19 @@ Dom.init = function () {
 			},1000);
 		}else if (Player.inventory[Object.keys(Player.inventory)[i]].image !== undefined) {
 			Dom.inventory.prepare(Player.inventory, Object.keys(Player.inventory)[i], document.getElementById(Object.keys(Player.inventory)[i]));
+		}
+	}
+	
+	// prepare the bank
+	for (let i = 0; i < Player.bank.items.length; i++) {
+		// if the item has melted
+		if (Player.bank.items[i].image !== undefined && !Player.bank.items[i].unidentified && Items[Player.bank.items[i].type][Player.bank.items[i].id].deleteIf !== undefined && Items[Player.bank.items[i].type][Player.bank.items[i].id].deleteif ()) {
+			setTimeout(function () {
+				Dom.chat.insert("It's not snowy any more! Your "+Player.bank.items[i].name+" melted.", 0, true);
+				Player.bank.items[i] = {};
+			},1000);
+		}else if (Player.bank.items[i].image !== undefined) {
+			Dom.inventory.prepare(Player.bank.items, i, document.getElementById("bankPageInventory").getElementsByTagName("td")[i]);
 		}
 	}
 	
