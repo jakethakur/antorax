@@ -35,8 +35,8 @@ const EnemyLootTables = {
 		{ // gold
 			item: Items.currency[2],
 			chance: [
-				20,				// 0
-				5,				// 1
+				15,				// 0
+				3,				// 1
 				0,				// 2
 			],
 		},

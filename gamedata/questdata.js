@@ -700,7 +700,7 @@ var Quests = {
 						// damage Ciarra
 						Game.npcs.find(NPC => NPC.name === "Ciarra Darkbrew").takeDamage(100);
 						// displace player if they are too close
-						let d = distance(Game.hero, {x: 1111,y: 633}); // distance from ciarra
+						let d = Game.distance(Game.hero, {x: 1111,y: 633}); // distance from ciarra
 						if (d < 240) {
 							Game.hero.displace(0, 240-d, 1, bearing({x: 1111,y: 633}, Game.hero));
 						}

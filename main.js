@@ -119,22 +119,49 @@ window.onload = function () {
 //
 
 var map = {
+	// validate that row/col exist on the map
+	// if they do not, return the closest existing row/col
+	validateCol: function (col) {
+		if (col < 0) {
+			return 0;
+		}
+		if (col >= this.cols) {
+			return this.cols-1;
+		}
+		return col;
+	},
+	validateRow: function (row) {
+		if (row < 0) {
+			return 0;
+		}
+		if (row >= this.rows) {
+			return this.rows-1;
+		}
+		return row;
+	},
+	
     getTile: function (layer, col, row) {
+		col = this.validateCol(col);
+		row = this.validateRow(row);
         return this.layers[layer][row * map.cols + col];
     },
 
     getCol: function (x) {
-        return Math.floor(x / this.tsize);
+        let col = Math.floor(x / this.tsize);
+		return this.validateCol(col);
     },
     getRow: function (y) {
-        return Math.floor(y / this.tsize);
+        let row = Math.floor(y / this.tsize);
+		return this.validateRow(row);
     },
 
 	// top/left of tile
     getX: function (col) {
+		col = this.validateCol(col);
         return col * this.tsize;
     },
     getY: function (row) {
+		row = this.validateRow(row);
         return row * this.tsize;
     },
 
