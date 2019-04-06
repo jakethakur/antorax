@@ -77,7 +77,7 @@ var Player = {
 	},
 
 	bank: {
-		unlockedSlots: 0,
+		unlockedSlots: 1,
 		items: [{},{},{},{},{},{}],
 	},
 

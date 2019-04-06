@@ -2375,10 +2375,18 @@ Dom.inventory.bagSwaps = function (to, from, array) {
 
 Dom.bank.bagCases = function () {
 	//let changed = true;
+	
 	// going from the bag slot from a bag
 	if (Dom.inventory.fromArray === Player.bank.items && Dom.inventory.fromId < 6 && Dom.inventory.toArray[Dom.inventory.toId].type === "bag") {
 		Dom.inventory.bagSwaps(Dom.inventory.fromArray[Dom.inventory.fromId], Dom.inventory.toArray[Dom.inventory.toId], Player.bank.items);
 	}
+	// going from the bag slot to a bag and not swapping
+	else if (Dom.inventory.fromArray === Player.bank.items && Dom.inventory.fromId < 6 && Dom.inventory.fromArray[Dom.inventory.fromId].type === "bag") {
+		for (let y = 0; y < Dom.inventory.fromArray[Dom.inventory.fromId].size; y++) {
+			Player.bank.items.push({});
+		}
+	}
+	
 	// going to the bag slot to a bag
 	if (Dom.inventory.toArray === Player.bank.items && Dom.inventory.toId < 6 && Dom.inventory.fromArray[Dom.inventory.fromId].type === "bag") {
 		Dom.inventory.bagSwaps(Dom.inventory.toArray[Dom.inventory.toId], Dom.inventory.fromArray[Dom.inventory.fromId], Player.bank.items);
@@ -2389,19 +2397,14 @@ Dom.bank.bagCases = function () {
 			Player.bank.items.push({});
 		}
 	}
-	// going from the bag slot to a bag and not swapping
-	else if (Dom.inventory.fromArray === Player.bank.items && Dom.inventory.fromId < 6 && Dom.inventory.fromArray[Dom.inventory.fromId].type === "bag") {
-		for (let y = 0; y < Dom.inventory.fromArray[Dom.inventory.fromId].size; y++) {
-			Player.bank.items.push({});
-		}
-	}
+	
 	// no bags changed
 	/*else {
 		changed = false;
 	}*/
 
 	// redraw the bank if a bag has been changed
-	document.getElementById("bankPageInventory").innerHTML = "";
+	/*document.getElementById("bankPageInventory").innerHTML = "";
 	for (let i = 0; i < Player.bank.items.length; i+=6) {
 		let str = "<tr>";
 		for (let inv = i; inv < i+6; inv++) {
@@ -2425,7 +2428,8 @@ Dom.bank.bagCases = function () {
 				document.getElementById("bankPageInventory").getElementsByTagName("td")[i].innerHTML += "<div class='stackNum' id='bankStackNum"+i+"'>"+Player.bank.items[i].stacked+"</div>";
 			}
 		}
-	}
+	}*/
+	Dom.bank.page();
 }
 
 Dom.inventory.bagCases = function () {
@@ -2478,49 +2482,97 @@ Dom.inventory.bagCases = function () {
 }
 
 Dom.bank.validateBags = function () {
-	if (Dom.inventory.toArray === Player.bank.items && (Dom.inventory.fromArray[Dom.inventory.fromId].type !== "bag" || Dom.inventory.toId >= Player.bank.unlockedSlots)){
+	
+	// swapping bags between bank bag slots
+	if (Dom.inventory.toArray === Player.bank.items && Dom.inventory.toId < 6 && Dom.inventory.fromArray === Player.bank.items && Dom.inventory.fromId < 6) {
+		return true;
+	}
+	
+	// normal item in bag slot or not unlocked bag slot
+	if ((Dom.inventory.toArray === Player.bank.items && (Dom.inventory.fromArray[Dom.inventory.fromId].type !== "bag" || Dom.inventory.toId >= Player.bank.unlockedSlots))
+	|| (Dom.inventory.fromArray === Player.bank.items && Dom.inventory.toArray[Dom.inventory.toId].type !== "bag" && Dom.inventory.toArray[Dom.inventory.toId].type !== undefined)){
 		return false;
 	}
+	
+	let highest = 0;
+	// checks position of the last item in the inventory
+	for (let x = Player.bank.items.length-1; x >= 6; x--) {
+		if (Player.bank.items[x].image !== undefined || (Dom.inventory.toId === x && Dom.inventory.toArray === Player.bank.items)) {
+			highest = x;
+			break;
+		}
+	}
+	
+	if (highest > 0) {
+		// two bags are being swapped at the bag slot
+		if (Dom.inventory.toArray === Player.bank.items && Dom.inventory.toId < 6 && Dom.inventory.fromArray[Dom.inventory.fromId].type === "bag") {
+			// if the new bag is smaller than the old bag
+			if (Dom.inventory.toArray[Dom.inventory.toId].size > Dom.inventory.fromArray[Dom.inventory.fromId].size) {
+				// if the item is outside the new bag size
+				if (highest >= Dom.inventory.toArray[Dom.inventory.toId].size) {
+					// dont let the bags be swapped
+					return false;
+				}
+			}
+		}
+		// two bags are being swapped
+		else if (Dom.inventory.fromArray === Player.bank.items && Dom.inventory.fromId < 6 && Dom.inventory.toArray[Dom.inventory.toId].type === "bag") {
+			// if the new bag is smaller than the old bag
+			if (Dom.inventory.fromArray[Dom.inventory.fromId].size > Dom.inventory.toArray[Dom.inventory.toId].size) {
+				// if the item is outside the new bag size
+				if (highest >= Dom.inventory.fromArray[Dom.inventory.fromId].size) {
+					// dont let the bags be swapped
+					return false;
+				}
+			}
+		}
+		// a bag is being removed and not replaced
+		else{
+			// dont let the bag be removed
+			return false;
+		}
+	}
+	
 	return true;
 }
 
 Dom.inventory.validateBags = function () {
 	let highest = 0;
-	if ((Dom.inventory.toId === 5 && Dom.inventory.toArray[Dom.inventory.toId].type === "bag") || (Dom.inventory.fromId === 5 && Dom.inventory.fromArray[Dom.inventory.fromId].type === "bag")) {
-		// checks position of the last item in the inventory
-		for (let x = Player.inventory.items.length-1; x >= 6; x--) {
-			if (Player.inventory.items[x].image !== undefined || Dom.inventory.toId === x) {
-				highest = x;
-				break;
+	// checks position of the last item in the inventory
+	for (let x = Player.inventory.items.length-1; x >= 6; x--) {
+		if (Player.inventory.items[x].image !== undefined || (Dom.inventory.toId === x && Dom.inventory.toArray === Player.inventory.items)) {
+			highest = x;
+			break;
+		}
+	}
+
+	if (highest > 0) {
+		// two bags are being swapped at the bag slot
+		if (Dom.inventory.toArray === Player.inventory.items && Dom.inventory.toId === 5 && Dom.inventory.toArray[Dom.inventory.toId].type === "bag" && Dom.inventory.fromArray[Dom.inventory.fromId].type === "bag") {
+			// if the new bag is smaller than the old bag
+			if (Dom.inventory.toArray[Dom.inventory.toId].size > Dom.inventory.fromArray[Dom.inventory.fromId].size) {
+				// if the item is outside the new bag size
+				if (highest >= Dom.inventory.toArray[Dom.inventory.toId].size) {
+					// dont let the bags be swapped
+					return false;
+				}
 			}
 		}
-
-		if (highest > 0) {
-			// two bags are being swapped at the bag slot
-			if (Dom.inventory.toId === 5 && Dom.inventory.toArray[Dom.inventory.toId].type === "bag" && Dom.inventory.fromArray[Dom.inventory.fromId].type === "bag") {
-				// if the new bag is smaller than the old bag
-				if (Dom.inventory.toArray[Dom.inventory.toId].size > Dom.inventory.fromArray[Dom.inventory.fromId].size) {
-					// if the item is outside the new bag size
-					if (highest >= Dom.inventory.toArray[Dom.inventory.toId].size) {
-						// dont let the bags be swapped
-						return false;
-					}
+		// two bags are being swapped
+		else if (Dom.inventory.fromArray === Player.inventory.items && Dom.inventory.fromId === 5 && Dom.inventory.fromArray[Dom.inventory.fromId].type === "bag" && Dom.inventory.toArray[Dom.inventory.toId].type === "bag") {
+			// if the new bag is smaller than the old bag
+			if (Dom.inventory.fromArray[Dom.inventory.fromId].size > Dom.inventory.toArray[Dom.inventory.toId].size) {
+				// if the item is outside the new bag size
+				if (highest >= Dom.inventory.fromArray[Dom.inventory.fromId].size) {
+					// dont let the bags be swapped
+					return false;
 				}
-			// two bags are being swapped
-			}else if (Dom.inventory.fromId === 5 && Dom.inventory.fromArray[Dom.inventory.fromId].type === "bag" && Dom.inventory.toArray[Dom.inventory.toId].type === "bag") {
-				// if the new bag is smaller than the old bag
-				if (Dom.inventory.fromArray[Dom.inventory.fromId].size > Dom.inventory.toArray[Dom.inventory.toId].size) {
-					// if the item is outside the new bag size
-					if (highest >= Dom.inventory.fromArray[Dom.inventory.fromId].size) {
-						// dont let the bags be swapped
-						return false;
-					}
-				}
-			// a bag is being removed and not replaced
-			}else{
-				// dont let the bag be removed
-				return false;
 			}
+		}
+		// a bag is being removed and not replaced
+		else{
+			// dont let the bag be removed
+			return false;
 		}
 	}
 	return true;
@@ -4440,4 +4492,12 @@ Dom.testing.completeQuest = function (quest, acceptRewards) {
 		Dom.quest.acceptRewards();
 	}
 	return quest.quest;
+}
+
+// SAVEDATA FIXES
+if (Player.bank.unlockedSlots === 0) {
+	Player.bank = {
+		unlockedSlots: 1,
+		items: [{},{},{},{},{},{}],
+	};
 }
