@@ -139,7 +139,7 @@ var map = {
 		}
 		return row;
 	},
-	
+
     getTile: function (layer, col, row) {
 		col = this.validateCol(col);
 		row = this.validateRow(row);
@@ -468,9 +468,22 @@ class Thing extends Entity {
 		// if the image is a **horizontal** tileset, where all images have the same width and height, this specifies the number image to use (starting at 0 for the first image)
 		this.imageNumber = properties.imageNumber || 0; // currently only works for projectiles (TBD)
 
+		// avoid undefined error
+		if (properties.crop === undefined) {
+			properties.crop = {};
+		}
+		// set crop positions for drawImage
+		this.crop = {};
+		this.crop.x = properties.crop.x || 0;
+		this.crop.y = properties.crop.y || 0;
+		this.crop.width = properties.crop.width || (this.image.width - this.crop.x);
+		this.crop.height = properties.crop.height || (this.image.height - this.crop.y);
+
 		// set width and height to image dimensions unless otherwise specified
-		this.width = properties.width || this.image.width;
-		this.height = properties.height || this.image.height;
+		// width/height = stretch and compress of image
+		// crop width and height means no stretch nor compress
+		this.width = properties.width || this.crop.width;
+		this.height = properties.height || this.crop.height;
 
 		this.baseWidth = this.width;
 		this.baseHeight = this.height;
@@ -2944,8 +2957,10 @@ Game.statusEffects.generic = function (properties) {
 		// effect DOES stack
 		// try to find an existing effect that does the same and has the same name
 		found = properties.target.statusEffects.findIndex(function(element) {
-			return element.title === properties.effectTitle &&
-			(properties.increasePropertyName === undefined || element.info[properties.increasePropertyName] === properties.increasePropertyValue);
+			return element.title === properties.effectTitle && // title same
+				(properties.increasePropertyName === undefined || // no property increased
+				element.info[properties.increasePropertyName] === properties.increasePropertyValue || // same property increased by same value
+				(properties.effectStack === "multiply" && element.info[properties.increasePropertyName] !== undefined)); // property exists and multiplied effect
 		});
 	}
 
@@ -3021,7 +3036,7 @@ Game.statusEffects.generic = function (properties) {
 			properties.target.statusEffects[found].info.ticks = 0;
 		}
 		else if (properties.effectStack === "multiply") {
-			// add to max time and make the effect stronger
+			// add to max time AND make the effect stronger
 			properties.target.statusEffects[found].info.time += properties.time;
 			properties.target.statusEffects[found].info[properties.increasePropertyName] += properties.increasePropertyValue;
 			// tbd update description as well
@@ -5128,6 +5143,12 @@ Game.inventoryUpdate = function (e) {
 		}
 	}
 	Keyboard.update(); // update hotkeys because hotbar might have changed
+
+	// update item buyer page if it is open
+	if (document.getElementById("buyerPage").hidden === false) {
+	    Dom.buyer.page();
+	}
+
 	Dom.checkProgress(); // quest log update check
 }
 
@@ -5833,6 +5854,8 @@ Game.render = function (delta) {
 					// draw image
 					this.ctx.drawImage(
 						objectToRender.image,
+						objectToRender.crop.x, objectToRender.crop.y,
+						objectToRender.crop.width, objectToRender.crop.height,
 						objectToRender.screenX - objectToRender.width / 2,
 						objectToRender.screenY - objectToRender.height / 2,
 						objectToRender.width,

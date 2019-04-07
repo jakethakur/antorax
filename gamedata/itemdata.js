@@ -1761,6 +1761,7 @@ var Items = {
 				Game.statusEffects.attackDamage({
 					target: Game.hero,
 					effectTitle: "Tipsy",
+					effectDescription: "Reduced attack damage",
 					damageIncrease: -20,
 					time: 60,
 					effectStack: "multiply",
