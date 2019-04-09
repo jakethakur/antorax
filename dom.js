@@ -2499,7 +2499,7 @@ Dom.inventory.drop = function (toElement, toArray, toId, fromElement, fromArray,
 		Dom.inventory.toElement = toElement;
 	}
 	else {
-		if (""+toElement.path[0] === "[object HTMLImageElement]" || ""+toElement.path[0] === "[object HTMLDivElement]") {
+		if (""+toElement.path[0] === "[object HTMLImageElement]" || ""+toElement.path[0].className === "stackNum") {
 			Dom.inventory.toElement = toElement.path[1];
 		}
 		else {
