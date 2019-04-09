@@ -34,6 +34,7 @@ body{
 	columns: 2;
 	margin: 5px;
 	margin-top: 10px;
+	line-height: 20px;
 }
 .box{
 	position: relative;

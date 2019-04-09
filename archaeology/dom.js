@@ -14,6 +14,7 @@ var max = document.getElementById("max");
 var searchBar = document.getElementById("searchBar");
 var session = {};
 var archaeology = JSON.parse(localStorage.getItem("user"));
+var events = ["Samhain", "Christmas"];
 
 if(archaeology === null){
 	archaeology = [];
@@ -35,7 +36,7 @@ if(sessionStorage.getItem("filter") != null){
 }
 
 function Stats(stat, value, array){ // stat should be in Title Case // copied from DOM
-	if(stat === "Defence" || stat === "Block Defence" || stat === "Fishing Skill"){
+	if(stat === "Defence" || stat === "Block Defence" || stat === "Fishing Skill" || stat === "Max Health") {
 		return stat+": "+NumberSign(value)+"<br>";
 	}else if(stat === "Critical Chance" || stat === "Dodge Chance" || stat === "Looting" || stat === "Reflection" || stat === "Life Steal" || stat === "Xp Bonus"){
 		return stat+": "+NumberSign(value)+"%<br>";
@@ -136,9 +137,16 @@ function checkChange(){
 		arrayLength = array.length;
 		previousEvent = event.value;
 		var b = 0;
-		if(event.value != "all"){
+		if(event.value != "all" && event.value != "other"){
 			for(var i = 0; i < arrayLength; i++){
 				if(array[i-b].event != event.value && (event.value != "none" || array[i-b].event != undefined)){
+					array.splice(i-b,1);
+					b++;
+				}
+			}
+		}else if(event.value == "other"){
+			for(var i = 0; i < arrayLength; i++){
+				if(events.includes(array[i-b].event) || array[i-b].event == undefined){
 					array.splice(i-b,1);
 					b++;
 				}

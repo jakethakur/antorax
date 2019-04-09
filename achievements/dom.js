@@ -7,6 +7,7 @@ var obtained = document.getElementById("obtained");
 var min = document.getElementById("min");
 var max = document.getElementById("max");
 var searchBar = document.getElementById("searchBar");
+var events = ["Samhain", "Christmas"];
 
 if(localStorage.getItem("a") !== null){
     let savedPlayer = JSON.parse(localStorage.getItem("a"));
@@ -95,9 +96,16 @@ function checkChange(){
 		arrayLength = array.length;
 		previousEvent = event.value;
 		var b = 0;
-		if(event.value != "all"){
+		if(event.value != "all" && event.value != "other"){
 			for(var i = 0; i < arrayLength; i++){
 				if(array[i-b].event != event.value && (event.value != "none" || array[i-b].event != undefined)){
+					array.splice(i-b,1);
+					b++;
+				}
+			}
+		}else if (event.value == "other"){
+			for(var i = 0; i < arrayLength; i++){
+				if(events.includes(array[i-b].event) || array[i-b].event == undefined){
 					array.splice(i-b,1);
 					b++;
 				}

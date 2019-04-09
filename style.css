@@ -245,7 +245,7 @@ body{
 }
 #bankPageInventory{
 	display: inline-block;
-	margin-top: 50px;
+	//margin-top: 50px;
 }
 #loot{
 	left: 38px;
@@ -256,6 +256,13 @@ td{
 	height: 50px;
 	display:inline-block;
 	padding: 0px;
+}
+thead:after {
+	line-height: 5px;
+	content: "\200C";
+	//border: 2.5px solid #886622;
+	display: block;
+	background-color: #886622;
 }
 #bagText{
 	position: absolute;

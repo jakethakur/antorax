@@ -357,3 +357,30 @@ function Increment (variable, amount) {
 
 	return variable
 }
+
+function CalculateTime (start, end) {
+	let time = (parseInt(end.substring(0,4))-parseInt(start.substring(0,4))) * 31536000;
+	time += (parseInt(end.substring(4,6))-parseInt(start.substring(4,6))) * 2592000;
+	time += (parseInt(end.substring(6,8))-parseInt(start.substring(6,8))) * 86400;
+	time += (parseInt(end.substring(8,10))-parseInt(start.substring(8,10))) * 3600;
+	time += (parseInt(end.substring(10,12))-parseInt(start.substring(10,12))) * 60;
+	time += parseInt(end.substring(12))-parseInt(start.substring(12));
+	let answer = "";
+	if (time >= 31536000) {
+		answer = Math.floor(time/31536000)+" Year";
+	}else if (time >= 2592000) {
+		answer = Math.floor(time/2592000)+" Month";
+	}else if (time >= 86400) {
+		answer = Math.floor(time/86400)+" Day";
+	}else if (time >= 3600) {
+		answer = Math.floor(time/3600)+" Hour";
+	}else if (time >= 60) {
+		answer = Math.floor(time/60)+" Minute";
+	}else{
+		answer = time+" Second";
+	}
+	if (answer.substring(0,2) !== "1 ") {
+		answer += "s";
+	}
+	return answer;
+}

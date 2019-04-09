@@ -237,6 +237,19 @@ var Items = {
 				criticalChance: 20,
 			},
 		},
+		{
+			id: 15,
+			name: "Bear Mask",
+			type: "helm",
+			image: "assets/items/helm/15.png",
+			tier: 1,
+			rarity: "common",
+			obtain: "Can be bought from a mask seller.",
+			sellPrice: 1,
+			stats: {
+				maxHealth: 10,
+			},
+		},
 	],
 	chest: [
 		{

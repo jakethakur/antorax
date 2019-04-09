@@ -36,7 +36,6 @@
 		<div id="alertOptions" onclick="Game.inventoryUpdate()"></div>
 		<div id="alertNo"></div>
 	</div>
-	<ul id="chat"></ul>
 	<div id="chatPage" hidden class="DOM"></div>
 	<div id="inventoryPage" hidden class="DOM" onclick="Dom.inventory.deEquip = false;" ondrop="Dom.inventory.dispose(event)" ondragover="Dom.inventory.allowDrop(event)">
 		<div id="inventoryGoldXP"></div>
@@ -243,40 +242,45 @@
 	<div id="driverPage" hidden class="DOM">
 		<div id="driverPageMain"></div>
 		<div id="driverPageBuy"></div>
-		<br><br><br><center><div class='closeClass' id='closeDriver' onclick="Dom.closePage('driverPage')">Close</div></center>
+		<br><br><br><center><div class='closeClass' id='closeDriver'>Close</div></center>
 	</div>
 	<div id="bankPage" hidden class="DOM" ondrop="Dom.inventory.dispose(event)" ondragover="Dom.inventory.allowDrop(event)">
-		<table id="bankPageInventory"></table>
+		<h1>Bank</h1>
+		<table id="bankPageInventory"></table><br><br><br>
+		<center><div id="bankPageClose" class="closeClass" onclick="Dom.closePage('inventoryPage')">Close</div></center>
 	</div>
 	<div id="choosePage" hidden class="DOM"></div>
 	<div id="textPage" hidden class="DOM"></div>
 
-	<div id="chatImage"onclick="Dom.changeBook('chatPage', true)" hidden></div>
-	<span id="dot" onclick="Dom.changeBook('chatPage', true)" hidden></span>
-	<div id="inventoryImage"onclick="Dom.changeBook('inventoryPage', true)" hidden></div>
-	<div id="questsImage"onclick="Dom.changeBook('questsPage', true)" hidden></div>
-	<div id="adventureImage"onclick="Dom.changeBook('adventurePage', true)"></div>
-	<div id="reputationImage"onclick="Dom.changeBook('reputationPage', true)" hidden></div>
-	<div id="settingsImage"onclick="Dom.settings.page()"></div>
-	<svg width="51" height="131" id="changeChat" onclick="Dom.changeBook('chatPage', true)" tabindex = "0">
-		<polygon points ="0,130 0,30 25,0 50,30 50,130" style="fill:blue;stroke:black;stroke-width:1" />
-	</svg>
-	<svg width="51" height="131" id="changeInventory" onclick="Dom.changeBook('inventoryPage', true)"tabindex = "0">
-		<polygon points="0,130 0,30 25,0 50,30 50,130" style="fill:red;stroke:black;stroke-width:1" />
-	</svg>
-	<svg width="51" height="131" id="changeQuests" onclick="Dom.changeBook('questsPage', true)"tabindex = "0">
-		<polygon points="0,130 0,30 25,0 50,30 50,130" style="fill:green;stroke:black;stroke-width:1" />
-	</svg>
-	<svg width="51" height="131" id="changeAdventure" onclick="Dom.changeBook('adventurePage', true)"tabindex = "0">
-		<polygon points ="0,130 0,30 25,0 50,30 50,130" style="fill:yellow;stroke:black;stroke-width:1" />
-						  
-	</svg>
-	<svg width="51" height="131" id="changeReputation" onclick="Dom.changeBook('reputationPage', true)"tabindex = "0">
-		<polygon points ="0,130 0,30 25,0 50,30 50,130" style="fill:purple;stroke:black;stroke-width:1" />
-	</svg>
-	<svg width="51" height="131" id="changeSettings" onclick="Dom.settings.page()"tabindex = "0">
-		<polygon points ="0,130 0,30 25,0 50,30 50,130" style="fill:#d3d3d3;stroke:black;stroke-width:1" />
-	</svg>
+	<span id="bookmarks">
+		<ul id="chat"></ul>
+		<div id="chatImage"onclick="Dom.changeBook('chatPage', true)" hidden></div>
+		<span id="dot" onclick="Dom.changeBook('chatPage', true)" hidden></span>
+		<div id="inventoryImage"onclick="Dom.changeBook('inventoryPage', true)" hidden></div>
+		<div id="questsImage"onclick="Dom.changeBook('questsPage', true)" hidden></div>
+		<div id="adventureImage"onclick="Dom.changeBook('adventurePage', true)"></div>
+		<div id="reputationImage"onclick="Dom.changeBook('reputationPage', true)" hidden></div>
+		<div id="settingsImage"onclick="Dom.settings.page()"></div>
+		<svg width="51" height="131" id="changeChat" onclick="Dom.changeBook('chatPage', true)" tabindex = "0">
+			<polygon points ="0,130 0,30 25,0 50,30 50,130" style="fill:blue;stroke:black;stroke-width:1" />
+		</svg>
+		<svg width="51" height="131" id="changeInventory" onclick="Dom.changeBook('inventoryPage', true)"tabindex = "0">
+			<polygon points="0,130 0,30 25,0 50,30 50,130" style="fill:red;stroke:black;stroke-width:1" />
+		</svg>
+		<svg width="51" height="131" id="changeQuests" onclick="Dom.changeBook('questsPage', true)"tabindex = "0">
+			<polygon points="0,130 0,30 25,0 50,30 50,130" style="fill:green;stroke:black;stroke-width:1" />
+		</svg>
+		<svg width="51" height="131" id="changeAdventure" onclick="Dom.changeBook('adventurePage', true)"tabindex = "0">
+			<polygon points ="0,130 0,30 25,0 50,30 50,130" style="fill:yellow;stroke:black;stroke-width:1" />
+							  
+		</svg>
+		<svg width="51" height="131" id="changeReputation" onclick="Dom.changeBook('reputationPage', true)"tabindex = "0">
+			<polygon points ="0,130 0,30 25,0 50,30 50,130" style="fill:purple;stroke:black;stroke-width:1" />
+		</svg>
+		<svg width="51" height="131" id="changeSettings" onclick="Dom.settings.page()"tabindex = "0">
+			<polygon points ="0,130 0,30 25,0 50,30 50,130" style="fill:#d3d3d3;stroke:black;stroke-width:1" />
+		</svg>
+	</span>
 	
 	<script src="./gamedata/functions.js"></script>
 	<script src="./weather.js"></script>

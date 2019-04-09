@@ -254,9 +254,9 @@ Dom.checkProgress = function () {
 }
 
 Dom.closeNPCPages = function () {
-	if (this.elements.bankPage.hidden = true) {
+	if (this.elements.bankPage.hidden === false) {
 		Dom.closePage("inventoryPage");
-		Dom.bank.active = false;
+		//Dom.bank.active = false;
 	}
 	this.elements.questStart.hidden = true;
 	this.elements.questFinish.hidden = true;
@@ -267,7 +267,7 @@ Dom.closeNPCPages = function () {
 	this.elements.buyerPage.hidden = true;
 	this.elements.mailPage.hidden = true;
 	this.elements.driverPage.hidden = true;
-	this.elements.bankPage.hidden = true;
+	//this.elements.bankPage.hidden = true;
 	this.elements.choosePage.hidden = true;
 	this.elements.textPage.hidden = true;
 	Dom.currentlyDisplayed = "";
@@ -281,12 +281,13 @@ Dom.closePage = function (page, notClose) {
 			tab = "settingsPage";
 		}
 		document.getElementById("change"+tab.substring(0,1).toUpperCase()+tab.substring(1,tab.length-4)).style.opacity = 0.6;
+		document.getElementById("change"+tab.substring(0,1).toUpperCase()+tab.substring(1,tab.length-4)).getElementsByTagName("polygon")[0].style.strokeWidth = "1";
 	}else if (!notClose) {
 		Dom.currentlyDisplayed = "";
 		Dom.currentNPC = {};
 	}
-	if (page === "bankPage") {
-		Dom.closePage("inventoryPage");
+	if (page === "inventoryPage") {
+		Dom.closePage("bankPage");
 		Dom.bank.active = false;
 	}
 	document.getElementById(page).hidden = true;
@@ -301,6 +302,7 @@ Dom.changeBook = function (page, openClose) {
 			tab = "settingsPage";
 		}
 		document.getElementById("change"+tab.substring(0,1).toUpperCase()+tab.substring(1,tab.length-4)).style.opacity = 1;
+		document.getElementById("change"+tab.substring(0,1).toUpperCase()+tab.substring(1,tab.length-4)).getElementsByTagName("polygon")[0].style.strokeWidth = "2";
 	}
 	if (document.getElementById(page).hidden === true) {
 		document.getElementById(page).hidden = false;
@@ -378,124 +380,6 @@ Dom.chat.page = function () {
 	document.getElementById("changeChat").getElementsByTagName("polygon")[0].style.stroke = "black";
 }
 
-/*Dom.previous = "";
-Dom.changeBook = function (page, override, shouldNotBeOverriden, levelUpOverride) { // levelUpOverride is the amount of time that the page is locked during a cutscene
-	// if the page can be changed
-	if (this.currentlyDisplayed === "" || override) {
-		if ((page === "chatPage" || page === "inventoryPage" || page === "questsPage" || page === "adventurePage" || page === "reputationPage" || page === "settingsPage" || page === "settingsTwoPage") && Dom.adventure.awaitingInstructions.length > 0 && levelUpOverride === undefined) {
-			Dom.adventure.showInstructions(Dom.adventure.awaitingInstructions[0], true);
-			Dom.adventure.awaitingInstructions.shift();
-		}else{
-			if (Dom.previous !== "") {
-				document.getElementById("change"+Dom.previous.substring(0,1).toUpperCase()+Dom.previous.substring(1,Dom.previous.length-4)).style.opacity = 0.6;
-			}
-			if ((page === "chatPage" || page === "inventoryPage" || page === "questsPage" || page === "adventurePage" || page === "reputationPage" || page === "settingsPage" || page === "settingsTwoPage") && !levelUpOverride) {
-				let changed = false;
-				if (page === "settingsTwoPage") {
-					page = "settingsPage";
-					changed = true;
-				}
-				//if (page === Player.tab && Dom.adventure.openedInstructions) {
-					//Dom.adventure.openedInstructions = false;
-				//}
-				document.getElementById("change"+page.substring(0,1).toUpperCase()+page.substring(1,page.length-4)).style.opacity = 1;
-				Dom.previous = page;
-				if (changed) {
-					page = "settingsTwoPage";
-				}
-			}
-			this.elements.chatPage.hidden = true;
-			this.elements.inventoryPage.hidden = true;
-			this.elements.questsPage.hidden = true;
-			this.elements.settingsPage.hidden = true;
-			this.elements.settingsTwoPage.hidden = true;
-			this.elements.adventurePage.hidden = true;
-			this.elements.reputationPage.hidden = true;
-			this.elements.questStart.hidden = true;
-			this.elements.questFinish.hidden = true;
-			this.elements.merchantPage.hidden = true;
-			this.elements.identifierPage.hidden = true;
-			this.elements.identifiedPage.hidden = true;
-			this.elements.lootPage.hidden = true;
-			this.elements.buyerPage.hidden = true;
-			this.elements.mailPage.hidden = true;
-			this.elements.driverPage.hidden = true;
-			this.elements.bankDepositPage.hidden = true;
-			this.elements.bankWithdrawPage.hidden = true;
-			this.elements.choosePage.hidden = true;
-			this.elements.textPage.hidden = true;
-			if (page !== "") {
-				document.getElementById(page).hidden = false;
-			}
-			if (page === "chatPage") {
-				// if there is no new chat
-				if (Dom.chat.newString === "") {
-					chatPage.innerHTML = "<br>" + Dom.chat.oldString + '<br><br><center><div id="chatPageClose" class="closeClass" onclick="Dom.changeBook(\'\', true)">Close</div></center>';
-				}
-				document.getElementById("dot").hidden = true;
-				document.getElementById("dot").innerHTML = 0;
-				Dom.chat.oldString = Dom.chat.newString + Dom.chat.oldString;
-				Dom.chat.newString = "";
-				clearInterval(Dom.chat.borderRed);
-				clearInterval(Dom.chat.borderBlack);
-				Dom.chat.borderRed = false;
-				Dom.chat.borderBlack = false;
-				document.getElementById("changeChat").getElementsByTagName("polygon")[0].style.stroke = "black";
-			}
-			if (page === "reputationPage") {
-				Dom.reputation.update();
-			}
-			// if the page is a bookmark page
-			if (!shouldNotBeOverriden) {
-				Dom.currentlyDisplayed = "";
-				Dom.currentNPC = {};
-			}
-			Dom.checkProgress();
-			for (let i = 0; i < document.getElementsByClassName("closeClass").length; i++) {
-				document.getElementsByClassName("closeClass")[i].style.border = "5px solid #886622";
-			}
-			if (levelUpOverride !== undefined) {
-				Dom.levelUp.override = true;
-				Dom.currentlyDisplayed = page;
-				setTimeout(function () {
-					Dom.levelUp.override = false;
-					Dom.currentlyDisplayed = "";
-					Dom.currentNPC = {};
-					//Dom.changeBook(Player.tab);
-					if (Dom.levelUp.waiting) {
-						Dom.levelUp.waiting = false;
-						Dom.levelUp.page();
-					}
-				},levelUpOverride);
-			}
-			if (page === "settingsPage" && !shouldNotBeOverriden) {
-				Dom.settings.page();
-			}
-			if (Dom.settings.hotkey !== undefined) {
-				document.getElementsByClassName("hotkey")[Dom.settings.hotkey].innerHTML = Keyboard.keys[Object.keys(Keyboard.keys)[Dom.settings.hotkey]].toUpperCase();
-				Dom.settings.hotkey = undefined;
-			}
-			return true;
-		}
-	// if the page cannot be changed
-	}else{
-		for (let i = 0; i < document.getElementsByClassName("closeClass").length; i++) {
-			document.getElementsByClassName("closeClass")[i].style.border = "5px solid red";
-		}
-		document.getElementById("levelUpPageClose").style.border = "5px solid red";
-		// close buttons turn red for 0.2 seconds
-		Dom.override = true; // overrides future updates
-		setTimeout(function () {
-			for (let i = 0; i < document.getElementsByClassName("closeClass").length; i++) {
-				document.getElementsByClassName("closeClass")[i].style.border = "5px solid #886622";
-			}
-			document.getElementById("levelUpPageClose").style.border = "5px solid #886622";
-			Dom.override = false; // allows future updates
-		},200);
-		return false;
-	}
-}*/
-
 Dom.hotbar.update = function () {
 	for (let i = 0; i < 6; i++) {
 		document.getElementById("hotbar").getElementsByTagName("td")[i].innerHTML = document.getElementById("itemInventory").getElementsByTagName("td")[i].innerHTML;
@@ -523,23 +407,12 @@ Dom.chat.insert = function (text, delay, important, noRepeat) {
 				// purge the oldest
 				this.contents.shift();
 			}
-			/*if (chatPage.hidden && document.getElementById("dot").innerHTML !== "<b>...</b>") {
-				if (!document.getElementById("chatImage").hidden) {
-					document.getElementById("dot").hidden = false;
-				}
-				document.getElementById("dot").innerHTML = parseInt(document.getElementById("dot").innerHTML) + 1;
-				document.getElementById("dot").style.lineHeight = "15px";
-				if (parseInt(document.getElementById("dot").innerHTML) > 99) {
-					document.getElementById("dot").innerHTML = "<b>...</b>";
-					document.getElementById("dot").style.lineHeight = "7.5px";
-				}
-			}*/
 			if (Dom.canvas.width !== undefined) {
 				this.contents.push(text);
 				// chat in the bottom left
 				Dom.chat.displayChat.push(text);
 				document.getElementById("chat").innerHTML += "<li class='chatBox' style='opacity:0.6;'>"+text+"</li>";
-				Dom.chat.displayOpacity.push(6);
+				Dom.chat.displayOpacity.push(8);
 				if (!Dom.chat.chatInterval) {
 					Dom.chat.chatInterval = setInterval(function () {
 						if (Dom.chat.displayChat.length === 0) {
@@ -565,33 +438,12 @@ Dom.chat.insert = function (text, delay, important, noRepeat) {
 					},1);
 				}
 
-				/*this.newString = text + "<br><br>" + this.newString;
-				chatPage.innerHTML = "<br>" + this.newString;
-				if (this.oldString !== "") {
-					chatPage.innerHTML += '-------------------- <b>New Messages</b> --------------------';
-				}*/
 				document.getElementById("chatPage").innerHTML = "";
 				for (let i = this.contents.length-1; i >= 0; i--) {
 					document.getElementById("chatPage").innerHTML += this.contents[i]+"<br><br>";
 				}
 				document.getElementById("chatPage").innerHTML += "</p>" + this.oldString;
 			}
-			/*if (!document.getElementById("chatPage").hidden) {
-				// update the chat
-				Dom.changeBook("chatPage");
-			}*/
-
-			// important chat messages
-			/*if (important && !this.borderRed && !this.borderBlack) {
-				this.borderRed = setInterval(function () {
-					document.getElementById("changeChat").getElementsByTagName("polygon")[0].style.strokeWidth = "3";
-					document.getElementById("changeChat").getElementsByTagName("polygon")[0].style.stroke = "red";
-				},500);
-				this.borderBlack = setInterval(function () {
-					document.getElementById("changeChat").getElementsByTagName("polygon")[0].style.strokeWidth = "1";
-					document.getElementById("changeChat").getElementsByTagName("polygon")[0].style.stroke = "black";
-				},1000);
-			}*/
 			return true;
 		}else{
 			return false;
@@ -727,14 +579,21 @@ Dom.reputation.give = function (area, amount) {
 	if (Player.reputation[area].changed) {
 		if (Player.reputation[area].level !== 6 || amount < 0) {
 			Player.reputation[area].score += amount;
-			Dom.chat.insert("You have gained " + amount + " reputation with " + FromCamelCase(area));
-			if (Player.reputation[area].score > ReputationPoints[Player.reputation[area].level] && Player.reputation[area].level !== 6) {
-				Dom.reputation.update();
-				Game.displayOnCanvas("Reputation Level Up!", [area, Player.reputation[area].level-1 + " \u{2794} " + Player.reputation[area].level], 4, true); // display on canvas for 4s or enters a queue (true)
-				//Dom.levelUp.page("reputation", area, Player.reputation[area].level);
-			}else if (Player.reputation[area].score < 0) {
-				Dom.reputation.update();
+			
+			if (amount > 0) {
+				Dom.chat.insert("You have gained " + amount + " reputation with " + FromCamelCase(area));
 			}
+			else {
+				Dom.chat.insert("You have lost " + (0-amount) + " reputation with " + FromCamelCase(area));
+			}
+			
+			if (Player.reputation[area].score >= ReputationPoints[Player.reputation[area].level] && Player.reputation[area].level !== 6) {
+				//Dom.reputation.update();
+				Game.displayOnCanvas("Reputation Level Up!", [FromCamelCase(area), Dom.reputation.levels[Player.reputation[area].level] + " \u{2794} " + Dom.reputation.levels[Player.reputation[area].level+1]], 4, true); // display on canvas for 4s or enters a queue (true)
+				//Dom.levelUp.page("reputation", area, Player.reputation[area].level);
+			}//else if (Player.reputation[area].score <= 0) {
+				Dom.reputation.update();
+			//}
 		}
 	// first time
 	}else{
@@ -956,7 +815,7 @@ Dom.inventory.displayIdentification = function (display) {
 }
 
 Dom.inventory.stats = function (stat, value, array) { // stat should be in Title Case // copy to archaeology
-	if (stat === "Defence" || stat === "Block Defence" || stat === "Fishing Skill") {
+	if (stat === "Defence" || stat === "Block Defence" || stat === "Fishing Skill" || stat === "Max Health") {
 		return stat+": "+NumberSign(value)+"<br>";
 	}else if (stat === "Critical Chance" || stat === "Dodge Chance" || stat === "Looting" || stat === "Reflection" || stat === "Life Steal" || stat === "Xp Bonus") {
 		return stat+": "+NumberSign(value)+"%<br>";
@@ -1181,31 +1040,7 @@ Dom.inventory.displayInformation = function (item, stacked, element, position, h
 				document.getElementById("lore").innerHTML += lorebuyer+"Sell "+(item.sellQuantity !== 1 ? item.sellQuantity : "")+" for "+(item.charges === undefined ? item.sellPrice : Math.ceil(item.sellPrice / (item.maxCharges / item.charges)))+" gold";
 			}
 			if (item.cooldownStart !== undefined && parseInt(item.cooldownStart) + item.cooldown > parseInt(GetFullDateTime())) {
-				let end = (parseInt(item.cooldownStart) + item.cooldown).toString();
-				let start = GetFullDateTime();
-				let time = (parseInt(end.substring(0,4))-parseInt(start.substring(0,4))) * 31536000;
-				time += (parseInt(end.substring(4,6))-parseInt(start.substring(4,6))) * 2592000;
-				time += (parseInt(end.substring(6,8))-parseInt(start.substring(6,8))) * 86400;
-				time += (parseInt(end.substring(8,10))-parseInt(start.substring(8,10))) * 3600;
-				time += (parseInt(end.substring(10,12))-parseInt(start.substring(10,12))) * 60;
-				time += parseInt(end.substring(12))-parseInt(start.substring(12));
-				let answer = "";
-				if (time >= 31536000) {
-					answer = Math.floor(time/31536000)+" Year";
-				}else if (time >= 2592000) {
-					answer = Math.floor(time/2592000)+" Month";
-				}else if (time >= 86400) {
-					answer = Math.floor(time/86400)+" Day";
-				}else if (time >= 3600) {
-					answer = Math.floor(time/3600)+" Hour";
-				}else if (time >= 60) {
-					answer = Math.floor(time/60)+" Minute";
-				}else{
-					answer = time+" Second";
-				}
-				if (answer.substring(0,2) !== "1 ") {
-					answer += "s";
-				}
+				let answer = CalculateTime(GetFullDateTime(), (parseInt(item.cooldownStart) + item.cooldown).toString());
 				document.getElementById("lore").innerHTML += (document.getElementById("lore").innerHTML !== "" ? "<br><br>" : "") +"On cooldown:<br>" + answer;
 				Dom.inventory.displayTimer = true;
 				setTimeout(function () {
@@ -1311,8 +1146,8 @@ Dom.quest.start = function (quest) {
 			document.getElementsByClassName("questStackNum")[x].onmouseleave = function () {
 				Dom.expand("information");
 			};
-			document.getElementsByClassName("questStackNum")[x].style.left = document.getElementsByClassName("theseQuestOptions")[x].getBoundingClientRect().left - 635 + "px";
-			document.getElementsByClassName("questStackNum")[x].style.top = document.getElementsByClassName("theseQuestOptions")[x].getBoundingClientRect().top + 15 + "px";
+			document.getElementsByClassName("questStackNum")[x].style.left = document.getElementsByClassName("theseQuestOptions")[x].offsetLeft + 5 + "px";
+			document.getElementsByClassName("questStackNum")[x].style.top = document.getElementsByClassName("theseQuestOptions")[x].offsetTop + 33 + "px";
 		}
 		for (let x = 0; x < document.getElementsByClassName("questStartStackNum").length; x++) {
 			document.getElementsByClassName("questStartStackNum")[x].onmouseover = function () {
@@ -1321,8 +1156,8 @@ Dom.quest.start = function (quest) {
 			document.getElementsByClassName("questStartStackNum")[x].onmouseleave = function () {
 				Dom.expand("information");
 			};
-			document.getElementsByClassName("questStartStackNum")[x].style.left = document.getElementsByClassName("theseQuestStartOptions")[x].getBoundingClientRect().left - 635 + "px";
-			document.getElementsByClassName("questStartStackNum")[x].style.top = document.getElementsByClassName("theseQuestStartOptions")[x].getBoundingClientRect().top + 15 + "px";
+			document.getElementsByClassName("questStartStackNum")[x].style.left = document.getElementsByClassName("theseQuestStartOptions")[x].offsetLeft + 5 + "px";
+			document.getElementsByClassName("questStartStackNum")[x].style.top = document.getElementsByClassName("theseQuestStartOptions")[x].offsetTop + 33 + "px";
 		}
 		Dom.currentlyDisplayed = quest;
 	}
@@ -1732,9 +1567,12 @@ Dom.identifier.identify = function (npc) {
 		}
 		document.getElementById("identifiedPageBack").onclick = function () {
 			Dom.identifier.displayed = 0;
-			Dom.closePage('identifiedPage');
 			if (Dom.identifier.check()) {
+				Dom.closePage("identifiedPage", true);
 				Dom.identifier.page(npc/*, true*/);
+			}
+			else {
+				Dom.closePage("identifiedPage");
 			}
 		}
 		Dom.identifier.unId.splice(Dom.identifier.displayed, 1);
@@ -1965,7 +1803,9 @@ Dom.inventory.cooldown = function (inventoryPosition, hotbar, check) {
 				return true;
 			}
 		}
-	}else{
+		Dom.chat.insert("This items is on cooldown. You can use it in " + CalculateTime(GetFullDateTime(), (parseInt(item[inventoryPosition].cooldownStart) + item[inventoryPosition].cooldown).toString()));
+	}
+	else {
 		if (!check) {
 			if ((item[inventoryPosition].onClickEventRequirement === undefined || item[inventoryPosition].onClickEventRequirement === Event.event) && (item[inventoryPosition].onClickAreaRequirement === undefined || item[inventoryPosition].onClickAreaRequirement.includes(Game.areaName))) {
 				if (item[inventoryPosition].onClickFunction !== undefined) {
@@ -2189,10 +2029,10 @@ Dom.inventory.dispose = function (ev) {
 
 Dom.inventory.removeById = function (ID, type, num, array) {
 
-	let equip = true;
+	let equip = false;
 	if (array === undefined) {
 		array = Player.inventory.items;
-		equip = false;
+		equip = true;
 	}
 
 	let remove = false;
@@ -2294,7 +2134,7 @@ Dom.canvas.drop = function (ev) {
 for (let i = 0; i < document.getElementsByClassName("DOM").length; i++) {
 	document.getElementsByClassName("DOM")[i].style.zIndex = 6+i;
 	document.getElementsByClassName("DOM")[i].onmousedown = function (event) {
-		if (!event.target.draggable) { // === document.getElementsByClassName("DOM")[i]) {
+		if (!event.target.draggable && event.target.className !== "stackNum") { // === document.getElementsByClassName("DOM")[i]) {
 			Dom.canvas.dragPageX = event.clientX-document.getElementsByClassName("DOM")[i].offsetLeft;
 			Dom.canvas.dragPageY = event.clientY-document.getElementsByClassName("DOM")[i].offsetTop;
 			Dom.canvas.stopMove = false;
@@ -2610,6 +2450,30 @@ Dom.inventory.validateSwap = function () {
 		}
 	}
 
+	// stacking items
+	if (Dom.inventory.fromArray[Dom.inventory.fromId].id === Dom.inventory.toArray[Dom.inventory.toId].id && Dom.inventory.fromArray[Dom.inventory.fromId].type === Dom.inventory.toArray[Dom.inventory.toId].type
+	&& Dom.inventory.toArray[Dom.inventory.toId].stack !== undefined && Dom.inventory.toArray[Dom.inventory.toId].stack !== Dom.inventory.toArray[Dom.inventory.toId].stacked) {
+		
+		if (Dom.inventory.toArray[Dom.inventory.toId].stacked === undefined) {
+			Dom.inventory.toArray[Dom.inventory.toId] = 1;
+		}
+		if (Dom.inventory.fromArray[Dom.inventory.fromId].stacked === undefined) {
+			Dom.inventory.fromArray[Dom.inventory.fromId] = 1;
+		}
+		
+		// no overflow
+		if (Dom.inventory.fromArray[Dom.inventory.fromId].stacked <= Dom.inventory.toArray[Dom.inventory.toId].stack - Dom.inventory.toArray[Dom.inventory.toId].stacked) {
+			Dom.inventory.fromArray[Dom.inventory.fromId].stacked += Dom.inventory.toArray[Dom.inventory.toId].stacked;
+			Dom.inventory.toArray[Dom.inventory.toId] = {};
+			Dom.inventory.toElement.innerHTML = "";
+		}
+		// overflow
+		else {
+			Dom.inventory.toArray[Dom.inventory.toId].stacked -= Dom.inventory.fromArray[Dom.inventory.fromId].stack - Dom.inventory.fromArray[Dom.inventory.fromId].stacked;
+			Dom.inventory.fromArray[Dom.inventory.fromId].stacked = Dom.inventory.fromArray[Dom.inventory.fromId].stack;
+		}
+	}
+
 	// key dropped on chest
 	if (Dom.inventory.fromArray[Dom.inventory.fromId].opens !== undefined &&
 	Dom.inventory.fromArray[Dom.inventory.fromId].opens.type === Dom.inventory.toArray[Dom.inventory.toId].type &&
@@ -2635,8 +2499,10 @@ Dom.inventory.drop = function (toElement, toArray, toId, fromElement, fromArray,
 		Dom.inventory.toElement = toElement;
 	}
 	else {
-		Dom.inventory.toElement = toElement.path[1];
-		if (""+toElement.path[0] !== "[object HTMLImageElement]") {
+		if (""+toElement.path[0] === "[object HTMLImageElement]" || ""+toElement.path[0] === "[object HTMLDivElement]") {
+			Dom.inventory.toElement = toElement.path[1];
+		}
+		else {
 			Dom.inventory.toElement = toElement.path[0];
 		}
 	}
@@ -2694,6 +2560,8 @@ Dom.inventory.drop = function (toElement, toArray, toId, fromElement, fromArray,
 		Dom.inventory.fromArray = undefined;
 		Dom.inventory.fromId = undefined;
 	}
+	Game.inventoryUpdate();
+	Dom.hotbar.update();
 }
 
 Dom.inventory.setItemFunctions = function (element, array, id) {
@@ -3165,8 +3033,8 @@ Dom.text.page = function (name, text, close, buttons, functions, give) {
 				document.getElementsByClassName("textStackNum")[i].onmouseleave = function () {
 					Dom.expand("information");
 				};
-				document.getElementsByClassName("textStackNum")[i].style.left = document.getElementsByClassName("theseTextOptions")[i].getBoundingClientRect().left - 635 + "px";
-				document.getElementsByClassName("textStackNum")[i].style.top = document.getElementsByClassName("theseTextOptions")[i].getBoundingClientRect().top + 15 + "px";
+				document.getElementsByClassName("textStackNum")[i].style.left = document.getElementsByClassName("theseTextOptions")[i].offsetLeft + 5 + "px";
+				document.getElementsByClassName("textStackNum")[i].style.top = document.getElementsByClassName("theseTextOptions")[i].offsetTop + 33 + "px";
 			}
 		}
 	}
@@ -3226,7 +3094,7 @@ Dom.buyer.page = function (npc) {
 				document.getElementById("buyerPageInventory").getElementsByTagName("td")[i].innerHTML += "<div class='stackNum' id='stackNum"+i+"'>"+Player.inventory.items[i].stacked+"</div>";
 			}
 			document.getElementById("buyerPageInventory").getElementsByTagName("td")[i].getElementsByTagName("img")[0].setAttribute('draggable', false);
-			if (Player.inventory.items[i].sellPrice !== undefined) {
+			if (Player.inventory.items[i].sellPrice !== undefined && !(Player.inventory.items[i].quest !== undefined && (Player.inventory.items[i].quest === true || Player.inventory.items[i].quest()))) {
 				if (Player.inventory.items[i].sellCurrency === undefined) {
 					Player.inventory.items[i].sellCurrency = 2;
 				}
@@ -3241,11 +3109,11 @@ Dom.buyer.page = function (npc) {
 						Dom.alert.ev = i;
 						Dom.alert.target = Dom.buyer.remove;
 						if (Player.inventory.items[i].stacked >= Player.inventory.items[i].sellQuantity*2) {
-							Dom.alert.page("How many <strong>"+Player.inventory.items[i].name.toLowerCase()+"</strong> would you like to sell for <strong>"+(Player.inventory.items[i].charges === undefined ? Player.inventory.items[i].sellPrice : Math.ceil(Player.inventory.items[i].sellPrice / (Player.inventory.items[i].maxCharges / Player.inventory.items[i].charges)))+" "+Items.currency[Player.inventory.items[i].sellCurrency].name.toLowerCase()+"</strong> "+(Player.inventory.items[i].sellQuantity !== 1 ? "per "+Player.inventory.items[i].sellQuantity+"?" : "each?"),
+							Dom.alert.page("How many <strong>"+Player.inventory.items[i].name+"</strong> would you like to sell for <strong>"+(Player.inventory.items[i].charges === undefined ? Player.inventory.items[i].sellPrice : Math.ceil(Player.inventory.items[i].sellPrice / (Player.inventory.items[i].maxCharges / Player.inventory.items[i].charges)))+" "+Items.currency[Player.inventory.items[i].sellCurrency].name.toLowerCase()+"</strong> "+(Player.inventory.items[i].sellQuantity !== 1 ? "per "+Player.inventory.items[i].sellQuantity+"?" : "each?"),
 								3, [Player.inventory.items[i].sellQuantity <= Player.inventory.items[i].stacked ? Player.inventory.items[i].sellQuantity : 0, Math.floor(Player.inventory.items[i].stacked/Player.inventory.items[i].sellQuantity)*Player.inventory.items[i].sellQuantity], "buyerPage"
 							);
 						}else{
-							Dom.alert.page("Are you sure you want to sell <strong>"+(Player.inventory.items[i].sellQuantity > 1 ? Player.inventory.items[i].sellQuantity+" " : "")+(Player.inventory.items[i].unidentified ? "unidentified "+Player.inventory.items[i].type : Player.inventory.items[i].name.toLowerCase())+"</strong> for <strong>"+(Player.inventory.items[i].charges === undefined ? Player.inventory.items[i].sellPrice : Math.ceil(Player.inventory.items[i].sellPrice / (Player.inventory.items[i].maxCharges / Player.inventory.items[i].charges)))+" "+Items.currency[Player.inventory.items[i].sellCurrency].name.toLowerCase()+"</strong>? You cannot buy it back!", 2, undefined, "buyerPage");
+							Dom.alert.page("Are you sure you want to sell <strong>"+(Player.inventory.items[i].sellQuantity > 1 ? Player.inventory.items[i].sellQuantity+" " : "")+(Player.inventory.items[i].unidentified ? "unidentified "+Player.inventory.items[i].type : Player.inventory.items[i].name)+"</strong> for <strong>"+(Player.inventory.items[i].charges === undefined ? Player.inventory.items[i].sellPrice : Math.ceil(Player.inventory.items[i].sellPrice / (Player.inventory.items[i].maxCharges / Player.inventory.items[i].charges)))+" "+Items.currency[Player.inventory.items[i].sellCurrency].name.toLowerCase()+"</strong>? You cannot buy it back!", 2, undefined, "buyerPage");
 						}
 					}else if (!(!remove && i === 5 && Player.inventory.items[5].type === "bag")) {
 						Dom.alert.page("You need "+Player.inventory.items[i].sellQuantity+" of these to sell them.", 0, undefined, "buyerPage");
@@ -3311,8 +3179,8 @@ Dom.choose.page = function (npc, buttons, functions, parameters, force) {
 							imagenum = 1;
 						}*/
 					}
-					if (imagenum === 6) {
-						if (parameters[i][0].important) {
+					if (imagenum === 6 || imagenum === 7) {
+						if (parameters[i][0].important === true) {
 							document.getElementById("choosePage").innerHTML += "<p id='choosePageButtons"+i+"'><img src='assets/icons/choose.png' class='chooseIcon' style='clip: rect("+25*imagenum+"px, 25px, "+25*(imagenum+1)+"px, 0px); margin-top: -"+(25*imagenum+3)+"px'></img>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<strong>"+buttons[i]+"</strong></p>";
 						}else{
 							Dom.choose.sideHTML += "<p id='choosePageButtons"+i+"'><img src='assets/icons/choose.png' class='chooseIcon' style='clip: rect("+25*imagenum+"px, 25px, "+25*(imagenum+1)+"px, 0px); margin-top: -"+(25*imagenum+3)+"px'></img>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;"+buttons[i]+"</p>";
@@ -3670,14 +3538,20 @@ Dom.bank.page = function () {
 	Dom.changeBook("bankPage");
 	Dom.bank.active = true;
 
-	document.getElementById("bankPageInventory").innerHTML = "";
+	let html = "<thead>"
 	for (let i = 0; i < Player.bank.items.length; i+=6) {
 		let str = "<tr>";
 		for (let inv = i; inv < i+6; inv++) {
 			str += '<td ondrop="Dom.inventory.drop(event, Player.bank.items, '+inv+');Game.inventoryUpdate(event)" ondragover="Dom.inventory.allowDrop(event)" onmouseover="Dom.inventory.displayInformation(Player.bank.items['+inv+'], undefined, \'bankPage\')" onmouseleave="Dom.expand(\'information\')" ondrag="Dom.expand(\'information\')" onclick="Game.inventoryUpdate()"></td>';
 		}
-		document.getElementById("bankPageInventory").innerHTML += str+"</tr>";
+		//document.getElementById("bankPageInventory").innerHTML += str+"</tr>";
+		html += str+"</tr>";
+		if (i === 0) {
+			html += "</thead><tbody>";
+		}
 	}
+	document.getElementById("bankPageInventory").innerHTML = html+"</body>";
+	
 	/*let remove = true;
 	for (let i = 6; i < Player.inventory.items.length; i++) {
 		if (Player.inventory.items[i].image !== undefined) {
@@ -3761,6 +3635,7 @@ Dom.driver.page = function (npc, destinations) {
 				Dom.alert.target = function (destination) {
 					Dom.inventory.removeById(2, "currency", destinations[Dom.driver.previous].cost);
 					Game.loadArea(destination.destinationName, destination.destinationPosition);
+					Dom.driver.previous = undefined;
 				}
 				Dom.alert.ev = destinations[Dom.driver.previous];
 				Dom.alert.page("Are you sure you want to go to <strong>"+destinations[Dom.driver.previous].title+"</strong> for <strong>"+destinations[Dom.driver.previous].cost+"</strong> gold?", 2, undefined, "driverPage");
@@ -3774,8 +3649,13 @@ Dom.driver.page = function (npc, destinations) {
 	}
 }
 
-Dom.mail.page = function () {
-	if (Dom.changeBook("mailPage")) {//, true/*false*/, true);
+document.getElementById("closeDriver").onclick = function () {
+	Dom.driver.previous = undefined;
+	Dom.closePage("driverPage");
+}
+
+Dom.mail.page = function (override) {
+	if (Dom.changeBook("mailPage") || override) {//, true/*false*/, true);
 		document.getElementById("mailPage").innerHTML = "<br><h1>Mailbox</h1><br>";
 		for (let i = Player.mail.mail.length-1; i >= 0; i--) {
 			document.getElementById("mailPage").innerHTML += "<div "+/*(Player.mail.mail[i].flag ? "style='border-color: black'" : "")+*/"class='mail' "+(Player.mail.opened.includes(Player.mail.mail[i].title) && !Player.mail.mail[i].flag ?"style='background-color: #fef9b4;'":"")+"><div class='mailImage'></div><div class='mailTitle'><strong>"+Player.mail.mail[i].title+"</strong><br>From "+Player.mail.mail[i].sender+"<br>Received on "+Player.mail.mail[i].date+"</div><div class='mailFlag'></div><div class='mailDelete'>X</div></div>";
@@ -3818,7 +3698,7 @@ Dom.mail.page = function () {
 				}else{
 					Player.mail.mail[i].flag = true;
 				}
-				Dom.mail.page();
+				Dom.mail.page(true);
 			}
 			document.getElementsByClassName("mail")[ii].onclick = function () {
 				// if you did not click on delete or flag
@@ -4006,8 +3886,10 @@ Dom.inventory.prepare = function (array, i, element) {
 }
 
 Keyboard.hotbar = function (num) {
-	Player.inventory.items[num].onClick(num);
-	Game.inventoryUpdate();
+	if (Player.inventory.items[num].onClick !== undefined) {
+		Player.inventory.items[num].onClick(num);
+		Game.inventoryUpdate();
+	}
 }
 
 Keyboard.update = function () {
@@ -4437,6 +4319,7 @@ Keyboard.downFunctions = {
 		setTimeout (function () {
 			Game.secondary.render();
 			Dom.inventory.hideHotbar(true);
+			document.getElementById("bookmarks").hidden = true;
 		},1);
 	},
 };
@@ -4445,6 +4328,7 @@ Keyboard.upFunctions = {
 		setTimeout (function () {
 			Game.secondary.render();
 			Dom.inventory.hideHotbar();
+			document.getElementById("bookmarks").hidden = false;
 		},1);
 	},
 	CHAT: Dom.settings.hotkeys,
@@ -4472,18 +4356,24 @@ Keyboard.parameters = {
 // TESTING functions
 Dom.testing = {};
 // complete a quest as if the player had done it manually
-Dom.testing.completeQuest = function (quest, acceptRewards) {
+Dom.testing.completeQuest = function (quest, acceptRewards, notStart) {
 	if (quest.constructor.name === "String") {
+		let set = false;
 		for (let i = 0; i < Object.keys(Quests).length; i++) {
 			for (let x = 0; x < Quests[Object.keys(Quests)[i]].length; x++) {
-				if (Quests[Object.keys(Quests)[i]][x].quest === quest) {
+				if (Quests[Object.keys(Quests)[i]][x].quest.toLowerCase() === quest.toLowerCase()) {
 					quest = Quests[Object.keys(Quests)[i]][x];
+					set = true;
+					break;
 				}
+			}
+			if (set) {
+				break;
 			}
 		}
 	}
 	Dom.currentlyDisplayed = quest;
-	if (!Player.quests.activeQuestArray.includes(quest.quest)) {
+	if (!Player.quests.activeQuestArray.includes(quest.quest) && !notStart) {
 		Dom.quest.start(quest);
 		Dom.quest.accept();
 	}

@@ -691,6 +691,7 @@ var Quests = {
 			
 			onQuestFinish: function () {
 				Dom.cutscene(10000);
+				Dom.closePage('questFinish');
 				Game.sayChat("Ciarra Darkbrew", "Stand back. We wouldn't want your arms to detatch so soon.", false, 1000, true);
 				Game.sayChat("Ciarra Darkbrew", "/me adds the potion ingredients to an inert vial.", false, 4000, true);
 				Dom.chat.insert("The vial fizzes rapidly.", 6500, true);
@@ -700,10 +701,10 @@ var Quests = {
 						// damage Ciarra
 						Game.npcs.find(NPC => NPC.name === "Ciarra Darkbrew").takeDamage(100);
 						// displace player if they are too close
-						let d = Game.distance(Game.hero, {x: 1111,y: 633}); // distance from ciarra
-						if (d < 240) {
-							Game.hero.displace(0, 240-d, 1, bearing({x: 1111,y: 633}, Game.hero));
-						}
+                        let d = Game.distance(Game.hero, {x: 1571, y: 633}); // distance from ciarra
+                        if (d < 240) {
+                            Game.hero.displace(0, 240-d, 1, Game.bearing({x: 1571, y: 633}, Game.hero));
+                        }
 					}
 				}, 8600);
 				Game.sayChat("Ciarra Darkbrew", "That... didn't go as planned.", false, 9500, true);
@@ -769,6 +770,7 @@ var Quests = {
 			
 			onQuestFinish: function () {
 				Dom.cutscene(8500);
+				Dom.closePage('questFinish');
 				Game.sayChat("Ciarra Darkbrew", "/me adds the potion ingredients to an inert vial.", false, 1500, true);
 				Dom.chat.insert("The vial fizzes rapidly.", 4000, true);
 				Dom.chat.insert("The vial simmers to produce a bluish-green coloured liquid.", 6000, true);

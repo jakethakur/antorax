@@ -27,7 +27,7 @@ var Achievements = [
 		points: 5,
 		category: ["general"],
 		area: ["global"],
-		event: ["Christmas"],
+		event: "Christmas",
 		image: "../assets/items/food/1.png",
 		class: "single",
 		isCompleted: function(){
