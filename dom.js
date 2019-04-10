@@ -77,7 +77,12 @@ Keyboard.keys = User.settings.keyboard;
 
 Dom.alert.page = function (text, type, values, page) {
 	document.getElementById("alert").hidden = false;
-	document.getElementById("alert").style.left = document.getElementById(page).offsetLeft+document.getElementById(page).offsetWidth/2-175+"px";
+	if (page !== undefined) {
+		document.getElementById("alert").style.left = document.getElementById(page).offsetLeft+document.getElementById(page).offsetWidth/2-175+"px";
+	}
+	else {
+		document.getElementById("alert").style.left = Dom.canvas.width/2-175+"px";
+	}
 	// text only (e.g. chooseStats)
 	if (type === "text") {
 		document.getElementById("alertOptions").style.display = "block";

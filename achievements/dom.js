@@ -12,24 +12,27 @@ var events = ["Samhain", "Christmas"];
 if(localStorage.getItem("a") !== null){
     let savedPlayer = JSON.parse(localStorage.getItem("a"));
     // bosses killed fix (if new bosses were added)
-    savedPlayer.bossesKilled = Object.assign(Player.bossesKilled, savedPlayer.bossesKilled);
-    Archer = Object.assign(Player, savedPlayer); // add any new stuff added to savedata
+	player = Object.assign({}, Player);
+    savedPlayer.bossesKilled = Object.assign(player.bossesKilled, savedPlayer.bossesKilled);
+    Archer = Object.assign(player, savedPlayer); // add any new stuff added to savedata
 }else{
-    Archer = Player;
+    Archer = player;
 }
 if(localStorage.getItem("m") !== null){
     let savedPlayer = JSON.parse(localStorage.getItem("m"));
     // bosses killed fix (if new bosses were added)
-    savedPlayer.bossesKilled = Object.assign(Player.bossesKilled, savedPlayer.bossesKilled);
-    Mage = Object.assign(Player, savedPlayer); // add any new stuff added to savedata
+	player = Object.assign({}, Player);
+    savedPlayer.bossesKilled = Object.assign(player.bossesKilled, savedPlayer.bossesKilled);
+    Mage = Object.assign(player, savedPlayer); // add any new stuff added to savedata
 }else{
     Mage = Player;
 }
 if(localStorage.getItem("k") !== null){
     let savedPlayer = JSON.parse(localStorage.getItem("k"));
     // bosses killed fix (if new bosses were added)
-    savedPlayer.bossesKilled = Object.assign(Player.bossesKilled, savedPlayer.bossesKilled);
-    Knight = Object.assign(Player, savedPlayer); // add any new stuff added to savedata
+	player = Object.assign({}, Player);
+    savedPlayer.bossesKilled = Object.assign(player.bossesKilled, savedPlayer.bossesKilled);
+    Knight = Object.assign(player, savedPlayer); // add any new stuff added to savedata
 }else{
     Knight = Player;
 }
@@ -204,7 +207,11 @@ function arrange(){
 		if(array[i].expand !== undefined){
 			document.getElementById("box"+i).style.cursor = "pointer";
 			if(array[i].expand.type === "progressBar"){
-				document.getElementById("box"+i).innerHTML += "<div class='progressBar' id='progressBar"+i+"' hidden><div class='innerProgressBar' style='width: "+(array[i].expand.value/array[i].expand.total*433)+"px;'></div><div class='progressBarText'>"+(array[i].expand.value !== undefined ? array[i].expand.value : 0)+"/"+array[i].expand.total+"</div></div>";
+				if (typeof array[i].expand.value !== "function") {
+					document.getElementById("box"+i).innerHTML += "<div class='progressBar' id='progressBar"+i+"' hidden><div class='innerProgressBar' style='width: "+(array[i].expand.value/array[i].expand.total*433)+"px;'></div><div class='progressBarText'>"+(array[i].expand.value !== undefined ? array[i].expand.value : 0)+"/"+array[i].expand.total+"</div></div>";
+				}else{
+					document.getElementById("box"+i).innerHTML += "<div class='progressBar' id='progressBar"+i+"' hidden><div class='innerProgressBar' style='width: "+(array[i].expand.value()/array[i].expand.total*433)+"px;'></div><div class='progressBarText'>"+(array[i].expand.value() !== undefined ? array[i].expand.value() : 0)+"/"+array[i].expand.total+"</div></div>";
+				}
 			}else if(array[i].expand.type === "checkList"){
 				document.getElementById("box"+i).innerHTML += "<div class='checkList' id='progressBar"+i+"' hidden></div>";
 				if(array[i].class === "single"){
@@ -245,16 +252,20 @@ function arrange(){
 	for(let i = 0; i < array.length; i++){
 		if(array[i].expand !== undefined){
 			document.getElementById("box"+i).onclick = function(){
-				if(document.getElementById("progressBar"+i).hidden){
-					if(array[i].expand.type === "progressBar"){
-						document.getElementById("box"+i).style.height = "99px";
+				if(array[i].expand.type !== "redirect"){
+					if(document.getElementById("progressBar"+i).hidden){
+						if(array[i].expand.type === "progressBar"){
+							document.getElementById("box"+i).style.height = "99px";
+						}else{
+							document.getElementById("box"+i).style.height = "100%";
+						}
+						document.getElementById("progressBar"+i).hidden = false;
 					}else{
-						document.getElementById("box"+i).style.height = "100%";
+						document.getElementById("box"+i).style.height = "60px";
+						document.getElementById("progressBar"+i).hidden = true;
 					}
-					document.getElementById("progressBar"+i).hidden = false;
 				}else{
-					document.getElementById("box"+i).style.height = "60px";
-					document.getElementById("progressBar"+i).hidden = true;
+					window.open(array[i].expand.location);
 				}
 			}
 		}
@@ -349,7 +360,7 @@ function generateList (i, x, archerIf, mageIf, knightIf) {
 		length++;
 		text2 += "&#9876";
 	}
-	document.getElementById("progressBar"+i).innerHTML += (text.length + (length > 0 ? length*2+2 : 0) > 30 ? text.substring(0, 30-(length > 0 ? length*2+2 : 0))+"..." : text)+text2+"</strong><br>";
+	document.getElementById("progressBar"+i).innerHTML += (text.length + (length > 0 ? length*2+2 : 0) > 30 ? text.substring(0, 30-(length > 0 ? length*2+3 : 0))+"..." : text)+text2+"</strong><br>";
 }
 
 var previousWidth = window.innerWidth;

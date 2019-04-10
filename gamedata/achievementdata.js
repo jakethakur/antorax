@@ -18,7 +18,12 @@ var Achievements = [
 		class: "single",
 		isCompleted: function(){
 			return Player.level >= 5;
-		}
+		},
+		expand: {
+			type: "progressBar",
+			value: function () { return Math.max(Archer.level, Mage.level, Knight.level); },
+			total: 5,
+		},
 	},
 	{
 		// id: 1,
@@ -352,7 +357,11 @@ var Achievements = [
 				}
 			}
 			return done;
-		}
+		},
+		expand: {
+			type: "redirect",
+			location: "https://jakethakur.github.io/antorax/archaeology/index.html",
+		},
 	},
 	{
 		// id: 17,
@@ -365,7 +374,11 @@ var Achievements = [
 		class: "single",
 		isCompleted: function(){
 			return User.archaeology.includes("The Set of the Ocean Warrior");
-		}
+		},
+		expand: {
+			type: "redirect",
+			location: "https://jakethakur.github.io/antorax/archaeology/index.html?searchBar=Ocean Warrior",
+		},
 	},
 	{
 		// id: 18,
@@ -378,7 +391,11 @@ var Achievements = [
 		class: "cumulative",
 		isCompleted: function(){
 			return User.archaeology.includes("Master Archaeologist's Hat");
-		}
+		},
+		expand: {
+			type: "redirect",
+			location: "https://jakethakur.github.io/antorax/archaeology/index.html",
+		},
 	},
 	{
 		// id: 19,
@@ -400,7 +417,11 @@ var Achievements = [
 				}
 			}
 			return done;
-		}
+		},
+		expand: {
+			type: "redirect",
+			location: "https://jakethakur.github.io/antorax/archaeology/index.html?event=Samhain",
+		},
 	},
 	{
 		// id: 20,
@@ -422,7 +443,11 @@ var Achievements = [
 				}
 			}
 			return done;
-		}
+		},
+		expand: {
+			type: "redirect",
+			location: "https://jakethakur.github.io/antorax/archaeology/index.html?event=Christmas",
+		},
 	},
 		// FISHING
 	{
@@ -436,7 +461,13 @@ var Achievements = [
 		class: "single",
 		isCompleted: function(){
 			return Player.quests.completedQuestArray.includes("Learning to Fish III");
-		}
+		},
+		expand: {
+			type: "checkList",
+			text: ["A Lost Fishing Rod", "Learning to Fish I", "Learning to Fish II", "Learning to Fish III"],
+			complete: ["A Lost Fishing Rod", "Learning to Fish I", "Learning to Fish II", "Learning to Fish III"],
+			saved: "quest",
+		},
 	},
 	{
 		// id: 22,
@@ -491,7 +522,7 @@ var Achievements = [
 		class: "single",
 		isCompleted: function(){
 			return Player.quests.completedQuestArray.includes("Sunken Presents");
-		}
+		},
 	},
 	{
 		name: "Novice Fisher",
@@ -593,6 +624,6 @@ var Achievements = [
 					return true;
 				}
 			}*/
-		}
+		},
 	},
 ]

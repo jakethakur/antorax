@@ -16,6 +16,28 @@ var session = {};
 var archaeology = JSON.parse(localStorage.getItem("user"));
 var events = ["Samhain", "Christmas"];
 
+if (url.searchParams.get("category") !== null) {
+	category.value = url.searchParams.get("category");
+}
+if (url.searchParams.get("rarity") !== null) {
+	rarity.value = url.searchParams.get("rarity");
+}
+if (url.searchParams.get("event") !== null) {
+	event.value = url.searchParams.get("event");
+}
+if (url.searchParams.get("obtained") !== null) {
+	obtained.value = url.searchParams.get("obtained");
+}
+if (url.searchParams.get("min") !== null) {
+	min.value = url.searchParams.get("min");
+}
+if (url.searchParams.get("max") !== null) {
+	max.value = url.searchParams.get("max");
+}
+if (url.searchParams.get("searchBar") !== null) {
+	searchBar.value = url.searchParams.get("searchBar");
+}
+
 if(archaeology === null){
 	archaeology = [];
 }else{
