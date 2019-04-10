@@ -1621,16 +1621,31 @@ var Items = {
 			functionText: "Click to take a screenshot",
 			onClick: function () {
 				try{
+					let x = Game.hero.screenX-300;
+					let y = Game.hero.screenY-300;
+					if (x < 0) {
+						x = 0;
+					}
+					else if (x > Dom.canvas.width - 600) {
+						x = Dom.canvas.width - 600
+					}
+					if (y < 0) {
+						y = 0;
+					}
+					else if (y > Dom.canvas.height - 600) {
+						y = Dom.canvas.height - 600
+					}
+					
 					document.getElementById("hidden").getContext('2d').drawImage(
 					    document.getElementById("game"),
-					    Game.hero.screenX-300, // startClippingX,
-					    Game.hero.screenY-300, // startClippingY,
+					    x, // startClippingX,
+					    y, // startClippingY,
 					    600, // clippingWidth,
 					    600, // clippingHeight,
 					    0, // pasteX,
 					    0, // pasteY,
-					    200, // pasteWidth,
-					    200, // pasteHeight
+					    600, // pasteWidth,
+					    600, // pasteHeight
 					);
 
 					dataURL = document.getElementById("hidden").toDataURL("image/png");
