@@ -1621,9 +1621,22 @@ var Items = {
 			functionText: "Click to take a screenshot",
 			onClick: function () {
 				try{
-					dataURL = document.getElementById("game").toDataURL("image/png");
+					document.getElementById("hidden").getContext('2d').drawImage(
+					    document.getElementById("game"),
+					    Game.hero.screenX-300, // startClippingX,
+					    Game.hero.screenY-300, // startClippingY,
+					    600, // clippingWidth,
+					    600, // clippingHeight,
+					    0, // pasteX,
+					    0, // pasteY,
+					    200, // pasteWidth,
+					    200, // pasteHeight
+					);
+
+					dataURL = document.getElementById("hidden").toDataURL("image/png");
 					Dom.alert.page("Click the image to download<br><br><a href='"+dataURL+"' download><img src='"+dataURL+"' height='200px'></img></a>", 0, undefined, "inventoryPage");
-				}catch(error){
+				}
+				catch(error){
 					console.error("Camera does not work on local versions. If you are using the main version please report this error.");
 				}
 			},
