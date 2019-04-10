@@ -117,6 +117,7 @@ var Player = {
 		domRange: 240, // distance from an entity that a DOM menu may be opened
 	},
 	conditionalStats: [],
+	conditionalChooseStats: [],
 
 	xp: 0,
 	level: 1,

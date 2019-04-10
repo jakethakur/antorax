@@ -251,6 +251,7 @@ Dom.quests.active = function (quest) {
 Dom.checkProgress = function () {
 	Dom.achievements.update();
 	Dom.quests.active();
+	Dom.inventory.conditionalStats();
 }
 
 Dom.closeNPCPages = function () {
@@ -817,7 +818,7 @@ Dom.inventory.displayIdentification = function (display) {
 Dom.inventory.stats = function (stat, value, array) { // stat should be in Title Case // copy to archaeology
 	if (stat === "Defence" || stat === "Block Defence" || stat === "Fishing Skill" || stat === "Max Health") {
 		return stat+": "+NumberSign(value)+"<br>";
-	}else if (stat === "Critical Chance" || stat === "Dodge Chance" || stat === "Looting" || stat === "Reflection" || stat === "Life Steal" || stat === "Xp Bonus") {
+	}else if (stat === "Critical Chance" || stat === "Dodge Chance" || stat === "Looting" || stat === "Reflection" || stat === "Lifesteal" || stat === "Xp Bonus") {
 		return stat+": "+NumberSign(value)+"%<br>";
 	}else if (stat === "Health Regen" || stat === "Swim Speed" || stat === "Walk Speed" || stat === "Ice Speed" || stat === "Focus Speed") {
 		return stat+": "+NumberSign(value)+"/s<br>";
@@ -897,6 +898,14 @@ Dom.inventory.displayInformation = function (item, stacked, element, position, h
 							}else{
 								document.getElementById("stats").innerHTML += "<br><span style='color: "+color+"'>"+Object.keys(item.chooseStats)[i]+" "+Romanize(item.chooseStats[Object.keys(item.chooseStats)[i]])+"</span>";
 							}*/
+						}
+					}
+					if (item.conditionalChooseStats !== undefined) {
+						document.getElementById("stats").innerHTML += "<br>Locked stats:<br>";
+						for (let i = 0; i < Object.keys(item.conditionalChooseStats).length; i++) {
+							if (Object.keys(item.chooseStats).includes(Object.keys(item.conditionalChooseStats[i])[0])) {
+								document.getElementById("stats").innerHTML += "<span style='color: gray'>"+Dom.inventory.stats(FromCamelCase(Object.keys(item.conditionalChooseStats[i])[0]), item.conditionalChooseStats[i][Object.keys(item.conditionalChooseStats[i])[0]], item.conditionalChooseStats)+"</span>";
+							}
 						}
 					}
 					if (item.conditionalStats !== undefined) {
@@ -1824,77 +1833,87 @@ Dom.inventory.chooseStats = function (inventoryPosition) {
 		// not currently used because ocean set is equipped onClick
 		let values = "";
 		let str = Player.inventory.items[inventoryPosition].chooseStats;
-		Dom.alert.ev = [];
-		// repeats for each chooseStat
-		for (let i = 0; i < Object.keys(str).length; i++) {
-			if (Object.keys(str)[i] === Player.inventory.items[inventoryPosition].chosenStat) {
-				values += "<strong><span onclick='Dom.alert.target(Dom.alert.ev, "+i+")'>"+Dom.inventory.stats(FromCamelCase(Object.keys(str)[i]), str[Object.keys(str)[i]], str) + "</span></strong>";
-			}else{
-				values += "<span onclick='Dom.alert.target(Dom.alert.ev, "+i+")'>"+Dom.inventory.stats(FromCamelCase(Object.keys(str)[i]), str[Object.keys(str)[i]], str) + "</span>";
+		
+		// if there is at least 1 option
+		if (Object.keys(str).length > 0) {
+			Dom.alert.ev = [];
+			// repeats for each chooseStat
+			for (let i = 0; i < Object.keys(str).length; i++) {
+				if (Object.keys(str)[i] === Player.inventory.items[inventoryPosition].chosenStat) {
+					values += "<strong><span onclick='Dom.alert.target(Dom.alert.ev, "+i+")'>"+Dom.inventory.stats(FromCamelCase(Object.keys(str)[i]), str[Object.keys(str)[i]], str) + "</span></strong>";
+				}else{
+					values += "<span onclick='Dom.alert.target(Dom.alert.ev, "+i+")'>"+Dom.inventory.stats(FromCamelCase(Object.keys(str)[i]), str[Object.keys(str)[i]], str) + "</span>";
+				}
+				Dom.alert.ev.push([Object.keys(str)[i], str[Object.keys(str)[i]]]);
 			}
-			Dom.alert.ev.push([Object.keys(str)[i], str[Object.keys(str)[i]]]);
-		}
-		Dom.alert.target = function (ev, num) {
-			document.getElementById("alert").hidden = true;
-			if (Player.inventory.items[inventoryPosition].chosenStat !== undefined) {
-				delete Player.inventory.items[inventoryPosition].stats[Player.inventory.items[inventoryPosition].chosenStat];
+			Dom.alert.target = function (ev, num) {
+				document.getElementById("alert").hidden = true;
+				if (Player.inventory.items[inventoryPosition].chosenStat !== undefined) {
+					delete Player.inventory.items[inventoryPosition].stats[Player.inventory.items[inventoryPosition].chosenStat];
+				}
+				Player.inventory.items[inventoryPosition].chosenStat = ev[num][0];
+				Player.inventory.items[inventoryPosition].stats[ev[num][0]] = ev[num][1];
 			}
-			Player.inventory.items[inventoryPosition].chosenStat = ev[num][0];
-			Player.inventory.items[inventoryPosition].stats[ev[num][0]] = ev[num][1];
+			Dom.alert.page("Choose an effect:", "text", values, "inventoryPage");
+			return true;
 		}
-		Dom.alert.page("Choose an effect:", "text", values, "inventoryPage");
 	// equipped
 	}else{
 		let values = "";
 		let str = Player.inventory[inventoryPosition].chooseStats;
-		Dom.alert.ev = [];
-		// repeats for each chosenStat
-		for (let i = 0; i < Object.keys(str).length; i++) {
-			if (Object.keys(str)[i] === Player.inventory[inventoryPosition].chosenStat) {
-				values += "<strong><span onclick='Dom.alert.target(Dom.alert.ev, "+i+")'>"+Dom.inventory.stats(FromCamelCase(Object.keys(str)[i]), str[Object.keys(str)[i]], str) + "</span></strong>";
-			}else{
-				values += "<span onclick='Dom.alert.target(Dom.alert.ev, "+i+")'>"+Dom.inventory.stats(FromCamelCase(Object.keys(str)[i]), str[Object.keys(str)[i]], str) + "</span>";
+		
+		// if there is at least 1 option
+		if (Object.keys(str).length > 0) {
+			Dom.alert.ev = [];
+			// repeats for each chosenStat
+			for (let i = 0; i < Object.keys(str).length; i++) {
+				if (Object.keys(str)[i] === Player.inventory[inventoryPosition].chosenStat) {
+					values += "<strong><span onclick='Dom.alert.target(Dom.alert.ev, "+i+")'>"+Dom.inventory.stats(FromCamelCase(Object.keys(str)[i]), str[Object.keys(str)[i]], str) + "</span></strong>";
+				}else{
+					values += "<span onclick='Dom.alert.target(Dom.alert.ev, "+i+")'>"+Dom.inventory.stats(FromCamelCase(Object.keys(str)[i]), str[Object.keys(str)[i]], str) + "</span>";
+				}
+				Dom.alert.ev.push([Object.keys(str)[i], str[Object.keys(str)[i]]]);
 			}
-			Dom.alert.ev.push([Object.keys(str)[i], str[Object.keys(str)[i]]]);
-		}
-		Dom.alert.target = function (ev, num) {
-			document.getElementById("alert").hidden = true;
-			let setNum = 0;
-			if (Player.inventory[inventoryPosition].set !== undefined) {
-				for (let i = 0; i < Items.set[Player.inventory[inventoryPosition].set].armour.length; i++) {
-					for (let x = 0; x < 4; x++) {
-						if (Player.inventory[Object.keys(Player.inventory)[x]].name === Items.set[Player.inventory[inventoryPosition].set].armour[i]) {
-							setNum++;
-							break;
+			Dom.alert.target = function (ev, num) {
+				document.getElementById("alert").hidden = true;
+				let setNum = 0;
+				if (Player.inventory[inventoryPosition].set !== undefined) {
+					for (let i = 0; i < Items.set[Player.inventory[inventoryPosition].set].armour.length; i++) {
+						for (let x = 0; x < 4; x++) {
+							if (Player.inventory[Object.keys(Player.inventory)[x]].name === Items.set[Player.inventory[inventoryPosition].set].armour[i]) {
+								setNum++;
+								break;
+							}
 						}
 					}
 				}
-			}
-			if (Player.inventory[inventoryPosition].chosenStat !== undefined) {
-				Player.stats[Player.inventory[inventoryPosition].chosenStat] -= parseFloat(Player.inventory[inventoryPosition].stats[Player.inventory[inventoryPosition].chosenStat]);
+				if (Player.inventory[inventoryPosition].chosenStat !== undefined) {
+					Player.stats[Player.inventory[inventoryPosition].chosenStat] -= parseFloat(Player.inventory[inventoryPosition].stats[Player.inventory[inventoryPosition].chosenStat]);
+					if (setNum !== 0) {
+						if (setNum === Items.set[Player.inventory[inventoryPosition].set].armour.length) {
+							let x = Items.set[Player.inventory[inventoryPosition].set].multiplier.findIndex(multiplier => multiplier.stat === "chosenStat");
+							if (x !== -1) {
+								Player.stats[Player.inventory[inventoryPosition][Items.set[Player.inventory[inventoryPosition].set].multiplier[x].stat]] -= parseFloat(Player.inventory[inventoryPosition].stats[Player.inventory[inventoryPosition][Items.set[Player.inventory[inventoryPosition].set].multiplier[x].stat]]);
+							}
+						}
+						delete Player.inventory[inventoryPosition].stats[Player.inventory[inventoryPosition].chosenStat];
+					}
+				}
+				Player.inventory[inventoryPosition].chosenStat = ev[num][0];
+				Player.stats[ev[num][0]] += parseFloat(ev[num][1]);
+				Player.inventory[inventoryPosition].stats[ev[num][0]] = ev[num][1];
 				if (setNum !== 0) {
 					if (setNum === Items.set[Player.inventory[inventoryPosition].set].armour.length) {
 						let x = Items.set[Player.inventory[inventoryPosition].set].multiplier.findIndex(multiplier => multiplier.stat === "chosenStat");
 						if (x !== -1) {
-							Player.stats[Player.inventory[inventoryPosition][Items.set[Player.inventory[inventoryPosition].set].multiplier[x].stat]] -= parseFloat(Player.inventory[inventoryPosition].stats[Player.inventory[inventoryPosition][Items.set[Player.inventory[inventoryPosition].set].multiplier[x].stat]]);
+							Player.stats[Player.inventory[inventoryPosition][Items.set[Player.inventory[inventoryPosition].set].multiplier[x].stat]] += parseFloat(Player.inventory[inventoryPosition].stats[Player.inventory[inventoryPosition][Items.set[Player.inventory[inventoryPosition].set].multiplier[x].stat]]);
 						}
 					}
-					delete Player.inventory[inventoryPosition].stats[Player.inventory[inventoryPosition].chosenStat];
 				}
 			}
-			Player.inventory[inventoryPosition].chosenStat = ev[num][0];
-			Player.stats[ev[num][0]] += parseFloat(ev[num][1]);
-			Player.inventory[inventoryPosition].stats[ev[num][0]] = ev[num][1];
-			if (setNum !== 0) {
-				if (setNum === Items.set[Player.inventory[inventoryPosition].set].armour.length) {
-					let x = Items.set[Player.inventory[inventoryPosition].set].multiplier.findIndex(multiplier => multiplier.stat === "chosenStat");
-					if (x !== -1) {
-						Player.stats[Player.inventory[inventoryPosition][Items.set[Player.inventory[inventoryPosition].set].multiplier[x].stat]] += parseFloat(Player.inventory[inventoryPosition].stats[Player.inventory[inventoryPosition][Items.set[Player.inventory[inventoryPosition].set].multiplier[x].stat]]);
-					}
-				}
-			}
+			Dom.alert.page("Choose an effect:", "text", values, "inventoryPage");
+			return true;
 		}
-		Dom.alert.page("Choose an effect:", "text", values, "inventoryPage")
 	}
 }
 
@@ -2642,6 +2661,17 @@ Dom.inventory.removeEquipment = function (array) {
 			}
 		}
 	}
+	if (array.conditionalChooseStats !== undefined) {
+		for (let y = 0; y < Player.conditionalChooseStats.length; y++) {
+			if (Player.conditionalChooseStats[y].type === array.type && Player.conditionalChooseStats[y].id === array.id) {
+				
+				// do not delete because it is only effecting chooseStats
+				
+				Player.conditionalChooseStats.splice(y, 1);
+				break;
+			}
+		}
+	}
 	if (array.trail !== undefined) {
 		Game.hero.trail = undefined;
 		clearInterval(Game.hero.trailInterval);
@@ -2689,6 +2719,10 @@ Dom.inventory.addEquipment = function (array) {
 	}
 	if (array.conditionalStats !== undefined) {
 		Player.conditionalStats.push({type: array.type, id: array.id, active: [],});
+		Dom.inventory.conditionalStats();
+	}
+	if (array.conditionalChooseStats !== undefined) {
+		Player.conditionalChooseStats.push({type: array.type, id: array.id, active: [],});
 		Dom.inventory.conditionalStats();
 	}
 	if (array.trail !== undefined) {
@@ -3821,10 +3855,14 @@ Dom.inventory.prepare = function (array, i, element) {
 				Dom.inventory.drop(document.getElementById("weapon"), Player.inventory, "weapon", document.getElementById("itemInventory").getElementsByTagName("td")[i], Player.inventory.items, i); // to, from
 			}
 			else{
+				let chooseStats = false;
 				if (Player.inventory[i].chooseStats !== undefined) {
 					Dom.inventory.deEquip = true;
-					Dom.inventory.chooseStats(i);
-				}else{
+					if (Dom.inventory.chooseStats(i)) {
+						chooseStats = true;
+					}
+				}
+				if (!chooseStats) {
 					if (Dom.inventory.give(Player.inventory[i], 1, undefined, true) !== false) { // don't save while you have one equipped AND on in inventory
 						Dom.inventory.deEquip = true;
 						Dom.inventory.removeEquipment(Player.inventory[i]);
@@ -3844,10 +3882,14 @@ Dom.inventory.prepare = function (array, i, element) {
 			else if (!isNaN(i)) {
 				Dom.inventory.drop(document.getElementById(Player.inventory.items[i].type), Player.inventory, Player.inventory.items[i].type, document.getElementById("itemInventory").getElementsByTagName("td")[i], Player.inventory.items, i); // to, from
 			}else{
+				let chooseStats = false;
 				if (Player.inventory[i].chooseStats !== undefined) {
 					Dom.inventory.deEquip = true;
-					Dom.inventory.chooseStats(i);
-				}else{
+					if (Dom.inventory.chooseStats(i)) {
+						chooseStats = true;
+					}
+				}
+				if (!chooseStats) {
 					if (Dom.inventory.give(Player.inventory[i], 1, undefined, true) !== false) { // don't save while you have one equipped AND one in inventory
 						Dom.inventory.deEquip = true;
 						Dom.inventory.removeEquipment(Player.inventory[i]);
@@ -3903,6 +3945,54 @@ Keyboard.update = function () {
 	}
 }
 
+Dom.inventory.conditionalChooseStats = function () {
+	for (let i = 0; i < Player.conditionalChooseStats.length; i++) {
+		for (let x = 0; x < Items[Player.conditionalChooseStats[i].type][Player.conditionalChooseStats[i].id].conditionalChooseStats.length; x++) {
+			let conditionalStat = Items[Player.conditionalChooseStats[i].type][Player.conditionalChooseStats[i].id].conditionalChooseStats[x];
+			
+			// find the item in the inventory
+			let item = {};
+			for (let y = 0; y < Object.keys(Player.inventory).length; y++) {
+				if (Player.inventory[Object.keys(Player.inventory)[y]].type === Player.conditionalChooseStats[i].type && Player.inventory[Object.keys(Player.inventory)[y]].id === Player.conditionalChooseStats[i].id) {
+					item = Player.inventory[Object.keys(Player.inventory)[y]];
+				}
+			}
+			
+			if (conditionalStat.condition()) {
+				if (!Player.conditionalChooseStats[i].active[x]) {
+					Player.conditionalChooseStats[i].active[x] = true;
+					// add conditionalStats to stats
+					
+					item.chooseStats[Object.keys(conditionalStat)[0]] = conditionalStat[Object.keys(conditionalStat)[0]];
+					
+					/*for (let i = 0; i < Object.keys(conditionalStat.stats).length; i++) {
+						if (conditionalStat.stats[Object.keys(conditionalStat.stats)[i]] !== true) {
+							Player.stats[Object.keys(conditionalStat.stats)[i]] += conditionalStat.stats[Object.keys(conditionalStat.stats)[i]];
+						}else{
+							Player.stats[Object.keys(conditionalStat.stats)[i]] = true;
+						}
+					}*/
+				}
+			}else{
+				if (Player.conditionalChooseStats[i].active[x]) {
+					Player.conditionalChooseStats[i].active[x] = false;
+					// remove conditionalStats from stats
+					
+					delete item.chooseStats[Object.keys(conditionalStat)[0]];
+					
+					/*for (let i = 0; i < Object.keys(conditionalStat.stats).length; i++) {
+						if (conditionalStat.stats[Object.keys(conditionalStat.stats)[i]] !== true) {
+							Player.stats[Object.keys(conditionalStat.stats)[i]] -= conditionalStat.stats[Object.keys(conditionalStat.stats)[i]];
+						}else{
+							Player.stats[Object.keys(conditionalStat.stats)[i]] = false;
+						}
+					}*/
+				}
+			}
+		}
+	}
+}
+
 Dom.inventory.conditionalStats = function () {
 	for (let i = 0; i < Player.conditionalStats.length; i++) {
 		for (let x = 0; x < Items[Player.conditionalStats[i].type][Player.conditionalStats[i].id].conditionalStats.length; x++) {
@@ -3934,6 +4024,7 @@ Dom.inventory.conditionalStats = function () {
 			}
 		}
 	}
+	Dom.inventory.conditionalChooseStats();
 }
 
 Dom.settings.transparency = function () {
@@ -4065,7 +4156,7 @@ Dom.init = function () {
 	// prepare the item inventory
 	for (let i = 0; i < Player.inventory.items.length; i++) {
 		// if the item has melted
-		if (Player.inventory.items[i].image !== undefined && !Player.inventory.items[i].unidentified && Items[Player.inventory.items[i].type][Player.inventory.items[i].id].deleteIf !== undefined && Items[Player.inventory.items[i].type][Player.inventory.items[i].id].deleteif ()) {
+		if (Player.inventory.items[i].image !== undefined && !Player.inventory.items[i].unidentified && Items[Player.inventory.items[i].type][Player.inventory.items[i].id].deleteIf !== undefined && Items[Player.inventory.items[i].type][Player.inventory.items[i].id].deleteIf ()) {
 			setTimeout(function () {
 				Dom.chat.insert("It's not snowy any more! Your "+Player.inventory.items[i].name+" melted.", 0, true);
 				Player.inventory.items[i] = {};
@@ -4079,7 +4170,7 @@ Dom.init = function () {
 	// prepare the equipments slots
 	for (let i = 0; i < Object.keys(Player.inventory).length-1; i++) { // repeats for each equipment slot
 		// if the item has melted
-		if (Player.inventory[Object.keys(Player.inventory)[i]].image !== undefined && Items[Player.inventory[Object.keys(Player.inventory)[i]].type][Player.inventory[Object.keys(Player.inventory)[i]].id].deleteIf !== undefined && Items[Player.inventory[Object.keys(Player.inventory)[i]].type][Player.inventory[Object.keys(Player.inventory)[i]].id].deleteif ()) {
+		if (Player.inventory[Object.keys(Player.inventory)[i]].image !== undefined && Items[Player.inventory[Object.keys(Player.inventory)[i]].type][Player.inventory[Object.keys(Player.inventory)[i]].id].deleteIf !== undefined && Items[Player.inventory[Object.keys(Player.inventory)[i]].type][Player.inventory[Object.keys(Player.inventory)[i]].id].deleteIf ()) {
 			setTimeout(function () {
 				Dom.chat.insert("It's not snowy any more! Your "+Player.inventory[Object.keys(Player.inventory)[i]].name+" melted.", 0, true);
 				Player.inventory[Object.keys(Player.inventory)[i]] = {};
@@ -4092,7 +4183,7 @@ Dom.init = function () {
 	// prepare the bank
 	for (let i = 0; i < Player.bank.items.length; i++) {
 		// if the item has melted
-		if (Player.bank.items[i].image !== undefined && !Player.bank.items[i].unidentified && Items[Player.bank.items[i].type][Player.bank.items[i].id].deleteIf !== undefined && Items[Player.bank.items[i].type][Player.bank.items[i].id].deleteif ()) {
+		if (Player.bank.items[i].image !== undefined && !Player.bank.items[i].unidentified && Items[Player.bank.items[i].type][Player.bank.items[i].id].deleteIf !== undefined && Items[Player.bank.items[i].type][Player.bank.items[i].id].deleteIf ()) {
 			setTimeout(function () {
 				Dom.chat.insert("It's not snowy any more! Your "+Player.bank.items[i].name+" melted.", 0, true);
 				Player.bank.items[i] = {};

@@ -38,7 +38,7 @@ if(sessionStorage.getItem("filter") != null){
 function Stats(stat, value, array){ // stat should be in Title Case // copied from DOM
 	if(stat === "Defence" || stat === "Block Defence" || stat === "Fishing Skill" || stat === "Max Health") {
 		return stat+": "+NumberSign(value)+"<br>";
-	}else if(stat === "Critical Chance" || stat === "Dodge Chance" || stat === "Looting" || stat === "Reflection" || stat === "Life Steal" || stat === "Xp Bonus"){
+	}else if(stat === "Critical Chance" || stat === "Dodge Chance" || stat === "Looting" || stat === "Reflection" || stat === "Lifesteal" || stat === "Xp Bonus"){
 		return stat+": "+NumberSign(value)+"%<br>";
 	}else if(stat === "Health Regen" || stat === "Swim Speed" || stat === "Walk Speed" || stat === "Ice Speed" || stat === "Focus Speed"){
 		return stat+": "+NumberSign(value)+"/s<br>";
