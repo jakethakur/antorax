@@ -1478,6 +1478,44 @@ Dom.merchant.buy = function (item,index,npc) {
 	}
 }
 
+// chooses certain items from an array of items to be sold by a merchant
+// items is an array of item objects
+// date is an integer and changes whenever the items sold should be changed (e.g. with date)
+// date should be a positive integer
+// numberOfItems is the number of items from the array that should be sold (i.e. that are returned)
+Dom.merchant.chooseItems = function (items, date, numberOfItems) {
+    if (numberOfItems >= items.length){
+        console.warn("numberOfItems is bigger than items.length");
+        numberOfItems = items.length;
+    }
+	
+	// ensure that date is a positive integer
+	date = Math.round(date);
+	if (date < 1) {
+		console.warn("date should be a positive integer");
+		date = 1;
+	}
+	
+	// index of first chosen item
+	// if this is too big, it is looped back in for loop
+    let itemsChosen = numberOfItems*(date - 1);
+	
+	// array of items that are chosen
+    let newItems = [];
+	
+	// pick items
+    for (i = 0; i < numberOfItems; i++) {
+		// index of item chosen
+        let itemIndex = i + itemsChosen;
+		// make sure itemIndex refers to a valid item in array
+        itemIndex = itemIndex % items.length;
+		// push item to array
+        newItems.push(items[itemIndex]);
+    }
+	
+    return newItems;
+}
+
 Dom.identifier.displayed = 0;
 Dom.identifier.left = function (npc/*, over*/) {
 	if (Dom.identifier.displayed !== 0) {
