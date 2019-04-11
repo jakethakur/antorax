@@ -244,10 +244,36 @@ var Items = {
 			image: "assets/items/helm/15.png",
 			tier: 1,
 			rarity: "common",
-			obtain: "Can be bought from a mask seller.",
+			obtain: "Can be bought from a mask seller or from the Bear Zoo.",
 			sellPrice: 1,
 			stats: {
 				maxHealth: 10,
+			},
+		},
+		{
+			id: 16,
+			name: "Vampiric Mask",
+			type: "helm",
+			image: "assets/items/helm/16.png",
+			tier: 1,
+			rarity: "common",
+			obtain: "Can be bought from a mask seller.",
+			sellPrice: 1,
+			stats: {
+				lifesteal: 20,
+			},
+		},
+		{
+			id: 17,
+			name: "Solar Baron Mask",
+			type: "helm",
+			image: "assets/items/helm/17.png",
+			tier: 1,
+			rarity: "common",
+			obtain: "Can be bought from a mask seller.",
+			sellPrice: 1,
+			stats: {
+				looting: 35,
 			},
 		},
 	],
@@ -1620,56 +1646,55 @@ var Items = {
 			image: "assets/items/item/14.png",
 			functionText: "Click to take a screenshot",
 			onClick: function () {
-				try{
-					let x = Game.hero.screenX-300;
-					let y = Game.hero.screenY-300;
-					if (Game.hero.x < 300) {
-						if (Dom.canvas.width - Game.hero.map.cols * Game.hero.map.tsize > 0) {
-							x = (Dom.canvas.width - Game.hero.map.cols * Game.hero.map.tsize)/2;
-						}
-						else {
-							x = 0;
-						}
-					}
-					else if (Game.hero.x > Game.hero.map.cols * Game.hero.map.tsize - 300) {
-						if (Dom.canvas.width - Game.hero.map.cols * Game.hero.map.tsize > 0) {
-							x = Dom.canvas.width - (Dom.canvas.width - Game.hero.map.cols * Game.hero.map.tsize)/2 - 600;
-						}
-						else {
-							x = Dom.canvas.width - 600;
-						}
-					}
-					if (Game.hero.y < 300) {
-						if (Dom.canvas.height - Game.hero.map.rows * Game.hero.map.tsize > 0) {
-							y = (Dom.canvas.height - Game.hero.map.rows * Game.hero.map.tsize)/2;
-						}
-						else {
-							y = 0;
-						}
-					}
-					else if (Game.hero.y > Game.hero.map.rows * Game.hero.map.tsize - 300) {
-						if (Dom.canvas.height - Game.hero.map.rows * Game.hero.map.tsize > 0) {
-							y = Dom.canvas.height - (Dom.canvas.height - Game.hero.map.rows * Game.hero.map.tsize)/2 - 600;
-						}
-						else {
-							y = Dom.canvas.height - 600;
-						}
-					}
-					
-					document.getElementById("hidden").getContext('2d').drawImage(document.getElementById("game"), x, y, 600, 600, 0, 0, 600, 600);
-					document.getElementById("hidden").getContext('2d').drawImage(document.getElementById("dayNight"), x, y, 600, 600, 0, 0, 600, 600);
-					document.getElementById("hidden").getContext('2d').drawImage(document.getElementById("light"), x, y, 600, 600, 0, 0, 600, 600);
-					
-					let page = "inventoryPage";
-					if (document.getElementById("inventoryPage").hidden) {
-						page = undefined;
-					}
-					
-					//dataURL = document.getElementById("hidden").toDataURL("image/png");
-					//Dom.alert.page("Click the image to download<br><br><a href='"+dataURL+"' download><img src='"+dataURL+"' height='200px'></img></a>", 0, undefined, page);
+				try {
+				    let x = Game.hero.screenX-300;
+				    let y = Game.hero.screenY-300;
+				    if (Game.hero.x < 300) {
+				        if (Dom.canvas.width - Game.hero.map.cols * Game.hero.map.tsize > 0) {
+				            x = (Dom.canvas.width - Game.hero.map.cols * Game.hero.map.tsize)/2;
+				        }
+				        else {
+				            x = 0;
+				        }
+				    }
+				    else if (Game.hero.x > Game.hero.map.cols * Game.hero.map.tsize - 300) {
+				        if (Dom.canvas.width - Game.hero.map.cols * Game.hero.map.tsize > 0) {
+				            x = Dom.canvas.width - (Dom.canvas.width - Game.hero.map.cols * Game.hero.map.tsize)/2 - 600;
+				        }
+				        else {
+				            x = Dom.canvas.width - 600;
+				        }
+				    }
+				    if (Game.hero.y < 300) {
+				        if (Dom.canvas.height - Game.hero.map.rows * Game.hero.map.tsize > 0) {
+				            y = (Dom.canvas.height - Game.hero.map.rows * Game.hero.map.tsize)/2;
+				        }
+				        else {
+				            y = 0;
+				        }
+				    }
+				    else if (Game.hero.y > Game.hero.map.rows * Game.hero.map.tsize - 300) {
+				        if (Dom.canvas.height - Game.hero.map.rows * Game.hero.map.tsize > 0) {
+				            y = Dom.canvas.height - (Dom.canvas.height - Game.hero.map.rows * Game.hero.map.tsize)/2 - 600;
+				        }
+				        else {
+				            y = Dom.canvas.height - 600;
+				        }
+				    }
+				    document.getElementById("hidden").getContext('2d').drawImage(document.getElementById("game"), x, y, 600, 600, 0, 0, 600, 600);
+				    document.getElementById("hidden").getContext('2d').drawImage(document.getElementById("dayNight"), x, y, 600, 600, 0, 0, 600, 600);
+				    document.getElementById("hidden").getContext('2d').drawImage(document.getElementById("light"), x, y, 600, 600, 0, 0, 600, 600);
+
+				    let page = "inventoryPage";
+				    if (document.getElementById("inventoryPage").hidden) {
+				        page = undefined;
+				    }
+
+				    dataURL = document.getElementById("hidden").toDataURL("image/png");
+				    Dom.alert.page("Click the image to download<br><br><a href='"+dataURL+"' download><img src='"+dataURL+"' height='200px'></img></a>", 0, undefined, page);
 				}
-				catch(error){
-					console.error("Camera does not work on local versions. If you are using the main version please report this error.");
+				catch (error) {
+				    console.error("Camera does not work on local versions. If you are using the main version please report this error.");
 				}
 			},
 		},
@@ -1714,7 +1739,7 @@ var Items = {
 					});
 
 					// chat message
-					Game.sayChat("DOM, the Gingerbread Robot", "Gingerbread matrices restoring.", false, 300, false);
+					Game.sayChat("DOM, the Gingerbread Robot", "Gingerbread matrices restoring.", 300, false, false);
 				}
 			},
 		},
@@ -1724,6 +1749,54 @@ var Items = {
 			type: "item",
 			image: "assets/items/item/18.png",
 			lore: "Can be used to open a chest in the Nilbog Tower.",
+			sellPrice: 1,
+		},
+		{
+			id: 19,
+			name: "Aquamarine Fragment",
+			type: "item",
+			category: "mineral",
+			image: "assets/items/item/19.png",
+			sellPrice: 1,
+		},
+		{
+			id: 20,
+			name: "Amethyst Fragment",
+			type: "item",
+			category: "mineral",
+			image: "assets/items/item/20.png",
+			sellPrice: 1,
+		},
+		{
+			id: 21,
+			name: "Jasper Fragment",
+			type: "item",
+			category: "mineral",
+			image: "assets/items/item/21.png",
+			sellPrice: 1,
+		},
+		{
+			id: 22,
+			name: "Jade Fragment",
+			type: "item",
+			category: "mineral",
+			image: "assets/items/item/22.png",
+			sellPrice: 1,
+		},
+		{
+			id: 23,
+			name: "Ruby Fragment",
+			type: "item",
+			category: "mineral",
+			image: "assets/items/item/23.png",
+			sellPrice: 1,
+		},
+		{
+			id: 24,
+			name: "Citrine Fragment",
+			type: "item",
+			category: "mineral",
+			image: "assets/items/item/24.png",
 			sellPrice: 1,
 		},
 	],
@@ -1803,7 +1876,7 @@ var Items = {
 			name: "Wood-Brewed Beer",
 			type: "consumable",
 			image: "assets/items/consumable/5.png",
-			functionText: "Restores 15 health",
+			functionText: "Restores 20 health",
 			lore: "Might make you a little tipsy...",
 			sellPrice: 1,
 			onClick: function (inventoryPosition) {
@@ -1814,7 +1887,7 @@ var Items = {
 				Dom.inventory.remove(inventoryPosition);
 
 				// restore the health
-				Game.restoreHealth(Game.hero, 15);
+				Game.restoreHealth(Game.hero, 20);
 				// make the player tipsy!
 				Game.statusEffects.attackDamage({
 					target: Game.hero,
@@ -2283,6 +2356,31 @@ var Items = {
 				}, 1000); // launch in 1 second
 			},
 		},
+		{
+			id: 21,
+			name: "Beetroot Beer",
+			type: "consumable",
+			image: "assets/items/consumable/5.png", // doesn't have its own image (TBD?)
+			functionText: "Restores 25 health",
+			lore: "Might make you a little tipsy...",
+			sellPrice: 1,
+			onClick: function (inventoryPosition) {
+				// remove the item
+				Dom.inventory.remove(inventoryPosition);
+
+				// restore the health
+				Game.restoreHealth(Game.hero, 25);
+				// make the player tipsy!
+				Game.statusEffects.attackDamage({
+					target: Game.hero,
+					effectTitle: "Tipsy",
+					effectDescription: "Reduced attack damage",
+					damageIncrease: -20,
+					time: 60,
+					effectStack: "multiply",
+				});
+			},
+		},
 	],
 	food: [
 		{
@@ -2332,6 +2430,15 @@ var Items = {
 			healthRestoreTime: 3,
 			lore: "Antorax turns three!",
 		},
+		{
+			id: 4,
+			name: "'Eaglecrest Finest' Sandwich",
+			type: "food",
+			image: "assets/items/food/4.png",
+			sellPrice: 2,
+			healthRestore: 50,
+			healthRestoreTime: 15,
+		},
 	],
 	teleport: [
         {
@@ -2342,9 +2449,25 @@ var Items = {
             functionText: "Teleports you to the Treefellers' Tavern in the Logging Camp",
             sellPrice: 10,
             teleport: {
-                x: 360, // 678
-                y: 360, // 87
-                location: "tavern",
+                x: 174,
+                y: 156,
+                location: "loggingCampTavern",
+            },
+            cooldown: 1000000, // 1 day (dhhmmss)
+            lore: "A collectable coin.",
+			channel: 5000,
+        },
+        {
+            id: 1,
+            name: "Eaglecrest Teleport Coin",
+            type: "teleport",
+            image: "assets/items/teleport/1.png",
+            functionText: "Teleports you to the Eagle's Span Tavern in Eaglecrest City",
+            sellPrice: 20,
+            teleport: {
+                x: 1158,
+                y: 169,
+                location: "eaglecrestTavern",
             },
             cooldown: 1000000, // 1 day (dhhmmss)
             lore: "A collectable coin.",
@@ -3329,9 +3452,9 @@ var Items = {
 	],
 };
 
-WeaponRanges = {
+const WeaponRanges = {
 	bow: 1000,
 	staff: 200,
 	sword: 100,
 	rod: 200,
-}
+};

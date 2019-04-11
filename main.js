@@ -345,25 +345,65 @@ Game.closest = function (objArray, mainObj) {
 	return objArray[closestIndex];
 }
 
+
 // insert a message into the chat, under the format of "name: message"
 // name is emboldened via <strong> tags
-// if message is an array, a Random message from the array will be chosen
 // if message begins with "/me " (including space), the format changes to "this.name message"
+
 // if singleUse is true, and if Dom.chat.contents contains message, the message is not sent (handled by Dom.chat.insert)
 // if important is true, the chat message triggers a red flashing prompt around the chat bookmark
-Game.sayChat = function (name, message, singleUse, delay, important) {
+
+// if the message is an array, arrayType should specify what is done with that array
+// arrayType "random" picks a random message and sends it from the array
+// arrayType "all" sends all of the messages (using this function) with delay same as delay parameter between each of them
+Game.sayChat = function (name, message, delay, important, singleUse, arrayType) {
 	if (message !== undefined) {
+		// update message for special chat cases
+
 		if (message.constructor === Array) {
-			// if message is array, pick a Random message from the array
-			message = message[Random(0, message.length - 1)];
+			if (message.length > 1) {
+				// check arrayType
+				switch (arrayType) {
+					case "random":
+						// pick a random message from the array
+						message = message[Random(0, message.length - 1)];
+						break;
+
+					case "all":
+						// send one of the messages, call function again after delay with rest of the messages
+						let oldMessageArray = message;
+						message = oldMessageArray.shift();
+
+						setTimeout(function (message) {
+							this.sayChat(name, message, delay, important, singleUse, arrayType)
+						}.bind(this), delay, oldMessageArray); // oldMessageArray = messages passed in
+
+						break;
+
+					default:
+						console.warn("No arrayType for message array sent by " + name);
+				}
+			}
+			else {
+				// only one message anyway, no need to do anything with arrayType
+				message = message[0];
+			}
 		}
-		if (message.substring(0, 4) === "/me ") { // reflexive message
-			message = message.substr(4, message.length);
-			Dom.chat.insert("<strong>" + name + "</strong> " + message, delay, important, singleUse);
+
+		if (typeof name === "undefined") {
+			// no name for NPC, post without a name
+		}
+		else if (message.substring(0, 4) === "/me ") {
+			// reflexive message
+			message = "<strong>" + name + "</strong> " + message.substr(4, message.length);
+			Dom.chat.insert(message, delay, important, singleUse);
 		}
 		else {
-			Dom.chat.insert("<strong>" + name + "</strong>: " + message, delay, important, singleUse);
+			// normal message (includes NPC name)
+			message = "<strong>" + name + "</strong>: " + message;
 		}
+
+		Dom.chat.insert(message, delay, important, singleUse);
 	}
 	else {
 		console.warn("undefined chat message for " + name);
@@ -584,6 +624,18 @@ class Character extends Thing {
 					"/me Hi" => "Character Hi"
 		*/
 
+		// whether NPC's name should be shown in chat
+		// (might not be if a special name is hard-coded instead, for example)
+		if (properties.showNameInChat === undefined) {
+			this.showNameInChat = true;
+		}
+		else {
+			this.showNameInChat = properties.showNameInChat;
+		}
+		// type of chat sending to use if array is passed as message to chat()
+		// either "all" or "random"
+		this.chatArrayType = properties.chatArrayType;
+
 		// event chat changes
 		if (Event.christmasDay) {
 			// chooseChat changed
@@ -605,11 +657,20 @@ class Character extends Thing {
 
 	// insert a message into the chat, under the format of "this.name: message"
 	// this.name is emboldened via <strong> tags
+	// name is only shown if property "showNameInChat" of the NPC is true
 	// if message begins with "/me " (including space), the format changes to "this.name message"
-	// if singleUse is true, and if Dom.chat.contents contains message, the message is not sent
-	// if important is true, the chat message triggers a red flashing prompt around the chat bookmark
-	say (message, singleUse, delay, important) {
-		Game.sayChat(this.name, message, singleUse, delay, important);
+	// see sayChat for parameter descriptions
+	say (message, delay, important, singleUse, arrayType) {
+		let name = this.name;
+		if (!this.showNameInChat) {
+			// name should not be shown in chat (e.g. because it is already included in chat messages)
+			// pass in undefined for name
+			name = undefined;
+		}
+
+		arrayType = arrayType || this.chatArrayType; // set arrayType to the NPC's default arrayType if it is undefined as parameter
+
+		Game.sayChat(name, message, delay, important, singleUse, arrayType);
 	}
 
 	// function to be carried out during Game.render()
@@ -705,12 +766,12 @@ class Character extends Thing {
 
 				// weapon chat message (some weapons have a chat message for when they kill something!)
 				if (Player.inventory.weapon.chat !== undefined && Player.inventory.weapon.chat.kill !== undefined) {
-					Game.sayChat(Player.inventory.weapon.name, Player.inventory.weapon.chat.kill, false, 100, false)
+					Game.sayChat(Player.inventory.weapon.name, Player.inventory.weapon.chat.kill, 100, false, false)
 				}
 
 				// death text
 				if (typeof this.chat.death !== "undefined") {
-					this.say(this.chat.death, true, 0, false);
+					this.say(this.chat.death, 0, false, true);
 				}
 			}
 		}
@@ -2157,13 +2218,13 @@ class Projectile extends Thing {
 						// chat relating to being damaged (and dealing damage? TBD)
 						if (typeof to[i][x].chat !== "undefined") { // check the character has been given text to say about being damaged
 							if (to[i][x].health < to[i][x].stats.maxHealth / 10 && typeof to[i][x].chat.tenPercentHealth !== "undefined") { // 10% health chat message
-								to[i][x].say(to[i][x].chat.tenPercentHealth, true, 0, false);
+								to[i][x].say(to[i][x].chat.tenPercentHealth, 0, false, true);
 							}
 							else if (to[i][x].health < to[i][x].stats.maxHealth / 2 && typeof to[i][x].chat.fiftyPercentHealth !== "undefined") { // 50% health chat message
-								to[i][x].say(to[i][x].chat.fiftyPercentHealth, true, 0, false);
+								to[i][x].say(to[i][x].chat.fiftyPercentHealth, 0, false, true);
 							}
 							else if (to[i][x].health < to[i][x].stats.maxHealth && typeof to[i][x].chat.firstDamaged !== "undefined") { // first damaged chat message
-								to[i][x].say(to[i][x].chat.firstDamaged, true, 0, false);
+								to[i][x].say(to[i][x].chat.firstDamaged, 0, false, true);
 							}
 						}
 
@@ -4566,7 +4627,7 @@ Game.update = function (delta) {
 									}
 									else {
 										// user doesn't have enough space
-										npc.say(npc.chat.inventoryFull, true, 0, true);
+										npc.say(npc.chat.inventoryFull, 0, true, true);
 									}
 								}
 								else {
@@ -4620,7 +4681,7 @@ Game.update = function (delta) {
 										}
 										else {
 											// user doesn't have enough space
-											npc.say(npc.chat.inventoryFull, true, 0, true);
+											npc.say(npc.chat.inventoryFull, 0, true, true);
 										}
 									}
 									else {
@@ -4653,6 +4714,26 @@ Game.update = function (delta) {
 							// filter for condition
 							soldItems = soldItems.filter(soldItem => soldItem.condition === undefined || soldItem.condition() === true);
 
+							if (typeof role.numberSold !== "undefined") {
+								// sell a particular amount of items that rotate over time
+								let dateValue = 1;
+								let date = new Date();
+								switch (role.rotation) {
+									case "day":
+										dateValue = date.getDate(); // 1 to 31
+										break;
+
+									case "week":
+										dateValue = GetWeek(); // 1 to 52
+										break;
+
+									default:
+										console.error("Unrecognised rotation type for merchant " + npc.name);
+								}
+
+								soldItems = Dom.merchant.chooseItems(soldItems, dateValue, role.numberSold);
+							}
+
 							textArray.push(role.chooseText || "I'd like to browse your goods.");
 							functionArray.push(Dom.merchant.page);
 							parameterArray.push([npc, soldItems, role.shopGreeting]);
@@ -4679,13 +4760,13 @@ Game.update = function (delta) {
 										Dom.inventory.removeById(2, "currency", Game.soulHealerCost);
 										Game.hero.statusEffects.splice(Game.hero.statusEffects.findIndex(statusEffect => statusEffect.title === "XP Fatigue"), 1); // remove xp fatigue effect
 										Dom.closePage("textPage");
-										Game.currentSoulHealer.say(Game.currentSoulHealer.chat.healedText, false, 0, false);
+										Game.currentSoulHealer.say(Game.currentSoulHealer.chat.healedText, 0, false, false);
 										Game.currentSoulHealer = undefined; // reset variable that remembers which soul healer the player is speaking to
 										Game.soulHealerCost = undefined; // reset variable that remembers the cost for soul healing
 									}
 									else {
 										// player cannot afford it
-										Game.soulHealers[i].say(Game.soulHealers[i].chat.tooPoor, true, 0, false);
+										Game.soulHealers[i].say(Game.soulHealers[i].chat.tooPoor, 0, false, true);
 									}
 								}]]);
 							}
@@ -4693,7 +4774,7 @@ Game.update = function (delta) {
 								if (!Dom.chat.contents.includes("<strong>" + npc.name + "</strong>: " + npc.chat.healedText)) {
 									if (Dom.currentlyDisplayed === "") {
 										// display instruction text if user cannot be healed and hasn't just been healed
-										npc.say(npc.chat.cannotBeHealedText, true, 0, false);
+										npc.say(npc.chat.cannotBeHealedText, 0, false, true);
 										textSaid = true; // do not say something in chat, as something has already been said
 									}
 								}
@@ -4712,7 +4793,7 @@ Game.update = function (delta) {
 							else {
 								if (Dom.currentlyDisplayed === "") {
 									// player has no unidentified items; send chat message explaining this instead==
-									npc.say(npc.chat.noUnidentified, true, 0, false);
+									npc.say(npc.chat.noUnidentified, 0, false, true);
 									textSaid = true; // do not say something in chat, as something has already been said
 								}
 							}
@@ -4780,15 +4861,15 @@ Game.update = function (delta) {
 					if (!textSaid && Dom.currentlyDisplayed === "") { // check if any extra text should be said at all
 						if (questActive) {
 							// the player has active quest(s) with the npc and no other alternate options
-							npc.say(npc.chat.questProgress, true, 0, false);
+							npc.say(npc.chat.questProgress, 0, false, true);
 						}
 						else if (questComplete) {
 							// the player has finished quest(s) with the npc and no other alternate options
-							npc.say(npc.chat.questComplete, true, 0, false);
+							npc.say(npc.chat.questComplete, 0, false, true);
 						}
 						else if (notUnlockedRoles) {
 							// the player has not unlocked a possible role with the npc
-							npc.say(npc.chat.notUnlockedRoles, true, 0, false);
+							npc.say(npc.chat.notUnlockedRoles, 0, false, true);
 						}
 					}
 				}

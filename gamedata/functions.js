@@ -358,6 +358,9 @@ function Increment (variable, amount) {
 	return variable
 }
 
+// displays time between start and end using the most appropriate unit (in words)
+// e.g. for item cooldown
+// parameters are of format yyyymmddhhmmss
 function CalculateTime (start, end) {
 	let time = (parseInt(end.substring(0,4))-parseInt(start.substring(0,4))) * 31536000;
 	time += (parseInt(end.substring(4,6))-parseInt(start.substring(4,6))) * 2592000;
@@ -368,19 +371,33 @@ function CalculateTime (start, end) {
 	let answer = "";
 	if (time >= 31536000) {
 		answer = Math.floor(time/31536000)+" Year";
-	}else if (time >= 2592000) {
+	}
+	else if (time >= 2592000) {
 		answer = Math.floor(time/2592000)+" Month";
-	}else if (time >= 86400) {
+	}
+	else if (time >= 86400) {
 		answer = Math.floor(time/86400)+" Day";
-	}else if (time >= 3600) {
+	}
+	else if (time >= 3600) {
 		answer = Math.floor(time/3600)+" Hour";
-	}else if (time >= 60) {
+	}
+	else if (time >= 60) {
 		answer = Math.floor(time/60)+" Minute";
-	}else{
+	}
+	else {
 		answer = time+" Second";
 	}
 	if (answer.substring(0,2) !== "1 ") {
 		answer += "s";
 	}
 	return answer;
+}
+
+// gets the current week of the year
+// thanks to https://stackoverflow.com/a/27125580/9713957
+function GetWeek() {
+	let now = new Date();
+	let onejan = new Date(now.getFullYear(), 0, 1);
+	let week = Math.ceil( (((now - onejan) / 86400000) + onejan.getDay() + 1) / 7 );
+	return week;
 }

@@ -612,7 +612,7 @@ var Areas = {
 				y: 87,
 				width: 60,
 				height: 2,
-				teleportTo: "tavernLoggingCamp",
+				teleportTo: "loggingCampTavern",
 				destinationX: 480,
 				destinationY: 1380,
 			},
@@ -711,13 +711,13 @@ var Areas = {
 							// close page
 							Dom.closePage("textPage");
 							// chat message
-							Game.npcs[0].say("Thank you. I hope you find these rewards useful to your progression. Now, back to work.", false, 0, true); // Teper is Game.npcs[0]
+							Game.npcs[0].say("Thank you. I hope you find these rewards useful to your progression. Now, back to work.", 0, true, false); // Teper is Game.npcs[0]
 						},
 						function () {
 							// close page
 							Dom.closePage("textPage");
 							// chat message
-							Game.npcs[0].say("What, are you even allowed to keep them? I'd like my boots back!", false, 0, false); // Teper is Game.npcs[0]
+							Game.npcs[0].say("What, are you even allowed to keep them? I'd like my boots back!", 0, false, false); // Teper is Game.npcs[0]
 						}],
 						roleRequirement: function () {
 							return Dom.inventory.check(6, "boots", 1, false); // check that the player has Marshall Teper's lost boots
@@ -890,9 +890,9 @@ var Areas = {
 							// quest progress
 							Player.quests.questProgress.christmasPresentsDelivered = 1; // always the first NPC to be delivered to
 							// chat
-							Game.sayChat("Soul Healer Nalaa", "Thank you for taking the time to bring this to me.", false, 500, false);
-							Game.sayChat("Soul Healer Nalaa", "/me gently unfolds the wrapping paper to reveal a brand new Scepter of Souls.", false, 2000, false);
-							Game.sayChat("Soul Healer Nalaa", "It's a new Scepter of Souls! Thank you, adventurer. May the Demigods' blessings be bestowed upon you.", false, 4000, false);
+							Game.sayChat("Soul Healer Nalaa", "Thank you for taking the time to bring this to me.", 500, false, false);
+							Game.sayChat("Soul Healer Nalaa", "/me gently unfolds the wrapping paper to reveal a brand new Scepter of Souls.", 2000, false, false);
+							Game.sayChat("Soul Healer Nalaa", "It's a new Scepter of Souls! Thank you, adventurer. May the Demigods' blessings be bestowed upon you.", 4000, false, false);
 						},
 						roleRequirement: function () {
 							let presentPositions = Dom.inventory.find(21, "fish", true); // array of present inventory positions
@@ -1006,9 +1006,9 @@ var Areas = {
 							// quest progress
 							Player.quests.questProgress.christmasPresentsDelivered = 2; // always the second NPC to be delivered to
 							// chat
-							Game.sayChat("Item Buyer Noledar", "Wow, really? That's so nice, I don't think anyone has delivered me a present before!", false, 500, false);
-							Game.sayChat("Item Buyer Noledar", "/me peels away at the wrapping paper to reveal a large heap of gold.", false, 2000, false);
-							Game.sayChat("Item Buyer Noledar", "Wow! Gilas was right - good things <strong>can</strong> happen to ordinary people! Thank you very much, and a merry Christmas to you!", false, 4000, false);
+							Game.sayChat("Item Buyer Noledar", "Wow, really? That's so nice, I don't think anyone has delivered me a present before!", 500, false, false);
+							Game.sayChat("Item Buyer Noledar", "/me peels away at the wrapping paper to reveal a large heap of gold.", 2000, false, false);
+							Game.sayChat("Item Buyer Noledar", "Wow! Gilas was right - good things <strong>can</strong> happen to ordinary people! Thank you very much, and a merry Christmas to you!", 4000, false, false);
 						},
 						roleRequirement: function () {
 							let presentPositions = Dom.inventory.find(21, "fish", true); // array of present inventory positions
@@ -1246,7 +1246,7 @@ var Areas = {
 	},
 
 
-	tavernLoggingCamp: {
+	loggingCampTavern: {
 
 		data: {
 			name: "Treefellers' Tavern",
@@ -1266,7 +1266,7 @@ var Areas = {
 			dayTiles: [9], // windows
 			nightTiles: [10],
 			layers: [
-				[3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 9, 3, 3, 3, 9, 3, 3, 3, 3, 9, 3, 3, 3, 9, 3, 8, 3, 3, 3, 3, 3, 3, 3, 3, 8, 8, 3, 3, 3, 3, 3, 7, 11, 11, 11, 11, 11, 11, 11, 11, 7, 7, 11, 11, 11, 11, 11, 11, 11, 11, 11, 11, 11, 11, 11, 11, 11, 11, 11, 11, 11, 11, 11, 11, 11, 11, 13, 4, 5, 13, 11, 11, 11, 11, 11, 13, 4, 5, 13, 11, 11, 11, 11, 11, 11, 11, 11, 11, 11, 11, 11, 11, 11, 11, 11, 11, 11, 11, 11, 11, 11, 11, 11, 11, 11, 11, 11, 11, 11, 11, 11, 11, 13, 4, 5, 13, 11, 11, 11, 13, 4, 5, 13, 11, 11, 11, 11, 11, 11, 11, 11, 11, 11, 11, 11, 11, 11, 11, 11, 11, 11, 11, 11, 11, 11, 11, 11, 11, 11, 11, 11, 11, 11, 11, 11, 11, 11, 11, 11, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 11, 11, 3, 3, 9, 3, 3, 3, 3, 3, 9, 3, 3, 3, 3, 3, 12, 12, 8, 8, 3, 8, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 12, 12, 7, 7, 11, 7, 11, 11, 11, 11, 11, 11, 11, 11, 11, 11, 12, 12, 11, 11, 11, 11, 11, 11, 11, 11, 11, 11, 11, 11, 11, 11, 11, 11, 1, 1, 1, 1, 1, 1, 1, 11, 11, 11, 11, 11, 11, 11, 11, 11, 11, 11, 11, 11, 11, 11, 11, 11, 11, 11, 11, 11, 11, 11, 11, 11, 11, 11, 11, 11, 11, 11, 11, 11, 11, 11, 11, 13, 4, 5, 13, 11, 11, 11, 11, 11, 11, 11, 11, 11, 11, 11, 11, 11, 11, 11, 11, 11, 11, 11, 11, 11, 11, 11, 11, 11, 11, 11, 11, 11, 11, 11, 11, 11, 2, 11, 11, 11, 11, 11, 11, 11, 11, 11, 11, 13, 4, 5, 13, 11, 7, 2, 2, 11, 11, 11, 11, 11, 11, 11, 11, 11, 11, 11, 11, 11, 11, 7, 7, 11, 11, 11, 11, 11, 11, 11, 11, 11, 11, 11, 11, 11],
+				[3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 9, 3, 3, 3, 9, 3, 3, 3, 3, 9, 3, 3, 3, 9, 3, 8, 3, 3, 3, 3, 3, 3, 3, 3, 8, 8, 3, 3, 3, 3, 3, 7, 11, 11, 11, 11, 11, 11, 11, 11, 7, 7, 11, 11, 11, 11, 11, 11, 11, 11, 11, 11, 11, 11, 11, 11, 11, 11, 11, 11, 21, 22, 11, 11, 11, 11, 13, 4, 5, 13, 11, 11, 11, 11, 11, 13, 26, 27, 13, 11, 11, 11, 11, 11, 11, 11, 11, 11, 11, 11, 11, 11, 31, 32, 11, 11, 11, 11, 11, 11, 11, 11, 11, 11, 11, 11, 11, 11, 11, 11, 11, 11, 13, 4, 5, 13, 11, 11, 11, 13, 4, 5, 13, 11, 11, 11, 11, 11, 11, 11, 11, 11, 11, 11, 11, 11, 11, 11, 11, 11, 11, 11, 11, 11, 11, 11, 11, 11, 11, 11, 11, 11, 11, 11, 11, 11, 11, 11, 11, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 11, 11, 3, 3, 9, 3, 3, 3, 3, 3, 9, 3, 3, 3, 3, 3, 12, 12, 8, 8, 3, 8, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 12, 12, 7, 7, 11, 7, 11, 11, 11, 11, 11, 11, 11, 11, 11, 11, 12, 12, 11, 11, 11, 11, 11, 11, 11, 11, 11, 11, 11, 11, 11, 11, 11, 11, 1, 1, 1, 1, 1, 1, 1, 11, 11, 11, 11, 11, 11, 11, 11, 11, 11, 11, 11, 11, 11, 11, 11, 11, 11, 11, 11, 11, 11, 11, 11, 11, 11, 11, 11, 11, 11, 11, 11, 11, 11, 11, 11, 13, 4, 5, 13, 11, 11, 11, 11, 11, 11, 11, 11, 11, 11, 11, 11, 11, 11, 11, 11, 11, 11, 11, 11, 11, 11, 11, 11, 11, 11, 11, 11, 11, 11, 11, 11, 11, 2, 11, 11, 11, 11, 11, 11, 11, 11, 11, 11, 13, 4, 5, 13, 11, 7, 2, 2, 11, 11, 11, 11, 11, 11, 11, 11, 11, 11, 11, 11, 11, 11, 7, 7, 11, 11, 11, 11, 11, 11, 11, 11, 11, 11, 11, 11, 11],
 				[],
 			],
 		},
@@ -1274,7 +1274,8 @@ var Areas = {
 		images: {
 			tiles: {normal: "./assets/tilemap/tavern.png"},
 			innkeeper: {normal: "./assets/npcs/gregor.png"},
-			stairs: {normal: "./assets/objects/stairs.png"},
+			stairs: {normal: "./assets/objects/stairsRight.png"},
+			gameBoard: {normal: "./assets/objects/gameBoard2.png"}
 		},
 
 		areaTeleports: [
@@ -1406,6 +1407,16 @@ var Areas = {
 				}
 			},
 		],
+
+		infoPoints: [
+			{
+				x: 844,
+				y: 294,
+				image: "gameBoard",
+				name: "Wizard's Lore",
+				onTouchChat: "A game of Wizard's Lore, a board game traditionally played by wizard students and scholars.",
+			},
+		]
 
 	},
 
@@ -1853,7 +1864,7 @@ var Areas = {
 
 		images: {
 			tiles: {normal: "./assets/tilemap/nilbogTower.png"},
-			stairs: {normal: "./assets/objects/stairs.png"},
+			stairs: {normal: "./assets/objects/stairsRight.png"},
 			painting: {normal: "./assets/objects/paintingAndrews.png"},
 			goblinTowerkeeper: {normal: "./assets/enemies/goblinTowerkeeper.png"},
 			goblinCorpse: {normal: "./assets/corpses/deadGoblin.png"},
@@ -1992,7 +2003,7 @@ var Areas = {
 
 		images: {
 			tiles: {normal: "./assets/tilemap/nilbogTower.png"},
-			stairs: {normal: "./assets/objects/stairs.png"},
+			stairs: {normal: "./assets/objects/stairsRight.png"},
 			painting: {normal: "./assets/objects/paintingScorchedAzuras.png"},
 			goblinTowerkeeper: {normal: "./assets/enemies/goblinTowerkeeper.png"},
 			goblinCrusader: {normal: "./assets/enemies/goblinCrusader.png"},
@@ -2173,7 +2184,7 @@ var Areas = {
 
 		images: {
 			tiles: {normal: "./assets/tilemap/nilbogTower.png"},
-			stairs: {normal: "./assets/objects/stairs.png"},
+			stairs: {normal: "./assets/objects/stairsRight.png"},
 			painting: {normal: "./assets/objects/paintingElvenWoodlands.png"},
 			goblinTowerkeeper: {normal: "./assets/enemies/goblinTowerkeeper.png"},
 			goblinCrusader: {normal: "./assets/enemies/goblinCrusader.png"},
@@ -2346,7 +2357,7 @@ var Areas = {
 
 		images: {
 			tiles: {normal: "./assets/tilemap/nilbogTower.png"},
-			stairs: {normal: "./assets/objects/stairs.png"},
+			stairs: {normal: "./assets/objects/stairsRight.png"},
 			painting: {normal: "./assets/objects/paintingDesert.png"}, // image to be renamed
 			goblinCrusader: {normal: "./assets/enemies/goblinCrusader.png"},
 			goblinCorpse: {normal: "./assets/corpses/deadGoblin.png"},
@@ -2536,7 +2547,7 @@ var Areas = {
 
 		images: {
 			tiles: {normal: "./assets/tilemap/nilbogTower.png"},
-			stairs: {normal: "./assets/objects/stairs.png"},
+			stairs: {normal: "./assets/objects/stairsRight.png"},
 			painting: {normal: "./assets/objects/paintingDesert.png"}, // image to be renamed
 			goblinKing: {normal: "./assets/enemies/goblinKing.png"},
 			goblinKingCorpse: {normal: "./assets/corpses/goblinKing.png"},
@@ -2686,6 +2697,16 @@ var Areas = {
 				teleportTo: "eaglecrestBank",
 				destinationX: 515,
 				destinationY: 830,
+			},
+			{
+				// teleport to tavern
+				x: 300,
+				y: 210,
+				width: 120,
+				height: 2,
+				teleportTo: "eaglecrestTavern",
+				destinationX: 630,
+				destinationY: 1380,
 			},
 			{
 				// teleport to eaglecrest west street
@@ -2992,7 +3013,12 @@ var Areas = {
 							{item: Items.helm[12], cost: 5}, // night owl mask
 							{item: Items.helm[13], cost: 5}, // light idol mask
 							{item: Items.helm[14], cost: 5}, // dragon flame mask
+							{item: Items.helm[15], cost: 5}, // bear mask
+							{item: Items.helm[16], cost: 5}, // vampiric mask
+							{item: Items.helm[17], cost: 5}, // solar baron mask
 						],
+						numberSold: 3, // only 3 sold at once
+						rotation: "week", // masks being sold change every week
 						role: "merchant",
 						shopGreeting: "Made from only the finest of <strong><em>living</em></strong> creatures.",
 					},
@@ -3210,6 +3236,248 @@ var Areas = {
 				],
 			},
 		],
+	},
+
+	eaglecrestTavern: {
+
+		data: {
+			name: "Eagle's Span Tavern",
+			level: "",
+			territory: "",
+			displayOnEnter: true,
+		},
+
+		indoors: true,
+
+		mapData: {
+			cols: 21,
+			rows: 24,
+			tsize: 60,
+			tilesPerRow: 5,
+			solidTiles: [1, 12, 14, 15], // bar and walls
+			dayTiles: [16], // windows
+			nightTiles: [17],
+			layers: [
+				[14, 14, 14, 14, 14, 14, 14, 14, 14, 14, 14, 14, 14, 14, 14, 14, 14, 14, 14, 14, 14, 14, 14, 16, 14, 14, 14, 16, 14, 14, 14, 16, 14, 14, 14, 16, 14, 14, 14, 16, 14, 14, 14, 14, 14, 14, 14, 14, 14, 14, 14, 15, 14, 14, 14, 14, 14, 14, 14, 14, 14, 14, 15, 11, 11, 11, 11, 11, 21, 22, 11, 11, 7, 11, 11, 11, 11, 11, 11, 11, 11, 11, 11, 7, 11, 11, 11, 11, 13, 26, 27, 13, 11, 11, 11, 11, 11, 13, 4, 5, 13, 11, 11, 11, 11, 11, 11, 11, 11, 11, 31, 32, 11, 11, 11, 11, 11, 11, 11, 11, 11, 11, 11, 11, 11, 11, 2, 11, 11, 11, 11, 11, 11, 11, 11, 11, 11, 11, 11, 21, 22, 11, 11, 11, 11, 11, 11, 7, 11, 11, 11, 11, 13, 4, 5, 13, 11, 11, 11, 13, 26, 27, 13, 11, 11, 11, 11, 11, 11, 11, 11, 11, 11, 11, 11, 11, 11, 11, 11, 11, 11, 31, 32, 11, 11, 11, 11, 11, 11, 11, 11, 11, 11, 11, 11, 11, 11, 11, 11, 11, 11, 11, 11, 11, 11, 11, 11, 11, 11, 11, 11, 11, 11, 11, 13, 4, 5, 13, 11, 11, 11, 11, 11, 13, 4, 5, 13, 11, 11, 11, 11, 11, 11, 11, 11, 11, 11, 11, 11, 11, 11, 11, 11, 11, 11, 11, 11, 11, 11, 11, 11, 11, 11, 11, 11, 11, 11, 14, 14, 14, 14, 14, 14, 14, 14, 14, 14, 14, 11, 11, 11, 11, 11, 11, 11, 12, 12, 12, 14, 14, 16, 14, 14, 14, 14, 14, 16, 14, 14, 12, 12, 12, 11, 11, 12, 12, 12, 12, 12, 14, 14, 14, 15, 15, 14, 14, 15, 14, 14, 14, 12, 12, 12, 12, 12, 12, 12, 12, 12, 12, 11, 11, 11, 7, 7, 11, 11, 7, 11, 11, 11, 12, 12, 12, 12, 12, 12, 12, 11, 11, 11, 11, 11, 11, 11, 11, 11, 11, 11, 11, 11, 11, 11, 11, 11, 12, 12, 11, 11, 11, 11, 11, 11, 11, 1, 1, 1, 1, 1, 1, 1, 11, 11, 11, 11, 11, 11, 11, 11, 11, 11, 11, 11, 11, 11, 11, 11, 11, 11, 11, 11, 11, 11, 11, 11, 11, 11, 11, 11, 11, 11, 11, 11, 11, 11, 11, 11, 11, 11, 11, 11, 11, 11, 11, 11, 11, 11, 11, 11, 11, 11, 11, 11, 11, 11, 11, 11, 11, 11, 11, 11, 11, 11, 11, 11, 11, 11, 11, 11, 11, 11, 11, 11, 21, 22, 11, 11, 11, 11, 11, 11, 11, 11, 11, 11, 11, 11, 11, 21, 22, 11, 11, 11, 13, 26, 27, 13, 11, 11, 11, 11, 11, 11, 11, 11, 11, 11, 11, 13, 26, 27, 13, 11, 11, 11, 31, 32, 11, 11, 11, 11, 11, 11, 11, 11, 11, 11, 11, 11, 11, 31, 32, 11, 11],
+				[],
+			],
+		},
+
+		images: {
+			tiles: {normal: "./assets/tilemap/tavern.png"},
+			innkeeper: {normal: "./assets/npcs/rhus-jak.png"},
+			stairsRight: {normal: "./assets/objects/stairsRight.png"},
+			stairsLeft: {normal: "./assets/objects/stairsLeft.png"},
+			gameBoard1: {normal: "./assets/objects/gameBoard1.png"},
+			gameBoard2: {normal: "./assets/objects/gameBoard2.png"},
+		},
+
+		areaTeleports: [
+			{
+				x: 630,
+				y: 1480,
+				width: 240,
+				height: 2,
+				teleportTo: "eaglecrest",
+				destinationX: 300,
+				destinationY: 280,
+			},
+		],
+
+		song_day: "./assets/music/Tavern.mp3",
+		song_night: "./assets/music/Tavern.mp3",
+
+		checkpoint: false, // probably in the future taverns should be the ONLY checkpoints
+
+		lootArea: "loggingCamp", // for level up music
+
+		npcs: [
+			{
+				x: 646,
+				y: 970,
+				image: "innkeeper",
+				name: "Innkeepers Rhus-Jak",
+				hostility: "friendly",
+				level: 25,
+				stats: {
+					maxHealth: 300, // two people!
+					defence: 6,
+				},
+				roles: [
+					{
+						sold: [
+							{item: Items.consumable[5], cost: 3,}, // Beetroot Beer
+							{item: Items.consumable[16], cost: 2, costCurrency: 5, eventRequirement: "Christmas"}, // Mulled Wine
+							{item: Items.food[0], cost: 2,}, // Bread
+							{item: Items.food[4], cost: 4,}, // Sandwich
+							{item: Items.food[1], cost: 2, costCurrency: 5, eventRequirement: "Christmas"}, // Mince Pie
+							{item: Items.food[2], cost: 2, costCurrency: 5, eventRequirement: "Christmas"}, // Christmas Pudding
+							{item: Items.food[3], cost: 5, eventRequirement: "Antorax"}, // Birthday Cake (changed every year)
+							{item: Items.teleport[1], cost: 100,}, // Teleport Coin
+						],
+						role: "merchant",
+						roleRequirement: function () {
+							return true;//tbd
+						},
+						shopGreeting: `<strong>Jak</strong>: Our food and drink was all freshly made today.<br>
+									<strong>Rhus</strong>: You want some?<br>`,
+					},
+				],
+				chat: {
+					//questProgress: "",
+					//chooseChat: "",
+					//notUnlockedRoles: "",
+					shopLeave: ["<strong>Rhus</strong>: Heh, see you soon.",
+								"<strong>Jak</strong>: Enjoy your stay."],
+					inventoryFull: "<strong>Rhus</strong>: You can't be holding that! Empty your bags a bit.",
+					tooPoor: "<strong>Jak</strong>: We're sorry, but you can't afford that.",
+					//christmasGreeting: "",
+					//antoraxDayGreeting: ",
+				},
+				showNameInChat: false, // done in chat message instead
+				chatArrayType: "all", // chat arrays should all be sent with a delay between them
+			},
+		],
+
+		things: [
+			{
+				x: 1039,
+				y: 905,
+				image: "stairsRight",
+				name: "Stairs",
+				crop: {
+					y: 60,
+					height: 230,
+					width: 202,
+				},
+			},
+			{
+				x: 221,
+				y: 905,
+				image: "stairsLeft",
+				name: "Stairs",
+				crop: {
+					y: 60,
+					height: 230,
+					x: 65,
+					width: 202,
+				},
+			},
+		],
+
+		collisions: [
+			{
+				x: 1048, // bottom of right stairs
+				y: 995,
+				width: 180,
+				height: 50,
+			},
+			{
+				x: 211, // bottom of left stairs
+				y: 995,
+				width: 180,
+				height: 50,
+			},
+		],
+
+		tripwires: [
+			// right stairs
+			{
+				// bottom of right stairs (to top)
+				x: 935,
+				y: 990,
+				width: 2,
+				height: 25,
+				collisionType: "feet",
+				onPlayerTouch: function () {
+					if (Game.hero.moveTowards === undefined) {
+						// walk up stairs
+						Game.hero.direction = 4;
+						Game.hero.moveTowards = {
+							x: 1175,
+							y: Game.hero.y - 200,
+							speedScalar: 0.6,
+						};
+					}
+				}
+			},
+			{
+				// top of right stairs (to bottom)
+				x: 1143,
+				y: 810,
+				width: 2,
+				height: 25,
+				collisionType: "feet",
+				onPlayerTouch: function () {
+					if (Game.hero.moveTowards === undefined) {
+						// walk up stairs
+						Game.hero.direction = 2;
+						Game.hero.moveTowards = {
+							x: 900,
+							y: Game.hero.y + 200,
+							speedScalar: 0.6,
+						};
+					}
+				}
+			},
+			// left stairs
+			{
+				// bottom of right stairs (to top)
+				x: 325,
+				y: 990,
+				width: 2,
+				height: 25,
+				collisionType: "feet",
+				onPlayerTouch: function () {
+					if (Game.hero.moveTowards === undefined) {
+						// walk up stairs
+						Game.hero.direction = 2;
+						Game.hero.moveTowards = {
+							x: 85,
+							y: Game.hero.y - 200,
+							speedScalar: 0.6,
+						};
+					}
+				}
+			},
+			{
+				// top of right stairs (to bottom)
+				x: 117,
+				y: 810,
+				width: 2,
+				height: 25,
+				collisionType: "feet",
+				onPlayerTouch: function () {
+					if (Game.hero.moveTowards === undefined) {
+						// walk up stairs
+						Game.hero.direction = 4;
+						Game.hero.moveTowards = {
+							x: 360,
+							y: Game.hero.y + 200,
+							speedScalar: 0.6,
+						};
+					}
+				}
+			},
+		],
+
+		infoPoints: [
+			{
+				x: 364,
+				y: 230,
+				image: "gameBoard1",
+				name: "Wizard's Lore",
+				onTouchChat: "A game of Wizard's Lore, a board game traditionally played by wizard students and scholars.",
+			},
+			{
+				x: 1083,
+				y: 1314,
+				image: "gameBoard2",
+				name: "Wizard's Lore",
+				onTouchChat: "A game of Wizard's Lore, a board game traditionally played by wizard students and scholars.",
+			},
+		],
+
 	},
 };
 

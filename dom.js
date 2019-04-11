@@ -585,14 +585,14 @@ Dom.reputation.give = function (area, amount) {
 	if (Player.reputation[area].changed) {
 		if (Player.reputation[area].level !== 6 || amount < 0) {
 			Player.reputation[area].score += amount;
-			
+
 			if (amount > 0) {
 				Dom.chat.insert("You have gained " + amount + " reputation with " + FromCamelCase(area));
 			}
 			else {
 				Dom.chat.insert("You have lost " + (0-amount) + " reputation with " + FromCamelCase(area));
 			}
-			
+
 			if (Player.reputation[area].score >= ReputationPoints[Player.reputation[area].level] && Player.reputation[area].level !== 6) {
 				//Dom.reputation.update();
 				Game.displayOnCanvas("Reputation Level Up!", [FromCamelCase(area), Dom.reputation.levels[Player.reputation[area].level] + " \u{2794} " + Dom.reputation.levels[Player.reputation[area].level+1]], 4, true); // display on canvas for 4s or enters a queue (true)
@@ -1449,7 +1449,7 @@ Dom.merchant.page = function (npc, sold, chat) {
 			}
 			document.getElementById("close").onclick = function () {
 				Dom.closePage('merchantPage');
-				npc.say(npc.chat.shopLeave, true, 0, false);
+				npc.say(npc.chat.shopLeave, 0, false, true);
 			}
 		}
 	}
@@ -1470,9 +1470,9 @@ Dom.merchant.buy = function (item,index,npc) {
 			setTimeout(function () {
 				document.getElementsByClassName("buy")[index].style.border = "5px solid #886622";
 			},200);
-			npc.say(npc.chat.tooPoor, true, 0, false);
+			npc.say(npc.chat.tooPoor, 0, false, true);
 		}else{
-			npc.say(npc.chat.inventoryFull, true, 0, false);
+			npc.say(npc.chat.inventoryFull, 0, false, true);
 			Dom.alert.page("You do not have enough space in your inventory for that item.", 0, undefined, "merchantPage");
 		}
 	}
@@ -1488,23 +1488,23 @@ Dom.merchant.chooseItems = function (items, date, numberOfItems) {
         console.warn("numberOfItems is bigger than items.length");
         numberOfItems = items.length;
     }
-	
+
 	// ensure that date is a positive integer
 	date = Math.round(date);
 	if (date < 1) {
 		console.warn("date should be a positive integer");
 		date = 1;
 	}
-	
+
 	// index of first chosen item
 	// if this is too big, it is looped back in for loop
     let itemsChosen = numberOfItems*(date - 1);
-	
+
 	// array of items that are chosen
     let newItems = [];
-	
+
 	// pick items
-    for (i = 0; i < numberOfItems; i++) {
+    for (let i = 0; i < numberOfItems; i++) {
 		// index of item chosen
         let itemIndex = i + itemsChosen;
 		// make sure itemIndex refers to a valid item in array
@@ -1512,7 +1512,7 @@ Dom.merchant.chooseItems = function (items, date, numberOfItems) {
 		// push item to array
         newItems.push(items[itemIndex]);
     }
-	
+
     return newItems;
 }
 
@@ -1634,7 +1634,7 @@ Dom.identifier.identify = function (npc) {
 		setTimeout(function () {
 			document.getElementById("identifierPageBuy").style.border = "5px solid #886622";
 		},200);
-		npc.say(npc.chat.tooPoor, true, 0, true);
+		npc.say(npc.chat.tooPoor, 0, true, true);
 	}
 }
 
@@ -1876,7 +1876,7 @@ Dom.inventory.chooseStats = function (inventoryPosition) {
 		// not currently used because ocean set is equipped onClick
 		let values = "";
 		let str = Player.inventory.items[inventoryPosition].chooseStats;
-		
+
 		// if there is at least 1 option
 		if (Object.keys(str).length > 0) {
 			Dom.alert.ev = [];
@@ -1904,7 +1904,7 @@ Dom.inventory.chooseStats = function (inventoryPosition) {
 	}else{
 		let values = "";
 		let str = Player.inventory[inventoryPosition].chooseStats;
-		
+
 		// if there is at least 1 option
 		if (Object.keys(str).length > 0) {
 			Dom.alert.ev = [];
@@ -2277,7 +2277,7 @@ Dom.inventory.bagSwaps = function (to, from, array) {
 
 Dom.bank.bagCases = function () {
 	//let changed = true;
-	
+
 	// going from the bag slot from a bag
 	if (Dom.inventory.fromArray === Player.bank.items && Dom.inventory.fromId < 6 && Dom.inventory.toArray[Dom.inventory.toId].type === "bag") {
 		Dom.inventory.bagSwaps(Dom.inventory.fromArray[Dom.inventory.fromId], Dom.inventory.toArray[Dom.inventory.toId], Player.bank.items);
@@ -2288,7 +2288,7 @@ Dom.bank.bagCases = function () {
 			Player.bank.items.push({});
 		}
 	}
-	
+
 	// going to the bag slot to a bag
 	if (Dom.inventory.toArray === Player.bank.items && Dom.inventory.toId < 6 && Dom.inventory.fromArray[Dom.inventory.fromId].type === "bag") {
 		Dom.inventory.bagSwaps(Dom.inventory.toArray[Dom.inventory.toId], Dom.inventory.fromArray[Dom.inventory.fromId], Player.bank.items);
@@ -2299,7 +2299,7 @@ Dom.bank.bagCases = function () {
 			Player.bank.items.push({});
 		}
 	}
-	
+
 	// no bags changed
 	/*else {
 		changed = false;
@@ -2384,18 +2384,18 @@ Dom.inventory.bagCases = function () {
 }
 
 Dom.bank.validateBags = function () {
-	
+
 	// swapping bags between bank bag slots
 	if (Dom.inventory.toArray === Player.bank.items && Dom.inventory.toId < 6 && Dom.inventory.fromArray === Player.bank.items && Dom.inventory.fromId < 6) {
 		return true;
 	}
-	
+
 	// normal item in bag slot or not unlocked bag slot
 	if ((Dom.inventory.toArray === Player.bank.items && (Dom.inventory.fromArray[Dom.inventory.fromId].type !== "bag" || Dom.inventory.toId >= Player.bank.unlockedSlots))
 	|| (Dom.inventory.fromArray === Player.bank.items && Dom.inventory.toArray[Dom.inventory.toId].type !== "bag" && Dom.inventory.toArray[Dom.inventory.toId].type !== undefined)){
 		return false;
 	}
-	
+
 	let highest = 0;
 	// checks position of the last item in the inventory
 	for (let x = Player.bank.items.length-1; x >= 6; x--) {
@@ -2404,7 +2404,7 @@ Dom.bank.validateBags = function () {
 			break;
 		}
 	}
-	
+
 	if (highest > 0) {
 		// two bags are being swapped at the bag slot
 		if (Dom.inventory.toArray === Player.bank.items && Dom.inventory.toId < 6 && Dom.inventory.fromArray[Dom.inventory.fromId].type === "bag") {
@@ -2434,7 +2434,7 @@ Dom.bank.validateBags = function () {
 			return false;
 		}
 	}
-	
+
 	return true;
 }
 
@@ -2515,14 +2515,14 @@ Dom.inventory.validateSwap = function () {
 	// stacking items
 	if (Dom.inventory.fromArray[Dom.inventory.fromId].id === Dom.inventory.toArray[Dom.inventory.toId].id && Dom.inventory.fromArray[Dom.inventory.fromId].type === Dom.inventory.toArray[Dom.inventory.toId].type
 	&& Dom.inventory.toArray[Dom.inventory.toId].stack !== undefined && Dom.inventory.toArray[Dom.inventory.toId].stack !== Dom.inventory.toArray[Dom.inventory.toId].stacked) {
-		
+
 		if (Dom.inventory.toArray[Dom.inventory.toId].stacked === undefined) {
 			Dom.inventory.toArray[Dom.inventory.toId] = 1;
 		}
 		if (Dom.inventory.fromArray[Dom.inventory.fromId].stacked === undefined) {
 			Dom.inventory.fromArray[Dom.inventory.fromId] = 1;
 		}
-		
+
 		// no overflow
 		if (Dom.inventory.fromArray[Dom.inventory.fromId].stacked <= Dom.inventory.toArray[Dom.inventory.toId].stack - Dom.inventory.toArray[Dom.inventory.toId].stacked) {
 			Dom.inventory.fromArray[Dom.inventory.fromId].stacked += Dom.inventory.toArray[Dom.inventory.toId].stacked;
@@ -2707,9 +2707,9 @@ Dom.inventory.removeEquipment = function (array) {
 	if (array.conditionalChooseStats !== undefined) {
 		for (let y = 0; y < Player.conditionalChooseStats.length; y++) {
 			if (Player.conditionalChooseStats[y].type === array.type && Player.conditionalChooseStats[y].id === array.id) {
-				
+
 				// do not delete because it is only effecting chooseStats
-				
+
 				Player.conditionalChooseStats.splice(y, 1);
 				break;
 			}
@@ -3628,7 +3628,7 @@ Dom.bank.page = function () {
 		}
 	}
 	document.getElementById("bankPageInventory").innerHTML = html+"</body>";
-	
+
 	/*let remove = true;
 	for (let i = 6; i < Player.inventory.items.length; i++) {
 		if (Player.inventory.items[i].image !== undefined) {
@@ -3992,7 +3992,7 @@ Dom.inventory.conditionalChooseStats = function () {
 	for (let i = 0; i < Player.conditionalChooseStats.length; i++) {
 		for (let x = 0; x < Items[Player.conditionalChooseStats[i].type][Player.conditionalChooseStats[i].id].conditionalChooseStats.length; x++) {
 			let conditionalStat = Items[Player.conditionalChooseStats[i].type][Player.conditionalChooseStats[i].id].conditionalChooseStats[x];
-			
+
 			// find the item in the inventory
 			let item = {};
 			for (let y = 0; y < Object.keys(Player.inventory).length; y++) {
@@ -4000,14 +4000,14 @@ Dom.inventory.conditionalChooseStats = function () {
 					item = Player.inventory[Object.keys(Player.inventory)[y]];
 				}
 			}
-			
+
 			if (conditionalStat.condition()) {
 				if (!Player.conditionalChooseStats[i].active[x]) {
 					Player.conditionalChooseStats[i].active[x] = true;
 					// add conditionalStats to stats
-					
+
 					item.chooseStats[Object.keys(conditionalStat)[0]] = conditionalStat[Object.keys(conditionalStat)[0]];
-					
+
 					/*for (let i = 0; i < Object.keys(conditionalStat.stats).length; i++) {
 						if (conditionalStat.stats[Object.keys(conditionalStat.stats)[i]] !== true) {
 							Player.stats[Object.keys(conditionalStat.stats)[i]] += conditionalStat.stats[Object.keys(conditionalStat.stats)[i]];
@@ -4020,9 +4020,9 @@ Dom.inventory.conditionalChooseStats = function () {
 				if (Player.conditionalChooseStats[i].active[x]) {
 					Player.conditionalChooseStats[i].active[x] = false;
 					// remove conditionalStats from stats
-					
+
 					delete item.chooseStats[Object.keys(conditionalStat)[0]];
-					
+
 					/*for (let i = 0; i < Object.keys(conditionalStat.stats).length; i++) {
 						if (conditionalStat.stats[Object.keys(conditionalStat.stats)[i]] !== true) {
 							Player.stats[Object.keys(conditionalStat.stats)[i]] -= conditionalStat.stats[Object.keys(conditionalStat.stats)[i]];
