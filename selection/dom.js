@@ -17,9 +17,11 @@ function validate(strValue) {
 	let objRegExp  = /^[a-zA-Z'\u00C0-\u00ff]+$/;
 	if(!objRegExp.test(strValue)){
 		objRegExp  = /^$/;
+		// return true if it is empty
 		return objRegExp.test(strValue);
 	}else{
-		return objRegExp.test(strValue);
+		// return true if it is legal
+		return true;//objRegExp.test(strValue);
 	}
 }
 

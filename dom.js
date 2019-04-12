@@ -1601,8 +1601,8 @@ Dom.identifier.identify = function (npc) {
 			document.getElementById("identifiedPageChat").innerHTML = npc.chat.identifyMythic;
 		}
 		// repeats for every item of the same catergory (e.g. bow)
-		for (let i = 0; i < Items[Object.keys(Items)[Dom.identifier.unId[Dom.identifier.displayed].typeNum]].length; i++) {
-			if (Items[Object.keys(Items)[Dom.identifier.unId[Dom.identifier.displayed].typeNum]][i].tier === Dom.identifier.unId[Dom.identifier.displayed].tier && Items[Object.keys(Items)[Dom.identifier.unId[Dom.identifier.displayed].typeNum]][i].area === Dom.identifier.unId[Dom.identifier.displayed].area && Items[Object.keys(Items)[Dom.identifier.unId[Dom.identifier.displayed].typeNum]][i].rarity === Dom.identifier.unId[Dom.identifier.displayed].rarity) {
+		for (let i = 2; i < Items[Object.keys(Items)[Dom.identifier.unId[Dom.identifier.displayed].typeNum]].length; i++) {
+			if (Items[Object.keys(Items)[Dom.identifier.unId[Dom.identifier.displayed].typeNum]][i].tier === Dom.identifier.unId[Dom.identifier.displayed].tier && Items[Object.keys(Items)[Dom.identifier.unId[Dom.identifier.displayed].typeNum]][i].unidentifiedArea !== undefined && Items[Object.keys(Items)[Dom.identifier.unId[Dom.identifier.displayed].typeNum]][i].unidentifiedArea.includes(Dom.identifier.unId[Dom.identifier.displayed].area) && Items[Object.keys(Items)[Dom.identifier.unId[Dom.identifier.displayed].typeNum]][i].rarity === Dom.identifier.unId[Dom.identifier.displayed].rarity) {
 				// add it to the array of possible items if it matches the stats
 				Dom.identifier.array.push(Items[Object.keys(Items)[Dom.identifier.unId[Dom.identifier.displayed].typeNum]][i]);
 			}
@@ -1851,11 +1851,14 @@ Dom.inventory.cooldown = function (inventoryPosition, hotbar, check) {
 						item[inventoryPosition].onClickFunction(inventoryPosition, hotbar);
 					}
 				}
-			}else{
+			}
+			else {
 				return true;
 			}
 		}
-		Dom.chat.insert("This items is on cooldown. You can use it in " + CalculateTime(GetFullDateTime(), (parseInt(item[inventoryPosition].cooldownStart) + item[inventoryPosition].cooldown).toString()));
+		else {
+			Dom.chat.insert("This item is on cooldown. You can use it in " + CalculateTime(GetFullDateTime(), (parseInt(item[inventoryPosition].cooldownStart) + item[inventoryPosition].cooldown).toString()));
+		}
 	}
 	else {
 		if (!check) {
@@ -2719,6 +2722,9 @@ Dom.inventory.removeEquipment = function (array) {
 		Game.hero.trail = undefined;
 		clearInterval(Game.hero.trailInterval);
 	}
+	if (array.stats.maxHealth !== undefined) {
+		Game.secondary.render();
+	}
 }
 
 Dom.inventory.addEquipment = function (array) {
@@ -2771,6 +2777,9 @@ Dom.inventory.addEquipment = function (array) {
 	if (array.trail !== undefined) {
 		Game.hero.trail = array.trail;
 		Game.hero.trailInterval = setInterval(Game.addTrailParticle, 100, Game.hero, Game.hero.trail);
+	}
+	if (array.stats.maxHealth !== undefined) {
+		Game.secondary.render();
 	}
 }
 
@@ -4158,7 +4167,7 @@ Dom.init = function () {
 	document.getElementById("secondary").height = Dom.canvas.height;
 	document.getElementById("chat").style.width = Dom.canvas.width/2-200+"px";
 	document.getElementById("itemInventory").innerHTML = "";
-	document.getElementById("hotbar").style.left = Dom.canvas.width/2-185+"px";
+	document.getElementById("hotbar").style.left = Dom.canvas.width/2-167.6+"px";
 	document.getElementById("hotbar").style.top = Dom.canvas.height-80+"px";
 	document.getElementById("chatImage").style.left= Dom.canvas.width/2+210+"px";
 	document.getElementById("inventoryImage").style.left= Dom.canvas.width/2+278+"px";

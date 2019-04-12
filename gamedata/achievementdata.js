@@ -351,7 +351,7 @@ var Achievements = [
 			let done = true;
 			for(let i = 0; i < 7; i++){
 				for(let x = 0; x < Items[Object.keys(Items)[i]].length; x++){
-					if(Items[Object.keys(Items)[i]][x].area === "loggingCamp" && !User.archaeology.includes(Items[Object.keys(Items)[i]][x].name)){
+					if(Items[Object.keys(Items)[i]][x].unidentifiedArea === "loggingCamp" && !User.archaeology.includes(Items[Object.keys(Items)[i]][x].name)){
 						done = false;
 					}
 				}
@@ -360,7 +360,7 @@ var Achievements = [
 		},
 		expand: {
 			type: "redirect",
-			location: "https://jakethakur.github.io/antorax/archaeology/index.html",
+			location: "../archaeology/index.html?obtained=unidentified&area=loggingCamp",
 		},
 	},
 	{
@@ -377,7 +377,7 @@ var Achievements = [
 		},
 		expand: {
 			type: "redirect",
-			location: "https://jakethakur.github.io/antorax/archaeology/index.html?searchBar=Ocean Warrior",
+			location: "../archaeology/index.html?searchBar=Ocean Warrior",
 		},
 	},
 	{
@@ -394,7 +394,7 @@ var Achievements = [
 		},
 		expand: {
 			type: "redirect",
-			location: "https://jakethakur.github.io/antorax/archaeology/index.html",
+			location: "../archaeology/index.html",
 		},
 	},
 	{
@@ -420,7 +420,7 @@ var Achievements = [
 		},
 		expand: {
 			type: "redirect",
-			location: "https://jakethakur.github.io/antorax/archaeology/index.html?event=Samhain",
+			location: "../archaeology/index.html?event=Samhain",
 		},
 	},
 	{
@@ -446,7 +446,7 @@ var Achievements = [
 		},
 		expand: {
 			type: "redirect",
-			location: "https://jakethakur.github.io/antorax/archaeology/index.html?event=Christmas",
+			location: "../archaeology/index.html?event=Christmas",
 		},
 	},
 		// FISHING

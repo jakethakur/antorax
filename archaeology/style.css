@@ -32,8 +32,14 @@ body{
 	margin: 0px;
 	width: 220px;
 }
-#space0, #space1, #space2, #space3, #space4{
-	display: inline-block;
+.oneFilter {
+	margin: 10px;
+}
+#filters {
+	display: none;
+	justify-content: space-evenly;
+	flex-wrap: wrap;
+	padding-bottom: 10px;
 }
 #filters, #back{
 	position: absolute;
@@ -67,8 +73,9 @@ td{
 	font-size: 25px;
 	font-family: 'MedievalSharp', serif;
 	text-indent: 5px;
+	margin: 20px;
 }
-#category, #rarity, #event, #obtained{
+#category, #rarity, #event, #display, #area, #obtained{
 	height: 30px;
 	font-size: 20px;
 	font-family: 'MedievalSharp', serif;

@@ -8,7 +8,9 @@ var arrayLength = 1;
 var rarity = document.getElementById("rarity");
 var category = document.getElementById("category");
 var event = document.getElementById("event");
+var area = document.getElementById("area");
 var obtained = document.getElementById("obtained");
+var display = document.getElementById("display");
 var min = document.getElementById("min");
 var max = document.getElementById("max");
 var searchBar = document.getElementById("searchBar");
@@ -25,8 +27,14 @@ if (url.searchParams.get("rarity") !== null) {
 if (url.searchParams.get("event") !== null) {
 	event.value = url.searchParams.get("event");
 }
+if (url.searchParams.get("area") !== null) {
+	area.value = url.searchParams.get("area");
+}
 if (url.searchParams.get("obtained") !== null) {
 	obtained.value = url.searchParams.get("obtained");
+}
+if (url.searchParams.get("display") !== null) {
+	display.value = url.searchParams.get("display");
 }
 if (url.searchParams.get("min") !== null) {
 	min.value = url.searchParams.get("min");
@@ -44,7 +52,7 @@ if(archaeology === null){
 	archaeology = archaeology.archaeology;
 }
 
-if(sessionStorage.getItem("filter") != null){
+/*if(sessionStorage.getItem("filter") != null){
 	session = JSON.parse(sessionStorage.getItem("filter"));
 	if(viewedItemId == undefined && viewedItemType == undefined){
 		rarity.value = session.rarity
@@ -55,7 +63,7 @@ if(sessionStorage.getItem("filter") != null){
 		searchBar.value = session.searchBar
 		sessionStorage.removeItem("filter");
 	}
-}
+}*/
 
 function Stats(stat, value, array){ // stat should be in Title Case // copied from DOM
 	if(stat === "Defence" || stat === "Block Defence" || stat === "Fishing Skill" || stat === "Max Health") {
@@ -82,13 +90,221 @@ function Stats(stat, value, array){ // stat should be in Title Case // copied fr
 };
 
 function validate(strValue){
-	var objRegExp  = /^[a-zA-Z \u00C0-\u00ff]+$/;
+	var objRegExp  = /^[a-zA-Z0-9 ',:+-]+$/;
 	if(!objRegExp.test(strValue)){
 		objRegExp  = /^$/;
+		// return true if it is empty
 		return objRegExp.test(strValue);
 	}else{
-		return objRegExp.test(strValue);
+		// return true if it is legal
+		return true;//objRegExp.test(strValue);
 	}
+}
+
+function init(){
+	previousCategory = category.value;
+	array = [];
+	if(min.value > 1 || (min.value < 1 && min.value.length > 0) || min.value.length > 1){
+		min.value = previousMin;
+	}
+	if(max.value > 1 || (max.value < 1 && max.value.length > 0) || max.value.length > 1){
+		max.value = previousMax;
+	}
+	if(!validate(searchBar.value)){
+		searchBar.value = previousSearch;
+	}
+	if(category.value == "all"){
+		for(var i = 0; i < 7; i++){
+			for(var x = 2; x < Items[Object.keys(Items)[i]].length; x++){
+				if(!Items[Object.keys(Items)[i]][x].uncollectable && (!Items[Object.keys(Items)[i]][x].limitedEdition || archaeology.includes(Items[Object.keys(Items)[i]][x].name))){
+					array.push(Items[Object.keys(Items)[i]][x]);
+				}
+			}
+		}
+	}else if(category.value == "armour"){
+		for(var i = 0; i < 4; i++){
+			for(var x = 2; x < Items[Object.keys(Items)[i]].length; x++){
+				if(!Items[Object.keys(Items)[i]][x].uncollectable && (!Items[Object.keys(Items)[i]][x].limitedEdition || archaeology.includes(Items[Object.keys(Items)[i]][x].name))){
+					array.push(Items[Object.keys(Items)[i]][x]);
+				}
+			}
+		}
+	}else if(category.value == "weapon"){
+		for(var i = 4; i < 7; i++){
+			for(var x = 2; x < Items[Object.keys(Items)[i]].length; x++){
+				if(!Items[Object.keys(Items)[i]][x].uncollectable && (!Items[Object.keys(Items)[i]][x].limitedEdition || archaeology.includes(Items[Object.keys(Items)[i]][x].name))){
+					array.push(Items[Object.keys(Items)[i]][x]);
+				}
+			}
+		}
+	}else{
+		for(var x = 2; x < Items[Object.keys(Items)[category.value]].length; x++){
+			if(!Items[Object.keys(Items)[category.value]][x].uncollectable && (!Items[Object.keys(Items)[category.value]][x].limitedEdition || archaeology.includes(Items[Object.keys(Items)[category.value]][x].name))){
+				array.push(Items[Object.keys(Items)[category.value]][x]);
+			}
+		}
+	}
+	arrayLength = array.length;
+	previousRarity = rarity.value;
+	var b = 0;
+	if(rarity.value != "all"){
+		for(var i = 0; i < arrayLength; i++){
+			if(array[i-b].rarity != rarity.value){
+				array.splice(i-b,1);
+				b++;
+			}
+		}
+	}
+	arrayLength = array.length;
+	previousEvent = event.value;
+	var b = 0;
+	if(event.value != "all" && event.value != "other"){
+		for(var i = 0; i < arrayLength; i++){
+			if(array[i-b].event != event.value && (event.value != "none" || array[i-b].event != undefined)){
+				array.splice(i-b,1);
+				b++;
+			}
+		}
+	}else if(event.value == "other"){
+		for(var i = 0; i < arrayLength; i++){
+			if(events.includes(array[i-b].event) || array[i-b].event == undefined){
+				array.splice(i-b,1);
+				b++;
+			}
+		}
+	}
+	arrayLength = array.length;
+	previousArea = area.value;
+	var b = 0;
+	if(area.value != "all"){
+		for(var i = 0; i < arrayLength; i++){
+			if(!array[i-b].area.includes(area.value)){
+				array.splice(i-b,1);
+				b++;
+			}
+		}
+	}
+	arrayLength = array.length;
+	previousObtained = obtained.value;
+	var b = 0;
+	if(obtained.value != "all"){
+		for(var i = 0; i < arrayLength; i++){
+			if(!array[i-b].obtain.includes(obtained.value)){
+				array.splice(i-b,1);
+				b++;
+			}
+		}
+	}
+	arrayLength = array.length;
+	previousMin = min.value;
+	previousMax = max.value;
+	b = 0;
+	for(var i = 0; i < arrayLength; i++){
+		if(array[i-b].tier < min.value || array[i-b].tier > max.value){
+			array.splice(i-b,1);
+			b++;
+		}
+	}
+	arrayLength = array.length;
+	b = 0;
+	previousSearch = searchBar.value;
+	if(document.getElementById("searchBar").value != ""){
+		var input = document.getElementById("searchBar");		
+		var filter = input.value.toLowerCase().replace(/ /g,"");
+		
+		filter = filter.split(",");
+		
+		for (var i = 0; i < arrayLength; i++) {
+			//if (filter.some(filter => array[i-b].name.toLowerCase().replace(/ /g,"").indexOf(filter) < 0 && !Object.keys(array[i-b].stats).some(stat => FromCamelCase(stat).toLowerCase().replace(/ /g,"").indexOf(filter) >= 0))) {
+				//array[i-b].name.toLowerCase().indexOf(filter) < 0 || ) {
+				
+				let legal = true;
+				for (let j = 0; j < filter.length; j++) {
+					if (array[i-b].name.toLowerCase().replace(/ /g,"").indexOf(filter[j]) < 0 && !Object.keys(array[i-b].stats).some(stat => FromCamelCase(stat).toLowerCase().replace(/ /g,"").indexOf(filter[j]) >= 0)) {
+						let search = filter[j].split(":");
+						let stat = array[i-b].stats[Object.keys(array[i-b].stats).find(stat => FromCamelCase(stat).toLowerCase().replace(/ /g,"") === search[0])];
+						if (search.length === 2 && stat !== undefined) {
+							if (search[1].substring(search[1].length-1) === "+" && stat >= parseInt(search[1].substring(0, search[1].length-1))) {
+								
+							}
+							else if (search[1].substring(search[1].length-1) === "-" && stat <= parseInt(search[1].substring(0, search[1].length-1))) {
+								
+							}
+							else if (stat === parseInt(search[1]) || search[1] === "") {
+								
+							}else if (search[1].indexOf("-") > 0) {
+								let maxMin = search[1].split("-");
+								if (stat < parseInt(maxMin[0]) || stat > parseInt(maxMin[1])) {
+									legal = false;
+								}
+							}
+							else {
+								legal = false;
+							}
+						}
+						else {
+							legal = false;
+						}
+					}
+				}
+				
+				if (!legal) {
+					array.splice(i-b,1);
+					b++;
+				}
+			//}
+		}
+	}
+	progress = 0;
+	for(var i = 0; i < array.length; i++){
+		if(archaeology != null && archaeology.includes(array[i].name)){
+			progress++;
+		}/*else if(category.value == 8){
+			var current = true;
+			for(x = 0; x < array[i].armour.length; x++){
+				if(archaeology != null && !archaeology.includes(array[i].armour[x])){
+					current = false;
+				}
+			}
+			if(current){
+				progress++;
+			}
+		}*/
+	}
+	displayed = array.length;
+	arrayLength = array.length;
+	previousDisplay = display.value;
+	b = 0;
+	if(display.value != "all"){
+		for(var i = 0; i < arrayLength; i++){
+			/*var current = true;
+			if(category.value == 8){
+				for(x = 0; x < array[i-b].armour.length; x++){
+					if(archaeology != null && !archaeology.includes(array[i-b].armour[x])){
+						current = false;
+					}
+				}
+			}*/
+			if(display.value == "only"){
+				if(archaeology == null || !archaeology.includes(array[i-b].name)/* && (category.value == 8 && !current || category.value != 8)*/){
+					array.splice(i-b,1);
+					b++;
+				}
+			}else{
+				if((archaeology != null && archaeology.includes(array[i-b].name))/* || category.value == 8 && current*/){
+					array.splice(i-b,1);
+					b++;
+				}
+			}
+		}
+	}
+	array.sort(function(a, b){
+		if(a.name < b.name) { return -1; }
+		if(a.name > b.name) { return 1; }
+		return 0;
+	});
+	arrange();
+	checkChange();
 }
 
 function checkChange(){
@@ -102,150 +318,64 @@ function checkChange(){
 		previousWidth = window.innerWidth;
 		arrange();
 	}
-	if(rarity.value != previousRarity || category.value != previousCategory || event.value != previousEvent || obtained.value != previousObtained || min.value != previousMin || max.value != previousMax || searchBar.value != previousSearch){
-		previousCategory = category.value;
-		array = [];
-		if(min.value > 1 || (min.value < 1 && min.value.length > 0) || min.value.length > 1){
-			min.value = previousMin;
-		}
-		if(max.value > 1 || (max.value < 1 && max.value.length > 0) || max.value.length > 1){
-			max.value = previousMax;
-		}
-		if(!validate(searchBar.value)){
-			searchBar.value = previousSearch;
-		}
-		if(category.value == "all"){
-			for(var i = 0; i < 7; i++){
-				for(var x = 2; x < Items[Object.keys(Items)[i]].length; x++){
-					if(!Items[Object.keys(Items)[i]][x].uncollectable && (!Items[Object.keys(Items)[i]][x].limitedEdition || archaeology.includes(Items[Object.keys(Items)[i]][x].name))){
-						array.push(Items[Object.keys(Items)[i]][x]);
-					}
-				}
-			}
-		}else if(category.value == "armour"){
-			for(var i = 0; i < 4; i++){
-				for(var x = 2; x < Items[Object.keys(Items)[i]].length; x++){
-					if(!Items[Object.keys(Items)[i]][x].uncollectable && (!Items[Object.keys(Items)[i]][x].limitedEdition || archaeology.includes(Items[Object.keys(Items)[i]][x].name))){
-						array.push(Items[Object.keys(Items)[i]][x]);
-					}
-				}
-			}
-		}else if(category.value == "weapon"){
-			for(var i = 4; i < 7; i++){
-				for(var x = 2; x < Items[Object.keys(Items)[i]].length; x++){
-					if(!Items[Object.keys(Items)[i]][x].uncollectable && (!Items[Object.keys(Items)[i]][x].limitedEdition || archaeology.includes(Items[Object.keys(Items)[i]][x].name))){
-						array.push(Items[Object.keys(Items)[i]][x]);
-					}
-				}
-			}
-		}else{
-			for(var x = 2; x < Items[Object.keys(Items)[category.value]].length; x++){
-				if(!Items[Object.keys(Items)[category.value]][x].uncollectable && (!Items[Object.keys(Items)[category.value]][x].limitedEdition || archaeology.includes(Items[Object.keys(Items)[category.value]][x].name))){
-					array.push(Items[Object.keys(Items)[category.value]][x]);
-				}
+	if(rarity.value != previousRarity || category.value != previousCategory || event.value != previousEvent || area.value != previousArea || obtained.value != previousObtained || display.value != previousDisplay || min.value != previousMin || max.value != previousMax || searchBar.value != previousSearch){
+		if (rarity.value != previousRarity) {
+			if (rarity.value !== "all") {
+				url.searchParams.set("rarity", rarity.value);
+			}else{
+				url.searchParams.delete("rarity");
 			}
 		}
-		arrayLength = array.length;
-		previousRarity = rarity.value;
-		var b = 0;
-		if(rarity.value != "all"){
-			for(var i = 0; i < arrayLength; i++){
-				if(array[i-b].rarity != rarity.value){
-					array.splice(i-b,1);
-					b++;
-				}
+		if (category.value != previousCategory) {
+			if (category.value !== "all") {
+				url.searchParams.set("category", category.value);
+			}else{
+				url.searchParams.delete("category");
 			}
 		}
-		arrayLength = array.length;
-		previousEvent = event.value;
-		var b = 0;
-		if(event.value != "all" && event.value != "other"){
-			for(var i = 0; i < arrayLength; i++){
-				if(array[i-b].event != event.value && (event.value != "none" || array[i-b].event != undefined)){
-					array.splice(i-b,1);
-					b++;
-				}
-			}
-		}else if(event.value == "other"){
-			for(var i = 0; i < arrayLength; i++){
-				if(events.includes(array[i-b].event) || array[i-b].event == undefined){
-					array.splice(i-b,1);
-					b++;
-				}
+		if (event.value != previousEvent) {
+			if (event.value !== "all") {
+				url.searchParams.set("event", event.value);
+			}else{
+				url.searchParams.delete("event");
 			}
 		}
-		arrayLength = array.length;
-		previousMin = min.value;
-		previousMax = max.value;
-		b = 0;
-		for(var i = 0; i < arrayLength; i++){
-			if(array[i-b].tier < min.value || array[i-b].tier > max.value){
-				array.splice(i-b,1);
-				b++;
+		if (area.value != previousArea) {
+			if (area.value !== "all") {
+				url.searchParams.set("area", area.value);
+			}else{
+				url.searchParams.delete("area");
 			}
 		}
-		arrayLength = array.length;
-		b = 0;
-		previousSearch = searchBar.value;
-		if(document.getElementById("searchBar").value != ""){
-			var input = document.getElementById("searchBar");
-			var filter = input.value.toLowerCase();
-			for (var i = 0; i < arrayLength; i++) {
-				if (array[i-b].name.toLowerCase().indexOf(filter) < 0) {
-					array.splice(i-b,1);
-					b++;
-				}
+		if (obtained.value != previousObtained) {
+			if (obtained.value !== "all") {
+				url.searchParams.set("obtained", obtained.value);
+			}else{
+				url.searchParams.delete("obtained");
 			}
 		}
-		progress = 0;
-		for(var i = 0; i < array.length; i++){
-			if(archaeology != null && archaeology.includes(array[i].name)){
-				progress++;
-			}/*else if(category.value == 8){
-				var current = true;
-				for(x = 0; x < array[i].armour.length; x++){
-					if(archaeology != null && !archaeology.includes(array[i].armour[x])){
-						current = false;
-					}
-				}
-				if(current){
-					progress++;
-				}
-			}*/
-		}
-		displayed = array.length;
-		arrayLength = array.length;
-		previousObtained = obtained.value;
-		b = 0;
-		if(obtained.value != "all"){
-			for(var i = 0; i < arrayLength; i++){
-				/*var current = true;
-				if(category.value == 8){
-					for(x = 0; x < array[i-b].armour.length; x++){
-						if(archaeology != null && !archaeology.includes(array[i-b].armour[x])){
-							current = false;
-						}
-					}
-				}*/
-				if(obtained.value == "only"){
-					if(archaeology == null || !archaeology.includes(array[i-b].name)/* && (category.value == 8 && !current || category.value != 8)*/){
-						array.splice(i-b,1);
-						b++;
-					}
-				}else{
-					if((archaeology != null && archaeology.includes(array[i-b].name))/* || category.value == 8 && current*/){
-						array.splice(i-b,1);
-						b++;
-					}
-				}
+		if (display.value != previousDisplay) {
+			if (display.value !== "all") {
+				url.searchParams.set("display", display.value);
+			}else{
+				url.searchParams.delete("display");
 			}
 		}
-		array.sort(function(a, b){
-			if(a.name < b.name) { return -1; }
-			if(a.name > b.name) { return 1; }
-			return 0;
-		})
-		arrange();
+		let notSearchBar = true;
+		if (searchBar.value != previousSearch) {
+			if (searchBar.value != "") {
+				url.searchParams.set("searchBar", searchBar.value);
+			}else{
+				url.searchParams.delete("searchBar");
+			}
+			init();
+			notSearchBar = false;
+		}
+		if (notSearchBar) {
+			window.location.replace(url.toString());
+		}
+		
+		//arrange();
 	}
 }
 
@@ -372,7 +502,7 @@ function arrange(){
 	if(viewedItemId == undefined || viewedItemType == undefined){
 		for(let i = 0; i < array.length; i++){
 			document.getElementById("box"+i).onclick = function(){
-				if(localStorage.getItem("accept") === "true"){
+				/*if(localStorage.getItem("accept") === "true"){
 					session.category = category.value;
 					session.rarity = rarity.value;
 					session.obtained = obtained.value;
@@ -380,8 +510,11 @@ function arrange(){
 					session.max = max.value;
 					session.searchBar = searchBar.value;
 					sessionStorage.setItem("filter", JSON.stringify(session));
-				}
-				window.location += "?id="+array[i].id+"&type="+array[i].type;
+				}*/
+				url.searchParams.set("id", array[i].id);
+				url.searchParams.set("type", array[i].type);
+				window.location.replace(url.toString());
+				//window.location += "?id="+array[i].id+"&type="+array[i].type;
 			}
 		}
 		document.getElementById("filters").style.width = (((Math.floor((screenSize-45)/245)))*245)-35+"px";
@@ -397,7 +530,7 @@ function arrange(){
 			document.getElementById("progressText").innerHTML = "You have obtained "+Math.floor(progressDisplayed*100)+"% of "+(setTotal == displayed ? "all" : "these")+" sets";
 			document.getElementById("innerProgress").style.width = progressDisplayed*((((Math.floor((screenSize-45)/245)))*245)-24.5)+"px";
 		}
-		if(columns == 3){
+		/*if(columns == 3){
 			document.getElementById("space0").style.width = (document.getElementById("filters").offsetWidth/2)-250+"px";
 			document.getElementById("space2").style.width = (document.getElementById("filters").offsetWidth/2)-250+"px";
 			document.getElementById("space4").style.width = (document.getElementById("filters").offsetWidth/2)-250+"px";
@@ -411,7 +544,7 @@ function arrange(){
 			for(var i = 0; i < columns; i++){
 				document.getElementsByClassName("flashcardlist")[i].style.top = "365px";
 			}
-		}else/* if(columns <= 5)*/{
+		}else{
 			document.getElementById("space0").style.width = (document.getElementById("filters").offsetWidth/4)-150+"px";
 			document.getElementById("space1").style.width = (document.getElementById("filters").offsetWidth/4)-150+"px";
 			document.getElementById("space3").style.width = (document.getElementById("filters").offsetWidth/4)-150+"px";
@@ -426,33 +559,33 @@ function arrange(){
 			for(var i = 0; i < columns; i++){
 				document.getElementsByClassName("flashcardlist")[i].style.top = "315px";
 			}
-		}/*else{
-			for(var i = 0; i < 4; i++){
-				document.getElementById("space"+i).style.width = (document.getElementById("filters").offsetWidth/4)-319+"px";
-			}
-			document.getElementById("space1").style.display = "";
-			document.getElementById("space2").style.display = "";
-			document.getElementById("filters").style.height = "150px";
-			document.getElementById("br").style.display = "none";
-			document.getElementById("br3").style.display = "none";
-			for(var i = 0; i < columns; i++){
-				document.getElementsByClassName("flashcardlist")[i].style.top = "265px";
-			}
 		}*/
-		document.getElementById("filters").hidden = false;
+		
+		document.getElementById("filters").style.display = "flex";
+
+		for(var i = 0; i < columns; i++){
+			document.getElementsByClassName("flashcardlist")[i].style.top = document.getElementById("filters").offsetHeight+100+"px";
+		}
+		
 		document.getElementById("progress").style.top = document.getElementById("filters").offsetHeight + 45 + "px";
 	}else{ // viewed item
 		document.getElementById("flashcardlist0").style.left = "100px";
 		document.getElementById("flashcardlist0").style.top = "100px";
 		if(Items[viewedItemType][viewedItemId].set != undefined){
 			document.getElementById("box1").onclick = function(){
-				window.location = "./index.html?id="+Items[viewedItemType][viewedItemId].set+"&type=set";
+				url.searchParams.set("id", Items[viewedItemType][viewedItemId].set);
+				url.searchParams.set("type", "set");
+				window.location.replace(url.toString());
+				//window.location = "./index.html?id="+Items[viewedItemType][viewedItemId].set+"&type=set";
 			}
 		}
 		if(viewedItemType == "set"){
 			for(let i = 1; i < 5; i++){
 				document.getElementById("box"+i).onclick = function(){
-					window.location = "./index.html?id="+array[i].id+"&type="+array[i].type;
+					url.searchParams.set("id", array[i].id);
+					url.searchParams.set("type", array[i].type);
+					window.location.replace(url.toString());
+					//window.location = "./index.html?id="+array[i].id+"&type="+array[i].type;
 				}
 			}
 		}
@@ -461,7 +594,7 @@ function arrange(){
 			document.getElementById("obtain").style.top = "100px";
 			document.getElementById("obtain").style.width = (window.innerWidth - 500 < 1000 ? window.innerWidth - 500 : 1000) + "px";
 			document.getElementById("obtain").innerHTML = archaeology.includes(Items[viewedItemType][viewedItemId].name) ? "You have obtained this item." : "You have not yet obtained this item";
-			document.getElementById("obtain").innerHTML += "<br><br>"+Items[viewedItemType][viewedItemId].obtain;
+			document.getElementById("obtain").innerHTML += "<br><br>"+Items[viewedItemType][viewedItemId].obtainText;
 			document.getElementById("obtain").innerHTML += "<br><br>Sells for "+Items[viewedItemType][viewedItemId].sellPrice+" gold at an item buyer.";
 		}
 		document.getElementById("stats").hidden = false;
@@ -490,7 +623,10 @@ function arrange(){
 			}
 		}
 		document.getElementById("back").onclick = function(){
-			window.location.replace("./index.html"); // archaeology
+			url.searchParams.delete("id");
+			url.searchParams.delete("type");
+			
+			window.location.replace(url.toString()); // archaeology
 		}
 		if(Items[viewedItemType][viewedItemId].set != undefined){
 			document.getElementById("box1").getElementsByTagName("img")[0].onload = function(){
@@ -557,7 +693,9 @@ else{
 	var previousCategory = "";
 	var previousRarity = "";
 	var previousEvent = "";
+	var previousArea = "";
 	var previousObtained = "";
+	var previousDisplay = "";
 	var previousMin = "";
 	var previousMax = "";
 	var previousSearch = "";
@@ -578,6 +716,7 @@ else{
 			}
 		}
 	}
-	checkChange();
-	arrange();
+	//checkChange();
+	init();
+	//arrange();
 }

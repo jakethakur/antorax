@@ -9,10 +9,9 @@
 	<meta charset="UTF-8">
 </head>
 <body>
-<div id="filters" hidden>
-	<br>
+<div id="filters">
 	<center><input type="text" id="searchBar" placeholder="Search by name"></center>
-	<br>Category
+	<span class="oneFilter">Category
 	<select id="category">
 		<option value="all">All</option>
 		<option value="armour">Any Armour</option>
@@ -25,40 +24,47 @@
 		<option value="5">Staff</option>
 		<option value="6">Bow</option>
 		<option value="8">Set</option>
-	</select>
-	<div id="space0"></div>
-	Rarity
+	</select></span>
+	<span class="oneFilter">Rarity
 	<select id="rarity">
 		<option value="all">All</option>
 		<option value="common">Common</option>
 		<option value="unique">Unique</option>
 		<option value="mythic">Mythic</option>
-	</select>
-	<div id="space1"></div>
-	<p id="br3"></p>
-	Event
+	</select></span>
+	<span class="oneFilter">Event
 	<select id="event">
 		<option value="all">All</option>
 		<option value="none">None</option>
 		<option value="Samhain">Samhain</option>
 		<option value="Christmas">Christmas</option>
 		<option value="other">Other</option>
-	</select>
-	<div id="space2"></div>
-	<p id="br2"></p>
-	Display
+	</select></span>
+	<span class="oneFilter">Area
+	<select id="area">
+		<option value="all">All</option>
+		<option value="loggingCamp">Logging Camp</option>
+		<option value="eaglecrest">Eaglecrest</option>
+	</select></span>
+	<span class="oneFilter">Obtain
 	<select id="obtained">
+		<option value="all">All</option>
+		<option value="unidentified">Unidentified</option>
+		<option value="merchant">Merchant</option>
+		<option value="quest">Quest</option>
+		<option value="fishing">Fishing</option>
+		<option value="other">Other</option>
+	</select></span>
+	<span class="oneFilter">Display
+	<select id="display">
 		<option value="all">All</option>
 		<option value="only">Only obtained</option>
 		<option value="except">Only not obtained</option>
-	</select>
-	<div id="space3"></div>
-	<p id="br"></p>
-	Minimum Tier
-	<input type="number" min="1" max="1" id="min" value="1" />
-	<div id="space4"></div>
-	Maximum Tier
-	<input type="number" min="1" max="1" id="max" value="1" />
+	</select></span>
+	<span class="oneFilter">Minimum Tier
+	<input type="number" min="1" max="1" id="min" value="1" /></span>
+	<span class="oneFilter">Maximum Tier
+	<input type="number" min="1" max="1" id="max" value="1" /></span>
 </div>
 <div id="obtain" hidden></div>
 <table id="stats" hidden></table>
