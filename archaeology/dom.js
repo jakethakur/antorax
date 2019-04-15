@@ -11,8 +11,6 @@ var event = document.getElementById("event");
 var area = document.getElementById("area");
 var obtained = document.getElementById("obtained");
 var display = document.getElementById("display");
-var min = document.getElementById("min");
-var max = document.getElementById("max");
 var searchBar = document.getElementById("searchBar");
 var session = {};
 var archaeology = JSON.parse(localStorage.getItem("user"));
@@ -35,12 +33,6 @@ if (url.searchParams.get("obtained") !== null) {
 }
 if (url.searchParams.get("display") !== null) {
 	display.value = url.searchParams.get("display");
-}
-if (url.searchParams.get("min") !== null) {
-	min.value = url.searchParams.get("min");
-}
-if (url.searchParams.get("max") !== null) {
-	max.value = url.searchParams.get("max");
 }
 if (url.searchParams.get("searchBar") !== null) {
 	searchBar.value = url.searchParams.get("searchBar");
@@ -90,7 +82,7 @@ function Stats(stat, value, array){ // stat should be in Title Case // copied fr
 };
 
 function validate(strValue){
-	var objRegExp  = /^[a-zA-Z0-9 ',:+-]+$/;
+	var objRegExp  = /^[a-zA-Z0-9 ',:+-.]+$/;
 	if(!objRegExp.test(strValue)){
 		objRegExp  = /^$/;
 		// return true if it is empty
@@ -104,12 +96,6 @@ function validate(strValue){
 function init(){
 	previousCategory = category.value;
 	array = [];
-	if(min.value > 1 || (min.value < 1 && min.value.length > 0) || min.value.length > 1){
-		min.value = previousMin;
-	}
-	if(max.value > 1 || (max.value < 1 && max.value.length > 0) || max.value.length > 1){
-		max.value = previousMax;
-	}
 	if(!validate(searchBar.value)){
 		searchBar.value = previousSearch;
 	}
@@ -144,6 +130,11 @@ function init(){
 			}
 		}
 	}
+	
+	for (let x = 0; x < array.length; x++) {
+		array[x].stats.tier = array[x].tier;
+	}
+	
 	arrayLength = array.length;
 	previousRarity = rarity.value;
 	var b = 0;
@@ -196,16 +187,6 @@ function init(){
 		}
 	}
 	arrayLength = array.length;
-	previousMin = min.value;
-	previousMax = max.value;
-	b = 0;
-	for(var i = 0; i < arrayLength; i++){
-		if(array[i-b].tier < min.value || array[i-b].tier > max.value){
-			array.splice(i-b,1);
-			b++;
-		}
-	}
-	arrayLength = array.length;
 	b = 0;
 	previousSearch = searchBar.value;
 	if(document.getElementById("searchBar").value != ""){
@@ -224,17 +205,17 @@ function init(){
 						let search = filter[j].split(":");
 						let stat = array[i-b].stats[Object.keys(array[i-b].stats).find(stat => FromCamelCase(stat).toLowerCase().replace(/ /g,"") === search[0])];
 						if (search.length === 2 && stat !== undefined) {
-							if (search[1].substring(search[1].length-1) === "+" && stat >= parseInt(search[1].substring(0, search[1].length-1))) {
+							if (search[1].substring(search[1].length-1) === "+" && stat >= parseFloat(search[1].substring(0, search[1].length-1))) {
 								
 							}
-							else if (search[1].substring(search[1].length-1) === "-" && stat <= parseInt(search[1].substring(0, search[1].length-1))) {
+							else if (search[1].substring(search[1].length-1) === "-" && stat <= parseFloat(search[1].substring(0, search[1].length-1))) {
 								
 							}
-							else if (stat === parseInt(search[1]) || search[1] === "") {
+							else if (stat === parseFloat(search[1]) || search[1] === "") {
 								
-							}else if (search[1].indexOf("-") > 0) {
+							}else if (search[1].indexOf("-") > 0 && search[1].indexOf("-") < search[1].length-1) {
 								let maxMin = search[1].split("-");
-								if (stat < parseInt(maxMin[0]) || stat > parseInt(maxMin[1])) {
+								if (stat < parseFloat(maxMin[0]) || stat > parseFloat(maxMin[1])) {
 									legal = false;
 								}
 							}
@@ -318,7 +299,7 @@ function checkChange(){
 		previousWidth = window.innerWidth;
 		arrange();
 	}
-	if(rarity.value != previousRarity || category.value != previousCategory || event.value != previousEvent || area.value != previousArea || obtained.value != previousObtained || display.value != previousDisplay || min.value != previousMin || max.value != previousMax || searchBar.value != previousSearch){
+	if(rarity.value != previousRarity || category.value != previousCategory || event.value != previousEvent || area.value != previousArea || obtained.value != previousObtained || display.value != previousDisplay || searchBar.value != previousSearch){
 		if (rarity.value != previousRarity) {
 			if (rarity.value !== "all") {
 				url.searchParams.set("rarity", rarity.value);
@@ -361,7 +342,7 @@ function checkChange(){
 				url.searchParams.delete("display");
 			}
 		}
-		let notSearchBar = true;
+		//let notSearchBar = true;
 		if (searchBar.value != previousSearch) {
 			if (searchBar.value != "") {
 				url.searchParams.set("searchBar", searchBar.value);
@@ -369,12 +350,13 @@ function checkChange(){
 				url.searchParams.delete("searchBar");
 			}
 			init();
-			notSearchBar = false;
+			//notSearchBar = false;
 		}
-		if (notSearchBar) {
-			window.location.replace(url.toString());
-		}
-		
+		//if (notSearchBar) {
+			//window.location.replace(url.toString());
+		//}
+		window.history.pushState({}, "Antorax Archaeology", url.toString());
+		init();
 		//arrange();
 	}
 }
@@ -521,7 +503,7 @@ function arrange(){
 		document.getElementById("progress").style.width = (((Math.floor((screenSize-45)/245)))*245)-25+"px";
 		document.getElementById("filters").style.left = 25+((screenSize-45)-(((Math.floor((screenSize-45)/245)))*245))/2+"px";
 		document.getElementById("progress").style.left = 25+((screenSize-45)-(((Math.floor((screenSize-45)/245)))*245))/2+"px";
-		document.getElementById("searchBar").style.width = (((Math.floor((screenSize-45)/245)))*245)-95+"px";
+		document.getElementById("searchBar").style.width = (((Math.floor((screenSize-45)/245)))*245)-95-35+"px";
 		var progressDisplayed = !isNaN(progress/displayed) && isFinite(progress/displayed) ? progress/displayed : 0;
 		if(category.value != 8){
 			document.getElementById("progressText").innerHTML = "You have obtained "+Math.floor(progressDisplayed*100)+"% of "+(total == displayed ? "all" : "these")+" items";
@@ -696,8 +678,6 @@ else{
 	var previousArea = "";
 	var previousObtained = "";
 	var previousDisplay = "";
-	var previousMin = "";
-	var previousMax = "";
 	var previousSearch = "";
 	var screenSize = 245*3+45;
 	var total = 0;
@@ -719,4 +699,12 @@ else{
 	//checkChange();
 	init();
 	//arrange();
+}
+
+document.getElementById("circle").onmouseover = function () {
+	document.getElementById("information").hidden = false;
+}
+
+document.getElementById("circle").onmouseleave = function () {
+	document.getElementById("information").hidden = true;
 }

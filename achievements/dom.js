@@ -206,11 +206,15 @@ function arrange(){
 		}
 		if(array[i].expand !== undefined){
 			document.getElementById("box"+i).style.cursor = "pointer";
-			if(array[i].expand.type === "progressBar"){
+			if(array[i].expand.type === "progressBar" || array[i].expand.type === "redirect"){
 				if (typeof array[i].expand.value !== "function") {
 					document.getElementById("box"+i).innerHTML += "<div class='progressBar' id='progressBar"+i+"' hidden><div class='innerProgressBar' style='width: "+(array[i].expand.value/array[i].expand.total*433)+"px;'></div><div class='progressBarText'>"+(array[i].expand.value !== undefined ? array[i].expand.value : 0)+"/"+array[i].expand.total+"</div></div>";
 				}else{
 					document.getElementById("box"+i).innerHTML += "<div class='progressBar' id='progressBar"+i+"' hidden><div class='innerProgressBar' style='width: "+(array[i].expand.value()/array[i].expand.total*433)+"px;'></div><div class='progressBarText'>"+(array[i].expand.value() !== undefined ? array[i].expand.value() : 0)+"/"+array[i].expand.total+"</div></div>";
+				}
+				if(array[i].expand.type === "redirect"){ //style='columns: 1; text-align: center; font-size: 20px;'
+					document.getElementById("box"+i).innerHTML += "<a hidden class='link' id='link"+i+"' href='"+array[i].expand.location+"' target='_blank'>"+array[i].expand.text+"</a>";
+					document.getElementById("progressBar"+i).style.bottom = "35px";
 				}
 			}else if(array[i].expand.type === "checkList"){
 				document.getElementById("box"+i).innerHTML += "<div class='checkList' id='progressBar"+i+"' hidden></div>";
@@ -252,10 +256,13 @@ function arrange(){
 	for(let i = 0; i < array.length; i++){
 		if(array[i].expand !== undefined){
 			document.getElementById("box"+i).onclick = function(){
-				if(array[i].expand.type !== "redirect"){
+				//if(array[i].expand.type !== "redirect"){
 					if(document.getElementById("progressBar"+i).hidden){
 						if(array[i].expand.type === "progressBar"){
 							document.getElementById("box"+i).style.height = "99px";
+						}else if(array[i].expand.type === "redirect"){
+							document.getElementById("box"+i).style.height = "124px";
+							document.getElementById("link"+i).hidden = false;
 						}else{
 							document.getElementById("box"+i).style.height = "100%";
 						}
@@ -263,10 +270,13 @@ function arrange(){
 					}else{
 						document.getElementById("box"+i).style.height = "60px";
 						document.getElementById("progressBar"+i).hidden = true;
+						if(array[i].expand.type === "redirect"){
+							document.getElementById("link"+i).hidden = true;
+						}
 					}
-				}else{
-					window.open(array[i].expand.location);
-				}
+				//}else{
+					//window.open(array[i].expand.location);
+				//}
 			}
 		}
 	}

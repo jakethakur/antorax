@@ -140,7 +140,7 @@ var Items = {
 			area: ["eaglecrest"],
 			rarity: "unique",
 			lore: "No matter how accomplished, you're not a proper archaeologist until you have a hat.",
-			obtainText: "Currently unobtainTextable.",
+			obtainText: "Currently unobtainable.",
 			sellPrice: 2, // TBC
 			stats: {
 				defence: 1,
@@ -173,7 +173,7 @@ var Items = {
 			obtain: ["other"],
 			area: ["loggingCamp"],
 			rarity: "mythic",
-			lore: "obtainTexted from Antorax's third birthday, 2019.",
+			lore: "obtained from Antorax's third birthday, 2019.",
 			obtainText: "Was sent in the mail on Antorax Day, 2019.",
 			sellPrice: 3, // equal to the age of Antorax :)
 			stats: {
@@ -407,7 +407,7 @@ var Items = {
 			area: ["loggingCamp"],
 			rarity: "mythic",
 			sellPrice: 5,
-			lore: "He ruled the land with great ferocity<br>'till one day he arrived at eaglecrest",
+			lore: "He ruled the land with great ferocity<br>'till one day he arrived at Eaglecrest",
 			obtainText: "Can be found in a sunken chest from a tier 1 fishing area.",
 			set: 4,
 			stats: {

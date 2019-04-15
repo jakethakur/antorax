@@ -10,7 +10,17 @@
 </head>
 <body>
 <div id="filters">
-	<center><input type="text" id="searchBar" placeholder="Search by name"></center>
+	<center><input type="text" id="searchBar" placeholder='Search for an item by name or stats'><div id="circle">?</div></center>
+	<div id="information" hidden>
+		<div id="triangle"></div>
+		<div id="innerTriangle"></div>
+		<strong>Advanced searching</strong><br>
+		<ul style="padding: 0px; padding-left: 15px;"><li><p>You can search for item names and item stats.</p></li>
+		<li><p>Search for any item with a stat, e.g. "Frostaura".</p></li>
+		<li><p>Search value of stats, e.g. "Reflection: 50".</p></li>
+		<li><p>Search for ranges of stats, e.g. "Defence: 5+", "Critical Chance: 15-", "Looting: 30-40".</p></li>
+		<li><p>If you search with more than one search term, separate the terms with a comma.</li></p></ul>
+	</div>
 	<span class="oneFilter">Category
 	<select id="category">
 		<option value="all">All</option>
@@ -61,10 +71,6 @@
 		<option value="only">Only obtained</option>
 		<option value="except">Only not obtained</option>
 	</select></span>
-	<span class="oneFilter">Minimum Tier
-	<input type="number" min="1" max="1" id="min" value="1" /></span>
-	<span class="oneFilter">Maximum Tier
-	<input type="number" min="1" max="1" id="max" value="1" /></span>
 </div>
 <div id="obtain" hidden></div>
 <table id="stats" hidden></table>

@@ -351,7 +351,7 @@ var Achievements = [
 			let done = true;
 			for(let i = 0; i < 7; i++){
 				for(let x = 0; x < Items[Object.keys(Items)[i]].length; x++){
-					if(Items[Object.keys(Items)[i]][x].unidentifiedArea === "loggingCamp" && !User.archaeology.includes(Items[Object.keys(Items)[i]][x].name)){
+					if(Items[Object.keys(Items)[i]][x].unidentifiedArea !== undefined && Items[Object.keys(Items)[i]][x].unidentifiedArea.includes("loggingCamp") && !User.archaeology.includes(Items[Object.keys(Items)[i]][x].name)){
 						done = false;
 					}
 				}
@@ -360,7 +360,20 @@ var Achievements = [
 		},
 		expand: {
 			type: "redirect",
+			text: "View in archaeology",
 			location: "../archaeology/index.html?obtained=unidentified&area=loggingCamp",
+			total: 28,
+			value: function () {
+				let done = 0;
+				for(let i = 0; i < 7; i++){
+					for(let x = 0; x < Items[Object.keys(Items)[i]].length; x++){
+						if(Items[Object.keys(Items)[i]][x].unidentifiedArea !== undefined && Items[Object.keys(Items)[i]][x].unidentifiedArea.includes("loggingCamp") && User.archaeology.includes(Items[Object.keys(Items)[i]][x].name)){
+							done++;
+						}
+					}
+				}
+				return done;
+			},
 		},
 	},
 	{
@@ -377,7 +390,34 @@ var Achievements = [
 		},
 		expand: {
 			type: "redirect",
+			text: "View in archaeology",
 			location: "../archaeology/index.html?searchBar=Ocean Warrior",
+			total: 4,
+			value: function () {
+				if (User.archaeology.includes("The Set of the Ocean Warrior")) {
+					return 4;
+				}else{
+					let archer = 0;
+					if(Archer.inventory.items.some(item => item.name === "The Ocean Warrior's Helm") || Archer.inventory.helm.name === "The Ocean Warror's Helm"){archer++;}
+				 	if(Archer.inventory.items.some(item => item.name === "The Ocean Warrior's Chestplate") || Archer.inventory.helm.name === "The Ocean Warror's Chestplate"){archer++;}
+					if(Archer.inventory.items.some(item => item.name === "The Ocean Warrior's Leggings") || Archer.inventory.helm.name === "The Ocean Warror's Leggings"){archer++;}
+					if(Archer.inventory.items.some(item => item.name === "The Ocean Warrior's Boots") || Archer.inventory.helm.name === "The Ocean Warror's Boots"){archer++;}
+					
+					let mage = 0;
+					if(Mage.inventory.items.some(item => item.name === "The Ocean Warrior's Helm") || Mage.inventory.helm.name === "The Ocean Warror's Helm"){mage++;}
+				 	if(Mage.inventory.items.some(item => item.name === "The Ocean Warrior's Chestplate") || Mage.inventory.helm.name === "The Ocean Warror's Chestplate"){mage++;}
+					if(Mage.inventory.items.some(item => item.name === "The Ocean Warrior's Leggings") || Mage.inventory.helm.name === "The Ocean Warror's Leggings"){mage++;}
+					if(Mage.inventory.items.some(item => item.name === "The Ocean Warrior's Boots") || Mage.inventory.helm.name === "The Ocean Warror's Boots"){mage++;}
+					
+					let knight = 0;
+					if(Knight.inventory.items.some(item => item.name === "The Ocean Warrior's Helm") || Knight.inventory.helm.name === "The Ocean Warror's Helm"){knight++;}
+				 	if(Knight.inventory.items.some(item => item.name === "The Ocean Warrior's Chestplate") || Knight.inventory.helm.name === "The Ocean Warror's Chestplate"){knight++;}
+					if(Knight.inventory.items.some(item => item.name === "The Ocean Warrior's Leggings") || Knight.inventory.helm.name === "The Ocean Warror's Leggings"){knight++;}
+					if(Knight.inventory.items.some(item => item.name === "The Ocean Warrior's Boots") || Knight.inventory.helm.name === "The Ocean Warror's Boots"){knight++;}
+					
+					return Math.max(archer, mage, knight);
+				}
+			}
 		},
 	},
 	{
@@ -394,7 +434,10 @@ var Achievements = [
 		},
 		expand: {
 			type: "redirect",
+			text: "View in archaeology",
 			location: "../archaeology/index.html",
+			total: 60,
+			value: User.archaeology.length,
 		},
 	},
 	{
@@ -420,7 +463,20 @@ var Achievements = [
 		},
 		expand: {
 			type: "redirect",
+			text: "View in archaeology",
 			location: "../archaeology/index.html?event=Samhain",
+			total: 4,
+			value: function () {
+				let done = 0;
+				for(let i = 0; i < 7; i++){
+					for(let x = 0; x < Items[Object.keys(Items)[i]].length; x++){
+						if(Items[Object.keys(Items)[i]][x].event === "Samhain" && User.archaeology.includes(Items[Object.keys(Items)[i]][x].name)){
+							done++;
+						}
+					}
+				}
+				return done;
+			}
 		},
 	},
 	{
@@ -446,7 +502,20 @@ var Achievements = [
 		},
 		expand: {
 			type: "redirect",
+			text: "View in archaeology",
 			location: "../archaeology/index.html?event=Christmas",
+			total: 8,
+			value: function () {
+				let done = 0;
+				for(let i = 0; i < 7; i++){
+					for(let x = 0; x < Items[Object.keys(Items)[i]].length; x++){
+						if(Items[Object.keys(Items)[i]][x].event === "Christmas" && User.archaeology.includes(Items[Object.keys(Items)[i]][x].name)){
+							done++;
+						}
+					}
+				}
+				return done;
+			},
 		},
 	},
 		// FISHING

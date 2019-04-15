@@ -32,6 +32,16 @@ body{
 	margin: 0px;
 	width: 220px;
 }
+#circle {
+  	height: 25px;
+  	width: 25px;
+  	background-color: #000000;
+  	border-radius: 50%;
+	position: absolute;
+	top: 25.5px;
+	right: 35px;
+	color: white;
+}
 .oneFilter {
 	margin: 10px;
 }
@@ -68,12 +78,43 @@ td{
 	font-size: 25px;
 	text-align: left;
 }
+#triangle, #innerTriangle {
+	position: absolute;
+	width: 0px; 
+	height: 0px; 
+	border-top: 15px solid transparent;
+	border-bottom: 15px solid transparent;
+	top: 10px;
+}
+#triangle {
+	border-left: 20px solid #886622; 
+	right: -25px;
+}
+#innerTriangle {
+	border-left: 20px solid #eecc77;
+	right: -17.5px;
+}
+#information {
+	width: 420px;
+	height: 255px;
+	background-color: #eecc77;
+	border: 5px solid #886622;
+	position: absolute;
+	font-size: 18px;
+	text-align: left;
+	line-height: 25px;
+	padding: 10px;
+	z-index: 2;
+	top: 8px;
+	right: 85px;
+}
 #searchBar{
 	height: 30px;
 	font-size: 25px;
 	font-family: 'MedievalSharp', serif;
 	text-indent: 5px;
 	margin: 20px;
+	padding-right: 35px;
 }
 #category, #rarity, #event, #display, #area, #obtained{
 	height: 30px;
@@ -101,13 +142,7 @@ td{
 	text-align: center;
 	width: 100%;
 }
-input[type=number]{
-	height: 25px;
-	font-size: 20px;
-	font-family: 'MedievalSharp', serif;
-	text-indent: 5px;
-	width:35px;
-}
-input[type=number]::-webkit-inner-spin-button{  
-	opacity: 1;
+p {
+	margin-block-start: 10px;
+	margin-block-end: 0px;
 }
