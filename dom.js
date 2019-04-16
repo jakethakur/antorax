@@ -786,6 +786,9 @@ Dom.inventory.displayIdentification = function (display) {
 	if (Player.stats.lifesteal !== 0) {
 		document.getElementById("innerStats").innerHTML += "<br>Lifesteal: " + Player.stats.lifesteal + "%";
 	}
+	if (Player.stats.hex !== 0) {
+		document.getElementById("innerStats").innerHTML += "<br>Hex: " + Player.stats.hex + "%";
+	}
 	if (Player.stats.looting !== 100) {
 		document.getElementById("innerStats").innerHTML += "<br>Looting: " + Player.stats.looting + "%";
 	}
@@ -823,7 +826,7 @@ Dom.inventory.displayIdentification = function (display) {
 Dom.inventory.stats = function (stat, value, array) { // stat should be in Title Case // copy to archaeology
 	if (stat === "Defence" || stat === "Block Defence" || stat === "Fishing Skill" || stat === "Max Health") {
 		return stat+": "+NumberSign(value)+"<br>";
-	}else if (stat === "Critical Chance" || stat === "Dodge Chance" || stat === "Looting" || stat === "Reflection" || stat === "Lifesteal" || stat === "Xp Bonus") {
+	}else if (stat === "Critical Chance" || stat === "Dodge Chance" || stat === "Looting" || stat === "Reflection" || stat === "Lifesteal" || stat === "Xp Bonus" || stat === "Hex") {
 		return stat+": "+NumberSign(value)+"%<br>";
 	}else if (stat === "Health Regen" || stat === "Swim Speed" || stat === "Walk Speed" || stat === "Ice Speed" || stat === "Focus Speed") {
 		return stat+": "+NumberSign(value)+"/s<br>";
@@ -1712,10 +1715,15 @@ Dom.inventory.give = function (item, num, position, noSave) {
 							User.archaeology.push(item.name);
 						}
 						if (item.images !== undefined) {
-							for (let x = 0; x < item.images.names.length; x++) {
-								Loader.loadImage(item.images.names[x], item.images.addresses[x]);
-							}
-						}
+                            // item has image(s) that should be loaded with it
+                            let names = Object.keys(item.images);
+                            let addresses = Object.values(item.images);
+                            for (let x = 0; x < names.length; x++) {
+                                Loader.loadImage(names[i], addresses[i], false);
+                                // tbd - this is inefficient since it never deletes the image
+                                // but it should delete the image when the item is no longer in inventory
+                            }
+                        }
 						break; // stops the item being placed in multiple slots
 					}
 				}
@@ -1922,6 +1930,7 @@ Dom.inventory.chooseStats = function (inventoryPosition) {
 			}
 			Dom.alert.target = function (ev, num) {
 				document.getElementById("alert").hidden = true;
+				Dom.inventory.beforeChangedStats();
 				let setNum = 0;
 				if (Player.inventory[inventoryPosition].set !== undefined) {
 					for (let i = 0; i < Items.set[Player.inventory[inventoryPosition].set].armour.length; i++) {
@@ -1956,6 +1965,7 @@ Dom.inventory.chooseStats = function (inventoryPosition) {
 						}
 					}
 				}
+				Dom.inventory.afterChangedStats();
 			}
 			Dom.alert.page("Choose an effect:", "text", values, "inventoryPage");
 			return true;
@@ -2646,6 +2656,7 @@ Dom.inventory.setItemFunctions = function (element, array, id) {
 }
 
 Dom.inventory.removeEquipment = function (array) {
+	Dom.inventory.beforeChangedStats();
 	if (array.stats !== undefined) {
 		for (let i = 0; i < Object.keys(array.stats).length; i++) {
 
@@ -2722,12 +2733,11 @@ Dom.inventory.removeEquipment = function (array) {
 		Game.hero.trail = undefined;
 		clearInterval(Game.hero.trailInterval);
 	}
-	if (array.stats.maxHealth !== undefined) {
-		Game.secondary.render();
-	}
+	Dom.inventory.afterChangedStats();
 }
 
 Dom.inventory.addEquipment = function (array) {
+	Dom.inventory.beforeChangedStats();
 	if (array.stats !== undefined) {
 		for (let i = 0; i < Object.keys(array.stats).length; i++) {
 
@@ -2778,9 +2788,7 @@ Dom.inventory.addEquipment = function (array) {
 		Game.hero.trail = array.trail;
 		Game.hero.trailInterval = setInterval(Game.addTrailParticle, 100, Game.hero, Game.hero.trail);
 	}
-	if (array.stats.maxHealth !== undefined) {
-		Game.secondary.render();
-	}
+	Dom.inventory.afterChangedStats();
 }
 
 Dom.inventory.find = function (ID, type, notEquipped, calledByCheck, name, array) {
@@ -4051,6 +4059,7 @@ Dom.inventory.conditionalStats = function () {
 			let conditionalStat = Items[Player.conditionalStats[i].type][Player.conditionalStats[i].id].conditionalStats[x];
 			if (conditionalStat.condition()) {
 				if (!Player.conditionalStats[i].active[x]) {
+					Dom.inventory.beforeChangedStats();
 					Player.conditionalStats[i].active[x] = true;
 					// add conditionalStats to stats
 					for (let i = 0; i < Object.keys(conditionalStat.stats).length; i++) {
@@ -4060,9 +4069,11 @@ Dom.inventory.conditionalStats = function () {
 							Player.stats[Object.keys(conditionalStat.stats)[i]] = true;
 						}
 					}
+					Dom.inventory.afterChangedStats();
 				}
 			}else{
 				if (Player.conditionalStats[i].active[x]) {
+					Dom.inventory.beforeChangedStats();
 					Player.conditionalStats[i].active[x] = false;
 					// remove conditionalStats from stats
 					for (let i = 0; i < Object.keys(conditionalStat.stats).length; i++) {
@@ -4072,11 +4083,25 @@ Dom.inventory.conditionalStats = function () {
 							Player.stats[Object.keys(conditionalStat.stats)[i]] = false;
 						}
 					}
+					Dom.inventory.afterChangedStats();
 				}
 			}
 		}
 	}
 	Dom.inventory.conditionalChooseStats();
+}
+
+Dom.inventory.beforeChangedStats = function () {
+	if (Player.stats.hex === 0) {
+		Dom.inventory.hexWasZero = true;
+	}
+}
+
+Dom.inventory.afterChangedStats = function () {
+	if (Player.stats.hex > 0 && Dom.inventory.hexWasZero) {
+		Game.loadHexImages();
+	}
+	Game.secondary.render();
 }
 
 Dom.settings.transparency = function () {
@@ -4230,6 +4255,10 @@ Dom.init = function () {
 		}else if (Player.inventory[Object.keys(Player.inventory)[i]].image !== undefined) {
 			Dom.inventory.prepare(Player.inventory, Object.keys(Player.inventory)[i], document.getElementById(Object.keys(Player.inventory)[i]));
 		}
+	}
+
+	if (Player.stats.hex > 0) {
+		Game.loadHexImages();
 	}
 
 	// prepare the bank

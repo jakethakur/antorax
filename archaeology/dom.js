@@ -60,7 +60,7 @@ if(archaeology === null){
 function Stats(stat, value, array){ // stat should be in Title Case // copied from DOM
 	if(stat === "Defence" || stat === "Block Defence" || stat === "Fishing Skill" || stat === "Max Health") {
 		return stat+": "+NumberSign(value)+"<br>";
-	}else if(stat === "Critical Chance" || stat === "Dodge Chance" || stat === "Looting" || stat === "Reflection" || stat === "Lifesteal" || stat === "Xp Bonus"){
+	}else if(stat === "Critical Chance" || stat === "Dodge Chance" || stat === "Looting" || stat === "Reflection" || stat === "Lifesteal" || stat === "Xp Bonus" || stat === "Hex"){
 		return stat+": "+NumberSign(value)+"%<br>";
 	}else if(stat === "Health Regen" || stat === "Swim Speed" || stat === "Walk Speed" || stat === "Ice Speed" || stat === "Focus Speed"){
 		return stat+": "+NumberSign(value)+"/s<br>";
@@ -82,7 +82,7 @@ function Stats(stat, value, array){ // stat should be in Title Case // copied fr
 };
 
 function validate(strValue){
-	var objRegExp  = /^[a-zA-Z0-9 ',:+-.]+$/;
+	var objRegExp  = /^[a-zA-Z0-9 ',:+-.|]+$/;
 	if(!objRegExp.test(strValue)){
 		objRegExp  = /^$/;
 		// return true if it is empty
@@ -133,6 +133,16 @@ function init(){
 	
 	for (let x = 0; x < array.length; x++) {
 		array[x].stats.tier = array[x].tier;
+		array[x].allStats = Object.assign({}, array[x].stats);
+		if (array[x].chooseStats !== undefined) {
+			Object.assign(array[x].allStats, array[x].chooseStats);
+		}
+		if (array[x].conditionalStats !== undefined) {
+			array[x].conditionalStats.forEach(stat => Object.assign(array[x].allStats, stat.stats));
+		}
+		if (array[x].conditionalChooseStats !== undefined) {
+			array[x].conditionalChooseStats.forEach(stat => array[x].allStats[Object.keys(stat)[0]] = stat[Object.keys(stat)[0]]);
+		}
 	}
 	
 	arrayLength = array.length;
@@ -194,45 +204,67 @@ function init(){
 		var filter = input.value.toLowerCase().replace(/ /g,"");
 		
 		filter = filter.split(",");
+		for (let i = 0; i < filter.length; i++) {
+			filter[i] = filter[i].split("|");
+		}
 		
 		for (var i = 0; i < arrayLength; i++) {
 			//if (filter.some(filter => array[i-b].name.toLowerCase().replace(/ /g,"").indexOf(filter) < 0 && !Object.keys(array[i-b].stats).some(stat => FromCamelCase(stat).toLowerCase().replace(/ /g,"").indexOf(filter) >= 0))) {
 				//array[i-b].name.toLowerCase().indexOf(filter) < 0 || ) {
 				
-				let legal = true;
 				for (let j = 0; j < filter.length; j++) {
-					if (array[i-b].name.toLowerCase().replace(/ /g,"").indexOf(filter[j]) < 0 && !Object.keys(array[i-b].stats).some(stat => FromCamelCase(stat).toLowerCase().replace(/ /g,"").indexOf(filter[j]) >= 0)) {
-						let search = filter[j].split(":");
-						let stat = array[i-b].stats[Object.keys(array[i-b].stats).find(stat => FromCamelCase(stat).toLowerCase().replace(/ /g,"") === search[0])];
-						if (search.length === 2 && stat !== undefined) {
-							if (search[1].substring(search[1].length-1) === "+" && stat >= parseFloat(search[1].substring(0, search[1].length-1))) {
+					
+					if (filter[j][0] !== "" || filter[j].length !== 1) {
+						//filter[j] = filter[j].split("|");
+						let anyLegal = false;
+						
+						for (let k = 0; k < filter[j].length; k++) {
+							if (filter[j][k] !== "") {
+								let legal = true;
+								if (array[i-b].name.toLowerCase().replace(/ /g,"").indexOf(filter[j][k]) < 0 && !Object.keys(array[i-b].allStats).some(stat => FromCamelCase(stat).toLowerCase().replace(/ /g,"").indexOf(filter[j][k]) >= 0)) {
+									let search = filter[j][k].split(":");
+									let stat = array[i-b].allStats[Object.keys(array[i-b].allStats).find(stat => FromCamelCase(stat).toLowerCase().replace(/ /g,"") === search[0])];
+									if (search.length === 2 && stat !== undefined) {
+										if (search[1].substring(search[1].length-1) === "+" && stat >= parseFloat(search[1].substring(0, search[1].length-1))) {
+											
+										}
+										else if (search[1].substring(search[1].length-1) === "-" && stat <= parseFloat(search[1].substring(0, search[1].length-1))) {
+											
+										}
+										else if (stat === parseFloat(search[1]) || search[1] === "") {
+											
+										}else if (search[1].indexOf("-") > 0 && search[1].indexOf("-") < search[1].length-1) {
+											let maxMin = search[1].split("-");
+											if (stat < parseFloat(maxMin[0]) || stat > parseFloat(maxMin[1])) {
+												legal = false;
+											}
+										}
+										else {
+											legal = false;
+										}
+									}
+									else {
+										legal = false;
+									}
+								}
 								
-							}
-							else if (search[1].substring(search[1].length-1) === "-" && stat <= parseFloat(search[1].substring(0, search[1].length-1))) {
-								
-							}
-							else if (stat === parseFloat(search[1]) || search[1] === "") {
-								
-							}else if (search[1].indexOf("-") > 0 && search[1].indexOf("-") < search[1].length-1) {
-								let maxMin = search[1].split("-");
-								if (stat < parseFloat(maxMin[0]) || stat > parseFloat(maxMin[1])) {
-									legal = false;
+								if (legal) {
+									//array.splice(i-b,1);
+									//b++;
+									anyLegal = true;
+									break;
 								}
 							}
-							else {
-								legal = false;
-							}
 						}
-						else {
-							legal = false;
+						
+						if (!anyLegal) {
+							array.splice(i-b,1);
+							b++;
+							break;
 						}
 					}
 				}
 				
-				if (!legal) {
-					array.splice(i-b,1);
-					b++;
-				}
 			//}
 		}
 	}
