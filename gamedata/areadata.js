@@ -159,6 +159,11 @@ let Event = {
 		else if (d.month === 4 && d.day === 1) {
 			this.event = "Fish";
 		}
+		// Heroes of Antorax
+		else if (d.year === 2019 && (d.month === 4 && d.day >= 24)
+		|| (d.month === 5 && d.day <= 5)) {
+			this.event = "Heroes";
+		}
 	}
 };
 
@@ -3306,7 +3311,7 @@ var Areas = {
 				roles: [
 					{
 						sold: [
-							{item: Items.consumable[5], cost: 3,}, // Beetroot Beer
+							{item: Items.consumable[21], cost: 3,}, // Beetroot Beer
 							{item: Items.consumable[16], cost: 2, costCurrency: 5, eventRequirement: "Christmas"}, // Mulled Wine
 							{item: Items.food[0], cost: 2,}, // Bread
 							{item: Items.food[4], cost: 4,}, // Sandwich

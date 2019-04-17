@@ -9,13 +9,71 @@ const EnemyLootTables = {
 		{ // samhain mark
 			item: Items.currency[4],
 			condition: function () {
-				if (Event.time === "bloodMoon") {
-					return true;
-				}
-				return false;
+				return Event.time === "bloodMoon";
 			},
 			chance: [
 				25,				// 0
+				0,				// 1
+			],
+		},
+		// "Heroes of Antorax" fragments (1% drop chance)
+		{
+			item: Items.item[19],
+			condition: function () {
+				return Event.event === "Heroes";
+			},
+			chance: [
+				1,				// 0
+				0,				// 1
+			],
+		},
+		{
+			item: Items.item[20],
+			condition: function () {
+				return Event.event === "Heroes";
+			},
+			chance: [
+				1,				// 0
+				0,				// 1
+			],
+		},
+		{
+			item: Items.item[21],
+			condition: function () {
+				return Event.event === "Heroes";
+			},
+			chance: [
+				1,				// 0
+				0,				// 1
+			],
+		},
+		{
+			item: Items.item[22],
+			condition: function () {
+				return Event.event === "Heroes";
+			},
+			chance: [
+				1,				// 0
+				0,				// 1
+			],
+		},
+		{
+			item: Items.item[23],
+			condition: function () {
+				return Event.event === "Heroes";
+			},
+			chance: [
+				1,				// 0
+				0,				// 1
+			],
+		},
+		{
+			item: Items.item[24],
+			condition: function () {
+				return Event.event === "Heroes";
+			},
+			chance: [
+				1,				// 0
 				0,				// 1
 			],
 		},
@@ -71,10 +129,8 @@ const EnemyLootTables = {
 		{ // Fisherman Tobenam's Lost Rod
 			item: Items.item[7],
 			condition: function () {
-				if (Player.quests.activeQuestArray.includes("A Lost Fishing Rod") && !Dom.inventory.check(7, "item", 1)) {
-					return true; // quest is active and player doesn't already have the rod
-				}
-				return false;
+			// quest is active and player doesn't already have the rod
+				return Player.quests.activeQuestArray.includes("A Lost Fishing Rod") && !Dom.inventory.check(7, "item", 1);
 			},
 			chance: [
 				35,				// 0
@@ -142,10 +198,7 @@ const BossLootTables = {
 		{ // samhain mark
 			item: Items.currency[4],
 			condition: function () {
-				if (Event.time === "bloodMoon") {
-					return true;
-				}
-				return false;
+				return Event.time === "bloodMoon";
 			},
 			chance: [
 				100,			// 0
@@ -165,10 +218,8 @@ const BossLootTables = {
 				0,				// 1
 			],
 			condition: function () {
-				if (Player.bossesKilled.goblinKing === 0) {
-					return true; // goblin king has not been killed before
-				}
-				return false;
+				// goblin king has not been killed before
+				return Player.bossesKilled.goblinKing === 0;
 			},
 		},
 	],
@@ -229,10 +280,7 @@ const ChestLootTables = {
 		{ // samhain mark
 			item: Items.currency[4],
 			condition: function () {
-				if (Event.time === "bloodMoon") {
-					return true;
-				}
-				return false;
+				return Event.time === "bloodMoon";
 			},
 			chance: [
 				100,			// 0
@@ -300,6 +348,59 @@ const ChestLootTables = {
 				50,				// 0
 				0,				// 1
 			],
+		},
+	],
+};
+
+const QuestRewardTables = {
+	// rewards for all quests
+	globalAll: [
+
+	],
+	// rewards for all daily quests
+	globalDaily: [
+		// "Heroes of Antorax" fragments (3% drop chance)
+		{
+			item: Items.item[19],
+			condition: function () {
+				return Event.event === "Heroes";
+			},
+			chance: 3, // TBD update to loot table system?
+		},
+		{
+			item: Items.item[20],
+			condition: function () {
+				return Event.event === "Heroes";
+			},
+			chance: 3,
+		},
+		{
+			item: Items.item[21],
+			condition: function () {
+				return Event.event === "Heroes";
+			},
+			chance: 3,
+		},
+		{
+			item: Items.item[22],
+			condition: function () {
+				return Event.event === "Heroes";
+			},
+			chance: 3,
+		},
+		{
+			item: Items.item[23],
+			condition: function () {
+				return Event.event === "Heroes";
+			},
+			chance: 3,
+		},
+		{
+			item: Items.item[24],
+			condition: function () {
+				return Event.event === "Heroes";
+			},
+			chance: 3,
 		},
 	],
 };

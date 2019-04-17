@@ -7,19 +7,31 @@ let Loader = {
     images: {}
 };
 
-Loader.loadImage = function (key, src) { // key = image name; src = image source
+// load an image to the loader
+// key = image name; src = image source
+// deleteIf = optional function that returns true or false depending on whether image can be deleted on area change
+// if deleteIf is set to false, it is set to function(){return false} thus never deletes the image
+Loader.loadImage = function (key, src, deleteIf) {
 	let d; // where promise is saved
 	if (!(key in this.images)) { // check if image has already been loaded in
+		if (deleteIf === false) {
+			// false deletes to never deleting the image
+			deleteIf = function(){return false;}
+		}
+
 	    let img = new Image();
 
 	    d = new Promise(function (resolve, reject) {
 	        img.onload = function () {
-	            this.images[key] = img;
+	            this.images[key] = {
+					img: img,
+					deleteIf: deleteIf
+				};
 	            resolve(img);
 	        }.bind(this);
 
 	        img.onerror = function () {
-	            reject('Could not load image: ' + src);
+	            reject("Could not load image: " + src);
 	        };
 	    }.bind(this));
 
@@ -29,7 +41,7 @@ Loader.loadImage = function (key, src) { // key = image name; src = image source
 		// image has already been loaded in
 		d = new Promise(function (resolve, reject) {
 			// return a promise that resolves instantly
-			resolve('image already loaded');
+			resolve("image already loaded");
 		});
 	}
 	// return the promise
@@ -38,7 +50,7 @@ Loader.loadImage = function (key, src) { // key = image name; src = image source
 
 Loader.getImage = function (key) {
 	if (key in this.images) {
-		return this.images[key];
+		return this.images[key].img;
 	}
 	else {
 		console.error("Image " + key + " could not be loaded. Is it misspelt or not already loaded in?");
@@ -47,11 +59,12 @@ Loader.getImage = function (key) {
 };
 
 Loader.wipeImages = function (exceptions) {
-	//this.images = {}; // inefficient - wipes player from object
-
 	// wipe all images from images object (apart from exceptions)
+	// exceptions are documented in .deleteIf as a function (true = can delete)
 	for (let key in this.images) {
-		if (this.images.hasOwnProperty(key) && !exceptions.includes(key)) {
+		if (this.images.hasOwnProperty(key) &&
+		(this.images[key].deleteIf === undefined || this.images[key].deleteIf())) {
+			// image can de deleted
 			delete this.images[key];
 		}
 	}

@@ -47,7 +47,9 @@ Weather.chooseWeather = function (areaName) {
 		this.weatherType = "rain";
 
 		// set the weather after additional image has loaded in
-		let p = Loader.loadImage("weatherImage", "./assets/objects/fishRain.png");
+		let p = Loader.loadImage("weatherImage", "./assets/objects/fishRain.png", function () {
+			return Event.event !== "Fish"; // delete on area change if event is not fish
+		});
 
 		// wait until images have been loaded
 		// TBD make this into function?

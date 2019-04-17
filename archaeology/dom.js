@@ -130,7 +130,7 @@ function init(){
 			}
 		}
 	}
-	
+
 	for (let x = 0; x < array.length; x++) {
 		array[x].stats.tier = array[x].tier;
 		array[x].allStats = Object.assign({}, array[x].stats);
@@ -144,7 +144,7 @@ function init(){
 			array[x].conditionalChooseStats.forEach(stat => array[x].allStats[Object.keys(stat)[0]] = stat[Object.keys(stat)[0]]);
 		}
 	}
-	
+
 	arrayLength = array.length;
 	previousRarity = rarity.value;
 	var b = 0;
@@ -200,24 +200,24 @@ function init(){
 	b = 0;
 	previousSearch = searchBar.value;
 	if(document.getElementById("searchBar").value != ""){
-		var input = document.getElementById("searchBar");		
+		var input = document.getElementById("searchBar");
 		var filter = input.value.toLowerCase().replace(/ /g,"");
-		
+
 		filter = filter.split(",");
 		for (let i = 0; i < filter.length; i++) {
 			filter[i] = filter[i].split("|");
 		}
-		
+
 		for (var i = 0; i < arrayLength; i++) {
 			//if (filter.some(filter => array[i-b].name.toLowerCase().replace(/ /g,"").indexOf(filter) < 0 && !Object.keys(array[i-b].stats).some(stat => FromCamelCase(stat).toLowerCase().replace(/ /g,"").indexOf(filter) >= 0))) {
 				//array[i-b].name.toLowerCase().indexOf(filter) < 0 || ) {
-				
+
 				for (let j = 0; j < filter.length; j++) {
-					
+
 					if (filter[j][0] !== "" || filter[j].length !== 1) {
 						//filter[j] = filter[j].split("|");
 						let anyLegal = false;
-						
+
 						for (let k = 0; k < filter[j].length; k++) {
 							if (filter[j][k] !== "") {
 								let legal = true;
@@ -226,13 +226,13 @@ function init(){
 									let stat = array[i-b].allStats[Object.keys(array[i-b].allStats).find(stat => FromCamelCase(stat).toLowerCase().replace(/ /g,"") === search[0])];
 									if (search.length === 2 && stat !== undefined) {
 										if (search[1].substring(search[1].length-1) === "+" && stat >= parseFloat(search[1].substring(0, search[1].length-1))) {
-											
+
 										}
 										else if (search[1].substring(search[1].length-1) === "-" && stat <= parseFloat(search[1].substring(0, search[1].length-1))) {
-											
+
 										}
 										else if (stat === parseFloat(search[1]) || search[1] === "") {
-											
+
 										}else if (search[1].indexOf("-") > 0 && search[1].indexOf("-") < search[1].length-1) {
 											let maxMin = search[1].split("-");
 											if (stat < parseFloat(maxMin[0]) || stat > parseFloat(maxMin[1])) {
@@ -247,7 +247,7 @@ function init(){
 										legal = false;
 									}
 								}
-								
+
 								if (legal) {
 									//array.splice(i-b,1);
 									//b++;
@@ -256,7 +256,7 @@ function init(){
 								}
 							}
 						}
-						
+
 						if (!anyLegal) {
 							array.splice(i-b,1);
 							b++;
@@ -264,7 +264,7 @@ function init(){
 						}
 					}
 				}
-				
+
 			//}
 		}
 	}
@@ -471,9 +471,9 @@ function arrange(){
 			document.getElementById("tier"+i).innerHTML += "<br><br>Set Bonus:";
 		}
 		for(var a = 0; a < Object.keys(array[i].stats).length; a++){
-			
+
 			document.getElementById("stats"+i).innerHTML += Stats(FromCamelCase(Object.keys(array[i].stats)[a]), array[i].stats[Object.keys(array[i].stats)[a]], array[i].stats);
-			
+
 			/*var replaceStat = Object.keys(array[i].stats)[a].replace( /([A-Z])/g, " $1" );
 			if(Object.keys(array[i].stats)[a] != "flaming"){
 				document.getElementById("stats"+i).innerHTML += replaceStat.charAt(0).toUpperCase() + replaceStat.slice(1)+": "+array[i].stats[Object.keys(array[i].stats)[a]]+"<br>";
@@ -574,13 +574,13 @@ function arrange(){
 				document.getElementsByClassName("flashcardlist")[i].style.top = "315px";
 			}
 		}*/
-		
+
 		document.getElementById("filters").style.display = "flex";
 
 		for(var i = 0; i < columns; i++){
 			document.getElementsByClassName("flashcardlist")[i].style.top = document.getElementById("filters").offsetHeight+100+"px";
 		}
-		
+
 		document.getElementById("progress").style.top = document.getElementById("filters").offsetHeight + 45 + "px";
 	}else{ // viewed item
 		document.getElementById("flashcardlist0").style.left = "100px";
@@ -639,7 +639,7 @@ function arrange(){
 		document.getElementById("back").onclick = function(){
 			url.searchParams.delete("id");
 			url.searchParams.delete("type");
-			
+
 			window.location.replace(url.toString()); // archaeology
 		}
 		if(Items[viewedItemType][viewedItemId].set != undefined){
@@ -680,6 +680,7 @@ var StatsInfo = {
 	lifesteal: "Changes the amount of health healed for when you damage an enemy with a basic attack, as a percentage of the damage dealt. Doesn't heal for status effects.",
 	xpBonus: "Increases XP received as a percentage.",
 	frostaura: "Slows enemies by 50% within a 150px range.",
+	hex: "Changes the chance of transforming attacked enemies into an animal for 2 seconds, causing them to deal 90% less damage for tht time period.",
 	fishingSkill: "Changes the fish that can be fished up from a location.",
 }
 

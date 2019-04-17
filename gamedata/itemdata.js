@@ -171,10 +171,10 @@ var Items = {
 			image: "assets/items/helm/10.png",
 			tier: 1,
 			obtain: ["other"],
-			area: ["loggingCamp"],
+			area: [],
 			rarity: "mythic",
-			lore: "obtained from Antorax's third birthday, 2019.",
-			obtainText: "Was sent in the mail on Antorax Day, 2019.",
+			lore: "Obtained from Antorax's third birthday, 2019.",
+			obtainText: "Was sent in the mail on Antorax Day 2019.",
 			sellPrice: 3, // equal to the age of Antorax :)
 			stats: {
 				defence: 1,
@@ -939,6 +939,73 @@ var Items = {
 			},
 			projectile: "slashWater",
 			projectileAdjust: {x: 0, y: 0},
+		},
+		{
+			id: 11,
+			name: "The Eternity Glove",
+			type: "sword",
+			image: "assets/items/sword/11.png",
+			tier: 1,
+			obtain: ["other"],
+			area: [],
+			rarity: "mythic",
+			lore: "Perfectly balanced, as all things should be.",
+			obtainText: "Was obtained by logging in during the 'Heroes of Antorax' event.",
+			event: "Heroes",
+			sellPrice: 5,
+			stats: {
+				damage: 3,
+			},
+			classStats: {
+				knight: {
+					defence: 5,
+				},
+				mage: {
+					maxDamage: 9,
+				},
+			},
+			allClasses: true,
+			allProjectiles: true, // acts as a different weapon based on the class
+			functionText: "Can be upgraded by finding rare gemstone fragments.",
+			conditionalChooseStats: [
+				{
+					damagePercentage: 67,
+					condition: function () {
+						//purple
+					},
+				},
+				{
+					walkSpeed: 75,
+					condition: function () {
+						//blue
+					},
+				},
+				{
+					hex: 20,
+					condition: function () {
+						//red
+					},
+				},
+				{
+					maxHealth: 20,
+					condition: function () {
+						//orange
+					},
+				},
+				{
+					healthRegen: 1,
+					condition: function () {
+						//green
+					},
+				},
+				{
+					stun: 0.5,
+					condition: function () {
+						//yellow
+					},
+				},
+			],
+			limitedEdition: true,
 		},
 	],
 	staff: [
@@ -1857,7 +1924,7 @@ var Items = {
 			type: "item",
 			image: "assets/items/item/17.png",
 			functionText: "Restores 15 health over 10 seconds (whilst not in combat)",
-			lore: "A trusty companion. A tasty snack.<br><br>obtained as a present from Christmas Day, 2018",
+			lore: "A trusty companion. A tasty snack.<br><br>Obtained as a present from Christmas Day, 2018",
 			onClick: function (inventoryPosition) {
 				// item is NOT removed!
 
@@ -2233,8 +2300,7 @@ var Items = {
 			},
 			lore: "",
 			images: { // images that should be loaded for this item
-				names: ["bloodBat",],
-				addresses: ["./assets/projectiles/bloodBat.png",],
+				bloodBat: "./assets/projectiles/bloodBat.png",
 			},
 		},
 		{
@@ -2492,7 +2558,7 @@ var Items = {
 			id: 21,
 			name: "Beetroot Beer",
 			type: "consumable",
-			image: "assets/items/consumable/5.png", // doesn't have its own image (TBD?)
+			image: "assets/items/consumable/21.png",
 			functionText: "Restores 25 health",
 			lore: "Might make you a little tipsy...",
 			sellPrice: 1,
@@ -2570,6 +2636,17 @@ var Items = {
 			sellPrice: 2,
 			healthRestore: 50,
 			healthRestoreTime: 15,
+		},
+		{
+			id: 5,
+			name: "Beetroot Pie",
+			type: "food",
+			image: "assets/items/food/5.png",
+			sellPrice: 3,
+			healthRestore: 100,
+			healthRestoreTime: 20,
+			lore: "The national food of Eaglecrest.",
+			// TBD extra stat given?
 		},
 	],
 	teleport: [

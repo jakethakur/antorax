@@ -109,6 +109,8 @@ var Player = {
 		xpBonus: 0, // (20%)
 		frostaura: false, // boolean
 		penetration: false, // boolean (if projectile damages more than one enemy)
+		hex: 0, // (30%)
+		damagePercentage: 0, // (40%) extra percentage of damage dealt
 
 		// fishing
 		fishingSkill: 0, // (1.1) increased when you fish stuff up (increased by main.js)

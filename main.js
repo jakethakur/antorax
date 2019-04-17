@@ -499,34 +499,13 @@ class Thing extends Entity {
 	constructor(properties) {
 		super(properties);
 
-		this.image = Loader.getImage(properties.image);
-		this.imageName = properties.image;
-
-		//this.readImage = properties.readImage;
-		//this.unreadImage = properties.unreadImage;
+		// set image related variables
+		this.setImage(properties.image, properties.crop, properties.width, properties.height);
 
 		// if the image is a **horizontal** tileset, where all images have the same width and height, this specifies the number image to use (starting at 0 for the first image)
+		// doesn't work with setImage or changeImage/resetImage
 		this.imageNumber = properties.imageNumber || 0; // currently only works for projectiles (TBD)
 
-		// avoid undefined error
-		if (properties.crop === undefined) {
-			properties.crop = {};
-		}
-		// set crop positions for drawImage
-		this.crop = {};
-		this.crop.x = properties.crop.x || 0;
-		this.crop.y = properties.crop.y || 0;
-		this.crop.width = properties.crop.width || (this.image.width - this.crop.x);
-		this.crop.height = properties.crop.height || (this.image.height - this.crop.y);
-
-		// set width and height to image dimensions unless otherwise specified
-		// width/height = stretch and compress of image
-		// crop width and height means no stretch nor compress
-		this.width = properties.width || this.crop.width;
-		this.height = properties.height || this.crop.height;
-
-		this.baseWidth = this.width;
-		this.baseHeight = this.height;
 		this.expand = properties.expand || 1; // width multiplier (based on base width and base height)
 
 		this.name = properties.name;
@@ -544,6 +523,59 @@ class Thing extends Entity {
 			// let Game know this should be animated in animationTick (and that there should be an animationTick at all)
 			Game.animationList.push(this);
 		}
+	}
+
+	// imageName is the key name of the image stored in loader
+	// crop is object with width and height information (x, y , width, height)
+	// width and height are optional "stretch" parameters
+	setImage (imageName, crop, width, height) {
+		// avoid undefined error later
+		if (crop === undefined) {
+			crop = {};
+		}
+
+		this.imageName = imageName;
+		this.image = Loader.getImage(imageName);
+
+		// crop (for drawing on canvas)
+		// width/height = stretch and compress of image
+		// crop width and height means no stretch nor compress
+		this.crop = {};
+		this.crop.x = crop.x || 0;
+		this.crop.y = crop.y || 0;
+		this.crop.width = crop.width || (this.image.width - this.crop.x);
+		this.crop.height = crop.height || (this.image.height - this.crop.y);
+		// set width and height to image dimensions unless otherwise specified
+		this.width = width || this.crop.width;
+		this.height = height || this.crop.height;
+
+		// ued as refernce for expand
+		this.baseWidth = this.width;
+		this.baseHeight = this.height;
+	}
+
+	// temporary change of image (can be used with resetImage)
+	// parameters same as setImage
+	changeImage (imageName, crop, width, height) {
+		// variables for changing image back
+		if (this.initialImageInformation === undefined) {
+			// only set variable it it has not already been set
+			this.initialImageInformation = {
+				name: this.imageName,
+				crop: this.crop,
+				baseWidth: this.baseWidth,
+				baseHeight: this.baseHeight
+			}
+		}
+
+		this.setImage(imageName, crop, width, height);
+	}
+
+	// reset image to information saved by changeImage
+	resetImage () {
+		this.setImage(this.initialImageInformation.name, this.initialImageInformation.crop, this.initialImageInformation.baseWidth, this.initialImageInformation.baseHeight);
+
+		this.initialImageInformation = undefined;
 	}
 }
 
@@ -2174,7 +2206,7 @@ class Projectile extends Thing {
 						}
 
 						// poison
-						if (attacker.stats.poisonX > 0 && attacker.stats.poisonY > 0) { // check target weapon has poison
+						if (attacker.stats.poisonX > 0 && attacker.stats.poisonY > 0) { // check if target weapon has poison
 							Game.statusEffects.poison({
 								target: to[i][x],
 								poisonDamage: attacker.stats.poisonX,
@@ -2183,7 +2215,7 @@ class Projectile extends Thing {
 						}
 
 						// flaming
-						if (attacker.stats.flaming > 0) { // check target weapon has flaming
+						if (attacker.stats.flaming > 0) { // check if target weapon has flaming
 							Game.statusEffects.fire({
 								target: to[i][x],
 								tier: attacker.stats.flaming,
@@ -2191,13 +2223,18 @@ class Projectile extends Thing {
 						}
 
 						// reflection
-						if (to[i][x].stats.reflection > 0) { // check target has reflection
+						if (to[i][x].stats.reflection > 0) { // check if target has reflection
 							attacker.takeDamage(dmgDealt * (to[i][x].stats.reflection / 100))
 						}
 
 						// stun
-						if (attacker.stats.stun > 0) { // check target weapon has stun
+						if (attacker.stats.stun > 0) { // check if target weapon has stun
 							Game.statusEffects.stun({target: to[i][x], time: attacker.stats.stun});
+						}
+
+						// hex
+						if (Random(0, 99) < attacker.stats.hex) { // check if target weapon has hex
+							Game.statusEffects.hex({target: to[i][x]});
 						}
 
 						// spread any curse status effects
@@ -2289,11 +2326,9 @@ class NPC extends Character {
 
 // person that just moves around and does nothing of use (to be what merchant/quest NPC inherit off)
 // currently doesn't move properly
-class Villager extends Thing { // to be changed to character
+class Villager extends Character {
 	constructor(properties) {
 		super(properties);
-
-		this.speed = properties.speed;
 
 		this.wait = 0; // total time spent waiting
 
@@ -2302,18 +2337,19 @@ class Villager extends Thing { // to be changed to character
 		//https://developer.mozilla.org/en-US/docs/Web/API/CanvasRenderingContext2D/ellipse
 	}
 
-	// co-ordinate movement
-	update(delta) {
+	// organises movement
+	update (delta) {
 		// check if the NPC's movement state needs to be reassigned
 		if (this.state === undefined) { // state has never been assigned
 			this.updateState(undefined);
 		}
 
 		// movement
-		else if (this.state.x !== undefined) {
+		else if (this.state.type === "movement") {
 
-			if (Math.round(this.x / 10) == Math.round(this.state.x / 10) && Math.round(this.y / 10) == Math.round(this.state.y / 10)) { // movement destination reached (to nearest 10px)
-				this.updateState("wait");
+			if (Math.round(this.x / 10) === Math.round(this.state.x / 10) && Math.round(this.y / 10) === Math.round(this.state.y / 10)) {
+				// movement destination reached (to nearest 10px)
+				this.updateState();
 			}
 
 			else { // move towards destination
@@ -2323,27 +2359,26 @@ class Villager extends Thing { // to be changed to character
 		}
 
 		// waiting
-		else if (this.state.wait !== undefined) {
+		else if (this.state.type === "wait") {
 
-			if (this.state.wait >= this.wait) { // waiting duration reached
-				this.updateState("move");
+			if (this.state.waitTime >= this.wait) {
+				// waiting duration reached
+				this.updateState();
 			}
 
 			else { // wait
 				this.wait++;
 				// ...
 			}
-
 		}
-
 	}
 
 	// update movement state if the NPC has finished previous action
 	// parameter = new state type
-	updateState(type) {
-		if (type === undefined) { // NPC state has not been defined before
+	updateState() {
+		if (this.state === undefined) { // NPC state has not been defined before
 			this.state = {};
-			if (Random(0,1) == 0) {
+			if (Random(0,1) === 0) {
 				this.updateState("move"); // NPC will start with movement
 			}
 			else {
@@ -2351,13 +2386,13 @@ class Villager extends Thing { // to be changed to character
 			}
 		}
 
-		else if (type === "wait") { // NPC has just finished moving
+		else if (this.state.type === "move") { // NPC has just finished moving
 			this.state.x = undefined;
 			this.state.y = undefined;
 			this.state.wait = Random(1000, 6000);
 		}
 
-		else if (type === "move") { // NPC has just finished waiting
+		else if (this.state.type === "wait") { // NPC has just finished waiting
 			this.state.wait = undefined;
 			this.wait = 0;
 			this.state.x = Random(this.boundary.x, this.boundary.x + this.boundary.width);
@@ -2366,11 +2401,15 @@ class Villager extends Thing { // to be changed to character
 	}
 
 	move (delta) {
-		this.bearing = Game.bearing(this, {x: this.state.x, y: this.state.y}); // update bearing (maybe doesn't need to be done every tick?)
-		if (Math.round(this.x / 100) != Math.round(this.state.x / 100)) {
+		this.setSpeed();
+
+		this.bearing = Game.bearing(this, {x: this.state.location.x, y: this.state.location.y}); // update bearing (maybe doesn't need to be done every tick?)
+
+		// move if not too close to target
+		if (Math.round(this.x / 100) !== Math.round(this.state.x / 100)) {
 			this.x += Math.cos(this.bearing) * this.speed * delta;
 		}
-		if (Math.round(this.y / 100) != Math.round(this.state.y / 100)) {
+		if (Math.round(this.y / 100) !== Math.round(this.state.y / 100)) {
 			this.y += Math.sin(this.bearing) * this.speed * delta;
 		}
 	}
@@ -3007,6 +3046,12 @@ Game.statusEffects.functions = {
 		target.isBeingDisplaced = undefined;
 		target.expand = 1;
 	},
+
+	// reset target's image back to its "initialImage" (e.g. for hex)
+	// also reset its dimensions
+	resetImage: function (target) {
+		target.resetImage();
+	},
 };
 
 // give target a buff/debuff
@@ -3317,6 +3362,48 @@ Game.statusEffects.xp = function(properties) {
 	this.generic(newProperties);
 }
 
+// give target a "hexed" debuff, where they deal 90% less damage and turn into an animal for a default of 2s
+// properties includes target, time (optional)
+// properties can also incldue an "image" parameter which is the key name of an image in loader to turn the target into
+// otherwise a random animal is chosen as the image
+Game.statusEffects.hex = function (properties) {
+	let newProperties = properties;
+	newProperties.effectTitle = properties.effectTitle || "Hexed",
+	newProperties.damageIncrease = properties.damageIncrease || -90;
+	newProperties.time = properties.time || 2;
+
+	// change image of target
+	let imageName;
+	if (properties.image === undefined) {
+		// one of the default images
+		switch (Random(0, 2)) {
+			case 0:
+				imageName = "sheep";
+				break;
+
+			case 1:
+				imageName = "chicken";
+				break;
+
+			case 2:
+				imageName = "toad";
+				break;
+
+			default:
+				imageName = "toad";
+		}
+	}
+	else {
+		// specified image
+		imageName = properties.image;
+	}
+	properties.target.changeImage(imageName); // no special crop or widths for image, so only one parameter
+
+	newProperties.onExpire = "resetImage"; // change image back when it expires
+
+	this.attackDamage(newProperties);
+}
+
 //
 // Spells
 //
@@ -3500,7 +3587,7 @@ Game.addTrailParticle = function (character, trailParticle) {
 // Load game
 //
 
-// load game for the first time
+// load game images (on area change or init)
 Game.load = function (names, addresses) {
 	this.ctx.imageSmoothingEnabled = false;
 
@@ -3513,30 +3600,31 @@ Game.load = function (names, addresses) {
 	for (let i = 0; i < names.length; i++) {
 		if (addresses[i] !== undefined) { // it might be undefined if the event for the character is not active
 			toLoad.push(Loader.loadImage(names[i], addresses[i]));
+			// no deleteIf since these images are associated with the area
 		}
 	}
 
 	// check player image has been loaded (if not, then load it)
 	if (!Object.keys(Loader.images).includes("hero")) {
 		// load image based on class
-		toLoad.push(Loader.loadImage("hero", "./assets/player/" + Player.class + Player.skin + ".png"));
+		toLoad.push(Loader.loadImage("hero", "./assets/player/" + Player.class + Player.skin + ".png", false));
 	}
 
 	// check if the class' default projectile has been loaded
 	if (!Object.keys(Loader.images).includes(this.heroProjectileName)) {
 		// load class' default projectile
-		toLoad.push(Loader.loadImage(this.heroProjectileName, "./assets/projectiles/" + this.heroProjectileName + ".png"));
+		toLoad.push(Loader.loadImage(this.heroProjectileName, "./assets/projectiles/" + this.heroProjectileName + ".png", false));
 	}
 
 	// check status image has been loaded (if not, then load it)
 	if (!Object.keys(Loader.images).includes("status")) {
-		toLoad.push(Loader.loadImage("status", "./assets/icons/status.png"));
+		toLoad.push(Loader.loadImage("status", "./assets/icons/status.png", false));
 	}
 
 	// check fishing bobber has been loaded (if not, then load it)
 	// maybe this should just be done if the player has a fishing rod? - tbd
 	if (!Object.keys(Loader.images).includes("bobber")) {
-		toLoad.push(Loader.loadImage("bobber", "./assets/projectiles/bobber.png"));
+		toLoad.push(Loader.loadImage("bobber", "./assets/projectiles/bobber.png", false));
 	}
 
     return toLoad;
@@ -3621,7 +3709,7 @@ Game.loadArea = function (areaName, destination) {
 		}
 
 		// set tileset
-		this.tileAtlas = Loader.getImage('tiles');
+		this.tileAtlas = Loader.getImage("tiles");
 
 		// recalibrate camera (for areas other than first area)
 		if (this.camera !== undefined) {
@@ -4106,7 +4194,7 @@ Game.initStatusEffects = function () {
 
 			// if it has an onExpire function, add it
 			if (statusEffect.onExpireSource !== undefined) {
-				statusEffect.onExpire = this.statusEffects.functions[statusEffect.onExpireSorce];
+				statusEffect.onExpire = this.statusEffects.functions[statusEffect.onExpireSource];
 			}
 			// if it has an onTick function, add it
 			if (statusEffect.onTickSource !== undefined) {
@@ -5180,7 +5268,10 @@ Game.getXP = function (xpGiven, xpBonus) {
 // this is called by index.html
 // PG's code
 Game.inventoryUpdate = function (e) {
-	if (e === undefined || isNaN(parseInt(e.dataTransfer.getData("text")))) { // check if a weapon or armour slot has been changed
+	// check if a weapon or armour slot has been changed
+	if (e === undefined || // clicked on an item
+		isNaN(parseInt(e.dataTransfer.getData("text")))) { // dragged to or from an item slot
+
 		// player stats updated
 		Game.hero.stats = Player.stats; // inefficient (should be linked)
 
@@ -5253,24 +5344,10 @@ Game.projectileImageUpdate = function () {
 				this[adjustAddress] = {x:0,y:0}; // default value
 			}
 		}
-		// set weapon property "cannotAttack" to true so the player is blocked from attacking
-		Player.inventory.weapon.cannotAttack = true;
-		// load image
-		let p = Loader.loadImage(this[nameAddress], "./assets/projectiles/" + this[nameAddress] + ".png");
-		if (p !== undefined) {
-			p.then(function (value) {
-				// only called once image has loaded
-				// set weapon "cannotAttack" property back to false
-				Player.inventory.weapon.cannotAttack = undefined;
-			})
-			.catch(function (err) {
-				console.error("Your projectile image did not load correctly.", err);
-			});
-		}
-		else {
-			// image already loaded; allow the player to attack anyway
-			Player.inventory.weapon.cannotAttack = undefined;
-		}
+
+		// load image and stop player attacking until it has loaded
+		let keyName = this[nameAddress];
+		this.loadImageAndStopAttacking({keyName: "./assets/projectiles/" + this[nameAddress] + ".png"}, false);
 	}
 
 	// if the player is NOT holding a weapon with a special projectile image, and the skin does have a special projectile image
@@ -5287,19 +5364,55 @@ Game.projectileImageUpdate = function () {
 		if (adjustAddress !== null) { // set adjust for projectiles only (not bobbers)
 			this[adjustAddress] = Skins[Player.class][Player.skin].projectileAdjust;
 		}
-		// set weapon property "cannotAttack" to true so the player is blocked from attacking
-		Player.inventory.weapon.cannotAttack = true;
-		// load image
-		let p = Loader.loadImage(this[nameAddress], "./assets/projectiles/" + this[nameAddress] + ".png");
-		p.then(function (value) {
-			// only called once image has loaded
-			// set weapon "cannotAttack" property back to false
-			Player.inventory.weapon.cannotAttack = undefined;
-		})
-		.catch(function (err) {
-			console.error("Your projectile image did not load correctly.", err);
-		});
+
+		// load image and stop player attacking until it has loaded
+		let keyName = this[nameAddress];
+		this.loadImageAndStopAttacking({keyName: "./assets/projectiles/" + this[nameAddress] + ".png"}, false);
 	}
+}
+
+// called whenever the "hex" stat has been changed from 0 to something else
+Game.loadHexImages = function () {
+	this.loadImageAndStopAttacking({
+		sheep: "./assets/enemies/sheep.png",
+		chicken: "./assets/enemies/chicken.png",
+		toad: "./assets/enemies/toad.png",
+	}, function () {
+		return Game.hero.stats.hex === 0; // only delete on area change if hex is 0
+	});
+}
+
+// load image(s) and stop the player from attacking until it is done
+// images parameter should be an object, where each key is the key name in
+// deleteIf is the deleteIf parameter used for all the images (tbd make this per image)
+Game.loadImageAndStopAttacking = function (images, deleteIf) {
+	// set weapon property "cannotAttack" to true so the player is blocked from attacking
+	Player.inventory.weapon.cannotAttack = true;
+
+	let imageKeys = Object.keys(images);
+	let imageAddresses = Object.values(images);
+
+	// ensure parameters are same length
+	if (imageKeys.length !== imageAddresses.length) {
+		console.error("Parameter arrays are not same length so images could not be loaded.");
+		return;
+	}
+
+	// load image(s)
+	let p = []; // promises for each image
+	for (let i = 0; i < imageKeys.length; i++) {
+		p.push(Loader.loadImage(imageKeys[i], imageAddresses[i], deleteIf));
+	}
+
+	// wait until the image(s) have been loaded (or an error has been returned)
+	Promise.all(p).then(function (value) {
+		// only called once (every) image has loaded (or if it has already loaded)
+		// set weapon "cannotAttack" property back to false
+		Player.inventory.weapon.cannotAttack = undefined;
+	})
+	.catch(function (err) {
+		console.error("Your image(s) did not load correctly.", err);
+	});
 }
 
 // called whenever a loot menu is closed
@@ -6188,7 +6301,7 @@ Game.render = function (delta) {
 
 		// hero channelling bar above xp bar
 		if (Game.hero.channellingInfo !== false) {
-			Game.drawChannellingBar(this.ctx, this.hero, Dom.canvas.width/2-185, Dom.canvas.height-104, 335, 12);
+			Game.drawChannellingBar(this.ctx, this.hero, Dom.canvas.width/2-167.6, Dom.canvas.height-104, 335, 12);
 		}
 
 		// display area information or level up information
@@ -6308,7 +6421,7 @@ Game.secondary.render = function () {
 		// set xp variables
 		const totalWidth = 335; // total width of xp bar
 		const totalHeight = 8; // total height of xp bar
-		const totalLeft = Dom.canvas.width/2-185; // total left of xp bar
+		const totalLeft = Dom.canvas.width/2-167.6; // total left of xp bar
 		const totalTop = Dom.canvas.height-85; // total top of xp bar
 		Player.xpFraction = Player.xp / LevelXP[Player.level]; // fraction of XP for current level
 
@@ -6343,9 +6456,9 @@ Game.secondary.render = function () {
 		this.ctx.font = "bold 30px MedievalSharp";
         this.ctx.textAlign = "center";
         this.ctx.fillStyle = "lightGrey";
-        this.ctx.fillText(Player.level, Dom.canvas.width/2-18, Dom.canvas.height-74);
+        this.ctx.fillText(Player.level, Dom.canvas.width/2, Dom.canvas.height-74);
         this.ctx.fillStyle = "white";
-        this.ctx.fillText(Player.level, Dom.canvas.width/2-20, Dom.canvas.height-76);
+        this.ctx.fillText(Player.level, Dom.canvas.width/2-2, Dom.canvas.height-76);
 
 		// status effect icons next to health bar
 		for(let i = 0; i < Game.hero.statusEffects.length; i++) {
