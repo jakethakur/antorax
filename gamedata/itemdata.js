@@ -964,7 +964,7 @@ var Items = {
 					maxDamage: 9,
 				},
 			},
-			allClasses: true,
+			allClasses: true, // can be equipped by all classes
 			allProjectiles: true, // acts as a different weapon based on the class
 			functionText: "Can be upgraded by finding rare gemstone fragments.",
 			conditionalChooseStats: [

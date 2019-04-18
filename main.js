@@ -279,8 +279,7 @@ var map = {
 };
 
 //
-// Global functions
-// (maybe these shouldn't be global?)
+// Canvas functions
 //
 
 // find bearing between two entities (with x and y)
@@ -345,6 +344,9 @@ Game.closest = function (objArray, mainObj) {
 	return objArray[closestIndex];
 }
 
+//
+// General functions
+//
 
 // insert a message into the chat, under the format of "name: message"
 // name is emboldened via <strong> tags
@@ -1482,7 +1484,7 @@ class Hero extends Attacker {
 						let projectileRotate = Game.bearing(this, {x: projectileX, y: projectileY}) + Math.PI / 2;
 
 						let variance = this.stats.variance;
-						if (Player.inventory.weapon.type === "bow") { // alter variance based on distance to enemy if the class is archer
+						if (Game.getAttackType() === "bow") { // alter variance based on distance to enemy if the class is archer
 							let distanceFraction = distanceToProjectile / 600; // fraction of maximum variance (max variance = Playerstats.variance)
 							variance *= distanceFraction;
 						}
@@ -1692,7 +1694,7 @@ class Hero extends Attacker {
 			}
 			else {
 				// knight block attack
-				if (Player.inventory.weapon.type === "sword") {
+				if (this.getAttackType() === "sword") {
 					this.channelling = "block";
 				}
 			}
@@ -4038,12 +4040,12 @@ Game.loadArea = function (areaName, destination) {
 		}
 
 		// animations
-		// tick called every 250s (perhaps change in future?)
+		// tick called every 100s (perhaps change in future?)
 		if (this.animationList.length > 0) {
 			this.totalAnimationTime = 0; // used to find if animate should be called for an object
 
 			this.animationTick = setInterval(function () {
-				Game.totalAnimationTime += 250;
+				Game.totalAnimationTime += 100;
 
 				for (let i = 0; i < Game.animationList.length; i++) {
 					if (Game.animationList[i].lastAnimated + Game.animationList[i].animationFrameTime <= Game.totalAnimationTime) {
@@ -4052,7 +4054,7 @@ Game.loadArea = function (areaName, destination) {
 						Game.animationList[i].lastAnimated = Game.totalAnimationTime;
 					}
 				}
-			}, 250);
+			}, 100);
 		}
 
 		// time travel fog
@@ -5171,7 +5173,8 @@ Game.playerProjectileUpdate = function(delta) {
 			this.hero.channelTime += delta;
 		}
 
-		if (Player.inventory.weapon.type === "bow") { // archer weapons slowly focus as they are channelling
+		// archer weapons slowly focus as they are channelling
+		if (this.getAttackType() === "bow") {
 			if (projectile.variance > 0 + Game.hero.stats.focusSpeed * delta * 16) { // check it won't be 0 or less
 				projectile.variance -= Game.hero.stats.focusSpeed * delta * 16;
 			}
@@ -5180,7 +5183,8 @@ Game.playerProjectileUpdate = function(delta) {
 			}
 		}
 
-		else if (Player.inventory.weapon.type === "staff") { // mage weapon
+		// mage weapon
+		else if (this.getAttackType() === "staff") {
 			if (projectile.expand < 2) { // check it won't be 0 or less
 				// takes about 1 second to fully expand
 				projectile.expand += delta;
@@ -5191,6 +5195,32 @@ Game.playerProjectileUpdate = function(delta) {
 			}
 		}
 	}
+}
+
+// returns the attack type of the player's currently equipped weapon, or undefined if they do not have one equipped
+// "bow", "staff", "sword", or "rod" depending on how the weapon should act for attacking
+// only neccessary to use at the moment for if allProjectiles might affect weapon's type
+Game.getAttackType = function () {
+    let weaponType = Player.inventory.weapon.type;
+
+    if (Player.inventory.weapon.allProjectiles) {
+        // weapon shoots projectiles based on user's class
+        switch (Player.class) {
+            case "a":
+                weaponType = "bow";
+                break;
+            case "m":
+                weaponType = "staff";
+                break;
+            case "k":
+                weaponType = "sword";
+                break;
+            default:
+                console.error("Unknown player class: " + Player.class);
+        }
+    }
+
+    return weaponType;
 }
 
 // increase player XP by xpGiven, and check for levelup, update secondary canvas, obey XP fatigue, etc.
@@ -5273,47 +5303,48 @@ Game.inventoryUpdate = function (e) {
 		isNaN(parseInt(e.dataTransfer.getData("text")))) { // dragged to or from an item slot
 
 		// player stats updated
-		Game.hero.stats = Player.stats; // inefficient (should be linked)
+		this.hero.stats = Player.stats; // inefficient (should be linked)
 
 		// if the player is holding a weapon, set their range
 		if (Player.inventory.weapon.type !== undefined) {
 			// player has weapon equipped
-			Game.hero.stats.range = WeaponRanges[Player.inventory.weapon.type] + Game.hero.stats.rangeModifier;
+			this.hero.stats.range = WeaponRanges[Player.inventory.weapon.type] + this.hero.stats.rangeModifier;
 		}
 		else {
 			// no weapon equipped
-			Game.hero.stats.range = 0;
+			this.hero.stats.range = 0;
 		}
 
 		// set player projectile
 		this.projectileImageUpdate();
 
 		// if the player is no longer holding a fishing rod, remove their bobber
-		if (Player.inventory.weapon.type !== "rod" && Game.hero.channelling === "fishing") {
-			Game.projectiles.splice(Game.searchFor(Game.hero.channellingProjectileId, Game.projectiles), 1); // remove bobber
+		if (Player.inventory.weapon.type !== "rod" && this.hero.channelling === "fishing") {
+			this.projectiles.splice(this.searchFor(this.hero.channellingProjectileId, tgis.projectiles), 1); // remove bobber
 
-			Game.hero.channelling = false;
-			this.channellingProjectileId = null;
+			this.hero.channelling = false;
+			this.hero.channellingProjectileId = null;
 		}
 
 		// set weapon variance
-		if (Player.inventory.weapon.type === "bow" || Player.inventory.weapon.variance !== undefined) {
-			Game.hero.stats.variance = Player.inventory.weapon.variance || 100; // 100 is default
+		if (this.getAttackType() === "bow" || Player.inventory.weapon.variance !== undefined) {
+			this.hero.stats.variance = Player.inventory.weapon.variance || 100; // 100 is default
 		}
 		else {
 			// non-bows have no variance
-			Game.hero.stats.variance = 0;
+			this.hero.stats.variance = 0;
 		}
 
 		// set weapon penetration
-		if (Player.inventory.weapon.type === "bow" || Player.inventory.weapon.penetration !== undefined) {
-			Game.hero.stats.penetration = Player.inventory.weapon.penentration || false;
+		if (this.getAttackType() === "bow" || Player.inventory.weapon.penetration !== undefined) {
+			this.hero.stats.penetration = Player.inventory.weapon.penentration || false;
 		}
 		else {
 			// non-bows do penetrate
-			Game.hero.stats.penetration = true;
+			this.hero.stats.penetration = true;
 		}
 	}
+
 	Keyboard.update(); // update hotkeys because hotbar might have changed
 
 	// update item buyer page if it is open
@@ -5346,8 +5377,7 @@ Game.projectileImageUpdate = function () {
 		}
 
 		// load image and stop player attacking until it has loaded
-		let keyName = this[nameAddress];
-		this.loadImageAndStopAttacking({keyName: "./assets/projectiles/" + this[nameAddress] + ".png"}, false);
+		this.loadImageAndStopAttacking({[this[nameAddress]]: "./assets/projectiles/" + this[nameAddress] + ".png"}, false);
 	}
 
 	// if the player is NOT holding a weapon with a special projectile image, and the skin does have a special projectile image
@@ -6169,7 +6199,7 @@ Game.render = function (delta) {
 		// set screen x and y
 		this.updateScreenPosition(this.projectiles[i]);
 
-		if (Player.inventory.weapon.type === "bow" && this.projectiles[i].beingChannelled && Game.hero.channelling === "projectile") { // show archer red circle instead of projectile if they are currently channelling it
+		if (this.getAttackType() === "bow" && this.projectiles[i].beingChannelled && Game.hero.channelling === "projectile") { // show archer red circle instead of projectile if they are currently channelling it
 			this.ctx.strokeStyle = "red";
 			this.ctx.beginPath();
 			this.ctx.arc(this.projectiles[i].hitbox.screenX, this.projectiles[i].hitbox.screenY, this.projectiles[i].variance, 0, 2*Math.PI);
@@ -6177,7 +6207,7 @@ Game.render = function (delta) {
 		}
 
 		else { // render projectile normally
-			if (Player.inventory.weapon.type === "staff" && this.projectiles[i].beingChannelled && Game.hero.channelling === "projectile") { // mage projectiles are transparent when being channelled
+			if (this.getAttackType() === "staff" && this.projectiles[i].beingChannelled && Game.hero.channelling === "projectile") { // mage projectiles are transparent when being channelled
 				this.ctx.globalAlpha = 0.6;
 			}
 
