@@ -760,9 +760,9 @@ Dom.inventory.displayIdentification = function (display) {
 	"<br><br><strong>Stats:</strong>";
 	document.getElementById("innerStats").innerHTML += "<br>Max Health: " + Player.stats.maxHealth;
 	if (Player.inventory.weapon.name !== "") {
-		document.getElementById("innerStats").innerHTML += "<br>Damage: " + Player.stats.damage;
+		document.getElementById("innerStats").innerHTML += "<br>Damage: " + (Player.stats.damage+Player.stats.damage*Player.stats.damagePercentage/100);
 		if (Player.stats.maxDamage !== 0 && Player.stats.maxDamage !== Player.stats.damage) {
-			document.getElementById("innerStats").innerHTML += "-" + Player.stats.maxDamage;
+			document.getElementById("innerStats").innerHTML += "-" + (Player.stats.maxDamage+Player.stats.maxDamage*Player.stats.damagePercentage/100);
 		}
 	}else{
 		document.getElementById("innerStats").innerHTML += "<br>Damage: 0";
@@ -826,7 +826,7 @@ Dom.inventory.displayIdentification = function (display) {
 Dom.inventory.stats = function (stat, value, array) { // stat should be in Title Case // copy to archaeology
 	if (stat === "Defence" || stat === "Block Defence" || stat === "Fishing Skill" || stat === "Max Health") {
 		return stat+": "+NumberSign(value)+"<br>";
-	}else if (stat === "Critical Chance" || stat === "Dodge Chance" || stat === "Looting" || stat === "Reflection" || stat === "Lifesteal" || stat === "Xp Bonus" || stat === "Hex") {
+	}else if (stat === "Critical Chance" || stat === "Dodge Chance" || stat === "Looting" || stat === "Reflection" || stat === "Lifesteal" || stat === "Xp Bonus" || stat === "Hex" || stat === "Damage Percentage") {
 		return stat+": "+NumberSign(value)+"%<br>";
 	}else if (stat === "Health Regen" || stat === "Swim Speed" || stat === "Walk Speed" || stat === "Ice Speed" || stat === "Focus Speed") {
 		return stat+": "+NumberSign(value)+"/s<br>";
@@ -1109,15 +1109,43 @@ Dom.quest.start = function (quest) {
 		document.getElementById("questStartItems").innerHTML = "";
 		if (quest.rewards !== undefined) {
 			document.getElementById("questStartRewardsTitle").innerHTML = "<br><br><b>Quest Rewards</b><br>";
-			if (quest.rewards.items !== undefined) {
-				for (let i = 0; i < quest.rewards.items.length; i++) {
-					if (quest.rewards.items[i].quantity !== undefined && quest.rewards.items[i].quantity !== 1) {
-						document.getElementById("questStartItems").innerHTML += "<img src=" + quest.rewards.items[i].item.image + " class='theseQuestOptions'><div class='questStackNum'>"+quest.rewards.items[i].quantity+"</div></img>&nbsp;&nbsp;";
-					}else{
-						document.getElementById("questStartItems").innerHTML += "<img src=" + quest.rewards.items[i].item.image + " class='theseQuestOptions'><span class='questStackNum'></span></img>&nbsp;&nbsp;";
+			
+			if (!quest.addedRewardsFromTables) {
+				for (let i = 0; i < QuestRewardTables.globalAll.length; i++) {
+					quest.rewards.items.push(QuestRewardTables.globalAll[i]);
+				}
+				
+				if (quest.repeatTime === "daily") {
+					for (let i = 0; i < QuestRewardTables.globalDaily.length; i++) {
+						quest.rewards.items.push(QuestRewardTables.globalDaily[i]);
 					}
 				}
+				quest.addedRewardsFromTables = true;
 			}
+			
+			if (quest.rewards.items !== undefined) {
+				for (let i = 0; i < quest.rewards.items.length; i++) {
+					Dom.quest.addReward(quest.rewards.items[i], "questStartItems", "theseQuestOptions", "questStackNum");
+					/*if (quest.rewards.items[i].condition === undefined || quest.rewards.items[i].condition()) {
+						if (quest.rewards.items[i].quantity !== undefined && quest.rewards.items[i].quantity !== 1) {
+							document.getElementById("questStartItems").innerHTML += "<img src=" + quest.rewards.items[i].item.image + " class='theseQuestOptions'><div class='questStackNum'>"+quest.rewards.items[i].quantity+"</div></img>&nbsp;&nbsp;";
+						}else{
+							document.getElementById("questStartItems").innerHTML += "<img src=" + quest.rewards.items[i].item.image + " class='theseQuestOptions'><span class='questStackNum'></span></img>&nbsp;&nbsp;";
+						}
+					}*/
+				}
+			}
+			
+			/*for (let i = 0; i < QuestRewardTables.globalAll.length; i++) {
+				Dom.quest.addReward(QuestRewardTables.globalAll[i], "questStartItems", "theseQuestOptions", "questStackNum");
+			}
+			
+			if (quest.repeatTime === "daily") {
+				for (let i = 0; i < QuestRewardTables.globalDaily.length; i++) {
+					Dom.quest.addReward(QuestRewardTables.globalDaily[i], "questStartItems", "theseQuestOptions", "questStackNum");
+				}
+			}*/
+			
 			/*if (quest.rewards.mystery) {
 				document.getElementById("questStartItems").innerHTML += "<img src='assets/items/item/1.png' class='theseQuestOptions'><span class='questStackNum'></span></img>&nbsp;&nbsp;";
 			}*/
@@ -1129,11 +1157,12 @@ Dom.quest.start = function (quest) {
 			document.getElementById("questStartStartRewardsTitle").innerHTML = "<br><br><b>Quest Start Rewards</b><br>";
 			if (quest.startRewards.items !== undefined) {
 				for (let i = 0; i < quest.startRewards.items.length; i++) {
-					if (quest.startRewards.items[i].quantity !== undefined && quest.startRewards.items[i].quantity !== 1) {
+					Dom.quest.addReward(quest.startRewards.items[i], "questStartStartItems", "theseQuestStartOptions", "questStartStackNum");
+					/*if (quest.startRewards.items[i].quantity !== undefined && quest.startRewards.items[i].quantity !== 1) {
 						document.getElementById("questStartStartItems").innerHTML += "<img src=" + quest.startRewards.items[i].item.image + " class='theseQuestStartOptions'><div class='questStartStackNum'>"+quest.startRewards.items[i].quantity+"</div></img>&nbsp;&nbsp;";
 					}else{
 						document.getElementById("questStartStartItems").innerHTML += "<img src=" + quest.startRewards.items[i].item.image + " class='theseQuestStartOptions'><span class='questStartStackNum'></span></img>&nbsp;&nbsp;";
-					}
+					}*/
 				}
 			}
 		}else{
@@ -1180,6 +1209,24 @@ Dom.quest.start = function (quest) {
 	}
 }
 
+Dom.quest.addReward = function (item, element, className, stackNum) {
+	if (item.condition === undefined || item.condition()) {
+		if (item.quantity !== undefined && item.quantity !== 1) {
+			document.getElementById(element).innerHTML += "<img src=" + item.item.image + " class='"+className+"'><div class='"+stackNum+"'>"+item.quantity+"</div></img>&nbsp;&nbsp;";
+		}else{
+			document.getElementById(element).innerHTML += "<img src=" + item.item.image + " class='"+className+"'><div class='"+stackNum+"'></div></img>&nbsp;&nbsp;";
+		}
+		if (item.chance !== undefined) {
+			let array = document.getElementById(element).getElementsByClassName(stackNum);
+			array[array.length-1].innerHTML = item.chance+"%<br>"+array[array.length-1].innerHTML;
+			array[array.length-1].style.marginTop = "-23px";
+			if (item.quantity !== undefined && item.quantity !== 1) {
+				array[array.length-1].style.marginLeft = "8px";
+			}
+		}
+	}
+}
+
 Dom.quest.finish = function (quest) {
 	if (Dom.changeBook("questFinish")) {//, true/*false*/, true)) {
 		document.getElementById("questFinishQuest").innerHTML = quest.quest;
@@ -1191,23 +1238,49 @@ Dom.quest.finish = function (quest) {
 			document.getElementById("questFinishXP").innerHTML = quest.rewards.xp;
 		}
 		document.getElementById("questFinishItems").innerHTML = "";
+		
+		if (!quest.addedRewardsFromTables) {
+			for (let i = 0; i < QuestRewardTables.globalAll.length; i++) {
+				quest.rewards.items.push(QuestRewardTables.globalAll[i]);
+			}
+			
+			if (quest.repeatTime === "daily") {
+				for (let i = 0; i < QuestRewardTables.globalDaily.length; i++) {
+					quest.rewards.items.push(QuestRewardTables.globalDaily[i]);
+				}
+			}
+			quest.addedRewardsFromTables = true;
+		}
+		
 		if (quest.rewards !== undefined) {
 			document.getElementById("questFinishRewardsTitle").innerHTML = "<br><br><b>Quest Rewards</b><br>";
 			if (quest.rewards.items !== undefined) {
 				for (let i = 0; i < quest.rewards.items.length; i++) {
-					if (quest.rewards.items[i].item.type !== "item" || quest.rewards.items[i].item.id !== 1) {
+					Dom.quest.addReward(quest.rewards.items[i], "questFinishItems", "theseQuestFinishOptions", "questFinishStackNum");
+					/*if (quest.rewards.items[i].item.type !== "item" || quest.rewards.items[i].item.id !== 1) {
 						if (quest.rewards.items[i].quantity !== undefined && quest.rewards.items[i].quantity !== 1) {
 							document.getElementById("questFinishItems").innerHTML += "<img src=" + quest.rewards.items[i].item.image + " class='theseQuestFinishOptions'><div class='questFinishStackNum'>"+quest.rewards.items[i].quantity+"</div></img>&nbsp;&nbsp;";
 						}else{
 							document.getElementById("questFinishItems").innerHTML += "<img src=" + quest.rewards.items[i].item.image + " class='theseQuestFinishOptions'><span class='questFinishStackNum'></span></img>&nbsp;&nbsp;";
 						}
-					}
+					}*/
 				}
 			}
 		}else{
 			document.getElementById("questFinishRewardsTitle").innerHTML = "";
 			document.getElementById("questFinishStartItems").innerHTML = "";
 		}
+		
+		/*for (let i = 0; i < QuestRewardTables.globalAll.length; i++) {
+			Dom.quest.addReward(QuestRewardTables.globalAll[i], "questFinishItems", "theseQuestFinishOptions", "questFinishStackNum");
+		}
+		
+		if (quest.repeatTime === "daily") {
+			for (let i = 0; i < QuestRewardTables.globalDaily.length; i++) {
+				Dom.quest.addReward(QuestRewardTables.globalDaily[i], "questFinishItems", "theseQuestFinishOptions", "questFinishStackNum");
+			}
+		}*/
+		
 		for (let x = 0; x < document.getElementsByClassName("theseQuestFinishOptions").length; x++) {
 			document.getElementsByClassName("theseQuestFinishOptions")[x].onmouseover = function () {
 				Dom.inventory.displayInformation(quest.rewards.items[x].item, quest.rewards.items[x].quantity, "questFinish");
@@ -1250,7 +1323,9 @@ Dom.quest.accept = function () {
 	// last because it saves
 	if (quest.startRewards !== undefined) {
 		for (let i = 0; i < quest.startRewards.items.length; i++) {
-			Dom.inventory.give(quest.startRewards.items[i].item, quest.startRewards.items[i].quantity);
+			if (quest.startRewards.items[i].condition === undefined || quest.startRewards.items[i].condition() && (quest.startRewards.items[i].chance === undefined || quest.startRewards.items[i].chance > Random(0, 99))) {
+				Dom.inventory.give(quest.startRewards.items[i].item, quest.startRewards.items[i].quantity);
+			}
 		}
 	}
 }
@@ -1296,7 +1371,23 @@ Dom.quest.acceptRewards = function () {
 	if (quest.rewards.items !== undefined) {
 		for (let i = 0; i < quest.rewards.items.length; i++) {
 			if (quest.rewards.items[i].item.type !== "item" || quest.rewards.items[i].item.id !== 1) {
-				Dom.inventory.give(quest.rewards.items[i].item, quest.rewards.items[i].quantity);
+				if ((quest.rewards.items[i].condition === undefined || quest.rewards.items[i].condition()) && (quest.rewards.items[i].chance === undefined || quest.rewards.items[i].chance > Random(0, 99))) {
+					Dom.inventory.give(quest.rewards.items[i].item, quest.rewards.items[i].quantity);
+				}
+			}
+		}
+	}
+	
+	for (let i = 0; i < QuestRewardTables.globalAll.length; i++) {
+		if (QuestRewardTables.globalAll[i].condition === undefined || QuestRewardTables.globalAll[i].condition() && (QuestRewardTables.globalAll[i].chance === undefined || QuestRewardTables.globalAll[i].chance > Random(0, 99))) {
+			Dom.inventory.give(QuestRewardTables.globalAll[i].item, QuestRewardTables.globalAll[i].quantity);
+		}
+	}
+	
+	if (quest.repeatTime === "daily") {
+		for (let i = 0; i < QuestRewardTables.globalDaily.length; i++) {
+			if (QuestRewardTables.globalDaily[i].condition === undefined || QuestRewardTables.globalDaily[i].condition() && (QuestRewardTables.globalDaily[i].chance === undefined || QuestRewardTables.globalDaily[i].chance > Random(0, 99))) {
+				Dom.inventory.give(QuestRewardTables.globalDaily[i].item, QuestRewardTables.globalDaily[i].quantity);
 			}
 		}
 	}
@@ -2553,9 +2644,9 @@ Dom.inventory.validateSwap = function () {
 	if (Dom.inventory.fromArray[Dom.inventory.fromId].opens !== undefined &&
 	Dom.inventory.fromArray[Dom.inventory.fromId].opens.type === Dom.inventory.toArray[Dom.inventory.toId].type &&
 	Dom.inventory.fromArray[Dom.inventory.fromId].opens.id === Dom.inventory.toArray[Dom.inventory.toId].id) {
+		Dom.inventory.toArray[Dom.inventory.toId].onOpen(Dom.inventory.toId, Dom.inventory.fromArray[Dom.inventory.fromId].name);
 		Dom.inventory.fromArray[Dom.inventory.fromId] = {};
 		Dom.inventory.fromElement.innerHTML = "";
-		Dom.inventory.toArray[Dom.inventory.toId].onOpen(Dom.inventory.toId);
 		return false;
 	}
 
@@ -2718,7 +2809,7 @@ Dom.inventory.removeEquipment = function (array) {
 			}
 		}
 	}
-	if (array.conditionalChooseStats !== undefined) {
+	/*if (array.conditionalChooseStats !== undefined) {
 		for (let y = 0; y < Player.conditionalChooseStats.length; y++) {
 			if (Player.conditionalChooseStats[y].type === array.type && Player.conditionalChooseStats[y].id === array.id) {
 
@@ -2728,7 +2819,7 @@ Dom.inventory.removeEquipment = function (array) {
 				break;
 			}
 		}
-	}
+	}*/
 	if (array.trail !== undefined) {
 		Game.hero.trail = undefined;
 		clearInterval(Game.hero.trailInterval);
@@ -2780,10 +2871,10 @@ Dom.inventory.addEquipment = function (array) {
 		Player.conditionalStats.push({type: array.type, id: array.id, active: [],});
 		Dom.inventory.conditionalStats();
 	}
-	if (array.conditionalChooseStats !== undefined) {
+	/*if (array.conditionalChooseStats !== undefined) {
 		Player.conditionalChooseStats.push({type: array.type, id: array.id, active: [],});
 		Dom.inventory.conditionalStats();
-	}
+	}*/
 	if (array.trail !== undefined) {
 		Game.hero.trail = array.trail;
 		Game.hero.trailInterval = setInterval(Game.addTrailParticle, 100, Game.hero, Game.hero.trail);
@@ -3898,6 +3989,13 @@ Dom.inventory.prepare = function (array, i, element) {
 	/*if (arrayI[i].chooseStats !== undefined) {
 		Items[array[i].type][array[i].id].onClick = Dom.inventory.chooseStats;
 	}*/
+	if (array[i].conditionalChooseStats !== undefined) {
+		Player.conditionalChooseStats.push({type: array[i].type, id: array[i].id, active: [],});
+		Dom.inventory.conditionalStats();
+	}
+	if (array[i].classStats !== undefined && array[i].classStats[Player.class] !== undefined) {
+		Object.assign(array[i].stats, array[i].classStats[Player.class]);
+	}
 	if (array[i].healthRestore !== undefined && array[i].healthRestoreTime !== undefined) {
 		//array[i].secondClickFunction = Items[array[i].type][array[i].id].onClick;
 		Items[array[i].type][array[i].id].onClick = Dom.inventory.food;
@@ -3977,6 +4075,8 @@ Dom.inventory.prepare = function (array, i, element) {
 		array[i].onKill = Items[array[i].type][array[i].id].onKill;
 		array[i].onHit = Items[array[i].type][array[i].id].onHit;
 		array[i].onAttack = Items[array[i].type][array[i].id].onAttack;
+		array[i].onCatch = Items[array[i].type][array[i].id].onCatch;
+		array[i].onOpen = Items[array[i].type][array[i].id].onOpen;
 		array[i].quest = Items[array[i].type][array[i].id].quest;
 	}
 	if (element !== undefined) {
@@ -4005,6 +4105,18 @@ Keyboard.update = function () {
 	}
 }
 
+// return item given the inventory position
+Dom.inventory.getItemFromPosition = function (inventoryPosition) {
+    if (Number.isInteger(inventoryPosition)) {
+        // not equipped
+        return Player.inventory.items[inventoryPosition];
+    }
+    else {
+        // equipped (e.g. "helm", "weapon", ...)
+        return Player.inventory[inventoryPosition];
+    }
+}
+
 Dom.inventory.conditionalChooseStats = function () {
 	for (let i = 0; i < Player.conditionalChooseStats.length; i++) {
 		for (let x = 0; x < Items[Player.conditionalChooseStats[i].type][Player.conditionalChooseStats[i].id].conditionalChooseStats.length; x++) {
@@ -4012,42 +4124,52 @@ Dom.inventory.conditionalChooseStats = function () {
 
 			// find the item in the inventory
 			let item = {};
+			for (let y = 0; y < Player.inventory.items.length; y++) {
+				if (Player.inventory.items[y].type === Player.conditionalChooseStats[i].type && Player.inventory.items[y].id === Player.conditionalChooseStats[i].id) {
+					item = Player.inventory.items[y];
+				}
+			}
 			for (let y = 0; y < Object.keys(Player.inventory).length; y++) {
 				if (Player.inventory[Object.keys(Player.inventory)[y]].type === Player.conditionalChooseStats[i].type && Player.inventory[Object.keys(Player.inventory)[y]].id === Player.conditionalChooseStats[i].id) {
 					item = Player.inventory[Object.keys(Player.inventory)[y]];
 				}
 			}
+			if (item.image !== undefined) {
+				if (conditionalStat.condition(item)) {
+					if (!Player.conditionalChooseStats[i].active[x]) {
+						Player.conditionalChooseStats[i].active[x] = true;
+						// add conditionalStats to stats
 
-			if (conditionalStat.condition()) {
-				if (!Player.conditionalChooseStats[i].active[x]) {
-					Player.conditionalChooseStats[i].active[x] = true;
-					// add conditionalStats to stats
+						item.chooseStats[Object.keys(conditionalStat)[0]] = conditionalStat[Object.keys(conditionalStat)[0]];
 
-					item.chooseStats[Object.keys(conditionalStat)[0]] = conditionalStat[Object.keys(conditionalStat)[0]];
-
-					/*for (let i = 0; i < Object.keys(conditionalStat.stats).length; i++) {
-						if (conditionalStat.stats[Object.keys(conditionalStat.stats)[i]] !== true) {
-							Player.stats[Object.keys(conditionalStat.stats)[i]] += conditionalStat.stats[Object.keys(conditionalStat.stats)[i]];
-						}else{
-							Player.stats[Object.keys(conditionalStat.stats)[i]] = true;
-						}
-					}*/
+						/*for (let i = 0; i < Object.keys(conditionalStat.stats).length; i++) {
+							if (conditionalStat.stats[Object.keys(conditionalStat.stats)[i]] !== true) {
+								Player.stats[Object.keys(conditionalStat.stats)[i]] += conditionalStat.stats[Object.keys(conditionalStat.stats)[i]];
+							}else{
+								Player.stats[Object.keys(conditionalStat.stats)[i]] = true;
+							}
+						}*/
+					}
 				}
-			}else{
-				if (Player.conditionalChooseStats[i].active[x]) {
-					Player.conditionalChooseStats[i].active[x] = false;
-					// remove conditionalStats from stats
+				else{
+					if (Player.conditionalChooseStats[i].active[x]) {
+						Player.conditionalChooseStats[i].active[x] = false;
+						// remove conditionalStats from stats
 
-					delete item.chooseStats[Object.keys(conditionalStat)[0]];
+						delete item.chooseStats[Object.keys(conditionalStat)[0]];
 
-					/*for (let i = 0; i < Object.keys(conditionalStat.stats).length; i++) {
-						if (conditionalStat.stats[Object.keys(conditionalStat.stats)[i]] !== true) {
-							Player.stats[Object.keys(conditionalStat.stats)[i]] -= conditionalStat.stats[Object.keys(conditionalStat.stats)[i]];
-						}else{
-							Player.stats[Object.keys(conditionalStat.stats)[i]] = false;
-						}
-					}*/
+						/*for (let i = 0; i < Object.keys(conditionalStat.stats).length; i++) {
+							if (conditionalStat.stats[Object.keys(conditionalStat.stats)[i]] !== true) {
+								Player.stats[Object.keys(conditionalStat.stats)[i]] -= conditionalStat.stats[Object.keys(conditionalStat.stats)[i]];
+							}else{
+								Player.stats[Object.keys(conditionalStat.stats)[i]] = false;
+							}
+						}*/
+					}
 				}
+			}
+			else {
+				Player.conditionalChooseStats.splice(i, 1);
 			}
 		}
 	}
