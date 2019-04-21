@@ -681,6 +681,7 @@ var StatsInfo = {
 	xpBonus: "Increases XP received as a percentage.",
 	frostaura: "Slows enemies by 50% within a 150px range.",
 	hex: "Changes the chance of transforming attacked enemies into an animal for 2 seconds, causing them to deal 90% less damage for tht time period.",
+	damagePercentage: "Adds additional percentage of damage dealt with basic attacks and spells.",
 	fishingSkill: "Changes the fish that can be fished up from a location.",
 }
 

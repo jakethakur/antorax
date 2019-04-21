@@ -957,54 +957,80 @@ var Items = {
 				damage: 3,
 			},
 			classStats: {
-				knight: {
+				k: {
 					defence: 5,
 				},
-				mage: {
+				m: {
 					maxDamage: 9,
 				},
 			},
 			allClasses: true, // can be equipped by all classes
 			allProjectiles: true, // acts as a different weapon based on the class
-			functionText: "Can be upgraded by finding rare gemstone fragments.",
+			functionText: "Can be upgraded by finding and combining with rare gemstone fragments.",
+			gemstones: [], // array of item names for gemstones that have been added to the item
+			chooseStats: [], // required for conditional choose stats (tbd)
 			conditionalChooseStats: [
 				{
 					damagePercentage: 67,
-					condition: function () {
-						//purple
+					condition: function (item) {
+						// purple gemstone fragment
+						return item.gemstones.includes("Amethyst Fragment");
 					},
 				},
 				{
 					walkSpeed: 75,
-					condition: function () {
-						//blue
+					condition: function (item) {
+						// blue gemstone fragment
+						return item.gemstones.includes("Aquamarine Fragment");
 					},
 				},
 				{
 					hex: 20,
-					condition: function () {
-						//red
+					condition: function (item) {
+						// red gemstone fragment
+						return item.gemstones.includes("Ruby Fragment");
 					},
 				},
 				{
 					maxHealth: 20,
-					condition: function () {
-						//orange
+					condition: function (item) {
+						// orange gemstone fragment
+						return item.gemstones.includes("Jasper Fragment");
 					},
 				},
 				{
 					healthRegen: 1,
-					condition: function () {
-						//green
+					condition: function (item) {
+						// green gemstone fragment
+						return item.gemstones.includes("Emerald Fragment");
 					},
 				},
 				{
 					stun: 0.5,
-					condition: function () {
-						//yellow
+					condition: function (item) {
+						// yellow gemstone fragment
+						return item.gemstones.includes("Citrine Fragment");
 					},
 				},
 			],
+			onOpen: function (inventoryPosition, itemName) { // adding a fragment
+				let item = Dom.inventory.getItemFromPosition(inventoryPosition); // takes into account item being equpped
+				if (!item.gemstones.includes(itemName)) {
+					// add the gemstone
+					item.gemstones.push(itemName);
+					// change image and functionText if all 6 gemstones have been added
+					if (item.gemstones.length === 6) {
+						item.image = "assets/items/sword/11complete.png";
+						item.functionText = undefined;
+					}
+					return true; // consume gemstone
+				}
+				else {
+					// that gemstone was already added
+					Dom.alert.page("Your Infinity Glove already has that gemstone adjoined to it.", 0, undefined, "inventoryPage");
+					return false; // don't consume gemstone
+				}
+			},
 			limitedEdition: true,
 		},
 	],
@@ -1957,6 +1983,10 @@ var Items = {
 			category: "mineral",
 			image: "assets/items/item/19.png",
 			sellPrice: 1,
+			opens: { // eternity glove
+				type: "sword",
+				id: 11,
+			},
 		},
 		{
 			id: 20,
@@ -1965,6 +1995,10 @@ var Items = {
 			category: "mineral",
 			image: "assets/items/item/20.png",
 			sellPrice: 1,
+			opens: { // eternity glove
+				type: "sword",
+				id: 11,
+			},
 		},
 		{
 			id: 21,
@@ -1973,14 +2007,22 @@ var Items = {
 			category: "mineral",
 			image: "assets/items/item/21.png",
 			sellPrice: 1,
+			opens: { // eternity glove
+				type: "sword",
+				id: 11,
+			},
 		},
 		{
 			id: 22,
-			name: "Jade Fragment",
+			name: "Emerald Fragment",
 			type: "item",
 			category: "mineral",
 			image: "assets/items/item/22.png",
 			sellPrice: 1,
+			opens: { // eternity glove
+				type: "sword",
+				id: 11,
+			},
 		},
 		{
 			id: 23,
@@ -1989,6 +2031,10 @@ var Items = {
 			category: "mineral",
 			image: "assets/items/item/23.png",
 			sellPrice: 1,
+			opens: { // eternity glove
+				type: "sword",
+				id: 11,
+			},
 		},
 		{
 			id: 24,
@@ -1997,6 +2043,10 @@ var Items = {
 			category: "mineral",
 			image: "assets/items/item/24.png",
 			sellPrice: 1,
+			opens: { // eternity glove
+				type: "sword",
+				id: 11,
+			},
 		},
 	],
 	consumable: [

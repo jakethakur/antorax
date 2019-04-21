@@ -53,6 +53,7 @@ Game.loadPlayer = function () {
 
         // add anything new that has been added in savedata to Player
         savedPlayer.bossesKilled = Object.assign(Player.bossesKilled, savedPlayer.bossesKilled);
+        savedPlayer.stats = Object.assign(Player.stats, savedPlayer.stats);
         Player = Object.assign(Player, savedPlayer);
 
         Player.name = playerName;
@@ -1106,6 +1107,7 @@ class Attacker extends Character {
 
 		// optional stats
 		// using || defaults to second value if first is undefined, 0 or ""
+		this.stats.damagePercentage = properties.stats.damagePercentage || 0; // bonus damage percentage
 		this.stats.criticalChance = properties.stats.criticalChance || 0;
 		this.stats.flaming = properties.stats.flaming || 0;
 		this.stats.poisonX = properties.stats.poisonX || 0;
@@ -2137,11 +2139,18 @@ class Projectile extends Thing {
 
 						let attackerDamage = attacker.stats.damage;
 
+						// increase base damage based on damagePercentage
+						attackerDamage *= 1 + (attacker.stats.damagePercentage/100);
+
 						// calculate damage based on channelling time (if the attacker is a mage)
 						if (attacker.stats.maxDamage !== undefined && attacker.stats.maxDamage > attacker.stats.damage) {
+							// increase max damage based on damagePercentage
+							let maxDamage = attacker.stats.maxDamage;
+							maxDamage *= 1 + (attacker.stats.damagePercentage/100);
+
 							// this.expand - 1 = a number from 0 to 1
 							// multiply the extra damage gained by maxDamage by this fraction to see the extra damage dealt
-							let a = (attacker.stats.maxDamage - attacker.stats.damage); // possible extra damage
+							let a = (maxDamage - attackerDamage); // possible extra damage
 							let b = Round(this.expand) - 1; // multiplier
 							let c = a * b; // extra damage dealt
 							attackerDamage += c;
@@ -5308,7 +5317,8 @@ Game.inventoryUpdate = function (e) {
 		// if the player is holding a weapon, set their range
 		if (Player.inventory.weapon.type !== undefined) {
 			// player has weapon equipped
-			this.hero.stats.range = WeaponRanges[Player.inventory.weapon.type] + this.hero.stats.rangeModifier;
+			let weaponType = this.getAttackType();
+			this.hero.stats.range = WeaponRanges[weaponType] + this.hero.stats.rangeModifier;
 		}
 		else {
 			// no weapon equipped
