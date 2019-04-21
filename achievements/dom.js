@@ -190,7 +190,7 @@ function arrange(){
 		document.getElementById("points"+i).innerHTML = array[i].points;
 		if(archaeology[ToCamelCase(array[i].name)] != undefined){
 			document.getElementById("date"+i).innerHTML = archaeology[ToCamelCase(array[i].name)];
-			document.getElementById("points"+i).style.top = "17px";
+			document.getElementById("points"+i).style.top = "38px";
 		}
 		setTimeout(function(){
 			document.getElementById("description"+i).style.marginRight = 15 + document.getElementById("points"+i).offsetWidth+"px";

@@ -492,11 +492,7 @@ function arrange(){
 		if(array[i].lore != undefined && array[i].lore != ""){
 			document.getElementById("lore"+i).innerHTML = "<br><i>"+array[i].lore+"</i>";
 		}
-		if(array[i].archaeologyFunctionText != undefined && array[i].archaeologyFunctionText != ""){
-			document.getElementById("function"+i).innerHTML = "<br>"+array[i].archaeologyFunctionText+"<br>";
-		}else if(array[i].functionText != undefined && array[i].functionText != ""){
-			document.getElementById("function"+i).innerHTML = "<br>"+array[i].functionText+"<br>";
-		}
+		document.getElementById("function"+i).innerHTML = "";
 		if(array[i].chooseStats != undefined){
 			document.getElementById("function"+i).innerHTML += "<br>One of the following stats may be chosen:<br>";
 			for(var a = 0; a < Object.keys(array[i].chooseStats).length; a++){
@@ -511,6 +507,17 @@ function arrange(){
 					document.getElementById("function"+i).innerHTML += Stats(FromCamelCase(Object.keys(array[i].conditionalStats[x].stats)[a]), array[i].conditionalStats[x].stats[Object.keys(array[i].conditionalStats[x].stats)[a]], array[i].conditionalStats[x].stats)+"</span>";
 				}
 			}
+		}
+		if(array[i].conditionalChooseStats != undefined){
+			document.getElementById("function"+i).innerHTML += "<br>One of the following stats may be chosen after they are unlocked:<br>";
+			for(var a = 0; a < array[i].conditionalChooseStats.length; a++){
+				document.getElementById("function"+i).innerHTML += Stats(FromCamelCase(Object.keys(array[i].conditionalChooseStats[a])[0]), array[i].conditionalChooseStats[a][Object.keys(array[i].conditionalChooseStats[a])[0]], array[i].conditionalChooseStats[a])+"</span>";
+			}
+		}
+		if(array[i].archaeologyFunctionText != undefined && array[i].archaeologyFunctionText != ""){
+			document.getElementById("function"+i).innerHTML += "<br>"+array[i].archaeologyFunctionText+"<br>";
+		}else if(array[i].functionText != undefined && array[i].functionText != ""){
+			document.getElementById("function"+i).innerHTML += "<br>"+array[i].functionText+"<br>";
 		}
 	}
 	if(viewedItemId == undefined || viewedItemType == undefined){

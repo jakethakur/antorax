@@ -5764,7 +5764,7 @@ Game.fps = function (delta) {
 Game.resetFormatting = function () {
 	this.ctx.textAlign = "left";
 	this.ctx.fillStyle = "rgba(0, 0, 0, 1)";
-	this.ctx.font = "10px MedievalSharp"; // maybe serif instead?
+	this.ctx.font = "10px El Messiri"; // maybe serif instead?
 }
 
 // draw a rotated image (rotated in radians)
@@ -5925,7 +5925,7 @@ Game.drawDamageTaken = function (ctx, character, x, y, fontSize) {
 	// formatting
 	ctx.fillStyle = "rgb(0, 0, 0)";
 	ctx.textAlign = "center";
-	ctx.font = "bold " + fontSize + "px MedievalSharp";
+	ctx.font = "bold " + fontSize + "px El Messiri";
 
 	// "\u{2694}" displays the unicode crossed swords symbol
 	// thanks to Wilfred Lee at https://stackoverflow.com/a/49667311/9713957
@@ -5938,7 +5938,7 @@ Game.drawDamageTaken = function (ctx, character, x, y, fontSize) {
 Game.drawCharacterName = function (ctx, character, x, y) {
 
 	// text formatting
-	ctx.font = "13px MedievalSharp";
+	ctx.font = "13px El Messiri";
 	ctx.textAlign = "center";
 	ctx.strokeStyle = "black";
 	ctx.lineWidth = 0.5;
@@ -5990,7 +5990,7 @@ Game.drawChannellingBar = function (ctx, character, x, y, width, height) {
 	ctx.strokeRect(x, y, width-1, height);
 
 	// text
-	this.ctx.font = "bold " + height + "px MedievalSharp";
+	this.ctx.font = "bold " + height + "px El Messiri";
 	this.ctx.textAlign = "center";
 	this.ctx.fillStyle = "white";
 	this.ctx.fillText(character.channellingInfo.description, x + width / 2, y + height / 4 * 3);
@@ -6253,7 +6253,7 @@ Game.render = function (delta) {
 					this.ctx.fillStyle = "rgb(0, 0, 0)"; // maybe use rgba to make it fade away?
 				}
 				this.ctx.textAlign = "left";
-				this.ctx.font = "18px MedievalSharp";
+				this.ctx.font = "18px El Messiri";
 
 				let damage = this.projectiles[i].damageDealt[x].damage;
 				if (damage !== "hit dodged") {
@@ -6355,7 +6355,7 @@ Game.render = function (delta) {
 			this.ctx.font = "48px MedievalSharp"; // for title
 			this.ctx.fillText(this.canvasDisplay.title, Dom.canvas.width / 2, drawY); // area name
 
-			this.ctx.font = "28px MedievalSharp"; // for subtitles
+			this.ctx.font = "28px El Messiri"; // for subtitles
 			for (let i = 0; i < this.canvasDisplay.subtitles.length; i++) {
 				// can display multiple subtitles
 
@@ -6493,7 +6493,7 @@ Game.secondary.render = function () {
 		this.ctx.globalAlpha = 0.6;
 
 		// level
-		this.ctx.font = "bold 30px MedievalSharp";
+		this.ctx.font = "bold 30px El Messiri";
         this.ctx.textAlign = "center";
         this.ctx.fillStyle = "lightGrey";
         this.ctx.fillText(Player.level, Dom.canvas.width/2, Dom.canvas.height-74);
@@ -6563,7 +6563,7 @@ Game.secondary.render = function () {
 			}
 			this.ctx.drawImage(Game.statusImage, 0, 27 * iconNum, 27, 27, 270 + i * 35, 10, 27, 27);
 			this.ctx.fillStyle = "black";
-			this.ctx.font = "20px MedievalSharp";
+			this.ctx.font = "20px El Messiri";
 			this.ctx.textAlign = "right";
 			if (typeof Game.hero.statusEffects[i].info !== "undefined") { // variable exists
 				if (typeof Game.hero.statusEffects[i].info.time !== "undefined" && typeof Game.hero.statusEffects[i].info.ticks !== "undefined") { // variable exists

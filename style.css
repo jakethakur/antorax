@@ -1,5 +1,6 @@
 body{
-	font-family: 'MedievalSharp', serif;
+	font-family: 'El Messiri', serif;
+	line-height: 20px;
 	-webkit-user-select: none; /* Safari */        
 	-moz-user-select: none; /* Firefox */
 	-ms-user-select: none; /* IE10+/Edge */
@@ -19,6 +20,9 @@ body{
 	position: absolute;
 	//z-index: 6;
 	//opacity: 0.6;
+}
+h1 {
+	font-family: 'MedievalSharp', serif;
 }
 #game, #secondary, #dayNight, #light, #click{
 	border: 1px solid black;
@@ -53,10 +57,9 @@ body{
 	text-align: center;
 	overflow-y: auto;
 }
-/*#questStartChat, #questFinishChat{
-	display: inline-block;
-	margin: 0px;
-	text-align: left;
+/*#questStartChat, #questFinishChat, .instructionText{
+	font-family: 'El Messiri', sans-serif;
+	line-height: 20px;
 }*/
 #levelUpPage{
 	position: absolute;
@@ -535,7 +538,7 @@ thead:after {
 }
 .stackNum, .questStackNum, .questFinishStackNum, .questStartStackNum, .lootStackNum, .textStackNum{
 	position: relative;
-    bottom: 22px;
+    bottom: 30px;
 	height: 20px;
 	width: 47px;
 	font-size: 20px;
@@ -564,7 +567,7 @@ thead:after {
 	//left: 725px;
 	background-color: #eecc77;
 	border: 5px solid #886622;
-	font-size: 25px;
+	//font-size: 25px;
 	padding: 20px;
 	padding-bottom: 10px;
 	z-index: 50;
@@ -597,7 +600,8 @@ thead:after {
 #alertOptions{
 	position: relative;
 	bottom: 20px;
-	line-height: 40px;
+	line-height: 30px;
+	font-size: 20px;
 }
 .chooseIcon{
 	position: absolute;

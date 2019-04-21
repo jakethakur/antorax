@@ -1,5 +1,6 @@
 body{
-	font-family: 'MedievalSharp', serif;
+	font-family: 'El Messiri', serif;
+	line-height: 20px;
 	text-align: center;
 	background-color: #f9f9d0;
 	overflow: auto;
@@ -81,7 +82,7 @@ body{
 	position: absolute;
 	font-size: 50px;
 	right: 10px;
-	top: 10px;
+	top: 30px;
 }
 .flashcardlist{
 	position: absolute;
@@ -103,13 +104,13 @@ body{
 #searchBar{
 	height: 30px;
 	font-size: 25px;
-	font-family: 'MedievalSharp', serif;
+	font-family: 'El Messiri', serif;
 	text-indent: 5px;
 }
 #category, #area, #event, #obtained{
 	height: 30px;
 	font-size: 20px;
-	font-family: 'MedievalSharp', serif;
+	font-family: 'El Messiri', serif;
 }
 #progress{
 	border: 1px solid black;
@@ -135,7 +136,7 @@ body{
 input[type=number]{
 	height: 25px;
 	font-size: 20px;
-	font-family: 'MedievalSharp', serif;
+	font-family: 'El Messiri', serif;
 	text-indent: 5px;
 	width: 55px;
 }

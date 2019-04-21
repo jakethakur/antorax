@@ -760,9 +760,9 @@ Dom.inventory.displayIdentification = function (display) {
 	"<br><br><strong>Stats:</strong>";
 	document.getElementById("innerStats").innerHTML += "<br>Max Health: " + Player.stats.maxHealth;
 	if (Player.inventory.weapon.name !== "") {
-		document.getElementById("innerStats").innerHTML += "<br>Damage: " + (Player.stats.damage+Player.stats.damage*Player.stats.damagePercentage/100);
+		document.getElementById("innerStats").innerHTML += "<br>Damage: " + Round(Player.stats.damage+Player.stats.damage*Player.stats.damagePercentage/100);
 		if (Player.stats.maxDamage !== 0 && Player.stats.maxDamage !== Player.stats.damage) {
-			document.getElementById("innerStats").innerHTML += "-" + (Player.stats.maxDamage+Player.stats.maxDamage*Player.stats.damagePercentage/100);
+			document.getElementById("innerStats").innerHTML += "-" + Round(Player.stats.maxDamage+Player.stats.maxDamage*Player.stats.damagePercentage/100);
 		}
 	}else{
 		document.getElementById("innerStats").innerHTML += "<br>Damage: 0";
@@ -894,7 +894,9 @@ Dom.inventory.displayInformation = function (item, stacked, element, position, h
 						}
 					}
 					if (item.chooseStats !== undefined) {
-						document.getElementById("stats").innerHTML += "<br>Click to choose stat:<br>";
+						if (Object.keys(item.chooseStats).length > 0) {
+							document.getElementById("stats").innerHTML += "<br>Click to choose stat:<br>";
+						}
 						for (let i = 0; i < Object.keys(item.chooseStats).length; i++) {
 							let color = "gray";
 							if (Object.keys(item.chooseStats)[i] === item.chosenStat) {
@@ -909,9 +911,11 @@ Dom.inventory.displayInformation = function (item, stacked, element, position, h
 						}
 					}
 					if (item.conditionalChooseStats !== undefined) {
-						document.getElementById("stats").innerHTML += "<br>Locked stats:<br>";
+						if (Object.keys(item.conditionalChooseStats).length > Object.keys(item.chooseStats).length) {
+							document.getElementById("stats").innerHTML += "<br>Locked stats:<br>";
+						}
 						for (let i = 0; i < Object.keys(item.conditionalChooseStats).length; i++) {
-							if (Object.keys(item.chooseStats).includes(Object.keys(item.conditionalChooseStats[i])[0])) {
+							if (!Object.keys(item.chooseStats).includes(Object.keys(item.conditionalChooseStats[i])[0])) {
 								document.getElementById("stats").innerHTML += "<span style='color: gray'>"+Dom.inventory.stats(FromCamelCase(Object.keys(item.conditionalChooseStats[i])[0]), item.conditionalChooseStats[i][Object.keys(item.conditionalChooseStats[i])[0]], item.conditionalChooseStats)+"</span>";
 							}
 						}
@@ -1041,7 +1045,7 @@ Dom.inventory.displayInformation = function (item, stacked, element, position, h
 			if (item.use !== undefined) {
 				document.getElementById("stats").innerHTML = item.use;
 			}
-			if (item.functionText !== undefined && item.chooseStats === undefined) {
+			if (item.functionText !== undefined) {// && item.chooseStats === undefined) {
 				document.getElementById("stats").innerHTML += (document.getElementById("stats").innerHTML !== "" ? "<br>" : "") + item.functionText + (item.charges !== undefined ? "<br><br>" + item.charges + " Charges" : "");
 			}else if (item.healthRestore !== undefined && item.healthRestoreTime !== undefined) {
 				document.getElementById("stats").innerHTML += "Restores "+item.healthRestore+" health over "+item.healthRestoreTime+" seconds (whilst not in combat)";
@@ -1220,9 +1224,9 @@ Dom.quest.addReward = function (item, element, className, stackNum) {
 			let array = document.getElementById(element).getElementsByClassName(stackNum);
 			array[array.length-1].innerHTML = item.chance+"%<br>"+array[array.length-1].innerHTML;
 			array[array.length-1].style.marginTop = "-23px";
-			if (item.quantity !== undefined && item.quantity !== 1) {
-				array[array.length-1].style.marginLeft = "8px";
-			}
+			//if (item.quantity !== undefined && item.quantity !== 1) {
+				//array[array.length-1].style.marginLeft = "8px";
+			//}
 		}
 	}
 }
@@ -1325,6 +1329,14 @@ Dom.quest.accept = function () {
 		for (let i = 0; i < quest.startRewards.items.length; i++) {
 			if (quest.startRewards.items[i].condition === undefined || quest.startRewards.items[i].condition() && (quest.startRewards.items[i].chance === undefined || quest.startRewards.items[i].chance > Random(0, 99))) {
 				Dom.inventory.give(quest.startRewards.items[i].item, quest.startRewards.items[i].quantity);
+				if (quest.startRewards.items[i].chance !== undefined) {
+					if (quest.startRewards.items[i].quantity > 1) {
+						Dom.chat.insert("You earned "+quest.startRewards.items[i].quantity+" rare <strong>"+quest.startRewards.items[i].item.name+"</strong> from completing this quest.");
+					}
+					else {
+						Dom.chat.insert("You earned a rare <strong>"+quest.startRewards.items[i].item.name+"</strong> from completing this quest.");
+					}
+				}
 			}
 		}
 	}
@@ -1373,12 +1385,20 @@ Dom.quest.acceptRewards = function () {
 			if (quest.rewards.items[i].item.type !== "item" || quest.rewards.items[i].item.id !== 1) {
 				if ((quest.rewards.items[i].condition === undefined || quest.rewards.items[i].condition()) && (quest.rewards.items[i].chance === undefined || quest.rewards.items[i].chance > Random(0, 99))) {
 					Dom.inventory.give(quest.rewards.items[i].item, quest.rewards.items[i].quantity);
+					if (quest.rewards.items[i].chance !== undefined) {
+						if (quest.rewards.items[i].quantity > 1) {
+							Dom.chat.insert("You earned "+quest.rewards.items[i].quantity+" rare <strong>"+quest.rewards.items[i].item.name+"</strong> from completing this quest.");
+						}
+						else {
+							Dom.chat.insert("You earned a rare <strong>"+quest.rewards.items[i].item.name+"</strong> from completing this quest.");
+						}
+					}
 				}
 			}
 		}
 	}
 	
-	for (let i = 0; i < QuestRewardTables.globalAll.length; i++) {
+	/*for (let i = 0; i < QuestRewardTables.globalAll.length; i++) {
 		if (QuestRewardTables.globalAll[i].condition === undefined || QuestRewardTables.globalAll[i].condition() && (QuestRewardTables.globalAll[i].chance === undefined || QuestRewardTables.globalAll[i].chance > Random(0, 99))) {
 			Dom.inventory.give(QuestRewardTables.globalAll[i].item, QuestRewardTables.globalAll[i].quantity);
 		}
@@ -1390,7 +1410,7 @@ Dom.quest.acceptRewards = function () {
 				Dom.inventory.give(QuestRewardTables.globalDaily[i].item, QuestRewardTables.globalDaily[i].quantity);
 			}
 		}
-	}
+	}*/
 }
 
 Dom.quests.possible = function () {
@@ -2586,6 +2606,16 @@ Dom.inventory.validateBags = function () {
 
 Dom.inventory.validateSwap = function () {
 
+	// key dropped on chest - must be first for it to work in equipment slots
+	if (Dom.inventory.fromArray[Dom.inventory.fromId].opens !== undefined &&
+	Dom.inventory.fromArray[Dom.inventory.fromId].opens.type === Dom.inventory.toArray[Dom.inventory.toId].type &&
+	Dom.inventory.fromArray[Dom.inventory.fromId].opens.id === Dom.inventory.toArray[Dom.inventory.toId].id) {
+		Dom.inventory.toArray[Dom.inventory.toId].onOpen(Dom.inventory.toId, Dom.inventory.fromArray[Dom.inventory.fromId].name);
+		Dom.inventory.fromArray[Dom.inventory.fromId] = {};
+		Dom.inventory.fromElement.innerHTML = "";
+		return false;
+	}
+	
 	// invalid drag to equip slot
 	if (Dom.inventory.toArray.weapon !== undefined) {
 		if (!((Dom.inventory.toId === Dom.inventory.fromArray[Dom.inventory.fromId].type || ((Dom.inventory.fromArray[Dom.inventory.fromId].allClasses === true ||
@@ -2638,16 +2668,6 @@ Dom.inventory.validateSwap = function () {
 			Dom.inventory.toArray[Dom.inventory.toId].stacked -= Dom.inventory.fromArray[Dom.inventory.fromId].stack - Dom.inventory.fromArray[Dom.inventory.fromId].stacked;
 			Dom.inventory.fromArray[Dom.inventory.fromId].stacked = Dom.inventory.fromArray[Dom.inventory.fromId].stack;
 		}
-	}
-
-	// key dropped on chest
-	if (Dom.inventory.fromArray[Dom.inventory.fromId].opens !== undefined &&
-	Dom.inventory.fromArray[Dom.inventory.fromId].opens.type === Dom.inventory.toArray[Dom.inventory.toId].type &&
-	Dom.inventory.fromArray[Dom.inventory.fromId].opens.id === Dom.inventory.toArray[Dom.inventory.toId].id) {
-		Dom.inventory.toArray[Dom.inventory.toId].onOpen(Dom.inventory.toId, Dom.inventory.fromArray[Dom.inventory.fromId].name);
-		Dom.inventory.fromArray[Dom.inventory.fromId] = {};
-		Dom.inventory.fromElement.innerHTML = "";
-		return false;
 	}
 
 	return true;
@@ -3990,7 +4010,10 @@ Dom.inventory.prepare = function (array, i, element) {
 		Items[array[i].type][array[i].id].onClick = Dom.inventory.chooseStats;
 	}*/
 	if (array[i].conditionalChooseStats !== undefined) {
-		Player.conditionalChooseStats.push({type: array[i].type, id: array[i].id, active: [],});
+		if (array[i].chooseStats === undefined) {
+			array[i].chooseStats = [];
+		}
+		//Player.conditionalChooseStats.push({type: array[i].type, id: array[i].id, active: [],});
 		Dom.inventory.conditionalStats();
 	}
 	if (array[i].classStats !== undefined && array[i].classStats[Player.class] !== undefined) {
@@ -4118,6 +4141,32 @@ Dom.inventory.getItemFromPosition = function (inventoryPosition) {
 }
 
 Dom.inventory.conditionalChooseStats = function () {
+	for (let i = 0; i < Player.inventory.items.length; i++) {
+		if (Player.inventory.items[i].conditionalChooseStats !== undefined) {
+			for (let x = 0; x < Player.inventory.items[i].conditionalChooseStats.length; x++) {
+				if (Items[Player.inventory.items[i].type][Player.inventory.items[i].id].conditionalChooseStats[x].condition(Player.inventory.items[i]) && !Object.keys(Player.inventory.items[i].chooseStats).includes(Object.keys(Player.inventory.items[i].conditionalChooseStats[x])[0])) {
+					Player.inventory.items[i].chooseStats[Object.keys(Player.inventory.items[i].conditionalChooseStats[x])[0]] = Player.inventory.items[i].conditionalChooseStats[x][Object.keys(Player.inventory.items[i].conditionalChooseStats[x])[0]];
+				}
+				else if (!Items[Player.inventory.items[i].type][Player.inventory.items[i].id].conditionalChooseStats[x].condition(Player.inventory.items[i]) && Object.keys(Player.inventory.items[i].chooseStats).includes(Object.keys(Player.inventory.items[i].conditionalChooseStats[x])[0])) {
+					delete Player.inventory.items[i].chooseStats[Object.keys(Player.inventory.items[i].conditionalChooseStats[x])[0]];
+				}
+			}
+		}
+	}
+	// equipped slots
+	for (let i = 0; i < 5; i++) {
+		if (Player.inventory[Object.keys(Player.inventory)[i]].conditionalChooseStats !== undefined) {
+			for (let x = 0; x < Player.inventory[Object.keys(Player.inventory)[i]].conditionalChooseStats.length; x++) {
+				if (Items[Player.inventory[Object.keys(Player.inventory)[i]].type][Player.inventory[Object.keys(Player.inventory)[i]].id].conditionalChooseStats[x].condition(Player.inventory[Object.keys(Player.inventory)[i]]) && !Object.keys(Player.inventory[Object.keys(Player.inventory)[i]].chooseStats).includes(Object.keys(Player.inventory[Object.keys(Player.inventory)[i]].conditionalChooseStats[x])[0])) {
+					Player.inventory[Object.keys(Player.inventory)[i]].chooseStats[Object.keys(Player.inventory[Object.keys(Player.inventory)[i]].conditionalChooseStats[x])[0]] = Player.inventory[Object.keys(Player.inventory)[i]].conditionalChooseStats[x][Object.keys(Player.inventory[Object.keys(Player.inventory)[i]].conditionalChooseStats[x])[0]];
+				}
+				else if (!Items[Player.inventory[Object.keys(Player.inventory)[i]].type][Player.inventory[Object.keys(Player.inventory)[i]].id].conditionalChooseStats[x].condition(Player.inventory[Object.keys(Player.inventory)[i]]) && Object.keys(Player.inventory[Object.keys(Player.inventory)[i]].chooseStats).includes(Object.keys(Player.inventory[Object.keys(Player.inventory)[i]].conditionalChooseStats[x])[0])) {
+					delete Player.inventory[Object.keys(Player.inventory)[i]].chooseStats[Object.keys(Player.inventory[Object.keys(Player.inventory)[i]].conditionalChooseStats[x])[0]];
+				}
+			}
+		}
+	}
+	/*
 	for (let i = 0; i < Player.conditionalChooseStats.length; i++) {
 		for (let x = 0; x < Items[Player.conditionalChooseStats[i].type][Player.conditionalChooseStats[i].id].conditionalChooseStats.length; x++) {
 			let conditionalStat = Items[Player.conditionalChooseStats[i].type][Player.conditionalChooseStats[i].id].conditionalChooseStats[x];
@@ -4142,13 +4191,6 @@ Dom.inventory.conditionalChooseStats = function () {
 
 						item.chooseStats[Object.keys(conditionalStat)[0]] = conditionalStat[Object.keys(conditionalStat)[0]];
 
-						/*for (let i = 0; i < Object.keys(conditionalStat.stats).length; i++) {
-							if (conditionalStat.stats[Object.keys(conditionalStat.stats)[i]] !== true) {
-								Player.stats[Object.keys(conditionalStat.stats)[i]] += conditionalStat.stats[Object.keys(conditionalStat.stats)[i]];
-							}else{
-								Player.stats[Object.keys(conditionalStat.stats)[i]] = true;
-							}
-						}*/
 					}
 				}
 				else{
@@ -4158,13 +4200,6 @@ Dom.inventory.conditionalChooseStats = function () {
 
 						delete item.chooseStats[Object.keys(conditionalStat)[0]];
 
-						/*for (let i = 0; i < Object.keys(conditionalStat.stats).length; i++) {
-							if (conditionalStat.stats[Object.keys(conditionalStat.stats)[i]] !== true) {
-								Player.stats[Object.keys(conditionalStat.stats)[i]] -= conditionalStat.stats[Object.keys(conditionalStat.stats)[i]];
-							}else{
-								Player.stats[Object.keys(conditionalStat.stats)[i]] = false;
-							}
-						}*/
 					}
 				}
 			}
@@ -4172,7 +4207,7 @@ Dom.inventory.conditionalChooseStats = function () {
 				Player.conditionalChooseStats.splice(i, 1);
 			}
 		}
-	}
+	}*/
 }
 
 Dom.inventory.conditionalStats = function () {
@@ -4279,7 +4314,7 @@ Dom.instructions.display = function (chapter, page, index) {
 	+(page !== 0 ? "<span id='instructionArrowLeft' onclick='Dom.instructions.display("+chapter+", "+(page-1)+", "+index+");'>&#8678; </span>" : "")
 	+"Page "+(page+1)+" of "+Instructions[chapter].pages.length
 	+(page !== Instructions[chapter].pages.length-1 ? "<span id='instructionArrowRight'  onclick='Dom.instructions.display("+chapter+", "+(page+1)+", "+index+");'> &#8680;</span>" : "")
-	+"</p>"+Instructions[chapter].pages[page].text;
+	+"</p>"+"<p class='instructionText'>"+Instructions[chapter].pages[page].text+"</p>";
 
 	if (page === Instructions[chapter].pages.length-1) {
 		document.getElementById("instructionsPage").innerHTML += '<br><br><center><div id="instructionsPageClose" class="closeClass" onclick="Dom.instructions.close('+index+')">Close</div></center>';

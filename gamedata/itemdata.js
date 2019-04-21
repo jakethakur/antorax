@@ -968,7 +968,6 @@ var Items = {
 			allProjectiles: true, // acts as a different weapon based on the class
 			functionText: "Can be upgraded by finding and combining with rare gemstone fragments.",
 			gemstones: [], // array of item names for gemstones that have been added to the item
-			chooseStats: [], // required for conditional choose stats (tbd)
 			conditionalChooseStats: [
 				{
 					damagePercentage: 67,
@@ -1021,6 +1020,12 @@ var Items = {
 					// change image and functionText if all 6 gemstones have been added
 					if (item.gemstones.length === 6) {
 						item.image = "assets/items/sword/11complete.png";
+						if (!isNaN(inventoryPosition)) {
+							document.getElementById("itemInventory").getElementsByTagName("td")[inventoryPosition].getElementsByTagName("img")[0].src = item.image;
+						}
+						else {
+							document.getElementById(inventoryPosition).getElementsByTagName("img")[0].src = item.image;
+						}
 						item.functionText = undefined;
 					}
 					return true; // consume gemstone

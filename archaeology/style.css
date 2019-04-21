@@ -1,5 +1,6 @@
 body{
-	font-family: 'MedievalSharp', serif;
+	font-family: 'El Messiri', serif;
+	line-height: 20px;
 	text-align: center;
 	background-color: #f9f9d0;
 	overflow: auto;
@@ -41,6 +42,7 @@ body{
 	top: 25.5px;
 	right: 35px;
 	color: white;
+	line-height: 30px;
 }
 .oneFilter {
 	margin: 10px;
@@ -96,7 +98,7 @@ td{
 }
 #information {
 	width: 420px;
-	height: 255px;
+	height: 340px;
 	background-color: #eecc77;
 	border: 5px solid #886622;
 	position: absolute;
@@ -111,7 +113,7 @@ td{
 #searchBar{
 	height: 30px;
 	font-size: 25px;
-	font-family: 'MedievalSharp', serif;
+	font-family: 'El Messiri', serif;
 	text-indent: 5px;
 	margin: 20px;
 	padding-right: 35px;
@@ -119,7 +121,7 @@ td{
 #category, #rarity, #event, #display, #area, #obtained{
 	height: 30px;
 	font-size: 20px;
-	font-family: 'MedievalSharp', serif;
+	font-family: 'El Messiri', serif;
 }
 #progress{
 	border: 1px solid black;

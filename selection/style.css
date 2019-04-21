@@ -1,5 +1,6 @@
 body{
-	font-family: 'MedievalSharp', serif;
+	font-family: 'El Messiri', serif;
+	line-height: 20px;
 	background-color: #f9f9d0;
 	-webkit-user-select: none; /* Safari */        
 	-moz-user-select: none; /* Firefox */
@@ -31,7 +32,7 @@ body{
 	line-height: 45px;
 	vertical-align: middle;
 	text-align: center;
-	font-family: 'MedievalSharp', serif;
+	font-family: 'El Messiri', serif;
 }
 #news{
 	padding-top: 20px;
