@@ -119,28 +119,42 @@ Keyboard.unlistenKey = function (key) {
 
 // called when a key is pressed
 Keyboard.onKeyDown = function (ev) {
-	for (let i = 0; i < this.keys.length; i++) {
-		if (ev.key.toUpperCase() === this.keys[i].key) {
-			// key that is being listened to has been pressed
-			ev.preventDefault();
-			if (this.keys[i].downFunction !== undefined) {
-				this.keys[i].downFunction(ev);
+	// if a hotkey is not being changed
+	if (Dom.settings.hotkey === undefined) {
+		for (let i = 0; i < this.keys.length; i++) {
+			if (ev.key.toUpperCase() === this.keys[i].key) {
+				// key that is being listened to has been pressed
+				ev.preventDefault();
+				if (this.keys[i].downFunction !== undefined) {
+					this.keys[i].downFunction(ev);
+				}
+				break;
 			}
-			break;
 		}
+	}
+	else{
+		ev.preventDefault();
 	}
 }
 
 // called when a key is released
 Keyboard.onKeyUp = function (ev) {
-	for (let i = 0; i < this.keys.length; i++) {
-		if (ev.key.toUpperCase() === this.keys[i].key) {
-			// key that is being listened to has been released
-			ev.preventDefault();
-			if (this.keys[i].upFunction !== undefined) {
-				this.keys[i].upFunction(ev);
+	// if a hotkey is being changed
+	if (Dom.settings.hotkey !== undefined) {
+		ev.preventDefault();
+		Dom.settings.hotkeys(ev);
+	}
+	// act normally
+	else {
+		for (let i = 0; i < this.keys.length; i++) {
+			if (ev.key.toUpperCase() === this.keys[i].key) {
+				// key that is being listened to has been released
+				ev.preventDefault();
+				if (this.keys[i].upFunction !== undefined) {
+					this.keys[i].upFunction(ev);
+				}
+				break;
 			}
-			break;
 		}
 	}
 }

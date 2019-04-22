@@ -67,7 +67,7 @@ if (localStorage.getItem("fish") !== null) {
 	localStorage.removeItem("fish");
 }
 
-Keyboard.keys = User.settings.keyboard;
+//User.settings.keyboard = User.settings.keyboard;
 
 // save an item to the settings object in local storage
 /*Dom.settings.save = function (name, value) {
@@ -3496,9 +3496,12 @@ Dom.choose.page = function (npc, buttons, functions, parameters, force) {
 }*/
 
 Dom.settings.keyName = function (ev) {
+	if (typeof ev !== "string") {
+		ev = ev.key;
+	}
 	let keyName = "SPACE";
-	if (ev.keyCode !== 32) {
-		keyName = ev.key.toUpperCase();
+	if (ev !== " ") {
+		keyName = ev.toUpperCase();
 		/*if (keyName.toLowerCase() !== keyName && keyName.length === 1) {
 			keyName = "SHIFT + " + keyName;
 		}*/
@@ -3510,38 +3513,50 @@ Dom.settings.keyName = function (ev) {
 }
 
 Dom.settings.hotkeys = function (ev) {
-	let keyName = Dom.settings.keyName(ev);
+	let keyName = ev.key.toUpperCase(); //Dom.settings.keyName(ev);
 	// if a hotkey is being set
 	if (Dom.settings.hotkey !== undefined) {
 		let available = true;
-		for (let i = 0; i < Object.keys(Keyboard.keys).length; i++) {
-			if (Keyboard.keys[Object.keys(Keyboard.keys)[i]] === keyName && i !== Dom.settings.hotkey) {
+		for (let i = 0; i < Object.keys(User.settings.keyboard).length; i++) {
+			if (User.settings.keyboard[Object.keys(User.settings.keyboard)[i]] === keyName && i !== Dom.settings.hotkey) {
 				// if that key is already a hot key
 				available = false;
 			}
 		}
 		// if that key is available and not a bad key (unidentified)
 		if (available && ev.keyCode !== 255 && ev.keyCode !== 173 && ev.keyCode !== 174 && ev.keyCode !== 175 && ev.keyCode !== 176 && ev.keyCode !== 177 && ev.keyCode !== 179 && ev.keyCode !== 44) {
-			Keyboard.keys[Object.keys(Keyboard.keys)[Dom.settings.hotkey]] = keyName;
-			document.getElementsByClassName("hotkey")[Dom.settings.hotkey].innerHTML = keyName.toUpperCase();
+			
+			Keyboard.unlistenKey(User.settings.keyboard[Object.keys(User.settings.keyboard)[Dom.settings.hotkey]]);
+			
+			let keysWithVariables = ["UP", "LEFT", "DOWN", "RIGHT", "SPACE"];
+			if (keysWithVariables.includes(Object.keys(User.settings.keyboard)[Dom.settings.hotkey])) {
+				Keyboard.listenForKeyWithVariable(keyName, Game.keysDown, Object.keys(User.settings.keyboard)[Dom.settings.hotkey]);
+			}
+			else{
+				Keyboard.listenForKey(keyName, Keyboard.downFunctions[Object.keys(User.settings.keyboard)[Dom.settings.hotkey]], Keyboard.upFunctions[Object.keys(User.settings.keyboard)[Dom.settings.hotkey]]);
+			}
+			
+			User.settings.keyboard[Object.keys(User.settings.keyboard)[Dom.settings.hotkey]] = keyName;
+			document.getElementsByClassName("hotkey")[Dom.settings.hotkey].innerHTML = Dom.settings.keyName(ev);
 			Dom.settings.hotkey = undefined;
-			User.settings.keyboard = Keyboard.keys;
+			//User.settings.keyboard = User.settings.keyboard;
+			
 		// if it is unavailable set it back to what it was
 		}else{
-			document.getElementsByClassName("hotkey")[Dom.settings.hotkey].innerHTML = Keyboard.keys[Object.keys(Keyboard.keys)[Dom.settings.hotkey]].toUpperCase();
+			document.getElementsByClassName("hotkey")[Dom.settings.hotkey].innerHTML = Dom.settings.keyName(User.settings.keyboard[Object.keys(User.settings.keyboard)[Dom.settings.hotkey]]);
 			Dom.settings.hotkey = undefined;
 		}
-	}else if (keyName === Keyboard.keys.CHAT) {
+	}else if (keyName === User.settings.keyboard.CHAT) {
 		Dom.changeBook("chatPage", true);
-	}else if (keyName === Keyboard.keys.INVENTORY) {
+	}else if (keyName === User.settings.keyboard.INVENTORY) {
 		Dom.changeBook("inventoryPage", true);
-	}else if (keyName === Keyboard.keys.QUESTS) {
+	}else if (keyName === User.settings.keyboard.QUESTS) {
 		Dom.changeBook("questsPage", true);
-	}else if (keyName === Keyboard.keys.ADVENTURE) {
+	}else if (keyName === User.settings.keyboard.ADVENTURE) {
 		Dom.changeBook("adventurePage", true);
-	}else if (keyName === Keyboard.keys.REPUTATION) {
+	}else if (keyName === User.settings.keyboard.REPUTATION) {
 		Dom.changeBook("reputationPage", true);
-	}else if (keyName === Keyboard.keys.SETTINGS) {
+	}else if (keyName === User.settings.keyboard.SETTINGS) {
 		Dom.changeBook("settingsPage", true);
 	}
 }
@@ -3975,9 +3990,9 @@ Dom.mail.unread = function () {
 }
 
 Dom.adventure.update = function () {
-	document.getElementById("adventurePage").innerHTML = '<div id="level" style="display:inline;">Level '+Player.level+'</div>\
-		<a href="./achievements/index.html" target="_blank" style="display: inline; float: right;">Achievements</a>\
-		<br><br><br>Suggested Content:';
+	document.getElementById("adventurePage").innerHTML = `<div id="level" style="display:inline;">Level '+Player.level+'</div>
+		<a href="./achievements/index.html" target="_blank" style="display: inline; float: right;">Achievements</a>
+		<br><br><br>Suggested Content:`;
 	for (let i = 0; i < Object.keys(Adventure).length; i++) {
 		if (Adventure[Object.keys(Adventure)[i]].condition()) {
 			let html = Adventure[Object.keys(Adventure)[i]].html;
@@ -4107,24 +4122,6 @@ Dom.inventory.prepare = function (array, i, element) {
 		if (array[i].stacked !== undefined && array[i].stacked !== 1) {
 			element.innerHTML += "<div class='stackNum' id='stackNum"+i+"'>"+array[i].stacked+"</div>";
 		}
-	}
-}
-
-Keyboard.hotbar = function (num) {
-	if (Player.inventory.items[num].onClick !== undefined) {
-		Player.inventory.items[num].onClick(num);
-		Game.inventoryUpdate();
-	}
-}
-
-Keyboard.update = function () {
-	if (Keyboard.upFunctions !== undefined) {
-		Keyboard.upFunctions.ONE = Keyboard.hotbar;
-		Keyboard.upFunctions.TWO = Keyboard.hotbar;
-		Keyboard.upFunctions.THREE = Keyboard.hotbar;
-		Keyboard.upFunctions.FOUR = Keyboard.hotbar;
-		Keyboard.upFunctions.FIVE = Keyboard.hotbar;
-		Keyboard.upFunctions.SIX = Keyboard.hotbar;
 	}
 }
 
@@ -4438,17 +4435,18 @@ Dom.init = function () {
 
 	// constructs controls page
 	for (let i = 0; i < document.getElementsByClassName("hotkey").length; i++) {
-		document.getElementsByClassName("hotkey")[i].innerHTML = Keyboard.keys[Object.keys(Keyboard.keys)[i]].toUpperCase();
+		document.getElementsByClassName("hotkey")[i].innerHTML = Dom.settings.keyName(User.settings.keyboard[Object.keys(User.settings.keyboard)[i]]);
 		document.getElementsByClassName("hotkey")[i].onclick = function () {
 			if (Dom.settings.hotkey === undefined) {
 				document.getElementsByClassName("hotkey")[i].innerHTML = "...";
 				Dom.settings.hotkey = i;
-			}else{
-				let temp = Keyboard.keys[Object.keys(Keyboard.keys)[Dom.settings.hotkey]];
+			}
+			else{
+				let temp = User.settings.keyboard[Object.keys(User.settings.keyboard)[Dom.settings.hotkey]];
 				document.getElementsByClassName("hotkey")[Dom.settings.hotkey].innerHTML = document.getElementsByClassName("hotkey")[i].innerHTML;
-				document.getElementsByClassName("hotkey")[i].innerHTML = temp.toUpperCase();
-				Keyboard.keys[Object.keys(Keyboard.keys)[Dom.settings.hotkey]] = Keyboard.keys[Object.keys(Keyboard.keys)[i]];
-				Keyboard.keys[Object.keys(Keyboard.keys)[i]] = temp;
+				document.getElementsByClassName("hotkey")[i].innerHTML = Dom.settings.keyName(temp);
+				User.settings.keyboard[Object.keys(User.settings.keyboard)[Dom.settings.hotkey]] = User.settings.keyboard[Object.keys(User.settings.keyboard)[i]];
+				User.settings.keyboard[Object.keys(User.settings.keyboard)[i]] = temp;
 				Dom.settings.hotkey = undefined;
 			}
 		}
@@ -4652,10 +4650,38 @@ Dom.init = function () {
 	}else{
 		document.getElementById("settingAcceptHolder").innerHTML = "";
 	}
+	
+	// keyboard functions
+	let array = ["ONE", "TWO", "THREE", "FOUR", "FIVE", "SIX"];
+	for (let i = 0; i < 6; i++) {
+		Keyboard.upFunctions[array[i]] = function () {
+			if (Player.inventory.items[i].onClick !== undefined) {
+				Player.inventory.items[i].onClick(i);
+				Game.inventoryUpdate();
+			}
+		}
+		Keyboard.listenForKey(User.settings.keyboard[array[i]], undefined, Keyboard.upFunctions[array[i]]);
+	}
+	array = ["CHAT", "INVENTORY", "QUESTS", "ADVENTURE", "REPUTATION", "SETTINGS"];
+	for (let i = 0; i < 6; i++) {
+		Keyboard.upFunctions[array[i]] = Dom.settings.hotkeys;
+		Keyboard.listenForKey(User.settings.keyboard[array[i]], undefined, Keyboard.upFunctions[array[i]]);
+	}
 }
 
+/*Keyboard.update = function () {
+	if (Keyboard.upFunctions !== undefined) {
+		Keyboard.upFunctions.ONE = Keyboard.hotbar;
+		Keyboard.upFunctions.TWO = Keyboard.hotbar;
+		Keyboard.upFunctions.THREE = Keyboard.hotbar;
+		Keyboard.upFunctions.FOUR = Keyboard.hotbar;
+		Keyboard.upFunctions.FIVE = Keyboard.hotbar;
+		Keyboard.upFunctions.SIX = Keyboard.hotbar;
+	}
+}*/
+
 // Keyboard functions
-Keyboard.downFunctions = {
+/*Keyboard.downFunctions = {
 	SHIFT: function () {
 		setTimeout (function () {
 			Game.secondary.render();
@@ -4678,21 +4704,17 @@ Keyboard.upFunctions = {
 	ADVENTURE: Dom.settings.hotkeys,
 	REPUTATION: Dom.settings.hotkeys,
 	SETTINGS: Dom.settings.hotkeys,
-	ONE: Keyboard.hotbar,
-	TWO: Keyboard.hotbar,
-	THREE: Keyboard.hotbar,
-	FOUR: Keyboard.hotbar,
-	FIVE: Keyboard.hotbar,
-	SIX: Keyboard.hotbar,
-};
-Keyboard.parameters = {
+	
+};*/
+
+/*Keyboard.parameters = {
 	ONE: 0,
 	TWO: 1,
 	THREE: 2,
 	FOUR: 3,
 	FIVE: 4,
 	SIX: 5,
-};
+};*/
 
 // TESTING functions
 Dom.testing = {};

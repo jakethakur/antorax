@@ -4088,7 +4088,10 @@ Game.loadArea = function (areaName, destination) {
 }
 
 // initialise game and DOM
-Game.init = function () {
+Game.init = function () {	
+	// init keyboard
+	Keyboard.init();
+	
 	// init DOM
 	Dom.init();
 
@@ -4140,9 +4143,6 @@ Game.init = function () {
 	// set loaded status image
 	this.statusImage = Loader.getImage("status");
 
-	// init keyboard
-	Keyboard.init();
-
 	//
 	// keyboard listeners
 	//
@@ -4160,7 +4160,7 @@ Game.init = function () {
 		// add variable to keysDown
 		this.keysDown[keysToAdd[i]] = false;
 		// add listener
-		Keyboard.listenForKeyWithVariable(keysToAdd[i], this.keysDown, keysToAdd[i]);
+		Keyboard.listenForKeyWithVariable(User.settings.keyboard[keysToAdd[i]], this.keysDown, keysToAdd[i]);
 	}
 
 	// shift
