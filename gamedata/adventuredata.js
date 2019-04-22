@@ -6,7 +6,7 @@ var Adventure = {
 	eaglecrestLoggingCamp: {
 		html: `<div id="eaglecrestLoggingCampAL" class="adventure">
 			Eaglecrest Logging Camp<br>
-			<span style="font-size: 20px;">Help the logging camp defend against goblins.</span>
+			<span class="adventureContent">Help the logging camp defend against goblins.</span>
 		</div>`,
 		condition: function () {
 			return !Player.quests.completedQuestArray.includes("The Goblin King");
@@ -18,7 +18,7 @@ var Adventure = {
 	samhain: {
 		html: `<div id="samhainAL" class="adventure">
 			Samhain Event<br>
-			<span style="font-size: 20px;">Kill stronger enemies during a blood moon and buy limited edition items.</span>
+			<span class="adventureContent">Kill stronger enemies during a blood moon and buy limited edition items.</span>
 		</div>`,
 		condition: function () {
 			return Event.event === "Samhain";
@@ -27,7 +27,7 @@ var Adventure = {
 	christmas: {
 		html: `<div id="christmasAL" class="adventure">
 			Samhain Event<br>
-			<span style="font-size: 20px;">Celebrate Christmas with the logging camp.</span>
+			<span class="adventureContent">Celebrate Christmas with the logging camp.</span>
 		</div>`,
 		condition: function () {
 			return Event.event === "Christmas";
@@ -39,7 +39,7 @@ var Adventure = {
 	archaeology: {
 		html: `<div id="archaeologyAL" class="adventure">
 			<a href="./archaeology/index.html" target="_blank">Archaeology</a><br>
-			<span style="font-size: 20px;">Uncover and collect weapons and armour.</span>
+			<span class="adventureContent">Uncover and collect weapons and armour.</span>
 		</div>`,
 		condition: function () {
 			return true;
@@ -48,7 +48,7 @@ var Adventure = {
 	fishersLog: {
 		html: `<div id="fishAL" class="adventure">
 			<a href="./fish/index.html" target="_blank">Fisher's Log</a><br>
-			<span style="font-size: 20px;">View the longest fish you have caught.</span>
+			<span class="adventureContent">View the longest fish you have caught.</span>
 		</div>`,
 		condition: function () {
 			return Player.quests.completedQuestArray.includes("Learning to Fish III");
@@ -57,7 +57,7 @@ var Adventure = {
 	fishingQuests: {
 		html: `<div id="fishAL" class="adventure">
 			Learning to Fish<br>
-			<span style="font-size: 20px;">Complete the quest: SPECIAL.</span>
+			<span class="adventureContent">Complete the quest: SPECIAL.</span>
 		</div>`,
 		condition: function () {
 			return !Player.quests.completedQuestArray.includes("Learning to Fish III") && Player.quests.completedQuestArray.includes("Retrieval of Logs");
@@ -77,7 +77,7 @@ var Adventure = {
 	instructions: {
 		html: `<div id="instructionsAL" class="adventure">
 			<span id="instructionsTitle" style="color: blue; cursor: pointer;" onclick="Dom.instructions.index();"><u>Instructions</u></span><br>
-			<span style="font-size: 20px;">View information to help you in your journey.</span>
+			<span class="adventureContent">View information to help you in your journey.</span>
 		</div>`,
 		condition: function () {
 			return true;

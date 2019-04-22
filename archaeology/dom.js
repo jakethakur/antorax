@@ -660,6 +660,7 @@ function arrange(){
 				document.getElementById("back").style.top = 105 + document.getElementById("flashcardlist0").offsetHeight + "px";
 			}
 		}
+		document.getElementById("box0").style.cursor = "default";
 	}
 }
 

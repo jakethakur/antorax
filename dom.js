@@ -607,7 +607,7 @@ Dom.reputation.give = function (area, amount) {
 		Dom.chat.insert("You have gained " + amount + " reputation with " + FromCamelCase(area));
 		Player.reputation[area].changed = true;
 		if (Dom.reputation.ready) {
-			document.getElementById("reputationPage").innerHTML += FromCamelCase(area) + ': <div class="widthPadding"></div> <div class="reputationBox"> <div class="reputationBar"></div> </div><br><br><br>';
+			document.getElementById("reputationPage").innerHTML += FromCamelCase(area) + ': <div class="widthPadding"></div> <div class="reputationBox"> <div class="reputationBar"></div> </div><br><br>';
 		}
 	}
 }
@@ -616,7 +616,7 @@ Dom.reputation.start = function () {
 	document.getElementById("reputationPage").innerHTML = "";
 	for (let i = 0; i < Object.keys(Player.reputation).length; i++) {
 		if (Player.reputation[Object.keys(Player.reputation)[i]].changed) {
-			document.getElementById("reputationPage").innerHTML += FromCamelCase(Object.keys(Player.reputation)[i]) + ':<div class="widthPadding"></div> <div class="reputationBox"> <div class="reputationBar"></div> </div><br><br><br>';
+			document.getElementById("reputationPage").innerHTML += FromCamelCase(Object.keys(Player.reputation)[i]) + ':<div class="widthPadding"></div> <div class="reputationBox"> <div class="reputationBar"></div> </div><br><br>';
 		}
 	}
 	Player.reputationReady = true;
@@ -3977,7 +3977,7 @@ Dom.mail.unread = function () {
 Dom.adventure.update = function () {
 	document.getElementById("adventurePage").innerHTML = '<div id="level" style="display:inline;">Level '+Player.level+'</div>\
 		<a href="./achievements/index.html" target="_blank" style="display: inline; float: right;">Achievements</a>\
-		<div><br>Suggested Content:</div>';
+		<br><br><br>Suggested Content:';
 	for (let i = 0; i < Object.keys(Adventure).length; i++) {
 		if (Adventure[Object.keys(Adventure)[i]].condition()) {
 			let html = Adventure[Object.keys(Adventure)[i]].html;
@@ -4547,6 +4547,18 @@ Dom.init = function () {
                 [{item: Items.sword[10]}]], [{item: Items.sword[10]}],
             );
         }
+		// Heroes of Antorax mail
+		else if (Event.event === "Heroes") {
+			Dom.mail.give(
+			    "A Gift for the Worthy",
+			    "The Lord of Thunder",
+			    "lordOfThunder",
+			    "text.page",
+			    ["A Gift for the Worthy",
+			    `Six fragments of incredibly rare gemstones - objects with the power to wipe out entire civilizations – have been found in Antorax. The stones are useful in the right hands, but I fear the forces of evil may get to them first. Only the strongest of beings can safely use the stones, which is why I have entrusted you with this <strong>Eternity Glove</strong>, a container for that power. <br><br>It is your duty to locate all six stones and add them to the Glove, so they are safe from any villains who would use them for ill.<br><br>Good luck, adventurer… and send a raven if you have any questions.`, true, [], [],
+			    [{item: Items.sword[11]}]], [{item: Items.sword[11]}],
+			);
+		}
 		// Archaeology mail
 		let done = true;
 		for (let i = 0; i < 7; i++) {

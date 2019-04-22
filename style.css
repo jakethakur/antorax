@@ -92,7 +92,15 @@ h1 {
 	border-top: 5px solid #886622;
 	right: 0px;
 	width: 450px;
-	padding: 10px;
+	padding-left: 10px;
+	padding-right: 10px;
+	line-height: initial;
+	height: 80px;
+}
+.adventureContent {
+	font-size: 20px;
+	position: relative;
+	bottom: 15px;
 }
 #activeQuests, #possibleQuests, #completedQuests, #otherQuests{
 	text-align: center;
