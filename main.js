@@ -4143,10 +4143,18 @@ Game.init = function () {
 	// init keyboard
 	Keyboard.init();
 
-	// basic keyboard listeners (set a variable in Game.keysDown to true or false)
-	this.keysDown = {}; // stores whether the keys are up (false) or down (true)
+	//
+	// keyboard listeners
+	//
+
+	// stores whether the keys are up (false) or down (true)
+	this.keysDown = {
+		SHIFT: false, // not set normally
+	};
+
 	// list of keys and variables to be added (variable name is same as key name)
 	let keysToAdd = ["UP", "LEFT", "DOWN", "RIGHT", "SPACE"];
+
 	// add them and a keyboard listener that sets the variable to true/false
 	for (let i = 0; i < keysToAdd.length; i++) {
 		// add variable to keysDown
@@ -4154,14 +4162,11 @@ Game.init = function () {
 		// add listener
 		Keyboard.listenForKeyWithVariable(keysToAdd[i], this.keysDown, keysToAdd[i]);
 	}
+
 	// shift
-	Keyboard.listenForKey(User.settings.keyboard.SHIFT, function () {
-		Game.keysDown.SHIFT = true;
-		Game.secondary.render();
-	}, function () {
-		Game.keysDown.SHIFT = false;
-		Game.secondary.render();
-	});
+	// special method of adding key because it calls a separate function
+	Keyboard.listenForKey(User.settings.keyboard.SHIFT, Keyboard.downFunctions.SHIFT, Keyboard.upFunctions.SHIFT);
+
 
 	// player attack on click
 	document.getElementById("click").addEventListener("mousedown", Game.hero.startAttack.bind(this.hero));

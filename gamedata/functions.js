@@ -109,7 +109,7 @@ Keyboard.listenForKeyWithVariable = function (key, context, varName) {
 // stop listening to the key parameter
 Keyboard.unlistenKey = function (key) {
 	for (let i = 0; i < this.keys.length; i++) {
-		if (this.keys[i].key.toLowerCase() === key.toLowerCase()) {
+		if (this.keys[i].key.toUpperCase() === key) {
 			this.keys.splice(i, 1);
 			return;
 		}
@@ -120,7 +120,7 @@ Keyboard.unlistenKey = function (key) {
 // called when a key is pressed
 Keyboard.onKeyDown = function (ev) {
 	for (let i = 0; i < this.keys.length; i++) {
-		if (ev.key.toLowerCase() === this.keys[i].key.toLowerCase()) {
+		if (ev.key.toUpperCase() === this.keys[i].key) {
 			// key that is being listened to has been pressed
 			ev.preventDefault();
 			if (this.keys[i].downFunction !== undefined) {
@@ -134,7 +134,7 @@ Keyboard.onKeyDown = function (ev) {
 // called when a key is released
 Keyboard.onKeyUp = function (ev) {
 	for (let i = 0; i < this.keys.length; i++) {
-		if (ev.key.toLowerCase() === this.keys[i].key.toLowerCase()) {
+		if (ev.key.toUpperCase() === this.keys[i].key) {
 			// key that is being listened to has been released
 			ev.preventDefault();
 			if (this.keys[i].upFunction !== undefined) {
@@ -143,6 +143,28 @@ Keyboard.onKeyUp = function (ev) {
 			break;
 		}
 	}
+}
+
+// library of functions to be called by keys
+Keyboard.downFunctions = {
+    SHIFT: function () {
+        setTimeout (function () {
+			Game.keysDown.SHIFT = true;
+            Game.secondary.render();
+            Dom.inventory.hideHotbar(true);
+            document.getElementById("bookmarks").hidden = true;
+        }, 1);
+    },
+};
+Keyboard.upFunctions = {
+    SHIFT: function () {
+        setTimeout (function () {
+			Game.keysDown.SHIFT = false;
+            Game.secondary.render();
+            Dom.inventory.hideHotbar();
+            document.getElementById("bookmarks").hidden = false;
+        }, 1);
+    },
 }
 
 //
