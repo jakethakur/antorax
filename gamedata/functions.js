@@ -74,87 +74,88 @@ Loader.wipeImages = function (exceptions) {
 // Keyboard handler
 //
 
-let Keyboard = {
-	_keys: {}
-};
+var Keyboard = {};
 
-Keyboard.listenForEvents = function (keys) {
-    window.addEventListener('keydown', this._onKeyDown.bind(this));
-    window.addEventListener('keyup', this._onKeyUp.bind(this));
+// init keyboard listening to keys
+Keyboard.init = function () {
+    window.addEventListener("keydown", this.onKeyDown.bind(this));
+    window.addEventListener("keyup", this.onKeyUp.bind(this));
 
-	keys.forEach(function (key) {
-		// when key is "R" keyRole is set to "REPUTATION"
-		let keyRole = undefined;
-		for(let i = 0; i < Object.keys(this.keys).length; i++){
-			if (key === this.keys[Object.keys(this.keys)[i]]){
-				keyRole = Object.keys(this.keys)[i];
-			}
-		}
-        this._keys[keyRole] = false;
-    }.bind(this));
+	// add variables for keys to be added
+	this.keys = []; // array of key objects (with key, downFunction, and upFunction)
 }
 
-Keyboard._onKeyDown = function (event) {
-    let key = Dom.settings.keyName(event); // e.g. "R"
-	// in the same example keyRole is set to "REPUTATION"
-	let keyRole = undefined;
-	for(let i = 0; i < Object.keys(this.keys).length; i++){
-		if (key === this.keys[Object.keys(this.keys)[i]]){
-			keyRole = Object.keys(this.keys)[i];
-		}
-	}
-    if (keyRole in this._keys) {
-        event.preventDefault();
-        this._keys[keyRole] = true;
-    }
-	if (keyRole in this.downFunctions){
-		if(this.downFunctions[keyRole] !== undefined){
-			if(Keyboard.parameters[keyRole] !== undefined){
-				this.downFunctions[keyRole](Keyboard.parameters[keyRole]);
-			}else{
-				this.downFunctions[keyRole](event);
-			}
-		}
-	}
-};
+// called to start listening to a key
+// key is the same as event.key (the key name)
+// downFunction and upFucntion are passed in the event as a parameter
+// no function = undefined parameter for that function
+Keyboard.listenForKey = function (key, downFunction, upFunction) {
+	this.keys.push({
+		key: key,
+		downFunction: downFunction,
+		upFunction: upFunction,
+	});
+}
 
-Keyboard._onKeyUp = function (event) {
-    let key = Dom.settings.keyName(event); // e.g. "R"
-	// in the same example keyRole is set to "REPUTATION"
-	let keyRole = undefined;
-	for(let i = 0; i < Object.keys(this.keys).length; i++){
-		if (key === this.keys[Object.keys(this.keys)[i]]){
-			keyRole = Object.keys(this.keys)[i];
-		}
-	}
-    if (keyRole in this._keys) {
-        event.preventDefault();
-        this._keys[keyRole] = false;
-    }
-	if (keyRole in this.upFunctions){
-		if(this.upFunctions[keyRole] !== undefined){
-			if(Keyboard.parameters[keyRole] !== undefined){
-				this.upFunctions[keyRole](Keyboard.parameters[keyRole]);
-				Keyboard.update();
-			}else{
-				this.upFunctions[keyRole](event);
-			}
-		}
-	}else{
-		Dom.settings.hotkeys(event);
-	}
-};
+// calls listenForKey but autogenerates the functions
+// sets a variable to true when the key is down and false when it is up
+// the variable is at the address context[varName]
+Keyboard.listenForKeyWithVariable = function (key, context, varName) {
+	let downFunction = CreateFunction(context, varName, true);
+	let upFunction = CreateFunction(context, varName, false);
+	this.listenForKey(key, downFunction, upFunction)
+}
 
-Keyboard.isDown = function (key, keyRole) {
-    if (!keyRole in this._keys) {
-        throw new Error('Key ' + key + ' for ' + keyRole + ' is not being listened to');
-    }
-    return this._keys[keyRole];
-};
+// stop listening to the key parameter
+Keyboard.unlistenKey = function (key) {
+	for (let i = 0; i < this.keys.length; i++) {
+		if (this.keys[i].key.toLowerCase() === key.toLowerCase()) {
+			this.keys.splice(i, 1);
+			return;
+		}
+	}
+	console.warn("Key " + key + " was not already being listened to.");
+}
+
+// called when a key is pressed
+Keyboard.onKeyDown = function (ev) {
+	for (let i = 0; i < this.keys.length; i++) {
+		if (ev.key.toLowerCase() === this.keys[i].key.toLowerCase()) {
+			// key that is being listened to has been pressed
+			ev.preventDefault();
+			if (this.keys[i].downFunction !== undefined) {
+				this.keys[i].downFunction(ev);
+			}
+			break;
+		}
+	}
+}
+
+// called when a key is released
+Keyboard.onKeyUp = function (ev) {
+	for (let i = 0; i < this.keys.length; i++) {
+		if (ev.key.toLowerCase() === this.keys[i].key.toLowerCase()) {
+			// key that is being listened to has been released
+			ev.preventDefault();
+			if (this.keys[i].upFunction !== undefined) {
+				this.keys[i].upFunction(ev);
+			}
+			break;
+		}
+	}
+}
 
 //
 // Misc functions
 //
+
+// returns a function that sets a variable to the value parameter
+// the variable is at the address context[varName]
+function CreateFunction (context, varName, value) {
+	return function () {
+		context[varName] = value;
+	};
+}
 
 // second parameter optional - rounds by default to 1dp
 function Round (number, dp) {

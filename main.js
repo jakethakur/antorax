@@ -1696,7 +1696,7 @@ class Hero extends Attacker {
 			}
 			else {
 				// knight block attack
-				if (this.getAttackType() === "sword") {
+				if (Game.getAttackType() === "sword") {
 					this.channelling = "block";
 				}
 			}
@@ -4140,9 +4140,28 @@ Game.init = function () {
 	// set loaded status image
 	this.statusImage = Loader.getImage("status");
 
-	// detect player movement and interaction
-    Keyboard.listenForEvents(
-        [Keyboard.keys.LEFT, Keyboard.keys.RIGHT, Keyboard.keys.UP, Keyboard.keys.DOWN, Keyboard.keys.SPACE, Keyboard.keys.SHIFT]);
+	// init keyboard
+	Keyboard.init();
+
+	// basic keyboard listeners (set a variable in Game.keysDown to true or false)
+	this.keysDown = {}; // stores whether the keys are up (false) or down (true)
+	// list of keys and variables to be added (variable name is same as key name)
+	let keysToAdd = ["UP", "LEFT", "DOWN", "RIGHT", "SPACE"];
+	// add them and a keyboard listener that sets the variable to true/false
+	for (let i = 0; i < keysToAdd.length; i++) {
+		// add variable to keysDown
+		this.keysDown[keysToAdd[i]] = false;
+		// add listener
+		Keyboard.listenForKeyWithVariable(keysToAdd[i], this.keysDown, keysToAdd[i]);
+	}
+	// shift
+	Keyboard.listenForKey(User.settings.keyboard.SHIFT, function () {
+		Game.keysDown.SHIFT = true;
+		Game.secondary.render();
+	}, function () {
+		Game.keysDown.SHIFT = false;
+		Game.secondary.render();
+	});
 
 	// player attack on click
 	document.getElementById("click").addEventListener("mousedown", Game.hero.startAttack.bind(this.hero));
@@ -4578,10 +4597,10 @@ Game.update = function (delta) {
 		let dirx = 0;
 		let diry = 0;
 		// player has control over themselves
-	    if (Keyboard.isDown(Keyboard.keys.LEFT, "LEFT")) { dirx = -1; this.hero.direction = 2; }
-	    if (Keyboard.isDown(Keyboard.keys.RIGHT, "RIGHT")) { dirx = 1; this.hero.direction = 4; }
-	    if (Keyboard.isDown(Keyboard.keys.UP, "UP")) { diry = -1; this.hero.direction = 1; }
-	    if (Keyboard.isDown(Keyboard.keys.DOWN, "DOWN")) { diry = 1; this.hero.direction = 3; }
+	    if (this.keysDown.LEFT) { dirx = -1; this.hero.direction = 2; }
+	    if (this.keysDown.RIGHT) { dirx = 1; this.hero.direction = 4; }
+	    if (this.keysDown.UP) { diry = -1; this.hero.direction = 1; }
+	    if (this.keysDown.DOWN) { diry = 1; this.hero.direction = 3; }
 
 		// strafing is slower
 		if (dirx !== 0 && diry !== 0) {
@@ -4617,7 +4636,7 @@ Game.update = function (delta) {
 	}
 
 	// interact with touching object
-    if (Keyboard.isDown(Keyboard.keys.SPACE, "SPACE")) { this.hero.interact(); }
+    if (this.keysDown.SPACE) { this.hero.interact(); }
 
 	// check collision with npcs - includes quest givers, quest finishers, merchants, soul healers, more TBA
 	for (let i = 0; i < this.npcs.length; i++) { // iterate though npcs
@@ -5354,8 +5373,6 @@ Game.inventoryUpdate = function (e) {
 			this.hero.stats.penetration = true;
 		}
 	}
-
-	Keyboard.update(); // update hotkeys because hotbar might have changed
 
 	// update item buyer page if it is open
 	if (document.getElementById("buyerPage").hidden === false) {
@@ -6313,7 +6330,7 @@ Game.render = function (delta) {
     // draw map top layer
     //this.drawLayer(1);
 
-	if (!Keyboard.isDown(Keyboard.keys.SHIFT, "SHIFT")) { // only render this if the player isn't pressing the shift key
+	if (!this.keysDown.SHIFT) { // only render this if the player isn't pressing the shift key
 
 		//
 		// Setting options
@@ -6449,7 +6466,7 @@ Game.secondary.render = function () {
     	this.ctx.fillRect(0, Game.viewportOffsetY + map.rows * map.tsize, Dom.canvas.width, Game.viewportOffsetY);
 	}
 
-	if (!Keyboard.isDown(Keyboard.keys.SHIFT, "SHIFT")) { // only render the second canvas if the player isn't pressing the shift key
+	if (!Game.keysDown.SHIFT) { // only render the second canvas if the player isn't pressing the shift key
 
 		// set canvas formatting style defaults
 		this.ctx.lineWidth = 1;

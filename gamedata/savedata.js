@@ -145,19 +145,17 @@ var User = {
 		grid: false,
 		transparency: false,
 		keyboard: {
+			// handled by main
+			// movement
 			LEFT: "A", // 37
 			RIGHT: "D", // 39
 			UP: "W", // 38
 			DOWN: "S", // 40
-			// wsad movement
-			/*A: "A", // 65
-			D: "D", // 68
-			W: "W", // 87
-			S: "S",  // 83*/
 			// space (action button)
 			SPACE: "SPACE", // 32
 			// shift (hide secondary canvas)
 			SHIFT: "SHIFT", // 16
+			// handled by dom
 			// hotkeys
 			CHAT: "C",
 			INVENTORY: "I",
@@ -171,6 +169,7 @@ var User = {
 			FOUR: "4",
 			FIVE: "5",
 			SIX: "6",
+			// key changes are all handeled by dom
 		},
 		instructionsLink: false,
 	},
