@@ -911,6 +911,9 @@ Dom.inventory.displayInformation = function (item, stacked, element, position, h
 						}
 					}
 					if (item.conditionalChooseStats !== undefined) {
+						if (item.chooseStats === undefined) {
+							item.chooseStats = [];
+						}
 						if (Object.keys(item.conditionalChooseStats).length > Object.keys(item.chooseStats).length) {
 							document.getElementById("stats").innerHTML += "<br>Locked stats:<br>";
 						}
@@ -3907,6 +3910,7 @@ Dom.mail.page = function (override) {
 					Player.mail.mail.splice(i, 1);
 					Dom.mail.page();
 					Game.mailboxUpdate("read");
+					Dom.mail.page(true);
 				}
 				Dom.alert.page("Are you sure you want to delete this mail? It will be lost forever!", 2, undefined, "mailPage");
 			}

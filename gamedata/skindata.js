@@ -127,7 +127,7 @@ var Skins = {
 		},
 		{
 			id: 5,
-			position: {x: Infinity, y: Infinity},
+			position: {x: -6.7, y: 10},
 			name: "The Lord of Thunder",
 			gender:	"m",
 			projectile:	"lightningBall",
@@ -191,7 +191,7 @@ var Skins = {
 		},
 		{
 			id: 5,
-			position: {x: Infinity, y: Infinity},
+			position: {x: Infinity, y: 20},
 			name: "Captain Antorax",
 			gender:	"m",
 			projectile:	"slashRedWhite",
@@ -211,7 +211,7 @@ var Offsets = {
 	eaglecrestMailman: {image: "assets/npcs/mailman", x: 140, y: -10},
 	identifierGilas: {image: "assets/npcs/identifier", x: 120, y: -10},
 	soulHealerNalaa: {image: "assets/npcs/soulHealer", x: 110, y: -10},
-	galuthelTheTrapMechanic: {image: "assets/npcs/galuthel", x: 80, y: 0},
+	galuthelTheTrapMechanic: {image: "assets/npcs/galuthel", x: 83, y: 0},
 	itemBuyerNoledar: {image: "assets/npcs/itemBuyer", x: -5, y: -10},
 	ciarraDarkbrew: {image: "assets/npcs/darkbrew", x: 30, y: -10},
 	gregorGoldenbrew: {image: "assets/npcs/innkeeper", x: 115, y: -20},
@@ -223,5 +223,5 @@ var Offsets = {
 	goblinCrusader: {image: "assets/enemies/goblinCrusader", x: -200, y: -10},
 	goblinKing: {image: "assets/enemies/goblinKing", x: 57, y: 0},
 	eaglecrestKing: {image: "assets/npcs/king", x: 33, y: -5},
-	lordOfThunder: {image: "assets/player/m5", x: 19, y: 0},
+	lordOfThunder: {image: "assets/player/m5", x: 19, y: -2},
 };
