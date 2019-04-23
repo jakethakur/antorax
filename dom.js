@@ -1892,7 +1892,6 @@ Dom.inventory.give = function (item, num, position, noSave) {
 		User.progress.seals = Increment(User.progress.seals, num);
 	}
 	Dom.hotbar.update();
-	Keyboard.update();
 	Dom.checkProgress();
 	if (typeof Game !== "undefined" && Game.hero !== undefined && !noSave) {
 		Game.saveProgress("auto");

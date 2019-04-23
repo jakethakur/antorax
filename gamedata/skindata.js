@@ -53,6 +53,16 @@ var Skins = {
 			cursorPosition: {x: 10, y: 10},
 			headAdjust: {x: 10, y: 0},
 		},
+		{
+			id: 5,
+			position: {x: Infinity, y: Infinity},
+			name: "Steel Man",
+			gender:	"m",
+			projectile:	"redBeam",
+			projectileAdjust: {x: 20, y: 20},
+			cursor: "crosshair",
+			headAdjust: {x: 10, y: 2},
+		},
 	],
 	m: [
 		{
@@ -115,6 +125,16 @@ var Skins = {
 			cursorPosition: {x: 10, y: 10},
 			headAdjust: {x: 0, y: 0},
 		},
+		{
+			id: 5,
+			position: {x: Infinity, y: Infinity},
+			name: "The Lord of Thunder",
+			gender:	"m",
+			projectile:	"lightningBall",
+			projectileAdjust: {x: 0, y: 0},
+			cursor: "crosshair",
+			headAdjust: {x: 0, y: 0},
+		},
 	],
 	k: [
 		{
@@ -169,6 +189,16 @@ var Skins = {
 			cursorPosition: {x: 10, y: 10},
 			headAdjust: {x: 10, y: 0},
 		},
+		{
+			id: 5,
+			position: {x: Infinity, y: Infinity},
+			name: "Captain Antorax",
+			gender:	"m",
+			projectile:	"slashRedWhite",
+			projectileAdjust: {x: 20, y: 20},
+			cursor: "crosshair",
+			headAdjust: {x: 10, y: 0},
+		},
 	],
 };
 
@@ -193,4 +223,5 @@ var Offsets = {
 	goblinCrusader: {image: "assets/enemies/goblinCrusader", x: -200, y: -10},
 	goblinKing: {image: "assets/enemies/goblinKing", x: 57, y: 0},
 	eaglecrestKing: {image: "assets/npcs/king", x: 33, y: -5},
+	lordOfThunder: {image: "assets/player/m5", x: 19, y: 0},
 };
