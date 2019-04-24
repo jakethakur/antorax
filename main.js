@@ -5333,7 +5333,7 @@ Game.getXP = function (xpGiven, xpBonus) {
 Game.inventoryUpdate = function (e) {
 	// check if a weapon or armour slot has been changed
 	if (e === undefined || // clicked on an item
-		isNaN(parseInt(e.dataTransfer.getData("text")))) { // dragged to or from an item slot
+		Dom.inventory.fromArray === Player.inventory || Dom.inventory.toArray === Player.inventory) { // dragged to or from an equipment slot
 
 		// player stats updated
 		this.hero.stats = Player.stats; // inefficient (should be linked)

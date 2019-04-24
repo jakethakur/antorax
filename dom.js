@@ -2127,7 +2127,7 @@ Dom.cutscene = function (duration) {
 }
 
 Dom.inventory.dispose = function (ev) {
-	if (Dom.inventory.fromId !== undefined && ev.target.id !== "helm" && ev.target.id !== "chest" && ev.target.id !== "greaves" && ev.target.id !== "boots" && ev.target.id !== "weapon") {
+	if (Dom.inventory.fromId !== undefined && ev.target.id !== "helm" && ev.target.id !== "chest" && ev.target.id !== "greaves" && ev.target.id !== "boots" && ev.target.id !== "weapon" && !ev.target.classList.contains("stackNum")) {
 
 		let quest = false;
 		if (Dom.inventory.fromArray[Dom.inventory.fromId].quest !== undefined && (Dom.inventory.fromArray[Dom.inventory.fromId].quest === true || Dom.inventory.fromArray[Dom.inventory.fromId].quest())) {
@@ -2308,9 +2308,9 @@ for (let i = 0; i < document.getElementsByClassName("DOM").length; i++) {
 	}
 }*/
 Dom.canvas.drop = function (ev) {
-	if (ev.dataTransfer.getData("text") !== "") {
+	//if (!ev.target.classList.includes("stackNum")) {
 		Dom.inventory.dispose(ev);
-	}/*else if (ev.target.id === "secondary") {
+	/*}/*else if (ev.target.id === "secondary") {
 		Dom.draggedPage.style.left = ev.clientX-Dom.draggedPageX+"px" //= ev.clientX-Dom.draggedPageX-20+"px";
 		Dom.draggedPage.style.top = ev.clientY-Dom.draggedPageY+"px";
 		Dom.draggedPage = "";
@@ -2373,7 +2373,7 @@ Dom.inventory.allowDrop = function (ev) {
 
 Dom.inventory.drag = function (fromElement, fromArray, fromId) {
     //ev.dataTransfer.setData("text", x); // ev.dataTransfer.getData("text") || data = initial position of item
-	Dom.inventory.fromElement = fromElement.path[1]; // could use path if table was needed
+	Dom.inventory.fromElement = fromElement.composedPath()[1]; // could use path if table was needed
 	Dom.inventory.fromArray = fromArray;
 	Dom.inventory.fromId = fromId;
 
@@ -2607,7 +2607,12 @@ Dom.inventory.validateBags = function () {
 }
 
 Dom.inventory.validateSwap = function () {
-
+	
+	// item dropped on itself
+	if (Dom.inventory.fromArray === Dom.inventory.toArray && Dom.inventory.fromId === Dom.inventory.toId) {
+		return false;
+	}
+	
 	// key dropped on chest - must be first for it to work in equipment slots
 	if (Dom.inventory.fromArray[Dom.inventory.fromId].opens !== undefined &&
 	Dom.inventory.fromArray[Dom.inventory.fromId].opens.type === Dom.inventory.toArray[Dom.inventory.toId].type &&
@@ -2683,15 +2688,16 @@ Dom.inventory.drop = function (toElement, toArray, toId, fromElement, fromArray,
 		Dom.inventory.fromId = fromId;
 	}
 
-	if (toElement.path === undefined) {
+	if (toElement.composedPath === undefined) {
 		Dom.inventory.toElement = toElement;
 	}
 	else {
-		if (""+toElement.path[0] === "[object HTMLImageElement]" || ""+toElement.path[0].className === "stackNum") {
-			Dom.inventory.toElement = toElement.path[1];
+		toElement.preventDefault();
+		if (""+toElement.composedPath()[0] === "[object HTMLImageElement]" || ""+toElement.composedPath()[0].className === "stackNum") {
+			Dom.inventory.toElement = toElement.composedPath()[1];
 		}
 		else {
-			Dom.inventory.toElement = toElement.path[0];
+			Dom.inventory.toElement = toElement.composedPath()[0];
 		}
 	}
 	Dom.inventory.toArray = toArray;
@@ -2744,9 +2750,9 @@ Dom.inventory.drop = function (toElement, toArray, toId, fromElement, fromArray,
 		}
 
 		// reset variables for new drag incase next drag has none
-		Dom.inventory.fromElement = undefined;
-		Dom.inventory.fromArray = undefined;
-		Dom.inventory.fromId = undefined;
+		//Dom.inventory.fromElement = undefined;
+		//Dom.inventory.fromArray = undefined;
+		//Dom.inventory.fromId = undefined;
 	}
 	Game.inventoryUpdate();
 	Dom.hotbar.update();
@@ -4012,7 +4018,7 @@ Dom.adventure.update = function () {
 }
 
 Dom.inventory.reEquip = function (event) {
-	let slot = event.path[0].id;
+	let slot = event.target.id;//composedPath()[0].id;
 	if (!Dom.inventory.deEquip) {
 		for (let i = Player.inventory.items.length-1; i >= 0; i--) {
 			if (Player.inventory.items[i].type === slot || (slot === "weapon" && (Player.inventory.items[i].type === "sword" || Player.inventory.items[i].type === "staff" || Player.inventory.items[i].type === "bow" || Player.inventory.items[i].type === "rod"))) {
