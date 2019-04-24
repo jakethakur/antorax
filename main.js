@@ -2467,10 +2467,10 @@ class Enemy extends Attacker {
 			this.lootTable = lootTableTemplate;
 		}
 		// merge the loot table with the global loot table as well
-		if (this.hotility === "hostile") {
+		if (this.hostility === "hostile") {
 			this.lootTable = this.lootTable.concat(EnemyLootTables.global);
 		}
-		else if (this.hotility === "boss") {
+		else if (this.hostility === "boss") {
 			this.lootTable = this.lootTable.concat(BossLootTables.global);
 		}
 		// see generateLoot() function in Enemy for how the lootTable works
@@ -4088,10 +4088,10 @@ Game.loadArea = function (areaName, destination) {
 }
 
 // initialise game and DOM
-Game.init = function () {	
+Game.init = function () {
 	// init keyboard
 	Keyboard.init();
-	
+
 	// init DOM
 	Dom.init();
 
