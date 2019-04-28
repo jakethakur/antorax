@@ -75,7 +75,7 @@ if (localStorage.getItem("fish") !== null) {
 	SaveItem("settings", JSON.stringify(User.settings));
 }*/
 
-Dom.alert.page = function (text, type, values, page) {
+Dom.alert.page = function (text, type, values, page) { // can't pass in target and ev because chooseStats are called by an innerHTML
 	document.getElementById("alert").hidden = false;
 	if (page !== undefined) {
 		document.getElementById("alert").style.left = document.getElementById(page).offsetLeft+document.getElementById(page).offsetWidth/2-175+"px";
@@ -709,23 +709,24 @@ document.onmousemove = function (e) {
 Dom.inventory.updatePosition = function (object, element) {
 	let left = document.getElementById(element).offsetLeft;
 	let top = document.getElementById(element).offsetTop;
+	let width = object.offsetWidth;
 	if (window.mouseX !== Dom.inventory.prevMouseX || window.mouseY !== Dom.inventory.prevMouseY) {
 		Dom.inventory.prevMouseX = window.mouseX;
 		Dom.inventory.prevMouseY = window.mouseY;
 		// information displays on the right
-		if (window.mouseX+220 <= left+521) {
+		if (window.mouseX+width+30 <= left+521) {
 			object.style.left = window.mouseX+30+"px";
-			document.getElementById("outTriangle").style = "right: 185px; border-right: 20px solid #886622; border-left: 0px solid transparent;";
-			document.getElementById("outIdtriangle").style = "right: 185px; border-right: 20px solid #886622; border-left: 0px solid transparent;";
-			document.getElementById("triangle").style = "right: 177px; border-right: 20px solid #fef9b4; border-left: 0px solid transparent;";
-			document.getElementById("idtriangle").style = "right: 177px; border-right: 20px solid #fef9b4; border-left: 0px solid transparent;";
+			document.getElementById("outTriangle").style = "right: "+(width-6)+"px; border-right: 20px solid #886622; border-left: 0px solid transparent;";
+			document.getElementById("outIdtriangle").style = "right: "+(width-6)+"px; border-right: 20px solid #886622; border-left: 0px solid transparent;";
+			document.getElementById("triangle").style = "right: "+(width-14)+"px; border-right: 20px solid #fef9b4; border-left: 0px solid transparent;";
+			document.getElementById("idtriangle").style = "right: "+(width-14)+"px; border-right: 20px solid #fef9b4; border-left: 0px solid transparent;";
 		// information displays on the left
 		}else{
-			object.style.left = window.mouseX-220+"px";
-			document.getElementById("outTriangle").style = "left: 185px; border-left: 20px solid #886622; border-right: 0px solid transparent;";
-			document.getElementById("outIdtriangle").style = "left: 185px; border-left: 20px solid #886622; border-right: 0px solid transparent;";
-			document.getElementById("triangle").style = "left: 177px; border-left: 20px solid #fef9b4; border-right: 0px solid transparent;";
-			document.getElementById("idtriangle").style = "left: 177px; border-left: 20px solid #fef9b4; border-right: 0px solid transparent;";
+			object.style.left = window.mouseX-width-30+"px";
+			document.getElementById("outTriangle").style = "left: "+(width-6)+"px; border-left: 20px solid #886622; border-right: 0px solid transparent;";
+			document.getElementById("outIdtriangle").style = "left: "+(width-6)+"px; border-left: 20px solid #886622; border-right: 0px solid transparent;";
+			document.getElementById("triangle").style = "left: "+(width-14)+"px; border-left: 20px solid #fef9b4; border-right: 0px solid transparent;";
+			document.getElementById("idtriangle").style = "left: "+(width-14)+"px; border-left: 20px solid #fef9b4; border-right: 0px solid transparent;";
 		}
 		// information fits vertically
 		if (window.mouseY+object.offsetHeight-30 <= top+601) {
@@ -816,11 +817,12 @@ Dom.inventory.displayIdentification = function (display) {
 		document.getElementById("innerStats").innerHTML += "<br>Fishing Skill: " + Round(Player.stats.fishingSkill);
 	}
 	if (Player.statusEffects.length !== 0) {
-		document.getElementById("innerStats").innerHTML += "<br><br><strong>Status Effects:</strong>";
+		document.getElementById("innerStatus").innerHTML = "<strong>Status Effects:</strong>";
 		for (let i = 0; i < Player.statusEffects.length; i++) {
-			document.getElementById("innerStats").innerHTML += "<br>" + Player.statusEffects[i].title + ": " + Player.statusEffects[i].effect + (Player.statusEffects[i].info ? Player.statusEffects[i].info.time ? " (" + (Math.floor(Player.statusEffects[i].info.time) - Math.floor(Player.statusEffects[i].info.ticks)) + "s)" : "" : "");
+			document.getElementById("innerStatus").innerHTML += "<br>" + Player.statusEffects[i].title + ": " + Player.statusEffects[i].effect + (Player.statusEffects[i].info ? Player.statusEffects[i].info.time ? " (" + (Math.floor(Player.statusEffects[i].info.time) - Math.floor(Player.statusEffects[i].info.ticks)) + "s)" : "" : "");
 		}
 	}
+	document.getElementById("itemIdentification").style.width = document.getElementById("innerStats").offsetWidth+"px";
 }
 
 Dom.inventory.stats = function (stat, value, array) { // stat should be in Title Case // copy to archaeology
@@ -1045,23 +1047,29 @@ Dom.inventory.displayInformation = function (item, stacked, element, position, h
 			}else{
 				document.getElementById("stats").style.color = "black";
 			}
+			let lorebuyer = "<br><br>";
 			if (item.use !== undefined) {
-				document.getElementById("stats").innerHTML = item.use;
+				document.getElementById("lore").innerHTML = item.use;
 			}
-			if (item.functionText !== undefined) {// && item.chooseStats === undefined) {
-				document.getElementById("stats").innerHTML += (document.getElementById("stats").innerHTML !== "" ? "<br>" : "") + item.functionText + (item.charges !== undefined ? "<br><br>" + item.charges + " Charges" : "");
-			}else if (item.healthRestore !== undefined && item.healthRestoreTime !== undefined) {
-				document.getElementById("stats").innerHTML += "Restores "+item.healthRestore+" health over "+item.healthRestoreTime+" seconds (whilst not in combat)";
+			else if (item.functionText !== undefined) {// && item.chooseStats === undefined) {
+				document.getElementById("lore").innerHTML = /*(document.getElementById("stats").innerHTML !== "" ? "<br>" : "") +*/ item.functionText + (item.charges !== undefined ? "<br><br>" + item.charges + " Charges" : "");
 			}
-			let lorebuyer = "";
-			if (item.lore !== undefined && item.lore !== "" && !Array.isArray(item.lore)) {
-				document.getElementById("lore").innerHTML = "<i>"+item.lore+"</i>";
-				lorebuyer = "<br><br>";
-			}else{
+			else if (item.healthRestore !== undefined && item.healthRestoreTime !== undefined) {
+				document.getElementById("lore").innerHTML = "Restores "+item.healthRestore+" health over "+item.healthRestoreTime+" seconds (whilst not in combat)";
+			}
+			else {
 				document.getElementById("lore").innerHTML = "";
+				lorebuyer = "";
 			}
+			//let lorebuyer = "";
+			if (item.lore !== undefined && item.lore !== "" && !Array.isArray(item.lore)) {
+				document.getElementById("lore").innerHTML += lorebuyer+"<i>"+item.lore+"</i>";
+				//lorebuyer = "<br><br>";
+			}/*else{
+				document.getElementById("lore").innerHTML = "";
+			}*/
 			if (position === "buyer" && item.sellPrice !== undefined) {
-				document.getElementById("lore").innerHTML += lorebuyer+"Sell "+(item.sellQuantity !== 1 ? item.sellQuantity : "")+" for "+(item.charges === undefined ? item.sellPrice : Math.ceil(item.sellPrice / (item.maxCharges / item.charges)))+" gold";
+				document.getElementById("lore").innerHTML += /*lorebuyer+*/"<br><br>Sell "+(item.sellQuantity !== 1 ? item.sellQuantity : "")+" for "+(item.charges === undefined ? item.sellPrice : Math.ceil(item.sellPrice / (item.maxCharges / item.charges)))+" gold";
 			}
 			if (item.cooldownStart !== undefined && parseInt(item.cooldownStart) + item.cooldown > parseInt(GetFullDateTime())) {
 				let answer = CalculateTime(GetFullDateTime(), (parseInt(item.cooldownStart) + item.cooldown).toString());
@@ -1073,6 +1081,7 @@ Dom.inventory.displayInformation = function (item, stacked, element, position, h
 					}
 				},1000);
 			}
+			document.getElementById("information").style.width = Math.max(document.getElementById("name").offsetWidth, document.getElementById("stats").offsetWidth)+"px";
 		}
 	}
 }
@@ -2681,7 +2690,9 @@ Dom.inventory.validateSwap = function () {
 }
 
 Dom.inventory.drop = function (toElement, toArray, toId, fromElement, fromArray, fromId) { // from is not required for drag-n-drop cases
-
+	
+	document.getElementById("alert").hidden = true;
+	
 	if (fromId !== undefined) {
 		Dom.inventory.fromElement = fromElement;
 		Dom.inventory.fromArray = fromArray;
@@ -3796,7 +3807,7 @@ Dom.bank.page = function () {
 			document.getElementById("bankPageInventory").getElementsByTagName("td")[i].style.backgroundImage = "url('./assets/items/bag/0.png')";
 			if (nextUnlock) {
 				document.getElementById("bankPageInventory").getElementsByTagName("td")[i].onclick = function () {
-					if (Dom.inventory.check(2, "currency") + Dom.inventory.check(2, "currency", undefined, undefined, Player.bank.items) >= BagSlotCosts[i]) {
+					if (Dom.inventory.check(2, "currency") /*+ Dom.inventory.check(2, "currency", undefined, undefined, Player.bank.items)*/ >= BagSlotCosts[i]) {
 						Dom.alert.ev = i;
 						Dom.alert.target = function () {
 							Dom.inventory.removeById(2, "currency", BagSlotCosts[i]);
@@ -3970,21 +3981,23 @@ Dom.mail.page = function (override) {
 	}
 }
 
-Dom.mail.give = function (title, sender, image, openFunction, openParameters, give) {
-	Player.mail.mail.push({
-		title: title,
-		sender: sender,
-		image: image,
-		date: GetFullDateString(),
-		openFunction: openFunction,
-		openParameters: openParameters,
-		give: give,
-	});
-	if (!Player.mail.received.includes(title)) {
-		Player.mail.received.push(title);
-	}
-	if (typeof Game !== "undefined") {
-		Game.mailboxUpdate("received");
+Dom.mail.give = function (title, sender, image, openFunction, openParameters, give, noRepeat) {
+	if (!Player.mail.received.includes(title) || !noRepeat) {
+		Player.mail.mail.push({
+			title: title,
+			sender: sender,
+			image: image,
+			date: GetFullDateString(),
+			openFunction: openFunction,
+			openParameters: openParameters,
+			give: give,
+		});
+		if (!Player.mail.received.includes(title)) {
+			Player.mail.received.push(title);
+		}
+		if (typeof Game !== "undefined") {
+			Game.mailboxUpdate("received");
+		}
 	}
 }
 
@@ -3999,7 +4012,7 @@ Dom.mail.unread = function () {
 }
 
 Dom.adventure.update = function () {
-	document.getElementById("adventurePage").innerHTML = `<div id="level" style="display:inline;">Level '+Player.level+'</div>
+	document.getElementById("adventurePage").innerHTML = `<div id="level" style="display:inline;">Level ${Player.level}</div>
 		<a href="./achievements/index.html" target="_blank" style="display: inline; float: right;">Achievements</a>
 		<br><br><br>Suggested Content:`;
 	for (let i = 0; i < Object.keys(Adventure).length; i++) {
@@ -4480,6 +4493,7 @@ Dom.init = function () {
 		}
 	}
 
+	// MAIL
 	let date = GetFullDate();
 	// the first time the player logs on each day
 	if (!Player.days.includes(date)) {
@@ -4563,7 +4577,7 @@ Dom.init = function () {
 			    "text.page",
 			    ["A Gift for the Worthy",
 			    `Six fragments of incredibly rare gemstones - objects with the power to wipe out entire civilizations – have been found in Antorax. The stones are useful in the right hands, but I fear the forces of evil may get to them first. Only the strongest of beings can safely use the stones, which is why I have entrusted you with this <strong>Eternity Glove</strong>, a container for that power. <br><br>It is your duty to locate all six stones and add them to the Glove, so they are safe from any villains who would use them for ill.<br><br>Good luck, adventurer… and send a raven if you have any questions.`, true, [], [],
-			    [{item: Items.sword[11]}]], [{item: Items.sword[11]}],
+			    [{item: Items.sword[11]}]], [{item: Items.sword[11]}], true // noRepeat
 			);
 		}
 		// Archaeology mail
@@ -4585,7 +4599,7 @@ Dom.init = function () {
 				`Dear ${playerName},
 				<br><br>I am !!!, the lead archaeologist of Antorax. I have noticed your incredible contributions to Antorax's archaeology effort, and would like to congratulate and thank you for them. Without you, we would not have uncovered many of the rare and significant items that are currently residing in the Great Museum, Wizard Island. I trust that we will continue to receive contributions from you in the years to come - there is still lots that has not been discovered.
 				<br><br>I have attached a <strong>Master Archaeologist's Hat</strong>, which I hope you will find of use when uncovering items in the future. A hat like this is incredibly rare and incredibly powerful, only owned by the most accomplished of archaeologists. Many who have worn it say they find themselves to be much luckier with their archaeological finds...`, true, [], [],
-				[{item: Items.helm[9]}]], [{item: Items.helm[9]}],
+				[{item: Items.helm[9]}]], [{item: Items.helm[9]}], true // noRepeat
 			);
 		}
 		Player.days.push(date);

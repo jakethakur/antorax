@@ -1410,6 +1410,7 @@ After all, death is never the end in Antorax...<br>
 				max: 1000,
 			},
 			repeatTime: "daily",
+			randomGroup: "fishingDaily",
 
 			rewards: {
 				xp: 30,
@@ -1458,6 +1459,7 @@ After all, death is never the end in Antorax...<br>
 				max: 1000,
 			},
 			repeatTime: "daily",
+			randomGroup: "fishingDaily",
 
 			rewards: {
 				xp: 30,
@@ -1506,6 +1508,7 @@ After all, death is never the end in Antorax...<br>
 				max: 1000,
 			},
 			repeatTime: "daily",
+			randomGroup: "fishingDaily",
 
 			rewards: {
 				xp: 50,

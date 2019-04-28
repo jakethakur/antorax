@@ -370,7 +370,7 @@ thead:after {
 }
 #information, #itemIdentification{
 	position: absolute;
-	width: 160px;
+	min-width: 140px;
 	background-color: #fef9b4;
 	border: 5px solid #886622;
 	float: right;
@@ -378,6 +378,9 @@ thead:after {
 	padding-right: 10px;
 	text-align: left;
 	z-index: 50;
+}
+#name, #stats, #innerStats {
+	width: max-content;
 }
 #inventoryPageClose{
 	bottom: 60px;

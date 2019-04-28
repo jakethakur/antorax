@@ -16,6 +16,24 @@ var session = {};
 var archaeology = JSON.parse(localStorage.getItem("user"));
 var events = ["Samhain", "Christmas"];
 
+document.getElementById("reset").onclick = function () {
+	category.value = "all";
+	rarity.value = "all";
+	event.value = "all";
+	area.value = "all";
+	obtained.value = "all";
+	display.value = "all";
+	searchBar.value = "";
+	url.searchParams.delete("category");
+	url.searchParams.delete("rarity");
+	url.searchParams.delete("event");
+	url.searchParams.delete("area");
+	url.searchParams.delete("obtained");
+	url.searchParams.delete("display");
+	url.searchParams.delete("searchBar");
+	window.history.pushState({}, "Antorax Archaeology", url.toString());
+}
+
 if (url.searchParams.get("category") !== null) {
 	category.value = url.searchParams.get("category");
 }
@@ -542,7 +560,7 @@ function arrange(){
 		document.getElementById("progress").style.width = (((Math.floor((screenSize-45)/245)))*245)-25+"px";
 		document.getElementById("filters").style.left = 25+((screenSize-45)-(((Math.floor((screenSize-45)/245)))*245))/2+"px";
 		document.getElementById("progress").style.left = 25+((screenSize-45)-(((Math.floor((screenSize-45)/245)))*245))/2+"px";
-		document.getElementById("searchBar").style.width = (((Math.floor((screenSize-45)/245)))*245)-95-35+"px";
+		document.getElementById("searchBar").style.width = (((Math.floor((screenSize-45)/245)))*245)-95-35-110+"px";
 		var progressDisplayed = !isNaN(progress/displayed) && isFinite(progress/displayed) ? progress/displayed : 0;
 		if(category.value != 8){
 			document.getElementById("progressText").innerHTML = "You have obtained "+Math.floor(progressDisplayed*100)+"% of "+(total == displayed ? "all" : "these")+" items";
