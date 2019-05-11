@@ -589,7 +589,7 @@ var Quests = {
 			questArea: "eaglecrestLoggingCamp",
 
 			startName: "Item Buyer Noledar",
-			startChat: `Hello. I've been working on my latest achievement and need some assistance if you wouldn't mind. I need to collect 8 <strong>Scraps of Cloth</strong> and 8 <strong>Polished Rocks</strong> from the goblins in <strong>The Nilbog</strong>, but I've heard it's dangerous out there and don't want to leave my cart unattended. Is there any chance you could head down there to help me? I've heard you're good around the goblins.`,
+			startChat: `Hello. I've been working on my latest achievement and need some assistance if you wouldn't mind. I need to collect 8 <strong>Scraps of Cloth</strong> and 4 <strong>Polished Rocks</strong> from the goblins in <strong>The Nilbog</strong>, but I've heard it's dangerous out there and don't want to leave my cart unattended. Is there any chance you could head down there to help me? I've heard you're good around the goblins.`,
 
 			finishName: "Item Buyer Noledar",
 			finishChat: `Thank you so much! Now, I just need to find some space in my cart...<br>If you ever have more items you don't want, you can come and visit me to sell them any time.`,

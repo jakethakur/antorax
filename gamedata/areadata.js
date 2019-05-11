@@ -463,22 +463,25 @@ var Areas = {
 		],
 
 		villagers: [
-			/*{
+			{
 				// out of date
-				x: 200,
-				y: 200,
-				width: 90,
-				height: 110,
+				x: 400,
+				y: 400,
 				image: "weaponsmith",
 				name: "Weaponsmith Clone",
-				speed: 1,
+				stats: {
+					maxHealth: 100,
+					walkSpeed: 100,
+					swimSpeed: 10,
+				},
+				hostility: "friendly",
 				boundary: {
 					x: 0,
 					y: 0,
 					width: 1000,
 					height: 400,
 				},
-			},*/
+			},
 		],
 	},
 

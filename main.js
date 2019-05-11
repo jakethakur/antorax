@@ -2352,15 +2352,20 @@ class Villager extends Character {
 	update (delta) {
 		// check if the NPC's movement state needs to be reassigned
 		if (this.state === undefined) { // state has never been assigned
-			this.updateState(undefined);
+			if (Random(1,2) === 1) {
+				this.initWaitState();
+			}
+			else {
+				this.initMoveState();
+			}
 		}
 
 		// movement
-		else if (this.state.type === "movement") {
+		else if (this.state.type === "move") {
 
-			if (Math.round(this.x / 10) === Math.round(this.state.x / 10) && Math.round(this.y / 10) === Math.round(this.state.y / 10)) {
+			if (this.xInRange() && this.yInRange()) {
 				// movement destination reached (to nearest 10px)
-				this.updateState();
+				this.initWaitState();
 			}
 
 			else { // move towards destination
@@ -2372,43 +2377,32 @@ class Villager extends Character {
 		// waiting
 		else if (this.state.type === "wait") {
 
-			if (this.state.waitTime >= this.wait) {
+			if (this.state.waitElapsed >= this.state.waitTime) {
 				// waiting duration reached
-				this.updateState();
+				this.initMoveState();
 			}
 
 			else { // wait
-				this.wait++;
+				this.state.waitElapsed += delta;
 				// ...
 			}
 		}
 	}
 
-	// update movement state if the NPC has finished previous action
-	// parameter = new state type
-	updateState() {
-		if (this.state === undefined) { // NPC state has not been defined before
-			this.state = {};
-			if (Random(0,1) === 0) {
-				this.updateState("move"); // NPC will start with movement
-			}
-			else {
-				this.updateState("wait"); // NPC will start with waiting
-			}
+	initMoveState() {
+		this.state = {};
+		this.state.location = {
+			x: Random(this.boundary.x, this.boundary.x + this.boundary.width),
+			y: Random(this.boundary.y, this.boundary.y + this.boundary.height),
 		}
+		this.state.type = "move";
+	}
 
-		else if (this.state.type === "move") { // NPC has just finished moving
-			this.state.x = undefined;
-			this.state.y = undefined;
-			this.state.wait = Random(1000, 6000);
-		}
-
-		else if (this.state.type === "wait") { // NPC has just finished waiting
-			this.state.wait = undefined;
-			this.wait = 0;
-			this.state.x = Random(this.boundary.x, this.boundary.x + this.boundary.width);
-			this.state.y = Random(this.boundary.y, this.boundary.y + this.boundary.height);
-		}
+	initWaitState() {
+		this.state = {};
+		this.state.waitTime = Random(2, 30); // in seconds (mesured with delta)
+		this.state.waitElapsed = 0;
+		this.state.type = "wait";
 	}
 
 	move (delta) {
@@ -2417,12 +2411,20 @@ class Villager extends Character {
 		this.bearing = Game.bearing(this, {x: this.state.location.x, y: this.state.location.y}); // update bearing (maybe doesn't need to be done every tick?)
 
 		// move if not too close to target
-		if (Math.round(this.x / 100) !== Math.round(this.state.x / 100)) {
+		if (!this.xInRange()) {
 			this.x += Math.cos(this.bearing) * this.speed * delta;
 		}
-		if (Math.round(this.y / 100) !== Math.round(this.state.y / 100)) {
+		if (!this.yInRange()) {
 			this.y += Math.sin(this.bearing) * this.speed * delta;
 		}
+	}
+
+	// check if movement should be stopped (x or y are in range to nearest 10)
+	xInRange () {
+		return Math.round(this.x / 10) === Math.round(this.state.location.x / 10);
+	}
+	yInRange () {
+		return Math.round(this.y / 10) === Math.round(this.state.location.y / 10);
 	}
 }
 

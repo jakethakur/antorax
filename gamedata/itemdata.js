@@ -977,14 +977,14 @@ var Items = {
 					},
 				},
 				{
-					walkSpeed: 75,
+					walkSpeed: 60,
 					condition: function (item) {
 						// blue gemstone fragment
 						return item.gemstones.includes("Aquamarine Fragment");
 					},
 				},
 				{
-					hex: 20,
+					hex: 25,
 					condition: function (item) {
 						// red gemstone fragment
 						return item.gemstones.includes("Ruby Fragment");
@@ -1032,7 +1032,7 @@ var Items = {
 				}
 				else {
 					// that gemstone was already added
-					Dom.alert.page("Your Infinity Glove already has that gemstone adjoined to it.", 0, undefined, "inventoryPage");
+					Dom.alert.page("Your Eternity Glove already has that gemstone adjoined to it.", 0, undefined, "inventoryPage");
 					return false; // don't consume gemstone
 				}
 			},
