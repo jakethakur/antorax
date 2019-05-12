@@ -3049,6 +3049,7 @@ var Areas = {
 							{item: Items.helm[15], cost: 5}, // bear mask
 							{item: Items.helm[16], cost: 5}, // vampiric mask
 							{item: Items.helm[17], cost: 5}, // solar baron mask
+							{item: Items.helm[18], cost: 5}, // feathered hawk mask
 						],
 						numberSold: 3, // only 3 sold at once
 						rotation: "week", // masks being sold change every week

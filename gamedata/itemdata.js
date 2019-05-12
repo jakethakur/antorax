@@ -308,6 +308,22 @@ var Items = {
 				looting: 35,
 			},
 		},
+		{
+			id: 18,
+			name: "Feathered Hawk Mask",
+			type: "helm",
+			image: "assets/items/helm/18.png",
+			tier: 1,
+			obtain: ["merchant"],
+			area: ["eaglecrest"],
+			rarity: "common",
+			obtainText: "Can be bought from a mask seller.",
+			sellPrice: 1,
+			stats: {
+				walkSpeed: 40,
+				//reloadTime: -0.1,
+			},
+		},
 	],
 	chest: [
 		{
