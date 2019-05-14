@@ -835,7 +835,7 @@ Dom.inventory.stats = function (stat, value, array) { // stat should be in Title
 	}else if (stat === "Stun") {
 		return stat+": "+NumberSign(value)+"s<br>";
 	}else if (stat === "Reload Time") {
-		return stat+": "+(NumberSign(value/500))+"s<br>";
+		return stat+": "+(NumberSign(value/1000))+"s<br>";
 	}else if (stat === "Flaming") {
 		return stat+" "+Romanize(value)+"<br>";
 	}else if (stat === "Poison X") {
@@ -1458,8 +1458,17 @@ Dom.quests.possible = function () {
 			else if (quest.eventRequirement !== undefined && quest.eventRequirement !== Event.event) {
 				questCanBeStarted = false;
 			}
-			else if (quest.randomGroup !== undefined && Player.quests.randomDailyQuests[quest.randomGroup] !== quest.quest) {
-				questCanBeStarted = false;
+			// groups of daily quests where only one can be done every day
+			else if (quest.randomGroup !== undefined) {
+				//if (Player.quests.randomDailyQuests[quest.randomGroup] !== quest.quest) {
+					if (Player.quests.randomDailyQuests[quest.randomGroup] === undefined) {
+						Player.quests.possibleQuestArray.push(quest.quest);
+						if (!Dom.quests.possibleHTML[quest.important].includes(FromCamelCase(quest.randomGroup))) {
+							Dom.quests.possibleHTML[quest.important] += "<br><br><strong>" + FromCamelCase(quest.randomGroup) + "</strong><br>" + quest.howToStart;
+						}
+					}
+					questCanBeStarted = false;
+				//}
 			}
 			else {
 				// check if it is daily or one time

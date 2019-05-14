@@ -16,7 +16,7 @@ if(localStorage.getItem("a") !== null){
     savedPlayer.bossesKilled = Object.assign(player.bossesKilled, savedPlayer.bossesKilled);
     Archer = Object.assign(player, savedPlayer); // add any new stuff added to savedata
 }else{
-    Archer = player;
+    Archer = Player;
 }
 if(localStorage.getItem("m") !== null){
     let savedPlayer = JSON.parse(localStorage.getItem("m"));
@@ -280,6 +280,9 @@ function arrange(){
 			}
 		}
 	}
+	document.getElementById("filters").hidden = false;
+	document.getElementById("progress").hidden = false;
+	document.getElementById("all").hidden = false;
 	document.getElementById("filters").style.width = (((Math.floor((screenSize-45)/490)))*490)-35+"px";
 	document.getElementById("progress").style.width = (((Math.floor((screenSize-45)/490)))*490)-25+"px";
 	document.getElementById("filters").style.left = 25+((screenSize-45)-(((Math.floor((screenSize-45)/490)))*490))/2+"px";

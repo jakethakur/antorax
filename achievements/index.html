@@ -10,7 +10,7 @@
 	<meta charset="UTF-8">
 </head>
 <body>
-<div id="filters">
+<div id="filters" hidden>
 	<br>
 	<center><input type="text" id="searchBar" placeholder="Search by name"></center>
 	<br>Category
@@ -56,11 +56,11 @@
 	Maximum Points
 	<input type="number" min="1" max="100" id="max" value="100" />
 </div>
-<div id="progress">
+<div id="progress" hidden>
 	<div id="progressText"></div>
 	<div id="innerProgress"></div>
 </div>
-<span id="all"></span>
+<span id="all" hidden></span>
 <script src="../gamedata/functions.js"></script>
 <script src="../gamedata/savedata.js"></script>
 <script src="../gamedata/itemdata.js"></script>

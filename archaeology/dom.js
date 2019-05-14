@@ -85,7 +85,7 @@ function Stats (stat, value, array) { // stat should be in Title Case // copied 
 	}else if(stat === "Stun"){
 		return stat+": "+NumberSign(value)+"s<br>";
 	}else if(stat === "Reload Time"){
-		return stat+": "+(NumberSign(value/500))+"s<br>";
+		return stat+": "+(NumberSign(value/1000))+"s<br>";
 	}else if(stat === "Flaming"){
 		return stat+" "+Romanize(value)+"<br>";
 	}else if(stat === "Poison X"){

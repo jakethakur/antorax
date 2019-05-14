@@ -321,7 +321,7 @@ var Items = {
 			sellPrice: 1,
 			stats: {
 				walkSpeed: 40,
-				//reloadTime: -0.1,
+				reloadTime: -100,
 			},
 		},
 	],
@@ -906,7 +906,7 @@ var Items = {
 			sellPrice: 4,
 			stats: {
 				damage: 8,
-				reloadTime: 500,
+				reloadTime: 1000,
 				defence: 5,
 			},
 			projectile: "slashFrost",
