@@ -856,9 +856,11 @@ Dom.inventory.displayInformation = function (item, stacked, element, position, h
 		}
 		if (item.image !== undefined) {
 			if (hide === undefined) {
+				document.getElementById("information").style.opacity = 0;
 				document.getElementById("information").hidden = false;
 			}
 			Dom.inventory.updatePosition(document.getElementById("information"), element);
+			document.getElementById("information").style.opacity = 1;
 			Dom.inventory.displayedInformation = item.name;
 			if (item.name !== undefined) {
 				document.getElementById("name").innerHTML = item.name;
@@ -3857,7 +3859,7 @@ Dom.driver.page = function (npc, destinations) {
 		document.getElementById("driverPageMain").innerHTML += "<p>"+npc.chat.driverText+"<p><br>";
 		for (let i = 0; i < destinations.length; i++) {
 			document.getElementById("driverPageMain").innerHTML += "<div class='driver' ><div class='driverImage' style='background-image: url(\"./assets/"+destinations[i].image+"\")'></div><div class='mailTitle'><strong>"+destinations[i].title+"</strong></div><div class='driverDescription'>"+destinations[i].description+"</div><div class='driverDescription2'></div></div>";
-			while(document.getElementsByClassName("driverDescription")[i].scrollHeight > document.getElementsByClassName("driverDescription")[i].offsetHeight) {
+			while (document.getElementsByClassName("driverDescription")[i].scrollHeight > document.getElementsByClassName("driverDescription")[i].offsetHeight) {
 				document.getElementsByClassName("driverDescription2")[i].innerHTML = document.getElementsByClassName("driverDescription")[i].innerHTML.substring(document.getElementsByClassName("driverDescription")[i].innerHTML.lastIndexOf(" ")) + document.getElementsByClassName("driverDescription2")[i].innerHTML;
 				document.getElementsByClassName("driverDescription")[i].innerHTML = document.getElementsByClassName("driverDescription")[i].innerHTML.substring(0, document.getElementsByClassName("driverDescription")[i].innerHTML.lastIndexOf(" "));
 			}
@@ -4361,12 +4363,10 @@ Dom.instructions.close = function (index) {
 	}
 }
 
-Dom.init = function () {
-	Dom.canvas.width = window.innerWidth-2;
-	Dom.canvas.height = window.innerHeight-3;
-	if (navigator.userAgent.indexOf("Firefox") !== -1) {
-		Dom.canvas.height = window.innerHeight-1;
-	}
+Dom.updateScreenSize = function (init) {
+	Dom.canvas.width = window.innerWidth - 2;
+	Dom.canvas.height = window.innerHeight - Dom.canvas.heightOffset;
+	
 	document.getElementById("game").width = Dom.canvas.width;
 	document.getElementById("game").height = Dom.canvas.height;
 	document.getElementById("dayNight").width = Dom.canvas.width;
@@ -4376,7 +4376,6 @@ Dom.init = function () {
 	document.getElementById("secondary").width = Dom.canvas.width;
 	document.getElementById("secondary").height = Dom.canvas.height;
 	document.getElementById("chat").style.width = Dom.canvas.width/2-200+"px";
-	document.getElementById("itemInventory").innerHTML = "";
 	document.getElementById("hotbar").style.left = Dom.canvas.width/2-167.6+"px";
 	document.getElementById("hotbar").style.top = Dom.canvas.height-80+"px";
 	document.getElementById("chatImage").style.left= Dom.canvas.width/2+210+"px";
@@ -4406,7 +4405,39 @@ Dom.init = function () {
 	//document.getElementById("dot").style.top= Dom.canvas.height-53+"px";
 	//document.getElementById("dot").style.left= Dom.canvas.width/2+230+"px";
 	document.getElementById("achievement").style.left= Dom.canvas.width-458+"px";
+	
+	if (((window.screenTop || window.screenY) && Dom.browser === "chrome") || (!window.screenTop && !window.screenY && Dom.browser === "firefox")) {
+		document.getElementById("fullscreenOff").checked = true;
+	}
+	else {
+		document.getElementById("fullscreenOn").checked = true;
+	}
+	
+	if (!init) {
+		Game.camera.width = Dom.canvas.width;
+		Game.camera.height = Dom.canvas.height;
+		Game.camera.update();
+		Game.camera.setMaxClampValues();
+		Game.secondary.render();
+		Game.renderDayNight();
+	}
+}
 
+Dom.init = function () {
+	//Dom.canvas.width = window.innerWidth-2;
+	if (navigator.userAgent.indexOf("Firefox") !== -1) {
+		//Dom.canvas.height = window.innerHeight-1;
+		Dom.canvas.heightOffset = 1;
+		Dom.browser = "chrome";
+	}
+	else{
+		//Dom.canvas.height = window.innerHeight-3;
+		Dom.canvas.heightOffset = 3;
+		Dom.browser = "firefox";
+	}
+	
+	Dom.updateScreenSize(true);
+	
 	document.getElementById("itemInventory").innerHTML = "";
 	for (let i = 0; i < Player.inventory.items.length/6; i++) {
 		let str = "<tr>";
@@ -4699,54 +4730,9 @@ Dom.init = function () {
 		Keyboard.upFunctions[array[i]] = Dom.settings.hotkeys;
 		Keyboard.listenForKey(User.settings.keyboard[array[i]], undefined, Keyboard.upFunctions[array[i]]);
 	}
-}
-
-/*Keyboard.update = function () {
-	if (Keyboard.upFunctions !== undefined) {
-		Keyboard.upFunctions.ONE = Keyboard.hotbar;
-		Keyboard.upFunctions.TWO = Keyboard.hotbar;
-		Keyboard.upFunctions.THREE = Keyboard.hotbar;
-		Keyboard.upFunctions.FOUR = Keyboard.hotbar;
-		Keyboard.upFunctions.FIVE = Keyboard.hotbar;
-		Keyboard.upFunctions.SIX = Keyboard.hotbar;
-	}
-}*/
-
-// Keyboard functions
-/*Keyboard.downFunctions = {
-	SHIFT: function () {
-		setTimeout (function () {
-			Game.secondary.render();
-			Dom.inventory.hideHotbar(true);
-			document.getElementById("bookmarks").hidden = true;
-		},1);
-	},
-};
-Keyboard.upFunctions = {
-	SHIFT: function () {
-		setTimeout (function () {
-			Game.secondary.render();
-			Dom.inventory.hideHotbar();
-			document.getElementById("bookmarks").hidden = false;
-		},1);
-	},
-	CHAT: Dom.settings.hotkeys,
-	INVENTORY: Dom.settings.hotkeys,
-	QUESTS: Dom.settings.hotkeys,
-	ADVENTURE: Dom.settings.hotkeys,
-	REPUTATION: Dom.settings.hotkeys,
-	SETTINGS: Dom.settings.hotkeys,
 	
-};*/
-
-/*Keyboard.parameters = {
-	ONE: 0,
-	TWO: 1,
-	THREE: 2,
-	FOUR: 3,
-	FIVE: 4,
-	SIX: 5,
-};*/
+	//document.documentElement.requestFullscreen(); - disabled by chrome
+}
 
 // TESTING functions
 Dom.testing = {};

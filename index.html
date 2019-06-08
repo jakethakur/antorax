@@ -96,6 +96,11 @@
 	</div>
 	<div id="settingsPage" hidden class="DOM">
 		<div id="settingLogout"></div>
+		<div id="settingFullscreen" class="settings">
+			Fullscreen:
+			<span class="radio1"><input type="radio" id="fullscreenOn" name="fullscreenOnOff" onclick="document.documentElement.requestFullscreen()">Yes</input></span>
+			<span class="radio2"><input type="radio" id="fullscreenOff" name="fullscreenOnOff" checked="true" onclick="document.exitFullscreen()">No</input></span>
+		</div>        
 		<div id="settingMusic" class="settings">
 			Play music:
 			<span class="radio1"><input type="radio" id="musicOn" name="musicOnOff" onclick="Game.playMusic()">Yes</input></span>

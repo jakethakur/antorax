@@ -83,6 +83,7 @@ var Player = {
 
 	// updated by DOM
 	stats: {
+		// note to Jake: remember to add new stats to constructor in main
 		damage: 0, // (8)
 		defence: 0, // (4)
 		maxHealth: 50,
@@ -152,7 +153,7 @@ var User = {
 			UP: "W", // 38
 			DOWN: "S", // 40
 			// space (action button)
-			SPACE: "SPACE", // 32
+			SPACE: " ", // 32
 			// shift (hide secondary canvas)
 			SHIFT: "SHIFT", // 16
 			// handled by dom

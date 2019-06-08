@@ -93,6 +93,11 @@ Game.tick = function (elapsed) {
 
 
 	this.update(delta); // update game state
+	
+	if (Dom.canvas.width !== window.innerWidth - 2 || Dom.canvas.height !== window.innerHeight - Dom.canvas.heightOffset) {
+		Dom.updateScreenSize();
+	}
+	
 	this.render(delta); // render game display
 
 
@@ -1115,6 +1120,7 @@ class Attacker extends Character {
 		this.stats.stun = properties.stats.stun || 0;
 		this.stats.variance = properties.stats.variance || 0;
 		this.stats.lifesteal = properties.stats.lifesteal || 0;
+		this.stats.hex = properties.stats.hex || 0;
 		this.stats.penetration = properties.stats.penetration || true; // if projectile damages more than one thing
 		// functions
 		if (properties.stats.onAttack !== undefined) {
@@ -1678,7 +1684,7 @@ class Hero extends Attacker {
 						}
 
 						// update player stats
-						Player.stats = Game.hero.stats; // inefficient (should be linked)
+						//Player.stats = Game.hero.stats; // inefficient (should be linked)
 
 						// fish length for fisher's log
 						if (this.channelling.length > User.fish[this.channelling.id]) {
@@ -2530,7 +2536,7 @@ class Enemy extends Attacker {
 				}
 
 				if (spellIndex !== -1) {
-					// a spell has been found that is ready
+					// a spell has been found that can be cast
 					let spell = this.spells[spellIndex];
 					// no longer ready
 					spell.ready = false;
@@ -4138,6 +4144,10 @@ Game.init = function () {
 
 		oldPosition: Player.oldPosition,
 	});
+	
+	// link stats
+    // currently a bit inefficient?
+    Game.hero.stats = Player.stats;
 
 	// set player projectile
 	this.projectileImageUpdate();
@@ -6643,7 +6653,7 @@ Game.saveProgress = function (saveType) { // if saveType is "auto" then the save
 		// re-link status effects (inefficient - tbd)
 		Player.statusEffects = Game.hero.statusEffects;
 		// re-link player stats (inefficient - tbd)
-		Player.stats = Game.hero.stats;
+		//Player.stats = Game.hero.stats;
 
 		// save everything in savedata.js
 		localStorage.setItem(Player.class, JSON.stringify(Player));

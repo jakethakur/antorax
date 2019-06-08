@@ -69,7 +69,7 @@ h1 {
 #questStartChat, #questFinishChat, #questStartQuest, #questFinishQuest, #questStartName, #questFinishName, #questStartObjectives, #questStartRewards, #questStartStartRewards, #questStartRewardsTitle, #questStartStartRewardsTitle, #questFinishRewardsTitle, #questFinishRewards, #merchantPageTitle, #merchantPageChat, #merchantPageOptions, #identifierPageTitle, #identifierPageChat, #leftArrow, #identifierPageOption, #rightArrow, #identifiedPageTitle, #identifiedPageChat, #identifiedPageOptions{
 	display: inline;
 }
-#settingMusic{
+#settingFullscreen{
 	border-top: 5px solid #886622;
 }
 .settings {
@@ -343,7 +343,7 @@ thead:after {
 	background-color: #fef9b4;
 	border: 5px solid #886622;
 	float: right;
-	margin-bottom: 20px;
+	margin-bottom: 26px;
 	text-align: center;
 	line-height: 50px;
 	vertical-align: middle;
@@ -652,6 +652,7 @@ thead:after {
 .driver{
 	background-color: #fef9b4;
 	height: 100%;
+	padding-top: 5px;
 }
 .mailImage, .driverImage{
 	position: absolute;
@@ -664,9 +665,10 @@ thead:after {
 	background-repeat: repeat;
 }
 .driverDescription{
+	padding-top: 5px;
 	margin-left: 100px;
 	text-align: left;
-	height: 60px;
+	height: 47px;
 	overflow: auto;
     //display: -webkit-box;
     //-webkit-line-clamp: 3;
