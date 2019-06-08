@@ -26,10 +26,12 @@ Weather.init = function () {
 	// set a timeout for updating weather and time (for efficiency)
 	// every 10s
 	setInterval(function () {
-		Weather.updateVariables();
-		Event.updateTime(Game.areaName);
-		Game.renderDayNight();
-		map.setDayNightTiles();
+		if (document.getElementById("weatherOn").checked) {
+			Weather.updateVariables();
+			Event.updateTime(Game.areaName);
+			Game.renderDayNight();
+			map.setDayNightTiles();
+		}
 	}, 10000);
 }
 

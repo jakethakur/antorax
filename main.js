@@ -93,11 +93,13 @@ Game.tick = function (elapsed) {
 
 
 	this.update(delta); // update game state
-	
+
+	// check for screen size change
 	if (Dom.canvas.width !== window.innerWidth - 2 || Dom.canvas.height !== window.innerHeight - Dom.canvas.heightOffset) {
+		// update the screen display to fit the new size
 		Dom.updateScreenSize();
 	}
-	
+
 	this.render(delta); // render game display
 
 
@@ -2854,7 +2856,7 @@ class Camera extends Entity {
 	    // make the camera follow the sprite
 	    this.x = this.following.x - this.width / 2;
 	    this.y = this.following.y - this.height / 2;
-	    // clamp values
+	    // clamp values between 0 and maxX/Y
 	    this.x = Math.max(0, Math.min(this.x, this.maxX));
 	    this.y = Math.max(0, Math.min(this.y, this.maxY));
 
@@ -3942,25 +3944,8 @@ Game.loadArea = function (areaName, destination) {
 			this.displayOnCanvas(title, subtitles, 2);
 		}
 
-		// if the area is too small so does not fit in the screen, it should be moved to the centre of the screen
-		// calculate the variables of offset so the drawn sprites and tilemap can be adjusted by this
-		// note this is the width of black on each side
-		this.viewportOffsetX = 0;
-		this.viewportOffsetY = 0;
-		if (map.tsize * map.cols < this.camera.width) {
-			// area width not big enough to fill camera
-			// set offset so the canvas is drawn in the centre of screen
-			this.viewportOffsetX = (this.camera.width - (map.tsize * map.cols)) / 2;
-		}
-		if (map.tsize * map.rows < this.camera.height) {
-			// area height not big enough to fill camera
-			// set offset so the canvas is drawn in the centre of screen
-			this.viewportOffsetY = (this.camera.height - (map.tsize * map.rows)) / 2;
-		}
-
-		// set area of canvas using this viewportOffset
-		// currently used for weather particles
-		this.canvasArea = (Dom.canvas.width - this.viewportOffsetX*2) * (Dom.canvas.height - this.viewportOffsetY*2);
+		// update viewportOffset and canvasArea variables
+		this.updateCanvasViewport();
 
 		// reposition player
 		if (destination !== undefined) {
@@ -4095,6 +4080,30 @@ Game.loadArea = function (areaName, destination) {
 	});
 }
 
+// viewportOffset and canvasArea variables
+// called by loadArea and canvas resize
+Game.updateCanvasViewport = function () {
+	// if the area is too small so does not fit in the screen, it should be moved to the centre of the screen
+	// calculate the variables of offset so the drawn sprites and tilemap can be adjusted by this
+	// note this is the width of black on each side
+	this.viewportOffsetX = 0;
+	this.viewportOffsetY = 0;
+	if (map.tsize * map.cols < this.camera.width) {
+		// area width not big enough to fill camera
+		// set offset so the canvas is drawn in the centre of screen
+		this.viewportOffsetX = (this.camera.width - (map.tsize * map.cols)) / 2;
+	}
+	if (map.tsize * map.rows < this.camera.height) {
+		// area height not big enough to fill camera
+		// set offset so the canvas is drawn in the centre of screen
+		this.viewportOffsetY = (this.camera.height - (map.tsize * map.rows)) / 2;
+	}
+
+	// set area of canvas using this viewportOffset
+	// currently used for weather particles
+	this.canvasArea = (Dom.canvas.width - this.viewportOffsetX*2) * (Dom.canvas.height - this.viewportOffsetY*2);
+}
+
 // initialise game and DOM
 Game.init = function () {
 	// init keyboard
@@ -4144,7 +4153,7 @@ Game.init = function () {
 
 		oldPosition: Player.oldPosition,
 	});
-	
+
 	// link stats
     // currently a bit inefficient?
     Game.hero.stats = Player.stats;

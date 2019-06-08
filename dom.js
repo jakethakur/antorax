@@ -1127,12 +1127,12 @@ Dom.quest.start = function (quest) {
 		document.getElementById("questStartItems").innerHTML = "";
 		if (quest.rewards !== undefined) {
 			document.getElementById("questStartRewardsTitle").innerHTML = "<br><br><b>Quest Rewards</b><br>";
-			
+
 			if (!quest.addedRewardsFromTables) {
 				for (let i = 0; i < QuestRewardTables.globalAll.length; i++) {
 					quest.rewards.items.push(QuestRewardTables.globalAll[i]);
 				}
-				
+
 				if (quest.repeatTime === "daily") {
 					for (let i = 0; i < QuestRewardTables.globalDaily.length; i++) {
 						quest.rewards.items.push(QuestRewardTables.globalDaily[i]);
@@ -1140,7 +1140,7 @@ Dom.quest.start = function (quest) {
 				}
 				quest.addedRewardsFromTables = true;
 			}
-			
+
 			if (quest.rewards.items !== undefined) {
 				for (let i = 0; i < quest.rewards.items.length; i++) {
 					Dom.quest.addReward(quest.rewards.items[i], "questStartItems", "theseQuestOptions", "questStackNum");
@@ -1153,17 +1153,17 @@ Dom.quest.start = function (quest) {
 					}*/
 				}
 			}
-			
+
 			/*for (let i = 0; i < QuestRewardTables.globalAll.length; i++) {
 				Dom.quest.addReward(QuestRewardTables.globalAll[i], "questStartItems", "theseQuestOptions", "questStackNum");
 			}
-			
+
 			if (quest.repeatTime === "daily") {
 				for (let i = 0; i < QuestRewardTables.globalDaily.length; i++) {
 					Dom.quest.addReward(QuestRewardTables.globalDaily[i], "questStartItems", "theseQuestOptions", "questStackNum");
 				}
 			}*/
-			
+
 			/*if (quest.rewards.mystery) {
 				document.getElementById("questStartItems").innerHTML += "<img src='assets/items/item/1.png' class='theseQuestOptions'><span class='questStackNum'></span></img>&nbsp;&nbsp;";
 			}*/
@@ -1256,12 +1256,12 @@ Dom.quest.finish = function (quest) {
 			document.getElementById("questFinishXP").innerHTML = quest.rewards.xp;
 		}
 		document.getElementById("questFinishItems").innerHTML = "";
-		
+
 		if (!quest.addedRewardsFromTables) {
 			for (let i = 0; i < QuestRewardTables.globalAll.length; i++) {
 				quest.rewards.items.push(QuestRewardTables.globalAll[i]);
 			}
-			
+
 			if (quest.repeatTime === "daily") {
 				for (let i = 0; i < QuestRewardTables.globalDaily.length; i++) {
 					quest.rewards.items.push(QuestRewardTables.globalDaily[i]);
@@ -1269,7 +1269,7 @@ Dom.quest.finish = function (quest) {
 			}
 			quest.addedRewardsFromTables = true;
 		}
-		
+
 		if (quest.rewards !== undefined) {
 			document.getElementById("questFinishRewardsTitle").innerHTML = "<br><br><b>Quest Rewards</b><br>";
 			if (quest.rewards.items !== undefined) {
@@ -1288,17 +1288,17 @@ Dom.quest.finish = function (quest) {
 			document.getElementById("questFinishRewardsTitle").innerHTML = "";
 			document.getElementById("questFinishStartItems").innerHTML = "";
 		}
-		
+
 		/*for (let i = 0; i < QuestRewardTables.globalAll.length; i++) {
 			Dom.quest.addReward(QuestRewardTables.globalAll[i], "questFinishItems", "theseQuestFinishOptions", "questFinishStackNum");
 		}
-		
+
 		if (quest.repeatTime === "daily") {
 			for (let i = 0; i < QuestRewardTables.globalDaily.length; i++) {
 				Dom.quest.addReward(QuestRewardTables.globalDaily[i], "questFinishItems", "theseQuestFinishOptions", "questFinishStackNum");
 			}
 		}*/
-		
+
 		for (let x = 0; x < document.getElementsByClassName("theseQuestFinishOptions").length; x++) {
 			document.getElementsByClassName("theseQuestFinishOptions")[x].onmouseover = function () {
 				Dom.inventory.displayInformation(quest.rewards.items[x].item, quest.rewards.items[x].quantity, "questFinish");
@@ -1411,13 +1411,13 @@ Dom.quest.acceptRewards = function () {
 			}
 		}
 	}
-	
+
 	/*for (let i = 0; i < QuestRewardTables.globalAll.length; i++) {
 		if (QuestRewardTables.globalAll[i].condition === undefined || QuestRewardTables.globalAll[i].condition() && (QuestRewardTables.globalAll[i].chance === undefined || QuestRewardTables.globalAll[i].chance > Random(0, 99))) {
 			Dom.inventory.give(QuestRewardTables.globalAll[i].item, QuestRewardTables.globalAll[i].quantity);
 		}
 	}
-	
+
 	if (quest.repeatTime === "daily") {
 		for (let i = 0; i < QuestRewardTables.globalDaily.length; i++) {
 			if (QuestRewardTables.globalDaily[i].condition === undefined || QuestRewardTables.globalDaily[i].condition() && (QuestRewardTables.globalDaily[i].chance === undefined || QuestRewardTables.globalDaily[i].chance > Random(0, 99))) {
@@ -2627,12 +2627,12 @@ Dom.inventory.validateBags = function () {
 }
 
 Dom.inventory.validateSwap = function () {
-	
+
 	// item dropped on itself
 	if (Dom.inventory.fromArray === Dom.inventory.toArray && Dom.inventory.fromId === Dom.inventory.toId) {
 		return false;
 	}
-	
+
 	// key dropped on chest - must be first for it to work in equipment slots
 	if (Dom.inventory.fromArray[Dom.inventory.fromId].opens !== undefined &&
 	Dom.inventory.fromArray[Dom.inventory.fromId].opens.type === Dom.inventory.toArray[Dom.inventory.toId].type &&
@@ -2642,7 +2642,7 @@ Dom.inventory.validateSwap = function () {
 		Dom.inventory.fromElement.innerHTML = "";
 		return false;
 	}
-	
+
 	// invalid drag to equip slot
 	if (Dom.inventory.toArray.weapon !== undefined) {
 		if (!((Dom.inventory.toId === Dom.inventory.fromArray[Dom.inventory.fromId].type || ((Dom.inventory.fromArray[Dom.inventory.fromId].allClasses === true ||
@@ -2701,9 +2701,9 @@ Dom.inventory.validateSwap = function () {
 }
 
 Dom.inventory.drop = function (toElement, toArray, toId, fromElement, fromArray, fromId) { // from is not required for drag-n-drop cases
-	
+
 	document.getElementById("alert").hidden = true;
-	
+
 	if (fromId !== undefined) {
 		Dom.inventory.fromElement = fromElement;
 		Dom.inventory.fromArray = fromArray;
@@ -3555,9 +3555,9 @@ Dom.settings.hotkeys = function (ev) {
 		}
 		// if that key is available and not a bad key (unidentified)
 		if (available && ev.keyCode !== 255 && ev.keyCode !== 173 && ev.keyCode !== 174 && ev.keyCode !== 175 && ev.keyCode !== 176 && ev.keyCode !== 177 && ev.keyCode !== 179 && ev.keyCode !== 44) {
-			
+
 			Keyboard.unlistenKey(User.settings.keyboard[Object.keys(User.settings.keyboard)[Dom.settings.hotkey]]);
-			
+
 			let keysWithVariables = ["UP", "LEFT", "DOWN", "RIGHT", "SPACE"];
 			if (keysWithVariables.includes(Object.keys(User.settings.keyboard)[Dom.settings.hotkey])) {
 				Keyboard.listenForKeyWithVariable(keyName, Game.keysDown, Object.keys(User.settings.keyboard)[Dom.settings.hotkey]);
@@ -3565,12 +3565,12 @@ Dom.settings.hotkeys = function (ev) {
 			else{
 				Keyboard.listenForKey(keyName, Keyboard.downFunctions[Object.keys(User.settings.keyboard)[Dom.settings.hotkey]], Keyboard.upFunctions[Object.keys(User.settings.keyboard)[Dom.settings.hotkey]]);
 			}
-			
+
 			User.settings.keyboard[Object.keys(User.settings.keyboard)[Dom.settings.hotkey]] = keyName;
 			document.getElementsByClassName("hotkey")[Dom.settings.hotkey].innerHTML = Dom.settings.keyName(ev);
 			Dom.settings.hotkey = undefined;
 			//User.settings.keyboard = User.settings.keyboard;
-			
+
 		// if it is unavailable set it back to what it was
 		}else{
 			document.getElementsByClassName("hotkey")[Dom.settings.hotkey].innerHTML = Dom.settings.keyName(User.settings.keyboard[Object.keys(User.settings.keyboard)[Dom.settings.hotkey]]);
@@ -4363,10 +4363,12 @@ Dom.instructions.close = function (index) {
 	}
 }
 
+// called by viewport resize or by init
+// parameter is true if called on init
 Dom.updateScreenSize = function (init) {
 	Dom.canvas.width = window.innerWidth - 2;
 	Dom.canvas.height = window.innerHeight - Dom.canvas.heightOffset;
-	
+
 	document.getElementById("game").width = Dom.canvas.width;
 	document.getElementById("game").height = Dom.canvas.height;
 	document.getElementById("dayNight").width = Dom.canvas.width;
@@ -4405,21 +4407,35 @@ Dom.updateScreenSize = function (init) {
 	//document.getElementById("dot").style.top= Dom.canvas.height-53+"px";
 	//document.getElementById("dot").style.left= Dom.canvas.width/2+230+"px";
 	document.getElementById("achievement").style.left= Dom.canvas.width-458+"px";
-	
-	if (((window.screenTop || window.screenY) && Dom.browser === "chrome") || (!window.screenTop && !window.screenY && Dom.browser === "firefox")) {
-		document.getElementById("fullscreenOff").checked = true;
-	}
-	else {
+
+	if (window.innerHeight === screen.height || window.innerHeight + 1 === screen.height) {
 		document.getElementById("fullscreenOn").checked = true;
 	}
-	
+	else {
+		document.getElementById("fullscreenOff").checked = true;
+	}
+
+	// only call Game functions if this was called due to viewport being resized
+	// because Game functions are called anyway on init
 	if (!init) {
+		// update camera variables
 		Game.camera.width = Dom.canvas.width;
 		Game.camera.height = Dom.canvas.height;
-		Game.camera.update();
 		Game.camera.setMaxClampValues();
+		Game.camera.update();
+
+		// update Game canvas variables
+		Game.updateCanvasViewport();
+
+		// canvases are resized so are wiped - render them if they will not be rendered anyway next tick
 		Game.secondary.render();
 		Game.renderDayNight();
+
+		// update weather intensity and reset the positions of the particles
+		if (document.getElementById("weatherOn").checked) {
+			Weather.updateIntensity();
+			//Weather.reset();
+		}
 	}
 }
 
@@ -4428,16 +4444,16 @@ Dom.init = function () {
 	if (navigator.userAgent.indexOf("Firefox") !== -1) {
 		//Dom.canvas.height = window.innerHeight-1;
 		Dom.canvas.heightOffset = 1;
-		Dom.browser = "chrome";
+		Dom.browser = "chrome"; // actually just means anything other than firefox -_-
 	}
 	else{
 		//Dom.canvas.height = window.innerHeight-3;
 		Dom.canvas.heightOffset = 3;
 		Dom.browser = "firefox";
 	}
-	
+
 	Dom.updateScreenSize(true);
-	
+
 	document.getElementById("itemInventory").innerHTML = "";
 	for (let i = 0; i < Player.inventory.items.length/6; i++) {
 		let str = "<tr>";
@@ -4713,7 +4729,7 @@ Dom.init = function () {
 	}else{
 		document.getElementById("settingAcceptHolder").innerHTML = "";
 	}
-	
+
 	// keyboard functions
 	let array = ["ONE", "TWO", "THREE", "FOUR", "FIVE", "SIX"];
 	for (let i = 0; i < 6; i++) {
@@ -4730,7 +4746,7 @@ Dom.init = function () {
 		Keyboard.upFunctions[array[i]] = Dom.settings.hotkeys;
 		Keyboard.listenForKey(User.settings.keyboard[array[i]], undefined, Keyboard.upFunctions[array[i]]);
 	}
-	
+
 	//document.documentElement.requestFullscreen(); - disabled by chrome
 }
 
