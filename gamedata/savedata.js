@@ -145,6 +145,7 @@ var User = {
 		hitboxes: false,
 		grid: false,
 		transparency: false,
+		dark: false,
 		keyboard: {
 			// handled by main
 			// movement

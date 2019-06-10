@@ -1,7 +1,20 @@
+:root {
+	--border: #886622;
+	--alert: #eecc77;
+	--selected: #fdf581;
+	--top: #fff7a5;
+	--bottom: #fef9b4;
+	--page: #f9f9d0;
+	--text: #000000;
+	--link: #0000ff;
+	--arrow: #886622;
+	--opacity: 0.6;
+}
+
 body{
 	padding: 1%;
 	font-family: 'MedievalSharp', serif;
-	background-color: #f9f9d0;
+	background-color: var(--page);
 	overflow: auto;
 	-webkit-user-select: none; /* Safari */        
 	-moz-user-select: none; /* Firefox */
@@ -13,8 +26,8 @@ body{
 	width: 4vw;
 	height: 4vw;
 	position: absolute;
-	background-color: #fef9b4;
-	border: 5px solid #886622;
+	background-color: var(--bottom);
+	border: 5px solid var(--border);
 	right: 2.4%;
 	top: 2.4vw;
 	font-size: 4vw;
@@ -27,8 +40,8 @@ body{
 }
 #answer div{
 	position: absolute;
-	background-color: #fef9b4;
-	border: 5px solid #886622;
+	background-color: var(--bottom);
+	border: 5px solid var(--border);
 	display: inline-block;
 	vertical-align: middle;
 	font-size: 3.5vw;
@@ -103,10 +116,10 @@ input[type=checkbox]{
 }
 .triangleLeft {
 	right: 165px;
-	border-right: 20px solid #886622 !important;
+	border-right: 20px solid var(--border) !important;
 }
 .innerTriangleLeft {
 	right: 157px;
-	border-right: 20px solid #fef9b4 !important;
+	border-right: 20px solid var(--bottom) !important;
 	z-index: 2;
 }

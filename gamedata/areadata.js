@@ -463,8 +463,8 @@ var Areas = {
 		],
 
 		villagers: [
-			{
-				/*
+			/*{
+				
 				x: 400,
 				y: 400,
 				image: "weaponsmith",
@@ -481,8 +481,8 @@ var Areas = {
 					width: 1000,
 					height: 400,
 				},
-				*/
-			},
+
+			},*/
 		],
 	},
 

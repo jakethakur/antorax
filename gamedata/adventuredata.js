@@ -76,7 +76,7 @@ var Adventure = {
 	},
 	instructions: {
 		html: `<div id="instructionsAL" class="adventure">
-			<span id="instructionsTitle" style="color: blue; cursor: pointer;" onclick="Dom.instructions.index();"><u>Instructions</u></span><br>
+			<span id="instructionsTitle" style="cursor: pointer;" onclick="Dom.instructions.index();"><u>Instructions</u></span><br>
 			<span class="adventureContent">View information to help you in your journey.</span>
 		</div>`,
 		condition: function () {

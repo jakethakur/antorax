@@ -286,13 +286,13 @@ Dom.closePage = function (page, notClose) {
 		if (page === "settingsTwoPage") {
 			tab = "settingsPage";
 		}
-		document.getElementById("change"+tab.substring(0,1).toUpperCase()+tab.substring(1,tab.length-4)).style.opacity = 0.6;
-		document.getElementById("change"+tab.substring(0,1).toUpperCase()+tab.substring(1,tab.length-4)).getElementsByTagName("polygon")[0].style.strokeWidth = "1";
+		document.getElementById("change"+tab.substring(0,1).toUpperCase()+tab.substring(1,tab.length-4)).style.opacity = 0.7;
+		//document.getElementById("change"+tab.substring(0,1).toUpperCase()+tab.substring(1,tab.length-4)).getElementsByTagName("polygon")[0].style.strokeWidth = "1";
 	}else if (!notClose) {
 		Dom.currentlyDisplayed = "";
 		Dom.currentNPC = {};
 	}
-	if (page === "inventoryPage") {
+	if (page === "inventoryPage" && Dom.bank.active) {
 		Dom.closePage("bankPage");
 		Dom.bank.active = false;
 	}
@@ -308,7 +308,7 @@ Dom.changeBook = function (page, openClose) {
 			tab = "settingsPage";
 		}
 		document.getElementById("change"+tab.substring(0,1).toUpperCase()+tab.substring(1,tab.length-4)).style.opacity = 1;
-		document.getElementById("change"+tab.substring(0,1).toUpperCase()+tab.substring(1,tab.length-4)).getElementsByTagName("polygon")[0].style.strokeWidth = "2";
+		//document.getElementById("change"+tab.substring(0,1).toUpperCase()+tab.substring(1,tab.length-4)).getElementsByTagName("polygon")[0].style.strokeWidth = "2";
 	}
 	if (document.getElementById(page).hidden === true) {
 		document.getElementById(page).hidden = false;
@@ -383,7 +383,7 @@ Dom.chat.page = function () {
 	clearInterval(Dom.chat.borderBlack);
 	Dom.chat.borderRed = false;
 	Dom.chat.borderBlack = false;
-	document.getElementById("changeChat").getElementsByTagName("polygon")[0].style.stroke = "black";
+	//document.getElementById("changeChat").getElementsByTagName("polygon")[0].style.stroke = "black";
 }
 
 Dom.hotbar.update = function () {
@@ -710,23 +710,24 @@ Dom.inventory.updatePosition = function (object, element) {
 	let left = document.getElementById(element).offsetLeft;
 	let top = document.getElementById(element).offsetTop;
 	let width = object.offsetWidth;
-	if (window.mouseX !== Dom.inventory.prevMouseX || window.mouseY !== Dom.inventory.prevMouseY) {
+	if (window.mouseX !== Dom.inventory.prevMouseX || window.mouseY !== Dom.inventory.prevMouseY || object.offsetWidth !== Dom.inventory.prevWidth) {
 		Dom.inventory.prevMouseX = window.mouseX;
 		Dom.inventory.prevMouseY = window.mouseY;
+		Dom.inventory.prevWidth = object.offsetWidth;
 		// information displays on the right
 		if (window.mouseX+width+30 <= left+521) {
 			object.style.left = window.mouseX+30+"px";
-			document.getElementById("outTriangle").style = "right: "+(width-6)+"px; border-right: 20px solid #886622; border-left: 0px solid transparent;";
-			document.getElementById("outIdtriangle").style = "right: "+(width-6)+"px; border-right: 20px solid #886622; border-left: 0px solid transparent;";
-			document.getElementById("triangle").style = "right: "+(width-14)+"px; border-right: 20px solid #fef9b4; border-left: 0px solid transparent;";
-			document.getElementById("idtriangle").style = "right: "+(width-14)+"px; border-right: 20px solid #fef9b4; border-left: 0px solid transparent;";
+			document.getElementById("outTriangle").style = "right: "+(width-6)+"px; border-right: 20px solid var(--border); border-left: 0px solid transparent;";
+			document.getElementById("outIdtriangle").style = "right: "+(width-6)+"px; border-right: 20px solid var(--border); border-left: 0px solid transparent;";
+			document.getElementById("triangle").style = "right: "+(width-14)+"px; border-right: 20px solid var(--bottom); border-left: 0px solid transparent;";
+			document.getElementById("idtriangle").style = "right: "+(width-14)+"px; border-right: 20px solid var(--bottom); border-left: 0px solid transparent;";
 		// information displays on the left
 		}else{
 			object.style.left = window.mouseX-width-30+"px";
-			document.getElementById("outTriangle").style = "left: "+(width-6)+"px; border-left: 20px solid #886622; border-right: 0px solid transparent;";
-			document.getElementById("outIdtriangle").style = "left: "+(width-6)+"px; border-left: 20px solid #886622; border-right: 0px solid transparent;";
-			document.getElementById("triangle").style = "left: "+(width-14)+"px; border-left: 20px solid #fef9b4; border-right: 0px solid transparent;";
-			document.getElementById("idtriangle").style = "left: "+(width-14)+"px; border-left: 20px solid #fef9b4; border-right: 0px solid transparent;";
+			document.getElementById("outTriangle").style = "left: "+(width-6)+"px; border-left: 20px solid var(--border); border-right: 0px solid transparent;";
+			document.getElementById("outIdtriangle").style = "left: "+(width-6)+"px; border-left: 20px solid var(--border); border-right: 0px solid transparent;";
+			document.getElementById("triangle").style = "left: "+(width-14)+"px; border-left: 20px solid var(--bottom); border-right: 0px solid transparent;";
+			document.getElementById("idtriangle").style = "left: "+(width-14)+"px; border-left: 20px solid var(--bottom); border-right: 0px solid transparent;";
 		}
 		// information fits vertically
 		if (window.mouseY+object.offsetHeight-30 <= top+601) {
@@ -871,11 +872,11 @@ Dom.inventory.displayInformation = function (item, stacked, element, position, h
 				}else if (item.rarity === "junk") {
 					document.getElementById("name").style.color = "darkgray";
 				}else{
-					document.getElementById("name").style.color = "black";
+					document.getElementById("name").style.color = "var(--text)";
 				}
 			}else{
 				document.getElementById("name").innerHTML = "Unidentified "+item.type.charAt(0).toUpperCase() + item.type.slice(1);
-				document.getElementById("name").style.color = "black";
+				document.getElementById("name").style.color = "var(--text)";
 			}
 			// weapon, armour or rod
 			if (item.type !== "item" && item.type !== "bag" && item.type !== "currency" && item.type !== "fish" && item.type !== "consumable" && item.type !== "food" && item.type !== "teleport") {
@@ -904,7 +905,7 @@ Dom.inventory.displayInformation = function (item, stacked, element, position, h
 						for (let i = 0; i < Object.keys(item.chooseStats).length; i++) {
 							let color = "gray";
 							if (Object.keys(item.chooseStats)[i] === item.chosenStat) {
-								color = "black";
+								color = "var(--text)";
 							}
 							document.getElementById("stats").innerHTML += "<span style='color: "+color+"'>"+Dom.inventory.stats(FromCamelCase(Object.keys(item.chooseStats)[i]), item.chooseStats[Object.keys(item.chooseStats)[i]], item.chooseStats)+"</span>";
 							/*if (Object.keys(item.chooseStats)[i] !== "flaming") {
@@ -933,7 +934,7 @@ Dom.inventory.displayInformation = function (item, stacked, element, position, h
 							for (let i = 0; i < Object.keys(item.conditionalStats[x].stats).length; i++) {
 								let color = "gray";
 								if (Items[item.type][item.id].conditionalStats[x].condition()) {
-									color = "black";
+									color = "var(--text)";
 								}
 								document.getElementById("stats").innerHTML += "<span style='color: "+color+"'>"+Dom.inventory.stats(FromCamelCase(Object.keys(item.conditionalStats[x].stats)[i]), item.conditionalStats[x].stats[Object.keys(item.conditionalStats[x].stats)[i]], item.conditionalStats[x].stats)+"</span>";
 								/*if (Object.keys(item.chooseStats)[i] !== "flaming") {
@@ -1047,13 +1048,13 @@ Dom.inventory.displayInformation = function (item, stacked, element, position, h
 			if (item.quest !== undefined && (item.quest === true || item.quest())) {
 				document.getElementById("stats").innerHTML = "<span style='color: slateblue;'>Quest item</span><br>" + (document.getElementById("stats").innerHTML !== "" ? "<br>"+document.getElementById("stats").innerHTML : "");
 			}else{
-				document.getElementById("stats").style.color = "black";
+				document.getElementById("stats").style.color = "var(--text)";
 			}
 			let lorebuyer = "<br><br>";
 			if (item.use !== undefined) {
 				document.getElementById("lore").innerHTML = item.use;
 			}
-			else if (item.functionText !== undefined) {// && item.chooseStats === undefined) {
+			else if (item.functionText !== undefined && item.functionText !== "") {// && item.chooseStats === undefined) {
 				document.getElementById("lore").innerHTML = /*(document.getElementById("stats").innerHTML !== "" ? "<br>" : "") +*/ item.functionText + (item.charges !== undefined ? "<br><br>" + item.charges + " Charges" : "");
 			}
 			else if (item.healthRestore !== undefined && item.healthRestoreTime !== undefined) {
@@ -1066,12 +1067,12 @@ Dom.inventory.displayInformation = function (item, stacked, element, position, h
 			//let lorebuyer = "";
 			if (item.lore !== undefined && item.lore !== "" && !Array.isArray(item.lore)) {
 				document.getElementById("lore").innerHTML += lorebuyer+"<i>"+item.lore+"</i>";
-				//lorebuyer = "<br><br>";
+				lorebuyer = "<br><br>";
 			}/*else{
 				document.getElementById("lore").innerHTML = "";
 			}*/
 			if (position === "buyer" && item.sellPrice !== undefined) {
-				document.getElementById("lore").innerHTML += /*lorebuyer+*/"<br><br>Sell "+(item.sellQuantity !== 1 ? item.sellQuantity : "")+" for "+(item.charges === undefined ? item.sellPrice : Math.ceil(item.sellPrice / (item.maxCharges / item.charges)))+" gold";
+				document.getElementById("lore").innerHTML += lorebuyer+"Sell "+(item.sellQuantity !== 1 ? item.sellQuantity : "")+" for "+(item.charges === undefined ? item.sellPrice : Math.ceil(item.sellPrice / (item.maxCharges / item.charges)))+" gold";
 			}
 			if (item.cooldownStart !== undefined && parseInt(item.cooldownStart) + item.cooldown > parseInt(GetFullDateTime())) {
 				let answer = CalculateTime(GetFullDateTime(), (parseInt(item.cooldownStart) + item.cooldown).toString());
@@ -1119,15 +1120,25 @@ Dom.quest.start = function (quest) {
 		for (let i = 0; i < quest.objectives.length; i++) {
 			document.getElementById("questStartObjectives").innerHTML += "<br>" + quest.objectives[i];
 		}
-		if (quest.rewards.xp === 0 || quest.rewards.xp === undefined) {
-			document.getElementById("questStartXP").style.display = "none";
-		}else{
-			document.getElementById("questStartXP").innerHTML = quest.rewards.xp;
-		}
+		
+		// xp rewards
 		document.getElementById("questStartItems").innerHTML = "";
+		document.getElementById("questStartXP").hidden = true;
 		if (quest.rewards !== undefined) {
+			if (quest.rewards.xp > 0) {
+				document.getElementById("questStartXP").hidden = false;
+				document.getElementById("questStartXP").innerHTML = quest.rewards.xp;
+			}
 			document.getElementById("questStartRewardsTitle").innerHTML = "<br><br><b>Quest Rewards</b><br>";
 
+			// service rewards
+			if (quest.rewards.services !== undefined) {
+				for (let i = 0; i < quest.rewards.services.length; i++) {
+					document.getElementById("questStartItems").innerHTML += "<img src='./assets/icons/" + quest.rewards.services[i].image + ".png' class='theseQuestServices'></img>&nbsp;&nbsp;";
+				}
+			}
+
+			// item rewards
 			if (!quest.addedRewardsFromTables) {
 				for (let i = 0; i < QuestRewardTables.globalAll.length; i++) {
 					quest.rewards.items.push(QuestRewardTables.globalAll[i]);
@@ -1153,26 +1164,24 @@ Dom.quest.start = function (quest) {
 					}*/
 				}
 			}
-
-			/*for (let i = 0; i < QuestRewardTables.globalAll.length; i++) {
-				Dom.quest.addReward(QuestRewardTables.globalAll[i], "questStartItems", "theseQuestOptions", "questStackNum");
-			}
-
-			if (quest.repeatTime === "daily") {
-				for (let i = 0; i < QuestRewardTables.globalDaily.length; i++) {
-					Dom.quest.addReward(QuestRewardTables.globalDaily[i], "questStartItems", "theseQuestOptions", "questStackNum");
-				}
-			}*/
-
-			/*if (quest.rewards.mystery) {
-				document.getElementById("questStartItems").innerHTML += "<img src='assets/items/item/1.png' class='theseQuestOptions'><span class='questStackNum'></span></img>&nbsp;&nbsp;";
-			}*/
-		}else{
+		}
+		else{
 			document.getElementById("questStartRewardsTitle").innerHTML = "";
 		}
+		
+		// start rewards
 		document.getElementById("questStartStartItems").innerHTML = "";
 		if (quest.startRewards !== undefined) {
 			document.getElementById("questStartStartRewardsTitle").innerHTML = "<br><br><b>Quest Start Rewards</b><br>";
+			
+			// service rewards
+			if (quest.startRewards.services !== undefined) {
+				for (let i = 0; i < quest.startRewards.services.length; i++) {
+					document.getElementById("questStartStartItems").innerHTML += "<img src='./assets/icons/" + quest.startRewards.services[i].image + ".png' class='theseQuestStartServices'></img>&nbsp;&nbsp;";
+				}
+			}
+			
+			// item rewards
 			if (quest.startRewards.items !== undefined) {
 				for (let i = 0; i < quest.startRewards.items.length; i++) {
 					Dom.quest.addReward(quest.startRewards.items[i], "questStartStartItems", "theseQuestStartOptions", "questStartStackNum");
@@ -1183,46 +1192,91 @@ Dom.quest.start = function (quest) {
 					}*/
 				}
 			}
-		}else{
+		}
+		else{
 			document.getElementById("questStartStartRewardsTitle").innerHTML = "";
 		}
+		
 		// repeats for all item rewards
-		for (let x = 0; x < document.getElementsByClassName("theseQuestOptions").length; x++) {
-			document.getElementsByClassName("theseQuestOptions")[x].onmouseover = function () {
-				Dom.inventory.displayInformation(quest.rewards.items[x].item, quest.rewards.items[x].quantity, "questStart");
-			};
-			document.getElementsByClassName("theseQuestOptions")[x].onmouseleave = function () {
-				Dom.expand("information");
-			};
+		let startArray = document.getElementsByClassName("theseQuestStartServices");
+		if (startArray.length === 0) {
+			startArray = document.getElementsByClassName("theseQuestStartOptions");
 		}
-		for (let x = 0; x < document.getElementsByClassName("theseQuestStartOptions").length; x++) {
-			document.getElementsByClassName("theseQuestStartOptions")[x].onmouseover = function () {
-				Dom.inventory.displayInformation(quest.startRewards.items[x].item, quest.startRewards.items[x].quantity, "questStart");
-			};
-			document.getElementsByClassName("theseQuestStartOptions")[x].onmouseleave = function () {
-				Dom.expand("information");
-			};
+		else {
+			for (let x = 0; x < document.getElementsByClassName("theseQuestStartServices").length; x++) {
+				quest.startRewards.services[x].type = "item";
+				quest.startRewards.services[x].name = "Service Reward";
+				document.getElementsByClassName("theseQuestStartServices")[x].onmouseover = function () {
+					Dom.inventory.displayInformation(quest.startRewards.services[x], undefined, "questStart");
+				};
+				document.getElementsByClassName("theseQuestStartServices")[x].onmouseleave = function () {
+					Dom.expand("information");
+				};
+			}
 		}
-		for (let x = 0; x < document.getElementsByClassName("questStackNum").length; x++) {
-			document.getElementsByClassName("questStackNum")[x].onmouseover = function () {
-				Dom.inventory.displayInformation(quest.rewards.items[x].item, quest.rewards.items[x].quantity, "questStart");
-			};
-			document.getElementsByClassName("questStackNum")[x].onmouseleave = function () {
-				Dom.expand("information");
-			};
-			document.getElementsByClassName("questStackNum")[x].style.left = document.getElementsByClassName("theseQuestOptions")[x].offsetLeft + 5 + "px";
-			document.getElementsByClassName("questStackNum")[x].style.top = document.getElementsByClassName("theseQuestOptions")[x].offsetTop + 33 + "px";
+		if (startArray.length > 0) {
+			startArray[startArray.length-1].onload = function () {
+				for (let x = 0; x < document.getElementsByClassName("theseQuestStartOptions").length; x++) {
+					document.getElementsByClassName("theseQuestStartOptions")[x].onmouseover = function () {
+						Dom.inventory.displayInformation(quest.startRewards.items[x].item, quest.startRewards.items[x].quantity, "questStart");
+					};
+					document.getElementsByClassName("theseQuestStartOptions")[x].onmouseleave = function () {
+						Dom.expand("information");
+					};
+				}
+				
+				for (let x = 0; x < document.getElementsByClassName("questStartStackNum").length; x++) {
+					document.getElementsByClassName("questStartStackNum")[x].onmouseover = function () {
+						Dom.inventory.displayInformation(quest.startRewards.items[x].item, quest.startRewards.items[x].quantity, "questStart");
+					};
+					document.getElementsByClassName("questStartStackNum")[x].onmouseleave = function () {
+						Dom.expand("information");
+					};
+					document.getElementsByClassName("questStartStackNum")[x].style.left = document.getElementsByClassName("theseQuestStartOptions")[x].offsetLeft + 5 + "px";
+					document.getElementsByClassName("questStartStackNum")[x].style.top = document.getElementsByClassName("theseQuestStartOptions")[x].offsetTop + 33 + "px";
+				}
+			}
 		}
-		for (let x = 0; x < document.getElementsByClassName("questStartStackNum").length; x++) {
-			document.getElementsByClassName("questStartStackNum")[x].onmouseover = function () {
-				Dom.inventory.displayInformation(quest.startRewards.items[x].item, quest.startRewards.items[x].quantity, "questStart");
-			};
-			document.getElementsByClassName("questStartStackNum")[x].onmouseleave = function () {
-				Dom.expand("information");
-			};
-			document.getElementsByClassName("questStartStackNum")[x].style.left = document.getElementsByClassName("theseQuestStartOptions")[x].offsetLeft + 5 + "px";
-			document.getElementsByClassName("questStartStackNum")[x].style.top = document.getElementsByClassName("theseQuestStartOptions")[x].offsetTop + 33 + "px";
+		let array = document.getElementsByClassName("theseQuestServices");
+		if (array.length === 0) {
+			array = document.getElementsByClassName("theseQuestOptions");
 		}
+		else {
+			for (let x = 0; x < document.getElementsByClassName("theseQuestServices").length; x++) {
+				quest.rewards.services[x].type = "item";
+				quest.rewards.services[x].name = "Service Reward";
+				document.getElementsByClassName("theseQuestServices")[x].onmouseover = function () {
+					Dom.inventory.displayInformation(quest.rewards.services[x], undefined, "questStart");
+				};
+				document.getElementsByClassName("theseQuestServices")[x].onmouseleave = function () {
+					Dom.expand("information");
+				};
+			}
+		}
+		if (array.length > 0) {
+			array[array.length-1].onload = function () {
+				for (let x = 0; x < document.getElementsByClassName("theseQuestOptions").length; x++) {
+					document.getElementsByClassName("theseQuestOptions")[x].onmouseover = function () {
+						Dom.inventory.displayInformation(quest.rewards.items[x].item, quest.rewards.items[x].quantity, "questStart");
+					};
+					document.getElementsByClassName("theseQuestOptions")[x].onmouseleave = function () {
+						Dom.expand("information");
+					};
+				}
+				
+				for (let x = 0; x < document.getElementsByClassName("questStackNum").length; x++) {
+					document.getElementsByClassName("questStackNum")[x].onmouseover = function () {
+						Dom.inventory.displayInformation(quest.rewards.items[x].item, quest.rewards.items[x].quantity, "questStart");
+					};
+					document.getElementsByClassName("questStackNum")[x].onmouseleave = function () {
+						Dom.expand("information");
+					};
+					document.getElementsByClassName("questStackNum")[x].style.left = document.getElementsByClassName("theseQuestOptions")[x].offsetLeft + 5 + "px";
+					document.getElementsByClassName("questStackNum")[x].style.top = document.getElementsByClassName("theseQuestOptions")[x].offsetTop + 33 + "px";
+				}
+			}
+		}
+		
 		Dom.currentlyDisplayed = quest;
 	}
 }
@@ -1250,13 +1304,25 @@ Dom.quest.finish = function (quest) {
 		document.getElementById("questFinishQuest").innerHTML = quest.quest;
 		document.getElementById("questFinishName").innerHTML = quest.finishName;
 		document.getElementById("questFinishChat").innerHTML = quest.finishChat;
-		if (quest.rewards.xp === 0 || quest.rewards.xp === undefined) {
-			document.getElementById("questFinishXP").style.display = "none";
-		}else{
-			document.getElementById("questFinishXP").innerHTML = quest.rewards.xp;
-		}
+		
+		// xp rewards
 		document.getElementById("questFinishItems").innerHTML = "";
+		document.getElementById("questFinishXP").hidden = true;
+		if (quest.rewards !== undefined) {
+			if (quest.rewards.xp > 0) {
+				document.getElementById("questFinishXP").hidden = false;
+				document.getElementById("questFinishXP").innerHTML = quest.rewards.xp;
+			}
+			document.getElementById("questFinishRewardsTitle").innerHTML = "<br><br><b>Quest Rewards</b><br>";
 
+		// service rewards
+		if (quest.rewards.services !== undefined) {
+			for (let i = 0; i < quest.rewards.services.length; i++) {
+				document.getElementById("questFinishItems").innerHTML += "<img src='./assets/icons/" + quest.rewards.services[i].image + ".png' class='theseQuestFinishServices'></img>&nbsp;&nbsp;";
+			}
+		}
+
+		//item rewards
 		if (!quest.addedRewardsFromTables) {
 			for (let i = 0; i < QuestRewardTables.globalAll.length; i++) {
 				quest.rewards.items.push(QuestRewardTables.globalAll[i]);
@@ -1270,7 +1336,6 @@ Dom.quest.finish = function (quest) {
 			quest.addedRewardsFromTables = true;
 		}
 
-		if (quest.rewards !== undefined) {
 			document.getElementById("questFinishRewardsTitle").innerHTML = "<br><br><b>Quest Rewards</b><br>";
 			if (quest.rewards.items !== undefined) {
 				for (let i = 0; i < quest.rewards.items.length; i++) {
@@ -1283,40 +1348,60 @@ Dom.quest.finish = function (quest) {
 						}
 					}*/
 				}
+				
+				// display warning if there is not enough space to hold all possible rewards
+				if (Dom.inventory.requiredSpace(quest.rewards.items, true)) {
+					document.getElementById("chanceImage").hidden = true;
+					document.getElementById("chance").hidden = true;
+				}
+				else {
+					document.getElementById("chanceImage").hidden = false;
+					document.getElementById("chance").hidden = false;
+				}
+				
 			}
 		}else{
 			document.getElementById("questFinishRewardsTitle").innerHTML = "";
 			document.getElementById("questFinishStartItems").innerHTML = "";
 		}
-
-		/*for (let i = 0; i < QuestRewardTables.globalAll.length; i++) {
-			Dom.quest.addReward(QuestRewardTables.globalAll[i], "questFinishItems", "theseQuestFinishOptions", "questFinishStackNum");
+		
+		let array = document.getElementsByClassName("theseQuestFinishServices");
+		if (array.length === 0) {
+			array = document.getElementsByClassName("theseQuestFinishOptions");
 		}
-
-		if (quest.repeatTime === "daily") {
-			for (let i = 0; i < QuestRewardTables.globalDaily.length; i++) {
-				Dom.quest.addReward(QuestRewardTables.globalDaily[i], "questFinishItems", "theseQuestFinishOptions", "questFinishStackNum");
+		else {
+			for (let x = 0; x < document.getElementsByClassName("theseQuestFinishServices").length; x++) {
+				quest.rewards.services[x].type = "item";
+				quest.rewards.services[x].name = "Service Reward";
+				document.getElementsByClassName("theseQuestFinishServices")[x].onmouseover = function () {
+					Dom.inventory.displayInformation(quest.rewards.services[x], undefined, "questFinish");
+				};
+				document.getElementsByClassName("theseQuestFinishServices")[x].onmouseleave = function () {
+					Dom.expand("information");
+				};
 			}
-		}*/
-
-		for (let x = 0; x < document.getElementsByClassName("theseQuestFinishOptions").length; x++) {
-			document.getElementsByClassName("theseQuestFinishOptions")[x].onmouseover = function () {
-				Dom.inventory.displayInformation(quest.rewards.items[x].item, quest.rewards.items[x].quantity, "questFinish");
-			};
-			document.getElementsByClassName("theseQuestFinishOptions")[x].onmouseleave = function () {
-				Dom.expand("information");
-			};
 		}
-		for (let x = 0; x < document.getElementsByClassName("questFinishStackNum").length; x++) {
-			document.getElementsByClassName("questFinishStackNum")[x].onmouseover = function () {
-				Dom.inventory.displayInformation(quest.rewards.items[x].item, quest.rewards.items[x].quantity, "questFinish");
-			};
-			document.getElementsByClassName("questFinishStackNum")[x].onmouseleave = function () {
-				Dom.expand("information");
-			};
-			document.getElementsByClassName("questFinishStackNum")[x].style.left = document.getElementsByClassName("theseQuestFinishOptions")[x].offsetLeft + 5 + "px";
-			document.getElementsByClassName("questFinishStackNum")[x].style.top = document.getElementsByClassName("theseQuestFinishOptions")[x].offsetTop + 33 + "px";
+		array[array.length-1].onload = function () {
+			for (let x = 0; x < document.getElementsByClassName("theseQuestFinishOptions").length; x++) {
+				document.getElementsByClassName("theseQuestFinishOptions")[x].onmouseover = function () {
+					Dom.inventory.displayInformation(quest.rewards.items[x].item, quest.rewards.items[x].quantity, "questFinish");
+				};
+				document.getElementsByClassName("theseQuestFinishOptions")[x].onmouseleave = function () {
+					Dom.expand("information");
+				};
+			}
+			for (let x = 0; x < document.getElementsByClassName("questFinishStackNum").length; x++) {
+				document.getElementsByClassName("questFinishStackNum")[x].onmouseover = function () {
+					Dom.inventory.displayInformation(quest.rewards.items[x].item, quest.rewards.items[x].quantity, "questFinish");
+				};
+				document.getElementsByClassName("questFinishStackNum")[x].onmouseleave = function () {
+					Dom.expand("information");
+				};
+				document.getElementsByClassName("questFinishStackNum")[x].style.left = document.getElementsByClassName("theseQuestFinishOptions")[x].offsetLeft + 5 + "px";
+				document.getElementsByClassName("questFinishStackNum")[x].style.top = document.getElementsByClassName("theseQuestFinishOptions")[x].offsetTop + 33 + "px";
+			}
 		}
+		
 		Dom.currentlyDisplayed = quest;
 	}
 }
@@ -1565,7 +1650,7 @@ Dom.merchant.page = function (npc, sold, chat) {
 		document.getElementById("merchantPageOptions").innerHTML = "";
 		document.getElementById("merchantPageBuy").innerHTML = "";
 		for (let i = 0; i < sold.length; i++) {
-			document.getElementById("merchantPageOptions").innerHTML += "<img src=" + sold[i].item.image + " class='theseOptions' style='border: 5px solid #886622;'></img><br><br>";
+			document.getElementById("merchantPageOptions").innerHTML += "<img src=" + sold[i].item.image + " class='theseOptions' style='border: 5px solid var(--border);'></img><br><br>";
 			if (sold[i].costCurrency === undefined) {
 				sold[i].costCurrency = 2;
 			}
@@ -1596,7 +1681,7 @@ Dom.merchant.buy = function (item,index,npc) {
 	if (Dom.inventory.check(item.costCurrency,"currency",item.cost) && Dom.inventory.requiredSpace([{item: item.item}])) {
 		document.getElementsByClassName("buy")[index].style.backgroundColor = "#bb9933";
 		setTimeout(function () {
-			document.getElementsByClassName("buy")[index].style.backgroundColor = "#fef9b4";
+			document.getElementsByClassName("buy")[index].style.backgroundColor = "var(--bottom)";
 		},200);
 		Dom.inventory.removeById(item.costCurrency,"currency",item.cost);
 		Dom.inventory.give(item.item);
@@ -1605,7 +1690,7 @@ Dom.merchant.buy = function (item,index,npc) {
 		if (!Dom.inventory.check(item.costCurrency,"currency",item.cost)) {
 			document.getElementsByClassName("buy")[index].style.border = "5px solid red";
 			setTimeout(function () {
-				document.getElementsByClassName("buy")[index].style.border = "5px solid #886622";
+				document.getElementsByClassName("buy")[index].style.border = "5px solid var(--border)";
 			},200);
 			npc.say(npc.chat.tooPoor, 0, false, true);
 		}else{
@@ -1691,7 +1776,7 @@ Dom.identifier.page = function (npc/*, over*/) {
 		//Dom.currentlyDisplayed = npc.name;
 		//Dom.changeBook("identifierPage", false); // stops close button being red
 		document.getElementById("identifierPageChat").innerHTML = npc.chat.identifierGreeting;
-		document.getElementById("identifierPageOption").innerHTML = "<img src=" + Dom.identifier.unId[Dom.identifier.displayed].image + " class='theseOptions' style='padding: 0px; margin: 0px; border: 5px solid #886622; height: 50px; width: 50px;'></img>";
+		document.getElementById("identifierPageOption").innerHTML = "<img src=" + Dom.identifier.unId[Dom.identifier.displayed].image + " class='theseOptions' style='padding: 0px; margin: 0px; border: 5px solid var(--border); height: 50px; width: 50px;'></img>";
 		document.getElementById("identifierPageOption").onmouseover = function () {
 			Dom.inventory.displayInformation(Dom.identifier.unId[Dom.identifier.displayed], undefined, "identifierPage");
 		}
@@ -1746,7 +1831,7 @@ Dom.identifier.identify = function (npc) {
 		}
 		Dom.identifier.num = Random(0, Dom.identifier.array.length-1);
 		Dom.identifier.item = Dom.identifier.array[Dom.identifier.num]; // a random item from the array of possible items
-		document.getElementById("identifiedPageOption").innerHTML = "<img src=" + Dom.identifier.item.image + " class='theseOptions' style='padding: 0px; margin: 0px; border: 5px solid #886622; height: 50px; width: 50px;'></img>";
+		document.getElementById("identifiedPageOption").innerHTML = "<img src=" + Dom.identifier.item.image + " class='theseOptions' style='padding: 0px; margin: 0px; border: 5px solid var(--border); height: 50px; width: 50px;'></img>";
 		Dom.inventory.give(Dom.identifier.item);
 		document.getElementById("identifiedPageOption").getElementsByTagName("img")[0].onmouseover = function () {
 			Dom.inventory.displayInformation(Dom.identifier.array[Dom.identifier.num], undefined, "identifiedPage");
@@ -1769,7 +1854,7 @@ Dom.identifier.identify = function (npc) {
 	}else/* if (Dom.identifier.unId.length !== 0)*/{
  		document.getElementById("identifierPageBuy").style.border = "5px solid red";
 		setTimeout(function () {
-			document.getElementById("identifierPageBuy").style.border = "5px solid #886622";
+			document.getElementById("identifierPageBuy").style.border = "5px solid var(--border)";
 		},200);
 		npc.say(npc.chat.tooPoor, 0, true, true);
 	}
@@ -2177,7 +2262,9 @@ Dom.inventory.dispose = function (ev) {
 							str += '<td ondrop="Dom.inventory.drop(event, Player.inventory.items, '+inv+');Game.inventoryUpdate(event)" ondragover="Dom.inventory.allowDrop(event)" onmouseover="Dom.inventory.displayInformation(Player.inventory.items['+inv+'], undefined, \'inventoryPage\')" onmouseleave="Dom.expand(\'information\')" ondrag="Dom.expand(\'information\')" onclick="Game.inventoryUpdate()"></td>';
 						}
 						document.getElementById("itemInventory").innerHTML = str+"</tr>";
-						document.getElementById("itemInventory").getElementsByTagName("td")[5].style.backgroundImage = "url('assets/items/bag/1.png')";
+						if (Player.inventory.items[5].image === undefined) {
+							document.getElementById("itemInventory").getElementsByTagName("td")[5].style.backgroundImage = "url('assets/items/bag/1.png')";
+						}
 						for (let x = 0; x < 6; x++) {
 							if (Player.inventory.items[x].image !== undefined) {
 								document.getElementById("itemInventory").getElementsByTagName("td")[x].innerHTML = '<img src="'+Player.inventory.items[x].image+'" draggable="true" ondragstart="Dom.inventory.drag(event, Player.inventory.items, '+x+')"></img>';
@@ -2422,8 +2509,14 @@ Dom.inventory.bagSwaps = function (to, from, array) {
 }
 
 Dom.bank.bagCases = function () {
-	//let changed = true;
-
+	// slot backgrounds
+	if (Dom.inventory.fromArray === Player.bank.items && Dom.inventory.fromId < 6) {
+		document.getElementById("bankPageInventory").getElementsByTagName("td")[Dom.inventory.fromId].style.backgroundImage = "url('./assets/items/bag/1.png')";
+	}
+	if (Dom.inventory.toArray === Player.bank.items && Dom.inventory.toId < 6) {
+		document.getElementById("bankPageInventory").getElementsByTagName("td")[Dom.inventory.toId].style.backgroundImage = "";
+	}
+	
 	// going from the bag slot from a bag
 	if (Dom.inventory.fromArray === Player.bank.items && Dom.inventory.fromId < 6 && Dom.inventory.toArray[Dom.inventory.toId].type === "bag") {
 		Dom.inventory.bagSwaps(Dom.inventory.fromArray[Dom.inventory.fromId], Dom.inventory.toArray[Dom.inventory.toId], Player.bank.items);
@@ -2446,41 +2539,18 @@ Dom.bank.bagCases = function () {
 		}
 	}
 
-	// no bags changed
-	/*else {
-		changed = false;
-	}*/
-
-	// redraw the bank if a bag has been changed
-	/*document.getElementById("bankPageInventory").innerHTML = "";
-	for (let i = 0; i < Player.bank.items.length; i+=6) {
-		let str = "<tr>";
-		for (let inv = i; inv < i+6; inv++) {
-			str += '<td ondrop="Dom.inventory.drop(event, Player.bank.items, '+inv+');Game.inventoryUpdate(event)" ondragover="Dom.inventory.allowDrop(event)" onmouseover="Dom.inventory.displayInformation(Player.bank.items['+inv+'], undefined, \'bankPage\')" onmouseleave="Dom.expand(\'information\')" ondrag="Dom.expand(\'information\')" onclick="Game.inventoryUpdate()"></td>';
-		}
-		document.getElementById("bankPageInventory").innerHTML += str+"</tr>";
-	}
-	for (let i = 0; i < 6; i++) {
-		if (i < Player.bank.unlockedSlots) {
-			document.getElementById("bankPageInventory").getElementsByTagName("td")[i].style.backgroundImage = "url('./assets/items/bag/1.png')";
-		}
-		else {
-			document.getElementById("bankPageInventory").getElementsByTagName("td")[i].style.backgroundImage = "url('./assets/items/bag/0.png')";
-		}
-	}
-	for (let i = 0; i < Player.bank.items.length; i++) {
-		if (Player.bank.items[i].image !== undefined) {
-			// building the table
-			document.getElementById("bankPageInventory").getElementsByTagName("td")[i].innerHTML = "<img src='"+Player.bank.items[i].image+"' draggable='true' ondragstart='Dom.inventory.drag(event, Player.bank.items, "+i+")' onclick='Dom.bank.inOut(\"out\", "+i+")'></img>";
-			if (Player.bank.items[i].stacked !== undefined && Player.bank.items[i].stacked !== 1) {
-				document.getElementById("bankPageInventory").getElementsByTagName("td")[i].innerHTML += "<div class='stackNum' id='bankStackNum"+i+"'>"+Player.bank.items[i].stacked+"</div>";
-			}
-		}
-	}*/
 	Dom.bank.page();
 }
 
 Dom.inventory.bagCases = function () {
+	// slot backgrounds
+	if (Dom.inventory.fromArray === Player.inventory.items && Dom.inventory.fromId === 5) {
+		document.getElementById("itemInventory").getElementsByTagName("td")[5].style.backgroundImage = "url('./assets/items/bag/1.png')";
+	}
+	if (Dom.inventory.toArray === Player.inventory.items && Dom.inventory.toId === 5) {
+		document.getElementById("itemInventory").getElementsByTagName("td")[5].style.backgroundImage = "";
+	}
+	
 	let changed = true;
 	// going from the bag slot from a bag
 	if (this.fromArray === Player.inventory.items && this.fromId === 5 && this.toArray[this.toId].type === "bag") {
@@ -2525,19 +2595,21 @@ Dom.inventory.bagCases = function () {
 				}
 			}
 		}
-		document.getElementById("itemInventory").getElementsByTagName("td")[5].style.backgroundImage = "url('assets/items/bag/1.png')";
+		if (Player.inventory.items[5].image === undefined) {
+			document.getElementById("itemInventory").getElementsByTagName("td")[5].style.backgroundImage = "url('assets/items/bag/1.png')";
+		}
 	}
 }
 
 Dom.bank.validateBags = function () {
 
 	// swapping bags between bank bag slots
-	if (Dom.inventory.toArray === Player.bank.items && Dom.inventory.toId < 6 && Dom.inventory.fromArray === Player.bank.items && Dom.inventory.fromId < 6) {
+	if (Dom.inventory.toArray === Player.bank.items && Dom.inventory.toId < Dom.bank.unlockedSlots && Dom.inventory.fromArray === Player.bank.items && Dom.inventory.fromId < Dom.bank.unlockedSlots) {
 		return true;
 	}
 
 	// normal item in bag slot or not unlocked bag slot
-	if ((Dom.inventory.toArray === Player.bank.items && (Dom.inventory.fromArray[Dom.inventory.fromId].type !== "bag" || Dom.inventory.toId >= Player.bank.unlockedSlots))
+	if ((Dom.inventory.toArray === Player.bank.items && (Dom.inventory.fromArray[Dom.inventory.fromId].type !== "bag" || (Dom.inventory.toId >= Player.bank.unlockedSlots && Dom.inventory.toId < 6)))
 	|| (Dom.inventory.fromArray === Player.bank.items && Dom.inventory.toArray[Dom.inventory.toId].type !== "bag" && Dom.inventory.toArray[Dom.inventory.toId].type !== undefined)){
 		return false;
 	}
@@ -2574,8 +2646,8 @@ Dom.bank.validateBags = function () {
 				}
 			}
 		}
-		// a bag is being removed and not replaced
-		else{
+		// a bag is being removed and not replaced which is needed
+		else if (Player.bank.items.length - Dom.inventory.fromArray[Dom.inventory.fromId].size <= highest){
 			// dont let the bag be removed
 			return false;
 		}
@@ -2755,10 +2827,10 @@ Dom.inventory.drop = function (toElement, toArray, toId, fromElement, fromArray,
 			}
 		}
 		else if (Dom.inventory.toArray === Player.inventory) {
-			Dom.inventory.addEquipment(Dom.inventory.toArray[Dom.inventory.toId]);
 			if (Dom.inventory.fromArray[Dom.inventory.fromId].image !== undefined) {
 				Dom.inventory.removeEquipment(Dom.inventory.fromArray[Dom.inventory.fromId]);
 			}
+			Dom.inventory.addEquipment(Dom.inventory.toArray[Dom.inventory.toId]);
 		}
 
 		// inventory bag cases
@@ -2797,6 +2869,15 @@ Dom.inventory.setItemFunctions = function (element, array, id) {
 }
 
 Dom.inventory.removeEquipment = function (array) {
+	// draw slot background
+	let element = "weapon";
+	let type = "sword";
+	if (array.type !== "rod" && array.type !== "sword" && array.type !== "staff" && array.type !== "bow") {
+		element = array.type;
+		type = array.type;
+	}
+	document.getElementById(element).style.backgroundImage = "url('assets/items/"+type+"/1.png')";
+	
 	Dom.inventory.beforeChangedStats();
 	if (array.stats !== undefined) {
 		for (let i = 0; i < Object.keys(array.stats).length; i++) {
@@ -2878,6 +2959,13 @@ Dom.inventory.removeEquipment = function (array) {
 }
 
 Dom.inventory.addEquipment = function (array) {
+	// remove slot background
+	let element = "weapon";
+	if (array.type !== "rod" && array.type !== "sword" && array.type !== "staff" && array.type !== "bow") {
+		element = array.type;
+	}
+	document.getElementById(element).style.backgroundImage = "";
+	
 	Dom.inventory.beforeChangedStats();
 	if (array.stats !== undefined) {
 		for (let i = 0; i < Object.keys(array.stats).length; i++) {
@@ -3073,7 +3161,7 @@ document.getElementById("hotbar").onmouseover = function () {
 }
 
 document.getElementById("hotbar").onmouseleave = function () {
-	document.getElementById("hotbar").style.opacity = 0.6;
+	document.getElementById("hotbar").style.opacity = "var(--opacity)";
 }
 
 Dom.settings.acceptOn = function () {
@@ -3098,26 +3186,28 @@ Dom.inventory.checkSpace = function () {
 	return space;
 }
 
-Dom.inventory.requiredSpace = function (items) {
+Dom.inventory.requiredSpace = function (items, includeChance) {
 	let required = 0;
 	// repeat for each required item
 	for (let i = 0; i < items.length; i++) {
-		if (items[i].item.stack === undefined) {
-			items[i].item.stack = 1;
-		}
-		if (items[i].quantity === undefined) {
-			items[i].quantity = 1;
-		}
-		let notRequired = 0;
-		for (let x = 0; x < Player.inventory.items.length; x++) {
-			if (Player.inventory.items[x].stacked === undefined) {
-				Player.inventory.items[x].stacked = 1;
+		if ((items[i].condition === undefined || items[i].condition()) && (items[i].chance === undefined || includeChance)) {
+			if (items[i].item.stack === undefined) {
+				items[i].item.stack = 1;
 			}
-			if (Player.inventory.items[x].id === items[i].item.id && Player.inventory.items[x].type === items[i].item.type) {
-				notRequired += items[i].item.stack - Player.inventory.items[x].stacked;
+			if (items[i].quantity === undefined) {
+				items[i].quantity = 1;
 			}
+			let notRequired = 0;
+			for (let x = 0; x < Player.inventory.items.length; x++) {
+				if (Player.inventory.items[x].stacked === undefined) {
+					Player.inventory.items[x].stacked = 1;
+				}
+				if (Player.inventory.items[x].id === items[i].item.id && Player.inventory.items[x].type === items[i].item.type) {
+					notRequired += items[i].item.stack - Player.inventory.items[x].stacked;
+				}
+			}
+			required += Math.ceil((items[i].quantity - notRequired) / items[i].item.stack); // required empty spaces for this item
 		}
-		required += Math.ceil((items[i].quantity - notRequired) / items[i].item.stack); // required empty spaces for this item
 	}
 	return required <= Dom.inventory.checkSpace();
 }
@@ -3284,7 +3374,9 @@ Dom.buyer.remove = function (i, all) {
 			str += '<td ondrop="Dom.inventory.drop(event, Player.inventory.items, '+inv+');Game.inventoryUpdate(event)" ondragover="Dom.inventory.allowDrop(event)" onmouseover="Dom.inventory.displayInformation(Player.inventory.items['+inv+'], undefined, \'inventoryPage\')" onmouseleave="Dom.expand(\'information\')" ondrag="Dom.expand(\'information\')" onclick="Game.inventoryUpdate()"></td>';
 		}
 		document.getElementById("itemInventory").innerHTML = str+"</tr>";
-		document.getElementById("itemInventory").getElementsByTagName("td")[5].style.backgroundImage = "url('assets/items/bag/1.png')";
+		if (Player.inventory.items[5].image === undefined) {
+			document.getElementById("itemInventory").getElementsByTagName("td")[5].style.backgroundImage = "url('assets/items/bag/1.png')";
+		}
 		for (let x = 0; x < 6; x++) {
 			if (Player.inventory.items[x].image !== undefined) {
 				document.getElementById("itemInventory").getElementsByTagName("td")[x].innerHTML = '<img src="'+Player.inventory.items[x].image+'" draggable="true" ondragstart="Dom.inventory.drag(event, Player.inventory.items, '+x+')"></img>';
@@ -3416,14 +3508,14 @@ Dom.choose.page = function (npc, buttons, functions, parameters, force) {
 					}
 					if (imagenum === 6 || imagenum === 7) {
 						if (parameters[i][0].important === true) {
-							document.getElementById("choosePage").innerHTML += "<p id='choosePageButtons"+i+"'><img src='assets/icons/choose.png' class='chooseIcon' style='clip: rect("+25*imagenum+"px, 25px, "+25*(imagenum+1)+"px, 0px); margin-top: -"+(25*imagenum+3)+"px'></img>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<strong>"+buttons[i]+"</strong></p>";
+							document.getElementById("choosePage").innerHTML += "<p class='choosePageButtons' id='choosePageButtons"+i+"'><img src='assets/icons/choose.png' class='chooseIcon' style='clip: rect("+25*imagenum+"px, 25px, "+25*(imagenum+1)+"px, 0px); margin-top: -"+(25*imagenum+3)+"px'></img>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<strong>"+buttons[i]+"</strong></p>";
 						}else{
-							Dom.choose.sideHTML += "<p id='choosePageButtons"+i+"'><img src='assets/icons/choose.png' class='chooseIcon' style='clip: rect("+25*imagenum+"px, 25px, "+25*(imagenum+1)+"px, 0px); margin-top: -"+(25*imagenum+3)+"px'></img>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;"+buttons[i]+"</p>";
+							Dom.choose.sideHTML += "<p class='choosePageButtons' id='choosePageButtons"+i+"'><img src='assets/icons/choose.png' class='chooseIcon' style='clip: rect("+25*imagenum+"px, 25px, "+25*(imagenum+1)+"px, 0px); margin-top: -"+(25*imagenum+3)+"px'></img>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;"+buttons[i]+"</p>";
 						}
 					}else if (imagenum === 0) {
-						Dom.choose.dailyHTML += "<p id='choosePageButtons"+i+"'><img src='assets/icons/choose.png' class='chooseIcon' style='clip: rect("+25*imagenum+"px, 25px, "+25*(imagenum+1)+"px, 0px); margin-top: -"+(25*imagenum+3)+"px'></img>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;"+buttons[i]+"</p>";
+						Dom.choose.dailyHTML += "<p class='choosePageButtons' id='choosePageButtons"+i+"'><img src='assets/icons/choose.png' class='chooseIcon' style='clip: rect("+25*imagenum+"px, 25px, "+25*(imagenum+1)+"px, 0px); margin-top: -"+(25*imagenum+3)+"px'></img>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;"+buttons[i]+"</p>";
 					}else{
-						Dom.choose.HTML += "<p id='choosePageButtons"+i+"'><img src='assets/icons/choose.png' class='chooseIcon' style='clip: rect("+25*imagenum+"px, 25px, "+25*(imagenum+1)+"px, 0px); margin-top: -"+(25*imagenum+3)+"px'></img>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;"+buttons[i]+"</p>";
+						Dom.choose.HTML += "<p class='choosePageButtons' id='choosePageButtons"+i+"'><img src='assets/icons/choose.png' class='chooseIcon' style='clip: rect("+25*imagenum+"px, 25px, "+25*(imagenum+1)+"px, 0px); margin-top: -"+(25*imagenum+3)+"px'></img>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;"+buttons[i]+"</p>";
 					}
 				}
 				document.getElementById("choosePage").innerHTML += Dom.choose.sideHTML + Dom.choose.dailyHTML + Dom.choose.HTML + '<br><br><center><div id="choosePageClose" class="closeClass" onclick="Dom.closePage(\'choosePage\')">Close</div></center>';
@@ -3515,9 +3607,9 @@ Dom.choose.page = function (npc, buttons, functions, parameters, force) {
 				document.getElementById("levelUpPageClose").style.border = "5px solid red";
 				setTimeout(function () {
 					for (let i = 0; i < document.getElementsByClassName("closeClass").length; i++) {
-						document.getElementsByClassName("closeClass")[i].style.border = "5px solid #886622";
+						document.getElementsByClassName("closeClass")[i].style.border = "5px solid var(--border)";
 					}
-					document.getElementById("levelUpPageClose").style.border = "5px solid #886622";
+					document.getElementById("levelUpPageClose").style.border = "5px solid var(--border)";
 					Dom.choose.override = false; // allows future updates
 				},200);
 			}
@@ -3630,7 +3722,7 @@ Dom.instructions.unlockTab = function (tab, skip) {
 	if (!Player.unlockedTabs.includes(tab)) {
 		Player.unlockedTabs.push(tab);
 		document.getElementById("change"+tab[0].toUpperCase()+tab.substring(1)).style.display = "block";
-		document.getElementById(tab+"Image").hidden = false;
+		//document.getElementById(tab+"Image").hidden = false;
 		if (skip) {
 			Player.skippedTabs.push(tab);
 		}
@@ -3675,7 +3767,7 @@ document.getElementById("tutorialOff").onclick = function () {
 			}
 		}
 		document.getElementById("change"+Player.skippedTabs[i][0].toUpperCase()+Player.skippedTabs[i].substring(1)).style.display = "none";
-		document.getElementById(Player.skippedTabs[i]+"Image").hidden = true;
+		//document.getElementById(Player.skippedTabs[i]+"Image").hidden = true;
 		//if (Player.skippedTabs[i] === "chat") {
 			//document.getElementById("dot").hidden = true;
 		//}
@@ -3812,7 +3904,10 @@ Dom.bank.page = function () {
 	let nextUnlock = true;
 	for (let i = 0; i < 6; i++) {
 		if (i < Player.bank.unlockedSlots) {
-			document.getElementById("bankPageInventory").getElementsByTagName("td")[i].style.backgroundImage = "url('./assets/items/bag/1.png')";
+			// draw bag slot background if there is no item
+			if (Player.bank.items[i].image === undefined) {
+				document.getElementById("bankPageInventory").getElementsByTagName("td")[i].style.backgroundImage = "url('./assets/items/bag/1.png')";
+			}
 		}
 		else {
 			document.getElementById("bankPageInventory").getElementsByTagName("td")[i].style.backgroundImage = "url('./assets/items/bag/0.png')";
@@ -3867,11 +3962,11 @@ Dom.driver.page = function (npc, destinations) {
 		for (let i = 0; i < destinations.length; i++) {
 			document.getElementsByClassName("driver")[i].onclick = function () {
 				if (Dom.driver.previous !== undefined) {
-					document.getElementsByClassName("driver")[Dom.driver.previous].style.backgroundColor = "#fef9b4";
+					document.getElementsByClassName("driver")[Dom.driver.previous].style.backgroundColor = "var(--bottom)";
 				}
 				if (Dom.driver.previous !== i) {
 					Dom.driver.previous = i;
-					document.getElementsByClassName("driver")[i].style.backgroundColor = "#fdf581";
+					document.getElementsByClassName("driver")[i].style.backgroundColor = "var(--selected)";
 					document.getElementById("driverPageBuy").innerHTML = "Go to <strong>"+destinations[i].title+"</strong> for <strong>"+destinations[i].cost+"</strong> gold";
 					document.getElementById("driverPageBuy").style.display = "";
 				}else{
@@ -3892,7 +3987,7 @@ Dom.driver.page = function (npc, destinations) {
 			}else{
 				document.getElementById("driverPageBuy").style.borderColor = "red";
 				setTimeout(function () {
-					document.getElementById("driverPageBuy").style.borderColor = "#886622";
+					document.getElementById("driverPageBuy").style.borderColor = "var(--border)";
 				},200);
 			}
 		}
@@ -3908,16 +4003,16 @@ Dom.mail.page = function (override) {
 	if (Dom.changeBook("mailPage") || override) {//, true/*false*/, true);
 		document.getElementById("mailPage").innerHTML = "<br><h1>Mailbox</h1><br>";
 		for (let i = Player.mail.mail.length-1; i >= 0; i--) {
-			document.getElementById("mailPage").innerHTML += "<div "+/*(Player.mail.mail[i].flag ? "style='border-color: black'" : "")+*/"class='mail' "+(Player.mail.opened.includes(Player.mail.mail[i].title) && !Player.mail.mail[i].flag ?"style='background-color: #fef9b4;'":"")+"><div class='mailImage'></div><div class='mailTitle'><strong>"+Player.mail.mail[i].title+"</strong><br>From "+Player.mail.mail[i].sender+"<br>Received on "+Player.mail.mail[i].date+"</div><div class='mailFlag'></div><div class='mailDelete'>X</div></div>";
+			document.getElementById("mailPage").innerHTML += "<div "+/*(Player.mail.mail[i].flag ? "style='border-color: black'" : "")+*/"class='mail' "+(Player.mail.opened.includes(Player.mail.mail[i].title) && !Player.mail.mail[i].flag ?"style='background-color: var(--bottom);'":"")+"><div class='mailImage'></div><div class='mailTitle'><strong>"+Player.mail.mail[i].title+"</strong><br>From "+Player.mail.mail[i].sender+"<br>Received on "+Player.mail.mail[i].date+"</div><div class='mailFlag'></div><div class='mailDelete'>X</div></div>";
 			if (Player.mail.mail[i].flag) {
 				document.getElementsByClassName("mailFlag")[Player.mail.mail.length-1-i].innerHTML +=
 				'<svg class="flag" height="22" width="15" tabindex = "0">\
-				<polygon points ="0,0 15,1 15,13 1,12 1,22 0,22 0,0 1,0 1,12" style="fill:#ee0000;stroke:black;stroke-width:1" />\
+				<polygon points ="0,0 15,1 15,13 1,12 1,22 0,22 0,0 1,0 1,12" style="fill:#ee0000;stroke:var(--text);stroke-width:1" />\
 				</svg>';
 			}else{
 				document.getElementsByClassName("mailFlag")[Player.mail.mail.length-1-i].innerHTML +=
 				'<svg class="flag" height="22" width="15" tabindex = "0">\
-				<polygon points ="0,0 15,1 15,13 1,12 1,22 0,22 0,0 1,0 1,12" style="fill:#886622;stroke:black;stroke-width:1" />\
+				<polygon points ="0,0 15,1 15,13 1,12 1,22 0,22 0,0 1,0 1,12" style="fill:var(--border);stroke:var(--text);stroke-width:1" />\
 				</svg>';
 			}
 		}
@@ -4035,10 +4130,10 @@ Dom.adventure.update = function () {
 			document.getElementById("adventurePage").innerHTML += html;
 		}
 	}
-	if (User.settings.instructionsLink === true) {
+	/*if (User.settings.instructionsLink === true) {
 		// link to instructions shows as purple
 		document.getElementById("instructionsTitle").style.color = "#551a8b";
-	}
+	}*/
 }
 
 Dom.inventory.reEquip = function (event) {
@@ -4294,7 +4389,7 @@ Dom.inventory.afterChangedStats = function () {
 Dom.settings.transparency = function () {
 	if (document.getElementById("transparencyOn").checked) {
 		for (let i = 0; i < document.getElementsByClassName("DOM").length; i++) {
-			document.getElementsByClassName("DOM")[i].style.opacity = 0.6;
+			document.getElementsByClassName("DOM")[i].style.opacity = "var(--opacity)";
 		}
 	}else{
 		for (let i = 0; i < document.getElementsByClassName("DOM").length; i++) {
@@ -4304,12 +4399,12 @@ Dom.settings.transparency = function () {
 }
 
 Dom.instructions.index = function () {
-	if (User.settings.instructionsLink === false) {
+	/*if (User.settings.instructionsLink === false) {
 		// link to instruction saves as purple
 		User.settings.instructionsLink = true;
 		// link to instructions shows as purple
 		document.getElementById("instructionsTitle").style.color = "#551a8b";
-	}
+	}*/
 
 	let parameters = ["Instructions", [], [], []];
 	for (let i = 0; i < Player.unlockedInstructions.length; i++) {
@@ -4363,11 +4458,40 @@ Dom.instructions.close = function (index) {
 	}
 }
 
+Dom.settings.dark = function () {
+	if (User.settings.dark) {
+		document.documentElement.style = `
+		--border: #202020;
+		--alert: #707070;
+		--selected: #258bde;
+		--top: #1d2d3b;
+		--bottom: #454545;
+		--page: #202020;
+		--text: #ffffff;
+		--link: #99bfde;
+		--arrow: #454545;
+		--opacity: 0.9;`
+	}
+	else {
+		document.documentElement.style = `
+		--border: #886622;
+		--alert: #eecc77;
+		--selected: #fdf581;
+		--top: #fff7a5;
+		--bottom: #fef9b4;
+		--page: #f9f9d0;
+		--text: #000000;
+		--link: #0000ff;
+		--arrow: #886622;
+		--opacity: 0.6;`
+	}
+}
+
 // called by viewport resize or by init
 // parameter is true if called on init
 Dom.updateScreenSize = function (init) {
-	Dom.canvas.width = window.innerWidth - 2;
-	Dom.canvas.height = window.innerHeight - Dom.canvas.heightOffset;
+	Dom.canvas.width = window.innerWidth;
+	Dom.canvas.height = window.innerHeight;
 
 	document.getElementById("game").width = Dom.canvas.width;
 	document.getElementById("game").height = Dom.canvas.height;
@@ -4377,10 +4501,10 @@ Dom.updateScreenSize = function (init) {
 	document.getElementById("light").height = Dom.canvas.height;
 	document.getElementById("secondary").width = Dom.canvas.width;
 	document.getElementById("secondary").height = Dom.canvas.height;
-	document.getElementById("chat").style.width = Dom.canvas.width/2-200+"px";
+	document.getElementById("chat").style.width = Dom.canvas.width/2-183+"px";
 	document.getElementById("hotbar").style.left = Dom.canvas.width/2-167.6+"px";
 	document.getElementById("hotbar").style.top = Dom.canvas.height-80+"px";
-	document.getElementById("chatImage").style.left= Dom.canvas.width/2+210+"px";
+	/*document.getElementById("chatImage").style.left= Dom.canvas.width/2+210+"px";
 	document.getElementById("inventoryImage").style.left= Dom.canvas.width/2+278+"px";
 	document.getElementById("questsImage").style.left= Dom.canvas.width/2+360+"px";
 	document.getElementById("adventureImage").style.left= Dom.canvas.width/2+415+"px";
@@ -4391,19 +4515,20 @@ Dom.updateScreenSize = function (init) {
 	document.getElementById("questsImage").style.top= Dom.canvas.height-50+"px";
 	document.getElementById("adventureImage").style.top= Dom.canvas.height-50+"px";
 	document.getElementById("reputationImage").style.top= Dom.canvas.height-50+"px";
-	document.getElementById("settingsImage").style.top= Dom.canvas.height-50+"px";
-	document.getElementById("changeChat").style.top= Dom.canvas.height-80+"px";
-	document.getElementById("changeChat").style.left= Dom.canvas.width/2+200+"px";
-	document.getElementById("changeInventory").style.top= Dom.canvas.height-80+"px";
-	document.getElementById("changeInventory").style.left= Dom.canvas.width/2+270+"px";
-	document.getElementById("changeQuests").style.top= Dom.canvas.height-80+"px";
-	document.getElementById("changeQuests").style.left= Dom.canvas.width/2+340+"px";
-	document.getElementById("changeAdventure").style.top= Dom.canvas.height-80+"px";
-	document.getElementById("changeAdventure").style.left= Dom.canvas.width/2+410+"px";
-	document.getElementById("changeReputation").style.top= Dom.canvas.height-80+"px";
-	document.getElementById("changeReputation").style.left= Dom.canvas.width/2+480+"px";
-	document.getElementById("changeSettings").style.top= Dom.canvas.height-80+"px";
-	document.getElementById("changeSettings").style.left= Dom.canvas.width/2+550+"px";
+	document.getElementById("settingsImage").style.top= Dom.canvas.height-50+"px";*/
+	let left = (Dom.canvas.width/2-168-400)/2 + Dom.canvas.width/2+168;
+	document.getElementById("changeChat").style.top= Dom.canvas.height-76+"px";
+	document.getElementById("changeChat").style.left= left+"px";
+	document.getElementById("changeInventory").style.top= Dom.canvas.height-76+"px";
+	document.getElementById("changeInventory").style.left= left+70+"px";
+	document.getElementById("changeQuests").style.top= Dom.canvas.height-76+"px";
+	document.getElementById("changeQuests").style.left= left+140+"px";
+	document.getElementById("changeAdventure").style.top= Dom.canvas.height-76+"px";
+	document.getElementById("changeAdventure").style.left= left+210+"px";
+	document.getElementById("changeReputation").style.top= Dom.canvas.height-76+"px";
+	document.getElementById("changeReputation").style.left= left+280+"px";
+	document.getElementById("changeSettings").style.top= Dom.canvas.height-76+"px";
+	document.getElementById("changeSettings").style.left= left+350+"px";
 	//document.getElementById("dot").style.top= Dom.canvas.height-53+"px";
 	//document.getElementById("dot").style.left= Dom.canvas.width/2+230+"px";
 	document.getElementById("achievement").style.left= Dom.canvas.width-458+"px";
@@ -4441,7 +4566,7 @@ Dom.updateScreenSize = function (init) {
 
 Dom.init = function () {
 	//Dom.canvas.width = window.innerWidth-2;
-	if (navigator.userAgent.indexOf("Firefox") !== -1) {
+	/*if (navigator.userAgent.indexOf("Firefox") !== -1) {
 		//Dom.canvas.height = window.innerHeight-1;
 		Dom.canvas.heightOffset = 1;
 		Dom.browser = "chrome"; // actually just means anything other than firefox -_-
@@ -4450,7 +4575,7 @@ Dom.init = function () {
 		//Dom.canvas.height = window.innerHeight-3;
 		Dom.canvas.heightOffset = 3;
 		Dom.browser = "firefox";
-	}
+	}*/
 
 	Dom.updateScreenSize(true);
 
@@ -4458,7 +4583,7 @@ Dom.init = function () {
 	for (let i = 0; i < Player.inventory.items.length/6; i++) {
 		let str = "<tr>";
 		for (let inv = 6*i; inv < 6*i+6; inv++) {
-			str += '<td ondrop="Dom.inventory.drop(event, Player.inventory.items, '+inv+');Game.inventoryUpdate(event)" ondragover="Dom.inventory.allowDrop(event)" onmouseover="Dom.inventory.displayInformation(Player.inventory.items['+inv+'], undefined, \'inventoryPage\')" onmouseleave="Dom.expand(\'information\')" ondrag="Dom.expand(\'information\')" onclick="Game.inventoryUpdate()"></td>';
+				str += '<td ondrop="Dom.inventory.drop(event, Player.inventory.items, '+inv+');Game.inventoryUpdate(event)" ondragover="Dom.inventory.allowDrop(event)" onmouseover="Dom.inventory.displayInformation(Player.inventory.items['+inv+'], undefined, \'inventoryPage\')" onmouseleave="Dom.expand(\'information\')" ondrag="Dom.expand(\'information\')" onclick="Game.inventoryUpdate()"></td>';
 		}
 		document.getElementById("itemInventory").innerHTML += str+"</tr>";
 	}
@@ -4474,7 +4599,9 @@ Dom.init = function () {
 			Dom.inventory.prepare(Player.inventory.items, i, document.getElementById("itemInventory").getElementsByTagName("td")[i]);
 		}
 	}
-	document.getElementById("itemInventory").getElementsByTagName("td")[5].style.backgroundImage = "url('assets/items/bag/1.png')";
+	if (Player.inventory.items[5].image === undefined) {
+		document.getElementById("itemInventory").getElementsByTagName("td")[5].style.backgroundImage = "url('assets/items/bag/1.png')";
+	}
 
 	// prepare the equipments slots
 	for (let i = 0; i < Object.keys(Player.inventory).length-1; i++) { // repeats for each equipment slot
@@ -4484,8 +4611,11 @@ Dom.init = function () {
 				Dom.chat.insert("It's not snowy any more! Your "+Player.inventory[Object.keys(Player.inventory)[i]].name+" melted.", 0, true);
 				Player.inventory[Object.keys(Player.inventory)[i]] = {};
 			},1000);
-		}else if (Player.inventory[Object.keys(Player.inventory)[i]].image !== undefined) {
+		}
+		// if there is an item
+		else if (Player.inventory[Object.keys(Player.inventory)[i]].image !== undefined) {
 			Dom.inventory.prepare(Player.inventory, Object.keys(Player.inventory)[i], document.getElementById(Object.keys(Player.inventory)[i]));
+			document.getElementById(Object.keys(Player.inventory)[i]).style.backgroundImage = "";
 		}
 	}
 
@@ -4534,7 +4664,7 @@ Dom.init = function () {
 
 	for (let i = 0; i < Player.unlockedTabs.length; i++) {
 		document.getElementById("change"+Player.unlockedTabs[i][0].toUpperCase()+Player.unlockedTabs[i].slice(1)).style.display = "block";
-		document.getElementById(Player.unlockedTabs[i]+"Image").hidden = false;
+		//document.getElementById(Player.unlockedTabs[i]+"Image").hidden = false;
 	}
 	if (Player.unlockedInstructions.length >= Instructions.length) {
 		document.getElementById("settingTutorialHolder").hidden = true;
@@ -4597,9 +4727,9 @@ Dom.init = function () {
 				"eaglecrestKing",
 				"text.page",
 				["Antorax is " + Event.antoraxAge + " today!",
-				`${Event.antoraxAge} years ago today, the realms of Antorax settled on an agreement to cooperate in the archaeology and exploration of these beautiful lands. Although there have been conflicts since then, there have been countless discoveries made by the Antorax alliance, and we endevour to continue.
-				<br><br>This year, there have been countless advancements in the fields of Archaeology, with huge discoveries of mythic items. There have also been developments to the Eaglecrest Logging Camp, and improvements to the accessibility of Antorax for its citizens.
-				<br><br>We hope you enjoy this special day, and that we will celebrate the many more Antorax Days to come together.`, true, [], [],
+				`<p>${Event.antoraxAge} years ago today, the realms of Antorax settled on an agreement to cooperate in the archaeology and exploration of these beautiful lands. Although there have been conflicts since then, there have been countless discoveries made by the Antorax alliance, and we endevour to continue.</p>
+				<p>This year, there have been countless advancements in the fields of Archaeology, with huge discoveries of mythic items. There have also been developments to the Eaglecrest Logging Camp, and improvements to the accessibility of Antorax for its citizens.</p>
+				<p>We hope you enjoy this special day, and that we will celebrate the many more Antorax Days to come together.</p>`, true, [], [],
 				[{item: Items.helm[10]}]], [{item: Items.helm[10]}],
 			);
 			if (!Player.quests.completedQuestArray.includes("The Legend of the Tattered Knight")) {
@@ -4632,35 +4762,39 @@ Dom.init = function () {
 			    "lordOfThunder",
 			    "text.page",
 			    ["A Gift for the Worthy",
-			    `Six fragments of incredibly rare gemstones - objects with the power to wipe out entire civilizations – have been found in Antorax. The stones are useful in the right hands, but I fear the forces of evil may get to them first. Only the strongest of beings can safely use the stones, which is why I have entrusted you with this <strong>Eternity Glove</strong>, a container for that power. <br><br>It is your duty to locate all six stones and add them to the Glove, so they are safe from any villains who would use them for ill.<br><br>Good luck, adventurer… and send a raven if you have any questions.`, true, [], [],
+			    `<p>Six fragments of incredibly rare gemstones - objects with the power to wipe out entire civilizations – have been found in Antorax. The stones are useful in the right hands, but I fear the forces of evil may get to them first. Only the strongest of beings can safely use the stones, which is why I have entrusted you with this <strong>Eternity Glove</strong>, a container for that power.<p>
+				<p>It is your duty to locate all six stones and add them to the Glove, so they are safe from any villains who would use them for ill.</p>
+				<p>Good luck, adventurer… and send a raven if you have any questions.</p>`, true, [], [],
 			    [{item: Items.sword[11]}]], [{item: Items.sword[11]}], true // noRepeat
-			);
-		}
-		// Archaeology mail
-		let done = true;
-		for (let i = 0; i < 7; i++) {
-			for (let x = 0; x < Items[Object.keys(Items)[i]].length; x++) {
-				if (!Items[Object.keys(Items)[i]][x].uncollectable && !User.archaeology.includes(Items[Object.keys(Items)[i]][x].name) && Items[Object.keys(Items)[i]][x].name !== "Master Archaeologist's Hat") {
-					done = false;
-				}
-			}
-		}
-		if (done) {
-			Dom.mail.give(
-				"Master Archaeologist",
-				"!!!",
-				"eaglecrestKing",
-				"text.page",
-				["Master Archaeologist",
-				`Dear ${playerName},
-				<br><br>I am !!!, the lead archaeologist of Antorax. I have noticed your incredible contributions to Antorax's archaeology effort, and would like to congratulate and thank you for them. Without you, we would not have uncovered many of the rare and significant items that are currently residing in the Great Museum, Wizard Island. I trust that we will continue to receive contributions from you in the years to come - there is still lots that has not been discovered.
-				<br><br>I have attached a <strong>Master Archaeologist's Hat</strong>, which I hope you will find of use when uncovering items in the future. A hat like this is incredibly rare and incredibly powerful, only owned by the most accomplished of archaeologists. Many who have worn it say they find themselves to be much luckier with their archaeological finds...`, true, [], [],
-				[{item: Items.helm[9]}]], [{item: Items.helm[9]}], true // noRepeat
 			);
 		}
 		Player.days.push(date);
 		Player.quests.randomDailyQuests = {};
 		Player.chests.positions = {}; // chests change position each day
+	}
+	// Archaeology mail
+	let done = true;
+	for (let i = 0; i < 7; i++) {
+		for (let x = 0; x < Items[Object.keys(Items)[i]].length; x++) {
+			if (!Items[Object.keys(Items)[i]][x].uncollectable && !User.archaeology.includes(Items[Object.keys(Items)[i]][x].name) && Items[Object.keys(Items)[i]][x].name !== "Master Archaeologist's Hat") {
+				done = false;
+			}
+		}
+	}
+	if (true) {
+		Dom.mail.give(
+			"Master Archaeologist",
+			"Alys Loreworth",
+			"eaglecrestKing",
+			"text.page",
+			["Master Archaeologist",
+			`<p>Dear ${playerName},</p>
+			<p>I am Alys Loreworth, the lead archaeologist of Antorax. I have noticed your incredible contributions to Antorax's archaeology effort, and would like to congratulate and thank you for them. Without you, we would not have uncovered many of the rare and significant items that are currently residing in the Great Museum, Wizard Island. I trust that we will continue to receive contributions from you in the years to come - there is still lots that has not been discovered.</p>
+			<p>I have attached a <strong>Master Archaeologist's Hat</strong>, which I hope you will find of use when uncovering items in the future. A hat like this is incredibly rare and remarkably powerful, only owned by the most accomplished of archaeologists. Many who have worn it say they find themselves to be much luckier with their archaeological finds...</p>
+			<p>Good luck on your continued travels,
+			<br>Alys Loreworth, Lead Archaeologist</p>`, true, [], [],
+			[{item: Items.helm[9]}]], [{item: Items.helm[9]}], true // noRepeat
+		);
 	}
 
 	Dom.hotbar.update();
@@ -4721,6 +4855,10 @@ Dom.init = function () {
 	if (User.settings.transparency) {
 		document.getElementById("transparencyOn").checked = true;
 		Dom.settings.transparency();
+	}
+	if (User.settings.dark) {
+		document.getElementById("darkOn").checked = true;
+		Dom.settings.dark();
 	}
 
 	Dom.alert.target = Dom.settings.acceptOn;

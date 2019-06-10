@@ -1,3 +1,32 @@
+if (JSON.parse(localStorage.getItem("user")).settings.dark) {
+	document.documentElement.style = `
+	--border: #202020;
+	--alert: #707070;
+	--selected: #258bde;
+	--top: #1d2d3b;
+	--bottom: #454545;
+	--page: #202020;
+	--text: #ffffff;
+	--link: #99bfde;
+	--arrow: #454545;
+	--opacity: 0.8;
+	--input: #aaaaaa;`
+}
+else {
+	document.documentElement.style = `
+	--border: #886622;
+	--alert: #eecc77;
+	--selected: #fdf581;
+	--top: #fff7a5;
+	--bottom: #fef9b4;
+	--page: #f9f9d0;
+	--text: #000000;
+	--link: #0000ff;
+	--arrow: #886622;
+	--opacity: 0.6;
+	--input: #ffffff;`
+}
+
 var array = [];
 var total = 0;
 var collected = 0;
@@ -59,7 +88,7 @@ function arrange(){
 			collected++;
 		}else{
 			document.getElementById("tier"+i).innerHTML = "<br>You have not yet<br>caught this fish";
-			document.getElementById("box"+i).style.borderColor = "#886622";
+			document.getElementById("box"+i).style.borderColor = "var(--border)";
 		}
 		document.getElementById("tier"+i).innerHTML += "<br><br>"+array[i].howToCatch;
 		document.getElementById("stats"+i).innerHTML = "<br>Sells for "+array[i].sellPrice+" gold<br>at an item buyer";

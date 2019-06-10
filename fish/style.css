@@ -2,7 +2,7 @@ body{
 	font-family: 'El Messiri', serif;
 	line-height: 20px;
 	text-align: center;
-	background-color: #f9f9d0;
+	background-color: var(--page);
 	overflow: auto;
 	-webkit-user-select: none; /* Safari */        
 	-moz-user-select: none; /* Firefox */
@@ -33,8 +33,8 @@ body{
 }
 .box{
 	width: 200px;
-	border: 5px solid #886622;
-	background-color: #fef9b4;
+	border: 5px solid var(--border);
+	background-color: var(--bottom);
 	padding: 5px;
 	padding-top: 0px;
 	padding-bottom: 25px;
@@ -54,4 +54,7 @@ body{
     padding: 0px;
 	margin: 0px;
 	width: 220px;
+}
+input, select {
+	background-color: var(--input);
 }

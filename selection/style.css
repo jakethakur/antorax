@@ -1,16 +1,17 @@
 body{
 	font-family: 'El Messiri', serif;
 	line-height: 20px;
-	background-color: #f9f9d0;
+	background-color: var(--page);
 	-webkit-user-select: none; /* Safari */        
 	-moz-user-select: none; /* Firefox */
 	-ms-user-select: none; /* IE10+/Edge */
 	user-select: none;
 	text-align: center;
+	color: var(--text);
 }
 #archer, #mage, #knight, #name, #news, #play, #random{
-	background-color: #fef9b4;
-	border: 5px solid #886622;
+	background-color: var(--bottom);
+	border: 5px solid var(--border);
 }
 #name, #image, #logo, #news, #play, #random, #left, #right{
 	 position: absolute;
@@ -20,12 +21,14 @@ body{
 	margin: 20px;
 	margin-left: 15px;
 	vertical-align: middle;
+	cursor: pointer;
 }
 #logo, #random, #name{
 	top: 20px;
 }
 #image{
 	top: 100px;
+	cursor: pointer;
 }
 #name{
 	font-size: 25px;
@@ -33,6 +36,7 @@ body{
 	vertical-align: middle;
 	text-align: center;
 	font-family: 'El Messiri', serif;
+	color: var(--text);
 }
 #news{
 	padding-top: 20px;
@@ -43,16 +47,18 @@ body{
 #play{
 	font-size: 25px;
 	margin: 0px;
-	color: black;
+	color: var(--text);
 	width: 290px;
 }
 #random{
 	width: 50px;
 	background-repeat: no-repeat;
 	background-position: center;
+	cursor: pointer;
 }
 #left, #right{
 	font-size: 100px;
+	cursor: pointer;
 }
 .title{
 	display: inline;

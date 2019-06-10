@@ -2,12 +2,15 @@ body{
 	font-family: 'El Messiri', serif;
 	line-height: 20px;
 	text-align: center;
-	background-color: #f9f9d0;
+	background-color: var(--page);
 	overflow: auto;
 	-webkit-user-select: none; /* Safari */        
 	-moz-user-select: none; /* Firefox */
 	-ms-user-select: none; /* IE10+/Edge */
 	user-select: none;
+}
+a:visited, a:link {
+	color: var(--link);
 }
 .link {
 	text-align: center;
@@ -48,8 +51,8 @@ body{
 .box{
 	position: relative;
 	width: 445px;
-	border: 5px solid #886622;
-	background-color: #fef9b4;
+	border: 5px solid var(--border);
+	background-color: var(--bottom);
 	padding: 5px;
 	padding-top: 5px;
 	margin: 0px;
@@ -60,8 +63,8 @@ body{
 .img{
 	width: 50px;
 	height: 50px;
-	border: 5px solid #886622;
-	background-color: #eecc77;
+	border: 5px solid var(--border);
+	background-color: var(--alert);
 	position: absolute;
 	background-repeat: no-repeat;
 	background-position: center;
@@ -96,8 +99,8 @@ body{
 }
 #filters{
 	position: absolute;
-	background-color: #fef9b4;
-	border: 5px solid #886622;
+	background-color: var(--bottom);
+	border: 5px solid var(--border);
 	top: 25px;
 	font-size: 25px;
 }
@@ -142,4 +145,7 @@ input[type=number]{
 }
 input[type=number]::-webkit-inner-spin-button{  
 	opacity: 1;
+}
+input, select {
+	background-color: var(--input);
 }

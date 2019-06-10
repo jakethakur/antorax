@@ -618,6 +618,9 @@ var Quests = {
 
 			rewards: {
 				xp: 30,
+				services: [
+					{image: "itemBuyer", lore: "You will be able to sell items to Noledar after completing this quest."},
+				],
 				items: [
 					{item: Items.currency[2], quantity: 2,},
 				],
@@ -1206,6 +1209,12 @@ After all, death is never the end in Antorax...<br>
 			howToStart: "Speak to <strong>Marshall Teper</strong>.",
 			levelRequirement: 4,
 			questRequirements: ["The Goblin King"],
+
+			startRewards: {
+				services: [
+					{image: "driver", lore: "You will be able to take a cart to Eaglecrest upon starting this quest."},
+				],
+			},
 
 			rewards: {
 				xp: 10,

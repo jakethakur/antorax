@@ -1,3 +1,32 @@
+if (User.settings.dark) {
+	document.documentElement.style = `
+	--border: #202020;
+	--alert: #707070;
+	--selected: #258bde;
+	--top: #1d2d3b;
+	--bottom: #454545;
+	--page: #202020;
+	--text: #ffffff;
+	--link: #99bfde;
+	--arrow: #454545;
+	--opacity: 0.8;
+	--input: #aaaaaa;`
+}
+else {
+	document.documentElement.style = `
+	--border: #886622;
+	--alert: #eecc77;
+	--selected: #fdf581;
+	--top: #fff7a5;
+	--bottom: #fef9b4;
+	--page: #f9f9d0;
+	--text: #000000;
+	--link: #0000ff;
+	--arrow: #886622;
+	--opacity: 0.6;
+	--input: #ffffff;`
+}
+
 var array = [];
 var arrayLength = 1;
 var area = document.getElementById("area");
@@ -186,15 +215,13 @@ function arrange(){
 		document.getElementById("flashcardlist"+c).innerHTML += '<li class="box" id="box'+i+'" '+(Object.keys(archaeology).includes(ToCamelCase(array[i].name)) ? "style='border: 5px solid darkgreen'" : "")+'><div class="img" id="img'+i+'" style="background-image: url(\''+array[i].image+'\')"</img></div><p id="name'+i+'" class="para"></p><p id="description'+i+'" class="para"></p><p id="date'+i+'" class="date"></p><p id="points'+i+'" class="points"></p></li>';
 		document.getElementById("flashcardlist"+c).style.left = 25+c*490+((screenSize-45)-(((Math.floor((screenSize-45)/490)))*490))/2+"px";
 		document.getElementById("name"+i).innerHTML = "<b>"+array[i].name+"</b>";
+		document.getElementById("description"+i).style.width = "315px";
 		document.getElementById("description"+i).innerHTML = !array[i].hidden || Object.keys(archaeology).includes(ToCamelCase(array[i].name)) ? array[i].description : "???";
 		document.getElementById("points"+i).innerHTML = array[i].points;
 		if(archaeology[ToCamelCase(array[i].name)] != undefined){
 			document.getElementById("date"+i).innerHTML = archaeology[ToCamelCase(array[i].name)];
 			document.getElementById("points"+i).style.top = "38px";
 		}
-		setTimeout(function(){
-			document.getElementById("description"+i).style.marginRight = 15 + document.getElementById("points"+i).offsetWidth+"px";
-		},1);
 		if(array[i].position !== undefined){
 			document.getElementById("img"+i).style.backgroundPosition = array[i].position.x+"%"+array[i].position.y+"%";
 		}

@@ -1,3 +1,29 @@
+:root {
+	--border: #886622;
+	--alert: #eecc77;
+	--selected: #fdf581;
+	--top: #fff7a5;
+	--bottom: #fef9b4;
+	--page: #f9f9d0;
+	--text: #000000;
+	--link: #0000ff;
+	--arrow: #886622;
+	--opacity: 0.6;
+}
+/*
+:root {
+	--border: #202020;
+	--alert: #707070;
+	--selected: #258bde;
+	--top: #1d2d3b;
+	--bottom: #454545;
+	--page: #202020;
+	--text: #ffffff;
+	--link: #99bfde;
+	--arrow: #454545;
+	--opacity: 0.8;
+} 
+*/
 body{
 	font-family: 'El Messiri', serif;
 	line-height: 20px;
@@ -6,7 +32,13 @@ body{
 	-ms-user-select: none; /* IE10+/Edge */
 	user-select: none;
 	overflow: hidden;
+	color: var(--text);
 }
+
+a:visited, a:link, #instructionsTitle {
+	color: var(--link);
+}
+
 .DOM{
 	//float: left;
 	//margin: 10px;
@@ -15,17 +47,19 @@ body{
 	height: 600px;
 	padding-left: 10px;
 	padding-right: 10px;
-	background-color: #f9f9d0;
+	background-color: var(--page);
 	overflow: hidden;
 	position: absolute;
 	//z-index: 6;
-	//opacity: 0.6;
+	//opacity: var(--opacity);
 }
+
 h1 {
 	font-family: 'MedievalSharp', serif;
 }
+
 #game, #secondary, #dayNight, #light, #click{
-	border: 1px solid black;
+	//border: 1px solid black;
 	float: left;
 	margin: -8px;
 	position: absolute;
@@ -45,7 +79,7 @@ h1 {
 	height: 590px;
 }
 #questsPage{
-	border-top: 5px solid #886622;
+	border-top: 5px solid var(--border);
 	width: 500px;
 	height: 596px;
 }
@@ -70,7 +104,7 @@ h1 {
 	display: inline;
 }
 #settingFullscreen{
-	border-top: 5px solid #886622;
+	border-top: 5px solid var(--border);
 }
 .settings {
 	line-height: 30px;
@@ -81,15 +115,15 @@ h1 {
 .adventure, .settings, #activeQuestBox, #possibleQuestBox, #completedQuestBox, #otherQuestBox, #activeQuests, #possibleQuests, #completedQuests, #otherQuests{
 	position: relative;
 	width: 511px;
-	border-left: 5px solid #886622;
-	border-right: 5px solid #886622;
-	border-bottom: 5px solid #886622;
+	border-left: 5px solid var(--border);
+	border-right: 5px solid var(--border);
+	border-bottom: 5px solid var(--border);
 	right: 10px;
-	background-color: #fef9b4;
+	background-color: var(--bottom);
 }
 .adventure{
 	margin-top: 10px;
-	border-top: 5px solid #886622;
+	border-top: 5px solid var(--border);
 	right: 0px;
 	width: 450px;
 	padding-left: 10px;
@@ -107,15 +141,20 @@ h1 {
 	line-height: 50px;
 	vertical-align: middle;
 	font-size: 20px;
-	background-color: #fff7a5;
+	background-color: var(--top);
+	cursor: pointer;
 }
 #leftArrow{
 	top: 140px;
 	left: 200px;
+	cursor: pointer;
+	border-right: 20px solid var(--arrow); 
 }
 #rightArrow{
 	top: 140px;
 	right: 200px;
+	cursor: pointer;
+	border-left: 20px solid var(--arrow); 
 }
 .triangleLeft, .innerTriangleLeft, .triangleRight, .innerTriangleRight{
 	position: absolute;
@@ -125,17 +164,17 @@ h1 {
 	border-bottom: 15px solid transparent; 
 }
 .triangleLeft {
-	border-right: 20px solid #886622; 
+	border-right: 20px solid var(--border); 
 }
 .innerTriangleLeft {
-	border-right: 20px solid #fef9b4;
+	border-right: 20px solid var(--bottom);
 	z-index: 51;
 }
 .triangleRight{
-	border-left: 20px solid #886622;
+	border-left: 20px solid var(--border);
 }
 .innerTriangleRight{
-	border-left: 20px solid #fef9b4;
+	border-left: 20px solid var(--bottom);
 	z-index: 51;
 }
 #lootAll{
@@ -167,7 +206,7 @@ h1 {
 }
 #helm, #chest, #greaves, #boots, #weapon, #settingLogoutInner, #settingSave, #settingDelete, #settingControls, .mailImage, .driverImage{
 	margin-top: 10px;
-	border: 5px solid #886622;
+	border: 5px solid var(--border);
 	width: 50px;
 	height: 50px;
 }
@@ -190,7 +229,7 @@ h1 {
 	font-size: 25px;
 }
 .hotkey{
-	background-color: #fef9b4;
+	background-color: var(--bottom);
 	font-size: 25px;
 	vertical-align: center;
 	text-align: center;
@@ -205,6 +244,7 @@ h1 {
 	font-weight: bold;
 	left: 290px;
 	position: absolute;
+	cursor: pointer;
 }
 #hotkeyTexts{
 	margin-right: 220px;
@@ -231,25 +271,25 @@ h1 {
 	//z-index: 1;
 }
 #itemInventory, #hotbar, #buyerPageInventory, #bankPageInventory, #loot, tr, th, td{
-	border: 2.5px solid #886622;
+	border: 2.5px solid var(--border);
 	border-collapse: separate;
 	border-spacing: 0px;
 	text-align: center;
 	font-size: 0px;
 	padding: 0px;
-	background-color: #fef9b4;
+	background-color: var(--bottom);
 }
 #hotbar{
 	//bottom: 100px;
 	//left: 150px;
-	opacity: 0.6;
+	opacity: var(--opacity);
 	z-index: 5;
 	//position: absolute;
 }
 #buyerPageInventory{
 	top: 90px;
 	left: 735px;
-	background-color: #fef9b4;
+	background-color: var(--bottom);
 }
 #bankPage{
 	text-align: center;
@@ -271,9 +311,9 @@ td{
 thead:after {
 	line-height: 5px;
 	content: "\200C";
-	//border: 2.5px solid #886622;
+	//border: 2.5px solid var(--border);
 	display: block;
-	background-color: #886622;
+	background-color: var(--border);
 }
 #bagText{
 	position: absolute;
@@ -299,7 +339,7 @@ thead:after {
 }
 .theseQuestOptions, .theseQuestFinishOptions, .theseQuestStartOptions, .theseTextOptions{
 	margin-top: 4px;
-	border: 5px solid #886622;
+	border: 5px solid var(--border);
 	display: inline-block;
 	height: 50px;
 	width: 50px;
@@ -307,7 +347,15 @@ thead:after {
 	margin-bottom: 10px;
 	position: relative;
 }
-#dot {
+.theseQuestServices, .theseQuestFinishServices, .theseQuestStartServices {
+	margin-top: 4px;
+	display: inline-block;
+	vertical-align: middle;
+	margin-bottom: 10px;
+	position: relative;
+	height: 55px;
+}
+/*#dot {
 	line-height: 15px;
 	vertical-align: middle;
 	text-align: center;
@@ -318,8 +366,7 @@ thead:after {
 	width: 13px;
 	background-color: #ff0000;
 	border-radius: 50%;
-}
-
+}*/
 #questStartGold, #questStartXP, #questFinishGold, #questFinishXP{
 	margin-top: 5px;
 	width: 60px;
@@ -340,8 +387,8 @@ thead:after {
 }
 .buy, #identifierPageBuy, #lootAll, #driverPageBuy{
 	height: 50px;
-	background-color: #fef9b4;
-	border: 5px solid #886622;
+	background-color: var(--bottom);
+	border: 5px solid var(--border);
 	float: right;
 	margin-bottom: 26px;
 	text-align: center;
@@ -352,6 +399,7 @@ thead:after {
 	padding-right: 10px;
 	width: max-content;
 	width: -moz-max-content;
+	cursor: pointer;
 }
 #identifierPageBuy, #lootAll, #driverPageBuy{
 	display: inline-block;
@@ -371,8 +419,8 @@ thead:after {
 #information, #itemIdentification{
 	position: absolute;
 	min-width: 140px;
-	background-color: #fef9b4;
-	border: 5px solid #886622;
+	background-color: var(--bottom);
+	border: 5px solid var(--border);
 	float: right;
 	padding-left: 10px;
 	padding-right: 10px;
@@ -389,8 +437,8 @@ thead:after {
 .buttons{
 	position: relative;
 	height: 50px;
-	background-color: #fef9b4;
-	border: 5px solid #886622;
+	background-color: var(--bottom);
+	border: 5px solid var(--border);
 	text-align: center;
 	line-height:50px;
 	vertical-align: middle;
@@ -401,19 +449,21 @@ thead:after {
 	min-width: 170px;
 	padding-left: 15px;
 	padding-right: 15px;
+	cursor: pointer;
 }
 .closeClass, #levelUpPageClose{
 	position: relative;
 	width: 200px;
 	height: 50px;
-	background-color: #fef9b4;
-	border: 5px solid #886622;
+	background-color: var(--bottom);
+	border: 5px solid var(--border);
 	text-align: center;
 	line-height:50px;
 	vertical-align: middle;
 	font-size: 20px;
 	clear: both;
 	margin-bottom: 20px;
+	cursor: pointer;
 }
 #levelUpPageClose{
 	position: absolute;
@@ -423,14 +473,15 @@ thead:after {
 	position: relative;
 	width: 200px;
 	height: 50px;
-	background-color: #fef9b4;
-	border: 5px solid #886622;
+	background-color: var(--bottom);
+	border: 5px solid var(--border);
 	text-align: center;
 	line-height:50px;
 	vertical-align: middle;
 	font-size: 20px;
 	top: 50px;
 	margin-bottom: 20px;
+	cursor: pointer;
 }
 #closeReputation{
 	left: 130px;
@@ -467,57 +518,13 @@ thead:after {
 	vertical-align: middle;
 	background-color: gold;
 }
-#accept{
+#accept, #acceptReward{
 	top: 20px;
 	left: 20px;
 }
-#decline{
+#decline, #declineReward{
 	bottom: 60px;
 	left: 270px;
-}
-#acceptReward{
-	top: 20px;
-}
-#changeChat, #changeInventory, #changeQuests, #changeAdventure, #changeReputation, #changeAdventure, #changeSettings{
-	position: absolute;
-	//width: 131px;
-	//height: 51px;
-	outline: none;
-	display: none;
-	opacity: 0.6;
-	z-index: 5;
-}
-#changeAdventure, #changeSettings{
-	display: block;
-}
-#chatImage, #inventoryImage, #questsImage, #adventureImage, #reputationImage, #settingsImage{
-	position: absolute;
-	height: 40px;
-	z-index: 6;
-}
-#chatImage {
-	background-image: url("./assets/icons/chat.png");
-	width: 32px;
-}
-#inventoryImage {
-	background-image: url("./assets/icons/inventory.png");
-	width: 32px;
-}
-#questsImage {
-	background-image: url("./assets/icons/quests.png");
-	width: 9px;
-}
-#adventureImage{
-	background-image: url("./assets/icons/adventure.png");
-	width: 40px;
-}
-#reputationImage{
-	background-image: url("./assets/icons/reputation.png");
-	width: 45px;
-}
-#settingsImage{
-	background-image: url("./assets/icons/settings.png");
-	width: 38px;
 }
 #settingLogoutInner, #settingLogout, #settingSave, #settingDelete, #settingControls{
 	position: relative;
@@ -535,8 +542,9 @@ thead:after {
 	width: 100px;
 	left: 200px;
 	height: 40px;
-	background-color: #fef9b4;
+	background-color: var(--bottom);
 	margin-bottom: 20px;
+	cursor: pointer;
 }
 #settingSave{
 	left: 50px;
@@ -576,8 +584,8 @@ thead:after {
 	width: 300px;
 	top: 100px;
 	//left: 725px;
-	background-color: #eecc77;
-	border: 5px solid #886622;
+	background-color: var(--alert);
+	border: 5px solid var(--border);
 	font-size: 25px;
 	padding: 20px;
 	padding-bottom: 10px;
@@ -588,14 +596,15 @@ thead:after {
 	position: relative;
 	width: 100px;
 	height: 50px;
-	background-color: #fef9b4;
-	border: 5px solid #886622;
+	background-color: var(--bottom);
+	border: 5px solid var(--border);
 	display: inline-block;
 	right: 15px;
 	bottom: 20px;
 	text-align: center;
 	vertical-align: middle;
 	line-height: 50px;
+	cursor: pointer;
 }
 #alertNo, #alertDispose{
 	right: 0px;
@@ -635,22 +644,25 @@ thead:after {
 #instructionArrowLeft{
 	position: absolute;
 	left: 195px;
+	cursor: pointer;
 }
 #instructionArrowRight{
 	position: absolute;
 	left: 311px;
+	cursor: pointer;
 }
 .mail, .driver{
 	height: 100px;
 	width: 450px;
 	left: 20px;
 	position: relative;
-	background-color: #fdf581;
-	border: 5px solid #886622;
+	background-color: var(--selected);
+	border: 5px solid var(--border);
 	margin-bottom: 20px;
+	cursor: pointer;
 }
 .driver{
-	background-color: #fef9b4;
+	background-color: var(--bottom);
 	height: 100%;
 	padding-top: 5px;
 }
@@ -693,7 +705,7 @@ thead:after {
 	position: absolute;
 	top: 10px;
 	right: 10px;
-	background-color: #886622;
+	background-color: var(--border);
 	line-height: 32px;
 	vertical-align: middle;
 	font-weight: bold;
@@ -717,10 +729,10 @@ thead:after {
 }*/
 #achievement{
 	position: absolute;
-	top: 63px;
+	top: 50px;
 	width: 445px;
-	border: 5px solid #886622;
-	background-color: #fef9b4;
+	border: 5px solid var(--border);
+	background-color: var(--bottom);
 	padding: 5px;
 	padding-top: 5px;
 	margin: 0px;
@@ -736,8 +748,8 @@ thead:after {
 #achievementImg{
 	width: 50px;
 	height: 50px;
-	border: 5px solid #886622;
-	background-color: #eecc77;
+	border: 5px solid var(--border);
+	background-color: var(--alert);
 	position: absolute;
 	background-repeat: no-repeat;
 	background-position: center;
@@ -752,7 +764,7 @@ thead:after {
 	position: absolute;
 	font-size: 50px;
 	right: 10px;
-	top: 10px;
+	top: 30px;
 }
 #chat{
 	//max-height: 50vh;
@@ -766,7 +778,7 @@ thead:after {
 }
 .chatBox{
 	background-color: black;
-	opacity: 0.6;
+	opacity: var(--opacity);
 	height: max-content;
 	color: white;
 	padding: 10px;
@@ -779,3 +791,61 @@ thead:after {
 	width: 100vw;
 	height: 100vh;
 }
+input {
+	cursor: pointer;
+}
+#chanceImage {
+	position: absolute;
+	margin-top: -33px;
+	left: 30px;
+}
+#chance {
+	text-align: left;
+	padding-left: 62px;
+	margin-top: -40px;
+}
+.choosePageButtons {
+	cursor: pointer;
+}
+.changePage {
+	width: 50px;
+	position: absolute;
+	outline: none;
+	display: none;
+	opacity: 0.7;
+	z-index: 5;
+	cursor: pointer;
+}
+#changeAdventure, #changeSettings{
+	display: block;
+}
+/*#chatImage, #inventoryImage, #questsImage, #adventureImage, #reputationImage, #settingsImage{
+	position: absolute;
+	height: 40px;
+	z-index: 6;
+	cursor: pointer;
+}
+#chatImage {
+	background-image: url("./assets/icons/chat.png");
+	width: 32px;
+}
+#inventoryImage {
+	background-image: url("./assets/icons/inventory.png");
+	width: 32px;
+}
+#questsImage {
+	background-image: url("./assets/icons/quests.png");
+	width: 9px;
+}
+#adventureImage{
+	background-image: url("./assets/icons/adventure.png");
+	width: 40px;
+}
+#reputationImage{
+	background-image: url("./assets/icons/reputation.png");
+	width: 45px;
+}
+#settingsImage{
+	background-image: url("./assets/icons/settings.png");
+	width: 38px;
+}*/
