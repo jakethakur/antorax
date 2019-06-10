@@ -2514,7 +2514,7 @@ Dom.bank.bagCases = function () {
 		document.getElementById("bankPageInventory").getElementsByTagName("td")[Dom.inventory.fromId].style.backgroundImage = "url('./assets/items/bag/1.png')";
 	}
 	if (Dom.inventory.toArray === Player.bank.items && Dom.inventory.toId < 6) {
-		document.getElementById("bankPageInventory").getElementsByTagName("td")[Dom.inventory.toId].style.backgroundImage = "";
+		document.getElementById("bankPageInventory").getElementsByTagName("td")[Dom.inventory.toId].style.backgroundImage = "none";
 	}
 	
 	// going from the bag slot from a bag
@@ -2548,7 +2548,7 @@ Dom.inventory.bagCases = function () {
 		document.getElementById("itemInventory").getElementsByTagName("td")[5].style.backgroundImage = "url('./assets/items/bag/1.png')";
 	}
 	if (Dom.inventory.toArray === Player.inventory.items && Dom.inventory.toId === 5) {
-		document.getElementById("itemInventory").getElementsByTagName("td")[5].style.backgroundImage = "";
+		document.getElementById("itemInventory").getElementsByTagName("td")[5].style.backgroundImage = "none";
 	}
 	
 	let changed = true;
@@ -2964,7 +2964,7 @@ Dom.inventory.addEquipment = function (array) {
 	if (array.type !== "rod" && array.type !== "sword" && array.type !== "staff" && array.type !== "bow") {
 		element = array.type;
 	}
-	document.getElementById(element).style.backgroundImage = "";
+	document.getElementById(element).style.backgroundImage = "none";
 	
 	Dom.inventory.beforeChangedStats();
 	if (array.stats !== undefined) {
@@ -4517,17 +4517,17 @@ Dom.updateScreenSize = function (init) {
 	document.getElementById("reputationImage").style.top= Dom.canvas.height-50+"px";
 	document.getElementById("settingsImage").style.top= Dom.canvas.height-50+"px";*/
 	let left = (Dom.canvas.width/2-168-400)/2 + Dom.canvas.width/2+168;
-	document.getElementById("changeChat").style.top= Dom.canvas.height-76+"px";
+	document.getElementById("changeChat").style.top= Dom.canvas.height-75+"px";
 	document.getElementById("changeChat").style.left= left+"px";
-	document.getElementById("changeInventory").style.top= Dom.canvas.height-76+"px";
+	document.getElementById("changeInventory").style.top= Dom.canvas.height-75+"px";
 	document.getElementById("changeInventory").style.left= left+70+"px";
-	document.getElementById("changeQuests").style.top= Dom.canvas.height-76+"px";
+	document.getElementById("changeQuests").style.top= Dom.canvas.height-75+"px";
 	document.getElementById("changeQuests").style.left= left+140+"px";
-	document.getElementById("changeAdventure").style.top= Dom.canvas.height-76+"px";
+	document.getElementById("changeAdventure").style.top= Dom.canvas.height-75+"px";
 	document.getElementById("changeAdventure").style.left= left+210+"px";
-	document.getElementById("changeReputation").style.top= Dom.canvas.height-76+"px";
+	document.getElementById("changeReputation").style.top= Dom.canvas.height-75+"px";
 	document.getElementById("changeReputation").style.left= left+280+"px";
-	document.getElementById("changeSettings").style.top= Dom.canvas.height-76+"px";
+	document.getElementById("changeSettings").style.top= Dom.canvas.height-75+"px";
 	document.getElementById("changeSettings").style.left= left+350+"px";
 	//document.getElementById("dot").style.top= Dom.canvas.height-53+"px";
 	//document.getElementById("dot").style.left= Dom.canvas.width/2+230+"px";
@@ -4615,7 +4615,7 @@ Dom.init = function () {
 		// if there is an item
 		else if (Player.inventory[Object.keys(Player.inventory)[i]].image !== undefined) {
 			Dom.inventory.prepare(Player.inventory, Object.keys(Player.inventory)[i], document.getElementById(Object.keys(Player.inventory)[i]));
-			document.getElementById(Object.keys(Player.inventory)[i]).style.backgroundImage = "";
+			document.getElementById(Object.keys(Player.inventory)[i]).style.backgroundImage = "none";
 		}
 	}
 
@@ -4781,7 +4781,7 @@ Dom.init = function () {
 			}
 		}
 	}
-	if (true) {
+	if (done) {
 		Dom.mail.give(
 			"Master Archaeologist",
 			"Alys Loreworth",
