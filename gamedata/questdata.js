@@ -42,7 +42,6 @@ var Quests = {
 
 			onQuestStart: function() {
 				Dom.instructions.unlockTab("quests");
-				Dom.closePage('questStart'); // so the instructions appear where the quest was
 				Dom.instructions.page(1);
 			},
 		},
@@ -86,7 +85,6 @@ var Quests = {
 
 			onQuestStart: function() {
 				Dom.instructions.unlockTab("inventory");
-				Dom.closePage('questStart'); // so the instructions appear where the quest was
 				Dom.instructions.page(4);
 			},
 		},
@@ -695,10 +693,14 @@ var Quests = {
 			onQuestFinish: function () {
 				Dom.cutscene(10000);
 				Dom.closePage('questFinish');
-				Game.sayChat("Ciarra Darkbrew", "Stand back. We wouldn't want your arms to detatch so soon.", 1000, true, false);
-				Game.sayChat("Ciarra Darkbrew", "/me adds the potion ingredients to an inert vial.", 4000, true, false);
-				Dom.chat.insert("The vial fizzes rapidly.", 6500, true);
-				Dom.chat.insert("The vial explodes.", 8500, true);
+				Dom.chat.insertSequence([
+				Dom.chat.say("Ciarra Darkbrew", "Stand back. We wouldn't want your arms to detatch so soon."),
+				Dom.chat.say("Ciarra Darkbrew", "/me adds the potion ingredients to an inert vial."),
+				"The vial fizzes rapidly.",
+				"The vial explodes.",
+				Dom.chat.say("Ciarra Darkbrew", "That... didn't go as planned.")],
+				[1000, 3000, 2500, 2000, 2000]);
+				
 				setTimeout(function () {
 					if (Game.areaName === "eaglecrestLoggingCamp") {
 						// damage Ciarra
@@ -710,7 +712,6 @@ var Quests = {
                         }
 					}
 				}, 8600);
-				Game.sayChat("Ciarra Darkbrew", "That... didn't go as planned.", 9500, true, false);
 			},
 
 			objectives: [
@@ -774,10 +775,12 @@ var Quests = {
 			onQuestFinish: function () {
 				Dom.cutscene(8500);
 				Dom.closePage('questFinish');
-				Game.sayChat("Ciarra Darkbrew", "/me adds the potion ingredients to an inert vial.", 1500, true, false);
-				Dom.chat.insert("The vial fizzes rapidly.", 4000, true);
-				Dom.chat.insert("The vial simmers to produce a bluish-green coloured liquid.", 6000, true);
-				Game.sayChat("Ciarra Darkbrew", "Excellent. If you'd like to try the potion, you can buy some from me. I promise it won't kill you. Probably.", 8000, true, false);
+				Dom.chat.insertSequence([
+				Dom.chat.say("Ciarra Darkbrew", "/me adds the potion ingredients to an inert vial."),
+				"The vial fizzes rapidly.",
+				"The vial simmers to produce a bluish-green coloured liquid.",
+				Dom.chat.say("Ciarra Darkbrew", "Excellent. If you'd like to try the potion, you can buy some from me. I promise it won't kill you. Probably.")],
+				[1500, 4000, 6000, 8000]);
 			},
 
 			objectives: [
@@ -1103,7 +1106,7 @@ var Quests = {
 
 			onQuestFinish: function() {
 				// goblin torch chat line
-				Game.sayChat("Goblin Torch", "Wizard runic. Very interesting. I'll be wizard soon.", 2500, false, false);
+				Dom.chat.insert(Dom.chat.say("Goblin Torch", "Wizard runic. Very interesting. I'll be wizard soon."), 2500); // has to read the book
 			},
 		},
 

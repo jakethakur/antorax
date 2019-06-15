@@ -1938,7 +1938,7 @@ var Items = {
 					});
 
 					// chat message
-					Game.sayChat("DOM, the Gingerbread Robot", "Gingerbread matrices restoring.", 300, false, false);
+					Dom.chat.insert(Dom.chat.say("DOM, the Gingerbread Robot", "Gingerbread matrices restoring."));
 				}
 			},
 		},

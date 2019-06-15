@@ -13,7 +13,6 @@ let Dom = {
 		questsPage: document.getElementById("questsPage"),
 		settingsPage: document.getElementById("settingsPage"),
 		settingsTwoPage: document.getElementById("settingsTwoPage"),
-		instructionsPage: document.getElementById("instructionsPage"),
 		adventurePage: document.getElementById("adventurePage"),
 		reputationPage: document.getElementById("reputationPage"),
 		questStart: document.getElementById("questStart"),
@@ -224,17 +223,11 @@ Dom.quests.active = function (quest) {
 			}else{
 				for (let i = 0; i < currentQuest.wasCompleted.length; i++) {
 					if (currentQuest.wasCompleted[i] !== true && isCompleted[i] === true) {
-						Dom.chat.insert("Quest log updated", 0, true);
+						Dom.chat.insert("Quest log updated");
 						currentQuest.wasCompleted = isCompleted;
 						break;
 					}
 				}
-				/*
-				if (JSON.stringify(currentQuest.wasCompleted) !== JSON.stringify(isCompleted) && isCompleted[isCompleted.length-1]) {
-					Dom.chat.insert("Quest log updated", 0, true);
-					currentQuest.wasCompleted = isCompleted;
-				}
-				*/
 			}
 			if (isCompleted[isCompleted.length - 1]) {
 				currentQuest.completed = true;
@@ -338,7 +331,7 @@ Dom.changeBook = function (page, openClose) {
 		}
 
 		// All NPC DOMs have the same position
-		if (!bookmark && page !== "instructionsPage" && page !== "bankWithdrawPage") {
+		if (!bookmark) {
 			document.getElementById(page).style.left = Dom.canvas.npcLeft;
 			document.getElementById(page).style.top = Dom.canvas.npcTop;
 		}
@@ -352,7 +345,7 @@ Dom.changeBook = function (page, openClose) {
 			}
 		}
 		// All NPC DOMs have the same position
-		if (!bookmark && page !== "instructionsPage" && page !== "bankWithdrawPage") {
+		if (!bookmark) {
 			Dom.canvas.npcLeft = document.getElementById(page).style.left;
 			Dom.canvas.npcTop = document.getElementById(page).style.top;
 		}
@@ -379,10 +372,10 @@ Dom.chat.page = function () {
 	//document.getElementById("dot").innerHTML = 0;
 	Dom.chat.oldString = Dom.chat.newString + Dom.chat.oldString;
 	Dom.chat.newString = "";
-	clearInterval(Dom.chat.borderRed);
-	clearInterval(Dom.chat.borderBlack);
-	Dom.chat.borderRed = false;
-	Dom.chat.borderBlack = false;
+	//clearInterval(Dom.chat.borderRed);
+	//clearInterval(Dom.chat.borderBlack);
+	//Dom.chat.borderRed = false;
+	//Dom.chat.borderBlack = false;
 	//document.getElementById("changeChat").getElementsByTagName("polygon")[0].style.stroke = "black";
 }
 
@@ -398,15 +391,101 @@ Dom.hotbar.update = function () {
 	}
 }
 
-Dom.chat.borderRed = false; // allows the chat bookmark to flash
-Dom.chat.borderBlack = false; // allows the chat bookmark to flash
-Dom.chat.newString = ""; // chat above the -new messages-
+Dom.instructions.index = function () {
+	let parameters = ["Instructions", [], [], []];
+	for (let i = 0; i < Player.unlockedInstructions.length; i++) {
+		parameters[1].push(Instructions[i].chapterTitle);
+		parameters[2].push(Dom.instructions.page);
+		parameters[3].push([i, true]);
+	}
+	Dom.choose.page(...parameters);
+}
+
+Dom.instructions.page = function (chapter, index) {
+	if (Player.unlockedInstructions.length === chapter) {
+		Player.unlockedInstructions.push(Instructions[chapter].chapterTitle);
+	}
+	if (index || !Player.skipTutorial) {
+		Dom.chat.insertSequence(Instructions[chapter].pages);
+	}
+}
+
+// insert a message into the chat, under the format of "name: message"
+// name is emboldened via <strong> tags
+// if message begins with "/me " (including space), the format changes to "this.name message"
+
+// if singleUse is true, and if Dom.chat.contents contains message, the message is not sent (handled by Dom.chat.insert)
+// if important is true, the chat message triggers a red flashing prompt around the chat bookmark
+
+// if the message is an array, arrayType should specify what is done with that array
+// arrayType "random" picks a random message and sends it from the array
+// arrayType "all" sends all of the messages (using this function) with delay same as delay parameter between each of them
+
+Dom.chat.say = function (name, message) {
+	if (message !== undefined) {
+		// update message for special chat cases
+
+		if (message.constructor === Array) {
+			if (message.length > 1) {
+				// pick a random message from the array
+				message = message[Random(0, message.length - 1)];
+			}
+			else {
+				// only one message anyway
+				message = message[0];
+			}
+		}
+
+		if (typeof name === "undefined") {
+			// no name for NPC, post without a name
+		}
+		else if (message.substring(0, 4) === "/me ") {
+			// reflexive message
+			message = "<strong>" + name + "</strong> " + message.substr(4, message.length);
+		}
+		else {
+			// normal message (includes NPC name)
+			message = "<strong>" + name + "</strong>: " + message;
+		}
+
+		return message;
+	}
+	else {
+		console.warn("undefined chat message for " + name);
+	}
+}
+
+Dom.chat.insertSequence = function (text, values) {
+	if (values === undefined) {
+		values = [];
+		values.length = text.length+1;
+	}
+	
+	let time = values[0] || 0;
+	for (let i = 0; i < text.length; i++) {
+		
+		if (values[i+1] === undefined) {
+			values[i+1] = text[i].split(" ").length/200*60000;
+		}
+		
+		Dom.chat.insert(text[i], time, values[i+1]);
+		
+		time += values[i+1];
+	}
+}
+
 Dom.chat.oldString = ""; // chat below the -new messages-
 Dom.chat.contents = []; // stores all the chat messages
 Dom.chat.displayChat = [];
 Dom.chat.displayOpacity = [];
 //document.getElementById("dot").innerHTML = 0;
-Dom.chat.insert = function (text, delay, important, noRepeat) {
+Dom.chat.insert = function (text, delay, time, noRepeat) {
+	if (delay === undefined) {
+		delay = 0;
+	}
+	if (time === undefined) {
+		time = text.split(" ").length/200*60000;
+	}
 	setTimeout(function () {
 		if (!noRepeat || !Dom.chat.contents.includes(text)) {
 			if (this.contents.length >= 1000) {
@@ -418,7 +497,7 @@ Dom.chat.insert = function (text, delay, important, noRepeat) {
 				// chat in the bottom left
 				Dom.chat.displayChat.push(text);
 				document.getElementById("chat").innerHTML += "<li class='chatBox' style='opacity:0.6;'>"+text+"</li>";
-				Dom.chat.displayOpacity.push(8);
+				Dom.chat.displayOpacity.push(time/2+500);
 				if (!Dom.chat.chatInterval) {
 					Dom.chat.chatInterval = setInterval(function () {
 						if (Dom.chat.displayChat.length === 0) {
@@ -426,9 +505,9 @@ Dom.chat.insert = function (text, delay, important, noRepeat) {
 							Dom.chat.chatInterval = false;
 						}
 						for (let x = 0; x < Dom.chat.displayChat.length; x++) {
-							Dom.chat.displayOpacity[x] -= 0.01;
-							if (Dom.chat.displayOpacity[x] < 0.6) {
-								document.getElementById("chat").getElementsByTagName("li")[x].style.opacity = Dom.chat.displayOpacity[x];
+							Dom.chat.displayOpacity[x]-=2;
+							if (Dom.chat.displayOpacity[x] < 600) {
+								document.getElementById("chat").getElementsByTagName("li")[x].style.opacity = Dom.chat.displayOpacity[x]/1000;
 							}
 							if (document.getElementById("chat").getElementsByTagName("li")[x].style.opacity <= 0) {
 								Dom.chat.displayChat.shift();
@@ -678,7 +757,7 @@ Dom.reputation.upLevel = function (Area,i) {
 	if (Area.level < 5) {
 		Area.score -= ReputationPoints[Player.reputation[Object.keys(Player.reputation)[i]].level];
 		Area.level++;
-		Dom.chat.insert("Your reputation with " + FromCamelCase(Object.keys(Player.reputation)[i]) + " has increased to " + Dom.reputation.levels[Area.level], 0, true);
+		Dom.chat.insert("Your reputation with " + FromCamelCase(Object.keys(Player.reputation)[i]) + " has increased to " + Dom.reputation.levels[Area.level]);
 		this.update();
 	}else{
 		Area.level = 6;
@@ -691,7 +770,7 @@ Dom.reputation.downLevel = function (Area,i) {
 	if (Area.level > 1) {
 		Area.level--;
 		Area.score += ReputationPoints[Player.reputation[Object.keys(Player.reputation)[i]].level];
-		Dom.chat.insert("Your reputation with " + FromCamelCase(Object.keys(Player.reputation)[i]) + " has decreased to " + Dom.reputation.levels[Area.level], 0, true);
+		Dom.chat.insert("Your reputation with " + FromCamelCase(Object.keys(Player.reputation)[i]) + " has decreased to " + Dom.reputation.levels[Area.level]);
 		this.update();
 	}else{
 		Area.level = 0;
@@ -1671,7 +1750,7 @@ Dom.merchant.page = function (npc, sold, chat) {
 			}
 			document.getElementById("close").onclick = function () {
 				Dom.closePage('merchantPage');
-				npc.say(npc.chat.shopLeave, 0, false, true);
+				npc.say(npc.chat.shopLeave, 0, true);
 			}
 		}
 	}
@@ -1692,9 +1771,9 @@ Dom.merchant.buy = function (item,index,npc) {
 			setTimeout(function () {
 				document.getElementsByClassName("buy")[index].style.border = "5px solid var(--border)";
 			},200);
-			npc.say(npc.chat.tooPoor, 0, false, true);
+			npc.say(npc.chat.tooPoor, 0, true);
 		}else{
-			npc.say(npc.chat.inventoryFull, 0, false, true);
+			npc.say(npc.chat.inventoryFull, 0, true);
 			Dom.alert.page("You do not have enough space in your inventory for that item.", 0, undefined, "merchantPage");
 		}
 	}
@@ -1856,7 +1935,7 @@ Dom.identifier.identify = function (npc) {
 		setTimeout(function () {
 			document.getElementById("identifierPageBuy").style.border = "5px solid var(--border)";
 		},200);
-		npc.say(npc.chat.tooPoor, 0, true, true);
+		npc.say(npc.chat.tooPoor, 0, true);
 	}
 }
 
@@ -2451,7 +2530,7 @@ Dom.canvas.moveDom = function (object, page) {
 	object.style.top = window.mouseY - Dom.canvas.dragPageY + "px";
 
 	// All NPC DOMs have the same position
-	if (page !== "chatPage" && page !== "inventoryPage" && page !== "questsPage" && page !== "adventurePage" && page !== "reputationPage" && page !== "settingsPage" && page !== "settingsTwoPage" && page !== "instructionsPage" && page !== "bankWithdrawPage") {
+	if (page !== "chatPage" && page !== "inventoryPage" && page !== "questsPage" && page !== "adventurePage" && page !== "reputationPage" && page !== "settingsPage" && page !== "settingsTwoPage") {
 		Dom.canvas.npcLeft = object.style.left;
 		Dom.canvas.npcTop = object.style.top;
 	}
@@ -3329,7 +3408,7 @@ Dom.text.page = function (name, text, close, buttons, functions, give) {
 			}
 		}
 		for (let i = 0; i < buttons.length; i++) {
-			if (buttons[i] !== undefined) { // because instructions page has undefined buttons meaning no buttons
+			if (buttons[i] !== undefined) {
 				document.getElementById("textPage").innerHTML += "<br><center><div id='buttons"+i+"' class='buttons'>"+buttons[i]+"</div></center>";
 			}
 		}
@@ -3338,7 +3417,7 @@ Dom.text.page = function (name, text, close, buttons, functions, give) {
 		}
 		// onclicks have to be below this point because the line above resets them
 		for (let i = 0; i < buttons.length; i++) {
-			if (buttons[i] !== undefined) { // because instructions page has undefined buttons meaning no buttons
+			if (buttons[i] !== undefined) {
 				document.getElementById("buttons"+i).onclick = function () {
 					functions[i]();
 				}
@@ -3532,91 +3611,6 @@ Dom.choose.page = function (npc, buttons, functions, parameters, force) {
 	}
 }
 
-/*Dom.choose.page = function (npc, buttons, functions, parameters, force) {
-	let name = npc.name !== undefined ? npc.name : npc; // for cases like Goblin Torch
-	if (npc.constructor.name === "NPC" && !Player.metNPCs.includes(name)) {
-		Player.metNPCs.push(name);
-	}
-
-	if (Dom.currentlyDisplayed === "") {
-		Dom.currentlyDisplayed = name;
-		if (name !== npc) {
-			Dom.currentNPC.type = npc.type;
-			Dom.currentNPC.id = npc.id;
-		}
-		if (buttons.length > 1 || force) {
-			Dom.changeBook("choosePage", true, true);
-			document.getElementById("choosePage").innerHTML = "<h1>"+name+"</h1>"+(npc.chat !== undefined ? "<p>"+npc.chat.chooseChat+"</p>" : "");
-			Dom.choose.HTML = "";
-			Dom.choose.sideHTML = "";
-			Dom.choose.dailyHTML = "";
-			for (let i = 0; i < buttons.length; i++) {
-				let imagenum = 2;
-				if (functions[i] === Dom.driver.page) {
-					imagenum = 0;
-				}else if (functions[i] === Dom.identifier.page) {
-					imagenum = 3;
-				}else if (functions[i] === Dom.buyer.page) {
-					imagenum = 4;
-				}else if (functions[i] === Dom.merchant.page) {
-					imagenum = 5;
-				}else if (functions[i] === Dom.quest.finish) {
-					imagenum = 6;
-				}else if (functions[i] === Dom.quest.start) {
-					if (parameters[i][0].repeatTime === "daily") {
-						imagenum = 1;
-					}else{
-						imagenum = 7;
-					}
-				}else if (functions[i] === Dom.text.page) {
-					if (parameters[i][0] === "Soul Healer") {
-						imagenum = 8;
-					}
-				}
-				if (imagenum === 6) {
-					if (parameters[i][0].important) {
-						document.getElementById("choosePage").innerHTML += "<p id='choosePageButtons"+i+"'><img src='assets/icons/choose.png' class='chooseIcon' style='clip: rect("+25*imagenum+"px, 25px, "+25*(imagenum+1)+"px, 0px); margin-top: -"+(25*imagenum+3)+"px'></img>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<strong>"+buttons[i]+"</strong></p>";
-					}else{
-						Dom.choose.sideHTML += "<p id='choosePageButtons"+i+"'><img src='assets/icons/choose.png' class='chooseIcon' style='clip: rect("+25*imagenum+"px, 25px, "+25*(imagenum+1)+"px, 0px); margin-top: -"+(25*imagenum+3)+"px'></img>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;"+buttons[i]+"</p>";
-					}
-				}else if (imagenum === 0) {
-					Dom.choose.dailyHTML += "<p id='choosePageButtons"+i+"'><img src='assets/icons/choose.png' class='chooseIcon' style='clip: rect("+25*imagenum+"px, 25px, "+25*(imagenum+1)+"px, 0px); margin-top: -"+(25*imagenum+3)+"px'></img>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;"+buttons[i]+"</p>";
-				}else{
-					Dom.choose.HTML += "<p id='choosePageButtons"+i+"'><img src='assets/icons/choose.png' class='chooseIcon' style='clip: rect("+25*imagenum+"px, 25px, "+25*(imagenum+1)+"px, 0px); margin-top: -"+(25*imagenum+3)+"px'></img>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;"+buttons[i]+"</p>";
-				}
-			}
-			document.getElementById("choosePage").innerHTML += Dom.choose.sideHTML + Dom.choose.dailyHTML + Dom.choose.HTML + '<br><br><center><div id="choosePageClose" class="closeClass" onclick="Dom.closePage(\'choosePage\')">Close</div></center>';
-			for (let i = 0; i < buttons.length; i++) {
-				document.getElementById("choosePageButtons"+i).onclick = function () {
-					functions[i](...parameters[i]);
-				}
-			}
-		}else{
-			functions[0](...parameters[0]);
-		}
-	}else{
-		if (npc === "Instructions") {
-			Dom.adventure.awaitingInstructions.push(parameters[0][0]);
-		}else if (Dom.currentNPC.type !== npc.type || Dom.currentNPC.id !== npc.id) {
-			if (document.getElementsByClassName("closeClass")[0].style.border !== "5px solid red" && !Dom.choose.override) {
-				//Dom.changeBook("identifierPage", false);
-				Dom.choose.override = true; // overrides future updates
-				for (let i = 0; i < document.getElementsByClassName("closeClass").length; i++) {
-					document.getElementsByClassName("closeClass")[i].style.border = "5px solid red";
-				}
-				document.getElementById("levelUpPageClose").style.border = "5px solid red";
-				setTimeout(function () {
-					for (let i = 0; i < document.getElementsByClassName("closeClass").length; i++) {
-						document.getElementsByClassName("closeClass")[i].style.border = "5px solid var(--border)";
-					}
-					document.getElementById("levelUpPageClose").style.border = "5px solid var(--border)";
-					Dom.choose.override = false; // allows future updates
-				},200);
-			}
-		}
-	}
-}*/
-
 Dom.settings.keyName = function (ev) {
 	if (typeof ev !== "string") {
 		ev = ev.key;
@@ -3696,28 +3690,6 @@ Dom.settings.page = function (page) {
 	}
 }
 
-//Dom.adventure.currentInstruction = 0;
-//Dom.adventure.awaitingInstructions = [];
-//Dom.adventure.openedInstructions = false; // instructions were opened through the book
-
-/*Dom.adventure.addInstruction = function (chapter) {
-	if (Player.unlockedInstructions.length === chapter-1) {
-		Player.unlockedInstructions.push(Instructions[chapter-1].chapterTitle);
-		if (!document.getElementById("tutorialOn").checked) {
-			if (Dom.changeBook("instructionsPage")) {
-				document.getElementById("instructionsPage").innerHTML = "<h1>"+Instructions[chapter-1].chapterTitle+"</h1>";
-			}else{
-				Player.skippedInstructions.push(chapter)
-			}
-		}else{
-			Player.skippedInstructions.push(chapter)
-		}
-	}
-	if (Player.unlockedInstructions.length >= Instructions.length) {
-		document.getElementById("settingTutorialHolder").hidden = true;
-	}
-}*/
-
 Dom.instructions.unlockTab = function (tab, skip) {
 	if (!Player.unlockedTabs.includes(tab)) {
 		Player.unlockedTabs.push(tab);
@@ -3726,36 +3698,18 @@ Dom.instructions.unlockTab = function (tab, skip) {
 		if (skip) {
 			Player.skippedTabs.push(tab);
 		}
-	}/*else if (!skip) {
-		for (let i = 0; i < Player.skippedTabs.length; i++) {
-			if (Player.skippedTabs[i] === tab) {
-				Player.skippedTabs.splice(i, 1);
-			}
-		}
-	}*/
+	}
+	else if (!skip) {
+		Player.skippedTabs.shift();
+	}
 }
 
 document.getElementById("tutorialOn").onclick = function () {
-	Dom.instructions.unlockTab("chat", true);
-	//document.getElementById("changeChat").style.display = "block";
-	//document.getElementById("chatImage").hidden = false;
-	Dom.instructions.unlockTab("inventory", true);
-	//document.getElementById("changeInventory").style.display = "block";
-	//document.getElementById("inventoryImage").hidden = false;
 	Dom.instructions.unlockTab("quests", true);
-	//document.getElementById("changeQuests").style.display = "block";
-	//document.getElementById("questsImage").hidden = false;
+	Dom.instructions.unlockTab("chat", true);
+	Dom.instructions.unlockTab("inventory", true);
 	Dom.instructions.unlockTab("reputation", true);
-	//document.getElementById("changeReputation").style.display = "block";
-	//document.getElementById("reputationImage").hidden = false;
 	Player.skipTutorial = true;
-	//Dom.adventure.unlockTab("chat", true);
-	/*if (Dom.chat.newString) {
-		document.getElementById("dot").hidden = false;
-	}*/
-	//Dom.adventure.unlockTab("inventory", true);
-	//Dom.adventure.unlockTab("quests", true);
-	//Dom.adventure.unlockTab("reputation", true);
 }
 
 document.getElementById("tutorialOff").onclick = function () {
@@ -3773,50 +3727,7 @@ document.getElementById("tutorialOff").onclick = function () {
 		//}
 	}
 	Player.skippedTabs = [];
-	for (let i = 0; i < Player.skippedInstructions.length; i++) {
-		Dom.instructions.page(Player.skippedInstructions[i]);
-	}
-	Player.skippedInstructions = [];
 }
-
-/*Dom.adventure.nextInstruction = function () {
-	Dom.adventure.currentInstruction++;
-	Dom.text.page(Instructions[Dom.adventure.awaitingInstructions[0]].pages[Dom.adventure.currentInstruction].title, "<p>"+(Dom.adventure.currentInstruction > 0 ? "<span onclick='Dom.adventure.previousInstruction()' class='instructionArrowLeft'>&#8678;</span>" : "")+"Page "+(Dom.adventure.currentInstruction+1)+" of "+Instructions[Dom.adventure.awaitingInstructions[0]].pages.length+(Dom.adventure.currentInstruction < Instructions[Dom.adventure.awaitingInstructions[0]].pages.length-1 ? "<span onclick='Dom.adventure.nextInstruction()' class='instructionArrowRight'>&#8680;</span>" : "")+"</p>"+Instructions[Dom.adventure.awaitingInstructions[0]].pages[Dom.adventure.currentInstruction].text, false, [Dom.adventure.currentInstruction === Instructions[Dom.adventure.awaitingInstructions[0]].pages.length-1 ? "Close" : undefined], [Dom.adventure.instructionIndex]);
-}
-
-Dom.adventure.previousInstruction = function () {
-	Dom.adventure.currentInstruction--;
-	Dom.text.page(Instructions[Dom.adventure.awaitingInstructions[0]].pages[Dom.adventure.currentInstruction].title, "<p>"+(Dom.adventure.currentInstruction > 0 ? "<span onclick='Dom.adventure.previousInstruction()' class='instructionArrowLeft'>&#8678;</span>" : "")+"Page "+(Dom.adventure.currentInstruction+1)+" of "+Instructions[Dom.adventure.awaitingInstructions[0]].pages.length+(Dom.adventure.currentInstruction < Instructions[Dom.adventure.awaitingInstructions[0]].pages.length-1 ? "<span onclick='Dom.adventure.nextInstruction()' class='instructionArrowRight'>&#8680;</span>" : "")+"</p>"+Instructions[Dom.adventure.awaitingInstructions[0]].pages[Dom.adventure.currentInstruction].text, false, [Dom.adventure.currentInstruction === Instructions[Dom.adventure.awaitingInstructions[0]].pages.length-1 ? "Close" : undefined], [Dom.adventure.instructionIndex]);
-}
-
-Dom.adventure.showInstructions = function (chapter, reverse) {
-	Dom.currentlyDisplayed = "";
-	Dom.currentNPC = {};
-	if (reverse) {
-		Dom.adventure.awaitingInstructions.unshift(chapter);
-	}else{
-		Dom.adventure.awaitingInstructions.push(chapter);
-	}
-	Dom.adventure.currentInstruction = 0;
-	Dom.text.page(Instructions[Dom.adventure.awaitingInstructions[0]].pages[Dom.adventure.currentInstruction].title, "<p>"+(Dom.adventure.currentInstruction > 0 ? "<span onclick='Dom.adventure.previousInstruction()' class='instructionArrowLeft'>&#8678;</span>" : "")+"Page "+(Dom.adventure.currentInstruction+1)+" of "+Instructions[Dom.adventure.awaitingInstructions[0]].pages.length+(Dom.adventure.currentInstruction < Instructions[Dom.adventure.awaitingInstructions[0]].pages.length-1 ? "<span onclick='Dom.adventure.nextInstruction()' class='instructionArrowRight'>&#8680;</span>" : "")+"</p>"+Instructions[Dom.adventure.awaitingInstructions[0]].pages[Dom.adventure.currentInstruction].text, false, [Dom.adventure.currentInstruction === Instructions[Dom.adventure.awaitingInstructions[0]].pages.length-1 ? "Close" : undefined], [Dom.adventure.instructionIndex]);
-}
-
-Dom.adventure.instructionIndex = function () {
-	// remove the instruction you just closed
-	Dom.adventure.awaitingInstructions.shift();
-	// if there are more instructions to show
-	if (Dom.adventure.awaitingInstructions.length > 0) {
-		// show the next instruction
-		Dom.adventure.showInstructions(Dom.adventure.awaitingInstructions[0], true);
-		// remove the duplicate of the next instruction
-		Dom.adventure.awaitingInstructions.shift();
-	// if there are no instructions waiting to be displayed and you are in the instruction book
-	}else if (Player.unlockedInstructions.length > 1 && Dom.adventure.openedInstructions) {
-		Dom.choose.page("Instructions", Player.unlockedInstructions, [Dom.adventure.showInstructions,Dom.adventure.showInstructions,Dom.adventure.showInstructions,Dom.adventure.showInstructions,Dom.adventure.showInstructions,], [[0],[1],[2],[3],[4],]);
-	}else{
-		Dom.closePage('textPage');
-	}
-}*/
 
 if (User.settings.coords === true) {
 	document.getElementById("coordsOn").checked = true;
@@ -4130,10 +4041,6 @@ Dom.adventure.update = function () {
 			document.getElementById("adventurePage").innerHTML += html;
 		}
 	}
-	/*if (User.settings.instructionsLink === true) {
-		// link to instructions shows as purple
-		document.getElementById("instructionsTitle").style.color = "#551a8b";
-	}*/
 }
 
 Dom.inventory.reEquip = function (event) {
@@ -4398,66 +4305,6 @@ Dom.settings.transparency = function () {
 	}
 }
 
-Dom.instructions.index = function () {
-	/*if (User.settings.instructionsLink === false) {
-		// link to instruction saves as purple
-		User.settings.instructionsLink = true;
-		// link to instructions shows as purple
-		document.getElementById("instructionsTitle").style.color = "#551a8b";
-	}*/
-
-	let parameters = ["Instructions", [], [], []];
-	for (let i = 0; i < Player.unlockedInstructions.length; i++) {
-		parameters[1].push(Instructions[i].chapterTitle);
-		parameters[2].push(Dom.instructions.display);
-		parameters[3].push([i, 0, true]);
-	}
-	Dom.choose.page(...parameters);
-}
-
-Dom.instructions.waiting = [];
-Dom.instructions.page = function (chapter) {
-	// if the tutorial active
-	if (!document.getElementById("tutorialOn").checked && Player.unlockedInstructions.length === chapter) {
-		Player.unlockedInstructions.push(Instructions[chapter].chapterTitle);
-		if (Dom.changeBook("instructionsPage")) {
-			Dom.instructions.display(chapter, 0);
-		}else{
-			Dom.instructions.waiting.push(chapter);
-		}
-	}else if (Player.unlockedInstructions.length === chapter) {
-		Player.skippedInstructions.push(chapter);
-	}
-}
-
-Dom.instructions.display = function (chapter, page, index) {
-	if (index) {
-		//Dom.currentlyDisplayed = "";
-		Dom.changeBook("instructionsPage");
-	}
-	document.getElementById("instructionsPage").innerHTML = "<h1>"+Instructions[chapter].pages[page].title+"</h1><p>"
-	+(page !== 0 ? "<span id='instructionArrowLeft' onclick='Dom.instructions.display("+chapter+", "+(page-1)+", "+index+");'>&#8678; </span>" : "")
-	+"Page "+(page+1)+" of "+Instructions[chapter].pages.length
-	+(page !== Instructions[chapter].pages.length-1 ? "<span id='instructionArrowRight'  onclick='Dom.instructions.display("+chapter+", "+(page+1)+", "+index+");'> &#8680;</span>" : "")
-	+"</p>"+"<p class='instructionText'>"+Instructions[chapter].pages[page].text+"</p>";
-
-	if (page === Instructions[chapter].pages.length-1) {
-		document.getElementById("instructionsPage").innerHTML += '<br><br><center><div id="instructionsPageClose" class="closeClass" onclick="Dom.instructions.close('+index+')">Close</div></center>';
-	}
-}
-
-Dom.instructions.close = function (index) {
-	if (Dom.instructions.waiting.length > 0) {
-		Dom.instructions.display(Dom.instructions.waiting.shift(), 0);
-	}else{
-		Dom.closePage("instructionsPage", true);
-		if (index) {
-			Dom.currentlyDisplayed = "";
-			Dom.instructions.index();
-		}
-	}
-}
-
 Dom.settings.dark = function () {
 	if (User.settings.dark) {
 		document.documentElement.style = `
@@ -4592,7 +4439,7 @@ Dom.init = function () {
 		// if the item has melted
 		if (Player.inventory.items[i].image !== undefined && !Player.inventory.items[i].unidentified && Items[Player.inventory.items[i].type][Player.inventory.items[i].id].deleteIf !== undefined && Items[Player.inventory.items[i].type][Player.inventory.items[i].id].deleteIf ()) {
 			setTimeout(function () {
-				Dom.chat.insert("It's not snowy any more! Your "+Player.inventory.items[i].name+" melted.", 0, true);
+				Dom.chat.insert("It's not snowy any more! Your "+Player.inventory.items[i].name+" melted.");
 				Player.inventory.items[i] = {};
 			},1000);
 		}else if (Player.inventory.items[i].image !== undefined) {
@@ -4608,7 +4455,7 @@ Dom.init = function () {
 		// if the item has melted
 		if (Player.inventory[Object.keys(Player.inventory)[i]].image !== undefined && Items[Player.inventory[Object.keys(Player.inventory)[i]].type][Player.inventory[Object.keys(Player.inventory)[i]].id].deleteIf !== undefined && Items[Player.inventory[Object.keys(Player.inventory)[i]].type][Player.inventory[Object.keys(Player.inventory)[i]].id].deleteIf ()) {
 			setTimeout(function () {
-				Dom.chat.insert("It's not snowy any more! Your "+Player.inventory[Object.keys(Player.inventory)[i]].name+" melted.", 0, true);
+				Dom.chat.insert("It's not snowy any more! Your "+Player.inventory[Object.keys(Player.inventory)[i]].name+" melted.");
 				Player.inventory[Object.keys(Player.inventory)[i]] = {};
 			},1000);
 		}
@@ -4628,7 +4475,7 @@ Dom.init = function () {
 		// if the item has melted
 		if (Player.bank.items[i].image !== undefined && !Player.bank.items[i].unidentified && Items[Player.bank.items[i].type][Player.bank.items[i].id].deleteIf !== undefined && Items[Player.bank.items[i].type][Player.bank.items[i].id].deleteIf ()) {
 			setTimeout(function () {
-				Dom.chat.insert("It's not snowy any more! Your "+Player.bank.items[i].name+" melted.", 0, true);
+				Dom.chat.insert("It's not snowy any more! Your "+Player.bank.items[i].name+" melted.");
 				Player.bank.items[i] = {};
 			},1000);
 		}else if (Player.bank.items[i].image !== undefined) {
@@ -4683,6 +4530,22 @@ Dom.init = function () {
 	let date = GetFullDate();
 	// the first time the player logs on each day
 	if (!Player.days.includes(date)) {
+		
+		// Load a new class: gold, mail, instructions
+		if (localStorage.getItem(Player.class) === null) {
+	        Dom.inventory.give(Items.currency[2],3);
+	        Dom.mail.give(
+	            "Welcome to Antorax!",
+	            "The Tinkering Guild",
+	            "galuthelTheTrapMechanic",
+	            "text.page",
+	            ["Welcome to Antorax!",
+	            `Hello ${Player.name}!<br><br>It's great to have new people joining us in Antorax. I look forward to meeting you very soon in Wizard Island. Perhaps you would like to try out one of our newest inventions - the ScreenGrabber 3000! It's free of charge. Pop us a letter if it explodes, otherwise see you soon!<br><br>From the Tinkering Guild`, true, [], [],
+	            [{item: Items.item[14]}]], [{item: Items.item[14]}],
+	        );
+			Dom.instructions.page(0);
+		}
+
 		// christmas daily rewards
 		if (Event.event === "Christmas") {
 			let randomNPC = Player.metNPCs[Random(0, Player.metNPCs.length-1)]; // NPC that sent message
@@ -4719,6 +4582,7 @@ Dom.init = function () {
 				);
 			}
 		}
+		
 		// Antorax Day mail
 		if (Event.event === "Antorax") {
 			Dom.mail.give(
@@ -4742,6 +4606,7 @@ Dom.init = function () {
 				);
 			}
 		}
+		
 		// Fish mail
         else if (Event.event === "Fish") {
             Dom.mail.give(
@@ -4754,6 +4619,7 @@ Dom.init = function () {
                 [{item: Items.sword[10]}]], [{item: Items.sword[10]}],
             );
         }
+		
 		// Heroes of Antorax mail
 		else if (Event.event === "Heroes") {
 			Dom.mail.give(
@@ -4768,6 +4634,7 @@ Dom.init = function () {
 			    [{item: Items.sword[11]}]], [{item: Items.sword[11]}], true // noRepeat
 			);
 		}
+		
 		Player.days.push(date);
 		Player.quests.randomDailyQuests = {};
 		Player.chests.positions = {}; // chests change position each day
@@ -4811,13 +4678,13 @@ Dom.init = function () {
 	//document.getElementById("dot").innerHTML = 0; // no unread messages to start
 
 	if (Event.christmasDay) {
-	    Dom.chat.insert("Merry Christmas, " + Player.name + "!", 0, false, true);
+	    Dom.chat.insert("Merry Christmas, " + Player.name + "!", 0, undefined, true);
 	}
-	else {
-	    Dom.chat.insert("Welcome "+(localStorage.getItem(Player.class) !== null ? "back" : "to Antorax")+", " + Player.name + "!", 0, false, true);
+	else if(localStorage.getItem(Player.class) !== null) {
+	    Dom.chat.insert("Welcome back, " + Player.name + "!", 0, undefined, true);
 	}
 	if (Event.event === "Fish") {
-	    Dom.chat.insert("Something <em>fishy</em> is going on...", 2000, false, true);
+	    Dom.chat.insert("Something <em>fishy</em> is going on...", 2000, undefined, true);
 	}
 
 	// tell the player if they have unread mail
@@ -4825,11 +4692,11 @@ Dom.init = function () {
 	if (Player.quests.completedQuestArray.includes("To the Logging Camp")) {
 		if (unreadMail > 1) {
 			// plural
-			Dom.chat.insert("You have " + unreadMail + " new messages!", 0, false); // maybe make it more obvious that player has to check their mailbox for this?
+			Dom.chat.insert("You have " + unreadMail + " new messages!"); // maybe make it more obvious that player has to check their mailbox for this?
 		}
 		else if (unreadMail > 0) {
 			// singular
-			Dom.chat.insert("You have " + unreadMail + " new message!", 0, false); // maybe make it more obvious that player has to check their mailbox for this?
+			Dom.chat.insert("You have " + unreadMail + " new message!"); // maybe make it more obvious that player has to check their mailbox for this?
 		}
 	}
 

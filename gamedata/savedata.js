@@ -173,7 +173,6 @@ var User = {
 			SIX: "6",
 			// key changes are all handeled by dom
 		},
-		instructionsLink: false,
 	},
 }
 

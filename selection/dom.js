@@ -1,4 +1,4 @@
-if (JSON.parse(localStorage.getItem("user")).settings.dark) {
+if (localStorage.getItem("user") !== null && JSON.parse(localStorage.getItem("user")).settings.dark) {
 	document.documentElement.style = `
 	--border: #202020;
 	--alert: #707070;

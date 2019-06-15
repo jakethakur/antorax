@@ -716,17 +716,17 @@ var Areas = {
 							Game.getXP(50);
 							Dom.reputation.give("eaglecrestLoggingCamp", 300);
 							Dom.inventory.give(Items.currency[2], 5);
-							Dom.chat.insert("Marshall Teper has given you <strong>5 Gold</strong> for the boots.", 0);
+							Dom.chat.insert("Marshall Teper has given you <strong>5 Gold</strong> for the boots.");
 							// close page
 							Dom.closePage("textPage");
 							// chat message
-							Game.npcs[0].say("Thank you. I hope you find these rewards useful to your progression. Now, back to work.", 0, true, false); // Teper is Game.npcs[0]
+							Game.npcs[0].say("Thank you. I hope you find these rewards useful to your progression. Now, back to work.", 0, false); // Teper is Game.npcs[0]
 						},
 						function () {
 							// close page
 							Dom.closePage("textPage");
 							// chat message
-							Game.npcs[0].say("What, are you even allowed to keep them? I'd like my boots back!", 0, false, false); // Teper is Game.npcs[0]
+							Game.npcs[0].say("What, are you even allowed to keep them? I'd like my boots back!", 0, false); // Teper is Game.npcs[0]
 						}],
 						roleRequirement: function () {
 							return Dom.inventory.check(6, "boots", 1, false); // check that the player has Marshall Teper's lost boots
@@ -895,13 +895,15 @@ var Areas = {
 							// remove the item
 							Dom.inventory.removeById(21, "fish", 1);
 							// start cutscene
-							Dom.changeBook("chatPage");
+							Dom.cutscene();
 							// quest progress
 							Player.quests.questProgress.christmasPresentsDelivered = 1; // always the first NPC to be delivered to
 							// chat
-							Game.sayChat("Soul Healer Nalaa", "Thank you for taking the time to bring this to me.", 500, false, false);
-							Game.sayChat("Soul Healer Nalaa", "/me gently unfolds the wrapping paper to reveal a brand new Scepter of Souls.", 2000, false, false);
-							Game.sayChat("Soul Healer Nalaa", "It's a new Scepter of Souls! Thank you, adventurer. May the Demigods' blessings be bestowed upon you.", 4000, false, false);
+							Dom.chat.insertSequence([
+							Dom.chat.say("Soul Healer Nalaa", "Thank you for taking the time to bring this to me."),
+							Dom.chat.say("Soul Healer Nalaa", "/me gently unfolds the wrapping paper to reveal a brand new Scepter of Souls."),
+							Dom.chat.say("Soul Healer Nalaa", "It's a new Scepter of Souls! Thank you, adventurer. May the Demigods' blessings be bestowed upon you.")],
+							[500]);
 						},
 						roleRequirement: function () {
 							let presentPositions = Dom.inventory.find(21, "fish", true); // array of present inventory positions
@@ -1011,13 +1013,15 @@ var Areas = {
 							// remove the item
 							Dom.inventory.removeById(21, "fish");
 							// start cutscene
-							Dom.changeBook("chatPage");
+							Dom.cutscene();
 							// quest progress
 							Player.quests.questProgress.christmasPresentsDelivered = 2; // always the second NPC to be delivered to
 							// chat
-							Game.sayChat("Item Buyer Noledar", "Wow, really? That's so nice, I don't think anyone has delivered me a present before!", 500, false, false);
-							Game.sayChat("Item Buyer Noledar", "/me peels away at the wrapping paper to reveal a large heap of gold.", 2000, false, false);
-							Game.sayChat("Item Buyer Noledar", "Wow! Gilas was right - good things <strong>can</strong> happen to ordinary people! Thank you very much, and a merry Christmas to you!", 4000, false, false);
+							Dom.chat.insertSequence([
+							Dom.chat.say("Item Buyer Noledar", "Wow, really? That's so nice, I don't think anyone has delivered me a present before!"),
+							Dom.chat.say("Item Buyer Noledar", "/me peels away at the wrapping paper to reveal a large heap of gold."),
+							Dom.chat.say("Item Buyer Noledar", "Wow! Gilas was right - good things <strong>can</strong> happen to ordinary people! Thank you very much, and a merry Christmas to you!")],
+							[500]);
 						},
 						roleRequirement: function () {
 							let presentPositions = Dom.inventory.find(21, "fish", true); // array of present inventory positions
@@ -1869,7 +1873,7 @@ var Areas = {
 			Dom.quests.possible();
 
 			// chat message to let them know
-			Dom.chat.insert("Your quest was abandoned. Re-open the mail message to have another attempt.", 0, true, false); // important param = true
+			Dom.chat.insert("Your quest was abandoned. Re-open the mail message to have another attempt."); // important param = true
 		},
 	},
 
