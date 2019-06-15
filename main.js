@@ -30,8 +30,10 @@ Game.run = function (context, contextSecondary, contextDayNight, contextLight) {
     this.ctx = context;
 	this.ctxDayNight = contextDayNight;
 	this.ctxLight = contextLight;
-
     this.secondary.ctx = contextSecondary;
+
+	// ctx settings
+	this.ctx.imageSmoothingEnabled = false;
 
     this.previousElapsed = 0;
 
@@ -446,6 +448,8 @@ class Entity {
 		if (this.onLoad !== undefined) {
 			this.onLoad();
 		}
+
+		Game.allEntities.push(this); // array for current area only
 	}
 
 	isTouching (object) {
@@ -533,40 +537,57 @@ class Thing extends Entity {
 			// let Game know this should be animated in animationTick (and that there should be an animationTick at all)
 			Game.animationList.push(this);
 		}
+
+		Game.allThings.push(this); // array for current area only
 	}
 
 	// imageName is the key name of the image stored in loader
 	// crop is object with width and height information (x, y , width, height)
 	// width and height are optional "stretch" parameters
-	setImage (imageName, crop, width, height) {
-		// avoid undefined error later
-		if (crop === undefined) {
-			crop = {};
+	// rotationImages is object of image key names in loader of rotation images (i.e. different character directions)
+	// rotationImages can be set to false to not change rotationImage variables
+	setImage (imageName, crop, width, height, rotationImages) {
+		if (this.imageName !== imageName) {
+			// avoid undefined error later
+			if (crop === undefined) {
+				crop = {};
+			}
+
+			this.imageName = imageName;
+			this.image = Loader.getImage(imageName);
+
+			// crop (for drawing on canvas)
+			// width/height = stretch and compress of image
+			// crop width and height means no stretch nor compress
+			this.crop = {};
+			this.crop.x = crop.x || 0;
+			this.crop.y = crop.y || 0;
+			this.crop.width = crop.width || (this.image.width - this.crop.x);
+			this.crop.height = crop.height || (this.image.height - this.crop.y);
+			// set width and height to image dimensions unless otherwise specified
+			this.width = width || this.crop.width;
+			this.height = height || this.crop.height;
+
+			// used as reference for expand
+			this.baseWidth = this.width;
+			this.baseHeight = this.height;
+
+			if (this.setRotationImageVariables !== undefined && rotationImages !== false) {
+				// only works for enemies atm - tbd extend to all cases and remove this if statement
+				this.setRotationImageVariables(rotationImages);
+			}
 		}
-
-		this.imageName = imageName;
-		this.image = Loader.getImage(imageName);
-
-		// crop (for drawing on canvas)
-		// width/height = stretch and compress of image
-		// crop width and height means no stretch nor compress
-		this.crop = {};
-		this.crop.x = crop.x || 0;
-		this.crop.y = crop.y || 0;
-		this.crop.width = crop.width || (this.image.width - this.crop.x);
-		this.crop.height = crop.height || (this.image.height - this.crop.y);
-		// set width and height to image dimensions unless otherwise specified
-		this.width = width || this.crop.width;
-		this.height = height || this.crop.height;
-
-		// ued as refernce for expand
-		this.baseWidth = this.width;
-		this.baseHeight = this.height;
 	}
 
-	// temporary change of image (can be used with resetImage)
+	// set an image due to a change in movement direction
+	// therefore does not change rotationImageVariables
+	setImageMovement (imageName, crop, width, height) {
+		this.setImage(imageName, crop, width, height, false);
+	}
+
+	// temporary change of image (used with resetImage)
 	// parameters same as setImage
-	changeImage (imageName, crop, width, height) {
+	changeImage (imageName, crop, width, height, rotationImages) {
 		// variables for changing image back
 		if (this.initialImageInformation === undefined) {
 			// only set variable it it has not already been set
@@ -574,18 +595,24 @@ class Thing extends Entity {
 				name: this.imageName,
 				crop: this.crop,
 				baseWidth: this.baseWidth,
-				baseHeight: this.baseHeight
+				baseHeight: this.baseHeight,
+				rotationImages: this.rotationImages
 			}
 		}
 
-		this.setImage(imageName, crop, width, height);
+		this.setImage(imageName, crop, width, height, rotationImages);
 	}
 
 	// reset image to information saved by changeImage
 	resetImage () {
-		this.setImage(this.initialImageInformation.name, this.initialImageInformation.crop, this.initialImageInformation.baseWidth, this.initialImageInformation.baseHeight);
+		if (this.initialImageInformation !== undefined) {
+			this.setImage(this.initialImageInformation.name, this.initialImageInformation.crop, this.initialImageInformation.baseWidth, this.initialImageInformation.baseHeight, this.initialImageInformation.rotationImages);
 
-		this.initialImageInformation = undefined;
+			this.initialImageInformation = undefined;
+		}
+		else {
+			console.warn("resetImage was called when initialImageInformation had not been set for " + this.name);
+		}
 	}
 }
 
@@ -692,9 +719,11 @@ class Character extends Thing {
 			}
 		}
 
-		this.direction = properties.direction || 0;
+		this.direction = properties.direction || 0; // used for rotation image
 
 		this.statusEffects = [];
+
+		Game.allCharacters.push(this); // array for current area only
 	}
 
 	// insert a message into the chat, under the format of "this.name: message"
@@ -728,6 +757,26 @@ class Character extends Thing {
 		Game.updateScreenPosition(this.footHitbox);
 	}
 
+	// remove status effect from the specified index of this.statusEffects
+	removeStatusEffect (index) {
+		if (this.statusEffects[index].tickTimeout !== undefined) {
+			clearTimeout(this.statusEffects[index].tickTimeout); // clear tick
+		}
+		if (this.statusEffects[index].onExpire !== undefined) {
+			this.statusEffects[index].onExpire(this); // call onExpire
+		}
+		this.statusEffects.splice(index, 1); // remove it
+	}
+
+	// clear all status effects and their tick timeouts
+	// called upon death, alongside removing all of the status effects themselves
+	removeAllStatusEffects () {
+		while (this.statusEffects.length > 0) {
+			// cannot be set to [] for Game.hero, otherwise it no longer mirrors player
+			this.removeStatusEffect(0);
+		}
+	}
+
 	// take damage
 	takeDamage (damage) {
 		this.health -= damage;
@@ -738,8 +787,8 @@ class Character extends Thing {
 			// not player (assumed it is killed by player - TBD)
 			// TBD use hostility to check if it is killed by player
 			if (this.health <= 0 && !this.respawning) { // check it is dead and not already respawning
-				// wipe status effects
-				this.statusEffects = [];
+				// wipe status effects and their tick timeouts
+				this.removeAllStatusEffects();
 
 				// death
 				this.respawning = true;
@@ -825,10 +874,7 @@ class Character extends Thing {
 				let existingEffect = this.statusEffects.find(statusEffect => statusEffect.title === "XP Fatigue");
 
 				// wipe status effects (including existing XP fatigue)
-				while (this.statusEffects.length > 0) {
-					// cannot be set to [], otherwise it no longer mirrors player
-					this.statusEffects.splice(0, 1);
-				}
+				this.removeAllStatusEffects();
 
 				// death
 				this.respawning = true;
@@ -973,7 +1019,7 @@ class Character extends Thing {
 				// remove fire status effect
 				for (let i = 0; i < this.statusEffects.length; i++) {
 					if (this.statusEffects[i].title.substring(0, 4) == "Fire") {
-						this.statusEffects.splice(i,1);
+						this.removeStatusEffect(i);
 					}
 				}
 				// add water status effect
@@ -1092,8 +1138,14 @@ class Character extends Thing {
 	}
 
 	// remove all status effects where statusEffect[key] === value
+	// currently untested and unused - be careful when using
 	cleanse (value, key) {
-		this.statusEffects = this.statusEffects.filter(statusEffect => statusEffect[key] !== value);
+		for (let i = 0; i < this.statusEffects.length; i++) {
+			if (this.statusEffects[i].key === value) {
+				this.removeStatusEffect(i);
+				i--; // status effect has been removed so move back index
+			}
+		}
 	}
 }
 
@@ -1159,6 +1211,8 @@ class Attacker extends Character {
 		this.projectile.adjust = properties.projectile.adjust || {};
 
 		this.canAttack = true; // check attack is not reloading
+
+		Game.allAttackers.push(this); // array for current area only
 	}
 
 
@@ -1896,7 +1950,7 @@ class Hero extends Attacker {
 					let baitStatusEffectIndex = this.statusEffects.findIndex(statusEffect => statusEffect.title === "Fish bait");
 					if (baitStatusEffectIndex !== -1) { // check if player has a bait status effect
 						fishingSkill += this.statusEffects[baitStatusEffectIndex].info.skillIncrease;
-						this.statusEffects.splice(baitStatusEffectIndex, 1);
+						this.removeStatusEffect(baitStatusEffectIndex);
 					}
 
 					// find what rarities the player can fish up
@@ -2300,7 +2354,7 @@ class Projectile extends Thing {
 							for (let i = 0; i < Game.hero.statusEffects.length; i++) {
 								if (Game.hero.statusEffects[i].image === "food") {
 									// food status effect; remove it
-									Game.hero.statusEffects.splice(i, 1);
+									Game.hero.removeStatusEffect(i);
 									i--;
 								}
 							}
@@ -2449,6 +2503,10 @@ class Enemy extends Attacker {
 	constructor(properties) {
 		super(properties);
 
+		// rotation image names (tbd move to character)
+		// properties.rotationImages should be an object with "up", "down", "Left", and "right"
+		this.setRotationImageVariables(properties.rotationImages);
+
 		// combat traits (specific to enemy)
 		this.leashRadius = properties.leashRadius; // how far away the player has to be for the enemy to stop following them
 
@@ -2504,6 +2562,53 @@ class Enemy extends Attacker {
 		// boss stuff
 		if (this.hostility === "boss") {
 			this.bossKilledVariable = properties.bossKilledVariable; // set to date killed to check it hasn't been killed today
+		}
+	}
+
+	// rotation image names (tbd move to character)
+	// these are the key names of the images in loader
+	// not all of these need to exist - the best one will be picked (see below)
+	// tbd make more efficient?
+	setRotationImageVariables (imageKeyNames) {
+		if (imageKeyNames !== undefined) {
+			this.rotationImages = {
+				left: imageKeyNames.left,
+				right: imageKeyNames.right,
+				up: imageKeyNames.up,
+				down: imageKeyNames.down,
+			};
+
+			if (this.rotationImages.left !== undefined &&
+			this.rotationImages.right !== undefined &&
+			this.rotationImages.up !== undefined &&
+			this.rotationImages.down !== undefined) {
+				// all 4 directions
+				this.rotationImageChange = "all";
+			}
+			else if (this.rotationImages.left !== undefined &&
+			this.rotationImages.right !== undefined &&
+			this.rotationImages.up === undefined &&
+			this.rotationImages.down === undefined) {
+				// just left and right directions
+				this.rotationImageChange = "leftRight";
+			}
+			else if (this.rotationImages.left === undefined &&
+			this.rotationImages.right === undefined &&
+			this.rotationImages.up !== undefined &&
+			this.rotationImages.down !== undefined) {
+				// just up and down directions
+				this.rotationImageChange = "upDown";
+			}
+			else {
+				// irregular pattern of images found
+				console.warn(this.name + " has an unknown selection of rotation images set.");
+				this.rotationImageChange = "none";
+			}
+		}
+		else {
+			// no rotation image changing
+			this.rotationImages = undefined;
+			this.rotationImageChange = "none";
 		}
 	}
 
@@ -2607,34 +2712,48 @@ class Enemy extends Attacker {
 		let dirx = Math.cos(this.bearing);
 		let diry = Math.sin(this.bearing);
 
+		// set image based on direction of movement if there are multiple rotation images
+		this.setRotationImage(dirx, diry);
+
 		this.x += dirx * this.speed * delta;
 		this.y += diry * this.speed * delta;
 
 		// collide with solid tiles
 		this.collide(dirx, diry, delta);
-		/*let collisionDirection = this.collide(dirx, diry, delta);
+	}
 
-		// if a collision happened, move more in the orthogonal direction instead
-		if (collisionDirection === "horizontal") {
-			// left or right collison
-			// move up or down only
-			if (diry > 0) {
-				this.y += this.speed * delta; // no use of dirx because movement is now only in y axis
+	// set image based on direction of movement if there are multiple rotation images
+	setRotationImage (dirx, diry) {
+		if (this.rotationImageChange !== "none") {
+			if (this.rotationImageChange === "upDown" || // only up down images exist for this NPC
+			(this.rotationImageChange === "all" && // OR all images exist AND...
+			Math.abs(diry) > Math.abs(dirx))) { //...there is more up down movement than left right
+				// up down movement
+				if (diry > 0) {
+					// up movement
+					this.setImageMovement(this.rotationImages.up);
+					this.direction = 1;
+				}
+				else {
+					// down movement
+					this.setImageMovement(this.rotationImages.down);
+					this.direction = 3;
+				}
 			}
-			else if (diry < 0) {
-				this.y += this.speed * delta; // no use of dirx because movement is now only in y axis
+			else {
+				// left right movement
+				if (dirx > 0) {
+					// right movement
+					this.setImageMovement(this.rotationImages.right);
+					this.direction = 4;
+				}
+				else {
+					// left movement
+					this.setImageMovement(this.rotationImages.left);
+					this.direction = 2;
+				}
 			}
 		}
-		else if (collisionDirection === "vertical") {
-			// up or down collison
-			// move left or right only
-			if (dirx > 0) {
-				this.x += this.speed * delta; // no use of dirx because movement is now only in x axis
-			}
-			else if (dirx < 0) {
-				this.x += this.speed * delta; // no use of dirx because movement is now only in x axis
-			}
-		}*/
 	}
 
 	// shoot projectile at array of arrays of enemies (at)
@@ -2647,6 +2766,10 @@ class Enemy extends Attacker {
 		projectileX = at[0][0].x;
 		projectileY = at[0][0].y;
 		projectileRotate = Game.bearing(this, {x: projectileX, y: projectileY}) + Math.PI / 2;
+
+		// set image based on direction of projectile (if there are multiple rotation images for this character)
+		// sin and cos wrong direction because pi/2 was added to it
+		this.setRotationImage(Math.sin(projectileRotate), Math.cos(projectileRotate));
 
 		this.channellingProjectileId = Game.nextProjectileId;
 
@@ -2929,13 +3052,13 @@ function statusEffect(properties) {
 // called by a status effect's own tick function
 // might need to be reworked (tbd)
 // tbd rework to be like Game.removeStealthEffects
-Game.removeStatusEffect = function (owner) {
+Game.removeExpiredStatusEffect = function (owner) {
 	for (let i = 0; i < owner.statusEffects.length; i++) { // iterate through owner's status effects
 		// check that the status effect can expire
 		if (typeof owner.statusEffects[i].info.time !== "undefined" && typeof owner.statusEffects[i].info.ticks !== "undefined") {
 			// check if it has expired
 			if (owner.statusEffects[i].info.ticks >= owner.statusEffects[i].info.time) {
-				owner.statusEffects.splice(i, 1); // remove it
+				owner.removeStatusEffect(i); // remove it, also calling onExpire
 				i--;
 			}
 		}
@@ -2950,7 +3073,12 @@ Game.removeStatusEffect = function (owner) {
 Game.removeStealthEffects = function (owner) {
 	if (!owner.stats.stealthed) { // confirm owner is not stealthed
 		// remove all stealth status effects
-		owner.statusEffects = owner.statusEffects.filter(statusEffect => statusEffect.info.stealth !== true);
+		for (let i = 0; i < owner.statusEffects.length; i++) {
+			if (owner.statusEffects[i].info.stealth === true) {
+				owner.removeStatusEffect(i);
+				i--;
+			}
+		}
 		// refresh canvas status effects if the status effect was applied to player
 		if (owner.constructor.name === "Hero") {
 			Game.hero.updateStatusEffects();
@@ -2965,7 +3093,7 @@ Game.spreadCurse = function (attacker, victim) {
 		index = attacker.statusEffects.findIndex(statusEffect => statusEffect.info.curse === true); // find a curse effect
 		if (index >= 0) { // if an effect was found...
 			victim.statusEffects.push(attacker.statusEffects[index]); // give the status effect to the victim
-			attacker.statusEffects.splice(index, 1); // remove the status effect from the attacker
+			attacker.removeStatusEffect(index); // remove the status effect from the attacker
 		}
 	}
 	// refresh canvas status effects if anything happened to the player
@@ -2984,7 +3112,7 @@ Game.removeTileStatusEffects = function (target, keep) {
 		|| target.statusEffects[i].title === "On a path")
 		&& target.statusEffects[i].title !== keep) {
 			// remove status effect
-			target.statusEffects.splice(i,1);
+			target.removeStatusEffect(i);
 			// refresh canvas status effects if target is the player
 			if (target.constructor.name === "Hero") {
 				Game.hero.updateStatusEffects();
@@ -3008,6 +3136,7 @@ Game.statusEffects.functions = {
 			if (owner.constructor.name === "Hero") { // refresh canvas status effects if the status effect was applied to player
 				Game.hero.updateStatusEffects();
 			}
+
 			// calculate next tick time
 			let nextTickTime = 1000;
 			if (this.info.time - this.info.ticks <= 2
@@ -3015,18 +3144,17 @@ Game.statusEffects.functions = {
 				// faster tick if effect is approaching its end (and there is no onTick function)
 				nextTickTime = 100;
 			}
-			setTimeout(function (owner) {
+
+			// set the next tick as a timeout
+			// set to a variable where it can be easily removed with the statusEffect if necessary
+			this.tickTimeout = setTimeout(function (owner) {
 				// nextTickTime is timeTicked
 				this.tick(owner, nextTickTime);
 			}.bind(this), nextTickTime, owner, nextTickTime);
 		}
 		else { // remove effect interval
 			// remove effect
-			Game.removeStatusEffect(owner);
-			// call onExpire function if it exists
-			if (this.onExpire !== undefined) {
-				this.onExpire(owner);
-			}
+			Game.removeExpiredStatusEffect(owner);
 		}
 	},
 
@@ -3126,6 +3254,7 @@ Game.statusEffects.generic = function (properties) {
 			// add functions
 			// properties.onExpire and properties.onTick are the key names from Game.statusEffects.functions
 			if (properties.onExpire !== undefined) {
+				// onExpire is called when the statuseffect is removed
 				 // this is bound to the status effect (hence this.owner and this.info work)
 				addedStatusEffect.onExpire = this.functions[properties.onExpire].bind(addedStatusEffect);
 				// reference for savedata (used if the target is Game.hero)
@@ -3150,7 +3279,7 @@ Game.statusEffects.generic = function (properties) {
 			}
 
 			// begin tick
-			setTimeout(function (owner) {
+			addedStatusEffect.tickTimeout = setTimeout(function (owner) {
 				// nextTickTime is timeTicked
 				this.tick(owner, nextTickTime);
 			}.bind(addedStatusEffect), nextTickTime, properties.target, nextTickTime);
@@ -3386,6 +3515,7 @@ Game.statusEffects.xp = function(properties) {
 // give target a "hexed" debuff, where they deal 90% less damage and turn into an animal for a default of 2s
 // properties includes target, time (optional)
 // properties can also incldue an "image" parameter which is the key name of an image in loader to turn the target into
+// properties can also include imageCrop, imageWidth, imageHeight, rotationImages (all optional and same as params for setImage)
 // otherwise a random animal is chosen as the image
 Game.statusEffects.hex = function (properties) {
 	let newProperties = properties;
@@ -3394,31 +3524,65 @@ Game.statusEffects.hex = function (properties) {
 	newProperties.time = properties.time || 2;
 
 	// change image of target
-	let imageName;
+	let imageName, rotationImages;
 	if (properties.image === undefined) {
 		// one of the default images
+		// imageName is set in next switch statement...
 		switch (Random(0, 2)) {
 			case 0:
-				imageName = "sheep";
+				imageName = "sheepRight"; // likely this will be overwritten by next switch statement
+				rotationImages = {
+					left: "sheepLeft",
+					right: "sheepRight"
+				};
 				break;
 
 			case 1:
-				imageName = "chicken";
+				imageName = "chickenRight";
+				rotationImages = {
+					left: "chickenLeft",
+					right: "chickenRight"
+				};
 				break;
 
 			case 2:
-				imageName = "toad";
+				imageName = "toadRight";
+				rotationImages = {
+					left: "toadLeft",
+					right: "toadRight"
+				};
 				break;
-
-			default:
-				imageName = "toad";
 		}
 	}
 	else {
 		// specified image
 		imageName = properties.image;
+		rotationImages = properties.rotationImages;
 	}
-	properties.target.changeImage(imageName); // no special crop or widths for image, so only one parameter
+
+	// if rotation images exist, set image based on current rotation of character instead
+	if (rotationImages !== undefined) {
+		switch (properties.target.direction) {
+			case 1:
+				imageName = rotationImages.up;
+				break;
+			case 2:
+				imageName = rotationImages.left;
+				break;
+			case 3:
+				imageName = rotationImages.down;
+				break;
+			case 4:
+				imageName = rotationImages.right;
+				break;
+		}
+	}
+
+	properties.target.changeImage(imageName,
+		properties.imageCrop,
+		properties.imageWidth,
+		properties.imageHeight,
+		rotationImages);
 
 	newProperties.onExpire = "resetImage"; // change image back when it expires
 
@@ -3608,22 +3772,31 @@ Game.addTrailParticle = function (character, trailParticle) {
 // Load game
 //
 
-// load game images (on area change or init)
-Game.load = function (names, addresses) {
-	this.ctx.imageSmoothingEnabled = false;
-
-	if (names.length !== addresses.length) {
-		throw Error("Name length is not the same as address length. Consider fixing your area's images object in areadata.js?");
-	}
+// load an object of any images
+// images = object of images like those found in areadata
+// deleteIf = function that deletes the images from Loader if true (set to undefined for delete on area change)
+Game.loadImages = function (images, deleteIf) {
+	let imageInformation = this.prepareImageInformation(images);
+	let names = imageInformation.names; // image key names
+	let addresses = imageInformation.addresses;
+	let flip = imageInformation.flip; // whether the iamage is flipped or not
 
 	let toLoad = [];
 
 	for (let i = 0; i < names.length; i++) {
 		if (addresses[i] !== undefined) { // it might be undefined if the event for the character is not active
-			toLoad.push(Loader.loadImage(names[i], addresses[i]));
+			toLoad.push(Loader.loadImage(names[i], addresses[i], deleteIf, flip[i]));
 			// no deleteIf since these images are associated with the area
 		}
 	}
+
+    return toLoad;
+};
+
+// load default images (e.g. player, status effect, etc.)
+// returns an array of these promises
+Game.loadDefaultImages = function () {
+	let toLoad = [];
 
 	// check player image has been loaded (if not, then load it)
 	if (!Object.keys(Loader.images).includes("hero")) {
@@ -3648,8 +3821,43 @@ Game.load = function (names, addresses) {
 		toLoad.push(Loader.loadImage("bobber", "./assets/projectiles/bobber.png", false));
 	}
 
-    return toLoad;
-};
+	return toLoad;
+}
+
+// converts image object to separate array variables that can be used by Game.loadImages
+// images = object where keys are image keys in loader, and value is an object of image addresses
+// image addresses object contains a "normal" property for normal image address...
+// ...and can contain event properties (e.g. "samhain") for event image addresses...
+// ...also can contain "flip" property containing either "vertical" or "horizontal" to load a flipped image
+Game.prepareImageInformation = function (images) {
+	let imageInformation = {};
+
+	imageInformation.names = Object.keys(images);
+
+	imageInformation.addresses = [];
+	imageInformation.flip = [];
+
+	let imageAddresses = Object.values(images);
+	for (let i = 0; i < imageAddresses.length; i++) {
+		let image = imageAddresses[i];
+
+		if (Event.event === "Christmas" && image.christmas !== undefined) {
+			// christmas images
+			imageInformation.addresses.push(image.christmas);
+		}
+		else if (Event.event === "Samhain" && image.samhain !== undefined) {
+			// samhain images
+			imageInformation.addresses.push(image.samhain);
+		}
+		else {
+			imageInformation.addresses.push(image.normal); // if this is undefined, the image is not loaded in by Game.load
+		}
+
+		imageInformation.flip.push(image.flip); // whether the image should be flipped by loadImage
+	}
+
+	return imageInformation;
+}
 
 // pull data from areadata.js
 Game.loadArea = function (areaName, destination) {
@@ -3678,22 +3886,11 @@ Game.loadArea = function (areaName, destination) {
 	Event.updateTime(areaName);
 
 	// load images
-	let imageNames = Object.keys(Areas[areaName].images);
-	let imageAddresses = Object.values(Areas[areaName].images);
-	imageAddresses = imageAddresses.map(image => {
-		if (Event.event === "Christmas" && image.christmas !== undefined) {
-			// christmas images
-			return image.christmas;
-		}
-		else if (Event.event === "Samhain" && image.samhain !== undefined) {
-			// christmas images
-			return image.samhain;
-		}
-		else {
-			return image.normal; // if this is undefined, the image is not loaded in by Game.load
-		}
-	});
-    let p = this.load(imageNames, imageAddresses);
+	// p = array of promises of images being loaded
+    let p = this.loadImages(Areas[areaName].images);
+
+	// check that default images are loaded (e.g. player, status effect, etc.) and add any that aren't to toLoad
+	p.push(...Game.loadDefaultImages());
 
 	// wait until images have been loaded
     Promise.all(p).then(function (loaded) {
@@ -3740,6 +3937,21 @@ Game.loadArea = function (areaName, destination) {
 
 		// list of objects to be animated (with a .animate function)
 		this.animationList = [];
+
+		// remove all status effect timeouts for previous area's characters
+		if (this.allCharacters !== undefined) {
+			for (let i = 0; i < this.allCharacters.length; i++) {
+				if (this.allCharacters[i].constructor.name === "Hero") {
+					this.allCharacters[0].removeAllStatusEffects();
+				}
+			}
+		}
+
+		// class arrays
+		this.allEntities = [];
+		this.allThings = [];
+		this.allCharacters = [];
+		this.allAttackers = [];
 
 		// villagers (currently broken)
 		this.villagers = [];
@@ -3933,6 +4145,7 @@ Game.loadArea = function (areaName, destination) {
 		// display area name
 		// it is always displayed on init (thus only checked if it should be displayed if init is not called)
 		if (Areas[areaName].data.displayOnEnter !== false || init) {
+			// tbd wait until font is loaded
 			let title = Areas[areaName].data.name;
 			let subtitles = [];
 			subtitles.push(Areas[areaName].data.level);
@@ -4265,7 +4478,7 @@ Game.initStatusEffects = function () {
 			}
 
 			// begin tick
-			setTimeout(function (owner) {
+			statusEffect.tickTimeout = setTimeout(function (owner) {
 				// nextTickTime is timeTicked
 				statusEffect.tick(owner, nextTickTime);
 			}.bind(statusEffect), nextTickTime, Game.hero, nextTickTime);
@@ -4902,7 +5115,7 @@ Game.update = function (delta) {
 								parameterArray.push(["Soul Healer", npc.chat.canBeHealedText, true, ["Remove XP Fatigue for " + this.soulHealerCost + " gold"], [function () {
 									if (Dom.inventory.check(2, "currency", Game.soulHealerCost)) {
 										Dom.inventory.removeById(2, "currency", Game.soulHealerCost);
-										Game.hero.statusEffects.splice(Game.hero.statusEffects.findIndex(statusEffect => statusEffect.title === "XP Fatigue"), 1); // remove xp fatigue effect
+										Game.hero.removeStatusEffect(Game.hero.statusEffects.findIndex(statusEffect => statusEffect.title === "XP Fatigue")); // remove xp fatigue effect
 										Dom.closePage("textPage");
 										Game.currentSoulHealer.say(Game.currentSoulHealer.chat.healedText, 0, false, false);
 										Game.currentSoulHealer = undefined; // reset variable that remembers which soul healer the player is speaking to
@@ -5294,7 +5507,7 @@ Game.getXP = function (xpGiven, xpBonus) {
 			if (xpGiven > Player.fatiguedXP) {
 				Player.xp -= Player.fatiguedXP / 2;
 				Player.fatiguedXP = 0;
-				Game.hero.statusEffects.splice(Game.hero.statusEffects.findIndex(statusEffect => statusEffect.title === "XP Fatigue"), 1); // remove xp fatigue effect
+				Game.hero.removeStatusEffect(Game.hero.statusEffects.findIndex(statusEffect => statusEffect.title === "XP Fatigue"), 1); // remove xp fatigue effect
 			}
 			else {
 				Player.xp -= xpGiven / 2;
@@ -5430,7 +5643,7 @@ Game.projectileImageUpdate = function () {
 		}
 
 		// load image and stop player attacking until it has loaded
-		this.loadImageAndStopAttacking({[this[nameAddress]]: "./assets/projectiles/" + this[nameAddress] + ".png"}, false);
+		this.loadImagesAndStopAttacking({[this[nameAddress]]: {normal:"./assets/projectiles/" + this[nameAddress] + ".png"}}, false);
 	}
 
 	// if the player is NOT holding a weapon with a special projectile image, and the skin does have a special projectile image
@@ -5449,47 +5662,36 @@ Game.projectileImageUpdate = function () {
 		}
 
 		// load image and stop player attacking until it has loaded
-		let keyName = this[nameAddress];
-		this.loadImageAndStopAttacking({keyName: "./assets/projectiles/" + this[nameAddress] + ".png"}, false);
+		this.loadImagesAndStopAttacking({[this[nameAddress]]: {normal: "./assets/projectiles/" + this[nameAddress] + ".png"}}, false);
 	}
 }
 
 // called whenever the "hex" stat has been changed from 0 to something else
 Game.loadHexImages = function () {
-	this.loadImageAndStopAttacking({
-		sheep: "./assets/enemies/sheep.png",
-		chicken: "./assets/enemies/chicken.png",
-		toad: "./assets/enemies/toad.png",
+	this.loadImagesAndStopAttacking({
+		sheepRight: {normal: "./assets/enemies/sheep.png"},
+		sheepLeft: {normal: "./assets/enemies/sheep.png", flip: "vertical"},
+		chickenRight: {normal: "./assets/enemies/chicken.png"},
+		chickenLeft: {normal: "./assets/enemies/chicken.png", flip: "vertical"},
+		toadRight: {normal: "./assets/enemies/toad.png"},
+		toadLeft: {normal: "./assets/enemies/toad.png", flip: "vertical"},
 	}, function () {
 		return Game.hero.stats.hex === 0; // only delete on area change if hex is 0
 	});
 }
 
 // load image(s) and stop the player from attacking until it is done
-// images parameter should be an object, where each key is the key name in
+// images parameter should be an object in the same format as areadata's "images" properties
 // deleteIf is the deleteIf parameter used for all the images (tbd make this per image)
-Game.loadImageAndStopAttacking = function (images, deleteIf) {
+Game.loadImagesAndStopAttacking = function (images, deleteIf) {
 	// set weapon property "cannotAttack" to true so the player is blocked from attacking
 	Player.inventory.weapon.cannotAttack = true;
 
-	let imageKeys = Object.keys(images);
-	let imageAddresses = Object.values(images);
-
-	// ensure parameters are same length
-	if (imageKeys.length !== imageAddresses.length) {
-		console.error("Parameter arrays are not same length so images could not be loaded.");
-		return;
-	}
-
-	// load image(s)
-	let p = []; // promises for each image
-	for (let i = 0; i < imageKeys.length; i++) {
-		p.push(Loader.loadImage(imageKeys[i], imageAddresses[i], deleteIf));
-	}
+	let p = this.loadImages(images, deleteIf);
 
 	// wait until the image(s) have been loaded (or an error has been returned)
 	Promise.all(p).then(function (value) {
-		// only called once (every) image has loaded (or if it has already loaded)
+		// only called once (every) image has loaded (or if it has already been loaded)
 		// set weapon "cannotAttack" property back to false
 		Player.inventory.weapon.cannotAttack = undefined;
 	})
@@ -5850,30 +6052,30 @@ Game.updateScreenPosition = function (entity) {
 
 // draw character health bar and name in correct placed
 Game.drawCharacterInformation = function (ctx, character) {
-	let healthBarDrawn = 0; // size of healthbar or other similar thing (e.g: damage taken), so that it is known how much to offset character's name by (in y axis)
+	let characterInformationHeight = 3; // size of healthbar or other similar thing (e.g: damage taken), so that it is known how much to offset character's name by (in y axis)
 	let channellingBarDrawn = 0;
 
 	if (character.hostility === "friendly" || character.hostility === "neutral") {
 		// only draw health bar if character is damaged
 		if (character.health !== character.stats.maxHealth) {
-			this.drawHealthBar(ctx, character, character.screenX - character.width * 0.5, character.screenY - character.height * 0.5 - 15, character.width, 15);
-			healthBarDrawn = 15;
-			healthBarDrawn += 3; // padding
+			this.drawHealthBar(ctx, character, character.screenX - character.width * 0.5, character.screenY - character.height * 0.5 - 15 - characterInformationHeight, character.width, 15);
+			characterInformationHeight = 15;
+			characterInformationHeight += 3; // padding
 		}
 	}
 	else if (character.hostility === "dummy") {
 		// show damage taken above head instead of health bar (if the character has taken any damage)
 		if (character.damageTaken > 0) {
-			this.drawDamageTaken(ctx, character, character.screenX, character.screenY - character.height / 2 - 1, 18);
-			healthBarDrawn = 18;
-			healthBarDrawn += 3; // padding
+			this.drawDamageTaken(ctx, character, character.screenX, character.screenY - character.height / 2 - 1 - characterInformationHeight, 18);
+			characterInformationHeight = 18;
+			characterInformationHeight += 3; // padding
 		}
 	}
 	else if (character.hostility === "hostile" || character.hostility === "boss") {
 		// always draw health bar
-		this.drawHealthBar(ctx, character, character.screenX - character.width * 0.5, character.screenY - character.height * 0.5 - 15, character.width, 15);
-		healthBarDrawn = 15;
-		healthBarDrawn += 3; // padding
+		this.drawHealthBar(ctx, character, character.screenX - character.width * 0.5, character.screenY - character.height * 0.5 - 15 - characterInformationHeight, character.width, 15);
+		characterInformationHeight = 15;
+		characterInformationHeight += 3; // padding
 	}
 	else {
 		console.error("Unknown character hostility: ", character.hostility);
@@ -5881,16 +6083,16 @@ Game.drawCharacterInformation = function (ctx, character) {
 
 	if (character.channellingInfo !== false) {
 		// character is channelling something
-		this.drawChannellingBar(ctx, character, character.screenX - character.width * 0.5, character.screenY - character.height * 0.5 - 15 - healthBarDrawn, character.width, 15);
+		this.drawChannellingBar(ctx, character, character.screenX - character.width * 0.5, character.screenY - character.height * 0.5 - 15 - characterInformationHeight, character.width, 15);
 		channellingBarDrawn = 15;
 		channellingBarDrawn += 3; // padding
 	}
 
-	/*if (healthBarDrawn !== 0) { // !healthBarDrawn is not used, as healthBarDrawn is set to a number (not true) if it isn't false
-		healthBarDrawn += 3; // padding for name (currently not seen as necessary, so this has been commented out)
+	/*if (characterInformationHeight !== 0) { // !characterInformationHeight is not used, as characterInformationHeight is set to a number (not true) if it isn't false
+		characterInformationHeight += 3; // padding for name (currently not seen as necessary, so this has been commented out)
 	}*/
 
-	this.drawCharacterName(ctx, character, character.screenX, character.screenY - character.height / 2 - healthBarDrawn - channellingBarDrawn - 3);
+	this.drawCharacterName(ctx, character, character.screenX, character.screenY - character.height / 2 - characterInformationHeight - channellingBarDrawn - 3);
 }
 
 // draw a health bar (on given context, for given character, at given position, with given dimensions)
@@ -6356,7 +6558,9 @@ Game.render = function (delta) {
     // draw map top layer
     //this.drawLayer(1);
 
-	if (!this.keysDown.SHIFT) { // only render this if the player isn't pressing the shift key
+	// only render the following if the player isn't pressing the shift key
+	// also do not render if a screenshot is going to be taken with the camera this tick
+	if (!this.keysDown.SHIFT && !this.takePhoto) {
 
 		//
 		// Setting options
@@ -6420,7 +6624,85 @@ Game.render = function (delta) {
 			Weather.render();
 		}
 	}
+
+	if (this.takePhoto) {
+		this.screenshot();
+	}
 };
+
+// take a screenshot of the main canvas and show the user the image to be downloaded
+// called by Game.render after Game.takePhoto has been set to true
+Game.screenshot = function () {
+	// ensure this is not called multiple times
+	this.takePhoto = false;
+
+	// top-left of photo
+	let x = this.hero.screenX-300;
+	let y = this.hero.screenY-300;
+	// if player will appear on left of image
+	if (this.hero.x < 300) {
+		// if area has black around edge
+		if (Dom.canvas.width - this.hero.map.cols * this.hero.map.tsize > 0) {
+			// don't take photo of the black edge
+			x = (Dom.canvas.width - this.hero.map.cols * this.hero.map.tsize)/2;
+		}
+		else {
+			x = 0;
+		}
+	}
+	// if player will appear on right of image
+	else if (this.hero.x > this.hero.map.cols * this.hero.map.tsize - 300) {
+		// if area has black around edge
+		if (Dom.canvas.width - this.hero.map.cols * this.hero.map.tsize > 0) {
+			// don't take photo of the black edge
+			x = Dom.canvas.width - (Dom.canvas.width - this.hero.map.cols * this.hero.map.tsize)/2 - 600;
+		}
+		else {
+			x = Dom.canvas.width - 600;
+		}
+	}
+	// if player will appear at top of image
+	if (this.hero.y < 300) {
+		// if area has black around edge
+		if (Dom.canvas.height - this.hero.map.rows * this.hero.map.tsize > 0) {
+			// don't take photo of the black edge
+			y = (Dom.canvas.height - this.hero.map.rows * this.hero.map.tsize)/2;
+		}
+		else {
+			y = 0;
+		}
+	}
+	// if player will appear at bottom of image
+	else if (this.hero.y > this.hero.map.rows * this.hero.map.tsize - 300) {
+		// if area has black around edge
+		if (Dom.canvas.height - this.hero.map.rows * this.hero.map.tsize > 0) {
+			// don't take photo of the black edge
+			y = Dom.canvas.height - (Dom.canvas.height - this.hero.map.rows * this.hero.map.tsize)/2 - 600;
+		}
+		else {
+			y = Dom.canvas.height - 600;
+		}
+	}
+
+	// draw game, dayNight and light canvas onto a new camera canvas
+	let canvas = document.createElement("canvas");
+	let ctx = canvas.getContext("2d");
+	canvas.width = 600;
+	canvas.height = 600;
+	ctx.drawImage(this.canvas, x, y, 600, 600, 0, 0, 600, 600);
+	ctx.drawImage(this.canvasDayNight, x, y, 600, 600, 0, 0, 600, 600);
+	ctx.drawImage(this.canvasLight, x, y, 600, 600, 0, 0, 600, 600);
+
+	// if the inventory is open make it an inventoy alert, else make it a canvas alert
+	let page = "inventoryPage";
+	if (document.getElementById("inventoryPage").hidden) {
+		page = undefined;
+	}
+
+	// convert the camera canvas to an image and create an alert to download it
+	let dataURL = canvas.toDataURL("image/png");
+	Dom.alert.page("Click the image to download<br><br><a href='"+dataURL+"' download><img src='"+dataURL+"' height='200px'></img></a>", 0, undefined, page);
+}
 
 //
 // Secondary canvas render (only called when it needs to be, not every tick)

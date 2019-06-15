@@ -11,23 +11,38 @@ let Loader = {
 // key = image name; src = image source
 // deleteIf = optional function that returns true or false depending on whether image can be deleted on area change
 // if deleteIf is set to false, it is set to function(){return false} thus never deletes the image
-Loader.loadImage = function (key, src, deleteIf) {
+// flipMode is set to "horizontal" or "vertical" to flip the image as well as loading it
+Loader.loadImage = function (key, src, deleteIf, flipMode) {
 	let d; // where promise is saved
 	if (!(key in this.images)) { // check if image has already been loaded in
 		if (deleteIf === false) {
-			// false deletes to never deleting the image
+			// false creates function to never delete image
 			deleteIf = function(){return false;}
 		}
 
+		// normal image laod in
 	    let img = new Image();
 
 	    d = new Promise(function (resolve, reject) {
 	        img.onload = function () {
-	            this.images[key] = {
-					img: img,
-					deleteIf: deleteIf
-				};
-	            resolve(img);
+				// image loaded
+				if (flipMode !== undefined) {
+					// also flip image
+					FlipImage(img, flipMode).then(function (flippedImg) {
+						this.images[key] = {
+							img: flippedImg,
+							deleteIf: deleteIf
+						};
+			            resolve(flippedImg);
+					}.bind(this));
+				}
+				else {
+					this.images[key] = {
+						img: img,
+						deleteIf: deleteIf
+					};
+		            resolve(img);
+				}
 	        }.bind(this);
 
 	        img.onerror = function () {
@@ -69,6 +84,62 @@ Loader.wipeImages = function (exceptions) {
 		}
 	}
 };
+
+// pass in  image being flipped
+// mode = "horizontal" (y flip) or "vertical" (x flip)
+// returns a promise, where .then can be used to access the flipped image as the parameter
+function FlipImage (img, mode) {
+	// get image data of image
+	let canvas = document.createElement("canvas");
+	let ctx = canvas.getContext("2d");
+	canvas.width = img.width;
+	canvas.height = img.height;
+	ctx.drawImage(img, 0, 0);
+	let imgData = ctx.getImageData(0, 0, img.width, img.height);
+
+	let flippedImg = new ImageData(img.width, img.height);
+
+	// (1 pixel = 4 bits due to rgba values)
+   	let numberOfPixels = imgData.data.length / 4;
+
+   	for (let pixel = 0 ; pixel < numberOfPixels ; pixel++) {
+		// get x and y of pixel in for loop
+		let x = pixel % img.width;
+		let y = Math.floor(pixel / img.width);
+
+		// find pixel number of new flipped pixel
+		let xFlip, yFlip;
+		if (mode === "vertical") {
+			// flip x only
+			xFlip = img.width - 1 - x;
+			yFlip = y;
+		}
+		else if (mode === "horizontal") {
+			// flip y only
+			xFlip = x;
+			yFlip = img.height - 1 - y;
+		}
+		else {
+			console.error("Unknown mode for flip of image.");
+			return;
+		}
+		let newPixel = yFlip * img.width + xFlip;
+
+		// convert pixel number to pixel index
+   	   	let pixelIndex = 4 * pixel;
+   	   	let flipIndex = 4 * newPixel;
+
+		// set pixel indices (rgba)
+   	   	flippedImg.data[flipIndex + 0] = imgData.data[pixelIndex + 0];
+   	   	flippedImg.data[flipIndex + 1] = imgData.data[pixelIndex + 1];
+   	   	flippedImg.data[flipIndex + 2] = imgData.data[pixelIndex + 2];
+   	   	flippedImg.data[flipIndex + 3] = imgData.data[pixelIndex + 3];
+   	}
+
+	// convert to image that can be drawn on canvas
+	// returns a promise, where .then can be used to access the image as the function parameter
+	return createImageBitmap(flippedImg);
+}
 
 //
 // Keyboard handler

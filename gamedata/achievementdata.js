@@ -28,7 +28,7 @@ var Achievements = [
 	{
 		// id: 1,
 		name: "Christmas Meal",
-		description: "Eat a mince pie, Christmas pudding, wash it down with some mulled wine.",
+		description: "Eat a mince pie and Christmas pudding, then wash it down with some mulled wine.",
 		points: 5,
 		category: ["general"],
 		area: ["global"],
@@ -402,19 +402,19 @@ var Achievements = [
 				 	if(Archer.inventory.items.some(item => item.name === "The Ocean Warrior's Chestplate") || Archer.inventory.helm.name === "The Ocean Warror's Chestplate"){archer++;}
 					if(Archer.inventory.items.some(item => item.name === "The Ocean Warrior's Leggings") || Archer.inventory.helm.name === "The Ocean Warror's Leggings"){archer++;}
 					if(Archer.inventory.items.some(item => item.name === "The Ocean Warrior's Boots") || Archer.inventory.helm.name === "The Ocean Warror's Boots"){archer++;}
-					
+
 					let mage = 0;
 					if(Mage.inventory.items.some(item => item.name === "The Ocean Warrior's Helm") || Mage.inventory.helm.name === "The Ocean Warror's Helm"){mage++;}
 				 	if(Mage.inventory.items.some(item => item.name === "The Ocean Warrior's Chestplate") || Mage.inventory.helm.name === "The Ocean Warror's Chestplate"){mage++;}
 					if(Mage.inventory.items.some(item => item.name === "The Ocean Warrior's Leggings") || Mage.inventory.helm.name === "The Ocean Warror's Leggings"){mage++;}
 					if(Mage.inventory.items.some(item => item.name === "The Ocean Warrior's Boots") || Mage.inventory.helm.name === "The Ocean Warror's Boots"){mage++;}
-					
+
 					let knight = 0;
 					if(Knight.inventory.items.some(item => item.name === "The Ocean Warrior's Helm") || Knight.inventory.helm.name === "The Ocean Warror's Helm"){knight++;}
 				 	if(Knight.inventory.items.some(item => item.name === "The Ocean Warrior's Chestplate") || Knight.inventory.helm.name === "The Ocean Warror's Chestplate"){knight++;}
 					if(Knight.inventory.items.some(item => item.name === "The Ocean Warrior's Leggings") || Knight.inventory.helm.name === "The Ocean Warror's Leggings"){knight++;}
 					if(Knight.inventory.items.some(item => item.name === "The Ocean Warrior's Boots") || Knight.inventory.helm.name === "The Ocean Warror's Boots"){knight++;}
-					
+
 					return Math.max(archer, mage, knight);
 				}
 			}

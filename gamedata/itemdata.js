@@ -188,6 +188,7 @@ var Items = {
 				rotation: "random",
 				variance: 50, // variance in position (in x/y axis in one direction from player)
 			},
+			event: "Antorax",
 			limitedEdition: true,
 		},
 		{
@@ -1892,56 +1893,8 @@ var Items = {
 			image: "assets/items/item/14.png",
 			functionText: "Click to take a screenshot",
 			onClick: function () {
-				try {
-				    let x = Game.hero.screenX-300;
-				    let y = Game.hero.screenY-300;
-				    if (Game.hero.x < 300) {
-				        if (Dom.canvas.width - Game.hero.map.cols * Game.hero.map.tsize > 0) {
-				            x = (Dom.canvas.width - Game.hero.map.cols * Game.hero.map.tsize)/2;
-				        }
-				        else {
-				            x = 0;
-				        }
-				    }
-				    else if (Game.hero.x > Game.hero.map.cols * Game.hero.map.tsize - 300) {
-				        if (Dom.canvas.width - Game.hero.map.cols * Game.hero.map.tsize > 0) {
-				            x = Dom.canvas.width - (Dom.canvas.width - Game.hero.map.cols * Game.hero.map.tsize)/2 - 600;
-				        }
-				        else {
-				            x = Dom.canvas.width - 600;
-				        }
-				    }
-				    if (Game.hero.y < 300) {
-				        if (Dom.canvas.height - Game.hero.map.rows * Game.hero.map.tsize > 0) {
-				            y = (Dom.canvas.height - Game.hero.map.rows * Game.hero.map.tsize)/2;
-				        }
-				        else {
-				            y = 0;
-				        }
-				    }
-				    else if (Game.hero.y > Game.hero.map.rows * Game.hero.map.tsize - 300) {
-				        if (Dom.canvas.height - Game.hero.map.rows * Game.hero.map.tsize > 0) {
-				            y = Dom.canvas.height - (Dom.canvas.height - Game.hero.map.rows * Game.hero.map.tsize)/2 - 600;
-				        }
-				        else {
-				            y = Dom.canvas.height - 600;
-				        }
-				    }
-				    document.getElementById("hidden").getContext('2d').drawImage(document.getElementById("game"), x, y, 600, 600, 0, 0, 600, 600);
-				    document.getElementById("hidden").getContext('2d').drawImage(document.getElementById("dayNight"), x, y, 600, 600, 0, 0, 600, 600);
-				    document.getElementById("hidden").getContext('2d').drawImage(document.getElementById("light"), x, y, 600, 600, 0, 0, 600, 600);
-
-				    let page = "inventoryPage";
-				    if (document.getElementById("inventoryPage").hidden) {
-				        page = undefined;
-				    }
-
-				    dataURL = document.getElementById("hidden").toDataURL("image/png");
-				    Dom.alert.page("Click the image to download<br><br><a href='"+dataURL+"' download><img src='"+dataURL+"' height='200px'></img></a>", 0, undefined, page);
-				}
-				catch (error) {
-				    console.error("Camera does not work on local versions. If you are using the main version please report this error.");
-				}
+				Game.takePhoto = true; // take a screenshot next tick
+				// this method of taking photo is required because some things on main canvas need to be hidden first
 			},
 		},
 		{
