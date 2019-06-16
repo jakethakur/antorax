@@ -464,7 +464,7 @@ var Areas = {
 
 		villagers: [
 			/*{
-				
+
 				x: 400,
 				y: 400,
 				image: "weaponsmith",
@@ -1967,7 +1967,7 @@ var Areas = {
 				y: 157,
 				image: "painting",
 				name: "Painting",
-				onTouchChat: "A painting of Wizard Andrews, one of the most accompished wizards that has ever been known. This tower used to be his, but was overrun by goblins after he left to persue his life of wizardry."
+				onTouchChat: "A painting of Wizard Andrews, one of the most accomplished wizards that has ever been known. This tower used to be his, but was overrun by goblins after he left to persue his life of wizardry."
 			},
 		],
 
@@ -3312,6 +3312,7 @@ var Areas = {
 			hearth1: {normal: "./assets/objects/hearth1.png"},
 			hearth2: {normal: "./assets/objects/hearth2.png"},
 			hearth3: {normal: "./assets/objects/hearth3.png"},
+			alysLoreworth: {normal: "./assets/npcs/alysLoreworth.png"},
 		},
 
 		areaTeleports: [
@@ -3378,6 +3379,50 @@ var Areas = {
 				},
 				showNameInChat: false, // done in chat message instead
 				chatArrayType: "all", // chat arrays should all be sent with a delay between them
+			},
+			{
+				x: 752,
+				y: 225,
+				image: "alysLoreworth",
+				name: "Alys Loreworth, Lead Archaeologist",
+				hostility: "friendly",
+				level: 100,
+				stats: {
+					maxHealth: 550,
+					defence: 5,
+				},
+				roles: [
+					{
+						sold: [
+							{item: Items.helm[8], cost: 15,}, // Beetroot Beer
+						],
+						role: "merchant",
+						roleRequirement: function () {
+							return Player.level >=5;
+						},
+						shopGreeting: "A good archaeologist always has a hat. Oh. Do you not?",
+					},
+					{
+						role: "identifier",
+					},
+				],
+				chat: {
+					notUnlockedRoles: "Can you not see I'm trying to have a rest here? Come back later.",
+					chooseChat: "We're moving to the Ley Confluence soon. I'm just on a break.",
+					// identifier
+					identifierGreeting: "Let's see if you've found anything new.",
+					noUnidentified: "There's realms of items for you to explore. Find some unidentified items!",
+					identifyCommon: "And you think <em>this</em> will help our archaeology effort?",
+					identifyUnique: "Oh, this one is of rather good quality.",
+					identifyMythic: "It's not often I see one of these!",
+					// merchant
+					shopLeave: "Good luck on your travels.",
+					inventoryFull: "Oh, you've got so many artefacts in your inventory that there's no space for this.",
+					tooPoor: "Looks like you're not being paid enough for your efforts. Earn some gold and come back.",
+					// event
+					christmasGreeting: "Merry Christmas! I hope you've found lots of rare items this festive season. I heard there's some free ones in the city today.",
+					antoraxDayGreeting: `We've been operating the Antorax Archaeology effort for ${Event.antoraxAge} years. Doesn't that call for celebration?`,
+				},
 			},
 		],
 

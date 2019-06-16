@@ -140,8 +140,8 @@ var Items = {
 			area: ["eaglecrest"],
 			rarity: "unique",
 			lore: "No matter how accomplished, you're not a proper archaeologist until you have a hat.",
-			obtainText: "Currently unobtainable.",
-			sellPrice: 2, // TBC
+			obtainText: "Can be bought from an accomplished archaeologist.",
+			sellPrice: 3,
 			stats: {
 				defence: 1,
 				looting: 30,
@@ -687,7 +687,7 @@ var Items = {
 			rarity: "unique",
 			sellPrice: 3,
 			lore: "'James just feels like poison' - Peter",
-			obtainText: "Log in on James Day.",
+			obtainText: "Sent in the mail on James Day.",
 			event: "James",
 			stats: {
 				defence: 4,
