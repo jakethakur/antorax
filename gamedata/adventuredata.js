@@ -91,8 +91,8 @@ var Instructions = [
 		pages: [
 			`<b>The Mighty Zararanath:</b> Welcome to the mystical kingdom of Antorax, ${Player.name}!`,
 			`<em>The Mighty Zararanath is speaking to you through a telepathic link. Don't worry, it doesn't hurt.</em>`,
-			`<b>The Mighty Zararanath:</b> You can use the w, a, s, and d keys to move around.`,
-			`<b>The Mighty Zararanath:</b> Start your first quest by speaking to the Cart Driver.`,
+			`<b>The Mighty Zararanath:</b> You can use the <b>w</b>, <b>a</b>, <b>s</b>, and <b>d</b> keys to move around.`,
+			`<b>The Mighty Zararanath:</b> Start your first quest by speaking to the <b>Cart Driver</b>.`,
 		],
 	},
 	{

@@ -224,4 +224,5 @@ var Offsets = {
 	goblinKing: {image: "assets/enemies/goblinKing", x: 57, y: 0},
 	eaglecrestKing: {image: "assets/npcs/king", x: 33, y: -5},
 	lordOfThunder: {image: "assets/player/m5", x: 19, y: -2},
+	alysLoreworth: {image: "assets/npcs/alysLoreworth", x: 225, y: -2},
 };

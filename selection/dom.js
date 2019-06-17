@@ -6,7 +6,7 @@ if (localStorage.getItem("user") !== null && JSON.parse(localStorage.getItem("us
 	--top: #1d2d3b;
 	--bottom: #454545;
 	--page: #202020;
-	--text: #ffffff;
+	--text: #dcddde;
 	--link: #99bfde;
 	--arrow: #454545;
 	--opacity: 0.8;`
@@ -104,10 +104,13 @@ function arrange(){
 	document.getElementById("random").style.width = document.getElementById("name").offsetHeight-10+"px";
 	document.getElementById("logo").style.left = window.innerWidth/5*4+"px";
 	document.getElementById("logo").style.width = window.innerWidth/5-24+"px";
+	document.getElementById("info").style.left = window.innerWidth/5*4+"px";
+	document.getElementById("info").style.top = document.getElementById("logo").offsetHeight+40+"px";
+	document.getElementById("info").style.width = window.innerWidth/5-34+"px";
 	document.getElementById("news").style.left = window.innerWidth/5*4+"px";
-	document.getElementById("news").style.top = document.getElementById("logo").offsetHeight+40+"px";
+	document.getElementById("news").style.top = document.getElementById("logo").offsetHeight+40+90+"px";
 	document.getElementById("news").style.width = window.innerWidth/5-34+"px";
-	document.getElementById("news").style.height = window.innerHeight-document.getElementById("logo").offsetHeight-95+"px";
+	document.getElementById("news").style.height = window.innerHeight-document.getElementById("logo").offsetHeight-95-90+"px";
 	display();
 }
 
@@ -171,6 +174,13 @@ function display(){
 	}else { // right
 		document.getElementById("image").src="./assets/"+selected.class+selected[selected.class]+"/r.png";
 		document.getElementById("image").style.left = window.innerWidth/2-document.getElementById("image").offsetWidth/2-parseInt(document.getElementById("image").width)/Skins[selected.class][selected[selected.class]].position.y+"px";
+	}
+	if(localStorage.getItem(selected.class) !== null) {
+		document.getElementById("info").innerHTML = "<strong>Level: "+JSON.parse(localStorage.getItem(selected.class)).level+"</strong>"+
+		"<br><span style='font-size: 16px;'>"+FromCamelCase(JSON.parse(localStorage.getItem(selected.class)).areaName)+"</span>";
+	}
+	else {
+		document.getElementById("info").innerHTML = "<strong>Level: 0</strong><br><span style='font-size: 16px;'>Not Started</span>";
 	}
 }
 

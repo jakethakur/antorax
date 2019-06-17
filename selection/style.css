@@ -9,11 +9,11 @@ body{
 	text-align: center;
 	color: var(--text);
 }
-#archer, #mage, #knight, #name, #news, #play, #random{
+#archer, #mage, #knight, #name, #news, #play, #random, #info{
 	background-color: var(--bottom);
 	border: 5px solid var(--border);
 }
-#name, #image, #logo, #news, #play, #random, #left, #right{
+#name, #image, #logo, #news, #play, #random, #left, #right, #info{
 	 position: absolute;
  }
 #archer, #mage, #knight, #play{
@@ -40,6 +40,11 @@ body{
 }
 #news{
 	padding-top: 20px;
+}
+#info {
+	height: 50px;
+	font-size: 20px;
+	padding-top: 10px;
 }
 #newsTitle{
 	font-size: 50px;

@@ -279,9 +279,10 @@ Dom.closePage = function (page, notClose) {
 		if (page === "settingsTwoPage") {
 			tab = "settingsPage";
 		}
-		document.getElementById("change"+tab.substring(0,1).toUpperCase()+tab.substring(1,tab.length-4)).style.opacity = 0.7;
-		//document.getElementById("change"+tab.substring(0,1).toUpperCase()+tab.substring(1,tab.length-4)).getElementsByTagName("polygon")[0].style.strokeWidth = "1";
-	}else if (!notClose) {
+		document.getElementById("change"+tab.substring(0,1).toUpperCase()+tab.substring(1,tab.length-4)).style.opacity = 0.7;	
+		document.getElementById("change"+tab.substring(0,1).toUpperCase()+tab.substring(1,tab.length-4)).style.bottom = "-12px";
+	}
+	else if (!notClose) {
 		Dom.currentlyDisplayed = "";
 		Dom.currentNPC = {};
 	}
@@ -301,7 +302,7 @@ Dom.changeBook = function (page, openClose) {
 			tab = "settingsPage";
 		}
 		document.getElementById("change"+tab.substring(0,1).toUpperCase()+tab.substring(1,tab.length-4)).style.opacity = 1;
-		//document.getElementById("change"+tab.substring(0,1).toUpperCase()+tab.substring(1,tab.length-4)).getElementsByTagName("polygon")[0].style.strokeWidth = "2";
+		document.getElementById("change"+tab.substring(0,1).toUpperCase()+tab.substring(1,tab.length-4)).style.bottom = "0px";
 	}
 	if (document.getElementById(page).hidden === true) {
 		document.getElementById(page).hidden = false;
@@ -392,20 +393,30 @@ Dom.hotbar.update = function () {
 }
 
 Dom.instructions.index = function () {
-	let parameters = ["Instructions", [], [], []];
-	for (let i = 0; i < Player.unlockedInstructions.length; i++) {
-		parameters[1].push(Instructions[i].chapterTitle);
-		parameters[2].push(Dom.instructions.page);
-		parameters[3].push([i, true]);
+	// chooseDOM
+	if (Player.unlockedInstructions.length > 1) {
+		let parameters = ["Instructions", [], [], []];
+		for (let i = 0; i < Player.unlockedInstructions.length; i++) {
+			parameters[1].push(Instructions[i].chapterTitle);
+			parameters[2].push(Dom.instructions.page);
+			parameters[3].push([i, "index"]);
+		}
+		Dom.choose.page(...parameters);
 	}
-	Dom.choose.page(...parameters);
+	// chat ONLY
+	else {
+		Dom.instructions.page(0, "chat")
+	}
 }
 
-Dom.instructions.page = function (chapter, index) {
+Dom.instructions.page = function (chapter, calledFrom) {
+	if (calledFrom === "index") {
+		Dom.currentlyDisplayed = "";
+	}
 	if (Player.unlockedInstructions.length === chapter) {
 		Player.unlockedInstructions.push(Instructions[chapter].chapterTitle);
 	}
-	if (index || !Player.skipTutorial) {
+	if (calledFrom !== undefined || !Player.skipTutorial) {
 		Dom.chat.insertSequence(Instructions[chapter].pages);
 	}
 }
@@ -837,7 +848,7 @@ Dom.inventory.displayIdentification = function (display) {
 		Dom.inventory.updatePosition(document.getElementById("itemIdentification"), "inventoryPage");
 	}
 	document.getElementById("innerStats").innerHTML = "<strong>Level: " + Player.level + "</strong>"+
-	"<br><strong>XP: " + Round(100*Player.xp/LevelXP[Player.level],2) + "%</strong>"+
+	"<br><strong>XP: " + Round(100*Player.xp/LevelXP[Player.level],2) + "%</strong> ("+Player.xp+"/"+LevelXP[Player.level]+")"+
 	"<br><br><strong>Stats:</strong>";
 	document.getElementById("innerStats").innerHTML += "<br>Max Health: " + Player.stats.maxHealth;
 	if (Player.inventory.weapon.name !== "") {
@@ -945,7 +956,7 @@ Dom.inventory.displayInformation = function (item, stacked, element, position, h
 			if (item.name !== undefined) {
 				document.getElementById("name").innerHTML = item.name;
 				if (item.rarity === "mythic") {
-					document.getElementById("name").style.color = "purple";
+					document.getElementById("name").style.color = "#b13fea";
 				}else if (item.rarity === "unique") {
 					document.getElementById("name").style.color = "orange";
 				}else if (item.rarity === "junk") {
@@ -2320,8 +2331,8 @@ Dom.inventory.dispose = function (ev) {
 		}
 
 		let remove = true;
-		for (let i = 6; i < Player.inventory.items.length; i++) {
-			if (Player.inventory.items[i].image !== undefined) {
+		for (let i = 6; i < Dom.inventory.fromArray.length; i++) {
+			if (Dom.inventory.fromArray[i].image !== undefined) {
 				// if it is safe to dispose of the bag
 				remove = false;
 				break;
@@ -2329,21 +2340,20 @@ Dom.inventory.dispose = function (ev) {
 		}
 
 		ev.preventDefault(); // allows the item to drop
-		if (ev.target.id !== "" && (remove || Dom.inventory.fromId !== 5 || Dom.inventory.fromArray !== Player.inventory.items) && !quest) {
+		if (ev.target.id !== "" && (remove || ((Dom.inventory.fromId !== 5 || Dom.inventory.fromArray !== Player.inventory.items) && (Dom.inventory.fromId > 5 || Dom.inventory.fromArray !== Player.bank.items))) && !quest) {
 			Dom.alert.target = function (ev, all) {
-				// item inventory
-				if (Dom.inventory.fromArray === Player.inventory.items) {
+				
+				// item inventory or bank
+				if (Dom.inventory.fromArray !== Player.inventory) {
 
-					// if you dispose of the bag then reset the inventory
+					// if you dispose of the INVENTORY bag then reset the inventory
 					if (Dom.inventory.fromId === 5 && Dom.inventory.fromArray === Player.inventory.items && Player.inventory.items[5].type === "bag") {
 						let str = "<tr>";
 						for (let inv = 0; inv < 6; inv++) {
 							str += '<td ondrop="Dom.inventory.drop(event, Player.inventory.items, '+inv+');Game.inventoryUpdate(event)" ondragover="Dom.inventory.allowDrop(event)" onmouseover="Dom.inventory.displayInformation(Player.inventory.items['+inv+'], undefined, \'inventoryPage\')" onmouseleave="Dom.expand(\'information\')" ondrag="Dom.expand(\'information\')" onclick="Game.inventoryUpdate()"></td>';
 						}
 						document.getElementById("itemInventory").innerHTML = str+"</tr>";
-						if (Player.inventory.items[5].image === undefined) {
-							document.getElementById("itemInventory").getElementsByTagName("td")[5].style.backgroundImage = "url('assets/items/bag/1.png')";
-						}
+						document.getElementById("itemInventory").getElementsByTagName("td")[5].style.backgroundImage = "url('assets/items/bag/1.png')";
 						for (let x = 0; x < 6; x++) {
 							if (Player.inventory.items[x].image !== undefined) {
 								document.getElementById("itemInventory").getElementsByTagName("td")[x].innerHTML = '<img src="'+Player.inventory.items[x].image+'" draggable="true" ondragstart="Dom.inventory.drag(event, Player.inventory.items, '+x+')"></img>';
@@ -2355,34 +2365,22 @@ Dom.inventory.dispose = function (ev) {
 						Player.inventory.items.splice(6);
 						Dom.inventory.update();
 					}
+					
+					// if you dispose of a BANK bag then reset the bank
+					if (Dom.inventory.fromId <= 5 && Dom.inventory.fromArray === Player.bank.items) {
+						Player.bank.items.splice(Player.bank.items.length - Player.bank.items[Dom.inventory.fromId].size);
+						Dom.bank.page();
+						document.getElementById("bankPageInventory").getElementsByTagName("td")[Dom.inventory.fromId].style.backgroundImage = "url('assets/items/bag/1.png')";
+					}
 
 					Dom.inventory.remove(Dom.inventory.fromId, all, Dom.inventory.fromArray); /// TBD possible for other arrays
-				}else {
+				}
+				// equipment slots
+				else {
 					Dom.inventory.removeEquipment(Dom.inventory.fromArray[Dom.inventory.fromId]);
 					Dom.inventory.fromArray[Dom.inventory.fromId] = {};
 					Dom.inventory.fromElement.innerHTML = "";
 				}
-				/*}else if (ev[0] === "w") {
-					Dom.inventory.removeEquipment(Player.inventory.weapon);
-					Player.inventory.weapon = {};
-					document.getElementById("weapon").innerHTML = "";
-				}else if (ev[0] === "h") {
-					Dom.inventory.removeEquipment(Player.inventory.helm);
-					Player.inventory.helm = {};
-					document.getElementById("helm").innerHTML = "";
-				}else if (ev[0] === "c") {
-					Dom.inventory.removeEquipment(Player.inventory.chest);
-					Player.inventory.chest = {};
-					document.getElementById("chest").innerHTML = "";
-				}else if (ev[0] === "g") {
-					Dom.inventory.removeEquipment(Player.inventory.greaves);
-					Player.inventory.greaves = {};
-					document.getElementById("greaves").innerHTML = "";
-				}else{
-					Dom.inventory.removeEquipment(Player.inventory.boots);
-					Player.inventory.boots = {};
-					document.getElementById("boots").innerHTML = "";
-				}*/
 				Game.inventoryUpdate();
 			};
 			//Dom.alert.ev = Object.assign({}, Dom.inventory.fromId);
@@ -2447,6 +2445,11 @@ Dom.inventory.remove = function (num, all, array) { // array is optional
 	if (array === undefined) {
 		array = Player.inventory.items;
 	}
+	
+	let element = "itemInventory";
+	if (array === Player.bank.items) {
+		element = "bankPageInventory";
+	}
 
 	// repeats once unless all is a number
 	for (let i = 0; i < (isNaN(all) ? 1 : all); i++) {
@@ -2455,7 +2458,7 @@ Dom.inventory.remove = function (num, all, array) { // array is optional
 			// because they are unset
 			let id = array[num].id;
 			let type = array[num].type;
-			document.getElementById("itemInventory").getElementsByTagName("td")[num].innerHTML = "";
+			document.getElementById(element).getElementsByTagName("td")[num].innerHTML = "";
 			array[num] = {};
 			// if more items still need to be removed
 			if (!isNaN(all) && all - i !== 1) {
@@ -2589,7 +2592,7 @@ Dom.inventory.bagSwaps = function (to, from, array) {
 
 Dom.bank.bagCases = function () {
 	// slot backgrounds
-	if (Dom.inventory.fromArray === Player.bank.items && Dom.inventory.fromId < 6) {
+	if (Dom.inventory.fromArray === Player.bank.items && Dom.inventory.fromId < 6 && Dom.inventory.fromArray[Dom.inventory.fromId].image === undefined) {
 		document.getElementById("bankPageInventory").getElementsByTagName("td")[Dom.inventory.fromId].style.backgroundImage = "url('./assets/items/bag/1.png')";
 	}
 	if (Dom.inventory.toArray === Player.bank.items && Dom.inventory.toId < 6) {
@@ -2623,7 +2626,7 @@ Dom.bank.bagCases = function () {
 
 Dom.inventory.bagCases = function () {
 	// slot backgrounds
-	if (Dom.inventory.fromArray === Player.inventory.items && Dom.inventory.fromId === 5) {
+	if (Dom.inventory.fromArray === Player.inventory.items && Dom.inventory.fromId === 5 && Dom.inventory.fromArray[Dom.inventory.fromId].image === undefined) {
 		document.getElementById("itemInventory").getElementsByTagName("td")[5].style.backgroundImage = "url('./assets/items/bag/1.png')";
 	}
 	if (Dom.inventory.toArray === Player.inventory.items && Dom.inventory.toId === 5) {
@@ -2813,6 +2816,7 @@ Dom.inventory.validateSwap = function () {
 	// inventory bag slot
 	if ((Dom.inventory.toArray === Player.inventory.items && Dom.inventory.toId === 5) || (Dom.inventory.fromArray === Player.inventory.items && Dom.inventory.fromId === 5)) {
 		if (!Dom.inventory.validateBags()) {
+			Dom.alert.page("Move some items to the bank, sell or dispose of them before you can do that.", 0, undefined, "inventoryPage");
 			return false;
 		}
 	}
@@ -2820,6 +2824,7 @@ Dom.inventory.validateSwap = function () {
 	// bank bag slot
 	if ((Dom.inventory.toArray === Player.bank.items && Dom.inventory.toId < 6) || (Dom.inventory.fromArray === Player.bank.items && Dom.inventory.fromId < 6)) {
 		if (!Dom.bank.validateBags()) {
+			Dom.alert.page("Move some items to the bank, sell or dispose of them before you can do that.", 0, undefined, "inventoryPage");
 			return false;
 		}
 	}
@@ -4314,7 +4319,7 @@ Dom.settings.dark = function () {
 		--top: #1d2d3b;
 		--bottom: #454545;
 		--page: #202020;
-		--text: #ffffff;
+		--text: #dcddde;
 		--link: #99bfde;
 		--arrow: #454545;
 		--opacity: 0.9;`
@@ -4364,17 +4369,11 @@ Dom.updateScreenSize = function (init) {
 	document.getElementById("reputationImage").style.top= Dom.canvas.height-50+"px";
 	document.getElementById("settingsImage").style.top= Dom.canvas.height-50+"px";*/
 	let left = (Dom.canvas.width/2-168-400)/2 + Dom.canvas.width/2+168;
-	document.getElementById("changeChat").style.top= Dom.canvas.height-75+"px";
 	document.getElementById("changeChat").style.left= left+"px";
-	document.getElementById("changeInventory").style.top= Dom.canvas.height-75+"px";
 	document.getElementById("changeInventory").style.left= left+70+"px";
-	document.getElementById("changeQuests").style.top= Dom.canvas.height-75+"px";
 	document.getElementById("changeQuests").style.left= left+140+"px";
-	document.getElementById("changeAdventure").style.top= Dom.canvas.height-75+"px";
 	document.getElementById("changeAdventure").style.left= left+210+"px";
-	document.getElementById("changeReputation").style.top= Dom.canvas.height-75+"px";
 	document.getElementById("changeReputation").style.left= left+280+"px";
-	document.getElementById("changeSettings").style.top= Dom.canvas.height-75+"px";
 	document.getElementById("changeSettings").style.left= left+350+"px";
 	//document.getElementById("dot").style.top= Dom.canvas.height-53+"px";
 	//document.getElementById("dot").style.left= Dom.canvas.width/2+230+"px";
@@ -4412,18 +4411,7 @@ Dom.updateScreenSize = function (init) {
 }
 
 Dom.init = function () {
-	//Dom.canvas.width = window.innerWidth-2;
-	/*if (navigator.userAgent.indexOf("Firefox") !== -1) {
-		//Dom.canvas.height = window.innerHeight-1;
-		Dom.canvas.heightOffset = 1;
-		Dom.browser = "chrome"; // actually just means anything other than firefox -_-
-	}
-	else{
-		//Dom.canvas.height = window.innerHeight-3;
-		Dom.canvas.heightOffset = 3;
-		Dom.browser = "firefox";
-	}*/
-
+	
 	Dom.updateScreenSize(true);
 
 	document.getElementById("itemInventory").innerHTML = "";
@@ -4635,6 +4623,19 @@ Dom.init = function () {
 			);
 		}
 		
+		// James Day mail
+		else if (Event.event === "James") {
+			Dom.mail.give(
+			    "Happy James Day!",
+			    "Marshall Teper",
+			    "marshallTeper",
+			    "text.page",
+			    ["Happy James Day!",
+			    "For some reason they asked <em>me</em> to send some mail out to everyone today. There might be an event on, but that doesn't mean you can stop working. We need more workers in the Logging Camp.<br><br>Marshall Teper", true, [], [],
+			    [{item: Items.boots[7]}]], [{item: Items.boots[7]}],
+			);
+		}
+		
 		Player.days.push(date);
 		Player.quests.randomDailyQuests = {};
 		Player.chests.positions = {}; // chests change position each day
@@ -4648,11 +4649,11 @@ Dom.init = function () {
 			}
 		}
 	}
-	if (done) {
+	if (true) {
 		Dom.mail.give(
 			"Master Archaeologist",
 			"Alys Loreworth",
-			"eaglecrestKing",
+			"alysLoreworth",
 			"text.page",
 			["Master Archaeologist",
 			`<p>Dear ${playerName},</p>

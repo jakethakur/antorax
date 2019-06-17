@@ -6,7 +6,7 @@ if (localStorage.getItem("user") !== null && JSON.parse(localStorage.getItem("us
 	--top: #1d2d3b;
 	--bottom: #454545;
 	--page: #202020;
-	--text: #ffffff;
+	--text: #dcddde;
 	--link: #99bfde;
 	--arrow: #454545;
 	--opacity: 0.8;
@@ -74,11 +74,11 @@ function arrange(){
 		document.getElementById("flashcardlist"+c).style.left = 25+c*245+((screenSize-45)-(((Math.floor((screenSize-45)/245)))*245))/2+"px";
 		document.getElementById("name"+i).innerHTML = "<b>"+array[i].name+"</b>";
 		if(array[i].rarity == "mythic"){
-			document.getElementById("name"+i).style.color = "purple";
+			document.getElementById("name"+i).style.color = "#b13fea";
 		}else if(array[i].rarity == "unique"){
 			document.getElementById("name"+i).style.color = "orange";
 		}else if(array[i].rarity == "common"){
-			document.getElementById("name"+i).style.color = "black";
+			document.getElementById("name"+i).style.color = "var(--text)";
 		}else{
 			document.getElementById("name"+i).style.color = "gray";
 		}

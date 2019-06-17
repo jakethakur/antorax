@@ -9,6 +9,7 @@ body{
 	-ms-user-select: none; /* IE10+/Edge */
 	user-select: none;
 	margin-top: 25px;
+	color: var(--text);
 }
 #progress{
 	border: 1px solid black;

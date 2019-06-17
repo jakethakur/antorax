@@ -204,11 +204,15 @@ h1 {
 	padding-right: 38px;
 	width: 444px;
 }
-#helm, #chest, #greaves, #boots, #weapon, #settingLogoutInner, #settingSave, #settingDelete, #settingControls, .mailImage, .driverImage{
+#helm, #chest, #greaves, #boots, #weapon, #settingLogoutInner, #settingSave, #settingDelete, #settingControls, .mailImage, .driverImage, .theseOptions {
+	background-color: var(--bottom);
 	margin-top: 10px;
 	border: 5px solid var(--border);
 	width: 50px;
 	height: 50px;
+}
+.theseOptions {
+	margin-top: 0px;
 }
 #helm{
 	background-image: url("assets/items/helm/1.png");
@@ -812,43 +816,19 @@ input {
 	opacity: 0.7;
 	z-index: 5;
 	cursor: pointer;
+	bottom: -12px;
 	user-drag: none;
 	user-select: none;
 	-moz-user-select: none;
 	-webkit-user-drag: none;
 	-webkit-user-select: none;
 	-ms-user-select: none;
+	z-index: 50;
 }
 #changeAdventure, #changeSettings{
 	display: block;
 }
-/*#chatImage, #inventoryImage, #questsImage, #adventureImage, #reputationImage, #settingsImage{
-	position: absolute;
-	height: 40px;
-	z-index: 6;
-	cursor: pointer;
+#settingMusic, #settingParticles, #settingTransparency, #settingCoords, #settingSpeed, #settingTutorial {
+	margin-top: 10px;
+	border: 5px solid var(--border);
 }
-#chatImage {
-	background-image: url("./assets/icons/chat.png");
-	width: 32px;
-}
-#inventoryImage {
-	background-image: url("./assets/icons/inventory.png");
-	width: 32px;
-}
-#questsImage {
-	background-image: url("./assets/icons/quests.png");
-	width: 9px;
-}
-#adventureImage{
-	background-image: url("./assets/icons/adventure.png");
-	width: 40px;
-}
-#reputationImage{
-	background-image: url("./assets/icons/reputation.png");
-	width: 45px;
-}
-#settingsImage{
-	background-image: url("./assets/icons/settings.png");
-	width: 38px;
-}*/

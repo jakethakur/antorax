@@ -8,6 +8,7 @@ body{
 	-moz-user-select: none; /* Firefox */
 	-ms-user-select: none; /* IE10+/Edge */
 	user-select: none;
+	color: var(--text);
 }
 .box{
 	width: 200px;
@@ -114,7 +115,7 @@ td{
 	line-height: 30px;
 }
 #reset {
-	background-color: #ffffff;
+	background-color: var(--input);
 	width: 70px;
 	font-size: 20px;
 	height: 25px;
@@ -123,6 +124,7 @@ td{
 	border: 1px solid darkgray;
 	margin: 20px;
 	cursor: pointer;
+	color: black;
 }
 #reset:hover {
 	border: 1px solid gray;
