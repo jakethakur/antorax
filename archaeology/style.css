@@ -65,6 +65,7 @@ body{
 }
 td{
 	padding: 10px;
+	line-height: 30px;
 }
 #obtain, #stats{
 	position: absolute;
