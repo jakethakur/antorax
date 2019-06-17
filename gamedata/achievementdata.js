@@ -3,6 +3,7 @@ if(JSON.parse(localStorage.getItem("user")) !== null){
 	user.progress = Object.assign(User.progress, user.progress);
 	user.settings = Object.assign(User.settings, user.settings);
 	User = Object.assign(User, user);
+	User.notFirst = true;
 }
 
 var Achievements = [

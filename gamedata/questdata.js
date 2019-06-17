@@ -32,6 +32,9 @@ var Quests = {
 			howToStart: "Speak to the <strong>Cart Driver</strong>.",
 			levelRequirement: 1,
 			questRequirements: [],
+			requirement: function () {
+				return Player.unlockedInstructions.length >= 1;
+			},
 
 			rewards: {
 				xp: 10,

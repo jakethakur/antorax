@@ -350,6 +350,7 @@ thead:after {
 	vertical-align: middle;
 	margin-bottom: 10px;
 	position: relative;
+	background-color: var(--bottom);
 }
 .theseQuestServices, .theseQuestFinishServices, .theseQuestStartServices {
 	margin-top: 4px;

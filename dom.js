@@ -413,11 +413,20 @@ Dom.instructions.page = function (chapter, calledFrom) {
 	if (calledFrom === "index") {
 		Dom.currentlyDisplayed = "";
 	}
-	if (Player.unlockedInstructions.length === chapter) {
-		Player.unlockedInstructions.push(Instructions[chapter].chapterTitle);
-	}
 	if (calledFrom !== undefined || !Player.skipTutorial) {
-		Dom.chat.insertSequence(Instructions[chapter].pages);
+		if (chapter > 0 || !User.notFirst || calledFrom !== undefined) {
+			// normal unlocking
+			Dom.chat.insertSequence(Instructions[chapter].pages, undefined, function () {
+				if (Player.unlockedInstructions.length === chapter) {
+					Player.unlockedInstructions.push(Instructions[chapter].chapterTitle);
+					Dom.quests.possible();
+				}
+			}, chapter);
+		}
+		// first instructions for second+ time
+		else {
+			Instructions[0].alternativePages();
+		}
 	}
 }
 
@@ -466,11 +475,12 @@ Dom.chat.say = function (name, message) {
 	}
 }
 
-Dom.chat.insertSequence = function (text, values) {
+Dom.chat.insertSequence = function (text, values, end, endParameters) {
 	if (values === undefined) {
 		values = [];
 		values.length = text.length+1;
 	}
+	values.push(0);
 	
 	let time = values[0] || 0;
 	for (let i = 0; i < text.length; i++) {
@@ -482,6 +492,12 @@ Dom.chat.insertSequence = function (text, values) {
 		Dom.chat.insert(text[i], time, values[i+1]);
 		
 		time += values[i+1];
+	}
+	
+	if (end !== undefined) {
+		setTimeout (function () {
+			end(endParameters);
+		}, time);
 	}
 }
 
@@ -1610,17 +1626,12 @@ Dom.quests.possible = function () {
 	Dom.quests.possibleHTML = {true: "", undefined: "", daily: "",};
 	for (let i = 0; i < Object.keys(Quests).length; i++) {
 		for (let x = 0; x < Quests[Object.keys(Quests)[i]].length; x++) {
-			//let reputation = true;
-			/*if (!Player.quests.activeQuestArray.includes(Quests[Object.keys(Quests)[i]][x].quest) &&
-			Player.level >= Quests[Object.keys(Quests)[i]][x].levelRequirement && reputation &&
-			IsContainedInArray(Quests[Object.keys(Quests)[i]][x].questRequirements, Player.quests.completedQuestArray) &&
-			(Quests[Object.keys(Quests)[i]][x].eventRequirement === undefined || Quests[Object.keys(Quests)[i]][x].eventRequirement === Event.event) &&
-			(!Player.quests.completedQuestArray.includes(Quests[Object.keys(Quests)[i]][x].quest) ||
-			(Quests[Object.keys(Quests)[i]][x].repeatTime === "daily" &&
-			Player.quests.questLastFinished[Quests[Object.keys(Quests)[i]][x].questArea][Quests[Object.keys(Quests)[i]][x].id] < GetFullDate()))) {*/
 			let questCanBeStarted = true;
 			let quest = Quests[Object.keys(Quests)[i]][x];
 			if (Player.quests.activeQuestArray.includes(quest.quest)) { // quest is already active
+				questCanBeStarted = false;
+			}
+			else if (quest.requirement !== undefined && !quest.requirement()) { // a specific function is not true
 				questCanBeStarted = false;
 			}
 			else if (quest.levelRequirement > Player.level) { // player is not a high enough level
@@ -3176,53 +3187,6 @@ document.getElementById("inventoryGoldXP").style.right = 20 - Skins[Player.class
 document.getElementById("inventoryGoldXP").style.height = 60 + Skins[Player.class][Player.skin].headAdjust.y + "px";
 document.getElementById("inventoryGoldXP").style.bottom = 3 + Skins[Player.class][Player.skin].headAdjust.y + "px";
 
-/*Dom.levelUp.page = function (type, area, level) {
-	if (!Dom.levelUp.override) {
-		document.getElementById("levelUpPage").hidden = false; // displays over the top of other pages
-		if (Dom.currentlyDisplayed === "") {
-			//Dom.currentlyDisplayed = Player.tab; // so that the page can't change underneath it
-		}
-		if (type === "reputation") {
-			document.getElementById("levelUpPageTitle").innerHTML = "Reputation Level Up!";
-			document.getElementById("levelUpPageTitle").style.fontSize = "50px";
-			document.getElementById("levelUpPageTitle").style.bottom = "20px";
-			document.getElementById("levelUpPageLevel").innerHTML = "<br>"+FromCamelCase(area)+"<br><br>"+Dom.reputation.levels[level-1] + " &#10132; " + Dom.reputation.levels[level];
-			document.getElementById("levelUpPageLevel").style.fontSize = "25px";
-			Dom.quests.active();
-		}else{
-			document.getElementById("levelUpPageTitle").innerHTML = "Level Up!";
-			document.getElementById("levelUpPageTitle").style.fontSize = "70px";
-			document.getElementById("levelUpPageTitle").style.bottom = "40px";
-			document.getElementById("levelUpPageLevel").innerHTML = Player.level-1 + " &#10132; " + Player.level;
-			document.getElementById("levelUpPageLevel").style.fontSize = "40px";
-			Dom.chat.insert("Level up: "+(Player.level-1)+" &#10132; "+Player.level);
-		}
-		let newQuests = Dom.quests.possible();
-		if (newQuests.length > 0) {
-			document.getElementById("levelUpPageUnlock").innerHTML = "<strong>Quests Unlocked:</strong>";
-		}else{
-			document.getElementById("levelUpPageUnlock").innerHTML = "";
-		}
-		for (let i = 0; i < newQuests.length; i++) {
-			document.getElementById("levelUpPageUnlock").innerHTML += "<br>" + newQuests[i];
-		}
-		if (document.getElementById("levelUpPageUnlock").innerHTML !== "<strong>Quests Unlocked:</strong>") {
-			document.getElementById("levelUpPageUnlock").hidden = false;
-		}else{
-			document.getElementById("levelUpPageUnlock").hidden = true;
-		}
-		document.getElementById("levelUpPageClose").style.top = 275 + document.getElementById("levelUpPageUnlock").offsetHeight + "px";
-		Dom.quests.possible();
-	}else{
-		Dom.levelUp.waiting = true;
-	}
-	Player.stats.maxHealth += 5;
-	if (Player.level >= LevelXP.length - 1) {
-		// sets xp bar to fully completed because Game.getXP doesn't set it when you level up
-		Player.xp = LevelXP[Player.level];
-	}
-}*/
-
 document.getElementById("alertYes").onclick = function () {
 	// close alert and call function with parameter
 	Dom.alert.target(Dom.alert.ev);
@@ -3230,7 +3194,10 @@ document.getElementById("alertYes").onclick = function () {
 }
 
 document.getElementById("alertNo").onclick = function () {
-	// close alert only
+	// close alert only - and potentially call a function
+	if (Dom.alert.targetNo !== undefined) {
+		Dom.alert.targetNo(Dom.alert.evNo);
+	}
 	document.getElementById("alert").hidden = true;
 }
 

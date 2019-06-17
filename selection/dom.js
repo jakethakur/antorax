@@ -176,11 +176,11 @@ function display(){
 		document.getElementById("image").style.left = window.innerWidth/2-document.getElementById("image").offsetWidth/2-parseInt(document.getElementById("image").width)/Skins[selected.class][selected[selected.class]].position.y+"px";
 	}
 	if(localStorage.getItem(selected.class) !== null) {
-		document.getElementById("info").innerHTML = "<strong>Level: "+JSON.parse(localStorage.getItem(selected.class)).level+"</strong>"+
-		"<br><span style='font-size: 16px;'>"+FromCamelCase(JSON.parse(localStorage.getItem(selected.class)).areaName)+"</span>";
+		document.getElementById("info").innerHTML = "<strong>Level "+JSON.parse(localStorage.getItem(selected.class)).level+"</strong>"+
+		"<br><span style='font-size: 16px;'>"+JSON.parse(localStorage.getItem(selected.class)).displayAreaName+"</span>";
 	}
 	else {
-		document.getElementById("info").innerHTML = "<strong>Level: 0</strong><br><span style='font-size: 16px;'>Not Started</span>";
+		document.getElementById("info").innerHTML = "<strong>Level 0</strong><br><span style='font-size: 16px;'>Not Started</span>";
 	}
 }
 

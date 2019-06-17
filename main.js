@@ -4088,6 +4088,8 @@ Game.loadArea = function (areaName, destination) {
 		// remove player moveTowards
 		this.hero.moveTowards = undefined;
 
+		// save data information
+        Player.displayAreaName = Areas[areaName].data.name;
 		Player.lootArea = Areas[areaName].lootArea;
 		Player.lootTier = Areas[areaName].lootTier;
 
