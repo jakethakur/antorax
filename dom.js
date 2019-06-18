@@ -295,16 +295,22 @@ Dom.closePage = function (page, notClose) {
 
 Dom.changeBook = function (page, openClose) {
 	let bookmark = false;
-	if (page === "chatPage" || page === "inventoryPage" || page === "questsPage" || page === "adventurePage" || page === "reputationPage" || page === "settingsPage" || page === "settingsTwoPage") {
-		bookmark = true;
-		let tab = page
-		if (page === "settingsTwoPage") {
-			tab = "settingsPage";
-		}
-		document.getElementById("change"+tab.substring(0,1).toUpperCase()+tab.substring(1,tab.length-4)).style.opacity = 1;
-		document.getElementById("change"+tab.substring(0,1).toUpperCase()+tab.substring(1,tab.length-4)).style.bottom = "0px";
+	let tab = page
+	let settingsOpen = false;
+	if (page === "settingsTwoPage") {
+		tab = "settingsPage";
 	}
-	if (document.getElementById(page).hidden === true) {
+	else if (page === "settingsPage") {
+		page = Dom.settings.current;
+	}
+	if (document.getElementById(page).hidden && !settingsOpen) {
+		
+		if (page === "chatPage" || page === "inventoryPage" || page === "questsPage" || page === "adventurePage" || page === "reputationPage" || page === "settingsPage" || page === "settingsTwoPage") {
+			bookmark = true;
+			document.getElementById("change"+tab.substring(0,1).toUpperCase()+tab.substring(1,tab.length-4)).style.opacity = 1;
+			document.getElementById("change"+tab.substring(0,1).toUpperCase()+tab.substring(1,tab.length-4)).style.bottom = "0px";
+		}
+		
 		document.getElementById(page).hidden = false;
 		for (let x = 0; x < document.getElementsByClassName("DOM").length; x++) {
 			if (parseInt(document.getElementsByClassName("DOM")[x].style.zIndex) >= parseInt(document.getElementById(page).style.zIndex)) {

@@ -107,10 +107,13 @@ function arrange(){
 	document.getElementById("info").style.left = window.innerWidth/5*4+"px";
 	document.getElementById("info").style.top = document.getElementById("logo").offsetHeight+40+"px";
 	document.getElementById("info").style.width = window.innerWidth/5-34+"px";
+	document.getElementById("skins").style.left = window.innerWidth/5*4+"px";
+	document.getElementById("skins").style.top = document.getElementById("logo").offsetHeight+40+90+"px";
+	document.getElementById("skins").style.width = window.innerWidth/5-34+"px";
 	document.getElementById("news").style.left = window.innerWidth/5*4+"px";
-	document.getElementById("news").style.top = document.getElementById("logo").offsetHeight+40+90+"px";
+	document.getElementById("news").style.top = document.getElementById("logo").offsetHeight+40+90+103+"px";
 	document.getElementById("news").style.width = window.innerWidth/5-34+"px";
-	document.getElementById("news").style.height = window.innerHeight-document.getElementById("logo").offsetHeight-95-90+"px";
+	document.getElementById("news").style.height = window.innerHeight-document.getElementById("logo").offsetHeight-95-90-103+"px";
 	display();
 }
 
@@ -127,15 +130,6 @@ document.getElementById("mage").onclick = function(){
 document.getElementById("knight").onclick = function(){
 	selected.class = "k";
 	arrange();
-}
-
-document.getElementById("image").onclick = function(){
-	if(selected[selected.class] < Skins[selected.class].length-1){
-		selected[selected.class]++;
-	}else{
-		selected[selected.class] = 0;
-	}
-	display();
 }
 
 document.getElementById("random").onclick = function(){
@@ -182,20 +176,40 @@ function display(){
 	else {
 		document.getElementById("info").innerHTML = "<strong>Level 0</strong><br><span style='font-size: 16px;'>Not Started</span>";
 	}
+	document.getElementById("skins").innerHTML = "";
+	for (let i = 0; i < Skins[selected.class].length; i++) {
+		document.getElementById("skins").innerHTML += "<div class='skin' id='skin"+i+"'>";
+		document.getElementById("skin"+i).style.backgroundImage = 'url("assets/'+selected.class+i+'/f.png")';
+		document.getElementById("skin"+i).style.right = 12 - Skins[selected.class][i].headAdjust.x + "px";
+		document.getElementById("skin"+i).style.top = -10 - Skins[selected.class][i].headAdjust.y + "px";
+	}
+	document.getElementById("skins").innerHTML = "<center>"+document.getElementById("skins").innerHTML+"</center>";
+	for (let i = 0; i < Skins[selected.class].length; i++) {
+		document.getElementById("skin"+i).onclick = function () {
+			selected[selected.class] = i;
+			display();
+		}
+	}
 }
 
-document.addEventListener('mouseup', function(event){
-	if(event.pageX < parseInt(document.getElementById("image").style.left) && event.pageX > window.innerWidth/5 && event.pageY > 100 && event.pageY < window.innerHeight-105){
-		num++;
-		if(num > 3){num = 0;}
-	}else if(event.pageX > parseInt(document.getElementById("image").style.left) + document.getElementById("image").offsetWidth && event.pageX < window.innerWidth/5*4 && event.pageY > 100 && event.pageY < window.innerHeight-105){
-		num--;
-		if(num < 0){num = 3;}
-	}
+document.getElementById("left").onclick = function () {
+	num++;
+	if(num > 3){num = 0;}
 	display();
 	if(localStorage.getItem("accept") === "true"){
 		setTimeout(function(){
 			localStorage.setItem("selected", JSON.stringify(selected));
 		},1);
 	}
-});
+}
+
+document.getElementById("right").onclick = function () {
+	num--;
+	if(num < 0){num = 3;}
+	display();
+	if(localStorage.getItem("accept") === "true"){
+		setTimeout(function(){
+			localStorage.setItem("selected", JSON.stringify(selected));
+		},1);
+	}
+}

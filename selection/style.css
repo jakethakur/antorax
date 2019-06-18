@@ -9,11 +9,11 @@ body{
 	text-align: center;
 	color: var(--text);
 }
-#archer, #mage, #knight, #name, #news, #play, #random, #info{
+#archer, #mage, #knight, #name, #news, #play, #random, #info, #skins{
 	background-color: var(--bottom);
 	border: 5px solid var(--border);
 }
-#name, #image, #logo, #news, #play, #random, #left, #right, #info{
+#name, #image, #logo, #news, #play, #random, #left, #right, #info, #skins{
 	 position: absolute;
  }
 #archer, #mage, #knight, #play{
@@ -28,7 +28,6 @@ body{
 }
 #image{
 	top: 100px;
-	cursor: pointer;
 }
 #name{
 	font-size: 25px;
@@ -41,7 +40,7 @@ body{
 #news{
 	padding-top: 20px;
 }
-#info {
+#info, #skins {
 	height: 50px;
 	font-size: 20px;
 	padding-top: 10px;
@@ -69,4 +68,39 @@ body{
 	display: inline;
 	font-size: 25px;
 	font-weight: bold;
+}
+#skins {
+	white-space: nowrap;
+	overflow-x: auto;
+	overflow-y: hidden;
+	height: 63px;
+}
+.skin {
+	position: relative;
+	width: 80px;
+	height: 100px;
+	background-size: 80px;
+	background-repeat: no-repeat;
+	display: inline-block;
+	cursor: pointer;
+}
+
+::-webkit-scrollbar-track
+{
+    -webkit-box-shadow: inset 0 0 6px rgba(0,0,0,0.3);
+    border-radius: 10px;
+    background-color: #eeeeee;
+}
+
+::-webkit-scrollbar
+{
+    width: 12px;
+    background-color: #F5F5F5;
+}
+
+::-webkit-scrollbar-thumb
+{
+    border-radius: 10px;
+    -webkit-box-shadow: inset 0 0 6px rgba(0,0,0,.3);
+    background-color: #aaaaaa;
 }

@@ -61,7 +61,7 @@ var Skins = {
 			projectile:	"redBeam",
 			projectileAdjust: {x: 20, y: 20},
 			cursor: "crosshair",
-			headAdjust: {x: 10, y: 2},
+			headAdjust: {x: 10, y: 5},
 		},
 	],
 	m: [
@@ -101,7 +101,7 @@ var Skins = {
 					//gradient: {"0": "#e28909","1": "#e23e09",},
 				}
 			},
-			headAdjust: {x: 8, y: 0},
+			headAdjust: {x: 8, y: 3},
 		},
 		{
 			id: 3,
@@ -133,7 +133,7 @@ var Skins = {
 			projectile:	"lightningBall",
 			projectileAdjust: {x: 0, y: 0},
 			cursor: "crosshair",
-			headAdjust: {x: 0, y: 0},
+			headAdjust: {x: 0, y: 5},
 		},
 	],
 	k: [
@@ -197,7 +197,7 @@ var Skins = {
 			projectile:	"slashRedWhite",
 			projectileAdjust: {x: 20, y: 20},
 			cursor: "crosshair",
-			headAdjust: {x: 10, y: 0},
+			headAdjust: {x: 10, y: 5},
 		},
 	],
 };
