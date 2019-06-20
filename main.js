@@ -646,7 +646,7 @@ class Character extends Thing {
 	// name is only shown if property "showNameInChat" of the NPC is true
 	// if message begins with "/me " (including space), the format changes to "this.name message"
 	// see sayChat for parameter descriptions
-	say (message, delay, singleUse, arrayType) {
+	say (message, delay, singleUse, arrayType, language) {
 		let name = this.name;
 		if (!this.showNameInChat) {
 			// name should not be shown in chat (e.g. because it is already included in chat messages)
@@ -657,7 +657,7 @@ class Character extends Thing {
 		arrayType = arrayType || this.chatArrayType; // set arrayType to the NPC's default arrayType if it is undefined as parameter
 		
 		if (arrayType !== "all") {
-			Dom.chat.insert(Dom.chat.say(name, message), delay, undefined, singleUse);
+			Dom.chat.insert(Dom.chat.say(name, message, language), delay, undefined, singleUse);
 		}
 		else {
 			Dom.chat.insertSequence(message);
