@@ -1,6 +1,7 @@
 if(JSON.parse(localStorage.getItem("user")) !== null){
 	let user = JSON.parse(localStorage.getItem("user"));
 	user.progress = Object.assign(User.progress, user.progress);
+	user.settings.keyboard = Object.assign(User.settings.keyboard, user.settings.keyboard);
 	user.settings = Object.assign(User.settings, user.settings);
 	User = Object.assign(User, user);
 	User.notFirst = true;

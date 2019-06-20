@@ -158,6 +158,8 @@ var User = {
 			// shift (hide secondary canvas)
 			SHIFT: "SHIFT", // 16
 			// handled by dom
+			// chat
+			TALK: "T",
 			// hotkeys
 			CHAT: "C",
 			INVENTORY: "I",

@@ -31,6 +31,8 @@
 		<p id='innerStats'></p>
 		<p id='innerStatus'></p>
 	</div>
+	<input id="canvasChatInput" type="text"></input>
+	<p id="canvasSend" onclick="Dom.chat.input()">send</p>
 	<div id="alert" hidden>
 		<p id="alertText"></p>
 		<!--<a href="#" class="button" id="btn-download">Download</a>-->
@@ -39,7 +41,11 @@
 		<div id="alertOptions" onclick="Game.inventoryUpdate()"></div>
 		<div id="alertNo"></div>
 	</div>
-	<div id="chatPage" hidden class="DOM"></div>
+	<div id="chatPage" hidden class="DOM">
+		<p id="chatText"></p>
+		<input id="chatInput" type="text"></input>
+		<p id="send" onclick="Dom.chat.input('chatInput')">send</p>
+	</div>
 	<div id="inventoryPage" hidden class="DOM" onclick="Dom.inventory.deEquip = false;" ondrop="Dom.inventory.dispose(event)" ondragover="Dom.inventory.allowDrop(event)">
 		<div id="inventoryGoldXP"></div>
 		<div id="displayStats" onmouseover="Dom.inventory.displayIdentification(true)"onmouseleave="Dom.expand('itemIdentification')"></div>
@@ -175,6 +181,7 @@
 			<p style="display: inline"><br>Move down:</p><div class="hotkey"></div><br>
 			<p style="display: inline"><br>Action button:</p><div class="hotkey"></div><br>
 			<p style="display: inline"><br>Hide information:</p><div class="hotkey"></div><br>
+			<p style="display: inline"><br>Talk in chat:</p><div class="hotkey"></div><br>
 			<p style="display: inline"><br>Chat Page:</p><div class="hotkey"></div><br>
 			<p style="display: inline"><br>Inventory Page:</p><div class="hotkey"></div><br>
 			<p style="display: inline"><br>Quests Page:</p><div class="hotkey"></div><br>

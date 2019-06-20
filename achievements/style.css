@@ -1,14 +1,5 @@
 body{
-	font-family: 'El Messiri', serif;
-	line-height: 20px;
 	text-align: center;
-	background-color: var(--page);
-	overflow: auto;
-	-webkit-user-select: none; /* Safari */        
-	-moz-user-select: none; /* Firefox */
-	-ms-user-select: none; /* IE10+/Edge */
-	user-select: none;
-	color: var(--text);
 }
 .link {
 	text-align: center;

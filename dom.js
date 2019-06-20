@@ -131,6 +131,10 @@ let Dom = {
 		particlesOn: document.getElementById("particlesOn"), 
 		particlesOff: document.getElementById("particlesOff"), 
 		darkOn: document.getElementById("darkOn"), 
+		chatText: document.getElementById("chatText"), 
+		chatInput: document.getElementById("chatInput"), 
+		canvasChatInput: document.getElementById("canvasChatInput"), 
+		canvasSend: document.getElementById("canvasSend"), 
 	},
 	canvas: {},
 	chat: {},
@@ -230,17 +234,14 @@ Dom.alert.page = function (text, type, values, page) { // can't pass in target a
 }
 
 // Make the save, logout, delete buttons at the bottom of the settings page
-Dom.elements.settingLogout.innerHTML = "You are logged in as "+Player.name+(localStorage.getItem("accept") ? "<div id='settingSave' onclick='Game.saveProgress()'>Save</div>" : "")+"<div id='settingLogoutInner' onclick='Game.saveProgress(\"logout\")'>Logout</div>"+(localStorage.getItem("accept") ? "<div id='settingDelete'>Delete</div>" : "")+"<br><br><br><div id='settingControls' onclick='Dom.settings.page(\"settingsTwoPage\")'>Controls</div>";
+Dom.elements.settingLogout.innerHTML = "You are logged in as "+Player.name+(localStorage.getItem("accept") ? "<div id='settingSave' onclick='Game.saveProgress()'>Save</div>" : "")+"<div id='settingLogoutInner' onclick='Game.saveProgress(\"logout\")'>Logout</div>"+(localStorage.getItem("accept") ? "<div id='settingDelete' onclick='Dom.settings.delete()'>Delete</div>" : "")+"<br><br><br><div id='settingControls' onclick='Dom.settings.page(\"settingsTwoPage\")'>Controls</div>";
 
-// DELETES EXISTING CLASS
-if (Dom.elements.settingDelete !== null) {
-	Dom.elements.settingDelete.onclick = function () {
-		Dom.alert.target = function () {
-			localStorage.removeItem(Player.class);
-			window.location.replace("./selection/index.html");
-		}
-		Dom.alert.page("Are you sure you want to delete your progress for this class? It will be lost forever!", 2, undefined, "settingsPage");
+Dom.settings.delete = function () {
+	Dom.alert.target = function () {
+		localStorage.removeItem(Player.class);
+		window.location.replace("./selection/index.html");
 	}
+	Dom.alert.page("Are you sure you want to delete your progress for this class? It will be lost forever!", 2, undefined, "settingsPage");
 }
 
 // DO NOT ADD CODE ABOVE THIS POINT
@@ -476,15 +477,6 @@ Dom.changeBook = function (page, openClose) {
 	}
 }
 
-Dom.chat.page = function () {
-	// if there is no new chat
-	if (Dom.chat.newString === "") {
-		chatPage.innerHTML = "<br>" + Dom.chat.oldString;
-	}
-	Dom.chat.oldString = Dom.chat.newString + Dom.chat.oldString;
-	Dom.chat.newString = "";
-}
-
 Dom.hotbar.update = function () {
 	for (let i = 0; i < 6; i++) {
 		Dom.elements.hotbar.getElementsByTagName("td")[i].innerHTML = Dom.elements.itemInventory.getElementsByTagName("td")[i].innerHTML;
@@ -560,7 +552,11 @@ Dom.chat.say = function (name, message, language) {
 				message = message[0];
 			}
 		}
-
+		
+		if (language === "giblish") {
+			message = Dom.chat.toGiblish(message);
+		}
+		
 		if (typeof name === "undefined") {
 			// no name for NPC, post without a name
 		}
@@ -571,10 +567,6 @@ Dom.chat.say = function (name, message, language) {
 		else {
 			// normal message (includes NPC name)
 			message = "<strong>" + name + "</strong>: " + message;
-		}
-		
-		if (language === "giblish") {
-			message = Dom.chat.toGiblish(message);
 		}
 		
 		return message;
@@ -610,7 +602,19 @@ Dom.chat.insertSequence = function (text, values, end, endParameters) {
 	}
 }
 
-Dom.chat.oldString = ""; // chat below the -new messages-
+Dom.chat.input = function (id) {
+	if (Dom.elements[id].value !== "") {
+		Dom.chat.insert(Dom.chat.say(Player.name, Dom.elements[id].value));
+		Dom.elements[id].value = "";
+	}
+	Dom.elements[id].select();
+	Dom.elements[id].focus();
+}
+
+Dom.elements.canvasChatInput.onblur = function () {
+	Dom.elements.canvasChatInput.hidden = true;
+}
+
 Dom.chat.contents = []; // stores all the chat messages
 Dom.chat.displayChat = [];
 Dom.chat.displayOpacity = [];
@@ -633,6 +637,7 @@ Dom.chat.insert = function (text, delay, time, noRepeat) {
 				Dom.chat.displayChat.push(text);
 				Dom.elements.chat.innerHTML += "<li class='chatBox' style='opacity:0.6;'>"+text+"</li>";
 				Dom.chat.displayOpacity.push(time/2+500);
+				Dom.elements.canvasChatInput.hidden = false;
 				if (!Dom.chat.chatInterval) {
 					Dom.chat.chatInterval = setInterval(function () {
 						if (Dom.chat.displayChat.length === 0) {
@@ -652,17 +657,19 @@ Dom.chat.insert = function (text, delay, time, noRepeat) {
 									Dom.elements.chat.getElementsByTagName("li")[i].style.opacity = Dom.elements.chat.getElementsByTagName("li")[i+1].style.opacity;
 								}
 								Dom.elements.chat.removeChild(Dom.elements.chat.getElementsByTagName("li")[Dom.chat.displayChat.length]);
+								if (Dom.chat.displayChat.length === 0 && Dom.elements.canvasChatInput !== document.activeElement) {
+									Dom.elements.canvasChatInput.hidden = true;
+								}
 								break;
 							}
 						}
 					},1);
 				}
 
-				Dom.elements.chatPage.innerHTML = "";
-				for (let i = this.contents.length-1; i >= 0; i--) {
-					Dom.elements.chatPage.innerHTML += this.contents[i]+"<br><br>";
-				}
-				Dom.elements.chatPage.innerHTML += "</p>" + this.oldString;
+				Dom.elements.chatText.innerHTML += "<br><br>" + text;
+				/*for (let i = this.contents.length-1; i >= 0; i--) {
+					Dom.elements.chatText.innerHTML += this.contents[i]+"<br><br>";
+				}*/
 			}
 			return true;
 		}else{
@@ -2465,7 +2472,7 @@ for (let i = 0; i < document.getElementsByClassName("DOM").length; i++) {
 	document.getElementsByClassName("DOM")[i].style.zIndex = 6+i;
 	document.getElementsByClassName("DOM")[i].onmousedown = function (event) {
 		let scroll = document.getElementsByClassName("DOM")[i].scrollTop;
-		if (!event.target.draggable && event.target.className !== "stackNum") { // === document.getElementsByClassName("DOM")[i]) {
+		if (!event.target.draggable && event.target.className !== "stackNum" && event.target.autocomplete === undefined) { // === document.getElementsByClassName("DOM")[i]) {
 			Dom.canvas.dragPageX = event.clientX-document.getElementsByClassName("DOM")[i].offsetLeft;
 			Dom.canvas.dragPageY = event.clientY-document.getElementsByClassName("DOM")[i].offsetTop;
 			Dom.canvas.stopMove = false;
@@ -4206,6 +4213,11 @@ Dom.settings.transparency = function () {
 }
 
 Dom.chat.toGiblish = function (chat) {
+	let me = false;
+	if (chat.substring(0, 4) === "/me ") {
+		chat = chat.substr(4, message.length);
+		me = true;
+	}
 	chat = chat.replace(/z/g, "n");
 	chat = chat.replace(/y/g, "n");
 	chat = chat.replace(/x/g, "n");
@@ -4230,7 +4242,12 @@ Dom.chat.toGiblish = function (chat) {
 	chat = chat.replace(/e/g, "i");
 	chat = chat.replace(/a/g, "e");
 	chat = chat.replace(/b/g, "a");
-	return chat;
+	if (me) {
+		return "/me "+chat;
+	}
+	else {
+		return chat;
+	}
 }
 
 Dom.settings.dark = function () {
@@ -4277,6 +4294,7 @@ Dom.updateScreenSize = function (init) {
 	Dom.elements.secondary.width = Dom.canvas.width;
 	Dom.elements.secondary.height = Dom.canvas.height;
 	Dom.elements.chat.style.width = Dom.canvas.width/2-183+"px";
+	Dom.elements.canvasChatInput.style.width = Dom.canvas.width/2-187+"px";
 	Dom.elements.hotbar.style.left = Dom.canvas.width/2-167.6+"px";
 	Dom.elements.hotbar.style.top = Dom.canvas.height-80+"px";
 	let left = (Dom.canvas.width/2-168-400)/2 + Dom.canvas.width/2+168;
@@ -4581,8 +4599,6 @@ Dom.init = function () {
 	//Dom.changeBook(Player.tab); // sets tab to whatever the player was on when they last saved
 	Dom.adventure.update(); // chooses what should be shown in adventurer's log
 	// clear any unintentional chat and welcome player
-	Dom.chat.oldString = "";
-	Dom.chat.newString = "";
 	Dom.chat.contents = [];
 
 	if (Event.christmasDay) {
@@ -4659,6 +4675,7 @@ Dom.init = function () {
 		Keyboard.upFunctions[array[i]] = Dom.settings.hotkeys;
 		Keyboard.listenForKey(User.settings.keyboard[array[i]], undefined, Keyboard.upFunctions[array[i]]);
 	}
+	Keyboard.listenForKey(User.settings.keyboard.TALK, undefined, Keyboard.upFunctions.TALK);
 
 	//document.documentElement.requestFullscreen(); - disabled by chrome
 }

@@ -190,43 +190,53 @@ Keyboard.unlistenKey = function (key) {
 
 // called when a key is pressed
 Keyboard.onKeyDown = function (ev) {
-	// if a hotkey is not being changed
-	if (Dom.settings.hotkey === undefined) {
-		for (let i = 0; i < this.keys.length; i++) {
-			if (ev.key.toUpperCase() === this.keys[i].key) {
-				// key that is being listened to has been pressed
-				ev.preventDefault();
-				if (this.keys[i].downFunction !== undefined) {
-					this.keys[i].downFunction(ev);
+	if (ev.target !== Dom.elements.chatInput && ev.target !== Dom.elements.canvasChatInput) {
+		// if a hotkey is not being changed
+		if (Dom.settings.hotkey === undefined) {
+			for (let i = 0; i < this.keys.length; i++) {
+				if (ev.key.toUpperCase() === this.keys[i].key) {
+					// key that is being listened to has been pressed
+					ev.preventDefault();
+					if (this.keys[i].downFunction !== undefined) {
+						this.keys[i].downFunction(ev);
+					}
+					break;
 				}
-				break;
 			}
 		}
-	}
-	else{
-		ev.preventDefault();
+		else{
+			ev.preventDefault();
+		}
 	}
 }
 
 // called when a key is released
 Keyboard.onKeyUp = function (ev) {
-	// if a hotkey is being changed
-	if (Dom.settings.hotkey !== undefined) {
-		ev.preventDefault();
-		Dom.settings.hotkeys(ev);
-	}
-	// act normally
-	else {
-		for (let i = 0; i < this.keys.length; i++) {
-			if (ev.key.toUpperCase() === this.keys[i].key) {
-				// key that is being listened to has been released
-				ev.preventDefault();
-				if (this.keys[i].upFunction !== undefined) {
-					this.keys[i].upFunction(ev);
+	if (ev.target !== Dom.elements.chatInput && ev.target !== Dom.elements.canvasChatInput) {
+		// if a hotkey is being changed
+		if (Dom.settings.hotkey !== undefined) {
+			ev.preventDefault();
+			Dom.settings.hotkeys(ev);
+		}
+		// act normally
+		else {
+			for (let i = 0; i < this.keys.length; i++) {
+				if (ev.key.toUpperCase() === this.keys[i].key) {
+					// key that is being listened to has been released
+					ev.preventDefault();
+					if (this.keys[i].upFunction !== undefined) {
+						this.keys[i].upFunction(ev);
+					}
+					break;
 				}
-				break;
 			}
 		}
+	}
+	else if (ev.key === "Enter") {
+		Dom.chat.input(ev.target.id);
+	}
+	else if (ev.key === "Escape") {
+		ev.target.blur();
 	}
 }
 
@@ -250,6 +260,10 @@ Keyboard.upFunctions = {
             document.getElementById("bookmarks").hidden = false;
         }, 1);
     },
+	TALK: function () {
+		Dom.elements.canvasChatInput.hidden = false;
+		Dom.elements.canvasChatInput.select();
+	}
 }
 
 //
