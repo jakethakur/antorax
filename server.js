@@ -20,26 +20,30 @@ var app = express();
 // allow client.js (static file) to run from index.html
 app = app.use("/", express.static(__dirname));
 
-app = app.use((req, res) => res.sendFile(INDEX));
+app = app.use(function (req, res) {
+	res.sendFile(INDEX)
+});
 
 // convert app to http server
-var server = app.listen(PORT, () => console.info(`Listening on port ${ PORT }`));
+const server = app.listen(PORT, function () {
+	console.info(`Listening on port ${ PORT }`)
+});
 
 const wss = new SocketServer({server}); // wss = web socket server
+
+var connections = 0; // total connections - used for user IDs (unique to user)
 
 // handle connection
 wss.on("connection", (ws) => { // note that ws = client in wss.clients
 	console.info("Client connected");
-	// welcome the client
-	// introduction message of new client to other clients is done via a message sent by new client to server
-	ws.send(JSON.stringify({
-		type: "info",
-		content: "Welcome to the websocket! You have successfully connected."
-	}));
+
+	// set a unique user ID (different to ws.username becasue this is unique)
+	ws.userID = connections;
+	connections++;
 
 	// handle message received from client
 	// tbd: does this go outside of "connection" or inside?
-	ws.on("message", (data) => {
+	ws.on("message", function (data) {
 		console.info("Received message: " + data);
 		let parsedMessage = JSON.parse(data);
 		// check message type and perform an action based on this type
@@ -50,7 +54,7 @@ wss.on("connection", (ws) => { // note that ws = client in wss.clients
 				wss.broadcast(JSON.stringify({
 					type: "info",
 					content: ws.username + " has joined the game!"
-				}));
+				}), [ws.userID]);
 				break;
 
 			default:
@@ -60,7 +64,7 @@ wss.on("connection", (ws) => { // note that ws = client in wss.clients
 	});
 
 	// handle disconnection
-	ws.on("close", () => {
+	ws.on("close", function () {
 		console.info("Client disconnected");
 		// broadcast this info to all others
 		wss.broadcast(JSON.stringify({
@@ -73,11 +77,23 @@ wss.on("connection", (ws) => { // note that ws = client in wss.clients
 });
 
 // function to send parameter to all clients
-// parameter should be a JSON object with type and content...
-wss.broadcast = function broadcast(data) {
-	wss.clients.forEach((client) => {
-		if (client.readyState === WebSocket.OPEN) {
-			client.send(data);
+// data should be a JSON object with type and content...
+// exceptions should be an array of all of the userIDs not to send the message to
+wss.broadcast = function broadcast(data, exceptions) {
+	for (let i = 0; i < wss.clients.length; i++) {
+		// check client's websocket is open
+		if (wss.clients[i].readyState === 1) {
+			// check client is not an exception
+			if (typeof exceptions === "undefined" || !exceptions.includes(wss.clients[i].userID)) {
+				wss.clients[i].send(data);
+			}
 		}
-	});
+	}
 };
+
+// stop the clients dying after 10s
+setInterval(function () {
+	wss.broadcast(JSON.stringify({
+		type: "keepAlive",
+	}));
+}, 10000);

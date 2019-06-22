@@ -102,6 +102,10 @@ Game.initWebSocket = function () {
 					Dom.chat.insert(message.content);
 					break;
 
+				case "keepAlive":
+					// just used to stop the connection dying after 55s (Heroku)
+					break;
+
 				default:
 					console.error("Message type " + message.type + " is not recognised");
 			}
@@ -2053,7 +2057,9 @@ class Hero extends Attacker {
 	teleport (x, y) {
 		this.x = x;
 		this.y = y;
-		setTimeout(Weather.reset, 10); // timeout is used because the weather is not updated for a tick
+		setTimeout(function(){
+			Weather.reset();
+		}.bind(Weather), 10); // timeout is used because the weather is not updated for a tick
 	}
 }
 
