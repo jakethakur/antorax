@@ -237,7 +237,8 @@ thead:after { /* space after bags in bank */
 	position: absolute;
 	bottom: 10px;
 	left: 10px;
-	width: 458px;
+	width: 455px;
+	padding-left: 3px;
 	padding-right: 40px;
 }
 
@@ -250,6 +251,7 @@ thead:after { /* space after bags in bank */
 	border-color: black;
 	color: white;
 	opacity: 0.6;
+	padding-left: 3px;
 }
 
 #send {

@@ -7,134 +7,135 @@ if (sessionStorage.getItem("class") === null) {
 
 let Dom = {
 	elements: {
+		achievement: document.getElementById("achievement"),
+		achievementDescription: document.getElementById("achievementDescription"),
+		achievementImg: document.getElementById("achievementImg"),
+		achievementName: document.getElementById("achievementName"),
+		achievementPoints: document.getElementById("achievementPoints"),
+		activeQuestBox: document.getElementById("activeQuestBox"),
+		adventurePage: document.getElementById("adventurePage"),
+		alert: document.getElementById("alert"),
+		alertDispose: document.getElementById("alertDispose"),
+		alertNo: document.getElementById("alertNo"),
+		alertOptions: document.getElementById("alertOptions"),
+		alertText: document.getElementById("alertText"),
+		alertYes: document.getElementById("alertYes"),
+		bagText: document.getElementById("bagText"),
+		bankPage: document.getElementById("bankPage"),
+		bankPageInventory: document.getElementById("bankPageInventory"),
+		buyerPage: document.getElementById("buyerPage"),
+		buyerPageChat: document.getElementById("buyerPageChat"),
+		buyerPageInventory: document.getElementById("buyerPageInventory"),
+		canvasChatInput: document.getElementById("canvasChatInput"),
+		canvasSend: document.getElementById("canvasSend"),
+		chance: document.getElementById("chance"),
+		chanceImage: document.getElementById("chanceImage"),
+		changeAdventure: document.getElementById("changeAdventure"),
+		changeChat: document.getElementById("changeChat"),
+		changeInventory: document.getElementById("changeInventory"),
+		changeQuests: document.getElementById("changeQuests"),
+		changeReputation: document.getElementById("changeReputation"),
+		changeSettings: document.getElementById("changeSettings"),
+		chat: document.getElementById("chat"),
+		chatInput: document.getElementById("chatInput"),
 		chatPage: document.getElementById("chatPage"),
-		inventoryPage: document.getElementById("inventoryPage"),
+		chatText: document.getElementById("chatText"),
+		choosePage: document.getElementById("choosePage"),
+		close: document.getElementById("close"),
+		closeDriver: document.getElementById("closeDriver"),
+		closeReputation: document.getElementById("closeReputation"),
+		completedQuestBox: document.getElementById("completedQuestBox"),
+		coordsOn: document.getElementById("coordsOn"),
+		darkOn: document.getElementById("darkOn"),
+		dayNight: document.getElementById("dayNight"),
+		driverPage: document.getElementById("driverPage"),
+		driverPageBuy: document.getElementById("driverPageBuy"),
+		driverPageMain: document.getElementById("driverPageMain"),
+		fpsOn: document.getElementById("fpsOn"),
+		fullscreenOff: document.getElementById("fullscreenOff"),
+		fullscreenOn: document.getElementById("fullscreenOn"),
+		game: document.getElementById("game"),
+		gridOn: document.getElementById("gridOn"),
+		hitboxesOn: document.getElementById("hitboxesOn"),
 		hotbar: document.getElementById("hotbar"),
+		identifiedPage: document.getElementById("identifiedPage"),
+		identifiedPageBack: document.getElementById("identifiedPageBack"),
+		identifiedPageChat: document.getElementById("identifiedPageChat"),
+		identifiedPageOption: document.getElementById("identifiedPageOption"),
+		identifierPage: document.getElementById("identifierPage"),
+		identifierPageBuy: document.getElementById("identifierPageBuy"),
+		identifierPageChat: document.getElementById("identifierPageChat"),
+		identifierPageOption: document.getElementById("identifierPageOption"),
+		idtriangle: document.getElementById("idtriangle"),
+		information: document.getElementById("information"),
+		innerStats: document.getElementById("innerStats"),
+		innerStatus: document.getElementById("innerStatus"),
+		inventoryGoldXP: document.getElementById("inventoryGoldXP"),
+		inventoryPage: document.getElementById("inventoryPage"),
+		itemIdentification: document.getElementById("itemIdentification"),
+		itemInventory: document.getElementById("itemInventory"),
+		leftArrow: document.getElementById("leftArrow"),
+		level: document.getElementById("level"),
+		light: document.getElementById("light"),
+		loot: document.getElementById("loot"),
+		lootAll: document.getElementById("lootAll"),
+		lootingPageClose: document.getElementById("lootingPageClose"),
+		lootingPageTitle: document.getElementById("lootingPageTitle"),
+		lootPage: document.getElementById("lootPage"),
+		lore: document.getElementById("lore"),
+		mailPage: document.getElementById("mailPage"),
+		merchantPage: document.getElementById("merchantPage"),
+		merchantPageBuy: document.getElementById("merchantPageBuy"),
+		merchantPageChat: document.getElementById("merchantPageChat"),
+		merchantPageOptions: document.getElementById("merchantPageOptions"),
+		merchantPageTitle: document.getElementById("merchantPageTitle"),
+		musicOn: document.getElementById("musicOn"),
+		name: document.getElementById("name"),
+		otherQuestBox: document.getElementById("otherQuestBox"),
+		outIdtriangle: document.getElementById("outIdtriangle"),
+		outTriangle: document.getElementById("outTriangle"),
+		particlesOff: document.getElementById("particlesOff"),
+		particlesOn: document.getElementById("particlesOn"),
+		possibleQuestBox: document.getElementById("possibleQuestBox"),
+		questFinish: document.getElementById("questFinish"),
+		questFinishChat: document.getElementById("questFinishChat"),
+		questFinishItems: document.getElementById("questFinishItems"),
+		questFinishName: document.getElementById("questFinishName"),
+		questFinishQuest: document.getElementById("questFinishQuest"),
+		questFinishRewardsTitle: document.getElementById("questFinishRewardsTitle"),
+		questFinishStartItems: document.getElementById("questFinishStartItems"),
+		questFinishXP: document.getElementById("questFinishXP"),
 		questsPage: document.getElementById("questsPage"),
+		questStart: document.getElementById("questStart"),
+		questStartChat: document.getElementById("questStartChat"),
+		questStartItems: document.getElementById("questStartItems"),
+		questStartName: document.getElementById("questStartName"),
+		questStartObjectives: document.getElementById("questStartObjectives"),
+		questStartQuest: document.getElementById("questStartQuest"),
+		questStartRewardsTitle: document.getElementById("questStartRewardsTitle"),
+		questStartStartItems: document.getElementById("questStartStartItems"),
+		questStartStartRewardsTitle: document.getElementById("questStartStartRewardsTitle"),
+		questStartXP: document.getElementById("questStartXP"),
+		reputationPage: document.getElementById("reputationPage"),
+		rightArrow: document.getElementById("rightArrow"),
+		secondary: document.getElementById("secondary"),
+		set: document.getElementById("set"),
+		settingAcceptHolder: document.getElementById("settingAcceptHolder"),
+		settingDelete: document.getElementById("settingDelete"),
+		settingLogout: document.getElementById("settingLogout"),
 		settingsPage: document.getElementById("settingsPage"),
 		settingsTwoPage: document.getElementById("settingsTwoPage"),
-		adventurePage: document.getElementById("adventurePage"),
-		reputationPage: document.getElementById("reputationPage"),
-		questStart: document.getElementById("questStart"),
-		questFinish: document.getElementById("questFinish"),
-		merchantPage: document.getElementById("merchantPage"),
-		identifierPage: document.getElementById("identifierPage"),
-		identifiedPage: document.getElementById("identifiedPage"),
-		lootPage: document.getElementById("lootPage"),
-		buyerPage: document.getElementById("buyerPage"),
-		mailPage: document.getElementById("mailPage"),
-		driverPage: document.getElementById("driverPage"),
-		bankPage: document.getElementById("bankPage"),
-		choosePage: document.getElementById("choosePage"),
+		settingTutorialHolder: document.getElementById("settingTutorialHolder"),
+		speedOn: document.getElementById("speedOn"),
+		stats: document.getElementById("stats"),
 		textPage: document.getElementById("textPage"),
-		alert: document.getElementById("alert"), 
-		alertOptions: document.getElementById("alertOptions"), 
-		alertYes: document.getElementById("alertYes"), 
-		alertNo: document.getElementById("alertNo"), 
-		alertDispose: document.getElementById("alertDispose"), 
-		alertText: document.getElementById("alertText"), 
-		settingLogout: document.getElementById("settingLogout"), 
-		settingDelete: document.getElementById("settingDelete"), 
-		achievement: document.getElementById("achievement"), 
-		achievementDescription: document.getElementById("achievementDescription"), 
-		achievementPoints: document.getElementById("achievementPoints"), 
-		achievementImg: document.getElementById("achievementImg"), 
-		activeQuestBox: document.getElementById("activeQuestBox"), 
-		itemInventory: document.getElementById("itemInventory"), 
-		chat: document.getElementById("chat"), 
-		closeReputation: document.getElementById("closeReputation"), 
-		outTriangle: document.getElementById("outTriangle"), 
-		outIdtriangle: document.getElementById("outIdtriangle"), 
-		triangle: document.getElementById("triangle"), 
-		idtriangle: document.getElementById("idtriangle"), 
-		itemIdentification: document.getElementById("itemIdentification"), 
-		innerStats: document.getElementById("innerStats"), 
-		innerStatus: document.getElementById("innerStatus"), 
-		information: document.getElementById("information"), 
-		name: document.getElementById("name"), 
-		stats: document.getElementById("stats"), 
-		set: document.getElementById("set"), 
-		lore: document.getElementById("lore"), 
-		questStartQuest: document.getElementById("questStartQuest"), 
-		questStartName: document.getElementById("questStartName"), 
-		questStartChat: document.getElementById("questStartChat"), 
-		questStartObjectives: document.getElementById("questStartObjectives"), 
-		questStartItems: document.getElementById("questStartItems"), 
-		questStartXP: document.getElementById("questStartXP"), 
-		questStartRewardsTitle: document.getElementById("questStartRewardsTitle"), 
-		questStartStartItems: document.getElementById("questStartStartItems"), 
-		questStartStartRewardsTitle: document.getElementById("questStartStartRewardsTitle"), 
-		questFinishQuest: document.getElementById("questFinishQuest"), 
-		questFinishName: document.getElementById("questFinishName"), 
-		questFinishChat: document.getElementById("questFinishChat"), 
-		questFinishItems: document.getElementById("questFinishItems"), 
-		questFinishXP: document.getElementById("questFinishXP"), 
-		questFinishRewardsTitle: document.getElementById("questFinishRewardsTitle"), 
-		chanceImage: document.getElementById("chanceImage"), 
-		chance: document.getElementById("chance"), 
-		questFinishStartItems: document.getElementById("questFinishStartItems"), 
-		possibleQuestBox: document.getElementById("possibleQuestBox"), 
-		completedQuestBox: document.getElementById("completedQuestBox"), 
-		otherQuestBox: document.getElementById("otherQuestBox"), 
-		merchantPageTitle: document.getElementById("merchantPageTitle"), 
-		merchantPageChat: document.getElementById("merchantPageChat"), 
-		merchantPageOptions: document.getElementById("merchantPageOptions"), 
-		merchantPageBuy: document.getElementById("merchantPageBuy"), 
-		close: document.getElementById("close"), 
-		identifierPageChat: document.getElementById("identifierPageChat"), 
-		identifierPageOption: document.getElementById("identifierPageOption"), 
-		identifierPageBuy: document.getElementById("identifierPageBuy"), 
-		leftArrow: document.getElementById("leftArrow"), 
-		rightArrow: document.getElementById("rightArrow"), 
-		identifiedPageChat: document.getElementById("identifiedPageChat"), 
-		identifiedPageOption: document.getElementById("identifiedPageOption"), 
-		identifiedPageBack: document.getElementById("identifiedPageBack"), 
-		bankPageInventory: document.getElementById("bankPageInventory"), 
-		bagText: document.getElementById("bagText"), 
-		weapon: document.getElementById("weapon"), 
-		inventoryGoldXP: document.getElementById("inventoryGoldXP"), 
-		settingAcceptHolder: document.getElementById("settingAcceptHolder"), 
-		musicOn: document.getElementById("musicOn"), 
-		lootingPageTitle: document.getElementById("lootingPageTitle"), 
-		lootingPageClose: document.getElementById("lootingPageClose"), 
-		lootAll: document.getElementById("lootAll"), 
-		loot: document.getElementById("loot"), 
-		buyerPageChat: document.getElementById("buyerPageChat"), 
-		buyerPageInventory: document.getElementById("buyerPageInventory"), 
-		tutorialOn: document.getElementById("tutorialOn"), 
-		tutorialOff: document.getElementById("tutorialOff"), 
-		coordsOn: document.getElementById("coordsOn"),
-		fpsOn: document.getElementById("fpsOn"), 
-		hitboxesOn: document.getElementById("hitboxesOn"), 
-		gridOn: document.getElementById("gridOn"), 
-		driverPageBuy: document.getElementById("driverPageBuy"), 
-		driverPageMain: document.getElementById("driverPageMain"), 
-		closeDriver: document.getElementById("closeDriver"), 
-		transparencyOn: document.getElementById("transparencyOn"), 
-		game: document.getElementById("game"), 
-		dayNight: document.getElementById("dayNight"), 
-		light: document.getElementById("light"), 
-		secondary: document.getElementById("secondary"), 
-		changeChat: document.getElementById("changeChat"), 
-		changeInventory: document.getElementById("changeInventory"), 
-		changeQuests: document.getElementById("changeQuests"), 
-		changeAdventure: document.getElementById("changeAdventure"), 
-		changeReputation: document.getElementById("changeReputation"), 
-		changeSettings: document.getElementById("changeSettings"), 
-		fullscreenOn: document.getElementById("fullscreenOn"), 
-		fullscreenOff: document.getElementById("fullscreenOff"), 
-		weatherOn: document.getElementById("weatherOn"), 
-		level: document.getElementById("level"), 
-		settingTutorialHolder: document.getElementById("settingTutorialHolder"), 
-		speedOn: document.getElementById("speedOn"), 
-		weatherOff: document.getElementById("weatherOff"), 
-		particlesOn: document.getElementById("particlesOn"), 
-		particlesOff: document.getElementById("particlesOff"), 
-		darkOn: document.getElementById("darkOn"), 
-		chatText: document.getElementById("chatText"), 
-		chatInput: document.getElementById("chatInput"), 
-		canvasChatInput: document.getElementById("canvasChatInput"), 
-		canvasSend: document.getElementById("canvasSend"), 
+		transparencyOn: document.getElementById("transparencyOn"),
+		triangle: document.getElementById("triangle"),
+		tutorialOff: document.getElementById("tutorialOff"),
+		tutorialOn: document.getElementById("tutorialOn"),
+		weapon: document.getElementById("weapon"),
+		weatherOff: document.getElementById("weatherOff"),
+		weatherOn: document.getElementById("weatherOn"),
 	},
 	canvas: {},
 	chat: {},
@@ -249,8 +250,10 @@ Dom.settings.delete = function () {
 Dom.achievements.page = function (i) {
 	if (!Dom.achievements.wait) {
 		Dom.achievements.wait = true;
-		Dom.elements.achievement.innerHTML = '<div id="achievementImg" style="background-image: url(\''+Achievements[i].image.substring(1)+'\')"</img></div>\
-		<p id="achievementName"><strong>'+Achievements[i].name+'</strong></p><p id="achievementDescription">Achievement Unlocked</p><p id="achievementPoints">'+Achievements[i].points+'</p>';
+		Dom.elements.achievementImg.style = 'background-image: url("'+Achievements[i].image.substring(1)+'")';
+		Dom.elements.achievementName.innerHTML = '<strong>'+Achievements[i].name+'</strong>';
+		Dom.elements.achievementDescription.innerHTML = 'Achievement Unlocked';
+		Dom.elements.achievementPoints.innerHTML = Achievements[i].points;
 
 		setTimeout(function () {
 			Dom.elements.achievementDescription.style.marginRight = 15 + Dom.elements.achievementPoints.offsetWidth+"px";
@@ -281,6 +284,8 @@ Dom.achievements.update = function () {
 	for (let i = 0; i < Achievements.length; i++) {
 		if (!Object.keys(User.achievements).includes(ToCamelCase(Achievements[i].name)) && Achievements[i].isCompleted !== undefined && Achievements[i].isCompleted()) {
 			User.achievements[ToCamelCase(Achievements[i].name)] = GetFullDateDisplay();
+			User.achievementPoints.total += Achievements[i].points;
+			User.achievementPoints.unclaimed += Achievements[i].points;
 			Dom.achievements.page(i);
 		}
 	}
@@ -637,7 +642,7 @@ Dom.chat.insert = function (text, delay, time, noRepeat) {
 				Dom.chat.displayChat.push(text);
 				Dom.elements.chat.innerHTML += "<li class='chatBox' style='opacity:0.6;'>"+text+"</li>";
 				Dom.chat.displayOpacity.push(time/2+500);
-				Dom.elements.canvasChatInput.hidden = false;
+				//Dom.elements.canvasChatInput.hidden = false;
 				if (!Dom.chat.chatInterval) {
 					Dom.chat.chatInterval = setInterval(function () {
 						if (Dom.chat.displayChat.length === 0) {
@@ -645,6 +650,7 @@ Dom.chat.insert = function (text, delay, time, noRepeat) {
 							Dom.chat.chatInterval = false;
 						}
 						for (let x = 0; x < Dom.chat.displayChat.length; x++) {
+							Dom.elements.canvasChatInput.hidden = false;
 							Dom.chat.displayOpacity[x]-=2;
 							if (Dom.chat.displayOpacity[x] < 600) {
 								Dom.elements.chat.getElementsByTagName("li")[x].style.opacity = Dom.chat.displayOpacity[x]/1000;
@@ -4294,7 +4300,7 @@ Dom.updateScreenSize = function (init) {
 	Dom.elements.secondary.width = Dom.canvas.width;
 	Dom.elements.secondary.height = Dom.canvas.height;
 	Dom.elements.chat.style.width = Dom.canvas.width/2-183+"px";
-	Dom.elements.canvasChatInput.style.width = Dom.canvas.width/2-187+"px";
+	Dom.elements.canvasChatInput.style.width = Dom.canvas.width/2-187-3+"px";
 	Dom.elements.hotbar.style.left = Dom.canvas.width/2-167.6+"px";
 	Dom.elements.hotbar.style.top = Dom.canvas.height-80+"px";
 	let left = (Dom.canvas.width/2-168-400)/2 + Dom.canvas.width/2+168;
@@ -4575,7 +4581,7 @@ Dom.init = function () {
 			}
 		}
 	}
-	if (true) {
+	if (done) {
 		Dom.mail.give(
 			"Master Archaeologist",
 			"Alys Loreworth",
@@ -4712,9 +4718,14 @@ Dom.testing.completeQuest = function (quest, acceptRewards, notStart) {
 }
 
 // SAVEDATA FIXES
-if (Player.bank.unlockedSlots === 0) {
-	Player.bank = {
-		unlockedSlots: 1,
-		items: [{},{},{},{},{},{}],
-	};
+if (User.achievementPoints.total === 0) {
+	for (let i = 0; i < Object.keys(User.achievements).length; i++) {
+		for (let x = 0; x < Achievements.length; x++) {
+			if (Object.keys(User.achievements)[i] === ToCamelCase(Achievements[x].name)) {
+				User.achievementPoints.total += Achievements[x].points;
+				User.achievementPoints.unclaimed += Achievements[x].points;
+				break;
+			}
+		}
+	}
 }

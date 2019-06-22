@@ -135,6 +135,10 @@ var User = {
 	archaeology: [],
 	fish: [],
 	achievements: {},
+	achievementPoints: {
+		total: 0,
+		unclaimed: 0,
+	},
 	progress: {},
 	settings: {
 		music: false,

@@ -11,7 +11,12 @@
 	<meta charset="UTF-8">
 </head>
 <body oncontextmenu="return false;">
-	<div id="achievement" hidden></div>
+	<div id="achievement" hidden>
+		<div id="achievementImg"></div>
+		<p id="achievementName"></p>
+		<p id="achievementDescription"></p>
+		<p id="achievementPoints"></p>
+	</div>
 	<div id="click" ondrop="Dom.inventory.dispose(event)" ondragover="Dom.inventory.allowDrop(event)"></div>
 	<canvas id="secondary"></canvas>
     <canvas id="light"></canvas>
@@ -31,7 +36,7 @@
 		<p id='innerStats'></p>
 		<p id='innerStatus'></p>
 	</div>
-	<input id="canvasChatInput" type="text"></input>
+	<input id="canvasChatInput" type="text" placeholder="Type a message to send to chat."></input>
 	<p id="canvasSend" onclick="Dom.chat.input()">send</p>
 	<div id="alert" hidden>
 		<p id="alertText"></p>
@@ -43,7 +48,7 @@
 	</div>
 	<div id="chatPage" hidden class="DOM">
 		<p id="chatText"></p>
-		<input id="chatInput" type="text"></input>
+		<input id="chatInput" type="text" placeholder="Type a message to send to chat."></input>
 		<p id="send" onclick="Dom.chat.input('chatInput')">send</p>
 	</div>
 	<div id="inventoryPage" hidden class="DOM" onclick="Dom.inventory.deEquip = false;" ondrop="Dom.inventory.dispose(event)" ondragover="Dom.inventory.allowDrop(event)">

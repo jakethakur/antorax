@@ -313,12 +313,16 @@ function arrange(){
 			}
 		}
 	}
+	document.getElementById("total").innerHTML = User.achievementPoints.total;
+	document.getElementById("unclaimed").innerHTML = User.achievementPoints.unclaimed;
 	document.getElementById("filters").hidden = false;
 	document.getElementById("progress").hidden = false;
 	document.getElementById("all").hidden = false;
 	document.getElementById("filters").style.width = (((Math.floor((screenSize-45)/490)))*490)-35+"px";
+	document.getElementById("pointsInfo").style.width = 5+(((Math.floor((screenSize-45)/490)))*490)-35+"px";
 	document.getElementById("progress").style.width = (((Math.floor((screenSize-45)/490)))*490)-25+"px";
 	document.getElementById("filters").style.left = 25+((screenSize-45)-(((Math.floor((screenSize-45)/490)))*490))/2+"px";
+	document.getElementById("pointsInfo").style.marginLeft = 20+((screenSize-45)-(((Math.floor((screenSize-45)/490)))*490))/2+"px";
 	document.getElementById("progress").style.left = 25+((screenSize-45)-(((Math.floor((screenSize-45)/490)))*490))/2+"px";
 	document.getElementById("searchBar").style.width = (((Math.floor((screenSize-45)/490)))*490)-95+"px";
 	var progressDisplayed = !isNaN(progress/displayed) && isFinite(progress/displayed) ? progress/displayed : 0;
@@ -346,7 +350,7 @@ function arrange(){
 		document.getElementById("br3").style.display = "";
 		document.getElementById("br").style.display = "";
 		for(var i = 0; i < columns; i++){
-			document.getElementsByClassName("flashcardlist")[i].style.top = "365px";
+			document.getElementsByClassName("flashcardlist")[i].style.top = "415px";
 		}
 	/*if(columns == 1){
 		document.getElementById("space0").style.width = (document.getElementById("filters").offsetWidth/3)-270+"px";
@@ -384,10 +388,10 @@ function arrange(){
 		document.getElementById("br3").style.display = "none";
 		document.getElementById("br").style.display = "none";
 		for(var i = 0; i < columns; i++){
-			document.getElementsByClassName("flashcardlist")[i].style.top = "315px";
+			document.getElementsByClassName("flashcardlist")[i].style.top = "365px";
 		}
 	}
-	document.getElementById("progress").style.top = document.getElementById("filters").offsetHeight + 45 + "px";
+	document.getElementById("progress").style.top = document.getElementById("filters").offsetHeight + 95 + "px";
 }
 
 function generateList (i, x, archerIf, mageIf, knightIf) {
