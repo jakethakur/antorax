@@ -34,6 +34,8 @@ let selected = {
 };
 if(localStorage.getItem("selected") !== null){
 	selected = JSON.parse(localStorage.getItem("selected"));
+}
+if(localStorage.getItem("name") !== null){
 	document.getElementById("name").value = localStorage.getItem("name");
 }
 let previousWidth = window.innerWidth;

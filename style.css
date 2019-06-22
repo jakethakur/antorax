@@ -261,6 +261,13 @@ thead:after { /* space after bags in bank */
 	cursor: pointer;
 }
 
+#players {
+	width: 522px;
+	height: 25px;
+	margin-left: -10px;
+	border-bottom: 1px solid black;
+}
+
 /*					*/
 /*		INVENTORY	*/
 /*					*/

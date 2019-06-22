@@ -235,7 +235,7 @@ Dom.alert.page = function (text, type, values, page) { // can't pass in target a
 }
 
 // Make the save, logout, delete buttons at the bottom of the settings page
-Dom.elements.settingLogout.innerHTML = "You are logged in as "+Player.name+(localStorage.getItem("accept") ? "<div id='settingSave' onclick='Game.saveProgress()'>Save</div>" : "")+"<div id='settingLogoutInner' onclick='Game.saveProgress(\"logout\")'>Logout</div>"+(localStorage.getItem("accept") ? "<div id='settingDelete' onclick='Dom.settings.delete()'>Delete</div>" : "")+"<br><br><br><div id='settingControls' onclick='Dom.settings.page(\"settingsTwoPage\")'>Controls</div>";
+Dom.elements.settingLogout.innerHTML = "You are logged in as "+Player.name+"<div id='settingSave' onclick='Game.saveProgress()'>Save</div><div id='settingLogoutInner' onclick='Game.saveProgress(\"logout\")'>Logout</div><div id='settingDelete' onclick='Dom.settings.delete()'>Delete</div><br><br><br><div id='settingControls' onclick='Dom.settings.page(\"settingsTwoPage\")'>Controls</div>";
 
 Dom.settings.delete = function () {
 	Dom.alert.target = function () {
@@ -609,7 +609,22 @@ Dom.chat.insertSequence = function (text, values, end, endParameters) {
 
 Dom.chat.input = function (id) {
 	if (Dom.elements[id].value !== "") {
-		Dom.chat.insert(Dom.chat.say(Player.name, Dom.elements[id].value));
+		if (ws === undefined || ws.readyState !== 1) {
+			// server off
+			Dom.chat.insert(Dom.chat.say(Player.name, Dom.elements[id].value));
+		}
+		else {
+			// server on
+			// send message which is thus broadcasted to all others (no KAO)
+			let message = {
+		        type: "chat",
+		        content: "<strong>" + username + "</strong>: " + chatInputEl.value,
+		    }
+		    let jsonMessage = JSON.stringify(message);
+		    ws.send(jsonMessage);
+		    chatInputEl.value = "";
+		}
+		
 		Dom.elements[id].value = "";
 	}
 	Dom.elements[id].select();
@@ -1070,7 +1085,7 @@ Dom.inventory.displayInformation = function (item, stacked, element, position, h
 							}
 							if (Items.set[item.set].multiplier !== undefined) {
 								for (let i = 0; i < Items.set[item.set].multiplier.length; i++) {
-									Dom.elements.set.innerHTML += "<br>"+ Items.set[item.set].multiplier[i].text;
+									Dom.elements.set.innerHTML += Items.set[item.set].multiplier[i].text + "<br>";
 								}
 							}
 						}
@@ -1106,7 +1121,7 @@ Dom.inventory.displayInformation = function (item, stacked, element, position, h
 							}
 							if (Items.set[item.set].multiplier !== undefined) {
 								for (let i = 0; i < Items.set[item.set].multiplier.length; i++) {
-									Dom.elements.set.innerHTML += "<br>"+ Items.set[item.set].multiplier[i].text;
+									Dom.elements.set.innerHTML += Items.set[item.set].multiplier[i].text + "<br>";
 								}
 							}
 						}
@@ -2849,6 +2864,20 @@ Dom.inventory.drop = function (toElement, toArray, toId, fromElement, fromArray,
 	Dom.inventory.toId = toId;
 
 	if (Dom.inventory.validateSwap()) {
+		// update stats - must be done before items are switched (ocean warrior set)
+		if (Dom.inventory.fromArray === Player.inventory) {
+			Dom.inventory.removeEquipment(Dom.inventory.fromArray[Dom.inventory.fromId]);
+			if (Dom.inventory.toArray[Dom.inventory.toId].image !== undefined) {
+				Dom.inventory.addEquipment(Dom.inventory.toArray[Dom.inventory.toId]);
+			}
+		}
+		else if (Dom.inventory.toArray === Player.inventory) {
+			if (Dom.inventory.toArray[Dom.inventory.toId].image !== undefined) {
+				Dom.inventory.removeEquipment(Dom.inventory.toArray[Dom.inventory.toId]);
+			}
+			Dom.inventory.addEquipment(Dom.inventory.fromArray[Dom.inventory.fromId]);
+		}
+		
 		// swap the code for the items
 		let temp = this.toArray[this.toId];
 		this.toArray[this.toId] = this.fromArray[this.fromId];
@@ -2869,20 +2898,6 @@ Dom.inventory.drop = function (toElement, toArray, toId, fromElement, fromArray,
 			this.toElement.innerHTML += "<div class='stackNum' id='stackNum"+this.toId+"'>"+this.toArray[this.toId].stacked+"</div>";
 		}
 		this.setItemFunctions(this.toElement.getElementsByTagName("img")[0], this.toArray, this.toId);
-
-		// update stats
-		if (Dom.inventory.fromArray === Player.inventory) {
-			Dom.inventory.removeEquipment(Dom.inventory.toArray[Dom.inventory.toId]);
-			if (Dom.inventory.fromArray[Dom.inventory.fromId].image !== undefined) {
-				Dom.inventory.addEquipment(Dom.inventory.fromArray[Dom.inventory.fromId]);
-			}
-		}
-		else if (Dom.inventory.toArray === Player.inventory) {
-			if (Dom.inventory.fromArray[Dom.inventory.fromId].image !== undefined) {
-				Dom.inventory.removeEquipment(Dom.inventory.fromArray[Dom.inventory.fromId]);
-			}
-			Dom.inventory.addEquipment(Dom.inventory.toArray[Dom.inventory.toId]);
-		}
 
 		// inventory bag cases
 		if ((Dom.inventory.toArray === Player.inventory.items && Dom.inventory.toId === 5) || (Dom.inventory.fromArray === Player.inventory.items && Dom.inventory.fromId === 5)) {
@@ -3173,10 +3188,11 @@ Dom.elements.hotbar.onmouseleave = function () {
 
 Dom.settings.acceptOn = function () {
 	// accept localStorage for progress saving
-	localStorage.setItem("accept","true");
+	localStorage.setItem("accept", "true");
+	localStorage.setItem("name", Player.name);
 	// hide option for progress saving in settings and add save button
 	Dom.elements.settingAcceptHolder.innerHTML = "";
-	Dom.elements.settingLogout.innerHTML = "<div id='settingControls' onclick='Dom.settings.page(\"settingsTwoPage\")'>Controls</div><br><br>You are logged in as "+Player.name+"<div id='settingSave' onclick='Game.saveProgress()'>Save</div><div id='settingLogoutInner' onclick='Game.saveProgress(\"logout\")'>Logout</div><div id='settingDelete'>Delete</div>";
+	//Dom.elements.settingLogout.innerHTML = "<div id='settingControls' onclick='Dom.settings.page(\"settingsTwoPage\")'>Controls</div><br><br>You are logged in as "+Player.name+"<div id='settingSave' onclick='Game.saveProgress()'>Save</div><div id='settingLogoutInner' onclick='Game.saveProgress(\"logout\")'>Logout</div><div id='settingDelete'>Delete</div>";
 }
 
 if (User.settings.music === true) {
@@ -3577,22 +3593,30 @@ Dom.settings.hotkeys = function (ev) {
 			Dom.settings.hotkey = undefined;
 			//User.settings.keyboard = User.settings.keyboard;
 
+		}
 		// if it is unavailable set it back to what it was
-		}else{
+		else{
 			document.getElementsByClassName("hotkey")[Dom.settings.hotkey].innerHTML = Dom.settings.keyName(User.settings.keyboard[Object.keys(User.settings.keyboard)[Dom.settings.hotkey]]);
 			Dom.settings.hotkey = undefined;
 		}
-	}else if (keyName === User.settings.keyboard.CHAT) {
+	}
+	// normal hotkey - not being changed
+	else if (keyName === User.settings.keyboard.CHAT && Player.unlockedTabs.includes("chat")) {
 		Dom.changeBook("chatPage", true);
-	}else if (keyName === User.settings.keyboard.INVENTORY) {
+	}
+	else if (keyName === User.settings.keyboard.INVENTORY && Player.unlockedTabs.includes("inventory")) {
 		Dom.changeBook("inventoryPage", true);
-	}else if (keyName === User.settings.keyboard.QUESTS) {
+	}
+	else if (keyName === User.settings.keyboard.QUESTS && Player.unlockedTabs.includes("quests")) {
 		Dom.changeBook("questsPage", true);
-	}else if (keyName === User.settings.keyboard.ADVENTURE) {
+	}
+	else if (keyName === User.settings.keyboard.ADVENTURE) {
 		Dom.changeBook("adventurePage", true);
-	}else if (keyName === User.settings.keyboard.REPUTATION) {
+	}
+	else if (keyName === User.settings.keyboard.REPUTATION && Player.unlockedTabs.includes("reputation")) {
 		Dom.changeBook("reputationPage", true);
-	}else if (keyName === User.settings.keyboard.SETTINGS) {
+	}
+	else if (keyName === User.settings.keyboard.SETTINGS) {
 		Dom.changeBook("settingsPage", true);
 	}
 }
