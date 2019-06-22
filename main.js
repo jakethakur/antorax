@@ -70,12 +70,14 @@ Game.loadPlayer = function () {
 // WebSocket
 //
 
+var ws = false; // false means it has not been set (on local version)
+
 Game.initWebSocket = function () {
 	// https://devcenter.heroku.com/articles/node-websockets
 	if (location.origin.includes("http")) {
 		// not on a local version
 		let hostURI = location.origin.replace(/^http/, "ws"); // websocket URI
-		var ws = new WebSocket(hostURI);
+		ws = new WebSocket(hostURI);
 
 		// WebSocket functions
 

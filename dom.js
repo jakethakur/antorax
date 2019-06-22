@@ -391,7 +391,7 @@ Dom.closePage = function (page, notClose) {
 		if (page === "settingsTwoPage") {
 			tab = "settingsPage";
 		}
-		document.getElementById("change"+tab.substring(0,1).toUpperCase()+tab.substring(1,tab.length-4)).style.opacity = 0.7;	
+		document.getElementById("change"+tab.substring(0,1).toUpperCase()+tab.substring(1,tab.length-4)).style.opacity = 0.7;
 		document.getElementById("change"+tab.substring(0,1).toUpperCase()+tab.substring(1,tab.length-4)).style.bottom = "-12px";
 	}
 	else if (!notClose) {
@@ -416,13 +416,13 @@ Dom.changeBook = function (page, openClose) {
 		page = Dom.settings.current;
 	}
 	if (document.getElementById(page).hidden && !settingsOpen) {
-		
+
 		if (page === "chatPage" || page === "inventoryPage" || page === "questsPage" || page === "adventurePage" || page === "reputationPage" || page === "settingsPage" || page === "settingsTwoPage") {
 			bookmark = true;
 			document.getElementById("change"+tab.substring(0,1).toUpperCase()+tab.substring(1,tab.length-4)).style.opacity = 1;
 			document.getElementById("change"+tab.substring(0,1).toUpperCase()+tab.substring(1,tab.length-4)).style.bottom = "0px";
 		}
-		
+
 		document.getElementById(page).hidden = false;
 		for (let x = 0; x < document.getElementsByClassName("DOM").length; x++) {
 			if (parseInt(document.getElementsByClassName("DOM")[x].style.zIndex) >= parseInt(document.getElementById(page).style.zIndex)) {
@@ -557,11 +557,11 @@ Dom.chat.say = function (name, message, language) {
 				message = message[0];
 			}
 		}
-		
+
 		if (language === "giblish") {
 			message = Dom.chat.toGiblish(message);
 		}
-		
+
 		if (typeof name === "undefined") {
 			// no name for NPC, post without a name
 		}
@@ -573,7 +573,7 @@ Dom.chat.say = function (name, message, language) {
 			// normal message (includes NPC name)
 			message = "<strong>" + name + "</strong>: " + message;
 		}
-		
+
 		return message;
 	}
 	else {
@@ -587,19 +587,19 @@ Dom.chat.insertSequence = function (text, values, end, endParameters) {
 		values.length = text.length+1;
 	}
 	values.push(0);
-	
+
 	let time = values[0] || 0;
 	for (let i = 0; i < text.length; i++) {
-		
+
 		if (values[i+1] === undefined) {
 			values[i+1] = text[i].split(" ").length/200*60000;
 		}
-		
+
 		Dom.chat.insert(text[i], time, values[i+1]);
-		
+
 		time += values[i+1];
 	}
-	
+
 	if (end !== undefined) {
 		setTimeout (function () {
 			end(endParameters);
@@ -609,7 +609,7 @@ Dom.chat.insertSequence = function (text, values, end, endParameters) {
 
 Dom.chat.input = function (id) {
 	if (Dom.elements[id].value !== "") {
-		if (ws === undefined || ws.readyState !== 1) {
+		if (ws === false || ws.readyState !== 1) {
 			// server off
 			Dom.chat.insert(Dom.chat.say(Player.name, Dom.elements[id].value));
 		}
@@ -618,13 +618,12 @@ Dom.chat.input = function (id) {
 			// send message which is thus broadcasted to all others (no KAO)
 			let message = {
 		        type: "chat",
-		        content: "<strong>" + username + "</strong>: " + chatInputEl.value,
+		        content: "<strong>" + Player.name + "</strong>: " + Dom.elements[id].value,
 		    }
 		    let jsonMessage = JSON.stringify(message);
 		    ws.send(jsonMessage);
-		    chatInputEl.value = "";
 		}
-		
+
 		Dom.elements[id].value = "";
 	}
 	Dom.elements[id].select();
@@ -1220,7 +1219,7 @@ Dom.quest.start = function (quest) {
 		for (let i = 0; i < quest.objectives.length; i++) {
 			Dom.elements.questStartObjectives.innerHTML += "<br>" + quest.objectives[i];
 		}
-		
+
 		// xp rewards
 		Dom.elements.questStartItems.innerHTML = "";
 		Dom.elements.questStartXP.hidden = true;
@@ -1261,19 +1260,19 @@ Dom.quest.start = function (quest) {
 		else{
 			Dom.elements.questStartRewardsTitle.innerHTML = "";
 		}
-		
+
 		// start rewards
 		Dom.elements.questStartStartItems.innerHTML = "";
 		if (quest.startRewards !== undefined) {
 			Dom.elements.questStartStartRewardsTitle.innerHTML = "<br><br><b>Quest Start Rewards</b><br>";
-			
+
 			// service rewards
 			if (quest.startRewards.services !== undefined) {
 				for (let i = 0; i < quest.startRewards.services.length; i++) {
 					Dom.elements.questStartStartItems.innerHTML += "<img src='./assets/icons/" + quest.startRewards.services[i].image + ".png' class='theseQuestStartServices'></img>&nbsp;&nbsp;";
 				}
 			}
-			
+
 			// item rewards
 			if (quest.startRewards.items !== undefined) {
 				for (let i = 0; i < quest.startRewards.items.length; i++) {
@@ -1284,7 +1283,7 @@ Dom.quest.start = function (quest) {
 		else{
 			Dom.elements.questStartStartRewardsTitle.innerHTML = "";
 		}
-		
+
 		// repeats for all item rewards
 		let startArray = document.getElementsByClassName("theseQuestStartServices");
 		if (startArray.length === 0) {
@@ -1312,7 +1311,7 @@ Dom.quest.start = function (quest) {
 						Dom.expand("information");
 					};
 				}
-				
+
 				for (let x = 0; x < document.getElementsByClassName("questStartStackNum").length; x++) {
 					document.getElementsByClassName("questStartStackNum")[x].onmouseover = function () {
 						Dom.inventory.displayInformation(quest.startRewards.items[x].item, quest.startRewards.items[x].quantity, "questStart");
@@ -1351,7 +1350,7 @@ Dom.quest.start = function (quest) {
 						Dom.expand("information");
 					};
 				}
-				
+
 				for (let x = 0; x < document.getElementsByClassName("questStackNum").length; x++) {
 					document.getElementsByClassName("questStackNum")[x].onmouseover = function () {
 						Dom.inventory.displayInformation(quest.rewards.items[x].item, quest.rewards.items[x].quantity, "questStart");
@@ -1364,7 +1363,7 @@ Dom.quest.start = function (quest) {
 				}
 			}
 		}
-		
+
 		Dom.currentlyDisplayed = quest;
 	}
 }
@@ -1392,7 +1391,7 @@ Dom.quest.finish = function (quest) {
 		Dom.elements.questFinishQuest.innerHTML = quest.quest;
 		Dom.elements.questFinishName.innerHTML = quest.finishName;
 		Dom.elements.questFinishChat.innerHTML = quest.finishChat;
-		
+
 		// xp rewards
 		Dom.elements.questFinishItems.innerHTML = "";
 		Dom.elements.questFinishXP.hidden = true;
@@ -1429,7 +1428,7 @@ Dom.quest.finish = function (quest) {
 				for (let i = 0; i < quest.rewards.items.length; i++) {
 					Dom.quest.addReward(quest.rewards.items[i], "questFinishItems", "theseQuestFinishOptions", "questFinishStackNum");
 				}
-				
+
 				// display warning if there is not enough space to hold all possible rewards
 				if (Dom.inventory.requiredSpace(quest.rewards.items, true)) {
 					Dom.elements.chanceImage.hidden = true;
@@ -1439,13 +1438,13 @@ Dom.quest.finish = function (quest) {
 					Dom.elements.chanceImage.hidden = false;
 					Dom.elements.chance.hidden = false;
 				}
-				
+
 			}
 		}else{
 			Dom.elements.questFinishRewardsTitle.innerHTML = "";
 			Dom.elements.questFinishStartItems.innerHTML = "";
 		}
-		
+
 		let array = document.getElementsByClassName("theseQuestFinishServices");
 		if (array.length === 0) {
 			array = document.getElementsByClassName("theseQuestFinishOptions");
@@ -1482,7 +1481,7 @@ Dom.quest.finish = function (quest) {
 				document.getElementsByClassName("questFinishStackNum")[x].style.top = document.getElementsByClassName("theseQuestFinishOptions")[x].offsetTop + 33 + "px";
 			}
 		}
-		
+
 		Dom.currentlyDisplayed = quest;
 	}
 }
@@ -2324,7 +2323,7 @@ Dom.inventory.dispose = function (ev) {
 		ev.preventDefault(); // allows the item to drop
 		if (ev.target.id !== "" && (remove || ((Dom.inventory.fromId !== 5 || Dom.inventory.fromArray !== Player.inventory.items) && (Dom.inventory.fromId > 5 || Dom.inventory.fromArray !== Player.bank.items))) && !quest) {
 			Dom.alert.target = function (ev, all) {
-				
+
 				// item inventory or bank
 				if (Dom.inventory.fromArray !== Player.inventory) {
 
@@ -2347,7 +2346,7 @@ Dom.inventory.dispose = function (ev) {
 						Player.inventory.items.splice(6);
 						Dom.inventory.update();
 					}
-					
+
 					// if you dispose of a BANK bag then reset the bank
 					if (Dom.inventory.fromId <= 5 && Dom.inventory.fromArray === Player.bank.items) {
 						Player.bank.items.splice(Player.bank.items.length - Player.bank.items[Dom.inventory.fromId].size);
@@ -2427,7 +2426,7 @@ Dom.inventory.remove = function (num, all, array) { // array is optional
 	if (array === undefined) {
 		array = Player.inventory.items;
 	}
-	
+
 	let element = "itemInventory";
 	if (array === Player.bank.items) {
 		element = "bankPageInventory";
@@ -2580,7 +2579,7 @@ Dom.bank.bagCases = function () {
 	if (Dom.inventory.toArray === Player.bank.items && Dom.inventory.toId < 6) {
 		Dom.elements.bankPageInventory.getElementsByTagName("td")[Dom.inventory.toId].style.backgroundImage = "none";
 	}
-	
+
 	// going from the bag slot from a bag
 	if (Dom.inventory.fromArray === Player.bank.items && Dom.inventory.fromId < 6 && Dom.inventory.toArray[Dom.inventory.toId].type === "bag") {
 		Dom.inventory.bagSwaps(Dom.inventory.fromArray[Dom.inventory.fromId], Dom.inventory.toArray[Dom.inventory.toId], Player.bank.items);
@@ -2614,7 +2613,7 @@ Dom.inventory.bagCases = function () {
 	if (Dom.inventory.toArray === Player.inventory.items && Dom.inventory.toId === 5) {
 		Dom.elements.itemInventory.getElementsByTagName("td")[5].style.backgroundImage = "none";
 	}
-	
+
 	let changed = true;
 	// going from the bag slot from a bag
 	if (this.fromArray === Player.inventory.items && this.fromId === 5 && this.toArray[this.toId].type === "bag") {
@@ -2877,7 +2876,7 @@ Dom.inventory.drop = function (toElement, toArray, toId, fromElement, fromArray,
 			}
 			Dom.inventory.addEquipment(Dom.inventory.fromArray[Dom.inventory.fromId]);
 		}
-		
+
 		// swap the code for the items
 		let temp = this.toArray[this.toId];
 		this.toArray[this.toId] = this.fromArray[this.fromId];
@@ -2943,7 +2942,7 @@ Dom.inventory.removeEquipment = function (array) {
 		type = array.type;
 	}
 	document.getElementById(element).style.backgroundImage = "url('assets/items/"+type+"/1.png')";
-	
+
 	Dom.inventory.beforeChangedStats();
 	if (array.stats !== undefined) {
 		for (let i = 0; i < Object.keys(array.stats).length; i++) {
@@ -3031,7 +3030,7 @@ Dom.inventory.addEquipment = function (array) {
 		element = array.type;
 	}
 	document.getElementById(element).style.backgroundImage = "none";
-	
+
 	Dom.inventory.beforeChangedStats();
 	if (array.stats !== undefined) {
 		for (let i = 0; i < Object.keys(array.stats).length; i++) {
@@ -4368,7 +4367,7 @@ Dom.updateScreenSize = function (init) {
 }
 
 Dom.init = function () {
-	
+
 	Dom.updateScreenSize(true);
 
 	Dom.elements.itemInventory.innerHTML = "";
@@ -4474,7 +4473,7 @@ Dom.init = function () {
 	let date = GetFullDate();
 	// the first time the player logs on each day
 	if (!Player.days.includes(date)) {
-		
+
 		// Load a new class: gold, mail, instructions
 		if (localStorage.getItem(Player.class) === null) {
 	        Dom.inventory.give(Items.currency[2],3);
@@ -4526,7 +4525,7 @@ Dom.init = function () {
 				);
 			}
 		}
-		
+
 		// Antorax Day mail
 		if (Event.event === "Antorax") {
 			Dom.mail.give(
@@ -4550,7 +4549,7 @@ Dom.init = function () {
 				);
 			}
 		}
-		
+
 		// Fish mail
         else if (Event.event === "Fish") {
             Dom.mail.give(
@@ -4563,7 +4562,7 @@ Dom.init = function () {
                 [{item: Items.sword[10]}]], [{item: Items.sword[10]}],
             );
         }
-		
+
 		// Heroes of Antorax mail
 		else if (Event.event === "Heroes") {
 			Dom.mail.give(
@@ -4578,7 +4577,7 @@ Dom.init = function () {
 			    [{item: Items.sword[11]}]], [{item: Items.sword[11]}], true // noRepeat
 			);
 		}
-		
+
 		// James Day mail
 		else if (Event.event === "James") {
 			Dom.mail.give(
@@ -4591,7 +4590,7 @@ Dom.init = function () {
 			    [{item: Items.boots[7]}]], [{item: Items.boots[7]}],
 			);
 		}
-		
+
 		Player.days.push(date);
 		Player.quests.randomDailyQuests = {};
 		Player.chests.positions = {}; // chests change position each day
