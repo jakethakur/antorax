@@ -1,0 +1,25 @@
+{
+  "name": "antorax",
+  "version": "1.0.0",
+  "description": "Realms of Antorax RPG game",
+  "engines": {
+    "node": "10.3.0"
+  },
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1",
+    "start": "node server.js"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/jakethakur/antorax.git"
+  },
+  "author": "",
+  "bugs": {
+    "url": "https://github.com/jakethakur/antorax/issues"
+  },
+  "homepage": "https://github.com/jakethakur/antorax#readme",
+  "dependencies": {
+    "express": "4.17.1",
+    "ws": "^7.0.1"
+  }
+}

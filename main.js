@@ -39,11 +39,14 @@ Game.run = function (context, contextSecondary, contextDayNight, contextLight) {
 
 	this.loadPlayer(); // load the player from local storage
 
+	this.initWebSocket(); // init the web socket if the user is on the Heroku version
+
 	// projectile name for hero (for use with projectile image loading)
 	this.heroProjectileName = Skins[Player.class][Player.skin].projectile;
 	this.heroProjectileAdjust = Skins[Player.class][Player.skin].projectileAdjust;
 	this.heroBobberName = "bobber";
 
+	// load area and images
     this.loadArea(Player.areaName, {x: Player.x, y: Player.y});
 };
 
@@ -63,37 +66,49 @@ Game.loadPlayer = function () {
     }
 }
 
-// calculate current tick length and update/render canvas accordingly
-Game.tick = function (elapsed) {
-    window.requestAnimationFrame(this.tick);
+//
+// WebSocket
+//
 
-    // clear previous frame
-    this.ctx.clearRect(0, 0, Dom.canvas.width, Dom.canvas.height);
-    this.ctxLight.clearRect(0, 0, Dom.canvas.width, Dom.canvas.height);
+Game.initWebSocket = function () {
+	// https://devcenter.heroku.com/articles/node-websockets
+	if (location.origin.includes("http")) {
+		// not on a local version
+		let hostURI = location.origin.replace(/^http/, "ws"); // websocket URI
+		var ws = new WebSocket(hostURI);
 
-    // compute delta time in seconds -- also cap it
-    let delta = (elapsed - this.previousElapsed) / 1000.0;
-    delta = Math.min(delta, 0.25); // maximum delta of 250 ms
-    this.previousElapsed = elapsed;
+		// WebSocket functions
 
+		// connection established
+		ws.onopen = function () {
+			// send username so the user is saved under a particular name in the websocket
+			ws.send(JSON.stringify({
+				type: "username",
+				content: Player.name
+			}));
+		}
 
-	this.update(delta); // update game state
+		// message received
+		ws.onmessage = function (event) {
+			let message = JSON.parse(event.data);
+			switch (message.type) {
+				case "chat":
+					Dom.chat.insert(message.content);
+					break;
 
-	// check for screen size change
-	if (Dom.canvas.width !== window.innerWidth - 2 || Dom.canvas.height !== window.innerHeight - Dom.canvas.heightOffset) {
-		// update the screen display to fit the new size
-		Dom.updateScreenSize();
+				case "info":
+					Dom.chat.insert(message.content);
+					break;
+
+				default:
+					console.error("Message type " + message.type + " is not recognised");
+			}
+		};
 	}
-
-	this.render(delta); // render game display
-
-
-	// reset text formatting
-	this.resetFormatting();
-
-	// display delta time (debug)
-	//this.ctx.fillText("delta: " + Math.round(delta * 1000) / 1000, 10, 30);
-}.bind(Game);
+	else {
+		console.info("Playing on a local version. Multiplayer features are not available.")
+	}
+}
 
 //
 // Start up function
@@ -655,7 +670,7 @@ class Character extends Thing {
 		}
 
 		arrayType = arrayType || this.chatArrayType; // set arrayType to the NPC's default arrayType if it is undefined as parameter
-		
+
 		if (arrayType !== "all") {
 			Dom.chat.insert(Dom.chat.say(name, message, language), delay, undefined, singleUse);
 		}
@@ -3689,7 +3704,7 @@ Game.addTrailParticle = function (character, trailParticle) {
 }
 
 //
-// Load game
+// Init game / load new area
 //
 
 // load an object of any images
@@ -4440,6 +4455,42 @@ Game.setInformationFromTemplate = function (properties) {
 
 	return properties;
 }
+
+//
+// Game tick
+//
+
+// calculate current tick length and update/render canvas accordingly
+Game.tick = function (elapsed) {
+    window.requestAnimationFrame(this.tick);
+
+    // clear previous frame
+    this.ctx.clearRect(0, 0, Dom.canvas.width, Dom.canvas.height);
+    this.ctxLight.clearRect(0, 0, Dom.canvas.width, Dom.canvas.height);
+
+    // compute delta time in seconds -- also cap it
+    let delta = (elapsed - this.previousElapsed) / 1000.0;
+    delta = Math.min(delta, 0.25); // maximum delta of 250 ms
+    this.previousElapsed = elapsed;
+
+
+	this.update(delta); // update game state
+
+	// check for screen size change
+	if (Dom.canvas.width !== window.innerWidth - 2 || Dom.canvas.height !== window.innerHeight - Dom.canvas.heightOffset) {
+		// update the screen display to fit the new size
+		Dom.updateScreenSize();
+	}
+
+	this.render(delta); // render game display
+
+
+	// reset text formatting
+	this.resetFormatting();
+
+	// display delta time (debug)
+	//this.ctx.fillText("delta: " + Math.round(delta * 1000) / 1000, 10, 30);
+}.bind(Game);
 
 //
 // Chests and loot
