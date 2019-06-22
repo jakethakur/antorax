@@ -103,7 +103,10 @@ Game.initWebSocket = function () {
 					break;
 
 				case "keepAlive":
-					// just used to stop the connection dying after 55s (Heroku)
+					// used to stop the connection dying after 55s (Heroku)
+					ws.send(JSON.stringify({
+						type: "keepAlive",
+					}));
 					break;
 
 				default:

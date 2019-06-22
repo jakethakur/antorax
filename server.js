@@ -57,6 +57,12 @@ wss.on("connection", (ws) => { // note that ws = client in wss.clients
 				}), [ws.userID]);
 				break;
 
+			case "keepAlive":
+				// used to stop the connection dying after 55s (Heroku)
+				// response to server-sent "keepAlive"
+				// do nothing
+				break;
+
 			default:
 				// broadcast to all others
 				wss.broadcast(data);
