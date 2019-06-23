@@ -476,6 +476,12 @@ Dom.changeBook = function (page, openClose) {
 		if (page === "reputationPage") {
 			Dom.reputation.update();
 		}
+		if (page === "chatPage") {
+			if (Dom.elements.chatText.offsetHeight === 518) {
+				Dom.elements.chatText.style.overflowY = "auto";
+				Dom.elements.chatText.scrollTop = Dom.elements.chatText.scrollHeight;
+			}
+		}
 		return true;
 	}
 	else if (openClose) {
@@ -653,12 +659,12 @@ Dom.chat.announce = function (message, exceptSender) {
         if (exceptSender) {
             except = ws.userID;
         }
-        let message = {
+        let messageToSend = {
             type: "info",
             content: message,
             except: except
         }
-        let jsonMessage = JSON.stringify(message);
+        let jsonMessage = JSON.stringify(messageToSend);
         ws.send(jsonMessage);
     }
 }
@@ -722,6 +728,7 @@ Dom.chat.insert = function (text, delay, time, noRepeat) {
 				Dom.elements.chatText.innerHTML += "<br>" + text + "<br>";
 				if (Dom.elements.chatText.offsetHeight === 518) {
 					Dom.elements.chatText.style.overflowY = "auto";
+					Dom.elements.chatText.scrollTop = Dom.elements.chatText.scrollHeight;
 				}
 			}
 			return true;
@@ -837,13 +844,13 @@ Dom.reputation.upLevel = function (Area, i) {
 		Area.score -= ReputationPoints[Player.reputation[Object.keys(Player.reputation)[i]].level];
 		Area.level++;
 		Dom.chat.insert("Your reputation level with " + FromCamelCase(Object.keys(Player.reputation)[i]) + " has increased to " + Dom.reputation.levels[Area.level]);
-		Game.displayOnCanvas("Reputation Level Up!", [FromCamelCase(Object.keys(Player.reputation)[i]), Dom.reputation.levels[Player.reputation[Object.keys(Player.reputation)[i]].level] + " \u{2794} " + Dom.reputation.levels[Player.reputation[Object.keys(Player.reputation)[i]].level+1]], 4, true); // display on canvas for 4s or enters a queue (true)
+		Game.displayOnCanvas("Reputation Level Up!", [FromCamelCase(Object.keys(Player.reputation)[i]), Dom.reputation.levels[Player.reputation[Object.keys(Player.reputation)[i]].level-1] + " \u{2794} " + Dom.reputation.levels[Player.reputation[Object.keys(Player.reputation)[i]].level]], 4, true); // display on canvas for 4s or enters a queue (true)
 		if (Area.level === 6) {
 			Dom.chat.announce("<strong>" + Player.name + "</strong> has reached venerated reputation with " + FromCamelCase(Object.keys(Player.reputation)[i]) + "!", true);
 		}
 		this.update();
 	}
-	else{
+	else {
 		Area.level = 6;
 		Area.score = 0;
 		this.update();
