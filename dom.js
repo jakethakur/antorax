@@ -286,6 +286,7 @@ Dom.achievements.update = function () {
 			User.achievements[ToCamelCase(Achievements[i].name)] = GetFullDateDisplay();
 			User.achievementPoints.total += Achievements[i].points;
 			User.achievementPoints.unclaimed += Achievements[i].points;
+			Dom.chat.announce("<strong>" + Player.name + "</strong> has earnt the achievement " + Achievements[i].name + "!", true);
 			Dom.achievements.page(i);
 		}
 	}
@@ -518,17 +519,26 @@ Dom.instructions.page = function (chapter, calledFrom) {
 	if (calledFrom !== undefined || !Player.skipTutorial) {
 		if (chapter > 0 || !User.notFirst || calledFrom !== undefined) {
 			// normal unlocking
-			Dom.chat.insertSequence(Instructions[chapter].pages, undefined, function () {
-				if (Player.unlockedInstructions.length === chapter) {
-					Player.unlockedInstructions.push(Instructions[chapter].chapterTitle);
-					Dom.quests.possible();
-				}
-			}, chapter);
+			if (!Dom.instructions.displaying) {
+				Dom.instructions.displaying = true;
+				
+				Dom.chat.insertSequence(Instructions[chapter].pages, undefined, function () {
+					if (Player.unlockedInstructions.length === chapter) {
+						Player.unlockedInstructions.push(Instructions[chapter].chapterTitle);
+						Dom.quests.possible();
+						Dom.instructions.displaying = false;
+					}
+				}, chapter);
+			}
 		}
 		// first instructions for second+ time
 		else {
 			Instructions[0].alternativePages();
 		}
+	}
+	else if (Player.unlockedInstructions.length === chapter) {
+		Player.unlockedInstructions.push(Instructions[chapter].chapterTitle);
+		Dom.quests.possible();
 	}
 }
 
@@ -634,6 +644,25 @@ Dom.elements.canvasChatInput.onblur = function () {
 	Dom.elements.canvasChatInput.hidden = true;
 }
 
+// if the websocket is open, announce something to all users on the websocket
+// second parameter is optional and does not send the message to the sender (this user) if it is true
+Dom.chat.announce = function (message, exceptSender) {
+    // check if user is connected to the websocket
+    if (ws !== false && ws.readyState === 1) {
+        let except;
+        if (exceptSender) {
+            except = ws.userID;
+        }
+        let message = {
+            type: "info",
+            content: message,
+            except: except
+        }
+        let jsonMessage = JSON.stringify(message);
+        ws.send(jsonMessage);
+    }
+}
+
 Dom.chat.contents = []; // stores all the chat messages
 Dom.chat.displayChat = [];
 Dom.chat.displayOpacity = [];
@@ -656,6 +685,7 @@ Dom.chat.insert = function (text, delay, time, noRepeat) {
 				Dom.chat.displayChat.push(text);
 				Dom.elements.chat.innerHTML += "<li class='chatBox' style='opacity:0.6;'>"+text+"</li>";
 				Dom.chat.displayOpacity.push(time/2+500);
+				Dom.elements.canvasChatInput.style.opacity = 0.6;
 				//Dom.elements.canvasChatInput.hidden = false;
 				if (!Dom.chat.chatInterval) {
 					Dom.chat.chatInterval = setInterval(function () {
@@ -668,6 +698,9 @@ Dom.chat.insert = function (text, delay, time, noRepeat) {
 							Dom.chat.displayOpacity[x]-=2;
 							if (Dom.chat.displayOpacity[x] < 600) {
 								Dom.elements.chat.getElementsByTagName("li")[x].style.opacity = Dom.chat.displayOpacity[x]/1000;
+								if (x === Dom.chat.displayChat.length-1) {
+									Dom.elements.canvasChatInput.style.opacity = Dom.chat.displayOpacity[x]/1000;
+								}
 							}
 							if (Dom.elements.chat.getElementsByTagName("li")[x].style.opacity <= 0) {
 								Dom.chat.displayChat.shift();
@@ -686,10 +719,10 @@ Dom.chat.insert = function (text, delay, time, noRepeat) {
 					},1);
 				}
 
-				Dom.elements.chatText.innerHTML += "<br><br>" + text;
-				/*for (let i = this.contents.length-1; i >= 0; i--) {
-					Dom.elements.chatText.innerHTML += this.contents[i]+"<br><br>";
-				}*/
+				Dom.elements.chatText.innerHTML += "<br>" + text + "<br>";
+				if (Dom.elements.chatText.offsetHeight === 518) {
+					Dom.elements.chatText.style.overflowY = "auto";
+				}
 			}
 			return true;
 		}else{
@@ -722,17 +755,12 @@ Dom.reputation.give = function (area, amount) {
 			else {
 				Dom.chat.insert("You have lost " + (0-amount) + " reputation with " + FromCamelCase(area));
 			}
-
-			if (Player.reputation[area].score >= ReputationPoints[Player.reputation[area].level] && Player.reputation[area].level !== 6) {
-				//Dom.reputation.update();
-				Game.displayOnCanvas("Reputation Level Up!", [FromCamelCase(area), Dom.reputation.levels[Player.reputation[area].level] + " \u{2794} " + Dom.reputation.levels[Player.reputation[area].level+1]], 4, true); // display on canvas for 4s or enters a queue (true)
-				//Dom.levelUp.page("reputation", area, Player.reputation[area].level);
-			}//else if (Player.reputation[area].score <= 0) {
-				Dom.reputation.update();
-			//}
+			
+			Dom.reputation.update();
 		}
 	// first time
-	}else{
+	}
+	else{
 		Player.reputation[area].score += amount;
 		Dom.chat.insert("You have gained " + amount + " reputation with " + FromCamelCase(area));
 		Player.reputation[area].changed = true;
@@ -804,24 +832,29 @@ Dom.reputation.update = function () {
 	}
 }
 
-Dom.reputation.upLevel = function (Area,i) {
+Dom.reputation.upLevel = function (Area, i) {
 	if (Area.level < 5) {
 		Area.score -= ReputationPoints[Player.reputation[Object.keys(Player.reputation)[i]].level];
 		Area.level++;
-		Dom.chat.insert("Your reputation with " + FromCamelCase(Object.keys(Player.reputation)[i]) + " has increased to " + Dom.reputation.levels[Area.level]);
+		Dom.chat.insert("Your reputation level with " + FromCamelCase(Object.keys(Player.reputation)[i]) + " has increased to " + Dom.reputation.levels[Area.level]);
+		Game.displayOnCanvas("Reputation Level Up!", [FromCamelCase(Object.keys(Player.reputation)[i]), Dom.reputation.levels[Player.reputation[Object.keys(Player.reputation)[i]].level] + " \u{2794} " + Dom.reputation.levels[Player.reputation[Object.keys(Player.reputation)[i]].level+1]], 4, true); // display on canvas for 4s or enters a queue (true)
+		if (Area.level === 6) {
+			Dom.chat.announce("<strong>" + Player.name + "</strong> has reached venerated reputation with " + FromCamelCase(Object.keys(Player.reputation)[i]) + "!", true);
+		}
 		this.update();
-	}else{
+	}
+	else{
 		Area.level = 6;
 		Area.score = 0;
 		this.update();
 	}
 }
 
-Dom.reputation.downLevel = function (Area,i) {
+Dom.reputation.downLevel = function (Area, i) {
 	if (Area.level > 1) {
 		Area.level--;
 		Area.score += ReputationPoints[Player.reputation[Object.keys(Player.reputation)[i]].level];
-		Dom.chat.insert("Your reputation with " + FromCamelCase(Object.keys(Player.reputation)[i]) + " has decreased to " + Dom.reputation.levels[Area.level]);
+		Dom.chat.insert("Your reputation level with " + FromCamelCase(Object.keys(Player.reputation)[i]) + " has decreased to " + Dom.reputation.levels[Area.level]);
 		this.update();
 	}else{
 		Area.level = 0;
@@ -1448,6 +1481,9 @@ Dom.quest.finish = function (quest) {
 		let array = document.getElementsByClassName("theseQuestFinishServices");
 		if (array.length === 0) {
 			array = document.getElementsByClassName("theseQuestFinishOptions");
+		}
+		if (array.length === 0) {
+			array = [document.getElementById("questFinishXP")];
 		}
 		else {
 			for (let x = 0; x < document.getElementsByClassName("theseQuestFinishServices").length; x++) {

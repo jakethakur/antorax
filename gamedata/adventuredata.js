@@ -96,8 +96,8 @@ var Instructions = [
 		],
 		alternativePages: function () {
 			Dom.chat.insertSequence([
-				`The Mighty Zararanath: Welcome to the mystical kingdom of Antorax, ${Player.name}!`,
-				`The Mighty Zararanath: Oh. I've spoken to you before.`,
+				`<b>The Mighty Zararanath</b>: Welcome to the mystical kingdom of Antorax, ${Player.name}!`,
+				`<b>The Mighty Zararanath</b>: Oh. I've spoken to you before.`,
 			], undefined, function () {
 				Dom.alert.target = function () {
 					Dom.chat.insert(`The Mighty Zararanath: Good luck on your travels.`, 500);

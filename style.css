@@ -205,7 +205,6 @@ thead:after { /* space after bags in bank */
 /*					*/
 
 #chatPage {
-	overflow-y: auto;
 	padding-top: 10px;
 	height: 590px;
 }
@@ -213,7 +212,6 @@ thead:after { /* space after bags in bank */
 #chat {
 	position: absolute;
 	bottom: 40px;
-	vertical-align: bottom;
 	z-index: 3;
 	list-style-type: none;
 	padding: 0px;
@@ -231,6 +229,9 @@ thead:after { /* space after bags in bank */
 #chatText {
 	position: absolute;
 	bottom: 30px;
+	max-height: 518px;
+	margin-top: -30px;
+	width: 510px;
 }
 
 #chatInput {
