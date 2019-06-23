@@ -86,6 +86,7 @@ wss.on("connection", (ws) => { // note that ws = client in wss.clients
 // data should be a JSON object with type and content...
 // exceptions should be an array of all of the userIDs not to send the message to
 wss.broadcast = function broadcast(data, exceptions) {
+	console.log(wss.clients);
 	for (let i = 0; i < wss.clients.length; i++) {
 		// check client's websocket is open
 		console.log("broadcasting: ", data);
@@ -103,6 +104,7 @@ wss.broadcast = function broadcast(data, exceptions) {
 
 // stop the clients dying after 10s
 setInterval(function () {
+	console.log("keepalive");
 	wss.broadcast(JSON.stringify({
 		type: "keepAlive",
 	}));
