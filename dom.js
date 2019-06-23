@@ -529,7 +529,7 @@ Dom.instructions.page = function (chapter, calledFrom) {
 			// normal unlocking
 			if (!Dom.instructions.displaying) {
 				Dom.instructions.displaying = true;
-				
+
 				Dom.chat.insertSequence(Instructions[chapter].pages, undefined, function () {
 					if (Player.unlockedInstructions.length === chapter) {
 						Player.unlockedInstructions.push(Instructions[chapter].chapterTitle);
@@ -764,7 +764,7 @@ Dom.reputation.give = function (area, amount) {
 			else {
 				Dom.chat.insert("You have lost " + (0-amount) + " reputation with " + FromCamelCase(area));
 			}
-			
+
 			Dom.reputation.update();
 		}
 	// first time
@@ -4326,42 +4326,42 @@ Dom.chat.toGiblish = function (chat) {
 
 Dom.players = [];
 Dom.chat.players = function (object, action) {
-	if (action !== "retroactive") {
+	if (action === "join" || action === "leave") {
 		if (object.numberOnline !== 1) {
-			Dom.elements.players.innerHTML = object.numberOnline + " players online";
-		}
-		else {
-			Dom.elements.players.innerHTML = object.numberOnline + " player online";
-		}
-	}
-	else { // action === "retroactive"
-		Dom.players.push(object);
-	}
-	if (action === "join") {
-		if (Dom.players[i].userID !== ws.userID) {
-			Dom.chat.insert(Dom.players[i].name+" has joined the game!");
-		}
-		Dom.players.push(object);
-	}
-	else if (action === "leave") {
-		for (let i = 0; i < Dom.players.length; i++) {
-			if (Dom.players[i].userID === object.userID) {
-				Dom.players.splice(i, 1);
-				Dom.chat.insert(Dom.players[i].name+" has left the game.");
-			}
-		}
-	}
-	else { // changed (e.g. area or level)
-		for (let i = 0; i < Dom.players.length; i++) {
-			if (Dom.players[i].userID === object.userID) {
-				Dom.players[i] = Object.assign(Dom.players[i], object);
-				if (action === "level") {
-					Dom.chat.insert("<strong>"+Dom.players[i].name+"</strong> has levelled up to level "+Dom.players[i].level+"!");
-				}
-			}
-		}
-	}
-	Dom.elements.players.onclick(true);
+            Dom.elements.players.innerHTML = object.numberOnline + " players online";
+        }
+        else {
+            Dom.elements.players.innerHTML = object.numberOnline + " player online";
+        }
+    }
+    if (action === "join") {
+        if (object.userID !== ws.userID) {
+            Dom.chat.insert(object.username+" has joined the game!");
+        }
+        Dom.players.push(object);
+    }
+    else if (action === "leave") {
+        for (let i = 0; i < Dom.players.length; i++) {
+            if (Dom.players[i].userID === object.userID) {
+                Dom.players.splice(i, 1);
+                Dom.chat.insert(Dom.players[i].username+" has left the game.");
+            }
+        }
+    }
+    else if (action === "retroactive") { // action === "retroactive"
+        Dom.players.push(object);
+    }
+    else { // changed (e.g. area or level)
+        for (let i = 0; i < Dom.players.length; i++) {
+            if (Dom.players[i].userID === object.userID) {
+                Dom.players[i] = Object.assign(Dom.players[i], object);
+                if (action === "level") {
+                    Dom.chat.insert("<strong>"+Dom.players[i].username+"</strong> has levelled up to level "+Dom.players[i].level+"!");
+                }
+            }
+        }
+    }
+    Dom.elements.players.onclick(true);
 }
 
 Dom.elements.playersInfo.onclick = function () {
@@ -4385,9 +4385,9 @@ Dom.elements.players.onclick = function (notClicked) {
 			if (i > 0) {
 				Dom.elements.playersInfo.innerHTML += "<br>";
 			}
-			
+
 			Dom.elements.playersInfo.innerHTML += "<div id='players"+i+"' class='players'></div>";
-			
+
 			document.getElementById("players"+i).style.backgroundImage = 'url("./selection/assets/'+Dom.players[i].class+Dom.players[i].skin+'/f.png")';
 			document.getElementById("players"+i).style.right = 20 - Skins[Dom.players[i].class][Dom.players[i].skin].headAdjust.x + "px";
 			document.getElementById("players"+i).style.height = 60 + Skins[Dom.players[i].class][Dom.players[i].skin].headAdjust.y + "px";

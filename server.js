@@ -45,7 +45,9 @@ wss.on("connection", (ws) => { // note that ws = client in wss.clients
 	// tbd: does this go outside of "connection" or inside?
 	ws.on("message", function (data) {
 		console.info("Received message: " + data);
+
 		let parsedMessage = JSON.parse(data);
+
 		// check message type and perform an action based on this type
 		switch (parsedMessage.type) {
 			case "userInformation":
@@ -53,12 +55,10 @@ wss.on("connection", (ws) => { // note that ws = client in wss.clients
 
 				// save client name information in websocket
 				ws.username = parsedMessage.username;
-
-				// broadcast to others that the user logged on
-				wss.broadcast(JSON.stringify({
-					type: "info",
-					content: ws.username + " has joined the game!"
-				}), ws.userID);
+				ws.class = parsedMessage.class;
+				ws.level = parsedMessage.level;
+				ws.skin = parsedMessage.skin;
+				ws.area = parsedMessage.area;
 
 				// message the user to tell them what their userID is
 				// this information is used by the client if they want to except themselves from broadcasts
@@ -68,10 +68,12 @@ wss.on("connection", (ws) => { // note that ws = client in wss.clients
 				}));
 
 				// broadcast to chat DOM (for displaying players online)
-				ws.send(JSON.stringify({
+				// also broadcasts to all other players that the user logged on
+				let numberOnline = GetNumberOnline();
+				wss.broadcast(JSON.stringify({
 					type: "playersOnline",
 					action: "join",
-					numberOnline: wss.clients.size,
+					numberOnline: numberOnline,
 					userID: ws.userID,
 					username: parsedMessage.username,
 					class: parsedMessage.class,
@@ -79,6 +81,23 @@ wss.on("connection", (ws) => { // note that ws = client in wss.clients
 					skin: parsedMessage.skin,
 					area: parsedMessage.area
 				}));
+
+				// message the user to tell them about all the other users online
+				wss.clients.forEach(function (client) {
+					// check the client is not the current user
+					if (client.userID !== ws.userID) {
+						ws.send(JSON.stringify({
+							type: "playersOnline",
+							action: "retroactive",
+							userID: client.userID,
+							username: client.username,
+							class: client.class,
+							level: client.level,
+							skin: client.skin,
+							area: client.area
+						}));
+					}
+				});
 
 				break;
 
@@ -90,11 +109,21 @@ wss.on("connection", (ws) => { // note that ws = client in wss.clients
 
 			case "changeArea":
 				// broadcast to chat DOM (for displaying players online)
-				ws.send(JSON.stringify({
+				wss.broadcast(JSON.stringify({
 					type: "playersOnline",
 					action: "area",
 					userID: ws.userID,
 					area: parsedMessage.area
+				}));
+				break;
+
+			case "changeLevel":
+				// broadcast to chat DOM (for displaying players online)
+				wss.broadcast(JSON.stringify({
+					type: "playersOnline",
+					action: "level",
+					userID: ws.userID,
+					level: parsedMessage.level
 				}));
 				break;
 
@@ -107,16 +136,13 @@ wss.on("connection", (ws) => { // note that ws = client in wss.clients
 	// handle disconnection
 	ws.on("close", function () {
 		console.info("Client disconnected");
-		// broadcast this info to all others
-		wss.broadcast(JSON.stringify({
-			type: "info",
-			content: ws.username + " has left the game."
-		}));
 		// broadcast to chat DOM (for displaying players online)
-		ws.send(JSON.stringify({
+		// also broadcasts to all other players that the user logged off
+		let numberOnline = GetNumberOnline();
+		wss.broadcast(JSON.stringify({
 			type: "playersOnline",
 			action: "leave",
-			numberOnline: wss.clients.size,
+			numberOnline: numberOnline,
 			userID: ws.userID,
 		}));
 	});
@@ -147,3 +173,14 @@ setInterval(function () {
 		type: "keepAlive",
 	}));
 }, 10000); // 10s is an arbitrary value
+
+// returns the number of clients online
+// necessary because localhost sees wss.clients as an array, but Heroku as a set
+function GetNumberOnline () {
+	let numberOnline = wss.clients.size;
+	if (numberOnline === undefined) {
+		numberOnline = wss.clients.length;
+	}
+	console.log(numberOnline);
+	return numberOnline;
+}

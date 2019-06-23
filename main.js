@@ -4135,7 +4135,7 @@ Game.loadArea = function (areaName, destination) {
 	    // check if user is connected to the websocket
 	    if (ws !== false && ws.readyState === 1) {
 			ws.send(JSON.stringify({
-				type: "userInformation",
+				type: "changeArea",
 				area: Player.displayAreaName
 			}));
 		}
@@ -5548,8 +5548,15 @@ Game.getXP = function (xpGiven, xpBonus) {
 				// chat message for level up
 				Dom.chat.insert("Level up: "+(Player.level-1)+" &#10132; "+Player.level);
 
-				// announce to all other plays (if web socket is on)
-				Dom.chat.announce("<strong>" + Player.name + "</strong> has levelled up to level " + Player.level + "!", true);
+				// tell server that player's level has been changed so that DOM chat players online can display this for all players
+				// Dom also announces this level up to all players
+			    // check if user is connected to the websocket
+			    if (ws !== false && ws.readyState === 1) {
+					ws.send(JSON.stringify({
+						type: "changeLevel",
+						level: Player.level
+					}));
+				}
 
 				// update possible quests
 				Dom.quests.possible();
