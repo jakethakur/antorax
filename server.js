@@ -48,26 +48,54 @@ wss.on("connection", (ws) => { // note that ws = client in wss.clients
 		let parsedMessage = JSON.parse(data);
 		// check message type and perform an action based on this type
 		switch (parsedMessage.type) {
-			case "username":
-				// save client name information
-				ws.username = parsedMessage.content;
+			case "userInformation":
+				// sent when the user joins the websocket
+
+				// save client name information in websocket
+				ws.username = parsedMessage.username;
+
 				// broadcast to others that the user logged on
 				wss.broadcast(JSON.stringify({
 					type: "info",
 					content: ws.username + " has joined the game!"
 				}), ws.userID);
+
 				// message the user to tell them what their userID is
 				// this information is used by the client if they want to except themselves from broadcasts
 				ws.send(JSON.stringify({
 					type: "userID",
 					content: ws.userID
 				}));
+
+				// broadcast to chat DOM (for displaying players online)
+				ws.send(JSON.stringify({
+					type: "playersOnline",
+					action: "join",
+					numberOnline: wss.clients.size,
+					userID: ws.userID,
+					username: parsedMessage.username,
+					class: parsedMessage.class,
+					level: parsedMessage.level,
+					skin: parsedMessage.skin,
+					area: parsedMessage.area
+				}));
+
 				break;
 
 			case "keepAlive":
 				// used to stop the connection dying after 55s (Heroku)
 				// response to server-sent "keepAlive"
 				// do nothing
+				break;
+
+			case "changeArea":
+				// broadcast to chat DOM (for displaying players online)
+				ws.send(JSON.stringify({
+					type: "playersOnline",
+					action: "area",
+					userID: ws.userID,
+					area: parsedMessage.area
+				}));
 				break;
 
 			default:
@@ -83,6 +111,13 @@ wss.on("connection", (ws) => { // note that ws = client in wss.clients
 		wss.broadcast(JSON.stringify({
 			type: "info",
 			content: ws.username + " has left the game."
+		}));
+		// broadcast to chat DOM (for displaying players online)
+		ws.send(JSON.stringify({
+			type: "playersOnline",
+			action: "leave",
+			numberOnline: wss.clients.size,
+			userID: ws.userID,
 		}));
 	});
 

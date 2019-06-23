@@ -85,8 +85,12 @@ Game.initWebSocket = function () {
 		ws.onopen = function () {
 			// send username so the user is saved under a particular name in the websocket
 			ws.send(JSON.stringify({
-				type: "username",
-				content: Player.name
+				type: "userInformation",
+				username: Player.name,
+				class: Player.class,
+				level: Player.level,
+				skin: Player.skin,
+				area: Player.displayAreaName
 			}));
 		}
 
@@ -109,6 +113,12 @@ Game.initWebSocket = function () {
 					ws.send(JSON.stringify({
 						type: "keepAlive",
 					}));
+					break;
+
+				case "playersOnline":
+					// update display of players online in chat DOM
+					// message.action tells DOM what to update
+					Dom.chat.players(message, message.action); // passes in whole object
 					break;
 
 				default:
@@ -4120,6 +4130,15 @@ Game.loadArea = function (areaName, destination) {
         Player.displayAreaName = Areas[areaName].data.name;
 		Player.lootArea = Areas[areaName].lootArea;
 		Player.lootTier = Areas[areaName].lootTier;
+
+		// tell server that area has been changed so that DOM chat players online can display this for all players
+	    // check if user is connected to the websocket
+	    if (ws !== false && ws.readyState === 1) {
+			ws.send(JSON.stringify({
+				type: "userInformation",
+				area: Player.displayAreaName
+			}));
+		}
 
 		// allow hero to move again if they died
 		if (this.hero.respawning) {

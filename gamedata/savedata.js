@@ -11,6 +11,8 @@ var Player = {
 	x: 3838, // start coords
 	y: 318,
 	areaName: "tutorial",
+	displayAreaName: "Tutorial", // changed to the proper name of the area by Game.changeArea
+	// tutorial is shown by the websocket before this happens
 
 	lootArea: "Eaglecrest Logging Camp", // general area that unidentified items are from
 	lootTier: 1, // tier that unidentified items are from
