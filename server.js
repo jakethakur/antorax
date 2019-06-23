@@ -86,25 +86,21 @@ wss.on("connection", (ws) => { // note that ws = client in wss.clients
 // data should be a JSON object with type and content...
 // exceptions should be an array of all of the userIDs not to send the message to
 wss.broadcast = function broadcast(data, exceptions) {
-	console.log(wss.clients);
-	for (let i = 0; i < wss.clients.length; i++) {
+	// forEach is required because wss.clients is a set not an array...
+	// (and Heroku does not support for loop through set)
+	wss.clients.forEach(function (client) {
 		// check client's websocket is open
-		console.log("broadcasting: ", data);
-		if (wss.clients[i].readyState === 1) {
+		if (client.readyState === 1) {
 			// check client is not an exception
-			console.log("client ready, id = " + wss.clients[i].userID);
-			console.log("exceptions: ", exceptions);
-			if (typeof exceptions === "undefined" || !exceptions.includes(wss.clients[i].userID)) {
-				console.log("sending");
-				wss.clients[i].send(data);
+			if (typeof exceptions === "undefined" || !exceptions.includes(client.userID)) {
+				client.send(data);
 			}
 		}
-	}
+	});
 };
 
 // stop the clients dying after 10s
 setInterval(function () {
-	console.log("keepalive");
 	wss.broadcast(JSON.stringify({
 		type: "keepAlive",
 	}));
