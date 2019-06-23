@@ -263,10 +263,30 @@ thead:after { /* space after bags in bank */
 }
 
 #players {
-	width: 522px;
-	height: 25px;
+	width: 502px;
+	height: 15px;
 	margin-left: -10px;
 	border-bottom: 1px solid black;
+	padding: 10px;
+	padding-top: 0px;
+	text-align: center;
+	cursor: pointer;
+}
+
+#playersInfo {
+	width: 502px;
+	margin-left: -10px;
+	border-bottom: 1px solid black;
+	padding: 10px;
+	padding-bottom: 15px;
+	position: absolute;
+	background-color: var(--page);
+	cursor: pointer;
+}
+
+.playersText {
+	margin-left: 70px;
+	margin-top: -50px;
 }
 
 /*					*/
@@ -300,7 +320,7 @@ thead:after { /* space after bags in bank */
 	margin-top: 50px;
 }
 
-#inventoryGoldXP {
+#inventoryGoldXP, .players {
 	position: relative;
 	width: 80px;
 	background-size: 80px;

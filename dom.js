@@ -96,6 +96,8 @@ let Dom = {
 		outTriangle: document.getElementById("outTriangle"),
 		particlesOff: document.getElementById("particlesOff"),
 		particlesOn: document.getElementById("particlesOn"),
+		players: document.getElementById("players"),
+		playersInfo: document.getElementById("playersInfo"),
 		possibleQuestBox: document.getElementById("possibleQuestBox"),
 		questFinish: document.getElementById("questFinish"),
 		questFinishChat: document.getElementById("questFinishChat"),
@@ -286,7 +288,7 @@ Dom.achievements.update = function () {
 			User.achievements[ToCamelCase(Achievements[i].name)] = GetFullDateDisplay();
 			User.achievementPoints.total += Achievements[i].points;
 			User.achievementPoints.unclaimed += Achievements[i].points;
-			Dom.chat.announce("<strong>" + Player.name + "</strong> has earnt the achievement " + Achievements[i].name + "!", true);
+			Dom.chat.announce("<strong>" + Player.name + "</strong> has earnt the achievement \"" + Achievements[i].name + "\"!", true);
 			Dom.achievements.page(i);
 		}
 	}
@@ -840,7 +842,7 @@ Dom.reputation.update = function () {
 }
 
 Dom.reputation.upLevel = function (Area, i) {
-	if (Area.level < 5) {
+	if (Area.level <= 5) {
 		Area.score -= ReputationPoints[Player.reputation[Object.keys(Player.reputation)[i]].level];
 		Area.level++;
 		Dom.chat.insert("Your reputation level with " + FromCamelCase(Object.keys(Player.reputation)[i]) + " has increased to " + Dom.reputation.levels[Area.level]);
@@ -4319,6 +4321,68 @@ Dom.chat.toGiblish = function (chat) {
 	}
 	else {
 		return chat;
+	}
+}
+
+Dom.players = [];
+Dom.chat.players = function (object, action) {
+	if (object.numberOnline !== 1) {
+		Dom.elements.players.innerHTML = object.numberOnline + " players online";
+	}
+	else {
+		Dom.elements.players.innerHTML = object.numberOnline + " player online";
+	}
+	if (action === "join") {
+		Dom.players.push(object);
+	}
+	else if (action === "leave") {
+		for (let i = 0; i < Dom.players.length; i++) {
+			if (Dom.players[i].userID === object.userID) {
+				Dom.players.splice(i, 1);
+			}
+		}
+	}
+	else { // changed (e.g. area)
+		for (let i = 0; i < Dom.players.length; i++) {
+			if (Dom.players[i].userID === object.userID) {
+				Dom.players[i] = Object.assign(Dom.players[i], object);
+			}
+		}
+	}
+}
+
+Dom.elements.playersInfo.onclick = function () {
+	Dom.elements.playersInfo.hidden = true;
+}
+
+Dom.elements.players.onclick = function () {
+	if (Dom.elements.playersInfo.hidden) {
+		Dom.elements.playersInfo.hidden = false;
+		Dom.elements.playersInfo.innerHTML = "";
+		for (let i = 0; i < Dom.players.length; i ++) {
+			let clss = "knight";
+			if (Dom.players[i].class === "a") {
+				clss = "archer";
+			}
+			else if (Dom.players[i].class === "m") {
+				clss = "mage";
+			}
+			if (i > 0) {
+				Dom.elements.playersInfo.innerHTML += "<br>";
+			}
+			
+			Dom.elements.playersInfo.innerHTML += "<div id='players"+i+"' class='players'></div>";
+			
+			document.getElementById("players"+i).style.backgroundImage = 'url("./selection/assets/'+Dom.players[i].class+Dom.players[i].skin+'/f.png")';
+			document.getElementById("players"+i).style.right = 20 - Skins[Dom.players[i].class][Dom.players[i].skin].headAdjust.x + "px";
+			document.getElementById("players"+i).style.height = 60 + Skins[Dom.players[i].class][Dom.players[i].skin].headAdjust.y + "px";
+			document.getElementById("players"+i).style.bottom = 3 + Skins[Dom.players[i].class][Dom.players[i].skin].headAdjust.y + "px";
+
+			Dom.elements.playersInfo.innerHTML += "<div class='playersText'><strong>" + Dom.players[i].username + "</strong> (Level " + Dom.players[i].level + " " + clss + ")<br>" + Dom.players[i].area + "</div>";
+		}
+	}
+	else {
+		Dom.elements.playersInfo.hidden = true;
 	}
 }
 
