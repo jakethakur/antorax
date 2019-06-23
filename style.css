@@ -228,10 +228,16 @@ thead:after { /* space after bags in bank */
 
 #chatText {
 	position: absolute;
-	bottom: 30px;
-	max-height: 518px;
+	bottom: 44px;
+	max-height: 520px;
 	margin-top: -30px;
 	width: 510px;
+	user-select: text;
+}
+
+.chatPara {
+	margin-bottom: 0px;
+	width: max-content;
 }
 
 #chatInput {

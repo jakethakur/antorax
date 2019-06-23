@@ -100,7 +100,7 @@ var Instructions = [
 				`<b>The Mighty Zararanath</b>: Oh. I've spoken to you before.`,
 			], undefined, function () {
 				Dom.alert.target = function () {
-					Dom.chat.insert(`The Mighty Zararanath: Good luck on your travels.`, 500);
+					Dom.chat.insert(`<b>The Mighty Zararanath</b>: Good luck on your travels.`, 500);
 					document.getElementById("tutorialOn").checked = true;
 					document.getElementById("tutorialOn").onclick();
 					Player.unlockedInstructions.push(Instructions[0].chapterTitle);
