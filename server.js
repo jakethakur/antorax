@@ -181,6 +181,5 @@ function GetNumberOnline () {
 	if (numberOnline === undefined) {
 		numberOnline = wss.clients.length;
 	}
-	console.log(numberOnline);
 	return numberOnline;
 }

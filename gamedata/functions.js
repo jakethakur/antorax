@@ -262,6 +262,7 @@ Keyboard.upFunctions = {
     },
 	TALK: function () {
 		Dom.elements.canvasChatInput.hidden = false;
+		Dom.elements.canvasChatInput.style.opacity = 0.6;
 		Dom.elements.canvasChatInput.select();
 	}
 }

@@ -2537,7 +2537,7 @@ for (let i = 0; i < document.getElementsByClassName("DOM").length; i++) {
 	document.getElementsByClassName("DOM")[i].style.zIndex = 6+i;
 	document.getElementsByClassName("DOM")[i].onmousedown = function (event) {
 		let scroll = document.getElementsByClassName("DOM")[i].scrollTop;
-		if (!event.target.draggable && event.target.className !== "stackNum" && event.target.autocomplete === undefined && event.target.className !== "chatPara") {
+		if (!event.target.draggable && event.target.className !== "stackNum" && event.target.autocomplete === undefined && event.path.find(el => el.className === "chatPara") === undefined) {
 			Dom.canvas.dragPageX = event.clientX-document.getElementsByClassName("DOM")[i].offsetLeft;
 			Dom.canvas.dragPageY = event.clientY-document.getElementsByClassName("DOM")[i].offsetTop;
 			Dom.canvas.stopMove = false;
@@ -4343,8 +4343,8 @@ Dom.chat.players = function (object, action) {
     else if (action === "leave") {
         for (let i = 0; i < Dom.players.length; i++) {
             if (Dom.players[i].userID === object.userID) {
+				Dom.chat.insert(Dom.players[i].username+" has left the game.");
                 Dom.players.splice(i, 1);
-                Dom.chat.insert(Dom.players[i].username+" has left the game.");
             }
         }
     }
@@ -4355,7 +4355,7 @@ Dom.chat.players = function (object, action) {
         for (let i = 0; i < Dom.players.length; i++) {
             if (Dom.players[i].userID === object.userID) {
                 Dom.players[i] = Object.assign(Dom.players[i], object);
-                if (action === "level") {
+                if (action === "level" && Dom.players[i].userID !== ws.userID) {
                     Dom.chat.insert("<strong>"+Dom.players[i].username+"</strong> has levelled up to level "+Dom.players[i].level+"!");
                 }
             }
