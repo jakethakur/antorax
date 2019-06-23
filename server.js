@@ -88,9 +88,13 @@ wss.on("connection", (ws) => { // note that ws = client in wss.clients
 wss.broadcast = function broadcast(data, exceptions) {
 	for (let i = 0; i < wss.clients.length; i++) {
 		// check client's websocket is open
+		console.log("broadcasting: ", data);
 		if (wss.clients[i].readyState === 1) {
 			// check client is not an exception
+			console.log("client ready, id = " + wss.clients[i].userID);
+			console.log("exceptions: ", exceptions);
 			if (typeof exceptions === "undefined" || !exceptions.includes(wss.clients[i].userID)) {
+				console.log("sending");
 				wss.clients[i].send(data);
 			}
 		}
