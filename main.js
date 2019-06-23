@@ -94,10 +94,12 @@ Game.initWebSocket = function () {
 		ws.onmessage = function (event) {
 			let message = JSON.parse(event.data);
 			switch (message.type) {
-				case "chat":
-					Dom.chat.insert(message.content);
+				case "userID":
+					// set ws.userID (i.e. for excepting oneself in some future broadcasts)
+					ws.userID = message.content;
 					break;
 
+				case "chat":
 				case "info":
 					Dom.chat.insert(message.content);
 					break;
@@ -5526,6 +5528,9 @@ Game.getXP = function (xpGiven, xpBonus) {
 
 				// chat message for level up
 				Dom.chat.insert("Level up: "+(Player.level-1)+" &#10132; "+Player.level);
+
+				// announce to all other plays (if web socket is on)
+				Dom.chat.announce("<strong>" + Player.name + "</strong> has levelled up to level " + Player.level + "!", true);
 
 				// update possible quests
 				Dom.quests.possible();

@@ -51,10 +51,17 @@ wss.on("connection", (ws) => { // note that ws = client in wss.clients
 			case "username":
 				// save client name information
 				ws.username = parsedMessage.content;
+				// broadcast to others that the user logged on
 				wss.broadcast(JSON.stringify({
 					type: "info",
 					content: ws.username + " has joined the game!"
-				}), [ws.userID]);
+				}), ws.userID);
+				// message the user to tell them what their userID is
+				// this information is used by the client if they want to except themselves from broadcasts
+				ws.send(JSON.stringify({
+					type: "userID",
+					content: ws.userID
+				}));
 				break;
 
 			case "keepAlive":
@@ -65,7 +72,7 @@ wss.on("connection", (ws) => { // note that ws = client in wss.clients
 
 			default:
 				// broadcast to all others
-				wss.broadcast(data);
+				wss.broadcast(data, parsedMessage.except);
 		}
 	});
 
@@ -84,24 +91,24 @@ wss.on("connection", (ws) => { // note that ws = client in wss.clients
 
 // function to send parameter to all clients
 // data should be a JSON object with type and content...
-// exceptions should be an array of all of the userIDs not to send the message to
-wss.broadcast = function broadcast(data, exceptions) {
+// exception should be a userID not to send the message to
+wss.broadcast = function broadcast(data, exception) {
 	// forEach is required because wss.clients is a set not an array...
 	// (and Heroku does not support for loop through set)
 	wss.clients.forEach(function (client) {
 		// check client's websocket is open
 		if (client.readyState === 1) {
 			// check client is not an exception
-			if (typeof exceptions === "undefined" || !exceptions.includes(client.userID)) {
+			if (exception !== client.userID) {
 				client.send(data);
 			}
 		}
 	});
 };
 
-// stop the clients dying after 10s
+// stop the clients dying after 55s (fixes H15 error on Heroku)
 setInterval(function () {
 	wss.broadcast(JSON.stringify({
 		type: "keepAlive",
 	}));
-}, 10000);
+}, 10000); // 10s is an arbitrary value
