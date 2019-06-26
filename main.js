@@ -105,7 +105,7 @@ Game.initWebSocket = function () {
 
 				case "chat":
 				case "info":
-					Dom.chat.insert(message.content);
+					Dom.chat.insert(Dom.chat.say(message.name, message.content.replace(/</g, "").replace(/>/g, "")));
 					break;
 
 				case "keepAlive":

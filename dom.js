@@ -479,7 +479,7 @@ Dom.changeBook = function (page, openClose) {
 			Dom.reputation.update();
 		}
 		if (page === "chatPage") {
-			if (Dom.elements.chatText.offsetHeight === 518) {
+			if (Dom.elements.chatText.offsetHeight === 520) {
 				Dom.elements.chatText.style.overflowY = "auto";
 				Dom.elements.chatText.scrollTop = Dom.elements.chatText.scrollHeight;
 			}
@@ -636,7 +636,8 @@ Dom.chat.input = function (id) {
 			// send message which is thus broadcasted to all others (no KAO)
 			let message = {
 		        type: "chat",
-		        content: "<strong>" + Player.name + "</strong>: " + Dom.elements[id].value,
+		        name: Player.name,
+		        content: Dom.elements[id].value,
 		    }
 		    let jsonMessage = JSON.stringify(message);
 		    ws.send(jsonMessage);
@@ -4589,6 +4590,11 @@ Dom.init = function () {
 		if (Player.statusEffects[i].title === "HIGH SPEED! (test status effect)") {
 			Dom.elements.speedOn.checked = true;
 		}
+	}
+	
+	if (ws === false || ws.readyState !== 1) {
+		// server off
+		document.getElementById("players").hidden = true;
 	}
 
 	// MAIL
