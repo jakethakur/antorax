@@ -5,3 +5,4 @@ ignore/*
 assets/tilemap/*.js
 node_modules/
 package-lock.json
+*.pdn
