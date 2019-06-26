@@ -325,6 +325,23 @@ var Items = {
 				reloadTime: -100,
 			},
 		},
+		{
+			id: 19,
+			name: "Eaglecrestian Forged Helm",
+			type: "helm",
+			image: "assets/items/helm/19.png",
+			tier: 1,
+			obtain: ["merchant"],
+			area: ["eaglecrest"],
+			rarity: "common",
+			sellPrice: 2,
+			lore: "",
+			obtainText: "Can be bought from 'The Forge' shop in Eaglecrest.",
+			set: 5,
+			stats: {
+				defence: 3,
+			},
+		},
 	],
 	chest: [
 		{
@@ -454,6 +471,23 @@ var Items = {
 				dodgeChance: 30,
 			},
 		},
+		{
+			id: 8,
+			name: "Eaglecrestian Forged Chestplate",
+			type: "chest",
+			image: "assets/items/chest/8.png",
+			tier: 1,
+			obtain: ["merchant"],
+			area: ["eaglecrest"],
+			rarity: "common",
+			sellPrice: 3,
+			lore: "",
+			obtainText: "Can be bought from 'The Forge' shop in Eaglecrest.",
+			set: 5,
+			stats: {
+				defence: 4,
+			},
+		},
 	],
 	greaves: [
 		{
@@ -564,6 +598,23 @@ var Items = {
 				criticalChance: 5,
 				dodgeChance: 5,
 				reflection: 10,
+			},
+		},
+		{
+			id: 7,
+			name: "Eaglecrestian Forged Leggings",
+			type: "greaves",
+			image: "assets/items/greaves/7.png",
+			tier: 1,
+			obtain: ["merchant"],
+			area: ["eaglecrest"],
+			rarity: "common",
+			sellPrice: 3,
+			lore: "",
+			obtainText: "Can be bought from 'The Forge' shop in Eaglecrest.",
+			set: 5,
+			stats: {
+				defence: 4,
 			},
 		},
 	],
@@ -761,6 +812,23 @@ var Items = {
 					},
 				},
 			],
+		},
+		{
+			id: 11,
+			name: "Eaglecrestian Forged Boots",
+			type: "boots",
+			image: "assets/items/boots/11.png",
+			tier: 1,
+			obtain: ["merchant"],
+			area: ["eaglecrest"],
+			rarity: "common",
+			sellPrice: 2,
+			lore: "",
+			obtainText: "Can be bought from 'The Forge' shop in Eaglecrest.",
+			set: 5,
+			stats: {
+				defence: 3,
+			},
 		},
 	],
 	sword: [
@@ -1055,6 +1123,23 @@ var Items = {
 			},
 			limitedEdition: true,
 		},
+		{
+			id: 12,
+			name: "Eaglecrestian Forged Sword",
+			type: "sword",
+			image: "assets/items/sword/12.png",
+			tier: 1,
+			obtain: ["merchant"],
+			area: ["eaglecrest"],
+			rarity: "common",
+			sellPrice: 3,
+			lore: "",
+			obtainText: "Can be bought from 'The Forge' shop in Eaglecrest.",
+			stats: {
+				damage: 4,
+				defence: 3,
+			},
+		},
 	],
 	staff: [
 		{
@@ -1263,6 +1348,24 @@ var Items = {
 			projectileAdjust: {x: 0, y: 0},
 			deleteIf: function() {
 				return GetFullDate().substring(4,6) !== "12";
+			},
+		},
+		{
+			id: 11,
+			name: "Eaglecrestian Forged Staff",
+			type: "staff",
+			image: "assets/items/staff/11.png",
+			imageArchaeology: "assets/items/staff/11archaeology.png",
+			tier: 1,
+			obtain: ["merchant"],
+			area: ["eaglecrest"],
+			rarity: "common",
+			sellPrice: 3,
+			lore: "",
+			obtainText: "Can be bought from 'The Forge' shop in Eaglecrest.",
+			stats: {
+				damage: 4,
+				maxDamage: 12,
 			},
 		},
 	],
@@ -1489,6 +1592,22 @@ var Items = {
 				return GetFullDate().substring(4,6) !== "12";
 			},
 		},
+		{
+			id: 11,
+			name: "Eaglecrestian Forged Bow",
+			type: "bow",
+			image: "assets/items/bow/11.png",
+			tier: 1,
+			obtain: ["merchant"],
+			area: ["eaglecrest"],
+			rarity: "common",
+			sellPrice: 3,
+			lore: "",
+			obtainText: "Can be bought from 'The Forge' shop in Eaglecrest.",
+			stats: {
+				damage: 4,
+			},
+		},
 	],
 	rod: [ // fishing rod
 		{
@@ -1629,6 +1748,26 @@ var Items = {
 					text: "Doubles chosen stats",
 				},
 			],
+		},
+		{
+			id: 5,
+			name: "Eaglecrestian Forged Set",
+			type: "set",
+			image: "assets/items/set/5.png",
+			tier: 1,
+			obtain: ["merchant"],
+			area: ["eaglecrest"],
+			rarity: "common",
+			obtainText: "Can be bought from 'The Forge' shop in Eaglecrest.",
+			armour: [
+				"Eaglecrestian Forged Helm",
+				"Eaglecrestian Forged Chestplate",
+				"Eaglecrestian Forged Leggings",
+				"Eaglecrestian Forged Boots",
+			],
+			stats: {
+				defence: 4
+			},
 		},
 	],
 	currency: [
