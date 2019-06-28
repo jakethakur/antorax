@@ -703,7 +703,7 @@ var Quests = {
 				"The vial explodes.",
 				Dom.chat.say("Ciarra Darkbrew", "That... didn't go as planned.")],
 				[1000, 3000, 2500, 2000, 2000]);
-				
+
 				setTimeout(function () {
 					if (Game.areaName === "eaglecrestLoggingCamp") {
 						// damage Ciarra
@@ -720,7 +720,7 @@ var Quests = {
 			objectives: [
 				"Gather 2 goblin eyes.",
 				"Fill up a bucket with mud from The Nilbog.",
-				"Obtain a vial of goblin blood. You might be able to ask a nearby NPC for one.",
+				"Obtain a vial of goblin blood. You might be able to ask a nearby merchant for one.",
 				"Speak to <strong>Ciarra Darkbrew</strong>.",
 			],
 

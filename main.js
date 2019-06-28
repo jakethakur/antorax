@@ -46,6 +46,8 @@ Game.run = function (context, contextSecondary, contextDayNight, contextLight) {
 	this.heroProjectileAdjust = Skins[Player.class][Player.skin].projectileAdjust;
 	this.heroBobberName = "bobber";
 
+	this.nextEntityId = 0; // unique entity ids are assigned using this variable, which is never reset
+
 	// load area and images
     this.loadArea(Player.areaName, {x: Player.x, y: Player.y});
 };
@@ -98,14 +100,28 @@ Game.initWebSocket = function () {
 		ws.onmessage = function (event) {
 			let message = JSON.parse(event.data);
 			switch (message.type) {
+				case "playerLocation":
+					// multiplayer player location
+					// tbd
+					break;
+
 				case "userID":
 					// set ws.userID (i.e. for excepting oneself in some future broadcasts)
 					ws.userID = message.content;
 					break;
 
 				case "chat":
+					// do not allow user ta use < or > in chat (stop HTML injection)
+					Dom.chat.insert(Dom.chat.say(message.name, message.content.replace(/[<>]/g, "")));
+
+					if (Notification.permission === "granted" && !Dom.focus) {
+					    // notification if user has given permission
+					    let notification = new Notification(message.name, {body: message.content.replace(/[<>]/g, ""), silent: true});
+					}
+					break;
+
 				case "info":
-					Dom.chat.insert(Dom.chat.say(message.name, message.content.replace(/</g, "").replace(/>/g, "")));
+					Dom.chat.insert(message.content);
 					break;
 
 				case "keepAlive":
@@ -327,14 +343,48 @@ Game.distance = function (obj1, obj2) {
 // returns the array index of the first found item of the array with that id
 // only works for projectiles as of 01/07/18 (they're the only entities with ids)
 Game.searchFor = function (id, array) {
-	let index = array.findIndex(element => element.id === id);
-	if (index >= 0) {
-		return index;
+	let index = null;
+	for (let i = 0; i < array.length; i++) {
+		if (array[i].id === id) {
+			index = i;
+			break;
+		}
 	}
-	else {
+	if (index === null) {
 		console.error("The requested item of id " + id + " could not be found in the following array: ", array);
-		return null;
 	}
+	return index;
+}
+
+// remove object from all arrays it is in using its id
+// id = object.id
+// type = name of the array the object is in
+// className = the class name of the object
+// index = known index of the object in its array (e.g. of an enemy in Game.enemies) - this is optional
+Game.removeObject = function (id, type, className, index) {
+	// remove from allEntities
+	this.allEntities.splice(this.searchFor(id, this.allEntities), 1);
+
+	if (className.prototype instanceof Thing) {
+		// remove from allThings
+		this.allThings.splice(this.searchFor(id, this.allThings), 1);
+
+		if (className.prototype instanceof Character) {
+			// remove from allCharacters
+			this.allCharacters.splice(this.searchFor(id, this.allCharacters), 1);
+
+			if (className.prototype instanceof Attacker) {
+				// remove from allAttackers
+				this.allAttackers.splice(this.searchFor(id, this.allAttackers), 1);
+			}
+		}
+	}
+
+	// remove from specific array of its type
+	if (index === undefined) {
+		index = this.searchFor(id, this[type]);
+	}
+	this[type].splice(index, 1);
 }
 
 // checks if an NPC can be shown (from their canBeShown function)
@@ -380,16 +430,17 @@ Game.closest = function (objArray, mainObj) {
 // an unseen object - takes up space but can't be seen
 class Entity {
 	constructor(properties) {
+		this.id = Game.nextEntityId; // for choose DOM and removing entity
+		Game.nextEntityId++;
+		this.type = properties.type; // array the NPC is in (for choose DOM and removing entity)
+
 		this.map = properties.map;
 		this.x = properties.x;
 		this.y = properties.y;
 		this.width = properties.width;
 		this.height = properties.height;
 
-		this.type = properties.type; // array the NPC is in (for choose DOM)
-		if (this.type !== undefined) {
-			this.id = Game[this.type].length; // array index the NPC is in (for choose DOM)
-		}
+		this.hitboxColour = properties.hitboxColour || "#FF0000"; // hex colour for hitbox
 
 		this.collisionType = properties.collisionType || "body"; // "feet" = check collision with Game.hero.footHitbox
 		// collision type currently only applies to tripwires
@@ -581,6 +632,7 @@ class Character extends Thing {
 			y: this.y + this.height/2 - footHeight/2,
 			width: this.width,
 			height: footHeight,
+			hitboxColour: "#FF00FF",
 		});
 
 		this.channelling = false;
@@ -700,10 +752,12 @@ class Character extends Thing {
 		}
 	}
 
-	// function to be carried out during Game.render()
-	renderFunction () {
+	// function to be carried out during Game.render(), after image render
+	// note that this is overwritten by Hero
+	postRenderFunction () {
 		// show health bar and character name above head
 		Game.drawCharacterInformation(Game.ctx, this);
+		return true; // tell render to render the rest of the object normally
 	}
 
 	// update x, y, screenX and screenY of foot hitbox
@@ -1180,7 +1234,7 @@ class Attacker extends Character {
 			// remove existing channelling
 			if (this.channelling === "fishing") {
 				// remove fishing bobber
-				Game.projectiles.splice(Game.searchFor(this.channellingProjectileId, Game.projectiles), 1);
+				Game.removeObject(this.channellingProjectileId, "projectiles", Projectile);
 				this.channelling = false;
 				this.channellingProjectileId = null;
 			}
@@ -1342,9 +1396,6 @@ class Particle extends Entity {
 
 		this.light = properties.light || false; // if this is set to true, it is drawn on the light canvas
 
-		this.id = Game.nextParticleId; // way that the game can identify which particle was added (without position in array being shifted)
-		Game.nextParticleId++;
-
 		this.transparency = properties.transparency || 1; // 0 (invisible) to 1 (opaque)
 	}
 }
@@ -1353,13 +1404,13 @@ class Particle extends Entity {
 Game.createParticle = function (properties) {
 	if (document.getElementById("particlesOn").checked) { // check particle setting
 		// create particle
-		let id = Game.nextParticleId; // id of added particle
+		let id = Game.nextEntityId; // id of added particle
 		let particle = new Particle(properties);
-		Game.particles.push(particle);
+		this.particles.push(particle);
 		// set its removal time
-		Game.objectRemoveTimeouts.push(setTimeout(function (id) {
+		this.objectRemoveTimeouts.push(setTimeout(function (id) {
 			// remove the same particle (particle of the same id)
-			Game.particles.splice(Game.searchFor(id, Game.particles), 1);
+			Game.removeObject(id, "particles", Particle);
 		}, properties.removeIn, id)); // pushed to objectRemoveTimeouts so it can be removed when the area is changed
 	}
 }
@@ -1509,7 +1560,7 @@ class Hero extends Attacker {
 							variance *= distanceFraction;
 						}
 
-						this.channellingProjectileId = Game.nextProjectileId;
+						this.channellingProjectileId = Game.nextEntityId;
 
 						// tbd make work the same as enemy projectile
 						Game.projectiles.push(new Projectile({
@@ -1552,7 +1603,7 @@ class Hero extends Attacker {
 
 						this.channelling = "fishing";
 
-						this.channellingProjectileId = Game.nextProjectileId;
+						this.channellingProjectileId = Game.nextEntityId;
 
 						Game.projectiles.push(new Projectile({
 							map: map,
@@ -1577,7 +1628,7 @@ class Hero extends Attacker {
 				else if (Player.inventory.weapon.type === "rod" && this.channelling === "fishing") {
 					// fishing rod (bobber has been cast)
 
-					/*Game.projectiles.splice(Game.searchFor(this.channellingProjectileId, Game.projectiles), 1); // remove bobber
+					/*Game.removeObject(this.channellingProjectileId, "projectiles", Projectile); // remove bobber
 
 					this.channelling = false;
 					this.channellingProjectileId = null;*/
@@ -1704,7 +1755,7 @@ class Hero extends Attacker {
 						}
 
 						// remove fishing bobber
-						Game.projectiles.splice(Game.searchFor(this.channellingProjectileId, Game.projectiles), 1);
+						Game.removeObject(this.channellingProjectileId, "projectiles", Projectile);
 						this.channelling = false;
 						this.channellingProjectileId = null;
 
@@ -1747,7 +1798,7 @@ class Hero extends Attacker {
 			// this doesn't work if the user attacks too fast, though this shouldn't be a problem...
 			let a = this.channellingProjectileId; // maintain a variable of the currently shot projectile
 			Game.objectRemoveTimeouts.push(setTimeout(function (a) {
-				Game.projectiles.splice(Game.searchFor(a, Game.projectiles), 1); // find the id of the to-be-removed projectile and remove it
+				Game.removeObject(a, "projectiles", Projectile);
 			}, 1500, a)); // pushed to objectRemoveTimeouts so it can be removed when the area is changed
 
 			this.channellingProjectileId = null;
@@ -2046,7 +2097,7 @@ class Hero extends Attacker {
 					setTimeout(function (fish) {
 						if (this.channelling === fish) { // fish has not been caught
 							// remove fishing bobber
-							Game.projectiles.splice(Game.searchFor(this.channellingProjectileId, Game.projectiles), 1);
+							Game.removeObject(this.channellingProjectileId, "projectiles", Projectile);
 							this.channelling = false;
 							this.channellingProjectileId = null;
 						}
@@ -2076,6 +2127,58 @@ class Hero extends Attacker {
 			Weather.reset();
 		}.bind(Weather), 10); // timeout is used because the weather is not updated for a tick
 	}
+
+	preRenderFunction () {
+		// if player is stealthed, draw them partially transparent
+		if (this.stats.stealthed) {
+			Game.ctx.globalAlpha = 0.6;
+		}
+		return true;
+	}
+
+	postRenderFunction () {
+		// reset globalAlpha in case it was changed by preRenderFunction due to stealth
+		Game.ctx.globalAlpha = 1;
+	}
+
+	// called after this.direction is updated
+	updateRotation () {
+		if (this.direction === 1) {
+			this.crop = {
+				x: 0,
+				y: this.baseHeight,
+				width: this.baseWidth,
+				height: this.baseHeight
+			};
+		}
+
+		else if (this.direction === 2) {
+			this.crop = {
+				x: this.baseWidth,
+				y: this.baseHeight,
+				width: this.baseWidth,
+				height: this.baseHeight
+			};
+		}
+
+		else if (this.direction === 3) {
+			this.crop = {
+				x: 0,
+				y: 0,
+				width: this.baseWidth,
+				height: this.baseHeight
+			};
+		}
+
+		else if (this.direction === 4) {
+			this.crop = {
+				x: this.baseWidth,
+				y: 0,
+				width: this.baseWidth,
+				height: this.baseHeight
+			};
+		}
+	}
 }
 
 // any projectile
@@ -2087,9 +2190,6 @@ class Projectile extends Thing {
 			stats: properties.stats, // for if projectile deals its own damage
 		};
 		this.targets = properties.targets; // should be array
-
-		this.id = Game.nextProjectileId; // way that the game can identify which projectile was shot
-		Game.nextProjectileId++;
 
 		this.variance = properties.variance || 0; // diameter of circle that it could fall into
 
@@ -2343,6 +2443,54 @@ class Projectile extends Thing {
 				}
 			}
 		}
+	}
+
+	// carry out before image render
+	preRenderFunction() {
+		if (Game.getAttackType() === "bow" && this.beingChannelled && Game.hero.channelling === "projectile") {
+			// show archer red circle instead of projectile if they are currently channelling it
+			Game.ctx.strokeStyle = "red";
+			Game.ctx.beginPath();
+			Game.ctx.arc(this.hitbox.screenX, this.hitbox.screenY, this.variance, 0, 2*Math.PI);
+			Game.ctx.stroke();
+
+			return false; // don't render the projectile's image
+		}
+
+		else {
+			// render projectile normally
+			if (Game.getAttackType() === "staff" && this.beingChannelled && Game.hero.channelling === "projectile") {
+				// mage projectiles are transparent when being channelled
+				Game.ctx.globalAlpha = 0.6;
+			}
+
+			return true; // do render the image
+		}
+	}
+
+	// carry out after image render
+	postRenderFunction() {
+		// shows damage dealt by projectile
+		for (let x = 0; x < this.damageDealt.length; x++) {
+			// formatting
+			if (this.damageDealt[x].critical) {
+				Game.ctx.fillStyle = "rgb(255, 0, 0)"; // maybe use rgba to make it fade away?
+			}
+			else {
+				Game.ctx.fillStyle = "rgb(0, 0, 0)"; // maybe use rgba to make it fade away?
+			}
+			Game.ctx.textAlign = "left";
+			Game.ctx.font = "18px El Messiri";
+
+			let damage = this.damageDealt[x].damage;
+			if (damage !== "hit dodged") {
+				damage = Round(damage); // round damage to 1d.p. if it is an integer value
+			}
+
+			Game.ctx.fillText(damage, this.screenX, this.screenY);
+		}
+
+		Game.ctx.globalAlpha = 1; // restore transparency if it was changed by preRenderFunction (e.g: mage channelled projectile)
 	}
 }
 
@@ -2729,7 +2877,7 @@ class Enemy extends Attacker {
 		// sin and cos wrong direction because pi/2 was added to it
 		this.setRotationImage(Math.sin(projectileRotate), Math.cos(projectileRotate));
 
-		this.channellingProjectileId = Game.nextProjectileId;
+		this.channellingProjectileId = Game.nextEntityId;
 
 		// save projectile into variable
 		let shotProjectile = new Projectile({
@@ -2771,7 +2919,7 @@ class Enemy extends Attacker {
 		// taken from Player
 		let a = this.channellingProjectileId; // maintain a variable of the currently shot projectile
 		Game.objectRemoveTimeouts.push(setTimeout(function (a) {
-			Game.projectiles.splice(Game.searchFor(a, Game.projectiles), 1); // find the id of the to-be-removed projectile and remove it
+			Game.removeObject(a, "projectiles", Projectile);
 		}, 1500, a)); // pushed to objectRemoveTimeouts so it can be removed when the area is changed
 
 		this.channellingProjectileId = null;
@@ -4005,7 +4153,6 @@ Game.loadArea = function (areaName, destination) {
 
 		// particles
 		this.particles = [];
-		this.nextParticleId = 0; // reset particle id chain (because particles don't persist between areas)
 
 		// reset any channelling projectile (if the player exists)
 		if (this.hero !== undefined) {
@@ -4016,7 +4163,6 @@ Game.loadArea = function (areaName, destination) {
 
 		// projectiles
 		this.projectiles = [];
-		this.nextProjectileId = 0; // reset projectile id chain (because projectiles don't persist between areas)
 
 		// area teleports
 		if (Areas[areaName].areaTeleports !== undefined) {
@@ -4297,10 +4443,6 @@ Game.init = function () {
 	// music
 	this.playingMusic = null;
 
-	// list of basic (no extra operations to be done) things to be rendered (in order)
-	this.renderList = ["things", "infoPoints", "mailboxes", "chests", "villagers", "npcs", "dummies", "enemies"];
-	// then player, then projectiles (in order they were shot)
-
 	// create the player
 	// its x and y are not set until Game.loadArea resumes
 	this.hero = new Hero({
@@ -4315,11 +4457,18 @@ Game.init = function () {
 		image: "hero",
 
 		// properties inherited from Character
-		direction: 3,
 		health: Player.health,
 		name: Player.name,
 		level: Player.level,
 		class: Player.class,
+
+		direction: 3,
+		crop: {
+			x: 0,
+			y: 0,
+			width: 57,
+			height: 120
+		},
 
 		// properties inherited from Attacker
 
@@ -4841,10 +4990,10 @@ Game.update = function (delta) {
 		let dirx = 0;
 		let diry = 0;
 		// player has control over themselves
-	    if (this.keysDown.LEFT) { dirx = -1; this.hero.direction = 2; }
-	    if (this.keysDown.RIGHT) { dirx = 1; this.hero.direction = 4; }
-	    if (this.keysDown.UP) { diry = -1; this.hero.direction = 1; }
-	    if (this.keysDown.DOWN) { diry = 1; this.hero.direction = 3; }
+	    if (this.keysDown.LEFT) { dirx = -1; this.hero.direction = 2; this.hero.updateRotation(); }
+	    if (this.keysDown.RIGHT) { dirx = 1; this.hero.direction = 4; this.hero.updateRotation(); }
+	    if (this.keysDown.UP) { diry = -1; this.hero.direction = 1; this.hero.updateRotation(); }
+	    if (this.keysDown.DOWN) { diry = 1; this.hero.direction = 3; this.hero.updateRotation(); }
 
 		// strafing is slower
 		if (dirx !== 0 && diry !== 0) {
@@ -5318,7 +5467,7 @@ Game.update = function (delta) {
 				// taken from Player
 				let a = projectile.id; // maintain a variable of the currently shot projectile's id
 				this.objectRemoveTimeouts.push(setTimeout(function (a) {
-					Game.projectiles.splice(Game.searchFor(a, Game.projectiles), 1); // find the id of the to-be-removed projectile and remove it
+					Game.removeObject(this.channellingProjectileId, "projectiles", Projectile);
 				}, 1500, a)); // pushed to objectRemoveTimeouts so it can be removed when the area is changed
 			}
 
@@ -5570,9 +5719,11 @@ Game.getXP = function (xpGiven, xpBonus) {
 			// max level
 			Player.xp = LevelXP[Player.level];
 		}
+
+		Dom.checkProgress();
 	}
 	else {
-		console.error("XP increase amount is not a number:", xpGiven)
+		console.error("XP increase amount is not a number: ", xpGiven)
 	}
 }
 
@@ -5603,7 +5754,7 @@ Game.inventoryUpdate = function (e) {
 
 		// if the player is no longer holding a fishing rod, remove their bobber
 		if (Player.inventory.weapon.type !== "rod" && this.hero.channelling === "fishing") {
-			this.projectiles.splice(this.searchFor(this.hero.channellingProjectileId, tgis.projectiles), 1); // remove bobber
+			this.removeObject(this.hero.channellingProjectileId, "projectiles", Projectile); // remove bobber
 
 			this.hero.channelling = false;
 			this.hero.channellingProjectileId = null;
@@ -5734,7 +5885,7 @@ Game.lootClosed = function (itemsRemaining) {
 		// chest loot menu closed
 		let arrayIndex = Dom.loot.currentId.substr(1);
 		if (Game.chests[arrayIndex].disappearAfterOpened) {
-			Game.chests.splice(arrayIndex, 1);
+			Game.removeObject(Game.chests[arrayIndex].id, "chests", LootChest, arrayIndex);
 		}
 		else {
 			Game.chests[arrayIndex].loot = itemsRemaining; // update items remaining
@@ -5918,68 +6069,23 @@ Game.drawGrid = function () {
 };
 
 Game.drawHitboxes = function () {
-	// stroke colour
-	this.ctx.strokeStyle="#FF0000";
+	for (let i = 0; i < this.allEntities.length; i++) { // iterate through everything with a hitbox
+		let objectToRender = this.allEntities[i];
 
-	// TBD change this to work off of renderList
+		if (this.camera.isOnScreen(objectToRender, "hitbox")) { // check object hitbox is on the screen hence should be rendered
 
-	// player hitbox (add to renderlist tbd)
-	this.drawhitbox(this.hero);
+			// stroke colour
+			this.ctx.strokeStyle = objectToRender.hitboxColour;
 
-	// render npcs on renderList
-	for (let i = 0; i < this.renderList.length; i++) { // iterate through everything to be rendered (in order)
-
-		for (let x = 0; x < this[this.renderList[i]].length; x++) { // iterate through that array of things to be rendered
-
-			let objectToRender = this[this.renderList[i]][x];
-
-			if (Game.camera.isOnScreen(objectToRender, "hitbox")) { // check object hitbox is on the screen hence should be rendered
-
-				if (objectToRender.hitbox !== undefined) { // check if the object has a special hitbox that should be drawn instead
-					this.drawhitbox(objectToRender.hitbox);
-				}
-				else {
-					this.drawhitbox(objectToRender);
-				}
-
+			if (objectToRender.hitbox !== undefined) { // check if the object has a special hitbox that should be drawn instead
+				this.drawhitbox(objectToRender.hitbox);
+			}
+			else {
+				this.drawhitbox(objectToRender);
 			}
 
 		}
-
 	}
-
-	// area teleport hitboxes
-	// maybe a special hitbox render list should be made? (tbd)
-	for (let i = 0; i < this.areaTeleports.length; i++) {
-		this.drawhitbox(this.areaTeleports[i]);
-	}
-
-	// tripwire hitboxes
-	// maybe a special hitbox render list should be made? (tbd)
-	for (let i = 0; i < this.tripwires.length; i++) {
-		this.drawhitbox(this.tripwires[i]);
-	}
-
-	// collision hitboxes
-	// maybe a special hitbox render list should be made? (tbd)
-	for (let i = 0; i < this.collisions.length; i++) {
-		this.drawhitbox(this.collisions[i]);
-	}
-
-	// projectile hitboxes
-	// should be added to renderList (tbd)
-	for (let i = 0; i < this.projectiles.length; i++) {
-		if (this.projectiles[i].hitbox !== undefined) { // this should be checked for everything in the future (when this function is reworked to work with renderList)
-			this.drawhitbox(this.projectiles[i].hitbox);
-		}
-		else {
-			this.drawhitbox(this.projectiles[i]);
-		}
-	}
-
-	// stroke colour for hero foot hitbox
-	this.ctx.strokeStyle="#FF00FF";
-	this.drawhitbox(this.hero.footHitbox);
 }
 
 // draw an entity's hitbox
@@ -6315,68 +6421,101 @@ Game.canvasDisplayFinished = function () {
 
 // draw images on canvas
 Game.render = function (delta) {
-	// reset text formatting (currntly done in individual functions)
-	//this.resetFormatting();
-
-	// reset canvas distortion
-	///this.ctx.resetTransform();
-
-    // draw map background layer
-    //if (this.hasScrolled) {
+	// draw map background layer
 	this.drawLayer(0);
-    //}
 
-	// distort canvas
-	//this.ctx.setTransform(1, -0.01, -0.01, 1, 0, 0);
+	// sort by y value (works in reverse)
+	// gnomesort - used because it is fast on mostly sorted data (which this will be because NPCs don't move)
+	// projectiles are always put on top
+	let i = this.allThings.length-1;
+	while (i > -1) {
+	    if (i === this.allThings.length-1 || // nothing to compare to, or...
+	    (((this.allThings[i].y <= this.allThings[i+1].y ||
+	    this.allThings[i+1].constructor.name === "Projectile") && // ...no reason to swap and...
+	    this.allThings[i].constructor.name !== "Projectile") || // ...not a projectile, or...
+	    (this.allThings[i].constructor.name === "Projectile" && // ...a projectile and...
+	    this.allThings[i+1].constructor.name === "Projectile"))) { // ...has already been sorted to be with other projectiles at end
+	        // nothing to swap
+	        i--;
+	    }
+	    else {
+	        // swap
+	        let mem = this.allThings[i];
+	        this.allThings[i] = this.allThings[i+1];
+	        this.allThings[i+1] = mem;
+	        i++;
+	    }
+	}
 
-	// render things on renderList
-	for (let i = 0; i < this.renderList.length; i++) { // iterate through everything to be rendered (in order)
+	// render everything with image
+	for (let i = 0; i < this.allThings.length; i++) { // iterate through everything to be rendered
 
-		for (let x = 0; x < this[this.renderList[i]].length; x++) { // iterate through that array of things to be rendered
+		let objectToRender = this.allThings[i];
 
-			let objectToRender = this[this.renderList[i]][x];
+		// check object should be rendered
+		if (Game.camera.isOnScreen(objectToRender, "image") && // object on screen
+		(objectToRender.stats === undefined || !objectToRender.stats.stealthed)) { // object isn't stealthed
 
-			// check object should be rendered
-			if (Game.camera.isOnScreen(objectToRender, "image") && // object on screen
-			(objectToRender.stats === undefined || !objectToRender.stats.stealthed)) { // object isn't stealthed
+			// set character screen x and y
+			this.updateScreenPosition(objectToRender);
 
-				// set character screen x and y
-				this.updateScreenPosition(objectToRender);
+			if (!objectToRender.respawning) { // check character is not dead
 
-				if (!objectToRender.respawning) { // check character is not dead
+				let renderImage = true; // if image should be rendered
+				if (objectToRender.preRenderFunction !== undefined) {
+					renderImage = objectToRender.preRenderFunction();
+					// whether image is rendered is based off the return value of preRenderFunction
+					// also applies for whether postRenderFunction is called
+				}
 
-					// draw image
-					this.ctx.drawImage(
-						objectToRender.image,
-						objectToRender.crop.x, objectToRender.crop.y,
-						objectToRender.crop.width, objectToRender.crop.height,
-						objectToRender.screenX - objectToRender.width / 2,
-						objectToRender.screenY - objectToRender.height / 2,
-						objectToRender.width,
-						objectToRender.height
-					);
+				if (renderImage) {
+					if (objectToRender.rotate !== undefined && objectToRender.rotate !== 0) {
+						// rotate and draw (just for projectiles currently)
+						// no crop information passed in
+						this.drawImageRotated(
+							this.ctx,
+							objectToRender.image,
+							objectToRender.screenX - objectToRender.width / 2,
+							objectToRender.screenY - objectToRender.height / 2,
+							objectToRender.width,
+							objectToRender.height,
+							objectToRender.rotate
+						);
+					}
+					else {
+						// draw image (unrotated)
+						this.ctx.drawImage(
+							objectToRender.image,
+							objectToRender.crop.x, objectToRender.crop.y,
+							objectToRender.crop.width, objectToRender.crop.height,
+							objectToRender.screenX - objectToRender.width / 2,
+							objectToRender.screenY - objectToRender.height / 2,
+							objectToRender.width,
+							objectToRender.height
+						);
+					}
 
-					// render function (additional render to be carried out upon render of this entity)
-					if (objectToRender.renderFunction !== undefined) {
-						objectToRender.renderFunction();
+					if (objectToRender.postRenderFunction !== undefined) {
+						objectToRender.postRenderFunction();
 					}
 				}
 
-				else if (objectToRender.deathImage !== undefined && objectToRender.isCorpse) { // display corpse
-
-					// draw image (corpse)
-					this.ctx.drawImage(
-						objectToRender.deathImage,
-						objectToRender.screenX - objectToRender.deathImageWidth / 2,
-						objectToRender.screenY - objectToRender.deathImageHeight / 2,
-						objectToRender.deathImageWidth,
-						objectToRender.deathImageHeight
-					);
-
-					// perhaps a death render function should be added? tbd
-				}
 			}
 
+			else if (objectToRender.deathImage !== undefined && objectToRender.isCorpse) { // display corpse
+
+				// tbd make it work the same way as the above function
+				// maybe do this by using changeImage on death instead?
+
+				// draw image (corpse)
+				this.ctx.drawImage(
+					objectToRender.deathImage,
+					objectToRender.screenX - objectToRender.deathImageWidth / 2,
+					objectToRender.screenY - objectToRender.deathImageHeight / 2,
+					objectToRender.deathImageWidth,
+					objectToRender.deathImageHeight
+				);
+			}
 		}
 
 	}
@@ -6414,118 +6553,6 @@ Game.render = function (delta) {
 		this.ctx.lineWidth = 0.5;
 		this.ctx.strokeStyle = "#000000";
 	}
-
-    // draw main character
-
-	// if player is stealthed, draw them partially transparent
-	if (this.hero.stats.stealthed) {
-		this.ctx.globalAlpha = 0.6;
-	}
-	// check what direction they are facing, then render player
-	if (this.hero.direction === 1) {
-		this.ctx.drawImage(
-			this.hero.image,
-			0, this.hero.baseHeight,
-			this.hero.baseWidth, this.hero.baseHeight,
-			this.hero.screenX - this.hero.width / 2, this.hero.screenY - this.hero.height / 2,
-			this.hero.width, this.hero.height,
-		);
-	}
-
-	else if (this.hero.direction === 2) {
-		this.ctx.drawImage(
-			this.hero.image,
-			this.hero.baseWidth, this.hero.baseHeight,
-			this.hero.baseWidth, this.hero.baseHeight,
-			this.hero.screenX - this.hero.width / 2, this.hero.screenY - this.hero.height / 2,
-			this.hero.width, this.hero.height,
-		);
-	}
-
-	else if (this.hero.direction === 3) {
-		this.ctx.drawImage(
-			this.hero.image,
-			0, 0,
-			this.hero.baseWidth, this.hero.baseHeight,
-			this.hero.screenX - this.hero.width / 2, this.hero.screenY - this.hero.height / 2,
-			this.hero.width, this.hero.height,
-		);
-	}
-
-	else if (this.hero.direction === 4) {
-		this.ctx.drawImage(
-			this.hero.image,
-			this.hero.baseWidth, 0,
-			this.hero.baseWidth, this.hero.baseHeight,
-			this.hero.screenX - this.hero.width / 2, this.hero.screenY - this.hero.height / 2,
-			this.hero.width, this.hero.height,
-		);
-	}
-	// set transparency back (just in case it was changed because the player is stealthed)
-	this.ctx.globalAlpha = 1;
-
-	// draw projectiles
-    for (let i = 0; i < this.projectiles.length; i++) {
-		// set screen x and y
-		this.updateScreenPosition(this.projectiles[i]);
-
-		if (this.getAttackType() === "bow" && this.projectiles[i].beingChannelled && Game.hero.channelling === "projectile") { // show archer red circle instead of projectile if they are currently channelling it
-			this.ctx.strokeStyle = "red";
-			this.ctx.beginPath();
-			this.ctx.arc(this.projectiles[i].hitbox.screenX, this.projectiles[i].hitbox.screenY, this.projectiles[i].variance, 0, 2*Math.PI);
-			this.ctx.stroke();
-		}
-
-		else { // render projectile normally
-			if (this.getAttackType() === "staff" && this.projectiles[i].beingChannelled && Game.hero.channelling === "projectile") { // mage projectiles are transparent when being channelled
-				this.ctx.globalAlpha = 0.6;
-			}
-
-			if (this.projectiles[i].rotate !== 0) {
-				this.drawImageRotated( // rotate projectile and draw
-					this.ctx,
-					this.projectiles[i].image,
-					this.projectiles[i].screenX - this.projectiles[i].width / 2,
-					this.projectiles[i].screenY - this.projectiles[i].height / 2,
-					this.projectiles[i].width,
-					this.projectiles[i].height,
-					this.projectiles[i].rotate
-				);
-			}
-			else {
-				this.ctx.drawImage( // draw unrotated
-					this.projectiles[i].image,
-					this.projectiles[i].width * this.projectiles[i].imageNumber, 0, // draw a certain number image from a tileset (maybe only do this if it is from a tileset, otherwise call simplified drawImage function? TBD)
-					this.projectiles[i].width, this.projectiles[i].height,
-					this.projectiles[i].screenX - this.projectiles[i].width / 2,
-					this.projectiles[i].screenY - this.projectiles[i].height / 2,
-					this.projectiles[i].width, this.projectiles[i].height,
-				);
-			}
-
-			// shows damage dealt by projectile
-			for (let x = 0; x < this.projectiles[i].damageDealt.length; x++) {
-				// formatting
-				if (this.projectiles[i].damageDealt[x].critical) {
-					this.ctx.fillStyle = "rgb(255, 0, 0)"; // maybe use rgba to make it fade away?
-				}
-				else {
-					this.ctx.fillStyle = "rgb(0, 0, 0)"; // maybe use rgba to make it fade away?
-				}
-				this.ctx.textAlign = "left";
-				this.ctx.font = "18px El Messiri";
-
-				let damage = this.projectiles[i].damageDealt[x].damage;
-				if (damage !== "hit dodged") {
-					damage = Round(damage); // round damage to 1d.p. if it is an integer value
-				}
-
-				this.ctx.fillText(damage, this.projectiles[i].screenX, this.projectiles[i].screenY);
-			}
-
-			this.ctx.globalAlpha = 1; // restore transparency if it was changed above (e.g: mage channelled projectile)
-		}
-    }
 
 	// draw particles
 	// particles are drawn as rects
@@ -6963,6 +6990,15 @@ Game.saveProgress = function (saveType) { // if saveType is "auto" then the save
 
 		// save everything in savedata.js
 		localStorage.setItem(Player.class, JSON.stringify(Player));
+
+		// save all user information apart from changes in unclaimed achievement points and skins (in case something was baught during game open)
+		let prevUser = JSON.parse(localStorage.getItem("user"));
+		if (prevUser.skinPurchased === true) {
+			// user has bought a skin this session
+			User.skins = prevUser.skins;
+			User.achievementPoints.unclaimed = prevUser.achievementPoints.unclaimed;
+			User.skinPurchased = undefined;
+		}
 		localStorage.setItem("user", JSON.stringify(User));
 
 		clearTimeout(Game.saveTimeout); // clear the previous 60 second timeout to avoid saves being too often
