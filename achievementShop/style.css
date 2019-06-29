@@ -1,0 +1,93 @@
+body {
+	overflow: hidden;
+}
+
+#options {
+	width: 30vw;
+	height: 100vh;
+	text-align: center;
+	font-size: 40px;
+	line-height: 60px;
+	vertical-align: top;
+	overflow-y: auto;
+	margin-top: -10px;
+	padding-right: 10px;
+}
+
+#skin {
+	position: absolute;
+	height: 85vh;
+	top: 20px;
+}
+
+#menu {
+	position: absolute;
+	right: 80px;
+	top: 70px;
+	font-size: 30px;
+	text-align: right;
+	line-height: 40px;
+}
+
+#buy {
+	border: 5px solid var(--border);
+	background-color: var(--bottom);
+	padding: 10px;
+	width: max-content;
+	text-align: center;
+	float: right;
+	cursor: pointer;
+	position: fixed;
+	bottom: 70px;
+	right: 70px;
+}
+
+#arrows {
+	font-size: 100px;
+	position: absolute;
+	bottom: 20px;
+	width: 100%;
+	left: 0px;
+}
+
+#left, #right {
+	cursor: pointer;
+}
+
+.option {
+	height: 55px;
+	background-color: var(--bottom);
+	border: 5px solid var(--border);
+	margin-bottom: 10px;
+	overflow-x: hidden;
+	overflow-y: hidden;
+	padding: 10px;
+	position: relative;
+	cursor: pointer;
+}
+
+.image {
+	position: relative;
+	width: 80px;
+	background-size: 80px;
+	background-repeat: no-repeat;
+}
+
+.name {
+	position: absolute;
+	left: 100px;
+	top: 10px;
+	font-weight: bold;
+	font-size: 16px;
+	line-height: normal;
+}
+
+.projectile {
+	position: absolute;
+	right: 10px;
+	top: 10px;
+	height: 55px;
+	width: 55px;
+	background-position: center;
+	background-repeat: no-repeat;
+}

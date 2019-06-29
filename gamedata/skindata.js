@@ -107,7 +107,7 @@ var Skins = {
 			id: 3,
 			position: {x: -20, y: -6.7},
 			name: "Wicked Witch",
-			gender:	"m",
+			gender:	"f",
 			projectile:	"fireballGreen",
 			projectileAdjust: {x: 20, y: 20},
 			cursor: "spooky",

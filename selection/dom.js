@@ -1,3 +1,12 @@
+let unlocked = {
+	a: [0, 1],
+	m: [0, 1],
+	k: [0, 1],
+};
+if (localStorage.getItem("user") !== null) {
+	unlocked = JSON.parse(localStorage.getItem("user")).skins;
+}
+
 if (localStorage.getItem("user") !== null && JSON.parse(localStorage.getItem("user")).settings.dark) {
 	document.documentElement.style = `
 	--border: #202020;
@@ -179,16 +188,16 @@ function display(){
 		document.getElementById("info").innerHTML = "<strong>Level 0</strong><br><span style='font-size: 16px;'>Not Started</span>";
 	}
 	document.getElementById("skins").innerHTML = "";
-	for (let i = 0; i < Skins[selected.class].length; i++) {
+	for (let i = 0; i < unlocked[selected.class].length; i++) {
 		document.getElementById("skins").innerHTML += "<div class='skin' id='skin"+i+"'>";
-		document.getElementById("skin"+i).style.backgroundImage = 'url("assets/'+selected.class+i+'/f.png")';
-		document.getElementById("skin"+i).style.right = 12 - Skins[selected.class][i].headAdjust.x + "px";
-		document.getElementById("skin"+i).style.top = -10 - Skins[selected.class][i].headAdjust.y + "px";
+		document.getElementById("skin"+i).style.backgroundImage = 'url("assets/'+selected.class+unlocked[selected.class][i]+'/f.png")';
+		document.getElementById("skin"+i).style.right = 12 - Skins[selected.class][unlocked[selected.class][i]].headAdjust.x + "px";
+		document.getElementById("skin"+i).style.top = -10 - Skins[selected.class][unlocked[selected.class][i]].headAdjust.y + "px";
 	}
 	document.getElementById("skins").innerHTML = "<center>"+document.getElementById("skins").innerHTML+"</center>";
-	for (let i = 0; i < Skins[selected.class].length; i++) {
+	for (let i = 0; i < unlocked[selected.class].length; i++) {
 		document.getElementById("skin"+i).onclick = function () {
-			selected[selected.class] = i;
+			selected[selected.class] = unlocked[selected.class][i];
 			display();
 		}
 	}

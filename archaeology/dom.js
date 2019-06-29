@@ -42,7 +42,7 @@ var obtained = document.getElementById("obtained");
 var display = document.getElementById("display");
 var searchBar = document.getElementById("searchBar");
 var session = {};
-var archaeology = JSON.parse(localStorage.getItem("user"));
+var User = JSON.parse(localStorage.getItem("user"));
 var events = ["Samhain", "Christmas"];
 
 document.getElementById("reset").onclick = function () {
@@ -85,10 +85,9 @@ if (url.searchParams.get("searchBar") !== null) {
 	searchBar.value = url.searchParams.get("searchBar");
 }
 
-if(archaeology === null){
-	archaeology = [];
-}else{
-	archaeology = archaeology.archaeology;
+archaeology = [];
+if(User !== null){
+	archaeology = User.archaeology;
 }
 
 /*if(sessionStorage.getItem("filter") != null){
@@ -778,13 +777,7 @@ else{
 	}else{
 		screenSize = 245*3+45;
 	}
-	for(var i = 0; i < 7; i++){
-		for(var x = 2; x < Items[Object.keys(Items)[i]].length; x++){
-			if(!Items[Object.keys(Items)[i]][x].uncollectable){
-				total++;
-			}
-		}
-	}
+	total = GetTotalArchaeologyItems();
 	//checkChange();
 	init();
 	//arrange();

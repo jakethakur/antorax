@@ -1509,7 +1509,7 @@ var Items = {
 			area: [],
 			rarity: "common",
 			sellPrice: 1,
-			lore: "Throw it at someone you don't like",
+			lore: "Throw it at someone you don't like.",
 			uncollectable: true,
 			event: "Christmas",
 			stats: {
@@ -3830,3 +3830,16 @@ const WeaponRanges = {
 	sword: 100,
 	rod: 200,
 };
+
+// returns total number of items in archaeology
+GetTotalArchaeologyItems = function () {
+	let total = 0;
+	for (var i = 0; i < 7; i++) {
+		for (var x = 2; x < Items[Object.keys(Items)[i]].length; x++) {
+			if (!Items[Object.keys(Items)[i]][x].uncollectable && (!Items[Object.keys(Items)[i]][x].limitedEdition || User.archaeology.includes(Items[Object.keys(Items)[i]][x].name))) {
+				total++;
+			}
+		}
+	}
+	return total;
+}

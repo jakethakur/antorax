@@ -64,6 +64,7 @@ td{
 	font-size: 25px;
 	text-align: left;
 	color: var(--text);
+	line-height: 30px;
 }
 #triangle, #innerTriangle {
 	position: absolute;

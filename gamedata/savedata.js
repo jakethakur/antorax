@@ -141,6 +141,11 @@ var User = {
 		total: 0,
 		unclaimed: 0,
 	},
+	skins: {
+		a: [0, 1],
+		m: [0, 1],
+		k: [0, 1],
+	},
 	progress: {},
 	settings: {
 		music: false,

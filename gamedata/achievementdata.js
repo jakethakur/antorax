@@ -5,6 +5,7 @@ if(JSON.parse(localStorage.getItem("user")) !== null){
 	user.settings = Object.assign(User.settings, user.settings);
 	User = Object.assign(User, user);
 	User.notFirst = true;
+	User.skinPurchased = undefined;
 }
 
 var Achievements = [
@@ -438,7 +439,7 @@ var Achievements = [
 			type: "redirect",
 			text: "View in archaeology",
 			location: "../archaeology/index.html",
-			total: 60,
+			total: GetTotalArchaeologyItems(),
 			value: User.archaeology.length,
 		},
 	},
