@@ -1364,6 +1364,7 @@ var Areas = {
 			{
 				x: 134,
 				y: 125,
+				z: -1,
 				image: "hearth1",
 				name: "Tavern Hearth",
 				// animation!
@@ -1386,6 +1387,7 @@ var Areas = {
 			{
 				x: 741,
 				y: 785,
+				z: -1,
 				image: "stairs",
 				name: "Stairs",
 				crop: {
@@ -1450,6 +1452,7 @@ var Areas = {
 			{
 				x: 844,
 				y: 294,
+				z: -1,
 				image: "gameBoard",
 				name: "Wizard's Lore",
 				onTouchChat: "A game of Wizard's Lore, a board game traditionally played by wizard students and scholars.",
@@ -1956,6 +1959,7 @@ var Areas = {
 			{
 				x: 468,
 				y: 97,
+				z: -1,
 				image: "stairs",
 				name: "Stairs",
 			},
@@ -1965,6 +1969,7 @@ var Areas = {
 			{
 				x: 546,
 				y: 157,
+				z: -0.5,
 				image: "painting",
 				name: "Painting",
 				onTouchChat: "A painting of Wizard Andrews, one of the most accomplished wizards that has ever been known. This tower used to be his, but was overrun by goblins after he left to persue his life of wizardry."
@@ -2118,6 +2123,7 @@ var Areas = {
 			{
 				x: 468,
 				y: 97,
+				z: -1,
 				image: "stairs",
 				name: "Stairs",
 			},
@@ -2127,6 +2133,7 @@ var Areas = {
 			{
 				x: 546,
 				y: 157,
+				z: -0.5,
 				image: "painting",
 				name: "Painting",
 				onTouchChat: "A painting of Scorched Azuras, the scarred lands that were once an incredible forest. The trees were burnt down and the ground scored by a group of fire orcs, whom Andrews could not stop as a young wizard. To this day he still regrets he was unable to do something to stop them."
@@ -2286,6 +2293,7 @@ var Areas = {
 			{
 				x: 468,
 				y: 97,
+				z: -1,
 				image: "stairs",
 				name: "Stairs",
 			},
@@ -2295,6 +2303,7 @@ var Areas = {
 			{
 				x: 537,
 				y: 158,
+				z: -0.5,
 				image: "painting",
 				name: "Painting",
 				onTouchChat: "A painting of Wizard Andrews with the Lady of Autumn, in the Forest of the Hundred Trees, Elven Woodlands. Andrews was blessed by the elves on this day for his help in the defense of Woodreach against the vampire-elf Mroll."
@@ -2471,6 +2480,7 @@ var Areas = {
 			{
 				x: 468,
 				y: 97,
+				z: -1,
 				image: "stairs",
 				name: "Stairs",
 			},
@@ -2480,6 +2490,7 @@ var Areas = {
 			{
 				x: 540,
 				y: 164,
+				z: -0.5,
 				image: "painting",
 				name: "Painting",
 				onTouchChat: "A painting of The Wastelands. They were barren lands, where Wizard Andrews fought through the barbarian tribes to destroy the Chaos Parasite and its corruption."
@@ -2662,6 +2673,7 @@ var Areas = {
 			{
 				x: 500,
 				y: 150,
+				z: -1,
 				image: "weaponRack",
 			},
 		],
@@ -3430,6 +3442,7 @@ var Areas = {
 			{
 				x: 1090,
 				y: 125,
+				z: -1,
 				image: "hearth1",
 				name: "Tavern Hearth",
 				// animation!
@@ -3452,6 +3465,7 @@ var Areas = {
 			{
 				x: 134,
 				y: 125,
+				z: -1,
 				image: "hearth1",
 				name: "Tavern Hearth",
 				// animation!
@@ -3474,6 +3488,7 @@ var Areas = {
 			{
 				x: 630,
 				y: 844,
+				z: -1,
 				image: "hearth1",
 				name: "Tavern Hearth",
 				// animation!
@@ -3496,6 +3511,7 @@ var Areas = {
 			{
 				x: 1039,
 				y: 905,
+				z: -1,
 				image: "stairsRight",
 				name: "Stairs",
 				crop: {
@@ -3507,6 +3523,7 @@ var Areas = {
 			{
 				x: 221,
 				y: 905,
+				z: -1,
 				image: "stairsLeft",
 				name: "Stairs",
 				crop: {
@@ -3618,6 +3635,7 @@ var Areas = {
 			{
 				x: 364,
 				y: 230,
+				z: -1,
 				image: "gameBoard1",
 				name: "Wizard's Lore",
 				onTouchChat: "A game of Wizard's Lore, a board game traditionally played by wizard students and scholars.",
@@ -3625,6 +3643,7 @@ var Areas = {
 			{
 				x: 1083,
 				y: 1314,
+				z: -1,
 				image: "gameBoard2",
 				name: "Wizard's Lore",
 				onTouchChat: "A game of Wizard's Lore, a board game traditionally played by wizard students and scholars.",

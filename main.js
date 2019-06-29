@@ -524,6 +524,8 @@ class Thing extends Entity {
 
 		this.expand = properties.expand || 1; // width multiplier (based on base width and base height)
 
+		this.z = properties.z || 0; // used for canvas positioning: -1 is always below (e.g. wizard's lore) and 1 is always on top (e.g. projectile)
+
 		this.name = properties.name;
 
 		this.bright = properties.bright; // currently does nothing
@@ -2185,6 +2187,8 @@ class Hero extends Attacker {
 class Projectile extends Thing {
 	constructor(properties) {
 		super(properties);
+
+		this.z = properties.z || 1; // appears on top by default (z would normally be 0)
 
 		this.attacker = properties.attacker || {
 			stats: properties.stats, // for if projectile deals its own damage
@@ -4244,6 +4248,12 @@ Game.loadArea = function (areaName, destination) {
 
 			// close NPC pages
             Dom.closeNPCPages();
+
+			// re-add player to allEntities etc.
+			this.allEntities.push(Game.hero);
+			this.allThings.push(Game.hero);
+			this.allCharacters.push(Game.hero);
+			this.allAttackers.push(Game.hero);
 		}
 
 		// display area name
@@ -6424,26 +6434,26 @@ Game.render = function (delta) {
 	// draw map background layer
 	this.drawLayer(0);
 
-	// sort by y value (works in reverse)
+	// sort by y value
+	// set values to sort by, basing their value on their z position as well as y value
+	// 10^10 is an arbitrary value that should always be out of reach of y values
+
+	for (let i = 0; i < this.allThings.length; i++) {
+		this.allThings[i].sortValue = this.allThings[i].y + this.allThings[i].z * 10000000000;
+	}
 	// gnomesort - used because it is fast on mostly sorted data (which this will be because NPCs don't move)
-	// projectiles are always put on top
-	let i = this.allThings.length-1;
-	while (i > -1) {
-	    if (i === this.allThings.length-1 || // nothing to compare to, or...
-	    (((this.allThings[i].y <= this.allThings[i+1].y ||
-	    this.allThings[i+1].constructor.name === "Projectile") && // ...no reason to swap and...
-	    this.allThings[i].constructor.name !== "Projectile") || // ...not a projectile, or...
-	    (this.allThings[i].constructor.name === "Projectile" && // ...a projectile and...
-	    this.allThings[i+1].constructor.name === "Projectile"))) { // ...has already been sorted to be with other projectiles at end
-	        // nothing to swap
-	        i--;
+	let i = 0;
+	while (i < this.allThings.length) {
+		if (i === 0 || this.allThings[i].sortValue >= this.allThings[i-1].sortValue) {
+			// nothing to swap
+	        i++;
 	    }
 	    else {
 	        // swap
 	        let mem = this.allThings[i];
-	        this.allThings[i] = this.allThings[i+1];
-	        this.allThings[i+1] = mem;
-	        i++;
+	        this.allThings[i] = this.allThings[i-1];
+	        this.allThings[i-1] = mem;
+	        i--;
 	    }
 	}
 
