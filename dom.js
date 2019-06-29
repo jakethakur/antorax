@@ -140,6 +140,9 @@ let Dom = {
 		speedOn: document.getElementById("speedOn"),
 		stats: document.getElementById("stats"),
 		textPage: document.getElementById("textPage"),
+		tradePage: document.getElementById("tradePage"),
+		tradePageInventory: document.getElementById("tradePageInventory"),
+		tradePageOther: document.getElementById("tradePageOther"),
 		transparencyOn: document.getElementById("transparencyOn"),
 		triangle: document.getElementById("triangle"),
 		tutorialOff: document.getElementById("tutorialOff"),
@@ -165,6 +168,7 @@ let Dom = {
 	mail: {},
 	driver: {},
 	bank: {},
+	trade: {},
 	choose: {},
 	text: {},
 	alert: {},
@@ -381,6 +385,10 @@ Dom.closeNPCPages = function () {
 		Dom.closePage("inventoryPage");
 		//Dom.bank.active = false;
 	}
+	if (this.elements.tradePage.hidden === false) {
+		Dom.closePage("inventoryPage");
+		//Dom.trade.active = false;
+	}
 	this.elements.questStart.hidden = true;
 	this.elements.questFinish.hidden = true;
 	this.elements.merchantPage.hidden = true;
@@ -413,6 +421,10 @@ Dom.closePage = function (page, notClose) {
 	if (page === "inventoryPage" && Dom.bank.active) {
 		Dom.closePage("bankPage");
 		Dom.bank.active = false;
+	}
+	if (page === "inventoryPage" && Dom.trade.active) {
+		Dom.closePage("tradePage");
+		Dom.trade.active = false;
 	}
 	document.getElementById(page).hidden = true;
 }
@@ -1990,7 +2002,7 @@ Dom.identifier.identify = function (npc) {
 	}
 }
 
-Dom.inventory.give = function (item, num, position, noSave) {
+Dom.inventory.give = function (item, num, position, noSave, noArchaeology) {
 	let added = false; // true if you received the item and returned at the end of the function
 	if (num === undefined) {
 		num = 1;
@@ -2035,7 +2047,7 @@ Dom.inventory.give = function (item, num, position, noSave) {
 							}
 							Player.inventory.items[i].lore = lores[Random(0, lores.length-1)];
 						}
-						if (item.set !== undefined && !User.archaeology.includes(Items.set[item.set].name)) {
+						if (!noArchaeology && item.set !== undefined && !User.archaeology.includes(Items.set[item.set].name)) {
 							let obtained = true;
 							for (let x = 0; x < Items.set[item.set].armour.length; x++) {
 								if (!Dom.inventory.find(-1, -1, undefined, undefined, Items.set[item.set].armour[x])) {
@@ -2060,7 +2072,7 @@ Dom.inventory.give = function (item, num, position, noSave) {
 							}
 							Dom.inventory.update();
 						}
-						if ((item.type === "helm" || item.type === "chest" || item.type === "greaves" || item.type === "boots" || item.type === "sword" || item.type === "staff" || item.type === "bow") && !User.archaeology.includes(item.name) && item.name !== undefined) {
+						if (!noArchaeology && (item.type === "helm" || item.type === "chest" || item.type === "greaves" || item.type === "boots" || item.type === "sword" || item.type === "staff" || item.type === "bow") && !User.archaeology.includes(item.name) && item.name !== undefined) {
 							User.archaeology.push(item.name);
 						}
 						if (item.images !== undefined) {
@@ -2097,7 +2109,7 @@ Dom.inventory.give = function (item, num, position, noSave) {
 			}
 			Player.inventory.items[position].lore = lores[Random(0, lores.length-1)];
 		}
-		if (item.set !== undefined && !User.archaeology.includes(Items.set[item.set].name)) {
+		if (!noArchaeology && item.set !== undefined && !User.archaeology.includes(Items.set[item.set].name)) {
 			let obtained = true;
 			for (let x = 0; x < Items.set[item.set].armour.length; x++) {
 				if (!Dom.inventory.find(-1, -1, undefined, undefined, Items.set[item.set].armour[x])) {
@@ -2123,7 +2135,7 @@ Dom.inventory.give = function (item, num, position, noSave) {
 			}
 			Dom.inventory.update();
 		}
-		if ((item.type === "helm" || item.type === "chest" || item.type === "greaves" || item.type === "boots" || item.type === "sword" || item.type === "staff" || item.type === "bow") && !User.archaeology.includes(item.name) && item.name !== undefined) {
+		if (!noArchaeology && (item.type === "helm" || item.type === "chest" || item.type === "greaves" || item.type === "boots" || item.type === "sword" || item.type === "staff" || item.type === "bow") && !User.archaeology.includes(item.name) && item.name !== undefined) {
 			User.archaeology.push(item.name);
 		}
 	}
@@ -2141,25 +2153,6 @@ Dom.inventory.give = function (item, num, position, noSave) {
 		return false;
 	}
 }
-
-/*if (localStorage.getItem("archaeology") !== null) {
-	User.archaeology = JSON.parse(localStorage.getItem("archaeology"));
-}else{
-	User.archaeology = [];
-}
-if (localStorage.getItem("fish") !== null) {
-	User.fish = JSON.parse(localStorage.getItem("fish"));
-}else{
-	User.fish = [];
-	for (let i = 0; i < Items.fish.length; i++) {
-		User.fish.push(0);
-	}
-}
-if (localStorage.getItem("achievements") !== null) {
-	User.achievements = JSON.parse(localStorage.getItem("achievements"));
-}else{
-	User.achievements = {};
-}*/
 
 Dom.inventory.food = function (inventoryPosition) {
 	if (!Game.hero.hasStatusEffectType("food")) {
@@ -2193,7 +2186,10 @@ Dom.inventory.cooldown = function (inventoryPosition, hotbar, check) {
 	}
 
 	if (Dom.bank.active) {
-		Dom.bank.inOut("in", inventoryPosition);
+		Dom.inventory.inOut("in", inventoryPosition, "bank");
+	}
+	else if (Dom.trade.active) {
+		Dom.inventory.inOut("in", inventoryPosition, "trade");
 	}
 	else if (item[inventoryPosition].cooldown !== undefined) {
 		if (item[inventoryPosition].cooldownStart === undefined || parseInt(item[inventoryPosition].cooldownStart) + item[inventoryPosition].cooldown <= parseInt(GetFullDateTime())) {
@@ -2899,8 +2895,8 @@ Dom.inventory.validateSwap = function () {
 }
 
 // from is not required for drag-n-drop cases
-// tableElement is only for right click
-Dom.inventory.drop = function (toElement, toArray, toId, fromElement, fromArray, fromId, tableElement) {
+// tableElement and stackNums are only for right click
+Dom.inventory.drop = function (toElement, toArray, toId, fromElement, fromArray, fromId, tableElement, fromStackNum, toStackNum) {
 
 	Dom.elements.alert.hidden = true;
 
@@ -2948,19 +2944,37 @@ Dom.inventory.drop = function (toElement, toArray, toId, fromElement, fromArray,
 			this.toArray[this.toId] = this.fromArray[this.fromId];
 			this.fromArray[this.fromId] = temp;
 
+			let stackNum = "stackNum";
+			if (fromArray === Player.bank.items) {
+				stackNum = "bankStackNum";
+			}
+			else if (fromArray === Dom.trade.items) {
+				stackNum = "tradeStackNum";
+			}
+
 			// generate the elements for the items
 			if (this.toElement.innerHTML !== "") {
 				this.fromElement.innerHTML = "<img src='"+this.fromArray[this.fromId].image+"' draggable='true' ></img>";
 				if (this.fromArray[this.fromId].stacked > 1) {
-					this.fromElement.innerHTML += "<div class='stackNum' id='stackNum"+this.fromId+"'>"+this.fromArray[this.fromId].stacked+"</div>";
+					this.fromElement.innerHTML += "<div class='stackNum' id='"+stackNum+this.fromId+"'>"+this.fromArray[this.fromId].stacked+"</div>";
 				}
 				this.setItemFunctions(this.fromElement.getElementsByTagName("img")[0], this.fromArray, this.fromId);
-			}else{
+			}
+			else{
 				this.fromElement.innerHTML = "";
 			}
+			
+			stackNum = "stackNum";
+			if (toArray === Player.bank.items) {
+				stackNum = "bankStackNum";
+			}
+			else if (toArray === Dom.trade.items) {
+				stackNum = "tradeStackNum";
+			}
+			
 			this.toElement.innerHTML = "<img src='"+this.toArray[this.toId].image+"' draggable='true' ></img>";
 			if (this.toArray[this.toId].stacked > 1) {
-				this.toElement.innerHTML += "<div class='stackNum' id='stackNum"+this.toId+"'>"+this.toArray[this.toId].stacked+"</div>";
+				this.toElement.innerHTML += "<div class='stackNum' id='"+stackNum+this.toId+"'>"+this.toArray[this.toId].stacked+"</div>";
 			}
 			this.setItemFunctions(this.toElement.getElementsByTagName("img")[0], this.toArray, this.toId);
 
@@ -2980,11 +2994,11 @@ Dom.inventory.drop = function (toElement, toArray, toId, fromElement, fromArray,
 			// decrease the stack size of the clicked stack
 			this.fromArray[this.fromId].stacked--;
 			if (this.fromArray[this.fromId].stacked > 1) {
-				document.getElementById("stackNum"+this.fromId).innerHTML = this.fromArray[this.fromId].stacked;
+				document.getElementById(fromStackNum+this.fromId).innerHTML = this.fromArray[this.fromId].stacked;
 			}
 			// if stack size is 1 then delete stackNum
 			else if (this.fromArray[this.fromId].stacked === 1) {
-				document.getElementById("stackNum"+this.fromId).innerHTML = "";
+				document.getElementById(fromStackNum+this.fromId).innerHTML = "";
 			}
 			
 			// find an identical item to increase the stack size
@@ -2993,10 +3007,10 @@ Dom.inventory.drop = function (toElement, toArray, toId, fromElement, fromArray,
 				if (this.toArray[i].type === this.fromArray[this.fromId].type && this.toArray[i].id === this.fromArray[this.fromId].id && this.toArray[i].stacked < this.toArray[i].stack) {
 					this.toArray[i].stacked++;
 					if (this.toArray[i].stacked > 2) {
-						document.getElementById("stackNum"+i).innerHTML = this.toArray[i].stacked;
+						document.getElementById(toStackNum+i).innerHTML = this.toArray[i].stacked;
 					}
 					else {
-						tableElement.getElementsByTagName("td")[i].innerHTML += "<div class='stackNum' id='stackNum"+i+"'>"+this.toArray[i].stacked+"</div>"
+						tableElement.getElementsByTagName("td")[i].innerHTML += "<div class='stackNum' id='"+toStackNum+i+"'>"+this.toArray[i].stacked+"</div>"
 					}
 					this.setItemFunctions(tableElement.getElementsByTagName("td")[i].getElementsByTagName("img")[0], this.toArray, i);
 					stacked = true;
@@ -3021,6 +3035,18 @@ Dom.inventory.drop = function (toElement, toArray, toId, fromElement, fromArray,
 	}
 	Game.inventoryUpdate();
 	Dom.hotbar.update();
+	if (toArray === Dom.trade.items || fromArray === Dom.trade.items) {
+		let message = {
+	        type: "trade",
+	        content: Dom.trade.items,
+	    }
+	    let jsonMessage = JSON.stringify(message);
+	    ws.send(jsonMessage);
+		
+		// unconfirm if it was confirmed because items have been moved
+		document.getElementById("tradePageInventory").style.borderColor = "var(--border)";
+		document.getElementById("tradePageOther").style.borderColor = "var(--border)";
+	}
 }
 
 Dom.inventory.setItemFunctions = function (element, array, id) {
@@ -3032,9 +3058,14 @@ Dom.inventory.setItemFunctions = function (element, array, id) {
 			array[id].onClick(id);
 		}
 	}
-	else {
+	else if (array === Player.bank.items) {
 		element.onclick = function () {
-			Dom.bank.inOut("out", id);
+			Dom.inventory.inOut("out", id, "bank");
+		}
+	}
+	else { // trade
+		element.onclick = function () {
+			Dom.inventory.inOut("out", id, "trade");
 		}
 	}
 }
@@ -3788,7 +3819,8 @@ if (User.settings.grid === true) {
 
 // direction - in or out of bank
 // num - position in inventory or bank (i)
-Dom.bank.inOut = function (direction, num) {
+// other - a string such as "bank" to say where it is going / coming from
+Dom.inventory.inOut = function (direction, num, other) {	
 	if (direction === "in") {
 
 		let array = "";
@@ -3801,46 +3833,73 @@ Dom.bank.inOut = function (direction, num) {
 			array = Player.inventory.items;
 			element = Dom.elements.itemInventory.getElementsByTagName("td")[num];
 		}
-
-		// a bag is dropped in the bank bag slots
-		let notBag = true;
-		if (array[num].type === "bag") {
-			for (let i = 0; i < Player.bank.unlockedSlots; i++) {
-				if (Player.bank.items[i].image === undefined) {
-					Dom.inventory.drop(Dom.elements.bankPageInventory.getElementsByTagName("td")[i], Player.bank.items, i, element, array, num);
-					notBag = false;
-					break;
+		
+		// bank not trade
+		if (other === "bank") {
+			// a bag is dropped in the bank bag slots
+			let notBag = true;
+			if (array[num].type === "bag") {
+				for (let i = 0; i < Player.bank.unlockedSlots; i++) {
+					if (Player.bank.items[i].image === undefined) {
+						Dom.inventory.drop(Dom.elements.bankPageInventory.getElementsByTagName("td")[i], Player.bank.items, i, element, array, num);
+						notBag = false;
+						break;
+					}
+				}
+			}
+			// any item is dropped in the main bank space
+			if (notBag) {
+				for (let i = 6; i < Player.bank.items.length; i++) {
+					if (Player.bank.items[i].image === undefined) {
+						// right clicked (only 1 is moved across)
+						if (/*array[num].stacked > 1 && */event.button >= 2) {
+							Dom.inventory.drop(Dom.elements.bankPageInventory.getElementsByTagName("td")[i], Player.bank.items, i, element, array, num, Dom.elements.bankPageInventory, "stackNum", "bankStackNum");
+						}
+						// left clicked (all are moved across)
+						else {
+							Dom.inventory.drop(Dom.elements.bankPageInventory.getElementsByTagName("td")[i], Player.bank.items, i, element, array, num);
+						}
+						break;
+					}
 				}
 			}
 		}
-		// any item is dropped in the main bank space
-		if (notBag) {
-			for (let i = 6; i < Player.bank.items.length; i++) {
-				if (Player.bank.items[i].image === undefined) {
+		// trade not bank
+		else {
+			for (let i = 0; i < 24; i++) {
+				if (Dom.trade.items[i].image === undefined) {
 					// right clicked (only 1 is moved across)
 					if (/*array[num].stacked > 1 && */event.button >= 2) {
-						Dom.inventory.drop(Dom.elements.bankPageInventory.getElementsByTagName("td")[i], Player.bank.items, i, element, array, num, Dom.elements.bankPageInventory);
+						Dom.inventory.drop(Dom.elements.tradePageInventory.getElementsByTagName("td")[i], Dom.trade.items, i, element, array, num, Dom.elements.tradePageInventory, "stackNum", "tradeStackNum");
 					}
 					// left clicked (all are moved across)
 					else {
-						Dom.inventory.drop(Dom.elements.bankPageInventory.getElementsByTagName("td")[i], Player.bank.items, i, element, array, num);
+						Dom.inventory.drop(Dom.elements.tradePageInventory.getElementsByTagName("td")[i], Dom.trade.items, i, element, array, num);
 					}
 					break;
 				}
 			}
-		}
+		}	
 	}
-	// from bank to inventory
+	// from bank/trade to inventory
 	else {
+		let array = Player.bank.items;
+		let element = Dom.elements.bankPageInventory;
+		let stackNum = "bankStackNum";
+		if (other === "trade") {
+			array = Dom.trade.items;
+			element = Dom.elements.tradePageInventory;
+			stackNum = "tradeStackNum";
+		}
 		for (let i = 0; i < Player.inventory.items.length; i++) {
 			if (Player.inventory.items[i].image === undefined) {
 				// right clicked (only 1 is moved across)
 				if (/*array[num].stacked > 1 && */event.button >= 2) {
-					Dom.inventory.drop(Dom.elements.itemInventory.getElementsByTagName("td")[i], Player.inventory.items, i, Dom.elements.bankPageInventory.getElementsByTagName("td")[num], Player.bank.items, num, Dom.elements.itemInventory);
+					Dom.inventory.drop(Dom.elements.itemInventory.getElementsByTagName("td")[i], Player.inventory.items, i, element.getElementsByTagName("td")[num], array, num, Dom.elements.itemInventory, stackNum, "stackNum");
 				}
 				// left clicked (all are moved across)
 				else {
-					Dom.inventory.drop(Dom.elements.itemInventory.getElementsByTagName("td")[i], Player.inventory.items, i, Dom.elements.bankPageInventory.getElementsByTagName("td")[num], Player.bank.items, num);
+					Dom.inventory.drop(Dom.elements.itemInventory.getElementsByTagName("td")[i], Player.inventory.items, i, element.getElementsByTagName("td")[num], array, num);
 				}
 				break;
 			}
@@ -3910,7 +3969,7 @@ Dom.bank.page = function () {
 	for (let i = 0; i < Player.bank.items.length; i++) {
 		if (Player.bank.items[i].image !== undefined) {
 			// building the table
-			Dom.elements.bankPageInventory.getElementsByTagName("td")[i].innerHTML = "<img src='"+Player.bank.items[i].image+"' draggable='true' ondragstart='Dom.inventory.drag(event, Player.bank.items, "+i+")' onclick='Dom.bank.inOut(\"out\", "+i+")'></img>";
+			Dom.elements.bankPageInventory.getElementsByTagName("td")[i].innerHTML = "<img src='"+Player.bank.items[i].image+"' draggable='true' ondragstart='Dom.inventory.drag(event, Player.bank.items, "+i+")' onclick='Dom.inventory.inOut(\"out\", "+i+", \"bank\")'></img>";
 			if (Player.bank.items[i].stacked !== undefined && Player.bank.items[i].stacked !== 1) {
 				Dom.elements.bankPageInventory.getElementsByTagName("td")[i].innerHTML += "<div class='stackNum' id='bankStackNum"+i+"'>"+Player.bank.items[i].stacked+"</div>";
 			}
@@ -4140,7 +4199,10 @@ Dom.inventory.prepare = function (array, i, element) {
 	if ((array[i].type === "sword" || array[i].type === "staff" || array[i].type === "bow" || array[i].type === "rod") && array[i].name !== undefined) {
 		Items[array[i].type][array[i].id].onClick = function (i) {
 			if (Dom.bank.active) {
-				Dom.bank.inOut("in", i);
+				Dom.inventory.inOut("in", i, "bank");
+			}
+			else if (Dom.trade.active) {
+				Dom.inventory.inOut("in", i, "trade");
 			}
 			else if (!isNaN(i)) {
 				Dom.inventory.drop(Dom.elements.weapon, Player.inventory, "weapon", Dom.elements.itemInventory.getElementsByTagName("td")[i], Player.inventory.items, i); // to, from
@@ -4168,7 +4230,10 @@ Dom.inventory.prepare = function (array, i, element) {
 	if ((array[i].type === "helm" || array[i].type === "chest" || array[i].type === "greaves" || array[i].type === "boots") && array[i].name !== undefined) {
 		Items[array[i].type][array[i].id].onClick = function (i) {
 			if (Dom.bank.active) {
-				Dom.bank.inOut("in", i);
+				Dom.inventory.inOut("in", i, "bank");
+			}
+			else if (Dom.trade.active) {
+				Dom.inventory.inOut("in", i, "trade");
 			}
 			else if (!isNaN(i)) {
 				Dom.inventory.drop(document.getElementById(Player.inventory.items[i].type), Player.inventory, Player.inventory.items[i].type, Dom.elements.itemInventory.getElementsByTagName("td")[i], Player.inventory.items, i); // to, from
@@ -4263,48 +4328,6 @@ Dom.inventory.conditionalChooseStats = function () {
 			}
 		}
 	}
-	/*
-	for (let i = 0; i < Player.conditionalChooseStats.length; i++) {
-		for (let x = 0; x < Items[Player.conditionalChooseStats[i].type][Player.conditionalChooseStats[i].id].conditionalChooseStats.length; x++) {
-			let conditionalStat = Items[Player.conditionalChooseStats[i].type][Player.conditionalChooseStats[i].id].conditionalChooseStats[x];
-
-			// find the item in the inventory
-			let item = {};
-			for (let y = 0; y < Player.inventory.items.length; y++) {
-				if (Player.inventory.items[y].type === Player.conditionalChooseStats[i].type && Player.inventory.items[y].id === Player.conditionalChooseStats[i].id) {
-					item = Player.inventory.items[y];
-				}
-			}
-			for (let y = 0; y < Object.keys(Player.inventory).length; y++) {
-				if (Player.inventory[Object.keys(Player.inventory)[y]].type === Player.conditionalChooseStats[i].type && Player.inventory[Object.keys(Player.inventory)[y]].id === Player.conditionalChooseStats[i].id) {
-					item = Player.inventory[Object.keys(Player.inventory)[y]];
-				}
-			}
-			if (item.image !== undefined) {
-				if (conditionalStat.condition(item)) {
-					if (!Player.conditionalChooseStats[i].active[x]) {
-						Player.conditionalChooseStats[i].active[x] = true;
-						// add conditionalStats to stats
-
-						item.chooseStats[Object.keys(conditionalStat)[0]] = conditionalStat[Object.keys(conditionalStat)[0]];
-
-					}
-				}
-				else{
-					if (Player.conditionalChooseStats[i].active[x]) {
-						Player.conditionalChooseStats[i].active[x] = false;
-						// remove conditionalStats from stats
-
-						delete item.chooseStats[Object.keys(conditionalStat)[0]];
-
-					}
-				}
-			}
-			else {
-				Player.conditionalChooseStats.splice(i, 1);
-			}
-		}
-	}*/
 }
 
 Dom.inventory.conditionalStats = function () {
@@ -4502,6 +4525,126 @@ Dom.elements.players.onclick = function (notClicked) {
 	else {
 		Dom.elements.playersInfo.hidden = true;
 	}
+}
+
+Dom.trade.items = [{},{},{},{},{},{},{},{},
+					{},{},{},{},{},{},{},{},
+					{},{},{},{},{},{},{},{},];
+Dom.trade.other = [{},{},{},{},{},{},{},{},
+					{},{},{},{},{},{},{},{},
+					{},{},{},{},{},{},{},{},];
+Dom.trade.page = function () {
+	Dom.changeBook("inventoryPage");
+	Dom.changeBook("tradePage");
+	Dom.trade.active = true;
+	
+	// construct your empty inventory
+	let html = "<tbody>";
+	for (let i = 0; i < 24; i+=8) {
+		let str = "<tr>";
+		for (let inv = i; inv < i+8; inv++) {
+			str += '<td ondrop="Dom.inventory.drop(event, Dom.trade.items, '+inv+');Game.inventoryUpdate(event)" ondragover="Dom.inventory.allowDrop(event)" onmouseover="Dom.inventory.displayInformation(Dom.trade.items['+inv+'], undefined, \'tradePage\')" onmouseleave="Dom.expand(\'information\')" ondrag="Dom.expand(\'information\')" onclick="Game.inventoryUpdate()"></td>';
+		}
+		html += str+"</tr>";
+	}
+	Dom.elements.tradePageInventory.innerHTML = html+"</body>";
+	Dom.trade.updateTheirInventory(Dom.trade.other);
+}
+
+Dom.trade.updateTheirInventory = function (inventory) {
+	Dom.trade.other = inventory;
+	
+	// construct their empty inventory
+	let html = "<tbody>";
+	for (let i = 0; i < 24; i+=8) {
+		let str = "<tr>";
+		for (let inv = i; inv < i+8; inv++) {
+			str += '<td ondrop="Dom.inventory.drop(event, Dom.trade.other, '+inv+');Game.inventoryUpdate(event)" ondragover="Dom.inventory.allowDrop(event)" onmouseover="Dom.inventory.displayInformation(Dom.trade.other['+inv+'], undefined, \'tradePage\')" onmouseleave="Dom.expand(\'information\')" ondrag="Dom.expand(\'information\')" onclick="Game.inventoryUpdate()"></td>';
+		}
+		html += str+"</tr>";
+	}
+	Dom.elements.tradePageOther.innerHTML = html+"</body>";
+	
+	// fill the inventory with elements
+	for (let i = 0; i < Dom.trade.other.length; i++) {
+		if (Dom.trade.other[i].image !== undefined) {
+			Dom.elements.tradePageOther.getElementsByTagName("td")[i].innerHTML = "<img src='"+Dom.trade.other[i].image+"' draggable='false'></img>";
+			if (Dom.trade.other[i].stacked !== undefined && Dom.trade.other[i].stacked !== 1) {
+				Dom.elements.tradePageOther.getElementsByTagName("td")[i].innerHTML += "<div class='stackNum' id='tradeOtherStackNum"+i+"'>"+Dom.trade.other[i].stacked+"</div>";
+			}
+		}
+	}
+	
+	// unconfirm if it was confirmed because items have been moved
+	document.getElementById("tradePageInventory").style.borderColor = "var(--border)";
+	document.getElementById("tradePageOther").style.borderColor = "var(--border)";
+}
+
+Dom.trade.close = function () {
+	for (let i = 0; i < 24; i++) {
+		if (Dom.trade.items[i].image !== undefined) {
+			Dom.inventory.give(Dom.trade.items[i]);
+		}
+	}
+	Dom.trade.items = [{},{},{},{},{},{},{},{},
+						{},{},{},{},{},{},{},{},
+						{},{},{},{},{},{},{},{},];
+	Dom.trade.other = [{},{},{},{},{},{},{},{},
+						{},{},{},{},{},{},{},{},
+						{},{},{},{},{},{},{},{},];
+	let message = {
+		type: "tradeClosed",
+	}
+	let jsonMessage = JSON.stringify(message);
+	ws.send(jsonMessage);
+	Dom.closePage("inventoryPage");
+}
+
+Dom.trade.confirm = function () {
+	document.getElementById("tradePageInventory").style.borderColor = "darkgreen";
+	for (let i = 0; i < 24; i++) {
+		document.getElementById("tradePageInventory").getElementsByTagName("td")[i].style.borderColor = "darkgreen";
+	}
+	let message = {
+		type: "tradeConfirmed",
+	}
+	let jsonMessage = JSON.stringify(message);
+	ws.send(jsonMessage);
+	if (document.getElementById("tradePageOther").style.borderColor === "darkgreen") {
+		Dom.trade.complete();
+	}
+}
+
+Dom.trade.confirmOther = function () {
+	document.getElementById("tradePageOther").style.borderColor = "darkgreen";
+	for (let i = 0; i < 24; i++) {
+		document.getElementById("tradePageOther").getElementsByTagName("td")[i].style.borderColor = "darkgreen";
+	}
+	if (document.getElementById("tradePageInventory").style.borderColor === "darkgreen") {
+		Dom.trade.complete();
+	}
+}
+
+Dom.trade.complete = function () {
+	for (let i = 0; i < 24; i++) {
+		if (Dom.trade.other[i].image !== undefined) {
+			Dom.inventory.give(Dom.trade.other[i], undefined, undefined, undefined, true);
+		}
+	}
+	Dom.trade.items = [{},{},{},{},{},{},{},{},
+						{},{},{},{},{},{},{},{},
+						{},{},{},{},{},{},{},{},];
+	Dom.trade.other = [{},{},{},{},{},{},{},{},
+						{},{},{},{},{},{},{},{},
+						{},{},{},{},{},{},{},{},];
+	Dom.closePage("inventoryPage");
+}
+
+window.onbeforeunload = function() {
+	if (Dom.trade.active) {
+		Dom.trade.close();
+	}
+	Game.saveProgress();
 }
 
 Dom.settings.dark = function () {

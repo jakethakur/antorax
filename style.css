@@ -592,12 +592,12 @@ thead:after { /* space after bags in bank */
 	background-image: url("./assets/icons/xp.png");
 }
 
-#accept, #acceptReward{
+#accept, #acceptReward, #confirm {
 	top: 20px;
 	left: 20px;
 }
 
-#decline, #declineReward{
+#decline, #declineReward, #cancel {
 	bottom: 60px;
 	left: 270px;
 }
@@ -658,7 +658,7 @@ thead:after { /* space after bags in bank */
 /*		BANK		*/
 /*					*/
 
-#bankPage {
+#bankPage, #tradePage {
 	text-align: center;
 }
 
@@ -871,7 +871,7 @@ thead:after { /* space after bags in bank */
 	font-size: 0px;
 }
 
-#itemInventory, #hotbar, #buyerPageInventory, #bankPageInventory, #loot {
+#itemInventory, #hotbar, #buyerPageInventory, #bankPageInventory, #tradePageInventory, #tradePageOther, #loot {
 	border-spacing: 0px;
 	border-bottom: 5px solid var(--border);
 	border-right: 5px solid var(--border);
@@ -888,7 +888,7 @@ thead:after { /* space after bags in bank */
 	background-color: var(--bottom);
 }
 
-#bankPageInventory {
+#bankPageInventory, #tradePageInventory, #tradePageOther {
 	display: inline-block;
 }
 
