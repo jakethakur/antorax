@@ -505,7 +505,13 @@ Dom.changeBook = function (page, openClose) {
 				Dom.elements.chatText.scrollTop = Dom.elements.chatText.scrollHeight;
 			}
 			if (ws !== false && ws.readyState === 1) {
+				// server on
+				Dom.elements.players.hidden = false;
 				Notification.requestPermission();
+			}
+			else {
+				// server off
+				Dom.elements.players.hidden = true;
 			}
 		}
 		return true;
@@ -652,7 +658,19 @@ Dom.chat.insertSequence = function (text, values, end, endParameters) {
 
 Dom.chat.input = function (id) {
 	if (Dom.elements[id].value !== "") {
-		if (ws === false || ws.readyState !== 1) {
+		
+		if (Dom.elements[id].value === "/help") {
+			Dom.chat.insert(Dom.chat.say("The Mighty Zararanath", 
+			`Hello again, ${Player.name}. Here is a list of commands:
+			<br>/me - ...
+			<br>/help - ...
+			<br>/ping - ...
+			<br>/msg - ...
+			<br>If you require help with the game, click your yellow bookmark with a compass on.`));
+		}
+		
+		// message intended to be sent to other players
+		else if (ws === false || ws.readyState !== 1) {
 			// server off
 			Dom.chat.insert(Dom.chat.say(Player.name, Dom.elements[id].value));
 		}
@@ -4287,7 +4305,9 @@ Dom.inventory.prepare = function (array, i, element) {
 }
 
 document.oncontextmenu = function (ev) {
-	ev.target.onclick();
+	if (ev.target.onclick !== null) {
+		ev.target.onclick();
+	}
 }
 
 // return item given the inventory position
@@ -4449,11 +4469,11 @@ Dom.chat.players = function (object, action) {
     if (action === "join") {
 		// if someone else has logged on
         if (object.userID !== ws.userID) {
-            Dom.chat.insert(object.username+" has joined the game!");
+            Dom.chat.insert(object.name+" has joined the game!");
         }
         Dom.players.push(object);
 		if (Notification.permission === "granted" && !Dom.focus) {
-			let notification = new Notification(object.username + " has joined the game", {silent: true});
+			let notification = new Notification(object.name + " has joined the game", {silent: true});
 		}
     }
 	
@@ -4461,7 +4481,7 @@ Dom.chat.players = function (object, action) {
         for (let i = 0; i < Dom.players.length; i++) {
 			// find the player that has logged off
             if (Dom.players[i].userID === object.userID) {
-				Dom.chat.insert(Dom.players[i].username+" has left the game.");
+				Dom.chat.insert(Dom.players[i].name+" has left the game.");
                 Dom.players.splice(i, 1);
             }
         }
@@ -4480,7 +4500,7 @@ Dom.chat.players = function (object, action) {
                 Dom.players[i] = Object.assign(Dom.players[i], object);
                 if (action === "level" && Dom.players[i].userID !== ws.userID) {
 					// level up chat notification
-                    Dom.chat.insert("<strong>"+Dom.players[i].username+"</strong> has levelled up to level "+Dom.players[i].level+"!");
+                    Dom.chat.insert("<strong>"+Dom.players[i].name+"</strong> has levelled up to level "+Dom.players[i].level+"!");
                 }
             }
         }
@@ -4519,7 +4539,7 @@ Dom.elements.players.onclick = function (notClicked) {
 			document.getElementById("players"+i).style.height = 60 + Skins[Dom.players[i].class][Dom.players[i].skin].headAdjust.y + "px";
 			document.getElementById("players"+i).style.bottom = 3 + Skins[Dom.players[i].class][Dom.players[i].skin].headAdjust.y + "px";
 
-			Dom.elements.playersInfo.innerHTML += "<div class='playersText'><strong>" + Dom.players[i].username + "</strong> (Level " + Dom.players[i].level + " " + clss + ")<br>" + Dom.players[i].area + "</div>";
+			Dom.elements.playersInfo.innerHTML += "<div class='playersText'><strong>" + Dom.players[i].name + "</strong> (Level " + Dom.players[i].level + " " + clss + ")<br>" + Dom.players[i].area + "</div>";
 		}
 	}
 	else {
@@ -4835,11 +4855,6 @@ Dom.init = function () {
 		if (Player.statusEffects[i].title === "HIGH SPEED! (test status effect)") {
 			Dom.elements.speedOn.checked = true;
 		}
-	}
-	
-	if (ws === false || ws.readyState !== 1) {
-		// server off
-		document.getElementById("players").hidden = true;
 	}
 
 	// MAIL

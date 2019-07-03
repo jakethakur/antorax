@@ -233,6 +233,7 @@ thead:after { /* space after bags in bank */
 	margin-top: -30px;
 	width: 510px;
 	user-select: text;
+	overflow-x: hidden;
 }
 
 .chatPara {
