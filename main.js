@@ -118,8 +118,15 @@ Game.initWebSocket = function () {
 					if (user !== undefined) {
 						user.x = message.x;
 						user.y = message.y;
-						user.direction = message.direction;
-						user.updateRotation();
+						if (message.direction !== user.direction) {
+							// direction changed
+							user.direction = message.direction;
+							user.updateRotation();
+						}
+						if (message.expand !== user.expand) {
+							// expand changed
+							user.setExpand(message.expand);
+						}
 					}
 					break;
 
@@ -128,6 +135,7 @@ Game.initWebSocket = function () {
 					ws.userID = message.content;
 					break;
 
+				case "msg": // for private message from someone (the name being sender -> target is handled in server)
 				case "chat":
 					// do not allow user ta use < or > in chat (stop HTML injection)
 					Dom.chat.insert(Dom.chat.say(message.name, message.content.replace(/[<>]/g, "")));
@@ -175,6 +183,11 @@ Game.initWebSocket = function () {
 							Game.removePlayerByID(message.userID);
 							break;
 					}
+					break;
+
+				case "ping":
+					// pong received (for server response time checking)
+					Dom.chat.insert(Dom.chat.say("Server", "Pong received from server in " + (Date.now()-message.content) + "ms."));
 					break;
 
 				default:
@@ -457,18 +470,22 @@ Game.searchFor = function (id, array) {
 // className = the class name of the object
 // index = known index of the object in its array (e.g. of an enemy in Game.enemies) - this is optional
 Game.removeObject = function (id, type, className, index) {
+	// every object is an entity
 	// remove from allEntities
 	this.allEntities.splice(this.searchFor(id, this.allEntities), 1);
 
-	if (className.prototype instanceof Thing) {
+	if (className.prototype instanceof Thing || className.name === "Thing") {
+		// extends off Thing or is Thing
 		// remove from allThings
 		this.allThings.splice(this.searchFor(id, this.allThings), 1);
 
-		if (className.prototype instanceof Character) {
+		if (className.prototype instanceof Character || className.name === "Character") {
+			// extends off Character or is Character
 			// remove from allCharacters
 			this.allCharacters.splice(this.searchFor(id, this.allCharacters), 1);
 
-			if (className.prototype instanceof Attacker) {
+			if (className.prototype instanceof Attacker || className.name === "Attacker") {
+				// extends off Attacker or is Attacker
 				// remove from allAttackers
 				this.allAttackers.splice(this.searchFor(id, this.allAttackers), 1);
 			}
@@ -622,7 +639,7 @@ class Thing extends Entity {
 			this.hidden = true; // an image must be loaded and set via setIMage before it can be shown (and then hidden may be set back)
 		}
 
-		this.expand = properties.expand || 1; // width multiplier (based on base width and base height)
+		this.setExpand(properties.expand || 1); // width multiplier (based on base width and base height)
 
 		this.z = properties.z || 0; // used for canvas positioning: -1 is always below (e.g. wizard's lore) and 1 is always on top (e.g. projectile)
 
@@ -717,6 +734,13 @@ class Thing extends Entity {
 		else {
 			console.warn("resetImage was called when initialImageInformation had not been set for " + this.name);
 		}
+	}
+
+	// set the expand of the entity
+	setExpand (value) {
+		this.expand = value;
+		this.width = this.baseWidth * this.expand;
+		this.height = this.baseHeight * this.expand;
 	}
 }
 
@@ -1205,9 +1229,7 @@ class Character extends Thing {
 			}; // time the player has been displaced for
 
 			// expand by 0.01
-			this.expand = 1.01;
-			this.width = this.baseWidth * this.expand;
-			this.height = this.baseHeight * this.expand;
+			this.setExpand(1.01);
 
 			// stunned status effect
 			Game.statusEffects.stun({
@@ -1222,17 +1244,17 @@ class Character extends Thing {
 		}
 		else if (this.isBeingDisplaced.elapsed < this.isBeingDisplaced.time) { // displace player
 			// expand
+			let newExpand;
 			if (this.isBeingDisplaced.time < 1) {
 				// small time displace uses different equation
-				this.expand = -Math.pow(2*this.isBeingDisplaced.elapsed-this.isBeingDisplaced.time, 2) + Math.pow(this.isBeingDisplaced.time, 2) + 1;
+				newExpand = -Math.pow(2*this.isBeingDisplaced.elapsed-this.isBeingDisplaced.time, 2) + Math.pow(this.isBeingDisplaced.time, 2) + 1;
 			}
 			else {
-				this.expand = -Math.pow((2/this.isBeingDisplaced.time)*this.isBeingDisplaced.elapsed-1, 2) + 2;
+				newExpand = -Math.pow((2/this.isBeingDisplaced.time)*this.isBeingDisplaced.elapsed-1, 2) + 2;
 			}
 			// graph for expand over time: https://www.desmos.com/calculator/ygygwjtzwe
 
-			this.width = this.baseWidth * this.expand;
-			this.height = this.baseHeight * this.expand;
+			this.setExpand(newExpand);
 
 			// move
 			let dirx = Math.cos(this.isBeingDisplaced.direction);
@@ -2009,92 +2031,6 @@ class Hero extends Attacker {
 
 		// update dom
 		Dom.inventory.displayIdentification();
-	}
-
-	// space bar
-	interact () {
-		let interactionDone = 0; // set to true if the player has interacted with something, iterated by 1 each time to show what should be tried to be interacted with each time
-		// this is done so that only 1 interaction can happen per space press
-
-		while (interactionDone !== true) {
-			// enemy looting
-			if (interactionDone === 0) {
-				for (var i = 0; i < Game.enemies.length; i++) {
-					if (Game.enemies[i].isCorpse) { // check enemy is a corpse (hence might be able to be looted)
-						if (this.isTouching(Game.enemies[i]) && Game.enemies[i].loot !== null) { // player is touching enemy and enemy can be looted
-							Dom.choose.page(Game.enemies[i], ["Loot enemy"], [function () {
-								Dom.loot.page(Game.enemies[i].name, Game.enemies[i].loot);
-								Dom.loot.currentId = "e"+i;
-								// "e"+i is a string that allows the loot menu to be identified - e means enemy, and i is the index of the enemy in Game.enemies
-								// the loot menu closes when the area changes anyway, so this will always work
-								// Dom.loot.currentId is only ever used in main, in the function Game.lootClosed() (called by index.html)
-							}], [[]]);
-							interactionDone = true;
-						}
-					}
-				}
-			}
-
-			// check collision with loot chests
-			else if (interactionDone === 1) {
-				for (var i = 0; i < Game.chests.length; i++) {
-					// player is touching chest, chest can be looted, and DOM isn't occupied
-					if (this.isTouching(Game.chests[i]) && Game.chests[i].loot !== null && Dom.currentlyDisplayed === "") {
-						// canBeLooted function
-						if (Game.chests[i].canBeLooted === undefined || Game.chests[i].canBeLooted()) {
-							// check for locked chest
-							if (!Game.chests[i].locked) {
-								// chest not locked
-							}
-							else if (Game.chests[i].locked && Dom.inventory.check(Game.chests[i].chestKey.id, Game.chests[i].chestKey.type)) {
-								// chest locked but player has key
-								// remove key
-								Dom.inventory.removeById(Game.chests[i].chestKey.id, Game.chests[i].chestKey.type);
-								// unlock chest (for if the player opens it again before changing area)
-								Game.chests[i].locked = false;
-								// chat message to tell them that a key was used
-								Dom.chat.insert("You used a <strong>" + Game.chests[i].chestKey.name + "</strong> to unlock the Loot Chest.");
-							}
-							else {
-								// chest locked and doesn't have a key
-								// chat message to tell them this
-								Dom.chat.insert("The Loot Chest is locked! You need a <strong>" + Game.chests[i].chestKey.name + "</strong> to unlock it.", 0, undefined, true);
-							}
-
-							// if the chest has been unlocked, open the chest!
-							if (!Game.chests[i].locked) {
-								Game.chests[i].openLoot(i);
-								interactionDone = true;
-							}
-						}
-					}
-					// tbd should flash red if player can't loot it
-				}
-			}
-
-			// cannon firing
-			else if (interactionDone === 2) {
-				for (var i = 0; i < Game.cannons.length; i++) {
-					if (this.isTouching(Game.cannons[i])) { // player is touching cannon
-						Game.cannons[i].interact(); // might not end up doing anything if cannon is on cooldown (perhaps that if should be moved here?)
-						interactionDone = true;
-					}
-				}
-			}
-
-			// tilemap tiles
-			else if (interactionDone === 3) {
-				let tileNum = this.getTileAtFeet();
-				if (map.interactWithTile !== undefined) {
-					map.interactWithTile(tileNum, this.x, this.y + this.height/2);
-				}
-				interactionDone = true; // interaction might not have happened, but this is always the last thing to be done anyway so it can be set to true
-			}
-
-			if (interactionDone !== true) {
-				interactionDone++;
-			}
-		}
 	}
 
 	// map.getTile for Game.hero
@@ -3461,7 +3397,7 @@ Game.statusEffects.functions = {
 	// end displacement effect
 	removeDisplacement: function (target) {
 		target.isBeingDisplaced = undefined;
-		target.expand = 1;
+		target.setExpand(1);
 	},
 
 	// reset target's image back to its "initialImage" (e.g. for hex)
@@ -5153,6 +5089,11 @@ Game.restoreHealth = function (target, health) {
 //
 
 Game.update = function (delta) {
+
+	//
+	// User movement
+	//
+
 	// update collision positions
 	for (let i = 0; i < this.collisions.length; i++) {
 		this.updateScreenPosition(this.collisions[i]);
@@ -5160,7 +5101,7 @@ Game.update = function (delta) {
 
 	let moved = false;
     // handle hero movement with arrow keys
-	if (this.hero.moveTowards === undefined && !Game.hero.hasStatusEffect("Displacement")) {
+	if (this.hero.moveTowards === undefined && !this.hero.hasStatusEffect("Displacement")) {
 		let dirx = 0;
 		let diry = 0;
 		// player has control over themselves
@@ -5212,35 +5153,40 @@ Game.update = function (delta) {
 			userID: ws.userID,
 			x: this.hero.x,
 			y: this.hero.y,
-			direction: this.hero.direction
+			direction: this.hero.direction,
+			expand: this.hero.expand
 		}));
 	}
 
-	// interact with touching object
-    if (this.keysDown.SPACE) { this.hero.interact(); }
+	//
+	// User interaction
+	//
 
 	// check collision with npcs - includes quest givers, quest finishers, merchants, soul healers, more TBA
 	for (let i = 0; i < this.npcs.length; i++) { // iterate though npcs
 
 		let npc = this.npcs[i];
 
-		if (Dom.currentlyDisplayed !== npc.name && !npc.respawning && this.hero.isTouching(npc)) { // check npc is not dead, that hero is touching it, and that it is not already currently displayed
+ 		// check npc is not dead, that hero is touching it, and that it is not already currently displayed
+		if (this.hero.isTouching(npc) && Dom.currentlyDisplayed !== npc.name && !npc.respawning) {
 
-			if (npc.roles !== undefined) { // check if the npc is a functional npc (does something when touched)
+			// arrays for choose DOM (these are populated in the below for loop)
+			let textArray = []; // array of text to describe that function
+			let functionArray = []; // array of functions that can be called
+			let parameterArray = []; // array of arrays of parameters for these functions (to be ...spread into the function)
 
-				// arrays for choose DOM
-				let textArray = []; // array of text to describe that function
-				let functionArray = []; // array of functions that can be called
-				let parameterArray = []; // array of arrays of parameters for these functions (to be ...spread into the function)
+			let forceChoose = false; // whether choose dom should be forced (some roles want this)
 
-				let forceChoose = false; // whether choose dom should be forced (some roles want this)
+			// booleans to decide npc chat for if choose DOM doesn't open
+			let questActive = false; // if one of the npc's quests is currently active
+			let questComplete = false; // if one of the npc's quests has been completed
+			let notUnlockedRoles = false; // if one of the npc's roles has not been unlocked
+			let textSaid = false; // if all of the above variables should be ignored (because something else has been said instead, e.g: soul healer cannot be healed text)
+			// see below for loop for logic regarding these variables
 
-				// booleans to decide npc chat for if choose DOM doesn't open
-				let questActive = false; // if one of the npc's quests is currently active
-				let questComplete = false; // if one of the npc's quests has been completed
-				let notUnlockedRoles = false; // if one of the npc's roles has not been unlocked
-				let textSaid = false; // if all of the above variables should be ignored (because something else has been said instead, e.g: soul healer cannot be healed text)
-				// see below for loop for logic regarding these variables
+			if (this.keysDown.SPACE && npc.roles !== undefined) {
+				// choosing to interact with NPC - bring up a DOM menu if possible
+				// and the NPC is a functional NPC (does something when spoken to)
 
 				for (let x = 0; x < npc.roles.length; x++) { // iterate through quests involving that npc
 					let role = npc.roles[x];
@@ -5440,7 +5386,7 @@ Game.update = function (delta) {
 
 						// soul healers
 						else if (role.role === "soulHealer") {
-							let statusEffect = Game.hero.statusEffects.find(statusEffect => statusEffect.title === "XP Fatigue"); // try to find xp fatigue effect
+							let statusEffect = this.hero.statusEffects.find(statusEffect => statusEffect.title === "XP Fatigue"); // try to find xp fatigue effect
 							if (statusEffect !== undefined) {
 								// calculate cost
 								this.soulHealerCost = Math.floor(statusEffect.info.ineffectiveAmount / 50); // set to Game so that it can be accessed from the function in Dom.text.page
@@ -5455,17 +5401,17 @@ Game.update = function (delta) {
 								textArray.push(role.chooseText || "I'd like to remove my 'XP Fatigue' status effect.");
 								functionArray.push(Dom.text.page);
 								parameterArray.push(["Soul Healer", npc.chat.canBeHealedText, true, ["Remove XP Fatigue for " + this.soulHealerCost + " gold"], [function () {
-									if (Dom.inventory.check(2, "currency", Game.soulHealerCost)) {
-										Dom.inventory.removeById(2, "currency", Game.soulHealerCost);
-										Game.hero.removeStatusEffect(Game.hero.statusEffects.findIndex(statusEffect => statusEffect.title === "XP Fatigue")); // remove xp fatigue effect
+									if (Dom.inventory.check(2, "currency", this.soulHealerCost)) {
+										Dom.inventory.removeById(2, "currency", this.soulHealerCost);
+										this.hero.removeStatusEffect(this.hero.statusEffects.findIndex(statusEffect => statusEffect.title === "XP Fatigue")); // remove xp fatigue effect
 										Dom.closePage("textPage");
-										Game.currentSoulHealer.say(Game.currentSoulHealer.chat.healedText, 0, false);
-										Game.currentSoulHealer = undefined; // reset variable that remembers which soul healer the player is speaking to
-										Game.soulHealerCost = undefined; // reset variable that remembers the cost for soul healing
+										this.currentSoulHealer.say(this.currentSoulHealer.chat.healedText, 0, false);
+										this.currentSoulHealer = undefined; // reset variable that remembers which soul healer the player is speaking to
+										this.soulHealerCost = undefined; // reset variable that remembers the cost for soul healing
 									}
 									else {
 										// player cannot afford it
-										Game.soulHealers[i].say(Game.soulHealers[i].chat.tooPoor, 0, true);
+										this.soulHealers[i].say(this.soulHealers[i].chat.tooPoor, 0, true);
 									}
 								}]]);
 							}
@@ -5515,12 +5461,12 @@ Game.update = function (delta) {
 						}
 
 						// bankers
-                        else if (role.role === "banker") {
-                            // bank appears as an option for choose DOM
-                            textArray.push(role.chooseText || "I'd like to access my bank storage.");
-                            functionArray.push(Dom.bank.page);
-                            parameterArray.push([]);
-                        }
+						else if (role.role === "banker") {
+							// bank appears as an option for choose DOM
+							textArray.push(role.chooseText || "I'd like to access my bank storage.");
+							functionArray.push(Dom.bank.page);
+							parameterArray.push([]);
+						}
 
 						// generic text DOM
 						else if (role.role === "text") {
@@ -5549,27 +5495,29 @@ Game.update = function (delta) {
 					}
 				} // finished iterating through this npc's roles
 
-				if (functionArray.length > 0) {
-					// npc can be spoken to, hence choose DOM should be opened
-					// Dom.choose.page checks whether or not the DOM is occupied, and handles red flashing of close button
-					Dom.choose.page(npc, textArray, functionArray, parameterArray, forceChoose);
-					// if there is only one thing that can be chosen between, choose DOM handles this and just skips itself straight to that one thing
-				}
-				else {
-					// text that the npc says if they don't open a choose DOM
-					if (!textSaid && Dom.currentlyDisplayed === "") { // check if any extra text should be said at all
-						if (questActive) {
-							// the player has active quest(s) with the npc and no other alternate options
-							npc.say(npc.chat.questProgress, 0, true);
-						}
-						else if (questComplete) {
-							// the player has finished quest(s) with the npc and no other alternate options
-							npc.say(npc.chat.questComplete, 0, true);
-						}
-						else if (notUnlockedRoles) {
-							// the player has not unlocked a possible role with the npc
-							npc.say(npc.chat.notUnlockedRoles, 0, true);
-						}
+			}
+
+			if (functionArray.length > 0) {
+				// npc can be spoken to, hence choose DOM should be opened
+				// Dom.choose.page checks whether or not the DOM is occupied, and handles red flashing of close button
+				Dom.choose.page(npc, textArray, functionArray, parameterArray, forceChoose);
+				// if there is only one thing that can be chosen between, choose DOM handles this and just skips itself straight to that one thing
+			}
+			else {
+				// text that the npc says if they don't open a choose DOM
+				// note some of these don't require spacebar
+				if (!textSaid && Dom.currentlyDisplayed === "") { // check if any extra text should be said at all
+					if (questActive) {
+						// the player has active quest(s) with the npc and no other alternate options
+						npc.say(npc.chat.questProgress, 0, true);
+					}
+					else if (questComplete) {
+						// the player has finished quest(s) with the npc and no other alternate options
+						npc.say(npc.chat.questComplete, 0, true);
+					}
+					else if (notUnlockedRoles) {
+						// the player has not unlocked a possible role with the npc and pressed spacebar
+						npc.say(npc.chat.notUnlockedRoles, 0, true);
 					}
 				}
 			}
@@ -5600,10 +5548,26 @@ Game.update = function (delta) {
 			enemy.update(delta);
 		}
 
-		// check if the currently displayed DOM is for the current enemy in the for loop
+		// enemy looting
+		// check enemy is a corpse (hence might be able to be looted)
+		if (this.enemies[i].isCorpse) {
+			// check player is touching enemy, player is holding space, enemy can be looted, and DOM isn't occupied
+			if (this.keysDown.SPACE && this.hero.isTouching(this.enemies[i]) && this.enemies[i].loot !== null && Dom.currentlyDisplayed === "") {
+				// looting page
+				Dom.choose.page(this.enemies[i], ["Loot enemy"], [function () {
+					Dom.loot.page(Game.enemies[i].name, Game.enemies[i].loot);
+					Dom.loot.currentId = "e"+i;
+					// "e"+i is a string that allows the loot menu to be identified - e means enemy, and i is the index of the enemy in Game.enemies
+					// the loot menu closes when the area changes anyway, so this will always work
+					// Dom.loot.currentId is only ever used in main, in the function Game.lootClosed() (called by index.html)
+				}], [[]]);
+			}
+		}
+
+		// check if the currently displayed DOM is for the current enemy in the for loop (looting)
 		if (enemy.id === Dom.currentNPC.id && enemy.type === Dom.currentNPC.type) {
 			// close the DOM if the player is too far away from the enemy or if the enemy is dead
-			if (enemy.respawning && this.distance(Game.hero, enemy) > this.hero.stats.domRange) {
+			if (enemy.respawning && this.distance(this.hero, enemy) > this.hero.stats.domRange) {
 				// enemy is dead or player is more than 4 tiles away from enemy
 				Dom.closeNPCPages();
 			}
@@ -5626,7 +5590,7 @@ Game.update = function (delta) {
 						// it is touching it
 						// passes in index of object to function
 						// call is used to bind it to enemy
-						enemy.checkTouching[x].isTouchingFunction.call(enemy, y);
+						enemy.checkTouching[x].isTouchingFunction.call(enemy, y, touchingArray[y].id);
 					}
 				}
 			}
@@ -5655,7 +5619,7 @@ Game.update = function (delta) {
 				// taken from Player
 				let a = projectile.id; // maintain a variable of the currently shot projectile's id
 				this.objectRemoveTimeouts.push(setTimeout(function (a) {
-					Game.removeObject(this.channellingProjectileId, "projectiles", Projectile);
+					this.removeObject(this.channellingProjectileId, "projectiles", Projectile);
 				}, 1500, a)); // pushed to objectRemoveTimeouts so it can be removed when the area is changed
 			}
 
@@ -5667,17 +5631,27 @@ Game.update = function (delta) {
 	for (let i = 0; i < this.mailboxes.length; i++) {
 		let mailbox = this.mailboxes[i];
 
-		if (this.hero.isTouching(mailbox)) {
+		// pressing space and touching mailbox, and DOM isn't currently occupied
+		if (this.keysDown.SPACE && this.hero.isTouching(mailbox) && Dom.currentlyDisplayed === "") {
 			Dom.choose.page(mailbox, ["Check mail"], [Dom.mail.page], [[]]);
 		}
 
 		// check if the currently displayed DOM is for the current mailbox in the for loop
 		if (mailbox.id === Dom.currentNPC.id && mailbox.type === Dom.currentNPC.type) {
 			// close the DOM if the player is too far away from the mailbox or if the mailbox is dead
-			if (this.distance(Game.hero, mailbox) > Game.hero.stats.domRange) {
+			if (this.distance(this.hero, mailbox) > this.hero.stats.domRange) {
 				// player is more than 4 tiles away from mailbox
 				Dom.closeNPCPages();
 			}
+		}
+	}
+
+	// check collision with tiles
+	if (this.keysDown.SPACE) {
+		// space key is down
+		let tileNum = this.hero.getTileAtFeet();
+		if (map.interactWithTile !== undefined) {
+			map.interactWithTile(tileNum, this.hero.x, this.hero.y + this.hero.height/2);
 		}
 	}
 
@@ -5685,14 +5659,53 @@ Game.update = function (delta) {
 	for (let i = 0; i < this.chests.length; i++) {
 		let chest = this.chests[i];
 
-		// check if the currently displayed DOM is for the current mailbox in the for loop
+		// chest opening
+		// player is holding space, touching chest, chest can be looted, and DOM isn't occupied
+		if (this.keysDown.SPACE && Game.hero.isTouching(chest) && chest.loot !== null && Dom.currentlyDisplayed === "") {
+			// canBeLooted function
+			if (chest.canBeLooted === undefined || chest.canBeLooted()) {
+				// check for locked chest
+				if (!chest.locked) {
+					// chest not locked
+				}
+				else if (chest.locked && Dom.inventory.check(chest.chestKey.id, chest.chestKey.type)) {
+					// chest locked but player has key
+					// remove key
+					Dom.inventory.removeById(chest.chestKey.id, chest.chestKey.type);
+					// unlock chest (for if the player opens it again before changing area)
+					chest.locked = false;
+					// chat message to tell them that a key was used
+					Dom.chat.insert("You used a <strong>" + chest.chestKey.name + "</strong> to unlock the Loot Chest.");
+				}
+				else {
+					// chest locked and doesn't have a key
+					// chat message to tell them this
+					Dom.chat.insert("The Loot Chest is locked! You need a <strong>" + chest.chestKey.name + "</strong> to unlock it.", 0, undefined, true);
+				}
+
+				// if the chest has been unlocked, open the chest!
+				if (!chest.locked) {
+					chest.openLoot(i);
+				}
+			}
+		}
+
+		// check if the currently displayed DOM is for the current chest in the for loop
 		if (chest.id === Dom.currentNPC.id && chest.type === Dom.currentNPC.type) {
 			// close the DOM if the player is too far away from the chest or if the chest is dead
-			if (this.distance(Game.hero, chest) > Game.hero.stats.domRange) {
+			if (this.distance(this.hero, chest) > this.hero.stats.domRange) {
 				// player is more than 4 tiles away from chest
 				Dom.closeNPCPages();
 				// loot not wiped (so the player can revisit if they closed by accident)
 			}
+		}
+	}
+
+	// cannons (not currently used nor working)
+	for (let i = 0; i < this.cannons.length; i++) {
+		// check if player is touching cannon and holding space
+		if (this.keysDown.SPACE && Game.hero.isTouching(this.cannons[i])) {
+			this.cannons[i].interact(); // might not end up doing anything if cannon is on cooldown (perhaps that if should be moved here?)
 		}
 	}
 
@@ -5706,8 +5719,8 @@ Game.update = function (delta) {
 			|| (this.areaTeleports[i].teleportCondition !== undefined && this.areaTeleports[i].teleportCondition())) {
 				// a teleport condition has been met (if there is one)
 				// find player destination
-				let destinationX = this.areaTeleports[i].destinationX || Game.hero.x + this.areaTeleports[i].playerAdjustX;
-				let destinationY = this.areaTeleports[i].destinationY || Game.hero.y + this.areaTeleports[i].playerAdjustY;
+				let destinationX = this.areaTeleports[i].destinationX || this.hero.x + this.areaTeleports[i].playerAdjustX;
+				let destinationY = this.areaTeleports[i].destinationY || this.hero.y + this.areaTeleports[i].playerAdjustY;
 				// teleport to new area
 				this.loadArea(this.areaTeleports[i].teleportTo, {x: destinationX, y: destinationY});
 			}
@@ -5766,7 +5779,7 @@ Game.update = function (delta) {
 	}
 
 	// update weather particles
-	if (document.getElementById("weatherOn").checked && !Areas[Game.areaName].indoors) {
+	if (document.getElementById("weatherOn").checked && !Areas[this.areaName].indoors) {
 		Weather.addAdditionalParticles();
 		Weather.moveParticles(delta);
 	}
@@ -5774,8 +5787,8 @@ Game.update = function (delta) {
 
 // update player's currently channelling projectile
 Game.playerProjectileUpdate = function(delta) {
-	if (Game.hero.channellingProjectileId !== null && Game.hero.channellingProjectileId !== undefined && Game.hero.channelling === "projectile") { // check that the player is currently channelling a projectile
-		let projectile = Game.projectiles[Game.searchFor(Game.hero.channellingProjectileId, Game.projectiles)];
+	if (this.hero.channellingProjectileId !== null && this.hero.channellingProjectileId !== undefined && this.hero.channelling === "projectile") { // check that the player is currently channelling a projectile
+		let projectile = this.projectiles[this.searchFor(this.hero.channellingProjectileId, this.projectiles)];
 
 		// increase player channelTime if they are holding their mouse down
 		if (this.hero.channelling) {
@@ -5784,8 +5797,8 @@ Game.playerProjectileUpdate = function(delta) {
 
 		// archer weapons slowly focus as they are channelling
 		if (this.getAttackType() === "bow") {
-			if (projectile.variance > 0 + Game.hero.stats.focusSpeed * delta * 16) { // check it won't be 0 or less
-				projectile.variance -= Game.hero.stats.focusSpeed * delta * 16;
+			if (projectile.variance > 0 + this.hero.stats.focusSpeed * delta * 16) { // check it won't be 0 or less
+				projectile.variance -= this.hero.stats.focusSpeed * delta * 16;
 			}
 			else {
 				projectile.variance = 1;

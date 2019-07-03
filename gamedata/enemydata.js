@@ -7,8 +7,10 @@ const SpeciesTemplates = {
 		checkTouching: [{
 			arrayName: "things",
 			objectName: "Goblin Trap",
-			isTouchingFunction: function (index) {
+			isTouchingFunction: function (index, id) {
 				// remove the trap
+				// in the nilbog, the only "things" are the traps so the index in Game is equal to index in Areas
+				Game.removeObject(id, "things", Thing, index)
 				Game.things.splice(index, 1);
 				Areas[Game.areaName].things.splice(index, 1);
 				// stun goblin

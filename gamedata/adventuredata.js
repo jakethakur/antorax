@@ -1,8 +1,8 @@
 // Adventurer's Log
 var Adventure = {
-	
+
 	// questing areas
-	
+
 	eaglecrestLoggingCamp: {
 		html: `<div id="eaglecrestLoggingCampAL" class="adventure">
 			Eaglecrest Logging Camp<br>
@@ -12,9 +12,9 @@ var Adventure = {
 			return !Player.quests.completedQuestArray.includes("The Goblin King");
 		},
 	},
-	
+
 	// events
-	
+
 	samhain: {
 		html: `<div id="samhainAL" class="adventure">
 			Samhain Event<br>
@@ -33,9 +33,9 @@ var Adventure = {
 			return Event.event === "Christmas";
 		},
 	},
-	
+
 	// external pages
-	
+
 	archaeology: {
 		html: `<div id="archaeologyAL" class="adventure">
 			<a href="./archaeology/index.html" target="_blank">Archaeology</a><br>
@@ -109,7 +109,7 @@ var Instructions = [
 				Dom.alert.targetNo = function () {
 					Dom.chat.insertSequence([
 						`<b>The Mighty Zararanath</b>: You can use the <b>w</b>, <b>a</b>, <b>s</b>, and <b>d</b> keys to move around.`,
-						`<b>The Mighty Zararanath</b>: Start your first quest by speaking to the <b>Cart Driver</b>.`,
+						`<b>The Mighty Zararanath</b>: Start your first quest by speaking to the <b>Cart Driver</b>. Press the <strong>space</strong> key whilst standing near him to talk to him.`,
 					], undefined, function () {
 						Player.unlockedInstructions.push(Instructions[0].chapterTitle);
 						Dom.quests.possible();

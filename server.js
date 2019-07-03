@@ -54,6 +54,7 @@ wss.on("connection", (ws) => { // note that ws = client in wss.clients
 				ws.x = parsedMessage.x;
 				ws.y = parsedMessage.y;
 				ws.direction = parsedMessage.direction;
+				ws.expand = parsedMessage.expand;
 				// broadcast to chat DOM (for displaying players online)
 				wss.broadcast(data, ws.userID);
 				break;
@@ -70,6 +71,7 @@ wss.on("connection", (ws) => { // note that ws = client in wss.clients
 				ws.x = parsedMessage.x;
 				ws.y = parsedMessage.y;
 				ws.direction = parsedMessage.direction;
+				ws.expand = parsedMessage.expand;
 
 				// message the user to tell them what their userID is
 				// this information is used by the client if they want to except themselves from broadcasts
@@ -93,7 +95,8 @@ wss.on("connection", (ws) => { // note that ws = client in wss.clients
 					area: parsedMessage.area,
 					x: parsedMessage.x,
 					y: parsedMessage.y,
-					direction: parsedMessage.direction
+					direction: parsedMessage.direction,
+					expand: parsedMessage.expand
 				}));
 
 				// message the user to tell them about all the other users online
@@ -112,7 +115,8 @@ wss.on("connection", (ws) => { // note that ws = client in wss.clients
 							area: client.area,
 							x: client.x,
 							y: client.y,
-							direction: client.direction
+							direction: client.direction,
+							expand: client.expand
 						}));
 					}
 				});
@@ -131,6 +135,7 @@ wss.on("connection", (ws) => { // note that ws = client in wss.clients
 				ws.x = parsedMessage.x;
 				ws.y = parsedMessage.y;
 				ws.direction = parsedMessage.direction;
+				ws.expand = parsedMessage.expand;
 
 				// broadcast to chat DOM (for displaying players online)
 				wss.broadcast(JSON.stringify({
@@ -141,6 +146,7 @@ wss.on("connection", (ws) => { // note that ws = client in wss.clients
 					x: parsedMessage.x,
 					y: parsedMessage.y,
 					direction: parsedMessage.direction,
+					expand: parsedMessage.expand
 				}));
 				// tell the user that changed area the position of all players (so it knows the position of players in its new area)
 				wss.clients.forEach(function (client) {
@@ -152,6 +158,7 @@ wss.on("connection", (ws) => { // note that ws = client in wss.clients
 							x: client.x,
 							y: client.y,
 							direction: client.direction,
+							expand: client.expand
 						}));
 					}
 				});
@@ -167,6 +174,25 @@ wss.on("connection", (ws) => { // note that ws = client in wss.clients
 					userID: ws.userID,
 					level: parsedMessage.level
 				}));
+				break;
+
+			case "msg":
+				// private message a user
+				wss.clients.forEach(function (client) {
+					// look for a user with the name
+					if (client.name === parsedMessage.name) {
+						client.send(JSON.stringify({
+							type: "msg",
+							name: ws.name + " &#10132; " + client.name,
+							content: parsedMessage.content,
+						}));
+					}
+				});
+				break;
+
+			case "ping":
+				// return with a pong
+				ws.send(data);
 				break;
 
 			default:

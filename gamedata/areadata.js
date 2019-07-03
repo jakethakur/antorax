@@ -930,6 +930,7 @@ var Areas = {
 					healedText: "May the purity of the demigods be with you.",
 					tooPoor: "I don't think you can afford that.",
 					questProgress: "If you use the sceptre near dead enemies, soul essence will rush inside it.",
+					questComplete: "May the demigods watch over you.",
 					chooseChat: "Blessings to you.",
 					inventoryFull: "I don't think you have space for that.",
 					christmasGreeting: "You have my blessings on this sacred day.",
@@ -1424,6 +1425,7 @@ var Areas = {
 							y: Game.hero.y - 200,
 							speedScalar: 0.6,
 						};
+						Game.hero.updateRotation();
 					}
 				}
 			},
@@ -1443,6 +1445,7 @@ var Areas = {
 							y: Game.hero.y + 200,
 							speedScalar: 0.6,
 						};
+						Game.hero.updateRotation();
 					}
 				}
 			},
@@ -1952,6 +1955,7 @@ var Areas = {
 					y: 175,
 					speedScalar: 0.6,
 				};
+				Game.hero.updateRotation();
 			}
 		},
 
@@ -2002,6 +2006,7 @@ var Areas = {
 							y: Game.hero.y - 240,
 							speedScalar: 0.6,
 						};
+						Game.hero.updateRotation();
 					}
 				}
 			}
@@ -2107,6 +2112,7 @@ var Areas = {
 					y: 520,
 					speedScalar: 0.6,
 				};
+				Game.hero.updateRotation();
 			}
 			else if (Game.hero.y < 100) {
 				// move down stairs
@@ -2116,6 +2122,7 @@ var Areas = {
 					y: 175,
 					speedScalar: 0.6,
 				};
+				Game.hero.updateRotation();
 			}
 		},
 
@@ -2166,6 +2173,7 @@ var Areas = {
 							y: 550,
 							speedScalar: 0.6,
 						};
+						Game.hero.updateRotation();
 					}
 				}
 			},
@@ -2185,6 +2193,7 @@ var Areas = {
 							y: Game.hero.y - 240,
 							speedScalar: 0.6,
 						};
+						Game.hero.updateRotation();
 					}
 				}
 			},
@@ -2277,6 +2286,7 @@ var Areas = {
 					y: 520,
 					speedScalar: 0.6,
 				};
+				Game.hero.updateRotation();
 			}
 			else if (Game.hero.y < 100) {
 				// move down stairs
@@ -2286,6 +2296,7 @@ var Areas = {
 					y: 175,
 					speedScalar: 0.6,
 				};
+				Game.hero.updateRotation();
 			}
 		},
 
@@ -2336,6 +2347,7 @@ var Areas = {
 							y: 550,
 							speedScalar: 0.6,
 						};
+						Game.hero.updateRotation();
 					}
 				}
 			},
@@ -2355,6 +2367,7 @@ var Areas = {
 							y: Game.hero.y - 240,
 							speedScalar: 0.6,
 						};
+						Game.hero.updateRotation();
 					}
 				}
 			},
@@ -2464,6 +2477,7 @@ var Areas = {
 					y: 520,
 					speedScalar: 0.6,
 				};
+				Game.hero.updateRotation();
 			}
 			else if (Game.hero.y < 100) {
 				// move down stairs
@@ -2473,6 +2487,7 @@ var Areas = {
 					y: 175,
 					speedScalar: 0.6,
 				};
+				Game.hero.updateRotation();
 			}
 		},
 
@@ -2523,6 +2538,7 @@ var Areas = {
 							y: 550,
 							speedScalar: 0.6,
 						};
+						Game.hero.updateRotation();
 					}
 				}
 			},
@@ -2542,6 +2558,7 @@ var Areas = {
 							y: Game.hero.y - 240,
 							speedScalar: 0.6,
 						};
+						Game.hero.updateRotation();
 					}
 				}
 			},
@@ -2636,6 +2653,7 @@ var Areas = {
 					y: 520,
 					speedScalar: 0.6,
 				};
+				Game.hero.updateRotation();
 			}
 		},
 
@@ -2656,6 +2674,7 @@ var Areas = {
 							y: 550,
 							speedScalar: 0.6,
 						};
+						Game.hero.updateRotation();
 					}
 				}
 			},
@@ -3568,6 +3587,7 @@ var Areas = {
 							y: Game.hero.y - 200,
 							speedScalar: 0.6,
 						};
+						Game.hero.updateRotation();
 					}
 				}
 			},
@@ -3587,6 +3607,7 @@ var Areas = {
 							y: Game.hero.y + 200,
 							speedScalar: 0.6,
 						};
+						Game.hero.updateRotation();
 					}
 				}
 			},
@@ -3607,6 +3628,7 @@ var Areas = {
 							y: Game.hero.y - 200,
 							speedScalar: 0.6,
 						};
+						Game.hero.updateRotation();
 					}
 				}
 			},
@@ -3626,6 +3648,7 @@ var Areas = {
 							y: Game.hero.y + 200,
 							speedScalar: 0.6,
 						};
+						Game.hero.updateRotation();
 					}
 				}
 			},
