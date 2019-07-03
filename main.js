@@ -72,7 +72,7 @@ Game.loadPlayer = function () {
 // WebSocket
 //
 
-var ws = false; // false means it has not been set (on local version)
+var ws = false; // false means it has not been set (user is on local version)
 
 Game.initWebSocket = function () {
 	// https://devcenter.heroku.com/articles/node-websockets
@@ -88,11 +88,14 @@ Game.initWebSocket = function () {
 			// send username so the user is saved under a particular name in the websocket
 			ws.send(JSON.stringify({
 				type: "userInformation",
-				username: Player.name,
+				name:  Player.name,
 				class: Player.class,
 				level: Player.level,
 				skin: Player.skin,
-				area: Player.displayAreaName
+				area: Player.displayAreaName,
+				x: Player.x,
+				y: Player.y,
+				direction: 3
 			}));
 		}
 
@@ -102,7 +105,22 @@ Game.initWebSocket = function () {
 			switch (message.type) {
 				case "playerLocation":
 					// multiplayer player location
-					// tbd
+					// find which player it is
+					let user;
+					for (let i = 0; i < Game.players.length; i++) {
+						if (Game.players[i].userID === message.userID) {
+							user = Game.players[i];
+							break;
+						}
+					}
+
+					// if user is undefined, either the user is not in the player's area or there has been an error
+					if (user !== undefined) {
+						user.x = message.x;
+						user.y = message.y;
+						user.direction = message.direction;
+						user.updateRotation();
+					}
 					break;
 
 				case "userID":
@@ -135,6 +153,28 @@ Game.initWebSocket = function () {
 					// update display of players online in chat DOM
 					// message.action tells DOM what to update
 					Dom.chat.players(message, message.action); // passes in whole object
+
+					// update information in Game.players
+					// addPlayer checks if the player should be added to Game.players (e.g. if they are in right area)
+					switch (message.action) {
+						case "join":
+						case "retroactive":
+							Game.addPlayer(message);
+							break;
+						case "area":
+							// find the player from DOM and only add it if they have moved to the player's current area
+							if (message.area === Player.displayAreaName) {
+								Game.addPlayerByID(message.userID);
+							}
+							else {
+								// if they used to be in the player's area, remove them
+								Game.removePlayerByID(message.userID);
+							}
+							break;
+						case "leave":
+							Game.removePlayerByID(message.userID);
+							break;
+					}
 					break;
 
 				default:
@@ -144,6 +184,61 @@ Game.initWebSocket = function () {
 	}
 	else {
 		console.info("Playing on a local version. Multiplayer features are not available.")
+	}
+}
+
+// for adding another player to Game.players and checking the conditions required
+Game.addPlayer = function (player) {
+	// if players is undefined, don't add player (because the player will be added anyway from Dom.players when Game.players is defined in loadArea)
+	// if players IS defined and is receiving retroactive player additions (action="retroactive"), this must mean that they were sent after loadArea (where Dom.players had nothing anyway)
+	if (this.players !== undefined) {
+
+		// deep copy player (because it could have come from Dom.players)
+		let copiedPlayer = Object.assign({}, player);
+
+		if (copiedPlayer.area === Player.displayAreaName && // check player is in the same area
+		copiedPlayer.userID !== ws.userID) { // and player is not Game.hero
+
+			// check the player has not already been added
+			let playerAlreadyAdded = this.players.findIndex(existingPlayer => existingPlayer.userID === copiedPlayer.userID);
+			if (playerAlreadyAdded === -1 && this.prepareNPC(copiedPlayer)) {
+
+				// object properties (to stop attacker breaking)
+				copiedPlayer.hostility = "friendly";
+				copiedPlayer.stats = {};
+				copiedPlayer.stats.maxHealth = 50 + (copiedPlayer.level-1) * 5;
+				copiedPlayer.projectile = {};
+
+				// add the player
+				this.players.push(new UserControllable(copiedPlayer));
+				let addedPlayer = this.players[this.players.length-1];
+
+				// load its image
+				addedPlayer.init().then(function () {
+					// set the image
+					addedPlayer.setImage("player"+addedPlayer.class+addedPlayer.skin, {x:0,y:0}, 57, 120);
+
+					addedPlayer.updateRotation();
+
+					// allow player to be shown
+					addedPlayer.hidden = false;
+				});
+			}
+		}
+	}
+}
+
+Game.addPlayerByID = function (userID) {
+	let player = Dom.players.find(player => player.userID === userID);
+	this.addPlayer(player);
+}
+
+// player does not necessarily need to exist - this function checks that they do first
+Game.removePlayerByID = function (userID) {
+	let player = Game.players.find(player => player.userID === userID);
+	if (player !== undefined) {
+		// a player in the area should be removed
+		Game.removeObject(player.id, "players", UserControllable);
 	}
 }
 
@@ -435,8 +530,8 @@ class Entity {
 		this.type = properties.type; // array the NPC is in (for choose DOM and removing entity)
 
 		this.map = properties.map;
-		this.x = properties.x;
-		this.y = properties.y;
+		this.x = properties.x || 0;
+		this.y = properties.y || 0;
 		this.width = properties.width;
 		this.height = properties.height;
 
@@ -516,11 +611,16 @@ class Thing extends Entity {
 		super(properties);
 
 		// set image related variables
-		this.setImage(properties.image, properties.crop, properties.width, properties.height);
+		if (properties.image !== undefined) {
+			this.setImage(properties.image, properties.crop, properties.width, properties.height);
 
-		// if the image is a **horizontal** tileset, where all images have the same width and height, this specifies the number image to use (starting at 0 for the first image)
-		// doesn't work with setImage or changeImage/resetImage
-		this.imageNumber = properties.imageNumber || 0; // currently only works for projectiles (TBD)
+			// if the image is a **horizontal** tileset, where all images have the same width and height, this specifies the number image to use (starting at 0 for the first image)
+			// doesn't work with setImage or changeImage/resetImage
+			this.imageNumber = properties.imageNumber || 0; // currently only works for projectiles (TBD)
+		}
+		else {
+			this.hidden = true; // an image must be loaded and set via setIMage before it can be shown (and then hidden may be set back)
+		}
 
 		this.expand = properties.expand || 1; // width multiplier (based on base width and base height)
 
@@ -1426,7 +1526,65 @@ class InfoPoint extends Thing {
 	}
 }
 
-// player - similar to Player global variable in saveData.js, but only contains necessary information (also has some cool functions)
+// useed for other players through websocket
+// TBD revise what this inherits from - uses same functions as other classes
+class UserControllable extends Attacker {
+	constructor (properties) {
+		super(properties);
+
+		this.hidden = true;
+
+		this.userID = properties.userID;
+
+		this.skin = properties.skin;
+	}
+
+	// call to load image after constructor
+	init () {
+		return Loader.loadImage("player"+this.class+this.skin, "./assets/player/" + this.class + this.skin + ".png");
+	}
+
+	// called after this.direction is updated
+	updateRotation () {
+		if (this.direction === 1) {
+			this.crop = {
+				x: 0,
+				y: this.baseHeight,
+				width: this.baseWidth,
+				height: this.baseHeight
+			};
+		}
+
+		else if (this.direction === 2) {
+			this.crop = {
+				x: this.baseWidth,
+				y: this.baseHeight,
+				width: this.baseWidth,
+				height: this.baseHeight
+			};
+		}
+
+		else if (this.direction === 3) {
+			this.crop = {
+				x: 0,
+				y: 0,
+				width: this.baseWidth,
+				height: this.baseHeight
+			};
+		}
+
+		else if (this.direction === 4) {
+			this.crop = {
+				x: this.baseWidth,
+				y: 0,
+				width: this.baseWidth,
+				height: this.baseHeight
+			};
+		}
+	}
+}
+
+// player of the game - similar to Player global variable in saveData.js, but only contains necessary information (also has some cool functions)
 class Hero extends Attacker {
 	constructor (properties) {
 		super(properties);
@@ -3909,9 +4067,9 @@ Game.loadDefaultImages = function () {
 	let toLoad = [];
 
 	// check player image has been loaded (if not, then load it)
-	if (!Object.keys(Loader.images).includes("hero")) {
+	if (!Object.keys(Loader.images).includes("player"+Player.class+Player.skin)) {
 		// load image based on class
-		toLoad.push(Loader.loadImage("hero", "./assets/player/" + Player.class + Player.skin + ".png", false));
+		toLoad.push(Loader.loadImage("player"+Player.class+Player.skin, "./assets/player/" + Player.class + Player.skin + ".png", false));
 	}
 
 	// check if the class' default projectile has been loaded
@@ -3980,16 +4138,8 @@ Game.loadArea = function (areaName, destination) {
 		this.animationTick = undefined;
 	}
 
-	// wipe previously loaded images
-	Loader.wipeImages([
-		// images not to be wiped (ignored if they haven't been loaded)
-		"hero",
-		this.heroProjectileName,
-		"bobber",
-		"status",
-		"weatherImage", // image for an additional weather particle (handled separately by weather)
-		// TBD this is inefficient since this is then never unloaded even when weather changes
-	]);
+	// wipe previously loaded images (except exceptions - based on deleteif)
+	Loader.wipeImages();
 
 	// set game time of day and event
 	Event.updateEvent();
@@ -4006,6 +4156,11 @@ Game.loadArea = function (areaName, destination) {
     Promise.all(p).then(function (loaded) {
 
 		this.areaName = areaName;
+
+		// save data information
+        Player.displayAreaName = Areas[areaName].data.name;
+		Player.lootArea = Areas[areaName].lootArea;
+		Player.lootTier = Areas[areaName].lootTier;
 
 		// map
 		// there are some properties that some areaData areas don't have, so should be undefined rather than the old value
@@ -4228,6 +4383,16 @@ Game.loadArea = function (areaName, destination) {
 			}
 		}
 
+		// players
+		this.players = [];
+		if (ws !== false && ws.readyState === 1) {
+			// websockeet is active
+			for (let i = 0; i < Dom.players.length; i++) {
+				// addPlayer checks necessary conditions for player additioin
+				this.addPlayer(Dom.players[i]);
+			}
+		}
+
 		// music
 		// it is checked if the user has selected for music to be played in the settings within the Game.playMusic function
 		this.playMusic();
@@ -4254,6 +4419,18 @@ Game.loadArea = function (areaName, destination) {
 			this.allThings.push(Game.hero);
 			this.allCharacters.push(Game.hero);
 			this.allAttackers.push(Game.hero);
+
+			// tell server that area has been changed so that DOM chat players online can display this for all players
+		    // check if user is connected to the websocket
+		    if (ws !== false && ws.readyState === 1) {
+				ws.send(JSON.stringify({
+					type: "changeArea",
+					area: Player.displayAreaName,
+					x: this.hero.x,
+					y: this.hero.y,
+					direction: this.hero.direction
+				}));
+			}
 		}
 
 		// display area name
@@ -4281,20 +4458,6 @@ Game.loadArea = function (areaName, destination) {
 		}
 		// remove player moveTowards
 		this.hero.moveTowards = undefined;
-
-		// save data information
-        Player.displayAreaName = Areas[areaName].data.name;
-		Player.lootArea = Areas[areaName].lootArea;
-		Player.lootTier = Areas[areaName].lootTier;
-
-		// tell server that area has been changed so that DOM chat players online can display this for all players
-	    // check if user is connected to the websocket
-	    if (ws !== false && ws.readyState === 1) {
-			ws.send(JSON.stringify({
-				type: "changeArea",
-				area: Player.displayAreaName
-			}));
-		}
 
 		// allow hero to move again if they died
 		if (this.hero.respawning) {
@@ -4464,7 +4627,7 @@ Game.init = function () {
 		height: 120,
 
 		// properties inheritied from Thing
-		image: "hero",
+		image: "player"+Player.class+Player.skin,
 
 		// properties inherited from Character
 		health: Player.health,
@@ -4995,6 +5158,7 @@ Game.update = function (delta) {
 		this.updateScreenPosition(this.collisions[i]);
 	}
 
+	let moved = false;
     // handle hero movement with arrow keys
 	if (this.hero.moveTowards === undefined && !Game.hero.hasStatusEffect("Displacement")) {
 		let dirx = 0;
@@ -5026,6 +5190,7 @@ Game.update = function (delta) {
 	        this.hero.move(delta, dirx, diry);
 	        this.hasScrolled = true;
 		    this.camera.update();
+			moved = true;
 	    }
 		else {
 	        this.hasScrolled = false;
@@ -5036,6 +5201,19 @@ Game.update = function (delta) {
 		this.hero.move(delta); // no need for direction functions (found out in move)
 		this.hasScrolled = true;
 	    this.camera.update();
+		moved = true;
+	}
+
+	// tell server that user location has changed so other users can see it
+	// check if user is connected to the websocket
+	if (moved && ws !== false && ws.readyState === 1) {
+		ws.send(JSON.stringify({
+			type: "playerLocation",
+			userID: ws.userID,
+			x: this.hero.x,
+			y: this.hero.y,
+			direction: this.hero.direction
+		}));
 	}
 
 	// interact with touching object
@@ -6437,9 +6615,15 @@ Game.render = function (delta) {
 	// sort by y value
 	// set values to sort by, basing their value on their z position as well as y value
 	// 10^10 is an arbitrary value that should always be out of reach of y values
-
 	for (let i = 0; i < this.allThings.length; i++) {
-		this.allThings[i].sortValue = this.allThings[i].y + this.allThings[i].z * 10000000000;
+		if (this.allThings[i].hidden !== true) {
+			this.allThings[i].sortValue = this.allThings[i].y + this.allThings[i].z * 10000000000;
+		}
+		else {
+			// a y value might not have been assigned to the object yet
+			// arbitary sort value
+			this.allThings[i].sortValue = 0;
+		}
 	}
 	// gnomesort - used because it is fast on mostly sorted data (which this will be because NPCs don't move)
 	let i = 0;
@@ -6464,7 +6648,8 @@ Game.render = function (delta) {
 
 		// check object should be rendered
 		if (Game.camera.isOnScreen(objectToRender, "image") && // object on screen
-		(objectToRender.stats === undefined || !objectToRender.stats.stealthed)) { // object isn't stealthed
+		(objectToRender.stats === undefined || !objectToRender.stats.stealthed) && // object isn't stealthed
+		objectToRender.hidden !== true) {
 
 			// set character screen x and y
 			this.updateScreenPosition(objectToRender);
@@ -7003,7 +7188,7 @@ Game.saveProgress = function (saveType) { // if saveType is "auto" then the save
 
 		// save all user information apart from changes in unclaimed achievement points and skins (in case something was baught during game open)
 		let prevUser = JSON.parse(localStorage.getItem("user"));
-		if (prevUser.skinPurchased === true) {
+		if (prevUser !== null && prevUser.skinPurchased === true) {
 			// user has bought a skin this session
 			User.skins = prevUser.skins;
 			User.achievementPoints.unclaimed = prevUser.achievementPoints.unclaimed;

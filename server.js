@@ -37,28 +37,39 @@ var connections = 0; // total connections - used for user IDs (unique to user)
 wss.on("connection", (ws) => { // note that ws = client in wss.clients
 	console.info("Client connected");
 
-	// set a unique user ID (different to ws.username becasue this is unique)
+	// set a unique user ID (different to ws.name becasue this is unique)
 	ws.userID = connections;
 	connections++;
 
 	// handle message received from client
 	// tbd: does this go outside of "connection" or inside?
 	ws.on("message", function (data) {
-		console.info("Received message: " + data);
-
 		let parsedMessage = JSON.parse(data);
 
 		// check message type and perform an action based on this type
 		switch (parsedMessage.type) {
+
+			case "playerLocation":
+				// save client information in websocket (in case a user joins and needs to know it)
+				ws.x = parsedMessage.x;
+				ws.y = parsedMessage.y;
+				ws.direction = parsedMessage.direction;
+				// broadcast to chat DOM (for displaying players online)
+				wss.broadcast(data, ws.userID);
+				break;
+
 			case "userInformation":
 				// sent when the user joins the websocket
 
 				// save client name information in websocket
-				ws.username = parsedMessage.username;
+				ws.name = parsedMessage.name;
 				ws.class = parsedMessage.class;
 				ws.level = parsedMessage.level;
 				ws.skin = parsedMessage.skin;
 				ws.area = parsedMessage.area;
+				ws.x = parsedMessage.x;
+				ws.y = parsedMessage.y;
+				ws.direction = parsedMessage.direction;
 
 				// message the user to tell them what their userID is
 				// this information is used by the client if they want to except themselves from broadcasts
@@ -75,14 +86,18 @@ wss.on("connection", (ws) => { // note that ws = client in wss.clients
 					action: "join",
 					numberOnline: numberOnline,
 					userID: ws.userID,
-					username: parsedMessage.username,
+					name: parsedMessage.name,
 					class: parsedMessage.class,
 					level: parsedMessage.level,
 					skin: parsedMessage.skin,
-					area: parsedMessage.area
+					area: parsedMessage.area,
+					x: parsedMessage.x,
+					y: parsedMessage.y,
+					direction: parsedMessage.direction
 				}));
 
 				// message the user to tell them about all the other users online
+				// x, y, and direction are done in "changeArea" so it is done on join and also every area change
 				wss.clients.forEach(function (client) {
 					// check the client is not the current user
 					if (client.userID !== ws.userID) {
@@ -90,11 +105,14 @@ wss.on("connection", (ws) => { // note that ws = client in wss.clients
 							type: "playersOnline",
 							action: "retroactive",
 							userID: client.userID,
-							username: client.username,
+							name: client.name,
 							class: client.class,
 							level: client.level,
 							skin: client.skin,
-							area: client.area
+							area: client.area,
+							x: client.x,
+							y: client.y,
+							direction: client.direction
 						}));
 					}
 				});
@@ -108,16 +126,40 @@ wss.on("connection", (ws) => { // note that ws = client in wss.clients
 				break;
 
 			case "changeArea":
+				ws.area = parsedMessage.area;
+				// new positions are also saved
+				ws.x = parsedMessage.x;
+				ws.y = parsedMessage.y;
+				ws.direction = parsedMessage.direction;
+
 				// broadcast to chat DOM (for displaying players online)
 				wss.broadcast(JSON.stringify({
 					type: "playersOnline",
 					action: "area",
 					userID: ws.userID,
-					area: parsedMessage.area
+					area: parsedMessage.area,
+					x: parsedMessage.x,
+					y: parsedMessage.y,
+					direction: parsedMessage.direction,
 				}));
+				// tell the user that changed area the position of all players (so it knows the position of players in its new area)
+				wss.clients.forEach(function (client) {
+					// check the client is not the current user
+					if (client.userID !== ws.userID) {
+						ws.send(JSON.stringify({
+							type: "playerLocation",
+							userID: client.userID,
+							x: client.x,
+							y: client.y,
+							direction: client.direction,
+						}));
+					}
+				});
 				break;
 
 			case "changeLevel":
+				ws.level = parsedMessage.level;
+
 				// broadcast to chat DOM (for displaying players online)
 				wss.broadcast(JSON.stringify({
 					type: "playersOnline",

@@ -73,7 +73,7 @@ Loader.getImage = function (key) {
 	}
 };
 
-Loader.wipeImages = function (exceptions) {
+Loader.wipeImages = function () {
 	// wipe all images from images object (apart from exceptions)
 	// exceptions are documented in .deleteIf as a function (true = can delete)
 	for (let key in this.images) {
