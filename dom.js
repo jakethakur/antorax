@@ -672,8 +672,8 @@ Dom.chat.input = function (id) {
 		else if (ws === false || ws.readyState !== 1) {
 			// server off
 			Dom.chat.insert(Dom.chat.say(Player.name, Dom.elements[id].value));
-		//}
-		//else {
+		}
+		else {
 			// server on
 			
 			if (Dom.elements[id].value === "/ping") {
