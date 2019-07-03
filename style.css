@@ -233,7 +233,7 @@ thead:after { /* space after bags in bank */
 	margin-top: -30px;
 	width: 510px;
 	user-select: text;
-	overflow-x: hidden;
+	overflow: hidden;
 }
 
 .chatPara {
@@ -249,6 +249,7 @@ thead:after { /* space after bags in bank */
 	width: 455px;
 	padding-left: 3px;
 	padding-right: 40px;
+	background-color: var(--input);
 }
 
 #canvasChatInput {

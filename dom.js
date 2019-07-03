@@ -661,29 +661,56 @@ Dom.chat.input = function (id) {
 		
 		if (Dom.elements[id].value === "/help") {
 			Dom.chat.insert(Dom.chat.say("The Mighty Zararanath", 
-			`Hello again, ${Player.name}. Here is a list of commands:
-			<br>/me - ...
-			<br>/help - ...
-			<br>/ping - ...
-			<br>/msg - ...
-			<br>If you require help with the game, click your yellow bookmark with a compass on.`));
+			`Hello again, ${Player.name}. Here is a list of commands that you can type in chat:
+			<br><br>/me [message] - refer to yourself in the third person.
+			<br>/msg [player name] [message] - send a message to only one player.
+			<br>/ping - see your connection speed with server.
+			<br><br>If you require help with the game, click your yellow bookmark with a compass on.`));
 		}
 		
 		// message intended to be sent to other players
 		else if (ws === false || ws.readyState !== 1) {
 			// server off
 			Dom.chat.insert(Dom.chat.say(Player.name, Dom.elements[id].value));
-		}
-		else {
+		//}
+		//else {
 			// server on
+			
+			if (Dom.elements[id].value === "/ping") {
+				let message = {
+			        type: "ping",
+			        content: Date.now(),
+			    }
+			    let jsonMessage = JSON.stringify(message);
+			    ws.send(jsonMessage);
+			}
+			
+			else if (Dom.elements[id].value.substring(0, 5) === "/msg ") {
+				let array = Dom.elements[id].value.split(" ");
+				let string = array[2];
+				for (let i = 3; i < array.length; i++) {
+					string += " " + array[i];
+				}
+				Dom.chat.insert(Dom.chat.say(Player.name + " &#10132; " + array[1], string));
+				let message = {
+			        type: "msg",
+			        name: array[1],
+			        content: string,
+			    }
+			    let jsonMessage = JSON.stringify(message);
+			    ws.send(jsonMessage);
+			}
+			
 			// send message which is thus broadcasted to all others (no KAO)
-			let message = {
-		        type: "chat",
-		        name: Player.name,
-		        content: Dom.elements[id].value,
-		    }
-		    let jsonMessage = JSON.stringify(message);
-		    ws.send(jsonMessage);
+			else {
+				let message = {
+			        type: "chat",
+			        name: Player.name,
+			        content: Dom.elements[id].value,
+			    }
+			    let jsonMessage = JSON.stringify(message);
+			    ws.send(jsonMessage);
+			}
 		}
 
 		Dom.elements[id].value = "";
@@ -746,7 +773,9 @@ Dom.chat.insert = function (text, delay, time, noRepeat) {
 							Dom.chat.chatInterval = false;
 						}
 						for (let x = 0; x < Dom.chat.displayChat.length; x++) {
-							Dom.elements.canvasChatInput.hidden = false;
+							if (!Dom.chat.hideInput) {
+								Dom.elements.canvasChatInput.hidden = false;
+							}
 							Dom.chat.displayOpacity[x]-=2;
 							if (Dom.chat.displayOpacity[x] < 600) {
 								Dom.elements.chat.getElementsByTagName("li")[x].style.opacity = Dom.chat.displayOpacity[x]/1000;
@@ -843,6 +872,7 @@ Dom.reputation.update = function () {
 			if (Player.reputation[Object.keys(Player.reputation)[i]].changed && Dom.elements.closeReputation === null) {
 				// if the close button should be there
 				Dom.elements.reputationPage.innerHTML += "<div id='closeReputation' onclick='Dom.reputation.start()'>Close</div>"
+				Dom.elements.closeReputation = document.getElementById("closeReputation");
 			}
 		}
 	}
@@ -1259,7 +1289,7 @@ Dom.inventory.displayInformation = function (item, stacked, element, position, h
 			}/*else{
 				Dom.elements.lore.innerHTML = "";
 			}*/
-			if (position === "buyer" && item.sellPrice !== undefined) {
+			if (position === "buyer" && item.sellPrice !== undefined && (item.quest === undefined || !item.quest())) {
 				Dom.elements.lore.innerHTML += lorebuyer+"Sell "+(item.sellQuantity !== 1 ? item.sellQuantity : "")+" for "+(item.charges === undefined ? item.sellPrice : Math.ceil(item.sellPrice / (item.maxCharges / item.charges)))+" gold";
 			}
 			if (item.cooldownStart !== undefined && parseInt(item.cooldownStart) + item.cooldown > parseInt(GetFullDateTime())) {
@@ -3979,7 +4009,7 @@ Dom.bank.page = function () {
 			}
 			else {
 				Dom.elements.bankPageInventory.getElementsByTagName("td")[i].onclick = function () {
-					Dom.alert.page("You cannot unlock this bag slot.", undefined, undefined, "bankPage");
+					Dom.alert.page("You must unlock the previous bag slot first.", undefined, undefined, "bankPage");
 				}
 			}
 		}
@@ -4679,7 +4709,8 @@ Dom.settings.dark = function () {
 		--text: #dcddde;
 		--link: #99bfde;
 		--arrow: #454545;
-		--opacity: 0.9;`
+		--opacity: 0.9;
+		--input: #aaaaaa;`
 	}
 	else {
 		document.documentElement.style = `
@@ -4692,7 +4723,8 @@ Dom.settings.dark = function () {
 		--text: #000000;
 		--link: #0000ff;
 		--arrow: #886622;
-		--opacity: 0.6;`
+		--opacity: 0.6;
+		--input: #ffffff;`
 	}
 }
 

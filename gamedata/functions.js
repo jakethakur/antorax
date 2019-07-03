@@ -248,6 +248,10 @@ Keyboard.downFunctions = {
             Game.secondary.render();
             Dom.inventory.hideHotbar(true);
             document.getElementById("bookmarks").hidden = true;
+			if (Dom.chat.displayChat.length > 0 || Dom.elements.canvasChatInput === document.activeElement) {
+				Dom.elements.canvasChatInput.hidden = true;
+			}
+			Dom.chat.hideInput = true;
         }, 1);
     },
 };
@@ -258,6 +262,10 @@ Keyboard.upFunctions = {
             Game.secondary.render();
             Dom.inventory.hideHotbar();
             document.getElementById("bookmarks").hidden = false;
+			if (Dom.chat.displayChat.length > 0 || Dom.elements.canvasChatInput === document.activeElement) {
+				Dom.elements.canvasChatInput.hidden = false;
+			}
+			Dom.chat.hideInput = false;
         }, 1);
     },
 	TALK: function () {

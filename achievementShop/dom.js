@@ -7,6 +7,11 @@ else {
 			total: 0,
 			unclaimed: 0,
 		},
+		skins: {
+			a: [0, 1],
+			m: [0, 1],
+			k: [0, 1],
+		},
 	};
 }
 
@@ -68,17 +73,19 @@ for (let i = 0; i < array.length; i++) {
 	document.getElementById("image"+i).style.height = 60 + array[i].headAdjust.y + "px";
 	document.getElementById("image"+i).style.bottom = 3 + array[i].headAdjust.y + "px";
 	document.getElementById("name"+i).innerHTML = array[i].name;
+	document.getElementById("projectile"+i).style.backgroundImage = "url('../assets/projectiles/"+array[i].projectile+".png')";
+	if (array[i].cursor !== "crosshair") {
+		document.getElementById("option"+i).setAttribute("style","cursor: " + "url('../assets/cursors/" + array[i].cursor + ".png') " + array[i].cursorPosition.x + " " + array[i].cursorPosition.y + ", auto;");
+	}
+	if (User.skins[array[i].class].includes(array[i].id)) {
+		document.getElementById("option"+i).style.borderColor = "darkgreen";
+	}
 	if (array[i].gender === "m") {
 		document.getElementById("option"+i).style.backgroundColor = "#C4D5F3";
 	}
 	else {
 		document.getElementById("option"+i).style.backgroundColor = "#D2C1F0";
 	}
-	if (array[i].cursor !== "crosshair") {
-		document.getElementById("option"+i).setAttribute("style","cursor: " + "url('../assets/cursors/" + array[i].cursor + ".png') " + array[i].cursorPosition.x + " " + array[i].cursorPosition.y + ", auto;"
-		+ "background-color: " + (array[i].gender === "m" ? "#C4D5F3" : "#D2C1F0"));
-	}
-	document.getElementById("projectile"+i).style.backgroundImage = "url('../assets/projectiles/"+array[i].projectile+".png')";
 }
 let skin = array[0];
 let num = 0;
@@ -108,6 +115,12 @@ function display () {
 	}
 	else if (num === 3) {
 		document.getElementById("skin").style.left = window.innerWidth/2-document.getElementById("skin").offsetWidth/2+parseInt(document.getElementById("skin").width)/skin.position.y+"px";
+	}
+	if (User.skins[skin.class].includes(skin.id)) {
+		document.getElementById("buy").hidden = true;
+	}
+	else {
+		document.getElementById("buy").hidden = false;
 	}
 }
 
