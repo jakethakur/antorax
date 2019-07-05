@@ -195,6 +195,15 @@ wss.on("connection", (ws) => { // note that ws = client in wss.clients
 				ws.send(data);
 				break;
 
+			case "trade":
+				// look for target client
+				wss.clients.forEach(function (client) {
+					if (client.userID === parsedMessage.target) {
+						client.send(data);
+					}
+				});
+				break;
+
 			default:
 				// broadcast to all others
 				wss.broadcast(data, parsedMessage.except);

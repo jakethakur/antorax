@@ -92,7 +92,8 @@ Game.initWebSocket = function () {
 				class: Player.class,
 				level: Player.level,
 				skin: Player.skin,
-				area: Player.displayAreaName,
+				area: Player.areaName,
+				displayArea: Player.displayAreaName,
 				x: Player.x,
 				y: Player.y,
 				direction: 3
@@ -107,10 +108,12 @@ Game.initWebSocket = function () {
 					// multiplayer player location
 					// find which player it is
 					let user;
-					for (let i = 0; i < Game.players.length; i++) {
-						if (Game.players[i].userID === message.userID) {
-							user = Game.players[i];
-							break;
+					if (Game.players !== undefined) { // check user has loaded enough to have loaded Game.players
+						for (let i = 0; i < Game.players.length; i++) {
+							if (Game.players[i].userID === message.userID) {
+								user = Game.players[i];
+								break;
+							}
 						}
 					}
 
@@ -138,12 +141,11 @@ Game.initWebSocket = function () {
 				case "msg": // for private message from someone (the name being sender -> target is handled in server)
 				case "chat":
 					// do not allow user ta use < or > in chat (stop HTML injection)
-					Dom.chat.insert(Dom.chat.say(message.name, message.content.replace(/[<>]/g, "")));
-
-					if (Notification.permission === "granted" && !Dom.focus) {
-					    // notification if user has given permission
-					    let notification = new Notification(message.name, {body: message.content.replace(/[<>]/g, ""), silent: true});
-					}
+					let messageContent = message.content.replace(/[<>]/g, "");
+					// insert in chat
+					Dom.chat.insert(Dom.chat.say(message.name, messageContent));
+				    // notification if user has given permission
+					Dom.chat.notification(message.name, messageContent);
 					break;
 
 				case "info":
@@ -171,7 +173,7 @@ Game.initWebSocket = function () {
 							break;
 						case "area":
 							// find the player from DOM and only add it if they have moved to the player's current area
-							if (message.area === Player.displayAreaName) {
+							if (message.area === Player.areaName) {
 								Game.addPlayerByID(message.userID);
 							}
 							else {
@@ -188,6 +190,46 @@ Game.initWebSocket = function () {
 				case "ping":
 					// pong received (for server response time checking)
 					Dom.chat.insert(Dom.chat.say("Server", "Pong received from server in " + (Date.now()-message.content) + "ms."));
+					break;
+
+				case "trade":
+					switch (message.action) {
+	 					case "update":
+							// other user's trade inventory is updated
+							Dom.trade.updateTheirInventory(message.content);
+							break;
+
+	 					case "request":
+							// trade request received
+							Dom.trade.requestReceived(message.userID, message.name);
+							Dom.chat.notification("You have received a trade request from " + message.name + ".");
+							break;
+
+						case "accept":
+							// trade accepted by user that player is waiting on to accept/decline
+							Dom.trade.page();
+							Dom.chat.notification("Your trade request with " + message.name + " has been accepted.");
+							break;
+
+						case "decline":
+							// trade declined by user that player is waiting on to accept/decline
+							Dom.trade.page();
+							Dom.chat.insert("Your trade request with " + message.name + " has been declined.");
+							Dom.chat.notification("Your trade request with " + message.name + " has been declined.");
+							break;
+
+	 					case "confirm":
+							// trade confirmed by another user
+							Dom.trade.confirmOther();
+							Dom.chat.notification(message.name + " has confirmed the trade.");
+							break;
+
+						case "closed":
+							// close trade (true = called by other person)
+							Dom.trade.close(true);
+							Dom.chat.notification(message.name + " has closed the trade.");
+							break;
+					}
 					break;
 
 				default:
@@ -209,7 +251,7 @@ Game.addPlayer = function (player) {
 		// deep copy player (because it could have come from Dom.players)
 		let copiedPlayer = Object.assign({}, player);
 
-		if (copiedPlayer.area === Player.displayAreaName && // check player is in the same area
+		if (copiedPlayer.area === Player.areaName && // check player is in the same area
 		copiedPlayer.userID !== ws.userID) { // and player is not Game.hero
 
 			// check the player has not already been added
@@ -4361,7 +4403,8 @@ Game.loadArea = function (areaName, destination) {
 		    if (ws !== false && ws.readyState === 1) {
 				ws.send(JSON.stringify({
 					type: "changeArea",
-					area: Player.displayAreaName,
+					area: Player.areaName,
+					displayArea: Player.displayAreaName,
 					x: this.hero.x,
 					y: this.hero.y,
 					direction: this.hero.direction
@@ -5641,6 +5684,26 @@ Game.update = function (delta) {
 			// close the DOM if the player is too far away from the mailbox or if the mailbox is dead
 			if (this.distance(this.hero, mailbox) > this.hero.stats.domRange) {
 				// player is more than 4 tiles away from mailbox
+				Dom.closeNPCPages();
+			}
+		}
+	}
+
+	// check collision with real players
+	for (let i = 0; i < this.players.length; i++) {
+		let player = this.players[i];
+
+		// pressing space and touching player, and DOM isn't currently occupied
+		if (this.keysDown.SPACE && this.hero.isTouching(player) && Dom.currentlyDisplayed === "") {
+			// true = force trade
+			Dom.choose.page(player, ["Trade with this player"], [Dom.trade.request], [[player.userID, player.name]], true);
+		}
+
+		// check if the currently displayed DOM is for the current player in the for loop
+		if (player.id === Dom.currentNPC.id && player.type === Dom.currentNPC.type) {
+			// close the DOM if the player is too far away from the player or if the mailbox is dead
+			if (this.distance(this.hero, player) > this.hero.stats.domRange) {
+				// player is more than 4 tiles away from player
 				Dom.closeNPCPages();
 			}
 		}
