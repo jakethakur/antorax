@@ -198,6 +198,11 @@ function display(){
 	for (let i = 0; i < unlocked[selected.class].length; i++) {
 		document.getElementById("skin"+i).onclick = function () {
 			selected[selected.class] = unlocked[selected.class][i];
+			if(localStorage.getItem("accept") === "true"){
+				setTimeout(function(){
+					localStorage.setItem("selected", JSON.stringify(selected));
+				},1);
+			}
 			display();
 		}
 	}
@@ -207,20 +212,10 @@ document.getElementById("left").onclick = function () {
 	num++;
 	if(num > 3){num = 0;}
 	display();
-	if(localStorage.getItem("accept") === "true"){
-		setTimeout(function(){
-			localStorage.setItem("selected", JSON.stringify(selected));
-		},1);
-	}
 }
 
 document.getElementById("right").onclick = function () {
 	num--;
 	if(num < 0){num = 3;}
 	display();
-	if(localStorage.getItem("accept") === "true"){
-		setTimeout(function(){
-			localStorage.setItem("selected", JSON.stringify(selected));
-		},1);
-	}
 }

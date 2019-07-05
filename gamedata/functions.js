@@ -190,7 +190,8 @@ Keyboard.unlistenKey = function (key) {
 
 // called when a key is pressed
 Keyboard.onKeyDown = function (ev) {
-	if (ev.target !== Dom.elements.chatInput && ev.target !== Dom.elements.canvasChatInput) {
+	// not a chat exception
+	if (ev.target !== Dom.elements.chatInput && ev.target !== Dom.elements.canvasChatInput && window.getSelection().type !== "Range") {
 		// if a hotkey is not being changed
 		if (Dom.settings.hotkey === undefined) {
 			for (let i = 0; i < this.keys.length; i++) {
@@ -212,7 +213,8 @@ Keyboard.onKeyDown = function (ev) {
 
 // called when a key is released
 Keyboard.onKeyUp = function (ev) {
-	if (ev.target !== Dom.elements.chatInput && ev.target !== Dom.elements.canvasChatInput) {
+	// not a chat exception
+	if (ev.target !== Dom.elements.chatInput && ev.target !== Dom.elements.canvasChatInput && window.getSelection().type !== "Range") {
 		// if a hotkey is being changed
 		if (Dom.settings.hotkey !== undefined) {
 			ev.preventDefault();

@@ -358,6 +358,7 @@ thead:after { /* space after bags in bank */
 	padding-right: 10px;
 	text-align: left;
 	z-index: 50;
+	max-width: 200px;
 }
 
 #name, #stats, #innerStats {

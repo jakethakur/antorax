@@ -386,7 +386,8 @@ Dom.closeNPCPages = function () {
 		//Dom.bank.active = false;
 	}
 	if (this.elements.tradePage.hidden === false) {
-		Dom.closePage("inventoryPage");
+		Dom.trade.close(true);
+		//Dom.closePage("inventoryPage");
 		//Dom.trade.active = false;
 	}
 	this.elements.questStart.hidden = true;
@@ -399,6 +400,7 @@ Dom.closeNPCPages = function () {
 	this.elements.mailPage.hidden = true;
 	this.elements.driverPage.hidden = true;
 	//this.elements.bankPage.hidden = true;
+	//this.elements.tradePage.hidden = true;
 	this.elements.choosePage.hidden = true;
 	this.elements.textPage.hidden = true;
 	Dom.currentlyDisplayed = "";
@@ -687,18 +689,26 @@ Dom.chat.input = function (id) {
 			
 			else if (Dom.elements[id].value.substring(0, 5) === "/msg ") {
 				let array = Dom.elements[id].value.split(" ");
-				let string = array[2];
-				for (let i = 3; i < array.length; i++) {
-					string += " " + array[i];
+				if (array.length > 2 && Dom.players.findIndex(player => player.name === array[1]) !== -1) {
+					let string = array[2];
+					for (let i = 3; i < array.length; i++) {
+						string += " " + array[i];
+					}
+					Dom.chat.insert(Dom.chat.say(Player.name + " &#10132; " + array[1], string));
+					let message = {
+				        type: "msg",
+				        name: array[1],
+				        content: string,
+				    }
+				    let jsonMessage = JSON.stringify(message);
+				    ws.send(jsonMessage);
 				}
-				Dom.chat.insert(Dom.chat.say(Player.name + " &#10132; " + array[1], string));
-				let message = {
-			        type: "msg",
-			        name: array[1],
-			        content: string,
-			    }
-			    let jsonMessage = JSON.stringify(message);
-			    ws.send(jsonMessage);
+				else if (array.length <= 2) {
+					Dom.chat.insert("Incorrect usage of /msg. Should be /msg [player name] [message].");
+				}
+				else {
+					Dom.chat.insert("Player "+array[1]+" cannot be found.");
+				}
 			}
 			
 			// send message which is thus broadcasted to all others (no KAO)
@@ -763,7 +773,7 @@ Dom.chat.insert = function (text, delay, time, noRepeat) {
 				// chat in the bottom left
 				Dom.chat.displayChat.push(text);
 				Dom.elements.chat.innerHTML += "<li class='chatBox' style='opacity:0.6;'>"+text+"</li>";
-				Dom.chat.displayOpacity.push(time/2+500);
+				Dom.chat.displayOpacity.push(1500);
 				Dom.elements.canvasChatInput.style.opacity = 0.6;
 				//Dom.elements.canvasChatInput.hidden = false;
 				if (!Dom.chat.chatInterval) {
@@ -779,7 +789,7 @@ Dom.chat.insert = function (text, delay, time, noRepeat) {
 							Dom.chat.displayOpacity[x]-=2;
 							if (Dom.chat.displayOpacity[x] < 600) {
 								Dom.elements.chat.getElementsByTagName("li")[x].style.opacity = Dom.chat.displayOpacity[x]/1000;
-								if (x === Dom.chat.displayChat.length-1) {
+								if (x === Dom.chat.displayChat.length-1 && Dom.elements.canvasChatInput !== document.activeElement) {
 									Dom.elements.canvasChatInput.style.opacity = Dom.chat.displayOpacity[x]/1000;
 								}
 							}
@@ -1105,6 +1115,8 @@ Dom.inventory.displayInformation = function (item, stacked, element, position, h
 			if (hide === undefined) {
 				Dom.elements.information.style.opacity = 0;
 				Dom.elements.information.hidden = false;
+				Dom.elements.name.style.width = null;
+				Dom.elements.stats.style.width = null;
 			}
 			Dom.inventory.updatePosition(Dom.elements.information, element);
 			Dom.elements.information.style.opacity = 1;
@@ -1303,6 +1315,8 @@ Dom.inventory.displayInformation = function (item, stacked, element, position, h
 				},1000);
 			}
 			Dom.elements.information.style.width = Math.max(Dom.elements.name.offsetWidth, Dom.elements.stats.offsetWidth)+"px";
+			Dom.elements.name.style.width = Dom.elements.information.offsetWidth - 30 + "px";
+			Dom.elements.stats.style.width = Dom.elements.information.offsetWidth - 30 + "px";
 		}
 	}
 }
@@ -2459,7 +2473,7 @@ Dom.inventory.dispose = function (ev) {
 						Dom.elements.bankPageInventory.getElementsByTagName("td")[Dom.inventory.fromId].style.backgroundImage = "url('assets/items/bag/1.png')";
 					}
 
-					Dom.inventory.remove(Dom.inventory.fromId, all, Dom.inventory.fromArray); /// TBD possible for other arrays
+					Dom.inventory.remove(Dom.inventory.fromId, all, Dom.inventory.fromArray);
 				}
 				// equipment slots
 				else {
@@ -3086,7 +3100,9 @@ Dom.inventory.drop = function (toElement, toArray, toId, fromElement, fromArray,
 	if (toArray === Dom.trade.items || fromArray === Dom.trade.items) {
 		let message = {
 	        type: "trade",
+			action: "update",
 	        content: Dom.trade.items,
+			target: Dom.trade.target,
 	    }
 	    let jsonMessage = JSON.stringify(message);
 	    ws.send(jsonMessage);
@@ -4502,9 +4518,7 @@ Dom.chat.players = function (object, action) {
             Dom.chat.insert(object.name+" has joined the game!");
         }
         Dom.players.push(object);
-		if (Notification.permission === "granted" && !Dom.focus) {
-			let notification = new Notification(object.name + " has joined the game", {silent: true});
-		}
+		Dom.chat.notification(object.name + " has joined the game");
     }
 	
     else if (action === "leave") {
@@ -4529,8 +4543,8 @@ Dom.chat.players = function (object, action) {
 				// update the information
                 Dom.players[i] = Object.assign(Dom.players[i], object);
                 if (action === "level" && Dom.players[i].userID !== ws.userID) {
-					// level up chat notification
-                    Dom.chat.insert("<strong>"+Dom.players[i].name+"</strong> has levelled up to level "+Dom.players[i].level+"!");
+					// level up chat announcement
+                    Dom.chat.insert("<strong>"+Dom.players[i].name+"</strong> has levelled up to level "+Dom.players[i].level);
                 }
             }
         }
@@ -4569,7 +4583,7 @@ Dom.elements.players.onclick = function (notClicked) {
 			document.getElementById("players"+i).style.height = 60 + Skins[Dom.players[i].class][Dom.players[i].skin].headAdjust.y + "px";
 			document.getElementById("players"+i).style.bottom = 3 + Skins[Dom.players[i].class][Dom.players[i].skin].headAdjust.y + "px";
 
-			Dom.elements.playersInfo.innerHTML += "<div class='playersText'><strong>" + Dom.players[i].name + "</strong> (Level " + Dom.players[i].level + " " + clss + ")<br>" + Dom.players[i].area + "</div>";
+			Dom.elements.playersInfo.innerHTML += "<div class='playersText'><strong>" + Dom.players[i].name + "</strong> (Level " + Dom.players[i].level + " " + clss + ")<br>" + Dom.players[i].displayArea + "</div>";
 		}
 	}
 	else {
@@ -4601,6 +4615,48 @@ Dom.trade.page = function () {
 	Dom.trade.updateTheirInventory(Dom.trade.other);
 }
 
+Dom.trade.request = function (userID, name) {
+	Dom.trade.target = userID;
+	let message = {
+		type: "trade",
+		action: "request",
+		target: userID,
+		userID: ws.userID,
+		name: Player.name,
+	}
+	let jsonMessage = JSON.stringify(message);
+	ws.send(jsonMessage);
+	Dom.chat.insert("Trade request sent to "+ name +". Walk away to cancel.")
+}
+
+Dom.trade.requestReceived = function (userID, name) {	
+	Dom.alert.ev = userID;
+	Dom.alert.evNo = userID;
+	Dom.alert.target = function () {
+		Dom.trade.target = Dom.alert.ev;
+		let message = {
+			type: "trade",
+			action: "accept",
+			target: Dom.trade.target,
+			name: Player.name,
+		}
+		let jsonMessage = JSON.stringify(message);
+		ws.send(jsonMessage);
+		Dom.trade.page();
+	}
+	Dom.alert.targetNo = function () {
+		let message = {
+			type: "trade",
+			action: "decline",
+			target: Dom.alert.targetNo,
+			name: Player.name,
+		}
+		let jsonMessage = JSON.stringify(message);
+		ws.send(jsonMessage);
+	}
+	Dom.alert.page(name + " would like to trade with you, do you accept?", 2);
+}
+
 Dom.trade.updateTheirInventory = function (inventory) {
 	Dom.trade.other = inventory;
 	
@@ -4630,7 +4686,7 @@ Dom.trade.updateTheirInventory = function (inventory) {
 	document.getElementById("tradePageOther").style.borderColor = "var(--border)";
 }
 
-Dom.trade.close = function () {
+Dom.trade.close = function (second) {
 	for (let i = 0; i < 24; i++) {
 		if (Dom.trade.items[i].image !== undefined) {
 			Dom.inventory.give(Dom.trade.items[i]);
@@ -4642,21 +4698,30 @@ Dom.trade.close = function () {
 	Dom.trade.other = [{},{},{},{},{},{},{},{},
 						{},{},{},{},{},{},{},{},
 						{},{},{},{},{},{},{},{},];
-	let message = {
-		type: "tradeClosed",
+	if (!second) {
+		let message = {
+			type: "trade",
+			action: "close",
+			target: Dom.trade.target,
+			name: Player.name,
+		}
+		let jsonMessage = JSON.stringify(message);
+		ws.send(jsonMessage);
 	}
-	let jsonMessage = JSON.stringify(message);
-	ws.send(jsonMessage);
 	Dom.closePage("inventoryPage");
 }
 
+// only called by main player
 Dom.trade.confirm = function () {
 	document.getElementById("tradePageInventory").style.borderColor = "darkgreen";
 	for (let i = 0; i < 24; i++) {
 		document.getElementById("tradePageInventory").getElementsByTagName("td")[i].style.borderColor = "darkgreen";
 	}
 	let message = {
-		type: "tradeConfirmed",
+		type: "trade",
+		action: "confirm",
+		target: Dom.trade.target,
+		name: Player.name,
 	}
 	let jsonMessage = JSON.stringify(message);
 	ws.send(jsonMessage);
@@ -4665,6 +4730,7 @@ Dom.trade.confirm = function () {
 	}
 }
 
+// only called by other player - different inventories
 Dom.trade.confirmOther = function () {
 	document.getElementById("tradePageOther").style.borderColor = "darkgreen";
 	for (let i = 0; i < 24; i++) {
@@ -4690,11 +4756,61 @@ Dom.trade.complete = function () {
 	Dom.closePage("inventoryPage");
 }
 
+Dom.elements.canvasChatInput.onfocus = function () {
+	Dom.elements.canvasChatInput.style.opacity = 0.6;
+}
+
 window.onbeforeunload = function() {
 	if (Dom.trade.active) {
 		Dom.trade.close();
 	}
 	Game.saveProgress();
+}
+
+function mobileTilt () {
+	let x;
+	let y;
+	if (window.innerHeight <= window.innerWidth) {
+		x = event.beta;
+		y = event.gamma;
+	}
+	else {
+		x = event.gamma;
+		y = event.beta;
+	}
+	
+	if(x > 10 && x != null) {
+		Game.keysDown.RIGHT = true;
+		Game.keysDown.LEFT = false;
+	}
+	else if(x < -10 && x != null) {
+		Game.keysDown.LEFT = true;
+		Game.keysDown.RIGHT = false;
+	}
+	else {
+		Game.keysDown.LEFT = false;
+		Game.keysDown.RIGHT = false;
+	}
+
+	if(y > 10 && y != null) {
+		Game.keysDown.UP = true;
+		Game.keysDown.DOWN = false;
+	}
+	else if(y < -10 && y != null) {
+		Game.keysDown.DOWN = true;
+		Game.keysDown.UP = false;
+	}
+	else {
+		Game.keysDown.UP = false;
+		Game.keysDown.DOWN = false;
+	}
+}
+
+// notification if user has given permission
+Dom.chat.notification = function (title, body) {
+	if (Notification.permission === "granted" && !Dom.focus) {
+        let notification = new Notification(title, {body: body, silent: true});
+    }
 }
 
 Dom.settings.dark = function () {
@@ -5126,6 +5242,7 @@ Dom.init = function () {
 	}
 	Keyboard.listenForKey(User.settings.keyboard.TALK, undefined, Keyboard.upFunctions.TALK);
 
+	window.addEventListener("deviceorientation", mobileTilt); /// TBD MOVE TO MAIN
 	//document.documentElement.requestFullscreen(); - disabled by chrome
 }
 
