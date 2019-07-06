@@ -271,8 +271,10 @@ Game.initWebSocket = function () {
 		ws.onclose = function (event) {
 			// offline
 			// remove all existing players in the area
-			Dom.chat.players = [];
-			Game.players = [];
+			Dom.players = [];
+			for (let i = 0; i < Game.players.length; i++) {
+				Game.removeObject(Game.players[i].id, "players", UserControllable, i);
+			}
 
 			if (Game.hasConnectedToWebSocket) {
 				// if they have connected before to the websocket (thus a possible connection exists), try to reconnect them
