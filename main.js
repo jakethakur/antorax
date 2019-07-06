@@ -270,7 +270,10 @@ Game.initWebSocket = function () {
 		// user disconnected (readyState has been set to 3)
 		ws.onclose = function (event) {
 			// offline
-			Dom.chat.showPlayersOnline("hide");
+			// remove all existing players in the area
+			Dom.chat.players = [];
+			Game.players = [];
+
 			if (Game.hasConnectedToWebSocket) {
 				// if they have connected before to the websocket (thus a possible connection exists), try to reconnect them
 				// if the reconnect fails, this will be called again straight away
@@ -280,6 +283,10 @@ Game.initWebSocket = function () {
 				ws = false;
 				// try to reconnect in 5 seconds
 				setTimeout(Game.initWebSocket, 5000);
+			}
+			else {
+				// websocket hasn't connected before - we can assume a 404 error because they are on a single player version
+				Dom.chat.showPlayersOnline("hide");
 			}
 		};
 	}
