@@ -390,6 +390,16 @@ Dom.closeNPCPages = function () {
 		//Dom.closePage("inventoryPage");
 		//Dom.trade.active = false;
 	}
+	if (Dom.trade.requested) {
+		let message = {
+			type: "trade",
+			action: "cancel",
+			target: Dom.trade.target,
+			name: Player.name,
+		}
+		let jsonMessage = JSON.stringify(message);
+		ws.send(jsonMessage);
+	}
 	this.elements.questStart.hidden = true;
 	this.elements.questFinish.hidden = true;
 	this.elements.merchantPage.hidden = true;
@@ -2959,157 +2969,166 @@ Dom.inventory.validateSwap = function () {
 // from is not required for drag-n-drop cases
 // tableElement and stackNums are only for right click
 Dom.inventory.drop = function (toElement, toArray, toId, fromElement, fromArray, fromId, tableElement, fromStackNum, toStackNum) {
-
-	Dom.elements.alert.hidden = true;
-
+	
 	if (fromId !== undefined) {
 		Dom.inventory.fromElement = fromElement;
 		Dom.inventory.fromArray = fromArray;
 		Dom.inventory.fromId = fromId;
 	}
+	
+	if (toArray !== Dom.trade.other && (toArray !== Dom.trade.items || (Dom.inventory.fromArray[Dom.inventory.fromId].quest === undefined || (Dom.inventory.fromArray[Dom.inventory.fromId].quest !== true && !Dom.inventory.fromArray[Dom.inventory.fromId].quest())))) {
+		
+		Dom.elements.alert.hidden = true;
 
-	if (toElement.composedPath === undefined) {
-		Dom.inventory.toElement = toElement;
-	}
-	else {
-		toElement.preventDefault();
-		if (""+toElement.composedPath()[0] === "[object HTMLImageElement]" || ""+toElement.composedPath()[0].className === "stackNum") {
-			Dom.inventory.toElement = toElement.composedPath()[1];
+		if (toElement.composedPath === undefined) {
+			Dom.inventory.toElement = toElement;
 		}
 		else {
-			Dom.inventory.toElement = toElement.composedPath()[0];
-		}
-	}
-	Dom.inventory.toArray = toArray;
-	Dom.inventory.toId = toId;
-
-	if (Dom.inventory.validateSwap()) {
-		// update stats - must be done before items are switched (ocean warrior set)
-		if (Dom.inventory.fromArray === Player.inventory) {
-			Dom.inventory.removeEquipment(Dom.inventory.fromArray[Dom.inventory.fromId]);
-			if (Dom.inventory.toArray[Dom.inventory.toId].image !== undefined) {
-				Dom.inventory.addEquipment(Dom.inventory.toArray[Dom.inventory.toId]);
+			toElement.preventDefault();
+			if (""+toElement.composedPath()[0] === "[object HTMLImageElement]" || ""+toElement.composedPath()[0].className === "stackNum") {
+				Dom.inventory.toElement = toElement.composedPath()[1];
+			}
+			else {
+				Dom.inventory.toElement = toElement.composedPath()[0];
 			}
 		}
-		else if (Dom.inventory.toArray === Player.inventory) {
-			if (Dom.inventory.toArray[Dom.inventory.toId].image !== undefined) {
-				Dom.inventory.removeEquipment(Dom.inventory.toArray[Dom.inventory.toId]);
-			}
-			Dom.inventory.addEquipment(Dom.inventory.fromArray[Dom.inventory.fromId]);
-		}
-		
-		// not a right click (normal)
-		if (tableElement === undefined) {
-		
-			// swap the code for the items
-			let temp = this.toArray[this.toId];
-			this.toArray[this.toId] = this.fromArray[this.fromId];
-			this.fromArray[this.fromId] = temp;
+		Dom.inventory.toArray = toArray;
+		Dom.inventory.toId = toId;
 
-			let stackNum = "stackNum";
-			if (fromArray === Player.bank.items) {
-				stackNum = "bankStackNum";
-			}
-			else if (fromArray === Dom.trade.items) {
-				stackNum = "tradeStackNum";
-			}
-
-			// generate the elements for the items
-			if (this.toElement.innerHTML !== "") {
-				this.fromElement.innerHTML = "<img src='"+this.fromArray[this.fromId].image+"' draggable='true' ></img>";
-				if (this.fromArray[this.fromId].stacked > 1) {
-					this.fromElement.innerHTML += "<div class='stackNum' id='"+stackNum+this.fromId+"'>"+this.fromArray[this.fromId].stacked+"</div>";
-				}
-				this.setItemFunctions(this.fromElement.getElementsByTagName("img")[0], this.fromArray, this.fromId);
-			}
-			else{
-				this.fromElement.innerHTML = "";
-			}
-			
-			stackNum = "stackNum";
-			if (toArray === Player.bank.items) {
-				stackNum = "bankStackNum";
-			}
-			else if (toArray === Dom.trade.items) {
-				stackNum = "tradeStackNum";
-			}
-			
-			this.toElement.innerHTML = "<img src='"+this.toArray[this.toId].image+"' draggable='true' ></img>";
-			if (this.toArray[this.toId].stacked > 1) {
-				this.toElement.innerHTML += "<div class='stackNum' id='"+stackNum+this.toId+"'>"+this.toArray[this.toId].stacked+"</div>";
-			}
-			this.setItemFunctions(this.toElement.getElementsByTagName("img")[0], this.toArray, this.toId);
-
-			// inventory bag cases
-			if ((Dom.inventory.toArray === Player.inventory.items && Dom.inventory.toId === 5) || (Dom.inventory.fromArray === Player.inventory.items && Dom.inventory.fromId === 5)) {
-				Dom.inventory.bagCases();
-			}
-
-			// bank bag cases
-			if ((Dom.inventory.toArray === Player.bank.items && Dom.inventory.toId < 6) || (Dom.inventory.fromArray === Player.bank.items && Dom.inventory.fromId < 6)) {
-				Dom.bank.bagCases();
-			}
-		}
-		
-		// only move 1 item across from a stack
-		else {
-			// decrease the stack size of the clicked stack
-			this.fromArray[this.fromId].stacked--;
-			if (this.fromArray[this.fromId].stacked > 1) {
-				document.getElementById(fromStackNum+this.fromId).innerHTML = this.fromArray[this.fromId].stacked;
-			}
-			// if stack size is 1 then delete stackNum
-			else if (this.fromArray[this.fromId].stacked === 1) {
-				document.getElementById(fromStackNum+this.fromId).innerHTML = "";
-			}
-			
-			// find an identical item to increase the stack size
-			let stacked = false;
-			for (let i = 0; i < this.toArray.length; i++) {
-				if (this.toArray[i].type === this.fromArray[this.fromId].type && this.toArray[i].id === this.fromArray[this.fromId].id && this.toArray[i].stacked < this.toArray[i].stack) {
-					this.toArray[i].stacked++;
-					if (this.toArray[i].stacked > 2) {
-						document.getElementById(toStackNum+i).innerHTML = this.toArray[i].stacked;
-					}
-					else {
-						tableElement.getElementsByTagName("td")[i].innerHTML += "<div class='stackNum' id='"+toStackNum+i+"'>"+this.toArray[i].stacked+"</div>"
-					}
-					this.setItemFunctions(tableElement.getElementsByTagName("td")[i].getElementsByTagName("img")[0], this.toArray, i);
-					stacked = true;
-					break;
+		if (Dom.inventory.validateSwap()) {
+			// update stats - must be done before items are switched (ocean warrior set)
+			if (Dom.inventory.fromArray === Player.inventory) {
+				Dom.inventory.removeEquipment(Dom.inventory.fromArray[Dom.inventory.fromId]);
+				if (Dom.inventory.toArray[Dom.inventory.toId].image !== undefined) {
+					Dom.inventory.addEquipment(Dom.inventory.toArray[Dom.inventory.toId]);
 				}
 			}
-			// no item was found so make a new one
-			if (!stacked) {
-				this.toArray[this.toId] = Object.assign({}, this.fromArray[this.fromId]);
-				this.toArray[this.toId].stacked = 1;
+			else if (Dom.inventory.toArray === Player.inventory) {
+				if (Dom.inventory.toArray[Dom.inventory.toId].image !== undefined) {
+					Dom.inventory.removeEquipment(Dom.inventory.toArray[Dom.inventory.toId]);
+				}
+				Dom.inventory.addEquipment(Dom.inventory.fromArray[Dom.inventory.fromId]);
+			}
+			
+			// not a right click (normal)
+			if (tableElement === undefined) {
+			
+				// swap the code for the items
+				let temp = this.toArray[this.toId];
+				this.toArray[this.toId] = this.fromArray[this.fromId];
+				this.fromArray[this.fromId] = temp;
+
+				let stackNum = "stackNum";
+				if (fromArray === Player.bank.items) {
+					stackNum = "bankStackNum";
+				}
+				else if (fromArray === Dom.trade.items) {
+					stackNum = "tradeStackNum";
+				}
+
+				// generate the elements for the items
+				if (this.toElement.innerHTML !== "") {
+					this.fromElement.innerHTML = "<img src='"+this.fromArray[this.fromId].image+"' draggable='true' ></img>";
+					if (this.fromArray[this.fromId].stacked > 1) {
+						this.fromElement.innerHTML += "<div class='stackNum' id='"+stackNum+this.fromId+"'>"+this.fromArray[this.fromId].stacked+"</div>";
+					}
+					this.setItemFunctions(this.fromElement.getElementsByTagName("img")[0], this.fromArray, this.fromId);
+				}
+				else{
+					this.fromElement.innerHTML = "";
+				}
+				
+				stackNum = "stackNum";
+				if (toArray === Player.bank.items) {
+					stackNum = "bankStackNum";
+				}
+				else if (toArray === Dom.trade.items) {
+					stackNum = "tradeStackNum";
+				}
+				
 				this.toElement.innerHTML = "<img src='"+this.toArray[this.toId].image+"' draggable='true' ></img>";
+				if (this.toArray[this.toId].stacked > 1) {
+					this.toElement.innerHTML += "<div class='stackNum' id='"+stackNum+this.toId+"'>"+this.toArray[this.toId].stacked+"</div>";
+				}
 				this.setItemFunctions(this.toElement.getElementsByTagName("img")[0], this.toArray, this.toId);
+
+				// inventory bag cases
+				if ((Dom.inventory.toArray === Player.inventory.items && Dom.inventory.toId === 5) || (Dom.inventory.fromArray === Player.inventory.items && Dom.inventory.fromId === 5)) {
+					Dom.inventory.bagCases();
+				}
+
+				// bank bag cases
+				if ((Dom.inventory.toArray === Player.bank.items && Dom.inventory.toId < 6) || (Dom.inventory.fromArray === Player.bank.items && Dom.inventory.fromId < 6)) {
+					Dom.bank.bagCases();
+				}
 			}
 			
-			// delete fromElement if it has a stack of zero
-			// must be at end because its data is used earlier
-			if (this.fromArray[this.fromId].stacked === 0) {
-				this.fromElement.innerHTML = "";
-				this.fromArray[this.fromId] = {};
+			// only move 1 item across from a stack
+			else {
+				// decrease the stack size of the clicked stack
+				this.fromArray[this.fromId].stacked--;
+				if (this.fromArray[this.fromId].stacked > 1) {
+					document.getElementById(fromStackNum+this.fromId).innerHTML = this.fromArray[this.fromId].stacked;
+				}
+				// if stack size is 1 then delete stackNum
+				else if (this.fromArray[this.fromId].stacked === 1) {
+					document.getElementById(fromStackNum+this.fromId).innerHTML = "";
+				}
+				
+				// find an identical item to increase the stack size
+				let stacked = false;
+				for (let i = 0; i < this.toArray.length; i++) {
+					if (this.toArray[i].type === this.fromArray[this.fromId].type && this.toArray[i].id === this.fromArray[this.fromId].id && this.toArray[i].stacked < this.toArray[i].stack) {
+						this.toArray[i].stacked++;
+						if (this.toArray[i].stacked > 2) {
+							document.getElementById(toStackNum+i).innerHTML = this.toArray[i].stacked;
+						}
+						else {
+							tableElement.getElementsByTagName("td")[i].innerHTML += "<div class='stackNum' id='"+toStackNum+i+"'>"+this.toArray[i].stacked+"</div>"
+						}
+						this.setItemFunctions(tableElement.getElementsByTagName("td")[i].getElementsByTagName("img")[0], this.toArray, i);
+						stacked = true;
+						break;
+					}
+				}
+				// no item was found so make a new one
+				if (!stacked) {
+					this.toArray[this.toId] = Object.assign({}, this.fromArray[this.fromId]);
+					this.toArray[this.toId].stacked = 1;
+					this.toElement.innerHTML = "<img src='"+this.toArray[this.toId].image+"' draggable='true' ></img>";
+					this.setItemFunctions(this.toElement.getElementsByTagName("img")[0], this.toArray, this.toId);
+				}
+				
+				// delete fromElement if it has a stack of zero
+				// must be at end because its data is used earlier
+				if (this.fromArray[this.fromId].stacked === 0) {
+					this.fromElement.innerHTML = "";
+					this.fromArray[this.fromId] = {};
+				}
 			}
 		}
-	}
-	Game.inventoryUpdate();
-	Dom.hotbar.update();
-	if (toArray === Dom.trade.items || fromArray === Dom.trade.items) {
-		let message = {
-	        type: "trade",
-			action: "update",
-	        content: Dom.trade.items,
-			target: Dom.trade.target,
-	    }
-	    let jsonMessage = JSON.stringify(message);
-	    ws.send(jsonMessage);
-		
-		// unconfirm if it was confirmed because items have been moved
-		document.getElementById("tradePageInventory").style.borderColor = "var(--border)";
-		document.getElementById("tradePageOther").style.borderColor = "var(--border)";
+		Game.inventoryUpdate();
+		Dom.hotbar.update();
+		if (toArray === Dom.trade.items || fromArray === Dom.trade.items) {
+			let message = {
+		        type: "trade",
+				action: "update",
+		        content: Dom.trade.items,
+				target: Dom.trade.target,
+		    }
+		    let jsonMessage = JSON.stringify(message);
+		    ws.send(jsonMessage);
+			
+			// unconfirm if it was confirmed because items have been moved
+			document.getElementById("tradePageInventory").style.borderColor = "var(--border)";
+			for (let i = 0; i < 24; i++) {
+				document.getElementById("tradePageInventory").getElementsByTagName("td")[i].style.borderColor = "var(--border)";
+			}
+			document.getElementById("tradePageOther").style.borderColor = "var(--border)";
+			for (let i = 0; i < 24; i++) {
+				document.getElementById("tradePageInventory").getElementsByTagName("td")[i].style.borderColor = "var(--border)";
+			}
+		}
 	}
 }
 
@@ -4600,6 +4619,7 @@ Dom.trade.other = [{},{},{},{},{},{},{},{},
 Dom.trade.page = function () {
 	Dom.changeBook("inventoryPage");
 	Dom.changeBook("tradePage");
+	Dom.trade.requested = false;
 	Dom.trade.active = true;
 	
 	// construct your empty inventory
@@ -4617,6 +4637,7 @@ Dom.trade.page = function () {
 
 Dom.trade.request = function (userID, name) {
 	Dom.trade.target = userID;
+	Dom.trade.requested = true;
 	let message = {
 		type: "trade",
 		action: "request",
@@ -4626,7 +4647,7 @@ Dom.trade.request = function (userID, name) {
 	}
 	let jsonMessage = JSON.stringify(message);
 	ws.send(jsonMessage);
-	Dom.chat.insert("Trade request sent to "+ name +". Walk away to cancel.")
+	Dom.chat.insert("Trade request sent to "+ name +". Walk away to cancel.");
 }
 
 Dom.trade.requestReceived = function (userID, name) {	
@@ -4648,7 +4669,7 @@ Dom.trade.requestReceived = function (userID, name) {
 		let message = {
 			type: "trade",
 			action: "decline",
-			target: Dom.alert.targetNo,
+			target: Dom.trade.target,
 			name: Player.name,
 		}
 		let jsonMessage = JSON.stringify(message);
@@ -4683,7 +4704,13 @@ Dom.trade.updateTheirInventory = function (inventory) {
 	
 	// unconfirm if it was confirmed because items have been moved
 	document.getElementById("tradePageInventory").style.borderColor = "var(--border)";
+	for (let i = 0; i < 24; i++) {
+		document.getElementById("tradePageInventory").getElementsByTagName("td")[i].style.borderColor = "var(--border)";
+	}
 	document.getElementById("tradePageOther").style.borderColor = "var(--border)";
+	for (let i = 0; i < 24; i++) {
+		document.getElementById("tradePageOther").getElementsByTagName("td")[i].style.borderColor = "var(--border)";
+	}
 }
 
 Dom.trade.close = function (second) {
@@ -4713,20 +4740,29 @@ Dom.trade.close = function (second) {
 
 // only called by main player
 Dom.trade.confirm = function () {
-	document.getElementById("tradePageInventory").style.borderColor = "darkgreen";
+	let items = [];
 	for (let i = 0; i < 24; i++) {
-		document.getElementById("tradePageInventory").getElementsByTagName("td")[i].style.borderColor = "darkgreen";
+		items.push({item: Dom.trade.other[i]});
 	}
-	let message = {
-		type: "trade",
-		action: "confirm",
-		target: Dom.trade.target,
-		name: Player.name,
+	if (Dom.inventory.requiredSpace(items)) {
+		document.getElementById("tradePageInventory").style.borderColor = "darkgreen";
+		for (let i = 0; i < 24; i++) {
+			document.getElementById("tradePageInventory").getElementsByTagName("td")[i].style.borderColor = "darkgreen";
+		}
+		let message = {
+			type: "trade",
+			action: "confirm",
+			target: Dom.trade.target,
+			name: Player.name,
+		}
+		let jsonMessage = JSON.stringify(message);
+		ws.send(jsonMessage);
+		if (document.getElementById("tradePageOther").style.borderColor === "darkgreen") {
+			Dom.trade.complete();
+		}
 	}
-	let jsonMessage = JSON.stringify(message);
-	ws.send(jsonMessage);
-	if (document.getElementById("tradePageOther").style.borderColor === "darkgreen") {
-		Dom.trade.complete();
+	else {
+		Dom.alert.page("You do not have enough inventory space to complete this trade.")
 	}
 }
 
