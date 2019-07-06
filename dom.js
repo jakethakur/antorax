@@ -388,13 +388,13 @@ Dom.closeNPCPages = function () {
 	}
 	
 	if (Dom.trade.requested) {
-		Dom.chat.insert("Your trade request from " + Dom.currentlyDisplayed + " has been cancelled because one of you walked away.");
+		Dom.chat.insert("Your trade request with " + Dom.currentlyDisplayed + " has been cancelled because one of you walked away.");
         Dom.chat.notification(Dom.currentlyDisplayed + " has cancelled the trade request.");
 		Dom.trade.requested = false;
 	}
 	else if (Dom.trade.received) {
 		Dom.elements.alertNo.onclick(); // closes alert
-        Dom.chat.insert("Your trade request with " + Dom.currentlyDisplayed + " has been cancelled because one of you walked away.");
+        Dom.chat.insert("Your trade request from " + Dom.currentlyDisplayed + " has been cancelled because one of you walked away.");
         Dom.chat.notification(Dom.currentlyDisplayed + " has cancelled the trade request.");
 		Dom.trade.received = false;
 	}
@@ -523,18 +523,33 @@ Dom.changeBook = function (page, openClose) {
 			}
 			if (ws !== false && ws.readyState === 1) {
 				// server on
-				Dom.elements.players.hidden = false;
+				//Dom.elements.players.hidden = false;
 				Notification.requestPermission();
 			}
-			else {
+			/*else {
 				// server off
 				Dom.elements.players.hidden = true;
-			}
+			}*/
 		}
 		return true;
 	}
 	else if (openClose) {
 		Dom.closePage(page);
+	}
+}
+
+Dom.chat.showPlayersOnline = function (type) {
+	if (type === "hide") {
+		Dom.elements.players.hidden = true;
+	}
+	else if (type === "show") {
+		Dom.chat.overridePlayers = false;
+		Dom.elements.players.innerHTML = Dom.players.length;
+		Dom.elements.players.hidden = false;
+	}
+	else if (type === "reconnecting") {
+		Dom.chat.overridePlayers = true;
+		Dom.elements.players.innerHTML = "Reconnecting...";
 	}
 }
 
@@ -4527,7 +4542,7 @@ Dom.players = [];
 // object is the object passed in by the websocket server
 // action is the thing that should be changed in the player display
 Dom.chat.players = function (object, action) {
-	if (action === "join" || action === "leave") {
+	if ((action === "join" || action === "leave") && !Dom.chat.overridePlayers) {
 		if (object.numberOnline !== 1) {
             Dom.elements.players.innerHTML = object.numberOnline + " players online";
         }
@@ -4542,7 +4557,7 @@ Dom.chat.players = function (object, action) {
             Dom.chat.insert(object.name+" has joined the game!");
         }
         Dom.players.push(object);
-		Dom.chat.notification(object.name + " has joined the game");
+		Dom.chat.notification(object.name + " has joined the game!");
     }
 	
     else if (action === "leave") {
@@ -4550,6 +4565,7 @@ Dom.chat.players = function (object, action) {
 			// find the player that has logged off
             if (Dom.players[i].userID === object.userID) {
 				Dom.chat.insert(Dom.players[i].name+" has left the game.");
+				Dom.chat.notification(object.name + " has left the game.");
                 Dom.players.splice(i, 1);
             }
         }
@@ -4575,43 +4591,44 @@ Dom.chat.players = function (object, action) {
     }
 
 	// updates the display (doesn't open it)
-    Dom.elements.players.onclick(true);
+    Dom.chat.playersInfo();
 }
 
 Dom.elements.playersInfo.onclick = function () {
 	Dom.elements.playersInfo.hidden = true;
 }
 
-Dom.elements.players.onclick = function (notClicked) {
-	if (Dom.elements.playersInfo.hidden || notClicked === true) {
-		if (notClicked !== true) {
-			Dom.elements.playersInfo.hidden = false;
-		}
-		Dom.elements.playersInfo.innerHTML = "";
-		for (let i = 0; i < Dom.players.length; i ++) {
-			let clss = "knight";
-			if (Dom.players[i].class === "a") {
-				clss = "archer";
-			}
-			else if (Dom.players[i].class === "m") {
-				clss = "mage";
-			}
-			if (i > 0) {
-				Dom.elements.playersInfo.innerHTML += "<br>";
-			}
-
-			Dom.elements.playersInfo.innerHTML += "<div id='players"+i+"' class='players'></div>";
-
-			document.getElementById("players"+i).style.backgroundImage = 'url("./selection/assets/'+Dom.players[i].class+Dom.players[i].skin+'/f.png")';
-			document.getElementById("players"+i).style.right = 20 - Skins[Dom.players[i].class][Dom.players[i].skin].headAdjust.x + "px";
-			document.getElementById("players"+i).style.height = 60 + Skins[Dom.players[i].class][Dom.players[i].skin].headAdjust.y + "px";
-			document.getElementById("players"+i).style.bottom = 3 + Skins[Dom.players[i].class][Dom.players[i].skin].headAdjust.y + "px";
-
-			Dom.elements.playersInfo.innerHTML += "<div class='playersText'><strong>" + Dom.players[i].name + "</strong> (Level " + Dom.players[i].level + " " + clss + ")<br>" + Dom.players[i].displayArea + "</div>";
-		}
+Dom.elements.players.onclick = function () {
+	if (Dom.elements.playersInfo.hidden) {
+		Dom.elements.playersInfo.hidden = false;
 	}
 	else {
 		Dom.elements.playersInfo.hidden = true;
+	}
+}
+
+Dom.chat.playersInfo = function (notClicked) {
+	Dom.elements.playersInfo.innerHTML = "";
+	for (let i = 0; i < Dom.players.length; i ++) {
+		let clss = "knight";
+		if (Dom.players[i].class === "a") {
+			clss = "archer";
+		}
+		else if (Dom.players[i].class === "m") {
+			clss = "mage";
+		}
+		if (i > 0) {
+			Dom.elements.playersInfo.innerHTML += "<br>";
+		}
+
+		Dom.elements.playersInfo.innerHTML += "<div id='players"+i+"' class='players'></div>";
+
+		document.getElementById("players"+i).style.backgroundImage = 'url("./selection/assets/'+Dom.players[i].class+Dom.players[i].skin+'/f.png")';
+		document.getElementById("players"+i).style.right = 20 - Skins[Dom.players[i].class][Dom.players[i].skin].headAdjust.x + "px";
+		document.getElementById("players"+i).style.height = 60 + Skins[Dom.players[i].class][Dom.players[i].skin].headAdjust.y + "px";
+		document.getElementById("players"+i).style.bottom = 3 + Skins[Dom.players[i].class][Dom.players[i].skin].headAdjust.y + "px";
+
+		Dom.elements.playersInfo.innerHTML += "<div class='playersText'><strong>" + Dom.players[i].name + "</strong> (Level " + Dom.players[i].level + " " + clss + ")<br>" + Dom.players[i].displayArea + "</div>";
 	}
 }
 
@@ -4680,7 +4697,7 @@ Dom.trade.requestReceived = function (userID, name) {
 			let message = {
 				type: "trade",
 				action: "decline",
-				target: Dom.trade.target,
+				target: Dom.alert.evNo,
 				name: Player.name,
 			}
 			let jsonMessage = JSON.stringify(message);
