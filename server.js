@@ -68,6 +68,7 @@ wss.on("connection", (ws) => { // note that ws = client in wss.clients
 				ws.level = parsedMessage.level;
 				ws.skin = parsedMessage.skin;
 				ws.area = parsedMessage.area;
+				ws.displayArea = parsedMessage.displayArea;
 				ws.x = parsedMessage.x;
 				ws.y = parsedMessage.y;
 				ws.direction = parsedMessage.direction;
@@ -93,6 +94,7 @@ wss.on("connection", (ws) => { // note that ws = client in wss.clients
 					level: parsedMessage.level,
 					skin: parsedMessage.skin,
 					area: parsedMessage.area,
+					displayArea: parsedMessage.displayArea,
 					x: parsedMessage.x,
 					y: parsedMessage.y,
 					direction: parsedMessage.direction,
@@ -113,6 +115,7 @@ wss.on("connection", (ws) => { // note that ws = client in wss.clients
 							level: client.level,
 							skin: client.skin,
 							area: client.area,
+							displayArea: client.displayArea,
 							x: client.x,
 							y: client.y,
 							direction: client.direction,
@@ -131,6 +134,7 @@ wss.on("connection", (ws) => { // note that ws = client in wss.clients
 
 			case "changeArea":
 				ws.area = parsedMessage.area;
+				ws.displayArea = parsedMessage.displayArea;
 				// new positions are also saved
 				ws.x = parsedMessage.x;
 				ws.y = parsedMessage.y;
@@ -143,6 +147,7 @@ wss.on("connection", (ws) => { // note that ws = client in wss.clients
 					action: "area",
 					userID: ws.userID,
 					area: parsedMessage.area,
+					displayArea: parsedMessage.displayArea,
 					x: parsedMessage.x,
 					y: parsedMessage.y,
 					direction: parsedMessage.direction,

@@ -213,9 +213,15 @@ Game.initWebSocket = function () {
 
 						case "decline":
 							// trade declined by user that player is waiting on to accept/decline
-							Dom.trade.page();
+							Dom.currentlyDisplayed = "";
 							Dom.chat.insert("Your trade request with " + message.name + " has been declined.");
 							Dom.chat.notification("Your trade request with " + message.name + " has been declined.");
+							break;
+
+						case "cancel":
+							// cancelling trade alert before it was accepted
+							Dom.elements.alertNo.onclick(); // closes alert
+							Dom.chat.notification(message.name + " has cancelled the trade.");
 							break;
 
 	 					case "confirm":
@@ -224,7 +230,7 @@ Game.initWebSocket = function () {
 							Dom.chat.notification(message.name + " has confirmed the trade.");
 							break;
 
-						case "closed":
+						case "close":
 							// close trade (true = called by other person)
 							Dom.trade.close(true);
 							Dom.chat.notification(message.name + " has closed the trade.");
