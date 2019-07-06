@@ -140,6 +140,7 @@ let Dom = {
 		speedOn: document.getElementById("speedOn"),
 		stats: document.getElementById("stats"),
 		textPage: document.getElementById("textPage"),
+		them: document.getElementById("them"),
 		tradePage: document.getElementById("tradePage"),
 		tradePageInventory: document.getElementById("tradePageInventory"),
 		tradePageOther: document.getElementById("tradePageOther"),
@@ -385,21 +386,25 @@ Dom.closeNPCPages = function () {
 		Dom.closePage("inventoryPage");
 		//Dom.bank.active = false;
 	}
+	
+	if (Dom.trade.requested) {
+		Dom.chat.insert("Your trade request from " + Dom.currentlyDisplayed + " has been cancelled because one of you walked away.");
+        Dom.chat.notification(Dom.currentlyDisplayed + " has cancelled the trade request.");
+		Dom.trade.requested = false;
+	}
+	else if (Dom.trade.received) {
+		Dom.elements.alertNo.onclick(); // closes alert
+        Dom.chat.insert("Your trade request with " + Dom.currentlyDisplayed + " has been cancelled because one of you walked away.");
+        Dom.chat.notification(Dom.currentlyDisplayed + " has cancelled the trade request.");
+		Dom.trade.received = false;
+	}
+	
 	if (this.elements.tradePage.hidden === false) {
 		Dom.trade.close(true);
 		//Dom.closePage("inventoryPage");
 		//Dom.trade.active = false;
 	}
-	if (Dom.trade.requested) {
-		let message = {
-			type: "trade",
-			action: "cancel",
-			target: Dom.trade.target,
-			name: Player.name,
-		}
-		let jsonMessage = JSON.stringify(message);
-		ws.send(jsonMessage);
-	}
+	
 	this.elements.questStart.hidden = true;
 	this.elements.questFinish.hidden = true;
 	this.elements.merchantPage.hidden = true;
@@ -4563,7 +4568,7 @@ Dom.chat.players = function (object, action) {
                 Dom.players[i] = Object.assign(Dom.players[i], object);
                 if (action === "level" && Dom.players[i].userID !== ws.userID) {
 					// level up chat announcement
-                    Dom.chat.insert("<strong>"+Dom.players[i].name+"</strong> has levelled up to level "+Dom.players[i].level);
+                    Dom.chat.insert("<strong>"+Dom.players[i].name+"</strong> has levelled up to level "+Dom.players[i].level+".");
                 }
             }
         }
@@ -4620,7 +4625,10 @@ Dom.trade.page = function () {
 	Dom.changeBook("inventoryPage");
 	Dom.changeBook("tradePage");
 	Dom.trade.requested = false;
+	Dom.trade.received = false;
 	Dom.trade.active = true;
+	
+	Dom.elements.them.innerHTML = Dom.currentlyDisplayed;
 	
 	// construct your empty inventory
 	let html = "<tbody>";
@@ -4651,31 +4659,46 @@ Dom.trade.request = function (userID, name) {
 }
 
 Dom.trade.requestReceived = function (userID, name) {	
-	Dom.alert.ev = userID;
-	Dom.alert.evNo = userID;
-	Dom.alert.target = function () {
-		Dom.trade.target = Dom.alert.ev;
+	if (Dom.currentlyDisplayed === "") {
+		Dom.trade.recieved = true;
+		Dom.currentlyDisplayed = name;
+		Dom.alert.ev = userID;
+		Dom.alert.evNo = userID;
+		Dom.alert.target = function () {
+			Dom.trade.target = Dom.alert.ev;
+			let message = {
+				type: "trade",
+				action: "accept",
+				target: Dom.trade.target,
+				name: Player.name,
+			}
+			let jsonMessage = JSON.stringify(message);
+			ws.send(jsonMessage);
+			Dom.trade.page();
+		}
+		Dom.alert.targetNo = function () {
+			let message = {
+				type: "trade",
+				action: "decline",
+				target: Dom.trade.target,
+				name: Player.name,
+			}
+			let jsonMessage = JSON.stringify(message);
+			ws.send(jsonMessage);
+		}
+		Dom.alert.page(name + " would like to trade with you, do you accept?", 2);
+	}
+	else {
+		Dom.chat.insert(name + " tried to trade with you but could not because you had another page open.");
 		let message = {
 			type: "trade",
-			action: "accept",
+			action: "busy",
 			target: Dom.trade.target,
 			name: Player.name,
 		}
 		let jsonMessage = JSON.stringify(message);
 		ws.send(jsonMessage);
-		Dom.trade.page();
 	}
-	Dom.alert.targetNo = function () {
-		let message = {
-			type: "trade",
-			action: "decline",
-			target: Dom.trade.target,
-			name: Player.name,
-		}
-		let jsonMessage = JSON.stringify(message);
-		ws.send(jsonMessage);
-	}
-	Dom.alert.page(name + " would like to trade with you, do you accept?", 2);
 }
 
 Dom.trade.updateTheirInventory = function (inventory) {
@@ -4742,7 +4765,9 @@ Dom.trade.close = function (second) {
 Dom.trade.confirm = function () {
 	let items = [];
 	for (let i = 0; i < 24; i++) {
-		items.push({item: Dom.trade.other[i]});
+		if (Dom.trade.other[i].image !== undefined) {
+			items.push({item: Dom.trade.other[i]});
+		}
 	}
 	if (Dom.inventory.requiredSpace(items)) {
 		document.getElementById("tradePageInventory").style.borderColor = "darkgreen";
@@ -4803,7 +4828,7 @@ window.onbeforeunload = function() {
 	Game.saveProgress();
 }
 
-function mobileTilt () {
+function mobileTilt (event) {
 	let x;
 	let y;
 	if (window.innerHeight <= window.innerWidth) {

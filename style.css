@@ -666,6 +666,17 @@ thead:after { /* space after bags in bank */
 }
 
 /*					*/
+/*		TRADE		*/
+/*					*/
+
+#you, #them {
+	text-align: left;
+	margin: 0px;
+	margin-left: 30px;
+	font-size: 20px;
+}
+
+/*					*/
 /*		CHOOSE		*/
 /*					*/
 

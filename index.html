@@ -280,8 +280,10 @@
 	</div>
 	<div id="tradePage" hidden class="DOM" ondrop="Dom.inventory.dispose(event)" ondragover="Dom.inventory.allowDrop(event)">
 		<h1>Trade</h1>
-		<table id="tradePageInventory"></table><br><br><br>
-		<table id="tradePageOther"></table><br><br><br>
+		<p id="you">You</p>
+		<table id="tradePageInventory"></table><br><br>
+		<p id="them"></p>
+		<table id="tradePageOther"></table><br><br>
 		<div id="confirm" class="closeClass" onclick="Dom.trade.confirm();">Confirm</div>
 		<div id="cancel" class="closeClass" onclick="Dom.trade.close();">Cancel</div>
 	</div>
