@@ -75,6 +75,8 @@ Game.loadPlayer = function () {
 var ws = false; // false means it has not been set (user is on local version)
 
 Game.initWebSocket = function () {
+	this.hasConnectedToWebSocket = false;
+
 	// https://devcenter.heroku.com/articles/node-websockets
 	if (location.origin.includes("http")) {
 		// not on a local version
@@ -85,6 +87,15 @@ Game.initWebSocket = function () {
 
 		// connection established
 		ws.onopen = function () {
+			if (Game.hasConnectedToWebSocket) {
+				// was attempting to reconnect and has now connected
+				Dom.chat.insert("Successfully reconnected!");
+			}
+			else {
+				// first time connecting
+				Game.hasConnectedToWebSocket = true; // so it knows you have connected to websocket before
+			}
+
 			// send username so the user is saved under a particular name in the websocket
 			ws.send(JSON.stringify({
 				type: "userInformation",
@@ -98,6 +109,9 @@ Game.initWebSocket = function () {
 				y: Player.y,
 				direction: 3
 			}));
+
+			// show other players online in chat
+			Dom.chat.showPlayersOnline("show");
 		}
 
 		// message received
@@ -194,10 +208,8 @@ Game.initWebSocket = function () {
 
 				case "trade":
 					switch (message.action) {
-	 					case "update":
-							// other user's trade inventory is updated
-							Dom.trade.updateTheirInventory(message.content);
-							break;
+
+						// trade requests
 
 	 					case "request":
 							// trade request received
@@ -218,10 +230,17 @@ Game.initWebSocket = function () {
 							Dom.chat.notification("Your trade request with " + message.name + " has been declined.");
 							break;
 
-						case "cancel":
-							// cancelling trade alert before it was accepted
-							Dom.elements.alertNo.onclick(); // closes alert
-							Dom.chat.notification(message.name + " has cancelled the trade.");
+						case "busy":
+							// trade could not be started because the user requested was currently occupied
+							Dom.currentlyDisplayed = "";
+							Dom.chat.insert(message.name + " is currently busy doing something else. Come back later.");
+							break;
+
+						// trade page
+
+	 					case "update":
+							// other user's trade inventory is updated
+							Dom.trade.updateTheirInventory(message.content);
 							break;
 
 	 					case "confirm":
@@ -233,13 +252,34 @@ Game.initWebSocket = function () {
 						case "close":
 							// close trade (true = called by other person)
 							Dom.trade.close(true);
-							Dom.chat.notification(message.name + " has closed the trade.");
+							Dom.chat.insert(message.name + " has cancelled the trade.");
+							Dom.chat.notification(message.name + " has cancelled the trade.");
 							break;
 					}
 					break;
 
 				default:
 					console.error("Message type " + message.type + " is not recognised");
+			}
+		};
+
+		ws.onerror = function (event) {
+			console.error("WebSocket error observed:", event);
+		};
+
+		// user disconnected (readyState has been set to 3)
+		ws.onclose = function (event) {
+			// offline
+			Dom.chat.showPlayersOnline("hide");
+			if (Game.hasConnectedToWebSocket) {
+				// if they have connected before to the websocket (thus a possible connection exists), try to reconnect them
+				// if the reconnect fails, this will be called again straight away
+				Dom.chat.showPlayersOnline("reconnecting");
+				Dom.chat.insert("You lost connection to the websocket. Attempting to reconnect in 5 seconds.");
+				// reset websocket
+				ws = false;
+				// try to reconnect in 5 seconds
+				setTimeout(Game.initWebSocket, 5000);
 			}
 		};
 	}
@@ -262,7 +302,7 @@ Game.addPlayer = function (player) {
 
 			// check the player has not already been added
 			let playerAlreadyAdded = this.players.findIndex(existingPlayer => existingPlayer.userID === copiedPlayer.userID);
-			if (playerAlreadyAdded === -1 && this.prepareNPC(copiedPlayer)) {
+			if (playerAlreadyAdded === -1 && this.prepareNPC(copiedPlayer, "players")) {
 
 				// object properties (to stop attacker breaking)
 				copiedPlayer.hostility = "friendly";
@@ -4142,6 +4182,7 @@ Game.loadArea = function (areaName, destination) {
 		this.areaName = areaName;
 
 		// save data information
+		Player.areaName = areaName;
         Player.displayAreaName = Areas[areaName].data.name;
 		Player.lootArea = Areas[areaName].lootArea;
 		Player.lootTier = Areas[areaName].lootTier;
@@ -4409,7 +4450,7 @@ Game.loadArea = function (areaName, destination) {
 		    if (ws !== false && ws.readyState === 1) {
 				ws.send(JSON.stringify({
 					type: "changeArea",
-					area: Player.areaName,
+					area: this.areaName,
 					displayArea: Player.displayAreaName,
 					x: this.hero.x,
 					y: this.hero.y,
@@ -7254,7 +7295,6 @@ Game.saveProgress = function (saveType) { // if saveType is "auto" then the save
 		// save player position to savedata.js
 		Player.x = Game.hero.x;
 		Player.y = Game.hero.y;
-		Player.areaName = Game.areaName;
 		Player.checkpoint = Game.hero.checkpoint;
 		// save other player details that aren't otherwise saved to savedata
 		Player.health = Game.hero.health;
