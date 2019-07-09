@@ -2803,9 +2803,9 @@ var Areas = {
 			// temporary - change when positioning is based on y value
 			{
 				x: 750, // waterfall
-				y: 690,
+				y: 780,
 				width: 170,
-				height: 220,
+				height: 60,
 			},
 		],
 

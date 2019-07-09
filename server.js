@@ -188,6 +188,7 @@ wss.on("connection", (ws) => { // note that ws = client in wss.clients
 					if (client.name === parsedMessage.name) {
 						client.send(JSON.stringify({
 							type: "msg",
+							sender: client.name,
 							name: ws.name + " &#10132; " + client.name,
 							content: parsedMessage.content,
 						}));

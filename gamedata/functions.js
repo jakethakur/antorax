@@ -277,6 +277,50 @@ Keyboard.upFunctions = {
 	}
 }
 
+// experimental tilting for mobile (called by event listener)
+function MobileTilt (event) {
+	Dom.chat.insert("entered");
+    let x;
+    let y;
+    if (window.innerHeight <= window.innerWidth) {
+        x = event.beta;
+        y = event.gamma;
+    }
+    else {
+        x = event.gamma;
+        y = event.beta;
+    }
+
+	// 10 = tolerance
+    if (x > 10 && x !== null) {
+		Dom.chat.insert("right");
+        Game.keysDown.RIGHT = true;
+        Game.keysDown.LEFT = false;
+    }
+    else if (x < -10 && x !== null) {
+		Dom.chat.insert("left");
+        Game.keysDown.LEFT = true;
+        Game.keysDown.RIGHT = false;
+    }
+    else {
+        Game.keysDown.LEFT = false;
+        Game.keysDown.RIGHT = false;
+    }
+
+    if (y > 10 && y !== null) {
+        Game.keysDown.UP = true;
+        Game.keysDown.DOWN = false;
+    }
+    else if (y < -10 && y !== null) {
+        Game.keysDown.DOWN = true;
+        Game.keysDown.UP = false;
+    }
+    else {
+        Game.keysDown.UP = false;
+        Game.keysDown.DOWN = false;
+    }
+}
+
 //
 // Misc functions
 //

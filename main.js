@@ -140,7 +140,7 @@ Game.initWebSocket = function () {
 							user.direction = message.direction;
 							user.updateRotation();
 						}
-						if (message.expand !== user.expand) {
+						if (message.expand !== undefined && message.expand !== user.expand) {
 							// expand changed
 							user.setExpand(message.expand);
 						}
@@ -153,6 +153,9 @@ Game.initWebSocket = function () {
 					break;
 
 				case "msg": // for private message from someone (the name being sender -> target is handled in server)
+					Dom.replyTo = message.sender;
+					// no break because the same is done as chat for the rest
+
 				case "chat":
 					// do not allow user ta use < or > in chat (stop HTML injection)
 					let messageContent = message.content.replace(/[<>]/g, "");
@@ -213,8 +216,23 @@ Game.initWebSocket = function () {
 
 	 					case "request":
 							// trade request received
-							Dom.trade.requestReceived(message.userID, message.name);
-							Dom.chat.notification("You have received a trade request from " + message.name + ".");
+							// find player in Game.players for DOM currentNPC
+							let currentNPC;
+							for (let i = 0; i < Game.players.length; i++) {
+								if (Game.players[i].userID === message.userID) {
+									currentNPC = {
+										id: Game.players[i].id,
+										type: Game.players[i].type
+									};
+								}
+							}
+							if (currentNPC !== undefined) {
+								Dom.trade.requestReceived(message.userID, message.name, currentNPC);
+								Dom.chat.notification("You have received a trade request from " + message.name + ".");
+							}
+							else {
+								console.error("Trade request received from a player that isn't in the same area.")
+							}
 							break;
 
 						case "accept":
@@ -4727,13 +4745,15 @@ Game.init = function () {
 	// special method of adding key because it calls a separate function
 	Keyboard.listenForKey(User.settings.keyboard.SHIFT, Keyboard.downFunctions.SHIFT, Keyboard.upFunctions.SHIFT);
 
-
 	// player attack on click
 	document.getElementById("click").addEventListener("mousedown", Game.hero.startAttack.bind(this.hero));
 	document.getElementById("click").addEventListener("mouseup", Game.hero.finishAttack.bind(this.hero));
 
 	// change between default cursor and crosshair based on player range
 	document.getElementById("click").addEventListener("mousemove", Game.secondary.updateCursor.bind(document.getElementById("click")));
+
+	// experimental mobile tilt movement (not called unless on mobile and device has gyroscopes)
+	window.addEventListener("deviceorientation", MobileTilt);
 
 	// fps array (used for tracking frames per second in Game.fps())
 	this.fpsArray = [];
@@ -4954,7 +4974,7 @@ Game.generateLoot = function (lootTable) {
 			let eligibleDropChances = possibleDropChances.filter(chance => rollRandom > chance); // filter chances of getting item to see all chances the player is eligible for with their roll
 			let itemQuantity = possibleDropChances.indexOf(Math.max(...eligibleDropChances)); // get the number of that item the player will get
 
-			if (itemQuantity > 0) { // check that the player should recieve the item
+			if (itemQuantity > 0) { // check that the player should receive the item
 				let item = lootTable[i].item;
 				if (item.constructor === Array) {
 					// if there are multiple items in an array, pick one at random
