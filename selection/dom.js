@@ -128,18 +128,29 @@ function arrange(){
 	display();
 }
 
+function save () {
+	if(localStorage.getItem("accept") === "true"){
+		setTimeout(function(){
+			localStorage.setItem("selected", JSON.stringify(selected));
+		},1);
+	}
+}
+
 document.getElementById("archer").onclick = function(){
 	selected.class = "a";
+	save();
 	arrange();
 }
 
 document.getElementById("mage").onclick = function(){
 	selected.class = "m";
+	save();
 	arrange();
 }
 
 document.getElementById("knight").onclick = function(){
 	selected.class = "k";
+	save();
 	arrange();
 }
 
@@ -198,11 +209,7 @@ function display(){
 	for (let i = 0; i < unlocked[selected.class].length; i++) {
 		document.getElementById("skin"+i).onclick = function () {
 			selected[selected.class] = unlocked[selected.class][i];
-			if(localStorage.getItem("accept") === "true"){
-				setTimeout(function(){
-					localStorage.setItem("selected", JSON.stringify(selected));
-				},1);
-			}
+			save();
 			display();
 		}
 	}

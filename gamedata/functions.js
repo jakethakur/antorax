@@ -293,12 +293,10 @@ function MobileTilt (event) {
 
 	// 10 = tolerance
     if (x > 10 && x !== null) {
-		Dom.chat.insert("right");
         Game.keysDown.RIGHT = true;
         Game.keysDown.LEFT = false;
     }
     else if (x < -10 && x !== null) {
-		Dom.chat.insert("left");
         Game.keysDown.LEFT = true;
         Game.keysDown.RIGHT = false;
     }

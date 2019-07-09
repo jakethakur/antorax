@@ -312,7 +312,7 @@ Dom.quests.active = function (quest) {
 	if (quest !== undefined && quest !== null) {
 		Player.quests.activeQuestArray.push(quest.quest);
 	}else if (quest === null) {
-		console.error("Please tell Peter that you have recieved the error: quest === null");
+		console.error("Please tell Peter that you have received the error: quest === null");
 	}
 	Dom.elements.activeQuestBox.style.textAlign = "left";
 	Dom.quests.activeHTML = {true: "", undefined: "", daily: "",};
@@ -741,6 +741,22 @@ Dom.chat.input = function (id) {
 				}
 				else {
 					Dom.chat.insert("Player "+array[1]+" cannot be found.");
+				}
+			}
+			
+			else if (Dom.elements[id].value.substring(0, 3) === "/r ") {
+				if (Dom.chat.replyTo !== undefined) {
+					Dom.chat.insert(Dom.chat.say(Player.name + " &#10132; " + Dom.chat.replyTo, Dom.elements[id].value.substring(3)));
+					let message = {
+						type: "msg",
+						name: Dom.chat.replyTo,
+						content: Dom.elements[id].value.substring(3),
+					}
+					let jsonMessage = JSON.stringify(message);
+					ws.send(jsonMessage);
+				}
+				else {
+					Dom.chat.insert("You cannot return a message until someone has messaged you first.");
 				}
 			}
 			
@@ -4567,9 +4583,9 @@ Dom.chat.players = function (object, action) {
 		// if someone else has logged on
         if (object.userID !== ws.userID) {
             Dom.chat.insert(object.name+" has joined the game!");
+			Dom.chat.notification(object.name + " has joined the game!");
         }
         Dom.players.push(object);
-		Dom.chat.notification(object.name + " has joined the game!");
     }
 	
     else if (action === "leave") {
@@ -4689,7 +4705,7 @@ Dom.trade.request = function (userID, name) {
 
 Dom.trade.requestReceived = function (userID, name, npc) {	
 	if (Dom.currentlyDisplayed === "") {
-		Dom.trade.recieved = true;
+		Dom.trade.received = true;
 		Dom.currentlyDisplayed = name;
 		Dom.currentNPC = npc;
 		Dom.alert.ev = userID;

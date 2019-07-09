@@ -4753,6 +4753,7 @@ Game.init = function () {
 	document.getElementById("click").addEventListener("mousemove", Game.secondary.updateCursor.bind(document.getElementById("click")));
 
 	// experimental mobile tilt movement (not called unless on mobile and device has gyroscopes)
+	Dom.chat.insert("start");
 	window.addEventListener("deviceorientation", MobileTilt);
 
 	// fps array (used for tracking frames per second in Game.fps())
