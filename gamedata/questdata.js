@@ -1374,7 +1374,7 @@ After all, death is never the end in Antorax...<br>
 				let completed = [];
 
 				// true or falses for each objective (apart from the turn-in objective)
-				completed.push(Player.stats.fishingSkill >= 10 ? true : " ("+Player.stats.fishingSkill+"/10)");
+				completed.push(Player.stats.fishingSkill >= 10 ? true : " ("+Round(Player.stats.fishingSkill)+"/10)");
 
 				completed = checkFinished(completed);
 

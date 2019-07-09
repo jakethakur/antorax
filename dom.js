@@ -541,6 +541,7 @@ Dom.changeBook = function (page, openClose) {
 Dom.chat.showPlayersOnline = function (type) {
 	if (type === "hide") {
 		Dom.elements.players.hidden = true;
+		Dom.elements.playersInfo.hidden = true;
 	}
 	else if (type === "show") {
 		Dom.chat.overridePlayers = false;
@@ -550,6 +551,8 @@ Dom.chat.showPlayersOnline = function (type) {
 	else if (type === "reconnecting") {
 		Dom.chat.overridePlayers = true;
 		Dom.elements.players.innerHTML = "Reconnecting...";
+		Dom.elements.players.hidden = false;
+		Dom.elements.playersInfo.hidden = true;
 	}
 }
 
@@ -1827,7 +1830,7 @@ Dom.quests.possible = function () {
 				Dom.quests.possibleHTML[quest.important] += "<br><br><strong>" + quest.quest + "</strong><br>" + quest.howToStart;
 				if (!previousPossible.includes(quest.quest)) {
 					newPossible.push(quest.quest);
-					if (quest.quest !== "To the Logging Camp") {
+					if (quest.quest !== "To the Logging Camp" && !Player.quests.completedQuestArray.includes(quest.quest)) {
 						Dom.chat.insert('You have unlocked the quest "' + quest.quest + '"');
 					}
 				}
@@ -2142,7 +2145,7 @@ Dom.inventory.give = function (item, num, position, noSave, noArchaeology) {
 						if (!noArchaeology && item.set !== undefined && !User.archaeology.includes(Items.set[item.set].name)) {
 							let obtained = true;
 							for (let x = 0; x < Items.set[item.set].armour.length; x++) {
-								if (!Dom.inventory.find(-1, -1, undefined, undefined, Items.set[item.set].armour[x])) {
+								if (Dom.inventory.find(-1, -1, undefined, undefined, Items.set[item.set].armour[x]).length === 0) {
 									obtained = false;
 								}
 							}
@@ -2204,7 +2207,7 @@ Dom.inventory.give = function (item, num, position, noSave, noArchaeology) {
 		if (!noArchaeology && item.set !== undefined && !User.archaeology.includes(Items.set[item.set].name)) {
 			let obtained = true;
 			for (let x = 0; x < Items.set[item.set].armour.length; x++) {
-				if (!Dom.inventory.find(-1, -1, undefined, undefined, Items.set[item.set].armour[x])) {
+				if (Dom.inventory.find(-1, -1, undefined, undefined, Items.set[item.set].armour[x]).length === 0) {
 					obtained = false;
 				}
 			}
@@ -3086,6 +3089,9 @@ Dom.inventory.drop = function (toElement, toArray, toId, fromElement, fromArray,
 			// only move 1 item across from a stack
 			else {
 				// decrease the stack size of the clicked stack
+				if (this.fromArray[this.fromId].stacked === undefined) {
+					this.fromArray[this.fromId].stacked = 1;
+				}
 				this.fromArray[this.fromId].stacked--;
 				if (this.fromArray[this.fromId].stacked > 1) {
 					document.getElementById(fromStackNum+this.fromId).innerHTML = this.fromArray[this.fromId].stacked;
@@ -4381,6 +4387,12 @@ Dom.inventory.prepare = function (array, i, element) {
 		array[i].onOpen = Items[array[i].type][array[i].id].onOpen;
 		array[i].quest = Items[array[i].type][array[i].id].quest;
 	}
+	// unidentified item onclick (for bank and trade)
+	else {
+		array[i].onClick = function (inventoryPosition) {
+			Dom.inventory.cooldown(inventoryPosition)
+		}
+	}
 	if (element !== undefined) {
 		element.innerHTML = "<img src='"+array[i].image+"' draggable='true' ondragstart='Dom.inventory.drag(event,"+(array === Player.inventory.items ? "Player.inventory.items,"+i : 'Player.inventory, "'+i+'"')+")' "+(array[i].onClick !== undefined ? "onclick='Player.inventory"+(array === Player.inventory.items?".items["+i+"].onClick("+i+")'":"."+i+".onClick(\""+i+"\")'") : "")+"></img>";
 		if (array[i].stacked !== undefined && array[i].stacked !== 1) {
@@ -4565,7 +4577,7 @@ Dom.chat.players = function (object, action) {
 			// find the player that has logged off
             if (Dom.players[i].userID === object.userID) {
 				Dom.chat.insert(Dom.players[i].name+" has left the game.");
-				Dom.chat.notification(object.name + " has left the game.");
+				Dom.chat.notification(Dom.players[i].name + " has left the game.");
                 Dom.players.splice(i, 1);
             }
         }
@@ -4607,7 +4619,7 @@ Dom.elements.players.onclick = function () {
 	}
 }
 
-Dom.chat.playersInfo = function (notClicked) {
+Dom.chat.playersInfo = function () {
 	Dom.elements.playersInfo.innerHTML = "";
 	for (let i = 0; i < Dom.players.length; i ++) {
 		let clss = "knight";
@@ -4675,10 +4687,11 @@ Dom.trade.request = function (userID, name) {
 	Dom.chat.insert("Trade request sent to "+ name +". Walk away to cancel.");
 }
 
-Dom.trade.requestReceived = function (userID, name) {	
+Dom.trade.requestReceived = function (userID, name, npc) {	
 	if (Dom.currentlyDisplayed === "") {
 		Dom.trade.recieved = true;
 		Dom.currentlyDisplayed = name;
+		Dom.currentNPC = npc;
 		Dom.alert.ev = userID;
 		Dom.alert.evNo = userID;
 		Dom.alert.target = function () {
@@ -4702,6 +4715,7 @@ Dom.trade.requestReceived = function (userID, name) {
 			}
 			let jsonMessage = JSON.stringify(message);
 			ws.send(jsonMessage);
+			Dom.currentlyDisplayed = "";
 		}
 		Dom.alert.page(name + " would like to trade with you, do you accept?", 2);
 	}
@@ -4843,45 +4857,6 @@ window.onbeforeunload = function() {
 		Dom.trade.close();
 	}
 	Game.saveProgress();
-}
-
-function mobileTilt (event) {
-	let x;
-	let y;
-	if (window.innerHeight <= window.innerWidth) {
-		x = event.beta;
-		y = event.gamma;
-	}
-	else {
-		x = event.gamma;
-		y = event.beta;
-	}
-	
-	if(x > 10 && x != null) {
-		Game.keysDown.RIGHT = true;
-		Game.keysDown.LEFT = false;
-	}
-	else if(x < -10 && x != null) {
-		Game.keysDown.LEFT = true;
-		Game.keysDown.RIGHT = false;
-	}
-	else {
-		Game.keysDown.LEFT = false;
-		Game.keysDown.RIGHT = false;
-	}
-
-	if(y > 10 && y != null) {
-		Game.keysDown.UP = true;
-		Game.keysDown.DOWN = false;
-	}
-	else if(y < -10 && y != null) {
-		Game.keysDown.DOWN = true;
-		Game.keysDown.UP = false;
-	}
-	else {
-		Game.keysDown.UP = false;
-		Game.keysDown.DOWN = false;
-	}
 }
 
 // notification if user has given permission
@@ -5319,8 +5294,7 @@ Dom.init = function () {
 		Keyboard.listenForKey(User.settings.keyboard[array[i]], undefined, Keyboard.upFunctions[array[i]]);
 	}
 	Keyboard.listenForKey(User.settings.keyboard.TALK, undefined, Keyboard.upFunctions.TALK);
-
-	window.addEventListener("deviceorientation", mobileTilt); /// TBD MOVE TO MAIN
+	
 	//document.documentElement.requestFullscreen(); - disabled by chrome
 }
 

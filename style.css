@@ -283,7 +283,7 @@ thead:after { /* space after bags in bank */
 }
 
 #playersInfo {
-	width: 502px;
+	width: 499px;
 	margin-left: -10px;
 	border-bottom: 1px solid black;
 	padding: 10px;
@@ -291,6 +291,8 @@ thead:after { /* space after bags in bank */
 	position: absolute;
 	background-color: var(--page);
 	cursor: pointer;
+	max-height: 190px;
+    overflow-y: auto;
 }
 
 .playersText {
