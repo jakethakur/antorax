@@ -2742,6 +2742,35 @@ var Items = {
 				});
 			},
 		},
+		{
+			id: 22,
+			name: "Chaser's Gauntlet",
+			type: "consumable",
+			image: "assets/items/consumable/22.png",
+			functionText: "Invite all online players to a game of tag",
+			sellPrice: 2,
+			onClick: function (inventoryPosition) {
+				// check websocket is open
+				if (ws === false || ws.readyState !== 1) {
+					Dom.chat.insert("You must be connected to a server to use that item.");
+				}
+				// check there is at least one other player online
+				else if (Dom.chat.players.length < 2) {
+					Dom.chat.insert("There are not enough players connected to the server to start the game. Get some friends to come on!");
+				}
+				// check there is not another game active
+				else if (Game.minigameInProgress !== undefined) {
+					Dom.chat.insert("There is already another global minigame active! Try again in a bit.");
+				}
+				else {
+					// remove the item
+					Dom.inventory.remove(inventoryPosition);
+
+					// start the game!
+					Game.initTagMinigame();
+				}
+			},
+		},
 	],
 	food: [
 		{

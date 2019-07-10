@@ -279,7 +279,6 @@ Keyboard.upFunctions = {
 
 // experimental tilting for mobile (called by event listener)
 function MobileTilt (event) {
-	Dom.chat.insert("entered");
     let x;
     let y;
     if (window.innerHeight <= window.innerWidth) {

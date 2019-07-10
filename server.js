@@ -73,6 +73,8 @@ wss.on("connection", (ws) => { // note that ws = client in wss.clients
 				ws.y = parsedMessage.y;
 				ws.direction = parsedMessage.direction;
 				ws.expand = parsedMessage.expand;
+				ws.equipment = parsedMessage.equipment;
+				ws.achievementPoints = parsedMessage.achievementPoints;
 
 				// message the user to tell them what their userID is
 				// this information is used by the client if they want to except themselves from broadcasts
@@ -98,7 +100,9 @@ wss.on("connection", (ws) => { // note that ws = client in wss.clients
 					x: parsedMessage.x,
 					y: parsedMessage.y,
 					direction: parsedMessage.direction,
-					expand: parsedMessage.expand
+					expand: parsedMessage.expand,
+					equipment: parsedMessage.equipment,
+					achievementPoints: parsedMessage.achievementPoints
 				}));
 
 				// message the user to tell them about all the other users online
@@ -119,7 +123,9 @@ wss.on("connection", (ws) => { // note that ws = client in wss.clients
 							x: client.x,
 							y: client.y,
 							direction: client.direction,
-							expand: client.expand
+							expand: client.expand,
+							equipment: parsedMessage.equipment,
+							achievementPoints: parsedMessage.achievementPoints
 						}));
 					}
 				});
@@ -178,6 +184,31 @@ wss.on("connection", (ws) => { // note that ws = client in wss.clients
 					action: "level",
 					userID: ws.userID,
 					level: parsedMessage.level
+				}));
+				break;
+
+			case "changeEquipment":
+				ws.equipment = parsedMessage.equipment;
+
+				// broadcast to chat DOM (for displaying on pressing space on user
+				wss.broadcast(JSON.stringify({
+					type: "playersOnline",
+					action: "equipment",
+					userID: ws.userID,
+					equipment: parsedMessage.equipment
+				}));
+				break;
+
+			case "achievementEarnt":
+				ws.achievementPoints = parsedMessage.achievementPoints;
+
+				// broadcast to chat DOM (for displaying on pressing space on user
+				wss.broadcast(JSON.stringify({
+					type: "playersOnline",
+					action: "achievement",
+					userID: ws.userID,
+					achievementPoints: parsedMessage.achievementPoints,
+					achievement: parsedMessage.achievement // name of achievement earnt
 				}));
 				break;
 

@@ -107,7 +107,15 @@ Game.initWebSocket = function () {
 				displayArea: Player.displayAreaName,
 				x: Player.x,
 				y: Player.y,
-				direction: 3
+				direction: 3,
+				equipment: {
+					helm: Player.inventory.helm,
+					chest: Player.inventory.chest,
+					greaves: Player.inventory.greaves,
+					boots: Player.inventory.boots,
+					weapon: Player.inventory.weapon
+				},
+				achivementPoints: User.achievementPoints.total
 			}));
 
 			// show other players online in chat
@@ -153,7 +161,7 @@ Game.initWebSocket = function () {
 					break;
 
 				case "msg": // for private message from someone (the name being sender -> target is handled in server)
-					Dom.replyTo = message.sender;
+					Dom.chat.replyTo = message.sender;
 					// no break because the same is done as chat for the rest
 
 				case "chat":
@@ -745,10 +753,6 @@ class Thing extends Entity {
 		// set image related variables
 		if (properties.image !== undefined) {
 			this.setImage(properties.image, properties.crop, properties.width, properties.height);
-
-			// if the image is a **horizontal** tileset, where all images have the same width and height, this specifies the number image to use (starting at 0 for the first image)
-			// doesn't work with setImage or changeImage/resetImage
-			this.imageNumber = properties.imageNumber || 0; // currently only works for projectiles (TBD)
 		}
 		else {
 			this.hidden = true; // an image must be loaded and set via setIMage before it can be shown (and then hidden may be set back)
@@ -792,27 +796,31 @@ class Thing extends Entity {
 			this.imageName = imageName;
 			this.image = Loader.getImage(imageName);
 
-			// crop (for drawing on canvas)
-			// width/height = stretch and compress of image
-			// crop width and height means no stretch nor compress
-			this.crop = {};
-			this.crop.x = crop.x || 0;
-			this.crop.y = crop.y || 0;
-			this.crop.width = crop.width || (this.image.width - this.crop.x);
-			this.crop.height = crop.height || (this.image.height - this.crop.y);
-			// set width and height to image dimensions unless otherwise specified
-			this.width = width || this.crop.width;
-			this.height = height || this.crop.height;
-
-			// used as reference for expand
-			this.baseWidth = this.width;
-			this.baseHeight = this.height;
+			this.setImageDimensions(crop, width, height)
 
 			if (this.setRotationImageVariables !== undefined && rotationImages !== false) {
 				// only works for enemies atm - tbd extend to all cases and remove this if statement
 				this.setRotationImageVariables(rotationImages);
 			}
 		}
+	}
+
+	setImageDimensions (crop, width, height, rotationImages) {
+		// crop (for drawing on canvas)
+		// width/height = stretch and compress of image
+		// crop width and height means no stretch nor compress
+		this.crop = {};
+		this.crop.x = crop.x || 0;
+		this.crop.y = crop.y || 0;
+		this.crop.width = crop.width || (this.image.width - this.crop.x);
+		this.crop.height = crop.height || (this.image.height - this.crop.y);
+		// set width and height to image dimensions unless otherwise specified
+		this.width = width || this.crop.width;
+		this.height = height || this.crop.height;
+
+		// used as reference for expand
+		this.baseWidth = this.width;
+		this.baseHeight = this.height;
 	}
 
 	// set an image due to a change in movement direction
@@ -1750,7 +1758,7 @@ class Hero extends Attacker {
 		// where the player respawns when they die (set at any major city)
 		this.checkpoint = properties.checkpoint || "tutorial";
 
-		// time travel teleport positions
+		// temporary teleport teleport positions
 		this.oldPosition = properties.oldPosition; // might be undefined
 	}
 
@@ -1902,16 +1910,22 @@ class Hero extends Attacker {
 
 						this.channellingProjectileId = Game.nextEntityId;
 
-						Game.projectiles.push(new Projectile({
+						let bobber = new Projectile({
 							map: map,
 							x: projectileX,
 							y: projectileY,
-							width: 27, // width and height of each individual image
-							height: 23,
+							crop: {
+								x: 0,
+								y: 0,
+								width: 27,
+								height: 23
+							},
 							image: Game.heroBobberName,
 							beingChannelled: true,
 							type: "projectiles",
-						}));
+						});
+						Game.projectiles.push(bobber);
+						bobber.bobberState = 0;
 
 						// timer for first bob
 						let bobTime = Random(1000, 12000);
@@ -2302,7 +2316,15 @@ class Hero extends Attacker {
 					this.channelling = fish;
 					this.fishingBobs = 100; // fishingBobs is used to see how many clicks the player has done when it is >= 100
 
-					Game.projectiles[Game.searchFor(this.channellingProjectileId, Game.projectiles)].imageNumber = 2; // submerged image for projectile
+					// submerged image for projectile
+					let projectile = Game.projectiles[Game.searchFor(this.channellingProjectileId, Game.projectiles)];
+					projectile.bobberState = 2;
+					projectile.setImageDimensions({
+						x: 54,
+						y: 0,
+						width: 27,
+						height: 23
+					});
 
 					// timer for player clicks
 					setTimeout(function (fish) {
@@ -2320,10 +2342,24 @@ class Hero extends Attacker {
 					setTimeout(this.fish.bind(this), bobTime);
 
 					// set bobbing image (and set it back in 200ms)
-					// tbd make searchFor only need to be run once (for efficiency)
-					Game.projectiles[Game.searchFor(this.channellingProjectileId, Game.projectiles)].imageNumber = 1; // bobbing image for projectile
+					let projectile = Game.projectiles[Game.searchFor(this.channellingProjectileId, Game.projectiles)];
+					projectile.bobberState = 1;
+					projectile.setImageDimensions({
+						x: 27,
+						y: 0,
+						width: 27,
+						height: 23
+					});
+
 					setTimeout(function () {
-						Game.projectiles[Game.searchFor(this.channellingProjectileId, Game.projectiles)].imageNumber = 0; // set image back to normal after 150ms
+						let projectile = Game.projectiles[Game.searchFor(this.channellingProjectileId, Game.projectiles)];
+						projectile.bobberState = 0;
+						projectile.setImageDimensions({
+							x: 0,
+							y: 0,
+							width: 27,
+							height: 23
+						});
 					}.bind(this), 200);
 				}
 			}
@@ -2409,10 +2445,6 @@ class Projectile extends Thing {
 		this.rotate = properties.rotate || 0;
 
 		this.beingChannelled = properties.beingChannelled || false;
-
-		// set width and height to death image dimensions unless otherwise specified
-		this.width = properties.width || this.image.width;
-		this.height = properties.height || this.image.height;
 
 		// adjust position to make it move towards a point (e.g: move arrow so that the point hits the target
 		if (properties.adjust === undefined) {
@@ -4087,6 +4119,49 @@ Game.addTrailParticle = function (character, trailParticle) {
 	Game.createParticle(trailParticle); // Game not this because it is called by setInterval
 }
 
+// websocket status should have been checked before this function is called
+// called by Items.consumable[22]
+Game.initTagMinigame = function () {
+	if (Areas[this.areaName].tagGameAllowed) {
+		// game allowed to start in the current area
+
+		let tagArea = Areas[this.areaName].tagGameAllowed; // either true, or an array of areas that are allowed
+		if (Areas[this.areaName].tagGameAllowed === true) {
+			// only current area allowed
+			tagArea = this.areaName;
+		}
+
+		this.minigameInProgress = {
+			game: "tag",
+			area: tagArea,
+			status: "initialisation"
+		};
+
+		// notify other players about the starting of the tag game
+		ws.send({
+			type: "tagMinigame",
+			action: "startGame",
+			area: tagArea
+		});
+
+		/*
+			Dom.chat.insert("Invited other online players to a game of tag. The game will start in 30 seconds.");
+
+			// save old position
+			this.hero.oldPosition = {
+				area: this.areaName,
+				x: this.hero.x,
+				y: this.hero.y,
+			};
+			// teleport player there
+			this.loadArea("nilbogPast", {x: 100, y: 100});
+		*/
+	}
+	else {
+		Dom.chat.insert("You are not allowed to start a game of tag here. Try somewhere else!")
+	}
+}
+
 //
 // Init game / load new area
 //
@@ -4753,7 +4828,6 @@ Game.init = function () {
 	document.getElementById("click").addEventListener("mousemove", Game.secondary.updateCursor.bind(document.getElementById("click")));
 
 	// experimental mobile tilt movement (not called unless on mobile and device has gyroscopes)
-	Dom.chat.insert("start");
 	window.addEventListener("deviceorientation", MobileTilt);
 
 	// fps array (used for tracking frames per second in Game.fps())
@@ -5521,17 +5595,17 @@ Game.update = function (delta) {
 								textArray.push(role.chooseText || "I'd like to remove my 'XP Fatigue' status effect.");
 								functionArray.push(Dom.text.page);
 								parameterArray.push(["Soul Healer", npc.chat.canBeHealedText, true, ["Remove XP Fatigue for " + this.soulHealerCost + " gold"], [function () {
-									if (Dom.inventory.check(2, "currency", this.soulHealerCost)) {
-										Dom.inventory.removeById(2, "currency", this.soulHealerCost);
-										this.hero.removeStatusEffect(this.hero.statusEffects.findIndex(statusEffect => statusEffect.title === "XP Fatigue")); // remove xp fatigue effect
+									if (Dom.inventory.check(2, "currency", Game.soulHealerCost)) {
+										Dom.inventory.removeById(2, "currency", Game.soulHealerCost);
+										Game.hero.removeStatusEffect(Game.hero.statusEffects.findIndex(statusEffect => statusEffect.title === "XP Fatigue")); // remove xp fatigue effect
 										Dom.closePage("textPage");
-										this.currentSoulHealer.say(this.currentSoulHealer.chat.healedText, 0, false);
-										this.currentSoulHealer = undefined; // reset variable that remembers which soul healer the player is speaking to
-										this.soulHealerCost = undefined; // reset variable that remembers the cost for soul healing
+										Game.currentSoulHealer.say(Game.currentSoulHealer.chat.healedText, 0, false);
+										Game.currentSoulHealer = undefined; // reset variable that remembers which soul healer the player is speaking to
+										Game.soulHealerCost = undefined; // reset variable that remembers the cost for soul healing
 									}
 									else {
 										// player cannot afford it
-										this.soulHealers[i].say(this.soulHealers[i].chat.tooPoor, 0, true);
+										Game.soulHealers[i].say(Game.soulHealers[i].chat.tooPoor, 0, true);
 									}
 								}]]);
 							}
@@ -6074,7 +6148,7 @@ Game.getXP = function (xpGiven, xpBonus) {
 Game.inventoryUpdate = function (e) {
 	// check if a weapon or armour slot has been changed
 	if (e === undefined || // clicked on an item
-		Dom.inventory.fromArray === Player.inventory || Dom.inventory.toArray === Player.inventory) { // dragged to or from an equipment slot
+	Dom.inventory.fromArray === Player.inventory || Dom.inventory.toArray === Player.inventory) { // dragged to or from an equipment slot
 
 		// player stats updated
 		this.hero.stats = Player.stats; // inefficient (should be linked)
@@ -6117,6 +6191,20 @@ Game.inventoryUpdate = function (e) {
 		else {
 			// non-bows do penetrate
 			this.hero.stats.penetration = true;
+		}
+
+		// send updated equipment information to websocket if websocket is open
+		if (ws !== false && ws.readyState === 1) {
+			ws.send(JSON.stringify({
+				type: "changeEquipment",
+				equipment: {
+					helm: Player.inventory.helm,
+					chest: Player.inventory.chest,
+					greaves: Player.inventory.greaves,
+					boots: Player.inventory.boots,
+					weapon: Player.inventory.weapon
+				}
+			}));
 		}
 	}
 
@@ -6217,7 +6305,7 @@ Game.lootClosed = function (itemsRemaining) {
 		// enemy loot menu closed
 		let arrayIndex = Dom.loot.currentId.substr(1);
 		Game.enemies[arrayIndex].loot = itemsRemaining; // update items remaining
-		if (itemsRemaining.every(item => item === undefined)) {
+		if (itemsRemaining.every(item => item === undefined || item === null)) {
 			// set loot to null so it isn't opened by the player again
 			Game.enemies[arrayIndex].loot = null;
 		}
@@ -6873,13 +6961,13 @@ Game.render = function (delta) {
 		let projectile = this.projectiles[this.searchFor(this.hero.channellingProjectileId, this.projectiles)];
 		this.ctx.strokeStyle = "grey";
 		this.ctx.beginPath();
-		if (projectile.imageNumber === 0) {
+		if (projectile.bobberState === 0) {
 			this.ctx.moveTo(projectile.screenX, projectile.screenY - 8); // bobber above water
 		}
-		else if (projectile.imageNumber === 1) {
+		else if (projectile.bobberState === 1) {
 			this.ctx.moveTo(projectile.screenX, projectile.screenY); // bobber bobbing
 		}
-		else if (projectile.imageNumber === 2) {
+		else if (projectile.bobberState === 2) {
 			this.ctx.moveTo(projectile.screenX, projectile.screenY + 8); // bobber submerged by fish
 		}
 		this.ctx.lineTo(this.hero.screenX, this.hero.screenY);
@@ -7329,7 +7417,7 @@ Game.saveProgress = function (saveType) { // if saveType is "auto" then the save
 		// save other player details that aren't otherwise saved to savedata
 		Player.health = Game.hero.health;
 		Player.trail = Game.hero.trail;
-		Player.oldPosition = Game.hero.oldPosition; // time travel
+		Player.oldPosition = Game.hero.oldPosition; // temporary teleport
 		// re-link status effects (inefficient - tbd)
 		Player.statusEffects = Game.hero.statusEffects;
 		// re-link player stats (inefficient - tbd)

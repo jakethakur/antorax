@@ -186,6 +186,7 @@ var Areas = {
 
 	tutorial: {
 
+		// data displayedo on moving to area
 		data: {
 			name: "Fishers' Valley",
 			level: "Level 1 - 5",
@@ -194,6 +195,21 @@ var Areas = {
 		},
 
 		indoors: false,
+
+		tagGameAllowed: true, // tag game allowed?
+
+		song_day: "./assets/music/Pippin-the-Hunchback.mp3",
+		song_night: "./assets/music/Pippin-the-Hunchback-night.mp3",
+
+		checkpoint: false,
+		player: {
+			// spawn location at start of game
+			x: 3838,
+			y: 318,
+		},
+
+		lootArea: "loggingCamp",
+		lootTier: 1,
 
 		mapData: {
 			cols: 65,
@@ -264,18 +280,6 @@ var Areas = {
 			cart: {normal: "./assets/objects/cartEaglecrest.png"},
 			fisherman: {normal: "./assets/npcs/tobenam.png"},
 		},
-
-		song_day: "./assets/music/Pippin-the-Hunchback.mp3",
-		song_night: "./assets/music/Pippin-the-Hunchback-night.mp3",
-
-		checkpoint: false,
-		player: {
-			x: 3838,
-			y: 318,
-		},
-
-		lootArea: "loggingCamp",
-		lootTier: 1,
 
 		areaTeleports: [
 			{
@@ -498,6 +502,20 @@ var Areas = {
 
 		indoors: false,
 
+		tagGameAllowed: true,
+
+		song_day: "./assets/music/Pippin-the-Hunchback.mp3",
+		song_night: "./assets/music/Pippin-the-Hunchback-night.mp3",
+
+		checkpoint: true,
+		player: {
+			x: 1350,
+			y: 788,
+		},
+
+		lootArea: "loggingCamp",
+		lootTier: 1,
+
 		mapData: {
 			cols: 42,
 			rows: 23,
@@ -582,18 +600,6 @@ var Areas = {
 			cart: {normal: "./assets/objects/cartEaglecrest2.png"},
 			driver: {normal: "./assets/npcs/alaran.png"},
 		},
-
-		song_day: "./assets/music/Pippin-the-Hunchback.mp3",
-		song_night: "./assets/music/Pippin-the-Hunchback-night.mp3",
-
-		checkpoint: true,
-		player: {
-			x: 1350,
-			y: 788,
-		},
-
-		lootArea: "loggingCamp",
-		lootTier: 1,
 
 		onAreaTeleport: function () {
 			// start instructions chapter 4 if the player hasn't already
@@ -1271,6 +1277,15 @@ var Areas = {
 
 		indoors: true,
 
+		tagGameAllowed: true,
+
+		song_day: "./assets/music/Tavern.mp3",
+		song_night: "./assets/music/Tavern.mp3",
+
+		checkpoint: false, // probably in the future taverns should be the ONLY checkpoints
+
+		lootArea: "loggingCamp", // for level up music
+
 		mapData: {
 			cols: 16,
 			rows: 24,
@@ -1306,13 +1321,6 @@ var Areas = {
 				destinationY: 200,
 			},
 		],
-
-		song_day: "./assets/music/Tavern.mp3",
-		song_night: "./assets/music/Tavern.mp3",
-
-		checkpoint: false, // probably in the future taverns should be the ONLY checkpoints
-
-		lootArea: "loggingCamp", // for level up music
 
 		npcs: [
 			{
@@ -1475,6 +1483,16 @@ var Areas = {
 
 		indoors: false,
 
+		tagGameAllowed: true,
+
+		song_day: "./assets/music/Pippin-the-Hunchback.mp3",
+		song_night: "./assets/music/Pippin-the-Hunchback-night.mp3",
+
+		checkpoint: false,
+
+		lootArea: "loggingCamp",
+		lootTier: 1,
+
 		mapData: {
 			cols: 40,
 			rows: 29,
@@ -1578,14 +1596,6 @@ var Areas = {
 			ghost: {samhain: "./assets/npcs/ghost.png"},
 			lootChest: {normal: "./assets/objects/chest.png"},
 		},
-
-		song_day: "./assets/music/Pippin-the-Hunchback.mp3",
-		song_night: "./assets/music/Pippin-the-Hunchback-night.mp3",
-
-		checkpoint: false,
-
-		lootArea: "loggingCamp",
-		lootTier: 1,
 
 		chestData: {
 			spawnLocations: [
@@ -1815,8 +1825,17 @@ var Areas = {
 
 		// timey wimey stuff
 		timeTravel: true, // cloudy border
-		weather: "clear", // TBD rainy?
+		weather: "clear",
 		time: "day",
+
+		tagGameAllowed: false,
+
+		song_day: "./assets/music/Pippin-the-Hunchback-boss.mp3",
+
+		checkpoint: false,
+
+		lootArea: "loggingCamp",
+		lootTier: 1,
 
 		mapData: {
 			cols: 15,
@@ -1841,13 +1860,6 @@ var Areas = {
 			mailbox: {normal: "./assets/objects/mailbox.png"},
 			mailboxUnread: {normal: "./assets/objects/mailboxUnread.png"},
 		},
-
-		song_day: "./assets/music/Pippin-the-Hunchback-boss.mp3",
-
-		checkpoint: false,
-
-		lootArea: "loggingCamp",
-		lootTier: 1,
 
 		mailboxes: [
 			{
@@ -1894,6 +1906,15 @@ var Areas = {
 
 		indoors: true,
 
+		tagGameAllowed: ["nilbogTower1", "nilbogTower2", "nilbogTower3", "nilbogTower4", "nilbogTower5"],
+
+		song_day: "./assets/music/Pippin-the-Hunchback.mp3",
+
+		checkpoint: false,
+
+		lootArea: "loggingCamp",
+		lootTier: 1,
+
 		mapData: {
 			cols: 10,
 			rows: 10,
@@ -1914,13 +1935,6 @@ var Areas = {
 			goblinCorpse: {normal: "./assets/corpses/deadGoblin.png"},
 			melee: {normal: "./assets/projectiles/melee.png"},
 		},
-
-		song_day: "./assets/music/Pippin-the-Hunchback.mp3",
-
-		checkpoint: false,
-
-		lootArea: "loggingCamp",
-		lootTier: 1,
 
 		areaTeleports: [
 			{
@@ -2037,6 +2051,15 @@ var Areas = {
 
 		indoors: true,
 
+		tagGameAllowed: ["nilbogTower1", "nilbogTower2", "nilbogTower3", "nilbogTower4", "nilbogTower5"],
+
+		song_day: "./assets/music/Pippin-the-Hunchback.mp3",
+
+		checkpoint: false,
+
+		lootArea: "loggingCamp",
+		lootTier: 1,
+
 		mapData: {
 			cols: 10,
 			rows: 10,
@@ -2059,13 +2082,6 @@ var Areas = {
 			melee: {normal: "./assets/projectiles/melee.png"},
 			lootChest: {normal: "./assets/objects/chestTower.png"},
 		},
-
-		song_day: "./assets/music/Pippin-the-Hunchback.mp3",
-
-		checkpoint: false,
-
-		lootArea: "loggingCamp",
-		lootTier: 1,
 
 		chestData: {
 			spawnLocations: [
@@ -2224,6 +2240,15 @@ var Areas = {
 
 		indoors: true,
 
+		tagGameAllowed: ["nilbogTower1", "nilbogTower2", "nilbogTower3", "nilbogTower4", "nilbogTower5"],
+
+		song_day: "./assets/music/Pippin-the-Hunchback.mp3",
+
+		checkpoint: false,
+
+		lootArea: "loggingCamp",
+		lootTier: 1,
+
 		mapData: {
 			cols: 10,
 			rows: 10,
@@ -2245,13 +2270,6 @@ var Areas = {
 			goblinCorpse: {normal: "./assets/corpses/deadGoblin.png"},
 			melee: {normal: "./assets/projectiles/melee.png"},
 		},
-
-		song_day: "./assets/music/Pippin-the-Hunchback.mp3",
-
-		checkpoint: false,
-
-		lootArea: "loggingCamp",
-		lootTier: 1,
 
 		areaTeleports: [
 			{
@@ -2403,6 +2421,15 @@ var Areas = {
 
 		indoors: true,
 
+		tagGameAllowed: ["nilbogTower1", "nilbogTower2", "nilbogTower3", "nilbogTower4", "nilbogTower5"],
+
+		song_day: "./assets/music/Pippin-the-Hunchback.mp3",
+
+		checkpoint: false,
+
+		lootArea: "loggingCamp",
+		lootTier: 1,
+
 		mapData: {
 			cols: 10,
 			rows: 10,
@@ -2424,13 +2451,6 @@ var Areas = {
 			melee: {normal: "./assets/projectiles/melee.png"},
 			lootChest: {normal: "./assets/objects/chestTower.png"},
 		},
-
-		song_day: "./assets/music/Pippin-the-Hunchback.mp3",
-
-		checkpoint: false,
-
-		lootArea: "loggingCamp",
-		lootTier: 1,
 
 		chestData: {
 			spawnLocations: [
@@ -2599,6 +2619,15 @@ var Areas = {
 
 		indoors: true,
 
+		tagGameAllowed: ["nilbogTower1", "nilbogTower2", "nilbogTower3", "nilbogTower4", "nilbogTower5"],
+
+		song_day: "./assets/music/Pippin-the-Hunchback.mp3",
+
+		checkpoint: false,
+
+		lootArea: "loggingCamp",
+		lootTier: 1,
+
 		mapData: {
 			cols: 10,
 			rows: 10,
@@ -2622,13 +2651,6 @@ var Areas = {
 			arrow: {normal: "./assets/projectiles/arrow.png"}, // (ignored by loader if it is already loaded because of an archer player)
 			weaponRack: {normal: "./assets/objects/weaponRack.png"},
 		},
-
-		song_day: "./assets/music/Pippin-the-Hunchback-boss.mp3",
-
-		checkpoint: false,
-
-		lootArea: "loggingCamp",
-		lootTier: 1,
 
 		areaTeleports: [
 			{
@@ -2709,6 +2731,20 @@ var Areas = {
 
 		indoors: false,
 
+		tagGameAllowed: ["eaglecrest", "eaglecrestEast", "eaglecrestWest"],
+
+		song_day: "./assets/music/Eaglecrest.mp3",
+		song_night: "./assets/music/Eaglecrest.mp3",
+
+		checkpoint: true,
+		player: {
+			x: 400,
+			y: 400,
+		},
+
+		lootArea: "eaglecrest",
+		lootTier: 1,
+
 		mapData: {
 			cols: 25,
 			rows: 22,
@@ -2743,18 +2779,6 @@ var Areas = {
 			fountain4: {normal: "./assets/objects/fountainFlowing4.png"},
 			identifier: {normal: "./assets/npcs/hranatha.png"},
 		},
-
-		song_day: "./assets/music/Eaglecrest.mp3",
-		song_night: "./assets/music/Eaglecrest.mp3",
-
-		checkpoint: true,
-		player: {
-			x: 400,
-			y: 400,
-		},
-
-		lootArea: "eaglecrest",
-		lootTier: 1,
 
 		areaTeleports: [
 			{
@@ -3024,6 +3048,15 @@ var Areas = {
 
 		indoors: false,
 
+		tagGameAllowed: ["eaglecrest", "eaglecrestEast", "eaglecrestWest"],
+
+		song_day: "./assets/music/Eaglecrest.mp3",
+		song_night: "./assets/music/Eaglecrest.mp3",
+
+		checkpoint: false,
+
+		lootArea: "eaglecrest",
+
 		mapData: {
 			cols: 21,
 			rows: 11,
@@ -3042,13 +3075,6 @@ var Areas = {
 			tiles: {normal: "./assets/tilemap/eaglecrestCity.png"},
 			maskSalesman: {normal: "./assets/npcs/maskSalesman.png"},
 		},
-
-		song_day: "./assets/music/Eaglecrest.mp3",
-		song_night: "./assets/music/Eaglecrest.mp3",
-
-		checkpoint: false,
-
-		lootArea: "eaglecrest",
 
 		areaTeleports: [
 			{
@@ -3113,6 +3139,15 @@ var Areas = {
 
 		indoors: false,
 
+		tagGameAllowed: ["eaglecrest", "eaglecrestEast", "eaglecrestWest"],
+
+		song_day: "./assets/music/Eaglecrest.mp3",
+		song_night: "./assets/music/Eaglecrest.mp3",
+
+		checkpoint: false,
+
+		lootArea: "eaglecrest",
+
 		mapData: {
 			cols: 21,
 			rows: 11,
@@ -3131,13 +3166,6 @@ var Areas = {
 			tiles: {normal: "./assets/tilemap/eaglecrestCity.png"},
 			itemBuyer: {normal: "./assets/npcs/nhkghghh.png"},
 		},
-
-		song_day: "./assets/music/Eaglecrest.mp3",
-		song_night: "./assets/music/Eaglecrest.mp3",
-
-		checkpoint: false,
-
-		lootArea: "eaglecrest",
 
 		areaTeleports: [
 			{
@@ -3192,6 +3220,15 @@ var Areas = {
 
 		indoors: true,
 
+		tagGameAllowed: false,
+
+		song_day: "./assets/music/Eaglecrest.mp3",
+		song_night: "./assets/music/Eaglecrest.mp3",
+
+		checkpoint: false,
+
+		lootArea: "eaglecrest",
+
 		mapData: {
 			cols: 17,
 			rows: 15,
@@ -3211,13 +3248,6 @@ var Areas = {
 			banker3: {normal: "./assets/npcs/eaglecrestBanker3.png"},
 			banker4: {normal: "./assets/npcs/eaglecrestBanker4.png"},
 		},
-
-		song_day: "./assets/music/Eaglecrest.mp3",
-		song_night: "./assets/music/Eaglecrest.mp3",
-
-		checkpoint: false,
-
-		lootArea: "eaglecrest",
 
 		areaTeleports: [
 			{
@@ -3319,6 +3349,15 @@ var Areas = {
 
 		indoors: true,
 
+		tagGameAllowed: true,
+
+		song_day: "./assets/music/Tavern.mp3",
+		song_night: "./assets/music/Tavern.mp3",
+
+		checkpoint: false, // probably in the future taverns should be the ONLY checkpoints
+
+		lootArea: "loggingCamp", // for level up music
+
 		mapData: {
 			cols: 21,
 			rows: 24,
@@ -3357,13 +3396,6 @@ var Areas = {
 				destinationY: 280,
 			},
 		],
-
-		song_day: "./assets/music/Tavern.mp3",
-		song_night: "./assets/music/Tavern.mp3",
-
-		checkpoint: false, // probably in the future taverns should be the ONLY checkpoints
-
-		lootArea: "loggingCamp", // for level up music
 
 		npcs: [
 			{
