@@ -231,7 +231,7 @@
 		<div id="acceptReward" class="closeClass" onclick="Dom.quest.acceptRewards();">Complete Quest</div>
 		<div id="declineReward" class="closeClass" onclick="Dom.closePage('questFinish');">Not Now</div>
 		<img id="chanceImage" src="./assets/icons/bag.png" hidden></img>
-		<p id="chance">You do not have enough inventory space to hold all of the possible rewards from this quest. If you complete it now, there is a chance you might not get as many rewards as you could.</p>
+		<p id="chance" hidden>You do not have enough inventory space to hold all of the possible rewards from this quest. If you complete it now, there is a chance you might not get as many rewards as you could.</p>
 	</div>
 	<div id="merchantPage" hidden class="DOM">
 		<br><h1 id="merchantPageTitle"></h1><br><br>
@@ -287,7 +287,17 @@
 		<div id="confirm" class="closeClass" onclick="Dom.trade.confirm();">Confirm</div>
 		<div id="cancel" class="closeClass" onclick="Dom.trade.close();">Cancel</div>
 	</div>
-	<div id="choosePage" hidden class="DOM"></div>
+	<div id="choosePage" hidden class="DOM">
+		<div id="choosePagePlayer">
+			<div id="choosePageAchievementPoints"></div>
+			<div id="choosePageWeapon"></div>
+			<div id="choosePageHelm"></div>
+			<div id="choosePageChest"></div>
+			<div id="choosePageGreaves"></div>
+			<div id="choosePageBoots"></div>
+		</div>
+		<div id="choosePageContent"></div>
+	</div>
 	<div id="textPage" hidden class="DOM"></div>
 
 	<span id="bookmarks">

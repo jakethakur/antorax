@@ -124,8 +124,8 @@ wss.on("connection", (ws) => { // note that ws = client in wss.clients
 							y: client.y,
 							direction: client.direction,
 							expand: client.expand,
-							equipment: parsedMessage.equipment,
-							achievementPoints: parsedMessage.achievementPoints
+							equipment: client.equipment,
+							achievementPoints: client.achievementPoints
 						}));
 					}
 				});

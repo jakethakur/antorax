@@ -115,7 +115,7 @@ Game.initWebSocket = function () {
 					boots: Player.inventory.boots,
 					weapon: Player.inventory.weapon
 				},
-				achivementPoints: User.achievementPoints.total
+				achievementPoints: User.achievementPoints.total
 			}));
 
 			// show other players online in chat

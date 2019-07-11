@@ -122,7 +122,7 @@ thead:after { /* space after bags in bank */
 	padding-top: 10px;
 }
 
-#helm, #chest, #greaves, #boots, #weapon, #settingLogoutInner, #settingSave, #settingDelete, #settingControls, .mailImage, .driverImage, .theseOptions {
+#choosePageHelm, #choosePageChest, #choosePageGreaves, #choosePageBoots, #choosePageWeapon, #helm, #chest, #greaves, #boots, #weapon, #settingLogoutInner, #settingSave, #settingDelete, #settingControls, .mailImage, .driverImage, .theseOptions {
 	background-color: var(--bottom);
 	margin-top: 10px;
 	border: 5px solid var(--border);
@@ -311,23 +311,28 @@ thead:after { /* space after bags in bank */
 	width: 472px;
 }
 
-#helm {
+#choosePageHelm, #choosePageChest, #choosePageGreaves, #choosePageBoots, #choosePageWeapon {
+	position: relative;
+	z-index: 49;
+}
+
+#helm, #choosePageHelm {
 	background-image: url("assets/items/helm/1.png");
 }
 
-#chest {
+#chest, #choosePageChest {
 	background-image: url("assets/items/chest/1.png");
 }
 
-#greaves {
+#greaves, #choosePageGreaves {
 	background-image: url("assets/items/greaves/1.png");
 }
 
-#boots {
+#boots, #choosePageBoots {
 	background-image: url("assets/items/boots/1.png");
 }
 
-#helm, #weapon{
+#helm, #weapon, #choosePageHelm, #choosePageWeapon {
 	margin-top: 50px;
 }
 
@@ -681,6 +686,29 @@ thead:after { /* space after bags in bank */
 /*					*/
 /*		CHOOSE		*/
 /*					*/
+
+#choosePage {
+	padding-left: 38px;
+	padding-right: 38px;
+	width: 444px;
+}
+
+#choosePageContent {
+	position: absolute;
+	top: 0px;
+	float: center;
+	left: 0px;
+	width: 100%;
+}
+
+#choosePageAchievementPoints {
+	width: 60px;
+	height: 60px;
+	margin-top: 45px;
+	line-height: 60px;
+	vertical-align: middle;
+	font-size: 20px;
+}
 
 .chooseIcon {
 	position: absolute;

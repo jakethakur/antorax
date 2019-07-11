@@ -50,6 +50,14 @@ let Dom = {
 		chatPage: document.getElementById("chatPage"),
 		chatText: document.getElementById("chatText"),
 		choosePage: document.getElementById("choosePage"),
+		choosePageAchievementPoints: document.getElementById("choosePageAchievementPoints"),
+		choosePageBoots: document.getElementById("choosePageBoots"),
+		choosePageChest: document.getElementById("choosePageChest"),
+		choosePageContent: document.getElementById("choosePageContent"),
+		choosePageGreaves: document.getElementById("choosePageGreaves"),
+		choosePageHelm: document.getElementById("choosePageHelm"),
+		choosePagePlayer: document.getElementById("choosePagePlayer"),
+		choosePageWeapon: document.getElementById("choosePageWeapon"),
 		close: document.getElementById("close"),
 		closeDriver: document.getElementById("closeDriver"),
 		closeReputation: document.getElementById("closeReputation"),
@@ -190,13 +198,15 @@ if (localStorage.getItem("fish") !== null) {
 	localStorage.removeItem("fish");
 }
 
-//User.settings.keyboard = User.settings.keyboard;
+// start a dom alert
+// text = what the alert says
+// type = number of buttons
+// values = array of what buttons will say (only applies for type = 3 or type = text)
+// page = what page it came from (what it appears over); undefined = canvas
 
-// save an item to the settings object in local storage
-/*Dom.settings.save = function (name, value) {
-	User.settings[name] = value;
-	SaveItem("settings", JSON.stringify(User.settings));
-}*/
+// Dom.alert.target is the function that is called by confirming the alert
+// Dom.alert.ev is an array of parameters that is passed in to Dom.alert.target
+// if type = 3 then the last parameter after all of Dom.alert.ev is set to true on clicking second button
 
 Dom.alert.page = function (text, type, values, page) { // can't pass in target and ev because chooseStats are called by an innerHTML
 	Dom.elements.alert.hidden = false;
@@ -302,8 +312,16 @@ Dom.achievements.update = function () {
 			User.achievements[ToCamelCase(Achievements[i].name)] = GetFullDateDisplay();
 			User.achievementPoints.total += Achievements[i].points;
 			User.achievementPoints.unclaimed += Achievements[i].points;
-			Dom.chat.announce("<strong>" + Player.name + "</strong> has earnt the achievement \"" + Achievements[i].name + "\"!", true);
 			Dom.achievements.page(i);
+			
+			// send websocket information if websocket is open
+            if (ws !== false && ws.readyState === 1) {
+                ws.send(JSON.stringify({
+                    type: "achievementEarnt",
+                    achievementPoints: User.achievementPoints.total,
+                    achievement: Achievements[i].name
+                }));
+            }
 		}
 	}
 }
@@ -665,6 +683,8 @@ Dom.chat.say = function (name, message, language) {
 	}
 }
 
+// values - time between messages
+// end - function called when sequence if done
 Dom.chat.insertSequence = function (text, values, end, endParameters) {
 	if (values === undefined) {
 		values = [];
@@ -699,6 +719,7 @@ Dom.chat.input = function (id) {
 			`Hello again, ${Player.name}. Here is a list of commands that you can type in chat:
 			<br><br>/me [message] - refer to yourself in the third person.
 			<br>/msg [player name] [message] - send a message to only one player.
+			<br>/r [message] - respond to the person who most recently messaged you through /msg.
 			<br>/ping - see your connection speed with server.
 			<br><br>If you require help with the game, click your yellow bookmark with a compass on.`));
 		}
@@ -1581,27 +1602,28 @@ Dom.quest.finish = function (quest) {
 			}
 			Dom.elements.questFinishRewardsTitle.innerHTML = "<br><br><b>Quest Rewards</b><br>";
 
-		// service rewards
-		if (quest.rewards.services !== undefined) {
-			for (let i = 0; i < quest.rewards.services.length; i++) {
-				Dom.elements.questFinishItems.innerHTML += "<img src='./assets/icons/" + quest.rewards.services[i].image + ".png' class='theseQuestFinishServices'></img>&nbsp;&nbsp;";
-			}
-		}
-
-		//item rewards
-		if (!quest.addedRewardsFromTables) {
-			for (let i = 0; i < QuestRewardTables.globalAll.length; i++) {
-				quest.rewards.items.push(QuestRewardTables.globalAll[i]);
-			}
-
-			if (quest.repeatTime === "daily") {
-				for (let i = 0; i < QuestRewardTables.globalDaily.length; i++) {
-					quest.rewards.items.push(QuestRewardTables.globalDaily[i]);
+			// service rewards
+			if (quest.rewards.services !== undefined) {
+				for (let i = 0; i < quest.rewards.services.length; i++) {
+					Dom.elements.questFinishItems.innerHTML += "<img src='./assets/icons/" + quest.rewards.services[i].image + ".png' class='theseQuestFinishServices'></img>&nbsp;&nbsp;";
 				}
 			}
-			quest.addedRewardsFromTables = true;
-		}
 
+			// item rewards added from table
+			if (!quest.addedRewardsFromTables) {
+				for (let i = 0; i < QuestRewardTables.globalAll.length; i++) {
+					quest.rewards.items.push(QuestRewardTables.globalAll[i]);
+				}
+
+				if (quest.repeatTime === "daily") {
+					for (let i = 0; i < QuestRewardTables.globalDaily.length; i++) {
+						quest.rewards.items.push(QuestRewardTables.globalDaily[i]);
+					}
+				}
+				quest.addedRewardsFromTables = true;
+			}
+
+			// item rewards display
 			Dom.elements.questFinishRewardsTitle.innerHTML = "<br><br><b>Quest Rewards</b><br>";
 			if (quest.rewards.items !== undefined) {
 				for (let i = 0; i < quest.rewards.items.length; i++) {
@@ -1619,7 +1641,12 @@ Dom.quest.finish = function (quest) {
 				}
 
 			}
-		}else{
+			else {
+				Dom.elements.chanceImage.hidden = true;
+				Dom.elements.chance.hidden = true;
+			}
+		}
+		else{
 			Dom.elements.questFinishRewardsTitle.innerHTML = "";
 			Dom.elements.questFinishStartItems.innerHTML = "";
 		}
@@ -2347,15 +2374,15 @@ Dom.inventory.chooseStats = function (inventoryPosition) {
 
 		// if there is at least 1 option
 		if (Object.keys(str).length > 0) {
-			Dom.alert.ev = [];
+			Dom.alert.ev = [[]];
 			// repeats for each chooseStat
 			for (let i = 0; i < Object.keys(str).length; i++) {
 				if (Object.keys(str)[i] === Player.inventory.items[inventoryPosition].chosenStat) {
-					values += "<strong><span onclick='Dom.alert.target(Dom.alert.ev, "+i+")'>"+Dom.inventory.stats(FromCamelCase(Object.keys(str)[i]), str[Object.keys(str)[i]], str) + "</span></strong>";
+					values += "<strong><span onclick='Dom.alert.target(Dom.alert.ev[0], "+i+")'>"+Dom.inventory.stats(FromCamelCase(Object.keys(str)[i]), str[Object.keys(str)[i]], str) + "</span></strong>";
 				}else{
-					values += "<span onclick='Dom.alert.target(Dom.alert.ev, "+i+")'>"+Dom.inventory.stats(FromCamelCase(Object.keys(str)[i]), str[Object.keys(str)[i]], str) + "</span>";
+					values += "<span onclick='Dom.alert.target(Dom.alert.ev[0], "+i+")'>"+Dom.inventory.stats(FromCamelCase(Object.keys(str)[i]), str[Object.keys(str)[i]], str) + "</span>";
 				}
-				Dom.alert.ev.push([Object.keys(str)[i], str[Object.keys(str)[i]]]);
+				Dom.alert.ev[0].push([Object.keys(str)[i], str[Object.keys(str)[i]]]);
 			}
 			Dom.alert.target = function (ev, num) {
 				Dom.elements.alert.hidden = true;
@@ -2375,15 +2402,15 @@ Dom.inventory.chooseStats = function (inventoryPosition) {
 
 		// if there is at least 1 option
 		if (Object.keys(str).length > 0) {
-			Dom.alert.ev = [];
+			Dom.alert.ev = [[]];
 			// repeats for each chosenStat
 			for (let i = 0; i < Object.keys(str).length; i++) {
 				if (Object.keys(str)[i] === Player.inventory[inventoryPosition].chosenStat) {
-					values += "<strong><span onclick='Dom.alert.target(Dom.alert.ev, "+i+")'>"+Dom.inventory.stats(FromCamelCase(Object.keys(str)[i]), str[Object.keys(str)[i]], str) + "</span></strong>";
+					values += "<strong><span onclick='Dom.alert.target(Dom.alert.ev[0], "+i+")'>"+Dom.inventory.stats(FromCamelCase(Object.keys(str)[i]), str[Object.keys(str)[i]], str) + "</span></strong>";
 				}else{
-					values += "<span onclick='Dom.alert.target(Dom.alert.ev, "+i+")'>"+Dom.inventory.stats(FromCamelCase(Object.keys(str)[i]), str[Object.keys(str)[i]], str) + "</span>";
+					values += "<span onclick='Dom.alert.target(Dom.alert.ev[0], "+i+")'>"+Dom.inventory.stats(FromCamelCase(Object.keys(str)[i]), str[Object.keys(str)[i]], str) + "</span>";
 				}
-				Dom.alert.ev.push([Object.keys(str)[i], str[Object.keys(str)[i]]]);
+				Dom.alert.ev[0].push([Object.keys(str)[i], str[Object.keys(str)[i]]]);
 			}
 			Dom.alert.target = function (ev, num) {
 				Dom.elements.alert.hidden = true;
@@ -3408,10 +3435,15 @@ Dom.inventory.check = function (ID, type, num, notEquipped, array) {
 
 if (Player.class === "a") {
 	Dom.elements.weapon.style.backgroundImage = "url('./assets/items/bow/1.png')";
-}else if (Player.class === "m") {
+	Dom.elements.choosePageWeapon.style.backgroundImage = "url('./assets/items/bow/1.png')";
+}
+else if (Player.class === "m") {
 	Dom.elements.weapon.style.backgroundImage = "url('./assets/items/staff/1.png')";
-}else{
+	Dom.elements.choosePageWeapon.style.backgroundImage = "url('./assets/items/staff/1.png')";
+}
+else{
 	Dom.elements.weapon.style.backgroundImage = "url('./assets/items/sword/1.png')";
+	Dom.elements.choosePageWeapon.style.backgroundImage = "url('./assets/items/sword/1.png')";
 }
 
 Dom.elements.inventoryGoldXP.style.backgroundImage = 'url("./selection/assets/'+Player.class+Player.skin+'/f.png")';
@@ -3421,22 +3453,26 @@ Dom.elements.inventoryGoldXP.style.bottom = 3 + Skins[Player.class][Player.skin]
 
 Dom.elements.alertYes.onclick = function () {
 	// close alert and call function with parameter
-	Dom.alert.target(Dom.alert.ev);
+	Dom.alert.target(...Dom.alert.ev);
 	Dom.elements.alert.hidden = true;
+	Dom.alert.target = undefined;
 }
 
 Dom.elements.alertNo.onclick = function () {
 	// close alert only - and potentially call a function
 	if (Dom.alert.targetNo !== undefined) {
-		Dom.alert.targetNo(Dom.alert.evNo);
+		Dom.alert.targetNo(...Dom.alert.evNo);
+		Dom.alert.targetNo = undefined;
 	}
 	Dom.elements.alert.hidden = true;
+	Dom.alert.target = undefined;
 }
 
 Dom.elements.alertDispose.onclick = function () {
 	// close alert and call function with parameter and (true)
-	Dom.alert.target(Dom.alert.ev, true);
+	Dom.alert.target(...Dom.alert.ev, true);
 	Dom.elements.alert.hidden = true;
+	Dom.alert.target = undefined;
 }
 
 Dom.elements.hotbar.onmouseover = function () {
@@ -3709,7 +3745,7 @@ Dom.buyer.page = function (npc) {
 				}
 				Dom.elements.buyerPageInventory.getElementsByTagName("td")[i].onclick = function () {
 					if (!(!remove && i === 5 && Player.inventory.items[5].type === "bag") && Dom.inventory.check(Player.inventory.items[i].id, Player.inventory.items[i].type, Player.inventory.items[i].sellQuantity)) {
-						Dom.alert.ev = i;
+						Dom.alert.ev = [i];
 						Dom.alert.target = Dom.buyer.remove;
 						if (Player.inventory.items[i].stacked >= Player.inventory.items[i].sellQuantity*2) {
 							Dom.alert.page("How many <strong>"+Player.inventory.items[i].name+"</strong> would you like to sell for <strong>"+(Player.inventory.items[i].charges === undefined ? Player.inventory.items[i].sellPrice : Math.ceil(Player.inventory.items[i].sellPrice / (Player.inventory.items[i].maxCharges / Player.inventory.items[i].charges)))+" "+Items.currency[Player.inventory.items[i].sellCurrency].name.toLowerCase()+"</strong> "+(Player.inventory.items[i].sellQuantity !== 1 ? "per "+Player.inventory.items[i].sellQuantity+"?" : "each?"),
@@ -3753,7 +3789,71 @@ Dom.choose.page = function (npc, buttons, functions, parameters, force) {
 		}
 		if (buttons.length > 1 || force) {
 			if (Dom.changeBook("choosePage")) {
-				Dom.elements.choosePage.innerHTML = "<h1>"+name+"</h1>"+(npc.chat !== undefined ? "<p>"+npc.chat.chooseChat+"</p>" : "");
+				if (npc.chat !== undefined && npc.chat.chooseChat === undefined) {
+					// Player chooseDOM only
+					
+					// find the player in Dom.players
+					for (let i = 0; i < Dom.players.length; i++) {
+						if (npc.userID === Dom.players[i].userID) {
+							npc = Dom.players[i];
+							break;
+						}
+					}
+					
+					// achievement points
+					Dom.elements.choosePageAchievementPoints.innerHTML = npc.achievementPoints;
+					
+					// equipment slots
+					
+					let array = ["helm", "chest", "greaves", "boots", "weapon"];
+					for (let i = 0; i < 5; i++) {
+						let element = Dom.elements["choosePage"+array[i][0].toUpperCase()+array[i].substring(1)];
+						if (npc.equipment[array[i]].image !== undefined) {
+							element.innerHTML = "<img src='"+npc.equipment[array[i]].image+"'></img>";
+							element.style.backgroundImage = "none";
+							element.onmouseover = function () {
+								Dom.inventory.displayInformation(npc.equipment[array[i]], undefined, "tradePage", "equip");
+							}
+							element.onmouseleave = function () {
+								Dom.expand("information");
+							}
+						}
+						// no item in slot
+						else {
+							element.innerHTML = "";
+							// armour slot
+							if (i < 4) {
+								element.style.backgroundImage = "url('assets/items/"+array[i]+"/1.png')";
+							}
+							// weapon slot
+							else {
+								element.innerHTML = "";
+								if (npc.class === "a") {
+									element.style.backgroundImage = "url('assets/items/bow/1.png')";	
+								}
+								else if (npc.class === "m") {
+									element.style.backgroundImage = "url('assets/items/staff/1.png')";	
+								}
+								else {
+									element.style.backgroundImage = "url('assets/items/sword/1.png')";
+								}
+							}
+						}
+					}
+					
+					// greeting
+					let clss = "knight";
+					if (npc.class === "a") {
+						clss = "archer";
+					}
+					else if (npc.class === "m") {
+						clss = "mage";
+					}
+					Dom.elements.choosePageContent.innerHTML = "<h1>"+name+"</h1><p>Level "+npc.level+" "+clss;
+				}
+				else {
+					Dom.elements.choosePageContent.innerHTML = "<h1>"+name+"</h1>"+(npc.chat !== undefined ? "<p>"+npc.chat.chooseChat+"</p>" : "");
+				}
 				Dom.choose.HTML = "";
 				Dom.choose.sideHTML = "";
 				Dom.choose.dailyHTML = "";
@@ -3784,7 +3884,7 @@ Dom.choose.page = function (npc, buttons, functions, parameters, force) {
 					}
 					if (imagenum === 6 || imagenum === 7) {
 						if (parameters[i][0].important === true) {
-							Dom.elements.choosePage.innerHTML += "<p class='choosePageButtons' id='choosePageButtons"+i+"'><img src='assets/icons/choose.png' class='chooseIcon' style='clip: rect("+25*imagenum+"px, 25px, "+25*(imagenum+1)+"px, 0px); margin-top: -"+(25*imagenum+3)+"px'></img>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<strong>"+buttons[i]+"</strong></p>";
+							Dom.elements.choosePageContent.innerHTML += "<p class='choosePageButtons' id='choosePageButtons"+i+"'><img src='assets/icons/choose.png' class='chooseIcon' style='clip: rect("+25*imagenum+"px, 25px, "+25*(imagenum+1)+"px, 0px); margin-top: -"+(25*imagenum+3)+"px'></img>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<strong>"+buttons[i]+"</strong></p>";
 						}else{
 							Dom.choose.sideHTML += "<p class='choosePageButtons' id='choosePageButtons"+i+"'><img src='assets/icons/choose.png' class='chooseIcon' style='clip: rect("+25*imagenum+"px, 25px, "+25*(imagenum+1)+"px, 0px); margin-top: -"+(25*imagenum+3)+"px'></img>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;"+buttons[i]+"</p>";
 						}
@@ -3794,7 +3894,7 @@ Dom.choose.page = function (npc, buttons, functions, parameters, force) {
 						Dom.choose.HTML += "<p class='choosePageButtons' id='choosePageButtons"+i+"'><img src='assets/icons/choose.png' class='chooseIcon' style='clip: rect("+25*imagenum+"px, 25px, "+25*(imagenum+1)+"px, 0px); margin-top: -"+(25*imagenum+3)+"px'></img>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;"+buttons[i]+"</p>";
 					}
 				}
-				Dom.elements.choosePage.innerHTML += Dom.choose.sideHTML + Dom.choose.dailyHTML + Dom.choose.HTML + '<br><br><center><div id="choosePageClose" class="closeClass" onclick="Dom.closePage(\'choosePage\')">Close</div></center>';
+				Dom.elements.choosePageContent.innerHTML += Dom.choose.sideHTML + Dom.choose.dailyHTML + Dom.choose.HTML + '<br><br><center><div id="choosePageClose" class="closeClass" onclick="Dom.closePage(\'choosePage\')">Close</div></center>';
 				for (let i = 0; i < buttons.length; i++) {
 					document.getElementById("choosePageButtons"+i).onclick = function () {
 						Dom.closePage("choosePage", true);
@@ -4070,7 +4170,7 @@ Dom.bank.page = function () {
 			if (nextUnlock) {
 				Dom.elements.bankPageInventory.getElementsByTagName("td")[i].onclick = function () {
 					if (Dom.inventory.check(2, "currency") /*+ Dom.inventory.check(2, "currency", undefined, undefined, Player.bank.items)*/ >= BagSlotCosts[i]) {
-						Dom.alert.ev = i;
+						Dom.alert.ev = [i];
 						Dom.alert.target = function () {
 							Dom.inventory.removeById(2, "currency", BagSlotCosts[i]);
 							Player.bank.unlockedSlots++;
@@ -4137,7 +4237,7 @@ Dom.driver.page = function (npc, destinations) {
 					Game.loadArea(destination.destinationName, destination.destinationPosition);
 					Dom.driver.previous = undefined;
 				}
-				Dom.alert.ev = destinations[Dom.driver.previous];
+				Dom.alert.ev = [destinations[Dom.driver.previous]];
 				Dom.alert.page("Are you sure you want to go to <strong>"+destinations[Dom.driver.previous].title+"</strong> for <strong>"+destinations[Dom.driver.previous].cost+"</strong> gold?", 2, undefined, "driverPage");
 			}else{
 				Dom.elements.driverPageBuy.style.borderColor = "red";
@@ -4614,6 +4714,10 @@ Dom.chat.players = function (object, action) {
 					// level up chat announcement
                     Dom.chat.insert("<strong>"+Dom.players[i].name+"</strong> has levelled up to level "+Dom.players[i].level+".");
                 }
+				else if (action === "achievement" && Dom.players[i].userID !== ws.userID) {
+                    // achievement chat announcement
+                    Dom.chat.insert("<strong>" + Player.name + "</strong> has earnt the achievement \"" + Achievements[i].name + "\"!");
+                }
             }
         }
     }
@@ -4708,10 +4812,10 @@ Dom.trade.requestReceived = function (userID, name, npc) {
 		Dom.trade.received = true;
 		Dom.currentlyDisplayed = name;
 		Dom.currentNPC = npc;
-		Dom.alert.ev = userID;
-		Dom.alert.evNo = userID;
-		Dom.alert.target = function () {
-			Dom.trade.target = Dom.alert.ev;
+		Dom.alert.ev = [userID];
+		Dom.alert.evNo = [userID];
+		Dom.alert.target = function (userID) {
+			Dom.trade.target = userID;
 			let message = {
 				type: "trade",
 				action: "accept",
@@ -4722,11 +4826,11 @@ Dom.trade.requestReceived = function (userID, name, npc) {
 			ws.send(jsonMessage);
 			Dom.trade.page();
 		}
-		Dom.alert.targetNo = function () {
+		Dom.alert.targetNo = function (userID) {
 			let message = {
 				type: "trade",
 				action: "decline",
-				target: Dom.alert.evNo,
+				target: userID,
 				name: Player.name,
 			}
 			let jsonMessage = JSON.stringify(message);
