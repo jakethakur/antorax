@@ -4961,7 +4961,7 @@ Game.tick = function (elapsed) {
 	this.update(delta); // update game state
 
 	// check for screen size change
-	if (Dom.canvas.width !== window.innerWidth - 2 || Dom.canvas.height !== window.innerHeight - Dom.canvas.heightOffset) {
+	if (Dom.canvas.width !== window.innerWidth/document.body.style.zoom || Dom.canvas.height !== window.innerHeight/document.body.style.zoom) {
 		// update the screen display to fit the new size
 		Dom.updateScreenSize();
 	}

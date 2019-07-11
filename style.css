@@ -50,15 +50,14 @@ thead:after { /* space after bags in bank */
 /*					*/
 
 #interact {
-	height: 10vh;
-	width: 10vh;
+	height: 100px;
+	width: 100px;
 	background-color: var(--alert);
 	border: 5px solid var(--border);
 	top: 0px;
-	right: 0px;
 	position: absolute;
 	z-index: 52;
-	line-height: 10vh;
+	line-height: 100px;
 	vertical-align: middle;
 	text-align: center;
 }
@@ -225,7 +224,6 @@ thead:after { /* space after bags in bank */
 
 #chat {
 	position: absolute;
-	bottom: 40px;
 	z-index: 3;
 	list-style-type: none;
 	padding: 0px;

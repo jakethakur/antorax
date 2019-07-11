@@ -844,6 +844,7 @@ Dom.chat.insert = function (text, delay, time, noRepeat) {
 				// chat in the bottom left
 				Dom.chat.displayChat.push(text);
 				Dom.elements.chat.innerHTML += "<li class='chatBox' style='opacity:0.6;'>"+text+"</li>";
+				Dom.elements.chat.style.top= Dom.canvas.height-Dom.chat.offset-Dom.elements.chat.offsetHeight+"px";
 				Dom.chat.displayOpacity.push(1500);
 				Dom.elements.canvasChatInput.style.opacity = 0.6;
 				//Dom.elements.canvasChatInput.hidden = false;
@@ -875,6 +876,7 @@ Dom.chat.insert = function (text, delay, time, noRepeat) {
 								if (Dom.chat.displayChat.length === 0 && Dom.elements.canvasChatInput !== document.activeElement) {
 									Dom.elements.canvasChatInput.hidden = true;
 								}
+								Dom.elements.chat.style.top= Dom.canvas.height-Dom.chat.offset-Dom.elements.chat.offsetHeight+"px";
 								break;
 							}
 						}
@@ -1177,7 +1179,8 @@ Dom.inventory.stats = function (stat, value, array) { // stat should be in Title
 	}
 };
 
-Dom.inventory.displayInformation = function (item, stacked, element, position, hide) {
+// array is the array of equipment in chooseDOM
+Dom.inventory.displayInformation = function (item, stacked, element, position, hide, array) {
 	if (hide !== "cooldown" || Dom.inventory.displayedInformation === item.name) {
 		if (hide === undefined) {
 			Dom.elements.information.hidden = true;
@@ -1293,7 +1296,7 @@ Dom.inventory.displayInformation = function (item, stacked, element, position, h
 						let setNum = 0;
 						for (let i = 0; i < Items.set[item.set].armour.length; i++) {
 							for (let x = 0; x < 4; x++) {
-								if (Player.inventory[Object.keys(Player.inventory)[x]].name === Items.set[item.set].armour[i]) {
+								if (array[Object.keys(array)[x]].name === Items.set[item.set].armour[i]) {
 									setNum++;
 									break;
 								}
@@ -1315,7 +1318,7 @@ Dom.inventory.displayInformation = function (item, stacked, element, position, h
 						}
 					}
 					// if the item is not equipped and not in player chooseDOM
-					else{
+					else {
 						let setNum = 0;
 						for (let i = 0; i < Items.set[item.set].armour.length; i++) {
 							let checkUsed = true;
@@ -1351,10 +1354,12 @@ Dom.inventory.displayInformation = function (item, stacked, element, position, h
 							}
 						}
 					}
-				}else{
+				}
+				else{
 					Dom.elements.set.innerHTML = "";
 				}
-			}else{
+			}
+			else{
 				Dom.elements.set.innerHTML = "";
 				Dom.elements.stats.innerHTML = "";
 			}
@@ -1364,9 +1369,11 @@ Dom.inventory.displayInformation = function (item, stacked, element, position, h
 			if (item.type === "currency") {
 				if (stacked !== undefined) {
 					Dom.elements.name.innerHTML = stacked + " " + Dom.elements.name.innerHTML;
-				}else if (item.stacked !== undefined) {
+				}
+				else if (item.stacked !== undefined) {
 					Dom.elements.name.innerHTML = item.stacked + " " + Dom.elements.name.innerHTML;
-				}else{
+				}
+				else{
 					Dom.elements.name.innerHTML = "1 " + Dom.elements.name.innerHTML;
 				}
 			}
@@ -1375,7 +1382,8 @@ Dom.inventory.displayInformation = function (item, stacked, element, position, h
 			}
 			if (item.quest !== undefined && (item.quest === true || item.quest())) {
 				Dom.elements.stats.innerHTML = "<span style='color: slateblue;'>Quest item</span><br>" + (Dom.elements.stats.innerHTML !== "" ? "<br>"+Dom.elements.stats.innerHTML : "");
-			}else{
+			}
+			else{
 				Dom.elements.stats.style.color = "var(--text)";
 			}
 			let lorebuyer = "<br><br>";
@@ -3481,26 +3489,49 @@ Dom.elements.inventoryGoldXP.style.bottom = 3 + Skins[Player.class][Player.skin]
 
 Dom.elements.alertYes.onclick = function () {
 	// close alert and call function with parameter
-	Dom.alert.target(...Dom.alert.ev);
+	if (Dom.alert.ev !== undefined) {
+		Dom.alert.target(...Dom.alert.ev);
+	}
+	else {
+		Dom.alert.target();
+	}
 	Dom.elements.alert.hidden = true;
 	Dom.alert.target = undefined;
+	Dom.alert.targetNo = undefined;
+	Dom.alert.ev = undefined;
+	Dom.alert.evNo = undefined;
 }
 
 Dom.elements.alertNo.onclick = function () {
 	// close alert only - and potentially call a function
 	if (Dom.alert.targetNo !== undefined) {
-		Dom.alert.targetNo(...Dom.alert.evNo);
+		if (Dom.alert.evNo !== undefined) {
+			Dom.alert.targetNo(...Dom.alert.evNo);
+		}
+		else {
+			Dom.alert.targetNo();
+		}
 		Dom.alert.targetNo = undefined;
+		Dom.alert.evNo = undefined;
 	}
 	Dom.elements.alert.hidden = true;
 	Dom.alert.target = undefined;
+	Dom.alert.ev = undefined;
 }
 
 Dom.elements.alertDispose.onclick = function () {
 	// close alert and call function with parameter and (true)
-	Dom.alert.target(...Dom.alert.ev, true);
+	if (Dom.alert.ev !== undefined) {
+		Dom.alert.target(...Dom.alert.ev, true);
+	}
+	else {
+		Dom.alert.target(true);
+	}
 	Dom.elements.alert.hidden = true;
 	Dom.alert.target = undefined;
+	Dom.alert.targetNo = undefined;
+	Dom.alert.ev = undefined;
+	Dom.alert.evNo = undefined;
 }
 
 Dom.elements.hotbar.onmouseover = function () {
@@ -3841,7 +3872,7 @@ Dom.choose.page = function (npc, buttons, functions, parameters, force) {
 							element.innerHTML = "<img src='"+npc.equipment[array[i]].image+"'></img>";
 							element.style.backgroundImage = "none";
 							element.onmouseover = function () {
-								Dom.inventory.displayInformation(npc.equipment[array[i]], undefined, "tradePage", "trade");
+								Dom.inventory.displayInformation(npc.equipment[array[i]], undefined, "tradePage", "trade", undefined, npc.equipment);
 							}
 							element.onmouseleave = function () {
 								Dom.expand("information");
@@ -4029,6 +4060,7 @@ Dom.instructions.unlockTab = function (tab, skip) {
 	if (!Player.unlockedTabs.includes(tab)) {
 		Player.unlockedTabs.push(tab);
 		document.getElementById("change"+tab[0].toUpperCase()+tab.substring(1)).style.display = "block";
+		document.getElementById("change"+tab[0].toUpperCase()+tab.substring(1)).style.bottom = "-12px";
 		if (skip) {
 			Player.skippedTabs.push(tab);
 		}
@@ -5050,63 +5082,76 @@ Dom.settings.dark = function () {
 // called by viewport resize or by init
 // parameter is true if called on init
 Dom.updateScreenSize = function (init) {
-	Dom.canvas.width = window.innerWidth;
-	Dom.canvas.height = window.innerHeight;
-
-	Dom.elements.game.width = Dom.canvas.width;
-	Dom.elements.game.height = Dom.canvas.height;
-	Dom.elements.dayNight.width = Dom.canvas.width;
-	Dom.elements.dayNight.height = Dom.canvas.height;
-	Dom.elements.light.width = Dom.canvas.width;
-	Dom.elements.light.height = Dom.canvas.height;
-	Dom.elements.secondary.width = Dom.canvas.width;
-	Dom.elements.secondary.height = Dom.canvas.height;
-	Dom.elements.chat.style.width = Dom.canvas.width/2-183+"px";
-	Dom.elements.canvasChatInput.style.width = Dom.canvas.width/2-187-3+"px";
-	Dom.elements.hotbar.style.left = Dom.canvas.width/2-167.6+"px";
-	Dom.elements.hotbar.style.top = Dom.canvas.height-80+"px";
-	let left = (Dom.canvas.width/2-168-400)/2 + Dom.canvas.width/2+168;
-	Dom.elements.changeChat.style.left= left+"px";
-	Dom.elements.changeInventory.style.left= left+70+"px";
-	Dom.elements.changeQuests.style.left= left+140+"px";
-	Dom.elements.changeAdventure.style.left= left+210+"px";
-	Dom.elements.changeReputation.style.left= left+280+"px";
-	Dom.elements.changeSettings.style.left= left+350+"px";
-	Dom.elements.achievement.style.left= Dom.canvas.width-458+"px";
-
-	if (window.innerHeight === screen.height || window.innerHeight + 1 === screen.height) {
-		Dom.elements.fullscreenOn.checked = true;
+	if (window.innerHeight/document.body.style.zoom < 620) {
+		document.body.style.zoom -= 0.1;
 	}
 	else {
-		Dom.elements.fullscreenOff.checked = true;
-	}
+		Dom.canvas.width = window.innerWidth/document.body.style.zoom;
+		Dom.canvas.height = window.innerHeight/document.body.style.zoom;
 
-	// only call Game functions if this was called due to viewport being resized
-	// because Game functions are called anyway on init
-	if (!init) {
-		// update camera variables
-		Game.camera.width = Dom.canvas.width;
-		Game.camera.height = Dom.canvas.height;
-		Game.camera.setMaxClampValues();
-		Game.camera.update();
+		Dom.elements.interact.style.left = Dom.canvas.width-110+"px";
+		Dom.elements.game.width = Dom.canvas.width;
+		Dom.elements.game.height = Dom.canvas.height;
+		Dom.elements.dayNight.width = Dom.canvas.width;
+		Dom.elements.dayNight.height = Dom.canvas.height;
+		Dom.elements.light.width = Dom.canvas.width;
+		Dom.elements.light.height = Dom.canvas.height;
+		Dom.elements.secondary.width = Dom.canvas.width;
+		Dom.elements.secondary.height = Dom.canvas.height;
+		Dom.elements.chat.style.width = Dom.canvas.width/2-183+"px";
+		Dom.elements.canvasChatInput.style.width = Dom.canvas.width/2-187-3+"px";
+		Dom.elements.hotbar.style.left = Dom.canvas.width/2-167.6+"px";
+		Dom.elements.hotbar.style.top = Dom.canvas.height-80+"px";
+		let left = (Dom.canvas.width/2-168-400)/2 + Dom.canvas.width/2+168;
+		Dom.elements.changeChat.style.left= left+"px";
+		Dom.elements.changeChat.style.top= Dom.canvas.height-87-parseInt(Dom.elements.changeChat.style.bottom)+"px";
+		Dom.elements.changeInventory.style.left= left+70+"px";
+		Dom.elements.changeInventory.style.top= Dom.canvas.height-87-parseInt(Dom.elements.changeInventory.style.bottom)+"px";
+		Dom.elements.changeQuests.style.left= left+140+"px";
+		Dom.elements.changeQuests.style.top= Dom.canvas.height-87-parseInt(Dom.elements.changeQuests.style.bottom)+"px";
+		Dom.elements.changeAdventure.style.left= left+210+"px";
+		Dom.elements.changeAdventure.style.top= Dom.canvas.height-87-parseInt(Dom.elements.changeAdventure.style.bottom)+"px";
+		Dom.elements.changeReputation.style.left= left+280+"px";
+		Dom.elements.changeReputation.style.top= Dom.canvas.height-87-parseInt(Dom.elements.changeReputation.style.bottom)+"px";
+		Dom.elements.changeSettings.style.left= left+350+"px";
+		Dom.elements.changeSettings.style.top= Dom.canvas.height-87-parseInt(Dom.elements.changeSettings.style.bottom)+"px";
+		Dom.elements.achievement.style.left= Dom.canvas.width-458+"px";
+		Dom.elements.chat.style.top= Dom.canvas.height-Dom.chat.offset-Dom.elements.chat.offsetHeight+"px";
 
-		// update Game canvas variables
-		Game.updateCanvasViewport();
+		if (window.innerHeight === screen.height || window.innerHeight + 1 === screen.height) {
+			Dom.elements.fullscreenOn.checked = true;
+		}
+		else {
+			Dom.elements.fullscreenOff.checked = true;
+		}
 
-		// canvases are resized so are wiped - render them if they will not be rendered anyway next tick
-		Game.secondary.render();
-		Game.renderDayNight();
+		// only call Game functions if this was called due to viewport being resized
+		// because Game functions are called anyway on init
+		if (!init) {
+			// update camera variables
+			Game.camera.width = Dom.canvas.width;
+			Game.camera.height = Dom.canvas.height;
+			Game.camera.setMaxClampValues();
+			Game.camera.update();
 
-		// update weather intensity and reset the positions of the particles
-		if (Dom.elements.weatherOn.checked) {
-			Weather.updateIntensity();
-			//Weather.reset();
+			// update Game canvas variables
+			Game.updateCanvasViewport();
+
+			// canvases are resized so are wiped - render them if they will not be rendered anyway next tick
+			Game.secondary.render();
+			Game.renderDayNight();
+
+			// update weather intensity and reset the positions of the particles
+			if (Dom.elements.weatherOn.checked) {
+				Weather.updateIntensity();
+				//Weather.reset();
+			}
 		}
 	}
 }
 
 Dom.init = function () {
-
+	document.body.style.zoom = "1.0";
 	Dom.updateScreenSize(true);
 
 	Dom.elements.itemInventory.innerHTML = "";
@@ -5192,8 +5237,12 @@ Dom.init = function () {
 
 	Dom.elements.level.innerHTML = "Level "+Player.level;
 
+	// display unlocked bookmarks
+	document.getElementById("changeAdventure").style.bottom = "-12px";
+	document.getElementById("changeSettings").style.bottom = "-12px";
 	for (let i = 0; i < Player.unlockedTabs.length; i++) {
 		document.getElementById("change"+Player.unlockedTabs[i][0].toUpperCase()+Player.unlockedTabs[i].slice(1)).style.display = "block";
+		document.getElementById("change"+Player.unlockedTabs[i][0].toUpperCase()+Player.unlockedTabs[i].slice(1)).style.bottom = "-12px";
 	}
 	if (Player.unlockedInstructions.length >= Instructions.length) {
 		Dom.elements.settingTutorialHolder.hidden = true;
@@ -5445,10 +5494,13 @@ Dom.init = function () {
 	}
 	Keyboard.listenForKey(User.settings.keyboard.TALK, undefined, Keyboard.upFunctions.TALK);
 	
-	// add a 'space' button on mobile devices
+	Dom.chat.offset = 40; // distance of chat from bottom of canvas (because input is hidden)
+	// add a 'space' button on mobile devices and hide canvas chat input
 	// thanks to https://stackoverflow.com/a/29509267/9713957
 	if (/iPhone|iPad|iPod|Android/i.test(navigator.userAgent)) {
+		Dom.elements.canvasChatInput.style.visibility = "hidden";
 		Dom.elements.interact.hidden = false;
+		Dom.chat.offset = 10;
 		Dom.elements.interact.onclick = function () {
 			Game.keysDown.SPACE = true;
 			setTimeout(function () {
