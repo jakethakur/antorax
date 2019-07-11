@@ -87,6 +87,7 @@ let Dom = {
 		information: document.getElementById("information"),
 		innerStats: document.getElementById("innerStats"),
 		innerStatus: document.getElementById("innerStatus"),
+		interact: document.getElementById("interact"),
 		inventoryGoldXP: document.getElementById("inventoryGoldXP"),
 		inventoryPage: document.getElementById("inventoryPage"),
 		itemIdentification: document.getElementById("itemIdentification"),
@@ -1286,8 +1287,35 @@ Dom.inventory.displayInformation = function (item, stacked, element, position, h
 								}
 							}
 						}
-					// if the item is not equipped
-					}else{
+					}
+					// if the item is in the player chooseDOM
+					else if (position === "trade") {
+						let setNum = 0;
+						for (let i = 0; i < Items.set[item.set].armour.length; i++) {
+							for (let x = 0; x < 4; x++) {
+								if (Player.inventory[Object.keys(Player.inventory)[x]].name === Items.set[item.set].armour[i]) {
+									setNum++;
+									break;
+								}
+							}
+						}
+						Dom.elements.set.innerHTML = Items.set[item.set].name + " (" + setNum + "/" + Items.set[item.set].armour.length+")";
+						// if the whole set is equipped
+						if (setNum === Items.set[item.set].armour.length) {
+							Dom.elements.set.innerHTML += "<br><br>Set Bonus:<br>";
+							for (let i = 0; i < Object.keys(Items.set[item.set].stats).length; i++) {
+
+								Dom.elements.set.innerHTML += Dom.inventory.stats(FromCamelCase(Object.keys(Items.set[item.set].stats)[i]), Items.set[item.set].stats[Object.keys(Items.set[item.set].stats)[i]], Items.set[item.set].stats);
+							}
+							if (Items.set[item.set].multiplier !== undefined) {
+								for (let i = 0; i < Items.set[item.set].multiplier.length; i++) {
+									Dom.elements.set.innerHTML += Items.set[item.set].multiplier[i].text + "<br>";
+								}
+							}
+						}
+					}
+					// if the item is not equipped and not in player chooseDOM
+					else{
 						let setNum = 0;
 						for (let i = 0; i < Items.set[item.set].armour.length; i++) {
 							let checkUsed = true;
@@ -3791,6 +3819,7 @@ Dom.choose.page = function (npc, buttons, functions, parameters, force) {
 			if (Dom.changeBook("choosePage")) {
 				if (npc.chat !== undefined && npc.chat.chooseChat === undefined) {
 					// Player chooseDOM only
+					Dom.elements.choosePagePlayer.hidden = false;
 					
 					// find the player in Dom.players
 					for (let i = 0; i < Dom.players.length; i++) {
@@ -3812,7 +3841,7 @@ Dom.choose.page = function (npc, buttons, functions, parameters, force) {
 							element.innerHTML = "<img src='"+npc.equipment[array[i]].image+"'></img>";
 							element.style.backgroundImage = "none";
 							element.onmouseover = function () {
-								Dom.inventory.displayInformation(npc.equipment[array[i]], undefined, "tradePage", "equip");
+								Dom.inventory.displayInformation(npc.equipment[array[i]], undefined, "tradePage", "trade");
 							}
 							element.onmouseleave = function () {
 								Dom.expand("information");
@@ -3853,6 +3882,7 @@ Dom.choose.page = function (npc, buttons, functions, parameters, force) {
 				}
 				else {
 					Dom.elements.choosePageContent.innerHTML = "<h1>"+name+"</h1>"+(npc.chat !== undefined ? "<p>"+npc.chat.chooseChat+"</p>" : "");
+					Dom.elements.choosePagePlayer.hidden = true;
 				}
 				Dom.choose.HTML = "";
 				Dom.choose.sideHTML = "";
@@ -4716,7 +4746,7 @@ Dom.chat.players = function (object, action) {
                 }
 				else if (action === "achievement" && Dom.players[i].userID !== ws.userID) {
                     // achievement chat announcement
-                    Dom.chat.insert("<strong>" + Player.name + "</strong> has earnt the achievement \"" + Achievements[i].name + "\"!");
+                    Dom.chat.insert("<strong>" + Dom.players[i].name + "</strong> has earnt the achievement \"" + Dom.players[i].achievement + "\"!");
                 }
             }
         }
@@ -5414,6 +5444,18 @@ Dom.init = function () {
 		Keyboard.listenForKey(User.settings.keyboard[array[i]], undefined, Keyboard.upFunctions[array[i]]);
 	}
 	Keyboard.listenForKey(User.settings.keyboard.TALK, undefined, Keyboard.upFunctions.TALK);
+	
+	// add a 'space' button on mobile devices
+	// thanks to https://stackoverflow.com/a/29509267/9713957
+	if (/iPhone|iPad|iPod|Android/i.test(navigator.userAgent)) {
+		Dom.elements.interact.hidden = false;
+		Dom.elements.interact.onclick = function () {
+			Game.keysDown.SPACE = true;
+			setTimeout(function () {
+				Game.keysDown.SPACE = false;
+			}, 100);
+		}
+	}
 	
 	//document.documentElement.requestFullscreen(); - disabled by chrome
 }

@@ -49,6 +49,20 @@ thead:after { /* space after bags in bank */
 /*		CANVAS		*/
 /*					*/
 
+#mobile {
+	height: 10vh;
+	width: 10vh;
+	background-color: var(--alert);
+	border: 5px solid var(--border);
+	top: 0px;
+	right: 0px;
+	position: absolute;
+	z-index: 52;
+	line-height: 10vh;
+	vertical-align: middle;
+	text-align: center;
+}
+
 #game, #secondary, #dayNight, #light, #click{
 	float: left;
 	margin: -8px;
