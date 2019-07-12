@@ -92,6 +92,11 @@ let Dom = {
 		inventoryPage: document.getElementById("inventoryPage"),
 		itemIdentification: document.getElementById("itemIdentification"),
 		itemInventory: document.getElementById("itemInventory"),
+		leaderboardPage: document.getElementById("leaderboardPage"),
+		leaderboardPageDescription: document.getElementById("leaderboardPageDescription"),
+		leaderboardPageList: document.getElementById("leaderboardPageList"),
+		leaderboardPageList: document.getElementById("leaderboardPageList"),
+		leaderboardPageTitle: document.getElementById("leaderboardPageTitle"),
 		leftArrow: document.getElementById("leftArrow"),
 		level: document.getElementById("level"),
 		light: document.getElementById("light"),
@@ -179,6 +184,7 @@ let Dom = {
 	driver: {},
 	bank: {},
 	trade: {},
+	leaderboard: {},
 	choose: {},
 	text: {},
 	alert: {},
@@ -435,6 +441,7 @@ Dom.closeNPCPages = function () {
 	this.elements.driverPage.hidden = true;
 	//this.elements.bankPage.hidden = true;
 	//this.elements.tradePage.hidden = true;
+	this.elements.leaderboardPage.hidden = true;
 	this.elements.choosePage.hidden = true;
 	this.elements.textPage.hidden = true;
 	Dom.currentlyDisplayed = "";
@@ -449,6 +456,8 @@ Dom.closePage = function (page, notClose) {
 		}
 		document.getElementById("change"+tab.substring(0,1).toUpperCase()+tab.substring(1,tab.length-4)).style.opacity = 0.7;
 		document.getElementById("change"+tab.substring(0,1).toUpperCase()+tab.substring(1,tab.length-4)).style.bottom = "-12px";
+		document.getElementById("change"+tab.substring(0,1).toUpperCase()+tab.substring(1,tab.length-4)).style.top = Dom.canvas.height-87+12+"px";
+		
 	}
 	else if (!notClose) {
 		Dom.currentlyDisplayed = "";
@@ -460,7 +469,9 @@ Dom.closePage = function (page, notClose) {
 	}
 	if (page === "inventoryPage" && Dom.trade.active) {
 		Dom.closePage("tradePage");
-		Dom.trade.active = false;
+		if (Dom.trade.active) {
+			Dom.trade.close();
+		}
 	}
 	document.getElementById(page).hidden = true;
 }
@@ -481,6 +492,8 @@ Dom.changeBook = function (page, openClose) {
 			bookmark = true;
 			document.getElementById("change"+tab.substring(0,1).toUpperCase()+tab.substring(1,tab.length-4)).style.opacity = 1;
 			document.getElementById("change"+tab.substring(0,1).toUpperCase()+tab.substring(1,tab.length-4)).style.bottom = "0px";
+			document.getElementById("change"+tab.substring(0,1).toUpperCase()+tab.substring(1,tab.length-4)).style.top = Dom.canvas.height-87+"px";
+			
 		}
 
 		document.getElementById(page).hidden = false;
@@ -3098,28 +3111,35 @@ Dom.inventory.drop = function (toElement, toArray, toId, fromElement, fromArray,
 		Dom.inventory.toId = toId;
 
 		if (Dom.inventory.validateSwap()) {
-			// update stats - must be done before items are switched (ocean warrior set)
-			if (Dom.inventory.fromArray === Player.inventory) {
-				Dom.inventory.removeEquipment(Dom.inventory.fromArray[Dom.inventory.fromId]);
-				if (Dom.inventory.toArray[Dom.inventory.toId].image !== undefined) {
-					Dom.inventory.addEquipment(Dom.inventory.toArray[Dom.inventory.toId]);
-				}
-			}
-			else if (Dom.inventory.toArray === Player.inventory) {
-				if (Dom.inventory.toArray[Dom.inventory.toId].image !== undefined) {
-					Dom.inventory.removeEquipment(Dom.inventory.toArray[Dom.inventory.toId]);
-				}
-				Dom.inventory.addEquipment(Dom.inventory.fromArray[Dom.inventory.fromId]);
-			}
 			
 			// not a right click (normal)
 			if (tableElement === undefined) {
-			
+				
+				// remove old stats - must be done before items are switched (ocean warrior set)
+				if (Dom.inventory.fromArray === Player.inventory) {
+					Dom.inventory.removeEquipment(Dom.inventory.fromArray[Dom.inventory.fromId]);
+				}
+				else if (Dom.inventory.toArray === Player.inventory) {
+					if (Dom.inventory.toArray[Dom.inventory.toId].image !== undefined) {
+						Dom.inventory.removeEquipment(Dom.inventory.toArray[Dom.inventory.toId]);
+					}
+				}
+				
 				// swap the code for the items
 				let temp = this.toArray[this.toId];
 				this.toArray[this.toId] = this.fromArray[this.fromId];
 				this.fromArray[this.fromId] = temp;
 
+				// add new stats - must be done after items are switched (set bonuses)
+				if (Dom.inventory.fromArray === Player.inventory) {
+					if (Dom.inventory.fromArray[Dom.inventory.fromId].image !== undefined) {
+						Dom.inventory.addEquipment(Dom.inventory.fromArray[Dom.inventory.fromId]);
+					}
+				}
+				else if (Dom.inventory.toArray === Player.inventory) {
+					Dom.inventory.addEquipment(Dom.inventory.toArray[Dom.inventory.toId]);
+				}
+				
 				let stackNum = "stackNum";
 				if (fromArray === Player.bank.items) {
 					stackNum = "bankStackNum";
@@ -3189,7 +3209,7 @@ Dom.inventory.drop = function (toElement, toArray, toId, fromElement, fromArray,
 							document.getElementById(toStackNum+i).innerHTML = this.toArray[i].stacked;
 						}
 						else {
-							tableElement.getElementsByTagName("td")[i].innerHTML += "<div class='stackNum' id='"+toStackNum+i+"'>"+this.toArray[i].stacked+"</div>"
+							tableElement.getElementsByTagName("td")[i].innerHTML = "<div class='stackNum' id='"+toStackNum+i+"'>"+this.toArray[i].stacked+"</div>"
 						}
 						this.setItemFunctions(tableElement.getElementsByTagName("td")[i].getElementsByTagName("img")[0], this.toArray, i);
 						stacked = true;
@@ -4061,6 +4081,8 @@ Dom.instructions.unlockTab = function (tab, skip) {
 		Player.unlockedTabs.push(tab);
 		document.getElementById("change"+tab[0].toUpperCase()+tab.substring(1)).style.display = "block";
 		document.getElementById("change"+tab[0].toUpperCase()+tab.substring(1)).style.bottom = "-12px";
+		document.getElementById("change"+tab[0].toUpperCase()+tab.substring(1)).style.top = Dom.canvas.height-87+12+"px";
+		
 		if (skip) {
 			Player.skippedTabs.push(tab);
 		}
@@ -4906,7 +4928,7 @@ Dom.trade.requestReceived = function (userID, name, npc) {
 		let message = {
 			type: "trade",
 			action: "busy",
-			target: Dom.trade.target,
+			target: userID,
 			name: Player.name,
 		}
 		let jsonMessage = JSON.stringify(message);
@@ -4971,6 +4993,7 @@ Dom.trade.close = function (second) {
 		let jsonMessage = JSON.stringify(message);
 		ws.send(jsonMessage);
 	}
+	Dom.trade.active = false;
 	Dom.closePage("inventoryPage");
 }
 
@@ -5046,6 +5069,34 @@ Dom.chat.notification = function (title, body) {
 	if (Notification.permission === "granted" && !Dom.focus) {
         let notification = new Notification(title, {body: body, silent: true});
     }
+}
+
+Dom.leaderboard.page = function (title, description, players) {
+	if (Dom.changeBook("leaderboardPage")) {
+		Dom.elements.leaderboardPageTitle.innerHTML = title;
+		if (description !== undefined) {
+			Dom.elements.leaderboardPageDescription.innerHTML = description;
+				Dom.elements.leaderboardPageDescription.hidden = false;
+		}
+		else {
+			Dom.elements.leaderboardPageDescription.hidden = true;
+		}
+		Dom.elements.leaderboardPageList.innerHTML = "";
+		let maxWidth = 0;
+		for (let i = 0; i < players.length; i++) {
+			Dom.elements.leaderboardPageList.innerHTML += "<li class='leaderboardPageList'><div class='leaderboardPageSkin' id='leaderboardPageSkin"+i+"'></div><strong class='leaderboardPageName'>"+players[i].name+"</strong><span class='leaderboardPageScore'>"+players[i].score+"</span></li>";
+			document.getElementById("leaderboardPageSkin"+i).style.backgroundImage = 'url("./selection/assets/'+players[i].class+players[i].skin+'/f.png")';
+			document.getElementById("leaderboardPageSkin"+i).style.right = 20 - Skins[players[i].class][players[i].skin].headAdjust.x + "px";
+			document.getElementById("leaderboardPageSkin"+i).style.height = 60 + Skins[players[i].class][players[i].skin].headAdjust.y + "px";
+			document.getElementById("leaderboardPageSkin"+i).style.bottom = Skins[players[i].class][players[i].skin].headAdjust.y - 15 + "px";
+			maxWidth = Math.max(maxWidth, document.getElementsByClassName("leaderboardPageScore")[i].offsetWidth);
+		}
+		maxWidth = 190-maxWidth/2;
+		Dom.elements.leaderboardPageList.style.marginLeft = maxWidth+"px";
+		for (let i = 0; i < players.length; i++) {
+			document.getElementsByClassName("leaderboardPageScore")[i].style.left = maxWidth+130+"px";
+		}
+	}
 }
 
 Dom.settings.dark = function () {

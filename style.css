@@ -103,7 +103,7 @@ thead:after { /* space after bags in bank */
 	top: 10px;
 }
 
-#questsPage, #settingsPage, #settingsTwoPage, #adventurePage{
+#questsPage, #settingsPage, #settingsTwoPage, #adventurePage, #leaderboardPage{
 	overflow-y: auto;
 	overflow-x: hidden;
 }
@@ -348,7 +348,7 @@ thead:after { /* space after bags in bank */
 	margin-top: 50px;
 }
 
-#inventoryGoldXP, .players {
+#inventoryGoldXP, .players, .leaderboardPageSkin {
 	position: relative;
 	width: 80px;
 	background-size: 80px;
@@ -751,6 +751,34 @@ thead:after { /* space after bags in bank */
 	padding-left: 15px;
 	padding-right: 15px;
 	cursor: pointer;
+}
+
+/*					*/
+/*	LEADERBOARD		*/
+/*					*/
+
+#leaderboardPageList {
+	font-size: 40px;
+	line-height: 40px;
+	margin-top: 0px;
+	margin-bottom: 30px;
+}
+
+.leaderboardPageSkin {
+	display: inline-block;
+}
+
+.leaderboardPageName {
+	font-size: 16px;
+	position: relative;
+	bottom: 20px;
+}
+
+.leaderboardPageScore {
+	font-size: 16px;
+	position: absolute;
+	left: 190px;
+	margin-top: 40px;
 }
 
 /*					*/
