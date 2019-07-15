@@ -16,6 +16,7 @@ var Game = {
 	statusEffects: {},
 	spells: {},
 	secondary: {},
+	tag: {},
 
 	displayedStats: 0, // number of stats displayed at the top left
 };
@@ -281,6 +282,81 @@ Game.initWebSocket = function () {
 							Dom.chat.insert(message.name + " has cancelled the trade.");
 							Dom.chat.notification(message.name + " has cancelled the trade.");
 							break;
+
+						case "walkAway":
+							// other player walked away
+							// if this player was off the tab, they would not have closed their page/alert/pending request
+							// so close it ...
+							if (Dom.trade.requested || Dom.trade.received || Dom.trade.active) {
+								Dom.closeNPCPages();
+							}
+							break;
+					}
+					break;
+
+				case "tagGame":
+					switch (message.action) {
+						case "request":
+							// invited to a tag game
+							// set current minigame variable even if player has not joined
+							Game.minigameInProgress = {
+								game: "tag",
+								area: message.area,
+								playing: false
+							};
+
+							// find player who started game and update their playing game in DOm.players, and which areas they appear in
+							// find their full object
+							let initialJoinPlayer = Dom.players.find(player => player.userID === message.startedBy);
+							// update properties that Dom might not have had a chance to update
+							initialJoinPlayer.area = message.spawnArea;
+							// make other players know they joined the game ...
+							Game.tag.playerJoin(initialJoinPlayer);
+
+							// alert to ask them if they want to join
+							Dom.alert.page("A game of tag has been started in " + message.displayAreaName + ". Would you like to join?", 2);
+							Dom.alert.target = Game.tag.join; // function to be called if they click yes
+							Dom.alert.ev = [message.spawnArea, message.spawnX, message.spawnY]; // parameters for function
+							break;
+
+						case "playerJoin":
+							// find their full object
+							let joinedPlayer = Dom.players.find(player => player.userID === message.userID);
+							// update properties that Dom might not have had a chance to update
+							joinedPlayer.area = message.area;
+
+							Game.tag.playerJoin(joinedPlayer);
+							break;
+
+						case "start":
+							// game started
+							if (!Game.minigameInProgress.playing) {
+								// not playing
+								// close alert if it wasn't already closed
+								if (Dom.alert.target === Game.tag.join) { // showing the function to join the game still (so the wrong one isn't closed by accident)
+									Dom.elements.alertNo.onclick();
+									Dom.chat.insert("You missed the start of the tag game :(");
+								}
+							}
+							else {
+								// playing game!
+								Dom.chat.insert("The game has started!");
+								// tagged player
+								Game.tag.newTaggedPlayer(message.taggedPlayer);
+							}
+							break;
+
+						case "taggedPlayer":
+							if (Game.minigameInProgress.playing) {
+								// new tagged player
+								Game.tag.newTaggedPlayer(message.taggedPlayer);
+							}
+							break;
+
+						case "finish":
+							// end of game
+							Game.tag.finish();
+							break;
 					}
 					break;
 
@@ -332,8 +408,23 @@ Game.addPlayer = function (player) {
 		// deep copy player (because it could have come from Dom.players)
 		let copiedPlayer = Object.assign({}, player);
 
-		if (copiedPlayer.area === Player.areaName && // check player is in the same area
-		copiedPlayer.userID !== ws.userID) { // and player is not Game.hero
+		let addPlayer = true; // if set to false do not add the npc
+
+		if (copiedPlayer.area !== Player.areaName) {
+			// player is not in same area
+			addPlayer = false;
+		}
+		else if (copiedPlayer.userID === ws.userID) {
+			// player is Game.hero
+			addPlayer = false;
+		}
+		else if (this.minigameInProgress !== undefined && // minigame in progress
+		((this.minigameInProgress.playing && copiedPlayer.playingGame === undefined) || // you're in game but they're not playing
+		(!this.minigameInProgress.playing && copiedPlayer.playingGame !== undefined))) { // you're not in game but they are
+			addPlayer = false;
+		}
+
+		if (addPlayer) {
 
 			// check the player has not already been added
 			let playerAlreadyAdded = this.players.findIndex(existingPlayer => existingPlayer.userID === copiedPlayer.userID);
@@ -371,10 +462,22 @@ Game.addPlayerByID = function (userID) {
 
 // player does not necessarily need to exist - this function checks that they do first
 Game.removePlayerByID = function (userID) {
-	let player = Game.players.find(player => player.userID === userID);
+	let player = this.players.find(player => player.userID === userID);
 	if (player !== undefined) {
 		// a player in the area should be removed
-		Game.removeObject(player.id, "players", UserControllable);
+		this.removeObject(player.id, "players", UserControllable);
+	}
+}
+
+// get a player's object in Game (i.e. in the same area) from their user id
+Game.getPlayerFromID = function (userID) {
+	if (ws.userID === userID) {
+		// player is this player
+		// must be checked separately because they are not in Game.players
+		return Game.hero;
+	}
+	else {
+		return this.players.find(player => player.userID === userID);
 	}
 }
 
@@ -1225,21 +1328,37 @@ class Character extends Thing {
 	}
 
 	// set character speed
-	// baseSpeed stops the speed being changed from status effects and slow tiles (e.g. for displacement)
-	setSpeed (baseSpeed) {
+	// baseSpeed = true stops the speed being changed from status effects and slow tiles (e.g. for displacement) - so just sets speed to walk speed
+	// game = true stops equipment and potions from changing walk speed (other than special status effects where info.worksForGames = true)
+	setSpeed (baseSpeed, game) {
 		let footY = this.y + this.height/2 - this.footHitbox.height/2; // y position of feet
+
+		// set walk and swim speed values
+		let walkSpeed, swimSpeed, iceSpeed;
+		if (game) {
+			// default values (ignore equipment)
+			walkSpeed = 180;
+			swimSpeed = 60;
+			iceSpeed = 170;
+		}
+		else {
+			// stat values
+			walkSpeed = this.stats.walkSpeed;
+			swimSpeed = this.stats.swimSpeed;
+			iceSpeed = this.stats.iceSpeed;
+		}
 
 		// test for slow tiles (e.g: water, mud)
 		let slowTile = this.map.isSlowTileAtXY(this.x, footY);
 
 		if (slowTile === null || baseSpeed) { // normal speed
-			this.speed = this.stats.walkSpeed;
+			this.speed = walkSpeed;
 			// remove swimming/mud/ice/path status effect
 			Game.removeTileStatusEffects(this);
 		}
 
 		else if (slowTile === "ice") { // on ice tile
-			this.speed = this.stats.iceSpeed;
+			this.speed = iceSpeed;
 
 			Game.removeTileStatusEffects(this, "Ice skating"); // remove all status effects from other tiles
 			if (!this.hasStatusEffect("Ice skating")) { // give status effect if the player doesn't already have it
@@ -1255,7 +1374,7 @@ class Character extends Thing {
 		}
 
 		else if (slowTile === "path") { // on path
-			this.speed = this.stats.walkSpeed * 1.15;
+			this.speed = walkSpeed * 1.15;
 
 			Game.removeTileStatusEffects(this, "On a path"); // remove all status effects from other tiles
 			if (!this.hasStatusEffect("On a path")) { // give status effect if the player doesn't already have it
@@ -1271,7 +1390,7 @@ class Character extends Thing {
 		}
 
 		else if (slowTile === "water") { // in water tile
-			this.speed = this.stats.swimSpeed;
+			this.speed = swimSpeed;
 
 			Game.removeTileStatusEffects(this, "Swimming"); // remove all status effects from other tiles
 			if (!this.hasStatusEffect("Swimming")) { // give status effect if the player doesn't already have it
@@ -1295,7 +1414,7 @@ class Character extends Thing {
 
 		else if (slowTile === "mud") { // in mud tile
 			// currently mud goes the same speed as in a water tile
-			this.speed = this.stats.swimSpeed;
+			this.speed = swimSpeed;
 
 			Game.removeTileStatusEffects(this, "Stuck in the mud"); // remove all status effects from other tiles
 			if (!this.hasStatusEffect("Stuck in the mud")) { // give status effect if the player doesn't already have it
@@ -1321,8 +1440,11 @@ class Character extends Thing {
 				let statusEffect = this.statusEffects[i];
 				if (statusEffect.info.speedIncrease !== undefined) {
 					// increase speed if the status effect does so
-					// status effect is in percentage
-					this.speed += oldSpeed * (statusEffect.info.speedIncrease / 100);
+					// check a minigame is not active OR the status effect works for minigames
+					if (!game || statusEffect.info.worksForGames) {
+						// status effect is in percentage
+						this.speed += oldSpeed * (statusEffect.info.speedIncrease / 100);
+					}
 				}
 			}
 
@@ -1817,8 +1939,15 @@ class Hero extends Attacker {
 		}
 
 		// set walkspeed for next move() function call
+		// true = just set to base speed
 		if (baseSpeed === false || baseSpeed === true) {
-			this.setSpeed(baseSpeed);
+			let gameSpeed = false;
+			if (Game.minigameInProgress !== undefined && Game.minigameInProgress.game === "tag") {
+				// limit speed to just changed by tiles
+				gameSpeed = true;
+			}
+
+			this.setSpeed(baseSpeed, gameSpeed);
 		}
 		else {
 			this.speed = baseSpeed;
@@ -2373,6 +2502,27 @@ class Hero extends Attacker {
 		setTimeout(function(){
 			Weather.reset();
 		}.bind(Weather), 10); // timeout is used because the weather is not updated for a tick
+	}
+
+	// area teleport that can be undone by temporaryAreaTeleportReturn
+	temporaryAreaTeleport (areaName, x, y) {
+		// save old position
+		this.oldPosition = {
+			area: Game.areaName,
+			x: this.x,
+			y: this.y,
+		};
+		// teleport player to location
+		Game.loadArea(areaName, {x: x, y: y});
+	}
+
+	// undoes temporaryAreaTeleport
+	temporaryAreaTeleportReturn () {
+		if (this.oldPosition !== undefined) {
+			// teleport player back to their previous position
+			Game.loadArea(this.oldPosition.area, {x: this.oldPosition.x, y: this.oldPosition.y});
+			this.oldPosition = undefined;
+		}
 	}
 
 	preRenderFunction () {
@@ -3580,6 +3730,7 @@ Game.statusEffects.generic = function (properties) {
 			effect: effectText,
 			info: {
 				curse: properties.curse ? true : false, // transferred on to enemies on attack
+				worksForGames: properties.worksForGames, // also works in games such as tag (for speed status effects that normally wouldn't)
 			},
 			image: properties.imageName,
 			type: properties.type
@@ -4060,7 +4211,7 @@ Game.launchFirework = function (properties) {
 // fireworks launched every 500ms - number remaining tracked by parameter
 Game.levelUpFireworks = function (numberRemaining) {
 	let colourArray = []; // array of firework colours
-	if (Game.hero.level === LevelXP.length - 1) {
+	if (this.hero.level === LevelXP.length - 1) {
 		// golden fireworks if they are max level
 		colourArray.push("#f9ff54");
 	}
@@ -4095,7 +4246,7 @@ Game.levelUpFireworks = function (numberRemaining) {
 		}
 	}
 
-	Game.launchFirework({
+	this.launchFirework({
 		x: Random(Game.hero.x - Dom.canvas.width / 2, Game.hero.x + Dom.canvas.width / 2),
 		y: Random(Game.hero.y - Dom.canvas.height / 2, Game.hero.y + Dom.canvas.height / 2),
 		radius: Random(125, 175),
@@ -4119,46 +4270,153 @@ Game.addTrailParticle = function (character, trailParticle) {
 	Game.createParticle(trailParticle); // Game not this because it is called by setInterval
 }
 
+//
+// Tag minigame
+//
+
 // websocket status should have been checked before this function is called
 // called by Items.consumable[22]
-Game.initTagMinigame = function () {
-	if (Areas[this.areaName].tagGameAllowed) {
+Game.tag.init = function () {
+	if (Areas[Game.areaName].tagGameAllowed) {
 		// game allowed to start in the current area
 
-		let tagArea = Areas[this.areaName].tagGameAllowed; // either true, or an array of areas that are allowed
-		if (Areas[this.areaName].tagGameAllowed === true) {
+		let tagArea = Areas[Game.areaName].tagGameAllowed; // either true, or an array of areas that are allowed
+		if (Areas[Game.areaName].tagGameAllowed === true) {
 			// only current area allowed
-			tagArea = this.areaName;
+			// should be an array so .includes can be used in it
+			tagArea = [Game.areaName];
 		}
 
-		this.minigameInProgress = {
+		Game.minigameInProgress = {
 			game: "tag",
 			area: tagArea,
-			status: "initialisation"
+			playing: true
 		};
 
+		// remove all other players from the area (they will be added/readded as they join)
+		for (let i = 0; i < Game.players.length; i++) {
+			Game.removeObject(Game.players[i].id, "players", UserControllable, i);
+		}
+
 		// notify other players about the starting of the tag game
-		ws.send({
+		ws.send(JSON.stringify({
 			type: "tagMinigame",
 			action: "startGame",
-			area: tagArea
-		});
+			area: tagArea,
+			displayAreaName: Player.displayAreaName,
+			spawnArea: Game.areaName,
+			spawnX: Game.hero.x,
+			spawnY: Game.hero.y
+		}));
 
-		/*
-			Dom.chat.insert("Invited other online players to a game of tag. The game will start in 30 seconds.");
+		// the server will now handle the rest of the game
 
-			// save old position
-			this.hero.oldPosition = {
-				area: this.areaName,
-				x: this.hero.x,
-				y: this.hero.y,
-			};
-			// teleport player there
-			this.loadArea("nilbogPast", {x: 100, y: 100});
-		*/
+		Dom.chat.insert("Invited other online players to a game of tag. The game will start in 30 seconds.");
 	}
 	else {
-		Dom.chat.insert("You are not allowed to start a game of tag here. Try somewhere else!")
+		Dom.chat.insert("You are not allowed to start a game of tag here. Try somewhere else!");
+		// return their item
+		Dom.inventory.give(Items.consumable[22]);
+	}
+}
+
+// join the tag minigame (that Game.minigameInProgress has been set to)
+Game.tag.join = function (area, x, y) {
+	// they will be returned back when they leave the game
+	Game.hero.temporaryAreaTeleport(area, x, y);
+
+	Game.minigameInProgress.playing = true;
+
+	// tell server
+	ws.send(JSON.stringify({
+		type: "tagMinigame",
+		action: "joinGame"
+	}));
+}
+
+// other player joins tag minigame
+// playerObject = player's object (from Dom.players)
+Game.tag.playerJoin = function (playerObject) {
+	// update this in Dom.players
+	for (let i = 0; i < Dom.players.length; i++) {
+		if (Dom.players[i].userID === playerObject.userID) {
+			Dom.players[i].playingGame = "tag";
+			break;
+		}
+	}
+
+	if (Game.minigameInProgress.playing === true) {
+		// playing game
+		Dom.chat.insert(playerObject.name + " has joined the game of tag!");
+	}
+	else {
+		// not playing game
+		// remove the player from the area if the player was in the same area as the game, and this player is not in game
+		if (Game.areaName === playerObject.area) {
+			// this function will fail if the player was not already in the area they were teleported to, but handles this itself
+			Game.removePlayerByID(playerObject.userID);
+		}
+	}
+}
+
+// a new player has been tagged
+Game.tag.newTaggedPlayer = function (userID) {
+	// previous tagged player (so their tagged state can be reset)
+	let prevTaggedPlayer;
+	if (Game.minigameInProgress.taggedPlayer !== undefined) {
+		prevTaggedPlayer = Game.getPlayerFromID(Game.minigameInProgress.taggedPlayer);
+
+		// previously tagged player is immune to being tagged again for 3 seconds
+		Game.statusEffects.walkSpeed({
+			target: prevTaggedPlayer,
+			effectTitle: "Tag Immunity",
+			effectDescription: "Increased walk speed and immunity to being tagged.",
+			speedIncrease: 35,
+			time: 3,
+			worksForGames: true
+		});
+	}
+
+	// update game object tagged player
+	Game.minigameInProgress.taggedPlayer = userID;
+
+	// new tagged player object (from userID)
+	let taggedPlayer = Game.getPlayerFromID(userID);
+
+	// chat message
+	Dom.chat.insert(taggedPlayer.name + " is on!");
+
+	// update name colours
+	taggedPlayer.hostility = "gameHostile";
+	if (prevTaggedPlayer !== undefined) {
+		prevTaggedPlayer.hostility = "friendly";
+	}
+}
+
+// leave tag minigame
+Game.tag.leave = function () {
+	// return them to their initial location
+	Game.hero.temporaryAreaTeleportReturn();
+
+	Game.minigameInProgress.playing = false;
+
+	Dom.chat.insert("The game is over.")
+}
+
+// tag minigame finished
+Game.tag.finish = function () {
+	if (Game.minigameInProgress.playing) {
+		// leave the game first
+		this.leave();
+	}
+
+	// game has finished
+	Game.minigameInProgress = undefined;
+
+	// say players are no longer in game in Dom.players
+	for (let i = 0; i < Dom.players.length; i++) {
+		Dom.players[i].playingGame = undefined;
+		// undefined means they are not playing a game
 	}
 }
 
@@ -4546,19 +4804,6 @@ Game.loadArea = function (areaName, destination) {
 			this.allThings.push(Game.hero);
 			this.allCharacters.push(Game.hero);
 			this.allAttackers.push(Game.hero);
-
-			// tell server that area has been changed so that DOM chat players online can display this for all players
-		    // check if user is connected to the websocket
-		    if (ws !== false && ws.readyState === 1) {
-				ws.send(JSON.stringify({
-					type: "changeArea",
-					area: this.areaName,
-					displayArea: Player.displayAreaName,
-					x: this.hero.x,
-					y: this.hero.y,
-					direction: this.hero.direction
-				}));
-			}
 		}
 
 		// display area name
@@ -4586,6 +4831,22 @@ Game.loadArea = function (areaName, destination) {
 		}
 		// remove player moveTowards
 		this.hero.moveTowards = undefined;
+
+		if (!init) {
+			// tell server that area has been changed so that DOM chat players online can display this for all players
+			// ...and for position update (because they have updated position but not moved)
+			// check if user is connected to the websocket
+			if (ws !== false && ws.readyState === 1) {
+				ws.send(JSON.stringify({
+					type: "changeArea",
+					area: this.areaName,
+					displayArea: Player.displayAreaName,
+					x: this.hero.x,
+					y: this.hero.y,
+					direction: this.hero.direction
+				}));
+			}
+		}
 
 		// allow hero to move again if they died
 		if (this.hero.respawning) {
@@ -4662,7 +4923,7 @@ Game.loadArea = function (areaName, destination) {
 						colours: ["#8cff91", "#ff82f8"], // lighter colours so they are more visible
 					});
 				}
-			}, 1500, this.areaName);
+			}.bind(this), 1500, this.areaName);
 		}
 		else if (this.fireworkInterval !== undefined) {
 			// remove interval from a previous area
@@ -5846,14 +6107,47 @@ Game.update = function (delta) {
 
 		// pressing space and touching player, and DOM isn't currently occupied
 		if (this.keysDown.SPACE && this.hero.isTouching(player) && Dom.currentlyDisplayed === "") {
-			// true = force trade
-			Dom.choose.page(player, ["Trade with this player"], [Dom.trade.request], [[player.userID, player.name]], true);
+			if (this.minigameInProgress === undefined) {
+				// normal interaction
+				// true = force choose dom
+				Dom.choose.page(player, ["Trade with this player"], [Dom.trade.request], [[player.userID, player.name]], true);
+			}
+			else {
+				// can't interact with other players normally
+				switch (this.minigameInProgress.game) {
+					case "tag":
+						if (this.minigameInProgress.taggedPlayer === ws.userID && // this player is tagged
+						!this.players[i].hasStatusEffect("Tag Immunity")) { // they are not immune to being tagged
+							// tag them
+							// note that for the player to even be shown in the area in the first place they must be playing
+							ws.send(JSON.stringify({
+								type: "tagMinigame",
+								action: "tagPlayer",
+								userID: player.userID // userID of tagged player
+							}));
+
+							// update tagged variables etc.
+							this.tag.newTaggedPlayer(player.userID);
+						}
+						break;
+				}
+			}
 		}
 
 		// check if the currently displayed DOM is for the current player in the for loop
 		if (player.id === Dom.currentNPC.id && player.type === Dom.currentNPC.type) {
 			// close the DOM if the player is too far away from the player or if the mailbox is dead
 			if (this.distance(this.hero, player) > this.hero.stats.domRange) {
+				// if trade/alert/pending request is active, send a message to the other player telling them to close it
+				// this is because update is not called if tab is not focused, so user could walk away with trade not closing for other person
+				if (Dom.trade.requested || Dom.trade.received || Dom.trade.active) {
+					ws.sendMessage(JSON.stringify({
+						type: "trade",
+						action: "walkAway",
+						target: player.userID
+					}));
+				}
+
 				// player is more than 4 tiles away from player
 				Dom.closeNPCPages();
 			}
@@ -5928,15 +6222,25 @@ Game.update = function (delta) {
 		// give area teleports a screen X and Y
 		this.updateScreenPosition(this.areaTeleports[i]);
 
+		// teleport condition for the area teleport
         if (this.hero.isTouching(this.areaTeleports[i])) {
 			if (this.areaTeleports[i].teleportCondition === undefined
 			|| (this.areaTeleports[i].teleportCondition !== undefined && this.areaTeleports[i].teleportCondition())) {
-				// a teleport condition has been met (if there is one)
-				// find player destination
-				let destinationX = this.areaTeleports[i].destinationX || this.hero.x + this.areaTeleports[i].playerAdjustX;
-				let destinationY = this.areaTeleports[i].destinationY || this.hero.y + this.areaTeleports[i].playerAdjustY;
-				// teleport to new area
-				this.loadArea(this.areaTeleports[i].teleportTo, {x: destinationX, y: destinationY});
+
+				// can't teleport if they are playing a game set to a certain area
+				if (this.minigameInProgress === undefined
+				|| this.minigameInProgress.area.includes(this.areaTeleports[i].teleportTo)) {
+
+					// a teleport condition has been met (if there is one)
+					// find player destination
+					let destinationX = this.areaTeleports[i].destinationX || this.hero.x + this.areaTeleports[i].playerAdjustX;
+					let destinationY = this.areaTeleports[i].destinationY || this.hero.y + this.areaTeleports[i].playerAdjustY;
+					// teleport to new area
+					this.loadArea(this.areaTeleports[i].teleportTo, {x: destinationX, y: destinationY});
+				}
+				else {
+					Dom.chat.insert("The minigame you are playing means you cannot go there.", 0, undefined, true);
+				}
 			}
 			else {
 				// teleport condition not met
@@ -6382,26 +6686,22 @@ Game.mailboxUpdate = function (type) {
 	}
 }
 
-// called by HIGH SPEED radio buttons with the parameter "add" (give status effect) or "remove" (remove status effect)
-Game.highSpeed = function (addRemove) {
-	if (addRemove === "add") {
-		// add status effect
-		Game.statusEffects.walkSpeed({
-			target: Game.hero,
-			effectTitle: "HIGH SPEED! (test status effect)",
-			speedIncrease: 500, // percentage increase
-		});
-	}
-	else if (addRemove === "remove") {
-		// remove status effect
-		Game.hero.statusEffects = Game.hero.statusEffects.filter(statusEffect => statusEffect.title !== "HIGH SPEED! (test status effect)");
-		// reflect this change on secondary canvas
-		Game.hero.updateStatusEffects();
-	}
-	else {
-		// unknown parameter
-		console.error("Unknown parameter for Game.highSpeed (it should be 'add' or 'remove'):", addRemove)
-	}
+// called by HIGH SPEED radio buttons
+Game.highSpeed = function () {
+    if (Dom.elements.speedOn.checked) {
+        // add status effect
+        Game.statusEffects.walkSpeed({
+            target: Game.hero,
+            effectTitle: "HIGH SPEED! (test status effect)",
+            speedIncrease: 500, // percentage increase
+        });
+    }
+    else {
+        // remove status effect
+        Game.hero.statusEffects = Game.hero.statusEffects.filter(statusEffect => statusEffect.title !== "HIGH SPEED! (test status effect)");
+        // reflect this change on secondary canvas
+        Game.hero.updateStatusEffects();
+    }
 }
 
 //
@@ -6605,7 +6905,7 @@ Game.drawCharacterInformation = function (ctx, character) {
 	let characterInformationHeight = 3; // size of healthbar or other similar thing (e.g: damage taken), so that it is known how much to offset character's name by (in y axis)
 	let channellingBarDrawn = 0;
 
-	if (character.hostility === "friendly" || character.hostility === "neutral") {
+	if (character.hostility === "friendly" || character.hostility === "neutral" || character.hostility === "gameHostile") {
 		// only draw health bar if character is damaged
 		if (character.health !== character.stats.maxHealth) {
 			this.drawHealthBar(ctx, character, character.screenX - character.width * 0.5, character.screenY - character.height * 0.5 - 15 - characterInformationHeight, character.width, 15);
@@ -6747,6 +7047,9 @@ Game.drawCharacterName = function (ctx, character, x, y) {
 	else if (character.hostility === "neutral") {
 		ctx.fillStyle = "#c9c202"; // yellow name
 	}
+	else if (character.hostility === "gameHostile") { // real player (e.g. tagged in a game of tag)
+		ctx.fillStyle = "#ff6c17"; // orange name
+	}
 	else if (character.hostility === "boss") {
 		ctx.fillStyle = "#8c0700"; // dark red name
 	}
@@ -6887,23 +7190,37 @@ Game.render = function (delta) {
 
 		let objectToRender = this.allThings[i];
 
+		let renderImage = true; // if image should be rendered
+
+		// check if object should be rendered
+
+		if (!this.camera.isOnScreen(objectToRender, "image")) {
+			// not on screen
+			renderImage = false;
+		}
+		else if (objectToRender.stats !== undefined && objectToRender.stats.stealthed) {
+			// stealthed
+			renderImage = false;
+		}
+		else if (objectToRender.hidden === true) {
+			// hidden
+			renderImage = false;
+		}
+
 		// check object should be rendered
-		if (Game.camera.isOnScreen(objectToRender, "image") && // object on screen
-		(objectToRender.stats === undefined || !objectToRender.stats.stealthed) && // object isn't stealthed
-		objectToRender.hidden !== true) {
+		if (renderImage) {
 
 			// set character screen x and y
 			this.updateScreenPosition(objectToRender);
 
-			if (!objectToRender.respawning) { // check character is not dead
-
-				let renderImage = true; // if image should be rendered
+			if (!objectToRender.respawning) { // check if character is dead
 				if (objectToRender.preRenderFunction !== undefined) {
 					renderImage = objectToRender.preRenderFunction();
 					// whether image is rendered is based off the return value of preRenderFunction
 					// also applies for whether postRenderFunction is called
 				}
 
+				// check if render function prevents object from being rendered (could act as special condition for some items)
 				if (renderImage) {
 					if (objectToRender.rotate !== undefined && objectToRender.rotate !== 0) {
 						// rotate and draw (just for projectiles currently)

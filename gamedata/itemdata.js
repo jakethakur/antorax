@@ -862,6 +862,9 @@ var Items = {
 				damage: 2,
 				defence: 1,
 			},
+			quest: function () {
+                return !Player.quests.completedQuestArray.includes("To the Logging Camp");
+            },
 		},
 		{
 			id: 3,
@@ -1172,6 +1175,9 @@ var Items = {
 				damage: 2,
 				maxDamage: 6,
 			},
+			quest: function () {
+                return !Player.quests.completedQuestArray.includes("To the Logging Camp");
+            },
 		},
 		{
 			id: 3,
@@ -1399,6 +1405,9 @@ var Items = {
 			stats: {
 				damage: 2,
 			},
+			quest: function () {
+                return !Player.quests.completedQuestArray.includes("To the Logging Camp");
+            },
 		},
 		{
 			id: 3,
@@ -1792,6 +1801,9 @@ var Items = {
 			image: "assets/items/currency/2.png",
 			use: "The primary currency of Antorax",
 			stack: 1024,
+			quest: function () {
+                return !Player.quests.completedQuestArray.includes("To the Logging Camp");
+            },
 		},
 		{
 			id: 3,
@@ -2755,7 +2767,7 @@ var Items = {
 					Dom.chat.insert("You must be connected to a server to use that item.");
 				}
 				// check there is at least one other player online
-				else if (Dom.chat.players.length < 2) {
+				else if (Dom.players.length < 2) {
 					Dom.chat.insert("There are not enough players connected to the server to start the game. Get some friends to come on!");
 				}
 				// check there is not another game active
@@ -2767,7 +2779,7 @@ var Items = {
 					Dom.inventory.remove(inventoryPosition);
 
 					// start the game!
-					Game.initTagMinigame();
+					Game.tag.init();
 				}
 			},
 		},

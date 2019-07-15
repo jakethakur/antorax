@@ -5,11 +5,18 @@
 // https://devcenter.heroku.com/articles/node-websockets
 // https://github.com/websockets/ws
 
-// dependencies
+//
+// Dependencies
+//
+
 const express = require("express");
 const path = require("path");
 const WebSocket = require("ws");
 const SocketServer = WebSocket.Server;
+
+//
+// Server intialisation
+//
 
 const PORT = process.env.PORT || 3000; // port to listen on
 
@@ -31,7 +38,15 @@ const server = app.listen(PORT, function () {
 
 const wss = new SocketServer({server}); // wss = web socket server
 
-var connections = 0; // total connections - used for user IDs (unique to user)
+//
+// Global variables
+//
+
+// total connections - used for user IDs (unique to user)
+var connections = 0;
+
+// used for retroactively telling users as they join if there is a minigame in progress (to stop them starting a new one)
+var minigameInProgress;
 
 // handle connection
 wss.on("connection", (ws) => { // note that ws = client in wss.clients
@@ -219,7 +234,7 @@ wss.on("connection", (ws) => { // note that ws = client in wss.clients
 					if (client.name === parsedMessage.name) {
 						client.send(JSON.stringify({
 							type: "msg",
-							sender: client.name,
+							sender: ws.name,
 							name: ws.name + " &#10132; " + client.name,
 							content: parsedMessage.content,
 						}));
@@ -239,6 +254,109 @@ wss.on("connection", (ws) => { // note that ws = client in wss.clients
 						client.send(data);
 					}
 				});
+				break;
+
+			case "tagMinigame":
+				switch (parsedMessage.action) {
+					case "startGame":
+						// server handles the game
+						minigameInProgress = {
+							game: "tag",
+							area: parsedMessage.area,
+							spawnArea: parsedMessage.spawnArea, // for joined players
+							status: "starting",
+							timeUntilStart: 30, // aaaaaaaaaaaaaaaaaaaaaaaaa nothing done with this
+							joinedPlayers: [ws.userID] // userID of all joined players (to send them chat messages etc.)
+						}
+
+						// send out invites to other players
+						wss.clients.forEach(function (client) {
+							// check the client is not the current user
+							if (client.userID !== ws.userID) {
+							   client.send(JSON.stringify({
+								   type: "tagGame",
+								   action: "request",
+								   startedBy: ws.userID,
+								   area: parsedMessage.area,
+								   displayAreaName: parsedMessage.displayAreaName,
+								   spawnArea: parsedMessage.spawnArea,
+								   spawnX: parsedMessage.spawnX,
+								   spawnY: parsedMessage.spawnY,
+							   }));
+							}
+						});
+
+						// start game in 30 seconds
+						setTimeout(function () {
+							minigameInProgress.status = "started";
+
+							// tell users it has started
+							minigameInProgress.joinedPlayers.forEach(player => {
+								let client = wss.clients.find(client => client.userID === player);
+								client.send(JSON.stringify({
+									type: "tagGame",
+									action: "start",
+									taggedPlayer: ws.userID // the user that starts the game is tagged initially
+								}));
+							});
+
+							// tagged player
+							minigameInProgress.taggedPlayer = ws.userID;
+
+							// end game in 2 minutes
+							setTimeout(function () {
+								// tell users it has finished
+								minigameInProgress.joinedPlayers.forEach(player => {
+									let client = wss.clients.find(client => client.userID === player);
+									client.send(JSON.stringify({
+										type: "tagGame",
+										action: "finish",
+									}));
+								});
+
+								minigameInProgress = undefined;
+							}, 120000);
+						}, 30000);
+
+						break;
+
+					case "joinGame":
+						// tell others in the game that they joined
+						minigameInProgress.joinedPlayers.forEach(player => {
+							let client = wss.clients.find(client => client.userID === player);
+							client.send(JSON.stringify({
+								type: "tagGame",
+								action: "playerJoin",
+								userID: ws.userID, // id of person joining
+								// for positioning
+								area: minigameInProgress.spawnArea,
+							}));
+						});
+
+						// someone has joined the tag game
+						minigameInProgress.joinedPlayers.push(ws.userID);
+
+						break;
+
+					case "tagPlayer":
+						// new player tagged
+						minigameInProgress.taggedPlayer = parsedMessage.userID;
+
+						// tell other users in game (apart from user who sent the message because they have already called the function)
+						minigameInProgress.joinedPlayers.forEach(player => {
+							if (player !== ws.userID) {
+								let client = wss.clients.find(client => client.userID === player);
+								client.send(JSON.stringify({
+									type: "tagGame",
+									action: "taggedPlayer",
+									taggedPlayer: parsedMessage.userID
+								}));
+							}
+						});
+
+						break;
+
+				}
 				break;
 
 			default:
