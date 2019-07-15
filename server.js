@@ -292,7 +292,7 @@ wss.on("connection", (ws) => { // note that ws = client in wss.clients
 
 							// tell users it has started
 							minigameInProgress.joinedPlayers.forEach(player => {
-								let client = wss.clients.find(client => client.userID === player);
+								let client = FindClientFromID(player);
 								client.send(JSON.stringify({
 									type: "tagGame",
 									action: "start",
@@ -307,7 +307,7 @@ wss.on("connection", (ws) => { // note that ws = client in wss.clients
 							setTimeout(function () {
 								// tell users it has finished
 								minigameInProgress.joinedPlayers.forEach(player => {
-									let client = wss.clients.find(client => client.userID === player);
+									let client = FindClientFromID(player);
 									client.send(JSON.stringify({
 										type: "tagGame",
 										action: "finish",
@@ -323,7 +323,7 @@ wss.on("connection", (ws) => { // note that ws = client in wss.clients
 					case "joinGame":
 						// tell others in the game that they joined
 						minigameInProgress.joinedPlayers.forEach(player => {
-							let client = wss.clients.find(client => client.userID === player);
+							let client = FindClientFromID(player);
 							client.send(JSON.stringify({
 								type: "tagGame",
 								action: "playerJoin",
@@ -345,7 +345,7 @@ wss.on("connection", (ws) => { // note that ws = client in wss.clients
 						// tell other users in game (apart from user who sent the message because they have already called the function)
 						minigameInProgress.joinedPlayers.forEach(player => {
 							if (player !== ws.userID) {
-								let client = wss.clients.find(client => client.userID === player);
+								let client = FindClientFromID(player);
 								client.send(JSON.stringify({
 									type: "tagGame",
 									action: "taggedPlayer",
@@ -408,10 +408,19 @@ setInterval(function () {
 
 // returns the number of clients online
 // necessary because localhost sees wss.clients as an array, but Heroku as a set
-function GetNumberOnline () {
+function GetNumberOnline() {
 	let numberOnline = wss.clients.size;
 	if (numberOnline === undefined) {
 		numberOnline = wss.clients.length;
 	}
 	return numberOnline;
+}
+
+// find a client from their user ID
+function FindClientFromID(userID) {
+	for (let i = 0; i < GetNumberOnline(); i++) {
+		if (wss.clients[i].userID === userID) {
+			return wss.clients[i];
+		}
+	}
 }
