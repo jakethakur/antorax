@@ -418,9 +418,13 @@ function GetNumberOnline() {
 
 // find a client from their user ID
 function FindClientFromID(userID) {
-	for (let i = 0; i < GetNumberOnline(); i++) {
-		if (wss.clients[i].userID === userID) {
-			return wss.clients[i];
+	let returnClient = null; // can't return from inside foreach :(
+
+	wss.clients.forEach(client => {
+		if (client.userID === userID) {
+			returnClient = client;
 		}
-	}
+	});
+
+	return returnClient;
 }
