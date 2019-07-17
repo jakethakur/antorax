@@ -375,7 +375,7 @@ Game.initWebSocket = function () {
 			// remove all existing players in the area
 			Dom.players = [];
 			for (let i = 0; i < Game.players.length; i++) {
-				Game.removeObject(Game.players[i].id, "players", UserControllable, i);
+				Game.removeObject(Game.players[i].id, "players", i);
 			}
 
 			if (Game.hasConnectedToWebSocket) {
@@ -465,7 +465,7 @@ Game.removePlayerByID = function (userID) {
 	let player = this.players.find(player => player.userID === userID);
 	if (player !== undefined) {
 		// a player in the area should be removed
-		this.removeObject(player.id, "players", UserControllable);
+		this.removeObject(player.id, "players");
 	}
 }
 
@@ -693,9 +693,11 @@ Game.searchFor = function (id, array) {
 // remove object from all arrays it is in using its id
 // id = object.id
 // type = name of the array the object is in
-// className = the class name of the object
 // index = known index of the object in its array (e.g. of an enemy in Game.enemies) - this is optional
-Game.removeObject = function (id, type, className, index) {
+Game.removeObject = function (id, type, index) {
+	// find the class of the object from its type
+	let className = this.typeClasses[type];
+
 	// every object is an entity
 	// remove from allEntities
 	this.allEntities.splice(this.searchFor(id, this.allEntities), 1);
@@ -881,6 +883,9 @@ class Thing extends Entity {
 			Game.animationList.push(this);
 		}
 
+		// optional function for when space is pressed when touching
+		this.onInteract = properties.onInteract;
+
 		Game.allThings.push(this); // array for current area only
 	}
 
@@ -1031,6 +1036,21 @@ class Character extends Thing {
 		this.stats.stealthed = properties.stats.stealthed || false; // can't be seen
 		this.stats.frostaura = properties.stats.frostaura || false;
 
+		// array items that can damage the character (empty = any can)
+		// array should contain item names
+		this.canBeDamagedBy = properties.canBeDamagedBy || [];
+
+		// whether it shows a lootable corpse when it dies
+		this.corpseOnDeath = properties.corpseOnDeath;
+		if (this.corpseOnDeath === undefined) {
+			this.corpseOnDeath = true; // default value (wouldn't work otherwise since true would take precedence)
+		}
+		// whether it respawns when it dies
+		this.respawnOnDeath = properties.respawnOnDeath;
+		if (this.respawnOnDeath === undefined) {
+			this.respawnOnDeath = true; // default value (wouldn't work otherwise since true would take precedence)
+		}
+
 		this.chat = properties.chat || {}; // object containing properties that are inserted into chat when specific things happen
 		/* examples of chat properties:
 			firstDamaged - said when the character is damaged for the first time
@@ -1149,44 +1169,57 @@ class Character extends Thing {
 			// not player (assumed it is killed by player - TBD)
 			// TBD use hostility to check if it is killed by player
 			if (this.health <= 0 && !this.respawning) { // check it is dead and not already respawning
-				// wipe status effects and their tick timeouts
-				this.removeAllStatusEffects();
 
 				// death
-				this.respawning = true;
-				this.isCorpse = true;
-
-				// loot
-				if (this.lootTable !== undefined) {
-					this.generateLoot(this.lootTable);
-				}
 
 				// xp
 				Game.getXP(this.xpGiven / Player.level); // now that the XP has fully been added, check for a levelUp and display it on the canvas
+
+				// wipe status effects and their tick timeouts
+				this.removeAllStatusEffects();
 
 				// on kill function
 				if (Player.inventory.weapon.onKill !== undefined) {
 					Player.inventory.weapon.onKill();
 				}
 
-				// corpse disappears in this.stats.lootTime ms
-				setTimeout(function () {
-					this.isCorpse = false;
-					// call Dom.quests.active if it is needed for a quest regarding this enemy
-					if (this.name === "The Tattered Knight") {
-						Dom.quests.active();
-					}
-				}.bind(this), this.stats.lootTime);
+				if (this.corpseOnDeath) {
+					this.isCorpse = true;
 
-				// respawn in this.stats.respawnTime ms (if it is not a boss)
-				if (this.hostility !== "boss") {
+					// loot
+					if (this.lootTable !== undefined) {
+						this.generateLoot(this.lootTable);
+					}
+
+					// corpse disappears in this.stats.lootTime ms
 					setTimeout(function () {
-						this.respawn();
-					}.bind(this), this.stats.respawnTime);
+						this.isCorpse = false;
+						// call Dom.quests.active if it is needed for a quest regarding this enemy
+						if (this.name === "The Tattered Knight") {
+							Dom.quests.active();
+						}
+					}.bind(this), this.stats.lootTime);
+				}
+
+				if (this.respawnOnDeath) {
+					this.respawning = true;
+
+					// respawn in this.stats.respawnTime ms (if it is not a boss)
+					if (this.hostility !== "boss") {
+						setTimeout(function () {
+							this.respawn();
+						}.bind(this), this.stats.respawnTime);
+					}
+					else {
+						// set boss date killed
+						Player.bossesKilled[this.bossKilledVariable] = GetFullDate();
+					}
 				}
 				else {
-					// set boss date killed
-					Player.bossesKilled[this.bossKilledVariable] = GetFullDate();
+					// remove the object if it is not a corpse
+					if (!this.isCorpse) {
+						Game.removeObject(this.id, this.type);
+					}
 				}
 
 				//
@@ -1603,7 +1636,7 @@ class Attacker extends Character {
 			// remove existing channelling
 			if (this.channelling === "fishing") {
 				// remove fishing bobber
-				Game.removeObject(this.channellingProjectileId, "projectiles", Projectile);
+				Game.removeObject(this.channellingProjectileId, "projectiles");
 				this.channelling = false;
 				this.channellingProjectileId = null;
 			}
@@ -1779,7 +1812,7 @@ Game.createParticle = function (properties) {
 		// set its removal time
 		this.objectRemoveTimeouts.push(setTimeout(function (id) {
 			// remove the same particle (particle of the same id)
-			Game.removeObject(id, "particles", Particle);
+			Game.removeObject(id, "particles");
 		}, properties.removeIn, id)); // pushed to objectRemoveTimeouts so it can be removed when the area is changed
 	}
 }
@@ -2002,7 +2035,7 @@ class Hero extends Attacker {
 							x: projectileX,
 							y: projectileY,
 							attacker: this,
-							targets: [Game.enemies, Game.dummies,],
+							targets: [Game.enemies, Game.dummies, Game.attackables],
 							rotate: projectileRotate,
 							adjust: {
 								// manually adjust position (programmed for each projectile in skindata/itemdata)
@@ -2068,7 +2101,7 @@ class Hero extends Attacker {
 				else if (Player.inventory.weapon.type === "rod" && this.channelling === "fishing") {
 					// fishing rod (bobber has been cast)
 
-					/*Game.removeObject(this.channellingProjectileId, "projectiles", Projectile); // remove bobber
+					/*Game.removeObject(this.channellingProjectileId, "projectiles"); // remove bobber
 
 					this.channelling = false;
 					this.channellingProjectileId = null;*/
@@ -2195,7 +2228,7 @@ class Hero extends Attacker {
 						}
 
 						// remove fishing bobber
-						Game.removeObject(this.channellingProjectileId, "projectiles", Projectile);
+						Game.removeObject(this.channellingProjectileId, "projectiles");
 						this.channelling = false;
 						this.channellingProjectileId = null;
 
@@ -2238,7 +2271,7 @@ class Hero extends Attacker {
 			// this doesn't work if the user attacks too fast, though this shouldn't be a problem...
 			let a = this.channellingProjectileId; // maintain a variable of the currently shot projectile
 			Game.objectRemoveTimeouts.push(setTimeout(function (a) {
-				Game.removeObject(a, "projectiles", Projectile);
+				Game.removeObject(a, "projectiles");
 			}, 1500, a)); // pushed to objectRemoveTimeouts so it can be removed when the area is changed
 
 			this.channellingProjectileId = null;
@@ -2459,7 +2492,7 @@ class Hero extends Attacker {
 					setTimeout(function (fish) {
 						if (this.channelling === fish) { // fish has not been caught
 							// remove fishing bobber
-							Game.removeObject(this.channellingProjectileId, "projectiles", Projectile);
+							Game.removeObject(this.channellingProjectileId, "projectiles");
 							this.channelling = false;
 							this.channellingProjectileId = null;
 						}
@@ -2540,41 +2573,57 @@ class Hero extends Attacker {
 
 	// called after this.direction is updated
 	updateRotation () {
-		if (this.direction === 1) {
-			this.crop = {
-				x: 0,
-				y: this.baseHeight,
-				width: this.baseWidth,
-				height: this.baseHeight
-			};
-		}
+		if (this.imageName === "player"+this.class+Player.skin) {
+			if (this.direction === 1) {
+				this.crop = {
+					x: 0,
+					y: this.baseHeight,
+					width: this.baseWidth,
+					height: this.baseHeight
+				};
+			}
 
-		else if (this.direction === 2) {
-			this.crop = {
-				x: this.baseWidth,
-				y: this.baseHeight,
-				width: this.baseWidth,
-				height: this.baseHeight
-			};
-		}
+			else if (this.direction === 2) {
+				this.crop = {
+					x: this.baseWidth,
+					y: this.baseHeight,
+					width: this.baseWidth,
+					height: this.baseHeight
+				};
+			}
 
-		else if (this.direction === 3) {
-			this.crop = {
-				x: 0,
-				y: 0,
-				width: this.baseWidth,
-				height: this.baseHeight
-			};
-		}
+			else if (this.direction === 3) {
+				this.crop = {
+					x: 0,
+					y: 0,
+					width: this.baseWidth,
+					height: this.baseHeight
+				};
+			}
 
-		else if (this.direction === 4) {
-			this.crop = {
-				x: this.baseWidth,
-				y: 0,
-				width: this.baseWidth,
-				height: this.baseHeight
-			};
+			else if (this.direction === 4) {
+				this.crop = {
+					x: this.baseWidth,
+					y: 0,
+					width: this.baseWidth,
+					height: this.baseHeight
+				};
+			}
 		}
+	}
+
+	// testing: set hero's image to a different image for imageposition
+	imageTest (imageKey, imageAddress) {
+		let p = Loader.loadImage(imageKey, imageAddress, false); // false = don't delete on area change
+
+		p.then(function () {
+			this.changeImage(imageKey);
+		}.bind(this));
+	}
+
+	// reset testing started by imageTest
+	resetImageTest () {
+		this.resetImage();
 	}
 }
 
@@ -2642,11 +2691,27 @@ class Projectile extends Thing {
 
 				if (this.isTouching(to[i][x]) && !to[i][x].respawning) { // check projectile is touching character it wants to damage
 
-					if (Random(0, 99) < to[i][x].stats.dodgeChance) { // hit dodged
-						this.damageDealt.push({enemy: to[i][x], damage: "hit dodged", critical: false});
+					let canBeDamaged = true;
+
+					// check if the target can be damaged
+
+					if (to[i][x].canBeDamagedBy.length > 0 && attacker.constructor.name === "Hero") {
+						// can only be damaged by certain weapons
+						for (let a = 0; i < to[i][x].canBeDamagedBy.length; a++) {
+							if (Player.inventory.weapon.name === to[i][x].canBeDamagedBy[a]) {
+								canBeDamaged = false;
+								break;
+							}
+						}
 					}
-					else {
-						// damage
+
+					if (Random(0, 99) < to[i][x].stats.dodgeChance) {
+						// hit dodged
+						this.damageDealt.push({enemy: to[i][x], damage: "hit dodged", critical: false});
+						canBeDamaged = false;
+					}
+
+					if (canBeDamaged) {// damage
 						let blockDefence = 0;
 						if (to[i][x].channelling === "block") { // add block defence if the target is blocking
 							blockDefence = to[i][x].stats.blockDefence;
@@ -2717,6 +2782,70 @@ class Projectile extends Thing {
 						to[i][x].takeDamage(dmgDealt);
 						this.damageDealt.push({enemy: to[i][x], damage: dmgDealt, critical: critical});
 
+						// check they still exist
+						// they might not if they don't respawn on death and have just been killed
+						if (to[i][x] !== undefined) {
+							// poison
+							if (attacker.stats.poisonX > 0 && attacker.stats.poisonY > 0) { // check if target weapon has poison
+								Game.statusEffects.poison({
+									target: to[i][x],
+									poisonDamage: attacker.stats.poisonX,
+									time: attacker.stats.poisonY,
+								});
+							}
+
+							// flaming
+							if (attacker.stats.flaming > 0) { // check if target weapon has flaming
+								Game.statusEffects.fire({
+									target: to[i][x],
+									tier: attacker.stats.flaming,
+								});
+							}
+
+							// reflection
+							if (to[i][x].stats.reflection > 0) { // check if target has reflection
+								attacker.takeDamage(dmgDealt * (to[i][x].stats.reflection / 100))
+							}
+
+							// stun
+							if (attacker.stats.stun > 0) { // check if target weapon has stun
+								Game.statusEffects.stun({target: to[i][x], time: attacker.stats.stun});
+							}
+
+							// hex
+							if (Random(0, 99) < attacker.stats.hex) { // check if target weapon has hex
+								Game.statusEffects.hex({target: to[i][x]});
+							}
+
+							// spread any curse status effects
+							Game.spreadCurse(attacker, to[i][x])
+
+							// re-render the second canvas if the hero has been damaged
+							if (to[i][x] == Game.hero) {
+								Game.secondary.render();
+							}
+
+							// chat relating to being damaged (and dealing damage? TBD)
+							if (typeof to[i][x].chat !== "undefined") { // check the character has been given text to say about being damaged
+								if (to[i][x].health < to[i][x].stats.maxHealth / 10 && typeof to[i][x].chat.tenPercentHealth !== "undefined") { // 10% health chat message
+									to[i][x].say(to[i][x].chat.tenPercentHealth, 0, true);
+								}
+								else if (to[i][x].health < to[i][x].stats.maxHealth / 2 && typeof to[i][x].chat.fiftyPercentHealth !== "undefined") { // 50% health chat message
+									to[i][x].say(to[i][x].chat.fiftyPercentHealth, 0, true);
+								}
+								else if (to[i][x].health < to[i][x].stats.maxHealth && typeof to[i][x].chat.firstDamaged !== "undefined") { // first damaged chat message
+									to[i][x].say(to[i][x].chat.firstDamaged, 0, true);
+								}
+							}
+							// remove target's stealth
+							if (to[i][x].stats.stealthed) {
+								to[i][x].stats.stealthed = false;
+								Game.removeStealthEffects(to[i][x]);
+							}
+						}
+
+						// things to do with attacker that should be done regardless of whether the target was removed
+
 						// lifesteal
 						let lifestealPercentage = attacker.stats.lifesteal;
 						// check for status effects that increase lifesteal
@@ -2731,46 +2860,6 @@ class Projectile extends Thing {
 							Game.restoreHealth(attacker, dmgDealt * (attacker.stats.lifesteal / 100));
 						}
 
-						// poison
-						if (attacker.stats.poisonX > 0 && attacker.stats.poisonY > 0) { // check if target weapon has poison
-							Game.statusEffects.poison({
-								target: to[i][x],
-								poisonDamage: attacker.stats.poisonX,
-								time: attacker.stats.poisonY,
-							});
-						}
-
-						// flaming
-						if (attacker.stats.flaming > 0) { // check if target weapon has flaming
-							Game.statusEffects.fire({
-								target: to[i][x],
-								tier: attacker.stats.flaming,
-							});
-						}
-
-						// reflection
-						if (to[i][x].stats.reflection > 0) { // check if target has reflection
-							attacker.takeDamage(dmgDealt * (to[i][x].stats.reflection / 100))
-						}
-
-						// stun
-						if (attacker.stats.stun > 0) { // check if target weapon has stun
-							Game.statusEffects.stun({target: to[i][x], time: attacker.stats.stun});
-						}
-
-						// hex
-						if (Random(0, 99) < attacker.stats.hex) { // check if target weapon has hex
-							Game.statusEffects.hex({target: to[i][x]});
-						}
-
-						// spread any curse status effects
-						Game.spreadCurse(attacker, to[i][x])
-
-						// re-render the second canvas if the hero has been damaged
-						if (to[i][x] == Game.hero) {
-							Game.secondary.render();
-						}
-
 						// onHit function
 						// perhaps make work for other non-weapon things in the future? (TBD)
 						// there should be a good system for this - maybe a list of functions called on attack or something, handled by Game.inventoryUpdate
@@ -2778,28 +2867,10 @@ class Projectile extends Thing {
 							Player.inventory.weapon.onHit(to[i][x]);
 						}
 
-						// chat relating to being damaged (and dealing damage? TBD)
-						if (typeof to[i][x].chat !== "undefined") { // check the character has been given text to say about being damaged
-							if (to[i][x].health < to[i][x].stats.maxHealth / 10 && typeof to[i][x].chat.tenPercentHealth !== "undefined") { // 10% health chat message
-								to[i][x].say(to[i][x].chat.tenPercentHealth, 0, true);
-							}
-							else if (to[i][x].health < to[i][x].stats.maxHealth / 2 && typeof to[i][x].chat.fiftyPercentHealth !== "undefined") { // 50% health chat message
-								to[i][x].say(to[i][x].chat.fiftyPercentHealth, 0, true);
-							}
-							else if (to[i][x].health < to[i][x].stats.maxHealth && typeof to[i][x].chat.firstDamaged !== "undefined") { // first damaged chat message
-								to[i][x].say(to[i][x].chat.firstDamaged, 0, true);
-							}
-						}
-
 						// remove attacker's stealth
 						if (attacker.stats.stealthed) {
 							attacker.stats.stealthed = false;
 							Game.removeStealthEffects(attacker);
-						}
-						// remove target's stealth
-						if (to[i][x].stats.stealthed) {
-							to[i][x].stats.stealthed = false;
-							Game.removeStealthEffects(to[i][x]);
 						}
 
 						if (to[i][x] == Game.hero || attacker == Game.hero) {
@@ -2999,6 +3070,13 @@ class Dummy extends Character {
 	}
 }
 
+// can be damaged
+class Attackable extends Character {
+	constructor(properties) {
+		super(properties);
+	}
+}
+
 // moves and attacks in a hostile way...
 class Enemy extends Attacker {
 	constructor(properties) {
@@ -3044,7 +3122,7 @@ class Enemy extends Attacker {
 		}
 		// see generateLoot() function in Enemy for how the lootTable works
 
-		this.xpGiven = properties.xpGiven;
+		this.xpGiven = properties.xpGiven || 0;
 
 		this.inventorySpace = properties.inventorySpace;
 
@@ -3314,7 +3392,7 @@ class Enemy extends Attacker {
 		// taken from Player
 		let a = this.channellingProjectileId; // maintain a variable of the currently shot projectile
 		Game.objectRemoveTimeouts.push(setTimeout(function (a) {
-			Game.removeObject(a, "projectiles", Projectile);
+			Game.removeObject(a, "projectiles");
 		}, 1500, a)); // pushed to objectRemoveTimeouts so it can be removed when the area is changed
 
 		this.channellingProjectileId = null;
@@ -4247,8 +4325,8 @@ Game.levelUpFireworks = function (numberRemaining) {
 	}
 
 	this.launchFirework({
-		x: Random(Game.hero.x - Dom.canvas.width / 2, Game.hero.x + Dom.canvas.width / 2),
-		y: Random(Game.hero.y - Dom.canvas.height / 2, Game.hero.y + Dom.canvas.height / 2),
+		x: Random(this.hero.x - Dom.canvas.width / 2, this.hero.x + Dom.canvas.width / 2),
+		y: Random(this.hero.y - Dom.canvas.height / 2, this.hero.y + Dom.canvas.height / 2),
 		radius: Random(125, 175),
 		particles: 500,
 		explodeTime: 500,
@@ -4258,7 +4336,7 @@ Game.levelUpFireworks = function (numberRemaining) {
 
 	if (numberRemaining > 1) {
 		// more fireworks to be launched in 500ms
-		setTimeout(Game.levelUpFireworks, 500, numberRemaining - 1)
+		setTimeout(this.levelUpFireworks, 500, numberRemaining - 1)
 	}
 }
 
@@ -4295,7 +4373,7 @@ Game.tag.init = function () {
 
 		// remove all other players from the area (they will be added/readded as they join)
 		for (let i = 0; i < Game.players.length; i++) {
-			Game.removeObject(Game.players[i].id, "players", UserControllable, i);
+			Game.removeObject(Game.players[i].id, "players", i);
 		}
 
 		// notify other players about the starting of the tag game
@@ -4547,7 +4625,10 @@ Game.loadArea = function (areaName, destination) {
 		Player.lootArea = Areas[areaName].lootArea;
 		Player.lootTier = Areas[areaName].lootTier;
 
+		//
 		// map
+		//
+
 		// there are some properties that some areaData areas don't have, so should be undefined rather than the old value
 		map.solidTiles = undefined;
 		map.waterTiles = undefined;
@@ -4579,11 +4660,36 @@ Game.loadArea = function (areaName, destination) {
 		// set tileset
 		this.tileAtlas = Loader.getImage("tiles");
 
+
 		// recalibrate camera (for areas other than first area)
 		if (this.camera !== undefined) {
 			// set maximum x and y positions of camera
 			this.camera.setMaxClampValues();
 		}
+
+		//
+		// interactable objects
+		//
+
+		// object containing the class associated to each type (must be hard-coded)
+		this.typeClasses = {
+			collisions: Entity,
+			areaTeleports: AreaTeleport,
+			tripwires: Tripwire,
+			particles: Particle,
+			things: Thing,
+			infoPoints: InfoPoint,
+			cannons: Cannon,
+			mailboxes: Mailbox,
+			chests: LootChest,
+			dummies: Dummy,
+			attackables: Character,
+			villagers: Villager,
+			npcs: NPC,
+			enemies: Enemy,
+			players: UserControllable,
+			projectiles: Projectile
+		};
 
 		// list of objects to be animated (with a .animate function)
 		this.animationList = [];
@@ -4597,96 +4703,6 @@ Game.loadArea = function (areaName, destination) {
 			}
 		}
 
-		// class arrays
-		this.allEntities = [];
-		this.allThings = [];
-		this.allCharacters = [];
-		this.allAttackers = [];
-
-		// villagers (currently broken)
-		this.villagers = [];
-		if (Areas[areaName].villagers !== undefined) {
-			for (let i = 0; i < Areas[areaName].villagers.length; i++) {
-				if (this.prepareNPC(Areas[areaName].villagers[i], "villagers")) {
-					this.villagers.push(new Villager(Areas[areaName].villagers[i]));
-				}
-			}
-		}
-
-		// things (aesthetic only)
-		this.things = [];
-		if (Areas[areaName].things !== undefined) {
-			for (let i = 0; i < Areas[areaName].things.length; i++) {
-				if (this.prepareNPC(Areas[areaName].things[i], "things")) {
-					this.things.push(new Thing(Areas[areaName].things[i]));
-				}
-			}
-		}
-
-		// quest npcs, merchants, identifiers, soul healers, item buyers, etc.
-		this.npcs = [];
-		if (Areas[areaName].npcs !== undefined) { // check they exist in areadata.js
-			for (let i = 0; i < Areas[areaName].npcs.length; i++) {
-				if (this.prepareNPC(Areas[areaName].npcs[i], "npcs")) {
-					this.npcs.push(new NPC(Areas[areaName].npcs[i]));
-				}
-			}
-		}
-
-		// dummies (enemies for training) - trivial (don't damage you)
-		this.dummies = [];
-		if (Areas[areaName].dummies !== undefined) {
-			for (let i = 0; i < Areas[areaName].dummies.length; i++) {
-				if (this.prepareNPC(Areas[areaName].dummies[i], "dummies")) {
-					this.dummies.push(new Dummy(Areas[areaName].dummies[i]));
-				}
-			}
-		}
-
-		// enemies
-		this.enemies = [];
-		if (Areas[areaName].enemies !== undefined) {
-			for (let i = 0; i < Areas[areaName].enemies.length; i++) {
-				if (this.prepareNPC(Areas[areaName].enemies[i], "enemies")) {
-
-					// bosses only can be killed once a day
-					if (Areas[areaName].enemies[i].hostility !== "boss" ||
-						GetFullDate() - Player.bossesKilled[Areas[areaName].enemies[i].bossKilledVariable] > 0) {
-						this.enemies.push(new Enemy(Areas[areaName].enemies[i]));
-
-						// check for blood moon
-						if (Event.time === "bloodMoon") {
-							// blood moon - enemies have more health
-							this.enemies[this.enemies.length - 1].health *= 2;
-							this.enemies[this.enemies.length - 1].stats.maxHealth *= 2;
-						}
-					}
-				}
-			}
-		}
-
-		// loot chests
-		this.chests = [];
-		if (Areas[areaName].chests !== undefined) {
-			for (let i = 0; i < Areas[areaName].chests.length; i++) {
-				if (this.prepareNPC(Areas[areaName].chests[i], "chests")) {
-					this.chests.push(new LootChest(Areas[areaName].chests[i]));
-				}
-			}
-		}
-
-		// cannons (outdated)
-		this.cannons = [];
-		if (Areas[areaName].cannons !== undefined) {
-			Areas[areaName].cannons.forEach(cannon => {
-				if (this.canBeShown(cannon)) { // check if NPC should be shown
-					cannon.map = map;
-					cannon.type = "cannons";
-					this.cannons.push(new Cannon(cannon));
-				}
-			});
-		}
-
 		// particles and projectiles don't persist between areas - cancel their remove timeouts
 		if (this.objectRemoveTimeouts !== undefined) {
 			for (let i = 0; i < this.objectRemoveTimeouts.length; i++) {
@@ -4695,92 +4711,68 @@ Game.loadArea = function (areaName, destination) {
 		}
 		this.objectRemoveTimeouts = [];
 
-		// particles
-		this.particles = [];
-
-		// reset any channelling projectile (if the player exists)
+		// reset any channelling projectile (if the player exists yet)
 		if (this.hero !== undefined) {
 			this.hero.channellingProjectileId = null;
 			this.hero.channelling = false;
 			this.hero.canAttack = true;
 		}
 
-		// projectiles
-		this.projectiles = [];
+		// class arrays
+		this.allEntities = [];
+		this.allThings = [];
+		this.allCharacters = [];
+		this.allAttackers = [];
 
-		// area teleports
-		if (Areas[areaName].areaTeleports !== undefined) {
-			for (let i = 0; i < Areas[areaName].areaTeleports.length; i++) {
-				if (this.prepareNPC(Areas[areaName].areaTeleports[i], "areaTeleports")) {
-					this.areaTeleports.push(new AreaTeleport(Areas[areaName].areaTeleports[i]));
-				}
-			}
-		}
+		let typeArray = Object.keys(this.typeClasses);
+		let classArray = Object.values(this.typeClasses);
+		// initiate object arrays from areadata
+		for (let i = 0; i < typeArray.length; i++) {
+			let type = typeArray[i]; // name of array the object is in
+			let className = classArray[i];
 
-		// tripwires (invisible; calls function when touched)
-		this.tripwires = [];
-		if (Areas[areaName].tripwires !== undefined) {
-			for (let i = 0; i < Areas[areaName].tripwires.length; i++) {
-				if (this.prepareNPC(Areas[areaName].tripwires[i], "tripwires")) {
-					this.tripwires.push(new Tripwire(Areas[areaName].tripwires[i]));
-				}
-			}
-		}
+			// init array in Game
+			this[type] = [];
 
-		// collisions (invisible; cannot be passed)
-		this.collisions = [];
-		if (Areas[areaName].collisions !== undefined) {
-			for (let i = 0; i < Areas[areaName].collisions.length; i++) {
-				if (this.prepareNPC(Areas[areaName].collisions[i], "collisions")) {
-					this.collisions.push(new Entity(Areas[areaName].collisions[i]));
-				}
-			}
-		}
-
-		// mailboxes
-		this.mailboxes = [];
-		if (Areas[areaName].mailboxes !== undefined) {
-			for (let i = 0; i < Areas[areaName].mailboxes.length; i++) {
-				if (this.prepareNPC(Areas[areaName].mailboxes[i], "mailboxes")) {
-
-					// flag up if there is unread mail
-					if (Dom.mail.unread() > 0) {
-						// flag up
-						Areas[areaName].mailboxes[i].image = Areas[areaName].mailboxes[i].unreadImage;
+			if (Areas[areaName][type] !== undefined) {
+				// exists in areadata
+				// iterate through objects of that type in areadata
+				for (let i = 0; i < Areas[areaName][type].length; i++) {
+					// check npc should be added, and prepare it to be added (e.g. by setting its map and type)
+					// also calls specific functions needed for certain npcs
+					if (this.prepareNPC(Areas[areaName][type][i], type)) {
+						this[type].push(new className(Areas[areaName][type][i]));
 					}
-					else {
-						// no flag
-						Areas[areaName].mailboxes[i].image = Areas[areaName].mailboxes[i].readImage;
-					}
-
-					this.mailboxes.push(new Mailbox(Areas[areaName].mailboxes[i]));
 				}
 			}
 		}
 
-		// infoPoints
-		this.infoPoints = [];
-		if (Areas[areaName].infoPoints !== undefined) {
-			for (let i = 0; i < Areas[areaName].infoPoints.length; i++) {
-				if (this.prepareNPC(Areas[areaName].infoPoints[i], "infoPoints")) {
-					this.infoPoints.push(new InfoPoint(Areas[areaName].infoPoints[i]));
-				}
+		// enemies are stronger in blood moon
+		if (Event.time === "bloodMoon") {
+			for (let i = 0; i < this.enemies.length; i++) {
+				// blood moon - enemies have more health
+				this.enemies[this.enemies.length - 1].health *= 2;
+				this.enemies[this.enemies.length - 1].stats.maxHealth *= 2;
 			}
 		}
 
-		// players
-		this.players = [];
+		// players (these are added from websocket instead of areadata)
 		if (ws !== false && ws.readyState === 1) {
-			// websockeet is active
+			// websocket is active
 			for (let i = 0; i < Dom.players.length; i++) {
 				// addPlayer checks necessary conditions for player additioin
 				this.addPlayer(Dom.players[i]);
 			}
 		}
 
+
 		// music
 		// it is checked if the user has selected for music to be played in the settings within the Game.playMusic function
 		this.playMusic();
+
+		//
+		// init
+		//
 
 		// init game (if it hasn't been done so already)
 		let init = false; // set to if this is the first areaTeleport of the game
@@ -4805,6 +4797,7 @@ Game.loadArea = function (areaName, destination) {
 			this.allCharacters.push(Game.hero);
 			this.allAttackers.push(Game.hero);
 		}
+
 
 		// display area name
 		// it is always displayed on init (thus only checked if it should be displayed if init is not called)
@@ -5171,10 +5164,14 @@ Game.initStatusEffects = function () {
 // init an NPC for being added by loadArea
 // returns true/false depending on if the NPC should be shown
 Game.prepareNPC = function (npc, type) {
-	if (this.canBeShown(npc)) {
+	if (this.canBeShown(npc) && this.bossCanBeShown(npc)) {
 		this.setInformationFromTemplate(npc);
+
 		npc.map = map;
 		npc.type = type;
+
+		this.setMailboxImage(npc);
+
 		return true;
 	}
 	return false;
@@ -5199,6 +5196,28 @@ Game.setInformationFromTemplate = function (properties) {
 	}
 
 	return properties;
+}
+
+// bosses only can be killed once a day
+// boolean condition used by prepareNPC
+Game.bossCanBeShown = function (npc) {
+	return (npc.hostility !== "boss" || GetFullDate() - Player.bossesKilled[npc.bossKilledVariable] > 0)
+}
+
+// sets the image of the mailbox before its creation (so it has an image in the first place)
+// called by prepareNPC
+Game.setMailboxImage = function (npc) {
+	if (npc.type === "mailboxes") {
+		// flag up if there is unread mail
+		if (Dom.mail.unread() > 0) {
+			// flag up
+			npc.image = npc.unreadImage;
+		}
+		else {
+			// no flag
+			npc.image = npc.readImage;
+		}
+	}
 }
 
 //
@@ -5488,28 +5507,10 @@ Game.playLevelupSound = function (areaName) {
 
 // called every second
 // healthRegen = health regenerated per second
-// tbd make list of characters that regen health
 Game.regenHealth = function () {
-	// player
-	this.restoreHealth(Game.hero, Game.hero.stats.healthRegen);
-	// food is done in the food status effect itself
-
-	// npcs
-	for (let i = 0; i < Game.npcs.length; i++) {
-		if (!Game.npcs[i].respawning) {
-			this.restoreHealth(Game.npcs[i], Game.npcs[i].stats.healthRegen);
-		}
-	}
-	// dummies
-	for (let i = 0; i < Game.dummies.length; i++) {
-		if (!Game.dummies[i].respawning) {
-			this.restoreHealth(Game.dummies[i], Game.dummies[i].stats.healthRegen);
-		}
-	}
-	// enemies
-	for (let i = 0; i < Game.enemies.length; i++) {
-		if (!Game.enemies[i].respawning) {
-			this.restoreHealth(Game.enemies[i], Game.enemies[i].stats.healthRegen);
+	for (let i = 0; i < Game.allCharacters.length; i++) {
+		if (!Game.allCharacters[i].respawning) {
+			this.restoreHealth(Game.allCharacters[i], Game.allCharacters[i].stats.healthRegen);
 		}
 	}
 }
@@ -6074,7 +6075,7 @@ Game.update = function (delta) {
 				// taken from Player
 				let a = projectile.id; // maintain a variable of the currently shot projectile's id
 				this.objectRemoveTimeouts.push(setTimeout(function (a) {
-					this.removeObject(this.channellingProjectileId, "projectiles", Projectile);
+					this.removeObject(this.channellingProjectileId, "projectiles");
 				}, 1500, a)); // pushed to objectRemoveTimeouts so it can be removed when the area is changed
 			}
 
@@ -6141,7 +6142,7 @@ Game.update = function (delta) {
 				// if trade/alert/pending request is active, send a message to the other player telling them to close it
 				// this is because update is not called if tab is not focused, so user could walk away with trade not closing for other person
 				if (Dom.trade.requested || Dom.trade.received || Dom.trade.active) {
-					ws.sendMessage(JSON.stringify({
+					ws.send(JSON.stringify({
 						type: "trade",
 						action: "walkAway",
 						target: player.userID
@@ -6267,6 +6268,16 @@ Game.update = function (delta) {
 		(entity.collisionType === "feet" && this.hero.footHitbox.isTouching(entity))) {
 			let boundOnPlayerTouch = entity.onPlayerTouch.bind(entity);
 			boundOnPlayerTouch();
+		}
+	}
+
+	// check collision with any things (if they have an interact function to be called)
+	for (let i = 0; i < this.allThings.length; i++) {
+		let thing = this.allThings[i];
+
+		// has an interact function, user is touching and pressing space
+		if (thing.onInteract !== undefined && this.keysDown.SPACE && this.hero.isTouching(thing)) {
+			thing.onInteract();
 		}
 	}
 
@@ -6447,77 +6458,73 @@ Game.getXP = function (xpGiven, xpBonus) {
 }
 
 // called whenever weapon/armour is changed (in order to change player stats)
-// this is called by index.html
 // PG's code
-Game.inventoryUpdate = function (e) {
-	// check if a weapon or armour slot has been changed
-	if (e === undefined || // clicked on an item
-	Dom.inventory.fromArray === Player.inventory || Dom.inventory.toArray === Player.inventory) { // dragged to or from an equipment slot
+Game.equipmentUpdate = function () {
+    // player stats updated
+    this.hero.stats = Player.stats; // inefficient (should be linked)
 
-		// player stats updated
-		this.hero.stats = Player.stats; // inefficient (should be linked)
+    // if the player is holding a weapon, set their range
+    if (Player.inventory.weapon.type !== undefined) {
+        // player has weapon equipped
+        let weaponType = this.getAttackType();
+        this.hero.stats.range = WeaponRanges[weaponType] + this.hero.stats.rangeModifier;
+    }
+    else {
+        // no weapon equipped
+        this.hero.stats.range = 0;
+    }
 
-		// if the player is holding a weapon, set their range
-		if (Player.inventory.weapon.type !== undefined) {
-			// player has weapon equipped
-			let weaponType = this.getAttackType();
-			this.hero.stats.range = WeaponRanges[weaponType] + this.hero.stats.rangeModifier;
-		}
-		else {
-			// no weapon equipped
-			this.hero.stats.range = 0;
-		}
+    // set player projectile
+    this.projectileImageUpdate();
 
-		// set player projectile
-		this.projectileImageUpdate();
+    // if the player is no longer holding a fishing rod, remove their bobber
+    if (Player.inventory.weapon.type !== "rod" && this.hero.channelling === "fishing") {
+        this.removeObject(this.hero.channellingProjectileId, "projectiles"); // remove bobber
 
-		// if the player is no longer holding a fishing rod, remove their bobber
-		if (Player.inventory.weapon.type !== "rod" && this.hero.channelling === "fishing") {
-			this.removeObject(this.hero.channellingProjectileId, "projectiles", Projectile); // remove bobber
+        this.hero.channelling = false;
+        this.hero.channellingProjectileId = null;
+    }
 
-			this.hero.channelling = false;
-			this.hero.channellingProjectileId = null;
-		}
+	// set weapon variance
+    if (this.getAttackType() === "bow" || Player.inventory.weapon.variance !== undefined) {
+        this.hero.stats.variance = Player.inventory.weapon.variance || 100; // 100 is default
+    }
+    else {
+        // non-bows have no variance
+        this.hero.stats.variance = 0;
+    }
 
-		// set weapon variance
-		if (this.getAttackType() === "bow" || Player.inventory.weapon.variance !== undefined) {
-			this.hero.stats.variance = Player.inventory.weapon.variance || 100; // 100 is default
-		}
-		else {
-			// non-bows have no variance
-			this.hero.stats.variance = 0;
-		}
+    // set weapon penetration
+    if (this.getAttackType() === "bow" || Player.inventory.weapon.penetration !== undefined) {
+        this.hero.stats.penetration = Player.inventory.weapon.penentration || false;
+    }
+    else {
+        // non-bows do penetrate
+        this.hero.stats.penetration = true;
+    }
 
-		// set weapon penetration
-		if (this.getAttackType() === "bow" || Player.inventory.weapon.penetration !== undefined) {
-			this.hero.stats.penetration = Player.inventory.weapon.penentration || false;
-		}
-		else {
-			// non-bows do penetrate
-			this.hero.stats.penetration = true;
-		}
+    // send updated equipment information to websocket if websocket is open
+    if (ws !== false && ws.readyState === 1) {
+        ws.send(JSON.stringify({
+            type: "changeEquipment",
+            equipment: {
+                helm: Player.inventory.helm,
+                chest: Player.inventory.chest,
+                greaves: Player.inventory.greaves,
+                boots: Player.inventory.boots,
+                weapon: Player.inventory.weapon
+            }
+        }));
+    }
+}
 
-		// send updated equipment information to websocket if websocket is open
-		if (ws !== false && ws.readyState === 1) {
-			ws.send(JSON.stringify({
-				type: "changeEquipment",
-				equipment: {
-					helm: Player.inventory.helm,
-					chest: Player.inventory.chest,
-					greaves: Player.inventory.greaves,
-					boots: Player.inventory.boots,
-					weapon: Player.inventory.weapon
-				}
-			}));
-		}
-	}
+Game.inventoryUpdate = function () {
+    // update item buyer page if it is open
+    if (document.getElementById("buyerPage").hidden === false) {
+        Dom.buyer.page();
+    }
 
-	// update item buyer page if it is open
-	if (document.getElementById("buyerPage").hidden === false) {
-	    Dom.buyer.page();
-	}
-
-	Dom.checkProgress(); // quest log update check
+    Dom.checkProgress(); // quest log update check
 }
 
 // set player projectile/bobber image
@@ -6618,7 +6625,7 @@ Game.lootClosed = function (itemsRemaining) {
 		// chest loot menu closed
 		let arrayIndex = Dom.loot.currentId.substr(1);
 		if (Game.chests[arrayIndex].disappearAfterOpened) {
-			Game.removeObject(Game.chests[arrayIndex].id, "chests", LootChest, arrayIndex);
+			Game.removeObject(Game.chests[arrayIndex].id, "chests", arrayIndex);
 		}
 		else {
 			Game.chests[arrayIndex].loot = itemsRemaining; // update items remaining
@@ -7056,7 +7063,6 @@ Game.drawCharacterName = function (ctx, character, x, y) {
 	else {
 		ctx.fillStyle = "black";
 	}
-
 
 	// draw text
 	ctx.fillText(character.name, x, y);
