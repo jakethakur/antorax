@@ -588,3 +588,19 @@ function GetWeek() {
 	let week = Math.ceil( (((now - onejan) / 86400000) + onejan.getDay() + 1) / 7 );
 	return week;
 }
+
+// generate random seed based on the time (so it is the same for everyone)
+// parameters are based on weight applied to each time period
+function GenerateSeed(yearWeight, monthWeight, dateWeight, hoursWeight, minutesWeight, secondsWeight) {
+	let date = new Date();
+	let seed = 0;
+
+	seed += date.getFullYear()*yearWeight;
+	seed += date.getMonth()*monthWeight;
+	seed += date.getDate()*dateWeight;
+	seed += date.getHours()*hoursWeight;
+	seed += date.getMinutes()*minutesWeight;
+	seed += date.getSeconds()*secondsWeight;
+
+	return seed;
+}

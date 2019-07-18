@@ -374,8 +374,10 @@ Game.initWebSocket = function () {
 			// offline
 			// remove all existing players in the area
 			Dom.players = [];
-			for (let i = 0; i < Game.players.length; i++) {
-				Game.removeObject(Game.players[i].id, "players", i);
+			if (Game.players !== undefined) {
+				for (let i = 0; i < Game.players.length; i++) {
+					Game.removeObject(Game.players[i].id, "players", i);
+				}
 			}
 
 			if (Game.hasConnectedToWebSocket) {
@@ -785,6 +787,8 @@ class Entity {
 		this.collisionType = properties.collisionType || "body"; // "feet" = check collision with Game.hero.footHitbox
 		// collision type currently only applies to tripwires
 
+		this.use = properties.use; // optional metadata about object, can be used by anything that needs it
+
 		// onLoad function
 		this.onLoad = properties.onLoad;
 		if (this.onLoad !== undefined) {
@@ -865,7 +869,9 @@ class Thing extends Entity {
 
 		this.setExpand(properties.expand || 1); // width multiplier (based on base width and base height)
 
-		this.z = properties.z || 0; // used for canvas positioning: -1 is always below (e.g. wizard's lore) and 1 is always on top (e.g. projectile)
+		// canvas positioning
+		this.z = properties.z || 0; // -1 is always below (e.g. wizard's lore) and 1 is always on top (e.g. projectile)
+		this.orderOffsetY = properties.orderOffsetY || 0; // offset to how the y acts in canvas positioning sorting algorithm
 
 		this.name = properties.name;
 
@@ -1116,7 +1122,7 @@ class Character extends Thing {
 
 		arrayType = arrayType || this.chatArrayType; // set arrayType to the NPC's default arrayType if it is undefined as parameter
 
-		if (arrayType !== "all") {
+		if (arrayType !== "all" || message.constructor === String) {
 			Dom.chat.insert(Dom.chat.say(name, message, language), delay, undefined, singleUse);
 		}
 		else {
@@ -2697,9 +2703,10 @@ class Projectile extends Thing {
 
 					if (to[i][x].canBeDamagedBy.length > 0 && attacker.constructor.name === "Hero") {
 						// can only be damaged by certain weapons
-						for (let a = 0; i < to[i][x].canBeDamagedBy.length; a++) {
+						canBeDamaged = false;
+						for (let a = 0; a < to[i][x].canBeDamagedBy.length; a++) {
 							if (Player.inventory.weapon.name === to[i][x].canBeDamagedBy[a]) {
-								canBeDamaged = false;
+								canBeDamaged = true;
 								break;
 							}
 						}
@@ -2966,12 +2973,13 @@ class NPC extends Character {
 		super(properties);
 
 		this.roles = properties.roles; // array of objects, containing anything that can happen when the NPC is touched
+
+		Game.allNPCs.push(this); // array for current area only
 	}
 }
 
-// person that just moves around and does nothing of use (to be what merchant/quest NPC inherit off)
-// currently doesn't move properly
-class Villager extends Character {
+// NPC that walks around
+class Villager extends NPC {
 	constructor(properties) {
 		super(properties);
 
@@ -3065,13 +3073,6 @@ class Villager extends Character {
 // training enemy; displays damage taken rather than health
 // e.g: target dummy
 class Dummy extends Character {
-	constructor(properties) {
-		super(properties);
-	}
-}
-
-// can be damaged
-class Attackable extends Character {
 	constructor(properties) {
 		super(properties);
 	}
@@ -4617,6 +4618,13 @@ Game.loadArea = function (areaName, destination) {
 	// wait until images have been loaded
     Promise.all(p).then(function (loaded) {
 
+		// call onAreaLeave function for previous area if there is one
+		if (this.areaName !== undefined) { // if they came from a different area
+			if (Areas[areaName].onAreaLeave !== undefined) {
+				Areas[areaName].onAreaLeave();
+			}
+		}
+
 		this.areaName = areaName;
 
 		// save data information
@@ -4723,6 +4731,7 @@ Game.loadArea = function (areaName, destination) {
 		this.allThings = [];
 		this.allCharacters = [];
 		this.allAttackers = [];
+		this.allNPCs = []; // includes villagers
 
 		let typeArray = Object.keys(this.typeClasses);
 		let classArray = Object.values(this.typeClasses);
@@ -4859,10 +4868,15 @@ Game.loadArea = function (areaName, destination) {
 			this.generateChests(Areas[areaName].chestData);
 		}
 
-		// call onAreaTeleport function if there is one
+		// load in randomly generated villagers if the area has data for them
+		if (Areas[areaName].villagerData !== undefined) {
+			this.generateVillagers(Areas[areaName].villagerData);
+		}
+
+		// call onAreaJoin function if there is one
 		if (!init) { // only if the area was teleported to (not game refresh)
-			if (Areas[areaName].onAreaTeleport !== undefined) {
-				Areas[areaName].onAreaTeleport();
+			if (Areas[areaName].onAreaJoin !== undefined) {
+				Areas[areaName].onAreaJoin();
 			}
 		}
 
@@ -5409,6 +5423,85 @@ Game.positionLoot = function (items, space) {
 }
 
 //
+// Villagers
+//
+
+// generate and add villagers from villagerData (in areadata)
+// all random values are based on time (like weather)
+Game.generateVillagers = function (data) {
+	// designed to change by 1 every 50 minutes
+	// so this doesn't always happen on a 10 minute mark, months and years offset this
+	let seed = GenerateSeed(7, 9, 24, 1, 0.02, 0);
+
+	// vary seed based on area as well
+	seed += this.areaName.length/5;
+
+	// find possible villagers for the area
+	let possibleVillagers = Villagers.filter(villager => villager.areas.includes(Game.areaName));
+
+	// loop through possible villagers, picking them based the number of possible villagers in the area
+
+	// starting index, increase value, and number to add vary with time (thus villagers picked varies with time)
+
+	// startValue is added to i
+	// changes approximately once every 50 mins
+	// value between 0 and possibleVillagers.length
+	let startValue = Math.round(possibleVillagers.length - (seed % possibleVillagers.length));
+
+	// changes approximately once every 150 mins
+	// value between 1 and 4
+	let increaseValue = Math.round((seed/3) % 4) + 1;
+
+	// difference in number of villagers picked
+	let numberDifference = data.maxPeople - data.minPeople;
+	// changes approximately every 100 mins
+	// note that the actual number added might be less than this if increaseValue*numberToAdd > possibleVillagers.length
+	let numberToAdd = Math.round(data.minPeople + (numberDifference - ((seed/2) % numberDifference)));
+
+	let numberAdded = 0;
+	let villagersToAdd = []; // array of indexes of villagers to add
+	let images = {}; // images to be loaded (same format as in areadata)
+	for (let i = 0; i < possibleVillagers.length; i += increaseValue) {
+		let villagerIndex = (i+startValue) % possibleVillagers.length;
+
+		villagersToAdd.push(villagerIndex);
+
+		// image to be added
+		images[Villagers[villagerIndex].image] = Villagers[villagerIndex].imageSource;
+
+		// prepare the NPC to be added
+		if (numberAdded === numberToAdd) {
+			// enough villagers have been added
+			break;
+		}
+	}
+
+	// load the images
+	let p = this.loadImages(images);
+
+	// wait until images have been loaded
+	Promise.all(p).then(function () {
+		// loop through villagers to be added, assigning them a position and preparing them
+		for (let i = 0; i < villagersToAdd.length; i++) {
+			let villager = Villagers[villagersToAdd[i]];
+
+			// pick random location for villager based on random seed and length of its name
+			// changes approximately every 200 minutes
+			let locationIndex = Math.round(villager.name.length + (seed/4)) % data.locations.length;
+			villager.boundary = data.locations[locationIndex];
+
+			// random position inside the boundary
+			villager.x = Random(villager.boundary.x, villager.boundary.x+villager.boundary.width);
+			villager.y = Random(villager.boundary.y, villager.boundary.y+villager.boundary.height);
+
+			if (this.prepareNPC(villager, "villagers")) {
+				this.villagers.push(new Villager(villager));
+			}
+		}
+	}.bind(this));
+}
+
+//
 // Music
 //
 
@@ -5619,9 +5712,9 @@ Game.update = function (delta) {
 	//
 
 	// check collision with npcs - includes quest givers, quest finishers, merchants, soul healers, more TBA
-	for (let i = 0; i < this.npcs.length; i++) { // iterate though npcs
+	for (let i = 0; i < this.allNPCs.length; i++) { // iterate though npcs
 
-		let npc = this.npcs[i];
+		let npc = this.allNPCs[i];
 
  		// check npc is not dead, that hero is touching it, and that it is not already currently displayed
 		if (this.hero.isTouching(npc) && Dom.currentlyDisplayed !== npc.name && !npc.respawning) {
@@ -5717,27 +5810,10 @@ Game.update = function (delta) {
 							}
 
 							if (questCanBeStarted) {
-
-								if (typeof questToBeStarted.startRewards !== "undefined" && typeof questToBeStarted.startRewards.items !== "undefined") {
-									if (Dom.inventory.requiredSpace(questToBeStarted.startRewards.items)) {
-										// user has space for quest start items
-										// quest start appears as an option for choose DOM
-										textArray.push("Quest start: " + questToBeStarted.quest);
-										functionArray.push(Dom.quest.start);
-										parameterArray.push([questToBeStarted]);
-									}
-									else {
-										// user doesn't have enough space
-										npc.say(npc.chat.inventoryFull, 0, true);
-									}
-								}
-								else {
-									// no quest start items, so user ofc has enough inventory space
-									// quest start appears as an option for choose DOM
-									textArray.push("Quest start: " + questToBeStarted.quest);
-									functionArray.push(Dom.quest.start);
-									parameterArray.push([questToBeStarted]);
-								}
+								// choose dom checks inventory space
+								textArray.push("Quest start: " + questToBeStarted.quest);
+								functionArray.push(Dom.quest.start);
+								parameterArray.push([questToBeStarted, npc]);
 							}
 						}
 
@@ -5771,27 +5847,10 @@ Game.update = function (delta) {
 								// check if quest conditions have been fulfilled
 								// canBeFinishedArray used for efficiency
 								if (Player.quests.canBeFinishedArray.includes(questToBeFinished.quest)) {
-
-									if (typeof role.quest.rewards !== "undefined" && typeof role.quest.rewards.items !== "undefined") {
-										if (Dom.inventory.requiredSpace(role.quest.rewards.items)) {
-											// user has space for quest finish items
-											// quest finish appears as an option for choose DOM
-											textArray.push("Quest finish: " + role.quest.quest);
-											functionArray.push(Dom.quest.finish);
-											parameterArray.push([role.quest]);
-										}
-										else {
-											// user doesn't have enough space
-											npc.say(npc.chat.inventoryFull, 0, true);
-										}
-									}
-									else {
-										// no quest item rewards, so user ofc has enough inventory space
-										// quest finish appears as an option for choose DOM
-										textArray.push("Quest finish: " + questToBeFinished.quest);
-										functionArray.push(Dom.quest.finish);
-										parameterArray.push([questToBeFinished]);
-									}
+									// inventory space is checked by choose DOM
+									textArray.push("Quest finish: " + questToBeFinished.quest);
+									functionArray.push(Dom.quest.finish);
+									parameterArray.push([role.quest, npc]);
 								}
 								// quest conditions have not been fulfilled
 								else {
@@ -6278,6 +6337,7 @@ Game.update = function (delta) {
 		// has an interact function, user is touching and pressing space
 		if (thing.onInteract !== undefined && this.keysDown.SPACE && this.hero.isTouching(thing)) {
 			thing.onInteract();
+			Dom.checkProgress();
 		}
 	}
 
@@ -7167,7 +7227,7 @@ Game.render = function (delta) {
 	// 10^10 is an arbitrary value that should always be out of reach of y values
 	for (let i = 0; i < this.allThings.length; i++) {
 		if (this.allThings[i].hidden !== true) {
-			this.allThings[i].sortValue = this.allThings[i].y + this.allThings[i].z * 10000000000;
+			this.allThings[i].sortValue = this.allThings[i].y + this.allThings[i].orderOffsetY + this.allThings[i].z * 10000000000;
 		}
 		else {
 			// a y value might not have been assigned to the object yet

@@ -101,15 +101,9 @@ Weather.reset = function () {
 
 // update random weather seed (called every tick)
 Weather.updateSeed = function () {
-	this.date = new Date();
-    this.dateValue = 0;
-
-	this.dateValue += this.date.getFullYear()*25;
-	this.dateValue += this.date.getMonth()*25;
-	this.dateValue += this.date.getDate()*25;
-	this.dateValue += this.date.getHours()*10;
-	this.dateValue += this.date.getMinutes();
-	this.dateValue += this.date.getSeconds()/100;
+	// generate random seed based on the time (so it is the same for everyone)
+	// parameters are based on weight applied to each time period
+	this.dateValue = GenerateSeed(25, 25, 25, 10, 1, 0.01);
 }
 
 Weather.updateIntensity = function () {
