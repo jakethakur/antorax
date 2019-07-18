@@ -26,7 +26,7 @@ var Adventure = {
 	},
 	christmas: {
 		html: `<div id="christmasAL" class="adventure">
-			Samhain Event<br>
+			Christmas Event<br>
 			<span class="adventureContent">Celebrate Christmas with the logging camp.</span>
 		</div>`,
 		condition: function () {
@@ -65,15 +65,29 @@ var Adventure = {
 		special: function () {
 			if(Player.quests.completedQuestArray.includes("Learning to Fish II")){
 				return "Learning to Fish III";
-			}else if(Player.quests.completedQuestArray.includes("Learning to Fish I")){
+			}
+			else if(Player.quests.completedQuestArray.includes("Learning to Fish I")){
 				return "Learning to Fish II";
-			}else if(Player.quests.completedQuestArray.includes("A Lost Fishing Rod")){
+			}
+			else if(Player.quests.completedQuestArray.includes("A Lost Fishing Rod")){
 				return "Learning to Fish I";
-			}else{
+			}
+			else{
 				return "A Lost Fishing Rod";
 			}
 		},
 	},
+	
+	tavernJobs: {
+		html: `<div id="tavernAL" class="adventure">
+			Tavern Jobs<br>
+			<span class="adventureContent">Earn gold by completing jobs at a nearby tavern.</span>
+		</div>`,
+		condition: function () {
+			return Player.quests.completedQuestArray.includes("To the Logging Camp");
+		},
+	},
+	
 	instructions: {
 		html: `<div id="instructionsAL" class="adventure">
 			<span id="instructionsTitle" style="cursor: pointer;" onclick="Dom.instructions.index();"><u>Instructions</u></span><br>

@@ -272,6 +272,7 @@ Dom.elements.settingLogout.innerHTML = "You are logged in as "+Player.name+"<div
 
 Dom.settings.delete = function () {
 	Dom.alert.target = function () {
+		Dom.settings.deleted = true;
 		localStorage.removeItem(Player.class);
 		window.location.replace("./selection/index.html");
 	}
@@ -358,23 +359,27 @@ Dom.quests.active = function (quest) {
 			let isCompleted = currentQuest.isCompleted();
 			Dom.quests.activeHTML[currentQuest.important] += "<br><br><strong>" + currentQuest.quest + "</strong>";
 			let completedObjectives = 0;
-			for (let i = 0; i < currentQuest.objectives.length; i++) {
-				Dom.quests.activeHTML[currentQuest.important] += "<br>" + currentQuest.objectives[i];
-				if (isCompleted[i] === true && i !== currentQuest.objectives.length-1) {
+			let objectives = currentQuest.objectives || currentQuest[Player.quests.questProgress[currentQuest.quest]].objectives;
+			for (let i = 0; i < objectives.length; i++) {
+				Dom.quests.activeHTML[currentQuest.important] += "<br>" + objectives[i];
+				if (isCompleted[i] === true && i !== objectives.length-1) {
 					Dom.quests.activeHTML[currentQuest.important] += " &#10004;";
 					completedObjectives++;
-				}else if (isCompleted[i] !== false && i !== currentQuest.objectives.length-1) {
+				}
+				else if (isCompleted[i] !== false && i !== objectives.length-1) {
 					Dom.quests.activeHTML[currentQuest.important] += " " + isCompleted[i];
 				}
 			}
-			if (currentQuest.autofinish && completedObjectives >= currentQuest.objectives.length-1) {
-				Dom.choose.page(currentQuest.finishName, ["Quest Finish: " + currentQuest.quest], [Dom.quest.finish], [[currentQuest]]);
-			}else if (completedObjectives >= currentQuest.objectives.length-1 && !Player.quests.canBeFinishedArray.includes(currentQuest.quest)) {
+			if (currentQuest.autofinish && completedObjectives >= objectives.length-1) {
+				Dom.choose.page(currentQuest.finishName || currentQuest[Player.quests.questProgress[quest.quest]].finishName, ["Quest Finish: " + currentQuest.quest], [Dom.quest.finish], [[currentQuest]]);
+			}
+			else if (completedObjectives >= objectives.length-1 && !Player.quests.canBeFinishedArray.includes(currentQuest.quest)) {
 				Player.quests.canBeFinishedArray.push(currentQuest.quest);
 			}
 			if (currentQuest.wasCompleted === undefined) {
 				currentQuest.wasCompleted = isCompleted;
-			}else{
+			}
+			else{
 				for (let i = 0; i < currentQuest.wasCompleted.length; i++) {
 					if (currentQuest.wasCompleted[i] !== true && isCompleted[i] === true) {
 						Dom.chat.insert("Quest log updated");
@@ -1460,13 +1465,16 @@ Dom.inventory.removeItemCharge = function (inventoryPosition, hotbar) {
 Dom.currentlyDisplayed = "";
 Dom.currentNPC = {};
 Dom.quest.start = function (quest) {
-	if (Dom.changeBook("questStart")) {//, true/*false*/, true)) {
+	if (Dom.changeBook("questStart")) {
+		if (quest.multipleAreas) {
+			Player.quests.questProgress[quest.quest] = Player.areaName;
+		}
 		Dom.elements.questStartQuest.innerHTML = quest.quest;
-		Dom.elements.questStartName.innerHTML = quest.startName;
-		Dom.elements.questStartChat.innerHTML = quest.startChat;
+		Dom.elements.questStartName.innerHTML = quest.startName || quest[Player.areaName].startName;
+		Dom.elements.questStartChat.innerHTML = quest.startChat || quest[Player.areaName].startChat;
 		Dom.elements.questStartObjectives.innerHTML = "";
-		for (let i = 0; i < quest.objectives.length; i++) {
-			Dom.elements.questStartObjectives.innerHTML += "<br>" + quest.objectives[i];
+		for (let i = 0; i < (quest.objectives || quest[Player.areaName].objectives).length; i++) {
+			Dom.elements.questStartObjectives.innerHTML += "<br>" + (quest.objectives || quest[Player.areaName].objectives)[i];
 		}
 
 		// xp rewards
@@ -1513,7 +1521,7 @@ Dom.quest.start = function (quest) {
 		// start rewards
 		Dom.elements.questStartStartItems.innerHTML = "";
 		if (quest.startRewards !== undefined) {
-			Dom.elements.questStartStartRewardsTitle.innerHTML = "<br><br><b>Quest Start Rewards</b><br>";
+			Dom.elements.questStartStartRewardsTitle.innerHTML = "<br><br><b>You will receive these items on starting the quest:</b><br>";
 
 			// service rewards
 			if (quest.startRewards.services !== undefined) {
@@ -1638,8 +1646,8 @@ Dom.quest.addReward = function (item, element, className, stackNum) {
 Dom.quest.finish = function (quest) {
 	if (Dom.changeBook("questFinish")) {//, true/*false*/, true)) {
 		Dom.elements.questFinishQuest.innerHTML = quest.quest;
-		Dom.elements.questFinishName.innerHTML = quest.finishName;
-		Dom.elements.questFinishChat.innerHTML = quest.finishChat;
+		Dom.elements.questFinishName.innerHTML = quest.finishName || quest[Player.areaName].finishName;
+		Dom.elements.questFinishChat.innerHTML = quest.finishChat || quest[Player.areaName].finishChat;
 
 		// xp rewards
 		Dom.elements.questFinishItems.innerHTML = "";
@@ -1796,10 +1804,14 @@ Dom.quest.acceptRewards = function () {
 		}
 	}
 	Dom.quests.completed(Dom.currentlyDisplayed);
-	if (Dom.currentlyDisplayed.repeatTime !== "daily") {
-		User.progress.quests = Increment(User.progress.quests);
-	}else{
+	if (Dom.currentlyDisplayed.repeatTime === "job") {
+		User.progress.jobQuests = Increment(User.progress.jobQuests);
+	}
+	else if (Dom.currentlyDisplayed.repeatTime === "daily") {
 		User.progress.dailyQuests = Increment(User.progress.dailyQuests);
+	}
+	else {
+		User.progress.quests = Increment(User.progress.quests);
 	}
 	Player.quests.questLastFinished[Dom.currentlyDisplayed.questArea][Dom.currentlyDisplayed.id] = GetFullDate();
 	Dom.quests.possible();
@@ -1905,6 +1917,7 @@ Dom.quests.possible = function () {
 						questCanBeStarted = false;
 					}
 				}
+				// jobs can always be started so no code needed
 			}
 			if (quest.reputationRequirements !== undefined) {
 				for (let y = 0; y < Object.keys(quest.reputationRequirements).length; y++) {
@@ -1915,11 +1928,14 @@ Dom.quests.possible = function () {
 			}
 
 			if (questCanBeStarted) {
-				if (quest.repeatTime === "daily") {
-					quest.important = "daily";
+				if (quest.repeatTime !== "job") {
+					// if it is not a job add it to the possible quest box
+					if (quest.repeatTime === "daily") {
+						quest.important = "daily";
+					}
+					Dom.quests.possibleHTML[quest.important] += "<br><br><strong>" + quest.quest + "</strong><br>" + quest.howToStart;
 				}
 				Player.quests.possibleQuestArray.push(quest.quest);
-				Dom.quests.possibleHTML[quest.important] += "<br><br><strong>" + quest.quest + "</strong><br>" + quest.howToStart;
 				if (!previousPossible.includes(quest.quest)) {
 					newPossible.push(quest.quest);
 					if (quest.quest !== "To the Logging Camp" && !Player.quests.completedQuestArray.includes(quest.quest)) {
@@ -2566,7 +2582,7 @@ Dom.inventory.dispose = function (ev) {
 
 		ev.preventDefault(); // allows the item to drop
 		if (ev.target.id !== "" && (remove || ((Dom.inventory.fromId !== 5 || Dom.inventory.fromArray !== Player.inventory.items) && (Dom.inventory.fromId > 5 || Dom.inventory.fromArray !== Player.bank.items))) && !quest) {
-			Dom.alert.target = function (ev, all) {
+			Dom.alert.target = function (all) {
 
 				// item inventory or bank
 				if (Dom.inventory.fromArray !== Player.inventory) {
@@ -2611,13 +2627,16 @@ Dom.inventory.dispose = function (ev) {
 			//Dom.alert.ev = Object.assign({}, Dom.inventory.fromId);
 			if (Dom.inventory.fromArray[Dom.inventory.fromId].stacked > 1) {
 				Dom.alert.page("How many would you like to drop?", 3, undefined, "inventoryPage");
-			}else{
+			}
+			else{
 				Dom.alert.page("Are you sure you want to drop this item? It will be lost forever!", 2, undefined, "inventoryPage");
 			}
-		}else if (ev.target.id !== "") {
+		}
+		else if (ev.target.id !== "") {
 			if (!quest) {
 				Dom.alert.page("Move some items to the bank, sell or dispose of them before you can do that.", 0, undefined, "inventoryPage");
-			}else{
+			}
+			else{
 				Dom.alert.page("You cannot dispose of this item because you need it for a quest.", 0, undefined, "inventoryPage");
 			}
 		}
@@ -2672,8 +2691,10 @@ Dom.inventory.remove = function (num, all, array) { // array is optional
 	}
 
 	let element = "itemInventory";
+	let stackNum = "stackNum";
 	if (array === Player.bank.items) {
 		element = "bankPageInventory";
+		stackNum = "bankStackNum";
 	}
 
 	// repeats once unless all is a number
@@ -2690,14 +2711,15 @@ Dom.inventory.remove = function (num, all, array) { // array is optional
 				// check for more of the same items and remove them
 				Dom.inventory.removeById(id, type, all-i-1, array);
 			}
+		}
 		// decrease stack size
-		}else{
+		else{
 			array[num].stacked--;
 			if (array[num].stacked !== 1) {
-				document.getElementById("stackNum"+num).innerHTML = array[num].stacked;
+				document.getElementById(stackNum+num).innerHTML = array[num].stacked;
 			}
 			else{
-				document.getElementById("stackNum"+num).hidden = true;
+				document.getElementById(stackNum+num).hidden = true;
 			}
 		}
 	}
@@ -3279,6 +3301,8 @@ Dom.inventory.setItemFunctions = function (element, array, id) {
 }
 
 Dom.inventory.removeEquipment = function (array) {
+	Game.equipmentUpdate();
+		
 	// draw slot background
 	let element = "weapon";
 	let type = "sword";
@@ -3369,6 +3393,8 @@ Dom.inventory.removeEquipment = function (array) {
 }
 
 Dom.inventory.addEquipment = function (array) {
+	Game.equipmentUpdate();
+	
 	// remove slot background
 	let element = "weapon";
 	if (array.type !== "rod" && array.type !== "sword" && array.type !== "staff" && array.type !== "bow") {
@@ -3563,12 +3589,13 @@ Dom.elements.hotbar.onmouseleave = function () {
 }
 
 Dom.settings.acceptOn = function () {
-	// accept localStorage for progress saving
-	localStorage.setItem("accept", "true");
-	localStorage.setItem("name", Player.name);
-	// hide option for progress saving in settings and add save button
-	Dom.elements.settingAcceptHolder.innerHTML = "";
-	//Dom.elements.settingLogout.innerHTML = "<div id='settingControls' onclick='Dom.settings.page(\"settingsTwoPage\")'>Controls</div><br><br>You are logged in as "+Player.name+"<div id='settingSave' onclick='Game.saveProgress()'>Save</div><div id='settingLogoutInner' onclick='Game.saveProgress(\"logout\")'>Logout</div><div id='settingDelete'>Delete</div>";
+	if (Dom.elements.acceptOn.checked) {
+		// accept localStorage for progress saving
+		localStorage.setItem("accept", "true");
+		localStorage.setItem("name", Player.name);
+		// hide option for progress saving in settings and add save button
+		Dom.elements.settingAcceptHolder.innerHTML = "";
+	}
 }
 
 if (User.settings.music === true) {
@@ -4405,19 +4432,17 @@ Dom.mail.page = function (override) {
 					Dom.closePage("mailPage", true);
 					if (Player.mail.mail[i].openFunction !== "quest.start") {
 						ExecuteFunctionByName(Player.mail.mail[i].openFunction, Dom, Player.mail.mail[i].openParameters);
-					}else{
+					}
+					else{
 						let quest = Quests[Player.mail.mail[i].openParameters[0]][Player.mail.mail[i].openParameters[1]];
 						if (Player.quests.possibleQuestArray.includes(quest.quest)) {
 							ExecuteFunctionByName("quest.start", Dom, [quest]);
-						}else{
-							ExecuteFunctionByName("text.page", Dom, [quest.quest, "<strong>"+quest.startName+"</strong><br>"+quest.startChat, true, [], []]);
+						}
+						else{
+							ExecuteFunctionByName("text.page", Dom, [quest.quest, "<strong>"+(quest.startName || quest[Player.areaName].startName)+"</strong><br>"+(quest.startChat || quest[Player.areaName].startName), true, [], []]);
 						}
 					}
 					Game.mailboxUpdate("read");
-					/*if (first && Player.mail.mail[i].openFunction === "quest.start") {
-						Player.mail.mail[i].openFunction = "text.page";
-						Player.mail.mail[i].openParameters = [Player.mail.mail[i].openParameters.quest, "<strong>"+Player.mail.mail[i].startName+"</strong>"+Player.mail.mail[i].startChat];
-					}*/
 				}else{
 					Dom.mail.notOpen = false;
 				}
@@ -4700,10 +4725,13 @@ Dom.inventory.afterChangedStats = function () {
 
 Dom.settings.transparency = function () {
 	if (Dom.elements.transparencyOn.checked) {
+		User.settings.transparency = true;
 		for (let i = 0; i < document.getElementsByClassName("DOM").length; i++) {
 			document.getElementsByClassName("DOM")[i].style.opacity = "var(--opacity)";
 		}
-	}else{
+	}
+	else{
+		User.settings.transparency = false;
 		for (let i = 0; i < document.getElementsByClassName("DOM").length; i++) {
 			document.getElementsByClassName("DOM")[i].style.opacity = 1;
 		}
@@ -5050,6 +5078,7 @@ Dom.trade.complete = function () {
 	Dom.trade.other = [{},{},{},{},{},{},{},{},
 						{},{},{},{},{},{},{},{},
 						{},{},{},{},{},{},{},{},];
+	Dom.trade.active = false;
 	Dom.closePage("inventoryPage");
 }
 
@@ -5061,7 +5090,9 @@ window.onbeforeunload = function() {
 	if (Dom.trade.active) {
 		Dom.trade.close();
 	}
-	Game.saveProgress();
+	if (!Dom.settings.deleted) {
+		Game.saveProgress();
+	}
 }
 
 // notification if user has given permission
@@ -5099,8 +5130,106 @@ Dom.leaderboard.page = function (title, description, players) {
 	}
 }
 
+Dom.settings.fullscreen = function () {
+	if (Dom.elements.fullscreenOn.checked) {
+		if (window.innerHeight !== screen.height || window.innerHeight + 1 !== screen.height) {
+			document.documentElement.requestFullscreen();
+		}
+	}
+	else {
+		if (window.innerHeight === screen.height || window.innerHeight + 1 === screen.height) {
+			document.exitFullscreen();
+		}
+	}
+}
+
+Dom.settings.music = function () {
+	if (Dom.elements.musicOn.checked) {
+		if (Game.playingMusic === null) {
+			Game.playMusic();
+		}
+	}
+	else {
+		if (Game.playingMusic !== null) {
+			Game.stopMusic();
+		}
+	}
+}
+
+Dom.settings.music = function () {
+	if (Dom.elements.musicOn.checked) {
+		if (Game.playingMusic === null) {
+			Game.playMusic();
+		}
+	}
+	else {
+		if (Game.playingMusic !== null) {
+			Game.stopMusic();
+		}
+	}
+}
+
+Dom.settings.coords = function () {
+	if (Dom.elements.coordsOn.checked) {
+		User.settings.coords = true;
+	}
+	else {
+		User.settings.coords = false;
+	}
+}
+
+Dom.settings.fps = function () {
+	if (Dom.elements.fpsOn.checked) {
+		User.settings.fps = true;
+	}
+	else {
+		User.settings.fps = false;
+	}
+}
+
+Dom.settings.hitbox = function () {
+	if (Dom.elements.hitboxOn.checked) {
+		User.settings.hitbox = true;
+	}
+	else {
+		User.settings.hitbox = false;
+	}
+}
+
+Dom.settings.grid = function () {
+	if (Dom.elements.gridOn.checked) {
+		User.settings.grid = true;
+	}
+	else {
+		User.settings.grid = false;
+	}
+}
+
+Dom.quest.abandon = function (quest) {
+	
+	// remove start rewards because it can be restarted
+	if (quest.startRewards.items !== undefined) {
+		for (let i = 0; i < quest.startRewards.items.length; i++) {
+			Dom.inventory.removeById(quest.startRewards.items[i].item.id, quest.startRewards.items[i].item.type, quest.startRewards.items[i].quantity);
+		}
+	}
+	
+	// remove from active quest array
+	for (let i = 0; i < Player.quests.activeQuestArray.length; i++) {
+		if (Player.quests.activeQuestArray[i] === quest.quest) {			
+			Player.quests.activeQuestArray.splice(i, 1);
+			break;
+		}
+	}
+	
+	// update boxes
+	Dom.quests.active();
+	Dom.quests.possible();
+}
+
 Dom.settings.dark = function () {
-	if (User.settings.dark) {
+	if (Dom.elements.darkOn.checked) {
+		User.settings.dark = true;
 		document.documentElement.style = `
 		--border: #202020;
 		--alert: #707070;
@@ -5115,6 +5244,7 @@ Dom.settings.dark = function () {
 		--input: #aaaaaa;`
 	}
 	else {
+		User.settings.dark = false;
 		document.documentElement.style = `
 		--border: #886622;
 		--alert: #eecc77;
@@ -5384,7 +5514,7 @@ Dom.init = function () {
 					"unknown sender",
 					"./assets/items/item/16",
 					"quest.start",
-					["eaglecrestLoggingCamp", 25],
+					["eaglecrestLoggingCamp", 22],
 				);
 			}
 		}
@@ -5461,11 +5591,25 @@ Dom.init = function () {
 
 	Dom.hotbar.update();
 	Dom.inventory.update();
-	Dom.checkProgress(); // Dom.quests.active()
+	
+	// remove all active job quests before checkProgress (quests.active)
+	for (let x = 0; x < Player.quests.activeQuestArray.length; x ++) {
+		for (let i = 0; i < Object.keys(Quests).length; i++) {
+			for (let y = 0; y < Quests[Object.keys(Quests)[i]].length; y++) {
+				if (Quests[Object.keys(Quests)[i]][y].quest === Player.quests.activeQuestArray[x]) {
+					if (Quests[Object.keys(Quests)[i]][y].repeatTime === "job") {
+						Player.quests.activeQuestArray.splice(x, 1);
+					}
+				}
+			}
+		}
+	}
+	
+	Dom.checkProgress(); // calls Dom.quests.active()
 	Dom.quests.possible();
 	Dom.quests.completed();
-	//Dom.changeBook(Player.tab); // sets tab to whatever the player was on when they last saved
 	Dom.adventure.update(); // chooses what should be shown in adventurer's log
+	
 	// clear any unintentional chat and welcome player
 	Dom.chat.contents = [];
 

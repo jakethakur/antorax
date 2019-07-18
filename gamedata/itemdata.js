@@ -1143,6 +1143,23 @@ var Items = {
 				defence: 3,
 			},
 		},
+		{
+			id: 13,
+			name: "Mop",
+			type: "sword",
+			image: "assets/items/sword/13.png",
+			uncollectable: true,
+			allClasses: true,
+			tier: 1,
+			projectile: "slashWater",
+			obtain: ["other"],
+			area: [],
+			rarity: "common",
+			quest: true,
+			stats: {
+				damage: 1,
+			},
+		},
 	],
 	staff: [
 		{
@@ -2064,6 +2081,7 @@ var Items = {
 			name: "Tattered Tome",
 			type: "item",
 			image: "assets/items/item/16.png",
+			rarity: "junk",
 			lore: "You can't understand what the book says.",
 			sellPrice: 1,
 			sellQuantity: 8,
@@ -2108,6 +2126,7 @@ var Items = {
 			category: "mineral",
 			image: "assets/items/item/19.png",
 			sellPrice: 1,
+			stack: 64,
 			opens: { // eternity glove
 				type: "sword",
 				id: 11,
@@ -2120,6 +2139,7 @@ var Items = {
 			category: "mineral",
 			image: "assets/items/item/20.png",
 			sellPrice: 1,
+			stack: 64,
 			opens: { // eternity glove
 				type: "sword",
 				id: 11,
@@ -2132,6 +2152,7 @@ var Items = {
 			category: "mineral",
 			image: "assets/items/item/21.png",
 			sellPrice: 1,
+			stack: 64,
 			opens: { // eternity glove
 				type: "sword",
 				id: 11,
@@ -2144,6 +2165,7 @@ var Items = {
 			category: "mineral",
 			image: "assets/items/item/22.png",
 			sellPrice: 1,
+			stack: 64,
 			opens: { // eternity glove
 				type: "sword",
 				id: 11,
@@ -2156,6 +2178,7 @@ var Items = {
 			category: "mineral",
 			image: "assets/items/item/23.png",
 			sellPrice: 1,
+			stack: 64,
 			opens: { // eternity glove
 				type: "sword",
 				id: 11,
@@ -2168,10 +2191,27 @@ var Items = {
 			category: "mineral",
 			image: "assets/items/item/24.png",
 			sellPrice: 1,
+			stack: 64,
 			opens: { // eternity glove
 				type: "sword",
 				id: 11,
 			},
+		},
+		{
+			id: 25,
+			name: "Mug",
+			type: "item",
+			image: "assets/items/item/25.png",
+			quest: true,
+			stack: 64,
+		},
+		{
+			id: 26,
+			name: "Plate",
+			type: "item",
+			image: "assets/items/item/26.png",
+			quest: true,
+			stack: 64,
 		},
 	],
 	consumable: [

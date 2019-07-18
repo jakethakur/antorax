@@ -1166,20 +1166,11 @@ After all, death is never the end in Antorax...<br>
 			},
 
 			onQuestStart: function() {
-				// save old position
-				Game.hero.oldPosition = {
-					area: Game.areaName,
-					x: Game.hero.x,
-					y: Game.hero.y,
-				};
-				// teleport player there
-				Game.loadArea("nilbogPast", {x: 100, y: 100});
+				Game.hero.temporaryAreaTeleport("nilbogPast", 100, 100);
 			},
 
 			onQuestFinish: function() {
-				// teleport player back to their previous position
-				Game.loadArea(Game.hero.oldPosition.area, {x: Game.hero.oldPosition.x, y: Game.hero.oldPosition.y});
-				Game.hero.oldPosition = undefined;
+				Game.hero.temporaryAreaTeleportReturn();
 			},
 		},
 
@@ -1242,7 +1233,7 @@ After all, death is never the end in Antorax...<br>
 
 			objectives: [
 				"Take a sip from your wood-brewed beer around the hearth.",
-				"Speak to <strong>Grogor Goldenbrew</strong>.",
+				"Speak to <strong>Gregor Goldenbrew</strong>.",
 			],
 
 			howToStart: "Speak to <strong>Gregor Goldenbrew</strong> in the Treefeller's Tavern.",
@@ -1275,6 +1266,187 @@ After all, death is never the end in Antorax...<br>
 
 			onQuestStart: function() {
 				Dom.chat.insert("Gregor brews you an extra large beer. Try not to get too tipsy!", 100);
+			},
+		},
+		{
+			id: 1,
+			quest: "Cleaning the Floor",
+			questArea: "tavern",
+
+			loggingCampTavern: {
+				startName: "Gregor Goldenbrew",
+				startChat: "It's getting a bit dirty 'round 'ere! Any chance ya can help clean up for a li'l gold?",
+				finishName: "Gregor Goldenbrew",
+				finishChat: "Wow! The tavern's looking better than ever. Here's your reward.",
+				objectives: [
+					"Use the mop to clean away the dirt in the tavern.",
+					"Speak to <strong>Gregor Goldenbrew</strong>.",
+				],
+			},
+			
+			eaglecrestTavern: {
+				startName: "Inkeepers Rhus-Jak",
+				startChat: `<strong>Jak</strong>: The tavern's a bit dirty at the moment. We're both busy serving guests, but if you wanted a job and a bit of gold ...
+	<strong>Rhus</strong>: Then clean the floor with mop!!`,
+				finishName: "Inkeepers Rhus-Jak",
+				finishChat: `<strong>Rhus</strong>: Give mop back here!
+	<strong>Jak</strong>: Thank you! It's looking a lot better here now.`,
+				objectives: [
+					"Use the mop to clean away the dirt in the tavern.",
+					"Speak to <strong>Inkeeper Rhus-Jak</strong>.",
+				],
+			},
+
+			multipleAreas: true,
+
+			howToStart: "Speak to an innkeeper.",
+			levelRequirement: 1,
+			questRequirements: ["To the Logging Camp"],
+			repeatTime: "job",
+
+			rewards: {
+				xp: 10,
+				items: [
+					{item: Items.currency[2],}, // 1 gold
+				],
+			},
+
+			startRewards: {
+				items: [
+					{item: Items.sword[13],}, // the mop
+				],
+			},
+
+			removeItems: [
+				{item: Items.sword[13],}, // remove the mop
+			],
+
+			isCompleted: function () {
+				let completed = [];
+
+				completed.push(checkProgress(Player.quests.questProgress.drunkBeer, 1));
+
+				completed = checkFinished(completed);
+
+				return completed;
+			},
+
+			onQuestStart: function () {
+				// spawn the dirt
+				Game.attackables.push(new Character({
+                    map: map,
+                    type: "attackables",
+                    x: Random(0, map.cols * map.tsize),
+                    y: Random(0, map.rows * map.tsize),
+                    image: "dirt",
+                    name: "Dirt",
+                    hostility: "neutral",
+                    level: 1,
+					xpGiven: 0,
+					corpseOnDeath: false,
+					respawnOnDeath: false,
+					z: -0.5,
+					canBeDamagedBy: ["Mop"],
+                    stats: {
+                        walkSpeed: 0,
+                        maxHealth: 1,
+                    },
+                }));
+			},
+		},
+		{
+			id: 2,
+			quest: "Tavern Clean-up",
+			questArea: "tavern",
+
+			loggingCampTavern: {
+				startName: "Gregor Goldenbrew",
+				startChat: "",
+				finishName: "Gregor Goldenbrew",
+				finishChat: "",
+				objectives: [
+					"Collect mugs and plates from tables.",
+					"Return them to <strong>Gregor Goldenbrew</strong>.",
+				],
+			},
+			
+			eaglecrestTavern: {
+				startName: "Inkeepers Rhus-Jak",
+				startChat: `<strong>Jak</strong>: 
+	<strong>Rhus</strong>: `,
+				finishName: "Inkeepers Rhus-Jak",
+				finishChat: `<strong>Rhus</strong>: 
+	<strong>Jak</strong>: `,
+				objectives: [
+					"Collect mugs and plates from tables.",
+					"Return them to <strong>Inkeeper Rhus-Jak</strong>.",
+				],
+			},
+
+			multipleAreas: true,
+
+			howToStart: "Speak to an innkeeper.",
+			levelRequirement: 1,
+			questRequirements: ["To the Logging Camp"],
+			repeatTime: "job",
+
+			rewards: {
+				xp: 10,
+				items: [
+					{item: Items.currency[2],}, // 1 gold
+				],
+			},
+			
+			isCompleted: function () {
+				let completed = [];
+
+				completed.push(checkProgress(Player.quests.questProgress.drunkBeer, 1));
+
+				completed = checkFinished(completed);
+
+				return completed;
+			},
+
+			onQuestStart: function () {
+				// spawn the mugs
+				for (let i = 0; i < 10; i++) {
+				
+					// generate an array of tables
+					let array = Game.things.filter(thing => thing.name === "Table");
+					// choose a random table from the array
+					let table = array[Random(0, array.length-1)];
+					// choose a random position on the x axis of the table for the mug to be placed
+					let offsetX = Random(-45, 38);
+					// choose a random position on the y axis of the table for the mug to be placed
+					let offsetY = Random(-40, -30);
+					
+					Game.things.push(new Thing({
+						map: map,
+						type: "things",
+						x: table.x + offsetX,
+						y: table.y + offsetY,
+						image: "mug",
+						name: "Mug",
+						onInteract: function () {
+							Game.removeObject(this.id, "things", Thing);
+							Dom.inventory.give(Items.item[25]);
+						}
+					}));
+				}
+				
+				// spawn the plates
+				Game.things.push(new Thing({
+                    map: map,
+                    type: "things",
+                    x: Random(0, map.cols * map.tsize),
+                    y: Random(0, map.rows * map.tsize),
+                    image: "plate",
+                    name: "Plate",
+					onInteract: function () {
+						Game.removeObject(this.id, "things", Thing);
+						Dom.inventory.give(Items.item[26]);
+					}
+                }));
 			},
 		},
 	],

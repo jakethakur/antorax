@@ -198,8 +198,8 @@ var Areas = {
 
 		tagGameAllowed: true, // tag game allowed?
 
-		song_day: "./assets/music/Pippin-the-Hunchback.mp3",
-		song_night: "./assets/music/Pippin-the-Hunchback-night.mp3",
+		song_day: "assets/music/Pippin-the-Hunchback.mp3",
+		song_night: "assets/music/Pippin-the-Hunchback-night.mp3",
 
 		checkpoint: false,
 		player: {
@@ -274,11 +274,11 @@ var Areas = {
 		},
 
 		images: {
-			tiles: {normal: "./assets/tilemap/tutorial.png", christmas: "./assets/tilemap/tutorial-christmas.png"},
-			driver: {normal: "./assets/npcs/driver.png"},
-			weaponsmith: {normal: "./assets/npcs/weaponsmith.png"},
-			cart: {normal: "./assets/objects/cartEaglecrest.png"},
-			fisherman: {normal: "./assets/npcs/tobenam.png"},
+			tiles: {normal: "assets/tilemap/tutorial.png", christmas: "assets/tilemap/tutorial-christmas.png"},
+			driver: {normal: "assets/npcs/driver.png"},
+			weaponsmith: {normal: "assets/npcs/weaponsmith.png"},
+			cart: {normal: "assets/objects/cartEaglecrest.png"},
+			fisherman: {normal: "assets/npcs/tobenam.png"},
 		},
 
 		areaTeleports: [
@@ -504,8 +504,8 @@ var Areas = {
 
 		tagGameAllowed: true,
 
-		song_day: "./assets/music/Pippin-the-Hunchback.mp3",
-		song_night: "./assets/music/Pippin-the-Hunchback-night.mp3",
+		song_day: "assets/music/Pippin-the-Hunchback.mp3",
+		song_night: "assets/music/Pippin-the-Hunchback-night.mp3",
 
 		checkpoint: true,
 		player: {
@@ -579,29 +579,29 @@ var Areas = {
 		},
 
 		images: {
-			tiles: {normal: "./assets/tilemap/loggingCamp.png", christmas: "./assets/tilemap/loggingCamp-christmas.png"},
-			teper: {normal: "./assets/npcs/teper.png"},
-			teperAngry: {christmas: "./assets/npcs/teper-angry.png"},
-			identifier: {normal: "./assets/npcs/gilas.png"},
-			dummy: {normal: "./assets/enemies/dummy.png", christmas: "./assets/enemies/dummy-christmas.png"},
-			saral: {normal: "./assets/npcs/saral.png"},
-			mailman: {normal: "./assets/npcs/mailman.png"},
-			soulHealer: {normal: "./assets/npcs/nalaa.png"},
-			galuthel: {normal: "./assets/npcs/galuthel.png"},
-			itemBuyer: {normal: "./assets/npcs/noledar.png"},
-			darkbrew: {normal: "./assets/npcs/darkbrew.png"},
-			mailbox: {normal: "./assets/objects/mailbox.png"},
-			mailboxUnread: {normal: "./assets/objects/mailboxUnread.png"},
-			christmasTree: {christmas: "./assets/objects/christmasTree.png"},
-			christmasTreeUnread: {christmas: "./assets/objects/christmasTreeUnread.png"},
-			lightsRB: {christmas: "./assets/objects/lightsRB.png"},
-			lightsGY: {christmas: "./assets/objects/lightsGY.png"},
-			christmasSapling: {christmas: "./assets/objects/christmasSapling.png"},
-			cart: {normal: "./assets/objects/cartEaglecrest2.png"},
-			driver: {normal: "./assets/npcs/alaran.png"},
+			tiles: {normal: "assets/tilemap/loggingCamp.png", christmas: "assets/tilemap/loggingCamp-christmas.png"},
+			teper: {normal: "assets/npcs/teper.png"},
+			teperAngry: {christmas: "assets/npcs/teper-angry.png"},
+			identifier: {normal: "assets/npcs/gilas.png"},
+			dummy: {normal: "assets/enemies/dummy.png", christmas: "assets/enemies/dummy-christmas.png"},
+			saral: {normal: "assets/npcs/saral.png"},
+			mailman: {normal: "assets/npcs/mailman.png"},
+			soulHealer: {normal: "assets/npcs/nalaa.png"},
+			galuthel: {normal: "assets/npcs/galuthel.png"},
+			itemBuyer: {normal: "assets/npcs/noledar.png"},
+			darkbrew: {normal: "assets/npcs/darkbrew.png"},
+			mailbox: {normal: "assets/objects/mailbox.png"},
+			mailboxUnread: {normal: "assets/objects/mailboxUnread.png"},
+			christmasTree: {christmas: "assets/objects/christmasTree.png"},
+			christmasTreeUnread: {christmas: "assets/objects/christmasTreeUnread.png"},
+			lightsRB: {christmas: "assets/objects/lightsRB.png"},
+			lightsGY: {christmas: "assets/objects/lightsGY.png"},
+			christmasSapling: {christmas: "assets/objects/christmasSapling.png"},
+			cart: {normal: "assets/objects/cartEaglecrest2.png"},
+			driver: {normal: "assets/npcs/alaran.png"},
 		},
 
-		onAreaTeleport: function () {
+		onAreaJoin: function () {
 			// start instructions chapter 4 if the player hasn't already
 			if (Player.unlockedInstructions.length < 4) {
 				Dom.instructions.page(3);
@@ -1279,8 +1279,8 @@ var Areas = {
 
 		tagGameAllowed: true,
 
-		song_day: "./assets/music/Tavern.mp3",
-		song_night: "./assets/music/Tavern.mp3",
+		song_day: "assets/music/Tavern.mp3",
+		song_night: "assets/music/Tavern.mp3",
 
 		checkpoint: false, // probably in the future taverns should be the ONLY checkpoints
 
@@ -1295,19 +1295,23 @@ var Areas = {
 			dayTiles: [9], // windows
 			nightTiles: [10],
 			layers: [
-				[3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 9, 3, 3, 3, 3, 9, 3, 3, 3, 9, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 8, 8, 3, 3, 3, 3, 3, 11, 11, 11, 11, 11, 11, 11, 11, 11, 7, 7, 11, 11, 11, 11, 11, 11, 11, 11, 11, 11, 11, 11, 11, 11, 11, 11, 11, 11, 21, 22, 11, 11, 11, 11, 13, 4, 5, 13, 11, 11, 11, 11, 11, 13, 26, 27, 13, 11, 11, 11, 11, 11, 11, 11, 11, 11, 11, 11, 11, 11, 31, 32, 11, 11, 11, 11, 11, 11, 11, 11, 11, 11, 11, 11, 11, 11, 11, 11, 11, 11, 13, 4, 5, 13, 11, 11, 11, 13, 4, 5, 13, 11, 11, 11, 11, 11, 11, 11, 11, 11, 11, 11, 11, 11, 11, 11, 11, 11, 11, 11, 11, 11, 11, 11, 11, 11, 11, 11, 11, 11, 11, 11, 11, 11, 11, 11, 11, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 11, 11, 3, 3, 9, 3, 3, 3, 3, 3, 9, 3, 3, 3, 3, 3, 12, 12, 8, 8, 3, 8, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 12, 12, 7, 7, 11, 7, 11, 11, 11, 11, 11, 11, 11, 11, 11, 11, 12, 12, 11, 11, 11, 11, 11, 11, 11, 11, 11, 11, 11, 11, 11, 11, 11, 11, 1, 1, 1, 1, 1, 1, 1, 11, 11, 11, 11, 11, 11, 11, 11, 11, 11, 11, 11, 11, 11, 11, 11, 11, 11, 11, 11, 11, 11, 11, 11, 11, 11, 11, 11, 11, 11, 11, 11, 11, 11, 11, 11, 13, 4, 5, 13, 11, 11, 11, 11, 11, 11, 11, 11, 11, 11, 11, 11, 11, 11, 11, 11, 11, 11, 11, 11, 11, 11, 11, 11, 11, 11, 11, 11, 11, 11, 11, 11, 11, 2, 11, 11, 11, 11, 11, 11, 11, 11, 11, 11, 13, 4, 5, 13, 11, 7, 2, 2, 11, 11, 11, 11, 11, 11, 11, 11, 11, 11, 11, 11, 11, 11, 7, 7, 11, 11, 11, 11, 11, 11, 11, 11, 11, 11, 11, 11, 11],
-				[],
+				[3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 9, 3, 3, 3, 3, 9, 3, 3, 3, 9, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 8, 8, 3, 3, 3, 3, 3, 11, 11, 11, 11, 11, 11, 11, 11, 11, 7, 7, 11, 11, 11, 11, 11, 11, 11, 11, 11, 11, 11, 11, 11, 11, 11, 11, 11, 11, 11, 11, 11, 11, 11, 11, 11, 11, 11, 11, 11, 11, 11, 11, 11, 11, 11, 11, 11, 11, 11, 11, 11, 11, 11, 11, 11, 11, 11, 11, 11, 11, 11, 11, 11, 11, 11, 11, 11, 11, 11, 11, 11, 11, 11, 11, 11, 11, 11, 11, 11, 11, 11, 11, 11, 11, 11, 11, 11, 11, 11, 11, 11, 11, 11, 11, 11, 11, 11, 11, 11, 11, 11, 11, 11, 11, 11, 11, 11, 11, 11, 11, 11, 11, 11, 11, 11, 11, 11, 11, 11, 11, 11, 11, 11, 11, 11, 11, 11, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 11, 11, 3, 3, 9, 3, 3, 3, 3, 3, 9, 3, 3, 3, 3, 3, 12, 12, 8, 8, 3, 8, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 12, 12, 7, 7, 11, 7, 11, 11, 11, 11, 11, 11, 11, 11, 11, 11, 12, 12, 11, 11, 11, 11, 11, 11, 11, 11, 11, 11, 11, 11, 11, 11, 11, 11, 1, 1, 1, 1, 1, 1, 1, 11, 11, 11, 11, 11, 11, 11, 11, 11, 11, 11, 11, 11, 11, 11, 11, 11, 11, 11, 11, 11, 11, 11, 11, 11, 11, 11, 11, 11, 11, 11, 11, 11, 11, 11, 11, 11, 11, 11, 11, 11, 11, 11, 11, 11, 11, 11, 11, 11, 11, 11, 11, 11, 11, 11, 11, 11, 11, 11, 11, 11, 11, 11, 11, 11, 11, 11, 11, 11, 11, 11, 11, 11, 2, 11, 11, 11, 11, 11, 11, 11, 11, 11, 11, 11, 11, 11, 11, 11, 7, 2, 2, 11, 11, 11, 11, 11, 11, 11, 11, 11, 11, 11, 11, 11, 11, 7, 7, 11, 11, 11, 11, 11, 11, 11, 11, 11, 11, 11, 11, 11],
 			],
 		},
 
 		images: {
-			tiles: {normal: "./assets/tilemap/tavern.png"},
-			innkeeper: {normal: "./assets/npcs/gregor.png"},
-			stairs: {normal: "./assets/objects/stairsRight.png"},
-			gameBoard: {normal: "./assets/objects/gameBoard2.png"},
-			hearth1: {normal: "./assets/objects/hearth1.png"},
-			hearth2: {normal: "./assets/objects/hearth2.png"},
-			hearth3: {normal: "./assets/objects/hearth3.png"},
+			tiles: {normal: "assets/tilemap/tavern.png"},
+			innkeeper: {normal: "assets/npcs/gregor.png"},
+			stairs: {normal: "assets/objects/stairsRight.png"},
+			gameBoard: {normal: "assets/objects/gameBoard2.png"},
+			hearth1: {normal: "assets/objects/hearth1.png"},
+			hearth2: {normal: "assets/objects/hearth2.png"},
+			hearth3: {normal: "assets/objects/hearth3.png"},
+			dirt: {normal: "assets/enemies/dirt.png"},
+			mug: {normal: "assets/items/item/25.png"},
+			plate: {normal: "assets/items/item/26.png"},
+			table: {normal: "assets/objects/table.png"},
+			largeTable: {normal: "assets/objects/largeTable.png"},
 		},
 
 		areaTeleports: [
@@ -1321,7 +1325,24 @@ var Areas = {
 				destinationY: 200,
 			},
 		],
-
+		
+		villagerData: [
+			{
+				x: 0,
+				y: 142,
+				width: 960,
+				height: 458,
+				people: 2,
+			},
+			{
+				x: 0,
+				y: 981,
+				width: 960,
+				height: 480,
+				people: 2,
+			},
+		],
+		
 		npcs: [
 			{
 				x: 154,
@@ -1339,6 +1360,14 @@ var Areas = {
 						quest: Quests.tavern[0],
 						role: "questStartFinish",
 					},
+					/*{
+						quest: Quests.tavern[1],
+						role: "questStartFinish",
+					},
+					{
+						quest: Quests.tavern[2],
+						role: "questStartFinish",
+					},*/
 					{
 						sold: [
 						    {item: Items.consumable[5], cost: 2,}, // Wood-Brewed Beer
@@ -1368,7 +1397,7 @@ var Areas = {
 				},
 			},
 		],
-
+		
 		things: [
 			{
 				x: 134,
@@ -1404,6 +1433,42 @@ var Areas = {
 					height: 230,
 					width: 202,
 				},
+			},
+			{
+				x: 300,
+				y: 328,
+				image: "table",
+				name: "Table",
+			},
+			{
+				x: 180,
+				y: 508,
+				image: "table",
+				name: "Table",
+			},
+			{
+				x: 600,
+				y: 508,
+				image: "table",
+				name: "Table",
+			},
+			{
+				x: 780,
+				y: 1108,
+				image: "table",
+				name: "Table",
+			},
+			{
+				x: 780,
+				y: 1288,
+				image: "table",
+				name: "Table",
+			},
+			{
+				x: 842,
+				y: 324,
+				image: "largeTable",
+				name: "Large Table",
 			},
 		],
 
@@ -1463,13 +1528,16 @@ var Areas = {
 			{
 				x: 844,
 				y: 294,
-				z: -1,
 				image: "gameBoard",
 				name: "Wizard's Lore",
 				onTouchChat: "A game of Wizard's Lore, a board game traditionally played by wizard students and scholars.",
 			},
-		]
-
+		],
+		
+		onAreaLeave: function () {
+			Dom.quest.abandon(Quests.tavern[1]);
+		},
+		
 	},
 
 	nilbog: {
@@ -1485,8 +1553,8 @@ var Areas = {
 
 		tagGameAllowed: true,
 
-		song_day: "./assets/music/Pippin-the-Hunchback.mp3",
-		song_night: "./assets/music/Pippin-the-Hunchback-night.mp3",
+		song_day: "assets/music/Pippin-the-Hunchback.mp3",
+		song_night: "assets/music/Pippin-the-Hunchback-night.mp3",
 
 		checkpoint: false,
 
@@ -1581,20 +1649,20 @@ var Areas = {
 		},
 
 		images: {
-			tiles: {normal: "./assets/tilemap/nilbog.png", christmas: "./assets/tilemap/nilbog-christmas.png"},
-			goblinRockthrower: {normal: "./assets/enemies/goblinRockthrower.png"},
-			rock: {normal: "./assets/projectiles/rock.png"},
-			goblinSkirmisher: {normal: "./assets/enemies/goblinSkirmisher.png"},
-			goblinBruiser: {normal: "./assets/enemies/goblinBruiser.png"},
-			melee: {normal: "./assets/projectiles/melee.png"},
-			fireGoblin: {normal: "./assets/enemies/goblinPyromancer.png"},
-			fireball: {normal: "./assets/projectiles/fireball.png"}, // (ignored by loader if it is already loaded because of a mage player)
-			goblinCorpse: {normal: "./assets/corpses/deadGoblin.png"},
-			mailcart: {normal: "./assets/objects/cartDestroyed.png"},
-			trap: {normal: "./assets/objects/trap.png"},
-			torch: {normal: "./assets/npcs/torch.png"},
-			ghost: {samhain: "./assets/npcs/ghost.png"},
-			lootChest: {normal: "./assets/objects/chest.png"},
+			tiles: {normal: "assets/tilemap/nilbog.png", christmas: "assets/tilemap/nilbog-christmas.png"},
+			goblinRockthrower: {normal: "assets/enemies/goblinRockthrower.png"},
+			rock: {normal: "assets/projectiles/rock.png"},
+			goblinSkirmisher: {normal: "assets/enemies/goblinSkirmisher.png"},
+			goblinBruiser: {normal: "assets/enemies/goblinBruiser.png"},
+			melee: {normal: "assets/projectiles/melee.png"},
+			fireGoblin: {normal: "assets/enemies/goblinPyromancer.png"},
+			fireball: {normal: "assets/projectiles/fireball.png"}, // (ignored by loader if it is already loaded because of a mage player)
+			goblinCorpse: {normal: "assets/corpses/deadGoblin.png"},
+			mailcart: {normal: "assets/objects/cartDestroyed.png"},
+			trap: {normal: "assets/objects/trap.png"},
+			torch: {normal: "assets/npcs/torch.png"},
+			ghost: {samhain: "assets/npcs/ghost.png"},
+			lootChest: {normal: "assets/objects/chest.png"},
 		},
 
 		chestData: {
@@ -1830,7 +1898,7 @@ var Areas = {
 
 		tagGameAllowed: false,
 
-		song_day: "./assets/music/Pippin-the-Hunchback-boss.mp3",
+		song_day: "assets/music/Pippin-the-Hunchback-boss.mp3",
 
 		checkpoint: false,
 
@@ -1853,12 +1921,12 @@ var Areas = {
 		},
 
 		images: {
-			tiles: {normal: "./assets/tilemap/nilbogPast.png"},
-			tatteredKnight: {normal: "./assets/enemies/tatteredKnight.png"},
-			tatteredKnightCorpse: {normal: "./assets/corpses/tatteredKnight.png"},
-			slash: {normal: "./assets/projectiles/slash.png"}, // (ignored by loader if it is already loaded because of a knight player)
-			mailbox: {normal: "./assets/objects/mailbox.png"},
-			mailboxUnread: {normal: "./assets/objects/mailboxUnread.png"},
+			tiles: {normal: "assets/tilemap/nilbogPast.png"},
+			tatteredKnight: {normal: "assets/enemies/tatteredKnight.png"},
+			tatteredKnightCorpse: {normal: "assets/corpses/tatteredKnight.png"},
+			slash: {normal: "assets/projectiles/slash.png"}, // (ignored by loader if it is already loaded because of a knight player)
+			mailbox: {normal: "assets/objects/mailbox.png"},
+			mailboxUnread: {normal: "assets/objects/mailboxUnread.png"},
 		},
 
 		mailboxes: [
@@ -1881,15 +1949,8 @@ var Areas = {
 
 		onDeath: function () {
 			// abandon "The Legend of the Tattered Knight" quest (it can be started again from the mail)
-			for (let i = 0; i < Player.quests.activeQuestArray.length; i++) {
-				if (Player.quests.activeQuestArray[i] === "The Legend of the Tattered Knight") {
-					Player.quests.activeQuestArray.splice(i, 1);
-					break;
-				}
-			}
-			Dom.quests.active();
-			Dom.quests.possible();
-
+			Dom.quest.abandon(Quests.eaglecrestLoggingCamp[22]);
+			
 			// chat message to let them know
 			Dom.chat.insert("Your quest was abandoned. Re-open the mail message to have another attempt."); // important param = true
 		},
@@ -1908,7 +1969,7 @@ var Areas = {
 
 		tagGameAllowed: ["nilbogTower1", "nilbogTower2", "nilbogTower3", "nilbogTower4", "nilbogTower5"],
 
-		song_day: "./assets/music/Pippin-the-Hunchback.mp3",
+		song_day: "assets/music/Pippin-the-Hunchback.mp3",
 
 		checkpoint: false,
 
@@ -1928,12 +1989,12 @@ var Areas = {
 		},
 
 		images: {
-			tiles: {normal: "./assets/tilemap/nilbogTower.png"},
-			stairs: {normal: "./assets/objects/stairsRight.png"},
-			painting: {normal: "./assets/objects/paintingAndrews.png"},
-			goblinTowerkeeper: {normal: "./assets/enemies/goblinTowerkeeper.png"},
-			goblinCorpse: {normal: "./assets/corpses/deadGoblin.png"},
-			melee: {normal: "./assets/projectiles/melee.png"},
+			tiles: {normal: "assets/tilemap/nilbogTower.png"},
+			stairs: {normal: "assets/objects/stairsRight.png"},
+			painting: {normal: "assets/objects/paintingAndrews.png"},
+			goblinTowerkeeper: {normal: "assets/enemies/goblinTowerkeeper.png"},
+			goblinCorpse: {normal: "assets/corpses/deadGoblin.png"},
+			melee: {normal: "assets/projectiles/melee.png"},
 		},
 
 		areaTeleports: [
@@ -1959,7 +2020,7 @@ var Areas = {
 			},
 		],
 
-		onAreaTeleport: function () {
+		onAreaJoin: function () {
 			// stair animations
 			if (Game.hero.y < 100) {
 				// move down stairs
@@ -1987,7 +2048,6 @@ var Areas = {
 			{
 				x: 546,
 				y: 157,
-				z: -0.5,
 				image: "painting",
 				name: "Painting",
 				onTouchChat: "A painting of Wizard Andrews, one of the most accomplished wizards that has ever been known. This tower used to be his, but was overrun by goblins after he left to persue his life of wizardry."
@@ -2053,7 +2113,7 @@ var Areas = {
 
 		tagGameAllowed: ["nilbogTower1", "nilbogTower2", "nilbogTower3", "nilbogTower4", "nilbogTower5"],
 
-		song_day: "./assets/music/Pippin-the-Hunchback.mp3",
+		song_day: "assets/music/Pippin-the-Hunchback.mp3",
 
 		checkpoint: false,
 
@@ -2073,14 +2133,14 @@ var Areas = {
 		},
 
 		images: {
-			tiles: {normal: "./assets/tilemap/nilbogTower.png"},
-			stairs: {normal: "./assets/objects/stairsRight.png"},
-			painting: {normal: "./assets/objects/paintingScorchedAzuras.png"},
-			goblinTowerkeeper: {normal: "./assets/enemies/goblinTowerkeeper.png"},
-			goblinCrusader: {normal: "./assets/enemies/goblinCrusader.png"},
-			goblinCorpse: {normal: "./assets/corpses/deadGoblin.png"},
-			melee: {normal: "./assets/projectiles/melee.png"},
-			lootChest: {normal: "./assets/objects/chestTower.png"},
+			tiles: {normal: "assets/tilemap/nilbogTower.png"},
+			stairs: {normal: "assets/objects/stairsRight.png"},
+			painting: {normal: "assets/objects/paintingScorchedAzuras.png"},
+			goblinTowerkeeper: {normal: "assets/enemies/goblinTowerkeeper.png"},
+			goblinCrusader: {normal: "assets/enemies/goblinCrusader.png"},
+			goblinCorpse: {normal: "assets/corpses/deadGoblin.png"},
+			melee: {normal: "assets/projectiles/melee.png"},
+			lootChest: {normal: "assets/objects/chestTower.png"},
 		},
 
 		chestData: {
@@ -2118,7 +2178,7 @@ var Areas = {
 			},
 		],
 
-		onAreaTeleport: function () {
+		onAreaJoin: function () {
 			// stair animations
 			if (Game.hero.y > 540) {
 				// move up stairs
@@ -2156,7 +2216,6 @@ var Areas = {
 			{
 				x: 546,
 				y: 157,
-				z: -0.5,
 				image: "painting",
 				name: "Painting",
 				onTouchChat: "A painting of Scorched Azuras, the scarred lands that were once an incredible forest. The trees were burnt down and the ground scored by a group of fire orcs, whom Andrews could not stop as a young wizard. To this day he still regrets he was unable to do something to stop them."
@@ -2242,7 +2301,7 @@ var Areas = {
 
 		tagGameAllowed: ["nilbogTower1", "nilbogTower2", "nilbogTower3", "nilbogTower4", "nilbogTower5"],
 
-		song_day: "./assets/music/Pippin-the-Hunchback.mp3",
+		song_day: "assets/music/Pippin-the-Hunchback.mp3",
 
 		checkpoint: false,
 
@@ -2262,13 +2321,13 @@ var Areas = {
 		},
 
 		images: {
-			tiles: {normal: "./assets/tilemap/nilbogTower.png"},
-			stairs: {normal: "./assets/objects/stairsRight.png"},
-			painting: {normal: "./assets/objects/paintingElvenWoodlands.png"},
-			goblinTowerkeeper: {normal: "./assets/enemies/goblinTowerkeeper.png"},
-			goblinCrusader: {normal: "./assets/enemies/goblinCrusader.png"},
-			goblinCorpse: {normal: "./assets/corpses/deadGoblin.png"},
-			melee: {normal: "./assets/projectiles/melee.png"},
+			tiles: {normal: "assets/tilemap/nilbogTower.png"},
+			stairs: {normal: "assets/objects/stairsRight.png"},
+			painting: {normal: "assets/objects/paintingElvenWoodlands.png"},
+			goblinTowerkeeper: {normal: "assets/enemies/goblinTowerkeeper.png"},
+			goblinCrusader: {normal: "assets/enemies/goblinCrusader.png"},
+			goblinCorpse: {normal: "assets/corpses/deadGoblin.png"},
+			melee: {normal: "assets/projectiles/melee.png"},
 		},
 
 		areaTeleports: [
@@ -2294,7 +2353,7 @@ var Areas = {
 			},
 		],
 
-		onAreaTeleport: function () {
+		onAreaJoin: function () {
 			// stair animations
 			if (Game.hero.y > 540) {
 				// move up stairs
@@ -2332,7 +2391,6 @@ var Areas = {
 			{
 				x: 537,
 				y: 158,
-				z: -0.5,
 				image: "painting",
 				name: "Painting",
 				onTouchChat: "A painting of Wizard Andrews with the Lady of Autumn, in the Forest of the Hundred Trees, Elven Woodlands. Andrews was blessed by the elves on this day for his help in the defense of Woodreach against the vampire-elf Mroll."
@@ -2423,7 +2481,7 @@ var Areas = {
 
 		tagGameAllowed: ["nilbogTower1", "nilbogTower2", "nilbogTower3", "nilbogTower4", "nilbogTower5"],
 
-		song_day: "./assets/music/Pippin-the-Hunchback.mp3",
+		song_day: "assets/music/Pippin-the-Hunchback.mp3",
 
 		checkpoint: false,
 
@@ -2443,13 +2501,13 @@ var Areas = {
 		},
 
 		images: {
-			tiles: {normal: "./assets/tilemap/nilbogTower.png"},
-			stairs: {normal: "./assets/objects/stairsRight.png"},
-			painting: {normal: "./assets/objects/paintingDesert.png"}, // image to be renamed
-			goblinCrusader: {normal: "./assets/enemies/goblinCrusader.png"},
-			goblinCorpse: {normal: "./assets/corpses/deadGoblin.png"},
-			melee: {normal: "./assets/projectiles/melee.png"},
-			lootChest: {normal: "./assets/objects/chestTower.png"},
+			tiles: {normal: "assets/tilemap/nilbogTower.png"},
+			stairs: {normal: "assets/objects/stairsRight.png"},
+			painting: {normal: "assets/objects/paintingDesert.png"}, // image to be renamed
+			goblinCrusader: {normal: "assets/enemies/goblinCrusader.png"},
+			goblinCorpse: {normal: "assets/corpses/deadGoblin.png"},
+			melee: {normal: "assets/projectiles/melee.png"},
+			lootChest: {normal: "assets/objects/chestTower.png"},
 		},
 
 		chestData: {
@@ -2487,7 +2545,7 @@ var Areas = {
 			},
 		],
 
-		onAreaTeleport: function () {
+		onAreaJoin: function () {
 			// stair animations
 			if (Game.hero.y > 540) {
 				// move up stairs
@@ -2525,7 +2583,6 @@ var Areas = {
 			{
 				x: 540,
 				y: 164,
-				z: -0.5,
 				image: "painting",
 				name: "Painting",
 				onTouchChat: "A painting of The Wastelands. They were barren lands, where Wizard Andrews fought through the barbarian tribes to destroy the Chaos Parasite and its corruption."
@@ -2621,7 +2678,7 @@ var Areas = {
 
 		tagGameAllowed: ["nilbogTower1", "nilbogTower2", "nilbogTower3", "nilbogTower4", "nilbogTower5"],
 
-		song_day: "./assets/music/Pippin-the-Hunchback.mp3",
+		song_day: "assets/music/Pippin-the-Hunchback.mp3",
 
 		checkpoint: false,
 
@@ -2641,15 +2698,15 @@ var Areas = {
 		},
 
 		images: {
-			tiles: {normal: "./assets/tilemap/nilbogTower.png"},
-			stairs: {normal: "./assets/objects/stairsRight.png"},
-			painting: {normal: "./assets/objects/paintingDesert.png"}, // image to be renamed
-			goblinKing: {normal: "./assets/enemies/goblinKing.png"},
-			goblinKingCorpse: {normal: "./assets/corpses/goblinKing.png"},
-			slash: {normal: "./assets/projectiles/slash.png"}, // (ignored by loader if it is already loaded because of a knight player)
-			fireball: {normal: "./assets/projectiles/fireball.png"}, // (ignored by loader if it is already loaded because of a mage player)
-			arrow: {normal: "./assets/projectiles/arrow.png"}, // (ignored by loader if it is already loaded because of an archer player)
-			weaponRack: {normal: "./assets/objects/weaponRack.png"},
+			tiles: {normal: "assets/tilemap/nilbogTower.png"},
+			stairs: {normal: "assets/objects/stairsRight.png"},
+			painting: {normal: "assets/objects/paintingDesert.png"}, // image to be renamed
+			goblinKing: {normal: "assets/enemies/goblinKing.png"},
+			goblinKingCorpse: {normal: "assets/corpses/goblinKing.png"},
+			slash: {normal: "assets/projectiles/slash.png"}, // (ignored by loader if it is already loaded because of a knight player)
+			fireball: {normal: "assets/projectiles/fireball.png"}, // (ignored by loader if it is already loaded because of a mage player)
+			arrow: {normal: "assets/projectiles/arrow.png"}, // (ignored by loader if it is already loaded because of an archer player)
+			weaponRack: {normal: "assets/objects/weaponRack.png"},
 		},
 
 		areaTeleports: [
@@ -2665,7 +2722,7 @@ var Areas = {
 			},
 		],
 
-		onAreaTeleport: function () {
+		onAreaJoin: function () {
 			// stair animations
 			if (Game.hero.y > 540) {
 				// move up stairs
@@ -2733,8 +2790,8 @@ var Areas = {
 
 		tagGameAllowed: ["eaglecrest", "eaglecrestEast", "eaglecrestWest"],
 
-		song_day: "./assets/music/Eaglecrest.mp3",
-		song_night: "./assets/music/Eaglecrest.mp3",
+		song_day: "assets/music/Eaglecrest.mp3",
+		song_night: "assets/music/Eaglecrest.mp3",
 
 		checkpoint: true,
 		player: {
@@ -2764,20 +2821,20 @@ var Areas = {
 		},
 
 		images: {
-			tiles: {normal: "./assets/tilemap/eaglecrestCity.png"},
-			cart1: {normal: "./assets/objects/cartEaglecrest.png"},
-			cart2: {normal: "./assets/objects/cartEaglecrest2.png"},
-			cart3: {normal: "./assets/objects/cartEaglecrest3.png"},
-			driver: {normal: "./assets/npcs/alaran.png"},
-			guard1: {normal: "./assets/npcs/eaglecrestGuard.png"},
-			guard2: {normal: "./assets/npcs/eaglecrestGuard2.png"},
-			mailbox: {normal: "./assets/objects/mailbox.png"},
-			mailboxUnread: {normal: "./assets/objects/mailboxUnread.png"},
-			fountain1: {normal: "./assets/objects/fountainFlowing1.png"},
-			fountain2: {normal: "./assets/objects/fountainFlowing2.png"},
-			fountain3: {normal: "./assets/objects/fountainFlowing3.png"},
-			fountain4: {normal: "./assets/objects/fountainFlowing4.png"},
-			identifier: {normal: "./assets/npcs/hranatha.png"},
+			tiles: {normal: "assets/tilemap/eaglecrestCity.png"},
+			cart1: {normal: "assets/objects/cartEaglecrest.png"},
+			cart2: {normal: "assets/objects/cartEaglecrest2.png"},
+			cart3: {normal: "assets/objects/cartEaglecrest3.png"},
+			driver: {normal: "assets/npcs/alaran.png"},
+			guard1: {normal: "assets/npcs/eaglecrestGuard.png"},
+			guard2: {normal: "assets/npcs/eaglecrestGuard2.png"},
+			mailbox: {normal: "assets/objects/mailbox.png"},
+			mailboxUnread: {normal: "assets/objects/mailboxUnread.png"},
+			fountain1: {normal: "assets/objects/fountainFlowing1.png"},
+			fountain2: {normal: "assets/objects/fountainFlowing2.png"},
+			fountain3: {normal: "assets/objects/fountainFlowing3.png"},
+			fountain4: {normal: "assets/objects/fountainFlowing4.png"},
+			identifier: {normal: "assets/npcs/hranatha.png"},
 		},
 
 		areaTeleports: [
@@ -3050,8 +3107,8 @@ var Areas = {
 
 		tagGameAllowed: ["eaglecrest", "eaglecrestEast", "eaglecrestWest"],
 
-		song_day: "./assets/music/Eaglecrest.mp3",
-		song_night: "./assets/music/Eaglecrest.mp3",
+		song_day: "assets/music/Eaglecrest.mp3",
+		song_night: "assets/music/Eaglecrest.mp3",
 
 		checkpoint: false,
 
@@ -3072,8 +3129,8 @@ var Areas = {
 		},
 
 		images: {
-			tiles: {normal: "./assets/tilemap/eaglecrestCity.png"},
-			maskSalesman: {normal: "./assets/npcs/maskSalesman.png"},
+			tiles: {normal: "assets/tilemap/eaglecrestCity.png"},
+			maskSalesman: {normal: "assets/npcs/maskSalesman.png"},
 		},
 
 		areaTeleports: [
@@ -3141,8 +3198,8 @@ var Areas = {
 
 		tagGameAllowed: ["eaglecrest", "eaglecrestEast", "eaglecrestWest"],
 
-		song_day: "./assets/music/Eaglecrest.mp3",
-		song_night: "./assets/music/Eaglecrest.mp3",
+		song_day: "assets/music/Eaglecrest.mp3",
+		song_night: "assets/music/Eaglecrest.mp3",
 
 		checkpoint: false,
 
@@ -3163,8 +3220,8 @@ var Areas = {
 		},
 
 		images: {
-			tiles: {normal: "./assets/tilemap/eaglecrestCity.png"},
-			itemBuyer: {normal: "./assets/npcs/nhkghghh.png"},
+			tiles: {normal: "assets/tilemap/eaglecrestCity.png"},
+			itemBuyer: {normal: "assets/npcs/nhkghghh.png"},
 		},
 
 		areaTeleports: [
@@ -3222,8 +3279,8 @@ var Areas = {
 
 		tagGameAllowed: false,
 
-		song_day: "./assets/music/Eaglecrest.mp3",
-		song_night: "./assets/music/Eaglecrest.mp3",
+		song_day: "assets/music/Eaglecrest.mp3",
+		song_night: "assets/music/Eaglecrest.mp3",
 
 		checkpoint: false,
 
@@ -3242,11 +3299,11 @@ var Areas = {
 		},
 
 		images: {
-			tiles: {normal: "./assets/tilemap/eaglecrestBank.png"},
-			banker1: {normal: "./assets/npcs/eaglecrestBanker.png"},
-			banker2: {normal: "./assets/npcs/eaglecrestBanker2.png"},
-			banker3: {normal: "./assets/npcs/eaglecrestBanker3.png"},
-			banker4: {normal: "./assets/npcs/eaglecrestBanker4.png"},
+			tiles: {normal: "assets/tilemap/eaglecrestBank.png"},
+			banker1: {normal: "assets/npcs/eaglecrestBanker.png"},
+			banker2: {normal: "assets/npcs/eaglecrestBanker2.png"},
+			banker3: {normal: "assets/npcs/eaglecrestBanker3.png"},
+			banker4: {normal: "assets/npcs/eaglecrestBanker4.png"},
 		},
 
 		areaTeleports: [
@@ -3351,8 +3408,8 @@ var Areas = {
 
 		tagGameAllowed: true,
 
-		song_day: "./assets/music/Tavern.mp3",
-		song_night: "./assets/music/Tavern.mp3",
+		song_day: "assets/music/Tavern.mp3",
+		song_night: "assets/music/Tavern.mp3",
 
 		checkpoint: false, // probably in the future taverns should be the ONLY checkpoints
 
@@ -3367,22 +3424,26 @@ var Areas = {
 			dayTiles: [16], // windows
 			nightTiles: [17],
 			layers: [
-				[14, 14, 14, 14, 14, 14, 14, 14, 14, 14, 14, 14, 14, 14, 14, 14, 14, 14, 14, 14, 14, 14, 14, 16, 14, 14, 14, 16, 14, 14, 14, 16, 14, 14, 14, 16, 14, 14, 14, 16, 14, 14, 14, 14, 14, 14, 14, 14, 14, 14, 14, 15, 14, 14, 14, 14, 14, 14, 14, 14, 14, 14, 15, 11, 11, 11, 11, 11, 21, 22, 11, 11, 7, 11, 11, 11, 11, 11, 11, 11, 11, 11, 11, 7, 11, 11, 11, 11, 13, 26, 27, 13, 11, 11, 11, 11, 13, 4, 5, 13, 11, 11, 11, 11, 11, 11, 11, 11, 11, 11, 31, 32, 11, 11, 11, 11, 11, 11, 11, 11, 11, 11, 11, 11, 11, 11, 2, 11, 11, 11, 11, 11, 11, 11, 11, 11, 11, 11, 11, 21, 22, 11, 11, 11, 11, 11, 11, 7, 11, 11, 11, 11, 13, 4, 5, 13, 11, 11, 11, 13, 26, 27, 13, 11, 11, 11, 11, 11, 11, 11, 11, 11, 11, 11, 11, 11, 11, 11, 11, 11, 11, 31, 32, 11, 11, 11, 11, 11, 11, 11, 11, 11, 11, 11, 11, 11, 11, 11, 11, 11, 11, 11, 11, 11, 11, 11, 11, 11, 11, 11, 11, 11, 11, 11, 13, 4, 5, 13, 11, 11, 11, 11, 11, 13, 4, 5, 13, 11, 11, 11, 11, 11, 11, 11, 11, 11, 11, 11, 11, 11, 11, 11, 11, 11, 11, 11, 11, 11, 11, 11, 11, 11, 11, 11, 11, 11, 11, 14, 14, 14, 14, 14, 14, 14, 14, 14, 14, 14, 11, 11, 11, 11, 11, 11, 11, 12, 12, 12, 14, 14, 16, 14, 14, 14, 14, 14, 16, 14, 14, 12, 12, 12, 11, 11, 12, 12, 12, 12, 12, 15, 15, 14, 14, 14, 14, 14, 14, 15, 14, 15, 12, 12, 12, 12, 12, 12, 12, 12, 12, 12, 7, 7, 11, 11, 11, 11, 11, 11, 7, 11, 7, 12, 12, 12, 12, 12, 12, 12, 11, 11, 11, 11, 11, 11, 11, 11, 11, 11, 11, 11, 11, 11, 11, 11, 11, 12, 12, 11, 11, 11, 11, 11, 11, 11, 1, 1, 1, 1, 1, 1, 1, 11, 11, 11, 11, 11, 11, 11, 11, 11, 11, 11, 11, 11, 11, 11, 11, 11, 11, 11, 11, 11, 11, 11, 11, 11, 11, 11, 11, 11, 11, 11, 11, 11, 11, 11, 11, 11, 11, 11, 11, 11, 11, 11, 11, 11, 11, 11, 11, 11, 11, 11, 11, 11, 11, 11, 11, 11, 11, 11, 11, 11, 11, 11, 11, 11, 11, 11, 11, 11, 11, 11, 11, 21, 22, 11, 11, 11, 11, 11, 11, 11, 11, 11, 11, 11, 11, 11, 21, 22, 11, 11, 11, 13, 26, 27, 13, 11, 11, 11, 11, 11, 11, 11, 11, 11, 11, 11, 13, 26, 27, 13, 11, 11, 11, 31, 32, 11, 11, 11, 11, 11, 11, 11, 11, 11, 11, 11, 11, 11, 31, 32, 11, 11],
-				[],
+				[14, 14, 14, 14, 14, 14, 14, 14, 14, 14, 14, 14, 14, 14, 14, 14, 14, 14, 14, 14, 14, 14, 14, 4, 14, 14, 14, 4, 14, 14, 14, 4, 14, 14, 14, 4, 14, 14, 14, 4, 14, 14, 14, 14, 14, 14, 14, 14, 14, 14, 14, 15, 14, 14, 14, 14, 14, 14, 14, 14, 14, 14, 15, 11, 11, 11, 11, 11, 11, 11, 11, 11, 7, 11, 11, 11, 11, 11, 11, 11, 11, 11, 11, 7, 11, 11, 11, 11, 11, 11, 11, 11, 11, 11, 11, 11, 11, 11, 11, 11, 11, 11, 11, 11, 11, 11, 11, 11, 11, 11, 11, 11, 11, 11, 11, 11, 11, 11, 11, 11, 11, 11, 11, 11, 11, 11, 2, 11, 11, 11, 11, 11, 11, 11, 11, 11, 11, 11, 11, 11, 11, 11, 11, 11, 11, 11, 11, 7, 11, 11, 11, 11, 11, 11, 11, 11, 11, 11, 11, 11, 11, 11, 11, 11, 11, 11, 11, 11, 11, 11, 11, 11, 11, 11, 11, 11, 11, 11, 11, 11, 11, 11, 11, 11, 11, 11, 11, 11, 11, 11, 11, 11, 11, 11, 11, 11, 11, 11, 11, 11, 11, 11, 11, 11, 11, 11, 11, 11, 11, 11, 11, 11, 11, 11, 11, 11, 11, 11, 11, 11, 11, 11, 11, 11, 11, 11, 11, 11, 11, 11, 11, 11, 11, 11, 11, 11, 11, 11, 11, 11, 11, 11, 11, 11, 11, 11, 11, 11, 11, 11, 11, 11, 11, 11, 11, 11, 11, 14, 14, 14, 14, 14, 14, 14, 14, 14, 14, 14, 11, 11, 11, 11, 11, 11, 11, 12, 12, 12, 14, 14, 4, 14, 14, 14, 14, 14, 4, 14, 14, 12, 12, 12, 11, 11, 12, 12, 12, 12, 12, 15, 15, 14, 14, 14, 14, 14, 14, 15, 14, 15, 12, 12, 12, 12, 12, 12, 12, 12, 12, 12, 7, 7, 11, 11, 11, 11, 11, 11, 7, 11, 7, 12, 12, 12, 12, 12, 12, 12, 11, 11, 11, 11, 11, 11, 11, 11, 11, 11, 11, 11, 11, 11, 11, 11, 11, 12, 12, 11, 11, 11, 11, 11, 11, 11, 1, 1, 1, 1, 1, 1, 1, 11, 11, 11, 11, 11, 11, 11, 11, 11, 11, 11, 11, 11, 11, 11, 11, 11, 11, 11, 11, 11, 11, 11, 11, 11, 11, 11, 11, 11, 11, 11, 11, 11, 11, 11, 11, 11, 11, 11, 11, 11, 11, 11, 11, 11, 11, 11, 11, 11, 11, 11, 11, 11, 11, 11, 11, 11, 11, 11, 11, 11, 11, 11, 11, 11, 11, 11, 11, 11, 11, 11, 11, 11, 11, 11, 11, 11, 11, 11, 11, 11, 11, 11, 11, 11, 11, 11, 11, 11, 11, 11, 11, 11, 11, 11, 11, 11, 11, 11, 11, 11, 11, 11, 11, 11, 11, 11, 11, 11, 11, 11, 11, 11, 11, 11, 11, 11, 11, 11, 11, 11, 11, 11, 11, 11, 11, 11, 11, 11, 11, 11, 11, 11],
 			],
 		},
 
 		images: {
-			tiles: {normal: "./assets/tilemap/tavern.png"},
-			innkeeper: {normal: "./assets/npcs/rhus-jak.png"},
-			stairsRight: {normal: "./assets/objects/stairsRight.png"},
-			stairsLeft: {normal: "./assets/objects/stairsLeft.png"},
-			gameBoard1: {normal: "./assets/objects/gameBoard1.png"},
-			gameBoard2: {normal: "./assets/objects/gameBoard2.png"},
-			hearth1: {normal: "./assets/objects/hearth1.png"},
-			hearth2: {normal: "./assets/objects/hearth2.png"},
-			hearth3: {normal: "./assets/objects/hearth3.png"},
-			alysLoreworth: {normal: "./assets/npcs/alysLoreworth.png"},
+			tiles: {normal: "assets/tilemap/tavern.png"},
+			innkeeper: {normal: "assets/npcs/rhus-jak.png"},
+			stairsRight: {normal: "assets/objects/stairsRight.png"},
+			stairsLeft: {normal: "assets/objects/stairsLeft.png"},
+			gameBoard1: {normal: "assets/objects/gameBoard1.png"},
+			gameBoard2: {normal: "assets/objects/gameBoard2.png"},
+			hearth1: {normal: "assets/objects/hearth1.png"},
+			hearth2: {normal: "assets/objects/hearth2.png"},
+			hearth3: {normal: "assets/objects/hearth3.png"},
+			alysLoreworth: {normal: "assets/npcs/alysLoreworth.png"},
+			dirt: {normal: "assets/enemies/dirt.png"},
+			mug: {normal: "assets/items/item/25.png"},
+			plate: {normal: "assets/items/item/26.png"},
+			table: {normal: "assets/objects/table.png"},
+			largeTable: {normal: "assets/objects/largeTable.png"},
 		},
 
 		areaTeleports: [
@@ -3410,6 +3471,14 @@ var Areas = {
 					defence: 6,
 				},
 				roles: [
+					/*{
+						quest: Quests.tavern[1],
+						role: "questStartFinish",
+					},
+					{
+						quest: Quests.tavern[2],
+						role: "questStartFinish",
+					},*/
 					{
 						sold: [
 							{item: Items.consumable[21], cost: 3,}, // Beetroot Beer
@@ -3584,6 +3653,54 @@ var Areas = {
 					width: 202,
 				},
 			},
+			{
+				x: 420,
+				y: 448,
+				image: "table",
+				name: "Table",
+			},
+			{
+				x: 360,
+				y: 628,
+				image: "table",
+				name: "Table",
+			},
+			{
+				x: 840,
+				y: 268,
+				image: "table",
+				name: "Table",
+			},
+			{
+				x: 900,
+				y: 628,
+				image: "table",
+				name: "Table",
+			},
+			{
+				x: 362,
+				y: 264,
+				image: "largeTable",
+				name: "Large Table",
+			},
+			{
+				x: 842,
+				y: 444,
+				image: "largeTable",
+				name: "Large Table",
+			},
+			{
+				x: 182,
+				y: 1344,
+				image: "largeTable",
+				name: "Large Table",
+			},
+			{
+				x: 1082,
+				y: 1344,
+				image: "largeTable",
+				name: "Large Table",
+			},
 		],
 
 		collisions: [
@@ -3690,7 +3807,6 @@ var Areas = {
 			{
 				x: 364,
 				y: 230,
-				z: -1,
 				image: "gameBoard1",
 				name: "Wizard's Lore",
 				onTouchChat: "A game of Wizard's Lore, a board game traditionally played by wizard students and scholars.",
@@ -3698,15 +3814,147 @@ var Areas = {
 			{
 				x: 1083,
 				y: 1314,
-				z: -1,
 				image: "gameBoard2",
 				name: "Wizard's Lore",
 				onTouchChat: "A game of Wizard's Lore, a board game traditionally played by wizard students and scholars.",
 			},
 		],
-
+		
+		onAreaLeave: function () {
+			Dom.quest.abandon(Quests.tavern[1]);
+		},
+		
 	},
 };
+
+var Villagers = [
+	{
+		image: "silvioStarstrike",
+		imageSource: {normal: "assets/npcs/silvioStarstrike.png"},
+		name: "Silvio Starstrike",
+		stats: {
+			level: 20,
+			maxHealth: 150,
+			walkSpeed: 200,
+			defence: 5,
+		},
+		hostility: "friendly",
+		areas: [
+			"loggingCampTavern",
+			"eaglecrestTavern",
+		],
+	},
+	{
+		image: "darioHorfern",
+		imageSource: {normal: "assets/npcs/darioHorfern.png"},
+		name: "Dario Horfern",
+		stats: {
+			level: 10,
+			maxHealth: 100,
+			walkSpeed: 170,
+			defence: 3,
+		},
+		hostility: "friendly",
+		areas: [
+			"loggingCampTavern",
+			"eaglecrestTavern",
+		],
+	},
+	{
+		image: "gremaRoskin",
+		imageSource: {normal: "assets/npcs/gremaRoskin.png"},
+		name: "Grema Roskin",
+		stats: {
+			level: 15,
+			maxHealth: 125,
+			walkSpeed: 180,
+			defence: 2,
+		},
+		hostility: "friendly",
+		areas: [
+			"loggingCampTavern",
+			"eaglecrestTavern",
+		],
+	},
+	{
+		image: "feller",
+		imageSource: {normal: "assets/npcs/feller.png"},
+		name: "Logging Camp Feller",
+		stats: {
+			level: 4,
+			maxHealth: 70,
+			walkSpeed: 150,
+			defence: 3,
+		},
+		hostility: "friendly",
+		areas: [
+			"loggingCampTavern",
+		],
+	},
+	{
+		image: "treecutter",
+		imageSource: {normal: "assets/npcs/treecutter.png"},
+		name: "Logging Camp Treecutter",
+		stats: {
+			level: 7,
+			maxHealth: 85,
+			walkSpeed: 160,
+			defence: 5,
+		},
+		hostility: "friendly",
+		areas: [
+			"loggingCampTavern",
+		],
+	},
+	{
+		image: "robertHendman",
+		imageSource: {normal: "assets/npcs/robertHendman.png"},
+		name: "Robert Hendman",
+		stats: {
+			level: 12,
+			maxHealth: 85,
+			walkSpeed: 185,
+			defence: 5,
+		},
+		hostility: "friendly",
+		areas: [
+			"loggingCampTavern",
+			"eaglecrestTavern",
+		],
+	},
+	{
+		image: "wilmaRedding",
+		imageSource: {normal: "assets/npcs/wilmaRedding.png"},
+		name: "Wilma Redding",
+		stats: {
+			level: 12,
+			maxHealth: 85,
+			walkSpeed: 185,
+			defence: 5,
+		},
+		hostility: "friendly",
+		areas: [
+			"loggingCampTavern",
+			"eaglecrestTavern",
+		],
+	},
+	{
+		image: "greenbeard",
+		imageSource: {normal: "assets/npcs/greenbeard.png"},
+		name: "Captain Greenbeard",
+		stats: {
+			level: 40,
+			maxHealth: 250,
+			walkSpeed: 175,
+			defence: 8,
+		},
+		hostility: "friendly",
+		areas: [
+			"loggingCampTavern",
+			"eaglecrestTavern",
+		],
+	},
+];
 
 // sets a tile on the Map (specifyable area for if it is used in a setTimeout)
 function SetTile (area, layer, col, row, newTileNum) {

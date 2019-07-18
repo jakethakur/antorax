@@ -112,13 +112,13 @@
 		<div id="settingLogout"></div>
 		<div id="settingFullscreen" class="settings">
 			Fullscreen:
-			<span class="radio1"><input type="radio" id="fullscreenOn" name="fullscreenOnOff" onclick="document.documentElement.requestFullscreen()">Yes</input></span>
-			<span class="radio2"><input type="radio" id="fullscreenOff" name="fullscreenOnOff" checked="true" onclick="document.exitFullscreen()">No</input></span>
+			<span class="radio1"><input type="radio" id="fullscreenOn" name="fullscreenOnOff" onclick="Dom.settings.fullscreen()">Yes</input></span>
+			<span class="radio2"><input type="radio" id="fullscreenOff" name="fullscreenOnOff" checked="true" onclick="Dom.settings.fullscreen()">No</input></span>
 		</div>        
 		<div id="settingMusic" class="settings">
 			Play music:
-			<span class="radio1"><input type="radio" id="musicOn" name="musicOnOff" onclick="Game.playMusic()">Yes</input></span>
-			<span class="radio2"><input type="radio" name="musicOnOff" checked="true" onclick="Game.stopMusic()">No</input></span>
+			<span class="radio1"><input type="radio" id="musicOn" name="musicOnOff" onclick="Dom.settings.music()">Yes</input></span>
+			<span class="radio2"><input type="radio" name="musicOnOff" checked="true" onclick="Dom.settings.music()">No</input></span>
 		</div>        
 		<div id="settingParticles" class="settings">
             Show particles:
@@ -132,18 +132,18 @@
 		</div>
 		<div id="settingTransparency" class="settings">
 			Page transparency:
-			<span class="radio1"><input type="radio" id="transparencyOn" name="transparencyOnOff" onclick="User.settings.transparency = true;Dom.settings.transparency()">On</input></span>
-			<span class="radio2"><input type="radio" id="transparencyOff" name="transparencyOnOff" checked="true" onclick="User.settings.transparency = false;Dom.settings.transparency()">Off</input></span>
+			<span class="radio1"><input type="radio" id="transparencyOn" name="transparencyOnOff" onclick="Dom.settings.transparency()">On</input></span>
+			<span class="radio2"><input type="radio" id="transparencyOff" name="transparencyOnOff" checked="true" onclick="Dom.settings.transparency()">Off</input></span>
 		</div>
 		<div id="settingDark" class="settings">
 			Dark theme:
-			<span class="radio1"><input type="radio" id="darkOn" name="darkOnOff" onclick="User.settings.dark = true;Dom.settings.dark()">On</input></span>
-			<span class="radio2"><input type="radio" id="darkOff" name="darkOnOff" checked="true" onclick="User.settings.dark = false;Dom.settings.dark()">Off</input></span>
+			<span class="radio1"><input type="radio" id="darkOn" name="darkOnOff" onclick="Dom.settings.dark()">On</input></span>
+			<span class="radio2"><input type="radio" id="darkOff" name="darkOnOff" checked="true" onclick="Dom.settings.dark()">Off</input></span>
 		</div>
 		<div id="settingCoords" class="settings">
 			Show co-ordinates:
-			<span class="radio1"><input type="radio" id="coordsOn" name="coordsOnOff" onclick="User.settings.coords = true">Yes</input></span>
-			<span class="radio2"><input type="radio" name="coordsOnOff" checked="true" onclick="User.settings.coords = false">No</input></span>
+			<span class="radio1"><input type="radio" id="coordsOn" name="coordsOnOff">Yes</input></span>
+			<span class="radio2"><input type="radio" name="coordsOnOff" checked="true">No</input></span>
 		</div>
 		<div id="settingFps" class="settings">
 			Show FPS:
@@ -162,8 +162,8 @@
 		</div>
 		<div id="settingSpeed" class="settings">
 			HIGH SPEED:
-			<span class="radio1"><input type="radio" id="speedOn" name="speedOnOff" onclick="Game.highSpeed('add')">Whee!</input></span>
-			<span class="radio2"><input type="radio" name="speedOnOff" checked="true" onclick="Game.highSpeed('remove')">No</input></span>
+			<span class="radio1"><input type="radio" id="speedOn" name="speedOnOff" onclick="Game.highSpeed()">Whee!</input></span>
+			<span class="radio2"><input type="radio" name="speedOnOff" checked="true" onclick="Game.highSpeed()">No</input></span>
 		</div>
 		<span id="settingTutorialHolder">
 			<div id="settingTutorial" class="settings">
