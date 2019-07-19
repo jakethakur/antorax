@@ -458,7 +458,7 @@ Game.addPlayer = function (player) {
 				copiedPlayer.stats.maxHealth = 50 + (copiedPlayer.level-1) * 5;
 				copiedPlayer.projectile = {};
 				// name colour
-				if (this.minigameInProgress.taggedPlayer === copiedPlayer.userID) {
+				if (this.minigameInProgress !== undefined && this.minigameInProgress.taggedPlayer === copiedPlayer.userID) {
 					// tagged in minigame
 					copiedPlayer.hostility = "gameHostile";
 				}
