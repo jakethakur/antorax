@@ -364,6 +364,20 @@ Game.initWebSocket = function () {
 							// end of game
 							Game.tag.finish();
 							break;
+
+						case "fizzle":
+							// close alert for people who still have it open
+							if (!Game.minigameInProgress.playing) {
+								// not playing
+								// close alert if it wasn't already closed
+								if (Dom.alert.target === Game.tag.join) { // showing the function to join the game still (so the wrong one isn't closed by accident)
+									Dom.elements.alertNo.onclick();
+								}
+							}
+
+							// game couldn't start properly due to not enough players
+							Game.tag.finish(true);
+							break;
 					}
 					break;
 
@@ -440,10 +454,17 @@ Game.addPlayer = function (player) {
 			if (playerAlreadyAdded === -1 && this.prepareNPC(copiedPlayer, "players")) {
 
 				// object properties (to stop attacker breaking)
-				copiedPlayer.hostility = "friendly";
 				copiedPlayer.stats = {};
 				copiedPlayer.stats.maxHealth = 50 + (copiedPlayer.level-1) * 5;
 				copiedPlayer.projectile = {};
+				// name colour
+				if (this.minigameInProgress.taggedPlayer === copiedPlayer.userID) {
+					// tagged in minigame
+					copiedPlayer.hostility = "gameHostile";
+				}
+				else {
+					copiedPlayer.hostility = "friendly";
+				}
 
 				// add the player
 				this.players.push(new UserControllable(copiedPlayer));
@@ -1064,6 +1085,8 @@ class Character extends Thing {
 			this.respawnOnDeath = true; // default value (wouldn't work otherwise since true would take precedence)
 		}
 
+		this.onDeath = properties.onDeath;
+
 		this.chat = properties.chat || {}; // object containing properties that are inserted into chat when specific things happen
 		/* examples of chat properties:
 			firstDamaged - said when the character is damaged for the first time
@@ -1191,9 +1214,14 @@ class Character extends Thing {
 				// wipe status effects and their tick timeouts
 				this.removeAllStatusEffects();
 
-				// on kill function
+				// on kill function (of weapon)
 				if (Player.inventory.weapon.onKill !== undefined) {
 					Player.inventory.weapon.onKill();
+				}
+
+				// on death function (of enemy)
+				if (this.onDeath !== undefined) {
+					this.onDeath();
 				}
 
 				if (this.corpseOnDeath) {
@@ -1936,6 +1964,13 @@ class Hero extends Attacker {
 
 		let baseSpeed = false; // whether speed should be altered by status effects and slow tiles (false means do alter)
 		// if baseSpeed is a number instead, the speed is set to that without setSpeed being called
+		// this is only changed by displacement
+
+		let gameSpeed = false; // whether speed should be altered by potions and equipment (but slow tiles is fine)
+		if (Game.minigameInProgress !== undefined && Game.minigameInProgress.game === "tag") {
+			// limit speed to just changed by tiles
+			gameSpeed = true;
+		}
 
 		// move hero
 		if (this.hasStatusEffect("Displacement")) {
@@ -1958,9 +1993,15 @@ class Hero extends Attacker {
 			diry = Math.sin(direction);
 
 			// movement speed
-			this.speed = this.stats.walkSpeed;
+			if (!gameSpeed) {
+				this.speed = this.stats.walkSpeed;
+			}
+			else {
+				this.speed = 180;
+			}
+
 			// speed scalar due to moveTowards (decimal value)
-			if (this.moveTowards !== undefined && this.moveTowards.speedScalar !== undefined) {
+			if (this.moveTowards.speedScalar !== undefined) {
 				this.speed *= this.moveTowards.speedScalar;
 			}
 
@@ -1987,12 +2028,6 @@ class Hero extends Attacker {
 		// set walkspeed for next move() function call
 		// true = just set to base speed
 		if (baseSpeed === false || baseSpeed === true) {
-			let gameSpeed = false;
-			if (Game.minigameInProgress !== undefined && Game.minigameInProgress.game === "tag") {
-				// limit speed to just changed by tiles
-				gameSpeed = true;
-			}
-
 			this.setSpeed(baseSpeed, gameSpeed);
 		}
 		else {
@@ -4450,50 +4485,74 @@ Game.tag.newTaggedPlayer = function (userID) {
 	// previous tagged player (so their tagged state can be reset)
 	let prevTaggedPlayer;
 	if (Game.minigameInProgress.taggedPlayer !== undefined) {
-		prevTaggedPlayer = Game.getPlayerFromID(Game.minigameInProgress.taggedPlayer);
+		// a player has been tagged before
+
+		// try to find the old tagged player object in Game from userID (check if they are in the same area)
+		prevTaggedPlayer = Game.players.find(player => player.userID === Game.minigameInProgress.taggedPlayer);
+
+		if (prevTaggedPlayer === undefined) {
+			// player is not in the same area (or player is Game.hero) - find them in Dom.players instead
+			prevTaggedPlayer = Dom.players.find(player => player.userID === Game.minigameInProgress.taggedPlayer);
+		}
+		else {
+			// they are in the same area - update their name colour
+			// this is otherwise done on joining area
+			prevTaggedPlayer.hostility = "friendly";
+		}
 
 		// previously tagged player is immune to being tagged again for 3 seconds
-		Game.statusEffects.walkSpeed({
-			target: prevTaggedPlayer,
-			effectTitle: "Tag Immunity",
-			effectDescription: "Increased walk speed and immunity to being tagged.",
-			speedIncrease: 35,
-			time: 3,
-			worksForGames: true
-		});
+		Game.minigameInProgress.immunePlayer = Game.minigameInProgress.taggedPlayer;
+		setTimeout(function () {
+			Game.minigameInProgress.immunePlayer = undefined;
+		}, 3000);
 	}
 
 	// update game object tagged player
 	Game.minigameInProgress.taggedPlayer = userID;
 
-	// new tagged player object (from userID)
-	let taggedPlayer = Game.getPlayerFromID(userID);
+	// try to find the new tagged player object in Game from userID (check if they are in the same area)
+	let taggedPlayer = Game.players.find(player => player.userID === userID);
+
+	if (taggedPlayer === undefined) {
+		// player is not in the same area (or player is Game.hero) - find them in Dom.players instead
+		taggedPlayer = Dom.players.find(player => player.userID === userID);
+	}
+	else {
+		// they are in the same area - update name colour
+		// this is otherwise done on joining area
+		taggedPlayer.hostility = "gameHostile";
+	}
 
 	// chat message
 	Dom.chat.insert(taggedPlayer.name + " is on!");
-
-	// update name colours
-	taggedPlayer.hostility = "gameHostile";
-	if (prevTaggedPlayer !== undefined) {
-		prevTaggedPlayer.hostility = "friendly";
-	}
 }
 
 // leave tag minigame
-Game.tag.leave = function () {
+// if fizzle is set to true, the player gets their item back because the game was unable to start
+Game.tag.leave = function (fizzle) {
 	// return them to their initial location
 	Game.hero.temporaryAreaTeleportReturn();
 
 	Game.minigameInProgress.playing = false;
 
-	Dom.chat.insert("The game is over.")
+	if (fizzle) {
+		// there were not enough players to start the game
+		Dom.chat.insert("There were not enough players to start the game. You have got your <strong>Chaser's Gauntlet</strong> back.");
+		Dom.inventory.give(Items.consumable[22]);
+		Dom.chat.notification("There were not enough players to start the game."); // in case they were not on the tab
+	}
+	else {
+		// ended after a proper game
+		Dom.chat.insert("The game is over.");
+	}
 }
 
 // tag minigame finished
-Game.tag.finish = function () {
+// if fizzle is set to true, the player gets their item back because the game was unable to start
+Game.tag.finish = function (fizzle) {
 	if (Game.minigameInProgress.playing) {
 		// leave the game first
-		this.leave();
+		this.leave(fizzle);
 	}
 
 	// game has finished
@@ -5858,7 +5917,7 @@ Game.update = function (delta) {
 									// inventory space is checked by choose DOM
 									textArray.push("Quest finish: " + questToBeFinished.quest);
 									functionArray.push(Dom.quest.finish);
-									parameterArray.push([role.quest, npc]);
+									parameterArray.push([questToBeFinished, npc]);
 								}
 								// quest conditions have not been fulfilled
 								else {
@@ -6184,8 +6243,8 @@ Game.update = function (delta) {
 				// can't interact with other players normally
 				switch (this.minigameInProgress.game) {
 					case "tag":
-						if (this.minigameInProgress.taggedPlayer === ws.userID && // this player is tagged
-						!this.players[i].hasStatusEffect("Tag Immunity")) { // they are not immune to being tagged
+						if (this.minigameInProgress.taggedPlayer === ws.userID && // this player is tagged, and...
+						Game.minigameInProgress.immunePlayer !== player.userID) { // the player being tagged is not immune to being tagged
 							// tag them
 							// note that for the player to even be shown in the area in the first place they must be playing
 							ws.send(JSON.stringify({
@@ -7563,7 +7622,7 @@ Game.screenshot = function () {
 	ctx.drawImage(this.canvasDayNight, x, y, 600, 600, 0, 0, 600, 600);
 	ctx.drawImage(this.canvasLight, x, y, 600, 600, 0, 0, 600, 600);
 
-	// if the inventory is open make it an inventoy alert, else make it a canvas alert
+	// if the inventory is open make it an inventory alert, else make it a canvas alert
 	let page = "inventoryPage";
 	if (document.getElementById("inventoryPage").hidden) {
 		page = undefined;

@@ -287,44 +287,53 @@ wss.on("connection", (ws) => { // note that ws = client in wss.clients
 						});
 
 						// 2 minutes + 30 seconds for each player above 2
-						let gameLength = 120000 + 30000*(minigameInProgress.joinedPlayers.length-2);
+						let gameLength = 120000 + 60000*(minigameInProgress.joinedPlayers.length-2);
 						// upper limit is 4 minutes
-						if (gameLength > 240000) {
-							gameLength = 240000;
+						if (gameLength > 300000) {
+							gameLength = 300000;
 						}
 
 						// start game in 30 seconds
 						setTimeout(function () {
-							minigameInProgress.status = "started";
+							// check there are at least 2 players in the game
+							if (minigameInProgress.joinedPlayers.length > 1) {
+								// start game
+								minigameInProgress.status = "started";
 
-							// tell users it has started
-							wss.clients.forEach(client => {
-								if (minigameInProgress.joinedPlayers.includes(client.userID)) {
+								// random tagged player to start
+								minigameInProgress.taggedPlayer = minigameInProgress.joinedPlayers[Random(0, minigameInProgress.joinedPlayers.length-1)];
+
+								// tell users it has started and who is tagged
+								wss.clients.forEach(client => {
 									client.send(JSON.stringify({
 										type: "tagGame",
 										action: "start",
-										taggedPlayer: ws.userID // the user that starts the game is tagged initially
+										taggedPlayer: minigameInProgress.taggedPlayer
 									}));
-								}
-							});
+								});
 
-							// tagged player
-							minigameInProgress.taggedPlayer = ws.userID;
-
-							// end game in 2 minutes
-							setTimeout(function () {
-								// tell users it has finished
-								wss.clients.forEach(client => {
-									if (minigameInProgress.joinedPlayers.includes(client.userID)) {
+								// end game
+								setTimeout(function () {
+									// tell users it has finished
+									wss.clients.forEach(client => {
 										client.send(JSON.stringify({
 											type: "tagGame",
 											action: "finish",
 										}));
-									}
-								});
+									});
 
-								minigameInProgress = undefined;
-							}, gameLength);
+									minigameInProgress = undefined;
+								}, gameLength);
+							}
+							else {
+								// tell users it fizzled (and giving back the item to the person who started the game, i.e. the only person in the game)
+								wss.clients.forEach(client => {
+									client.send(JSON.stringify({
+										type: "tagGame",
+										action: "fizzle",
+									}));
+								});
+							}
 						}, 30000);
 
 						break;
@@ -354,7 +363,7 @@ wss.on("connection", (ws) => { // note that ws = client in wss.clients
 
 						// tell other users in game (apart from user who sent the message because they have already called the function)
 						wss.clients.forEach(client => {
-							if (minigameInProgress.joinedPlayers.includes(client.userID)) {
+							if (minigameInProgress.joinedPlayers.includes(client.userID) && client.userID !== ws.userID) {
 								client.send(JSON.stringify({
 									type: "tagGame",
 									action: "taggedPlayer",
@@ -436,4 +445,9 @@ function FindClientFromID(userID) {
 	});
 
 	return returnClient;
+}
+
+// random integer between minimum and maximum (inclusive)
+function Random (minimum, maximum) {
+    return Math.floor((Math.random() * (maximum - minimum + 1)) + minimum);
 }
