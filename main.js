@@ -313,10 +313,15 @@ Game.initWebSocket = function () {
 							// make other players know they joined the game ...
 							Game.tag.playerJoin(initialJoinPlayer);
 
-							// alert to ask them if they want to join
-							Dom.alert.page("A game of tag has been started in " + message.displayAreaName + ". Would you like to join?", 2);
-							Dom.alert.target = Game.tag.join; // function to be called if they click yes
-							Dom.alert.ev = [message.spawnArea, message.spawnX, message.spawnY]; // parameters for function
+							// only ask them to join if their setting is on
+							if (Dom.elements.minigamesOn.checked) {
+								// alert to ask them if they want to join
+								Dom.alert.page("A game of tag has been started in " + message.displayAreaName + ". Would you like to join?", 2);
+								Dom.alert.target = Game.tag.join; // function to be called if they click yes
+								Dom.alert.ev = [message.spawnArea, message.spawnX, message.spawnY]; // parameters for function
+								// notifiction
+								Dom.chat.notification("A game of tag has been started in " + message.displayAreaName + ".");
+							}
 							break;
 
 						case "playerJoin":
@@ -343,6 +348,8 @@ Game.initWebSocket = function () {
 								Dom.chat.insert("The game has started!");
 								// tagged player
 								Game.tag.newTaggedPlayer(message.taggedPlayer);
+								// notifiction for if they're not on the tab
+								Dom.chat.notification("The game of tag has started!");
 							}
 							break;
 
@@ -4858,7 +4865,8 @@ Game.loadArea = function (areaName, destination) {
 		}
 
 		// if the area is a checkpoint and it is not the player's current checkpoint, update the player's checkpoint
-		if (Areas[areaName].checkpoint && this.hero.checkpoint !== areaName) {
+		// also makes sure that player has not been temporarily changed
+		if (Areas[areaName].checkpoint && this.hero.checkpoint !== areaName && this.hero.oldPosition === undefined) {
 			this.hero.checkpoint = areaName;
 			Dom.chat.insert("Checkpoint reached! Your spawn location has been set to this location.");
 		}
@@ -5467,7 +5475,7 @@ Game.generateVillagers = function (data) {
 		villagersToAdd.push(villagerIndex);
 
 		// image to be added
-		images[Villagers[villagerIndex].image] = Villagers[villagerIndex].imageSource;
+		images[possibleVillagers[villagerIndex].image] = possibleVillagers[villagerIndex].imageSource;
 
 		// prepare the NPC to be added
 		if (numberAdded === numberToAdd) {
@@ -5483,11 +5491,11 @@ Game.generateVillagers = function (data) {
 	Promise.all(p).then(function () {
 		// loop through villagers to be added, assigning them a position and preparing them
 		for (let i = 0; i < villagersToAdd.length; i++) {
-			let villager = Villagers[villagersToAdd[i]];
+			let villager = possibleVillagers[villagersToAdd[i]];
 
 			// pick random location for villager based on random seed and length of its name
 			// changes approximately every 200 minutes
-			let locationIndex = Math.round(villager.name.length + (seed/4)) % data.locations.length;
+			let locationIndex = Math.round(i + (seed/4)) % data.locations.length;
 			villager.boundary = data.locations[locationIndex];
 
 			// random position inside the boundary
@@ -6288,8 +6296,9 @@ Game.update = function (delta) {
 			|| (this.areaTeleports[i].teleportCondition !== undefined && this.areaTeleports[i].teleportCondition())) {
 
 				// can't teleport if they are playing a game set to a certain area
-				if (this.minigameInProgress === undefined
-				|| this.minigameInProgress.area.includes(this.areaTeleports[i].teleportTo)) {
+				if (this.minigameInProgress === undefined // no game active
+				|| !this.minigameInProgress.playing // or not playing game
+				|| this.minigameInProgress.area.includes(this.areaTeleports[i].teleportTo)) { // or allowed to teleport to area by game
 
 					// a teleport condition has been met (if there is one)
 					// find player destination

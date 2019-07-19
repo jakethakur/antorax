@@ -114,12 +114,12 @@
 			Fullscreen:
 			<span class="radio1"><input type="radio" id="fullscreenOn" name="fullscreenOnOff" onclick="Dom.settings.fullscreen()">Yes</input></span>
 			<span class="radio2"><input type="radio" id="fullscreenOff" name="fullscreenOnOff" checked="true" onclick="Dom.settings.fullscreen()">No</input></span>
-		</div>        
+		</div>
 		<div id="settingMusic" class="settings">
 			Play music:
 			<span class="radio1"><input type="radio" id="musicOn" name="musicOnOff" onclick="Dom.settings.music()">Yes</input></span>
 			<span class="radio2"><input type="radio" name="musicOnOff" checked="true" onclick="Dom.settings.music()">No</input></span>
-		</div>        
+		</div>
 		<div id="settingParticles" class="settings">
             Show particles:
             <span class="radio1"><input type="radio" id="particlesOn" name="particlesOnOff" checked="true">Yes</input></span>
@@ -140,6 +140,11 @@
 			<span class="radio1"><input type="radio" id="darkOn" name="darkOnOff" onclick="Dom.settings.dark()">On</input></span>
 			<span class="radio2"><input type="radio" id="darkOff" name="darkOnOff" checked="true" onclick="Dom.settings.dark()">Off</input></span>
 		</div>
+		<div id="settingMinigames" class="settings">
+			Minigame notifications:
+			<span class="radio1"><input type="radio" id="minigamesOn" name="minigameOnOff" checked="true" onclick="Dom.settings.minigames()">Yes</input></span>
+			<span class="radio2"><input type="radio" id="minigamesOff" name="minigameOnOff" onclick="Dom.settings.minigames()">No</input></span>
+		</div>
 		<div id="settingCoords" class="settings">
 			Show co-ordinates:
 			<span class="radio1"><input type="radio" id="coordsOn" name="coordsOnOff">Yes</input></span>
@@ -159,11 +164,6 @@
 			Show grid:
 			<span class="radio1"><input type="radio" id="gridOn" name="gridOnOff" onclick="User.settings.grid = true">Yes</input></span>
 			<span class="radio2"><input type="radio" name="gridOnOff" checked="true" onclick="User.settings.grid = false">No</input></span>
-		</div>
-		<div id="settingSpeed" class="settings">
-			HIGH SPEED:
-			<span class="radio1"><input type="radio" id="speedOn" name="speedOnOff" onclick="Game.highSpeed()">Whee!</input></span>
-			<span class="radio2"><input type="radio" name="speedOnOff" checked="true" onclick="Game.highSpeed()">No</input></span>
 		</div>
 		<span id="settingTutorialHolder">
 			<div id="settingTutorial" class="settings">
@@ -317,7 +317,7 @@
 		<img id="changeReputation" class="changePage" src="assets/icons/Tag5.png" onclick="Dom.changeBook('reputationPage', true)"></img>
 		<img id="changeSettings" class="changePage" src="assets/icons/Tag6.png" onclick="Dom.changeBook('settingsPage', true)"></img>
 	</span>
-	
+
 	<script src="./gamedata/functions.js"></script>
 	<script src="./weather.js"></script>
 	<script src="./gamedata/skindata.js"></script>

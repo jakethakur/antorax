@@ -286,18 +286,26 @@ wss.on("connection", (ws) => { // note that ws = client in wss.clients
 							}
 						});
 
+						// 2 minutes + 30 seconds for each player above 2
+						let gameLength = 120000 + 30000*(minigameInProgress.joinedPlayers.length-2);
+						// upper limit is 4 minutes
+						if (gameLength > 240000) {
+							gameLength = 240000;
+						}
+
 						// start game in 30 seconds
 						setTimeout(function () {
 							minigameInProgress.status = "started";
 
 							// tell users it has started
-							minigameInProgress.joinedPlayers.forEach(player => {
-								let client = FindClientFromID(player);
-								client.send(JSON.stringify({
-									type: "tagGame",
-									action: "start",
-									taggedPlayer: ws.userID // the user that starts the game is tagged initially
-								}));
+							wss.clients.forEach(client => {
+								if (minigameInProgress.joinedPlayers.includes(client.userID)) {
+									client.send(JSON.stringify({
+										type: "tagGame",
+										action: "start",
+										taggedPlayer: ws.userID // the user that starts the game is tagged initially
+									}));
+								}
 							});
 
 							// tagged player
@@ -306,31 +314,33 @@ wss.on("connection", (ws) => { // note that ws = client in wss.clients
 							// end game in 2 minutes
 							setTimeout(function () {
 								// tell users it has finished
-								minigameInProgress.joinedPlayers.forEach(player => {
-									let client = FindClientFromID(player);
-									client.send(JSON.stringify({
-										type: "tagGame",
-										action: "finish",
-									}));
+								wss.clients.forEach(client => {
+									if (minigameInProgress.joinedPlayers.includes(client.userID)) {
+										client.send(JSON.stringify({
+											type: "tagGame",
+											action: "finish",
+										}));
+									}
 								});
 
 								minigameInProgress = undefined;
-							}, 120000);
+							}, gameLength);
 						}, 30000);
 
 						break;
 
 					case "joinGame":
-						// tell others in the game that they joined
-						minigameInProgress.joinedPlayers.forEach(player => {
-							let client = FindClientFromID(player);
-							client.send(JSON.stringify({
-								type: "tagGame",
-								action: "playerJoin",
-								userID: ws.userID, // id of person joining
-								// for positioning
-								area: minigameInProgress.spawnArea,
-							}));
+						// tell all other players that this player joined
+						wss.clients.forEach(client => {
+							if (client.userID !== ws.userID) {
+								client.send(JSON.stringify({
+									type: "tagGame",
+									action: "playerJoin",
+									userID: ws.userID, // id of person joining
+									// for positioning
+									area: minigameInProgress.spawnArea,
+								}));
+							}
 						});
 
 						// someone has joined the tag game
@@ -343,9 +353,8 @@ wss.on("connection", (ws) => { // note that ws = client in wss.clients
 						minigameInProgress.taggedPlayer = parsedMessage.userID;
 
 						// tell other users in game (apart from user who sent the message because they have already called the function)
-						minigameInProgress.joinedPlayers.forEach(player => {
-							if (player !== ws.userID) {
-								let client = FindClientFromID(player);
+						wss.clients.forEach(client => {
+							if (minigameInProgress.joinedPlayers.includes(client.userID)) {
 								client.send(JSON.stringify({
 									type: "tagGame",
 									action: "taggedPlayer",

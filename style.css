@@ -566,7 +566,8 @@ thead:after { /* space after bags in bank */
 	left: 375px;
 }
 
-#settingMusic, #settingParticles, #settingTransparency, #settingCoords, #settingSpeed, #settingTutorial {
+/* setting groups */
+#settingMusic, #settingParticles, #settingTransparency, #settingMinigames, #settingCoords, #settingTutorial {
 	margin-top: 10px;
 	border: 5px solid var(--border);
 }
@@ -990,26 +991,26 @@ thead:after { /* space after bags in bank */
 	top: 140px;
 	left: 200px;
 	cursor: pointer;
-	border-right: 20px solid var(--arrow); 
+	border-right: 20px solid var(--arrow);
 }
 
 #rightArrow {
 	top: 140px;
 	right: 200px;
 	cursor: pointer;
-	border-left: 20px solid var(--arrow); 
+	border-left: 20px solid var(--arrow);
 }
 
 .triangleLeft, .innerTriangleLeft, .triangleRight, .innerTriangleRight{
 	position: absolute;
-	width: 0px; 
-	height: 0px; 
+	width: 0px;
+	height: 0px;
 	border-top: 15px solid transparent;
-	border-bottom: 15px solid transparent; 
+	border-bottom: 15px solid transparent;
 }
 
 .triangleLeft {
-	border-right: 20px solid var(--border); 
+	border-right: 20px solid var(--border);
 }
 
 .innerTriangleLeft {
