@@ -151,12 +151,13 @@ var User = {
 		music: false,
 		particles: true,
 		weather: true,
+		transparency: false,
+		dark: false,
+		minigames: true,
 		coords: false,
 		fps: false,
 		hitboxes: false,
 		grid: false,
-		transparency: false,
-		dark: false,
 		keyboard: {
 			// handled by main
 			// movement

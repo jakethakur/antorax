@@ -7,6 +7,11 @@ if(JSON.parse(localStorage.getItem("user")) !== null){
 	User.notFirst = true;
 	User.skinPurchased = undefined;
 }
+else {
+	for (let i = 0; i < Items.fish.length; i++) {
+		User.fish.push(0);
+	}
+}
 
 var Achievements = [
 		// GENERAL

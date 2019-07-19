@@ -1326,22 +1326,24 @@ var Areas = {
 			},
 		],
 		
-		villagerData: [
-			{
-				x: 0,
-				y: 142,
-				width: 960,
-				height: 458,
-				people: 2,
-			},
-			{
-				x: 0,
-				y: 981,
-				width: 960,
-				height: 480,
-				people: 2,
-			},
-		],
+		villagerData: {
+			minPeople: 1,
+			maxPeople: 5,
+			locations: [
+				{
+					x: 39,
+					y: 140,
+					width: 882,
+					height: 392,
+				},
+				{
+					x: 39,
+					y: 980,
+					width: 882,
+					height: 332,
+				},
+			],
+		},
 		
 		npcs: [
 			{
@@ -1437,36 +1439,42 @@ var Areas = {
 			{
 				x: 300,
 				y: 328,
+				orderOffsetY: -40,
 				image: "table",
 				name: "Table",
 			},
 			{
 				x: 180,
 				y: 508,
+				orderOffsetY: -40,
 				image: "table",
 				name: "Table",
 			},
 			{
 				x: 600,
 				y: 508,
+				orderOffsetY: -40,
 				image: "table",
 				name: "Table",
 			},
 			{
 				x: 780,
 				y: 1108,
+				orderOffsetY: -40,
 				image: "table",
 				name: "Table",
 			},
 			{
 				x: 780,
 				y: 1288,
+				orderOffsetY: -40,
 				image: "table",
 				name: "Table",
 			},
 			{
 				x: 842,
 				y: 324,
+				orderOffsetY: -30,
 				image: "largeTable",
 				name: "Large Table",
 			},
@@ -3458,6 +3466,25 @@ var Areas = {
 			},
 		],
 
+		villagerData: {
+			minPeople: 1,
+			maxPeople: 5,
+			locations: [
+				{
+					x: 39,
+					y: 140,
+					width: 1182,
+					height: 452,
+				},
+				{
+					x: 39,
+					y: 1040,
+					width: 1182,
+					height: 272,
+				},
+			],
+		},
+
 		npcs: [
 			{
 				x: 646,
@@ -3499,9 +3526,9 @@ var Areas = {
 					},
 				],
 				chat: {
-					//questProgress: "",
-					//chooseChat: "",
-					//notUnlockedRoles: "",
+					questProgress: "<strong>Jake</strong>: you're not done yet! Keep going.",
+					chooseChat: `<strong>Rhus</strong>: What you want?
+<br><strong>Jak</strong>: Hello! Can we help you?`,
 					shopLeave: ["<strong>Rhus</strong>: Heh, see you soon.",
 								"<strong>Jak</strong>: Enjoy your stay."],
 					inventoryFull: "<strong>Rhus</strong>: You can't be holding that! Empty your bags a bit.",
@@ -3656,48 +3683,58 @@ var Areas = {
 			{
 				x: 420,
 				y: 448,
+				orderOffsetY: -40,
 				image: "table",
 				name: "Table",
 			},
 			{
 				x: 360,
 				y: 628,
+				orderOffsetY: -40,
 				image: "table",
 				name: "Table",
 			},
 			{
 				x: 840,
 				y: 268,
+				orderOffsetY: -40,
 				image: "table",
 				name: "Table",
 			},
 			{
 				x: 900,
 				y: 628,
+				orderOffsetY: -40,
 				image: "table",
 				name: "Table",
 			},
 			{
 				x: 362,
 				y: 264,
+				orderOffsetY: -30,
+				use: "wizardsLore",
 				image: "largeTable",
 				name: "Large Table",
 			},
 			{
 				x: 842,
 				y: 444,
+				orderOffsetY: -30,
 				image: "largeTable",
 				name: "Large Table",
 			},
 			{
 				x: 182,
 				y: 1344,
+				orderOffsetY: -30,
 				image: "largeTable",
 				name: "Large Table",
 			},
 			{
 				x: 1082,
 				y: 1344,
+				orderOffsetY: -30,
+				use: "wizardsLore",
 				image: "largeTable",
 				name: "Large Table",
 			},
@@ -3762,7 +3799,7 @@ var Areas = {
 			},
 			// left stairs
 			{
-				// bottom of right stairs (to top)
+				// bottom of left stairs (to top)
 				x: 325,
 				y: 990,
 				width: 2,
@@ -3782,7 +3819,7 @@ var Areas = {
 				}
 			},
 			{
-				// top of right stairs (to bottom)
+				// top of left stairs (to bottom)
 				x: 117,
 				y: 810,
 				width: 2,
@@ -3806,7 +3843,7 @@ var Areas = {
 		infoPoints: [
 			{
 				x: 364,
-				y: 230,
+				y: 234,
 				image: "gameBoard1",
 				name: "Wizard's Lore",
 				onTouchChat: "A game of Wizard's Lore, a board game traditionally played by wizard students and scholars.",
@@ -3835,7 +3872,7 @@ var Villagers = [
 		stats: {
 			level: 20,
 			maxHealth: 150,
-			walkSpeed: 200,
+			walkSpeed: 160,
 			defence: 5,
 		},
 		hostility: "friendly",
@@ -3851,7 +3888,7 @@ var Villagers = [
 		stats: {
 			level: 10,
 			maxHealth: 100,
-			walkSpeed: 170,
+			walkSpeed: 125,
 			defence: 3,
 		},
 		hostility: "friendly",
@@ -3867,7 +3904,7 @@ var Villagers = [
 		stats: {
 			level: 15,
 			maxHealth: 125,
-			walkSpeed: 180,
+			walkSpeed: 135,
 			defence: 2,
 		},
 		hostility: "friendly",
@@ -3883,7 +3920,7 @@ var Villagers = [
 		stats: {
 			level: 4,
 			maxHealth: 70,
-			walkSpeed: 150,
+			walkSpeed: 115,
 			defence: 3,
 		},
 		hostility: "friendly",
@@ -3898,7 +3935,7 @@ var Villagers = [
 		stats: {
 			level: 7,
 			maxHealth: 85,
-			walkSpeed: 160,
+			walkSpeed: 120,
 			defence: 5,
 		},
 		hostility: "friendly",
@@ -3913,7 +3950,7 @@ var Villagers = [
 		stats: {
 			level: 12,
 			maxHealth: 85,
-			walkSpeed: 185,
+			walkSpeed: 140,
 			defence: 5,
 		},
 		hostility: "friendly",
@@ -3929,7 +3966,7 @@ var Villagers = [
 		stats: {
 			level: 12,
 			maxHealth: 85,
-			walkSpeed: 185,
+			walkSpeed: 140,
 			defence: 5,
 		},
 		hostility: "friendly",
@@ -3945,7 +3982,7 @@ var Villagers = [
 		stats: {
 			level: 40,
 			maxHealth: 250,
-			walkSpeed: 175,
+			walkSpeed: 130,
 			defence: 8,
 		},
 		hostility: "friendly",

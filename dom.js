@@ -16,6 +16,7 @@ window.onblur = function () {
 let Dom = {
 	focus: true,
 	elements: {
+		acceptOn: document.getElementById("acceptOn"),
 		achievement: document.getElementById("achievement"),
 		achievementDescription: document.getElementById("achievementDescription"),
 		achievementImg: document.getElementById("achievementImg"),
@@ -112,6 +113,7 @@ let Dom = {
 		merchantPageChat: document.getElementById("merchantPageChat"),
 		merchantPageOptions: document.getElementById("merchantPageOptions"),
 		merchantPageTitle: document.getElementById("merchantPageTitle"),
+		minigamesOn: document.getElementById("minigamesOn"),
 		musicOn: document.getElementById("musicOn"),
 		name: document.getElementById("name"),
 		otherQuestBox: document.getElementById("otherQuestBox"),
@@ -190,20 +192,6 @@ let Dom = {
 	alert: {},
 	achievements: {},
 };
-
-for (let i = 0; i < Items.fish.length; i++) {
-	User.fish.push(0);
-}
-
-// USER SAVEDATA FIXES more at bottom
-if (localStorage.getItem("archaeology") !== null) {
-	User.archaeology = JSON.parse(localStorage.getItem("archaeology"));
-	localStorage.removeItem("archaeology");
-}
-if (localStorage.getItem("fish") !== null) {
-	User.fish = JSON.parse(localStorage.getItem("fish"));
-	localStorage.removeItem("fish");
-}
 
 // start a dom alert
 // text = what the alert says
@@ -335,10 +323,8 @@ Dom.achievements.update = function () {
 }
 
 Dom.quests.active = function (quest) {
-	if (quest !== undefined && quest !== null) {
+	if (quest !== undefined) {
 		Player.quests.activeQuestArray.push(quest.quest);
-	}else if (quest === null) {
-		console.error("Please tell Peter that you have received the error: quest === null");
 	}
 	Dom.elements.activeQuestBox.style.textAlign = "left";
 	Dom.quests.activeHTML = {true: "", undefined: "", daily: "",};
@@ -1464,164 +1450,170 @@ Dom.inventory.removeItemCharge = function (inventoryPosition, hotbar) {
 
 Dom.currentlyDisplayed = "";
 Dom.currentNPC = {};
-Dom.quest.start = function (quest) {
-	if (Dom.changeBook("questStart")) {
-		if (quest.multipleAreas) {
-			Player.quests.questProgress[quest.quest] = Player.areaName;
-		}
-		Dom.elements.questStartQuest.innerHTML = quest.quest;
-		Dom.elements.questStartName.innerHTML = quest.startName || quest[Player.areaName].startName;
-		Dom.elements.questStartChat.innerHTML = quest.startChat || quest[Player.areaName].startChat;
-		Dom.elements.questStartObjectives.innerHTML = "";
-		for (let i = 0; i < (quest.objectives || quest[Player.areaName].objectives).length; i++) {
-			Dom.elements.questStartObjectives.innerHTML += "<br>" + (quest.objectives || quest[Player.areaName].objectives)[i];
-		}
-
-		// xp rewards
-		Dom.elements.questStartItems.innerHTML = "";
-		Dom.elements.questStartXP.hidden = true;
-		if (quest.rewards !== undefined) {
-			if (quest.rewards.xp > 0) {
-				Dom.elements.questStartXP.hidden = false;
-				Dom.elements.questStartXP.innerHTML = quest.rewards.xp;
+Dom.quest.start = function (quest, npc) {
+	if (quest.startRewards === undefined || quest.startRewards.items === undefined || Dom.inventory.requiredSpace(quest.startRewards.items)) {
+		if (Dom.changeBook("questStart")) {
+			if (quest.multipleAreas) {
+				Player.quests.questProgress[quest.quest] = Player.areaName;
 			}
-			Dom.elements.questStartRewardsTitle.innerHTML = "<br><br><b>Quest Rewards</b><br>";
-
-			// service rewards
-			if (quest.rewards.services !== undefined) {
-				for (let i = 0; i < quest.rewards.services.length; i++) {
-					Dom.elements.questStartItems.innerHTML += "<img src='./assets/icons/" + quest.rewards.services[i].image + ".png' class='theseQuestServices'></img>&nbsp;&nbsp;";
-				}
+			Dom.elements.questStartQuest.innerHTML = quest.quest;
+			Dom.elements.questStartName.innerHTML = quest.startName || quest[Player.areaName].startName;
+			Dom.elements.questStartChat.innerHTML = quest.startChat || quest[Player.areaName].startChat;
+			Dom.elements.questStartObjectives.innerHTML = "";
+			for (let i = 0; i < (quest.objectives || quest[Player.areaName].objectives).length; i++) {
+				Dom.elements.questStartObjectives.innerHTML += "<br>" + (quest.objectives || quest[Player.areaName].objectives)[i];
 			}
 
-			// item rewards
-			if (!quest.addedRewardsFromTables) {
-				for (let i = 0; i < QuestRewardTables.globalAll.length; i++) {
-					quest.rewards.items.push(QuestRewardTables.globalAll[i]);
+			// xp rewards
+			Dom.elements.questStartItems.innerHTML = "";
+			Dom.elements.questStartXP.hidden = true;
+			if (quest.rewards !== undefined) {
+				if (quest.rewards.xp > 0) {
+					Dom.elements.questStartXP.hidden = false;
+					Dom.elements.questStartXP.innerHTML = quest.rewards.xp;
 				}
+				Dom.elements.questStartRewardsTitle.innerHTML = "<br><br><b>Quest Rewards</b><br>";
 
-				if (quest.repeatTime === "daily") {
-					for (let i = 0; i < QuestRewardTables.globalDaily.length; i++) {
-						quest.rewards.items.push(QuestRewardTables.globalDaily[i]);
+				// service rewards
+				if (quest.rewards.services !== undefined) {
+					for (let i = 0; i < quest.rewards.services.length; i++) {
+						Dom.elements.questStartItems.innerHTML += "<img src='./assets/icons/" + quest.rewards.services[i].image + ".png' class='theseQuestServices'></img>&nbsp;&nbsp;";
 					}
 				}
-				quest.addedRewardsFromTables = true;
-			}
 
-			if (quest.rewards.items !== undefined) {
-				for (let i = 0; i < quest.rewards.items.length; i++) {
-					Dom.quest.addReward(quest.rewards.items[i], "questStartItems", "theseQuestOptions", "questStackNum");
+				// item rewards
+				if (!quest.addedRewardsFromTables) {
+					for (let i = 0; i < QuestRewardTables.globalAll.length; i++) {
+						quest.rewards.items.push(QuestRewardTables.globalAll[i]);
+					}
+
+					if (quest.repeatTime === "daily") {
+						for (let i = 0; i < QuestRewardTables.globalDaily.length; i++) {
+							quest.rewards.items.push(QuestRewardTables.globalDaily[i]);
+						}
+					}
+					quest.addedRewardsFromTables = true;
+				}
+
+				if (quest.rewards.items !== undefined) {
+					for (let i = 0; i < quest.rewards.items.length; i++) {
+						Dom.quest.addReward(quest.rewards.items[i], "questStartItems", "theseQuestOptions", "questStackNum");
+					}
 				}
 			}
-		}
-		else{
-			Dom.elements.questStartRewardsTitle.innerHTML = "";
-		}
+			else{
+				Dom.elements.questStartRewardsTitle.innerHTML = "";
+			}
 
-		// start rewards
-		Dom.elements.questStartStartItems.innerHTML = "";
-		if (quest.startRewards !== undefined) {
-			Dom.elements.questStartStartRewardsTitle.innerHTML = "<br><br><b>You will receive these items on starting the quest:</b><br>";
+			// start rewards
+			Dom.elements.questStartStartItems.innerHTML = "";
+			if (quest.startRewards !== undefined) {
+				Dom.elements.questStartStartRewardsTitle.innerHTML = "<br><br><b>You will receive these items on starting the quest:</b><br>";
 
-			// service rewards
-			if (quest.startRewards.services !== undefined) {
-				for (let i = 0; i < quest.startRewards.services.length; i++) {
-					Dom.elements.questStartStartItems.innerHTML += "<img src='./assets/icons/" + quest.startRewards.services[i].image + ".png' class='theseQuestStartServices'></img>&nbsp;&nbsp;";
+				// service rewards
+				if (quest.startRewards.services !== undefined) {
+					for (let i = 0; i < quest.startRewards.services.length; i++) {
+						Dom.elements.questStartStartItems.innerHTML += "<img src='./assets/icons/" + quest.startRewards.services[i].image + ".png' class='theseQuestStartServices'></img>&nbsp;&nbsp;";
+					}
+				}
+
+				// item rewards
+				if (quest.startRewards.items !== undefined) {
+					for (let i = 0; i < quest.startRewards.items.length; i++) {
+						Dom.quest.addReward(quest.startRewards.items[i], "questStartStartItems", "theseQuestStartOptions", "questStartStackNum");
+					}
 				}
 			}
-
-			// item rewards
-			if (quest.startRewards.items !== undefined) {
-				for (let i = 0; i < quest.startRewards.items.length; i++) {
-					Dom.quest.addReward(quest.startRewards.items[i], "questStartStartItems", "theseQuestStartOptions", "questStartStackNum");
-				}
+			else{
+				Dom.elements.questStartStartRewardsTitle.innerHTML = "";
 			}
-		}
-		else{
-			Dom.elements.questStartStartRewardsTitle.innerHTML = "";
-		}
 
-		// repeats for all item rewards
-		let startArray = document.getElementsByClassName("theseQuestStartServices");
-		if (startArray.length === 0) {
-			startArray = document.getElementsByClassName("theseQuestStartOptions");
-		}
-		else {
-			for (let x = 0; x < document.getElementsByClassName("theseQuestStartServices").length; x++) {
-				quest.startRewards.services[x].type = "item";
-				quest.startRewards.services[x].name = "Service Reward";
-				document.getElementsByClassName("theseQuestStartServices")[x].onmouseover = function () {
-					Dom.inventory.displayInformation(quest.startRewards.services[x], undefined, "questStart");
-				};
-				document.getElementsByClassName("theseQuestStartServices")[x].onmouseleave = function () {
-					Dom.expand("information");
-				};
+			// repeats for all item rewards
+			let startArray = document.getElementsByClassName("theseQuestStartServices");
+			if (startArray.length === 0) {
+				startArray = document.getElementsByClassName("theseQuestStartOptions");
 			}
-		}
-		if (startArray.length > 0) {
-			startArray[startArray.length-1].onload = function () {
-				for (let x = 0; x < document.getElementsByClassName("theseQuestStartOptions").length; x++) {
-					document.getElementsByClassName("theseQuestStartOptions")[x].onmouseover = function () {
-						Dom.inventory.displayInformation(quest.startRewards.items[x].item, quest.startRewards.items[x].quantity, "questStart");
+			else {
+				for (let x = 0; x < document.getElementsByClassName("theseQuestStartServices").length; x++) {
+					quest.startRewards.services[x].type = "item";
+					quest.startRewards.services[x].name = "Service Reward";
+					document.getElementsByClassName("theseQuestStartServices")[x].onmouseover = function () {
+						Dom.inventory.displayInformation(quest.startRewards.services[x], undefined, "questStart");
 					};
-					document.getElementsByClassName("theseQuestStartOptions")[x].onmouseleave = function () {
+					document.getElementsByClassName("theseQuestStartServices")[x].onmouseleave = function () {
 						Dom.expand("information");
 					};
 				}
+			}
+			if (startArray.length > 0) {
+				startArray[startArray.length-1].onload = function () {
+					for (let x = 0; x < document.getElementsByClassName("theseQuestStartOptions").length; x++) {
+						document.getElementsByClassName("theseQuestStartOptions")[x].onmouseover = function () {
+							Dom.inventory.displayInformation(quest.startRewards.items[x].item, quest.startRewards.items[x].quantity, "questStart");
+						};
+						document.getElementsByClassName("theseQuestStartOptions")[x].onmouseleave = function () {
+							Dom.expand("information");
+						};
+					}
 
-				for (let x = 0; x < document.getElementsByClassName("questStartStackNum").length; x++) {
-					document.getElementsByClassName("questStartStackNum")[x].onmouseover = function () {
-						Dom.inventory.displayInformation(quest.startRewards.items[x].item, quest.startRewards.items[x].quantity, "questStart");
-					};
-					document.getElementsByClassName("questStartStackNum")[x].onmouseleave = function () {
-						Dom.expand("information");
-					};
-					document.getElementsByClassName("questStartStackNum")[x].style.left = document.getElementsByClassName("theseQuestStartOptions")[x].offsetLeft + 5 + "px";
-					document.getElementsByClassName("questStartStackNum")[x].style.top = document.getElementsByClassName("theseQuestStartOptions")[x].offsetTop + 33 + "px";
+					for (let x = 0; x < document.getElementsByClassName("questStartStackNum").length; x++) {
+						document.getElementsByClassName("questStartStackNum")[x].onmouseover = function () {
+							Dom.inventory.displayInformation(quest.startRewards.items[x].item, quest.startRewards.items[x].quantity, "questStart");
+						};
+						document.getElementsByClassName("questStartStackNum")[x].onmouseleave = function () {
+							Dom.expand("information");
+						};
+						document.getElementsByClassName("questStartStackNum")[x].style.left = document.getElementsByClassName("theseQuestStartOptions")[x].offsetLeft + 5 + "px";
+						document.getElementsByClassName("questStartStackNum")[x].style.top = document.getElementsByClassName("theseQuestStartOptions")[x].offsetTop + 33 + "px";
+					}
 				}
 			}
-		}
-		let array = document.getElementsByClassName("theseQuestServices");
-		if (array.length === 0) {
-			array = document.getElementsByClassName("theseQuestOptions");
-		}
-		else {
-			for (let x = 0; x < document.getElementsByClassName("theseQuestServices").length; x++) {
-				quest.rewards.services[x].type = "item";
-				quest.rewards.services[x].name = "Service Reward";
-				document.getElementsByClassName("theseQuestServices")[x].onmouseover = function () {
-					Dom.inventory.displayInformation(quest.rewards.services[x], undefined, "questStart");
-				};
-				document.getElementsByClassName("theseQuestServices")[x].onmouseleave = function () {
-					Dom.expand("information");
-				};
+			let array = document.getElementsByClassName("theseQuestServices");
+			if (array.length === 0) {
+				array = document.getElementsByClassName("theseQuestOptions");
 			}
-		}
-		if (array.length > 0) {
-			array[array.length-1].onload = function () {
-				for (let x = 0; x < document.getElementsByClassName("theseQuestOptions").length; x++) {
-					document.getElementsByClassName("theseQuestOptions")[x].onmouseover = function () {
-						Dom.inventory.displayInformation(quest.rewards.items[x].item, quest.rewards.items[x].quantity, "questStart");
+			else {
+				for (let x = 0; x < document.getElementsByClassName("theseQuestServices").length; x++) {
+					quest.rewards.services[x].type = "item";
+					quest.rewards.services[x].name = "Service Reward";
+					document.getElementsByClassName("theseQuestServices")[x].onmouseover = function () {
+						Dom.inventory.displayInformation(quest.rewards.services[x], undefined, "questStart");
 					};
-					document.getElementsByClassName("theseQuestOptions")[x].onmouseleave = function () {
+					document.getElementsByClassName("theseQuestServices")[x].onmouseleave = function () {
 						Dom.expand("information");
 					};
 				}
+			}
+			if (array.length > 0) {
+				array[array.length-1].onload = function () {
+					for (let x = 0; x < document.getElementsByClassName("theseQuestOptions").length; x++) {
+						document.getElementsByClassName("theseQuestOptions")[x].onmouseover = function () {
+							Dom.inventory.displayInformation(quest.rewards.items[x].item, quest.rewards.items[x].quantity, "questStart");
+						};
+						document.getElementsByClassName("theseQuestOptions")[x].onmouseleave = function () {
+							Dom.expand("information");
+						};
+					}
 
-				for (let x = 0; x < document.getElementsByClassName("questStackNum").length; x++) {
-					document.getElementsByClassName("questStackNum")[x].onmouseover = function () {
-						Dom.inventory.displayInformation(quest.rewards.items[x].item, quest.rewards.items[x].quantity, "questStart");
-					};
-					document.getElementsByClassName("questStackNum")[x].onmouseleave = function () {
-						Dom.expand("information");
-					};
-					document.getElementsByClassName("questStackNum")[x].style.left = document.getElementsByClassName("theseQuestOptions")[x].offsetLeft + 5 + "px";
-					document.getElementsByClassName("questStackNum")[x].style.top = document.getElementsByClassName("theseQuestOptions")[x].offsetTop + 33 + "px";
+					for (let x = 0; x < document.getElementsByClassName("questStackNum").length; x++) {
+						document.getElementsByClassName("questStackNum")[x].onmouseover = function () {
+							Dom.inventory.displayInformation(quest.rewards.items[x].item, quest.rewards.items[x].quantity, "questStart");
+						};
+						document.getElementsByClassName("questStackNum")[x].onmouseleave = function () {
+							Dom.expand("information");
+						};
+						document.getElementsByClassName("questStackNum")[x].style.left = document.getElementsByClassName("theseQuestOptions")[x].offsetLeft + 5 + "px";
+						document.getElementsByClassName("questStackNum")[x].style.top = document.getElementsByClassName("theseQuestOptions")[x].offsetTop + 33 + "px";
+					}
 				}
 			}
-		}
 
-		Dom.currentlyDisplayed = quest;
+			Dom.currentlyDisplayed = quest;
+		}
+	}
+	// not enough inventory space
+	else {
+		npc.say(npc.chat.inventoryFull, 0, true);
 	}
 }
 
@@ -1643,112 +1635,118 @@ Dom.quest.addReward = function (item, element, className, stackNum) {
 	}
 }
 
-Dom.quest.finish = function (quest) {
-	if (Dom.changeBook("questFinish")) {//, true/*false*/, true)) {
-		Dom.elements.questFinishQuest.innerHTML = quest.quest;
-		Dom.elements.questFinishName.innerHTML = quest.finishName || quest[Player.areaName].finishName;
-		Dom.elements.questFinishChat.innerHTML = quest.finishChat || quest[Player.areaName].finishChat;
+Dom.quest.finish = function (quest, npc) {
+	if (quest.rewards === undefined || quest.rewards.items === undefined || Dom.inventory.requiredSpace(quest.rewards.items)) {
+		if (Dom.changeBook("questFinish")) {//, true/*false*/, true)) {
+			Dom.elements.questFinishQuest.innerHTML = quest.quest;
+			Dom.elements.questFinishName.innerHTML = quest.finishName || quest[Player.areaName].finishName;
+			Dom.elements.questFinishChat.innerHTML = quest.finishChat || quest[Player.areaName].finishChat;
 
-		// xp rewards
-		Dom.elements.questFinishItems.innerHTML = "";
-		Dom.elements.questFinishXP.hidden = true;
-		if (quest.rewards !== undefined) {
-			if (quest.rewards.xp > 0) {
-				Dom.elements.questFinishXP.hidden = false;
-				Dom.elements.questFinishXP.innerHTML = quest.rewards.xp;
-			}
-			Dom.elements.questFinishRewardsTitle.innerHTML = "<br><br><b>Quest Rewards</b><br>";
-
-			// service rewards
-			if (quest.rewards.services !== undefined) {
-				for (let i = 0; i < quest.rewards.services.length; i++) {
-					Dom.elements.questFinishItems.innerHTML += "<img src='./assets/icons/" + quest.rewards.services[i].image + ".png' class='theseQuestFinishServices'></img>&nbsp;&nbsp;";
+			// xp rewards
+			Dom.elements.questFinishItems.innerHTML = "";
+			Dom.elements.questFinishXP.hidden = true;
+			if (quest.rewards !== undefined) {
+				if (quest.rewards.xp > 0) {
+					Dom.elements.questFinishXP.hidden = false;
+					Dom.elements.questFinishXP.innerHTML = quest.rewards.xp;
 				}
-			}
+				Dom.elements.questFinishRewardsTitle.innerHTML = "<br><br><b>Quest Rewards</b><br>";
 
-			// item rewards added from table
-			if (!quest.addedRewardsFromTables) {
-				for (let i = 0; i < QuestRewardTables.globalAll.length; i++) {
-					quest.rewards.items.push(QuestRewardTables.globalAll[i]);
-				}
-
-				if (quest.repeatTime === "daily") {
-					for (let i = 0; i < QuestRewardTables.globalDaily.length; i++) {
-						quest.rewards.items.push(QuestRewardTables.globalDaily[i]);
+				// service rewards
+				if (quest.rewards.services !== undefined) {
+					for (let i = 0; i < quest.rewards.services.length; i++) {
+						Dom.elements.questFinishItems.innerHTML += "<img src='./assets/icons/" + quest.rewards.services[i].image + ".png' class='theseQuestFinishServices'></img>&nbsp;&nbsp;";
 					}
 				}
-				quest.addedRewardsFromTables = true;
-			}
 
-			// item rewards display
-			Dom.elements.questFinishRewardsTitle.innerHTML = "<br><br><b>Quest Rewards</b><br>";
-			if (quest.rewards.items !== undefined) {
-				for (let i = 0; i < quest.rewards.items.length; i++) {
-					Dom.quest.addReward(quest.rewards.items[i], "questFinishItems", "theseQuestFinishOptions", "questFinishStackNum");
+				// item rewards added from table
+				if (!quest.addedRewardsFromTables) {
+					for (let i = 0; i < QuestRewardTables.globalAll.length; i++) {
+						quest.rewards.items.push(QuestRewardTables.globalAll[i]);
+					}
+
+					if (quest.repeatTime === "daily") {
+						for (let i = 0; i < QuestRewardTables.globalDaily.length; i++) {
+							quest.rewards.items.push(QuestRewardTables.globalDaily[i]);
+						}
+					}
+					quest.addedRewardsFromTables = true;
 				}
 
-				// display warning if there is not enough space to hold all possible rewards
-				if (Dom.inventory.requiredSpace(quest.rewards.items, true)) {
+				// item rewards display
+				Dom.elements.questFinishRewardsTitle.innerHTML = "<br><br><b>Quest Rewards</b><br>";
+				if (quest.rewards.items !== undefined) {
+					for (let i = 0; i < quest.rewards.items.length; i++) {
+						Dom.quest.addReward(quest.rewards.items[i], "questFinishItems", "theseQuestFinishOptions", "questFinishStackNum");
+					}
+
+					// display warning if there is not enough space to hold all possible rewards
+					if (Dom.inventory.requiredSpace(quest.rewards.items, true)) {
+						Dom.elements.chanceImage.hidden = true;
+						Dom.elements.chance.hidden = true;
+					}
+					else {
+						Dom.elements.chanceImage.hidden = false;
+						Dom.elements.chance.hidden = false;
+					}
+
+				}
+				else {
 					Dom.elements.chanceImage.hidden = true;
 					Dom.elements.chance.hidden = true;
 				}
-				else {
-					Dom.elements.chanceImage.hidden = false;
-					Dom.elements.chance.hidden = false;
-				}
+			}
+			else{
+				Dom.elements.questFinishRewardsTitle.innerHTML = "";
+				Dom.elements.questFinishStartItems.innerHTML = "";
+			}
 
+			let array = document.getElementsByClassName("theseQuestFinishServices");
+			if (array.length === 0) {
+				array = document.getElementsByClassName("theseQuestFinishOptions");
+			}
+			if (array.length === 0) {
+				array = [document.getElementById("questFinishXP")];
 			}
 			else {
-				Dom.elements.chanceImage.hidden = true;
-				Dom.elements.chance.hidden = true;
+				for (let x = 0; x < document.getElementsByClassName("theseQuestFinishServices").length; x++) {
+					quest.rewards.services[x].type = "item";
+					quest.rewards.services[x].name = "Service Reward";
+					document.getElementsByClassName("theseQuestFinishServices")[x].onmouseover = function () {
+						Dom.inventory.displayInformation(quest.rewards.services[x], undefined, "questFinish");
+					};
+					document.getElementsByClassName("theseQuestFinishServices")[x].onmouseleave = function () {
+						Dom.expand("information");
+					};
+				}
 			}
-		}
-		else{
-			Dom.elements.questFinishRewardsTitle.innerHTML = "";
-			Dom.elements.questFinishStartItems.innerHTML = "";
-		}
+			array[array.length-1].onload = function () {
+				for (let x = 0; x < document.getElementsByClassName("theseQuestFinishOptions").length; x++) {
+					document.getElementsByClassName("theseQuestFinishOptions")[x].onmouseover = function () {
+						Dom.inventory.displayInformation(quest.rewards.items[x].item, quest.rewards.items[x].quantity, "questFinish");
+					};
+					document.getElementsByClassName("theseQuestFinishOptions")[x].onmouseleave = function () {
+						Dom.expand("information");
+					};
+				}
+				for (let x = 0; x < document.getElementsByClassName("questFinishStackNum").length; x++) {
+					document.getElementsByClassName("questFinishStackNum")[x].onmouseover = function () {
+						Dom.inventory.displayInformation(quest.rewards.items[x].item, quest.rewards.items[x].quantity, "questFinish");
+					};
+					document.getElementsByClassName("questFinishStackNum")[x].onmouseleave = function () {
+						Dom.expand("information");
+					};
+					document.getElementsByClassName("questFinishStackNum")[x].style.left = document.getElementsByClassName("theseQuestFinishOptions")[x].offsetLeft + 5 + "px";
+					document.getElementsByClassName("questFinishStackNum")[x].style.top = document.getElementsByClassName("theseQuestFinishOptions")[x].offsetTop + 33 + "px";
+				}
+			}
 
-		let array = document.getElementsByClassName("theseQuestFinishServices");
-		if (array.length === 0) {
-			array = document.getElementsByClassName("theseQuestFinishOptions");
+			Dom.currentlyDisplayed = quest;
 		}
-		if (array.length === 0) {
-			array = [document.getElementById("questFinishXP")];
-		}
-		else {
-			for (let x = 0; x < document.getElementsByClassName("theseQuestFinishServices").length; x++) {
-				quest.rewards.services[x].type = "item";
-				quest.rewards.services[x].name = "Service Reward";
-				document.getElementsByClassName("theseQuestFinishServices")[x].onmouseover = function () {
-					Dom.inventory.displayInformation(quest.rewards.services[x], undefined, "questFinish");
-				};
-				document.getElementsByClassName("theseQuestFinishServices")[x].onmouseleave = function () {
-					Dom.expand("information");
-				};
-			}
-		}
-		array[array.length-1].onload = function () {
-			for (let x = 0; x < document.getElementsByClassName("theseQuestFinishOptions").length; x++) {
-				document.getElementsByClassName("theseQuestFinishOptions")[x].onmouseover = function () {
-					Dom.inventory.displayInformation(quest.rewards.items[x].item, quest.rewards.items[x].quantity, "questFinish");
-				};
-				document.getElementsByClassName("theseQuestFinishOptions")[x].onmouseleave = function () {
-					Dom.expand("information");
-				};
-			}
-			for (let x = 0; x < document.getElementsByClassName("questFinishStackNum").length; x++) {
-				document.getElementsByClassName("questFinishStackNum")[x].onmouseover = function () {
-					Dom.inventory.displayInformation(quest.rewards.items[x].item, quest.rewards.items[x].quantity, "questFinish");
-				};
-				document.getElementsByClassName("questFinishStackNum")[x].onmouseleave = function () {
-					Dom.expand("information");
-				};
-				document.getElementsByClassName("questFinishStackNum")[x].style.left = document.getElementsByClassName("theseQuestFinishOptions")[x].offsetLeft + 5 + "px";
-				document.getElementsByClassName("questFinishStackNum")[x].style.top = document.getElementsByClassName("theseQuestFinishOptions")[x].offsetTop + 33 + "px";
-			}
-		}
-
-		Dom.currentlyDisplayed = quest;
+	}
+	// not enough inventory space
+	else {
+		npc.say(npc.chat.inventoryFull, 0, true);
 	}
 }
 
@@ -1758,12 +1756,16 @@ Dom.quest.accept = function () {
 			Player.quests.questProgress[Dom.currentlyDisplayed.resetVariables[i]] = undefined;
 		}
 	}
-	Dom.quests.active(Dom.currentlyDisplayed);
-	Dom.quests.possible();
+	
 	let quest = Dom.currentlyDisplayed;
 	if (Dom.currentlyDisplayed.onQuestStart !== undefined) {
 		Dom.currentlyDisplayed.onQuestStart();
 	}
+	
+	// after onQuestStart because tavern clean-up sets variables in onQuestStart needed for this
+	Dom.quests.active(quest);
+	Dom.quests.possible();
+	
 	// if the onQuestStart changed the page then don't change the page
 	if (Dom.currentlyDisplayed === quest) {
 		Dom.closePage('questStart');
@@ -5202,6 +5204,15 @@ Dom.settings.grid = function () {
 	}
 	else {
 		User.settings.grid = false;
+	}
+}
+
+Dom.settings.minigames = function () {
+	if (Dom.elements.minigamesOn.checked) {
+		User.settings.minigames = true;
+	}
+	else {
+		User.settings.minigames = false;
 	}
 }
 
