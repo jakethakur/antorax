@@ -650,6 +650,19 @@ var Areas = {
 				}
 			},
 		],
+		
+		villagerData: {
+			minPeople: 0,
+			maxPeople: 2,
+			locations: [
+				{
+					x: 39,
+					y: 140,
+					width: 2061,
+					height: 1232,
+				},
+			],
+		},
 
 		npcs: [
 			{
@@ -1362,14 +1375,14 @@ var Areas = {
 						quest: Quests.tavern[0],
 						role: "questStartFinish",
 					},
-					/*{
+					{
 						quest: Quests.tavern[1],
 						role: "questStartFinish",
 					},
 					{
 						quest: Quests.tavern[2],
 						role: "questStartFinish",
-					},*/
+					},
 					{
 						sold: [
 						    {item: Items.consumable[5], cost: 2,}, // Wood-Brewed Beer
@@ -1475,6 +1488,7 @@ var Areas = {
 				x: 842,
 				y: 324,
 				orderOffsetY: -30,
+				use: "wizardsLore",
 				image: "largeTable",
 				name: "Large Table",
 			},
@@ -1542,8 +1556,85 @@ var Areas = {
 			},
 		],
 		
+		callAreaJoinOnInit: true,
+		
+		onAreaJoin: function () {
+			
+			// generate an array of tables
+			let array = Game.things.filter(thing => thing.name === "Table");
+			
+			// generate an array of possible positions
+			let positions = [];
+			for (let i = 0; i < array.length; i++) {
+				positions.push(
+					{x: array[i].x-40, y: array[i].y-20, orderOffsetY: -20},
+					{x: array[i].x-1.5, y: array[i].y-20, orderOffsetY: -20},
+					{x: array[i].x+37, y: array[i].y-20, orderOffsetY: -20},
+				);
+			}
+			
+			// generate an array of large tables
+			array = Game.things.filter(thing => thing.name === "Large Table" && thing.use !== "wizardsLore");
+			
+			// add to the array of possible positions
+			for (let i = 0; i < array.length; i++) {
+				positions.push(
+					{x: array[i].x-40, y: array[i].y-20, orderOffsetY: -10},
+					{x: array[i].x-1.5, y: array[i].y-20, orderOffsetY: -10},
+					{x: array[i].x+37, y: array[i].y-20, orderOffsetY: -10},
+					{x: array[i].x-20, y: array[i].y-40, orderOffsetY: 10},
+					{x: array[i].x+17, y: array[i].y-40, orderOffsetY: 10},
+				);
+			}
+			
+			// select a random number of mugs and plates to generate between 5 and 15
+			let random = Random(5, 15);
+			Player.quests.questProgress.mugsPlatesTotal = random;
+			Player.quests.questProgress.mugsPlatesDone = 0;
+			
+			// spawn the mugs and plates
+			for (let i = 0; i < random; i++) {
+			
+				// choose a random available position and make it unavailable
+				let position = positions.splice(Random(0, positions.length-1), 1)[0];
+				
+				// 50% chance of being a mug
+				if (Random(0, 1) === 0) {
+					
+					// choose a random position on the x axis of the table for the mug to be placed
+					let offsetX = Random(-45, 38);
+					
+					Game.things.push(new Thing({
+						map: map,
+						type: "things",
+						x: position.x,
+						y: position.y - 10,
+						orderOffsetY: position.orderOffsetY + 10,
+						image: "mug",
+						name: "Mug",
+					}));
+				}
+				
+				// 50% chance of being a plate
+				else {	
+					Game.things.push(new Thing({
+						map: map,
+						type: "things",
+						x: position.x,
+						y: position.y,
+						orderOffsetY: position.orderOffsetY,
+						image: "plate",
+						name: "Plate",
+					}));
+				}
+			}
+		},
+		
+		callAreaLeaveOnLogout: true,
+		
 		onAreaLeave: function () {
 			Dom.quest.abandon(Quests.tavern[1]);
+			Dom.quest.abandon(Quests.tavern[2]);
 		},
 		
 	},
@@ -2898,6 +2989,19 @@ var Areas = {
 			},
 		],
 
+		villagerData: {
+			minPeople: 2,
+			maxPeople: 4,
+			locations: [
+				{
+					x: 39,
+					y: 260,
+					width: 1422,
+					height: 992,
+				},
+			],
+		},
+
 		npcs: [
 			{
 				// id: 0,
@@ -3153,7 +3257,20 @@ var Areas = {
 				playerAdjustY: 190,
 			},
 		],
-
+		
+		villagerData: {
+			minPeople: 0,
+			maxPeople: 2,
+			locations: [
+				{
+					x: 39,
+					y: 260,
+					width: 1182,
+					height: 332,
+				},
+			],
+		},
+		
 		npcs: [
 			{
 				// id: 0,
@@ -3244,7 +3361,20 @@ var Areas = {
 				playerAdjustY: 190,
 			},
 		],
-
+		
+		villagerData: {
+			minPeople: 0,
+			maxPeople: 2,
+			locations: [
+				{
+					x: 39,
+					y: 260,
+					width: 1182,
+					height: 332,
+				},
+			],
+		},
+		
 		npcs: [
 			{
 				// id: 6,
@@ -3285,7 +3415,7 @@ var Areas = {
 
 		indoors: true,
 
-		tagGameAllowed: false,
+		tagGameAllowed: true,
 
 		song_day: "assets/music/Eaglecrest.mp3",
 		song_night: "assets/music/Eaglecrest.mp3",
@@ -3326,7 +3456,20 @@ var Areas = {
 				destinationY: 280,
 			},
 		],
-
+		
+		villagerData: {
+			minPeople: 0,
+			maxPeople: 3,
+			locations: [
+				{
+					x: 39,
+					y: 200,
+					width: 942,
+					height: 632,
+				},
+			],
+		},
+		
 		npcs: [
 			{
 				// id: 0,
@@ -3498,14 +3641,14 @@ var Areas = {
 					defence: 6,
 				},
 				roles: [
-					/*{
+					{
 						quest: Quests.tavern[1],
 						role: "questStartFinish",
 					},
 					{
 						quest: Quests.tavern[2],
 						role: "questStartFinish",
-					},*/
+					},
 					{
 						sold: [
 							{item: Items.consumable[21], cost: 3,}, // Beetroot Beer
@@ -3541,7 +3684,7 @@ var Areas = {
 			},
 			{
 				x: 752,
-				y: 225,
+				y: 230,
 				image: "alysLoreworth",
 				name: "Alys Loreworth, Lead Archaeologist",
 				hostility: "friendly",
@@ -3656,7 +3799,7 @@ var Areas = {
 				animationFrameTime: 200,
 			},
 			{
-				x: 1039,
+				x: 1040,
 				y: 905,
 				z: -1,
 				image: "stairsRight",
@@ -3742,7 +3885,7 @@ var Areas = {
 
 		collisions: [
 			{
-				x: 1048, // bottom of right stairs
+				x: 1049, // bottom of right stairs
 				y: 995,
 				width: 180,
 				height: 50,
@@ -3759,7 +3902,7 @@ var Areas = {
 			// right stairs
 			{
 				// bottom of right stairs (to top)
-				x: 935,
+				x: 936,
 				y: 990,
 				width: 2,
 				height: 25,
@@ -3779,7 +3922,7 @@ var Areas = {
 			},
 			{
 				// top of right stairs (to bottom)
-				x: 1143,
+				x: 1144,
 				y: 810,
 				width: 2,
 				height: 25,
@@ -3857,8 +4000,85 @@ var Areas = {
 			},
 		],
 		
+		callAreaJoinOnInit: true,
+		
+		onAreaJoin: function () {
+			
+			// generate an array of tables
+			let array = Game.things.filter(thing => thing.name === "Table");
+			
+			// generate an array of possible positions
+			let positions = [];
+			for (let i = 0; i < array.length; i++) {
+				positions.push(
+					{x: array[i].x-40, y: array[i].y-20, orderOffsetY: -20},
+					{x: array[i].x-1.5, y: array[i].y-20, orderOffsetY: -20},
+					{x: array[i].x+37, y: array[i].y-20, orderOffsetY: -20},
+				);
+			}
+			
+			// generate an array of large tables
+			array = Game.things.filter(thing => thing.name === "Large Table" && thing.use !== "wizardsLore");
+			
+			// add to the array of possible positions
+			for (let i = 0; i < array.length; i++) {
+				positions.push(
+					{x: array[i].x-40, y: array[i].y-20, orderOffsetY: -10},
+					{x: array[i].x-1.5, y: array[i].y-20, orderOffsetY: -10},
+					{x: array[i].x+37, y: array[i].y-20, orderOffsetY: -10},
+					{x: array[i].x-20, y: array[i].y-40, orderOffsetY: 10},
+					{x: array[i].x+17, y: array[i].y-40, orderOffsetY: 10},
+				);
+			}
+			
+			// select a random number of mugs and plates to generate between 5 and 15
+			let random = Random(5, 15);
+			Player.quests.questProgress.mugsPlatesTotal = random;
+			Player.quests.questProgress.mugsPlatesDone = 0;
+			
+			// spawn the mugs and plates
+			for (let i = 0; i < random; i++) {
+			
+				// choose a random available position and make it unavailable
+				let position = positions.splice(Random(0, positions.length-1), 1)[0];
+				
+				// 50% chance of being a mug
+				if (Random(0, 1) === 0) {
+					
+					// choose a random position on the x axis of the table for the mug to be placed
+					let offsetX = Random(-45, 38);
+					
+					Game.things.push(new Thing({
+						map: map,
+						type: "things",
+						x: position.x,
+						y: position.y - 10,
+						orderOffsetY: position.orderOffsetY + 10,
+						image: "mug",
+						name: "Mug",
+					}));
+				}
+				
+				// 50% chance of being a plate
+				else {	
+					Game.things.push(new Thing({
+						map: map,
+						type: "things",
+						x: position.x,
+						y: position.y,
+						orderOffsetY: position.orderOffsetY,
+						image: "plate",
+						name: "Plate",
+					}));
+				}
+			}
+		},
+		
+		callAreaLeaveOnLogout: true,
+		
 		onAreaLeave: function () {
 			Dom.quest.abandon(Quests.tavern[1]);
+			Dom.quest.abandon(Quests.tavern[2]);
 		},
 		
 	},
@@ -3866,6 +4086,7 @@ var Areas = {
 
 var Villagers = [
 	{
+		// any
 		image: "silvioStarstrike",
 		imageSource: {normal: "assets/npcs/silvioStarstrike.png"},
 		name: "Silvio Starstrike",
@@ -3879,9 +4100,14 @@ var Villagers = [
 		areas: [
 			"loggingCampTavern",
 			"eaglecrestTavern",
+			"eaglecrestBank",
+			"eaglecrest",
+			"eaglecrestEast",
+			"eaglecrestWest",
 		],
 	},
 	{
+		// tavern
 		image: "darioHorfern",
 		imageSource: {normal: "assets/npcs/darioHorfern.png"},
 		name: "Dario Horfern",
@@ -3898,6 +4124,7 @@ var Villagers = [
 		],
 	},
 	{
+		// tavern
 		image: "gremaRoskin",
 		imageSource: {normal: "assets/npcs/gremaRoskin.png"},
 		name: "Grema Roskin",
@@ -3914,6 +4141,7 @@ var Villagers = [
 		],
 	},
 	{
+		// logging camp
 		image: "feller",
 		imageSource: {normal: "assets/npcs/feller.png"},
 		name: "Logging Camp Feller",
@@ -3926,9 +4154,11 @@ var Villagers = [
 		hostility: "friendly",
 		areas: [
 			"loggingCampTavern",
+			"eaglecrestLoggingCamp",
 		],
 	},
 	{
+		// logging camp
 		image: "treecutter",
 		imageSource: {normal: "assets/npcs/treecutter.png"},
 		name: "Logging Camp Treecutter",
@@ -3941,9 +4171,11 @@ var Villagers = [
 		hostility: "friendly",
 		areas: [
 			"loggingCampTavern",
+			"eaglecrestLoggingCamp",
 		],
 	},
 	{
+		// any
 		image: "robertHendman",
 		imageSource: {normal: "assets/npcs/robertHendman.png"},
 		name: "Robert Hendman",
@@ -3957,9 +4189,14 @@ var Villagers = [
 		areas: [
 			"loggingCampTavern",
 			"eaglecrestTavern",
+			"eaglecrestBank",
+			"eaglecrest",
+			"eaglecrestEast",
+			"eaglecrestWest",
 		],
 	},
 	{
+		// any
 		image: "wilmaRedding",
 		imageSource: {normal: "assets/npcs/wilmaRedding.png"},
 		name: "Wilma Redding",
@@ -3973,9 +4210,14 @@ var Villagers = [
 		areas: [
 			"loggingCampTavern",
 			"eaglecrestTavern",
+			"eaglecrestBank",
+			"eaglecrest",
+			"eaglecrestEast",
+			"eaglecrestWest",
 		],
 	},
 	{
+		// any
 		image: "greenbeard",
 		imageSource: {normal: "assets/npcs/greenbeard.png"},
 		name: "Captain Greenbeard",
@@ -3989,6 +4231,10 @@ var Villagers = [
 		areas: [
 			"loggingCampTavern",
 			"eaglecrestTavern",
+			"eaglecrestBank",
+			"eaglecrest",
+			"eaglecrestEast",
+			"eaglecrestWest",
 		],
 	},
 ];

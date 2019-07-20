@@ -1324,7 +1324,7 @@ After all, death is never the end in Antorax...<br>
 			isCompleted: function () {
 				let completed = [];
 
-				completed.push(checkProgress(Player.quests.questProgress.drunkBeer, 1));
+				completed.push(checkProgress(Player.quests.questProgress.dirtDone, Player.quests.questProgress.dirtTotal));
 
 				completed = checkFinished(completed);
 
@@ -1347,6 +1347,7 @@ After all, death is never the end in Antorax...<br>
 	                    type: "attackables",
 	                    x: Random(0, map.cols * map.tsize),
 	                    y: Random(0, map.rows * map.tsize),
+						z: -0.5, // should never be infront of player
 	                    image: "dirt",
 	                    name: "Dirt",
 	                    hostility: "neutral",
@@ -1354,12 +1355,14 @@ After all, death is never the end in Antorax...<br>
 						xpGiven: 0,
 						corpseOnDeath: false,
 						respawnOnDeath: false,
-						z: -0.5,
 						canBeDamagedBy: ["Mop"],
 	                    stats: {
 	                        walkSpeed: 0,
 	                        maxHealth: 1,
 	                    },
+						onDeath: function () {
+							Player.quests.questProgress.dirtDone++;
+						}
 	                }));
 					Game.updateScreenPosition(Game.attackables[Game.attackables.length-1]);
 					
@@ -1426,6 +1429,86 @@ After all, death is never the end in Antorax...<br>
 			howToStart: "Speak to an innkeeper.",
 			levelRequirement: 1,
 			questRequirements: ["To the Logging Camp"],
+			requirement: function () {
+				return Player.quests.questProgress.mugsPlatesDone === 0; // not undefined because that means there are none
+			},
+			repeatTime: "job",
+
+			rewards: {
+				xp: 10,
+				items: [
+					{item: Items.currency[2],}, // 1 gold
+				],
+			},
+			
+			removeItems: [
+				{item: Items.item[25], quantity: true}, // all mugs
+				{item: Items.item[26], quantity: true}, // all plates
+			],
+			
+			isCompleted: function () {
+				let completed = [];
+
+				completed.push(checkProgress(Player.quests.questProgress.mugsPlatesDone, Player.quests.questProgress.mugsPlatesTotal));
+
+				completed = checkFinished(completed);
+
+				return completed;
+			},
+
+			onQuestStart: function () {
+				
+				for (let i = 0; i < Game.things.length; i++) {
+					if (Game.things[i].name === "Mug") {
+						Game.things[i].onInteract = function () {
+							Game.removeObject(this.id, "things");
+							Dom.inventory.give(Items.item[25]);
+							Player.quests.questProgress.mugsPlatesDone++;
+						}
+					}
+					else if (Game.things[i].name === "Plate") {
+						Game.things[i].onInteract = function () {
+							Game.removeObject(this.id, "things");
+							Dom.inventory.give(Items.item[26]);
+							Player.quests.questProgress.mugsPlatesDone++;
+						}
+					}
+				}
+			},
+		},
+		{
+			id: 3,
+			quest: "Giving Orders",
+			questArea: "tavern",
+
+			loggingCampTavern: {
+				startName: "Gregor Goldenbrew",
+				startChat: "'Ey you! Wanna make a bit o' money helpin' me out? If ya do I need someone to hand out these tavern goods for me.",
+				finishName: "Gregor Goldenbrew",
+				finishChat: "Great! That should keep 'em happy for a few minutes",
+				objectives: [
+					"Hand out some tavern goods to people around the tavern",
+					"Speak to <strong>Gregor Goldenbrew</strong>.",
+				],
+			},
+			
+			eaglecrestTavern: {
+				startName: "Inkeepers Rhus-Jak",
+				startChat: `<strong>Jak</strong>: There's a lot of people waiting for their orders! Could you lend us a hand and give out some foodstuffs?`,
+				finishName: "Inkeepers Rhus-Jak",
+				finishChat: `<strong>Rhus</strong>: Good. People happy.
+<strong>Jak</strong>: Thank you!`,
+				objectives: [
+					"Hand out some tavern goods to people around the tavern",
+					"Speak to <strong>Inkeeper Rhus-Jak</strong>.",
+				],
+			},
+
+			multipleAreas: true,
+
+			howToStart: "Speak to an innkeeper.",
+			levelRequirement: 1,
+			questRequirements: ["To the Logging Camp"],
 			repeatTime: "job",
 
 			rewards: {
@@ -1447,82 +1530,20 @@ After all, death is never the end in Antorax...<br>
 
 			onQuestStart: function () {
 				
-				// generate an array of tables
-				let array = Game.things.filter(thing => thing.name === "Table");
-				
-				// generate an array of possible positions
-				let positions = [];
-				for (let i = 0; i < array.length; i++) {
-					positions.push(
-						{x: array[i].x-40, y: array[i].y-20},
-						{x: array[i].x-1.5, y: array[i].y-20},
-						{x: array[i].x+37, y: array[i].y-20},
-					);
-				}
-				
-				// generate an array of large tables
-				array = Game.things.filter(thing => thing.name === "Large Table");
-				
-				// add to the array of possible positions
-				for (let i = 0; i < array.length; i++) {
-					positions.push(
-						{x: array[i].x-40, y: array[i].y-20},
-						{x: array[i].x-1.5, y: array[i].y-20},
-						{x: array[i].x+37, y: array[i].y-20},
-						{x: array[i].x-20, y: array[i].y-40},
-						{x: array[i].x+17, y: array[i].y-40},
-					);
-				}
-				
-				// select a random number of mugs and plates to generate between 5 and 15
-				let random = Random(5, 15);
-				Player.quests.questProgress.mugsPlatesTotal = random;
-				Player.quests.questProgress.mugsPlatesDone = 0;
-				
-				// spawn the mugs and plates
-				for (let i = 0; i < random; i++) {
-				
-					// choose a random available position and make it unavailable
-					let position = positions.splice(Random(0, positions.length-1), 1)[0];
-					
-					// 50% chance of being a mug
-					if (Random(0, 1) === 0) {
-						
-						// choose a random position on the x axis of the table for the mug to be placed
-						let offsetX = Random(-45, 38);
-						
-						Game.things.push(new Thing({
-							map: map,
-							type: "things",
-							x: position.x,
-							y: position.y - 10,
-							z: 1,
-							image: "mug",
-							name: "Mug",
-							onInteract: function () {
-								Game.removeObject(this.id, "things", Thing);
-								Dom.inventory.give(Items.item[25]);
-								Player.quests.questProgress.mugsPlatesDone++;
-							}
-						}));
+				for (let i = 0; i < Game.things.length; i++) {
+					if (Game.things[i].name === "Mug") {
+						Game.things[i].onInteract = function () {
+							Game.removeObject(this.id, "things");
+							Dom.inventory.give(Items.item[25]);
+							Player.quests.questProgress.mugsPlatesDone++;
+						}
 					}
-					
-					// 50% chance of being a plate
-					else {	
-						Game.things.push(new Thing({
-		                    map: map,
-		                    type: "things",
-		                    x: position.x,
-		                    y: position.y,
-							z: 1,
-		                    image: "plate",
-		                    name: "Plate",
-							onInteract: function () {
-								Game.removeObject(this.id, "things", Thing);
-								Dom.inventory.give(Items.item[26]);
-								Player.quests.questProgress.mugsPlatesDone++;
-							}
-		                }));
+					else if (Game.things[i].name === "Plate") {
+						Game.things[i].onInteract = function () {
+							Game.removeObject(this.id, "things");
+							Dom.inventory.give(Items.item[26]);
+							Player.quests.questProgress.mugsPlatesDone++;
+						}
 					}
 				}
 			},

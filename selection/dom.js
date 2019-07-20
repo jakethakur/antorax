@@ -39,10 +39,12 @@ let selected = {
 	a: 0,
 	m: 0,
 	k: 0,
-	class: "a",
 };
 if(localStorage.getItem("selected") !== null){
 	selected = JSON.parse(localStorage.getItem("selected"));
+}
+else {
+	selected.class = Object.keys(selected)[Math.floor(Math.random()*3)];
 }
 if(localStorage.getItem("name") !== null){
 	document.getElementById("name").value = localStorage.getItem("name");

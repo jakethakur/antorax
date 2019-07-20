@@ -394,6 +394,7 @@ Dom.quests.active = function (quest) {
 Dom.checkProgress = function () {
 	Dom.achievements.update();
 	Dom.quests.active();
+	Dom.quests.possible();
 	Dom.inventory.conditionalStats();
 }
 
@@ -1772,7 +1773,7 @@ Dom.quest.accept = function () {
 	}
 
 	// last because it saves
-	if (quest.startRewards !== undefined) {
+	if (quest.startRewards !== undefined && quest.startRewards.items !== undefined) {
 		for (let i = 0; i < quest.startRewards.items.length; i++) {
 			if (quest.startRewards.items[i].condition === undefined || quest.startRewards.items[i].condition() && (quest.startRewards.items[i].chance === undefined || quest.startRewards.items[i].chance > Random(0, 99))) {
 				Dom.inventory.give(quest.startRewards.items[i].item, quest.startRewards.items[i].quantity);
@@ -1816,7 +1817,6 @@ Dom.quest.acceptRewards = function () {
 		User.progress.quests = Increment(User.progress.quests);
 	}
 	Player.quests.questLastFinished[Dom.currentlyDisplayed.questArea][Dom.currentlyDisplayed.id] = GetFullDate();
-	Dom.quests.possible();
 	Dom.adventure.update();
 	Player.quests.canBeFinishedArray.splice(Player.quests.canBeFinishedArray.findIndex(quest => quest === Dom.currentlyDisplayed.quest),1);
 	let quest = Dom.currentlyDisplayed;
@@ -1831,7 +1831,7 @@ Dom.quest.acceptRewards = function () {
 	Dom.checkProgress();
 	
 	// last because it saves
-	if (quest.rewards.items !== undefined) {
+	if (quest.rewards !== undefined && quest.rewards.items !== undefined) {
 		for (let i = 0; i < quest.rewards.items.length; i++) {
 			if (quest.rewards.items[i].item.type !== "item" || quest.rewards.items[i].item.id !== 1) {
 				if ((quest.rewards.items[i].condition === undefined || quest.rewards.items[i].condition()) && (quest.rewards.items[i].chance === undefined || quest.rewards.items[i].chance > Random(0, 99))) {
@@ -1848,20 +1848,6 @@ Dom.quest.acceptRewards = function () {
 			}
 		}
 	}
-
-	/*for (let i = 0; i < QuestRewardTables.globalAll.length; i++) {
-		if (QuestRewardTables.globalAll[i].condition === undefined || QuestRewardTables.globalAll[i].condition() && (QuestRewardTables.globalAll[i].chance === undefined || QuestRewardTables.globalAll[i].chance > Random(0, 99))) {
-			Dom.inventory.give(QuestRewardTables.globalAll[i].item, QuestRewardTables.globalAll[i].quantity);
-		}
-	}
-
-	if (quest.repeatTime === "daily") {
-		for (let i = 0; i < QuestRewardTables.globalDaily.length; i++) {
-			if (QuestRewardTables.globalDaily[i].condition === undefined || QuestRewardTables.globalDaily[i].condition() && (QuestRewardTables.globalDaily[i].chance === undefined || QuestRewardTables.globalDaily[i].chance > Random(0, 99))) {
-				Dom.inventory.give(QuestRewardTables.globalDaily[i].item, QuestRewardTables.globalDaily[i].quantity);
-			}
-		}
-	}*/
 }
 
 Dom.quests.possible = function () {
@@ -2770,13 +2756,13 @@ for (let i = 0; i < document.getElementsByClassName("DOM").length; i++) {
 				}
 			}
 			document.getElementsByClassName("DOM")[i].style.zIndex = 6+document.getElementsByClassName("DOM").length-1;
-			Dom.canvas.moveDom(document.getElementsByClassName("DOM")[i], document.getElementsByClassName("DOM")[i].id, scroll);
+			Dom.canvas.moveDom(document.getElementsByClassName("DOM")[i], document.getElementsByClassName("DOM")[i].id, scroll, event.target);
 		}
 	}
 }
 
-Dom.canvas.moveDom = function (object, page, scroll) {
-	if (object.scrollTop === scroll) {
+Dom.canvas.moveDom = function (object, page, scroll, scrollObject) {
+	if (scrollObject.scrollTop === scroll) {
 		object.style.left = window.mouseX - Dom.canvas.dragPageX + "px";
 		object.style.top = window.mouseY - Dom.canvas.dragPageY + "px";
 
@@ -2788,7 +2774,7 @@ Dom.canvas.moveDom = function (object, page, scroll) {
 
 		if (!Dom.canvas.stopMove) {
 			setTimeout(function () {
-				Dom.canvas.moveDom(object, page, scroll);
+				Dom.canvas.moveDom(object, page, scroll, scrollObject);
 			},1);
 		}else{
 			document.onmouseup = undefined;
@@ -4871,7 +4857,7 @@ Dom.chat.playersInfo = function () {
 
 		document.getElementById("players"+i).style.backgroundImage = 'url("./selection/assets/'+Dom.players[i].class+Dom.players[i].skin+'/f.png")';
 		document.getElementById("players"+i).style.right = 20 - Skins[Dom.players[i].class][Dom.players[i].skin].headAdjust.x + "px";
-		document.getElementById("players"+i).style.height = 60 + Skins[Dom.players[i].class][Dom.players[i].skin].headAdjust.y + "px";
+		document.getElementById("players"+i).style.height = "60px";// + Skins[Dom.players[i].class][Dom.players[i].skin].headAdjust.y + "px";
 		document.getElementById("players"+i).style.bottom = 3 + Skins[Dom.players[i].class][Dom.players[i].skin].headAdjust.y + "px";
 
 		Dom.elements.playersInfo.innerHTML += "<div class='playersText'><strong>" + Dom.players[i].name + "</strong> (Level " + Dom.players[i].level + " " + clss + ")<br>" + Dom.players[i].displayArea + "</div>";
@@ -5092,6 +5078,9 @@ window.onbeforeunload = function() {
 	if (Dom.trade.active) {
 		Dom.trade.close();
 	}
+	if (Areas[Game.areaName].onAreaLeave !== undefined && Areas[Game.areaName].callAreaLeaveOnLogout) {
+		Areas[Game.areaName].onAreaLeave();
+	}
 	if (!Dom.settings.deleted) {
 		Game.saveProgress();
 	}
@@ -5104,20 +5093,25 @@ Dom.chat.notification = function (title, body) {
     }
 }
 
-Dom.leaderboard.page = function (title, description, players) {
+// players is an array of objects with score, class, skin
+// unit is the unit for the score (e.g. seconds)
+Dom.leaderboard.page = function (title, description, players, unit) {
 	if (Dom.changeBook("leaderboardPage")) {
 		Dom.elements.leaderboardPageTitle.innerHTML = title;
 		if (description !== undefined) {
 			Dom.elements.leaderboardPageDescription.innerHTML = description;
-				Dom.elements.leaderboardPageDescription.hidden = false;
+			Dom.elements.leaderboardPageDescription.hidden = false;
 		}
 		else {
 			Dom.elements.leaderboardPageDescription.hidden = true;
 		}
 		Dom.elements.leaderboardPageList.innerHTML = "";
 		let maxWidth = 0;
+		if (unit === undefined) {
+			unit = ""
+		}
 		for (let i = 0; i < players.length; i++) {
-			Dom.elements.leaderboardPageList.innerHTML += "<li class='leaderboardPageList'><div class='leaderboardPageSkin' id='leaderboardPageSkin"+i+"'></div><strong class='leaderboardPageName'>"+players[i].name+"</strong><span class='leaderboardPageScore'>"+players[i].score+"</span></li>";
+			Dom.elements.leaderboardPageList.innerHTML += "<li class='leaderboardPageList'><div class='leaderboardPageSkin' id='leaderboardPageSkin"+i+"'></div><strong class='leaderboardPageName'>"+players[i].name+"</strong><span class='leaderboardPageScore'>"+players[i].score+unit+"</span></li>";
 			document.getElementById("leaderboardPageSkin"+i).style.backgroundImage = 'url("./selection/assets/'+players[i].class+players[i].skin+'/f.png")';
 			document.getElementById("leaderboardPageSkin"+i).style.right = 20 - Skins[players[i].class][players[i].skin].headAdjust.x + "px";
 			document.getElementById("leaderboardPageSkin"+i).style.height = 60 + Skins[players[i].class][players[i].skin].headAdjust.y + "px";
@@ -5141,19 +5135,6 @@ Dom.settings.fullscreen = function () {
 	else {
 		if (window.innerHeight === screen.height || window.innerHeight + 1 === screen.height) {
 			document.exitFullscreen();
-		}
-	}
-}
-
-Dom.settings.music = function () {
-	if (Dom.elements.musicOn.checked) {
-		if (Game.playingMusic === null) {
-			Game.playMusic();
-		}
-	}
-	else {
-		if (Game.playingMusic !== null) {
-			Game.stopMusic();
 		}
 	}
 }
@@ -5218,24 +5199,35 @@ Dom.settings.minigames = function () {
 
 Dom.quest.abandon = function (quest) {
 	
-	// remove start rewards because it can be restarted
-	if (quest.startRewards.items !== undefined) {
-		for (let i = 0; i < quest.startRewards.items.length; i++) {
-			Dom.inventory.removeById(quest.startRewards.items[i].item.id, quest.startRewards.items[i].item.type, quest.startRewards.items[i].quantity);
+	//if the quest is active then abandon it
+	if (Player.quests.activeQuestArray.includes(quest.quest)) {
+		
+		// remove start rewards because it can be restarted
+		if (quest.startRewards !== undefined && quest.startRewards.items !== undefined) {
+			for (let i = 0; i < quest.startRewards.items.length; i++) {
+				Dom.inventory.removeById(quest.startRewards.items[i].item.id, quest.startRewards.items[i].item.type, quest.startRewards.items[i].quantity);
+			}
 		}
-	}
-	
-	// remove from active quest array
-	for (let i = 0; i < Player.quests.activeQuestArray.length; i++) {
-		if (Player.quests.activeQuestArray[i] === quest.quest) {			
-			Player.quests.activeQuestArray.splice(i, 1);
-			break;
+		
+		// remove removeItems because it has in a way been finished?
+		if (quest.removeItems !== undefined) {
+			for (let i = 0; i < quest.removeItems.length; i++) {
+				Dom.inventory.removeById(quest.removeItems[i].item.id, quest.removeItems[i].item.type, quest.removeItems[i].quantity);
+			}
 		}
+		
+		// remove from active quest array
+		for (let i = 0; i < Player.quests.activeQuestArray.length; i++) {
+			if (Player.quests.activeQuestArray[i] === quest.quest) {			
+				Player.quests.activeQuestArray.splice(i, 1);
+				break;
+			}
+		}
+		
+		// update boxes
+		Dom.quests.active();
+		Dom.quests.possible();
 	}
-	
-	// update boxes
-	Dom.quests.active();
-	Dom.quests.possible();
 }
 
 Dom.settings.dark = function () {
@@ -5617,7 +5609,6 @@ Dom.init = function () {
 	}
 	
 	Dom.checkProgress(); // calls Dom.quests.active()
-	Dom.quests.possible();
 	Dom.quests.completed();
 	Dom.adventure.update(); // chooses what should be shown in adventurer's log
 	
