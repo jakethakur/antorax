@@ -24,7 +24,7 @@ var Achievements = [
 		area: ["global"],
 		image: "../assets/achievements/level5.png",
 		class: "single",
-		isCompleted: function(){
+		isCompleted: function () {
 			return Player.level >= 5;
 		},
 		expand: {
@@ -43,7 +43,7 @@ var Achievements = [
 		event: "Christmas",
 		image: "../assets/items/food/1.png",
 		class: "single",
-		isCompleted: function(){
+		isCompleted: function () {
 			return Player.quests.questProgress.mincePie && Player.quests.questProgress.christmasPudding && Player.quests.questProgress.mulledWine;
 		},
 		expand: {
@@ -62,7 +62,7 @@ var Achievements = [
 		area: ["global"],
 		image: "../assets/icons/dailyQuests.png",
 		class: "cumulative",
-		isCompleted: function(){
+		isCompleted: function () {
 			return User.progress.dailyQuests >= 50;
 		},
 		expand: {
@@ -80,7 +80,7 @@ var Achievements = [
 		area: ["global"],
 		image: "../assets/icons/quests.png",
 		class: "cumulative",
-		isCompleted: function(){
+		isCompleted: function () {
 			return User.progress.quests >= 50;
 		},
 		expand: {
@@ -100,7 +100,7 @@ var Achievements = [
 		position: {x: 117,y: -10},
 		color: "#ddddff",
 		class: "single",
-		isCompleted: function(){ // REMOVE FISHING QUESTS
+		isCompleted: function () { // REMOVE FISHING QUESTS
 			let done = true;
 			for(let i = 0; i < Quests.eaglecrestLoggingCamp.length; i++){
 				if(Quests.eaglecrestLoggingCamp[i].eventRequirement === undefined && Quests.eaglecrestLoggingCamp[i].repeatTime === undefined && !Player.quests.completedQuestArray.includes(Quests.eaglecrestLoggingCamp[i].quest)){
@@ -126,7 +126,7 @@ var Achievements = [
 		area: ["global"],
 		image: "../assets/items/sword/3.png",
 		class: "cumulative",
-		isCompleted: function(){
+		isCompleted: function () {
 			return User.progress.enemies >= 300;
 		},
 		expand: {
@@ -144,7 +144,7 @@ var Achievements = [
 		area: ["global"],
 		image: "../assets/items/bow/4.png",
 		class: "cumulative",
-		isCompleted: function(){
+		isCompleted: function () {
 			return User.progress.enemies >= 1000;
 		},
 		expand: {
@@ -162,7 +162,7 @@ var Achievements = [
 		area: ["global"],
 		image: "../assets/items/staff/5.png",
 		class: "cumulative",
-		isCompleted: function(){
+		isCompleted: function () {
 			return User.progress.enemies >= 2500;
 		},
 		expand: {
@@ -180,7 +180,7 @@ var Achievements = [
 		area: ["global"],
 		image: "../assets/items/sword/4.png",
 		class: "cumulative",
-		isCompleted: function(){
+		isCompleted: function () {
 			return User.progress.enemies >= 5000;
 		},
 		expand: {
@@ -198,7 +198,7 @@ var Achievements = [
 		area: ["global"],
 		image: "../assets/achievements/masterCombatant.png",
 		class: "cumulative",
-		isCompleted: function(){
+		isCompleted: function () {
 			return User.progress.enemies >= 10000;
 		},
 		expand: {
@@ -218,7 +218,7 @@ var Achievements = [
 		position: {x: 45, y: -15},
 		color: "#cd7f32",
 		class: "cumulative",
-		isCompleted: function(){
+		isCompleted: function () {
 			return User.progress.goblins >= 100;
 		},
 		expand: {
@@ -238,7 +238,7 @@ var Achievements = [
 		position: {x: 10, y: -15},
 		color: "lightgray",
 		class: "cumulative",
-		isCompleted: function(){
+		isCompleted: function () {
 			return User.progress.goblins >= 250;
 		},
 		expand: {
@@ -258,7 +258,7 @@ var Achievements = [
 		position: {x: -200, y: -10},
 		color: "#fac540",
 		class: "cumulative",
-		isCompleted: function(){
+		isCompleted: function () {
 			return User.progress.goblins >= 500;
 		},
 		expand: {
@@ -278,7 +278,7 @@ var Achievements = [
 		position: {x: 57, y: 0},
 		color: "#ddddff",
 		class: "single",
-		isCompleted: function(){
+		isCompleted: function () {
 			return Player.bossesKilled.goblinKing !== 0;
 		}
 	},
@@ -293,7 +293,7 @@ var Achievements = [
         position: {x: 90, y: -1},
         color: "#ddddff",
         class: "single",
-        isCompleted: function(){
+        isCompleted: function () {
             return Player.bossesKilled.tatteredKnight !== 0;
         }
     },
@@ -308,7 +308,7 @@ var Achievements = [
 		image: "../assets/enemies/dummy.png",
 		color: "#ddddff",
 		class: "single",
-		isCompleted: function(){
+		isCompleted: function () {
 			return User.progress.dummies >= 1;
 		}
 	},
@@ -321,7 +321,7 @@ var Achievements = [
         event: "Fish",
         image: "../assets/items/sword/10.png",
 		class: "cumulative",
-		isCompleted: function(){
+		isCompleted: function () {
 			return User.progress.enemiesKilledWithFish >= 10;
 		},
 		expand: {
@@ -341,7 +341,7 @@ var Achievements = [
 		image: "../assets/achievements/loggingCamp.png",
 		size: "contain",
 		class: "single",
-		isCompleted: function(){
+		isCompleted: function () {
 			return Player.reputation.eaglecrestLoggingCamp.level >= 6;
 		}
 	},
@@ -355,7 +355,7 @@ var Achievements = [
 		area: ["eaglecrestLoggingCamp"],
 		image: "../assets/items/helm/5.png",
 		class: "cumulative",
-		isCompleted: function(){
+		isCompleted: function () {
 			let done = true;
 			for(let i = 0; i < 7; i++){
 				for(let x = 0; x < Items[Object.keys(Items)[i]].length; x++){
@@ -393,7 +393,7 @@ var Achievements = [
 		area: ["global"],
 		image: "../assets/items/helm/6.png",
 		class: "single",
-		isCompleted: function(){
+		isCompleted: function () {
 			return User.archaeology.includes("The Set of the Ocean Warrior");
 		},
 		expand: {
@@ -437,7 +437,7 @@ var Achievements = [
 		area: ["global"],
 		image: "../assets/items/helm/9.png",
 		class: "cumulative",
-		isCompleted: function(){
+		isCompleted: function () {
 			return User.archaeology.includes("Master Archaeologist's Hat");
 		},
 		expand: {
@@ -458,7 +458,7 @@ var Achievements = [
 		event: "Samhain",
 		image: "../assets/items/chest/7.png",
 		class: "cumulative",
-		isCompleted: function(){
+		isCompleted: function () {
 			let done = true;
 			for(let i = 0; i < 7; i++){
 				for(let x = 0; x < Items[Object.keys(Items)[i]].length; x++){
@@ -497,7 +497,7 @@ var Achievements = [
 		event: "Christmas",
 		image: "../assets/items/helm/7.png",
 		class: "cumulative",
-		isCompleted: function(){
+		isCompleted: function () {
 			let done = true;
 			for(let i = 0; i < 7; i++){
 				for(let x = 0; x < Items[Object.keys(Items)[i]].length; x++){
@@ -536,7 +536,7 @@ var Achievements = [
 		area: ["global", "eaglecrestLoggingCamp"],
 		image: "../assets/items/rod/2.png",
 		class: "single",
-		isCompleted: function(){
+		isCompleted: function () {
 			return Player.quests.completedQuestArray.includes("Learning to Fish III");
 		},
 		expand: {
@@ -555,7 +555,7 @@ var Achievements = [
 		area: ["global"],
 		image: "../assets/items/currency/3.png",
 		class: "cumulative",
-		isCompleted: function(){
+		isCompleted: function () {
 			return User.progress.seals >= 20;
 		},
 		expand: {
@@ -572,7 +572,7 @@ var Achievements = [
 		area: ["eaglecrestLoggingCamp"],
 		image: "../assets/items/fish/6.png",
 		class: "cumulative",
-		isCompleted: function(){
+		isCompleted: function () {
 			let done = true;
 			for(let i = 0; i < Items.fish.length; i++){
 				if(Items.fish[i].areas[0] === "loggingCamp" && Items.fish[i].areas.length === 1 && Items.fish[i].fishingType === "fish" && User.fish[i] === 0){
@@ -597,7 +597,7 @@ var Achievements = [
 		event: "Christmas",
 		image: "../assets/items/fish/21.png",
 		class: "single",
-		isCompleted: function(){
+		isCompleted: function () {
 			return Player.quests.completedQuestArray.includes("Sunken Presents");
 		},
 	},
@@ -609,7 +609,7 @@ var Achievements = [
 		area: ["global"],
 		image: "../assets/items/fish/0.png",
 		class: "cumulative",
-		isCompleted: function(){
+		isCompleted: function () {
 			return User.progress.fish >= 100;
 		},
 		expand: {
@@ -626,7 +626,7 @@ var Achievements = [
 		area: ["global"],
 		image: "../assets/items/fish/3.png",
 		class: "cumulative",
-		isCompleted: function(){
+		isCompleted: function () {
 			return User.progress.fish >= 300;
 		},
 		expand: {
@@ -643,7 +643,7 @@ var Achievements = [
 		area: ["global"],
 		image: "../assets/items/fish/2.png",
 		class: "cumulative",
-		isCompleted: function(){
+		isCompleted: function () {
 			return User.progress.fish >= 600;
 		},
 		expand: {
@@ -660,7 +660,7 @@ var Achievements = [
 		area: ["global"],
 		image: "../assets/items/fish/1.png",
 		class: "cumulative",
-		isCompleted: function(){
+		isCompleted: function () {
 			return User.progress.fish >= 1000;
 		},
 		expand: {
@@ -677,7 +677,7 @@ var Achievements = [
 		area: ["global"],
 		image: "../assets/items/fish/5.png",
 		class: "cumulative",
-		isCompleted: function(){
+		isCompleted: function () {
 			return User.progress.fish >= 1500;
 		},
 		expand: {
@@ -694,13 +694,26 @@ var Achievements = [
 		area: ["global"],
 		image: "../assets/items/fish/7.png",
 		class: "single",
-		isCompleted: function(){
+		isCompleted: function () {
 			return User.fish[7] >= 1;
 			/*for(let i = 0; i < Player.inventory.items.length; i++){
 				if(Player.inventory.items[i].name === "Chimerafish"){
 					return true;
 				}
 			}*/
+		},
+	},
+
+	{
+		name: "Master of Tag",
+		description: "Win a multiplayer game of tag with 5 or more players.",
+		points: 5,
+		category: ["general"],
+		area: ["global"],
+		image: "../assets/items/consumable/22.png",
+		class: "single",
+		isCompleted: function () {
+			return User.progress.tagAchievement === true;
 		},
 	},
 ]

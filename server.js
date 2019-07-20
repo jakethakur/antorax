@@ -265,8 +265,8 @@ wss.on("connection", (ws) => { // note that ws = client in wss.clients
 							area: parsedMessage.area,
 							spawnArea: parsedMessage.spawnArea, // for joined players
 							status: "starting",
-							timeUntilStart: 30, // aaaaaaaaaaaaaaaaaaaaaaaaa nothing done with this
-							joinedPlayers: [ws.userID] // userID of all joined players (to send them chat messages etc.)
+							joinedPlayers: [ws.userID], // userID of all joined players (to send them chat messages etc.)
+							playerTagTimes: {} // key = userID, value = time in seconds
 						}
 
 						// send out invites to other players
@@ -286,13 +286,6 @@ wss.on("connection", (ws) => { // note that ws = client in wss.clients
 							}
 						});
 
-						// 2 minutes + 30 seconds for each player above 2
-						let gameLength = 120000 + 60000*(minigameInProgress.joinedPlayers.length-2);
-						// upper limit is 4 minutes
-						if (gameLength > 300000) {
-							gameLength = 300000;
-						}
-
 						// start game in 30 seconds
 						setTimeout(function () {
 							// check there are at least 2 players in the game
@@ -300,8 +293,19 @@ wss.on("connection", (ws) => { // note that ws = client in wss.clients
 								// start game
 								minigameInProgress.status = "started";
 
+								// figure out game length
+								// 2 minutes + 30 seconds for each player above 2
+								let gameLength = 120000 + 60000*(minigameInProgress.joinedPlayers.length-2);
+								// upper limit is 4 minutes
+								if (gameLength > 300000) {
+									gameLength = 300000;
+								}
+
 								// random tagged player to start
 								minigameInProgress.taggedPlayer = minigameInProgress.joinedPlayers[Random(0, minigameInProgress.joinedPlayers.length-1)];
+
+								// time of player being tagged (so it is known for leaderboard how long they were tagged for)
+								minigameInProgress.prevTagTime = Date.now();
 
 								// tell users it has started and who is tagged
 								wss.clients.forEach(client => {
@@ -314,11 +318,22 @@ wss.on("connection", (ws) => { // note that ws = client in wss.clients
 
 								// end game
 								setTimeout(function () {
+									// figure out time currently tagged player was tagged for
+									let time = Date.now() - minigameInProgress.prevTagTime;
+									// add this to their playerTagTimes
+									if (minigameInProgress.playerTagTimes[minigameInProgress.taggedPlayer] === undefined) {
+										minigameInProgress.playerTagTimes[minigameInProgress.taggedPlayer] = time;
+									}
+									else {
+										minigameInProgress.playerTagTimes[minigameInProgress.taggedPlayer] += time;
+									}
+
 									// tell users it has finished
 									wss.clients.forEach(client => {
 										client.send(JSON.stringify({
 											type: "tagGame",
 											action: "finish",
+											leaderboardData: minigameInProgress.playerTagTimes
 										}));
 									});
 
@@ -358,8 +373,21 @@ wss.on("connection", (ws) => { // note that ws = client in wss.clients
 						break;
 
 					case "tagPlayer":
+						// figure out time previous player was tagged for
+						let time = Date.now() - minigameInProgress.prevTagTime;
+						// add this to their playerTagTimes
+						if (minigameInProgress.playerTagTimes[minigameInProgress.taggedPlayer] === undefined) {
+							minigameInProgress.playerTagTimes[minigameInProgress.taggedPlayer] = time;
+						}
+						else {
+							minigameInProgress.playerTagTimes[minigameInProgress.taggedPlayer] += time;
+						}
+
 						// new player tagged
 						minigameInProgress.taggedPlayer = parsedMessage.userID;
+
+						// time of this player being tagged (so it is known for leaderboard how long they were tagged for)
+						minigameInProgress.prevTagTime = Date.now();
 
 						// tell other users in game (apart from user who sent the message because they have already called the function)
 						wss.clients.forEach(client => {

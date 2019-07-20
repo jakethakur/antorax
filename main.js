@@ -362,7 +362,7 @@ Game.initWebSocket = function () {
 
 						case "finish":
 							// end of game
-							Game.tag.finish();
+							Game.tag.finish(message.leaderboardData);
 							break;
 
 						case "fizzle":
@@ -376,7 +376,7 @@ Game.initWebSocket = function () {
 							}
 
 							// game couldn't start properly due to not enough players
-							Game.tag.finish(true);
+							Game.tag.finish(false);
 							break;
 					}
 					break;
@@ -458,8 +458,8 @@ Game.addPlayer = function (player) {
 				copiedPlayer.stats.maxHealth = 50 + (copiedPlayer.level-1) * 5;
 				copiedPlayer.projectile = {};
 				// name colour
-				if (this.minigameInProgress !== undefined && this.minigameInProgress.taggedPlayer === copiedPlayer.userID) {
-					// tagged in minigame
+				if (this.minigameInProgress !== undefined && this.minigameInProgress.playing && this.minigameInProgress.taggedPlayer === copiedPlayer.userID) {
+					// tagged in minigame that user is playing
 					copiedPlayer.hostility = "gameHostile";
 				}
 				else {
@@ -2580,9 +2580,13 @@ class Hero extends Attacker {
 	teleport (x, y) {
 		this.x = x;
 		this.y = y;
+
 		setTimeout(function(){
 			Weather.reset();
 		}.bind(Weather), 10); // timeout is used because the weather is not updated for a tick
+
+		// tile user is on will have changed - update slow tile status effects
+		this.setSpeed();
 	}
 
 	// area teleport that can be undone by temporaryAreaTeleportReturn
@@ -4332,7 +4336,7 @@ Game.launchFirework = function (properties) {
 // fireworks launched every 500ms - number remaining tracked by parameter
 Game.levelUpFireworks = function (numberRemaining) {
 	let colourArray = []; // array of firework colours
-	if (this.hero.level === LevelXP.length - 1) {
+	if (Game.hero.level === LevelXP.length - 1) {
 		// golden fireworks if they are max level
 		colourArray.push("#f9ff54");
 	}
@@ -4367,7 +4371,7 @@ Game.levelUpFireworks = function (numberRemaining) {
 		}
 	}
 
-	this.launchFirework({
+	Game.launchFirework({
 		x: Random(this.hero.x - Dom.canvas.width / 2, this.hero.x + Dom.canvas.width / 2),
 		y: Random(this.hero.y - Dom.canvas.height / 2, this.hero.y + Dom.canvas.height / 2),
 		radius: Random(125, 175),
@@ -4379,7 +4383,7 @@ Game.levelUpFireworks = function (numberRemaining) {
 
 	if (numberRemaining > 1) {
 		// more fireworks to be launched in 500ms
-		setTimeout(this.levelUpFireworks, 500, numberRemaining - 1)
+		setTimeout(Game.levelUpFireworks, 500, numberRemaining - 1)
 	}
 }
 
@@ -4498,12 +4502,27 @@ Game.tag.newTaggedPlayer = function (userID) {
 			// they are in the same area - update their name colour
 			// this is otherwise done on joining area
 			prevTaggedPlayer.hostility = "friendly";
+
+			if (prevTaggedPlayer.type === "hero") {
+				// if the previously tagged player is the hero, give them walkspeed
+				Game.statusEffects.walkSpeed({
+					target: prevTaggedPlayer,
+					effectTitle: "Tag Immunity",
+					effectDescription: "Increased walk speed and immunity to being tagged.",
+					speedIncrease: 35,
+					time: 3,
+					worksForGames: true
+				});
+			}
 		}
 
 		// previously tagged player is immune to being tagged again for 3 seconds
 		Game.minigameInProgress.immunePlayer = Game.minigameInProgress.taggedPlayer;
 		setTimeout(function () {
-			Game.minigameInProgress.immunePlayer = undefined;
+			if (Game.minigameInProgress !== undefined) {
+				// check game hasn't finished
+				Game.minigameInProgress.immunePlayer = undefined;
+			}
 		}, 3000);
 	}
 
@@ -4528,14 +4547,27 @@ Game.tag.newTaggedPlayer = function (userID) {
 }
 
 // leave tag minigame
-// if fizzle is set to true, the player gets their item back because the game was unable to start
-Game.tag.leave = function (fizzle) {
-	// return them to their initial location
-	Game.hero.temporaryAreaTeleportReturn();
+// leaderboardData is an object with keys as user ids and values as times
+// if leaderboardData is set to false, the player gets their item back because the game was unable to start
+Game.tag.leave = function (leaderboardData) {
+	// return them to their initial location in 15s
+	setTimeout(function () {
+		// clear firework interval
+		clearInterval(this.fireworkWinnerInterval);
+
+		Game.hero.temporaryAreaTeleportReturn();
+	}, 15000);
 
 	Game.minigameInProgress.playing = false;
 
-	if (fizzle) {
+	// stop player appearing as being tagged
+	for (let i = 0; i < Game.players.length; i++) {
+		if (Game.players[i].hostility === "gameHostile") {
+			Game.players[i].hostility = "friendly";
+		}
+	}
+
+	if (leaderboardData === false) {
 		// there were not enough players to start the game
 		Dom.chat.insert("There were not enough players to start the game. You have got your <strong>Chaser's Gauntlet</strong> back.");
 		Dom.inventory.give(Items.consumable[22]);
@@ -4544,15 +4576,74 @@ Game.tag.leave = function (fizzle) {
 	else {
 		// ended after a proper game
 		Dom.chat.insert("The game is over.");
+
+		// leaderboard information
+		let userIDs = Object.keys(leaderboardData);
+		let userScores = Object.values(leaderboardData);
+
+		// form player objects to pass to Dom.leaderboard.page
+		let leaderboardPlayerArray = [];
+		for (let i = 0; i < userIDs.length; i++) {
+			let leaderboardPlayer = {};
+
+			let domPlayer = Dom.players.find(player => player.userID === Number(userIDs[i]));
+
+			leaderboardPlayer.score = userScores[i];
+			leaderboardPlayer.skin = domPlayer.skin;
+			leaderboardPlayer.class = domPlayer.class;
+			leaderboardPlayer.name = domPlayer.name;
+			leaderboardPlayer.userID = domPlayer.userID; // just used by main
+
+			leaderboardPlayerArray.push(leaderboardPlayer)
+		}
+
+		// sort leaderboard from shortest time to longest
+		leaderboardPlayerArray.sort(function (a, b) {
+			if (a.score < b.score) {
+				return -1;
+			}
+			else if (a.score > b.score) {
+				return 1;
+			}
+			return 0;
+		});
+
+		Dom.leaderboard.page("Tag: " + Player.displayAreaName, "Time spent tagged", leaderboardPlayerArray, "s");
+
+		// find winning user
+		let winningUser = leaderboardPlayerArray[0];
+
+		// achievement
+		if (leaderboardPlayerArray.length > 4 && winningUser.userID === ws.userID) {
+			User.progress.tagAchievement = true;
+		}
+
+		// interval cleared on area teleport
+		this.fireworkWinnerInterval = setInterval(function (winningUserID) {
+			let winner = Game.players.find(player => player.userID === winningUserID);
+
+			if (winner !== undefined) {
+				this.launchFirework({
+					x: winner.x,
+					y: winner.y,
+					radius: 150,
+					particles: 600,
+					explodeTime: 500,
+					lingerTime: 1000,
+					colours: "#f9ff54", // golden
+				});
+			}
+		}, 2222, winningUser.userID);
 	}
 }
 
 // tag minigame finished
-// if fizzle is set to true, the player gets their item back because the game was unable to start
-Game.tag.finish = function (fizzle) {
+// leaderboardData is an object with keys as user ids and values as times
+// if leaderboardData is set to false, the player gets their item back because the game was unable to start
+Game.tag.finish = function (leaderboardData) {
 	if (Game.minigameInProgress.playing) {
 		// leave the game first
-		this.leave(fizzle);
+		this.leave(leaderboardData);
 	}
 
 	// game has finished
@@ -4686,8 +4777,8 @@ Game.loadArea = function (areaName, destination) {
 
 		// call onAreaLeave function for previous area if there is one
 		if (this.areaName !== undefined) { // if they came from a different area
-			if (Areas[areaName].onAreaLeave !== undefined) {
-				Areas[areaName].onAreaLeave();
+			if (Areas[this.areaName].onAreaLeave !== undefined) {
+				Areas[this.areaName].onAreaLeave();
 			}
 		}
 
@@ -4896,6 +4987,8 @@ Game.loadArea = function (areaName, destination) {
 		if (destination !== undefined) {
 			this.hero.x = destination.x;
 			this.hero.y = destination.y;
+			// remove status effects of slow/fast tiles
+			this.hero.setSpeed();
 		}
 		// remove player moveTowards
 		this.hero.moveTowards = undefined;
@@ -4941,9 +5034,12 @@ Game.loadArea = function (areaName, destination) {
 		}
 
 		// call onAreaJoin function if there is one
-		if (!init) { // only if the area was teleported to (not game refresh)
+		// only call if the area was teleported to (not game refresh), or it is told in areaData to be called on refresh
+		if (!init || Areas[areaName].callAreaJoinOnInit) {
 			if (Areas[areaName].onAreaJoin !== undefined) {
 				Areas[areaName].onAreaJoin();
+
+				Dom.checkProgress();
 			}
 		}
 
@@ -5088,6 +5184,8 @@ Game.init = function () {
 		y: Areas[this.areaName].player !== undefined ? Areas[this.areaName].player.y : 0,
 		width: 57,
 		height: 120,
+
+		type: "hero",
 
 		// properties inheritied from Thing
 		image: "player"+Player.class+Player.skin,
@@ -5535,6 +5633,8 @@ Game.generateVillagers = function (data) {
 
 		// image to be added
 		images[possibleVillagers[villagerIndex].image] = possibleVillagers[villagerIndex].imageSource;
+
+		numberAdded++;
 
 		// prepare the NPC to be added
 		if (numberAdded === numberToAdd) {
@@ -6564,9 +6664,6 @@ Game.getXP = function (xpGiven, xpBonus) {
 						level: Player.level
 					}));
 				}
-
-				// update possible quests
-				Dom.quests.possible();
 
 				this.getXP(0); // levelling up multiple times
 			}
