@@ -1208,19 +1208,24 @@ class Character extends Thing {
 
 				// death
 
+				let inMinigame = Game.minigameInProgress !== undefined && Game.minigameInProgress.playing; // no xp, achievement or quest progress, etc. whilst in minigame
+
 				// xp
-				Game.getXP(this.xpGiven / Player.level); // now that the XP has fully been added, check for a levelUp and display it on the canvas
+				if (!inMinigame) {
+					Game.getXP(this.xpGiven / Player.level);
+				}
 
 				// wipe status effects and their tick timeouts
 				this.removeAllStatusEffects();
 
 				// on kill function (of weapon)
-				if (Player.inventory.weapon.onKill !== undefined) {
+				if (Player.inventory.weapon.onKill !== undefined && !inMinigame) {
 					Player.inventory.weapon.onKill();
 				}
 
 				// on death function (of enemy)
-				if (this.onDeath !== undefined) {
+				// might also contain quest progress
+				if (this.onDeath !== undefined && !inMinigame) {
 					this.onDeath();
 				}
 
@@ -1268,27 +1273,8 @@ class Character extends Thing {
 				//
 
 				// enemies killed achievement
-				if (this.hostility === "hostile" || this.hostility === "boss") {
+				if ((this.hostility === "hostile" || this.hostility === "boss") && !inMinigame) {
 					User.progress.enemies = Increment(User.progress.enemies);
-
-					// enemies killed with fish achievement
-					if (Player.inventory.weapon.type === "sword" && Player.inventory.weapon.id === 10) { // fishy equipped
-						User.progress.enemiesKilledWithFish = Increment(User.progress.enemiesKilledWithFish);
-					}
-				}
-
-				if (this.subSpecies === "nilbog goblin") {
-					// goblins killed achievement
-					User.progress.goblins = Increment(User.progress.goblins);
-					// general goblins killed objective
-					Player.quests.questProgress.goblinsKilled = Increment(Player.quests.questProgress.goblinsKilled);
-					// goblins killed with goblin torch objective
-					if (Player.inventory.weapon.type === "staff" && Player.inventory.weapon.id === 7) { // goblin torch equipped
-						Player.quests.questProgress.goblinsKilledWithTorch = Increment(Player.quests.questProgress.goblinsKilledWithTorch);
-					}
-				}
-				else if (this.subSpecies === "dummy") {
-					User.progress.dummies = Increment(User.progress.dummies);
 				}
 
 				// weapon chat message (some weapons have a chat message for when they kill something!)
@@ -1306,55 +1292,71 @@ class Character extends Thing {
 		else {
 			if (this.health <= 0 && !this.respawning) { // check it is dead and not already respawning
 
-				// find existing xp fatigue effect
-				let existingEffect = this.statusEffects.find(statusEffect => statusEffect.title === "XP Fatigue");
+				if (!Game.minigameInProgress || !Game.minigameInProgress.playing) {
+					// not playing a minigame
 
-				// wipe status effects (including existing XP fatigue)
-				this.removeAllStatusEffects();
+					// find existing xp fatigue effect
+					let existingEffect = this.statusEffects.find(statusEffect => statusEffect.title === "XP Fatigue");
 
-				// death
-				this.respawning = true;
-				this.isCorpse = true;
+					// wipe status effects (including existing XP fatigue)
+					this.removeAllStatusEffects();
 
-				// area onDeath function
-				if (Areas[Game.areaName].onDeath !== undefined) {
-					Areas[Game.areaName].onDeath();
-				}
+					// death
+					this.respawning = true;
+					this.isCorpse = true;
 
-				// load checkpoint area
-				Game.loadArea(this.checkpoint, Areas[this.checkpoint].player);
-
-				this.health = this.stats.maxHealth;
-
-				let ineffectiveAmount = LevelXP[Game.hero.level] / 6; // amount of XP to be worth 50% less
-				let stacks = 1;
-				if (existingEffect !== undefined) {
-					// existing xp fatigue effect
-					ineffectiveAmount += existingEffect.info.ineffectiveAmount; // stack to an effect XP fatigue effect
-					stacks = existingEffect.info.stacks + 1;
-					if (ineffectiveAmount > LevelXP[Game.hero.level]) { // caps out at the total XP to your next level
-						ineffectiveAmount = LevelXP[Game.hero.level];
+					// area onDeath function
+					if (Areas[Game.areaName].onDeath !== undefined) {
+						Areas[Game.areaName].onDeath();
 					}
+
+					// load checkpoint area
+					Game.loadArea(this.checkpoint, Areas[this.checkpoint].player);
+
+					this.health = this.stats.maxHealth;
+
+					let ineffectiveAmount = LevelXP[Game.hero.level] / 6; // amount of XP to be worth 50% less
+					let stacks = 1;
+					if (existingEffect !== undefined) {
+						// existing xp fatigue effect
+						ineffectiveAmount += existingEffect.info.ineffectiveAmount; // stack to an effect XP fatigue effect
+						stacks = existingEffect.info.stacks + 1;
+						if (ineffectiveAmount > LevelXP[Game.hero.level]) { // caps out at the total XP to your next level
+							ineffectiveAmount = LevelXP[Game.hero.level];
+						}
+					}
+					ineffectiveAmount = Math.round(ineffectiveAmount);
+
+					// add stronger xp fatigue effect (or add one if the player doesn't already have one)
+					Game.hero.statusEffects.push(new statusEffect({
+						title: "XP Fatigue",
+						effect: "You recently died. Your next " + ineffectiveAmount + " XP is worth 50% less.",
+						info: {
+							stacks: stacks,
+							ineffectiveAmount: ineffectiveAmount,
+						},
+						image: "xpDown",
+					}));
+
+					Player.fatiguedXP = ineffectiveAmount;
+
+					Game.hero.updateStatusEffects();
+
+					// save progress
+					Game.saveProgress("auto");
 				}
-				ineffectiveAmount = Math.round(ineffectiveAmount);
+				else {
+					// playing a minigame
+					Game.statusEffects.stun({
+						effectTitle: "Near-Death Experience",
+						effectDescription: "You can't die in a minigame",
+						target: this,
+						time: 7,
+						onExpire: "respawnHero"
+					});
 
-				// add stronger xp fatigue effect (or add one if the player doesn't already have one)
-				Game.hero.statusEffects.push(new statusEffect({
-					title: "XP Fatigue",
-					effect: "You recently died. Your next " + ineffectiveAmount + " XP is worth 50% less.",
-					info: {
-						stacks: stacks,
-						ineffectiveAmount: ineffectiveAmount,
-					},
-					image: "xpDown",
-				}));
-
-				Player.fatiguedXP = ineffectiveAmount;
-
-				Game.hero.updateStatusEffects();
-
-				// save progress
-				Game.saveProgress("auto");
+					this.respawning = true;
+				}
 			}
 		}
 	}
@@ -3827,6 +3829,14 @@ Game.statusEffects.functions = {
 	resetImage: function (target) {
 		target.resetImage();
 	},
+
+	// used in minigames after stun effect instead of death
+	respawnHero: function (target) {
+		target.health = target.maxHealth/2;
+
+		target.isCorpse = false;
+		target.respawning = false;
+	}
 };
 
 // give target a buff/debuff
@@ -4423,6 +4433,13 @@ Game.tag.init = function () {
 			Game.removeObject(Game.players[i].id, "players", i);
 		}
 
+		// user that started game will also be teleported back at end of game (to prevent cheating)
+		Game.hero.oldPosition = {
+			area: Game.areaName,
+			x: Game.hero.x,
+			y: Game.hero.y,
+		};
+
 		// notify other players about the starting of the tag game
 		ws.send(JSON.stringify({
 			type: "tagMinigame",
@@ -4497,16 +4514,11 @@ Game.tag.newTaggedPlayer = function (userID) {
 		if (prevTaggedPlayer === undefined) {
 			// player is not in the same area (or player is Game.hero) - find them in Dom.players instead
 			prevTaggedPlayer = Dom.players.find(player => player.userID === Game.minigameInProgress.taggedPlayer);
-		}
-		else {
-			// they are in the same area - update their name colour
-			// this is otherwise done on joining area
-			prevTaggedPlayer.hostility = "friendly";
 
-			if (prevTaggedPlayer.type === "hero") {
+			if (prevTaggedPlayer.constructor.name === "Hero") {
 				// if the previously tagged player is the hero, give them walkspeed
 				Game.statusEffects.walkSpeed({
-					target: prevTaggedPlayer,
+					target: Game.hero,
 					effectTitle: "Tag Immunity",
 					effectDescription: "Increased walk speed and immunity to being tagged.",
 					speedIncrease: 35,
@@ -4514,6 +4526,11 @@ Game.tag.newTaggedPlayer = function (userID) {
 					worksForGames: true
 				});
 			}
+		}
+		else {
+			// they are in the same area - update their name colour
+			// this is otherwise done on joining area
+			prevTaggedPlayer.hostility = "friendly";
 		}
 
 		// previously tagged player is immune to being tagged again for 3 seconds
@@ -4553,7 +4570,7 @@ Game.tag.leave = function (leaderboardData) {
 	// return them to their initial location in 15s
 	setTimeout(function () {
 		// clear firework interval
-		clearInterval(this.fireworkWinnerInterval);
+		clearInterval(Game.tag.fireworkWinnerInterval);
 
 		Game.hero.temporaryAreaTeleportReturn();
 	}, 15000);
@@ -4620,10 +4637,17 @@ Game.tag.leave = function (leaderboardData) {
 
 		// interval cleared on area teleport
 		this.fireworkWinnerInterval = setInterval(function (winningUserID) {
-			let winner = Game.players.find(player => player.userID === winningUserID);
+			let winner;
+			if (winningUserID === ws.userID) {
+				// hero won game
+				winner = Game.hero;
+			}
+			else {
+				winner = Game.players.find(player => player.userID === winningUserID);
+			}
 
 			if (winner !== undefined) {
-				this.launchFirework({
+				Game.launchFirework({
 					x: winner.x,
 					y: winner.y,
 					radius: 150,
@@ -5883,8 +5907,26 @@ Game.update = function (delta) {
 
 		let npc = this.allNPCs[i];
 
- 		// check npc is not dead, that hero is touching it, and that it is not already currently displayed
-		if (this.hero.isTouching(npc) && Dom.currentlyDisplayed !== npc.name && !npc.respawning) {
+		let canSpeak = true; // set to false if they can't speak to npc
+
+		if (!this.hero.isTouching(npc)) {
+			// hero not touching npc
+			canSpeak = false;
+		}
+		else if (Dom.currentlyDisplayed === npc.name) {
+			// it is not already currently displayed
+			canSpeak = false;
+		}
+		else if (npc.respawning) {
+			// npc is not dead
+			canSpeak = false;
+		}
+		else if (this.minigameInProgress !== undefined && this.minigameInProgress.playing) {
+			// hero is playing a minigame
+			canSpeak = false;
+		}
+
+		if (canSpeak) {
 
 			// arrays for choose DOM (these are populated in the below for loop)
 			let textArray = []; // array of text to describe that function
@@ -6233,8 +6275,31 @@ Game.update = function (delta) {
 		// enemy looting
 		// check enemy is a corpse (hence might be able to be looted)
 		if (this.enemies[i].isCorpse) {
-			// check player is touching enemy, player is holding space, enemy can be looted, and DOM isn't occupied
-			if (this.keysDown.SPACE && this.hero.isTouching(this.enemies[i]) && this.enemies[i].loot !== null && Dom.currentlyDisplayed === "") {
+
+			let canBeLooted = true; // set to false if enemy can't be looted
+
+			if (!this.keysDown.SPACE) {
+				// not pressing space
+				canBeLooted = false;
+			}
+			else if (!this.hero.isTouching(this.enemies[i])) {
+				// player is not touching enemy
+				canBeLooted = false;
+			}
+			else if (this.enemies[i].loot === null) {
+				// enemy can't be looted
+				canBeLooted = false;
+			}
+			else if (Dom.currentlyDisplayed !== "") {
+				// dom is occupied
+				canBeLooted = false;
+			}
+			else if (this.minigameInProgress !== undefined && this.minigameInProgress.playing) {
+				// hero is playing a minigame
+				canSpeak = false;
+			}
+
+			if (canBeLooted) {
 				// looting page
 				Dom.choose.page(this.enemies[i], ["Loot enemy"], [function () {
 					Dom.loot.page(Game.enemies[i].name, Game.enemies[i].loot);
@@ -6313,8 +6378,26 @@ Game.update = function (delta) {
 	for (let i = 0; i < this.mailboxes.length; i++) {
 		let mailbox = this.mailboxes[i];
 
-		// pressing space and touching mailbox, and DOM isn't currently occupied
-		if (this.keysDown.SPACE && this.hero.isTouching(mailbox) && Dom.currentlyDisplayed === "") {
+		let canBeOpened = true; // set to false if mailbox cannot be read
+
+		if (!this.keysDown.SPACE) {
+			// not pressing space
+			canBeOpened = false;
+		}
+		else if (!this.hero.isTouching(mailbox)) {
+			// not touching mailbox
+			canBeOpened = false;
+		}
+		else if (Dom.currentlyDisplayed !== "") {
+			// dom currently occupied
+			canBeOpened = false;
+		}
+		else if (this.minigameInProgress !== undefined && this.minigameInProgress.playing) {
+			// hero is playing a minigame
+			canBeOpened = false;
+		}
+
+		if (canBeOpened) {
 			Dom.choose.page(mailbox, ["Check mail"], [Dom.mail.page], [[]]);
 		}
 
@@ -6334,7 +6417,7 @@ Game.update = function (delta) {
 
 		// pressing space and touching player, and DOM isn't currently occupied
 		if (this.keysDown.SPACE && this.hero.isTouching(player) && Dom.currentlyDisplayed === "") {
-			if (this.minigameInProgress === undefined) {
+			if (this.minigameInProgress === undefined || !this.minigameInProgress.playing) {
 				// normal interaction
 				// true = force choose dom
 				Dom.choose.page(player, ["Trade with this player"], [Dom.trade.request], [[player.userID, player.name]], true);
@@ -6381,8 +6464,8 @@ Game.update = function (delta) {
 		}
 	}
 
-	// check collision with tiles
-	if (this.keysDown.SPACE) {
+	// check collision with tiles (if hero is not playing a minigame in the area)
+	if (this.keysDown.SPACE && (this.minigame === undefined || !this.minigame.playing)) {
 		// space key is down
 		let tileNum = this.hero.getTileAtFeet();
 		if (map.interactWithTile !== undefined) {
@@ -6394,9 +6477,32 @@ Game.update = function (delta) {
 	for (let i = 0; i < this.chests.length; i++) {
 		let chest = this.chests[i];
 
+		let canBeOpened = true; // set to false if chest cannot be opened
+
+		if (!this.keysDown.SPACE) {
+			// player not holding space
+			canBeOpened = false;
+		}
+		else if (!Game.hero.isTouching(chest)) {
+			// player not touching chest
+			canBeOpened = false;
+		}
+		else if (chest.loot === null) {
+			// chest can't be looted
+			canBeOpened = false;
+		}
+		else if (Dom.currentlyDisplayed === "") {
+			// DOM is occupied
+			canBeOpened = false;
+		}
+		else if (this.minigameInProgress !== undefined && this.minigameInProgress.playing) {
+			// hero is playing minigame
+			canBeOpened = false;
+		}
+
 		// chest opening
 		// player is holding space, touching chest, chest can be looted, and DOM isn't occupied
-		if (this.keysDown.SPACE && Game.hero.isTouching(chest) && chest.loot !== null && Dom.currentlyDisplayed === "") {
+		if (canBeOpened) {
 			// canBeLooted function
 			if (chest.canBeLooted === undefined || chest.canBeLooted()) {
 				// check for locked chest
@@ -6502,8 +6608,26 @@ Game.update = function (delta) {
 	for (let i = 0; i < this.allThings.length; i++) {
 		let thing = this.allThings[i];
 
-		// has an interact function, user is touching and pressing space
-		if (thing.onInteract !== undefined && this.keysDown.SPACE && this.hero.isTouching(thing)) {
+		let canInteract = true; // set to false if it cannot be interacted with
+
+		if (thing.onInteract === undefined) {
+			// doesn't have oninteract
+			canInteract = false;
+		}
+		else if (!this.keysDown.SPACE) {
+			// space key not down
+			canInteract = false;
+		}
+		else if (!this.hero.isTouching(thing)) {
+			// hero not touching
+			canInteract = false;
+		}
+		else if (this.minigameInProgress !== undefined && this.minigameInProgress.playing) {
+			// hero is playing minigame
+			canInteract = false;
+		}
+
+		if (canInteract) {
 			thing.onInteract();
 			Dom.checkProgress();
 		}
@@ -6513,8 +6637,22 @@ Game.update = function (delta) {
 	for (let i = 0; i < this.infoPoints.length; i++) {
 		let thing = this.infoPoints[i];
 
-		if (this.hero.moveTowards === undefined && this.hero.isTouching(thing)) {
-			// does not trigger if moveTowards is active
+		let canInteract = true; // set to false if it cannot be interacted with
+
+		if (!this.hero.isTouching(thing)) {
+			// hero not touching
+			canInteract = false;
+		}
+		else if (this.hero.moveTowards !== undefined) {
+			// does not trigger if movetowards is active
+			canInteract = false;
+		}
+		else if (this.minigameInProgress !== undefined && this.minigameInProgress.playing) {
+			// hero is playing minigame
+			canInteract = false;
+		}
+
+		if (canInteract) {
 			Dom.chat.insert(thing.onTouchChat, 0, undefined, true); // noRepeat is true
 		}
 	}

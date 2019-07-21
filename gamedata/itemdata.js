@@ -1027,6 +1027,10 @@ var Items = {
 			},
 			projectile: "slashWater",
 			projectileAdjust: {x: 0, y: 0},
+			onKill: function () {
+				// enemies killed with fish achievement
+				User.progress.enemiesKilledWithFish = Increment(User.progress.enemiesKilledWithFish);
+			}
 		},
 		{
 			id: 11,
@@ -1295,6 +1299,7 @@ var Items = {
 			},
 			projectile: "fireball",
 			projectileAdjust: {x: 20, y: 20},
+			// onKill is done in goblin onDeath instead
 		},
 		{
 			id: 8,
@@ -2600,7 +2605,7 @@ var Items = {
 
 					// pick random enemy
 					let enemies = Game.enemies.filter(enemy => !enemy.respawning);
-					let enemy = enemies[Random(0, enemies-1)];
+					let enemy = enemies[Random(0, enemies.length-1)];
 
 					// swap positions!
 					let enemyPositionX = enemy.x;

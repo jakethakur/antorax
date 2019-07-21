@@ -21,6 +21,16 @@ const SpeciesTemplates = {
 				});
 			},
 		}],
+		onDeath: function () {
+			// goblins killed achievement
+			User.progress.goblins = Increment(User.progress.goblins);
+			// general goblins killed objective
+			Player.quests.questProgress.goblinsKilled = Increment(Player.quests.questProgress.goblinsKilled);
+			// goblins killed with goblin torch objective
+			if (Player.inventory.weapon.type === "staff" && Player.inventory.weapon.id === 7) { // goblin torch equipped
+				Player.quests.questProgress.goblinsKilledWithTorch = Increment(Player.quests.questProgress.goblinsKilledWithTorch);
+			}
+		}
 	},
 };
 
