@@ -1257,8 +1257,10 @@ class Character extends Thing {
 						}.bind(this), this.stats.respawnTime);
 					}
 					else {
-						// set boss date killed
-						Player.bossesKilled[this.bossKilledVariable] = GetFullDate();
+						if (!inMinigame) {
+							// set boss date killed
+							Player.bossesKilled[this.bossKilledVariable] = GetFullDate();
+						}
 					}
 				}
 				else {
@@ -1347,14 +1349,16 @@ class Character extends Thing {
 				}
 				else {
 					// playing a minigame
-					Game.statusEffects.stun({
+					Game.statusEffects.generic({
 						effectTitle: "Near-Death Experience",
 						effectDescription: "You can't die in a minigame",
 						target: this,
 						time: 7,
-						onExpire: "respawnHero"
+						onExpire: "respawnHero",
+						imageName: "stunned"
 					});
 
+					this.isCorpse = true;
 					this.respawning = true;
 				}
 			}
@@ -3832,7 +3836,7 @@ Game.statusEffects.functions = {
 
 	// used in minigames after stun effect instead of death
 	respawnHero: function (target) {
-		target.health = target.maxHealth/2;
+		target.health = target.stats.maxHealth/2;
 
 		target.isCorpse = false;
 		target.respawning = false;
@@ -4515,7 +4519,7 @@ Game.tag.newTaggedPlayer = function (userID) {
 			// player is not in the same area (or player is Game.hero) - find them in Dom.players instead
 			prevTaggedPlayer = Dom.players.find(player => player.userID === Game.minigameInProgress.taggedPlayer);
 
-			if (prevTaggedPlayer.constructor.name === "Hero") {
+			if (prevTaggedPlayer.userID === ws.userID) {
 				// if the previously tagged player is the hero, give them walkspeed
 				Game.statusEffects.walkSpeed({
 					target: Game.hero,
@@ -4605,7 +4609,7 @@ Game.tag.leave = function (leaderboardData) {
 
 			let domPlayer = Dom.players.find(player => player.userID === Number(userIDs[i]));
 
-			leaderboardPlayer.score = userScores[i];
+			leaderboardPlayer.score = Round(userScores[i]/1000, 1); // ms -> s
 			leaderboardPlayer.skin = domPlayer.skin;
 			leaderboardPlayer.class = domPlayer.class;
 			leaderboardPlayer.name = domPlayer.name;
@@ -5623,7 +5627,7 @@ Game.generateVillagers = function (data) {
 	let seed = GenerateSeed(7, 9, 24, 1, 0.02, 0);
 
 	// vary seed based on area as well
-	seed += this.areaName.length/5;
+	seed += Areas[this.areaName].id/3;
 
 	// find possible villagers for the area
 	let possibleVillagers = Villagers.filter(villager => villager.areas.includes(Game.areaName));
@@ -6296,7 +6300,7 @@ Game.update = function (delta) {
 			}
 			else if (this.minigameInProgress !== undefined && this.minigameInProgress.playing) {
 				// hero is playing a minigame
-				canSpeak = false;
+				canBeLooted = false;
 			}
 
 			if (canBeLooted) {
