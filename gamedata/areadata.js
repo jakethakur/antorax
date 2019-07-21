@@ -185,6 +185,7 @@ const FishingLevels = {
 var Areas = {
 
 	tutorial: {
+		id: 0,
 
 		// data displayedo on moving to area
 		data: {
@@ -492,6 +493,7 @@ var Areas = {
 
 
 	eaglecrestLoggingCamp: {
+		id: 1,
 
 		data: {
 			name: "Eaglecrest Logging Camp",
@@ -1207,6 +1209,9 @@ var Areas = {
 					tenPercentHealth: "/me creaks loudly",
 					death: "/me crumbles into a heap of rubble",
 				},
+				onDeath: function () {
+                    User.progress.dummies = Increment(User.progress.dummies);
+                },
 			},
 		],
 
@@ -1280,6 +1285,7 @@ var Areas = {
 
 
 	loggingCampTavern: {
+		id: 2,
 
 		data: {
 			name: "Treefellers' Tavern",
@@ -1383,6 +1389,10 @@ var Areas = {
 						quest: Quests.tavern[2],
 						role: "questStartFinish",
 					},
+					/*{
+						quest: Quests.tavern[3],
+						role: "questStartFinish",
+					},*/
 					{
 						sold: [
 						    {item: Items.consumable[5], cost: 2,}, // Wood-Brewed Beer
@@ -1399,11 +1409,27 @@ var Areas = {
 						},
 						shopGreeting: "Only the finest food 'n' drink here.",
 					},
+					{
+						sold: [
+						    {item: Items.consumable[5], cost: 0, quest: true, unconsumable: true}, // Wood-Brewed Beer
+							{item: Items.consumable[16], cost: 0, eventRequirement: "Christmas", quest: true, unconsumable: true}, // Mulled Wine
+						    {item: Items.food[0], cost: 0, quest: true, unconsumable: true}, // Bread
+						    {item: Items.food[1], cost: 0, eventRequirement: "Christmas", quest: true, unconsumable: true}, // Mince Pie
+						    {item: Items.food[2], cost: 0, eventRequirement: "Christmas", quest: true, unconsumable: true}, // Christmas Pudding
+						    {item: Items.food[3], cost: 0, eventRequirement: "Antorax", quest: true, unconsumable: true}, // Birthday Cake (changed every year)
+						],
+						role: "merchant",
+						roleRequirement: function () {
+							return Player.quests.activeQuestArray.includes("Happy Hour!");
+						},
+						shopGreeting: "Give these out to people around the tavern.",
+						chooseText: "Obtain tavern goods to hand out.",
+					},
 				],
 				chat: {
 					questProgress: "Girls! Make some room by the hearth, won't ya!",
 					chooseChat: "Oh ho ho! It's good to see ya again!",
-					notUnlockedRoles: "I'v never seen ya 'round 'ere before!",
+					notUnlockedRoles: "I've never seen ya 'round 'ere before!",
 					shopLeave: "See ya soon!",
 					inventoryFull: "How're ya gonna hold that?!",
 					tooPoor: "Ya can't afford that.",
@@ -1633,13 +1659,24 @@ var Areas = {
 		callAreaLeaveOnLogout: true,
 		
 		onAreaLeave: function () {
-			Dom.quest.abandon(Quests.tavern[1]);
-			Dom.quest.abandon(Quests.tavern[2]);
+			if (Player.quests.activeQuestArray.includes("Cleaning the Floor")) {
+				Dom.quest.abandon(Quests.tavern[1]);
+				Dom.chat.insert("Cleaning the Floor has been abandoned. You can start it again by speaking to an innkeeper.")
+			}
+			if (Player.quests.activeQuestArray.includes("Tavern Tidy-up")) {
+				Dom.quest.abandon(Quests.tavern[2]);
+				Dom.chat.insert("Tavern Tidy-up has been abandoned. You can start it again by speaking to an innkeeper.")
+			}
+			if (Player.quests.activeQuestArray.includes("Happy Hour!")) {
+				Dom.quest.abandon(Quests.tavern[3]);
+				Dom.chat.insert("Happy Hour! has been abandoned. You can start it again by speaking to an innkeeper.")
+			}
 		},
 		
 	},
 
 	nilbog: {
+		id: 3,
 
 		data: {
 			name: "The Nilbog",
@@ -1982,6 +2019,7 @@ var Areas = {
 	},
 
 	nilbogPast: {
+		id: 4,
 
 		data: {
 			name: "The Nilbog",
@@ -2056,6 +2094,7 @@ var Areas = {
 	},
 
 	nilbogTower1: {
+		id: 5,
 
 		data: {
 			name: "Nilbog Tower",
@@ -2200,6 +2239,7 @@ var Areas = {
 	},
 
 	nilbogTower2: {
+		id: 6,
 
 		data: {
 			name: "Nilbog Tower",
@@ -2388,6 +2428,7 @@ var Areas = {
 	},
 
 	nilbogTower3: {
+		id: 7,
 
 		data: {
 			name: "Nilbog Tower Library",
@@ -2568,6 +2609,7 @@ var Areas = {
 	},
 
 	nilbogTower4: {
+		id: 8,
 
 		data: {
 			name: "Nilbog Tower",
@@ -2765,6 +2807,7 @@ var Areas = {
 	},
 
 	nilbogTower5: {
+		id: 9,
 
 		data: {
 			name: "Nilbog Tower",
@@ -2877,6 +2920,7 @@ var Areas = {
 	},
 
 	eaglecrest: {
+		id: 10,
 
 		data: {
 			name: "Eaglecrest City",
@@ -3207,6 +3251,7 @@ var Areas = {
 	},
 
 	eaglecrestWest: {
+		id: 11,
 
 		data: {
 			name: "Eaglecrest City",
@@ -3311,6 +3356,7 @@ var Areas = {
 	},
 
 	eaglecrestEast: {
+		id: 12,
 
 		data: {
 			name: "Eaglecrest City",
@@ -3405,6 +3451,7 @@ var Areas = {
 	},
 
 	eaglecrestBank: {
+		id: 13,
 
 		data: {
 			name: "Eaglecrest Bank",
@@ -3547,6 +3594,7 @@ var Areas = {
 	},
 
 	eaglecrestTavern: {
+		id: 14,
 
 		data: {
 			name: "Eagle's Span Tavern",
@@ -3649,6 +3697,10 @@ var Areas = {
 						quest: Quests.tavern[2],
 						role: "questStartFinish",
 					},
+					/*{
+						quest: Quests.tavern[3],
+						role: "questStartFinish",
+					},*/
 					{
 						sold: [
 							{item: Items.consumable[21], cost: 3,}, // Beetroot Beer
@@ -3661,11 +3713,25 @@ var Areas = {
 							{item: Items.teleport[1], cost: 100,}, // Teleport Coin
 						],
 						role: "merchant",
-						roleRequirement: function () {
-							return true;//tbd
-						},
 						shopGreeting: `<strong>Jak</strong>: Our food and drink was all freshly made today.<br>
 									<strong>Rhus</strong>: You want some?<br>`,
+					},
+					{
+						sold: [
+							{item: Items.consumable[21], cost: 0, quest: true, unconsumable: true}, // Beetroot Beer
+							{item: Items.consumable[16], cost: 0, eventRequirement: "Christmas", quest: true, unconsumable: true}, // Mulled Wine
+							{item: Items.food[0], cost: 0, quest: true, unconsumable: true}, // Bread
+							{item: Items.food[4], cost: 0, quest: true, unconsumable: true}, // Sandwich
+							{item: Items.food[1], cost: 0, eventRequirement: "Christmas", quest: true, unconsumable: true}, // Mince Pie
+							{item: Items.food[2], cost: 0, eventRequirement: "Christmas", quest: true, unconsumable: true}, // Christmas Pudding
+							{item: Items.food[3], cost: 0, eventRequirement: "Antorax", quest: true, unconsumable: true}, // Birthday Cake (changed every year)
+						],
+						role: "merchant",
+						roleRequirement: function () {
+							return Player.quests.activeQuestArray.includes("Happy Hour!");
+						},
+						shopGreeting: "<strong>Rhus</strong>: Hand these out to our visitors.<br>",
+						chooseText: "Obtain tavern goods to hand out.",
 					},
 				],
 				chat: {
@@ -4077,8 +4143,18 @@ var Areas = {
 		callAreaLeaveOnLogout: true,
 		
 		onAreaLeave: function () {
-			Dom.quest.abandon(Quests.tavern[1]);
-			Dom.quest.abandon(Quests.tavern[2]);
+			if (Player.quests.activeQuestArray.includes("Cleaning the Floor")) {
+				Dom.quest.abandon(Quests.tavern[1]);
+				Dom.chat.insert("Cleaning the Floor has been abandoned. You can start it again by speaking to an innkeeper.")
+			}
+			if (Player.quests.activeQuestArray.includes("Tavern Tidy-up")) {
+				Dom.quest.abandon(Quests.tavern[2]);
+				Dom.chat.insert("Tavern Tidy-up has been abandoned. You can start it again by speaking to an innkeeper.")
+			}
+			if (Player.quests.activeQuestArray.includes("Happy Hour!")) {
+				Dom.quest.abandon(Quests.tavern[3]);
+				Dom.chat.insert("Happy Hour! has been abandoned. You can start it again by speaking to an innkeeper.")
+			}
 		},
 		
 	},

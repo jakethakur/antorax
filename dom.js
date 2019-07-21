@@ -365,7 +365,7 @@ Dom.quests.active = function (quest) {
 			if (currentQuest.wasCompleted === undefined) {
 				currentQuest.wasCompleted = isCompleted;
 			}
-			else{
+			else {
 				for (let i = 0; i < currentQuest.wasCompleted.length; i++) {
 					if (currentQuest.wasCompleted[i] !== true && isCompleted[i] === true) {
 						Dom.chat.insert("Quest log updated");
@@ -1816,6 +1816,7 @@ Dom.quest.acceptRewards = function () {
 	else {
 		User.progress.quests = Increment(User.progress.quests);
 	}
+	Dom.currentlyDisplayed.wasCompleted = undefined;
 	Player.quests.questLastFinished[Dom.currentlyDisplayed.questArea][Dom.currentlyDisplayed.id] = GetFullDate();
 	Dom.adventure.update();
 	Player.quests.canBeFinishedArray.splice(Player.quests.canBeFinishedArray.findIndex(quest => quest === Dom.currentlyDisplayed.quest),1);
@@ -2014,23 +2015,28 @@ Dom.merchant.page = function (npc, sold, chat) {
 	}
 }
 
-Dom.merchant.buy = function (item,index,npc) {
+Dom.merchant.buy = function (item, index, npc) {
 	if (Dom.inventory.check(item.costCurrency,"currency",item.cost) && Dom.inventory.requiredSpace([{item: item.item}])) {
 		document.getElementsByClassName("buy")[index].style.backgroundColor = "#bb9933";
 		setTimeout(function () {
 			document.getElementsByClassName("buy")[index].style.backgroundColor = "var(--bottom)";
 		},200);
 		Dom.inventory.removeById(item.costCurrency,"currency",item.cost);
+		item.item = Object.assign({}, item.item);
+		item.item.unconsumable = item.unconsumable;
+		item.item.quest = item.quest;
 		Dom.inventory.give(item.item);
 		Dom.chat.insert("You bought a " + item.item.name + ".", 100);
-	}else{
+	}
+	else{
 		if (!Dom.inventory.check(item.costCurrency,"currency",item.cost)) {
 			document.getElementsByClassName("buy")[index].style.border = "5px solid red";
 			setTimeout(function () {
 				document.getElementsByClassName("buy")[index].style.border = "5px solid var(--border)";
 			},200);
 			npc.say(npc.chat.tooPoor, 0, true);
-		}else{
+		}
+		else{
 			npc.say(npc.chat.inventoryFull, 0, true);
 			Dom.alert.page("You do not have enough space in your inventory for that item.", 0, undefined, "merchantPage");
 		}
@@ -2223,7 +2229,7 @@ Dom.inventory.give = function (item, num, position, noSave, noArchaeology) {
 					if (Player.inventory.items[i].image === undefined) {
 						added = true;
 						position = i;
-						Player.inventory.items[i] = Object.assign({},item);
+						Player.inventory.items[i] = Object.assign({}, item);
 						if (Player.inventory.items[i].maxCharges !== undefined) {
 							Player.inventory.items[i].charges = Player.inventory.items[i].maxCharges;
 						}
@@ -2382,38 +2388,41 @@ Dom.inventory.cooldown = function (inventoryPosition, hotbar, check) {
 	else if (Dom.trade.active) {
 		Dom.inventory.inOut("in", inventoryPosition, "trade");
 	}
-	else if (item[inventoryPosition].cooldown !== undefined) {
-		if (item[inventoryPosition].cooldownStart === undefined || parseInt(item[inventoryPosition].cooldownStart) + item[inventoryPosition].cooldown <= parseInt(GetFullDateTime())) {
-			//item[inventoryPosition].cooldownStart = GetFullDateTime();
-			if (!check) {
-				for (let i = 0; i < Player.inventory.items.length; i++) {
-					if (Player.inventory.items[i].type === item[inventoryPosition].type && Player.inventory.items[i].id === item[inventoryPosition].id) {
-						Player.inventory.items[i].cooldownStart = GetFullDateTime();
+	else if (!item[inventoryPosition].unconsumable) {
+		if (item[inventoryPosition].cooldown !== undefined) {
+			if (item[inventoryPosition].cooldownStart === undefined || parseInt(item[inventoryPosition].cooldownStart) + item[inventoryPosition].cooldown <= parseInt(GetFullDateTime())) {
+				//item[inventoryPosition].cooldownStart = GetFullDateTime();
+				if (!check) {
+					for (let i = 0; i < Player.inventory.items.length; i++) {
+						if (Player.inventory.items[i].type === item[inventoryPosition].type && Player.inventory.items[i].id === item[inventoryPosition].id) {
+							Player.inventory.items[i].cooldownStart = GetFullDateTime();
+						}
+					}
+					if ((item[inventoryPosition].onClickEventRequirement === undefined || item[inventoryPosition].onClickEventRequirement === Event.event) && (item[inventoryPosition].onClickAreaRequirement === undefined || item[inventoryPosition].onClickAreaRequirement.includes(Game.areaName))) {
+						if (item[inventoryPosition].onClickFunction !== undefined) {
+							item[inventoryPosition].onClickFunction(inventoryPosition, hotbar);
+						}
 					}
 				}
+				else {
+					return true;
+				}
+			}
+			else {
+				Dom.chat.insert("This item is on cooldown. You can use it in " + CalculateTime(GetFullDateTime(), (parseInt(item[inventoryPosition].cooldownStart) + item[inventoryPosition].cooldown).toString()));
+			}
+		}
+		else {
+			if (!check) {
 				if ((item[inventoryPosition].onClickEventRequirement === undefined || item[inventoryPosition].onClickEventRequirement === Event.event) && (item[inventoryPosition].onClickAreaRequirement === undefined || item[inventoryPosition].onClickAreaRequirement.includes(Game.areaName))) {
 					if (item[inventoryPosition].onClickFunction !== undefined) {
 						item[inventoryPosition].onClickFunction(inventoryPosition, hotbar);
 					}
 				}
 			}
-			else {
+			else{
 				return true;
 			}
-		}
-		else {
-			Dom.chat.insert("This item is on cooldown. You can use it in " + CalculateTime(GetFullDateTime(), (parseInt(item[inventoryPosition].cooldownStart) + item[inventoryPosition].cooldown).toString()));
-		}
-	}
-	else {
-		if (!check) {
-			if ((item[inventoryPosition].onClickEventRequirement === undefined || item[inventoryPosition].onClickEventRequirement === Event.event) && (item[inventoryPosition].onClickAreaRequirement === undefined || item[inventoryPosition].onClickAreaRequirement.includes(Game.areaName))) {
-				if (item[inventoryPosition].onClickFunction !== undefined) {
-					item[inventoryPosition].onClickFunction(inventoryPosition, hotbar);
-				}
-			}
-		}else{
-			return true;
 		}
 	}
 }
@@ -2611,6 +2620,7 @@ Dom.inventory.dispose = function (ev) {
 					Dom.inventory.fromElement.innerHTML = "";
 				}
 				Game.inventoryUpdate();
+				Game.equipmentUpdate();
 			};
 			//Dom.alert.ev = Object.assign({}, Dom.inventory.fromId);
 			if (Dom.inventory.fromArray[Dom.inventory.fromId].stacked > 1) {
@@ -2656,6 +2666,7 @@ Dom.inventory.removeById = function (ID, type, num, array) {
 				let equipment = ["helm","chest","greaves","boots","weapon"]
 				Dom.inventory.removeEquipment(Player.inventory[equipment[i]]);
 				Player.inventory[equipment[i]] = {};
+				Game.equipmentUpdate();
 				document.getElementById(equipment[i]).innerHTML = "";
 				remove = true;
 				break; // stops multiple items being removed
@@ -2745,7 +2756,7 @@ Dom.canvas.drop = function (ev) {
 for (let i = 0; i < document.getElementsByClassName("DOM").length; i++) {
 	document.getElementsByClassName("DOM")[i].style.zIndex = 6+i;
 	document.getElementsByClassName("DOM")[i].onmousedown = function (event) {
-		let scroll = document.getElementsByClassName("DOM")[i].scrollTop;
+		let scroll = event.target.scrollTop;
 		if (!event.target.draggable && event.target.className !== "stackNum" && event.target.autocomplete === undefined && event.path.find(el => el.className === "chatPara") === undefined) {
 			Dom.canvas.dragPageX = event.clientX-document.getElementsByClassName("DOM")[i].offsetLeft;
 			Dom.canvas.dragPageY = event.clientY-document.getElementsByClassName("DOM")[i].offsetTop;
@@ -3150,6 +3161,9 @@ Dom.inventory.drop = function (toElement, toArray, toId, fromElement, fromArray,
 					Dom.inventory.addEquipment(Dom.inventory.toArray[Dom.inventory.toId]);
 				}
 				
+				// must be at end of code changes
+				Game.equipmentUpdate();
+				
 				let stackNum = "stackNum";
 				if (fromArray === Player.bank.items) {
 					stackNum = "bankStackNum";
@@ -3289,8 +3303,6 @@ Dom.inventory.setItemFunctions = function (element, array, id) {
 }
 
 Dom.inventory.removeEquipment = function (array) {
-	Game.equipmentUpdate();
-		
 	// draw slot background
 	let element = "weapon";
 	let type = "sword";
@@ -3381,8 +3393,6 @@ Dom.inventory.removeEquipment = function (array) {
 }
 
 Dom.inventory.addEquipment = function (array) {
-	Game.equipmentUpdate();
-	
 	// remove slot background
 	let element = "weapon";
 	if (array.type !== "rod" && array.type !== "sword" && array.type !== "staff" && array.type !== "bow") {
@@ -4542,6 +4552,7 @@ Dom.inventory.prepare = function (array, i, element) {
 						Dom.inventory.deEquip = true;
 						Dom.inventory.removeEquipment(Player.inventory[i]);
 						Player.inventory[i] = {};
+						Game.equipmentUpdate();
 						document.getElementById(i).innerHTML = "";
 						Game.inventoryUpdate();
 					}
@@ -4572,6 +4583,7 @@ Dom.inventory.prepare = function (array, i, element) {
 						Dom.inventory.deEquip = true;
 						Dom.inventory.removeEquipment(Player.inventory[i]);
 						Player.inventory[i] = {};
+						Game.equipmentUpdate();
 						document.getElementById(i).innerHTML = "";
 						Game.inventoryUpdate();
 					}
@@ -4598,7 +4610,9 @@ Dom.inventory.prepare = function (array, i, element) {
 		array[i].onAttack = Items[array[i].type][array[i].id].onAttack;
 		array[i].onCatch = Items[array[i].type][array[i].id].onCatch;
 		array[i].onOpen = Items[array[i].type][array[i].id].onOpen;
-		array[i].quest = Items[array[i].type][array[i].id].quest;
+		if (!array[i].quest) {
+			array[i].quest = Items[array[i].type][array[i].id].quest;
+		}
 	}
 	// unidentified item onclick (for bank and trade)
 	else {
@@ -5564,9 +5578,25 @@ Dom.init = function () {
 		}
 
 		Player.days.push(date);
-		Player.quests.randomDailyQuests = {};
+		
+		// reset randomDailyQuests ONLY IF THEY ARE NOT STILL ACTIVE :(
+		let array = [];
+		for (let i = 0; i < Object.keys(Quests).length; i++) {
+			for (let x = 0; x < Object.values(Quests)[i].length; x++) {
+				if (Player.quests.activeQuestArray.includes(Object.values(Quests)[i][x].quest) && Object.values(Quests)[i][x].quest.randomGroup !== undefined) {
+					array.push(Object.values(Quests)[i][x].randomGroup);
+				}
+			}
+		}
+		for (let i = 0; i < Object.keys(Player.quests.randomDailyQuests).length; i++) {
+			if (!array.includes(Object.keys(Player.quests.randomDailyQuests)[i])) {
+				Player.quests.randomDailyQuests[Object.keys(Player.quests.randomDailyQuests)[i]] = undefined;
+			}
+		}
+		
 		Player.chests.positions = {}; // chests change position each day
 	}
+	
 	// Archaeology mail
 	let done = true;
 	for (let i = 0; i < 7; i++) {

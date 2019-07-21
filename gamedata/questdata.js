@@ -565,9 +565,10 @@ var Quests = {
 				],
 			},
 
-			onQuestStart: function() {
-				Game.npcs.splice(0, 1); // remove goblin torch NPC from the map
-			},
+			onQuestStart: function () {
+                let torchNPC = Game.npcs.find(npc => npc.name === "Goblin Torch");
+                Game.removeObject(torchNPC.id, "npcs");
+            },
 
 			rewards: {
 				xp: 50,
@@ -1346,7 +1347,7 @@ After all, death is never the end in Antorax...<br>
 	                    map: map,
 	                    type: "attackables",
 	                    x: Random(0, map.cols * map.tsize),
-	                    y: Random(0, map.rows * map.tsize),
+	                    y: Random(0, (map.rows-1) * map.tsize),
 						z: -0.5, // should never be infront of player
 	                    image: "dirt",
 	                    name: "Dirt",
@@ -1364,31 +1365,36 @@ After all, death is never the end in Antorax...<br>
 							Player.quests.questProgress.dirtDone++;
 						}
 	                }));
-					Game.updateScreenPosition(Game.attackables[Game.attackables.length-1]);
-					
+
+					let array = Game.things.concat(Game.npcs);
+					for (let x = 0; x < array.length; x++) {
+						Game.updateScreenPosition(array[x]);
+					}
+
 					// if the centre of the dirt is touching any thing then choose a new location
+					let dirt = Game.attackables[Game.attackables.length-1];
 					let touching = true;
 					while (touching) {
+						Game.updateScreenPosition(dirt);
+						console.log(i);
 						touching = false;
-						if (map.getTile(0, map.getCol(Game.attackables[Game.attackables.length-1].x-Game.attackables[Game.attackables.length-1].width/2), map.getRow(Game.attackables[Game.attackables.length-1].y+Game.attackables[Game.attackables.length-1].height/2)) === 11
-						&& map.getTile(0, map.getCol(Game.attackables[Game.attackables.length-1].x+Game.attackables[Game.attackables.length-1].width/2), map.getRow(Game.attackables[Game.attackables.length-1].y+Game.attackables[Game.attackables.length-1].height/2)) === 11) {
-							console.log("x: "+Game.attackables[Game.attackables.length-1].x);
-							console.log("y: "+Game.attackables[Game.attackables.length-1].y);
-							for (let x = 0; x < Game.things.length; x++) {
-								if (Game.things[x].isTouching(Game.attackables[Game.attackables.length-1])) {
+						if (map.getTile(0, map.getCol(dirt.x-dirt.width/2), map.getRow(dirt.y+dirt.height/2)) === 11
+						&& map.getTile(0, map.getCol(dirt.x+dirt.width/2), map.getRow(dirt.y+dirt.height/2)) === 11) {
+							console.log("x: "+dirt.x);
+							console.log("y: "+dirt.y);
+							for (let x = 0; x < array.length; x++) {
+								if (array[x].isTouching(dirt)) {
 									touching = true;
-									Game.attackables[Game.attackables.length-1].x = Random(0, map.cols * map.tsize);
-									Game.attackables[Game.attackables.length-1].y = Random(0, map.rows * map.tsize);
-									Game.updateScreenPosition(Game.attackables[Game.attackables.length-1]);
+									dirt.x = Random(0, map.cols * map.tsize);
+									dirt.y = Random(0, (map.rows-1) * map.tsize);
 									break;
 								}
 							}
 						}
 						else {
 							touching = true;
-							Game.attackables[Game.attackables.length-1].x = Random(0, map.cols * map.tsize);
-							Game.attackables[Game.attackables.length-1].y = Random(0, map.rows * map.tsize);
-							Game.updateScreenPosition(Game.attackables[Game.attackables.length-1]);
+							dirt.x = Random(0, map.cols * map.tsize);
+							dirt.y = Random(0, (map.rows-1) * map.tsize);
 						}
 					}
 				}
@@ -1396,7 +1402,7 @@ After all, death is never the end in Antorax...<br>
 		},
 		{
 			id: 2,
-			quest: "Tavern Clean-up",
+			quest: "Tavern tidy-up",
 			questArea: "tavern",
 
 			loggingCampTavern: {
@@ -1478,7 +1484,7 @@ After all, death is never the end in Antorax...<br>
 		},
 		{
 			id: 3,
-			quest: "Giving Orders",
+			quest: "Happy Hour!",
 			questArea: "tavern",
 
 			loggingCampTavern: {
