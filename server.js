@@ -98,6 +98,15 @@ wss.on("connection", (ws) => { // note that ws = client in wss.clients
 					content: ws.userID
 				}));
 
+				// message the user to tell them about a minigame in progress if there is one active
+				if (minigameInProgress !== undefined) {
+					ws.send(JSON.stringify({
+						type: minigameInProgress.game + "Game",
+						action: "retroactive",
+						area: minigameInProgress.area
+					}));
+				}
+
 				// broadcast to chat DOM (for displaying players online)
 				// also broadcasts to all other players that the user logged on
 				let numberOnline = GetNumberOnline();
@@ -140,7 +149,8 @@ wss.on("connection", (ws) => { // note that ws = client in wss.clients
 							direction: client.direction,
 							expand: client.expand,
 							equipment: client.equipment,
-							achievementPoints: client.achievementPoints
+							achievementPoints: client.achievementPoints,
+							playingGame: client.playingGame
 						}));
 					}
 				});
@@ -269,6 +279,9 @@ wss.on("connection", (ws) => { // note that ws = client in wss.clients
 							playerTagTimes: {} // key = userID, value = time in seconds
 						}
 
+						// save this in server so player joining antorax retroactively know they are in the game
+						ws.playingGame = "tag";
+
 						// send out invites to other players
 						wss.clients.forEach(function (client) {
 							// check the client is not the current user
@@ -287,69 +300,28 @@ wss.on("connection", (ws) => { // note that ws = client in wss.clients
 						});
 
 						// start game in 30 seconds
-						setTimeout(function () {
-							// check there are at least 2 players in the game
-							if (minigameInProgress.joinedPlayers.length > 1) {
-								// start game
-								minigameInProgress.status = "started";
+						minigameInProgress.timeUntilStart = 30000;
+						// every second, decrease game time left by a second and tell the remaining game time to clients
+						minigameInProgress.timeInterval = setInterval(function () {
+							minigameInProgress.timeUntilStart -= 1000;
 
-								// figure out game length
-								// 2 minutes + 30 seconds for each player above 2
-								let gameLength = 120000 + 60000*(minigameInProgress.joinedPlayers.length-2);
-								// upper limit is 4 minutes
-								if (gameLength > 300000) {
-									gameLength = 300000;
-								}
-
-								// random tagged player to start
-								minigameInProgress.taggedPlayer = minigameInProgress.joinedPlayers[Random(0, minigameInProgress.joinedPlayers.length-1)];
-
-								// time of player being tagged (so it is known for leaderboard how long they were tagged for)
-								minigameInProgress.prevTagTime = Date.now();
-
-								// tell users it has started and who is tagged
-								wss.clients.forEach(client => {
-									client.send(JSON.stringify({
-										type: "tagGame",
-										action: "start",
-										taggedPlayer: minigameInProgress.taggedPlayer
-									}));
-								});
-
-								// end game
-								setTimeout(function () {
-									// figure out time currently tagged player was tagged for
-									let time = Date.now() - minigameInProgress.prevTagTime;
-									// add this to their playerTagTimes
-									if (minigameInProgress.playerTagTimes[minigameInProgress.taggedPlayer] === undefined) {
-										minigameInProgress.playerTagTimes[minigameInProgress.taggedPlayer] = time;
-									}
-									else {
-										minigameInProgress.playerTagTimes[minigameInProgress.taggedPlayer] += time;
-									}
-
-									// tell users it has finished
-									wss.clients.forEach(client => {
-										client.send(JSON.stringify({
-											type: "tagGame",
-											action: "finish",
-											leaderboardData: minigameInProgress.playerTagTimes
-										}));
-									});
-
-									minigameInProgress = undefined;
-								}, gameLength);
+							if (minigameInProgress.timeUntilStart <= 0) {
+								// game ready to start
+								StartTagGame();
 							}
 							else {
-								// tell users it fizzled (and giving back the item to the person who started the game, i.e. the only person in the game)
+								// tell players in game the time left (so it cna be displayed for them)
 								wss.clients.forEach(client => {
-									client.send(JSON.stringify({
-										type: "tagGame",
-										action: "fizzle",
-									}));
+									if (minigameInProgress.joinedPlayers.includes(client.userID)) {
+										client.send(JSON.stringify({
+											type: "tagGame",
+											action: "timeRemaining",
+											content: minigameInProgress.timeUntilStart
+										}));
+									}
 								});
 							}
-						}, 30000);
+						}, 1000);
 
 						break;
 
@@ -367,6 +339,9 @@ wss.on("connection", (ws) => { // note that ws = client in wss.clients
 							}
 						});
 
+						// save this in server so player joining antorax retroactively know they are in the game
+						ws.playingGame = "tag";
+
 						// someone has joined the tag game
 						minigameInProgress.joinedPlayers.push(ws.userID);
 
@@ -376,12 +351,7 @@ wss.on("connection", (ws) => { // note that ws = client in wss.clients
 						// figure out time previous player was tagged for
 						let time = Date.now() - minigameInProgress.prevTagTime;
 						// add this to their playerTagTimes
-						if (minigameInProgress.playerTagTimes[minigameInProgress.taggedPlayer] === undefined) {
-							minigameInProgress.playerTagTimes[minigameInProgress.taggedPlayer] = time;
-						}
-						else {
-							minigameInProgress.playerTagTimes[minigameInProgress.taggedPlayer] += time;
-						}
+						minigameInProgress.playerTagTimes[minigameInProgress.taggedPlayer] += time;
 
 						// new player tagged
 						minigameInProgress.taggedPlayer = parsedMessage.userID;
@@ -414,6 +384,7 @@ wss.on("connection", (ws) => { // note that ws = client in wss.clients
 	// handle disconnection
 	ws.on("close", function () {
 		console.info("Client disconnected");
+
 		// broadcast to chat DOM (for displaying players online)
 		// also broadcasts to all other players that the user logged off
 		let numberOnline = GetNumberOnline();
@@ -423,6 +394,36 @@ wss.on("connection", (ws) => { // note that ws = client in wss.clients
 			numberOnline: numberOnline,
 			userID: ws.userID,
 		}));
+
+		// remove from minigame if they are in one
+
+		if (minigameInProgress !== undefined) {
+			let mingameUserIndex = minigameInProgress.joinedPlayers.findIndex(player => player === ws.userID); // index of user in joined players
+			if (mingameUserIndex !== -1) {
+				// are playing minigame
+				// remove them
+				minigameInProgress.joinedPlayers.splice(mingameUserIndex, 1);
+				delete minigameInProgress.playerTagTimes[ws.userID];
+
+				// check if they were tagged
+				if (minigameInProgress.taggedPlayer === ws.userID) {
+					// tag a random other player instead
+					minigameInProgress.taggedPlayer = minigameInProgress.joinedPlayers[Random(0, minigameInProgress.joinedPlayers.length-1)];
+
+					// tell other users in game
+					wss.clients.forEach(client => {
+						if (minigameInProgress.joinedPlayers.includes(client.userID) && client.userID !== ws.userID) {
+							client.send(JSON.stringify({
+								type: "tagGame",
+								action: "taggedPlayer",
+								reason: "playerLeave",
+								taggedPlayer: minigameInProgress.taggedPlayer
+							}));
+						}
+					});
+				}
+			}
+		}
 	});
 
 	// tbd: https://github.com/websockets/ws#how-to-detect-and-close-broken-connections
@@ -452,6 +453,10 @@ setInterval(function () {
 	}));
 }, 10000); // 10s is an arbitrary value
 
+//
+// Misc functions
+//
+
 // returns the number of clients online
 // necessary because localhost sees wss.clients as an array, but Heroku as a set
 function GetNumberOnline() {
@@ -478,4 +483,110 @@ function FindClientFromID(userID) {
 // random integer between minimum and maximum (inclusive)
 function Random (minimum, maximum) {
     return Math.floor((Math.random() * (maximum - minimum + 1)) + minimum);
+}
+
+//
+// Tag game functions
+//
+
+// called after setTimeout
+function StartTagGame () {
+	// check there are at least 2 players in the game
+	if (minigameInProgress.joinedPlayers.length > 1) {
+		// start game
+		minigameInProgress.status = "started";
+
+		// figure out game length
+		// 2 minutes + 30 seconds for each player above 2
+		let gameLength = 120000 + 60000*(minigameInProgress.joinedPlayers.length-2);
+		// upper limit is 4 minutes
+		if (gameLength > 300000) {
+			gameLength = 300000;
+		}
+
+		minigameInProgress.timeRemaining = gameLength; // counts down as messages are sent to players telling them how long is left
+
+		// add all players to leaderboard
+		for (let i = 0; i < minigameInProgress.joinedPlayers.length; i++) {
+			minigameInProgress.playerTagTimes[minigameInProgress.joinedPlayers[i]] = 0;
+		}
+
+		// random tagged player to start
+		minigameInProgress.taggedPlayer = minigameInProgress.joinedPlayers[Random(0, minigameInProgress.joinedPlayers.length-1)];
+
+		// time of player being tagged (so it is known for leaderboard how long they were tagged for)
+		minigameInProgress.prevTagTime = Date.now();
+
+		// tell users it has started and who is tagged
+		wss.clients.forEach(client => {
+			client.send(JSON.stringify({
+				type: "tagGame",
+				action: "start",
+				taggedPlayer: minigameInProgress.taggedPlayer,
+				gameLength: minigameInProgress.timeRemaining
+			}));
+		});
+
+		// clear old interval
+		clearInterval(minigameInProgress.timeInterval);
+
+		// every second, decrease game time left by a second and tell the remaining game time to clients
+		minigameInProgress.timeInterval = setInterval(function () {
+			minigameInProgress.timeRemaining -= 1000;
+
+			if (minigameInProgress.timeRemaining <= 0) {
+				// game finished
+				EndTagGame();
+			}
+			else {
+				// tell players in game the time left (so it cna be displayed for them)
+				wss.clients.forEach(client => {
+					if (minigameInProgress.joinedPlayers.includes(client.userID)) {
+						client.send(JSON.stringify({
+							type: "tagGame",
+							action: "timeRemaining",
+							content: minigameInProgress.timeRemaining
+						}));
+					}
+				});
+			}
+		}, 1000);
+	}
+	else {
+		// tell users it fizzled (and giving back the item to the person who started the game, i.e. the only person in the game)
+		wss.clients.forEach(client => {
+			client.send(JSON.stringify({
+				type: "tagGame",
+				action: "fizzle",
+			}));
+		});
+
+		// remove game time countdown interval
+		clearInterval(minigameInProgress.timeInterval);
+	}
+}
+
+// called after setTimeout by StartTagGame
+function EndTagGame () {
+	// figure out time currently tagged player was tagged for
+	let time = Date.now() - minigameInProgress.prevTagTime;
+	// add this to their playerTagTimes
+	minigameInProgress.playerTagTimes[minigameInProgress.taggedPlayer] += time;
+
+	// remove game time countdown interval
+	clearInterval(minigameInProgress.timeInterval);
+
+	// tell users it has finished
+	wss.clients.forEach(client => {
+		client.send(JSON.stringify({
+			type: "tagGame",
+			action: "finish",
+			leaderboardData: minigameInProgress.playerTagTimes
+		}));
+
+		// save this in server so player joining antorax retroactively know they are in the game
+		client.playingGame = undefined;
+	});
+
+	minigameInProgress = undefined;
 }

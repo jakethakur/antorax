@@ -604,3 +604,16 @@ function GenerateSeed(yearWeight, monthWeight, dateWeight, hoursWeight, minutesW
 
 	return seed;
 }
+
+// convert ms to mm:ss format
+// 2:22 is used instead of 02:22
+function TimeDisplay(ms) {
+	let seconds = ms/1000;
+	let minutes = Math.floor(seconds/60);
+	let secondsRemainder = seconds % 60;
+	// ensure length of seconds is 2
+	if (String(secondsRemainder).length < 2) {
+		secondsRemainder = "0"+secondsRemainder;
+	}
+	return minutes + ":" + secondsRemainder;
+}

@@ -663,7 +663,7 @@ var Areas = {
 				}
 			},
 		],
-		
+
 		villagerData: {
 			minPeople: 0,
 			maxPeople: 2,
@@ -1314,7 +1314,7 @@ var Areas = {
 
 		checkpoint: false, // probably in the future taverns should be the ONLY checkpoints
 
-		lootArea: "loggingCamp", // for level up music
+		lootArea: "loggingCamp", // for level up music etc.
 
 		mapData: {
 			cols: 16,
@@ -1355,7 +1355,7 @@ var Areas = {
 				destinationY: 200,
 			},
 		],
-		
+
 		villagerData: {
 			minPeople: 3,
 			maxPeople: 5,
@@ -1374,7 +1374,7 @@ var Areas = {
 				},
 			],
 		},
-		
+
 		npcs: [
 			{
 				x: 154,
@@ -1412,7 +1412,7 @@ var Areas = {
 					{
 						quest: [Quests.tavern[1], Quests.tavern[2], Quests.tavern[3]],
 						role: "questStartFinish",
-						newQuestFrequency: "daily",
+						newQuestFrequency: "repeatable",
 						questVariable: "tavernJobs",
 					},
 					{
@@ -1444,7 +1444,7 @@ var Areas = {
 				},
 			},
 		],
-		
+
 		things: [
 			{
 				x: 134,
@@ -1587,14 +1587,14 @@ var Areas = {
 				onTouchChat: "A game of Wizard's Lore, a board game traditionally played by wizard students and scholars.",
 			},
 		],
-		
+
 		callAreaJoinOnInit: true,
-		
+
 		onAreaJoin: function () {
-			
+
 			// generate an array of tables
 			let array = Game.things.filter(thing => thing.name === "Table");
-			
+
 			// generate an array of possible positions
 			let positions = [];
 			for (let i = 0; i < array.length; i++) {
@@ -1604,10 +1604,10 @@ var Areas = {
 					{x: array[i].x+37, y: array[i].y-20, orderOffsetY: -20},
 				);
 			}
-			
+
 			// generate an array of large tables
 			array = Game.things.filter(thing => thing.name === "Large Table" && thing.use !== "wizardsLore");
-			
+
 			// add to the array of possible positions
 			for (let i = 0; i < array.length; i++) {
 				positions.push(
@@ -1618,24 +1618,24 @@ var Areas = {
 					{x: array[i].x+17, y: array[i].y-40, orderOffsetY: 10},
 				);
 			}
-			
+
 			// select a random number of mugs and plates to generate between 5 and 15
 			let random = Random(5, 15);
 			Player.quests.questProgress.mugsPlatesTotal = random;
 			Player.quests.questProgress.mugsPlatesDone = 0;
-			
+
 			// spawn the mugs and plates
 			for (let i = 0; i < random; i++) {
-			
+
 				// choose a random available position and make it unavailable
 				let position = positions.splice(Random(0, positions.length-1), 1)[0];
-				
+
 				// 50% chance of being a mug
 				if (Random(0, 1) === 0) {
-					
+
 					// choose a random position on the x axis of the table for the mug to be placed
 					let offsetX = Random(-45, 38);
-					
+
 					Game.things.push(new Thing({
 						map: map,
 						type: "things",
@@ -1646,9 +1646,9 @@ var Areas = {
 						name: "Mug",
 					}));
 				}
-				
+
 				// 50% chance of being a plate
-				else {	
+				else {
 					Game.things.push(new Thing({
 						map: map,
 						type: "things",
@@ -1661,9 +1661,9 @@ var Areas = {
 				}
 			}
 		},
-		
+
 		callAreaLeaveOnLogout: true,
-		
+
 		onAreaLeave: function () {
 			if (Player.quests.activeQuestArray.includes("Cleaning the Floor")) {
 				Dom.quest.abandon(Quests.tavern[1]);
@@ -1678,7 +1678,7 @@ var Areas = {
 				Dom.chat.insert("Hungry Taverners has been abandoned. You can start it again by speaking to an innkeeper.")
 			}
 		},
-		
+
 	},
 
 	nilbog: {
@@ -2093,7 +2093,7 @@ var Areas = {
 		onDeath: function () {
 			// abandon "The Legend of the Tattered Knight" quest (it can be started again from the mail)
 			Dom.quest.abandon(Quests.eaglecrestLoggingCamp[22]);
-			
+
 			// chat message to let them know
 			Dom.chat.insert("Your quest was abandoned. Re-open the mail message to have another attempt."); // important param = true
 		},
@@ -3308,7 +3308,7 @@ var Areas = {
 				playerAdjustY: 190,
 			},
 		],
-		
+
 		villagerData: {
 			minPeople: 0,
 			maxPeople: 2,
@@ -3321,7 +3321,7 @@ var Areas = {
 				},
 			],
 		},
-		
+
 		npcs: [
 			{
 				// id: 0,
@@ -3413,7 +3413,7 @@ var Areas = {
 				playerAdjustY: 190,
 			},
 		],
-		
+
 		villagerData: {
 			minPeople: 0,
 			maxPeople: 2,
@@ -3426,7 +3426,7 @@ var Areas = {
 				},
 			],
 		},
-		
+
 		npcs: [
 			{
 				// id: 6,
@@ -3490,7 +3490,7 @@ var Areas = {
 		},
 
 		images: {
-			tiles: {normal: "assets/tilemap/eaglecrestBank.png"},
+			tiles: {normal: "assets/tilemap/eaglecrestShop.png"},
 			banker1: {normal: "assets/npcs/eaglecrestBanker.png"},
 			banker2: {normal: "assets/npcs/eaglecrestBanker2.png"},
 			banker3: {normal: "assets/npcs/eaglecrestBanker3.png"},
@@ -3509,7 +3509,7 @@ var Areas = {
 				destinationY: 280,
 			},
 		],
-		
+
 		villagerData: {
 			minPeople: 0,
 			maxPeople: 3,
@@ -3522,7 +3522,7 @@ var Areas = {
 				},
 			],
 		},
-		
+
 		npcs: [
 			{
 				// id: 0,
@@ -3716,7 +3716,7 @@ var Areas = {
 					{
 						quest: [Quests.tavern[1], Quests.tavern[2], Quests.tavern[3]],
 						role: "questStartFinish",
-						newQuestFrequency: "daily",
+						newQuestFrequency: "repeatable",
 						questVariable: "tavernJobs",
 					},
 					{
@@ -4066,14 +4066,14 @@ var Areas = {
 				onTouchChat: "A game of Wizard's Lore, a board game traditionally played by wizard students and scholars.",
 			},
 		],
-		
+
 		callAreaJoinOnInit: true,
-		
+
 		onAreaJoin: function () {
-			
+
 			// generate an array of tables
 			let array = Game.things.filter(thing => thing.name === "Table");
-			
+
 			// generate an array of possible positions
 			let positions = [];
 			for (let i = 0; i < array.length; i++) {
@@ -4083,10 +4083,10 @@ var Areas = {
 					{x: array[i].x+37, y: array[i].y-20, orderOffsetY: -20},
 				);
 			}
-			
+
 			// generate an array of large tables
 			array = Game.things.filter(thing => thing.name === "Large Table" && thing.use !== "wizardsLore");
-			
+
 			// add to the array of possible positions
 			for (let i = 0; i < array.length; i++) {
 				positions.push(
@@ -4097,24 +4097,24 @@ var Areas = {
 					{x: array[i].x+17, y: array[i].y-40, orderOffsetY: 10},
 				);
 			}
-			
+
 			// select a random number of mugs and plates to generate between 5 and 15
 			let random = Random(5, 15);
 			Player.quests.questProgress.mugsPlatesTotal = random;
 			Player.quests.questProgress.mugsPlatesDone = 0;
-			
+
 			// spawn the mugs and plates
 			for (let i = 0; i < random; i++) {
-			
+
 				// choose a random available position and make it unavailable
 				let position = positions.splice(Random(0, positions.length-1), 1)[0];
-				
+
 				// 50% chance of being a mug
 				if (Random(0, 1) === 0) {
-					
+
 					// choose a random position on the x axis of the table for the mug to be placed
 					let offsetX = Random(-45, 38);
-					
+
 					Game.things.push(new Thing({
 						map: map,
 						type: "things",
@@ -4125,9 +4125,9 @@ var Areas = {
 						name: "Mug",
 					}));
 				}
-				
+
 				// 50% chance of being a plate
-				else {	
+				else {
 					Game.things.push(new Thing({
 						map: map,
 						type: "things",
@@ -4140,9 +4140,9 @@ var Areas = {
 				}
 			}
 		},
-		
+
 		callAreaLeaveOnLogout: true,
-		
+
 		onAreaLeave: function () {
 			if (Player.quests.activeQuestArray.includes("Cleaning the Floor")) {
 				Dom.quest.abandon(Quests.tavern[1]);
@@ -4157,13 +4157,12 @@ var Areas = {
 				Dom.chat.insert("Hungry Taverners has been abandoned. You can start it again by speaking to an innkeeper.")
 			}
 		},
-		
+
 	},
 };
 
 var Villagers = [
 	{
-		// any
 		image: "silvioStarstrike",
 		imageSource: {normal: "assets/npcs/silvioStarstrike.png"},
 		name: "Silvio Starstrike",
@@ -4190,7 +4189,6 @@ var Villagers = [
 		}
 	},
 	{
-		// tavern
 		image: "darioHorfern",
 		imageSource: {normal: "assets/npcs/darioHorfern.png"},
 		name: "Dario Horfern",
@@ -4207,13 +4205,15 @@ var Villagers = [
 		],
 		roles: [],
 		chat: {
-			notUnlockedRoles: "This would be my favourite place in the whole city... if it wasn't so dusty!",
+			notUnlockedRoles: {
+				loggingCamp: "This place is small. I prefer it in Eaglecrest.",
+				eaglecrest: "This would be my favourite place in the whole city... if it wasn't so dusty!",
+			},
 			chooseChat: "You can go away if you haven't brought me a drink.",
 			receiveTavernGood: "I've been waiting for ages for this!",
 		}
 	},
 	{
-		// tavern
 		image: "gremaRoskin",
 		imageSource: {normal: "assets/npcs/gremaRoskin.png"},
 		name: "Grema Roskin",
@@ -4230,13 +4230,15 @@ var Villagers = [
 		],
 		roles: [],
 		chat: {
-			notUnlockedRoles: "Smells of fried beetroot in here.",
+			notUnlockedRoles: {
+				loggingCamp: "Hm. Doesn't smell of fried beetroot here.",
+				eaglecrest: "Smells of fried beetroot in here."
+			},
 			chooseChat: "Hello again, did you bring beetroot this time?",
 			receiveTavernGood: "It's no fried beetroot, but it'll do. Thank you.",
 		}
 	},
 	{
-		// logging camp
 		image: "feller",
 		imageSource: {normal: "assets/npcs/feller.png"},
 		name: "Logging Camp Feller",
@@ -4259,7 +4261,6 @@ var Villagers = [
 		}
 	},
 	{
-		// logging camp
 		image: "treecutter",
 		imageSource: {normal: "assets/npcs/treecutter.png"},
 		name: "Logging Camp Treecutter",
@@ -4282,7 +4283,6 @@ var Villagers = [
 		}
 	},
 	{
-		// any
 		image: "robertHendman",
 		imageSource: {normal: "assets/npcs/robertHendman.png"},
 		name: "Robert Hendman",
@@ -4303,13 +4303,12 @@ var Villagers = [
 		],
 		roles: [],
 		chat: {
-			notUnlockedRoles: "Have you seen anyone playing Wizard's Lore before? Me neither. I bet it's just for show.",
+			notUnlockedRoles: "Have you seen anyone playing Wizard's Lore before? Me neither. I bet those game boards are just for show.",
 			chooseChat: "I'm going to head down to the Eaglecrest monastery soon. Would you like to come along too?",
-			receiveTavernGood: "Thank you "+ChatText.gender[Player.gender].formal+"! A good day to you.",
+			receiveTavernGood: `Thank you ${ChatText.gender[Player.gender].formal}! A good day to you.`,
 		}
 	},
 	{
-		// any
 		image: "wilmaRedding",
 		imageSource: {normal: "assets/npcs/wilmaRedding.png"},
 		name: "Wilma Redding",
@@ -4330,13 +4329,12 @@ var Villagers = [
 		],
 		roles: [],
 		chat: {
-			notUnlockedRoles: "Wooden tavern... roaring fire... going here always makes me a bit nervous.",
-			chooseChat: "It wouldn't be Eaglecrest without this good ol' tavern",
+			notUnlockedRoles: "So many magic artifacts around, yet I can't seem to find a single one!",
+			chooseChat: "Why would a fancy adventurer like you be talking to someone like me?",
 			receiveTavernGood: "My order? And not a moment too soon!",
 		}
 	},
 	{
-		// any
 		image: "greenbeard",
 		imageSource: {normal: "assets/npcs/greenbeard.png"},
 		name: "Captain Greenbeard",

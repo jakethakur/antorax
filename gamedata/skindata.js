@@ -199,6 +199,17 @@ var Skins = {
 			cursor: "crosshair",
 			headAdjust: {x: 10, y: 5},
 		},
+		{
+            id: 6,
+            position: {x: Infinity, y: 20}, // TBD
+            name: "Thunder Donkey",
+            gender: "m",
+            projectile: "slashBlue",
+            projectileAdjust: {x: 20, y: 20},
+            cursor: "physics",
+			cursorPosition: {x: 9.5, y: 10},
+            headAdjust: {x: 3, y: 0},
+        },
 	],
 };
 
