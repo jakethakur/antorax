@@ -113,6 +113,7 @@ let Dom = {
 		merchantPageChat: document.getElementById("merchantPageChat"),
 		merchantPageOptions: document.getElementById("merchantPageOptions"),
 		merchantPageTitle: document.getElementById("merchantPageTitle"),
+		infoBar: document.getElementById("infoBar"),
 		minigamesOn: document.getElementById("minigamesOn"),
 		musicOn: document.getElementById("musicOn"),
 		name: document.getElementById("name"),
@@ -190,6 +191,7 @@ let Dom = {
 	choose: {},
 	text: {},
 	alert: {},
+	infoBar: {},
 	achievements: {},
 };
 
@@ -198,12 +200,12 @@ let Dom = {
 // type = number of buttons
 // values = array of what buttons will say (only applies for type = 3 or type = text)
 // page = what page it came from (what it appears over); undefined = canvas
+// target = an object containing target, ev, targetNo, evNo
 
 // Dom.alert.target is the function that is called by confirming the alert
 // Dom.alert.ev is an array of parameters that is passed in to Dom.alert.target
 // if type = 3 then the last parameter after all of Dom.alert.ev is set to true on clicking second button
-
-Dom.alert.page = function (text, type, values, page) { // can't pass in target and ev because chooseStats are called by an innerHTML
+Dom.alert.page = function (text, type, values, page, target) { // can't pass in target and ev because chooseStats are called by an innerHTML
 	Dom.elements.alert.hidden = false;
 	if (page !== undefined) {
 		Dom.elements.alert.style.left = document.getElementById(page).offsetLeft+document.getElementById(page).offsetWidth/2-175+"px";
@@ -459,7 +461,7 @@ Dom.closePage = function (page, notClose) {
 		Dom.closePage("bankPage");
 		Dom.bank.active = false;
 	}
-	if (page === "inventoryPage" && Dom.trade.active) {
+	if (page === "inventoryPage" && !Dom.elements.tradePage.hidden) {
 		Dom.closePage("tradePage");
 		if (Dom.trade.active) {
 			Dom.trade.close();
@@ -689,8 +691,10 @@ Dom.chat.say = function (name, message, language) {
 	}
 }
 
-// values - time between messages
-// end - function called when sequence if done
+// text - array of strings
+// values - array of integers which are times in milliseconds between messages
+// end - function called when sequence is done
+// endParameters - array of parameters passed in to end function
 Dom.chat.insertSequence = function (text, values, end, endParameters) {
 	if (values === undefined) {
 		values = [];
@@ -1760,7 +1764,7 @@ Dom.quest.accept = function () {
 	
 	let quest = Dom.currentlyDisplayed;
 	if (Dom.currentlyDisplayed.onQuestStart !== undefined) {
-		Dom.currentlyDisplayed.onQuestStart();
+		Dom.currentlyDisplayed.onQuestStart(Game[Dom.currentNPC.type].find(npc => npc.id === Dom.currentNPC.id));
 	}
 	
 	// after onQuestStart because tavern clean-up sets variables in onQuestStart needed for this
@@ -1809,6 +1813,9 @@ Dom.quest.acceptRewards = function () {
 	Dom.quests.completed(Dom.currentlyDisplayed);
 	if (Dom.currentlyDisplayed.repeatTime === "job") {
 		User.progress.jobQuests = Increment(User.progress.jobQuests);
+		if (Dom.currentlyDisplayed.randomGroup !== undefined) {
+			Player.quests.randomDailyQuests[Dom.currentlyDisplayed.randomGroup] = undefined;
+		}
 	}
 	else if (Dom.currentlyDisplayed.repeatTime === "daily") {
 		User.progress.dailyQuests = Increment(User.progress.dailyQuests);
@@ -1816,13 +1823,18 @@ Dom.quest.acceptRewards = function () {
 	else {
 		User.progress.quests = Increment(User.progress.quests);
 	}
+	for (let i = 0; i < Player.quests.canBeFinishedArray.length; i++) {
+		if (Player.quests.canBeFinishedArray[i] === Dom.currentlyDisplayed.quest) {
+			Player.quests.canBeFinishedArray.splice(i, 1);
+		}
+	}
 	Dom.currentlyDisplayed.wasCompleted = undefined;
 	Player.quests.questLastFinished[Dom.currentlyDisplayed.questArea][Dom.currentlyDisplayed.id] = GetFullDate();
 	Dom.adventure.update();
 	Player.quests.canBeFinishedArray.splice(Player.quests.canBeFinishedArray.findIndex(quest => quest === Dom.currentlyDisplayed.quest),1);
 	let quest = Dom.currentlyDisplayed;
 	if (Dom.currentlyDisplayed.onQuestFinish !== undefined) {
-		Dom.currentlyDisplayed.onQuestFinish();
+		Dom.currentlyDisplayed.onQuestFinish(Game[Dom.currentNPC.type].find(npc => npc.id === Dom.currentNPC.id));
 	}
 	// if the onQuestFinish changed the page then don't change the page
 	if (Dom.currentlyDisplayed === quest) {
@@ -1881,7 +1893,7 @@ Dom.quests.possible = function () {
 			}
 			// groups of daily quests where only one can be done every day
 			else if (quest.randomGroup !== undefined) {
-				//if (Player.quests.randomDailyQuests[quest.randomGroup] !== quest.quest) {
+				//if (quest.repeatTime === "daily") {
 					if (Player.quests.randomDailyQuests[quest.randomGroup] === undefined) {
 						Player.quests.possibleQuestArray.push(quest.quest);
 						if (!Dom.quests.possibleHTML[quest.important].includes(FromCamelCase(quest.randomGroup))) {
@@ -2025,6 +2037,7 @@ Dom.merchant.buy = function (item, index, npc) {
 		item.item = Object.assign({}, item.item);
 		item.item.unconsumable = item.unconsumable;
 		item.item.quest = item.quest;
+		item.item.removeOnAbandon = item.removeOnAbandon;
 		Dom.inventory.give(item.item);
 		Dom.chat.insert("You bought a " + item.item.name + ".", 100);
 	}
@@ -2641,7 +2654,7 @@ Dom.inventory.dispose = function (ev) {
 	}
 }
 
-Dom.inventory.removeById = function (ID, type, num, array) {
+Dom.inventory.removeById = function (ID, type, num, array, quest) {
 
 	let equip = false;
 	if (array === undefined) {
@@ -2651,7 +2664,7 @@ Dom.inventory.removeById = function (ID, type, num, array) {
 
 	let remove = false;
 	for (let i = 0; i < array.length; i++) {
-		if (array[i].type === type && array[i].id === ID) {
+		if (array[i].type === type && array[i].id === ID && (!quest || array[i].quest === true || (array[i].quest !== undefined && array[i].quest()))) {
 			Dom.inventory.remove(i, num);
 			remove = true;
 			if (num !== "all") {
@@ -2757,7 +2770,7 @@ for (let i = 0; i < document.getElementsByClassName("DOM").length; i++) {
 	document.getElementsByClassName("DOM")[i].style.zIndex = 6+i;
 	document.getElementsByClassName("DOM")[i].onmousedown = function (event) {
 		let scroll = event.target.scrollTop;
-		if (!event.target.draggable && event.target.className !== "stackNum" && event.target.autocomplete === undefined && event.path.find(el => el.className === "chatPara") === undefined) {
+		if (!event.target.draggable && event.target.className !== "stackNum" && event.target.autocomplete === undefined && event.composedPath().find(el => el.className === "chatPara") === undefined) {
 			Dom.canvas.dragPageX = event.clientX-document.getElementsByClassName("DOM")[i].offsetLeft;
 			Dom.canvas.dragPageY = event.clientY-document.getElementsByClassName("DOM")[i].offsetTop;
 			Dom.canvas.stopMove = false;
@@ -3454,7 +3467,7 @@ Dom.inventory.addEquipment = function (array) {
 	Dom.inventory.afterChangedStats();
 }
 
-Dom.inventory.find = function (ID, type, notEquipped, calledByCheck, name, array) {
+Dom.inventory.find = function (ID, type, notEquipped, calledByCheck, name, array, quest) {
 	if (array === undefined) {
 		array = Player.inventory.items;
 	}
@@ -3464,7 +3477,7 @@ Dom.inventory.find = function (ID, type, notEquipped, calledByCheck, name, array
 	let index = [];
 	let completed = 0;
 	for (let i = 0; i < array.length; i++) {
-		if ((array[i].type === type && array[i].id === ID) || (array[i].name === name && name !== undefined)) {
+		if (((array[i].type === type && array[i].id === ID) || (array[i].name === name && name !== undefined)) && (!quest || array[i].quest === true || (array[i].quest !== undefined && array[i].quest()))) {
 			index.push(i);
 			if (array[i].stacked === undefined) {
 				array[i].stacked = 1;
@@ -3501,16 +3514,17 @@ Dom.inventory.find = function (ID, type, notEquipped, calledByCheck, name, array
 // returns true or false depending on if an item (specified by id and type) is in player's inventory or not
 // num checks for a certain number of them (defaults to 1)
 // notEquipped means it must not be equipped (defaults to false)
-Dom.inventory.check = function (ID, type, num, notEquipped, array) {
-	let completed = Dom.inventory.find(ID, type, notEquipped, true, array);
+Dom.inventory.check = function (ID, type, num, notEquipped, array, quest) {
+	let completed = Dom.inventory.find(ID, type, notEquipped, true, array, undefined, quest);
 	if (num !== undefined) {
 		if (completed >= num) {
 			completed = true;
-		}else{
+		}
+		else{
 			completed = false;
 		}
 	}
-	return(completed);
+	return completed;
 }
 
 if (Player.class === "a") {
@@ -4005,11 +4019,13 @@ Dom.choose.page = function (npc, buttons, functions, parameters, force) {
 					document.getElementById("choosePageButtons"+i).onclick = function () {
 						Dom.closePage("choosePage", true);
 						functions[i](...parameters[i]);
+						Dom.checkProgress();
 					}
 				}
 			}
 		}else{
 			functions[0](...parameters[0]);
+			Dom.checkProgress();
 		}
 	}
 }
@@ -5128,7 +5144,7 @@ Dom.leaderboard.page = function (title, description, players, unit) {
 			Dom.elements.leaderboardPageList.innerHTML += "<li class='leaderboardPageList'><div class='leaderboardPageSkin' id='leaderboardPageSkin"+i+"'></div><strong class='leaderboardPageName'>"+players[i].name+"</strong><span class='leaderboardPageScore'>"+players[i].score+unit+"</span></li>";
 			document.getElementById("leaderboardPageSkin"+i).style.backgroundImage = 'url("./selection/assets/'+players[i].class+players[i].skin+'/f.png")';
 			document.getElementById("leaderboardPageSkin"+i).style.right = 20 - Skins[players[i].class][players[i].skin].headAdjust.x + "px";
-			document.getElementById("leaderboardPageSkin"+i).style.height = 60 + Skins[players[i].class][players[i].skin].headAdjust.y + "px";
+			//document.getElementById("leaderboardPageSkin"+i).style.height = 60 + Skins[players[i].class][players[i].skin].headAdjust.y + "px";
 			document.getElementById("leaderboardPageSkin"+i).style.bottom = Skins[players[i].class][players[i].skin].headAdjust.y - 15 + "px";
 			maxWidth = Math.max(maxWidth, document.getElementsByClassName("leaderboardPageScore")[i].offsetWidth);
 		}
@@ -5216,17 +5232,10 @@ Dom.quest.abandon = function (quest) {
 	//if the quest is active then abandon it
 	if (Player.quests.activeQuestArray.includes(quest.quest)) {
 		
-		// remove start rewards because it can be restarted
-		if (quest.startRewards !== undefined && quest.startRewards.items !== undefined) {
-			for (let i = 0; i < quest.startRewards.items.length; i++) {
-				Dom.inventory.removeById(quest.startRewards.items[i].item.id, quest.startRewards.items[i].item.type, quest.startRewards.items[i].quantity);
-			}
-		}
-		
-		// remove removeItems because it has in a way been finished?
-		if (quest.removeItems !== undefined) {
-			for (let i = 0; i < quest.removeItems.length; i++) {
-				Dom.inventory.removeById(quest.removeItems[i].item.id, quest.removeItems[i].item.type, quest.removeItems[i].quantity);
+		// remove all items with the property removeOnAbandon set to the quest name
+		for (let i = 0; i < Player.inventory.items.length; i++) {
+			if (Player.inventory.items[i].removeOnAbandon === quest.quest) {
+				Dom.inventory.remove(i, true);
 			}
 		}
 		
@@ -5238,10 +5247,25 @@ Dom.quest.abandon = function (quest) {
 			}
 		}
 		
+		// remove from canBeFinishedArray so when it is next started it can't be compelted instantly
+		for (let i = 0; i < Player.quests.canBeFinishedArray.length; i++) {
+			if (Player.quests.canBeFinishedArray[i] === quest.quest) {
+				Player.quests.canBeFinishedArray.splice(i, 1);
+			}
+		}
+		
+		if (quest.callQuestFinishOnAbandon) {
+			quest.onQuestFinish();
+		}
+		
 		// update boxes
-		Dom.quests.active();
-		Dom.quests.possible();
+		Dom.checkProgress();
 	}
+}
+
+Dom.infoBar.page = function (html) {
+	Dom.elements.infoBar.innerHTML = html;
+	Dom.elements.infoBar.style.left = Dom.canvas.width/2 - Dom.elements.infoBar.offsetWidth/2 + "px";
 }
 
 Dom.settings.dark = function () {

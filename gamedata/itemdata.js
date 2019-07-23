@@ -1107,8 +1107,13 @@ var Items = {
 			onOpen: function (inventoryPosition, itemName) { // adding a fragment
 				let item = Dom.inventory.getItemFromPosition(inventoryPosition); // takes into account item being equpped
 				if (!item.gemstones.includes(itemName)) {
+
 					// add the gemstone
 					item.gemstones.push(itemName);
+
+					// increase sell price
+                    item.sellPrice++;
+					
 					// change image and functionText if all 6 gemstones have been added
 					if (item.gemstones.length === 6) {
 						item.image = "assets/items/sword/11complete.png";
@@ -1160,6 +1165,7 @@ var Items = {
 			area: [],
 			rarity: "common",
 			quest: true,
+			removeOnAbandon: "Cleaning the Floor",
 			stats: {
 				damage: 1,
 			},
@@ -2208,6 +2214,7 @@ var Items = {
 			type: "item",
 			image: "assets/items/item/25.png",
 			quest: true,
+			removeOnAbandon: "Tavern Tidy-Up",
 			stack: 64,
 		},
 		{
@@ -2216,6 +2223,7 @@ var Items = {
 			type: "item",
 			image: "assets/items/item/26.png",
 			quest: true,
+			removeOnAbandon: "Tavern Tidy-Up",
 			stack: 64,
 		},
 	],

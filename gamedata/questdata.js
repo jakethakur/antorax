@@ -1303,7 +1303,11 @@ After all, death is never the end in Antorax...<br>
 			howToStart: "Speak to an innkeeper.",
 			levelRequirement: 1,
 			questRequirements: ["To the Logging Camp"],
+			requirement: function () {
+				return Player.quests.questProgress.mugsPlatesDone === 0; // not undefined because that means there are none
+			},
 			repeatTime: "job",
+			randomGroup: "tavernJobs",
 
 			rewards: {
 				xp: 10,
@@ -1402,7 +1406,7 @@ After all, death is never the end in Antorax...<br>
 		},
 		{
 			id: 2,
-			quest: "Tavern tidy-up",
+			quest: "Tavern Tidy-Up",
 			questArea: "tavern",
 
 			loggingCampTavern: {
@@ -1439,6 +1443,7 @@ After all, death is never the end in Antorax...<br>
 				return Player.quests.questProgress.mugsPlatesDone === 0; // not undefined because that means there are none
 			},
 			repeatTime: "job",
+			randomGroup: "tavernJobs",
 
 			rewards: {
 				xp: 10,
@@ -1484,7 +1489,7 @@ After all, death is never the end in Antorax...<br>
 		},
 		{
 			id: 3,
-			quest: "Happy Hour!",
+			quest: "Hungry Taverners",
 			questArea: "tavern",
 
 			loggingCampTavern: {
@@ -1515,7 +1520,11 @@ After all, death is never the end in Antorax...<br>
 			howToStart: "Speak to an innkeeper.",
 			levelRequirement: 1,
 			questRequirements: ["To the Logging Camp"],
+			requirement: function () {
+				return Player.quests.questProgress.mugsPlatesDone === 0; // not undefined because that means there are none
+			},
 			repeatTime: "job",
+			randomGroup: "tavernJobs",
 
 			rewards: {
 				xp: 10,
@@ -1526,33 +1535,69 @@ After all, death is never the end in Antorax...<br>
 			
 			isCompleted: function () {
 				let completed = [];
-
-				completed.push(checkProgress(Player.quests.questProgress.mugsPlatesDone, Player.quests.questProgress.mugsPlatesTotal));
-
+				
+				for (let i = Game.villagers.length-1; i >= 0; i--) {
+					completed.push(Game.villagers[i].tavernGoodsDelivered === true);
+				}
+				
 				completed = checkFinished(completed);
 
 				return completed;
 			},
 
-			onQuestStart: function () {
+			onQuestStart: function (npc) {
+
+				// remove the first objective which just tells you you will hand general stuff to general people
+				this[Game.areaName].objectives.shift();
 				
-				for (let i = 0; i < Game.things.length; i++) {
-					if (Game.things[i].name === "Mug") {
-						Game.things[i].onInteract = function () {
-							Game.removeObject(this.id, "things");
-							Dom.inventory.give(Items.item[25]);
-							Player.quests.questProgress.mugsPlatesDone++;
+				// filter out all unactive event items
+				let sold = npc.roles[0].sold.filter(item => item.eventRequirement === undefined || item.eventRequirement === Event.event);
+				
+				// for each villager assign a random item sold by the npc
+				for (let i = 0; i < Game.villagers.length; i++) {
+					let item = sold[Random(0, sold.length-1)].item;
+					this[Game.areaName].objectives.unshift("Give " + item.name + " to " + Game.villagers[i].name + ".")
+				
+					Game.villagers[i].roles.push({
+						role: "function",
+						chooseText: "Here is your " + item.name,
+						forceChoose: true, // forces choose dom
+						onClick: function () {
+							// remove the item
+							Dom.inventory.removeById(item.id, item.type, 1, undefined, true); // remove the QUEST item
+							// quest progress
+							Game.villagers[i].tavernGoodsDelivered = true; // always the first NPC to be delivered to
+							// chat
+							Dom.chat.insert(Dom.chat.say(Game.villagers[i].name, Game.villagers[i].chat.receiveTavernGood));
+							// because it thinks a dom page is open
+							Dom.currentlyDisplayed = "";
+							Dom.currentNPC = {};
+						},
+						roleRequirement: function () {
+							return Dom.inventory.check(item.id, item.type, 1, true, undefined, true); // if they have the item AS A QUEST ITEM
 						}
-					}
-					else if (Game.things[i].name === "Plate") {
-						Game.things[i].onInteract = function () {
-							Game.removeObject(this.id, "things");
-							Dom.inventory.give(Items.item[26]);
-							Player.quests.questProgress.mugsPlatesDone++;
-						}
-					}
+					});
 				}
 			},
+			
+			callQuestFinishOnAbandon: true,
+			
+			onQuestFinish: function () {
+				// remove all items with the property removeOnAbandon set to the quest name
+				for (let i = 0; i < Player.inventory.items.length; i++) {
+					if (Player.inventory.items[i].removeOnAbandon === "Hungry Taverners") {
+						Dom.inventory.remove(i, true);
+					}
+				}
+				
+				// remove the roll for giving the tavern goods of all the villagers
+				for (let i = 0; i < Game.villagers.length; i++) {
+					Game.villagers[i].roles.pop();
+				}
+				
+				// reset the objectives
+				this[Game.areaName].objectives = ["Hand out some tavern goods to people around the tavern", this[Game.areaName].objectives.pop()];
+			}
 		},
 	],
 

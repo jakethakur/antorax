@@ -62,6 +62,20 @@ thead:after { /* space after bags in bank */
 	text-align: center;
 }
 
+#infoBar {
+	z-index: 50;
+	position: absolute;
+	top: 10px;
+}
+
+#infoSkin {
+	position: relative;
+	width: 50px;
+	height: 37.5px;
+	background-size: 50px;
+	background-repeat: no-repeat;
+}
+
 #game, #secondary, #dayNight, #light, #click{
 	float: left;
 	margin: -8px;
@@ -245,6 +259,9 @@ thead:after { /* space after bags in bank */
 	margin-top: -30px;
 	width: 510px;
 	user-select: text;
+	-moz-user-select: text;
+	-webkit-user-select: text;
+	-ms-user-select: text;
 	overflow: hidden;
 }
 
@@ -351,6 +368,7 @@ thead:after { /* space after bags in bank */
 #inventoryGoldXP, .players, .leaderboardPageSkin {
 	position: relative;
 	width: 80px;
+	height: 60px;
 	background-size: 80px;
 	background-repeat: no-repeat;
 }

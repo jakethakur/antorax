@@ -164,6 +164,7 @@ document.getElementById("play").onclick = function(){
 	if(document.getElementById("name").value.length > 2){
 		sessionStorage.setItem("class",selected.class);
 		sessionStorage.setItem("skin",selected[selected.class]);
+		sessionStorage.setItem("gender",Skins[selected.class][selected[selected.class]].gender);
 		sessionStorage.setItem("name",document.getElementById("name").value);
 		window.location.replace("../index.html");
 	}else{

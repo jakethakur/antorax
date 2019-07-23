@@ -178,6 +178,17 @@ const FishingLevels = {
 	loggingCamp: 10,
 };
 
+const ChatText = {
+    gender: {
+        m: {
+            formal: "sir"
+        },
+        f: {
+            formal: "madam"
+        }
+    },
+};
+
 //
 // Area defintion
 //
@@ -1346,7 +1357,7 @@ var Areas = {
 		],
 		
 		villagerData: {
-			minPeople: 1,
+			minPeople: 3,
 			maxPeople: 5,
 			locations: [
 				{
@@ -1378,21 +1389,32 @@ var Areas = {
 				},
 				roles: [
 					{
+						// must be the first role for Hungry Taverners
+						sold: [
+						    {item: Items.consumable[5], cost: 0, quest: true, unconsumable: true, removeOnAbandon: "Hungry Taverners", removeOnAbandon: "Hungry Taverners"}, // Wood-Brewed Beer
+							{item: Items.consumable[16], cost: 0, eventRequirement: "Christmas", quest: true, unconsumable: true, removeOnAbandon: "Hungry Taverners", removeOnAbandon: "Hungry Taverners"}, // Mulled Wine
+						    {item: Items.food[0], cost: 0, quest: true, unconsumable: true, removeOnAbandon: "Hungry Taverners", removeOnAbandon: "Hungry Taverners"}, // Bread
+						    {item: Items.food[1], cost: 0, eventRequirement: "Christmas", quest: true, unconsumable: true, removeOnAbandon: "Hungry Taverners", removeOnAbandon: "Hungry Taverners"}, // Mince Pie
+						    {item: Items.food[2], cost: 0, eventRequirement: "Christmas", quest: true, unconsumable: true, removeOnAbandon: "Hungry Taverners", removeOnAbandon: "Hungry Taverners"}, // Christmas Pudding
+						    {item: Items.food[3], cost: 0, eventRequirement: "Antorax", quest: true, unconsumable: true, removeOnAbandon: "Hungry Taverners", removeOnAbandon: "Hungry Taverners"}, // Birthday Cake (changed every year)
+						],
+						role: "merchant",
+						roleRequirement: function () {
+							return Player.quests.activeQuestArray.includes("Hungry Taverners");
+						},
+						shopGreeting: "Give these out to people around the tavern.",
+						chooseText: "Obtain tavern goods to hand out.",
+					},
+					{
 						quest: Quests.tavern[0],
 						role: "questStartFinish",
 					},
 					{
-						quest: Quests.tavern[1],
+						quest: [Quests.tavern[1], Quests.tavern[2], Quests.tavern[3]],
 						role: "questStartFinish",
+						newQuestFrequency: "daily",
+						questVariable: "tavernJobs",
 					},
-					{
-						quest: Quests.tavern[2],
-						role: "questStartFinish",
-					},
-					/*{
-						quest: Quests.tavern[3],
-						role: "questStartFinish",
-					},*/
 					{
 						sold: [
 						    {item: Items.consumable[5], cost: 2,}, // Wood-Brewed Beer
@@ -1408,22 +1430,6 @@ var Areas = {
 							return Player.quests.completedQuestArray.includes("A Drink on Us!");
 						},
 						shopGreeting: "Only the finest food 'n' drink here.",
-					},
-					{
-						sold: [
-						    {item: Items.consumable[5], cost: 0, quest: true, unconsumable: true}, // Wood-Brewed Beer
-							{item: Items.consumable[16], cost: 0, eventRequirement: "Christmas", quest: true, unconsumable: true}, // Mulled Wine
-						    {item: Items.food[0], cost: 0, quest: true, unconsumable: true}, // Bread
-						    {item: Items.food[1], cost: 0, eventRequirement: "Christmas", quest: true, unconsumable: true}, // Mince Pie
-						    {item: Items.food[2], cost: 0, eventRequirement: "Christmas", quest: true, unconsumable: true}, // Christmas Pudding
-						    {item: Items.food[3], cost: 0, eventRequirement: "Antorax", quest: true, unconsumable: true}, // Birthday Cake (changed every year)
-						],
-						role: "merchant",
-						roleRequirement: function () {
-							return Player.quests.activeQuestArray.includes("Happy Hour!");
-						},
-						shopGreeting: "Give these out to people around the tavern.",
-						chooseText: "Obtain tavern goods to hand out.",
 					},
 				],
 				chat: {
@@ -1667,9 +1673,9 @@ var Areas = {
 				Dom.quest.abandon(Quests.tavern[2]);
 				Dom.chat.insert("Tavern Tidy-up has been abandoned. You can start it again by speaking to an innkeeper.")
 			}
-			if (Player.quests.activeQuestArray.includes("Happy Hour!")) {
+			if (Player.quests.activeQuestArray.includes("Hungry Taverners")) {
 				Dom.quest.abandon(Quests.tavern[3]);
-				Dom.chat.insert("Happy Hour! has been abandoned. You can start it again by speaking to an innkeeper.")
+				Dom.chat.insert("Hungry Taverners has been abandoned. You can start it again by speaking to an innkeeper.")
 			}
 		},
 		
@@ -3658,7 +3664,7 @@ var Areas = {
 		],
 
 		villagerData: {
-			minPeople: 1,
+			minPeople: 3,
 			maxPeople: 5,
 			locations: [
 				{
@@ -3690,17 +3696,29 @@ var Areas = {
 				},
 				roles: [
 					{
-						quest: Quests.tavern[1],
-						role: "questStartFinish",
+						// must be first role for Hungry Taverners
+						sold: [
+							{item: Items.consumable[21], cost: 0, quest: true, unconsumable: true, removeOnAbandon: "Hungry Taverners"}, // Beetroot Beer
+							{item: Items.consumable[16], cost: 0, eventRequirement: "Christmas", quest: true, unconsumable: true, removeOnAbandon: "Hungry Taverners"}, // Mulled Wine
+							{item: Items.food[0], cost: 0, quest: true, unconsumable: true, removeOnAbandon: "Hungry Taverners"}, // Bread
+							{item: Items.food[4], cost: 0, quest: true, unconsumable: true, removeOnAbandon: "Hungry Taverners"}, // Sandwich
+							{item: Items.food[1], cost: 0, eventRequirement: "Christmas", quest: true, unconsumable: true, removeOnAbandon: "Hungry Taverners"}, // Mince Pie
+							{item: Items.food[2], cost: 0, eventRequirement: "Christmas", quest: true, unconsumable: true, removeOnAbandon: "Hungry Taverners"}, // Christmas Pudding
+							{item: Items.food[3], cost: 0, eventRequirement: "Antorax", quest: true, unconsumable: true, removeOnAbandon: "Hungry Taverners"}, // Birthday Cake (changed every year)
+						],
+						role: "merchant",
+						roleRequirement: function () {
+							return Player.quests.activeQuestArray.includes("Hungry Taverners");
+						},
+						shopGreeting: "<strong>Rhus</strong>: Hand these out to our visitors.<br>",
+						chooseText: "Obtain tavern goods to hand out.",
 					},
 					{
-						quest: Quests.tavern[2],
+						quest: [Quests.tavern[1], Quests.tavern[2], Quests.tavern[3]],
 						role: "questStartFinish",
+						newQuestFrequency: "daily",
+						questVariable: "tavernJobs",
 					},
-					/*{
-						quest: Quests.tavern[3],
-						role: "questStartFinish",
-					},*/
 					{
 						sold: [
 							{item: Items.consumable[21], cost: 3,}, // Beetroot Beer
@@ -3715,23 +3733,6 @@ var Areas = {
 						role: "merchant",
 						shopGreeting: `<strong>Jak</strong>: Our food and drink was all freshly made today.<br>
 									<strong>Rhus</strong>: You want some?<br>`,
-					},
-					{
-						sold: [
-							{item: Items.consumable[21], cost: 0, quest: true, unconsumable: true}, // Beetroot Beer
-							{item: Items.consumable[16], cost: 0, eventRequirement: "Christmas", quest: true, unconsumable: true}, // Mulled Wine
-							{item: Items.food[0], cost: 0, quest: true, unconsumable: true}, // Bread
-							{item: Items.food[4], cost: 0, quest: true, unconsumable: true}, // Sandwich
-							{item: Items.food[1], cost: 0, eventRequirement: "Christmas", quest: true, unconsumable: true}, // Mince Pie
-							{item: Items.food[2], cost: 0, eventRequirement: "Christmas", quest: true, unconsumable: true}, // Christmas Pudding
-							{item: Items.food[3], cost: 0, eventRequirement: "Antorax", quest: true, unconsumable: true}, // Birthday Cake (changed every year)
-						],
-						role: "merchant",
-						roleRequirement: function () {
-							return Player.quests.activeQuestArray.includes("Happy Hour!");
-						},
-						shopGreeting: "<strong>Rhus</strong>: Hand these out to our visitors.<br>",
-						chooseText: "Obtain tavern goods to hand out.",
 					},
 				],
 				chat: {
@@ -4147,13 +4148,13 @@ var Areas = {
 				Dom.quest.abandon(Quests.tavern[1]);
 				Dom.chat.insert("Cleaning the Floor has been abandoned. You can start it again by speaking to an innkeeper.")
 			}
-			if (Player.quests.activeQuestArray.includes("Tavern Tidy-up")) {
+			if (Player.quests.activeQuestArray.includes("Tavern Tidy-Up")) {
 				Dom.quest.abandon(Quests.tavern[2]);
-				Dom.chat.insert("Tavern Tidy-up has been abandoned. You can start it again by speaking to an innkeeper.")
+				Dom.chat.insert("Tavern Tidy-Up has been abandoned. You can start it again by speaking to an innkeeper.")
 			}
-			if (Player.quests.activeQuestArray.includes("Happy Hour!")) {
+			if (Player.quests.activeQuestArray.includes("Hungry Taverners")) {
 				Dom.quest.abandon(Quests.tavern[3]);
-				Dom.chat.insert("Happy Hour! has been abandoned. You can start it again by speaking to an innkeeper.")
+				Dom.chat.insert("Hungry Taverners has been abandoned. You can start it again by speaking to an innkeeper.")
 			}
 		},
 		
@@ -4181,6 +4182,12 @@ var Villagers = [
 			"eaglecrestEast",
 			"eaglecrestWest",
 		],
+		roles: [],
+		chat: {
+			notUnlockedRoles: "I bet you've never met a lunarlancer before! Be warned - I have a short temper.",
+			chooseChat: "Don't say a false word. I could decimate you with my celestial power.",
+			receiveTavernGood: "I see you've brought me some blessings from the stars. What do you mean I ordered them? Don't underestimate the power of the sky.",
+		}
 	},
 	{
 		// tavern
@@ -4198,6 +4205,12 @@ var Villagers = [
 			"loggingCampTavern",
 			"eaglecrestTavern",
 		],
+		roles: [],
+		chat: {
+			notUnlockedRoles: "This would be my favourite place in the whole city... if it wasn't so dusty!",
+			chooseChat: "You can go away if you haven't brought me a drink.",
+			receiveTavernGood: "I've been waiting for ages for this!",
+		}
 	},
 	{
 		// tavern
@@ -4215,6 +4228,12 @@ var Villagers = [
 			"loggingCampTavern",
 			"eaglecrestTavern",
 		],
+		roles: [],
+		chat: {
+			notUnlockedRoles: "Smells of fried beetroot in here.",
+			chooseChat: "Hello again, did you bring beetroot this time?",
+			receiveTavernGood: "It's no fried beetroot, but it'll do. Thank you.",
+		}
 	},
 	{
 		// logging camp
@@ -4232,6 +4251,12 @@ var Villagers = [
 			"loggingCampTavern",
 			"eaglecrestLoggingCamp",
 		],
+		roles: [],
+		chat: {
+			notUnlockedRoles: "<em>You</em> should try carrying these logs around all day!",
+			chooseChat: "Can't talk for long, my back's playing up again.",
+			receiveTavernGood: "Ah, thanks! Just hold these logs for a minute.",
+		}
 	},
 	{
 		// logging camp
@@ -4249,6 +4274,12 @@ var Villagers = [
 			"loggingCampTavern",
 			"eaglecrestLoggingCamp",
 		],
+		roles: [],
+		chat: {
+			notUnlockedRoles: "Teper should try doing some work and not just ordering us around all the time.",
+			chooseChat: "Y'know I cut the trees down to build this place: it's great to see my hard work put to good use!",
+			receiveTavernGood: "Just the break I needed.",
+		}
 	},
 	{
 		// any
@@ -4270,6 +4301,12 @@ var Villagers = [
 			"eaglecrestEast",
 			"eaglecrestWest",
 		],
+		roles: [],
+		chat: {
+			notUnlockedRoles: "Have you seen anyone playing Wizard's Lore before? Me neither. I bet it's just for show.",
+			chooseChat: "I'm going to head down to the Eaglecrest monastery soon. Would you like to come along too?",
+			receiveTavernGood: "Thank you "+ChatText.gender[Player.gender].formal+"! A good day to you.",
+		}
 	},
 	{
 		// any
@@ -4291,6 +4328,12 @@ var Villagers = [
 			"eaglecrestEast",
 			"eaglecrestWest",
 		],
+		roles: [],
+		chat: {
+			notUnlockedRoles: "Wooden tavern... roaring fire... going here always makes me a bit nervous.",
+			chooseChat: "It wouldn't be Eaglecrest without this good ol' tavern",
+			receiveTavernGood: "My order? And not a moment too soon!",
+		}
 	},
 	{
 		// any
@@ -4312,6 +4355,12 @@ var Villagers = [
 			"eaglecrestEast",
 			"eaglecrestWest",
 		],
+		roles: [],
+		chat: {
+			notUnlockedRoles: "Yarr harr! Have ye spied me ship nearby?",
+			chooseChat: "Ahoy there!",
+			receiveTavernGood: "Nothin' better than a hearty supper at the tavern.",
+		}
 	},
 ];
 
