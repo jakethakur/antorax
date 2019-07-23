@@ -24,12 +24,6 @@ let Dom = {
 		achievementPoints: document.getElementById("achievementPoints"),
 		activeQuestBox: document.getElementById("activeQuestBox"),
 		adventurePage: document.getElementById("adventurePage"),
-		alert: document.getElementById("alert"),
-		alertDispose: document.getElementById("alertDispose"),
-		alertNo: document.getElementById("alertNo"),
-		alertOptions: document.getElementById("alertOptions"),
-		alertText: document.getElementById("alertText"),
-		alertYes: document.getElementById("alertYes"),
 		bagText: document.getElementById("bagText"),
 		bankPage: document.getElementById("bankPage"),
 		bankPageInventory: document.getElementById("bankPageInventory"),
@@ -195,78 +189,142 @@ let Dom = {
 	achievements: {},
 };
 
+Dom.alert.array = []; // number of alerts that have appeared (used to give ids)
+
 // start a dom alert
 // text = what the alert says
 // type = number of buttons
 // values = array of what buttons will say (only applies for type = 3 or type = text)
 // page = what page it came from (what it appears over); undefined = canvas
 // target = an object containing target, ev, targetNo, evNo
+	// target is the function that is called by confirming the alert
+	// targetNo is the function that is called by clicking no
+	// ev is an array of parameters that is passed in to target
+	// evNo is an array of parameters that is passed in to targetNo
 
-// Dom.alert.target is the function that is called by confirming the alert
-// Dom.alert.ev is an array of parameters that is passed in to Dom.alert.target
-// if type = 3 then the last parameter after all of Dom.alert.ev is set to true on clicking second button
+// if type = 3 then the last parameter after all of ev is set to true on clicking second button
 Dom.alert.page = function (text, type, values, page, target) { // can't pass in target and ev because chooseStats are called by an innerHTML
-	Dom.elements.alert.hidden = false;
-	if (page !== undefined) {
-		Dom.elements.alert.style.left = document.getElementById(page).offsetLeft+document.getElementById(page).offsetWidth/2-175+"px";
+	
+	// if there are no alerts already open on the same page
+	if (Dom.alert.array.find(alert => alert.page === page) === undefined || page === undefined) {
+	
+		if (target === undefined) {
+			target = {};
+		}
+	
+		let id = Dom.alert.array.length;
+		if (target !== undefined) {
+			Dom.alert.array.push(Object.assign(target, {id: id, page: page,}));
+		}
+		
+		let alert = document.createElement("div");
+		alert.classList.add("alert");
+		alert.id = "alert"+id;
+		
+		if (page !== undefined) {
+			alert.style.left = document.getElementById(page).offsetLeft+document.getElementById(page).offsetWidth/2-175+"px";
+		}
+		else {
+			alert.style.left = Dom.canvas.width/2-175+"px";
+		}
+		
+		// text only (e.g. chooseStats)
+		if (type === "text") {
+			alert.innerHTML = `<p class="alertText" id="alertText${id}">${text}</p>
+			<div class="alertOptions" id="alertOptions${id}" onclick="Game.inventoryUpdate()">${values}</div>`;
+		}
+		// 3 buttons
+		else if (type === 3) {
+			alert.innerHTML = `<p class="alertText" id="alertText${id}">${text}</p>
+			<div class="alertYes" id="alertYes${id}" onclick="Game.inventoryUpdate()">${values !== undefined ? values[0] : "One"}</div>
+			<div class="alertDispose" id="alertDispose${id}" onclick="Game.inventoryUpdate()">${values !== undefined ? values[1] : "All"}</div>
+			<div class="alertNo" id="alertNo${id}" style="left: 0px; bottom: 5px;">Cancel</div>`;
+		}
+		// 2 buttons
+		else if (type === 2) {
+			alert.innerHTML = `<p class="alertText" id="alertText${id}">${text}</p>
+			<div class="alertYes" id="alertYes${id}" onclick="Game.inventoryUpdate()">Yes</div>
+			<div class="alertNo" id="alertNo${id}" style="left: 15px; bottom: 20px;">No</div>`;
+		}
+		// 1 button
+		else {
+			alert.innerHTML = `<p class="alertText" id="alertText${id}">${text}</p>
+			<div class="alertNo" id="alertNo${id}" style="left: 0px; bottom: 20px;">OK</div>`;
+		}
+		
+		document.body.appendChild(alert);
+		
+		// set the functions
+		if (type === 3 || type === 2) {
+			document.getElementById("alertYes"+id).onclick = function () {
+				// close alert and call function with parameter
+				if (target.ev !== undefined) {
+					target.target(...target.ev);
+				}
+				else {
+					target.target();
+				}
+				document.body.removeChild(alert);
+				Dom.alert.array.splice(Dom.alert.array.findIndex(index => index.id === target.id, 1));
+			}
+		}
+		
+		if (type !== "text") {
+			document.getElementById("alertNo"+id).onclick = function () {
+				// close alert only - and potentially call a function
+				if (target.targetNo !== undefined) {
+					if (target.evNo !== undefined) {
+						target.targetNo(...target.evNo);
+					}
+					else {
+						target.targetNo();
+					}
+				}
+				document.body.removeChild(alert);
+				Dom.alert.array.splice(Dom.alert.array.findIndex(index => index.id === target.id, 1));
+			}
+		}
+		
+		if (type === 3) {
+			document.getElementById("alertDispose"+id).onclick = function () {
+				// close alert and call function with parameter and (true)
+				if (target.ev !== undefined) {
+					target.target(...target.ev, true);
+				}
+				else {
+					target.target(true);
+				}
+				document.body.removeChild(alert);
+				Dom.alert.array.splice(Dom.alert.array.findIndex(index => index.id === target.id, 1));
+			}
+		}
+		
+		if (type === "text") {
+			alert.onclick = function () {
+				document.body.removeChild(alert);
+				Dom.alert.array.splice(Dom.alert.array.findIndex(index => index.id === target.id, 1));
+			}
+		}
 	}
-	else {
-		Dom.elements.alert.style.left = Dom.canvas.width/2-175+"px";
-	}
-	// text only (e.g. chooseStats)
-	if (type === "text") {
-		Dom.elements.alertOptions.style.display = "block";
-		Dom.elements.alertOptions.innerHTML = values;
-		Dom.elements.alertYes.style.display = "none";
-		Dom.elements.alertNo.style.display = "none";
-		Dom.elements.alertDispose.style.display = "none";
-	}
-	// 3 buttons
-	else if (type === 3) {
-		Dom.elements.alertOptions.style.display = "none";
-		Dom.elements.alertYes.style.display = "inline-block";
-		Dom.elements.alertDispose.style.display = "inline-block";
-		Dom.elements.alertNo.style.display = "inline-block";
-		Dom.elements.alertNo.style.left = "0px";
-		Dom.elements.alertNo.style.bottom = "5px";
-		Dom.elements.alertNo.innerHTML = "Cancel";
-		Dom.elements.alertYes.innerHTML = values !== undefined ? values[0] : "One";
-		Dom.elements.alertDispose.innerHTML = values !== undefined ? values[1] : "All";
-	}
-	// 2 buttons
-	else if (type === 2) {
-		Dom.elements.alertOptions.style.display = "none";
-		Dom.elements.alertYes.style.display = "inline-block";
-		Dom.elements.alertNo.style.display = "inline-block";
-		Dom.elements.alertDispose.style.display = "none";
-		Dom.elements.alertNo.style.left = "15px";
-		Dom.elements.alertNo.innerHTML = "No";
-		Dom.elements.alertYes.innerHTML = "Yes";
-		Dom.elements.alertNo.style.bottom = "20px";
-	}
-	// 1 button
-	else{
-		Dom.elements.alertOptions.style.display = "none";
-		Dom.elements.alertYes.style.display = "none";
-		Dom.elements.alertDispose.style.display = "none";
-		Dom.elements.alertNo.style.display = "inline-block";
-		Dom.elements.alertNo.style.left = "0px";
-		Dom.elements.alertNo.innerHTML = "OK";
-		Dom.elements.alertNo.style.bottom = "20px";
-	}
-	Dom.elements.alertText.innerHTML = text;
+}
+
+Dom.alert.close = function (id) {
+	document.body.removeChild(document.getElementById("alert"+id));
+	Dom.alert.array.splice(Dom.alert.array.findIndex(index => index.id === id, 1));
 }
 
 // Make the save, logout, delete buttons at the bottom of the settings page
 Dom.elements.settingLogout.innerHTML = "You are logged in as "+Player.name+"<div id='settingSave' onclick='Game.saveProgress()'>Save</div><div id='settingLogoutInner' onclick='Game.saveProgress(\"logout\")'>Logout</div><div id='settingDelete' onclick='Dom.settings.delete()'>Delete</div><br><br><br><div id='settingControls' onclick='Dom.settings.page(\"settingsTwoPage\")'>Controls</div>";
 
 Dom.settings.delete = function () {
-	Dom.alert.target = function () {
-		Dom.settings.deleted = true;
-		localStorage.removeItem(Player.class);
-		window.location.replace("./selection/index.html");
-	}
-	Dom.alert.page("Are you sure you want to delete your progress for this class? It will be lost forever!", 2, undefined, "settingsPage");
+
+	Dom.alert.page("Are you sure you want to delete your progress for this class? It will be lost forever!", 2, undefined, "settingsPage", {
+		target: function () {
+			Dom.settings.deleted = true;
+			localStorage.removeItem(Player.class);
+			window.location.replace("./selection/index.html");
+		}
+	});
 }
 
 // DO NOT ADD CODE ABOVE THIS POINT
@@ -297,7 +355,7 @@ Dom.achievements.page = function (i) {
 			Dom.elements.achievement.hidden = true;
 			Dom.achievements.wait = false;
 		}, 5000);
-	}else{
+	}else {
 		setTimeout(function () {
 			Dom.achievements.page(i);
 		}, 6000);
@@ -378,10 +436,10 @@ Dom.quests.active = function (quest) {
 			}
 			if (isCompleted[isCompleted.length - 1]) {
 				currentQuest.completed = true;
-			}else{
+			}else {
 				currentQuest.completed = false;
 			}
-		}else{
+		}else {
 			Player.quests.activeQuestArray.splice(x, 1);
 		}
 	}
@@ -412,7 +470,11 @@ Dom.closeNPCPages = function () {
 		Dom.trade.requested = false;
 	}
 	else if (Dom.trade.received) {
-		Dom.elements.alertNo.onclick(); // closes alert
+		let alert = Dom.alert.array.find(alert => alert.data === "tradeReceived");
+		if (alert !== undefined) { // showing the function to join the game still (so the wrong one isn't closed by accident)
+			Dom.alert.close(alert.id);
+			//document.getElementById("alertNo"+alert.id).onclick();
+		}
         Dom.chat.insert("Your trade request from " + Dom.currentlyDisplayed + " has been cancelled because one of you walked away.");
         Dom.chat.notification(Dom.currentlyDisplayed + " has cancelled the trade request.");
 		Dom.trade.received = false;
@@ -525,7 +587,7 @@ Dom.changeBook = function (page, openClose) {
 			if (right < Dom.canvas.width-1060) {
 				document.getElementById(page).style.left = Dom.canvas.width-530+"px";
 			}
-			else{
+			else {
 				document.getElementById(page).style.left = next+"px";
 				document.getElementById(page).style.top = next+"px";
 			}
@@ -899,7 +961,7 @@ Dom.chat.insert = function (text, delay, time, noRepeat) {
 				}
 			}
 			return true;
-		}else{
+		}else {
 			return false;
 		}
 	}.bind(this), delay);
@@ -934,7 +996,7 @@ Dom.reputation.give = function (area, amount) {
 		}
 	// first time
 	}
-	else{
+	else {
 		Player.reputation[area].score += amount;
 		Dom.chat.insert("You have gained " + amount + " reputation with " + FromCamelCase(area));
 		Player.reputation[area].changed = true;
@@ -979,13 +1041,13 @@ Dom.reputation.update = function () {
 					document.getElementsByClassName("reputationBar")[i].style.backgroundColor = "green";
 				}else if (Player.reputation[Object.keys(Player.reputation)[i]].level < 3) {
 					document.getElementsByClassName("reputationBar")[i].style.backgroundColor = "red";
-				}else{
+				}else {
 					document.getElementsByClassName("reputationBar")[i].style.backgroundColor = "gold";
 				}
 				if (Player.reputation[Object.keys(Player.reputation)[i]].level !== 6 && Player.reputation[Object.keys(Player.reputation)[i]].level !== 0) {
 					document.getElementsByClassName("reputationBar")[i].innerHTML = this.levels[Player.reputation[Object.keys(Player.reputation)[i]].level] + "&nbsp;&nbsp;(" + Player.reputation[Object.keys(Player.reputation)[i]].score + "/"+ReputationPoints[Player.reputation[Object.keys(Player.reputation)[i]].level]+")";
 					document.getElementsByClassName("widthPadding")[i].innerHTML = this.levels[Player.reputation[Object.keys(Player.reputation)[i]].level] + " (" + Player.reputation[Object.keys(Player.reputation)[i]].score + "/"+ReputationPoints[Player.reputation[Object.keys(Player.reputation)[i]].level]+")";
-				}else{
+				}else {
 					document.getElementsByClassName("reputationBar")[i].innerHTML = this.levels[Player.reputation[Object.keys(Player.reputation)[i]].level];
 					document.getElementsByClassName("widthPadding")[i].innerHTML = this.levels[Player.reputation[Object.keys(Player.reputation)[i]].level];
 				}
@@ -993,7 +1055,7 @@ Dom.reputation.update = function () {
 					document.getElementsByClassName("reputationBar")[i].style.textIndent = ((250-document.getElementsByClassName("widthPadding")[i].clientWidth)/2) + "px";
 					document.getElementsByClassName("reputationBar")[i].style.width = Player.reputation[Object.keys(Player.reputation)[i]].score*250/ReputationPoints[Player.reputation[Object.keys(Player.reputation)[i]].level]+"px";
 					document.getElementsByClassName("reputationBar")[i].style.left = "0px";
-				}else{
+				}else {
 					document.getElementsByClassName("reputationBar")[i].style.textIndent = ((250-document.getElementsByClassName("widthPadding")[i].clientWidth)/2)-Player.reputation[Object.keys(Player.reputation)[i]].score*250/ReputationPoints[Player.reputation[Object.keys(Player.reputation)[i]].level]+ "px";
 					document.getElementsByClassName("reputationBar")[i].style.width = (ReputationPoints[Player.reputation[Object.keys(Player.reputation)[i]].level]-Player.reputation[Object.keys(Player.reputation)[i]].score)*250/ReputationPoints[Player.reputation[Object.keys(Player.reputation)[i]].level]+"px";
 					document.getElementsByClassName("reputationBar")[i].style.left = Player.reputation[Object.keys(Player.reputation)[i]].score*250/ReputationPoints[Player.reputation[Object.keys(Player.reputation)[i]].level]+"px";
@@ -1031,7 +1093,7 @@ Dom.reputation.downLevel = function (Area, i) {
 		Area.score += ReputationPoints[Player.reputation[Object.keys(Player.reputation)[i]].level];
 		Dom.chat.insert("Your reputation level with " + FromCamelCase(Object.keys(Player.reputation)[i]) + " has decreased to " + Dom.reputation.levels[Area.level]);
 		this.update();
-	}else{
+	}else {
 		Area.level = 0;
 		Area.score = 0;
 		this.update();
@@ -1060,7 +1122,7 @@ Dom.inventory.updatePosition = function (object, element) {
 			Dom.elements.triangle.style = "right: "+(width-14)+"px; border-right: 20px solid var(--bottom); border-left: 0px solid transparent;";
 			Dom.elements.idtriangle.style = "right: "+(width-14)+"px; border-right: 20px solid var(--bottom); border-left: 0px solid transparent;";
 		// information displays on the left
-		}else{
+		}else {
 			object.style.left = window.mouseX-width-30+"px";
 			Dom.elements.outTriangle.style = "left: "+(width-6)+"px; border-left: 20px solid var(--border); border-right: 0px solid transparent;";
 			Dom.elements.outIdtriangle.style = "left: "+(width-6)+"px; border-left: 20px solid var(--border); border-right: 0px solid transparent;";
@@ -1075,7 +1137,7 @@ Dom.inventory.updatePosition = function (object, element) {
 			Dom.elements.triangle.style.top = "10px";
 			Dom.elements.idtriangle.style.top = "10px";
 		// information does not fit vertically
-		}else{
+		}else {
 			object.style.top = top+601-object.offsetHeight+"px";
 			Dom.elements.outTriangle.style.top = window.mouseY - object.getBoundingClientRect().top - 20 + "px";
 			Dom.elements.outIdtriangle.style.top = window.mouseY - object.getBoundingClientRect().top - 20 + "px";
@@ -1104,7 +1166,7 @@ Dom.inventory.displayIdentification = function (display) {
 		if (Player.stats.maxDamage !== 0 && Player.stats.maxDamage !== Player.stats.damage) {
 			Dom.elements.innerStats.innerHTML += "-" + Round(Player.stats.maxDamage+Player.stats.maxDamage*Player.stats.damagePercentage/100);
 		}
-	}else{
+	}else {
 		Dom.elements.innerStats.innerHTML += "<br>Damage: 0";
 	}
 	Dom.elements.innerStats.innerHTML += "<br>Defence: " + Player.stats.defence;
@@ -1183,7 +1245,7 @@ Dom.inventory.stats = function (stat, value, array) { // stat should be in Title
 		return stat+": "+value + (array.maxDamage > value ? "-" + array.maxDamage : "")+"<br>";
 	}else if (stat === "Frostaura") {
 		return stat+"<br>";
-	}else{
+	}else {
 		return "";
 	}
 };
@@ -1212,10 +1274,10 @@ Dom.inventory.displayInformation = function (item, stacked, element, position, h
 					Dom.elements.name.style.color = "orange";
 				}else if (item.rarity === "junk") {
 					Dom.elements.name.style.color = "darkgray";
-				}else{
+				}else {
 					Dom.elements.name.style.color = "var(--text)";
 				}
-			}else{
+			}else {
 				Dom.elements.name.innerHTML = "Unidentified "+item.type.charAt(0).toUpperCase() + item.type.slice(1);
 				Dom.elements.name.style.color = "var(--text)";
 			}
@@ -1223,7 +1285,7 @@ Dom.inventory.displayInformation = function (item, stacked, element, position, h
 			if (item.type !== "item" && item.type !== "bag" && item.type !== "currency" && item.type !== "fish" && item.type !== "consumable" && item.type !== "food" && item.type !== "teleport") {
 				if (item.type !== "rod") {
 					Dom.elements.stats.innerHTML = "Tier: "+item.tier+"<br>";
-				}else{
+				}else {
 					Dom.elements.stats.innerHTML = "";
 				}
 				if (item.stats !== undefined) {
@@ -1270,7 +1332,7 @@ Dom.inventory.displayInformation = function (item, stacked, element, position, h
 							}
 						}
 					}
-				}else{
+				}else {
 					Dom.elements.stats.innerHTML += "<br>Area: " + FromCamelCase(item.area);
 				}
 				if (item.set !== undefined) {
@@ -1364,11 +1426,11 @@ Dom.inventory.displayInformation = function (item, stacked, element, position, h
 						}
 					}
 				}
-				else{
+				else {
 					Dom.elements.set.innerHTML = "";
 				}
 			}
-			else{
+			else {
 				Dom.elements.set.innerHTML = "";
 				Dom.elements.stats.innerHTML = "";
 			}
@@ -1382,7 +1444,7 @@ Dom.inventory.displayInformation = function (item, stacked, element, position, h
 				else if (item.stacked !== undefined) {
 					Dom.elements.name.innerHTML = item.stacked + " " + Dom.elements.name.innerHTML;
 				}
-				else{
+				else {
 					Dom.elements.name.innerHTML = "1 " + Dom.elements.name.innerHTML;
 				}
 			}
@@ -1392,7 +1454,7 @@ Dom.inventory.displayInformation = function (item, stacked, element, position, h
 			if (item.quest !== undefined && (item.quest === true || item.quest())) {
 				Dom.elements.stats.innerHTML = "<span style='color: slateblue;'>Quest item</span><br>" + (Dom.elements.stats.innerHTML !== "" ? "<br>"+Dom.elements.stats.innerHTML : "");
 			}
-			else{
+			else {
 				Dom.elements.stats.style.color = "var(--text)";
 			}
 			let lorebuyer = "<br><br>";
@@ -1413,7 +1475,7 @@ Dom.inventory.displayInformation = function (item, stacked, element, position, h
 			if (item.lore !== undefined && item.lore !== "" && !Array.isArray(item.lore)) {
 				Dom.elements.lore.innerHTML += lorebuyer+"<i>"+item.lore+"</i>";
 				lorebuyer = "<br><br>";
-			}/*else{
+			}/*else {
 				Dom.elements.lore.innerHTML = "";
 			}*/
 			if (position === "buyer" && item.sellPrice !== undefined && (item.quest === undefined || !item.quest())) {
@@ -1506,7 +1568,7 @@ Dom.quest.start = function (quest, npc) {
 					}
 				}
 			}
-			else{
+			else {
 				Dom.elements.questStartRewardsTitle.innerHTML = "";
 			}
 
@@ -1529,7 +1591,7 @@ Dom.quest.start = function (quest, npc) {
 					}
 				}
 			}
-			else{
+			else {
 				Dom.elements.questStartStartRewardsTitle.innerHTML = "";
 			}
 
@@ -1626,7 +1688,7 @@ Dom.quest.addReward = function (item, element, className, stackNum) {
 	if (item.condition === undefined || item.condition()) {
 		if (item.quantity !== undefined && item.quantity !== 1) {
 			document.getElementById(element).innerHTML += "<img src=" + item.item.image + " class='"+className+"'><div class='"+stackNum+"'>"+item.quantity+"</div></img>&nbsp;&nbsp;";
-		}else{
+		}else {
 			document.getElementById(element).innerHTML += "<img src=" + item.item.image + " class='"+className+"'><div class='"+stackNum+"'></div></img>&nbsp;&nbsp;";
 		}
 		if (item.chance !== undefined) {
@@ -1701,7 +1763,7 @@ Dom.quest.finish = function (quest, npc) {
 					Dom.elements.chance.hidden = true;
 				}
 			}
-			else{
+			else {
 				Dom.elements.questFinishRewardsTitle.innerHTML = "";
 				Dom.elements.questFinishStartItems.innerHTML = "";
 			}
@@ -1811,8 +1873,8 @@ Dom.quest.acceptRewards = function () {
 		}
 	}
 	Dom.quests.completed(Dom.currentlyDisplayed);
-	if (Dom.currentlyDisplayed.repeatTime === "job") {
-		User.progress.jobQuests = Increment(User.progress.jobQuests);
+	if (Dom.currentlyDisplayed.repeatTime === "repeatable") {
+		User.progress.repeatableQuests = Increment(User.progress.repeatableQuests);
 		if (Dom.currentlyDisplayed.randomGroup !== undefined) {
 			Player.quests.randomDailyQuests[Dom.currentlyDisplayed.randomGroup] = undefined;
 		}
@@ -1918,7 +1980,7 @@ Dom.quests.possible = function () {
 						questCanBeStarted = false;
 					}
 				}
-				// jobs can always be started so no code needed
+				// repeatables can always be started so no code needed
 			}
 			if (quest.reputationRequirements !== undefined) {
 				for (let y = 0; y < Object.keys(quest.reputationRequirements).length; y++) {
@@ -1929,8 +1991,8 @@ Dom.quests.possible = function () {
 			}
 
 			if (questCanBeStarted) {
-				if (quest.repeatTime !== "job") {
-					// if it is not a job add it to the possible quest box
+				if (quest.repeatTime !== "repeatable") {
+					// if it is not a repeatable add it to the possible quest box
 					if (quest.repeatTime === "daily") {
 						quest.important = "daily";
 					}
@@ -2041,7 +2103,7 @@ Dom.merchant.buy = function (item, index, npc) {
 		Dom.inventory.give(item.item);
 		Dom.chat.insert("You bought a " + item.item.name + ".", 100);
 	}
-	else{
+	else {
 		if (!Dom.inventory.check(item.costCurrency,"currency",item.cost)) {
 			document.getElementsByClassName("buy")[index].style.border = "5px solid red";
 			setTimeout(function () {
@@ -2049,7 +2111,7 @@ Dom.merchant.buy = function (item, index, npc) {
 			},200);
 			npc.say(npc.chat.tooPoor, 0, true);
 		}
-		else{
+		else {
 			npc.say(npc.chat.inventoryFull, 0, true);
 			Dom.alert.page("You do not have enough space in your inventory for that item.", 0, undefined, "merchantPage");
 		}
@@ -2098,7 +2160,7 @@ Dom.identifier.displayed = 0;
 Dom.identifier.left = function (npc/*, over*/) {
 	if (Dom.identifier.displayed !== 0) {
 		Dom.identifier.displayed--;
-	}else{
+	}else {
 		Dom.identifier.displayed = Dom.identifier.unId.length-1;
 	}
 	Dom.identifier.page(npc/*, over*/);
@@ -2107,7 +2169,7 @@ Dom.identifier.left = function (npc/*, over*/) {
 Dom.identifier.right = function (npc/*, over*/) {
 	if (Dom.identifier.displayed !== Dom.identifier.unId.length-1) {
 		Dom.identifier.displayed++;
-	}else{
+	}else {
 		Dom.identifier.displayed = 0;
 	}
 	Dom.identifier.page(npc/*, over*/);
@@ -2122,7 +2184,7 @@ Dom.identifier.check = function () {
 	}
 	if (Dom.identifier.unId.length > 0) {
 		return true;
-	}else{
+	}else {
 		return false;
 	}
 }
@@ -2171,7 +2233,7 @@ Dom.identifier.identify = function (npc) {
 			Dom.elements.identifiedPageChat.innerHTML = npc.chat.identifyCommon;
 		}else if (Dom.identifier.unId[Dom.identifier.displayed].rarity === "unique") {
 			Dom.elements.identifiedPageChat.innerHTML = npc.chat.identifyUnique;
-		}else{
+		}else {
 			Dom.elements.identifiedPageChat.innerHTML = npc.chat.identifyMythic;
 		}
 		// repeats for every item of the same catergory (e.g. bow)
@@ -2302,7 +2364,7 @@ Dom.inventory.give = function (item, num, position, noSave, noArchaeology) {
 		}
 	// specific position
 	}
-	else{
+	else {
 		added = true;
 		Player.inventory.items[position] = Object.assign({},item);
 		if (Player.inventory.items[position].maxCharges !== undefined) {
@@ -2359,7 +2421,7 @@ Dom.inventory.give = function (item, num, position, noSave, noArchaeology) {
 	}
 	if (added) {
 		return position;
-	}else{
+	}else {
 		return false;
 	}
 }
@@ -2433,7 +2495,7 @@ Dom.inventory.cooldown = function (inventoryPosition, hotbar, check) {
 					}
 				}
 			}
-			else{
+			else {
 				return true;
 			}
 		}
@@ -2449,84 +2511,91 @@ Dom.inventory.chooseStats = function (inventoryPosition) {
 
 		// if there is at least 1 option
 		if (Object.keys(str).length > 0) {
-			Dom.alert.ev = [[]];
+			let ev = [[]];
+			let id = Dom.alert.array.length;
 			// repeats for each chooseStat
 			for (let i = 0; i < Object.keys(str).length; i++) {
 				if (Object.keys(str)[i] === Player.inventory.items[inventoryPosition].chosenStat) {
-					values += "<strong><span onclick='Dom.alert.target(Dom.alert.ev[0], "+i+")'>"+Dom.inventory.stats(FromCamelCase(Object.keys(str)[i]), str[Object.keys(str)[i]], str) + "</span></strong>";
-				}else{
-					values += "<span onclick='Dom.alert.target(Dom.alert.ev[0], "+i+")'>"+Dom.inventory.stats(FromCamelCase(Object.keys(str)[i]), str[Object.keys(str)[i]], str) + "</span>";
+					values += "<strong><span onclick='Dom.alert.array["+id+"].target(Dom.alert.array["+id+"].ev[0], "+i+")'>"+Dom.inventory.stats(FromCamelCase(Object.keys(str)[i]), str[Object.keys(str)[i]], str) + "</span></strong>";
 				}
-				Dom.alert.ev[0].push([Object.keys(str)[i], str[Object.keys(str)[i]]]);
-			}
-			Dom.alert.target = function (ev, num) {
-				Dom.elements.alert.hidden = true;
-				if (Player.inventory.items[inventoryPosition].chosenStat !== undefined) {
-					delete Player.inventory.items[inventoryPosition].stats[Player.inventory.items[inventoryPosition].chosenStat];
+				else {
+					values += "<span onclick='Dom.alert.array["+id+"].target(Dom.alert.array["+id+"].ev[0], "+i+")'>"+Dom.inventory.stats(FromCamelCase(Object.keys(str)[i]), str[Object.keys(str)[i]], str) + "</span>";
 				}
-				Player.inventory.items[inventoryPosition].chosenStat = ev[num][0];
-				Player.inventory.items[inventoryPosition].stats[ev[num][0]] = ev[num][1];
+				ev[0].push([Object.keys(str)[i], str[Object.keys(str)[i]]]);
 			}
-			Dom.alert.page("Choose an effect:", "text", values, "inventoryPage");
+			Dom.alert.page("Choose an effect:", "text", values, "inventoryPage", {
+				target: function (ev, num) {
+					if (Player.inventory.items[inventoryPosition].chosenStat !== undefined) {
+						delete Player.inventory.items[inventoryPosition].stats[Player.inventory.items[inventoryPosition].chosenStat];
+					}
+					Player.inventory.items[inventoryPosition].chosenStat = ev[num][0];
+					Player.inventory.items[inventoryPosition].stats[ev[num][0]] = ev[num][1];
+				},
+				ev: ev,
+			});
 			return true;
 		}
+	}
 	// equipped
-	}else{
+	else {
 		let values = "";
 		let str = Player.inventory[inventoryPosition].chooseStats;
 
 		// if there is at least 1 option
 		if (Object.keys(str).length > 0) {
-			Dom.alert.ev = [[]];
+			let ev = [[]];
+			let id = Dom.alert.array.length;
 			// repeats for each chosenStat
 			for (let i = 0; i < Object.keys(str).length; i++) {
 				if (Object.keys(str)[i] === Player.inventory[inventoryPosition].chosenStat) {
-					values += "<strong><span onclick='Dom.alert.target(Dom.alert.ev[0], "+i+")'>"+Dom.inventory.stats(FromCamelCase(Object.keys(str)[i]), str[Object.keys(str)[i]], str) + "</span></strong>";
-				}else{
-					values += "<span onclick='Dom.alert.target(Dom.alert.ev[0], "+i+")'>"+Dom.inventory.stats(FromCamelCase(Object.keys(str)[i]), str[Object.keys(str)[i]], str) + "</span>";
+					values += "<strong><span onclick='Dom.alert.array["+id+"].target(Dom.alert.array["+id+"].ev[0], "+i+")'>"+Dom.inventory.stats(FromCamelCase(Object.keys(str)[i]), str[Object.keys(str)[i]], str) + "</span></strong>";
 				}
-				Dom.alert.ev[0].push([Object.keys(str)[i], str[Object.keys(str)[i]]]);
+				else {
+					values += "<span onclick='Dom.alert.array["+id+"].target(Dom.alert.array["+id+"].ev[0], "+i+")'>"+Dom.inventory.stats(FromCamelCase(Object.keys(str)[i]), str[Object.keys(str)[i]], str) + "</span>";
+				}
+				ev[0].push([Object.keys(str)[i], str[Object.keys(str)[i]]]);
 			}
-			Dom.alert.target = function (ev, num) {
-				Dom.elements.alert.hidden = true;
-				Dom.inventory.beforeChangedStats();
-				let setNum = 0;
-				if (Player.inventory[inventoryPosition].set !== undefined) {
-					for (let i = 0; i < Items.set[Player.inventory[inventoryPosition].set].armour.length; i++) {
-						for (let x = 0; x < 4; x++) {
-							if (Player.inventory[Object.keys(Player.inventory)[x]].name === Items.set[Player.inventory[inventoryPosition].set].armour[i]) {
-								setNum++;
-								break;
+			Dom.alert.page("Choose an effect:", "text", values, "inventoryPage", {
+				target: function (ev, num) {
+					Dom.inventory.beforeChangedStats();
+					let setNum = 0;
+					if (Player.inventory[inventoryPosition].set !== undefined) {
+						for (let i = 0; i < Items.set[Player.inventory[inventoryPosition].set].armour.length; i++) {
+							for (let x = 0; x < 4; x++) {
+								if (Player.inventory[Object.keys(Player.inventory)[x]].name === Items.set[Player.inventory[inventoryPosition].set].armour[i]) {
+									setNum++;
+									break;
+								}
 							}
 						}
 					}
-				}
-				if (Player.inventory[inventoryPosition].chosenStat !== undefined) {
-					Player.stats[Player.inventory[inventoryPosition].chosenStat] -= parseFloat(Player.inventory[inventoryPosition].stats[Player.inventory[inventoryPosition].chosenStat]);
+					if (Player.inventory[inventoryPosition].chosenStat !== undefined) {
+						Player.stats[Player.inventory[inventoryPosition].chosenStat] -= parseFloat(Player.inventory[inventoryPosition].stats[Player.inventory[inventoryPosition].chosenStat]);
+						if (setNum !== 0) {
+							if (setNum === Items.set[Player.inventory[inventoryPosition].set].armour.length) {
+								let x = Items.set[Player.inventory[inventoryPosition].set].multiplier.findIndex(multiplier => multiplier.stat === "chosenStat");
+								if (x !== -1) {
+									Player.stats[Player.inventory[inventoryPosition][Items.set[Player.inventory[inventoryPosition].set].multiplier[x].stat]] -= parseFloat(Player.inventory[inventoryPosition].stats[Player.inventory[inventoryPosition][Items.set[Player.inventory[inventoryPosition].set].multiplier[x].stat]]);
+								}
+							}
+							delete Player.inventory[inventoryPosition].stats[Player.inventory[inventoryPosition].chosenStat];
+						}
+					}
+					Player.inventory[inventoryPosition].chosenStat = ev[num][0];
+					Player.stats[ev[num][0]] += parseFloat(ev[num][1]);
+					Player.inventory[inventoryPosition].stats[ev[num][0]] = ev[num][1];
 					if (setNum !== 0) {
 						if (setNum === Items.set[Player.inventory[inventoryPosition].set].armour.length) {
 							let x = Items.set[Player.inventory[inventoryPosition].set].multiplier.findIndex(multiplier => multiplier.stat === "chosenStat");
 							if (x !== -1) {
-								Player.stats[Player.inventory[inventoryPosition][Items.set[Player.inventory[inventoryPosition].set].multiplier[x].stat]] -= parseFloat(Player.inventory[inventoryPosition].stats[Player.inventory[inventoryPosition][Items.set[Player.inventory[inventoryPosition].set].multiplier[x].stat]]);
+								Player.stats[Player.inventory[inventoryPosition][Items.set[Player.inventory[inventoryPosition].set].multiplier[x].stat]] += parseFloat(Player.inventory[inventoryPosition].stats[Player.inventory[inventoryPosition][Items.set[Player.inventory[inventoryPosition].set].multiplier[x].stat]]);
 							}
 						}
-						delete Player.inventory[inventoryPosition].stats[Player.inventory[inventoryPosition].chosenStat];
 					}
-				}
-				Player.inventory[inventoryPosition].chosenStat = ev[num][0];
-				Player.stats[ev[num][0]] += parseFloat(ev[num][1]);
-				Player.inventory[inventoryPosition].stats[ev[num][0]] = ev[num][1];
-				if (setNum !== 0) {
-					if (setNum === Items.set[Player.inventory[inventoryPosition].set].armour.length) {
-						let x = Items.set[Player.inventory[inventoryPosition].set].multiplier.findIndex(multiplier => multiplier.stat === "chosenStat");
-						if (x !== -1) {
-							Player.stats[Player.inventory[inventoryPosition][Items.set[Player.inventory[inventoryPosition].set].multiplier[x].stat]] += parseFloat(Player.inventory[inventoryPosition].stats[Player.inventory[inventoryPosition][Items.set[Player.inventory[inventoryPosition].set].multiplier[x].stat]]);
-						}
-					}
-				}
-				Dom.inventory.afterChangedStats();
-			}
-			Dom.alert.page("Choose an effect:", "text", values, "inventoryPage");
+					Dom.inventory.afterChangedStats();
+				},
+				ev: ev,
+			});
 			return true;
 		}
 	}
@@ -2556,7 +2625,7 @@ function UnId(area,tier) {
 	this.rarity = "common";
 	}else if (this.rarityNum < 24) {
 		this.rarity = "unique";
-	}else{
+	}else {
 		this.rarity = "mythic";
 	}
 	this.unidentified = true;
@@ -2570,6 +2639,50 @@ Dom.cutscene = function (duration) {
     setTimeout(function () {
         Dom.currentlyDisplayed = "";
     }, duration);
+}
+
+Dom.inventory.disposeConfirm = function (all) {
+
+	// item inventory or bank
+	if (Dom.inventory.fromArray !== Player.inventory) {
+
+		// if you dispose of the INVENTORY bag then reset the inventory
+		if (Dom.inventory.fromId === 5 && Dom.inventory.fromArray === Player.inventory.items && Player.inventory.items[5].type === "bag") {
+			let str = "<tr>";
+			for (let inv = 0; inv < 6; inv++) {
+				str += '<td ondrop="Dom.inventory.drop(event, Player.inventory.items, '+inv+');Game.inventoryUpdate(event)" ondragover="Dom.inventory.allowDrop(event)" onmouseover="Dom.inventory.displayInformation(Player.inventory.items['+inv+'], undefined, \'inventoryPage\')" onmouseleave="Dom.expand(\'information\')" ondrag="Dom.expand(\'information\')" onclick="Game.inventoryUpdate()"></td>';
+			}
+			Dom.elements.itemInventory.innerHTML = str+"</tr>";
+			Dom.elements.itemInventory.getElementsByTagName("td")[5].style.backgroundImage = "url('assets/items/bag/1.png')";
+			for (let x = 0; x < 6; x++) {
+				if (Player.inventory.items[x].image !== undefined) {
+					Dom.elements.itemInventory.getElementsByTagName("td")[x].innerHTML = '<img src="'+Player.inventory.items[x].image+'" draggable="true" ondragstart="Dom.inventory.drag(event, Player.inventory.items, '+x+')"></img>';
+					if (Player.inventory.items[x].stacked !== undefined && Player.inventory.items[x].stacked !== 1) {
+						Dom.elements.itemInventory.getElementsByTagName("td")[x].innerHTML += "<div class='stackNum' id='stackNum"+x+"'>"+Player.inventory.items[x].stacked+"</div>";
+					}
+				}
+			}
+			Player.inventory.items.splice(6);
+			Dom.inventory.update();
+		}
+
+		// if you dispose of a BANK bag then reset the bank
+		if (Dom.inventory.fromId <= 5 && Dom.inventory.fromArray === Player.bank.items) {
+			Player.bank.items.splice(Player.bank.items.length - Player.bank.items[Dom.inventory.fromId].size);
+			Dom.bank.page();
+			Dom.elements.bankPageInventory.getElementsByTagName("td")[Dom.inventory.fromId].style.backgroundImage = "url('assets/items/bag/1.png')";
+		}
+
+		Dom.inventory.remove(Dom.inventory.fromId, all, Dom.inventory.fromArray);
+	}
+	// equipment slots
+	else {
+		Dom.inventory.removeEquipment(Dom.inventory.fromArray[Dom.inventory.fromId]);
+		Dom.inventory.fromArray[Dom.inventory.fromId] = {};
+		Dom.inventory.fromElement.innerHTML = "";
+	}
+	Game.inventoryUpdate();
+	Game.equipmentUpdate();
 }
 
 Dom.inventory.dispose = function (ev) {
@@ -2592,62 +2705,22 @@ Dom.inventory.dispose = function (ev) {
 
 		ev.preventDefault(); // allows the item to drop
 		if (ev.target.id !== "" && (remove || ((Dom.inventory.fromId !== 5 || Dom.inventory.fromArray !== Player.inventory.items) && (Dom.inventory.fromId > 5 || Dom.inventory.fromArray !== Player.bank.items))) && !quest) {
-			Dom.alert.target = function (all) {
-
-				// item inventory or bank
-				if (Dom.inventory.fromArray !== Player.inventory) {
-
-					// if you dispose of the INVENTORY bag then reset the inventory
-					if (Dom.inventory.fromId === 5 && Dom.inventory.fromArray === Player.inventory.items && Player.inventory.items[5].type === "bag") {
-						let str = "<tr>";
-						for (let inv = 0; inv < 6; inv++) {
-							str += '<td ondrop="Dom.inventory.drop(event, Player.inventory.items, '+inv+');Game.inventoryUpdate(event)" ondragover="Dom.inventory.allowDrop(event)" onmouseover="Dom.inventory.displayInformation(Player.inventory.items['+inv+'], undefined, \'inventoryPage\')" onmouseleave="Dom.expand(\'information\')" ondrag="Dom.expand(\'information\')" onclick="Game.inventoryUpdate()"></td>';
-						}
-						Dom.elements.itemInventory.innerHTML = str+"</tr>";
-						Dom.elements.itemInventory.getElementsByTagName("td")[5].style.backgroundImage = "url('assets/items/bag/1.png')";
-						for (let x = 0; x < 6; x++) {
-							if (Player.inventory.items[x].image !== undefined) {
-								Dom.elements.itemInventory.getElementsByTagName("td")[x].innerHTML = '<img src="'+Player.inventory.items[x].image+'" draggable="true" ondragstart="Dom.inventory.drag(event, Player.inventory.items, '+x+')"></img>';
-								if (Player.inventory.items[x].stacked !== undefined && Player.inventory.items[x].stacked !== 1) {
-									Dom.elements.itemInventory.getElementsByTagName("td")[x].innerHTML += "<div class='stackNum' id='stackNum"+x+"'>"+Player.inventory.items[x].stacked+"</div>";
-								}
-							}
-						}
-						Player.inventory.items.splice(6);
-						Dom.inventory.update();
-					}
-
-					// if you dispose of a BANK bag then reset the bank
-					if (Dom.inventory.fromId <= 5 && Dom.inventory.fromArray === Player.bank.items) {
-						Player.bank.items.splice(Player.bank.items.length - Player.bank.items[Dom.inventory.fromId].size);
-						Dom.bank.page();
-						Dom.elements.bankPageInventory.getElementsByTagName("td")[Dom.inventory.fromId].style.backgroundImage = "url('assets/items/bag/1.png')";
-					}
-
-					Dom.inventory.remove(Dom.inventory.fromId, all, Dom.inventory.fromArray);
-				}
-				// equipment slots
-				else {
-					Dom.inventory.removeEquipment(Dom.inventory.fromArray[Dom.inventory.fromId]);
-					Dom.inventory.fromArray[Dom.inventory.fromId] = {};
-					Dom.inventory.fromElement.innerHTML = "";
-				}
-				Game.inventoryUpdate();
-				Game.equipmentUpdate();
-			};
-			//Dom.alert.ev = Object.assign({}, Dom.inventory.fromId);
 			if (Dom.inventory.fromArray[Dom.inventory.fromId].stacked > 1) {
-				Dom.alert.page("How many would you like to drop?", 3, undefined, "inventoryPage");
+				Dom.alert.page("How many would you like to drop?", 3, undefined, "inventoryPage", {
+					target: Dom.inventory.disposeConfirm,
+				});
 			}
-			else{
-				Dom.alert.page("Are you sure you want to drop this item? It will be lost forever!", 2, undefined, "inventoryPage");
+			else {
+				Dom.alert.page("Are you sure you want to drop this item? It will be lost forever!", 2, undefined, "inventoryPage", {
+					target: Dom.inventory.disposeConfirm,
+				});
 			}
 		}
 		else if (ev.target.id !== "") {
 			if (!quest) {
 				Dom.alert.page("Move some items to the bank, sell or dispose of them before you can do that.", 0, undefined, "inventoryPage");
 			}
-			else{
+			else {
 				Dom.alert.page("You cannot dispose of this item because you need it for a quest.", 0, undefined, "inventoryPage");
 			}
 		}
@@ -2691,7 +2764,7 @@ Dom.inventory.removeById = function (ID, type, num, array, quest) {
 	Dom.checkProgress();
 	if (remove) {
 		return true;
-	}else{
+	}else {
 		return false;
 	}
 }
@@ -2725,12 +2798,12 @@ Dom.inventory.remove = function (num, all, array) { // array is optional
 			}
 		}
 		// decrease stack size
-		else{
+		else {
 			array[num].stacked--;
 			if (array[num].stacked !== 1) {
 				document.getElementById(stackNum+num).innerHTML = array[num].stacked;
 			}
-			else{
+			else {
 				document.getElementById(stackNum+num).hidden = true;
 			}
 		}
@@ -2800,7 +2873,7 @@ Dom.canvas.moveDom = function (object, page, scroll, scrollObject) {
 			setTimeout(function () {
 				Dom.canvas.moveDom(object, page, scroll, scrollObject);
 			},1);
-		}else{
+		}else {
 			document.onmouseup = undefined;
 		}
 		document.onmouseup = function () {
@@ -3031,7 +3104,7 @@ Dom.inventory.validateBags = function () {
 			}
 		}
 		// a bag is being removed and not replaced
-		else{
+		else {
 			// dont let the bag be removed
 			return false;
 		}
@@ -3127,8 +3200,13 @@ Dom.inventory.drop = function (toElement, toArray, toId, fromElement, fromArray,
 	
 	if (toArray !== Dom.trade.other && (toArray !== Dom.trade.items || (Dom.inventory.fromArray[Dom.inventory.fromId].quest === undefined || (Dom.inventory.fromArray[Dom.inventory.fromId].quest !== true && !Dom.inventory.fromArray[Dom.inventory.fromId].quest())))) {
 		
-		Dom.elements.alert.hidden = true;
-
+		// close any inventory related alerts
+		let alert = Dom.alert.array.filter(alert => alert.page === "inventoryPage" || alert.page === "bankPage" || alert.page === "tradePage");
+		for (let i = 0; i < alert.length; i++) {
+			Dom.alert.close(alert[i].id);
+			//document.getElementById("alertNo"+alert[i].id).onclick();
+		}
+		
 		if (toElement.composedPath === undefined) {
 			Dom.inventory.toElement = toElement;
 		}
@@ -3193,7 +3271,7 @@ Dom.inventory.drop = function (toElement, toArray, toId, fromElement, fromArray,
 					}
 					this.setItemFunctions(this.fromElement.getElementsByTagName("img")[0], this.fromArray, this.fromId);
 				}
-				else{
+				else {
 					this.fromElement.innerHTML = "";
 				}
 				
@@ -3331,7 +3409,7 @@ Dom.inventory.removeEquipment = function (array) {
 
 			if (array.stats[Object.keys(array.stats)[i]] !== true) {
 				Player.stats[Object.keys(array.stats)[i]] -= array.stats[Object.keys(array.stats)[i]];
-			}else{
+			}else {
 				Player.stats[Object.keys(array.stats)[i]] = false;
 			}
 		}
@@ -3350,7 +3428,7 @@ Dom.inventory.removeEquipment = function (array) {
 
 				if (Items.set[array.set].stats[Object.keys(Items.set[array.set].stats)[i]] !== true) {
 					Player.stats[Object.keys(Items.set[array.set].stats)[i]] -= Items.set[array.set].stats[Object.keys(Items.set[array.set].stats)[i]];
-				}else{
+				}else {
 					Player.stats[Object.keys(Items.set[array.set].stats)[i]] = false;
 				}
 			}
@@ -3375,7 +3453,7 @@ Dom.inventory.removeEquipment = function (array) {
 						for (let x = 0; x < Object.keys(array.conditionalStats[i].stats).length; x++) {
 							if (array.conditionalStats[i].stats[Object.keys(array.conditionalStats[i].stats)[x]] !== true) {
 								Player.stats[Object.keys(array.conditionalStats[i].stats)[x]] -= array.conditionalStats[i].stats[Object.keys(array.conditionalStats[i].stats)[x]];
-							}else{
+							}else {
 								Player.stats[Object.keys(array.conditionalStats[i].stats)[x]] = false;
 							}
 						}
@@ -3419,7 +3497,7 @@ Dom.inventory.addEquipment = function (array) {
 
 			if (array.stats[Object.keys(array.stats)[i]] !== true) {
 				Player.stats[Object.keys(array.stats)[i]] += array.stats[Object.keys(array.stats)[i]];
-			}else{
+			}else {
 				Player.stats[Object.keys(array.stats)[i]] = true;
 			}
 		}
@@ -3437,7 +3515,7 @@ Dom.inventory.addEquipment = function (array) {
 
 				if (Items.set[array.set].stats[Object.keys(Items.set[array.set].stats)[i]] !== true) {
 					Player.stats[Object.keys(Items.set[array.set].stats)[i]] += Items.set[array.set].stats[Object.keys(Items.set[array.set].stats)[i]];
-				}else{
+				}else {
 					Player.stats[Object.keys(Items.set[array.set].stats)[i]] = true;
 				}
 			}
@@ -3506,7 +3584,7 @@ Dom.inventory.find = function (ID, type, notEquipped, calledByCheck, name, array
 	if (calledByCheck) {
 		return completed;
 	}
-	else{
+	else {
 		return index;
 	}
 }
@@ -3520,7 +3598,7 @@ Dom.inventory.check = function (ID, type, num, notEquipped, array, quest) {
 		if (completed >= num) {
 			completed = true;
 		}
-		else{
+		else {
 			completed = false;
 		}
 	}
@@ -3535,7 +3613,7 @@ else if (Player.class === "m") {
 	Dom.elements.weapon.style.backgroundImage = "url('./assets/items/staff/1.png')";
 	Dom.elements.choosePageWeapon.style.backgroundImage = "url('./assets/items/staff/1.png')";
 }
-else{
+else {
 	Dom.elements.weapon.style.backgroundImage = "url('./assets/items/sword/1.png')";
 	Dom.elements.choosePageWeapon.style.backgroundImage = "url('./assets/items/sword/1.png')";
 }
@@ -3544,53 +3622,6 @@ Dom.elements.inventoryGoldXP.style.backgroundImage = 'url("./selection/assets/'+
 Dom.elements.inventoryGoldXP.style.right = 20 - Skins[Player.class][Player.skin].headAdjust.x + "px";
 Dom.elements.inventoryGoldXP.style.height = 60 + Skins[Player.class][Player.skin].headAdjust.y + "px";
 Dom.elements.inventoryGoldXP.style.bottom = 3 + Skins[Player.class][Player.skin].headAdjust.y + "px";
-
-Dom.elements.alertYes.onclick = function () {
-	// close alert and call function with parameter
-	if (Dom.alert.ev !== undefined) {
-		Dom.alert.target(...Dom.alert.ev);
-	}
-	else {
-		Dom.alert.target();
-	}
-	Dom.elements.alert.hidden = true;
-	Dom.alert.target = undefined;
-	Dom.alert.targetNo = undefined;
-	Dom.alert.ev = undefined;
-	Dom.alert.evNo = undefined;
-}
-
-Dom.elements.alertNo.onclick = function () {
-	// close alert only - and potentially call a function
-	if (Dom.alert.targetNo !== undefined) {
-		if (Dom.alert.evNo !== undefined) {
-			Dom.alert.targetNo(...Dom.alert.evNo);
-		}
-		else {
-			Dom.alert.targetNo();
-		}
-		Dom.alert.targetNo = undefined;
-		Dom.alert.evNo = undefined;
-	}
-	Dom.elements.alert.hidden = true;
-	Dom.alert.target = undefined;
-	Dom.alert.ev = undefined;
-}
-
-Dom.elements.alertDispose.onclick = function () {
-	// close alert and call function with parameter and (true)
-	if (Dom.alert.ev !== undefined) {
-		Dom.alert.target(...Dom.alert.ev, true);
-	}
-	else {
-		Dom.alert.target(true);
-	}
-	Dom.elements.alert.hidden = true;
-	Dom.alert.target = undefined;
-	Dom.alert.targetNo = undefined;
-	Dom.alert.ev = undefined;
-	Dom.alert.evNo = undefined;
-}
 
 Dom.elements.hotbar.onmouseover = function () {
 	Dom.elements.hotbar.style.opacity = 1;
@@ -3653,7 +3684,7 @@ Dom.inventory.requiredSpace = function (items, includeChance) {
 Dom.inventory.hideHotbar = function (hide) {
 	if (hide) {
 		Dom.elements.hotbar.hidden = true;
-	}else{
+	}else {
 		Dom.elements.hotbar.hidden = false;
 	}
 }
@@ -3684,7 +3715,7 @@ Dom.loot.page = function (name, items) {
 				if (items[i] !== undefined && items[i] !== null) {
 					if (items[i].quantity !== 1) {
 						Dom.elements.loot.getElementsByTagName("td")[i].innerHTML = "<img src=" + items[i].item.image + " class='lootOptions'><div class='lootStackNum'>"+items[i].quantity+"</div></img>";
-					}else{
+					}else {
 						Dom.elements.loot.getElementsByTagName("td")[i].innerHTML = "<img src=" + items[i].item.image + " class='lootOptions'><span class='lootStackNum'></span></img>";
 					}
 				}
@@ -3702,7 +3733,7 @@ Dom.loot.page = function (name, items) {
 							document.getElementsByClassName("lootOptions")[items[i].num].outerHTML = "<span class='lootOptions'></span>";
 							document.getElementsByClassName("lootStackNum")[items[i].num].outerHTML = "<span class='lootStackNum'></span>";
 							Dom.loot.looted[i] = undefined;
-						}else{
+						}else {
 							Dom.alert.page("You do not have enough space in your inventory for that item.", 0 , undefined, "lootPage");
 						}
 					};
@@ -3713,7 +3744,7 @@ Dom.loot.page = function (name, items) {
 							document.getElementsByClassName("lootOptions")[items[i].num].outerHTML = "<span class='lootOptions'></span>";
 							document.getElementsByClassName("lootStackNum")[items[i].num].outerHTML = "<span class='lootStackNum'></span>";
 							Dom.loot.looted[i] = undefined;
-						}else{
+						}else {
 							Dom.alert.page("You do not have enough space in your inventory for that item.", 0 , undefined, "lootPage");
 						}
 					};
@@ -3863,22 +3894,29 @@ Dom.buyer.page = function (npc) {
 				}
 				Dom.elements.buyerPageInventory.getElementsByTagName("td")[i].onclick = function () {
 					if (!(!remove && i === 5 && Player.inventory.items[5].type === "bag") && Dom.inventory.check(Player.inventory.items[i].id, Player.inventory.items[i].type, Player.inventory.items[i].sellQuantity)) {
-						Dom.alert.ev = [i];
-						Dom.alert.target = Dom.buyer.remove;
 						if (Player.inventory.items[i].stacked >= Player.inventory.items[i].sellQuantity*2) {
 							Dom.alert.page("How many <strong>"+Player.inventory.items[i].name+"</strong> would you like to sell for <strong>"+(Player.inventory.items[i].charges === undefined ? Player.inventory.items[i].sellPrice : Math.ceil(Player.inventory.items[i].sellPrice / (Player.inventory.items[i].maxCharges / Player.inventory.items[i].charges)))+" "+Items.currency[Player.inventory.items[i].sellCurrency].name.toLowerCase()+"</strong> "+(Player.inventory.items[i].sellQuantity !== 1 ? "per "+Player.inventory.items[i].sellQuantity+"?" : "each?"),
-								3, [Player.inventory.items[i].sellQuantity <= Player.inventory.items[i].stacked ? Player.inventory.items[i].sellQuantity : 0, Math.floor(Player.inventory.items[i].stacked/Player.inventory.items[i].sellQuantity)*Player.inventory.items[i].sellQuantity], "buyerPage"
-							);
-						}else{
-							Dom.alert.page("Are you sure you want to sell <strong>"+(Player.inventory.items[i].sellQuantity > 1 ? Player.inventory.items[i].sellQuantity+" " : "")+(Player.inventory.items[i].unidentified ? "unidentified "+Player.inventory.items[i].type : Player.inventory.items[i].name)+"</strong> for <strong>"+(Player.inventory.items[i].charges === undefined ? Player.inventory.items[i].sellPrice : Math.ceil(Player.inventory.items[i].sellPrice / (Player.inventory.items[i].maxCharges / Player.inventory.items[i].charges)))+" "+Items.currency[Player.inventory.items[i].sellCurrency].name.toLowerCase()+"</strong>? You cannot buy it back!", 2, undefined, "buyerPage");
+							3, [Player.inventory.items[i].sellQuantity <= Player.inventory.items[i].stacked ? Player.inventory.items[i].sellQuantity : 0, Math.floor(Player.inventory.items[i].stacked/Player.inventory.items[i].sellQuantity)*Player.inventory.items[i].sellQuantity], "buyerPage", {
+								target: Dom.buyer.remove,
+								ev: [i],
+							});
 						}
-					}else if (!(!remove && i === 5 && Player.inventory.items[5].type === "bag")) {
+						else {
+							Dom.alert.page("Are you sure you want to sell <strong>"+(Player.inventory.items[i].sellQuantity > 1 ? Player.inventory.items[i].sellQuantity+" " : "")+(Player.inventory.items[i].unidentified ? "unidentified "+Player.inventory.items[i].type : Player.inventory.items[i].name)+"</strong> for <strong>"+(Player.inventory.items[i].charges === undefined ? Player.inventory.items[i].sellPrice : Math.ceil(Player.inventory.items[i].sellPrice / (Player.inventory.items[i].maxCharges / Player.inventory.items[i].charges)))+" "+Items.currency[Player.inventory.items[i].sellCurrency].name.toLowerCase()+"</strong>? You cannot buy it back!", 2, undefined, "buyerPage", {
+								target: Dom.buyer.remove,
+								ev: [i],
+							});
+						}
+					}
+					else if (!(!remove && i === 5 && Player.inventory.items[5].type === "bag")) {
 						Dom.alert.page("You need "+Player.inventory.items[i].sellQuantity+" of these to sell them.", 0, undefined, "buyerPage");
-					}else{
+					}
+					else {
 						Dom.alert.page("Move some items to the bank, sell or dispose of them before you can do that.", 0, undefined, "buyerPage");
 					}
 				}
-			}else{
+			}
+			else {
 				Dom.elements.buyerPageInventory.getElementsByTagName("td")[i].onclick = function () {
 					Dom.alert.page("You cannot sell that item.", 0, undefined, "buyerPage");
 				}
@@ -3992,25 +4030,25 @@ Dom.choose.page = function (npc, buttons, functions, parameters, force) {
 					}else if (functions[i] === Dom.quest.start) {
 						if (parameters[i][0].repeatTime === "daily") {
 							imagenum = 1;
-						}else{
+						}else {
 							imagenum = 7;
 						}
 					}else if (functions[i] === Dom.text.page) {
 						if (parameters[i][0] === "Soul Healer") {
 							imagenum = 8;
-						}/*else{
+						}/*else {
 							imagenum = 1;
 						}*/
 					}
 					if (imagenum === 6 || imagenum === 7) {
 						if (parameters[i][0].important === true) {
 							Dom.elements.choosePageContent.innerHTML += "<p class='choosePageButtons' id='choosePageButtons"+i+"'><img src='assets/icons/choose.png' class='chooseIcon' style='clip: rect("+25*imagenum+"px, 25px, "+25*(imagenum+1)+"px, 0px); margin-top: -"+(25*imagenum+3)+"px'></img>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<strong>"+buttons[i]+"</strong></p>";
-						}else{
+						}else {
 							Dom.choose.sideHTML += "<p class='choosePageButtons' id='choosePageButtons"+i+"'><img src='assets/icons/choose.png' class='chooseIcon' style='clip: rect("+25*imagenum+"px, 25px, "+25*(imagenum+1)+"px, 0px); margin-top: -"+(25*imagenum+3)+"px'></img>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;"+buttons[i]+"</p>";
 						}
 					}else if (imagenum === 0) {
 						Dom.choose.dailyHTML += "<p class='choosePageButtons' id='choosePageButtons"+i+"'><img src='assets/icons/choose.png' class='chooseIcon' style='clip: rect("+25*imagenum+"px, 25px, "+25*(imagenum+1)+"px, 0px); margin-top: -"+(25*imagenum+3)+"px'></img>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;"+buttons[i]+"</p>";
-					}else{
+					}else {
 						Dom.choose.HTML += "<p class='choosePageButtons' id='choosePageButtons"+i+"'><img src='assets/icons/choose.png' class='chooseIcon' style='clip: rect("+25*imagenum+"px, 25px, "+25*(imagenum+1)+"px, 0px); margin-top: -"+(25*imagenum+3)+"px'></img>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;"+buttons[i]+"</p>";
 					}
 				}
@@ -4023,7 +4061,7 @@ Dom.choose.page = function (npc, buttons, functions, parameters, force) {
 					}
 				}
 			}
-		}else{
+		}else {
 			functions[0](...parameters[0]);
 			Dom.checkProgress();
 		}
@@ -4067,7 +4105,7 @@ Dom.settings.hotkeys = function (ev) {
 			if (keysWithVariables.includes(Object.keys(User.settings.keyboard)[Dom.settings.hotkey])) {
 				Keyboard.listenForKeyWithVariable(keyName, Game.keysDown, Object.keys(User.settings.keyboard)[Dom.settings.hotkey]);
 			}
-			else{
+			else {
 				Keyboard.listenForKey(keyName, Keyboard.downFunctions[Object.keys(User.settings.keyboard)[Dom.settings.hotkey]], Keyboard.upFunctions[Object.keys(User.settings.keyboard)[Dom.settings.hotkey]]);
 			}
 
@@ -4078,7 +4116,7 @@ Dom.settings.hotkeys = function (ev) {
 
 		}
 		// if it is unavailable set it back to what it was
-		else{
+		else {
 			document.getElementsByClassName("hotkey")[Dom.settings.hotkey].innerHTML = Dom.settings.keyName(User.settings.keyboard[Object.keys(User.settings.keyboard)[Dom.settings.hotkey]]);
 			Dom.settings.hotkey = undefined;
 		}
@@ -4111,7 +4149,7 @@ Dom.settings.page = function (page) {
 		Dom.closePage(Dom.settings.current);
 		Dom.settings.current = page;
 		Dom.changeBook(page, true);
-	}else{
+	}else {
 		// change to the last settings page that was open
 		Dom.changeBook(Dom.settings.current, true);
 	}
@@ -4295,13 +4333,14 @@ Dom.bank.page = function () {
 			if (nextUnlock) {
 				Dom.elements.bankPageInventory.getElementsByTagName("td")[i].onclick = function () {
 					if (Dom.inventory.check(2, "currency") /*+ Dom.inventory.check(2, "currency", undefined, undefined, Player.bank.items)*/ >= BagSlotCosts[i]) {
-						Dom.alert.ev = [i];
-						Dom.alert.target = function () {
-							Dom.inventory.removeById(2, "currency", BagSlotCosts[i]);
-							Player.bank.unlockedSlots++;
-							Dom.bank.page();
-						}
-						Dom.alert.page("Would you like to buy this bag slot for "+BagSlotCosts[i]+" gold?", 2, undefined, "bankPage");
+						Dom.alert.page("Would you like to buy this bag slot for "+BagSlotCosts[i]+" gold?", 2, undefined, "bankPage", {
+							target: function () {
+								Dom.inventory.removeById(2, "currency", BagSlotCosts[i]);
+								Player.bank.unlockedSlots++;
+								Dom.bank.page();
+							},
+							ev: [i],
+						});
 					}
 					else {
 						Dom.alert.page("You cannot afford this bag slot. Come back when you have "+BagSlotCosts[i]+" gold", undefined, undefined, "bankPage");
@@ -4349,7 +4388,7 @@ Dom.driver.page = function (npc, destinations) {
 					document.getElementsByClassName("driver")[i].style.backgroundColor = "var(--selected)";
 					Dom.elements.driverPageBuy.innerHTML = "Go to <strong>"+destinations[i].title+"</strong> for <strong>"+destinations[i].cost+"</strong> gold";
 					Dom.elements.driverPageBuy.style.display = "";
-				}else{
+				}else {
 					Dom.driver.previous = undefined;
 					Dom.elements.driverPageBuy.style.display = "none";
 				}
@@ -4357,14 +4396,16 @@ Dom.driver.page = function (npc, destinations) {
 		}
 		Dom.elements.driverPageBuy.onclick = function () {
 			if (Dom.inventory.check(2, "currency", destinations[Dom.driver.previous].cost)) {
-				Dom.alert.target = function (destination) {
-					Dom.inventory.removeById(2, "currency", destinations[Dom.driver.previous].cost);
-					Game.loadArea(destination.destinationName, destination.destinationPosition);
-					Dom.driver.previous = undefined;
-				}
-				Dom.alert.ev = [destinations[Dom.driver.previous]];
-				Dom.alert.page("Are you sure you want to go to <strong>"+destinations[Dom.driver.previous].title+"</strong> for <strong>"+destinations[Dom.driver.previous].cost+"</strong> gold?", 2, undefined, "driverPage");
-			}else{
+				Dom.alert.page("Are you sure you want to go to <strong>"+destinations[Dom.driver.previous].title+"</strong> for <strong>"+destinations[Dom.driver.previous].cost+"</strong> gold?", 2, undefined, "driverPage", {
+					target: function (destination) {
+						Dom.inventory.removeById(2, "currency", destinations[Dom.driver.previous].cost);
+						Game.loadArea(destination.destinationName, destination.destinationPosition);
+						Dom.driver.previous = undefined;
+					},
+					ev: [destinations[Dom.driver.previous]],
+				});
+			}
+			else {
 				Dom.elements.driverPageBuy.style.borderColor = "red";
 				setTimeout(function () {
 					Dom.elements.driverPageBuy.style.borderColor = "var(--border)";
@@ -4389,7 +4430,7 @@ Dom.mail.page = function (override) {
 				'<svg class="flag" height="22" width="15" tabindex = "0">\
 				<polygon points ="0,0 15,1 15,13 1,12 1,22 0,22 0,0 1,0 1,12" style="fill:#ee0000;stroke:var(--text);stroke-width:1" />\
 				</svg>';
-			}else{
+			}else {
 				document.getElementsByClassName("mailFlag")[Player.mail.mail.length-1-i].innerHTML +=
 				'<svg class="flag" height="22" width="15" tabindex = "0">\
 				<polygon points ="0,0 15,1 15,13 1,12 1,22 0,22 0,0 1,0 1,12" style="fill:var(--border);stroke:var(--text);stroke-width:1" />\
@@ -4404,31 +4445,35 @@ Dom.mail.page = function (override) {
 			let ii = Player.mail.mail.length-1-i;
 			if (Player.mail.mail[i].image.substring(0,2) === "./") {
 				document.getElementsByClassName("mailImage")[ii].style.backgroundImage = "url('"+Player.mail.mail[i].image+".png')";
-			}else{
+			}
+			else {
 				document.getElementsByClassName("mailImage")[ii].style.backgroundImage = "url('"+Offsets[Player.mail.mail[i].image].image+".png')";
 				document.getElementsByClassName("mailImage")[ii].style.backgroundPosition = Offsets[Player.mail.mail[i].image].x+"%"+Offsets[Player.mail.mail[i].image].y+"%";
 			}
 			document.getElementsByClassName("mailDelete")[ii].onclick = function () {
-				Dom.alert.target = function () {
-					Player.mail.mail.splice(i, 1);
-					Dom.mail.page();
-					Game.mailboxUpdate("read");
-					Dom.mail.page(true);
-				}
-				Dom.alert.page("Are you sure you want to delete this mail? It will be lost forever!", 2, undefined, "mailPage");
+				Dom.mail.notOpen = true;
+				Dom.alert.page("Are you sure you want to delete this mail? It will be lost forever!", 2, undefined, "mailPage", {
+					target: function () {
+						Player.mail.mail.splice(i, 1);
+						Dom.mail.page();
+						Game.mailboxUpdate("read");
+						Dom.mail.page(true);
+					}
+				});
 			}
 			document.getElementsByClassName("mailFlag")[ii].onclick = function () {
 				Dom.mail.notOpen = true;
 				if (Player.mail.mail[i].flag) {
 					Player.mail.mail[i].flag = false;
-				}else{
+				}
+				else {
 					Player.mail.mail[i].flag = true;
 				}
 				Dom.mail.page(true);
 			}
 			document.getElementsByClassName("mail")[ii].onclick = function () {
 				// if you did not click on delete or flag
-				if (Dom.elements.alert.hidden && !Dom.mail.notOpen) {
+				if (!Dom.mail.notOpen) {
 					let first = false;
 					// if it is unopened
 					if (!Player.mail.opened.includes(Player.mail.mail[i].title)) {
@@ -4447,17 +4492,17 @@ Dom.mail.page = function (override) {
 					if (Player.mail.mail[i].openFunction !== "quest.start") {
 						ExecuteFunctionByName(Player.mail.mail[i].openFunction, Dom, Player.mail.mail[i].openParameters);
 					}
-					else{
+					else {
 						let quest = Quests[Player.mail.mail[i].openParameters[0]][Player.mail.mail[i].openParameters[1]];
 						if (Player.quests.possibleQuestArray.includes(quest.quest)) {
 							ExecuteFunctionByName("quest.start", Dom, [quest]);
 						}
-						else{
+						else {
 							ExecuteFunctionByName("text.page", Dom, [quest.quest, "<strong>"+(quest.startName || quest[Player.areaName].startName)+"</strong><br>"+(quest.startChat || quest[Player.areaName].startName), true, [], []]);
 						}
 					}
 					Game.mailboxUpdate("read");
-				}else{
+				}else {
 					Dom.mail.notOpen = false;
 				}
 			}
@@ -4555,7 +4600,7 @@ Dom.inventory.prepare = function (array, i, element) {
 			else if (!isNaN(i)) {
 				Dom.inventory.drop(Dom.elements.weapon, Player.inventory, "weapon", Dom.elements.itemInventory.getElementsByTagName("td")[i], Player.inventory.items, i); // to, from
 			}
-			else{
+			else {
 				let chooseStats = false;
 				if (Player.inventory[i].chooseStats !== undefined) {
 					Dom.inventory.deEquip = true;
@@ -4586,7 +4631,7 @@ Dom.inventory.prepare = function (array, i, element) {
 			}
 			else if (!isNaN(i)) {
 				Dom.inventory.drop(document.getElementById(Player.inventory.items[i].type), Player.inventory, Player.inventory.items[i].type, Dom.elements.itemInventory.getElementsByTagName("td")[i], Player.inventory.items, i); // to, from
-			}else{
+			}else {
 				let chooseStats = false;
 				if (Player.inventory[i].chooseStats !== undefined) {
 					Dom.inventory.deEquip = true;
@@ -4617,7 +4662,7 @@ Dom.inventory.prepare = function (array, i, element) {
 					}
 				}
 			}
-			else{
+			else {
 				array[i].onClick = Dom.inventory.cooldown;
 			}
 		//}
@@ -4702,13 +4747,13 @@ Dom.inventory.conditionalStats = function () {
 					for (let i = 0; i < Object.keys(conditionalStat.stats).length; i++) {
 						if (conditionalStat.stats[Object.keys(conditionalStat.stats)[i]] !== true) {
 							Player.stats[Object.keys(conditionalStat.stats)[i]] += conditionalStat.stats[Object.keys(conditionalStat.stats)[i]];
-						}else{
+						}else {
 							Player.stats[Object.keys(conditionalStat.stats)[i]] = true;
 						}
 					}
 					Dom.inventory.afterChangedStats();
 				}
-			}else{
+			}else {
 				if (Player.conditionalStats[i].active[x]) {
 					Dom.inventory.beforeChangedStats();
 					Player.conditionalStats[i].active[x] = false;
@@ -4716,7 +4761,7 @@ Dom.inventory.conditionalStats = function () {
 					for (let i = 0; i < Object.keys(conditionalStat.stats).length; i++) {
 						if (conditionalStat.stats[Object.keys(conditionalStat.stats)[i]] !== true) {
 							Player.stats[Object.keys(conditionalStat.stats)[i]] -= conditionalStat.stats[Object.keys(conditionalStat.stats)[i]];
-						}else{
+						}else {
 							Player.stats[Object.keys(conditionalStat.stats)[i]] = false;
 						}
 					}
@@ -4748,7 +4793,7 @@ Dom.settings.transparency = function () {
 			document.getElementsByClassName("DOM")[i].style.opacity = "var(--opacity)";
 		}
 	}
-	else{
+	else {
 		User.settings.transparency = false;
 		for (let i = 0; i < document.getElementsByClassName("DOM").length; i++) {
 			document.getElementsByClassName("DOM")[i].style.opacity = 1;
@@ -4942,32 +4987,34 @@ Dom.trade.requestReceived = function (userID, name, npc) {
 		Dom.trade.received = true;
 		Dom.currentlyDisplayed = name;
 		Dom.currentNPC = npc;
-		Dom.alert.ev = [userID];
-		Dom.alert.evNo = [userID];
-		Dom.alert.target = function (userID) {
-			Dom.trade.target = userID;
-			let message = {
-				type: "trade",
-				action: "accept",
-				target: Dom.trade.target,
-				name: Player.name,
-			}
-			let jsonMessage = JSON.stringify(message);
-			ws.send(jsonMessage);
-			Dom.trade.page();
-		}
-		Dom.alert.targetNo = function (userID) {
-			let message = {
-				type: "trade",
-				action: "decline",
-				target: userID,
-				name: Player.name,
-			}
-			let jsonMessage = JSON.stringify(message);
-			ws.send(jsonMessage);
-			Dom.currentlyDisplayed = "";
-		}
-		Dom.alert.page(name + " would like to trade with you, do you accept?", 2);
+		Dom.alert.page(name + " would like to trade with you, do you accept?", 2, undefined, undefined, {
+			data: "tradeReceived",
+			ev: [userID],
+			evNo: [userID],
+			target: function (userID) {
+				Dom.trade.target = userID;
+				let message = {
+					type: "trade",
+					action: "accept",
+					target: Dom.trade.target,
+					name: Player.name,
+				}
+				let jsonMessage = JSON.stringify(message);
+				ws.send(jsonMessage);
+				Dom.trade.page();
+			},
+			targetNo: function (userID) {
+				let message = {
+					type: "trade",
+					action: "decline",
+					target: userID,
+					name: Player.name,
+				}
+				let jsonMessage = JSON.stringify(message);
+				ws.send(jsonMessage);
+				Dom.currentlyDisplayed = "";
+			},
+		});
 	}
 	else {
 		Dom.chat.insert(name + " tried to trade with you but could not because you had another page open.");
@@ -5238,6 +5285,13 @@ Dom.quest.abandon = function (quest) {
 				Dom.inventory.remove(i, true);
 			}
 		}
+		for (let i = 0; i < Object.values(Player.inventory).length; i++) {
+			if (Object.values(Player.inventory)[i].removeOnAbandon === quest.quest) {
+				Dom.inventory.fromArray = Player.inventory;
+				Dom.inventory.fromId = Object.keys(Player.inventory)[i]
+				Dom.inventory.disposeConfirm();
+			}
+		}
 		
 		// remove from active quest array
 		for (let i = 0; i < Player.quests.activeQuestArray.length; i++) {
@@ -5446,7 +5500,7 @@ Dom.init = function () {
 				document.getElementsByClassName("hotkey")[i].innerHTML = "...";
 				Dom.settings.hotkey = i;
 			}
-			else{
+			else {
 				let temp = User.settings.keyboard[Object.keys(User.settings.keyboard)[Dom.settings.hotkey]];
 				document.getElementsByClassName("hotkey")[Dom.settings.hotkey].innerHTML = document.getElementsByClassName("hotkey")[i].innerHTML;
 				document.getElementsByClassName("hotkey")[i].innerHTML = Dom.settings.keyName(temp);
@@ -5649,12 +5703,12 @@ Dom.init = function () {
 	Dom.hotbar.update();
 	Dom.inventory.update();
 	
-	// remove all active job quests before checkProgress (quests.active)
+	// remove all active repeatable quests before checkProgress (quests.active)
 	for (let x = 0; x < Player.quests.activeQuestArray.length; x ++) {
 		for (let i = 0; i < Object.keys(Quests).length; i++) {
 			for (let y = 0; y < Quests[Object.keys(Quests)[i]].length; y++) {
 				if (Quests[Object.keys(Quests)[i]][y].quest === Player.quests.activeQuestArray[x]) {
-					if (Quests[Object.keys(Quests)[i]][y].repeatTime === "job") {
+					if (Quests[Object.keys(Quests)[i]][y].repeatTime === "repeatable") {
 						Player.quests.activeQuestArray.splice(x, 1);
 					}
 				}
@@ -5720,10 +5774,12 @@ Dom.init = function () {
 		Dom.settings.dark();
 	}
 
-	Dom.alert.target = Dom.settings.acceptOn;
 	if (localStorage.getItem("accept") !== "true") {
-		Dom.alert.page("This site uses local storage for progress saving, do you accept?", 2, undefined, "game");
-	}else{
+		Dom.alert.page("This site uses local storage for progress saving, do you accept?", 2, undefined, "game", {
+			target: Dom.settings.acceptOn,
+		});
+	}
+	else {
 		Dom.elements.settingAcceptHolder.innerHTML = "";
 	}
 

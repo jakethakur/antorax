@@ -1,4 +1,3 @@
-
 /*					*/
 /*		TAGS		*/
 /*					*/
@@ -63,7 +62,7 @@ thead:after { /* space after bags in bank */
 }
 
 #infoBar {
-	z-index: 50;
+	z-index: 3;
 	position: absolute;
 	top: 10px;
 }
@@ -913,7 +912,7 @@ thead:after { /* space after bags in bank */
 /*		ALERT		*/
 /*					*/
 
-#alert {
+.alert {
 	position: absolute;
 	width: 300px;
 	top: 100px;
@@ -926,7 +925,7 @@ thead:after { /* space after bags in bank */
 	text-align: center;
 }
 
-#alertYes, #alertNo, #alertDispose{
+.alertYes, .alertNo, .alertDispose{
 	position: relative;
 	width: 100px;
 	height: 50px;
@@ -941,21 +940,21 @@ thead:after { /* space after bags in bank */
 	cursor: pointer;
 }
 
-#alertNo, #alertDispose{
+.alertNo, .alertDispose{
 	right: 0px;
 }
 
-#alertDispose {
+.alertDispose {
 	left: 15px;
 }
 
-#alertText {
+.alertText {
 	position: relative;
 	bottom: 25px;
 	font-size: 20px;
 }
 
-#alertOptions {
+.alertOptions {
 	position: relative;
 	bottom: 20px;
 	line-height: 30px;

@@ -113,24 +113,24 @@ var Instructions = [
 				`<b>The Mighty Zararanath</b>: Welcome to the mystical kingdom of Antorax, ${Player.name}!`,
 				`<b>The Mighty Zararanath</b>: Oh. I've spoken to you before.`,
 			], undefined, function () {
-				Dom.alert.target = function () {
-					Dom.chat.insert(`<b>The Mighty Zararanath</b>: Good luck on your travels.`, 500);
-					document.getElementById("tutorialOn").checked = true;
-					document.getElementById("tutorialOn").onclick();
-					Player.unlockedInstructions.push(Instructions[0].chapterTitle);
-					Dom.quests.possible();
-				}
-				Dom.alert.targetNo = function () {
-					Dom.chat.insertSequence([
-						`<b>The Mighty Zararanath</b>: You can use the <b>w</b>, <b>a</b>, <b>s</b>, and <b>d</b> keys to move around.`,
-						`<b>The Mighty Zararanath</b>: Start your first quest by speaking to the <b>Cart Driver</b>. Press the <strong>space</strong> key whilst standing near him to talk to him.`,
-					], undefined, function () {
+				Dom.alert.page("Do you want to skip Zararanath's tutorial? You can always re-enable it in settings.", 2, undefined, undefined, {
+					target: function () {
+						Dom.chat.insert(`<b>The Mighty Zararanath</b>: Good luck on your travels.`, 500);
+						document.getElementById("tutorialOn").checked = true;
+						document.getElementById("tutorialOn").onclick();
 						Player.unlockedInstructions.push(Instructions[0].chapterTitle);
 						Dom.quests.possible();
-					});
-					Dom.alert.targetNo = undefined;
-				}
-				Dom.alert.page("Do you want to skip Zararanath's tutorial? You can always re-enable it in settings.", 2);
+					},
+					targetNo: function () {
+						Dom.chat.insertSequence([
+							`<b>The Mighty Zararanath</b>: You can use the <b>w</b>, <b>a</b>, <b>s</b>, and <b>d</b> keys to move around.`,
+							`<b>The Mighty Zararanath</b>: Start your first quest by speaking to the <b>Cart Driver</b>. Press the <strong>space</strong> key whilst standing near him to talk to him.`,
+						], undefined, function () {
+							Player.unlockedInstructions.push(Instructions[0].chapterTitle);
+							Dom.quests.possible();
+						});
+					},
+				});
 			});
 		}
 	},

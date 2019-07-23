@@ -1306,7 +1306,7 @@ After all, death is never the end in Antorax...<br>
 			requirement: function () {
 				return Player.quests.questProgress.mugsPlatesDone === 0; // not undefined because that means there are none
 			},
-			repeatTime: "job",
+			repeatTime: "repeatable",
 			randomGroup: "tavernJobs",
 
 			rewards: {
@@ -1442,7 +1442,7 @@ After all, death is never the end in Antorax...<br>
 			requirement: function () {
 				return Player.quests.questProgress.mugsPlatesDone === 0; // not undefined because that means there are none
 			},
-			repeatTime: "job",
+			repeatTime: "repeatable",
 			randomGroup: "tavernJobs",
 
 			rewards: {
@@ -1523,7 +1523,7 @@ After all, death is never the end in Antorax...<br>
 			requirement: function () {
 				return Player.quests.questProgress.mugsPlatesDone === 0; // not undefined because that means there are none
 			},
-			repeatTime: "job",
+			repeatTime: "repeatable",
 			randomGroup: "tavernJobs",
 
 			rewards: {
