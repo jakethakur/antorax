@@ -27,6 +27,7 @@ let Dom = {
 		bagText: document.getElementById("bagText"),
 		bankPage: document.getElementById("bankPage"),
 		bankPageInventory: document.getElementById("bankPageInventory"),
+		bookmarks: document.getElementById("bookmarks"),
 		buyerPage: document.getElementById("buyerPage"),
 		buyerPageChat: document.getElementById("buyerPageChat"),
 		buyerPageInventory: document.getElementById("buyerPageInventory"),
@@ -204,30 +205,30 @@ Dom.alert.array = []; // number of alerts that have appeared (used to give ids)
 
 // if type = 3 then the last parameter after all of ev is set to true on clicking second button
 Dom.alert.page = function (text, type, values, page, target) { // can't pass in target and ev because chooseStats are called by an innerHTML
-	
+
 	// if there are no alerts already open on the same page
 	if (Dom.alert.array.find(alert => alert.page === page) === undefined || page === undefined) {
-	
+
 		if (target === undefined) {
 			target = {};
 		}
-	
+
 		let id = Dom.alert.array.length;
 		if (target !== undefined) {
 			Dom.alert.array.push(Object.assign(target, {id: id, page: page,}));
 		}
-		
+
 		let alert = document.createElement("div");
 		alert.classList.add("alert");
 		alert.id = "alert"+id;
-		
+
 		if (page !== undefined) {
 			alert.style.left = document.getElementById(page).offsetLeft+document.getElementById(page).offsetWidth/2-175+"px";
 		}
 		else {
 			alert.style.left = Dom.canvas.width/2-175+"px";
 		}
-		
+
 		// text only (e.g. chooseStats)
 		if (type === "text") {
 			alert.innerHTML = `<p class="alertText" id="alertText${id}">${text}</p>
@@ -251,9 +252,9 @@ Dom.alert.page = function (text, type, values, page, target) { // can't pass in 
 			alert.innerHTML = `<p class="alertText" id="alertText${id}">${text}</p>
 			<div class="alertNo" id="alertNo${id}" style="left: 0px; bottom: 20px;">OK</div>`;
 		}
-		
+
 		document.body.appendChild(alert);
-		
+
 		// set the functions
 		if (type === 3 || type === 2) {
 			document.getElementById("alertYes"+id).onclick = function () {
@@ -268,7 +269,7 @@ Dom.alert.page = function (text, type, values, page, target) { // can't pass in 
 				Dom.alert.array.splice(Dom.alert.array.findIndex(index => index.id === target.id, 1));
 			}
 		}
-		
+
 		if (type !== "text") {
 			document.getElementById("alertNo"+id).onclick = function () {
 				// close alert only - and potentially call a function
@@ -284,7 +285,7 @@ Dom.alert.page = function (text, type, values, page, target) { // can't pass in 
 				Dom.alert.array.splice(Dom.alert.array.findIndex(index => index.id === target.id, 1));
 			}
 		}
-		
+
 		if (type === 3) {
 			document.getElementById("alertDispose"+id).onclick = function () {
 				// close alert and call function with parameter and (true)
@@ -298,7 +299,7 @@ Dom.alert.page = function (text, type, values, page, target) { // can't pass in 
 				Dom.alert.array.splice(Dom.alert.array.findIndex(index => index.id === target.id, 1));
 			}
 		}
-		
+
 		if (type === "text") {
 			alert.onclick = function () {
 				document.body.removeChild(alert);
@@ -369,7 +370,7 @@ Dom.achievements.update = function () {
 			User.achievementPoints.total += Achievements[i].points;
 			User.achievementPoints.unclaimed += Achievements[i].points;
 			Dom.achievements.page(i);
-			
+
 			// send websocket information if websocket is open
             if (ws !== false && ws.readyState === 1) {
                 ws.send(JSON.stringify({
@@ -463,7 +464,7 @@ Dom.closeNPCPages = function () {
 		Dom.closePage("inventoryPage");
 		//Dom.bank.active = false;
 	}
-	
+
 	if (Dom.trade.requested) {
 		Dom.chat.insert("Your trade request with " + Dom.currentlyDisplayed + " has been cancelled because one of you walked away.");
         Dom.chat.notification(Dom.currentlyDisplayed + " has cancelled the trade request.");
@@ -479,13 +480,13 @@ Dom.closeNPCPages = function () {
         Dom.chat.notification(Dom.currentlyDisplayed + " has cancelled the trade request.");
 		Dom.trade.received = false;
 	}
-	
+
 	if (this.elements.tradePage.hidden === false) {
 		Dom.trade.close(true);
 		//Dom.closePage("inventoryPage");
 		//Dom.trade.active = false;
 	}
-	
+
 	this.elements.questStart.hidden = true;
 	this.elements.questFinish.hidden = true;
 	this.elements.merchantPage.hidden = true;
@@ -511,9 +512,9 @@ Dom.closePage = function (page, notClose) {
 			tab = "settingsPage";
 		}
 		document.getElementById("change"+tab.substring(0,1).toUpperCase()+tab.substring(1,tab.length-4)).style.opacity = 0.7;
-		document.getElementById("change"+tab.substring(0,1).toUpperCase()+tab.substring(1,tab.length-4)).style.bottom = "-12px";
-		document.getElementById("change"+tab.substring(0,1).toUpperCase()+tab.substring(1,tab.length-4)).style.top = Dom.canvas.height-87+12+"px";
-		
+		//document.getElementById("change"+tab.substring(0,1).toUpperCase()+tab.substring(1,tab.length-4)).style.bottom = "-12px";
+		document.getElementById("change"+tab.substring(0,1).toUpperCase()+tab.substring(1,tab.length-4)).style.marginTop = "12px";
+
 	}
 	else if (!notClose) {
 		Dom.currentlyDisplayed = "";
@@ -547,9 +548,9 @@ Dom.changeBook = function (page, openClose) {
 		if (page === "chatPage" || page === "inventoryPage" || page === "questsPage" || page === "adventurePage" || page === "reputationPage" || page === "settingsPage" || page === "settingsTwoPage") {
 			bookmark = true;
 			document.getElementById("change"+tab.substring(0,1).toUpperCase()+tab.substring(1,tab.length-4)).style.opacity = 1;
-			document.getElementById("change"+tab.substring(0,1).toUpperCase()+tab.substring(1,tab.length-4)).style.bottom = "0px";
-			document.getElementById("change"+tab.substring(0,1).toUpperCase()+tab.substring(1,tab.length-4)).style.top = Dom.canvas.height-87+"px";
-			
+			//document.getElementById("change"+tab.substring(0,1).toUpperCase()+tab.substring(1,tab.length-4)).style.bottom = "0px";
+			document.getElementById("change"+tab.substring(0,1).toUpperCase()+tab.substring(1,tab.length-4)).style.marginTop = "0px";
+
 		}
 
 		document.getElementById(page).hidden = false;
@@ -785,9 +786,9 @@ Dom.chat.insertSequence = function (text, values, end, endParameters) {
 
 Dom.chat.input = function (id) {
 	if (Dom.elements[id].value !== "") {
-		
+
 		if (Dom.elements[id].value === "/help") {
-			Dom.chat.insert(Dom.chat.say("The Mighty Zararanath", 
+			Dom.chat.insert(Dom.chat.say("The Mighty Zararanath",
 			`Hello again, ${Player.name}. Here is a list of commands that you can type in chat:
 			<br><br>/me [message] - refer to yourself in the third person.
 			<br>/msg [player name] [message] - send a message to only one player.
@@ -795,7 +796,7 @@ Dom.chat.input = function (id) {
 			<br>/ping - see your connection speed with server.
 			<br><br>If you require help with the game, click your yellow bookmark with a compass on.`));
 		}
-		
+
 		// message intended to be sent to other players
 		else if (ws === false || ws.readyState !== 1) {
 			// server off
@@ -803,7 +804,7 @@ Dom.chat.input = function (id) {
 		}
 		else {
 			// server on
-			
+
 			if (Dom.elements[id].value === "/ping") {
 				let message = {
 			        type: "ping",
@@ -812,7 +813,7 @@ Dom.chat.input = function (id) {
 			    let jsonMessage = JSON.stringify(message);
 			    ws.send(jsonMessage);
 			}
-			
+
 			else if (Dom.elements[id].value.substring(0, 5) === "/msg ") {
 				let array = Dom.elements[id].value.split(" ");
 				if (array.length > 2 && Dom.players.findIndex(player => player.name === array[1]) !== -1) {
@@ -836,7 +837,7 @@ Dom.chat.input = function (id) {
 					Dom.chat.insert("Player "+array[1]+" cannot be found.");
 				}
 			}
-			
+
 			else if (Dom.elements[id].value.substring(0, 3) === "/r ") {
 				if (Dom.chat.replyTo !== undefined) {
 					Dom.chat.insert(Dom.chat.say(Player.name + " &#10132; " + Dom.chat.replyTo, Dom.elements[id].value.substring(3)));
@@ -852,7 +853,7 @@ Dom.chat.input = function (id) {
 					Dom.chat.insert("You cannot return a message until someone has messaged you first.");
 				}
 			}
-			
+
 			// send message which is thus broadcasted to all others (no KAO)
 			else {
 				let message = {
@@ -1823,16 +1824,16 @@ Dom.quest.accept = function () {
 			Player.quests.questProgress[Dom.currentlyDisplayed.resetVariables[i]] = undefined;
 		}
 	}
-	
+
 	let quest = Dom.currentlyDisplayed;
 	if (Dom.currentlyDisplayed.onQuestStart !== undefined) {
 		Dom.currentlyDisplayed.onQuestStart(Game[Dom.currentNPC.type].find(npc => npc.id === Dom.currentNPC.id));
 	}
-	
+
 	// after onQuestStart because tavern clean-up sets variables in onQuestStart needed for this
 	Dom.quests.active(quest);
 	Dom.quests.possible();
-	
+
 	// if the onQuestStart changed the page then don't change the page
 	if (Dom.currentlyDisplayed === quest) {
 		Dom.closePage('questStart');
@@ -1904,7 +1905,7 @@ Dom.quest.acceptRewards = function () {
 	}
 	Game.getXP(quest.rewards.xp, false); // not affected by XP Bonus
 	Dom.checkProgress();
-	
+
 	// last because it saves
 	if (quest.rewards !== undefined && quest.rewards.items !== undefined) {
 		for (let i = 0; i < quest.rewards.items.length; i++) {
@@ -1958,7 +1959,7 @@ Dom.quests.possible = function () {
 				//if (quest.repeatTime === "daily") {
 					if (Player.quests.randomDailyQuests[quest.randomGroup] === undefined) {
 						Player.quests.possibleQuestArray.push(quest.quest);
-						if (!Dom.quests.possibleHTML[quest.important].includes(FromCamelCase(quest.randomGroup))) {
+						if (!Dom.quests.possibleHTML[quest.important].includes(FromCamelCase(quest.randomGroup)) && quest.repeatTime !== "repeatable") {
 							Dom.quests.possibleHTML[quest.important] += "<br><br><strong>" + FromCamelCase(quest.randomGroup) + "</strong><br>" + quest.howToStart;
 						}
 					}
@@ -2302,6 +2303,12 @@ Dom.inventory.give = function (item, num, position, noSave, noArchaeology) {
 				for (let i = 0; i < Player.inventory.items.length; i++) {
 					// if the slot is empty then the item is added
 					if (Player.inventory.items[i].image === undefined) {
+
+						// if it is the bag slot then remove the background
+						if (i === 5) {
+							Dom.elements.itemInventory.getElementsByTagName("td")[5].style.backgroundImage = "none";
+						}
+
 						added = true;
 						position = i;
 						Player.inventory.items[i] = Object.assign({}, item);
@@ -3191,22 +3198,22 @@ Dom.inventory.validateSwap = function () {
 // from is not required for drag-n-drop cases
 // tableElement and stackNums are only for right click
 Dom.inventory.drop = function (toElement, toArray, toId, fromElement, fromArray, fromId, tableElement, fromStackNum, toStackNum) {
-	
+
 	if (fromId !== undefined) {
 		Dom.inventory.fromElement = fromElement;
 		Dom.inventory.fromArray = fromArray;
 		Dom.inventory.fromId = fromId;
 	}
-	
+
 	if (toArray !== Dom.trade.other && (toArray !== Dom.trade.items || (Dom.inventory.fromArray[Dom.inventory.fromId].quest === undefined || (Dom.inventory.fromArray[Dom.inventory.fromId].quest !== true && !Dom.inventory.fromArray[Dom.inventory.fromId].quest())))) {
-		
+
 		// close any inventory related alerts
 		let alert = Dom.alert.array.filter(alert => alert.page === "inventoryPage" || alert.page === "bankPage" || alert.page === "tradePage");
 		for (let i = 0; i < alert.length; i++) {
 			Dom.alert.close(alert[i].id);
 			//document.getElementById("alertNo"+alert[i].id).onclick();
 		}
-		
+
 		if (toElement.composedPath === undefined) {
 			Dom.inventory.toElement = toElement;
 		}
@@ -3223,10 +3230,10 @@ Dom.inventory.drop = function (toElement, toArray, toId, fromElement, fromArray,
 		Dom.inventory.toId = toId;
 
 		if (Dom.inventory.validateSwap()) {
-			
+
 			// not a right click (normal)
 			if (tableElement === undefined) {
-				
+
 				// remove old stats - must be done before items are switched (ocean warrior set)
 				if (Dom.inventory.fromArray === Player.inventory) {
 					Dom.inventory.removeEquipment(Dom.inventory.fromArray[Dom.inventory.fromId]);
@@ -3236,7 +3243,7 @@ Dom.inventory.drop = function (toElement, toArray, toId, fromElement, fromArray,
 						Dom.inventory.removeEquipment(Dom.inventory.toArray[Dom.inventory.toId]);
 					}
 				}
-				
+
 				// swap the code for the items
 				let temp = this.toArray[this.toId];
 				this.toArray[this.toId] = this.fromArray[this.fromId];
@@ -3251,10 +3258,10 @@ Dom.inventory.drop = function (toElement, toArray, toId, fromElement, fromArray,
 				else if (Dom.inventory.toArray === Player.inventory) {
 					Dom.inventory.addEquipment(Dom.inventory.toArray[Dom.inventory.toId]);
 				}
-				
+
 				// must be at end of code changes
 				Game.equipmentUpdate();
-				
+
 				let stackNum = "stackNum";
 				if (fromArray === Player.bank.items) {
 					stackNum = "bankStackNum";
@@ -3274,7 +3281,7 @@ Dom.inventory.drop = function (toElement, toArray, toId, fromElement, fromArray,
 				else {
 					this.fromElement.innerHTML = "";
 				}
-				
+
 				stackNum = "stackNum";
 				if (toArray === Player.bank.items) {
 					stackNum = "bankStackNum";
@@ -3282,7 +3289,7 @@ Dom.inventory.drop = function (toElement, toArray, toId, fromElement, fromArray,
 				else if (toArray === Dom.trade.items) {
 					stackNum = "tradeStackNum";
 				}
-				
+
 				this.toElement.innerHTML = "<img src='"+this.toArray[this.toId].image+"' draggable='true' ></img>";
 				if (this.toArray[this.toId].stacked > 1) {
 					this.toElement.innerHTML += "<div class='stackNum' id='"+stackNum+this.toId+"'>"+this.toArray[this.toId].stacked+"</div>";
@@ -3299,7 +3306,7 @@ Dom.inventory.drop = function (toElement, toArray, toId, fromElement, fromArray,
 					Dom.bank.bagCases();
 				}
 			}
-			
+
 			// only move 1 item across from a stack
 			else {
 				// decrease the stack size of the clicked stack
@@ -3314,7 +3321,7 @@ Dom.inventory.drop = function (toElement, toArray, toId, fromElement, fromArray,
 				else if (this.fromArray[this.fromId].stacked === 1) {
 					document.getElementById(fromStackNum+this.fromId).innerHTML = "";
 				}
-				
+
 				// find an identical item to increase the stack size
 				let stacked = false;
 				for (let i = 0; i < this.toArray.length; i++) {
@@ -3338,7 +3345,7 @@ Dom.inventory.drop = function (toElement, toArray, toId, fromElement, fromArray,
 					this.toElement.innerHTML = "<img src='"+this.toArray[this.toId].image+"' draggable='true' ></img>";
 					this.setItemFunctions(this.toElement.getElementsByTagName("img")[0], this.toArray, this.toId);
 				}
-				
+
 				// delete fromElement if it has a stack of zero
 				// must be at end because its data is used earlier
 				if (this.fromArray[this.fromId].stacked === 0) {
@@ -3358,7 +3365,7 @@ Dom.inventory.drop = function (toElement, toArray, toId, fromElement, fromArray,
 		    }
 		    let jsonMessage = JSON.stringify(message);
 		    ws.send(jsonMessage);
-			
+
 			// unconfirm if it was confirmed because items have been moved
 			document.getElementById("tradePageInventory").style.borderColor = "var(--border)";
 			for (let i = 0; i < 24; i++) {
@@ -3948,7 +3955,7 @@ Dom.choose.page = function (npc, buttons, functions, parameters, force) {
 				if (npc.chat !== undefined && npc.chat.chooseChat === undefined) {
 					// Player chooseDOM only
 					Dom.elements.choosePagePlayer.hidden = false;
-					
+
 					// find the player in Dom.players
 					for (let i = 0; i < Dom.players.length; i++) {
 						if (npc.userID === Dom.players[i].userID) {
@@ -3956,12 +3963,12 @@ Dom.choose.page = function (npc, buttons, functions, parameters, force) {
 							break;
 						}
 					}
-					
+
 					// achievement points
 					Dom.elements.choosePageAchievementPoints.innerHTML = npc.achievementPoints;
-					
+
 					// equipment slots
-					
+
 					let array = ["helm", "chest", "greaves", "boots", "weapon"];
 					for (let i = 0; i < 5; i++) {
 						let element = Dom.elements["choosePage"+array[i][0].toUpperCase()+array[i].substring(1)];
@@ -3986,10 +3993,10 @@ Dom.choose.page = function (npc, buttons, functions, parameters, force) {
 							else {
 								element.innerHTML = "";
 								if (npc.class === "a") {
-									element.style.backgroundImage = "url('assets/items/bow/1.png')";	
+									element.style.backgroundImage = "url('assets/items/bow/1.png')";
 								}
 								else if (npc.class === "m") {
-									element.style.backgroundImage = "url('assets/items/staff/1.png')";	
+									element.style.backgroundImage = "url('assets/items/staff/1.png')";
 								}
 								else {
 									element.style.backgroundImage = "url('assets/items/sword/1.png')";
@@ -3997,7 +4004,7 @@ Dom.choose.page = function (npc, buttons, functions, parameters, force) {
 							}
 						}
 					}
-					
+
 					// greeting
 					let clss = "knight";
 					if (npc.class === "a") {
@@ -4161,7 +4168,7 @@ Dom.instructions.unlockTab = function (tab, skip) {
 		document.getElementById("change"+tab[0].toUpperCase()+tab.substring(1)).style.display = "block";
 		document.getElementById("change"+tab[0].toUpperCase()+tab.substring(1)).style.bottom = "-12px";
 		document.getElementById("change"+tab[0].toUpperCase()+tab.substring(1)).style.top = Dom.canvas.height-87+12+"px";
-		
+
 		if (skip) {
 			Player.skippedTabs.push(tab);
 		}
@@ -4208,7 +4215,7 @@ if (User.settings.grid === true) {
 // direction - in or out of bank
 // num - position in inventory or bank (i)
 // other - a string such as "bank" to say where it is going / coming from
-Dom.inventory.inOut = function (direction, num, other) {	
+Dom.inventory.inOut = function (direction, num, other) {
 	if (direction === "in") {
 
 		let array = "";
@@ -4221,7 +4228,7 @@ Dom.inventory.inOut = function (direction, num, other) {
 			array = Player.inventory.items;
 			element = Dom.elements.itemInventory.getElementsByTagName("td")[num];
 		}
-		
+
 		// bank not trade
 		if (other === "bank") {
 			// a bag is dropped in the bank bag slots
@@ -4267,7 +4274,7 @@ Dom.inventory.inOut = function (direction, num, other) {
 					break;
 				}
 			}
-		}	
+		}
 	}
 	// from bank/trade to inventory
 	else {
@@ -4853,7 +4860,7 @@ Dom.chat.players = function (object, action) {
             Dom.elements.players.innerHTML = object.numberOnline + " player online";
         }
     }
-	
+
     if (action === "join") {
 		// if someone else has logged on
         if (object.userID !== ws.userID) {
@@ -4862,7 +4869,7 @@ Dom.chat.players = function (object, action) {
         }
         Dom.players.push(object);
     }
-	
+
     else if (action === "leave") {
         for (let i = 0; i < Dom.players.length; i++) {
 			// find the player that has logged off
@@ -4873,12 +4880,12 @@ Dom.chat.players = function (object, action) {
             }
         }
     }
-	
+
     else if (action === "retroactive") {
 		// the player has just logged on; adding already logged on players
         Dom.players.push(object);
     }
-    
+
 	else { // something has changed about an online player (e.g. area or level)
         for (let i = 0; i < Dom.players.length; i++) {
 			// find who the changed information is about
@@ -4951,9 +4958,9 @@ Dom.trade.page = function () {
 	Dom.trade.requested = false;
 	Dom.trade.received = false;
 	Dom.trade.active = true;
-	
+
 	Dom.elements.them.innerHTML = Dom.currentlyDisplayed;
-	
+
 	// construct your empty inventory
 	let html = "<tbody>";
 	for (let i = 0; i < 24; i+=8) {
@@ -4982,7 +4989,7 @@ Dom.trade.request = function (userID, name) {
 	Dom.chat.insert("Trade request sent to "+ name +". Walk away to cancel.");
 }
 
-Dom.trade.requestReceived = function (userID, name, npc) {	
+Dom.trade.requestReceived = function (userID, name, npc) {
 	if (Dom.currentlyDisplayed === "") {
 		Dom.trade.received = true;
 		Dom.currentlyDisplayed = name;
@@ -5031,7 +5038,7 @@ Dom.trade.requestReceived = function (userID, name, npc) {
 
 Dom.trade.updateTheirInventory = function (inventory) {
 	Dom.trade.other = inventory;
-	
+
 	// construct their empty inventory
 	let html = "<tbody>";
 	for (let i = 0; i < 24; i+=8) {
@@ -5042,7 +5049,7 @@ Dom.trade.updateTheirInventory = function (inventory) {
 		html += str+"</tr>";
 	}
 	Dom.elements.tradePageOther.innerHTML = html+"</body>";
-	
+
 	// fill the inventory with elements
 	for (let i = 0; i < Dom.trade.other.length; i++) {
 		if (Dom.trade.other[i].image !== undefined) {
@@ -5052,7 +5059,7 @@ Dom.trade.updateTheirInventory = function (inventory) {
 			}
 		}
 	}
-	
+
 	// unconfirm if it was confirmed because items have been moved
 	document.getElementById("tradePageInventory").style.borderColor = "var(--border)";
 	for (let i = 0; i < 24; i++) {
@@ -5156,7 +5163,7 @@ window.onbeforeunload = function() {
 		Dom.trade.close();
 	}
 	if (Areas[Game.areaName].onAreaLeave !== undefined && Areas[Game.areaName].callAreaLeaveOnLogout) {
-		Areas[Game.areaName].onAreaLeave();
+		Areas[Game.areaName].onAreaLeave(true);
 	}
 	if (!Dom.settings.deleted) {
 		Game.saveProgress();
@@ -5275,10 +5282,10 @@ Dom.settings.minigames = function () {
 }
 
 Dom.quest.abandon = function (quest) {
-	
+
 	//if the quest is active then abandon it
 	if (Player.quests.activeQuestArray.includes(quest.quest)) {
-		
+
 		// remove all items with the property removeOnAbandon set to the quest name
 		for (let i = 0; i < Player.inventory.items.length; i++) {
 			if (Player.inventory.items[i].removeOnAbandon === quest.quest) {
@@ -5292,26 +5299,26 @@ Dom.quest.abandon = function (quest) {
 				Dom.inventory.disposeConfirm();
 			}
 		}
-		
+
 		// remove from active quest array
 		for (let i = 0; i < Player.quests.activeQuestArray.length; i++) {
-			if (Player.quests.activeQuestArray[i] === quest.quest) {			
+			if (Player.quests.activeQuestArray[i] === quest.quest) {
 				Player.quests.activeQuestArray.splice(i, 1);
 				break;
 			}
 		}
-		
+
 		// remove from canBeFinishedArray so when it is next started it can't be compelted instantly
 		for (let i = 0; i < Player.quests.canBeFinishedArray.length; i++) {
 			if (Player.quests.canBeFinishedArray[i] === quest.quest) {
 				Player.quests.canBeFinishedArray.splice(i, 1);
 			}
 		}
-		
+
 		if (quest.callQuestFinishOnAbandon) {
 			quest.onQuestFinish();
 		}
-		
+
 		// update boxes
 		Dom.checkProgress();
 	}
@@ -5320,6 +5327,10 @@ Dom.quest.abandon = function (quest) {
 Dom.infoBar.page = function (html) {
 	Dom.elements.infoBar.innerHTML = html;
 	Dom.elements.infoBar.style.left = Dom.canvas.width/2 - Dom.elements.infoBar.offsetWidth/2 + "px";
+}
+
+Dom.infoBar.updateYPosition = function () {
+	Dom.elements.infoBar.style.top = Game.viewportOffsetY + "px";
 }
 
 Dom.settings.dark = function () {
@@ -5355,79 +5366,97 @@ Dom.settings.dark = function () {
 	}
 }
 
+Dom.zoom = 1.0;
 // called by viewport resize or by init
 // parameter is true if called on init
 Dom.updateScreenSize = function (init) {
-	if (window.innerHeight/document.body.style.zoom < 620) {
-		document.body.style.zoom -= 0.1;
+
+	if (window.innerHeight/Dom.zoom < 620) {
+		Dom.zoom -= 0.1;
+		document.documentElement.style.setProperty('--zoom', Dom.zoom);
+	}
+	if (window.innerHeight >= 620) {
+		Dom.zoom = 1.0;
+		document.documentElement.style.setProperty('--zoom', '1.0');
+	}
+
+	Dom.canvas.width = window.innerWidth;//document.body.style.zoom;
+	Dom.canvas.height = window.innerHeight;//document.body.style.zoom;
+
+	Dom.elements.interact.style.left = Dom.canvas.width-110+"px";
+	Dom.elements.game.width = Dom.canvas.width;
+	Dom.elements.game.height = Dom.canvas.height;
+	Dom.elements.dayNight.width = Dom.canvas.width;
+	Dom.elements.dayNight.height = Dom.canvas.height;
+	Dom.elements.light.width = Dom.canvas.width;
+	Dom.elements.light.height = Dom.canvas.height;
+	Dom.elements.secondary.width = Dom.canvas.width;
+	Dom.elements.secondary.height = Dom.canvas.height;
+	Dom.elements.chat.style.width = Dom.canvas.width/2-183+"px";
+	Dom.elements.canvasChatInput.style.width = Dom.canvas.width/2-187-3+"px";
+	Dom.elements.hotbar.style.left = Dom.canvas.width/2-167.6+"px";
+	Dom.elements.hotbar.style.top = Dom.canvas.height-80+"px";
+
+	if (Dom.canvas.width < 1215) {
+		Dom.elements.bookmarks.style.left = Dom.canvas.width/2+168+"px";
+		Dom.elements.bookmarks.style.width = Dom.canvas.width/2-168+"px";
 	}
 	else {
-		Dom.canvas.width = window.innerWidth/document.body.style.zoom;
-		Dom.canvas.height = window.innerHeight/document.body.style.zoom;
+		Dom.elements.bookmarks.style.left =(Dom.canvas.width/2-168-400)/2 + Dom.canvas.width/2+168-20+"px";
+		Dom.elements.bookmarks.style.width = "440px";
+	}
+	Dom.elements.bookmarks.style.top = Dom.canvas.height-87+"px";
 
-		Dom.elements.interact.style.left = Dom.canvas.width-110+"px";
-		Dom.elements.game.width = Dom.canvas.width;
-		Dom.elements.game.height = Dom.canvas.height;
-		Dom.elements.dayNight.width = Dom.canvas.width;
-		Dom.elements.dayNight.height = Dom.canvas.height;
-		Dom.elements.light.width = Dom.canvas.width;
-		Dom.elements.light.height = Dom.canvas.height;
-		Dom.elements.secondary.width = Dom.canvas.width;
-		Dom.elements.secondary.height = Dom.canvas.height;
-		Dom.elements.chat.style.width = Dom.canvas.width/2-183+"px";
-		Dom.elements.canvasChatInput.style.width = Dom.canvas.width/2-187-3+"px";
-		Dom.elements.hotbar.style.left = Dom.canvas.width/2-167.6+"px";
-		Dom.elements.hotbar.style.top = Dom.canvas.height-80+"px";
-		let left = (Dom.canvas.width/2-168-400)/2 + Dom.canvas.width/2+168;
-		Dom.elements.changeChat.style.left= left+"px";
-		Dom.elements.changeChat.style.top= Dom.canvas.height-87-parseInt(Dom.elements.changeChat.style.bottom)+"px";
-		Dom.elements.changeInventory.style.left= left+70+"px";
-		Dom.elements.changeInventory.style.top= Dom.canvas.height-87-parseInt(Dom.elements.changeInventory.style.bottom)+"px";
-		Dom.elements.changeQuests.style.left= left+140+"px";
-		Dom.elements.changeQuests.style.top= Dom.canvas.height-87-parseInt(Dom.elements.changeQuests.style.bottom)+"px";
-		Dom.elements.changeAdventure.style.left= left+210+"px";
-		Dom.elements.changeAdventure.style.top= Dom.canvas.height-87-parseInt(Dom.elements.changeAdventure.style.bottom)+"px";
-		Dom.elements.changeReputation.style.left= left+280+"px";
-		Dom.elements.changeReputation.style.top= Dom.canvas.height-87-parseInt(Dom.elements.changeReputation.style.bottom)+"px";
-		Dom.elements.changeSettings.style.left= left+350+"px";
-		Dom.elements.changeSettings.style.top= Dom.canvas.height-87-parseInt(Dom.elements.changeSettings.style.bottom)+"px";
-		Dom.elements.achievement.style.left= Dom.canvas.width-458+"px";
-		Dom.elements.chat.style.top= Dom.canvas.height-Dom.chat.offset-Dom.elements.chat.offsetHeight+"px";
+	//let left = (Dom.canvas.width/2-168-400)/2 + Dom.canvas.width/2+168;
+	//Dom.elements.changeChat.style.left= left+"px";
+	//Dom.elements.changeChat.style.top= Dom.canvas.height-87-parseInt(Dom.elements.changeChat.style.bottom)+"px";
+	//Dom.elements.changeInventory.style.left= left+70+"px";
+	//Dom.elements.changeInventory.style.top= Dom.canvas.height-87-parseInt(Dom.elements.changeInventory.style.bottom)+"px";
+	//Dom.elements.changeQuests.style.left= left+140+"px";
+	//Dom.elements.changeQuests.style.top= Dom.canvas.height-87-parseInt(Dom.elements.changeQuests.style.bottom)+"px";
+	//Dom.elements.changeAdventure.style.left= left+210+"px";
+	//Dom.elements.changeAdventure.style.top= Dom.canvas.height-87-parseInt(Dom.elements.changeAdventure.style.bottom)+"px";
+	//Dom.elements.changeReputation.style.left= left+280+"px";
+	//Dom.elements.changeReputation.style.top= Dom.canvas.height-87-parseInt(Dom.elements.changeReputation.style.bottom)+"px";
+	//Dom.elements.changeSettings.style.left= left+350+"px";
+	//Dom.elements.changeSettings.style.top= Dom.canvas.height-87-parseInt(Dom.elements.changeSettings.style.bottom)+"px";
 
-		if (window.innerHeight === screen.height || window.innerHeight + 1 === screen.height) {
-			Dom.elements.fullscreenOn.checked = true;
-		}
-		else {
-			Dom.elements.fullscreenOff.checked = true;
-		}
+	Dom.elements.achievement.style.left= Dom.canvas.width-458+"px";
+	Dom.elements.chat.style.top= Dom.canvas.height-Dom.chat.offset-Dom.elements.chat.offsetHeight+"px";
 
-		// only call Game functions if this was called due to viewport being resized
-		// because Game functions are called anyway on init
-		if (!init) {
-			// update camera variables
-			Game.camera.width = Dom.canvas.width;
-			Game.camera.height = Dom.canvas.height;
-			Game.camera.setMaxClampValues();
-			Game.camera.update();
+	if (window.innerHeight === screen.height || window.innerHeight + 1 === screen.height) {
+		Dom.elements.fullscreenOn.checked = true;
+	}
+	else {
+		Dom.elements.fullscreenOff.checked = true;
+	}
 
-			// update Game canvas variables
-			Game.updateCanvasViewport();
+	// only call Game functions if this was called due to viewport being resized
+	// because Game functions are called anyway on init
+	if (!init) {
+		// update camera variables
+		Game.camera.width = Dom.canvas.width;
+		Game.camera.height = Dom.canvas.height;
+		Game.camera.setMaxClampValues();
+		Game.camera.update();
 
-			// canvases are resized so are wiped - render them if they will not be rendered anyway next tick
-			Game.secondary.render();
-			Game.renderDayNight();
+		// update Game canvas variables
+		Game.updateCanvasViewport();
 
-			// update weather intensity and reset the positions of the particles
-			if (Dom.elements.weatherOn.checked) {
-				Weather.updateIntensity();
-				//Weather.reset();
-			}
+		// canvases are resized so are wiped - render them if they will not be rendered anyway next tick
+		Game.secondary.render();
+		Game.renderDayNight();
+
+		// update weather intensity and reset the positions of the particles
+		if (Dom.elements.weatherOn.checked) {
+			Weather.updateIntensity();
+			//Weather.reset();
 		}
 	}
 }
 
 Dom.init = function () {
-	document.body.style.zoom = "1.0";
+	//document.body.style.zoom = "1.0";
 	Dom.updateScreenSize(true);
 
 	Dom.elements.itemInventory.innerHTML = "";
@@ -5567,7 +5596,8 @@ Dom.init = function () {
 					[{item: Items.item[17],},{item: Items.currency[5], quantity: 5,}]],
 					[{item: Items.item[17],},{item: Items.currency[5], quantity: 5,}],
 				);
-			}else if (date.substring(6) < "25") { // before christmas
+			}
+			else if (date.substring(6) < "25") { // before christmas
 				Dom.mail.give(
 					25 - parseInt(date.substring(6)) + " Day"+(parseInt(date.substring(6)) !== 24 ? "s" : "")+" To Go!",
 					randomNPC,
@@ -5577,7 +5607,8 @@ Dom.init = function () {
 					"This is your free daily chistmas token. Spend it wisely!", true, [], [],
 					[{item: Items.currency[5]}]], [{item: Items.currency[5]}],
 				);
-			}else { // after christmas (in december)
+			}
+			else { // after christmas (in december)
 				Dom.mail.give(
 					parseInt(date.substring(6)) + " of Christmas 2018",
 					randomNPC,
@@ -5656,7 +5687,7 @@ Dom.init = function () {
 		}
 
 		Player.days.push(date);
-		
+
 		// reset randomDailyQuests ONLY IF THEY ARE NOT STILL ACTIVE :(
 		let array = [];
 		for (let i = 0; i < Object.keys(Quests).length; i++) {
@@ -5671,10 +5702,10 @@ Dom.init = function () {
 				Player.quests.randomDailyQuests[Object.keys(Player.quests.randomDailyQuests)[i]] = undefined;
 			}
 		}
-		
+
 		Player.chests.positions = {}; // chests change position each day
 	}
-	
+
 	// Archaeology mail
 	let done = true;
 	for (let i = 0; i < 7; i++) {
@@ -5702,7 +5733,7 @@ Dom.init = function () {
 
 	Dom.hotbar.update();
 	Dom.inventory.update();
-	
+
 	// remove all active repeatable quests before checkProgress (quests.active)
 	for (let x = 0; x < Player.quests.activeQuestArray.length; x ++) {
 		for (let i = 0; i < Object.keys(Quests).length; i++) {
@@ -5715,11 +5746,11 @@ Dom.init = function () {
 			}
 		}
 	}
-	
+
 	Dom.checkProgress(); // calls Dom.quests.active()
 	Dom.quests.completed();
 	Dom.adventure.update(); // chooses what should be shown in adventurer's log
-	
+
 	// clear any unintentional chat and welcome player
 	Dom.chat.contents = [];
 
@@ -5745,6 +5776,11 @@ Dom.init = function () {
 			Dom.chat.insert("You have " + unreadMail + " new message!"); // maybe make it more obvious that player has to check their mailbox for this?
 		}
 	}
+
+	for (let i = 0; i < Player.chatOnJoin.length; i++) {
+		Dom.chat.insert(Player.chatOnJoin[i]);
+	}
+	Player.chatOnJoin = [];
 
 	Dom.elements.weatherOn.onclick = function () {
 		User.settings.weather = true;
@@ -5800,7 +5836,7 @@ Dom.init = function () {
 		Keyboard.listenForKey(User.settings.keyboard[array[i]], undefined, Keyboard.upFunctions[array[i]]);
 	}
 	Keyboard.listenForKey(User.settings.keyboard.TALK, undefined, Keyboard.upFunctions.TALK);
-	
+
 	Dom.chat.offset = 40; // distance of chat from bottom of canvas (because input is hidden)
 	// add a 'space' button on mobile devices and hide canvas chat input
 	// thanks to https://stackoverflow.com/a/29509267/9713957
@@ -5815,7 +5851,7 @@ Dom.init = function () {
 			}, 100);
 		}
 	}
-	
+
 	//document.documentElement.requestFullscreen(); - disabled by chrome
 }
 

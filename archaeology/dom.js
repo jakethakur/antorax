@@ -654,6 +654,7 @@ function arrange(){
 					window.location.replace(url.toString());
 					//window.location = "./index.html?id="+array[i].id+"&type="+array[i].type;
 				}
+				document.getElementById("flashcardlist4").style.width = "250px";
 			}
 		}
 		if(viewedItemType != "set"){

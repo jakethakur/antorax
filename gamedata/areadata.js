@@ -1663,19 +1663,29 @@ var Areas = {
 		},
 
 		callAreaLeaveOnLogout: true,
-
-		onAreaLeave: function () {
+		
+		onAreaLeave: function (logout) {
+			let chat = "";
 			if (Player.quests.activeQuestArray.includes("Cleaning the Floor")) {
 				Dom.quest.abandon(Quests.tavern[1]);
-				Dom.chat.insert("Cleaning the Floor has been abandoned. You can start it again by speaking to an innkeeper.")
+				chat = "<strong>Cleaning the Floor</strong> has been abandoned. You can start it again by speaking to an innkeeper.";
 			}
-			if (Player.quests.activeQuestArray.includes("Tavern Tidy-up")) {
+			if (Player.quests.activeQuestArray.includes("Tavern Tidy-Up")) {
 				Dom.quest.abandon(Quests.tavern[2]);
-				Dom.chat.insert("Tavern Tidy-up has been abandoned. You can start it again by speaking to an innkeeper.")
+				chat = "<strong>Tavern Tidy-Up</strong> has been abandoned. You can start it again by speaking to an innkeeper.";
 			}
 			if (Player.quests.activeQuestArray.includes("Hungry Taverners")) {
 				Dom.quest.abandon(Quests.tavern[3]);
-				Dom.chat.insert("Hungry Taverners has been abandoned. You can start it again by speaking to an innkeeper.")
+				chat = "<strong>Hungry Taverners</strong> has been abandoned. You can start it again by speaking to an innkeeper.";
+			}
+			
+			if (chat !== "") {
+				if (logout) {
+					Player.chatOnJoin.push(chat);
+				}
+				else {
+					Dom.chat.insert(chat);
+				}
 			}
 		},
 
@@ -4101,7 +4111,6 @@ var Areas = {
 			// select a random number of mugs and plates to generate between 5 and 15
 			let random = Random(5, 15);
 			Player.quests.questProgress.mugsPlatesTotal = random;
-			Player.quests.questProgress.mugsPlatesDone = 0;
 
 			// spawn the mugs and plates
 			for (let i = 0; i < random; i++) {
@@ -4142,19 +4151,29 @@ var Areas = {
 		},
 
 		callAreaLeaveOnLogout: true,
-
-		onAreaLeave: function () {
+		
+		onAreaLeave: function (logout) {
+			let chat = "";
 			if (Player.quests.activeQuestArray.includes("Cleaning the Floor")) {
 				Dom.quest.abandon(Quests.tavern[1]);
-				Dom.chat.insert("Cleaning the Floor has been abandoned. You can start it again by speaking to an innkeeper.")
+				chat = "<strong>Cleaning the Floor</strong> has been abandoned. You can start it again by speaking to an innkeeper.";
 			}
 			if (Player.quests.activeQuestArray.includes("Tavern Tidy-Up")) {
 				Dom.quest.abandon(Quests.tavern[2]);
-				Dom.chat.insert("Tavern Tidy-Up has been abandoned. You can start it again by speaking to an innkeeper.")
+				chat = "<strong>Tavern Tidy-Up</strong> has been abandoned. You can start it again by speaking to an innkeeper.";
 			}
 			if (Player.quests.activeQuestArray.includes("Hungry Taverners")) {
 				Dom.quest.abandon(Quests.tavern[3]);
-				Dom.chat.insert("Hungry Taverners has been abandoned. You can start it again by speaking to an innkeeper.")
+				chat = "<strong>Hungry Taverners</strong> has been abandoned. You can start it again by speaking to an innkeeper.";
+			}
+			
+			if (chat !== "") {
+				if (logout) {
+					Player.chatOnJoin.push(chat);
+				}
+				else {
+					Dom.chat.insert(chat);
+				}
 			}
 		},
 
@@ -4358,6 +4377,80 @@ var Villagers = [
 			notUnlockedRoles: "Yarr harr! Have ye spied me ship nearby?",
 			chooseChat: "Ahoy there!",
 			receiveTavernGood: "Nothin' better than a hearty supper at the tavern.",
+		}
+	},
+	{
+		image: "gildoCleftbeard",
+		imageSource: {normal: "assets/npcs/gildoCleftbeard.png"},
+		name: "Gildo Cleftbeard",
+		stats: {
+			level: 14,
+			maxHealth: 120,
+			walkSpeed: 123,
+			defence: 6,
+		},
+		hostility: "friendly",
+		areas: [
+			"loggingCampTavern",
+			"eaglecrestTavern",
+			"eaglecrestBank",
+			"eaglecrest",
+			"eaglecrestEast",
+			"eaglecrestWest",
+		],
+		roles: [],
+		chat: {
+			notUnlockedRoles: "I would never go to that Nilbog! Wouldn't want to get my boots muddy. Oh, and the goblins, too.",
+			chooseChat: "I tip my hat to you.",
+			receiveTavernGood: "Thank you, now I just have to be careful not to get any in my beard!",
+		}
+	},
+	{
+		image: "eaglecrestGuard",
+		imageSource: {normal: "assets/npcs/eaglecrestGuard.png"},
+		name: "Eaglecrest Guard",
+		level: 50,
+		stats: {
+			maxHealth: 300,
+			defence: 20,
+		},
+		hostility: "friendly",
+		areas: [
+			"eaglecrestTavern",
+			"eaglecrestBank",
+			"eaglecrest",
+			"eaglecrestEast",
+			"eaglecrestWest",
+		],
+		roles: [],
+		chat: {
+			notUnlockedRoles: "Becoming a guard has been my dream ever since I was a child. I admired their might!",
+			chooseChat: "Sorry if I seem distracted, but I'm always on the lookout for criminals.",
+			receiveTavernGood: "Thanks. I need this to keep my strength up.",
+		}
+	},
+	{
+		image: "eaglecrestGuard2",
+		imageSource: {normal: "assets/npcs/eaglecrestGuard2.png"},
+		name: "Eaglecrest Guard",
+		level: 50,
+		stats: {
+			maxHealth: 300,
+			defence: 20,
+		},
+		hostility: "friendly",
+		areas: [
+			"eaglecrestTavern",
+			"eaglecrestBank",
+			"eaglecrest",
+			"eaglecrestEast",
+			"eaglecrestWest",
+		],
+		roles: [],
+		chat: {
+			notUnlockedRoles: "Becoming a guard has been my dream ever since I was a child. I admired their might!",
+			chooseChat: "Sorry if I seem distracted, but I'm always on the lookout for criminals.",
+			receiveTavernGood: "Thanks. I need this to keep my strength up.",
 		}
 	},
 ];

@@ -1303,9 +1303,6 @@ After all, death is never the end in Antorax...<br>
 			howToStart: "Speak to an innkeeper.",
 			levelRequirement: 1,
 			questRequirements: ["To the Logging Camp"],
-			requirement: function () {
-				return Player.quests.questProgress.mugsPlatesDone === 0; // not undefined because that means there are none
-			},
 			repeatTime: "repeatable",
 			randomGroup: "tavernJobs",
 
@@ -1370,22 +1367,15 @@ After all, death is never the end in Antorax...<br>
 						}
 	                }));
 
-					let array = Game.things.concat(Game.npcs);
-					for (let x = 0; x < array.length; x++) {
-						Game.updateScreenPosition(array[x]);
-					}
+					let array = Game.things.concat(Game.npcs); // array of things that cannot be touched
 
 					// if the centre of the dirt is touching any thing then choose a new location
 					let dirt = Game.attackables[Game.attackables.length-1];
 					let touching = true;
 					while (touching) {
-						Game.updateScreenPosition(dirt);
-						console.log(i);
 						touching = false;
 						if (map.getTile(0, map.getCol(dirt.x-dirt.width/2), map.getRow(dirt.y+dirt.height/2)) === 11
 						&& map.getTile(0, map.getCol(dirt.x+dirt.width/2), map.getRow(dirt.y+dirt.height/2)) === 11) {
-							console.log("x: "+dirt.x);
-							console.log("y: "+dirt.y);
 							for (let x = 0; x < array.length; x++) {
 								if (array[x].isTouching(dirt)) {
 									touching = true;
@@ -1439,9 +1429,6 @@ After all, death is never the end in Antorax...<br>
 			howToStart: "Speak to an innkeeper.",
 			levelRequirement: 1,
 			questRequirements: ["To the Logging Camp"],
-			requirement: function () {
-				return Player.quests.questProgress.mugsPlatesDone === 0; // not undefined because that means there are none
-			},
 			repeatTime: "repeatable",
 			randomGroup: "tavernJobs",
 
@@ -1456,7 +1443,7 @@ After all, death is never the end in Antorax...<br>
 				{item: Items.item[25], quantity: true}, // all mugs
 				{item: Items.item[26], quantity: true}, // all plates
 			],
-			
+
 			isCompleted: function () {
 				let completed = [];
 
@@ -1468,6 +1455,11 @@ After all, death is never the end in Antorax...<br>
 			},
 
 			onQuestStart: function () {
+				
+				if (Player.quests.questProgress.mugsPlatesDone === undefined) {
+					Areas[Game.areaName].onAreaJoin();
+					Player.quests.questProgress.mugsPlatesDone = 0;
+				}
 				
 				for (let i = 0; i < Game.things.length; i++) {
 					if (Game.things[i].name === "Mug") {
@@ -1486,6 +1478,10 @@ After all, death is never the end in Antorax...<br>
 					}
 				}
 			},
+			
+			onQuestFinish: function () {
+				Player.quests.questProgress.mugsPlatesDone = undefined;
+			}
 		},
 		{
 			id: 3,
@@ -1520,9 +1516,6 @@ After all, death is never the end in Antorax...<br>
 			howToStart: "Speak to an innkeeper.",
 			levelRequirement: 1,
 			questRequirements: ["To the Logging Camp"],
-			requirement: function () {
-				return Player.quests.questProgress.mugsPlatesDone === 0; // not undefined because that means there are none
-			},
 			repeatTime: "repeatable",
 			randomGroup: "tavernJobs",
 

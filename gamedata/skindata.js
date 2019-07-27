@@ -135,6 +135,17 @@ var Skins = {
 			cursor: "crosshair",
 			headAdjust: {x: 0, y: 5},
 		},
+		/*{
+            id: 6,
+            position: {x: -20, y: 6.7},
+            name: "Sorcerer Penguin",
+            gender: "m",
+            projectile: "fireballPurple",
+            projectileAdjust: {x: 20, y: 20},
+            cursor: "maths",
+			cursorPosition: {x: 10, y: 10},
+            headAdjust: {x: 3, y: 5}, // TBD
+        },*/
 	],
 	k: [
 		{
@@ -201,7 +212,7 @@ var Skins = {
 		},
 		{
             id: 6,
-            position: {x: Infinity, y: 20}, // TBD
+            position: {x: -10, y: Infinity},
             name: "Thunder Donkey",
             gender: "m",
             projectile: "slashBlue",

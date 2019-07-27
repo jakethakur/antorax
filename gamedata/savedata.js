@@ -28,6 +28,8 @@ var Player = {
 	days: [], // days logged on (ddmmyyyy)
 	metNPCs: ["Cart Driver"],
 
+	chatOnJoin: [],
+
 	chests: {
 		opened: {},
 		locations: {},

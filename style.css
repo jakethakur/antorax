@@ -114,6 +114,7 @@ thead:after { /* space after bags in bank */
 	overflow: hidden;
 	position: absolute;
 	top: 10px;
+	zoom: var(--zoom);
 }
 
 #questsPage, #settingsPage, #settingsTwoPage, #adventurePage, #leaderboardPage{
@@ -666,6 +667,12 @@ thead:after { /* space after bags in bank */
 
 .theseOptions {
 	margin-top: 0px;
+	user-drag: none;
+	user-select: none;
+	-moz-user-select: none;
+	-webkit-user-drag: none;
+	-webkit-user-select: none;
+	-ms-user-select: none;
 }
 
 #merchantPageBuy {
@@ -886,9 +893,17 @@ thead:after { /* space after bags in bank */
 /*		BOOKMARKS	*/
 /*					*/
 
-.changePage {
-	width: 50px;
+#bookmarks {
 	position: absolute;
+	height: 100px;
+	display: flex;
+	justify-content: space-evenly;
+}
+
+.changePage {
+	height: 87px;
+	margin-top: 12px;
+	width: 50px;
 	outline: none;
 	display: none;
 	opacity: 0.7;
