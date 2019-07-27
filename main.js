@@ -159,7 +159,7 @@ Game.initWebSocket = function () {
 						}
 						if (message.expand !== undefined && message.expand !== user.expand) {
 							// expand changed
-							user.setExpand(message.expand);
+							user.setExpandZ(message.expand);
 						}
 					}
 					break;
@@ -179,6 +179,10 @@ Game.initWebSocket = function () {
 					// insert in chat
 					Dom.chat.insert(Dom.chat.say(message.name, messageContent));
 				    // notification if user has given permission
+					if (message.sender !== undefined) {
+						// private message ("msg") - because message.name contains a unicode icon that does not display on notification, it should be changed
+						message.name = message.sender + " (private message)";
+					}
 					Dom.chat.notification(message.name, messageContent);
 					break;
 
@@ -871,7 +875,14 @@ class Entity {
 			this.onLoad();
 		}
 
-		Game.allEntities.push(this); // array for current area only
+		// set screenX and screenY (if camera has been defined, i.e. this is not created before init)
+		if (Game.camera !== undefined) {
+			Game.updateScreenPosition(this);
+		}
+
+		if (properties.addToObjectArrays !== false) {
+			Game.allEntities.push(this); // array for current area only
+		}
 	}
 
 	isTouching (object) {
@@ -895,10 +906,10 @@ class Entity {
 			object1 = object.hitbox;
 		}
 
-		if (object2.screenX - object2.width / 2 < object1.screenX + object1.width / 2 &&
-	    object2.screenX + object2.width / 2 > object1.screenX - object1.width / 2 &&
-	    object2.screenY - object2.height / 2 < object1.screenY + object1.height / 2 &&
-	    object2.screenY + object2.height / 2 > object1.screenY - object1.height / 2) {
+		if (object2.x - object2.width / 2 < object1.x + object1.width / 2 &&
+	    object2.x + object2.width / 2 > object1.x - object1.width / 2 &&
+	    object2.y - object2.height / 2 < object1.y + object1.height / 2 &&
+	    object2.y + object2.height / 2 > object1.y - object1.height / 2) {
 			return true;
 		}
 		else {
@@ -968,7 +979,9 @@ class Thing extends Entity {
 		// optional function for when space is pressed when touching
 		this.onInteract = properties.onInteract;
 
-		Game.allThings.push(this); // array for current area only
+		if (properties.addToObjectArrays !== false) {
+			Game.allThings.push(this); // array for current area only
+		}
 	}
 
 	// imageName is the key name of the image stored in loader
@@ -976,6 +989,7 @@ class Thing extends Entity {
 	// width and height are optional "stretch" parameters
 	// rotationImages is object of image key names in loader of rotation images (i.e. different character directions)
 	// rotationImages can be set to false to not change rotationImage variables
+	// rotationImages can be set to undefined if the character's image does not change on rotate (this will successfully overwirte any old rotation image variables)
 	setImage (imageName, crop, width, height, rotationImages) {
 		if (this.imageName !== imageName) {
 			// avoid undefined error later
@@ -986,7 +1000,7 @@ class Thing extends Entity {
 			this.imageName = imageName;
 			this.image = Loader.getImage(imageName);
 
-			this.setImageDimensions(crop, width, height)
+			this.setImageDimensions(crop, width, height);
 
 			if (this.setRotationImageVariables !== undefined && rotationImages !== false) {
 				// only works for enemies atm - tbd extend to all cases and remove this if statement
@@ -1054,6 +1068,12 @@ class Thing extends Entity {
 		this.expand = value;
 		this.width = this.baseWidth * this.expand;
 		this.height = this.baseHeight * this.expand;
+	}
+
+	// set the expand and z position of the entity (the z position is based on the expand)
+	setExpandZ (value) {
+		this.setExpand(value);
+		this.z = value-1;
 	}
 }
 
@@ -1191,7 +1211,9 @@ class Character extends Thing {
 
 		this.statusEffects = [];
 
-		Game.allCharacters.push(this); // array for current area only
+		if (properties.addToObjectArrays !== false) {
+			Game.allCharacters.push(this); // array for current area only
+		}
 	}
 
 	// insert a message into the chat, under the format of "this.name: message"
@@ -1220,8 +1242,10 @@ class Character extends Thing {
 	// function to be carried out during Game.render(), after image render
 	// note that this is overwritten by Hero
 	postRenderFunction () {
-		// show health bar and character name above head
-		Game.drawCharacterInformation(Game.ctx, this);
+		// show health bar and character name above head (if character is not dead)
+		if (!this.isCorpse) {
+			Game.drawCharacterInformation(Game.ctx, this);
+		}
 		return true; // tell render to render the rest of the object normally
 	}
 
@@ -1229,18 +1253,27 @@ class Character extends Thing {
 	updateFootHitbox () {
 		this.footHitbox.x = this.x;
 		this.footHitbox.y = this.y + this.height/2 - this.footHitbox.height/2;
-		Game.updateScreenPosition(this.footHitbox);
 	}
 
 	// remove status effect from the specified index of this.statusEffects
 	removeStatusEffect (index) {
+		// clear tick
 		if (this.statusEffects[index].tickTimeout !== undefined) {
-			clearTimeout(this.statusEffects[index].tickTimeout); // clear tick
+			clearTimeout(this.statusEffects[index].tickTimeout);
 		}
+
+		// call onExpire
 		if (this.statusEffects[index].onExpire !== undefined) {
-			this.statusEffects[index].onExpire(this); // call onExpire
+			this.statusEffects[index].onExpire(this);
 		}
-		this.statusEffects.splice(index, 1); // remove it
+
+		// remove it
+		this.statusEffects.splice(index, 1);
+
+		// refresh canvas status effects if the status effect was applied to player
+		if (this.constructor.name === "Hero") {
+			this.updateStatusEffects();
+		}
 	}
 
 	// clear all status effects and their tick timeouts
@@ -1286,8 +1319,15 @@ class Character extends Thing {
 					this.onDeath();
 				}
 
+				this.footHitbox.drawHitbox = false; // don't draw foot hitbox whilst dead
+
 				if (this.corpseOnDeath) {
 					this.isCorpse = true;
+
+					// change image to deathImage (if one exists for this character)
+					if (this.deathImage.image !== undefined) {
+						this.changeImage(this.deathImage.image, this.deathImage.crop, this.deathImage.width, this.deathImage.height);
+					}
 
 					// loot
 					if (this.lootTable !== undefined) {
@@ -1410,7 +1450,7 @@ class Character extends Thing {
 						effectTitle: "Respawning",
 						effectDescription: "You can't die in a minigame",
 						target: this,
-						time: 7,
+						time: 5,
 						onExpire: "respawnHero",
 						imageName: "stunned"
 					});
@@ -1425,6 +1465,11 @@ class Character extends Thing {
 	// respawn after death
 	respawn () {
 		this.loot = null;
+
+		// remove corpse image
+		this.resetImage();
+
+		this.footHitbox.drawHitbox = undefined; // may draw foot hitbox again
 
 		this.hasBeenSiphoned = false; // for quests
 
@@ -1610,8 +1655,14 @@ class Character extends Thing {
 				elapsed: 0,
 			}; // time the player has been displaced for
 
+			// (for testing) - let user know if a character is being displaced that already has a set z position
+			// this is becuse the set z position will be removed by setExpandZ (and not returned after the displacement), which should never happen
+			if (this.z !== 0) {
+				console.error("The z position of a character is being changed by displacement (when it has already been set before by something else). This shouldn't happen, please tell Jake.", this)
+			}
+
 			// expand by 0.01
-			this.setExpand(1.01);
+			this.setExpandZ(1.01);
 
 			// stunned status effect
 			Game.statusEffects.stun({
@@ -1636,7 +1687,7 @@ class Character extends Thing {
 			}
 			// graph for expand over time: https://www.desmos.com/calculator/ygygwjtzwe
 
-			this.setExpand(newExpand);
+			this.setExpandZ(newExpand);
 
 			// move
 			let dirx = Math.cos(this.isBeingDisplaced.direction);
@@ -1728,7 +1779,9 @@ class Attacker extends Character {
 
 		this.canAttack = true; // check attack is not reloading
 
-		Game.allAttackers.push(this); // array for current area only
+		if (properties.addToObjectArrays !== false) {
+			Game.allAttackers.push(this); // array for current area only
+		}
 	}
 
 
@@ -2086,6 +2139,9 @@ class Hero extends Attacker {
 		// check if we walked into a non-walkable tile
 		if (Game.hero.moveTowards === undefined) { // hero should only collide if controlled by player
 			this.collide(dirx, diry, delta);
+		}
+		else {
+			this.updateFootHitbox();
 		}
 
 		// set walkspeed for next move() function call
@@ -2650,6 +2706,9 @@ class Hero extends Attacker {
 
 		// tile user is on will have changed - update slow tile status effects
 		this.setSpeed();
+
+		// update foot hitbox position
+		this.updateFootHitbox();
 	}
 
 	// area teleport that can be undone by temporaryAreaTeleportReturn
@@ -2803,8 +2862,6 @@ class Projectile extends Thing {
 		for (let i = 0; i < to.length && !endLoops; i++) { // iterate through arrays of objects in to
 			// the following loop is iterated through backwards so that, if there is no penetration, the top enemy is hit not bottom
 			for (let x = to[i].length-1; x >= 0 && !endLoops; x--) { // iterate through objects in to
-
-				Game.updateScreenPosition(this); // update projectile position
 
 				if (this.isTouching(to[i][x]) && !to[i][x].respawning) { // check projectile is touching character it wants to damage
 
@@ -3085,7 +3142,9 @@ class NPC extends Character {
 
 		this.roles = properties.roles; // array of objects, containing anything that can happen when the NPC is touched
 
-		Game.allNPCs.push(this); // array for current area only
+		if (properties.addToObjectArrays !== false) {
+			Game.allNPCs.push(this); // array for current area only
+		}
 	}
 }
 
@@ -3170,6 +3229,9 @@ class Villager extends NPC {
 		if (!this.yInRange()) {
 			this.y += Math.sin(this.bearing) * this.speed * delta;
 		}
+
+		// update foot hitbox position (required here because it doesn't collide)
+		this.updateFootHitbox();
 	}
 
 	// check if movement should be stopped (x or y are in range to nearest 10)
@@ -3204,10 +3266,12 @@ class Enemy extends Attacker {
 		// stats
 		this.stats.alwaysMove = properties.stats.alwaysMove || false; // move even when in range
 
-		this.deathImage = Loader.getImage(properties.deathImage); // corpse image
-		// set width and height to death image dimensions unless otherwise specified
-		this.deathImageWidth = properties.deathImageWidth || this.deathImage.width;
-		this.deathImageHeight = properties.deathImageHeight || this.deathImage.height;
+		this.deathImage = {}; // corpse image
+		this.deathImage.image = properties.deathImage; // key name of image in loader (has already been loaded in)
+		// set width and height to death image dimensions unless otherwise specified (handled by setImage)
+		this.deathImage.width = properties.deathImageWidth;
+		this.deathImage.height = properties.deathImageHeight;
+		this.deathImage.crop = properties.deathImageCrop;
 
 
 		// lootTable: an array of objects for each loot item - these objects contain the item ("item") and chances of looting them ("chance")
@@ -3307,6 +3371,8 @@ class Enemy extends Attacker {
 		if (this.hasStatusEffect("Displacement")) {
 			// being displaced!
 			this.displace(delta);
+
+			this.updateFootHitbox();
 		}
 		else if (this.hasStatusEffectType("stun")) {
 			// enemy is stunned
@@ -3754,10 +3820,6 @@ Game.removeExpiredStatusEffect = function (owner) {
 			}
 		}
 	}
-	// refresh canvas status effects if the status effect was applied to player
-	if (owner.constructor.name === "Hero") {
-		Game.hero.updateStatusEffects();
-	}
 }
 
 // remove stealth status effect once stealth has expired elsewhere (this function is called when stealth expires)
@@ -3769,10 +3831,6 @@ Game.removeStealthEffects = function (owner) {
 				owner.removeStatusEffect(i);
 				i--;
 			}
-		}
-		// refresh canvas status effects if the status effect was applied to player
-		if (owner.constructor.name === "Hero") {
-			Game.hero.updateStatusEffects();
 		}
 	}
 }
@@ -3787,8 +3845,8 @@ Game.spreadCurse = function (attacker, victim) {
 			attacker.removeStatusEffect(index); // remove the status effect from the attacker
 		}
 	}
-	// refresh canvas status effects if anything happened to the player
-	if (attacker.constructor.name === "Hero" || victim.constructor.name === "Hero") {
+	// refresh canvas status effects if hero was given status effect
+	if (victim.constructor.name === "Hero") {
 		Game.hero.updateStatusEffects();
 	}
 }
@@ -3804,10 +3862,6 @@ Game.removeTileStatusEffects = function (target, keep) {
 		&& target.statusEffects[i].title !== keep) {
 			// remove status effect
 			target.removeStatusEffect(i);
-			// refresh canvas status effects if target is the player
-			if (target.constructor.name === "Hero") {
-				Game.hero.updateStatusEffects();
-			}
 		}
 	}
 };
@@ -3884,7 +3938,7 @@ Game.statusEffects.functions = {
 	// end displacement effect
 	removeDisplacement: function (target) {
 		target.isBeingDisplaced = undefined;
-		target.setExpand(1);
+		target.setExpandZ(1);
 	},
 
 	// reset target's image back to its "initialImage" (e.g. for hex)
@@ -4289,6 +4343,73 @@ Game.statusEffects.hex = function (properties) {
 	this.attackDamage(newProperties);
 }
 
+
+
+// get the icon number of the status effect object (passed in) in Game.statusImage
+Game.getStatusIconNumber = function (statusEffect) {
+	let iconNum = null;
+	if (statusEffect.image === "bait") {
+		iconNum = 0;
+	}
+	else if (statusEffect.image === "defenceUp") {
+		iconNum = 1;
+	}
+	else if (statusEffect.image === "speedDown") {
+		iconNum = 2;
+	}
+	else if (statusEffect.image === "fire") {
+		iconNum = 3;
+	}
+	else if (statusEffect.image === "food") {
+		iconNum = 4;
+	}
+	else if (statusEffect.image === "lifesteal") {
+		iconNum = 5;
+	}
+	else if (statusEffect.image === "mud") {
+		iconNum = 6;
+	}
+	else if (statusEffect.image === "poison") {
+		iconNum = 7;
+	}
+	else if (statusEffect.image === "speedUp") {
+		iconNum = 8;
+	}
+	else if (statusEffect.image === "stealth") {
+		iconNum = 9;
+	}
+	else if (statusEffect.image === "damageUp") {
+		iconNum = 10;
+	}
+	else if (statusEffect.image === "stunned") {
+		iconNum = 11;
+	}
+	else if (statusEffect.image === "timer") {
+		iconNum = 12;
+	}
+	else if (statusEffect.image === "defenceDown") {
+		iconNum = 13;
+	}
+	else if (statusEffect.image === "water") {
+		iconNum = 14;
+	}
+	else if (statusEffect.image === "damageDown") {
+		iconNum = 15;
+	}
+	else if (statusEffect.image === "xpUp") {
+		iconNum = 16;
+	}
+	else if (statusEffect.image === "xpDown") {
+		iconNum = 17;
+	}
+	else { // no status effect image
+		iconNum = 3; // fire image used as placeholder
+		console.error("Status effect " + statusEffect.title + " icon not found");
+	}
+
+	return iconNum;
+}
+
 //
 // Spells
 //
@@ -4646,11 +4767,17 @@ Game.tag.newTaggedPlayer = function (userID) {
 		taggedPlayer.hostility = "gameHostile";
 	}
 
+	let taggedPlayerMessage = taggedPlayer.name + " is on"; // message to be inserted into chat and infobar
+	if (taggedPlayer.userID === ws.userID) {
+		// this player is on
+		taggedPlayerMessage = "You are on"
+	}
+
 	// chat message
-	Dom.chat.insert(taggedPlayer.name + " is on!");
+	Dom.chat.insert(taggedPlayerMessage + "!");
 
 	// infobar display
-	Dom.infoBar.page("<div class='leaderboardPageSkin' id='infoSkin'></div><br><strong style='position: relative; left: 60px; bottom: 43px;'>"+taggedPlayer.name+" is on<br><span id='tagTimeRemaining'>"+Game.minigameInProgress.timeRemaining+"</span> remaining</strong>");
+	Dom.infoBar.page("<div class='leaderboardPageSkin' id='infoSkin'></div><br><strong style='position: relative; left: 60px; bottom: 43px;'>"+taggedPlayerMessage+"<br><span id='tagTimeRemaining'>"+Game.minigameInProgress.timeRemaining+"</span> remaining</strong>");
 	document.getElementById("infoSkin").style.backgroundImage = 'url("./selection/assets/'+taggedPlayer.class+taggedPlayer.skin+'/f.png")';
 }
 
@@ -4952,6 +5079,43 @@ Game.loadArea = function (areaName, destination) {
 		}
 
 		//
+		// init
+		//
+
+		// class arrays
+		this.allEntities = [];
+		this.allThings = [];
+		this.allCharacters = [];
+		this.allAttackers = [];
+		this.allNPCs = []; // includes villagers
+
+		// init game (if it hasn't been done so already)
+		let init = false; // set to if this is the first areaTeleport of the game
+		if (this.hero === undefined) {
+			this.init();
+			init = true;
+		}
+		else {
+			// code to be called when area is accessed due to area teleport (not game load)
+
+			// reset weather
+			if (document.getElementById("weatherOn").checked) {
+				Weather.reset();
+			}
+
+			// close NPC pages
+            Dom.closeNPCPages();
+
+			// re-add player to allEntities etc.
+			this.allEntities.push(Game.hero);
+			this.allThings.push(Game.hero);
+			this.allCharacters.push(Game.hero);
+			this.allAttackers.push(Game.hero);
+
+			this.allEntities.push(Game.hero.footHitbox);
+		}
+
+		//
 		// interactable objects
 		//
 
@@ -4979,9 +5143,9 @@ Game.loadArea = function (areaName, destination) {
 		this.animationList = [];
 
 		// remove all status effect timeouts for previous area's characters
-		if (this.allCharacters !== undefined) {
+		if (!init) {
 			for (let i = 0; i < this.allCharacters.length; i++) {
-				if (this.allCharacters[i].constructor.name === "Hero") {
+				if (this.allCharacters[i].constructor.name !== "Hero") {
 					this.allCharacters[0].removeAllStatusEffects();
 				}
 			}
@@ -4995,19 +5159,12 @@ Game.loadArea = function (areaName, destination) {
 		}
 		this.objectRemoveTimeouts = [];
 
-		// reset any channelling projectile (if the player exists yet)
-		if (this.hero !== undefined) {
+		// reset any channelling projectile (if the player has existed before)
+		if (!init) {
 			this.hero.channellingProjectileId = null;
 			this.hero.channelling = false;
 			this.hero.canAttack = true;
 		}
-
-		// class arrays
-		this.allEntities = [];
-		this.allThings = [];
-		this.allCharacters = [];
-		this.allAttackers = [];
-		this.allNPCs = []; // includes villagers
 
 		let typeArray = Object.keys(this.typeClasses);
 		let classArray = Object.values(this.typeClasses);
@@ -5055,34 +5212,6 @@ Game.loadArea = function (areaName, destination) {
 		// it is checked if the user has selected for music to be played in the settings within the Game.playMusic function
 		this.playMusic();
 
-		//
-		// init
-		//
-
-		// init game (if it hasn't been done so already)
-		let init = false; // set to if this is the first areaTeleport of the game
-		if (this.hero === undefined) {
-			this.init();
-			init = true;
-		}
-		else {
-			// code to be called when area is accessed due to area teleport (not game load)
-
-			// reset weather
-			if (document.getElementById("weatherOn").checked) {
-				Weather.reset();
-			}
-
-			// close NPC pages
-            Dom.closeNPCPages();
-
-			// re-add player to allEntities etc.
-			this.allEntities.push(Game.hero);
-			this.allThings.push(Game.hero);
-			this.allCharacters.push(Game.hero);
-			this.allAttackers.push(Game.hero);
-		}
-
 
 		// display area name
 		// it is always displayed on init (thus only checked if it should be displayed if init is not called)
@@ -5102,12 +5231,17 @@ Game.loadArea = function (areaName, destination) {
 		// update viewportOffset and canvasArea variables
 		this.updateCanvasViewport();
 
+		// update y position of inforbar (in case there is a viewport offset y)
+		//Dom.infoBar.updateYPosition();aaaaaaaaaaaaaaaaaaaaaaaaaaaaaa
+
 		// reposition player
 		if (destination !== undefined) {
 			this.hero.x = destination.x;
 			this.hero.y = destination.y;
 			// remove status effects of slow/fast tiles
 			this.hero.setSpeed();
+			// update foot hitbox position
+			this.hero.updateFootHitbox();
 		}
 		// remove player moveTowards
 		this.hero.moveTowards = undefined;
@@ -5164,9 +5298,6 @@ Game.loadArea = function (areaName, destination) {
 
 		// update camera position
 		this.camera.update(true);
-
-		// set foot hitbox position (updated on hero move normally)
-		this.updateScreenPosition(this.hero.footHitbox);
 
 		// render secondary canvas
 		this.secondary.render();
@@ -5404,7 +5535,7 @@ Game.init = function () {
 	}
 
 	// game viewport camera
-    this.camera = new Camera({map: map, width: Dom.canvas.width, height: Dom.canvas.height});
+    this.camera = new Camera({map: map, width: Dom.canvas.width, height: Dom.canvas.height, addToObjectArrays: false});
     this.camera.follow(this.hero);
 
 	// init weather
@@ -5539,7 +5670,7 @@ Game.tick = function (elapsed) {
 	this.update(delta); // update game state
 
 	// check for screen size change
-	if (Dom.canvas.width !== window.innerWidth/document.body.style.zoom || Dom.canvas.height !== window.innerHeight/document.body.style.zoom) {
+	if (Dom.canvas.width !== window.innerWidth || Dom.canvas.height !== window.innerHeight) {
 		// update the screen display to fit the new size
 		Dom.updateScreenSize();
 	}
@@ -5928,11 +6059,6 @@ Game.update = function (delta) {
 	//
 	// User movement
 	//
-
-	// update collision positions
-	for (let i = 0; i < this.collisions.length; i++) {
-		this.updateScreenPosition(this.collisions[i]);
-	}
 
 	let moved = false;
     // handle hero movement with arrow keys
@@ -6598,7 +6724,7 @@ Game.update = function (delta) {
 			// chest can't be looted
 			canBeOpened = false;
 		}
-		else if (Dom.currentlyDisplayed === "") {
+		else if (Dom.currentlyDisplayed !== "") {
 			// DOM is occupied
 			canBeOpened = false;
 		}
@@ -6659,9 +6785,6 @@ Game.update = function (delta) {
 
 	// check collision with area teleports
 	for (let i = 0; i < this.areaTeleports.length; i++) {
-		// give area teleports a screen X and Y
-		this.updateScreenPosition(this.areaTeleports[i]);
-
 		// teleport condition for the area teleport
         if (this.hero.isTouching(this.areaTeleports[i])) {
 			if (this.areaTeleports[i].teleportCondition === undefined
@@ -6700,9 +6823,6 @@ Game.update = function (delta) {
 	// check collision with tripwires - invisible entities that call a function when touched
 	for (let i = 0; i < this.tripwires.length; i++) {
 		let entity = this.tripwires[i];
-
-		// give tripwires a screen X and Y
-		this.updateScreenPosition(entity);
 
         if ((entity.collisionType === "body" && this.hero.isTouching(entity)) ||
 		(entity.collisionType === "feet" && this.hero.footHitbox.isTouching(entity))) {
@@ -6788,6 +6908,13 @@ Game.update = function (delta) {
 	if (document.getElementById("weatherOn").checked && !Areas[this.areaName].indoors) {
 		Weather.addAdditionalParticles();
 		Weather.moveParticles(delta);
+	}
+
+
+	// update the screen position of everything
+	// tbd could be made more efficient (check for camera move otherwise individual object move?)
+	for (let i = 0; i < this.allEntities.length; i++) {
+		this.updateScreenPosition(this.allEntities[i]);
 	}
 };
 
@@ -7282,16 +7409,17 @@ Game.drawHitboxes = function () {
 	for (let i = 0; i < this.allEntities.length; i++) { // iterate through everything with a hitbox
 		let objectToRender = this.allEntities[i];
 
-		if (this.camera.isOnScreen(objectToRender, "hitbox")) { // check object hitbox is on the screen hence should be rendered
+		// check object hitbox is on the screen hence should be rendered, and that there is no other reason why it shouldn't be rendered (drawHitbox isn't false)
+		if (this.camera.isOnScreen(objectToRender, "hitbox") && objectToRender.drawHitbox !== false) {
 
 			// stroke colour
 			this.ctx.strokeStyle = objectToRender.hitboxColour;
 
 			if (objectToRender.hitbox !== undefined) { // check if the object has a special hitbox that should be drawn instead
-				this.drawhitbox(objectToRender.hitbox);
+				this.drawHitbox(objectToRender.hitbox);
 			}
 			else {
-				this.drawhitbox(objectToRender);
+				this.drawHitbox(objectToRender);
 			}
 
 		}
@@ -7299,7 +7427,7 @@ Game.drawHitboxes = function () {
 }
 
 // draw an entity's hitbox
-Game.drawhitbox = function(entity) {
+Game.drawHitbox = function(entity) {
 	this.ctx.strokeRect(entity.screenX - entity.width / 2, entity.screenY - entity.height / 2, entity.width, entity.height);
 }
 
@@ -7381,16 +7509,17 @@ Game.updateScreenPosition = function (entity) {
 	}
 }
 
-// draw character health bar and name in correct placed
+// draw character health bar, name etc. in correct place
+// order: health bar, channelling bar, status effects, name
 Game.drawCharacterInformation = function (ctx, character) {
-	let characterInformationHeight = 3; // size of healthbar or other similar thing (e.g: damage taken), so that it is known how much to offset character's name by (in y axis)
-	let channellingBarDrawn = 0;
+	let characterInformationHeight = 3; // size of healthbar or other similar thing (e.g: damage taken), so that it is known how much to offset other information by (in y axis)
+	// starts at 3 for initial padding of first thing that is drawn
 
 	if (character.hostility === "friendly" || character.hostility === "neutral" || character.hostility === "gameHostile") {
 		// only draw health bar if character is damaged
 		if (character.health !== character.stats.maxHealth) {
 			this.drawHealthBar(ctx, character, character.screenX - character.width * 0.5, character.screenY - character.height * 0.5 - 15 - characterInformationHeight, character.width, 15);
-			characterInformationHeight = 15;
+			characterInformationHeight += 15;
 			characterInformationHeight += 3; // padding
 		}
 	}
@@ -7398,14 +7527,14 @@ Game.drawCharacterInformation = function (ctx, character) {
 		// show damage taken above head instead of health bar (if the character has taken any damage)
 		if (character.damageTaken > 0) {
 			this.drawDamageTaken(ctx, character, character.screenX, character.screenY - character.height / 2 - 1 - characterInformationHeight, 18);
-			characterInformationHeight = 18;
+			characterInformationHeight += 16;
 			characterInformationHeight += 3; // padding
 		}
 	}
 	else if (character.hostility === "hostile" || character.hostility === "boss") {
 		// always draw health bar
 		this.drawHealthBar(ctx, character, character.screenX - character.width * 0.5, character.screenY - character.height * 0.5 - 15 - characterInformationHeight, character.width, 15);
-		characterInformationHeight = 15;
+		characterInformationHeight += 15;
 		characterInformationHeight += 3; // padding
 	}
 	else {
@@ -7415,15 +7544,22 @@ Game.drawCharacterInformation = function (ctx, character) {
 	if (character.channellingInfo !== false) {
 		// character is channelling something
 		this.drawChannellingBar(ctx, character, character.screenX - character.width * 0.5, character.screenY - character.height * 0.5 - 15 - characterInformationHeight, character.width, 15);
-		channellingBarDrawn = 15;
-		channellingBarDrawn += 3; // padding
+		characterInformationHeight += 15;
+		characterInformationHeight += 3; // padding
 	}
 
-	/*if (characterInformationHeight !== 0) { // !characterInformationHeight is not used, as characterInformationHeight is set to a number (not true) if it isn't false
-		characterInformationHeight += 3; // padding for name (currently not seen as necessary, so this has been commented out)
-	}*/
+	if (character.statusEffects.length > 0) {
+		// character has 1 or more status effects
+		this.drawStatusEffects(ctx, character, character.screenX, character.screenY - character.height * 0.5 - 15 - characterInformationHeight, 15, "centre");
+		characterInformationHeight += 15;
+		characterInformationHeight += 1; // padding
+	}
 
-	this.drawCharacterName(ctx, character, character.screenX, character.screenY - character.height / 2 - characterInformationHeight - channellingBarDrawn - 3);
+	if (characterInformationHeight === 0) { // nothing displayed other than name
+		characterInformationHeight += 2; // padding for name
+	}
+
+	this.drawCharacterName(ctx, character, character.screenX, character.screenY - character.height / 2 - characterInformationHeight - 3);
 }
 
 // draw a health bar (on given context, for given character, at given position, with given dimensions)
@@ -7576,7 +7712,50 @@ Game.drawChannellingBar = function (ctx, character, x, y, width, height) {
 	this.ctx.globalAlpha = oldGlobalAlpha;
 }
 
-// displays information on canvas
+// draw status effects (on given context, for given character, at given position [top left], with given height [width based on height and number of status effects])
+// default (unscaled) height of image is 27
+// alignment should be set to "centre", "left", or "right" based on how the status effects should be aligned from the x position passed in
+Game.drawStatusEffects = function (ctx, character, x, y, height, alignment) {
+	// figure out font size of time remaining
+	let fontSize = height * 2/3;
+
+	// figure out leftmost x position
+	let startX;
+	if (alignment === "left") {
+		startX = x;
+	}
+	else if (alignment === "right") {
+		startX = x - character.statusEffects.length*height;
+	}
+	else if (alignment === "centre") {
+		startX = x - character.statusEffects.length*height/2;
+	}
+	else {
+		console.error("Invalid alignment: " + alignment);
+	}
+
+	// iterate through character's status effects
+	for (let i = 0; i < character.statusEffects.length; i++) {
+		// get number of image in status effect image tileset
+		let iconNum = this.getStatusIconNumber(character.statusEffects[i]);
+		// draw the image
+		ctx.drawImage(this.statusImage, 0, 27 * iconNum, 27, 27, startX + i * (height*1.2), y, height, height);
+		// draw time remaining (if the status effect has one)
+		ctx.fillStyle = "black";
+		ctx.font = fontSize + "px El Messiri";
+		ctx.textAlign = "right";
+		if (typeof character.statusEffects[i].info !== "undefined") { // variable that contains time exists
+			if (typeof character.statusEffects[i].info.time !== "undefined" && typeof character.statusEffects[i].info.ticks !== "undefined") { // variable exists
+				ctx.fillText(Round(character.statusEffects[i].info.time - character.statusEffects[i].info.ticks), (startX+height*0.9) + i * (height*1.2), y+height);
+			}
+		}
+	}
+
+	// reset formatting
+	ctx.textAlign = "center";
+}
+
+// displays information on canvas (big text)
 // subtitles should either be a single string or an array of strings
 // duration is in seconds
 Game.displayOnCanvas = function (title, subtitles, duration, important) {
@@ -7690,10 +7869,8 @@ Game.render = function (delta) {
 		// check object should be rendered
 		if (renderImage) {
 
-			// set character screen x and y
-			this.updateScreenPosition(objectToRender);
-
-			if (!objectToRender.respawning) { // check if character is dead
+			// do not render if it is dead and not showing a corpse
+			if (!objectToRender.respawning || objectToRender.isCorpse) {
 				if (objectToRender.preRenderFunction !== undefined) {
 					renderImage = objectToRender.preRenderFunction();
 					// whether image is rendered is based off the return value of preRenderFunction
@@ -7732,22 +7909,6 @@ Game.render = function (delta) {
 						objectToRender.postRenderFunction();
 					}
 				}
-
-			}
-
-			else if (objectToRender.deathImage !== undefined && objectToRender.isCorpse) { // display corpse
-
-				// tbd make it work the same way as the above function
-				// maybe do this by using changeImage on death instead?
-
-				// draw image (corpse)
-				this.ctx.drawImage(
-					objectToRender.deathImage,
-					objectToRender.screenX - objectToRender.deathImageWidth / 2,
-					objectToRender.screenY - objectToRender.deathImageHeight / 2,
-					objectToRender.deathImageWidth,
-					objectToRender.deathImageHeight
-				);
 			}
 		}
 
@@ -7793,9 +7954,6 @@ Game.render = function (delta) {
 	if (document.getElementById("particlesOn").checked) { // check particle setting
 		for (let i = 0; i < this.particles.length; i++) {
 			let particle = this.particles[i]; // save to variable for easy access
-
-			// update screen position of particle
-			this.updateScreenPosition(particle);
 
 			// figure out how much to rotate the canvas (if any) for particle rotation
 			let rotation = 0;
@@ -8101,77 +8259,7 @@ Game.secondary.render = function () {
         this.ctx.fillText(Player.level, Dom.canvas.width/2-2, Dom.canvas.height-76);
 
 		// status effect icons next to health bar
-		for(let i = 0; i < Game.hero.statusEffects.length; i++) {
-			let iconNum = null;
-			if (Game.hero.statusEffects[i].image === "bait") {
-				iconNum = 0;
-			}
-			else if (Game.hero.statusEffects[i].image === "defenceUp") {
-				iconNum = 1;
-			}
-			else if (Game.hero.statusEffects[i].image === "speedDown") {
-				iconNum = 2;
-			}
-			else if (Game.hero.statusEffects[i].image === "fire") {
-				iconNum = 3;
-			}
-			else if (Game.hero.statusEffects[i].image === "food") {
-				iconNum = 4;
-			}
-			else if (Game.hero.statusEffects[i].image === "lifesteal") {
-				iconNum = 5;
-			}
-			else if (Game.hero.statusEffects[i].image === "mud") {
-				iconNum = 6;
-			}
-			else if (Game.hero.statusEffects[i].image === "poison") {
-				iconNum = 7;
-			}
-			else if (Game.hero.statusEffects[i].image === "speedUp") {
-				iconNum = 8;
-			}
-			else if (Game.hero.statusEffects[i].image === "stealth") {
-				iconNum = 9;
-			}
-			else if (Game.hero.statusEffects[i].image === "damageUp") {
-				iconNum = 10;
-			}
-			else if (Game.hero.statusEffects[i].image === "stunned") {
-				iconNum = 11;
-			}
-			else if (Game.hero.statusEffects[i].image === "timer") {
-				iconNum = 12;
-			}
-			else if (Game.hero.statusEffects[i].image === "defenceDown") {
-				iconNum = 13;
-			}
-			else if (Game.hero.statusEffects[i].image === "water") {
-				iconNum = 14;
-			}
-			else if (Game.hero.statusEffects[i].image === "damageDown") {
-				iconNum = 15;
-			}
-			else if (Game.hero.statusEffects[i].image === "xpUp") {
-				iconNum = 16;
-			}
-			else if (Game.hero.statusEffects[i].image === "xpDown") {
-				iconNum = 17;
-			}
-			else { // no status effect image
-				iconNum = 3; // fire image used as placeholder
-				console.error("Status effect " + Game.hero.statusEffects[i].title + " icon not found");
-			}
-			this.ctx.drawImage(Game.statusImage, 0, 27 * iconNum, 27, 27, 270 + i * 35, 10, 27, 27);
-			this.ctx.fillStyle = "black";
-			this.ctx.font = "20px El Messiri";
-			this.ctx.textAlign = "right";
-			if (typeof Game.hero.statusEffects[i].info !== "undefined") { // variable exists
-				if (typeof Game.hero.statusEffects[i].info.time !== "undefined" && typeof Game.hero.statusEffects[i].info.ticks !== "undefined") { // variable exists
-					this.ctx.fillText(Round(Game.hero.statusEffects[i].info.time - Game.hero.statusEffects[i].info.ticks), 295 + i * 35, 37);
-				}
-			}
-			this.ctx.textAlign = "center";
-		}
+		Game.drawStatusEffects(this.ctx, Game.hero, 270, 10, 27, "left");
 	}
 }
 
