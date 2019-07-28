@@ -2002,11 +2002,12 @@ class UserControllable extends Attacker {
 	}
 
 	// called after this.direction is updated
+	// +1 or +3 are because of padding in spritesheet (see comment at top of skindata.js)
 	updateRotation () {
 		if (this.direction === 1) {
 			this.crop = {
-				x: 0,
-				y: this.baseHeight,
+				x: 1,
+				y: this.baseHeight+3,
 				width: this.baseWidth,
 				height: this.baseHeight
 			};
@@ -2014,8 +2015,8 @@ class UserControllable extends Attacker {
 
 		else if (this.direction === 2) {
 			this.crop = {
-				x: this.baseWidth,
-				y: this.baseHeight,
+				x: this.baseWidth+3,
+				y: this.baseHeight+3,
 				width: this.baseWidth,
 				height: this.baseHeight
 			};
@@ -2023,8 +2024,8 @@ class UserControllable extends Attacker {
 
 		else if (this.direction === 3) {
 			this.crop = {
-				x: 0,
-				y: 0,
+				x: 1,
+				y: 1,
 				width: this.baseWidth,
 				height: this.baseHeight
 			};
@@ -2032,8 +2033,8 @@ class UserControllable extends Attacker {
 
 		else if (this.direction === 4) {
 			this.crop = {
-				x: this.baseWidth,
-				y: 0,
+				x: this.baseWidth+3,
+				y: 1,
 				width: this.baseWidth,
 				height: this.baseHeight
 			};
@@ -2748,43 +2749,42 @@ class Hero extends Attacker {
 	}
 
 	// called after this.direction is updated
+	// +1 or +3 are because of padding in spritesheet (see comment at top of skindata.js)
 	updateRotation () {
-		if (this.imageName === "player"+this.class+Player.skin) {
-			if (this.direction === 1) {
-				this.crop = {
-					x: 0,
-					y: this.baseHeight,
-					width: this.baseWidth,
-					height: this.baseHeight
-				};
-			}
+		if (this.direction === 1) {
+			this.crop = {
+				x: 1,
+				y: this.baseHeight+3,
+				width: this.baseWidth,
+				height: this.baseHeight
+			};
+		}
 
-			else if (this.direction === 2) {
-				this.crop = {
-					x: this.baseWidth,
-					y: this.baseHeight,
-					width: this.baseWidth,
-					height: this.baseHeight
-				};
-			}
+		else if (this.direction === 2) {
+			this.crop = {
+				x: this.baseWidth+3,
+				y: this.baseHeight+3,
+				width: this.baseWidth,
+				height: this.baseHeight
+			};
+		}
 
-			else if (this.direction === 3) {
-				this.crop = {
-					x: 0,
-					y: 0,
-					width: this.baseWidth,
-					height: this.baseHeight
-				};
-			}
+		else if (this.direction === 3) {
+			this.crop = {
+				x: 1,
+				y: 1,
+				width: this.baseWidth,
+				height: this.baseHeight
+			};
+		}
 
-			else if (this.direction === 4) {
-				this.crop = {
-					x: this.baseWidth,
-					y: 0,
-					width: this.baseWidth,
-					height: this.baseHeight
-				};
-			}
+		else if (this.direction === 4) {
+			this.crop = {
+				x: this.baseWidth+3,
+				y: 1,
+				width: this.baseWidth,
+				height: this.baseHeight
+			};
 		}
 	}
 

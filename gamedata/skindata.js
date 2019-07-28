@@ -1,3 +1,6 @@
+// Skin images should have 1 padding around each image
+// therefore the whole spritesheet should have 1 padding around the edge, and 2 between each image
+
 var Skins = {
 	a: [
 		{
@@ -133,9 +136,9 @@ var Skins = {
 			projectile:	"lightningBall",
 			projectileAdjust: {x: 0, y: 0},
 			cursor: "crosshair",
-			headAdjust: {x: 0, y: 5},
+			headAdjust: {x: -3, y: 5},
 		},
-		/*{
+		{
             id: 6,
             position: {x: -20, y: 6.7},
             name: "Sorcerer Penguin",
@@ -144,8 +147,8 @@ var Skins = {
             projectileAdjust: {x: 20, y: 20},
             cursor: "maths",
 			cursorPosition: {x: 10, y: 10},
-            headAdjust: {x: 3, y: 5}, // TBD
-        },*/
+            headAdjust: {x: 3, y: 5},
+        },
 	],
 	k: [
 		{
