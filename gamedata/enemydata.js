@@ -34,6 +34,21 @@ const SpeciesTemplates = {
 	},
 };
 
+const NPCTemplates = {
+	guard: {
+		name: "Eaglecrest Guard",
+		hostility: "friendly",
+		level: 50,
+		stats: {
+			maxHealth: 300,
+			defence: 20,
+		},
+		chat: {
+			notUnlockedRoles: "Stay safe! Eaglecrest can be a dangerous place...",
+		}
+	}
+}
+
 const EnemyTemplates = {
 	nilbog: {
 		goblinRockthrower: {

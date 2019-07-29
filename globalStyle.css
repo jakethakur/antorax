@@ -13,7 +13,7 @@
 ::-webkit-scrollbar-thumb
 {
     -webkit-box-shadow: inset 0 0 6px rgba(0,0,0,.3);
-    background-color: #aaaaaa;	
+    background-color: #aaaaaa;
 }
 
 :root {
@@ -24,7 +24,7 @@
 	--bottom: #fef9b4;
 	--page: #f9f9d0;
 	--text: #000000;
-	--link: #0000ff;
+	--link: #000000;
 	--arrow: #886622;
 	--opacity: 0.6;
 	--input: #ffffff;
@@ -34,7 +34,7 @@
 body {
 	font-family: 'El Messiri', serif;
 	line-height: 20px;
-	-webkit-user-select: none; /* Safari */        
+	-webkit-user-select: none; /* Safari */
 	-moz-user-select: none; /* Firefox */
 	-ms-user-select: none; /* IE10+/Edge */
 	user-select: none;

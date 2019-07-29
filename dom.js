@@ -1680,7 +1680,7 @@ Dom.quest.start = function (quest, npc) {
 		}
 	}
 	// not enough inventory space
-	else {
+	else if (npc !== undefined) {
 		npc.say(npc.chat.inventoryFull, 0, true);
 	}
 }
@@ -1813,7 +1813,7 @@ Dom.quest.finish = function (quest, npc) {
 		}
 	}
 	// not enough inventory space
-	else {
+	else if (npc !== undefined) {
 		npc.say(npc.chat.inventoryFull, 0, true);
 	}
 }
@@ -1827,7 +1827,12 @@ Dom.quest.accept = function () {
 
 	let quest = Dom.currentlyDisplayed;
 	if (Dom.currentlyDisplayed.onQuestStart !== undefined) {
-		Dom.currentlyDisplayed.onQuestStart(Game[Dom.currentNPC.type].find(npc => npc.id === Dom.currentNPC.id));
+		if (Dom.currentNPC.type !== undefined) {
+			Dom.currentlyDisplayed.onQuestStart(Game[Dom.currentNPC.type].find(npc => npc.id === Dom.currentNPC.id));
+		}
+		else {
+			Dom.currentlyDisplayed.onQuestStart();
+		}
 	}
 
 	// after onQuestStart because tavern clean-up sets variables in onQuestStart needed for this
@@ -1897,7 +1902,12 @@ Dom.quest.acceptRewards = function () {
 	Player.quests.canBeFinishedArray.splice(Player.quests.canBeFinishedArray.findIndex(quest => quest === Dom.currentlyDisplayed.quest),1);
 	let quest = Dom.currentlyDisplayed;
 	if (Dom.currentlyDisplayed.onQuestFinish !== undefined) {
-		Dom.currentlyDisplayed.onQuestFinish(Game[Dom.currentNPC.type].find(npc => npc.id === Dom.currentNPC.id));
+		if (Dom.currentNPC.type !== undefined) {
+			Dom.currentlyDisplayed.onQuestFinish(Game[Dom.currentNPC.type].find(npc => npc.id === Dom.currentNPC.id));
+		}
+		else {
+			Dom.currentlyDisplayed.onQuestFinish();
+		}
 	}
 	// if the onQuestFinish changed the page then don't change the page
 	if (Dom.currentlyDisplayed === quest) {
@@ -3331,7 +3341,7 @@ Dom.inventory.drop = function (toElement, toArray, toId, fromElement, fromArray,
 							document.getElementById(toStackNum+i).innerHTML = this.toArray[i].stacked;
 						}
 						else {
-							tableElement.getElementsByTagName("td")[i].innerHTML = "<div class='stackNum' id='"+toStackNum+i+"'>"+this.toArray[i].stacked+"</div>"
+							tableElement.getElementsByTagName("td")[i].innerHTML += "<div class='stackNum' id='"+toStackNum+i+"'>"+this.toArray[i].stacked+"</div>"
 						}
 						this.setItemFunctions(tableElement.getElementsByTagName("td")[i].getElementsByTagName("img")[0], this.toArray, i);
 						stacked = true;
@@ -5330,7 +5340,7 @@ Dom.infoBar.page = function (html) {
 }
 
 Dom.infoBar.updateYPosition = function () {
-	Dom.elements.infoBar.style.top = Game.viewportOffsetY + "px";
+	Dom.elements.infoBar.style.top = Game.viewportOffsetY + 20 + "px";
 }
 
 Dom.settings.dark = function () {
@@ -5344,7 +5354,7 @@ Dom.settings.dark = function () {
 		--bottom: #454545;
 		--page: #202020;
 		--text: #dcddde;
-		--link: #99bfde;
+		--link: #dcddde;
 		--arrow: #454545;
 		--opacity: 0.9;
 		--input: #aaaaaa;`
@@ -5359,7 +5369,7 @@ Dom.settings.dark = function () {
 		--bottom: #fef9b4;
 		--page: #f9f9d0;
 		--text: #000000;
-		--link: #0000ff;
+		--link: #000000;
 		--arrow: #886622;
 		--opacity: 0.6;
 		--input: #ffffff;`
@@ -5406,20 +5416,6 @@ Dom.updateScreenSize = function (init) {
 		Dom.elements.bookmarks.style.width = "440px";
 	}
 	Dom.elements.bookmarks.style.top = Dom.canvas.height-87+"px";
-
-	//let left = (Dom.canvas.width/2-168-400)/2 + Dom.canvas.width/2+168;
-	//Dom.elements.changeChat.style.left= left+"px";
-	//Dom.elements.changeChat.style.top= Dom.canvas.height-87-parseInt(Dom.elements.changeChat.style.bottom)+"px";
-	//Dom.elements.changeInventory.style.left= left+70+"px";
-	//Dom.elements.changeInventory.style.top= Dom.canvas.height-87-parseInt(Dom.elements.changeInventory.style.bottom)+"px";
-	//Dom.elements.changeQuests.style.left= left+140+"px";
-	//Dom.elements.changeQuests.style.top= Dom.canvas.height-87-parseInt(Dom.elements.changeQuests.style.bottom)+"px";
-	//Dom.elements.changeAdventure.style.left= left+210+"px";
-	//Dom.elements.changeAdventure.style.top= Dom.canvas.height-87-parseInt(Dom.elements.changeAdventure.style.bottom)+"px";
-	//Dom.elements.changeReputation.style.left= left+280+"px";
-	//Dom.elements.changeReputation.style.top= Dom.canvas.height-87-parseInt(Dom.elements.changeReputation.style.bottom)+"px";
-	//Dom.elements.changeSettings.style.left= left+350+"px";
-	//Dom.elements.changeSettings.style.top= Dom.canvas.height-87-parseInt(Dom.elements.changeSettings.style.bottom)+"px";
 
 	Dom.elements.achievement.style.left= Dom.canvas.width-458+"px";
 	Dom.elements.chat.style.top= Dom.canvas.height-Dom.chat.offset-Dom.elements.chat.offsetHeight+"px";
@@ -5824,7 +5820,7 @@ Dom.init = function () {
 	for (let i = 0; i < 6; i++) {
 		Keyboard.upFunctions[array[i]] = function () {
 			if (Player.inventory.items[i].onClick !== undefined) {
-				Player.inventory.items[i].onClick(i);
+				Player.inventory.items[i].onClick(i, true);
 				Game.inventoryUpdate();
 			}
 		}
@@ -5857,6 +5853,7 @@ Dom.init = function () {
 
 // TESTING functions
 Dom.testing = {};
+
 // complete a quest as if the player had done it manually
 Dom.testing.completeQuest = function (quest, acceptRewards, notStart) {
 	if (quest.constructor.name === "String") {
@@ -5886,15 +5883,20 @@ Dom.testing.completeQuest = function (quest, acceptRewards, notStart) {
 	return quest.quest;
 }
 
-// SAVEDATA FIXES
-if (User.achievementPoints.total === 0) {
-	for (let i = 0; i < Object.keys(User.achievements).length; i++) {
-		for (let x = 0; x < Achievements.length; x++) {
-			if (Object.keys(User.achievements)[i] === ToCamelCase(Achievements[x].name)) {
-				User.achievementPoints.total += Achievements[x].points;
-				User.achievementPoints.unclaimed += Achievements[x].points;
-				break;
-			}
+let defaultStats = Object.assign({}, Player.stats);
+
+Dom.testing.resetStats = function () {
+	/*for (let i = 0; i < 5; i++) {
+		if (Object.values(Player.inventory)[i].image !== undefined) {
+			Dom.inventory.removeEquipment(Object.values(Player.inventory)[i]);
+		}
+	}*/
+
+	Player.stats = Object.assign({}, defaultStats);
+
+	for (let i = 0; i < 5; i++) {
+		if (Object.values(Player.inventory)[i].image !== undefined) {
+			Dom.inventory.addEquipment(Object.values(Player.inventory)[i]);
 		}
 	}
 }

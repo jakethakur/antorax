@@ -249,10 +249,11 @@ Keyboard.downFunctions = {
 			Game.keysDown.SHIFT = true;
             Game.secondary.render();
             Dom.inventory.hideHotbar(true);
-            document.getElementById("bookmarks").hidden = true;
+            Dom.elements.bookmarks.style.display = "none";
 			if (Dom.chat.displayChat.length > 0 || Dom.elements.canvasChatInput === document.activeElement) {
 				Dom.elements.canvasChatInput.hidden = true;
 			}
+			Dom.elements.chat.hidden = true;
 			Dom.chat.hideInput = true;
         }, 1);
     },
@@ -263,10 +264,11 @@ Keyboard.upFunctions = {
 			Game.keysDown.SHIFT = false;
             Game.secondary.render();
             Dom.inventory.hideHotbar();
-            document.getElementById("bookmarks").hidden = false;
+            Dom.elements.bookmarks.style.display = "";
 			if (Dom.chat.displayChat.length > 0 || Dom.elements.canvasChatInput === document.activeElement) {
 				Dom.elements.canvasChatInput.hidden = false;
 			}
+			Dom.elements.chat.hidden = false;
 			Dom.chat.hideInput = false;
         }, 1);
     },

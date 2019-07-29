@@ -737,7 +737,7 @@ var Areas = {
 					{
 						role: "text",
 						chooseText: "I found a pair of boots that I think might be yours.",
-						chat: "Are you sure? Give them here.<br>You're right, they were mine. They were stolen by a goblin during the recent goblin siege. Are you sure I can have them back? I will make sure that you are aptly rewarded.",
+						chat: "Are you sure? Give them here.<br><br>You're right, they were mine. They were stolen by a goblin during the recent goblin siege. Are you sure I can have them back? I will make sure that you are aptly rewarded.",
 						buttons: ["Return them", "Keep them"],
 						showCloseButton: false,
 						forceChoose: true, // forces choose dom
@@ -1300,8 +1300,6 @@ var Areas = {
 
 		data: {
 			name: "Treefellers' Tavern",
-			level: "",
-			territory: "",
 			displayOnEnter: true,
 		},
 
@@ -1663,7 +1661,7 @@ var Areas = {
 		},
 
 		callAreaLeaveOnLogout: true,
-		
+
 		onAreaLeave: function (logout) {
 			let chat = "";
 			if (Player.quests.activeQuestArray.includes("Cleaning the Floor")) {
@@ -1678,7 +1676,7 @@ var Areas = {
 				Dom.quest.abandon(Quests.tavern[3]);
 				chat = "<strong>Hungry Taverners</strong> has been abandoned. You can start it again by speaking to an innkeeper.";
 			}
-			
+
 			if (chat !== "") {
 				if (logout) {
 					Player.chatOnJoin.push(chat);
@@ -2039,7 +2037,7 @@ var Areas = {
 
 		data: {
 			name: "The Nilbog",
-			level: (250+Event.antoraxAge) + " years ago...",
+			subtitle: (250+Event.antoraxAge) + " years ago...",
 			territory: "Hostile",
 			displayOnEnter: true,
 		},
@@ -3110,78 +3108,42 @@ var Areas = {
 				x: 940,
 				y: 1190,
 				image: "guard1",
-				name: "Eaglecrest Guard",
-				hostility: "friendly",
-				level: 50,
-				stats: {
-					maxHealth: 300,
-					defence: 20,
-				},
+				template: NPCTemplates.guard,
 			},
 			{
 				// id: 2,
 				x: 560,
 				y: 1190,
 				image: "guard2",
-				name: "Eaglecrest Guard",
-				hostility: "friendly",
-				level: 50,
-				stats: {
-					maxHealth: 300,
-					defence: 20,
-				},
+				template: NPCTemplates.guard,
 			},
 			{
 				// id: 3,
 				x: 130,
 				y: 500,
 				image: "guard1",
-				name: "Eaglecrest Guard",
-				hostility: "friendly",
-				level: 50,
-				stats: {
-					maxHealth: 300,
-					defence: 20,
-				},
+				template: NPCTemplates.guard,
 			},
 			{
 				// id: 4,
 				x: 1375,
 				y: 500,
 				image: "guard2",
-				name: "Eaglecrest Guard",
-				hostility: "friendly",
-				level: 50,
-				stats: {
-					maxHealth: 300,
-					defence: 20,
-				},
+				template: NPCTemplates.guard,
 			},
 			{
 				// id: 5,
 				x: 895,
 				y: 275,
 				image: "guard1",
-				name: "Eaglecrest Guard",
-				hostility: "friendly",
-				level: 50,
-				stats: {
-					maxHealth: 300,
-					defence: 20,
-				},
+				template: NPCTemplates.guard,
 			},
 			{
 				// id: 6,
 				x: 605,
 				y: 275,
 				image: "guard2",
-				name: "Eaglecrest Guard",
-				hostility: "friendly",
-				level: 50,
-				stats: {
-					maxHealth: 300,
-					defence: 20,
-				},
+				template: NPCTemplates.guard,
 			},
 			{
 				// id: 7,
@@ -3308,6 +3270,16 @@ var Areas = {
 
 		areaTeleports: [
 			{
+				// teleport to the forge
+				x: 930,
+				y: 210,
+				width: 120,
+				height: 2,
+				teleportTo: "theForge",
+				destinationX: 395,
+				destinationY: 770,
+			},
+			{
 				// teleport to eaglecrest plaza
 				x: 1280,
 				y: 480,
@@ -3413,6 +3385,16 @@ var Areas = {
 
 		areaTeleports: [
 			{
+				// teleport to elixirs
+				x: 330,
+				y: 210,
+				width: 120,
+				height: 2,
+				teleportTo: "eaglecrestElixirs",
+				destinationX: 395,
+				destinationY: 770,
+			},
+			{
 				// teleport to eaglecrest plaza
 				x: -20,
 				y: 480,
@@ -3471,8 +3453,6 @@ var Areas = {
 
 		data: {
 			name: "Eaglecrest Bank",
-			level: "",
-			territory: "",
 			displayOnEnter: true,
 		},
 
@@ -3491,7 +3471,7 @@ var Areas = {
 			cols: 17,
 			rows: 15,
 			tsize: 60,
-			tilesPerRow: 1,
+			tilesPerRow: 2,
 			solidTiles: [1], // wall
 			layers: [
 				[1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 5, 5, 1, 1, 5, 5, 1, 1, 1, 5, 5, 1, 1, 5, 5, 1, 1, 5, 5, 1, 1, 5, 5, 1, 1, 1, 5, 5, 1, 1, 5, 5, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 2, 3, 2, 3, 2, 3, 2, 3, 2, 3, 2, 3, 2, 3, 2, 3, 2, 3, 2, 3, 2, 3, 2, 3, 2, 3, 2, 3, 2, 3, 2, 3, 2, 3, 4, 4, 4, 4, 4, 4, 2, 3, 2, 3, 2, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 2, 3, 2, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 3, 2, 3, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 2, 3, 2, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 3, 2, 3, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 2, 3, 2, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 3, 2, 3, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 2, 3, 2, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 2, 3, 2, 3, 2, 4, 4, 4, 4, 4, 4],
@@ -3510,7 +3490,7 @@ var Areas = {
 		areaTeleports: [
 			{
 				// teleport to eaglecrest plaza
-				x: 420,
+				x: 510,
 				y: 949,
 				width: 240,
 				height: 2,
@@ -3614,8 +3594,6 @@ var Areas = {
 
 		data: {
 			name: "Eagle's Span Tavern",
-			level: "",
-			territory: "",
 			displayOnEnter: true,
 		},
 
@@ -4151,7 +4129,7 @@ var Areas = {
 		},
 
 		callAreaLeaveOnLogout: true,
-		
+
 		onAreaLeave: function (logout) {
 			let chat = "";
 			if (Player.quests.activeQuestArray.includes("Cleaning the Floor")) {
@@ -4166,7 +4144,7 @@ var Areas = {
 				Dom.quest.abandon(Quests.tavern[3]);
 				chat = "<strong>Hungry Taverners</strong> has been abandoned. You can start it again by speaking to an innkeeper.";
 			}
-			
+
 			if (chat !== "") {
 				if (logout) {
 					Player.chatOnJoin.push(chat);
@@ -4177,6 +4155,140 @@ var Areas = {
 			}
 		},
 
+	},
+
+	theForge: {
+		id: 15,
+
+		data: {
+			name: "The Forge",
+			subtitle: "The finest forged steel equipment in Eaglecrest!",
+			displayOnEnter: true,
+		},
+
+		indoors: true,
+
+		tagGameAllowed: true,
+
+		song_day: "assets/music/Eaglecrest.mp3",
+		song_night: "assets/music/Eaglecrest.mp3",
+
+		checkpoint: false,
+
+		lootArea: "eaglecrest",
+
+		mapData: {
+			cols: 13,
+			rows: 14,
+			tsize: 60,
+			tilesPerRow: 2,
+			solidTiles: [1], // wall
+			layers: [
+				[1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4],
+				[],
+			],
+		},
+
+		images: {
+			tiles: {normal: "assets/tilemap/eaglecrestShop.png"},
+		},
+
+		areaTeleports: [
+			{
+				// teleport to eaglecrest west
+				x: 390,
+				y: 889,
+				width: 240,
+				height: 2,
+				teleportTo: "eaglecrestWest",
+				destinationX: 930,
+				destinationY: 280,
+			},
+		],
+
+		villagerData: {
+			minPeople: 0,
+			maxPeople: 2,
+			locations: [
+				{
+					x: 39,
+					y: 200,
+					width: 702,
+					height: 572,
+				},
+			],
+		},
+
+		npcs: [
+
+		],
+	},
+
+	eaglecrestElixirs: {
+		id: 16,
+
+		data: {
+			name: "Eaglecrest Elixirs",
+			subtitle: "Tamtam's tonics and other alchemania!",
+			displayOnEnter: true,
+		},
+
+		indoors: true,
+
+		tagGameAllowed: true,
+
+		song_day: "assets/music/Eaglecrest.mp3",
+		song_night: "assets/music/Eaglecrest.mp3",
+
+		checkpoint: false,
+
+		lootArea: "eaglecrest",
+
+		mapData: {
+			cols: 13,
+			rows: 14,
+			tsize: 60,
+			tilesPerRow: 2,
+			solidTiles: [1], // wall
+			layers: [
+				[1, 1, 1, 6, 12, 8, 14, 8, 14, 10, 1, 1, 1, 1, 2, 1, 8, 14, 10, 2, 10, 6, 12, 1, 2, 1, 1, 1, 1, 10, 6, 12, 6, 12, 8, 14, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 7, 7, 7, 7, 7, 7, 7, 7, 7, 7, 7, 7, 7, 7, 7, 7, 7, 7, 7, 7, 7, 7, 7, 7, 7, 7, 7, 7, 7, 11, 11, 11, 11, 11, 11, 11, 7, 7, 7, 7, 7, 7, 7, 7, 7, 7, 7, 7, 7, 7, 7, 7, 7, 7, 7, 7, 7, 7, 7, 7, 7, 7, 7, 7, 7, 7, 7, 7, 7, 7, 7, 7, 7, 7, 7, 7, 7, 7, 7, 7, 7, 7, 7, 7, 7, 7, 7, 7, 7, 7, 7, 7, 7, 7, 7, 7, 7, 7, 7, 7, 7, 7, 7, 7, 7, 7, 7, 7, 7, 7, 7, 7, 7, 7, 7, 7, 7, 7, 7, 7, 7, 7, 7, 7, 7, 7, 7, 7, 7, 7],
+				[],
+			],
+		},
+
+		images: {
+			tiles: {normal: "assets/tilemap/eaglecrestShop.png"},
+		},
+
+		areaTeleports: [
+			{
+				// teleport to eaglecrest east
+				x: 390,
+				y: 889,
+				width: 240,
+				height: 2,
+				teleportTo: "eaglecrestEast",
+				destinationX: 330,
+				destinationY: 280,
+			},
+		],
+
+		villagerData: {
+			minPeople: 0,
+			maxPeople: 2,
+			locations: [
+				{
+					x: 39,
+					y: 200,
+					width: 702,
+					height: 572,
+				},
+			],
+		},
+
+		npcs: [
+
+		],
 	},
 };
 

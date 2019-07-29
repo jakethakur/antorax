@@ -48,14 +48,17 @@ else {
 let array = [];
 for (let i = 2; i < Skins.a.length; i++) {
 	Skins.a[i].class = "a";
+	Skins.a[i].i = array.length;
 	array.push(Skins.a[i]);
 }
 for (let i = 2; i < Skins.m.length; i++) {
 	Skins.m[i].class = "m";
+	Skins.m[i].i = array.length;
 	array.push(Skins.m[i]);
 }
 for (let i = 2; i < Skins.k.length; i++) {
 	Skins.k[i].class = "k";
+	Skins.k[i].i = array.length;
 	array.push(Skins.k[i]);
 }
 document.getElementById("options").innerHTML = "Archer";
@@ -151,7 +154,9 @@ document.getElementById("buy").onclick = function () {
 		document.getElementById("buy").style.backgroundColor = "#bb9933";
 		setTimeout(function () {
 			document.getElementById("buy").style.backgroundColor = "var(--bottom)";
+			document.getElementById("buy").hidden = true;
 		},200);
+		document.getElementById("option"+skin.i).style.borderColor = "darkgreen";
 		User.achievementPoints.unclaimed -= 25;
 		User.skins[skin.class].push(skin.id);
 		User.skinPurchased = true;

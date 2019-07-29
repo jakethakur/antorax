@@ -1197,7 +1197,7 @@ After all, death is never the end in Antorax...<br>
 				let completed = [];
 
 				// true or falses for each objective (apart from the turn-in objective)
-				completed.push(Game.area === "eaglecrest");
+				completed.push(Game.areaName === "eaglecrest");
 
 				completed = checkFinished(completed);
 
@@ -1284,7 +1284,7 @@ After all, death is never the end in Antorax...<br>
 					"Speak to <strong>Gregor Goldenbrew</strong>.",
 				],
 			},
-			
+
 			eaglecrestTavern: {
 				startName: "Inkeepers Rhus-Jak",
 				startChat: `<strong>Jak</strong>: The tavern's a bit dirty at the moment. We're both busy serving guests, but if you wanted a job and a bit of gold ...
@@ -1334,21 +1334,21 @@ After all, death is never the end in Antorax...<br>
 			},
 
 			onQuestStart: function () {
-				
+
 				// select a random number of dirt to generate between 5 and 15
 				let random = Random(5, 15);
 				Player.quests.questProgress.dirtTotal = random;
 				Player.quests.questProgress.dirtDone = 0;
-				
+
 				// spawn the dirt
 				for (let i = 0; i < random; i++) {
-					
+
 					// generate the dirt at a random location
 					Game.attackables.push(new Character({
 	                    map: map,
 	                    type: "attackables",
 	                    x: Random(0, map.cols * map.tsize),
-	                    y: Random(0, (map.rows-1) * map.tsize),
+	                    y: Random(0, (map.rows-1.5) * map.tsize),
 						z: -0.5, // should never be infront of player
 	                    image: "dirt",
 	                    name: "Dirt",
@@ -1380,7 +1380,7 @@ After all, death is never the end in Antorax...<br>
 								if (array[x].isTouching(dirt)) {
 									touching = true;
 									dirt.x = Random(0, map.cols * map.tsize);
-									dirt.y = Random(0, (map.rows-1) * map.tsize);
+									dirt.y = Random(0, (map.rows-1.5) * map.tsize);
 									break;
 								}
 							}
@@ -1388,7 +1388,7 @@ After all, death is never the end in Antorax...<br>
 						else {
 							touching = true;
 							dirt.x = Random(0, map.cols * map.tsize);
-							dirt.y = Random(0, (map.rows-1) * map.tsize);
+							dirt.y = Random(0, (map.rows-1.5) * map.tsize);
 						}
 					}
 				}
@@ -1409,7 +1409,7 @@ After all, death is never the end in Antorax...<br>
 					"Return them to <strong>Gregor Goldenbrew</strong>.",
 				],
 			},
-			
+
 			eaglecrestTavern: {
 				startName: "Inkeepers Rhus-Jak",
 				startChat: `<strong>Rhus</strong>: Tables are messy.
@@ -1438,7 +1438,7 @@ After all, death is never the end in Antorax...<br>
 					{item: Items.currency[2],}, // 1 gold
 				],
 			},
-			
+
 			removeItems: [
 				{item: Items.item[25], quantity: true}, // all mugs
 				{item: Items.item[26], quantity: true}, // all plates
@@ -1455,12 +1455,12 @@ After all, death is never the end in Antorax...<br>
 			},
 
 			onQuestStart: function () {
-				
+
 				if (Player.quests.questProgress.mugsPlatesDone === undefined) {
 					Areas[Game.areaName].onAreaJoin();
 					Player.quests.questProgress.mugsPlatesDone = 0;
 				}
-				
+
 				for (let i = 0; i < Game.things.length; i++) {
 					if (Game.things[i].name === "Mug") {
 						Game.things[i].onInteract = function () {
@@ -1478,7 +1478,7 @@ After all, death is never the end in Antorax...<br>
 					}
 				}
 			},
-			
+
 			onQuestFinish: function () {
 				Player.quests.questProgress.mugsPlatesDone = undefined;
 			}
@@ -1498,7 +1498,7 @@ After all, death is never the end in Antorax...<br>
 					"Speak to <strong>Gregor Goldenbrew</strong>.",
 				],
 			},
-			
+
 			eaglecrestTavern: {
 				startName: "Inkeepers Rhus-Jak",
 				startChat: `<strong>Jak</strong>: There's a lot of people waiting for their orders! Could you lend us a hand and give out some foodstuffs?`,
@@ -1525,14 +1525,14 @@ After all, death is never the end in Antorax...<br>
 					{item: Items.currency[2],}, // 1 gold
 				],
 			},
-			
+
 			isCompleted: function () {
 				let completed = [];
-				
+
 				for (let i = Game.villagers.length-1; i >= 0; i--) {
 					completed.push(Game.villagers[i].tavernGoodsDelivered === true);
 				}
-				
+
 				completed = checkFinished(completed);
 
 				return completed;
@@ -1542,15 +1542,15 @@ After all, death is never the end in Antorax...<br>
 
 				// remove the first objective which just tells you you will hand general stuff to general people
 				this[Game.areaName].objectives.shift();
-				
+
 				// filter out all unactive event items
 				let sold = npc.roles[0].sold.filter(item => item.eventRequirement === undefined || item.eventRequirement === Event.event);
-				
+
 				// for each villager assign a random item sold by the npc
 				for (let i = 0; i < Game.villagers.length; i++) {
 					let item = sold[Random(0, sold.length-1)].item;
 					this[Game.areaName].objectives.unshift("Give " + item.name + " to " + Game.villagers[i].name + ".")
-				
+
 					Game.villagers[i].roles.push({
 						role: "function",
 						chooseText: "Here is your " + item.name,
@@ -1572,9 +1572,9 @@ After all, death is never the end in Antorax...<br>
 					});
 				}
 			},
-			
+
 			callQuestFinishOnAbandon: true,
-			
+
 			onQuestFinish: function () {
 				// remove all items with the property removeOnAbandon set to the quest name
 				for (let i = 0; i < Player.inventory.items.length; i++) {
@@ -1582,12 +1582,12 @@ After all, death is never the end in Antorax...<br>
 						Dom.inventory.remove(i, true);
 					}
 				}
-				
+
 				// remove the roll for giving the tavern goods of all the villagers
 				for (let i = 0; i < Game.villagers.length; i++) {
 					Game.villagers[i].roles.pop();
 				}
-				
+
 				// reset the objectives
 				this[Game.areaName].objectives = ["Hand out some tavern goods to people around the tavern", this[Game.areaName].objectives.pop()];
 			}
