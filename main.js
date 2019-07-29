@@ -315,7 +315,8 @@ Game.initWebSocket = function () {
 								game: "tag",
 								area: message.area,
 								playing: false,
-								status: "starting"
+								status: "starting",
+								immunePlayers: []
 							};
 
 							// find player who started game and update their playing game in DOm.players, and which areas they appear in
@@ -4637,7 +4638,8 @@ Game.tag.init = function () {
 			game: "tag",
 			area: tagArea,
 			playing: true,
-			status: "starting"
+			status: "starting",
+			immunePlayers: []
 		};
 
 		// remove all other players from the area (they will be added/readded as they join)
