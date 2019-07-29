@@ -6669,7 +6669,7 @@ Game.update = function (delta) {
 				switch (this.minigameInProgress.game) {
 					case "tag":
 						if (this.minigameInProgress.taggedPlayer === ws.userID && // this player is tagged, and...
-						Game.minigameInProgress.immunePlayers.includes(player.userID)) { // the player being tagged is not immune to being tagged
+						!Game.minigameInProgress.immunePlayers.includes(player.userID)) { // the player being tagged is not immune to being tagged
 							// tag them
 							// note that for the player to even be shown in the area in the first place they must be playing
 							ws.send(JSON.stringify({
