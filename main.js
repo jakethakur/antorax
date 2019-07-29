@@ -433,6 +433,9 @@ Game.initWebSocket = function () {
 
 							// hide infobar
 							Dom.infoBar.page("");
+
+							// reset minigameInProgress
+							Game.minigameReset();
 							break;
 
 						case "close":
@@ -1202,7 +1205,7 @@ class Character extends Thing {
 		// if they are objects then set the chat based on the area the character is in (e.g. .eaglecrest, .loggingCamp)
 		let chatKeys = Object.keys(this.chat);
 		for (let i = 0; i < chatKeys.length; i++) {
-			if (typeof this.chat[chatKeys[i]] === "object") {
+			if (typeof this.chat[chatKeys[i]] === "object" && !Array.isArray(this.chat[chatKeys[i]])) {
 				this.chat[chatKeys[i]] = this.chat[chatKeys[i]][Player.lootArea];
 			}
 		}
@@ -5228,8 +5231,13 @@ Game.loadArea = function (areaName, destination) {
 			// tbd wait until font is loaded
 			let title = Areas[areaName].data.name;
 			let subtitles = [];
-			subtitles.push(Areas[areaName].data.level);
-			if (Areas[areaName].data.territory !== "") {
+			if (Areas[areaName].data.subtitle !== undefined) {
+				subtitles.push(Areas[areaName].data.subtitle);
+			}
+			if (Areas[areaName].data.level !== undefined) {
+				subtitles.push(Areas[areaName].data.level);
+			}
+			if (Areas[areaName].data.territory !== undefined && Areas[areaName].data.territory !== "") {
 				// only show territory if it is defined for the area
 				subtitles.push(Areas[areaName].data.territory + " territory");
 			}

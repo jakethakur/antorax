@@ -3606,7 +3606,7 @@ var Areas = {
 
 		checkpoint: false, // probably in the future taverns should be the ONLY checkpoints
 
-		lootArea: "loggingCamp", // for level up music
+		lootArea: "eaglecrest", // for level up music
 
 		mapData: {
 			cols: 21,
@@ -3724,7 +3724,7 @@ var Areas = {
 					},
 				],
 				chat: {
-					questProgress: "<strong>Jake</strong>: you're not done yet! Keep going.",
+					questProgress: "<strong>Jak</strong>: You're not done yet! Keep going.",
 					chooseChat: `<strong>Rhus</strong>: What you want?
 <br><strong>Jak</strong>: Hello! Can we help you?`,
 					shopLeave: ["<strong>Rhus</strong>: Heh, see you soon.",

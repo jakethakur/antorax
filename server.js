@@ -564,6 +564,10 @@ function StartTagGame () {
 
 		// remove game time countdown interval
 		clearInterval(minigameInProgress.timeInterval);
+
+		// close tag game so another game can be started
+		ws.playingGame = undefined;
+		minigameInProgress = undefined;
 	}
 }
 
