@@ -1113,7 +1113,7 @@ var Items = {
 
 					// increase sell price
                     item.sellPrice++;
-					
+
 					// change image and functionText if all 6 gemstones have been added
 					if (item.gemstones.length === 6) {
 						item.image = "assets/items/sword/11complete.png";
@@ -2436,6 +2436,10 @@ var Items = {
 						},
 						image: "bait",
 					}));
+
+					// update status effect display
+					Game.hero.updateStatusEffects();
+
 					// give quest progress for "learning to fish II"
 					Player.quests.questProgress.hasUsedBait = true;
 				}
@@ -2575,6 +2579,9 @@ var Items = {
 						},
 						image: "bait",
 					}));
+
+					// update status effect display
+					Game.hero.updateStatusEffects();
 				}
 			},
 		},

@@ -103,7 +103,8 @@ wss.on("connection", (ws) => { // note that ws = client in wss.clients
 					ws.send(JSON.stringify({
 						type: minigameInProgress.game + "Game",
 						action: "retroactive",
-						area: minigameInProgress.area
+						area: minigameInProgress.area,
+						status: minigameInProgress.status
 					}));
 				}
 
@@ -576,6 +577,8 @@ function EndTagGame () {
 	// remove game time countdown interval
 	clearInterval(minigameInProgress.timeInterval);
 
+	minigameInProgress.status = "finished";
+
 	// tell users it has finished
 	wss.clients.forEach(client => {
 		client.send(JSON.stringify({
@@ -583,8 +586,21 @@ function EndTagGame () {
 			action: "finish",
 			leaderboardData: minigameInProgress.playerTagTimes
 		}));
+	});
 
-		// save this in server so player joining antorax retroactively know they are in the game
+	// remove users from game in 15s
+	setTimeout(CloseTagGame, 15000);
+}
+
+// called after setTimeout by EndTagGame
+function CloseTagGame () {
+	// tell users it has closed
+	wss.clients.forEach(client => {
+		client.send(JSON.stringify({
+			type: "tagGame",
+			action: "close",
+		}));
+
 		client.playingGame = undefined;
 	});
 

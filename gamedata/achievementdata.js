@@ -92,7 +92,7 @@ var Achievements = [
 	{
 		// id: 4,
 		name: "Logging Camp Questmaster",
-		description: "Complete all 16 non-event quests in Eaglecrest Logging Camp.",
+		description: "Complete all 17 non-event quests in Eaglecrest Logging Camp.",
 		points: 10,
 		category: ["quests"],
 		area: ["eaglecrestLoggingCamp"],
@@ -100,10 +100,11 @@ var Achievements = [
 		position: {x: 117,y: -10},
 		color: "#ddddff",
 		class: "single",
-		isCompleted: function () { // REMOVE FISHING QUESTS
+		isCompleted: function () {
 			let done = true;
-			for(let i = 0; i < Quests.eaglecrestLoggingCamp.length; i++){
-				if(Quests.eaglecrestLoggingCamp[i].eventRequirement === undefined && Quests.eaglecrestLoggingCamp[i].repeatTime === undefined && !Player.quests.completedQuestArray.includes(Quests.eaglecrestLoggingCamp[i].quest)){
+			for (let i = 0; i < Quests.eaglecrestLoggingCamp.length; i++) {
+				// only look for one-time, non-event quests
+				if (Quests.eaglecrestLoggingCamp[i].eventRequirement === undefined && Quests.eaglecrestLoggingCamp[i].repeatTime === undefined && !Player.quests.completedQuestArray.includes(Quests.eaglecrestLoggingCamp[i].quest)) {
 					done = false;
 				}
 			}
@@ -111,8 +112,8 @@ var Achievements = [
 		},
 		expand: {
 			type: "checkList",
-			text: ["To the Logging Camp", "Learning from the Best", "Combat Training", "Retrieval of Logs", "Making Yourself Useful", "First Class Recovery", "A Lost Fishing Rod", "Strengthening Defences", "The Sceptre of Souls", "Another Man's Treasure", "Fire Power", "Potion Making", "Potion Making II", "The Goblin King", "Partners in Goblin Destruction", "A 'Spark' of Imagination"],
-			complete: ["To the Logging Camp", "Learning from the Best", "Combat Training", "Retrieval of Logs", "Making Yourself Useful", "First Class Recovery", "A Lost Fishing Rod", "Strengthening Defences", "The Sceptre of Souls", "Another Man's Treasure", "Fire Power", "Potion Making", "Potion Making II", "The Goblin King", "Partners in Goblin Destruction", "A 'Spark' of Imagination"],
+			text: ["To the Logging Camp", "Learning from the Best", "Combat Training", "Retrieval of Logs", "Making Yourself Useful", "First Class Recovery", "A Lost Fishing Rod", "Strengthening Defences", "The Sceptre of Souls", "Another Man's Treasure", "Fire Power", "Potion Making", "Potion Making II", "The Goblin King", "To Eaglecrest, and Beyond!", "Partners in Goblin Destruction", "A 'Spark' of Imagination"],
+			complete: ["To the Logging Camp", "Learning from the Best", "Combat Training", "Retrieval of Logs", "Making Yourself Useful", "First Class Recovery", "A Lost Fishing Rod", "Strengthening Defences", "The Sceptre of Souls", "Another Man's Treasure", "Fire Power", "Potion Making", "Potion Making II", "The Goblin King", "To Eaglecrest, and Beyond!", "Partners in Goblin Destruction", "A 'Spark' of Imagination"],
 			saved: "quest",
 		},
 	},

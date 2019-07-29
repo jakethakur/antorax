@@ -315,7 +315,7 @@ Game.initWebSocket = function () {
 								game: "tag",
 								area: message.area,
 								playing: false,
-								started: false
+								status: "starting"
 							};
 
 							// find player who started game and update their playing game in DOm.players, and which areas they appear in
@@ -349,7 +349,7 @@ Game.initWebSocket = function () {
 
 						case "start":
 							// game started
-							Game.minigameInProgress.started = true;
+							Game.minigameInProgress.status = "started";
 
 							if (!Game.minigameInProgress.playing) {
 								// not playing
@@ -386,8 +386,8 @@ Game.initWebSocket = function () {
 							// convert time to mm:ss format
 					 		Game.minigameInProgress.timeRemaining = TimeDisplay(message.content);
 							// update infobar time display
-							if (Game.minigameInProgress.started) {
-								// just overwrite time to maintain other
+							if (Game.minigameInProgress.status === "started") {
+								// just overwrite time to maintain other information
 								document.getElementById("tagTimeRemaining").innerHTML = Game.minigameInProgress.timeRemaining;
 							}
 							else {
@@ -398,13 +398,20 @@ Game.initWebSocket = function () {
 
 						case "finish":
 							// end of game
-							Game.tag.finish(message.leaderboardData);
+							Game.minigameInProgress.status = "finished";
+
+							// show scores if they were in game
+							if (Game.minigameInProgress.playing) {
+								Game.tag.finish(message.leaderboardData);
+							}
 
 							// hide infobar
 							Dom.infoBar.page("");
 							break;
 
 						case "fizzle":
+							// game couldn't start properly due to not enough players
+
 							// close alert for people who still have it open
 							if (!Game.minigameInProgress.playing) {
 								// not playing
@@ -414,13 +421,30 @@ Game.initWebSocket = function () {
 									Dom.alert.close(alert.id);
 								}
 							}
+							else {
+								// return player that started game back to their initial location
+								Game.hero.temporaryAreaTeleportReturn();
 
-							// game couldn't start properly due to not enough players
-							Game.tag.finish(false);
+								Dom.chat.insert("There were not enough players to start the game. You have got your <strong>Chaser's Gauntlet</strong> back.");
+								Dom.inventory.give(Items.consumable[22]);
+								Dom.chat.notification("There were not enough players to start the game."); // in case they were not on the tab
+							}
 
 							// hide infobar
 							Dom.infoBar.page("");
 							break;
+
+						case "close":
+							// tag game closed
+
+							if (Game.minigameInProgress.playing) {
+								// clear firework interval
+								clearInterval(Game.tag.fireworkWinnerInterval);
+
+								Game.hero.temporaryAreaTeleportReturn();
+							}
+
+							Game.minigameReset();
 
 						case "retroactive":
 							// information received about it on player join
@@ -428,7 +452,8 @@ Game.initWebSocket = function () {
 							Game.minigameInProgress = {
 								game: "tag",
 								area: message.area,
-								playing: false
+								playing: false,
+								status: message.status
 							};
 					}
 					break;
@@ -1385,6 +1410,8 @@ class Character extends Thing {
 				if (typeof this.chat.death !== "undefined") {
 					this.say(this.chat.death, 0, true);
 				}
+
+				Dom.checkProgress();
 			}
 		}
 		// player
@@ -4609,7 +4636,8 @@ Game.tag.init = function () {
 		Game.minigameInProgress = {
 			game: "tag",
 			area: tagArea,
-			playing: true
+			playing: true,
+			status: "starting"
 		};
 
 		// remove all other players from the area (they will be added/readded as they join)
@@ -4742,13 +4770,14 @@ Game.tag.newTaggedPlayer = function (userID) {
 		}
 
 		// previously tagged player is immune to being tagged again for 3 seconds
-		Game.minigameInProgress.immunePlayer = Game.minigameInProgress.taggedPlayer;
-		setTimeout(function () {
+		Game.minigameInProgress.immunePlayers.push(Game.minigameInProgress.taggedPlayer);
+		setTimeout(function (removeUserID) {
+			// check game hasn't finished
 			if (Game.minigameInProgress !== undefined) {
-				// check game hasn't finished
-				Game.minigameInProgress.immunePlayer = undefined;
+				let index = Game.minigameInProgress.immunePlayers.findIndex(userID => userID === removeUserID);
+				Game.minigameInProgress.immunePlayers.splice(index, 1);
 			}
-		}, 3000);
+		}, 3000, Game.minigameInProgress.taggedPlayer);
 	}
 
 	// update game object tagged player
@@ -4781,20 +4810,9 @@ Game.tag.newTaggedPlayer = function (userID) {
 	document.getElementById("infoSkin").style.backgroundImage = 'url("./selection/assets/'+taggedPlayer.class+taggedPlayer.skin+'/f.png")';
 }
 
-// leave tag minigame
+// show scores of tag minigame
 // leaderboardData is an object with keys as user ids and values as times
-// if leaderboardData is set to false, the player gets their item back because the game was unable to start
-Game.tag.leave = function (leaderboardData) {
-	// return them to their initial location in 15s
-	setTimeout(function () {
-		// clear firework interval
-		clearInterval(Game.tag.fireworkWinnerInterval);
-
-		Game.hero.temporaryAreaTeleportReturn();
-	}, 15000);
-
-	Game.minigameInProgress.playing = false;
-
+Game.tag.finish = function (leaderboardData) {
 	// stop player appearing as being tagged
 	for (let i = 0; i < Game.players.length; i++) {
 		if (Game.players[i].hostility === "gameHostile") {
@@ -4802,92 +4820,81 @@ Game.tag.leave = function (leaderboardData) {
 		}
 	}
 
-	if (leaderboardData === false) {
-		// there were not enough players to start the game
-		Dom.chat.insert("There were not enough players to start the game. You have got your <strong>Chaser's Gauntlet</strong> back.");
-		Dom.inventory.give(Items.consumable[22]);
-		Dom.chat.notification("There were not enough players to start the game."); // in case they were not on the tab
+	// stop other players from being tagged
+	Game.minigameInProgress.taggedPlayer = undefined;
+
+	// ended after a proper game
+	Dom.chat.insert("The game is over.");
+
+	// leaderboard information
+	let userIDs = Object.keys(leaderboardData);
+	let userScores = Object.values(leaderboardData);
+
+	// form player objects to pass to Dom.leaderboard.page
+	let leaderboardPlayerArray = [];
+	for (let i = 0; i < userIDs.length; i++) {
+		let leaderboardPlayer = {};
+
+		let domPlayer = Dom.players.find(player => player.userID === Number(userIDs[i]));
+
+		leaderboardPlayer.score = Round(userScores[i]/1000, 1); // ms -> s
+		leaderboardPlayer.skin = domPlayer.skin;
+		leaderboardPlayer.class = domPlayer.class;
+		leaderboardPlayer.name = domPlayer.name;
+		leaderboardPlayer.userID = domPlayer.userID; // just used by main
+
+		leaderboardPlayerArray.push(leaderboardPlayer)
 	}
-	else {
-		// ended after a proper game
-		Dom.chat.insert("The game is over.");
 
-		// leaderboard information
-		let userIDs = Object.keys(leaderboardData);
-		let userScores = Object.values(leaderboardData);
+	// sort leaderboard from shortest time to longest
+	leaderboardPlayerArray.sort(function (a, b) {
+		if (a.score < b.score) {
+			return -1;
+		}
+		else if (a.score > b.score) {
+			return 1;
+		}
+		return 0;
+	});
 
-		// form player objects to pass to Dom.leaderboard.page
-		let leaderboardPlayerArray = [];
-		for (let i = 0; i < userIDs.length; i++) {
-			let leaderboardPlayer = {};
+	Dom.leaderboard.page("Tag: " + Player.displayAreaName, "Time spent tagged", leaderboardPlayerArray, "s");
 
-			let domPlayer = Dom.players.find(player => player.userID === Number(userIDs[i]));
+	// find winning user
+	let winningUser = leaderboardPlayerArray[0];
 
-			leaderboardPlayer.score = Round(userScores[i]/1000, 1); // ms -> s
-			leaderboardPlayer.skin = domPlayer.skin;
-			leaderboardPlayer.class = domPlayer.class;
-			leaderboardPlayer.name = domPlayer.name;
-			leaderboardPlayer.userID = domPlayer.userID; // just used by main
+	// achievement
+	if (leaderboardPlayerArray.length > 4 && winningUser.userID === ws.userID) {
+		User.progress.tagAchievement = true;
+	}
 
-			leaderboardPlayerArray.push(leaderboardPlayer)
+	// interval cleared on area teleport
+	this.fireworkWinnerInterval = setInterval(function (winningUserID) {
+		let winner;
+		if (winningUserID === ws.userID) {
+			// hero won game
+			winner = Game.hero;
+		}
+		else {
+			winner = Game.players.find(player => player.userID === winningUserID);
 		}
 
-		// sort leaderboard from shortest time to longest
-		leaderboardPlayerArray.sort(function (a, b) {
-			if (a.score < b.score) {
-				return -1;
-			}
-			else if (a.score > b.score) {
-				return 1;
-			}
-			return 0;
-		});
-
-		Dom.leaderboard.page("Tag: " + Player.displayAreaName, "Time spent tagged", leaderboardPlayerArray, "s");
-
-		// find winning user
-		let winningUser = leaderboardPlayerArray[0];
-
-		// achievement
-		if (leaderboardPlayerArray.length > 4 && winningUser.userID === ws.userID) {
-			User.progress.tagAchievement = true;
+		if (winner !== undefined) {
+			Game.launchFirework({
+				x: winner.x,
+				y: winner.y,
+				radius: 150,
+				particles: 600,
+				explodeTime: 500,
+				lingerTime: 1000,
+				colours: "#f9ff54", // golden
+			});
 		}
-
-		// interval cleared on area teleport
-		this.fireworkWinnerInterval = setInterval(function (winningUserID) {
-			let winner;
-			if (winningUserID === ws.userID) {
-				// hero won game
-				winner = Game.hero;
-			}
-			else {
-				winner = Game.players.find(player => player.userID === winningUserID);
-			}
-
-			if (winner !== undefined) {
-				Game.launchFirework({
-					x: winner.x,
-					y: winner.y,
-					radius: 150,
-					particles: 600,
-					explodeTime: 500,
-					lingerTime: 1000,
-					colours: "#f9ff54", // golden
-				});
-			}
-		}, 2222, winningUser.userID);
-	}
+	}, 2222, winningUser.userID);
 }
 
-// tag minigame finished
-// leaderboardData is an object with keys as user ids and values as times
-// if leaderboardData is set to false, the player gets their item back because the game was unable to start
-Game.tag.finish = function (leaderboardData) {
-	if (Game.minigameInProgress.playing) {
-		// leave the game first
-		this.leave(leaderboardData);
-	}
-
+// minigame has finished
+// works for any minigame
+Game.minigameReset = function () {
 	// game has finished
 	Game.minigameInProgress = undefined;
 
@@ -5232,7 +5239,7 @@ Game.loadArea = function (areaName, destination) {
 		this.updateCanvasViewport();
 
 		// update y position of inforbar (in case there is a viewport offset y)
-		//Dom.infoBar.updateYPosition();aaaaaaaaaaaaaaaaaaaaaaaaaaaaaa
+		Dom.infoBar.updateYPosition();
 
 		// reposition player
 		if (destination !== undefined) {
@@ -6660,7 +6667,7 @@ Game.update = function (delta) {
 				switch (this.minigameInProgress.game) {
 					case "tag":
 						if (this.minigameInProgress.taggedPlayer === ws.userID && // this player is tagged, and...
-						Game.minigameInProgress.immunePlayer !== player.userID) { // the player being tagged is not immune to being tagged
+						Game.minigameInProgress.immunePlayers.includes(player.userID)) { // the player being tagged is not immune to being tagged
 							// tag them
 							// note that for the player to even be shown in the area in the first place they must be playing
 							ws.send(JSON.stringify({
