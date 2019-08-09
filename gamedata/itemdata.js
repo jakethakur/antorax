@@ -2843,6 +2843,30 @@ var Items = {
 				}
 			},
 		},
+		{
+			id: 23,
+			name: "Potion of Evasion I",
+			type: "consumable",
+			image: "assets/items/consumable/23.png",
+			sellPrice: 2,
+			functionText: "Increases dodge chance by 40% for 10 seconds.",
+		},
+		{
+			id: 24,
+			name: "Potion of Regeneration I",
+			type: "consumable",
+			image: "assets/items/consumable/24.png",
+			sellPrice: 2,
+			functionText: "Increases health regen by 1.5 for 20 seconds.",
+		},
+		{
+			id: 25,
+			name: "Potion of Fire Resistance",
+			type: "consumable",
+			image: "assets/items/consumable/25.png",
+			sellPrice: 1,
+			functionText: "Makes you immune to fire damage for 15 seconds.",
+		},
 	],
 	food: [
 		{
@@ -3935,10 +3959,12 @@ const WeaponRanges = {
 // returns total number of items in archaeology
 GetTotalArchaeologyItems = function () {
 	let total = 0;
-	for (var i = 0; i < 7; i++) {
-		for (var x = 2; x < Items[Object.keys(Items)[i]].length; x++) {
-			if (!Items[Object.keys(Items)[i]][x].uncollectable && (!Items[Object.keys(Items)[i]][x].limitedEdition || User.archaeology.includes(Items[Object.keys(Items)[i]][x].name))) {
-				total++;
+	if (User !== undefined) {
+		for (var i = 0; i < 7; i++) {
+			for (var x = 2; x < Items[Object.keys(Items)[i]].length; x++) {
+				if (!Items[Object.keys(Items)[i]][x].uncollectable && (!Items[Object.keys(Items)[i]][x].limitedEdition || User.archaeology.includes(Items[Object.keys(Items)[i]][x].name))) {
+					total++;
+				}
 			}
 		}
 	}
