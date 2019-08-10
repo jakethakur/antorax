@@ -1271,14 +1271,18 @@ Dom.inventory.displayInformation = function (item, stacked, element, position, h
 				Dom.elements.name.innerHTML = item.name;
 				if (item.rarity === "mythic") {
 					Dom.elements.name.style.color = "#b13fea";
-				}else if (item.rarity === "unique") {
+				}
+				else if (item.rarity === "unique") {
 					Dom.elements.name.style.color = "orange";
-				}else if (item.rarity === "junk") {
+				}
+				else if (item.rarity === "junk") {
 					Dom.elements.name.style.color = "darkgray";
-				}else {
+				}
+				else {
 					Dom.elements.name.style.color = "var(--text)";
 				}
-			}else {
+			}
+			else {
 				Dom.elements.name.innerHTML = "Unidentified "+item.type.charAt(0).toUpperCase() + item.type.slice(1);
 				Dom.elements.name.style.color = "var(--text)";
 			}
@@ -1492,7 +1496,7 @@ Dom.inventory.displayInformation = function (item, stacked, element, position, h
 					}
 				},1000);
 			}
-			Dom.elements.information.style.width = Math.max(Dom.elements.name.offsetWidth, Dom.elements.stats.offsetWidth)+"px";
+			Dom.elements.information.style.width = 1 + Math.max(Dom.elements.name.offsetWidth, Dom.elements.stats.offsetWidth)+"px";
 			Dom.elements.name.style.width = Dom.elements.information.offsetWidth - 30 + "px";
 			Dom.elements.stats.style.width = Dom.elements.information.offsetWidth - 30 + "px";
 		}
