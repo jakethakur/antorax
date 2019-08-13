@@ -473,6 +473,7 @@ var Areas = {
 			{
 				x: 3660,
 				y: 250,
+				orderOffsetY: -20,
 				image: "cart",
 				name: "Cart",
 			},
@@ -1250,6 +1251,7 @@ var Areas = {
 			{
 				x: 220,
 				y: 100,
+				orderOffsetY: -20,
 				image: "cart",
 				name: "Cart",
 			},
@@ -1482,42 +1484,42 @@ var Areas = {
 			{
 				x: 300,
 				y: 328,
-				orderOffsetY: -40,
+				orderOffsetY: -10,
 				image: "table",
 				name: "Table",
 			},
 			{
 				x: 180,
 				y: 508,
-				orderOffsetY: -40,
+				orderOffsetY: -10,
 				image: "table",
 				name: "Table",
 			},
 			{
 				x: 600,
 				y: 508,
-				orderOffsetY: -40,
+				orderOffsetY: -10,
 				image: "table",
 				name: "Table",
 			},
 			{
 				x: 780,
 				y: 1108,
-				orderOffsetY: -40,
+				orderOffsetY: -10,
 				image: "table",
 				name: "Table",
 			},
 			{
 				x: 780,
 				y: 1288,
-				orderOffsetY: -40,
+				orderOffsetY: -10,
 				image: "table",
 				name: "Table",
 			},
 			{
 				x: 842,
 				y: 324,
-				orderOffsetY: -30,
+				orderOffsetY: -40,
 				use: "wizardsLore",
 				image: "largeTable",
 				name: "Large Table",
@@ -3189,21 +3191,25 @@ var Areas = {
 			{
 				x: 300,
 				y: 1100,
+				orderOffsetY: -20,
 				image: "cart2",
 			},
 			{
 				x: 1320,
 				y: 920,
+				orderOffsetY: -20,
 				image: "cart3",
 			},
 			{
 				x: 1380,
 				y: 1175,
+				orderOffsetY: -20,
 				image: "cart1",
 			},
 			{
 				x: 750,
 				y: 700,
+				orderOffsetY: -30,
 				image: "fountain1",
 				name: "Water Fountain",
 				// animation!
@@ -3230,37 +3236,43 @@ var Areas = {
 			{
 				x: 90,
 				y: 450,
-				image: "eaglecrestLampDay",
+				imageDay: "eaglecrestLampDay",
+				imageNight: "eaglecrestLampNight",
 				name: "Eaglecrest Lamp",
 			},
 			{
 				x: 1410,
 				y: 450,
-				image: "eaglecrestLampDay",
+				imageDay: "eaglecrestLampDay",
+				imageNight: "eaglecrestLampNight",
 				name: "Eaglecrest Lamp",
 			},
 			{
 				x: 90,
 				y: 810,
-				image: "eaglecrestLampDay",
+				imageDay: "eaglecrestLampDay",
+				imageNight: "eaglecrestLampNight",
 				name: "Eaglecrest Lamp",
 			},
 			{
 				x: 1410,
 				y: 810,
-				image: "eaglecrestLampDay",
+				imageDay: "eaglecrestLampDay",
+				imageNight: "eaglecrestLampNight",
 				name: "Eaglecrest Lamp",
 			},
 			{
 				x: 510,
 				y: 1170,
-				image: "eaglecrestLampDay",
+				imageDay: "eaglecrestLampDay",
+				imageNight: "eaglecrestLampNight",
 				name: "Eaglecrest Lamp",
 			},
 			{
 				x: 990,
 				y: 1170,
-				image: "eaglecrestLampDay",
+				imageDay: "eaglecrestLampDay",
+				imageNight: "eaglecrestLampNight",
 				name: "Eaglecrest Lamp",
 			},
 		],
@@ -3930,35 +3942,35 @@ var Areas = {
 			{
 				x: 420,
 				y: 448,
-				orderOffsetY: -40,
+				orderOffsetY: -10,
 				image: "table",
 				name: "Table",
 			},
 			{
 				x: 360,
 				y: 628,
-				orderOffsetY: -40,
+				orderOffsetY: -10,
 				image: "table",
 				name: "Table",
 			},
 			{
 				x: 840,
 				y: 268,
-				orderOffsetY: -40,
+				orderOffsetY: -10,
 				image: "table",
 				name: "Table",
 			},
 			{
 				x: 900,
 				y: 628,
-				orderOffsetY: -40,
+				orderOffsetY: -10,
 				image: "table",
 				name: "Table",
 			},
 			{
 				x: 362,
 				y: 264,
-				orderOffsetY: -30,
+				orderOffsetY: -40,
 				use: "wizardsLore",
 				image: "largeTable",
 				name: "Large Table",
@@ -3966,21 +3978,21 @@ var Areas = {
 			{
 				x: 842,
 				y: 444,
-				orderOffsetY: -30,
+				orderOffsetY: -40,
 				image: "largeTable",
 				name: "Large Table",
 			},
 			{
 				x: 182,
 				y: 1344,
-				orderOffsetY: -30,
+				orderOffsetY: -40,
 				image: "largeTable",
 				name: "Large Table",
 			},
 			{
 				x: 1082,
 				y: 1344,
-				orderOffsetY: -30,
+				orderOffsetY: -40,
 				use: "wizardsLore",
 				image: "largeTable",
 				name: "Large Table",
@@ -4111,7 +4123,7 @@ var Areas = {
 			// generate an array of tables
 			let array = Game.things.filter(thing => thing.name === "Table");
 
-			// generate an array of possible positions
+			// generate an array of possible positions for small tables
 			let positions = [];
 			for (let i = 0; i < array.length; i++) {
 				positions.push(
@@ -4124,7 +4136,7 @@ var Areas = {
 			// generate an array of large tables
 			array = Game.things.filter(thing => thing.name === "Large Table" && thing.use !== "wizardsLore");
 
-			// add to the array of possible positions
+			// add to the array of possible positions for large tables
 			for (let i = 0; i < array.length; i++) {
 				positions.push(
 					{x: array[i].x-40, y: array[i].y-20, orderOffsetY: -10},

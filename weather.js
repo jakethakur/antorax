@@ -29,8 +29,7 @@ Weather.init = function () {
 		if (document.getElementById("weatherOn").checked) {
 			Weather.updateVariables();
 			Event.updateTime(Game.areaName);
-			Game.renderDayNight();
-			map.setDayNightTiles();
+			Game.dayNightUpdate();
 		}
 	}, 10000);
 }

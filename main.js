@@ -979,8 +979,15 @@ class Thing extends Entity {
 		if (properties.image !== undefined) {
 			this.setImage(properties.image, properties.crop, properties.width, properties.height);
 		}
+		else if (properties.imageDay !== undefined) {
+			// has separate day image and night image
+			this.imageDay = properties.imageDay;
+			this.imageNight = properties.imageNight;
+			this.setImage(properties.imageDay, properties.crop, properties.width, properties.height);
+			// this is set by setDayNightImages
+		}
 		else {
-			this.hidden = true; // an image must be loaded and set via setIMage before it can be shown (and then hidden may be set back)
+			this.hidden = true; // an image must be loaded and set via setImage before it can be shown (and then hidden may be set back)
 		}
 
 		this.setExpand(properties.expand || 1); // width multiplier (based on base width and base height)
@@ -1234,6 +1241,11 @@ class Character extends Thing {
 			if (this.chat.chooseChat !== undefined && this.chat.antoraxDayGreeting !== undefined) {
 				this.chat.chooseChat = this.chat.antoraxDayGreeting;
 			}
+		}
+
+		// areaJoin chat message (if the npc has one)
+		if (this.chat.areaJoin !== undefined) {
+			this.say(this.chat.areaJoin, 0, true);
 		}
 
 		this.direction = properties.direction || 0; // used for rotation image
@@ -3186,9 +3198,11 @@ class Villager extends NPC {
 
 		this.wait = 0; // total time spent waiting
 
-		this.boundary = properties.boundary; // object of circle or rectangle that the npc cannot walk out of (specified by type: "ellipse")
-		// currently just rect
-		//https://developer.mozilla.org/en-US/docs/Web/API/CanvasRenderingContext2D/ellipse
+		this.boundary = properties.boundary; // object of rectangle that the npc cannot walk out of (x, y, width, height)
+
+		// random position inside the boundary
+		this.x = Random(this.boundary.x, this.boundary.x+this.boundary.width);
+		this.y = Random(this.boundary.y, this.boundary.y+this.boundary.height);
 	}
 
 	// organises movement
@@ -5023,6 +5037,17 @@ Game.loadArea = function (areaName, destination) {
 	// p = array of promises of images being loaded
     let p = this.loadImages(Areas[areaName].images);
 
+	// load in randomly generated villagers if the area has data for them
+	let seed, possibleVillagers, villagersToAdd;
+	if (Areas[areaName].villagerData !== undefined) {
+		let returnValues = this.generateVillagers(Areas[areaName].villagerData, areaName);
+		p = p.concat(returnValues.p); // more images to be loaded
+		// variables used to create villager objects
+		seed = returnValues.seed;
+		possibleVillagers = returnValues.possibleVillagers;
+		villagersToAdd = returnValues.villagersToAdd;
+	}
+
 	// check that default images are loaded (e.g. player, status effect, etc.) and add any that aren't to toLoad
 	p.push(...Game.loadDefaultImages());
 
@@ -5210,6 +5235,20 @@ Game.loadArea = function (areaName, destination) {
 			}
 		}
 
+		// villagers (added from generateVillagers before promise)
+		for (let i = 0; i < villagersToAdd.length; i++) {
+			let villager = possibleVillagers[villagersToAdd[i]];
+
+			// pick random location for villager based on random seed and length of its name
+			// changes approximately every 200 minutes
+			let locationIndex = Math.round(i + (seed/4)) % Areas[areaName].villagerData.locations.length;
+			villager.boundary = Areas[areaName].villagerData.locations[locationIndex];
+
+			if (this.prepareNPC(villager, "villagers")) {
+				this.villagers.push(new Villager(villager));
+			}
+		}
+
 		// players (these are added from websocket instead of areadata)
 		if (ws !== false && ws.readyState === 1) {
 			// websocket is active
@@ -5298,19 +5337,14 @@ Game.loadArea = function (areaName, destination) {
 			this.generateChests(Areas[areaName].chestData);
 		}
 
-		// load in randomly generated villagers if the area has data for them
-		if (Areas[areaName].villagerData !== undefined) {
-			this.generateVillagers(Areas[areaName].villagerData);
-		}
-
 		// call onAreaJoin function if there is one
 		// only call if the area was teleported to (not game refresh), or it is told in areaData to be called on refresh
 		if (!init || Areas[areaName].callAreaJoinOnInit) {
 			if (Areas[areaName].onAreaJoin !== undefined) {
 				Areas[areaName].onAreaJoin();
-
-				Dom.checkProgress();
 			}
+
+			Dom.checkProgress();
 		}
 
 		// update camera position
@@ -5326,6 +5360,8 @@ Game.loadArea = function (areaName, destination) {
 
 		// if it is nighttime, change all daytime tiles to their nighttime versions
 		map.setDayNightTiles();
+		// same for things' images ...
+		this.setDayNightImages();
 
 		// render day night
 		this.renderDayNight();
@@ -5667,6 +5703,39 @@ Game.setMailboxImage = function (npc) {
 }
 
 //
+// Day and night
+//
+
+// called every 10s by weather when day and night is updated
+Game.dayNightUpdate = function () {
+	Game.renderDayNight();
+	Game.setDayNightImages();
+	map.setDayNightTiles();
+}
+
+Game.setDayNightImages = function () {
+	// iterate through entities with images
+	this.things.forEach(thing => {
+		if (thing.imageDay !== undefined) {
+			// image needs to be changed
+			// check whether day or night image is required (also based on weather)
+			if (Event.darkness >= 0.2) {
+				// night time
+				if (thing.imageName !== thing.imageNight) {
+					thing.changeImage(thing.imageNight);
+				}
+			}
+			else {
+				// day time
+				if (thing.imageDay !== thing.imageDay) {
+					thing.changeImage(thing.imageDay);
+				}
+			}
+		}
+	});
+}
+
+//
 // Game tick
 //
 
@@ -5860,16 +5929,19 @@ Game.positionLoot = function (items, space) {
 
 // generate and add villagers from villagerData (in areadata)
 // all random values are based on time (like weather)
-Game.generateVillagers = function (data) {
+Game.generateVillagers = function (data, areaName) {
 	// designed to change by 1 every 50 minutes
 	// so this doesn't always happen on a 10 minute mark, months and years offset this
 	let seed = GenerateSeed(7, 9, 24, 1, 0.02, 0);
 
 	// vary seed based on area as well
-	seed += Areas[this.areaName].id/3;
+	seed += Areas[areaName].id/3;
 
 	// find possible villagers for the area
-	let possibleVillagers = Villagers.filter(villager => villager.areas.includes(Game.areaName) || villager.areas.includes("any"));
+	let possibleVillagers = Villagers.filter(villager => {
+		return (villager.areas !== undefined && villager.areas.includes(areaName)) ||
+			(villager.exceptAreas !== undefined && !villager.exceptAreas.includes(areaName));
+	});
 
 	// loop through possible villagers, picking them based the number of possible villagers in the area
 
@@ -5913,26 +5985,12 @@ Game.generateVillagers = function (data) {
 	// load the images
 	let p = this.loadImages(images);
 
-	// wait until images have been loaded
-	Promise.all(p).then(function () {
-		// loop through villagers to be added, assigning them a position and preparing them
-		for (let i = 0; i < villagersToAdd.length; i++) {
-			let villager = possibleVillagers[villagersToAdd[i]];
-
-			// pick random location for villager based on random seed and length of its name
-			// changes approximately every 200 minutes
-			let locationIndex = Math.round(i + (seed/4)) % data.locations.length;
-			villager.boundary = data.locations[locationIndex];
-
-			// random position inside the boundary
-			villager.x = Random(villager.boundary.x, villager.boundary.x+villager.boundary.width);
-			villager.y = Random(villager.boundary.y, villager.boundary.y+villager.boundary.height);
-
-			if (this.prepareNPC(villager, "villagers")) {
-				this.villagers.push(new Villager(villager));
-			}
-		}
-	}.bind(this));
+	return {
+		p: p, // loadArea waits until images have been loaded
+		seed: seed,
+		possibleVillagers: possibleVillagers,
+		villagersToAdd: villagersToAdd
+	};
 }
 
 //
@@ -7832,12 +7890,12 @@ Game.render = function (delta) {
 	// draw map background layer
 	this.drawLayer(0);
 
-	// sort by y value
+	// sort by y value (from bottom of npc)
 	// set values to sort by, basing their value on their z position as well as y value
 	// 10^10 is an arbitrary value that should always be out of reach of y values
 	for (let i = 0; i < this.allThings.length; i++) {
 		if (this.allThings[i].hidden !== true) {
-			this.allThings[i].sortValue = this.allThings[i].y + this.allThings[i].orderOffsetY + this.allThings[i].z * 10000000000;
+			this.allThings[i].sortValue = this.allThings[i].y + this.allThings[i].height/2 + this.allThings[i].orderOffsetY + this.allThings[i].z * 10000000000;
 		}
 		else {
 			// a y value might not have been assigned to the object yet
