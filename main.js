@@ -70,6 +70,7 @@ Game.loadPlayer = function () {
         // add anything new that has been added in savedata to Player
         savedPlayer.bossesKilled = Object.assign(Player.bossesKilled, savedPlayer.bossesKilled);
         savedPlayer.stats = Object.assign(Player.stats, savedPlayer.stats);
+        savedPlayer.quests = Object.assign(Player.quests, savedPlayer.quests);
         Player = Object.assign(Player, savedPlayer);
 
         Player.name = playerName;
@@ -1219,6 +1220,7 @@ class Character extends Thing {
 
 		// whether NPC's name should be shown in chat
 		// (might not be if a special name is hard-coded instead, for example)
+		// note the npc name isn't shown in chat for chat sequences anyway
 		if (properties.showNameInChat === undefined) {
 			this.showNameInChat = true;
 		}
@@ -1251,6 +1253,7 @@ class Character extends Thing {
 		this.direction = properties.direction || 0; // used for rotation image
 
 		this.statusEffects = [];
+		this.numberOfHiddenStatusEffects = 0; // number of status effects that aren't shown (for displaying status effects)
 
 		if (properties.addToObjectArrays !== false) {
 			Game.allCharacters.push(this); // array for current area only
@@ -2929,7 +2932,7 @@ class Projectile extends Thing {
 						canBeDamaged = false;
 					}
 
-					if (canBeDamaged) {// damage
+					if (canBeDamaged) { // damage
 						let blockDefence = 0;
 						if (to[i][x].channelling === "block") { // add block defence if the target is blocking
 							blockDefence = to[i][x].stats.blockDefence;
@@ -3848,6 +3851,12 @@ function statusEffect(properties) {
 	this.image = properties.image; // image to be shown
 
 	this.type = properties.type; // status effect type
+
+	this.changedStat = properties.changedStat; // used to change back changed stat on expire (same name as key name in target.stats)
+
+	this.hidden = properties.hidden; // not visible to player
+
+	this.showInfoBar = properties.showInfoBar // infobar shown about status effect (with text properties.infoBarText)
 }
 
 // check through owner's status effects to see which can be removed (due to having expired)
@@ -3927,6 +3936,11 @@ Game.statusEffects.functions = {
 				Game.hero.updateStatusEffects();
 			}
 
+			// infobar time
+			if (this.showInfoBar && addedStatusEffect.info.time !== undefined) {
+				document.getElementById("infobarTimeRemaining") = (properties.time/1000) + "s";
+			}
+
 			// calculate next tick time
 			let nextTickTime = 1000;
 			if (this.info.time - this.info.ticks <= 2
@@ -3943,6 +3957,16 @@ Game.statusEffects.functions = {
 			}.bind(this), nextTickTime, owner, nextTickTime);
 		}
 		else { // remove effect interval
+			// status effect display if status effect is hidden
+			if (this.hidden) {
+				owner.numberOfHiddenStatusEffects--;
+			}
+
+			// hide infobar if there was one
+			if (this.showInfoBar) {
+				Dom.infoBar.page("");
+			}
+
 			// remove effect
 			Game.removeExpiredStatusEffect(owner);
 		}
@@ -3950,7 +3974,12 @@ Game.statusEffects.functions = {
 
 	// fire onTick
 	fireTick: function (owner) {
-		owner.takeDamage(this.info.fireDamagePerSecond);
+		let fireImmune = owner.hasStatusEffectType("fireResistance"); // can't take fire damage when fire immune
+		// tbd move fireImmune checking to takeDamage, and pass in a damage type (e.g. fire) to takeDamage?
+
+		if (!fireImmune) {
+			owner.takeDamage(this.info.fireDamagePerSecond);
+		}
 	},
 
 	// poison onTick
@@ -3998,6 +4027,17 @@ Game.statusEffects.functions = {
 
 		target.isCorpse = false;
 		target.respawning = false;
+	},
+
+	// decreases target's stat (changedStat) by value info[changedStat]
+	decreaseStat: function (target) {
+		if (target.stats[this.changedStat] !== undefined) {
+			// stat exists
+			target.stats[this.changedStat] -= this.info[this.changedStat];
+		}
+		else {
+			console.error("Stat " + this.changedStat + " does not exist, but status effect " + this.title + " wants to decrease it. Please tell Jake!");
+		}
 	}
 };
 
@@ -4025,12 +4065,15 @@ Game.statusEffects.generic = function (properties) {
 		properties.target.statusEffects.push(new statusEffect({
 			title: properties.effectTitle,
 			effect: effectText,
-			info: {
-				curse: properties.curse ? true : false, // transferred on to enemies on attack
+			info: { // status effect in-game behaviour info (time remaining, etc.)
+				curse: properties.curse, // transferred on to enemies on attack
 				worksForGames: properties.worksForGames, // also works in games such as tag (for speed status effects that normally wouldn't)
 			},
 			image: properties.imageName,
-			type: properties.type
+			type: properties.type,
+			changedStat: properties.changedStat, // used to change back changed stat on expire (same name as key name in target.stats)
+			hidden: properties.hidden, // not visible to player
+			showInfoBar: properties.showInfoBar // infobar shown about status effect (with text properties.infoBarText)
 		}));
 
 		// the status effect that was just added
@@ -4043,6 +4086,11 @@ Game.statusEffects.generic = function (properties) {
 			addedStatusEffect.info[properties.increasePropertyName] = properties.increasePropertyValue;
 		}
 
+		// check for hidden status effect
+		if (properties.hidden === true) {
+			properties.target.numberOfHiddenStatusEffects++; // necessary for status effect display
+		}
+
 		if (properties.time !== undefined) {
 			// timed status effect
 
@@ -4052,16 +4100,37 @@ Game.statusEffects.generic = function (properties) {
 
 			// add functions
 			// properties.onExpire and properties.onTick are the key names from Game.statusEffects.functions
+			// however they can also be an object, with their location as "itemdata" and a type and id if they want to refer to an item's onExpire on onTick intead
 			if (properties.onExpire !== undefined) {
 				// onExpire is called when the statuseffect is removed
-				 // this is bound to the status effect (hence this.owner and this.info work)
-				addedStatusEffect.onExpire = this.functions[properties.onExpire].bind(addedStatusEffect);
+				// this is bound to the status effect (hence this.owner and this.info work)
+
+				// find source of onExpire
+				if (properties.onExpire.location === undefined) {
+					// onExpire in Game.statusEffects.functions
+					addedStatusEffect.onExpire = this.functions[properties.onExpire].bind(addedStatusEffect);
+				}
+				else if (properties.onExpire.location === "itemdata") {
+					// onExpire in itemdata
+					addedStatusEffect.onExpire = Items[properties.onExpire.type][properties.onExpire.id].onExpire.bind(addedStatusEffect);
+				}
+
 				// reference for savedata (used if the target is Game.hero)
 				addedStatusEffect.onExpireSource = properties.onExpire; // key name of function reference in Game.statusEffects.functions
 			}
 			if (properties.onTick !== undefined) {
-				 // this is bound to the status effect (hence this.owner and this.info work)
-				addedStatusEffect.onTick = this.functions[properties.onTick].bind(addedStatusEffect);
+				// this is bound to the status effect (hence this.owner and this.info work)
+
+ 				// find source of onTick
+ 				if (properties.onTick.location === undefined) {
+ 					// onTick in Game.statusEffects.functions
+ 					addedStatusEffect.onTick = this.functions[properties.onTick].bind(addedStatusEffect);
+ 				}
+ 				else if (properties.onTick.location === "itemdata") {
+					// onTick in itemdata
+					addedStatusEffect.onTick = Items[properties.onTick.type][properties.onTick.id].onTick.bind(addedStatusEffect);
+ 				}
+
 				// reference for savedata (used if the target is Game.hero)
 				addedStatusEffect.onTickSource = properties.onTick; // key name of function reference in Game.statusEffects.functions
 			}
@@ -4083,6 +4152,21 @@ Game.statusEffects.generic = function (properties) {
 				this.tick(owner, nextTickTime);
 			}.bind(addedStatusEffect), nextTickTime, properties.target, nextTickTime);
 
+		}
+
+		// status effect infobar display
+		if (properties.showInfoBar === true) {
+			if (Dom.elements.infoBar.innerHTML === "") {
+				// infobar not occupied
+				Dom.infoBar.page(infoBarText + "<span id='infobarTimeRemaining'></span>");
+				// infobar time
+				if (addedStatusEffect.info.time !== undefined) {
+					document.getElementById("infobarTimeRemaining") = (properties.time/1000) + "s";
+				}
+			}
+			else {
+				console.error("The infobar was already occupied but was requested by status effect " + properties.effectTitle + ". Please tell Jake or Peter!");
+			}
 		}
 	}
 	else if (found !== -1) { // extend existing status effect
@@ -4115,10 +4199,10 @@ Game.statusEffects.generateEffectDescription = function (amount, text) {
 // give target the fire debuff
 // just target and tier parameters required (however if there is no tier, damagePerSecond and time is required)
 Game.statusEffects.fire = function(properties) {
-	// see if the target is in water (hence cannot be set on fire)
-	let water = properties.target.statusEffects.filter(statusEffect => statusEffect.title === "Swimming");
+	// see if the target is in water
+	let immune = properties.target.statusEffects.find(statusEffect => statusEffect.title === "Swimming");
 
-	if (water.length === 0) {
+	if (immune === undefined) {
 		let newProperties = properties;
 		// check if there is a tier or if stats are being set manually
 		if (properties.tier !== undefined) {
@@ -4388,6 +4472,56 @@ Game.statusEffects.hex = function (properties) {
 	this.attackDamage(newProperties);
 }
 
+// give target a dodge chance buff
+// properties includes target, effectTitle, statIncrease, time
+Game.statusEffects.dodgeChance = function(properties) {
+	let newProperties = properties;
+	newProperties.effectDescription = properties.effectDescription || this.generateEffectDescription(properties.statIncrease, "% dodge chance");
+	newProperties.increasePropertyName = "dodgeChance";
+	newProperties.increasePropertyValue = properties.statIncrease;
+	newProperties.imageName = "dodgeChance";
+	newProperties.type = "dodgeChance";
+
+	// increase dodge chance
+	properties.target.stats.dodgeChance += properties.statIncrease;
+	// decrease after expire
+	newProperties.changedStat = "dodgeChance";
+	newProperties.onExpire = "decreaseStat";
+
+	this.generic(newProperties);
+}
+
+// give target a health regen buff
+// properties includes target, effectTitle, statIncrease, time
+Game.statusEffects.healthRegen = function(properties) {
+	let newProperties = properties;
+	newProperties.effectDescription = properties.effectDescription || this.generateEffectDescription(properties.statIncrease, " health regen");
+	newProperties.increasePropertyName = "healthRegen";
+	newProperties.increasePropertyValue = properties.statIncrease;
+	newProperties.imageName = "healthRegen";
+	newProperties.type = "healthRegen";
+
+	// increase dodge chance
+	properties.target.stats.healthRegen += properties.statIncrease;
+	// decrease after expire
+	newProperties.changedStat = "healthRegen";
+	newProperties.onExpire = "decreaseStat";
+
+	this.generic(newProperties);
+}
+
+// give target a health regen buff
+// properties includes target, effectTitle, time
+Game.statusEffects.fireResistance = function(properties) {
+	let newProperties = properties;
+	newProperties.effectTitle = properties.effectTitle || "Fire Resistance";
+	newProperties.effectDescription = properties.effectDescription || "Immune to fire damage";
+	newProperties.imageName = "fireResistance";
+	newProperties.type = "fireResistance";
+
+	this.generic(newProperties);
+}
+
 
 
 // get the icon number of the status effect object (passed in) in Game.statusImage
@@ -4446,6 +4580,15 @@ Game.getStatusIconNumber = function (statusEffect) {
 	}
 	else if (statusEffect.image === "xpDown") {
 		iconNum = 17;
+	}
+	else if (statusEffect.image === "dodgeChance") {
+		iconNum = 18;
+	}
+	else if (statusEffect.image === "fireResistance") {
+		iconNum = 19;
+	}
+	else if (statusEffect.image === "healthRegen") {
+		iconNum = 20;
 	}
 	else { // no status effect image
 		iconNum = 3; // fire image used as placeholder
@@ -5236,16 +5379,18 @@ Game.loadArea = function (areaName, destination) {
 		}
 
 		// villagers (added from generateVillagers before promise)
-		for (let i = 0; i < villagersToAdd.length; i++) {
-			let villager = possibleVillagers[villagersToAdd[i]];
+		if (villagersToAdd !== undefined) {
+			for (let i = 0; i < villagersToAdd.length; i++) {
+				let villager = possibleVillagers[villagersToAdd[i]];
 
-			// pick random location for villager based on random seed and length of its name
-			// changes approximately every 200 minutes
-			let locationIndex = Math.round(i + (seed/4)) % Areas[areaName].villagerData.locations.length;
-			villager.boundary = Areas[areaName].villagerData.locations[locationIndex];
+				// pick random location for villager based on random seed and length of its name
+				// changes approximately every 200 minutes
+				let locationIndex = Math.round(i + (seed/4)) % Areas[areaName].villagerData.locations.length;
+				villager.boundary = Areas[areaName].villagerData.locations[locationIndex];
 
-			if (this.prepareNPC(villager, "villagers")) {
-				this.villagers.push(new Villager(villager));
+				if (this.prepareNPC(villager, "villagers")) {
+					this.villagers.push(new Villager(villager));
+				}
 			}
 		}
 
@@ -5620,11 +5765,27 @@ Game.initStatusEffects = function () {
 
 			// if it has an onExpire function, add it
 			if (statusEffect.onExpireSource !== undefined) {
-				statusEffect.onExpire = this.statusEffects.functions[statusEffect.onExpireSource];
+				// find source of onExpire
+				if (statusEffect.onExpireSource.location === undefined) {
+					// onExpire in Game.statusEffects.functions
+					statusEffect.onExpire = this.statusEffects.functions[statusEffect.onExpireSource].bind(statusEffect);
+				}
+				else if (statusEffect.onExpireSource.location === "itemdata") {
+					// onExpire in itemdata
+					statusEffect.onExpire = Items[statusEffect.onExpireSource.type][statusEffect.onExpireSource.id].onExpire.bind(statusEffect);
+				}
 			}
 			// if it has an onTick function, add it
 			if (statusEffect.onTickSource !== undefined) {
-				statusEffect.onTick = this.statusEffects.functions[statusEffect.onTickSource];
+				// find source of onTick
+				if (statusEffect.onTickSource.location === undefined) {
+					// onTick in Game.statusEffects.functions
+					statusEffect.onTick = this.statusEffects.functions[statusEffect.onTickSource].bind(statusEffect);
+				}
+				else if (statusEffect.onTickSource.location === "itemdata") {
+					// onTick in itemdata
+					statusEffect.onTick = Items[statusEffect.onTickSource.type][statusEffect.onTickSource.id].onTick.bind(statusEffect);
+				}
 			}
 
 			// calculate next tick time
@@ -6406,9 +6567,11 @@ Game.update = function (delta) {
 									soldItems = Dom.merchant.chooseItems(soldItems, dateValue, role.numberSold);
 								}
 
+								let greetingMessage = decideMessage(role.shopGreeting); // allow for conditional messages
+
 								textArray.push(role.chooseText || "I'd like to browse your goods.");
 								functionArray.push(Dom.merchant.page);
-								parameterArray.push([npc, soldItems, role.shopGreeting]);
+								parameterArray.push([npc, soldItems, greetingMessage]);
 							}
 
 							// soul healers
@@ -7800,29 +7963,42 @@ Game.drawStatusEffects = function (ctx, character, x, y, height, alignment) {
 		startX = x;
 	}
 	else if (alignment === "right") {
-		startX = x - character.statusEffects.length*height;
+		startX = x - (character.statusEffects.length-character.numberOfHiddenStatusEffects)*height;
 	}
 	else if (alignment === "centre") {
-		startX = x - character.statusEffects.length*height/2;
+		startX = x - (character.statusEffects.length-character.numberOfHiddenStatusEffects)*height/2;
 	}
 	else {
 		console.error("Invalid alignment: " + alignment);
 	}
 
+	// number of status effects that are hidden, thus offsetting the others
+	let offsetNumber = 0;
+
 	// iterate through character's status effects
 	for (let i = 0; i < character.statusEffects.length; i++) {
-		// get number of image in status effect image tileset
-		let iconNum = this.getStatusIconNumber(character.statusEffects[i]);
-		// draw the image
-		ctx.drawImage(this.statusImage, 0, 27 * iconNum, 27, 27, startX + i * (height*1.2), y, height, height);
-		// draw time remaining (if the status effect has one)
-		ctx.fillStyle = "black";
-		ctx.font = fontSize + "px El Messiri";
-		ctx.textAlign = "right";
-		if (typeof character.statusEffects[i].info !== "undefined") { // variable that contains time exists
-			if (typeof character.statusEffects[i].info.time !== "undefined" && typeof character.statusEffects[i].info.ticks !== "undefined") { // variable exists
-				ctx.fillText(Round(character.statusEffects[i].info.time - character.statusEffects[i].info.ticks), (startX+height*0.9) + i * (height*1.2), y+height);
+		// don't show hidden status effects
+		if (!character.statusEffects[i].hidden) {
+
+			// get number of image in status effect image tileset
+			let iconNum = this.getStatusIconNumber(character.statusEffects[i]);
+
+			// draw the image
+			ctx.drawImage(this.statusImage, 0, 27 * iconNum, 27, 27, startX + (i-offsetNumber) * (height*1.2), y, height, height);
+
+			// draw time remaining (if the status effect has one)
+			ctx.fillStyle = "black";
+			ctx.font = fontSize + "px El Messiri";
+			ctx.textAlign = "right";
+			if (typeof character.statusEffects[i].info !== "undefined") { // variable that contains time exists
+				if (typeof character.statusEffects[i].info.time !== "undefined" && typeof character.statusEffects[i].info.ticks !== "undefined") { // variable exists
+					ctx.fillText(Round(character.statusEffects[i].info.time - character.statusEffects[i].info.ticks), (startX+height*0.9) + i * (height*1.2), y+height);
+				}
 			}
+		}
+		else {
+			// offset the others
+			offsetNumber++;
 		}
 	}
 
