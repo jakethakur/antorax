@@ -1307,7 +1307,7 @@ class Character extends Thing {
 		}
 
 		// call onExpire
-		if (this.statusEffects[index].onExpire !== undefined) {
+		if (this.statusEffects[index].onExpire !== undefined && Dom.inventory.check(28, "")) {
 			this.statusEffects[index].onExpire(this);
 		}
 
@@ -1754,7 +1754,7 @@ class Character extends Thing {
 	// currently untested and unused - be careful when using
 	cleanse (value, key) {
 		for (let i = 0; i < this.statusEffects.length; i++) {
-			if (this.statusEffects[i].key === value) {
+			if (this.statusEffects[i][key] === value) {
 				this.removeStatusEffect(i);
 				i--; // status effect has been removed so move back index
 			}
@@ -3937,8 +3937,8 @@ Game.statusEffects.functions = {
 			}
 
 			// infobar time
-			if (this.showInfoBar && addedStatusEffect.info.time !== undefined) {
-				document.getElementById("infobarTimeRemaining") = (properties.time/1000) + "s";
+			if (this.showInfoBar && this.info.time !== undefined && Game.minigameInProgress === undefined) {
+				document.getElementById("infobarTimeRemaining").innerHTML = Round(this.info.time - this.info.ticks) + "s";
 			}
 
 			// calculate next tick time
@@ -3963,7 +3963,7 @@ Game.statusEffects.functions = {
 			}
 
 			// hide infobar if there was one
-			if (this.showInfoBar) {
+			if (this.infoBarText !== undefined && Game.minigameInProgress === undefined) {
 				Dom.infoBar.page("");
 			}
 
@@ -4158,11 +4158,13 @@ Game.statusEffects.generic = function (properties) {
 		if (properties.showInfoBar === true) {
 			if (Dom.elements.infoBar.innerHTML === "") {
 				// infobar not occupied
-				Dom.infoBar.page(infoBarText + "<span id='infobarTimeRemaining'></span>");
+				Dom.infoBar.page(properties.infoBarText + " <span id='infobarTimeRemaining'></span>");
 				// infobar time
 				if (addedStatusEffect.info.time !== undefined) {
-					document.getElementById("infobarTimeRemaining") = (properties.time/1000) + "s";
+					document.getElementById("infobarTimeRemaining").innerHTML = properties.time + "s";
 				}
+				// information for status effect init on refresh
+                addedStatusEffect.infoBarText = properties.infoBarText;
 			}
 			else {
 				console.error("The infobar was already occupied but was requested by status effect " + properties.effectTitle + ". Please tell Jake or Peter!");
@@ -5788,6 +5790,21 @@ Game.initStatusEffects = function () {
 				}
 			}
 
+			// if it wants to show the infobar, show it
+            if (statusEffect.infoBarText !== undefined) {
+                if (Dom.elements.infoBar.innerHTML === "") {
+                    // infobar not occupied
+                    Dom.infoBar.page(statusEffect.infoBarText + " <span id='infobarTimeRemaining'></span>");
+                    // infobar time
+                    if (statusEffect.info.time !== undefined) {
+                        document.getElementById("infobarTimeRemaining").innerHTML = Round(statusEffect.info.time - statusEffect.info.ticks) + "s";
+                    }
+                }
+                else {
+                    console.error("The infobar was already occupied but was requested by status effect " + statusEffect.title + ". Please tell Jake!");
+                }
+            }
+
 			// calculate next tick time
 			let nextTickTime = 1000;
 			if (statusEffect.info.time <= 2 && statusEffect.onTick === undefined) {
@@ -6567,7 +6584,7 @@ Game.update = function (delta) {
 									soldItems = Dom.merchant.chooseItems(soldItems, dateValue, role.numberSold);
 								}
 
-								let greetingMessage = decideMessage(role.shopGreeting); // allow for conditional messages
+								let greetingMessage = Dom.chat.decideMessage(role.shopGreeting); // allow for conditional messages
 
 								textArray.push(role.chooseText || "I'd like to browse your goods.");
 								functionArray.push(Dom.merchant.page);

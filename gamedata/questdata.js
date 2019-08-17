@@ -695,15 +695,14 @@ var Quests = {
 			finishChat: `Interesting. Let's see how this goes.`,
 
 			onQuestFinish: function () {
-				Dom.cutscene(10000);
 				Dom.closePage('questFinish');
 				Dom.chat.insertSequence([
-				Dom.chat.say("Ciarra Darkbrew", "Stand back. We wouldn't want your arms to detatch so soon."),
-				Dom.chat.say("Ciarra Darkbrew", "/me adds the potion ingredients to an inert vial."),
-				"The vial fizzes rapidly.",
-				"The vial explodes.",
-				Dom.chat.say("Ciarra Darkbrew", "That... didn't go as planned.")],
-				[1000, 3000, 2500, 2000, 2000]);
+					Dom.chat.say("Ciarra Darkbrew", "Stand back. We wouldn't want your arms to detatch so soon."),
+					Dom.chat.say("Ciarra Darkbrew", "/me adds the potion ingredients to an inert vial."),
+					"The vial fizzes rapidly.",
+					"The vial explodes.",
+					Dom.chat.say("Ciarra Darkbrew", "That... didn't go as planned.")],
+				[1000, 3000, 2500, 2000, 2000], undefined, undefined, true); // cutscene with no end function
 
 				setTimeout(function () {
 					if (Game.areaName === "eaglecrestLoggingCamp") {
@@ -777,14 +776,13 @@ var Quests = {
 			finishChat: `Try two. Stand back; you wouldn't want to die <em>such</em> a horrible death.`,
 
 			onQuestFinish: function () {
-				Dom.cutscene(8500);
 				Dom.closePage('questFinish');
 				Dom.chat.insertSequence([
-				Dom.chat.say("Ciarra Darkbrew", "/me adds the potion ingredients to an inert vial."),
-				"The vial fizzes rapidly.",
-				"The vial simmers to produce a bluish-green coloured liquid.",
-				Dom.chat.say("Ciarra Darkbrew", "Excellent. If you'd like to try the potion, you can buy some from me. I promise it won't kill you. Probably.")],
-				[1500, 4000, 6000, 8000]);
+					Dom.chat.say("Ciarra Darkbrew", "/me adds the potion ingredients to an inert vial."),
+					"The vial fizzes rapidly.",
+					"The vial simmers to produce a bluish-green coloured liquid.",
+					Dom.chat.say("Ciarra Darkbrew", "Excellent. If you'd like to try the potion, you can buy some from me. I promise it won't kill you. Probably.")],
+				[1500, 4000, 6000, 8000], undefined, undefined, true); // cutscene with no end function
 			},
 
 			objectives: [
@@ -1082,7 +1080,7 @@ var Quests = {
 
 			objectives: [
 				"Gather 4 tattered tomes from goblins in the Nilbog Tower.",
-				"Bring them back to the goblin torch.",
+				"Bring them back to the <strong>Goblin Torch</strong>.",
 			],
 
 			isCompleted: function() {
@@ -1096,7 +1094,7 @@ var Quests = {
 				return completed;
 			},
 
-			howToStart: "Speak to the <strong>goblin torch</strong> in The Nilbog.",
+			howToStart: "Speak to the <strong>Goblin Torch</strong> in The Nilbog.",
 			levelRequirement: 5,
 			questRequirements: ["Partners in Goblin Destruction"],
 
@@ -1218,6 +1216,81 @@ After all, death is never the end in Antorax...<br>
 				xp: 10,
 			},
 		},
+
+		{
+			id: 24,
+			quest: "A Burning Need to be Cleaned",
+			questArea: "eaglecrestLoggingCamp",
+
+			startName: "Goblin Torch",
+			startChat: `Goblins. Make goblin torch dirty. Please, clean me. No water. Just cloth.`,
+
+			finishName: "Goblin Torch",
+			finishChat: `Oh. Cloth is flammable. Must be improved. Make it fire resistant. Potion gives fire resistant. Potion might help?`,
+
+			objectives: [
+				"Obtain 1 scrap of cloth.",
+				"Use it to clean the <strong>Goblin Torch</strong>.",
+				"Obtain 1 scrap of cloth.",
+				"Speak to a <strong>potion merchant</strong> about a potion of fire resistance.",
+				"Bring 1 fireroot from the Eaglecrest Shop to <strong>Alchemist Tamtam</strong>.",
+				"Douse the scrap of cloth in the potion of fire resistance.",
+				"Use it to clean the <strong>Goblin Torch</strong>.",
+			],
+
+			isHidden: function() {
+				let completed = [];
+
+				if (Player.quests.npcProgress.loggingCamp24 === undefined) {
+					Player.quests.npcProgress.loggingCamp24 = 1;
+				}
+
+				// true or falses for each objective (apart from the turn-in objective)
+				completed.push(false);
+				completed.push(false);
+				completed.push(Player.quests.npcProgress.loggingCamp24 < 2);
+				completed.push(Player.quests.npcProgress.loggingCamp24 < 2);
+				completed.push(Player.quests.npcProgress.loggingCamp24 < 3);
+				completed.push(Player.quests.npcProgress.loggingCamp24 < 2);
+				completed.push(Player.quests.npcProgress.loggingCamp24 < 2);
+
+				completed = checkFinished(completed);
+
+				return completed;
+			},
+
+			isCompleted: function() {
+				let completed = [];
+
+				// true or falses for each objective (apart from the turn-in objective)
+				completed.push(Dom.inventory.check(3, "item", 1) || Player.quests.npcProgress.loggingCamp24 >= 2); // 1 scrap of cloth
+				completed.push(Player.quests.npcProgress.loggingCamp24 >= 2);
+				completed.push((Dom.inventory.check(3, "item", 1) || Dom.inventory.check(27, "item", 1)) && Player.quests.npcProgress.loggingCamp24 >= 2 ); // 1 scrap of cloth
+				completed.push(Player.quests.npcProgress.loggingCamp24 >= 3);
+				completed.push(Player.quests.npcProgress.loggingCamp24 >= 4);
+				completed.push(Dom.inventory.check(27, "item", 1)); // 1 fire resistant cloth
+
+				completed = checkFinished(completed);
+
+				return completed;
+			},
+
+			howToStart: "Speak to the <strong>Goblin Torch</strong> in The Nilbog.",
+			levelRequirement: 5,
+			questRequirements: ["A 'Spark' of Imagination"],
+
+			rewards: {
+				xp: 50,
+				items: [
+					{item: Items.currency[2], quantity: 2,}, // 2 gold
+				],
+				reputation: {
+					eaglecrestCity: 20,
+				},
+			},
+
+		},
+
 	],
 
 	tavern: [
@@ -1303,6 +1376,9 @@ After all, death is never the end in Antorax...<br>
 			howToStart: "Speak to an innkeeper.",
 			levelRequirement: 1,
 			questRequirements: ["To the Logging Camp"],
+			requirement: function () {
+				return Game.areaName !== "loggingCampTavern" || Player.quests.completedQuestArray.includes("A Drink on Us!");
+			},
 			repeatTime: "repeatable",
 			randomGroup: "tavernJobs",
 
@@ -1429,6 +1505,9 @@ After all, death is never the end in Antorax...<br>
 			howToStart: "Speak to an innkeeper.",
 			levelRequirement: 1,
 			questRequirements: ["To the Logging Camp"],
+			requirement: function () {
+				return Game.areaName !== "loggingCampTavern" || Player.quests.completedQuestArray.includes("A Drink on Us!");
+			},
 			repeatTime: "repeatable",
 			randomGroup: "tavernJobs",
 
@@ -1516,6 +1595,9 @@ After all, death is never the end in Antorax...<br>
 			howToStart: "Speak to an innkeeper.",
 			levelRequirement: 1,
 			questRequirements: ["To the Logging Camp"],
+			requirement: function () {
+				return Game.areaName !== "loggingCampTavern" || Player.quests.completedQuestArray.includes("A Drink on Us!");
+			},
 			repeatTime: "repeatable",
 			randomGroup: "tavernJobs",
 

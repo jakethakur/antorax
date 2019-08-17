@@ -428,7 +428,7 @@ var Items = {
 			unidentifiedArea: ["loggingCamp"],
 			stats: {
 				defence: 8,
-				walkSpeed: -80,
+				walkSpeed: -40,
 			},
 		},
 		{
@@ -1940,6 +1940,10 @@ var Items = {
 			sellPrice: 1,
 			sellQuantity: 16,
 			stack: 64,
+			opens: {
+				type: "consumable",
+				id: 25,
+			},
 		},
 		{
 			id: 4,
@@ -2224,6 +2228,60 @@ var Items = {
 			image: "assets/items/item/26.png",
 			quest: true,
 			removeOnAbandon: "Tavern Tidy-Up",
+			stack: 64,
+		},
+		{
+			id: 27,
+			name: "Fire Resistant Cloth",
+			type: "item",
+			image: "assets/items/item/27.png",
+			stack: 1,
+		},
+		{
+			id: 28,
+			name: "Fireroot",
+			type: "item",
+			image: "assets/items/item/28.png",
+			stack: 1,
+			lore: "It's on fire. No really, it's on fire.",
+			onGive: function () {
+				Game.statusEffects.generic({
+					target: Game.hero,
+					effectTitle: "fireroot",
+					time: 21,
+					showInfoBar: true,
+					infoBarText: "Fireroot explodes in:",
+					hidden: true,
+					onExpire: {
+						location: "itemdata",
+						type: "item",
+						id: 28,
+					}
+				});
+			},
+			onExpire: function () {
+				Game.statusEffects.fire({
+					target: Game.hero,
+					tier: 1,
+				});
+				Dom.inventory.removeById(28, "item");
+				Player.quests.questProgress.firerootFailed = true;
+			},
+			onRemove: function () {
+				if (Game.minigameInProgress === undefined) {
+					Dom.infoBar.page("");
+				}
+				Game.hero.cleanse("fireroot", "title");
+			},
+			countdown: 21,
+			countdownText: "Explodes in",
+		},
+		{
+			id: 29,
+			name: "Burnt Cloth",
+			type: "item",
+			junk: true,
+			image: "assets/items/item/29.png",
 			stack: 64,
 		},
 	],
@@ -2850,6 +2908,18 @@ var Items = {
 			image: "assets/items/consumable/23.png",
 			sellPrice: 2,
 			functionText: "Increases dodge chance by 40% for 10 seconds.",
+			onClick: function (inventoryPosition) {
+			   // remove the item
+			   Dom.inventory.remove(inventoryPosition);
+
+			   // status effect
+			   Game.statusEffects.dodgeChance({
+				   target: Game.hero,
+				   effectTitle: "Evasion I",
+				   statIncrease: 40,
+				   time: 10,
+			   });
+		   },
 		},
 		{
 			id: 24,
@@ -2858,6 +2928,18 @@ var Items = {
 			image: "assets/items/consumable/24.png",
 			sellPrice: 2,
 			functionText: "Increases health regen by 1.5 for 20 seconds.",
+			onClick: function (inventoryPosition) {
+                // remove the item
+                Dom.inventory.remove(inventoryPosition);
+
+                // status effect
+                Game.statusEffects.healthRegen({
+                    target: Game.hero,
+                    effectTitle: "Regeneration I",
+                    statIncrease: 1.5,
+                    time: 20,
+                });
+            },
 		},
 		{
 			id: 25,
@@ -2866,6 +2948,21 @@ var Items = {
 			image: "assets/items/consumable/25.png",
 			sellPrice: 1,
 			functionText: "Makes you immune to fire damage for 15 seconds.",
+			onOpen: function (inventoryPosition) {
+				Dom.inventory.remove(inventoryPosition);
+				Dom.inventory.give(Items.item[27], 1, inventoryPosition);
+			},
+			onClick: function (inventoryPosition) {
+                // remove the item
+                Dom.inventory.remove(inventoryPosition);
+
+                // status effect
+                Game.statusEffects.fireResistance({
+                    target: Game.hero,
+                    effectTitle: "Fire Resistance",
+                    time: 15,
+                });
+            },
 		},
 	],
 	food: [

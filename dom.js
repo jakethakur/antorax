@@ -402,20 +402,37 @@ Dom.quests.active = function (quest) {
 				}
 			}
 		}
-		if (currentQuest.eventRequirement === undefined || currentQuest.eventRequirement === Event.event) {
+		if (currentQuest === "") {
+			console.error("Quest: "+Player.quests.activeQuestArray[x]+" could not be found.");
+			Player.quests.activeQuestArray.splice(x, 1);
+		}
+		else if (currentQuest.eventRequirement === undefined || currentQuest.eventRequirement === Event.event) {
 			let isCompleted = currentQuest.isCompleted();
+			let isHidden = [];
+			if (currentQuest.isHidden !== undefined) {
+				isHidden = currentQuest.isHidden();
+			}
 			Dom.quests.activeHTML[currentQuest.important] += "<br><br><strong>" + currentQuest.quest + "</strong>";
 			let completedObjectives = 0;
 			let objectives = currentQuest.objectives || currentQuest[Player.quests.questProgress[currentQuest.quest]].objectives;
 			for (let i = 0; i < objectives.length; i++) {
-				Dom.quests.activeHTML[currentQuest.important] += "<br>" + objectives[i];
+
+				// display the objective
+				if (!isHidden[i]) {
+					Dom.quests.activeHTML[currentQuest.important] += "<br>" + objectives[i];
+					if (isCompleted[i] === true && i !== objectives.length-1) {
+						Dom.quests.activeHTML[currentQuest.important] += " &#10004;";
+					}
+					else if (isCompleted[i] !== false && i !== objectives.length-1) {
+						Dom.quests.activeHTML[currentQuest.important] += " " + isCompleted[i];
+					}
+				}
+
+				// complete the objective in the code
 				if (isCompleted[i] === true && i !== objectives.length-1) {
-					Dom.quests.activeHTML[currentQuest.important] += " &#10004;";
 					completedObjectives++;
 				}
-				else if (isCompleted[i] !== false && i !== objectives.length-1) {
-					Dom.quests.activeHTML[currentQuest.important] += " " + isCompleted[i];
-				}
+
 			}
 			if (currentQuest.autofinish && completedObjectives >= objectives.length-1) {
 				Dom.choose.page(currentQuest.finishName || currentQuest[Player.quests.questProgress[quest.quest]].finishName, ["Quest Finish: " + currentQuest.quest], [Dom.quest.finish], [[currentQuest]]);
@@ -531,6 +548,7 @@ Dom.closePage = function (page, notClose) {
 		}
 	}
 	document.getElementById(page).hidden = true;
+	Dom.checkProgress();
 }
 
 Dom.changeBook = function (page, openClose) {
@@ -705,30 +723,39 @@ Dom.instructions.page = function (chapter, calledFrom) {
 	}
 }
 
-// insert a message into the chat, under the format of "name: message"
+// if message is an array of objects with parameters text and condition
+// returns the first message where condition is true or undefined
+Dom.chat.decideMessage = function (message) {
+	// if message is an array of objects
+	if (message.constructor === Array && typeof message[0] === "object") {
+		for (let i = 0; i < message.length; i++) {
+			// if that condition is true or undefined
+			if (message[i].condition === undefined || message[i].condition()) {
+				// return that message
+				return message[i].text;
+			}
+		}
+	}
+	else {
+		// if the message is not in this format then return it without editing
+		return message;
+	}
+ }
+
+// format a message for chat, under the format of "name: message"
 // name is emboldened via <strong> tags
 // if message begins with "/me " (including space), the format changes to "this.name message"
-
-// if singleUse is true, and if Dom.chat.contents contains message, the message is not sent (handled by Dom.chat.insert)
-// if important is true, the chat message triggers a red flashing prompt around the chat bookmark
-
-// if the message is an array, arrayType should specify what is done with that array
-// arrayType "random" picks a random message and sends it from the array
-// arrayType "all" sends all of the messages (using this function) with delay same as delay parameter between each of them
-
 Dom.chat.say = function (name, message, language) {
 	if (message !== undefined) {
 		// update message for special chat cases
 
+		// pick a message based on conditions for messages (if there are no conditions the message is returned normally)
+        // conditions in message can be done by making message an array of objects, with properties text and conition
+        message = this.decideMessage(message);
+
 		if (message.constructor === Array) {
-			if (message.length > 1) {
-				// pick a random message from the array
-				message = message[Random(0, message.length - 1)];
-			}
-			else {
-				// only one message anyway
-				message = message[0];
-			}
+			// pick a random message from the array
+			message = message[Random(0, message.length - 1)];
 		}
 
 		if (language === "giblish") {
@@ -758,7 +785,7 @@ Dom.chat.say = function (name, message, language) {
 // values - array of integers which are times in milliseconds between messages
 // end - function called when sequence is done
 // endParameters - array of parameters passed in to end function
-Dom.chat.insertSequence = function (text, values, end, endParameters) {
+Dom.chat.insertSequence = function (text, values, end, endParameters, cutscene) {
 	if (values === undefined) {
 		values = [];
 		values.length = text.length+1;
@@ -775,6 +802,10 @@ Dom.chat.insertSequence = function (text, values, end, endParameters) {
 		Dom.chat.insert(text[i], time, values[i+1]);
 
 		time += values[i+1];
+	}
+
+	if (cutscene) {
+		Dom.cutscene(time);
 	}
 
 	if (end !== undefined) {
@@ -902,9 +933,15 @@ Dom.chat.insert = function (text, delay, time, noRepeat) {
 	if (delay === undefined) {
 		delay = 0;
 	}
+
 	if (time === undefined) {
 		time = text.split(" ").length/200*60000;
 	}
+
+	if (Dom.currentlyDisplayed === "cutscene") {
+		delay = Dom.chat.cutsceneEnd - Date.now();
+	}
+
 	setTimeout(function () {
 		if (!noRepeat || !Dom.chat.contents.includes(text)) {
 			if (this.contents.length >= 1000) {
@@ -962,7 +999,8 @@ Dom.chat.insert = function (text, delay, time, noRepeat) {
 				}
 			}
 			return true;
-		}else {
+		}
+		else {
 			return false;
 		}
 	}.bind(this), delay);
@@ -1158,9 +1196,11 @@ Dom.inventory.displayIdentification = function (display) {
 		Dom.elements.itemIdentification.hidden = false;
 		Dom.inventory.updatePosition(Dom.elements.itemIdentification, "inventoryPage");
 	}
-	Dom.elements.innerStats.innerHTML = "<strong>Level: " + Player.level + "</strong>"+
-	"<br><strong>XP: " + Round(100*Player.xp/LevelXP[Player.level],2) + "%</strong> ("+Player.xp+"/"+LevelXP[Player.level]+")"+
-	"<br><br><strong>Stats:</strong>";
+	Dom.elements.innerStats.innerHTML = "<strong>Level: " + Player.level + "</strong>";
+	if (Player.level !== LevelXP.length - 1) {
+		Dom.elements.innerStats.innerHTML += "<br><strong>XP: " + Round(100*Player.xp/LevelXP[Player.level],2) + "%</strong> ("+Round(Player.xp)+"/"+LevelXP[Player.level]+")";
+	}
+	Dom.elements.innerStats.innerHTML += "<br><br><strong>Stats:</strong>";
 	Dom.elements.innerStats.innerHTML += "<br>Max Health: " + Player.stats.maxHealth;
 	if (Player.inventory.weapon.name !== "") {
 		Dom.elements.innerStats.innerHTML += "<br>Damage: " + Round(Player.stats.damage+Player.stats.damage*Player.stats.damagePercentage/100);
@@ -1221,7 +1261,9 @@ Dom.inventory.displayIdentification = function (display) {
 	if (Player.statusEffects.length !== 0) {
 		Dom.elements.innerStatus.innerHTML = "<strong>Status Effects:</strong>";
 		for (let i = 0; i < Player.statusEffects.length; i++) {
-			Dom.elements.innerStatus.innerHTML += "<br>" + Player.statusEffects[i].title + ": " + Player.statusEffects[i].effect + (Player.statusEffects[i].info ? Player.statusEffects[i].info.time ? " (" + (Math.floor(Player.statusEffects[i].info.time) - Math.floor(Player.statusEffects[i].info.ticks)) + "s)" : "" : "");
+			if (!Player.statusEffects[i].hidden) {
+				Dom.elements.innerStatus.innerHTML += "<br>" + Player.statusEffects[i].title + ": " + Player.statusEffects[i].effect + (Player.statusEffects[i].info ? Player.statusEffects[i].info.time ? " (" + (Math.floor(Player.statusEffects[i].info.time) - Math.floor(Player.statusEffects[i].info.ticks)) + "s)" : "" : "");
+			}
 		}
 	}
 	Dom.elements.itemIdentification.style.width = Dom.elements.innerStats.offsetWidth+"px";
@@ -1486,9 +1528,14 @@ Dom.inventory.displayInformation = function (item, stacked, element, position, h
 			if (position === "buyer" && item.sellPrice !== undefined && (item.quest === undefined || !item.quest())) {
 				Dom.elements.lore.innerHTML += lorebuyer+"Sell "+(item.sellQuantity !== 1 ? item.sellQuantity : "")+" for "+(item.charges === undefined ? item.sellPrice : Math.ceil(item.sellPrice / (item.maxCharges / item.charges)))+" gold";
 			}
-			if (item.cooldownStart !== undefined && parseInt(item.cooldownStart) + item.cooldown > parseInt(GetFullDateTime())) {
-				let answer = CalculateTime(GetFullDateTime(), (parseInt(item.cooldownStart) + item.cooldown).toString());
-				Dom.elements.lore.innerHTML += (Dom.elements.lore.innerHTML !== "" ? "<br><br>" : "") +"On cooldown:<br>" + answer;
+			if (item.cooldown !== undefined) {
+				item.countdownStart = item.cooldownStart;
+				item.countdown = item.cooldown;
+				item.countdownText = "On cooldown";
+			}
+			if (item.countdownStart !== undefined && parseInt(item.countdownStart) + item.countdown > parseInt(GetFullDateTime())) {
+				let answer = CalculateTime(GetFullDateTime(), (parseInt(item.countdownStart) + item.countdown).toString());
+				Dom.elements.lore.innerHTML += (Dom.elements.lore.innerHTML !== "" ? "<br><br>" : "") + item.countdownText+":<br>" + answer;
 				Dom.inventory.displayTimer = true;
 				setTimeout(function () {
 					if (Dom.inventory.displayTimer) {
@@ -1497,8 +1544,8 @@ Dom.inventory.displayInformation = function (item, stacked, element, position, h
 				},1000);
 			}
 			Dom.elements.information.style.width = 1 + Math.max(Dom.elements.name.offsetWidth, Dom.elements.stats.offsetWidth)+"px";
-			Dom.elements.name.style.width = Dom.elements.information.offsetWidth - 30 + "px";
-			Dom.elements.stats.style.width = Dom.elements.information.offsetWidth - 30 + "px";
+			Dom.elements.name.style.width = Dom.elements.information.offsetWidth - 31 + "px";
+			Dom.elements.stats.style.width = Dom.elements.information.offsetWidth - 31 + "px";
 		}
 	}
 }
@@ -1686,6 +1733,7 @@ Dom.quest.start = function (quest, npc) {
 	// not enough inventory space
 	else if (npc !== undefined) {
 		npc.say(npc.chat.inventoryFull, 0, true);
+		Dom.currentNPC = {};
 	}
 }
 
@@ -1819,6 +1867,7 @@ Dom.quest.finish = function (quest, npc) {
 	// not enough inventory space
 	else if (npc !== undefined) {
 		npc.say(npc.chat.inventoryFull, 0, true);
+		Dom.currentNPC = {};
 	}
 }
 
@@ -2340,6 +2389,11 @@ Dom.inventory.give = function (item, num, position, noSave, noArchaeology) {
 							}
 							Player.inventory.items[i].lore = lores[Random(0, lores.length-1)];
 						}
+
+						if (item.countdown !== undefined) {
+							Player.inventory.items[i].countdownStart = GetFullDateTime();
+						}
+
 						if (!noArchaeology && item.set !== undefined && !User.archaeology.includes(Items.set[item.set].name)) {
 							let obtained = true;
 							for (let x = 0; x < Items.set[item.set].armour.length; x++) {
@@ -2441,6 +2495,11 @@ Dom.inventory.give = function (item, num, position, noSave, noArchaeology) {
 		Game.saveProgress("auto");
 	}
 	if (added) {
+
+		if (item.onGive !== undefined) {
+			item.onGive();
+		}
+
 		return position;
 	}else {
 		return false;
@@ -2656,6 +2715,7 @@ function UnId(area,tier) {
 // start a cutscene for a certain period of time
 // a cutscene stops any other NPCs from being spoken to
 Dom.cutscene = function (duration) {
+	Dom.chat.cutsceneEnd = Date.now() + duration;
     Dom.currentlyDisplayed = "cutscene";
     setTimeout(function () {
         Dom.currentlyDisplayed = "";
@@ -2801,6 +2861,10 @@ Dom.inventory.remove = function (num, all, array) { // array is optional
 	if (array === Player.bank.items) {
 		element = "bankPageInventory";
 		stackNum = "bankStackNum";
+	}
+
+	if (Items[array[num].type][array[num].id].onRemove !== undefined) {
+		Items[array[num].type][array[num].id].onRemove();
 	}
 
 	// repeats once unless all is a number
@@ -3211,7 +3275,7 @@ Dom.inventory.validateSwap = function () {
 
 // from is not required for drag-n-drop cases
 // tableElement and stackNums are only for right click
-Dom.inventory.drop = function (toElement, toArray, toId, fromElement, fromArray, fromId, tableElement, fromStackNum, toStackNum) {
+Dom.inventory.drop = function (toElement, toArray, toId, fromElement, fromArray, fromId, toTableElement, fromTableElement, fromStackNum, toStackNum) {
 
 	if (fromId !== undefined) {
 		Dom.inventory.fromElement = fromElement;
@@ -3246,7 +3310,7 @@ Dom.inventory.drop = function (toElement, toArray, toId, fromElement, fromArray,
 		if (Dom.inventory.validateSwap()) {
 
 			// not a right click (normal)
-			if (tableElement === undefined) {
+			if (toTableElement === undefined) {
 
 				// remove old stats - must be done before items are switched (ocean warrior set)
 				if (Dom.inventory.fromArray === Player.inventory) {
@@ -3333,7 +3397,7 @@ Dom.inventory.drop = function (toElement, toArray, toId, fromElement, fromArray,
 				}
 				// if stack size is 1 then delete stackNum
 				else if (this.fromArray[this.fromId].stacked === 1) {
-					document.getElementById(fromStackNum+this.fromId).innerHTML = "";
+					fromTableElement.getElementsByTagName("td")[this.fromId].removeChild(document.getElementById(fromStackNum+this.fromId))//.innerHTML = "";
 				}
 
 				// find an identical item to increase the stack size
@@ -3345,9 +3409,9 @@ Dom.inventory.drop = function (toElement, toArray, toId, fromElement, fromArray,
 							document.getElementById(toStackNum+i).innerHTML = this.toArray[i].stacked;
 						}
 						else {
-							tableElement.getElementsByTagName("td")[i].innerHTML += "<div class='stackNum' id='"+toStackNum+i+"'>"+this.toArray[i].stacked+"</div>"
+							toTableElement.getElementsByTagName("td")[i].innerHTML += "<div class='stackNum' id='"+toStackNum+i+"'>"+this.toArray[i].stacked+"</div>"
 						}
-						this.setItemFunctions(tableElement.getElementsByTagName("td")[i].getElementsByTagName("img")[0], this.toArray, i);
+						this.setItemFunctions(toTableElement.getElementsByTagName("td")[i].getElementsByTagName("img")[0], this.toArray, i);
 						stacked = true;
 						break;
 					}
@@ -3588,16 +3652,20 @@ Dom.inventory.find = function (ID, type, notEquipped, calledByCheck, name, array
 		if ((Player.inventory.weapon.type === type && Player.inventory.weapon.id === ID) || (Player.inventory.weapon.name === name && name !== undefined)) {
 			index.push("weapon");
 			completed++;
-		}else if ((Player.inventory.helm.type === type && Player.inventory.helm.id === ID) || (Player.inventory.helm.name === name && name !== undefined)) {
+		}
+		else if ((Player.inventory.helm.type === type && Player.inventory.helm.id === ID) || (Player.inventory.helm.name === name && name !== undefined)) {
 			index.push("helm");
 			completed++;
-		}else if ((Player.inventory.chest.type === type && Player.inventory.chest.id === ID) || (Player.inventory.chest.name === name && name !== undefined)) {
+		}
+		else if ((Player.inventory.chest.type === type && Player.inventory.chest.id === ID) || (Player.inventory.chest.name === name && name !== undefined)) {
 			index.push("chest");
 			completed++;
-		}else if ((Player.inventory.greaves.type === type && Player.inventory.greaves.id === ID) || (Player.inventory.greaves.name === name && name !== undefined)) {
+		}
+		else if ((Player.inventory.greaves.type === type && Player.inventory.greaves.id === ID) || (Player.inventory.greaves.name === name && name !== undefined)) {
 			index.push("greaves");
 			completed++;
-		}else if ((Player.inventory.boots.type === type && Player.inventory.boots.id === ID) || (Player.inventory.boots.name === name && name !== undefined)) {
+		}
+		else if ((Player.inventory.boots.type === type && Player.inventory.boots.id === ID) || (Player.inventory.boots.name === name && name !== undefined)) {
 			index.push("boots");
 			completed++;
 		}
@@ -3810,19 +3878,23 @@ Dom.text.page = function (name, text, close, buttons, functions, give) {
 				Dom.elements.textPage.innerHTML += "<img src=" + give[i].item.image + " class='theseTextOptions'><div class='textStackNum'>"+(give[i].quantity !== 1 ? give[i].quantity : "")+"</div></img>&nbsp;&nbsp;";
 			}
 		}
-		for (let i = 0; i < buttons.length; i++) {
-			if (buttons[i] !== undefined) {
-				Dom.elements.textPage.innerHTML += "<br><center><div id='buttons"+i+"' class='buttons'>"+buttons[i]+"</div></center>";
+		if (buttons !== undefined) {
+			for (let i = 0; i < buttons.length; i++) {
+				if (buttons[i] !== undefined) {
+					Dom.elements.textPage.innerHTML += "<br><center><div id='buttons"+i+"' class='buttons'>"+buttons[i]+"</div></center>";
+				}
 			}
 		}
 		if (close) {
 			Dom.elements.textPage.innerHTML += "<br><br><br><center><div class='closeClass' onclick='Dom.closePage(\"textPage\")'>Close</div></center>";
 		}
 		// onclicks have to be below this point because the line above resets them
-		for (let i = 0; i < buttons.length; i++) {
-			if (buttons[i] !== undefined) {
-				document.getElementById("buttons"+i).onclick = function () {
-					functions[i]();
+		if (buttons !== undefined) {
+			for (let i = 0; i < buttons.length; i++) {
+				if (buttons[i] !== undefined) {
+					document.getElementById("buttons"+i).onclick = function () {
+						functions[i]();
+					}
 				}
 			}
 		}
@@ -4040,21 +4112,28 @@ Dom.choose.page = function (npc, buttons, functions, parameters, force) {
 					let imagenum = 2;
 					if (functions[i] === Dom.driver.page) {
 						imagenum = 0;
-					}else if (functions[i] === Dom.identifier.page) {
+					}
+					else if (functions[i] === Dom.identifier.page) {
 						imagenum = 3;
-					}else if (functions[i] === Dom.buyer.page) {
+					}
+					else if (functions[i] === Dom.buyer.page) {
 						imagenum = 4;
-					}else if (functions[i] === Dom.merchant.page) {
+					}
+					else if (functions[i] === Dom.merchant.page) {
 						imagenum = 5;
-					}else if (functions[i] === Dom.quest.finish) {
+					}
+					else if (functions[i] === Dom.quest.finish) {
 						imagenum = 6;
-					}else if (functions[i] === Dom.quest.start) {
-						if (parameters[i][0].repeatTime === "daily") {
+					}
+					else if (functions[i] === Dom.quest.start) {
+						if (parameters[i][0].repeatTime === "daily" || parameters[i][0].repeatTime === "repeatable") {
 							imagenum = 1;
-						}else {
+						}
+						else {
 							imagenum = 7;
 						}
-					}else if (functions[i] === Dom.text.page) {
+					}
+					else if (functions[i] === Dom.text.page) {
 						if (parameters[i][0] === "Soul Healer") {
 							imagenum = 8;
 						}/*else {
@@ -4064,12 +4143,15 @@ Dom.choose.page = function (npc, buttons, functions, parameters, force) {
 					if (imagenum === 6 || imagenum === 7) {
 						if (parameters[i][0].important === true) {
 							Dom.elements.choosePageContent.innerHTML += "<p class='choosePageButtons' id='choosePageButtons"+i+"'><img src='assets/icons/choose.png' class='chooseIcon' style='clip: rect("+25*imagenum+"px, 25px, "+25*(imagenum+1)+"px, 0px); margin-top: -"+(25*imagenum+3)+"px'></img>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<strong>"+buttons[i]+"</strong></p>";
-						}else {
+						}
+						else {
 							Dom.choose.sideHTML += "<p class='choosePageButtons' id='choosePageButtons"+i+"'><img src='assets/icons/choose.png' class='chooseIcon' style='clip: rect("+25*imagenum+"px, 25px, "+25*(imagenum+1)+"px, 0px); margin-top: -"+(25*imagenum+3)+"px'></img>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;"+buttons[i]+"</p>";
 						}
-					}else if (imagenum === 0) {
+					}
+					else if (imagenum === 0) {
 						Dom.choose.dailyHTML += "<p class='choosePageButtons' id='choosePageButtons"+i+"'><img src='assets/icons/choose.png' class='chooseIcon' style='clip: rect("+25*imagenum+"px, 25px, "+25*(imagenum+1)+"px, 0px); margin-top: -"+(25*imagenum+3)+"px'></img>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;"+buttons[i]+"</p>";
-					}else {
+					}
+					else {
 						Dom.choose.HTML += "<p class='choosePageButtons' id='choosePageButtons"+i+"'><img src='assets/icons/choose.png' class='chooseIcon' style='clip: rect("+25*imagenum+"px, 25px, "+25*(imagenum+1)+"px, 0px); margin-top: -"+(25*imagenum+3)+"px'></img>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;"+buttons[i]+"</p>";
 					}
 				}
@@ -4262,7 +4344,7 @@ Dom.inventory.inOut = function (direction, num, other) {
 					if (Player.bank.items[i].image === undefined) {
 						// right clicked (only 1 is moved across)
 						if (/*array[num].stacked > 1 && */event.button >= 2) {
-							Dom.inventory.drop(Dom.elements.bankPageInventory.getElementsByTagName("td")[i], Player.bank.items, i, element, array, num, Dom.elements.bankPageInventory, "stackNum", "bankStackNum");
+							Dom.inventory.drop(Dom.elements.bankPageInventory.getElementsByTagName("td")[i], Player.bank.items, i, element, array, num, Dom.elements.bankPageInventory, Dom.elements.itemInventory, "stackNum", "bankStackNum");
 						}
 						// left clicked (all are moved across)
 						else {
@@ -4279,7 +4361,7 @@ Dom.inventory.inOut = function (direction, num, other) {
 				if (Dom.trade.items[i].image === undefined) {
 					// right clicked (only 1 is moved across)
 					if (/*array[num].stacked > 1 && */event.button >= 2) {
-						Dom.inventory.drop(Dom.elements.tradePageInventory.getElementsByTagName("td")[i], Dom.trade.items, i, element, array, num, Dom.elements.tradePageInventory, "stackNum", "tradeStackNum");
+						Dom.inventory.drop(Dom.elements.tradePageInventory.getElementsByTagName("td")[i], Dom.trade.items, i, element, array, num, Dom.elements.tradePageInventory, Dom.elements.itemInventory, "stackNum", "tradeStackNum");
 					}
 					// left clicked (all are moved across)
 					else {
@@ -4304,7 +4386,7 @@ Dom.inventory.inOut = function (direction, num, other) {
 			if (Player.inventory.items[i].image === undefined) {
 				// right clicked (only 1 is moved across)
 				if (/*array[num].stacked > 1 && */event.button >= 2) {
-					Dom.inventory.drop(Dom.elements.itemInventory.getElementsByTagName("td")[i], Player.inventory.items, i, element.getElementsByTagName("td")[num], array, num, Dom.elements.itemInventory, stackNum, "stackNum");
+					Dom.inventory.drop(Dom.elements.itemInventory.getElementsByTagName("td")[i], Player.inventory.items, i, element.getElementsByTagName("td")[num], array, num, Dom.elements.itemInventory, element, stackNum, "stackNum");
 				}
 				// left clicked (all are moved across)
 				else {

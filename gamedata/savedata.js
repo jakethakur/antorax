@@ -64,6 +64,7 @@ var Player = {
 		completedQuestArray: [],
 		canBeFinishedArray: [], // array of quests that can be finished (for use in main)
 
+		npcProgress: {}, // stores the number of NPCs spoken to for that quest (the key name is the quest area followed by the quest id)
 		questProgress: {}, // stores properties for quest objectives (and achievements) that cannot otherwise be tracked between saves
 		questLastFinished: { // stores the last date (format ddmmyyyy) that the quest was finished (for seeing if daily quests can be started again)
 			eaglecrestLoggingCamp: [],

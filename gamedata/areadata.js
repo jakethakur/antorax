@@ -291,6 +291,8 @@ var Areas = {
 			weaponsmith: {normal: "assets/npcs/weaponsmith.png"},
 			cart: {normal: "assets/objects/cartEaglecrest.png"},
 			fisherman: {normal: "assets/npcs/tobenam.png"},
+			weaponsmithSign: {normal: "assets/objects/weaponsmithSign.png"},
+			eaglecrestBanner: {normal: "assets/objects/eaglecrestBanner.png"},
 		},
 
 		areaTeleports: [
@@ -477,6 +479,30 @@ var Areas = {
 				image: "cart",
 				name: "Cart",
 			},
+			{
+				x: 3208,
+				y: 388,
+				image: "weaponsmithSign",
+				name: "Weaponsmith Sign",
+			},
+			{
+				x: 150,
+				y: 90,
+				image: "eaglecrestBanner",
+				name: "Eaglecrest Banner",
+			},
+			{
+				x: 390,
+				y: 90,
+				image: "eaglecrestBanner",
+				name: "Eaglecrest Banner",
+			},
+			{
+				x: 1470,
+				y: 90,
+				image: "eaglecrestBanner",
+				name: "Eaglecrest Banner",
+			},
 		],
 
 		villagers: [
@@ -613,6 +639,8 @@ var Areas = {
 			christmasSapling: {christmas: "assets/objects/christmasSapling.png"},
 			cart: {normal: "assets/objects/cartEaglecrest2.png"},
 			driver: {normal: "assets/npcs/alaran.png"},
+			eaglecrestBanner: {normal: "assets/objects/eaglecrestBanner.png"},
+			nilbogBanner: {normal: "assets/objects/nilbogBanner.png"},
 		},
 
 		onAreaJoin: function () {
@@ -927,16 +955,14 @@ var Areas = {
 						onClick: function () {
 							// remove the item
 							Dom.inventory.removeById(21, "fish", 1);
-							// start cutscene
-							Dom.cutscene();
 							// quest progress
 							Player.quests.questProgress.christmasPresentsDelivered = 1; // always the first NPC to be delivered to
 							// chat
 							Dom.chat.insertSequence([
-							Dom.chat.say("Soul Healer Nalaa", "Thank you for taking the time to bring this to me."),
-							Dom.chat.say("Soul Healer Nalaa", "/me gently unfolds the wrapping paper to reveal a brand new Scepter of Souls."),
-							Dom.chat.say("Soul Healer Nalaa", "It's a new Scepter of Souls! Thank you, adventurer. May the Demigods' blessings be bestowed upon you.")],
-							[500]);
+								Dom.chat.say("Soul Healer Nalaa", "Thank you for taking the time to bring this to me."),
+								Dom.chat.say("Soul Healer Nalaa", "/me gently unfolds the wrapping paper to reveal a brand new Scepter of Souls."),
+								Dom.chat.say("Soul Healer Nalaa", "It's a new Scepter of Souls! Thank you, adventurer. May the Demigods' blessings be bestowed upon you.")],
+							[500], undefined, undefined, true); // cutscene with no end function
 						},
 						roleRequirement: function () {
 							let presentPositions = Dom.inventory.find(21, "fish", true); // array of present inventory positions
@@ -1046,16 +1072,14 @@ var Areas = {
 						onClick: function () {
 							// remove the item
 							Dom.inventory.removeById(21, "fish");
-							// start cutscene
-							Dom.cutscene();
 							// quest progress
 							Player.quests.questProgress.christmasPresentsDelivered = 2; // always the second NPC to be delivered to
 							// chat
 							Dom.chat.insertSequence([
-							Dom.chat.say("Item Buyer Noledar", "Wow, really? That's so nice, I don't think anyone has delivered me a present before!"),
-							Dom.chat.say("Item Buyer Noledar", "/me peels away at the wrapping paper to reveal a large heap of gold."),
-							Dom.chat.say("Item Buyer Noledar", "Wow! Gilas was right - good things <strong>can</strong> happen to ordinary people! Thank you very much, and a merry Christmas to you!")],
-							[500]);
+								Dom.chat.say("Item Buyer Noledar", "Wow, really? That's so nice, I don't think anyone has delivered me a present before!"),
+								Dom.chat.say("Item Buyer Noledar", "/me peels away at the wrapping paper to reveal a large heap of gold."),
+								Dom.chat.say("Item Buyer Noledar", "Wow! Gilas was right - good things <strong>can</strong> happen to ordinary people! Thank you very much, and a merry Christmas to you!")],
+							[500], undefined, undefined, true); // cutscene with no end function
 						},
 						roleRequirement: function () {
 							let presentPositions = Dom.inventory.find(21, "fish", true); // array of present inventory positions
@@ -1149,6 +1173,16 @@ var Areas = {
 							return Player.level > 2;
 						},
 						shopGreeting: "Want to buy a potion? Of course you do.",
+					},
+					{
+						role: "text",
+						chooseText: "Do you have a potion of fire resistance?",
+						chat: "Fire resistance potion? Me? And why do you think I'd be stocking such useless potions? You'd be wasting your time here. Have a look in Eaglecrest City. Have you heard of a wolf named <strong>Tamtam</strong>?",
+						showCloseButton: true,
+						forceChoose: true, // forces choose dom
+						roleRequirement: function () {
+							return Player.quests.npcProgress.loggingCamp24 === 2;
+						}
 					},
 				],
 				chat: {
@@ -1254,6 +1288,48 @@ var Areas = {
 				orderOffsetY: -20,
 				image: "cart",
 				name: "Cart",
+			},
+			{
+				x: 2070,
+				y: 270,
+				image: "eaglecrestBanner",
+				name: "Eaglecrest Banner",
+			},
+			{
+				x: 1530,
+				y: 1110,
+				image: "eaglecrestBanner",
+				name: "Eaglecrest Banner",
+			},
+			{
+				x: 1170,
+				y: 1110,
+				image: "eaglecrestBanner",
+				name: "Eaglecrest Banner",
+			},
+			{
+				x: 30,
+				y: 90,
+				image: "eaglecrestBanner",
+				name: "Eaglecrest Banner",
+			},
+			{
+				x: 2310,
+				y: 220,
+				image: "nilbogBanner",
+				name: "Nilbog Banner",
+			},
+			{
+				x: 2310,
+				y: 640,
+				image: "nilbogBanner",
+				name: "Nilbog Banner",
+			},
+			{
+				x: 2310,
+				y: 1180,
+				image: "nilbogBanner",
+				name: "Nilbog Banner",
 			},
 			{
 				x: 1350,
@@ -1582,6 +1658,7 @@ var Areas = {
 			{
 				x: 844,
 				y: 294,
+				orderOffsetY: 23,
 				image: "gameBoard",
 				name: "Wizard's Lore",
 				onTouchChat: "A game of Wizard's Lore, a board game traditionally played by wizard students and scholars.",
@@ -1599,9 +1676,9 @@ var Areas = {
 			let positions = [];
 			for (let i = 0; i < array.length; i++) {
 				positions.push(
-					{x: array[i].x-40, y: array[i].y-20, orderOffsetY: -20},
-					{x: array[i].x-1.5, y: array[i].y-20, orderOffsetY: -20},
-					{x: array[i].x+37, y: array[i].y-20, orderOffsetY: -20},
+					{x: array[i].x-40, y: array[i].y-20, orderOffsetY: 13},
+					{x: array[i].x-1.5, y: array[i].y-20, orderOffsetY: 13},
+					{x: array[i].x+37, y: array[i].y-20, orderOffsetY: 13},
 				);
 			}
 
@@ -1611,11 +1688,11 @@ var Areas = {
 			// add to the array of possible positions
 			for (let i = 0; i < array.length; i++) {
 				positions.push(
-					{x: array[i].x-40, y: array[i].y-20, orderOffsetY: -10},
-					{x: array[i].x-1.5, y: array[i].y-20, orderOffsetY: -10},
-					{x: array[i].x+37, y: array[i].y-20, orderOffsetY: -10},
-					{x: array[i].x-20, y: array[i].y-40, orderOffsetY: 10},
-					{x: array[i].x+17, y: array[i].y-40, orderOffsetY: 10},
+					{x: array[i].x-40, y: array[i].y-20, orderOffsetY: 16},
+					{x: array[i].x-1.5, y: array[i].y-20, orderOffsetY: 16},
+					{x: array[i].x+37, y: array[i].y-20, orderOffsetY: 16},
+					{x: array[i].x-20, y: array[i].y-40, orderOffsetY: 36},
+					{x: array[i].x+17, y: array[i].y-40, orderOffsetY: 36},
 				);
 			}
 
@@ -1812,9 +1889,13 @@ var Areas = {
 			goblinCorpse: {normal: "assets/corpses/deadGoblin.png"},
 			mailcart: {normal: "assets/objects/cartDestroyed.png"},
 			trap: {normal: "assets/objects/trap.png"},
-			torch: {normal: "assets/npcs/torch.png"},
+			torch: {normal: "assets/objects/goblinTorchNight.png"},
 			ghost: {samhain: "assets/npcs/ghost.png"},
 			lootChest: {normal: "assets/objects/chest.png"},
+			eaglecrestBanner: {normal: "assets/objects/eaglecrestBanner.png"},
+			nilbogBanner: {normal: "assets/objects/nilbogBanner.png"},
+			goblinTorchDay: {normal: "assets/objects/goblinTorchDay.png"},
+			goblinTorchNight: {normal: "assets/objects/goblinTorchNight.png"},
 		},
 
 		chestData: {
@@ -1875,12 +1956,32 @@ var Areas = {
 				roles: [
 					{
 						quest: Quests.eaglecrestLoggingCamp[11],
-						role: "questStartFinish"
+						role: "questStartFinish",
 					},
 					{
 						quest: Quests.eaglecrestLoggingCamp[21],
-						role: "questStartFinish"
+						role: "questStartFinish",
 					},
+					{
+						quest: Quests.eaglecrestLoggingCamp[24],
+						role: "questStartFinish",
+					},
+					{
+						role: "function",
+						onClick: function () {
+							Dom.chat.insert(Dom.chat.say("Goblin Torch", "Oh. Cloth is flammable. Must be improved. Make it fire resistant. Potion gives fire resistant. Potion might help?"));
+							Player.quests.npcProgress.loggingCamp24 = 2;
+							Dom.inventory.removeById(3, "item");
+							Dom.inventory.give(Items.item[29]); // burnt cloth
+							Game.statusEffects.fire({
+								target: Game.hero,
+								tier: 1,
+							});
+						},
+						roleRequirement: function () {
+							return Player.quests.activeQuestArray.includes("A Burning Need to be Cleaned") && Dom.inventory.check(3, "item", 1);
+						}
+					}
 				],
 				chat: {
 					notUnlockedRoles: "Very. Bored.",
@@ -2031,7 +2132,75 @@ var Areas = {
 			},
 		],
 
-		things: [], // for traps to be shown
+		things: [
+			{
+				x: 270,
+				y: 580,
+				image: "nilbogBanner",
+				name: "Nilbog Banner",
+			},
+			{
+				x: 270,
+				y: 980,
+				image: "nilbogBanner",
+				name: "Nilbog Banner",
+			},
+			{
+				x: 270,
+				y: 1540,
+				image: "nilbogBanner",
+				name: "Nilbog Banner",
+			},
+			{
+				x: 30,
+				y: 630,
+				image: "eaglecrestBanner",
+				name: "Eaglecrest Banner",
+			},
+			{
+				x: 570,
+				y: 1650,
+				imageDay: "goblinTorchDay",
+				imageNight: "goblinTorchNight",
+				name: "Eaglecrest Banner",
+			},
+			{
+				x: 1050,
+				y: 1530,
+				imageDay: "goblinTorchDay",
+				imageNight: "goblinTorchNight",
+				name: "Eaglecrest Banner",
+			},
+			{
+				x: 810,
+				y: 1350,
+				imageDay: "goblinTorchDay",
+				imageNight: "goblinTorchNight",
+				name: "Eaglecrest Banner",
+			},
+			{
+				x: 1530,
+				y: 330,
+				imageDay: "goblinTorchDay",
+				imageNight: "goblinTorchNight",
+				name: "Eaglecrest Banner",
+			},
+			{
+				x: 1890,
+				y: 150,
+				imageDay: "goblinTorchDay",
+				imageNight: "goblinTorchNight",
+				name: "Eaglecrest Banner",
+			},
+			{
+				x: 1950,
+				y: 450,
+				imageDay: "goblinTorchDay",
+				imageNight: "goblinTorchNight",
+				name: "Eaglecrest Banner",
+			},
+		],
+
 	},
 
 	nilbogPast: {
@@ -3325,7 +3494,7 @@ var Areas = {
 				y: 210,
 				width: 60,
 				height: 2,
-				teleportTo: "eaglecrestShop",
+				teleportTo: "eaglecrestBazaar",
 				destinationX: 395,
 				destinationY: 770,
 			},
@@ -4103,6 +4272,7 @@ var Areas = {
 			{
 				x: 364,
 				y: 234,
+				orderOffsetY: 23,
 				image: "gameBoard1",
 				name: "Wizard's Lore",
 				onTouchChat: "A game of Wizard's Lore, a board game traditionally played by wizard students and scholars.",
@@ -4110,6 +4280,7 @@ var Areas = {
 			{
 				x: 1083,
 				y: 1314,
+				orderOffsetY: 23,
 				image: "gameBoard2",
 				name: "Wizard's Lore",
 				onTouchChat: "A game of Wizard's Lore, a board game traditionally played by wizard students and scholars.",
@@ -4127,9 +4298,9 @@ var Areas = {
 			let positions = [];
 			for (let i = 0; i < array.length; i++) {
 				positions.push(
-					{x: array[i].x-40, y: array[i].y-20, orderOffsetY: -20},
-					{x: array[i].x-1.5, y: array[i].y-20, orderOffsetY: -20},
-					{x: array[i].x+37, y: array[i].y-20, orderOffsetY: -20},
+					{x: array[i].x-40, y: array[i].y-20, orderOffsetY: 13},
+					{x: array[i].x-1.5, y: array[i].y-20, orderOffsetY: 13},
+					{x: array[i].x+37, y: array[i].y-20, orderOffsetY: 13},
 				);
 			}
 
@@ -4139,11 +4310,11 @@ var Areas = {
 			// add to the array of possible positions for large tables
 			for (let i = 0; i < array.length; i++) {
 				positions.push(
-					{x: array[i].x-40, y: array[i].y-20, orderOffsetY: -10},
-					{x: array[i].x-1.5, y: array[i].y-20, orderOffsetY: -10},
-					{x: array[i].x+37, y: array[i].y-20, orderOffsetY: -10},
-					{x: array[i].x-20, y: array[i].y-40, orderOffsetY: 10},
-					{x: array[i].x+17, y: array[i].y-40, orderOffsetY: 10},
+					{x: array[i].x-40, y: array[i].y-20, orderOffsetY: 16},
+					{x: array[i].x-1.5, y: array[i].y-20, orderOffsetY: 16},
+					{x: array[i].x+37, y: array[i].y-20, orderOffsetY: 16},
+					{x: array[i].x-20, y: array[i].y-40, orderOffsetY: 36},
+					{x: array[i].x+17, y: array[i].y-40, orderOffsetY: 36},
 				);
 			}
 
@@ -4303,9 +4474,9 @@ var Areas = {
 				roles: [
 					{
 						sold: [
-							Player.class === "k" ? {item: Items.sword[2], cost: 7}
-							: Player.class === "m" ? {item: Items.staff[2], cost: 7}
-							: {item: Items.bow[2], cost: 7},
+							Player.class === "k" ? {item: Items.sword[12], cost: 7}
+							: Player.class === "m" ? {item: Items.staff[11], cost: 7}
+							: {item: Items.bow[11], cost: 7},
 							{item: Items.helm[19], cost: 6},
 							{item: Items.chest[8], cost: 7},
 							{item: Items.greaves[7], cost: 7},
@@ -4465,6 +4636,35 @@ var Areas = {
 						role: "merchant",
 						shopGreeting: "There's a potion for you, and you, and youuuuu!",
 					},
+					{
+						role: "text",
+						chooseText: "Do you have a potion of fire resistance?",
+						chat: "Fireeeeeeeeeee! <sub>Oh noooooo.</sub> Wotcha gonna do with that?<br><br><em>Tamtam's tail droops down.</em><br><br><sub>Uhhhhhhhh...</sub> We need more <strong>Fireroot</strong> for that. Haven't had it here for years. If you really need the potion you could bring some Fireroot over from <strong>Eaglecrest Bazaar</strong> on the west street. But <sub>uhhh</sub> it's dangerous. And on fire.<br>Be quick!",
+						showCloseButton: false,
+						buttons: ["Close"],
+						forceChoose: true, // forces choose dom
+						functions: [function () {
+							Player.quests.npcProgress.loggingCamp24 = 3;
+							Dom.closePage("textPage");
+						}],
+						roleRequirement: function () {
+							return Player.quests.npcProgress.loggingCamp24 === 2;
+						}
+					},
+					{
+						role: "function",
+						chooseText: "Here is a fireroot",
+						onClick: function () {
+							Dom.inventory.removeById(28, "item");
+							Dom.inventory.give(Items.consumable[25]);
+							Player.quests.npcProgress.loggingCamp24 = 4;
+							Dom.text.page("Alchemist Tamtam", "<em>Tamtam's tail wags vivaciously.</em><br><br>You're baaaaack!!! And not on fire!!! Well doneeeee!!! Fire resistance potion for youuuuuuuu!!! <sup>Fireeeeeeeeeee!<sup>", true, undefined, undefined, [{item: Items.consumable[25]}]);
+						},
+						forceChoose: true, // forces choose dom
+						roleRequirement: function () {
+							return Player.quests.npcProgress.loggingCamp24 === 3 && Dom.inventory.check(28, "item");
+						}
+					},
 				],
 				chat: {
 					chooseChat: "Loooooking good my friend! Wanna buy a potion?",
@@ -4511,12 +4711,12 @@ var Areas = {
 
 	},
 
-	eaglecrestShop: {
+	eaglecrestBazaar: {
 		id: 17,
 
 		data: {
-			name: "Eaglecrest Shop",
-			subtitle: "Random stuff to buy.",
+			name: "Eaglecrest Bazaar",
+			subtitle: "Various goods from all corners of Antorax!",
 			displayOnEnter: true,
 		},
 
@@ -4547,7 +4747,7 @@ var Areas = {
 
 		images: {
 			tiles: {normal: "assets/tilemap/eaglecrestShop.png"},
-			blacksmith: {normal: "assets/npcs/blacksmith.png"},
+			barda: {normal: "assets/npcs/barda.png"},
 		},
 
 		areaTeleports: [
@@ -4558,7 +4758,7 @@ var Areas = {
 				width: 240,
 				height: 2,
 				teleportTo: "eaglecrestWest",
-				destinationX: 230,
+				destinationX: 330,
 				destinationY: 280,
 			},
 		],
@@ -4579,10 +4779,10 @@ var Areas = {
 		npcs: [
 			{
 				x: 450,
-				y: 335,
-				image: "blacksmith",
-				crop: {height: 50},
-				name: "Shopkeeper",
+				y: 328,
+				image: "barda",
+				crop: {height: 64},
+				name: "Shopkeeper Barda",
 				hostility: "friendly",
 				level: 20,
 				stats: {
@@ -4592,17 +4792,27 @@ var Areas = {
 				roles: [
 					{
 						sold: [
-							{item: Items.boots[11], cost: 6}, // TBD quest item
+							{item: Items.item[28], cost: 1}, // fireroot
 						],
 						role: "merchant",
-						shopGreeting: "TBD",
+						shopGreeting: [
+							{
+								text: "If you're buying another fireroot, I would recommend using a potion of swiftness this time.",
+								condition: function () {
+									return Player.quests.npcProgress.loggingCamp24 === 3 && Player.quests.questProgress.firerootFailed;
+								},
+							},
+							{
+								text: "Ready to barter with Barda?",
+							},
+						],
 					},
 				],
 				chat: {
-					shopLeave: "TBD",
-					inventoryFull: "TBD",
-					tooPoor: "TBD",
-					areaJoin: "TBD"
+					shopLeave: "Good luck with your quest, guest.",
+					inventoryFull: "Unless the cards have bluffed... your inventory is stuffed.",
+					tooPoor: "No gold? Get out of my shop.",
+					areaJoin: "The best shop in west Eaglecrest, no jest.",
 				},
 			},
 		],
@@ -4622,13 +4832,8 @@ var Villagers = [
 			defence: 5,
 		},
 		hostility: "friendly",
-		areas: [
-			"loggingCampTavern",
-			"eaglecrestTavern",
-			"eaglecrestBank",
-			"eaglecrest",
-			"eaglecrestEast",
-			"eaglecrestWest",
+		exceptAreas: [
+			"eaglecrestLoggingCamp",
 		],
 		roles: [],
 		chat: {
@@ -4743,12 +4948,7 @@ var Villagers = [
 		},
 		hostility: "friendly",
 		areas: [
-			"loggingCampTavern",
-			"eaglecrestTavern",
-			"eaglecrestBank",
-			"eaglecrest",
-			"eaglecrestEast",
-			"eaglecrestWest",
+			"eaglecrestLoggingCamp",
 		],
 		roles: [],
 		chat: {
@@ -4768,13 +4968,8 @@ var Villagers = [
 			defence: 5,
 		},
 		hostility: "friendly",
-		areas: [
-			"loggingCampTavern",
-			"eaglecrestTavern",
-			"eaglecrestBank",
-			"eaglecrest",
-			"eaglecrestEast",
-			"eaglecrestWest",
+		exceptAreas: [
+			"eaglecrestLoggingCamp",
 		],
 		roles: [],
 		chat: {
@@ -4794,13 +4989,8 @@ var Villagers = [
 			defence: 8,
 		},
 		hostility: "friendly",
-		areas: [
-			"loggingCampTavern",
-			"eaglecrestTavern",
-			"eaglecrestBank",
-			"eaglecrest",
-			"eaglecrestEast",
-			"eaglecrestWest",
+		exceptAreas: [
+			"eaglecrestLoggingCamp",
 		],
 		roles: [],
 		chat: {
@@ -4820,13 +5010,8 @@ var Villagers = [
 			defence: 6,
 		},
 		hostility: "friendly",
-		areas: [
-			"loggingCampTavern",
-			"eaglecrestTavern",
-			"eaglecrestBank",
-			"eaglecrest",
-			"eaglecrestEast",
-			"eaglecrestWest",
+		exceptAreas: [
+			"eaglecrestLoggingCamp",
 		],
 		roles: [],
 		chat: {
@@ -4845,12 +5030,9 @@ var Villagers = [
 			defence: 20,
 		},
 		hostility: "friendly",
-		areas: [
-			"eaglecrestTavern",
-			"eaglecrestBank",
-			"eaglecrest",
-			"eaglecrestEast",
-			"eaglecrestWest",
+		exceptAreas: [
+			"loggingCampTavern",
+			"eaglecrestLoggingCamp",
 		],
 		roles: [],
 		chat: {
@@ -4869,12 +5051,9 @@ var Villagers = [
 			defence: 20,
 		},
 		hostility: "friendly",
-		areas: [
-			"eaglecrestTavern",
-			"eaglecrestBank",
-			"eaglecrest",
-			"eaglecrestEast",
-			"eaglecrestWest",
+		exeptAreas: [
+			"loggingCampTavern",
+			"eaglecrestLoggingCamp",
 		],
 		roles: [],
 		chat: {
