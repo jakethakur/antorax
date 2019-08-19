@@ -277,7 +277,8 @@ wss.on("connection", (ws) => { // note that ws = client in wss.clients
 							spawnArea: parsedMessage.spawnArea, // for joined players
 							status: "starting",
 							joinedPlayers: [ws.userID], // userID of all joined players (to send them chat messages etc.)
-							playerTagTimes: {} // key = userID, value = time in seconds
+							playerTagTimes: {}, // key = userID, value = time in seconds
+							host: ws.userID,
 						}
 
 						// save this in server so player joining antorax retroactively know they are in the game
@@ -555,18 +556,28 @@ function StartTagGame () {
 	}
 	else {
 		// tell users it fizzled (and giving back the item to the person who started the game, i.e. the only person in the game)
+
+		let returnGauntlet = true;
+		if (minigameInProgress.joinedPlayers[0] !== minigameInProgress.host) {
+			// host left the game
+			returnGauntlet = false;
+		}
+
 		wss.clients.forEach(client => {
 			client.send(JSON.stringify({
 				type: "tagGame",
 				action: "fizzle",
+				returnGauntlet: returnGauntlet
 			}));
+
+			// close tag game so another game can be started
+			client.playingGame = undefined;
 		});
 
 		// remove game time countdown interval
 		clearInterval(minigameInProgress.timeInterval);
 
 		// close tag game so another game can be started
-		ws.playingGame = undefined;
 		minigameInProgress = undefined;
 	}
 }

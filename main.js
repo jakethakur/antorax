@@ -427,8 +427,13 @@ Game.initWebSocket = function () {
 								// return player that started game back to their initial location
 								Game.hero.temporaryAreaTeleportReturn();
 
-								Dom.chat.insert("There were not enough players to start the game. You have got your <strong>Chaser's Gauntlet</strong> back.");
-								Dom.inventory.give(Items.consumable[22]);
+								if (message.returnGauntlet) {
+									// user that is still in game is host
+									Dom.inventory.give(Items.consumable[22]);
+								}
+								else {
+									Dom.chat.insert("There were not enough players to start the game because the game host left.");
+								}
 								Dom.chat.notification("There were not enough players to start the game."); // in case they were not on the tab
 							}
 
@@ -6812,20 +6817,19 @@ Game.update = function (delta) {
 		if (enemy.checkTouching !== undefined) {
 			// iterate through each separate thing that should be checked
 			for (let x = 0; x < enemy.checkTouching.length; x++) {
-				// array of things to check
+				// array of things to check (of same type)
 				let touchingArray = this[enemy.checkTouching[x].arrayName];
-				if (enemy.checkTouching[x].objectName !== undefined) {
-					// particular name for object in array
-					touchingArray = touchingArray.filter(obj => obj.name === enemy.checkTouching[x].objectName);
-				}
 
 				// check if any of them are being touched
 				for (let y = 0; y < touchingArray.length; y++) {
-					if (enemy.isTouching(touchingArray[y])) {
-						// it is touching it
-						// passes in index of object to function
-						// call is used to bind it to enemy
-						enemy.checkTouching[x].isTouchingFunction.call(enemy, y, touchingArray[y].id);
+					// particular name for object in array
+					if (touchingArray[y].name === enemy.checkTouching[x].objectName) {
+						if (enemy.isTouching(touchingArray[y])) {
+							// it is touching it
+							// passes in index of object to function
+							// call is used to bind it to enemy
+							enemy.checkTouching[x].isTouchingFunction.call(enemy, y, touchingArray[y].id);
+						}
 					}
 				}
 			}
