@@ -95,7 +95,7 @@ var Player = {
 		damage: 0, // (8)
 		defence: 0, // (4)
 		maxHealth: 50,
-		range: 0, // set in Game.inventoryUpdate based off of WeaponRanges in itemdata.js
+		range: 0, // set in Game.equipmentUpdate based off of WeaponRanges in itemdata.js
 		rangeModifier: 0, // added to the player's base range (based off of WeaponRanges)
 		reloadTime: 500, // (0.5s) time that must be taken between attack channel finish and channel start (in ms)
 		criticalChance: 1, // (1%)

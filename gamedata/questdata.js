@@ -1226,7 +1226,7 @@ After all, death is never the end in Antorax...<br>
 			startChat: `Goblins. Make goblin torch dirty. Please, clean me. No water. Just cloth.`,
 
 			finishName: "Goblin Torch",
-			finishChat: `Oh. Cloth is flammable. Must be improved. Make it fire resistant. Potion gives fire resistant. Potion might help?`,
+			finishChat: `I am clean! Thank you. Adventurer.<br>Oh. What is your name?`,
 
 			objectives: [
 				"Obtain 1 scrap of cloth.",
@@ -1236,6 +1236,7 @@ After all, death is never the end in Antorax...<br>
 				"Bring 1 fireroot from the Eaglecrest Shop to <strong>Alchemist Tamtam</strong>.",
 				"Douse the scrap of cloth in the potion of fire resistance.",
 				"Use it to clean the <strong>Goblin Torch</strong>.",
+				"",
 			],
 
 			isHidden: function() {
@@ -1253,6 +1254,7 @@ After all, death is never the end in Antorax...<br>
 				completed.push(Player.quests.npcProgress.loggingCamp24 < 3);
 				completed.push(Player.quests.npcProgress.loggingCamp24 < 2);
 				completed.push(Player.quests.npcProgress.loggingCamp24 < 2);
+				completed.push(true);
 
 				completed = checkFinished(completed);
 
@@ -1269,6 +1271,7 @@ After all, death is never the end in Antorax...<br>
 				completed.push(Player.quests.npcProgress.loggingCamp24 >= 3);
 				completed.push(Player.quests.npcProgress.loggingCamp24 >= 4);
 				completed.push(Dom.inventory.check(27, "item", 1)); // 1 fire resistant cloth
+				completed.push(Player.quests.npcProgress.loggingCamp24 >= 5);
 
 				completed = checkFinished(completed);
 
@@ -1279,14 +1282,10 @@ After all, death is never the end in Antorax...<br>
 			levelRequirement: 5,
 			questRequirements: ["A 'Spark' of Imagination"],
 
+			autofinish: true,
+
 			rewards: {
 				xp: 50,
-				items: [
-					{item: Items.currency[2], quantity: 2,}, // 2 gold
-				],
-				reputation: {
-					eaglecrestCity: 20,
-				},
 			},
 
 		},

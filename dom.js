@@ -1579,8 +1579,14 @@ Dom.quest.start = function (quest, npc) {
 			Dom.elements.questStartName.innerHTML = quest.startName || quest[Player.areaName].startName;
 			Dom.elements.questStartChat.innerHTML = quest.startChat || quest[Player.areaName].startChat;
 			Dom.elements.questStartObjectives.innerHTML = "";
+			let isHidden = [];
+			if (quest.isHidden !== undefined) {
+				isHidden = quest.isHidden();
+			}
 			for (let i = 0; i < (quest.objectives || quest[Player.areaName].objectives).length; i++) {
-				Dom.elements.questStartObjectives.innerHTML += "<br>" + (quest.objectives || quest[Player.areaName].objectives)[i];
+				if (!isHidden[i]) {
+					Dom.elements.questStartObjectives.innerHTML += "<br>" + (quest.objectives || quest[Player.areaName].objectives)[i];
+				}
 			}
 
 			// xp rewards
@@ -2863,7 +2869,7 @@ Dom.inventory.remove = function (num, all, array) { // array is optional
 		stackNum = "bankStackNum";
 	}
 
-	if (Items[array[num].type][array[num].id].onRemove !== undefined) {
+	if (array[num].image !== undefined && !array[num].unidentified && Items[array[num].type][array[num].id].onRemove !== undefined) {
 		Items[array[num].type][array[num].id].onRemove();
 	}
 
@@ -3209,9 +3215,33 @@ Dom.inventory.validateSwap = function () {
 	Dom.inventory.fromArray[Dom.inventory.fromId].opens.type === Dom.inventory.toArray[Dom.inventory.toId].type &&
 	Dom.inventory.fromArray[Dom.inventory.fromId].opens.id === Dom.inventory.toArray[Dom.inventory.toId].id) {
 		Dom.inventory.toArray[Dom.inventory.toId].onOpen(Dom.inventory.toId, Dom.inventory.fromArray[Dom.inventory.fromId].name);
-		Dom.inventory.fromArray[Dom.inventory.fromId] = {};
-		Dom.inventory.fromElement.innerHTML = "";
-		return false;
+		if (Dom.inventory.fromArray[Dom.inventory.fromId].stacked > 1) {
+			Dom.inventory.fromArray[Dom.inventory.fromId].stacked--;
+		}
+		else {
+			Dom.inventory.fromArray[Dom.inventory.fromId] = {};
+			Dom.inventory.toElement.innerHTML = "";
+		}
+		//return false;
+		// swap the code for the items
+		let temp = this.toArray[this.toId];
+		this.toArray[this.toId] = this.fromArray[this.fromId];
+		this.fromArray[this.fromId] = temp;
+	}
+
+	// reversible version of key dropped on chest - e.g. fire resistant cloth
+	if (Dom.inventory.toArray[Dom.inventory.toId].opens !== undefined && Dom.inventory.toArray[Dom.inventory.toId].opens.reversible &&
+	Dom.inventory.toArray[Dom.inventory.toId].opens.type === Dom.inventory.fromArray[Dom.inventory.fromId].type &&
+	Dom.inventory.toArray[Dom.inventory.toId].opens.id === Dom.inventory.fromArray[Dom.inventory.fromId].id) {
+		Dom.inventory.fromArray[Dom.inventory.fromId].onOpen(Dom.inventory.fromId, Dom.inventory.toArray[Dom.inventory.toId].name);
+		if (Dom.inventory.toArray[Dom.inventory.toId].stacked > 1) {
+			Dom.inventory.toArray[Dom.inventory.toId].stacked--;
+		}
+		else {
+			Dom.inventory.toArray[Dom.inventory.toId] = {};
+			Dom.inventory.toElement.innerHTML = "";
+		}
+		// doesn't return false because they should be switched
 	}
 
 	// invalid drag to equip slot
@@ -3568,7 +3598,7 @@ Dom.inventory.removeEquipment = function (array) {
 	Dom.inventory.afterChangedStats();
 }
 
-Dom.inventory.addEquipment = function (array) {
+Dom.inventory.addEquipment = function (array, noSet) {
 	// remove slot background
 	let element = "weapon";
 	if (array.type !== "rod" && array.type !== "sword" && array.type !== "staff" && array.type !== "bow") {
@@ -3587,7 +3617,7 @@ Dom.inventory.addEquipment = function (array) {
 			}
 		}
 	}
-	if (array.set !== undefined) {
+	if (array.set !== undefined && !noSet) {
 		Dom.inventory.noSet = false;
 		for (let i = 0; i < Items.set[array.set].armour.length; i++) {
 			if (Player.inventory.helm.name !== Items.set[array.set].armour[i] && Player.inventory.chest.name !== Items.set[array.set].armour[i] && Player.inventory.greaves.name !== Items.set[array.set].armour[i] && Player.inventory.boots.name !== Items.set[array.set].armour[i]) {
@@ -3995,7 +4025,7 @@ Dom.buyer.page = function (npc) {
 							});
 						}
 						else {
-							Dom.alert.page("Are you sure you want to sell <strong>"+(Player.inventory.items[i].sellQuantity > 1 ? Player.inventory.items[i].sellQuantity+" " : "")+(Player.inventory.items[i].unidentified ? "unidentified "+Player.inventory.items[i].type : Player.inventory.items[i].name)+"</strong> for <strong>"+(Player.inventory.items[i].charges === undefined ? Player.inventory.items[i].sellPrice : Math.ceil(Player.inventory.items[i].sellPrice / (Player.inventory.items[i].maxCharges / Player.inventory.items[i].charges)))+" "+Items.currency[Player.inventory.items[i].sellCurrency].name.toLowerCase()+"</strong>? You cannot buy it back!", 2, undefined, "buyerPage", {
+							Dom.alert.page("Are you sure you want to sell <strong>"+(Player.inventory.items[i].sellQuantity > 1 ? Player.inventory.items[i].sellQuantity+" " : "")+(Player.inventory.items[i].unidentified ? "Unidentified "+Player.inventory.items[i].type[0].toUpperCase()+Player.inventory.items[i].type.substring(1) : Player.inventory.items[i].name)+"</strong> for <strong>"+(Player.inventory.items[i].charges === undefined ? Player.inventory.items[i].sellPrice : Math.ceil(Player.inventory.items[i].sellPrice / (Player.inventory.items[i].maxCharges / Player.inventory.items[i].charges)))+" "+Items.currency[Player.inventory.items[i].sellCurrency].name.toLowerCase()+"</strong>? You cannot buy it back!", 2, undefined, "buyerPage", {
 								target: Dom.buyer.remove,
 								ev: [i],
 							});
@@ -5972,17 +6002,25 @@ Dom.testing.completeQuest = function (quest, acceptRewards, notStart) {
 let defaultStats = Object.assign({}, Player.stats);
 
 Dom.testing.resetStats = function () {
+
 	/*for (let i = 0; i < 5; i++) {
 		if (Object.values(Player.inventory)[i].image !== undefined) {
 			Dom.inventory.removeEquipment(Object.values(Player.inventory)[i]);
 		}
 	}*/
 
+	let maxHealth = Player.stats.maxHealth;
 	Player.stats = Object.assign({}, defaultStats);
+	Player.stats.maxHealth = maxHealth;
+	let noSet = false;
 
 	for (let i = 0; i < 5; i++) {
 		if (Object.values(Player.inventory)[i].image !== undefined) {
-			Dom.inventory.addEquipment(Object.values(Player.inventory)[i]);
+			Dom.inventory.addEquipment(Object.values(Player.inventory)[i], noSet);
 		}
+		noSet = true;
 	}
+
+	Game.inventoryUpdate();
+	Game.equipmentUpdate();
 }

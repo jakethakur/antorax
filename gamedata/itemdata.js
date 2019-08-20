@@ -1943,6 +1943,7 @@ var Items = {
 			opens: {
 				type: "consumable",
 				id: 25,
+				reversible: true,
 			},
 		},
 		{
