@@ -2285,6 +2285,33 @@ var Items = {
 			image: "assets/items/item/29.png",
 			stack: 64,
 		},
+		{
+			id: 30,
+			name: "Lavender",
+			type: "item",
+			category: "flower",
+			junk: true,
+			image: "assets/items/item/30.png",
+			stack: 64,
+		},
+		{
+			id: 31,
+			name: "Marigold",
+			type: "item",
+			category: "flower",
+			junk: true,
+			image: "assets/items/item/31.png",
+			stack: 64,
+		},
+		{
+			id: 32,
+			name: "Daisy",
+			type: "item",
+			category: "flower",
+			junk: true,
+			image: "assets/items/item/32.png",
+			stack: 64,
+		},
 	],
 	consumable: [
 		{
@@ -3430,7 +3457,12 @@ var Items = {
                 if (!Player.inventory.items[inventoryPosition].locked) {
                     // open loot page
                     Dom.loot.currentId = "i"+inventoryPosition; // so that Game.lootClosed knows to set its loot back to whatever wasn't looted (and remove the item if there isn't anything left)
-                    Dom.choose.page("Sunken Chest", ["Loot chest!"], [Dom.loot.page], [["Sunken Chest", Player.inventory.items[inventoryPosition].loot]]);
+					Dom.choose.page([{
+                        npc: "Sunken Chest",
+                        buttons: ["Loot chest!"],
+                        functions: [Dom.loot.page],
+                        parameters: [["Sunken Chest", Player.inventory.items[inventoryPosition].loot]]
+                    }]);
                 }
             },
 		},
@@ -4055,7 +4087,7 @@ const WeaponRanges = {
 };
 
 // returns total number of items in archaeology
-GetTotalArchaeologyItems = function () {
+function GetTotalArchaeologyItems() {
 	let total = 0;
 	if (User !== undefined) {
 		for (var i = 0; i < 7; i++) {
@@ -4067,4 +4099,35 @@ GetTotalArchaeologyItems = function () {
 		}
 	}
 	return total;
+}
+
+// unidentified item constructor
+// area = lootArea name
+function UnId (area, tier) {
+    this.area = area;
+    this.tier = tier;
+    let types = ["helm", "chest", "greaves", "boots", "sword", "staff", "bow"];
+    this.typeNum = Random(0, 4);
+    if (this.typeNum === 4) {
+        if (Player.class === "m") {
+            this.typeNum++;
+        }
+		else if (Player.class === "a") {
+            this.typeNum += 2;
+        }
+    }
+    this.type = types[this.typeNum];
+    this.image = "assets/items/"+this.type+"/unidentified.png";
+    this.rarityNum = Random(0, 25-1);
+    if (this.rarityNum < 18) {
+    	this.rarity = "common";
+    }
+	else if (this.rarityNum < 24) {
+        this.rarity = "unique";
+    }
+	else {
+        this.rarity = "mythic";
+    }
+    this.unidentified = true;
+    this.sellPrice = 1;
 }

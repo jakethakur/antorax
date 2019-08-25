@@ -25,13 +25,22 @@ Weather.init = function () {
 
 	// set a timeout for updating weather and time (for efficiency)
 	// every 10s
-	setInterval(function () {
-		if (document.getElementById("weatherOn").checked) {
-			Weather.updateVariables();
-			Event.updateTime(Game.areaName);
+	setInterval(this.tick, 10000);
+	// also tick once on init
+	this.tick(true);
+}
+
+// called every 10 seconds from Weather.init interval
+// init is set to true if this is called on init
+Weather.tick = function (init) {
+	if (document.getElementById("weatherOn").checked) {
+		Weather.updateVariables();
+		Event.updateTime(Game.areaName);
+		if (!init) {
+			// not called on init
 			Game.dayNightUpdate();
 		}
-	}, 10000);
+	}
 }
 
 // called by Game.loadArea
@@ -63,7 +72,7 @@ Weather.chooseWeather = function (areaName) {
 		});
 	}
 	else if ((this.dateValue / 40) % 7 < 1) {
-	//else if (this.date.getSeconds() > 30) { // for testing
+	//else if ((new Date()).getSeconds() > 30) { // for testing
 		if (Areas[areaName].isIcy !== undefined && Areas[areaName].isIcy()) {
 			// icy area - snow instead of rain
 			this.weatherType = "snow";
@@ -85,6 +94,21 @@ Weather.chooseWeather = function (areaName) {
 
 		// update conditional stats
 		Dom.inventory.conditionalStats();
+
+		// if weather is now rain and was not previously, call onRainStart function of area
+		if ((this.weatherType === "rain" || this.weatherType === "fish") &&
+		(oldWeatherType !== "rain" && oldWeatherType !== "fish")) {
+			if (Areas[areaName].onRainStart !== undefined) {
+				Areas[areaName].onRainStart();
+			}
+		}
+		// if weather is now clear and was not previously, call onRainStop function of area
+		else if ((this.weatherType === "clear" || this.weatherType === "snow") &&
+		(oldWeatherType !== "clear" && oldWeatherType !== "snow")) {
+			if (Areas[areaName].onRainStop !== undefined) {
+				Areas[areaName].onRainStop();
+			}
+		}
 	}
 }
 

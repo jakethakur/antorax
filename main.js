@@ -1263,6 +1263,8 @@ class Character extends Thing {
 		if (properties.addToObjectArrays !== false) {
 			Game.allCharacters.push(this); // array for current area only
 		}
+
+		this.hideNameTag = properties.hideNameTag; // if name tag should be hidden
 	}
 
 	// insert a message into the chat, under the format of "this.name: message"
@@ -1312,7 +1314,7 @@ class Character extends Thing {
 		}
 
 		// call onExpire
-		if (this.statusEffects[index].onExpire !== undefined && Dom.inventory.check(28, "")) {
+		if (this.statusEffects[index].onExpire !== undefined && Dom.inventory.check(28, "item")) {
 			this.statusEffects[index].onExpire(this);
 		}
 
@@ -2280,7 +2282,7 @@ class Hero extends Attacker {
 				else if (Player.inventory.weapon.type === "rod" && this.channelling === false) {
 					// fishing rod (bobber has not been cast yet)
 					this.fishingBobs = 0; // number of times that the fishing bobber has bobbed
-					if (Weather.type === "rain") {
+					if (Weather.weatherType === "rain") {
 						this.fishingBobs = 1; // faster to get fish when it is raining
 					}
 
@@ -2310,7 +2312,7 @@ class Hero extends Attacker {
 
 						// timer for first bob
 						let bobTime = Random(1000, 12000);
-						if (Weather.type === "rain") {
+						if (Weather.weatherType === "rain") {
 							// shorter bobTime if it is raining
 							bobTime = Math.round(bobTime / 2); // now 500 to 6000
 						}
@@ -3208,6 +3210,12 @@ class Villager extends NPC {
 
 		this.boundary = properties.boundary; // object of rectangle that the npc cannot walk out of (x, y, width, height)
 
+		if (this.boundary === undefined && Areas[Game.areaName].villagerData !== undefined) {
+			// random boundary from the villagerdata of the villager's arealet locationIndex = Math.round(i + (this.villagerSeed*2)) % Areas[areaName].villagerData.locations.length;
+			let locationIndex = Math.round(i + (Game.villagerSeed*2)) % Areas[Game.areaName].villagerData.locations.length;
+			this.boundary = Areas[Game.areaName].villagerData.locations[locationIndex];
+		}
+
 		// random position inside the boundary
 		this.x = Random(this.boundary.x, this.boundary.x+this.boundary.width);
 		this.y = Random(this.boundary.y, this.boundary.y+this.boundary.height);
@@ -3670,13 +3678,18 @@ class LootChest extends Thing {
 	}
 
 	openLoot (arrayIndex) {
-		Dom.choose.page(this, ["Loot chest"], [function (chest) {
-			Dom.loot.page(chest.name, chest.loot);
-			Dom.loot.currentId = "c"+arrayIndex;
-			// "c"+i is a string that allows the loot menu to be identified - c means chest, and arrayIndex is the index of the enemy in Game.chests
-			// the loot menu closes when the area changes anyway, so this will always work
-			// Dom.loot.currentId is only ever used in main, in the function Game.lootClosed() (called by index.html)
-		}], [[this]]);
+		Dom.choose.page([{
+            npc: this,
+            buttons: ["Loot chest"],
+            functions: [function (chest) {
+                Dom.loot.page(chest.name, chest.loot);
+                Dom.loot.currentId = "c"+arrayIndex;
+                // "c"+i is a string that allows the loot menu to be identified - c means chest, and arrayIndex is the index of the enemy in Game.chests
+                // the loot menu closes when the area changes anyway, so this will always work
+                // Dom.loot.currentId is only ever used in main, in the function Game.lootClosed() (called by index.html)
+            }],
+            parameters: [[this]]
+        }]);
 	}
 }
 
@@ -5179,8 +5192,9 @@ Game.loadArea = function (areaName, destination) {
 	// wipe previously loaded images (except exceptions - based on deleteif)
 	Loader.wipeImages();
 
-	// set game time of day and event
+	// set event
 	Event.updateEvent();
+	// set time of day
 	Event.updateTime(areaName);
 
 	// load images
@@ -5188,18 +5202,18 @@ Game.loadArea = function (areaName, destination) {
     let p = this.loadImages(Areas[areaName].images);
 
 	// load in randomly generated villagers if the area has data for them
-	let seed, possibleVillagers, villagersToAdd;
+	let possibleVillagers, villagersToAdd;
 	if (Areas[areaName].villagerData !== undefined) {
 		let returnValues = this.generateVillagers(Areas[areaName].villagerData, areaName);
 		p = p.concat(returnValues.p); // more images to be loaded
 		// variables used to create villager objects
-		seed = returnValues.seed;
+		this.villagerSeed = returnValues.seed; // changed each area; saved in game because villager constructor needs it for non generated villagers
 		possibleVillagers = returnValues.possibleVillagers;
 		villagersToAdd = returnValues.villagersToAdd;
 	}
 
 	// check that default images are loaded (e.g. player, status effect, etc.) and add any that aren't to toLoad
-	p.push(...Game.loadDefaultImages());
+	p.push(...this.loadDefaultImages());
 
 	// wait until images have been loaded
     Promise.all(p).then(function (loaded) {
@@ -5263,6 +5277,11 @@ Game.loadArea = function (areaName, destination) {
 		if (this.camera !== undefined) {
 			// set maximum x and y positions of camera
 			this.camera.setMaxClampValues();
+
+
+			// update viewportOffset and canvasArea variables
+			// (otherwise called on init)
+			this.updateCanvasViewport();
 		}
 
 		//
@@ -5391,8 +5410,8 @@ Game.loadArea = function (areaName, destination) {
 				let villager = possibleVillagers[villagersToAdd[i]];
 
 				// pick random location for villager based on random seed and length of its name
-				// changes approximately every 200 minutes
-				let locationIndex = Math.round(i + (seed/4)) % Areas[areaName].villagerData.locations.length;
+				// changes approximately every 25 minutes
+				let locationIndex = Math.round(i + (this.villagerSeed*2)) % Areas[areaName].villagerData.locations.length;
 				villager.boundary = Areas[areaName].villagerData.locations[locationIndex];
 
 				if (this.prepareNPC(villager, "villagers")) {
@@ -5435,9 +5454,6 @@ Game.loadArea = function (areaName, destination) {
 			// function to set the variable
 			this.displayOnCanvas(title, subtitles, 2);
 		}
-
-		// update viewportOffset and canvasArea variables
-		this.updateCanvasViewport();
 
 		// update y position of inforbar (in case there is a viewport offset y)
 		Dom.infoBar.updateYPosition();
@@ -5505,11 +5521,6 @@ Game.loadArea = function (areaName, destination) {
 		// render secondary canvas
 		this.secondary.render();
 
-		// decide on weather
-		Weather.updateVariables(); // includes choosing weather and populating particleArray
-		// incorporate weather into time
-		Event.updateTime(areaName);
-
 		// if it is nighttime, change all daytime tiles to their nighttime versions
 		map.setDayNightTiles();
 		// same for things' images ...
@@ -5558,21 +5569,18 @@ Game.loadArea = function (areaName, destination) {
 
 		// animations
 		// tick called every 100s (perhaps change in future?)
-		if (this.animationList.length > 0) {
-			this.totalAnimationTime = 0; // used to find if animate should be called for an object
+		this.totalAnimationTime = 0; // used to find if animate should be called for an object
+		this.animationTick = setInterval(function () {
+			Game.totalAnimationTime += 100;
 
-			this.animationTick = setInterval(function () {
-				Game.totalAnimationTime += 100;
-
-				for (let i = 0; i < Game.animationList.length; i++) {
-					if (Game.animationList[i].lastAnimated + Game.animationList[i].animationFrameTime <= Game.totalAnimationTime) {
-						// should be animated
-						Game.animationList[i].animate();
-						Game.animationList[i].lastAnimated = Game.totalAnimationTime;
-					}
+			for (let i = 0; i < Game.animationList.length; i++) {
+				if (Game.animationList[i].lastAnimated + Game.animationList[i].animationFrameTime <= Game.totalAnimationTime) {
+					// should be animated
+					Game.animationList[i].animate();
+					Game.animationList[i].lastAnimated = Game.totalAnimationTime;
 				}
-			}, 100);
-		}
+			}
+		}, 100);
 
 		// time travel fog
 		/*
@@ -5743,6 +5751,9 @@ Game.init = function () {
     this.camera = new Camera({map: map, width: Dom.canvas.width, height: Dom.canvas.height, addToObjectArrays: false});
     this.camera.follow(this.hero);
 
+	// update viewportOffset and canvasArea variables (would not have been done yet since camera did not exist; needed for weather)
+	this.updateCanvasViewport();
+
 	// init weather
 	Weather.init();
 
@@ -5828,8 +5839,9 @@ Game.initStatusEffects = function () {
 
 // init an NPC for being added by loadArea
 // returns true/false depending on if the NPC should be shown
-Game.prepareNPC = function (npc, type) {
-	if (this.canBeShown(npc) && this.bossCanBeShown(npc)) {
+// overrideCanBeShown set to true means that function will run even if it would return false, and will also return true (to indicate npc added)
+Game.prepareNPC = function (npc, type, overrideCanBeShown) {
+	if ((this.canBeShown(npc) && this.bossCanBeShown(npc)) || overrideCanBeShown) {
 		this.setInformationFromTemplate(npc);
 
 		npc.map = map;
@@ -6120,10 +6132,11 @@ Game.generateVillagers = function (data, areaName) {
 	// vary seed based on area as well
 	seed += Areas[areaName].id/3;
 
-	// find possible villagers for the area
+	// find possible villagers for the area (and based on their canBeShown condition)
 	let possibleVillagers = Villagers.filter(villager => {
-		return (villager.areas !== undefined && villager.areas.includes(areaName)) ||
-			(villager.exceptAreas !== undefined && !villager.exceptAreas.includes(areaName));
+		return ((villager.areas !== undefined && villager.areas.includes(areaName)) ||
+			(villager.exceptAreas !== undefined && !villager.exceptAreas.includes(areaName))) &&
+			(villager.canBeShown === undefined || villager.canBeShown());
 	});
 
 	// loop through possible villagers, picking them based the number of possible villagers in the area
@@ -6381,7 +6394,9 @@ Game.update = function (delta) {
 	// User interaction
 	//
 
-	// check collision with npcs - includes quest givers, quest finishers, merchants, soul healers, more TBA
+	// check collision with npcs - includes quest givers, quest finishers, merchants, soul healers, etc.
+	let choosePageInformation = []; // parameter for Dom.choose.page, called with the information of any NPCs being touched
+
 	for (let i = 0; i < this.allNPCs.length; i++) { // iterate though npcs
 
 		let npc = this.allNPCs[i];
@@ -6393,7 +6408,7 @@ Game.update = function (delta) {
 			canSpeak = false;
 		}
 		else if (Dom.currentlyDisplayed === npc.name) {
-			// it is not already currently displayed
+			// it is already currently displayed
 			canSpeak = false;
 		}
 		else if (npc.respawning) {
@@ -6717,7 +6732,14 @@ Game.update = function (delta) {
 			if (functionArray.length > 0) {
 				// npc can be spoken to, hence choose DOM should be opened
 				// Dom.choose.page checks whether or not the DOM is occupied, and handles red flashing of close button
-				Dom.choose.page(npc, textArray, functionArray, parameterArray, forceChoose);
+				// if two npcs are being touched at the same time and DOM is not occupied, both of their choose pages will be shown
+				choosePageInformation.push({
+					npc: npc,
+					buttons: textArray,
+					functions: functionArray,
+					parameters: parameterArray,
+					force: forceChoose
+				});
 				// if there is only one thing that can be chosen between, choose DOM handles this and just skips itself straight to that one thing
 			}
 			else {
@@ -6749,6 +6771,10 @@ Game.update = function (delta) {
 			}
 		}
 	} // finished iterating through npcs
+
+	// choose page based on all npcs being touched when spcae bar is pressed (just in case there are two npcs on top of each other)
+	Dom.choose.page(choosePageInformation);
+
 
 	// update villagers
 	for (let i = 0; i < this.villagers.length; i++) {
@@ -6794,13 +6820,18 @@ Game.update = function (delta) {
 
 			if (canBeLooted) {
 				// looting page
-				Dom.choose.page(this.enemies[i], ["Loot enemy"], [function () {
-					Dom.loot.page(Game.enemies[i].name, Game.enemies[i].loot);
-					Dom.loot.currentId = "e"+i;
-					// "e"+i is a string that allows the loot menu to be identified - e means enemy, and i is the index of the enemy in Game.enemies
-					// the loot menu closes when the area changes anyway, so this will always work
-					// Dom.loot.currentId is only ever used in main, in the function Game.lootClosed() (called by index.html)
-				}], [[]]);
+				Dom.choose.page([{
+                    npc: this.enemies[i],
+                    buttons: ["Loot enemy"],
+                    functions: [function () {
+                        Dom.loot.page(Game.enemies[i].name, Game.enemies[i].loot);
+                        Dom.loot.currentId = "e"+i;
+                        // "e"+i is a string that allows the loot menu to be identified - e means enemy, and i is the index of the enemy in Game.enemies
+                        // the loot menu closes when the area changes anyway, so this will always work
+                        // Dom.loot.currentId is only ever used in main, in the function Game.lootClosed() (called by index.html)
+                    }],
+                    parameters: [[]]
+                }]);
 			}
 		}
 
@@ -6890,7 +6921,12 @@ Game.update = function (delta) {
 		}
 
 		if (canBeOpened) {
-			Dom.choose.page(mailbox, ["Check mail"], [Dom.mail.page], [[]]);
+			Dom.choose.page([{
+                npc: mailbox,
+                buttons: ["Check mail"],
+                functions: [Dom.mail.page],
+                parameters: [[]],
+            }]);
 		}
 
 		// check if the currently displayed DOM is for the current mailbox in the for loop
@@ -6912,7 +6948,13 @@ Game.update = function (delta) {
 			if (this.minigameInProgress === undefined || !this.minigameInProgress.playing) {
 				// normal interaction
 				// true = force choose dom
-				Dom.choose.page(player, ["Trade with this player"], [Dom.trade.request], [[player.userID, player.name]], true);
+				Dom.choose.page([{
+                    npc: player,
+                    buttons: ["Trade with this player"],
+                    functions: [Dom.trade.request],
+                    parameters: [[player.userID, player.name]],
+                    force: true,
+                }]);
 			}
 			else {
 				// can't interact with other players normally
@@ -7818,7 +7860,9 @@ Game.drawCharacterInformation = function (ctx, character) {
 		characterInformationHeight += 2; // padding for name
 	}
 
-	this.drawCharacterName(ctx, character, character.screenX, character.screenY - character.height / 2 - characterInformationHeight - 3);
+	if (!character.hideNameTag) { // some characters want to hide thier name tag
+		this.drawCharacterName(ctx, character, character.screenX, character.screenY - character.height / 2 - characterInformationHeight - 3);
+	}
 }
 
 // draw a health bar (on given context, for given character, at given position, with given dimensions)
