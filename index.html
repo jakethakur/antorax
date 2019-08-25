@@ -223,7 +223,7 @@
 		<div id="questFinishXP"></div><span id="xpClass">&nbsp;&nbsp;</span>
 		<div id="questFinishItems"></div>
 		<div id="acceptReward" class="closeClass" onclick="Dom.quest.acceptRewards();">Complete Quest</div>
-		<div id="declineReward" class="closeClass" onclick="Dom.closePage('questFinish');">Not Now</div>
+		<div id="declineReward" class="closeClass" onclick="Dom.quest.declineRewards();">Not Now</div>
 		<img id="chanceImage" src="./assets/icons/bag.png" hidden></img>
 		<p id="chance" hidden>You do not have enough inventory space to hold all of the possible rewards from this quest. If you complete it now, there is a chance you might not get as many rewards as you could.</p>
 	</div>
@@ -299,9 +299,9 @@
 		<div id="choosePageContent"></div>
 	</div>
 	<div id="textPage" hidden class="DOM"></div>
-	
+
 	<ul id="chat"></ul>
-	
+
 	<div id="bookmarks">
 		<img id="changeChat" class="changePage" src="assets/icons/Tag1.png" onclick="Dom.changeBook('chatPage', true)"></img>
 		<!--<span id="dot" onclick="Dom.changeBook('chatPage', true)" hidden></span>-->
@@ -317,11 +317,11 @@
 	<script src="./gamedata/skindata.js"></script>
 	<script src="./gamedata/itemdata.js"></script>
 	<script src="./gamedata/lootdata.js"></script>
-	<script src="./gamedata/enemydata.js"></script>
 	<script src="./gamedata/savedata.js"></script>
 	<script src="./gamedata/adventuredata.js"></script>
 	<script src="./gamedata/achievementdata.js"></script>
 	<script src="./gamedata/questdata.js"></script>
+	<script src="./gamedata/enemydata.js"></script>
 	<script src="./gamedata/areadata.js"></script>
 	<script src="./dom.js"></script>
 	<script src="./main.js"></script>

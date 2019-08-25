@@ -454,6 +454,10 @@ function Romanize (num) {
 	return roman;
 }
 
+function ToObjectKey (str) {
+	return ToCamelCase(str).replace(/[^a-zA-Z]/g, "");
+}
+
 function ToCamelCase (str) {
 	let array = str.split(" ");
 	let camelCase = "";

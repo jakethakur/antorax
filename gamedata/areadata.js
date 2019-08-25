@@ -297,6 +297,8 @@ var Areas = {
 			fisherman: {normal: "assets/npcs/tobenam.png"},
 			weaponsmithSign: {normal: "assets/objects/weaponsmithSign.png"},
 			eaglecrestBanner: {normal: "assets/objects/eaglecrestBanner.png"},
+			torianTintop: {normal: "assets/npcs/torianTintop.png"},
+			nessyTintop: {normal: "assets/npcs/nessyTintop.png"},
 		},
 
 		areaTeleports: [
@@ -473,6 +475,27 @@ var Areas = {
 					return Player.quests.completedQuestArray.includes("To the Logging Camp");
 				},
 			},
+
+			{
+				template: NPCTemplates.torianTintop,
+				x: 3210,
+				y: 395,
+				z: -1,
+				canBeShown: function () {
+					return Player.quests.activeQuestArray.includes("A Tale of Two Twintops") &&
+					Player.quests.timesCompleted.eaglecrestLoggingCamp[25] === 2;
+				}
+			},
+			{
+				template: NPCTemplates.nessyTintop,
+				x: 3600,
+				y: 266,
+				orderOffsetY: -10,
+				canBeShown: function () {
+					return Player.quests.activeQuestArray.includes("A Tale of Two Twintops") &&
+					Player.quests.timesCompleted.eaglecrestLoggingCamp[25] === 9;
+				}
+			},
 		],
 
 		things: [
@@ -532,7 +555,6 @@ var Areas = {
 			},*/
 		],
 	},
-
 
 	eaglecrestLoggingCamp: {
 		id: 1,
@@ -648,6 +670,9 @@ var Areas = {
 			driver: {normal: "assets/npcs/alaran.png"},
 			eaglecrestBanner: {normal: "assets/objects/eaglecrestBanner.png"},
 			nilbogBanner: {normal: "assets/objects/nilbogBanner.png"},
+			torianTintop: {normal: "assets/npcs/torianTintop.png"},
+			nessyTintop: {normal: "assets/npcs/nessyTintop.png"},
+			present: {normal: "assets/objects/present.png"},
 		},
 
 		onAreaJoin: function () {
@@ -1188,7 +1213,7 @@ var Areas = {
 						showCloseButton: true,
 						forceChoose: true, // forces choose dom
 						roleRequirement: function () {
-							return Player.quests.npcProgress.loggingCamp24 === 2;
+							return Player.quests.npcProgress.eaglecrestLoggingCamp[24] === 2;
 						}
 					},
 				],
@@ -1244,6 +1269,166 @@ var Areas = {
 					antoraxDayGreeting: "Hey, happy Antorax Day! The fireworks are really spectacular in Eaglecrest - planning on heading there today?",
 				},
 			},
+
+			{
+				// id: 9 (if changed then update hide and seek onQuestStart)
+				template: NPCTemplates.torianTintop,
+				x: 285,
+				y: 750,
+				z: -1,
+				canBeShown: function () {
+					return Player.quests.activeQuestArray.includes("A Tale of Two Twintops") &&
+					Player.quests.timesCompleted.eaglecrestLoggingCamp[25] === null;
+				}
+			},
+			{
+				template: NPCTemplates.torianTintop,
+				x: 870,
+				y: 1200,
+				z: -1,
+				canBeShown: function () {
+					return Player.quests.activeQuestArray.includes("A Tale of Two Twintops") &&
+					Player.quests.timesCompleted.eaglecrestLoggingCamp[25] === 4;
+				}
+			},
+			{
+				template: NPCTemplates.nessyTintop,
+				x: 2080,
+				y: 305,
+				canBeShown: function () {
+					return Player.quests.activeQuestArray.includes("A Tale of Two Twintops") &&
+					Player.quests.timesCompleted.eaglecrestLoggingCamp[25] === 5;
+				}
+			},
+			{
+				template: NPCTemplates.torianTintop,
+				x: 725,
+				y: 350,
+				canBeShown: function () {
+					return Player.quests.activeQuestArray.includes("A Tale of Two Twintops") &&
+					Player.quests.timesCompleted.eaglecrestLoggingCamp[25] === 8;
+				}
+			},
+
+			{
+				image: "torianTintop",
+				name: "Torian Tintop",
+				x: 700,
+				y: 700,
+				level: 7,
+				stats: {
+					maxHealth: 85,
+					defence: 4,
+					walkSpeed: 130,
+				},
+				hostility: "friendly",
+				roles: [
+					{
+						quest: Quests.eaglecrestLoggingCamp[25],
+						role: "questStart",
+					},
+				],
+				chat: {
+					questProgress: "tbd",
+					questComplete: "tbd",
+				},
+				canBeShown: function () {
+					return Player.quests.timesCompleted.eaglecrestLoggingCamp[25] === 10;
+				},
+			},
+
+			{
+				image: "nessyTintop",
+				name: "Nessy Tintop",
+				x: 780,
+				y: 705,
+				level: 4,
+				stats: {
+					maxHealth: 70,
+					defence: 3,
+					walkSpeed: 135,
+				},
+				hostility: "friendly",
+				roles: [
+					{
+						quest: Quests.eaglecrestLoggingCamp[25],
+						role: "questStart",
+					},
+				],
+				chat: {
+					questProgress: "tbd",
+					questComplete: "tbd",
+				},
+				canBeShown: function () {
+					return Player.quests.timesCompleted.eaglecrestLoggingCamp[25] === 10;
+				},
+			},
+		],
+
+		villagers: [
+
+			{
+				image: "torianTintop",
+				name: "Torian Tintop",
+				level: 7,
+				stats: {
+					maxHealth: 85,
+					defence: 4,
+					walkSpeed: 130,
+				},
+				hostility: "friendly",
+				roles: [
+					{
+						quest: Quests.eaglecrestLoggingCamp[25],
+						role: "questStart",
+					},
+				],
+				chat: {
+					questProgress: "tbd",
+					questComplete: "tbd",
+				},
+				canBeShown: function () {
+					return Player.quests.timesCompleted.eaglecrestLoggingCamp[25] % 2 === 1 && Player.quests.timesCompleted.eaglecrestLoggingCamp[25] < Quests.eaglecrestLoggingCamp[25].numberOfRepeats-1;
+				},
+				boundary: {
+					x: 39,
+					y: 140,
+					width: 2061,
+					height: 1232,
+				}
+			},
+
+			{
+				image: "nessyTintop",
+				name: "Nessy Tintop",
+				level: 4,
+				stats: {
+					maxHealth: 70,
+					defence: 3,
+					walkSpeed: 135,
+				},
+				hostility: "friendly",
+				roles: [
+					{
+						quest: Quests.eaglecrestLoggingCamp[25],
+						role: "questStart",
+					},
+				],
+				chat: {
+					questProgress: "tbd",
+					questComplete: "tbd",
+				},
+				canBeShown: function () {
+					return (Player.quests.timesCompleted.eaglecrestLoggingCamp[25] % 2 === 0 || Player.quests.timesCompleted.eaglecrestLoggingCamp[25] === null) && Player.quests.timesCompleted.eaglecrestLoggingCamp[25] < Quests.eaglecrestLoggingCamp[25].numberOfRepeats-1;
+				},
+				boundary: {
+					x: 39,
+					y: 140,
+					width: 2061,
+					height: 1232,
+				}
+			},
+
 		],
 
 		dummies: [
@@ -1377,8 +1562,29 @@ var Areas = {
 				animationFrameTime: 1100,
 			},
 		],
-	},
 
+		chests: [
+			{
+                x: 1530,
+                y: 1040,
+                image: "present",
+                name: "Tightly Packed Present", // from tintops
+                loot: [{item: Items.helm[20]}, {item: Items.currency[2], quantity: 2}, {item: Items.food[0]}, {item: new UnId("loggingCamp", 1)}],
+                inventorySpace: 8,
+                disappearAfterOpened: true,
+                canBeShown: function () {
+                    return Player.quests.activeQuestArray.includes("A Tale of Two Twintops") &&
+					Player.quests.timesCompleted.eaglecrestLoggingCamp[25] === 10;
+                },
+				onClose: function () {
+					Quests.eaglecrestLoggingCamp[25].autofinish = true;
+					Quests.eaglecrestLoggingCamp[25].finishName = "From Torian and Nessy Tintop";
+					Dom.checkProgress();
+				}
+            },
+		],
+
+	},
 
 	loggingCampTavern: {
 		id: 2,
@@ -1430,6 +1636,8 @@ var Areas = {
 			table: {normal: "assets/objects/table.png"},
 			largeTable: {normal: "assets/objects/largeTable.png"},
 			barrel: {normal: "assets/objects/barrel.png"},
+			torianTintop: {normal: "assets/npcs/torianTintop.png"},
+			nessyTintop: {normal: "assets/npcs/nessyTintop.png"},
 		},
 
 		areaTeleports: [
@@ -1530,6 +1738,26 @@ var Areas = {
 					christmasGreeting: "Ha, it's Christmas! Have a good 'un!",
 					antoraxDayGreeting: "Happy Antorax Day! I've lots o' birthday cakes if you want a break from all the fireworks out there.",
 				},
+			},
+
+			{
+				template: NPCTemplates.nessyTintop,
+				x: 36,
+				y: 1300,
+				canBeShown: function () {
+					return Player.quests.activeQuestArray.includes("A Tale of Two Twintops") &&
+					Player.quests.timesCompleted.eaglecrestLoggingCamp[25] === 1;
+				}
+			},
+			{
+				template: NPCTemplates.torianTintop,
+				x: 842,
+				y: 320,
+				z: -1,
+				canBeShown: function () {
+					return Player.quests.activeQuestArray.includes("A Tale of Two Twintops") &&
+					Player.quests.timesCompleted.eaglecrestLoggingCamp[25] === 6;
+				}
 			},
 		],
 
@@ -1953,6 +2181,8 @@ var Areas = {
 			campfire1: {normal: "assets/objects/campfire1.png"},
 			campfire2: {normal: "assets/objects/campfire2.png"},
 			campfire3: {normal: "assets/objects/campfire3.png"},
+			torianTintop: {normal: "assets/npcs/torianTintop.png"},
+			nessyTintop: {normal: "assets/npcs/nessyTintop.png"},
 		},
 
 		chestData: {
@@ -2027,7 +2257,7 @@ var Areas = {
 						role: "function",
 						onClick: function () {
 							Dom.chat.insert(Dom.chat.say("Goblin Torch", "Oh. Cloth is flammable. Must be improved. Make it fire resistant. Potion gives fire resistant. Potion might help?"));
-							Player.quests.npcProgress.loggingCamp24 = 2;
+							Player.quests.npcProgress.eaglecrestLoggingCamp[24] = 2;
 							Dom.inventory.removeById(3, "item");
 							Dom.inventory.give(Items.item[29]); // burnt cloth
 							Game.statusEffects.fire({
@@ -2047,14 +2277,14 @@ var Areas = {
 								Dom.chat.say("Goblin Torch", "Keep going. Feels good."),
 							], [2000, 2000], undefined, undefined);
 							Game.hero.channel(function () {
-								Player.quests.npcProgress.loggingCamp24 = 5;
+								Player.quests.npcProgress.eaglecrestLoggingCamp[24] = 5;
 								Dom.currentlyDisplayed = "";
 								Dom.currentNPC = {};
 								Dom.checkProgress();
 							}, [], 6000, "Cleaning Goblin Torch");
 						},
 						roleRequirement: function () {
-							return Player.quests.npcProgress.loggingCamp24 === 4 && Dom.inventory.check(27, "item", 1);
+							return Player.quests.npcProgress.eaglecrestLoggingCamp[24] === 4 && Dom.inventory.check(27, "item", 1);
 						}
 					},
 				],
@@ -2104,6 +2334,16 @@ var Areas = {
 				canBeShown: function () {
 					return Game.time === "bloodMoon";
 				},
+			},
+
+			{
+				template: NPCTemplates.nessyTintop,
+				x: 1900,
+				y: 150,
+				canBeShown: function () {
+					return Player.quests.activeQuestArray.includes("A Tale of Two Twintops") &&
+					Player.quests.timesCompleted.eaglecrestLoggingCamp[25] === 3;
+				}
 			},
 		],
 
@@ -3193,6 +3433,8 @@ var Areas = {
 			fireball: {normal: "assets/projectiles/fireball.png"}, // (ignored by loader if it is already loaded because of a mage player)
 			arrow: {normal: "assets/projectiles/arrow.png"}, // (ignored by loader if it is already loaded because of an archer player)
 			weaponRack: {normal: "assets/objects/weaponRack.png"},
+			torianTintop: {normal: "assets/npcs/torianTintop.png"},
+			nessyTintop: {normal: "assets/npcs/nessyTintop.png"},
 		},
 
 		areaTeleports: [
@@ -3241,6 +3483,19 @@ var Areas = {
 						};
 						Game.hero.updateRotation();
 					}
+				}
+			},
+		],
+
+		npcs: [
+			{
+				template: NPCTemplates.nessyTintop,
+				x: 490,
+				y: 145,
+				z: -2,
+				canBeShown: function () {
+					return Player.quests.activeQuestArray.includes("A Tale of Two Twintops") &&
+					Player.quests.timesCompleted.eaglecrestLoggingCamp[25] === 7;
 				}
 			},
 		],
@@ -4874,11 +5129,11 @@ var Areas = {
 						buttons: ["Close"],
 						forceChoose: true, // forces choose dom
 						functions: [function () {
-							Player.quests.npcProgress.loggingCamp24 = 3;
+							Player.quests.npcProgress.eaglecrestLoggingCamp[24] = 3;
 							Dom.closePage("textPage");
 						}],
 						roleRequirement: function () {
-							return Player.quests.npcProgress.loggingCamp24 === 2;
+							return Player.quests.npcProgress.eaglecrestLoggingCamp[24] === 2;
 						}
 					},
 					{
@@ -4889,7 +5144,7 @@ var Areas = {
                                 Dom.inventory.removeById(28, "item");
                                 Dom.inventory.give(Items.consumable[25]);
                                 Dom.reputation.give("eaglecrestCity", 20);
-                                Player.quests.npcProgress.loggingCamp24 = 4;
+                                Player.quests.npcProgress.eaglecrestLoggingCamp[24] = 4;
                                 Dom.text.page("Alchemist Tamtam", "<em>Tamtam's tail wags vivaciously.</em><br><br>You're baaaaack!!! And not on fire!!! Well doneeeee!!! Fire resistance potion for youuuuuuuu!!! <sup>Fireeeeeeeeeee!<sup>", true);
                             }
                             else {
@@ -4898,7 +5153,7 @@ var Areas = {
 						},
 						forceChoose: true, // forces choose dom
 						roleRequirement: function () {
-							return Player.quests.npcProgress.loggingCamp24 === 3 && Dom.inventory.check(28, "item");
+							return Player.quests.npcProgress.eaglecrestLoggingCamp[24] === 3 && Dom.inventory.check(28, "item");
 						}
 					},
 				],
@@ -5046,7 +5301,7 @@ var Areas = {
 							{
 								text: "If you're buying another fireroot, I would recommend using a potion of swiftness this time.",
 								condition: function () {
-									return Player.quests.npcProgress.loggingCamp24 === 3 && Player.quests.questProgress.firerootFailed;
+									return Player.quests.npcProgress.eaglecrestLoggingCamp[24] === 3 && Player.quests.questProgress.firerootFailed;
 								},
 							},
 							{

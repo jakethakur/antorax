@@ -126,7 +126,7 @@ let Dom = {
 		questFinishName: document.getElementById("questFinishName"),
 		questFinishQuest: document.getElementById("questFinishQuest"),
 		questFinishRewardsTitle: document.getElementById("questFinishRewardsTitle"),
-		questFinishStartItems: document.getElementById("questFinishStartItems"),
+		//questFinishStartItems: document.getElementById("questFinishStartItems"),
 		questFinishXP: document.getElementById("questFinishXP"),
 		questsPage: document.getElementById("questsPage"),
 		questStart: document.getElementById("questStart"),
@@ -415,6 +415,9 @@ Dom.quests.active = function (quest) {
 			Dom.quests.activeHTML[currentQuest.important] += "<br><br><strong>" + currentQuest.quest + "</strong>";
 			let completedObjectives = 0;
 			let objectives = currentQuest.objectives || currentQuest[Player.quests.questProgress[currentQuest.quest]].objectives;
+			if (Array.isArray(objectives[0]) && objectives.length > Player.quests.timesCompleted[currentQuest.questArea][currentQuest.id]) {
+				objectives = objectives[Player.quests.timesCompleted[currentQuest.questArea][currentQuest.id] || 0];
+			}
 			for (let i = 0; i < objectives.length; i++) {
 
 				// display the objective
@@ -435,7 +438,12 @@ Dom.quests.active = function (quest) {
 
 			}
 			if (currentQuest.autofinish && completedObjectives >= objectives.length-1) {
-				Dom.choose.page(currentQuest.finishName || currentQuest[Player.quests.questProgress[quest.quest]].finishName, ["Quest Finish: " + currentQuest.quest], [Dom.quest.finish], [[currentQuest]]);
+				Dom.choose.page([{
+					npc:currentQuest.finishName || currentQuest[Player.quests.questProgress[currentQuest.quest]].finishName,
+					buttons: ["Quest Finish: " + currentQuest.quest],
+					functions: [Dom.quest.finish],
+					parameters: [[currentQuest]],
+				}]);
 			}
 			else if (completedObjectives >= objectives.length-1 && !Player.quests.canBeFinishedArray.includes(currentQuest.quest)) {
 				Player.quests.canBeFinishedArray.push(currentQuest.quest);
@@ -679,13 +687,18 @@ Dom.hotbar.update = function () {
 Dom.instructions.index = function () {
 	// chooseDOM
 	if (Player.unlockedInstructions.length > 1) {
-		let parameters = ["Instructions", [], [], []];
+		let parameters = {
+			npc:"Instructions",
+			buttons: [],
+			functions: [],
+			parameters: []
+		};
 		for (let i = 0; i < Player.unlockedInstructions.length; i++) {
-			parameters[1].push(Instructions[i].chapterTitle);
-			parameters[2].push(Dom.instructions.page);
-			parameters[3].push([i, "index"]);
+			parameters.buttons.push(Instructions[i].chapterTitle);
+			parameters.functions.push(Dom.instructions.page);
+			parameters.parameters.push([i, "index"]);
 		}
-		Dom.choose.page(...parameters);
+		Dom.choose.page([parameters]);
 	}
 	// chat ONLY
 	else {
@@ -1573,19 +1586,27 @@ Dom.quest.start = function (quest, npc) {
 	if (quest.startRewards === undefined || quest.startRewards.items === undefined || Dom.inventory.requiredSpace(quest.startRewards.items)) {
 		if (Dom.changeBook("questStart")) {
 			if (quest.multipleAreas) {
-				Player.quests.questProgress[quest.quest] = Player.areaName;
+				Player.quests.questProgress[quest.quest] = ToObjectKey(npc.name);
 			}
 			Dom.elements.questStartQuest.innerHTML = quest.quest;
-			Dom.elements.questStartName.innerHTML = quest.startName || quest[Player.areaName].startName;
-			Dom.elements.questStartChat.innerHTML = quest.startChat || quest[Player.areaName].startChat;
+			Dom.elements.questStartName.innerHTML = quest.startName || quest[ToObjectKey(npc.name)].startName;
+			let startChat = quest.startChat || quest[ToObjectKey(npc.name)].startChat;
+			if (Array.isArray(startChat)) {
+				startChat = startChat[Player.quests.timesCompleted[quest.questArea][quest.id]];
+			}
+			let objectives = quest.objectives || quest[ToObjectKey(npc.name)].objectives;
+			if (Array.isArray(objectives[0])) {
+				objectives = objectives[Player.quests.timesCompleted[quest.questArea][quest.id] || 0];
+			}
+			Dom.elements.questStartChat.innerHTML = startChat;
 			Dom.elements.questStartObjectives.innerHTML = "";
 			let isHidden = [];
 			if (quest.isHidden !== undefined) {
 				isHidden = quest.isHidden();
 			}
-			for (let i = 0; i < (quest.objectives || quest[Player.areaName].objectives).length; i++) {
+			for (let i = 0; i < objectives.length; i++) {
 				if (!isHidden[i]) {
-					Dom.elements.questStartObjectives.innerHTML += "<br>" + (quest.objectives || quest[Player.areaName].objectives)[i];
+					Dom.elements.questStartObjectives.innerHTML += "<br>" + objectives[i];
 				}
 			}
 
@@ -1604,6 +1625,10 @@ Dom.quest.start = function (quest, npc) {
 					for (let i = 0; i < quest.rewards.services.length; i++) {
 						Dom.elements.questStartItems.innerHTML += "<img src='./assets/icons/" + quest.rewards.services[i].image + ".png' class='theseQuestServices'></img>&nbsp;&nbsp;";
 					}
+				}
+
+				if (quest.rewards.items === undefined) {
+					quest.rewards.items = [];
 				}
 
 				// item rewards
@@ -1761,12 +1786,28 @@ Dom.quest.addReward = function (item, element, className, stackNum) {
 	}
 }
 
+Dom.quest.declineRewards = function () {
+	let quest = Dom.currentlyDisplayed;
+	if (Player.quests.timesCompleted[quest.questArea][quest.id] === 1) {
+		Player.quests.timesCompleted[quest.questArea][quest.id] = null;
+	}
+	else if (Player.quests.timesCompleted[quest.questArea][quest.id] > 1) {
+		Player.quests.timesCompleted[quest.questArea][quest.id]--;
+	}
+	quest.rewards = Dom.quests.defaultRewards;
+	Dom.closePage('questFinish');
+}
+
 Dom.quest.finish = function (quest, npc) {
 	if (quest.rewards === undefined || quest.rewards.items === undefined || Dom.inventory.requiredSpace(quest.rewards.items)) {
 		if (Dom.changeBook("questFinish")) {//, true/*false*/, true)) {
 			Dom.elements.questFinishQuest.innerHTML = quest.quest;
-			Dom.elements.questFinishName.innerHTML = quest.finishName || quest[Player.areaName].finishName;
-			Dom.elements.questFinishChat.innerHTML = quest.finishChat || quest[Player.areaName].finishChat;
+			Dom.elements.questFinishName.innerHTML = quest.finishName || quest[ToObjectKey(npc.name)].finishName;
+			Dom.elements.questFinishChat.innerHTML = quest.finishChat || quest[ToObjectKey(npc.name)].finishChat;
+
+			if (quest.numberOfRepeats !== undefined) {
+				Player.quests.timesCompleted[quest.questArea][quest.id] = Increment(Player.quests.timesCompleted[quest.questArea][quest.id]);
+			}
 
 			// xp rewards
 			Dom.elements.questFinishItems.innerHTML = "";
@@ -1783,6 +1824,17 @@ Dom.quest.finish = function (quest, npc) {
 					for (let i = 0; i < quest.rewards.services.length; i++) {
 						Dom.elements.questFinishItems.innerHTML += "<img src='./assets/icons/" + quest.rewards.services[i].image + ".png' class='theseQuestFinishServices'></img>&nbsp;&nbsp;";
 					}
+				}
+
+				Dom.quests.defaultRewards = Object.assign({}, quest.rewards);
+
+				if (quest.rewards.items === undefined) {
+					quest.rewards.items = [];
+				}
+
+				// item rewards added from timesCompleted
+				if (quest.rewards.timesCompleted !== undefined) {
+					quest.rewards.items = quest.rewards.items.concat(quest.rewards.timesCompleted[Player.quests.timesCompleted[quest.questArea][quest.id]-1]);
 				}
 
 				// item rewards added from table
@@ -1803,7 +1855,9 @@ Dom.quest.finish = function (quest, npc) {
 				Dom.elements.questFinishRewardsTitle.innerHTML = "<br><br><b>Quest Rewards</b><br>";
 				if (quest.rewards.items !== undefined) {
 					for (let i = 0; i < quest.rewards.items.length; i++) {
-						Dom.quest.addReward(quest.rewards.items[i], "questFinishItems", "theseQuestFinishOptions", "questFinishStackNum");
+						if (quest.rewards.items[i].item.type !== "item" || quest.rewards.items[i].item.id !== 1) {
+							Dom.quest.addReward(quest.rewards.items[i], "questFinishItems", "theseQuestFinishOptions", "questFinishStackNum");
+						}
 					}
 
 					// display warning if there is not enough space to hold all possible rewards
@@ -1824,7 +1878,7 @@ Dom.quest.finish = function (quest, npc) {
 			}
 			else {
 				Dom.elements.questFinishRewardsTitle.innerHTML = "";
-				Dom.elements.questFinishStartItems.innerHTML = "";
+				//Dom.elements.questFinishStartItems.innerHTML = "";
 			}
 
 			let array = document.getElementsByClassName("theseQuestFinishServices");
@@ -1993,6 +2047,7 @@ Dom.quest.acceptRewards = function () {
 			}
 		}
 	}
+	quest.rewards = Dom.quests.defaultRewards
 }
 
 Dom.quests.possible = function () {
@@ -2035,22 +2090,23 @@ Dom.quests.possible = function () {
 					questCanBeStarted = false;
 				//}
 			}
-			else {
-				// check if it is daily or one time
-				if (quest.repeatTime === undefined) {
-					// one time
-					if (Player.quests.completedQuestArray.includes(quest.quest)) { // quest has already been completed
-						questCanBeStarted = false;
-					}
+			else if (Player.quests.timesCompleted[quest.questArea][quest.id] >= quest.numberOfRepeats) {
+				questCanBeStarted = false;
+			}
+			// check if it is daily or one time
+			else if (quest.repeatTime === undefined) {
+				// one time
+				if (Player.quests.completedQuestArray.includes(quest.quest)) { // quest has already been completed
+					questCanBeStarted = false;
 				}
-				else if (quest.repeatTime === "daily") {
-					// daily
-					if (Player.quests.questLastFinished[quest.questArea][quest.id] >= GetFullDate()) { // quest has already been done today (or after today o.O)
-						// note that if the quest has not been finished (hence questLastFinished is undefined) the condition will always return false
-						questCanBeStarted = false;
-					}
+			}
+			else if (quest.repeatTime === "daily") {
+				// daily
+				if (Player.quests.questLastFinished[quest.questArea][quest.id] >= GetFullDate() || Player.quests.timesCompleted[quest.questArea][quest.id] >= quest.numberOfRepeats) { // quest has already been done today (or after today o.O)
+					// note that if the quest has not been finished (hence questLastFinished is undefined) the condition will always return false
+					questCanBeStarted = false;
 				}
-				// repeatables can always be started so no code needed
+			// repeatables can always be started so no code needed
 			}
 			if (quest.reputationRequirements !== undefined) {
 				for (let y = 0; y < Object.keys(quest.reputationRequirements).length; y++) {
@@ -2690,32 +2746,6 @@ Dom.inventory.chooseStats = function (inventoryPosition) {
 Dom.inventory.constructUnId = function (area,tier) {
 	let tempUnId = new UnId(area,tier);
 	Dom.inventory.give(tempUnId);
-}
-
-function UnId(area,tier) {
-	this.area = area;
-	this.tier = tier;
-	let types = ["helm", "chest", "greaves", "boots", "sword", "staff", "bow"];
-	this.typeNum = Random(0, 4);
-	if (this.typeNum === 4) {
-		if (Player.class === "m") {
-			this.typeNum++;
-		}else if (Player.class === "a") {
-			this.typeNum += 2;
-		}
-	}
-	this.type = types[this.typeNum];
-	this.image = "assets/items/"+this.type+"/unidentified.png";
-	this.rarityNum = Random(0, 25-1);
-	if (this.rarityNum < 18) {
-	this.rarity = "common";
-	}else if (this.rarityNum < 24) {
-		this.rarity = "unique";
-	}else {
-		this.rarity = "mythic";
-	}
-	this.unidentified = true;
-	this.sellPrice = 1;
 }
 
 // start a cutscene for a certain period of time
@@ -4054,7 +4084,14 @@ Dom.buyer.page = function (npc) {
 	}
 }
 
-Dom.choose.page = function (npc, buttons, functions, parameters, force) {
+Dom.choose.page = function (npcs) {
+
+	let npc = npcs[0].npc;
+	let buttons = npcs[0].buttons;
+	let functions = npcs[0].functions;
+	let parameters = npcs[0].parameters;
+	let force = npcs[0].force;
+
 	let name = npc.name !== undefined ? npc.name : npc; // for cases like Goblin Torch
 	if (npc.constructor.name === "NPC" && !Player.metNPCs.includes(name)) {
 		Player.metNPCs.push(name);
@@ -4066,135 +4103,146 @@ Dom.choose.page = function (npc, buttons, functions, parameters, force) {
 			Dom.currentNPC.type = npc.type;
 			Dom.currentNPC.id = npc.id;
 		}
-		if (buttons.length > 1 || force) {
+		if (buttons.length > 1 || npcs.length > 1 || force) {
 			if (Dom.changeBook("choosePage")) {
-				if (npc.chat !== undefined && npc.chat.chooseChat === undefined) {
-					// Player chooseDOM only
-					Dom.elements.choosePagePlayer.hidden = false;
+				for (let i = 0; i < npcs.length; i++) {
 
-					// find the player in Dom.players
-					for (let i = 0; i < Dom.players.length; i++) {
-						if (npc.userID === Dom.players[i].userID) {
-							npc = Dom.players[i];
-							break;
-						}
-					}
+					let npc = npcs[i].npc;
+					let buttons = npcs[i].buttons;
+					let functions = npcs[i].functions;
+					let parameters = npcs[i].parameters;
+					let force = npcs[i].force;
+					let name = npc.name !== undefined ? npc.name : npc; // for cases like Goblin Torch
 
-					// achievement points
-					Dom.elements.choosePageAchievementPoints.innerHTML = npc.achievementPoints;
+					if (npc.type === "players") {
+						// Player chooseDOM only
+						Dom.elements.choosePagePlayer.hidden = false;
 
-					// equipment slots
-
-					let array = ["helm", "chest", "greaves", "boots", "weapon"];
-					for (let i = 0; i < 5; i++) {
-						let element = Dom.elements["choosePage"+array[i][0].toUpperCase()+array[i].substring(1)];
-						if (npc.equipment[array[i]].image !== undefined) {
-							element.innerHTML = "<img src='"+npc.equipment[array[i]].image+"'></img>";
-							element.style.backgroundImage = "none";
-							element.onmouseover = function () {
-								Dom.inventory.displayInformation(npc.equipment[array[i]], undefined, "tradePage", "trade", undefined, npc.equipment);
-							}
-							element.onmouseleave = function () {
-								Dom.expand("information");
+						// find the player in Dom.players
+						for (let i = 0; i < Dom.players.length; i++) {
+							if (npc.userID === Dom.players[i].userID) {
+								npc = Dom.players[i];
+								break;
 							}
 						}
-						// no item in slot
-						else {
-							element.innerHTML = "";
-							// armour slot
-							if (i < 4) {
-								element.style.backgroundImage = "url('assets/items/"+array[i]+"/1.png')";
+
+						// achievement points
+						Dom.elements.choosePageAchievementPoints.innerHTML = npc.achievementPoints;
+
+						// equipment slots
+
+						let array = ["helm", "chest", "greaves", "boots", "weapon"];
+						for (let i = 0; i < 5; i++) {
+							let element = Dom.elements["choosePage"+array[i][0].toUpperCase()+array[i].substring(1)];
+							if (npc.equipment[array[i]].image !== undefined) {
+								element.innerHTML = "<img src='"+npc.equipment[array[i]].image+"'></img>";
+								element.style.backgroundImage = "none";
+								element.onmouseover = function () {
+									Dom.inventory.displayInformation(npc.equipment[array[i]], undefined, "tradePage", "trade", undefined, npc.equipment);
+								}
+								element.onmouseleave = function () {
+									Dom.expand("information");
+								}
 							}
-							// weapon slot
+							// no item in slot
 							else {
 								element.innerHTML = "";
-								if (npc.class === "a") {
-									element.style.backgroundImage = "url('assets/items/bow/1.png')";
+								// armour slot
+								if (i < 4) {
+									element.style.backgroundImage = "url('assets/items/"+array[i]+"/1.png')";
 								}
-								else if (npc.class === "m") {
-									element.style.backgroundImage = "url('assets/items/staff/1.png')";
-								}
+								// weapon slot
 								else {
-									element.style.backgroundImage = "url('assets/items/sword/1.png')";
+									element.innerHTML = "";
+									if (npc.class === "a") {
+										element.style.backgroundImage = "url('assets/items/bow/1.png')";
+									}
+									else if (npc.class === "m") {
+										element.style.backgroundImage = "url('assets/items/staff/1.png')";
+									}
+									else {
+										element.style.backgroundImage = "url('assets/items/sword/1.png')";
+									}
 								}
 							}
 						}
-					}
 
-					// greeting
-					let clss = "knight";
-					if (npc.class === "a") {
-						clss = "archer";
-					}
-					else if (npc.class === "m") {
-						clss = "mage";
-					}
-					Dom.elements.choosePageContent.innerHTML = "<h1>"+name+"</h1><p>Level "+npc.level+" "+clss;
-				}
-				else {
-					Dom.elements.choosePageContent.innerHTML = "<h1>"+name+"</h1>"+(npc.chat !== undefined ? "<p>"+npc.chat.chooseChat+"</p>" : "");
-					Dom.elements.choosePagePlayer.hidden = true;
-				}
-				Dom.choose.HTML = "";
-				Dom.choose.sideHTML = "";
-				Dom.choose.dailyHTML = "";
-				for (let i = 0; i < buttons.length; i++) {
-					let imagenum = 2;
-					if (functions[i] === Dom.driver.page) {
-						imagenum = 0;
-					}
-					else if (functions[i] === Dom.identifier.page) {
-						imagenum = 3;
-					}
-					else if (functions[i] === Dom.buyer.page) {
-						imagenum = 4;
-					}
-					else if (functions[i] === Dom.merchant.page) {
-						imagenum = 5;
-					}
-					else if (functions[i] === Dom.quest.finish) {
-						imagenum = 6;
-					}
-					else if (functions[i] === Dom.quest.start) {
-						if (parameters[i][0].repeatTime === "daily" || parameters[i][0].repeatTime === "repeatable") {
-							imagenum = 1;
+						// greeting
+						let clss = "knight";
+						if (npc.class === "a") {
+							clss = "archer";
 						}
-						else {
-							imagenum = 7;
+						else if (npc.class === "m") {
+							clss = "mage";
 						}
-					}
-					else if (functions[i] === Dom.text.page) {
-						if (parameters[i][0] === "Soul Healer") {
-							imagenum = 8;
-						}/*else {
-							imagenum = 1;
-						}*/
-					}
-					if (imagenum === 6 || imagenum === 7) {
-						if (parameters[i][0].important === true) {
-							Dom.elements.choosePageContent.innerHTML += "<p class='choosePageButtons' id='choosePageButtons"+i+"'><img src='assets/icons/choose.png' class='chooseIcon' style='clip: rect("+25*imagenum+"px, 25px, "+25*(imagenum+1)+"px, 0px); margin-top: -"+(25*imagenum+3)+"px'></img>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<strong>"+buttons[i]+"</strong></p>";
-						}
-						else {
-							Dom.choose.sideHTML += "<p class='choosePageButtons' id='choosePageButtons"+i+"'><img src='assets/icons/choose.png' class='chooseIcon' style='clip: rect("+25*imagenum+"px, 25px, "+25*(imagenum+1)+"px, 0px); margin-top: -"+(25*imagenum+3)+"px'></img>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;"+buttons[i]+"</p>";
-						}
-					}
-					else if (imagenum === 0) {
-						Dom.choose.dailyHTML += "<p class='choosePageButtons' id='choosePageButtons"+i+"'><img src='assets/icons/choose.png' class='chooseIcon' style='clip: rect("+25*imagenum+"px, 25px, "+25*(imagenum+1)+"px, 0px); margin-top: -"+(25*imagenum+3)+"px'></img>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;"+buttons[i]+"</p>";
+						Dom.elements.choosePageContent.innerHTML = "<h1>"+name+"</h1><p>Level "+npc.level+" "+clss;
 					}
 					else {
-						Dom.choose.HTML += "<p class='choosePageButtons' id='choosePageButtons"+i+"'><img src='assets/icons/choose.png' class='chooseIcon' style='clip: rect("+25*imagenum+"px, 25px, "+25*(imagenum+1)+"px, 0px); margin-top: -"+(25*imagenum+3)+"px'></img>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;"+buttons[i]+"</p>";
+						Dom.elements.choosePageContent.innerHTML = "<h1>"+name+"</h1>"+(npc.chat !== undefined ? "<p>"+npc.chat.chooseChat+"</p>" : "");
+						Dom.elements.choosePagePlayer.hidden = true;
 					}
-				}
-				Dom.elements.choosePageContent.innerHTML += Dom.choose.sideHTML + Dom.choose.dailyHTML + Dom.choose.HTML + '<br><br><center><div id="choosePageClose" class="closeClass" onclick="Dom.closePage(\'choosePage\')">Close</div></center>';
-				for (let i = 0; i < buttons.length; i++) {
-					document.getElementById("choosePageButtons"+i).onclick = function () {
-						Dom.closePage("choosePage", true);
-						functions[i](...parameters[i]);
-						Dom.checkProgress();
+					Dom.choose.HTML = "";
+					Dom.choose.sideHTML = "";
+					Dom.choose.dailyHTML = "";
+					for (let i = 0; i < buttons.length; i++) {
+						let imagenum = 2;
+						if (functions[i] === Dom.driver.page) {
+							imagenum = 0;
+						}
+						else if (functions[i] === Dom.identifier.page) {
+							imagenum = 3;
+						}
+						else if (functions[i] === Dom.buyer.page) {
+							imagenum = 4;
+						}
+						else if (functions[i] === Dom.merchant.page) {
+							imagenum = 5;
+						}
+						else if (functions[i] === Dom.quest.finish) {
+							imagenum = 6;
+						}
+						else if (functions[i] === Dom.quest.start) {
+							if (parameters[i][0].repeatTime === "daily" || parameters[i][0].repeatTime === "repeatable") {
+								imagenum = 1;
+							}
+							else {
+								imagenum = 7;
+							}
+						}
+						else if (functions[i] === Dom.text.page) {
+							if (parameters[i][0] === "Soul Healer") {
+								imagenum = 8;
+							}/*else {
+								imagenum = 1;
+							}*/
+						}
+						if (imagenum === 6 || imagenum === 7) {
+							if (parameters[i][0].important === true) {
+								Dom.elements.choosePageContent.innerHTML += "<p class='choosePageButtons' id='choosePageButtons"+i+"'><img src='assets/icons/choose.png' class='chooseIcon' style='clip: rect("+25*imagenum+"px, 25px, "+25*(imagenum+1)+"px, 0px); margin-top: -"+(25*imagenum+3)+"px'></img>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<strong>"+buttons[i]+"</strong></p>";
+							}
+							else {
+								Dom.choose.sideHTML += "<p class='choosePageButtons' id='choosePageButtons"+i+"'><img src='assets/icons/choose.png' class='chooseIcon' style='clip: rect("+25*imagenum+"px, 25px, "+25*(imagenum+1)+"px, 0px); margin-top: -"+(25*imagenum+3)+"px'></img>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;"+buttons[i]+"</p>";
+							}
+						}
+						else if (imagenum === 0) {
+							Dom.choose.dailyHTML += "<p class='choosePageButtons' id='choosePageButtons"+i+"'><img src='assets/icons/choose.png' class='chooseIcon' style='clip: rect("+25*imagenum+"px, 25px, "+25*(imagenum+1)+"px, 0px); margin-top: -"+(25*imagenum+3)+"px'></img>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;"+buttons[i]+"</p>";
+						}
+						else {
+							Dom.choose.HTML += "<p class='choosePageButtons' id='choosePageButtons"+i+"'><img src='assets/icons/choose.png' class='chooseIcon' style='clip: rect("+25*imagenum+"px, 25px, "+25*(imagenum+1)+"px, 0px); margin-top: -"+(25*imagenum+3)+"px'></img>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;"+buttons[i]+"</p>";
+						}
+					}
+					Dom.elements.choosePageContent.innerHTML += Dom.choose.sideHTML + Dom.choose.dailyHTML + Dom.choose.HTML + '<br><br><center><div id="choosePageClose" class="closeClass" onclick="Dom.closePage(\'choosePage\')">Close</div></center>';
+					for (let i = 0; i < buttons.length; i++) {
+						document.getElementById("choosePageButtons"+i).onclick = function () {
+							Dom.closePage("choosePage", true);
+							functions[i](...parameters[i]);
+							Dom.checkProgress();
+						}
 					}
 				}
 			}
-		}else {
+		}
+		else {
 			functions[0](...parameters[0]);
 			Dom.checkProgress();
 		}
@@ -4631,7 +4679,7 @@ Dom.mail.page = function (override) {
 							ExecuteFunctionByName("quest.start", Dom, [quest]);
 						}
 						else {
-							ExecuteFunctionByName("text.page", Dom, [quest.quest, "<strong>"+(quest.startName || quest[Player.areaName].startName)+"</strong><br>"+(quest.startChat || quest[Player.areaName].startName), true, [], []]);
+							ExecuteFunctionByName("text.page", Dom, [quest.quest, "<strong>"+(quest.startName)+"</strong><br>"+(quest.startChat), true, [], []]);
 						}
 					}
 					Game.mailboxUpdate("read");
@@ -5568,6 +5616,20 @@ Dom.updateScreenSize = function (init) {
 }
 
 Dom.init = function () {
+
+	// SAVEDATA FIXES
+	if (Player.version === undefined) {
+		let object = {};
+		for (let i = 0; i < Object.keys(Quests).length; i++) {
+			object[Object.keys(Quests)[i]] = [];
+		}
+		let array = ["npcProgress", "timesCompleted"];
+		for (let i = 0; i < array.length; i++) {
+			Player.quests[array[i]] = object;
+		}
+		Player.version = 1;
+	}
+
 	//document.body.style.zoom = "1.0";
 	Dom.updateScreenSize(true);
 
@@ -5674,15 +5736,20 @@ Dom.init = function () {
 		}
 	}
 
-	// MAIL
+	// MAIL (mostly)
 	let date = GetFullDate();
 	// the first time the player logs on each day
 	if (!Player.days.includes(date)) {
 
-		// Load a new class: gold, mail, instructions
 		if (localStorage.getItem(Player.class) === null) {
-	        Dom.inventory.give(Items.currency[2],3);
-	        Dom.mail.give(
+
+			//
+			// Load a new class: gold, mail, instructions
+			//
+
+			Dom.inventory.give(Items.currency[2],3);
+
+			Dom.mail.give(
 	            "Welcome to Antorax!",
 	            "The Tinkering Guild",
 	            "galuthelTheTrapMechanic",
@@ -5691,7 +5758,18 @@ Dom.init = function () {
 	            `Hello ${Player.name}!<br><br>It's great to have new people joining us in Antorax. I look forward to meeting you very soon in Wizard Island. Perhaps you would like to try out one of our newest inventions - the ScreenGrabber 3000! It's free of charge. Pop us a letter if it explodes, otherwise see you soon!<br><br>From the Tinkering Guild`, true, [], [],
 	            [{item: Items.item[14]}]], [{item: Items.item[14]}],
 	        );
+
 			Dom.instructions.page(0);
+
+			let object = {};
+			for (let i = 0; i < Quests.length; i++) {
+				object[Object.keys(Quests)[i]] = [];
+			}
+			let array = ["npcProgress", "questLastFinished", "timesCompleted"];
+			for (let i = 0; i < array.length; i++) {
+				Player.quests[array[i]] = object;
+			}
+
 		}
 
 		// christmas daily rewards
@@ -5963,8 +6041,6 @@ Dom.init = function () {
 			}, 100);
 		}
 	}
-
-	//document.documentElement.requestFullscreen(); - disabled by chrome
 }
 
 // TESTING functions

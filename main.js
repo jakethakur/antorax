@@ -3666,6 +3666,8 @@ class LootChest extends Thing {
 
 		this.canBeLooted = properties.canBeLooted; // optional function (returns false if the item is still shown but shouldn't be looted)
 
+		this.onClose = properties.onClose; // function called when loot chest closed
+
 		this.chestKey = properties.chestKey; // the item required to open the chest (and removed once it is opened)
 		// if the chest cannot be opened because of the lack of a key, the player is told about this in chat
 
@@ -6110,7 +6112,7 @@ Game.positionLoot = function (items, space) {
 		else {
 			// get a random position and add the item to that position
 	        let rnd = Random(0, spaces.length - 1);
-	        display[rnd] = items[i];
+	        display[spaces[rnd]] = items[i];
 			// remove the random position
 	        spaces.splice(rnd,1);
 		}
@@ -6773,8 +6775,9 @@ Game.update = function (delta) {
 	} // finished iterating through npcs
 
 	// choose page based on all npcs being touched when spcae bar is pressed (just in case there are two npcs on top of each other)
-	Dom.choose.page(choosePageInformation);
-
+	if (choosePageInformation.length > 0) {
+		Dom.choose.page(choosePageInformation);
+	}
 
 	// update villagers
 	for (let i = 0; i < this.villagers.length; i++) {
@@ -7526,6 +7529,15 @@ Game.lootClosed = function (itemsRemaining) {
 	else if (Dom.loot.currentId[0] === "c") {
 		// chest loot menu closed
 		let arrayIndex = Dom.loot.currentId.substr(1);
+		// if it is a loot chest, set the day in savedata (so one cannot be opened again in this area today)
+		if (Game.chests[arrayIndex].name === "Loot Chest") {
+			Player.chests.opened[Game.areaName] = GetFullDate();
+		}
+
+		if (Game.chests[arrayIndex].onClose !== undefined) {
+			Game.chests[arrayIndex].onClose();
+		}
+
 		if (Game.chests[arrayIndex].disappearAfterOpened) {
 			Game.removeObject(Game.chests[arrayIndex].id, "chests", arrayIndex);
 		}
@@ -7535,10 +7547,6 @@ Game.lootClosed = function (itemsRemaining) {
 				// set loot to null so it isn't opened by the player again
 				Game.chests[arrayIndex].loot = null;
 			}
-		}
-		// if it is a loot chest, set the day in savedata (so one cannot be opened again in this area today)
-		if (Game.chests[arrayIndex].name === "Loot Chest") {
-			Player.chests.opened[Game.areaName] = GetFullDate();
 		}
 
 		// save to stop them getting infinite loot from chests

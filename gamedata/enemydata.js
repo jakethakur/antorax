@@ -46,7 +46,51 @@ const NPCTemplates = {
 		chat: {
 			notUnlockedRoles: "Stay safe! Eaglecrest can be a dangerous place...",
 		}
-	}
+	},
+	torianTintop: {
+		image: "torianTintop",
+		name: "Torian Tintop",
+		level: 4,
+		stats: {
+			maxHealth: 70,
+			defence: 3,
+			walkSpeed: 135,
+		},
+		hostility: "friendly",
+		roles: [
+			{
+				quest: Quests.eaglecrestLoggingCamp[25],
+				role: "questFinish",
+			},
+		],
+		chat: {
+			questComplete: "tbd",
+			inventoryFull: "tbd",
+		},
+		hideNameTag: true,
+	},
+	nessyTintop: {
+		image: "nessyTintop",
+		name: "Nessy Tintop",
+		level: 4,
+		stats: {
+			maxHealth: 70,
+			defence: 3,
+			walkSpeed: 135,
+		},
+		hostility: "friendly",
+		roles: [
+			{
+				quest: Quests.eaglecrestLoggingCamp[25],
+				role: "questFinish",
+			},
+		],
+		chat: {
+			questComplete: "tbd",
+			inventoryFull: "tbd",
+		},
+		hideNameTag: true,
+	},
 }
 
 const EnemyTemplates = {

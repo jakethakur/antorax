@@ -1233,7 +1233,7 @@ After all, death is never the end in Antorax...<br>
 				"Use it to clean the <strong>Goblin Torch</strong>.",
 				"Obtain 1 scrap of cloth.",
 				"Speak to a <strong>potion merchant</strong> about a potion of fire resistance.",
-				"Bring 1 fireroot from the Eaglecrest Shop to <strong>Alchemist Tamtam</strong>.",
+				"Bring 1 fireroot from the Eaglecrest Bazaar to <strong>Alchemist Tamtam</strong>.",
 				"Douse the scrap of cloth in the potion of fire resistance.",
 				"Use it to clean the <strong>Goblin Torch</strong>.",
 				"",
@@ -1242,18 +1242,18 @@ After all, death is never the end in Antorax...<br>
 			isHidden: function() {
 				let completed = [];
 
-				if (Player.quests.npcProgress.loggingCamp24 === undefined) {
-					Player.quests.npcProgress.loggingCamp24 = 1;
+				if (Player.quests.npcProgress.eaglecrestLoggingCamp[24] === undefined) {
+					Player.quests.npcProgress.eaglecrestLoggingCamp[24] = 1;
 				}
 
 				// true or falses for each objective (apart from the turn-in objective)
 				completed.push(false);
 				completed.push(false);
-				completed.push(Player.quests.npcProgress.loggingCamp24 < 2);
-				completed.push(Player.quests.npcProgress.loggingCamp24 < 2);
-				completed.push(Player.quests.npcProgress.loggingCamp24 < 3);
-				completed.push(Player.quests.npcProgress.loggingCamp24 < 2);
-				completed.push(Player.quests.npcProgress.loggingCamp24 < 2);
+				completed.push(Player.quests.npcProgress.eaglecrestLoggingCamp[24] < 2);
+				completed.push(Player.quests.npcProgress.eaglecrestLoggingCamp[24] < 2);
+				completed.push(Player.quests.npcProgress.eaglecrestLoggingCamp[24] < 3);
+				completed.push(Player.quests.npcProgress.eaglecrestLoggingCamp[24] < 2);
+				completed.push(Player.quests.npcProgress.eaglecrestLoggingCamp[24] < 2);
 				completed.push(true);
 
 				completed = checkFinished(completed);
@@ -1265,13 +1265,13 @@ After all, death is never the end in Antorax...<br>
 				let completed = [];
 
 				// true or falses for each objective (apart from the turn-in objective)
-				completed.push(Dom.inventory.check(3, "item", 1) || Player.quests.npcProgress.loggingCamp24 >= 2); // 1 scrap of cloth
-				completed.push(Player.quests.npcProgress.loggingCamp24 >= 2);
-				completed.push((Dom.inventory.check(3, "item", 1) || Dom.inventory.check(27, "item", 1)) && Player.quests.npcProgress.loggingCamp24 >= 2 ); // 1 scrap of cloth
-				completed.push(Player.quests.npcProgress.loggingCamp24 >= 3);
-				completed.push(Player.quests.npcProgress.loggingCamp24 >= 4);
+				completed.push(Dom.inventory.check(3, "item", 1) || Player.quests.npcProgress.eaglecrestLoggingCamp[24] >= 2); // 1 scrap of cloth
+				completed.push(Player.quests.npcProgress.eaglecrestLoggingCamp[24] >= 2);
+				completed.push((Dom.inventory.check(3, "item", 1) || Dom.inventory.check(27, "item", 1)) && Player.quests.npcProgress.eaglecrestLoggingCamp[24] >= 2 ); // 1 scrap of cloth
+				completed.push(Player.quests.npcProgress.eaglecrestLoggingCamp[24] >= 3);
+				completed.push(Player.quests.npcProgress.eaglecrestLoggingCamp[24] >= 4);
 				completed.push(Dom.inventory.check(27, "item", 1)); // 1 fire resistant cloth
-				completed.push(Player.quests.npcProgress.loggingCamp24 >= 5);
+				completed.push(Player.quests.npcProgress.eaglecrestLoggingCamp[24] >= 5);
 
 				completed = checkFinished(completed);
 
@@ -1287,6 +1287,125 @@ After all, death is never the end in Antorax...<br>
 			rewards: {
 				xp: 50,
 			},
+
+		},
+
+		{
+			id: 25,
+			quest: "A Tale of Two Twintops",
+			questArea: "eaglecrestLoggingCamp",
+
+			torianTintop: {
+				startName: "Torian Tintop",
+				finishName: "Torian Tintop",
+			},
+
+			nessyTintop: {
+				startName: "Nessy Tintop",
+				finishName: "Nessy Tintop",
+			},
+
+			startChat: [
+				"tbd",
+				"",
+				"",
+				"",
+				"",
+				"",
+				"",
+				"",
+				"",
+				"",
+				"",
+			],
+
+			finishChat: [
+				"tbd",
+				"",
+				"",
+				"",
+				"",
+				"",
+				"",
+				"",
+				"",
+				"",
+				"",
+			],
+
+			objectives: [
+				["Find <strong>Torian Tintop</strong> somewhere in the logging camp."],
+				["Find <strong>Nessy Tintop</strong> somewhere in the logging camp."],
+				["Find <strong>Torian Tintop</strong> somewhere in the logging camp."],
+				["Find <strong>Nessy Tintop</strong> somewhere in the logging camp."],
+				["Find <strong>Torian Tintop</strong> somewhere in the logging camp."],
+				["Find <strong>Nessy Tintop</strong> somewhere in the logging camp."],
+				["Find <strong>Torian Tintop</strong> somewhere in the logging camp."],
+				["Find <strong>Nessy Tintop</strong> somewhere in the logging camp."],
+				["Find <strong>Torian Tintop</strong> somewhere in the logging camp."],
+				["Find <strong>Nessy Tintop</strong> somewhere in the logging camp."],
+				["Find the <strong>Tightly Wrapped Present</strong> somewhere in the logging camp."],
+			],
+
+			howToStart: "Speak to one of the <strong>Tintop</strong> twins in the logging camp.",
+			levelRequirement: 4,
+			questRequirements: ["Making Yourself Useful"],
+
+			repeatTime: "daily",
+			numberOfRepeats: 11,
+			multipleAreas: true,
+
+			rewards: {
+				xp: 30,
+				items: [{item: Items.item[1],}],
+				timesCompleted: [
+					[{item: Items.item[4]}], // polished rock
+					[{item: Items.item[3]}], // scrap of cloth
+					[{item: Items.fish[8]}], // old boot
+					[{item: Items.item[29]}], // burnt cloth
+					[{item: Items.item[11]}], // vial of goblin blood
+					[{item: Items.consumable[6]}], // goblin brewed potion
+					[{item: Items.consumable[5]}], // wood-brewed beer
+					[{item: Items.consumable[3]}], // potion of swiftness
+					[{item: new UnId("loggingCamp", 1)}], // unidentified item
+					[{item: Items.fish[17]}], // ocean chest key
+					[],
+				],
+			},
+
+			isCompleted: function() {
+				return [true];
+			},
+
+			onQuestStart: function () {
+				if (Game.areaName === "eaglecrestLoggingCamp") {
+					if (Player.quests.timesCompleted.eaglecrestLoggingCamp[25] === null) {
+						if (Game.prepareNPC(Areas.eaglecrestLoggingCamp.npcs[9], "npcs", true)) {
+							Game.things.push(new NPC(Areas.eaglecrestLoggingCamp.npcs[9]));
+						}
+	                }
+					else if (Player.quests.timesCompleted.eaglecrestLoggingCamp[25] === 4) {
+						if (Game.prepareNPC(Areas.eaglecrestLoggingCamp.npcs[10], "npcs", true)) {
+	                    	Game.things.push(new NPC(Areas.eaglecrestLoggingCamp.npcs[10]));
+						}
+	                }
+					else if (Player.quests.timesCompleted.eaglecrestLoggingCamp[25] === 5) {
+						if (Game.prepareNPC(Areas.eaglecrestLoggingCamp.npcs[11], "npcs", true)) {
+							Game.things.push(new NPC(Areas.eaglecrestLoggingCamp.npcs[11]));
+						}
+					}
+					else if (Player.quests.timesCompleted.eaglecrestLoggingCamp[25] === 8) {
+						if (Game.prepareNPC(Areas.eaglecrestLoggingCamp.npcs[12], "npcs", true)) {
+							Game.things.push(new NPC(Areas.eaglecrestLoggingCamp.npcs[12]));
+						}
+					}
+					else if (Player.quests.timesCompleted.eaglecrestLoggingCamp[25] === 10) {
+						if (Game.prepareNPC(Areas.eaglecrestLoggingCamp.chests[0], "chests", true)) {
+							Game.chests.push(new LootChest(Areas.eaglecrestLoggingCamp.chests[0]));
+						}
+					}
+				}
+			}
 
 		},
 
@@ -1346,7 +1465,7 @@ After all, death is never the end in Antorax...<br>
 			quest: "Cleaning the Floor",
 			questArea: "tavern",
 
-			loggingCampTavern: {
+			gregorGoldenbrew: {
 				startName: "Gregor Goldenbrew",
 				startChat: "It's getting a bit dirty 'round 'ere! Any chance ya can help clean up for a li'l gold?",
 				finishName: "Gregor Goldenbrew",
@@ -1357,16 +1476,16 @@ After all, death is never the end in Antorax...<br>
 				],
 			},
 
-			eaglecrestTavern: {
-				startName: "Inkeepers Rhus-Jak",
+			innkeepersRhusJak: {
+				startName: "Innkeepers Rhus-Jak",
 				startChat: `<strong>Jak</strong>: The tavern's a bit dirty at the moment. We're both busy serving guests, but if you wanted a job and a bit of gold ...
 <br><strong>Rhus</strong>: Then clean the floor with mop!!`,
-				finishName: "Inkeepers Rhus-Jak",
+				finishName: "Innkeepers Rhus-Jak",
 				finishChat: `<strong>Rhus</strong>: Give mop back here!
 <br><strong>Jak</strong>: Thank you! It's looking a lot better here now.`,
 				objectives: [
 					"Use the mop to clean away the dirt in the tavern.",
-					"Speak to <strong>Inkeeper Rhus-Jak</strong>.",
+					"Speak to <strong>Innkeeper Rhus-Jak</strong>.",
 				],
 			},
 
@@ -1474,7 +1593,7 @@ After all, death is never the end in Antorax...<br>
 			quest: "Tavern Tidy-Up",
 			questArea: "tavern",
 
-			loggingCampTavern: {
+			gregorGoldenbrew: {
 				startName: "Gregor Goldenbrew",
 				startChat: "My tables are getting covered with all these plates and mugs. Would ya mind collecting 'em all and bringing 'em back 'ere for me? I'll give ya some gold for yer time.",
 				finishName: "Gregor Goldenbrew",
@@ -1485,17 +1604,17 @@ After all, death is never the end in Antorax...<br>
 				],
 			},
 
-			eaglecrestTavern: {
-				startName: "Inkeepers Rhus-Jak",
+			innkeepersRhusJak: {
+				startName: "Innkeepers Rhus-Jak",
 				startChat: `<strong>Rhus</strong>: Tables are messy.
 <br><strong>Jak</strong>: Could you help us tidy them a little? You can have a bit of gold for your time.
 <br><strong>Rhus</strong>: Tables are <strong>very</strong> messy.`,
-				finishName: "Inkeepers Rhus-Jak",
+				finishName: "Innkeepers Rhus-Jak",
 				finishChat: `<strong>Jak</strong>: Thank you! I'm sure they'll get cluttered again, but the tavern's looking great at the moment.
 <br><strong>Rhus</strong>: Tables are clean.`,
 				objectives: [
 					"Collect mugs and plates from tables.",
-					"Return them to <strong>Inkeeper Rhus-Jak</strong>.",
+					"Return them to <strong>Innkeeper Rhus-Jak</strong>.",
 				],
 			},
 
@@ -1566,7 +1685,7 @@ After all, death is never the end in Antorax...<br>
 			quest: "Hungry Taverners",
 			questArea: "tavern",
 
-			loggingCampTavern: {
+			gregorGoldenbrew: {
 				startName: "Gregor Goldenbrew",
 				startChat: "'Ey you! Wanna make a bit o' money helpin' me out? If ya do I need someone to hand out these tavern goods for me.",
 				finishName: "Gregor Goldenbrew",
@@ -1577,15 +1696,15 @@ After all, death is never the end in Antorax...<br>
 				],
 			},
 
-			eaglecrestTavern: {
-				startName: "Inkeepers Rhus-Jak",
+			innkeepersRhusJak: {
+				startName: "Innkeepers Rhus-Jak",
 				startChat: `<strong>Jak</strong>: There's a lot of people waiting for their orders! Could you lend us a hand and give out some foodstuffs?`,
-				finishName: "Inkeepers Rhus-Jak",
+				finishName: "Innkeepers Rhus-Jak",
 				finishChat: `<strong>Rhus</strong>: Good. People happy.
 <strong>Jak</strong>: Thank you!`,
 				objectives: [
 					"Hand out some tavern goods to people around the tavern",
-					"Speak to <strong>Inkeeper Rhus-Jak</strong>.",
+					"Speak to <strong>Innkeeper Rhus-Jak</strong>.",
 				],
 			},
 
@@ -1622,7 +1741,7 @@ After all, death is never the end in Antorax...<br>
 			onQuestStart: function (npc) {
 
 				// remove the first objective which just tells you you will hand general stuff to general people
-				this[Game.areaName].objectives.shift();
+				this[ToObjectKey(npc.name)].objectives.shift();
 
 				// filter out all unactive event items
 				let sold = npc.roles[0].sold.filter(item => item.eventRequirement === undefined || item.eventRequirement === Event.event);
@@ -1630,7 +1749,7 @@ After all, death is never the end in Antorax...<br>
 				// for each villager assign a random item sold by the npc
 				for (let i = 0; i < Game.villagers.length; i++) {
 					let item = sold[Random(0, sold.length-1)].item;
-					this[Game.areaName].objectives.unshift("Give " + item.name + " to " + Game.villagers[i].name + ".")
+					this[ToObjectKey(npc.name)].objectives.unshift("Give " + item.name + " to " + Game.villagers[i].name + ".")
 
 					Game.villagers[i].roles.push({
 						role: "function",
@@ -1656,7 +1775,7 @@ After all, death is never the end in Antorax...<br>
 
 			callQuestFinishOnAbandon: true,
 
-			onQuestFinish: function () {
+			onQuestFinish: function (npc) {
 				// remove all items with the property removeOnAbandon set to the quest name
 				for (let i = 0; i < Player.inventory.items.length; i++) {
 					if (Player.inventory.items[i].removeOnAbandon === "Hungry Taverners") {
@@ -1670,7 +1789,7 @@ After all, death is never the end in Antorax...<br>
 				}
 
 				// reset the objectives
-				this[Game.areaName].objectives = ["Hand out some tavern goods to people around the tavern", this[Game.areaName].objectives.pop()];
+				this[ToObjectKey(npc.name)].objectives = ["Hand out some tavern goods to people around the tavern", this[ToObjectKey(npc.name)].objectives.pop()];
 			}
 		},
 	],
@@ -1814,7 +1933,7 @@ After all, death is never the end in Antorax...<br>
 			},
 
 			howToStart: "Speak to <strong>Fisherman Tobenam</strong>.",
-			levelRequirement: 1,
+			levelRequirement: 2,
 			questRequirements: ["Learning to Fish III"],
 			fishingRequirement: {
 				min: 0,
@@ -1863,7 +1982,7 @@ After all, death is never the end in Antorax...<br>
 			},
 
 			howToStart: "Speak to <strong>Fisherman Tobenam</strong>.",
-			levelRequirement: 1,
+			levelRequirement: 2,
 			questRequirements: ["Learning to Fish III"],
 			fishingRequirement: {
 				min: 0,
@@ -1912,7 +2031,7 @@ After all, death is never the end in Antorax...<br>
 			},
 
 			howToStart: "Speak to <strong>Fisherman Tobenam</strong>.",
-			levelRequirement: 1,
+			levelRequirement: 2,
 			questRequirements: ["Learning to Fish III"],
 			fishingRequirement: {
 				min: 0,

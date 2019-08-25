@@ -342,6 +342,24 @@ var Items = {
 				defence: 3,
 			},
 		},
+		{
+            id: 20,
+            name: "Tinhat",
+            type: "helm",
+            image: "assets/items/helm/20.png",
+            tier: 1,
+            obtain: ["quest"],
+            area: ["loggingCamp"],
+            rarity: "unique",
+            sellPrice: 3,
+            lore: "A gift from the Tintops!",
+            obtainText: "Can be received as a reward for completing the quest 'A Tale of Two Twintops' 11 times.",
+            stats: {
+                defence: 2,
+                reflection: 20,
+                dodgeChance: 10,
+            },
+        },
 	],
 	chest: [
 		{

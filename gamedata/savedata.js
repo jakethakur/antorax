@@ -66,11 +66,8 @@ var Player = {
 
 		npcProgress: {}, // stores the number of NPCs spoken to for that quest (the key name is the quest area followed by the quest id)
 		questProgress: {}, // stores properties for quest objectives (and achievements) that cannot otherwise be tracked between saves
-		questLastFinished: { // stores the last date (format ddmmyyyy) that the quest was finished (for seeing if daily quests can be started again)
-			eaglecrestLoggingCamp: [],
-			tavern: [],
-			fishing: [],
-		},
+		questLastFinished: {}, // stores the last date (format ddmmyyyy) that the quest was finished (for seeing if daily quests can be started again)
+		timesCompleted: {}, // number of times a player has completed a repeatable quest (e.g. hide and seek)
 
 		randomDailyQuests: {}, // the random daily quest of the day (for NPCs with a random daily quest)
 	},
