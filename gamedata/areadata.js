@@ -531,29 +531,6 @@ var Areas = {
 				name: "Eaglecrest Banner",
 			},
 		],
-
-		villagers: [
-			/*{
-
-				x: 400,
-				y: 400,
-				image: "weaponsmith",
-				name: "Weaponsmith Clone",
-				stats: {
-					maxHealth: 100,
-					walkSpeed: 100,
-					swimSpeed: 10,
-				},
-				hostility: "friendly",
-				boundary: {
-					x: 0,
-					y: 0,
-					width: 1000,
-					height: 400,
-				},
-
-			},*/
-		],
 	},
 
 	eaglecrestLoggingCamp: {
@@ -1388,7 +1365,8 @@ var Areas = {
 					questComplete: "tbd",
 				},
 				canBeShown: function () {
-					return Player.quests.timesCompleted.eaglecrestLoggingCamp[25] % 2 === 1 && Player.quests.timesCompleted.eaglecrestLoggingCamp[25] < Quests.eaglecrestLoggingCamp[25].numberOfRepeats-1;
+					return Player.quests.timesCompleted.eaglecrestLoggingCamp[25] % 2 === 1 &&
+						Player.quests.timesCompleted.eaglecrestLoggingCamp[25] < Quests.eaglecrestLoggingCamp[25].numberOfRepeats-1;
 				},
 				boundary: {
 					x: 39,
@@ -1419,7 +1397,10 @@ var Areas = {
 					questComplete: "tbd",
 				},
 				canBeShown: function () {
-					return (Player.quests.timesCompleted.eaglecrestLoggingCamp[25] % 2 === 0 || Player.quests.timesCompleted.eaglecrestLoggingCamp[25] === null) && Player.quests.timesCompleted.eaglecrestLoggingCamp[25] < Quests.eaglecrestLoggingCamp[25].numberOfRepeats-1;
+					return Player.quests.timesCompleted.eaglecrestLoggingCamp[25] === null || // haven't started quest yet
+						Player.quests.timesCompleted.eaglecrestLoggingCamp[25] === undefined ||
+						(Player.quests.timesCompleted.eaglecrestLoggingCamp[25] % 2 === 0 && // or have started it and have completed it an even number of times
+						Player.quests.timesCompleted.eaglecrestLoggingCamp[25] < Quests.eaglecrestLoggingCamp[25].numberOfRepeats-1); // and haven't completed the quest too many times
 				},
 				boundary: {
 					x: 39,
