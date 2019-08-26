@@ -1255,7 +1255,7 @@ var Areas = {
 				z: -1,
 				canBeShown: function () {
 					return Player.quests.activeQuestArray.includes("A Tale of Two Twintops") &&
-					Player.quests.timesCompleted.eaglecrestLoggingCamp[25] === null;
+					(Player.quests.timesCompleted.eaglecrestLoggingCamp[25] === null || Player.quests.timesCompleted.eaglecrestLoggingCamp[25] === undefined);
 				}
 			},
 			{

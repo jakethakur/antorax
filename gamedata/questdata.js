@@ -1379,7 +1379,7 @@ After all, death is never the end in Antorax...<br>
 
 			onQuestStart: function () {
 				if (Game.areaName === "eaglecrestLoggingCamp") {
-					if (Player.quests.timesCompleted.eaglecrestLoggingCamp[25] === null) {
+					if (Player.quests.timesCompleted.eaglecrestLoggingCamp[25] === null || Player.quests.timesCompleted.eaglecrestLoggingCamp[25] === undefined) {
 						if (Game.prepareNPC(Areas.eaglecrestLoggingCamp.npcs[9], "npcs", true)) {
 							Game.things.push(new NPC(Areas.eaglecrestLoggingCamp.npcs[9]));
 						}

@@ -413,11 +413,17 @@ Dom.quests.active = function (quest) {
 				isHidden = currentQuest.isHidden();
 			}
 			Dom.quests.activeHTML[currentQuest.important] += "<br><br><strong>" + currentQuest.quest + "</strong>";
+
 			let completedObjectives = 0;
 			let objectives = currentQuest.objectives || currentQuest[Player.quests.questProgress[currentQuest.quest]].objectives;
-			if (Array.isArray(objectives[0]) && objectives.length > Player.quests.timesCompleted[currentQuest.questArea][currentQuest.id]) {
+
+			if (Array.isArray(objectives[0]) &&
+			(objectives.length > Player.quests.timesCompleted[currentQuest.questArea][currentQuest.id] ||
+			Player.quests.timesCompleted[currentQuest.questArea][currentQuest.id] === null ||
+			Player.quests.timesCompleted[currentQuest.questArea][currentQuest.id] === undefined)) {
 				objectives = objectives[Player.quests.timesCompleted[currentQuest.questArea][currentQuest.id] || 0];
 			}
+
 			for (let i = 0; i < objectives.length; i++) {
 
 				// display the objective
@@ -462,10 +468,12 @@ Dom.quests.active = function (quest) {
 			}
 			if (isCompleted[isCompleted.length - 1]) {
 				currentQuest.completed = true;
-			}else {
+			}
+			else {
 				currentQuest.completed = false;
 			}
-		}else {
+		}
+		else {
 			Player.quests.activeQuestArray.splice(x, 1);
 		}
 	}
@@ -1594,10 +1602,12 @@ Dom.quest.start = function (quest, npc) {
 			if (Array.isArray(startChat)) {
 				startChat = startChat[Player.quests.timesCompleted[quest.questArea][quest.id]];
 			}
+
 			let objectives = quest.objectives || quest[ToObjectKey(npc.name)].objectives;
 			if (Array.isArray(objectives[0])) {
 				objectives = objectives[Player.quests.timesCompleted[quest.questArea][quest.id] || 0];
 			}
+
 			Dom.elements.questStartChat.innerHTML = startChat;
 			Dom.elements.questStartObjectives.innerHTML = "";
 			let isHidden = [];
