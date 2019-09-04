@@ -1314,6 +1314,7 @@ Dom.inventory.stats = function (stat, value, array) { // stat should be in Title
 	}
 };
 
+// display the information of an item, shown on hoverover
 // array is the array of equipment in chooseDOM
 Dom.inventory.displayInformation = function (item, stacked, element, position, hide, array) {
 	if (hide !== "cooldown" || Dom.inventory.displayedInformation === item.name) {
@@ -1349,20 +1350,30 @@ Dom.inventory.displayInformation = function (item, stacked, element, position, h
 				Dom.elements.name.innerHTML = "Unidentified "+item.type.charAt(0).toUpperCase() + item.type.slice(1);
 				Dom.elements.name.style.color = "var(--text)";
 			}
-			// weapon, armour or rod
+
+			// weapon, armour, rod or tool
 			if (item.type !== "item" && item.type !== "bag" && item.type !== "currency" && item.type !== "fish" && item.type !== "consumable" && item.type !== "food" && item.type !== "teleport") {
-				if (item.type !== "rod") {
+
+				// weapons used to attack have tiers that should be displayed
+				if (item.type !== "rod" && item.type !== "tool") {
 					Dom.elements.stats.innerHTML = "Tier: "+item.tier+"<br>";
-				}else {
+				}
+				else {
 					Dom.elements.stats.innerHTML = "";
 				}
+
+				// display item's stats
 				if (item.stats !== undefined) {
+
+					// look for chosen stat from choose stats (if there is one)
 					for (let i = 0; i < Object.keys(item.stats).length; i++) {
 						if (Object.keys(item.stats)[i] !== item.chosenStat) {
 
 							Dom.elements.stats.innerHTML += Dom.inventory.stats(FromCamelCase(Object.keys(item.stats)[i]), item.stats[Object.keys(item.stats)[i]], item.stats);
 						}
 					}
+
+					// choose stats (stats that can be chosen from)
 					if (item.chooseStats !== undefined) {
 						if (Object.keys(item.chooseStats).length > 0) {
 							Dom.elements.stats.innerHTML += "<br>Click to choose stat:<br>";
@@ -1375,6 +1386,8 @@ Dom.inventory.displayInformation = function (item, stacked, element, position, h
 							Dom.elements.stats.innerHTML += "<span style='color: "+color+"'>"+Dom.inventory.stats(FromCamelCase(Object.keys(item.chooseStats)[i]), item.chooseStats[Object.keys(item.chooseStats)[i]], item.chooseStats)+"</span>";
 						}
 					}
+
+					// conditional choose stats (choose stats that require a condition)
 					if (item.conditionalChooseStats !== undefined) {
 						if (item.chooseStats === undefined) {
 							item.chooseStats = [];
@@ -1388,6 +1401,8 @@ Dom.inventory.displayInformation = function (item, stacked, element, position, h
 							}
 						}
 					}
+
+					// conditional stats (stats that require a condition to be true to be active; otherwise they are displayed in grey)
 					if (item.conditionalStats !== undefined) {
 						for (let x = 0; x < item.conditionalStats.length; x++) {
 							Dom.elements.stats.innerHTML += "<br>"+item.conditionalStats[x].text+"<br>";
@@ -1400,9 +1415,9 @@ Dom.inventory.displayInformation = function (item, stacked, element, position, h
 							}
 						}
 					}
-				}else {
-					Dom.elements.stats.innerHTML += "<br>Area: " + FromCamelCase(item.area);
+
 				}
+
 				if (item.set !== undefined) {
 					// if the item is equipped
 					if (position === "equip") {
@@ -1516,44 +1531,57 @@ Dom.inventory.displayInformation = function (item, stacked, element, position, h
 					Dom.elements.name.innerHTML = "1 " + Dom.elements.name.innerHTML;
 				}
 			}
+
+			// length of fish
 			if (item.fishingType === "fish") {
 				Dom.elements.stats.innerHTML = "Length: " + item.length + "cm";
 			}
+
+			// quest item
 			if (item.quest !== undefined && (item.quest === true || item.quest())) {
 				Dom.elements.stats.innerHTML = "<span style='color: slateblue;'>Quest item</span><br>" + (Dom.elements.stats.innerHTML !== "" ? "<br>"+Dom.elements.stats.innerHTML : "");
 			}
 			else {
 				Dom.elements.stats.style.color = "var(--text)";
 			}
-			let lorebuyer = "<br><br>";
+
+			// additional item information
+			let lorebuyer = "<br><br>"; // set to "" if there is no additional information to be displayed
+			// currency use
 			if (item.use !== undefined) {
 				Dom.elements.lore.innerHTML = item.use;
 			}
+			// function text (use of an item)
 			else if (item.functionText !== undefined && item.functionText !== "") {// && item.chooseStats === undefined) {
 				Dom.elements.lore.innerHTML = /*(Dom.elements.stats.innerHTML !== "" ? "<br>" : "") +*/ item.functionText + (item.charges !== undefined ? "<br><br>" + item.charges + " Charges" : "");
 			}
+			// food
 			else if (item.healthRestore !== undefined && item.healthRestoreTime !== undefined) {
 				Dom.elements.lore.innerHTML = "Restores "+item.healthRestore+" health over "+item.healthRestoreTime+" seconds (whilst not in combat)";
 			}
 			else {
-				Dom.elements.lore.innerHTML = "";
+				Dom.elements.lore.innerHTML = ""; // string of all the additional information to be added
 				lorebuyer = "";
 			}
 			//let lorebuyer = "";
+			// item lore
 			if (item.lore !== undefined && item.lore !== "" && !Array.isArray(item.lore)) {
 				Dom.elements.lore.innerHTML += lorebuyer+"<i>"+item.lore+"</i>";
 				lorebuyer = "<br><br>";
 			}/*else {
 				Dom.elements.lore.innerHTML = "";
 			}*/
+			// item buyer price
 			if (position === "buyer" && item.sellPrice !== undefined && (item.quest === undefined || !item.quest())) {
 				Dom.elements.lore.innerHTML += lorebuyer+"Sell "+(item.sellQuantity !== 1 ? item.sellQuantity : "")+" for "+(item.charges === undefined ? item.sellPrice : Math.ceil(item.sellPrice / (item.maxCharges / item.charges)))+" gold";
 			}
+			// item cooldown
 			if (item.cooldown !== undefined) {
 				item.countdownStart = item.cooldownStart;
 				item.countdown = item.cooldown;
 				item.countdownText = "On cooldown";
 			}
+			// misc timer
 			if (item.countdownStart !== undefined && parseInt(item.countdownStart) + item.countdown > parseInt(GetFullDateTime())) {
 				let answer = CalculateTime(GetFullDateTime(), (parseInt(item.countdownStart) + item.countdown).toString());
 				Dom.elements.lore.innerHTML += (Dom.elements.lore.innerHTML !== "" ? "<br><br>" : "") + item.countdownText+":<br>" + answer;
@@ -1564,6 +1592,7 @@ Dom.inventory.displayInformation = function (item, stacked, element, position, h
 					}
 				},1000);
 			}
+
 			Dom.elements.information.style.width = 1 + Math.max(Dom.elements.name.offsetWidth, Dom.elements.stats.offsetWidth)+"px";
 			Dom.elements.name.style.width = Dom.elements.information.offsetWidth - 31 + "px";
 			Dom.elements.stats.style.width = Dom.elements.information.offsetWidth - 31 + "px";
@@ -3287,14 +3316,14 @@ Dom.inventory.validateSwap = function () {
 	// invalid drag to equip slot
 	if (Dom.inventory.toArray.weapon !== undefined) {
 		if (!((Dom.inventory.toId === Dom.inventory.fromArray[Dom.inventory.fromId].type || ((Dom.inventory.fromArray[Dom.inventory.fromId].allClasses === true ||
-		(Dom.inventory.fromArray[Dom.inventory.fromId].type === "sword" && Player.class === "k") || (Dom.inventory.fromArray[Dom.inventory.fromId].type === "staff" && Player.class === "m") || (Dom.inventory.fromArray[Dom.inventory.fromId].type === "bow" && Player.class === "a") || Dom.inventory.fromArray[Dom.inventory.fromId].type === "rod") && Dom.inventory.toId === "weapon")) && !Dom.inventory.fromArray[Dom.inventory.fromId].unidentified)) {
+		(Dom.inventory.fromArray[Dom.inventory.fromId].type === "sword" && Player.class === "k") || (Dom.inventory.fromArray[Dom.inventory.fromId].type === "staff" && Player.class === "m") || (Dom.inventory.fromArray[Dom.inventory.fromId].type === "bow" && Player.class === "a") || Dom.inventory.fromArray[Dom.inventory.fromId].type === "rod" || Dom.inventory.fromArray[Dom.inventory.fromId].type === "tool") && Dom.inventory.toId === "weapon")) && !Dom.inventory.fromArray[Dom.inventory.fromId].unidentified)) {
 			return false;
 		}
 	}
 	// invalid drag from equip slot
 	if (Dom.inventory.fromArray.weapon !== undefined) {
 		if (!((Dom.inventory.fromId === Dom.inventory.toArray[Dom.inventory.toId].type || ((Dom.inventory.toArray[Dom.inventory.toId].allClasses === true ||
-		(Dom.inventory.toArray[Dom.inventory.toId].type === "sword" && Player.class === "k") || (Dom.inventory.toArray[Dom.inventory.toId].type === "staff" && Player.class === "m") || (Dom.inventory.toArray[Dom.inventory.toId].type === "bow" && Player.class === "a") || Dom.inventory.toArray[Dom.inventory.toId].type === "rod") && Dom.inventory.fromId === "weapon")) && !Dom.inventory.toArray[Dom.inventory.toId].unidentified)
+		(Dom.inventory.toArray[Dom.inventory.toId].type === "sword" && Player.class === "k") || (Dom.inventory.toArray[Dom.inventory.toId].type === "staff" && Player.class === "m") || (Dom.inventory.toArray[Dom.inventory.toId].type === "bow" && Player.class === "a") || Dom.inventory.toArray[Dom.inventory.toId].type === "rod" || Dom.inventory.toArray[Dom.inventory.toId].type === "tool") && Dom.inventory.fromId === "weapon")) && !Dom.inventory.toArray[Dom.inventory.toId].unidentified)
 		&& Dom.inventory.toArray[Dom.inventory.toId].image !== undefined) { // checking if it exists
 			return false;
 		}
@@ -3552,7 +3581,7 @@ Dom.inventory.removeEquipment = function (array) {
 	// draw slot background
 	let element = "weapon";
 	let type = "sword";
-	if (array.type !== "rod" && array.type !== "sword" && array.type !== "staff" && array.type !== "bow") {
+	if (array.type !== "rod" && array.type !== "tool" && array.type !== "sword" && array.type !== "staff" && array.type !== "bow") {
 		element = array.type;
 		type = array.type;
 	}
@@ -3641,7 +3670,7 @@ Dom.inventory.removeEquipment = function (array) {
 Dom.inventory.addEquipment = function (array, noSet) {
 	// remove slot background
 	let element = "weapon";
-	if (array.type !== "rod" && array.type !== "sword" && array.type !== "staff" && array.type !== "bow") {
+	if (array.type !== "rod" && array.type !== "tool" && array.type !== "sword" && array.type !== "staff" && array.type !== "bow") {
 		element = array.type;
 	}
 	document.getElementById(element).style.backgroundImage = "none";
@@ -4750,7 +4779,7 @@ Dom.inventory.reEquip = function (event) {
 	let slot = event.target.id;//composedPath()[0].id;
 	if (!Dom.inventory.deEquip) {
 		for (let i = Player.inventory.items.length-1; i >= 0; i--) {
-			if (Player.inventory.items[i].type === slot || (slot === "weapon" && (Player.inventory.items[i].type === "sword" || Player.inventory.items[i].type === "staff" || Player.inventory.items[i].type === "bow" || Player.inventory.items[i].type === "rod"))) {
+			if (Player.inventory.items[i].type === slot || (slot === "weapon" && (Player.inventory.items[i].type === "sword" || Player.inventory.items[i].type === "staff" || Player.inventory.items[i].type === "bow" || Player.inventory.items[i].type === "rod" || Player.inventory.items[i].type === "tool"))) {
 				Dom.inventory.drop(event, Player.inventory, slot, Dom.elements.itemInventory.getElementsByTagName("td")[i], Player.inventory.items, i); // to, from
 				break;
 			}
@@ -4780,7 +4809,7 @@ Dom.inventory.prepare = function (array, i, element) {
 	if (array[i].type === "teleport") {
 		Items[array[i].type][array[i].id].onClick = Dom.inventory.teleport;
 	}
-	if ((array[i].type === "sword" || array[i].type === "staff" || array[i].type === "bow" || array[i].type === "rod") && array[i].name !== undefined) {
+	if ((array[i].type === "sword" || array[i].type === "staff" || array[i].type === "bow" || array[i].type === "rod" || array[i].type === "tool") && array[i].name !== undefined) {
 		Items[array[i].type][array[i].id].onClick = function (i) {
 			if (Dom.bank.active) {
 				Dom.inventory.inOut("in", i, "bank");

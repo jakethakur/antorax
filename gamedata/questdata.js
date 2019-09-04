@@ -1357,7 +1357,7 @@ After all, death is never the end in Antorax...<br>
 
 			rewards: {
 				xp: 30,
-				items: [{item: Items.item[1],}],
+				items: [{item: Items.item[1],}], // question mark
 				timesCompleted: [
 					[{item: Items.item[4]}], // polished rock
 					[{item: Items.item[3]}], // scrap of cloth
@@ -1409,6 +1409,45 @@ After all, death is never the end in Antorax...<br>
 
 		},
 
+	],
+
+	eaglecrest: [
+		{
+			id: 0,
+			quest: "Help! Lost Cat",
+			questArea: "eaglecrest",
+
+			startName: "Have you seen this cat?",
+			startChat: "Black cat with white paws and nose.<br>His name is Amelio.<br>Last seen outside the Eaglecrest tavern.<br>Please bring to Priest Kemp-Eau inside Eaglecrest Monastery for a reward.",
+
+			finishName: "Priest Kemp-Eau",
+			finishChat: "",
+
+			objectives: [
+				"Find the lost cat, Amelio.",
+				"Speak to <strong>Priest Kemp-Eau</strong>.",
+			],
+
+			isCompleted: function() {
+				let completed = [];
+
+				// true or falses for each objective (apart from the turn-in objective)
+				completed.push(false);
+
+				completed = checkFinished(completed);
+
+				return completed;
+			},
+
+			howToStart: "Find the 'lost cat' notice in Eaglecrest City.",
+			levelRequirement: 4,
+			questRequirements: ["To Eaglecrest, and Beyond!"],
+
+			rewards: {
+				xp: 30,
+				items: [{item: Items.currency[2], quantity: 3}],
+			},
+		},
 	],
 
 	tavern: [

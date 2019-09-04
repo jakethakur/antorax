@@ -1418,19 +1418,10 @@ var Areas = {
 				y: 750,
 				image: "dummy",
 				name: "Training Dummy",
-				hostility: "dummy",
-				subSpecies: "dummy",
+				speciesTemplate: SpeciesTemplates.dummy,
 				stats: {
 					maxHealth: 1000,
 				},
-				chat: {
-					fiftyPercentHealth: "/me creaks",
-					tenPercentHealth: "/me creaks loudly",
-					death: "/me crumbles into a heap of rubble",
-				},
-				onDeath: function () {
-                    User.progress.dummies = Increment(User.progress.dummies);
-                },
 			},
 		],
 
@@ -3560,6 +3551,7 @@ var Areas = {
 			identifier: {normal: "assets/npcs/hranatha.png"},
 			eaglecrestLampDay: {normal: "assets/objects/eaglecrestLampDay.png"},
 			eaglecrestLampNight: {normal: "assets/objects/eaglecrestLampNight.png"},
+			helpNotice: {normal: "assets/objects/helpNotice.png"},
 		},
 
 		areaTeleports: [
@@ -3745,6 +3737,32 @@ var Areas = {
 					tooPoor: "I can't itentify that for free, you know.",
 				},
 			},
+			{
+				// id: 9,
+				x: 691,
+				y: 1187,
+				orderOffsetY: 37.5,
+				image: "helpNotice",
+				name: "Help Notice",
+				hideNameTag: true,
+				hostility: "object",
+				stats: {
+					// tbd make it so this can be removed
+				},
+				roles: [
+					{
+						role: "questStart",
+						quest: Quests.eaglecrest[0],
+					},
+				],
+				chat: {
+					questProgress: "The cat is black with white paws and nose. His name is Amelio and it was last seen outside the Eaglecrest tavern.",
+				},
+				canBeShown: function () {
+					return !Player.quests.completedQuestArray.includes("Help! Lost Cat");
+				},
+				showNameInChat: false,
+			},
 		],
 
 		mailboxes: [
@@ -3803,6 +3821,7 @@ var Areas = {
 				},
 				animationFrameTime: 300, // formerly 250
 			},
+			// border lampposts
 			{
 				x: 90,
 				y: 750,
@@ -3841,6 +3860,35 @@ var Areas = {
 			{
 				x: 1200,
 				y: 1620,
+				imageDay: "eaglecrestLampDay",
+				imageNight: "eaglecrestLampNight",
+				name: "Eaglecrest Lamp",
+			},
+			// grass lampposts
+			{
+				x: 690,
+				y: 750,
+				imageDay: "eaglecrestLampDay",
+				imageNight: "eaglecrestLampNight",
+				name: "Eaglecrest Lamp",
+			},
+			{
+				x: 1230,
+				y: 750,
+				imageDay: "eaglecrestLampDay",
+				imageNight: "eaglecrestLampNight",
+				name: "Eaglecrest Lamp",
+			},
+			{
+				x: 690,
+				y: 1170,
+				imageDay: "eaglecrestLampDay",
+				imageNight: "eaglecrestLampNight",
+				name: "Eaglecrest Lamp",
+			},
+			{
+				x: 1230,
+				y: 1170,
 				imageDay: "eaglecrestLampDay",
 				imageNight: "eaglecrestLampNight",
 				name: "Eaglecrest Lamp",
@@ -4291,6 +4339,7 @@ var Areas = {
 			table: {normal: "assets/objects/table.png"},
 			largeTable: {normal: "assets/objects/largeTable.png"},
 			barrel: {normal: "assets/objects/barrel.png"},
+			cat1: {normal: "assets/npcs/cat1.png"}
 		},
 
 		areaTeleports: [
@@ -4634,6 +4683,17 @@ var Areas = {
 			},
 		],
 
+		villagers: [
+			{
+				image: "cat1",
+				name: "Amelio",
+				speciesTemplate: SpeciesTemplates.cat,
+				canBeShown: function () {
+					return Player.quests.activeQuestArray.includes("Help! Lost Cat");
+				}
+			},
+		],
+
 		collisions: [
 			{
 				x: 1049, // bottom of right stairs
@@ -4896,6 +4956,7 @@ var Areas = {
 			eaglecrestianForgedBow: {normal: "assets/items/bow/11.png"},
 			eaglecrestianForgedStaff: {normal: "assets/items/staff/11archaeology.png"},
 			eaglecrestianForgedSword: {normal: "assets/items/sword/12.png"},
+			anvil: {normal: "assets/objects/anvil.png"},
 		},
 
 		areaTeleports: [
@@ -5003,6 +5064,18 @@ var Areas = {
 				y: 90,
 				image: "eaglecrestianForgedSword",
 				name: "Eaglecrestian Forged Sword",
+			},
+			{
+				x: 636,
+				y: 397,
+				image: "anvil",
+				name: "Anvil",
+			},
+			{
+				x: 55,
+				y: 690,
+				image: "anvil",
+				name: "Anvil",
 			},
 		],
 
@@ -5220,6 +5293,17 @@ var Areas = {
 		images: {
 			tiles: {normal: "assets/tilemap/eaglecrest.png"},
 			barda: {normal: "assets/npcs/barda.png"},
+			wardrobeClosed: {normal: "assets/objects/wardrobeClosed.png"},
+			wardrobeOpen1: {normal: "assets/objects/wardrobeOpen1.png"},
+			wardrobeOpen2: {normal: "assets/objects/wardrobeOpen2.png"},
+			crate: {normal: "assets/objects/crate.png"},
+			eaglecrestBanner: {normal: "assets/objects/eaglecrestBanner.png"},
+			table: {normal: "assets/objects/table.png"},
+			largeTable: {normal: "assets/objects/largeTable.png"},
+			gargoyle: {normal: "assets/objects/gargoyle.png"},
+			sheepRight: {normal: "./assets/enemies/sheep.png"},
+			sheepLeft: {normal: "./assets/enemies/sheep.png", flip: "vertical"},
+			dummy: {normal: "./assets/enemies/dummy.png"},
 		},
 
 		areaTeleports: [
@@ -5264,11 +5348,20 @@ var Areas = {
 				roles: [
 					{
 						sold: [
+							Player.class === "k" ? {item: Items.sword[14], cost: 10}
+							: Player.class === "m" ? {item: Items.staff[12], cost: 10}
+							: {item: Items.bow[12], cost: 10}, // class weapons
+
+							{item: Items.helm[21], cost: 99}, // monocle
+
 							{item: Items.item[28], cost: 1}, // fireroot
+
+							{item: Items.tool[0], cost: 4}, // animal lead
 
 							{item: Items.helm[11], cost: 7, condition: function () { // Umbrella Hat
 								return Weather.weatherType === "rain";
 							}},
+
 							{item: Items.boots[10], cost: 7, condition: function () { // Wellington Boots
 								return Weather.weatherType === "rain";
 							}},
@@ -5297,6 +5390,145 @@ var Areas = {
 					tooPoor: "No gold? Get out of my shop.",
 					areaJoin: "The best shop in west Eaglecrest, no jest.",
 				},
+			},
+		],
+
+		things: [
+			{
+				x: 180,
+				y: 170,
+				image: "wardrobeOpen1",
+				name: "Wardrobe"
+			},
+			{
+				x: 390,
+				y: 170,
+				image: "wardrobeClosed",
+				name: "Wardrobe"
+			},
+			{
+				x: 600,
+				y: 170,
+				image: "wardrobeOpen2",
+				name: "Wardrobe"
+			},
+			{
+				x: 60,
+				y: 225,
+				orderOffsetY: -50,
+				image: "crate",
+				name: "Crate"
+			},
+			{
+				x: 320,
+				y: 220,
+				orderOffsetY: -50,
+				image: "crate",
+				name: "Crate"
+			},
+			{
+				x: 670,
+				y: 220,
+				orderOffsetY: -50,
+				image: "crate",
+				name: "Crate"
+			},
+			{
+				x: 740,
+				y: 224,
+				orderOffsetY: -50,
+				image: "crate",
+				name: "Crate"
+			},
+			{
+				x: 450,
+				y: 165,
+				orderOffsetY: -50,
+				image: "eaglecrestBanner",
+				name: "Eaglecrest Banner"
+			},
+			{
+				x: 650,
+				y: 800,
+				orderOffsetY: -40,
+				image: "largeTable",
+				name: "Table"
+			},
+			{
+				x: 50,
+				y: 610,
+				image: "wardrobeClosed",
+				name: "Wardrobe"
+			},
+			{
+				x: 150,
+				y: 690,
+				orderOffsetY: -10,
+				image: "table",
+				name: "Table"
+			},
+			{
+				x: 600,
+				y: 350,
+				image: "eaglecrestBanner",
+				name: "Eaglecrest Banner"
+			},
+			{
+				x: 220,
+				y: 350,
+				image: "gargoyle",
+				name: "Monastery Gargoyle Head",
+				crop: {
+					width: 60, // crop out extended bit for attaching to wall
+				}
+			},
+			{
+				x: 10,
+				y: 370,
+				orderOffsetY: -50,
+				image: "crate",
+				name: "Crate"
+			},
+			{
+				x: 10,
+				y: 370,
+				orderOffsetY: -50,
+				image: "crate",
+				name: "Crate"
+			},
+		],
+
+		dummies: [
+			{
+				x: 540,
+				y: 570,
+				image: "dummy",
+				name: "Training Dummy",
+				speciesTemplate: SpeciesTemplates.dummy,
+				stats: {
+					maxHealth: 1000,
+				},
+			},
+		],
+
+		villagers: [
+			{
+				image: "sheepLeft",
+				name: "Bella",
+				level: 1,
+				stats: {
+					maxHealth: 20,
+					walkSpeed: 100,
+				},
+				hostility: "friendly",
+				chat: {
+					notUnlockedRoles: "Baaaaaa"
+				},
+				rotationImages: {
+					left: "sheepLeft",
+					right: "sheepRight"
+				},
+				canBeOnLead: true,
 			},
 		],
 	},
@@ -5851,6 +6083,62 @@ var Villagers = [
 			chooseChat: "You know there's said to sometimes be floating presents in the sky held up by balloons. That's why you should always carry around a slingshot!",
 			receiveTavernGood: "Excellent! Just in time.",
 		}
+	},
+	{
+		image: "cat1",
+		imageSource: {normal: "assets/npcs/cat1.png"},
+		name: "Cat",
+		hideNameTag: true,
+		areas: [
+			"eaglecrest",
+			"eaglecrestEast",
+			"eaglecrestWest",
+			"eaglecrestGraveyard",
+		],
+		roles: [],
+		speciesTemplate: SpeciesTemplates.cat,
+	},
+	{
+		image: "cat2",
+		imageSource: {normal: "assets/npcs/cat2.png"},
+		name: "Cat",
+		hideNameTag: true,
+		areas: [
+			"eaglecrest",
+			"eaglecrestEast",
+			"eaglecrestWest",
+			"eaglecrestGraveyard",
+		],
+		roles: [],
+		speciesTemplate: SpeciesTemplates.cat,
+	},
+	{
+		image: "cat3",
+		imageSource: {normal: "assets/npcs/cat3.png"},
+		name: "Cat",
+		hideNameTag: true,
+		areas: [
+			"eaglecrest",
+			"eaglecrestEast",
+			"eaglecrestWest",
+			"eaglecrestGraveyard",
+		],
+		roles: [],
+		speciesTemplate: SpeciesTemplates.cat,
+	},
+	{
+		image: "cat4",
+		imageSource: {normal: "assets/npcs/cat4.png"},
+		name: "Cat",
+		hideNameTag: true,
+		areas: [
+			"eaglecrest",
+			"eaglecrestEast",
+			"eaglecrestWest",
+			"eaglecrestGraveyard",
+		],
+		roles: [],
+		speciesTemplate: SpeciesTemplates.cat,
 	},
 ];
 

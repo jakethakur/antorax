@@ -32,6 +32,31 @@ const SpeciesTemplates = {
 			}
 		}
 	},
+	dummy: {
+		hostility: "dummy",
+		subSpecies: "dummy",
+		chat: {
+			fiftyPercentHealth: "/me creaks",
+			tenPercentHealth: "/me creaks loudly",
+			death: "/me crumbles into a heap of rubble",
+		},
+		onDeath: function () {
+			User.progress.dummies = Increment(User.progress.dummies);
+		},
+	},
+	cat: {
+		hostility: "friendly",
+		species: "cat",
+		level: 1,
+		stats: {
+			maxHealth: 15,
+			walkSpeed: 170,
+		},
+		chat: {
+			notUnlockedRoles: "Miau.",
+		},
+		canBeOnLead: true,
+	},
 };
 
 const NPCTemplates = {

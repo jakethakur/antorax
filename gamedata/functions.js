@@ -31,6 +31,8 @@ Loader.loadImage = function (key, src, deleteIf, flipMode) {
 					FlipImage(img, flipMode).then(function (flippedImg) {
 						this.images[key] = {
 							img: flippedImg,
+							src: src,
+							flipped: flipMode,
 							deleteIf: deleteIf
 						};
 			            resolve(flippedImg);
@@ -39,6 +41,7 @@ Loader.loadImage = function (key, src, deleteIf, flipMode) {
 				else {
 					this.images[key] = {
 						img: img,
+						src: src,
 						deleteIf: deleteIf
 					};
 		            resolve(img);
@@ -66,6 +69,17 @@ Loader.loadImage = function (key, src, deleteIf, flipMode) {
 Loader.getImage = function (key) {
 	if (key in this.images) {
 		return this.images[key].img;
+	}
+	else {
+		console.error("Image " + key + " could not be loaded. Is it misspelt or not already loaded in?");
+		return null;
+	}
+};
+
+// get whole object of image at key (contains source, flipped, etc.)
+Loader.getImageInfo = function (key) {
+	if (key in this.images) {
+		return this.images[key];
 	}
 	else {
 		console.error("Image " + key + " could not be loaded. Is it misspelt or not already loaded in?");

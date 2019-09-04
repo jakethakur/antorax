@@ -952,7 +952,9 @@ class Entity {
 		}
 	}
 
-	// confirm that nothing is being touched in a particular array
+	// check if something is being touched in a particular array
+	// true = at least one thing in array is being touched
+	// false = nothing in array is being touched
 	isTouchingType (array) {
 		for (let i = 0; i < array.length; i++) {
 			if (this.isTouching(array[i])) {
@@ -961,6 +963,19 @@ class Entity {
 		}
 		// not touching any of them
 		return false;
+	}
+
+	// return an array of touched entities
+	getTouching () {
+		let touchingArray = [];
+
+		for (let i = 0; i < Game.allEntities.length; i++) {
+			if (this.isTouching(Game.allEntities[i])) {
+				touchingArray.push(Game.allEntities[i]);
+			}
+		}
+
+		return touchingArray;
 	}
 
 	// get top, bottom, left, and right positions in pixels
@@ -983,13 +998,13 @@ class Thing extends Entity {
 
 		// set image related variables
 		if (properties.image !== undefined) {
-			this.setImage(properties.image, properties.crop, properties.width, properties.height);
+			this.setImage(properties.image, properties.crop, properties.width, properties.height, properties.rotationImages);
 		}
 		else if (properties.imageDay !== undefined) {
 			// has separate day image and night image
 			this.imageDay = properties.imageDay;
 			this.imageNight = properties.imageNight;
-			this.setImage(properties.imageDay, properties.crop, properties.width, properties.height);
+			this.setImage(properties.imageDay, properties.crop, properties.width, properties.height, properties.rotationImages);
 			// this is set by setDayNightImages
 		}
 		else {
@@ -1024,6 +1039,8 @@ class Thing extends Entity {
 		if (properties.addToObjectArrays !== false) {
 			Game.allThings.push(this); // array for current area only
 		}
+
+		this.canBeOnLead = properties.canBeOnLead || false; // whether a lead can be put on them
 	}
 
 	// imageName is the key name of the image stored in loader
@@ -1040,7 +1057,10 @@ class Thing extends Entity {
 			}
 
 			this.imageName = imageName;
-			this.image = Loader.getImage(imageName);
+			let imageObject = Loader.getImageInfo(imageName);
+			this.image = imageObject.img;
+			this.imageSrc = imageObject.src;
+			this.imageFlipped = imageObject.flipped;
 
 			this.setImageDimensions(crop, width, height);
 
@@ -2279,187 +2299,219 @@ class Hero extends Attacker {
 						Game.secondary.updateCursor(e); // no longer crosshair because attack is reloading
 					}
 				}
-				else if (Player.inventory.weapon.type === "rod" && this.channelling === false) {
-					// fishing rod (bobber has not been cast yet)
-					this.fishingBobs = 0; // number of times that the fishing bobber has bobbed
-					if (Weather.weatherType === "rain") {
-						this.fishingBobs = 1; // faster to get fish when it is raining
-					}
 
-					if (distanceToProjectile < this.stats.range && this.map.isSlowTileAtXY(projectileX, projectileY) === "water") {
-						// player is in range and clicked in water
+				else if (Player.inventory.weapon.type === "rod") {
+					// fishing rod
 
-						this.channelling = "fishing";
-
-						this.channellingProjectileId = Game.nextEntityId;
-
-						let bobber = new Projectile({
-							map: map,
-							x: projectileX,
-							y: projectileY,
-							crop: {
-								x: 0,
-								y: 0,
-								width: 27,
-								height: 23
-							},
-							image: Game.heroBobberName,
-							beingChannelled: true,
-							type: "projectiles",
-						});
-						Game.projectiles.push(bobber);
-						bobber.bobberState = 0;
-
-						// timer for first bob
-						let bobTime = Random(1000, 12000);
+					if (this.channelling === false) {
+						// bobber has not been cast yet
+						this.fishingBobs = 0; // number of times that the fishing bobber has bobbed
 						if (Weather.weatherType === "rain") {
-							// shorter bobTime if it is raining
-							bobTime = Math.round(bobTime / 2); // now 500 to 6000
+							this.fishingBobs = 1; // faster to get fish when it is raining
 						}
-						setTimeout(this.fish.bind(this), bobTime);
+
+						if (distanceToProjectile < this.stats.range && this.map.isSlowTileAtXY(projectileX, projectileY) === "water") {
+							// player is in range and clicked in water
+
+							this.channelling = "fishing";
+
+							this.channellingProjectileId = Game.nextEntityId;
+
+							let bobber = new Projectile({
+								map: map,
+								x: projectileX,
+								y: projectileY,
+								crop: {
+									x: 0,
+									y: 0,
+									width: 27,
+									height: 23
+								},
+								image: Game.heroBobberName,
+								beingChannelled: true,
+								type: "projectiles",
+							});
+							Game.projectiles.push(bobber);
+							bobber.bobberState = 0;
+
+							// timer for first bob
+							let bobTime = Random(1000, 12000);
+							if (Weather.weatherType === "rain") {
+								// shorter bobTime if it is raining
+								bobTime = Math.round(bobTime / 2); // now 500 to 6000
+							}
+							setTimeout(this.fish.bind(this), bobTime);
+						}
+					}
+					else if (this.channelling === "fishing") {
+						// bobber has been cast
+
+						/*Game.removeObject(this.channellingProjectileId, "projectiles"); // remove bobber
+
+						this.channelling = false;
+						this.channellingProjectileId = null;*/
+
+						// in the future, the player should be able to remove the bobber whilst fishing
+					}
+					else if (this.channelling.fishingType !== undefined && this.fishingBobs >= 100) { // channelling.type is only defined when it is set to an item (i.e. a fishing item)
+						// fish has been caught - player is clicking to pull it up
+
+						this.fishingBobs++;
+
+						if (this.fishingBobs >= 100 + this.channelling.clicksToCatch) {
+							// fish caught
+
+							// quest progress
+							Player.quests.questProgress.itemsFishedUp = Increment(Player.quests.questProgress.itemsFishedUp);
+
+							// chat message
+							if (this.channelling.fishingType === "fish") { // fish
+								Dom.chat.insert("You caught a " + this.channelling.length + "cm <strong>" + this.channelling.name + "</strong>!");
+							}
+							else if (this.channelling.fishingType === "waterjunk") { // junk item
+								Dom.chat.insert("You fished up a <strong>" + this.channelling.name + "</strong>.");
+							}
+							else if (this.channelling.fishingType === "watermisc") { // misc
+								Dom.chat.insert("You reeled up a <strong>" + this.channelling.name + "</strong>.");
+							}
+							else {
+								console.error("It is not known that an item of fishingType " + channelling.fishingType + " can be fished up.");
+							}
+
+							// increase fishing skill
+							// see fish spreadsheet for algorithm
+							// note: if the Game.hero stats were updated in the middle of this code, it **might** ignore some skill that should have been added (overwritten back to old value in savedata.js) - tbd fix this
+							// tbd make own function
+							let oldFishingSkill = this.stats.fishingSkill; // remember old fishing skill to know if it has changed by a whole number
+							// normal fishing skill values
+							if (this.channelling.fishingType === "waterjunk") {
+								if (this.stats.fishingSkill < FishingLevels[Player.lootArea]) {
+									// player's fishing skill is too low to get any other items
+									this.stats.fishingSkill++;
+								}
+							}
+							else if (this.channelling.rarity === "common") {
+								if (this.stats.fishingSkill >= FishingLevels[Player.lootArea] &&
+								this.stats.fishingSkill < FishingLevels[Player.lootArea] + 15) {
+									// player has only unlocked commons in this area
+									this.stats.fishingSkill++;
+								}
+								else if (this.stats.fishingSkill >= FishingLevels[Player.lootArea] + 15 &&
+								this.stats.fishingSkill < FishingLevels[Player.lootArea] + 30) {
+									// player has only unlocked commons and uniques in this area
+									this.stats.fishingSkill += 0.5;
+								}
+								else if (this.stats.fishingSkill >= FishingLevels[Player.lootArea] + 30 &&
+								this.stats.fishingSkill < FishingLevels[Player.lootArea] + 45) {
+									// player has recently unlocked mythics in this area
+									this.stats.fishingSkill += 0.25;
+								}
+								else {
+									// player has outleveled this area
+									this.stats.fishingSkill += 0.1;
+								}
+							}
+							else if (this.channelling.rarity === "unique") {
+								if (this.stats.fishingSkill >= FishingLevels[Player.lootArea] + 15 &&
+								this.stats.fishingSkill < FishingLevels[Player.lootArea] + 30) {
+									// player has only unlocked commons and uniques in this area
+									this.stats.fishingSkill += 2;
+								}
+								else if (this.stats.fishingSkill >= FishingLevels[Player.lootArea] + 30 &&
+								this.stats.fishingSkill < FishingLevels[Player.lootArea] + 45) {
+									// player has recently unlocked mythics in this area
+									this.stats.fishingSkill++;
+								}
+								else {
+									// player has outleveled this area
+									this.stats.fishingSkill += 0.5;
+								}
+							}
+							else if (this.channelling.rarity === "mythic") {
+								if (this.stats.fishingSkill >= FishingLevels[Player.lootArea] + 30 &&
+								this.stats.fishingSkill < FishingLevels[Player.lootArea] + 45) {
+									// player has recently unlocked mythics in this area
+									this.stats.fishingSkill += 3;
+								}
+								else {
+									// player has outleveled this area
+									this.stats.fishingSkill++;
+								}
+							}
+							else {
+								console.warn("Fishing item " + this.channelling + "currently never gives any fishing skill, but probably should.");
+							}
+
+							if (this.channelling.length !== undefined) {
+								// player has caught a fish
+								// achievement variable
+								User.progress.fish = Increment(User.progress.fish);
+								// quest variable
+								Player.quests.questProgress.fishCaught = Increment(Player.quests.questProgress.fishCaught);
+							}
+
+							// give fish
+							// must be after quest progress and fishing skill
+							let inventoryPosition = Dom.inventory.give(this.channelling);
+							// inventory position saved for if onCatch needs it
+
+							// onCatch function
+							if (this.channelling.onCatch !== undefined) {
+								this.channelling.onCatch(inventoryPosition);
+							}
+
+							if (Math.floor(this.stats.fishingSkill) - Math.floor(oldFishingSkill) > 0) { // check if the player's fishing skill has increased to the next integer (or more)
+								Dom.chat.insert("Your fishing skill has increased to " + Math.floor(this.stats.fishingSkill) + "."); // notify them of this in chat
+							}
+
+							// update player stats
+							//Player.stats = Game.hero.stats; // inefficient (should be linked)
+
+							// fish length for fisher's log
+							if (this.channelling.length > User.fish[this.channelling.id]) {
+								User.fish[this.channelling.id] = this.channelling.length;
+							}
+
+							// remove fishing bobber
+							Game.removeObject(this.channellingProjectileId, "projectiles");
+							this.channelling = false;
+							this.channellingProjectileId = null;
+
+							Dom.checkProgress();
+						}
 					}
 				}
-				else if (Player.inventory.weapon.type === "rod" && this.channelling === "fishing") {
-					// fishing rod (bobber has been cast)
 
-					/*Game.removeObject(this.channellingProjectileId, "projectiles"); // remove bobber
+				else if (Player.inventory.weapon.type === "tool" && Player.inventory.weapon.toolType === "lead") {
+					// animal lead
 
-					this.channelling = false;
-					this.channellingProjectileId = null;*/
+					// get animals being touched
+					let touchedAnimals = Game.allThings.filter(thing => thing.canBeOnLead && thing.isTouching({x: projectileX, y: projectileY, width: 1, height: 1}) && !thing.respawning);
 
-					// in the future, the player should be able to remove the bobber whilst fishing
-				}
-				else if (Player.inventory.weapon.type === "rod" && this.channelling.fishingType !== undefined && this.fishingBobs >= 100) { // channelling.type is only defined when it is set to an item (i.e. a fishing item)
-					// fishing rod (fish has been caught - player is clicking to pull it up)
+					if (touchedAnimals.length > 0) {
+						// a touched animal can have a lead put on it
 
-					this.fishingBobs++;
-
-					if (this.fishingBobs >= 100 + this.channelling.clicksToCatch) {
-						// fish caught
-
-						// quest progress
-						Player.quests.questProgress.itemsFishedUp = Increment(Player.quests.questProgress.itemsFishedUp);
-
-						// chat message
-						if (this.channelling.fishingType === "fish") { // fish
-							Dom.chat.insert("You caught a " + this.channelling.length + "cm <strong>" + this.channelling.name + "</strong>!");
-						}
-						else if (this.channelling.fishingType === "waterjunk") { // junk item
-							Dom.chat.insert("You fished up a <strong>" + this.channelling.name + "</strong>.");
-						}
-						else if (this.channelling.fishingType === "watermisc") { // misc
-							Dom.chat.insert("You reeled up a <strong>" + this.channelling.name + "</strong>.");
-						}
-						else {
-							console.error("It is not known that an item of fishingType " + channelling.fishingType + " can be fished up.");
+						if (Game.hero.hasOnLead !== undefined) {
+							// animal is already on lead
+							Game.hero.hasOnLead.onLead = undefined; // animal (Game.hero.hasOnLead) is no longer on lead
 						}
 
-						// increase fishing skill
-						// see fish spreadsheet for algorithm
-						// note: if the Game.hero stats were updated in the middle of this code, it **might** ignore some skill that should have been added (overwritten back to old value in savedata.js) - tbd fix this
-						// tbd make own function
-						let oldFishingSkill = this.stats.fishingSkill; // remember old fishing skill to know if it has changed by a whole number
-						// normal fishing skill values
-						if (this.channelling.fishingType === "waterjunk") {
-							if (this.stats.fishingSkill < FishingLevels[Player.lootArea]) {
-								// player's fishing skill is too low to get any other items
-								this.stats.fishingSkill++;
-							}
+						Game.hero.hasOnLead = touchedAnimals[touchedAnimals.length-1]; // end of array to get animal at top
+						touchedAnimals[touchedAnimals.length-1].onLead = true;
+					}
+					else {
+						// take off lead from existing animal (if there is one already on a lead)
+						if (Game.hero.hasOnLead !== undefined) {
+							Game.hero.hasOnLead.onLead = undefined; // animal (Game.hero.hasOnLead) is no longer on lead
+							Game.hero.hasOnLead = undefined;
 						}
-						else if (this.channelling.rarity === "common") {
-							if (this.stats.fishingSkill >= FishingLevels[Player.lootArea] &&
-							this.stats.fishingSkill < FishingLevels[Player.lootArea] + 15) {
-								// player has only unlocked commons in this area
-								this.stats.fishingSkill++;
-							}
-							else if (this.stats.fishingSkill >= FishingLevels[Player.lootArea] + 15 &&
-							this.stats.fishingSkill < FishingLevels[Player.lootArea] + 30) {
-								// player has only unlocked commons and uniques in this area
-								this.stats.fishingSkill += 0.5;
-							}
-							else if (this.stats.fishingSkill >= FishingLevels[Player.lootArea] + 30 &&
-							this.stats.fishingSkill < FishingLevels[Player.lootArea] + 45) {
-								// player has recently unlocked mythics in this area
-								this.stats.fishingSkill += 0.25;
-							}
-							else {
-								// player has outleveled this area
-								this.stats.fishingSkill += 0.1;
-							}
-						}
-						else if (this.channelling.rarity === "unique") {
-							if (this.stats.fishingSkill >= FishingLevels[Player.lootArea] + 15 &&
-							this.stats.fishingSkill < FishingLevels[Player.lootArea] + 30) {
-								// player has only unlocked commons and uniques in this area
-								this.stats.fishingSkill += 2;
-							}
-							else if (this.stats.fishingSkill >= FishingLevels[Player.lootArea] + 30 &&
-							this.stats.fishingSkill < FishingLevels[Player.lootArea] + 45) {
-								// player has recently unlocked mythics in this area
-								this.stats.fishingSkill++;
-							}
-							else {
-								// player has outleveled this area
-								this.stats.fishingSkill += 0.5;
-							}
-						}
-						else if (this.channelling.rarity === "mythic") {
-							if (this.stats.fishingSkill >= FishingLevels[Player.lootArea] + 30 &&
-							this.stats.fishingSkill < FishingLevels[Player.lootArea] + 45) {
-								// player has recently unlocked mythics in this area
-								this.stats.fishingSkill += 3;
-							}
-							else {
-								// player has outleveled this area
-								this.stats.fishingSkill++;
-							}
-						}
-						else {
-							console.warn("Fishing item " + this.channelling + "currently never gives any fishing skill, but probably should.");
-						}
-
-						if (this.channelling.length !== undefined) {
-							// player has caught a fish
-							// achievement variable
-							User.progress.fish = Increment(User.progress.fish);
-							// quest variable
-							Player.quests.questProgress.fishCaught = Increment(Player.quests.questProgress.fishCaught);
-						}
-
-						// give fish
-						// must be after quest progress and fishing skill
-						let inventoryPosition = Dom.inventory.give(this.channelling);
-						// inventory position saved for if onCatch needs it
-
-						// onCatch function
-						if (this.channelling.onCatch !== undefined) {
-							this.channelling.onCatch(inventoryPosition);
-						}
-
-						if (Math.floor(this.stats.fishingSkill) - Math.floor(oldFishingSkill) > 0) { // check if the player's fishing skill has increased to the next integer (or more)
-							Dom.chat.insert("Your fishing skill has increased to " + Math.floor(this.stats.fishingSkill) + "."); // notify them of this in chat
-						}
-
-						// update player stats
-						//Player.stats = Game.hero.stats; // inefficient (should be linked)
-
-						// fish length for fisher's log
-						if (this.channelling.length > User.fish[this.channelling.id]) {
-							User.fish[this.channelling.id] = this.channelling.length;
-						}
-
-						// remove fishing bobber
-						Game.removeObject(this.channellingProjectileId, "projectiles");
-						this.channelling = false;
-						this.channellingProjectileId = null;
-
-						Dom.checkProgress();
 					}
 				}
 			}
 			else {
-				// knight block attack
+				// right click
 				if (Game.getAttackType() === "sword") {
+					// knight block attack
 					this.channelling = "block";
 				}
 			}
@@ -3211,19 +3263,31 @@ class Villager extends NPC {
 		this.boundary = properties.boundary; // object of rectangle that the npc cannot walk out of (x, y, width, height)
 
 		if (this.boundary === undefined && Areas[Game.areaName].villagerData !== undefined) {
-			// random boundary from the villagerdata of the villager's arealet locationIndex = Math.round(i + (this.villagerSeed*2)) % Areas[areaName].villagerData.locations.length;
-			let locationIndex = Math.round(i + (Game.villagerSeed*2)) % Areas[Game.areaName].villagerData.locations.length;
+			// random boundary from the villagerdata of the villager's area
+			let locationIndex = Math.round(Game.villagers.length + (Game.villagerSeed*2)) % Areas[Game.areaName].villagerData.locations.length;
 			this.boundary = Areas[Game.areaName].villagerData.locations[locationIndex];
 		}
 
 		// random position inside the boundary
 		this.x = Random(this.boundary.x, this.boundary.x+this.boundary.width);
 		this.y = Random(this.boundary.y, this.boundary.y+this.boundary.height);
+
+		// information about how the npc should behave
+		this.ai = {};
+		this.ai.intelligentMovement = properties.intelligentMovement; // set to true if it stops moving as soon as it collides with something
 	}
 
 	// organises movement
 	update (delta) {
-		// check if the NPC's movement state needs to be reassigned
+		// remember initial postiion and state (used to change state if they try to move but can't, e.g. due to lead)
+		let initialPosition = {x: this.x, y: this.y};
+		let initialState;
+		if (this.state !== undefined) {
+			initialState = this.state.type;
+		}
+
+		// check if the NPC's behaviour state needs to be reassigned
+
 		if (this.state === undefined) { // state has never been assigned
 			if (Random(1,2) === 1) {
 				this.initWaitState();
@@ -3259,6 +3323,38 @@ class Villager extends NPC {
 				this.state.waitElapsed += delta;
 				// ...
 			}
+		}
+
+		// if on hero's lead, check not too far away from hero
+		if (this.onLead) {
+			let distanceFromHero = Game.distance(this, Game.hero);
+
+			if (distanceFromHero > Player.inventory.weapon.leadRange) {
+				let exceededDistance = distanceFromHero - Player.inventory.weapon.leadRange;
+
+				if (exceededDistance > 30) {
+					// break lead - too far for animal to move in one go (30 is arbitrary)
+					this.onLead = undefined;
+					Game.hero.hasOnLead = undefined;
+				}
+				else {
+					// move towards hero for exceeded distance
+					let bearing = Game.bearing(this, Game.hero);
+					this.x += Math.cos(bearing) * exceededDistance;
+					this.y += Math.sin(bearing) * exceededDistance;
+
+					if (this.ai.intelligentMovement) {
+						// wait instantly (rather than trying to move to location but "failing")
+						this.initWaitState();
+					}
+				}
+			}
+		}
+
+		// if trying to move but didn't move (e.g. due to lead, stunned, collision, etc.), change to wait state instead
+		// initialState is checked to ensure it got a chance to move (hasn't just been switched to the state)
+		if (this.state.type === "move" && initialState === "move" && Math.round(initialPosition.x) === Math.round(this.x) && Math.round(initialPosition.y) === Math.round(this.y)) {
+			this.initWaitState();
 		}
 	}
 
@@ -5207,11 +5303,18 @@ Game.loadArea = function (areaName, destination) {
 	let possibleVillagers, villagersToAdd;
 	if (Areas[areaName].villagerData !== undefined) {
 		let returnValues = this.generateVillagers(Areas[areaName].villagerData, areaName);
+
 		p = p.concat(returnValues.p); // more images to be loaded
+
 		// variables used to create villager objects
 		this.villagerSeed = returnValues.seed; // changed each area; saved in game because villager constructor needs it for non generated villagers
 		possibleVillagers = returnValues.possibleVillagers;
 		villagersToAdd = returnValues.villagersToAdd;
+	}
+
+	// character on lead
+	if (this.hero !== undefined && this.hero.hasOnLead !== undefined) {
+		p = p.concat(Loader.loadImage(this.hero.hasOnLead.imageName, this.hero.hasOnLead.imageSrc)); // tbd flipped images (movement and as default)
 	}
 
 	// check that default images are loaded (e.g. player, status effect, etc.) and add any that aren't to toLoad
@@ -5310,6 +5413,7 @@ Game.loadArea = function (areaName, destination) {
 			if (document.getElementById("weatherOn").checked) {
 				Weather.reset();
 			}
+			Weather.updateVariables();
 
 			// close NPC pages
             Dom.closeNPCPages();
@@ -5422,6 +5526,34 @@ Game.loadArea = function (areaName, destination) {
 			}
 		}
 
+		// player pet
+		if (this.hero !== undefined && this.hero.hasOnLead !== undefined) {
+			if (this.prepareNPC(this.hero.hasOnLead, this.hero.hasOnLead.type)) {
+				// edit animal on lead's information to fit with constructor (constructor takes different parameters to constructed object's properties)
+				this.hero.hasOnLead.image = this.hero.hasOnLead.imageName;
+				// generate npc
+				let typeName = this.hero.hasOnLead.type; // name of array in Game
+				let className = this.typeClasses[typeName]; // name of Class
+				let newNPC = new className(this.hero.hasOnLead);
+				this[typeName].push(newNPC);
+				// update npc on lead
+				this.hero.hasOnLead = newNPC;
+				newNPC.onLead = true;
+				// note the position of the npc on lead is changed when the hero's position is changed
+
+				// remove character that is the same as this one in the area (if one exists)
+				// only remove the first one found
+				// same == same name, same imageSrc, same hostility (maybe add more requirements?)
+				let foundIndex = this[typeName].findIndex(villager => villager.name === newNPC.name && villager.imageSrc === newNPC.imageSrc && villager.hostility === newNPC.hostility);
+				if (foundIndex !== -1) {
+					this.removeObject(this[typeName][foundIndex].id, typeName, foundIndex);
+				}
+			}
+			else {
+				console.error("Animal on lead could not be shown. Please tell Jake.", animal)
+			}
+		}
+
 		// players (these are added from websocket instead of areadata)
 		if (ws !== false && ws.readyState === 1) {
 			// websocket is active
@@ -5468,6 +5600,13 @@ Game.loadArea = function (areaName, destination) {
 			this.hero.setSpeed();
 			// update foot hitbox position
 			this.hero.updateFootHitbox();
+
+			// now hero position has been updated, update position of animal on lead (if there is one)
+			if (this.hero.hasOnLead !== undefined) {
+				// same position as hero
+				this.hero.hasOnLead.x = this.hero.x;
+				this.hero.hasOnLead.y = this.hero.y;
+			}
 		}
 		// remove player moveTowards
 		this.hero.moveTowards = undefined;
@@ -5523,13 +5662,7 @@ Game.loadArea = function (areaName, destination) {
 		// render secondary canvas
 		this.secondary.render();
 
-		// if it is nighttime, change all daytime tiles to their nighttime versions
-		map.setDayNightTiles();
-		// same for things' images ...
-		this.setDayNightImages();
-
-		// render day night
-		this.renderDayNight();
+		this.dayNightUpdate();
 
 		// Antorax Day fireworks
 		if (Event.event === "Antorax" && Areas[areaName].data.territory === "Allied" && !Areas[areaName].indoors && this.fireworkInterval === undefined) {
@@ -5862,16 +5995,18 @@ Game.setInformationFromTemplate = function (properties) {
 	if (properties.template !== undefined) {
 		// a template exists
 		// add template properties to main properties object
-		Object.assign(properties.template.stats, properties.stats); // template updated
-		Object.assign(properties, properties.template); // properties updated
-
-		if (properties.speciesTemplate !== undefined) {
-			// a second template, specific to the species
-			if (properties.speciesTemplate.stats !== undefined) {
-				Object.assign(properties.speciesTemplate.stats, properties.stats); // species template updated
-			}
-			Object.assign(properties, properties.speciesTemplate); // properties updated
+		if (properties.template.stats !== undefined) {
+			Object.assign(properties.template.stats, properties.stats); // template updated
 		}
+		Object.assign(properties, properties.template); // properties updated
+	}
+
+	if (properties.speciesTemplate !== undefined) {
+		// a second template, specific to the species
+		if (properties.speciesTemplate.stats !== undefined) {
+			Object.assign(properties.speciesTemplate.stats, properties.stats); // species template updated
+		}
+		Object.assign(properties, properties.speciesTemplate); // properties updated
 	}
 
 	return properties;
@@ -7257,7 +7392,7 @@ Game.playerProjectileUpdate = function(delta) {
 }
 
 // returns the attack type of the player's currently equipped weapon, or undefined if they do not have one equipped
-// "bow", "staff", "sword", or "rod" depending on how the weapon should act for attacking
+// "bow", "staff", "sword", "rod" depending on how the weapon should act for attacking
 // only neccessary to use at the moment for if allProjectiles might affect weapon's type
 Game.getAttackType = function () {
     let weaponType = Player.inventory.weapon.type;
@@ -7368,11 +7503,19 @@ Game.equipmentUpdate = function () {
     // player stats updated
     this.hero.stats = Player.stats; // inefficient (should be linked)
 
+	let weaponType = this.getAttackType(); // type of weapon equipped of player
+
     // if the player is holding a weapon, set their range
     if (Player.inventory.weapon.type !== undefined) {
         // player has weapon equipped
-        let weaponType = this.getAttackType();
-        this.hero.stats.range = WeaponRanges[weaponType] + this.hero.stats.rangeModifier;
+		if (Player.inventory.weapon.range !== undefined) {
+			// weapon has a set range that is different from the generic range type for that item (if one exists)
+			// note this "set range" is not displayed on the item (otherwise rangeModifier should be used)
+        	this.hero.stats.range = Player.inventory.weapon.range + this.hero.stats.rangeModifier;
+		}
+		else {
+        	this.hero.stats.range = WeaponRanges[weaponType] + this.hero.stats.rangeModifier;
+		}
     }
     else {
         // no weapon equipped
@@ -7391,7 +7534,7 @@ Game.equipmentUpdate = function () {
     }
 
 	// set weapon variance
-    if (this.getAttackType() === "bow" || Player.inventory.weapon.variance !== undefined) {
+    if (weaponType === "bow" || Player.inventory.weapon.variance !== undefined) {
         this.hero.stats.variance = Player.inventory.weapon.variance || 100; // 100 is default
     }
     else {
@@ -7400,7 +7543,7 @@ Game.equipmentUpdate = function () {
     }
 
     // set weapon penetration
-    if (this.getAttackType() === "bow" || Player.inventory.weapon.penetration !== undefined) {
+    if (weaponType === "bow" || Player.inventory.weapon.penetration !== undefined) {
         this.hero.stats.penetration = Player.inventory.weapon.penentration || false;
     }
     else {
@@ -7584,8 +7727,11 @@ Game.mailboxUpdate = function (type) {
 			if (Dom.mail.unread() === 0) {
 				for (let i = 0; i < this.mailboxes.length; i++) {
 					// TBD check existing imageName
-					this.mailboxes[i].image = Loader.getImage(this.mailboxes[i].readImage);
 					this.mailboxes[i].imageName = this.mailboxes[i].readImage;
+					let imageObject = Loader.getImageInfo(this.mailboxes[i].readImage);
+					this.mailboxes[i].image = imageObject.img;
+					this.mailboxes[i].imageSrc = imageObject.src;
+					this.mailboxes[i].imageFlipped = imageObject.flipped;
 				}
 			}
 		}
@@ -7593,8 +7739,11 @@ Game.mailboxUpdate = function (type) {
 			// perhaps check if Dom.mail.unread is 1, because only one message will come in at a time and if it is more than 1 then it would already be a flag
 			for (let i = 0; i < this.mailboxes.length; i++) {
 				// TBD check existing imageName
-				this.mailboxes[i].image = Loader.getImage(this.mailboxes[i].unreadImage);
 				this.mailboxes[i].imageName = this.mailboxes[i].unreadImage;
+				let imageObject = Loader.getImageInfo(this.mailboxes[i].unreadImage);
+				this.mailboxes[i].image = imageObject.img;
+				this.mailboxes[i].imageSrc = imageObject.src;
+				this.mailboxes[i].imageFlipped = imageObject.flipped;
 			}
 		}
 		else {
@@ -7846,7 +7995,7 @@ Game.drawCharacterInformation = function (ctx, character) {
 		characterInformationHeight += 15;
 		characterInformationHeight += 3; // padding
 	}
-	else {
+	else if (character.hostility !== "object") {
 		console.error("Unknown character hostility: ", character.hostility);
 	}
 
@@ -8238,20 +8387,48 @@ Game.render = function (delta) {
 
 	}
 
+	// line between fishing bobber and player
 	if (this.hero.channelling === "fishing" || (this.hero.channelling.type !== undefined && this.hero.fishingBobs >= 100)) { // check player's fishing bobber is out
-		// line between fishing bobber and player
+
+		// find projectile
 		let projectile = this.projectiles[this.searchFor(this.hero.channellingProjectileId, this.projectiles)];
-		this.ctx.strokeStyle = "grey";
-		this.ctx.beginPath();
+
+		// change line position based on bobber state
+		let bobberPositionAdjust = 0; // adjust in y value from projectile y
 		if (projectile.bobberState === 0) {
-			this.ctx.moveTo(projectile.screenX, projectile.screenY - 8); // bobber above water
+			bobberPositionAdjust = -8; // bobber above water
 		}
 		else if (projectile.bobberState === 1) {
-			this.ctx.moveTo(projectile.screenX, projectile.screenY); // bobber bobbing
+			bobberPositionAdjust = 0; // bobber bobbing
 		}
 		else if (projectile.bobberState === 2) {
-			this.ctx.moveTo(projectile.screenX, projectile.screenY + 8); // bobber submerged by fish
+			bobberPositionAdjust = 8; // bobber submerged by fish
 		}
+
+		// line colour
+		this.ctx.strokeStyle = "grey";
+
+		// line width
+		this.ctx.lineWidth = 1;
+
+		// fishing line path
+		this.ctx.beginPath();
+		this.ctx.moveTo(projectile.screenX, projectile.screenY + bobberPositionAdjust);
+		this.ctx.lineTo(this.hero.screenX, this.hero.screenY);
+		this.ctx.stroke();
+	}
+
+	// line between lead and player
+	if (this.hero.hasOnLead !== undefined) {
+		// line colour
+		this.ctx.strokeStyle = "#834405";
+
+		// line width
+		this.ctx.lineWidth = 5;
+
+		// line path
+		this.ctx.beginPath();
+		this.ctx.moveTo(this.hero.hasOnLead.screenX, this.hero.hasOnLead.screenY);
 		this.ctx.lineTo(this.hero.screenX, this.hero.screenY);
 		this.ctx.stroke();
 	}
