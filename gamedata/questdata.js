@@ -1305,46 +1305,53 @@ After all, death is never the end in Antorax...<br>
 				finishName: "Nessy Tintop",
 			},
 
+			tightlyPackedPresent: {
+				finishName: "Tightly Packed Present",
+			},
+
 			startChat: [
-				"tbd",
-				"",
-				"",
-				"",
-				"",
-				"",
-				"",
-				"",
-				"",
-				"",
-				"",
+				"Hello? What are you lookin' at? I'm just tryin' to find a friend, OK? He's not missing, it's for a game.<br><br>Yes I've been looking for a while. Yes there's a reward for whoever finds 'im first. Doesn't mean you can go off and look for him and take my reward! But yes, I wouldn't mind your help finding 'im if you insist.",
+				"Alright, my turn to search now - bet y' can't find Nessy first!",
+				"Yes, I'm looking for Torian. He says I <strong>have</strong> to let you join in, but don't take all the reward this time!",
+				"Y'know the drill! Let's find Nessy! Who can get the reward first?",
+				"Yes, I'm looking for Torian. He says I <strong>have</strong> to let you join in, but don't take all the reward this time!",
+				"Y'know the drill! Let's find Nessy! Who can get the reward first?",
+				"Yes, I'm looking for Torian. He says I <strong>have</strong> to let you join in, but don't take all the reward this time!",
+				"Y'know the drill! Let's find Nessy! Who can get the reward first?",
+				"Yes, I'm looking for Torian. He says I <strong>have</strong> to let you join in, but don't take all the reward this time!",
+				"I swear, Nessy's not <strong>anywhere</strong>!!! No way you'll be able to find her this time.",
+				`<strong>Torian Tintop</strong>: Haha, thanks from us for all the help with our hide 'n' find games. Not sure Nessy would 'ave ever found me otherwise!<br><br>
+<strong>Nessy Tintop</strong>: Hey! I'm good as well y'know! They're taller than me! But yeah, Torian's not very good.<br><br>
+<strong>Torian Tintop</strong>: Remember the time I was eaten by a goblin? ... Anyway, we've set up one last game for y'. We've hidden a present somewhere in the Camp for y'. We promise the reward's worth your time!<br><br>
+<strong>Nessy Tintop</strong>: Bet y' can't find it!`,
 			],
 
 			finishChat: [
-				"tbd",
-				"",
-				"",
-				"",
-				"",
-				"",
-				"",
-				"",
-				"",
-				"",
-				"",
+				"Well done! Y' found me! Oh, you're not Nessy... Never mind, y' can still have all the reward! It's not much, but it's all we have. I'm sure it'll be more after a few games here!",
+				"Awh what, you're playin' now? I thought it was Torian's turn! OK, here's your reward.",
+				"Haha, you again! Here's ya reward!",
+				"Ugh, I guess you can have the reward this time. Why's it Torian never finds me first?",
+				"Haha, you again! Here's ya reward!",
+				"Ugh, I guess you can have the reward this time. Why's it Torian never finds me first?",
+				"Haha, you again! Here's ya reward!",
+				"Ugh, I guess you can have the reward this time. Why's it Torian never finds me first?",
+				"Haha, you again! Here's ya reward!",
+				"<strong>What!</strong> You really are good at hide 'n' find!",
+				'<em>The present is signed "From Nessy and Torian Tintop"</em> ',
 			],
 
 			objectives: [
-				["Find <strong>Torian Tintop</strong> somewhere in the logging camp."],
-				["Find <strong>Nessy Tintop</strong> somewhere in the logging camp."],
-				["Find <strong>Torian Tintop</strong> somewhere in the logging camp."],
-				["Find <strong>Nessy Tintop</strong> somewhere in the logging camp."],
-				["Find <strong>Torian Tintop</strong> somewhere in the logging camp."],
-				["Find <strong>Nessy Tintop</strong> somewhere in the logging camp."],
-				["Find <strong>Torian Tintop</strong> somewhere in the logging camp."],
-				["Find <strong>Nessy Tintop</strong> somewhere in the logging camp."],
-				["Find <strong>Torian Tintop</strong> somewhere in the logging camp."],
-				["Find <strong>Nessy Tintop</strong> somewhere in the logging camp."],
-				["Find the <strong>Tightly Wrapped Present</strong> somewhere in the logging camp."],
+				["Find <strong>Torian Tintop</strong> somewhere in the logging camp area."],
+				["Find <strong>Nessy Tintop</strong> somewhere in the logging camp area."],
+				["Find <strong>Torian Tintop</strong> somewhere in the logging camp area."],
+				["Find <strong>Nessy Tintop</strong> somewhere in the logging camp area."],
+				["Find <strong>Torian Tintop</strong> somewhere in the logging camp area."],
+				["Find <strong>Nessy Tintop</strong> somewhere in the logging camp area."],
+				["Find <strong>Torian Tintop</strong> somewhere in the logging camp area."],
+				["Find <strong>Nessy Tintop</strong> somewhere in the logging camp area."],
+				["Find <strong>Torian Tintop</strong> somewhere in the logging camp area."],
+				["Find <strong>Nessy Tintop</strong> somewhere in the logging camp area."],
+				["Find the <strong>Tightly Packed Present</strong> somewhere in the logging camp area."],
 			],
 
 			howToStart: "Speak to one of the <strong>Tintop</strong> twins in the logging camp.",
@@ -1360,7 +1367,7 @@ After all, death is never the end in Antorax...<br>
 				items: [{item: Items.item[1],}], // question mark
 				timesCompleted: [
 					[{item: Items.item[4]}], // polished rock
-					[{item: Items.item[3]}], // scrap of cloth
+					[{item: Items.item[3], quantity: 3}], // scrap of cloth
 					[{item: Items.fish[8]}], // old boot
 					[{item: Items.item[29]}], // burnt cloth
 					[{item: Items.item[11]}], // vial of goblin blood

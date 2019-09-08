@@ -89,8 +89,9 @@ const NPCTemplates = {
 			},
 		],
 		chat: {
-			questComplete: "tbd",
-			inventoryFull: "tbd",
+			chooseChat: "Not doin' anything here. Ignore me. Move on!",
+			questComplete: "I'm still sad you found me, y'know. Thought I had a great spot!",
+			inventoryFull: "Don't expect a reward for finding me unless you have inventory space for it.",
 		},
 		hideNameTag: true,
 	},
@@ -111,8 +112,9 @@ const NPCTemplates = {
 			},
 		],
 		chat: {
-			questComplete: "tbd",
-			inventoryFull: "tbd",
+			chooseChat: "What are you lookin' at?",
+			questComplete: "Next time I hide you'll never be able to find me.",
+			inventoryFull: "Doesn't count that you've found me unless you have inventory space!",
 		},
 		hideNameTag: true,
 	},

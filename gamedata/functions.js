@@ -267,7 +267,7 @@ Keyboard.downFunctions = {
 			if (Dom.chat.displayChat.length > 0 || Dom.elements.canvasChatInput === document.activeElement) {
 				Dom.elements.canvasChatInput.hidden = true;
 			}
-			Dom.elements.chat.hidden = true;
+			Dom.elements.chat.style.visibility = "hidden";
 			Dom.chat.hideInput = true;
         }, 1);
     },
@@ -282,7 +282,7 @@ Keyboard.upFunctions = {
 			if (Dom.chat.displayChat.length > 0 || Dom.elements.canvasChatInput === document.activeElement) {
 				Dom.elements.canvasChatInput.hidden = false;
 			}
-			Dom.elements.chat.hidden = false;
+			Dom.elements.chat.style.visibility = "visible";
 			Dom.chat.hideInput = false;
         }, 1);
     },

@@ -1633,7 +1633,10 @@ Dom.quest.start = function (quest, npc) {
 			}
 
 			let objectives = quest.objectives || quest[ToObjectKey(npc.name)].objectives;
-			if (Array.isArray(objectives[0])) {
+			if (Array.isArray(objectives[0]) &&
+			(objectives.length > Player.quests.timesCompleted[quest.questArea][quest.id] ||
+			Player.quests.timesCompleted[quest.questArea][quest.id] === null ||
+			Player.quests.timesCompleted[quest.questArea][quest.id] === undefined)) {
 				objectives = objectives[Player.quests.timesCompleted[quest.questArea][quest.id] || 0];
 			}
 
@@ -1842,7 +1845,11 @@ Dom.quest.finish = function (quest, npc) {
 		if (Dom.changeBook("questFinish")) {//, true/*false*/, true)) {
 			Dom.elements.questFinishQuest.innerHTML = quest.quest;
 			Dom.elements.questFinishName.innerHTML = quest.finishName || quest[ToObjectKey(npc.name)].finishName;
-			Dom.elements.questFinishChat.innerHTML = quest.finishChat || quest[ToObjectKey(npc.name)].finishChat;
+			let finishChat = quest.finishChat || quest[ToObjectKey(npc.name)].finishChat;
+			if (Array.isArray(finishChat)) {
+				finishChat = finishChat[Player.quests.timesCompleted[quest.questArea][quest.id]];
+			}
+			Dom.elements.questFinishChat.innerHTML = finishChat;
 
 			if (quest.numberOfRepeats !== undefined) {
 				Player.quests.timesCompleted[quest.questArea][quest.id] = Increment(Player.quests.timesCompleted[quest.questArea][quest.id]);
@@ -1896,6 +1903,10 @@ Dom.quest.finish = function (quest, npc) {
 					for (let i = 0; i < quest.rewards.items.length; i++) {
 						if (quest.rewards.items[i].item.type !== "item" || quest.rewards.items[i].item.id !== 1) {
 							Dom.quest.addReward(quest.rewards.items[i], "questFinishItems", "theseQuestFinishOptions", "questFinishStackNum");
+						}
+						else {
+							quest.rewards.items.splice(i, 1);
+							i--;
 						}
 					}
 
@@ -5378,6 +5389,11 @@ window.onbeforeunload = function() {
 	if (Areas[Game.areaName].onAreaLeave !== undefined && Areas[Game.areaName].callAreaLeaveOnLogout) {
 		Areas[Game.areaName].onAreaLeave(true);
 	}
+	if (!Array.isArray(Dom.currentlyDisplayed) && typeof Dom.currentlyDisplayed === "object" && Dom.currentlyDisplayed !== null) {
+		Dom.quest.declineRewards();
+	}
+
+	// save the game (last)
 	if (!Dom.settings.deleted) {
 		Game.saveProgress();
 	}
@@ -5775,6 +5791,19 @@ Dom.init = function () {
 		}
 	}
 
+	if (Object.keys(Quests).length > Object.keys(Player.quests.npcProgress).length) {
+		let object = {};
+		for (let i = 0; i < Object.keys(Quests).length; i++) {
+			if (!Object.keys(Player.quests.npcProgress).includes(Object.keys(Quests)[i])) {
+				object[Object.keys(Quests)[i]] = [];
+			}
+		}
+		let array = ["npcProgress", "questLastFinished", "timesCompleted"];
+		for (let i = 0; i < array.length; i++) {
+			Player.quests[array[i]] = Object.assign(Player.quests[array[i]], object);
+		}
+	}
+
 	// MAIL (mostly)
 	let date = GetFullDate();
 	// the first time the player logs on each day
@@ -5801,7 +5830,7 @@ Dom.init = function () {
 			Dom.instructions.page(0);
 
 			let object = {};
-			for (let i = 0; i < Quests.length; i++) {
+			for (let i = 0; i < Object.keys(Quests).length; i++) {
 				object[Object.keys(Quests)[i]] = [];
 			}
 			let array = ["npcProgress", "questLastFinished", "timesCompleted"];
@@ -5916,6 +5945,9 @@ Dom.init = function () {
 		}
 
 		Player.days.push(date);
+
+		// reset chest locations
+		Player.chests.locations = []
 
 		// reset randomDailyQuests ONLY IF THEY ARE NOT STILL ACTIVE :(
 		let array = [];

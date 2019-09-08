@@ -488,7 +488,7 @@ var Areas = {
 			},
 			{
 				template: NPCTemplates.nessyTintop,
-				x: 3600,
+				x: 3630,
 				y: 266,
 				orderOffsetY: -10,
 				canBeShown: function () {
@@ -1306,8 +1306,8 @@ var Areas = {
 					},
 				],
 				chat: {
-					questProgress: "tbd",
-					questComplete: "tbd",
+					chooseChat: "How you doin'?",
+					questProgress: "It's definitely somewhere!",
 				},
 				canBeShown: function () {
 					return Player.quests.timesCompleted.eaglecrestLoggingCamp[25] === 10;
@@ -1333,8 +1333,8 @@ var Areas = {
 					},
 				],
 				chat: {
-					questProgress: "tbd",
-					questComplete: "tbd",
+					chooseChat: "Hello?",
+					questProgress: "Keep lookin'! You'll never find it otherwise.",
 				},
 				canBeShown: function () {
 					return Player.quests.timesCompleted.eaglecrestLoggingCamp[25] === 10;
@@ -1361,12 +1361,13 @@ var Areas = {
 					},
 				],
 				chat: {
-					questProgress: "tbd",
-					questComplete: "tbd",
+					chooseChat: "How you doin'?",
+					questProgress: "She's gotta be here somewhere!",
+					questComplete: "Thanks for helpin' - it's my turn to hide tomorrow!",
 				},
 				canBeShown: function () {
 					return Player.quests.timesCompleted.eaglecrestLoggingCamp[25] % 2 === 1 &&
-						Player.quests.timesCompleted.eaglecrestLoggingCamp[25] < Quests.eaglecrestLoggingCamp[25].numberOfRepeats-1;
+						Player.quests.possibleQuestArray.includes("A Tale of Two Twintops");
 				},
 				boundary: {
 					x: 39,
@@ -1393,14 +1394,15 @@ var Areas = {
 					},
 				],
 				chat: {
-					questProgress: "tbd",
-					questComplete: "tbd",
+					chooseChat: "Hello?",
+					questProgress: "Keep lookin'! I'll never find him otherwise.",
+					questComplete: "Woohoo! My turn to hide next! You'll never find me.",
 				},
 				canBeShown: function () {
-					return Player.quests.timesCompleted.eaglecrestLoggingCamp[25] === null || // haven't started quest yet
+					return (Player.quests.timesCompleted.eaglecrestLoggingCamp[25] === null || // haven't started quest yet
 						Player.quests.timesCompleted.eaglecrestLoggingCamp[25] === undefined ||
-						(Player.quests.timesCompleted.eaglecrestLoggingCamp[25] % 2 === 0 && // or have started it and have completed it an even number of times
-						Player.quests.timesCompleted.eaglecrestLoggingCamp[25] < Quests.eaglecrestLoggingCamp[25].numberOfRepeats-1); // and haven't completed the quest too many times
+						Player.quests.timesCompleted.eaglecrestLoggingCamp[25] % 2 === 0) && // or have started it and have completed it an even number of times
+						Player.quests.possibleQuestArray.includes("A Tale of Two Twintops"); // Quest can be started
 				},
 				boundary: {
 					x: 39,
