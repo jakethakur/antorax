@@ -925,7 +925,10 @@ Dom.chat.input = function (id) {
 }
 
 Dom.elements.canvasChatInput.onblur = function () {
-	Dom.elements.canvasChatInput.hidden = true;
+	Dom.elements.canvasChatInput.style.zIndex = 0;
+	Dom.elements.canvasSend.style.zIndex = 0;
+	Dom.elements.canvasChatInput.style.visibility = "hidden";
+	Dom.elements.canvasSend.style.visibility = "hidden";
 }
 
 // if the websocket is open, announce something to all users on the websocket
@@ -976,7 +979,8 @@ Dom.chat.insert = function (text, delay, time, noRepeat) {
 				Dom.elements.chat.innerHTML += "<li class='chatBox' style='opacity:0.6;'>"+text+"</li>";
 				Dom.elements.chat.style.top= Dom.canvas.height-Dom.chat.offset-Dom.elements.chat.offsetHeight+"px";
 				Dom.chat.displayOpacity.push(1500);
-				Dom.elements.canvasChatInput.style.opacity = 0.6;
+				Dom.elements.canvasChatInput.style.backgroundColor = "rgba(0, 0, 0, 0.6)";
+				Dom.elements.canvasSend.style.opacity = 0.6;
 				//Dom.elements.canvasChatInput.hidden = false;
 				if (!Dom.chat.chatInterval) {
 					Dom.chat.chatInterval = setInterval(function () {
@@ -984,15 +988,19 @@ Dom.chat.insert = function (text, delay, time, noRepeat) {
 							clearInterval(Dom.chat.chatInterval);
 							Dom.chat.chatInterval = false;
 						}
+						if (!Dom.chat.hideInput && Dom.chat.displayOpacity.length > 0) {
+							Dom.elements.canvasChatInput.style.zIndex = 10;
+							Dom.elements.canvasSend.style.zIndex = 10;
+							Dom.elements.canvasChatInput.style.visibility = "visible";
+							Dom.elements.canvasSend.style.visibility = "visible";
+						}
 						for (let x = 0; x < Dom.chat.displayChat.length; x++) {
-							if (!Dom.chat.hideInput) {
-								Dom.elements.canvasChatInput.hidden = false;
-							}
 							Dom.chat.displayOpacity[x]-=2;
 							if (Dom.chat.displayOpacity[x] < 600) {
 								Dom.elements.chat.getElementsByTagName("li")[x].style.opacity = Dom.chat.displayOpacity[x]/1000;
 								if (x === Dom.chat.displayChat.length-1 && Dom.elements.canvasChatInput !== document.activeElement) {
-									Dom.elements.canvasChatInput.style.opacity = Dom.chat.displayOpacity[x]/1000;
+									Dom.elements.canvasChatInput.style.backgroundColor = "rgba(0, 0, 0, "+Dom.chat.displayOpacity[x]/1000+")";
+									Dom.elements.canvasSend.style.opacity = Dom.chat.displayOpacity[x]/1000;
 								}
 							}
 							if (Dom.elements.chat.getElementsByTagName("li")[x].style.opacity <= 0) {
@@ -1004,7 +1012,10 @@ Dom.chat.insert = function (text, delay, time, noRepeat) {
 								}
 								Dom.elements.chat.removeChild(Dom.elements.chat.getElementsByTagName("li")[Dom.chat.displayChat.length]);
 								if (Dom.chat.displayChat.length === 0 && Dom.elements.canvasChatInput !== document.activeElement) {
-									Dom.elements.canvasChatInput.hidden = true;
+									Dom.elements.canvasChatInput.style.zIndex = 0;
+									Dom.elements.canvasSend.style.zIndex = 0;
+									Dom.elements.canvasChatInput.style.visibility = "hidden";
+									Dom.elements.canvasSend.style.visibility = "hidden";
 								}
 								Dom.elements.chat.style.top= Dom.canvas.height-Dom.chat.offset-Dom.elements.chat.offsetHeight+"px";
 								break;
@@ -4155,6 +4166,8 @@ Dom.choose.page = function (npcs) {
 		}
 		if (buttons.length > 1 || npcs.length > 1 || force) {
 			if (Dom.changeBook("choosePage")) {
+				Dom.elements.choosePageContent.innerHTML = "";
+				let total = 0;
 				for (let i = 0; i < npcs.length; i++) {
 
 					let npc = npcs[i].npc;
@@ -4227,10 +4240,14 @@ Dom.choose.page = function (npcs) {
 						}
 						Dom.elements.choosePageContent.innerHTML = "<h1>"+name+"</h1><p>Level "+npc.level+" "+clss;
 					}
+
+					// not players (normal)
 					else {
-						Dom.elements.choosePageContent.innerHTML = "<h1>"+name+"</h1>"+(npc.chat !== undefined ? "<p>"+npc.chat.chooseChat+"</p>" : "");
+						Dom.elements.choosePageContent.innerHTML += "<h1>"+name+"</h1>"+(npc.chat !== undefined ? "<p>"+npc.chat.chooseChat+"</p>" : "");
 						Dom.elements.choosePagePlayer.hidden = true;
 					}
+
+					// all (players and not players)
 					Dom.choose.HTML = "";
 					Dom.choose.sideHTML = "";
 					Dom.choose.dailyHTML = "";
@@ -4268,28 +4285,39 @@ Dom.choose.page = function (npcs) {
 						}
 						if (imagenum === 6 || imagenum === 7) {
 							if (parameters[i][0].important === true) {
-								Dom.elements.choosePageContent.innerHTML += "<p class='choosePageButtons' id='choosePageButtons"+i+"'><img src='assets/icons/choose.png' class='chooseIcon' style='clip: rect("+25*imagenum+"px, 25px, "+25*(imagenum+1)+"px, 0px); margin-top: -"+(25*imagenum+3)+"px'></img>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<strong>"+buttons[i]+"</strong></p>";
+								Dom.elements.choosePageContent.innerHTML += "<p class='choosePageButtons' id='choosePageButtons"+total+"'><img src='assets/icons/choose.png' class='chooseIcon' style='clip: rect("+25*imagenum+"px, 25px, "+25*(imagenum+1)+"px, 0px); margin-top: -"+(25*imagenum+3)+"px'></img>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<strong>"+buttons[i]+"</strong></p>";
 							}
 							else {
-								Dom.choose.sideHTML += "<p class='choosePageButtons' id='choosePageButtons"+i+"'><img src='assets/icons/choose.png' class='chooseIcon' style='clip: rect("+25*imagenum+"px, 25px, "+25*(imagenum+1)+"px, 0px); margin-top: -"+(25*imagenum+3)+"px'></img>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;"+buttons[i]+"</p>";
+								Dom.choose.sideHTML += "<p class='choosePageButtons' id='choosePageButtons"+total+"'><img src='assets/icons/choose.png' class='chooseIcon' style='clip: rect("+25*imagenum+"px, 25px, "+25*(imagenum+1)+"px, 0px); margin-top: -"+(25*imagenum+3)+"px'></img>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;"+buttons[i]+"</p>";
 							}
 						}
 						else if (imagenum === 0) {
-							Dom.choose.dailyHTML += "<p class='choosePageButtons' id='choosePageButtons"+i+"'><img src='assets/icons/choose.png' class='chooseIcon' style='clip: rect("+25*imagenum+"px, 25px, "+25*(imagenum+1)+"px, 0px); margin-top: -"+(25*imagenum+3)+"px'></img>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;"+buttons[i]+"</p>";
+							Dom.choose.dailyHTML += "<p class='choosePageButtons' id='choosePageButtons"+total+"'><img src='assets/icons/choose.png' class='chooseIcon' style='clip: rect("+25*imagenum+"px, 25px, "+25*(imagenum+1)+"px, 0px); margin-top: -"+(25*imagenum+3)+"px'></img>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;"+buttons[i]+"</p>";
 						}
 						else {
-							Dom.choose.HTML += "<p class='choosePageButtons' id='choosePageButtons"+i+"'><img src='assets/icons/choose.png' class='chooseIcon' style='clip: rect("+25*imagenum+"px, 25px, "+25*(imagenum+1)+"px, 0px); margin-top: -"+(25*imagenum+3)+"px'></img>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;"+buttons[i]+"</p>";
+							Dom.choose.HTML += "<p class='choosePageButtons' id='choosePageButtons"+total+"'><img src='assets/icons/choose.png' class='chooseIcon' style='clip: rect("+25*imagenum+"px, 25px, "+25*(imagenum+1)+"px, 0px); margin-top: -"+(25*imagenum+3)+"px'></img>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;"+buttons[i]+"</p>";
 						}
+						total++;
 					}
-					Dom.elements.choosePageContent.innerHTML += Dom.choose.sideHTML + Dom.choose.dailyHTML + Dom.choose.HTML + '<br><br><center><div id="choosePageClose" class="closeClass" onclick="Dom.closePage(\'choosePage\')">Close</div></center>';
-					for (let i = 0; i < buttons.length; i++) {
-						document.getElementById("choosePageButtons"+i).onclick = function () {
+					Dom.elements.choosePageContent.innerHTML += Dom.choose.sideHTML + Dom.choose.dailyHTML + Dom.choose.HTML +"<br><br>";
+				}
+
+				// after for loop so only one close button even if there are multiple npcs
+				Dom.elements.choosePageContent.innerHTML += '<center><div id="choosePageClose" class="closeClass" onclick="Dom.closePage(\'choosePage\')">Close</div></center>'
+
+				// after close button because functions reset
+				total = 0;
+				for (let x = 0; x < npcs.length; x++) {
+					for (let i = 0; i < npcs[x].buttons.length; i++) {
+						document.getElementById("choosePageButtons"+total).onclick = function () {
 							Dom.closePage("choosePage", true);
-							functions[i](...parameters[i]);
+							npcs[x].functions[i](...npcs[x].parameters[i]);
 							Dom.checkProgress();
 						}
+						total++;
 					}
 				}
+				
 			}
 		}
 		else {
@@ -5379,7 +5407,8 @@ Dom.trade.complete = function () {
 }
 
 Dom.elements.canvasChatInput.onfocus = function () {
-	Dom.elements.canvasChatInput.style.opacity = 0.6;
+	Dom.elements.canvasChatInput.style.backgroundColor = "rgba(0, 0, 0, 0.6)";
+	Dom.elements.canvasSend.style.opacity = 0.6;
 }
 
 window.onbeforeunload = function() {
@@ -5621,10 +5650,12 @@ Dom.updateScreenSize = function (init) {
 	Dom.elements.light.height = Dom.canvas.height;
 	Dom.elements.secondary.width = Dom.canvas.width;
 	Dom.elements.secondary.height = Dom.canvas.height;
-	Dom.elements.chat.style.width = Dom.canvas.width/2-183+"px";
-	Dom.elements.canvasChatInput.style.width = Dom.canvas.width/2-187-3+"px";
+	Dom.elements.chat.style.width = Dom.canvas.width/2-191+"px";
+	Dom.elements.canvasChatInput.style.width = Dom.canvas.width/2-194+"px";
 	Dom.elements.hotbar.style.left = Dom.canvas.width/2-167.6+"px";
 	Dom.elements.hotbar.style.top = Dom.canvas.height-80+"px";
+	Dom.elements.canvasSend.style.top = Dom.elements.canvasChatInput.offsetTop - 12 + "px";
+	Dom.elements.canvasSend.style.left = Dom.canvas.width/2-213 + "px";
 
 	if (Dom.canvas.width < 1215) {
 		Dom.elements.bookmarks.style.left = Dom.canvas.width/2+168+"px";
@@ -6102,7 +6133,10 @@ Dom.init = function () {
 	// add a 'space' button on mobile devices and hide canvas chat input
 	// thanks to https://stackoverflow.com/a/29509267/9713957
 	if (/iPhone|iPad|iPod|Android/i.test(navigator.userAgent)) {
+		Dom.elements.canvasChatInput.style.zIndex = 0;
+		Dom.elements.canvasSend.style.zIndex = 0;
 		Dom.elements.canvasChatInput.style.visibility = "hidden";
+		Dom.elements.canvasSend.style.visibility = "hidden";
 		Dom.elements.interact.hidden = false;
 		Dom.chat.offset = 10;
 		Dom.elements.interact.onclick = function () {

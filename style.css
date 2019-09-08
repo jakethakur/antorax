@@ -242,6 +242,7 @@ thead:after { /* space after bags in bank */
 	list-style-type: none;
 	padding: 0px;
 	margin: 0px;
+	left: 12px;
 }
 
 .chatBox {
@@ -284,13 +285,20 @@ thead:after { /* space after bags in bank */
 #canvasChatInput {
 	position: absolute;
 	z-index: 10;
-	left: 8px;
+	left: 12px;
 	bottom: 10px;
 	background-color: black;
-	border-color: black;
+	//border-color: rgba(0, 0, 0, 0.6);
+	height: 22px;
+	border: 0px;
+	color: white;
+	padding-left: 3px;
+}
+
+#canvasSend {
+	position: absolute;
 	color: white;
 	opacity: 0.6;
-	padding-left: 3px;
 }
 
 #send {

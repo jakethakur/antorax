@@ -265,7 +265,10 @@ Keyboard.downFunctions = {
             Dom.inventory.hideHotbar(true);
             Dom.elements.bookmarks.style.display = "none";
 			if (Dom.chat.displayChat.length > 0 || Dom.elements.canvasChatInput === document.activeElement) {
-				Dom.elements.canvasChatInput.hidden = true;
+				Dom.elements.canvasChatInput.style.zIndex = 0;
+				Dom.elements.canvasSend.style.zIndex = 0;
+				Dom.elements.canvasChatInput.style.visibility = "hidden";
+				Dom.elements.canvasSend.style.visibility = "hidden";
 			}
 			Dom.elements.chat.style.visibility = "hidden";
 			Dom.chat.hideInput = true;
@@ -280,14 +283,20 @@ Keyboard.upFunctions = {
             Dom.inventory.hideHotbar();
             Dom.elements.bookmarks.style.display = "";
 			if (Dom.chat.displayChat.length > 0 || Dom.elements.canvasChatInput === document.activeElement) {
-				Dom.elements.canvasChatInput.hidden = false;
+				Dom.elements.canvasChatInput.style.zIndex = 10;
+				Dom.elements.canvasSend.style.zIndex = 10;
+				Dom.elements.canvasChatInput.style.visibility = "visible";
+				Dom.elements.canvasSend.style.visibility = "visible";
 			}
 			Dom.elements.chat.style.visibility = "visible";
 			Dom.chat.hideInput = false;
         }, 1);
     },
 	TALK: function () {
-		Dom.elements.canvasChatInput.hidden = false;
+		Dom.elements.canvasChatInput.style.zIndex = 10;
+		Dom.elements.canvasSend.style.zIndex = 10;
+		Dom.elements.canvasChatInput.style.visibility = "visible";
+		Dom.elements.canvasSend.style.visibility = "visible";
 		Dom.elements.canvasChatInput.style.opacity = 0.6;
 		Dom.elements.canvasChatInput.select();
 	}
