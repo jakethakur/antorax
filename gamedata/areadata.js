@@ -5847,6 +5847,7 @@ var Areas = {
 
 var Villagers = [
     {
+		id: 0,
         images: {silvioStarstrike: {normal: "assets/npcs/silvioStarstrike.png"}},
         name: "Silvio Starstrike",
         level: 20,
@@ -5867,6 +5868,7 @@ var Villagers = [
         }
     },
     {
+		id: 1,
         images: {darioHorfern: {normal: "assets/npcs/darioHorfern.png"}},
         name: "Dario Horfern",
         level: 10,
@@ -5891,6 +5893,7 @@ var Villagers = [
         }
     },
     {
+		id: 2,
         images: {gremaRoskin: {normal: "assets/npcs/gremaRoskin.png"}},
         name: "Grema Roskin",
         level: 15,
@@ -5915,6 +5918,7 @@ var Villagers = [
         }
     },
     {
+		id: 3,
         images: {feller: {normal: "assets/npcs/feller.png"}},
         name: "Logging Camp Feller",
         level: 4,
@@ -5936,6 +5940,7 @@ var Villagers = [
         }
     },
     {
+		id: 4,
         images: {treecutter: {normal: "assets/npcs/treecutter.png"}},
         name: "Logging Camp Treecutter",
         level: 7,
@@ -5957,6 +5962,7 @@ var Villagers = [
         }
     },
     {
+		id: 5,
         images: {robertHendman: {normal: "assets/npcs/robertHendman.png"}},
         name: "Robert Hendman",
         level: 12,
@@ -5977,6 +5983,7 @@ var Villagers = [
         }
     },
     {
+		id: 6,
         images: {wilmaRedding: {normal: "assets/npcs/wilmaRedding.png"}},
         name: "Wilma Redding",
         level: 12,
@@ -5997,6 +6004,7 @@ var Villagers = [
         }
     },
     {
+		id: 7,
         images: {greenbeard: {normal: "assets/npcs/greenbeard.png"}},
         name: "Captain Greenbeard",
         level: 40,
@@ -6017,6 +6025,7 @@ var Villagers = [
         }
     },
     {
+		id: 8,
         images: {gildoCleftbeard: {normal: "assets/npcs/gildoCleftbeard.png"}},
         name: "Gildo Cleftbeard",
         level: 14,
@@ -6037,6 +6046,7 @@ var Villagers = [
         }
     },
     {
+		id: 9,
         images: {eaglecrestGuard: {normal: "assets/npcs/eaglecrestGuard.png"}},
         name: "Eaglecrest Guard",
         level: 50,
@@ -6058,6 +6068,7 @@ var Villagers = [
         }
     },
     {
+		id: 10,
         images: {eaglecrestGuard2: {normal: "assets/npcs/eaglecrestGuard2.png"}},
         name: "Eaglecrest Guard",
         level: 50,
@@ -6079,6 +6090,7 @@ var Villagers = [
         }
     },
     {
+		id: 11,
         images: {alfonsoMurbry: {normal: "assets/npcs/alfonsoMurbry.png"}},
         name: "Alfonso Murbry",
         level: 18,
@@ -6099,6 +6111,7 @@ var Villagers = [
         }
     },
     {
+		id: 12,
         images: {
             cat1Left: {normal: "assets/npcs/cat1.png"},
             cat1Right: {normal: "assets/npcs/cat1.png", flip: "vertical"},
@@ -6119,6 +6132,7 @@ var Villagers = [
         speciesTemplate: SpeciesTemplates.cat,
     },
     {
+		id: 13,
         images: {
             cat2Left: {normal: "assets/npcs/cat2.png"},
             cat2Right: {normal: "assets/npcs/cat2.png", flip: "vertical"},
@@ -6139,6 +6153,7 @@ var Villagers = [
         speciesTemplate: SpeciesTemplates.cat,
     },
     {
+		id: 14,
         images: {
             cat3Left: {normal: "assets/npcs/cat3.png"},
             cat3Right: {normal: "assets/npcs/cat3.png", flip: "vertical"},
@@ -6159,6 +6174,7 @@ var Villagers = [
         speciesTemplate: SpeciesTemplates.cat,
     },
     {
+		id: 15,
         images: {
             cat4Left: {normal: "assets/npcs/cat4.png"},
             cat4Right: {normal: "assets/npcs/cat4.png", flip: "vertical"},

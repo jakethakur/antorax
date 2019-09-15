@@ -891,6 +891,11 @@ class Entity {
 		Game.nextEntityId++;
 		this.type = properties.type; // array the NPC is in (for choose DOM and removing entity)
 
+		this.source = {
+			location: properties.source, // where the entity came from (villager, area, etc.) - used for finding location of images
+			id: properties.sourceId // id of where entity came from in this location (if applicable)
+		};
+
 		this.map = properties.map;
 		this.x = properties.x || 0;
 		this.y = properties.y || 0;
@@ -997,6 +1002,13 @@ class Thing extends Entity {
 		super(properties);
 
 		// set image related variables
+
+		// set image to a default rotation image if image is undefined but rotationImages is not
+		// otherwise npc would be made hidden by the next block of code
+		if (properties.image === undefined && properties.rotationImages !== undefined) {
+			properties.image = properties.rotationImages.left || properties.rotationImages.forward;
+		}
+
 		if (properties.image !== undefined) {
 			this.setImage(properties.image, properties.crop, properties.width, properties.height, properties.rotationImages);
 		}
@@ -1008,10 +1020,30 @@ class Thing extends Entity {
 			// this is set by setDayNightImages
 		}
 		else {
-			this.hidden = true; // an image must be loaded and set via setImage before it can be shown (and then hidden may be set back)
+			// an image must be loaded and set via setImage before it can be shown (and then hidden may be set back to false)
+			this.hidden = true;
 		}
 
 		this.setExpand(properties.expand || 1); // width multiplier (based on base width and base height)
+
+		// sources (and keys) of rotation images, used if images need to be reloaded for next area
+		this.rotationImageSources = {};
+		if (this.rotationImages !== undefined) {
+			if (this.source.location === "villager") {
+				// find image sources in villagers
+				this.rotationImageSources = Villagers[this.source.id].images;
+			}
+			else if (this.source.location === "area") {
+				// find image sources in area
+				let imageKeys = Object.values(this.rotationImages);
+				for (let i = 0; i < imageKeys.length; i++) {
+					if (imageKeys[i] !== undefined) {
+						this.rotationImageSources[imageKeys[i]] = Areas[Game.areaName].images[imageKeys[i]];
+					}
+				}
+			}
+		}
+
 
 		// canvas positioning
 		this.z = properties.z || 0; // -1 is always below (e.g. wizard's lore) and 1 is always on top (e.g. projectile)
@@ -1064,8 +1096,9 @@ class Thing extends Entity {
 
 			this.setImageDimensions(crop, width, height);
 
+			// changing of images on rotation
+			// check function exists (i.e. capacity for images to be changed on rotation exists)
 			if (this.setRotationImageVariables !== undefined && rotationImages !== false) {
-				// only works for enemies atm - tbd extend to all cases and remove this if statement
 				this.setRotationImageVariables(rotationImages);
 			}
 		}
@@ -1087,12 +1120,6 @@ class Thing extends Entity {
 		// used as reference for expand
 		this.baseWidth = this.width;
 		this.baseHeight = this.height;
-	}
-
-	// set an image due to a change in movement direction
-	// therefore does not change rotationImageVariables
-	setImageMovement (imageName, crop, width, height) {
-		this.setImage(imageName, crop, width, height, false);
 	}
 
 	// temporary change of image (used with resetImage)
@@ -1143,6 +1170,10 @@ class Thing extends Entity {
 class Character extends Thing {
 	constructor(properties) {
 		super(properties);
+
+		// rotation image names
+		// properties.rotationImages should be an object with "up", "down", "Left", and "right"
+		this.setRotationImageVariables(properties.rotationImages);
 
 		// foot collision (for tile speeds/collisions)
 		// x and y positions are in centre
@@ -1328,14 +1359,17 @@ class Character extends Thing {
 
 	// remove status effect from the specified index of this.statusEffects
 	removeStatusEffect (index) {
+		let statusEffect = this.statusEffects[index];
+
 		// clear tick
-		if (this.statusEffects[index].tickTimeout !== undefined) {
-			clearTimeout(this.statusEffects[index].tickTimeout);
+		if (statusEffect.tickTimeout !== undefined) {
+			clearTimeout(statusEffect.tickTimeout);
 		}
 
 		// call onExpire
-		if (this.statusEffects[index].onExpire !== undefined && Dom.inventory.check(28, "item")) {
-			this.statusEffects[index].onExpire(this);
+		// only called if the status effect has run out of time, or if onExpire is called on any remove
+		if (statusEffect.onExpire !== undefined && (statusEffect.info.ticks >= statusEffects.time || statusEffects.callExpireOnRemove)) {
+			statusEffect.onExpire(this);
 		}
 
 		// remove it
@@ -1525,6 +1559,7 @@ class Character extends Thing {
 						target: this,
 						time: 5,
 						onExpire: "respawnHero",
+						callExpireOnRemove: true,
 						imageName: "stunned"
 					});
 
@@ -1744,6 +1779,7 @@ class Character extends Thing {
 				effectTitle: "Displacement",
 				effectDescription: "Being displaced",
 				onExpire: "removeDisplacement",
+				callExpireOnRemove: true,
 			});
 
 			return {x:0, y:0};
@@ -1784,6 +1820,95 @@ class Character extends Thing {
 			if (this.statusEffects[i][key] === value) {
 				this.removeStatusEffect(i);
 				i--; // status effect has been removed so move back index
+			}
+		}
+	}
+
+	// rotation image names saved in character
+	// these are the key names of the images in loader
+	// not all of these need to exist - the best one will be picked (see below in this function)
+	// tbd make more efficient?
+	setRotationImageVariables (imageKeyNames) {
+		if (imageKeyNames !== undefined) {
+			this.rotationImages = {
+				left: imageKeyNames.left,
+				right: imageKeyNames.right,
+				up: imageKeyNames.up,
+				down: imageKeyNames.down,
+			};
+
+			if (this.rotationImages.left !== undefined &&
+			this.rotationImages.right !== undefined &&
+			this.rotationImages.up !== undefined &&
+			this.rotationImages.down !== undefined) {
+				// all 4 directions
+				this.rotationImageChange = "all";
+			}
+			else if (this.rotationImages.left !== undefined &&
+			this.rotationImages.right !== undefined &&
+			this.rotationImages.up === undefined &&
+			this.rotationImages.down === undefined) {
+				// just left and right directions
+				this.rotationImageChange = "leftRight";
+			}
+			else if (this.rotationImages.left === undefined &&
+			this.rotationImages.right === undefined &&
+			this.rotationImages.up !== undefined &&
+			this.rotationImages.down !== undefined) {
+				// just up and down directions
+				this.rotationImageChange = "upDown";
+			}
+			else {
+				// irregular pattern of images found
+				console.warn(this.name + " has an unknown selection of rotation images set.");
+				this.rotationImageChange = "none";
+			}
+		}
+		else {
+			// no rotation image changing
+			this.rotationImages = undefined;
+			this.rotationImageChange = "none";
+		}
+	}
+
+	// set an image due to a change in movement direction
+	// only called by setRotationImage
+	// therefore does not change rotationImageVariables
+	setImageMovement (imageName, crop, width, height) {
+		this.setImage(imageName, crop, width, height, false);
+	}
+
+	// set image based on direction of movement if there are multiple rotation images
+	// note this system is not used for player, since their images are in tilesets instead (however it would be used if they were hexed etc)
+	setRotationImage (dirx, diry) {
+		if (this.rotationImageChange !== "none") {
+			if (this.rotationImageChange === "upDown" || // only up down images exist for this NPC
+			(this.rotationImageChange === "all" && // OR all images exist AND...
+			Math.abs(diry) > Math.abs(dirx))) { //...there is more up down movement than left right
+				// up down movement
+				if (diry > 0) {
+					// up movement
+					this.setImageMovement(this.rotationImages.up);
+					this.direction = 1;
+				}
+				else {
+					// down movement
+					this.setImageMovement(this.rotationImages.down);
+					this.direction = 3;
+				}
+			}
+			else {
+				// left right movement
+				if (dirx > 0) {
+					// right movement
+					this.setImageMovement(this.rotationImages.right);
+					this.direction = 4;
+				}
+				else {
+					// left movement
+					this.setImageMovement(this.rotationImages.left);
+					this.direction = 2;
+				}
 			}
 		}
 	}
@@ -3340,8 +3465,13 @@ class Villager extends NPC {
 				else {
 					// move towards hero for exceeded distance
 					let bearing = Game.bearing(this, Game.hero);
-					this.x += Math.cos(bearing) * exceededDistance;
-					this.y += Math.sin(bearing) * exceededDistance;
+					let dirx = Math.cos(bearing);
+					let diry = Math.sin(bearing);
+					this.x += dirx * exceededDistance;
+					this.y += diry * exceededDistance;
+
+					// set image based on direction of movement if there are multiple rotation images
+					this.setRotationImage(dirx, diry);
 
 					if (this.ai.intelligentMovement) {
 						// wait instantly (rather than trying to move to location but "failing")
@@ -3379,13 +3509,19 @@ class Villager extends NPC {
 
 		this.bearing = Game.bearing(this, {x: this.state.location.x, y: this.state.location.y}); // update bearing (maybe doesn't need to be done every tick?)
 
+		let dirx, diry;
 		// move if not too close to target
 		if (!this.xInRange()) {
-			this.x += Math.cos(this.bearing) * this.speed * delta;
+			dirx = Math.cos(this.bearing);
+			this.x += dirx * this.speed * delta;
 		}
 		if (!this.yInRange()) {
-			this.y += Math.sin(this.bearing) * this.speed * delta;
+			diry = Math.sin(this.bearing);
+			this.y += diry * this.speed * delta;
 		}
+
+		// set image based on direction of movement if there are multiple rotation images
+		this.setRotationImage(dirx, diry);
 
 		// update foot hitbox position (required here because it doesn't collide)
 		this.updateFootHitbox();
@@ -3412,10 +3548,6 @@ class Dummy extends Character {
 class Enemy extends Attacker {
 	constructor(properties) {
 		super(properties);
-
-		// rotation image names (tbd move to character)
-		// properties.rotationImages should be an object with "up", "down", "Left", and "right"
-		this.setRotationImageVariables(properties.rotationImages);
 
 		// combat traits (specific to enemy)
 		this.leashRadius = properties.leashRadius; // how far away the player has to be for the enemy to stop following them
@@ -3474,53 +3606,6 @@ class Enemy extends Attacker {
 		// boss stuff
 		if (this.hostility === "boss") {
 			this.bossKilledVariable = properties.bossKilledVariable; // set to date killed to check it hasn't been killed today
-		}
-	}
-
-	// rotation image names (tbd move to character)
-	// these are the key names of the images in loader
-	// not all of these need to exist - the best one will be picked (see below)
-	// tbd make more efficient?
-	setRotationImageVariables (imageKeyNames) {
-		if (imageKeyNames !== undefined) {
-			this.rotationImages = {
-				left: imageKeyNames.left,
-				right: imageKeyNames.right,
-				up: imageKeyNames.up,
-				down: imageKeyNames.down,
-			};
-
-			if (this.rotationImages.left !== undefined &&
-			this.rotationImages.right !== undefined &&
-			this.rotationImages.up !== undefined &&
-			this.rotationImages.down !== undefined) {
-				// all 4 directions
-				this.rotationImageChange = "all";
-			}
-			else if (this.rotationImages.left !== undefined &&
-			this.rotationImages.right !== undefined &&
-			this.rotationImages.up === undefined &&
-			this.rotationImages.down === undefined) {
-				// just left and right directions
-				this.rotationImageChange = "leftRight";
-			}
-			else if (this.rotationImages.left === undefined &&
-			this.rotationImages.right === undefined &&
-			this.rotationImages.up !== undefined &&
-			this.rotationImages.down !== undefined) {
-				// just up and down directions
-				this.rotationImageChange = "upDown";
-			}
-			else {
-				// irregular pattern of images found
-				console.warn(this.name + " has an unknown selection of rotation images set.");
-				this.rotationImageChange = "none";
-			}
-		}
-		else {
-			// no rotation image changing
-			this.rotationImages = undefined;
-			this.rotationImageChange = "none";
 		}
 	}
 
@@ -3634,40 +3719,6 @@ class Enemy extends Attacker {
 
 		// collide with solid tiles
 		this.collide(dirx, diry, delta);
-	}
-
-	// set image based on direction of movement if there are multiple rotation images
-	setRotationImage (dirx, diry) {
-		if (this.rotationImageChange !== "none") {
-			if (this.rotationImageChange === "upDown" || // only up down images exist for this NPC
-			(this.rotationImageChange === "all" && // OR all images exist AND...
-			Math.abs(diry) > Math.abs(dirx))) { //...there is more up down movement than left right
-				// up down movement
-				if (diry > 0) {
-					// up movement
-					this.setImageMovement(this.rotationImages.up);
-					this.direction = 1;
-				}
-				else {
-					// down movement
-					this.setImageMovement(this.rotationImages.down);
-					this.direction = 3;
-				}
-			}
-			else {
-				// left right movement
-				if (dirx > 0) {
-					// right movement
-					this.setImageMovement(this.rotationImages.right);
-					this.direction = 4;
-				}
-				else {
-					// left movement
-					this.setImageMovement(this.rotationImages.left);
-					this.direction = 2;
-				}
-			}
-		}
 	}
 
 	// shoot projectile at array of arrays of enemies (at)
@@ -4218,7 +4269,8 @@ Game.statusEffects.generic = function (properties) {
 			// properties.onExpire and properties.onTick are the key names from Game.statusEffects.functions
 			// however they can also be an object, with their location as "itemdata" and a type and id if they want to refer to an item's onExpire on onTick intead
 			if (properties.onExpire !== undefined) {
-				// onExpire is called when the statuseffect is removed
+				// onExpire is called when the statuseffect expires naturally (not removed)
+				// can also be called on remove if properties.callExpireOnRemove is set to true
 				// this is bound to the status effect (hence this.owner and this.info work)
 
 				// find source of onExpire
@@ -4233,6 +4285,8 @@ Game.statusEffects.generic = function (properties) {
 
 				// reference for savedata (used if the target is Game.hero)
 				addedStatusEffect.onExpireSource = properties.onExpire; // key name of function reference in Game.statusEffects.functions
+
+				addedStatusEffect.callExpireOnRemove = properties.callExpireOnRemove; // whether exire should be called on remove of the status effect (not just for time over)
 			}
 			if (properties.onTick !== undefined) {
 				// this is bound to the status effect (hence this.owner and this.info work)
@@ -5314,7 +5368,12 @@ Game.loadArea = function (areaName, destination) {
 
 	// character on lead
 	if (this.hero !== undefined && this.hero.hasOnLead !== undefined) {
-		p = p.concat(Loader.loadImage(this.hero.hasOnLead.imageName, this.hero.hasOnLead.imageSrc)); // tbd flipped images (movement and as default)
+		// load the character's images
+		if (this.hero.hasOnLead.rotationImageSources) {
+			// rotation images to be loaded as well
+			p = p.concat(this.loadImages(this.hero.hasOnLead.rotationImageSources));
+		}
+		p = p.concat(Loader.loadImage(this.hero.hasOnLead.imageName, this.hero.hasOnLead.imageSrc));
 	}
 
 	// check that default images are loaded (e.g. player, status effect, etc.) and add any that aren't to toLoad
@@ -5495,6 +5554,7 @@ Game.loadArea = function (areaName, destination) {
 					// check npc should be added, and prepare it to be added (e.g. by setting its map and type)
 					// also calls specific functions needed for certain npcs
 					if (this.prepareNPC(Areas[areaName][type][i], type)) {
+						Areas[areaName][type][i].source = "area"; // image came from villager variable
 						this[type].push(new className(Areas[areaName][type][i]));
 					}
 				}
@@ -5521,6 +5581,8 @@ Game.loadArea = function (areaName, destination) {
 				villager.boundary = Areas[areaName].villagerData.locations[locationIndex];
 
 				if (this.prepareNPC(villager, "villagers")) {
+					villager.source = "villager"; // image came from villager variable (used for finding images if they have to persist over areas)
+					villager.sourceId = villager.id; // id in villager variable
 					this.villagers.push(new Villager(villager));
 				}
 			}
@@ -5529,25 +5591,34 @@ Game.loadArea = function (areaName, destination) {
 		// player pet
 		if (this.hero !== undefined && this.hero.hasOnLead !== undefined) {
 			if (this.prepareNPC(this.hero.hasOnLead, this.hero.hasOnLead.type)) {
+				// prepare npc to be added
 				// edit animal on lead's information to fit with constructor (constructor takes different parameters to constructed object's properties)
 				this.hero.hasOnLead.image = this.hero.hasOnLead.imageName;
 				// generate npc
 				let typeName = this.hero.hasOnLead.type; // name of array in Game
 				let className = this.typeClasses[typeName]; // name of Class
+				let source = this.hero.hasOnLead.source; // used for finding images on future area changes (since the source is the same it can just be taken from previous villager)
+				// make consistent with parameters...
+				this.hero.hasOnLead.sourceId = source.id;
+				this.hero.hasOnLead.source = source.location;
+				// construct npc
 				let newNPC = new className(this.hero.hasOnLead);
-				this[typeName].push(newNPC);
-				// update npc on lead
-				this.hero.hasOnLead = newNPC;
-				newNPC.onLead = true;
-				// note the position of the npc on lead is changed when the hero's position is changed
 
-				// remove character that is the same as this one in the area (if one exists)
+				// remove character that is the same as one to be added in the area (if one exists)
 				// only remove the first one found
 				// same == same name, same imageSrc, same hostility (maybe add more requirements?)
 				let foundIndex = this[typeName].findIndex(villager => villager.name === newNPC.name && villager.imageSrc === newNPC.imageSrc && villager.hostility === newNPC.hostility);
 				if (foundIndex !== -1) {
 					this.removeObject(this[typeName][foundIndex].id, typeName, foundIndex);
 				}
+
+				// add the npc
+				this[typeName].push(newNPC);
+				// update npc on lead
+				this.hero.hasOnLead = newNPC;
+				newNPC.onLead = true;
+
+				// note the position of the npc on lead is changed when the hero's position is changed
 			}
 			else {
 				console.error("Animal on lead could not be shown. Please tell Jake.", animal)
@@ -6303,8 +6374,16 @@ Game.generateVillagers = function (data, areaName) {
 
 		villagersToAdd.push(villagerIndex);
 
-		// image to be added
-		images[possibleVillagers[villagerIndex].image] = possibleVillagers[villagerIndex].imageSource;
+		let villager = possibleVillagers[villagerIndex];
+
+		// images to be added
+		// note that, for duplicate keys, initial ones will be overritten
+		Object.assign(images, villager.images);
+
+		// set image name, if one was not already set, from first image loading key
+		if (villager.image === undefined && villager.rotationImages === undefined) {
+			villager.image = Object.keys(villager.images)[0];
+		}
 
 		numberAdded++;
 
