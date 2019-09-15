@@ -33,6 +33,10 @@ input[type=text] {
 	height: 20px;
 }
 
+input:focus, select:focus, textarea:focus, button:focus {
+    outline: none;
+}
+
 thead:after { /* space after bags in bank */
 	line-height: 5px;
 	content: "\200C";
@@ -288,11 +292,20 @@ thead:after { /* space after bags in bank */
 	left: 12px;
 	bottom: 10px;
 	background-color: black;
-	//border-color: rgba(0, 0, 0, 0.6);
-	height: 22px;
+	height: 25px;
 	border: 0px;
 	color: white;
 	padding-left: 3px;
+	user-drag: none;
+	user-select: none;
+	-moz-user-select: none;
+	-webkit-user-drag: none;
+	-webkit-user-select: none;
+	-ms-user-select: none;
+}
+
+.canvasChatInput::placeholder {
+	color: #aaaaaa;
 }
 
 #canvasSend {

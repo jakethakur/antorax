@@ -299,6 +299,7 @@ var Areas = {
 			eaglecrestBanner: {normal: "assets/objects/eaglecrestBanner.png"},
 			torianTintop: {normal: "assets/npcs/torianTintop.png"},
 			nessyTintop: {normal: "assets/npcs/nessyTintop.png"},
+			present: {normal: "assets/objects/present.png"},
 		},
 
 		areaTeleports: [
@@ -531,6 +532,28 @@ var Areas = {
 				name: "Eaglecrest Banner",
 			},
 		],
+
+		chests: [
+			{
+                x: 1476,
+                y: 140,
+                image: "present",
+                name: "Tightly Packed Present", // from tintops
+                loot: [{item: Items.helm[20]}, {item: Items.currency[2], quantity: 2}, {item: Items.food[0]}, {item: new UnId("loggingCamp", 1)}],
+                inventorySpace: 8,
+                disappearAfterOpened: true,
+                canBeShown: function () {
+                    return Player.quests.activeQuestArray.includes("A Tale of Two Twintops") &&
+					Player.quests.timesCompleted.eaglecrestLoggingCamp[25] === 10;
+                },
+				onClose: function () {
+					Quests.eaglecrestLoggingCamp[25].autofinish = true;
+					//Quests.eaglecrestLoggingCamp[25].finishName = "From Torian and Nessy Tintop";
+					Dom.checkProgress();
+				}
+            },
+		],
+
 	},
 
 	eaglecrestLoggingCamp: {
@@ -649,7 +672,6 @@ var Areas = {
 			nilbogBanner: {normal: "assets/objects/nilbogBanner.png"},
 			torianTintop: {normal: "assets/npcs/torianTintop.png"},
 			nessyTintop: {normal: "assets/npcs/nessyTintop.png"},
-			present: {normal: "assets/objects/present.png"},
 		},
 
 		onAreaJoin: function () {
@@ -1259,16 +1281,7 @@ var Areas = {
 				}
 			},
 			{
-				template: NPCTemplates.torianTintop,
-				x: 870,
-				y: 1200,
-				z: -1,
-				canBeShown: function () {
-					return Player.quests.activeQuestArray.includes("A Tale of Two Twintops") &&
-					Player.quests.timesCompleted.eaglecrestLoggingCamp[25] === 4;
-				}
-			},
-			{
+				// id: 10
 				template: NPCTemplates.nessyTintop,
 				x: 2080,
 				y: 305,
@@ -1278,9 +1291,10 @@ var Areas = {
 				}
 			},
 			{
+				// id: 11
 				template: NPCTemplates.torianTintop,
-				x: 725,
-				y: 350,
+				x: 712,
+				y: 380,
 				canBeShown: function () {
 					return Player.quests.activeQuestArray.includes("A Tale of Two Twintops") &&
 					Player.quests.timesCompleted.eaglecrestLoggingCamp[25] === 8;
@@ -1288,6 +1302,7 @@ var Areas = {
 			},
 
 			{
+				// id: 12
 				image: "torianTintop",
 				name: "Torian Tintop",
 				x: 700,
@@ -1316,6 +1331,7 @@ var Areas = {
 			},
 
 			{
+				// id: 13
 				image: "nessyTintop",
 				name: "Nessy Tintop",
 				x: 780,
@@ -1403,7 +1419,8 @@ var Areas = {
 				canBeShown: function () {
 					return (Player.quests.timesCompleted.eaglecrestLoggingCamp[25] === null || // haven't started quest yet
 						Player.quests.timesCompleted.eaglecrestLoggingCamp[25] === undefined ||
-						Player.quests.timesCompleted.eaglecrestLoggingCamp[25] % 2 === 0) && // or have started it and have completed it an even number of times
+						(Player.quests.timesCompleted.eaglecrestLoggingCamp[25] !== 10 && // or have started it and have completed it an even number of times
+						Player.quests.timesCompleted.eaglecrestLoggingCamp[25] % 2 === 0)) && // or have started it and have completed it an even number of times
 						Player.quests.possibleQuestArray.includes("A Tale of Two Twintops"); // Quest can be started
 				},
 				boundary: {
@@ -1539,27 +1556,6 @@ var Areas = {
 			},
 		],
 
-		chests: [
-			{
-                x: 1530,
-                y: 1040,
-                image: "present",
-                name: "Tightly Packed Present", // from tintops
-                loot: [{item: Items.helm[20]}, {item: Items.currency[2], quantity: 2}, {item: Items.food[0]}, {item: new UnId("loggingCamp", 1)}],
-                inventorySpace: 8,
-                disappearAfterOpened: true,
-                canBeShown: function () {
-                    return Player.quests.activeQuestArray.includes("A Tale of Two Twintops") &&
-					Player.quests.timesCompleted.eaglecrestLoggingCamp[25] === 10;
-                },
-				onClose: function () {
-					Quests.eaglecrestLoggingCamp[25].autofinish = true;
-					Quests.eaglecrestLoggingCamp[25].finishName = "From Torian and Nessy Tintop";
-					Dom.checkProgress();
-				}
-            },
-		],
-
 	},
 
 	loggingCampTavern: {
@@ -1649,6 +1645,7 @@ var Areas = {
 
 		npcs: [
 			{
+				// id: 0
 				x: 154,
 				y: 934,
 				image: "innkeeper",
@@ -1717,6 +1714,7 @@ var Areas = {
 			},
 
 			{
+				// id: 1
 				template: NPCTemplates.nessyTintop,
 				x: 36,
 				y: 1300,
@@ -1726,6 +1724,21 @@ var Areas = {
 				}
 			},
 			{
+				// id: 2
+                template: NPCTemplates.torianTintop,
+                x: 300,
+                y: 951,
+                z: -1,
+                crop: { // behind counter
+                    height: 18,
+                },
+                canBeShown: function () {
+                    return Player.quests.activeQuestArray.includes("A Tale of Two Twintops") &&
+                    Player.quests.timesCompleted.eaglecrestLoggingCamp[25] === 4;
+                }
+            },
+			{
+				// id: 3
 				template: NPCTemplates.torianTintop,
 				x: 842,
 				y: 320,
@@ -3528,6 +3541,7 @@ var Areas = {
 			solidTiles: [1, 2, 3, 6, 7, 9, 10, 11, 13, 15, 17, 18, 19, 20, 21, 23, 25, 26, 27, 28, 29, 31, 33, 34, 35, 36, 37, 38, 39, 42, 43, 44, 45, 46, 47, 53, 55, 61, 65, 69, 73, 77, 82, 83],
 			dayTiles: [11, 27, 34, 42, 7], // windows and lights
 			nightTiles: [3, 19, 2, 18, 15],
+			pathTiles: [5, 12, 41, 50, 51, 57, 58, 59, 60, 76],
 			layers: [
 				[43, 43, 43, 43, 43, 43, 43, 43, 43, 43, 43, 43, 43, 43, 43, 43, 43, 43, 43, 43, 43, 43, 43, 43, 43, 43, 43, 43, 43, 43, 43, 43, 35, 35, 35, 35, 35, 35, 35, 35, 35, 35, 35, 35, 35, 35, 35, 35, 35, 35, 35, 35, 35, 35, 35, 35, 35, 35, 35, 35, 35, 35, 35, 35, 11, 43, 43, 43, 43, 43, 43, 43, 43, 43, 43, 11, 43, 43, 43, 43, 43, 43, 43, 43, 11, 43, 43, 43, 43, 43, 43, 43, 43, 43, 11, 43, 43, 43, 43, 27, 43, 42, 34, 17, 27, 43, 43, 43, 43, 43, 43, 43, 43, 43, 43, 43, 43, 43, 43, 27, 1, 42, 34, 43, 27, 43, 43, 43, 43, 43, 43, 43, 43, 26, 10, 43, 43, 43, 43, 43, 43, 43, 43, 43, 43, 43, 43, 43, 43, 43, 43, 43, 43, 26, 10, 43, 43, 43, 43, 43, 41, 41, 41, 41, 41, 41, 41, 41, 41, 41, 41, 41, 41, 41, 41, 41, 41, 41, 41, 41, 41, 41, 41, 41, 41, 41, 41, 41, 41, 41, 41, 41, 41, 41, 41, 41, 41, 41, 41, 41, 41, 41, 41, 41, 41, 41, 41, 41, 41, 41, 41, 41, 41, 41, 41, 41, 41, 41, 41, 41, 41, 41, 41, 41, 41, 41, 41, 41, 41, 41, 41, 41, 41, 41, 41, 41, 41, 41, 41, 41, 41, 41, 41, 41, 41, 41, 41, 41, 41, 41, 41, 41, 41, 41, 41, 41, 41, 41, 41, 41, 41, 41, 41, 41, 41, 41, 41, 41, 41, 41, 41, 41, 41, 41, 41, 41, 41, 41, 41, 41, 41, 41, 41, 41, 41, 41, 41, 41, 41, 41, 41, 41, 41, 41, 51, 51, 51, 51, 51, 51, 51, 41, 41, 41, 41, 41, 41, 51, 51, 51, 51, 51, 51, 51, 41, 41, 41, 41, 41, 41, 41, 41, 41, 41, 41, 59, 49, 49, 49, 49, 49, 49, 49, 57, 41, 41, 41, 41, 59, 49, 49, 49, 49, 49, 49, 49, 57, 41, 41, 41, 41, 41, 41, 41, 41, 41, 41, 59, 49, 49, 49, 49, 49, 49, 49, 57, 41, 41, 41, 41, 59, 49, 49, 49, 49, 49, 49, 49, 57, 41, 41, 41, 41, 41, 41, 41, 41, 41, 41, 59, 49, 49, 49, 49, 49, 49, 49, 57, 41, 41, 41, 41, 59, 49, 49, 49, 49, 49, 49, 49, 57, 41, 41, 41, 41, 41, 41, 41, 41, 41, 41, 59, 49, 49, 49, 49, 49, 49, 49, 57, 41, 41, 41, 41, 59, 49, 49, 49, 49, 49, 49, 49, 57, 41, 41, 41, 41, 41, 41, 41, 41, 41, 41, 59, 49, 49, 49, 49, 49, 49, 49, 57, 41, 41, 41, 41, 59, 49, 49, 49, 49, 49, 49, 49, 57, 41, 41, 41, 41, 41, 41, 41, 41, 41, 41, 41, 58, 58, 58, 58, 58, 58, 58, 41, 41, 41, 41, 41, 41, 58, 58, 58, 58, 58, 58, 58, 41, 41, 41, 41, 41, 41, 41, 41, 41, 41, 41, 41, 41, 41, 41, 41, 41, 41, 41, 41, 41, 41, 41, 41, 41, 41, 41, 41, 41, 41, 41, 41, 41, 41, 41, 41, 41, 41, 41, 41, 41, 41, 41, 41, 41, 41, 41, 41, 41, 41, 41, 41, 41, 41, 41, 41, 41, 41, 41, 41, 41, 41, 41, 41, 41, 41, 41, 41, 41, 41, 41, 41, 41, 41, 41, 41, 51, 51, 51, 51, 51, 51, 51, 41, 41, 41, 41, 41, 41, 51, 51, 51, 51, 51, 51, 51, 41, 41, 41, 41, 41, 41, 41, 41, 41, 41, 41, 59, 49, 49, 49, 49, 49, 49, 49, 57, 41, 41, 41, 41, 59, 49, 49, 49, 49, 49, 49, 49, 57, 41, 41, 41, 41, 41, 41, 41, 41, 41, 41, 59, 49, 49, 49, 49, 49, 49, 49, 57, 41, 41, 41, 41, 59, 49, 49, 49, 49, 49, 49, 49, 57, 41, 41, 41, 41, 41, 41, 41, 41, 41, 41, 59, 49, 49, 49, 49, 49, 49, 49, 57, 41, 41, 41, 41, 59, 49, 49, 49, 49, 49, 49, 49, 57, 41, 41, 41, 41, 41, 41, 41, 41, 41, 41, 59, 49, 49, 49, 49, 49, 49, 49, 57, 41, 41, 41, 41, 59, 49, 49, 49, 49, 49, 49, 49, 57, 41, 41, 41, 41, 41, 41, 41, 41, 41, 41, 59, 49, 49, 49, 49, 49, 49, 49, 57, 41, 41, 41, 41, 59, 49, 49, 49, 49, 49, 49, 49, 57, 41, 41, 41, 41, 41, 41, 41, 41, 41, 41, 41, 58, 58, 58, 58, 58, 58, 58, 41, 41, 41, 41, 41, 41, 58, 58, 58, 58, 58, 58, 58, 41, 41, 41, 41, 41, 41, 41, 41, 41, 41, 41, 41, 41, 41, 41, 41, 41, 41, 41, 41, 41, 41, 41, 41, 41, 41, 41, 41, 41, 41, 41, 41, 41, 41, 41, 41, 41, 41, 41, 41, 41, 41, 41, 41, 41, 41, 41, 41, 41, 41, 41, 41, 41, 41, 41, 41, 41, 41, 41, 41, 41, 41, 41, 41, 41, 41, 41, 41, 41, 41, 41, 41, 41, 41, 41, 41, 41, 41, 41, 41, 41, 41, 41, 41, 41, 41, 41, 41, 41, 41, 41, 41, 41, 41, 41, 41, 41, 41, 41, 41, 41, 41, 41, 41, 41, 41, 41, 41, 41, 41, 41, 41, 41, 41, 41, 41, 41, 41, 41, 41, 41, 41, 41, 41, 41, 41, 41, 41, 41, 41, 41, 41, 41, 41],
 				[],
@@ -3929,6 +3943,7 @@ var Areas = {
 			solidTiles: [1, 2, 3, 6, 7, 9, 10, 11, 13, 15, 17, 18, 19, 20, 21, 23, 25, 26, 27, 28, 29, 31, 33, 34, 35, 36, 37, 38, 39, 42, 43, 44, 45, 46, 47, 53, 55, 61, 65, 69, 73, 77, 82, 83],
 			dayTiles: [11, 27, 34, 42, 7], // windows and lights
 			nightTiles: [3, 19, 2, 18, 15],
+			pathTiles: [5, 12, 41, 50, 51, 57, 58, 59, 60, 76],
 			layers: [
 				[43, 43, 43, 43, 43, 43, 43, 43, 43, 43, 43, 43, 43, 43, 43, 43, 43, 43, 43, 43, 43, 43, 43, 43, 43, 43, 43, 43, 43, 43, 43, 35, 35, 35, 35, 35, 35, 35, 35, 35, 35, 35, 35, 35, 35, 35, 35, 35, 35, 35, 35, 35, 35, 35, 35, 35, 35, 35, 35, 35, 35, 35, 43, 43, 43, 11, 43, 43, 43, 43, 20, 43, 43, 43, 43, 11, 43, 9, 43, 11, 43, 43, 43, 43, 25, 43, 43, 43, 43, 11, 43, 43, 43, 43, 43, 43, 43, 43, 43, 27, 43, 42, 43, 27, 43, 43, 43, 43, 43, 43, 43, 43, 43, 27, 43, 34, 43, 27, 43, 43, 43, 43, 43, 43, 43, 43, 43, 43, 43, 43, 43, 43, 26, 43, 43, 43, 43, 43, 43, 43, 43, 43, 43, 43, 43, 43, 10, 43, 43, 43, 43, 43, 43, 43, 43, 41, 59, 49, 49, 49, 49, 49, 57, 41, 59, 49, 49, 49, 49, 49, 49, 49, 49, 49, 49, 49, 57, 41, 59, 49, 49, 49, 49, 49, 57, 41, 41, 60, 68, 49, 49, 49, 4, 12, 41, 60, 68, 49, 49, 49, 49, 49, 49, 49, 49, 49, 4, 12, 41, 60, 68, 49, 49, 49, 4, 12, 41, 41, 41, 76, 58, 58, 58, 5, 41, 41, 41, 76, 58, 58, 58, 58, 58, 58, 58, 58, 58, 5, 41, 41, 41, 76, 58, 58, 58, 5, 41, 41, 41, 41, 41, 41, 41, 41, 41, 41, 41, 41, 41, 41, 41, 41, 41, 41, 41, 41, 41, 41, 41, 41, 41, 41, 41, 41, 41, 41, 41, 41, 41, 41, 41, 41, 41, 41, 41, 41, 41, 41, 41, 41, 41, 41, 41, 41, 41, 41, 41, 41, 41, 41, 41, 41, 41, 41, 41, 41, 41, 41, 41, 41, 41, 41, 41, 41, 41, 41, 41, 41, 41, 41, 41, 41, 41, 41, 41, 41, 41, 41, 41, 41, 41, 41, 41, 41, 41, 41, 41, 41, 41, 41, 41, 41, 41, 41, 41, 41, 41, 41, 41, 41, 41, 41, 41, 41, 41, 41, 41, 41, 41, 41, 41, 41, 41, 41, 41, 41, 41, 41, 41, 41, 41, 41],
 				[],
@@ -4054,6 +4069,7 @@ var Areas = {
 			solidTiles: [1, 2, 3, 6, 7, 9, 10, 11, 13, 15, 17, 18, 19, 20, 21, 23, 25, 26, 27, 28, 29, 31, 33, 34, 35, 36, 37, 38, 39, 42, 43, 44, 45, 46, 47, 53, 55, 61, 65, 69, 73, 77, 82, 83],
 			dayTiles: [11, 27, 34, 42, 7], // windows and lights
 			nightTiles: [3, 19, 2, 18, 15],
+			pathTiles: [5, 12, 41, 50, 51, 57, 58, 59, 60, 76],
 			layers: [
 				[43, 43, 43, 43, 43, 43, 43, 43, 43, 43, 43, 43, 43, 43, 43, 43, 43, 43, 43, 43, 43, 43, 43, 43, 43, 43, 43, 43, 43, 43, 43, 35, 35, 35, 35, 35, 35, 35, 35, 35, 35, 35, 35, 35, 35, 35, 35, 35, 35, 35, 35, 35, 35, 35, 35, 35, 35, 35, 35, 35, 35, 35, 43, 43, 43, 11, 43, 43, 43, 43, 33, 43, 43, 43, 43, 11, 43, 9, 43, 11, 43, 43, 43, 43, 9, 43, 43, 43, 43, 11, 43, 43, 43, 43, 43, 43, 43, 43, 43, 27, 43, 42, 43, 27, 43, 43, 43, 43, 43, 43, 43, 43, 43, 27, 43, 34, 43, 27, 43, 43, 43, 43, 43, 43, 43, 43, 43, 43, 43, 43, 43, 43, 26, 43, 43, 43, 43, 43, 43, 43, 43, 43, 43, 43, 43, 43, 10, 43, 43, 43, 43, 43, 43, 43, 43, 41, 59, 49, 49, 49, 49, 49, 57, 41, 59, 49, 49, 49, 49, 49, 49, 49, 49, 49, 49, 49, 57, 41, 59, 49, 49, 49, 49, 49, 57, 41, 41, 60, 68, 49, 49, 49, 4, 12, 41, 60, 68, 49, 49, 49, 49, 49, 49, 49, 49, 49, 4, 12, 41, 60, 68, 49, 49, 49, 4, 12, 41, 41, 41, 76, 58, 58, 58, 5, 41, 41, 41, 76, 58, 58, 58, 58, 58, 58, 58, 58, 58, 5, 41, 41, 41, 76, 58, 58, 58, 5, 41, 41, 41, 41, 41, 41, 41, 41, 41, 41, 41, 41, 41, 41, 41, 41, 41, 41, 41, 41, 41, 41, 41, 41, 41, 41, 41, 41, 41, 41, 41, 41, 41, 41, 41, 41, 41, 41, 41, 41, 41, 41, 41, 41, 41, 41, 41, 41, 41, 41, 41, 41, 41, 41, 41, 41, 41, 41, 41, 41, 41, 41, 41, 41, 41, 41, 41, 41, 41, 41, 41, 41, 41, 41, 41, 41, 41, 41, 41, 41, 41, 41, 41, 41, 41, 41, 41, 41, 41, 41, 41, 41, 41, 41, 41, 41, 41, 41, 41, 41, 41, 41, 41, 41, 41, 41, 41, 41, 41, 41, 41, 41, 41, 41, 41, 41, 41, 41, 41, 41, 41, 41, 41, 41, 41, 41],
 				[],
@@ -4178,6 +4194,7 @@ var Areas = {
 			tsize: 60,
 			tilesPerRow: 8,
 			solidTiles: [1, 2, 3, 6, 7, 9, 10, 11, 13, 15, 17, 18, 19, 20, 21, 23, 25, 26, 27, 28, 29, 31, 33, 34, 35, 36, 37, 38, 39, 42, 43, 44, 45, 46, 47, 53, 55, 61, 65, 69, 73, 77, 82, 83],
+			pathTiles: [5, 12, 41, 50, 51, 57, 58, 59, 60, 76],
 			layers: [
 				[6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 38, 38, 6, 6, 38, 38, 6, 6, 6, 38, 38, 6, 6, 38, 38, 6, 6, 38, 38, 6, 6, 38, 38, 6, 6, 6, 38, 38, 6, 6, 38, 38, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 14, 22, 14, 22, 14, 22, 14, 22, 14, 22, 14, 22, 14, 22, 14, 22, 14, 22, 14, 22, 14, 22, 14, 22, 14, 22, 14, 22, 14, 22, 14, 22, 14, 22, 30, 30, 30, 30, 30, 30, 14, 22, 14, 22, 14, 30, 30, 30, 30, 30, 30, 30, 30, 30, 30, 30, 30, 30, 14, 22, 14, 30, 30, 30, 30, 30, 30, 30, 30, 30, 30, 30, 30, 30, 30, 22, 14, 22, 30, 30, 30, 30, 30, 30, 30, 30, 30, 30, 30, 30, 30, 30, 14, 22, 14, 30, 30, 30, 30, 30, 30, 30, 30, 30, 30, 30, 30, 30, 30, 22, 14, 22, 30, 30, 30, 30, 30, 30, 30, 30, 30, 30, 30, 30, 30, 30, 14, 22, 14, 30, 30, 30, 30, 30, 30, 30, 30, 30, 30, 30, 30, 30, 30, 22, 14, 22, 30, 30, 30, 30, 30, 30, 30, 30, 30, 30, 30, 30, 30, 30, 14, 22, 14, 30, 30, 30, 30, 30, 30, 30, 30, 30, 30, 30, 30, 30, 14, 22, 14, 22, 14, 30, 30, 30, 30, 30, 30],
 				[],
@@ -4321,6 +4338,7 @@ var Areas = {
 			solidTiles: [1, 2, 3, 6, 7, 9, 10, 11, 13, 15, 17, 18, 19, 20, 21, 23, 25, 26, 27, 28, 29, 31, 33, 34, 35, 36, 37, 38, 39, 42, 43, 44, 45, 46, 47, 53, 54, 55, 61, 65, 69, 73, 77, 82, 83],
 			dayTiles: [11, 27, 34, 42, 7], // windows and lights
 			nightTiles: [3, 19, 2, 18, 15],
+			pathTiles: [5, 12, 41, 50, 51, 57, 58, 59, 60, 76],
 			layers: [
 				[6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 7, 6, 6, 6, 7, 6, 6, 6, 7, 6, 6, 6, 7, 6, 6, 6, 7, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 30, 30, 30, 30, 30, 30, 30, 30, 30, 30, 30, 30, 30, 30, 30, 30, 30, 30, 30, 30, 30, 30, 30, 30, 30, 30, 30, 30, 30, 30, 30, 30, 30, 30, 30, 30, 30, 30, 30, 30, 30, 30, 30, 30, 30, 30, 30, 30, 30, 30, 30, 30, 30, 30, 30, 30, 30, 30, 30, 30, 30, 30, 30, 30, 30, 30, 30, 30, 30, 30, 30, 30, 30, 30, 30, 30, 30, 30, 30, 30, 30, 30, 30, 30, 30, 30, 30, 30, 30, 30, 30, 30, 30, 30, 30, 30, 30, 30, 30, 30, 30, 30, 30, 30, 30, 30, 30, 30, 30, 30, 30, 30, 30, 30, 30, 30, 30, 30, 30, 30, 30, 30, 30, 30, 30, 30, 30, 30, 30, 30, 30, 30, 30, 30, 30, 30, 30, 30, 30, 30, 30, 30, 30, 30, 30, 30, 30, 30, 30, 30, 30, 30, 30, 30, 30, 30, 30, 30, 30, 30, 30, 30, 30, 30, 30, 30, 30, 30, 30, 30, 30, 30, 30, 30, 30, 30, 30, 30, 30, 30, 30, 30, 30, 30, 30, 30, 30, 30, 30, 30, 30, 30, 30, 30, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 30, 30, 30, 30, 30, 30, 30, 54, 54, 54, 6, 6, 7, 6, 6, 6, 6, 6, 7, 6, 6, 54, 54, 54, 30, 30, 54, 54, 54, 54, 54, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 54, 54, 54, 54, 54, 54, 54, 54, 54, 54, 30, 30, 30, 30, 30, 30, 30, 30, 30, 30, 30, 54, 54, 54, 54, 54, 54, 54, 30, 30, 30, 30, 30, 30, 30, 30, 30, 30, 30, 30, 30, 30, 30, 30, 30, 54, 54, 30, 30, 30, 30, 30, 30, 30, 46, 46, 46, 46, 46, 46, 46, 30, 30, 30, 30, 30, 30, 30, 30, 30, 30, 30, 30, 30, 30, 30, 30, 30, 30, 30, 30, 30, 30, 30, 30, 30, 30, 30, 30, 30, 30, 30, 30, 30, 30, 30, 30, 30, 30, 30, 30, 30, 30, 30, 30, 30, 30, 30, 30, 30, 30, 30, 30, 30, 30, 30, 30, 30, 30, 30, 30, 30, 30, 30, 30, 30, 30, 30, 30, 30, 30, 30, 30, 30, 30, 30, 30, 30, 30, 30, 30, 30, 30, 30, 30, 30, 30, 30, 30, 30, 30, 30, 30, 30, 30, 30, 30, 30, 30, 30, 30, 30, 30, 30, 30, 30, 30, 30, 30, 30, 30, 30, 30, 30, 30, 30, 30, 30, 30, 30, 30, 30, 30, 30, 30, 30, 30, 30, 30, 30, 30, 30, 30, 30],
 			],
@@ -4947,6 +4965,7 @@ var Areas = {
 			solidTiles: [1, 2, 3, 6, 7, 9, 10, 11, 13, 15, 17, 18, 19, 20, 21, 23, 25, 26, 27, 28, 29, 31, 33, 34, 35, 36, 37, 38, 39, 42, 43, 44, 45, 46, 47, 53, 55, 61, 65, 69, 73, 77, 82, 83],
 			dayTiles: [11, 27, 34, 42, 7], // windows and lights
 			nightTiles: [3, 19, 2, 18, 15],
+			pathTiles: [5, 12, 41, 50, 51, 57, 58, 59, 60, 76],
 			layers: [
 				[6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 7, 6, 6, 6, 6, 7, 6, 6, 6, 6, 7, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 30, 30, 30, 30, 30, 30, 30, 30, 30, 30, 30, 30, 30, 30, 30, 30, 30, 30, 30, 30, 30, 30, 30, 30, 30, 30, 30, 30, 30, 46, 46, 46, 46, 46, 46, 46, 30, 30, 30, 30, 30, 30, 30, 30, 30, 30, 30, 30, 30, 30, 30, 30, 30, 30, 30, 30, 30, 30, 30, 30, 30, 30, 30, 30, 30, 30, 30, 30, 30, 30, 30, 30, 30, 30, 30, 30, 30, 30, 30, 30, 30, 30, 30, 30, 30, 30, 30, 30, 30, 30, 30, 30, 30, 30, 30, 30, 30, 30, 30, 30, 30, 30, 30, 30, 30, 30, 30, 30, 30, 30, 30, 30, 30, 30, 30, 30, 30, 30, 30, 30, 30, 30, 30, 30, 30, 30, 30, 30, 30, 30],
 				[],
@@ -5113,6 +5132,7 @@ var Areas = {
 			solidTiles: [1, 2, 3, 6, 7, 9, 10, 11, 13, 15, 17, 18, 19, 20, 21, 23, 25, 26, 27, 28, 29, 31, 33, 34, 35, 36, 37, 38, 39, 42, 43, 44, 45, 46, 47, 53, 55, 61, 65, 69, 73, 77, 82, 83],
 			dayTiles: [11, 27, 34, 42, 7], // windows and lights
 			nightTiles: [3, 19, 2, 18, 15],
+			pathTiles: [5, 12, 41, 50, 51, 57, 58, 59, 60, 76],
 			layers: [
 				[6, 6, 6, 23, 47, 31, 55, 31, 55, 39, 6, 6, 6, 6, 7, 6, 31, 55, 39, 7, 39, 23, 47, 6, 7, 6, 6, 6, 6, 39, 23, 47, 23, 47, 31, 55, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 30, 30, 30, 30, 30, 30, 30, 30, 30, 30, 30, 30, 30, 30, 30, 30, 30, 30, 30, 30, 30, 30, 30, 30, 30, 30, 30, 30, 30, 46, 46, 46, 46, 46, 46, 46, 30, 30, 30, 30, 30, 30, 30, 30, 30, 30, 30, 30, 30, 30, 30, 30, 30, 30, 30, 30, 30, 30, 30, 30, 30, 30, 30, 30, 30, 30, 30, 30, 30, 30, 30, 30, 30, 30, 30, 30, 30, 30, 30, 30, 30, 30, 30, 30, 30, 30, 30, 30, 30, 30, 30, 30, 30, 30, 30, 30, 30, 30, 30, 30, 30, 30, 30, 30, 30, 30, 30, 30, 30, 30, 30, 30, 30, 30, 30, 30, 30, 30, 30, 30, 30, 30, 30, 30, 30, 30, 30, 30, 30, 30],
 				[],
@@ -5288,6 +5308,7 @@ var Areas = {
 			solidTiles: [1, 2, 3, 6, 7, 9, 10, 11, 13, 15, 17, 18, 19, 20, 21, 23, 25, 26, 27, 28, 29, 31, 33, 34, 35, 36, 37, 38, 39, 42, 43, 44, 45, 46, 47, 53, 55, 61, 65, 69, 73, 77, 82, 83],
 			dayTiles: [11, 27, 34, 42, 7], // windows and lights
 			nightTiles: [3, 19, 2, 18, 15],
+			pathTiles: [5, 12, 41, 50, 51, 57, 58, 59, 60, 76],
 			layers: [
 				[6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 7, 6, 6, 6, 6, 7, 6, 6, 6, 6, 7, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 30, 30, 30, 30, 30, 30, 30, 30, 30, 30, 30, 30, 30, 30, 30, 30, 30, 30, 30, 30, 30, 30, 30, 30, 30, 30, 30, 30, 30, 46, 46, 46, 46, 46, 46, 46, 30, 30, 30, 30, 30, 30, 30, 30, 30, 30, 30, 30, 30, 30, 30, 30, 30, 30, 30, 30, 30, 30, 30, 30, 30, 30, 30, 30, 30, 30, 30, 30, 30, 30, 30, 30, 30, 30, 30, 30, 30, 30, 30, 30, 30, 30, 30, 30, 30, 30, 30, 30, 30, 30, 30, 30, 30, 30, 30, 30, 30, 30, 30, 30, 30, 30, 30, 30, 30, 30, 30, 30, 30, 30, 30, 30, 30, 30, 30, 30, 30, 30, 30, 30, 30, 30, 30, 30, 30, 30, 30, 30, 30, 30],
 				[],
@@ -5564,6 +5585,7 @@ var Areas = {
 			solidTiles: [1, 2, 3, 6, 7, 9, 10, 11, 13, 15, 17, 18, 19, 20, 21, 23, 25, 26, 27, 28, 29, 31, 33, 34, 35, 36, 37, 38, 39, 42, 43, 44, 45, 46, 47, 53, 55, 61, 65, 69, 73, 77, 82, 83],
 			dayTiles: [11, 27, 34, 42, 7], // windows and lights
 			nightTiles: [3, 19, 2, 18, 15],
+			pathTiles: [5, 12, 41, 50, 51, 57, 58, 59, 60, 76],
 			layers: [
 				[43, 43, 43, 43, 43, 43, 43, 43, 43, 43, 43, 43, 43, 43, 43, 43, 43, 43, 43, 43, 43, 65, 82, 65, 65, 65, 65, 65, 65, 65, 82, 65, 65, 65, 65, 65, 82, 65, 65, 65, 65, 65, 65, 65, 82, 65, 43, 43, 43, 43, 43, 11, 43, 43, 43, 11, 43, 43, 43, 11, 43, 43, 43, 43, 43, 43, 43, 43, 43, 43, 43, 65, 82, 65, 65, 65, 65, 65, 65, 65, 82, 65, 65, 65, 65, 65, 82, 65, 65, 65, 65, 65, 65, 65, 82, 65, 43, 43, 11, 43, 43, 43, 43, 43, 43, 43, 43, 43, 43, 43, 43, 43, 36, 36, 36, 36, 36, 36, 36, 36, 36, 65, 82, 65, 28, 28, 65, 28, 28, 65, 82, 65, 65, 65, 65, 65, 82, 65, 28, 28, 65, 28, 28, 65, 82, 65, 43, 43, 43, 43, 74, 74, 74, 74, 74, 74, 74, 74, 74, 74, 74, 74, 36, 36, 36, 36, 36, 36, 36, 36, 36, 65, 82, 65, 28, 28, 65, 28, 28, 65, 82, 65, 53, 69, 61, 65, 82, 65, 28, 28, 65, 28, 28, 65, 82, 65, 74, 74, 74, 74, 49, 49, 66, 66, 49, 49, 49, 49, 49, 49, 49, 49, 44, 52, 44, 44, 44, 44, 44, 52, 44, 65, 82, 65, 28, 28, 65, 28, 28, 65, 82, 65, 37, 21, 45, 65, 82, 65, 28, 28, 65, 28, 28, 65, 82, 65, 49, 49, 49, 49, 49, 81, 67, 66, 66, 49, 49, 49, 49, 49, 49, 49, 65, 82, 65, 28, 28, 28, 65, 82, 65, 65, 82, 65, 28, 28, 65, 28, 28, 65, 82, 65, 13, 21, 29, 65, 82, 65, 28, 28, 65, 28, 28, 65, 82, 65, 49, 49, 66, 49, 49, 66, 66, 66, 49, 49, 49, 49, 49, 81, 66, 49, 65, 82, 65, 28, 28, 28, 65, 82, 65, 65, 82, 65, 73, 73, 65, 73, 73, 65, 82, 65, 13, 77, 29, 65, 82, 65, 73, 73, 65, 73, 73, 65, 82, 65, 49, 66, 66, 66, 49, 49, 49, 49, 49, 49, 49, 49, 67, 75, 67, 49, 65, 82, 65, 73, 73, 73, 65, 82, 65, 65, 82, 65, 65, 65, 65, 65, 65, 65, 82, 65, 13, 21, 29, 65, 82, 65, 65, 65, 65, 65, 65, 65, 82, 65, 49, 66, 49, 66, 49, 49, 49, 49, 49, 49, 49, 49, 49, 66, 66, 49, 49, 83, 49, 49, 49, 49, 49, 83, 81, 49, 83, 66, 66, 67, 49, 49, 49, 49, 83, 49, 57, 41, 59, 49, 83, 49, 49, 49, 49, 49, 49, 49, 83, 67, 49, 49, 49, 49, 49, 49, 49, 49, 49, 67, 75, 49, 49, 49, 66, 49, 49, 49, 49, 49, 49, 49, 49, 66, 66, 66, 49, 49, 49, 49, 49, 49, 49, 49, 49, 49, 57, 41, 59, 49, 49, 49, 49, 49, 49, 49, 49, 49, 49, 49, 49, 49, 49, 49, 49, 49, 49, 49, 49, 49, 49, 49, 49, 49, 49, 49, 49, 49, 49, 66, 66, 49, 49, 49, 49, 49, 49, 49, 49, 49, 66, 49, 49, 49, 49, 49, 57, 41, 59, 49, 66, 49, 49, 49, 49, 49, 66, 66, 49, 49, 49, 49, 49, 49, 49, 49, 75, 81, 49, 49, 49, 49, 49, 49, 49, 49, 49, 49, 49, 49, 67, 49, 49, 49, 49, 49, 49, 49, 49, 49, 49, 49, 49, 49, 66, 4, 12, 41, 59, 49, 75, 49, 49, 49, 49, 66, 67, 49, 49, 49, 49, 66, 49, 49, 58, 58, 58, 58, 58, 58, 58, 58, 58, 58, 58, 58, 58, 58, 58, 58, 58, 58, 58, 58, 58, 58, 58, 58, 58, 58, 58, 58, 58, 58, 58, 5, 41, 41, 59, 67, 49, 49, 49, 49, 66, 81, 49, 49, 49, 49, 49, 49, 49, 49, 41, 41, 41, 41, 41, 41, 41, 41, 41, 41, 41, 41, 41, 41, 41, 41, 41, 41, 41, 41, 41, 41, 41, 41, 41, 41, 41, 41, 41, 41, 41, 41, 41, 41, 59, 66, 49, 49, 49, 66, 66, 49, 49, 49, 49, 49, 49, 49, 49, 49, 51, 51, 51, 51, 51, 51, 51, 51, 51, 51, 51, 51, 51, 51, 51, 51, 51, 51, 51, 51, 51, 51, 51, 51, 51, 51, 51, 51, 51, 51, 51, 51, 51, 51, 50, 49, 49, 49, 49, 49, 49, 49, 49, 49, 49, 49, 49, 49, 49, 49, 49, 49, 49, 49, 49, 49, 49, 49, 49, 49, 49, 49, 49, 49, 66, 49, 49, 49, 49, 49, 49, 49, 49, 49, 49, 49, 49, 66, 66, 66, 66, 49, 49, 49, 49, 49, 49, 49, 49, 49, 49, 49, 49, 49, 49, 49, 49, 49, 67, 49, 49, 49, 49, 49, 49, 49, 49, 49, 49, 49, 49, 49, 49, 49, 66, 49, 49, 49, 49, 49, 75, 66, 49, 49, 49, 49, 49, 49, 49, 49, 49, 49, 49, 49, 49, 49, 49, 49, 49, 49, 49, 49, 66, 49, 49, 49, 49, 75, 81, 49, 49, 49, 66, 67, 81, 49, 49, 49, 49, 49, 75, 49, 49, 49, 66, 49, 49, 49, 49, 66, 66, 75, 67, 66, 81, 49, 49, 49, 49, 49, 49, 49, 49, 49, 66, 49, 49, 49, 49, 49, 49, 49, 49, 49, 49, 49, 49, 67, 49, 49, 66, 49, 49, 49, 49, 66, 67, 49, 49, 49, 49, 49, 49, 66, 66, 49, 49, 49, 49, 67, 66, 49, 49, 49, 49, 49, 49, 49, 49, 49, 49, 49, 49, 49, 66, 75, 49, 49, 49, 49, 49, 49, 49, 49, 49, 49, 49, 49, 49, 49, 66, 66, 49, 49, 49, 49, 49, 49, 49, 49, 49, 49, 49, 49, 49, 49, 49, 49, 49, 49, 49, 49, 49, 49, 49, 49, 49, 49, 49, 49, 49, 49, 49, 49, 49, 49, 49, 49, 49, 49, 49, 66, 49, 49, 49, 49, 49, 49, 49, 49],
 				[],
@@ -5824,374 +5846,338 @@ var Areas = {
 };
 
 var Villagers = [
-	{
-		image: "silvioStarstrike",
-		imageSource: {normal: "assets/npcs/silvioStarstrike.png"},
-		name: "Silvio Starstrike",
-		level: 20,
-		stats: {
-			maxHealth: 150,
-			walkSpeed: 160,
-			defence: 5,
-		},
-		hostility: "friendly",
-		exceptAreas: [
-			"eaglecrestLoggingCamp",
-		],
-		roles: [],
-		chat: {
-			notUnlockedRoles: "I bet you've never met a lunarlancer before! Be warned - I have a short temper.",
-			chooseChat: "Don't say a false word. I could decimate you with my celestial power.",
-			receiveTavernGood: "I see you've brought me some blessings from the stars. What do you mean I ordered them? Don't underestimate the power of the sky.",
-		}
-	},
-	{
-		image: "darioHorfern",
-		imageSource: {normal: "assets/npcs/darioHorfern.png"},
-		name: "Dario Horfern",
-		level: 10,
-		stats: {
-			maxHealth: 100,
-			walkSpeed: 125,
-			defence: 3,
-		},
-		hostility: "friendly",
-		areas: [
-			"loggingCampTavern",
-			"eaglecrestTavern",
-		],
-		roles: [],
-		chat: {
-			notUnlockedRoles: {
-				loggingCamp: "This place is small. I prefer it in Eaglecrest.",
-				eaglecrest: "This would be my favourite place in the whole city... if it wasn't so dusty!",
-			},
-			chooseChat: "You can go away if you haven't brought me a drink.",
-			receiveTavernGood: "I've been waiting for ages for this!",
-		}
-	},
-	{
-		image: "gremaRoskin",
-		imageSource: {normal: "assets/npcs/gremaRoskin.png"},
-		name: "Grema Roskin",
-		level: 15,
-		stats: {
-			maxHealth: 125,
-			walkSpeed: 135,
-			defence: 2,
-		},
-		hostility: "friendly",
-		areas: [
-			"loggingCampTavern",
-			"eaglecrestTavern",
-		],
-		roles: [],
-		chat: {
-			notUnlockedRoles: {
-				loggingCamp: "Hm. Doesn't smell of fried beetroot here.",
-				eaglecrest: "Smells of fried beetroot in here."
-			},
-			chooseChat: "Hello again, did you bring beetroot this time?",
-			receiveTavernGood: "It's no fried beetroot, but it'll do. Thank you.",
-		}
-	},
-	{
-		image: "feller",
-		imageSource: {normal: "assets/npcs/feller.png"},
-		name: "Logging Camp Feller",
-		level: 4,
-		stats: {
-			maxHealth: 70,
-			walkSpeed: 115,
-			defence: 3,
-		},
-		hostility: "friendly",
-		areas: [
-			"loggingCampTavern",
-			"eaglecrestLoggingCamp",
-		],
-		roles: [],
-		chat: {
-			notUnlockedRoles: "<em>You</em> should try carrying these logs around all day!",
-			chooseChat: "Can't talk for long, my back's playing up again.",
-			receiveTavernGood: "Ah, thanks! Just hold these logs for a minute.",
-		}
-	},
-	{
-		image: "treecutter",
-		imageSource: {normal: "assets/npcs/treecutter.png"},
-		name: "Logging Camp Treecutter",
-		level: 7,
-		stats: {
-			maxHealth: 85,
-			walkSpeed: 120,
-			defence: 5,
-		},
-		hostility: "friendly",
-		areas: [
-			"loggingCampTavern",
-			"eaglecrestLoggingCamp",
-		],
-		roles: [],
-		chat: {
-			notUnlockedRoles: "Teper should try doing some work and not just ordering us around all the time.",
-			chooseChat: "Y'know I cut the trees down to build this place: it's great to see my hard work put to good use!",
-			receiveTavernGood: "Just the break I needed.",
-		}
-	},
-	{
-		image: "robertHendman",
-		imageSource: {normal: "assets/npcs/robertHendman.png"},
-		name: "Robert Hendman",
-		level: 12,
-		stats: {
-			maxHealth: 85,
-			walkSpeed: 140,
-			defence: 5,
-		},
-		hostility: "friendly",
-		exceptAreas: [
-			"eaglecrestLoggingCamp",
-		],
-		roles: [],
-		chat: {
-			notUnlockedRoles: "Have you seen anyone playing Wizard's Lore before? Me neither. I bet those game boards are just for show.",
-			chooseChat: "I'm going to head down to the Eaglecrest monastery soon. Would you like to come along too?",
-			receiveTavernGood: `Thank you ${ChatText.gender[Player.gender].formal}! A good day to you.`,
-		}
-	},
-	{
-		image: "wilmaRedding",
-		imageSource: {normal: "assets/npcs/wilmaRedding.png"},
-		name: "Wilma Redding",
-		level: 12,
-		stats: {
-			maxHealth: 85,
-			walkSpeed: 140,
-			defence: 5,
-		},
-		hostility: "friendly",
-		exceptAreas: [
-			"eaglecrestLoggingCamp",
-		],
-		roles: [],
-		chat: {
-			notUnlockedRoles: "So many magic artifacts around, yet I can't seem to find a single one!",
-			chooseChat: "Why would a fancy adventurer like you be talking to someone like me?",
-			receiveTavernGood: "My order? And not a moment too soon!",
-		}
-	},
-	{
-		image: "greenbeard",
-		imageSource: {normal: "assets/npcs/greenbeard.png"},
-		name: "Captain Greenbeard",
-		level: 40,
-		stats: {
-			maxHealth: 250,
-			walkSpeed: 130,
-			defence: 8,
-		},
-		hostility: "friendly",
-		exceptAreas: [
-			"eaglecrestLoggingCamp",
-		],
-		roles: [],
-		chat: {
-			notUnlockedRoles: "Yarr harr! Have ye spied me ship nearby?",
-			chooseChat: "Ahoy there!",
-			receiveTavernGood: "Nothin' better than a hearty supper at the tavern.",
-		}
-	},
-	{
-		image: "gildoCleftbeard",
-		imageSource: {normal: "assets/npcs/gildoCleftbeard.png"},
-		name: "Gildo Cleftbeard",
-		level: 14,
-		stats: {
-			maxHealth: 120,
-			walkSpeed: 123,
-			defence: 6,
-		},
-		hostility: "friendly",
-		exceptAreas: [
-			"eaglecrestLoggingCamp",
-		],
-		roles: [],
-		chat: {
-			notUnlockedRoles: "I would never go to that Nilbog! Wouldn't want to get my boots muddy. Oh, and the goblins, too.",
-			chooseChat: "I tip my hat to you.",
-			receiveTavernGood: "Thank you, now I just have to be careful not to get any in my beard!",
-		}
-	},
-	{
-		image: "eaglecrestGuard",
-		imageSource: {normal: "assets/npcs/eaglecrestGuard.png"},
-		name: "Eaglecrest Guard",
-		level: 50,
-		stats: {
-			maxHealth: 300,
-			walkSpeed: 170,
-			defence: 20,
-		},
-		hostility: "friendly",
-		exceptAreas: [
-			"loggingCampTavern",
-			"eaglecrestLoggingCamp",
-		],
-		roles: [],
-		chat: {
-			notUnlockedRoles: "Becoming a guard has been my dream ever since I was a child. I admired their might!",
-			chooseChat: "Sorry if I seem distracted, but I'm always on the lookout for criminals.",
-			receiveTavernGood: "Thanks. I need this to keep my strength up.",
-		}
-	},
-	{
-		image: "eaglecrestGuard2",
-		imageSource: {normal: "assets/npcs/eaglecrestGuard2.png"},
-		name: "Eaglecrest Guard",
-		level: 50,
-		stats: {
-			maxHealth: 300,
-			walkSpeed: 170,
-			defence: 20,
-		},
-		hostility: "friendly",
-		exeptAreas: [
-			"loggingCampTavern",
-			"eaglecrestLoggingCamp",
-		],
-		roles: [],
-		chat: {
-			notUnlockedRoles: "Becoming a guard has been my dream ever since I was a child. I admired their might!",
-			chooseChat: "Sorry if I seem distracted, but I'm always on the lookout for criminals.",
-			receiveTavernGood: "Thanks. I need this to keep my strength up.",
-		}
-	},
-	{
-		image: "alfonsoMurbry",
-		imageSource: {normal: "assets/npcs/alfonsoMurbry.png"},
-		name: "Alfonso Murbry",
-		level: 18,
-		stats: {
-			maxHealth: 140,
-			walkSpeed: 138,
-			defence: 3,
-		},
-		hostility: "friendly",
-		exceptAreas: [
-			"eaglecrestLoggingCamp",
-		],
-		roles: [],
-		chat: {
-			notUnlockedRoles: "Do you know how to get a golden slingshot? I've heard it fires three pellets at once!",
-			chooseChat: "You know there's said to sometimes be floating presents in the sky held up by balloons. That's why you should always carry around a slingshot!",
-			receiveTavernGood: "Excellent! Just in time.",
-		}
-	},
-	{
-		image: "cat1",
-		imageSource: {normal: "assets/npcs/cat1.png"},
-		name: "Cat",
-		hideNameTag: true,
-		areas: [
-			"eaglecrest",
-			"eaglecrestEast",
-			"eaglecrestWest",
-			"eaglecrestGraveyard",
-		],
-		roles: [],
-		speciesTemplate: SpeciesTemplates.cat,
-	},
-	{
-		image: "cat2",
-		imageSource: {normal: "assets/npcs/cat2.png"},
-		name: "Cat",
-		hideNameTag: true,
-		areas: [
-			"eaglecrest",
-			"eaglecrestEast",
-			"eaglecrestWest",
-			"eaglecrestGraveyard",
-		],
-		roles: [],
-		speciesTemplate: SpeciesTemplates.cat,
-	},
-	{
-		image: "cat3",
-		imageSource: {normal: "assets/npcs/cat3.png"},
-		name: "Cat",
-		hideNameTag: true,
-		areas: [
-			"eaglecrest",
-			"eaglecrestEast",
-			"eaglecrestWest",
-			"eaglecrestGraveyard",
-		],
-		roles: [],
-		speciesTemplate: SpeciesTemplates.cat,
-	},
-	{
-		image: "cat4",
-		imageSource: {normal: "assets/npcs/cat4.png"},
-		name: "Cat",
-		hideNameTag: true,
-		areas: [
-			"eaglecrest",
-			"eaglecrestEast",
-			"eaglecrestWest",
-			"eaglecrestGraveyard",
-		],
-		roles: [],
-		speciesTemplate: SpeciesTemplates.cat,
-	},
-	{
-		image: "torianTintop",
-		imageSource: {normal: "assets/npcs/torianTintop.png"},
-		name: "Torian Tintop",
-		areas: [
-			"loggingCampTavern",
-		],
-		roles: [],
-		level: 4,
-		stats: {
-			maxHealth: 70,
-			defence: 3,
-			walkSpeed: 135,
-		},
-		hostility: "friendly",
-		chat: {
-			notUnlockedRoles: "Hope y' liked the gift! We should play again at some point.",
-			chooseChat: "How you doin'?",
-			receiveTavernGood: "Thanks! Oh - hope y' enjoyed the bread in the gift we got you!",
-		},
-		canBeShown: function () {
-			return Player.quests.timesCompleted.eaglecrestLoggingCamp[25] >= 11;
-		},
-	},
-	{
-		image: "nessyTintop",
-		imageSource: {normal: "assets/npcs/nessyTintop.png"},
-		name: "Nessy Tintop",
-		areas: [
-			"loggingCampTavern",
-		],
-		roles: [],
-		level: 4,
-		stats: {
-			maxHealth: 70,
-			defence: 3,
-			walkSpeed: 135,
-		},
-		hostility: "friendly",
-		chat: {
-			notUnlockedRoles: "Torian said we can't play hide 'n' find again 'cause it was too expensive.",
-			chooseChat: "Hello?",
-			receiveTavernGood: "Yum! Not often I can get one of these!",
-		},
-		canBeShown: function () {
-			return Player.quests.timesCompleted.eaglecrestLoggingCamp[25] >= 11;
-		},
-	},
+    {
+        images: {silvioStarstrike: {normal: "assets/npcs/silvioStarstrike.png"}},
+        name: "Silvio Starstrike",
+        level: 20,
+        stats: {
+            maxHealth: 150,
+            walkSpeed: 160,
+            defence: 5,
+        },
+        hostility: "friendly",
+        exceptAreas: [
+            "eaglecrestLoggingCamp",
+        ],
+        roles: [],
+        chat: {
+            notUnlockedRoles: "I bet you've never met a lunarlancer before! Be warned - I have a short temper.",
+            chooseChat: "Don't say a false word. I could decimate you with my celestial power.",
+            receiveTavernGood: "I see you've brought me some blessings from the stars. What do you mean I ordered them? Don't underestimate the power of the sky.",
+        }
+    },
+    {
+        images: {darioHorfern: {normal: "assets/npcs/darioHorfern.png"}},
+        name: "Dario Horfern",
+        level: 10,
+        stats: {
+            maxHealth: 100,
+            walkSpeed: 125,
+            defence: 3,
+        },
+        hostility: "friendly",
+        areas: [
+            "loggingCampTavern",
+            "eaglecrestTavern",
+        ],
+        roles: [],
+        chat: {
+            notUnlockedRoles: {
+                loggingCamp: "This place is small. I prefer it in Eaglecrest.",
+                eaglecrest: "This would be my favourite place in the whole city... if it wasn't so dusty!",
+            },
+            chooseChat: "You can go away if you haven't brought me a drink.",
+            receiveTavernGood: "I've been waiting for ages for this!",
+        }
+    },
+    {
+        images: {gremaRoskin: {normal: "assets/npcs/gremaRoskin.png"}},
+        name: "Grema Roskin",
+        level: 15,
+        stats: {
+            maxHealth: 125,
+            walkSpeed: 135,
+            defence: 2,
+        },
+        hostility: "friendly",
+        areas: [
+            "loggingCampTavern",
+            "eaglecrestTavern",
+        ],
+        roles: [],
+        chat: {
+            notUnlockedRoles: {
+                loggingCamp: "Hm. Doesn't smell of fried beetroot here.",
+                eaglecrest: "Smells of fried beetroot in here."
+            },
+            chooseChat: "Hello again, did you bring beetroot this time?",
+            receiveTavernGood: "It's no fried beetroot, but it'll do. Thank you.",
+        }
+    },
+    {
+        images: {feller: {normal: "assets/npcs/feller.png"}},
+        name: "Logging Camp Feller",
+        level: 4,
+        stats: {
+            maxHealth: 70,
+            walkSpeed: 115,
+            defence: 3,
+        },
+        hostility: "friendly",
+        areas: [
+            "loggingCampTavern",
+            "eaglecrestLoggingCamp",
+        ],
+        roles: [],
+        chat: {
+            notUnlockedRoles: "<em>You</em> should try carrying these logs around all day!",
+            chooseChat: "Can't talk for long, my back's playing up again.",
+            receiveTavernGood: "Ah, thanks! Just hold these logs for a minute.",
+        }
+    },
+    {
+        images: {treecutter: {normal: "assets/npcs/treecutter.png"}},
+        name: "Logging Camp Treecutter",
+        level: 7,
+        stats: {
+            maxHealth: 85,
+            walkSpeed: 120,
+            defence: 5,
+        },
+        hostility: "friendly",
+        areas: [
+            "loggingCampTavern",
+            "eaglecrestLoggingCamp",
+        ],
+        roles: [],
+        chat: {
+            notUnlockedRoles: "Teper should try doing some work and not just ordering us around all the time.",
+            chooseChat: "Y'know I cut the trees down to build this place: it's great to see my hard work put to good use!",
+            receiveTavernGood: "Just the break I needed.",
+        }
+    },
+    {
+        images: {robertHendman: {normal: "assets/npcs/robertHendman.png"}},
+        name: "Robert Hendman",
+        level: 12,
+        stats: {
+            maxHealth: 85,
+            walkSpeed: 140,
+            defence: 5,
+        },
+        hostility: "friendly",
+        exceptAreas: [
+            "eaglecrestLoggingCamp",
+        ],
+        roles: [],
+        chat: {
+            notUnlockedRoles: "Have you seen anyone playing Wizard's Lore before? Me neither. I bet those game boards are just for show.",
+            chooseChat: "I'm going to head down to the Eaglecrest monastery soon. Would you like to come along too?",
+            receiveTavernGood: `Thank you ${ChatText.gender[Player.gender].formal}! A good day to you.`,
+        }
+    },
+    {
+        images: {wilmaRedding: {normal: "assets/npcs/wilmaRedding.png"}},
+        name: "Wilma Redding",
+        level: 12,
+        stats: {
+            maxHealth: 85,
+            walkSpeed: 140,
+            defence: 5,
+        },
+        hostility: "friendly",
+        exceptAreas: [
+            "eaglecrestLoggingCamp",
+        ],
+        roles: [],
+        chat: {
+            notUnlockedRoles: "So many magic artifacts around, yet I can't seem to find a single one!",
+            chooseChat: "Why would a fancy adventurer like you be talking to someone like me?",
+            receiveTavernGood: "My order? And not a moment too soon!",
+        }
+    },
+    {
+        images: {greenbeard: {normal: "assets/npcs/greenbeard.png"}},
+        name: "Captain Greenbeard",
+        level: 40,
+        stats: {
+            maxHealth: 250,
+            walkSpeed: 130,
+            defence: 8,
+        },
+        hostility: "friendly",
+        exceptAreas: [
+            "eaglecrestLoggingCamp",
+        ],
+        roles: [],
+        chat: {
+            notUnlockedRoles: "Yarr harr! Have ye spied me ship nearby?",
+            chooseChat: "Ahoy there!",
+            receiveTavernGood: "Nothin' better than a hearty supper at the tavern.",
+        }
+    },
+    {
+        images: {gildoCleftbeard: {normal: "assets/npcs/gildoCleftbeard.png"}},
+        name: "Gildo Cleftbeard",
+        level: 14,
+        stats: {
+            maxHealth: 120,
+            walkSpeed: 123,
+            defence: 6,
+        },
+        hostility: "friendly",
+        exceptAreas: [
+            "eaglecrestLoggingCamp",
+        ],
+        roles: [],
+        chat: {
+            notUnlockedRoles: "I would never go to that Nilbog! Wouldn't want to get my boots muddy. Oh, and the goblins, too.",
+            chooseChat: "I tip my hat to you.",
+            receiveTavernGood: "Thank you, now I just have to be careful not to get any in my beard!",
+        }
+    },
+    {
+        images: {eaglecrestGuard: {normal: "assets/npcs/eaglecrestGuard.png"}},
+        name: "Eaglecrest Guard",
+        level: 50,
+        stats: {
+            maxHealth: 300,
+            walkSpeed: 170,
+            defence: 20,
+        },
+        hostility: "friendly",
+        exceptAreas: [
+            "loggingCampTavern",
+            "eaglecrestLoggingCamp",
+        ],
+        roles: [],
+        chat: {
+            notUnlockedRoles: "Becoming a guard has been my dream ever since I was a child. I admired their might!",
+            chooseChat: "Sorry if I seem distracted, but I'm always on the lookout for criminals.",
+            receiveTavernGood: "Thanks. I need this to keep my strength up.",
+        }
+    },
+    {
+        images: {eaglecrestGuard2: {normal: "assets/npcs/eaglecrestGuard2.png"}},
+        name: "Eaglecrest Guard",
+        level: 50,
+        stats: {
+            maxHealth: 300,
+            walkSpeed: 170,
+            defence: 20,
+        },
+        hostility: "friendly",
+        exeptAreas: [
+            "loggingCampTavern",
+            "eaglecrestLoggingCamp",
+        ],
+        roles: [],
+        chat: {
+            notUnlockedRoles: "Becoming a guard has been my dream ever since I was a child. I admired their might!",
+            chooseChat: "Sorry if I seem distracted, but I'm always on the lookout for criminals.",
+            receiveTavernGood: "Thanks. I need this to keep my strength up.",
+        }
+    },
+    {
+        images: {alfonsoMurbry: {normal: "assets/npcs/alfonsoMurbry.png"}},
+        name: "Alfonso Murbry",
+        level: 18,
+        stats: {
+            maxHealth: 140,
+            walkSpeed: 138,
+            defence: 3,
+        },
+        hostility: "friendly",
+        exceptAreas: [
+            "eaglecrestLoggingCamp",
+        ],
+        roles: [],
+        chat: {
+            notUnlockedRoles: "Do you know how to get a golden slingshot? I've heard it fires three pellets at once!",
+            chooseChat: "You know there's said to sometimes be floating presents in the sky held up by balloons. That's why you should always carry around a slingshot!",
+            receiveTavernGood: "Excellent! Just in time.",
+        }
+    },
+    {
+        images: {
+            cat1Left: {normal: "assets/npcs/cat1.png"},
+            cat1Right: {normal: "assets/npcs/cat1.png", flip: "vertical"},
+        },
+        rotationImages: {
+            left: "cat1Left",
+            right: "cat1Right"
+        },
+        name: "Cat",
+        hideNameTag: true,
+        areas: [
+            "eaglecrest",
+            "eaglecrestEast",
+            "eaglecrestWest",
+            "eaglecrestGraveyard",
+        ],
+        roles: [],
+        speciesTemplate: SpeciesTemplates.cat,
+    },
+    {
+        images: {
+            cat2Left: {normal: "assets/npcs/cat2.png"},
+            cat2Right: {normal: "assets/npcs/cat2.png", flip: "vertical"},
+        },
+        rotationImages: {
+            left: "cat2Left",
+            right: "cat2Right"
+        },
+        name: "Cat",
+        hideNameTag: true,
+        areas: [
+            "eaglecrest",
+            "eaglecrestEast",
+            "eaglecrestWest",
+            "eaglecrestGraveyard",
+        ],
+        roles: [],
+        speciesTemplate: SpeciesTemplates.cat,
+    },
+    {
+        images: {
+            cat3Left: {normal: "assets/npcs/cat3.png"},
+            cat3Right: {normal: "assets/npcs/cat3.png", flip: "vertical"},
+        },
+        rotationImages: {
+            left: "cat3Left",
+            right: "cat3Right"
+        },
+        name: "Cat",
+        hideNameTag: true,
+        areas: [
+            "eaglecrest",
+            "eaglecrestEast",
+            "eaglecrestWest",
+            "eaglecrestGraveyard",
+        ],
+        roles: [],
+        speciesTemplate: SpeciesTemplates.cat,
+    },
+    {
+        images: {
+            cat4Left: {normal: "assets/npcs/cat4.png"},
+            cat4Right: {normal: "assets/npcs/cat4.png", flip: "vertical"},
+        },
+        rotationImages: {
+            left: "cat4Left",
+            right: "cat4Right"
+        },
+        name: "Cat",
+        hideNameTag: true,
+        areas: [
+            "eaglecrest",
+            "eaglecrestEast",
+            "eaglecrestWest",
+            "eaglecrestGraveyard",
+        ],
+        roles: [],
+        speciesTemplate: SpeciesTemplates.cat,
+    },
 ];
 
 // sets a tile on the Map (specifyable area for if it is used in a setTimeout)

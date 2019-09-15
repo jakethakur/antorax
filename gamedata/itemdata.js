@@ -2333,7 +2333,7 @@ var Items = {
 				Game.statusEffects.generic({
 					target: Game.hero,
 					effectTitle: "fireroot",
-					time: 21,
+					time: 26,
 					showInfoBar: true,
 					infoBarText: "Fireroot explodes in:",
 					hidden: true,

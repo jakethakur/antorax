@@ -38,14 +38,14 @@
 		<p id='innerStats'></p>
 		<p id='innerStatus'></p>
 	</div>
-	<input id="canvasChatInput" type="text" placeholder="Type a message to send to chat."></input>
+	<input id="canvasChatInput" type="text" class="canvasChatInput" placeholder="Type a message to send to chat."></input>
 	<p id="canvasSend" onclick="Dom.chat.input()">send</p>
 	<div id="chatPage" hidden class="DOM">
 		<div id="players" hidden></div>
 		<div id="chatText"></div>
 		<div id="playersInfo" hidden></div>
 		<input id="chatInput" type="text" placeholder="Type a message to send to chat."></input>
-		<p id="send" onclick="Dom.chat.input('chatInput')">Send</p>
+		<p id="send" onclick="Dom.chat.input('chatInput')">send</p>
 	</div>
 	<div id="inventoryPage" hidden class="DOM" onclick="Dom.inventory.deEquip = false;" ondrop="Dom.inventory.dispose(event)" ondragover="Dom.inventory.allowDrop(event)">
 		<div id="inventoryGoldXP"></div>

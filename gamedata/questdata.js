@@ -1295,19 +1295,33 @@ After all, death is never the end in Antorax...<br>
 			quest: "A Tale of Two Twintops",
 			questArea: "eaglecrestLoggingCamp",
 
-			torianTintop: {
-				startName: "Torian Tintop",
-				finishName: "Torian Tintop",
-			},
+			startName: [
+				"Nessy Tintop",
+				"Torian Tintop",
+				"Nessy Tintop",
+				"Torian Tintop",
+				"Nessy Tintop",
+				"Torian Tintop",
+				"Nessy Tintop",
+				"Torian Tintop",
+				"Nessy Tintop",
+				"Torian Tintop",
+				"Torian and Nessy Tintop",
+			],
 
-			nessyTintop: {
-				startName: "Nessy Tintop",
-				finishName: "Nessy Tintop",
-			},
-
-			tightlyPackedPresent: {
-				finishName: "Tightly Packed Present",
-			},
+			finishName: [
+				"Torian Tintop",
+				"Nessy Tintop",
+				"Torian Tintop",
+				"Nessy Tintop",
+				"Torian Tintop",
+				"Nessy Tintop",
+				"Torian Tintop",
+				"Nessy Tintop",
+				"Torian Tintop",
+				"Nessy Tintop",
+				"Tightly Packed Present",
+			],
 
 			startChat: [
 				"Hello? What are you lookin' at? I'm just tryin' to find a friend, OK? He's not missing, it's for a game.<br><br>Yes I've been looking for a while. Yes there's a reward for whoever finds 'im first. Doesn't mean you can go off and look for him and take my reward! But yes, I wouldn't mind your help finding 'im if you insist.",
@@ -1366,18 +1380,18 @@ After all, death is never the end in Antorax...<br>
 				xp: 30,
 				items: [{item: Items.item[1],}], // question mark
 				timesCompleted: [
-					[{item: Items.item[4]}], // polished rock
-					[{item: Items.item[3], quantity: 3}], // scrap of cloth
-					[{item: Items.fish[8]}], // old boot
-					[{item: Items.item[29]}], // burnt cloth
-					[{item: Items.item[11]}], // vial of goblin blood
-					[{item: Items.consumable[6]}], // goblin brewed potion
-					[{item: Items.consumable[5]}], // wood-brewed beer
-					[{item: Items.consumable[3]}], // potion of swiftness
-					[{item: new UnId("loggingCamp", 1)}], // unidentified item
-					[{item: Items.fish[17]}], // ocean chest key
-					[],
-				],
+                    [{item: Items.item[4]}], // polished rock
+                    [{item: Items.item[3], quantity: 3}], // scrap of cloth
+                    [{item: Items.fish[8]}], // old boot
+                    [{item: Items.item[29]}], // burnt cloth
+                    [{item: Items.food[0]}], // bread
+                    [{item: Items.consumable[6]}], // goblin brewed potion
+                    [{item: Items.consumable[5]}], // wood-brewed beer
+                    [{item: Items.consumable[3]}], // potion of swiftness
+                    [{item: new UnId("loggingCamp", 1)}, {item: new UnId("loggingCamp", 1)}], // unidentified item
+                    [{item: Items.fish[17]}], // ocean chest key
+                    [],
+                ],
 			},
 
 			isCompleted: function() {
@@ -1391,24 +1405,14 @@ After all, death is never the end in Antorax...<br>
 							Game.things.push(new NPC(Areas.eaglecrestLoggingCamp.npcs[9]));
 						}
 	                }
-					else if (Player.quests.timesCompleted.eaglecrestLoggingCamp[25] === 4) {
-						if (Game.prepareNPC(Areas.eaglecrestLoggingCamp.npcs[10], "npcs", true)) {
-	                    	Game.things.push(new NPC(Areas.eaglecrestLoggingCamp.npcs[10]));
-						}
-	                }
 					else if (Player.quests.timesCompleted.eaglecrestLoggingCamp[25] === 5) {
-						if (Game.prepareNPC(Areas.eaglecrestLoggingCamp.npcs[11], "npcs", true)) {
-							Game.things.push(new NPC(Areas.eaglecrestLoggingCamp.npcs[11]));
+						if (Game.prepareNPC(Areas.eaglecrestLoggingCamp.npcs[10], "npcs", true)) {
+							Game.things.push(new NPC(Areas.eaglecrestLoggingCamp.npcs[10]));
 						}
 					}
 					else if (Player.quests.timesCompleted.eaglecrestLoggingCamp[25] === 8) {
-						if (Game.prepareNPC(Areas.eaglecrestLoggingCamp.npcs[12], "npcs", true)) {
-							Game.things.push(new NPC(Areas.eaglecrestLoggingCamp.npcs[12]));
-						}
-					}
-					else if (Player.quests.timesCompleted.eaglecrestLoggingCamp[25] === 10) {
-						if (Game.prepareNPC(Areas.eaglecrestLoggingCamp.chests[0], "chests", true)) {
-							Game.chests.push(new LootChest(Areas.eaglecrestLoggingCamp.chests[0]));
+						if (Game.prepareNPC(Areas.eaglecrestLoggingCamp.npcs[11], "npcs", true)) {
+							Game.things.push(new NPC(Areas.eaglecrestLoggingCamp.npcs[11]));
 						}
 					}
 				}
@@ -1614,8 +1618,8 @@ After all, death is never the end in Antorax...<br>
 					let touching = true;
 					while (touching) {
 						touching = false;
-						if (map.getTile(0, map.getCol(dirt.x-dirt.width/2), map.getRow(dirt.y+dirt.height/2)) === 11
-						&& map.getTile(0, map.getCol(dirt.x+dirt.width/2), map.getRow(dirt.y+dirt.height/2)) === 11) {
+						if ([30, 85].includes(map.getTile(0, map.getCol(dirt.x-dirt.width/2), map.getRow(dirt.y+dirt.height/2))) // floor tile (2 numbers because 2 areas)
+						&& [30, 85].includes(map.getTile(0, map.getCol(dirt.x+dirt.width/2), map.getRow(dirt.y+dirt.height/2)))) { // (update if moved)
 							for (let x = 0; x < array.length; x++) {
 								if (array[x].isTouching(dirt)) {
 									touching = true;

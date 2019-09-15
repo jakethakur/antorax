@@ -1637,7 +1637,13 @@ Dom.quest.start = function (quest, npc) {
 				Player.quests.questProgress[quest.quest] = ToObjectKey(npc.name);
 			}
 			Dom.elements.questStartQuest.innerHTML = quest.quest;
-			Dom.elements.questStartName.innerHTML = quest.startName || quest[ToObjectKey(npc.name)].startName;
+
+			let startName = quest.startName || quest[ToObjectKey(npc.name)].startName;
+			if (Array.isArray(startName)) {
+				startName = startName[Player.quests.timesCompleted[quest.questArea][quest.id]];
+			}
+			Dom.elements.questStartName.innerHTML = startName;
+
 			let startChat = quest.startChat || quest[ToObjectKey(npc.name)].startChat;
 			if (Array.isArray(startChat)) {
 				startChat = startChat[Player.quests.timesCompleted[quest.questArea][quest.id]];
@@ -1855,7 +1861,12 @@ Dom.quest.finish = function (quest, npc) {
 	if (quest.rewards === undefined || quest.rewards.items === undefined || Dom.inventory.requiredSpace(quest.rewards.items)) {
 		if (Dom.changeBook("questFinish")) {//, true/*false*/, true)) {
 			Dom.elements.questFinishQuest.innerHTML = quest.quest;
-			Dom.elements.questFinishName.innerHTML = quest.finishName || quest[ToObjectKey(npc.name)].finishName;
+			let finishName = quest.finishName || quest[ToObjectKey(npc.name)].finishName;
+			if (Array.isArray(finishName)) {
+				finishName = finishName[Player.quests.timesCompleted[quest.questArea][quest.id]];
+			}
+			Dom.elements.questFinishName.innerHTML = finishName;
+
 			let finishChat = quest.finishChat || quest[ToObjectKey(npc.name)].finishChat;
 			if (Array.isArray(finishChat)) {
 				finishChat = finishChat[Player.quests.timesCompleted[quest.questArea][quest.id]];
@@ -2942,7 +2953,8 @@ Dom.inventory.removeById = function (ID, type, num, array, quest) {
 	Dom.checkProgress();
 	if (remove) {
 		return true;
-	}else {
+	}
+	else {
 		return false;
 	}
 }
@@ -3869,7 +3881,7 @@ Dom.inventory.requiredSpace = function (items, includeChance) {
 	let required = 0;
 	// repeat for each required item
 	for (let i = 0; i < items.length; i++) {
-		if ((items[i].condition === undefined || items[i].condition()) && (items[i].chance === undefined || includeChance)) {
+		if ((items[i].condition === undefined || items[i].condition()) && (items[i].chance === undefined || includeChance) && (items[i].item.type !== "item" || items[i].item.id !== 1)) {
 			if (items[i].item.stack === undefined) {
 				items[i].item.stack = 1;
 			}
@@ -4317,7 +4329,7 @@ Dom.choose.page = function (npcs) {
 						total++;
 					}
 				}
-				
+
 			}
 		}
 		else {
@@ -5655,7 +5667,7 @@ Dom.updateScreenSize = function (init) {
 	Dom.elements.hotbar.style.left = Dom.canvas.width/2-167.6+"px";
 	Dom.elements.hotbar.style.top = Dom.canvas.height-80+"px";
 	Dom.elements.canvasSend.style.top = Dom.elements.canvasChatInput.offsetTop - 12 + "px";
-	Dom.elements.canvasSend.style.left = Dom.canvas.width/2-213 + "px";
+	Dom.elements.canvasSend.style.left = Dom.canvas.width/2-214 + "px";
 
 	if (Dom.canvas.width < 1215) {
 		Dom.elements.bookmarks.style.left = Dom.canvas.width/2+168+"px";
