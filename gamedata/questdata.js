@@ -1325,18 +1325,18 @@ After all, death is never the end in Antorax...<br>
 
 			startChat: [
 				"Hello? What are you lookin' at? I'm just tryin' to find a friend, OK? He's not missing, it's for a game.<br><br>Yes I've been looking for a while. Yes there's a reward for whoever finds 'im first. Doesn't mean you can go off and look for him and take my reward! But yes, I wouldn't mind your help finding 'im if you insist.",
-				"Alright, my turn to search now - bet y' can't find Nessy first!",
+				"Alright, my turn to search now - bet y' can't find Nessy before me!",
 				"Yes, I'm looking for Torian. He says I <strong>have</strong> to let you join in, but don't take all the reward this time!",
-				"Y'know the drill! Let's find Nessy! Who can get the reward first?",
+				"Y'know the game! Let's find Nessy! Who can get the reward first?",
 				"Yes, I'm looking for Torian. He says I <strong>have</strong> to let you join in, but don't take all the reward this time!",
-				"Y'know the drill! Let's find Nessy! Who can get the reward first?",
+				"Y'know the game! Let's find Nessy! Who can get the reward first?",
 				"Yes, I'm looking for Torian. He says I <strong>have</strong> to let you join in, but don't take all the reward this time!",
-				"Y'know the drill! Let's find Nessy! Who can get the reward first?",
+				"Y'know the game! Let's find Nessy! Who can get the reward first?",
 				"Yes, I'm looking for Torian. He says I <strong>have</strong> to let you join in, but don't take all the reward this time!",
 				"I swear, Nessy's not <strong>anywhere</strong>!!! No way you'll be able to find her this time.",
 				`<strong>Torian Tintop</strong>: Haha, thanks from us for all the help with our hide 'n' find games. Not sure Nessy would 'ave ever found me otherwise!<br><br>
 <strong>Nessy Tintop</strong>: Hey! I'm good as well y'know! They're taller than me! But yeah, Torian's not very good.<br><br>
-<strong>Torian Tintop</strong>: Remember the time I was eaten by a goblin? ... Anyway, we've set up one last game for y'. We've hidden a present somewhere in the Camp for y'. We promise the reward's worth your time!<br><br>
+<strong>Torian Tintop</strong>: Remember the time you were eaten by a goblin Nessy? ... Anyway, we've set up one last game for y'. We've hidden a present somewhere in the Camp for y'. We promise the reward's worth your time!<br><br>
 <strong>Nessy Tintop</strong>: Bet y' can't find it!`,
 			],
 

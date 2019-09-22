@@ -2553,19 +2553,15 @@ Dom.inventory.give = function (item, num, position, noSave, noArchaeology) {
 							}
 							Dom.inventory.update();
 						}
+
+						// if the item has not been obtained before and is in archaeology, add it to archaeology progress
 						if (!noArchaeology && (item.type === "helm" || item.type === "chest" || item.type === "greaves" || item.type === "boots" || item.type === "sword" || item.type === "staff" || item.type === "bow") && !User.archaeology.includes(item.name) && item.name !== undefined) {
 							User.archaeology.push(item.name);
 						}
-						if (item.images !== undefined) {
-                            // item has image(s) that should be loaded with it
-                            let names = Object.keys(item.images);
-                            let addresses = Object.values(item.images);
-                            for (let x = 0; x < names.length; x++) {
-                                Loader.loadImage(names[i], addresses[i], false);
-                                // tbd - this is inefficient since it never deletes the image
-                                // but it should delete the image when the item is no longer in inventory
-                            }
-                        }
+
+						// special images to be loaded with item
+						Dom.inventory.loadItemRequiredImages(item);
+
 						break; // stops the item being placed in multiple slots
 					}
 				}
@@ -2640,6 +2636,26 @@ Dom.inventory.give = function (item, num, position, noSave, noArchaeology) {
 	}
 }
 
+// load an item's additional required images (for use on the canvas), and don't let it be used until they have loaded
+// the parameter should be the item object
+Dom.inventory.loadItemRequiredImages = function (item) {
+	if (item.requiredImages !== undefined) {
+		// item has image(s) that should be loaded with it
+
+		// item cannot be used until images are loaded
+		item.imageLoading = true;
+
+		let p = Loader.loadMultipleImages(item.requiredImages, false);
+		// tbd - this is inefficient since it never deletes the image
+		// but it should delete the image when the item is no longer in inventory
+
+		// allow item to be used once image(s) have been loaded
+		Promise.all(p).then(function () {
+			item.imageLoading = false;
+		}.bind(this));
+	}
+}
+
 Dom.inventory.food = function (inventoryPosition) {
 	if (!Game.hero.hasStatusEffectType("food")) {
 		// update achievement progress
@@ -2664,7 +2680,7 @@ Dom.inventory.teleport = function (inventoryPosition) {
 	Dom.inventory.displayInformation(Player.inventory.items[inventoryPosition], undefined, "inventoryPage", undefined, true);
 }
 
-// called for EVERY item onclick (used for bank)
+// called for EVERY item onclick (even bank and trade, although no item onclick is called for these circumstances)
 Dom.inventory.cooldown = function (inventoryPosition, hotbar, check) {
 	let item = Player.inventory.items;
 	if (isNaN(inventoryPosition)) {
@@ -2677,7 +2693,7 @@ Dom.inventory.cooldown = function (inventoryPosition, hotbar, check) {
 	else if (Dom.trade.active) {
 		Dom.inventory.inOut("in", inventoryPosition, "trade");
 	}
-	else if (!item[inventoryPosition].unconsumable) {
+	else if (!item[inventoryPosition].unconsumable && !item[inventoryPosition].imageLoading) {
 		if (item[inventoryPosition].cooldown !== undefined) {
 			if (item[inventoryPosition].cooldownStart === undefined || parseInt(item[inventoryPosition].cooldownStart) + item[inventoryPosition].cooldown <= parseInt(GetFullDateTime())) {
 				//item[inventoryPosition].cooldownStart = GetFullDateTime();
@@ -4838,6 +4854,10 @@ Dom.inventory.reEquip = function (event) {
 	}
 }
 
+// array = array item is contained in
+// i = item's index in the array
+// element = element that the item is being prepared for
+// NEEDS COMMENTING
 Dom.inventory.prepare = function (array, i, element) {
 	/*if (arrayI[i].chooseStats !== undefined) {
 		Items[array[i].type][array[i].id].onClick = Dom.inventory.chooseStats;
@@ -5731,6 +5751,7 @@ Dom.init = function () {
 	//document.body.style.zoom = "1.0";
 	Dom.updateScreenSize(true);
 
+	// iterate through rows of items, generating html
 	Dom.elements.itemInventory.innerHTML = "";
 	for (let i = 0; i < Player.inventory.items.length/6; i++) {
 		let str = "<tr>";
@@ -5739,33 +5760,44 @@ Dom.init = function () {
 		}
 		Dom.elements.itemInventory.innerHTML += str+"</tr>";
 	}
+
 	// prepare the item inventory
 	for (let i = 0; i < Player.inventory.items.length; i++) {
-		// if the item has melted
-		if (Player.inventory.items[i].image !== undefined && !Player.inventory.items[i].unidentified && Items[Player.inventory.items[i].type][Player.inventory.items[i].id].deleteIf !== undefined && Items[Player.inventory.items[i].type][Player.inventory.items[i].id].deleteIf ()) {
+		// check if the item should be removed according to its deleteIf
+		if (Player.inventory.items[i].image !== undefined && !Player.inventory.items[i].unidentified && Items[Player.inventory.items[i].type][Player.inventory.items[i].id].deleteIf !== undefined && Items[Player.inventory.items[i].type][Player.inventory.items[i].id].deleteIf()) {
 			setTimeout(function () {
-				Dom.chat.insert("It's not snowy any more! Your "+Player.inventory.items[i].name+" melted.");
+				Dom.chat.insert(Player.inventory.items[i].deleteIfMessage);
 				Player.inventory.items[i] = {};
-			},1000);
-		}else if (Player.inventory.items[i].image !== undefined) {
+			}, 1000);
+		}
+
+		else if (Player.inventory.items[i].image !== undefined) {
 			Dom.inventory.prepare(Player.inventory.items, i, Dom.elements.itemInventory.getElementsByTagName("td")[i]);
+
+			// if the item has image(s) that should be loaded with it for the canvas, load the image
+			Dom.inventory.loadItemRequiredImages(Player.inventory.items[i]);
 		}
 	}
+
+	// bag slot
 	if (Player.inventory.items[5].image === undefined) {
 		Dom.elements.itemInventory.getElementsByTagName("td")[5].style.backgroundImage = "url('assets/items/bag/1.png')";
 	}
 
-	// prepare the equipments slots
-	for (let i = 0; i < Object.keys(Player.inventory).length-1; i++) { // repeats for each equipment slot
-		// if the item has melted
-		if (Player.inventory[Object.keys(Player.inventory)[i]].image !== undefined && Items[Player.inventory[Object.keys(Player.inventory)[i]].type][Player.inventory[Object.keys(Player.inventory)[i]].id].deleteIf !== undefined && Items[Player.inventory[Object.keys(Player.inventory)[i]].type][Player.inventory[Object.keys(Player.inventory)[i]].id].deleteIf ()) {
+	// prepare the equipment slots (armour and weapons)
+	for (let i = 0; i < Object.keys(Player.inventory).length-1; i++) { // repeats for each equipment slot (all keys but items)
+		let item = Player.inventory[Object.keys(Player.inventory)[i]];
+
+		// check if the item should be removed according to its deleteIf
+		if (item.image !== undefined && Items[item.type][item.id].deleteIf !== undefined && Items[item.type][item.id].deleteIf ()) {
 			setTimeout(function () {
-				Dom.chat.insert("It's not snowy any more! Your "+Player.inventory[Object.keys(Player.inventory)[i]].name+" melted.");
-				Player.inventory[Object.keys(Player.inventory)[i]] = {};
-			},1000);
+				Dom.chat.insert(item.deleteIfMessage);
+				item = {};
+			}, 1000);
 		}
+
 		// if there is an item
-		else if (Player.inventory[Object.keys(Player.inventory)[i]].image !== undefined) {
+		else if (item.image !== undefined) {
 			Dom.inventory.prepare(Player.inventory, Object.keys(Player.inventory)[i], document.getElementById(Object.keys(Player.inventory)[i]));
 			document.getElementById(Object.keys(Player.inventory)[i]).style.backgroundImage = "none";
 		}

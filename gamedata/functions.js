@@ -58,6 +58,8 @@ Loader.loadImage = function (key, src, deleteIf, flipMode) {
 	else {
 		// image has already been loaded in
 		d = new Promise(function (resolve, reject) {
+			// warn the user, since it is possible this is an unintended side effect (two different images using same key name)
+			console.warn("An image was loaded under a key name (" + key + ") that already exists in loader. Please tell Jake.")
 			// return a promise that resolves instantly
 			resolve("image already loaded");
 		});
@@ -153,6 +155,63 @@ function FlipImage (img, mode) {
 	// convert to image that can be drawn on canvas
 	// returns a promise, where .then can be used to access the image as the function parameter
 	return createImageBitmap(flippedImg);
+}
+
+// load an object of any images (same format as in areadata)
+// images = object of images like those found in areadata
+// deleteIf = function that deletes the images from Loader if true (set to undefined for delete on area change)
+// returns an array of the promises of the loading images (in case that is necessary)
+Loader.loadMultipleImages = function (images, deleteIf) {
+	let imageInformation = this.prepareImageInformation(images);
+	let names = imageInformation.names; // image key names
+	let addresses = imageInformation.addresses;
+	let flip = imageInformation.flip; // whether the iamage is flipped or not
+
+	let toLoad = [];
+
+	for (let i = 0; i < names.length; i++) {
+		if (addresses[i] !== undefined) { // it might be undefined if the event for the character is not active
+			toLoad.push(this.loadImage(names[i], addresses[i], deleteIf, flip[i]));
+			// no deleteIf since these images are associated with the area
+		}
+	}
+
+    return toLoad;
+};
+
+// converts image object to separate array variables that can be used by Loader.loadMultipleImages
+// images = object where keys are image keys in loader, and value is an object of image addresses
+// image addresses object contains a "normal" property for normal image address...
+// ...and can contain event properties (e.g. "samhain") for event image addresses...
+// ...also can contain "flip" property containing either "vertical" or "horizontal" to load a flipped image
+Loader.prepareImageInformation = function (images) {
+	let imageInformation = {};
+
+	imageInformation.names = Object.keys(images);
+
+	imageInformation.addresses = [];
+	imageInformation.flip = [];
+
+	let imageAddresses = Object.values(images);
+	for (let i = 0; i < imageAddresses.length; i++) {
+		let image = imageAddresses[i];
+
+		if (Event.event === "Christmas" && image.christmas !== undefined) {
+			// christmas images
+			imageInformation.addresses.push(image.christmas);
+		}
+		else if (Event.event === "Samhain" && image.samhain !== undefined) {
+			// samhain images
+			imageInformation.addresses.push(image.samhain);
+		}
+		else {
+			imageInformation.addresses.push(image.normal); // if this is undefined, the image is not loaded in by Game.load
+		}
+
+		imageInformation.flip.push(image.flip); // whether the image should be flipped by loadImage
+	}
+
+	return imageInformation;
 }
 
 //
@@ -292,7 +351,7 @@ Keyboard.upFunctions = {
 			Dom.chat.hideInput = false;
         }, 1);
     },
-	TALK: function () {
+	TALK: function () { // t
 		Dom.elements.canvasChatInput.style.zIndex = 10;
 		Dom.elements.canvasSend.style.zIndex = 10;
 		Dom.elements.canvasChatInput.style.visibility = "visible";
@@ -505,12 +564,18 @@ function BiasedRandom (min, max, bias, influence) {
 
 // convert to radians
 function ToRadians (degrees) {
-  return degrees * (Math.PI / 180);
+	if (degrees !== undefined) {
+		return degrees * (Math.PI / 180);
+	}
+	return undefined;
 }
 
 // convert to degrees
 function ToDegrees (radians) {
-  return radians * (180 / Math.PI);
+	if (radians !== undefined) {
+		return radians * (180 / Math.PI);
+	}
+	return undefined;
 }
 
 // checks if a click event was a right click

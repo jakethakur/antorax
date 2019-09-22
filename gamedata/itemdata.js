@@ -1035,9 +1035,10 @@ var Items = {
 			},
 			projectile: "slashFrost",
 			projectileAdjust: {x: 0, y: 0},
-			deleteIf: function() {
-				return GetFullDate().substring(4,6) !== "12";
+			deleteIf: function () {
+				return Event.event === "Christmas";
 			},
+			deleteIfMessage: "It's not snowy any more! Your <strong>Icicle</strong> melted.",
 		},
 		{
 			id: 10,
@@ -1428,9 +1429,10 @@ var Items = {
 			},
 			projectile: "frostball",
 			projectileAdjust: {x: 0, y: 0},
-			deleteIf: function() {
-				return GetFullDate().substring(4,6) !== "12";
+			deleteIf: function () {
+				return Event.event === "Christmas";
 			},
+			deleteIfMessage: "It's not snowy any more! Your <strong>Ice Staff</strong> melted.",
 		},
 		{
 			id: 11,
@@ -1692,9 +1694,10 @@ var Items = {
 			},
 			projectile: "arrowSnow",
 			projectileAdjust: {x: 0, y: 0},
-			deleteIf: function() {
-				return GetFullDate().substring(4,6) !== "12";
+			deleteIf: function () {
+				return Event.event === "Christmas";
 			},
+			deleteIfMessage: "It's not snowy any more! Your <strong>Crystal Bow</strong> melted.",
 		},
 		{
 			id: 11,
@@ -2669,40 +2672,41 @@ var Items = {
 			image: "assets/items/consumable/10.png",
 			functionText: "Deals 5 damage to the nearest enemy, stunning them for 1s",
 			maxCharges: 3,
-			onClick: function (inventoryPosition) {
-				// remove one charge from the item
-				Dom.inventory.removeItemCharge(inventoryPosition);
+			onClick: function (inventoryPosition, hotbar) {
 
 				// find closest enemy
 				let moveTowards = Game.closest(Game.enemies, Game.hero);
 
-				// find bearing
-				let projectileRotate = Game.bearing(projectile, moveTowards);
+				if (moveTowards !== undefined) {
+					// there is an enemy
 
-				// summon bat projectile
-				Game.projectiles.push(new Projectile({
-					map: map,
-					x: Game.hero.x,
-					y: Game.hero.y,
-					stats: {
-						damage: 5,
-						stun: 1,
-					},
-					targets: [Game.enemies],
-					rotate: projectileRotate,
-					/*adjust: {
-						x: this.projectile.adjust.x || undefined,
-						y: this.projectile.adjust.y || undefined,
-						towards: this.projectile.adjust.towards || undefined,
-					},*/
-					image: "bloodBat",
-					moveTowards: moveTowards,
-					moveSpeed: 250,
-				}));
+					// remove one charge from the item
+					Dom.inventory.removeItemCharge(inventoryPosition, hotbar);
+
+					// summon bat projectile
+					Game.projectiles.push(new Projectile({
+						map: map,
+						x: Game.hero.x,
+						y: Game.hero.y,
+						stats: {
+							damage: 5,
+							stun: 1,
+						},
+						targets: [[moveTowards]],
+						/*adjust: {
+							x: this.projectile.adjust.x || undefined,
+							y: this.projectile.adjust.y || undefined,
+							towards: this.projectile.adjust.towards || undefined,
+						},*/
+						image: "bloodBat",
+						moveTowards: moveTowards,
+						moveSpeed: 250,
+					}));
+				}
 			},
 			lore: "",
-			images: { // images that should be loaded for this item
-				bloodBat: "./assets/projectiles/bloodBat.png",
+			requiredImages: { // images that should be loaded for this item
+				bloodBat: {normal: "./assets/projectiles/bloodBat.png"},
 			},
 		},
 		{
@@ -3075,6 +3079,69 @@ var Items = {
                     time: 15,
                 });
             },
+		},
+		{
+			id: 26,
+			name: "Potion of Undying",
+			type: "consumable",
+			image: "assets/items/consumable/26.png",
+			sellPrice: 1, // tbc
+			functionText: "tbd",
+			onClick: function (inventoryPosition) {
+                // remove the item
+                Dom.inventory.remove(inventoryPosition);
+
+                // status effect
+				// tbd
+            },
+		},
+		{
+			id: 27,
+			name: "Potion of Water Walking",
+			type: "consumable",
+			image: "assets/items/consumable/27.png",
+			sellPrice: 1, // tbc
+			functionText: "tbd",
+			onClick: function (inventoryPosition) {
+                // remove the item
+                Dom.inventory.remove(inventoryPosition);
+
+                // status effect
+				// tbd
+            },
+		},
+		{
+			id: 28,
+			name: "Potion of Reflection I",
+			type: "consumable",
+			image: "assets/items/consumable/28.png",
+			sellPrice: 1, // tbc
+			functionText: "tbd",
+			onClick: function (inventoryPosition) {
+                // remove the item
+                Dom.inventory.remove(inventoryPosition);
+
+                // status effect
+				// tbd
+            },
+		},
+		{
+			id: 29,
+			name: "Elixir de Ubique",
+			rarity: "mythic",
+			type: "consumable",
+			image: "assets/items/consumable/29.png",
+			sellPrice: 40, // tbc
+			functionText: "Restores your health to full",
+			maxCharges: 2,
+			onClick: function (inventoryPosition) {
+                // remove the item
+                Dom.inventory.remove(inventoryPosition);
+
+                // restore health
+				Game.hero.health = Game.hero.stats.maxHealth;
+            },
+			lore: "Use only as directed.",
 		},
 	],
 	food: [

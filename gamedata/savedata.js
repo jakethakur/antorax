@@ -136,6 +136,10 @@ var Player = {
 	statusEffects: [], // updated by saved data / main [function Game.hero.updateStatusEffects()]
 };
 
+// template object for all stats and their default values
+// assign is used so the properties cannot be changed
+const DefaultStats = Object.assign({}, Player.stats);
+
 var User = {
 	archaeology: [],
 	fish: [],

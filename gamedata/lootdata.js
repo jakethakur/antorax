@@ -6,6 +6,13 @@
 const EnemyLootTables = {
 	global: [
 		// all enemies have this (for events)
+		{ // ubik
+			item: Items.consumable[29],
+			chance: [
+				0.01,			// 0
+				0,				// 1
+			],
+		},
 		{ // samhain mark
 			item: Items.currency[4],
 			condition: function () {
@@ -122,7 +129,7 @@ const EnemyLootTables = {
 		{ // goblin sewn bag
 			item: Items.bag[3],
 			chance: [
-				2,				// 0
+				1,				// 0
 				0,				// 1
 			],
 		},

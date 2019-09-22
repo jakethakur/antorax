@@ -868,16 +868,30 @@ Game.areNearby = function (obj1, obj2, range) {
 
 // find the closest entity in an array (objArray) to another entity (mainObj)
 Game.closest = function (objArray, mainObj) {
-	let closestDistance = Infinity;
-	let closestIndex = -1;
-	for (let i = 0; i < objArray.length; i++) {
-		let distanceTo = this.distance(mainObj, objArray[i]);
-		if (distanceTo < closestDistance) {
-			closestIndex = i;
-			closestDistance = distanceTo;
+	if (objArray.length !== 0) {
+		let closestDistance = Infinity;
+		let closestIndex = -1;
+
+		for (let i = 0; i < objArray.length; i++) {
+			let distanceTo = this.distance(mainObj, objArray[i]);
+			if (distanceTo < closestDistance) {
+				closestIndex = i;
+				closestDistance = distanceTo;
+			}
 		}
+
+		return objArray[closestIndex];
 	}
-	return objArray[closestIndex];
+	return undefined;
+}
+
+// check if obj1's x and y are within 10 pixels of obj2's
+// obj1 and obj2 should have x and y properties
+Game.isAtLocation = function (obj1, obj2) {
+	if (Math.round(obj1.x / 10) === Math.round(obj2.x / 10) && Math.round(obj1.y / 10) === Math.round(obj2.y / 10)) {
+		return true;
+	}
+	return false;
 }
 
 //
@@ -1686,7 +1700,7 @@ class Character extends Thing {
 			if (!this.hasStatusEffect("Swimming")) { // give status effect if the player doesn't already have it
 				// remove fire status effect
 				for (let i = 0; i < this.statusEffects.length; i++) {
-					if (this.statusEffects[i].title.substring(0, 4) == "Fire") {
+					if (this.statusEffects[i].title.substring(0, 4) === "Fire") {
 						this.removeStatusEffect(i);
 					}
 				}
@@ -3040,10 +3054,14 @@ class Projectile extends Thing {
 
 		this.z = properties.z || 1; // appears on top by default (z would normally be 0)
 
-		this.attacker = properties.attacker || {
-			stats: properties.stats, // for if projectile deals its own damage
+		this.attacker = properties.attacker || { // stats used for when dealing damage
+			// for if projectile deals its own damage (thus has its own stats)
+			stats: Object.assign({}, DefaultStats, properties.stats), // assign with DefaultStats used for compatibility
+			// for compatibility with dealDamage:
+			hostility: "projectile",
+			statusEffects: [],
 		};
-		this.targets = properties.targets; // should be array
+		this.targets = properties.targets; // array of arrays of objects to dela damage to
 
 		this.variance = properties.variance || 0; // diameter of circle that it could fall into
 
@@ -3071,14 +3089,32 @@ class Projectile extends Thing {
 			}
 		}
 
+		this.damageDealt = []; // array of damages dealt to show
+
+		// moving projectiles
+		// projectiles can either move with a moveTowards or a moveDirection (should not have both properties set)
+		// all of these properties are optional
+
 		// position the projectile should move towards
 		// this object should contain an x and y if you want the projectile to move
 		// could be set to an enemy, for example, if you want the projectile to home into that enemy
 		this.moveTowards = properties.moveTowards;
+
+		// alternatively...
+		// direction the projectile should move towards
+		// input should be in degrees, works in samme  fashion to unit circle (anticlockwise from east)
+		this.moveDirection = ToRadians(properties.moveDirection);
+
 		// speed is multiplied by delta like other speeds
 		this.moveSpeed = properties.moveSpeed;
 
-		this.damageDealt = []; // array of damages dealt to show
+		this.movementRange = properties.movementRange || 2000; // maximum displacement that can be moved (for a moveTowards rather than moveDirection this is not necessary to be set)
+		this.startPosition = {x: this.x, y: this.y}; // saved so the displacement is known
+
+		this.stopMovingOnDamage = properties.stopMovingOnDamage; // whether it should stop moving upon damaging something (this is not the same as damageAllHit)
+		// stopMovingOnDamage is not required if projectile has a moveTowards
+
+		this.damageAllHit = properties.damageAllHit; // whether it should damage everything that is hit by it
 	}
 
 	// deal damage to array of entities (to)
@@ -3226,7 +3262,7 @@ class Projectile extends Thing {
 							Game.spreadCurse(attacker, to[i][x])
 
 							// re-render the second canvas if the hero has been damaged
-							if (to[i][x] == Game.hero) {
+							if (to[i][x].constructor.name === "Hero") {
 								Game.secondary.render();
 							}
 
@@ -3268,7 +3304,7 @@ class Projectile extends Thing {
 						// onHit function
 						// perhaps make work for other non-weapon things in the future? (TBD)
 						// there should be a good system for this - maybe a list of functions called on attack or something, handled by Game.inventoryUpdate
-						if (attacker == Game.hero && Player.inventory.weapon.onHit !== undefined) {
+						if (attacker.constructor.name === "Hero" && Player.inventory.weapon.onHit !== undefined) {
 							Player.inventory.weapon.onHit(to[i][x]);
 						}
 
@@ -3278,7 +3314,7 @@ class Projectile extends Thing {
 							Game.removeStealthEffects(attacker);
 						}
 
-						if (to[i][x] == Game.hero || attacker == Game.hero) {
+						if (to[i][x].constructor.name === "Hero" || attacker.constructor.name === "Hero") {
 							// remove any food status effects (hero is in combat)
 							for (let i = 0; i < Game.hero.statusEffects.length; i++) {
 								if (Game.hero.statusEffects[i].image === "food") {
@@ -5243,27 +5279,6 @@ Game.minigameReset = function () {
 // Init game / load new area
 //
 
-// load an object of any images
-// images = object of images like those found in areadata
-// deleteIf = function that deletes the images from Loader if true (set to undefined for delete on area change)
-Game.loadImages = function (images, deleteIf) {
-	let imageInformation = this.prepareImageInformation(images);
-	let names = imageInformation.names; // image key names
-	let addresses = imageInformation.addresses;
-	let flip = imageInformation.flip; // whether the iamage is flipped or not
-
-	let toLoad = [];
-
-	for (let i = 0; i < names.length; i++) {
-		if (addresses[i] !== undefined) { // it might be undefined if the event for the character is not active
-			toLoad.push(Loader.loadImage(names[i], addresses[i], deleteIf, flip[i]));
-			// no deleteIf since these images are associated with the area
-		}
-	}
-
-    return toLoad;
-};
-
 // load default images (e.g. player, status effect, etc.)
 // returns an array of these promises
 Game.loadDefaultImages = function () {
@@ -5295,41 +5310,6 @@ Game.loadDefaultImages = function () {
 	return toLoad;
 }
 
-// converts image object to separate array variables that can be used by Game.loadImages
-// images = object where keys are image keys in loader, and value is an object of image addresses
-// image addresses object contains a "normal" property for normal image address...
-// ...and can contain event properties (e.g. "samhain") for event image addresses...
-// ...also can contain "flip" property containing either "vertical" or "horizontal" to load a flipped image
-Game.prepareImageInformation = function (images) {
-	let imageInformation = {};
-
-	imageInformation.names = Object.keys(images);
-
-	imageInformation.addresses = [];
-	imageInformation.flip = [];
-
-	let imageAddresses = Object.values(images);
-	for (let i = 0; i < imageAddresses.length; i++) {
-		let image = imageAddresses[i];
-
-		if (Event.event === "Christmas" && image.christmas !== undefined) {
-			// christmas images
-			imageInformation.addresses.push(image.christmas);
-		}
-		else if (Event.event === "Samhain" && image.samhain !== undefined) {
-			// samhain images
-			imageInformation.addresses.push(image.samhain);
-		}
-		else {
-			imageInformation.addresses.push(image.normal); // if this is undefined, the image is not loaded in by Game.load
-		}
-
-		imageInformation.flip.push(image.flip); // whether the image should be flipped by loadImage
-	}
-
-	return imageInformation;
-}
-
 // pull data from areadata.js
 Game.loadArea = function (areaName, destination) {
 
@@ -5351,7 +5331,7 @@ Game.loadArea = function (areaName, destination) {
 
 	// load images
 	// p = array of promises of images being loaded
-    let p = this.loadImages(Areas[areaName].images);
+    let p = Loader.loadMultipleImages(Areas[areaName].images);
 
 	// load in randomly generated villagers if the area has data for them
 	let possibleVillagers, villagersToAdd;
@@ -5371,7 +5351,7 @@ Game.loadArea = function (areaName, destination) {
 		// load the character's images
 		if (this.hero.hasOnLead.rotationImageSources) {
 			// rotation images to be loaded as well
-			p = p.concat(this.loadImages(this.hero.hasOnLead.rotationImageSources));
+			p = p.concat(Loader.loadMultipleImages(this.hero.hasOnLead.rotationImageSources));
 		}
 		p = p.concat(Loader.loadImage(this.hero.hasOnLead.imageName, this.hero.hasOnLead.imageSrc));
 	}
@@ -6242,8 +6222,8 @@ Game.generateLoot = function (lootTable) {
 			// the lowest number that the roll is higher than is selected for the number of that item that the player receives
 			// the numbers in the array are multiplied by player's looting
 
-			let possibleDropChances = lootTable[i].chance.map(element => element * (Game.hero.stats.looting/100)); // multiply chances by looting, deep copying array in process
-			let rollRandom = Random(1, 100); // random number to see how much of item i the player will get (lower is better)
+			let possibleDropChances = lootTable[i].chance.map(element => element * (Game.hero.stats.looting/100) * 100); // multiply chances by looting (and by 100 to allow decimal chances), deep copying array in process
+			let rollRandom = Random(1, 10000); // random number to see how much of item i the player will get (lower is better)
 			let eligibleDropChances = possibleDropChances.filter(chance => rollRandom > chance); // filter chances of getting item to see all chances the player is eligible for with their roll
 			let itemQuantity = possibleDropChances.indexOf(Math.max(...eligibleDropChances)); // get the number of that item the player will get
 
@@ -6395,7 +6375,7 @@ Game.generateVillagers = function (data, areaName) {
 	}
 
 	// load the images
-	let p = this.loadImages(images);
+	let p = Loader.loadMultipleImages(images);
 
 	return {
 		p: p, // loadArea waits until images have been loaded
@@ -7088,29 +7068,56 @@ Game.update = function (delta) {
 	for (let i = 0; i < this.projectiles.length; i++) {
 		let projectile = this.projectiles[i];
 
+		// check if projectile should be moved
+
+		let direction;
+
 		if (projectile.moveTowards !== undefined) {
-			// move towards the position
-			let direction = this.bearing(projectile, projectile.moveTowards);
+			// move towards a position
+			direction = this.bearing(projectile, projectile.moveTowards);
+		}
+		else if (projectile.moveDirection !== undefined) {
+			// move at a bearing
+			direction = projectile.moveDirection;
+		}
+
+		if (direction !== undefined) {
+			// rotate projectile in the direction
+			projectile.rotate = direction;
+
+			// projectile should be moved
 			projectile.x += Math.cos(direction) * projectile.moveSpeed * delta;
 			projectile.y += Math.sin(direction) * projectile.moveSpeed * delta;
 
-			// only deal damage if it hasn't before
-			if (projectile.damageDealt.length === 0) {
-				// hasn't dealt damage
-				projectile.dealDamage(projectile.attacker, projectile.targets);
+			// remove the projectile if it has moved too far, or it is at its destination
+			if (this.distance(projectile.startPosition, projectile) > projectile.movementRange || this.isAtLocation(projectile, projectile.moveTowards)) {
 				// stop moving
-				if (projectile.stopMovingOnDamage === true) {
-					projectile.moveTowards = undefined;
-				}
+				projectile.moveTowards = undefined;
+				projectile.moveDirection = undefined;
 				// after a timeout (2s), remove the projectile that was just shot
-				// taken from Player
-				let a = projectile.id; // maintain a variable of the currently shot projectile's id
-				this.objectRemoveTimeouts.push(setTimeout(function (a) {
-					this.removeObject(this.channellingProjectileId, "projectiles");
-				}, 1500, a)); // pushed to objectRemoveTimeouts so it can be removed when the area is changed
+				this.objectRemoveTimeouts.push(setTimeout(function (id) {
+					Game.removeObject(id, "projectiles");
+				}, 1500, projectile.id)); // pushed to objectRemoveTimeouts so the timeout can be removed if the area is changed
 			}
 
-			// remove the projectile if it has moved too far
+			// only deal damage if it hasn't before (or if damage is to be dealt to all targets)
+			else if (projectile.damageDealt.length === 0 || projectile.damageAllHit) {
+				// hasn't dealt damage - try to
+				projectile.dealDamage(projectile.attacker, projectile.targets);
+
+				// check if dmaage was dealt
+				if (projectile.damageDealt.length !== 0) {
+					// stop moving
+					if (projectile.stopMovingOnDamage) {
+						projectile.moveTowards = undefined;
+						projectile.moveDirection = undefined;
+						// after a timeout (2s), remove the projectile that was just shot
+						this.objectRemoveTimeouts.push(setTimeout(function (id) {
+							Game.removeObject(id, "projectiles");
+						}, 1500, projectile.id)); // pushed to objectRemoveTimeouts so the timeout can be removed if the area is changed
+					}
+				}
+			}
 		}
 	}
 
@@ -7216,7 +7223,7 @@ Game.update = function (delta) {
 	}
 
 	// check collision with tiles (if hero is not playing a minigame in the area)
-	if (this.keysDown.SPACE && (this.minigame === undefined || !this.minigame.playing)) {
+	if (this.keysDown.SPACE && (this.minigameInProgress === undefined || !this.minigameInProgress.playing)) {
 		// space key is down
 		let tileNum = this.hero.getTileAtFeet();
 		if (map.interactWithTile !== undefined) {
@@ -7720,7 +7727,7 @@ Game.loadImagesAndStopAttacking = function (images, deleteIf) {
 	// set weapon property "cannotAttack" to true so the player is blocked from attacking
 	Player.inventory.weapon.cannotAttack = true;
 
-	let p = this.loadImages(images, deleteIf);
+	let p = Loader.loadMultipleImages(images, deleteIf);
 
 	// wait until the image(s) have been loaded (or an error has been returned)
 	Promise.all(p).then(function (value) {
