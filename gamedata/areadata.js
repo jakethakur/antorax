@@ -4707,12 +4707,16 @@ var Areas = {
 
 		villagers: [
 			{
-				image: "cat1",
-				name: "Amelio",
-				speciesTemplate: SpeciesTemplates.cat,
-				canBeShown: function () {
-					return Player.quests.activeQuestArray.includes("Help! Lost Cat");
-				}
+				image: "cat1Left",
+        		rotationImages: {
+            		left: "cat1Left",
+            		right: "cat1Right"
+        		},
+                name: "Amelio",
+                speciesTemplate: SpeciesTemplates.cat,
+                canBeShown: function () {
+                    return Player.quests.completedQuestArray.includes("Help! Lost Cat");
+                }
 			},
 		],
 
@@ -5648,6 +5652,16 @@ var Areas = {
 				destinationX: 1840,
 				playerAdjustY: -310,
 			},
+			{
+				// teleport to eaglecrest monastery
+				x: 2010,
+				y: 384,
+				width: 60,
+				height: 2,
+				teleportTo: "eaglecrestMonastery",
+				destinationX: 1100,
+				destinationY: 1730,
+			},
 		],
 
 		villagerData: {
@@ -5843,11 +5857,330 @@ var Areas = {
 			}, 10000);
 		},
 	},
+
+	eaglecrestMonastery: {
+		id: 19,
+
+		data: {
+			name: "Eaglecrest Monastery",
+			displayOnEnter: false,
+		},
+
+		indoors: true,
+
+		tagGameAllowed: true,
+
+		song_day: "assets/music/Eaglecrest.mp3",
+		song_night: "assets/music/Eaglecrest.mp3",
+
+		checkpoint: false,
+
+		lootArea: "eaglecrest",
+
+		mapData: {
+			cols: 37,
+			rows: 30,
+			tsize: 60,
+			tilesPerRow: 8,
+			solidTiles: [1, 2, 3, 6, 7, 9, 10, 11, 13, 15, 17, 18, 19, 20, 21, 23, 25, 26, 27, 28, 29, 31, 33, 34, 35, 36, 37, 38, 39, 42, 43, 44, 45, 46, 47, 53, 55, 61, 65, 69, 73, 77, 82, 83],
+			dayTiles: [11, 27, 34, 42, 7], // windows and lights
+			nightTiles: [3, 19, 2, 18, 15],
+			pathTiles: [5, 12, 41, 50, 51, 57, 58, 59, 60, 76],
+			layers: [
+				[82, 65, 65, 65, 65, 65, 65, 65, 82, 65, 65, 65, 65, 65, 65, 65, 65, 65, 82, 65, 65, 65, 65, 65, 65, 65, 65, 65, 82, 65, 65, 65, 65, 65, 65, 65, 82, 82, 65, 28, 28, 65, 28, 28, 65, 82, 65, 65, 28, 28, 65, 28, 28, 65, 65, 82, 65, 65, 28, 28, 65, 28, 28, 65, 65, 82, 65, 28, 28, 65, 28, 28, 65, 82, 82, 65, 28, 28, 65, 28, 28, 65, 82, 65, 65, 28, 28, 65, 28, 28, 65, 65, 82, 65, 65, 28, 28, 65, 28, 28, 65, 65, 82, 65, 28, 28, 65, 28, 28, 65, 82, 82, 65, 28, 28, 65, 28, 28, 65, 82, 65, 65, 28, 28, 65, 28, 28, 65, 65, 82, 65, 65, 28, 28, 65, 28, 28, 65, 65, 82, 65, 28, 28, 65, 28, 28, 65, 82, 82, 65, 28, 28, 65, 28, 28, 65, 82, 84, 65, 28, 28, 65, 28, 28, 65, 84, 82, 84, 65, 28, 28, 65, 28, 28, 65, 84, 82, 65, 28, 28, 65, 28, 28, 65, 82, 82, 65, 73, 73, 65, 73, 73, 65, 82, 65, 65, 73, 73, 65, 73, 73, 65, 65, 82, 65, 65, 73, 73, 65, 73, 73, 65, 65, 82, 65, 73, 73, 65, 73, 73, 65, 82, 70, 62, 62, 62, 62, 62, 62, 62, 70, 62, 62, 62, 62, 62, 62, 62, 62, 62, 70, 62, 62, 62, 62, 62, 62, 62, 62, 62, 70, 62, 62, 62, 62, 62, 62, 62, 70, 62, 62, 62, 62, 62, 62, 62, 62, 62, 62, 62, 62, 62, 62, 62, 62, 62, 62, 62, 62, 62, 62, 62, 62, 62, 62, 62, 62, 62, 62, 62, 62, 62, 62, 62, 62, 62, 62, 62, 62, 62, 62, 62, 62, 62, 62, 62, 62, 62, 62, 62, 62, 62, 62, 62, 62, 62, 62, 62, 62, 62, 62, 62, 62, 62, 62, 62, 62, 62, 62, 62, 62, 62, 62, 62, 62, 62, 62, 62, 62, 62, 62, 62, 62, 62, 62, 62, 62, 62, 62, 62, 62, 62, 62, 62, 62, 62, 62, 62, 62, 62, 62, 62, 62, 62, 62, 62, 62, 62, 62, 62, 62, 62, 62, 62, 62, 62, 62, 62, 62, 62, 62, 62, 62, 62, 62, 62, 62, 62, 62, 62, 62, 62, 62, 62, 62, 62, 62, 62, 62, 62, 62, 62, 62, 62, 62, 62, 62, 65, 65, 65, 65, 65, 65, 65, 65, 65, 65, 65, 65, 65, 65, 62, 62, 62, 62, 62, 62, 62, 62, 62, 65, 65, 65, 65, 65, 65, 65, 65, 65, 65, 65, 65, 65, 65, 65, 65, 84, 65, 65, 84, 65, 65, 84, 65, 65, 84, 65, 65, 65, 65, 65, 65, 65, 65, 65, 65, 65, 65, 65, 84, 65, 65, 84, 65, 65, 84, 65, 65, 84, 65, 65, 65, 65, 65, 65, 65, 65, 65, 65, 65, 65, 65, 65, 65, 65, 65, 65, 84, 65, 65, 65, 84, 65, 65, 65, 65, 65, 65, 65, 65, 65, 65, 65, 65, 65, 65, 65, 65, 62, 62, 62, 62, 62, 62, 62, 62, 62, 62, 62, 62, 62, 62, 65, 65, 65, 65, 65, 65, 65, 65, 65, 62, 62, 62, 62, 62, 62, 62, 62, 62, 62, 62, 62, 62, 62, 62, 62, 62, 62, 62, 62, 62, 62, 62, 62, 62, 62, 62, 62, 62, 62, 62, 62, 62, 62, 62, 62, 62, 62, 62, 62, 62, 62, 62, 62, 62, 62, 62, 62, 62, 62, 62, 62, 62, 62, 62, 62, 62, 62, 62, 62, 62, 62, 62, 62, 62, 62, 62, 62, 62, 62, 62, 62, 62, 62, 62, 62, 62, 62, 62, 62, 62, 62, 62, 62, 62, 62, 62, 62, 62, 62, 62, 62, 62, 62, 62, 62, 62, 62, 62, 62, 62, 62, 62, 62, 62, 62, 62, 62, 62, 62, 62, 62, 62, 62, 62, 62, 62, 62, 62, 62, 62, 62, 62, 62, 62, 62, 62, 62, 62, 62, 62, 62, 62, 62, 62, 62, 62, 62, 62, 62, 62, 62, 62, 62, 62, 62, 62, 62, 62, 62, 62, 62, 62, 62, 62, 62, 62, 62, 62, 62, 62, 62, 62, 62, 62, 62, 62, 62, 62, 62, 62, 62, 62, 62, 62, 62, 62, 62, 62, 62, 62, 62, 62, 62, 62, 62, 62, 62, 62, 62, 62, 62, 62, 62, 62, 62, 62, 62, 62, 62, 62, 62, 62, 62, 62, 62, 62, 62, 62, 62, 62, 62, 62, 62, 62, 62, 62, 62, 62, 62, 62, 62, 62, 62, 62, 62, 62, 62, 62, 62, 62, 62, 62, 62, 62, 62, 62, 62, 62, 62, 62, 62, 62, 62, 62, 62, 62, 62, 62, 62, 62, 62, 62, 62, 62, 62, 62, 62, 62, 62, 62, 62, 62, 62, 62, 62, 62, 62, 62, 62, 62, 62, 62, 62, 62, 62, 62, 62, 62, 62, 62, 62, 62, 62, 62, 62, 62, 62, 62, 62, 62, 62, 62, 62, 62, 62, 62, 62, 62, 62, 62, 62, 62, 62, 62, 62, 62, 62, 62, 62, 62, 62, 62, 62, 62, 62, 62, 62, 62, 62, 62, 62, 62, 62, 62, 62, 62, 62, 62, 62, 62, 62, 62, 62, 62, 62, 62, 62, 62, 62, 62, 62, 62, 62, 62, 62, 62, 62, 62, 62, 62, 62, 62, 62, 62, 62, 62, 62, 62, 62, 62, 62, 62, 62, 62, 62, 62, 62, 62, 62, 62, 62, 62, 62, 62, 62, 62, 62, 62, 62, 62, 62, 62, 62, 62, 62, 62, 62, 62, 62, 62, 62, 62, 62, 62, 62, 62, 62, 62, 62, 62, 62, 62, 62, 62, 62, 62, 62, 62, 62, 62, 62, 62, 62, 62, 62, 62, 62, 62, 62, 62, 62, 62, 62, 62, 62, 62, 62, 62, 62, 62, 62, 62, 62, 62, 62, 62, 62, 62, 62, 62, 62, 62, 62, 62, 62, 62, 62, 62, 62, 62, 62, 62, 62, 62, 62, 62, 62, 62, 62, 62, 62, 62, 62, 62, 62, 62, 62, 62, 62, 62, 62, 62, 62, 62, 62, 62, 62, 62, 62, 62, 62, 62, 62, 62, 62, 62, 62, 62, 62, 62, 62, 62, 62, 62, 62, 62, 62, 62, 62, 62, 62, 62, 62, 62, 62, 62, 62, 62, 62, 62, 62, 62, 62, 62, 62, 62, 62, 62, 62, 62, 62, 62, 62, 62, 62, 62, 62, 62, 62, 62, 62, 62, 62, 62, 62, 62, 62, 62, 62, 62, 62, 62, 62, 62, 62, 62, 62, 62, 62, 62, 62, 62, 62, 62, 62, 62, 62, 62, 62, 62, 62, 62, 62, 62, 62, 62, 62, 62],
+				[],
+			],
+		},
+
+		images: {
+			tiles: {normal: "assets/tilemap/eaglecrest.png"},
+			kempEau: {normal: "assets/npcs/kemp-Eau.png"},
+			ronson: {normal: "assets/npcs/ronson.png"},
+			sollwyn: {normal: "assets/npcs/sollwyn.png"},
+			marAsh: {normal: "assets/npcs/mar'Ash.png"},
+			archbishop: {normal: "assets/npcs/archbishop.png"},
+			stairsLeft: {normal: "assets/objects/stairsLeft.png"},
+			stairsRight: {normal: "assets/objects/stairsRight.png"},
+			cat1Left: {normal: "./assets/npcs/cat1.png"},
+			cat1Right: {normal: "./assets/npcs/cat1.png", flip: "vertical"},
+		},
+
+		areaTeleports: [
+			{
+				// teleport to eaglecrest graveyard
+				x: 1100,
+				y: 1850,
+				width: 60,
+				height: 2,
+				teleportTo: "eaglecrestGraveyard",
+				destinationX: 2010,
+				destinationY: 450,
+			},
+		],
+
+		villagerData: {
+			minPeople: 0,
+			maxPeople: 3,
+			locations: [
+				{
+					x: 39,
+					y: 320,
+					width: 2142,
+					height: 212,
+				},
+				{
+					x: 39,
+					y: 800,
+					width: 2142,
+					height: 872,
+				},
+			],
+		},
+
+		npcs: [
+
+			{
+				x: 525,
+				y: 1082,
+				image: "kempEau",
+				name: "Priest Kemp-Eau",
+				hostility: "friendly",
+				level: 30,
+				stats: {
+					maxHealth: 200,
+					defence: 3,
+				},
+				roles: [
+					{
+						quest: Quests.eaglecrest[0],
+						role: "questFinish",
+					},
+				],
+				chat: {
+					questProgress: "",
+					questComplete: "",
+					inventoryFull: "",
+					notUnlockedRoles: "",
+				},
+			},
+
+			{
+				x: 1925,
+				y: 1600,
+				image: "ronson",
+				name: "Priestess Ronson",
+				hostility: "friendly",
+				level: 30,
+				stats: {
+					maxHealth: 200,
+					defence: 3,
+				},
+				chat: {
+					notUnlockedRoles: "",
+				},
+			},
+
+			{
+				x: 925,
+				y: 1582,
+				image: "sollwyn",
+				name: "Priest Sollwyn",
+				hostility: "friendly",
+				level: 30,
+				stats: {
+					maxHealth: 200,
+					defence: 3,
+				},
+				chat: {
+					notUnlockedRoles: "",
+				},
+			},
+
+			{
+				x: 1525,
+				y: 1282,
+				image: "marAsh",
+				name: "Priestess Mar'Ash",
+				hostility: "friendly",
+				level: 30,
+				stats: {
+					maxHealth: 200,
+					defence: 3,
+				},
+				chat: {
+					notUnlockedRoles: "",
+				},
+			},
+
+			{
+				x: 1225,
+				y: 500,
+				image: "archbishop",
+				name: "Archbishop Lynch",
+				hostility: "friendly",
+				level: 50,
+				stats: {
+					maxHealth: 300,
+					defence: 3,
+				},
+				chat: {
+					notUnlockedRoles: "",
+				},
+			},
+
+		],
+
+		things: [
+
+			{
+				x: 739,
+				y: 785,
+				z: -1,
+				image: "stairsRight",
+				name: "Stairs Right",
+				crop: {
+					y: 60,
+					height: 230,
+					width: 202,
+				},
+			},
+
+			{
+				x: 1481,
+				y: 785,
+				z: -1,
+				image: "stairsLeft",
+				name: "Stairs Left",
+				crop: {
+					height: 230,
+					width: 202,
+				},
+			},
+
+		],
+
+		collisions: [
+            {
+                x: 746, // bottom of stairs
+                y: 875,
+                width: 180,
+                height: 50,
+            },
+            {
+                x: 1476, // bottom of stairs
+                y: 875,
+                width: 180,
+                height: 50,
+            },
+        ],
+
+        tripwires: [
+			{
+				// bottom of right stairs (to top)
+				x: 636,
+				y: 870,
+				width: 2,
+				height: 25,
+				collisionType: "feet",
+				onPlayerTouch: function () {
+					if (Game.hero.moveTowards === undefined) {
+						// walk up stairs
+						Game.hero.direction = 4;
+						Game.hero.moveTowards = {
+							x: 880,
+							y: Game.hero.y - 200,
+							speedScalar: 0.6,
+						};
+						Game.hero.updateRotation();
+					}
+				}
+			},
+			{
+				// top of right stairs (to bottom)
+				x: 844,
+				y: 690,
+				width: 2,
+				height: 25,
+				collisionType: "feet",
+				onPlayerTouch: function () {
+					if (Game.hero.moveTowards === undefined) {
+						// walk up stairs
+						Game.hero.direction = 2;
+						Game.hero.moveTowards = {
+							x: 600,
+							y: Game.hero.y + 200,
+							speedScalar: 0.6,
+						};
+						Game.hero.updateRotation();
+					}
+				}
+			},
+			// left stairs
+			{
+				// bottom of left stairs (to top)
+				x: 1584,
+				y: 870,
+				width: 2,
+				height: 25,
+				collisionType: "feet",
+				onPlayerTouch: function () {
+					if (Game.hero.moveTowards === undefined) {
+						// walk up stairs
+						Game.hero.direction = 2;
+						Game.hero.moveTowards = {
+							x: 1340,
+							y: Game.hero.y - 200,
+							speedScalar: 0.6,
+						};
+						Game.hero.updateRotation();
+					}
+				}
+			},
+			{
+				// top of left stairs (to bottom)
+				x: 1376,
+				y: 690,
+				width: 2,
+				height: 25,
+				collisionType: "feet",
+				onPlayerTouch: function () {
+					if (Game.hero.moveTowards === undefined) {
+						// walk up stairs
+						Game.hero.direction = 4;
+						Game.hero.moveTowards = {
+							x: 1620,
+							y: Game.hero.y + 200,
+							speedScalar: 0.6,
+						};
+						Game.hero.updateRotation();
+					}
+				}
+			},
+        ],
+
+
+		villagers: [
+			{
+				image: "cat1Left",
+        		rotationImages: {
+            		left: "cat1Left",
+            		right: "cat1Right"
+        		},
+                name: "Amelio",
+                speciesTemplate: SpeciesTemplates.cat,
+                canBeShown: function () {
+                    return Player.quests.completedQuestArray.includes("Help! Lost Cat");
+                }
+			},
+		],
+
+	},
+
 };
 
 var Villagers = [
     {
-		id: 0,
+        id: 0,
         images: {silvioStarstrike: {normal: "assets/npcs/silvioStarstrike.png"}},
         name: "Silvio Starstrike",
         level: 20,
@@ -5868,7 +6201,7 @@ var Villagers = [
         }
     },
     {
-		id: 1,
+        id: 1,
         images: {darioHorfern: {normal: "assets/npcs/darioHorfern.png"}},
         name: "Dario Horfern",
         level: 10,
@@ -5893,7 +6226,7 @@ var Villagers = [
         }
     },
     {
-		id: 2,
+        id: 2,
         images: {gremaRoskin: {normal: "assets/npcs/gremaRoskin.png"}},
         name: "Grema Roskin",
         level: 15,
@@ -5918,7 +6251,7 @@ var Villagers = [
         }
     },
     {
-		id: 3,
+        id: 3,
         images: {feller: {normal: "assets/npcs/feller.png"}},
         name: "Logging Camp Feller",
         level: 4,
@@ -5940,7 +6273,7 @@ var Villagers = [
         }
     },
     {
-		id: 4,
+        id: 4,
         images: {treecutter: {normal: "assets/npcs/treecutter.png"}},
         name: "Logging Camp Treecutter",
         level: 7,
@@ -5962,7 +6295,7 @@ var Villagers = [
         }
     },
     {
-		id: 5,
+        id: 5,
         images: {robertHendman: {normal: "assets/npcs/robertHendman.png"}},
         name: "Robert Hendman",
         level: 12,
@@ -5983,7 +6316,7 @@ var Villagers = [
         }
     },
     {
-		id: 6,
+        id: 6,
         images: {wilmaRedding: {normal: "assets/npcs/wilmaRedding.png"}},
         name: "Wilma Redding",
         level: 12,
@@ -6004,7 +6337,7 @@ var Villagers = [
         }
     },
     {
-		id: 7,
+        id: 7,
         images: {greenbeard: {normal: "assets/npcs/greenbeard.png"}},
         name: "Captain Greenbeard",
         level: 40,
@@ -6025,7 +6358,7 @@ var Villagers = [
         }
     },
     {
-		id: 8,
+        id: 8,
         images: {gildoCleftbeard: {normal: "assets/npcs/gildoCleftbeard.png"}},
         name: "Gildo Cleftbeard",
         level: 14,
@@ -6046,7 +6379,7 @@ var Villagers = [
         }
     },
     {
-		id: 9,
+        id: 9,
         images: {eaglecrestGuard: {normal: "assets/npcs/eaglecrestGuard.png"}},
         name: "Eaglecrest Guard",
         level: 50,
@@ -6068,7 +6401,7 @@ var Villagers = [
         }
     },
     {
-		id: 10,
+        id: 10,
         images: {eaglecrestGuard2: {normal: "assets/npcs/eaglecrestGuard2.png"}},
         name: "Eaglecrest Guard",
         level: 50,
@@ -6090,7 +6423,7 @@ var Villagers = [
         }
     },
     {
-		id: 11,
+        id: 11,
         images: {alfonsoMurbry: {normal: "assets/npcs/alfonsoMurbry.png"}},
         name: "Alfonso Murbry",
         level: 18,
@@ -6111,7 +6444,7 @@ var Villagers = [
         }
     },
     {
-		id: 12,
+        id: 12,
         images: {
             cat1Left: {normal: "assets/npcs/cat1.png"},
             cat1Right: {normal: "assets/npcs/cat1.png", flip: "vertical"},
@@ -6132,7 +6465,7 @@ var Villagers = [
         speciesTemplate: SpeciesTemplates.cat,
     },
     {
-		id: 13,
+        id: 13,
         images: {
             cat2Left: {normal: "assets/npcs/cat2.png"},
             cat2Right: {normal: "assets/npcs/cat2.png", flip: "vertical"},
@@ -6153,7 +6486,7 @@ var Villagers = [
         speciesTemplate: SpeciesTemplates.cat,
     },
     {
-		id: 14,
+        id: 14,
         images: {
             cat3Left: {normal: "assets/npcs/cat3.png"},
             cat3Right: {normal: "assets/npcs/cat3.png", flip: "vertical"},
@@ -6174,7 +6507,7 @@ var Villagers = [
         speciesTemplate: SpeciesTemplates.cat,
     },
     {
-		id: 15,
+        id: 15,
         images: {
             cat4Left: {normal: "assets/npcs/cat4.png"},
             cat4Right: {normal: "assets/npcs/cat4.png", flip: "vertical"},

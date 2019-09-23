@@ -4485,7 +4485,7 @@ if (User.settings.coords === true) {
 if (User.settings.fps === true) {
 	Dom.elements.fpsOn.checked = true;
 }
-if (User.settings.hitboxes === true) {
+if (User.settings.hitbox === true) {
 	Dom.elements.hitboxesOn.checked = true;
 }
 if (User.settings.grid === true) {
@@ -5545,7 +5545,7 @@ Dom.settings.fps = function () {
 }
 
 Dom.settings.hitbox = function () {
-	if (Dom.elements.hitboxOn.checked) {
+	if (Dom.elements.hitboxesOn.checked) {
 		User.settings.hitbox = true;
 	}
 	else {
