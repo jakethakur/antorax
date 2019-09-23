@@ -1239,7 +1239,8 @@ Dom.inventory.displayIdentification = function (display) {
 		if (Player.stats.maxDamage !== 0 && Player.stats.maxDamage !== Player.stats.damage) {
 			Dom.elements.innerStats.innerHTML += "-" + Round(Player.stats.maxDamage+Player.stats.maxDamage*Player.stats.damagePercentage/100);
 		}
-	}else {
+	}
+	else {
 		Dom.elements.innerStats.innerHTML += "<br>Damage: 0";
 	}
 	Dom.elements.innerStats.innerHTML += "<br>Defence: " + Player.stats.defence;
@@ -1258,14 +1259,17 @@ Dom.inventory.displayIdentification = function (display) {
 		Dom.elements.innerStats.innerHTML += "<br>Focus Speed: " + Player.stats.focusSpeed + "/s";
 	}
 	Dom.elements.innerStats.innerHTML += "<br>Health Regen: " + Player.stats.healthRegen + "/s";
-	if (Player.stats.lifesteal !== 0) {
-		Dom.elements.innerStats.innerHTML += "<br>Lifesteal: " + Player.stats.lifesteal + "%";
-	}
 	if (Player.stats.hex !== 0) {
 		Dom.elements.innerStats.innerHTML += "<br>Hex: " + Player.stats.hex + "%";
 	}
+	if (Player.stats.lifesteal !== 0) {
+		Dom.elements.innerStats.innerHTML += "<br>Lifesteal: " + Player.stats.lifesteal + "%";
+	}
 	if (Player.stats.looting !== 100) {
 		Dom.elements.innerStats.innerHTML += "<br>Looting: " + Player.stats.looting + "%";
+	}
+	if (Player.stats.minimumVariance !== 0) {
+		Dom.elements.innerStats.innerHTML += "<br>Minimum Projectile Variance: " + Player.stats.minimumVariance;
 	}
 	if (Player.stats.poisonX !== 0 && Player.stats.posionY !== 0) {
 		Dom.elements.innerStats.innerHTML += "<br>Poison: " + Player.stats.poisonX + "/" + Player.stats.poisonY + "s";
@@ -1301,26 +1305,44 @@ Dom.inventory.displayIdentification = function (display) {
 	Dom.elements.itemIdentification.style.width = Dom.elements.innerStats.offsetWidth+"px";
 }
 
-Dom.inventory.stats = function (stat, value, array) { // stat should be in Title Case // copy to archaeology
+// returns what should be displayed of a stat on an item
+// stat = string of what the stat is
+// stat should be in Title Case
+// value = value of the stat
+// array = item's item.stats
+// copy to archaeology (Stats)
+Dom.inventory.stats = function (stat, value, array) {
 	if (stat === "Defence" || stat === "Block Defence" || stat === "Fishing Skill" || stat === "Max Health") {
 		return stat+": "+NumberSign(value)+"<br>";
-	}else if (stat === "Critical Chance" || stat === "Dodge Chance" || stat === "Looting" || stat === "Reflection" || stat === "Lifesteal" || stat === "Xp Bonus" || stat === "Hex" || stat === "Damage Percentage") {
+	}
+	else if (stat === "Critical Chance" || stat === "Dodge Chance" || stat === "Looting" || stat === "Reflection" || stat === "Lifesteal" || stat === "Xp Bonus" || stat === "Hex" || stat === "Damage Percentage") {
 		return stat+": "+NumberSign(value)+"%<br>";
-	}else if (stat === "Health Regen" || stat === "Swim Speed" || stat === "Walk Speed" || stat === "Ice Speed" || stat === "Focus Speed") {
+	}
+	else if (stat === "Health Regen" || stat === "Swim Speed" || stat === "Walk Speed" || stat === "Ice Speed" || stat === "Focus Speed") {
 		return stat+": "+NumberSign(value)+"/s<br>";
-	}else if (stat === "Stun") {
+	}
+	else if (stat === "Stun") {
 		return stat+": "+NumberSign(value)+"s<br>";
-	}else if (stat === "Reload Time") {
+	}
+	else if (stat === "Reload Time") {
 		return stat+": "+(NumberSign(value/1000))+"s<br>";
-	}else if (stat === "Flaming") {
+	}
+	else if (stat === "Flaming") {
 		return stat+" "+Romanize(value)+"<br>";
-	}else if (stat === "Poison X") {
+	}
+	else if (stat === "Poison X") {
 		return "Poison: "+NumberSign(value)+"/"+array.poisonY+"s<br>";
-	}else if (stat === "Damage") {
+	}
+	else if (stat === "Damage") {
 		return stat+": "+value + (array.maxDamage > value ? "-" + array.maxDamage : "")+"<br>";
-	}else if (stat === "Frostaura") {
+	}
+	else if (stat === "Minimum Variance") {
+		return stat+": "+value+"<br>";
+	}
+	else if (stat === "Frostaura") {
 		return stat+"<br>";
-	}else {
+	}
+	else {
 		return "";
 	}
 };

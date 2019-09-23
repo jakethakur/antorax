@@ -1469,7 +1469,7 @@ var Items = {
 				damage: 5,
 				maxDamage: 15
 			},
-			durability: 50, //tbd
+			maxDurability: 50,
 		},
 	],
 	bow: [
@@ -1729,7 +1729,7 @@ var Items = {
 			sellPrice: 3,
 			stats: {
 				damage: 4,
-				minVariance: 50, // tbd
+				minimumVariance: 70,
 			},
 		},
 	],

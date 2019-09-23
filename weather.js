@@ -1,16 +1,16 @@
 let Weather = {
 	particleData: {
 		snow: {
-			gravity: 70, // down movement per second
+			weight: 80, // down movement per second
 			windMultiplier: 0.4, // multiplied with wind intensity
 		},
 		rain: {
-			gravity: 200,
+			weight: 200,
 			windMultiplier: 0.2,
 		},
 		// "additional" particles
 		fish: {
-			gravity: 300,
+			weight: 300,
 			windMultiplier: 0.1,
 			chance: 35, // chance that a particle is this one
 			removeOnceFallen: true,
@@ -40,6 +40,12 @@ Weather.tick = function (init) {
 			// not called on init
 			Game.dayNightUpdate();
 		}
+
+		// lightning
+		if (Weather.lightning && Weather.lightningTimeout === undefined) {
+			let timeUntilStrike = (120 - (Weather.intensity / (Game.canvasArea / 36000))) * 100; // intensity varies from 0 to 120, thus time varies from 0s to 12s
+			Weather.lightningTimeout = setTimeout(Weather.commenceLightningStrike, timeUntilStrike);
+		}
 	}
 }
 
@@ -51,10 +57,12 @@ Weather.chooseWeather = function (areaName) {
 		// static weather for area
 		this.weatherType = Areas[areaName].weather;
 		this.weatherAdditional = Areas[areaName].weatherAdditional;
+		this.lightning = Areas[areaName].lightning;
 	}
 	else if (Event.event === "Fish") {
 		// fish rain
 		this.weatherType = "rain";
+		this.lightning = undefined;
 
 		// set the weather after additional image has loaded in
 		let p = Loader.loadImage("weatherImage", "./assets/objects/fishRain.png", function () {
@@ -71,7 +79,7 @@ Weather.chooseWeather = function (areaName) {
 		    console.error("Weather image did not load correctly.", err);
 		});
 	}
-	else if ((this.dateValue / 40) % 7 < 1) {
+	else if ((this.dateValue / 40) % 8 < 1 || (this.dateValue / 40) % 21 < 1) {
 	//else if ((new Date()).getSeconds() > 30) { // for testing
 		if (Areas[areaName].isIcy !== undefined && Areas[areaName].isIcy()) {
 			// icy area - snow instead of rain
@@ -83,10 +91,19 @@ Weather.chooseWeather = function (areaName) {
 			this.weatherType = "rain";
 			this.weatherAdditional = undefined;
 		}
+
+		if ((this.dateValue / 40) % 21 < 1) {
+			// lightning
+			this.lightning = true;
+		}
+		else {
+			this.lightning = undefined;
+		}
 	}
 	else {
 		this.weatherType = "clear";
 		this.weatherAdditional = undefined;
+		this.lightning = undefined;
 	}
 
 	if (this.weatherType !== oldWeatherType) {
@@ -136,7 +153,11 @@ Weather.updateIntensity = function () {
 	if (this.intensity > 80) { // intensity is looping backwards
 		this.intensity = 160 - this.intensity; // now between 20 and 80
 	}
-	// final intensity value is from 20 to 80
+
+	if (this.lightning) {
+		// increased intensity
+		this.intensity *= 1.4
+	}
 
 	// scale it up based on canvas size
 	this.intensity *= (Game.canvasArea / 36000);
@@ -155,7 +176,14 @@ Weather.heroMove = function (screenMovedX, screenMovedY) {
 	for (let i = 0; i < this.particleArray.length; i++) { // iterate through particle array
 		let particle = this.particleArray[i];
 		particle.x -= screenMovedX;
-		particle.y -= screenMovedY;
+		if (screenMovedY < 0) {
+			// player moving up
+			particle.y -= screenMovedY;
+		}
+		else {
+			// player moving down
+			particle.y -= screenMovedY/3;
+		}
 		// check for particle off screen
 		this.respawnParticle(particle);
 	}
@@ -224,8 +252,8 @@ Weather.moveParticles = function (delta) {
 	for (let i = 0; i < this.particleArray.length; i++) { // iterate through particle array
 		let particle = this.particleArray[i];
 
-		// gravity
-		particle.y += this.particleData[particle.type].gravity * particle.speedMultiplier * delta;
+		// weight
+		particle.y += this.particleData[particle.type].weight * particle.speedMultiplier * delta;
 
 		// wind (currently just affects x)
 		//particle.y += Math.sin(this.windDirection) * (this.windIntensity * this.particleData[particle.type].windMultiplier) * particle.speedMultiplier * delta;
@@ -292,6 +320,26 @@ Weather.respawnParticle = function (particle, index) {
 	if (removeParticle) {
 		this.particleArray.splice(index, 1);
 		// tbd improve - i might be inaccurate now in the for loop...
+	}
+}
+
+// since there are two strikes, the parameter is set to true if it is the second strike (so a third one is not triggered)
+Weather.commenceLightningStrike = function (secondStrike) {
+	Weather.lightningOnScreen = true;
+	Game.renderDayNight();
+
+	setTimeout(function () {
+		Weather.lightningOnScreen = false;
+		Game.renderDayNight();
+	}, 100);
+
+	if (!secondStrike) {
+		// first strike, trigger second strike
+		Weather.lightningTimeout = setTimeout(Weather.commenceLightningStrike, 200, true);
+	}
+	else {
+		// second strike, allow another first strike timeout to begin
+		Weather.lightningTimeout = undefined;
 	}
 }
 

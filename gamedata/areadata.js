@@ -5514,14 +5514,7 @@ var Areas = {
 			{
 				x: 10,
 				y: 370,
-				orderOffsetY: -50,
-				image: "crate",
-				name: "Crate"
-			},
-			{
-				x: 10,
-				y: 370,
-				orderOffsetY: -50,
+				orderOffsetY: -10,
 				image: "crate",
 				name: "Crate"
 			},
@@ -5542,7 +5535,7 @@ var Areas = {
 
 		villagers: [
 			{
-				image: "sheepLeft",
+				image: "sheepRight",
 				name: "Bella",
 				level: 1,
 				stats: {

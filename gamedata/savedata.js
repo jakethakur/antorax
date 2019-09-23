@@ -108,6 +108,7 @@ var Player = {
 		walkSpeed: 180, // (300/s)
 		iceSpeed: 270, // (300/s)
 		variance: 0, // default variance projectiles when 600px away - set to 100 by default for any archer weapons; can be overriden in itemdata
+		minimumVariance: 0, // (50) minimum variance of a fired projectile
 		focusSpeed: 1, // (1/s) archers only (speed that the variant for archer projectiles gets smaller)
 		maxDamage: 0, // (3-9) mages only (damage done when channelled)
 		blockDefence: 0, // (16) knights only

@@ -103,26 +103,44 @@ if(User !== null){
 	}
 }*/
 
-function Stats (stat, value, array) { // stat should be in Title Case // copied from DOM
-	if(stat === "Defence" || stat === "Block Defence" || stat === "Fishing Skill" || stat === "Max Health") {
+// returns what should be displayed of a stat on an item
+// stat = string of what the stat is
+// stat should be in Title Case
+// value = value of the stat
+// array = item's item.stats
+// copied from Dom.inventory.stats
+function Stats (stat, value, array) {
+	if (stat === "Defence" || stat === "Block Defence" || stat === "Fishing Skill" || stat === "Max Health") {
 		return stat+": "+NumberSign(value)+"<br>";
-	}else if(stat === "Critical Chance" || stat === "Dodge Chance" || stat === "Looting" || stat === "Reflection" || stat === "Lifesteal" || stat === "Xp Bonus" || stat === "Hex" || stat === "Damage Percentage"){
+	}
+	else if (stat === "Critical Chance" || stat === "Dodge Chance" || stat === "Looting" || stat === "Reflection" || stat === "Lifesteal" || stat === "Xp Bonus" || stat === "Hex" || stat === "Damage Percentage") {
 		return stat+": "+NumberSign(value)+"%<br>";
-	}else if(stat === "Health Regen" || stat === "Swim Speed" || stat === "Walk Speed" || stat === "Ice Speed" || stat === "Focus Speed"){
+	}
+	else if (stat === "Health Regen" || stat === "Swim Speed" || stat === "Walk Speed" || stat === "Ice Speed" || stat === "Focus Speed") {
 		return stat+": "+NumberSign(value)+"/s<br>";
-	}else if(stat === "Stun"){
+	}
+	else if (stat === "Stun") {
 		return stat+": "+NumberSign(value)+"s<br>";
-	}else if(stat === "Reload Time"){
+	}
+	else if (stat === "Reload Time") {
 		return stat+": "+(NumberSign(value/1000))+"s<br>";
-	}else if(stat === "Flaming"){
+	}
+	else if (stat === "Flaming") {
 		return stat+" "+Romanize(value)+"<br>";
-	}else if(stat === "Poison X"){
+	}
+	else if (stat === "Poison X") {
 		return "Poison: "+NumberSign(value)+"/"+array.poisonY+"s<br>";
-	}else if(stat === "Damage"){
+	}
+	else if (stat === "Damage") {
 		return stat+": "+value + (array.maxDamage > value ? "-" + array.maxDamage : "")+"<br>";
-	}else if(stat === "Frostaura"){
+	}
+	else if (stat === "Minimum Variance") {
+		return stat+": "+value+"<br>";
+	}
+	else if (stat === "Frostaura") {
 		return stat+"<br>";
-	}else{
+	}
+	else {
 		return "";
 	}
 };
@@ -738,6 +756,8 @@ var StatsInfo = {
 	hex: "Changes the chance of transforming attacked enemies into an animal for 2 seconds, causing them to deal 90% less damage for tht time period.",
 	damagePercentage: "Adds additional percentage of damage dealt with basic attacks and spells.",
 	fishingSkill: "Changes the fish that can be fished up from a location.",
+	minimumVariance: "Changes the minimum variance of projectiles fired by the weapon.",
+	durability: "The number of attacks that can be dealt by the weapon before it breaks.",
 }
 
 if(viewedItemId != undefined && viewedItemType != undefined){

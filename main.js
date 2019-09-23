@@ -2402,9 +2402,11 @@ class Hero extends Attacker {
 						let projectileRotate = Game.bearing(this, {x: projectileX, y: projectileY}) + Math.PI / 2;
 
 						let variance = this.stats.variance;
+						let minimumVariance = this.stats.minimumVariance;
 						if (Game.getAttackType() === "bow") { // alter variance based on distance to enemy if the class is archer
 							let distanceFraction = distanceToProjectile / 600; // fraction of maximum variance (max variance = Playerstats.variance)
 							variance *= distanceFraction;
+							minimumVariance *= distanceFraction;
 						}
 
 						this.channellingProjectileId = Game.nextEntityId;
@@ -2432,6 +2434,7 @@ class Hero extends Attacker {
 							image: Game.heroProjectileName,
 							beingChannelled: true,
 							variance: variance,
+							minimumVariance: minimumVariance,
 							type: "projectiles",
 						}));
 
@@ -2677,6 +2680,22 @@ class Hero extends Attacker {
 			// function called for all attacks whether they hit an enemy or not
 			if (Player.inventory.weapon.onAttack !== undefined) {
 			    Player.inventory.weapon.onAttack(shotProjectile);
+			}
+
+			// decrement durability of player's weapon (if it has durability)
+			if (Player.inventory.weapon.maxDurability !== undefined) {
+				if (Player.inventory.weapon.durability === undefined) {
+					// weapon's durability not been decremented before
+					Player.inventory.weapon.durability = Player.inventory.weapon.maxDurability - 1;
+				}
+				else {
+					Player.inventory.weapon.durability--;
+				}
+
+				// remove weapon if its durability is 0
+				if (Player.inventory.weapon.durability === 0) {
+					Dom.chat.insert("Your " + Player.inventory.weapon.name + " ran out of durability.");
+				}
 			}
 
 			// after a timeout (2s), remove the projectile that was just shot
@@ -3064,6 +3083,7 @@ class Projectile extends Thing {
 		this.targets = properties.targets; // array of arrays of objects to dela damage to
 
 		this.variance = properties.variance || 0; // diameter of circle that it could fall into
+		this.minimumVariance = properties.minimumVariance || 0; // minimum diameter of circle that it could fall into (after channelling)
 
 		this.rotate = properties.rotate || 0;
 
@@ -3335,7 +3355,7 @@ class Projectile extends Thing {
 		}
 	}
 
-	// move projectile to Random position in circle, where circle is its variance
+	// move projectile to random position in circle, where circle is its variance
 	varyPosition () {
 		if (this.variance !== undefined) {
 			if (this.variance > 0) {
@@ -3791,6 +3811,7 @@ class Enemy extends Attacker {
 			},
 			image: this.projectile.image,
 			variance: this.stats.variance,
+			minimumVariance: this.stats.minimumVariance,
 			type: "projectiles"
 		});
 		shotProjectile.varyPosition(); // move projectile based on its variance
@@ -7455,11 +7476,11 @@ Game.playerProjectileUpdate = function(delta) {
 
 		// archer weapons slowly focus as they are channelling
 		if (this.getAttackType() === "bow") {
-			if (projectile.variance > 0 + this.hero.stats.focusSpeed * delta * 16) { // check it won't be 0 or less
+			if (projectile.variance > projectile.minimumVariance + this.hero.stats.focusSpeed * delta * 16) { // check it won't be its minimumVariance or less
 				projectile.variance -= this.hero.stats.focusSpeed * delta * 16;
 			}
 			else {
-				projectile.variance = 1;
+				projectile.variance = projectile.minimumVariance + 1; // +1 so a circle of 0 diameter cannot be made
 			}
 		}
 
@@ -7620,6 +7641,7 @@ Game.equipmentUpdate = function () {
     }
 
 	// set weapon variance
+	// because variance is not a stat unless manually overwritten, this is required
     if (weaponType === "bow" || Player.inventory.weapon.variance !== undefined) {
         this.hero.stats.variance = Player.inventory.weapon.variance || 100; // 100 is default
     }
@@ -8855,18 +8877,27 @@ Game.secondary.render = function () {
 Game.renderDayNight = function () {
 	// wipe canvas
 	this.ctxDayNight.clearRect(0, 0, Dom.canvas.width, Dom.canvas.height);
-	// make canvas darker if it is night time and the player is not indoors
-	if (!Areas[Game.areaName].indoors) {
-		if (Event.redSky === true) {
-			// blood moon (or one developing)
-			this.ctxDayNight.fillStyle = "#2d0101"; // red tint
-			this.ctxDayNight.globalAlpha = Event.darkness;
-			this.ctxDayNight.fillRect(0, 0, Dom.canvas.width, Dom.canvas.height);
-		}
-		else {
-			this.ctxDayNight.fillStyle = "black";
-			this.ctxDayNight.globalAlpha = Event.darkness;
-			this.ctxDayNight.fillRect(0, 0, Dom.canvas.width, Dom.canvas.height);
+
+	// lightning
+	if (Weather.lightningOnScreen) {
+		this.ctxDayNight.fillStyle = "#ffffff"; // red tint
+		this.ctxDayNight.globalAlpha = 0.15;
+		this.ctxDayNight.fillRect(0, 0, Dom.canvas.width, Dom.canvas.height);
+	}
+	else {
+		// make canvas darker if it is night time and the player is not indoors
+		if (!Areas[Game.areaName].indoors) {
+			if (Event.redSky === true) {
+				// blood moon (or one developing)
+				this.ctxDayNight.fillStyle = "#2d0101"; // red tint
+				this.ctxDayNight.globalAlpha = Event.darkness;
+				this.ctxDayNight.fillRect(0, 0, Dom.canvas.width, Dom.canvas.height);
+			}
+			else {
+				this.ctxDayNight.fillStyle = "black";
+				this.ctxDayNight.globalAlpha = Event.darkness;
+				this.ctxDayNight.fillRect(0, 0, Dom.canvas.width, Dom.canvas.height);
+			}
 		}
 	}
 }
