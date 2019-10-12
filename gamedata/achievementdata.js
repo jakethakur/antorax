@@ -280,7 +280,7 @@ var Achievements = [
 		color: "#ddddff",
 		class: "single",
 		isCompleted: function () {
-			return Player.bossesKilled.goblinKing !== 0;
+			return Player.bossesKilled.goblinKing !== 0 && Player.bossesKilled.goblinKing !== undefined;
 		}
 	},
 	{
@@ -295,7 +295,7 @@ var Achievements = [
         color: "#ddddff",
         class: "single",
         isCompleted: function () {
-            return Player.bossesKilled.tatteredKnight !== 0;
+            return Player.bossesKilled.tatteredKnight !== 0 && Player.bossesKilled.tatteredKnight !== undefined;
         }
     },
 	{

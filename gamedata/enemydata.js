@@ -312,6 +312,7 @@ const EnemyTemplates = {
 			lootTableTemplate: [EnemyLootTables.nilbogGoblin, EnemyLootTables.nilbogTowerGoblin],
 			inventorySpace: 8,
 		},
+
 		goblinKing: {
 			speciesTemplate: SpeciesTemplates.nilbogGoblin,
 			image: "goblinKing",
@@ -381,6 +382,7 @@ const EnemyTemplates = {
 			lootTableTemplate: [EnemyLootTables.nilbogGoblin, EnemyLootTables.nilbogTowerGoblin, ChestLootTables.nilbog, BossLootTables.goblinKing],
 			inventorySpace: 16,
 		},
+
 		tatteredKnight: {
 			image: "tatteredKnight",
 			deathImage: "tatteredKnightCorpse",
@@ -420,6 +422,112 @@ const EnemyTemplates = {
 			},
 			lootTableTemplate: [BossLootTables.tatteredKnight],
 			inventorySpace: 24,
+		},
+
+		marshallSheridan: {
+			image: "marshallSheridan",
+			deathImage: "marshallSheridanCorpse",
+			name: "Statue of Marshall Sheridan",
+			species: "statue",
+			hostility: "boss",
+			bossKilledVariable: "marshallSheridan",
+			level: 15,
+			expand: 0.8, // default size (changes with wood consumption)
+			stats: {
+				damage: 5,
+				walkSpeed: 70,
+				swimSpeed: 70,
+				maxHealth: 400,
+				defence: 20,
+				range: 90,
+				healthRegen: 0, // no regen in the blood moon
+				reloadTime: 1000,
+				lootTime: 10000,
+				alwaysMove: true, // move even when in range
+			},
+			spells: [
+				{
+					name: "sawblade",
+					tier: 1,
+					parameters: function () { // returns array of parameters
+						return {
+							target: Game.hero,
+						};
+					},
+					castCondition: function (caster) {
+						// has picked up all logs
+						return caster.logsRemaining === 0;
+					},
+					interval: 7000,
+				},
+			],
+			leashRadius: 3000, // doesn't leash
+			xpGiven: 250, // tbc?
+			projectile: {
+				image: "slashBlood",
+			},
+			lootTableTemplate: [BossLootTables.marshallSheridan],
+			inventorySpace: 12,
+			behaviour: {
+				// run before movement/attacking
+				main: function () {
+					// try to pick up a log
+					let replaceTiles = map.setTilesAtLocation([
+						{tileNum: 93, replaceTo: 105, relativePosition: {x: 0, y: 0}},
+						{tileNum: 94, replaceTo: 105, relativePosition: {x: 1, y: 0}},
+					], {x: this.x, y: this.y});
+					if (replaceTiles !== false) {
+						this.channel(function () {
+							// make boss stronger
+							this.stats.maxHealth += 25;
+							this.health = this.stats.maxHealth;
+							// remove log from tilemap
+							replaceTiles();
+							// find a new log to move towards!
+							this.closestLog = undefined;
+							this.logsRemaining--;
+						}.bind(this), [], 1000, "Retrieving Logs");
+
+						return false; // don't move or attack (channelling log)
+					}
+					return true; // do normal actions (couldn't pick up log)
+				},
+				// returns location to move towards
+				movement: function () {
+					if (this.logsRemaining === 0) {
+						// all logs have been retrieved, act normally (attack player!)
+						return false;
+					}
+					else if (this.closestLog !== undefined && map.getTile(0, Math.floor(this.closestLog.x/60), Math.floor(this.closestLog.y/60)) === 94) {
+						// a location of closest log has already been set, and the player has not taken it
+						// move towards it
+						return this.closestLog;
+					}
+					else {
+						// a new log to move towards must be found
+						this.logsRemaining = 0; // used to decide whether spell should be cast or not, and whether to try to look for more logs
+						let possibleLogLocations = []; // objects with x and y locations of logs are pushed to it
+
+						// iterate through tiles to try to find a log
+						for (let i = 0; i < map.layers[0].length; i++) {
+							// check for a log tile (right side of tile is checked for)
+							if (map.layers[0][i] === 94) {
+								this.logsRemaining++;
+								// find location of tile (bottom right)
+								let x = ((i%map.cols)+1) * 60;
+								let y = Math.ceil((i+1)/map.cols) * 60;
+								// location adjusted to be location of log
+								possibleLogLocations.push({x: x-60, y: y-60});
+							}
+						}
+
+						// find closest of these logs
+						this.closestLog = Game.closest(possibleLogLocations, this);
+
+						return this.closestLog;
+					}
+				},
+			}
 		},
 	},
 };

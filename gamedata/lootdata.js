@@ -19,7 +19,7 @@ const EnemyLootTables = {
 				return Event.time === "bloodMoon";
 			},
 			chance: [
-				25,				// 0
+				15,				// 0
 				0,				// 1
 			],
 		},
@@ -210,9 +210,9 @@ const BossLootTables = {
 			chance: [
 				100,			// 0
 				100,			// 1
-				50,				// 2
-				30,				// 3
-				10,				// 4
+				35,				// 2
+				6,				// 3
+				1,				// 4
 				0,				// 5
 			],
 		},
@@ -279,6 +279,56 @@ const BossLootTables = {
 			],
 		},
 	],
+	marshallSheridan: [
+		{ // loggers' flannel
+			item: Items.chest[9],
+			chance: [
+				40,				// 0
+				0,				// 1
+			],
+		},
+		{ // marshall sheridan's logging axe
+			item: Items.sword[15],
+			chance: [
+				20,				// 0
+				0,				// 1
+			],
+		},
+		{ // logging boots
+			item: Items.boots[2],
+			chance: [
+				30,				// 0
+				0,				// 1
+			],
+		},
+		{ // logging sack
+			item: Items.bag[2],
+			chance: [
+				30,				// 0
+				0,				// 1
+			],
+		},
+		{ // goblin resistance potion
+			item: Items.consumable[11],
+			chance: [
+				30,				// 0
+				0,				// 1
+			],
+		},
+		{ // log
+			item: Items.item[2],
+			chance: [
+				100,			// 0
+				100,			// 1
+				100,			// 2
+				80,				// 3
+				60,				// 4
+				40,				// 5
+				20,				// 6
+				0,				// 7
+			],
+		},
+	],
 };
 
 const ChestLootTables = {
@@ -291,8 +341,8 @@ const ChestLootTables = {
 			},
 			chance: [
 				100,			// 0
-				50,				// 1
-				20,				// 2
+				30,				// 1
+				5,				// 2
 				0,				// 3
 			],
 		},

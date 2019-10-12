@@ -520,6 +520,35 @@ var Items = {
 				defence: 4,
 			},
 		},
+		{
+			id: 9,
+			name: "Loggers' Flannel",
+			type: "chest",
+			image: "assets/items/chest/9.png",
+			tier: 1,
+			obtain: ["boss"],
+			area: ["loggingCamp"],
+			event: "Samhain",
+			rarity: "unique",
+			lore: "",
+			sellPrice: 3,
+			obtainText: "Can be looted from Statue of Marshall Sheridan, a boss in The Nilbog during blood moons.",
+			stats: {
+				defence: 2,
+			},
+			conditionalStats: [
+				{
+					text: "Gives the following stats when outdoors:",
+					condition: function () {
+						return !Areas[Game.areaName].indoors;
+					},
+					stats: {
+						walkSpeed: 40,
+						healthRegen: 0.5,
+					},
+				},
+			],
+		},
 	],
 	greaves: [
 		{
@@ -787,7 +816,7 @@ var Items = {
 			area: ["loggingCamp"],
 			rarity: "mythic",
 			sellPrice: 5,
-			lore: "The the villain lost, he fled back to the waves<br>His set of armour simply left behind",
+			lore: "The villain lost, he fled back to the waves<br>His set of armour simply left behind",
 			obtainText: "Can be found in a sunken chest from a tier 1 fishing area.",
 			set: 4,
 			stats: {
@@ -1219,6 +1248,34 @@ var Items = {
 				damage: 4,
 			},
 		},
+		{
+			id: 15,
+			name: "Marshall Sheridan's Logging Axe",
+			type: "sword",
+			image: "assets/items/sword/15.png",
+			tier: 1,
+			obtain: ["boss"],
+			area: ["loggingCamp"],
+			event: "Samhain",
+			rarity: "mythic",
+			lore: "",
+			obtainText: "Can be looted from Statue of Marshall Sheridan, a boss in The Nilbog during blood moons.",
+			sellPrice: 5,
+			stats: {
+				damage: 4,
+			},
+			functionText: "Gives -15% defence to hit enemies for 0.75 seconds (this effect stacks)",
+			onHit: function (enemy) {
+				// reduce enemy's defence
+				Game.statusEffects.defence({
+					target: enemy,
+					effectTitle: "Vulnerability",
+					defenceIncrease: -15,
+					time: 0.75,
+					effectStack: "multiply"
+				});
+			},
+		},
 	],
 	staff: [
 		{
@@ -1323,7 +1380,7 @@ var Items = {
 			area: ["loggingCamp"],
 			rarity: "mythic",
 			sellPrice: 5,
-			lore: "",
+			lore: "With looting that high, she couldn't help but become a hoarder.",
 			obtainText: "Can be found as an unidentified item in areas around Eaglecrest Logging Camp.",
 			unidentifiedArea: ["loggingCamp"],
 			stats: {
@@ -1471,6 +1528,28 @@ var Items = {
 			},
 			maxDurability: 50,
 		},
+		/*{
+			id: 13,
+			name: "tbd",
+			type: "staff",
+			image: "assets/items/staff/13.png",
+			imageArchaeology: "assets/items/staff/13archaeology.png",
+			tier: 1,
+			obtain: ["boss"],
+			area: ["loggingCamp"],
+			event: "Samhain",
+			rarity: "mythic",
+			lore: "tbd",
+			obtainText: "tbd",
+			sellPrice: 5,
+			stats: {
+				damage: 4,
+				maxDamage: 12
+			},
+			chooseStats: {
+				//tbd
+			},
+		},*/
 	],
 	bow: [
 		{
@@ -1568,7 +1647,7 @@ var Items = {
 			area: ["loggingCamp"],
 			rarity: "mythic",
 			sellPrice: 5,
-			lore: "",
+			lore: "Once this bow helped burn down Azuras; now it will burn down your enemies.",
 			obtainText: "Can be found as an unidentified item in areas around Eaglecrest Logging Camp.",
 			unidentifiedArea: ["loggingCamp"],
 			stats: {
@@ -1731,6 +1810,8 @@ var Items = {
 				damage: 4,
 				minimumVariance: 70,
 			},
+			projectile: "greyPellet",
+			projectileAdjust: {x: 0, y: 0},
 		},
 	],
 	rod: [ // fishing rod
@@ -1914,7 +1995,7 @@ var Items = {
 			name: "Gold",
 			type: "currency",
 			image: "assets/items/currency/2.png",
-			use: "The primary currency of Antorax",
+			functionText: "The primary currency of Antorax",
 			stack: 1024,
 			quest: function () {
                 return !Player.quests.completedQuestArray.includes("To the Logging Camp");
@@ -1925,7 +2006,7 @@ var Items = {
 			name: "Fishing Seal",
 			type: "currency",
 			image: "assets/items/currency/3.png",
-			use: "Can be used to buy fishing related items from a fisherperson.",
+			functionText: "Can be used to buy fishing related items from a fisherperson.",
 			stack: 256,
 		},
 		{
@@ -1933,7 +2014,7 @@ var Items = {
 			name: "Samhain Mark",
 			type: "currency",
 			image: "assets/items/currency/4.png",
-			use: "Used to buy special Samhain event items from a Samhain merchant.",
+			functionText: "Used to buy special Samhain event items from a Samhain merchant.",
 			stack: 256,
 		},
 		{
@@ -1941,7 +2022,7 @@ var Items = {
 			name: "Christmas Token",
 			type: "currency",
 			image: "assets/items/currency/5.png",
-			use: "Used to buy special Christmas items around the Eaglecrest Logging Camp.",
+			functionText: "Used to buy special Christmas items around the Eaglecrest Logging Camp.",
 			stack: 256,
 		},
 	],
@@ -2591,7 +2672,7 @@ var Items = {
 			id: 8,
 			name: "Can of Worms",
 			type: "consumable",
-			sellPrice: 2,
+			sellPrice: 3,
 			image: "assets/items/consumable/8.png",
 			functionText: "Gives you +20 fishing skill for your next fishing attempt",
 			maxCharges: 3,
@@ -2668,7 +2749,7 @@ var Items = {
 			id: 10,
 			name: "Bunch of Blood Bats",
 			type: "consumable",
-			sellPrice: 2, // TBC
+			sellPrice: 2,
 			image: "assets/items/consumable/10.png",
 			functionText: "Deals 5 damage to the nearest enemy, stunning them for 1s",
 			maxCharges: 3,
@@ -2693,11 +2774,6 @@ var Items = {
 							stun: 1,
 						},
 						targets: [[moveTowards]],
-						/*adjust: {
-							x: this.projectile.adjust.x || undefined,
-							y: this.projectile.adjust.y || undefined,
-							towards: this.projectile.adjust.towards || undefined,
-						},*/
 						image: "bloodBat",
 						moveTowards: moveTowards,
 						moveSpeed: 250,
@@ -4252,18 +4328,18 @@ const WeaponRanges = {
 };
 
 // returns total number of items in archaeology
-function GetTotalArchaeologyItems() {
-	let total = 0;
-	if (User !== undefined) {
-		for (var i = 0; i < 7; i++) {
-			for (var x = 2; x < Items[Object.keys(Items)[i]].length; x++) {
-				if (!Items[Object.keys(Items)[i]][x].uncollectable && (!Items[Object.keys(Items)[i]][x].limitedEdition || User.archaeology.includes(Items[Object.keys(Items)[i]][x].name))) {
-					total++;
-				}
-			}
-		}
-	}
-	return total;
+function GetTotalArchaeologyItems(archaeology) {
+    let total = 0;
+    if (User !== undefined) {
+        for (var i = 0; i < 7; i++) {
+            for (var x = 2; x < Items[Object.keys(Items)[i]].length; x++) {
+                if (!Items[Object.keys(Items)[i]][x].uncollectable && (!Items[Object.keys(Items)[i]][x].limitedEdition || (archaeology || User.archaeology).includes(Items[Object.keys(Items)[i]][x].name))) {
+                    total++;
+                }
+            }
+        }
+    }
+    return total;
 }
 
 // unidentified item constructor

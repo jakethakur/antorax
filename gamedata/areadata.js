@@ -250,7 +250,7 @@ var Areas = {
 							Player.quests.questProgress.snowCollected = Increment(Player.quests.questProgress.snowCollected);
 							Dom.checkProgress();
 							// replace tiles with no snow rocks
-							map.setTile(0, map.getCol(x), map.getRow(y), 59);
+							map.setTile(0, map.getCol(x), map.getRow(y), 59); // new tiles: 108, 109, 110, 116, 117, 118
 							map.setTile(0, map.getCol(x + 60), map.getRow(y), 60);
 							map.setTile(0, map.getCol(x), map.getRow(y + 60), 69);
 							// add snow back after 5 minutes
@@ -2077,29 +2077,37 @@ var Areas = {
 				[105, 44, 27, 59, 27, 27, 4, 89, 105, 42, 98, 2, 2, 90, 58, 34, 105, 105, 105, 105, 106, 18, 18, 26, 89, 105, 105, 105, 105, 105, 105, 105, 105, 105, 105, 105, 47, 55, 63, 39, 105, 44, 35, 27, 43, 59, 4, 100, 101, 102, 42, 58, 58, 34, 105, 105, 81, 105, 105, 106, 74, 2, 2, 82, 26, 105, 105, 105, 81, 105, 105, 105, 105, 105, 89, 97, 55, 63, 55, 63, 97, 44, 51, 59, 27, 27, 4, 108, 109, 110, 105, 105, 105, 105, 89, 105, 105, 105, 97, 66, 2, 2, 10, 90, 34, 105, 73, 105, 105, 105, 73, 105, 105, 105, 105, 105, 47, 55, 63, 39, 105, 44, 27, 27, 35, 27, 4, 105, 105, 105, 89, 105, 105, 105, 105, 105, 105, 105, 105, 66, 10, 2, 2, 50, 105, 105, 105, 105, 105, 105, 105, 105, 93, 94, 105, 105, 55, 63, 55, 63, 105, 44, 27, 27, 27, 51, 4, 105, 105, 105, 105, 105, 105, 105, 105, 105, 105, 105, 105, 42, 98, 2, 10, 50, 105, 105, 105, 105, 105, 105, 105, 105, 105, 105, 105, 105, 47, 55, 63, 39, 105, 44, 27, 27, 27, 27, 4, 105, 105, 105, 105, 105, 105, 105, 105, 105, 105, 105, 105, 73, 42, 58, 58, 34, 105, 105, 105, 105, 105, 105, 105, 105, 105, 105, 105, 105, 55, 63, 55, 63, 105, 44, 35, 51, 43, 27, 4, 105, 105, 105, 106, 18, 26, 105, 105, 105, 105, 105, 105, 105, 105, 105, 105, 105, 97, 105, 105, 105, 105, 105, 105, 105, 105, 105, 105, 105, 47, 39, 47, 39, 105, 44, 59, 27, 27, 51, 4, 105, 105, 106, 74, 2, 50, 93, 94, 105, 105, 105, 105, 105, 105, 105, 105, 105, 105, 105, 105, 105, 105, 105, 105, 105, 105, 105, 105, 105, 39, 22, 39, 47, 105, 44, 27, 27, 27, 43, 4, 105, 106, 74, 2, 2, 82, 18, 26, 105, 105, 105, 105, 97, 89, 105, 105, 105, 105, 105, 105, 93, 94, 105, 105, 73, 105, 100, 101, 102, 47, 22, 47, 39, 105, 44, 27, 27, 27, 27, 4, 105, 42, 58, 98, 2, 2, 90, 34, 105, 105, 105, 105, 105, 105, 105, 105, 105, 105, 105, 93, 94, 105, 105, 105, 105, 105, 108, 109, 110, 105, 1, 93, 94, 105, 44, 27, 35, 27, 27, 4, 105, 105, 105, 42, 58, 58, 34, 105, 105, 105, 105, 105, 105, 105, 105, 105, 105, 105, 105, 105, 105, 105, 105, 105, 105, 105, 65, 1, 1, 1, 49, 105, 73, 105, 44, 43, 27, 27, 27, 4, 105, 105, 97, 105, 105, 105, 105, 81, 105, 105, 105, 105, 105, 105, 105, 100, 101, 102, 105, 105, 105, 105, 105, 25, 1, 1, 49, 105, 105, 105, 105, 105, 105, 105, 44, 27, 27, 27, 27, 4, 105, 105, 105, 105, 105, 105, 105, 105, 105, 105, 105, 105, 105, 105, 73, 108, 109, 110, 105, 105, 105, 105, 105, 105, 105, 105, 105, 73, 105, 105, 106, 26, 105, 105, 11, 3, 3, 3, 3, 19, 105, 105, 105, 105, 105, 105, 105, 105, 105, 105, 105, 105, 105, 105, 105, 105, 105, 105, 105, 105, 105, 105, 105, 105, 105, 105, 105, 105, 105, 106, 74, 50, 105, 105, 44, 35, 27, 27, 27, 4, 105, 105, 105, 105, 105, 105, 105, 105, 105, 105, 105, 105, 105, 105, 105, 105, 105, 105, 105, 105, 105, 105, 105, 105, 105, 105, 105, 106, 18, 74, 10, 50, 105, 105, 44, 27, 27, 27, 27, 4, 105, 105, 105, 93, 94, 106, 18, 26, 105, 105, 105, 105, 89, 105, 105, 105, 60, 36, 36, 68, 97, 105, 105, 105, 105, 105, 106, 74, 2, 2, 2, 50, 105, 105, 44, 27, 27, 27, 27, 4, 105, 105, 106, 18, 18, 74, 90, 34, 105, 105, 105, 89, 105, 105, 105, 60, 28, 27, 35, 92, 36, 68, 105, 105, 105, 106, 74, 2, 10, 2, 90, 34, 105, 105, 44, 27, 35, 27, 43, 4, 105, 105, 42, 98, 2, 90, 34, 105, 105, 105, 105, 105, 105, 105, 105, 44, 27, 43, 27, 27, 51, 4, 105, 105, 105, 66, 10, 2, 2, 2, 50, 89, 105, 105, 44, 27, 43, 35, 27, 4, 105, 105, 105, 42, 58, 34, 105, 105, 105, 105, 105, 105, 105, 97, 105, 44, 35, 59, 27, 27, 27, 4, 105, 105, 105, 42, 98, 2, 2, 90, 34, 105, 105, 105, 44, 27, 27, 27, 27, 4, 105, 105, 105, 105, 105, 105, 105, 105, 105, 105, 105, 105, 105, 105, 105, 84, 20, 27, 43, 35, 12, 76, 105, 105, 97, 105, 42, 58, 58, 34, 105, 105, 106, 105, 44, 27, 27, 27, 27, 4, 105, 105, 105, 105, 105, 105, 105, 105, 105, 105, 105, 105, 105, 105, 93, 94, 84, 52, 52, 52, 76, 105, 105, 105, 105, 105, 105, 105, 105, 105, 105, 106, 74, 105, 44, 27, 27, 27, 27, 4, 105, 105, 105, 105, 105, 105, 105, 105, 105, 105, 105, 105, 105, 105, 105, 105, 105, 105, 105, 105, 105, 105, 105, 105, 105, 105, 105, 105, 105, 73, 105, 66, 10, 105, 44, 27, 51, 27, 27, 4, 105, 105, 105, 105, 105, 105, 105, 105, 105, 105, 105, 105, 105, 105, 105, 105, 105, 105, 105, 105, 106, 18, 18, 18, 18, 18, 26, 93, 94, 105, 106, 74, 2, 105, 44, 35, 27, 27, 27, 4, 105, 105, 97, 105, 93, 94, 105, 105, 73, 105, 105, 105, 105, 105, 89, 105, 105, 81, 106, 18, 74, 2, 2, 10, 2, 2, 82, 18, 18, 18, 74, 2, 2, 105, 44, 27, 27, 27, 27, 4, 105, 105, 105, 105, 105, 105, 105, 105, 105, 105, 105, 105, 105, 97, 105, 105, 105, 106, 74, 10, 10, 2, 2, 2, 2, 2, 2, 2, 10, 2, 2, 10, 2, 105, 44, 27, 43, 27, 43, 4, 105, 105, 105, 105, 105, 105, 105, 105, 105, 105, 105, 105, 105, 105, 105, 89, 106, 74, 2, 2, 2, 2, 2, 2, 2, 2, 10, 2, 2, 2, 2, 2, 2, 105, 44, 27, 27, 27, 35, 4, 105, 105, 105, 105, 105, 105, 105, 105, 105, 105, 105, 105, 105, 105, 106, 18, 74, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 105, 44, 27, 27, 27, 27, 4, 105, 81, 105, 105, 105, 105, 105, 105, 105, 105, 105, 105, 106, 18, 74, 2, 2, 2, 2, 2, 2, 10, 2, 2, 2, 2, 2, 2, 2, 2, 10, 10, 2, 105, 44, 27, 27, 27, 27, 4, 105, 105, 105, 105, 105, 105, 105, 105, 106, 18, 18, 18, 74, 2, 2, 10, 2, 2, 2, 2, 2, 2, 2, 2, 2, 10, 2, 2, 2, 2, 10, 10, 10],
 				[],
 			],
+			// replaces a tile or group of tiles - these tiles should all be distinct (e.g. 6 different tiles make up a rock)
+
+			// tileData is an array of objects, with each object containing the following:
+			// tileNum: integer specifying the tile that should be replaced
+			// replaceTo: integer specifying the tile that it should be replaced to (same is tileNum if not replaced)
+			// relativePosition: object containing x and y, where the top left tile being replaced is x:0, y:0, and one unit of x/y is one row/col
+
+			// location is an object containing x and y properties of the location that it should be checked to see if tiles can be replaced
+
+			// either returns false if no tiles were replaced, or a function that can be called to replace the tiles
+
 			interactWithTile: function(tileNum, x, y) { // pick up logs
-				if (tileNum === 93) { // left side of log stack
-					// channel for 1 second
+				// try to pick up a log
+				let replaceTiles = map.setTilesAtLocation([
+					{tileNum: 93, replaceTo: 105, relativePosition: {x: 0, y: 0}},
+					{tileNum: 94, replaceTo: 105, relativePosition: {x: 1, y: 0}},
+				], {x:x, y:y});
+				if (replaceTiles !== false) {
+					// touching a log
 					Game.hero.channel(function () {
 						// give log item to player
 						if (Dom.inventory.give(Items.item[2], 1) !== false) { // check if player has enough inventory space
-							// replace tiles with grass
-							map.setTile(0, map.getCol(x), map.getRow(y), 105);
-							map.setTile(0, map.getCol(x + 60), map.getRow(y), 105);
+							// remove log from tilemap
+							replaceTiles();
 						}
 					}, [], 1000, "Retrieving Logs");
 				}
-				else if (tileNum === 94) { // right side of log stack
-					// channel for 1 second
-					Game.hero.channel(function () {
-						// give log item to player
-						if (Dom.inventory.give(Items.item[2], 1) !== false) { // check if player has enough inventory space
-							// replace tiles with grass
-							map.setTile(0, map.getCol(x), map.getRow(y), 105);
-							map.setTile(0, map.getCol(x - 60), map.getRow(y), 105);
-						}
-					}, [], 1000, "Retrieving Logs");
-				}
+
+				// TBD - change parameters to an object with x and y (please remind Jake)
+				// TBD - update snowball to use new system (same as above)
+
 				// pick up snowball from rock
 				else if (tileNum === 29 && Event.event === "Christmas") { // rock top centre
 					// channel for 1 second
@@ -2172,6 +2180,11 @@ var Areas = {
 			campfire3: {normal: "assets/objects/campfire3.png"},
 			torianTintop: {normal: "assets/npcs/torianTintop.png"},
 			nessyTintop: {normal: "assets/npcs/nessyTintop.png"},
+			marshallSheridanStatue: {normal: "assets/objects/woodcutterStatue.png"},
+			marshallSheridan: {samhain: "assets/enemies/marshallSheridan.png"},
+			marshallSheridanCorpse: {samhain: "assets/corpses/marshallSheridan.png"},
+			sawblade: {samhain: "assets/projectiles/sawblade.png"},
+			slashBlood: {samhain: "assets/projectiles/slashBlood.png"},
 		},
 
 		chestData: {
@@ -2187,6 +2200,42 @@ var Areas = {
 			tier: 1,
 			lootTableTemplate: [ChestLootTables.nilbog],
 			inventorySpace: 16,
+		},
+
+		callAreaJoinOnInit: true,
+
+		onAreaJoin: function () {
+			// samhain boss camera pans
+
+			let date = GetFullDate(); // yyyymmdd format
+
+			if (Player.quests.questProgress.samhainBossIntroducedNilbog !== date) {
+				// boss has not been introduced today
+
+				// find the boss
+				let boss = Game.enemies.find(enemy => enemy.hostility === "boss");
+
+				// make sure this isn't called again
+				Player.quests.questProgress.samhainBossIntroducedNilbog = date;
+
+				// pans differently based on the boss
+				switch (boss.name) {
+					case "Statue of Marshall Sheridan":
+						// pan to boss
+						Game.camera.pan(boss, 400, "accelerate", function () {
+							// function to be called 3s after pan is finished
+							// pan back to player
+							Game.camera.pan(Game.hero, 400, "accelerate", function () {
+								// reset camera
+								Game.camera.follow(Game.hero);
+							}, 0);
+						}, 2000);
+						break;
+
+					default:
+						console.error("Unknown boss:", boss.name);
+				}
+			}
 		},
 
 		areaTeleports: [
@@ -2288,8 +2337,8 @@ var Areas = {
 				},
 			},
 			{
-				x: 552,
-				y: 577,
+				x: 499,
+				y: 679,
 				image: "ghost",
 				name: "Samhain Ghost",
 				hostility: "friendly",
@@ -2300,15 +2349,16 @@ var Areas = {
 					dodgeChance: 40,
 					healthRegen: 30,
 				},
+				transparency: 0.7,
 				roles: [
 					{
 						sold: [
 							{item: Items.consumable[9], cost: 1, costCurrency: 4}, // samhain pot o' gloop
-							//{item: Items.consumable[10], cost: 2, costCurrency: 4}, // bunch of blood bats
-							{item: Items.chest[7], cost: 5, costCurrency: 4}, // ghost sheet
-							{item: Items.bow[7], cost: 15, costCurrency: 4}, // samhain spiderbow
-							{item: Items.sword[7], cost: 15, costCurrency: 4}, // samhain scythe
-							{item: Items.staff[8], cost: 15, costCurrency: 4}, // samhain broomstick
+							{item: Items.consumable[10], cost: 2, costCurrency: 4}, // bunch of blood bats
+							{item: Items.chest[7], cost: 10, costCurrency: 4}, // ghost sheet
+							Player.class === "a" ? {item: Items.bow[7], cost: 15, costCurrency: 4} // samhain spiderbow
+							: Player.class === "k" ? {item: Items.sword[7], cost: 15, costCurrency: 4} // samhain scythe
+							: {item: Items.staff[8], cost: 15, costCurrency: 4}, // samhain broomstick
 						],
 						role: "merchant",
 						chooseText: "I'd like to browse your Samhain event items.",
@@ -2321,7 +2371,7 @@ var Areas = {
 					tooPoor: "You cannot afford that. Kill more enemies.",
 				},
 				canBeShown: function () {
-					return Game.time === "bloodMoon";
+					return Event.time === "bloodMoon";
 				},
 			},
 
@@ -2433,6 +2483,16 @@ var Areas = {
 				x: 1037, // north west
 				y: 340,
 				template: EnemyTemplates.nilbog.goblinBruiser,
+			},
+			// samhain bosses
+			{
+				x: 1817,
+				y: 1310,
+				template: EnemyTemplates.nilbog.marshallSheridan,
+				canBeShown: function () {
+					//return Event.time === "bloodMoon";
+					return Event.event === "Samhain";
+				}
 			},
 		],
 
@@ -2553,6 +2613,19 @@ var Areas = {
 				imageDay: "goblinTorchDay",
 				imageNight: "goblinTorchNight",
 				name: "Eaglecrest Banner",
+			},
+		],
+
+		infoPoints: [
+			{
+				x: 1817,
+				y: 1310,
+				image: "marshallSheridanStatue",
+				name: "Statue of Marshall Sheridan",
+				onTouchChat: "A statue of Marshall Sheridan, the quest master of the Logging Camp before Antorax was formed.",
+				canBeShown: function () {
+					return Event.event !== "Samhain";
+				}
 			},
 		],
 
@@ -6522,7 +6595,8 @@ var Villagers = [
     },
 ];
 
-// sets a tile on the Map (specifyable area for if it is used in a setTimeout)
+// TBD - remove since this is redundant (map.setTile should be used instead)
+// sets a tile on the Map (area and main) (specifyable area for if it is used in a setTimeout)
 function SetTile (area, layer, col, row, newTileNum) {
 	let map = Areas[area].mapData;
 	map.layers[layer][row * map.cols + col] = newTileNum;

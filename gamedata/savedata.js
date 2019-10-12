@@ -25,7 +25,7 @@ var Player = {
 	unlockedTabs: [],
 	skippedTabs: [],
 
-	days: [], // days logged on (ddmmyyyy)
+	days: [], // days logged on (yyyymmdd)
 	metNPCs: ["Cart Driver"],
 
 	chatOnJoin: [],
@@ -36,8 +36,6 @@ var Player = {
 	},
 
 	bossesKilled: {
-        goblinKing: 0,
-		tatteredKnight: 0,
     },
 
 	mail: {

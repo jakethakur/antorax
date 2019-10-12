@@ -18,7 +18,7 @@ var Adventure = {
 	samhain: {
 		html: `<div id="samhainAL" class="adventure">
 			Samhain Event<br>
-			<span class="adventureContent">Kill stronger enemies during a blood moon and buy limited edition items.</span>
+			<span class="adventureContent">Kill stronger enemies and special bosses during a blood moon to buy limited edition items.</span>
 		</div>`,
 		condition: function () {
 			return Event.event === "Samhain";
@@ -77,7 +77,7 @@ var Adventure = {
 			}
 		},
 	},
-	
+
 	tavernJobs: {
 		html: `<div id="tavernAL" class="adventure">
 			Tavern Jobs<br>
@@ -87,7 +87,7 @@ var Adventure = {
 			return Player.quests.completedQuestArray.includes("To the Logging Camp");
 		},
 	},
-	
+
 	instructions: {
 		html: `<div id="instructionsAL" class="adventure">
 			<span id="instructionsTitle" style="cursor: pointer;" onclick="Dom.instructions.index();"><u>Instructions</u></span><br>

@@ -771,7 +771,40 @@ var map = {
 			}
 
 		}
-	}
+	},
+
+	// replaces a tile or group of tiles - these tiles should all be distinct (e.g. 6 different tiles make up a rock)
+	//
+	// tileData is an array of objects, with each object containing the following:
+	// tileNum: integer specifying the tile that should be replaced
+	// replaceTo: integer specifying the tile that it should be replaced to (same is tileNum if not replaced)
+	// relativePosition: object containing x and y, where the top left tile being replaced is x:0, y:0, and one unit of x/y is one row/col
+	//
+	// location is an object containing x and y properties of the location that it should be checked to see if tiles can be replaced
+	//
+	// either returns false if no tiles were replaced, or a function that can be called to replace the tiles
+	setTilesAtLocation: function (tileData, location) {
+		let locationCol = map.getCol(location.x);
+		let locationRow = map.getRow(location.y);
+		let tileAtLocation = map.getTile(0, locationCol, locationRow);
+
+		let touchingTile = tileData.find(tile => tile.tileNum === tileAtLocation);
+
+		if (touchingTile !== undefined) {
+			// touching a tile, tiles should be replaced
+			return function () {
+				let origin = touchingTile.relativePosition;
+
+				for (let i = 0; i < tileData.length; i++) {
+					let relativeCol = tileData[i].relativePosition.x - origin.x;
+					let relativeRow = tileData[i].relativePosition.y - origin.y;
+
+					map.setTile(0, locationCol + relativeCol, locationRow + relativeRow, tileData[i].replaceTo);
+				}
+			}
+		}
+		return false;
+	},
 };
 
 //
@@ -885,10 +918,12 @@ Game.closest = function (objArray, mainObj) {
 	return undefined;
 }
 
-// check if obj1's x and y are within 10 pixels of obj2's
+// check if obj1's x and y are within 20 pixels of obj2's
 // obj1 and obj2 should have x and y properties
 Game.isAtLocation = function (obj1, obj2) {
-	if (Math.round(obj1.x / 10) === Math.round(obj2.x / 10) && Math.round(obj1.y / 10) === Math.round(obj2.y / 10)) {
+	if (obj1 !== undefined && obj2 !== undefined
+	&& Math.round(obj1.x / 20) === Math.round(obj2.x / 20)
+	&& Math.round(obj1.y / 20) === Math.round(obj2.y / 20)) {
 		return true;
 	}
 	return false;
@@ -997,7 +1032,40 @@ class Entity {
 		return touchingArray;
 	}
 
-	// get top, bottom, left, and right positions in pixels
+	// checks which directions (if any) this is colliding with object
+	// movex and movey are the most recent movements in the x and y directions
+	// returns an object with x and y properties, set to true/false depending on if there is a collision in that direction with the player's current movement direction
+	// tbd reduce code duplication
+	isColliding (object, movex, movey) {
+		// directions that are being collided in
+		let collisionDirections = {
+			x: false,
+			y: false
+		};
+
+		// test for collision in x
+		this.y -= movey;
+		if (this.isTouching(object)) {
+			// still touching object (with just x movement)
+			collisionDirections.x = true;
+		}
+
+		// test for collision in y
+		this.y += movey;
+		this.x -= movex;
+		if (this.isTouching(object)) {
+			// still touching object (with just y movement)
+			collisionDirections.y = true;
+		}
+
+		// undo temporary position change
+		this.x += movex;
+
+		return collisionDirections;
+	}
+
+	// get top, bottom, left, and right coordinates
+	// also midpoint (midX, midY) coordinates
 	// based on x and y (not screenX and screenY)
 	getBoundaries () {
 		let boundaries = {
@@ -1006,7 +1074,65 @@ class Entity {
 			top: this.y - this.height / 2,
 			bottom: this.y + this.height / 2,
 		};
+		boundaries.midX = (boundaries.left + boundaries.right) / 2;
+		boundaries.midY = (boundaries.top + boundaries.bottom) / 2;
 		return boundaries;
+	}
+
+	// returns an array of objects of solid tiles being touched
+	// the objects have properties x, y, width (60), height (60)
+	// note that, depending on the size of 'this', two of the same tile might be returned (tbd fix this)
+	getTouchingSolidTiles () {
+		let boundaries = this.getBoundaries();
+
+		let touchingSolidTiles = [];
+
+		if (this.map.isSolidTileAtXY(boundaries.left, boundaries.top)) {
+			// tile at top left
+			touchingSolidTiles.push({
+				// find col/row, multiply by 60, then subtract sideLength/2
+				x: (Math.floor(boundaries.left/60))*60+30,
+				y: (Math.floor(boundaries.top/60))*60+30,
+				width: 60,
+				height: 60
+			});
+		}
+		if (this.map.isSolidTileAtXY(boundaries.right, boundaries.top)) {
+			// tile at top right
+			touchingSolidTiles.push({
+				x: (Math.floor(boundaries.right/60))*60+30,
+				y: (Math.floor(boundaries.top/60))*60+30,
+				width: 60,
+				height: 60
+			});
+		}
+		if (this.map.isSolidTileAtXY(boundaries.left, boundaries.bottom)) {
+			// tile at bottom left
+			touchingSolidTiles.push({
+				x: (Math.floor(boundaries.left/60))*60+30,
+				y: (Math.floor(boundaries.bottom/60))*60+30,
+				width: 60,
+				height: 60
+			});
+		}
+		if (this.map.isSolidTileAtXY(boundaries.right, boundaries.bottom)) {
+			// tile at bottom right
+			touchingSolidTiles.push({
+				x: (Math.floor(boundaries.right/60))*60+30,
+				y: (Math.floor(boundaries.bottom/60))*60+30,
+				width: 60,
+				height: 60
+			});
+		}
+
+		return touchingSolidTiles;
+	}
+
+	isOnMap () {
+		if (this.x < 0 || this.x > map.rows*60 || this.y < 0 || this.y > map.cols*60) {
+			return false;
+		}
+		return true;
 	}
 }
 
@@ -1066,6 +1192,8 @@ class Thing extends Entity {
 		this.name = properties.name;
 
 		this.bright = properties.bright; // currently does nothing
+
+		this.transparency = properties.transparency; // global alpha that it should be drawn with (1 = opaque, 0 = transparent)
 
 		if (properties.animationFrameTime !== undefined) {
 			// animation (tick is every 250s)
@@ -1206,6 +1334,8 @@ class Character extends Thing {
 
 		this.health = properties.health || properties.stats.maxHealth;
 		this.damageTaken = 0; // only used so far for Dummies
+		this.damageTakenFromHero = false; // boolean - used to decide if hero should get progress from the character dying
+
 		this.speed = properties.stats.walkSpeed || 0;
 
 		this.level = properties.level;
@@ -1244,6 +1374,13 @@ class Character extends Thing {
 		this.stats.reflection = properties.stats.reflection || 0;
 		this.stats.stealthed = properties.stats.stealthed || false; // can't be seen
 		this.stats.frostaura = properties.stats.frostaura || false;
+
+		// blood moon modifiers
+		if (Event.time === "bloodMoon") {
+			// respawn faster
+			this.stats.lootTime /= 2;
+			this.stats.respawnTime /= 2;
+		}
 
 		// array items that can damage the character (empty = any can)
 		// array should contain item names
@@ -1382,7 +1519,7 @@ class Character extends Thing {
 
 		// call onExpire
 		// only called if the status effect has run out of time, or if onExpire is called on any remove
-		if (statusEffect.onExpire !== undefined && (statusEffect.info.ticks >= statusEffects.time || statusEffects.callExpireOnRemove)) {
+		if (statusEffect.onExpire !== undefined && (statusEffect.info.ticks >= statusEffect.time || statusEffect.callExpireOnRemove)) {
 			statusEffect.onExpire(this);
 		}
 
@@ -1405,9 +1542,15 @@ class Character extends Thing {
 	}
 
 	// take damage
-	takeDamage (damage) {
+	// damagedByHero is true or false depending on whether it was damaged by the hero
+	takeDamage (damage, damagedByHero) {
 		this.health -= damage;
 		this.damageTaken += damage;
+
+		// used to decide if hero should get xp etc
+		if (damagedByHero) {
+			this.damageTakenFromHero = true;
+		}
 
 		// check for death
 		if (this !== Game.hero) {
@@ -1421,20 +1564,21 @@ class Character extends Thing {
 
 				// xp
 				if (!inMinigame && this.xpGiven !== undefined) {
-					Game.getXP(this.xpGiven / Player.level);
+					let xpReceived = (this.xpGiven / Player.level);
+					Game.getXP(xpReceived);
 				}
 
 				// wipe status effects and their tick timeouts
 				this.removeAllStatusEffects();
 
 				// on kill function (of weapon)
-				if (Player.inventory.weapon.onKill !== undefined && !inMinigame) {
+				if (Player.inventory.weapon.onKill !== undefined && !inMinigame && this.damageTakenFromHero) {
 					Player.inventory.weapon.onKill();
 				}
 
 				// on death function (of enemy)
 				// might also contain quest progress
-				if (this.onDeath !== undefined && !inMinigame) {
+				if (this.onDeath !== undefined && !inMinigame && this.damageTakenFromHero) {
 					this.onDeath();
 				}
 
@@ -1491,12 +1635,12 @@ class Character extends Thing {
 				//
 
 				// enemies killed achievement
-				if ((this.hostility === "hostile" || this.hostility === "boss") && !inMinigame) {
+				if ((this.hostility === "hostile" || this.hostility === "boss") && !inMinigame && this.damageTakenFromHero) {
 					User.progress.enemies = Increment(User.progress.enemies);
 				}
 
 				// weapon chat message (some weapons have a chat message for when they kill something!)
-				if (Player.inventory.weapon.chat !== undefined && Player.inventory.weapon.chat.kill !== undefined) {
+				if (Player.inventory.weapon.chat !== undefined && Player.inventory.weapon.chat.kill !== undefined && this.damageTakenFromHero) {
 					Dom.chat.insert(Dom.chat.say(Player.inventory.weapon.name, Player.inventory.weapon.chat.kill));
 				}
 
@@ -2067,22 +2211,48 @@ class Attacker extends Character {
 	collide (dirx, diry, delta) {
 		let row, col;
 
+		let collision = false; // whether a collision has occured
+
+		// whether a movement is possible in x/y direction without walking into whatever is being collided with
+		// (only used if collisiion is actually true!)
+		let possibleMovements = {
+			x: true,
+			y: true,
+		}
+
 		// update foot hitbox position
 		this.updateFootHitbox();
-		let boundaries = this.footHitbox.getBoundaries();
 
-		// check for collisions on sprite sides
-		let collision =
-			this.map.isSolidTileAtXY(boundaries.left, boundaries.top) ||
-			this.map.isSolidTileAtXY(boundaries.right, boundaries.top) ||
-			this.map.isSolidTileAtXY(boundaries.right, boundaries.bottom) ||
-			this.map.isSolidTileAtXY(boundaries.left, boundaries.bottom);
+		// check collisions with tiles
+		let touchingSolidTiles = this.footHitbox.getTouchingSolidTiles();
+		if (touchingSolidTiles.length > 0) {
+			collision = true;
+			for (let i = 0; i < touchingSolidTiles.length; i++) {
+				// find which directions it is touching the collision in
+				let colliding = this.footHitbox.isColliding(touchingSolidTiles[i], this.speed*delta*dirx, this.speed*delta*diry);
+				if (colliding.x) {
+					possibleMovements.x = false;
+				}
+				if (colliding.y) {
+					possibleMovements.y = false;
+				}
+			}
+		}
 
 		// check collision with collisions - invisible entities that cannot be passed
 		for (let i = 0; i < Game.collisions.length; i++) {
 			// check if the player's feet are touching the collision
 			if (this.footHitbox.isTouching(Game.collisions[i])) {
 				collision = true;
+
+				// find which directions it is touching the collision in
+				let colliding = this.footHitbox.isColliding(Game.collisions[i], this.speed*delta*dirx, this.speed*delta*diry);
+				if (colliding.x) {
+					possibleMovements.x = false;
+				}
+				if (colliding.y) {
+					possibleMovements.y = false;
+				}
 			}
 		}
 
@@ -2091,6 +2261,7 @@ class Attacker extends Character {
 			return collision;
 		}
 
+		// undo movement
 		if (diry > 0) {
 			this.y -= this.speed * delta * diry;
 		}
@@ -2103,6 +2274,17 @@ class Attacker extends Character {
 		else if (dirx < 0) {
 			this.x += this.speed * delta * Math.abs(dirx);
 		}
+
+		// try moving in a different direction instead
+		if (possibleMovements.x && dirx !== 0) {
+			// can still move in x axis - move completely in direction that was being moved (dirx value is changed to 1 or -1)
+			this.x += this.speed * delta * (dirx/Math.abs(dirx));
+		}
+		else if (possibleMovements.y && diry !== 0) {
+			// can still move in y axis - move completely in direction that was being moved (diry value is changed to 1 or -1)
+			this.y += this.speed * delta * (diry/Math.abs(diry));
+		}
+		// neither of these might be possible, in which case the character will not move at all
 
 		return collision;
 	}
@@ -2350,7 +2532,7 @@ class Hero extends Attacker {
 		}
 
 		// check if we walked into a non-walkable tile
-		if (Game.hero.moveTowards === undefined) { // hero should only collide if controlled by player
+		if (this.moveTowards === undefined) { // hero should only collide if controlled by player
 			this.collide(dirx, diry, delta);
 		}
 		else {
@@ -3081,11 +3263,14 @@ class Projectile extends Thing {
 			statusEffects: [],
 		};
 		this.targets = properties.targets; // array of arrays of objects to dela damage to
+		this.exceptTargets = properties.exceptTargets || []; // array of objects that would also be included in targets, but should not be damaged
 
 		this.variance = properties.variance || 0; // diameter of circle that it could fall into
 		this.minimumVariance = properties.minimumVariance || 0; // minimum diameter of circle that it could fall into (after channelling)
 
 		this.rotate = properties.rotate || 0;
+
+		this.doNotRotate = properties.doNotRotate; // set to true if projectile should not be automatically rotated
 
 		this.beingChannelled = properties.beingChannelled || false;
 
@@ -3122,8 +3307,8 @@ class Projectile extends Thing {
 
 		// alternatively...
 		// direction the projectile should move towards
-		// input should be in degrees, works in samme  fashion to unit circle (anticlockwise from east)
-		this.moveDirection = ToRadians(properties.moveDirection);
+		// input should be in radians, works in samme  fashion to unit circle (anticlockwise from east)
+		this.moveDirection = properties.moveDirection;
 
 		// speed is multiplied by delta like other speeds
 		this.moveSpeed = properties.moveSpeed;
@@ -3149,33 +3334,39 @@ class Projectile extends Thing {
 			// the following loop is iterated through backwards so that, if there is no penetration, the top enemy is hit not bottom
 			for (let x = to[i].length-1; x >= 0 && !endLoops; x--) { // iterate through objects in to
 
-				if (this.isTouching(to[i][x]) && !to[i][x].respawning) { // check projectile is touching character it wants to damage
+				let target = to[i][x];
+
+				// if target has already been damaged by this projectile
+				let targetAlreadyDamaged = this.damageDealt.find(damage => damage.enemy.id === target.id);
+
+				// check projectile is touching character it wants to damage, and that target should be damaged
+				if (this.isTouching(target) && !target.respawning && targetAlreadyDamaged === undefined && !this.exceptTargets.includes(target)) {
 
 					let canBeDamaged = true;
 
 					// check if the target can be damaged
 
-					if (to[i][x].canBeDamagedBy.length > 0 && attacker.constructor.name === "Hero") {
+					if (target.canBeDamagedBy.length > 0 && attacker.constructor.name === "Hero") {
 						// can only be damaged by certain weapons
 						canBeDamaged = false;
-						for (let a = 0; a < to[i][x].canBeDamagedBy.length; a++) {
-							if (Player.inventory.weapon.name === to[i][x].canBeDamagedBy[a]) {
+						for (let a = 0; a < target.canBeDamagedBy.length; a++) {
+							if (Player.inventory.weapon.name === target.canBeDamagedBy[a]) {
 								canBeDamaged = true;
 								break;
 							}
 						}
 					}
 
-					if (Random(0, 99) < to[i][x].stats.dodgeChance) {
+					if (Random(0, 99) < target.stats.dodgeChance) {
 						// hit dodged
-						this.damageDealt.push({enemy: to[i][x], damage: "hit dodged", critical: false});
+						this.damageDealt.push({enemy: target, damage: "hit dodged", critical: false});
 						canBeDamaged = false;
 					}
 
 					if (canBeDamaged) { // damage
 						let blockDefence = 0;
-						if (to[i][x].channelling === "block") { // add block defence if the target is blocking
-							blockDefence = to[i][x].stats.blockDefence;
+						if (target.channelling === "block") { // add block defence if the target is blocking
+							blockDefence = target.stats.blockDefence;
 						}
 
 						let attackerDamage = attacker.stats.damage;
@@ -3197,16 +3388,10 @@ class Projectile extends Thing {
 							attackerDamage += c;
 						}
 
-						// blood moon - enemies deal more damage
-						if (Event.time === "bloodMoon" &&
-						(attacker.hostility === "hostile" || attacker.hostility === "boss")) {
-							attackerDamage *= 3;
-						}
-
-						let targetDefence = to[i][x].stats.defence + blockDefence; // calculate target defence
+						let targetDefence = target.stats.defence + blockDefence; // calculate target defence
 
 						// defence status effect
-						to[i][x].statusEffects.forEach(statusEffect => {
+						target.statusEffects.forEach(statusEffect => {
 							if (statusEffect.info.defenceIncrease !== undefined) {
 								// increase defence if the status effect does so
 								// check what the attacker's species is (or that status effect is not geared towards a certain subspecies)
@@ -3240,16 +3425,16 @@ class Projectile extends Thing {
 						}
 
 						// deal the damage!
-						to[i][x].takeDamage(dmgDealt);
-						this.damageDealt.push({enemy: to[i][x], damage: dmgDealt, critical: critical});
+						target.takeDamage(dmgDealt, attacker.constructor.name === "Hero");
+						this.damageDealt.push({enemy: target, damage: dmgDealt, critical: critical});
 
 						// check they still exist
 						// they might not if they don't respawn on death and have just been killed
-						if (to[i][x] !== undefined) {
+						if (target !== undefined) {
 							// poison
 							if (attacker.stats.poisonX > 0 && attacker.stats.poisonY > 0) { // check if target weapon has poison
 								Game.statusEffects.poison({
-									target: to[i][x],
+									target: target,
 									poisonDamage: attacker.stats.poisonX,
 									time: attacker.stats.poisonY,
 								});
@@ -3258,50 +3443,50 @@ class Projectile extends Thing {
 							// flaming
 							if (attacker.stats.flaming > 0) { // check if target weapon has flaming
 								Game.statusEffects.fire({
-									target: to[i][x],
+									target: target,
 									tier: attacker.stats.flaming,
 								});
 							}
 
 							// reflection
-							if (to[i][x].stats.reflection > 0) { // check if target has reflection
-								attacker.takeDamage(dmgDealt * (to[i][x].stats.reflection / 100))
+							if (target.stats.reflection > 0) { // check if target has reflection
+								attacker.takeDamage(dmgDealt * (target.stats.reflection / 100), target.constructor.name === "Hero");
 							}
 
 							// stun
 							if (attacker.stats.stun > 0) { // check if target weapon has stun
-								Game.statusEffects.stun({target: to[i][x], time: attacker.stats.stun});
+								Game.statusEffects.stun({target: target, time: attacker.stats.stun});
 							}
 
 							// hex
 							if (Random(0, 99) < attacker.stats.hex) { // check if target weapon has hex
-								Game.statusEffects.hex({target: to[i][x]});
+								Game.statusEffects.hex({target: target});
 							}
 
 							// spread any curse status effects
-							Game.spreadCurse(attacker, to[i][x])
+							Game.spreadCurse(attacker, target)
 
 							// re-render the second canvas if the hero has been damaged
-							if (to[i][x].constructor.name === "Hero") {
+							if (target.constructor.name === "Hero") {
 								Game.secondary.render();
 							}
 
 							// chat relating to being damaged (and dealing damage? TBD)
-							if (typeof to[i][x].chat !== "undefined") { // check the character has been given text to say about being damaged
-								if (to[i][x].health < to[i][x].stats.maxHealth / 10 && typeof to[i][x].chat.tenPercentHealth !== "undefined") { // 10% health chat message
-									to[i][x].say(to[i][x].chat.tenPercentHealth, 0, true);
+							if (typeof target.chat !== "undefined") { // check the character has been given text to say about being damaged
+								if (target.health < target.stats.maxHealth / 10 && typeof target.chat.tenPercentHealth !== "undefined") { // 10% health chat message
+									target.say(target.chat.tenPercentHealth, 0, true);
 								}
-								else if (to[i][x].health < to[i][x].stats.maxHealth / 2 && typeof to[i][x].chat.fiftyPercentHealth !== "undefined") { // 50% health chat message
-									to[i][x].say(to[i][x].chat.fiftyPercentHealth, 0, true);
+								else if (target.health < target.stats.maxHealth / 2 && typeof target.chat.fiftyPercentHealth !== "undefined") { // 50% health chat message
+									target.say(target.chat.fiftyPercentHealth, 0, true);
 								}
-								else if (to[i][x].health < to[i][x].stats.maxHealth && typeof to[i][x].chat.firstDamaged !== "undefined") { // first damaged chat message
-									to[i][x].say(to[i][x].chat.firstDamaged, 0, true);
+								else if (target.health < target.stats.maxHealth && typeof target.chat.firstDamaged !== "undefined") { // first damaged chat message
+									target.say(target.chat.firstDamaged, 0, true);
 								}
 							}
 							// remove target's stealth
-							if (to[i][x].stats.stealthed) {
-								to[i][x].stats.stealthed = false;
-								Game.removeStealthEffects(to[i][x]);
+							if (target.stats.stealthed) {
+								target.stats.stealthed = false;
+								Game.removeStealthEffects(target);
 							}
 						}
 
@@ -3318,14 +3503,14 @@ class Projectile extends Thing {
 						});
 						// do lifesteal stuff
 						if (lifestealPercentage > 0) {
-							Game.restoreHealth(attacker, dmgDealt * (attacker.stats.lifesteal / 100));
+							Game.restoreHealth(attacker, dmgDealt * (attacker.stats.lifesteal / 100), "lifesteal");
 						}
 
 						// onHit function
 						// perhaps make work for other non-weapon things in the future? (TBD)
 						// there should be a good system for this - maybe a list of functions called on attack or something, handled by Game.inventoryUpdate
 						if (attacker.constructor.name === "Hero" && Player.inventory.weapon.onHit !== undefined) {
-							Player.inventory.weapon.onHit(to[i][x]);
+							Player.inventory.weapon.onHit(target);
 						}
 
 						// remove attacker's stealth
@@ -3334,7 +3519,7 @@ class Projectile extends Thing {
 							Game.removeStealthEffects(attacker);
 						}
 
-						if (to[i][x].constructor.name === "Hero" || attacker.constructor.name === "Hero") {
+						if (target.constructor.name === "Hero" || attacker.constructor.name === "Hero") {
 							// remove any food status effects (hero is in combat)
 							for (let i = 0; i < Game.hero.statusEffects.length; i++) {
 								if (Game.hero.statusEffects[i].image === "food") {
@@ -3662,6 +3847,18 @@ class Enemy extends Attacker {
 		// boss stuff
 		if (this.hostility === "boss") {
 			this.bossKilledVariable = properties.bossKilledVariable; // set to date killed to check it hasn't been killed today
+			// set the variable if it has not been set before
+			if (Player.bossesKilled[this.bossKilledVariable] === undefined) {
+				Player.bossesKilled[this.bossKilledVariable] = 0;
+			}
+		}
+
+		// behaviour functions
+		// used for special behaviour in update()
+		// note the scope of these functions is the behaviour object
+		if (properties.behaviour !== undefined) {
+			this.behaviourMain = properties.behaviour.main; // to be run before movement/attacking
+			this.behaviourMovement = properties.behaviour.movement; // to be run before movement/attacking
 		}
 	}
 
@@ -3686,55 +3883,81 @@ class Enemy extends Attacker {
 			if (this.channelling === false) {
 				// stuff should only be done if it does not cancel something that is being channelled
 
-				let dist = Game.distance(this, Game.hero);
+				// run function for special behaviour if one exists
+				// if it exists and returns false, none of the normal behaviour will be run
+				if (this.behaviourMain === undefined || this.behaviourMain()) {
 
-				// find a spell that is not on cooldown and can be cast
-				// TBD enemy mana
-				let spellIndex = -1;
-				if (this.spells.length !== 0) {
-					// enemy has some spells
-					spellIndex = this.spells.findIndex(spell => spell.ready &&
-						(spell.castCondition === undefined || spell.castCondition()));
-				}
+					// what the boss should move towards IF it moves
+					let moveTowards = Game.hero;
 
-				if (spellIndex !== -1) {
-					// a spell has been found that can be cast
-					let spell = this.spells[spellIndex];
-					// no longer ready
-					spell.ready = false;
-					// cast the spell
-					this.channelSpell(spell.name, spell.tier, spell.parameters());
-					// spell interval (how often it is cast by enemy)
-					setTimeout(function (spellIndex) {
-						this.spells[spellIndex].ready = true;
-					}.bind(this), spell.interval, spellIndex);
-				}
-
-				else if (dist < this.stats.range && // hero is within range
-				(!Game.hero.stats.stealthed || this.isTouching(Game.hero))) { // hero is not stealthed OR they are and you are touching them
-					// enemy should attack hero
-					// canAttack is inside if statement because otherwise the enemy moves when it is in range but cannot attack
-					if (this.canAttack) { // projectile can be shot
-						this.shoot([[Game.hero],]);
+					// run function for special movement behaviour if one exists
+					// if it exists and returns false, default will occur (move towards hero)
+					if (this.behaviourMovement !== undefined) {
+						moveTowards = this.behaviourMovement() || Game.hero;
 					}
-					// alwaysMove stat means that it always moves even when in range
-					else if (this.stats.alwaysMove &&
-					dist > 20 && // stop any stuttering on top of hero
-					dist < this.leashRadius) { // not outside of leashRadius from hero
-					!Game.hero.stats.stealthed && // hero is not stealthed
-						this.move(delta, Game.hero);
+
+
+					let heroDist = Game.distance(this, Game.hero);
+
+					// find a spell that is not on cooldown and can be cast
+					// TBD enemy mana
+					let spellIndex = -1;
+					if (this.spells.length !== 0) {
+						// enemy has some spells
+						spellIndex = this.spells.findIndex(spell => spell.ready &&
+							(spell.castCondition === undefined || spell.castCondition(this)));
 					}
-				}
 
-				else if (dist > this.leashRadius) { // enemy should move passively
-					// passive movement within given (to be given...) boundaries...
-				}
+					if (spellIndex !== -1) {
+						// a spell has been found that can be cast
+						let spell = this.spells[spellIndex];
+						// no longer ready
+						spell.ready = false;
+						// cast the spell
+						this.channelSpell(spell.name, spell.tier, spell.parameters());
+						// spell interval (how often it is cast by enemy)
+						setTimeout(function (spellIndex) {
+							this.spells[spellIndex].ready = true;
+						}.bind(this), spell.interval, spellIndex);
+					}
 
-				else if (dist < this.leashRadius && // not outside of leashRadius from hero
-				dist > this.stats.range && // can't yet attack hero
-				!Game.hero.stats.stealthed) { // hero is not stealthed
-					// enemy should move towards hero
-					this.move(delta, Game.hero);
+					else if (heroDist < this.stats.range && // hero is within range
+					(!Game.hero.stats.stealthed || this.isTouching(Game.hero))) { // hero is not stealthed OR they are and you are touching them
+
+						// enemy should attack hero
+						// canAttack is inside if statement because otherwise the enemy moves when it is in range but cannot attack
+						if (this.canAttack) { // projectile can be shot
+							this.shoot([[Game.hero],]);
+						}
+
+						// alwaysMove stat means that it always moves even when in range
+
+						else if (this.stats.alwaysMove &&
+						moveTowards.constructor.name === "Hero" && // moving towards hero
+						heroDist > 20 && // stop any stuttering on top of hero
+						!Game.hero.stats.stealthed && // hero is not stealthed
+						heroDist < this.leashRadius) { // not outside of leashRadius from hero
+							this.move(delta, moveTowards);
+						}
+
+						else if (this.stats.alwaysMove &&
+						moveTowards.constructor.name !== "Hero" && // moving towards sommething other than hero (due to special movement behaviour)
+						heroDist < this.leashRadius) { // not outside of leashRadius from hero
+							this.move(delta, moveTowards);
+						}
+					}
+
+					else if (heroDist >= this.leashRadius) { // enemy should move passively
+						// passive movement within given (to be given...) boundaries...
+						// behaviour.movement location (if there is one) is not used
+					}
+
+					// hero is not stealthed (or special movement behaviour is being used)
+					else if (!Game.hero.stats.stealthed || moveTowards.constructor.name !== "Hero") {
+						// enemy should move towards moveTowards
+						this.move(delta, moveTowards);
+					}
+
 				}
 
 			}
@@ -3988,52 +4211,147 @@ class Camera extends Entity {
 	}
 
 	follow (sprite) {
+		// stop panning (if camera was panning)
+		this.panTowards = undefined;
+
 	    this.following = sprite;
 	    sprite.screenX = 0;
 	    sprite.screenY = 0;
 	}
 
+	// pan towards a location
+	// towards should be an object with an x and y value (could be a charatcer)
+	// towards is where you want the centre of the camera to be when it finishes
+	// movementType should either be "constant" (default) or "accelerate" based on how the camera's speed should vary
+	// for "accelerate" movementType, speed is the average speed used
+	// afterPanFunction and afterPanTime are optional for a function to be called a set time after the location is reached (e.g. to make it follow player again)
+	pan (towards, speed, movementType, afterPanFunction, afterPanTime) {
+		// stop following a character (if one was being followed)
+		this.following = undefined;
+
+		this.panTowards = towards; // clamped and changed to camera top left in update (so it can act dynamically on user positions)
+
+		this.panSpeed = speed;
+		this.panMovementType = movementType || "constant";
+
+		if (this.panMovementType === "accelerate") {
+			let panTowards = this.generateCameraPosition(this.panTowards);
+
+			this.panMidpoint = {x: (panTowards.x+this.x)/2, y: (panTowards.y+this.y)/2}; // location of highest speed
+			this.panDistanceTotal = Game.distance(this, panTowards); // for calculating proportion of distance travelled
+		}
+
+		this.afterPanFunction = afterPanFunction;
+		this.afterPanTime = afterPanTime;
+	}
+
 	// called on loadArea or hero move
 	// parameter init is set to true if this is being called on area change
-	update (init) {
-	    // assume followed sprite should be placed at the center of the screen whenever possible
-	    this.following.screenX = this.width / 2 + Game.viewportOffsetX;
-	    this.following.screenY = this.height / 2 + Game.viewportOffsetY;
+	update (delta, init) {
+		if (this.following !== undefined || this.panTowards !== undefined) {
+			// a reason to move
 
-		// distance moved by camera in both directions (for weather to be moved by)
-		// calculated by difference in old x/y and new x/y
-		let movedX = this.x;
-		let movedY = this.y;
+			// so that movedX and movedY can be calculated with new x and y positions of camera
+			let oldX = this.x;
+			let oldY = this.y;
 
-	    // make the camera follow the sprite
-	    this.x = this.following.x - this.width / 2;
-	    this.y = this.following.y - this.height / 2;
-	    // clamp values between 0 and maxX/Y
-	    this.x = Math.max(0, Math.min(this.x, this.maxX));
-	    this.y = Math.max(0, Math.min(this.y, this.maxY));
+			if (this.following !== undefined) {
+				// camera is following a sprite
 
-	    // in map corners, the sprite cannot be placed in the center of the screen and we have to change its screen coordinates
+			    // assume followed sprite should be placed at the center of the screen whenever possible
+			    this.following.screenX = this.width / 2 + Game.viewportOffsetX;
+			    this.following.screenY = this.height / 2 + Game.viewportOffsetY;
 
-	    // left and right sides
-	    if (this.following.x < this.width / 2 ||
-	        this.following.x > this.maxX + this.width / 2) {
-	        this.following.screenX = this.following.x - this.x + Game.viewportOffsetX;
-	    }
-	    // top and bottom sides
-	    if (this.following.y < this.height / 2 ||
-	        this.following.y > this.maxY + this.height / 2) {
-	        this.following.screenY = this.following.y - this.y + Game.viewportOffsetY;
-	    }
+			    // make the camera follow the sprite
+			    this.x = this.following.x - this.width / 2;
+			    this.y = this.following.y - this.height / 2;
+			}
 
-		// movedX and movedY are the old position values
-		movedX = this.x - movedX;
-		movedY = this.y - movedY;
-		// move weather!
-		if (document.getElementById("weatherOn").checked && !Areas[Game.areaName].indoors) {
-			if (Weather.particleArray.length > 0 && init !== true) {
-				Weather.heroMove(movedX, movedY);
+			else if (this.panTowards !== undefined) {
+				// camera is not following a particular sprite (rather is panning towards a particular location)
+
+				// change panTowards to be top left of camera instead of centre (since this is what camera x and y uses), and clamp values
+				let panTowards = this.generateCameraPosition(this.panTowards);
+
+				if (!Game.isAtLocation(this, panTowards)) {
+
+					// not reached pan location yet
+					let panBearing = Game.bearing(this, panTowards);
+
+					// check what speed the camera should be moving at
+					let speed = this.panSpeed;
+					if (this.panMovementType === "accelerate") {
+						// speed should vary based on distance to location (fastest at midpoint)
+						let panDistance = Game.distance(this, this.panMidpoint);
+						let distanceFraction = panDistance / (this.panDistanceTotal/2);
+						speed *= 0.5 + (1-distanceFraction);
+					}
+
+					// move camera
+				    this.x += Math.cos(panBearing) * speed * delta;
+				    this.y += Math.sin(panBearing) * speed * delta;
+				}
+
+				else {
+					// reached pan location, stay at this location until told to do otherwise
+					this.panTowards = undefined;
+
+					// function to be called after a certain time period (optional)
+					if (this.afterPanFunction !== undefined) {
+						setTimeout(this.afterPanFunction, this.afterPanTime);
+					}
+
+					// other variables are reset anyway next time this.pan() is called
+				}
+			}
+
+		    // clamp values between 0 and maxX/Y
+		    this.x = Math.max(0, Math.min(this.x, this.maxX));
+		    this.y = Math.max(0, Math.min(this.y, this.maxY));
+
+			if (this.following !== undefined) {
+			    // in map corners, the sprite cannot be placed in the center of the screen and we have to change its screen coordinates
+
+			    // left and right sides
+			    if (this.following.x < this.width / 2 ||
+			        this.following.x > this.maxX + this.width / 2) {
+			        this.following.screenX = this.following.x - this.x + Game.viewportOffsetX;
+			    }
+			    // top and bottom sides
+			    if (this.following.y < this.height / 2 ||
+			        this.following.y > this.maxY + this.height / 2) {
+			        this.following.screenY = this.following.y - this.y + Game.viewportOffsetY;
+			    }
+			}
+
+			// distance moved by camera in both directions (for weather to be moved by)
+			// calculated by difference in old x/y and new x/y
+			let movedX = this.x - oldX;
+			let movedY = this.y - oldY;
+
+			// move weather!
+			if (document.getElementById("weatherOn").checked && !Areas[Game.areaName].indoors) {
+				if (Weather.particleArray.length > 0 && init !== true) {
+					Weather.heroMove(movedX, movedY);
+				}
 			}
 		}
+	}
+
+	// from the coordinates that the camera should go to (e.g. centre of an entity), convert it to a positoin that is compatible with the camera
+	// position is an object that contains an x and y property
+	generateCameraPosition (position) {
+		// change values to be top left of camera instead of centre (since this is what camera x and y uses)
+		let cameraPosition = {
+			x: position.x - this.width/2,
+			y: position.y - this.height/2
+		};
+
+		// clamp values
+		cameraPosition.x = Math.max(0, Math.min(cameraPosition.x, this.maxX));
+		cameraPosition.y = Math.max(0, Math.min(cameraPosition.y, this.maxY));
+
+		return cameraPosition;
 	}
 
 	// check if object is displayed on the screen
@@ -4213,7 +4531,7 @@ Game.statusEffects.functions = {
 
 	// food onTick
 	foodTick: function (owner) {
-		Game.restoreHealth(owner, Round(this.info.healthRestore / this.info.time, 1)); // 1dp
+		Game.restoreHealth(owner, Round(this.info.healthRestore / this.info.time, 1), "food"); // 1dp
 	},
 
 	// stealth onExpire
@@ -4493,7 +4811,9 @@ Game.statusEffects.stun = function (properties) {
 	this.generic(newProperties);
 
 	// remove what target is channelling
-	properties.target.removeChannelling("stun");
+	if (properties.target.removeChannelling !== undefined) {
+		properties.target.removeChannelling("stun");
+	}
 }
 
 // give target the attackDamage buff/debuff
@@ -4891,6 +5211,35 @@ Game.spells = {
 
 		cooldown: [
 			10000,	// tier 1
+		],
+	},
+
+	sawblade: {
+		class: "k",
+
+		// properties should contain tier (as int value), caster, target
+		func: function (properties) {
+			// summon projectile (note its image should have already been loaded in)
+			Game.projectiles.push(new Projectile({
+				map: map,
+				x: properties.caster.x,
+				y: properties.caster.y,
+				stats: {
+					damage: 20,
+					stun: 3,
+				},
+				targets: [Game.allCharacters],
+				exceptTargets: [properties.caster],
+				image: "sawblade",
+				moveDirection: Game.bearing(properties.caster, properties.target),
+				moveSpeed: 400,
+				doNotRotate: true,
+				damageAllHit: true,
+			}));
+		},
+
+		channelTime: [
+			2000,	// tier 1
 		],
 	},
 
@@ -5562,6 +5911,7 @@ Game.loadArea = function (areaName, destination) {
 			}
 		}
 
+		/*
 		// enemies are stronger in blood moon
 		if (Event.time === "bloodMoon") {
 			for (let i = 0; i < this.enemies.length; i++) {
@@ -5570,6 +5920,7 @@ Game.loadArea = function (areaName, destination) {
 				this.enemies[this.enemies.length - 1].stats.maxHealth *= 2;
 			}
 		}
+		*/
 
 		// villagers (added from generateVillagers before promise)
 		if (villagersToAdd !== undefined) {
@@ -5664,12 +6015,14 @@ Game.loadArea = function (areaName, destination) {
 		// update y position of inforbar (in case there is a viewport offset y)
 		Dom.infoBar.updateYPosition();
 
-		// reposition player
+		// reposition player and camera
 		if (destination !== undefined) {
 			this.hero.x = destination.x;
 			this.hero.y = destination.y;
+
 			// remove status effects of slow/fast tiles
 			this.hero.setSpeed();
+
 			// update foot hitbox position
 			this.hero.updateFootHitbox();
 
@@ -5679,6 +6032,15 @@ Game.loadArea = function (areaName, destination) {
 				this.hero.hasOnLead.x = this.hero.x;
 				this.hero.hasOnLead.y = this.hero.y;
 			}
+
+			// update camera position
+			// any values to do with camera's position update will be updated in camera.update, which is called later in loadArea
+			// this is necessary because sometimes camera might be set to not follow hero on area change (e.g. camera pan)
+			this.camera.x = this.hero.x - this.camera.width/2;
+			this.camera.y = this.hero.y - this.camera.height/2;
+
+			// remove pan from previous area (note this might be overwritten again by onAreaJoin, but is necessary in case it's not)
+			this.camera.follow(this.hero);
 		}
 		// remove player moveTowards
 		this.hero.moveTowards = undefined;
@@ -5729,7 +6091,7 @@ Game.loadArea = function (areaName, destination) {
 		}
 
 		// update camera position
-		this.camera.update(true);
+		this.camera.update(0, true);
 
 		// render secondary canvas
 		this.secondary.render();
@@ -6508,15 +6870,23 @@ Game.playLevelupSound = function (areaName) {
 Game.regenHealth = function () {
 	for (let i = 0; i < Game.allCharacters.length; i++) {
 		if (!Game.allCharacters[i].respawning) {
-			this.restoreHealth(Game.allCharacters[i], Game.allCharacters[i].stats.healthRegen);
+			this.restoreHealth(Game.allCharacters[i], Game.allCharacters[i].stats.healthRegen, "regen");
 		}
 	}
 }
 
 // restores health to the target, not allowing them to go above their maximum health
+// reason parameter should be a string saying why the target was healed (sometimes used to decide behaviour of heal)
 // returns true if the target was healed for the full amount
-Game.restoreHealth = function (target, health) {
-	if (target.health !== target.stats.maxHealth) {
+Game.restoreHealth = function (target, health, reason) {
+	let canBeRestored = true;
+
+	if (Event.time === "bloodMoon" && reason !== "lifesteal" && !Areas[this.areaName].indoors) {
+		// non-lifesteal forms of healing don't work outdoors during blood moons
+		canBeRestored = false;
+	}
+
+	if (canBeRestored && target.health !== target.stats.maxHealth) {
 		// health can be restored
 		if (target.health + health > target.stats.maxHealth) {
 			// too much health - cap out at maximum
@@ -6548,7 +6918,8 @@ Game.update = function (delta) {
 	// User movement
 	//
 
-	let moved = false;
+	let heroMoved = false; // whether hero has moved
+
     // handle hero movement with arrow keys
 	if (this.hero.moveTowards === undefined && !this.hero.hasStatusEffect("Displacement")) {
 		let dirx = 0;
@@ -6578,25 +6949,20 @@ Game.update = function (delta) {
 
 		if (dirx !== 0 || diry !== 0) {
 	        this.hero.move(delta, dirx, diry);
-	        this.hasScrolled = true;
-		    this.camera.update();
-			moved = true;
+			heroMoved = true;
 	    }
-		else {
-	        this.hasScrolled = false;
-		}
 	}
 	else {
 		// hero always moves until it reaches a certain destination
 		this.hero.move(delta); // no need for direction functions (found out in move)
-		this.hasScrolled = true;
-	    this.camera.update();
-		moved = true;
+		heroMoved = true;
 	}
+
+	this.camera.update(delta);
 
 	// tell server that user location has changed so other users can see it
 	// check if user is connected to the websocket
-	if (moved && ws !== false && ws.readyState === 1) {
+	if (heroMoved && ws !== false && ws.readyState === 1) {
 		ws.send(JSON.stringify({
 			type: "playerLocation",
 			userID: ws.userID,
@@ -7104,14 +7470,16 @@ Game.update = function (delta) {
 
 		if (direction !== undefined) {
 			// rotate projectile in the direction
-			projectile.rotate = direction;
+			if (!projectile.doNotRotate) {
+				projectile.rotate = direction;
+			}
 
 			// projectile should be moved
 			projectile.x += Math.cos(direction) * projectile.moveSpeed * delta;
 			projectile.y += Math.sin(direction) * projectile.moveSpeed * delta;
 
 			// remove the projectile if it has moved too far, or it is at its destination
-			if (this.distance(projectile.startPosition, projectile) > projectile.movementRange || this.isAtLocation(projectile, projectile.moveTowards)) {
+			if (this.distance(projectile.startPosition, projectile) > projectile.movementRange || this.isAtLocation(projectile, projectile.moveTowards) || !projectile.isOnMap) {
 				// stop moving
 				projectile.moveTowards = undefined;
 				projectile.moveDirection = undefined;
@@ -7126,7 +7494,7 @@ Game.update = function (delta) {
 				// hasn't dealt damage - try to
 				projectile.dealDamage(projectile.attacker, projectile.targets);
 
-				// check if dmaage was dealt
+				// check if damage was dealt
 				if (projectile.damageDealt.length !== 0) {
 					// stop moving
 					if (projectile.stopMovingOnDamage) {
@@ -8460,6 +8828,11 @@ Game.render = function (delta) {
 
 				// check if render function prevents object from being rendered (could act as special condition for some items)
 				if (renderImage) {
+
+					if (objectToRender.transparency !== undefined) {
+						this.ctx.globalAlpha = objectToRender.transparency;
+					}
+
 					if (objectToRender.rotate !== undefined && objectToRender.rotate !== 0) {
 						// rotate and draw (just for projectiles currently)
 						// no crop information passed in
@@ -8488,6 +8861,11 @@ Game.render = function (delta) {
 
 					if (objectToRender.postRenderFunction !== undefined) {
 						objectToRender.postRenderFunction();
+					}
+
+					// set back transparency if it was set to something else
+					if (objectToRender.transparency !== undefined) {
+						this.ctx.globalAlpha = 1;
 					}
 				}
 			}
@@ -8880,8 +9258,8 @@ Game.renderDayNight = function () {
 
 	// lightning
 	if (Weather.lightningOnScreen) {
-		this.ctxDayNight.fillStyle = "#ffffff"; // red tint
-		this.ctxDayNight.globalAlpha = 0.15;
+		this.ctxDayNight.fillStyle = "#ffffff"; // white
+		this.ctxDayNight.globalAlpha = 0.10;
 		this.ctxDayNight.fillRect(0, 0, Dom.canvas.width, Dom.canvas.height);
 	}
 	else {
