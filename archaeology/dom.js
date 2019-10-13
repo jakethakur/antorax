@@ -485,22 +485,18 @@ function arrange(){
 				}
 			}
 		}
-		//if(category.value != 8 && (viewedItemId == undefined || viewedItemType == undefined || array[i].type != "set")){
-			document.getElementById("flashcardlist"+c).innerHTML += '<li class="box" id="box'+i+'" '+(archaeology != null ? archaeology.includes(array[i].name) ? "style='border: 5px solid darkgreen'" : "" : "")+'><img src="../'+(array[i].imageArchaeology == undefined ? array[i].image : array[i].imageArchaeology)+'" class="img"><p id="name'+i+'" class="para"></p><p id="tier'+i+'" class="para"></p><p id="stats'+i+'" class="para"></p><p id="set'+i+'" class="para"></p><p id="function'+i+'" class="para"></p><p id="lore'+i+'" class="para"></p></li>';
-		/*}else{
-			var current = true;
-			for(x = 0; x < array[i].armour.length; x++){
-				if(archaeology != null && !archaeology.includes(array[i].armour[x]))
-				{
-					current = false;
-				}
-			}
-			if(current){
-				document.getElementById("flashcardlist"+c).innerHTML += '<li class="box" id="box'+i+'" style="border: 5px solid darkgreen"><img src="../'+(array[i].imageArchaeology == undefined ? array[i].image : array[i].imageArchaeology)+'" class="img"><p id="name'+i+'" class="para"></p><p id="tier'+i+'" class="para"></p><p id="stats'+i+'" class="para"></p><p id="set'+i+'" class="para"></p><p id="function'+i+'" class="para"></p><p id="lore'+i+'" class="para"></p></li>';
-			}else{
-				document.getElementById("flashcardlist"+c).innerHTML += '<li class="box" id="box'+i+'"><img src="../'+(array[i].imageArchaeology == undefined ? array[i].image : array[i].imageArchaeology)+'" class="img"><p id="name'+i+'" class="para"></p><p id="tier'+i+'" class="para"></p><p id="stats'+i+'" class="para"></p><p id="set'+i+'" class="para"></p><p id="function'+i+'" class="para"></p><p id="lore'+i+'" class="para"></p></li>';
-			}
-		}*/
+		document.getElementById("flashcardlist"+c).innerHTML += `<li class="box" id="box${i}" ${archaeology != null ? archaeology.includes(array[i].name) ? "style='border: 5px solid darkgreen'" : "" : ""}>
+			<img src="../${array[i].imageArchaeology == undefined ? array[i].image : array[i].imageArchaeology}" class="img">
+			<p id="name${i}" class="para">
+			</p><p id="stats${i}" class="para">
+			</p><p id="conditionalStats${i}" class="para">
+			</p><p id="chooseStats${i}" class="para">
+			</p><p id="conditionalChooseStats${i}" class="para">
+			</p><p id="functionText${i}" class="para">
+			</p><p id="durability${i}" class="para">
+			</p><p id="set${i}" class="para">
+			</p><p id="lore${i}" class="para"></p>
+		</li>`;
 		document.getElementById("flashcardlist"+c).style.left = 25+c*245+((screenSize-45)-(((Math.floor((screenSize-45)/245)))*245))/2+"px";
 		if(viewedItemType == "set"){
 			document.getElementById("flashcardlist"+c).style.left = 140+260*c+"px";
@@ -513,8 +509,7 @@ function arrange(){
 		}else{
 			document.getElementById("name"+i).style.color = "#b13fea";
 		}
-		document.getElementById("tier"+i).innerHTML = "";
-		if(category.value == 7){ // should be 8 but not sure if we want it
+		/*if(category.value == 8){ // should be 8 but not sure if we want it
 			console.log("ERROR");
 			for(var f = 0; f < array[i].armour.length; f++){
 				document.getElementById("tier"+i).innerHTML += "<br>"+array[i].armour[f];
@@ -529,26 +524,21 @@ function arrange(){
 					}
 				}
 			}
-		}
-		document.getElementById("tier"+i).innerHTML += "<br>Tier: "+array[i].tier;
+		}*/
+		document.getElementById("stats"+i).innerHTML = "<br>Tier: "+array[i].tier+"<br>";
 		if(category.value == 8 || viewedItemType == "set"){
-			document.getElementById("tier"+i).innerHTML += "<br><br>Set Bonus:";
+			document.getElementById("stats"+i).innerHTML += "<br>Set Bonus:<br>";
 		}
 		for(var a = 0; a < Object.keys(array[i].stats).length; a++){
-
 			document.getElementById("stats"+i).innerHTML += Stats(FromCamelCase(Object.keys(array[i].stats)[a]), array[i].stats[Object.keys(array[i].stats)[a]], array[i].stats);
-
-			/*var replaceStat = Object.keys(array[i].stats)[a].replace( /([A-Z])/g, " $1" );
-			if(Object.keys(array[i].stats)[a] != "flaming"){
-				document.getElementById("stats"+i).innerHTML += replaceStat.charAt(0).toUpperCase() + replaceStat.slice(1)+": "+array[i].stats[Object.keys(array[i].stats)[a]]+"<br>";
-			}else{
-				document.getElementById("stats"+i).innerHTML += "Flaming "+Romanize(array[i].stats[Object.keys(array[i].stats)[a]])+"<br>";
-			}*/
 		}
 		if(array[i].multiplier !== undefined){
 			for(let a = 0; a < array[i].multiplier.length; a++){
 				document.getElementById("stats"+i).innerHTML += array[i].multiplier[a].text;
 			}
+		}
+		if (array[i].allChooseStats) {
+			document.getElementById("stats"+i).innerHTML += "All choose stats of this set are activated";
 		}
 		if(array[i].set != undefined && array[i].set != ""){
 			document.getElementById("set"+i).innerHTML = "<br>Part of "+Items.set[array[i].set].name;
@@ -556,32 +546,34 @@ function arrange(){
 		if(array[i].lore != undefined && array[i].lore != ""){
 			document.getElementById("lore"+i).innerHTML = "<br><i>"+array[i].lore+"</i>";
 		}
-		document.getElementById("function"+i).innerHTML = "";
 		if(array[i].chooseStats != undefined){
-			document.getElementById("function"+i).innerHTML += "<br>One of the following stats may be chosen:<br>";
+			document.getElementById("chooseStats"+i).innerHTML = "<br>One of the following stats may be chosen:<br>";
 			for(var a = 0; a < Object.keys(array[i].chooseStats).length; a++){
 				var replaceStat = Object.keys(array[i].chooseStats)[a].replace( /([A-Z])/g, " $1" );
-				document.getElementById("function"+i).innerHTML += Stats(replaceStat.charAt(0).toUpperCase() + replaceStat.slice(1), array[i].chooseStats[Object.keys(array[i].chooseStats)[a]]);
+				document.getElementById("chooseStats"+i).innerHTML += Stats(replaceStat.charAt(0).toUpperCase() + replaceStat.slice(1), array[i].chooseStats[Object.keys(array[i].chooseStats)[a]]);
 			}
 		}
 		if(array[i].conditionalStats != undefined){
 			for(var x = 0; x < array[i].conditionalStats.length; x++){
-				document.getElementById("function"+i).innerHTML += "<br>"+array[i].conditionalStats[x].text+"<br>";
+				document.getElementById("conditionalStats"+i).innerHTML = "<br>"+array[i].conditionalStats[x].text+"<br>";
 				for(var a = 0; a < Object.keys(array[i].conditionalStats[x].stats).length; a++){
-					document.getElementById("function"+i).innerHTML += Stats(FromCamelCase(Object.keys(array[i].conditionalStats[x].stats)[a]), array[i].conditionalStats[x].stats[Object.keys(array[i].conditionalStats[x].stats)[a]], array[i].conditionalStats[x].stats)+"</span>";
+					document.getElementById("conditionalStats"+i).innerHTML += Stats(FromCamelCase(Object.keys(array[i].conditionalStats[x].stats)[a]), array[i].conditionalStats[x].stats[Object.keys(array[i].conditionalStats[x].stats)[a]], array[i].conditionalStats[x].stats)+"</span>";
 				}
 			}
 		}
 		if(array[i].conditionalChooseStats != undefined){
-			document.getElementById("function"+i).innerHTML += "<br>One of the following stats may be chosen after they are unlocked:<br>";
+			document.getElementById("conditionalChooseStats"+i).innerHTML = "<br>One of the following stats may be chosen after they are unlocked:<br>";
 			for(var a = 0; a < array[i].conditionalChooseStats.length; a++){
-				document.getElementById("function"+i).innerHTML += Stats(FromCamelCase(Object.keys(array[i].conditionalChooseStats[a])[0]), array[i].conditionalChooseStats[a][Object.keys(array[i].conditionalChooseStats[a])[0]], array[i].conditionalChooseStats[a])+"</span>";
+				document.getElementById("conditionalChooseStats"+i).innerHTML += Stats(FromCamelCase(Object.keys(array[i].conditionalChooseStats[a])[0]), array[i].conditionalChooseStats[a][Object.keys(array[i].conditionalChooseStats[a])[0]], array[i].conditionalChooseStats[a])+"</span>";
 			}
 		}
 		if(array[i].archaeologyFunctionText != undefined && array[i].archaeologyFunctionText != ""){
-			document.getElementById("function"+i).innerHTML += "<br>"+array[i].archaeologyFunctionText+"<br>";
+			document.getElementById("functionText"+i).innerHTML = "<br>"+array[i].archaeologyFunctionText+"<br>";
 		}else if(array[i].functionText != undefined && array[i].functionText != ""){
-			document.getElementById("function"+i).innerHTML += "<br>"+array[i].functionText+"<br>";
+			document.getElementById("functionText"+i).innerHTML = "<br>"+array[i].functionText+"<br>";
+		}
+		if(array[i].maxDurability != undefined){
+			document.getElementById("durability"+i).innerHTML = "<br>Durability: " + array[i].maxDurability;
 		}
 	}
 	if(viewedItemId == undefined || viewedItemType == undefined){
@@ -798,7 +790,7 @@ else{
 	}else{
 		screenSize = 245*3+45;
 	}
-	total = GetTotalArchaeologyItems();
+	total = GetTotalArchaeologyItems(archaeology);
 	//checkChange();
 	init();
 	//arrange();

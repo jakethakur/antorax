@@ -11,6 +11,7 @@
 	<meta charset="UTF-8">
 </head>
 <body oncontextmenu="return false;">
+
 	<div id="interact" hidden>Interact</div>
 	<div id="achievement" hidden>
 		<div id="achievementImg"></div>
@@ -24,22 +25,37 @@
     <canvas id="light"></canvas>
     <canvas id="dayNight"></canvas>
 	<canvas id="game"></canvas>
-	<div id="information" hidden>
+
+	<div id="information" hidden> <!--remember to update archaeology-->
 		<div id='outTriangle' class='triangleLeft'></div>
 		<div id='triangle' class='innerTriangleLeft'></div>
 		<p id='name' style="font-weight: bold;"></p>
+		<p id='quest' style="color: slateblue;">Quest item</p>
 		<p id='stats'></p>
+		<p id='conditionalStats'></p>
+		<p id='chooseStats'></p>
+		<p id='conditionalChooseStats'></p>
+		<p id='food'></p>
+		<p id='functionText'></p>
+		<p id='durability'></p>
+		<p id='charges'></p>
 		<p id='set'></p>
-		<p id='lore'></p>
+		<p id='lore' style="font-style: italic;"></p>
+		<p id='cooldown'></p>
+		<p id='buyer'></p>
 	</div>
+
 	<div id="itemIdentification" hidden>
 		<div id='outIdtriangle' class='triangleLeft'></div>
 		<div id='idtriangle' class='innerTriangleLeft'></div>
 		<p id='innerStats'></p>
 		<p id='innerStatus'></p>
 	</div>
+
+	<ul id="chat"></ul>
 	<input id="canvasChatInput" type="text" class="canvasChatInput" placeholder="Type a message to send to chat."></input>
 	<p id="canvasSend" onclick="Dom.chat.input()">send</p>
+
 	<div id="chatPage" hidden class="DOM">
 		<div id="players" hidden></div>
 		<div id="chatText"></div>
@@ -299,8 +315,6 @@
 		<div id="choosePageContent"></div>
 	</div>
 	<div id="textPage" hidden class="DOM"></div>
-
-	<ul id="chat"></ul>
 
 	<div id="bookmarks">
 		<img id="changeChat" class="changePage" src="assets/icons/Tag1.png" onclick="Dom.changeBook('chatPage', true)"></img>

@@ -263,8 +263,8 @@ Keyboard.unlistenKey = function (key) {
 
 // called when a key is pressed
 Keyboard.onKeyDown = function (ev) {
-	// not a chat exception
-	if (ev.target !== Dom.elements.chatInput && ev.target !== Dom.elements.canvasChatInput && window.getSelection().type !== "Range") {
+	// not a text input and no text is selected (CTRL+C)
+	if ((ev.target.tagName !== "INPUT" || ev.target.type !== "text") && window.getSelection().type !== "Range") {
 		// if a hotkey is not being changed
 		if (Dom.settings.hotkey === undefined) {
 			for (let i = 0; i < this.keys.length; i++) {
@@ -286,8 +286,8 @@ Keyboard.onKeyDown = function (ev) {
 
 // called when a key is released
 Keyboard.onKeyUp = function (ev) {
-	// not a chat exception
-	if (ev.target !== Dom.elements.chatInput && ev.target !== Dom.elements.canvasChatInput && window.getSelection().type !== "Range") {
+	// not a text input and no text is selected (CTRL+C)
+	if ((ev.target.tagName !== "INPUT" || ev.target.type !== "text") && window.getSelection().type !== "Range") {
 		// if a hotkey is being changed
 		if (Dom.settings.hotkey !== undefined) {
 			ev.preventDefault();
@@ -323,7 +323,7 @@ Keyboard.downFunctions = {
             Game.secondary.render();
             Dom.inventory.hideHotbar(true);
             Dom.elements.bookmarks.style.display = "none";
-			if (Dom.chat.displayChat.length > 0 || Dom.elements.canvasChatInput === document.activeElement) {
+			if (Dom.chat.displayOpacity.length > 0 || Dom.elements.canvasChatInput === document.activeElement) {
 				Dom.elements.canvasChatInput.style.zIndex = 0;
 				Dom.elements.canvasSend.style.zIndex = 0;
 				Dom.elements.canvasChatInput.style.visibility = "hidden";
@@ -341,7 +341,7 @@ Keyboard.upFunctions = {
             Game.secondary.render();
             Dom.inventory.hideHotbar();
             Dom.elements.bookmarks.style.display = "";
-			if (Dom.chat.displayChat.length > 0 || Dom.elements.canvasChatInput === document.activeElement) {
+			if (Dom.chat.displayOpacity.length > 0 || Dom.elements.canvasChatInput === document.activeElement) {
 				Dom.elements.canvasChatInput.style.zIndex = 10;
 				Dom.elements.canvasSend.style.zIndex = 10;
 				Dom.elements.canvasChatInput.style.visibility = "visible";
@@ -710,4 +710,19 @@ function TimeDisplay(ms) {
 		secondsRemainder = "0"+secondsRemainder;
 	}
 	return minutes + ":" + secondsRemainder;
+}
+
+// return true if a name is legal (any letter of either case, apostrophe, accents)
+// strValue = a string to be validated
+function validateName(strValue) {
+	let objRegExp = /^[a-zA-Z'\u00C0-\u00ff]+$/;
+	if (!objRegExp.test(strValue)) {
+		objRegExp = /^$/;
+		// return true if it is empty
+		return objRegExp.test(strValue);
+	}
+	else {
+		// return true if it is legal
+		return true;
+	}
 }

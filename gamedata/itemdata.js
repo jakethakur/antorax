@@ -2158,7 +2158,7 @@ var Items = {
 			quest: true,
 			image: "assets/items/item/8.png",
 			functionText: "Siphons the soul essence of any nearby enemy corpses",
-			onClick: function () {
+			onClickFunction: function () {
 				Game.enemies.forEach(enemy => {
 					if (Game.areNearby(Game.hero, enemy, 180)) { // check the player is within 3 tiles of an enemy
 						if (enemy.isCorpse && !enemy.hasBeenSiphoned) { // check the enemy is a corpse
@@ -2218,7 +2218,7 @@ var Items = {
 			quest: true,
 			image: "assets/items/item/12.png",
 			functionText: "Click to fill with a nearby 'scoopable' substance",
-			onClick: function (inventoryPosition) {
+			onClickFunction: function (inventoryPosition) {
 				if (Game.areaName === "nilbog") { // check we are in the nilbog
 					let tileNum = Game.hero.getTileAtFeet();
 					if (map.mudTiles.includes(tileNum)) {
@@ -2244,7 +2244,7 @@ var Items = {
 			type: "item",
 			image: "assets/items/item/14.png",
 			functionText: "Click to take a screenshot",
-			onClick: function () {
+			onClickFunction: function () {
 				Game.takePhoto = true; // take a screenshot next tick
 				// this method of taking photo is required because some things on main canvas need to be hidden first
 			},
@@ -2278,7 +2278,7 @@ var Items = {
 			image: "assets/items/item/17.png",
 			functionText: "Restores 15 health over 10 seconds (whilst not in combat)",
 			lore: "A trusty companion. A tasty snack.<br><br>Obtained as a present from Christmas Day, 2018",
-			onClick: function (inventoryPosition) {
+			onClickFunction: function (inventoryPosition) {
 				// item is NOT removed!
 
 				// give food status effect to player if they do not have one already
@@ -2502,7 +2502,7 @@ var Items = {
 			sellPrice: 2,
 			functionText: "Increases damage dealt by 40% for 10 seconds",
             cooldown: 20, // 20 seconds
-			onClick: function (inventoryPosition) {
+			onClickFunction: function (inventoryPosition) {
 				// remove the item
 				Dom.inventory.remove(inventoryPosition);
 
@@ -2523,7 +2523,7 @@ var Items = {
 			sellPrice: 1,
 			functionText: "Increases walk speed by 35% for 20 seconds",
             cooldown: 20, // 20 seconds
-			onClick: function (inventoryPosition) {
+			onClickFunction: function (inventoryPosition) {
 				// remove the item
 				Dom.inventory.remove(inventoryPosition);
 
@@ -2544,7 +2544,7 @@ var Items = {
 			sellPrice: 1,
 			functionText: "Restores 15 health",
             cooldown: 20, // 20 seconds
-			onClick: function (inventoryPosition) {
+			onClickFunction: function (inventoryPosition) {
 				// remove the item
 				Dom.inventory.remove(inventoryPosition);
 
@@ -2560,7 +2560,7 @@ var Items = {
 			functionText: "Restores 20 health",
 			lore: "Might make you a little tipsy...",
 			sellPrice: 1,
-			onClick: function (inventoryPosition) {
+			onClickFunction: function (inventoryPosition) {
 				// complete quest from innkeeper
 				Player.quests.questProgress.drunkBeer = Increment(Player.quests.questProgress.drunkBeer);
 
@@ -2591,7 +2591,7 @@ var Items = {
 			sellPrice: 1,
 			functionText: "I wonder what this does?",
             cooldown: 20, // 20 seconds
-			onClick: function (inventoryPosition) {
+			onClickFunction: function (inventoryPosition) {
 				// remove the item
 				Dom.inventory.remove(inventoryPosition);
 
@@ -2644,7 +2644,7 @@ var Items = {
 			functionText: "Places a trap (can only be used in The Nilbog)",
 			lore: "Like a bear trap, but ickier.",
 			onClickAreaRequirement: ["nilbog"],
-			onClick: function (inventoryPosition) {
+			onClickFunction: function (inventoryPosition) {
 				// check it would not touch an existing trap
 				let trapArray = Game.things.filter(thing => thing.name === "Goblin Trap");
 				if (!Game.hero.isTouchingType(trapArray)) {
@@ -2676,7 +2676,7 @@ var Items = {
 			image: "assets/items/consumable/8.png",
 			functionText: "Gives you +20 fishing skill for your next fishing attempt",
 			maxCharges: 3,
-			onClick: function (inventoryPosition, hotbar) {
+			onClickFunction: function (inventoryPosition, hotbar) {
 				if (!Game.hero.hasStatusEffect("Fish bait")) { // player does not have an existing fishing status effect
 					// remove one charge from the item
 					Dom.inventory.removeItemCharge(inventoryPosition, hotbar);
@@ -2707,7 +2707,7 @@ var Items = {
 			image: "assets/items/consumable/9.png",
 			functionText: "Gives you a random spooky status effect",
 			maxCharges: 3,
-			onClick: function (inventoryPosition, hotbar) {
+			onClickFunction: function (inventoryPosition, hotbar) {
 				// remove one charge from the item
 				Dom.inventory.removeItemCharge(inventoryPosition, hotbar);
 
@@ -2753,7 +2753,7 @@ var Items = {
 			image: "assets/items/consumable/10.png",
 			functionText: "Deals 5 damage to the nearest enemy, stunning them for 1s",
 			maxCharges: 3,
-			onClick: function (inventoryPosition, hotbar) {
+			onClickFunction: function (inventoryPosition, hotbar) {
 
 				// find closest enemy
 				let moveTowards = Game.closest(Game.enemies, Game.hero);
@@ -2793,7 +2793,7 @@ var Items = {
 			sellPrice: 2,
 			functionText: "Increases defence against Nilbog goblins by 50% for 10 seconds",
             cooldown: 20, // 20 seconds
-			onClick: function (inventoryPosition) {
+			onClickFunction: function (inventoryPosition) {
 				// remove the item
 				Dom.inventory.remove(inventoryPosition);
 
@@ -2815,7 +2815,7 @@ var Items = {
 			sellPrice: 2, // sells for less with less charges
 			functionText: "Allows you to ONLY fish up junk items for your next fishing attempt",
 			maxCharges: 10,
-			onClick: function (inventoryPosition, hotbar) {
+			onClickFunction: function (inventoryPosition, hotbar) {
 				if (!Game.hero.hasStatusEffect("Fish bait")) { // player does not have an existing fishing status effect
 					// remove one charge from the item
 					Dom.inventory.removeItemCharge(inventoryPosition, hotbar);
@@ -2842,7 +2842,7 @@ var Items = {
 			image: "assets/items/consumable/13.png",
 			sellPrice: 1,
 			functionText: "Blows all nearby characters away from their location upon use",
-			onClick: function (inventoryPosition) {
+			onClickFunction: function (inventoryPosition) {
 				// remove the item
 				Dom.inventory.remove(inventoryPosition);
 
@@ -2863,7 +2863,7 @@ var Items = {
 			image: "assets/items/consumable/14.png",
 			sellPrice: 1,
 			functionText: "Swaps your position with a random enemy in the current area",
-			onClick: function (inventoryPosition) {
+			onClickFunction: function (inventoryPosition) {
 				if (Game.enemies.length > 0) { // check there is an enemy to swap with
 					// remove the item
 					Dom.inventory.remove(inventoryPosition);
@@ -2889,7 +2889,7 @@ var Items = {
 			image: "assets/items/consumable/15.png",
 			sellPrice: 1,
 			functionText: "In 5 seconds, set your health to the value it is now",
-			onClick: function (inventoryPosition) {
+			onClickFunction: function (inventoryPosition) {
 				// remove the item
 				Dom.inventory.remove(inventoryPosition);
 
@@ -2914,7 +2914,7 @@ var Items = {
 			functionText: "Restores 20 health",
 			lore: "Don't worry, side effects are in the Christmas spirit.",
 			sellPrice: 1,
-			onClick: function (inventoryPosition) {
+			onClickFunction: function (inventoryPosition) {
 				// remove the item
 				Dom.inventory.remove(inventoryPosition);
 
@@ -2942,7 +2942,7 @@ var Items = {
 			lore: "This potion is made with a secret ingredient only found at Christmas.",
 			sellPrice: 1,
             cooldown: 20, // 20 seconds
-			onClick: function (inventoryPosition) {
+			onClickFunction: function (inventoryPosition) {
 				// remove the item
 				Dom.inventory.remove(inventoryPosition);
 
@@ -2963,7 +2963,7 @@ var Items = {
 			lore: "It will soon flourish into a beautiful tree!",
 			onClickEventRequirement: "Christmas",
 			onClickAreaRequirement: ["eaglecrestLoggingCamp"],
-			onClick: function (inventoryPosition) {
+			onClickFunction: function (inventoryPosition) {
 				// check it would not touch an existing tree
 				let treeArray = Game.things.filter(thing => thing.name === "Christmas Sapling");
 				if (!Game.hero.isTouchingType(treeArray)) {
@@ -2996,7 +2996,7 @@ var Items = {
 			lore: "", // tbd
             cooldown: 1, // 1 second
 			onClickEventRequirement: "Antorax",
-			onClick: function (inventoryPosition) {
+			onClickFunction: function (inventoryPosition) {
 				// remove the item
 				Dom.inventory.remove(inventoryPosition);
 				// set firework timeout
@@ -3022,7 +3022,7 @@ var Items = {
 			lore: "Why not go bigger?",
             cooldown: 5, // 5 seconds
 			onClickEventRequirement: "Antorax",
-			onClick: function (inventoryPosition) {
+			onClickFunction: function (inventoryPosition) {
 				setTimeout(function () {
 					// remove the item
 					Dom.inventory.remove(inventoryPosition);
@@ -3047,7 +3047,7 @@ var Items = {
 			functionText: "Restores 25 health",
 			lore: "Might make you a little tipsy...",
 			sellPrice: 1,
-			onClick: function (inventoryPosition) {
+			onClickFunction: function (inventoryPosition) {
 				// remove the item
 				Dom.inventory.remove(inventoryPosition);
 
@@ -3071,7 +3071,7 @@ var Items = {
 			image: "assets/items/consumable/22.png",
 			functionText: "Invite all online players to a game of tag",
 			sellPrice: 2,
-			onClick: function (inventoryPosition) {
+			onClickFunction: function (inventoryPosition) {
 				// check websocket is open
 				if (ws === false || ws.readyState !== 1) {
 					Dom.chat.insert("You must be connected to a server to use that item.");
@@ -3100,7 +3100,7 @@ var Items = {
 			image: "assets/items/consumable/23.png",
 			sellPrice: 2,
 			functionText: "Increases dodge chance by 40% for 10 seconds.",
-			onClick: function (inventoryPosition) {
+			onClickFunction: function (inventoryPosition) {
 			   // remove the item
 			   Dom.inventory.remove(inventoryPosition);
 
@@ -3120,7 +3120,7 @@ var Items = {
 			image: "assets/items/consumable/24.png",
 			sellPrice: 2,
 			functionText: "Increases health regen by 1.5 for 20 seconds.",
-			onClick: function (inventoryPosition) {
+			onClickFunction: function (inventoryPosition) {
                 // remove the item
                 Dom.inventory.remove(inventoryPosition);
 
@@ -3144,7 +3144,7 @@ var Items = {
 				Dom.inventory.remove(inventoryPosition);
 				Dom.inventory.give(Items.item[27], 1, inventoryPosition);
 			},
-			onClick: function (inventoryPosition) {
+			onClickFunction: function (inventoryPosition) {
                 // remove the item
                 Dom.inventory.remove(inventoryPosition);
 
@@ -3163,7 +3163,7 @@ var Items = {
 			image: "assets/items/consumable/26.png",
 			sellPrice: 1, // tbc
 			functionText: "tbd",
-			onClick: function (inventoryPosition) {
+			onClickFunction: function (inventoryPosition) {
                 // remove the item
                 Dom.inventory.remove(inventoryPosition);
 
@@ -3178,7 +3178,7 @@ var Items = {
 			image: "assets/items/consumable/27.png",
 			sellPrice: 1, // tbc
 			functionText: "tbd",
-			onClick: function (inventoryPosition) {
+			onClickFunction: function (inventoryPosition) {
                 // remove the item
                 Dom.inventory.remove(inventoryPosition);
 
@@ -3193,7 +3193,7 @@ var Items = {
 			image: "assets/items/consumable/28.png",
 			sellPrice: 1, // tbc
 			functionText: "tbd",
-			onClick: function (inventoryPosition) {
+			onClickFunction: function (inventoryPosition) {
                 // remove the item
                 Dom.inventory.remove(inventoryPosition);
 
@@ -3210,7 +3210,7 @@ var Items = {
 			sellPrice: 40, // tbc
 			functionText: "Restores your health to full",
 			maxCharges: 2,
-			onClick: function (inventoryPosition) {
+			onClickFunction: function (inventoryPosition) {
                 // remove the item
                 Dom.inventory.remove(inventoryPosition);
 
@@ -3693,7 +3693,7 @@ var Items = {
 					return false; // don't consume key
 				}
 			},
-			onClick: function (inventoryPosition) {
+			onClickFunction: function (inventoryPosition) {
                 // check the chest is not locked
                 if (!Player.inventory.items[inventoryPosition].locked) {
                     // open loot page
@@ -3855,7 +3855,7 @@ var Items = {
 					Dom.checkProgress();
 				}
 			},
-			onClick: function (inventoryPosition) {
+			onClickFunction: function (inventoryPosition) {
 				// remove item
 				Dom.inventory.remove(inventoryPosition);
 				// replace at the same slot

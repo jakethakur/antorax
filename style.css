@@ -302,16 +302,17 @@ thead:after { /* space after bags in bank */
 	-webkit-user-drag: none;
 	-webkit-user-select: none;
 	-ms-user-select: none;
+	opacity: var(--chatOpacity);
 }
 
 .canvasChatInput::placeholder {
-	color: #aaaaaa;
+	color: rgba(255, 255, 255, var(--chatOpacity));
 }
 
 #canvasSend {
 	position: absolute;
 	color: white;
-	opacity: 0.6;
+	opacity: var(--chatOpacity);
 }
 
 #send {
@@ -458,16 +459,16 @@ thead:after { /* space after bags in bank */
 	border-top: 5px solid var(--border);
 	right: 0px;
 	width: 450px;
-	padding-left: 10px;
-	padding-right: 10px;
-	line-height: initial;
-	height: 80px;
+	padding: 10px;
+	padding-top: 15px;
+	padding-bottom: 20px;
 }
 
 .adventureContent {
 	font-size: 20px;
 	position: relative;
-	bottom: 15px;
+	line-height: 20px;
+	top: 10px;
 }
 
 #adventurePage {
@@ -995,6 +996,14 @@ thead:after { /* space after bags in bank */
 	bottom: 20px;
 	line-height: 30px;
 	font-size: 20px;
+}
+
+.alertInput {
+	bottom: 35px;
+	margin: 10px;
+	position: relative;
+	width: 300px;
+	right: 12px;
 }
 
 /*					*/

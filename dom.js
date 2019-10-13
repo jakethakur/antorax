@@ -28,6 +28,8 @@ let Dom = {
 		bankPage: document.getElementById("bankPage"),
 		bankPageInventory: document.getElementById("bankPageInventory"),
 		bookmarks: document.getElementById("bookmarks"),
+		boots: document.getElementById("boots"),
+		buyer: document.getElementById("buyer"),
 		buyerPage: document.getElementById("buyerPage"),
 		buyerPageChat: document.getElementById("buyerPageChat"),
 		buyerPageInventory: document.getElementById("buyerPageInventory"),
@@ -41,10 +43,12 @@ let Dom = {
 		changeQuests: document.getElementById("changeQuests"),
 		changeReputation: document.getElementById("changeReputation"),
 		changeSettings: document.getElementById("changeSettings"),
+		charges: document.getElementById("charges"),
 		chat: document.getElementById("chat"),
 		chatInput: document.getElementById("chatInput"),
 		chatPage: document.getElementById("chatPage"),
 		chatText: document.getElementById("chatText"),
+		chest: document.getElementById("chest"),
 		choosePage: document.getElementById("choosePage"),
 		choosePageAchievementPoints: document.getElementById("choosePageAchievementPoints"),
 		choosePageBoots: document.getElementById("choosePageBoots"),
@@ -54,21 +58,30 @@ let Dom = {
 		choosePageHelm: document.getElementById("choosePageHelm"),
 		choosePagePlayer: document.getElementById("choosePagePlayer"),
 		choosePageWeapon: document.getElementById("choosePageWeapon"),
+		chooseStats: document.getElementById("chooseStats"),
 		close: document.getElementById("close"),
 		closeDriver: document.getElementById("closeDriver"),
 		closeReputation: document.getElementById("closeReputation"),
 		completedQuestBox: document.getElementById("completedQuestBox"),
+		conditionalChooseStats: document.getElementById("conditionalChooseStats"),
+		conditionalStats: document.getElementById("conditionalStats"),
+		cooldown: document.getElementById("cooldown"),
 		coordsOn: document.getElementById("coordsOn"),
 		darkOn: document.getElementById("darkOn"),
 		dayNight: document.getElementById("dayNight"),
 		driverPage: document.getElementById("driverPage"),
 		driverPageBuy: document.getElementById("driverPageBuy"),
 		driverPageMain: document.getElementById("driverPageMain"),
+		durability: document.getElementById("durability"),
+		food: document.getElementById("food"),
 		fpsOn: document.getElementById("fpsOn"),
 		fullscreenOff: document.getElementById("fullscreenOff"),
 		fullscreenOn: document.getElementById("fullscreenOn"),
+		functionText: document.getElementById("functionText"),
 		game: document.getElementById("game"),
+		greaves: document.getElementById("greaves"),
 		gridOn: document.getElementById("gridOn"),
+		helm: document.getElementById("helm"),
 		hitboxesOn: document.getElementById("hitboxesOn"),
 		hotbar: document.getElementById("hotbar"),
 		identifiedPage: document.getElementById("identifiedPage"),
@@ -120,6 +133,7 @@ let Dom = {
 		players: document.getElementById("players"),
 		playersInfo: document.getElementById("playersInfo"),
 		possibleQuestBox: document.getElementById("possibleQuestBox"),
+		quest: document.getElementById("quest"),
 		questFinish: document.getElementById("questFinish"),
 		questFinishChat: document.getElementById("questFinishChat"),
 		questFinishItems: document.getElementById("questFinishItems"),
@@ -194,8 +208,9 @@ Dom.alert.array = []; // number of alerts that have appeared (used to give ids)
 
 // start a dom alert
 // text = what the alert says
-// type = number of buttons
-// values = array of what buttons will say (only applies for type = 3 or type = text)
+// type = number of buttons or text or input
+// values (type 3 or text) = array of what buttons will say
+// values (input) = "name" if you want name validation
 // page = what page it came from (what it appears over); undefined = canvas
 // target = an object containing target, ev, targetNo, evNo
 	// target is the function that is called by confirming the alert
@@ -234,6 +249,13 @@ Dom.alert.page = function (text, type, values, page, target) { // can't pass in 
 			alert.innerHTML = `<p class="alertText" id="alertText${id}">${text}</p>
 			<div class="alertOptions" id="alertOptions${id}" onclick="Game.inventoryUpdate()">${values}</div>`;
 		}
+		// text input (e.g. name tag)
+		else if (type === "input") {
+			alert.innerHTML = `<p class="alertText" id="alertText${id}">${text}</p>
+			<input type="text" class="alertInput" id="alertInput${id}"></input>
+			<div class="alertYes" id="alertYes${id}" onclick="Game.inventoryUpdate()">OK</div>
+			<div class="alertNo" id="alertNo${id}" style="left: 15px; bottom: 20px;">Cancel</div>`;
+		}
 		// 3 buttons
 		else if (type === 3) {
 			alert.innerHTML = `<p class="alertText" id="alertText${id}">${text}</p>
@@ -267,6 +289,33 @@ Dom.alert.page = function (text, type, values, page, target) { // can't pass in 
 				}
 				document.body.removeChild(alert);
 				Dom.alert.array.splice(Dom.alert.array.findIndex(index => index.id === target.id, 1));
+			}
+		}
+
+		if (type === "input") {
+			document.getElementById("alertYes"+id).onclick = function () {
+				// close alert and call function with parameter
+				let value = alert.getElementsByTagName("INPUT")[0].value;
+				if (target.ev === undefined) {
+					target.ev = [];
+				}
+				target.target(...target.ev.unshift(value));
+				document.body.removeChild(alert);
+				Dom.alert.array.splice(Dom.alert.array.findIndex(index => index.id === target.id, 1));
+			}
+
+			Dom.alert.array[id].value = "";
+			if (values === "name") {
+				document.getElementById("alertInput"+id).onkeydown = function () {
+					setTimeout(function () {
+						if (validateName(document.getElementById("alertInput"+id).value)) {
+							Dom.alert.array[id].value = document.getElementById("alertInput"+id).value;
+						}
+						else {
+							document.getElementById("alertInput"+id).value = Dom.alert.array[id].value;
+						}
+					}, 1);
+				}
 			}
 		}
 
@@ -951,88 +1000,125 @@ Dom.chat.announce = function (message, exceptSender) {
 }
 
 Dom.chat.contents = []; // stores all the chat messages
-Dom.chat.displayChat = [];
-Dom.chat.displayOpacity = [];
+Dom.chat.displayOpacity = []; // stores the opacity
+
+// inserts a message into chat
+// text (string) is the message
+// delay (int) is the time in ms before the message is sent
+// time (int) is the time in ms that the message appears for (CURRENTLY DEACTIVATED)
+// noRepeat (boolean) is set to true if the message should not be sent if it has been sent before
 Dom.chat.insert = function (text, delay, time, noRepeat) {
+
+	// if the delay parameter is not defined, send the message immediately
 	if (delay === undefined) {
 		delay = 0;
 	}
 
-	if (time === undefined) {
+	/*if (time === undefined) {
 		time = text.split(" ").length/200*60000;
-	}
+	}*/
 
+	// set the delay for a cutscene message to be the time it takes to read the previous message
 	if (Dom.currentlyDisplayed === "cutscene") {
 		delay = Dom.chat.cutsceneEnd - Date.now();
 	}
 
 	setTimeout(function () {
 		if (!noRepeat || !Dom.chat.contents.includes(text)) {
+			// wait for the delay then check if it should be sent and send it
+
+			// if more than 1000 chat messages have been sent since last refresh, delete the oldest
 			if (this.contents.length >= 1000) {
-				// purge the oldest
 				this.contents.shift();
 			}
-			if (Dom.canvas.width !== undefined) {
-				this.contents.push(text);
-				// chat in the bottom left
-				Dom.chat.displayChat.push(text);
-				Dom.elements.chat.innerHTML += "<li class='chatBox' style='opacity:0.6;'>"+text+"</li>";
-				Dom.elements.chat.style.top= Dom.canvas.height-Dom.chat.offset-Dom.elements.chat.offsetHeight+"px";
-				Dom.chat.displayOpacity.push(1500);
-				Dom.elements.canvasChatInput.style.backgroundColor = "rgba(0, 0, 0, 0.6)";
-				Dom.elements.canvasSend.style.opacity = 0.6;
-				//Dom.elements.canvasChatInput.hidden = false;
-				if (!Dom.chat.chatInterval) {
-					Dom.chat.chatInterval = setInterval(function () {
-						if (Dom.chat.displayChat.length === 0) {
-							clearInterval(Dom.chat.chatInterval);
-							Dom.chat.chatInterval = false;
-						}
-						if (!Dom.chat.hideInput && Dom.chat.displayOpacity.length > 0) {
-							Dom.elements.canvasChatInput.style.zIndex = 10;
-							Dom.elements.canvasSend.style.zIndex = 10;
-							Dom.elements.canvasChatInput.style.visibility = "visible";
-							Dom.elements.canvasSend.style.visibility = "visible";
-						}
-						for (let x = 0; x < Dom.chat.displayChat.length; x++) {
-							Dom.chat.displayOpacity[x]-=2;
-							if (Dom.chat.displayOpacity[x] < 600) {
-								Dom.elements.chat.getElementsByTagName("li")[x].style.opacity = Dom.chat.displayOpacity[x]/1000;
-								if (x === Dom.chat.displayChat.length-1 && Dom.elements.canvasChatInput !== document.activeElement) {
-									Dom.elements.canvasChatInput.style.backgroundColor = "rgba(0, 0, 0, "+Dom.chat.displayOpacity[x]/1000+")";
-									Dom.elements.canvasSend.style.opacity = Dom.chat.displayOpacity[x]/1000;
-								}
-							}
-							if (Dom.elements.chat.getElementsByTagName("li")[x].style.opacity <= 0) {
-								Dom.chat.displayChat.shift();
-								Dom.chat.displayOpacity.shift();
-								for (let i = 0; i < Dom.chat.displayChat.length; i++) {
-									Dom.elements.chat.getElementsByTagName("li")[i].innerHTML = Dom.elements.chat.getElementsByTagName("li")[i+1].innerHTML;
-									Dom.elements.chat.getElementsByTagName("li")[i].style.opacity = Dom.elements.chat.getElementsByTagName("li")[i+1].style.opacity;
-								}
-								Dom.elements.chat.removeChild(Dom.elements.chat.getElementsByTagName("li")[Dom.chat.displayChat.length]);
-								if (Dom.chat.displayChat.length === 0 && Dom.elements.canvasChatInput !== document.activeElement) {
-									Dom.elements.canvasChatInput.style.zIndex = 0;
-									Dom.elements.canvasSend.style.zIndex = 0;
-									Dom.elements.canvasChatInput.style.visibility = "hidden";
-									Dom.elements.canvasSend.style.visibility = "hidden";
-								}
-								Dom.elements.chat.style.top= Dom.canvas.height-Dom.chat.offset-Dom.elements.chat.offsetHeight+"px";
-								break;
-							}
-						}
-					},1);
-				}
+			//if (Dom.canvas.width !== undefined) {
+			this.contents.push(text);
 
-				Dom.elements.chatText.innerHTML += "<p class='chatPara'>" + text + "</p>";
-				if (Dom.elements.chatText.offsetHeight === 520) {
-					Dom.elements.chatText.style.overflowY = "auto";
-					Dom.elements.chatText.scrollTop = Dom.elements.chatText.scrollHeight;
-				}
+			// chat in the bottom left
+			Dom.elements.chat.innerHTML += "<li class='chatBox' style='opacity:0.6;'>"+text+"</li>";
+			Dom.elements.chat.style.top= Dom.canvas.height-Dom.chat.offset-Dom.elements.chat.offsetHeight+"px";
+			Dom.chat.displayOpacity.push(1500);
+			document.documentElement.style.setProperty('--chatOpacity', 0.6);
+			Dom.elements.canvasChatInput.hidden = false;
+
+			// if the following code is not already running then start running it
+			if (!Dom.chat.chatInterval) {
+
+				// repeat the following code every 1ms until all chat messages completely disappear
+				Dom.chat.chatInterval = setInterval(function () {
+					if (Dom.chat.displayOpacity.length === 0) {
+						clearInterval(Dom.chat.chatInterval);
+						Dom.chat.chatInterval = false;
+					}
+
+					// if not shift and there are messages to show then show the input box
+					if (!Dom.chat.hideInput && Dom.chat.displayOpacity.length > 0) {
+						Dom.elements.canvasChatInput.style.zIndex = 10;
+						Dom.elements.canvasSend.style.zIndex = 10;
+						Dom.elements.canvasChatInput.style.visibility = "visible";
+						Dom.elements.canvasSend.style.visibility = "visible";
+					}
+
+					// for each message
+					for (let x = 0; x < Dom.chat.displayOpacity.length; x++) {
+
+						// after "0.9s" decrease the opactity by "0.002/ms"
+						Dom.chat.displayOpacity[x]-=2;
+						if (Dom.chat.displayOpacity[x] < 600) {
+							Dom.elements.chat.getElementsByTagName("li")[x].style.opacity = Dom.chat.displayOpacity[x]/1000;
+
+							// if it is the bottom message and the input is not selected then set its opacity
+							if (x === Dom.chat.displayOpacity.length-1 && Dom.elements.canvasChatInput !== document.activeElement) {
+								document.documentElement.style.setProperty('--chatOpacity', Dom.chat.displayOpacity[x]/1000);
+							}
+						}
+
+						// if it has disappeared
+						if (Dom.elements.chat.getElementsByTagName("li")[x].style.opacity <= 0) {
+
+							// remove it from the array
+							Dom.chat.displayOpacity.shift();
+
+							// set each element to the element below it
+							for (let i = 0; i < Dom.chat.displayOpacity.length; i++) {
+								Dom.elements.chat.getElementsByTagName("li")[i].innerHTML = Dom.elements.chat.getElementsByTagName("li")[i+1].innerHTML;
+								Dom.elements.chat.getElementsByTagName("li")[i].style.opacity = Dom.elements.chat.getElementsByTagName("li")[i+1].style.opacity;
+							}
+
+							// remove the element
+							Dom.elements.chat.removeChild(Dom.elements.chat.getElementsByTagName("li")[Dom.chat.displayOpacity.length]);
+
+							// if it is the last element then hide the input box
+							if (Dom.chat.displayOpacity.length === 0 && Dom.elements.canvasChatInput !== document.activeElement) {
+								Dom.elements.canvasChatInput.style.zIndex = 0;
+								Dom.elements.canvasSend.style.zIndex = 0;
+								Dom.elements.canvasChatInput.style.visibility = "hidden";
+								Dom.elements.canvasSend.style.visibility = "hidden";
+							}
+
+							// update the position of the message boxes
+							Dom.elements.chat.style.top = Dom.canvas.height-Dom.chat.offset-Dom.elements.chat.offsetHeight+"px";
+
+							// start again from the first message
+							break;
+						}
+					}
+				}, 1);
 			}
+
+			// add the text to the chat page
+			Dom.elements.chatText.innerHTML += "<p class='chatPara'>" + text + "</p>";
+			if (Dom.elements.chatText.offsetHeight === 520) {
+				Dom.elements.chatText.style.overflowY = "auto";
+				Dom.elements.chatText.scrollTop = Dom.elements.chatText.scrollHeight;
+			}
+			//}
+
+			// text has been inserted
 			return true;
 		}
 		else {
+			// text has not been inserted
 			return false;
 		}
 	}.bind(this), delay);
@@ -1409,15 +1495,23 @@ Dom.inventory.displayInformation = function (item, stacked, element, position, h
 					// choose stats (stats that can be chosen from)
 					if (item.chooseStats !== undefined) {
 						if (Object.keys(item.chooseStats).length > 0) {
-							Dom.elements.stats.innerHTML += "<br>Click to choose stat:<br>";
+							if (!item.allChooseStats) {
+								Dom.elements.chooseStats.innerHTML = "Click to choose stat:<br>";
+							}
+							else {
+								Dom.elements.chooseStats.innerHTML = "";
+							}
 						}
 						for (let i = 0; i < Object.keys(item.chooseStats).length; i++) {
 							let color = "gray";
-							if (Object.keys(item.chooseStats)[i] === item.chosenStat) {
+							if (Object.keys(item.chooseStats)[i] === item.chosenStat || item.allChooseStats) {
 								color = "var(--text)";
 							}
-							Dom.elements.stats.innerHTML += "<span style='color: "+color+"'>"+Dom.inventory.stats(FromCamelCase(Object.keys(item.chooseStats)[i]), item.chooseStats[Object.keys(item.chooseStats)[i]], item.chooseStats)+"</span>";
+							Dom.elements.chooseStats.innerHTML += "<span style='color: "+color+"'>"+Dom.inventory.stats(FromCamelCase(Object.keys(item.chooseStats)[i]), item.chooseStats[Object.keys(item.chooseStats)[i]], item.chooseStats)+"</span>";
 						}
+					}
+					else {
+						Dom.elements.chooseStats.innerHTML = "";
 					}
 
 					// conditional choose stats (choose stats that require a condition)
@@ -1426,27 +1520,33 @@ Dom.inventory.displayInformation = function (item, stacked, element, position, h
 							item.chooseStats = [];
 						}
 						if (Object.keys(item.conditionalChooseStats).length > Object.keys(item.chooseStats).length) {
-							Dom.elements.stats.innerHTML += "<br>Locked stats:<br>";
+							Dom.elements.conditionalChooseStats.innerHTML = "Locked stats:<br>";
 						}
 						for (let i = 0; i < Object.keys(item.conditionalChooseStats).length; i++) {
 							if (!Object.keys(item.chooseStats).includes(Object.keys(item.conditionalChooseStats[i])[0])) {
-								Dom.elements.stats.innerHTML += "<span style='color: gray'>"+Dom.inventory.stats(FromCamelCase(Object.keys(item.conditionalChooseStats[i])[0]), item.conditionalChooseStats[i][Object.keys(item.conditionalChooseStats[i])[0]], item.conditionalChooseStats)+"</span>";
+								Dom.elements.conditionalChooseStats.innerHTML += "<span style='color: gray'>"+Dom.inventory.stats(FromCamelCase(Object.keys(item.conditionalChooseStats[i])[0]), item.conditionalChooseStats[i][Object.keys(item.conditionalChooseStats[i])[0]], item.conditionalChooseStats)+"</span>";
 							}
 						}
+					}
+					else {
+						Dom.elements.conditionalChooseStats.innerHTML = "";
 					}
 
 					// conditional stats (stats that require a condition to be true to be active; otherwise they are displayed in grey)
 					if (item.conditionalStats !== undefined) {
 						for (let x = 0; x < item.conditionalStats.length; x++) {
-							Dom.elements.stats.innerHTML += "<br>"+item.conditionalStats[x].text+"<br>";
+							Dom.elements.conditionalStats.innerHTML = item.conditionalStats[x].text+"<br>";
 							for (let i = 0; i < Object.keys(item.conditionalStats[x].stats).length; i++) {
 								let color = "gray";
 								if (Items[item.type][item.id].conditionalStats[x].condition()) {
 									color = "var(--text)";
 								}
-								Dom.elements.stats.innerHTML += "<span style='color: "+color+"'>"+Dom.inventory.stats(FromCamelCase(Object.keys(item.conditionalStats[x].stats)[i]), item.conditionalStats[x].stats[Object.keys(item.conditionalStats[x].stats)[i]], item.conditionalStats[x].stats)+"</span>";
+								Dom.elements.conditionalStats.innerHTML += "<span style='color: "+color+"'>"+Dom.inventory.stats(FromCamelCase(Object.keys(item.conditionalStats[x].stats)[i]), item.conditionalStats[x].stats[Object.keys(item.conditionalStats[x].stats)[i]], item.conditionalStats[x].stats)+"</span>";
 							}
 						}
+					}
+					else {
+						Dom.elements.conditionalStats.innerHTML = "";
 					}
 
 				}
@@ -1456,7 +1556,7 @@ Dom.inventory.displayInformation = function (item, stacked, element, position, h
 					if (position === "equip") {
 						let setNum = 0;
 						for (let i = 0; i < Items.set[item.set].armour.length; i++) {
-							for (let x = 0; x < 4; x++) {
+							for (let x = 0; x < 5; x++) {
 								if (Player.inventory[Object.keys(Player.inventory)[x]].name === Items.set[item.set].armour[i]) {
 									setNum++;
 									break;
@@ -1471,10 +1571,17 @@ Dom.inventory.displayInformation = function (item, stacked, element, position, h
 
 								Dom.elements.set.innerHTML += Dom.inventory.stats(FromCamelCase(Object.keys(Items.set[item.set].stats)[i]), Items.set[item.set].stats[Object.keys(Items.set[item.set].stats)[i]], Items.set[item.set].stats);
 							}
+
+							// mulitplier
 							if (Items.set[item.set].multiplier !== undefined) {
 								for (let i = 0; i < Items.set[item.set].multiplier.length; i++) {
 									Dom.elements.set.innerHTML += Items.set[item.set].multiplier[i].text + "<br>";
 								}
+							}
+
+							// allChooseStats
+							if (Items.set[item.set].allChooseStats) {
+								Dom.elements.set.innerHTML += "All choose stats of this set are activated";
 							}
 						}
 					}
@@ -1482,7 +1589,7 @@ Dom.inventory.displayInformation = function (item, stacked, element, position, h
 					else if (position === "trade") {
 						let setNum = 0;
 						for (let i = 0; i < Items.set[item.set].armour.length; i++) {
-							for (let x = 0; x < 4; x++) {
+							for (let x = 0; x < 5; x++) {
 								if (array[Object.keys(array)[x]].name === Items.set[item.set].armour[i]) {
 									setNum++;
 									break;
@@ -1497,10 +1604,17 @@ Dom.inventory.displayInformation = function (item, stacked, element, position, h
 
 								Dom.elements.set.innerHTML += Dom.inventory.stats(FromCamelCase(Object.keys(Items.set[item.set].stats)[i]), Items.set[item.set].stats[Object.keys(Items.set[item.set].stats)[i]], Items.set[item.set].stats);
 							}
+
+							// multiplier
 							if (Items.set[item.set].multiplier !== undefined) {
 								for (let i = 0; i < Items.set[item.set].multiplier.length; i++) {
 									Dom.elements.set.innerHTML += Items.set[item.set].multiplier[i].text + "<br>";
 								}
+							}
+
+							// allChooseStats
+							if (Items.set[item.set].allChooseStats) {
+								Dom.elements.set.innerHTML += "All choose stats of this set are activated";
 							}
 						}
 					}
@@ -1518,7 +1632,7 @@ Dom.inventory.displayInformation = function (item, stacked, element, position, h
 							}
 							// if not in item inventory check equipped slots
 							if (checkUsed) {
-								for (let x = 0; x < 4; x++) {
+								for (let x = 0; x < 5; x++) {
 									if (Player.inventory[Object.keys(Player.inventory)[x]].name === Items.set[item.set].armour[i]) {
 										setNum++;
 										break;
@@ -1534,10 +1648,17 @@ Dom.inventory.displayInformation = function (item, stacked, element, position, h
 
 								Dom.elements.set.innerHTML += Dom.inventory.stats(FromCamelCase(Object.keys(Items.set[item.set].stats)[i]), Items.set[item.set].stats[Object.keys(Items.set[item.set].stats)[i]], Items.set[item.set].stats);
 							}
+
+							// mulitplier
 							if (Items.set[item.set].multiplier !== undefined) {
 								for (let i = 0; i < Items.set[item.set].multiplier.length; i++) {
 									Dom.elements.set.innerHTML += Items.set[item.set].multiplier[i].text + "<br>";
 								}
+							}
+
+							// allChooseStats
+							if (Items.set[item.set].allChooseStats) {
+								Dom.elements.set.innerHTML += "All choose stats of this set are activated";
 							}
 						}
 					}
@@ -1549,6 +1670,9 @@ Dom.inventory.displayInformation = function (item, stacked, element, position, h
 			else {
 				Dom.elements.set.innerHTML = "";
 				Dom.elements.stats.innerHTML = "";
+				Dom.elements.conditionalStats.innerHTML = "";
+				Dom.elements.chooseStats.innerHTML = "";
+				Dom.elements.conditionalChooseStats.innerHTML = "";
 			}
 			if (item.type === "bag") {
 				Dom.elements.stats.innerHTML = "Capacity: "+item.size;
@@ -1572,58 +1696,83 @@ Dom.inventory.displayInformation = function (item, stacked, element, position, h
 
 			// quest item
 			if (item.quest !== undefined && (item.quest === true || item.quest())) {
-				Dom.elements.stats.innerHTML = "<span style='color: slateblue;'>Quest item</span><br>" + (Dom.elements.stats.innerHTML !== "" ? "<br>"+Dom.elements.stats.innerHTML : "");
+				Dom.elements.quest.hidden = false;
 			}
 			else {
-				Dom.elements.stats.style.color = "var(--text)";
+				Dom.elements.quest.hidden = true;
 			}
 
-			// additional item information
-			let lorebuyer = "<br><br>"; // set to "" if there is no additional information to be displayed
-			// currency use
-			if (item.use !== undefined) {
-				Dom.elements.lore.innerHTML = item.use;
-			}
 			// function text (use of an item)
-			else if (item.functionText !== undefined && item.functionText !== "") {// && item.chooseStats === undefined) {
-				Dom.elements.lore.innerHTML = /*(Dom.elements.stats.innerHTML !== "" ? "<br>" : "") +*/ item.functionText + (item.charges !== undefined ? "<br><br>" + item.charges + " Charges" : "");
-			}
-			// food
-			else if (item.healthRestore !== undefined && item.healthRestoreTime !== undefined) {
-				Dom.elements.lore.innerHTML = "Restores "+item.healthRestore+" health over "+item.healthRestoreTime+" seconds (whilst not in combat)";
+			if (item.functionText !== undefined && item.functionText !== "") {// && item.chooseStats === undefined) {
+				Dom.elements.functionText.innerHTML = item.functionText;
 			}
 			else {
-				Dom.elements.lore.innerHTML = ""; // string of all the additional information to be added
-				lorebuyer = "";
+				Dom.elements.functionText.innerHTML = "";
 			}
-			//let lorebuyer = "";
+
+			// durability
+			if (item.maxDurability !== undefined) {
+				Dom.elements.durability.innerHTML = "Durability: " + (item.durability || item.maxDurability) + "/" + item.maxDurability;
+			}
+			else {
+				Dom.elements.durability.innerHTML = "";
+			}
+
+			// charges
+			if (item.charges !== undefined) {
+				Dom.elements.charges.innerHTML = item.charges + " Charges";
+			}
+			else {
+				Dom.elements.charges.innerHTML = "";
+			}
+
+			// food
+			if (item.healthRestore !== undefined && item.healthRestoreTime !== undefined) {
+				Dom.elements.food.innerHTML = "Restores "+item.healthRestore+" health over "+item.healthRestoreTime+" seconds (whilst not in combat)";
+			}
+			else {
+				Dom.elements.food.innerHTML = "";
+			}
+
 			// item lore
 			if (item.lore !== undefined && item.lore !== "" && !Array.isArray(item.lore)) {
-				Dom.elements.lore.innerHTML += lorebuyer+"<i>"+item.lore+"</i>";
-				lorebuyer = "<br><br>";
-			}/*else {
+				Dom.elements.lore.innerHTML = item.lore;
+			}else {
 				Dom.elements.lore.innerHTML = "";
-			}*/
+			}
+
 			// item buyer price
 			if (position === "buyer" && item.sellPrice !== undefined && (item.quest === undefined || !item.quest())) {
-				Dom.elements.lore.innerHTML += lorebuyer+"Sell "+(item.sellQuantity !== 1 ? item.sellQuantity : "")+" for "+(item.charges === undefined ? item.sellPrice : Math.ceil(item.sellPrice / (item.maxCharges / item.charges)))+" gold";
+				// the maths to work out the prices
+				let charges = item.charges || item.durability;
+				let maxCharges = item.maxCharges || item.maxDurability;
+
+				Dom.elements.buyer.innerHTML = "Sell "+(item.sellQuantity !== 1 ? item.sellQuantity : "")+" for "+(charges === undefined ? item.sellPrice : Math.ceil((item.sellPrice-1) * charges / maxCharges))+" "+Items.currency[item.sellCurrency].name.toLowerCase();
 			}
+			else {
+				Dom.elements.buyer.innerHTML = "";
+			}
+
 			// item cooldown
 			if (item.cooldown !== undefined) {
 				item.countdownStart = item.cooldownStart;
 				item.countdown = item.cooldown;
 				item.countdownText = "On cooldown";
 			}
+
 			// misc timer
 			if (item.countdownStart !== undefined && parseInt(item.countdownStart) + item.countdown > parseInt(GetFullDateTime())) {
 				let answer = CalculateTime(GetFullDateTime(), (parseInt(item.countdownStart) + item.countdown).toString());
-				Dom.elements.lore.innerHTML += (Dom.elements.lore.innerHTML !== "" ? "<br><br>" : "") + item.countdownText+":<br>" + answer;
+				Dom.elements.cooldown.innerHTML = (Dom.elements.lore.innerHTML !== "" ? "<br><br>" : "") + item.countdownText+":<br>" + answer;
 				Dom.inventory.displayTimer = true;
 				setTimeout(function () {
 					if (Dom.inventory.displayTimer) {
 						Dom.inventory.displayInformation(item, stacked, element, position, "cooldown");
 					}
 				},1000);
+			}
+			else {
+				Dom.elements.cooldown.innerHTML = "";
 			}
 
 			Dom.elements.information.style.width = 1 + Math.max(Dom.elements.name.offsetWidth, Dom.elements.stats.offsetWidth)+"px";
@@ -2653,7 +2802,8 @@ Dom.inventory.give = function (item, num, position, noSave, noArchaeology) {
 		}
 
 		return position;
-	}else {
+	}
+	else {
 		return false;
 	}
 }
@@ -2700,58 +2850,6 @@ Dom.inventory.teleport = function (inventoryPosition) {
 	let to = Player.inventory.items[inventoryPosition].teleport;
 	Game.loadArea(to.location, {x: to.x, y: to.y});
 	Dom.inventory.displayInformation(Player.inventory.items[inventoryPosition], undefined, "inventoryPage", undefined, true);
-}
-
-// called for EVERY item onclick (even bank and trade, although no item onclick is called for these circumstances)
-Dom.inventory.cooldown = function (inventoryPosition, hotbar, check) {
-	let item = Player.inventory.items;
-	if (isNaN(inventoryPosition)) {
-		item = Player.inventory;
-	}
-
-	if (Dom.bank.active) {
-		Dom.inventory.inOut("in", inventoryPosition, "bank");
-	}
-	else if (Dom.trade.active) {
-		Dom.inventory.inOut("in", inventoryPosition, "trade");
-	}
-	else if (!item[inventoryPosition].unconsumable && !item[inventoryPosition].imageLoading) {
-		if (item[inventoryPosition].cooldown !== undefined) {
-			if (item[inventoryPosition].cooldownStart === undefined || parseInt(item[inventoryPosition].cooldownStart) + item[inventoryPosition].cooldown <= parseInt(GetFullDateTime())) {
-				//item[inventoryPosition].cooldownStart = GetFullDateTime();
-				if (!check) {
-					for (let i = 0; i < Player.inventory.items.length; i++) {
-						if (Player.inventory.items[i].type === item[inventoryPosition].type && Player.inventory.items[i].id === item[inventoryPosition].id) {
-							Player.inventory.items[i].cooldownStart = GetFullDateTime();
-						}
-					}
-					if ((item[inventoryPosition].onClickEventRequirement === undefined || item[inventoryPosition].onClickEventRequirement === Event.event) && (item[inventoryPosition].onClickAreaRequirement === undefined || item[inventoryPosition].onClickAreaRequirement.includes(Game.areaName))) {
-						if (item[inventoryPosition].onClickFunction !== undefined) {
-							item[inventoryPosition].onClickFunction(inventoryPosition, hotbar);
-						}
-					}
-				}
-				else {
-					return true;
-				}
-			}
-			else {
-				Dom.chat.insert("This item is on cooldown. You can use it in " + CalculateTime(GetFullDateTime(), (parseInt(item[inventoryPosition].cooldownStart) + item[inventoryPosition].cooldown).toString()));
-			}
-		}
-		else {
-			if (!check) {
-				if ((item[inventoryPosition].onClickEventRequirement === undefined || item[inventoryPosition].onClickEventRequirement === Event.event) && (item[inventoryPosition].onClickAreaRequirement === undefined || item[inventoryPosition].onClickAreaRequirement.includes(Game.areaName))) {
-					if (item[inventoryPosition].onClickFunction !== undefined) {
-						item[inventoryPosition].onClickFunction(inventoryPosition, hotbar);
-					}
-				}
-			}
-			else {
-				return true;
-			}
-		}
-	}
 }
 
 Dom.inventory.chooseStats = function (inventoryPosition) {
@@ -3673,12 +3771,14 @@ Dom.inventory.removeEquipment = function (array) {
 	if (array.set !== undefined) {
 		Dom.inventory.noSet = false;
 		for (let i = 0; i < Items.set[array.set].armour.length; i++) {
-			if (Player.inventory.helm.name !== Items.set[array.set].armour[i] && Player.inventory.chest.name !== Items.set[array.set].armour[i] && Player.inventory.greaves.name !== Items.set[array.set].armour[i] && Player.inventory.boots.name !== Items.set[array.set].armour[i]
+			if (Player.inventory.helm.name !== Items.set[array.set].armour[i] && Player.inventory.chest.name !== Items.set[array.set].armour[i] && Player.inventory.greaves.name !== Items.set[array.set].armour[i] && Player.inventory.boots.name !== Items.set[array.set].armour[i] && Player.inventory.weapon.name !== Items.set[array.set].armour[i]
 			&& array.name !== Items.set[array.set].armour[i] && array.name !== Items.set[array.set].armour[i] && array.name !== Items.set[array.set].armour[i] && array.name !== Items.set[array.set].armour[i]) {
 				// if the set bonus is NOT active
 				Dom.inventory.noSet = true;
 			}
 		}
+
+		// if a set has just been deactivated
 		if (!Dom.inventory.noSet) {
 			for (let i = 0; i < Object.keys(Items.set[array.set].stats).length; i++) {
 
@@ -3688,6 +3788,8 @@ Dom.inventory.removeEquipment = function (array) {
 					Player.stats[Object.keys(Items.set[array.set].stats)[i]] = false;
 				}
 			}
+
+			// multiplier
 			if (Items.set[array.set].multiplier !== undefined) {
 				for (let x = 0; x < Items.set[array.set].multiplier.length; x++) {
 					// repeats for each slot that the multiplier applies to (e.g. helm, chest...)
@@ -3697,6 +3799,28 @@ Dom.inventory.removeEquipment = function (array) {
 					}
 				}
 			}
+
+			// allChooseStats
+			if (Items.set[array.set].allChooseStats) {
+				for (let i = 0; i < Items.set[array.set].armour.length; i++) {
+					for (let x = 0; x < 5; x++) {
+						let item = Object.values(Player.inventory)[x];
+						if (item.name === Items.set[array.set].armour[i]) {
+							if (item.chooseStats !== undefined) {
+								for (let y = 0; y < Object.keys(item.chooseStats).length; y++) {
+									let stat = Object.keys(item.chooseStats)[y];
+									if (stat !== item.chosenStat) {
+										Player.stats[stat] -= item.chooseStats[stat];
+									}
+								}
+								item.allChooseStats = false;
+							}
+							break;
+						}
+					}
+				}
+			}
+
 		}
 	}
 	if (array.conditionalStats !== undefined) {
@@ -3761,11 +3885,13 @@ Dom.inventory.addEquipment = function (array, noSet) {
 	if (array.set !== undefined && !noSet) {
 		Dom.inventory.noSet = false;
 		for (let i = 0; i < Items.set[array.set].armour.length; i++) {
-			if (Player.inventory.helm.name !== Items.set[array.set].armour[i] && Player.inventory.chest.name !== Items.set[array.set].armour[i] && Player.inventory.greaves.name !== Items.set[array.set].armour[i] && Player.inventory.boots.name !== Items.set[array.set].armour[i]) {
+			if (Player.inventory.helm.name !== Items.set[array.set].armour[i] && Player.inventory.chest.name !== Items.set[array.set].armour[i] && Player.inventory.greaves.name !== Items.set[array.set].armour[i] && Player.inventory.boots.name !== Items.set[array.set].armour[i] && Player.inventory.weapon.name !== Items.set[array.set].armour[i]) {
 				// if the set bonus is NOT active
 				Dom.inventory.noSet = true;
 			}
 		}
+
+		// if a set has just been activated
 		if (!Dom.inventory.noSet) {
 			for (let i = 0; i < Object.keys(Items.set[array.set].stats).length; i++) {
 
@@ -3775,6 +3901,8 @@ Dom.inventory.addEquipment = function (array, noSet) {
 					Player.stats[Object.keys(Items.set[array.set].stats)[i]] = true;
 				}
 			}
+
+			// multiplier
 			if (Items.set[array.set].multiplier !== undefined) {
 				for (let x = 0; x < Items.set[array.set].multiplier.length; x++) {
 					// repeats for each slot that the multiplier applies to (e.g. helm, chest...)
@@ -3784,6 +3912,28 @@ Dom.inventory.addEquipment = function (array, noSet) {
 					}
 				}
 			}
+
+			// allChooseStats
+			if (Items.set[array.set].allChooseStats) {
+				for (let i = 0; i < Items.set[array.set].armour.length; i++) {
+					for (let x = 0; x < 5; x++) {
+						let item = Object.values(Player.inventory)[x];
+						if (item.name === Items.set[array.set].armour[i]) {
+							if (item.chooseStats !== undefined) {
+								for (let y = 0; y < Object.keys(item.chooseStats).length; y++) {
+									let stat = Object.keys(item.chooseStats)[y];
+									if (stat !== item.chosenStat) {
+										Player.stats[stat] += item.chooseStats[stat];
+									}
+								}
+								item.allChooseStats = true;
+							}
+							break;
+						}
+					}
+				}
+			}
+
 		}
 	}
 	if (array.conditionalStats !== undefined) {
@@ -4141,7 +4291,7 @@ Dom.buyer.page = function (npc) {
 	for (let i = 0; i < Player.inventory.items.length; i++) {
 		if (Player.inventory.items[i].image !== undefined) {
 			// building the table
-			Dom.elements.buyerPageInventory.getElementsByTagName("td")[i].innerHTML = "<img src='"+Player.inventory.items[i].image+"' draggable='true' ondragstart='Dom.inventory.drag(event, Player.inventory.items, "+i+")'></img>";;
+			Dom.elements.buyerPageInventory.getElementsByTagName("td")[i].innerHTML = "<img src='"+Player.inventory.items[i].image+"' draggable='true' ondragstart='Dom.inventory.drag(event, Player.inventory.items, "+i+")'></img>";
 			if (Player.inventory.items[i].stacked !== undefined && Player.inventory.items[i].stacked !== 1) {
 				Dom.elements.buyerPageInventory.getElementsByTagName("td")[i].innerHTML += "<div class='stackNum' id='stackNum"+i+"'>"+Player.inventory.items[i].stacked+"</div>";
 			}
@@ -4156,17 +4306,31 @@ Dom.buyer.page = function (npc) {
 				if (Player.inventory.items[i].stacked === undefined) {
 					Player.inventory.items[i].stacked = 1;
 				}
+
+				// onclick
 				Dom.elements.buyerPageInventory.getElementsByTagName("td")[i].onclick = function () {
 					if (!(!remove && i === 5 && Player.inventory.items[5].type === "bag") && Dom.inventory.check(Player.inventory.items[i].id, Player.inventory.items[i].type, Player.inventory.items[i].sellQuantity)) {
+
+						// the maths to work out the prices
+						let charges = Player.inventory.items[i].charges || Player.inventory.items[i].durability;
+						let maxCharges = Player.inventory.items[i].maxCharges || Player.inventory.items[i].maxDurability;
+
+						let price = charges === undefined ? Player.inventory.items[i].sellPrice : Math.ceil((Player.inventory.items[i].sellPrice-1) * charges / maxCharges);
+						let currency = Items.currency[Player.inventory.items[i].sellCurrency].name.toLowerCase();
+						let quantity = Player.inventory.items[i].sellQuantity !== 1 ? "per "+Player.inventory.items[i].sellQuantity+"?" : "each?";
+
+						// if there is more than one option of how many to sell
 						if (Player.inventory.items[i].stacked >= Player.inventory.items[i].sellQuantity*2) {
-							Dom.alert.page("How many <strong>"+Player.inventory.items[i].name+"</strong> would you like to sell for <strong>"+(Player.inventory.items[i].charges === undefined ? Player.inventory.items[i].sellPrice : Math.ceil(Player.inventory.items[i].sellPrice / (Player.inventory.items[i].maxCharges / Player.inventory.items[i].charges)))+" "+Items.currency[Player.inventory.items[i].sellCurrency].name.toLowerCase()+"</strong> "+(Player.inventory.items[i].sellQuantity !== 1 ? "per "+Player.inventory.items[i].sellQuantity+"?" : "each?"),
-							3, [Player.inventory.items[i].sellQuantity <= Player.inventory.items[i].stacked ? Player.inventory.items[i].sellQuantity : 0, Math.floor(Player.inventory.items[i].stacked/Player.inventory.items[i].sellQuantity)*Player.inventory.items[i].sellQuantity], "buyerPage", {
+							Dom.alert.page("How many <strong>"+Player.inventory.items[i].name+"</strong> would you like to sell for <strong> " + price + " " + currency + "</strong> " + quantity + "? You cannot buy it back!",
+							3, [Player.inventory.items[i].sellQuantity, Math.floor(Player.inventory.items[i].stacked/Player.inventory.items[i].sellQuantity)*Player.inventory.items[i].sellQuantity], "buyerPage", {
 								target: Dom.buyer.remove,
 								ev: [i],
 							});
 						}
+
+						// if there is only one option of how many to sell
 						else {
-							Dom.alert.page("Are you sure you want to sell <strong>"+(Player.inventory.items[i].sellQuantity > 1 ? Player.inventory.items[i].sellQuantity+" " : "")+(Player.inventory.items[i].unidentified ? "Unidentified "+Player.inventory.items[i].type[0].toUpperCase()+Player.inventory.items[i].type.substring(1) : Player.inventory.items[i].name)+"</strong> for <strong>"+(Player.inventory.items[i].charges === undefined ? Player.inventory.items[i].sellPrice : Math.ceil(Player.inventory.items[i].sellPrice / (Player.inventory.items[i].maxCharges / Player.inventory.items[i].charges)))+" "+Items.currency[Player.inventory.items[i].sellCurrency].name.toLowerCase()+"</strong>? You cannot buy it back!", 2, undefined, "buyerPage", {
+							Dom.alert.page("Are you sure you want to sell <strong>"+(Player.inventory.items[i].sellQuantity > 1 ? Player.inventory.items[i].sellQuantity+" " : "")+(Player.inventory.items[i].unidentified ? "Unidentified "+Player.inventory.items[i].type[0].toUpperCase()+Player.inventory.items[i].type.substring(1) : Player.inventory.items[i].name)+"</strong> for <strong>" + price + " " + currency + "</strong>? You cannot buy it back!", 2, undefined, "buyerPage", {
 								target: Dom.buyer.remove,
 								ev: [i],
 							});
@@ -4179,6 +4343,7 @@ Dom.buyer.page = function (npc) {
 						Dom.alert.page("Move some items to the bank, sell or dispose of them before you can do that.", 0, undefined, "buyerPage");
 					}
 				}
+
 			}
 			else {
 				Dom.elements.buyerPageInventory.getElementsByTagName("td")[i].onclick = function () {
@@ -4876,51 +5041,151 @@ Dom.inventory.reEquip = function (event) {
 	}
 }
 
+Dom.inventory.channel = function (array, i, hotbar) {
+
+	// set cooldownStart for all identical items
+	for (let x = 0; x < Player.inventory.items.length; x++) {
+		if (Player.inventory.items[x].type === array[i].type && Player.inventory.items[x].id === array[i].id) {
+			Player.inventory.items[x].cooldownStart = GetFullDateTime();
+		}
+	}
+
+	// call the function
+	array[i].onClickFunction(i, hotbar);
+
+}
+
 // array = array item is contained in
 // i = item's index in the array
 // element = element that the item is being prepared for
 // NEEDS COMMENTING
 Dom.inventory.prepare = function (array, i, element) {
-	/*if (arrayI[i].chooseStats !== undefined) {
-		Items[array[i].type][array[i].id].onClick = Dom.inventory.chooseStats;
-	}*/
+
+	// conditional choose stats init
 	if (array[i].conditionalChooseStats !== undefined) {
 		if (array[i].chooseStats === undefined) {
 			array[i].chooseStats = [];
 		}
-		//Player.conditionalChooseStats.push({type: array[i].type, id: array[i].id, active: [],});
 		Dom.inventory.conditionalStats();
 	}
+
+	// add class stats to stats
 	if (array[i].classStats !== undefined && array[i].classStats[Player.class] !== undefined) {
 		Object.assign(array[i].stats, array[i].classStats[Player.class]);
 	}
+
+	// set food onclick
 	if (array[i].healthRestore !== undefined && array[i].healthRestoreTime !== undefined) {
-		//array[i].secondClickFunction = Items[array[i].type][array[i].id].onClick;
-		Items[array[i].type][array[i].id].onClick = Dom.inventory.food;
-		//array[i].functionText = "Restores "+array[i].healthRestore+" health over "+array[i].healthRestoreTime+" seconds (whilst not in combat)";
+		Items[array[i].type][array[i].id].onClickFunction = Dom.inventory.food;
 	}
+
+	// set teleport onclick
 	if (array[i].type === "teleport") {
-		Items[array[i].type][array[i].id].onClick = Dom.inventory.teleport;
+		Items[array[i].type][array[i].id].onClickFunction = Dom.inventory.teleport;
 	}
-	if ((array[i].type === "sword" || array[i].type === "staff" || array[i].type === "bow" || array[i].type === "rod" || array[i].type === "tool") && array[i].name !== undefined) {
+
+	// set onClicks for equipment only
+	//if (array[i].name !== undefined) {
+
+	// set the true onClick to onClickFunction
+	//Items[array[i].type][array[i].id].onClickFunction = Items[array[i].type][array[i].id].onClick;
+
+	// work out type as the equipment slot (weapon, helm, etc...)
+	let type;
+	if (array[i].type === "sword" || array[i].type === "staff" || array[i].type === "bow" || array[i].type === "rod" || array[i].type === "tool") {
+		type = "weapon";
+	}
+	else if (array[i].type === "helm" || array[i].type === "chest" || array[i].type === "greaves" || array[i].type === "boots") {
+		type = array[i].type;
+	}
+
+	// if the item is a piece of equipment (and not unidentified) then set the onClick
+	if (type !== undefined && !array[i].unidentified) {
 		Items[array[i].type][array[i].id].onClick = function (i) {
+
+			// if bank is open then bank
 			if (Dom.bank.active) {
 				Dom.inventory.inOut("in", i, "bank");
 			}
+
+			// if trade is open then trade
 			else if (Dom.trade.active) {
 				Dom.inventory.inOut("in", i, "trade");
 			}
+
+			// if not equipped then equip
 			else if (!isNaN(i)) {
-				Dom.inventory.drop(Dom.elements.weapon, Player.inventory, "weapon", Dom.elements.itemInventory.getElementsByTagName("td")[i], Player.inventory.items, i); // to, from
+				Dom.inventory.drop(Dom.elements[type], Player.inventory, type, Dom.elements.itemInventory.getElementsByTagName("td")[i], Player.inventory.items, i); // to, from
 			}
+
+			// equipped item so chooseStats or unequip
 			else {
 				let chooseStats = false;
-				if (Player.inventory[i].chooseStats !== undefined) {
+
+				// chooseStats onClick if necessary
+				if (Player.inventory[i].chooseStats !== undefined && !Player.inventory[i].allChooseStats) {
 					Dom.inventory.deEquip = true;
 					if (Dom.inventory.chooseStats(i)) {
 						chooseStats = true;
 					}
 				}
+
+				// true onClick exists and is allowed
+				else if (Player.inventory[i].onClickFunction !== undefined && !Player.inventory[i].imageLoading && (Player.inventory[i].onClickEventRequirement === undefined || Player.inventory[i].onClickEventRequirement === Event.event) && (Player.inventory[i].onClickAreaRequirement === undefined || Player.inventory[i].onClickAreaRequirement.includes(Game.areaName))) {
+
+					// cooldown exists
+					if (Player.inventory[i].cooldown !== undefined) {
+
+						// if it is not currently on cooldown
+						if (Player.inventory[i].cooldownStart === undefined || parseInt(Player.inventory[i].cooldownStart) + Player.inventory[i].cooldown <= parseInt(GetFullDateTime())) {
+
+							// set cooldownStart for all identical items (NOT IF CHANNELED BECAUSE DONE AFTER)
+							if (Player.inventory[i].channel === undefined) {
+								for (let x = 0; x < Player.inventory.items.length; x++) {
+									if (Player.inventory.items[x].type === Player.inventory[i].type && Player.inventory.items[x].id === Player.inventory[i].id) {
+										Player.inventory.items[x].cooldownStart = GetFullDateTime();
+									}
+								}
+							}
+
+							// call the normal onClick since the cooldown was not active
+
+							// must be channelled
+							if (Player.inventory[i].channel !== undefined) {
+								Game.hero.channel(Dom.inventory.channel, [Player.inventory, i], Player.inventory[i].channel, Player.inventory[i].name);
+							}
+
+							// no channel (call immediately)
+							else {
+								Player.inventory[i].onClickFunction(i, hotbar);
+							}
+
+						}
+
+						// if it is currently on cooldown
+						else {
+							Dom.chat.insert("This item is on cooldown. You can use it in " + CalculateTime(GetFullDateTime(), (parseInt(Player.inventory[i].cooldownStart) + Player.inventory[i].cooldown).toString()));
+						}
+
+					}
+
+					// no cooldown
+					else {
+
+						// must be channelled
+						if (Player.inventory[i].channel !== undefined) {
+							Game.hero.channel(Player.inventory[i].onClickFunction, [i], Player.inventory[i].channel, Player.inventory[i].name);
+						}
+
+						// no channel (call immediately)
+						else {
+							Player.inventory[i].onClickFunction(i);
+						}
+
+					}
+				}
+
+				// unequip
 				if (!chooseStats) {
 					if (Dom.inventory.give(Player.inventory[i], 1, undefined, true) !== false) { // don't save while you have one equipped AND on in inventory
 						Dom.inventory.deEquip = true;
@@ -4934,72 +5199,122 @@ Dom.inventory.prepare = function (array, i, element) {
 			}
 		}
 	}
-	if ((array[i].type === "helm" || array[i].type === "chest" || array[i].type === "greaves" || array[i].type === "boots") && array[i].name !== undefined) {
-		Items[array[i].type][array[i].id].onClick = function (i) {
+
+	// set the onClick for items which are not equipment (unidentified items are included here)
+	else {
+		Items[array[i].type][array[i].id].onClick = function (i, hotbar) {
+
+			// if bank is open then bank
 			if (Dom.bank.active) {
 				Dom.inventory.inOut("in", i, "bank");
 			}
+
+			// if trade is open then trade
 			else if (Dom.trade.active) {
 				Dom.inventory.inOut("in", i, "trade");
 			}
-			else if (!isNaN(i)) {
-				Dom.inventory.drop(document.getElementById(Player.inventory.items[i].type), Player.inventory, Player.inventory.items[i].type, Dom.elements.itemInventory.getElementsByTagName("td")[i], Player.inventory.items, i); // to, from
-			}else {
-				let chooseStats = false;
-				if (Player.inventory[i].chooseStats !== undefined) {
-					Dom.inventory.deEquip = true;
-					if (Dom.inventory.chooseStats(i)) {
-						chooseStats = true;
+
+			let array = Player.inventory.items;
+			if (isNaN(i)) {
+				array = Player.inventory;
+			}
+
+			// true onClick exists and is allowed
+			else if (array[i].onClickFunction !== undefined && !Player.inventory.items[i].unconsumable && !array[i].imageLoading && (array[i].onClickEventRequirement === undefined || array[i].onClickEventRequirement === Event.event) && (array[i].onClickAreaRequirement === undefined || array[i].onClickAreaRequirement.includes(Game.areaName))) {
+
+				// cooldown exists
+				if (array[i].cooldown !== undefined) {
+
+					// if it is not currently on cooldown
+					if (array[i].cooldownStart === undefined || parseInt(array[i].cooldownStart) + array[i].cooldown <= parseInt(GetFullDateTime())) {
+
+						// set cooldownStart for all identical items (NOT IF CHANNELED BECAUSE DONE AFTER)
+						if (array[i].channel === undefined) {
+							for (let x = 0; x < Player.inventory.items.length; x++) {
+								if (Player.inventory.items[x].type === array[i].type && Player.inventory.items[x].id === array[i].id) {
+									Player.inventory.items[x].cooldownStart = GetFullDateTime();
+								}
+							}
+						}
+
+						// call the normal onClick since the cooldown was not active
+
+						// must be channelled
+						if (array[i].channel !== undefined) {
+							Game.hero.channel(Dom.inventory.channel, [array, i, hotbar], array[i].channel, array[i].name);
+						}
+
+						// no channel (call immediately)
+						else {
+							array[i].onClickFunction(i, hotbar);
+						}
+
 					}
+
+					// if it is currently on cooldown
+					else {
+						Dom.chat.insert("This item is on cooldown. You can use it in " + CalculateTime(GetFullDateTime(), (parseInt(array[i].cooldownStart) + array[i].cooldown).toString()));
+					}
+
 				}
-				if (!chooseStats) {
-					if (Dom.inventory.give(Player.inventory[i], 1, undefined, true) !== false) { // don't save while you have one equipped AND one in inventory
-						Dom.inventory.deEquip = true;
-						Dom.inventory.removeEquipment(Player.inventory[i]);
-						Player.inventory[i] = {};
-						Game.equipmentUpdate();
-						document.getElementById(i).innerHTML = "";
-						Game.inventoryUpdate();
+
+				// no cooldown
+				else {
+
+					// must be channelled
+					if (array[i].channel !== undefined) {
+						Game.hero.channel(array[i].onClickFunction, [i, hotbar], array[i].channel, array[i].name);
+					}
+
+					// no channel (call immediately)
+					else {
+						array[i].onClickFunction(i, hotbar);
 					}
 				}
 			}
 		}
 	}
-	if (!array[i].unidentified) {
-		array[i].onClickFunction = Items[array[i].type][array[i].id].onClick;
-		//if (array[i].onClickFunction !== undefined) {
-			if (array[i].channel !== undefined) {
-				array[i].onClick = function (inventoryPosition) {
-					if (Dom.inventory.cooldown(inventoryPosition, false, true)) {
-						Game.hero.channel(Dom.inventory.cooldown, [inventoryPosition], Player.inventory.items[inventoryPosition].channel, Player.inventory.items[inventoryPosition].name);
-					}
-				}
+	//}
+
+	//if (!array[i].unidentified) {
+	/*array[i].onClickFunction = Items[array[i].type][array[i].id].onClick;
+	if (array[i].channel !== undefined) {
+		array[i].onClick = function (inventoryPosition) {
+			if (Dom.inventory.cooldown(inventoryPosition, false, true)) {
+				Game.hero.channel(Dom.inventory.cooldown, [inventoryPosition], Player.inventory.items[inventoryPosition].channel, Player.inventory.items[inventoryPosition].name);
 			}
-			else {
-				array[i].onClick = Dom.inventory.cooldown;
-			}
-		//}
-		array[i].onKill = Items[array[i].type][array[i].id].onKill;
-		array[i].onHit = Items[array[i].type][array[i].id].onHit;
-		array[i].onAttack = Items[array[i].type][array[i].id].onAttack;
-		array[i].onCatch = Items[array[i].type][array[i].id].onCatch;
-		array[i].onOpen = Items[array[i].type][array[i].id].onOpen;
-		if (!array[i].quest) {
-			array[i].quest = Items[array[i].type][array[i].id].quest;
 		}
 	}
+	else {
+		array[i].onClick = Dom.inventory.cooldown;
+	}*/
+	array[i].onClick = Items[array[i].type][array[i].id].onClick;
+	array[i].onClickFunction = Items[array[i].type][array[i].id].onClickFunction;
+	array[i].onKill = Items[array[i].type][array[i].id].onKill;
+	array[i].onHit = Items[array[i].type][array[i].id].onHit;
+	array[i].onAttack = Items[array[i].type][array[i].id].onAttack;
+	array[i].onCatch = Items[array[i].type][array[i].id].onCatch;
+	array[i].onOpen = Items[array[i].type][array[i].id].onOpen;
+	if (!array[i].quest) {
+		array[i].quest = Items[array[i].type][array[i].id].quest;
+	}
+	/*}
+
 	// unidentified item onclick (for bank and trade)
 	else {
 		array[i].onClick = function (inventoryPosition) {
 			Dom.inventory.cooldown(inventoryPosition)
 		}
-	}
+	}*/
+
+	// update the element
 	if (element !== undefined) {
 		element.innerHTML = "<img src='"+array[i].image+"' draggable='true' ondragstart='Dom.inventory.drag(event,"+(array === Player.inventory.items ? "Player.inventory.items,"+i : 'Player.inventory, "'+i+'"')+")' "+(array[i].onClick !== undefined ? "onclick='Player.inventory"+(array === Player.inventory.items?".items["+i+"].onClick("+i+")'":"."+i+".onClick(\""+i+"\")'") : "")+"></img>";
 		if (array[i].stacked !== undefined && array[i].stacked !== 1) {
 			element.innerHTML += "<div class='stackNum' id='stackNum"+i+"'>"+array[i].stacked+"</div>";
 		}
 	}
+
 }
 
 document.oncontextmenu = function (ev) {
@@ -5461,8 +5776,7 @@ Dom.trade.complete = function () {
 }
 
 Dom.elements.canvasChatInput.onfocus = function () {
-	Dom.elements.canvasChatInput.style.backgroundColor = "rgba(0, 0, 0, 0.6)";
-	Dom.elements.canvasSend.style.opacity = 0.6;
+	document.documentElement.style.setProperty('--chatOpacity', 0.6);
 }
 
 window.onbeforeunload = function() {
@@ -6170,7 +6484,10 @@ Dom.init = function () {
 
 	if (localStorage.getItem("accept") !== "true") {
 		Dom.alert.page("This site uses local storage for progress saving, do you accept?", 2, undefined, "game", {
-			target: Dom.settings.acceptOn,
+			target: function () {
+				Dom.elements.acceptOn.checked = true;
+				Dom.settings.acceptOn();
+			},
 		});
 	}
 	else {
