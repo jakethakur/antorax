@@ -237,9 +237,14 @@ function arrange(){
 		if(array[i].size !== undefined){
 			document.getElementById("img"+i).style.backgroundSize = array[i].size;
 		}
-		if(array[i].expand !== undefined){
+
+		// extra information on clicking
+		if(array[i].expand !== undefined) {
+			// mouse pointer when hovering over
 			document.getElementById("box"+i).style.cursor = "pointer";
-			if(array[i].expand.type === "progressBar" || array[i].expand.type === "redirect"){
+
+			if(array[i].expand.type === "progressBar" || array[i].expand.type === "redirect") {
+				// progress bar
 				if (typeof array[i].expand.value !== "function") {
 					document.getElementById("box"+i).innerHTML += "<div class='progressBar' id='progressBar"+i+"' hidden><div class='innerProgressBar' style='width: "+(array[i].expand.value/array[i].expand.total*433)+"px;'></div><div class='progressBarText'>"+(array[i].expand.value !== undefined ? array[i].expand.value : 0)+"/"+array[i].expand.total+"</div></div>";
 				}else{
@@ -249,37 +254,36 @@ function arrange(){
 					document.getElementById("box"+i).innerHTML += "<a hidden class='link' id='link"+i+"' href='"+array[i].expand.location+"' target='_blank'>"+array[i].expand.text+"</a>";
 					document.getElementById("progressBar"+i).style.bottom = "35px";
 				}
-			}else if(array[i].expand.type === "checkList"){
+			}
+
+			else if(array[i].expand.type === "checkList") {
+				// checklist
 				document.getElementById("box"+i).innerHTML += "<div class='checkList' id='progressBar"+i+"' hidden></div>";
-				if(array[i].class === "single"){
-					if(array[i].expand.saved === "quest"){
-						for(let x = 0; x < array[i].expand.text.length; x++){
-							generateList(i, x, Archer.quests.completedQuestArray.includes(array[i].expand.complete[x]), Mage.quests.completedQuestArray.includes(array[i].expand.complete[x]), Knight.quests.completedQuestArray.includes(array[i].expand.complete[x]))
-						}
-							/*let text = array[i].expand.text[x];
-							let text2 = " <strong>";
-							let length = 0;
-							if(Archer.quests.completedQuestArray.includes(array[i].expand.complete[x])){
-								length++;
-								text2 += "&#10166";
-							}
-							if(Mage.quests.completedQuestArray.includes(array[i].expand.complete[x])){
-								length++;
-								text2 += "&#9882";
-							}
-							if(Knight.quests.completedQuestArray.includes(array[i].expand.complete[x])){
-								length++;
-								text2 += "&#9876";
-							}
-							document.getElementById("progressBar"+i).innerHTML += (text.length + (length > 0 ? length*2+2 : 0) > 30 ? text.substring(0, 30-(length > 0 ? length*2+2 : 0))+"..." : text)+text2+"</strong><br>";*/
-					}else{
-						for(let x = 0; x < array[i].expand.text.length; x++){
-							//document.getElementById("progressBar"+i).innerHTML += array[i].expand.text[x]+"&nbsp;<strong>"+(Archer.quests.questProgress[array[i].expand.complete[x]] ? "&#10166" : "")+(Mage.quests.questProgress[array[i].expand.complete[x]] ? "&#9882" : "")+(Knight.quests.questProgress[array[i].expand.complete[x]] ? "&#9876" : "")+"</strong><br>";
-							generateList(i, x, Archer.quests.questProgress[array[i].expand.complete[x]], Mage.quests.questProgress[array[i].expand.complete[x]], Knight.quests.questProgress[array[i].expand.complete[x]])
+				if (array[i].class === "single"){
+					// an individual class must complete all objectives - show class icons next to each completed
+					if (array[i].expand.saved === "quest") {
+						// data saved in quests.completedQuestArray
+						for (let x = 0; x < array[i].expand.text.length; x++) {
+							generateList(i, x, Archer.quests.completedQuestArray.includes(array[i].expand.complete[x]), Mage.quests.completedQuestArray.includes(array[i].expand.complete[x]), Knight.quests.completedQuestArray.includes(array[i].expand.complete[x]));
 						}
 					}
-				}else{
-					for(let x = 0; x < array[i].expand.text.length; x++){
+					else if (array[i].expand.saved === "boss") {
+						// data saved in bossesKilled
+						for (let x = 0; x < array[i].expand.text.length; x++) {
+							generateList(i, x, Archer.bossesKilled[array[i].expand.complete[x]], Mage.bossesKilled[array[i].expand.complete[x]], Knight.bossesKilled[array[i].expand.complete[x]]);
+						}
+					}
+					else {
+						// data saved in quests.questProgress
+						for (let x = 0; x < array[i].expand.text.length; x++) {
+							generateList(i, x, Archer.quests.questProgress[array[i].expand.complete[x]], Mage.quests.questProgress[array[i].expand.complete[x]], Knight.quests.questProgress[array[i].expand.complete[x]]);
+						}
+					}
+				}
+				else if (array[i].class === "cumulative") {
+					// all classes can contribute - just show a tick box
+					// only checklist that uses this is fish, so no need to check .saved
+					for (let x = 0; x < array[i].expand.text.length; x++) {
 						document.getElementById("progressBar"+i).innerHTML += array[i].expand.text[x]+(User.fish[array[i].expand.complete[x]] ? " &#10004;" : "")+"<br>";
 					}
 				}

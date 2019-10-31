@@ -113,9 +113,12 @@ var Player = {
 		lifesteal: 0, // (10%)
 		xpBonus: 0, // (20%)
 		frostaura: false, // boolean
-		penetration: false, // boolean (if projectile damages more than one enemy)
+		splashDamage: false, // boolean (if projectile damages more than one enemy)
 		hex: 0, // (30%)
 		damagePercentage: 0, // (40%) extra percentage of damage dealt
+		windShield: false, // boolean
+		slowAmount: 0, // (50% for 3s) amount of slow to enemies on attack
+		slowTime: 0, // time of slow to enemies on attack
 
 		// fishing
 		fishingSkill: 0, // (1.1) increased when you fish stuff up (increased by main.js)

@@ -129,7 +129,10 @@ function Stats (stat, value, array) {
 		return stat+" "+Romanize(value)+"<br>";
 	}
 	else if (stat === "Poison X") {
-		return "Poison: "+NumberSign(value)+"/"+array.poisonY+"s<br>";
+		return "Poison: " + NumberSign(value) + "/" + array.poisonY + "s<br>";
+	}
+	else if (stat === "Slow Amount") {
+		return "Slow: -" + value + "% for " + array.slowTime + "s<br>";
 	}
 	else if (stat === "Damage") {
 		return stat+": "+value + (array.maxDamage > value ? "-" + array.maxDamage : "")+"<br>";
@@ -137,7 +140,7 @@ function Stats (stat, value, array) {
 	else if (stat === "Minimum Variance") {
 		return stat+": "+value+"<br>";
 	}
-	else if (stat === "Frostaura") {
+	else if (stat === "Frostaura" || stat === "Splash Damage" || stat === "Wind Shield") {
 		return stat+"<br>";
 	}
 	else {
@@ -750,6 +753,9 @@ var StatsInfo = {
 	fishingSkill: "Changes the fish that can be fished up from a location.",
 	minimumVariance: "Changes the minimum variance of projectiles fired by the weapon.",
 	durability: "The number of attacks that can be dealt by the weapon before it breaks.",
+	splashDamage: "Damages all enemies at the location, rather than just one.",
+	windShield: "Prevents player movement caused by wind.",
+	slow: "Slows hit enemies for a certain period of time. This effect can stack to slow them for longer."
 }
 
 if(viewedItemId != undefined && viewedItemType != undefined){
@@ -790,7 +796,10 @@ else{
 	}else{
 		screenSize = 245*3+45;
 	}
-	total = GetTotalArchaeologyItems(archaeology);
+
+	// get total number of items in archaeology
+	total = GetTotalItems(function(item){return true}, archaeology);
+
 	//checkChange();
 	init();
 	//arrange();

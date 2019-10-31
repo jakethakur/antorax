@@ -437,12 +437,12 @@ const EnemyTemplates = {
 				damage: 5,
 				walkSpeed: 70,
 				swimSpeed: 70,
-				maxHealth: 400,
-				defence: 20,
+				maxHealth: 350,
+				defence: 15,
 				range: 90,
 				healthRegen: 0, // no regen in the blood moon
 				reloadTime: 1000,
-				lootTime: 10000,
+				lootTime: 20000,
 				alwaysMove: true, // move even when in range
 			},
 			spells: [
@@ -479,8 +479,10 @@ const EnemyTemplates = {
 					if (replaceTiles !== false) {
 						this.channel(function () {
 							// make boss stronger
-							this.stats.maxHealth += 25;
+							this.stats.maxHealth += 30;
 							this.health = this.stats.maxHealth;
+							// save the increased health
+							Player.quests.questProgress.sheridanMaxHealth = this.stats.maxHealth;
 							// remove log from tilemap
 							replaceTiles();
 							// find a new log to move towards!
@@ -529,5 +531,173 @@ const EnemyTemplates = {
 				},
 			}
 		},
+
+		barebonesNkkja: {
+			speciesTemplate: SpeciesTemplates.nilbogGoblin,
+			image: "barebonesNkkja",
+			deathImage: "barebonesNkkjaCorpse",
+			name: "'Barebones' Nkkja",
+			hostility: "boss",
+			bossKilledVariable: "barebonesNkkja",
+			level: 15,
+			stats: {
+				damage: 4,
+				walkSpeed: 110,
+				swimSpeed: 50,
+				iceSpeed: 160,
+				maxHealth: 300,
+				defence: 4,
+				range: 200,
+				reloadTime: 750,
+				healthRegen: 0, // no regen in the blood moon
+				lootTime: 20000,
+				windShield: true,
+			},
+			spells: [
+				// ordered in order of boss priority to spells
+				{
+					name: "aeromancy",
+					tier: 1,
+					parameters: function () { // returns array of parameters
+						Dom.chat.insert(Dom.chat.say("'Barebones' Nkkja", "The wind obeys me!"));
+						return {
+							speed: 60,
+							direction: ToRadians(Random(1, 360)),
+							time: 20000,
+						};
+					},
+					castCondition: function (caster) {
+						// cauldron not destroyed
+						return !Player.quests.questProgress.nkkjaWindCauldronDestroyed;
+					},
+					interval: 40000,
+				},
+				{
+					name: "animate",
+					tier: 1,
+					parameters: function () { // returns array of parameters
+						return {
+							number: 2,
+							location: [
+								{
+									x: 650,
+									y: 10,
+									width: 180,
+									height: 30,
+								},
+								{
+									x: 640,
+									y: 440,
+									width: 100,
+									height: 120,
+								},
+								{
+									x: 635,
+									y: 960,
+									width: 120,
+									height: 60,
+								},
+								{
+									x: 1247,
+									y: 30,
+									width: 150,
+									height: 180,
+								},
+								{
+									x: 2067,
+									y: 861,
+									width: 120,
+									height: 240,
+								},
+								{
+									x: 1568,
+									y: 1400,
+									width: 780,
+									height: 180,
+								},
+								{
+									x: 1568,
+									y: 1400,
+									width: 780,
+									height: 180,
+								},
+								{
+									x: 1328,
+									y: 1555,
+									width: 1020,
+									height: 120,
+								},
+							],
+							// properties of enemies
+							image: "mudAnimation",
+							name: "Bog Animation",
+							hostility: "hostile",
+							level: 6,
+							corpseOnDeath: false,
+							respawnOnDeath: false,
+							stats: {
+								maxHealth: 24,
+								defence: 0,
+								damage: 4,
+								range: 60,
+								slowAmount: 35,
+								slowTime: 1.5,
+								reloadTime: 1000,
+								walkSpeed: 75,
+								swimSpeed: 75,
+								healthRegen: 0, // no health regen in blood moon
+								windShield: true,
+							},
+							projectile: {
+								image: "melee",
+							},
+							leashRadius: 3000, // doesn't leash
+							xpGiven: 44,
+						};
+					},
+					castCondition: function (caster) {
+						// cauldron not destroyed
+						return !Player.quests.questProgress.nkkjaEarthCauldronDestroyed;
+					},
+					interval: 17000,
+				},
+				{
+					name: "lightning",
+					tier: 1,
+					parameters: function () { // returns array of parameters
+						return {
+							target: Game.hero,
+						};
+					},
+					castCondition: function (caster) {
+						// cauldron not destroyed
+						return !Player.quests.questProgress.nkkjaLightningCauldronDestroyed;
+					},
+					interval: 9000,
+				},
+			],
+			leashRadius: 3000, // doesn't leash
+			xpGiven: 250, // tbc?
+			projectile: {
+				image: "fireballGreen"
+			},
+			lootTableTemplate: [BossLootTables.barebonesNkkja, EnemyLootTables.nilbogGoblin],
+			inventorySpace: 12,
+		},
+		nkkjaCauldron: {
+			image: "cauldron",
+			hostility: "neutral",
+			level: 1,
+			xpGiven: 0,
+			corpseOnDeath: false,
+			respawnOnDeath: false,
+			stats: {
+				walkSpeed: 0,
+				maxHealth: 100,
+				healthRegen: 0,
+			},
+		},
+
+
 	},
 };

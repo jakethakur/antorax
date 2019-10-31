@@ -18,7 +18,7 @@ var Adventure = {
 	samhain: {
 		html: `<div id="samhainAL" class="adventure">
 			Samhain Event<br>
-			<span class="adventureContent">Kill stronger enemies and special bosses during a blood moon to buy limited edition items.</span>
+			<span class="adventureContent">Kill stronger enemies and special bosses during a blood moon to get limited edition items.</span>
 		</div>`,
 		condition: function () {
 			return Event.event === "Samhain";

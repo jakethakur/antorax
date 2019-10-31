@@ -1309,6 +1309,7 @@ Dom.inventory.updatePosition = function (object, element) {
 	}
 }
 
+// display player info when hovering over their head in the inventory
 Dom.inventory.displayIdentification = function (display) {
 	if (display) {
 		Dom.elements.itemIdentification.hidden = false;
@@ -1318,8 +1319,15 @@ Dom.inventory.displayIdentification = function (display) {
 	if (Player.level !== LevelXP.length - 1) {
 		Dom.elements.innerStats.innerHTML += "<br><strong>XP: " + Round(100*Player.xp/LevelXP[Player.level],2) + "%</strong> ("+Round(Player.xp)+"/"+LevelXP[Player.level]+")";
 	}
+
+	//
+	// stats
+	//
 	Dom.elements.innerStats.innerHTML += "<br><br><strong>Stats:</strong>";
+
+	// these should stay at the top
 	Dom.elements.innerStats.innerHTML += "<br>Max Health: " + Player.stats.maxHealth;
+	// damage
 	if (Player.inventory.weapon.name !== "") {
 		Dom.elements.innerStats.innerHTML += "<br>Damage: " + Round(Player.stats.damage+Player.stats.damage*Player.stats.damagePercentage/100);
 		if (Player.stats.maxDamage !== 0 && Player.stats.maxDamage !== Player.stats.damage) {
@@ -1329,10 +1337,13 @@ Dom.inventory.displayIdentification = function (display) {
 	else {
 		Dom.elements.innerStats.innerHTML += "<br>Damage: 0";
 	}
+	// defence
 	Dom.elements.innerStats.innerHTML += "<br>Defence: " + Player.stats.defence;
 	if (Player.stats.blockDefence !== 0) {
 		Dom.elements.innerStats.innerHTML += "<br>Block Defence: " + Player.stats.blockDefence;
 	}
+
+	// alphabetical order
 	Dom.elements.innerStats.innerHTML += "<br>Critical Chance: " + Player.stats.criticalChance + "%";
 	Dom.elements.innerStats.innerHTML += "<br>Dodge Chance: " + Player.stats.dodgeChance + "%";
 	if (Player.stats.flaming !== 0) {
@@ -1355,7 +1366,7 @@ Dom.inventory.displayIdentification = function (display) {
 		Dom.elements.innerStats.innerHTML += "<br>Looting: " + Player.stats.looting + "%";
 	}
 	if (Player.stats.minimumVariance !== 0) {
-		Dom.elements.innerStats.innerHTML += "<br>Minimum Projectile Variance: " + Player.stats.minimumVariance;
+		Dom.elements.innerStats.innerHTML += "<br>Min Projectile Variance: " + Player.stats.minimumVariance;
 	}
 	if (Player.stats.poisonX !== 0 && Player.stats.posionY !== 0) {
 		Dom.elements.innerStats.innerHTML += "<br>Poison: " + Player.stats.poisonX + "/" + Player.stats.poisonY + "s";
@@ -1365,6 +1376,12 @@ Dom.inventory.displayIdentification = function (display) {
 	}
 	if (Player.stats.reloadTime !== 500) {
 		Dom.elements.innerStats.innerHTML += "<br>Reload Time: " + Player.stats.reloadTime/1000 + "s";
+	}
+	if (Player.stats.slowAmount !== 0 && Player.stats.slowTime !== 0) {
+		Dom.elements.innerStats.innerHTML += "<br>Slow: " + Player.stats.slowAmount + "% for " + Player.stats.slowTime + "s";
+	}
+	if (Player.stats.splashDamage && Player.class === "a") {
+		Dom.elements.innerStats.innerHTML += "<br>Splash Damage";
 	}
 	if (Player.stats.stun !== 0) {
 		Dom.elements.innerStats.innerHTML += "<br>Stun: " + Player.stats.stun + "s";
@@ -1377,9 +1394,15 @@ Dom.inventory.displayIdentification = function (display) {
 	if (Player.stats.xpBonus !== 0) {
 		Dom.elements.innerStats.innerHTML += "<br>XP Bonus: " + Player.stats.xpBonus + "%";
 	}
+
+	// these should stay at the bottom
 	if (Player.stats.fishingSkill !== 0) {
 		Dom.elements.innerStats.innerHTML += "<br>Fishing Skill: " + Round(Player.stats.fishingSkill);
 	}
+
+	//
+	// status effects
+	//
 	if (Player.statusEffects.length !== 0) {
 		Dom.elements.innerStatus.innerHTML = "<strong>Status Effects:</strong>";
 		for (let i = 0; i < Player.statusEffects.length; i++) {
@@ -1417,7 +1440,10 @@ Dom.inventory.stats = function (stat, value, array) {
 		return stat+" "+Romanize(value)+"<br>";
 	}
 	else if (stat === "Poison X") {
-		return "Poison: "+NumberSign(value)+"/"+array.poisonY+"s<br>";
+		return "Poison: " + NumberSign(value) + "/" + array.poisonY + "s<br>";
+	}
+	else if (stat === "Slow Amount") {
+		return "Slow: -" + value + "% for " + array.slowTime + "s<br>";
 	}
 	else if (stat === "Damage") {
 		return stat+": "+value + (array.maxDamage > value ? "-" + array.maxDamage : "")+"<br>";
@@ -1425,7 +1451,7 @@ Dom.inventory.stats = function (stat, value, array) {
 	else if (stat === "Minimum Variance") {
 		return stat+": "+value+"<br>";
 	}
-	else if (stat === "Frostaura") {
+	else if (stat === "Frostaura" || stat === "Splash Damage" || stat === "Wind Shield") {
 		return stat+"<br>";
 	}
 	else {
@@ -2840,6 +2866,7 @@ Dom.inventory.food = function (inventoryPosition) {
 			effectTitle: Player.inventory.items[inventoryPosition].name,
 			healthRestore: Player.inventory.items[inventoryPosition].healthRestore,
 			time: Player.inventory.items[inventoryPosition].healthRestoreTime,
+			bloodMoonRestore: Player.inventory.items[inventoryPosition].bloodMoonRestore,
 		});
 		// remove the item
 		Dom.inventory.remove(inventoryPosition);
@@ -3863,6 +3890,8 @@ Dom.inventory.removeEquipment = function (array) {
 	Dom.inventory.afterChangedStats();
 }
 
+// array is equipment's object (as in itemdata) - i.e. array.stats is the item's stats
+// (tbd rename variable 'array'!)
 Dom.inventory.addEquipment = function (array, noSet) {
 	// remove slot background
 	let element = "weapon";
@@ -3872,16 +3901,30 @@ Dom.inventory.addEquipment = function (array, noSet) {
 	document.getElementById(element).style.backgroundImage = "none";
 
 	Dom.inventory.beforeChangedStats();
-	if (array.stats !== undefined) {
-		for (let i = 0; i < Object.keys(array.stats).length; i++) {
 
-			if (array.stats[Object.keys(array.stats)[i]] !== true) {
-				Player.stats[Object.keys(array.stats)[i]] += array.stats[Object.keys(array.stats)[i]];
-			}else {
-				Player.stats[Object.keys(array.stats)[i]] = true;
+	if (array.stats !== undefined) {
+		let itemStatKeys = Object.keys(array.stats);
+
+		for (let i = 0; i < itemStatKeys.length; i++) {
+			let itemStat = array.stats[itemStatKeys[i]];
+
+			// add each of the stats of the item equipped
+			// behaves differently based on data type
+			if (typeof itemStat === "number") {
+				Player.stats[itemStatKeys[i]] += itemStat;
+			}
+			else if (typeof array.stats[Object.keys(array.stats)[i]] === "boolean") {
+				Player.stats[itemStatKeys[i]] = itemStat;
+			}
+			else if (typeof array.stats[Object.keys(array.stats)[i]] === "string") {
+				Player.stats[itemStatKeys[i]] = itemStat;
+			}
+			else {
+				console.error("Unexpected item stat value: ", itemStat);
 			}
 		}
 	}
+
 	if (array.set !== undefined && !noSet) {
 		Dom.inventory.noSet = false;
 		for (let i = 0; i < Items.set[array.set].armour.length; i++) {
@@ -6253,7 +6296,7 @@ Dom.init = function () {
 
 		// christmas daily rewards
 		if (Event.event === "Christmas") {
-			let randomNPC = Player.metNPCs[Random(0, Player.metNPCs.length-1)]; // NPC that sent message
+			let randomNPC = Player.metNPCs[Random(0, Player.metNPCs.length-1)]; // NPC that sent message (one the player's met before!)
 			if (Event.christmasDay) { // christmas day
 				Dom.mail.give(
 					"Merry Christmas!",
@@ -6269,17 +6312,6 @@ Dom.init = function () {
 			else if (date.substring(6) < "25") { // before christmas
 				Dom.mail.give(
 					25 - parseInt(date.substring(6)) + " Day"+(parseInt(date.substring(6)) !== 24 ? "s" : "")+" To Go!",
-					randomNPC,
-					ToCamelCase(randomNPC),
-					"text.page",
-					["Merry Christmas!",
-					"This is your free daily chistmas token. Spend it wisely!", true, [], [],
-					[{item: Items.currency[5]}]], [{item: Items.currency[5]}],
-				);
-			}
-			else { // after christmas (in december)
-				Dom.mail.give(
-					parseInt(date.substring(6)) + " of Christmas 2018",
 					randomNPC,
 					ToCamelCase(randomNPC),
 					"text.page",
@@ -6352,6 +6384,19 @@ Dom.init = function () {
 			    ["Happy James Day!",
 			    "For some reason they asked <em>me</em> to send some mail out to everyone today. There might be an event on, but that doesn't mean you can stop working. We need more workers in the Logging Camp.<br><br>Marshall Teper", true, [], [],
 			    [{item: Items.boots[7]}]], [{item: Items.boots[7]}],
+			);
+		}
+
+		// Samhain mail
+		else if (Event.event === "Samhain") {
+			Dom.mail.give(
+			    "Bumper Samhain Harvest!",
+			    "Farmer Lennie",
+                "./assets/items/helm/23",
+			    "text.page",
+			    ["Bumper Samhain Harvest!",
+			    `Hope you're having a good Samhain! What's a pumpkin doing in your mailbox? Out at the Eaglecrest Ranch we've had a bumper harvest of pumpkins, only makes sense to share them with everyone. Oh - and don't forget to try some of the pumpkin treats in a tavern.<br><br>Lennie`, true, [], [],
+			    [{item: Items.helm[23]}]], [{item: Items.helm[23]}], true // noRepeat
 			);
 		}
 

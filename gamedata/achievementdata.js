@@ -36,7 +36,7 @@ var Achievements = [
 	{
 		// id: 1,
 		name: "Christmas Meal",
-		description: "Eat a mince pie and Christmas pudding, then wash it down with some mulled wine.",
+		description: "Eat a mince pie and Christmas pudding, and wash it down with some mulled wine.",
 		points: 5,
 		category: ["general"],
 		area: ["global"],
@@ -52,9 +52,26 @@ var Achievements = [
 			complete: ["mincePie", "christmasPudding", "mulledWine"],
 		},
 	},
+	{
+		name: "Samhain Treats",
+		description: "Eat a pumpkin pie, caramel apple, and drink a pumpkin brew.",
+		points: 5,
+		category: ["general"],
+		area: ["global"],
+		event: "Samhain",
+		image: "../assets/items/food/7.png",
+		class: "single",
+		isCompleted: function () {
+			return Player.quests.questProgress.pumpkinPie && Player.quests.questProgress.caramelApple && Player.quests.questProgress.pumpkinBrew;
+		},
+		expand: {
+			type: "checkList",
+			text: ["Pumpkin Pie", "Caramel Apple", "Pumpkin Brew"],
+			complete: ["pumpkinPie", "caramelApple", "pumpkinBrew"],
+		},
+	},
 		// QUESTS
 	{
-		// id: 2,
 		name: "Daily Quester I",
 		description: "Complete 50 daily quests.",
 		points: 10,
@@ -72,7 +89,6 @@ var Achievements = [
 		},
 	},
 	{
-		// id: 3,
 		name: "Questmaster I",
 		description: "Complete 50 quests.",
 		points: 10,
@@ -90,7 +106,6 @@ var Achievements = [
 		},
 	},
 	{
-		// id: 4,
 		name: "Logging Camp Questmaster",
 		description: "Complete all 18 non-event quests in Eaglecrest Logging Camp.",
 		points: 10,
@@ -299,7 +314,6 @@ var Achievements = [
         }
     },
 	{
-		// id: 14,
 		name: "Outgrowing your Toys",
 		description: "Destroy a target dummy.",
 		hidden: true,
@@ -331,9 +345,29 @@ var Achievements = [
 			total: 10,
 		},
     },
+	{
+        name: "Nilbog under Blood Moon",
+        description: "Kill all 3 blood moon bosses in the Nilbog.",
+        points: 15,
+        category: ["combat"],
+        area: ["eaglecrestLoggingCamp"],
+        event: "Samhain",
+        image: "../assets/enemies/marshallSheridan.png",
+        position: {x: 8, y: -1},
+        color: "#540606",
+        class: "single",
+        isCompleted: function () {
+            return Player.bossesKilled.tatteredKnight !== 0 && Player.bossesKilled.tatteredKnight !== undefined;
+        },
+		expand: {
+			type: "checkList",
+			text: ["Marshall Sheridan", "'Barebones' Nkkja", "Lake Lurker"],
+			complete: ["marshallSheridan", "barebonesNkkja", "lakeLurker"],
+			saved: "boss"
+		},
+    },
 		// REPUTATION
 	{
-		// id: 15,
 		name: "Tree Hugger",
 		description: "Reach venerated reputation with Eaglecrest Logging Camp.",
 		points: 20,
@@ -348,7 +382,6 @@ var Achievements = [
 	},
 		// ARCHAEOLOGY
 	{
-		// id: 16,
 		name: "Logging Camp Archaeologist",
 		description: "Uncover all unidentified items in Eaglecrest Logging Camp.",
 		points: 20,
@@ -371,7 +404,9 @@ var Achievements = [
 			type: "redirect",
 			text: "View in archaeology",
 			location: "../archaeology/index.html?obtained=unidentified&area=loggingCamp",
-			total: 28,
+			total: GetTotalItems(function(item) {
+				return item.obtain.includes("unidentified") && item.area.includes("loggingCamp");
+			}),
 			value: function () {
 				let done = 0;
 				for(let i = 0; i < 7; i++){
@@ -439,13 +474,13 @@ var Achievements = [
 		image: "../assets/items/helm/9.png",
 		class: "cumulative",
 		isCompleted: function () {
-			return User.archaeology.includes("Master Archaeologist's Hat");
+			return User.archaeology.includes("Master Archaeologist's Hat"); // owned only when all other items are owned
 		},
 		expand: {
 			type: "redirect",
 			text: "View in archaeology",
 			location: "../archaeology/index.html",
-			total: GetTotalArchaeologyItems(),
+			total: GetTotalItems(function(item){return true}),
 			value: User.archaeology.length,
 		},
 	},
@@ -474,7 +509,9 @@ var Achievements = [
 			type: "redirect",
 			text: "View in archaeology",
 			location: "../archaeology/index.html?event=Samhain",
-			total: 4,
+			total: GetTotalItems(function(item) {
+				return item.event === "Samhain";
+			}),
 			value: function () {
 				let done = 0;
 				for(let i = 0; i < 7; i++){
@@ -513,7 +550,9 @@ var Achievements = [
 			type: "redirect",
 			text: "View in archaeology",
 			location: "../archaeology/index.html?event=Christmas",
-			total: 8,
+			total: GetTotalItems(function(item) {
+				return item.event === "Christmas";
+			}),
 			value: function () {
 				let done = 0;
 				for(let i = 0; i < 7; i++){

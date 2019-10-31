@@ -1182,6 +1182,7 @@ class Thing extends Entity {
 					}
 				}
 			}
+			// note nothing is yet done for enemies summonned by spells
 		}
 
 
@@ -1374,6 +1375,7 @@ class Character extends Thing {
 		this.stats.reflection = properties.stats.reflection || 0;
 		this.stats.stealthed = properties.stats.stealthed || false; // can't be seen
 		this.stats.frostaura = properties.stats.frostaura || false;
+		this.stats.windShield = properties.stats.windShield || false; // can't be moved by wind
 
 		// blood moon modifiers
 		if (Event.time === "bloodMoon") {
@@ -1563,7 +1565,7 @@ class Character extends Thing {
 				let inMinigame = Game.minigameInProgress !== undefined && Game.minigameInProgress.playing; // no xp, achievement or quest progress, etc. whilst in minigame
 
 				// xp
-				if (!inMinigame && this.xpGiven !== undefined) {
+				if (!inMinigame && this.xpGiven !== undefined && this.damageTakenFromHero) {
 					let xpReceived = (this.xpGiven / Player.level);
 					Game.getXP(xpReceived);
 				}
@@ -2094,11 +2096,14 @@ class Attacker extends Character {
 		this.stats.flaming = properties.stats.flaming || 0;
 		this.stats.poisonX = properties.stats.poisonX || 0;
 		this.stats.poisonY = properties.stats.poisonY || 0;
+		this.stats.slowAmount = properties.stats.slowAmount || 0;
+		this.stats.slowTime = properties.stats.slowTime || 0;
+		this.stats.slowEffectTitle = properties.stats.slowEffectTitle; // string value - the title used for slow status effects
 		this.stats.stun = properties.stats.stun || 0;
 		this.stats.variance = properties.stats.variance || 0;
 		this.stats.lifesteal = properties.stats.lifesteal || 0;
 		this.stats.hex = properties.stats.hex || 0;
-		this.stats.penetration = properties.stats.penetration || true; // if projectile damages more than one thing
+		this.stats.splashDamage = properties.stats.splashDamage || true; // if projectile damages more than one thing
 		// functions
 		if (properties.stats.onAttack !== undefined) {
 			// bind can only be called if it is not undefined
@@ -2481,6 +2486,12 @@ class Hero extends Attacker {
 		if (Game.minigameInProgress !== undefined && Game.minigameInProgress.game === "tag") {
 			// limit speed to just changed by tiles
 			gameSpeed = true;
+		}
+
+		// wind
+		if (Game.wind !== undefined && !this.stats.windShield) {
+			this.x += Game.wind.movex * delta;
+			this.y += Game.wind.movey * delta;
 		}
 
 		// move hero
@@ -3328,10 +3339,10 @@ class Projectile extends Thing {
 	// make sure that attacker and to are at least Characters in the inheritance chain (not Entities or Things)
 	// hence, if you want to damage a single target still put it in an array, e.g: dealDamage(attacker, [[Game.hero]])
 	dealDamage (attacker, to) {
-		let endLoops = false; // set to true if loops should be ended (e.g. after dealing damage with penetration = false)
+		let endLoops = false; // set to true if loops should be ended (e.g. after dealing damage with splashDamage = false)
 
 		for (let i = 0; i < to.length && !endLoops; i++) { // iterate through arrays of objects in to
-			// the following loop is iterated through backwards so that, if there is no penetration, the top enemy is hit not bottom
+			// the following loop is iterated through backwards so that, if there is no splashDamage, the top enemy is hit not bottom
 			for (let x = to[i].length-1; x >= 0 && !endLoops; x--) { // iterate through objects in to
 
 				let target = to[i][x];
@@ -3453,9 +3464,30 @@ class Projectile extends Thing {
 								attacker.takeDamage(dmgDealt * (target.stats.reflection / 100), target.constructor.name === "Hero");
 							}
 
-							// stun
+							// stun and slow
 							if (attacker.stats.stun > 0) { // check if target weapon has stun
-								Game.statusEffects.stun({target: target, time: attacker.stats.stun});
+								let stunEffectParameters = {target: target, time: attacker.stats.stun};
+
+								// slow is done as onExpire for if they are stunned as well as slowed
+								if (attacker.stats.slowAmount > 0 && attacker.stats.slowTime > 0) {
+									stunEffectParameters.onExpire = "slow";
+									stunEffectParameters.callExpireOnRemove = true;
+									stunEffectParameters.extraInfo = {
+										slowEffectTitle: attacker.stats.slowEffectTitle,
+										slowAmount: attacker.stats.slowAmount,
+										slowTime: attacker.stats.slowTime,
+									}
+								}
+
+								Game.statusEffects.stun(stunEffectParameters);
+							}
+							else if (attacker.stats.slowAmount > 0 && attacker.stats.slowTime > 0) {
+								Game.statusEffects.walkSpeed({
+									target: target,
+									effectTitle: attacker.stats.slowEffectTitle || "Slowed",
+									speedIncrease: -attacker.stats.slowAmount,
+									time: attacker.stats.slowTime,
+								});
 							}
 
 							// hex
@@ -3503,7 +3535,7 @@ class Projectile extends Thing {
 						});
 						// do lifesteal stuff
 						if (lifestealPercentage > 0) {
-							Game.restoreHealth(attacker, dmgDealt * (attacker.stats.lifesteal / 100), "lifesteal");
+							Game.restoreHealth(attacker, dmgDealt * (attacker.stats.lifesteal / 100), true); // true because lifesteal restores health during blood moon
 						}
 
 						// onHit function
@@ -3531,7 +3563,7 @@ class Projectile extends Thing {
 						}
 					}
 
-					if (attacker.stats.penetration === false) {
+					if (attacker.stats.splashDamage === false) {
 						// only one enemy should be damaged
 						endLoops = true;
 					}
@@ -3750,14 +3782,22 @@ class Villager extends NPC {
 
 		this.bearing = Game.bearing(this, {x: this.state.location.x, y: this.state.location.y}); // update bearing (maybe doesn't need to be done every tick?)
 
-		let dirx, diry;
+		let dirx = 0;
+		let diry = 0;
+
+		// wind
+		if (Game.wind !== undefined && !this.stats.windShield) {
+			this.x += Game.wind.movex * delta;
+			this.y += Game.wind.movey * delta;
+		}
+
 		// move if not too close to target
 		if (!this.xInRange()) {
-			dirx = Math.cos(this.bearing);
+			dirx += Math.cos(this.bearing);
 			this.x += dirx * this.speed * delta;
 		}
 		if (!this.yInRange()) {
-			diry = Math.sin(this.bearing);
+			diry += Math.sin(this.bearing);
 			this.y += diry * this.speed * delta;
 		}
 
@@ -3863,6 +3903,8 @@ class Enemy extends Attacker {
 	}
 
 	update (delta) {
+		let moved = false; // whether character has called this.move
+
 		if (this.hasStatusEffect("Displacement")) {
 			// being displaced!
 			this.displace(delta);
@@ -3938,12 +3980,14 @@ class Enemy extends Attacker {
 						!Game.hero.stats.stealthed && // hero is not stealthed
 						heroDist < this.leashRadius) { // not outside of leashRadius from hero
 							this.move(delta, moveTowards);
+							moved = true;
 						}
 
 						else if (this.stats.alwaysMove &&
 						moveTowards.constructor.name !== "Hero" && // moving towards sommething other than hero (due to special movement behaviour)
 						heroDist < this.leashRadius) { // not outside of leashRadius from hero
 							this.move(delta, moveTowards);
+							moved = true;
 						}
 					}
 
@@ -3956,6 +4000,7 @@ class Enemy extends Attacker {
 					else if (!Game.hero.stats.stealthed || moveTowards.constructor.name !== "Hero") {
 						// enemy should move towards moveTowards
 						this.move(delta, moveTowards);
+						moved = true;
 					}
 
 				}
@@ -3978,20 +4023,37 @@ class Enemy extends Attacker {
 				}
 			}
 		}
+
+		// must call this.move if there is wind
+		if (!moved && Game.wind !== undefined) {
+			this.move(delta, false);
+		}
 	}
 
 	// move towards entity (towards parameter)
+	// towards can be set to false if no movement (other than wind) should occur
 	move (delta, towards) {
 		// figure out speed
 		this.setSpeed();
 
-		this.bearing = Game.bearing(this, towards); // update bearing (maybe doesn't need to be done every tick?)
+		let dirx = 0;
+		let diry = 0;
 
-		let dirx = Math.cos(this.bearing);
-		let diry = Math.sin(this.bearing);
+		if (towards !== false) {
+			this.bearing = Game.bearing(this, towards); // update bearing (maybe doesn't need to be done every tick?)
 
-		// set image based on direction of movement if there are multiple rotation images
-		this.setRotationImage(dirx, diry);
+			dirx = Math.cos(this.bearing);
+			diry = Math.sin(this.bearing);
+
+			// set image based on direction of movement if there are multiple rotation images
+			this.setRotationImage(dirx, diry);
+		}
+
+		// wind
+		if (Game.wind !== undefined && !this.stats.windShield) {
+			this.x += Game.wind.movex * delta;
+			this.y += Game.wind.movey * delta;
+		}
 
 		this.x += dirx * this.speed * delta;
 		this.y += diry * this.speed * delta;
@@ -4387,6 +4449,7 @@ function statusEffect(properties) {
 	this.effect = properties.effect; // displayed effect (displayed in the DOM as a description of the status effect, in player stats)
 
 	this.info = properties.info || {}; // extra information (e.g: poison damage and length)
+	Object.assign(this.info, properties.extraInfo); // some additional information that is specific to the status effect might be stored in info
 
 	this.tick = properties.tick; // function to be carried out every second
 
@@ -4514,6 +4577,26 @@ Game.statusEffects.functions = {
 		}
 	},
 
+	// decreases target's stat (changedStat) by value info[changedStat]
+	decreaseStat: function (target) {
+		if (target.stats[this.changedStat] !== undefined) {
+			// stat exists
+			target.stats[this.changedStat] -= this.info[this.changedStat];
+		}
+		else {
+			console.error("Stat " + this.changedStat + " does not exist, but status effect " + this.title + " wants to decrease it. Please tell Jake!");
+		}
+	},
+
+	//
+	// please try to keep the following in alphabetical order :)
+	//
+
+	// xp onExpire
+	decreaseXP: function (target) {
+		target.stats.xpBonus -= this.info.xpIncrease;
+	},
+
 	// fire onTick
 	fireTick: function (owner) {
 		let fireImmune = owner.hasStatusEffectType("fireResistance"); // can't take fire damage when fire immune
@@ -4524,14 +4607,14 @@ Game.statusEffects.functions = {
 		}
 	},
 
+	// food onTick
+	foodTick: function (owner) {
+		Game.restoreHealth(owner, Round(this.info.healthRestore / this.info.time, 1), this.info.bloodMoonRestore); // 1dp
+	},
+
 	// poison onTick
 	poisonTick: function (owner) {
 		owner.takeDamage(this.info.poisonDamage / this.info.time);
-	},
-
-	// food onTick
-	foodTick: function (owner) {
-		Game.restoreHealth(owner, Round(this.info.healthRestore / this.info.time, 1), "food"); // 1dp
 	},
 
 	// stealth onExpire
@@ -4539,16 +4622,6 @@ Game.statusEffects.functions = {
 		// remove stealth effect
 		target.stats.stealth = false;
 		Game.removeStealthEffects(target);
-	},
-
-	// xp onExpire
-	decreaseXP: function (target) {
-		target.stats.xpBonus -= this.info.xpIncrease;
-	},
-
-	// restorative timepiece (Items.item[15]) onExpire
-	setHealth: function (target) {
-		target.health = this.info.oldHealth;
 	},
 
 	// end displacement effect
@@ -4571,16 +4644,21 @@ Game.statusEffects.functions = {
 		target.respawning = false;
 	},
 
-	// decreases target's stat (changedStat) by value info[changedStat]
-	decreaseStat: function (target) {
-		if (target.stats[this.changedStat] !== undefined) {
-			// stat exists
-			target.stats[this.changedStat] -= this.info[this.changedStat];
-		}
-		else {
-			console.error("Stat " + this.changedStat + " does not exist, but status effect " + this.title + " wants to decrease it. Please tell Jake!");
-		}
-	}
+	// restorative timepiece (Items.item[15]) onExpire
+	setHealth: function (target) {
+		target.health = this.info.oldHealth;
+	},
+
+	// slow status effect applied on expire
+	// slowAmount and slowTime are required in this.info (where this is the status effect that is expiring)
+	slow: function (target) {
+		Game.statusEffects.walkSpeed({
+			target: target,
+			effectTitle: this.info.slowEffectTitle || "Slowed",
+			speedIncrease: -this.info.slowAmount,
+			time: this.info.slowTime,
+		});
+	},
 };
 
 // give target a buff/debuff
@@ -4611,6 +4689,7 @@ Game.statusEffects.generic = function (properties) {
 				curse: properties.curse, // transferred on to enemies on attack
 				worksForGames: properties.worksForGames, // also works in games such as tag (for speed status effects that normally wouldn't)
 			},
+			extraInfo: properties.extraInfo, // extra properties to be added to info
 			image: properties.imageName,
 			type: properties.type,
 			changedStat: properties.changedStat, // used to change back changed stat on expire (same name as key name in target.stats)
@@ -4918,6 +4997,7 @@ Game.statusEffects.food = function(properties) {
 	newProperties.imageName = "food";
 	newProperties.type = "food";
 	newProperties.onTick = "foodTick";
+	newProperties.extraInfo = {bloodMoonRestore: properties.bloodMoonRestore}; // whether health should be restored during blood moon
 	this.generic(newProperties);
 }
 
@@ -5156,6 +5236,8 @@ Game.getStatusIconNumber = function (statusEffect) {
 Game.spells = {
 	charge: {
 		class: "k",
+		description: "",
+		bossOnly: true,
 
 		// properties should contain tier (as int value), caster, target
 		func: function (properties) {
@@ -5186,6 +5268,8 @@ Game.spells = {
 
 	unholyStrike: {
 		class: "k",
+		description: "",
+		bossOnly: true,
 
 		// properties should contain tier (as int value), caster, target
 		func: function (properties) {
@@ -5208,14 +5292,12 @@ Game.spells = {
 		manaCost: [
 			0,		// tier 1
 		],
-
-		cooldown: [
-			10000,	// tier 1
-		],
 	},
 
 	sawblade: {
 		class: "k",
+		description: "",
+		bossOnly: true,
 
 		// properties should contain tier (as int value), caster, target
 		func: function (properties) {
@@ -5236,6 +5318,86 @@ Game.spells = {
 				doNotRotate: true,
 				damageAllHit: true,
 			}));
+		},
+
+		channelTime: [
+			2000,	// tier 1
+		],
+	},
+
+	animate: {
+		class: "m",
+		description: "",
+		bossOnly: true,
+
+		// properties should contain:
+			// number (number to be animated)
+			// location (array of objects with x y width and height of possible spawn areas) - random object and location in object is picked for each
+			// all properties of animation (properties is passed into the Enemy constructor!)
+		func: function (properties) {
+			properties.source = "spell";
+			for (let i = 0; i < properties.number; i++) {
+				// pick location
+				let location = properties.location[Random(0, properties.location.length-1)];
+				properties.x = Random(location.x, location.x+location.width);
+				properties.y = Random(location.y, location.y+location.height);
+				// create enemy!
+				if (Game.prepareNPC(properties, "enemies")) {
+					Game.enemies.push(new Enemy(properties));
+				}
+			}
+		},
+
+		channelTime: [
+			2000,	// tier 1
+		],
+	},
+
+	lightning: {
+		class: "m",
+		description: "Strike an enemy with lightning, setting them on fire and stunning them!",
+		bossOnly: true,
+
+		// properties should contain target
+		// doesn't yet work with tier
+		func: function (properties) {
+			Weather.commenceLightningStrike();
+			// status effects
+			Game.statusEffects.fire({
+				target: properties.target,
+				tier: 1,
+			});
+			Game.statusEffects.stun({
+				target: properties.target,
+				time: 2,
+			});
+		},
+
+		channelTime: [
+			1000,	// tier 1
+		],
+	},
+
+	aeromancy: {
+		class: "m",
+		description: "Harness the power of the wind!",
+		bossOnly: true,
+
+		// properties should contain:
+			// speed (of wind movement)
+			// direction (of wind movement)
+			// time (for wind to last for)
+		func: function (properties) {
+			let movex = Math.cos(properties.direction) * properties.speed;
+			let movey = Math.sin(properties.direction) * properties.speed;
+
+			Game.wind = {};
+			Game.wind.movex = movex;
+			Game.wind.movey = movey;
+
+			setTimeout(function () {
+				Game.wind = undefined;
+			}, properties.time)
 		},
 
 		channelTime: [
@@ -6407,7 +6569,7 @@ Game.initStatusEffects = function () {
 }
 
 // init an NPC for being added by loadArea
-// returns true/false depending on if the NPC should be shown
+// returns false if the npc should not be shown, otherwise returns the npc itself
 // overrideCanBeShown set to true means that function will run even if it would return false, and will also return true (to indicate npc added)
 Game.prepareNPC = function (npc, type, overrideCanBeShown) {
 	if ((this.canBeShown(npc) && this.bossCanBeShown(npc)) || overrideCanBeShown) {
@@ -6418,7 +6580,7 @@ Game.prepareNPC = function (npc, type, overrideCanBeShown) {
 
 		this.setMailboxImage(npc);
 
-		return true;
+		return npc;
 	}
 	return false;
 }
@@ -6870,18 +7032,18 @@ Game.playLevelupSound = function (areaName) {
 Game.regenHealth = function () {
 	for (let i = 0; i < Game.allCharacters.length; i++) {
 		if (!Game.allCharacters[i].respawning) {
-			this.restoreHealth(Game.allCharacters[i], Game.allCharacters[i].stats.healthRegen, "regen");
+			this.restoreHealth(Game.allCharacters[i], Game.allCharacters[i].stats.healthRegen);
 		}
 	}
 }
 
 // restores health to the target, not allowing them to go above their maximum health
-// reason parameter should be a string saying why the target was healed (sometimes used to decide behaviour of heal)
+// bloodMoonRestore should be set to true if health is restored even in blood moon
 // returns true if the target was healed for the full amount
-Game.restoreHealth = function (target, health, reason) {
+Game.restoreHealth = function (target, health, bloodMoonRestore) {
 	let canBeRestored = true;
 
-	if (Event.time === "bloodMoon" && reason !== "lifesteal" && !Areas[this.areaName].indoors) {
+	if (Event.time === "bloodMoon" && !bloodMoonRestore && !Areas[this.areaName].indoors) {
 		// non-lifesteal forms of healing don't work outdoors during blood moons
 		canBeRestored = false;
 	}
@@ -6947,7 +7109,7 @@ Game.update = function (delta) {
 			}
 		}
 
-		if (dirx !== 0 || diry !== 0) {
+		if (dirx !== 0 || diry !== 0 || Game.wind !== undefined) {
 	        this.hero.move(delta, dirx, diry);
 			heroMoved = true;
 	    }
@@ -8018,13 +8180,13 @@ Game.equipmentUpdate = function () {
         this.hero.stats.variance = 0;
     }
 
-    // set weapon penetration
-    if (weaponType === "bow" || Player.inventory.weapon.penetration !== undefined) {
-        this.hero.stats.penetration = Player.inventory.weapon.penentration || false;
+    // set weapon splashDamage
+    if (weaponType === "bow" || Player.inventory.weapon.splashDamage !== undefined) {
+        this.hero.stats.splashDamage = Player.inventory.weapon.penentration || false;
     }
     else {
         // non-bows do penetrate
-        this.hero.stats.penetration = true;
+        this.hero.stats.splashDamage = true;
     }
 
     // send updated equipment information to websocket if websocket is open
@@ -8773,6 +8935,13 @@ Game.render = function (delta) {
 		}
 		else {
 			// a y value might not have been assigned to the object yet
+			// arbitary sort value
+			this.allThings[i].sortValue = 0;
+		}
+
+		if (isNaN(this.allThings[i].sortValue)) {
+			// illegal sortValue due to an NaN value in one of the character's positions
+			console.error("NaN sortValue for " + this.allThings[i].name + ". Please tell Jake!");
 			// arbitary sort value
 			this.allThings[i].sortValue = 0;
 		}

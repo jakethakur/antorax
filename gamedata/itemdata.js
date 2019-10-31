@@ -374,6 +374,75 @@ var Items = {
             obtainText: "Can be bought from the 'Eaglecrest Bazaar' shop.",
             stats: {},
         },
+		{
+			id: 22,
+			name: "Barebones Helm",
+			type: "helm",
+			image: "assets/items/helm/22.png",
+			tier: 1,
+			obtain: ["boss"],
+			area: ["loggingCamp"],
+			rarity: "unique",
+			sellPrice: 3,
+			lore: "",
+			obtainText: "Can be looted from 'Barebones' Nkkja, a boss in The Nilbog during blood moons.",
+			event: "Samhain",
+			stats: {
+				defence: 2,
+				damagePercentage: 15,
+			},
+		},
+		{
+			id: 23,
+			name: "Pumpkin Hat",
+			type: "helm",
+			image: "assets/items/helm/23.png",
+			tier: 1,
+			obtain: ["other"],
+			area: [],
+			rarity: "common",
+			sellPrice: 1,
+			lore: "",
+			obtainText: "Sent in the mail during Samhain.",
+			event: "Samhain",
+			stats: {
+				defence: 2,
+				maxHealth: 5,
+			},
+		},
+		{
+			id: 24,
+			name: "Skeleton Mask",
+			type: "helm",
+			image: "assets/items/helm/24.png",
+			tier: 1,
+			obtain: ["merchant"],
+			area: ["eaglecrest"],
+			rarity: "common",
+			obtainText: "Can be bought from a mask seller during Samhain.",
+			event: "Samhain",
+			sellPrice: 1,
+			stats: {
+				// undying
+			},
+		},
+		{
+			id: 25,
+			name: "Menace Mask",
+			type: "helm",
+			image: "assets/items/helm/25.png",
+			tier: 1,
+			obtain: ["merchant"],
+			area: ["eaglecrest"],
+			rarity: "common",
+			obtainText: "Can be bought from a mask seller during Samhain.",
+			event: "Samhain",
+			sellPrice: 2,
+			stats: {
+				walkSpeed: -30,
+				criticalChance: 30,
+			},
+		},
 	],
 	chest: [
 		{
@@ -530,7 +599,7 @@ var Items = {
 			area: ["loggingCamp"],
 			event: "Samhain",
 			rarity: "unique",
-			lore: "",
+			lore: "A fashion favourite of loggers and Samhain bosses alike.",
 			sellPrice: 3,
 			obtainText: "Can be looted from Statue of Marshall Sheridan, a boss in The Nilbog during blood moons.",
 			stats: {
@@ -548,6 +617,25 @@ var Items = {
 					},
 				},
 			],
+		},
+		{
+			id: 10,
+			name: "Barebones Windbreaker",
+			type: "helm",
+			image: "assets/items/chest/10.png",
+			tier: 1,
+			obtain: ["boss"],
+			area: ["loggingCamp"],
+			rarity: "unique",
+			sellPrice: 3,
+			lore: "",
+			obtainText: "Can be looted from 'Barebones' Nkkja, a boss in The Nilbog during blood moons.",
+			event: "Samhain",
+			stats: {
+				defence: 2,
+				walkSpeed: 40,
+				windShield: true
+			},
 		},
 	],
 	greaves: [
@@ -1039,7 +1127,7 @@ var Items = {
 			sellPrice: 4,
 			stats: {
 				damage: 8,
-				reloadTime: 1000,
+				reloadTime: 500,
 				defence: 5,
 			},
 			projectile: "slashFrost",
@@ -1258,7 +1346,7 @@ var Items = {
 			area: ["loggingCamp"],
 			event: "Samhain",
 			rarity: "mythic",
-			lore: "",
+			lore: "Sheridan may have been a legendary marshall, but he was never any good at cleaning his axe.",
 			obtainText: "Can be looted from Statue of Marshall Sheridan, a boss in The Nilbog during blood moons.",
 			sellPrice: 5,
 			stats: {
@@ -1275,6 +1363,7 @@ var Items = {
 					effectStack: "multiply"
 				});
 			},
+			projectile: "slashBlood",
 		},
 	],
 	staff: [
@@ -1528,9 +1617,9 @@ var Items = {
 			},
 			maxDurability: 50,
 		},
-		/*{
+		{
 			id: 13,
-			name: "tbd",
+			name: "Elemental Staff of the Nilbog",
 			type: "staff",
 			image: "assets/items/staff/13.png",
 			imageArchaeology: "assets/items/staff/13archaeology.png",
@@ -1540,16 +1629,21 @@ var Items = {
 			event: "Samhain",
 			rarity: "mythic",
 			lore: "tbd",
-			obtainText: "tbd",
+			obtainText: "Can be looted from 'Barebones' Nkkja, a boss in The Nilbog during blood moons.",
 			sellPrice: 5,
 			stats: {
 				damage: 4,
-				maxDamage: 12
+				maxDamage: 10,
 			},
 			chooseStats: {
-				//tbd
+				//slowAmount: 35,
+				//slowTime: 1.5,
+				flaming: 1,
+				stun: 0.3,
 			},
-		},*/
+			projectile: "fireballGreen",
+			projectileAdjust: {x: 20, y: 20},
+		},
 	],
 	bow: [
 		{
@@ -1670,17 +1764,10 @@ var Items = {
 			sellPrice: 4,
 			stats: {
 				damage: 3.5,
+				slowAmount: 50,
+				slowTime: 1,
+				slowEffectTitle: "Webbed Up"
 			},
-			onHit: function (enemy) {
-				// give slowness to enemy
-				Game.statusEffects.walkSpeed({
-					target: enemy,
-					effectTitle: "Webbed Up",
-					speedIncrease: -50,
-					time: 1,
-				});
-			},
-			functionText: "Gives -50% walk speed to attacked enemies for 1 second",
 			projectile: "arrowOrange",
 			projectileAdjust: {x: 20, y: 20},
 		},
@@ -1699,9 +1786,14 @@ var Items = {
 			event: "Christmas",
 			stats: {
 				damage: 0,
+				slowAmount: 30,
+				slowTime: 2,
+				slowEffectTitle: "Snow Coating"
 			},
 			onAttack: function (projectile) {
+				// remove item
 				Dom.inventory.removeById(8, "bow");
+				// "the christmas spirit" quest progress
 				if (projectile.isTouching(Game.npcs[0]) && Game.areaName === "eaglecrestLoggingCamp") {
 					Player.quests.questProgress.hitTeper = Increment(Player.quests.questProgress.hitTeper);
 					if (Player.quests.questProgress.hitTeper === 3) {
@@ -1710,16 +1802,6 @@ var Items = {
 					}
 				}
 				Game.inventoryUpdate();
-			},
-			functionText: "Gives -30% walk speed to hit enemies for 2 seconds",
-			onHit: function (enemy) {
-				// give slowness to enemy
-				Game.statusEffects.walkSpeed({
-					target: enemy,
-					effectTitle: "Snow coating",
-					speedIncrease: -30,
-					time: 2,
-				});
 			},
 			allClasses: true,
 			projectile: "snowball",
@@ -1741,16 +1823,9 @@ var Items = {
 			stats: {
 				damage: 3,
 				stun: 0.2,
-			},
-			functionText: "Gives -30% walk speed to hit enemies for 2 seconds",
-			onHit: function (enemy) {
-				// give slowness to enemy
-				Game.statusEffects.walkSpeed({
-					target: enemy,
-					effectTitle: "Snow coating",
-					speedIncrease: -30,
-					time: 2,
-				});
+				slowAmount: 30,
+				slowTime: 2,
+				slowEffectTitle: "Snow Coating"
 			},
 			projectile: "snowball",
 			projectileAdjust: {x: 0, y: 0},
@@ -1812,6 +1887,27 @@ var Items = {
 			},
 			projectile: "greyPellet",
 			projectileAdjust: {x: 0, y: 0},
+		},
+		{
+			id: 13,
+			name: "Captain Calaca's Cannon",
+			type: "bow",
+			image: "assets/items/bow/13.png",
+			tier: 1,
+			obtain: ["boss"],
+			area: ["loggingCamp"],
+			event: "Samhain",
+			rarity: "mythic",
+			lore: "A pirate heirloom, passed down from sea monster to sea monster for centuries.",
+			obtainText: "Can be looted from Lake Lurker, a boss in The Nilbog during blood moons.",
+			sellPrice: 5,
+			stats: {
+				damage: 5,
+				reloadTime: 750,
+				splashDamage: true,
+			},
+			projectile: "waterball",
+			projectileAdjust: {x: 10, y: 10},
 		},
 	],
 	rod: [ // fishing rod
@@ -2911,7 +3007,7 @@ var Items = {
 			name: "Mulled Wine",
 			type: "consumable",
 			image: "assets/items/consumable/16.png",
-			functionText: "Restores 20 health",
+			functionText: "Restores 25 health",
 			lore: "Don't worry, side effects are in the Christmas spirit.",
 			sellPrice: 1,
 			onClickFunction: function (inventoryPosition) {
@@ -2919,7 +3015,7 @@ var Items = {
 				Dom.inventory.remove(inventoryPosition);
 
 				// restore the health
-				Game.restoreHealth(Game.hero, 20);
+				Game.restoreHealth(Game.hero, 25);
 				// make the player tipsy!
 				Game.statusEffects.attackDamage({
 					target: Game.hero,
@@ -3219,6 +3315,33 @@ var Items = {
             },
 			lore: "Use only as directed.",
 		},
+		{
+			id: 30,
+			name: "Pumpkin Brew",
+			type: "consumable",
+			image: "assets/items/consumable/30.png",
+			functionText: "Restores 25 health",
+			lore: "Side effects are the least of your worries!",
+			sellPrice: 1,
+			onClickFunction: function (inventoryPosition) {
+				// remove the item
+				Dom.inventory.remove(inventoryPosition);
+
+				// restore the health
+				Game.restoreHealth(Game.hero, 25, true);
+				// make the player tipsy!
+				Game.statusEffects.attackDamage({
+					target: Game.hero,
+					effectTitle: "Tipsy",
+					damageIncrease: -20,
+					time: 60,
+					effectStack: "multiply",
+				});
+
+				// achievement progress
+				Player.quests.questProgress.pumpkinBrew = true;
+			}
+		},
 	],
 	food: [
 		{
@@ -3287,6 +3410,36 @@ var Items = {
 			healthRestoreTime: 20,
 			lore: "The national food of Eaglecrest.",
 			// TBD extra stat given?
+		},
+		{
+			id: 6,
+			name: "Pumpkin Pie",
+			type: "food",
+			image: "assets/items/food/6.png",
+			sellPrice: 3,
+			healthRestore: 100,
+			healthRestoreTime: 20,
+			lore: "", // tbd
+			secondClick: function () {
+				// achievement progress
+			    Player.quests.questProgress.pumpkinPie = true;
+			},
+			bloodMoonRestore: true,
+		},
+		{
+			id: 7,
+			name: "Samhain Caramel Apple",
+			type: "food",
+			image: "assets/items/food/7.png",
+			sellPrice: 1,
+			healthRestore: 30,
+			healthRestoreTime: 4,
+			lore: "", // tbd
+			secondClick: function () {
+				// achievement progress
+			    Player.quests.questProgress.caramelApple = true;
+			},
+			bloodMoonRestore: true,
 		},
 	],
 	teleport: [
@@ -4327,18 +4480,27 @@ const WeaponRanges = {
 	rod: 200,
 };
 
-// returns total number of items in archaeology
-function GetTotalArchaeologyItems(archaeology) {
+// returns total number of items in archaeology that satisfy a certain requirement
+// requirement parameter should be a function that returns true or false when passed in an item
+// archaeology parameter is an optional alternate (from User.archaeology) place to check if a limited edition item has been obtained (if it has, it is added to total, if not, it is not)
+function GetTotalItems(requirement, archaeology) {
+	const itemTypes = Object.keys(Items);
+
     let total = 0;
     if (User !== undefined) {
-        for (var i = 0; i < 7; i++) {
-            for (var x = 2; x < Items[Object.keys(Items)[i]].length; x++) {
-                if (!Items[Object.keys(Items)[i]][x].uncollectable && (!Items[Object.keys(Items)[i]][x].limitedEdition || (archaeology || User.archaeology).includes(Items[Object.keys(Items)[i]][x].name))) {
+		// iterate through item types in archaeology
+        for (let i = 0; i < 7; i++) {
+			// iterate through items in the type (ignoring the first two because they are 'test' items)
+            for (let x = 2; x < Items[itemTypes[i]].length; x++) {
+				let item = Items[itemTypes[i]][x];
+				// check item should be shown in archaeology
+                if (!item.uncollectable && (!item.limitedEdition || (archaeology || User.archaeology).includes(item.name)) && requirement(item)) {
                     total++;
                 }
             }
         }
     }
+
     return total;
 }
 

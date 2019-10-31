@@ -35,17 +35,18 @@ Weather.init = function () {
 Weather.tick = function (init) {
 	if (document.getElementById("weatherOn").checked) {
 		Weather.updateVariables();
-		Event.updateTime(Game.areaName);
-		if (!init) {
-			// not called on init
-			Game.dayNightUpdate();
-		}
 
 		// lightning
 		if (Weather.lightning && Weather.lightningTimeout === undefined) {
 			let timeUntilStrike = (120 - (Weather.intensity / (Game.canvasArea / 36000))) * 100; // intensity varies from 0 to 120, thus time varies from 0s to 12s
 			Weather.lightningTimeout = setTimeout(Weather.commenceLightningStrike, timeUntilStrike);
 		}
+	}
+	
+	Event.updateTime(Game.areaName);
+	if (!init) {
+		// not called on init
+		Game.dayNightUpdate();
 	}
 }
 

@@ -293,6 +293,9 @@ const BossLootTables = {
 				20,				// 0
 				0,				// 1
 			],
+			condition: function () {
+				return Player.class === "k";
+			},
 		},
 		{ // logging boots
 			item: Items.boots[2],
@@ -327,6 +330,32 @@ const BossLootTables = {
 				20,				// 6
 				0,				// 7
 			],
+		},
+	],
+	barebonesNkkja: [
+		{ // barebones helm
+			item: Items.helm[22],
+			chance: [
+				40,				// 0
+				0,				// 1
+			],
+		},
+		{ // barebones windbreaker
+			item: Items.chest[10],
+			chance: [
+				30,				// 0
+				0,				// 1
+			],
+		},
+		{ // ellemental staff of the nilbog
+			item: Items.staff[13],
+			chance: [
+				20,				// 0
+				0,				// 1
+			],
+			condition: function () {
+				return Player.class === "m";
+			},
 		},
 	],
 };

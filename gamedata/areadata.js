@@ -137,7 +137,7 @@ let Event = {
 		}
 		// Samhain (Halloween)
 		// Blood Moon
-		else if ((d.day >= 22 && d.month === 10) || (d.day <= 5 && d.month === 11)) {
+		else if ((d.day >= 28 && d.month === 10) || (d.day <= 18 && d.month === 11)) {
 			this.event = "Samhain";
 		}
 		// Christmas
@@ -1700,6 +1700,20 @@ var Areas = {
 						},
 						shopGreeting: "Only the finest food 'n' drink here.",
 					},
+					{
+						sold: [
+							// no need for eventRequirements since role requires the event anyway
+						    {item: Items.consumable[30], cost: 1, costCurrency: 4}, // Samhain Brew
+						    {item: Items.food[6], cost: 1, costCurrency: 4}, // Pumpkin Pie
+						    {item: Items.food[7], cost: 1, costCurrency: 4}, // Toffee Apple
+						],
+						role: "merchant",
+						roleRequirement: function () {
+							return Player.quests.completedQuestArray.includes("A Drink on Us!") && Event.event === "Samhain";
+						},
+						shopGreeting: "How else to celebrate Samhain?",
+						chooseText: "I'd like to browse your Samhain goods.",
+					},
 				],
 				chat: {
 					questProgress: "Girls! Make some room by the hearth, won't ya!",
@@ -2169,7 +2183,6 @@ var Areas = {
 			mailcart: {normal: "assets/objects/cartDestroyed.png"},
 			trap: {normal: "assets/objects/trap.png"},
 			torch: {normal: "assets/objects/goblinTorchNight.png"},
-			ghost: {samhain: "assets/npcs/ghost.png"},
 			lootChest: {normal: "assets/objects/chest.png"},
 			eaglecrestBanner: {normal: "assets/objects/eaglecrestBanner.png"},
 			nilbogBanner: {normal: "assets/objects/nilbogBanner.png"},
@@ -2181,10 +2194,17 @@ var Areas = {
 			torianTintop: {normal: "assets/npcs/torianTintop.png"},
 			nessyTintop: {normal: "assets/npcs/nessyTintop.png"},
 			marshallSheridanStatue: {normal: "assets/objects/woodcutterStatue.png"},
+			// samhain
+			ghost: {samhain: "assets/npcs/ghost.png"},
 			marshallSheridan: {samhain: "assets/enemies/marshallSheridan.png"},
 			marshallSheridanCorpse: {samhain: "assets/corpses/marshallSheridan.png"},
 			sawblade: {samhain: "assets/projectiles/sawblade.png"},
 			slashBlood: {samhain: "assets/projectiles/slashBlood.png"},
+			barebonesNkkja: {samhain: "assets/enemies/barebonesNkkja.png"},
+			barebonesNkkjaCorpse: {samhain: "assets/corpses/barebonesNkkja.png"},
+			fireballGreen: {samhain: "assets/projectiles/fireballGreen.png"},
+			mudAnimation: {samhain: "assets/enemies/mudAnimation.png"},
+			cauldron: {samhain: "assets/objects/cauldronSamhain.png"},
 		},
 
 		chestData: {
@@ -2205,36 +2225,169 @@ var Areas = {
 		callAreaJoinOnInit: true,
 
 		onAreaJoin: function () {
-			// samhain boss camera pans
+			if (Event.time === "bloodMoon") {
+				let date = GetFullDate(); // yyyymmdd format
 
-			let date = GetFullDate(); // yyyymmdd format
-
-			if (Player.quests.questProgress.samhainBossIntroducedNilbog !== date) {
-				// boss has not been introduced today
-
-				// find the boss
-				let boss = Game.enemies.find(enemy => enemy.hostility === "boss");
-
-				// make sure this isn't called again
-				Player.quests.questProgress.samhainBossIntroducedNilbog = date;
-
-				// pans differently based on the boss
-				switch (boss.name) {
-					case "Statue of Marshall Sheridan":
-						// pan to boss
-						Game.camera.pan(boss, 400, "accelerate", function () {
-							// function to be called 3s after pan is finished
-							// pan back to player
-							Game.camera.pan(Game.hero, 400, "accelerate", function () {
-								// reset camera
-								Game.camera.follow(Game.hero);
-							}, 0);
-						}, 2000);
-						break;
-
-					default:
-						console.error("Unknown boss:", boss.name);
+				if ((new Date()).getHours() < 12) {
+					// previous day's blood moon
+					date -= 1;
 				}
+
+				if (Player.bossesKilled.marshallSheridan !== date && Player.bossesKilled.barebonesNkkja !== date) {
+					// samhain boss (blood moon, and one has not been killed today)
+
+					// find which boss is today
+					let bossNumber = date % 2;
+
+					let bossNotSeen = Player.quests.questProgress.samhainBossIntroducedNilbog !== date; // whether boss has been introduced today or not
+
+					if (bossNotSeen) {
+						// boss has not been introduced today
+
+						// reset all boss variables
+						Player.quests.questProgress.samhainBossNilbogHealth = undefined;
+						Player.quests.questProgress.sheridanMaxHealth = undefined;
+						Player.quests.questProgress.nkkjaWindCauldronDestroyed = false;
+						Player.quests.questProgress.nkkjaLightningCauldronDestroyed = false;
+						Player.quests.questProgress.nkkjaEarthCauldronDestroyed = false;
+
+						// make sure this isn't called again
+						Player.quests.questProgress.samhainBossIntroducedNilbog = date;
+					}
+
+					let boss; // pointer to variable boss is set to (used as shorthand)
+
+					// add the boss' stuff and pan to them
+					switch (bossNumber) {
+						case 0:
+							// statue of marshall sheridan
+							Game.enemies.push(new Enemy(Game.prepareNPC({
+								x: 1817,
+								y: 1310,
+								template: EnemyTemplates.nilbog.marshallSheridan,
+							}, "enemies")));
+							boss = Game.enemies[Game.enemies.length-1];
+
+							// save boss progress
+							if (Player.quests.questProgress.sheridanMaxHealth !== undefined) {
+								boss.stats.maxHealth = Player.quests.questProgress.sheridanMaxHealth;
+							}
+
+							// pan to boss
+							if (bossNotSeen) {
+								Game.camera.pan(boss, 400, "accelerate", function () {
+									// function to be called 2s after pan is finished
+									// pan back to player
+									Game.camera.pan(Game.hero, 400, "accelerate", function () {
+										// reset camera
+										Game.camera.follow(Game.hero);
+									}, 0);
+								}, 2000);
+							}
+
+							break;
+
+						case 1:
+							// barebones nkkja
+							Game.enemies.push(new Enemy(Game.prepareNPC({
+								x: 1717,
+								y: 703,
+								template: EnemyTemplates.nilbog.barebonesNkkja,
+							}, "enemies")));
+							boss = Game.enemies[Game.enemies.length-1];
+
+							// cauldrons
+							if (!Player.quests.questProgress.nkkjaWindCauldronDestroyed) {
+								Game.attackables.push(new Character(Game.prepareNPC({
+									template: EnemyTemplates.nilbog.nkkjaCauldron,
+									x: 1554,
+									y: 226,
+									name: "Nkkja's Cauldron of Wind",
+									onDeath: function () {
+										// stop any existing wind effect
+										Game.wind = undefined;
+										// progress saving - save that cauldron has been destroyed
+										Player.quests.questProgress.nkkjaWindCauldronDestroyed = true;
+										Dom.chat.insert(Dom.chat.say("'Barebones' Nkkja", "Have you any idea how long this took to make? Get here and face me!"));
+									}
+								}, "attackables")));
+							}
+							if (!Player.quests.questProgress.nkkjaLightningCauldronDestroyed) {
+								Game.attackables.push(new Character(Game.prepareNPC({
+									template: EnemyTemplates.nilbog.nkkjaCauldron,
+									x: 540,
+									y: 1300,
+									name: "Nkkja's Cauldron of Lightning",
+									onDeath: function () {
+										// progress saving - save that cauldron has been destroyed
+										Player.quests.questProgress.nkkjaLightningCauldronDestroyed = true;
+										Dom.chat.insert(Dom.chat.say("'Barebones' Nkkja", "No! You will pay for this, with your blood!"));
+									}
+								}, "attackables")));
+							}
+							if (!Player.quests.questProgress.nkkjaEarthCauldronDestroyed) {
+								Game.attackables.push(new Character(Game.prepareNPC({
+									template: EnemyTemplates.nilbog.nkkjaCauldron,
+									x: 2122,
+									y: 1280,
+									name: "Nkkja's Cauldron of Earth",
+									onDeath: function () {
+										// remove all of the existing bog elementals
+										for (let i = 0; i < Game.enemies.length; i++) {
+											if (Game.enemies[i].name === "Bog Animation") {
+												Game.removeObject(Game.enemies[i].id, "enemies", i)
+												i--;
+											}
+										}
+										// progress saving - save that cauldron has been destroyed
+										Player.quests.questProgress.nkkjaEarthCauldronDestroyed = true;
+										Dom.chat.insert(Dom.chat.say("'Barebones' Nkkja", "My bog creatures now hate you as much as I do!"));
+									}
+								}, "attackables")));
+							}
+
+							if (bossNotSeen) {
+								// stop boss from moving until introduction is complete
+								Game.statusEffects.stun({target: boss, time: 5, hidden: true})
+
+								// pan to boss and cauldrons
+								Game.camera.pan(boss, 600, "accelerate", function () {
+									// function to be called 2s after pan is finished
+									// pan to wind cauldron
+									Game.camera.pan({x: 1554, y: 226}, 800, "accelerate", function () {
+										// pan to earth cauldron
+										Game.camera.pan({x: 2122, y: 1280}, 800, "accelerate", function () {
+											// pan to lightning cauldron
+											Game.camera.pan({x: 540, y: 1300}, 800, "accelerate", function () {
+												// pan back to player
+												Game.camera.pan(Game.hero, 800, "accelerate", function () {
+													// reset camera
+													Game.camera.follow(Game.hero);
+												}, 0);
+											}, 1000);
+										}, 1000);
+									}, 1000);
+								}, 2000);
+							}
+
+							break;
+					}
+
+					// boss health progress saving (since bosses cannot regen in a blood moon)
+					if (Player.quests.questProgress.samhainBossNilbogHealth !== undefined) {
+						boss.health = Player.quests.questProgress.samhainBossNilbogHealth;
+					}
+				}
+			}
+		},
+
+		callAreaLeaveOnLogout: true,
+
+		onAreaLeave: function (logout) {
+			if (Event.time === "bloodMoon") {
+				// save samhain boss health
+				let boss = Game.enemies.find(enemy => enemy.hostility === "boss");
+				Player.quests.questProgress.samhainBossNilbogHealth = boss.health;
 			}
 		},
 
@@ -2483,16 +2636,6 @@ var Areas = {
 				x: 1037, // north west
 				y: 340,
 				template: EnemyTemplates.nilbog.goblinBruiser,
-			},
-			// samhain bosses
-			{
-				x: 1817,
-				y: 1310,
-				template: EnemyTemplates.nilbog.marshallSheridan,
-				canBeShown: function () {
-					//return Event.time === "bloodMoon";
-					return Event.event === "Samhain";
-				}
 			},
 		],
 
@@ -4103,6 +4246,17 @@ var Areas = {
 						role: "merchant",
 						shopGreeting: "Made from only the finest of <strong><em>living</em></strong> creatures.",
 					},
+					{
+						sold: [
+							{item: Items.helm[25], cost: 5, costCurrency: 4}, // menace mask
+						],
+						role: "merchant",
+						chooseText: "What have you got to sell this Samhain?",
+						shopGreeting: "Samhain costumes are better with some authenticity.",
+						roleRequirement: function () {
+							return Game.event === "Samhain";
+						},
+					},
 				],
 				chat: {
 					shopLeave: "Come back soon. There'll be more masks for you to choose from.",
@@ -4514,11 +4668,26 @@ var Areas = {
 							{item: Items.food[1], cost: 2, costCurrency: 5, eventRequirement: "Christmas"}, // Mince Pie
 							{item: Items.food[2], cost: 2, costCurrency: 5, eventRequirement: "Christmas"}, // Christmas Pudding
 							{item: Items.food[3], cost: 5, eventRequirement: "Antorax"}, // Birthday Cake (changed every year)
-							{item: Items.teleport[1], cost: 100,}, // Teleport Coin
+							{item: Items.teleport[1], cost: 100,}, // Eaglecrest Teleport Coin
 						],
 						role: "merchant",
 						shopGreeting: `<strong>Jak</strong>: Our food and drink was all freshly made today.<br>
 									<strong>Rhus</strong>: You want some?<br>`,
+					},
+					{
+						sold: [
+							// no need for eventRequirements since role requires the event anyway
+						    {item: Items.consumable[30], cost: 1, costCurrency: 4}, // Samhain Brew
+						    {item: Items.food[6], cost: 1, costCurrency: 4}, // Pumpkin Pie
+						    {item: Items.food[7], cost: 1, costCurrency: 4}, // Toffee Apple
+						],
+						role: "merchant",
+						roleRequirement: function () {
+							return Event.event === "Samhain";
+						},
+						shopGreeting: `<strong>Rhus</strong>: HA, trick or treat?<br>
+									<strong>Jak</strong>: Don't worry, no tricks here! What about a Samhain treat?<br>`,
+						chooseText: "I'd like to browse your Samhain goods.",
 					},
 				],
 				chat: {
