@@ -2171,7 +2171,7 @@ var Areas = {
 		},
 
 		images: {
-			tiles: {normal: "assets/tilemap/loggingCamp.png", christmas: "assets/tilemap/nilbog-christmas.png"},
+			tiles: {normal: "assets/tilemap/loggingCamp.png", christmas: "assets/tilemap/loggingCamp-christmas.png"},
 			goblinRockthrower: {normal: "assets/enemies/goblinRockthrower.png"},
 			rock: {normal: "assets/projectiles/rock.png"},
 			goblinSkirmisher: {normal: "assets/enemies/goblinSkirmisher.png"},
