@@ -290,7 +290,7 @@ var Areas = {
 		},
 
 		images: {
-			tiles: {normal: "assets/tilemap/loggingCamp.png", christmas: "assets/tilemap/tutorial-christmas.png"},
+			tiles: {normal: "assets/tilemap/loggingCamp.png", christmas: "assets/tilemap/loggingCamp-christmas.png"},
 			driver: {normal: "assets/npcs/driver.png"},
 			weaponsmith: {normal: "assets/npcs/weaponsmith.png"},
 			cart: {normal: "assets/objects/cartEaglecrest.png"},
