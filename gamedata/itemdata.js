@@ -4507,6 +4507,7 @@ function GetTotalItems(requirement, archaeology) {
 // unidentified item constructor
 // area = lootArea name
 function UnId (area, tier) {
+		this.id = 0;
     this.area = area;
     this.tier = tier;
     let types = ["helm", "chest", "greaves", "boots", "sword", "staff", "bow"];
