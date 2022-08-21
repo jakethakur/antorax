@@ -83,13 +83,25 @@ for (let i = 0; i < array.length; i++) {
 	if (User.skins[array[i].class].includes(array[i].id)) {
 		document.getElementById("option"+i).style.borderColor = "darkgreen";
 	}
-	if (array[i].gender === "m") {
-		document.getElementById("option"+i).style.backgroundColor = "#C4D5F3";
+
+	// background colours
+	if (array[i].series === "Tales of Another Realm") {
+		document.getElementById("option"+i).style.backgroundColor = "#aab5b3";
 	}
-	else {
-		document.getElementById("option"+i).style.backgroundColor = "#D2C1F0";
+	else if (array[i].series === "Samhain") {
+		document.getElementById("option"+i).style.backgroundColor = "#e0b4b1";
+	}
+	else if (array[i].series === "Christmas") {
+		document.getElementById("option"+i).style.backgroundColor = "#e3fafa";
+	}
+	else if (array[i].series === "Heroes of Antorax") {
+		document.getElementById("option"+i).style.backgroundColor = "#b5d9ff";
+	}
+	else if (array[i].series === "Creators") {
+		document.getElementById("option"+i).style.backgroundColor = "#c2ace3";
 	}
 }
+
 let skin = array[0];
 let num = 0;
 let face = ["f", "r", "b", "l"];

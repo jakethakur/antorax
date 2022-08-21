@@ -2,13 +2,11 @@
 let playerName = sessionStorage.getItem("name");
 let playerClass = sessionStorage.getItem("class");
 let playerSkin = sessionStorage.getItem("skin");
-let playerGender = sessionStorage.getItem("gender");
 
 var Player = {
 	name: playerName,
 	class: playerClass,
 	skin: playerSkin,
-	gender: playerGender,
 
 	// updated by saved progress
 	x: 3838, // start coords

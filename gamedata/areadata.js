@@ -182,15 +182,8 @@ const FishingLevels = {
 	loggingCamp: 10,
 };
 
+// for dynamic lookup in messages ie class
 const ChatText = {
-    gender: {
-        m: {
-            formal: "sir"
-        },
-        f: {
-            formal: "madam"
-        }
-    },
 };
 
 //
@@ -7245,7 +7238,7 @@ var Villagers = [
         chat: {
             notUnlockedRoles: "Have you seen anyone playing Wizard's Lore before? Me neither. I bet those game boards are just for show.",
             chooseChat: "I'm going to head down to the Eaglecrest monastery soon. Would you like to come along too?",
-            receiveTavernGood: `Thank you ${ChatText.gender[Player.gender].formal}! A good day to you.`,
+            receiveTavernGood: `Thank you friend! A good day to you.`,
         }
     },
     {

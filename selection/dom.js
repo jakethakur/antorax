@@ -157,14 +157,13 @@ document.getElementById("knight").onclick = function(){
 }
 
 document.getElementById("random").onclick = function(){
-	document.getElementById("name").value = randomName(Skins[selected.class][selected[selected.class]].gender);
+	document.getElementById("name").value = randomName();
 }
 
 document.getElementById("play").onclick = function(){
 	if(document.getElementById("name").value.length > 2){
 		sessionStorage.setItem("class",selected.class);
 		sessionStorage.setItem("skin",selected[selected.class]);
-		sessionStorage.setItem("gender",Skins[selected.class][selected[selected.class]].gender);
 		sessionStorage.setItem("name",document.getElementById("name").value);
 		window.location.replace("../index.html");
 	}else{
@@ -180,7 +179,7 @@ document.getElementById("play").onclick = function(){
 }
 
 function display(){
-	document.getElementById("random").style.backgroundImage = "url('./assets/r"+Skins[selected.class][selected[selected.class]].gender+".png')";
+	document.getElementById("random").style.backgroundImage = "url('./assets/random.png')";
 	if(num === 0){ // forward
 		document.getElementById("image").src="./assets/"+selected.class+selected[selected.class]+"/f.png";
 		document.getElementById("image").style.left = window.innerWidth/2-document.getElementById("image").offsetWidth/2+parseInt(document.getElementById("image").width)/Skins[selected.class][selected[selected.class]].position.x+"px";

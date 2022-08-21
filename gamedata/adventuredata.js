@@ -91,7 +91,7 @@ var Adventure = {
 	instructions: {
 		html: `<div id="instructionsAL" class="adventure">
 			<span id="instructionsTitle" style="cursor: pointer;" onclick="Dom.instructions.index();"><u>Instructions</u></span><br>
-			<span class="adventureContent">View information to help you in your journey.</span>
+			<span class="adventureContent">Reread the instructions.</span>
 		</div>`,
 		condition: function () {
 			return true;
