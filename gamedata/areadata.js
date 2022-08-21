@@ -4580,7 +4580,8 @@ var Areas = {
 			table: {normal: "assets/objects/table.png"},
 			largeTable: {normal: "assets/objects/largeTable.png"},
 			barrel: {normal: "assets/objects/barrel.png"},
-			cat1: {normal: "assets/npcs/cat1.png"}
+			cat1Left: {normal: "assets/npcs/cat1.png"}, // for amelio
+            cat1Right: {normal: "assets/npcs/cat1.png", flip: "vertical"},
 		},
 
 		areaTeleports: [

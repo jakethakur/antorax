@@ -347,7 +347,7 @@ var Achievements = [
     },
 	{
         name: "Nilbog under Blood Moon",
-        description: "Kill all the blood moon boss in the Nilbog.",
+        description: "Kill the blood moon boss in the Nilbog.",
         points: 5,
         category: ["combat"],
         area: ["eaglecrestLoggingCamp"],
