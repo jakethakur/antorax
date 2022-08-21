@@ -8,6 +8,11 @@ let Weather = {
 			weight: 200,
 			windMultiplier: 0.2,
 		},
+		ley: {
+			weight: 0, // down movement per second
+			windMultiplier: 0.3, // multiplied with wind intensity
+			windAffectsY: true, // wind affects y pos (doesn't usually with snow/rain)
+		},
 		// "additional" particles
 		fish: {
 			weight: 300,
@@ -32,17 +37,30 @@ Weather.init = function () {
 
 // called every 10 seconds from Weather.init interval
 // init is set to true if this is called on init
+// note this is called by Window (interval) every 10 seconds, not by Weather, so cannot use this.
 Weather.tick = function (init) {
 	if (document.getElementById("weatherOn").checked) {
 		Weather.updateVariables();
 
-		// lightning
-		if (Weather.lightning && Weather.lightningTimeout === undefined) {
-			let timeUntilStrike = (120 - (Weather.intensity / (Game.canvasArea / 36000))) * 100; // intensity varies from 0 to 120, thus time varies from 0s to 12s
-			Weather.lightningTimeout = setTimeout(Weather.commenceLightningStrike, timeUntilStrike);
+
+		if (!init) {
+			// not called on init
+
+			// gusts
+			if (Weather.weatherType == "ley")
+			{
+				Weather.gust(Random(0, 360));
+			}
+
+			// lightning
+			if (Weather.lightning && Weather.lightningTimeout === undefined) {
+				let timeUntilStrike = (120 - (Weather.intensity / (Game.canvasArea / 36000))) * 100; // intensity varies from 0 to 120, thus time varies from 0s to 12s
+				Weather.lightningTimeout = setTimeout(Weather.commenceLightningStrike, timeUntilStrike);
+			}
+
 		}
 	}
-	
+
 	Event.updateTime(Game.areaName);
 	if (!init) {
 		// not called on init
@@ -68,7 +86,7 @@ Weather.chooseWeather = function (areaName) {
 		// set the weather after additional image has loaded in
 		let p = Loader.loadImage("weatherImage", "./assets/objects/fishRain.png", function () {
 			return Event.event !== "Fish"; // delete on area change if event is not fish
-		});
+		});//aaaaaaaaaaaaaaaa
 
 		// wait until images have been loaded
 		// TBD make this into function?
@@ -164,6 +182,62 @@ Weather.updateIntensity = function () {
 	this.intensity *= (Game.canvasArea / 36000);
 }
 
+// start a wind gust
+// mulitplier is maximum multiplier reached by the wind of its base value
+// rate is amount that windIntensity is multiplied by * tick length, minus 1.
+// direction is in degrees
+Weather.gust = function (direction, multiplier, rate) {
+	if (direction == undefined) {
+		direction = this.windDirection;
+	}
+	if (multiplier == undefined) {
+		multiplier = 4;
+	}
+	if (rate == undefined) {
+		rate = 1;
+	}
+
+	this.windDirection = ToRadians(direction); // 0 = to the right
+
+	this.windGust = {
+		baseIntensity: this.windIntensity,
+		multiplier: multiplier,
+		rate: rate,
+		status: "increasing"
+	}; // wind is increasing intensity at rate windGust.rate until it reaches windGust.baseIntensity * windGust.multiplier
+}
+
+// called every in game tick by main !
+Weather.updateGust = function (delta) {
+	// check if there is a gust blowing the wind atm
+	if (this.windGust != undefined)
+	{
+		if (this.windGust.status === "increasing") {
+			if (this.windIntensity < this.windGust.baseIntensity*this.windGust.multiplier) {
+				// wind intensity still needs to increase!
+				this.windIntensity *= 1 + (this.windGust.rate * delta);
+			}
+			else {
+				// now wind slows back down..
+				this.windGust.status = "decreasing";
+			}
+		}
+
+		if (this.windGust.status === "decreasing") {
+			if (this.windIntensity > this.windGust.baseIntensity) {
+				// wind intensity still needs to decrease!
+				this.windIntensity /= 1 + (this.windGust.rate * delta);
+			}
+			else {
+				// now wind gust is done
+				this.windIntensity = this.windGust.baseIntensity;
+				this.windGust = undefined;
+			}
+		}
+	}
+}
+
+// called every weather tick (~ten seconds)
 Weather.updateWind = function () {
 	this.windDirection = ToRadians((this.dateValue * 10) % 360); // 0 = to the right
 	this.windIntensity = this.dateValue % 100; // value from 0 to 100
@@ -183,7 +257,14 @@ Weather.heroMove = function (screenMovedX, screenMovedY) {
 		}
 		else {
 			// player moving down
-			particle.y -= screenMovedY/3;
+			if (this.weatherType == "ley")
+			{
+				particle.y -= screenMovedY;
+			}
+			else
+			{
+				particle.y -= screenMovedY/3;
+			}
 		}
 		// check for particle off screen
 		this.respawnParticle(particle);
@@ -256,9 +337,12 @@ Weather.moveParticles = function (delta) {
 		// weight
 		particle.y += this.particleData[particle.type].weight * particle.speedMultiplier * delta;
 
-		// wind (currently just affects x)
-		//particle.y += Math.sin(this.windDirection) * (this.windIntensity * this.particleData[particle.type].windMultiplier) * particle.speedMultiplier * delta;
+		// wind
 		particle.x += Math.cos(this.windDirection) * (this.windIntensity * this.particleData[particle.type].windMultiplier) * particle.speedMultiplier * delta;
+		if (this.particleData[particle.type].windAffectsY) {
+			// usually doesn't affect y but we can make exceptions ;)
+			particle.y += Math.sin(this.windDirection) * (this.windIntensity * this.particleData[particle.type].windMultiplier) * particle.speedMultiplier * delta;
+		}
 
 		// check for off screen particle
 		this.respawnParticle(particle, i);
@@ -360,6 +444,10 @@ Weather.render = function () {
 		else if (particle.type === "fish") {
 			let img = Loader.getImage("weatherImage");
 			Game.ctx.drawImage(img, particle.x, particle.y, img.width, img.height);
+		}
+		else if (particle.type === "ley") {
+			Game.ctx.fillStyle = "#c565fc";
+			Game.ctx.fillRect(particle.x, particle.y , 3, 3);
 		}
 	}
 }

@@ -621,7 +621,7 @@ var Items = {
 		{
 			id: 10,
 			name: "Barebones Windbreaker",
-			type: "helm",
+			type: "chest",
 			image: "assets/items/chest/10.png",
 			tier: 1,
 			obtain: ["boss"],
@@ -979,6 +979,24 @@ var Items = {
 				defence: 3,
 			},
 		},
+		{
+			id: 12,
+			name: "Slippers of Undying Love",
+			type: "boots",
+			image: "assets/items/boots/12.png",
+			tier: 1,
+			obtain: ["other"],
+			area: [],
+			rarity: "unique",
+			sellPrice: 3,
+			lore: "Love is in the air~",
+			obtainText: "Sent in the mail during The Feast of Saint Valentine.",
+			event: "Valentine",
+			stats: {
+				defence: 1,
+				healthRegen: 1,
+			},
+		},
 	],
 	sword: [
 		{
@@ -1012,7 +1030,7 @@ var Items = {
 				defence: 1,
 			},
 			quest: function () {
-                return !Player.quests.completedQuestArray.includes("To the Logging Camp");
+                return !Player.quests.completedQuestArray.includes("Retrieval of Logs");
             },
 		},
 		{
@@ -1398,7 +1416,7 @@ var Items = {
 				maxDamage: 6,
 			},
 			quest: function () {
-                return !Player.quests.completedQuestArray.includes("To the Logging Camp");
+                return !Player.quests.completedQuestArray.includes("Retrieval of Logs");
             },
 		},
 		{
@@ -1676,7 +1694,7 @@ var Items = {
 				damage: 2,
 			},
 			quest: function () {
-                return !Player.quests.completedQuestArray.includes("To the Logging Camp");
+                return !Player.quests.completedQuestArray.includes("Retrieval of Logs");
             },
 		},
 		{
@@ -2702,6 +2720,7 @@ var Items = {
 							damageIncrease: 40,
 							time: 10,
 						});
+						Dom.chat.insert("<i>You feel stronger - the potion grants +40% damage for 10 seconds.</i>");
 						break;
 					case 1:
 						// give swiftness I status effect to player
@@ -2711,6 +2730,7 @@ var Items = {
 							speedIncrease: 35,
 							time: 20,
 						});
+						Dom.chat.insert("<i>Your feet feel lighter - the potion grants +35% speed for 20 seconds.</i>");
 						break;
 					case 2:
 						// give vulnerability status effect to player
@@ -2720,6 +2740,7 @@ var Items = {
 							defenceIncrease: -50,
 							time: 10,
 						});
+						Dom.chat.insert("<i>You feel tired and weak - the potion imbues 50% vulnerability for 10 seconds.</i>");
 						break;
 					case 3:
 						// deal 25 damage over 5 seconds to the player
@@ -2728,6 +2749,7 @@ var Items = {
 							poisonDamage: 25,
 							time: 5,
 						});
+						Dom.chat.insert("<i>You feel feverish - the potion has poisoned you to take 25 damage over 5 seconds.</i>");
 						break;
 				}
 			}
@@ -2818,6 +2840,7 @@ var Items = {
 							lifestealIncrease: 100,
 							time: 10,
 						});
+						Dom.chat.insert("<i>The thirst of a vampire washes through you, granting +100% lifesteal for 10 seconds.</i>");
 						break;
 					case 1:
 						// give stealth to the player
@@ -2825,6 +2848,7 @@ var Items = {
 							target: Game.hero,
 							effectTitle: "Ghostly Stealth",
 						});
+						Dom.chat.insert("<i>The presence of a ghost incites you, granting stealth.</i>");
 						break;
 					case 2:
 						// give -50% walk speed to the player
@@ -2836,6 +2860,7 @@ var Items = {
 							speedIncrease: -50,
 							curse: true,
 						});
+						Dom.chat.insert("<i>A curse strikes you, reducing your walk speed by 50% but passing onto your next attacked enemy.</i>");
 						break;
 				}
 			},
@@ -3034,7 +3059,7 @@ var Items = {
 			name: "Christmas Potion",
 			type: "consumable",
 			image: "assets/items/consumable/17.png",
-			functionText: "Increases XP gain by 20% for 30 seconds",
+			functionText: "Increases non-quest XP gain by 20% for 30 seconds",
 			lore: "This potion is made with a secret ingredient only found at Christmas.",
 			sellPrice: 1,
             cooldown: 20, // 20 seconds
@@ -3306,9 +3331,9 @@ var Items = {
 			sellPrice: 40, // tbc
 			functionText: "Restores your health to full",
 			maxCharges: 2,
-			onClickFunction: function (inventoryPosition) {
-                // remove the item
-                Dom.inventory.remove(inventoryPosition);
+			onClickFunction: function (inventoryPosition, hotbar) {
+				// remove one charge from the item
+				Dom.inventory.removeItemCharge(inventoryPosition, hotbar);
 
                 // restore health
 				Game.hero.health = Game.hero.stats.maxHealth;

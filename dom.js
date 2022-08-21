@@ -487,12 +487,13 @@ Dom.quests.active = function (quest) {
 				}
 
 				// complete the objective in the code
-				if (isCompleted[i] === true && i !== objectives.length-1) {
+				if (isCompleted[i] === true && i !== objectives.length) {
 					completedObjectives++;
 				}
 
 			}
-			if (currentQuest.autofinish && completedObjectives >= objectives.length-1) {
+			if (currentQuest.autofinish && completedObjectives >= objectives.length) {
+				// quest should finish once all objectives are done (wothout needing to speak to npc), and all objectives are done
 				Dom.choose.page([{
 					npc:currentQuest.finishName || currentQuest[Player.quests.questProgress[currentQuest.quest]].finishName,
 					buttons: ["Quest Finish: " + currentQuest.quest],
@@ -6294,6 +6295,10 @@ Dom.init = function () {
 
 		}
 
+		//
+		// Mail, to be sent on first day the player logs in
+		//
+
 		// christmas daily rewards
 		if (Event.event === "Christmas") {
 			let randomNPC = Player.metNPCs[Random(0, Player.metNPCs.length-1)]; // NPC that sent message (one the player's met before!)
@@ -6395,8 +6400,23 @@ Dom.init = function () {
                 "./assets/items/helm/23",
 			    "text.page",
 			    ["Bumper Samhain Harvest!",
-			    `Hope you're having a good Samhain! What's a pumpkin doing in your mailbox? Out at the Eaglecrest Ranch we've had a bumper harvest of pumpkins, only makes sense to share them with everyone. Oh - and don't forget to try some of the pumpkin treats in a tavern.<br><br>Lennie`, true, [], [],
+			    `It's the season of Samhain once again! What's a pumpkin doing in your mailbox? Well, out at the Eaglecrest Ranch we've had a bumper harvest of pumpkins, only makes sense to share them with everyone. Oh - and don't forget to try some of the pumpkin treats in a tavern.<br><br>Lennie`, true, [], [],
 			    [{item: Items.helm[23]}]], [{item: Items.helm[23]}], true // noRepeat
+			);
+		}
+
+		// Valentine's mail
+		else if (Event.event === "Valentine") {
+			Dom.mail.give(
+			    "Love Is in the Air!",
+			    "Mysterious Lover",
+			    "shadow",
+			    "text.page",
+			    ["Love Is in the Air!",
+			    `<p>${Player.name},</p>
+				<p>You may not know me, but I have been watching your deeds and have been very impressed. It may seem like your doings are unrewarded, but know that there are always those who appreciate your every move.</p>
+				<p>On this day of giving and feasting, please celebrate with a token of my undying appreciation.</p>`, true, [], [],
+			    [{item: Items.boots[12]}]], [{item: Items.boots[12]}],
 			);
 		}
 

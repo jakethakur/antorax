@@ -19,7 +19,7 @@
   },
   "homepage": "https://github.com/jakethakur/antorax#readme",
   "dependencies": {
-    "express": "4.17.1",
+    "express": "^4.17.1",
     "ws": "^7.0.1"
   }
 }

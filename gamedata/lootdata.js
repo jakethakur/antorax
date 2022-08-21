@@ -283,7 +283,7 @@ const BossLootTables = {
 		{ // loggers' flannel
 			item: Items.chest[9],
 			chance: [
-				40,				// 0
+				50,				// 0
 				0,				// 1
 			],
 		},
@@ -300,7 +300,7 @@ const BossLootTables = {
 		{ // logging boots
 			item: Items.boots[2],
 			chance: [
-				30,				// 0
+				40,				// 0
 				0,				// 1
 			],
 		},
@@ -329,6 +329,28 @@ const BossLootTables = {
 				40,				// 5
 				20,				// 6
 				0,				// 7
+			],
+		},
+		{ // gold
+			item: Items.currency[2],
+			chance: [
+				100,			// 0
+				100,			// 1
+				60,				// 2
+				20,				// 3
+				0,				// 4
+			],
+		},
+		{ // unidentified items
+			item: {
+				name: "unidentified",
+				tier: 1,
+				area: "loggingCamp",
+			},
+			chance: [
+				100,			// 0
+				35,				// 1
+				0,				// 2
 			],
 		},
 	],

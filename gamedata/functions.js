@@ -26,8 +26,9 @@ Loader.loadImage = function (key, src, deleteIf, flipMode) {
 	    d = new Promise(function (resolve, reject) {
 	        img.onload = function () {
 				// image loaded
-				if (flipMode !== undefined) {
+				if (flipMode !== undefined && location.hostname !== '' && location.hostname !== 'localhost') {
 					// also flip image
+					// (provided you are not on a local host - otherwise flipped image cannot be loaded due to CORS restraints, see github wiki)
 					FlipImage(img, flipMode).then(function (flippedImg) {
 						this.images[key] = {
 							img: flippedImg,

@@ -5236,8 +5236,7 @@ Game.getStatusIconNumber = function (statusEffect) {
 Game.spells = {
 	charge: {
 		class: "k",
-		description: "",
-		bossOnly: true,
+		description: ["Leap towards your mouse location."],
 
 		// properties should contain tier (as int value), caster, target
 		func: function (properties) {
@@ -5265,6 +5264,41 @@ Game.spells = {
 			1500,	// tier 1
 		],
 	},
+
+	parade: {
+		class: "k",
+		description: ["Gain +100% defence for 0.5 seconds."],
+
+		// properties should contain tier (as int value), caster, target
+		func: function (properties) {
+			let dist = Game.distance(properties.caster, properties.target);
+			let velocity = Game.spells.charge.velocity[properties.tier-1];
+			let time = dist / velocity;
+			let bear = Game.bearing(properties.caster, properties.target);
+			properties.caster.displace(0, velocity, time, bear); // start displacement
+		},
+
+		velocity: [
+			300,	// tier 1
+		],
+
+		channelTime: [
+			500,	// tier 1
+		],
+
+		// TBD
+		manaCost: [
+			0,		// tier 1
+		],
+
+		cooldown: [
+			1500,	// tier 1
+		],
+	},
+
+	//
+	// BOSS
+	//
 
 	unholyStrike: {
 		class: "k",
@@ -5987,7 +6021,7 @@ Game.loadArea = function (areaName, destination) {
 			Weather.updateVariables();
 
 			// close NPC pages
-            Dom.closeNPCPages();
+      Dom.closeNPCPages();
 
 			// re-add player to allEntities etc.
 			this.allEntities.push(Game.hero);
@@ -7110,9 +7144,9 @@ Game.update = function (delta) {
 		}
 
 		if (dirx !== 0 || diry !== 0 || Game.wind !== undefined) {
-	        this.hero.move(delta, dirx, diry);
-			heroMoved = true;
-	    }
+        this.hero.move(delta, dirx, diry);
+				heroMoved = true;
+    }
 	}
 	else {
 		// hero always moves until it reaches a certain destination
@@ -7527,7 +7561,7 @@ Game.update = function (delta) {
 		if (!this.villagers[i].respawning) { // check villager is not dead
 			this.villagers[i].update(delta);
 		}
-    }
+  }
 
 	// update enemies
 	for (let i = 0; i < this.enemies.length; i++) {
@@ -7983,6 +8017,7 @@ Game.update = function (delta) {
 	// update weather particles
 	if (document.getElementById("weatherOn").checked && !Areas[this.areaName].indoors) {
 		Weather.addAdditionalParticles();
+		Weather.updateGust(delta); // update any current wind gust
 		Weather.moveParticles(delta);
 	}
 
@@ -8055,11 +8090,11 @@ Game.getAttackType = function () {
 }
 
 // increase player XP by xpGiven, and check for levelup, update secondary canvas, obey XP fatigue, etc.
-// xpBonus is set to false if there is no XP bonus given by xp multiplier
+// xpBonus is set to false if there should be no XP bonus given by xp multiplier (i.e. for quests)
 Game.getXP = function (xpGiven, xpBonus) {
 	if (typeof xpGiven === "number") {
 		// xp bonus
-		if (xpBonus === false) {
+		if (xpBonus !== false) {
 			xpGiven *= (1 + Game.hero.stats.xpBonus / 100)
 		}
 

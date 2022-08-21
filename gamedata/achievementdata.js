@@ -35,7 +35,7 @@ var Achievements = [
 	},
 	{
 		// id: 1,
-		name: "Christmas Meal",
+		name: "Christmas Dinner",
 		description: "Eat a mince pie and Christmas pudding, and wash it down with some mulled wine.",
 		points: 5,
 		category: ["general"],
@@ -347,8 +347,8 @@ var Achievements = [
     },
 	{
         name: "Nilbog under Blood Moon",
-        description: "Kill all 3 blood moon bosses in the Nilbog.",
-        points: 15,
+        description: "Kill all the blood moon boss in the Nilbog.",
+        points: 5,
         category: ["combat"],
         area: ["eaglecrestLoggingCamp"],
         event: "Samhain",
@@ -357,14 +357,8 @@ var Achievements = [
         color: "#540606",
         class: "single",
         isCompleted: function () {
-            return Player.bossesKilled.tatteredKnight !== 0 && Player.bossesKilled.tatteredKnight !== undefined;
+            return Player.bossesKilled.marshallSheridan !== 0 && Player.bossesKilled.marshallSheridan !== undefined;
         },
-		expand: {
-			type: "checkList",
-			text: ["Marshall Sheridan", "'Barebones' Nkkja", "Lake Lurker"],
-			complete: ["marshallSheridan", "barebonesNkkja", "lakeLurker"],
-			saved: "boss"
-		},
     },
 		// REPUTATION
 	{
@@ -756,4 +750,21 @@ var Achievements = [
 			return User.progress.tagAchievement === true;
 		},
 	},
+
+
+	{
+        name: "A Blood Moon is Rising...",
+        description: "Forment the rising of a blood moon.",
+        points: 5,
+        category: ["quests"],
+        area: ["eaglecrestCity"],
+        event: "Samhain",
+        image: "../assets/enemies/marshallSheridan.png", //tbc
+        position: {x: 8, y: -1},
+        color: "#540606",
+        class: "single",
+        isCompleted: function () {
+            return Player.bossesKilled.marshallSheridan !== 0 && Player.bossesKilled.marshallSheridan !== undefined; // tbc
+        },
+    },
 ]
