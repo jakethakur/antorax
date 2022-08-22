@@ -382,7 +382,7 @@ var Quests = {
 			questArea: "eaglecrestLoggingCamp",
 
 			startName: "Galuthel the Trap Mechanic",
-			startChat: `Welcome to the logging camp, adventurer. I hope Teper hasn't been too harsh to you. Since the goblin attack, we've been investing in ways to stop something like it happening again. My traps are some of the best technology this area has to offer to stop those goblins.<br>Help me by taking some traps and place them around in The Nilbog. 3 should suffice. They won't arm right away, but when they do there's sure to be a huge impact.`,
+			startChat: `Welcome to the logging camp, adventurer. I hope Teper hasn't been too harsh to you. Since the goblin attack, we've been investing in ways to stop something like it happening again. My traps are some of the best technology this area has to offer to stop those goblins.<br>Help me by taking some traps and place them around in The Nilbog. 3 should suffice. They will make a huge impact in deterring the goblins, and will maybe help out in your combats!`,
 
 			finishName: "Galuthel the Trap Mechanic",
 			finishChat: `Excellent. You can always come back later if you have a bit of spare time. I'd appreciate your help.`,
@@ -428,7 +428,7 @@ var Quests = {
 			questArea: "eaglecrestLoggingCamp",
 
 			startName: "Galuthel the Trap Mechanic",
-			startChat: `If you have some time, I need 3 more traps placed around The Nilbog. We can't let those goblins attack us again!`,
+			startChat: `If you have some time, I need 3 more traps placed around The Nilbog and The Tower. We can't let those goblins attack us again!`,
 
 			finishName: "Galuthel the Trap Mechanic",
 			finishChat: `Thank you. Same time tomorrow?`,
@@ -450,7 +450,7 @@ var Quests = {
 			},
 
 			howToStart: "Speak to <strong>Galuthel the Trap Mechanic</strong>.",
-			levelRequirement: 4,
+			levelRequirement: 5,
 			questRequirements: ["Strengthening Defences"],
 			repeatTime: "daily",
 
@@ -882,7 +882,7 @@ var Quests = {
 			important: true,
 
 			startName: "Marshall Teper",
-			startChat: `The Goblin King is the ruler over the goblins. We believe it is because of their ruler that the goblins act as hostile towards us as they do. Unfortunately, the Antorax ley energy nearby means that the goblins and their ruler come back to life after killed, however killing the Goblin King will certainly offset the goblins for a while.<br>The Goblin Tower has been a dangerous place since they first took it over - it has all sorts of magical items left over that will will be unlike anything you have seen before. Moreover, only the strongest of goblins are elected to protect their ruler. I suggest not engaging them. Prepare yourself with equipment and potions, and see how you fare against the Goblin King.`,
+			startChat: `The Goblin King is the ruler over the goblins. We believe it is because of their ruler that the goblins act as hostile towards us as they do. Unfortunately, the Antorax ley energy nearby means that the goblins and their ruler come back to life after killed, however killing the Goblin King will certainly offset the goblins for a while.<br>The Goblin Tower has been a dangerous place since they first took it over - it has all sorts of magical items left over that will will be unlike anything you have seen before. Moreover, only the strongest of goblins are elected to protect their ruler. I suggest not engaging them. Prepare yourself with equipment, traps and potions, and see how you fare against the Goblin King.`,
 
 			finishName: "Marshall Teper",
 			finishChat: `Well done. Few novices can say they have killed the Goblin King.`,
@@ -896,7 +896,7 @@ var Quests = {
 				let completed = [];
 
 				// true or falses for each objective (apart from the turn-in objective)
-				completed.push(Player.bossesKilled.goblinKing !== 0);
+				completed.push(Player.bossesKilled.goblinKing !== 0 && Player.bossesKilled.goblinKing !== undefined);
 
 				completed = checkFinished(completed);
 
@@ -1433,18 +1433,18 @@ After all, death is never the end in Antorax...<br>
 			startChat: "Black cat with white paws and nose.<br>His name is Amelio.<br>Last seen outside the Eaglecrest tavern.<br>Please bring to Priest Kemp-Eau inside Eaglecrest Monastery for a reward.",
 
 			finishName: "Priest Kemp-Eau",
-			finishChat: "",
+			finishChat: `Is that Amelio?!<br><br>Awww come here little boy, you haven't been to the tavern again have you?!<br><br>No, I meant the cat not you ${Player.name}!<br><br>Anyway, thank you immensely ${Player.name}. I assume you saw our notice!? He usually goes on his little séjours but never for this long! We have been searching for weeks. I cannot state how happy we are to see him back.<br><br>Ahh yes your reward. Here is some gold. I hope it goes towards a good cause.<br><br>Wait, adventurer!! If you want some more rewards.. we still need to find out why Amelio was missing for so long. He's never done this before. I'm sure it's nothing, but..`,
 
 			objectives: [
 				"Find the lost cat, Amelio.",
-				"Speak to <strong>Priest Kemp-Eau</strong>.",
+				"Bring the cat to <strong>Priest Kemp-Eau</strong>.",
 			],
 
 			isCompleted: function() {
 				let completed = [];
 
 				// true or falses for each objective (apart from the turn-in objective)
-				completed.push(false);
+				completed.push(typeof Game.hero.hasOnLead !== "undefined" && Game.hero.hasOnLead.name === "Amelio");
 
 				completed = checkFinished(completed);
 
@@ -1456,7 +1456,7 @@ After all, death is never the end in Antorax...<br>
 			questRequirements: ["To Eaglecrest, and Beyond!"],
 
 			rewards: {
-				xp: 30,
+				xp: 50,
 				items: [{item: Items.currency[2], quantity: 3}],
 			},
 		},

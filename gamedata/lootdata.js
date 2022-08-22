@@ -93,16 +93,15 @@ const EnemyLootTables = {
 				area: "loggingCamp",
 			},
 			chance: [
-				40,				// 0
+				25,				// 0
 				0,				// 1
 			],
 		},
 		{ // gold
 			item: Items.currency[2],
 			chance: [
-				15,				// 0
-				3,				// 1
-				0,				// 2
+				5,				// 0
+				0,				// 1
 			],
 		},
 		{ // log
@@ -185,7 +184,7 @@ const EnemyLootTables = {
 		{ // tattered tome
 			item: Items.item[16],
 			chance: [
-				10,				// 0
+				15,				// 0
 				0,				// 1
 			],
 		},
@@ -414,10 +413,9 @@ const ChestLootTables = {
 		{ // gold
 			item: Items.currency[2],
 			chance: [
-				100,			// 0
-				60,				// 1
-				30,				// 2
-				0,				// 3
+				90,				// 0
+				30,				// 1
+				0,				// 2
 			],
 		},
 		{ // random potion (including goblin potion)

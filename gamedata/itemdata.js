@@ -1383,6 +1383,23 @@ var Items = {
 			},
 			projectile: "slashBlood",
 		},
+		{
+			id: 16,
+			name: "Net",
+			type: "sword",
+			image: "assets/items/sword/16.png",
+			uncollectable: true,
+			allClasses: true,
+			tier: 1,
+			obtain: ["other"],
+			area: [],
+			rarity: "common",
+			quest: true,
+			removeOnAbandon: "Cleaning the Floor",
+			stats: {
+				damage: 1,
+			},
+		},
 	],
 	staff: [
 		{
@@ -2759,9 +2776,9 @@ var Items = {
 			name: "Goblin Trap",
 			type: "consumable",
 			image: "assets/items/consumable/7.png",
-			functionText: "Places a trap (can only be used in The Nilbog)",
+			functionText: "Places a trap (can only be used in The Nilbog or The Tower)",
 			lore: "Like a bear trap, but ickier.",
-			onClickAreaRequirement: ["nilbog"],
+			onClickAreaRequirement: ["nilbog", "nilbogTower1", "nilbogTower2", "nilbogTower3", "nilbogTower4", "nilbogTower5"],
 			onClickFunction: function (inventoryPosition) {
 				// check it would not touch an existing trap
 				let trapArray = Game.things.filter(thing => thing.name === "Goblin Trap");

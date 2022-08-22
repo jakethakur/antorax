@@ -168,6 +168,7 @@ let Event = {
 		else if (d.day === 14 && d.month === 2) {
 			this.event = "Valentine";
 		}
+			this.event = "Fish";
 	}
 };
 
@@ -1052,7 +1053,7 @@ var Areas = {
 						role: "merchant",
 						chooseText: "I need some more goblin traps.",
 						roleRequirement: function () {
-							return Player.quests.activeQuestArray.includes("Strengthening Defences") || Player.quests.activeQuestArray.includes("Reinforcing Defences");
+							return Player.quests.activeQuestArray.includes("Strengthening Defences") || Player.quests.activeQuestArray.includes("Reinforcing Defences") || Player.quests.activeQuestArray.includes("The Goblin King");
 						},
 						shopGreeting: "If you're out of traps, I'll give you some more.",
 					},
@@ -6110,7 +6111,7 @@ var Areas = {
 			rows: 30,
 			tsize: 60,
 			tilesPerRow: 8,
-			solidTiles: [1, 2, 3, 6, 7, 9, 10, 11, 13, 15, 17, 18, 19, 20, 21, 23, 25, 26, 27, 28, 29, 31, 33, 34, 35, 36, 37, 38, 39, 42, 43, 44, 45, 46, 47, 53, 55, 61, 65, 69, 73, 77, 82, 83],
+			solidTiles: [1, 2, 3, 6, 7, 9, 10, 11, 13, 15, 17, 18, 19, 20, 21, 23, 25, 26, 27, 28, 29, 31, 33, 34, 35, 36, 37, 38, 39, 42, 43, 44, 45, 46, 47, 53, 55, 61, 65, 69, 70, 73, 77, 82, 83],
 			dayTiles: [11, 27, 34, 42, 7], // windows and lights
 			nightTiles: [3, 19, 2, 18, 15],
 			pathTiles: [5, 12, 41, 50, 51, 57, 58, 59, 60, 76],
@@ -6136,9 +6137,9 @@ var Areas = {
 		areaTeleports: [
 			{
 				// teleport to eaglecrest graveyard
-				x: 1100,
+				x: 1110,
 				y: 1850,
-				width: 60,
+				width: 2220,
 				height: 2,
 				teleportTo: "eaglecrestGraveyard",
 				destinationX: 2010,

@@ -7033,14 +7033,15 @@ Game.playLevelupSound = function (areaName) {
 		let levelUp = false;
 
 		// find level up sound to play
-		switch (lootArea) {
+		switch (Areas[areaName].lootArea) {
 
 			case "loggingCamp":
 				levelUp = new Audio("./assets/sounds/loggingCampLevelup.mp3");
 				break;
 
 			default:
-				console.error("No level up sound for current area - add it to the switch statement in Game.playLevelupSound");
+				levelUp = new Audio("./assets/sounds/loggingCampLevelup.mp3");
+				console.alert("No level up sound for current area");
 
 		}
 

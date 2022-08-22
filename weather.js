@@ -84,19 +84,27 @@ Weather.chooseWeather = function (areaName) {
 		this.lightning = undefined;
 
 		// set the weather after additional image has loaded in
-		let p = Loader.loadImage("weatherImage", "./assets/objects/fishRain.png", function () {
-			return Event.event !== "Fish"; // delete on area change if event is not fish
-		});//aaaaaaaaaaaaaaaa
+		if(!("weatherImagefish" in Loader.images)) // note the fish needs to be lowercase because it is "WeatherImage"+this.weatherAdditional
+		{
+			// img not been loaded yet
+			let p = Loader.loadImage("weatherImagefish", "./assets/objects/fishRain.png", function () {
+				return Event.event !== "Fish"; // delete on area change if event is not fish
+			});
 
-		// wait until images have been loaded
-		// TBD make this into function?
-	    p.then(function (loaded) {
+			// wait until images have been loaded
+			// TBD make this into function?
+		    p.then(function (loaded) {
+				this.weatherAdditional = "fish";
+			}.bind(this))
+			.catch(function (err) {
+				// error for if the images didn't load
+			    console.error("Weather image did not load correctly.", err);
+			});
+		}
+		else {
+			// img has been loaded already in the past
 			this.weatherAdditional = "fish";
-		}.bind(this))
-		.catch(function (err) {
-			// error for if the images didn't load
-		    console.error("Weather image did not load correctly.", err);
-		});
+		}
 	}
 	else if ((this.dateValue / 40) % 8 < 1 || (this.dateValue / 40) % 21 < 1) {
 	//else if ((new Date()).getSeconds() > 30) { // for testing
@@ -442,7 +450,7 @@ Weather.render = function () {
 			Game.ctx.fillRect(particle.x, particle.y , 1, 12);
 		}
 		else if (particle.type === "fish") {
-			let img = Loader.getImage("weatherImage");
+			let img = Loader.getImage("weatherImage"+this.weatherAdditional);
 			Game.ctx.drawImage(img, particle.x, particle.y, img.width, img.height);
 		}
 		else if (particle.type === "ley") {
