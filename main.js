@@ -2,7 +2,7 @@
 
 //
 // Realms of Antorax canvas code
-// Jake Thakur 2018-2019
+// Jake Thakur 2018-2022
 //
 
 // https://developer.mozilla.org/en-US/docs/Games/Techniques/Tilemaps
@@ -2104,6 +2104,7 @@ class Attacker extends Character {
 		this.stats.lifesteal = properties.stats.lifesteal || 0;
 		this.stats.hex = properties.stats.hex || 0;
 		this.stats.splashDamage = properties.stats.splashDamage || true; // if projectile damages more than one thing
+		this.stats.moveDuringFocus = properties.stats.moveDuringFocus;
 		// functions
 		if (properties.stats.onAttack !== undefined) {
 			// bind can only be called if it is not undefined
@@ -2156,18 +2157,25 @@ class Attacker extends Character {
 				// remove fishing bobber
 				Game.removeObject(this.channellingProjectileId, "projectiles");
 				this.channelling = false;
+				this.channellingInfo = false;
 				this.channellingProjectileId = null;
 			}
 			else if (this.channelling === "projectile" || this.channelling === "block") {
-				this.finishAttack(); // for attack channelling for hero
+				if (this.stats.moveDuringFocus !== true)
+				{
+					this.finishAttack(); // for attack channelling for hero
+					this.channelling = false;
+					this.channellingInfo = false;
+				}
 			}
 			else {
 				clearTimeout(this.channelling); // might not always be a timeout, but this doesn't matter (does nothing if not a timeout)
 				// N.B. this.channelling should never be an int, otherwise clearTimeout *does* mess it up
+
+				// now nothing is being channelled
+				this.channelling = false;
+				this.channellingInfo = false;
 			}
-			// now nothing is being channelled
-			this.channelling = false;
-			this.channellingInfo = false;
 		}
 	}
 
@@ -2681,12 +2689,10 @@ class Hero extends Attacker {
 					else if (this.channelling === "fishing") {
 						// bobber has been cast
 
-						/*Game.removeObject(this.channellingProjectileId, "projectiles"); // remove bobber
+				        Game.removeObject(this.channellingProjectileId, "projectiles"); // remove bobber
 
-						this.channelling = false;
-						this.channellingProjectileId = null;*/
-
-						// in the future, the player should be able to remove the bobber whilst fishing
+				        this.channelling = false;
+				        this.channellingProjectileId = null;
 					}
 					else if (this.channelling.fishingType !== undefined && this.fishingBobs >= 100) { // channelling.type is only defined when it is set to an item (i.e. a fishing item)
 						// fish has been caught - player is clicking to pull it up
@@ -7411,6 +7417,7 @@ Game.update = function (delta) {
 										if (Dom.inventory.check(2, "currency", Game.soulHealerCost)) {
 											Dom.inventory.removeById(2, "currency", Game.soulHealerCost);
 											Game.hero.removeStatusEffect(Game.hero.statusEffects.findIndex(statusEffect => statusEffect.title === "XP Fatigue")); // remove xp fatigue effect
+											Player.fatiguedXP = 0;
 											Dom.closePage("textPage");
 											Game.currentSoulHealer.say(Game.currentSoulHealer.chat.healedText, 0, false);
 											Game.currentSoulHealer = undefined; // reset variable that remembers which soul healer the player is speaking to
@@ -7418,7 +7425,7 @@ Game.update = function (delta) {
 										}
 										else {
 											// player cannot afford it
-											Game.soulHealers[i].say(Game.soulHealers[i].chat.tooPoor, 0, true);
+											Game.currentSoulHealer.say(Game.currentSoulHealer.chat.tooPoor, 0, true);
 										}
 									}]]);
 								}
@@ -8108,6 +8115,7 @@ Game.getXP = function (xpGiven, xpBonus) {
 				Player.xp -= Player.fatiguedXP / 2;
 				Player.fatiguedXP = 0;
 				Game.hero.removeStatusEffect(Game.hero.statusEffects.findIndex(statusEffect => statusEffect.title === "XP Fatigue"), 1); // remove xp fatigue effect
+				Dom.chat.insert("Your XP fatigue has worn off");
 			}
 			else {
 				Player.xp -= xpGiven / 2;

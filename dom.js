@@ -1455,6 +1455,9 @@ Dom.inventory.stats = function (stat, value, array) {
 	else if (stat === "Frostaura" || stat === "Splash Damage" || stat === "Wind Shield") {
 		return stat+"<br>";
 	}
+	else if (stat === "Move During Focus") {
+		return "Allows movement during attacks<br>";
+	}
 	else {
 		return "";
 	}
@@ -1836,15 +1839,21 @@ Dom.quest.start = function (quest, npc) {
 			}
 			Dom.elements.questStartQuest.innerHTML = quest.quest;
 
+			let timesCompleted = Player.quests.timesCompleted[quest.questArea][quest.id]; // the number of times the player has completed this quest already (helpful for if the dialogue varies for each attempt for example
+			if (timesCompleted === null || timesCompleted === undefined)
+			{
+				timesCompleted = 0;
+			}
+
 			let startName = quest.startName || quest[ToObjectKey(npc.name)].startName;
 			if (Array.isArray(startName)) {
-				startName = startName[Player.quests.timesCompleted[quest.questArea][quest.id]];
+				startName = startName[timesCompleted];
 			}
 			Dom.elements.questStartName.innerHTML = startName;
 
 			let startChat = quest.startChat || quest[ToObjectKey(npc.name)].startChat;
 			if (Array.isArray(startChat)) {
-				startChat = startChat[Player.quests.timesCompleted[quest.questArea][quest.id]];
+				startChat = startChat[timesCompleted];
 			}
 
 			let objectives = quest.objectives || quest[ToObjectKey(npc.name)].objectives;
@@ -1852,7 +1861,7 @@ Dom.quest.start = function (quest, npc) {
 			(objectives.length > Player.quests.timesCompleted[quest.questArea][quest.id] ||
 			Player.quests.timesCompleted[quest.questArea][quest.id] === null ||
 			Player.quests.timesCompleted[quest.questArea][quest.id] === undefined)) {
-				objectives = objectives[Player.quests.timesCompleted[quest.questArea][quest.id] || 0];
+				objectives = objectives[timesCompleted];
 			}
 
 			Dom.elements.questStartChat.innerHTML = startChat;
@@ -2056,18 +2065,55 @@ Dom.quest.declineRewards = function () {
 }
 
 Dom.quest.finish = function (quest, npc) {
+	let timesCompleted = Player.quests.timesCompleted[quest.questArea][quest.id]; // the number of times the player has completed this quest already (helpful for if the dialogue varies for each attempt for example
+	if (timesCompleted === null || timesCompleted === undefined)
+	{
+		timesCompleted = 0;
+	}
+
+	// first find the array of the rewards that you will be given
+	if (quest.rewards !== undefined) {
+		Dom.quests.defaultRewards = Object.assign({}, quest.rewards);
+
+		if (quest.rewards.items === undefined) {
+			quest.rewards.items = [];
+		}
+
+		// item rewards added from timesCompleted
+		if (quest.rewards.timesCompleted !== undefined) {
+			quest.rewards.items = quest.rewards.items.concat(quest.rewards.timesCompleted[timesCompleted]);
+		}
+
+		// item rewards added from table
+		if (!quest.addedRewardsFromTables) {
+			for (let i = 0; i < QuestRewardTables.globalAll.length; i++) {
+				quest.rewards.items.push(QuestRewardTables.globalAll[i]);
+			}
+
+			if (quest.repeatTime === "daily") {
+				for (let i = 0; i < QuestRewardTables.globalDaily.length; i++) {
+					quest.rewards.items.push(QuestRewardTables.globalDaily[i]);
+				}
+			}
+			quest.addedRewardsFromTables = true;
+		}
+	}
+
+	// now generate dom menu
+
 	if (quest.rewards === undefined || quest.rewards.items === undefined || Dom.inventory.requiredSpace(quest.rewards.items)) {
 		if (Dom.changeBook("questFinish")) {//, true/*false*/, true)) {
 			Dom.elements.questFinishQuest.innerHTML = quest.quest;
+
 			let finishName = quest.finishName || quest[ToObjectKey(npc.name)].finishName;
 			if (Array.isArray(finishName)) {
-				finishName = finishName[Player.quests.timesCompleted[quest.questArea][quest.id]];
+				finishName = finishName[timesCompleted];
 			}
 			Dom.elements.questFinishName.innerHTML = finishName;
 
 			let finishChat = quest.finishChat || quest[ToObjectKey(npc.name)].finishChat;
 			if (Array.isArray(finishChat)) {
-				finishChat = finishChat[Player.quests.timesCompleted[quest.questArea][quest.id]];
+				finishChat = finishChat[timesCompleted];
 			}
 			Dom.elements.questFinishChat.innerHTML = finishChat;
 
@@ -2075,10 +2121,11 @@ Dom.quest.finish = function (quest, npc) {
 				Player.quests.timesCompleted[quest.questArea][quest.id] = Increment(Player.quests.timesCompleted[quest.questArea][quest.id]);
 			}
 
-			// xp rewards
+			// rewards
 			Dom.elements.questFinishItems.innerHTML = "";
 			Dom.elements.questFinishXP.hidden = true;
 			if (quest.rewards !== undefined) {
+				// xp rewards
 				if (quest.rewards.xp > 0) {
 					Dom.elements.questFinishXP.hidden = false;
 					Dom.elements.questFinishXP.innerHTML = quest.rewards.xp;
@@ -2090,31 +2137,6 @@ Dom.quest.finish = function (quest, npc) {
 					for (let i = 0; i < quest.rewards.services.length; i++) {
 						Dom.elements.questFinishItems.innerHTML += "<img src='./assets/icons/" + quest.rewards.services[i].image + ".png' class='theseQuestFinishServices'></img>&nbsp;&nbsp;";
 					}
-				}
-
-				Dom.quests.defaultRewards = Object.assign({}, quest.rewards);
-
-				if (quest.rewards.items === undefined) {
-					quest.rewards.items = [];
-				}
-
-				// item rewards added from timesCompleted
-				if (quest.rewards.timesCompleted !== undefined) {
-					quest.rewards.items = quest.rewards.items.concat(quest.rewards.timesCompleted[Player.quests.timesCompleted[quest.questArea][quest.id]-1]);
-				}
-
-				// item rewards added from table
-				if (!quest.addedRewardsFromTables) {
-					for (let i = 0; i < QuestRewardTables.globalAll.length; i++) {
-						quest.rewards.items.push(QuestRewardTables.globalAll[i]);
-					}
-
-					if (quest.repeatTime === "daily") {
-						for (let i = 0; i < QuestRewardTables.globalDaily.length; i++) {
-							quest.rewards.items.push(QuestRewardTables.globalDaily[i]);
-						}
-					}
-					quest.addedRewardsFromTables = true;
 				}
 
 				// item rewards display

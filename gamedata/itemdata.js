@@ -1745,7 +1745,7 @@ var Items = {
 			unidentifiedArea: ["loggingCamp"],
 			stats: {
 				damage: 3.5,
-				focusSpeed: 1,
+				moveDuringFocus: true,
 			},
 		},
 		{
@@ -3017,6 +3017,12 @@ var Items = {
 					enemy.y = Game.hero.y;
 					Game.hero.x = enemyPositionX;
 					Game.hero.y = enemyPositionY;
+
+					// stop any bugs from arising...
+					Game.hero.moveTowards = undefined;
+					enemy.moveTowards = undefined;
+					Game.hero.removeChannelling("move");
+					enemy.removeChannelling("move");
 				}
 			},
 		},

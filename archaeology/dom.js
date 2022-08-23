@@ -143,6 +143,9 @@ function Stats (stat, value, array) {
 	else if (stat === "Frostaura" || stat === "Splash Damage" || stat === "Wind Shield") {
 		return stat+"<br>";
 	}
+	else if (stat === "Move During Focus") {
+		return "Allows movement during attacks<br>";
+	}
 	else {
 		return "";
 	}
@@ -755,7 +758,8 @@ var StatsInfo = {
 	durability: "The number of attacks that can be dealt by the weapon before it breaks.",
 	splashDamage: "Damages all enemies at the location, rather than just one.",
 	windShield: "Prevents player movement caused by wind.",
-	slow: "Slows hit enemies for a certain period of time. This effect can stack to slow them for longer."
+	slow: "Slows hit enemies for a certain period of time. This effect can stack to slow them for longer.",
+	moveDuringFocus: "Allows player movement whilst focussing shots.",
 }
 
 if(viewedItemId != undefined && viewedItemType != undefined){

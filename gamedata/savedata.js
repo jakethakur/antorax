@@ -105,7 +105,7 @@ var Player = {
 		iceSpeed: 270, // (300/s)
 		variance: 0, // default variance projectiles when 600px away - set to 100 by default for any archer weapons; can be overriden in itemdata
 		minimumVariance: 0, // (50) minimum variance of a fired projectile
-		focusSpeed: 1, // (1/s) archers only (speed that the variant for archer projectiles gets smaller)
+		focusSpeed: 6, // (1/s) archers only (speed at which the variance for archer projectiles gets smaller)
 		maxDamage: 0, // (3-9) mages only (damage done when channelled)
 		blockDefence: 0, // (16) knights only
 		lifesteal: 0, // (10%)
@@ -114,9 +114,10 @@ var Player = {
 		splashDamage: false, // boolean (if projectile damages more than one enemy)
 		hex: 0, // (30%)
 		damagePercentage: 0, // (40%) extra percentage of damage dealt
-		windShield: false, // boolean
+		windShield: false, // (boolean)
 		slowAmount: 0, // (50% for 3s) amount of slow to enemies on attack
 		slowTime: 0, // time of slow to enemies on attack
+		moveDuringFocus: false, // whether you can move whilst charging basic attack
 
 		// fishing
 		fishingSkill: 0, // (1.1) increased when you fish stuff up (increased by main.js)

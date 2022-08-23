@@ -626,11 +626,11 @@ function DeepCloneObject (obj) {
 // undefined is seen as 0
 // amount is optional (specifies a value other than 1)
 function Increment (variable, amount) {
-	if (amount === undefined) {
+	if (amount === undefined || amount === null) {
 		amount = 1; // default
 	}
 
-	if (variable === undefined) {
+	if (variable === undefined || variable === null) {
 		variable = amount;
 	}
 	else {
