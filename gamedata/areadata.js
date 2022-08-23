@@ -168,7 +168,6 @@ let Event = {
 		else if (d.day === 14 && d.month === 2) {
 			this.event = "Valentine";
 		}
-			this.event = "Fish";
 	}
 };
 

@@ -1970,7 +1970,7 @@ var Items = {
 			type: "rod",
 			image: "assets/items/rod/2.png",
 			rarity: "common",
-			sellPrice: 2,
+			sellPrice: 1,
 			lore: "A fine rod.",
 			stats: {},
 			quest: function(){
@@ -3757,7 +3757,7 @@ var Items = {
 			image: "assets/items/fish/13.png",
 			rarity: "junk",
 			sellPrice: 1,
-			sellQuantity: 16,
+			sellQuantity: 4,
 			stack: 264,
 			lore: "An old coin from before Antorax was formed.",
 			areas: [],

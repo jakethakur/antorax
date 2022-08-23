@@ -93,7 +93,7 @@ const EnemyLootTables = {
 				area: "loggingCamp",
 			},
 			chance: [
-				25,				// 0
+				20,				// 0
 				0,				// 1
 			],
 		},
