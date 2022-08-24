@@ -6510,7 +6510,7 @@ Dom.init = function () {
 	}
 
 	Dom.checkProgress(); // calls Dom.quests.active()
-	Dom.quests.completed();aaaaaaaaa
+	Dom.quests.completed();
 	Dom.adventure.update(); // chooses what should be shown in adventurer's log
 
 	// clear any unintentional chat and welcome player
