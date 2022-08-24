@@ -1444,7 +1444,7 @@ After all, death is never the end in Antorax...<br>
 				let completed = [];
 
 				// true or falses for each objective (apart from the turn-in objective)
-				completed.push(typeof Game.hero.hasOnLead !== "undefined" && Game.hero.hasOnLead.name === "Amelio");
+				completed.push(typeof Game.hero !== "undefined" && typeof Game.hero.hasOnLead !== "undefined" && Game.hero.hasOnLead.name === "Amelio");
 
 				completed = checkFinished(completed);
 

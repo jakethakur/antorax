@@ -2032,6 +2032,7 @@ Dom.quest.start = function (quest, npc) {
 	else if (npc !== undefined) {
 		npc.say(npc.chat.inventoryFull, 0, true);
 		Dom.currentNPC = {};
+		Dom.currentlyDisplayed = "";
 	}
 }
 
@@ -2221,6 +2222,7 @@ Dom.quest.finish = function (quest, npc) {
 	else if (npc !== undefined) {
 		npc.say(npc.chat.inventoryFull, 0, true);
 		Dom.currentNPC = {};
+		Dom.currentlyDisplayed = "";
 	}
 }
 
@@ -6508,7 +6510,7 @@ Dom.init = function () {
 	}
 
 	Dom.checkProgress(); // calls Dom.quests.active()
-	Dom.quests.completed();
+	Dom.quests.completed();aaaaaaaaa
 	Dom.adventure.update(); // chooses what should be shown in adventurer's log
 
 	// clear any unintentional chat and welcome player
