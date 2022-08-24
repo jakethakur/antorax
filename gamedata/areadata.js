@@ -2449,7 +2449,7 @@ var Areas = {
 							});
 						},
 						roleRequirement: function () {
-							return Player.quests.activeQuestArray.includes("A Burning Need to be Cleaned") && Dom.inventory.check(3, "item", 1);
+							return Player.quests.activeQuestArray.includes("A Burning Need to be Cleaned") && Dom.inventory.check(3, "item", 1) && Player.quests.npcProgress.eaglecrestLoggingCamp[24] === 1;
 						}
 					},
 					{
@@ -5433,7 +5433,9 @@ var Areas = {
 							{item: Items.consumable[2], cost: 4}, // potion of strength I
 							{item: Items.consumable[23], cost: 4}, // potion of evasion I
 							{item: Items.consumable[24], cost: 4}, // potion of regeneration I
-							{item: Items.consumable[25], cost: 3}, // potion of fire resistance
+							{item: Items.consumable[25], cost: 3, condition: function () { // potion of fire resistance
+								return Player.quests.questProgress.eaglecrestFirePotionUnlocked === true;
+							}},
 						],
 						role: "merchant",
 						shopGreeting: "There's a potion for you, and you, and youuuuu!",
@@ -5462,6 +5464,7 @@ var Areas = {
                                 Dom.inventory.give(Items.consumable[25]);
                                 Dom.reputation.give("eaglecrestCity", 20);
                                 Player.quests.npcProgress.eaglecrestLoggingCamp[24] = 4;
+								Player.quests.questProgress.eaglecrestFirePotionUnlocked = true;
                                 Dom.text.page("Alchemist Tamtam", "<em>Tamtam's tail wags vivaciously.</em><br><br>You're baaaaack!!! And not on fire!!! Well doneeeee!!! Fire resistance potion for youuuuuuuu!!! <sup>Fireeeeeeeeeee!<sup>", true);
                             }
                             else {

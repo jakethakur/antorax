@@ -1269,8 +1269,8 @@ After all, death is never the end in Antorax...<br>
 				completed.push(Dom.inventory.check(3, "item", 1) || Player.quests.npcProgress.eaglecrestLoggingCamp[24] >= 2); // 1 scrap of cloth
 				completed.push(Player.quests.npcProgress.eaglecrestLoggingCamp[24] >= 2);
 				completed.push((Dom.inventory.check(3, "item", 1) || Dom.inventory.check(27, "item", 1)) && Player.quests.npcProgress.eaglecrestLoggingCamp[24] >= 2 ); // 1 scrap of cloth
-				completed.push(Player.quests.npcProgress.eaglecrestLoggingCamp[24] >= 3);
-				completed.push(Player.quests.npcProgress.eaglecrestLoggingCamp[24] >= 4);
+				completed.push(Player.quests.npcProgress.eaglecrestLoggingCamp[24] >= 3 || Dom.inventory.check(25, "consumable", 1) || Dom.inventory.check(27, "item", 1)); // also allows having obtained the potion by another way
+				completed.push(Player.quests.npcProgress.eaglecrestLoggingCamp[24] >= 4 || Dom.inventory.check(25, "consumable", 1) || Dom.inventory.check(27, "item", 1));
 				completed.push(Dom.inventory.check(27, "item", 1)); // 1 fire resistant cloth
 				completed.push(Player.quests.npcProgress.eaglecrestLoggingCamp[24] >= 5);
 

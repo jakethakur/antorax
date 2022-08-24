@@ -1511,7 +1511,8 @@ class Character extends Thing {
 	}
 
 	// remove status effect from the specified index of this.statusEffects
-	removeStatusEffect (index) {
+	// reason is a string specifying the reason the effect was removed
+	removeStatusEffect (index, reason) {
 		let statusEffect = this.statusEffects[index];
 
 		// clear tick
@@ -1521,7 +1522,7 @@ class Character extends Thing {
 
 		// call onExpire
 		// only called if the status effect has run out of time, or if onExpire is called on any remove
-		if (statusEffect.onExpire !== undefined && (statusEffect.info.ticks >= statusEffect.time || statusEffect.callExpireOnRemove)) {
+		if (statusEffect.onExpire !== undefined && (reason==="time" || statusEffect.callExpireOnRemove)) {
 			statusEffect.onExpire(this);
 		}
 
@@ -1539,7 +1540,7 @@ class Character extends Thing {
 	removeAllStatusEffects () {
 		while (this.statusEffects.length > 0) {
 			// cannot be set to [] for Game.hero, otherwise it no longer mirrors player
-			this.removeStatusEffect(0);
+			this.removeStatusEffect(0, "all");
 		}
 	}
 
@@ -1847,7 +1848,7 @@ class Character extends Thing {
 				// remove fire status effect
 				for (let i = 0; i < this.statusEffects.length; i++) {
 					if (this.statusEffects[i].title.substring(0, 4) === "Fire") {
-						this.removeStatusEffect(i);
+						this.removeStatusEffect(i, "environment");
 					}
 				}
 				// add water status effect
@@ -1978,7 +1979,7 @@ class Character extends Thing {
 	cleanse (value, key) {
 		for (let i = 0; i < this.statusEffects.length; i++) {
 			if (this.statusEffects[i][key] === value) {
-				this.removeStatusEffect(i);
+				this.removeStatusEffect(i, "cleanse");
 				i--; // status effect has been removed so move back index
 			}
 		}
@@ -2974,7 +2975,7 @@ class Hero extends Attacker {
 					let baitStatusEffectIndex = this.statusEffects.findIndex(statusEffect => statusEffect.title === "Fish bait");
 					if (baitStatusEffectIndex !== -1) { // check if player has a bait status effect
 						fishingSkill += this.statusEffects[baitStatusEffectIndex].info.skillIncrease;
-						this.removeStatusEffect(baitStatusEffectIndex);
+						this.removeStatusEffect(baitStatusEffectIndex, "used");
 					}
 
 					// find what rarities the player can fish up
@@ -3562,7 +3563,7 @@ class Projectile extends Thing {
 							for (let i = 0; i < Game.hero.statusEffects.length; i++) {
 								if (Game.hero.statusEffects[i].image === "food") {
 									// food status effect; remove it
-									Game.hero.removeStatusEffect(i);
+									Game.hero.removeStatusEffect(i, "foodCombat");
 									i--;
 								}
 							}
@@ -4454,7 +4455,7 @@ function statusEffect(properties) {
 	this.title = properties.title; // displayed title
 	this.effect = properties.effect; // displayed effect (displayed in the DOM as a description of the status effect, in player stats)
 
-	this.info = properties.info || {}; // extra information (e.g: poison damage and length)
+	this.info = properties.info || {}; // extra information (e.g: total time of status effect; poison damage and length)
 	Object.assign(this.info, properties.extraInfo); // some additional information that is specific to the status effect might be stored in info
 
 	this.tick = properties.tick; // function to be carried out every second
@@ -4470,7 +4471,7 @@ function statusEffect(properties) {
 	this.showInfoBar = properties.showInfoBar // infobar shown about status effect (with text properties.infoBarText)
 }
 
-// check through owner's status effects to see which can be removed (due to having expired)
+// check through owner's status effects to see which can be removed (due to having run out of time)
 // called by a status effect's own tick function
 // might need to be reworked (tbd)
 // tbd rework to be like Game.removeStealthEffects
@@ -4480,7 +4481,7 @@ Game.removeExpiredStatusEffect = function (owner) {
 		if (typeof owner.statusEffects[i].info.time !== "undefined" && typeof owner.statusEffects[i].info.ticks !== "undefined") {
 			// check if it has expired
 			if (owner.statusEffects[i].info.ticks >= owner.statusEffects[i].info.time) {
-				owner.removeStatusEffect(i); // remove it, also calling onExpire
+				owner.removeStatusEffect(i, "time"); // remove it, also calling onExpire
 				i--;
 			}
 		}
@@ -4493,7 +4494,7 @@ Game.removeStealthEffects = function (owner) {
 		// remove all stealth status effects
 		for (let i = 0; i < owner.statusEffects.length; i++) {
 			if (owner.statusEffects[i].info.stealth === true) {
-				owner.removeStatusEffect(i);
+				owner.removeStatusEffect(i, "stealth");
 				i--;
 			}
 		}
@@ -4507,7 +4508,7 @@ Game.spreadCurse = function (attacker, victim) {
 		index = attacker.statusEffects.findIndex(statusEffect => statusEffect.info.curse === true); // find a curse effect
 		if (index >= 0) { // if an effect was found...
 			victim.statusEffects.push(attacker.statusEffects[index]); // give the status effect to the victim
-			attacker.removeStatusEffect(index); // remove the status effect from the attacker
+			attacker.removeStatusEffect(index, "curse"); // remove the status effect from the attacker
 		}
 	}
 	// refresh canvas status effects if hero was given status effect
@@ -4526,7 +4527,7 @@ Game.removeTileStatusEffects = function (target, keep) {
 		|| target.statusEffects[i].title === "On a path")
 		&& target.statusEffects[i].title !== keep) {
 			// remove status effect
-			target.removeStatusEffect(i);
+			target.removeStatusEffect(i, "environment");
 		}
 	}
 };
@@ -4700,7 +4701,7 @@ Game.statusEffects.generic = function (properties) {
 			type: properties.type,
 			changedStat: properties.changedStat, // used to change back changed stat on expire (same name as key name in target.stats)
 			hidden: properties.hidden, // not visible to player
-			showInfoBar: properties.showInfoBar // infobar shown about status effect (with text properties.infoBarText)
+			showInfoBar: properties.showInfoBar // infobar shown about status effect (with text properties.infoBarText + colour properties.infoBarColour)
 		}));
 
 		// the status effect that was just added
@@ -4788,13 +4789,14 @@ Game.statusEffects.generic = function (properties) {
 		if (properties.showInfoBar === true) {
 			if (Dom.elements.infoBar.innerHTML === "") {
 				// infobar not occupied
-				Dom.infoBar.page(properties.infoBarText + " <span id='infobarTimeRemaining'></span>");
+				Dom.infoBar.page(properties.infoBarText + " <span id='infobarTimeRemaining'></span>", properties.infoBarColour);
 				// infobar time
 				if (addedStatusEffect.info.time !== undefined) {
 					document.getElementById("infobarTimeRemaining").innerHTML = properties.time + "s";
 				}
 				// information for status effect init on refresh
                 addedStatusEffect.infoBarText = properties.infoBarText;
+                addedStatusEffect.infoBarColour = properties.infoBarColour;
 			}
 			else {
 				console.error("The infobar was already occupied but was requested by status effect " + properties.effectTitle + ". Please tell Jake or Peter!");
@@ -7416,7 +7418,7 @@ Game.update = function (delta) {
 									parameterArray.push(["Soul Healer", npc.chat.canBeHealedText, true, ["Remove XP Fatigue for " + this.soulHealerCost + " gold"], [function () {
 										if (Dom.inventory.check(2, "currency", Game.soulHealerCost)) {
 											Dom.inventory.removeById(2, "currency", Game.soulHealerCost);
-											Game.hero.removeStatusEffect(Game.hero.statusEffects.findIndex(statusEffect => statusEffect.title === "XP Fatigue")); // remove xp fatigue effect
+											Game.hero.removeStatusEffect(Game.hero.statusEffects.findIndex(statusEffect => statusEffect.title === "XP Fatigue"), "soulHealer"); // remove xp fatigue effect
 											Player.fatiguedXP = 0;
 											Dom.closePage("textPage");
 											Game.currentSoulHealer.say(Game.currentSoulHealer.chat.healedText, 0, false);
@@ -8114,7 +8116,7 @@ Game.getXP = function (xpGiven, xpBonus) {
 			if (xpGiven > Player.fatiguedXP) {
 				Player.xp -= Player.fatiguedXP / 2;
 				Player.fatiguedXP = 0;
-				Game.hero.removeStatusEffect(Game.hero.statusEffects.findIndex(statusEffect => statusEffect.title === "XP Fatigue"), 1); // remove xp fatigue effect
+				Game.hero.removeStatusEffect(Game.hero.statusEffects.findIndex(statusEffect => statusEffect.title === "XP Fatigue"), "xpGain"); // remove xp fatigue effect
 				Dom.chat.insert("Your XP fatigue has worn off");
 			}
 			else {

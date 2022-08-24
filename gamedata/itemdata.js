@@ -2551,6 +2551,7 @@ var Items = {
 					time: 26,
 					showInfoBar: true,
 					infoBarText: "Fireroot explodes in:",
+					infoBarColour: "#b3190e",
 					hidden: true,
 					onExpire: {
 						location: "itemdata",
@@ -2559,13 +2560,15 @@ var Items = {
 					}
 				});
 			},
-			onExpire: function () {
+			onExpire: function () { // called by status effect when it expires
 				Game.statusEffects.fire({
 					target: Game.hero,
 					tier: 1,
 				});
 				Dom.inventory.removeById(28, "item");
 				Player.quests.questProgress.firerootFailed = true;
+				Dom.chat.insert("<i>Your fireroot exploded!</i>");
+				Game.hero.displace(0, 200, 1, ToRadians(Random(0, 360)));
 			},
 			onRemove: function () {
 				if (Game.minigameInProgress === undefined) {

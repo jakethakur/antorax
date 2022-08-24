@@ -3148,7 +3148,8 @@ Dom.inventory.removeById = function (ID, type, num, array, quest) {
 	}
 }
 
-Dom.inventory.remove = function (num, all, array) { // array is optional
+// array is optional
+Dom.inventory.remove = function (num, all, array) {
 
 	if (array === undefined) {
 		array = Player.inventory.items;
@@ -4069,7 +4070,7 @@ Dom.inventory.find = function (ID, type, notEquipped, calledByCheck, name, array
 }
 
 // returns true or false depending on if an item (specified by id and type) is in player's inventory or not
-// num checks for a certain number of them (defaults to 1)
+// num checks for AT LEAST certain number of them (defaults to 1)
 // notEquipped means it must not be equipped (defaults to false)
 Dom.inventory.check = function (ID, type, num, notEquipped, array, quest) {
 	let completed = Dom.inventory.find(ID, type, notEquipped, true, array, undefined, quest);
@@ -6019,9 +6020,17 @@ Dom.quest.abandon = function (quest) {
 	}
 }
 
-Dom.infoBar.page = function (html) {
+// displays info bar at top of canvas with html
+// optional hex colour code
+Dom.infoBar.page = function (html, colour) {
 	Dom.elements.infoBar.innerHTML = html;
 	Dom.elements.infoBar.style.left = Dom.canvas.width/2 - Dom.elements.infoBar.offsetWidth/2 + "px";
+	if (typeof colour !== "undefined") {
+		Dom.elements.infoBar.style.color = colour;
+	}
+	else {
+		Dom.elements.infoBar.style.color = "#000000";
+	}
 }
 
 Dom.infoBar.updateYPosition = function () {
