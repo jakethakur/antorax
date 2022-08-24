@@ -189,6 +189,8 @@
 				<span class="radio2"><input type="radio" name="acceptOnOff" checked="true">No</input></span>
 			</div>
 		</span>
+		<br>
+		<div id='settingCredits' onclick='Dom.settings.page("creditsPage")'>Credits</div><br><br><br><br>
 	</div>
 	<div id="settingsTwoPage" hidden class="DOM">
 		<center><h1>Controls</h1></center>
@@ -214,6 +216,28 @@
 			<p style="display: inline"><br>Hotbar 6:</p><div class="hotkey"></div><br>
 		</div>
 		<center><div id="closeSettings" onclick="Dom.settings.page('settingsPage')">Close</div></center>
+	</div>
+	<div id="creditsPage" hidden class="DOM">
+		<div id="creditsTexts">
+			<h1 class="creditsHeading"><b>REALMS OF ANTORAX</b></h1><br>
+			<p class="creditsLine"><b>UI programming</b>: Peter Gill</p>
+			<p class="creditsLine"><b>Art lead</b>: James Richards</p>
+			<p class="creditsLine"><b>Game programming</b>: Jake Thakur</p>
+			<br>
+
+			<h2 class="creditsHeading">With help from</h2>
+			<p class="creditsLine"><b>Additional art</b>: Sammer Atta</p>
+			<p class="creditsLine"><b>Additional art and programming</b>: Zach Thakur</p>
+			<br>
+
+			<h2 class="music">Music</h2>
+			<p class="creditsLine">Pippin the Hunchback and Folk Round by Kevin MacLeod (incompetech.com)<br>
+Licensed under Creative Commons: By Attribution 3.0<br>
+<a href="http://creativecommons.org/licenses/by/3.0/">http://creativecommons.org/licenses/by/3.0/</a></p>
+			<br>
+
+		</div>
+		<center><div id="closeCredits" onclick="Dom.settings.page('settingsPage')">Close</div></center>
 	</div>
 	<div id="questStart" hidden class="DOM">
 		<br><h1 id="questStartQuest"></h1><br><br>

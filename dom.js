@@ -67,6 +67,7 @@ let Dom = {
 		conditionalStats: document.getElementById("conditionalStats"),
 		cooldown: document.getElementById("cooldown"),
 		coordsOn: document.getElementById("coordsOn"),
+		creditsPage: document.getElementById("creditsPage"),
 		darkOn: document.getElementById("darkOn"),
 		dayNight: document.getElementById("dayNight"),
 		driverPage: document.getElementById("driverPage"),
@@ -363,7 +364,7 @@ Dom.alert.close = function (id) {
 	Dom.alert.array.splice(Dom.alert.array.findIndex(index => index.id === id, 1));
 }
 
-// Make the save, logout, delete buttons at the bottom of the settings page
+// Make the save, logout, delete buttons at the top of the settings page
 Dom.elements.settingLogout.innerHTML = "You are logged in as "+Player.name+"<div id='settingSave' onclick='Game.saveProgress()'>Save</div><div id='settingLogoutInner' onclick='Game.saveProgress(\"logout\")'>Logout</div><div id='settingDelete' onclick='Dom.settings.delete()'>Delete</div><br><br><br><div id='settingControls' onclick='Dom.settings.page(\"settingsTwoPage\")'>Controls</div>";
 
 Dom.settings.delete = function () {
@@ -589,9 +590,9 @@ Dom.closeNPCPages = function () {
 }
 
 Dom.closePage = function (page, notClose) {
-	if (page === "chatPage" || page === "inventoryPage" || page === "questsPage" || page === "adventurePage" || page === "reputationPage" || page === "settingsPage" || page === "settingsTwoPage") {
+	if (page === "chatPage" || page === "inventoryPage" || page === "questsPage" || page === "adventurePage" || page === "reputationPage" || page === "settingsPage" || page === "settingsTwoPage" || page === "creditsPage") {
 		let tab = page
-		if (page === "settingsTwoPage") {
+		if (page === "settingsTwoPage" || page === "creditsPage") {
 			tab = "settingsPage";
 		}
 		document.getElementById("change"+tab.substring(0,1).toUpperCase()+tab.substring(1,tab.length-4)).style.opacity = 0.7;
@@ -621,7 +622,7 @@ Dom.changeBook = function (page, openClose) {
 	let bookmark = false;
 	let tab = page
 	let settingsOpen = false;
-	if (page === "settingsTwoPage") {
+	if (page === "settingsTwoPage" || page === "creditsPage") {
 		tab = "settingsPage";
 	}
 	else if (page === "settingsPage") {
@@ -629,7 +630,7 @@ Dom.changeBook = function (page, openClose) {
 	}
 	if (document.getElementById(page).hidden && !settingsOpen) {
 
-		if (page === "chatPage" || page === "inventoryPage" || page === "questsPage" || page === "adventurePage" || page === "reputationPage" || page === "settingsPage" || page === "settingsTwoPage") {
+		if (page === "chatPage" || page === "inventoryPage" || page === "questsPage" || page === "adventurePage" || page === "reputationPage" || page === "settingsPage" || page === "settingsTwoPage" || page === "creditsPage") {
 			bookmark = true;
 			document.getElementById("change"+tab.substring(0,1).toUpperCase()+tab.substring(1,tab.length-4)).style.opacity = 1;
 			//document.getElementById("change"+tab.substring(0,1).toUpperCase()+tab.substring(1,tab.length-4)).style.bottom = "0px";
@@ -3244,7 +3245,7 @@ Dom.canvas.moveDom = function (object, page, scroll, scrollObject) {
 		object.style.top = window.mouseY - Dom.canvas.dragPageY + "px";
 
 		// All NPC DOMs have the same position
-		if (page !== "chatPage" && page !== "inventoryPage" && page !== "questsPage" && page !== "adventurePage" && page !== "reputationPage" && page !== "settingsPage" && page !== "settingsTwoPage") {
+		if (page !== "chatPage" && page !== "inventoryPage" && page !== "questsPage" && page !== "adventurePage" && page !== "reputationPage" && page !== "settingsPage" && page !== "settingsTwoPage" && page !== "creditsPage") {
 			Dom.canvas.npcLeft = object.style.left;
 			Dom.canvas.npcTop = object.style.top;
 		}
