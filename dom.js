@@ -210,6 +210,7 @@ Dom.alert.array = []; // number of alerts that have appeared (used to give ids)
 // start a dom alert
 // text = what the alert says
 // type = number of buttons or text or input
+// type = 3 makes the button just "ok"
 // values (type 3 or text) = array of what buttons will say
 // values (input) = "name" if you want name validation
 // page = what page it came from (what it appears over); undefined = canvas
@@ -231,7 +232,7 @@ Dom.alert.page = function (text, type, values, page, target) { // can't pass in 
 
 		let id = Dom.alert.array.length;
 		if (target !== undefined) {
-			Dom.alert.array.push(Object.assign(target, {id: id, page: page,}));
+			Dom.alert.array.push(Object.assign(target, {id: id, page: page, text: text}));
 		}
 
 		let alert = document.createElement("div");
@@ -2695,6 +2696,7 @@ Dom.identifier.identify = function (npc) {
 	}
 }
 
+// returns the position of the item, or false if it couldn't be added (inventory full)
 Dom.inventory.give = function (item, num, position, noSave, noArchaeology) {
 	let added = false; // true if you received the item and returned at the end of the function
 	if (num === undefined) {

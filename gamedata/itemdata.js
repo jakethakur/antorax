@@ -2812,7 +2812,7 @@ var Items = {
 			type: "consumable",
 			sellPrice: 3,
 			image: "assets/items/consumable/8.png",
-			functionText: "Gives you +20 fishing skill for your next fishing attempt",
+			functionText: "Guarantees you to fish up a fish on your next fishing attempt",
 			maxCharges: 3,
 			onClickFunction: function (inventoryPosition, hotbar) {
 				if (!Game.hero.hasStatusEffect("Fish bait")) { // player does not have an existing fishing status effect
@@ -2822,10 +2822,7 @@ var Items = {
 					// give fish bait status effect
 					Game.hero.statusEffects.push(new statusEffect({
 						title: "Fish bait",
-						effect: "+20 fishing skill for your next fishing attempt",
-						info: {
-							skillIncrease: 20,
-						},
+						effect: "Guaranteed to fish up a fish on your next fishing attempt",
 						image: "bait",
 					}));
 
@@ -3795,8 +3792,8 @@ var Items = {
 			lore: "",
 			consumption: true,
 			areas: ["loggingCamp"],
-			clicksToCatch: 2,
-			timeToCatch: 750,
+			clicksToCatch: 9,
+			timeToCatch: 2000,
 		},
 		{
 			id: 16,
@@ -3809,81 +3806,84 @@ var Items = {
 			lore: "It seems to be locked. You need a key to open it.",
 			locked: true, // can only be opened if locked is false
 			areas: [],
-			clicksToCatch: 20,
-			timeToCatch: 7000,
+			clicksToCatch: 25,
+			timeToCatch: 5000,
 			onCatch: function (inventoryPosition) {
-				let loot = [];
-				// fill up chest
-				// junk items
-				let possibleJunkItems = Items.fish.filter(item => item.fishingType === "waterjunk"); // filter for junk fishing items
-				let itemsChosen = 0; // cap out at 6 different junk items
-				possibleJunkItems.forEach(item => {
-					if (itemsChosen < 6 && Random(0, 2) === 0) { // 1 in 3 chance of it being in the chest
-						let toBePushed = {};
-						toBePushed.item = item;
-						let itemStack = item.stack
-						if (itemStack === undefined) {
-							itemStack = 1;
-						}
-						else if (itemStack > 12) { // cap stack size at 12
-							itemStack = 12;
-						}
-						toBePushed.quantity = Random(1, itemStack);
-						loot.push(DeepCloneObject(toBePushed));
-						itemsChosen++;
-						if (Random(0, 2) === 0) { // 1 in 3 chance of a second stack
+				if (inventoryPosition !== false) // otherwise item was not successfully added
+				{
+					let loot = [];
+					// fill up chest
+					// junk items
+					let possibleJunkItems = Items.fish.filter(item => item.fishingType === "waterjunk"); // filter for junk fishing items
+					let itemsChosen = 0; // cap out at 6 different junk items
+					possibleJunkItems.forEach(item => {
+						if (itemsChosen < 6 && Random(0, 2) === 0) { // 1 in 3 chance of it being in the chest
+							let toBePushed = {};
+							toBePushed.item = item;
+							let itemStack = item.stack
+							if (itemStack === undefined) {
+								itemStack = 1;
+							}
+							else if (itemStack > 12) { // cap stack size at 12
+								itemStack = 12;
+							}
 							toBePushed.quantity = Random(1, itemStack);
 							loot.push(DeepCloneObject(toBePushed));
 							itemsChosen++;
+							if (Random(0, 2) === 0) { // 1 in 3 chance of a second stack
+								toBePushed.quantity = Random(1, itemStack);
+								loot.push(DeepCloneObject(toBePushed));
+								itemsChosen++;
+							}
 						}
+					});
+					// gold
+					/*let goldStacks = Random(2, 5); // between 2 and 5 possible stacks of gold
+					for (let i = 0; i < goldStacks; i++) {
+						let toBePushed = {
+							item: Items.currency[2],
+							quantity: Random(1, 5),
+						};
+						loot.push(toBePushed);
+					}*/
+					// unidentified items
+					let unidentifiedNumber = Random(1, 3); // between 1 and 3 unidentified items
+					for (let i = 0; i < unidentifiedNumber; i++) {
+						let toBePushed = {
+							item: new UnId(Player.lootArea, Player.lootTier),
+							quantity: 1,
+						};
+						loot.push(toBePushed);
 					}
-				});
-				// gold
-				/*let goldStacks = Random(2, 5); // between 2 and 5 possible stacks of gold
-				for (let i = 0; i < goldStacks; i++) {
+					// Ocean Warrior's armour
+					let armourType = Random(0, 3);
 					let toBePushed = {
-						item: Items.currency[2],
-						quantity: Random(1, 5),
-					};
-					loot.push(toBePushed);
-				}*/
-				// unidentified items
-				let unidentifiedNumber = Random(1, 3); // between 1 and 3 unidentified items
-				for (let i = 0; i < unidentifiedNumber; i++) {
-					let toBePushed = {
-						item: new UnId(Player.lootArea, Player.lootTier),
 						quantity: 1,
 					};
+					switch(armourType) { // pick random piece of armour from that set
+						case 0:
+							toBePushed.item = Items.helm[6];
+							break;
+						case 1:
+							toBePushed.item = Items.chest[6];
+							break;
+						case 2:
+							toBePushed.item = Items.greaves[6];
+							break;
+						case 3:
+							toBePushed.item = Items.boots[8];
+							break;
+					}
 					loot.push(toBePushed);
-				}
-				// Ocean Warrior's armour
-				let armourType = Random(0, 3);
-				let toBePushed = {
-					quantity: 1,
-				};
-				switch(armourType) { // pick random piece of armour from that set
-					case 0:
-						toBePushed.item = Items.helm[6];
-						break;
-					case 1:
-						toBePushed.item = Items.chest[6];
-						break;
-					case 2:
-						toBePushed.item = Items.greaves[6];
-						break;
-					case 3:
-						toBePushed.item = Items.boots[8];
-						break;
-				}
-				loot.push(toBePushed);
 
-				// format and position loot
-				loot = Game.formatLoot(loot);
-				loot = Game.positionLoot(loot, 24); // has 24 inventory space
+					// format and position loot
+					loot = Game.formatLoot(loot);
+					loot = Game.positionLoot(loot, 24); // has 24 inventory space
 
-				// set the chest's loot
-				// 'this' cannot be used because onCatch is not bound to the chest
-				Player.inventory.items[inventoryPosition].loot = loot;
+					// set the chest's loot
+					// 'this' cannot be used because onCatch is not bound to the chest
+					Player.inventory.items[inventoryPosition].loot = loot;
+				}
 			},
 			onOpen: function (inventoryPosition) { // opened by key
 				if (Player.inventory.items[inventoryPosition].locked) {
@@ -3921,7 +3921,7 @@ var Items = {
 			sellPrice: 1,
 			lore: "I wonder what this opens?",
 			areas: [],
-			clicksToCatch: 1,
+			clicksToCatch: 6,
 			timeToCatch: 1000,
 			opens: {
 				type: "fish",
@@ -3944,8 +3944,8 @@ var Items = {
 			"The message reads: 'Dearest Audrey, I have sent five other messages to you. Please check your nearby shores for them.'",
 			"The message reads: 'Dearest Audrey, It is very cold at the moment so there is no sea. Decided to roll this bottle to you instead of the normal method. Please reply if it worked.'"],
 			areas: [],
-			clicksToCatch: 1,
-			timeToCatch: 750,
+			clicksToCatch: 5,
+			timeToCatch: 3000,
 		},
 		{
 			id: 19,
@@ -3994,8 +3994,8 @@ var Items = {
 			functionText: "", // added by onCatch
 			lore: "A bit soggy.",
 			areas: ["tutorial"],
-			clicksToCatch: 1,
-			timeToCatch: 1000,
+			clicksToCatch: 3,
+			timeToCatch: 2000,
 			catchRequirement: function () {
 				return (Event.event === "Christmas"
 				&& Player.quests.activeQuestArray.includes("Sunken Presents")
@@ -4035,8 +4035,8 @@ var Items = {
 			functionText: "Click to open!",
 			lore: "A bit soggy.",
 			areas: [],
-			clicksToCatch: 1,
-			timeToCatch: 1000,
+			clicksToCatch: 3,
+			timeToCatch: 2000,
 			catchRequirement: function () {
 				// EITHER given as the third part of the christmas fishing quest which contains the fishing rod
 				// OR given when fished up with the christmas fishing rod and these presents contain 3-5 gold

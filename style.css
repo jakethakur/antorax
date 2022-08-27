@@ -87,7 +87,7 @@ thead:after { /* space after bags in bank */
 }
 
 #minigame {
-	z-index: 2.5;
+	z-index: 3;
 }
 
 #secondary {
