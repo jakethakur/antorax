@@ -65,7 +65,7 @@ FishingGame.startTimingGame = function(difficulty)
 		}
 		else
 		{
-			this.x[i] = Random(0, 300) + 150;
+			this.x[i] = Random(0, 300) + 100;
 		}
 	}
 }
