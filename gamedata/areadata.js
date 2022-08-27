@@ -2890,6 +2890,7 @@ var Areas = {
 			goblinTowerkeeper: {normal: "assets/enemies/goblinTowerkeeper.png"},
 			goblinCorpse: {normal: "assets/corpses/deadGoblin.png"},
 			melee: {normal: "assets/projectiles/melee.png"},
+			trap: {normal: "assets/objects/trap.png"},
 		},
 
 		areaTeleports: [
@@ -3043,6 +3044,7 @@ var Areas = {
 			goblinCorpse: {normal: "assets/corpses/deadGoblin.png"},
 			melee: {normal: "assets/projectiles/melee.png"},
 			lootChest: {normal: "assets/objects/chestTower.png"},
+			trap: {normal: "assets/objects/trap.png"},
 		},
 
 		chestData: {
@@ -3237,6 +3239,7 @@ var Areas = {
 			goblinCrusader: {normal: "assets/enemies/goblinCrusader.png"},
 			goblinCorpse: {normal: "assets/corpses/deadGoblin.png"},
 			melee: {normal: "assets/projectiles/melee.png"},
+			trap: {normal: "assets/objects/trap.png"},
 		},
 
 		areaTeleports: [
@@ -3424,6 +3427,7 @@ var Areas = {
 			goblinCorpse: {normal: "assets/corpses/deadGoblin.png"},
 			melee: {normal: "assets/projectiles/melee.png"},
 			lootChest: {normal: "assets/objects/chestTower.png"},
+			trap: {normal: "assets/objects/trap.png"},
 		},
 
 		chestData: {
@@ -3632,6 +3636,7 @@ var Areas = {
 			weaponRack: {normal: "assets/objects/weaponRack.png"},
 			torianTintop: {normal: "assets/npcs/torianTintop.png"},
 			nessyTintop: {normal: "assets/npcs/nessyTintop.png"},
+			trap: {normal: "assets/objects/trap.png"},
 		},
 
 		areaTeleports: [

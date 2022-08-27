@@ -2870,7 +2870,7 @@ class Hero extends Attacker {
 								}
 								else {
 									// player has outleveled this area - diminishing returns
-									this.stats.fishingSkill += 1 / (this.stats.fishingSkill - FishingLevels[Player.lootArea] + 15 + 1);
+									this.stats.fishingSkill += 1 / (this.stats.fishingSkill - FishingLevels[Player.lootArea] - 15 + 1);
 								}
 							}
 							else if (this.channelling.rarity === "unique") {
@@ -2880,7 +2880,7 @@ class Hero extends Attacker {
 								}
 								else {
 									// player has outleveled this area
-									this.stats.fishingSkill += 2 / (this.stats.fishingSkill - FishingLevels[Player.lootArea] + 30 + 1);
+									this.stats.fishingSkill += 2 / (this.stats.fishingSkill - FishingLevels[Player.lootArea] - 30 + 1);
 								}
 							}
 							else if (this.channelling.rarity === "mythic") {
@@ -2890,7 +2890,7 @@ class Hero extends Attacker {
 								}
 								else {
 									// player has outleveled this area
-									this.stats.fishingSkill += 3 / (this.stats.fishingSkill - FishingLevels[Player.lootArea] + 45 + 1);
+									this.stats.fishingSkill += 3 / (this.stats.fishingSkill - FishingLevels[Player.lootArea] - 45 + 1);
 								}
 							}
 							else {
