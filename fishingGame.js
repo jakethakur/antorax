@@ -58,14 +58,14 @@ FishingGame.startTimingGame = function(difficulty)
 	// set zone x
 	for(let i = 0; i < this.bars; i++)
 	{
-		// highest value of random + the added number should equal 400, larger added means it appears later on
+		// highest value of random + the added number should equal 450, larger added means it appears later on
 		if(i === 0)
 		{
-			this.x[i] = Random(0, 150) + 250; // +250 adds 250 to the x of the random number
+			this.x[i] = Random(0, 150) + 300; // +250 adds 250 to the x of the random number
 		}
 		else
 		{
-			this.x[i] = Random(0, 300) + 100;
+			this.x[i] = Random(0, 300) + 150;
 		}
 	}
 }
