@@ -2802,7 +2802,7 @@ var Items = {
 						type: "things",
 					};
 					Game.things.push(new Thing(trapObject)); // place trap in the current area
-					Areas.nilbog.things.push(trapObject); // save in areadata.js for if the player leaves and rejoins the area
+					Areas[Game.areaName].things.push(trapObject); // save in areadata.js for if the player leaves and rejoins the area
 				}
 			}
 		},

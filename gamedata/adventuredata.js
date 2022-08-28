@@ -6,7 +6,7 @@ var Adventure = {
 	eaglecrestLoggingCamp: {
 		html: `<div id="eaglecrestLoggingCampAL" class="adventure">
 			Eaglecrest Logging Camp<br>
-			<span class="adventureContent">Help the logging camp defend against goblins.</span>
+			<span class="adventureContent">Help the Logging Camp defend against goblins.</span>
 		</div>`,
 		condition: function () {
 			return !Player.quests.completedQuestArray.includes("The Goblin King");
@@ -27,7 +27,7 @@ var Adventure = {
 	christmas: {
 		html: `<div id="christmasAL" class="adventure">
 			Christmas Event<br>
-			<span class="adventureContent">Celebrate Christmas with the logging camp.</span>
+			<span class="adventureContent">Celebrate Christmas with the Logging Camp.</span>
 		</div>`,
 		condition: function () {
 			return Event.event === "Christmas";

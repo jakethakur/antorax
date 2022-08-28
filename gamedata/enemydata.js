@@ -8,17 +8,19 @@ const SpeciesTemplates = {
 			arrayName: "things",
 			objectName: "Goblin Trap",
 			isTouchingFunction: function (index, id) {
-				// remove the trap
-				// in the nilbog, the only "things" are the traps so the index in Game is equal to index in Areas
-				Game.removeObject(id, "things", index)
-				Game.things.splice(index, 1);
-				Areas[Game.areaName].things.splice(index, 1);
-				// stun goblin
-				Game.statusEffects.stun({
-					target: this,
-					time: 2.5,
-					effectTitle: "Goblin Trapped",
-				});
+				// check that enemy is not "in the air" (i.e. charging for goblin king, or being displaced)
+				if (this.expand === 1) {
+					// remove the trap
+					Game.removeObject(id, "things", index);
+					Game.things.splice(index, 1);
+					Areas[Game.areaName].things.splice(index, 1);
+					// stun goblin
+					Game.statusEffects.stun({
+						target: this,
+						time: 2.5,
+						effectTitle: "Goblin Trapped",
+					});
+				}
 			},
 		}],
 		onDeath: function () {
