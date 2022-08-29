@@ -2103,19 +2103,19 @@ After all, death is never the end in Antorax...<br>
 			],
 		},
 
-		/*{
+		{
 			id: 6,
-			quest: "Plenty of Perch",
+			quest: "Junk Cleanup",
 			questArea: "fishing",
 
 			startName: "Fisherman Tobenam",
-			startChat: `tbd`,
+			startChat: `The water seems quite dirty, heheh. Fish up some of the junk to clean it up!`,
 
 			finishName: "Fisherman Tobenam",
-			finishChat: `tbd`,
+			finishChat: `Heheh, it's much better now.`,
 
 			objectives: [
-				"Fish up 3 yellow perch.",
+				"Fish up 25 junk items.",
 				"Speak to <strong>Fisherman Tobenam</strong>.",
 			],
 
@@ -2123,7 +2123,7 @@ After all, death is never the end in Antorax...<br>
 				let completed = []; // contains true or false for all of the objectives, with the last element being if the quest is ready to complete
 
 				// true or falses for each objective (apart from the turn-in objective)
-				completed.push(checkProgress(Player.quests.questProgress.yellowPerchCaught, 3));
+				completed.push(checkProgress(Player.quests.questProgress.junkCaught, 25));
 
 				completed = checkFinished(completed);
 
@@ -2131,42 +2131,40 @@ After all, death is never the end in Antorax...<br>
 			},
 
 			howToStart: "Speak to <strong>Fisherman Tobenam</strong>.",
-			levelRequirement: 1,
+			levelRequirement: 2,
 			questRequirements: ["Learning to Fish III"],
 			fishingRequirement: {
 				min: 0,
-				max: 60,
+				max: 1000,
 			},
 			repeatTime: "daily",
+			randomGroup: "fishingDaily",
 
 			rewards: {
-				xp: 30,
+				xp: 20,
 				items: [
-					{item: Items.currency[3],}, // fishing seal
+					{item: Items.currency[3], quantity: 1,}, // fishing seal
 				],
 			},
 
 			resetVariables: [
-				"yellowPerchCaught",
+				"junkCaught",
 			],
 		},
 
 		{
 			id: 7,
-			quest: "Lots o' Fish",
+			quest: "Long Fish",
 			questArea: "fishing",
 
 			startName: "Fisherman Tobenam",
-			startChat: `tbd`,
+			startChat: `Heheh, how about catching some longer fish today?`,
 
 			finishName: "Fisherman Tobenam",
-			finishChat: `tbd`,
+			finishChat: `Heheh, they are really quite long!`,
 
 			objectives: [
-				"Fish up 1 yellow perch.",
-				"Fish up 1 saffron cod.",
-				"Fish up 1 pink salmon.",
-				"Fish up 1 sea trout.",
+				"Fish up 5 fish longer than 100cm.",
 				"Speak to <strong>Fisherman Tobenam</strong>.",
 			],
 
@@ -2174,33 +2172,279 @@ After all, death is never the end in Antorax...<br>
 				let completed = []; // contains true or false for all of the objectives, with the last element being if the quest is ready to complete
 
 				// true or falses for each objective (apart from the turn-in objective)
-				//completed.push(checkProgress(Player.quests.questProgress.fishCaught, 25));
+				completed.push(checkProgress(Player.quests.questProgress.longFishCaught, 5));
 
 				completed = checkFinished(completed);
 
 				return completed;
 			},
 
-			howToStart: "Speak to Fisherman Tobenam.",
-			levelRequirement: 1,
+			howToStart: "Speak to <strong>Fisherman Tobenam</strong>.",
+			levelRequirement: 2,
 			questRequirements: ["Learning to Fish III"],
 			fishingRequirement: {
-				min: 0,
-				max: 60,
+				min: 25,
+				max: 1000,
 			},
 			repeatTime: "daily",
+			randomGroup: "fishingDaily",
 
 			rewards: {
 				xp: 30,
 				items: [
-					{item: Items.currency[3],}, // fishing seal
+					{item: Items.currency[3], quantity: 1,}, // fishing seal
+				],
+			},
+
+			resetVariables: [
+				"longFishCaught",
+			],
+		},
+
+		{
+			id: 8,
+			quest: "Longer Fish",
+			questArea: "fishing",
+
+			startName: "Fisherman Tobenam",
+			startChat: `Heheh, how about catching some more long fish today?`,
+
+			finishName: "Fisherman Tobenam",
+			finishChat: `Heheh, they are really quite long!`,
+
+			objectives: [
+				"Fish up 10 fish longer than 100cm.",
+				"Speak to <strong>Fisherman Tobenam</strong>.",
+			],
+
+			isCompleted: function() {
+				let completed = []; // contains true or false for all of the objectives, with the last element being if the quest is ready to complete
+
+				// true or falses for each objective (apart from the turn-in objective)
+				completed.push(checkProgress(Player.quests.questProgress.longFishCaught, 10));
+
+				completed = checkFinished(completed);
+
+				return completed;
+			},
+
+			howToStart: "Speak to <strong>Fisherman Tobenam</strong>.",
+			levelRequirement: 2,
+			questRequirements: ["Learning to Fish III"],
+			fishingRequirement: {
+				min: 40,
+				max: 1000,
+			},
+			repeatTime: "daily",
+			randomGroup: "fishingDaily",
+
+			rewards: {
+				xp: 50,
+				items: [
+					{item: Items.currency[3], quantity: 2,}, // fishing seal
+				],
+			},
+
+			resetVariables: [
+				"longFishCaught",
+			],
+		},
+
+		{
+			id: 9,
+			quest: "Common Fisher",
+			questArea: "fishing",
+
+			startName: "Fisherman Tobenam",
+			startChat: `A great place to start in fishing is commons, heheh. Fish some up!`,
+
+			finishName: "Fisherman Tobenam",
+			finishChat: `Great work today, heheheh.`,
+
+			objectives: [
+				"Fish up 10 common fish.",
+				"Speak to <strong>Fisherman Tobenam</strong>.",
+			],
+
+			isCompleted: function() {
+				let completed = []; // contains true or false for all of the objectives, with the last element being if the quest is ready to complete
+
+				// true or falses for each objective (apart from the turn-in objective)
+				completed.push(checkProgress(Player.quests.questProgress.commonFishCaught, 10));
+
+				completed = checkFinished(completed);
+
+				return completed;
+			},
+
+			howToStart: "Speak to <strong>Fisherman Tobenam</strong>.",
+			levelRequirement: 2,
+			questRequirements: ["Learning to Fish III"],
+			fishingRequirement: {
+				min: 0,
+				max: 1000,
+			},
+			repeatTime: "daily",
+			randomGroup: "fishingDaily",
+
+			rewards: {
+				xp: 30,
+				items: [
+					{item: Items.currency[3], quantity: 1,}, // fishing seal
+				],
+			},
+
+			resetVariables: [
+				"commonFishCaught",
+			],
+		},
+
+		{
+			id: 10,
+			quest: "Unique Fisher",
+			questArea: "fishing",
+
+			startName: "Fisherman Tobenam",
+			startChat: `Heheh, lets see if you can find some unique fish today.`,
+
+			finishName: "Fisherman Tobenam",
+			finishChat: `You really did it, heheh.`,
+
+			objectives: [
+				"Fish up 3 unique fish.",
+				"Speak to <strong>Fisherman Tobenam</strong>.",
+			],
+
+			isCompleted: function() {
+				let completed = []; // contains true or false for all of the objectives, with the last element being if the quest is ready to complete
+
+				// true or falses for each objective (apart from the turn-in objective)
+				completed.push(checkProgress(Player.quests.questProgress.uniqueFishCaught, 3));
+
+				completed = checkFinished(completed);
+
+				return completed;
+			},
+
+			howToStart: "Speak to <strong>Fisherman Tobenam</strong>.",
+			levelRequirement: 2,
+			questRequirements: ["Learning to Fish III"],
+			fishingRequirement: {
+				min: 25,
+				max: 1000,
+			},
+			repeatTime: "daily",
+			randomGroup: "fishingDaily",
+
+			rewards: {
+				xp: 40,
+				items: [
+					{item: Items.currency[3], quantity: 1,}, // fishing seal
+				],
+			},
+
+			resetVariables: [
+				"uniqueFishCaught",
+			],
+		},
+
+		{
+			id: 11,
+			quest: "Mythic Fisher",
+			questArea: "fishing",
+
+			startName: "Fisherman Tobenam",
+			startChat: `You are improving, heheh. Let's test your skills with a mythic fish, heheh.`,
+
+			finishName: "Fisherman Tobenam",
+			finishChat: `That is one cool looking fish, heheh.`,
+
+			objectives: [
+				"Fish up a mythic fish.",
+				"Speak to <strong>Fisherman Tobenam</strong>.",
+			],
+
+			isCompleted: function() {
+				let completed = []; // contains true or false for all of the objectives, with the last element being if the quest is ready to complete
+
+				// true or falses for each objective (apart from the turn-in objective)
+				completed.push(checkProgress(Player.quests.questProgress.mythicFishCaught, 1));
+
+				completed = checkFinished(completed);
+
+				return completed;
+			},
+
+			howToStart: "Speak to <strong>Fisherman Tobenam</strong>.",
+			levelRequirement: 2,
+			questRequirements: ["Learning to Fish III"],
+			fishingRequirement: {
+				min: 40,
+				max: 1000,
+			},
+			repeatTime: "daily",
+			randomGroup: "fishingDaily",
+
+			rewards: {
+				xp: 50,
+				items: [
+					{item: Items.currency[3], quantity: 2,}, // fishing seal
+				],
+			},
+
+			resetVariables: [
+				"mythicFishCaught",
+			],
+		},
+
+		{
+			id: 12,
+			quest: "Master Fisher",
+			questArea: "fishing",
+
+			startName: "Fisherman Tobenam",
+			startChat: `Heheh, I heard you were getting better, let's test your skill.`,
+
+			finishName: "Fisherman Tobenam",
+			finishChat: `You'll be better than me soon, heheh.`,
+
+			objectives: [
+				"Fish up 50 fish.",
+				"Speak to <strong>Fisherman Tobenam</strong>.",
+			],
+
+			isCompleted: function() {
+				let completed = []; // contains true or false for all of the objectives, with the last element being if the quest is ready to complete
+
+				// true or falses for each objective (apart from the turn-in objective)
+				completed.push(checkProgress(Player.quests.questProgress.fishCaught, 50));
+
+				completed = checkFinished(completed);
+
+				return completed;
+			},
+
+			howToStart: "Speak to <strong>Fisherman Tobenam</strong>.",
+			levelRequirement: 2,
+			questRequirements: ["Learning to Fish III"],
+			fishingRequirement: {
+				min: 100,
+				max: 1000,
+			},
+			repeatTime: "daily",
+			randomGroup: "fishingDaily",
+
+			rewards: {
+				xp: 100,
+				items: [
+					{item: Items.currency[3], quantity: 3,}, // fishing seal
 				],
 			},
 
 			resetVariables: [
 				"fishCaught",
 			],
-		},*/
+		},
 	],
 };
 

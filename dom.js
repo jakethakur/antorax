@@ -6067,7 +6067,7 @@ Dom.settings.dark = function () {
 		--text: #000000;
 		--link: #000000;
 		--arrow: #886622;
-		--opacity: 0.6;
+		--opacity: 0.8;
 		--input: #ffffff;`
 	}
 }

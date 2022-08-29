@@ -2904,6 +2904,38 @@ class Hero extends Attacker {
 								// quest variable
 								Player.quests.questProgress.fishCaught = Increment(Player.quests.questProgress.fishCaught);
 							}
+							if (this.channelling.rarity === "junk")
+							{
+								// player has caught junk
+								// quest variable
+								Player.quests.questProgress.junkCaught = Increment(Player.quests.questProgress.junkCaught);
+							}
+
+							if (this.channelling.length >= 100)
+							{
+								// player has caught a fish longer than 1m
+								// quest variable
+								Player.quests.questProgress.longFishCaught = Increment(Player.quests.questProgress.longFishCaught);
+							}
+
+							if (this.channelling.rarity === "common")
+							{
+								// player has caught a common fish
+								// quest variable
+								Player.quests.questProgress.commonFishCaught = Increment(Player.quests.questProgress.commonFishCaught);
+							}
+							else if (this.channelling.rarity === "unique")
+							{
+								// player has caught a unique fish
+								// quest variable
+								Player.quests.questProgress.uniqueFishCaught = Increment(Player.quests.questProgress.uniqueFishCaught);
+							}
+							else if (this.channelling.rarity === "mythic")
+							{
+								// player has caught a mythic fish
+								// quest variable
+								Player.quests.questProgress.mythicFishCaught = Increment(Player.quests.questProgress.mythicFishCaught);
+							}
 
 							// give fish
 							// must be after quest progress and fishing skill

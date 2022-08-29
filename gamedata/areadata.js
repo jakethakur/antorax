@@ -6199,7 +6199,6 @@ var Areas = {
 					notUnlockedRoles: "",
 				},
 			},
-
 			{
 				x: 1925,
 				y: 1600,
@@ -6212,7 +6211,7 @@ var Areas = {
 					defence: 3,
 				},
 				chat: {
-					notUnlockedRoles: "",
+					notUnlockedRoles: "<i>'thee, and no man shall set on thee to hurt thee: for I'</i>. Oh, sorry, I didn't see you there.",
 				},
 			},
 
