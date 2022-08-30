@@ -3714,6 +3714,7 @@ var Items = {
 			type: "fish",
 			image: "assets/items/fish/9.png",
 			rarity: "junk",
+			plural: true,
 			sellPrice: 1,
 			sellQuantity: 16,
 			stack: 64,
@@ -3726,6 +3727,7 @@ var Items = {
 			type: "fish",
 			image: "assets/items/fish/10.png",
 			rarity: "junk",
+			plural: true,
 			sellPrice: 1,
 			sellQuantity: 16,
 			stack: 16,
@@ -3738,6 +3740,7 @@ var Items = {
 			type: "fish",
 			image: "assets/items/fish/11.png",
 			rarity: "junk",
+			plural: true,
 			sellPrice: 1,
 			sellQuantity: 16,
 			stack: 16,
@@ -3750,6 +3753,7 @@ var Items = {
 			type: "fish",
 			image: "assets/items/fish/12.png",
 			rarity: "junk",
+			plural: true,
 			sellPrice: 1,
 			sellQuantity: 16,
 			stack: 16,
@@ -3954,6 +3958,7 @@ var Items = {
 			type: "fish",
 			image: "assets/items/fish/19.png",
 			rarity: "junk",
+			plural: true,
 			sellPrice: 1,
 			sellQuantity: 16,
 			stack: 64,
@@ -3980,6 +3985,8 @@ var Items = {
 			},
 			onCatch: function () {
 				Game.hero.takeDamage(10);
+				Dom.chat.insert("The blood moon's reflection shimmers in the water. An abberation of the past? Or an echo of the future? As you stare into the fish's eyes, you don't feel too great...");
+				Dom.chat.insert("<i>You took 10 damage</i>");
 			},
 			timeRequirement: "bloodMoon",
 		},
@@ -4089,6 +4096,7 @@ var Items = {
 			sellPrice: 1,
 			sellQuantity: 16,
 			stack: 64,
+			plural: true,
 			lore: "Not an evil species.",
 			areas: ["loggingCamp"],
 		},

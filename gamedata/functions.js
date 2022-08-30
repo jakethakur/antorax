@@ -715,7 +715,7 @@ function TimeDisplay(ms) {
 
 // return true if a name is legal (any letter of either case, apostrophe, accents)
 // strValue = a string to be validated
-function validateName(strValue) {
+function ValidateName(strValue) {
 	let objRegExp = /^[a-zA-Z'\u00C0-\u00ff]+$/;
 	if (!objRegExp.test(strValue)) {
 		objRegExp = /^$/;
@@ -726,4 +726,11 @@ function validateName(strValue) {
 		// return true if it is legal
 		return true;
 	}
+}
+
+function IsVowel(char) {
+	if (char === "a" || char === "e" || char === "i" || char === "o" || char === "u") {
+		return true;
+	}
+	return false;
 }

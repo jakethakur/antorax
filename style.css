@@ -627,8 +627,8 @@ thead:after { /* space after bags in bank */
 	left: 375px;
 }
 
-/* setting groups */
-#settingMusic, #settingParticles, #settingTransparency, #settingMinigames, #settingCoords, #settingTutorial {
+/* setting groups (for margin below) */
+#settingMusic, #settingParticles, #settingTransparency, #settingMinigames, #settingCoords, #settingTutorial, #settingNametag {
 	margin-top: 10px;
 	border: 5px solid var(--border);
 }

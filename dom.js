@@ -178,6 +178,8 @@ let Dom = {
 		weapon: document.getElementById("weapon"),
 		weatherOff: document.getElementById("weatherOff"),
 		weatherOn: document.getElementById("weatherOn"),
+		nametagOff: document.getElementById("nametagOff"),
+		nametagOn: document.getElementById("nametagOn"),
 	},
 	canvas: {},
 	chat: {},
@@ -310,7 +312,7 @@ Dom.alert.page = function (text, type, values, page, target) { // can't pass in 
 			if (values === "name") {
 				document.getElementById("alertInput"+id).onkeydown = function () {
 					setTimeout(function () {
-						if (validateName(document.getElementById("alertInput"+id).value)) {
+						if (ValidateName(document.getElementById("alertInput"+id).value)) {
 							Dom.alert.array[id].value = document.getElementById("alertInput"+id).value;
 						}
 						else {
@@ -6581,6 +6583,15 @@ Dom.init = function () {
 	if (User.settings.dark) {
 		Dom.elements.darkOn.checked = true;
 		Dom.settings.dark();
+	}
+	Dom.elements.nametagOn.onclick = function () {
+		User.settings.nametag = true;
+	}
+	Dom.elements.nametagOff.onclick = function () {
+		User.settings.nametag = false;
+	}
+	if (User.settings.nametag) {
+		Dom.elements.nametagOn.checked = true;
 	}
 
 	if (localStorage.getItem("accept") !== "true") {

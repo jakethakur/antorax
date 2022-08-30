@@ -123,6 +123,15 @@ const NPCTemplates = {
 }
 
 const EnemyTemplates = {
+	dummy: {
+		image: "dummy",
+		deathImage: "dummyCorpse",
+		name: "Training Dummy",
+		speciesTemplate: SpeciesTemplates.dummy,
+		stats: {
+			maxHealth: 1090,
+		},
+	},
 	nilbog: {
 		goblinRockthrower: {
 			speciesTemplate: SpeciesTemplates.nilbogGoblin,

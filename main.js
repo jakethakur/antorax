@@ -1354,6 +1354,13 @@ class Character extends Thing {
 		this.respawning = false;
 		this.isCorpse = false;
 
+		this.deathImage = {}; // corpse image (optional)
+		this.deathImage.image = properties.deathImage; // key name of image in loader (has already been loaded in)
+		// set width and height to death image dimensions unless otherwise specified (handled by setImage)
+		this.deathImage.width = properties.deathImageWidth;
+		this.deathImage.height = properties.deathImageHeight;
+		this.deathImage.crop = properties.deathImageCrop;
+
 		// stats
 		this.stats = {};
 
@@ -1914,7 +1921,8 @@ class Character extends Thing {
 	// direction = in RADIANS
 	// must be called every tick (often called by stun code in move)
 	// velocity, time, and direction ONLY need to be passed in for the first time this function is called
-	displace (delta, velocity, time, direction) {
+	// can go over walls should be true if they can move over unmoveable tiles
+	displace (delta, velocity, time, direction, canGoOverWalls) {
 		if (this.isBeingDisplaced === undefined) { // not being displaced yeet
 			// init displacement
 			this.isBeingDisplaced = {
@@ -1922,6 +1930,7 @@ class Character extends Thing {
 				velocity: velocity,
 				direction: direction,
 				elapsed: 0,
+				canGoOverWalls: canGoOverWalls,
 			}; // time the player has been displaced for
 
 			// (for testing) - let user know if a character is being displaced that already has a set z position
@@ -2554,10 +2563,11 @@ class Hero extends Attacker {
 		}
 
 		// check if we walked into a non-walkable tile
-		if (this.moveTowards === undefined) { // hero should only collide if controlled by player
+		if (this.moveTowards === undefined && (this.isBeingDisplaced === undefined || this.isBeingDisplaced.canGoOverWalls !== true)) { // hero should only collide if controlled by player
 			this.collide(dirx, diry, delta);
 		}
 		else {
+			// no need to check collision!
 			this.updateFootHitbox();
 		}
 
@@ -2838,14 +2848,21 @@ class Hero extends Attacker {
 							Player.quests.questProgress.itemsFishedUp = Increment(Player.quests.questProgress.itemsFishedUp);
 
 							// chat message
+							let article = "a ";
+							if (this.channelling.plural === true) {
+								article = "some ";
+							}
+							else if (IsVowel(this.channelling.name[0])) {
+								article = "an ";
+							}
 							if (this.channelling.fishingType === "fish") { // fish
-								Dom.chat.insert("You caught a " + this.channelling.length + "cm <strong>" + this.channelling.name + "</strong>!");
+								Dom.chat.insert("You caught " + article + this.channelling.length + "cm <strong>" + this.channelling.name + "</strong>!");
 							}
 							else if (this.channelling.fishingType === "waterjunk") { // junk item
-								Dom.chat.insert("You fished up a <strong>" + this.channelling.name + "</strong>.");
+								Dom.chat.insert("You fished up " + article + "<strong>" + this.channelling.name + "</strong>.");
 							}
 							else if (this.channelling.fishingType === "watermisc") { // misc
-								Dom.chat.insert("You reeled up a <strong>" + this.channelling.name + "</strong>.");
+								Dom.chat.insert("You reeled up a " + article + "<strong>" + this.channelling.name + "</strong>.");
 							}
 							else {
 								console.error("It is not known that an item of fishingType " + channelling.fishingType + " can be fished up.");
@@ -3302,6 +3319,10 @@ class Hero extends Attacker {
 	postRenderFunction () {
 		// reset globalAlpha in case it was changed by preRenderFunction due to stealth
 		Game.ctx.globalAlpha = 1;
+
+		if (document.getElementById("nametagOn").checked) { // show nametag if player wants
+			Game.drawCharacterInformation(Game.ctx, this);
+		}
 	}
 
 	// called after this.direction is updated
@@ -3777,6 +3798,12 @@ class Villager extends NPC {
 
 	// organises movement
 	update (delta) {
+		// player time spent :)
+		if (Player.timeSpent === undefined) {
+			Player.timeSpent = 0;
+		}
+		Player.timeSpent += delta;
+
 		// remember initial postiion and state (used to change state if they try to move but can't, e.g. due to lead)
 		let initialPosition = {x: this.x, y: this.y};
 		let initialState;
@@ -3935,13 +3962,6 @@ class Enemy extends Attacker {
 
 		// stats
 		this.stats.alwaysMove = properties.stats.alwaysMove || false; // move even when in range
-
-		this.deathImage = {}; // corpse image
-		this.deathImage.image = properties.deathImage; // key name of image in loader (has already been loaded in)
-		// set width and height to death image dimensions unless otherwise specified (handled by setImage)
-		this.deathImage.width = properties.deathImageWidth;
-		this.deathImage.height = properties.deathImageHeight;
-		this.deathImage.crop = properties.deathImageCrop;
 
 
 		// lootTable: an array of objects for each loot item - these objects contain the item ("item") and chances of looting them ("chance")
@@ -6363,6 +6383,10 @@ Game.loadArea = function (areaName, destination) {
 			this.hero.respawning = false;
 			this.hero.isCorpse = false;
 			Dom.chat.insert("You died.");
+
+			this.hero.moveTowards = undefined;
+			this.hero.isBeingDisplaced = undefined;
+			this.hero.setExpandZ(1);
 		}
 
 		// if the area is a checkpoint and it is not the player's current checkpoint, update the player's checkpoint
@@ -6515,6 +6539,7 @@ Game.init = function () {
 		height: 120,
 
 		type: "hero",
+		hostility: "hero",
 
 		// properties inheritied from Thing
 		image: "player"+Player.class+Player.skin,
@@ -8785,7 +8810,7 @@ Game.drawCharacterInformation = function (ctx, character) {
 		characterInformationHeight += 15;
 		characterInformationHeight += 3; // padding
 	}
-	else if (character.hostility !== "object") {
+	else if (character.hostility !== "object" && character.hostility !== "hero") {
 		console.error("Unknown character hostility: ", character.hostility);
 	}
 
@@ -8919,6 +8944,9 @@ Game.drawCharacterName = function (ctx, character, x, y) {
 	}
 	else if (character.hostility === "boss") {
 		ctx.fillStyle = "#8c0700"; // dark red name
+	}
+	else if (character.hostility === "hero") {
+		ctx.fillStyle = "black";
 	}
 	else {
 		ctx.fillStyle = "black";

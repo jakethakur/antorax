@@ -426,7 +426,7 @@ var Areas = {
 						role: "questStart",
 					},
 					{
-						quest: [Quests.fishing[3], Quests.fishing[4], Quests.fishing[5]],
+						quest: [Quests.fishing[3], Quests.fishing[4], Quests.fishing[5], Quests.fishing[6], Quests.fishing[7], Quests.fishing[8], Quests.fishing[9], Quests.fishing[10], Quests.fishing[11], Quests.fishing[12]],
 						role: "questStartFinish",
 						newQuestFrequency: "daily",
 						questVariable: "fishingDaily",
@@ -434,8 +434,8 @@ var Areas = {
 					{
 						sold: [
 							{item: Items.rod[3], cost: 3}, // basic fishing rod
-							{item: Items.consumable[8], cost: 4}, // can of worms
-							{item: Items.consumable[12], cost: 4, condition: function () { // magnetised lure
+							{item: Items.consumable[8], cost: 3}, // can of worms
+							{item: Items.consumable[12], cost: 3, condition: function () { // magnetised lure
 						        return Player.stats.fishingSkill >= 10;
 						    }},
 						],
@@ -650,6 +650,7 @@ var Areas = {
 			teperAngry: {christmas: "assets/npcs/teper-angry.png"},
 			identifier: {normal: "assets/npcs/gilas.png"},
 			dummy: {normal: "assets/enemies/dummy.png", christmas: "assets/enemies/dummy-christmas.png"},
+			dummyCorpse: {normal: "assets/corpses/dummy.png", christmas: "assets/corpses/dummy-christmas.png"},
 			saral: {normal: "assets/npcs/saral.png"},
 			mailman: {normal: "assets/npcs/mailman.png"},
 			soulHealer: {normal: "assets/npcs/nalaa.png"},
@@ -1434,12 +1435,7 @@ var Areas = {
 			{
 				x: 280,
 				y: 750,
-				image: "dummy",
-				name: "Training Dummy",
-				speciesTemplate: SpeciesTemplates.dummy,
-				stats: {
-					maxHealth: 1000,
-				},
+				template: EnemyTemplates.dummy
 			},
 		],
 
@@ -2848,7 +2844,7 @@ var Areas = {
 		id: 5,
 
 		data: {
-			name: "Nilbog Tower",
+			name: "Nilbog Tower Entranceway",
 			level: "Level 3 - 5",
 			territory: "Hostile",
 			displayOnEnter: true,
@@ -3000,7 +2996,7 @@ var Areas = {
 		id: 6,
 
 		data: {
-			name: "Nilbog Tower",
+			name: "Nilbog Tower Chamber",
 			level: "Level 3 - 5",
 			territory: "Hostile",
 			displayOnEnter: false,
@@ -3384,7 +3380,7 @@ var Areas = {
 		id: 8,
 
 		data: {
-			name: "Nilbog Tower",
+			name: "Nilbog Tower Antechamber",
 			level: "Level 3 - 5",
 			territory: "Hostile",
 			displayOnEnter: false,
@@ -3589,7 +3585,7 @@ var Areas = {
 		id: 9,
 
 		data: {
-			name: "Nilbog Tower",
+			name: "Nilbog Tower Throne Room",
 			level: "Level 3 - 5",
 			territory: "Hostile",
 			displayOnEnter: false,
@@ -4131,7 +4127,7 @@ var Areas = {
 		id: 11,
 
 		data: {
-			name: "Eaglecrest City",
+			name: "Eaglecrest City West",
 			level: "Level 1 - 10",
 			territory: "Allied",
 			displayOnEnter: false,
@@ -4268,7 +4264,7 @@ var Areas = {
 		id: 12,
 
 		data: {
-			name: "Eaglecrest City",
+			name: "Eaglecrest City East",
 			level: "Level 1 - 10",
 			territory: "Allied",
 			displayOnEnter: false,
@@ -5058,6 +5054,39 @@ var Areas = {
 					}
 				}
 			},
+			{
+				// jump!
+				x: 630,
+				y: 719,
+				width: 500,
+				height: 2,
+				collisionType: "feet",
+				onPlayerTouch: function () {
+					if (Game.hero.channelling === false) {
+						Game.hero.channel(function () {
+							if (Game.hero.isBeingDisplaced === undefined) {
+								Game.hero.displace(0, 180, 1.5, ToRadians(90), true);
+								setTimeout(function() {
+									Game.hero.takeDamage(15);
+									Player.quests.questProgress.timesJumpedFromTavern = Increment(Player.quests.questProgress.timesJumpedFromTavern);
+									if (Player.quests.questProgress.timesJumpedFromTavern === 1) {
+										Dom.chat.insert(Dom.chat.say("Jak", "Please refrain from jumping! You'll hurt yourself..."));
+									}
+									else if (Player.quests.questProgress.timesJumpedFromTavern === 4) {
+										Dom.chat.insert(Dom.chat.say("Jak", "Please leave."));
+									}
+									else if (Player.quests.questProgress.timesJumpedFromTavern === 7) {
+										Dom.chat.insert(Dom.chat.say("Jak", "We're calling the guards!!"));
+									}
+									else if (Player.quests.questProgress.timesJumpedFromTavern >= 2) {
+										Dom.chat.insert(Dom.chat.say("Rhus", "STOP THAT!!!"));
+									}
+								}, 1500);
+							}
+						}, [], 1000, "Preparing to jump!");
+					}
+				}
+			},
 		],
 
 		infoPoints: [
@@ -5576,6 +5605,7 @@ var Areas = {
 			sheepRight: {normal: "./assets/enemies/sheep.png"},
 			sheepLeft: {normal: "./assets/enemies/sheep.png", flip: "vertical"},
 			dummy: {normal: "./assets/enemies/dummy.png"},
+			dummyCorpse: {normal: "assets/corpses/dummy.png", christmas: "assets/corpses/dummy-christmas.png"},
 		},
 
 		areaTeleports: [
@@ -5767,12 +5797,7 @@ var Areas = {
 			{
 				x: 540,
 				y: 570,
-				image: "dummy",
-				name: "Training Dummy",
-				speciesTemplate: SpeciesTemplates.dummy,
-				stats: {
-					maxHealth: 1000,
-				},
+				template: EnemyTemplates.dummy
 			},
 		],
 

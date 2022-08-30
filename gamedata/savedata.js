@@ -23,6 +23,7 @@ var Player = {
 	unlockedTabs: [],
 	skippedTabs: [],
 
+	timeSpent: 0,
 	days: [], // days logged on (yyyymmdd)
 	metNPCs: ["Cart Driver"],
 
@@ -164,6 +165,7 @@ var User = {
 		transparency: false,
 		dark: false,
 		minigames: true,
+		nametag: false,
 		coords: false,
 		fps: false,
 		hitboxes: false,
