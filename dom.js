@@ -1582,7 +1582,14 @@ Dom.inventory.displayInformation = function (item, stacked, element, position, h
 					else {
 						Dom.elements.conditionalStats.innerHTML = "";
 					}
+				}
 
+				// no stats... probably a tool (eg. lead)
+				else {
+					Dom.elements.stats.innerHTML = "";
+					Dom.elements.conditionalStats.innerHTML = "";
+					Dom.elements.chooseStats.innerHTML = "";
+					Dom.elements.conditionalChooseStats.innerHTML = "";
 				}
 
 				if (item.set !== undefined) {
@@ -1756,6 +1763,9 @@ Dom.inventory.displayInformation = function (item, stacked, element, position, h
 			if (item.charges !== undefined) {
 				Dom.elements.charges.innerHTML = item.charges + " Charges";
 			}
+			else if (item.maxCharges !== undefined) {
+				Dom.elements.charges.innerHTML = item.maxCharges + " Charges";
+			}
 			else {
 				Dom.elements.charges.innerHTML = "";
 			}
@@ -1902,14 +1912,20 @@ Dom.quest.start = function (quest, npc) {
 				}
 
 				// item rewards
+
+				// e.g. eternity glove gemstones
 				if (!quest.addedRewardsFromTables) {
 					for (let i = 0; i < QuestRewardTables.globalAll.length; i++) {
-						quest.rewards.items.push(QuestRewardTables.globalAll[i]);
+						if (QuestRewardTables.globalAll[i].condition) {
+							quest.rewards.items.push(QuestRewardTables.globalAll[i]);
+						}
 					}
 
 					if (quest.repeatTime === "daily") {
 						for (let i = 0; i < QuestRewardTables.globalDaily.length; i++) {
-							quest.rewards.items.push(QuestRewardTables.globalDaily[i]);
+							if (QuestRewardTables.globalDaily[i].condition) {
+								quest.rewards.items.push(QuestRewardTables.globalDaily[i]);
+							}
 						}
 					}
 					quest.addedRewardsFromTables = true;
@@ -3029,22 +3045,30 @@ Dom.inventory.disposeConfirm = function (all) {
 	if (Dom.inventory.fromArray !== Player.inventory) {
 
 		// if you dispose of the INVENTORY bag then reset the inventory
-		if (Dom.inventory.fromId === 5 && Dom.inventory.fromArray === Player.inventory.items && Player.inventory.items[5].type === "bag") {
-			let str = "<tr>";
-			for (let inv = 0; inv < 6; inv++) {
-				str += '<td ondrop="Dom.inventory.drop(event, Player.inventory.items, '+inv+');Game.inventoryUpdate(event)" ondragover="Dom.inventory.allowDrop(event)" onmouseover="Dom.inventory.displayInformation(Player.inventory.items['+inv+'], undefined, \'inventoryPage\')" onmouseleave="Dom.expand(\'information\')" ondrag="Dom.expand(\'information\')" onclick="Game.inventoryUpdate()"></td>';
-			}
-			Dom.elements.itemInventory.innerHTML = str+"</tr>";
-			Dom.elements.itemInventory.getElementsByTagName("td")[5].style.backgroundImage = "url('assets/items/bag/1.png')";
-			for (let x = 0; x < 6; x++) {
-				if (Player.inventory.items[x].image !== undefined) {
-					Dom.elements.itemInventory.getElementsByTagName("td")[x].innerHTML = '<img src="'+Player.inventory.items[x].image+'" draggable="true" ondragstart="Dom.inventory.drag(event, Player.inventory.items, '+x+')"></img>';
-					if (Player.inventory.items[x].stacked !== undefined && Player.inventory.items[x].stacked !== 1) {
-						Dom.elements.itemInventory.getElementsByTagName("td")[x].innerHTML += "<div class='stackNum' id='stackNum"+x+"'>"+Player.inventory.items[x].stacked+"</div>";
+		if (Dom.inventory.fromId === 5 && Dom.inventory.fromArray === Player.inventory.items) {
+			if (Player.inventory.items[5].type === "bag") {
+				let str = "<tr>";
+				for (let inv = 0; inv < 6; inv++) {
+					str += '<td ondrop="Dom.inventory.drop(event, Player.inventory.items, '+inv+');Game.inventoryUpdate(event)" ondragover="Dom.inventory.allowDrop(event)" onmouseover="Dom.inventory.displayInformation(Player.inventory.items['+inv+'], undefined, \'inventoryPage\')" onmouseleave="Dom.expand(\'information\')" ondrag="Dom.expand(\'information\')" onclick="Game.inventoryUpdate()"></td>';
+				}
+				Dom.elements.itemInventory.innerHTML = str+"</tr>";
+				Dom.elements.itemInventory.getElementsByTagName("td")[5].style.backgroundImage = "url('assets/items/bag/1.png')";
+				for (let x = 0; x < 6; x++) {
+					if (Player.inventory.items[x].image !== undefined) {
+						Dom.elements.itemInventory.getElementsByTagName("td")[x].innerHTML = '<img src="'+Player.inventory.items[x].image+'" draggable="true" ondragstart="Dom.inventory.drag(event, Player.inventory.items, '+x+')"></img>';
+						if (Player.inventory.items[x].stacked !== undefined && Player.inventory.items[x].stacked !== 1) {
+							Dom.elements.itemInventory.getElementsByTagName("td")[x].innerHTML += "<div class='stackNum' id='stackNum"+x+"'>"+Player.inventory.items[x].stacked+"</div>";
+						}
 					}
 				}
+				Player.inventory.items.splice(6);
 			}
-			Player.inventory.items.splice(6);
+
+			// if non-bag is disposed from bag slot replace bag background image
+			else {
+				Dom.elements.itemInventory.getElementsByTagName("td")[5].style.backgroundImage = "url('assets/items/bag/1.png')";
+			}
+
 			Dom.inventory.update();
 		}
 
@@ -3812,6 +3836,12 @@ Dom.inventory.removeEquipment = function (array) {
 	if (array.type !== "rod" && array.type !== "tool" && array.type !== "sword" && array.type !== "staff" && array.type !== "bow") {
 		element = array.type;
 		type = array.type;
+	}
+	else if (Player.class === "a") {
+		type = "bow";
+	}
+	else if (Player.class === "m") {
+		type = "staff";
 	}
 	document.getElementById(element).style.backgroundImage = "url('assets/items/"+type+"/1.png')";
 
@@ -6146,7 +6176,8 @@ Dom.updateScreenSize = function (init) {
 		// update weather intensity and reset the positions of the particles
 		if (Dom.elements.weatherOn.checked) {
 			Weather.updateIntensity();
-			//Weather.reset();
+			Weather.reset();
+			Weather.updateParticleNumber();
 		}
 	}
 }
