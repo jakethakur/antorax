@@ -458,7 +458,7 @@ const ChestLootTables = {
 	],
 };
 
-const QuestRewardTables = {
+const QuestRewardTables = { // currently not in use
 	// rewards for all quests
 	globalAll: [
 

@@ -754,7 +754,7 @@ var Achievements = [
 
 	{
         name: "A Blood Moon is Rising...",
-        description: "Forment the rising of a blood moon.",
+        description: "Foment the rising of a blood moon.",
         points: 5,
         category: ["quests"],
         area: ["eaglecrestCity"],

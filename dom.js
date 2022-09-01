@@ -1913,23 +1913,24 @@ Dom.quest.start = function (quest, npc) {
 
 				// item rewards
 
+				// from quest reward tables (global additional rewards for all quests)
 				// e.g. eternity glove gemstones
-				if (!quest.addedRewardsFromTables) {
+				/*if (!quest.addedRewardsFromTables) { // check if rewards have been added from quest reward tables yet
 					for (let i = 0; i < QuestRewardTables.globalAll.length; i++) {
-						if (QuestRewardTables.globalAll[i].condition) {
+						if (QuestRewardTables.globalAll[i].condition()) {
 							quest.rewards.items.push(QuestRewardTables.globalAll[i]);
 						}
 					}
 
 					if (quest.repeatTime === "daily") {
 						for (let i = 0; i < QuestRewardTables.globalDaily.length; i++) {
-							if (QuestRewardTables.globalDaily[i].condition) {
+							if (QuestRewardTables.globalDaily[i].condition()) {
 								quest.rewards.items.push(QuestRewardTables.globalDaily[i]);
 							}
 						}
 					}
 					quest.addedRewardsFromTables = true;
-				}
+				}*/ // removed system for now - maybe in the future it should just show the chance of getting the items
 
 				if (quest.rewards.items !== undefined) {
 					for (let i = 0; i < quest.rewards.items.length; i++) {
@@ -2105,19 +2106,23 @@ Dom.quest.finish = function (quest, npc) {
 			quest.rewards.items = quest.rewards.items.concat(quest.rewards.timesCompleted[timesCompleted]);
 		}
 
-		// item rewards added from table
-		if (!quest.addedRewardsFromTables) {
+		// item rewards added from table (if they haven't already been added)
+		/*if (!quest.addedRewardsFromTables) {
 			for (let i = 0; i < QuestRewardTables.globalAll.length; i++) {
-				quest.rewards.items.push(QuestRewardTables.globalAll[i]);
+				if (QuestRewardTables.globalAll[i].condition()) {
+					quest.rewards.items.push(QuestRewardTables.globalAll[i]);
+				}
 			}
 
 			if (quest.repeatTime === "daily") {
 				for (let i = 0; i < QuestRewardTables.globalDaily.length; i++) {
-					quest.rewards.items.push(QuestRewardTables.globalDaily[i]);
+					if (QuestRewardTables.globalDaily[i].condition()) {
+						quest.rewards.items.push(QuestRewardTables.globalDaily[i]);
+					}
 				}
 			}
 			quest.addedRewardsFromTables = true;
-		}
+		}*/ // removed system for now - maybe in the future it should just show the chance of getting the items
 	}
 
 	// now generate dom menu

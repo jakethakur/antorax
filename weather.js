@@ -299,7 +299,7 @@ Weather.updateVariables = function () {
 Weather.updateParticleNumber = function () {
 	// add/remove weather particles if intensity has changed
 	// AND if weather is not clear (though this is still called so existing particles have a chance to disappear first)
-	if (this.particleArray.length < Math.round(this.intensity)) {
+	if (this.weatherType !== "clear" && this.particleArray.length < Math.round(this.intensity)) {
 		// particles need to be added
 		let numberOfParticles = this.particleArray.length;
 		for (let i = 0; i < Math.round(this.intensity) - numberOfParticles; i++) {

@@ -945,6 +945,8 @@ class Entity {
 			id: properties.sourceId // id of where entity came from in this location (if applicable)
 		};
 
+		this.area = Game.areaName;
+
 		this.map = properties.map;
 		this.x = properties.x || 0;
 		this.y = properties.y || 0;
@@ -1740,24 +1742,26 @@ class Character extends Thing {
 
 	// respawn after death
 	respawn () {
-		this.loot = null;
+		if (this.area === Game.areaName) {
+			this.loot = null;
 
-		// remove corpse image
-		this.resetImage();
+			// remove corpse image
+			this.resetImage();
 
-		this.footHitbox.drawHitbox = undefined; // may draw foot hitbox again
+			this.footHitbox.drawHitbox = undefined; // may draw foot hitbox again
 
-		this.hasBeenSiphoned = false; // for quests
+			this.hasBeenSiphoned = false; // for quests
 
-		this.x = this.spawnX;
-		this.y = this.spawnY;
+			this.x = this.spawnX;
+			this.y = this.spawnY;
 
-		this.health = this.stats.maxHealth;
-		this.damageTaken = 0;
+			this.health = this.stats.maxHealth;
+			this.damageTaken = 0;
 
-		this.speed = this.stats.walkSpeed || 0;
+			this.speed = this.stats.walkSpeed || 0;
 
-		this.respawning = false;
+			this.respawning = false;
+		}
 	}
 
 	// check if the character has a status effect with the specific title
@@ -6732,8 +6736,9 @@ Game.initStatusEffects = function () {
 // returns false if the npc should not be shown, otherwise returns the npc itself
 // overrideCanBeShown set to true means that function will run even if it would return false, and will also return true (to indicate npc added)
 Game.prepareNPC = function (npc, type, overrideCanBeShown) {
+	this.setInformationFromTemplate(npc); // needs to be here so bossCanBeShown works
+
 	if ((this.canBeShown(npc) && this.bossCanBeShown(npc)) || overrideCanBeShown) {
-		this.setInformationFromTemplate(npc);
 
 		npc.map = map;
 		npc.type = type;
@@ -9627,6 +9632,17 @@ Game.renderDayNight = function () {
 			}
 		}
 	}
+
+	// use https://stackoverflow.com/questions/33351074/drawing-lights-on-a-canvas
+	/*this.ctxDayNight.clearRect(0,0,300,300);
+
+	let grd = this.ctxDayNight.createRadialGradient(150,150,0,150,150,150);
+	grd.addColorStop(0, "rgba(255,255,255,0)");
+	grd.addColorStop(1, "rgba(0,0,0,"+Event.darkness+")");
+	this.ctxDayNight.fillStyle = grd;
+	this.ctxDayNight.globalAlpha = 1;
+	this.ctxDayNight.fillRect(0,0,300,300);*/
+
 }
 
 //

@@ -1388,6 +1388,7 @@ var Items = {
 			name: "Net",
 			type: "sword",
 			image: "assets/items/sword/16.png",
+			projectile: "slash",
 			uncollectable: true,
 			allClasses: true,
 			tier: 1,
@@ -1395,7 +1396,7 @@ var Items = {
 			area: [],
 			rarity: "common",
 			quest: true,
-			removeOnAbandon: "Cleaning the Floor",
+			removeOnAbandon: "Snake Quest",
 			stats: {
 				damage: 1,
 			},
@@ -2613,6 +2614,15 @@ var Items = {
 			junk: true,
 			image: "assets/items/item/32.png",
 			stack: 64,
+		},
+		{
+			id: 33,
+			name: "ςคtภเթ",
+			type: "item",
+			image: "assets/items/item/33.png",
+			stack: 64,
+			quest: true,
+			lore: "𝕞𝕞𝕄𝕞𝕄𝕞𝕞𝕄𝕄𝕞𝕄",
 		},
 	],
 	consumable: [

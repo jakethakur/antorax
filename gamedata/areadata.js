@@ -536,7 +536,7 @@ var Areas = {
                 y: 140,
                 image: "present",
                 name: "Tightly Packed Present", // from tintops
-                loot: [{item: Items.helm[20]}, {item: Items.currency[2], quantity: 2}, {item: Items.food[0]}, {item: new UnId("loggingCamp", 1)}],
+                loot: [{item: Items.helm[20]}, {item: Items.currency[2], quantity: 2}, {item: Items.food[0]}, {item: new UnId("loggingCamp", 1)}, {item: Items.consumable[22]}],
                 inventorySpace: 8,
                 disappearAfterOpened: true,
                 canBeShown: function () {
@@ -3779,6 +3779,7 @@ var Areas = {
 			eaglecrestLampDay: {normal: "assets/objects/eaglecrestLampDay.png"},
 			eaglecrestLampNight: {normal: "assets/objects/eaglecrestLampNight.png"},
 			helpNotice: {normal: "assets/objects/helpNotice.png"},
+			sylvie: {normal: "assets/npcs/sylvie.png"},
 		},
 
 		areaTeleports: [
@@ -3845,6 +3846,33 @@ var Areas = {
 				},
 			],
 		},
+
+		villagers: [
+			{
+				// id: 10,
+				x: 1172,
+				y: 770,
+				image: "sylvie",
+				name: "Recruiter Sylvie",
+				hostility: "friendly",
+				level: 70,
+				stats: {
+					maxHealth: 400,
+					defence: 6,
+				},
+				roles: [
+				],
+				chat: {
+					notUnlockedRoles: "Eaglecrest needs you! But... not yet.",
+					chooseChat: "Eaglecrest needs you!",
+					questProgress: "I've got plenty more for you to do after you've finished this!",
+					questComplete: `Eaglecrest appreciates your efforts, ${Player.name}.`,
+					inventoryFull: "Your bags are full!",
+					christmasGreeting: `${Player.name}! Now it's Christmas, there's even more you can do for Eaglecrest!`,
+					antoraxDayGreeting: `Isn't it great? To take a step back and look at how much we have achieved for the city in these ${Event.antoraxAge} years?`,
+				},
+			},
+		],
 
 		npcs: [
 			{
@@ -4546,7 +4574,7 @@ var Areas = {
 		song_day: "assets/music/Tavern.mp3",
 		song_night: "assets/music/Tavern.mp3",
 
-		checkpoint: false, // probably in the future taverns should be the ONLY checkpoints
+		checkpoint: false, // maybs in the future taverns should be the ONLY checkpoints
 
 		lootArea: "eaglecrest", // for level up music
 
@@ -4560,7 +4588,7 @@ var Areas = {
 			nightTiles: [3, 19, 2, 18, 15],
 			pathTiles: [5, 12, 41, 50, 51, 57, 58, 59, 60, 76],
 			layers: [
-				[6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 7, 6, 6, 6, 7, 6, 6, 6, 7, 6, 6, 6, 7, 6, 6, 6, 7, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 30, 30, 30, 30, 30, 30, 30, 30, 30, 30, 30, 30, 30, 30, 30, 30, 30, 30, 30, 30, 30, 30, 30, 30, 30, 30, 30, 30, 30, 30, 30, 30, 30, 30, 30, 30, 30, 30, 30, 30, 30, 30, 30, 30, 30, 30, 30, 30, 30, 30, 30, 30, 30, 30, 30, 30, 30, 30, 30, 30, 30, 30, 30, 30, 30, 30, 30, 30, 30, 30, 30, 30, 30, 30, 30, 30, 30, 30, 30, 30, 30, 30, 30, 30, 30, 30, 30, 30, 30, 30, 30, 30, 30, 30, 30, 30, 30, 30, 30, 30, 30, 30, 30, 30, 30, 30, 30, 30, 30, 30, 30, 30, 30, 30, 30, 30, 30, 30, 30, 30, 30, 30, 30, 30, 30, 30, 30, 30, 30, 30, 30, 30, 30, 30, 30, 30, 30, 30, 30, 30, 30, 30, 30, 30, 30, 30, 30, 30, 30, 30, 30, 30, 30, 30, 30, 30, 30, 30, 30, 30, 30, 30, 30, 30, 30, 30, 30, 30, 30, 30, 30, 30, 30, 30, 30, 30, 30, 30, 30, 30, 30, 30, 30, 30, 30, 30, 30, 30, 30, 30, 30, 30, 30, 30, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 30, 30, 30, 30, 30, 30, 30, 54, 54, 54, 6, 6, 7, 6, 6, 6, 6, 6, 7, 6, 6, 54, 54, 54, 30, 30, 54, 54, 54, 54, 54, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 54, 54, 54, 54, 54, 54, 54, 54, 54, 54, 30, 30, 30, 30, 30, 30, 30, 30, 30, 30, 30, 54, 54, 54, 54, 54, 54, 54, 30, 30, 30, 30, 30, 30, 30, 30, 30, 30, 30, 30, 30, 30, 30, 30, 30, 54, 54, 30, 30, 30, 30, 30, 30, 30, 46, 46, 46, 46, 46, 46, 46, 30, 30, 30, 30, 30, 30, 30, 30, 30, 30, 30, 30, 30, 30, 30, 30, 30, 30, 30, 30, 30, 30, 30, 30, 30, 30, 30, 30, 30, 30, 30, 30, 30, 30, 30, 30, 30, 30, 30, 30, 30, 30, 30, 30, 30, 30, 30, 30, 30, 30, 30, 30, 30, 30, 30, 30, 30, 30, 30, 30, 30, 30, 30, 30, 30, 30, 30, 30, 30, 30, 30, 30, 30, 30, 30, 30, 30, 30, 30, 30, 30, 30, 30, 30, 30, 30, 30, 30, 30, 30, 30, 30, 30, 30, 30, 30, 30, 30, 30, 30, 30, 30, 30, 30, 30, 30, 30, 30, 30, 30, 30, 30, 30, 30, 30, 30, 30, 30, 30, 30, 30, 30, 30, 30, 30, 30, 30, 30, 30, 30, 30, 30, 30],
+				[6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 7, 6, 6, 6, 7, 6, 6, 6, 7, 6, 6, 6, 7, 6, 6, 6, 7, 6, 101, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 10, 30, 30, 30, 30, 30, 30, 30, 30, 30, 30, 30, 30, 30, 30, 30, 30, 30, 30, 30, 30, 30, 30, 30, 30, 30, 30, 30, 30, 30, 30, 30, 30, 30, 30, 30, 30, 30, 30, 30, 30, 30, 30, 30, 30, 30, 30, 30, 30, 30, 30, 30, 30, 30, 30, 30, 30, 30, 30, 30, 30, 30, 30, 30, 30, 30, 30, 30, 30, 30, 30, 30, 30, 30, 30, 30, 30, 30, 30, 30, 30, 30, 30, 30, 30, 30, 30, 30, 30, 30, 30, 30, 30, 30, 30, 30, 30, 30, 30, 30, 30, 30, 30, 30, 30, 30, 30, 30, 30, 30, 30, 30, 30, 30, 30, 30, 30, 30, 30, 30, 30, 30, 30, 30, 30, 30, 30, 30, 30, 30, 30, 30, 30, 30, 30, 30, 30, 30, 30, 30, 30, 30, 30, 30, 30, 30, 30, 30, 30, 30, 30, 30, 30, 30, 30, 30, 30, 30, 30, 30, 30, 30, 30, 30, 30, 30, 30, 30, 30, 30, 30, 30, 30, 30, 30, 30, 30, 30, 30, 30, 30, 30, 30, 30, 30, 30, 30, 30, 30, 30, 30, 30, 30, 30, 30, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 30, 30, 30, 30, 30, 30, 30, 54, 54, 54, 6, 6, 7, 6, 6, 6, 6, 6, 7, 6, 6, 54, 54, 54, 30, 30, 54, 54, 54, 54, 54, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 54, 54, 54, 54, 54, 54, 54, 54, 54, 54, 30, 30, 30, 30, 30, 30, 30, 30, 30, 30, 30, 54, 54, 54, 54, 54, 54, 54, 30, 30, 30, 30, 30, 30, 30, 30, 30, 30, 30, 30, 30, 30, 30, 30, 30, 54, 54, 30, 30, 30, 30, 30, 30, 30, 46, 46, 46, 46, 46, 46, 46, 30, 30, 30, 30, 30, 30, 30, 30, 30, 30, 30, 30, 30, 30, 30, 30, 30, 30, 30, 30, 30, 30, 30, 30, 30, 30, 30, 30, 30, 30, 30, 30, 30, 30, 30, 30, 30, 30, 30, 30, 30, 30, 30, 30, 30, 30, 30, 30, 30, 30, 30, 30, 30, 30, 30, 30, 30, 30, 30, 30, 30, 30, 30, 30, 30, 30, 30, 30, 30, 30, 30, 30, 30, 30, 30, 30, 30, 30, 30, 30, 30, 30, 30, 30, 30, 30, 30, 30, 30, 30, 30, 30, 30, 30, 30, 30, 30, 30, 30, 30, 30, 30, 30, 30, 30, 30, 30, 30, 30, 30, 30, 30, 30, 30, 30, 30, 30, 30, 30, 30, 30, 30, 30, 30, 30, 30, 30, 30, 30, 30, 30, 30, 30],
 			],
 		},
 
@@ -4574,7 +4602,6 @@ var Areas = {
 			hearth1: {normal: "assets/objects/hearth1.png"},
 			hearth2: {normal: "assets/objects/hearth2.png"},
 			hearth3: {normal: "assets/objects/hearth3.png"},
-			alysLoreworth: {normal: "assets/npcs/alysLoreworth.png"},
 			dirt: {normal: "assets/enemies/dirt.png"},
 			mug: {normal: "assets/items/item/25.png"},
 			plate: {normal: "assets/items/item/26.png"},
@@ -4594,6 +4621,20 @@ var Areas = {
 				teleportTo: "eaglecrest",
 				destinationX: 360,
 				destinationY: 280,
+			},
+			{
+				// teleport to nilbog (bridge - east)
+				x: 1235,
+				y: 85,
+				width: 60,
+				height: 2,
+				teleportTo: "samhainLair",
+				destinationX: 292,
+				destinationY: 360,
+				teleportCondition: function () {
+					return Event.event === "Samhain" && (Player.quests.activeQuestArray.includes("Snake Man") || Player.quests.completedQuestArray.includes("Snake Man"));
+				},
+				teleportFailText: "The door appears to be locked.",
 			},
 		],
 
@@ -4697,50 +4738,6 @@ var Areas = {
 				},
 				showNameInChat: false, // done in chat message instead
 				chatArrayType: "all", // chat arrays should all be sent with a delay between them
-			},
-			{
-				x: 752,
-				y: 230,
-				image: "alysLoreworth",
-				name: "Alys Loreworth, Lead Archaeologist",
-				hostility: "friendly",
-				level: 100,
-				stats: {
-					maxHealth: 550,
-					defence: 5,
-				},
-				roles: [
-					{
-						sold: [
-							{item: Items.helm[8], cost: 15,}, // Beetroot Beer
-						],
-						role: "merchant",
-						roleRequirement: function () {
-							return Player.level >=5;
-						},
-						shopGreeting: "A good archaeologist always has a hat. Oh. Do you not?",
-					},
-					{
-						role: "identifier",
-					},
-				],
-				chat: {
-					notUnlockedRoles: "Can you not see I'm trying to have a rest here? Come back later.",
-					chooseChat: "We're moving to the Ley Confluence soon. I'm just on a break.",
-					// identifier
-					identifierGreeting: "Let's see if you've found anything new.",
-					noUnidentified: "There's realms of items for you to explore. Find some unidentified items!",
-					identifyCommon: "And you think <em>this</em> will help our archaeology effort?",
-					identifyUnique: "Oh, this one is of rather good quality.",
-					identifyMythic: "It's not often I see one of these!",
-					// merchant
-					shopLeave: "Good luck on your travels.",
-					inventoryFull: "Oh, you've got so many artefacts in your inventory that there's no space for this.",
-					tooPoor: "Looks like you're not being paid enough for your efforts. Earn some gold and come back.",
-					// event
-					christmasGreeting: "Merry Christmas! I hope you've found lots of rare items this festive season. I heard there's some free ones in the city today.",
-					antoraxDayGreeting: `We've been operating the Antorax Archaeology effort for ${Event.antoraxAge} years. Doesn't that call for celebration?`,
-				},
 			},
 		],
 
@@ -7483,9 +7480,57 @@ var Villagers = [
             "eaglecrestWest",
             "eaglecrestGraveyard",
         ],
+		rarity: 20, // ie 20 times less common
         roles: [],
         speciesTemplate: SpeciesTemplates.cat,
     },
+	{
+        id: 16,
+        images: {alysLoreworth: {normal: "assets/npcs/alysLoreworth.png"}},
+		name: "Alys Loreworth, Lead Archaeologist",
+		hostility: "friendly",
+		level: 100,
+		stats: {
+			maxHealth: 550,
+			defence: 5,
+		},
+        exeptAreas: [
+            "eaglecrestLoggingCamp",
+        ],
+		roles: [
+			{
+				sold: [
+					{item: Items.helm[8], cost: 15,}, // hat
+				],
+				role: "merchant",
+				roleRequirement: function () {
+					return Player.level >= MaxLevel;
+				},
+				shopGreeting: "A good archaeologist always has a hat. Oh. Do you not?",
+			},
+			{
+				role: "identifier",
+			},
+		],
+		chat: {
+			notUnlockedRoles: "Can you not see I'm trying to work here? Come back later.",
+			chooseChat: "I'm over to the Ley Confluence soon. I'm just on a break.",
+	        receiveTavernGood: "Thank you! We all need to look after ourselves every now and then.",
+			// identifier
+			identifierGreeting: "Let's see if you've found anything new.",
+			noUnidentified: "There's realms of items for you to explore. Find some unidentified items!",
+			identifyCommon: "And you think <em>this</em> will help our archaeology effort?",
+			identifyUnique: "Oh, this one is of rather good quality.",
+			identifyMythic: "It's not often I see one of these!",
+			// merchant
+			shopLeave: "Good luck on your travels.",
+			inventoryFull: "Oh, you've got so many artefacts in your inventory that there's no space for this.",
+			tooPoor: "Looks like you're not being paid enough for your efforts. Earn some gold and come back.",
+			// event
+			christmasGreeting: "Merry Christmas! I hope you've found lots of rare items this festive season. I heard there's some free ones in the city today.",
+			antoraxDayGreeting: `We've been operating the Antorax Archaeology effort for ${Event.antoraxAge} years. Doesn't that call for celebration?`,
+		},
+	},
 ];
 
 // TBD - remove since this is redundant (map.setTile should be used instead)

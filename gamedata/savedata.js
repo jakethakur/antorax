@@ -204,6 +204,7 @@ var User = {
 
 //xp for lvl...  1  2   3    4    5    6    7    8     9     10    MAX
 const LevelXP = [0, 50, 100, 200, 300, 600, 900, 1250, 1600, 2000, 1]; // amount of xp required for next level (current level = array index)
+const MaxLevel = LevelXP.length-1;
 
 const ReputationPoints = [1,2500,500,100,500,2500,1]; // points to level up reputation
 
