@@ -295,7 +295,7 @@ Licensed under Creative Commons: By Attribution 3.0<br>
 		<center><div id="identifiedPageOption"></div><br><br>
 		<div id="identifiedPageBack" class="closeClass">Back</div></center>
 	</div>
-	<div id="lootPage" hidden class="DOM">
+	<div id="lootPage" hidden class="DOM" ondrop="Dom.inventory.dispose(event)" ondragover="Dom.inventory.allowDrop(event)">
 		<h1 id="lootingPageTitle"></h1>
 		<table id="loot"></table>
 		<div id="lootAll">Loot All</div>

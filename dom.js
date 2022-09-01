@@ -3107,6 +3107,15 @@ Dom.inventory.disposeConfirm = function (all) {
 }
 
 Dom.inventory.dispose = function (ev) {
+
+	let page = "inventoryPage";
+	if (Dom.inventory.fromArray === Player.bank.items) {
+		page = "bankPage";
+	}
+	else if (Dom.inventory.fromArray === Dom.loot.looted) {
+		page = "lootPage";
+	}
+
 	if (Dom.inventory.fromId !== undefined && ev.target.id !== "helm" && ev.target.id !== "chest" && ev.target.id !== "greaves" && ev.target.id !== "boots" && ev.target.id !== "weapon" && !ev.target.classList.contains("stackNum")) {
 
 		let quest = false;
@@ -3117,7 +3126,7 @@ Dom.inventory.dispose = function (ev) {
 
 		let remove = true;
 		for (let i = 6; i < Dom.inventory.fromArray.length; i++) {
-			if (Dom.inventory.fromArray[i].image !== undefined) {
+			if (Dom.inventory.fromArray[i] !== undefined && Dom.inventory.fromArray[i].image !== undefined) {
 				// if it is safe to dispose of the bag
 				remove = false;
 				break;
@@ -3125,24 +3134,24 @@ Dom.inventory.dispose = function (ev) {
 		}
 
 		ev.preventDefault(); // allows the item to drop
-		if (ev.target.id !== "" && (remove || ((Dom.inventory.fromId !== 5 || Dom.inventory.fromArray !== Player.inventory.items) && (Dom.inventory.fromId > 5 || Dom.inventory.fromArray !== Player.bank.items))) && !quest) {
+		if (ev.target.tagName !== "IMG" && (remove || ((Dom.inventory.fromId !== 5 || Dom.inventory.fromArray !== Player.inventory.items) && (Dom.inventory.fromId > 5 || Dom.inventory.fromArray !== Player.bank.items))) && !quest) {
 			if (Dom.inventory.fromArray[Dom.inventory.fromId].stacked > 1) {
-				Dom.alert.page("How many would you like to drop?", 3, undefined, "inventoryPage", {
+				Dom.alert.page("How many would you like to drop?", 3, undefined, page, {
 					target: Dom.inventory.disposeConfirm,
 				});
 			}
 			else {
-				Dom.alert.page("Are you sure you want to drop this item? It will be lost forever!", 2, undefined, "inventoryPage", {
+				Dom.alert.page("Are you sure you want to drop this item? It will be lost forever!", 2, undefined, page, {
 					target: Dom.inventory.disposeConfirm,
 				});
 			}
 		}
-		else if (ev.target.id !== "") {
+		else if (ev.target.tagName !== "IMG") { // I do not know what this was for but it means you cannot dispose things onto certain elements
 			if (!quest) {
-				Dom.alert.page("Move some items to the bank, sell or dispose of them before you can do that.", 0, undefined, "inventoryPage");
+				Dom.alert.page("Move some items to the bank, sell or dispose of them before you can do that.", 0, undefined, page);
 			}
 			else {
-				Dom.alert.page("You cannot dispose of this item because you need it for a quest.", 0, undefined, "inventoryPage");
+				Dom.alert.page("You cannot dispose of this item because you need it for a quest.", 0, undefined, page);
 			}
 		}
 	}
@@ -3194,13 +3203,18 @@ Dom.inventory.removeById = function (ID, type, num, array, quest) {
 // array is optional
 Dom.inventory.remove = function (num, all, array) {
 
-	if (array === undefined) {
-		array = Player.inventory.items;
-	}
+	// loot (overwritten if not loot)
+	let element = "loot";
+	let stackNum = "lootStackNum";
 
-	let element = "itemInventory";
-	let stackNum = "stackNum";
-	if (array === Player.bank.items) {
+	// inventory
+	if (array === undefined || array === Player.inventory.items) {
+		array = Player.inventory.items;
+		element = "itemInventory";
+		stackNum = "stackNum";
+	}
+	// bank
+	else if (array === Player.bank.items) {
 		element = "bankPageInventory";
 		stackNum = "bankStackNum";
 	}
@@ -3227,6 +3241,9 @@ Dom.inventory.remove = function (num, all, array) {
 		// decrease stack size
 		else {
 			array[num].stacked--;
+			if (array[num].quantity !== undefined) {
+				array[num].quantity--;
+			}
 			if (array[num].stacked !== 1) {
 				document.getElementById(stackNum+num).innerHTML = array[num].stacked;
 			}
@@ -4243,9 +4260,10 @@ Dom.loot.page = function (name, items) {
 				//spaces.splice(currentSpaceNum,1); // removes slot from the table array so it can't be chosen again
 				if (items[i] !== undefined && items[i] !== null) {
 					if (items[i].quantity !== 1) {
-						Dom.elements.loot.getElementsByTagName("td")[i].innerHTML = "<img src=" + items[i].item.image + " class='lootOptions'><div class='lootStackNum'>"+items[i].quantity+"</div></img>";
+						items[i].stacked = items[i].quantity
+						Dom.elements.loot.getElementsByTagName("td")[i].innerHTML = "<img src=" + items[i].item.image + " class='lootOptions' draggable='true' ondragstart='Dom.inventory.drag(event, Dom.loot.looted, "+i+")'><div id='lootStackNum"+i+"' class='lootStackNum'>"+items[i].quantity+"</div></img>";
 					}else {
-						Dom.elements.loot.getElementsByTagName("td")[i].innerHTML = "<img src=" + items[i].item.image + " class='lootOptions'><span class='lootStackNum'></span></img>";
+						Dom.elements.loot.getElementsByTagName("td")[i].innerHTML = "<img src=" + items[i].item.image + " class='lootOptions' draggable='true' ondragstart='Dom.inventory.drag(event, Dom.loot.looted, "+i+")'><span id='lootStackNum"+i+"' class='lootStackNum'></span></img>";
 					}
 				}
 			}
