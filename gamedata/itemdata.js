@@ -68,7 +68,7 @@ var Items = {
 			set: 2,
 			stats: {
 				defence: 3,
-				healthRegen: 0.25,
+				healthRegen: 0.15,
 			},
 		},
 		{
@@ -511,7 +511,7 @@ var Items = {
 			set: 2,
 			stats: {
 				defence: 4,
-				healthRegen: 0.25,
+				healthRegen: 0.15,
 			},
 		},
 		{
@@ -613,7 +613,7 @@ var Items = {
 					},
 					stats: {
 						walkSpeed: 40,
-						healthRegen: 0.5,
+						healthRegen: 0.25,
 					},
 				},
 			],
@@ -705,7 +705,7 @@ var Items = {
 			set: 2,
 			stats: {
 				defence: 4,
-				healthRegen: 0.25,
+				healthRegen: 0.15,
 			},
 		},
 		{
@@ -724,7 +724,7 @@ var Items = {
 			stats: {
 				defence: 4,
 				dodgeChance: 20,
-				healthRegen: 0.5,
+				healthRegen: 0.25,
 			},
 		},
 		{
@@ -851,7 +851,7 @@ var Items = {
 			set: 2,
 			stats: {
 				defence: 3,
-				healthRegen: 0.25,
+				healthRegen: 0.15,
 			},
 		},
 		{
@@ -871,7 +871,7 @@ var Items = {
 				defence: 2,
 				criticalChance: 10,
 				dodgeChance: 10,
-				healthRegen: 0.25,
+				healthRegen: 0.15,
 				looting: 10,
 				walkSpeed: 30,
 			},
@@ -1258,7 +1258,7 @@ var Items = {
 					},
 				},
 				{
-					healthRegen: 1,
+					healthRegen: 0.5,
 					condition: function (item) {
 						// green gemstone fragment
 						return item.gemstones.includes("Emerald Fragment");
@@ -1471,7 +1471,7 @@ var Items = {
 			stats: {
 				damage: 3,
 				maxDamage: 9,
-				healthRegen: 0.5,
+				healthRegen: 0.3,
 			},
 		},
 		{
@@ -2032,8 +2032,8 @@ var Items = {
 				"Siege Boots",
 			],
 			stats: {
-				defence: 5,
-				healthRegen: 0.5,
+				defence: 4,
+				healthRegen: 0.4,
 			},
 		},
 		{
@@ -2732,7 +2732,6 @@ var Items = {
 			name: "Goblin Brewed Potion",
 			type: "consumable",
 			image: "assets/items/consumable/6.png",
-			sellPrice: 1,
 			functionText: "I wonder what this does?",
             cooldown: 20, // 20 seconds
 			onClickFunction: function (inventoryPosition) {
@@ -2851,6 +2850,7 @@ var Items = {
 			sellPrice: 1,
 			image: "assets/items/consumable/9.png",
 			functionText: "Gives you a random spooky status effect",
+            cooldown: 20, // 20 seconds
 			maxCharges: 3,
 			onClickFunction: function (inventoryPosition, hotbar) {
 				// remove one charge from the item
@@ -2900,6 +2900,7 @@ var Items = {
 			sellPrice: 2,
 			image: "assets/items/consumable/10.png",
 			functionText: "Deals 5 damage to the nearest enemy, stunning them for 1s",
+            cooldown: 5, // 5 seconds
 			maxCharges: 3,
 			onClickFunction: function (inventoryPosition, hotbar) {
 
@@ -3254,6 +3255,7 @@ var Items = {
 			image: "assets/items/consumable/23.png",
 			sellPrice: 2,
 			functionText: "Increases dodge chance by 40% for 10 seconds.",
+            cooldown: 20, // 20 seconds
 			onClickFunction: function (inventoryPosition) {
 			   // remove the item
 			   Dom.inventory.remove(inventoryPosition);
@@ -3274,6 +3276,7 @@ var Items = {
 			image: "assets/items/consumable/24.png",
 			sellPrice: 2,
 			functionText: "Increases health regen by 1.5 for 20 seconds.",
+            cooldown: 20, // 20 seconds
 			onClickFunction: function (inventoryPosition) {
                 // remove the item
                 Dom.inventory.remove(inventoryPosition);
@@ -3294,6 +3297,7 @@ var Items = {
 			image: "assets/items/consumable/25.png",
 			sellPrice: 1,
 			functionText: "Makes you immune to fire damage for 15 seconds.",
+            cooldown: 20, // 20 seconds
 			onOpen: function (inventoryPosition) {
 				Dom.inventory.remove(inventoryPosition);
 				Dom.inventory.give(Items.item[27], 1, inventoryPosition);
@@ -3315,6 +3319,7 @@ var Items = {
 			name: "Potion of Undying",
 			type: "consumable",
 			image: "assets/items/consumable/26.png",
+            cooldown: 20, // 20 seconds
 			sellPrice: 1, // tbc
 			functionText: "tbd",
 			onClickFunction: function (inventoryPosition) {
@@ -3330,6 +3335,7 @@ var Items = {
 			name: "Potion of Water Walking",
 			type: "consumable",
 			image: "assets/items/consumable/27.png",
+            cooldown: 20, // 20 seconds
 			sellPrice: 1, // tbc
 			functionText: "tbd",
 			onClickFunction: function (inventoryPosition) {
@@ -3345,6 +3351,7 @@ var Items = {
 			name: "Potion of Reflection I",
 			type: "consumable",
 			image: "assets/items/consumable/28.png",
+            cooldown: 20, // 20 seconds
 			sellPrice: 1, // tbc
 			functionText: "tbd",
 			onClickFunction: function (inventoryPosition) {
@@ -3506,7 +3513,7 @@ var Items = {
             name: "Logging Teleport Coin",
             type: "teleport",
             image: "assets/items/teleport/0.png",
-            functionText: "Teleports you to the Treefellers' Tavern in the Logging Camp",
+            functionText: "Teleports you to the Treefellers' Tavern in the Logging Camp<br>(Can be used once a day)",
             sellPrice: 10,
             teleport: {
                 x: 174,
@@ -3522,7 +3529,7 @@ var Items = {
             name: "Eaglecrest Teleport Coin",
             type: "teleport",
             image: "assets/items/teleport/1.png",
-            functionText: "Teleports you to the Eagle's Span Tavern in Eaglecrest City",
+            functionText: "Teleports you to the Eagle's Span Tavern in Eaglecrest City<br>(Can be used once a day)",
             sellPrice: 20,
             teleport: {
                 x: 1158,

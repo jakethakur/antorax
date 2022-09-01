@@ -1761,10 +1761,20 @@ Dom.inventory.displayInformation = function (item, stacked, element, position, h
 
 			// charges
 			if (item.charges !== undefined) {
-				Dom.elements.charges.innerHTML = item.charges + " Charges";
+				if (item.charges === 1) {
+					Dom.elements.charges.innerHTML = item.charges + " Charge";
+				}
+				else {
+					Dom.elements.charges.innerHTML = item.charges + " Charges";
+				}
 			}
 			else if (item.maxCharges !== undefined) {
-				Dom.elements.charges.innerHTML = item.maxCharges + " Charges";
+				if (item.maxCharges === 1) {
+					Dom.elements.charges.innerHTML = item.maxCharges + " Charge";
+				}
+				else {
+					Dom.elements.charges.innerHTML = item.maxCharges + " Charges";
+				}
 			}
 			else {
 				Dom.elements.charges.innerHTML = "";
