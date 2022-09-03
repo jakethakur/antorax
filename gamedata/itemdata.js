@@ -291,7 +291,7 @@ var Items = {
 			obtainText: "Can be bought from a mask seller.",
 			sellPrice: 1,
 			stats: {
-				lifesteal: 20,
+				lifesteal: 40,
 			},
 		},
 		{
@@ -306,7 +306,7 @@ var Items = {
 			obtainText: "Can be bought from a mask seller.",
 			sellPrice: 1,
 			stats: {
-				looting: 35,
+				looting: 50,
 			},
 		},
 		{
@@ -407,7 +407,7 @@ var Items = {
 			event: "Samhain",
 			stats: {
 				defence: 2,
-				maxHealth: 5,
+				maxHealth: 10,
 			},
 		},
 		{
@@ -423,7 +423,8 @@ var Items = {
 			event: "Samhain",
 			sellPrice: 1,
 			stats: {
-				// undying
+				defence: -5,
+				damagePercentage: 25,
 			},
 		},
 		{
@@ -1396,7 +1397,7 @@ var Items = {
 			area: [],
 			rarity: "common",
 			quest: true,
-			removeOnAbandon: "Snake Quest",
+			removeOnAbandon: "Snakes and the City",
 			stats: {
 				damage: 1,
 			},
@@ -2205,6 +2206,15 @@ var Items = {
 			sellPrice: 2,
 			size: 12,
 		},
+		{
+			id: 6,
+			name: "Eaglecrest Sack",
+			type: "bag",
+			image: "assets/items/bag/2.png",
+			lore: "Free merch",
+			sellPrice: 1,
+			size: 6,
+		},
 	],
 	item: [
 		{
@@ -2623,6 +2633,15 @@ var Items = {
 			stack: 64,
 			quest: true,
 			lore: "𝕞𝕞𝕄𝕞𝕄𝕞𝕞𝕄𝕄𝕞𝕄",
+		},
+		{
+			id: 34,
+			name: "Snake",
+			type: "item",
+			junk: true,
+			image: "assets/items/item/34.png",
+			stack: 16,
+			lore: "Where did they come from, where did they go?",
 		},
 	],
 	consumable: [
@@ -3473,7 +3492,7 @@ var Items = {
 			sellPrice: 3,
 			healthRestore: 100,
 			healthRestoreTime: 20,
-			lore: "The national food of Eaglecrest.",
+			lore: "The official food of Eaglecrest.",
 			// TBD extra stat given?
 		},
 		{
@@ -3858,15 +3877,15 @@ var Items = {
 							}
 						}
 					});
-					// gold
-					/*let goldStacks = Random(2, 5); // between 2 and 5 possible stacks of gold
+					// old coins
+					let goldStacks = Random(1, 4); // between 2 and 4 possible stacks of old coins
 					for (let i = 0; i < goldStacks; i++) {
 						let toBePushed = {
-							item: Items.currency[2],
+							item: Items.fish[13],
 							quantity: Random(1, 5),
 						};
 						loot.push(toBePushed);
-					}*/
+					}
 					// unidentified items
 					let unidentifiedNumber = Random(1, 3); // between 1 and 3 unidentified items
 					for (let i = 0; i < unidentifiedNumber; i++) {

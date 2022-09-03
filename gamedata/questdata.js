@@ -1460,6 +1460,117 @@ After all, death is never the end in Antorax...<br>
 				items: [{item: Items.currency[2], quantity: 3}],
 			},
 		},
+
+		{
+			id: 1,
+			quest: "Snakes and the City",
+			questArea: "eaglecrest",
+
+			startName: "Recruiter Sylvie",
+			startChat: `<b>Eaglecrest needs you!</b><br>${Player.name}! I suppose you can see what I'm going to ask of you... There's snakes... Everywhere! Not in our <b>Eaglecrest</b>, I say! There's no room for anyone here to slack off - let's all work together to eliminate these snakes for good.<br>How, you say? A <b>net</b> of course! Bring me ten snakes.`,
+
+			finishName: "Recruiter Sylvie",
+			finishChat: `Great! <b>Eaglecrest</b> awards your efforts with <b>1 Gold</b>.<br>If we keep working together every day, these snakes will be gone in no time. <i>Now if only we knew where the snakes were coming from...</i>`,
+
+			objectives: [
+				"Round up <b>10 snakes</b> using the <b>net</b>.",
+				"Speak to <strong>Recruiter Sylvie</strong>.",
+			],
+
+			isCompleted: function() {
+				let completed = [];
+
+				// true or falses for each objective (apart from the turn-in objective)
+				completed.push(Dom.inventory.check(34, "item", 10));
+
+				completed = checkFinished(completed);
+
+				return completed;
+			},
+
+			howToStart: "Speak to <strong>Recruiter Sylvie</strong>.",
+			levelRequirement: 4,
+			//questRequirements: ["Overdraft"],
+			questRequirements: [],//temp
+			eventRequirement: "Samhain",
+
+			repeatTime: "daily",
+
+			rewards: {
+				xp: 25,
+				items: [
+					{item: Items.currency[2], quantity: 1,}, // goldy woldy
+				],
+				reputation: {
+					eaglecrestCity: 25,
+				},
+			},
+
+			startRewards: {
+				items: [
+					{item: Items.sword[16],}, // the net
+				],
+			},
+
+			removeItems: [
+				{item: Items.sword[16],}, // remove the net
+				{item: Items.item[34], quantity: 10}, // remove the snakes
+			],
+		},
+
+		{
+			id: 2,
+			quest: "Overdraft",
+			questArea: "eaglecrest",
+
+			important: true,
+
+			startName: "Recruiter Sylvie",
+			startChat: `A new archaeologist! Welcome, from all of the citizens and workers, to the most resplendent, excellent, grand, opulent, showstopping city of all of Antorax!<br><br>
+			Let me not get ahead of myself. What is your name?<br><br>
+			Well, <b>Eaglecrest needs you</b>, ${Player.name}!<br> I will be your task-master, quest-setter, direction-giver for the forseeable future! I am sure you are glad to be out of the hands of <b>Marshall Teper</b>. And out of that pit of a logging camp! But don't let the archaeologists fool you - everyone still has their part to play in maintining the city.<br><br>
+			Speaking of which... the <b>Eaglecrest Bank</b> has been closed for the past couple of days due to an... unforseen issue. I was told it would be reopening today - can you head over there and help them out?<br><br>
+			Ah yes - the bank is just <b>north</b> of here. It is indicated with a gold coin outside.`,
+
+			finishName: "Recruiter Sylvie",
+			finishChat: `All sorted? Excellent! Well, ${Player.name}, you definitely deserve a rest in our beautiful city. Have a look around, and I am sure I will be seeing more of you in good time.<br><br>
+			Speaking of resting... have you tried a <b>beetroot pie</b>? They are one of the many delicacies of <b>Eaglecrest</b>, and I happen to have a few on me!`,
+
+			objectives: [
+				"tbd",
+				"Speak to <strong>Recruiter Sylvie</strong>.",
+			],
+
+			isCompleted: function() {
+				let completed = [];
+
+				// true or falses for each objective (apart from the turn-in objective)
+				completed.push(checkProgress(Player.quests.questProgress.snowCollected, 3));//tbd
+
+				completed = checkFinished(completed);
+
+				return completed;
+			},
+
+			howToStart: "Speak to <strong>Recruiter Sylvie</strong>.",
+			levelRequirement: 4000, // currently disabled
+			questRequirements: ["To Eaglecrest, and Beyond!"],
+
+			rewards: {
+				xp: 50,
+				items: [
+					{item: Items.currency[2], quantity: 5,},
+					{item: Items.food[5], quantity: 1,},
+					{item: Items.bag[6], quantity: 1, doNotGive: true}, // given through quest
+				],
+				services: [
+					{image: "bank", lore: "You will be able access the bank to store your items once you have finished this quest."}, // aaaaaaaa image required
+				],
+				reputation: {
+					eaglecrestCity: 100,
+				},
+			},
+		},
 	],
 
 	tavern: [
@@ -1589,9 +1700,9 @@ After all, death is never the end in Antorax...<br>
 				for (let i = 0; i < random; i++) {
 
 					// generate the dirt at a random location
-					Game.attackables.push(new Character({
+					Game.characters.push(new Character({
 	                    map: map,
-	                    type: "attackables",
+	                    type: "characters",
 	                    x: Random(0, map.cols * map.tsize),
 	                    y: Random(0, (map.rows-1.5) * map.tsize),
 						z: -0.5, // should never be infront of player
@@ -1602,6 +1713,7 @@ After all, death is never the end in Antorax...<br>
 						xpGiven: 0,
 						corpseOnDeath: false,
 						respawnOnDeath: false,
+						damageableByPlayer: true,
 						canBeDamagedBy: ["Mop"],
 	                    stats: {
 	                        walkSpeed: 0,
@@ -1615,7 +1727,7 @@ After all, death is never the end in Antorax...<br>
 					let array = Game.things.concat(Game.npcs); // array of things that cannot be touched
 
 					// if the centre of the dirt is touching any thing then choose a new location
-					let dirt = Game.attackables[Game.attackables.length-1];
+					let dirt = Game.characters[Game.characters.length-1];
 					let touching = true;
 					while (touching) {
 						touching = false;

@@ -702,13 +702,35 @@ const EnemyTemplates = {
 			xpGiven: 0,
 			corpseOnDeath: false,
 			respawnOnDeath: false,
+			damageableByPlayer: true,
 			stats: {
 				walkSpeed: 0,
 				maxHealth: 100,
 				healthRegen: 0,
 			},
 		},
-
-
 	},
+
+	eaglecrest: {
+		snake: {
+			image: "yellowSnake",
+			name: "Snake",
+			hideNameTag: true,
+			hostility: "neutral",
+			level: 5,
+			xpGiven: 0,
+			corpseOnDeath: false,
+			respawnOnDeath: false,
+			damageableByPlayer: true,
+			canBeDamagedBy: ["Net"],
+			stats: {
+				walkSpeed: 100,
+				maxHealth: 1,
+			},
+			onDeath: function () {
+				Player.quests.questProgress.snakesCaptured = Increment(Player.quests.questProgress.snakesCaptured);
+				Dom.inventory.give(Items.item[34]);
+			},
+		},
+	}
 };

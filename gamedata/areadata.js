@@ -2287,7 +2287,7 @@ var Areas = {
 
 							// cauldrons
 							if (!Player.quests.questProgress.nkkjaWindCauldronDestroyed) {
-								Game.attackables.push(new Character(Game.prepareNPC({
+								Game.characters.push(new Character(Game.prepareNPC({
 									template: EnemyTemplates.nilbog.nkkjaCauldron,
 									x: 1554,
 									y: 226,
@@ -2299,10 +2299,10 @@ var Areas = {
 										Player.quests.questProgress.nkkjaWindCauldronDestroyed = true;
 										Dom.chat.insert(Dom.chat.say("'Barebones' Nkkja", "Have you any idea how long this took to make? Get here and face me!"));
 									}
-								}, "attackables")));
+								}, "characters")));
 							}
 							if (!Player.quests.questProgress.nkkjaLightningCauldronDestroyed) {
-								Game.attackables.push(new Character(Game.prepareNPC({
+								Game.characters.push(new Character(Game.prepareNPC({
 									template: EnemyTemplates.nilbog.nkkjaCauldron,
 									x: 540,
 									y: 1300,
@@ -2312,10 +2312,10 @@ var Areas = {
 										Player.quests.questProgress.nkkjaLightningCauldronDestroyed = true;
 										Dom.chat.insert(Dom.chat.say("'Barebones' Nkkja", "No! You will pay for this, with your blood!"));
 									}
-								}, "attackables")));
+								}, "characters")));
 							}
 							if (!Player.quests.questProgress.nkkjaEarthCauldronDestroyed) {
-								Game.attackables.push(new Character(Game.prepareNPC({
+								Game.characters.push(new Character(Game.prepareNPC({
 									template: EnemyTemplates.nilbog.nkkjaCauldron,
 									x: 2122,
 									y: 1280,
@@ -2332,7 +2332,7 @@ var Areas = {
 										Player.quests.questProgress.nkkjaEarthCauldronDestroyed = true;
 										Dom.chat.insert(Dom.chat.say("'Barebones' Nkkja", "My bog creatures now hate you as much as I do!"));
 									}
-								}, "attackables")));
+								}, "characters")));
 							}
 
 							if (bossNotSeen) {
@@ -3757,10 +3757,6 @@ var Areas = {
 			],
 		},
 
-		isIcy: function() {
-			return Event.event === "Christmas";
-		},
-
 		images: {
 			tiles: {normal: "assets/tilemap/eaglecrest.png"},
 			cart1: {normal: "assets/objects/cartEaglecrest.png"},
@@ -3780,6 +3776,20 @@ var Areas = {
 			eaglecrestLampNight: {normal: "assets/objects/eaglecrestLampNight.png"},
 			helpNotice: {normal: "assets/objects/helpNotice.png"},
 			sylvie: {normal: "assets/npcs/sylvie.png"},
+			yellowSnake: {samhain: "assets/enemies/yellowSnake.png"},
+		},
+
+		callAreaJoinOnInit: true,
+		onAreaJoin: function () {
+			// samhain snakes
+			if (Event.event === "Samhain" && Player.completedQuestsArray.includes("Overdraft")) {
+				let no = Random(10,30); // num of snakes
+				for (let i = 0; i < no; i++) {
+					Game.villagers.push(new Villager(Game.prepareNPC({
+						template: EnemyTemplates.eaglecrest.snake,
+					}, "villagers")));
+				}
+			}
 		},
 
 		areaTeleports: [
@@ -3859,16 +3869,25 @@ var Areas = {
 				stats: {
 					maxHealth: 400,
 					defence: 6,
+		            walkSpeed: 131,
 				},
 				roles: [
+					{
+						quest: Quests.eaglecrest[1],
+						role: "questStartFinish"
+					},
+					{
+						quest: Quests.eaglecrest[2],
+						role: "questStartFinish"
+					},
 				],
 				chat: {
-					notUnlockedRoles: "Eaglecrest needs you! But... not yet.",
-					chooseChat: "Eaglecrest needs you!",
+					notUnlockedRoles: "<b>Eaglecrest needs you!</b> But... not yet.",
+					chooseChat: "<b>Eaglecrest needs you!</b>",
 					questProgress: "I've got plenty more for you to do after you've finished this!",
 					questComplete: `Eaglecrest appreciates your efforts, ${Player.name}.`,
 					inventoryFull: "Your bags are full!",
-					christmasGreeting: `${Player.name}! Now it's Christmas, there's even more you can do for Eaglecrest!`,
+					christmasGreeting: `${Player.name}! Now it's Christmas, there's even more you can do for <b>Eaglecrest</b>!`,
 					antoraxDayGreeting: `Isn't it great? To take a step back and look at how much we have achieved for the city in these ${Event.antoraxAge} years?`,
 				},
 			},
@@ -4190,6 +4209,20 @@ var Areas = {
 		images: {
 			tiles: {normal: "assets/tilemap/eaglecrest.png"},
 			maskSalesman: {normal: "assets/npcs/maskSalesman.png"},
+			yellowSnake: {samhain: "assets/enemies/yellowSnake.png"},
+		},
+
+		callAreaJoinOnInit: true,
+		onAreaJoin: function () {
+			// samhain snakes
+			if (Event.event === "Samhain" && Player.completedQuestsArray.includes("Overdraft")) {
+				let no = Random(5,15); // num of snakes
+				for (let i = 0; i < no; i++) {
+					Game.villagers.push(new Villager(Game.prepareNPC({
+						template: EnemyTemplates.eaglecrest.snake,
+					}, "villagers")));
+				}
+			}
 		},
 
 		areaTeleports: [
@@ -4328,6 +4361,20 @@ var Areas = {
 			tiles: {normal: "assets/tilemap/eaglecrest.png"},
 			itemBuyer: {normal: "assets/npcs/nhkghghh.png"},
 			cart: {normal: "assets/objects/cartEaglecrest3.png"},
+			yellowSnake: {samhain: "assets/enemies/yellowSnake.png"},
+		},
+
+		callAreaJoinOnInit: true,
+		onAreaJoin: function () {
+			// samhain snakes
+			if (Event.event === "Samhain" && Player.completedQuestsArray.includes("Overdraft")) {
+				let no = Random(5,15); // num of snakes
+				for (let i = 0; i < no; i++) {
+					Game.villagers.push(new Villager(Game.prepareNPC({
+						template: EnemyTemplates.eaglecrest.snake,
+					}, "villagers")));
+				}
+			}
 		},
 
 		areaTeleports: [
@@ -4455,6 +4502,20 @@ var Areas = {
 			banker2: {normal: "assets/npcs/eaglecrestBanker2.png"},
 			banker3: {normal: "assets/npcs/eaglecrestBanker3.png"},
 			banker4: {normal: "assets/npcs/eaglecrestBanker4.png"},
+			yellowSnake: {samhain: "assets/enemies/yellowSnake.png"},
+		},
+
+		callAreaJoinOnInit: true,
+		onAreaJoin: function () {
+			// samhain snakes
+			if (Event.event === "Samhain" && Player.completedQuestsArray.includes("Overdraft")) {
+				let no = Random(10,20); // num of snakes
+				for (let i = 0; i < no; i++) {
+					Game.villagers.push(new Villager(Game.prepareNPC({
+						template: EnemyTemplates.eaglecrest.snake,
+					}, "villagers")));
+				}
+			}
 		},
 
 		areaTeleports: [
@@ -4610,6 +4671,7 @@ var Areas = {
 			barrel: {normal: "assets/objects/barrel.png"},
 			cat1Left: {normal: "assets/npcs/cat1.png"}, // for amelio
             cat1Right: {normal: "assets/npcs/cat1.png", flip: "vertical"},
+			yellowSnake: {samhain: "assets/enemies/yellowSnake.png"},
 		},
 
 		areaTeleports: [
@@ -5106,7 +5168,6 @@ var Areas = {
 		],
 
 		callAreaJoinOnInit: true,
-
 		onAreaJoin: function () {
 
 			// generate an array of tables
@@ -5174,6 +5235,17 @@ var Areas = {
 						image: "plate",
 						name: "Plate",
 					}));
+				}
+			}
+
+
+			// samhain snakes
+			if (Event.event === "Samhain" && Player.completedQuestsArray.includes("Overdraft")) {
+				let no = Random(20,40); // num of snakes
+				for (let i = 0; i < no; i++) {
+					Game.villagers.push(new Villager(Game.prepareNPC({
+						template: EnemyTemplates.eaglecrest.snake,
+					}, "villagers")));
 				}
 			}
 		},
@@ -5250,6 +5322,20 @@ var Areas = {
 			eaglecrestianForgedStaff: {normal: "assets/items/staff/11archaeology.png"},
 			eaglecrestianForgedSword: {normal: "assets/items/sword/12.png"},
 			anvil: {normal: "assets/objects/anvil.png"},
+			yellowSnake: {samhain: "assets/enemies/yellowSnake.png"},
+		},
+
+		callAreaJoinOnInit: true,
+		onAreaJoin: function () {
+			// samhain snakes
+			if (Event.event === "Samhain" && Player.completedQuestsArray.includes("Overdraft")) {
+				let no = Random(5,15); // num of snakes
+				for (let i = 0; i < no; i++) {
+					Game.villagers.push(new Villager(Game.prepareNPC({
+						template: EnemyTemplates.eaglecrest.snake,
+					}, "villagers")));
+				}
+			}
 		},
 
 		areaTeleports: [
@@ -5414,6 +5500,20 @@ var Areas = {
 			tamtam: {normal: "assets/npcs/tamtam.png"},
 			potionStand: {normal: "assets/objects/potionStand.png"},
 			cauldronEaglecrest: {normal: "assets/objects/cauldronEaglecrest.png"},
+			yellowSnake: {samhain: "assets/enemies/yellowSnake.png"},
+		},
+
+		callAreaJoinOnInit: true,
+		onAreaJoin: function () {
+			// samhain snakes
+			if (Event.event === "Samhain" && Player.completedQuestsArray.includes("Overdraft")) {
+				let no = Random(5,15); // num of snakes
+				for (let i = 0; i < no; i++) {
+					Game.villagers.push(new Villager(Game.prepareNPC({
+						template: EnemyTemplates.eaglecrest.snake,
+					}, "villagers")));
+				}
+			}
 		},
 
 		areaTeleports: [
@@ -5603,6 +5703,20 @@ var Areas = {
 			sheepLeft: {normal: "./assets/enemies/sheep.png", flip: "vertical"},
 			dummy: {normal: "./assets/enemies/dummy.png"},
 			dummyCorpse: {normal: "assets/corpses/dummy.png", christmas: "assets/corpses/dummy-christmas.png"},
+			yellowSnake: {samhain: "assets/enemies/yellowSnake.png"},
+		},
+
+		callAreaJoinOnInit: true,
+		onAreaJoin: function () {
+			// samhain snakes
+			if (Event.event === "Samhain" && Player.completedQuestsArray.includes("Overdraft")) {
+				let no = Random(10,20); // num of snakes
+				for (let i = 0; i < no; i++) {
+					Game.villagers.push(new Villager(Game.prepareNPC({
+						template: EnemyTemplates.eaglecrest.snake,
+					}, "villagers")));
+				}
+			}
 		},
 
 		areaTeleports: [
@@ -5897,6 +6011,20 @@ var Areas = {
 			gargoyleWaterRight1: {normal: "assets/objects/waterShoot1.png", flip: "vertical"},
 			gargoyleWaterRight2: {normal: "assets/objects/waterShoot2.png", flip: "vertical"},
 			gargoyleWaterRight3: {normal: "assets/objects/waterShoot3.png", flip: "vertical"},
+			yellowSnake: {samhain: "assets/enemies/yellowSnake.png"},
+		},
+
+		callAreaJoinOnInit: true,
+		onAreaJoin: function () {
+			// samhain snakes
+			if (Event.event === "Samhain" && Player.completedQuestsArray.includes("Overdraft")) {
+				let no = Random(10,30); // num of snakes
+				for (let i = 0; i < no; i++) {
+					Game.villagers.push(new Villager(Game.prepareNPC({
+						template: EnemyTemplates.eaglecrest.snake,
+					}, "villagers")));
+				}
+			}
 		},
 
 		areaTeleports: [
@@ -6161,6 +6289,20 @@ var Areas = {
 			stairsRight: {normal: "assets/objects/stairsRight.png"},
 			cat1Left: {normal: "./assets/npcs/cat1.png"},
 			cat1Right: {normal: "./assets/npcs/cat1.png", flip: "vertical"},
+			yellowSnake: {samhain: "assets/enemies/yellowSnake.png"},
+		},
+
+		callAreaJoinOnInit: true,
+		onAreaJoin: function () {
+			// samhain snakes
+			if (Event.event === "Samhain" && Player.completedQuestsArray.includes("Overdraft")) {
+				let no = Random(10,30); // num of snakes
+				for (let i = 0; i < no; i++) {
+					Game.villagers.push(new Villager(Game.prepareNPC({
+						template: EnemyTemplates.eaglecrest.snake,
+					}, "villagers")));
+				}
+			}
 		},
 
 		areaTeleports: [
@@ -7330,7 +7472,8 @@ var Villagers = [
         roles: [],
         chat: {
             notUnlockedRoles: "I would never go to that Nilbog! Wouldn't want to get my boots muddy. Oh, and the goblins, too.",
-            chooseChat: "I tip my hat to you.",
+            chooseChat: "Do you like my monocle?",
+			christmasGreeting: "I tip my hat to you this Christmas.",
             receiveTavernGood: "Thank you, now I just have to be careful not to get any in my beard!",
         }
     },
@@ -7416,6 +7559,7 @@ var Villagers = [
             "eaglecrestEast",
             "eaglecrestWest",
             "eaglecrestGraveyard",
+            "eaglecrestElixirs",
         ],
         roles: [],
         speciesTemplate: SpeciesTemplates.cat,
@@ -7437,6 +7581,7 @@ var Villagers = [
             "eaglecrestEast",
             "eaglecrestWest",
             "eaglecrestGraveyard",
+            "eaglecrestElixirs",
         ],
         roles: [],
         speciesTemplate: SpeciesTemplates.cat,
@@ -7458,11 +7603,12 @@ var Villagers = [
             "eaglecrestEast",
             "eaglecrestWest",
             "eaglecrestGraveyard",
+            "eaglecrestElixirs",
         ],
         roles: [],
         speciesTemplate: SpeciesTemplates.cat,
     },
-    {
+    /*{
         id: 15,
         images: {
             cat4Left: {normal: "assets/npcs/cat4.png"},
@@ -7479,13 +7625,14 @@ var Villagers = [
             "eaglecrestEast",
             "eaglecrestWest",
             "eaglecrestGraveyard",
+            "eaglecrestElixirs",
         ],
-		rarity: 20, // ie 20 times less common
+		rarity: 20, // ie 20 times less common (doesn't acc work yet)
         roles: [],
         speciesTemplate: SpeciesTemplates.cat,
-    },
+    },*/
 	{
-        id: 16,
+        id: 15,
         images: {alysLoreworth: {normal: "assets/npcs/alysLoreworth.png"}},
 		name: "Alys Loreworth, Lead Archaeologist",
 		hostility: "friendly",
@@ -7493,6 +7640,7 @@ var Villagers = [
 		stats: {
 			maxHealth: 550,
 			defence: 5,
+            walkSpeed: 131,
 		},
         exeptAreas: [
             "eaglecrestLoggingCamp",
@@ -7529,6 +7677,26 @@ var Villagers = [
 			// event
 			christmasGreeting: "Merry Christmas! I hope you've found lots of rare items this festive season. I heard there's some free ones in the city today.",
 			antoraxDayGreeting: `We've been operating the Antorax Archaeology effort for ${Event.antoraxAge} years. Doesn't that call for celebration?`,
+		},
+	},
+	{
+        id: 16,
+        images: {mailman: {normal: "assets/npcs/mailman.png"}},
+		name: "Eaglecrest Mailman",
+		hostility: "friendly",
+		level: 10,
+		stats: {
+			maxHealth: 100,
+			defence: 5,
+            walkSpeed: 170,
+		},
+        areas: [
+            "eaglecrest",
+            "eaglecrestEast",
+            "eaglecrestWest",
+        ],
+		chat: {
+            notUnlockedRoles: "I recognise your face... have we met?",
 		},
 	},
 ];
