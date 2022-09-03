@@ -444,6 +444,22 @@ var Items = {
 				criticalChance: 30,
 			},
 		},
+		{
+			id: 26,
+			name: "Fishing Hat",
+			type: "helm",
+			image: "assets/items/helm/26.png",
+			tier: 1,
+			obtain: ["merchant"],
+			area: ["loggingCamp"],
+			rarity: "unique",
+			obtainText: "Can be bought from a fisher using fishing seals.",
+			sellPrice: 3,
+			stats: {
+				defence: 1,
+				fishingSkill: 25,
+			},
+		}
 	],
 	chest: [
 		{

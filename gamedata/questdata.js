@@ -2510,6 +2510,7 @@ After all, death is never the end in Antorax...<br>
 		},
 
 		{
+			// make sure to add daily quest to quest area under tobernam/other fisherman
 			id: 12,
 			quest: "Master Fisher",
 			questArea: "fishing",

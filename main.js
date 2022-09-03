@@ -6084,6 +6084,7 @@ Game.loadArea = function (areaName, destination) {
 		map.pathTiles = undefined;
 		map.scrollX = undefined;
 		map.scrollY = undefined;
+		map.numberOfLayers = undefined;
 		// now add all properties from areaData to the map variable
 		Object.assign(map, Areas[areaName].mapData);
 		// ice tiles only exist if the area isIcy
@@ -9109,7 +9110,16 @@ Game.canvasDisplayFinished = function () {
 // draw images on canvas
 Game.render = function (delta) {
 	// draw map background layer
-	this.drawLayer(0);
+	if (typeof map.numberOfLayers !== "undefined") {
+		// could be multiple layers
+		for (let layer = 0; layer < map.numberOfLayers; layer++) {
+			this.drawLayer(layer);
+		}
+	}
+	else {
+		// just one layer
+		this.drawLayer(0);
+	}
 
 	// sort by y value (from bottom of npc)
 	// set values to sort by, basing their value on their z position as well as y value
@@ -9328,9 +9338,6 @@ Game.render = function (delta) {
 			ctx.globalAlpha = 1;
 		}
 	}
-
-    // draw map top layer
-    //this.drawLayer(1);
 
 	// only render the following if the player isn't pressing the shift key
 	// also do not render if a screenshot is going to be taken with the camera this tick
