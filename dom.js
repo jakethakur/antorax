@@ -3112,9 +3112,6 @@ Dom.inventory.dispose = function (ev) {
 	if (Dom.inventory.fromArray === Player.bank.items) {
 		page = "bankPage";
 	}
-	else if (Dom.inventory.fromArray === Dom.loot.looted) {
-		page = "lootPage";
-	}
 
 	if (Dom.inventory.fromId !== undefined && ev.target.id !== "helm" && ev.target.id !== "chest" && ev.target.id !== "greaves" && ev.target.id !== "boots" && ev.target.id !== "weapon" && !ev.target.classList.contains("stackNum")) {
 
@@ -3134,7 +3131,7 @@ Dom.inventory.dispose = function (ev) {
 		}
 
 		ev.preventDefault(); // allows the item to drop
-		if (ev.target.tagName !== "IMG" && (remove || ((Dom.inventory.fromId !== 5 || Dom.inventory.fromArray !== Player.inventory.items) && (Dom.inventory.fromId > 5 || Dom.inventory.fromArray !== Player.bank.items))) && !quest) {
+		if ((ev.target.tagName !== "IMG" && ev.target.tagName !== "TD") && (remove || ((Dom.inventory.fromId !== 5 || Dom.inventory.fromArray !== Player.inventory.items) && (Dom.inventory.fromId > 5 || Dom.inventory.fromArray !== Player.bank.items))) && !quest) {
 			if (Dom.inventory.fromArray[Dom.inventory.fromId].stacked > 1) {
 				Dom.alert.page("How many would you like to drop?", 3, undefined, page, {
 					target: Dom.inventory.disposeConfirm,
@@ -3146,7 +3143,7 @@ Dom.inventory.dispose = function (ev) {
 				});
 			}
 		}
-		else if (ev.target.tagName !== "IMG") { // I do not know what this was for but it means you cannot dispose things onto certain elements
+		else if (ev.target.tagName !== "IMG" && ev.target.tagName !== "TD") { // if img or td then it is in an inventory so not dispose
 			if (!quest) {
 				Dom.alert.page("Move some items to the bank, sell or dispose of them before you can do that.", 0, undefined, page);
 			}
@@ -3724,7 +3721,7 @@ Dom.inventory.drop = function (toElement, toArray, toId, fromElement, fromArray,
 				Game.equipmentUpdate();
 
 				let stackNum = "stackNum";
-				if (fromArray === Player.bank.items) {
+				if (fromArray === Player.bank.items) { // should these be this.fromArray?
 					stackNum = "bankStackNum";
 				}
 				else if (fromArray === Dom.trade.items) {
@@ -4238,7 +4235,10 @@ Dom.inventory.hideHotbar = function (hide) {
 Dom.loot.page = function (name, items) {
 	if (Dom.changeBook("lootPage")) {//, true/*false*/, true);
 		//Dom.currentlyDisplayed = name;
+
+		// the format of Dom.loot.looted is the same as Dom.quest.rewards
 		Dom.loot.looted = items;
+
 		Dom.elements.lootingPageTitle.innerHTML = name;
 		let lootSpaces = "";
 		for (let i = 0; i < items.length; i+=8) {
@@ -4260,11 +4260,11 @@ Dom.loot.page = function (name, items) {
 				//spaces.splice(currentSpaceNum,1); // removes slot from the table array so it can't be chosen again
 				if (items[i] !== undefined && items[i] !== null) {
 					if (items[i].quantity !== 1) {
-						items[i].stacked = items[i].quantity
-						Dom.elements.loot.getElementsByTagName("td")[i].innerHTML = "<img src=" + items[i].item.image + " class='lootOptions' draggable='true' ondragstart='Dom.inventory.drag(event, Dom.loot.looted, "+i+")'><div id='lootStackNum"+i+"' class='lootStackNum'>"+items[i].quantity+"</div></img>";
+						Dom.elements.loot.getElementsByTagName("td")[i].innerHTML = "<img src=" + items[i].item.image + " class='lootOptions' draggable='false' ondragstart='Dom.inventory.drag(event, Dom.loot.items, "+i+")'><div id='lootStackNum"+i+"' class='lootStackNum'>"+items[i].quantity+"</div></img>";
 					}else {
-						Dom.elements.loot.getElementsByTagName("td")[i].innerHTML = "<img src=" + items[i].item.image + " class='lootOptions' draggable='true' ondragstart='Dom.inventory.drag(event, Dom.loot.looted, "+i+")'><span id='lootStackNum"+i+"' class='lootStackNum'></span></img>";
+						Dom.elements.loot.getElementsByTagName("td")[i].innerHTML = "<img src=" + items[i].item.image + " class='lootOptions' draggable='false' ondragstart='Dom.inventory.drag(event, Dom.loot.items, "+i+")'><span id='lootStackNum"+i+"' class='lootStackNum'></span></img>";
 					}
+					//Dom.inventory.setItemFunctions(Dom.elements.loot.getElementsByTagName("td")[i], Dom.loot.items, i);
 				}
 			}
 			// repeats for each piece of loot
@@ -6440,7 +6440,7 @@ Dom.init = function () {
 				`<p>${Event.antoraxAge} years ago today, the realms of Antorax settled on an agreement to cooperate in the archaeology and exploration of these beautiful lands. Although there have been conflicts since then, there have been countless discoveries made by the Antorax alliance, and we endevour to continue.</p>
 				<p>This year, there have been countless advancements in the fields of Archaeology, with huge discoveries of mythic items. There have also been developments to the Eaglecrest Logging Camp, and improvements to the accessibility of Antorax for its citizens.</p>
 				<p>We hope you enjoy this special day, and that we will celebrate the many more Antorax Days to come together.</p>`, true, [], [],
-				[{item: Items.helm[10]}]], [{item: Items.helm[10]}],
+				[{item: Items.helm[28]}]], [{item: Items.helm[28]}],
 			);
 			if (!Player.quests.completedQuestArray.includes("The Legend of the Tattered Knight")) {
 				Dom.mail.give(
