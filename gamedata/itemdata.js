@@ -177,7 +177,7 @@ var Items = {
 			obtainText: "Was sent in the mail on Antorax Day 2019.",
 			sellPrice: 3, // equal to the age of Antorax :)
 			stats: {
-				defence: 1,
+				defence: 3,
 			},
 			functionText: "Leaves a trail of confetti",
 			trail: {
@@ -276,7 +276,7 @@ var Items = {
 			obtainText: "Can be bought from a mask seller or from the Bear Zoo.",
 			sellPrice: 1,
 			stats: {
-				maxHealth: 10,
+				maxHealth: 15,
 			},
 		},
 		{
@@ -288,7 +288,8 @@ var Items = {
 			obtain: ["merchant"],
 			area: ["eaglecrest"],
 			rarity: "common",
-			obtainText: "Can be bought from a mask seller.",
+			obtainText: "Can be bought from a mask seller during Samhain.",
+			event: "Samhain",
 			sellPrice: 1,
 			stats: {
 				lifesteal: 40,
@@ -459,7 +460,51 @@ var Items = {
 				defence: 1,
 				fishingSkill: 25,
 			},
-		}
+		},
+		{
+			id: 27,
+			name: "Lovely Mask",
+			type: "helm",
+			image: "assets/items/helm/27.png",
+			tier: 1,
+			obtain: ["merchant"],
+			area: ["eaglecrest"],
+			rarity: "common",
+			obtainText: "Can be bought from a mask seller during The Feast of Saint Valentine.",
+			event: "Valentine",
+			sellPrice: 2,
+			stats: {
+				damagePercentage: -50,
+				healthRegen: 2,
+			},
+		},
+		{
+			id: 28,
+			name: "Party Hat",
+			type: "helm",
+			image: "assets/items/helm/10.png",
+			tier: 1,
+			obtain: ["other"],
+			area: [],
+			rarity: "mythic",
+			lore: "Obtained from Antorax's seventh birthday, 2023.",
+			obtainText: "Was sent in the mail on Antorax Day 2023.",
+			sellPrice: 7, // equal to the age of Antorax :)
+			stats: {
+				defence: 7,
+			},
+			functionText: "Leaves a trail of confetti",
+			trail: {
+				width: 15,
+				height: 7,
+				colour: ["#19AB21", "#CC1DC2"], // class Particle chooses random colour from array
+				removeIn: 1000,
+				rotation: "random",
+				variance: 50, // variance in position (in x/y axis in one direction from player)
+			},
+			event: "Antorax",
+			limitedEdition: true,
+		},
 	],
 	chest: [
 		{
@@ -2224,9 +2269,9 @@ var Items = {
 		},
 		{
 			id: 6,
-			name: "Eaglecrest Sack",
+			name: "Eaglecrest Bag",
 			type: "bag",
-			image: "assets/items/bag/2.png",
+			image: "assets/items/bag/6.png",
 			lore: "Free merch",
 			sellPrice: 1,
 			size: 6,
@@ -2657,7 +2702,7 @@ var Items = {
 			junk: true,
 			image: "assets/items/item/34.png",
 			stack: 16,
-			lore: "Where did they come from, where did they go?",
+			lore: "Where did they come from?",
 		},
 	],
 	consumable: [
@@ -3190,7 +3235,7 @@ var Items = {
 				// remove the item
 				Dom.inventory.remove(inventoryPosition);
 				// set firework timeout
-				setTimeout(function () {
+				Game.setTimeout(function () {
 					Game.launchFirework({
 						x: Game.hero.x,
 						y: Game.hero.y - 100,
@@ -3213,7 +3258,7 @@ var Items = {
             cooldown: 5, // 5 seconds
 			onClickEventRequirement: "Antorax",
 			onClickFunction: function (inventoryPosition) {
-				setTimeout(function () {
+				Game.setTimeout(function () {
 					// remove the item
 					Dom.inventory.remove(inventoryPosition);
 					// set firework timeout

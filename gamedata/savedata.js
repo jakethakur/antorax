@@ -122,6 +122,10 @@ var Player = {
 		slowTime: 0, // time of slow to enemies on attack
 		moveDuringFocus: false, // whether you can move whilst charging basic attack
 
+		// spells
+		maxMana: 0,
+		manaRegen: 0.5, // (0.5/s)
+
 		// fishing
 		fishingSkill: 0, // (1.1) increased when you fish stuff up (increased by main.js)
 
@@ -136,6 +140,7 @@ var Player = {
 	fatiguedXP: 0, // this amount of xp is worth 50% less due to a death
 
 	health: 50, // should be set to whatever stats.maxHealth is set to (but didn't work)
+	mana: 0,
 
 	statusEffects: [], // updated by saved data / main [function Game.hero.updateStatusEffects()]
 };

@@ -251,11 +251,11 @@ var Areas = {
 							map.setTile(0, map.getCol(x + 60), map.getRow(y), 60);
 							map.setTile(0, map.getCol(x), map.getRow(y + 60), 69);
 							// add snow back after 5 minutes
-							setTimeout(function(x, y) {
+							Game.setTimeout(function(x, y) {
 								SetTile("tutorial", 0, map.getCol(x), map.getRow(y), 29);
 								SetTile("tutorial", 0, map.getCol(x + 60), map.getRow(y), 30);
 								SetTile("tutorial", 0, map.getCol(x), map.getRow(y + 60), 39);
-							}, 60000, x, y);
+							}, 60000, [x, y]);
 						}
 					}, [], 1000, "Making a Snowball");
 				}
@@ -271,11 +271,11 @@ var Areas = {
 							map.setTile(0, map.getCol(x + 60), map.getRow(y - 60), 60);
 							map.setTile(0, map.getCol(x), map.getRow(y), 69);
 							// add snow back after 5 minutes
-							setTimeout(function(x, y) {
+							Game.setTimeout(function(x, y) {
 								SetTile("tutorial", 0, map.getCol(x), map.getRow(y), 29);
 								SetTile("tutorial", 0, map.getCol(x + 60), map.getRow(y), 30);
 								SetTile("tutorial", 0, map.getCol(x), map.getRow(y + 60), 39);
-							}, 60000, x, y);
+							}, 60000, [x, y]);
 						}
 					}, [], 1000, "Making a Snowball");
 				}
@@ -609,11 +609,11 @@ var Areas = {
 							map.setTile(0, map.getCol(x + 60), map.getRow(y), 60);
 							map.setTile(0, map.getCol(x), map.getRow(y + 60), 69);
 							// add snow back after 5 minutes
-							setTimeout(function(x, y) {
+							Game.setTimeout(function(x, y) {
 								SetTile("eaglecrestLoggingCamp", 0, map.getCol(x), map.getRow(y), 29);
 								SetTile("eaglecrestLoggingCamp", 0, map.getCol(x + 60), map.getRow(y), 30);
 								SetTile("eaglecrestLoggingCamp", 0, map.getCol(x), map.getRow(y + 60), 39);
-							}, 60000, x, y);
+							}, 60000, [x, y]);
 						}
 					}, [], 1000, "Making a Snowball");
 				}
@@ -629,11 +629,11 @@ var Areas = {
 							map.setTile(0, map.getCol(x + 60), map.getRow(y - 60), 60);
 							map.setTile(0, map.getCol(x), map.getRow(y), 69);
 							// add snow back after 5 minutes
-							setTimeout(function(x, y) {
+							Game.setTimeout(function(x, y) {
 								SetTile("eaglecrestLoggingCamp", 0, map.getCol(x), map.getRow(y), 29);
 								SetTile("eaglecrestLoggingCamp", 0, map.getCol(x + 60), map.getRow(y), 30);
 								SetTile("eaglecrestLoggingCamp", 0, map.getCol(x), map.getRow(y + 60), 39);
-							}, 60000, x, y);
+							}, 60000, [x, y]);
 						}
 					}, [], 1000, "Making a Snowball");
 				}
@@ -1060,7 +1060,7 @@ var Areas = {
 					{
 						sold: [
 							{item: Items.consumable[19], cost: 0}, // Antorax Day Firework
-							{item: Items.consumable[20], cost: 3}, // Large Antorax Day Firework
+							{item: Items.consumable[20], cost: 1}, // Large Antorax Day Firework
 						],
 						role: "merchant",
 						chooseText: "I'd like to buy some fireworks.",
@@ -2128,11 +2128,11 @@ var Areas = {
 							map.setTile(0, map.getCol(x + 60), map.getRow(y), 60);
 							map.setTile(0, map.getCol(x), map.getRow(y + 60), 69);
 							// add snow back after 5 minutes
-							setTimeout(function(x, y) {
+							Game.setTimeout(function(x, y) {
 								SetTile("nilbog", 0, map.getCol(x), map.getRow(y), 29);
 								SetTile("nilbog", 0, map.getCol(x + 60), map.getRow(y), 30);
 								SetTile("nilbog", 0, map.getCol(x), map.getRow(y + 60), 39);
-							}, 60000, x, y);
+							}, 60000, [x, y]);
 						}
 					}, [], 1000, "Making a Snowball");
 				}
@@ -2148,11 +2148,11 @@ var Areas = {
 							map.setTile(0, map.getCol(x + 60), map.getRow(y - 60), 60);
 							map.setTile(0, map.getCol(x), map.getRow(y), 69);
 							// add snow back after 5 minutes
-							setTimeout(function(x, y) {
+							Game.setTimeout(function(x, y) {
 								SetTile("nilbog", 0, map.getCol(x), map.getRow(y), 29);
 								SetTile("nilbog", 0, map.getCol(x + 60), map.getRow(y), 30);
 								SetTile("nilbog", 0, map.getCol(x), map.getRow(y + 60), 39);
-							}, 60000, x, y);
+							}, 60000, [x, y]);
 						}
 					}, [], 1000, "Making a Snowball");
 				}
@@ -3840,7 +3840,7 @@ var Areas = {
 				width: 520,
 				height: 2,
 				teleportTo: "eaglecrestPlains",
-				destinationX: 2970,
+				destinationX: 3000,
 				destinationY: 300,
 			},
 		],
@@ -4301,24 +4301,36 @@ var Areas = {
 							{item: Items.helm[13], cost: 5}, // light idol mask
 							{item: Items.helm[14], cost: 5}, // dragon flame mask
 							{item: Items.helm[15], cost: 5}, // bear mask
-							{item: Items.helm[16], cost: 5}, // vampiric mask
 							{item: Items.helm[17], cost: 5}, // solar baron mask
 							{item: Items.helm[18], cost: 5}, // feathered hawk mask
 						],
 						numberSold: 3, // only 3 sold at once
 						rotation: "week", // masks being sold change every week
 						role: "merchant",
-						shopGreeting: "Made from only the finest of <strong><em>living</em></strong> creatures.",
+						shopGreeting: "Made from only the finest of <em>living</em> creatures.",
 					},
 					{
 						sold: [
+							{item: Items.helm[16], cost: 5, costCurrency: 4}, // vampiric mask
 							{item: Items.helm[25], cost: 5, costCurrency: 4}, // menace mask
+							{item: Items.helm[24], cost: 5, costCurrency: 4}, // skeleton mask
 						],
 						role: "merchant",
 						chooseText: "What have you got to sell this Samhain?",
 						shopGreeting: "Samhain costumes are better with some authenticity.",
 						roleRequirement: function () {
 							return Game.event === "Samhain";
+						},
+					},
+					{
+						sold: [
+							{item: Items.helm[27], cost: 5}, // lovely mask
+						],
+						role: "merchant",
+						chooseText: "What have you got to sell on this day of love?",
+						shopGreeting: "You'd <em>love</em> to hear how I made this mask.",
+						roleRequirement: function () {
+							return Game.event === "Valentine";
 						},
 					},
 				],
@@ -5135,7 +5147,7 @@ var Areas = {
 						Game.hero.channel(function () {
 							if (Game.hero.isBeingDisplaced === undefined) {
 								Game.hero.displace(0, 180, 1.5, ToRadians(90), true);
-								setTimeout(function() {
+								Game.setTimeout(function() {
 									Game.hero.takeDamage(15);
 									Player.quests.questProgress.timesJumpedFromTavern = Increment(Player.quests.questProgress.timesJumpedFromTavern);
 									if (Player.quests.questProgress.timesJumpedFromTavern === 1) {
@@ -6224,7 +6236,7 @@ var Areas = {
 
 		onRainStart: function () {
 			// add water from gargoyles in 10 seconds
-			setTimeout(function () {
+			Game.setTimeout(function () {
 				// check area is still the same
 				if (Game.areaName === "eaglecrestGraveyard") {
 					// add them
@@ -6240,7 +6252,7 @@ var Areas = {
 
 		onRainStop: function () {
 			// remove water from gargoyles in 10 seconds
-			setTimeout(function () {
+			Game.setTimeout(function () {
 				// check area is still the same
 				if (Game.areaName === "eaglecrestGraveyard") {
 					// find all water to be removed
@@ -6612,11 +6624,52 @@ var Areas = {
 			rows: 100,
 			tsize: 60,
 			tilesPerRow: 8,
-			solidTiles: [1, 2, 3, 6, 7, 9, 10, 11, 13, 15, 17, 18, 19, 20, 21, 23, 25, 26, 27, 28, 29, 31, 33, 34, 35, 36, 37, 38, 39, 42, 43, 44, 45, 46, 47, 53, 55, 61, 65, 69, 70, 73, 77, 82, 83],
+			solidTiles: [1, 2, 3, 6, 7, 9, 10, 11, 13, 15, 17, 18, 19, 20, 21, 23, 25, 26, 27, 28, 29, 31, 33, 34, 35, 36, 37, 38, 39, 42, 43, 44, 45, 46, 47, 53, 55, 61, 65, 69, 70, 73, 77, 82, 83, 89, 90, 97, 98, 123, 131],
 			dayTiles: [11, 27, 34, 42, 7], // windows and lights
 			nightTiles: [3, 19, 2, 18, 15],
-			pathTiles: [5, 12, 41, 50, 51, 57, 58, 59, 60, 76],
+			pathTiles: [5, 12, 41, 50, 51, 57, 58, 59, 60, 76, 86, 87, 88, 91, 92, 93, 99, 107, 108, 109, 110, 111, 113, 115, 117, 118, 119, 121, 125, 126, 127, 129, 133, 134, 135, 137, 138, 139, 140, 141, 147, 148, 149],
+			waterTiles: [32, 40, 48, 112, 120, 128],
+			transparentTiles: [94, 95, 96, 102, 103, 104, 114, 116, 122, 124, 130, 132], // these tiles should be ignored when considering water etc, even when they're at the front of the canvas
+			animateTiles: [{
+				// river tiles
+				tiles: [32, 40, 48],
+				animateTime: 400,
+			},{
+				// rippling river tiles
+				tiles: [112, 120, 128],
+				animateTime: 200,
+			}],
 			numberOfLayers: 3,
+			interactWithTile: function (tileNum, x, y) {
+				// pick up flowers
+				if (tileNum === 81) { // lavender
+					// channel for 1 second
+					Game.hero.channel(function () {
+						// give flower to player
+						Dom.inventory.give(Items.item[30]);
+						// remove flower from tilemap
+						map.setTile(0, map.getCol(x), map.getRow(y), 66);
+					}, [], 1000, "Flower Picking");
+				}
+				else if (tileNum === 75) { // marigold
+					// channel for 1 second
+					Game.hero.channel(function () {
+						// give flower to player
+						Dom.inventory.give(Items.item[31]);
+						// remove flower from tilemap
+						map.setTile(0, map.getCol(x), map.getRow(y), 66);
+					}, [], 1000, "Flower Picking");
+				}
+				else if (tileNum === 67) { // daisy
+					// channel for 1 second
+					Game.hero.channel(function () {
+						// give flower to player
+						Dom.inventory.give(Items.item[32]);
+						// remove flower from tilemap
+						map.setTile(0, map.getCol(x), map.getRow(y), 66);
+					}, [], 1000, "Flower Picking");
+				}
+			},
 			layers: [
 				[49, 49, 49, 49, 49, 49, 49, 49, 49, 49, 49, 49, 49, 49, 49, 49, 49, 49, 49, 49, 49, 49, 49, 49, 49, 49, 49, 40, 32, 32, 32, 32, 40, 49, 49, 43, 43, 43, 43, 43, 43, 43, 43, 43, 43, 43, 43, 43, 43, 43, 43, 43, 43, 43, 43, 43, 43, 43, 43, 43, 43, 43, 43, 43, 43, 49, 49, 40, 40, 40, 40, 49, 49, 49, 49, 49, 49, 49, 49, 49, 66, 49, 49, 49, 49, 49, 49, 49, 49, 49, 49, 49, 49, 49, 49, 49, 49, 49, 49, 49,
             49, 49, 49, 49, 49, 49, 49, 49, 49, 49, 49, 49, 49, 49, 49, 49, 49, 49, 49, 49, 49, 49, 49, 49, 49, 49, 49, 40, 32, 40, 40, 32, 40, 49, 49, 11, 43, 43, 43, 11, 43, 43, 43, 11, 43, 43, 43, 11, 43, 89, 90, 43, 11, 43, 43, 43, 11, 43, 43, 43, 11, 43, 43, 43, 11, 49, 49, 40, 40, 40, 40, 49, 49, 49, 49, 49, 49, 49, 49, 49, 75, 66, 66, 66, 66, 49, 49, 49, 49, 49, 67, 66, 49, 49, 75, 49, 49, 49, 49, 49,

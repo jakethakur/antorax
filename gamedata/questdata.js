@@ -705,7 +705,7 @@ var Quests = {
 					Dom.chat.say("Ciarra Darkbrew", "That... didn't go as planned.")],
 				[1000, 3000, 2500, 2000, 2000], undefined, undefined, true); // cutscene with no end function
 
-				setTimeout(function () {
+				Game.setTimeout(function () {
 					if (Game.areaName === "eaglecrestLoggingCamp") {
 						// damage Ciarra
 						Game.npcs.find(NPC => NPC.name === "Ciarra Darkbrew").takeDamage(100);

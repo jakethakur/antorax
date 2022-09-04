@@ -449,7 +449,7 @@ Game.initWebSocket = function () {
 
 							if (Game.minigameInProgress.playing) {
 								// clear firework interval
-								clearInterval(Game.tag.fireworkWinnerInterval);
+								Game.clearInterval(Game.tag.fireworkWinnerInterval);
 
 								Game.hero.temporaryAreaTeleportReturn();
 							}
@@ -496,7 +496,7 @@ Game.initWebSocket = function () {
 				// reset websocket
 				ws = false;
 				// try to reconnect in 5 seconds
-				setTimeout(Game.initWebSocket, 5000);
+				Game.setTimeout(Game.initWebSocket, 5000)
 			}
 			else {
 				// websocket hasn't connected before - we can assume a 404 error because they are on a single player version
@@ -689,8 +689,22 @@ var map = {
         let col = this.getCol(x);
         let row = this.getRow(y);
 
+		// find layer to check - we want the highest layer with a non-transparent tile
+		let layer = this.numberOfLayers - 1;
+		let foundLayer = false;
+		while(layer >= 1 && !foundLayer) {
+			let tileNum = this.getTile(layer, col, row);
+			if (tileNum !== 0 && !this.transparentTiles.includes(tileNum)) {
+				// this is the tile we are considering! (i.e. highest up in player's view)
+				foundLayer = true;
+			}
+			else {
+				layer--;
+			}
+		}
+
         // check first layer only and return TRUE if any tile is a slowing tile
-        let tile = this.getTile(0, col, row);
+        let tile = this.getTile(layer, col, row);
 
 		let isSlow = null; // set to a string for any slow/fast tile being touched
 
@@ -740,27 +754,30 @@ var map = {
 	// set tiles to day or night versions (called on time update by weather interval)
 	setDayNightTiles: function () {
 		// tiles changed to night versions if darkness > 0.2 (due to weather or night)
-		if (Areas[Game.areaName].mapData.nightTiles !== undefined) {
+		if (this.nightTiles !== undefined) {
 
 			// tiles to be changed
-			if (Areas[Game.areaName].mapData.nightTiles.length === Areas[Game.areaName].mapData.dayTiles.length) {
+			if (this.nightTiles.length === this.dayTiles.length) {
 				// iterate through tiles to replace
-				for (let replaceIndex = 0; replaceIndex < Areas[Game.areaName].mapData.nightTiles.length; replaceIndex++) {
-					// iterate through area's tiles to find those that need replacing
-					for (let tileIndex = 0; tileIndex < Areas[Game.areaName].mapData.layers[0].length; tileIndex++) {
-						// check day or night versions
-						if (Event.darkness >= 0.2) {
-							// night time
-							if (this.layers[0][tileIndex] === Areas[Game.areaName].mapData.dayTiles[replaceIndex]) {
-								// tile needs replacing
-								this.layers[0][tileIndex] = Areas[Game.areaName].mapData.nightTiles[replaceIndex];
+				for (let replaceIndex = 0; replaceIndex < this.nightTiles.length; replaceIndex++) {
+					// iterate through layers
+					for (let layer = 0; layer < this.numberOfLayers; layer++) {
+						// iterate through area's tiles to find those that need replacing
+						for (let tileIndex = 0; tileIndex < this.layers[layer].length; tileIndex++) {
+							// check day or night versions
+							if (Event.darkness >= 0.2) {
+								// night time
+								if (this.layers[layer][tileIndex] === this.dayTiles[replaceIndex]) {
+									// tile needs replacing
+									this.layers[layer][tileIndex] = this.nightTiles[replaceIndex];
+								}
 							}
-						}
-						else {
-							// day time
-							if (this.layers[0][tileIndex] === Areas[Game.areaName].mapData.nightTiles[replaceIndex]) {
-								// tile needs replacing
-								this.layers[0][tileIndex] = Areas[Game.areaName].mapData.dayTiles[replaceIndex];
+							else {
+								// day time
+								if (this.layers[layer][tileIndex] === this.nightTiles[replaceIndex]) {
+									// tile needs replacing
+									this.layers[layer][tileIndex] = this.dayTiles[replaceIndex];
+								}
 							}
 						}
 					}
@@ -770,6 +787,51 @@ var map = {
 				console.error("dayTiles and nightTiles should have the same length in areadata.js for area " + areaName + ", but do not");
 			}
 
+		}
+	},
+
+	// animates tiles based on this.animateTiles
+	initTileAnimation: function () {
+		// clear intervals from last time
+		if (Array.isArray(this.tileAnimationIntervals)) {
+			for (let i = 0; i < this.tileAnimationIntervals.length; i++) {
+				Game.clearInterval(this.tileAnimationIntervals[i]);
+			}
+		}
+		this.tileAnimationIntervals = [];
+
+		// set new intervals if there are tiles to be animated
+		if (this.animateTiles !== undefined) {
+			for (let animateIndex = 0; animateIndex < this.animateTiles.length; animateIndex++) {
+				this.tileAnimationIntervals.push(Game.setInterval(this.animateTilesFunction.bind(this), this.animateTiles[animateIndex].animateTime, [animateIndex]));
+			}
+		}
+	},
+
+	// animates tiles based on this.animateTiles
+	// called by intervals set by initTileAnimation
+	// parameter is the index to be animated of the array map.animateTimes
+	// todo: Make variables that find which cols and rows of tilemap are showing on screen, and then make functions like map.animateTilesFunction only animate tiles on screen
+	animateTilesFunction: function(animateIndex) {
+		// iterate through tiles
+		for (let layer = 0; layer < this.numberOfLayers; layer++) {
+			for (let i = 0; i < this.layers[layer].length; i++) {
+				let tileNum = this.layers[layer][i];
+
+				// see if tile should be animated by appearing in this.animateTiles[animateIndex]
+				let index = this.animateTiles[animateIndex].tiles.findIndex(tile => tile === tileNum);
+				if (index >= 0) {
+					// tile should be animated!
+					index++;
+					if (index === this.animateTiles[animateIndex].tiles.length) {
+						// wrap around to start of animate array
+						index = 0;
+					}
+					// set the tile
+					// could use map.setTile? not sure if necessary
+					this.layers[layer][i] = this.animateTiles[animateIndex].tiles[index];
+				}
+			}
 		}
 	},
 
@@ -825,8 +887,8 @@ Game.distance = function (obj1, obj2) {
 
 // search for an entity with a specific id (first param) within an array (second param)
 // returns the array index of the first found item of the array with that id
-// only works for projectiles as of 01/07/18 (they're the only entities with ids)
-Game.searchFor = function (id, array) {
+// set mightNotBeInArray to true if it doesn't matter if no object is found
+Game.searchFor = function (id, array, mightNotBeInArray) {
 	let index = null;
 	for (let i = 0; i < array.length; i++) {
 		if (array[i].id === id) {
@@ -834,9 +896,9 @@ Game.searchFor = function (id, array) {
 			break;
 		}
 	}
-	if (index === null) {
+	if (index === null && !mightNotBeInArray) {
 		console.error("The requested item of id " + id + " could not be found in the following array: ", array);
-	}
+	} // some places this is used, it doesn't matter if the search fails
 	return index;
 }
 
@@ -868,6 +930,12 @@ Game.removeObject = function (id, type, index) {
 				this.allAttackers.splice(this.searchFor(id, this.allAttackers), 1);
 			}
 		}
+	}
+
+	// remove from damageableByPlayer (if it is in there)
+	let damageableArrayIndex = this.searchFor(id, this.damageableByPlayer, true);
+	if (damageableArrayIndex !== null) {
+		this.damageableByPlayer.splice(damageableArrayIndex, 1);
 	}
 
 	// remove from specific array of its type
@@ -930,6 +998,55 @@ Game.isAtLocation = function (obj1, obj2) {
 }
 
 //
+// Timeouts
+// (replaces setTimeout so can be run synchronously)
+// (same for interval, just isn't removed from the array)
+//
+
+Game.currentTimeoutId = 0; // incremented by 1 for each new timeout/interval; unique for each timeout (so they can be removed)
+Game.timeouts = [];
+Game.intervals = [];
+
+// time should be in ms
+// params are parameters passed into the function. array if more than one parameter
+Game.setTimeout = function (func, time, params) {
+	if (!Array.isArray(params)) {
+		params = [params];
+	}
+	this.currentTimeoutId++;
+	let timeoutObject = {id: this.currentTimeoutId, func: func, time: time, elapsed: 0, params: params};
+	this.timeouts.push(timeoutObject);
+	return this.currentTimeoutId;
+}
+Game.setInterval = function (func, time, params) {
+	if (!Array.isArray(params)) {
+		params = [params];
+	}
+	this.currentTimeoutId++;
+	let timeoutObject = {id: this.currentTimeoutId, func: func, time: time, elapsed: 0, params: params};
+	this.intervals.push(timeoutObject);
+	return this.currentTimeoutId;
+}
+
+// param is timeout.id / interval.id (unique id for each timeout/interval)
+Game.clearTimeout = function(id) {
+	let index = this.timeouts.findIndex(timeout => timeout.id === id);
+	if (index >= 0 && !isNaN(index)) {
+		this.timeouts.splice(index, 1);
+		return true;
+	}
+	return false;
+}
+Game.clearInterval = function(id) {
+	let index = this.intervals.findIndex(timeout => timeout.id === id);
+	if (index >= 0 && !isNaN(index)) {
+		this.intervals.splice(index, 1);
+		return true;
+	}
+	return false;
+}
+
+//
 // Base Classes (sole role is inheritance)
 //
 
@@ -939,6 +1056,9 @@ class Entity {
 		this.id = Game.nextEntityId; // for choose DOM and removing entity
 		Game.nextEntityId++;
 		this.type = properties.type; // array the NPC is in (for choose DOM and removing entity)
+		if (this.type === undefined) {
+			console.error("The type of this entity was not specified - please tell Jake~", this);
+		}
 
 		this.source = {
 			location: properties.source, // where the entity came from (villager, area, etc.) - used for finding location of images
@@ -1339,6 +1459,11 @@ class Character extends Thing {
 		this.damageTaken = 0; // only used so far for Dummies
 		this.damageTakenFromHero = false; // boolean - used to decide if hero should get progress from the character dying
 
+		this.damageableByPlayer = properties.damageableByPlayer; // set to true if the hero can damage them (automatically set to true for enemies and dummies)
+		if (this.damageableByPlayer && properties.addToObjectArrays !== false) {
+			Game.damageableByPlayer.push(this);
+		}
+
 		this.speed = properties.stats.walkSpeed || 0;
 
 		this.level = properties.level;
@@ -1526,7 +1651,7 @@ class Character extends Thing {
 
 		// clear tick
 		if (statusEffect.tickTimeout !== undefined) {
-			clearTimeout(statusEffect.tickTimeout);
+			Game.clearTimeout(statusEffect.tickTimeout);
 		}
 
 		// call onExpire
@@ -1610,7 +1735,7 @@ class Character extends Thing {
 					}
 
 					// corpse disappears in this.stats.lootTime ms
-					setTimeout(function () {
+					Game.setTimeout(function () {
 						this.isCorpse = false;
 						// call Dom.quests.active if it is needed for a quest regarding this enemy
 						if (this.name === "The Tattered Knight") {
@@ -1624,7 +1749,7 @@ class Character extends Thing {
 
 					// respawn in this.stats.respawnTime ms (if it is not a boss)
 					if (this.hostility !== "boss") {
-						setTimeout(function () {
+						Game.setTimeout(function () {
 							this.respawn();
 						}.bind(this), this.stats.respawnTime);
 					}
@@ -2119,6 +2244,10 @@ class Attacker extends Character {
 		this.stats.hex = properties.stats.hex || 0;
 		this.stats.splashDamage = properties.stats.splashDamage || true; // if projectile damages more than one thing
 		this.stats.moveDuringFocus = properties.stats.moveDuringFocus;
+		// mana
+		this.stats.maxMana = properties.stats.maxMana;
+		this.stats.manaRegen = properties.stats.manaRegen;
+		this.mana = properties.mana || properties.stats.maxMana;
 		// functions
 		if (properties.stats.onAttack !== undefined) {
 			// bind can only be called if it is not undefined
@@ -2134,9 +2263,9 @@ class Attacker extends Character {
 		for (let i = 0; i < this.spells.length; i++) {
 			if (this.spells[i].interval !== undefined) {
 				this.spells[i].ready = false; // cannot be used until intverval has finished
-				setTimeout(function (i) {
+				Game.setTimeout(function (i) {
 					this.spells[i].ready = true;
-				}.bind(this), this.spells[i].interval, i);
+				}.bind(this), this.spells[i].interval, [i]);
 			}
 			else {
 				this.spells[i].ready = true;
@@ -2174,7 +2303,7 @@ class Attacker extends Character {
 				this.channellingInfo = false;
 				this.channellingProjectileId = null;
 
-				clearTimeout(Game.fishTimeout);
+				Game.clearTimeout(Game.fishTimeout);
 			}
 			else if (this.channelling === "projectile" || this.channelling === "block") {
 				if (this.stats.moveDuringFocus !== true)
@@ -2185,7 +2314,7 @@ class Attacker extends Character {
 				}
 			}
 			else {
-				clearTimeout(this.channelling); // might not always be a timeout, but this doesn't matter (does nothing if not a timeout)
+				Game.clearTimeout(this.channelling); // might not always be a timeout, but this doesn't matter (does nothing if not a timeout)
 				// N.B. this.channelling should never be an int, otherwise clearTimeout *does* mess it up
 
 				// now nothing is being channelled
@@ -2212,7 +2341,7 @@ class Attacker extends Character {
 				this.channellingInfo = false;
 			}.bind(this);
 			// set channelling to the timeout
-			this.channelling = setTimeout(channelFunction, time, parameters);
+			this.channelling = Game.setTimeout(channelFunction, time, [parameters]); // parameters is ...spread twice (from setTimeout and channelFunction) so array of array of params :)
 
 			// channelling progress bar information
 			if (description !== false) {
@@ -2232,7 +2361,14 @@ class Attacker extends Character {
 		parameters.caster = this;
 		parameters.tier = spellTier;
 		// because parameters is always an object for spells, it is turned into an array for the function call
-		this.channel(Game.spells[spellName].func, [parameters], Game.spells[spellName].channelTime[spellTier - 1], FromCamelCase(spellName));
+		// Game.castSpell calls the function and deducts mana and sets cooldown
+		if (typeof Game.spells[spellName].channelTime === "undefined" || Game.spells[spellName].channelTime[spellTier] === 0) {
+			// no channel required
+			Game.castSpell([spellName, parameters]);
+		}
+		else {
+			this.channel(Game.castSpell, [spellName, parameters], Game.spells[spellName].channelTime[spellTier], FromCamelCase(spellName));
+		}
 	}
 
 	// collide with solid tiles
@@ -2390,7 +2526,7 @@ Game.createParticle = function (properties) {
 		let particle = new Particle(properties);
 		this.particles.push(particle);
 		// set its removal time
-		this.objectRemoveTimeouts.push(setTimeout(function (id) {
+		this.objectRemoveTimeouts.push(Game.setTimeout(function (id) {
 			// remove the same particle (particle of the same id)
 			Game.removeObject(id, "particles");
 		}, properties.removeIn, id)); // pushed to objectRemoveTimeouts so it can be removed when the area is changed
@@ -2466,6 +2602,7 @@ class UserControllable extends Attacker {
 }
 
 // player of the game - similar to Player global variable in saveData.js, but only contains necessary information (also has some cool functions)
+// JUST the player - not multiplayer characters!
 class Hero extends Attacker {
 	constructor (properties) {
 		super(properties);
@@ -2635,7 +2772,7 @@ class Hero extends Attacker {
 							x: projectileX,
 							y: projectileY,
 							attacker: this,
-							targets: [Game.enemies, Game.dummies, Game.attackables],
+							targets: [Game.damageableByPlayer],
 							rotate: projectileRotate,
 							adjust: {
 								// manually adjust position (programmed for each projectile in skindata/itemdata)
@@ -2695,7 +2832,7 @@ class Hero extends Attacker {
 								// shorter bobTime if it is raining
 								bobTime = Math.round(bobTime / 1.5);
 							}
-							Game.fishTimeout = setTimeout(this.fish.bind(this), bobTime);
+							Game.fishTimeout = Game.setTimeout(this.fish.bind(this), bobTime);
 
 							if (Player.stats.fishingSkill === 0) {
 								// tutorial
@@ -2709,7 +2846,7 @@ class Hero extends Attacker {
 				        Game.removeObject(this.channellingProjectileId, "projectiles"); // remove bobber
 				        this.channelling = false;
 				        this.channellingProjectileId = null;
-						clearTimeout(Game.fishTimeout);
+						Game.clearTimeout(Game.fishTimeout);
 					}
 					else if (FishingGame.currentGame === "timing" && FishingGame.status === 1)
 					{
@@ -2722,8 +2859,8 @@ class Hero extends Attacker {
 							// reaction time game has been won, stop bobbing and start clicking game
 							FishingGame.status = 0;
 
-							// calculate time to catch this.channelling and clicks needed for this.channelling
-							// see this.channelling spreadsheet for how this is figured out
+							// calculate time to catch fish and clicks needed for fish
+							// see fish spreadsheet for how this is figured out
 							// should be moved to its own (recursive?) function
 							let clicks = 0;
 							let time = 0; // in ms
@@ -2832,7 +2969,7 @@ class Hero extends Attacker {
 							Game.removeObject(this.channellingProjectileId, "projectiles");
 							this.channelling = false;
 							this.channellingProjectileId = null;
-							clearTimeout(Game.fishTimeout);
+							Game.clearTimeout(Game.fishTimeout);
 
 							Dom.chat.insert("<i>The fish swam away!</i>");
 						}
@@ -2988,7 +3125,7 @@ class Hero extends Attacker {
 							Game.removeObject(this.channellingProjectileId, "projectiles");
 							this.channelling = false;
 							this.channellingProjectileId = null;
-							clearTimeout(Game.fishTimeout);
+							Game.clearTimeout(Game.fishTimeout);
 
 							// end fishing games
 							FishingGame.gameEnd();
@@ -3075,14 +3212,14 @@ class Hero extends Attacker {
 			// after a timeout (2s), remove the projectile that was just shot
 			// this doesn't work if the user attacks too fast, though this shouldn't be a problem...
 			let a = this.channellingProjectileId; // maintain a variable of the currently shot projectile
-			Game.objectRemoveTimeouts.push(setTimeout(function (a) {
+			Game.objectRemoveTimeouts.push(Game.setTimeout(function (a) {
 				Game.removeObject(a, "projectiles");
 			}, 1500, a)); // pushed to objectRemoveTimeouts so it can be removed when the area is changed
 
 			this.channellingProjectileId = null;
 
 			// wait for the player's reload time (1s) until they can attack again
-			setTimeout(function () {
+			Game.setTimeout(function () {
 				this.canAttack = true;
 				// remove beam animation if there was one
 				this.beam = undefined;
@@ -3112,7 +3249,7 @@ class Hero extends Attacker {
 			this.channelling = false;
 
 			// wait for the player's reload time (1s) until they can attack again
-			setTimeout(function () {
+			Game.setTimeout(function () {
 				this.canAttack = true;
 				// add back crosshair to cursor (if mouse is in range)
 				Game.secondary.updateCursor();
@@ -3254,7 +3391,7 @@ class Hero extends Attacker {
 
 				// bob back down
 				let bobTime = Random(300, 1300);
-				Game.fishTimeout = setTimeout(this.fish.bind(this), bobTime);
+				Game.fishTimeout = Game.setTimeout(this.fish.bind(this), bobTime);
 			}
 
 			else if (FishingGame.status === 1 && FishingGame.currentGame === "timing" && projectile.bobberState === 0) {
@@ -3268,7 +3405,7 @@ class Hero extends Attacker {
 				});
 
 				// bobs back up after 200ms
-				Game.fishTimeout = setTimeout(this.fish.bind(this), 200);
+				Game.fishTimeout = Game.setTimeout(this.fish.bind(this), 200);
 			}
 		}
 	}
@@ -3278,7 +3415,7 @@ class Hero extends Attacker {
 		this.x = x;
 		this.y = y;
 
-		setTimeout(function(){
+		Game.setTimeout(function(){
 			Weather.reset();
 		}.bind(Weather), 10); // timeout is used because the weather is not updated for a tick
 
@@ -3953,6 +4090,13 @@ class Villager extends NPC {
 class Dummy extends Character {
 	constructor(properties) {
 		super(properties);
+
+		if (!this.damageableByPlayer && properties.addToObjectArrays !== false) {
+			// damageableByPlayer hasn't already been set to true (manually through properties)
+			// ie hasn't yet been added to the array
+			Game.damageableByPlayer.push(this);
+		}
+		this.damageableByPlayer = true; // all dummies are damageable by player
 	}
 }
 
@@ -3960,6 +4104,13 @@ class Dummy extends Character {
 class Enemy extends Attacker {
 	constructor(properties) {
 		super(properties);
+
+		if (!this.damageableByPlayer && properties.addToObjectArrays !== false) {
+			// damageableByPlayer hasn't already been set to true (manually through properties)
+			// ie hasn't yet been added to the array
+			Game.damageableByPlayer.push(this);
+		}
+		this.damageableByPlayer = true; // all enemies are damageable by player
 
 		// combat traits (specific to enemy)
 		this.leashRadius = properties.leashRadius; // how far away the player has to be for the enemy to stop following them
@@ -4082,9 +4233,9 @@ class Enemy extends Attacker {
 						// cast the spell
 						this.channelSpell(spell.name, spell.tier, spell.parameters());
 						// spell interval (how often it is cast by enemy)
-						setTimeout(function (spellIndex) {
+						Game.setTimeout(function (spellIndex) {
 							this.spells[spellIndex].ready = true;
-						}.bind(this), spell.interval, spellIndex);
+						}.bind(this), spell.interval, [spellIndex]);
 					}
 
 					else if (heroDist < this.stats.range && // hero is within range
@@ -4236,14 +4387,14 @@ class Enemy extends Attacker {
 		}
 
 		// wait to shoot next projectile
-		setTimeout(function () {
+		Game.setTimeout(function () {
 			this.canAttack = true;
 		}.bind(this), this.stats.reloadTime);
 
 		// after a timeout (2s), remove the projectile that was just shot
 		// taken from Player
 		let a = this.channellingProjectileId; // maintain a variable of the currently shot projectile
-		Game.objectRemoveTimeouts.push(setTimeout(function (a) {
+		Game.objectRemoveTimeouts.push(Game.setTimeout(function (a) {
 			Game.removeObject(a, "projectiles");
 		}, 1500, a)); // pushed to objectRemoveTimeouts so it can be removed when the area is changed
 
@@ -4327,7 +4478,7 @@ class Cannon extends Thing {
 				// load cannon
 				this.firingStatus = 1;
 				this.canBeInteractedWith = false;
-				setTimeout(function () {
+				Game.setTimeout(function () {
 					this.canBeInteractedWith = true;
 				}.bind(this), 1000);
 			}
@@ -4345,7 +4496,7 @@ class Cannon extends Thing {
 					type: "thing",
 				}));
 
-				setTimeout(function () {
+				Game.setTimeout(function () {
 					this.canBeInteractedWith = true;
 				}.bind(this), 1000);
 			}
@@ -4484,7 +4635,7 @@ class Camera extends Entity {
 
 					// function to be called after a certain time period (optional)
 					if (this.afterPanFunction !== undefined) {
-						setTimeout(this.afterPanFunction, this.afterPanTime);
+						Game.setTimeout(this.afterPanFunction, this.afterPanTime);
 					}
 
 					// other variables are reset anyway next time this.pan() is called
@@ -4680,10 +4831,10 @@ Game.statusEffects.functions = {
 
 			// set the next tick as a timeout
 			// set to a variable where it can be easily removed with the statusEffect if necessary
-			this.tickTimeout = setTimeout(function (owner) {
+			this.tickTimeout = Game.setTimeout(function (owner, nextTickTime) {
 				// nextTickTime is timeTicked
 				this.tick(owner, nextTickTime);
-			}.bind(this), nextTickTime, owner, nextTickTime);
+			}.bind(this), nextTickTime, [owner, nextTickTime]);
 		}
 		else { // remove effect interval
 			// status effect display if status effect is hidden
@@ -4895,10 +5046,10 @@ Game.statusEffects.generic = function (properties) {
 			}
 
 			// begin tick
-			addedStatusEffect.tickTimeout = setTimeout(function (owner) {
+			addedStatusEffect.tickTimeout = Game.setTimeout(function (owner, nextTickTime) {
 				// nextTickTime is timeTicked
 				this.tick(owner, nextTickTime);
-			}.bind(addedStatusEffect), nextTickTime, properties.target, nextTickTime);
+			}.bind(addedStatusEffect), nextTickTime, [properties.target, nextTickTime]);
 
 		}
 
@@ -5356,69 +5507,356 @@ Game.getStatusIconNumber = function (statusEffect) {
 // Spells
 //
 
-// arrays in a spell object have their index correspond to the spell tier - 1
+// only called by entity.channelSpell
+// deducts mana, sets cooldown if it's a player, etc.
+Game.castSpell = function (spellName, parameters) {
+	if (parameters.caster.constructor.name === "Hero") {
+		if (this.hero.mana >= this.spells[spellName].manaCost[parameters.tier]) {
+			this.hero.mana -= this.spells[spellName].manaCost[parameters.tier];
+		}
+		else {
+			// not enough mana
+			Dom.chat.insert("<i>You don't have enough mana to cast that spell!</i>")
+			return false;
+		}
+	}
+	else {
+		// enemies dont have mana so dw about that
+	}
+	this.spells[spellName].func(parameters);
+}
+
+// arrays in a spell object have their index correspond to the spell tier
 
 Game.spells = {
+	//
+	// Knight tier 1
+	//
+
 	charge: {
+		img: "assets/runes/0.png",
 		class: "k",
-		description: ["Leap towards your mouse location."],
+		description: ["", "Leap towards your mouse location."],
 
 		// properties should contain tier (as int value), caster, target
 		func: function (properties) {
 			let dist = Game.distance(properties.caster, properties.target);
-			let velocity = Game.spells.charge.velocity[properties.tier-1];
+			let velocity = Game.spells.charge.velocity[properties.tier];
 			let time = dist / velocity;
 			let bear = Game.bearing(properties.caster, properties.target);
 			properties.caster.displace(0, velocity, time, bear); // start displacement
 		},
 
 		velocity: [
+			0,
 			300,	// tier 1
 		],
 
 		channelTime: [
+			0,
 			500,	// tier 1
 		],
 
-		// TBD
 		manaCost: [
-			0,		// tier 1
+			0,
+			5,		// tier 1
 		],
 
 		cooldown: [
-			1500,	// tier 1
+			0,
+			5000,	// tier 1
 		],
 	},
 
 	parade: {
+		img: "assets/runes/1.png",
 		class: "k",
-		description: ["Gain +100% defence for 0.5 seconds."],
+		description: ["", "Gain +100% defence for 0.5 seconds."],
 
-		// properties should contain tier (as int value), caster, target
+		// properties should contain tier (as int value), caster
 		func: function (properties) {
-			let dist = Game.distance(properties.caster, properties.target);
-			let velocity = Game.spells.charge.velocity[properties.tier-1];
-			let time = dist / velocity;
-			let bear = Game.bearing(properties.caster, properties.target);
-			properties.caster.displace(0, velocity, time, bear); // start displacement
+			Game.statusEffects.defence({
+				target: properties.caster,
+				effectTitle: "Parade",
+				defenceIncrease: Game.spells.parade.defenceMultiplier[properties.tier],
+				time: Game.spells.parade.paradeLength[properties.tier],
+			});
 		},
 
-		velocity: [
-			300,	// tier 1
+		defenceMultiplier: [
+			0,
+			100,	// tier 1
 		],
 
-		channelTime: [
-			500,	// tier 1
+		paradeLength: [
+			0,
+			0.5,	// tier 1
 		],
 
-		// TBD
 		manaCost: [
-			0,		// tier 1
+			0,
+			2,		// tier 1
 		],
 
 		cooldown: [
+			0,
 			1500,	// tier 1
 		],
+	},
+
+	seismicWave: {
+		img: "assets/runes/2.png",
+		class: "k",
+		description: ["", "Deal 100% of your attack damage to all enemies in the area, and stun them for 0.6 seconds."],
+
+		// properties should contain tier (as int value), caster
+		func: function (properties) {
+			for (let i = 0; i < Game.enemies.length; i++) {
+				Game.enemies[i].takeDamage(Game.hero.stats.damage * Game.spells.seismicWave.damageMultiplier[properties.tier] / 100);
+				Game.statusEffects.stun({
+					effectTitle: "Seismic Slam!",
+					target: properties.target,
+					time: Game.spells.seismicWave.stunTime[properties.tier],
+				});
+			}
+
+			// screen shake (tbd)
+		},
+
+		damageMultiplier: [
+			0,
+			100,	// tier 1
+		],
+
+		channelTime: [
+			0,
+			2000,
+		],
+
+		stunTime: [
+			0,
+			0.5,	// tier 1
+		],
+
+		manaCost: [
+			0,
+			10,		// tier 1
+		],
+
+		cooldown: [
+			0,
+			5000,	// tier 1
+		],
+	},
+
+	//
+	// Mage tier 1
+	//
+
+	arcaneAura: {
+		img: "assets/runes/3.png",
+		class: "m",
+		description: ["", "Deal your minimum attack damage to all enemies in your attack range."],
+
+		// properties should contain tier (as int value), caster, target
+		func: function (properties) {
+
+		},
+
+		auraSpeed: [
+			0,
+			1,		// tier 1
+		],
+
+		manaCost: [
+			0,
+			5,		// tier 1
+		],
+
+		cooldown: [
+			0,
+			5000,	// tier 1
+		],
+	},
+
+	icebolt: {
+		img: "assets/runes/4.png",
+		class: "m",
+		description: ["", "Launch an icicle towards your mouse pointer that deals 100% of your attack damage to the first target hit, stunning them for 1 second."],
+
+		// properties should contain tier (as int value), caster, target
+		func: function (properties) {
+			// summon icicle projectile
+			//movetowards tbd
+			Game.projectiles.push(new Projectile({
+				map: map,
+				x: Game.hero.x,
+				y: Game.hero.y,
+				stats: {
+					damage: Game.hero.stats.damage * Game.spells.icebolt.damageMultiplier[properties.tier] / 100,
+					stun: 1,
+				},
+				targets: Game.damageableByPlayer,
+				image: "icebolt",
+				moveTowards: moveTowards,
+				moveSpeed: 250,
+				// make it so it stops after hitting one enemy
+			}));
+		},
+
+		channelTime: [
+			0,
+			1000,	// tier 1
+		],
+
+		damageMultiplier: [
+			0,
+			100,	// tier 1
+		],
+
+		manaCost: [
+			0,
+			3,		// tier 1
+		],
+
+		cooldown: [
+			0,
+			2000,	// tier 1
+		],
+	},
+
+	fireBarrage: {
+		img: "assets/runes/5.png",
+		class: "m",
+		description: ["", "Launch an fireball towards your mouse pointer that deals 100% of your attack damage to the first target hit, stunning them for 1 second."],
+
+		// properties should contain tier (as int value), caster, target
+		func: function (properties) {
+			// summon icicle projectile
+			//movetowards tbd
+			Game.projectiles.push(new Projectile({
+				map: map,
+				x: Game.hero.x,
+				y: Game.hero.y,
+				stats: {
+					damage: Game.hero.stats.damage * Game.spells.fireball.damageMultiplier[properties.tier] / 100,
+					stun: 1,
+				},
+				targets: Game.damageableByPlayer,
+				image: "fireBarrage",
+				moveTowards: moveTowards,
+				moveSpeed: 250,
+				// make it so it stops moving at some point
+			}));
+		},
+
+		channelTime: [
+			0,
+			2000,	// tier 1
+		],
+
+		damageMultiplier: [
+			0,
+			100,	// tier 1
+		],
+
+		manaCost: [
+			0,
+			10,		// tier 1
+		],
+
+		cooldown: [
+			0,
+			1000,	// tier 1
+		],
+
+		//
+		// Archer tier 1
+		//
+
+		arrowspeed: {
+			img: "assets/runes/6.png",
+			class: "a",
+			description: ["", "Increase your movement speed by 300% for 5 seconds."],
+
+			// properties should contain tier (as int value), caster, target
+			func: function (properties) {
+				Game.statusEffects.walkSpeed({
+					target: Game.hero,
+					effectTitle: "Arrowspeed!",
+					speedIncrease: Game.spells.arrowspeed.movementMultiplier[properties.tier],
+					time: Game.spells.arrowspeed.length[properties.tier],
+				});
+			},
+
+			movementMultiplier: [
+				0,
+				300,		// tier 1
+			],
+
+			length: [
+				0,
+				5,		// tier 1
+			],
+
+			manaCost: [
+				0,
+				10,		// tier 1
+			],
+
+			cooldown: [
+				0,
+				15000,	// tier 1
+			],
+		},
+
+		shadowCloak: {
+			img: "assets/runes/7.png",
+			class: "a",
+			description: ["", "Gain stealth."],
+
+			// properties should contain tier (as int value), caster, target
+			func: function (properties) {
+				Game.statusEffects.stealth({
+					target: Game.hero,
+					effectTitle: "Shadow Cloaked",
+				});
+			},
+
+			manaCost: [
+				0,
+				10,		// tier 1
+			],
+
+			cooldown: [
+				0,
+				10000,	// tier 1
+			],
+		},
+
+		bamboozle: {
+			img: "assets/runes/8.png",
+			class: "a",
+			description: ["", "Your next attack swaps locations with the enemy hit."],
+
+			// properties should contain tier (as int value), caster, target
+			func: function (properties) {
+				Game.statusEffects.stealth({
+					target: Game.hero,
+					effectTitle: "Shadow Cloaked",
+				});
+			},
+
+			manaCost: [
+				0,
+				3,		// tier 1
+			],
+
+			cooldown: [
+				0,
+				2000,	// tier 1
+			],
+		},
 	},
 
 	//
@@ -5435,20 +5873,23 @@ Game.spells = {
 			Game.statusEffects.stun({
 				effectTitle: "Unholy Strike",
 				target: properties.target,
-				time: Game.spells.unholyStrike.stunTime[properties.tier-1],
+				time: Game.spells.unholyStrike.stunTime[properties.tier],
 			});
 		},
 
 		stunTime: [
+			0,
 			3,		// tier 1
 		],
 
 		channelTime: [
+			0,
 			1500,	// tier 1
 		],
 
 		// TBD
 		manaCost: [
+			0,
 			0,		// tier 1
 		],
 	},
@@ -5480,6 +5921,7 @@ Game.spells = {
 		},
 
 		channelTime: [
+			0,
 			2000,	// tier 1
 		],
 	},
@@ -5554,7 +5996,7 @@ Game.spells = {
 			Game.wind.movex = movex;
 			Game.wind.movey = movey;
 
-			setTimeout(function () {
+			Game.setTimeout(function () {
 				Game.wind = undefined;
 			}, properties.time)
 		},
@@ -5664,7 +6106,7 @@ Game.levelUpFireworks = function (numberRemaining) {
 
 	if (numberRemaining > 1) {
 		// more fireworks to be launched in 500ms
-		setTimeout(Game.levelUpFireworks, 500, numberRemaining - 1)
+		Game.setTimeout(Game.levelUpFireworks, 500, numberRemaining - 1)
 	}
 }
 
@@ -5832,7 +6274,7 @@ Game.tag.newTaggedPlayer = function (userID) {
 
 		// previously tagged player is immune to being tagged again for 3 seconds
 		Game.minigameInProgress.immunePlayers.push(Game.minigameInProgress.taggedPlayer);
-		setTimeout(function (removeUserID) {
+		Game.setTimeout(function (removeUserID) {
 			// check game hasn't finished
 			if (Game.minigameInProgress !== undefined) {
 				let index = Game.minigameInProgress.immunePlayers.findIndex(userID => userID === removeUserID);
@@ -5929,7 +6371,7 @@ Game.tag.finish = function (leaderboardData) {
 	}
 
 	// interval cleared on area teleport
-	this.fireworkWinnerInterval = setInterval(function (winningUserID) {
+	this.fireworkWinnerInterval = Game.setInterval(function (winningUserID) {
 		let winner;
 		if (winningUserID === ws.userID) {
 			// hero won game
@@ -6008,7 +6450,7 @@ Game.loadArea = function (areaName, destination) {
 
 	// remove animationTick if one exists, to stop unloaded images being tried to be used
 	if (this.animationTick !== undefined) {
-		clearInterval(this.animationTick);
+		this.clearInterval(this.animationTick);
 		this.animationTick = undefined;
 	}
 
@@ -6082,11 +6524,24 @@ Game.loadArea = function (areaName, destination) {
 		map.iceTiles = undefined;
 		map.mudTiles = undefined;
 		map.pathTiles = undefined;
+		map.dayTiles = undefined;
+		map.nightTiles = undefined;
+		map.animateTiles = undefined;
+		map.transparentTiles = []; // so it is always an array
+
+		map.numberOfLayers = undefined;
+
 		map.scrollX = undefined;
 		map.scrollY = undefined;
-		map.numberOfLayers = undefined;
+
 		// now add all properties from areaData to the map variable
 		Object.assign(map, Areas[areaName].mapData);
+
+		// set numberOfLayers to 1 if there are no layers
+		if (typeof map.numberOfLayers === "undefined") {
+			map.numberOfLayers = 1;
+		}
+
 		// ice tiles only exist if the area isIcy
 		if (Areas[areaName].isIcy !== undefined && Areas[areaName].isIcy()) {
 			// area is icy
@@ -6104,6 +6559,9 @@ Game.loadArea = function (areaName, destination) {
 			// purge the ice!
 			map.iceTiles = undefined;
 		}
+
+		// animate tiles
+		map.initTileAnimation();
 
 		// set tileset
 		this.tileAtlas = Loader.getImage("tiles");
@@ -6130,6 +6588,7 @@ Game.loadArea = function (areaName, destination) {
 		this.allCharacters = [];
 		this.allAttackers = [];
 		this.allNPCs = []; // includes villagers
+		this.damageableByPlayer = []; // everything that has this.damageableByPlayer set to true (ofc must be character or higher in hierarchy)
 
 		// init game (if it hasn't been done so already)
 		let init = false; // set to if this is the first areaTeleport of the game
@@ -6147,7 +6606,7 @@ Game.loadArea = function (areaName, destination) {
 			Weather.updateVariables();
 
 			// close NPC pages
-      Dom.closeNPCPages();
+			Dom.closeNPCPages();
 
 			// re-add player to allEntities etc.
 			this.allEntities.push(Game.hero);
@@ -6174,7 +6633,6 @@ Game.loadArea = function (areaName, destination) {
 			mailboxes: Mailbox,
 			chests: LootChest,
 			dummies: Dummy,
-			attackables: Character,
 			villagers: Villager,
 			npcs: NPC,
 			enemies: Enemy,
@@ -6197,7 +6655,7 @@ Game.loadArea = function (areaName, destination) {
 		// particles and projectiles don't persist between areas - cancel their remove timeouts
 		if (this.objectRemoveTimeouts !== undefined) {
 			for (let i = 0; i < this.objectRemoveTimeouts.length; i++) {
-				clearTimeout(this.objectRemoveTimeouts[i]);
+				Game.clearTimeout(this.objectRemoveTimeouts[i]);
 			}
 		}
 		this.objectRemoveTimeouts = [];
@@ -6428,7 +6886,7 @@ Game.loadArea = function (areaName, destination) {
 		if (Event.event === "Antorax" && Areas[areaName].data.territory === "Allied" && !Areas[areaName].indoors && this.fireworkInterval === undefined) {
 			// Antorax Day; area is allied and indoors and a firework interval has not yet been set
 			// launch fireworks periodically at random positions on the player's screen
-			this.fireworkInterval = setInterval(function () {
+			this.fireworkInterval = Game.setInterval(function () {
 				// same as Antorax Day Firework items
 				if (Random(0, 3) === 0) {
 					// large firework
@@ -6458,14 +6916,14 @@ Game.loadArea = function (areaName, destination) {
 		}
 		else if (this.fireworkInterval !== undefined) {
 			// remove interval from a previous area
-			clearInterval(this.fireworkInterval);
+			Game.clearInterval(this.fireworkInterval);
 			this.fireworkInterval = undefined;
 		}
 
 		// animations
 		// tick called every 100s (perhaps change in future?)
 		this.totalAnimationTime = 0; // used to find if animate should be called for an object
-		this.animationTick = setInterval(function () {
+		this.animationTick = Game.setInterval(function () {
 			Game.totalAnimationTime += 100;
 
 			for (let i = 0; i < Game.animationList.length; i++) {
@@ -6551,6 +7009,7 @@ Game.init = function () {
 
 		// properties inherited from Character
 		health: Player.health,
+
 		name: Player.name,
 		level: Player.level,
 		class: Player.class,
@@ -6564,6 +7023,8 @@ Game.init = function () {
 		},
 
 		// properties inherited from Attacker
+
+		mana: Player.mana,
 
 		// stats
 		stats: Player.stats,
@@ -6629,18 +7090,11 @@ Game.init = function () {
 	this.canvasDisplay = {};
 	this.canvasDisplayQueue = [];
 
-	// health regeneration every second
-	setInterval(function () {
-		if (document.hasFocus()) { // check user is focused on the game (otherwise enemies cannot damage but user can heal)
-			this.regenHealth();
-		}
-	}.bind(this), 1000);
-
 	// hero trail interval
 	if (Game.hero.trail !== undefined) {
 		// hero has a trail
 		// new particle every 100ms
-		Game.hero.trailInterval = setInterval(Game.addTrailParticle, 100, Game.hero, Game.hero.trail);
+		Game.hero.trailInterval = Game.setInterval(Game.addTrailParticle, 100, [Game.hero, Game.hero.trail]);
 	}
 
 	// game viewport camera
@@ -6662,7 +7116,7 @@ Game.init = function () {
 	// saveTimeout ensures that there is always a save at least every 60 seconds
 	// save in 60 seconds (init saveTimeout)
 	// if there is a save before this, this is set back to 60 seconds
-	Game.saveTimeout = setTimeout(function() {
+	Game.saveTimeout = Game.setTimeout(function() {
 		Game.saveProgress("auto");
 	}, 60000);
 };
@@ -6725,10 +7179,10 @@ Game.initStatusEffects = function () {
 			}
 
 			// begin tick
-			statusEffect.tickTimeout = setTimeout(function (owner) {
+			statusEffect.tickTimeout = Game.setTimeout(function (owner) {
 				// nextTickTime is timeTicked
 				statusEffect.tick(owner, nextTickTime);
-			}.bind(statusEffect), nextTickTime, Game.hero, nextTickTime);
+			}.bind(statusEffect), nextTickTime, [Game.hero, nextTickTime]);
 		}
 	}
 }
@@ -6980,7 +7434,7 @@ Game.formatLoot = function (items) {
             items[i].quantity = 1;
         }
 		// if there is more stacked than allowed, split the excess
-        if (items[i].quantity > items[i].item.stack) {
+        while (items[i].quantity > items[i].item.stack) {
             items.push({item: items[i].item, quantity: items[i].quantity-items[i].item.stack,});
             items[i].quantity = items[i].item.stack;
         }
@@ -7191,15 +7645,21 @@ Game.playLevelupSound = function (areaName) {
 }
 
 //
-// Health
+// Health and mana
 //
 
-// called every second
+// called every time Game.update is called (i.e. every delta seconds)
+Game.regen = function (delta) {
+	this.regenHealth(delta);
+	// only the hero has mana
+	this.restoreMana(this.hero, this.hero.stats.manaRegen * delta)
+}
+
 // healthRegen = health regenerated per second
-Game.regenHealth = function () {
-	for (let i = 0; i < Game.allCharacters.length; i++) {
-		if (!Game.allCharacters[i].respawning) {
-			this.restoreHealth(Game.allCharacters[i], Game.allCharacters[i].stats.healthRegen);
+Game.regenHealth = function (delta) {
+	for (let i = 0; i < this.allCharacters.length; i++) {
+		if (!this.allCharacters[i].respawning) {
+			this.restoreHealth(this.allCharacters[i], this.allCharacters[i].stats.healthRegen * delta);
 		}
 	}
 }
@@ -7223,14 +7683,42 @@ Game.restoreHealth = function (target, health, bloodMoonRestore) {
 			if (target.constructor.name === "Hero") {
 				// update health bar display
 				Game.secondary.render();
-				return false;
 			}
+			return false;
 		}
 		else {
 			target.health += health;
 			if (target.constructor.name === "Hero") {
 				// update health bar display
 				Game.secondary.render();
+			}
+			return true;
+		}
+	}
+}
+
+// restores mana to the target, not allowing them to go above their maximum mana
+// returns true if the target was regenned for the full amount
+Game.restoreMana = function (target, mana) {
+	if (target.stats.maxMana > 0) {
+		// check they have mana
+		if (target.mana !== target.stats.maxMana) {
+			// health can be restored
+			if (target.mana + mana > target.stats.maxMana) {
+				// too much health - cap out at maximum
+				target.mana = target.stats.maxMana;
+				if (target.constructor.name === "Hero") {
+					// update health bar display
+					Game.secondary.render();
+				}
+				return false;
+			}
+			else {
+				target.mana += mana;
+				if (target.constructor.name === "Hero") {
+					// update health bar display
+					Game.secondary.render();
+				}
 				return true;
 			}
 		}
@@ -7242,6 +7730,33 @@ Game.restoreHealth = function (target, health, bloodMoonRestore) {
 //
 
 Game.update = function (delta) {
+	//
+	// Timeouts & Intervals
+	// these replace setTimeout so they can be run synchronously
+	//
+
+	for (let i = 0; i < this.timeouts.length; i++) {
+		this.timeouts[i].elapsed += delta * 1000; // elapsed and time are in ms
+		if (this.timeouts[i].elapsed >= this.timeouts[i].time) {
+			// timeout has expired, make a copy of it
+			let timeout = this.timeouts[i];
+			// and remove the timeout
+			this.timeouts.splice(i, 1);
+			// and run its function
+			timeout.func(...timeout.params);
+			i--;
+		}
+	}
+	for (let i = 0; i < this.intervals.length; i++) {
+		this.intervals[i].elapsed += delta * 1000;
+		if (this.intervals[i].elapsed >= this.intervals[i].time) {
+			// interval has finished, call its function
+			this.intervals[i].func(...this.intervals[i].params);
+			// ..and reset the interval
+			this.intervals[i].elapsed += delta * 1000;
+			this.intervals[i].elapsed -= this.intervals[i].time;
+		}
+	}
 
 	//
 	// User movement
@@ -7301,6 +7816,14 @@ Game.update = function (delta) {
 			expand: this.hero.expand
 		}));
 	}
+
+	//
+	// Regen
+	//
+
+	//if (document.hasFocus()) { // check user is focused on the game (otherwise enemies cannot damage but user can heal) (think unnecessary now this is in update?)
+		this.regen(delta);
+	//}
 
 	//
 	// User interaction
@@ -7814,7 +8337,7 @@ Game.update = function (delta) {
 				projectile.moveTowards = undefined;
 				projectile.moveDirection = undefined;
 				// after a timeout (2s), remove the projectile that was just shot
-				this.objectRemoveTimeouts.push(setTimeout(function (id) {
+				this.objectRemoveTimeouts.push(Game.setTimeout(function (id) {
 					Game.removeObject(id, "projectiles");
 				}, 1500, projectile.id)); // pushed to objectRemoveTimeouts so the timeout can be removed if the area is changed
 			}
@@ -7831,7 +8354,7 @@ Game.update = function (delta) {
 						projectile.moveTowards = undefined;
 						projectile.moveDirection = undefined;
 						// after a timeout (2s), remove the projectile that was just shot
-						this.objectRemoveTimeouts.push(setTimeout(function (id) {
+						this.objectRemoveTimeouts.push(Game.setTimeout(function (id) {
 							Game.removeObject(id, "projectiles");
 						}, 1500, projectile.id)); // pushed to objectRemoveTimeouts so the timeout can be removed if the area is changed
 					}
@@ -8165,7 +8688,7 @@ Game.update = function (delta) {
 		Game.removeObject(Game.hero.channellingProjectileId, "projectiles");
 		Game.hero.channelling = false;
 		Game.hero.channellingProjectileId = null;
-		clearTimeout(Game.fishTimeout);
+		Game.clearTimeout(Game.fishTimeout);
 		Dom.chat.insert("<i>The fish swam away!</i>");
 	}
 
@@ -8715,8 +9238,8 @@ Game.coordinates = function (character) {
 	// reset text formatting
 	this.resetFormatting();
 
-	this.ctx.fillText("x: " + Math.round(character.x), 10 + this.viewportOffsetX, 50 + this.viewportOffsetY);
-	this.ctx.fillText("y: " + Math.round(character.y), 10 + this.viewportOffsetX, 60 + this.viewportOffsetY);
+	this.ctx.fillText("x: " + Math.round(character.x), 10 + this.viewportOffsetX, 90 + this.viewportOffsetY);
+	this.ctx.fillText("y: " + Math.round(character.y), 10 + this.viewportOffsetX, 100 + this.viewportOffsetY);
 }
 
 // display frames per second on canvas (settings option)
@@ -8740,7 +9263,7 @@ Game.fps = function (delta) {
 	let average = sum / this.fpsArray.length;
 
 	// write on canvas
-	this.ctx.fillText("fps: " + Round(average), 10 + this.viewportOffsetX, 75 + this.viewportOffsetY);
+	this.ctx.fillText("fps: " + Round(average), 10 + this.viewportOffsetX, 115 + this.viewportOffsetY);
 }
 
 // reset text formatting
@@ -8845,6 +9368,7 @@ Game.drawCharacterInformation = function (ctx, character) {
 
 // draw a health bar (on given context, for given character, at given position, with given dimensions)
 // tbd : change colour for friendly characters?
+// tbd : generalise to work for drawing mana bars as well?
 Game.drawHealthBar = function (ctx, character, x, y, width, height) {
 	// remember previous canvas transparency preferences
 	const oldGlobalAlpha = ctx.globalAlpha;
@@ -8912,6 +9436,65 @@ Game.drawHealthBar = function (ctx, character, x, y, width, height) {
 
 	// restore previous canvas transparency preferences
 	ctx.globalAlpha = oldGlobalAlpha;
+}
+
+// draw a mana bar (on given context, for given character, at given position, with given dimensions)
+Game.drawManaBar = function (ctx, character, x, y, width, height) {
+	if (typeof character.stats.maxMana !== "undefined" && character.stats.maxMana > 0) {
+		// remember previous canvas transparency preferences
+		const oldGlobalAlpha = ctx.globalAlpha;
+
+		// canvas formatting
+		ctx.lineWidth = 1;
+		ctx.globalAlpha = 0.6;
+
+		// get width of each small mana bar (in mana)
+		// there should be between 3 and 9 bars (with the exception of low mana )
+		// same as health ...
+		let barValue = 10;
+		let barValueFound = false;
+		let numberOfBars;
+		while (!barValueFound) {
+			numberOfBars = character.stats.maxMana / barValue;
+			if (numberOfBars < 10) { // less than 10 little health bars with this barValue
+				barValueFound = true;
+			}
+			else { // more than 9; multiply bar size by 10 and try again
+				barValue *= 3;
+			}
+		}
+
+		character.manaFraction = character.mana / character.stats.maxMana; // fraction of health remaining
+
+		if (character.manaFraction > 0) { // check the character has some mana to draw (we don't want to draw negative mana)
+			// colour based on size of each bar
+			if (barValue === 10) {
+				ctx.fillStyle = "#a874e3"; // lightish purple
+			}
+			else {
+				// default
+				ctx.fillStyle = "#8f34eb";
+				console.warn("No dedicated health bar colour for bar size " + barValue);
+			}
+
+			// health bar body
+			ctx.fillRect(x, y, character.manaFraction * width, height);
+		}
+
+		// health bar border
+		ctx.strokeStyle = "black";
+		ctx.strokeRect(x, y, width, height); // general border around the whole thing
+		let i; // defined for use outside of for loop
+		for (i = 0; i < character.stats.maxMana / barValue - 1; i++) {
+			ctx.strokeRect(x + barValue / character.stats.maxMana * width * i, y, barValue / character.stats.maxMana * width, height);
+		}
+
+		// final bar
+		ctx.strokeRect(x + barValue / character.stats.maxMana * width * i, y, width - (barValue / character.stats.maxMana * width * i), height);
+
+		// restore previous canvas transparency preferences
+		ctx.globalAlpha = oldGlobalAlpha;
+	}
 }
 
 Game.drawDamageTaken = function (ctx, character, x, y, fontSize) {
@@ -9109,17 +9692,17 @@ Game.canvasDisplayFinished = function () {
 
 // draw images on canvas
 Game.render = function (delta) {
-	// draw map background layer
+	// draw map background layer(s)
 	if (typeof map.numberOfLayers !== "undefined") {
-		// could be multiple layers
-		for (let layer = 0; layer < map.numberOfLayers; layer++) {
-			this.drawLayer(layer);
-		}
-	}
-	else {
-		// just one layer
-		this.drawLayer(0);
-	}
+        // could be multiple layers
+        for (let layer = 0; layer < map.numberOfLayers; layer++) {
+            this.drawLayer(layer);
+        }
+    }
+    else {
+        // just one layer
+        this.drawLayer(0);
+    }
 
 	// sort by y value (from bottom of npc)
 	// set values to sort by, basing their value on their z position as well as y value
@@ -9563,6 +10146,8 @@ Game.secondary.render = function () {
 
 		// player health bar at top-left
 		Game.drawHealthBar(this.ctx, Game.hero, 10, 10, 250, 25);
+		// player mana bar at top-left (only drawn if they have a max mana)
+		Game.drawManaBar(this.ctx, Game.hero, 10, 43, 250, 25);
 
 		// set xp variables
 		const totalWidth = 335; // total width of xp bar
@@ -9641,25 +10226,11 @@ Game.renderDayNight = function () {
 	}
 
 	// use https://stackoverflow.com/questions/33351074/drawing-lights-on-a-canvas
-	/*this.ctxDayNight.clearRect(0,0,300,300);
-
-	let grd = this.ctxDayNight.createRadialGradient(150,150,0,150,150,150);
-	grd.addColorStop(0, "rgba(255,255,255,0)");
-	grd.addColorStop(1, "rgba(0,0,0,"+Event.darkness+")");
-	this.ctxDayNight.fillStyle = grd;
-	this.ctxDayNight.globalAlpha = 1;
-	this.ctxDayNight.fillRect(0,0,300,300);*/
-
 }
 
 //
 // Save player progress
 //
-
-// autosave every 1 minute
-/*setInterval(function() {
-	Game.saveProgress("auto");
-}, 60000);*/
 
 Game.saveProgress = function (saveType) { // if saveType is "auto" then the save is an autosave (hence has a slightly different console.info)
 	if (localStorage.getItem("accept") === "true") {
@@ -9669,6 +10240,7 @@ Game.saveProgress = function (saveType) { // if saveType is "auto" then the save
 		Player.checkpoint = Game.hero.checkpoint;
 		// save other player details that aren't otherwise saved to savedata
 		Player.health = Game.hero.health;
+		Player.mana = Game.hero.mana;
 		Player.trail = Game.hero.trail;
 		Player.oldPosition = Game.hero.oldPosition; // temporary teleport
 		// re-link status effects (inefficient - tbd)
@@ -9689,8 +10261,8 @@ Game.saveProgress = function (saveType) { // if saveType is "auto" then the save
 		}
 		localStorage.setItem("user", JSON.stringify(User));
 
-		clearTimeout(Game.saveTimeout); // clear the previous 60 second timeout to avoid saves being too often
-		Game.saveTimeout = setTimeout(function() {
+		Game.clearTimeout(Game.saveTimeout); // clear the previous 60 second timeout to avoid saves being too often
+		Game.saveTimeout = Game.setTimeout(function() {
 			Game.saveProgress("auto");
 		}, 60000); // save a minute after the current save
 
