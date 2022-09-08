@@ -6444,8 +6444,21 @@ var Areas = {
 					maxHealth: 300,
 					defence: 3,
 				},
+				roles: [
+					{
+						role: "spellChoice",
+						roleRequirement: function () {
+							return Player.level >= 7;
+						},
+						spells: Player.class === "k" ? [{spellId: 0, spellTier: 1},{spellId: 1, spellTier: 1},{spellId: 2, spellTier: 1}]
+								: Player.class === "m" ? [{spellId: 3, spellTier: 1},{spellId: 4, spellTier: 1},{spellId: 5, spellTier: 1}]
+								: Player.class === "a" ? [{spellId: 6, spellTier: 1},{spellId: 7, spellTier: 1},{spellId: 8, spellTier: 1}]
+								: [],
+					},
+				],
 				chat: {
 					notUnlockedRoles: "May the Gods' light shine upon you, mortal.",
+					spellChoiceText: "It appears you have been endowed with the ability to cast a spell. Unfortunately the relevant facilities in Eaglecrest are... preoccupied. But I will induct you in the time being. Please choose a spell you wish to be able to cast. You can return to me at any time if you wish to change your decision.<br><br><i>You can cast a spell by using your right-click mouse button.</i>",
 				},
 			},
 
@@ -7910,9 +7923,11 @@ var Villagers = [
         ],
         roles: [],
         chat: {
-            notUnlockedRoles: "I would never go to that Nilbog! Wouldn't want to get my boots muddy. Oh, and the goblins, too.",
+            notUnlockedRoles: {
+                loggingCamp: "I would never go to that Nilbog! Wouldn't want to get my boots muddy. Oh, and the goblins, too.",
+                eaglecrest: "I tip my hat to you.",
+            },
             chooseChat: "Do you like my monocle?",
-			christmasGreeting: "I tip my hat to you this Christmas.",
             receiveTavernGood: "Thank you, now I just have to be careful not to get any in my beard!",
         }
     },
@@ -7949,7 +7964,7 @@ var Villagers = [
             defence: 20,
         },
         hostility: "friendly",
-        exeptAreas: [
+        exceptAreas: [
             "loggingCampTavern",
             "eaglecrestLoggingCamp",
         ],
@@ -8081,7 +8096,7 @@ var Villagers = [
 			defence: 5,
             walkSpeed: 131,
 		},
-        exeptAreas: [
+        exceptAreas: [
             "eaglecrestLoggingCamp",
         ],
 		roles: [
@@ -8100,7 +8115,10 @@ var Villagers = [
 			},
 		],
 		chat: {
-			notUnlockedRoles: "Can you not see I'm trying to work here? Come back later.",
+			notUnlockedRoles: {
+				loggingCamp: "I can't believe they think the archaeology here is worth our time!",
+				eaglecrest: "Can you not see I'm trying to work here? Come back later.",
+			},
 			chooseChat: "I'm over to the Ley Confluence soon. I'm just on a break.",
 	        receiveTavernGood: "Thank you! We all need to look after ourselves every now and then.",
 			// identifier

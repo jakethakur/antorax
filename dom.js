@@ -205,6 +205,7 @@ let Dom = {
 	alert: {},
 	infoBar: {},
 	achievements: {},
+	spellChoice: {},
 };
 
 Dom.alert.array = []; // number of alerts that have appeared (used to give ids)
@@ -592,6 +593,7 @@ Dom.closeNPCPages = function () {
 	Dom.currentNPC = {};
 }
 
+// I think notClose is set to true if the NPC is still being spoken to (i.e. another page is opened/still open) after this one is closed
 Dom.closePage = function (page, notClose) {
 	if (page === "chatPage" || page === "inventoryPage" || page === "questsPage" || page === "adventurePage" || page === "reputationPage" || page === "settingsPage" || page === "settingsTwoPage" || page === "creditsPage") {
 		let tab = page
@@ -5031,6 +5033,60 @@ Dom.elements.closeDriver.onclick = function () {
 	Dom.closePage("driverPage");
 }
 
+// uses the same page as Dom.driver.page (see above) but with slightly different code
+Dom.spellChoice.page = function (npc, spells) {
+	if (Dom.changeBook("driverPage")) {//, true/*false*/, true);
+		Dom.elements.driverPageBuy.style.display = "none";
+		Dom.elements.driverPageMain.innerHTML = "<br><h1>"+npc.name+"</h1>";
+		Dom.elements.driverPageMain.innerHTML += "<p>"+npc.chat.spellChoiceText+"<p><br>";
+
+		for (let i = 0; i < spells.length; i++) {
+			let spell = Spells[spells[i].spellId];
+			let tier = spells[i].spellTier;
+
+			// tbd pg make it show channel time and mana cost (see commented line below)
+			//om.elements.driverPageMain.innerHTML += "<div class='driver' ><div class='driverImage' style='background-image: url(\"./"+spell.img+"\")'></div><div class='mailTitle'><strong>"+spell.name+"</strong></div><div class='driverDescription'> <b>Difficulty</b>: "+spell.difficulty+"<br><b>Channel time</b>: "+spell.channelTime[tier]+"<br><b>Mana cost</b>: "+spell.manaCost[tier]+"<br>"+spell.description[tier]+"</div><div class='driverDescription2'></div></div>";
+			Dom.elements.driverPageMain.innerHTML += "<div class='driver' ><div class='driverImage' style='background-image: url(\"./"+spell.img+"\")'></div><div class='mailTitle'><strong>"+spell.name+"</strong></div><div class='driverDescription'> <b>Difficulty</b>: "+spell.difficulty+"<br>"+spell.description[tier]+"</div><div class='driverDescription2'></div></div>";
+
+			while (document.getElementsByClassName("driverDescription")[i].scrollHeight > document.getElementsByClassName("driverDescription")[i].offsetHeight) {
+				document.getElementsByClassName("driverDescription2")[i].innerHTML = document.getElementsByClassName("driverDescription")[i].innerHTML.substring(document.getElementsByClassName("driverDescription")[i].innerHTML.lastIndexOf(" ")) + document.getElementsByClassName("driverDescription2")[i].innerHTML;
+				document.getElementsByClassName("driverDescription")[i].innerHTML = document.getElementsByClassName("driverDescription")[i].innerHTML.substring(0, document.getElementsByClassName("driverDescription")[i].innerHTML.lastIndexOf(" "));
+			}
+		}
+
+		for (let i = 0; i < spells.length; i++) {
+			let spell = Spells[spells[i].spellId];
+			let tier = spells[i].spellTier;
+
+			document.getElementsByClassName("driver")[i].onclick = function () {
+				if (Dom.driver.previous !== undefined) {
+					document.getElementsByClassName("driver")[Dom.driver.previous].style.backgroundColor = "var(--bottom)";
+				}
+				if (Dom.driver.previous !== i) {
+					Dom.driver.previous = i;
+					document.getElementsByClassName("driver")[i].style.backgroundColor = "var(--selected)";
+					Dom.elements.driverPageBuy.innerHTML = "Learn <strong>"+spell.name+"</strong>";
+					Dom.elements.driverPageBuy.style.display = "";
+				}
+				else {
+					Dom.driver.previous = undefined;
+					Dom.elements.driverPageBuy.style.display = "none";
+				}
+			}
+		}
+
+		Dom.elements.driverPageBuy.onclick = function () {
+			let id = Spells[spells[Dom.driver.previous].spellId].id;
+			let tier = spells[Dom.driver.previous].spellTier;
+
+			Game.hero.spells[0] = {id: id, tier: tier};
+
+			Dom.driver.previous = undefined;
+			Dom.closePage("driverPage");
+		}
+	}
+}
+
 Dom.mail.page = function (override) {
 	if (Dom.changeBook("mailPage") || override) {//, true/*false*/, true);
 		Dom.elements.mailPage.innerHTML = "<br><h1>Mailbox</h1><br>";
@@ -5548,7 +5604,6 @@ Dom.inventory.afterChangedStats = function () {
 	if (Player.stats.hex > 0 && Dom.inventory.hexWasZero) {
 		Game.loadHexImages();
 	}
-	Game.secondary.render();
 }
 
 Dom.settings.transparency = function () {
@@ -6203,7 +6258,6 @@ Dom.updateScreenSize = function (init) {
 		Game.updateCanvasViewport();
 
 		// canvases are resized so are wiped - render them if they will not be rendered anyway next tick
-		Game.secondary.render();
 		Game.renderDayNight();
 
 		// update weather intensity and reset the positions of the particles

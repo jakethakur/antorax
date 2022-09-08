@@ -2962,7 +2962,7 @@ var Items = {
 						// this is a curse, so when an enemy is attacked it is passed on to them instead
 						Game.statusEffects.walkSpeed({
 							target: Game.hero,
-							effectTitle: "Curse of fatigue",
+							effectTitle: "Curse of Fatigue",
 							effectDescription: "% walk speed (this is passed on to your next attacked enemy)",
 							speedIncrease: -50,
 							curse: true,
@@ -3101,19 +3101,7 @@ var Items = {
 					let enemies = Game.enemies.filter(enemy => !enemy.respawning);
 					let enemy = enemies[Random(0, enemies.length-1)];
 
-					// swap positions!
-					let enemyPositionX = enemy.x;
-					let enemyPositionY = enemy.y;
-					enemy.x = Game.hero.x;
-					enemy.y = Game.hero.y;
-					Game.hero.x = enemyPositionX;
-					Game.hero.y = enemyPositionY;
-
-					// stop any bugs from arising...
-					Game.hero.moveTowards = undefined;
-					enemy.moveTowards = undefined;
-					Game.hero.removeChannelling("move");
-					enemy.removeChannelling("move");
+					Game.swapPositions(Game.hero, enemy);
 				}
 			},
 		},

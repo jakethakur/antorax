@@ -110,7 +110,7 @@ var Player = {
 		minimumVariance: 0, // (50) minimum variance of a fired projectile
 		focusSpeed: 6, // (1/s) archers only (speed at which the variance for archer projectiles gets smaller)
 		maxDamage: 0, // (3-9) mages only (damage done when channelled)
-		blockDefence: 0, // (16) knights only
+		blockDefence: 0, // (16) knights only DEPRECATED
 		lifesteal: 0, // (10%)
 		xpBonus: 0, // (20%)
 		frostaura: false, // boolean
@@ -143,6 +143,10 @@ var Player = {
 	mana: 0,
 
 	statusEffects: [], // updated by saved data / main [function Game.hero.updateStatusEffects()]
+
+	// spells
+	spells: [], // array of objects. objects are in form {id: 0, tier: 1, onCooldown: 100}
+	// currently only one spell is supported, and cannot be upgraded. in the future, make a spell upgrade tree and a way to cast multiple spells!
 };
 
 // template object for all stats and their default values

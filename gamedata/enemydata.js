@@ -347,7 +347,7 @@ const EnemyTemplates = {
 			},
 			spells: [
 				{
-					name: "charge",
+					id: 0,
 					tier: 1,
 					parameters: function () { // returns array of parameters
 						return {
@@ -416,7 +416,7 @@ const EnemyTemplates = {
 			},
 			spells: [
 				{
-					name: "unholyStrike",
+					id: 9,
 					tier: 1,
 					parameters: function () { // returns array of parameters
 						return {
@@ -458,7 +458,7 @@ const EnemyTemplates = {
 			},
 			spells: [
 				{
-					name: "sawblade",
+					id: 10,
 					tier: 1,
 					parameters: function () { // returns array of parameters
 						return {
@@ -567,7 +567,7 @@ const EnemyTemplates = {
 			spells: [
 				// ordered in order of boss priority to spells
 				{
-					name: "aeromancy",
+					id: 13, // aeromancy
 					tier: 1,
 					parameters: function () { // returns array of parameters
 						Dom.chat.insert(Dom.chat.say("'Barebones' Nkkja", "The wind obeys me!"));
@@ -584,9 +584,10 @@ const EnemyTemplates = {
 					interval: 40000,
 				},
 				{
-					name: "animate",
+					id: 11, // animate
 					tier: 1,
 					parameters: function () { // returns array of parameters
+						Dom.chat.insert(Dom.chat.say("'Barebones' Nkkja", "The mud of this bog is mine!"));
 						return {
 							number: 2,
 							location: [
@@ -673,9 +674,10 @@ const EnemyTemplates = {
 					interval: 17000,
 				},
 				{
-					name: "lightning",
+					id: 12, // lightning
 					tier: 1,
 					parameters: function () { // returns array of parameters
+						Dom.chat.insert(Dom.chat.say("'Barebones' Nkkja", "The sky belongs to me!"));
 						return {
 							target: Game.hero,
 						};

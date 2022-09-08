@@ -997,6 +997,26 @@ Game.isAtLocation = function (obj1, obj2) {
 	return false;
 }
 
+// swap the positions of two entities!
+Game.swapPositions = function (entity1, entity2) {
+	let entity1X = entity1.x;
+	let entity1Y = entity1.y;
+	entity1.x = entity2.x;
+	entity1.y = entity2.y;
+	entity2.x = entity1X;
+	entity2.y = entity1Y;
+
+	// stop any bugs from arising...
+	entity1.moveTowards = undefined;
+	entity2.moveTowards = undefined;
+	if (typeof entity1.removeChannelling !== "undefined") {
+		entity1.removeChannelling("move");
+	}
+	if (typeof entity2.removeChannelling !== "undefined") {
+		entity2.removeChannelling("move");
+	}
+}
+
 //
 // Timeouts
 // (replaces setTimeout so can be run synchronously)
@@ -1450,6 +1470,7 @@ class Character extends Thing {
 			width: this.width,
 			height: footHeight,
 			hitboxColour: "#FF00FF",
+			type: "entities",
 		});
 
 		this.channelling = false;
@@ -2113,7 +2134,6 @@ class Character extends Thing {
 	}
 
 	// remove all status effects where statusEffect[key] === value
-	// currently untested and unused - be careful when using
 	cleanse (value, key) {
 		for (let i = 0; i < this.statusEffects.length; i++) {
 			if (this.statusEffects[i][key] === value) {
@@ -2262,7 +2282,7 @@ class Attacker extends Character {
 		this.spells = properties.spells || [];
 		for (let i = 0; i < this.spells.length; i++) {
 			if (this.spells[i].interval !== undefined) {
-				this.spells[i].ready = false; // cannot be used until intverval has finished
+				this.spells[i].ready = false; // cannot be used until interval has finished (just for ai, not player)
 				Game.setTimeout(function (i) {
 					this.spells[i].ready = true;
 				}.bind(this), this.spells[i].interval, [i]);
@@ -2305,7 +2325,7 @@ class Attacker extends Character {
 
 				Game.clearTimeout(Game.fishTimeout);
 			}
-			else if (this.channelling === "projectile" || this.channelling === "block") {
+			else if (this.channelling === "projectile") {
 				if (this.stats.moveDuringFocus !== true)
 				{
 					this.finishAttack(); // for attack channelling for hero
@@ -2356,18 +2376,18 @@ class Attacker extends Character {
 	}
 
 	// a simpler channel for spells
-	channelSpell (spellName, spellTier, parameters) {
+	channelSpell (spellId, spellTier, parameters) {
 		// add implicit parameters
 		parameters.caster = this;
 		parameters.tier = spellTier;
 		// because parameters is always an object for spells, it is turned into an array for the function call
 		// Game.castSpell calls the function and deducts mana and sets cooldown
-		if (typeof Game.spells[spellName].channelTime === "undefined" || Game.spells[spellName].channelTime[spellTier] === 0) {
+		if (typeof Spells[spellId].channelTime === "undefined" || Spells[spellId].channelTime[spellTier] === 0) {
 			// no channel required
-			Game.castSpell([spellName, parameters]);
+			Game.castSpell(spellId, parameters);
 		}
 		else {
-			this.channel(Game.castSpell, [spellName, parameters], Game.spells[spellName].channelTime[spellTier], FromCamelCase(spellName));
+			this.channel(Game.castSpell, [spellId, parameters], Spells[spellId].channelTime[spellTier], Spells[spellId].name);
 		}
 	}
 
@@ -2523,6 +2543,7 @@ Game.createParticle = function (properties) {
 	if (document.getElementById("particlesOn").checked) { // check particle setting
 		// create particle
 		let id = Game.nextEntityId; // id of added particle
+		properties.type = "particles";
 		let particle = new Particle(properties);
 		this.particles.push(particle);
 		// set its removal time
@@ -2611,7 +2632,7 @@ class Hero extends Attacker {
 		this.channelTime = 0;
 
 		// status effects override - mirror savedata.js' versions
-		this.statusEffects = Player.statusEffects;
+		this.statusEffects = Player.statusEffects; // tbd - maybe a similar system should be used for spells?
 
 		// stats
 		this.stats.looting = properties.stats.looting;
@@ -2622,7 +2643,6 @@ class Hero extends Attacker {
 		// using || defaults to second value if first is undefined, 0 or ""
 		this.stats.focusSpeed = properties.stats.focusSpeed || 0; // archer only
 		this.stats.maxDamage = properties.stats.maxDamage; // mage only
-		this.stats.blockDefence = properties.stats.blockDefence; // knight only
 		this.stats.xpBonus = properties.stats.xpBonus || 0; // perentage
 
 		// fishing stats
@@ -2732,15 +2752,16 @@ class Hero extends Attacker {
 
 	// start channeling basic attack
 	startAttack (e) {
+		let mouseX = Game.camera.x + e.clientX - Game.viewportOffsetX;
+		let mouseY = Game.camera.y + e.clientY - Game.viewportOffsetY;
+
 		if (this.canAttack && Player.inventory.weapon.name !== "" && !Player.inventory.weapon.cannotAttack && !this.hasStatusEffectType("stun")) { // checks the player has a weapon and is not currently reloading and is not currently stunned
 			// Player.inventory.weapon.cannotAttack is set to true when the projectile image is being loaded (e.g: weapon with special projectile is equipped/unequipped)
 			if (!CheckRightClick(e)) {
 				// left-click (normal) attack
 
 				// position of projectile
-				let projectileX = Game.camera.x + e.clientX - Game.viewportOffsetX;
-				let projectileY = Game.camera.y + e.clientY - Game.viewportOffsetY;
-				let distanceToProjectile = Game.distance({x: projectileX, y: projectileY,}, this);
+				let distanceToProjectile = Game.distance({x: mouseX, y: mouseY,}, this);
 
 				if (Player.inventory.weapon.type === "staff" || Player.inventory.weapon.type === "bow" || Player.inventory.weapon.type === "sword") {
 					// player is using conventional weapon
@@ -2754,7 +2775,7 @@ class Hero extends Attacker {
 
 						this.channelling = "projectile";
 
-						let projectileRotate = Game.bearing(this, {x: projectileX, y: projectileY}) + Math.PI / 2;
+						let projectileRotate = Game.bearing(this, {x: mouseX, y: mouseY}) + Math.PI / 2;
 
 						let variance = this.stats.variance;
 						let minimumVariance = this.stats.minimumVariance;
@@ -2769,8 +2790,8 @@ class Hero extends Attacker {
 						// tbd make work the same as enemy projectile
 						Game.projectiles.push(new Projectile({
 							map: map,
-							x: projectileX,
-							y: projectileY,
+							x: mouseX,
+							y: mouseY,
 							attacker: this,
 							targets: [Game.damageableByPlayer],
 							rotate: projectileRotate,
@@ -2781,8 +2802,8 @@ class Hero extends Attacker {
 								towards: {x: this.x, y: this.y},
 							},
 							hitbox: { // arrow tip at mouse position
-								x: projectileX,
-								y: projectileY,
+								x: mouseX,
+								y: mouseY,
 								width: this.class === "k" ? 60 : (this.class === "m" ? 23 : (this.class === "a" ? 10 : 0)),
 								height: this.class === "k" ? 60 : (this.class === "m" ? 23 : (this.class === "a" ? 10 : 0)),
 							},
@@ -2802,7 +2823,7 @@ class Hero extends Attacker {
 
 					if (this.channelling === false) {
 						// bobber has not been cast yet
-						if (distanceToProjectile < this.stats.range && this.map.isSlowTileAtXY(projectileX, projectileY) === "water") {
+						if (distanceToProjectile < this.stats.range && this.map.isSlowTileAtXY(mouseX, mouseY) === "water") {
 							// player is in range and clicked in water
 
 							this.channelling = "fishing";
@@ -2811,8 +2832,8 @@ class Hero extends Attacker {
 
 							let bobber = new Projectile({
 								map: map,
-								x: projectileX,
-								y: projectileY,
+								x: mouseX,
+								y: mouseY,
 								crop: {
 									x: 0,
 									y: 0,
@@ -3139,33 +3160,37 @@ class Hero extends Attacker {
 					// animal lead
 
 					// get animals being touched
-					let touchedAnimals = Game.allThings.filter(thing => thing.canBeOnLead && thing.isTouching({x: projectileX, y: projectileY, width: 1, height: 1}) && !thing.respawning);
+					let touchedAnimals = Game.allThings.filter(thing => thing.canBeOnLead && thing.isTouching({x: mouseX, y: mouseY, width: 1, height: 1}) && !thing.respawning);
 
 					if (touchedAnimals.length > 0) {
 						// a touched animal can have a lead put on it
 
-						if (Game.hero.hasOnLead !== undefined) {
+						if (this.hasOnLead !== undefined) {
 							// animal is already on lead
-							Game.hero.hasOnLead.onLead = undefined; // animal (Game.hero.hasOnLead) is no longer on lead
+							this.hasOnLead.onLead = undefined; // animal (Game.hero.hasOnLead) is no longer on lead
 						}
 
-						Game.hero.hasOnLead = touchedAnimals[touchedAnimals.length-1]; // end of array to get animal at top
+						this.hasOnLead = touchedAnimals[touchedAnimals.length-1]; // end of array to get animal at top
 						touchedAnimals[touchedAnimals.length-1].onLead = true;
 					}
 					else {
 						// take off lead from existing animal (if there is one already on a lead)
-						if (Game.hero.hasOnLead !== undefined) {
-							Game.hero.hasOnLead.onLead = undefined; // animal (Game.hero.hasOnLead) is no longer on lead
-							Game.hero.hasOnLead = undefined;
+						if (this.hasOnLead !== undefined) {
+							this.hasOnLead.onLead = undefined; // animal (Game.hero.hasOnLead) is no longer on lead
+							this.hasOnLead = undefined;
 						}
 					}
 				}
 			}
 			else {
 				// right click
-				if (Game.getAttackType() === "sword") {
-					// knight block attack
-					this.channelling = "block";
+				// spell !
+				if (this.spells.length > 0) {
+					// the hero has a spell
+					// for now, just cast the first spell they have
+					if (typeof this.spells[0].onCooldown === "undefined" || this.spells[0].onCooldown === 0) {
+						this.channelSpell(this.spells[0].id, this.spells[0].tier, {target: {x: mouseX, y: mouseY}});
+					}
 				}
 			}
 		}
@@ -3209,6 +3234,16 @@ class Hero extends Attacker {
 				}
 			}
 
+			//
+			// Status effects that are used on attack
+			//
+			if (this.hasStatusEffect("Bamboozle")) {
+				// from bamboozle spell
+				// remove the status effect
+				// (its effect should have happened in dealDamage, if an enemy was hit)
+				this.cleanse("Bamboozle", "title");
+			}
+
 			// after a timeout (2s), remove the projectile that was just shot
 			// this doesn't work if the user attacks too fast, though this shouldn't be a problem...
 			let a = this.channellingProjectileId; // maintain a variable of the currently shot projectile
@@ -3245,23 +3280,10 @@ class Hero extends Attacker {
 			// update quest log
 			Dom.checkProgress();
 		}
-		else if (this.channelling === "block") {
-			this.channelling = false;
-
-			// wait for the player's reload time (1s) until they can attack again
-			Game.setTimeout(function () {
-				this.canAttack = true;
-				// add back crosshair to cursor (if mouse is in range)
-				Game.secondary.updateCursor();
-			}.bind(this), this.stats.reloadTime);
-		}
 	}
 
 	// called whenever Game.hero's status effects are updated
 	updateStatusEffects () {
-		// update secondary canvas (status effects display on it)
-		Game.secondary.render();
-
 		// update dom
 		Dom.inventory.displayIdentification();
 	}
@@ -3600,8 +3622,11 @@ class Projectile extends Thing {
 	// to = array of arrays of objects to deal damage to
 	// make sure that attacker and to are at least Characters in the inheritance chain (not Entities or Things)
 	// hence, if you want to damage a single target still put it in an array, e.g: dealDamage(attacker, [[Game.hero]])
+	// returns true if at least one enemy is hit
 	dealDamage (attacker, to) {
 		let endLoops = false; // set to true if loops should be ended (e.g. after dealing damage with splashDamage = false)
+
+		let enemyHit = false;
 
 		for (let i = 0; i < to.length && !endLoops; i++) { // iterate through arrays of objects in to
 			// the following loop is iterated through backwards so that, if there is no splashDamage, the top enemy is hit not bottom
@@ -3637,10 +3662,8 @@ class Projectile extends Thing {
 					}
 
 					if (canBeDamaged) { // damage
-						let blockDefence = 0;
-						if (target.channelling === "block") { // add block defence if the target is blocking
-							blockDefence = target.stats.blockDefence;
-						}
+
+						enemyHit = true; // fn will return true
 
 						let attackerDamage = attacker.stats.damage;
 
@@ -3661,7 +3684,7 @@ class Projectile extends Thing {
 							attackerDamage += c;
 						}
 
-						let targetDefence = target.stats.defence + blockDefence; // calculate target defence
+						let targetDefence = target.stats.defence; // calculate target defence
 
 						// defence status effect
 						target.statusEffects.forEach(statusEffect => {
@@ -3758,11 +3781,15 @@ class Projectile extends Thing {
 							}
 
 							// spread any curse status effects
-							Game.spreadCurse(attacker, target)
+							Game.spreadCurse(attacker, target);
 
-							// re-render the second canvas if the hero has been damaged
-							if (target.constructor.name === "Hero") {
-								Game.secondary.render();
+							// bamboozlement!
+							if (attacker.hasStatusEffect("Bamboozle")) {
+								// from archer spell
+								// swap position with the enemy
+								Game.swapPositions(attacker, target);
+								// remove status effect
+								attacker.cleanse("Bamboozle", "title");
 							}
 
 							// chat relating to being damaged (and dealing damage? TBD)
@@ -3832,6 +3859,8 @@ class Projectile extends Thing {
 				}
 			}
 		}
+
+		return enemyHit;
 	}
 
 	// move projectile to random position in circle, where circle is its variance
@@ -4231,7 +4260,7 @@ class Enemy extends Attacker {
 						// no longer ready
 						spell.ready = false;
 						// cast the spell
-						this.channelSpell(spell.name, spell.tier, spell.parameters());
+						this.channelSpell(spell.id, spell.tier, spell.parameters());
 						// spell interval (how often it is cast by enemy)
 						Game.setTimeout(function (spellIndex) {
 							this.spells[spellIndex].ready = true;
@@ -4525,6 +4554,11 @@ class Camera extends Entity {
 
 		// set maxX and maxY variables, the maximum x and y positions of the camera
 		this.setMaxClampValues();
+
+		// offset from its otherwise default position (i.e. for screen shake)
+		// currently ONLY works with screen shake (incompatible with another offset at the same time using this variable - might want to change that in the future tbd!)
+		this.offsetX = 0;
+		this.offsetY = 0;
 	}
 
 	// maximum x and y positions
@@ -4596,12 +4630,12 @@ class Camera extends Entity {
 				// camera is following a sprite
 
 			    // assume followed sprite should be placed at the center of the screen whenever possible
-			    this.following.screenX = this.width / 2 + Game.viewportOffsetX;
-			    this.following.screenY = this.height / 2 + Game.viewportOffsetY;
+			    this.following.screenX = this.width / 2 + Game.viewportOffsetX - this.offsetX;
+			    this.following.screenY = this.height / 2 + Game.viewportOffsetY - this.offsetY;
 
-			    // make the camera follow the sprite
-			    this.x = this.following.x - this.width / 2;
-			    this.y = this.following.y - this.height / 2;
+				// make the camera follow the sprite
+				this.x = this.following.x - this.width / 2;
+				this.y = this.following.y - this.height / 2;
 			}
 
 			else if (this.panTowards !== undefined) {
@@ -4645,6 +4679,10 @@ class Camera extends Entity {
 		    // clamp values between 0 and maxX/Y
 		    this.x = Math.max(0, Math.min(this.x, this.maxX));
 		    this.y = Math.max(0, Math.min(this.y, this.maxY));
+
+			// screen shake overrides clamping
+			this.x += this.offsetX;
+			this.y += this.offsetY;
 
 			if (this.following !== undefined) {
 			    // in map corners, the sprite cannot be placed in the center of the screen and we have to change its screen coordinates
@@ -4711,6 +4749,37 @@ class Camera extends Entity {
 			}
 		}
 		return false;
+	}
+
+	// intensity is max pixels in either direction that screen shakes
+	initScreenShake (intensity, time) {
+		this.screenShakeInterval = Game.setInterval(this.screenShakeTick.bind(this), 50, intensity);
+		// stop screen shake after time ms
+		Game.setTimeout(this.endScreenShake.bind(this), time);
+	}
+
+	// called every 200ms by this.initScreenShake
+	screenShakeTick (intensity) {
+		if (this.offsetX < intensity && (this.offsetX <= -intensity || Random(0,1) === 0)) {
+			this.offsetX += intensity/3;
+		}
+		else {
+			this.offsetX -= intensity/3;
+		}
+
+		if (this.offsetY < intensity && (this.offsetY <= -intensity || Random(0,1) === 0)) {
+			this.offsetY += intensity/3;
+		}
+		else {
+			this.offsetY -= intensity/3;
+		}
+	}
+
+	// called by this.initScreenShake
+	endScreenShake () {
+		this.offsetX = 0;
+		this.offsetY = 0;
+		Game.clearInterval(this.screenShakeInterval);
 	}
 }
 
@@ -5252,7 +5321,7 @@ Game.statusEffects.defence = function(properties) {
 	}
 	newProperties.increasePropertyName = "defenceIncrease";
 	newProperties.increasePropertyValue = properties.defenceIncrease;
-	if (properties.speedIncrease > 0) {
+	if (properties.defenceIncrease > 0) {
 		newProperties.imageName = "defenceUp";
 		newProperties.type = "strength";
 	}
@@ -5495,6 +5564,9 @@ Game.getStatusIconNumber = function (statusEffect) {
 	else if (statusEffect.image === "healthRegen") {
 		iconNum = 20;
 	}
+	else if (statusEffect.image === "bamboozle") {
+		iconNum = 21;
+	}
 	else { // no status effect image
 		iconNum = 3; // fire image used as placeholder
 		console.error("Status effect " + statusEffect.title + " icon not found");
@@ -5509,10 +5581,12 @@ Game.getStatusIconNumber = function (statusEffect) {
 
 // only called by entity.channelSpell
 // deducts mana, sets cooldown if it's a player, etc.
-Game.castSpell = function (spellName, parameters) {
+// parameters should be an object
+Game.castSpell = function (id, parameters) {
+	// mana
 	if (parameters.caster.constructor.name === "Hero") {
-		if (this.hero.mana >= this.spells[spellName].manaCost[parameters.tier]) {
-			this.hero.mana -= this.spells[spellName].manaCost[parameters.tier];
+		if (Game.hero.mana >= Spells[id].manaCost[parameters.tier]) {
+			Game.hero.mana -= Spells[id].manaCost[parameters.tier];
 		}
 		else {
 			// not enough mana
@@ -5523,490 +5597,21 @@ Game.castSpell = function (spellName, parameters) {
 	else {
 		// enemies dont have mana so dw about that
 	}
-	this.spells[spellName].func(parameters);
+
+	// cooldown
+	if (parameters.caster.constructor.name === "Hero") {
+		// find index of spell in hero's spall array
+		let index = parameters.caster.spells.findIndex(spell => spell.id === id);
+		parameters.caster.spells[index].onCooldown = Spells[id].cooldown[parameters.tier];
+	}
+	else {
+		// enemies' spells use a different system (for now), so don't worry about that
+	}
+
+	Spells[id].func(parameters);
 }
 
-// arrays in a spell object have their index correspond to the spell tier
-
-Game.spells = {
-	//
-	// Knight tier 1
-	//
-
-	charge: {
-		img: "assets/runes/0.png",
-		class: "k",
-		description: ["", "Leap towards your mouse location."],
-
-		// properties should contain tier (as int value), caster, target
-		func: function (properties) {
-			let dist = Game.distance(properties.caster, properties.target);
-			let velocity = Game.spells.charge.velocity[properties.tier];
-			let time = dist / velocity;
-			let bear = Game.bearing(properties.caster, properties.target);
-			properties.caster.displace(0, velocity, time, bear); // start displacement
-		},
-
-		velocity: [
-			0,
-			300,	// tier 1
-		],
-
-		channelTime: [
-			0,
-			500,	// tier 1
-		],
-
-		manaCost: [
-			0,
-			5,		// tier 1
-		],
-
-		cooldown: [
-			0,
-			5000,	// tier 1
-		],
-	},
-
-	parade: {
-		img: "assets/runes/1.png",
-		class: "k",
-		description: ["", "Gain +100% defence for 0.5 seconds."],
-
-		// properties should contain tier (as int value), caster
-		func: function (properties) {
-			Game.statusEffects.defence({
-				target: properties.caster,
-				effectTitle: "Parade",
-				defenceIncrease: Game.spells.parade.defenceMultiplier[properties.tier],
-				time: Game.spells.parade.paradeLength[properties.tier],
-			});
-		},
-
-		defenceMultiplier: [
-			0,
-			100,	// tier 1
-		],
-
-		paradeLength: [
-			0,
-			0.5,	// tier 1
-		],
-
-		manaCost: [
-			0,
-			2,		// tier 1
-		],
-
-		cooldown: [
-			0,
-			1500,	// tier 1
-		],
-	},
-
-	seismicWave: {
-		img: "assets/runes/2.png",
-		class: "k",
-		description: ["", "Deal 100% of your attack damage to all enemies in the area, and stun them for 0.6 seconds."],
-
-		// properties should contain tier (as int value), caster
-		func: function (properties) {
-			for (let i = 0; i < Game.enemies.length; i++) {
-				Game.enemies[i].takeDamage(Game.hero.stats.damage * Game.spells.seismicWave.damageMultiplier[properties.tier] / 100);
-				Game.statusEffects.stun({
-					effectTitle: "Seismic Slam!",
-					target: properties.target,
-					time: Game.spells.seismicWave.stunTime[properties.tier],
-				});
-			}
-
-			// screen shake (tbd)
-		},
-
-		damageMultiplier: [
-			0,
-			100,	// tier 1
-		],
-
-		channelTime: [
-			0,
-			2000,
-		],
-
-		stunTime: [
-			0,
-			0.5,	// tier 1
-		],
-
-		manaCost: [
-			0,
-			10,		// tier 1
-		],
-
-		cooldown: [
-			0,
-			5000,	// tier 1
-		],
-	},
-
-	//
-	// Mage tier 1
-	//
-
-	arcaneAura: {
-		img: "assets/runes/3.png",
-		class: "m",
-		description: ["", "Deal your minimum attack damage to all enemies in your attack range."],
-
-		// properties should contain tier (as int value), caster, target
-		func: function (properties) {
-
-		},
-
-		auraSpeed: [
-			0,
-			1,		// tier 1
-		],
-
-		manaCost: [
-			0,
-			5,		// tier 1
-		],
-
-		cooldown: [
-			0,
-			5000,	// tier 1
-		],
-	},
-
-	icebolt: {
-		img: "assets/runes/4.png",
-		class: "m",
-		description: ["", "Launch an icicle towards your mouse pointer that deals 100% of your attack damage to the first target hit, stunning them for 1 second."],
-
-		// properties should contain tier (as int value), caster, target
-		func: function (properties) {
-			// summon icicle projectile
-			//movetowards tbd
-			Game.projectiles.push(new Projectile({
-				map: map,
-				x: Game.hero.x,
-				y: Game.hero.y,
-				stats: {
-					damage: Game.hero.stats.damage * Game.spells.icebolt.damageMultiplier[properties.tier] / 100,
-					stun: 1,
-				},
-				targets: Game.damageableByPlayer,
-				image: "icebolt",
-				moveTowards: moveTowards,
-				moveSpeed: 250,
-				// make it so it stops after hitting one enemy
-			}));
-		},
-
-		channelTime: [
-			0,
-			1000,	// tier 1
-		],
-
-		damageMultiplier: [
-			0,
-			100,	// tier 1
-		],
-
-		manaCost: [
-			0,
-			3,		// tier 1
-		],
-
-		cooldown: [
-			0,
-			2000,	// tier 1
-		],
-	},
-
-	fireBarrage: {
-		img: "assets/runes/5.png",
-		class: "m",
-		description: ["", "Launch an fireball towards your mouse pointer that deals 100% of your attack damage to the first target hit, stunning them for 1 second."],
-
-		// properties should contain tier (as int value), caster, target
-		func: function (properties) {
-			// summon icicle projectile
-			//movetowards tbd
-			Game.projectiles.push(new Projectile({
-				map: map,
-				x: Game.hero.x,
-				y: Game.hero.y,
-				stats: {
-					damage: Game.hero.stats.damage * Game.spells.fireball.damageMultiplier[properties.tier] / 100,
-					stun: 1,
-				},
-				targets: Game.damageableByPlayer,
-				image: "fireBarrage",
-				moveTowards: moveTowards,
-				moveSpeed: 250,
-				// make it so it stops moving at some point
-			}));
-		},
-
-		channelTime: [
-			0,
-			2000,	// tier 1
-		],
-
-		damageMultiplier: [
-			0,
-			100,	// tier 1
-		],
-
-		manaCost: [
-			0,
-			10,		// tier 1
-		],
-
-		cooldown: [
-			0,
-			1000,	// tier 1
-		],
-
-		//
-		// Archer tier 1
-		//
-
-		arrowspeed: {
-			img: "assets/runes/6.png",
-			class: "a",
-			description: ["", "Increase your movement speed by 300% for 5 seconds."],
-
-			// properties should contain tier (as int value), caster, target
-			func: function (properties) {
-				Game.statusEffects.walkSpeed({
-					target: Game.hero,
-					effectTitle: "Arrowspeed!",
-					speedIncrease: Game.spells.arrowspeed.movementMultiplier[properties.tier],
-					time: Game.spells.arrowspeed.length[properties.tier],
-				});
-			},
-
-			movementMultiplier: [
-				0,
-				300,		// tier 1
-			],
-
-			length: [
-				0,
-				5,		// tier 1
-			],
-
-			manaCost: [
-				0,
-				10,		// tier 1
-			],
-
-			cooldown: [
-				0,
-				15000,	// tier 1
-			],
-		},
-
-		shadowCloak: {
-			img: "assets/runes/7.png",
-			class: "a",
-			description: ["", "Gain stealth."],
-
-			// properties should contain tier (as int value), caster, target
-			func: function (properties) {
-				Game.statusEffects.stealth({
-					target: Game.hero,
-					effectTitle: "Shadow Cloaked",
-				});
-			},
-
-			manaCost: [
-				0,
-				10,		// tier 1
-			],
-
-			cooldown: [
-				0,
-				10000,	// tier 1
-			],
-		},
-
-		bamboozle: {
-			img: "assets/runes/8.png",
-			class: "a",
-			description: ["", "Your next attack swaps locations with the enemy hit."],
-
-			// properties should contain tier (as int value), caster, target
-			func: function (properties) {
-				Game.statusEffects.stealth({
-					target: Game.hero,
-					effectTitle: "Shadow Cloaked",
-				});
-			},
-
-			manaCost: [
-				0,
-				3,		// tier 1
-			],
-
-			cooldown: [
-				0,
-				2000,	// tier 1
-			],
-		},
-	},
-
-	//
-	// BOSS
-	//
-
-	unholyStrike: {
-		class: "k",
-		description: "",
-		bossOnly: true,
-
-		// properties should contain tier (as int value), caster, target
-		func: function (properties) {
-			Game.statusEffects.stun({
-				effectTitle: "Unholy Strike",
-				target: properties.target,
-				time: Game.spells.unholyStrike.stunTime[properties.tier],
-			});
-		},
-
-		stunTime: [
-			0,
-			3,		// tier 1
-		],
-
-		channelTime: [
-			0,
-			1500,	// tier 1
-		],
-
-		// TBD
-		manaCost: [
-			0,
-			0,		// tier 1
-		],
-	},
-
-	sawblade: {
-		class: "k",
-		description: "",
-		bossOnly: true,
-
-		// properties should contain tier (as int value), caster, target
-		func: function (properties) {
-			// summon projectile (note its image should have already been loaded in)
-			Game.projectiles.push(new Projectile({
-				map: map,
-				x: properties.caster.x,
-				y: properties.caster.y,
-				stats: {
-					damage: 20,
-					stun: 3,
-				},
-				targets: [Game.allCharacters],
-				exceptTargets: [properties.caster],
-				image: "sawblade",
-				moveDirection: Game.bearing(properties.caster, properties.target),
-				moveSpeed: 400,
-				doNotRotate: true,
-				damageAllHit: true,
-			}));
-		},
-
-		channelTime: [
-			0,
-			2000,	// tier 1
-		],
-	},
-
-	animate: {
-		class: "m",
-		description: "",
-		bossOnly: true,
-
-		// properties should contain:
-			// number (number to be animated)
-			// location (array of objects with x y width and height of possible spawn areas) - random object and location in object is picked for each
-			// all properties of animation (properties is passed into the Enemy constructor!)
-		func: function (properties) {
-			properties.source = "spell";
-			for (let i = 0; i < properties.number; i++) {
-				// pick location
-				let location = properties.location[Random(0, properties.location.length-1)];
-				properties.x = Random(location.x, location.x+location.width);
-				properties.y = Random(location.y, location.y+location.height);
-				// create enemy!
-				if (Game.prepareNPC(properties, "enemies")) {
-					Game.enemies.push(new Enemy(properties));
-				}
-			}
-		},
-
-		channelTime: [
-			2000,	// tier 1
-		],
-	},
-
-	lightning: {
-		class: "m",
-		description: "Strike an enemy with lightning, setting them on fire and stunning them!",
-		bossOnly: true,
-
-		// properties should contain target
-		// doesn't yet work with tier
-		func: function (properties) {
-			Weather.commenceLightningStrike();
-			// status effects
-			Game.statusEffects.fire({
-				target: properties.target,
-				tier: 1,
-			});
-			Game.statusEffects.stun({
-				target: properties.target,
-				time: 2,
-			});
-		},
-
-		channelTime: [
-			1000,	// tier 1
-		],
-	},
-
-	aeromancy: {
-		class: "m",
-		description: "Harness the power of the wind!",
-		bossOnly: true,
-
-		// properties should contain:
-			// speed (of wind movement)
-			// direction (of wind movement)
-			// time (for wind to last for)
-		func: function (properties) {
-			let movex = Math.cos(properties.direction) * properties.speed;
-			let movey = Math.sin(properties.direction) * properties.speed;
-
-			Game.wind = {};
-			Game.wind.movex = movex;
-			Game.wind.movey = movey;
-
-			Game.setTimeout(function () {
-				Game.wind = undefined;
-			}, properties.time)
-		},
-
-		channelTime: [
-			2000,	// tier 1
-		],
-	},
-
-};
+// see also spelldata.js
 
 //
 // Item functions
@@ -6433,6 +6038,10 @@ Game.loadDefaultImages = function () {
 	if (!Object.keys(Loader.images).includes("status")) {
 		toLoad.push(Loader.loadImage("status", "./assets/icons/status.png", false));
 	}
+	// check spells image has been loaded (if not, then load it)
+	if (!Object.keys(Loader.images).includes("spells")) {
+		toLoad.push(Loader.loadImage("spells", "./assets/icons/spells.png", false));
+	}
 
 	// check fishing bobber has been loaded (if not, then load it)
 	// maybe this should just be done if the player has a fishing rod? - tbd
@@ -6628,6 +6237,7 @@ Game.loadArea = function (areaName, destination) {
 			tripwires: Tripwire,
 			particles: Particle,
 			things: Thing,
+			characters: Character,
 			infoPoints: InfoPoint,
 			cannons: Cannon,
 			mailboxes: Mailbox,
@@ -6877,9 +6487,6 @@ Game.loadArea = function (areaName, destination) {
 		// update camera position
 		this.camera.update(0, true);
 
-		// render secondary canvas
-		this.secondary.render();
-
 		this.dayNightUpdate();
 
 		// Antorax Day fireworks
@@ -7037,6 +6644,8 @@ Game.init = function () {
 		checkpoint: Player.checkpoint,
 
 		oldPosition: Player.oldPosition,
+
+		spells: Player.spells,
 	});
 
 	// link stats
@@ -7046,8 +6655,9 @@ Game.init = function () {
 	// set player projectile
 	this.projectileImageUpdate();
 
-	// set loaded status image
+	// set loaded status and spell images
 	this.statusImage = Loader.getImage("status");
+	this.spellImage = Loader.getImage("spells");
 
 	//
 	// keyboard listeners
@@ -7098,7 +6708,7 @@ Game.init = function () {
 	}
 
 	// game viewport camera
-    this.camera = new Camera({map: map, width: Dom.canvas.width, height: Dom.canvas.height, addToObjectArrays: false});
+    this.camera = new Camera({map: map, width: Dom.canvas.width, height: Dom.canvas.height, addToObjectArrays: false, type: "camera"});
     this.camera.follow(this.hero);
 
 	// update viewportOffset and canvasArea variables (would not have been done yet since camera did not exist; needed for weather)
@@ -7290,10 +6900,6 @@ Game.setDayNightImages = function () {
 // calculate current tick length and update/render canvas accordingly
 Game.tick = function (elapsed) {
     window.requestAnimationFrame(this.tick);
-
-    // clear previous frame
-    this.ctx.clearRect(0, 0, Dom.canvas.width, Dom.canvas.height);
-    this.ctxLight.clearRect(0, 0, Dom.canvas.width, Dom.canvas.height);
 
     // compute delta time in seconds -- also cap it
     let delta = (elapsed - this.previousElapsed) / 1000.0;
@@ -7511,11 +7117,12 @@ Game.generateVillagers = function (data, areaName) {
 	// note that the actual number added might be less than this if increaseValue*numberToAdd > possibleVillagers.length
 	let numberToAdd = Math.round(data.minPeople + (numberDifference - ((seed/2) % numberDifference)));
 
-	let numberAdded = 0;
+
 	let villagersToAdd = []; // array of indexes of villagers to add
 	let images = {}; // images to be loaded (same format as in areadata)
-	for (let i = 0; i < possibleVillagers.length; i += increaseValue) {
-		let villagerIndex = (i+startValue) % possibleVillagers.length;
+
+	for (let numberAdded = 0; numberAdded < numberToAdd; numberAdded++) {
+		let villagerIndex = (numberAdded+startValue) % possibleVillagers.length;
 
 		villagersToAdd.push(villagerIndex);
 
@@ -7528,14 +7135,6 @@ Game.generateVillagers = function (data, areaName) {
 		// set image name, if one was not already set, from first image loading key
 		if (villager.image === undefined && villager.rotationImages === undefined) {
 			villager.image = Object.keys(villager.images)[0];
-		}
-
-		numberAdded++;
-
-		// prepare the NPC to be added
-		if (numberAdded === numberToAdd) {
-			// enough villagers have been added
-			break;
 		}
 	}
 
@@ -7680,18 +7279,10 @@ Game.restoreHealth = function (target, health, bloodMoonRestore) {
 		if (target.health + health > target.stats.maxHealth) {
 			// too much health - cap out at maximum
 			target.health = target.stats.maxHealth;
-			if (target.constructor.name === "Hero") {
-				// update health bar display
-				Game.secondary.render();
-			}
 			return false;
 		}
 		else {
 			target.health += health;
-			if (target.constructor.name === "Hero") {
-				// update health bar display
-				Game.secondary.render();
-			}
 			return true;
 		}
 	}
@@ -7707,18 +7298,10 @@ Game.restoreMana = function (target, mana) {
 			if (target.mana + mana > target.stats.maxMana) {
 				// too much health - cap out at maximum
 				target.mana = target.stats.maxMana;
-				if (target.constructor.name === "Hero") {
-					// update health bar display
-					Game.secondary.render();
-				}
 				return false;
 			}
 			else {
 				target.mana += mana;
-				if (target.constructor.name === "Hero") {
-					// update health bar display
-					Game.secondary.render();
-				}
 				return true;
 			}
 		}
@@ -7755,6 +7338,19 @@ Game.update = function (delta) {
 			// ..and reset the interval
 			this.intervals[i].elapsed += delta * 1000;
 			this.intervals[i].elapsed -= this.intervals[i].time;
+		}
+	}
+
+	//
+	// Spell cooldowns
+	//
+
+	for (let i = 0; i < this.hero.spells.length; i++) {
+		if (typeof this.hero.spells[i].onCooldown !== "undefined" && this.hero.spells[i].onCooldown > 0) {
+			this.hero.spells[i].onCooldown -= delta*1000;
+			if (this.hero.spells[i].onCooldown < 0) {
+				this.hero.spells[i].onCooldown = 0;
+			}
 		}
 	}
 
@@ -8129,6 +7725,14 @@ Game.update = function (delta) {
 								textArray.push(role.chooseText || "I'd like to access my bank storage.");
 								functionArray.push(Dom.bank.page);
 								parameterArray.push([]);
+							}
+
+							// spell choosers
+							else if (role.role === "spellChoice") {
+								// spell choice appears as an option for choose DOM
+								textArray.push(role.chooseText || "I'd like to choose a spell to unlock.");
+								functionArray.push(Dom.spellChoice.page);
+								parameterArray.push([npc, role.spells]);
 							}
 
 							// generic text DOM
@@ -8800,8 +8404,17 @@ Game.getXP = function (xpGiven, xpBonus) {
 				this.levelUpFireworks(Player.level);
 				this.displayOnCanvas("Level Up!", (Player.level-1) + " \u{2794} " + Player.level, 4, true); // display on canvas for 34
 
+				// chat message for level up
+				Dom.chat.insert("Level up: "+(Player.level-1)+" &#10132; "+Player.level);
+
 				// increase player health
 				Player.stats.maxHealth += 5;
+
+				// if they just levelled to level 7, they unlock spells and mana
+				if (Player.level === 7) {
+					Player.stats.maxMana = 20;
+					Dom.chat.insert("Congratulations on level 7! You have unlocked spells. Speak to <b>Archbishop Lynch</b> to choose your first spell \u{1F320}");
+				}
 
 				if(Player.level >= LevelXP.length - 1){
 					// sets xp bar to fully completed because Game.getXP doesn't set it when you level up
@@ -8809,9 +8422,6 @@ Game.getXP = function (xpGiven, xpBonus) {
 				}
 
 				document.getElementById("level").innerHTML = "Level "+Player.level;
-
-				// chat message for level up
-				Dom.chat.insert("Level up: "+(Player.level-1)+" &#10132; "+Player.level);
 
 				// tell server that player's level has been changed so that DOM chat players online can display this for all players
 				// Dom also announces this level up to all players
@@ -8825,8 +8435,6 @@ Game.getXP = function (xpGiven, xpBonus) {
 
 				this.getXP(0); // levelling up multiple times
 			}
-			// xp gained
-			this.secondary.render();
 		}
 		else {
 			// max level
@@ -9571,12 +9179,12 @@ Game.drawChannellingBar = function (ctx, character, x, y, width, height) {
 	ctx.strokeRect(x, y, width-1, height);
 
 	// text
-	this.ctx.font = "bold " + height + "px El Messiri";
-	this.ctx.textAlign = "center";
-	this.ctx.fillStyle = "white";
-	this.ctx.fillText(character.channellingInfo.description, x + width / 2, y + height / 4 * 3);
+	ctx.font = "bold " + height + "px El Messiri";
+	ctx.textAlign = "center";
+	ctx.fillStyle = "white";
+	ctx.fillText(character.channellingInfo.description, x + width / 2, y + height / 4 * 3);
 
-	this.ctx.globalAlpha = oldGlobalAlpha;
+	ctx.globalAlpha = oldGlobalAlpha;
 }
 
 // draw status effects (on given context, for given character, at given position [top left], with given height [width based on height and number of status effects])
@@ -9628,6 +9236,51 @@ Game.drawStatusEffects = function (ctx, character, x, y, height, alignment) {
 		else {
 			// offset the others
 			offsetNumber++;
+		}
+	}
+
+	// reset formatting
+	ctx.textAlign = "center";
+}
+
+// draw spells (on given context, for given character, at given position [top left], with given height [width based on height and number of spells])
+// default (unscaled) height of image is 27
+// alignment should be set to "centre", "left", or "right" based on how the status effects should be aligned from the x position passed in
+// currently just done for Game.hero
+Game.drawSpells = function (ctx, character, x, y, height, alignment) {
+	// figure out font size of time remaining
+	let fontSize = height * 2/3;
+
+	// figure out leftmost x position
+	let startX;
+	if (alignment === "left") {
+		startX = x;
+	}
+	else if (alignment === "right") {
+		startX = x - (character.spells.length)*height;
+	}
+	else if (alignment === "centre") {
+		startX = x - (character.spells.length)*height/2;
+	}
+	else {
+		console.error("Invalid alignment: " + alignment);
+	}
+
+	// iterate through character's spells
+	for (let i = 0; i < character.spells.length; i++) {
+		// get number of image in spell image tileset
+		let iconNum = character.spells[i].id;
+
+		// draw the image
+		ctx.drawImage(this.spellImage, 0, 27 * iconNum, 27, 27, startX + i * (height*1.2), y, height, height);
+
+		// draw time remaining (if the spell has one)
+		ctx.fillStyle = "black";
+		ctx.font = fontSize + "px El Messiri";
+		ctx.textAlign = "right";
+
+		if (typeof character.spells[i].onCooldown !== "undefined" && character.spells[i].onCooldown > 0) {
+			ctx.fillText(Round(character.spells[i].onCooldown/1000), (startX+height*0.9) + i * (height*1.2), y+height);
 		}
 	}
 
@@ -9692,6 +9345,15 @@ Game.canvasDisplayFinished = function () {
 
 // draw images on canvas
 Game.render = function (delta) {
+	// clear previous frame
+	this.ctx.clearRect(0, 0, Dom.canvas.width, Dom.canvas.height);
+    this.ctxLight.clearRect(0, 0, Dom.canvas.width, Dom.canvas.height);
+
+    // fill canvas 'background colour' as black
+    this.ctx.fillStyle = "black";
+	this.ctx.globalAlpha = 1;
+	this.ctx.fillRect(0, 0, Dom.canvas.width, Dom.canvas.height);
+
 	// draw map background layer(s)
 	if (typeof map.numberOfLayers !== "undefined") {
         // could be multiple layers
@@ -9753,8 +9415,8 @@ Game.render = function (delta) {
 			// not on screen
 			renderImage = false;
 		}
-		else if (objectToRender.stats !== undefined && objectToRender.stats.stealthed) {
-			// stealthed
+		else if (objectToRender.stats !== undefined && objectToRender.stats.stealthed && objectToRender.constructor.name !== "Hero") {
+			// stealthed + not the player
 			renderImage = false;
 		}
 		else if (objectToRender.hidden === true) {
@@ -9950,11 +9612,6 @@ Game.render = function (delta) {
 			this.fps(delta);
 		}
 
-		// hero channelling bar above xp bar
-		if (Game.hero.channellingInfo !== false) {
-			Game.drawChannellingBar(this.ctx, this.hero, Dom.canvas.width/2-167.6, Dom.canvas.height-104, 335, 12);
-		}
-
 		// display area information or level up information
 		if (this.canvasDisplay.duration > 0) {
 			// formatting
@@ -9980,6 +9637,10 @@ Game.render = function (delta) {
 				this.canvasDisplayFinished();
 			}
 		}
+
+
+		// render secondary canvas
+		this.secondary.render();
 	}
 
 	// render weather
@@ -10126,7 +9787,7 @@ Game.secondary.render = function () {
 	// clear secondary canvas
 	this.ctx.clearRect(0, 0, Dom.canvas.width, Dom.canvas.height);
 
-    // fill canvas 'background colour' as black
+    // fill canvas 'sidebars' as black if area is small (maybe a bit inefficient, but comment out and see what happens otherwise if the screen shakes..)
     this.ctx.fillStyle = "black";
 	this.ctx.globalAlpha = 1;
 	if (Game.viewportOffsetX > 0) {
@@ -10183,6 +9844,11 @@ Game.secondary.render = function () {
 		this.ctx.strokeRect(totalLeft, totalTop, totalWidth-1, totalHeight);
 		this.ctx.globalAlpha = 0.6;
 
+		// hero channelling bar above xp bar
+		if (Game.hero.channellingInfo !== false) {
+			Game.drawChannellingBar(this.ctx, Game.hero, Dom.canvas.width/2-167.6, Dom.canvas.height-104, 335, 12);
+		}
+
 		// level
 		this.ctx.font = "bold 30px El Messiri";
         this.ctx.textAlign = "center";
@@ -10192,7 +9858,12 @@ Game.secondary.render = function () {
         this.ctx.fillText(Player.level, Dom.canvas.width/2-2, Dom.canvas.height-76);
 
 		// status effect icons next to health bar
+		this.ctx.globalAlpha = 0.8;
 		Game.drawStatusEffects(this.ctx, Game.hero, 270, 10, 27, "left");
+
+		// status effect icons next to mana bar
+		Game.drawSpells(this.ctx, Game.hero, 270, 43, 27, "left");
+		this.ctx.globalAlpha = 0.6;
 	}
 }
 
@@ -10243,8 +9914,9 @@ Game.saveProgress = function (saveType) { // if saveType is "auto" then the save
 		Player.mana = Game.hero.mana;
 		Player.trail = Game.hero.trail;
 		Player.oldPosition = Game.hero.oldPosition; // temporary teleport
-		// re-link status effects (inefficient - tbd)
+		// re-link status effects + spells (inefficient - tbd)
 		Player.statusEffects = Game.hero.statusEffects;
+		Player.spells = Game.hero.spells;
 		// re-link player stats (inefficient - tbd)
 		//Player.stats = Game.hero.stats;
 
