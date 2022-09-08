@@ -2948,7 +2948,7 @@ var Areas = {
 				y: 157,
 				image: "painting",
 				name: "Painting",
-				onTouchChat: "A painting of Wizard Andrews, one of the most accomplished wizards that has ever been known. This tower used to be his, but was overrun by goblins after he left to persue his life of wizardry."
+				onTouchChat: "A painting of Wizard Andrews, one of the most accomplished wizards that has ever been known. This tower used to be his, but was overrun by goblins after he left to pursue his life of wizardry."
 			},
 		],
 

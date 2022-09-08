@@ -2551,7 +2551,10 @@ Dom.merchant.page = function (npc, sold, chat) {
 // npc is the npc object from game
 // index is the index of the item in the list of items sold
 Dom.merchant.buy = function (item, index, npc) {
-	let itemStillAvailable = item.condition();
+	let itemStillAvailable = true;
+	if (typeof item.condition !== "undefined") {
+		itemStillAvailable = item.condition();
+	}
 
 	if (!itemStillAvailable) {
 		// no longer available
