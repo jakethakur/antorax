@@ -2546,8 +2546,33 @@ Dom.merchant.page = function (npc, sold, chat) {
 	}
 }
 
+// called by the onclick of a buy button on Dom.merchant.page
+// item is the item object as seen in a merchant's role in area data
+// npc is the npc object from game
+// index is the index of the item in the list of items sold
 Dom.merchant.buy = function (item, index, npc) {
-	if (Dom.inventory.check(item.costCurrency,"currency",item.cost) && Dom.inventory.requiredSpace([{item: item.item}])) {
+	let itemStillAvailable = item.condition();
+
+	if (!itemStillAvailable) {
+		// no longer available
+		npc.say(npc.chat.noLongerAvailable, 0, true);
+		Dom.alert.page("That item is no longer available.", 0, undefined, "merchantPage");
+	}
+	else if (!Dom.inventory.check(item.costCurrency,"currency",item.cost)) {
+		// too poor
+		document.getElementsByClassName("buy")[index].style.border = "5px solid red";
+		setTimeout(function () {
+			document.getElementsByClassName("buy")[index].style.border = "5px solid var(--border)";
+		},200);
+		npc.say(npc.chat.tooPoor, 0, true);
+	}
+	else if (!Dom.inventory.requiredSpace([{item: item.item}])) {
+		// not enough space
+		npc.say(npc.chat.inventoryFull, 0, true);
+		Dom.alert.page("You do not have enough space in your inventory for that item.", 0, undefined, "merchantPage");
+	}
+	else {
+		// buy the item!
 		document.getElementsByClassName("buy")[index].style.backgroundColor = "#bb9933";
 		setTimeout(function () {
 			document.getElementsByClassName("buy")[index].style.backgroundColor = "var(--bottom)";
@@ -2559,19 +2584,6 @@ Dom.merchant.buy = function (item, index, npc) {
 		item.item.removeOnAbandon = item.removeOnAbandon;
 		Dom.inventory.give(item.item);
 		Dom.chat.insert("You bought a " + item.item.name + ".", 100);
-	}
-	else {
-		if (!Dom.inventory.check(item.costCurrency,"currency",item.cost)) {
-			document.getElementsByClassName("buy")[index].style.border = "5px solid red";
-			setTimeout(function () {
-				document.getElementsByClassName("buy")[index].style.border = "5px solid var(--border)";
-			},200);
-			npc.say(npc.chat.tooPoor, 0, true);
-		}
-		else {
-			npc.say(npc.chat.inventoryFull, 0, true);
-			Dom.alert.page("You do not have enough space in your inventory for that item.", 0, undefined, "merchantPage");
-		}
 	}
 }
 

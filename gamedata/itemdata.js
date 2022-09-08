@@ -231,7 +231,7 @@ var Items = {
 			obtainText: "Can be bought from a mask seller.",
 			sellPrice: 1,
 			stats: {
-				dodgeChance: 20,
+				dodgeChance: 30,
 			},
 		},
 		{
@@ -2620,7 +2620,7 @@ var Items = {
 				Game.statusEffects.generic({
 					target: Game.hero,
 					effectTitle: "fireroot",
-					time: 26,
+					time: 22,
 					showInfoBar: true,
 					infoBarText: "Fireroot explodes in:",
 					infoBarColour: "#b3190e",
@@ -2631,6 +2631,8 @@ var Items = {
 						id: 28,
 					}
 				});
+
+				Dom.chat.insert(Dom.chat.say("Shopkeeper Barda", "Once your time has blowed, the root will explode!"));
 			},
 			onExpire: function () { // called by status effect when it expires
 				Game.statusEffects.fire({
@@ -2648,7 +2650,7 @@ var Items = {
 				}
 				Game.hero.cleanse("fireroot", "title");
 			},
-			countdown: 21,
+			countdown: 22,
 			countdownText: "Explodes in",
 		},
 		{
@@ -3006,6 +3008,7 @@ var Items = {
 						image: "bloodBat",
 						moveTowards: moveTowards,
 						moveSpeed: 250,
+						type: "projectiles",
 					}));
 				}
 			},

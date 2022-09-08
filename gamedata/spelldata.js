@@ -93,7 +93,7 @@ Spells = [
 		id: 2,
 		img: "assets/runes/2.png",
 		class: "k",
-		description: ["", "Deal 100% of your attack damage to all enemies in the area, and stun them for 0.6 seconds."],
+		description: ["", "Deal 50% of your attack damage to all enemies in the area, and stun them for 1 second."],
 		difficulty: "Easy",
 
 		// properties should contain tier (as int value), caster
@@ -122,7 +122,7 @@ Spells = [
 
 		stunTime: [
 			0,
-			0.5,	// tier 1
+			1,	// tier 1
 		],
 
 		manaCost: [
@@ -145,17 +145,43 @@ Spells = [
 		id: 3,
 		img: "assets/runes/3.png",
 		class: "m",
-		description: ["", "Deal your minimum attack damage to all enemies in your attack range."],
+		description: ["", "Can be toggled to deal 25% of your maximum damage to nearby enemies every second, draining 3 mana per second."],
 		difficulty: "Easy",
 
 		// properties should contain tier (as int value), caster, target
 		func: function (properties) {
-
+			if (!properties.caster.stats.arcaneAura) {
+				// toggle on
+				properties.caster.stats.arcaneAura = true;
+				Game.hero.auraInterval = Game.setInterval(Spells[3].tickFunc, 100, properties); // only works with hero currently
+			}
+			else {
+				// toggle off
+				properties.caster.stats.arcaneAura = false;
+				Game.clearInterval(Game.hero.auraInterval);
+			}
 		},
 
-		auraSpeed: [
+		// called when the aura is active!
+		// called every 100ms
+		// same params as func
+		tickFunc: function (properties) {
+			if (properties.caster.mana >= Spells[3].manaPerSecond[properties.tier] * 0.1) {
+				// remove mana
+				properties.caster.mana -= Spells[3].manaPerSecond[properties.tier] * 0.1;
+				// damage all nearby enemies
+				// (only works for player currently! can add an else statement if you want it to work with enemies)
+				Game.damageableByPlayer.forEach(function (enemy) {
+					if (Game.distance(Game.hero, enemy) < Game.hero.stats.range) {
+						enemy.takeDamage(Game.hero.stats.maxDamage * Spells[3].damagePercentage[properties.tier] * 0.01 * 0.1);
+					}
+				});
+			}
+		},
+
+		damagePercentage: [
 			0,
-			1,		// tier 1
+			25,		// tier 1
 		],
 
 		channelTime: [
@@ -165,7 +191,12 @@ Spells = [
 
 		manaCost: [
 			0,
-			5,		// tier 1
+			0,		// tier 1
+		],
+
+		manaPerSecond: [
+			0,
+			3,		// tier 1
 		],
 
 		cooldown: [
@@ -179,7 +210,7 @@ Spells = [
 		id: 4,
 		img: "assets/runes/4.png",
 		class: "m",
-		description: ["", "Launch an icicle towards your mouse pointer that deals 100% of your attack damage to the first target hit, stunning them for 1 second."],
+		description: ["", "Launch an icicle towards your mouse pointer that deals 100% of your maximum attack damage to the first target hit, stunning them for 1 second."],
 		difficulty: "Hard",
 
 		// properties should contain tier (as int value), caster, target
@@ -191,14 +222,15 @@ Spells = [
 				x: Game.hero.x,
 				y: Game.hero.y,
 				stats: {
-					damage: Game.hero.stats.damage * Spells[4].damageMultiplier[properties.tier] / 100,
+					damage: Game.hero.stats.maxDamage * Spells[4].damageMultiplier[properties.tier] / 100,
 					stun: 1,
 				},
-				targets: Game.damageableByPlayer,
+				targets: [Game.damageableByPlayer],
 				image: "icebolt",
-				moveTowards: moveTowards,
-				moveSpeed: 250,
-				// make it so it stops after hitting one enemy
+				moveDirection: Game.bearing(properties.caster, properties.target),
+				stopMovingOnDamage: true,
+				moveSpeed: 500,
+				type: "projectiles",
 			}));
 		},
 
@@ -214,7 +246,7 @@ Spells = [
 
 		manaCost: [
 			0,
-			3,		// tier 1
+			5,		// tier 1
 		],
 
 		cooldown: [
@@ -228,7 +260,7 @@ Spells = [
 		id: 5,
 		img: "assets/runes/5.png",
 		class: "m",
-		description: ["", "Launch an fireball towards your mouse pointer that deals 100% of your attack damage to the first target hit, stunning them for 1 second."],
+		description: ["", "Launch an fireball towards your mouse pointer that deals 100% of your maximum attack damage to all targets hit, also setting them on fire."],
 		difficulty: "Medium",
 
 		// properties should contain tier (as int value), caster, target
@@ -240,14 +272,16 @@ Spells = [
 				x: Game.hero.x,
 				y: Game.hero.y,
 				stats: {
-					damage: Game.hero.stats.damage * Spells[5].damageMultiplier[properties.tier] / 100,
-					stun: 1,
+					damage: Game.hero.stats.maxDamage * Spells[5].damageMultiplier[properties.tier] / 100,
+					flaming: 1,
 				},
-				targets: Game.damageableByPlayer,
+				targets: [Game.damageableByPlayer],
 				image: "fireBarrage",
-				moveTowards: moveTowards,
+				moveDirection: Game.bearing(properties.caster, properties.target),
 				moveSpeed: 250,
-				// make it so it stops moving at some point
+				type: "projectiles",
+				damageAllHit: true,
+				transparency: 0.8,
 			}));
 		},
 
@@ -263,12 +297,12 @@ Spells = [
 
 		manaCost: [
 			0,
-			10,		// tier 1
+			15,		// tier 1
 		],
 
 		cooldown: [
 			0,
-			1000,	// tier 1
+			10000,	// tier 1
 		],
 	},
 

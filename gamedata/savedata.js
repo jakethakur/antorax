@@ -121,6 +121,7 @@ var Player = {
 		slowAmount: 0, // (50% for 3s) amount of slow to enemies on attack
 		slowTime: 0, // time of slow to enemies on attack
 		moveDuringFocus: false, // whether you can move whilst charging basic attack
+		arcaneAura: false, // (boolean) from spell
 
 		// spells
 		maxMana: 0,

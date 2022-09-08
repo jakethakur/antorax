@@ -2057,9 +2057,9 @@ class Character extends Thing {
 			}
 
 			// frostaura (for enemie only)
-			if ((this.hostility === "hostile" || this.hostility === "boss") &&
-			Game.hero.stats.frostaura === true && Game.distance(this, Game.hero) < 150) {
-				// range of frostaura is currently 2.5 tiles
+			//if ((this.hostility === "hostile" || this.hostility === "boss") && // used to check hostility but now works on villagers as well!
+			if (Game.hero.stats.frostaura === true && Game.distance(this, Game.hero) < Game.hero.stats.range && this.constructor.name !== "Hero") {
+				// range of frostaura is currently same as hero's range
 				this.speed /= 2; // currently applied at end, TBD change?
 			}
 		}
@@ -2644,6 +2644,14 @@ class Hero extends Attacker {
 		this.stats.focusSpeed = properties.stats.focusSpeed || 0; // archer only
 		this.stats.maxDamage = properties.stats.maxDamage; // mage only
 		this.stats.xpBonus = properties.stats.xpBonus || 0; // perentage
+
+		this.stats.arcaneAura = properties.stats.arcaneAura || false;
+		// start arcaneAura interval if one is active (from the mage spell)
+		if (this.stats.arcaneAura) {
+			// spell object in player that corresponds to this spell (for finding tier)
+			let spellObj = this.spells.find(spellObj => spellObj.id === 3);
+			this.auraInterval = Game.setInterval(Spells[3].tickFunc, 100, {tier: spellObj.tier, caster: this});
+		}
 
 		// fishing stats
 		this.stats.fishingSkill = properties.stats.fishingSkill || 0;
@@ -3784,7 +3792,7 @@ class Projectile extends Thing {
 							Game.spreadCurse(attacker, target);
 
 							// bamboozlement!
-							if (attacker.hasStatusEffect("Bamboozle")) {
+							if (typeof attacker.hasStatusEffect !== "undefined" && attacker.hasStatusEffect("Bamboozle")) {
 								// from archer spell
 								// swap position with the enemy
 								Game.swapPositions(attacker, target);
@@ -6049,6 +6057,14 @@ Game.loadDefaultImages = function () {
 		toLoad.push(Loader.loadImage("bobber", "./assets/projectiles/bobber.png", false));
 	}
 
+
+	// spell images
+	// maybe can be made more efficient? not that bothered about it at the moment buttt
+	if (Player.class === "k" && !Object.keys(Loader.images).includes("icebolt")) {
+		toLoad.push(Loader.loadImage("icebolt", "./assets/projectiles/icebolt.png", false));
+		toLoad.push(Loader.loadImage("fireBarrage", "./assets/projectiles/fireBarrage.png", false));
+	}
+
 	return toLoad;
 }
 
@@ -7336,7 +7352,6 @@ Game.update = function (delta) {
 			// interval has finished, call its function
 			this.intervals[i].func(...this.intervals[i].params);
 			// ..and reset the interval
-			this.intervals[i].elapsed += delta * 1000;
 			this.intervals[i].elapsed -= this.intervals[i].time;
 		}
 	}
@@ -9366,6 +9381,32 @@ Game.render = function (delta) {
         this.drawLayer(0);
     }
 
+	// auras behind hero (currently just works for hero)
+	if (this.hero.stats.frostaura) {
+		this.ctx.globalAlpha = 0.3;
+		this.ctx.fillStyle = "#b8fff4";
+		this.ctx.beginPath();
+		this.ctx.ellipse(this.hero.screenX, this.hero.screenY, this.hero.stats.range, this.hero.stats.range, 0, 0, Math.PI*2);
+		this.ctx.fill();
+	}
+	if (this.hero.stats.arcaneAura) {
+		// spell object in player that corresponds to this spell
+		let spellObj = Game.hero.spells.find(spellObj => spellObj.id === 3);
+		// draw the aura!
+		if (this.hero.mana >= Spells[3].manaPerSecond[spellObj.tier] * 0.1) {
+			// shows brighter when they have enough mana also!
+			this.ctx.globalAlpha = 0.3;
+		}
+		else {
+			this.ctx.globalAlpha = 0.15;
+		}
+		this.ctx.fillStyle = "#8863ff";
+		this.ctx.beginPath();
+		this.ctx.ellipse(this.hero.screenX, this.hero.screenY, this.hero.stats.range, this.hero.stats.range, 0, 0, Math.PI*2);
+		this.ctx.fill();
+	}
+	this.ctx.globalAlpha = 1;
+
 	// sort by y value (from bottom of npc)
 	// set values to sort by, basing their value on their z position as well as y value
 	// 10^10 is an arbitrary value that should always be out of reach of y values
@@ -9528,7 +9569,7 @@ Game.render = function (delta) {
 		this.ctx.stroke();
 	}
 
-	// draw player animations
+	// draw player skin animations
 	if (this.hero.beam !== undefined) {
 		// set formatting
 		this.ctx.lineWidth = this.hero.beam.width;

@@ -1162,6 +1162,7 @@ var Areas = {
 					shopLeave: "Have a good day now.",
 					inventoryFull: "I'm not sure you have any space to carry that.",
 					tooPoor: "I don't think you have enough gold to buy that. Sorry.",
+					noLongerAvailable: "", //tbd
 					christmasGreeting: "Happy Christmas! I really hope you have a great day.",
 					antoraxDayGreeting: `It's Antorax Day! It's so great to be a part of this, even if I'm just an item buyer.`,
 				},
@@ -2449,7 +2450,7 @@ var Areas = {
 						}
 					},
 					{
-						role: "function",
+						role: "function", // must manually set back currentlyDisplayed and currentNPC
 						onClick: function () {
 							Dom.chat.insertSequence([
 								Dom.chat.say("Goblin Torch", "Have not been. Cleaned before."),
@@ -2458,9 +2459,14 @@ var Areas = {
 							Game.hero.channel(function () {
 								Player.quests.npcProgress.eaglecrestLoggingCamp[24] = 5;
 								Dom.currentlyDisplayed = "";
-								Dom.currentNPC = {};
+								Dom.currentNPC = {}; // these must be done here as well as the timeout, since checkProgress requires it.
 								Dom.checkProgress();
 							}, [], 6000, "Cleaning Goblin Torch");
+							// even if channelling is cancelled, this should be set back
+							Game.setTimeout(function () {
+								Dom.currentlyDisplayed = "";
+								Dom.currentNPC = {};
+							}, 6000);
 						},
 						roleRequirement: function () {
 							return Player.quests.npcProgress.eaglecrestLoggingCamp[24] === 4 && Dom.inventory.check(27, "item", 1);
@@ -5635,7 +5641,7 @@ var Areas = {
 					shopLeave: "Baiiiiii!",
 					inventoryFull: "You have no space for that one!",
 					tooPoor: "You need more gold! <sup>Gold! <sup>Goooooold!</sup></sup>",
-					areaJoin: "Hellooooo! Welcome to Eaglecrest Elixirs! You look like you could do with one of Tamtam's toxins!"
+					areaJoin: "Hellooooo! Welcome to Eaglecrest Elixirs! You look like you could do with one of Tamtam's tonics!"
 				},
 			},
 		],
@@ -5789,7 +5795,9 @@ var Areas = {
 
 							{item: Items.helm[21], cost: 99}, // monocle
 
-							{item: Items.item[28], cost: 1}, // fireroot
+							{item: Items.item[28], cost: 1, condition: function () { // fireroot
+								return !Dom.inventory.check(28, "item");
+							}},
 
 							{item: Items.tool[0], cost: 4}, // animal lead
 
@@ -5823,6 +5831,7 @@ var Areas = {
 					shopLeave: "Good luck with your quest, guest.",
 					inventoryFull: "Unless the cards have bluffed... your inventory is stuffed.",
 					tooPoor: "No gold? Get out of my shop.",
+					noLongerAvailable: "", //tbd
 					areaJoin: "The best shop in west Eaglecrest, no jest.",
 				},
 			},
