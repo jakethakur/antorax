@@ -208,6 +208,10 @@ let Dom = {
 	spellChoice: {},
 };
 
+//
+// Alerts
+//
+
 Dom.alert.array = []; // number of alerts that have appeared (used to give ids)
 
 // start a dom alert
@@ -363,10 +367,24 @@ Dom.alert.page = function (text, type, values, page, target) { // can't pass in 
 	}
 }
 
+// close the alert from Dom.alert.array with a particular id
 Dom.alert.close = function (id) {
 	document.body.removeChild(document.getElementById("alert"+id));
 	Dom.alert.array.splice(Dom.alert.array.findIndex(index => index.id === id, 1));
 }
+
+// close all open alerts
+Dom.alert.closeAll = function () {
+	for (let i = 0; i < Dom.alert.array.length; i++) {
+		let id = Dom.alert.array[i].id;
+		document.body.removeChild(document.getElementById("alert"+id));
+		Dom.alert.array.splice(0, 1);
+		i--;
+	}
+}
+
+
+
 
 // Make the save, logout, delete buttons at the top of the settings page
 Dom.elements.settingLogout.innerHTML = "You are logged in as "+Player.name+"<div id='settingSave' onclick='Game.saveProgress()'>Save</div><div id='settingLogoutInner' onclick='Game.saveProgress(\"logout\")'>Logout</div><div id='settingDelete' onclick='Dom.settings.delete()'>Delete</div><br><br><br><div id='settingControls' onclick='Dom.settings.page(\"settingsTwoPage\")'>Controls</div>";
@@ -748,57 +766,71 @@ Dom.hotbar.update = function () {
 	}
 }
 
-Dom.instructions.index = function () {
-	// chooseDOM
-	if (Player.unlockedInstructions.length > 1) {
-		let parameters = {
-			npc:"Instructions",
-			buttons: [],
-			functions: [],
-			parameters: []
-		};
-		for (let i = 0; i < Player.unlockedInstructions.length; i++) {
-			parameters.buttons.push(Instructions[i].chapterTitle);
-			parameters.functions.push(Dom.instructions.page);
-			parameters.parameters.push([i, "index"]);
+//
+// Instructions
+//
+
+// calls Tutorial in adventuredata.js
+Dom.instructions.page = function (chapter) {
+	if (!Player.skipTutorial && !Player.tipsSeen.includes(chapter) && (Player.tutorialProgress === undefined || Player.tutorialProgress < chapter)) {
+		// player still wants to see tutorial
+
+		if (!Tutorial[chapter].branch) {
+			// in the main tutorial path
+			// changes your tutorialProgress chapter
+			Player.tutorialProgress = chapter;
 		}
-		Dom.choose.page([parameters]);
+		Player.tipsSeen.push(chapter); // array of all chapters seen
+
+		Dom.alert.closeAll(); // close all other open tutorial messages
+		if (chapter === 0 && User.notFirst) {
+			// instructions for second+ time playing
+			Tutorial[0].altFunc();
+		}
+		else {
+			Tutorial[chapter].func();
+		}
 	}
-	// chat ONLY
-	else {
-		Dom.instructions.page(0, "chat")
+	Dom.quests.possible();
+}
+
+Dom.instructions.unlockTab = function (tab, skip) {
+	if (!Player.unlockedTabs.includes(tab)) {
+		Player.unlockedTabs.push(tab);
+		document.getElementById("change"+tab[0].toUpperCase()+tab.substring(1)).style.display = "block";
+		document.getElementById("change"+tab[0].toUpperCase()+tab.substring(1)).style.bottom = "-12px";
+		document.getElementById("change"+tab[0].toUpperCase()+tab.substring(1)).style.top = Dom.canvas.height-87+12+"px";
+
+		if (skip) {
+			Player.skippedTabs.push(tab);
+		}
+	}
+	else if (!skip) {
+		Player.skippedTabs.shift();
 	}
 }
 
-Dom.instructions.page = function (chapter, calledFrom) {
-	if (calledFrom === "index") {
-		Dom.currentlyDisplayed = "";
-	}
-	if (calledFrom !== undefined || !Player.skipTutorial) {
-		if (chapter > 0 || !User.notFirst || calledFrom !== undefined) {
-			// normal unlocking
-			if (!Dom.instructions.displaying) {
-				Dom.instructions.displaying = true;
+Dom.elements.tutorialOn.onclick = function () {
+	Dom.instructions.unlockTab("quests", true);
+	Dom.instructions.unlockTab("chat", true);
+	Dom.instructions.unlockTab("inventory", true);
+	Dom.instructions.unlockTab("reputation", true);
+	Player.skipTutorial = true;
+}
 
-				Dom.chat.insertSequence(Instructions[chapter].pages, undefined, function () {
-					if (Player.unlockedInstructions.length === chapter) {
-						Player.unlockedInstructions.push(Instructions[chapter].chapterTitle);
-						Dom.quests.possible();
-						Dom.instructions.displaying = false;
-					}
-				}, chapter);
+Dom.elements.tutorialOff.onclick = function () {
+	Player.skipTutorial = false;
+	for (let i = 0; i < Player.skippedTabs.length; i++) {
+		for (let x = 0; x < Player.unlockedTabs.length; x++) {
+			if (Player.unlockedTabs[x] === Player.skippedTabs[i]) {
+				Player.unlockedTabs.splice(x, 1);
 			}
 		}
-		// first instructions for second+ time
-		else {
-			Instructions[0].alternativePages();
-		}
+		document.getElementById("change"+Player.skippedTabs[i][0].toUpperCase()+Player.skippedTabs[i].substring(1)).style.display = "none";
 	}
-	else if (Player.unlockedInstructions.length === chapter) {
-		Player.unlockedInstructions.push(Instructions[chapter].chapterTitle);
-		Dom.quests.possible();
-	}
+	Player.skippedTabs = [];
 }
+
 
 // if message is an array of objects with parameters text and condition
 // returns the first message where condition is true or undefined
@@ -2891,14 +2923,26 @@ Dom.inventory.give = function (item, num, position, noSave, noArchaeology) {
 			User.archaeology.push(item.name);
 		}
 	}
+
+	// increment any user progress variables
 	if (item.name === "Fishing Seal") {
 		User.progress.seals = Increment(User.progress.seals, num);
 	}
+
 	Dom.hotbar.update();
 	Dom.checkProgress();
+
+	// tutorial
+	if (Dom.inventory.checkSpace() === 0) {
+		Dom.instructions.page(14);
+	}
+
+	// save
 	if (typeof Game !== "undefined" && Game.hero !== undefined && !noSave) {
 		Game.saveProgress("auto");
 	}
+
+	// onGive function
 	if (added) {
 
 		if (item.onGive !== undefined) {
@@ -4696,6 +4740,10 @@ Dom.choose.page = function (npcs) {
 	}
 }
 
+//
+// Settings
+//
+
 Dom.settings.keyName = function (ev) {
 	if (typeof ev !== "string") {
 		ev = ev.key;
@@ -4783,42 +4831,7 @@ Dom.settings.page = function (page) {
 	}
 }
 
-Dom.instructions.unlockTab = function (tab, skip) {
-	if (!Player.unlockedTabs.includes(tab)) {
-		Player.unlockedTabs.push(tab);
-		document.getElementById("change"+tab[0].toUpperCase()+tab.substring(1)).style.display = "block";
-		document.getElementById("change"+tab[0].toUpperCase()+tab.substring(1)).style.bottom = "-12px";
-		document.getElementById("change"+tab[0].toUpperCase()+tab.substring(1)).style.top = Dom.canvas.height-87+12+"px";
-
-		if (skip) {
-			Player.skippedTabs.push(tab);
-		}
-	}
-	else if (!skip) {
-		Player.skippedTabs.shift();
-	}
-}
-
-Dom.elements.tutorialOn.onclick = function () {
-	Dom.instructions.unlockTab("quests", true);
-	Dom.instructions.unlockTab("chat", true);
-	Dom.instructions.unlockTab("inventory", true);
-	Dom.instructions.unlockTab("reputation", true);
-	Player.skipTutorial = true;
-}
-
-Dom.elements.tutorialOff.onclick = function () {
-	Player.skipTutorial = false;
-	for (let i = 0; i < Player.skippedTabs.length; i++) {
-		for (let x = 0; x < Player.unlockedTabs.length; x++) {
-			if (Player.unlockedTabs[x] === Player.skippedTabs[i]) {
-				Player.unlockedTabs.splice(x, 1);
-			}
-		}
-		document.getElementById("change"+Player.skippedTabs[i][0].toUpperCase()+Player.skippedTabs[i].substring(1)).style.display = "none";
-	}
-	Player.skippedTabs = [];
-}
+// for tutorial settings please see the instructions section!
 
 if (User.settings.coords === true) {
 	Dom.elements.coordsOn.checked = true;
@@ -6404,7 +6417,10 @@ Dom.init = function () {
 		document.getElementById("change"+Player.unlockedTabs[i][0].toUpperCase()+Player.unlockedTabs[i].slice(1)).style.display = "block";
 		document.getElementById("change"+Player.unlockedTabs[i][0].toUpperCase()+Player.unlockedTabs[i].slice(1)).style.bottom = "-12px";
 	}
-	if (Player.unlockedInstructions.length >= Instructions.length) {
+
+	// tutorial button in settings
+	if (Player.tutorialProgress >= Tutorial.length-1) {
+		// completed the tutorial
 		Dom.elements.settingTutorialHolder.hidden = true;
 	}
 	if (Player.skipTutorial) {
@@ -6446,10 +6462,10 @@ Dom.init = function () {
 			Dom.mail.give(
 	            "Welcome to Antorax!",
 	            "The Tinkering Guild",
-	            "galuthelTheTrapMechanic",
+	            "dolph",
 	            "text.page",
 	            ["Welcome to Antorax!",
-	            `Hello ${Player.name}!<br><br>It's great to have new people joining us in Antorax. I look forward to meeting you very soon in Wizard Island. Perhaps you would like to try out one of our newest inventions - the ScreenGrabber 3000! It's free of charge. Pop us a letter if it explodes, otherwise see you soon!<br><br>From the Tinkering Guild`, true, [], [],
+	            `Hello ${Player.name}!<br><br>It's great to have new people joining us in Antorax. We look forward to meeting you very soon in Eaglecrest City. Perhaps you would like to try out one of our newest inventions - the ScreenGrabber 3000! It's free of charge. Pop us a letter if it explodes, otherwise see you soon!<br><br>From the Tinkering Guild`, true, [], [],
 	            [{item: Items.item[14]}]], [{item: Items.item[14]}],
 	        );
 
@@ -6727,16 +6743,18 @@ Dom.init = function () {
 		Dom.elements.nametagOn.checked = true;
 	}
 
-	if (localStorage.getItem("accept") !== "true") {
-		Dom.alert.page("This site uses local storage for progress saving, do you accept?", 2, undefined, "game", {
+	if (localStorage.getItem("accept") === "true") {
+		// hide local storage setting since they have agreed
+		Dom.elements.settingAcceptHolder.innerHTML = "";
+	}
+	else if (Player.tutorialProgress >= 2) {
+		// ask them if they are happy for local storage, if they are far enough in the tutorial (they should be asked by the tutorial anyway, but keeping this just in case)
+		Dom.alert.page("This site uses local storage for progress saving, is that ok?", 2, undefined, "game", {
 			target: function () {
 				Dom.elements.acceptOn.checked = true;
 				Dom.settings.acceptOn();
 			},
 		});
-	}
-	else {
-		Dom.elements.settingAcceptHolder.innerHTML = "";
 	}
 
 	// keyboard functions

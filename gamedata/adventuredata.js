@@ -87,86 +87,172 @@ var Adventure = {
 			return Player.quests.completedQuestArray.includes("To the Logging Camp");
 		},
 	},
-
-	instructions: {
-		html: `<div id="instructionsAL" class="adventure">
-			<span id="instructionsTitle" style="cursor: pointer;" onclick="Dom.instructions.index();"><u>Instructions</u></span><br>
-			<span class="adventureContent">Reread the instructions.</span>
-		</div>`,
-		condition: function () {
-			return true;
-		},
-	},
 };
 
-var Instructions = [
+const Tutorial = [
 	{
-		chapterTitle: "Chapter I: Getting Started",
-		pages: [
-			`<b>The Mighty Zararanath</b>: Welcome to the mystical kingdom of Antorax, ${Player.name}!`,
-			`<em><b>The Mighty Zararanath</b> is speaking to you through a telepathic link. Don't worry, it doesn't hurt.</em>`,
-			`<b>The Mighty Zararanath</b>: You can use the <b>w</b>, <b>a</b>, <b>s</b>, and <b>d</b> keys to move around.`,
-			`<b>The Mighty Zararanath</b>: Start your first quest by speaking to the <b>Cart Driver</b>.`,
-		],
-		alternativePages: function () {
-			Dom.chat.insertSequence([
-				`<b>The Mighty Zararanath</b>: Welcome to the mystical kingdom of Antorax, ${Player.name}!`,
-				`<b>The Mighty Zararanath</b>: Oh. I've spoken to you before.`,
-			], undefined, function () {
-				Dom.alert.page("Do you want to skip Zararanath's tutorial? You can always re-enable it in settings.", 2, undefined, undefined, {
-					target: function () {
-						Dom.chat.insert(`<b>The Mighty Zararanath</b>: Good luck on your travels.`, 500);
-						document.getElementById("tutorialOn").checked = true;
-						document.getElementById("tutorialOn").onclick();
-						Player.unlockedInstructions.push(Instructions[0].chapterTitle);
-						Dom.quests.possible();
-					},
-					targetNo: function () {
-						Dom.chat.insertSequence([
-							`<b>The Mighty Zararanath</b>: You can use the <b>w</b>, <b>a</b>, <b>s</b>, and <b>d</b> keys to move around.`,
-							`<b>The Mighty Zararanath</b>: Start your first quest by speaking to the <b>Cart Driver</b>. Press the <strong>space</strong> key whilst standing near him to talk to him.`,
-						], undefined, function () {
-							Player.unlockedInstructions.push(Instructions[0].chapterTitle);
-							Dom.quests.possible();
-						});
-					},
-				});
+		chapter: 0, // called upon game starting
+		func: function () {
+			Dom.alert.page("Welcome to Antorax!<br><br>Use the <b>WSAD</b> keys to move.", 0);
+		},
+		altFunc: function () {
+			Dom.alert.page("Do you want to skip the tutorial? You can always re-enable it in settings.", 2, undefined, undefined, {
+				target: function () {
+					Dom.chat.insert(`Good luck on your travels!`, 500);
+					document.getElementById("tutorialOn").checked = true;
+					document.getElementById("tutorialOn").onclick();
+					// allow player to move again
+					Dom.instructions.decidingToSkip = false;
+					Game.hero.cleanse("Tutorial", "title");
+				},
+				targetNo: function () {
+					// same as func
+					Tutorial[0].func();
+					// allow player to move again
+					Dom.instructions.decidingToSkip = false;
+					Game.hero.cleanse("Tutorial", "title");
+				},
 			});
-		}
+
+			Dom.instructions.decidingToSkip = true; // means player won't be able to move when Game inits (given the "Tutorial" status effect)
+		},
 	},
 	{
-        chapterTitle: "Chapter II: Quests and Merchants",
-        pages: [
-            `<b>The Mighty Zararanath</b>: Quests are one of the main methods of progression for adventurers like you.`,
-            `<b>The Mighty Zararanath</b>: You can see information about your current and possible quests in your quest log, by clicking on the <strong>green bookmark</strong> at the bottom of your screen.`,
-            `<b>The Mighty Zararanath</b>: For this quest, you have to buy your first weapon from a merchant using <strong>3 Gold</strong>.`,
-            `<b>The Mighty Zararanath</b>: Merchants can be found all around Antorax, from which you can buy all manner of items!`,
-        ],
-    },
-    {
-        chapterTitle: "Chapter III: Advanced Navigation",
-        pages: [
-            `<b>The Mighty Zararanath</b>: Nicely done! Keep journeying to the Logging Camp - you don't have far left to go!`,
-            `<b>The Mighty Zararanath</b>: You can tell you're close to a settlement by the banners put up nearby. With civilisation comes banners and capitalism!`,
-            `<b>The Mighty Zararanath</b>: And don't worry, the water doesn't hurt.`
-        ],
-    },
-    {
-        chapterTitle: "Chapter IV: Civilisation",
-        pages: [
-            `<b>The Mighty Zararanath</b>: Welcome to the Eaglecrest Logging Camp!`,
-            `<b>The Mighty Zararanath</b>: <strong>Marshall Teper</strong>, your quest master for this area, is just north from here.`,
-            `<b>The Mighty Zararanath</b>: Complete your quest by speaking to him, and collect a new quest!`,
-            `<b>The Mighty Zararanath</b>: Oh. And if you ever forget what someone said to you, you can always click the <strong>blue bookmark</strong> to open your chat log.`
-        ],
-    },
-    {
-        chapterTitle: "Chapter V: Inventory",
-        pages: [
-            `<b>The Mighty Zararanath</b>: Congratulations on completing your first quest! You even got a special reward for doing so - some <strong>Logging Boots</strong>.`,
-            `<b>The Mighty Zararanath</b>: You now need to access your inventory to equip these items! Click the <strong>red bookmark</strong> to do so.`,
-            `<b>The Mighty Zararanath</b>: Try dragging your new weapon and boots onto their slots at the left to equip them.`,
-            `<b>The Mighty Zararanath</b>: Similarly, you can unequip them by dragging them back to the item slots at the right.`
-        ],
-    },
+		chapter: 1, // called a little after player moving
+		func: function () {
+			if (typeof Dom.currentNPC.name === "undefined") {
+				Dom.alert.page("Great!<br><br>The <b>Cart Driver</b> wants to give you a quest. Press the <b>Spacebar</b> whilst you are touching them.", 0);
+			}
+		},
+	},
+	{
+		chapter: 2, // called upon player accepting first quest
+		func: function () {
+			Dom.instructions.unlockTab("quests");
+			Dom.expand('activeQuestBox');
+
+			if (localStorage.getItem("accept") !== "true") {
+				Game.statusEffects.stun({
+					target: Game.hero,
+					effectTitle: "Tutorial",
+					effectDescription: "Making tricky decisions...",
+					hidden: true,
+				});
+				Dom.alert.page("We use local storage to save your progress - is that ok?", 2, undefined, "game", {
+					target: function () {
+						Dom.elements.acceptOn.checked = true;
+						Dom.settings.acceptOn();
+						Game.hero.cleanse("Tutorial", "title");
+					},
+					targetNo: function () {
+						Game.hero.cleanse("Tutorial", "title");
+					},
+				});
+			}
+		},
+	},
+	{
+		chapter: 3, // called upon player walking towards weaponsmith
+		func: function () {
+			Dom.alert.page("You need to buy a weapon - walk over to the <b>Weaponsmith</b> and press <b>Space</b> to buy a weapon from them.", 0);
+		},
+	},
+	{
+		chapter: 4, // called a little after player buying weapon
+		func: function () {
+			Dom.alert.page("You look well equipped!<br><br>To finish your quest, follow the <b>Purple banners</b> to reach the Logging Camp.", 0);
+		},
+	},
+	{
+		chapter: 5, // called upon player reaching logging camp
+		func: function () {
+			Dom.alert.page("Welcome to the Logging Camp!<br><br>Speak to <b>Marshall Teper</b> who is just <b>north</b> of here.", 0);
+		},
+	},
+	{
+		chapter: 6, // called upon player completing first quest
+		func: function () {
+			Dom.alert.page("Congratulations on completing your first quest!<br><br>There are always more quests to complete - speak to <b>Marshall Teper</b> again to see what is next.", 0);
+			Game.setTimeout(function () {
+				if (typeof Dom.currentNPC.name === "undefined" && !Player.quests.activeQuestArray.includes("Learning from the Best") && !Player.quests.completedQuestArray.includes("Learning from the Best")) {
+					// tut tut tut they haven't started the next quest yet
+					Dom.alert.page("Speak to <b>Marshall Teper</b> again to start your next quest.", 0);
+				}
+			}, 10000);
+		},
+	},
+	{
+		chapter: 7, // called upon player starting second quest
+		func: function () {
+			Dom.instructions.unlockTab("inventory");
+			Dom.alert.page("Click on the <b>Red Bookmark</b> at the <b>bottom-left</b> of your screen to open your inventory and equip your items!", 0);
+		},
+	},
+	{
+		chapter: 8, // called after equipping items
+		func: function () {
+			Dom.alert.page("Great!<br><br>If you ever forget what you need to do for a quest, click on the <b>Green Bookmark</b> at the <b>bottom-left</b>.", 0);
+		},
+	},
+	{
+		chapter: 9, // called after finishing second quest
+		func: function () {
+			Game.setTimeout(function () {
+				let npc = Game.npcs.find(npc => npc.name === "Combat Trainer Saral");
+				Dom.quest.start(Quests.eaglecrestLoggingCamp[2], npc);
+			}, 100);
+		},
+	},
+	{
+		chapter: 10, // called upon starting third quest
+		func: function () {
+			switch (Player.class) {
+				case "a":
+					Dom.alert.page("Press your <b>Left Mouse Button</b> to attack.<br><br>When you let go, an arrow will be shot somewhere in the <b>red circle</b>.<br><br><b>Hold down</b> your Left Mouse Button to increase your accuracy!", 0);
+					break;
+				case "m":
+					Dom.alert.page("Press your <b>Left Mouse Button</b> to attack something near you.<br><br>The longer you hold it down, the more damage your attack will do!", 0);
+					break;
+				case "k":
+					Dom.alert.page("Click your <b>Left Mouse Button</b> to attack something.<br><br>You can only attack enemies close to you!", 0);
+					break;
+			}
+		},
+	},
+	{
+		chapter: 11, // called after finishing third quest
+		func: function () {
+			Dom.alert.page("Looks like you're ready to venture out and fight some enemies!<br><br>To see what quests are available to start next, click on the <br><b>Green Bookmark</b> and look at the <b>Possible Quests</b> section.", 0);
+			Dom.expand('possibleQuestBox');
+		},
+	},
+	{
+		chapter: 12, // called a little after entering the nilbog
+		func: function () {
+			Dom.alert.page("Press your <b>Spacebar</b> whilst standing on a log to pick it up.<br><br>You can't move whilst you're picking one up.", 0);
+		},
+	},
+	{
+		chapter: 13, // called upon player finishing logs quest
+		func: function () {
+			Game.setTimeout(function () {
+				Dom.alert.page("You got a <b>bag</b> from that quest!<br><br>Move it to your <b>last inventory slot</b> to increase your inventory size.", 0);
+			}, 1000);
+			Dom.instructions.unlockTab("reputation");
+		},
+	},
+	{
+		chapter: 14, // called upon inventory filling up
+		branch: true,
+		func: function () {
+			Dom.alert.page("Your inventory is full!<br><br> Open up your inventory and drag out an item to discard it.", 0);
+		},
+	},
+	{
+		chapter: 15, // called upon killing an enemy
+		branch: true,
+		func: function () {
+			Dom.alert.page("Nice shot!<br><br>Press your <b>Spacebar</b> on the dead goblin to take some loot!", 0);
+		},
+	},
 ];

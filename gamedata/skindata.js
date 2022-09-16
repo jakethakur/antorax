@@ -251,4 +251,5 @@ var Offsets = {
 	lordOfThunder: {image: "assets/player/m5", x: 19, y: -2},
 	alysLoreworth: {image: "assets/npcs/alysLoreworth", x: 225, y: -2},
 	shadow: {image: "assets/npcs/shadow", x: 55, y: -2},
+	dolph: {image: "assets/npcs/dolph", x: 50, y: 6},
 };

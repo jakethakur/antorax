@@ -24,6 +24,15 @@ var Quests = {
 				// true or falses for each objective (apart from the turn-in objective)
 				completed.push(Dom.inventory.check(2, "sword", 1) || Dom.inventory.check(2, "staff", 1) || Dom.inventory.check(2, "bow", 1));
 
+				if (completed[0]) {
+					// tutorial
+					Game.setTimeout(function () {
+						if (Player.tutorialProgress === 3 && Game.areaName === "tutorial") {
+							Dom.instructions.page(4);
+						}
+					}, 2000);
+				}
+
 				completed = checkFinished(completed);
 
 				return completed;
@@ -33,7 +42,7 @@ var Quests = {
 			levelRequirement: 1,
 			questRequirements: [],
 			requirement: function () {
-				return Player.unlockedInstructions.length >= 1;
+				return Player.tutorialProgress === 1;
 			},
 
 			rewards: {
@@ -44,8 +53,11 @@ var Quests = {
 			},
 
 			onQuestStart: function() {
-				Dom.instructions.unlockTab("quests");
-				Dom.instructions.page(1);
+				Dom.instructions.page(2);
+			},
+
+			onQuestFinish: function() {
+				Dom.instructions.page(6);
 			},
 		},
 
@@ -73,6 +85,15 @@ var Quests = {
 				// true or falses for each objective (apart from the turn-in objective)
 				completed.push(Player.inventory.weapon.type === "bow" || Player.inventory.weapon.type === "staff" || Player.inventory.weapon.type === "sword");
 
+				if (completed[0] && Player.tutorialProgress === 7) {
+					// tutorial
+					Game.setTimeout(function () {
+						if (Player.tutorialProgress === 7 && typeof Dom.currentNPC.name === "undefined") {
+							Dom.instructions.page(8);
+						}
+					}, 5000)
+				}
+
 				completed = checkFinished(completed);
 
 				return completed;
@@ -87,8 +108,11 @@ var Quests = {
 			},
 
 			onQuestStart: function() {
-				Dom.instructions.unlockTab("inventory");
-				Dom.instructions.page(4);
+				Dom.instructions.page(7);
+			},
+
+			onQuestFinish: function() {
+				Dom.instructions.page(9);
 			},
 		},
 
@@ -100,13 +124,13 @@ var Quests = {
 			important: true,
 
 			startName: "Combat Trainer Saral",
-			startChat: `${Player.name}, I'd like for you to deal some damage to this <strong>Training Dummy</strong>. 20 should suffice. <br>You can find out more about how you can attack in your <strong>adventure log</strong>.`,
+			startChat: `${Player.name}, I'd like for you to deal some damage to this <strong>Training Dummy</strong>. 10 should suffice.`,
 
 			finishName: "Combat Trainer Saral",
 			finishChat: `Well done. It's inspiring to watch a new adventurer learn their ways - I look forward to seeing more of you in the future. I imagine <strong>Marshall Teper</strong> would like for you to get to work with him now.`,
 
 			objectives: [
-				"Deal at least 20 damage to the <strong>Training Dummy</strong>.",
+				"Deal at least 10 damage to the <strong>Training Dummy</strong>.",
 				"Speak to <strong>Combat Trainer Saral</strong>.",
 			],
 
@@ -115,7 +139,7 @@ var Quests = {
 
 				// true or falses for each objective (apart from the turn-in objective)
 				// quest must be finished in Eaglecrest Logging Camp, hence Game.dummies[0] is always the right dummy
-				completed.push(typeof Game.dummies !== "undefined" && typeof Game.dummies[0] !== "undefined" && checkProgress(Game.dummies[0].damageTaken, 20));
+				completed.push(typeof Game.dummies !== "undefined" && typeof Game.dummies[0] !== "undefined" && checkProgress(Game.dummies[0].damageTaken, 10));
 
 				completed = checkFinished(completed);
 
@@ -131,6 +155,14 @@ var Quests = {
 				items: [
 					{item: Items.currency[2], quantity: 3,},
 				],
+			},
+
+			onQuestStart: function() {
+				Dom.instructions.page(10);
+			},
+
+			onQuestFinish: function() {
+				Dom.instructions.page(11);
 			},
 		},
 
@@ -148,7 +180,7 @@ var Quests = {
 			finishChat: `Good. Now we need to make sure that a goblin attack like this won't happen again.`,
 
 			objectives: [
-				"Retrieve 4 logs from The Nilbog. <em>(press space when standing on one to pick it up)</em>",
+				"Retrieve 4 logs from The Nilbog to the <b>east</b>. <em>(press space whilst standing on one to pick it up)</em>",
 				"Speak to <strong>Marshall Teper</strong>.",
 			],
 
@@ -184,7 +216,7 @@ var Quests = {
 
 			onQuestFinish: function() {
 				// unlock reputation tab
-				Dom.instructions.unlockTab("reputation");
+				Dom.instructions.page(13);
 			}
 		},
 		{
@@ -480,13 +512,13 @@ var Quests = {
 			questArea: "eaglecrestLoggingCamp",
 
 			startName: "Soul Healer Nalaa",
-			startChat: `My blessings to you. My sceptre is running low on soul essence, a sacred power contained in the corpses of those who have recently died. I use it to remove XP fatigue from those who have died, here at the logging camp. I am not well equipped to go out to collect this essence, however I believe that you are. May you restore my scepter's power?`,
+			startChat: `My blessings to you. My sceptre is running low on soul essence, a sacred power contained in the corpses of those who have recently died. I use it to remove XP fatigue from those who have died, here at the logging camp. I am not well equipped to go out to collect this essence, however I believe that you are. May you restore my sceptre's power?`,
 
 			finishName: "Soul Healer Nalaa",
 			finishChat: `Thank you. It is people like you that allow the Logging Camp to flourish.`,
 
 			objectives: [
-				"Use the sceptre of souls near 5 corpses to restore its power. <em>(click on it to use it)</em>",
+				"Use the Sceptre of Ssouls near 5 corpses to restore its power. <em>(click on it to use it)</em>",
 				"Speak to <strong>Soul Healer Nalaa</strong>.",
 			],
 

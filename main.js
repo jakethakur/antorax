@@ -1763,6 +1763,9 @@ class Character extends Thing {
 							Dom.quests.active();
 						}
 					}.bind(this), this.stats.lootTime);
+
+					// tutorial
+					Dom.instructions.page(15);
 				}
 
 				if (this.respawnOnDeath) {
@@ -2727,8 +2730,14 @@ class Hero extends Attacker {
 			}
 		}
 		else {
+			// move normally!
 			this.x += dirx * this.speed * delta;
 			this.y += diry * this.speed * delta;
+
+			// tutorial (from beginning of game)
+			if (Player.tutorialProgress === 0 && typeof Game.tutorialTimeout === "undefined") {
+				Game.tutorialTimeout === Game.setTimeout(Dom.instructions.page, 2000, 1);
+			}
 		}
 
 		// check if we walked into a non-walkable tile
@@ -3391,6 +3400,10 @@ class Hero extends Attacker {
 				fish = fish.filter(item => item.rarity === itemRarity); // filter for rarity
 				fish = fish.filter(item => item.timeRequirement === undefined || Event.time === item.timeRequirement); // filter for time that it can be fished up
 				fish = fish.filter(item => item.catchRequirement === undefined || item.catchRequirement()); // filter for general fishing requirement
+				if (usingBait) {
+					// can't get watermisc
+					fish = fish.filter(item => item.fishingType === "fish");
+				}
 				if (fish.constructor === Array) {
 					// still more fish to pick from
 					fish = fish[Random(0, fish.length - 1)]; // Random fish that fulfils requirements above
@@ -6060,7 +6073,7 @@ Game.loadDefaultImages = function () {
 
 	// spell images
 	// maybe can be made more efficient? not that bothered about it at the moment buttt
-	if (Player.class === "k" && !Object.keys(Loader.images).includes("icebolt")) {
+	if (Player.class === "m" && !Object.keys(Loader.images).includes("icebolt")) {
 		toLoad.push(Loader.loadImage("icebolt", "./assets/projectiles/icebolt.png", false));
 		toLoad.push(Loader.loadImage("fireBarrage", "./assets/projectiles/fireBarrage.png", false));
 	}
@@ -6307,26 +6320,34 @@ Game.loadArea = function (areaName, destination) {
 				// exists in areadata
 				// iterate through objects of that type in areadata
 				for (let i = 0; i < Areas[areaName][type].length; i++) {
-					// check npc should be added, and prepare it to be added (e.g. by setting its map and type)
-					// also calls specific functions needed for certain npcs
-					if (this.prepareNPC(Areas[areaName][type][i], type)) {
-						Areas[areaName][type][i].source = "area"; // image came from villager variable
-						this[type].push(new className(Areas[areaName][type][i]));
+					// see if there are multiple npcs of the type that should be added (i.e. the x and y coordinates are an array)
+					if (Array.isArray(Areas[areaName][type][i].x)) {
+						let xArray = Areas[areaName][type][i].x;
+						let yArray = Areas[areaName][type][i].y;
+						// iterate through each npc to be added
+						for (let j = 0; j < xArray.length; j++) {
+							// set new x and y coords from this array
+							Areas[areaName][type][i].x = xArray[j];
+							Areas[areaName][type][i].y = yArray[j];
+							// check npc should be added, and prepare it to be added (e.g. by setting its map and type)
+							// also calls specific functions needed for certain npcs
+							if (this.prepareNPC(Areas[areaName][type][i], type)) {
+								Areas[areaName][type][i].source = "area";
+								this[type].push(new className(Areas[areaName][type][i]));
+							}
+						}
+					}
+					else {
+						// check npc should be added, and prepare it to be added (e.g. by setting its map and type)
+						// also calls specific functions needed for certain npcs
+						if (this.prepareNPC(Areas[areaName][type][i], type)) {
+							Areas[areaName][type][i].source = "area";
+							this[type].push(new className(Areas[areaName][type][i]));
+						}
 					}
 				}
 			}
 		}
-
-		/*
-		// enemies are stronger in blood moon
-		if (Event.time === "bloodMoon") {
-			for (let i = 0; i < this.enemies.length; i++) {
-				// blood moon - enemies have more health
-				this.enemies[this.enemies.length - 1].health *= 2;
-				this.enemies[this.enemies.length - 1].stats.maxHealth *= 2;
-			}
-		}
-		*/
 
 		// villagers (added from generateVillagers before promise)
 		if (villagersToAdd !== undefined) {
@@ -6674,6 +6695,17 @@ Game.init = function () {
 	// set loaded status and spell images
 	this.statusImage = Loader.getImage("status");
 	this.spellImage = Loader.getImage("spells");
+
+	// stun hero if they need to make a decision at the start of the game via dom alert
+	// decidingToSkip would have been set to true via Dom.init calling Tutorial in adventuredata
+	if (Dom.instructions.decidingToSkip) {
+		Game.statusEffects.stun({
+			target: Game.hero,
+			effectTitle: "Tutorial",
+			effectDescription: "Making tricky decisions...",
+			hidden: true,
+		});
+	}
 
 	//
 	// keyboard listeners
@@ -9244,7 +9276,7 @@ Game.drawStatusEffects = function (ctx, character, x, y, height, alignment) {
 			ctx.textAlign = "right";
 			if (typeof character.statusEffects[i].info !== "undefined") { // variable that contains time exists
 				if (typeof character.statusEffects[i].info.time !== "undefined" && typeof character.statusEffects[i].info.ticks !== "undefined") { // variable exists
-					ctx.fillText(Round(character.statusEffects[i].info.time - character.statusEffects[i].info.ticks), (startX+height*0.9) + i * (height*1.2), y+height);
+					ctx.fillText(Round(character.statusEffects[i].info.time - character.statusEffects[i].info.ticks), (startX+height*0.9) + (i-offsetNumber) * (height*1.2), y+height);
 				}
 			}
 		}

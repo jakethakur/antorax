@@ -101,6 +101,7 @@
 		<div id="otherQuests"onclick="Dom.expand('otherQuestBox')">Other Quests</div>
 		<div id="otherQuestBox"hidden></div>
 	</div>
+
 	<div id="adventurePage" hidden class="DOM">
 		<div id="level" style="display:inline;">Level 1</div>
 		<a href="./achievements/index.html" target="_blank" style="display: inline; float: right;">Achievements</a>
@@ -109,15 +110,13 @@
 			<a href="./archaeology/index.html" target="_blank">Archaeology</a><br>
 			<span style="font-size: 20px;">Uncover and collect weapons and armour.</span>
 		</div>
-		<div id="instructions" class="adventure">
-			<span id="instructionsTitle" style="cursor: pointer;" onclick="Dom.instructions.index();"><u>Instructions</u></span><br>
-			<span style="font-size: 20px;">View information to help you in your journey.</span>
-		</div>
 	</div>
+
 	<div id="reputationPage" hidden class="DOM">
 		<br><p style="padding-left: 30px;padding-right: 20px;font-size: 20px;">Here you can see your reputation with the different factions of Antorax. If you have a good reputation you may receive discounts from local merchants and the villagers may trust you enough to help them for a reward.</p><br>
 		<p style="padding-left: 30px;padding-right: 20px;font-size: 20px;">To improve your reputation, help the people in that area by doing quests for them or by attacking their enemies. Be careful though, because if you do something to make them angry they might not forgive you easily.</p>
 	</div>
+
 	<div id="settingsPage" hidden class="DOM">
 		<div id="settingLogout"></div>
 		<div id="settingFullscreen" class="settings">
@@ -197,6 +196,7 @@
 		<br>
 		<div id='settingCredits' onclick='Dom.settings.page("creditsPage")'>Credits</div><br><br><br><br>
 	</div>
+
 	<div id="settingsTwoPage" hidden class="DOM">
 		<center><h1>Controls</h1></center>
 		<div id="hotkeyTexts">
@@ -222,6 +222,7 @@
 		</div>
 		<center><div id="closeSettings" onclick="Dom.settings.page('settingsPage')">Close</div></center>
 	</div>
+
 	<div id="creditsPage" hidden class="DOM">
 		<div id="creditsTexts">
 			<h1 class="creditsHeading"><b>REALMS OF ANTORAX</b></h1><br>
@@ -244,6 +245,7 @@ Licensed under Creative Commons: By Attribution 3.0<br>
 		</div>
 		<center><div id="closeCredits" onclick="Dom.settings.page('settingsPage')">Close</div></center>
 	</div>
+
 	<div id="questStart" hidden class="DOM">
 		<br><h1 id="questStartQuest"></h1><br><br>
 		<b id="questStartName"></b><br>

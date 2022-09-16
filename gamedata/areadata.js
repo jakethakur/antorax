@@ -314,31 +314,44 @@ var Areas = {
 
 		tripwires: [
 			{
+				// make sure player starts the first quest!
+				x: 3000,
+				y: 300,
+				width: 1,
+				height: 600,
+				onPlayerTouch: function () {
+					// check that the "to the logging camp" quest has been started, and the instructions haven't been shown before
+					let questStarted = Player.quests.activeQuestArray.includes("To the Logging Camp");
+
+					if (questStarted && Player.tutorialProgress === 2) { // tutorialProgress defaults to undefined anyway
+						Dom.instructions.page(3); // open instructions
+					}
+					// otherwise if the player hasn't started the quest, displace them back to make them!
+					else if (!questStarted && !Player.quests.completedQuestArray.includes("To the Logging Camp")) {
+						Game.hero.displace(0, 150, 1, 0);
+						Dom.alert.closeAll(); // close all other open tutorial messages
+						Dom.alert.page("You need to start your first quest! Speak to the <b>Cart Driver</b> by pressing <b>Space</b>.", 0, undefined, "game");
+					}
+				}
+			},
+			{
 				// instructions pop up when bridge is moved to
 				x: 1490,
 				y: 300,
 				width: 1,
 				height: 600,
 				onPlayerTouch: function () {
-					// check that the "to the logging camp" quest has been started, weapon has been bought, and the instructions haven't been shown before
-					let questStarted = Player.quests.activeQuestArray.includes("To the Logging Camp");
+					// check that the weapon has been bought, and the instructions haven't been shown before
 					let weaponBought = Dom.inventory.check(2, "sword", 1) || Dom.inventory.check(2, "staff", 1) || Dom.inventory.check(2, "bow", 1);
 
-					if (questStarted && weaponBought && Player.unlockedInstructions.length < 3) {
-						Dom.instructions.page(2); // open instructions chapter 3
-					}
-					// otherwise if the player hasn't started the quest, teleport them back to make them!
-					else if (!questStarted && !Player.quests.completedQuestArray.includes("To the Logging Camp")) {
-						Game.hero.teleport(3838, 318);
-						Dom.alert.page("You need to start your first quest. Speak to the Cart Driver who is right next to you.", 0, undefined, "game")
-					}
-					// otherwise if the player hasn't bought the weapon, teleport them back to make them!
-					else if (!weaponBought && !Player.quests.completedQuestArray.includes("To the Logging Camp")) {
-						Game.hero.teleport(2369, 243);
-						Dom.alert.page("You need to buy a weapon to progress in your quest. Buy one from the nearby Weaponsmith.", 0, undefined, "game")
+					// if the player hasn't bought the weapon, displcae them back to make them!
+					if (!weaponBought && !Player.quests.completedQuestArray.includes("To the Logging Camp")) {
+						Game.hero.displace(0, 150, 1, 0);
+						Dom.alert.closeAll(); // close all other open tutorial messages
+						Dom.alert.page("You need to buy a weapon to progress in your quest. Buy one from the nearby <b>Weaponsmith</b> by pressing <b>Space</b>.", 0, undefined, "game");
 					}
 				}
-			}
+			},
 		],
 
 		npcs: [
@@ -673,9 +686,9 @@ var Areas = {
 		},
 
 		onAreaJoin: function () {
-			// start instructions chapter 4 if the player hasn't already
-			if (Player.unlockedInstructions.length < 4) {
-				Dom.instructions.page(3);
+			// start instructions if the player hasn't already seen them
+			if (Player.tutorialProgress < 5) {
+				Dom.instructions.page(5);
 				// show chat tab
 				Dom.instructions.unlockTab("chat");
 			}
@@ -989,8 +1002,8 @@ var Areas = {
 							// chat
 							Dom.chat.insertSequence([
 								Dom.chat.say("Soul Healer Nalaa", "Thank you for taking the time to bring this to me."),
-								Dom.chat.say("Soul Healer Nalaa", "/me gently unfolds the wrapping paper to reveal a brand new Scepter of Souls."),
-								Dom.chat.say("Soul Healer Nalaa", "It's a new Scepter of Souls! Thank you, adventurer. May the Demigods' blessings be bestowed upon you.")],
+								Dom.chat.say("Soul Healer Nalaa", "/me gently unfolds the wrapping paper to reveal a brand new sceptre of Souls."),
+								Dom.chat.say("Soul Healer Nalaa", "It's a new sceptre of Souls! Thank you, adventurer. May the Demigods' blessings be bestowed upon you.")],
 							[500], undefined, undefined, true); // cutscene with no end function
 						},
 						roleRequirement: function () {
@@ -2176,12 +2189,15 @@ var Areas = {
 			goblinCorpse: {normal: "assets/corpses/deadGoblin.png"},
 			mailcart: {normal: "assets/objects/cartDestroyed.png"},
 			trap: {normal: "assets/objects/trap.png"},
-			torch: {normal: "assets/objects/goblinTorchNight.png"},
+			torchDay1: {normal: "assets/objects/torchNight1.png"},
+			torchDay2: {normal: "assets/objects/torchNight2.png"},
+			torchDay3: {normal: "assets/objects/torchNight3.png"},
+			torchNight1: {normal: "assets/objects/torchNight1.png"},
+			torchNight2: {normal: "assets/objects/torchNight2.png"},
+			torchNight3: {normal: "assets/objects/torchNight3.png"},
 			lootChest: {normal: "assets/objects/chest.png"},
 			eaglecrestBanner: {normal: "assets/objects/eaglecrestBanner.png"},
 			nilbogBanner: {normal: "assets/objects/nilbogBanner.png"},
-			goblinTorchDay: {normal: "assets/objects/goblinTorchDay.png"},
-			goblinTorchNight: {normal: "assets/objects/goblinTorchNight.png"},
 			campfire1: {normal: "assets/objects/campfire1.png"},
 			campfire2: {normal: "assets/objects/campfire2.png"},
 			campfire3: {normal: "assets/objects/campfire3.png"},
@@ -2219,6 +2235,11 @@ var Areas = {
 		callAreaJoinOnInit: true,
 
 		onAreaJoin: function () {
+			// tutorial
+			if (Player.tutorialProgress === 11) {
+				Game.setTimeout(Dom.instructions.page, 1000, 12);
+			}
+
 			if (Event.time === "bloodMoon") {
 				let date = GetFullDate(); // yyyymmdd format
 
@@ -2411,7 +2432,7 @@ var Areas = {
 			{
 				x: 1047,
 				y: 120,
-				image: "torch",
+				image: "torchDay1",
 				name: "Goblin Torch",
 				hostility: "friendly",
 				level: 5,
@@ -2420,6 +2441,22 @@ var Areas = {
 					defence: 5,
 					healthRegen: 0.1,
 				},
+				// animation!
+				animateFunction: function () {
+					if (this.imageName === "torchDay1") {
+						this.image = Loader.getImage("torchDay2");
+						this.imageName = "torchDay2";
+					}
+					else if (this.imageName === "torchDay2") {
+						this.image = Loader.getImage("torchDay3");
+						this.imageName = "torchDay3";
+					}
+					else if (this.imageName === "torchDay3") {
+						this.image = Loader.getImage("torchDay1");
+						this.imageName = "torchDay1";
+					}
+				},
+				animationFrameTime: 200,
 				roles: [
 					{
 						quest: Quests.eaglecrestLoggingCamp[11],
@@ -2444,6 +2481,8 @@ var Areas = {
 								target: Game.hero,
 								tier: 1,
 							});
+							Dom.currentlyDisplayed = "";
+							Dom.currentNPC = {};
 						},
 						roleRequirement: function () {
 							return Player.quests.activeQuestArray.includes("A Burning Need to be Cleaned") && Dom.inventory.check(3, "item", 1) && Player.quests.npcProgress.eaglecrestLoggingCamp[24] === 1;
@@ -2703,53 +2742,38 @@ var Areas = {
 				name: "Eaglecrest Banner",
 			},
 			{
-				x: 570,
-				y: 1650,
-				imageDay: "goblinTorchDay",
-				imageNight: "goblinTorchNight",
-				name: "Eaglecrest Banner",
-			},
-			{
-				x: 1050,
-				y: 1530,
-				imageDay: "goblinTorchDay",
-				imageNight: "goblinTorchNight",
-				name: "Eaglecrest Banner",
-			},
-			{
-				x: 810,
-				y: 1350,
-				imageDay: "goblinTorchDay",
-				imageNight: "goblinTorchNight",
-				name: "Eaglecrest Banner",
-			},
-			{
-				x: 1530,
-				y: 330,
-				imageDay: "goblinTorchDay",
-				imageNight: "goblinTorchNight",
-				name: "Eaglecrest Banner",
-			},
-			{
-				x: 1650,
-				y: 95,
-				imageDay: "goblinTorchDay",
-				imageNight: "goblinTorchNight",
-				name: "Eaglecrest Banner",
-			},
-			{
-				x: 1890,
-				y: 150,
-				imageDay: "goblinTorchDay",
-				imageNight: "goblinTorchNight",
-				name: "Eaglecrest Banner",
-			},
-			{
-				x: 1950,
-				y: 450,
-				imageDay: "goblinTorchDay",
-				imageNight: "goblinTorchNight",
-				name: "Eaglecrest Banner",
+				x: [570, 1050, 810, 1530, 1650, 1890, 1950],
+				y: [1650, 1530, 1350, 330, 95, 150, 450],
+				imageDay: "torchDay1",
+				imageNight: "torchNight1",
+				name: "Goblin Torch",
+				animateFunction: function () {
+					if (this.imageName === "torchDay1") {
+						this.image = Loader.getImage("torchDay2");
+						this.imageName = "torchDay2";
+					}
+					else if (this.imageName === "torchDay2") {
+						this.image = Loader.getImage("torchDay3");
+						this.imageName = "torchDay3";
+					}
+					else if (this.imageName === "torchDay3") {
+						this.image = Loader.getImage("torchDay1");
+						this.imageName = "torchDay1";
+					}
+					else if (this.imageName === "torchNight1") {
+						this.image = Loader.getImage("torchNight2");
+						this.imageName = "torchNight2";
+					}
+					else if (this.imageName === "torchNight2") {
+						this.image = Loader.getImage("torchNight3");
+						this.imageName = "torchNight3";
+					}
+					else if (this.imageName === "torchNight3") {
+						this.image = Loader.getImage("torchNight1");
+						this.imageName = "torchNight1";
+					}
+				},
+				animationFrameTime: 200,
 			},
 		],
 
@@ -5518,7 +5542,7 @@ var Areas = {
 			nightTiles: [3, 19, 2, 18, 15],
 			pathTiles: [5, 12, 41, 50, 51, 57, 58, 59, 60, 76],
 			layers: [
-				[6, 6, 6, 23, 47, 31, 55, 31, 55, 39, 6, 6, 6, 6, 7, 6, 31, 55, 39, 7, 39, 23, 47, 6, 7, 6, 6, 6, 6, 39, 23, 47, 23, 47, 31, 55, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 30, 30, 30, 30, 30, 30, 30, 30, 30, 30, 30, 30, 30, 30, 30, 30, 30, 30, 30, 30, 30, 30, 30, 30, 30, 30, 30, 30, 30, 46, 46, 46, 46, 46, 46, 46, 30, 30, 30, 30, 30, 30, 30, 30, 30, 30, 30, 30, 30, 30, 30, 30, 30, 30, 30, 30, 30, 30, 30, 30, 30, 30, 30, 30, 30, 30, 30, 30, 30, 30, 30, 30, 30, 30, 30, 30, 30, 30, 30, 30, 30, 30, 30, 30, 30, 30, 30, 30, 30, 30, 30, 30, 30, 30, 30, 30, 30, 30, 30, 30, 30, 30, 30, 30, 30, 30, 30, 30, 30, 30, 30, 30, 30, 30, 30, 30, 30, 30, 30, 30, 30, 30, 30, 30, 30, 30, 30, 30, 30, 30],
+				[6, 6, 6, 23, 47, 31, 55, 31, 55, 39, 6, 6, 6, 6, 7, 6, 31, 55, 39, 7, 39, 23, 47, 6, 7, 6, 6, 101, 6, 39, 23, 47, 23, 47, 31, 55, 6, 6, 6, 6, 10, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 30, 30, 30, 30, 30, 30, 30, 30, 30, 30, 30, 30, 30, 30, 30, 30, 30, 30, 30, 30, 30, 30, 30, 30, 30, 30, 30, 30, 30, 46, 46, 46, 46, 46, 46, 46, 30, 30, 30, 30, 30, 30, 30, 30, 30, 30, 30, 30, 30, 30, 30, 30, 30, 30, 30, 30, 30, 30, 30, 30, 30, 30, 30, 30, 30, 30, 30, 30, 30, 30, 30, 30, 30, 30, 30, 30, 30, 30, 30, 30, 30, 30, 30, 30, 30, 30, 30, 30, 30, 30, 30, 30, 30, 30, 30, 30, 30, 30, 30, 30, 30, 30, 30, 30, 30, 30, 30, 30, 30, 30, 30, 30, 30, 30, 30, 30, 30, 30, 30, 30, 30, 30, 30, 30, 30, 30, 30, 30, 30, 30],
 				[],
 			],
 		},
@@ -5554,6 +5578,20 @@ var Areas = {
 				teleportTo: "eaglecrestEast",
 				destinationX: 510,
 				destinationY: 280,
+			},
+			{
+				// teleport to storerooms
+				x: 90,
+				y: 145,
+				width: 60,
+				height: 2,
+				teleportTo: "eaglecrestElixirsStorerooms",
+				destinationX: 292,
+				destinationY: 360,
+				teleportCondition: function () {
+					return Player.quests.activeQuestArray.includes("Cat Life");
+				},
+				teleportFailText: "<b>Alchemist Tamtam</b>: <sup>Nooo!</sup> You can't go into the storerooms!!!!",
 			},
 		],
 
@@ -5660,8 +5698,8 @@ var Areas = {
 				name: "Potion Stand",
 			},
 			{
-				x: 720,
-				y: 600,
+				x: [720, 730, 600],
+				y: [600, 285, 280],
 				image: "cauldronEaglecrest",
 				name: "Cauldron",
 			},
@@ -5672,7 +5710,7 @@ var Areas = {
 				name: "Cauldron",
 			},
 			{
-				x: 650,
+				x: 600,
 				y: 280,
 				image: "cauldronEaglecrest",
 				name: "Cauldron",
@@ -7066,6 +7104,11 @@ var Areas = {
 			rows: 100,
 			tsize: 60,
 			tilesPerRow: 13,
+			animateTiles: [{
+				// grass changing colour
+				tiles: [1, 2, 3, 4, 5, 6, 7, 8, 9, 14, 15, 16, 17, 18, 19, 20, 21, 22, 23, 24, 25],
+				animateTime: 5000,
+			}],
 			layers: [
 				[1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1,
         1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1,

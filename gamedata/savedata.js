@@ -55,6 +55,10 @@ var Player = {
 	},
 	reputationReady: false, // if player has dismissed reputation tutorial text
 
+	// tutorial
+	tutorialProgress: -1,
+	tipsSeen: [],
+
 	quests: {
 		activeQuestArray: [],
 		possibleQuestArray: [],
