@@ -8351,7 +8351,7 @@ Game.update = function (delta) {
 	}
 
 	// minigames tagged player speedboost
-	if (this.minigameInProgress.taggedPlayer.userID === ws.userID) {
+	if (typeof this.minigameInProgress !== "undefined" && this.minigameInProgress.taggedPlayer.userID === ws.userID) {
 		// player is on
 
 		let existingEffect = this.statusEffects.find(statusEffect => statusEffect.title === "You're On!");
