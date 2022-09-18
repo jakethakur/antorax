@@ -8354,7 +8354,7 @@ Game.update = function (delta) {
 	if (typeof this.minigameInProgress !== "undefined" && this.minigameInProgress.taggedPlayer === ws.userID) {
 		// player is on
 
-		let existingEffect = this.statusEffects.find(statusEffect => statusEffect.title === "You're On!");
+		let existingEffect = Game.hero.statusEffects.find(statusEffect => statusEffect.title === "You're On!");
 
 		if (typeof existingEffect !== "undefined") {
 			// has status effect - increase
