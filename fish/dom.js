@@ -70,9 +70,11 @@ function arrange(){
 				}
 			}
 		}
-		document.getElementById("flashcardlist"+c).innerHTML += '<li class="box" id="box'+i+'"><img src="../'+(array[i].imageArchaeology == undefined ? array[i].image : array[i].imageArchaeology)+'" class="img"><p id="name'+i+'" class="para"></p><p id="tier'+i+'" class="para"></p><p id="stats'+i+'" class="para"></p><p id="set'+i+'" class="para"></p><p id="function'+i+'" class="para"></p><p id="lore'+i+'" class="para"></p></li>';
+		// inner html
+		document.getElementById("flashcardlist"+c).innerHTML += '<li class="box" id="box'+i+'"><img src="../'+(array[i].imageArchaeology == undefined ? array[i].image : array[i].imageArchaeology)+'" class="img" id="image'+i+'"><p id="name'+i+'" class="para"></p><p id="tier'+i+'" class="para"></p><p id="stats'+i+'" class="para"></p><p id="set'+i+'" class="para"></p><p id="function'+i+'" class="para"></p><p id="lore'+i+'" class="para"></p></li>';
 		document.getElementById("flashcardlist"+c).style.left = 25+c*245+((screenSize-45)-(((Math.floor((screenSize-45)/245)))*245))/2+"px";
-		document.getElementById("name"+i).innerHTML = "<b>"+array[i].name+"</b>";
+
+		// rarity colouring
 		if(array[i].rarity == "mythic"){
 			document.getElementById("name"+i).style.color = "#b13fea";
 		}else if(array[i].rarity == "unique"){
@@ -82,14 +84,26 @@ function arrange(){
 		}else{
 			document.getElementById("name"+i).style.color = "gray";
 		}
-		if(localStorage.getItem("user") !== null && JSON.parse(localStorage.getItem("user")).fish[i] !== 0){
-			document.getElementById("tier"+i).innerHTML = "<br>Best Length: "+JSON.parse(localStorage.getItem("user")).fish[i]+"cm";
+
+		if(localStorage.getItem("user") !== null && JSON.parse(localStorage.getItem("user")).fish[array[i].id] !== 0){
+			// fish collected
+			document.getElementById("name"+i).innerHTML = "<b>"+array[i].name+"</b>";
+
+			document.getElementById("tier"+i).innerHTML = "<br>Best Length: "+JSON.parse(localStorage.getItem("user")).fish[array[i].id]+"cm";
 			document.getElementById("box"+i).style.borderColor = "darkgreen";
 			collected++;
 		}else{
+			// fish not collected
 			document.getElementById("tier"+i).innerHTML = "<br>You have not yet<br>caught this fish";
 			document.getElementById("box"+i).style.borderColor = "var(--border)";
+			// grey out fish
+			document.getElementById("image"+i).style = "filter: grayscale(100%) contrast(0%)";
+			// name is ???
+			document.getElementById("name"+i).innerHTML = "<b>???</b>";
 		}
+		document.getElementById("image"+i).setAttribute('draggable', false);
+
+
 		document.getElementById("tier"+i).innerHTML += "<br><br>"+array[i].howToCatch;
 		document.getElementById("stats"+i).innerHTML = "<br>Sells for "+array[i].sellPrice+" gold<br>at an item buyer";
 		if(array[i].lore !== undefined && array[i].lore !== ""){

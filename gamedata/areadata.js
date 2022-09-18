@@ -180,6 +180,7 @@ Event.init();
 
 const FishingLevels = {
 	loggingCamp: 10,
+	eaglecrest: 20,
 };
 
 // for dynamic lookup in messages ie class

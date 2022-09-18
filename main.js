@@ -3155,7 +3155,7 @@ class Hero extends Attacker {
 							//Player.stats = Game.hero.stats; // inefficient (should be linked)
 
 							// fish length for fisher's log
-							if (this.channelling.length > User.fish[this.channelling.id]) {
+							if (this.channelling.length > User.fish[this.channelling.id] || typeof User.fish[this.channelling.id] === "undefined") {
 								User.fish[this.channelling.id] = this.channelling.length;
 							}
 
