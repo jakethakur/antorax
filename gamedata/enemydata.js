@@ -59,6 +59,31 @@ const SpeciesTemplates = {
 		},
 		canBeOnLead: true,
 	},
+	frog: {
+		species: "frog",
+		subSpecies: "frog",
+		spells: [
+                {
+                    id: 14,
+                    tier: 1,
+                    parameters: function () { // returns array of parameters
+                        return {
+                            target: Game.hero,
+                        };
+                    },
+					castCondition: function (caster) {
+                        return Game.distance(caster, Game.hero) > caster.stats.range - 25;
+                    },
+                    interval: 1000,
+                },
+        ],
+		onDeath: function () {
+			// frpgs killed achievement
+			User.progress.frogs = Increment(User.progress.frogs);
+			// general frogs killed objective
+			Player.quests.questProgress.frogsKilled = Increment(Player.quests.questProgress.frogsKilled);
+		}
+	},
 };
 
 const NPCTemplates = {
@@ -733,6 +758,38 @@ const EnemyTemplates = {
 				Player.quests.questProgress.snakesCaptured = Increment(Player.quests.questProgress.snakesCaptured);
 				Dom.inventory.give(Items.item[34]);
 			},
+		},
+		toad: {
+			speciesTemplate: SpeciesTemplates.frog,
+			image: "toad",
+			deathImage: "goblinCorpse",//aaaaaaaaaaaaaaaaaaaaa
+			name: "Toad",
+			hostility: "hostile",
+			level: 5,
+			stats: {
+				damage: 10,
+				walkSpeed: 25,
+				swimSpeed: 25,
+				iceSpeed: 50,
+				maxHealth: 50,
+				defence: 5,
+				range: 150,
+				reloadTime: 1500,
+				healthRegen: 0.5,
+				lootTime: 10000,
+				respawnTime: 20000,
+			},
+			leashRadius: 350,
+			xpGiven: 50,
+			projectile: {
+				image: "waterball",
+			},
+			lootTableTemplate: [EnemyLootTables.frog],
+			/*lootTable: [
+				{
+				},
+			],*/
+			inventorySpace: 8,
 		},
 	}
 };

@@ -196,6 +196,16 @@ const EnemyLootTables = {
 			],
 		},
 	],
+	frog: [ // as well as nilbogGoblin
+		{ // gold
+			item: Items.currency[2],
+			chance: [
+				25,				// 0
+				5,
+				0,				// 1
+			],
+		},
+	],
 };
 
 const BossLootTables = {

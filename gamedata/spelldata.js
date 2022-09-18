@@ -236,7 +236,7 @@ Spells = [
 
 		channelTime: [
 			0,
-			1000,	// tier 1
+			500,	// tier 1
 		],
 
 		damageMultiplier: [
@@ -260,7 +260,7 @@ Spells = [
 		id: 5,
 		img: "assets/runes/5.png",
 		class: "m",
-		description: ["", "Launch an fireball towards your mouse pointer that deals 100% of your maximum attack damage to all targets hit, also setting them on fire."],
+		description: ["", "Launch an fireball towards your mouse pointer that deals 200% of your maximum attack damage to all targets hit, also setting them on fire."],
 		difficulty: "Medium",
 
 		// properties should contain tier (as int value), caster, target
@@ -287,12 +287,12 @@ Spells = [
 
 		channelTime: [
 			0,
-			2000,	// tier 1
+			1500,	// tier 1
 		],
 
 		damageMultiplier: [
 			0,
-			100,	// tier 1
+			200,	// tier 1
 		],
 
 		manaCost: [
@@ -580,4 +580,35 @@ Spells = [
 		],
 	},
 
+	{
+        name: "Hippity Hop",
+        id: 14,
+        class: "k",
+        description: "Ribbit",
+        enemyOnly: true, // toads in plains
+
+        // properties should contain tier (as int value), caster, target
+		func: function (properties) {
+            let velocity = Spells[14].velocity[properties.tier];
+            let dist = Math.min(Game.distance(properties.caster, properties.target), Spells[14].distance[properties.tier]);
+            let time = dist / velocity;
+            let bear = Game.bearing(properties.caster, properties.target);
+            properties.caster.displace(0, velocity, time, bear); // start displacement
+        },
+
+        velocity: [
+            0,
+            500,    // tier 1
+        ],
+
+        distance: [
+            0,
+            120,    // tier 1
+        ],
+
+        channelTime: [
+            0,
+            500,    // tier 1
+        ],
+    },
 ];

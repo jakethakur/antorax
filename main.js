@@ -8089,6 +8089,9 @@ Game.update = function (delta) {
 
 							// update tagged variables etc.
 							this.tag.newTaggedPlayer(player.userID);
+
+							// remove their speed
+							this.hero.cleanse("You're On!", "title");
 						}
 						break;
 				}
@@ -8330,6 +8333,10 @@ Game.update = function (delta) {
 	}
 
 
+	//
+	// misc updates
+	//
+
 	// fishing game - function returns true if game has been FAILED
 	if (FishingGame.update(delta) === true) {
 		// game failed
@@ -8343,8 +8350,30 @@ Game.update = function (delta) {
 		Dom.chat.insert("<i>The fish swam away!</i>");
 	}
 
+	// minigames tagged player speedboost
+	if (taggedPlayer.userID === ws.userID) {
+		// player is on
+
+		let existingEffect = this.statusEffects.find(statusEffect => statusEffect.title === "You're On!");
+
+		if (typeof existingEffect !== "undefined") {
+			// has status effect - increase
+			existingEffect.info.speedIncrease += delta;
+		}
+		else {
+			Game.statusEffects.walkSpeed({
+				target: Game.hero,
+				effectTitle: "You're On!",
+				speedIncrease: delta,
+				worksForGames: true,
+			});
+		}
+	}
+
+	//
 	// update the screen position of everything
 	// tbd could be made more efficient (check for camera move otherwise individual object move?)
+	//
 	for (let i = 0; i < this.allEntities.length; i++) {
 		this.updateScreenPosition(this.allEntities[i]);
 	}
