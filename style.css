@@ -534,6 +534,7 @@ thead:after { /* space after bags in bank */
 /*	  & CONTROLS	*/
 /*					*/
 
+/* fullscreen should always be the top setting */
 #settingFullscreen {
 	border-top: 5px solid var(--border);
 }
@@ -627,8 +628,8 @@ thead:after { /* space after bags in bank */
 	left: 375px;
 }
 
-/* setting groups (for margin below) */
-#settingMusic, #settingParticles, #settingTransparency, #settingMinigames, #settingCoords, #settingTutorial, #settingNametag {
+/* setting groups (for margin above) */
+#settingNotifs, #settingTutorial, #settingAccept, #settingMusic, #settingParticles, #settingTransparency, #settingMinigames, #settingCoords, #settingNametag {
 	margin-top: 10px;
 	border: 5px solid var(--border);
 }

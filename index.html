@@ -124,6 +124,27 @@
 			<span class="radio1"><input type="radio" id="fullscreenOn" name="fullscreenOnOff" onclick="Dom.settings.fullscreen()">Yes</input></span>
 			<span class="radio2"><input type="radio" id="fullscreenOff" name="fullscreenOnOff" checked="true" onclick="Dom.settings.fullscreen()">No</input></span>
 		</div>
+		<span id="settingNotifsHolder">
+			<div id="settingNotifs" class="settings">
+				Enable notifications:
+				<span class="radio1"><input type="radio" id="notifsOn" name="notifsOnOff" onclick="Notification.requestPermission(); localStorage.setItem('notifsRefused', 'false');">Yes</input></span>
+				<span class="radio2"><input type="radio" name="notifsOnOff" checked="true" onclick="localStorage.setItem('notifsRefused', 'true');">No</input></span>
+			</div>
+		<span id="settingNotifsHolder">
+		<span id="settingTutorialHolder">
+			<div id="settingTutorial" class="settings">
+				Disable tutorial:
+				<span class="radio1"><input type="radio" id="tutorialOn" name="tutorialOnOff">Yes</input></span>
+				<span class="radio2"><input type="radio" id="tutorialOff" name="tutorialOnOff" checked="true">No</input></span>
+			</div>
+		</span>
+		<span id="settingAcceptHolder">
+			<div id="settingAccept" class="settings">
+				Enable progress saving:
+				<span class="radio1"><input type="radio" id="acceptOn" name="acceptOnOff" onclick="Dom.settings.acceptOn()">Yes</input></span>
+				<span class="radio2"><input type="radio" name="acceptOnOff" checked="true">No</input></span>
+			</div>
+		</span>
 		<div id="settingMusic" class="settings">
 			Play music:
 			<span class="radio1"><input type="radio" id="musicOn" name="musicOnOff" onclick="Dom.settings.music()">Yes</input></span>
@@ -179,20 +200,6 @@
 			<span class="radio1"><input type="radio" id="gridOn" name="gridOnOff" onclick="Dom.settings.grid()">Yes</input></span>
 			<span class="radio2"><input type="radio" name="gridOnOff" checked="true" onclick="Dom.settings.grid()">No</input></span>
 		</div>
-		<span id="settingTutorialHolder">
-			<div id="settingTutorial" class="settings">
-				Disable Tutorial:
-				<span class="radio1"><input type="radio" id="tutorialOn" name="tutorialOnOff">Yes</input></span>
-				<span class="radio2"><input type="radio" id="tutorialOff" name="tutorialOnOff" checked="true">No</input></span>
-			</div>
-		</span>
-		<span id="settingAcceptHolder">
-			<div id="settingAccept" class="settings">
-				Enable progress saving:
-				<span class="radio1"><input type="radio" id="acceptOn" name="acceptOnOff" onclick="Dom.settings.acceptOn()">Yes</input></span>
-				<span class="radio2"><input type="radio" name="acceptOnOff" checked="true">No</input></span>
-			</div>
-		</span>
 		<br>
 		<div id='settingCredits' onclick='Dom.settings.page("creditsPage")'>Credits</div><br><br><br><br>
 	</div>

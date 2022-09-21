@@ -85,11 +85,13 @@ function arrange(){
 			document.getElementById("name"+i).style.color = "gray";
 		}
 
-		if(localStorage.getItem("user") !== null && JSON.parse(localStorage.getItem("user")).fish[array[i].id] !== 0){
+		let userData = JSON.parse(localStorage.getItem("user"));
+
+		if(localStorage.getItem("user") !== null && userData.fish[array[i].id] !== 0 && typeof userData.fish[array[i].id] !== "undefined"){
 			// fish collected
 			document.getElementById("name"+i).innerHTML = "<b>"+array[i].name+"</b>";
 
-			document.getElementById("tier"+i).innerHTML = "<br>Best Length: "+JSON.parse(localStorage.getItem("user")).fish[array[i].id]+"cm";
+			document.getElementById("tier"+i).innerHTML = "<br>Best Length: " + userData.fish[array[i].id] + "cm";
 			document.getElementById("box"+i).style.borderColor = "darkgreen";
 			collected++;
 		}else{

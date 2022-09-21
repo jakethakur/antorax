@@ -126,6 +126,7 @@ let Dom = {
 		minigamesOn: document.getElementById("minigamesOn"),
 		musicOn: document.getElementById("musicOn"),
 		name: document.getElementById("name"),
+		notifsOn: document.getElementById("notifsOn"),
 		otherQuestBox: document.getElementById("otherQuestBox"),
 		outIdtriangle: document.getElementById("outIdtriangle"),
 		outTriangle: document.getElementById("outTriangle"),
@@ -162,6 +163,7 @@ let Dom = {
 		settingDelete: document.getElementById("settingDelete"),
 		settingLogout: document.getElementById("settingLogout"),
 		settingsPage: document.getElementById("settingsPage"),
+		settingNotifsHolder: document.getElementById("settingNotifsHolder"),
 		settingsTwoPage: document.getElementById("settingsTwoPage"),
 		settingTutorialHolder: document.getElementById("settingTutorialHolder"),
 		speedOn: document.getElementById("speedOn"),
@@ -721,12 +723,16 @@ Dom.changeBook = function (page, openClose) {
 			if (ws !== false && ws.readyState === 1) {
 				// server on
 				//Dom.elements.players.hidden = false;
-				Notification.requestPermission();
+				//Notification.requestPermission();
 			}
-			/*else {
+			else {
 				// server off
-				Dom.elements.players.hidden = true;
-			}*/
+
+				//Dom.elements.players.hidden = true;
+
+				// hide option for notifications
+				Dom.elements.settingNotifsHolder.innerHTML = "";
+			}
 		}
 		return true;
 	}
@@ -6018,7 +6024,7 @@ window.onbeforeunload = function() {
 
 // notification if user has given permission
 Dom.chat.notification = function (title, body) {
-	if (Notification.permission === "granted" && !Dom.focus) {
+	if (Notification.permission === "granted" && Dom.elements.notifsOn.checked && !Dom.focus) { // setting radio button is also checked just in case they accepted but then turned it off by settings
         let notification = new Notification(title, {body: body, silent: true});
     }
 }
@@ -6527,6 +6533,7 @@ Dom.init = function () {
 				<p>We hope you enjoy this special day, and that we will celebrate the many more Antorax Days to come together.</p>`, true, [], [],
 				[{item: Items.helm[28]}]], [{item: Items.helm[28]}],
 			);
+
 			if (!Player.quests.completedQuestArray.includes("The Legend of the Tattered Knight")) {
 				Dom.mail.give(
 					"The Legend of the Tattered Knight",
@@ -6587,9 +6594,20 @@ Dom.init = function () {
                 "./assets/items/helm/23",
 			    "text.page",
 			    ["Bumper Samhain Harvest!",
-			    `It's the season of Samhain once again! What's a pumpkin doing in your mailbox? Well, out at the Eaglecrest Ranch we've had a bumper harvest of pumpkins, only makes sense to share them with everyone. Oh - and don't forget to try some of the pumpkin treats in a tavern.<br><br>Lennie`, true, [], [],
+			    `It's the season of Samhain once again! What's a pumpkin doing in your mailbox? Well, out at the Eaglecrest Ranch we've had a bumper harvest of pumpkins, only makes sense to share them with everyone. Oh - and don't forget to try some of the pumpkin treats in a tavern. They're made entirely with Eaglecrest produce!<br><br>From Farmer Lennie`, true, [], [],
 			    [{item: Items.helm[23]}]], [{item: Items.helm[23]}], true // noRepeat
 			);
+
+			if (!Player.quests.completedQuestArray.includes("The Slithering Truth") && Player.quests.timesCompleted.eaglecrest[1] >= 2) {
+				// they haven't completed the quest this mail starts before, and they have completed "snakes and the city" at least twice
+				Dom.mail.give(
+					"The Slithering Truth",
+					"unknown sender",
+					"./assets/items/item/36",
+					"quest.start",
+					["eaglecrest", 3], true // noRepeat
+				);
+			}
 		}
 
 		// Valentine's mail
@@ -6743,6 +6761,9 @@ Dom.init = function () {
 		Dom.elements.nametagOn.checked = true;
 	}
 
+
+	// permission settings
+	// local storage
 	if (localStorage.getItem("accept") === "true") {
 		// hide local storage setting since they have agreed
 		Dom.elements.settingAcceptHolder.innerHTML = "";
@@ -6755,6 +6776,10 @@ Dom.init = function () {
 				Dom.settings.acceptOn();
 			},
 		});
+	}
+	// notifications
+	if (Notification.permission === "granted" && localStorage.getItem("notifsRefused") !== "true") {
+		Dom.elements.notifsOn.checked = true;
 	}
 
 	// keyboard functions
