@@ -1522,19 +1522,18 @@ After all, death is never the end in Antorax...<br>
 
 			howToStart: "Speak to <strong>Recruiter Sylvie</strong>.",
 			levelRequirement: 4,
-			//questRequirements: ["Overdraft"],
-			questRequirements: [],//temp
+			questRequirements: ["Overdraft"],
 			eventRequirement: "Samhain",
 
 			repeatTime: "daily",
 
 			rewards: {
-				xp: 25,
+				xp: 20,
 				items: [
 					{item: Items.currency[2], quantity: 1,}, // goldy woldy
 				],
 				reputation: {
-					eaglecrestCity: 25,
+					eaglecrestCity: 20,
 				},
 			},
 
@@ -1600,6 +1599,219 @@ After all, death is never the end in Antorax...<br>
 				],
 				reputation: {
 					eaglecrestCity: 100,
+				},
+			},
+		},
+
+		{
+			id: 3,
+			quest: "The Slithering Truth",
+			questArea: "eaglecrest",
+
+			startName: "???",
+			startChat: `Greetingssssss ${Player.name},<br><br>
+			I have ssseen your effortssss. How about we make a deal?<br><br>
+			Attached isss a key to my lair. Find it in the City and we can discusssss.`,
+
+			finishName: "???",
+			finishChat: `Successssss. You found me.`,
+
+			objectives: [
+				"Find and enter the lair somewhere in the City.",
+				"Speak to the owner of the lair.",
+			],
+
+			isCompleted: function() {
+				let completed = [];
+
+				// true or falses for each objective (apart from the turn-in objective)
+				completed.push(Game.areaName === "samhainLair");
+
+				completed = checkFinished(completed);
+
+				return completed;
+			},
+
+			howToStart: "???",
+			levelRequirement: 4,
+			eventRequirement: "Samhain",
+			questRequirements: ["Snakes and the City"],
+
+			rewards: {
+				xp: 25,
+				reputation: {
+					theSoothsayer: 25,
+				},
+			},
+
+			startRewards: {
+				items: [
+					{item: Items.item[36],}, // skeleton key
+				],
+			},
+		},
+
+		{
+			id: 4,
+			quest: "Snaking Bad",
+			questArea: "eaglecrest",
+
+			startName: "???",
+			startChat: `I know who you are. I don't appreciate you capturing my offsssspring. But I notice the ssskill you posessssssss.<br><br>
+			There is ssome work I need asssssisssstance with. And I have plenty of rare rewardsssss. But first I need to know I can trussst you won't betray me for the City.<br><br>
+			Use thiss <b>Ssssceptre of Sssorrows</b> to capture the light from the main areas of the City. They'll never know it was you. Sssee it as you undoing your wrongssssss of capturing my innocent children.`,
+
+			finishName: "The Soothsssayer",
+			finishChat: `Excellent. I am <b>The Soothsssayer</b>. Let'ssss get sstarted with the real work ssshall we?`,
+
+			objectives: [
+				"Use the <b>Sceptre of Sorrows</b> to siphon the light from Eaglecrest City Centre.",
+				"Siphon the light from Eaglecrest West.",
+				"Siphon the light from Eaglecrest East.",
+				"Siphon the light from Eaglecrest Graveyard.",
+				"Speak to the snake man.",
+			],
+
+			isCompleted: function() {
+				let completed = [];
+
+				// true or falses for each objective (apart from the turn-in objective)
+				completed.push(Player.quests.questProgress.eaglecrestSamhainLights);
+				completed.push(Player.quests.questProgress.eaglecrestWestSamhainLights);
+				completed.push(Player.quests.questProgress.eaglecrestEastSamhainLights);
+				completed.push(Player.quests.questProgress.eaglecrestGraveyardSamhainLights);
+
+				completed = checkFinished(completed);
+
+				return completed;
+			},
+
+			howToStart: "Speak to the snake man in their lair.",
+			levelRequirement: 4,
+			questRequirements: ["The Slithering Truth"],
+			eventRequirement: "Samhain",
+
+			rewards: {
+				xp: 25,
+				items: [
+					{item: Items.currency[2], quantity: 2,},
+				],
+				reputation: {
+					theSoothsayer: 25,
+				},
+			},
+
+			startRewards: {
+				items: [
+					{item: Items.item[35],}, // sceptre
+				],
+			},
+
+			removeItems: [
+				{item: Items.item[35],}, // remove the sceptre
+			],
+
+			onQuestFinish: function () {
+				let npc = Game.NPCs.find(npc => npc.name === "???");
+				npc.name = "The Soothsssayer";
+			},
+		},
+
+		{
+			id: 5,
+			quest: "Moving Like a Snake",
+			questArea: "eaglecrest",
+
+			startName: "The Soothsssayer",
+			startChat: `My offsssspring have been ssscouting out the City these passt dayssss. And they found <b>four cratessss</b> around the City with ingredientsss that I need.<br><br>
+			They are not sssstrong enough to open the boxesss. But you are. Go find them for me. I have rewardsssssss.`,
+
+			finishName: "The Soothsssayer",
+			finishChat: `Good. You have my Crystalsssss. Now let'ssss ssstart the fun.`,
+
+			objectives: [
+				"Find a special crate somewhere in the Eaglecrest Bazaar.",
+				"Find a special crate somewhere in Eaglecrest Graveyard.",
+				"Find a special crate somewhere to the east of Eaglecrest Plains.",
+				"Find a special crate somewhere in Eaglecrest City West.",
+				"Speak to the <b>The Soothsssayer</b> with the contents of all four crates.",
+			],
+
+			isCompleted: function() {
+				let completed = [];
+
+				// true or falses for each objective (apart from the turn-in objective)
+				completed.push(Player.quests.questProgress.bazaarCrate);
+				completed.push(Player.quests.questProgress.graveyardCrate);
+				completed.push(Player.quests.questProgress.plainsCrate);
+				completed.push(Player.quests.questProgress.westCrate);
+
+				completed.push(Dom.inventory.check(38, "item", 4));
+
+				return completed;
+			},
+
+			howToStart: "Speak to The Soothsssayer in their lair.",
+			levelRequirement: 4,
+			questRequirements: ["Snaking Bad"],
+			eventRequirement: "Samhain",
+
+			rewards: {
+				xp: 25,
+				items: [
+					{item: Items.consumable[10], quantity: 1,},
+				],
+				reputation: {
+					theSoothsayer: 25,
+				},
+			},
+		},
+
+		{
+			id: 6,
+			quest: "The Blood Moon is Coming...",
+			questArea: "eaglecrest",
+
+			startName: "The Soothsssayer",
+			startChat: `How about I explain to you sssome of what'sss going on. I'm sssure you would love that.<br><br>
+			These Crystalsss can bring about the ssssummoning of a Blood Moon over all of Antorax, with the help of my cauldron.tbd`,
+
+			finishName: "The Soothsssayer",
+			finishChat: `ssstbd`,
+
+			objectives: [
+				"Protect the cauldron whilst ",
+				"Speak to the <b>The Soothsssayer</b>.",
+			],
+
+			isCompleted: function() {
+				let completed = [];
+
+				// true or falses for each objective (apart from the turn-in objective)
+				completed.push(Player.quests.questProgress.tbd);
+
+				completed = checkFinished(completed);
+
+				return completed;
+			},
+
+			howToStart: "Speak to The Soothsssayer in their lair.",
+			levelRequirement: 4,
+			questRequirements: ["Moving Like a Snake"],
+			eventRequirement: "Samhain",
+
+			onQuestStart: function () {
+				
+			},
+
+			rewards: {
+				xp: 50,
+				items: [
+					{item: Items.currency[2], quantity: 2,},
+					{item: Items.consumable[2], quantity: 9,},
+				],
+				reputation: {
+					theSoothsayer: 25,
 				},
 			},
 		},

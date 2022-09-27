@@ -61,28 +61,50 @@ const SpeciesTemplates = {
 	},
 	frog: {
 		species: "frog",
-		subSpecies: "frog",
-		spells: [
-                {
-                    id: 14,
-                    tier: 1,
-                    parameters: function () { // returns array of parameters
-                        return {
-                            target: Game.hero,
-                        };
-                    },
-					castCondition: function (caster) {
-                        return Game.distance(caster, Game.hero) > caster.stats.range - 25;
-                    },
-                    interval: 1000,
-                },
-        ],
 		onDeath: function () {
-			// frpgs killed achievement
+			// frogs killed achievement
 			User.progress.frogs = Increment(User.progress.frogs);
 			// general frogs killed objective
 			Player.quests.questProgress.frogsKilled = Increment(Player.quests.questProgress.frogsKilled);
 		}
+	},
+	chicken: {
+		species: "chicken",
+		onDeath: function () {
+			User.progress.chickens = Increment(User.progress.chickens);
+			Player.quests.questProgress.chickensKilled = Increment(Player.quests.questProgress.chickensKilled);
+		}
+	},
+	phantom: {
+		transparency: 0.7,
+		corpseOnDeath: false,
+		respawnOnDeath: false,
+		name: "Phantom",
+		species: "phantom",
+		hostility: "hostile",
+		level: 8,
+		stats: {
+			damage: 6,
+			walkSpeed: 180,
+			swimSpeed: 180,
+			iceSpeed: 180,
+			maxHealth: 50,
+			defence: 0,
+			range: 80,
+			reloadTime: 1000,
+			healthRegen: 1,
+		},
+		attackBehaviour: {
+			noCollision: true,
+		},
+		xpGiven: 50,
+		projectile: {
+			image: "melee",
+		},
+		onDeath: function () {
+			User.progress.phantoms = Increment(User.progress.phantoms);
+			Player.quests.questProgress.phantomsKilled = Increment(Player.quests.questProgress.phantomsKilled);
+		},
 	},
 };
 
@@ -178,7 +200,6 @@ const EnemyTemplates = {
 				respawnTime: 11000,
 				variance: 100,
 			},
-			leashRadius: 350,
 			xpGiven: 10,
 			projectile: {
 				image: "rock",
@@ -217,7 +238,6 @@ const EnemyTemplates = {
 				lootTime: 10000,
 				respawnTime: 11000,
 			},
-			leashRadius: 350,
 			xpGiven: 10,
 			projectile: {
 				image: "melee",
@@ -245,7 +265,6 @@ const EnemyTemplates = {
 				lootTime: 10000,
 				respawnTime: 11000,
 			},
-			leashRadius: 350,
 			xpGiven: 10,
 			projectile: {
 				image: "melee",
@@ -274,7 +293,6 @@ const EnemyTemplates = {
 				lootTime: 10000,
 				respawnTime: 20000,
 			},
-			leashRadius: 350,
 			xpGiven: 20,
 			projectile: {
 				image: "fireball",
@@ -311,7 +329,6 @@ const EnemyTemplates = {
 				lootTime: 10000,
 				respawnTime: 20000,
 			},
-			leashRadius: 300,
 			xpGiven: 35,
 			projectile: {
 				image: "melee",
@@ -340,7 +357,6 @@ const EnemyTemplates = {
 				respawnTime: 20000,
 				stun: 0.2,
 			},
-			leashRadius: 300,
 			xpGiven: 35,
 			projectile: {
 				image: "melee",
@@ -368,7 +384,10 @@ const EnemyTemplates = {
 				healthRegen: 0.4,
 				reloadTime: 1500,
 				lootTime: 10000,
+			},
+			attackBehaviour: {
 				alwaysMove: true, // move even when in range
+				baseAggro: 100, // always aggroed on player
 			},
 			spells: [
 				{
@@ -410,7 +429,6 @@ const EnemyTemplates = {
 					this.projectile.image = "arrow";
 				}
 			},
-			leashRadius: 1000, // doesn't leash in tower
 			xpGiven: 250,
 			projectile: {
 				image: "slash",
@@ -439,6 +457,9 @@ const EnemyTemplates = {
 				reloadTime: 1500,
 				lootTime: 10000,
 			},
+			attackBehaviour: {
+				baseAggro: 100, // always aggroed on player
+			},
 			spells: [
 				{
 					id: 9,
@@ -451,7 +472,6 @@ const EnemyTemplates = {
 					interval: 10000,
 				},
 			],
-			leashRadius: 1500, // doesn't leash
 			xpGiven: 250,
 			projectile: {
 				image: "slash",
@@ -479,7 +499,10 @@ const EnemyTemplates = {
 				healthRegen: 0, // no regen in the blood moon
 				reloadTime: 1000,
 				lootTime: 20000,
+			},
+			attackBehaviour: {
 				alwaysMove: true, // move even when in range
+				baseAggro: 1000, // always aggroed on player
 			},
 			spells: [
 				{
@@ -497,7 +520,6 @@ const EnemyTemplates = {
 					interval: 7000,
 				},
 			],
-			leashRadius: 3000, // doesn't leash
 			xpGiven: 250, // tbc?
 			projectile: {
 				image: "slashBlood",
@@ -588,6 +610,9 @@ const EnemyTemplates = {
 				healthRegen: 0, // no regen in the blood moon
 				lootTime: 20000,
 				windShield: true,
+			},
+			attackBehaviour: {
+				baseAggro: 1000, // always aggroed on player
 			},
 			spells: [
 				// ordered in order of boss priority to spells
@@ -685,10 +710,12 @@ const EnemyTemplates = {
 								healthRegen: 0, // no health regen in blood moon
 								windShield: true,
 							},
+							attackBehaviour: {
+								baseAggro: 1000, // always aggroed on player
+							},
 							projectile: {
 								image: "melee",
 							},
-							leashRadius: 3000, // doesn't leash
 							xpGiven: 44,
 						};
 					},
@@ -714,7 +741,6 @@ const EnemyTemplates = {
 					interval: 9000,
 				},
 			],
-			leashRadius: 3000, // doesn't leash
 			xpGiven: 250, // tbc?
 			projectile: {
 				image: "fireballGreen"
@@ -740,7 +766,11 @@ const EnemyTemplates = {
 
 	eaglecrest: {
 		snake: {
-			image: "yellowSnake",
+			image: "yellowSnakeLeft",
+	        rotationImages: {
+	            left: "yellowSnakeLeft",
+	            right: "yellowSnakeRight"
+	        },
 			name: "Snake",
 			hideNameTag: true,
 			hostility: "neutral",
@@ -753,6 +783,10 @@ const EnemyTemplates = {
 			stats: {
 				walkSpeed: 100,
 				maxHealth: 1,
+				dodgeChance: 50,
+			},
+			chat: {
+				notUnlockedRoles: "SSSSSsssssSSSsss.",
 			},
 			onDeath: function () {
 				Player.quests.questProgress.snakesCaptured = Increment(Player.quests.questProgress.snakesCaptured);
@@ -762,7 +796,7 @@ const EnemyTemplates = {
 		toad: {
 			speciesTemplate: SpeciesTemplates.frog,
 			image: "toad",
-			deathImage: "goblinCorpse",//aaaaaaaaaaaaaaaaaaaaa
+			deathImage: "toadCorpse",
 			name: "Toad",
 			hostility: "hostile",
 			level: 5,
@@ -779,17 +813,71 @@ const EnemyTemplates = {
 				lootTime: 10000,
 				respawnTime: 20000,
 			},
-			leashRadius: 350,
 			xpGiven: 50,
 			projectile: {
 				image: "waterball",
 			},
+			spells: [
+	            {
+	                id: 14,
+	                tier: 1,
+	                parameters: function () { // returns array of parameters
+	                    return {
+	                        target: Game.hero,
+	                    };
+	                },
+					castCondition: function (caster) {
+	                    return Game.distance(caster, Game.hero) > caster.stats.range - 25;
+	                },
+	                interval: 1000,
+	            },
+	        ],
 			lootTableTemplate: [EnemyLootTables.frog],
-			/*lootTable: [
-				{
-				},
-			],*/
 			inventorySpace: 8,
+		},
+		chicken: {
+			speciesTemplate: SpeciesTemplates.chicken,
+			image: "chicken",
+			deathImage: "chickenCorpse",
+			name: "Chicken",
+			hostility: "neutral",
+			level: 5,
+			stats: {
+				damage: 5,
+				walkSpeed: 75,
+				swimSpeed: 20,
+				iceSpeed: 150,
+				maxHealth: 40,
+				defence: 3,
+				range: 60,
+				reloadTime: 500,
+				healthRegen: 1,
+				lootTime: 10000,
+				respawnTime: 20000,
+			},
+			attackBehaviour: {
+				baseAggro: 0,
+			},
+			xpGiven: 25,
+			projectile: {
+				image: "melee",
+			},
+			lootTableTemplate: [EnemyLootTables.chicken],
+			inventorySpace: 8,
+		},
+		phantom1: {
+			speciesTemplate: SpeciesTemplates.phantom, // most of the info is in here
+			image: "eaglecrestGhost",
+			chat: {
+				fiftyPercentHealth: "You cannot do this!",
+			},
+		},
+		phantom2: {
+			speciesTemplate: SpeciesTemplates.phantom,
+			image: "eaglecrestGhost2",
+			chat: {
+				death: "For the city...",
+			},
 		},
 	}
 };

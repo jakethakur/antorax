@@ -196,13 +196,38 @@ const EnemyLootTables = {
 			],
 		},
 	],
-	frog: [ // as well as nilbogGoblin
+	frog: [
 		{ // gold
 			item: Items.currency[2],
 			chance: [
-				25,				// 0
-				5,
+				6,				// 0
 				0,				// 1
+			],
+		},
+	],
+	chicken: [
+		{ // gold
+			item: Items.currency[2],
+			chance: [
+				3,				// 0
+				0,				// 1
+			],
+		},
+		{ // feather
+			item: Items.item[37],
+			chance: [
+				90,				// 0
+				30,				// 1
+				1,				// 2
+				0,				// 3
+			],
+		},
+		{ // red feather
+			item: Items.item[37],
+			chance: [
+				2.5,			// 0
+				0.03,			// 1
+				0,				// 2
 			],
 		},
 	],
@@ -394,7 +419,7 @@ const BossLootTables = {
 const ChestLootTables = {
 	global: [
 		// all chests have this (for events)
-		{ // samhain mark
+		/*{ // samhain mark
 			item: Items.currency[4],
 			condition: function () {
 				return Event.time === "bloodMoon";
@@ -405,7 +430,7 @@ const ChestLootTables = {
 				5,				// 2
 				0,				// 3
 			],
-		},
+		},*/
 	],
 	nilbog: [
 		{ // unidentified item

@@ -720,19 +720,6 @@ Dom.changeBook = function (page, openClose) {
 				Dom.elements.chatText.style.overflowY = "auto";
 				Dom.elements.chatText.scrollTop = Dom.elements.chatText.scrollHeight;
 			}
-			if (ws !== false && ws.readyState === 1) {
-				// server on
-				//Dom.elements.players.hidden = false;
-				//Notification.requestPermission();
-			}
-			else {
-				// server off
-
-				//Dom.elements.players.hidden = true;
-
-				// hide option for notifications
-				Dom.elements.settingNotifsHolder.innerHTML = "";
-			}
 		}
 		return true;
 	}
@@ -741,6 +728,7 @@ Dom.changeBook = function (page, openClose) {
 	}
 }
 
+// called when player connection status changes
 Dom.chat.showPlayersOnline = function (type) {
 	if (type === "hide") {
 		Dom.elements.players.hidden = true;
@@ -2548,6 +2536,7 @@ Dom.quests.other = function () {
 	}
 }
 
+// sold is array of "sold" objects from areadata which include .item, .cost, etc. (see areadata, or get peter to comment his code!;))
 Dom.merchant.page = function (npc, sold, chat) {
 	if (Dom.changeBook("merchantPage")) {//, true/*false*/, true);
 		//Dom.currentlyDisplayed = npc.name;
@@ -2625,6 +2614,10 @@ Dom.merchant.buy = function (item, index, npc) {
 		item.item.removeOnAbandon = item.removeOnAbandon;
 		Dom.inventory.give(item.item);
 		Dom.chat.insert("You bought a " + item.item.name + ".", 100);
+
+		if (typeof item.buyFunction !== "undefined") {
+			item.buyFunction();
+		}
 	}
 }
 
@@ -6336,7 +6329,9 @@ Dom.init = function () {
 		// check if the item should be removed according to its deleteIf
 		if (Player.inventory.items[i].image !== undefined && !Player.inventory.items[i].unidentified && Items[Player.inventory.items[i].type][Player.inventory.items[i].id].deleteIf !== undefined && Items[Player.inventory.items[i].type][Player.inventory.items[i].id].deleteIf()) {
 			setTimeout(function () {
-				Dom.chat.insert(Player.inventory.items[i].deleteIfMessage);
+				if (typeof Player.inventory.items[i].deleteIfMessage !== "undefined") {
+					Dom.chat.insert(Player.inventory.items[i].deleteIfMessage);
+				}
 				Player.inventory.items[i] = {};
 			}, 1000);
 		}
@@ -6359,9 +6354,11 @@ Dom.init = function () {
 		let item = Player.inventory[Object.keys(Player.inventory)[i]];
 
 		// check if the item should be removed according to its deleteIf
-		if (item.image !== undefined && Items[item.type][item.id].deleteIf !== undefined && Items[item.type][item.id].deleteIf ()) {
+		if (item.image !== undefined && Items[item.type][item.id].deleteIf !== undefined && Items[item.type][item.id].deleteIf()) {
 			setTimeout(function () {
-				Dom.chat.insert(item.deleteIfMessage);
+				if (typeof item.deleteIfMessage !== "undefined") {
+					Dom.chat.insert(item.deleteIfMessage);
+				}
 				item = {};
 			}, 1000);
 		}
@@ -6382,7 +6379,9 @@ Dom.init = function () {
 		// if the item has melted
 		if (Player.bank.items[i].image !== undefined && !Player.bank.items[i].unidentified && Items[Player.bank.items[i].type][Player.bank.items[i].id].deleteIf !== undefined && Items[Player.bank.items[i].type][Player.bank.items[i].id].deleteIf ()) {
 			setTimeout(function () {
-				Dom.chat.insert("It's not snowy any more! Your "+Player.bank.items[i].name+" melted.");
+				if (typeof Player.bank.items[i].deleteIfMessage !== "undefined") {
+					Dom.chat.insert(Player.bank.items[i].deleteIfMessage);
+				}
 				Player.bank.items[i] = {};
 			},1000);
 		}else if (Player.bank.items[i].image !== undefined) {

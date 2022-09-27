@@ -446,7 +446,15 @@ Weather.render = function () {
 			Game.ctx.fillRect(particle.x, particle.y , 2, 2);
 		}
 		else if (particle.type === "rain") {
-			Game.ctx.fillStyle = "#b0d4e5";
+			if (Event.time === "bloodMoon") {
+				// blood rain :)
+				Game.ctx.fillStyle = "#660000";
+				Game.ctx.globalAlpha = 0.4;
+			}
+			else {
+				Game.ctx.fillStyle = "#b0d4e5";
+				Game.ctx.globalAlpha = 0.8;
+			}
 			Game.ctx.fillRect(particle.x, particle.y , 1, 12);
 		}
 		else if (particle.type === "fish") {
@@ -458,4 +466,5 @@ Weather.render = function () {
 			Game.ctx.fillRect(particle.x, particle.y , 3, 3);
 		}
 	}
+	Game.ctx.globalAlpha = 1;
 }

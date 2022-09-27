@@ -260,7 +260,7 @@ Spells = [
 		id: 5,
 		img: "assets/runes/5.png",
 		class: "m",
-		description: ["", "Launch an fireball towards your mouse pointer that deals 200% of your maximum attack damage to all targets hit, also setting them on fire."],
+		description: ["", "Launch an fireball towards your mouse pointer that deals 150% of your maximum attack damage to all targets hit, also setting them on fire."],
 		difficulty: "Medium",
 
 		// properties should contain tier (as int value), caster, target
@@ -292,7 +292,7 @@ Spells = [
 
 		damageMultiplier: [
 			0,
-			200,	// tier 1
+			150,	// tier 1
 		],
 
 		manaCost: [
@@ -432,7 +432,7 @@ Spells = [
 		id: 9,
 		class: "k",
 		description: "",
-		bossOnly: true, // tattered knight
+		enemyOnly: true, // tattered knight
 
 		// properties should contain tier (as int value), caster, target
 		func: function (properties) {
@@ -465,7 +465,7 @@ Spells = [
 		id: 10,
 		class: "k",
 		description: "",
-		bossOnly: true, // sheridan
+		enemyOnly: true, // sheridan
 
 		// properties should contain tier (as int value), caster, target
 		func: function (properties) {
@@ -499,7 +499,7 @@ Spells = [
 		id: 11,
 		class: "m",
 		description: "",
-		bossOnly: true, // nkkja
+		enemyOnly: true, // nkkja
 
 		// properties should contain:
 			// number (number to be animated)
@@ -529,7 +529,7 @@ Spells = [
 		id: 12,
 		class: "m",
 		description: "Strike an enemy with lightning, setting them on fire and stunning them!",
-		bossOnly: true, // nkkjs
+		enemyOnly: true, // nkkja
 
 		// properties should contain target
 		// doesn't yet work with tier
@@ -556,7 +556,7 @@ Spells = [
 		id: 13,
 		class: "m",
 		description: "Harness the power of the wind!",
-		bossOnly: true, // nkkja
+		enemyOnly: true, // nkkja
 
 		// properties should contain:
 			// speed (of wind movement)
@@ -611,4 +611,5 @@ Spells = [
             500,    // tier 1
         ],
     },
+
 ];

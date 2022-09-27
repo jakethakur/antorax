@@ -15,15 +15,25 @@ var Adventure = {
 
 	// events
 
-	samhain: {
+	samhainI: {
 		html: `<div id="samhainAL" class="adventure">
 			Samhain Event<br>
-			<span class="adventureContent">Kill stronger enemies and special bosses during a blood moon to get limited edition items.</span>
+			<span class="adventureContent">Get to the bottom of Eaglecrest City's snake infestation.</span>
 		</div>`,
 		condition: function () {
-			return Event.event === "Samhain";
+			return Event.event === "Samhain" && !Player.quests.questProgress.bloodMoonUnlocked;
 		},
 	},
+	samhainII: {
+		html: `<div id="samhainAL" class="adventure">
+			Samhain Event<br>
+			<span class="adventureContent">Kill stronger enemies and special bosses during the Blood Moon, to get <b>Samhain Marks</b> for The Sssoothsayer.</span>
+		</div>`,
+		condition: function () {
+			return Event.event === "Samhain" && Player.quests.questProgress.bloodMoonUnlocked;
+		},
+	},
+
 	christmas: {
 		html: `<div id="christmasAL" class="adventure">
 			Christmas Event<br>
@@ -185,13 +195,13 @@ const Tutorial = [
 		chapter: 7, // called upon player starting second quest
 		func: function () {
 			Dom.instructions.unlockTab("inventory");
-			Dom.alert.page("Click on the <b>Red Bookmark</b> at the <b>bottom-left</b> of your screen to open your inventory and equip your items!", 0);
+			Dom.alert.page("Click on the <b>Red Bookmark</b> at the <b>bottom-right</b> of your screen to open your inventory and equip your items!", 0);
 		},
 	},
 	{
 		chapter: 8, // called after equipping items
 		func: function () {
-			Dom.alert.page("Great!<br><br>If you ever forget what you need to do for a quest, click on the <b>Green Bookmark</b> at the <b>bottom-left</b>.", 0);
+			Dom.alert.page("Great!<br><br>If you ever forget what you need to do for a quest, click on the <b>Green Bookmark</b> at the <b>bottom-right</b>.", 0);
 		},
 	},
 	{

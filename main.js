@@ -128,7 +128,7 @@ Game.initWebSocket = function () {
 				achievementPoints: User.achievementPoints.total
 			}));
 
-			// show other players online in chat
+			// show other players online in chat (because player is connected to server)
 			Dom.chat.showPlayersOnline("show");
 		}
 
@@ -505,7 +505,10 @@ Game.initWebSocket = function () {
 		};
 	}
 	else {
-		console.info("Playing on a local version. Multiplayer features are not available.")
+		console.info("Playing on a local version. Multiplayer features are not available.");
+
+		// hide option for notifications
+		Dom.elements.settingNotifsHolder.innerHTML = "";
 	}
 }
 
@@ -867,6 +870,45 @@ var map = {
 		}
 		return false;
 	},
+
+	// replace all tiles in the area (any layer) of id "from" to id "to"
+	replaceTiles: function (from, to) {
+		// iterate through layers
+		for (let layer = 0; layer < this.numberOfLayers; layer++) {
+			// iterate through tiles to find those that need replacing
+			for (let tileIndex = 0; tileIndex < this.layers[layer].length; tileIndex++) {
+				if (this.layers[layer][tileIndex] === from) {
+					// tile needs replacing
+					this.layers[layer][tileIndex] = to;
+				}
+			}
+		}
+	},
+
+	//
+	// 'hard-coded' functions to do specific things
+	//
+
+	// turn eaglecrest lights green!
+	eaglecrestSamhainLights: function () {
+		this.replaceTiles(3, 145);
+		this.replaceTiles(11, 145);
+		this.replaceTiles(2, 146);
+		this.replaceTiles(34, 146);
+		this.replaceTiles(18, 153);
+		this.replaceTiles(42, 153);
+		this.replaceTiles(27, 154);
+		this.replaceTiles(19, 154);
+		this.replaceTiles(35, 156);
+		// also replace image of any light objects
+		for (let i = 0; i < Game.things.length; i++) {
+			if (Game.things[i].name === "Eaglecrest Lamp") {
+				Game.things[i].setImage("eaglecrestLampSamhain");
+				Game.things[i].imageNight = "eaglecrestLampSamhain";
+				Game.things[i].imageDay = "eaglecrestLampSamhain";
+			}
+		}
+	},
 };
 
 //
@@ -1026,6 +1068,10 @@ Game.swapPositions = function (entity1, entity2) {
 Game.currentTimeoutId = 0; // incremented by 1 for each new timeout/interval; unique for each timeout (so they can be removed)
 Game.timeouts = [];
 Game.intervals = [];
+
+// timeouts / intervals stopped when area is changed should be added (their ids) to this array
+Game.clearedTimeoutsOnAreaChange = [];
+Game.clearedIntervalsOnAreaChange = [];
 
 // time should be in ms
 // params are parameters passed into the function. array if more than one parameter
@@ -1278,7 +1324,7 @@ class Entity {
 	}
 }
 
-// a version of entity that can be seen
+// a version of entity that can be seen + has an image
 class Thing extends Entity {
 	constructor(properties) {
 		super(properties);
@@ -1600,12 +1646,16 @@ class Character extends Thing {
 			// chooseChat changed
 			if (this.chat.chooseChat !== undefined && this.chat.christmasGreeting !== undefined) {
 				this.chat.chooseChat = this.chat.christmasGreeting;
+				this.chat.questComplete = this.chat.christmasGreeting;
+				this.chat.notUnlockedRoles = this.chat.christmasGreeting;
 			}
 		}
 		else if (Event.event === "Antorax") { // Antorax Day
 			// chooseChat changed
 			if (this.chat.chooseChat !== undefined && this.chat.antoraxDayGreeting !== undefined) {
 				this.chat.chooseChat = this.chat.antoraxDayGreeting;
+				this.chat.questComplete = this.chat.antoraxDayGreeting;
+				this.chat.notUnlockedRoles = this.chat.antoraxDayGreeting;
 			}
 		}
 
@@ -1781,6 +1831,13 @@ class Character extends Thing {
 						if (!inMinigame) {
 							// set boss date killed
 							Player.bossesKilled[this.bossKilledVariable] = GetFullDate();
+						}
+					}
+
+					// reset aggro
+					if (typeof this.attackTargets !== "undefined") {
+						for (let i = 0; i < this.attackTargets.length; i++) {
+							this.attackTargets[i].aggro = 0;
 						}
 					}
 				}
@@ -2316,6 +2373,7 @@ class Attacker extends Character {
 	// remove whatever is currently being channelled
 	// called when the character moves or tries to channel something else
 	// reason is set to why the channel was removed (not used yet)
+	// if there is one, this also calls and resets channelCancelFunction (which should always be set after channel() is called!)
 	removeChannelling (reason) {
 		if (this.channelling !== false) {
 			// remove existing channelling
@@ -2343,6 +2401,12 @@ class Attacker extends Character {
 				// now nothing is being channelled
 				this.channelling = false;
 				this.channellingInfo = false;
+			}
+
+			// if there was a channelCancelFunction, call it then set it back to undefined
+			if (typeof this.channelCancelFunction !== "undefined") {
+				this.channelCancelFunction();
+				this.channelCancelFunction = undefined;
 			}
 		}
 	}
@@ -2666,7 +2730,7 @@ class Hero extends Attacker {
 		this.oldPosition = properties.oldPosition; // might be undefined
 	}
 
-	move (delta, dirx, diry) { // called when being displaced, moving towards something, or player is moving hero
+	move (delta, dirx, diry) { // called when hero being displaced, moving towards something, or player is moving hero
 
 		this.removeChannelling("move"); // stuff cannot be channelled whilst moving
 
@@ -3578,7 +3642,7 @@ class Projectile extends Thing {
 			hostility: "projectile",
 			statusEffects: [],
 		};
-		this.targets = properties.targets; // array of arrays of objects to dela damage to
+		this.targets = properties.targets; // array of arrays of objects to deal damage to
 		this.exceptTargets = properties.exceptTargets || []; // array of objects that would also be included in targets, but should not be damaged
 
 		this.variance = properties.variance || 0; // diameter of circle that it could fall into
@@ -3676,7 +3740,7 @@ class Projectile extends Thing {
 						}
 					}
 
-					if (Random(0, 99) < target.stats.dodgeChance) {
+					if (canBeDamaged && Random(0, 99) < target.stats.dodgeChance) {
 						// hit dodged
 						this.damageDealt.push({enemy: target, damage: "hit dodged", critical: false});
 						canBeDamaged = false;
@@ -3705,6 +3769,35 @@ class Projectile extends Thing {
 							attackerDamage += c;
 						}
 
+						// attackDamage status effect
+						attacker.statusEffects.forEach(statusEffect => {
+							if (statusEffect.info.damageIncrease !== undefined) {
+								// increase damage dealt if the status effect does so
+								attackerDamage *= 1 + (statusEffect.info.damageIncrease / 100);
+								if (attackerDamage < 0) {
+									attackerDamage = 0;
+								}
+							}
+						});
+
+
+						// let's now affect target aggro on attacker (if such a thing exists)
+						// we don't want to include defence, weakness (or critical hits (?)) but do want to include everything else
+						if (typeof target.attackTargets !== "undefined") {
+							// try to find the attacker in the target's targets (I'm getting jamais vu...)
+							for (let i = 0; i < target.attackTargets.length; i++) {
+								if (target.attackTargets[i].target === attacker) {
+									if (typeof target.attackTargets[i].aggro === "undefined") {
+										target.attackTargets[i].aggro = 0;
+									}
+									target.attackTargets[i].aggro += attackerDamage;
+									target.attackTargets[i].lastAttacked = 0;
+									target.attackTargets[i].aggroBeforeForgiveness = undefined;
+								}
+							}
+						}
+
+
 						let targetDefence = target.stats.defence; // calculate target defence
 
 						// defence status effect
@@ -3723,17 +3816,6 @@ class Projectile extends Thing {
 						if (dmgDealt < 0) {
 							dmgDealt = 0;
 						}
-
-						// attackDamage status effect
-						attacker.statusEffects.forEach(statusEffect => {
-							if (statusEffect.info.damageIncrease !== undefined) {
-								// increase damage dealt if the status effect does so
-								dmgDealt *= 1 + (statusEffect.info.damageIncrease / 100);
-								if (dmgDealt < 0) {
-									dmgDealt = 0;
-								}
-							}
-						});
 
 						let critical = false
 						if (Random(0, 99) < attacker.stats.criticalChance) { // critical hit
@@ -3950,6 +4032,27 @@ class Projectile extends Thing {
 	}
 }
 
+// appears as a shape, activates to apply an effect to all targets in the shape after a specific time period
+class CombatArea extends Entity {
+	constructor(properties) {
+		super(properties);
+
+		this.shape = properties.shape || "circle"; // should be "circle", (more to be added!)
+		this.colour = properties.colour;
+		this.thickness = properties.thickness || 5;
+
+		this.effect = properties.effect; // function to be triggered after time
+		this.targets = properties.targets; // array of arrays of objects to deal damage to
+		this.time = properties.time; // in ms
+		this.elapsed = 0;
+
+		this.activated = false;
+
+		this.text = properties.text || ""; // optional text to display in the shape
+	}
+}
+
+
 // quest NPC (to be merged with merchant)
 class NPC extends Character {
 	constructor(properties) {
@@ -4162,12 +4265,6 @@ class Enemy extends Attacker {
 		}
 		this.damageableByPlayer = true; // all enemies are damageable by player
 
-		// combat traits (specific to enemy)
-		this.leashRadius = properties.leashRadius; // how far away the player has to be for the enemy to stop following them
-
-		// stats
-		this.stats.alwaysMove = properties.stats.alwaysMove || false; // move even when in range
-
 
 		// lootTable: an array of objects for each loot item - these objects contain the item ("item") and chances of looting them ("chance")
 		// if properties.lootTableTemplate is an array of lootTables (more than one template), merge them
@@ -4225,9 +4322,68 @@ class Enemy extends Attacker {
 			this.behaviourMain = properties.behaviour.main; // to be run before movement/attacking
 			this.behaviourMovement = properties.behaviour.movement; // to be run before movement/attacking
 		}
+
+		//
+		// combat behaviour
+		//
+
+		if (typeof properties.attackBehaviour === "undefined") { // where attack ai stats are held
+			properties.attackBehaviour = {};
+		}
+
+		this.alwaysMove = properties.attackBehaviour.alwaysMove || false; // move even when in range
+
+		this.noCollision = properties.attackBehaviour.noCollision || false; // don't collide with anything
+
+		this.attackTargets = [];
+		// hero is always a target
+		this.attackTargets.push({
+			target: Game.hero,
+			aggro: 0, // increases by the amount of damage dealt to this character (BEFORE DEFENCE)
+			baseAggro: properties.attackBehaviour.baseAggro || 3.5, // added to aggro, constant value (this is effectively a leashradius of 350 pixels, increased by aggro)
+			lastAttacked: undefined, // the time in ms since this character was last attacked. if it was longer ago than forgivenessTime, then the aggro halves each second
+		});
+		// 100(aggro+baseAggro)/distance is used to decide whether it is worth them attacking each target (above their attackThreshold)
+
+		this.forgivenessTime = properties.attackBehaviour.forgivenessTime || 4000; // if this is negative then they never forgive you (:
+		this.forgivenessRate = properties
+		this.attackThreshold = properties.attackBehaviour.attackThreshold || 1; // aggro-distance quotients below this aren't attacked
+
+		if (typeof properties.attackTargets !== "undefined") {
+			// for anything they should target other than hero
+			for (let i = 0; i < properties.attackTargets.length; i++) {
+				this.attackTargets.push({
+					target: properties.attackTargets[i].target(),
+					baseAggro: properties.attackTargets[i].baseAggro || properties.attackBehaviour.baseAggro || 0,
+				});
+			}
+		}
 	}
 
+	// we are in enemy class - this is called every time update is called
 	update (delta) {
+		// update aggros
+		for (let i = 0; i < this.attackTargets.length; i++) {
+			let target = this.attackTargets[i];
+
+			// update lastAttacked times
+			if (typeof target.lastAttacked === "undefined") {
+				target.lastAttacked = 0;
+			}
+			target.lastAttacked += delta*1000; // everything in ms
+
+			if (this.forgivenessTime >= 0 && target.lastAttacked > this.forgivenessTime) {
+				// target is being forgiven for their aggression...
+				if (typeof target.aggroBeforeForgiveness === "undefined") {
+					// init forgiveness (this variable is reset on damage being dealt to the enemy)
+					target.aggroBeforeForgiveness = target.aggro; // this is the initial aggro before the forgiveness started, so it can be calculated using exponential decay
+				}
+
+				let timeSinceForgiveness = target.lastAttacked - this.forgivenessTime; // this is the time they have been forgiven for
+				target.aggro = target.aggroBeforeForgiveness / Math.pow(2, timeSinceForgiveness/1000); // exponential decay
+			}
+		}
+
 		let moved = false; // whether character has called this.move
 
 		if (this.hasStatusEffect("Displacement")) {
@@ -4254,20 +4410,27 @@ class Enemy extends Attacker {
 				// if it exists and returns false, none of the normal behaviour will be run
 				if (this.behaviourMain === undefined || this.behaviourMain()) {
 
-					// what the boss should move towards IF it moves
-					let moveTowards = Game.hero;
+					let target;
 
 					// run function for special movement behaviour if one exists
-					// if it exists and returns false, default will occur (move towards hero)
+					// if it exists and returns false, default will occur (see else...)
 					if (this.behaviourMovement !== undefined) {
-						moveTowards = this.behaviourMovement() || Game.hero;
+						target = this.behaviourMovement();
+						if (typeof target === "undefined") {
+							target = this.calculateTarget();
+						}
+					}
+					else {
+						target = this.calculateTarget(); // based off of aggro etc
 					}
 
-
-					let heroDist = Game.distance(this, Game.hero);
+					let targetDist;
+					if (typeof target !== "undefined") {
+						targetDist = Game.distance(this, target);
+					}
 
 					// find a spell that is not on cooldown and can be cast
-					// TBD enemy mana
+					// TBD enemy mana?
 					let spellIndex = -1;
 					if (this.spells.length !== 0) {
 						// enemy has some spells
@@ -4288,44 +4451,34 @@ class Enemy extends Attacker {
 						}.bind(this), spell.interval, [spellIndex]);
 					}
 
-					else if (heroDist < this.stats.range && // hero is within range
-					(!Game.hero.stats.stealthed || this.isTouching(Game.hero))) { // hero is not stealthed OR they are and you are touching them
+					else if (typeof target !== "undefined") {
 
-						// enemy should attack hero
-						// canAttack is inside if statement because otherwise the enemy moves when it is in range but cannot attack
-						if (this.canAttack) { // projectile can be shot
-							this.shoot([[Game.hero],]);
+						if (targetDist < this.stats.range) { // target is within range of attacking
+
+							// enemy should attack target
+							// canAttack is inside if statement because otherwise the enemy moves when it is in range but cannot attack
+							if (this.canAttack) { // projectile can be shot
+								this.shoot([[target]]);
+							}
+
+							// alwaysMove stat means that it always moves even when in range
+
+							else if (this.alwaysMove && targetDist >= 20) { // stop any stuttering on top of target
+								this.move(delta, target);
+								moved = true;
+							}
 						}
 
-						// alwaysMove stat means that it always moves even when in range
-
-						else if (this.stats.alwaysMove &&
-						moveTowards.constructor.name === "Hero" && // moving towards hero
-						heroDist > 20 && // stop any stuttering on top of hero
-						!Game.hero.stats.stealthed && // hero is not stealthed
-						heroDist < this.leashRadius) { // not outside of leashRadius from hero
-							this.move(delta, moveTowards);
+						// move normally
+						else {
+							this.move(delta, target);
 							moved = true;
 						}
 
-						else if (this.stats.alwaysMove &&
-						moveTowards.constructor.name !== "Hero" && // moving towards sommething other than hero (due to special movement behaviour)
-						heroDist < this.leashRadius) { // not outside of leashRadius from hero
-							this.move(delta, moveTowards);
-							moved = true;
-						}
 					}
 
-					else if (heroDist >= this.leashRadius) { // enemy should move passively
-						// passive movement within given (to be given...) boundaries...
-						// behaviour.movement location (if there is one) is not used
-					}
-
-					// hero is not stealthed (or special movement behaviour is being used)
-					else if (!Game.hero.stats.stealthed || moveTowards.constructor.name !== "Hero") {
-						// enemy should move towards moveTowards
-						this.move(delta, moveTowards);
-						moved = true;
+					else {
+						// no targets , passive behaviour . . .
 					}
 
 				}
@@ -4355,7 +4508,7 @@ class Enemy extends Attacker {
 		}
 	}
 
-	// move towards entity (towards parameter)
+	// move towards entity/location (towards parameter)
 	// towards can be set to false if no movement (other than wind) should occur
 	move (delta, towards) {
 		// figure out speed
@@ -4384,7 +4537,9 @@ class Enemy extends Attacker {
 		this.y += diry * this.speed * delta;
 
 		// collide with solid tiles
-		this.collide(dirx, diry, delta);
+		if (!this.noCollision) {
+			this.collide(dirx, diry, delta);
+		}
 	}
 
 	// shoot projectile at array of arrays of enemies (at)
@@ -4449,6 +4604,32 @@ class Enemy extends Attacker {
 		}, 1500, a)); // pushed to objectRemoveTimeouts so it can be removed when the area is changed
 
 		this.channellingProjectileId = null;
+	}
+
+	// calculates target to move towards & attack from aggro and distances
+	calculateTarget () {
+		let currentMinimum = Number.MAX_VALUE;
+
+		let currentTarget = undefined;
+
+		for (let i = 0; i < this.attackTargets.length; i++) {
+			let target = this.attackTargets[i];
+			if (typeof target.stats === "undefined" || !target.stats.stealthed || this.isTouching(target)) {  // target is not stealthed OR they are and this is touching them
+				let distance = Game.distance(this, target.target);
+				let aggro = target.aggro + target.baseAggro;
+
+				let aggroQuotient = aggro / distance * 100; // what the target is calculated based off of
+
+				target.aggroQuotient = aggroQuotient; // for ease of testing in console
+
+				if (aggroQuotient >= this.attackThreshold && aggroQuotient < currentMinimum) {
+					currentTarget = target.target;
+					currentMinimum = aggroQuotient;
+				}
+			}
+		}
+
+		return currentTarget;
 	}
 
 	// generate loot from lootTable (called when enemy dies or a chest is added)
@@ -5890,11 +6071,13 @@ Game.tag.newTaggedPlayer = function (userID) {
 					time: 3,
 					worksForGames: true
 				});
+				// and set their name colour / hostility back
+				Game.hero.hostility = "friendly";
 			}
 		}
 		else {
 			// they are in the same area - update their name colour
-			// this is otherwise done on joining area
+			// this is otherwise done on joining area (or above in case of hero)
 			prevTaggedPlayer.hostility = "friendly";
 		}
 
@@ -5929,6 +6112,8 @@ Game.tag.newTaggedPlayer = function (userID) {
 	if (taggedPlayer.userID === ws.userID) {
 		// this player is on
 		taggedPlayerMessage = "You are on"
+
+		Game.hero.hostility = "gameHostile"; // for nametag
 	}
 
 	// chat message
@@ -5951,6 +6136,9 @@ Game.tag.finish = function (leaderboardData) {
 
 	// stop other players from being tagged
 	Game.minigameInProgress.taggedPlayer = undefined;
+
+	// remove hero's speed of they were on
+	Game.hero.cleanse("You're On!", "title");
 
 	// ended after a proper game
 	Dom.chat.insert("The game is over.");
@@ -6086,10 +6274,14 @@ Game.loadArea = function (areaName, destination) {
 
 	this.areaTeleports = []; // stop player from teleporting again during promise
 
-	// remove animationTick if one exists, to stop unloaded images being tried to be used
-	if (this.animationTick !== undefined) {
-		this.clearInterval(this.animationTick);
-		this.animationTick = undefined;
+	// clear all timeouts and intervals that should be cleared upon changing area
+	while (this.clearedTimeoutsOnAreaChange.length > 0) {
+		this.clearTimeout(this.clearedTimeoutsOnAreaChange[0]);
+		this.clearedTimeoutsOnAreaChange.splice(0, 1);
+	}
+	while (this.clearedIntervalsOnAreaChange.length > 0) {
+		this.clearInterval(this.clearedIntervalsOnAreaChange[0]);
+		this.clearedIntervalsOnAreaChange.splice(0, 1);
 	}
 
 	// wipe previously loaded images (except exceptions - based on deleteif)
@@ -6276,7 +6468,8 @@ Game.loadArea = function (areaName, destination) {
 			npcs: NPC,
 			enemies: Enemy,
 			players: UserControllable,
-			projectiles: Projectile
+			projectiles: Projectile,
+			combatAreas: CombatArea,
 		};
 
 		// list of objects to be animated (with a .animate function)
@@ -6320,30 +6513,29 @@ Game.loadArea = function (areaName, destination) {
 				// exists in areadata
 				// iterate through objects of that type in areadata
 				for (let i = 0; i < Areas[areaName][type].length; i++) {
-					// see if there are multiple npcs of the type that should be added (i.e. the x and y coordinates are an array)
+					// see if there are multiple entities of the type that should be added (i.e. the x and y coordinates are an array)
+					// if there are, then split this into multiple npcs in areadata without arrays for coords
 					if (Array.isArray(Areas[areaName][type][i].x)) {
 						let xArray = Areas[areaName][type][i].x;
 						let yArray = Areas[areaName][type][i].y;
 						// iterate through each npc to be added
 						for (let j = 0; j < xArray.length; j++) {
+							let clonedObject = Object.assign({}, Areas[areaName][type][i]);
+							Areas[areaName][type].push(clonedObject);
+							let newEntityId = Areas[areaName][type].length-1;
 							// set new x and y coords from this array
-							Areas[areaName][type][i].x = xArray[j];
-							Areas[areaName][type][i].y = yArray[j];
-							// check npc should be added, and prepare it to be added (e.g. by setting its map and type)
-							// also calls specific functions needed for certain npcs
-							if (this.prepareNPC(Areas[areaName][type][i], type)) {
-								Areas[areaName][type][i].source = "area";
-								this[type].push(new className(Areas[areaName][type][i]));
-							}
+							Areas[areaName][type][newEntityId].x = xArray[j];
+							Areas[areaName][type][newEntityId].y = yArray[j];
 						}
+						// remove the original npc
+						Areas[areaName][type].splice(i,1);
 					}
-					else {
-						// check npc should be added, and prepare it to be added (e.g. by setting its map and type)
-						// also calls specific functions needed for certain npcs
-						if (this.prepareNPC(Areas[areaName][type][i], type)) {
-							Areas[areaName][type][i].source = "area";
-							this[type].push(new className(Areas[areaName][type][i]));
-						}
+
+					// check npc should be added, and prepare it to be added (e.g. by setting its map and type)
+					// also calls specific functions needed for certain npcs
+					if (this.prepareNPC(Areas[areaName][type][i], type)) {
+						Areas[areaName][type][i].source = "area";
+						this[type].push(new className(Areas[areaName][type][i]));
 					}
 				}
 			}
@@ -6567,7 +6759,7 @@ Game.loadArea = function (areaName, destination) {
 		// animations
 		// tick called every 100s (perhaps change in future?)
 		this.totalAnimationTime = 0; // used to find if animate should be called for an object
-		this.animationTick = Game.setInterval(function () {
+		this.clearedIntervalsOnAreaChange.push(Game.setInterval(function () {
 			Game.totalAnimationTime += 100;
 
 			for (let i = 0; i < Game.animationList.length; i++) {
@@ -6577,7 +6769,7 @@ Game.loadArea = function (areaName, destination) {
 					Game.animationList[i].lastAnimated = Game.totalAnimationTime;
 				}
 			}
-		}, 100);
+		}, 100));
 
 		// time travel fog
 		/*
@@ -6843,6 +7035,9 @@ Game.initStatusEffects = function () {
 			}.bind(statusEffect), nextTickTime, [Game.hero, nextTickTime]);
 		}
 	}
+
+	// clear the tag status effect (for if they had it then refreshed the game so are no longer playing)
+	this.hero.cleanse("You're On!", "title");
 }
 
 // init an NPC for being added by loadArea
@@ -6872,6 +7067,9 @@ Game.setInformationFromTemplate = function (properties) {
 		if (properties.template.stats !== undefined) {
 			Object.assign(properties.template.stats, properties.stats); // template updated
 		}
+		if (properties.template.attackBehaviour !== undefined) {
+			Object.assign(properties.template.attackBehaviour, properties.attackBehaviour); // template updated
+		}
 		Object.assign(properties, properties.template); // properties updated
 	}
 
@@ -6879,6 +7077,9 @@ Game.setInformationFromTemplate = function (properties) {
 		// a second template, specific to the species
 		if (properties.speciesTemplate.stats !== undefined) {
 			Object.assign(properties.speciesTemplate.stats, properties.stats); // species template updated
+		}
+		if (properties.speciesTemplate.attackBehaviour !== undefined) {
+			Object.assign(properties.speciesTemplate.attackBehaviour, properties.attackBehaviour); // species template updated
 		}
 		Object.assign(properties, properties.speciesTemplate); // properties updated
 	}
@@ -6933,7 +7134,7 @@ Game.setDayNightImages = function () {
 			}
 			else {
 				// day time
-				if (thing.imageDay !== thing.imageDay) {
+				if (thing.imageName !== thing.imageDay) {
 					thing.changeImage(thing.imageDay);
 				}
 			}
@@ -7385,6 +7586,20 @@ Game.update = function (delta) {
 			this.intervals[i].func(...this.intervals[i].params);
 			// ..and reset the interval
 			this.intervals[i].elapsed -= this.intervals[i].time;
+		}
+	}
+
+	// CombatArea intervals (done locally in combatAreas for simplicity)
+	for (let i = 0; i < this.combatAreas.length; i++) {
+		this.combatAreas[i].elapsed += delta * 1000;
+		if (!this.combatAreas.activated && this.combatAreas[i].elapsed >= this.combatAreas[i].time) {
+			// combat area's interval has finished, call its function
+			this.combatAreas[i].effect();
+			this.combatAreas[i].activated = true;
+
+			// now delete the combatArea
+			this.removeObject(this.combatAreas[i].id, "combatAreas", i);
+			i--;
 		}
 	}
 
@@ -8090,7 +8305,7 @@ Game.update = function (delta) {
 							// update tagged variables etc.
 							this.tag.newTaggedPlayer(player.userID);
 
-							// remove their speed
+							// remove hero's speed
 							this.hero.cleanse("You're On!", "title");
 						}
 						break;
@@ -8343,32 +8558,34 @@ Game.update = function (delta) {
 		FishingGame.gameEnd();
 
 		// remove fishing bobber
-		Game.removeObject(Game.hero.channellingProjectileId, "projectiles");
-		Game.hero.channelling = false;
-		Game.hero.channellingProjectileId = null;
-		Game.clearTimeout(Game.fishTimeout);
+		this.removeObject(this.hero.channellingProjectileId, "projectiles");
+		this.hero.channelling = false;
+		this.hero.channellingProjectileId = null;
+		this.clearTimeout(this.fishTimeout);
 		Dom.chat.insert("<i>The fish swam away!</i>");
 	}
 
-	// minigames tagged player speedboost
+
+	// tag minigame - tagged player speedboost (increases over time the longer they are tagged)
 	if (typeof this.minigameInProgress !== "undefined" && this.minigameInProgress.taggedPlayer === ws.userID) {
 		// player is on
 
-		let existingEffect = Game.hero.statusEffects.find(statusEffect => statusEffect.title === "You're On!");
+		let existingEffect = this.hero.statusEffects.find(statusEffect => statusEffect.title === "You're On!");
 
 		if (typeof existingEffect !== "undefined") {
 			// has status effect - increase
 			existingEffect.info.speedIncrease += delta;
 		}
 		else {
-			Game.statusEffects.walkSpeed({
-				target: Game.hero,
+			this.statusEffects.walkSpeed({
+				target: this.hero,
 				effectTitle: "You're On!",
 				speedIncrease: delta,
 				worksForGames: true,
 			});
 		}
 	}
+
 
 	//
 	// update the screen position of everything
@@ -9442,6 +9659,7 @@ Game.render = function (delta) {
         this.drawLayer(0);
     }
 
+
 	// auras behind hero (currently just works for hero)
 	if (this.hero.stats.frostaura) {
 		this.ctx.globalAlpha = 0.3;
@@ -9467,6 +9685,29 @@ Game.render = function (delta) {
 		this.ctx.fill();
 	}
 	this.ctx.globalAlpha = 1;
+
+	// combat areas
+	for (let i = 0; i < this.combatAreas.length; i++) {
+		let area = this.combatAreas[i];
+
+		this.ctx.strokeStyle = area.colour;
+		this.ctx.lineWidth = area.thickness;
+
+		if (area.shape === "circle") {
+			this.ctx.beginPath();
+			this.ctx.ellipse(area.x, area.y, area.width, area.height, 0, 0, 2 * Math.PI);
+			this.ctx.stroke();
+		}
+		else {
+			console.error("Combat area has an unknown shape", area);
+		}
+	}
+
+	// set canvas settings to what they were
+	this.ctx.lineWidth = 1;
+
+
+	// npcs
 
 	// sort by y value (from bottom of npc)
 	// set values to sort by, basing their value on their z position as well as y value

@@ -52,7 +52,7 @@ let Event = {
 			// day time
 			this.time = "day";
 		}
-		else if (this.event === "Samhain" && typeof Player.quests.questProgress.bloodMoonUnlocked !== "undefined") {
+		else if (this.event === "Samhain" && Player.quests.questProgress.bloodMoonUnlocked) {
 			// halloween night time & bloodmoon unlocked
 			this.time = "bloodMoon";
 		}
@@ -175,6 +175,16 @@ let Event = {
 Event.init();
 
 //
+// Functions that are required in Areas definition (i.e. to stop them being repeated throughout Areas)
+//
+
+let BuyFunctions = {}; // functions that are called on specific items being bought
+
+// called upon samhain marks being given to snake man to buy an item
+BuyFunctions.samhainItemBuy = function () {
+}
+
+//
 // Loot area defintion
 //
 
@@ -188,7 +198,7 @@ const ChatText = {
 };
 
 //
-// Area defintion
+// Areas defintion
 //
 
 var Areas = {
@@ -1711,9 +1721,9 @@ var Areas = {
 					{
 						sold: [
 							// no need for eventRequirements since role requires the event anyway
-						    {item: Items.consumable[30], cost: 1, costCurrency: 4}, // Samhain Brew
-						    {item: Items.food[6], cost: 1, costCurrency: 4}, // Pumpkin Pie
-						    {item: Items.food[7], cost: 1, costCurrency: 4}, // Toffee Apple
+						    {item: Items.consumable[30], cost: 2}, // Samhain Brew
+						    {item: Items.food[7], cost: 2}, // Toffee Apple
+						    {item: Items.food[6], cost: 3}, // Pumpkin Pie
 						],
 						role: "merchant",
 						roleRequirement: function () {
@@ -2190,9 +2200,9 @@ var Areas = {
 			goblinCorpse: {normal: "assets/corpses/deadGoblin.png"},
 			mailcart: {normal: "assets/objects/cartDestroyed.png"},
 			trap: {normal: "assets/objects/trap.png"},
-			torchDay1: {normal: "assets/objects/torchNight1.png"},
-			torchDay2: {normal: "assets/objects/torchNight2.png"},
-			torchDay3: {normal: "assets/objects/torchNight3.png"},
+			torchDay1: {normal: "assets/objects/torchDay1.png"},
+			torchDay2: {normal: "assets/objects/torchDay2.png"},
+			torchDay3: {normal: "assets/objects/torchDay3.png"},
 			torchNight1: {normal: "assets/objects/torchNight1.png"},
 			torchNight2: {normal: "assets/objects/torchNight2.png"},
 			torchNight3: {normal: "assets/objects/torchNight3.png"},
@@ -2206,7 +2216,6 @@ var Areas = {
 			nessyTintop: {normal: "assets/npcs/nessyTintop.png"},
 			marshallSheridanStatue: {normal: "assets/objects/woodcutterStatue.png"},
 			// samhain
-			ghost: {samhain: "assets/npcs/ghost.png"},
 			marshallSheridan: {samhain: "assets/enemies/marshallSheridan.png"},
 			marshallSheridanCorpse: {samhain: "assets/corpses/marshallSheridan.png"},
 			sawblade: {samhain: "assets/projectiles/sawblade.png"},
@@ -2433,7 +2442,7 @@ var Areas = {
 			{
 				x: 1047,
 				y: 120,
-				image: "torchDay1",
+				image: "torchNight1",
 				name: "Goblin Torch",
 				hostility: "friendly",
 				level: 5,
@@ -2444,17 +2453,17 @@ var Areas = {
 				},
 				// animation!
 				animateFunction: function () {
-					if (this.imageName === "torchDay1") {
-						this.image = Loader.getImage("torchDay2");
-						this.imageName = "torchDay2";
+					if (this.imageName === "torchNight1") {
+						this.image = Loader.getImage("torchNight2");
+						this.imageName = "torchNight2";
 					}
-					else if (this.imageName === "torchDay2") {
-						this.image = Loader.getImage("torchDay3");
-						this.imageName = "torchDay3";
+					else if (this.imageName === "torchNight2") {
+						this.image = Loader.getImage("torchNight3");
+						this.imageName = "torchNight3";
 					}
-					else if (this.imageName === "torchDay3") {
-						this.image = Loader.getImage("torchDay1");
-						this.imageName = "torchDay1";
+					else if (this.imageName === "torchNight3") {
+						this.image = Loader.getImage("torchNight1");
+						this.imageName = "torchNight1";
 					}
 				},
 				animationFrameTime: 200,
@@ -2503,10 +2512,10 @@ var Areas = {
 								Dom.checkProgress();
 							}, [], 6000, "Cleaning Goblin Torch");
 							// even if channelling is cancelled, this should be set back
-							Game.setTimeout(function () {
+							Game.hero.channelCancelFunction = function () {
 								Dom.currentlyDisplayed = "";
 								Dom.currentNPC = {};
-							}, 6000);
+							};
 						},
 						roleRequirement: function () {
 							return Player.quests.npcProgress.eaglecrestLoggingCamp[24] === 4 && Dom.inventory.check(27, "item", 1);
@@ -2521,44 +2530,6 @@ var Areas = {
 				},
 				canBeShown: function () {
 					return !Player.quests.activeQuestArray.includes("Partners in Goblin Destruction");
-				},
-			},
-			{
-				x: 499,
-				y: 679,
-				image: "ghost",
-				name: "Samhain Ghost",
-				hostility: "friendly",
-				level: 20,
-				stats: {
-					maxHealth: 150,
-					defence: 1,
-					dodgeChance: 40,
-					healthRegen: 30,
-				},
-				transparency: 0.7,
-				roles: [
-					{
-						sold: [
-							{item: Items.consumable[9], cost: 1, costCurrency: 4}, // samhain pot o' gloop
-							{item: Items.consumable[10], cost: 2, costCurrency: 4}, // bunch of blood bats
-							{item: Items.chest[7], cost: 10, costCurrency: 4}, // ghost sheet
-							Player.class === "a" ? {item: Items.bow[7], cost: 15, costCurrency: 4} // samhain spiderbow
-							: Player.class === "k" ? {item: Items.sword[7], cost: 15, costCurrency: 4} // samhain scythe
-							: {item: Items.staff[8], cost: 15, costCurrency: 4}, // samhain broomstick
-						],
-						role: "merchant",
-						chooseText: "I'd like to browse your Samhain event items.",
-						shopGreeting: "I can exchange items from my realm with Samhain Marks for a limited time.",
-					},
-				],
-				chat: {
-					shopLeave: "You'll be back.",
-					inventoryFull: "You cannot hold that.",
-					tooPoor: "You cannot afford that. Kill more enemies.",
-				},
-				canBeShown: function () {
-					return Event.time === "bloodMoon";
 				},
 			},
 
@@ -3805,20 +3776,26 @@ var Areas = {
 			identifier: {normal: "assets/npcs/hranatha.png"},
 			eaglecrestLampDay: {normal: "assets/objects/eaglecrestLampDay.png"},
 			eaglecrestLampNight: {normal: "assets/objects/eaglecrestLampNight.png"},
+			eaglecrestLampSamhain: {samhain: "assets/objects/eaglecrestLampSamhain.png"},
 			helpNotice: {normal: "assets/objects/helpNotice.png"},
 			sylvie: {normal: "assets/npcs/sylvie.png"},
-			yellowSnake: {samhain: "assets/enemies/yellowSnake.png"},
+			yellowSnakeRight: {samhain: "assets/enemies/yellowSnake.png"},
+			yellowSnakeLeft: {samhain: "assets/enemies/yellowSnake.png", flip: "vertical"},
 		},
 
 		callAreaJoinOnInit: true,
 		onAreaJoin: function () {
-			// samhain snakes
-			if (Event.event === "Samhain" && Player.completedQuestsArray.includes("Overdraft")) {
+			// samhain snakes and lights
+			if (Event.event === "Samhain" && Player.quests.completedQuestArray.includes("Overdraft")) {
 				let no = Random(10,30); // num of snakes
 				for (let i = 0; i < no; i++) {
 					Game.villagers.push(new Villager(Game.prepareNPC({
 						template: EnemyTemplates.eaglecrest.snake,
 					}, "villagers")));
+				}
+
+				if (Player.quests.questProgress.eaglecrestSamhainLights) {
+					map.eaglecrestSamhainLights();
 				}
 			}
 		},
@@ -4048,7 +4025,7 @@ var Areas = {
 					noUnidentified: "There's nothing for me to identify. Find some items and come back to me.",
 					identifyCommon: "Nothing special this time.",
 					identifyUnique: "Hm, a unique item. Nice.",
-					identifyMythic: "Ooh! It's been a while since I last saw one of them!",
+					identifyMythic: "Ooh! It's been a while since I last saw one of those!",
 					tooPoor: "I can't itentify that for free, you know.",
 				},
 			},
@@ -4071,7 +4048,8 @@ var Areas = {
 					},
 				],
 				chat: {
-					questProgress: "The cat is black with white paws and nose. His name is Amelio and it was last seen outside the Eaglecrest tavern.",
+					notUnlockedRoles: "A poster for a lost cast. You'll be the one getting lost if you don't finish your quest!",
+					questProgress: "The cat is black with white paws and nose. His name is Amelio and he was last seen outside the Eaglecrest tavern.",
 				},
 				canBeShown: function () {
 					return !Player.quests.completedQuestArray.includes("Help! Lost Cat");
@@ -4250,18 +4228,23 @@ var Areas = {
 		images: {
 			tiles: {normal: "assets/tilemap/eaglecrest.png"},
 			maskSalesman: {normal: "assets/npcs/maskSalesman.png"},
-			yellowSnake: {samhain: "assets/enemies/yellowSnake.png"},
+			yellowSnakeRight: {samhain: "assets/enemies/yellowSnake.png"},
+			yellowSnakeLeft: {samhain: "assets/enemies/yellowSnake.png", flip: "vertical"},
 		},
 
 		callAreaJoinOnInit: true,
 		onAreaJoin: function () {
 			// samhain snakes
-			if (Event.event === "Samhain" && Player.completedQuestsArray.includes("Overdraft")) {
+			if (Event.event === "Samhain" && Player.quests.completedQuestArray.includes("Overdraft")) {
 				let no = Random(5,15); // num of snakes
 				for (let i = 0; i < no; i++) {
 					Game.villagers.push(new Villager(Game.prepareNPC({
 						template: EnemyTemplates.eaglecrest.snake,
 					}, "villagers")));
+				}
+
+				if (Player.quests.questProgress.eaglecrestWestSamhainLights) {
+					map.eaglecrestSamhainLights();
 				}
 			}
 		},
@@ -4326,6 +4309,34 @@ var Areas = {
 					defence: 4,
 				},
 				roles: [
+					// samhain quest
+					{
+						role: "text",
+						chooseText: "Have you seen a mysterious crate nearby?",
+						chat: `Yes I have. And it had a rather nice <b>Blood-Red Crystal</b> in it.<br><br>
+						Oh, you want the crystal? That's a shame isn't it.<br><br>
+						I suppose there is something you could do.... I need fresh resources for my masks. Bring me <b>5 Wispy Feathers</b> from the <b>Chickens</b> in the <b>Plains</b>. And then I will <i>consider</i> parting with the crystal.`,
+						showCloseButton: true,
+						forceChoose: true, // forces choose dom
+						roleRequirement: function () {
+							return !Player.quests.questProgress.westCrate;
+						}
+					},
+					{
+						role: "function",
+						chooseText: "Here are 5 Wispy Feathers",
+						onClick: function () {
+							if (Dom.inventory.check(28, "item", 5)) {
+                                Dom.inventory.removeById(28, "item", 5);
+                                Player.quests.questProgress.westCrate = ture;
+                                Dom.text.page("Mask Salesman", "", true, [], [], [{item: Items.helm[23]}]);
+                            }
+						},
+						forceChoose: true, // forces choose dom
+						roleRequirement: function () {
+							return !Player.quests.questProgress.westCrate && Dom.inventory.check(28, "item", 5);
+						}
+					},
 					{
 						sold: [
 							{item: Items.helm[12], cost: 5}, // night owl mask
@@ -4348,9 +4359,9 @@ var Areas = {
 						],
 						role: "merchant",
 						chooseText: "What have you got to sell this Samhain?",
-						shopGreeting: "Samhain costumes are better with some authenticity.",
+						shopGreeting: "Samhain costumes are better with some authenticity. How about you bring me some <b>Samhain Marks</b> and you can try one?",
 						roleRequirement: function () {
-							return Game.event === "Samhain";
+							return Event.event === "Samhain";
 						},
 					},
 					{
@@ -4369,6 +4380,7 @@ var Areas = {
 					shopLeave: "Come back soon. There'll be more masks for you to choose from.",
 					inventoryFull: "You don't have enough space to hold that mask.",
 					tooPoor: "That mask seems out of your price range. Kill something and return.",
+					chooseChat: "",
 				},
 			},
 		],
@@ -4414,18 +4426,23 @@ var Areas = {
 			tiles: {normal: "assets/tilemap/eaglecrest.png"},
 			itemBuyer: {normal: "assets/npcs/nhkghghh.png"},
 			cart: {normal: "assets/objects/cartEaglecrest3.png"},
-			yellowSnake: {samhain: "assets/enemies/yellowSnake.png"},
+			yellowSnakeRight: {samhain: "assets/enemies/yellowSnake.png"},
+			yellowSnakeLeft: {samhain: "assets/enemies/yellowSnake.png", flip: "vertical"},
 		},
 
 		callAreaJoinOnInit: true,
 		onAreaJoin: function () {
 			// samhain snakes
-			if (Event.event === "Samhain" && Player.completedQuestsArray.includes("Overdraft")) {
+			if (Event.event === "Samhain" && Player.quests.completedQuestArray.includes("Overdraft")) {
 				let no = Random(5,15); // num of snakes
 				for (let i = 0; i < no; i++) {
 					Game.villagers.push(new Villager(Game.prepareNPC({
 						template: EnemyTemplates.eaglecrest.snake,
 					}, "villagers")));
+				}
+
+				if (Player.quests.questProgress.eaglecrestEastSamhainLights) {
+					map.eaglecrestSamhainLights();
 				}
 			}
 		},
@@ -4460,6 +4477,20 @@ var Areas = {
 				teleportTo: "eaglecrestGraveyard",
 				destinationX: 20,
 				playerAdjustY: 310,
+			},
+			{
+				// teleport to a shop that hasn't been made yet...
+				x: 1350,
+				y: 210,
+				width: 60,
+				height: 2,
+				teleportTo: "tbd",
+				destinationX: 395,
+				destinationY: 770,
+				teleportCondition: function () {
+					return false;
+				},
+				teleportFailText: "This is the shopfront of the old Eaglecrest Auctionhouse. It closed down due to links with a black-market.",
 			},
 		],
 
@@ -4555,13 +4586,14 @@ var Areas = {
 			banker2: {normal: "assets/npcs/eaglecrestBanker2.png"},
 			banker3: {normal: "assets/npcs/eaglecrestBanker3.png"},
 			banker4: {normal: "assets/npcs/eaglecrestBanker4.png"},
-			yellowSnake: {samhain: "assets/enemies/yellowSnake.png"},
+			yellowSnakeRight: {samhain: "assets/enemies/yellowSnake.png"},
+			yellowSnakeLeft: {samhain: "assets/enemies/yellowSnake.png", flip: "vertical"},
 		},
 
 		callAreaJoinOnInit: true,
 		onAreaJoin: function () {
 			// samhain snakes
-			if (Event.event === "Samhain" && Player.completedQuestsArray.includes("Overdraft")) {
+			if (Event.event === "Samhain" && Player.quests.completedQuestArray.includes("Overdraft")) {
 				let no = Random(10,20); // num of snakes
 				for (let i = 0; i < no; i++) {
 					Game.villagers.push(new Villager(Game.prepareNPC({
@@ -4724,7 +4756,8 @@ var Areas = {
 			barrel: {normal: "assets/objects/barrel.png"},
 			cat1Left: {normal: "assets/npcs/cat1.png"}, // for amelio
             cat1Right: {normal: "assets/npcs/cat1.png", flip: "vertical"},
-			yellowSnake: {samhain: "assets/enemies/yellowSnake.png"},
+			yellowSnakeRight: {samhain: "assets/enemies/yellowSnake.png"},
+			yellowSnakeLeft: {samhain: "assets/enemies/yellowSnake.png", flip: "vertical"},
 		},
 
 		areaTeleports: [
@@ -4738,16 +4771,15 @@ var Areas = {
 				destinationY: 280,
 			},
 			{
-				// teleport to nilbog (bridge - east)
 				x: 1235,
 				y: 85,
 				width: 60,
 				height: 2,
 				teleportTo: "samhainLair",
-				destinationX: 292,
-				destinationY: 360,
+				destinationX: 300,
+				destinationY: 1740,
 				teleportCondition: function () {
-					return Event.event === "Samhain" && (Player.quests.activeQuestArray.includes("Snake Man") || Player.quests.completedQuestArray.includes("Snake Man"));
+					return Dom.inventory.check(36, "item"); // if they're holding skeleton key
 				},
 				teleportFailText: "The door appears to be locked.",
 			},
@@ -4811,13 +4843,13 @@ var Areas = {
 					},
 					{
 						sold: [
-							{item: Items.consumable[21], cost: 3,}, // Beetroot Beer
 							{item: Items.consumable[16], cost: 2, costCurrency: 5, eventRequirement: "Christmas"}, // Mulled Wine
-							{item: Items.food[0], cost: 2,}, // Bread
-							{item: Items.food[4], cost: 4,}, // Sandwich
 							{item: Items.food[1], cost: 2, costCurrency: 5, eventRequirement: "Christmas"}, // Mince Pie
 							{item: Items.food[2], cost: 2, costCurrency: 5, eventRequirement: "Christmas"}, // Christmas Pudding
 							{item: Items.food[3], cost: 5, eventRequirement: "Antorax"}, // Birthday Cake (changed every year)
+							{item: Items.consumable[21], cost: 3,}, // Beetroot Beer
+							{item: Items.food[0], cost: 2,}, // Bread
+							{item: Items.food[4], cost: 4,}, // Sandwich
 							{item: Items.teleport[1], cost: 100,}, // Eaglecrest Teleport Coin
 						],
 						role: "merchant",
@@ -4827,9 +4859,9 @@ var Areas = {
 					{
 						sold: [
 							// no need for eventRequirements since role requires the event anyway
-						    {item: Items.consumable[30], cost: 1, costCurrency: 4}, // Samhain Brew
-						    {item: Items.food[6], cost: 1, costCurrency: 4}, // Pumpkin Pie
-						    {item: Items.food[7], cost: 1, costCurrency: 4}, // Toffee Apple
+						    {item: Items.consumable[30], cost: 2}, // Samhain Brew
+						    {item: Items.food[7], cost: 2}, // Toffee Apple
+						    {item: Items.food[6], cost: 3}, // Pumpkin Pie
 						],
 						role: "merchant",
 						roleRequirement: function () {
@@ -5293,7 +5325,7 @@ var Areas = {
 
 
 			// samhain snakes
-			if (Event.event === "Samhain" && Player.completedQuestsArray.includes("Overdraft")) {
+			if (Event.event === "Samhain" && Player.quests.completedQuestArray.includes("Overdraft")) {
 				let no = Random(20,40); // num of snakes
 				for (let i = 0; i < no; i++) {
 					Game.villagers.push(new Villager(Game.prepareNPC({
@@ -5375,13 +5407,14 @@ var Areas = {
 			eaglecrestianForgedStaff: {normal: "assets/items/staff/11archaeology.png"},
 			eaglecrestianForgedSword: {normal: "assets/items/sword/12.png"},
 			anvil: {normal: "assets/objects/anvil.png"},
-			yellowSnake: {samhain: "assets/enemies/yellowSnake.png"},
+			yellowSnakeRight: {samhain: "assets/enemies/yellowSnake.png"},
+			yellowSnakeLeft: {samhain: "assets/enemies/yellowSnake.png", flip: "vertical"},
 		},
 
 		callAreaJoinOnInit: true,
 		onAreaJoin: function () {
 			// samhain snakes
-			if (Event.event === "Samhain" && Player.completedQuestsArray.includes("Overdraft")) {
+			if (Event.event === "Samhain" && Player.quests.completedQuestArray.includes("Overdraft")) {
 				let no = Random(5,15); // num of snakes
 				for (let i = 0; i < no; i++) {
 					Game.villagers.push(new Villager(Game.prepareNPC({
@@ -5553,13 +5586,14 @@ var Areas = {
 			tamtam: {normal: "assets/npcs/tamtam.png"},
 			potionStand: {normal: "assets/objects/potionStand.png"},
 			cauldronEaglecrest: {normal: "assets/objects/cauldronEaglecrest.png"},
-			yellowSnake: {samhain: "assets/enemies/yellowSnake.png"},
+			yellowSnakeRight: {samhain: "assets/enemies/yellowSnake.png"},
+			yellowSnakeLeft: {samhain: "assets/enemies/yellowSnake.png", flip: "vertical"},
 		},
 
 		callAreaJoinOnInit: true,
 		onAreaJoin: function () {
 			// samhain snakes
-			if (Event.event === "Samhain" && Player.completedQuestsArray.includes("Overdraft")) {
+			if (Event.event === "Samhain" && Player.quests.completedQuestArray.includes("Overdraft")) {
 				let no = Random(5,15); // num of snakes
 				for (let i = 0; i < no; i++) {
 					Game.villagers.push(new Villager(Game.prepareNPC({
@@ -5704,18 +5738,6 @@ var Areas = {
 				image: "cauldronEaglecrest",
 				name: "Cauldron",
 			},
-			{
-				x: 730,
-				y: 285,
-				image: "cauldronEaglecrest",
-				name: "Cauldron",
-			},
-			{
-				x: 600,
-				y: 280,
-				image: "cauldronEaglecrest",
-				name: "Cauldron",
-			},
 		],
 
 	},
@@ -5770,13 +5792,18 @@ var Areas = {
 			sheepLeft: {normal: "./assets/enemies/sheep.png", flip: "vertical"},
 			dummy: {normal: "./assets/enemies/dummy.png"},
 			dummyCorpse: {normal: "assets/corpses/dummy.png", christmas: "assets/corpses/dummy-christmas.png"},
-			yellowSnake: {samhain: "assets/enemies/yellowSnake.png"},
+			yellowSnakeRight: {samhain: "assets/enemies/yellowSnake.png"},
+			yellowSnakeLeft: {samhain: "assets/enemies/yellowSnake.png", flip: "vertical"},
+			eaglecrestGhost: {samhain: "assets/enemies/eaglecrestGhost.png"},
+			eaglecrestGhost2: {samhain: "assets/enemies/eaglecrestGhost2.png"},
+			crateSamhain: {samhain: "assets/objects/crateSamhain.png"},
+			melee: {samhain: "assets/projectiles/melee.png"},
 		},
 
 		callAreaJoinOnInit: true,
 		onAreaJoin: function () {
 			// samhain snakes
-			if (Event.event === "Samhain" && Player.completedQuestsArray.includes("Overdraft")) {
+			if (Event.event === "Samhain" && Player.quests.completedQuestArray.includes("Overdraft")) {
 				let no = Random(10,20); // num of snakes
 				for (let i = 0; i < no; i++) {
 					Game.villagers.push(new Villager(Game.prepareNPC({
@@ -5784,6 +5811,11 @@ var Areas = {
 					}, "villagers")));
 				}
 			}
+		},
+
+		callAreaLeaveOnLogout: true,
+		onAreaLeave: function (logout) {
+			Player.quests.questProgress.bazaarCrateGhosts = false;
 		},
 
 		areaTeleports: [
@@ -5972,6 +6004,56 @@ var Areas = {
 				image: "crate",
 				name: "Crate"
 			},
+			{
+				x: 490,
+				y: 224,
+				orderOffsetY: -50,
+				image: "crateSamhain",
+				onInteract: function () {
+					if (!Player.quests.questProgress.bazaarCrateGhosts) { // reset when area is left
+						Game.enemies.push(new Enemy(Game.prepareNPC({
+							x: 707,
+							y: 263,
+							template: EnemyTemplates.eaglecrest.phantom2,
+						}, "enemies")));
+						Game.enemies.push(new Enemy(Game.prepareNPC({
+							x: 230,
+							y: 481,
+							template: EnemyTemplates.eaglecrest.phantom1,
+						}, "enemies")));
+						Game.enemies.push(new Enemy(Game.prepareNPC({
+							x: 112,
+							y: 112,
+							template: EnemyTemplates.eaglecrest.phantom2,
+						}, "enemies")));
+						Game.enemies.push(new Enemy(Game.prepareNPC({
+							x: 482,
+							y: 571,
+							template: EnemyTemplates.eaglecrest.phantom1,
+						}, "enemies")));
+						Game.enemies[Game.enemies.length-1].say("What do you need that for?");
+						Game.enemies[Game.enemies.length-2].say("There's so much else here.. why do you need this?", 1333);
+						Player.quests.questProgress.bazaarCrateGhosts = true;
+					}
+					Game.hero.channel(function () {
+						if (!Player.quests.questProgress.bazaarCrate) {
+							if (Dom.inventory.give(Items.item[38]) === false) {
+								Dom.chat.insert("Your inventory is full! Try again when you have space.");
+							}
+							else {
+								Player.quests.questProgress.bazaarCrate = true;
+								Dom.chat.insert("You found a <b>Blood-Red Crystal</b> in the crate.");
+							}
+						}
+						else {
+							Dom.chat.insert("You have already looted that crate!");
+						}
+					}, [], 1666, "Rummaging through crate");
+				},
+                canBeShown: function () {
+                    return Player.quests.completedQuestArray.includes("Snakes and the City");
+                }
+			},
 		],
 
 		dummies: [
@@ -6081,20 +6163,35 @@ var Areas = {
 			gargoyleWaterRight1: {normal: "assets/objects/waterShoot1.png", flip: "vertical"},
 			gargoyleWaterRight2: {normal: "assets/objects/waterShoot2.png", flip: "vertical"},
 			gargoyleWaterRight3: {normal: "assets/objects/waterShoot3.png", flip: "vertical"},
-			yellowSnake: {samhain: "assets/enemies/yellowSnake.png"},
+			yellowSnakeRight: {samhain: "assets/enemies/yellowSnake.png"},
+			yellowSnakeLeft: {samhain: "assets/enemies/yellowSnake.png", flip: "vertical"},
+			eaglecrestGhost: {samhain: "assets/enemies/eaglecrestGhost.png"},
+			eaglecrestGhost2: {samhain: "assets/enemies/eaglecrestGhost2.png"},
+			crateSamhain: {samhain: "assets/objects/crateSamhain.png"},
+			melee: {samhain: "assets/projectiles/melee.png"},
 		},
 
 		callAreaJoinOnInit: true,
 		onAreaJoin: function () {
-			// samhain snakes
-			if (Event.event === "Samhain" && Player.completedQuestsArray.includes("Overdraft")) {
+			// samhain snakes and lights
+			if (Event.event === "Samhain" && Player.quests.completedQuestArray.includes("Overdraft")) {
 				let no = Random(10,30); // num of snakes
 				for (let i = 0; i < no; i++) {
 					Game.villagers.push(new Villager(Game.prepareNPC({
 						template: EnemyTemplates.eaglecrest.snake,
 					}, "villagers")));
 				}
+
+				if (Player.quests.questProgress.eaglecrestGraveyardSamhainLights) {
+					map.eaglecrestSamhainLights();
+				}
 			}
+		},
+
+		callAreaLeaveOnLogout: true,
+		onAreaLeave: function (logout) {
+			// samhain
+			Player.quests.questProgress.graveyardCrateGhosts = false;
 		},
 
 		areaTeleports: [
@@ -6280,6 +6377,74 @@ var Areas = {
 				image: "gravestone3",
 				name: "Gravestone",
 			},
+			{
+				// wrong crates
+				x: [186, 800, 1110, 1740, 2435, 2815],
+				y: [620, 1000, 490, 1160, 650, 362],
+				orderOffsetY: -50,
+				image: "crateSamhain",
+				onInteract: function () {
+					Game.hero.channel(function () {
+						let ghostShown = Random(0,1)
+						console.log(ghostShown);
+						if (ghostShown === 1) {
+							let imageNumber = Random(1,2);
+							Game.enemies.push(new Enemy(Game.prepareNPC({
+								x: Game.hero.x + Random(-150, 150),
+								y: Game.hero.y + Random(-150, 150),
+								template: EnemyTemplates.eaglecrest["phantom"+imageNumber],
+							}, "enemies")));
+							let lineNumber = Random(0,3);
+							let textLines = ["Why do you awaken me?", "What do you want..", "Leave me alone!", "Ugh."];
+							Game.enemies[Game.enemies.length-1].say(textLines[lineNumber]);
+						}
+						Dom.chat.insert("That crate is empty!");
+					}, [], 1666, "Rummaging through crate");
+				},
+                canBeShown: function () {
+                    return Player.quests.completedQuestArray.includes("Snakes and the City");
+                }
+			},
+			{
+				// correct crate
+				x: 2717,
+				y: 802,
+				orderOffsetY: -50,
+				image: "crateSamhain",
+				onInteract: function () {
+					if (!Player.quests.questProgress.graveyardCrateGhosts) { // reset each time the area is left
+						Game.enemies.push(new Enemy(Game.prepareNPC({
+							x: 2617,
+							y: 802,
+							template: EnemyTemplates.eaglecrest.phantom2,
+						}, "enemies")));
+						Game.enemies.push(new Enemy(Game.prepareNPC({
+							x: 2917,
+							y: 802,
+							template: EnemyTemplates.eaglecrest.phantom1,
+						}, "enemies")));
+						Game.enemies[Game.enemies.length-1].say("Please.. don't do this...");
+						Player.quests.questProgress.graveyardCrateGhosts = true;
+					}
+					Game.hero.channel(function () {
+						if (!Player.quests.questProgress.graveyardCrate) {
+							if (Dom.inventory.give(Items.item[38]) === false) {
+								Dom.chat.insert("Your inventory is full! Try again when you have space.");
+							}
+							else {
+								Player.quests.questProgress.graveyardCrate = true;
+								Dom.chat.insert("You found a <b>Blood-Red Crystal</b> in the crate.");
+							}
+						}
+						else {
+							Dom.chat.insert("You have already looted that crate!");
+						}
+					}, [], 1666, "Rummaging through crate");
+				},
+                canBeShown: function () {
+                    return Player.quests.completedQuestArray.includes("Snakes and the City");
+                }
+			},
 		],
 
 		onRainStart: function () {
@@ -6359,13 +6524,14 @@ var Areas = {
 			stairsRight: {normal: "assets/objects/stairsRight.png"},
 			cat1Left: {normal: "./assets/npcs/cat1.png"},
 			cat1Right: {normal: "./assets/npcs/cat1.png", flip: "vertical"},
-			yellowSnake: {samhain: "assets/enemies/yellowSnake.png"},
+			yellowSnakeRight: {samhain: "assets/enemies/yellowSnake.png"},
+			yellowSnakeLeft: {samhain: "assets/enemies/yellowSnake.png", flip: "vertical"},
 		},
 
 		callAreaJoinOnInit: true,
 		onAreaJoin: function () {
 			// samhain snakes
-			if (Event.event === "Samhain" && Player.completedQuestsArray.includes("Overdraft")) {
+			if (Event.event === "Samhain" && Player.quests.completedQuestArray.includes("Overdraft")) {
 				let no = Random(10,30); // num of snakes
 				for (let i = 0; i < no; i++) {
 					Game.villagers.push(new Villager(Game.prepareNPC({
@@ -7037,8 +7203,37 @@ var Areas = {
 			],
 		},
 
+		callAreaJoinOnInit: true,
+		onAreaJoin: function () {
+			// samhain snakes and lights
+			if (Event.event === "Samhain" && Player.quests.completedQuestArray.includes("Overdraft")) {
+				let no = Random(20,25); // num of snakes
+				for (let i = 0; i < no; i++) {
+					Game.villagers.push(new Villager(Game.prepareNPC({
+						template: EnemyTemplates.eaglecrest.snake,
+					}, "villagers")));
+				}
+
+				if (Player.quests.questProgress.eaglecrestSamhainLights) {
+					map.eaglecrestSamhainLights();
+				}
+			}
+		},
+
+		callAreaLeaveOnLogout: true,
+		onAreaLeave: function (logout) {
+			// samhain
+			Player.quests.questProgress.plainsCrateGhosts = false;
+		},
+
 		images: {
 			tiles: {normal: "assets/tilemap/eaglecrest.png"},
+			eaglecrestGhost: {samhain: "assets/enemies/eaglecrestGhost.png"},
+			eaglecrestGhost2: {samhain: "assets/enemies/eaglecrestGhost2.png"},
+			crateSamhain: {samhain: "assets/objects/crateSamhain.png"},
+			melee: {samhain: "assets/projectiles/melee.png"},
+			yellowSnakeRight: {samhain: "assets/enemies/yellowSnake.png"},
+			yellowSnakeLeft: {samhain: "assets/enemies/yellowSnake.png", flip: "vertical"},
 		},
 
 		areaTeleports: [
@@ -7054,7 +7249,7 @@ var Areas = {
 			},
 		],
 
-		/*villagerData: {
+		villagerData: {
 			minPeople: 0,
 			maxPeople: 3,
 			locations: [
@@ -7068,11 +7263,252 @@ var Areas = {
 					x: 39,
 					y: 800,
 					width: 2142,
-					height: 872,
+					height: 872,//aaaaaaaaaaaaaaaaaa
 				},
 			],
-		},*/
+		},
 
+		things: [
+			{
+				x: 257,
+				y: 1217,
+				orderOffsetY: -50,
+				image: "crateSamhain",
+				onInteract: function () {
+					if (!Player.quests.questProgress.plainsCrateGhosts) { // reset when area is left
+						Game.enemies.push(new Enemy(Game.prepareNPC({
+							x: 20,
+							y: 1000,
+							template: EnemyTemplates.eaglecrest.phantom2,
+						}, "enemies")));
+						Game.enemies.push(new Enemy(Game.prepareNPC({
+							x: 50,
+							y: 1200,
+							template: EnemyTemplates.eaglecrest.phantom1,
+						}, "enemies")));
+						Game.enemies.push(new Enemy(Game.prepareNPC({
+							x: 40,
+							y: 1370,
+							template: EnemyTemplates.eaglecrest.phantom2,
+						}, "enemies")));
+						Game.enemies[Game.enemies.length-1].say("No..");
+						Game.enemies[Game.enemies.length-2].say("The City is at risk!", 1444);
+						Player.quests.questProgress.plainsCrateGhosts = true;
+					}
+					Game.hero.channel(function () {
+						if (!Player.quests.questProgress.plainsCrate) {
+							if (Dom.inventory.give(Items.item[38]) === false) {
+								Dom.chat.insert("Your inventory is full! Try again when you have space.");
+							}
+							else {
+								Player.quests.questProgress.plainsCrate = true;
+								Dom.chat.insert("You found a <b>Blood-Red Crystal</b> in the crate.");
+							}
+						}
+						else {
+							Dom.chat.insert("You have already looted that crate!");
+						}
+					}, [], 1666, "Rummaging through crate");
+				},
+				canBeShown: function () {
+					return Player.quests.completedQuestArray.includes("Snakes and the City");
+				}
+			},
+		],
+	},
+
+	//
+	// the city again ! ! !
+	//
+
+	samhainLair: {
+		id: 21,
+
+		data: {
+			name: "Lair",
+			displayOnEnter: false,
+		},
+
+		indoors: true,
+
+		tagGameAllowed: true,
+
+		song_day: "assets/music/Eaglecrest.mp3",
+		song_night: "assets/music/Eaglecrest.mp3",
+
+		checkpoint: false,
+
+		lootArea: "eaglecrest",
+
+		mapData: {
+			cols: 10,
+			rows: 30,
+			tsize: 60,
+			tilesPerRow: 8,
+			solidTiles: [1, 2, 3, 6, 7, 9, 10, 11, 13, 15, 17, 18, 19, 20, 21, 23, 25, 26, 27, 28, 29, 31, 33, 34, 35, 36, 37, 38, 39, 42, 43, 44, 45, 46, 47, 53, 55, 61, 65, 69, 70, 73, 77, 82, 83, 89, 90, 97, 98, 123, 131, 155],
+			dayTiles: [11, 27, 34, 42, 7], // windows and lights
+			nightTiles: [3, 19, 2, 18, 15],
+			pathTiles: [5, 12, 41, 50, 51, 57, 58, 59, 60, 76, 86, 87, 88, 91, 92, 93, 99, 107, 108, 109, 110, 111, 113, 115, 117, 118, 119, 121, 125, 126, 127, 129, 133, 134, 135, 137, 138, 139, 140, 141, 147, 148, 149],
+			waterTiles: [32, 40, 48, 112, 120, 128],
+			layers: [[131, 123, 6, 6, 6, 123, 6, 6, 123, 6,
+            6, 6, 6, 131, 6, 6, 131, 123, 6, 6,
+            123, 131, 6, 131, 123, 131, 6, 6, 6, 123,
+            131, 6, 123, 6, 6, 6, 6, 123, 131, 123,
+            100, 100, 100, 100, 100, 100, 100, 100, 100, 100,
+            100, 100, 100, 100, 100, 100, 100, 100, 100, 100,
+            100, 100, 100, 100, 100, 100, 100, 100, 100, 100,
+            100, 100, 100, 100, 100, 100, 100, 100, 100, 100,
+            100, 100, 100, 100, 100, 100, 100, 100, 100, 100,
+            100, 100, 100, 100, 100, 100, 100, 100, 100, 100,
+            100, 100, 100, 100, 100, 100, 100, 100, 100, 100,
+            100, 100, 100, 100, 100, 100, 100, 100, 100, 100,
+            100, 100, 100, 100, 100, 100, 100, 100, 100, 100,
+            100, 100, 100, 100, 100, 100, 100, 100, 100, 100,
+            155, 155, 155, 100, 100, 100, 100, 155, 155, 155,
+            155, 155, 155, 100, 100, 100, 100, 155, 155, 155,
+            155, 155, 155, 100, 100, 100, 100, 155, 155, 155,
+            155, 155, 155, 100, 100, 100, 100, 155, 155, 155,
+            155, 155, 155, 100, 100, 100, 100, 155, 155, 155,
+            155, 155, 155, 100, 100, 100, 100, 155, 155, 155,
+            155, 155, 155, 100, 100, 100, 100, 155, 155, 155,
+            155, 155, 155, 100, 100, 100, 100, 155, 155, 155,
+            155, 155, 155, 100, 100, 100, 100, 155, 155, 155,
+            155, 155, 155, 100, 100, 100, 100, 155, 155, 155,
+            155, 155, 155, 100, 100, 100, 100, 155, 155, 155,
+            155, 155, 155, 100, 100, 100, 100, 155, 155, 155,
+            155, 155, 155, 100, 100, 100, 100, 155, 155, 155,
+            155, 155, 155, 100, 100, 100, 100, 155, 155, 155,
+            155, 155, 155, 100, 100, 100, 100, 155, 155, 155,
+            155, 155, 155, 100, 100, 100, 100, 155, 155, 155],]
+		},
+
+		images: {
+			tiles: {normal: "assets/tilemap/eaglecrest.png"},
+			yellowSnakeRight: {samhain: "assets/enemies/yellowSnake.png"},
+			yellowSnakeLeft: {samhain: "assets/enemies/yellowSnake.png", flip: "vertical"},
+			snakeMan: {samhain: "assets/npcs/soothsssayer.png"},
+			eaglecrestGhost: {samhain: "assets/enemies/eaglecrestGhost.png"},
+			eaglecrestGhost2: {samhain: "assets/enemies/eaglecrestGhost2.png"},
+			melee: {samhain: "assets/projectiles/melee.png"},
+			crateSamhain: {samhain: "assets/objects/crateSamhain.png"},
+			cauldron: {samhain: "assets/objects/cauldronSamhain.png"},
+		},
+
+		callAreaJoinOnInit: true,
+		onAreaJoin: function () {
+			// samhain snakes
+			let no = Random(10,30); // num of snakes
+			for (let i = 0; i < no; i++) {
+				Game.villagers.push(new Villager(Game.prepareNPC({
+					template: EnemyTemplates.eaglecrest.snake,
+				}, "villagers")));
+			}
+		},
+
+		areaTeleports: [
+			{
+				// teleport to eaglecrest tavern
+				x: 300,
+				y: 1800,
+				width: 240,
+				height: 2,
+				teleportTo: "eaglecrestTavern",
+				destinationX: 1230,
+				destinationY: 160,
+			},
+		],
+
+		villagerData: {
+			minPeople: 0,
+			maxPeople: 0,
+			locations: [
+				{
+					x: 25,
+					y: 260,
+					width: 550,
+					height: 570,
+				},
+				{
+					x: 205,
+					y: 830,
+					width: 190,
+					height: 900,
+				},
+			],
+		},
+
+		npcs: [
+			{
+				x: 300,
+				y: 280,
+				image: "snakeMan",
+				name: Player.quests.completedQuestArray.includes("Snaking Bad") ? "The Soothsssayer" : "???",
+				hostility: "neutral",
+				level: 100,
+				stats: {
+					maxHealth: 550,
+					defence: 50,
+					dodgeChance: 100,
+					healthRegen: 666,
+				},
+				roles: [
+					{
+						sold: [
+							{item: Items.consumable[9], cost: 1, costCurrency: 4, buyFunction: BuyFunctions.samhainItemBuy}, // samhain pot o' gloop
+							{item: Items.consumable[10], cost: 2, costCurrency: 4, buyFunction: BuyFunctions.samhainItemBuy}, // bunch of blood bats
+							{item: Items.chest[7], cost: 10, costCurrency: 4, buyFunction: BuyFunctions.samhainItemBuy}, // ghost sheet
+							Player.class === "a" ? {item: Items.bow[7], cost: 15, costCurrency: 4, buyFunction: BuyFunctions.samhainItemBuy} // samhain spiderbow
+							: Player.class === "k" ? {item: Items.sword[7], cost: 15, costCurrency: 4, buyFunction: BuyFunctions.samhainItemBuy} // samhain scythe
+							: {item: Items.staff[8], cost: 15, costCurrency: 4, buyFunction: BuyFunctions.samhainItemBuy}, // samhain broomstick
+						],
+						role: "merchant",
+						chooseText: "I'd like to turn in some Samhain Marks for items.",
+						shopGreeting: "Now there'ssss the Blood Moon, I need <b>Sssssamhain Marksssss</b> for the next ssstage of my plan. There'ssss itemss in it for you of coursssse...",
+						roleRequirement: function () {
+							return Event.time === "bloodMoon";
+						},
+					},
+				],
+				chat: {
+					shopLeave: "I still need more markssssss. You'll be back.",
+					inventoryFull: "You cannot hold that.",
+					tooPoor: "You cannot afford that. Kill more enemiesssss.",
+					questProgress: "I have rewardssssss waiting.",
+				},
+			},
+		],
+
+		characters: [
+			{
+				x: 300,
+				y: 526,
+				name: "The Soothsssayer's Cauldron",
+				hideNameTag: true,
+				image: "cauldron",
+				hostility: "neutral",
+				level: 1,
+				xpGiven: 0,
+				corpseOnDeath: false,
+				respawnOnDeath: true,
+				respawnTime: 10,
+				stats: {
+					walkSpeed: 0,
+					maxHealth: 100,
+					healthRegen: 0,
+				},
+				onDeath: function () {
+				}
+			}
+		],
+
+		collisions: [
+			{
+				x: 300, // cauldron
+				y: 566,
+				width: 110,
+				height: 60,
+			},
+		],
 	},
 
 	//
@@ -7080,7 +7516,7 @@ var Areas = {
 	//
 
 	forest: {
-		id: 21,
+		id: 22,
 
 		data: {
 			name: "Forest",
@@ -8207,6 +8643,26 @@ var Villagers = [
         ],
 		chat: {
             notUnlockedRoles: "I recognise your face... have we met?",
+		},
+	},
+	{
+        id: 17,
+        images: {demolitionist: {normal: "assets/npcs/demolitionist.png"}},
+		name: "Demolitionist Darrow",
+		hostility: "friendly",
+		level: 10,
+		stats: {
+			maxHealth: 100,
+			defence: 7,
+            walkSpeed: 141,
+		},
+        areas: [
+            "eaglecrest",
+            "eaglecrestEast",
+            "eaglecrestWest",
+        ],
+		chat: {
+            notUnlockedRoles: "Eaglecrest contracted me to blow up those damn sewers. Heard there was a real big rat problem there. Hell, why do I care, I'm just here to blow the damn place up.",
 		},
 	},
 ];

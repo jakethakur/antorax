@@ -54,7 +54,7 @@ var Achievements = [
 	},
 	{
 		name: "Samhain Treats",
-		description: "Eat a pumpkin pie, caramel apple, and drink a pumpkin brew.",
+		description: "Eat a pumpkin pie and caramel apple, and drink a pumpkin brew.",
 		points: 5,
 		category: ["general"],
 		area: ["global"],
@@ -724,17 +724,13 @@ var Achievements = [
 		name: "How Chimerical!",
 		description: "Fish up a chimerafish.",
 		points: 25,
+		hidden: true,
 		category: ["fishing"],
 		area: ["global"],
 		image: "../assets/items/fish/7.png",
 		class: "single",
 		isCompleted: function () {
 			return User.fish[7] >= 1;
-			/*for(let i = 0; i < Player.inventory.items.length; i++){
-				if(Player.inventory.items[i].name === "Chimerafish"){
-					return true;
-				}
-			}*/
 		},
 	},
 
@@ -754,17 +750,16 @@ var Achievements = [
 
 	{
         name: "A Blood Moon is Rising...",
-        description: "Foment the rising of a blood moon.",
+        description: "Assist in the rising of a blood moon.",
         points: 5,
         category: ["quests"],
         area: ["eaglecrestCity"],
         event: "Samhain",
-        image: "../assets/enemies/marshallSheridan.png", //tbc
-        position: {x: 8, y: -1},
+        image: "../assets/items/consumable/10.png",
         color: "#540606",
         class: "single",
         isCompleted: function () {
-            return Player.bossesKilled.marshallSheridan !== 0 && Player.bossesKilled.marshallSheridan !== undefined; // tbc
+            return Player.quests.questProgress.bloodMoonUnlocked;
         },
     },
 ]

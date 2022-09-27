@@ -1233,7 +1233,7 @@ var Items = {
 			projectile: "slashFrost",
 			projectileAdjust: {x: 0, y: 0},
 			deleteIf: function () {
-				return Event.event === "Christmas";
+				return Event.event !== "Christmas";
 			},
 			deleteIfMessage: "It's not snowy any more! Your <strong>Icicle</strong> melted.",
 		},
@@ -1674,7 +1674,7 @@ var Items = {
 			projectile: "frostball",
 			projectileAdjust: {x: 0, y: 0},
 			deleteIf: function () {
-				return Event.event === "Christmas";
+				return Event.event !== "Christmas";
 			},
 			deleteIfMessage: "It's not snowy any more! Your <strong>Ice Staff</strong> melted.",
 		},
@@ -1947,7 +1947,7 @@ var Items = {
 			projectile: "arrowSnow",
 			projectileAdjust: {x: 0, y: 0},
 			deleteIf: function () {
-				return Event.event === "Christmas";
+				return Event.event !== "Christmas";
 			},
 			deleteIfMessage: "It's not snowy any more! Your <strong>Crystal Bow</strong> melted.",
 		},
@@ -1993,11 +1993,11 @@ var Items = {
 			image: "assets/items/bow/13.png",
 			tier: 1,
 			obtain: ["boss"],
-			area: ["loggingCamp"],
-			event: "Samhain",
+			area: ["eaglecrest"],
 			rarity: "mythic",
 			lore: "A pirate heirloom, passed down from sea monster to sea monster for centuries.",
-			obtainText: "Can be looted from Lake Lurker, a boss in The Nilbog during blood moons.",
+			obtainText: "Currently unobtainable",
+			limitedEdition: true, // temp
 			sellPrice: 5,
 			stats: {
 				damage: 5,
@@ -2693,7 +2693,7 @@ var Items = {
 			name: "ςคtภเթ",
 			type: "item",
 			image: "assets/items/item/33.png",
-			stack: 64,
+			stack: 3,
 			quest: true,
 			lore: "𝕞𝕞𝕄𝕞𝕄𝕞𝕞𝕄𝕄𝕞𝕄",
 		},
@@ -2705,6 +2705,89 @@ var Items = {
 			image: "assets/items/item/34.png",
 			stack: 16,
 			lore: "Where did they come from?",
+		},
+		{
+			id: 35,
+			name: "The Sssceptre of Ssssorrows",
+			type: "item",
+			rarity: "mythic",
+			quest: true,
+			image: "assets/items/item/35.png",
+			functionText: "Sssiphons the light esssssence of any nearby light sssources",
+			onClickFunction: function () {
+				let questProgressKeyName = Game.areaName+"SamhainLights";
+				if (!Player.quests.questProgress[questProgressKeyName] && (Game.areaName === "eaglecrestGraveyard" || Game.areaName === "eaglecrestEast" || Game.areaName === "eaglecrest" || Game.areaName === "eaglecrestWest")) {
+					Game.hero.channel(function () {
+						Player.quests.questProgress[questProgressKeyName] = true;
+						Dom.checkProgress();
+
+						map.eaglecrestSamhainLights();
+
+						// flickering!
+						/*Game.clearedIntervalsOnAreaChange.push(Game.setTimeout(function() {
+							map.replaceTiles(3, 145);
+							map.replaceTiles(11, 145);
+							map.replaceTiles(2, 146);
+							map.replaceTiles(34, 146);
+							map.replaceTiles(18, 153);
+							map.replaceTiles(42, 153);
+							map.replaceTiles(27, 154);
+							map.replaceTiles(19, 154);
+						}, 600));
+						Game.clearedIntervalsOnAreaChange.push(Game.setTimeout(function() {
+							SetTile("tutorial", 0, map.getCol(x), map.getRow(y), 29);
+							SetTile("tutorial", 0, map.getCol(x + 60), map.getRow(y), 30);
+							SetTile("tutorial", 0, map.getCol(x), map.getRow(y + 60), 39);
+						}, 600));*/
+					}, [], 2666, "Turning out the lights...");
+				}
+			},
+			lore: "What does the snake man need this energy for??",
+		},
+		{
+			id: 36,
+			name: "Skeleton Key",
+			type: "item",
+			quest: true,
+			image: "assets/items/item/36.png",
+			functionText: "Can open some locked doors",
+			deleteIf: function () {
+				return Event.event !== "Samhain";
+			},
+			deleteIfMessage: "Your <b>Skeleton Key</b> has vanished as the Samhain season comes to a demise. The Soothsssayer's plan is laid to rest for now, maybe next year it will come to fruition...",
+		},
+		{
+			id: 37,
+			name: "Wispy Feather",
+			type: "item",
+			rarity: "junk",
+			image: "assets/items/item/37.png",
+			sellPrice: 1,
+			sellQuantity: 16,
+			stack: 64,
+		},
+		{
+			id: 38,
+			name: "Blood-Red Crystal",
+			type: "item",
+			category: "mineral",
+			image: "assets/items/item/23.png", // same as ruby fragment for now
+			quest: true,
+			stack: 4,
+			lore: "Instrumental to The Soothsssayer's plans..",
+			deleteIf: function () {
+				return Event.event !== "Samhain";
+			},
+		},
+		{
+			id: 39,
+			name: "Red Feather",
+			type: "item",
+			rarity: "junk",
+			image: "assets/items/item/39.png",
+			sellPrice: 1,
+			sellQuantity: 1,
+			stack: 64,
 		},
 	],
 	consumable: [
@@ -2982,7 +3065,7 @@ var Items = {
 			sellPrice: 2,
 			image: "assets/items/consumable/10.png",
 			functionText: "Deals 5 damage to the nearest enemy, stunning them for 1s",
-            cooldown: 5, // 5 seconds
+            cooldown: 15, // 15 seconds
 			maxCharges: 3,
 			onClickFunction: function (inventoryPosition, hotbar) {
 
@@ -3883,7 +3966,7 @@ var Items = {
 			sellPrice: 1,
 			lore: "",
 			consumption: true,
-			areas: ["loggingCamp"],
+			areas: ["eaglecrest"],
 			clicksToCatch: 9,
 			timeToCatch: 2000,
 		},
@@ -4088,7 +4171,7 @@ var Items = {
 			image: "assets/items/fish/21.png",
 			functionText: "", // added by onCatch
 			lore: "A bit soggy.",
-			areas: ["tutorial"],
+			areas: ["loggingCamp"],
 			clicksToCatch: 3,
 			timeToCatch: 2000,
 			catchRequirement: function () {
@@ -4339,6 +4422,20 @@ var Items = {
 				avg: 24,
 				max: 46,
 			},
+		},
+		{
+			id: 32,
+			name: "Swamp Eel",
+			fishingType: "watermisc",
+			type: "fish",
+			image: "assets/items/fish/32.png",
+			rarity: "common",
+			sellPrice: 1,
+			lore: "",
+			consumption: true, // delicacy :o
+			areas: ["loggingCamp"],
+			clicksToCatch: 9,
+			timeToCatch: 2000,
 		},
 	],
 };
