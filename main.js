@@ -3750,6 +3750,10 @@ class Projectile extends Thing {
 
 						enemyHit = true; // fn will return true
 
+						//
+						// first incorporate damage of attacker...
+						//
+
 						let attackerDamage = attacker.stats.damage;
 
 						// increase base damage based on damagePercentage
@@ -3780,23 +3784,9 @@ class Projectile extends Thing {
 							}
 						});
 
-
-						// let's now affect target aggro on attacker (if such a thing exists)
-						// we don't want to include defence, weakness (or critical hits (?)) but do want to include everything else
-						if (typeof target.attackTargets !== "undefined") {
-							// try to find the attacker in the target's targets (I'm getting jamais vu...)
-							for (let i = 0; i < target.attackTargets.length; i++) {
-								if (target.attackTargets[i].target === attacker) {
-									if (typeof target.attackTargets[i].aggro === "undefined") {
-										target.attackTargets[i].aggro = 0;
-									}
-									target.attackTargets[i].aggro += attackerDamage;
-									target.attackTargets[i].lastAttacked = 0;
-									target.attackTargets[i].aggroBeforeForgiveness = undefined;
-								}
-							}
-						}
-
+						//
+						// now incorporate defence of enemy...
+						//
 
 						let targetDefence = target.stats.defence; // calculate target defence
 
@@ -3817,10 +3807,28 @@ class Projectile extends Thing {
 							dmgDealt = 0;
 						}
 
+
 						let critical = false
 						if (Random(0, 99) < attacker.stats.criticalChance) { // critical hit
 							dmgDealt *= 2
 							critical = true;
+						}
+
+
+						// let's now affect target aggro on attacker (if such a thing exists)
+						// 10% of max health dealt -> aggro increased by 1 (i.e. "leashradius" increased by 100)
+						if (typeof target.attackTargets !== "undefined") {
+							// try to find the attacker in the target's targets (I'm getting jamais vu...)
+							for (let i = 0; i < target.attackTargets.length; i++) {
+								if (target.attackTargets[i].target === attacker) {
+									if (typeof target.attackTargets[i].aggro === "undefined") {
+										target.attackTargets[i].aggro = 0;
+									}
+									target.attackTargets[i].aggro += dmgDealt / target.stats.maxHealth * 10;
+									target.attackTargets[i].lastAttacked = 0;
+									target.attackTargets[i].aggroBeforeForgiveness = undefined;
+								}
+							}
 						}
 
 						// deal the damage!
@@ -4339,11 +4347,12 @@ class Enemy extends Attacker {
 		// hero is always a target
 		this.attackTargets.push({
 			target: Game.hero,
-			aggro: 0, // increases by the amount of damage dealt to this character (BEFORE DEFENCE)
+			aggro: 0, // increases by the percentage of health dealt to character (10% dealt -> aggro increased by 1)
 			baseAggro: properties.attackBehaviour.baseAggro || 3.5, // added to aggro, constant value (this is effectively a leashradius of 350 pixels, increased by aggro)
 			lastAttacked: undefined, // the time in ms since this character was last attacked. if it was longer ago than forgivenessTime, then the aggro halves each second
 		});
 		// 100(aggro+baseAggro)/distance is used to decide whether it is worth them attacking each target (above their attackThreshold)
+		// 1 aggro is effectively 100 leash radius
 
 		this.forgivenessTime = properties.attackBehaviour.forgivenessTime || 4000; // if this is negative then they never forgive you (:
 		this.forgivenessRate = properties
