@@ -13,6 +13,16 @@ var Adventure = {
 		},
 	},
 
+	eaglecrestOverdraft: {
+		html: `<div id="eaglecrestLoggingCampAL" class="adventure">
+			Eaglecrest City<br>
+			<span class="adventureContent">Help the bank to reopen its doors.</span>
+		</div>`,
+		condition: function () {
+			return !Player.quests.completedQuestArray.includes("Overdraft") && Player.quests.completedQuestArray.includes("To Eaglecrest, and Beyond!");
+		},
+	},
+
 	// events
 
 	samhainI: {
@@ -263,6 +273,13 @@ const Tutorial = [
 		branch: true,
 		func: function () {
 			Dom.alert.page("Nice shot!<br><br>Press your <b>Spacebar</b> on the dead goblin to take some loot!", 0);
+		},
+	},
+	{
+		chapter: 16, // called upon unlocking Eaglecrest bank and speaking to a banker for the first time
+		branch: true,
+		func: function () {
+			Dom.alert.page("At the bank, you can store items that you can't fit in your inventory! Drag a <b>bag</b> into the bank, then put some items in storage.", 0);
 		},
 	},
 ];

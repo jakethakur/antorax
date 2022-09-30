@@ -4940,6 +4940,8 @@ Dom.bank.page = function () {
 	Dom.changeBook("bankPage");
 	Dom.bank.active = true;
 
+	Dom.instructions.page(16); // open if they haven't already seen them
+
 	let html = "<thead>"
 	for (let i = 0; i < Player.bank.items.length; i+=6) {
 		let str = "<tr>";

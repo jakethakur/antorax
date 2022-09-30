@@ -1568,15 +1568,41 @@ After all, death is never the end in Antorax...<br>
 			Speaking of resting... have you tried a <b>beetroot pie</b>? They are one of the many delicacies of <b>Eaglecrest</b>, and I happen to have a few on me!`,
 
 			objectives: [
-				"tbd",
+				"Speak to <b>Head Banker Jonos</b> about the situation at the bank, to the <b>north</b> of Eaglecrest.",
+				"Speak to <b>Shopkeeper Barda</b> in <b>The Eaglecrest Bazaar</b> to the <b>west</b> of Eaglecrest.",
+				"Speak to <b>Gildo Cleftbeard</b> in the <b>Eaglecrest Plains</b>, to the <b>south</b> of Eaglecrest.",
+				"Speak to <b>Captain Greenbeard</b> in the <b>Eagle's Span Tavern</b>, to the <b>north</b> of Eaglecrest.",
+				"Speak to <b>Head Banker Jonos</b> once you've resolved the situation.",
 				"Speak to <strong>Recruiter Sylvie</strong>.",
 			],
+
+			isHidden: function() {
+				let hidden = [];
+
+				if (Player.quests.npcProgress.eaglecrest[2] === undefined) {
+					Player.quests.npcProgress.eaglecrest[2] = 0;
+				}
+
+				// true or falses for each objective (apart from the turn-in objective)
+				hidden.push(false);
+				hidden.push(Player.quests.npcProgress.eaglecrest[2] < 1);
+				hidden.push(Player.quests.npcProgress.eaglecrest[2] < 2);
+				hidden.push(Player.quests.npcProgress.eaglecrest[2] < 3);
+				hidden.push(Player.quests.npcProgress.eaglecrest[2] < 1);
+				hidden.push(false);
+
+				return hidden;
+			},
 
 			isCompleted: function() {
 				let completed = [];
 
 				// true or falses for each objective (apart from the turn-in objective)
-				completed.push(checkProgress(Player.quests.questProgress.snowCollected, 3));//tbd
+				completed.push(Player.quests.npcProgress.eaglecrest[2] >= 1); // jonos
+				completed.push(Player.quests.npcProgress.eaglecrest[2] >= 2); // barda
+				completed.push(Player.quests.npcProgress.eaglecrest[2] >= 3); // gildo
+				completed.push(Player.quests.npcProgress.eaglecrest[2] >= 4); // greenbeard
+				completed.push(Player.quests.npcProgress.eaglecrest[2] >= 5); // jonos again
 
 				completed = checkFinished(completed);
 
@@ -1584,15 +1610,15 @@ After all, death is never the end in Antorax...<br>
 			},
 
 			howToStart: "Speak to <strong>Recruiter Sylvie</strong>.",
-			levelRequirement: 4000, // currently disabled
+			levelRequirement: 4,
 			questRequirements: ["To Eaglecrest, and Beyond!"],
 
 			rewards: {
 				xp: 50,
 				items: [
+					{item: Items.item[1]}, // mystery
 					{item: Items.currency[2], quantity: 5,},
 					{item: Items.food[5], quantity: 1,},
-					{item: Items.bag[6], quantity: 1, doNotGive: true}, // given through quest
 				],
 				services: [
 					{image: "bank", lore: "You will be able access the bank to store your items once you have finished this quest."}, // aaaaaaaa image required
@@ -1801,7 +1827,133 @@ After all, death is never the end in Antorax...<br>
 			eventRequirement: "Samhain",
 
 			onQuestStart: function () {
-				
+				let cauldron = Game.characters.find(character => character.name === "The Soothsssayer's Cauldron");
+
+				cauldron.channel(function () {}, [], 66666, "", "#7FD922");
+
+				Game.clearedTimeoutsOnAreaChange.push(Game.setTimeout(function () {
+					Game.enemies.push(new Enemy(Game.prepareNPC({
+						x: 500,
+						y: 600,
+						template: EnemyTemplates.eaglecrest.phantom2,
+					}, "enemies")));
+					Game.enemies[Game.enemies.length-1].say("No! You can't!");
+				}, 5000));
+
+				Game.clearedTimeoutsOnAreaChange.push(Game.setTimeout(function () {
+					Game.enemies.push(new Enemy(Game.prepareNPC({
+						x: 100,
+						y: 750,
+						template: EnemyTemplates.eaglecrest.phantom2,
+					}, "enemies")));
+					Game.enemies.push(new Enemy(Game.prepareNPC({
+						x: 500,
+						y: 350,
+						template: EnemyTemplates.eaglecrest.phantom1,
+					}, "enemies")));
+				}, 11000));
+
+				Game.clearedTimeoutsOnAreaChange.push(Game.setTimeout(function () {
+					Dom.chat.insert(Dom.chat.say("The Soothsssayer", "Get on with it and kill those ghossssts. The processssss must finish!"));
+				}, 13000));
+
+				Game.clearedTimeoutsOnAreaChange.push(Game.setTimeout(function () {
+					Game.enemies.push(new Enemy(Game.prepareNPC({
+						x: 100,
+						y: 350,
+						template: EnemyTemplates.eaglecrest.phantom1,
+					}, "enemies")));
+					Game.enemies.push(new Enemy(Game.prepareNPC({
+						x: 500,
+						y: 750,
+						template: EnemyTemplates.eaglecrest.phantom1,
+					}, "enemies")));
+					Game.enemies[Game.enemies.length-1].say("The Blood Moon will kill us all..");
+				}, 16000));
+
+				Game.clearedTimeoutsOnAreaChange.push(Game.setTimeout(function () {
+					Dom.chat.insert(Dom.chat.say("The Soothsssayer", "Why am I getting <i>you</i> to do all thisss?- Well, do you think Eaglecrest would be happy with <i>me</i> ssstrolling around the City in their current ssssssituation?"));
+				}, 23666));
+
+				Game.clearedTimeoutsOnAreaChange.push(Game.setTimeout(function () {
+					Game.enemies.push(new Enemy(Game.prepareNPC({
+						x: 100,
+						y: 350,
+						template: EnemyTemplates.eaglecrest.phantom1,
+					}, "enemies")));
+					Game.enemies.push(new Enemy(Game.prepareNPC({
+						x: 500,
+						y: 750,
+						template: EnemyTemplates.eaglecrest.phantom2,
+					}, "enemies")));
+					Game.enemies.push(new Enemy(Game.prepareNPC({
+						x: 100,
+						y: 750,
+						template: EnemyTemplates.eaglecrest.phantom2,
+					}, "enemies")));
+					Game.enemies.push(new Enemy(Game.prepareNPC({
+						x: 500,
+						y: 350,
+						template: EnemyTemplates.eaglecrest.phantom1,
+					}, "enemies")));
+				}, 34222));
+
+				Game.clearedTimeoutsOnAreaChange.push(Game.setTimeout(function () {
+					Dom.chat.insert(Dom.chat.say("The Soothsssayer", "Yessssssss! Keep going! It'sssss working!"));
+				}, 34666));
+
+				Game.clearedTimeoutsOnAreaChange.push(Game.setTimeout(function () {
+					Game.enemies.push(new Enemy(Game.prepareNPC({
+						x: 100,
+						y: 500,
+						template: EnemyTemplates.eaglecrest.phantom1,
+					}, "enemies")));
+				}, 38000));
+
+				Game.clearedTimeoutsOnAreaChange.push(Game.setTimeout(function () {
+					Game.enemies.push(new Enemy(Game.prepareNPC({
+						x: 220,
+						y: 1100,
+						template: EnemyTemplates.eaglecrest.phantom2,
+					}, "enemies")));
+					Game.enemies.push(new Enemy(Game.prepareNPC({
+						x: 300,
+						y: 1000,
+						template: EnemyTemplates.eaglecrest.phantom2,
+					}, "enemies")));
+					Game.enemies.push(new Enemy(Game.prepareNPC({
+						x: 380,
+						y: 1100,
+						template: EnemyTemplates.eaglecrest.phantom1,
+					}, "enemies")));
+					Game.enemies[Game.enemies.length-1].say("The Blood Moon will kill us all..");
+				}, 40000));
+
+				Game.clearedTimeoutsOnAreaChange.push(Game.setTimeout(function () {
+					Game.enemies.push(new Enemy(Game.prepareNPC({
+						x: 100,
+						y: 350,
+						template: EnemyTemplates.eaglecrest.phantom1,
+					}, "enemies")));
+				}, 44000));
+
+				Game.clearedTimeoutsOnAreaChange.push(Game.setTimeout(function () {
+					Game.enemies.push(new Enemy(Game.prepareNPC({
+						x: 100,
+						y: 350,
+						template: EnemyTemplates.eaglecrest.phantom1,
+					}, "enemies")));
+				}, 46000));
+
+				Game.clearedTimeoutsOnAreaChange.push(Game.setTimeout(function () {
+					Game.enemies.push(new Enemy(Game.prepareNPC({
+						x: 100,
+						y: 350,
+						template: EnemyTemplates.eaglecrest.phantom1,
+					}, "enemies")));
+				}, 48000));
+
+
 			},
 
 			rewards: {

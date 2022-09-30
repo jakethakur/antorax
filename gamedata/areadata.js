@@ -3781,6 +3781,7 @@ var Areas = {
 			sylvie: {normal: "assets/npcs/sylvie.png"},
 			yellowSnakeRight: {samhain: "assets/enemies/yellowSnake.png"},
 			yellowSnakeLeft: {samhain: "assets/enemies/yellowSnake.png", flip: "vertical"},
+			closedSign: {normal: "assets/objects/closedEaglecrest.png"},
 		},
 
 		callAreaJoinOnInit: true,
@@ -3810,6 +3811,10 @@ var Areas = {
 				teleportTo: "eaglecrestBank",
 				destinationX: 510,
 				destinationY: 830,
+				teleportCondition: function () {
+					return Player.quests.activeQuestArray.includes("Overdraft") || Player.quests.completedQuestArray.includes("Overdraft");
+				},
+				teleportFailText: "The bank is closed.",
 			},
 			{
 				// teleport to tavern
@@ -3900,7 +3905,7 @@ var Areas = {
 					},
 				],
 				chat: {
-					notUnlockedRoles: "<b>Eaglecrest needs you!</b> But... not yet.",
+					notUnlockedRoles: "Eaglecrest needs you! But... not yet.",
 					chooseChat: "<b>Eaglecrest needs you!</b>",
 					questProgress: "I've got plenty more for you to do after you've finished this!",
 					questComplete: `Eaglecrest appreciates your efforts, ${Player.name}.`,
@@ -4186,6 +4191,15 @@ var Areas = {
 				imageNight: "eaglecrestLampNight",
 				name: "Eaglecrest Lamp",
 			},
+			{
+				x: 1713,
+				y: 210,
+				image: "closedSign",
+				name: "Closed Notice",
+				canBeShown: function () {
+					return !Player.quests.completedQuestArray.includes("Overdraft");
+				},
+			},
 		],
 	},
 
@@ -4319,7 +4333,7 @@ var Areas = {
 						showCloseButton: true,
 						forceChoose: true, // forces choose dom
 						roleRequirement: function () {
-							return !Player.quests.questProgress.westCrate;
+							return !Player.quests.questProgress.westCrate && Player.quests.activeQuestArray.includes("Moving Like a Snake");
 						}
 					},
 					{
@@ -4601,6 +4615,11 @@ var Areas = {
 					}, "villagers")));
 				}
 			}
+
+			// overdraft quest
+			if (Player.quests.activeQuestArray.includes("Overdraft") && Player.quests.npcProgress.eaglecrest[2] === 0) {
+				Dom.chat.insert(Dom.chat.say("Head Banker Jonos", "Uhhh can't you see we're closed ?"));
+			}
 		},
 
 		areaTeleports: [
@@ -4618,7 +4637,7 @@ var Areas = {
 
 		villagerData: {
 			minPeople: 0,
-			maxPeople: 3,
+			maxPeople: Player.quests.completedQuestArray.includes("Overdraft") ? 3 : 0,
 			locations: [
 				{
 					x: 39,
@@ -4635,6 +4654,7 @@ var Areas = {
 				x: 900,
 				y: 142,
 				image: "banker4",
+				crop: {height: 76},
 				name: "Eaglecrest Banker",
 				hostility: "friendly",
 				level: 25,
@@ -4647,13 +4667,17 @@ var Areas = {
 						role: "banker",
 					},
 				],
+				canBeShown: function () {
+					return Player.quests.completedQuestArray.includes("Overdraft");
+				},
 			},
 			{
 				// id: 1,
 				x: 660,
 				y: 139,
 				image: "banker1",
-				name: "Eaglecrest Banker",
+				crop: {height: 81},
+				name: "Head Banker Jonos",
 				hostility: "friendly",
 				level: 25,
 				stats: {
@@ -4665,12 +4689,16 @@ var Areas = {
 						role: "banker",
 					},
 				],
+				canBeShown: function () {
+					return Player.quests.completedQuestArray.includes("Overdraft");
+				},
 			},
 			{
 				// id: 2,
 				x: 360,
 				y: 137,
 				image: "banker3",
+				crop: {height: 86},
 				name: "Eaglecrest Banker",
 				hostility: "friendly",
 				level: 25,
@@ -4683,11 +4711,104 @@ var Areas = {
 						role: "banker",
 					},
 				],
+				canBeShown: function () {
+					return Player.quests.completedQuestArray.includes("Overdraft") || Player.quests.npcProgress.eaglecrest[2] >= 4;
+				},
 			},
 			{
 				// id: 3,
 				x: 120,
 				y: 151,
+				image: "banker2",
+				crop: {height: 58},
+				name: "Eaglecrest Banker",
+				hostility: "friendly",
+				level: 25,
+				stats: {
+					maxHealth: 175,
+					defence: 5,
+				},
+				roles: [
+					{
+						role: "banker",
+					},
+				],
+				canBeShown: function () {
+					return Player.quests.completedQuestArray.includes("Overdraft");
+				},
+			},
+		],
+
+		villagers: [
+			{
+				image: "banker1",
+				name: "Head Banker Jonos",
+				hostility: "friendly",
+				level: 25,
+				stats: {
+					maxHealth: 175,
+					defence: 5,
+					walkSpeed: 200,
+				},
+				canBeShown: function () {
+					return !Player.quests.completedQuestArray.includes("Overdraft");
+				},
+				roles: [
+					{
+						role: "text",
+						chat: `Look what are you doing in here ? Don't make me call the guards on you.<br><br>
+						Oh Sylvie sent you to help ? Well why didn't you say ! Well sorry for the rude introduction , let's try that again.<br><br>
+						I'm <b>Head Banker Jonos</b> , and I'm responsible for this mess of a situation ! The bank has had to close today due to . . . well . . . we lent someone all of our Gold by accident. Don't go around telling people ! My job is on the line here ! If people found out . . .<br><br>
+						Do I know who we lent the money to ? Well if I did then you wouldn't be here would you ? I need to you help look around the City for whoever has all our Gold , and send them back here.<br><br>
+						What do you mean you're new to the City ? Why did Sylvie send you here then ? Ugh well a good place to start would be asking <b>Shopkeeper Barda</b> in <b>The Eaglecrest Bazaar</b> to the <b>west</b> of here. Her local knowledge is admittedly better than mine. And much better than yours from the sounds of it ! !`,
+						buttons: ["On it!"],
+						showCloseButton: false,
+						forceChoose: false,
+						functions: [function () {
+							// close page
+							Dom.closePage("textPage");
+							// quest progress
+							Player.quests.npcProgress.eaglecrest[2] = 1;
+							Dom.quests.active();
+						}],
+						roleRequirement: function () {
+							return Player.quests.npcProgress.eaglecrest[2] === 0 || typeof Player.quests.npcProgress.eaglecrest[2] === "undefined";
+						},
+					},
+					{
+						role: "text",
+						chooseText: "Explain the situation to Jonos.",
+						chat: `Oh thank the Pantheon ! I cannot thank you enough. So your local knowledge can't be too bad then !<br><br>
+						Look , whilst you're here , how about we show you how the bank works ?`,
+						buttons: ["Sure!"],
+						showCloseButton: false,
+						forceChoose: true, // forces choose dom
+						functions: [function () {
+							// close page
+							Dom.closePage("textPage");
+							// quest progress
+							Player.quests.npcProgress.eaglecrest[2] = 5;
+							Dom.quests.active();
+							// bank tutorial
+							Dom.inventory.give(Items.bag[6]);
+							Dom.chat.insert(Dom.chat.say("Head Banker Jonos", "Here's an <b>Eaglecrest Bag</b>. Head over to the banker at the counter and speak to them about storing your items !")); // no repeat
+						}],
+						roleRequirement: function () {
+							if (!Dom.inventory.requiredSpace([{item: Items.bag[6]}])) {
+								Dom.chat.insert(Dom.chat.say("Head Banker Jonos", "Free up some space in your inventory then we can discuss !"), undefined, undefined, true); // no repeat
+								return false;
+							}
+							return Player.quests.npcProgress.eaglecrest[2] === 4;
+						},
+					},
+				],
+				chat: {
+					chooseChat: "Well ? ?",
+					notUnlockedRoles: "Well don't just stand there ! Sorry, I'm just stressed . . .",
+					questComplete: "This Greenbeard should be getting here soon . . !", // not currently used, tbd
+				},
+			},
+			{
 				image: "banker2",
 				name: "Eaglecrest Banker",
 				hostility: "friendly",
@@ -4695,12 +4816,48 @@ var Areas = {
 				stats: {
 					maxHealth: 175,
 					defence: 5,
+					walkSpeed: 200,
 				},
-				roles: [
-					{
-						role: "banker",
-					},
-				],
+				canBeShown: function () {
+					return !Player.quests.completedQuestArray.includes("Overdraft");
+				},
+				chat: {
+					notUnlockedRoles: "tbd",
+				},
+			},
+			{
+				image: "banker3",
+				name: "Eaglecrest Banker",
+				hostility: "friendly",
+				level: 25,
+				stats: {
+					maxHealth: 175,
+					defence: 5,
+					walkSpeed: 210,
+				},
+				canBeShown: function () {
+					return !Player.quests.completedQuestArray.includes("Overdraft") && Player.quests.npcProgress.eaglecrest[2] < 4;
+				},
+				chat: {
+					notUnlockedRoles: "tbd",
+				},
+			},
+			{
+				image: "banker4",
+				name: "Eaglecrest Banker",
+				hostility: "friendly",
+				level: 25,
+				stats: {
+					maxHealth: 175,
+					defence: 5,
+					walkSpeed: 150,
+				},
+				canBeShown: function () {
+					return !Player.quests.completedQuestArray.includes("Overdraft");
+				},
+				chat: {
+					notUnlockedRoles: "tbd",
+				},
 			},
 		],
 	},
@@ -4758,6 +4915,7 @@ var Areas = {
             cat1Right: {normal: "assets/npcs/cat1.png", flip: "vertical"},
 			yellowSnakeRight: {samhain: "assets/enemies/yellowSnake.png"},
 			yellowSnakeLeft: {samhain: "assets/enemies/yellowSnake.png", flip: "vertical"},
+			greenbeard: {normal: "assets/npcs/greenbeard.png"}, // for overdraft
 		},
 
 		areaTeleports: [
@@ -4885,6 +5043,57 @@ var Areas = {
 				},
 				showNameInChat: false, // done in chat message instead
 				chatArrayType: "all", // chat arrays should all be sent with a delay between them
+			},
+		],
+
+		villagers: [
+			{
+				image: "greenbeard",
+				template: Villagers[7],
+				canBeShown: function () {
+					return Player.quests.activeQuestArray.includes("Overdraft");
+				},
+				roles: [
+					{
+						role: "text",
+						chooseText: "Ask Greenbeard if he borrowed the money from the bank.",
+						chat: `Blimey! Sink me! Sounds like a situation the bank's got themselves in.<br><br>
+						Yarrr, I borrowed some bounty from the bank earlier today. It was only <b>10,000 Gold</b>...<br><br>
+						Truth be told, I needed it to give to 'em <b>Loan Sharks</b>. I got myself in a bit o' trouble with 'em...<br><br>
+						Oh an' Gildo? He just wanted money for some fresh bounty! What else's a pirate meant to do in the face of a citizen in need?<br><br>
+						Yarrr, one more clap of thunder and I'll be over to the bank to clear this up. Do ye want to join?`,
+						buttons: ["Why not!"],
+						showCloseButton: false,
+						forceChoose: true, // forces choose dom
+						functions: [function () {
+							// close page
+							Dom.closePage("textPage");
+							// quest progress
+							Player.quests.npcProgress.eaglecrest[2] = 4;
+							Dom.quests.active();
+							// why not!...
+							Dom.chat.insert(Dom.chat.say("Captain Greenbeard", "'ave a <b>Beetroot Beer</b>! Drinks are on me landlubber, what else am I usin' this Gold for?"));
+							if (!Dom.inventory.give(Items.consumable[21])) {
+								Dom.chat.insert("<i>Your inventory was full!</i>");
+							}
+						}],
+						roleRequirement: function () {
+							return Player.quests.npcProgress.eaglecrest[2] === 3;
+						},
+					},
+				],
+			},
+			{
+				image: "cat1Left",
+        		rotationImages: {
+            		left: "cat1Left",
+            		right: "cat1Right"
+        		},
+                name: "Amelio",
+                speciesTemplate: SpeciesTemplates.cat,
+                canBeShown: function () {
+                    return Player.quests.activeQuestArray.includes("Help! Lost Cat");
+                }
 			},
 		],
 
@@ -5082,21 +5291,6 @@ var Areas = {
 				use: "wizardsLore",
 				image: "largeTable",
 				name: "Large Table",
-			},
-		],
-
-		villagers: [
-			{
-				image: "cat1Left",
-        		rotationImages: {
-            		left: "cat1Left",
-            		right: "cat1Right"
-        		},
-                name: "Amelio",
-                speciesTemplate: SpeciesTemplates.cat,
-                canBeShown: function () {
-                    return Player.quests.activeQuestArray.includes("Help! Lost Cat");
-                }
 			},
 		],
 
@@ -5682,6 +5876,7 @@ var Areas = {
 						functions: [function () {
 							Player.quests.npcProgress.eaglecrestLoggingCamp[24] = 3;
 							Dom.closePage("textPage");
+							Dom.quests.active();
 						}],
 						roleRequirement: function () {
 							return Player.quests.npcProgress.eaglecrestLoggingCamp[24] === 2;
@@ -5859,6 +6054,27 @@ var Areas = {
 				},
 				roles: [
 					{
+						role: "text",
+						chooseText: "Explain the bank situation to Barda.",
+						chat: `A request, guest?<br><br>
+Hmm, the Eaglecrest Bank? Can’t say I’ve been there lately. They’re a bunch of crooks in my books and believe me, it takes one to know one… no no, forget I said that.<br><br>
+Wait… I remember! Nothing harder than outsmarting Barda! <b>Gildo Cleftbeard</b>’s got one of my monocles: gold and bold and recently sold. He never removes it, or so I’ve been told. It’s my priciest ware: he couldn’t have got it without breaking the bank… literally.<br><br>
+Last I saw him, he was visiting the <b>Eaglecrest Plains</b> to the <b>south</b>. Could a reunion be on the cards?`,
+						buttons: ["Thanks"],
+						showCloseButton: false,
+						forceChoose: true, // forces choose dom
+						functions: [function () {
+							// close page
+							Dom.closePage("textPage");
+							// quest progress
+							Player.quests.npcProgress.eaglecrest[2] = 2;
+							Dom.quests.active();
+						}],
+						roleRequirement: function () {
+							return Player.quests.npcProgress.eaglecrest[2] === 1;
+						},
+					},
+					{
 						sold: [
 							Player.class === "k" ? {item: Items.sword[14], cost: 10}
 							: Player.class === "m" ? {item: Items.staff[12], cost: 10}
@@ -5899,6 +6115,7 @@ var Areas = {
 					},
 				],
 				chat: {
+					chooseChat: "My shop's a given, now make a decision.",
 					shopLeave: "Good luck with your quest, guest.",
 					inventoryFull: "Unless the cards have bluffed... your inventory is stuffed.",
 					tooPoor: "No gold? Get out of my shop.",
@@ -7218,6 +7435,17 @@ var Areas = {
 					map.eaglecrestSamhainLights();
 				}
 			}
+
+			// overdraft quest
+			Game.camera.pan({x: 3436, y: 1171}, 400, "accelerate", function () {
+				// function to be called 2s after pan is finished
+				Dom.chat.insert(Dom.chat.say("Gildo Cleftbeard", "Help! These frogs are after my monocle!!"));
+				// pan back to player
+				Game.camera.pan(Game.hero, 400, "accelerate", function () {
+					// reset camera
+					Game.camera.follow(Game.hero);
+				}, 0);
+			}, 2000);
 		},
 
 		callAreaLeaveOnLogout: true,
@@ -7234,6 +7462,11 @@ var Areas = {
 			melee: {samhain: "assets/projectiles/melee.png"},
 			yellowSnakeRight: {samhain: "assets/enemies/yellowSnake.png"},
 			yellowSnakeLeft: {samhain: "assets/enemies/yellowSnake.png", flip: "vertical"},
+			toadRight: {normal: "assets/enemies/toad.png"},
+			toadLeft: {normal: "assets/enemies/toad.png", flip: "vertical"},
+			toadCorpse: {normal: "assets/corpses/toad.png"},
+			waterball: {normal: "assets/projectiles/waterball.png"},
+			gildoCleftbeard: {normal: "assets/npcs/gildoCleftbeard.png"},
 		},
 
 		areaTeleports: [
@@ -7267,6 +7500,80 @@ var Areas = {
 				},
 			],
 		},
+
+		npcs: [
+			{
+				x: 3436,
+				y: 1171,
+				image: "gildoCleftbeard",
+				template: Villagers[8],
+				stats: {
+					defence: 77,
+				},
+				health: 83, // damaged
+				canBeShown: function () {
+					return Player.quests.npcProgress.eaglecrest[2] === 2;
+				},
+				chat: {
+					chooseChat: "My utmost gratitude for helping me with those toads.",
+		            notUnlockedRoles: {
+		                eaglecrest: "Help me! These frogs are coming after my fashion sense!", // tbd should change after his role
+		            },
+				},
+				roles: [
+					{
+						role: "text",
+						chooseText: "Ask Gildo if he borrowed the money from the bank.",
+						chat: `Hey! Stop with the accusations! I only wanted a monocle!<br><br>
+						Yes... you're right... I may have got the money from somewhere. But you think someone of my stature should be out here killing these frogs to earn money? Can you imagine what they'd do to my boots?<br><br>
+						I didn't borrow the money from the bank! Good heavens! You think I'd need <i>their</i> help? <br><br>
+						In truth, I borrowed the money from <b>Captain Greenbeard</b> in the <b>Eaglecrest Tavern</b>! They had far more money than sense in them. It's them you should be after! Not me! Now leave me and my monocle alone in peace!`,
+						buttons: ["Ok"],
+						showCloseButton: false,
+						forceChoose: true, // forces choose dom
+						functions: [function () {
+							// close page
+							Dom.closePage("textPage");
+							// quest progress
+							Player.quests.npcProgress.eaglecrest[2] = 3;
+							Dom.quests.active();
+						}],
+						roleRequirement: function () {
+							return Player.quests.npcProgress.eaglecrest[2] === 2 && Player.quests.questProgress.overdraftFrogDeadOne && Player.quests.questProgress.overdraftFrogDeadTwo;
+						},
+					},
+				],
+			},
+		],
+
+		enemies: [
+			{
+				x: 3236, // with gildo!
+				y: 1091,
+				template: EnemyTemplates.eaglecrest.toad,
+				health: 30,
+				respawnOnDeath: false,
+				canBeShown: function () {
+					return Player.quests.npcProgress.eaglecrest[2] === 2;
+				},
+				onDeathAdditional: function() {
+					Player.quests.questProgress.overdraftFrogDeadOne = true;
+				},
+			},
+			{
+				x: 3536, // with gildo!
+				y: 1181,
+				template: EnemyTemplates.eaglecrest.toad,
+				health: 22,
+				respawnOnDeath: false,
+				canBeShown: function () {
+					return Player.quests.npcProgress.eaglecrest[2] === 2;
+				},
+				onDeathAdditional: function() {
+					Player.quests.questProgress.overdraftFrogDeadTwo = true;
+				},
+			},
+		],
 
 		things: [
 			{
@@ -7493,7 +7800,7 @@ var Areas = {
 				respawnTime: 10,
 				stats: {
 					walkSpeed: 0,
-					maxHealth: 100,
+					maxHealth: 350,
 					healthRegen: 0,
 				},
 				onDeath: function () {
@@ -8216,456 +8523,6 @@ var Areas = {
 	},
 
 };
-
-var Villagers = [
-    {
-        id: 0,
-        images: {silvioStarstrike: {normal: "assets/npcs/silvioStarstrike.png"}},
-        name: "Silvio Starstrike",
-        level: 20,
-        stats: {
-            maxHealth: 150,
-            walkSpeed: 160,
-            defence: 5,
-        },
-        hostility: "friendly",
-        exceptAreas: [
-            "eaglecrestLoggingCamp",
-        ],
-        roles: [],
-        chat: {
-            notUnlockedRoles: "I bet you've never met a lunarlancer before! Be warned - I have a short temper.",
-            chooseChat: "Don't say a false word. I could decimate you with my celestial power.",
-            receiveTavernGood: "I see you've brought me some blessings from the stars. What do you mean I ordered them? Don't underestimate the power of the sky.",
-        }
-    },
-    {
-        id: 1,
-        images: {darioHorfern: {normal: "assets/npcs/darioHorfern.png"}},
-        name: "Dario Horfern",
-        level: 10,
-        stats: {
-            maxHealth: 100,
-            walkSpeed: 125,
-            defence: 3,
-        },
-        hostility: "friendly",
-        areas: [
-            "loggingCampTavern",
-            "eaglecrestTavern",
-        ],
-        roles: [],
-        chat: {
-            notUnlockedRoles: {
-                loggingCamp: "This place is small. I prefer it in Eaglecrest.",
-                eaglecrest: "This would be my favourite place in the whole city... if it wasn't so dusty!",
-            },
-            chooseChat: "You can go away if you haven't brought me a drink.",
-            receiveTavernGood: "I've been waiting for ages for this!",
-        }
-    },
-    {
-        id: 2,
-        images: {gremaRoskin: {normal: "assets/npcs/gremaRoskin.png"}},
-        name: "Grema Roskin",
-        level: 15,
-        stats: {
-            maxHealth: 125,
-            walkSpeed: 135,
-            defence: 2,
-        },
-        hostility: "friendly",
-        areas: [
-            "loggingCampTavern",
-            "eaglecrestTavern",
-        ],
-        roles: [],
-        chat: {
-            notUnlockedRoles: {
-                loggingCamp: "Hm. Doesn't smell of fried beetroot here.",
-                eaglecrest: "Smells of fried beetroot in here."
-            },
-            chooseChat: "Hello again, did you bring beetroot this time?",
-            receiveTavernGood: "It's no fried beetroot, but it'll do. Thank you.",
-        }
-    },
-    {
-        id: 3,
-        images: {feller: {normal: "assets/npcs/feller.png"}},
-        name: "Logging Camp Feller",
-        level: 4,
-        stats: {
-            maxHealth: 70,
-            walkSpeed: 115,
-            defence: 3,
-        },
-        hostility: "friendly",
-        areas: [
-            "loggingCampTavern",
-            "eaglecrestLoggingCamp",
-        ],
-        roles: [],
-        chat: {
-            notUnlockedRoles: "<em>You</em> should try carrying these logs around all day!",
-            chooseChat: "Can't talk for long, my back's playing up again.",
-            receiveTavernGood: "Ah, thanks! Just hold these logs for a minute.",
-        }
-    },
-    {
-        id: 4,
-        images: {treecutter: {normal: "assets/npcs/treecutter.png"}},
-        name: "Logging Camp Treecutter",
-        level: 7,
-        stats: {
-            maxHealth: 85,
-            walkSpeed: 120,
-            defence: 5,
-        },
-        hostility: "friendly",
-        areas: [
-            "loggingCampTavern",
-            "eaglecrestLoggingCamp",
-        ],
-        roles: [],
-        chat: {
-            notUnlockedRoles: "Teper should try doing some work and not just ordering us around all the time.",
-            chooseChat: "Y'know I cut the trees down to build this place: it's great to see my hard work put to good use!",
-            receiveTavernGood: "Just the break I needed.",
-        }
-    },
-    {
-        id: 5,
-        images: {robertHendman: {normal: "assets/npcs/robertHendman.png"}},
-        name: "Robert Hendman",
-        level: 12,
-        stats: {
-            maxHealth: 85,
-            walkSpeed: 140,
-            defence: 5,
-        },
-        hostility: "friendly",
-        exceptAreas: [
-            "eaglecrestLoggingCamp",
-        ],
-        roles: [],
-        chat: {
-            notUnlockedRoles: "Have you seen anyone playing Wizard's Lore before? Me neither. I bet those game boards are just for show.",
-            chooseChat: "I'm going to head down to the Eaglecrest monastery soon. Would you like to come along too?",
-            receiveTavernGood: `Thank you friend! A good day to you.`,
-        }
-    },
-    {
-        id: 6,
-        images: {wilmaRedding: {normal: "assets/npcs/wilmaRedding.png"}},
-        name: "Wilma Redding",
-        level: 12,
-        stats: {
-            maxHealth: 85,
-            walkSpeed: 140,
-            defence: 5,
-        },
-        hostility: "friendly",
-        exceptAreas: [
-            "eaglecrestLoggingCamp",
-        ],
-        roles: [],
-        chat: {
-            notUnlockedRoles: "So many magic artifacts around, yet I can't seem to find a single one!",
-            chooseChat: "Why would a fancy adventurer like you be talking to someone like me?",
-            receiveTavernGood: "My order? And not a moment too soon!",
-        }
-    },
-    {
-        id: 7,
-        images: {greenbeard: {normal: "assets/npcs/greenbeard.png"}},
-        name: "Captain Greenbeard",
-        level: 40,
-        stats: {
-            maxHealth: 250,
-            walkSpeed: 130,
-            defence: 8,
-        },
-        hostility: "friendly",
-        exceptAreas: [
-            "eaglecrestLoggingCamp",
-        ],
-        roles: [],
-        chat: {
-            notUnlockedRoles: "Yarr harr! Have ye spied me ship nearby?",
-            chooseChat: "Ahoy there!",
-            receiveTavernGood: "Nothin' better than a hearty supper at the tavern.",
-        }
-    },
-    {
-        id: 8,
-        images: {gildoCleftbeard: {normal: "assets/npcs/gildoCleftbeard.png"}},
-        name: "Gildo Cleftbeard",
-        level: 14,
-        stats: {
-            maxHealth: 120,
-            walkSpeed: 123,
-            defence: 6,
-        },
-        hostility: "friendly",
-        exceptAreas: [
-            "eaglecrestLoggingCamp",
-        ],
-        roles: [],
-        chat: {
-            notUnlockedRoles: {
-                loggingCamp: "I would never go to that Nilbog! Wouldn't want to get my boots muddy. Oh, and the goblins, too.",
-                eaglecrest: "I tip my hat to you.",
-            },
-            chooseChat: "Do you like my monocle?",
-            receiveTavernGood: "Thank you, now I just have to be careful not to get any in my beard!",
-        }
-    },
-    {
-        id: 9,
-        images: {eaglecrestGuard: {normal: "assets/npcs/eaglecrestGuard.png"}},
-        name: "Eaglecrest Guard",
-        level: 50,
-        stats: {
-            maxHealth: 300,
-            walkSpeed: 170,
-            defence: 20,
-        },
-        hostility: "friendly",
-        exceptAreas: [
-            "loggingCampTavern",
-            "eaglecrestLoggingCamp",
-        ],
-        roles: [],
-        chat: {
-            notUnlockedRoles: "Becoming a guard has been my dream ever since I was a child. I admired their might!",
-            chooseChat: "Sorry if I seem distracted, but I'm always on the lookout for criminals.",
-            receiveTavernGood: "Thanks. I need this to keep my strength up.",
-        }
-    },
-    {
-        id: 10,
-        images: {eaglecrestGuard2: {normal: "assets/npcs/eaglecrestGuard2.png"}},
-        name: "Eaglecrest Guard",
-        level: 50,
-        stats: {
-            maxHealth: 300,
-            walkSpeed: 170,
-            defence: 20,
-        },
-        hostility: "friendly",
-        exceptAreas: [
-            "loggingCampTavern",
-            "eaglecrestLoggingCamp",
-        ],
-        roles: [],
-        chat: {
-            notUnlockedRoles: "Becoming a guard has been my dream ever since I was a child. I admired their might!",
-            chooseChat: "Sorry if I seem distracted, but I'm always on the lookout for criminals.",
-            receiveTavernGood: "Thanks. I need this to keep my strength up.",
-        }
-    },
-    {
-        id: 11,
-        images: {alfonsoMurbry: {normal: "assets/npcs/alfonsoMurbry.png"}},
-        name: "Alfonso Murbry",
-        level: 18,
-        stats: {
-            maxHealth: 140,
-            walkSpeed: 138,
-            defence: 3,
-        },
-        hostility: "friendly",
-        exceptAreas: [
-            "eaglecrestLoggingCamp",
-        ],
-        roles: [],
-        chat: {
-            notUnlockedRoles: "Do you know how to get a golden slingshot? I've heard it fires three pellets at once!",
-            chooseChat: "You know there's said to sometimes be floating presents in the sky held up by balloons. That's why you should always carry around a slingshot!",
-            receiveTavernGood: "Excellent! Just in time.",
-        }
-    },
-    {
-        id: 12,
-        images: {
-            cat1Left: {normal: "assets/npcs/cat1.png"},
-            cat1Right: {normal: "assets/npcs/cat1.png", flip: "vertical"},
-        },
-        rotationImages: {
-            left: "cat1Left",
-            right: "cat1Right"
-        },
-        name: "Cat",
-        hideNameTag: true,
-        areas: [
-            "eaglecrest",
-            "eaglecrestEast",
-            "eaglecrestWest",
-            "eaglecrestGraveyard",
-            "eaglecrestElixirs",
-        ],
-        roles: [],
-        speciesTemplate: SpeciesTemplates.cat,
-    },
-    {
-        id: 13,
-        images: {
-            cat2Left: {normal: "assets/npcs/cat2.png"},
-            cat2Right: {normal: "assets/npcs/cat2.png", flip: "vertical"},
-        },
-        rotationImages: {
-            left: "cat2Left",
-            right: "cat2Right"
-        },
-        name: "Cat",
-        hideNameTag: true,
-        areas: [
-            "eaglecrest",
-            "eaglecrestEast",
-            "eaglecrestWest",
-            "eaglecrestGraveyard",
-            "eaglecrestElixirs",
-        ],
-        roles: [],
-        speciesTemplate: SpeciesTemplates.cat,
-    },
-    {
-        id: 14,
-        images: {
-            cat3Left: {normal: "assets/npcs/cat3.png"},
-            cat3Right: {normal: "assets/npcs/cat3.png", flip: "vertical"},
-        },
-        rotationImages: {
-            left: "cat3Left",
-            right: "cat3Right"
-        },
-        name: "Cat",
-        hideNameTag: true,
-        areas: [
-            "eaglecrest",
-            "eaglecrestEast",
-            "eaglecrestWest",
-            "eaglecrestGraveyard",
-            "eaglecrestElixirs",
-        ],
-        roles: [],
-        speciesTemplate: SpeciesTemplates.cat,
-    },
-    /*{
-        id: 15,
-        images: {
-            cat4Left: {normal: "assets/npcs/cat4.png"},
-            cat4Right: {normal: "assets/npcs/cat4.png", flip: "vertical"},
-        },
-        rotationImages: {
-            left: "cat4Left",
-            right: "cat4Right"
-        },
-        name: "Cat",
-        hideNameTag: true,
-        areas: [
-            "eaglecrest",
-            "eaglecrestEast",
-            "eaglecrestWest",
-            "eaglecrestGraveyard",
-            "eaglecrestElixirs",
-        ],
-		rarity: 20, // ie 20 times less common (doesn't acc work yet)
-        roles: [],
-        speciesTemplate: SpeciesTemplates.cat,
-    },*/
-	{
-        id: 15,
-        images: {alysLoreworth: {normal: "assets/npcs/alysLoreworth.png"}},
-		name: "Alys Loreworth, Lead Archaeologist",
-		hostility: "friendly",
-		level: 100,
-		stats: {
-			maxHealth: 550,
-			defence: 5,
-            walkSpeed: 131,
-		},
-        exceptAreas: [
-            "eaglecrestLoggingCamp",
-        ],
-		roles: [
-			{
-				sold: [
-					{item: Items.helm[8], cost: 15,}, // hat
-				],
-				role: "merchant",
-				roleRequirement: function () {
-					return Player.level >= MaxLevel;
-				},
-				shopGreeting: "A good archaeologist always has a hat. Oh. Do you not?",
-			},
-			{
-				role: "identifier",
-			},
-		],
-		chat: {
-			notUnlockedRoles: {
-				loggingCamp: "I can't believe they think the archaeology here is worth our time!",
-				eaglecrest: "Can you not see I'm trying to work here? Come back later.",
-			},
-			chooseChat: "I'm over to the Ley Confluence soon. I'm just on a break.",
-	        receiveTavernGood: "Thank you! We all need to look after ourselves every now and then.",
-			// identifier
-			identifierGreeting: "Let's see if you've found anything new.",
-			noUnidentified: "There's realms of items for you to explore. Find some unidentified items!",
-			identifyCommon: "And you think <em>this</em> will help our archaeology effort?",
-			identifyUnique: "Oh, this one is of rather good quality.",
-			identifyMythic: "It's not often I see one of these!",
-			// merchant
-			shopLeave: "Good luck on your travels.",
-			inventoryFull: "Oh, you've got so many artefacts in your inventory that there's no space for this.",
-			tooPoor: "Looks like you're not being paid enough for your efforts. Earn some gold and come back.",
-			// event
-			christmasGreeting: "Merry Christmas! I hope you've found lots of rare items this festive season. I heard there's some free ones in the city today.",
-			antoraxDayGreeting: `We've been operating the Antorax Archaeology effort for ${Event.antoraxAge} years. Doesn't that call for celebration?`,
-		},
-	},
-	{
-        id: 16,
-        images: {mailman: {normal: "assets/npcs/mailman.png"}},
-		name: "Eaglecrest Mailman",
-		hostility: "friendly",
-		level: 10,
-		stats: {
-			maxHealth: 100,
-			defence: 5,
-            walkSpeed: 170,
-		},
-        areas: [
-            "eaglecrest",
-            "eaglecrestEast",
-            "eaglecrestWest",
-        ],
-		chat: {
-            notUnlockedRoles: "I recognise your face... have we met?",
-		},
-	},
-	{
-        id: 17,
-        images: {demolitionist: {normal: "assets/npcs/demolitionist.png"}},
-		name: "Demolitionist Darrow",
-		hostility: "friendly",
-		level: 10,
-		stats: {
-			maxHealth: 100,
-			defence: 7,
-            walkSpeed: 141,
-		},
-        areas: [
-            "eaglecrest",
-            "eaglecrestEast",
-            "eaglecrestWest",
-        ],
-		chat: {
-            notUnlockedRoles: "Eaglecrest contracted me to blow up those damn sewers. Heard there was a real big rat problem there. Hell, why do I care, I'm just here to blow the damn place up.",
-		},
-	},
-];
 
 // TBD - remove since this is redundant (map.setTile should be used instead)
 // sets a tile on the Map (area and main) (specifyable area for if it is used in a setTimeout)

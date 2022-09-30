@@ -2752,7 +2752,15 @@ var Items = {
 			image: "assets/items/item/36.png",
 			functionText: "Can open some locked doors",
 			deleteIf: function () {
-				return Event.event !== "Samhain";
+				if (Event.event !== "Samhain") {
+					// reset quest variables so they can continue from the beginning of their quest next year
+					Player.quests.questProgress.bazaarCrate = undefined;
+					Player.quests.questProgress.graveyardCrate = undefined;
+					Player.quests.questProgress.plainsCrate = undefined;
+					Player.quests.questProgress.westCrate = undefined;
+					return true;
+				}
+				return false;
 			},
 			deleteIfMessage: "Your <b>Skeleton Key</b> has vanished as the Samhain season comes to a demise. The Soothsssayer's plan is laid to rest for now, maybe next year it will come to fruition...",
 		},
@@ -3064,7 +3072,7 @@ var Items = {
 			type: "consumable",
 			sellPrice: 2,
 			image: "assets/items/consumable/10.png",
-			functionText: "Deals 5 damage to the nearest enemy, stunning them for 1s",
+			functionText: "Sends a bat out to seek out the nearest enemy, dealing 5 damage and stunning them for 1s",
             cooldown: 15, // 15 seconds
 			maxCharges: 3,
 			onClickFunction: function (inventoryPosition, hotbar) {
@@ -3220,7 +3228,7 @@ var Items = {
 			name: "Mulled Wine",
 			type: "consumable",
 			image: "assets/items/consumable/16.png",
-			functionText: "Restores 25 health",
+			functionText: "Restores 35 health",
 			lore: "Don't worry, side effects are in the Christmas spirit.",
 			sellPrice: 1,
 			onClickFunction: function (inventoryPosition) {
@@ -3228,7 +3236,7 @@ var Items = {
 				Dom.inventory.remove(inventoryPosition);
 
 				// restore the health
-				Game.restoreHealth(Game.hero, 25);
+				Game.restoreHealth(Game.hero, 35);
 				// make the player tipsy!
 				Game.statusEffects.attackDamage({
 					target: Game.hero,
@@ -3353,7 +3361,7 @@ var Items = {
 			name: "Beetroot Beer",
 			type: "consumable",
 			image: "assets/items/consumable/21.png",
-			functionText: "Restores 25 health",
+			functionText: "Restores 30 health",
 			lore: "Might make you a little tipsy...",
 			sellPrice: 1,
 			onClickFunction: function (inventoryPosition) {
@@ -3361,7 +3369,7 @@ var Items = {
 				Dom.inventory.remove(inventoryPosition);
 
 				// restore the health
-				Game.restoreHealth(Game.hero, 25);
+				Game.restoreHealth(Game.hero, 30);
 				// make the player tipsy!
 				Game.statusEffects.attackDamage({
 					target: Game.hero,

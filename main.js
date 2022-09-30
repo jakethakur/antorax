@@ -1519,8 +1519,10 @@ class Character extends Thing {
 			type: "entities",
 		});
 
+		// channelling
 		this.channelling = false;
 		this.channellingInfo = false;
+
 
 		this.health = properties.health || properties.stats.maxHealth;
 		this.damageTaken = 0; // only used so far for Dummies
@@ -1563,7 +1565,7 @@ class Character extends Thing {
 
 		// it is recommended that you pick a value for these, but not necessary
 		this.stats.defence = properties.stats.defence || 0;
-		this.stats.healthRegen = properties.stats.healthRegen || 0.5;
+		this.stats.healthRegen = typeof properties.stats.healthRegen !== "undefined" ? properties.stats.healthRegen : 0.5;
 		this.stats.walkSpeed = properties.stats.walkSpeed || 180; // base speed values are same as player
 		this.stats.swimSpeed = properties.stats.swimSpeed || 60;
 		this.stats.iceSpeed = properties.stats.iceSpeed || 270;
@@ -1601,6 +1603,7 @@ class Character extends Thing {
 		}
 
 		this.onDeath = properties.onDeath;
+		this.onDeathAdditional = properties.onDeathAdditional; // so that we can have an ondeath from the speciestemplate and from areadata for example
 
 		this.chat = properties.chat || {}; // object containing properties that are inserted into chat when specific things happen
 		/* examples of chat properties:
@@ -1674,6 +1677,85 @@ class Character extends Thing {
 		}
 
 		this.hideNameTag = properties.hideNameTag; // if name tag should be hidden
+	}
+
+
+	// remove whatever is currently being channelled
+	// called when the character moves or tries to channel something else
+	// reason is set to why the channel was removed (not used yet)
+	// if there is one, this also calls and resets channelCancelFunction (which should always be set after channel() is called!)
+	removeChannelling (reason) {
+		if (this.channelling !== false) {
+			// remove existing channelling
+			if (this.channelling === "fishing") {
+				// remove fishing bobber
+				Game.removeObject(this.channellingProjectileId, "projectiles");
+				this.channelling = false;
+				this.channellingInfo = false;
+				this.channellingProjectileId = null;
+
+				Game.clearTimeout(Game.fishTimeout);
+			}
+			else if (this.channelling === "projectile") {
+				if (this.stats.moveDuringFocus !== true)
+				{
+					this.finishAttack(); // for attack channelling for hero
+					this.channelling = false;
+					this.channellingInfo = false;
+				}
+			}
+			else {
+				Game.clearTimeout(this.channelling); // might not always be a timeout, but this doesn't matter (does nothing if not a timeout)
+				// N.B. this.channelling should never be an int, otherwise clearTimeout *does* mess it up
+
+				// now nothing is being channelled
+				this.channelling = false;
+				this.channellingInfo = false;
+			}
+
+			// if there was a channelCancelFunction, call it then set it back to undefined
+			if (typeof this.channelCancelFunction !== "undefined") {
+				this.channelCancelFunction();
+				this.channelCancelFunction = undefined;
+			}
+		}
+	}
+
+	// channel a function
+	// this.channelling is set to the timeout
+	// channelling fails (thus the timeout is cleared) if the character's channelling is set to something else or if the user moves
+	// parameters must be an array
+	// time is in ms
+	// description is a short description shown on the channelling bar
+	// description is set to false if a bar should not be shown
+	// colour is an optional colour for the channelling bar (otherwise it uses default magenta)
+	channel (func, parameters, time, description, colour) {
+		if (!this.hasStatusEffectType("stun")) { // cannot channel when stunned
+			// remove whatever was previously channelled
+			this.removeChannelling("channel");
+			// add line to remove channelling when channelling expires to the function
+			let channelFunction = function (parameters) {
+				func(...parameters);
+				this.channelling = false;
+				this.channellingInfo = false;
+			}.bind(this);
+			// set channelling to the timeout
+			this.channelling = Game.setTimeout(channelFunction, time, [parameters]); // parameters is ...spread twice (from setTimeout and channelFunction) so array of array of params :)
+
+			// channelling progress bar information
+			if (description !== false) {
+				// channelling bar should be shown
+				this.channellingInfo = {
+					description: description,
+					time: time,
+					start: Date.now(),
+				};
+
+				if (typeof colour !== "undefined") {
+					this.channellingInfo.colour = colour;
+				}
+			}
+		}
 	}
 
 	// insert a message into the chat, under the format of "this.name: message"
@@ -1764,7 +1846,7 @@ class Character extends Thing {
 		if (this !== Game.hero) {
 			// not player (assumed it is killed by player - TBD)
 			// TBD use hostility to check if it is killed by player
-			if (this.health <= 0 && !this.respawning) { // check it is dead and not already respawning
+			if (this.health <= 0 && !this.isCorpse) { // check it is dead and not already a corpse
 
 				// death
 
@@ -1779,15 +1861,28 @@ class Character extends Thing {
 				// wipe status effects and their tick timeouts
 				this.removeAllStatusEffects();
 
+				// remove channelling
+				this.removeChannelling("death");
+
 				// on kill function (of weapon)
 				if (Player.inventory.weapon.onKill !== undefined && !inMinigame && this.damageTakenFromHero) {
 					Player.inventory.weapon.onKill();
+				}
+
+				// reset aggro
+				if (typeof this.attackTargets !== "undefined") {
+					for (let i = 0; i < this.attackTargets.length; i++) {
+						this.attackTargets[i].aggro = 0;
+					}
 				}
 
 				// on death function (of enemy)
 				// might also contain quest progress
 				if (this.onDeath !== undefined && !inMinigame && this.damageTakenFromHero) {
 					this.onDeath();
+				}
+				if (this.onDeathAdditional !== undefined && !inMinigame && this.damageTakenFromHero) {
+					this.onDeathAdditional(); // so that we can have an ondeath from speciestemplate and from areadata
 				}
 
 				this.footHitbox.drawHitbox = false; // don't draw foot hitbox whilst dead
@@ -1808,6 +1903,11 @@ class Character extends Thing {
 					// corpse disappears in this.stats.lootTime ms
 					Game.setTimeout(function () {
 						this.isCorpse = false;
+
+						if (!this.respawnOnDeath) {
+							Game.removeObject(this.id, this.type);
+						}
+
 						// call Dom.quests.active if it is needed for a quest regarding this enemy
 						if (this.name === "The Tattered Knight") {
 							Dom.quests.active();
@@ -1833,16 +1933,9 @@ class Character extends Thing {
 							Player.bossesKilled[this.bossKilledVariable] = GetFullDate();
 						}
 					}
-
-					// reset aggro
-					if (typeof this.attackTargets !== "undefined") {
-						for (let i = 0; i < this.attackTargets.length; i++) {
-							this.attackTargets[i].aggro = 0;
-						}
-					}
 				}
 				else {
-					// remove the object if it is not a corpse
+					// remove the object if it is not a corpse upon death
 					if (!this.isCorpse) {
 						Game.removeObject(this.id, this.type);
 					}
@@ -2366,79 +2459,6 @@ class Attacker extends Character {
 
 		if (properties.addToObjectArrays !== false) {
 			Game.allAttackers.push(this); // array for current area only
-		}
-	}
-
-
-	// remove whatever is currently being channelled
-	// called when the character moves or tries to channel something else
-	// reason is set to why the channel was removed (not used yet)
-	// if there is one, this also calls and resets channelCancelFunction (which should always be set after channel() is called!)
-	removeChannelling (reason) {
-		if (this.channelling !== false) {
-			// remove existing channelling
-			if (this.channelling === "fishing") {
-				// remove fishing bobber
-				Game.removeObject(this.channellingProjectileId, "projectiles");
-				this.channelling = false;
-				this.channellingInfo = false;
-				this.channellingProjectileId = null;
-
-				Game.clearTimeout(Game.fishTimeout);
-			}
-			else if (this.channelling === "projectile") {
-				if (this.stats.moveDuringFocus !== true)
-				{
-					this.finishAttack(); // for attack channelling for hero
-					this.channelling = false;
-					this.channellingInfo = false;
-				}
-			}
-			else {
-				Game.clearTimeout(this.channelling); // might not always be a timeout, but this doesn't matter (does nothing if not a timeout)
-				// N.B. this.channelling should never be an int, otherwise clearTimeout *does* mess it up
-
-				// now nothing is being channelled
-				this.channelling = false;
-				this.channellingInfo = false;
-			}
-
-			// if there was a channelCancelFunction, call it then set it back to undefined
-			if (typeof this.channelCancelFunction !== "undefined") {
-				this.channelCancelFunction();
-				this.channelCancelFunction = undefined;
-			}
-		}
-	}
-
-	// channel a function
-	// this.channelling is set to the timeout
-	// channelling fails (thus the timeout is cleared) if the character's channelling is set to something else or if the user moves
-	// parameters must be an array
-	// description is a short description shown on the channelling bar
-	// description is set to false if a bar should not be shown
-	channel (func, parameters, time, description) {
-		if (!this.hasStatusEffectType("stun")) { // cannot channel when stunned
-			// remove whatever was previously channelled
-			this.removeChannelling("channel");
-			// add line to remove channelling when channelling expires to the function
-			let channelFunction = function (parameters) {
-				func(...parameters);
-				this.channelling = false;
-				this.channellingInfo = false;
-			}.bind(this);
-			// set channelling to the timeout
-			this.channelling = Game.setTimeout(channelFunction, time, [parameters]); // parameters is ...spread twice (from setTimeout and channelFunction) so array of array of params :)
-
-			// channelling progress bar information
-			if (description !== false) {
-				// channelling bar should be shown
-				this.channellingInfo = {
-					description: description,
-					time: time,
-					start: Date.now(),
-				};
-			}
 		}
 	}
 
@@ -3241,7 +3261,7 @@ class Hero extends Attacker {
 					// animal lead
 
 					// get animals being touched
-					let touchedAnimals = Game.allThings.filter(thing => thing.canBeOnLead && thing.isTouching({x: mouseX, y: mouseY, width: 1, height: 1}) && !thing.respawning);
+					let touchedAnimals = Game.allThings.filter(thing => thing.canBeOnLead && thing.isTouching({x: mouseX, y: mouseY, width: 1, height: 1}) && !thing.respawning && !thing.isCorpse);
 
 					if (touchedAnimals.length > 0) {
 						// a touched animal can have a lead put on it
@@ -3723,7 +3743,7 @@ class Projectile extends Thing {
 				let targetAlreadyDamaged = this.damageDealt.find(damage => damage.enemy.id === target.id);
 
 				// check projectile is touching character it wants to damage, and that target should be damaged
-				if (this.isTouching(target) && !target.respawning && targetAlreadyDamaged === undefined && !this.exceptTargets.includes(target)) {
+				if (this.isTouching(target) && !target.respawning && !target.isCorpse && targetAlreadyDamaged === undefined && !this.exceptTargets.includes(target)) {
 
 					let canBeDamaged = true;
 
@@ -4361,10 +4381,14 @@ class Enemy extends Attacker {
 		if (typeof properties.attackTargets !== "undefined") {
 			// for anything they should target other than hero
 			for (let i = 0; i < properties.attackTargets.length; i++) {
-				this.attackTargets.push({
-					target: properties.attackTargets[i].target(),
-					baseAggro: properties.attackTargets[i].baseAggro || properties.attackBehaviour.baseAggro || 0,
-				});
+				let target = properties.attackTargets[i].target();
+				if (typeof target !== "undefined" && target !== false) {
+					this.attackTargets.push({
+						target: target,
+						aggro: 0,
+						baseAggro: properties.attackTargets[i].baseAggro || properties.attackBehaviour.baseAggro || 0,
+					});
+				}
 			}
 		}
 	}
@@ -4444,7 +4468,7 @@ class Enemy extends Attacker {
 					if (this.spells.length !== 0) {
 						// enemy has some spells
 						spellIndex = this.spells.findIndex(spell => spell.ready &&
-							(spell.castCondition === undefined || spell.castCondition(this)));
+							(spell.castCondition === undefined || spell.castCondition.call(this, this))); // this is passed in as a parameter and as the object calling the function
 					}
 
 					if (spellIndex !== -1) {
@@ -4453,7 +4477,7 @@ class Enemy extends Attacker {
 						// no longer ready
 						spell.ready = false;
 						// cast the spell
-						this.channelSpell(spell.id, spell.tier, spell.parameters());
+						this.channelSpell(spell.id, spell.tier, spell.parameters.call(this));
 						// spell interval (how often it is cast by enemy)
 						Game.setTimeout(function (spellIndex) {
 							this.spells[spellIndex].ready = true;
@@ -4617,7 +4641,7 @@ class Enemy extends Attacker {
 
 	// calculates target to move towards & attack from aggro and distances
 	calculateTarget () {
-		let currentMinimum = Number.MAX_VALUE;
+		let currentMaximum = this.attackThreshold;
 
 		let currentTarget = undefined;
 
@@ -4627,13 +4651,16 @@ class Enemy extends Attacker {
 				let distance = Game.distance(this, target.target);
 				let aggro = target.aggro + target.baseAggro;
 
+				// if distance is less than 100 (maybe change?) then 100 is the value used for aggro quotient
+				distance = Math.max(100, distance);
+
 				let aggroQuotient = aggro / distance * 100; // what the target is calculated based off of
 
 				target.aggroQuotient = aggroQuotient; // for ease of testing in console
 
-				if (aggroQuotient >= this.attackThreshold && aggroQuotient < currentMinimum) {
+				if (aggroQuotient >= currentMaximum) {
 					currentTarget = target.target;
-					currentMinimum = aggroQuotient;
+					currentMaximum = aggroQuotient;
 				}
 			}
 		}
@@ -7069,29 +7096,68 @@ Game.prepareNPC = function (npc, type, overrideCanBeShown) {
 
 // set the properties of a character from its template
 // called by prepareNPC
+// properties in areadata have precedence over the template, which has precendence over the speciestemplate
 Game.setInformationFromTemplate = function (properties) {
-	if (properties.template !== undefined) {
-		// a template exists
-		// add template properties to main properties object
-		if (properties.template.stats !== undefined) {
-			Object.assign(properties.template.stats, properties.stats); // template updated
-		}
-		if (properties.template.attackBehaviour !== undefined) {
-			Object.assign(properties.template.attackBehaviour, properties.attackBehaviour); // template updated
-		}
-		Object.assign(properties, properties.template); // properties updated
+	// first initialise the objects so we don't get any undefined errors
+	if (typeof properties.template === "undefined") {
+		properties.template = {};
+	}
+	if (typeof properties.template.stats === "undefined") {
+		properties.template.stats = {};
+	}
+	if (typeof properties.template.attackBehaviour === "undefined") {
+		properties.template.attackBehaviour = {};
+	}
+	if (typeof properties.template.chat === "undefined") {
+		properties.template.chat = {};
 	}
 
-	if (properties.speciesTemplate !== undefined) {
-		// a second template, specific to the species
-		if (properties.speciesTemplate.stats !== undefined) {
-			Object.assign(properties.speciesTemplate.stats, properties.stats); // species template updated
+	if (typeof properties.speciesTemplate === "undefined") {
+		if (typeof properties.template.speciesTemplate !== "undefined") {
+			// species template is contained in the template
+			properties.speciesTemplate = properties.template.speciesTemplate;
 		}
-		if (properties.speciesTemplate.attackBehaviour !== undefined) {
-			Object.assign(properties.speciesTemplate.attackBehaviour, properties.attackBehaviour); // species template updated
+		else {
+			properties.speciesTemplate = {};
 		}
-		Object.assign(properties, properties.speciesTemplate); // properties updated
 	}
+	if (typeof properties.speciesTemplate.stats === "undefined") {
+		properties.speciesTemplate.stats = {};
+	}
+	if (typeof properties.speciesTemplate.attackBehaviour === "undefined") {
+		properties.speciesTemplate.attackBehaviour = {};
+	}
+	if (typeof properties.speciesTemplate.chat === "undefined") {
+		properties.speciesTemplate.chat = {};
+	}
+
+	// now assign the objects into speciesTemplate!
+	Object.assign(properties.template.stats, properties.stats);
+	properties.stats = undefined;
+	Object.assign(properties.template.attackBehaviour, properties.attackBehaviour);
+	properties.attackBehaviour = undefined;
+	Object.assign(properties.template.chat, properties.chat);
+	properties.chat = undefined;
+	for (const key in properties) { // now we manual assign
+		if (key !== "stats" && key !== "attackBehaviour" && key !== "chat") { // we have already assigned these so don't reassign them
+			properties.template[key] = properties[key];
+		}
+	}
+
+	Object.assign(properties.speciesTemplate.stats, properties.template.stats);
+	properties.template.stats = undefined;
+	Object.assign(properties.speciesTemplate.attackBehaviour, properties.template.attackBehaviour);
+	properties.template.attackBehaviour = undefined;
+	Object.assign(properties.speciesTemplate.chat, properties.template.chat);
+	properties.template.chat = undefined;
+	for (const key in properties.template) { // now we manual assign
+		if (key !== "stats" && key !== "attackBehaviour" && key !== "chat") { // we have already assigned these so don't reassign them
+			properties.speciesTemplate[key] = properties.template[key];
+		}
+	}
+
+	// now bring speciesTemplate to be all of properties!
+	Object.assign(properties, properties.speciesTemplate);
 
 	return properties;
 }
@@ -7515,7 +7581,7 @@ Game.regen = function (delta) {
 // healthRegen = health regenerated per second
 Game.regenHealth = function (delta) {
 	for (let i = 0; i < this.allCharacters.length; i++) {
-		if (!this.allCharacters[i].respawning) {
+		if (!this.allCharacters[i].respawning && !this.allCharacters[i].isCorpse) {
 			this.restoreHealth(this.allCharacters[i], this.allCharacters[i].stats.healthRegen * delta);
 		}
 	}
@@ -7713,8 +7779,8 @@ Game.update = function (delta) {
 			// it is already currently displayed
 			canSpeak = false;
 		}
-		else if (npc.respawning) {
-			// npc is not dead
+		else if (npc.respawning || npc.isCorpse) {
+			// npc is dead
 			canSpeak = false;
 		}
 		else if (this.minigameInProgress !== undefined && this.minigameInProgress.playing) {
@@ -7787,6 +7853,7 @@ Game.update = function (delta) {
 											}
 											else {
 												questCanBeStarted = false;
+												notUnlockedRoles = true;
 											}
 										}
 									}
@@ -7805,8 +7872,13 @@ Game.update = function (delta) {
 											// check if it is daily or one time
 											if (role.quest.repeatTime === undefined) {
 												// one time
-												if (Player.quests.completedQuestArray.includes(role.quest.quest)) { // quest has already been completed
+												if (Player.quests.completedQuestArray.includes(role.quest.quest)) {
+													// quest has already been completed
 													questComplete = true; // for npc dialogue
+												}
+												else {
+													// quest not unlocked at all (is in "other quests")
+													notUnlockedRoles = true;
 												}
 											}
 											else if (role.quest.repeatTime === "daily") {
@@ -7814,6 +7886,10 @@ Game.update = function (delta) {
 												if (Player.quests.questLastFinished[role.quest.questArea][role.quest.id] >= GetFullDate()) { // quest has already been done today (or after today o.O)
 													// note that if the quest has not been finished (hence questLastFinished is undefined) the condition will always return false
 													questComplete = true; // for npc dialogue
+												}
+												else {
+													// quest not unlocked at all (is in "other quests")
+													notUnlockedRoles = true;
 												}
 											}
 										}
@@ -7844,6 +7920,7 @@ Game.update = function (delta) {
 
 									if (questToBeFinished === undefined) { // none of the quests are currently active
 										questCanBeFinished = false;
+										notUnlockedRoles = true;
 									}
 
 									// no need to check if it has already been completed as these are all daily
@@ -7852,6 +7929,7 @@ Game.update = function (delta) {
 									// single quest
 									if (!Player.quests.activeQuestArray.includes(role.quest.quest)) { // quest is not already active
 										questCanBeFinished = false;
+										notUnlockedRoles = true;
 									}
 								}
 
@@ -8076,7 +8154,7 @@ Game.update = function (delta) {
 		// check if the currently displayed NPC is the current one in the for loop
 		if (npc.id === Dom.currentNPC.id && npc.type === Dom.currentNPC.type) {
 			// close the DOM if the player is too far away from the NPC or if the NPC is dead
-			if (npc.respawning || this.distance(this.hero, npc) > this.hero.stats.domRange) {
+			if (npc.respawning || npc.isCorpse || this.distance(this.hero, npc) > this.hero.stats.domRange) {
 				// NPC is dead or player is more than 4 (can be changed) tiles away from NPC
 				Dom.closeNPCPages();
 			}
@@ -8090,7 +8168,7 @@ Game.update = function (delta) {
 
 	// update villagers
 	for (let i = 0; i < this.villagers.length; i++) {
-		if (!this.villagers[i].respawning) { // check villager is not dead
+		if (!this.villagers[i].respawning && !this.villagers[i].isCorpse) { // check villager is not dead
 			this.villagers[i].update(delta);
 		}
   }
@@ -8099,13 +8177,14 @@ Game.update = function (delta) {
 	for (let i = 0; i < this.enemies.length; i++) {
 		let enemy = this.enemies[i];
 
-		if (!enemy.respawning) { // check enemy is not dead
+		if (!enemy.respawning && !enemy.isCorpse) { // check enemy is not dead
 			enemy.update(delta);
 		}
 
 		// enemy looting
 		// check enemy is a corpse (hence might be able to be looted)
-		if (this.enemies[i].isCorpse) {
+		// also checks that it still exists! since it might have died and beenremoved in its update function
+		if (typeof this.enemies[i] !== "undefined" && this.enemies[i].isCorpse) {
 
 			let canBeLooted = true; // set to false if enemy can't be looted
 
@@ -8150,7 +8229,7 @@ Game.update = function (delta) {
 		// check if the currently displayed DOM is for the current enemy in the for loop (looting)
 		if (enemy.id === Dom.currentNPC.id && enemy.type === Dom.currentNPC.type) {
 			// close the DOM if the player is too far away from the enemy or if the enemy is dead
-			if (enemy.respawning && this.distance(this.hero, enemy) > this.hero.stats.domRange) {
+			if (enemy.respawning || enemy.isCorpse || this.distance(this.hero, enemy) > this.hero.stats.domRange) {
 				// enemy is dead or player is more than 4 tiles away from enemy
 				Dom.closeNPCPages();
 			}
@@ -9466,8 +9545,13 @@ Game.drawChannellingBar = function (ctx, character, x, y, width, height) {
 	//const remaining = Game.hero.channellingInfo.time - elapsed;
 	const completedFraction = elapsed / character.channellingInfo.time;
 
-	// fill colour (purple)
-	ctx.fillStyle = "#f442c2";
+	// fill colour (magenta is default)
+	if (typeof character.channellingInfo.colour === "undefined") {
+		ctx.fillStyle = "#f442c2";
+	}
+	else {
+		ctx.fillStyle = character.channellingInfo.colour;
+	}
 	ctx.strokeStyle = "black";
 
 	ctx.globalAlpha = 0.6;
