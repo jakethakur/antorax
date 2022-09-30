@@ -7437,15 +7437,17 @@ Last I saw him, he was visiting the <b>Eaglecrest Plains</b> to the <b>south</b>
 			}
 
 			// overdraft quest
-			Game.camera.pan({x: 3436, y: 1171}, 400, "accelerate", function () {
-				// function to be called 2s after pan is finished
-				Dom.chat.insert(Dom.chat.say("Gildo Cleftbeard", "Help! These frogs are after my monocle!!"));
-				// pan back to player
-				Game.camera.pan(Game.hero, 400, "accelerate", function () {
-					// reset camera
-					Game.camera.follow(Game.hero);
-				}, 0);
-			}, 2000);
+			if (Player.quests.npcProgress.eaglecrest[2] === 2) {
+				Game.camera.pan({x: 3436, y: 1171}, 400, "constant", function () {
+					// function to be called 2s after pan is finished
+					Dom.chat.insert(Dom.chat.say("Gildo Cleftbeard", "Help! These frogs are after my monocle!!"));
+					// pan back to player
+					Game.camera.pan(Game.hero, 400, "constant", function () {
+						// reset camera
+						Game.camera.follow(Game.hero);
+					}, 0);
+				}, 2000);
+			}
 		},
 
 		callAreaLeaveOnLogout: true,
