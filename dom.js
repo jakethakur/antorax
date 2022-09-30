@@ -2616,7 +2616,7 @@ Dom.merchant.buy = function (item, index, npc) {
 		Dom.chat.insert("You bought a " + item.item.name + ".", 100);
 
 		if (typeof item.buyFunction !== "undefined") {
-			item.buyFunction();
+			item.buyFunction(item);
 		}
 	}
 }
@@ -4295,6 +4295,8 @@ Dom.inventory.hideHotbar = function (hide) {
 Dom.loot.page = function (name, items) {
 	if (Dom.changeBook("lootPage")) {//, true/*false*/, true);
 		//Dom.currentlyDisplayed = name;
+		Dom.changeBook("lootPage");
+		Dom.changeBook("lootPage");
 
 		// the format of Dom.loot.looted is the same as Dom.quest.rewards
 		Dom.loot.looted = items;

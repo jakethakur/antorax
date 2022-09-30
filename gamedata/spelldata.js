@@ -11,17 +11,27 @@ Spells = [
 		id: 0,
 		img: "assets/runes/0.png",
 		class: "k",
-		description: ["", "Leap towards your mouse location."],
+		description: ["", "Leap towards your mouse location, up to 500 pixels."],
 		difficulty: "Medium",
 
 		// properties should contain tier (as int value), caster, target
 		func: function (properties) {
 			let dist = Game.distance(properties.caster, properties.target);
-			let velocity = Spells[0].velocity[properties.tier];
-			let time = dist / velocity;
-			let bear = Game.bearing(properties.caster, properties.target);
-			properties.caster.displace(0, velocity, time, bear); // start displacement
+			if (dist <= Spells[0].range[properties.tier]) {
+				let velocity = Spells[0].velocity[properties.tier];
+				let time = dist / velocity;
+				let bear = Game.bearing(properties.caster, properties.target);
+				properties.caster.displace(0, velocity, time, bear); // start displacement
+			}
+			else {
+				Dom.chat.insert("<i>You can't charge that far!</i>")
+			}
 		},
+
+		range: [
+			0,
+			500,	// tier 1
+		],
 
 		velocity: [
 			0,
@@ -93,7 +103,7 @@ Spells = [
 		id: 2,
 		img: "assets/runes/2.png",
 		class: "k",
-		description: ["", "Deal 50% of your attack damage to all enemies in the area, and stun them for 1 second."],
+		description: ["", "Deal 100% of your attack damage to all enemies in the area, and stun them for 2 seconds."],
 		difficulty: "Easy",
 
 		// properties should contain tier (as int value), caster
@@ -112,17 +122,17 @@ Spells = [
 
 		damageMultiplier: [
 			0,
-			50,	// tier 1
+			100,	// tier 1
 		],
 
 		channelTime: [
 			0,
-			2000,
+			1000,
 		],
 
 		stunTime: [
 			0,
-			1,	// tier 1
+			2,	// tier 1
 		],
 
 		manaCost: [
@@ -236,7 +246,7 @@ Spells = [
 
 		channelTime: [
 			0,
-			500,	// tier 1
+			400,	// tier 1
 		],
 
 		damageMultiplier: [
@@ -287,7 +297,7 @@ Spells = [
 
 		channelTime: [
 			0,
-			1500,	// tier 1
+			1000,	// tier 1
 		],
 
 		damageMultiplier: [

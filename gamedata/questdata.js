@@ -1759,9 +1759,24 @@ After all, death is never the end in Antorax...<br>
 				"Find a special crate somewhere in the Eaglecrest Bazaar.",
 				"Find a special crate somewhere in Eaglecrest Graveyard.",
 				"Find a special crate somewhere to the east of Eaglecrest Plains.",
+				"Bring 5 Wispy Feathers to the <b>Mask Salesman</b>.",
 				"Find a special crate somewhere in Eaglecrest City West.",
 				"Speak to the <b>The Soothsssayer</b> with the contents of all four crates.",
 			],
+
+			isHidden: function() {
+				let hidden = [];
+
+				// true or falses for each objective (apart from the turn-in objective)
+				hidden.push(false);
+				hidden.push(false);
+				hidden.push(false);
+				hidden.push(Player.quests.npcProgress.eaglecrest[5]); // feather objective
+				hidden.push(false);
+				hidden.push(false);
+
+				return hidden;
+			},
 
 			isCompleted: function() {
 				let completed = [];
@@ -1806,7 +1821,7 @@ After all, death is never the end in Antorax...<br>
 			finishChat: `ssstbd`,
 
 			objectives: [
-				"Protect the cauldron whilst ",
+				"Protect the cauldron whilst the Blood Moon is summoned.",
 				"Speak to the <b>The Soothsssayer</b>.",
 			],
 
@@ -1814,7 +1829,7 @@ After all, death is never the end in Antorax...<br>
 				let completed = [];
 
 				// true or falses for each objective (apart from the turn-in objective)
-				completed.push(Player.quests.questProgress.tbd);
+				completed.push(Player.quests.questProgress.cauldronProtected);
 
 				completed = checkFinished(completed);
 
@@ -1829,7 +1844,7 @@ After all, death is never the end in Antorax...<br>
 			onQuestStart: function () {
 				let cauldron = Game.characters.find(character => character.name === "The Soothsssayer's Cauldron");
 
-				cauldron.channel(function () {}, [], 66666, "", "#7FD922");
+				cauldron.channel(function () {}, [], 87666, "", {colour: "#7FD922"});
 
 				Game.clearedTimeoutsOnAreaChange.push(Game.setTimeout(function () {
 					Game.enemies.push(new Enemy(Game.prepareNPC({
@@ -1855,7 +1870,7 @@ After all, death is never the end in Antorax...<br>
 
 				Game.clearedTimeoutsOnAreaChange.push(Game.setTimeout(function () {
 					Dom.chat.insert(Dom.chat.say("The Soothsssayer", "Get on with it and kill those ghossssts. The processssss must finish!"));
-				}, 13000));
+				}, 14666));
 
 				Game.clearedTimeoutsOnAreaChange.push(Game.setTimeout(function () {
 					Game.enemies.push(new Enemy(Game.prepareNPC({
@@ -1869,11 +1884,11 @@ After all, death is never the end in Antorax...<br>
 						template: EnemyTemplates.eaglecrest.phantom1,
 					}, "enemies")));
 					Game.enemies[Game.enemies.length-1].say("The Blood Moon will kill us all..");
-				}, 16000));
+				}, 18000));
 
 				Game.clearedTimeoutsOnAreaChange.push(Game.setTimeout(function () {
 					Dom.chat.insert(Dom.chat.say("The Soothsssayer", "Why am I getting <i>you</i> to do all thisss?- Well, do you think Eaglecrest would be happy with <i>me</i> ssstrolling around the City in their current ssssssituation?"));
-				}, 23666));
+				}, 33666));
 
 				Game.clearedTimeoutsOnAreaChange.push(Game.setTimeout(function () {
 					Game.enemies.push(new Enemy(Game.prepareNPC({
@@ -1896,11 +1911,12 @@ After all, death is never the end in Antorax...<br>
 						y: 350,
 						template: EnemyTemplates.eaglecrest.phantom1,
 					}, "enemies")));
-				}, 34222));
+					Game.enemies[Game.enemies.length-1].say("Seize the cauldron!");
+				}, 36222));
 
 				Game.clearedTimeoutsOnAreaChange.push(Game.setTimeout(function () {
 					Dom.chat.insert(Dom.chat.say("The Soothsssayer", "Yessssssss! Keep going! It'sssss working!"));
-				}, 34666));
+				}, 49666));
 
 				Game.clearedTimeoutsOnAreaChange.push(Game.setTimeout(function () {
 					Game.enemies.push(new Enemy(Game.prepareNPC({
@@ -1908,52 +1924,81 @@ After all, death is never the end in Antorax...<br>
 						y: 500,
 						template: EnemyTemplates.eaglecrest.phantom1,
 					}, "enemies")));
-				}, 38000));
+				}, 52222));
 
 				Game.clearedTimeoutsOnAreaChange.push(Game.setTimeout(function () {
 					Game.enemies.push(new Enemy(Game.prepareNPC({
 						x: 220,
-						y: 1100,
-						template: EnemyTemplates.eaglecrest.phantom2,
-					}, "enemies")));
-					Game.enemies.push(new Enemy(Game.prepareNPC({
-						x: 300,
 						y: 1000,
 						template: EnemyTemplates.eaglecrest.phantom2,
 					}, "enemies")));
 					Game.enemies.push(new Enemy(Game.prepareNPC({
+						x: 300,
+						y: 930,
+						template: EnemyTemplates.eaglecrest.phantom2,
+					}, "enemies")));
+					Game.enemies.push(new Enemy(Game.prepareNPC({
 						x: 380,
-						y: 1100,
+						y: 1000,
 						template: EnemyTemplates.eaglecrest.phantom1,
 					}, "enemies")));
-					Game.enemies[Game.enemies.length-1].say("The Blood Moon will kill us all..");
-				}, 40000));
+					Game.enemies[Game.enemies.length-1].say("You can't..");
+				}, 54000));
+
+				Game.clearedTimeoutsOnAreaChange.push(Game.setTimeout(function () {
+					Dom.chat.insert(Dom.chat.say("The Soothsssayer", "I knew you would be the right persssson for this. I sssaw. I wasssn't sssearching for loyalty, I was looking for the lack of it. You were willing to do anything for a reward. Look what you're doing for me now."));
+				}, 70000));
+				Game.clearedTimeoutsOnAreaChange.push(Game.setTimeout(function () {
+					Dom.chat.insert(Dom.chat.say("The Soothsssayer", `I've got lotssss more rewardsss ${Player.name}, don't worry.`));
+				}, 72666));
+
+				Game.clearedTimeoutsOnAreaChange.push(Game.setTimeout(function () {
+					Game.enemies.push(new Enemy(Game.prepareNPC({
+						x: 313,
+						y: 150,
+						template: EnemyTemplates.eaglecrest.phantom2,
+					}, "enemies")));
+				}, 75222));
+
+				Game.clearedTimeoutsOnAreaChange.push(Game.setTimeout(function () {
+					Game.enemies.push(new Enemy(Game.prepareNPC({
+						x: 300,
+						y: 950,
+						template: EnemyTemplates.eaglecrest.phantom2,
+					}, "enemies")));
+				}, 77777));
 
 				Game.clearedTimeoutsOnAreaChange.push(Game.setTimeout(function () {
 					Game.enemies.push(new Enemy(Game.prepareNPC({
 						x: 100,
-						y: 350,
+						y: 100,
 						template: EnemyTemplates.eaglecrest.phantom1,
 					}, "enemies")));
-				}, 44000));
+				}, 79777));
 
 				Game.clearedTimeoutsOnAreaChange.push(Game.setTimeout(function () {
 					Game.enemies.push(new Enemy(Game.prepareNPC({
-						x: 100,
-						y: 350,
-						template: EnemyTemplates.eaglecrest.phantom1,
+						x: 500,
+						y: 550,
+						template: EnemyTemplates.eaglecrest.phantom2,
 					}, "enemies")));
-				}, 46000));
+				}, 81222));
 
 				Game.clearedTimeoutsOnAreaChange.push(Game.setTimeout(function () {
 					Game.enemies.push(new Enemy(Game.prepareNPC({
-						x: 100,
-						y: 350,
-						template: EnemyTemplates.eaglecrest.phantom1,
+						x: 400,
+						y: 130,
+						template: EnemyTemplates.eaglecrest.phantom2,
 					}, "enemies")));
-				}, 48000));
+				}, 81777));
 
-
+				Game.clearedTimeoutsOnAreaChange.push(Game.setTimeout(function () {
+					Game.enemies.push(new Enemy(Game.prepareNPC({
+						x: 500,
+						y: 333,
+						template: EnemyTemplates.eaglecrest.phantom2,
+					}, "enemies")));
+				}, 82100));
 			},
 
 			rewards: {

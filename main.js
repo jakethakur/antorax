@@ -71,6 +71,7 @@ Game.loadPlayer = function () {
         savedPlayer.bossesKilled = Object.assign(Player.bossesKilled, savedPlayer.bossesKilled);
         savedPlayer.stats = Object.assign(Player.stats, savedPlayer.stats);
         savedPlayer.quests = Object.assign(Player.quests, savedPlayer.quests);
+        savedPlayer.reputation = Object.assign(Player.reputation, savedPlayer.reputation);
         Player = Object.assign(Player, savedPlayer);
 
         Player.name = playerName;
@@ -1728,8 +1729,10 @@ class Character extends Thing {
 	// time is in ms
 	// description is a short description shown on the channelling bar
 	// description is set to false if a bar should not be shown
-	// colour is an optional colour for the channelling bar (otherwise it uses default magenta)
-	channel (func, parameters, time, description, colour) {
+	// extraInfo is an object that could have the following properties: (all saved in channellingInfo)
+	// extraInfo.colour is an optional colour for the channelling bar (otherwise it uses default magenta)
+	// extraInfo.cancelChannelOnDamage means the channel is cancelled when they take damage
+	channel (func, parameters, time, description, extraInfo) {
 		if (!this.hasStatusEffectType("stun")) { // cannot channel when stunned
 			// remove whatever was previously channelled
 			this.removeChannelling("channel");
@@ -1742,6 +1745,10 @@ class Character extends Thing {
 			// set channelling to the timeout
 			this.channelling = Game.setTimeout(channelFunction, time, [parameters]); // parameters is ...spread twice (from setTimeout and channelFunction) so array of array of params :)
 
+			if (typeof extraInfo === "undefined") {
+				extraInfo = {};
+			}
+
 			// channelling progress bar information
 			if (description !== false) {
 				// channelling bar should be shown
@@ -1749,11 +1756,9 @@ class Character extends Thing {
 					description: description,
 					time: time,
 					start: Date.now(),
+					colour:extraInfo.colour,
+					cancelChannelOnDamage: extraInfo.cancelChannelOnDamage, // cancel the channelling when they take damage
 				};
-
-				if (typeof colour !== "undefined") {
-					this.channellingInfo.colour = colour;
-				}
 			}
 		}
 	}
@@ -1965,6 +1970,10 @@ class Character extends Thing {
 		}
 		// player
 		else {
+			if (this.channellingInfo !== false && this.channellingInfo !== undefined && this.channellingInfo.cancelChannelOnDamage) {
+				this.removeChannelling("damage");
+			}
+
 			if (this.health <= 0 && !this.respawning) { // check it is dead and not already respawning
 
 				if (!Game.minigameInProgress || !Game.minigameInProgress.playing) {
@@ -4368,7 +4377,7 @@ class Enemy extends Attacker {
 		this.attackTargets.push({
 			target: Game.hero,
 			aggro: 0, // increases by the percentage of health dealt to character (10% dealt -> aggro increased by 1)
-			baseAggro: properties.attackBehaviour.baseAggro || 3.5, // added to aggro, constant value (this is effectively a leashradius of 350 pixels, increased by aggro)
+			baseAggro: typeof properties.attackBehaviour.baseAggro !== "undefined" ? properties.attackBehaviour.baseAggro : 3.5, // added to aggro, constant value (this is effectively a leashradius of 350 pixels, increased by aggro)
 			lastAttacked: undefined, // the time in ms since this character was last attacked. if it was longer ago than forgivenessTime, then the aggro halves each second
 		});
 		// 100(aggro+baseAggro)/distance is used to decide whether it is worth them attacking each target (above their attackThreshold)
@@ -8229,8 +8238,8 @@ Game.update = function (delta) {
 		// check if the currently displayed DOM is for the current enemy in the for loop (looting)
 		if (enemy.id === Dom.currentNPC.id && enemy.type === Dom.currentNPC.type) {
 			// close the DOM if the player is too far away from the enemy or if the enemy is dead
-			if (enemy.respawning || enemy.isCorpse || this.distance(this.hero, enemy) > this.hero.stats.domRange) {
-				// enemy is dead or player is more than 4 tiles away from enemy
+			if ((enemy.respawning || enemy.isCorpse) && this.distance(this.hero, enemy) > this.hero.stats.domRange) {
+				// enemy is dead and player is more than 4 tiles away from enemy
 				Dom.closeNPCPages();
 			}
 		}

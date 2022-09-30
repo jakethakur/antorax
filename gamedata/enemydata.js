@@ -88,10 +88,10 @@ const SpeciesTemplates = {
 			walkSpeed: 180,
 			swimSpeed: 180,
 			iceSpeed: 180,
-			maxHealth: 40,
+			maxHealth: 33,
 			defence: 0,
 			range: 80,
-			reloadTime: 1300,
+			reloadTime: 1400,
 			healthRegen: 1,
 		},
 		attackBehaviour: {
@@ -848,7 +848,10 @@ const EnemyTemplates = {
 		},
 		chicken: {
 			speciesTemplate: SpeciesTemplates.chicken,
-			image: "chicken",
+	        rotationImages: {
+	            left: "chickenLeft",
+	            right: "chickenRight"
+	        },
 			deathImage: "chickenCorpse",
 			name: "Chicken",
 			hostility: "neutral",
@@ -1347,7 +1350,7 @@ var Villagers = [
             "eaglecrestWest",
         ],
 		chat: {
-            notUnlockedRoles: "Eaglecrest contracted me to blow up those damn sewers. Heard there was a real big rat problem there. Hell, why do I care, I'm just here to blow the damn place up.",
+            notUnlockedRoles: "Eaglecrest contracted me to blow up those damn sewers. Heard there was a real big rat problem there. Blast, why do I care, I'm just here to blow the damn place up.",
 		},
 	},
 ];

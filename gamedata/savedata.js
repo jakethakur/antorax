@@ -52,6 +52,10 @@ var Player = {
 			score: 0,
 			level: 4,
 		},
+		theSoothsayer: {
+			score: 0,
+			level: 3,
+		},
 	},
 	reputationReady: false, // if player has dismissed reputation tutorial text
 

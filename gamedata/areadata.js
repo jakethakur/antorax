@@ -137,7 +137,7 @@ let Event = {
 		}
 		// Samhain (Halloween)
 		// Blood Moon
-		else if ((d.day >= 28 && d.month === 10) || (d.day <= 18 && d.month === 11)) {
+		else if (d.month === 10) {
 			this.event = "Samhain";
 		}
 		// Christmas
@@ -179,9 +179,14 @@ Event.init();
 //
 
 let BuyFunctions = {}; // functions that are called on specific items being bought
+// item from role in areadata is passed in
 
 // called upon samhain marks being given to snake man to buy an item
-BuyFunctions.samhainItemBuy = function () {
+BuyFunctions.samhainItemBuy = function (item) {
+	let messages = ["Yesssss! I need more sssealssssss.", "More sssssealss for my collection. Good job adventurer.", "I need more sssealsssss than that!"];
+	Dom.chat.insert(Dom.chat.say("The Soothsssayer", messages[Random(0, messages.length-1)]));
+
+	Dom.reputation.give("theSoothsayer", item.cost * 5);
 }
 
 //
@@ -4330,7 +4335,15 @@ var Areas = {
 						chat: `Yes I have. And it had a rather nice <b>Blood-Red Crystal</b> in it.<br><br>
 						Oh, you want the crystal? That's a shame isn't it.<br><br>
 						I suppose there is something you could do.... I need fresh resources for my masks. Bring me <b>5 Wispy Feathers</b> from the <b>Chickens</b> in the <b>Plains</b>. And then I will <i>consider</i> parting with the crystal.`,
-						showCloseButton: true,
+						showCloseButton: false,
+						buttons: ["Close"],
+						functions: [function () {
+							// close page
+							Dom.closePage("textPage");
+							// quest progress
+							Player.quests.npcProgress.eaglecrest[5] = true;
+							Dom.quests.active();
+						}],
 						forceChoose: true, // forces choose dom
 						roleRequirement: function () {
 							return !Player.quests.questProgress.westCrate && Player.quests.activeQuestArray.includes("Moving Like a Snake");
@@ -4342,12 +4355,16 @@ var Areas = {
 						onClick: function () {
 							if (Dom.inventory.check(28, "item", 5)) {
                                 Dom.inventory.removeById(28, "item", 5);
-                                Player.quests.questProgress.westCrate = ture;
-                                Dom.text.page("Mask Salesman", "", true, [], [], [{item: Items.helm[23]}]);
+                                Player.quests.questProgress.westCrate = true;
+                                Dom.text.page("Mask Salesman", "You have my feathers? Great. These will prove rather helpful.<br><br>I know what you're doing with these Crystals. All I can say, is make sure I get my cut of marks once the blood has risen from the depths. <b><i>I insist</i></b>.", true, [], [], [{item: Items.helm[23]}]);
                             }
 						},
 						forceChoose: true, // forces choose dom
 						roleRequirement: function () {
+							if (!Dom.inventory.requiredSpace([{item: Items.item[38]}])) {
+								Dom.chat.insert(Dom.chat.say("Mask Salesman", "You don't have enough space in your bags the Crystal."));
+								return false;
+							}
 							return !Player.quests.questProgress.westCrate && Dom.inventory.check(28, "item", 5);
 						}
 					},
@@ -4756,10 +4773,10 @@ var Areas = {
 				roles: [
 					{
 						role: "text",
-						chat: `Look what are you doing in here ? Don't make me call the guards on you.<br><br>
+						chat: `Look , what are you doing in here ? Don't make me call the guards on you.<br><br>
 						Oh Sylvie sent you to help ? Well why didn't you say ! Well sorry for the rude introduction , let's try that again.<br><br>
-						I'm <b>Head Banker Jonos</b> , and I'm responsible for this mess of a situation ! The bank has had to close today due to . . . well . . . we lent someone all of our Gold by accident. Don't go around telling people ! My job is on the line here ! If people found out . . .<br><br>
-						Do I know who we lent the money to ? Well if I did then you wouldn't be here would you ? I need to you help look around the City for whoever has all our Gold , and send them back here.<br><br>
+						I'm <b>Head Banker Jonos</b> , and I'm responsible for this mess of a situation ! The bank has had to close due to . . . well . . . we lent someone <b>all</b> of our Gold in error. So we had no choice but to close until we get it back. Don't go around telling people ! My job is on the line here ! If people found out . . .<br><br>
+						Do I know who we lent the Gold to ? Well if I did then you wouldn't be here would you ? I need to you help look around the City for whoever has all our Gold , and send them back here.<br><br>
 						What do you mean you're new to the City ? Why did Sylvie send you here then ? Ugh well a good place to start would be asking <b>Shopkeeper Barda</b> in <b>The Eaglecrest Bazaar</b> to the <b>west</b> of here. Her local knowledge is admittedly better than mine. And much better than yours from the sounds of it ! !`,
 						buttons: ["On it!"],
 						showCloseButton: false,
@@ -4822,7 +4839,7 @@ var Areas = {
 					return !Player.quests.completedQuestArray.includes("Overdraft");
 				},
 				chat: {
-					notUnlockedRoles: "tbd",
+					notUnlockedRoles: "I'm trying my hardest here! Stuff just keeps going wrong.",
 				},
 			},
 			{
@@ -4839,7 +4856,7 @@ var Areas = {
 					return !Player.quests.completedQuestArray.includes("Overdraft") && Player.quests.npcProgress.eaglecrest[2] < 4;
 				},
 				chat: {
-					notUnlockedRoles: "tbd",
+					notUnlockedRoles: "Busy, busy, busy, busy, busy, oh sorry didn't see you there! Don't let me get in your way.",
 				},
 			},
 			{
@@ -4856,7 +4873,7 @@ var Areas = {
 					return !Player.quests.completedQuestArray.includes("Overdraft");
 				},
 				chat: {
-					notUnlockedRoles: "tbd",
+					notUnlockedRoles: "Why does Jonos speak like that?",
 				},
 			},
 		],
@@ -5058,9 +5075,9 @@ var Areas = {
 						role: "text",
 						chooseText: "Ask Greenbeard if he borrowed the money from the bank.",
 						chat: `Blimey! Sink me! Sounds like a situation the bank's got themselves in.<br><br>
-						Yarrr, I borrowed some bounty from the bank earlier today. It was only <b>10,000 Gold</b>...<br><br>
+						Yarrr, I borrowed some doubloons from the bank earlier today. It was only <b>10,000 Gold</b>...<br><br>
 						Truth be told, I needed it to give to 'em <b>Loan Sharks</b>. I got myself in a bit o' trouble with 'em...<br><br>
-						Oh an' Gildo? He just wanted money for some fresh bounty! What else's a pirate meant to do in the face of a citizen in need?<br><br>
+						Oh an' Gildo? He just wanted money for some fresh booty! What else's a pirate meant to do in the face of a citizen in need?<br><br>
 						Yarrr, one more clap of thunder and I'll be over to the bank to clear this up. Do ye want to join?`,
 						buttons: ["Why not!"],
 						showCloseButton: false,
@@ -6265,7 +6282,7 @@ Last I saw him, he was visiting the <b>Eaglecrest Plains</b> to the <b>south</b>
 						else {
 							Dom.chat.insert("You have already looted that crate!");
 						}
-					}, [], 1666, "Rummaging through crate");
+					}, [], 1666, "Rummaging through crate", {cancelChannelOnDamage: true});
 				},
                 canBeShown: function () {
                     return Player.quests.completedQuestArray.includes("Snakes and the City");
@@ -6616,7 +6633,7 @@ Last I saw him, he was visiting the <b>Eaglecrest Plains</b> to the <b>south</b>
 							Game.enemies[Game.enemies.length-1].say(textLines[lineNumber]);
 						}
 						Dom.chat.insert("That crate is empty!");
-					}, [], 1666, "Rummaging through crate");
+					}, [], 1666, "Rummaging through crate", {cancelChannelOnDamage: true});
 				},
                 canBeShown: function () {
                     return Player.quests.completedQuestArray.includes("Snakes and the City");
@@ -6656,7 +6673,7 @@ Last I saw him, he was visiting the <b>Eaglecrest Plains</b> to the <b>south</b>
 						else {
 							Dom.chat.insert("You have already looted that crate!");
 						}
-					}, [], 1666, "Rummaging through crate");
+					}, [], 1666, "Rummaging through crate", {cancelChannelOnDamage: true});
 				},
                 canBeShown: function () {
                     return Player.quests.completedQuestArray.includes("Snakes and the City");
@@ -7424,7 +7441,7 @@ Last I saw him, he was visiting the <b>Eaglecrest Plains</b> to the <b>south</b>
 		onAreaJoin: function () {
 			// samhain snakes and lights
 			if (Event.event === "Samhain" && Player.quests.completedQuestArray.includes("Overdraft")) {
-				let no = Random(20,25); // num of snakes
+				let no = Random(10,20); // num of snakes
 				for (let i = 0; i < no; i++) {
 					Game.villagers.push(new Villager(Game.prepareNPC({
 						template: EnemyTemplates.eaglecrest.snake,
@@ -7458,10 +7475,10 @@ Last I saw him, he was visiting the <b>Eaglecrest Plains</b> to the <b>south</b>
 
 		images: {
 			tiles: {normal: "assets/tilemap/eaglecrest.png"},
+			melee: {normal: "assets/projectiles/melee.png"},
 			eaglecrestGhost: {samhain: "assets/enemies/eaglecrestGhost.png"},
 			eaglecrestGhost2: {samhain: "assets/enemies/eaglecrestGhost2.png"},
 			crateSamhain: {samhain: "assets/objects/crateSamhain.png"},
-			melee: {samhain: "assets/projectiles/melee.png"},
 			yellowSnakeRight: {samhain: "assets/enemies/yellowSnake.png"},
 			yellowSnakeLeft: {samhain: "assets/enemies/yellowSnake.png", flip: "vertical"},
 			toadRight: {normal: "assets/enemies/toad.png"},
@@ -7469,6 +7486,9 @@ Last I saw him, he was visiting the <b>Eaglecrest Plains</b> to the <b>south</b>
 			toadCorpse: {normal: "assets/corpses/toad.png"},
 			waterball: {normal: "assets/projectiles/waterball.png"},
 			gildoCleftbeard: {normal: "assets/npcs/gildoCleftbeard.png"},
+			chickenRight: {normal: "assets/enemies/chicken.png"},
+			chickenLeft: {normal: "assets/enemies/chicken.png", flip: "vertical"},
+			chickenCorpse: {normal: "assets/corpses/chicken.png"},
 		},
 
 		areaTeleports: [
@@ -7485,20 +7505,104 @@ Last I saw him, he was visiting the <b>Eaglecrest Plains</b> to the <b>south</b>
 		],
 
 		villagerData: {
-			minPeople: 0,
-			maxPeople: 3,
+			minPeople: 3,
+			maxPeople: 7,
 			locations: [
 				{
-					x: 39,
-					y: 320,
-					width: 2142,
-					height: 212,
+					x: 0,
+					y: 20,
+					width: 1640,
+					height: 390,
 				},
 				{
-					x: 39,
-					y: 800,
-					width: 2142,
-					height: 872,//aaaaaaaaaaaaaaaaaa
+					x: 1960,
+					y: 275,
+					width: 2000,
+					height: 360,
+				},
+				{
+					x: 4250,
+					y: 15,
+					width: 1720,
+					height: 505,
+				},
+				{
+					x: 4010,
+					y: 890,
+					width: 1220,
+					height: 1120,
+				},
+				{
+					x: 5620,
+					y: 840,
+					width: 350,
+					height: 1205,
+				},
+				{
+					x: 3300,
+					y: 963,
+					width: 310,
+					height: 1050,
+				},
+				{
+					x: 2030,
+					y: 910,
+					width: 860,
+					height: 1170,
+				},
+				{
+					x: 30,
+					y: 840,
+					width: 1535,
+					height: 580,
+				},
+				{
+					x: 20,
+					y: 1850,
+					width: 1545,
+					height: 2030,
+				},
+				{
+					x: 1966,
+					y: 4920,
+					width: 1110,
+					height: 1140,
+				},
+				{
+					x: 3456,
+					y: 5000,
+					width: 1650,
+					height: 956,
+				},
+				{
+					x: 5500,
+					y: 4960,
+					width: 480,
+					height: 990,
+				},
+				{
+					x: 5446,
+					y: 2450,
+					width: 520,
+					height: 2220,
+				},
+				{
+					x: 2020,
+					y: 2390,
+					width: 3090,
+					height: 940,
+				},
+				{
+					x: 3400,
+					y: 4420,
+					width: 1630,
+					height: 240,
+				},
+				{
+					x: 2040,
+					y: 4150,
+					width: 1020,
+					height: 440,
 				},
 			],
 		},
@@ -7575,6 +7679,21 @@ Last I saw him, he was visiting the <b>Eaglecrest Plains</b> to the <b>south</b>
 					Player.quests.questProgress.overdraftFrogDeadTwo = true;
 				},
 			},
+			{
+				x: 4624,
+				y: 2678,
+				template: EnemyTemplates.eaglecrest.chicken,
+			},
+			{
+				x: 3555,
+				y: 2644,
+				template: EnemyTemplates.eaglecrest.chicken,
+			},
+			{
+				x: 2561,
+				y: 1227,
+				template: EnemyTemplates.eaglecrest.chicken,
+			},
 		],
 
 		things: [
@@ -7617,7 +7736,7 @@ Last I saw him, he was visiting the <b>Eaglecrest Plains</b> to the <b>south</b>
 						else {
 							Dom.chat.insert("You have already looted that crate!");
 						}
-					}, [], 1666, "Rummaging through crate");
+					}, [], 1666, "Rummaging through crate", {cancelChannelOnDamage: true});
 				},
 				canBeShown: function () {
 					return Player.quests.completedQuestArray.includes("Snakes and the City");
@@ -7693,24 +7812,29 @@ Last I saw him, he was visiting the <b>Eaglecrest Plains</b> to the <b>south</b>
 
 		images: {
 			tiles: {normal: "assets/tilemap/eaglecrest.png"},
-			yellowSnakeRight: {samhain: "assets/enemies/yellowSnake.png"},
-			yellowSnakeLeft: {samhain: "assets/enemies/yellowSnake.png", flip: "vertical"},
-			snakeMan: {samhain: "assets/npcs/soothsssayer.png"},
-			eaglecrestGhost: {samhain: "assets/enemies/eaglecrestGhost.png"},
-			eaglecrestGhost2: {samhain: "assets/enemies/eaglecrestGhost2.png"},
-			melee: {samhain: "assets/projectiles/melee.png"},
-			crateSamhain: {samhain: "assets/objects/crateSamhain.png"},
-			cauldron: {samhain: "assets/objects/cauldronSamhain.png"},
+			yellowSnakeRight: {normal: "assets/enemies/yellowSnake.png"},
+			yellowSnakeLeft: {normal: "assets/enemies/yellowSnake.png", flip: "vertical"},
+			snakeMan: {normal: "assets/npcs/soothsssayer.png"},
+			eaglecrestGhost: {normal: "assets/enemies/eaglecrestGhost.png"},
+			eaglecrestGhost2: {normal: "assets/enemies/eaglecrestGhost2.png"},
+			melee: {normal: "assets/projectiles/melee.png"},
+			crateSamhain: {normal: "assets/objects/crateSamhain.png"},
+			cauldron: {normal: "assets/objects/cauldronSamhain.png"},
 		},
 
 		callAreaJoinOnInit: true,
 		onAreaJoin: function () {
-			// samhain snakes
-			let no = Random(10,30); // num of snakes
-			for (let i = 0; i < no; i++) {
-				Game.villagers.push(new Villager(Game.prepareNPC({
-					template: EnemyTemplates.eaglecrest.snake,
-				}, "villagers")));
+			if (Event.event === "Samhain") {
+				// samhain snakes
+				let no = Random(10,30); // num of snakes
+				for (let i = 0; i < no; i++) {
+					Game.villagers.push(new Villager(Game.prepareNPC({
+						template: EnemyTemplates.eaglecrest.snake,
+					}, "villagers")));
+				}
+			}
+			else {
+				Game.loadArea("eaglecrestTavern", {x: 1158, y: 169});
 			}
 		},
 
@@ -7776,6 +7900,22 @@ Last I saw him, he was visiting the <b>Eaglecrest Plains</b> to the <b>south</b>
 						roleRequirement: function () {
 							return Event.time === "bloodMoon";
 						},
+					},
+					{
+						quest: Quests.eaglecrest[3],
+						role: "questFinish",
+					},
+					{
+						quest: Quests.eaglecrest[4],
+						role: "questStartFinish",
+					},
+					{
+						quest: Quests.eaglecrest[5],
+						role: "questStartFinish",
+					},
+					{
+						quest: Quests.eaglecrest[6],
+						role: "questStartFinish",
 					},
 				],
 				chat: {
