@@ -1598,17 +1598,6 @@ class Character extends Thing {
 		this.stats.frostaura = properties.stats.frostaura || false;
 		this.stats.windShield = properties.stats.windShield || false; // can't be moved by wind
 
-		// blood moon modifiers
-		if (Event.time === "bloodMoon" && this.constructor.name !== "Hero") {
-			// respawn faster
-			this.stats.lootTime /= 2;
-			this.stats.respawnTime /= 2;
-			// double health and damage
-			this.stats.maxHealth *= 2;
-			this.health = this.stats.maxHealth;
-			this.damage *= 2;
-		}
-
 		// array items that can damage the character (empty = any can)
 		// array should contain item names
 		this.canBeDamagedBy = properties.canBeDamagedBy || [];
@@ -3912,7 +3901,9 @@ class Projectile extends Thing {
 
 							// reflection
 							if (target.stats.reflection > 0) { // check if target has reflection
-								attacker.takeDamage(dmgDealt * (target.stats.reflection / 100), target.constructor.name === "Hero");
+								if (typeof attacker.takeDamage !== "undefined") {
+									attacker.takeDamage(dmgDealt * (target.stats.reflection / 100), target.constructor.name === "Hero");
+								}
 							}
 
 							// stun and slow
@@ -4378,6 +4369,19 @@ class Enemy extends Attacker {
 			}
 		}
 
+
+		// blood moon modifiers
+		if (Event.time === "bloodMoon") {
+			// respawn faster
+			this.stats.lootTime /= 2;
+			this.stats.respawnTime /= 2;
+			// double health and damage
+			this.stats.maxHealth *= 2;
+			this.health = this.stats.maxHealth;
+			this.stats.damage *= 2;
+		}
+
+
 		// behaviour functions
 		// used for special behaviour in update()
 		// note the scope of these functions is the behaviour object
@@ -4395,6 +4399,8 @@ class Enemy extends Attacker {
 		}
 
 		this.alwaysMove = properties.attackBehaviour.alwaysMove || false; // move even when in range
+
+		this.okToStutter = properties.attackBehaviour.okToStutter || false; // tbd should be removed with a better system, but for now this means that it can move even if directly on top of its target (i.e. marshall sheridan with his logs)
 
 		this.noCollision = properties.attackBehaviour.noCollision || false; // don't collide with anything
 
@@ -4484,7 +4490,7 @@ class Enemy extends Attacker {
 					// if it exists and returns false, default will occur (see else...)
 					if (this.behaviourMovement !== undefined) {
 						target = this.behaviourMovement();
-						if (typeof target === "undefined") {
+						if (typeof target === "undefined" || target === false) {
 							target = this.calculateTarget();
 						}
 					}
@@ -4523,15 +4529,24 @@ class Enemy extends Attacker {
 
 						if (targetDist < this.stats.range) { // target is within range of attacking
 
+							// see if target appears in attackTargets
+							let attackTarget = false;
+							for (let i = 0; i < this.attackTargets.length; i++) {
+								if (this.attackTargets[i].target.id === target.id) {
+									attackTarget = true;
+									break;
+								}
+							}
+
 							// enemy should attack target
 							// canAttack is inside if statement because otherwise the enemy moves when it is in range but cannot attack
-							if (this.canAttack) { // projectile can be shot
+							if (this.canAttack && attackTarget) { // projectile can be shot
 								this.shoot([[target]]);
 							}
 
 							// alwaysMove stat means that it always moves even when in range
 
-							else if (this.alwaysMove && targetDist >= 20) { // stop any stuttering on top of target
+							else if (this.alwaysMove && (this.okToStutter || targetDist >= this.stats.walkSpeed * delta)) { // stop any stuttering on top of target
 								this.move(delta, target);
 								moved = true;
 							}

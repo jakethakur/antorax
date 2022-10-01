@@ -2226,11 +2226,11 @@ var Areas = {
 			marshallSheridanCorpse: {samhain: "assets/corpses/marshallSheridan.png"},
 			sawblade: {samhain: "assets/projectiles/sawblade.png"},
 			slashBlood: {samhain: "assets/projectiles/slashBlood.png"},
-			/*barebonesNkkja: {samhain: "assets/enemies/barebonesNkkja.png"},
+			barebonesNkkja: {samhain: "assets/enemies/barebonesNkkja.png"},
 			barebonesNkkjaCorpse: {samhain: "assets/corpses/barebonesNkkja.png"},
 			fireballGreen: {samhain: "assets/projectiles/fireballGreen.png"},
 			mudAnimation: {samhain: "assets/enemies/mudAnimation.png"},
-			cauldron: {samhain: "assets/objects/cauldronSamhain.png"},*/ // these will be moved to forest
+			cauldron: {samhain: "assets/objects/cauldronSamhain.png"},
 		},
 
 		chestData: {
@@ -2264,7 +2264,7 @@ var Areas = {
 					date -= 1;
 				}
 
-				if (Player.bossesKilled.marshallSheridan !== date) {
+				if (Player.bossesKilled.marshallSheridan !== date && Player.bossesKilled.barebonesNkkja !== date) {
 					// samhain boss (blood moon, and  has not been killed today)
 
 					let bossNotSeen = Player.quests.questProgress.samhainBossIntroducedNilbog !== date; // whether boss has been introduced today or not
@@ -2272,14 +2272,24 @@ var Areas = {
 					if (bossNotSeen) {
 						// boss has not been introduced today
 
-						// reset all boss variables
-						Player.quests.questProgress.samhainBossNilbogHealth = undefined;
-						Player.quests.questProgress.sheridanMaxHealth = undefined;
-						/* MOVE TO FOREST
-						Player.quests.questProgress.nkkjaWindCauldronDestroyed = false;
-						Player.quests.questProgress.nkkjaLightningCauldronDestroyed = false;
-						Player.quests.questProgress.nkkjaEarthCauldronDestroyed = false;
-						*/
+						// define boss variable
+						if (typeof Player.bossesKilled.marshallSheridan === "undefined") {
+							Player.bossesKilled.marshallSheridan = 0;
+						}
+						if (typeof Player.bossesKilled.barebonesNkkja === "undefined") {
+							Player.bossesKilled.barebonesNkkja = 0;
+						}
+
+						// decide which boss they see today
+						if (Player.bossesKilled.barebonesNkkja >= Player.bossesKilled.marshallSheridan) {
+							// sheridan
+							Player.quests.questProgress.samhainBossNilbogToday = "marshallSheridan";
+						}
+						else {
+							// nkkja
+							Player.quests.questProgress.samhainBossNilbogToday = "barebonesNkkja";
+						}
+						Player.quests.questProgress.samhainBossNilbogToday = "barebonesNkkja";
 
 						// make sure this isn't called again
 						Player.quests.questProgress.samhainBossIntroducedNilbog = date;
@@ -2288,132 +2298,100 @@ var Areas = {
 					let boss; // pointer to variable boss is set to (used as shorthand)
 
 					// add the boss' stuff and pan to them
-					// statue of marshall sheridan
-					Game.enemies.push(new Enemy(Game.prepareNPC({
-						x: 1817,
-						y: 1310,
-						template: EnemyTemplates.nilbog.marshallSheridan,
-					}, "enemies")));
-					boss = Game.enemies[Game.enemies.length-1];
+					if (Player.quests.questProgress.samhainBossNilbogToday === "marshallSheridan") {
+						// statue of marshall sheridan
+						Game.enemies.push(new Enemy(Game.prepareNPC({
+							x: 1817,
+							y: 1310,
+							template: EnemyTemplates.nilbog.marshallSheridan,
+						}, "enemies")));
+						boss = Game.enemies[Game.enemies.length-1];
 
-					// save boss progress
-					if (Player.quests.questProgress.sheridanMaxHealth !== undefined) {
-						boss.stats.maxHealth = Player.quests.questProgress.sheridanMaxHealth;
+						// pan to boss
+						if (bossNotSeen) {
+							Game.camera.pan(boss, 400, "accelerate", function () {
+								// function to be called 2s after pan is finished
+								// pan back to player
+								Game.camera.pan(Game.hero, 400, "accelerate", function () {
+									// reset camera
+									Game.camera.follow(Game.hero);
+								}, 0);
+							}, 2000);
+						}
 					}
+					else if (Player.quests.questProgress.samhainBossNilbogToday === "barebonesNkkja") {
+						// barebones nkkja
+						Game.enemies.push(new Enemy(Game.prepareNPC({
+							x: 1717,
+							y: 703,
+							template: EnemyTemplates.nilbog.barebonesNkkja,
+						}, "enemies")));
+						boss = Game.enemies[Game.enemies.length-1];
 
-					// pan to boss
-					if (bossNotSeen) {
-						Game.camera.pan(boss, 400, "accelerate", function () {
-							// function to be called 2s after pan is finished
-							// pan back to player
-							Game.camera.pan(Game.hero, 400, "accelerate", function () {
-								// reset camera
-								Game.camera.follow(Game.hero);
-							}, 0);
-						}, 2000);
-					}
-
-						// TO BE MOVED TO FOREST
-						/*case 1:
-							// barebones nkkja
-							Game.enemies.push(new Enemy(Game.prepareNPC({
-								x: 1717,
-								y: 703,
-								template: EnemyTemplates.nilbog.barebonesNkkja,
-							}, "enemies")));
-							boss = Game.enemies[Game.enemies.length-1];
-
-							// cauldrons
-							if (!Player.quests.questProgress.nkkjaWindCauldronDestroyed) {
-								Game.characters.push(new Character(Game.prepareNPC({
-									template: EnemyTemplates.nilbog.nkkjaCauldron,
-									x: 1554,
-									y: 226,
-									name: "Nkkja's Cauldron of Wind",
-									onDeath: function () {
-										// stop any existing wind effect
-										Game.wind = undefined;
-										// progress saving - save that cauldron has been destroyed
-										Player.quests.questProgress.nkkjaWindCauldronDestroyed = true;
-										Dom.chat.insert(Dom.chat.say("'Barebones' Nkkja", "Have you any idea how long this took to make? Get here and face me!"));
-									}
-								}, "characters")));
+						// cauldrons
+						Game.characters.push(new Character(Game.prepareNPC({
+							template: EnemyTemplates.nilbog.nkkjaCauldron,
+							x: 1554,
+							y: 226,
+							name: "Nkkja's Cauldron of Wind",
+							onDeath: function () {
+								// stop any existing wind effect
+								Game.wind = undefined;
+								Dom.chat.insert(Dom.chat.say("'Barebones' Nkkja", "Have you any idea how long this took to make? Get here and face me!"));
 							}
-							if (!Player.quests.questProgress.nkkjaLightningCauldronDestroyed) {
-								Game.characters.push(new Character(Game.prepareNPC({
-									template: EnemyTemplates.nilbog.nkkjaCauldron,
-									x: 540,
-									y: 1300,
-									name: "Nkkja's Cauldron of Lightning",
-									onDeath: function () {
-										// progress saving - save that cauldron has been destroyed
-										Player.quests.questProgress.nkkjaLightningCauldronDestroyed = true;
-										Dom.chat.insert(Dom.chat.say("'Barebones' Nkkja", "No! You will pay for this, with your blood!"));
-									}
-								}, "characters")));
+						}, "characters")));
+						Game.characters.push(new Character(Game.prepareNPC({
+							template: EnemyTemplates.nilbog.nkkjaCauldron,
+							x: 1200,
+							y: 1500,
+							name: "Nkkja's Cauldron of Lightning",
+							onDeath: function () {
+								Dom.chat.insert(Dom.chat.say("'Barebones' Nkkja", "No! You will pay for this, with your blood!"));
 							}
-							if (!Player.quests.questProgress.nkkjaEarthCauldronDestroyed) {
-								Game.characters.push(new Character(Game.prepareNPC({
-									template: EnemyTemplates.nilbog.nkkjaCauldron,
-									x: 2122,
-									y: 1280,
-									name: "Nkkja's Cauldron of Earth",
-									onDeath: function () {
-										// remove all of the existing bog elementals
-										for (let i = 0; i < Game.enemies.length; i++) {
-											if (Game.enemies[i].name === "Bog Animation") {
-												Game.removeObject(Game.enemies[i].id, "enemies", i)
-												i--;
-											}
-										}
-										// progress saving - save that cauldron has been destroyed
-										Player.quests.questProgress.nkkjaEarthCauldronDestroyed = true;
-										Dom.chat.insert(Dom.chat.say("'Barebones' Nkkja", "My bog creatures now hate you as much as I do!"));
+						}, "characters")));
+						Game.characters.push(new Character(Game.prepareNPC({
+							template: EnemyTemplates.nilbog.nkkjaCauldron,
+							x: 2070,
+							y: 1150,
+							name: "Nkkja's Cauldron of Earth",
+							onDeath: function () {
+								// remove all of the existing bog elementals
+								for (let i = 0; i < Game.enemies.length; i++) {
+									if (Game.enemies[i].name === "Bog Animation") {
+										Game.removeObject(Game.enemies[i].id, "enemies", i)
+										i--;
 									}
-								}, "characters")));
+								}
+								Dom.chat.insert(Dom.chat.say("'Barebones' Nkkja", "My bog creatures now hate you as much as I do!"));
 							}
+						}, "characters")));
 
-							if (bossNotSeen) {
-								// stop boss from moving until introduction is complete
-								Game.statusEffects.stun({target: boss, time: 5, hidden: true})
+						// pan to boss
+						if (bossNotSeen) {
+							// stop boss from moving until introduction is complete
+							Game.statusEffects.stun({target: boss, time: 5, hidden: true})
 
-								// pan to boss and cauldrons
-								Game.camera.pan(boss, 600, "accelerate", function () {
-									// function to be called 2s after pan is finished
-									// pan to wind cauldron
-									Game.camera.pan({x: 1554, y: 226}, 800, "accelerate", function () {
-										// pan to earth cauldron
-										Game.camera.pan({x: 2122, y: 1280}, 800, "accelerate", function () {
-											// pan to lightning cauldron
-											Game.camera.pan({x: 540, y: 1300}, 800, "accelerate", function () {
-												// pan back to player
-												Game.camera.pan(Game.hero, 800, "accelerate", function () {
-													// reset camera
-													Game.camera.follow(Game.hero);
-												}, 0);
-											}, 1000);
+							// pan to boss and cauldrons
+							Game.camera.pan(boss, 600, "accelerate", function () {
+								// function to be called 2s after pan is finished
+								// pan to wind cauldron
+								Game.camera.pan({x: 1554, y: 226}, 800, "accelerate", function () {
+									// pan to earth cauldron
+									Game.camera.pan({x: 2122, y: 1280}, 800, "accelerate", function () {
+										// pan to lightning cauldron
+										Game.camera.pan({x: 540, y: 1300}, 800, "accelerate", function () {
+											// pan back to player
+											Game.camera.pan(Game.hero, 800, "constant", function () {
+												// reset camera
+												Game.camera.follow(Game.hero);
+											}, 0);
 										}, 1000);
 									}, 1000);
-								}, 2000);
-							}
-
-							break;*/
-
-					// boss health progress saving (since bosses cannot regen in a blood moon)
-					if (Player.quests.questProgress.samhainBossNilbogHealth !== undefined) {
-						boss.health = Player.quests.questProgress.samhainBossNilbogHealth;
+								}, 1000);
+							}, 2000);
+						}
 					}
 				}
-			}
-		},
-
-		callAreaLeaveOnLogout: true,
-
-		onAreaLeave: function (logout) {
-			if (Event.time === "bloodMoon") {
-				// save samhain boss health
-				let boss = Game.enemies.find(enemy => enemy.hostility === "boss");
-				Player.quests.questProgress.samhainBossNilbogHealth = boss.health;
 			}
 		},
 

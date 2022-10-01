@@ -495,6 +495,7 @@ Spells = [
 				moveSpeed: 400,
 				doNotRotate: true,
 				damageAllHit: true,
+				type: "projectiles"
 			}));
 		},
 
@@ -523,13 +524,15 @@ Spells = [
 				properties.x = Random(location.x, location.x+location.width);
 				properties.y = Random(location.y, location.y+location.height);
 				// create enemy!
-				if (Game.prepareNPC(properties, "enemies")) {
-					Game.enemies.push(new Enemy(properties));
+				let preparedNPC = Game.prepareNPC(properties, "enemies");
+				if (preparedNPC) {
+					Game.enemies.push(new Enemy(preparedNPC));
 				}
 			}
 		},
 
 		channelTime: [
+			0,
 			2000,	// tier 1
 		],
 	},
@@ -557,6 +560,7 @@ Spells = [
 		},
 
 		channelTime: [
+			0,
 			1000,	// tier 1
 		],
 	},
@@ -586,6 +590,7 @@ Spells = [
 		},
 
 		channelTime: [
+			0,
 			2000,	// tier 1
 		],
 	},

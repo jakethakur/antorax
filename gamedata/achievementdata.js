@@ -346,20 +346,26 @@ var Achievements = [
 		},
     },
 	{
-        name: "Nilbog under Blood Moon",
-        description: "Kill the blood moon boss in the Nilbog.",
-        points: 5,
-        category: ["combat"],
-        area: ["eaglecrestLoggingCamp"],
-        event: "Samhain",
+		name: "Nilbog under Blood Moon",
+		description: "Kill the two Blood Moon bosses in the Nilbog.",
+		points: 10,
+		category: ["combat"],
+		area: ["eaglecrestLoggingCamp"],
+		event: "Samhain",
         image: "../assets/enemies/marshallSheridan.png",
         position: {x: 8, y: -1},
         color: "#540606",
-        class: "single",
-        isCompleted: function () {
-            return Player.bossesKilled.marshallSheridan !== 0 && Player.bossesKilled.marshallSheridan !== undefined;
-        },
-    },
+		class: "single",
+		isCompleted: function () {
+			return Player.bossesKilled.marshallSheridan && Player.bossesKilled.barebonesNkkja;
+		},
+		expand: {
+			type: "checkList",
+			saved: "boss",
+			text: ["Marshall Sheridan", "'Barebones' Nkkja"],
+			complete: ["marshallSheridan", "barebonesNkkja"],
+		},
+	},
 		// REPUTATION
 	{
 		name: "Tree Hugger",

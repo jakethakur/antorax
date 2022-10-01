@@ -37,7 +37,7 @@ var Adventure = {
 	samhainII: {
 		html: `<div id="samhainAL" class="adventure">
 			Samhain Event<br>
-			<span class="adventureContent">Kill stronger enemies and special bosses during the Blood Moon, to get <b>Samhain Marks</b> for The Sssoothsayer.</span>
+			<span class="adventureContent">Kill stronger enemies and special bosses during the Blood Moon, to get Samhain Marks for The Sssoothsayer.</span>
 		</div>`,
 		condition: function () {
 			return Event.event === "Samhain" && Player.quests.questProgress.bloodMoonUnlocked;

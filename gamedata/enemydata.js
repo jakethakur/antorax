@@ -522,8 +522,8 @@ const EnemyTemplates = {
 				damage: 3, // doubled during blood moon
 				walkSpeed: 70,
 				swimSpeed: 70,
-				maxHealth: 175, // doubled during blood moon
-				defence: 15,
+				maxHealth: 140, // doubled during blood moon
+				defence: 10,
 				range: 90,
 				healthRegen: 0, // no regen in the blood moon
 				reloadTime: 1000,
@@ -531,6 +531,7 @@ const EnemyTemplates = {
 			},
 			attackBehaviour: {
 				alwaysMove: true, // move even when in range
+				okToStutter: true, // tbd should be removed with a better system to make sure they can always pick up logs, but for now this means that it can move even if directly on top of its target
 				baseAggro: 1000, // always aggroed on player
 			},
 			spells: [
@@ -566,10 +567,10 @@ const EnemyTemplates = {
 					if (replaceTiles !== false) {
 						this.channel(function () {
 							// make boss stronger
-							this.stats.maxHealth += 30;
+							this.stats.maxHealth += 50;
 							this.health = this.stats.maxHealth;
-							// save the increased health
-							Player.quests.questProgress.sheridanMaxHealth = this.stats.maxHealth;
+							// expand size
+							this.setExpand(this.expand+0.05);;
 							// remove log from tilemap
 							replaceTiles();
 							// find a new log to move towards!
@@ -628,14 +629,14 @@ const EnemyTemplates = {
 			bossKilledVariable: "barebonesNkkja",
 			level: 15,
 			stats: {
-				damage: 4,
+				damage: 2.5, // damage and health are doubled in blood moon
 				walkSpeed: 110,
 				swimSpeed: 50,
 				iceSpeed: 160,
-				maxHealth: 300,
+				maxHealth: 200,
 				defence: 4,
 				range: 200,
-				reloadTime: 750,
+				reloadTime: 850,
 				healthRegen: 0, // no regen in the blood moon
 				lootTime: 20000,
 				windShield: true,
@@ -658,7 +659,8 @@ const EnemyTemplates = {
 					},
 					castCondition: function (caster) {
 						// cauldron not destroyed
-						return !Player.quests.questProgress.nkkjaWindCauldronDestroyed;
+						let cauldronIndex = Game.characters.findIndex(character => character.name === "Nkkja's Cauldron of Wind");
+						return cauldronIndex !== -1;
 					},
 					interval: 40000,
 				},
@@ -727,9 +729,9 @@ const EnemyTemplates = {
 							corpseOnDeath: false,
 							respawnOnDeath: false,
 							stats: {
-								maxHealth: 24,
+								maxHealth: 12, // doubled in blood moon
 								defence: 0,
-								damage: 4,
+								damage: 2.5,
 								range: 60,
 								slowAmount: 35,
 								slowTime: 1.5,
@@ -750,7 +752,8 @@ const EnemyTemplates = {
 					},
 					castCondition: function (caster) {
 						// cauldron not destroyed
-						return !Player.quests.questProgress.nkkjaEarthCauldronDestroyed;
+						let cauldronIndex = Game.characters.findIndex(character => character.name === "Nkkja's Cauldron of Earth");
+						return cauldronIndex !== -1;
 					},
 					interval: 17000,
 				},
@@ -760,12 +763,13 @@ const EnemyTemplates = {
 					parameters: function () { // returns array of parameters
 						Dom.chat.insert(Dom.chat.say("'Barebones' Nkkja", "The sky belongs to me!"));
 						return {
-							target: Game.hero,
+							target: this.calculateTarget(),
 						};
 					},
 					castCondition: function (caster) {
 						// cauldron not destroyed
-						return !Player.quests.questProgress.nkkjaLightningCauldronDestroyed;
+						let cauldronIndex = Game.characters.findIndex(character => character.name === "Nkkja's Cauldron of Lightning");
+						return cauldronIndex !== -1;
 					},
 					interval: 9000,
 				},
