@@ -6688,11 +6688,13 @@ Last I saw him, he was visiting the <b>Eaglecrest Plains</b> to the <b>south</b>
 				// check area is still the same
 				if (Game.areaName === "eaglecrestGraveyard") {
 					// add them
-					if (Game.prepareNPC(Areas.eaglecrestGraveyard.things[2], "things")) {
-						Game.things.push(new Thing(Areas.eaglecrestGraveyard.things[2]));
+					let preparedNPC = Game.prepareNPC(Areas.eaglecrestGraveyard.things[2], "things");
+					if (preparedNPC) {
+						Game.things.push(new Thing(preparedNPC));
 					}
-					if (Game.prepareNPC(Areas.eaglecrestGraveyard.things[3], "things")) {
-						Game.things.push(new Thing(Areas.eaglecrestGraveyard.things[3]));
+					preparedNPC = Game.prepareNPC(Areas.eaglecrestGraveyard.things[3], "things");
+					if (preparedNPC) {
+						Game.things.push(new Thing(preparedNPC));
 					}
 				}
 			}, 10000);

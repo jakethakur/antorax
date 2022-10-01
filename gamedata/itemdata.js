@@ -2759,6 +2759,10 @@ var Items = {
 					Player.quests.questProgress.graveyardCrate = undefined;
 					Player.quests.questProgress.plainsCrate = undefined;
 					Player.quests.questProgress.westCrate = undefined;
+					Dom.quest.abandon(Quests.eaglecrest[3]);
+					Dom.quest.abandon(Quests.eaglecrest[4]);
+					Dom.quest.abandon(Quests.eaglecrest[5]);
+					Dom.quest.abandon(Quests.eaglecrest[6]);
 					return true;
 				}
 				return false;

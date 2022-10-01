@@ -190,6 +190,10 @@ const NPCTemplates = { // tbd combine with villagers
 		onDeathAdditional: function () {
 			Dom.chat.insert("<b>The Blood Moon is Coming...</b> has been failed. Restart the quest by speaking to <b>The Soothsssayer</b>.");
 			Dom.quest.abandon(Quests.eaglecrest[6]);
+			while (Game.clearedTimeoutsOnAreaChange.length > 0) {
+				Game.clearTimeout(Game.clearedTimeoutsOnAreaChange[0]);
+				Game.clearedTimeoutsOnAreaChange.splice(0, 1);
+			}
 		},
 	}
 }
@@ -515,10 +519,10 @@ const EnemyTemplates = {
 			level: 15,
 			expand: 0.8, // default size (changes with wood consumption)
 			stats: {
-				damage: 5,
+				damage: 3, // doubled during blood moon
 				walkSpeed: 70,
 				swimSpeed: 70,
-				maxHealth: 350,
+				maxHealth: 175, // doubled during blood moon
 				defence: 15,
 				range: 90,
 				healthRegen: 0, // no regen in the blood moon

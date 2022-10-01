@@ -1854,7 +1854,8 @@ After all, death is never the end in Antorax...<br>
 				let cauldron = Game.characters.find(character => character.name === "The Soothsssayer's Cauldron");
 
 				if (typeof cauldron === "undefined") {
-					cauldron = Game.characters.push(new Character(Game.prepareNPC({template: NPCTemplates.soothsssayerCauldron}, "character")));
+					Game.characters.push(new Character(Game.prepareNPC({template: NPCTemplates.soothsssayerCauldron}, "character")));
+					cauldron = Game.characters.find(character => character.name === "The Soothsssayer's Cauldron");
 				}
 
 				cauldron.channel(function () {
@@ -1863,8 +1864,8 @@ After all, death is never the end in Antorax...<br>
 					Event.updateTime("samhainLair");
 					// channelling finished
 					// kill all enemies
-					for (let i = 0; i < Game.enemies.length; i++) {
-						Game.enemies[i].takeDamage(1000);
+					while (Game.enemies.length > 0) {
+						Game.enemies[0].takeDamage(1000);
 					}
 					// visual effects
 					Weather.commenceLightningStrike();

@@ -542,7 +542,8 @@ Game.addPlayer = function (player) {
 
 			// check the player has not already been added
 			let playerAlreadyAdded = this.players.findIndex(existingPlayer => existingPlayer.userID === copiedPlayer.userID);
-			if (playerAlreadyAdded === -1 && this.prepareNPC(copiedPlayer, "players")) {
+			copiedPlayer = this.prepareNPC(copiedPlayer, "players");
+			if (playerAlreadyAdded === -1 && copiedPlayer !== false) {
 
 				// object properties (to stop attacker breaking)
 				copiedPlayer.stats = {};
@@ -3989,7 +3990,7 @@ class Projectile extends Thing {
 						});
 						// do lifesteal stuff
 						if (lifestealPercentage > 0) {
-							Game.restoreHealth(attacker, dmgDealt * (attacker.stats.lifesteal / 100), true); // true because lifesteal restores health during blood moon
+							Game.restoreHealth(attacker, dmgDealt * (lifestealPercentage / 100), true); // true because lifesteal restores health during blood moon
 						}
 
 						// onHit function
@@ -5464,7 +5465,7 @@ Game.statusEffects.fire = function(properties) {
 		}
 		else {
 			// manual stats - time and damagePerSecond should be in properties
-			newPropertier.tier = "";
+			newProperties.tier = "";
 			newProperties.increasePropertyValue = properties.damagePerSecond;
 		}
 		// fire stats have now been set
@@ -6603,9 +6604,10 @@ Game.loadArea = function (areaName, destination) {
 
 					// check npc should be added, and prepare it to be added (e.g. by setting its map and type)
 					// also calls specific functions needed for certain npcs
-					if (this.prepareNPC(Areas[areaName][type][i], type)) {
-						Areas[areaName][type][i].source = "area";
-						this[type].push(new className(Areas[areaName][type][i]));
+					let preparedNPC = this.prepareNPC(Areas[areaName][type][i], type);
+					if (preparedNPC !== false) {
+						preparedNPC.source = "area";
+						this[type].push(new className(preparedNPC));
 					}
 				}
 			}
@@ -6621,29 +6623,32 @@ Game.loadArea = function (areaName, destination) {
 				let locationIndex = Math.round(i + (this.villagerSeed*2)) % Areas[areaName].villagerData.locations.length;
 				villager.boundary = Areas[areaName].villagerData.locations[locationIndex];
 
-				if (this.prepareNPC(villager, "villagers")) {
-					villager.source = "villager"; // image came from villager variable (used for finding images if they have to persist over areas)
-					villager.sourceId = villager.id; // id in villager variable
-					this.villagers.push(new Villager(villager));
+				let preparedNPC = this.prepareNPC(villager, "villagers");
+
+				if (preparedNPC !== false) {
+					preparedNPC.source = "villager"; // image came from villager variable (used for finding images if they have to persist over areas)
+					preparedNPC.sourceId = preparedNPC.id; // id in villager variable
+					this.villagers.push(new Villager(preparedNPC));
 				}
 			}
 		}
 
 		// player pet
 		if (this.hero !== undefined && this.hero.hasOnLead !== undefined) {
-			if (this.prepareNPC(this.hero.hasOnLead, this.hero.hasOnLead.type)) {
+			let preparedNPC = this.prepareNPC(this.hero.hasOnLead, this.hero.hasOnLead.type);
+			if (preparedNPC !== false) {
 				// prepare npc to be added
 				// edit animal on lead's information to fit with constructor (constructor takes different parameters to constructed object's properties)
-				this.hero.hasOnLead.image = this.hero.hasOnLead.imageName;
+				preparedNPC.image = preparedNPC.imageName;
 				// generate npc
-				let typeName = this.hero.hasOnLead.type; // name of array in Game
+				let typeName = preparedNPC.type; // name of array in Game
 				let className = this.typeClasses[typeName]; // name of Class
-				let source = this.hero.hasOnLead.source; // used for finding images on future area changes (since the source is the same it can just be taken from previous villager)
+				let source = preparedNPC.source; // used for finding images on future area changes (since the source is the same it can just be taken from previous villager)
 				// make consistent with parameters...
-				this.hero.hasOnLead.sourceId = source.id;
-				this.hero.hasOnLead.source = source.location;
+				preparedNPC.sourceId = source.id;
+				preparedNPC.source = source.location;
 				// construct npc
-				let newNPC = new className(this.hero.hasOnLead);
+				let newNPC = new className(preparedNPC);
 
 				// remove character that is the same as one to be added in the area (if one exists)
 				// only remove the first one found
@@ -7114,16 +7119,16 @@ Game.initStatusEffects = function () {
 // returns false if the npc should not be shown, otherwise returns the npc itself
 // overrideCanBeShown set to true means that function will run even if it would return false, and will also return true (to indicate npc added)
 Game.prepareNPC = function (npc, type, overrideCanBeShown) {
-	this.setInformationFromTemplate(npc); // needs to be here so bossCanBeShown works
+	let newNpc = this.setInformationFromTemplate(npc); // needs to be here so bossCanBeShown works
 
-	if ((this.canBeShown(npc) && this.bossCanBeShown(npc)) || overrideCanBeShown) {
+	if ((this.canBeShown(newNpc) && this.bossCanBeShown(newNpc)) || overrideCanBeShown) {
 
-		npc.map = map;
-		npc.type = type;
+		newNpc.map = map;
+		newNpc.type = type;
 
-		this.setMailboxImage(npc);
+		this.setMailboxImage(newNpc);
 
-		return npc;
+		return newNpc;
 	}
 	return false;
 }
@@ -7133,6 +7138,16 @@ Game.prepareNPC = function (npc, type, overrideCanBeShown) {
 // properties in areadata have precedence over the template, which has precendence over the speciestemplate
 Game.setInformationFromTemplate = function (properties) {
 	// first initialise the objects so we don't get any undefined errors
+	if (typeof properties.stats === "undefined") {
+		properties.stats = {};
+	}
+	if (typeof properties.attackBehaviour === "undefined") {
+		properties.attackBehaviour = {};
+	}
+	if (typeof properties.chat === "undefined") {
+		properties.chat = {};
+	}
+
 	if (typeof properties.template === "undefined") {
 		properties.template = {};
 	}
@@ -7165,35 +7180,43 @@ Game.setInformationFromTemplate = function (properties) {
 		properties.speciesTemplate.chat = {};
 	}
 
-	// now assign the objects into speciesTemplate!
-	Object.assign(properties.template.stats, properties.stats);
-	properties.stats = undefined;
-	Object.assign(properties.template.attackBehaviour, properties.attackBehaviour);
-	properties.attackBehaviour = undefined;
-	Object.assign(properties.template.chat, properties.chat);
-	properties.chat = undefined;
-	for (const key in properties) { // now we manual assign
+
+	let newProperties = {};
+	newProperties.stats = {};
+	newProperties.attackBehaviour = {};
+	newProperties.chat = {};
+
+
+	// now assign the objects into newProperties, in order of precendence!
+	Object.assign(newProperties.stats, properties.speciesTemplate.stats);
+	Object.assign(newProperties.attackBehaviour, properties.speciesTemplate.attackBehaviour);
+	Object.assign(newProperties.chat, properties.speciesTemplate.chat);
+	for (const key in properties.speciesTemplate) { // now we manual assign
 		if (key !== "stats" && key !== "attackBehaviour" && key !== "chat") { // we have already assigned these so don't reassign them
-			properties.template[key] = properties[key];
+			newProperties[key] = properties.speciesTemplate[key];
 		}
 	}
 
-	Object.assign(properties.speciesTemplate.stats, properties.template.stats);
-	properties.template.stats = undefined;
-	Object.assign(properties.speciesTemplate.attackBehaviour, properties.template.attackBehaviour);
-	properties.template.attackBehaviour = undefined;
-	Object.assign(properties.speciesTemplate.chat, properties.template.chat);
-	properties.template.chat = undefined;
+	Object.assign(newProperties.stats, properties.template.stats);
+	Object.assign(newProperties.attackBehaviour, properties.template.attackBehaviour);
+	Object.assign(newProperties.chat, properties.template.chat);
 	for (const key in properties.template) { // now we manual assign
 		if (key !== "stats" && key !== "attackBehaviour" && key !== "chat") { // we have already assigned these so don't reassign them
-			properties.speciesTemplate[key] = properties.template[key];
+			newProperties[key] = properties.template[key];
 		}
 	}
 
-	// now bring speciesTemplate to be all of properties!
-	Object.assign(properties, properties.speciesTemplate);
+	Object.assign(newProperties.stats, properties.stats);
+	Object.assign(newProperties.attackBehaviour, properties.attackBehaviour);
+	Object.assign(newProperties.chat, properties.chat);
+	for (const key in properties) { // now we manual assign
+		if (key !== "stats" && key !== "attackBehaviour" && key !== "chat") { // we have already assigned these so don't reassign them
+			newProperties[key] = properties[key];
+		}
+	}
 
-	return properties;
+
+	return newProperties;
 }
 
 // bosses only can be killed once a day
