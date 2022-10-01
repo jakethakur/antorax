@@ -8,6 +8,10 @@ let Weather = {
 			weight: 200,
 			windMultiplier: 0.2,
 		},
+		bloodRain: {
+			weight: 200,
+			windMultiplier: 0.25,
+		},
 		ley: {
 			weight: 0, // down movement per second
 			windMultiplier: 0.3, // multiplied with wind intensity
@@ -68,7 +72,7 @@ Weather.tick = function (init) {
 	}
 }
 
-// called by Game.loadArea
+// called by Game.loadArea and by Weather.updateVariables
 Weather.chooseWeather = function (areaName) {
 	let oldWeatherType = this.weatherType; // for checking if weather has changed
 
@@ -111,6 +115,11 @@ Weather.chooseWeather = function (areaName) {
 		if (Areas[areaName].isIcy !== undefined && Areas[areaName].isIcy()) {
 			// icy area - snow instead of rain
 			this.weatherType = "snow";
+			this.weatherAdditional = undefined;
+		}
+		else if (Event.time === "bloodMoon") {
+			// blood rain
+			this.weatherType = "bloodRain";
 			this.weatherAdditional = undefined;
 		}
 		else {
@@ -446,15 +455,13 @@ Weather.render = function () {
 			Game.ctx.fillRect(particle.x, particle.y , 2, 2);
 		}
 		else if (particle.type === "rain") {
-			if (Event.time === "bloodMoon") {
-				// blood rain :)
-				Game.ctx.fillStyle = "#660000";
-				Game.ctx.globalAlpha = 0.4;
-			}
-			else {
-				Game.ctx.fillStyle = "#b0d4e5";
-				Game.ctx.globalAlpha = 0.8;
-			}
+			Game.ctx.fillStyle = "#b0d4e5";
+			Game.ctx.globalAlpha = 0.8;
+			Game.ctx.fillRect(particle.x, particle.y , 1, 12);
+		}
+		else if (particle.type === "bloodRain") {
+			Game.ctx.fillStyle = "#660000";
+			Game.ctx.globalAlpha = 0.4;
 			Game.ctx.fillRect(particle.x, particle.y , 1, 12);
 		}
 		else if (particle.type === "fish") {

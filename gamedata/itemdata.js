@@ -386,7 +386,7 @@ var Items = {
 			rarity: "unique",
 			sellPrice: 3,
 			lore: "",
-			obtainText: "Can be looted from 'Barebones' Nkkja, a boss in The Nilbog during blood moons.",
+			obtainText: "Can be looted from 'Barebones' Nkkja, a boss in The Nilbog during Blood Moons.",
 			event: "Samhain",
 			stats: {
 				defence: 2,
@@ -663,7 +663,7 @@ var Items = {
 			rarity: "unique",
 			lore: "A fashion favourite of loggers and Samhain bosses alike.",
 			sellPrice: 3,
-			obtainText: "Can be looted from Statue of Marshall Sheridan, a boss in The Nilbog during blood moons.",
+			obtainText: "Can be looted from Statue of Marshall Sheridan, a boss in The Nilbog during Blood Moons.",
 			stats: {
 				defence: 2,
 			},
@@ -691,7 +691,7 @@ var Items = {
 			rarity: "unique",
 			sellPrice: 3,
 			lore: "",
-			obtainText: "Can be looted from 'Barebones' Nkkja, a boss in The Nilbog during blood moons.",
+			obtainText: "Can be looted from 'Barebones' Nkkja, a boss in The Nilbog during Blood Moons.",
 			event: "Samhain",
 			stats: {
 				defence: 2,
@@ -785,7 +785,7 @@ var Items = {
 			unidentifiedArea: ["loggingCamp"],
 			stats: {
 				defence: 4,
-				dodgeChance: 20,
+				dodgeChance: 15,
 				healthRegen: 0.25,
 			},
 		},
@@ -1427,7 +1427,7 @@ var Items = {
 			event: "Samhain",
 			rarity: "mythic",
 			lore: "Sheridan may have been a legendary marshall, but he was never any good at cleaning his axe.",
-			obtainText: "Can be looted from Statue of Marshall Sheridan, a boss in The Nilbog during blood moons.",
+			obtainText: "Can be looted from Statue of Marshall Sheridan, a boss in The Nilbog during Blood Moons.",
 			sellPrice: 5,
 			stats: {
 				damage: 4,
@@ -1727,7 +1727,8 @@ var Items = {
 			event: "Samhain",
 			rarity: "mythic",
 			lore: "tbd",
-			obtainText: "Can be looted from 'Barebones' Nkkja, a boss in The Nilbog during blood moons.",
+			obtainText: "Can be looted from 'Barebones' Nkkja, a boss in The Nilbog during Blood Moons.",
+			limitedEdition: true, // temp
 			sellPrice: 5,
 			stats: {
 				damage: 4,
@@ -3547,7 +3548,7 @@ var Items = {
 			name: "Pumpkin Brew",
 			type: "consumable",
 			image: "assets/items/consumable/30.png",
-			functionText: "Restores 25 health",
+			functionText: "Restores 25 health, even during a Blood Moon",
 			lore: "Side effects are the least of your worries!",
 			sellPrice: 1,
 			onClickFunction: function (inventoryPosition) {
@@ -3646,7 +3647,8 @@ var Items = {
 			sellPrice: 3,
 			healthRestore: 100,
 			healthRestoreTime: 20,
-			lore: "", // tbd
+			functionText: "Can restore health even during a Blood Moon",
+			lore: "Are the pumpkins really small or is the pie really big?",
 			secondClick: function () {
 				// achievement progress
 			    Player.quests.questProgress.pumpkinPie = true;
@@ -3661,6 +3663,7 @@ var Items = {
 			sellPrice: 1,
 			healthRestore: 30,
 			healthRestoreTime: 4,
+			functionText: "Can restore health even during a Blood Moon",
 			lore: "", // tbd
 			secondClick: function () {
 				// achievement progress
@@ -4145,7 +4148,7 @@ var Items = {
 			areas: ["loggingCamp"],
 		},
 		{
-			// blood moon only
+			// Blood Moon only
 			id: 20,
 			name: "Samhain Zombiefish",
 			fishingType: "fish",
@@ -4153,8 +4156,8 @@ var Items = {
 			image: "assets/items/fish/20.png",
 			rarity: "unique",
 			sellPrice: 2,
-			lore: "Its red eyes glisten under the blood moon.",
-			howToCatch: "Can be fished up during a blood moon.",
+			lore: "Its red eyes glisten under the Blood Moon.",
+			howToCatch: "Can be fished up during a Blood Moon.",
 			consumption: false,
 			areas: [],
 			length: {
@@ -4164,7 +4167,7 @@ var Items = {
 			},
 			onCatch: function () {
 				Game.hero.takeDamage(10);
-				Dom.chat.insert("The blood moon's reflection shimmers in the water. An abberation of the past? Or an echo of the future? As you stare into the fish's eyes, you don't feel too great...");
+				Dom.chat.insert("The Blood Moon's reflection shimmers in the water. An abberation of the past? Or an echo of the future? As you stare into the fish's eyes, you don't feel too great...");
 				Dom.chat.insert("<i>You took 10 damage</i>");
 			},
 			timeRequirement: "bloodMoon",

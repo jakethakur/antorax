@@ -981,6 +981,17 @@ Game.removeObject = function (id, type, index) {
 		this.damageableByPlayer.splice(damageableArrayIndex, 1);
 	}
 
+	// remove from enemy attackTargets arrays
+	for (let i = 0; i < this.enemies.length; i++) {
+		for (let j = 0; j < this.enemies[i].attackTargets.length; j++) {
+			if (this.enemies[i].attackTargets[j].target.id === id) {
+				// remove it
+				this.enemies[i].attackTargets.splice(j);
+				j--;
+			}
+		}
+	}
+
 	// remove from specific array of its type
 	if (index === undefined) {
 		index = this.searchFor(id, this[type]);
@@ -1379,7 +1390,12 @@ class Thing extends Entity {
 		this.z = properties.z || 0; // -1 is always below (e.g. wizard's lore) and 1 is always on top (e.g. projectile)
 		this.orderOffsetY = properties.orderOffsetY || 0; // offset to how the y acts in canvas positioning sorting algorithm
 
-		this.name = properties.name;
+		if (typeof properties.nameHidden !== "undefined" && properties.nameHidden()) {
+			this.name = "???";
+		}
+		else {
+			this.name = properties.name;
+		}
 
 		this.bright = properties.bright; // currently does nothing
 
@@ -1582,10 +1598,14 @@ class Character extends Thing {
 		this.stats.windShield = properties.stats.windShield || false; // can't be moved by wind
 
 		// blood moon modifiers
-		if (Event.time === "bloodMoon") {
+		if (Event.time === "bloodMoon" && this.constructor.name !== "Hero") {
 			// respawn faster
 			this.stats.lootTime /= 2;
 			this.stats.respawnTime /= 2;
+			// double health and damage
+			this.stats.maxHealth *= 2;
+			this.health = this.stats.maxHealth;
+			this.damage *= 2;
 		}
 
 		// array items that can damage the character (empty = any can)
@@ -1605,6 +1625,7 @@ class Character extends Thing {
 
 		this.onDeath = properties.onDeath;
 		this.onDeathAdditional = properties.onDeathAdditional; // so that we can have an ondeath from the speciestemplate and from areadata for example
+		// onDeathAdditional doesn't require damage to be dealt by hero, but onDeath does!!!
 
 		this.chat = properties.chat || {}; // object containing properties that are inserted into chat when specific things happen
 		/* examples of chat properties:
@@ -1732,6 +1753,7 @@ class Character extends Thing {
 	// extraInfo is an object that could have the following properties: (all saved in channellingInfo)
 	// extraInfo.colour is an optional colour for the channelling bar (otherwise it uses default magenta)
 	// extraInfo.cancelChannelOnDamage means the channel is cancelled when they take damage
+	// extraInfo.channelCancelFunction is a function to be called on the channel being cancelled
 	channel (func, parameters, time, description, extraInfo) {
 		if (!this.hasStatusEffectType("stun")) { // cannot channel when stunned
 			// remove whatever was previously channelled
@@ -1759,6 +1781,8 @@ class Character extends Thing {
 					colour:extraInfo.colour,
 					cancelChannelOnDamage: extraInfo.cancelChannelOnDamage, // cancel the channelling when they take damage
 				};
+
+				this.channelCancelFunction = extraInfo.channelCancelFunction;
 			}
 		}
 	}
@@ -1886,7 +1910,8 @@ class Character extends Thing {
 				if (this.onDeath !== undefined && !inMinigame && this.damageTakenFromHero) {
 					this.onDeath();
 				}
-				if (this.onDeathAdditional !== undefined && !inMinigame && this.damageTakenFromHero) {
+				if (this.onDeathAdditional !== undefined && !inMinigame) {
+					// onDeathAdditional doesn't require damage to be dealt by hero, but onDeath does!!!
 					this.onDeathAdditional(); // so that we can have an ondeath from speciestemplate and from areadata
 				}
 
@@ -7174,7 +7199,7 @@ Game.setInformationFromTemplate = function (properties) {
 // bosses only can be killed once a day
 // boolean condition used by prepareNPC
 Game.bossCanBeShown = function (npc) {
-	return (npc.hostility !== "boss" || GetFullDate() - Player.bossesKilled[npc.bossKilledVariable] > 0)
+	return (npc.hostility !== "boss" || typeof Player.bossesKilled[npc.bossKilledVariable] === "undefined" || GetFullDate() - Player.bossesKilled[npc.bossKilledVariable] > 0)
 }
 
 // sets the image of the mailbox before its creation (so it has an image in the first place)

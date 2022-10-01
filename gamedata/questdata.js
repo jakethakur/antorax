@@ -1621,7 +1621,7 @@ After all, death is never the end in Antorax...<br>
 					{item: Items.food[5], quantity: 1,},
 				],
 				services: [
-					{image: "bank", lore: "You will be able access the bank to store your items once you have finished this quest."}, // aaaaaaaa image required
+					{image: "bank", lore: "You will be able access the bank to store your items once you have finished this quest."},
 				],
 				reputation: {
 					eaglecrestCity: 100,
@@ -1738,7 +1738,7 @@ After all, death is never the end in Antorax...<br>
 			],
 
 			onQuestFinish: function () {
-				let npc = Game.NPCs.find(npc => npc.name === "???");
+				let npc = Game.npcs.find(npc => npc.name === "???");
 				npc.name = "The Soothsssayer";
 			},
 		},
@@ -1758,8 +1758,8 @@ After all, death is never the end in Antorax...<br>
 			objectives: [
 				"Find a special crate somewhere in the Eaglecrest Bazaar.",
 				"Find a special crate somewhere in Eaglecrest Graveyard.",
-				"Find a special crate somewhere to the east of Eaglecrest Plains.",
-				"Bring 5 Wispy Feathers to the <b>Mask Salesman</b>.",
+				"Find a special crate somewhere to the west of Eaglecrest Plains.",
+				"Collect 5 Wispy Feathers for the <b>Mask Salesman</b>.",
 				"Find a special crate somewhere in Eaglecrest City West.",
 				"Speak to the <b>The Soothsssayer</b> with the contents of all four crates.",
 			],
@@ -1771,7 +1771,7 @@ After all, death is never the end in Antorax...<br>
 				hidden.push(false);
 				hidden.push(false);
 				hidden.push(false);
-				hidden.push(Player.quests.npcProgress.eaglecrest[5]); // feather objective
+				hidden.push(!Player.quests.npcProgress.eaglecrest[5]); // feather objective
 				hidden.push(false);
 				hidden.push(false);
 
@@ -1785,6 +1785,7 @@ After all, death is never the end in Antorax...<br>
 				completed.push(Player.quests.questProgress.bazaarCrate);
 				completed.push(Player.quests.questProgress.graveyardCrate);
 				completed.push(Player.quests.questProgress.plainsCrate);
+				completed.push(Player.quests.questProgress.westCrate || checkProgress(37, "item", 5));
 				completed.push(Player.quests.questProgress.westCrate);
 
 				completed.push(Dom.inventory.check(38, "item", 4));
@@ -1806,6 +1807,10 @@ After all, death is never the end in Antorax...<br>
 					theSoothsayer: 25,
 				},
 			},
+
+			removeItems: [
+				{item: Items.item[38], quantity: 4}, // remove the crystals
+			],
 		},
 
 		{
@@ -1815,21 +1820,25 @@ After all, death is never the end in Antorax...<br>
 
 			startName: "The Soothsssayer",
 			startChat: `How about I explain to you sssome of what'sss going on. I'm sssure you would love that.<br><br>
-			These Crystalsss can bring about the ssssummoning of a Blood Moon over all of Antorax, with the help of my cauldron.tbd`,
+			These Crystalsss can bring about the ssssummoning of a Blood Moon over all of Antorax, harbouring the return of dead ssssoulss to the mortal realm. And lotsss of sssspecial rewardssssssssss for you.<br><br>
+			Ssssupervise my cauldron whilst the Blood Moon is ssssummoned, and the Blood Moon will be ourssss!`,
 
 			finishName: "The Soothsssayer",
-			finishChat: `ssstbd`,
+			finishChat: `The Blood Moon hassss rissssen. The ssssoulsss of old are near.<br><br>
+			You will find <b>Ssssamhain Marksssss</b> on some enemiessss during the Blood Moon. Bring them to me. I have more rewardsssss for you.`,
 
 			objectives: [
-				"Protect the cauldron whilst the Blood Moon is summoned.",
+				"Protect the cauldron whilst the Blood Moon is sssummoned.",
 				"Speak to the <b>The Soothsssayer</b>.",
 			],
+
+			autofinish: true,
 
 			isCompleted: function() {
 				let completed = [];
 
 				// true or falses for each objective (apart from the turn-in objective)
-				completed.push(Player.quests.questProgress.cauldronProtected);
+				completed.push(Player.quests.questProgress.bloodMoonUnlocked);
 
 				completed = checkFinished(completed);
 
@@ -1844,7 +1853,23 @@ After all, death is never the end in Antorax...<br>
 			onQuestStart: function () {
 				let cauldron = Game.characters.find(character => character.name === "The Soothsssayer's Cauldron");
 
-				cauldron.channel(function () {}, [], 87666, "", {colour: "#7FD922"});
+				if (typeof cauldron === "undefined") {
+					cauldron = Game.characters.push(new Character(Game.prepareNPC({template: NPCTemplates.soothsssayerCauldron}, "character")));
+				}
+
+				cauldron.channel(function () {
+					// it's a blood moon now...
+					Player.quests.questProgress.bloodMoonUnlocked = true;
+					Event.updateTime("samhainLair");
+					// channelling finished
+					// kill all enemies
+					for (let i = 0; i < Game.enemies.length; i++) {
+						Game.enemies[i].takeDamage(1000);
+					}
+					// visual effects
+					Weather.commenceLightningStrike();
+					Game.camera.initScreenShake(13,5000);
+				}, [], 87666, "", {colour: "#7FD922"});
 
 				Game.clearedTimeoutsOnAreaChange.push(Game.setTimeout(function () {
 					Game.enemies.push(new Enemy(Game.prepareNPC({
@@ -1869,8 +1894,12 @@ After all, death is never the end in Antorax...<br>
 				}, 11000));
 
 				Game.clearedTimeoutsOnAreaChange.push(Game.setTimeout(function () {
-					Dom.chat.insert(Dom.chat.say("The Soothsssayer", "Get on with it and kill those ghossssts. The processssss must finish!"));
-				}, 14666));
+					Dom.chat.insert(Dom.chat.say("The Soothsssayer", "Get on with it and kill those ghosssstssss. The processssss must finish!"));
+				}, 15666));
+
+				Game.clearedTimeoutsOnAreaChange.push(Game.setTimeout(function () {
+					Game.camera.initScreenShake(4,2500);
+				}, 17000));
 
 				Game.clearedTimeoutsOnAreaChange.push(Game.setTimeout(function () {
 					Game.enemies.push(new Enemy(Game.prepareNPC({
@@ -1888,7 +1917,12 @@ After all, death is never the end in Antorax...<br>
 
 				Game.clearedTimeoutsOnAreaChange.push(Game.setTimeout(function () {
 					Dom.chat.insert(Dom.chat.say("The Soothsssayer", "Why am I getting <i>you</i> to do all thisss?- Well, do you think Eaglecrest would be happy with <i>me</i> ssstrolling around the City in their current ssssssituation?"));
-				}, 33666));
+				}, 32000));
+
+				Game.clearedTimeoutsOnAreaChange.push(Game.setTimeout(function () {
+					Weather.commenceLightningStrike();
+					Game.camera.initScreenShake(6,3500);
+				}, 34000));
 
 				Game.clearedTimeoutsOnAreaChange.push(Game.setTimeout(function () {
 					Game.enemies.push(new Enemy(Game.prepareNPC({
@@ -1912,11 +1946,16 @@ After all, death is never the end in Antorax...<br>
 						template: EnemyTemplates.eaglecrest.phantom1,
 					}, "enemies")));
 					Game.enemies[Game.enemies.length-1].say("Seize the cauldron!");
-				}, 36222));
+				}, 35222));
 
 				Game.clearedTimeoutsOnAreaChange.push(Game.setTimeout(function () {
 					Dom.chat.insert(Dom.chat.say("The Soothsssayer", "Yessssssss! Keep going! It'sssss working!"));
-				}, 49666));
+				}, 48666));
+
+				Game.clearedTimeoutsOnAreaChange.push(Game.setTimeout(function () {
+					Weather.commenceLightningStrike();
+					Game.camera.initScreenShake(10,4000);
+				}, 50500));
 
 				Game.clearedTimeoutsOnAreaChange.push(Game.setTimeout(function () {
 					Game.enemies.push(new Enemy(Game.prepareNPC({
@@ -1924,7 +1963,7 @@ After all, death is never the end in Antorax...<br>
 						y: 500,
 						template: EnemyTemplates.eaglecrest.phantom1,
 					}, "enemies")));
-				}, 52222));
+				}, 51222));
 
 				Game.clearedTimeoutsOnAreaChange.push(Game.setTimeout(function () {
 					Game.enemies.push(new Enemy(Game.prepareNPC({
@@ -1943,14 +1982,25 @@ After all, death is never the end in Antorax...<br>
 						template: EnemyTemplates.eaglecrest.phantom1,
 					}, "enemies")));
 					Game.enemies[Game.enemies.length-1].say("You can't..");
-				}, 54000));
+				}, 53000));
 
 				Game.clearedTimeoutsOnAreaChange.push(Game.setTimeout(function () {
-					Dom.chat.insert(Dom.chat.say("The Soothsssayer", "I knew you would be the right persssson for this. I sssaw. I wasssn't sssearching for loyalty, I was looking for the lack of it. You were willing to do anything for a reward. Look what you're doing for me now."));
-				}, 70000));
+					Dom.chat.insert(Dom.chat.say("The Soothsssayer", "I knew you would be the right persssson for this. I sssaw."));
+				}, 69666));
+				Game.clearedTimeoutsOnAreaChange.push(Game.setTimeout(function () {
+					Dom.chat.insert(Dom.chat.say("The Soothsssayer", "I wasssn't sssearching for loyalty, I was looking for the lack of it. You were willing to do anything for a reward. Look what you're doing for me now."));
+				}, 70666));
 				Game.clearedTimeoutsOnAreaChange.push(Game.setTimeout(function () {
 					Dom.chat.insert(Dom.chat.say("The Soothsssayer", `I've got lotssss more rewardsss ${Player.name}, don't worry.`));
 				}, 72666));
+
+				Game.clearedTimeoutsOnAreaChange.push(Game.setTimeout(function () {
+					Weather.commenceLightningStrike();
+					Game.camera.initScreenShake(13,4000);
+					Areas.samhainLair.weather = "bloodRain";
+					Areas.samhainLair.indoors = false;
+					Weather.updateVariables();
+				}, 74666));
 
 				Game.clearedTimeoutsOnAreaChange.push(Game.setTimeout(function () {
 					Game.enemies.push(new Enemy(Game.prepareNPC({
@@ -1974,6 +2024,7 @@ After all, death is never the end in Antorax...<br>
 						y: 100,
 						template: EnemyTemplates.eaglecrest.phantom1,
 					}, "enemies")));
+					Game.enemies[Game.enemies.length-1].say("We must make a last stand..");
 				}, 79777));
 
 				Game.clearedTimeoutsOnAreaChange.push(Game.setTimeout(function () {
@@ -1999,17 +2050,29 @@ After all, death is never the end in Antorax...<br>
 						template: EnemyTemplates.eaglecrest.phantom2,
 					}, "enemies")));
 				}, 82100));
+
+				Game.clearedTimeoutsOnAreaChange.push(Game.setTimeout(function () {
+					Game.enemies.push(new Enemy(Game.prepareNPC({
+						x: 200,
+						y: 200,
+						template: EnemyTemplates.eaglecrest.phantom2,
+					}, "enemies")));
+				}, 82500));
 			},
 
 			rewards: {
 				xp: 50,
 				items: [
 					{item: Items.currency[2], quantity: 2,},
-					{item: Items.consumable[2], quantity: 9,},
+					{item: Items.consumable[9],},
 				],
 				reputation: {
 					theSoothsayer: 25,
 				},
+			},
+
+			onQuestFinish: function () {
+				Dom.alert.page("During a Blood Moon, enemies will be much stronger and will respawn much faster.<br>Health will no longer regenerate outdoors, unless using a special Samhain food item.<br><br>Some special bosses will also spawn. Kill them before the moon disappears at the end of the month!<br><br>Enemies have a chance to drop <b>Samhain Marks</b>, which can be brought to some merchants for rewards.<br>But at what cost?<br>", 0);
 			},
 		},
 	],
@@ -2387,7 +2450,7 @@ After all, death is never the end in Antorax...<br>
 					}
 				}
 
-				// remove the roll for giving the tavern goods of all the villagers
+				// remove the role for giving the tavern goods of all the villagers
 				for (let i = 0; i < Game.villagers.length; i++) {
 					Game.villagers[i].roles.pop();
 				}

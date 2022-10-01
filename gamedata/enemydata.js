@@ -88,10 +88,10 @@ const SpeciesTemplates = {
 			walkSpeed: 180,
 			swimSpeed: 180,
 			iceSpeed: 180,
-			maxHealth: 33,
+			maxHealth: 40,
 			defence: 0,
 			range: 80,
-			reloadTime: 1400,
+			reloadTime: 1300,
 			healthRegen: 1,
 		},
 		attackBehaviour: {
@@ -170,6 +170,28 @@ const NPCTemplates = { // tbd combine with villagers
 		},
 		hideNameTag: true,
 	},
+	soothsssayerCauldron: {
+		x: 300,
+		y: 526,
+		name: "The Soothsssayer's Cauldron",
+		hideNameTag: true,
+		image: "cauldron",
+		hostility: "neutral",
+		level: 1,
+		xpGiven: 0,
+		corpseOnDeath: false,
+		respawnOnDeath: false,
+		respawnTime: 10,
+		stats: {
+			walkSpeed: 0,
+			maxHealth: Player.class === "a" ? 500 : 350, // because archer shots don't pierce
+			healthRegen: 0,
+		},
+		onDeathAdditional: function () {
+			Dom.chat.insert("<b>The Blood Moon is Coming...</b> has been failed. Restart the quest by speaking to <b>The Soothsssayer</b>.");
+			Dom.quest.abandon(Quests.eaglecrest[6]);
+		},
+	}
 }
 
 const EnemyTemplates = {

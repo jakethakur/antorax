@@ -39,6 +39,11 @@ let Event = {
 			this.time = Areas[areaName].time;
 		}
 
+		else if (this.event === "Samhain" && Player.quests.questProgress.bloodMoonUnlocked) {
+			// halloween night time & bloodmoon unlocked
+			this.time = "bloodMoon";
+		}
+
 		else if (d.day == 21 && d.month == 6) {
 			// Summer Solstice - sun up all day
 			this.time = "day";
@@ -51,10 +56,6 @@ let Event = {
 		else if (d.hour >= 7 && d.hour < 19) {
 			// day time
 			this.time = "day";
-		}
-		else if (this.event === "Samhain" && Player.quests.questProgress.bloodMoonUnlocked) {
-			// halloween night time & bloodmoon unlocked
-			this.time = "bloodMoon";
 		}
 		else {
 			// night time
@@ -183,7 +184,7 @@ let BuyFunctions = {}; // functions that are called on specific items being boug
 
 // called upon samhain marks being given to snake man to buy an item
 BuyFunctions.samhainItemBuy = function (item) {
-	let messages = ["Yesssss! I need more sssealssssss.", "More sssssealss for my collection. Good job adventurer.", "I need more sssealsssss than that!"];
+	let messages = ["Yesssss! I need more markssss.", "More markssssss for my collection. Good job adventurer.", "I need more marksssss than that!"];
 	Dom.chat.insert(Dom.chat.say("The Soothsssayer", messages[Random(0, messages.length-1)]));
 
 	Dom.reputation.give("theSoothsayer", item.cost * 5);
@@ -2515,12 +2516,11 @@ var Areas = {
 								Dom.currentlyDisplayed = "";
 								Dom.currentNPC = {}; // these must be done here as well as the timeout, since checkProgress requires it.
 								Dom.checkProgress();
-							}, [], 6000, "Cleaning Goblin Torch");
-							// even if channelling is cancelled, this should be set back
-							Game.hero.channelCancelFunction = function () {
+							}, [], 6000, "Cleaning Goblin Torch", {channelCancelFunction : function () {
+								// even if channelling is cancelled, this should be set back
 								Dom.currentlyDisplayed = "";
 								Dom.currentNPC = {};
-							};
+							}});
 						},
 						roleRequirement: function () {
 							return Player.quests.npcProgress.eaglecrestLoggingCamp[24] === 4 && Dom.inventory.check(27, "item", 1);
@@ -4330,6 +4330,26 @@ var Areas = {
 				roles: [
 					// samhain quest
 					{
+						role: "function",
+						chooseText: "Here are 5 Wispy Feathers",
+						onClick: function () {
+							if (Dom.inventory.check(37, "item", 5)) {
+                                Dom.inventory.removeById(37, "item", 5);
+								Dom.inventory.give(Items.item[38]);
+                                Player.quests.questProgress.westCrate = true;
+                                Dom.text.page("Mask Salesman", "You have my feathers? Great. These will prove rather helpful.<br><br>I know what you're doing with these Crystals. All I can say, is make sure I get my cut of Marks once the blood has risen from the depths. <b><i>I insist</i></b>.", true, [], [], [{item: Items.item[38]}]);
+                            }
+						},
+						forceChoose: true, // forces choose dom
+						roleRequirement: function () {
+							if (!Dom.inventory.requiredSpace([{item: Items.item[38]}])) {
+								Dom.chat.insert(Dom.chat.say("Mask Salesman", "You don't have enough space in your bags for the Crystal."));
+								return false;
+							}
+							return !Player.quests.questProgress.westCrate && Player.quests.activeQuestArray.includes("Moving Like a Snake") && Dom.inventory.check(37, "item", 5);
+						}
+					},
+					{
 						role: "text",
 						chooseText: "Have you seen a mysterious crate nearby?",
 						chat: `Yes I have. And it had a rather nice <b>Blood-Red Crystal</b> in it.<br><br>
@@ -4346,26 +4366,7 @@ var Areas = {
 						}],
 						forceChoose: true, // forces choose dom
 						roleRequirement: function () {
-							return !Player.quests.questProgress.westCrate && Player.quests.activeQuestArray.includes("Moving Like a Snake");
-						}
-					},
-					{
-						role: "function",
-						chooseText: "Here are 5 Wispy Feathers",
-						onClick: function () {
-							if (Dom.inventory.check(28, "item", 5)) {
-                                Dom.inventory.removeById(28, "item", 5);
-                                Player.quests.questProgress.westCrate = true;
-                                Dom.text.page("Mask Salesman", "You have my feathers? Great. These will prove rather helpful.<br><br>I know what you're doing with these Crystals. All I can say, is make sure I get my cut of marks once the blood has risen from the depths. <b><i>I insist</i></b>.", true, [], [], [{item: Items.helm[23]}]);
-                            }
-						},
-						forceChoose: true, // forces choose dom
-						roleRequirement: function () {
-							if (!Dom.inventory.requiredSpace([{item: Items.item[38]}])) {
-								Dom.chat.insert(Dom.chat.say("Mask Salesman", "You don't have enough space in your bags the Crystal."));
-								return false;
-							}
-							return !Player.quests.questProgress.westCrate && Dom.inventory.check(28, "item", 5);
+							return !Player.quests.questProgress.westCrate && Player.quests.activeQuestArray.includes("Moving Like a Snake") && !Dom.inventory.check(37, "item", 5);
 						}
 					},
 					{
@@ -6251,18 +6252,18 @@ Last I saw him, he was visiting the <b>Eaglecrest Plains</b> to the <b>south</b>
 							template: EnemyTemplates.eaglecrest.phantom2,
 						}, "enemies")));
 						Game.enemies.push(new Enemy(Game.prepareNPC({
-							x: 230,
-							y: 481,
+							x: 250,
+							y: 441,
 							template: EnemyTemplates.eaglecrest.phantom1,
 						}, "enemies")));
 						Game.enemies.push(new Enemy(Game.prepareNPC({
-							x: 112,
+							x: 262,
 							y: 112,
 							template: EnemyTemplates.eaglecrest.phantom2,
 						}, "enemies")));
 						Game.enemies.push(new Enemy(Game.prepareNPC({
 							x: 482,
-							y: 571,
+							y: 511,
 							template: EnemyTemplates.eaglecrest.phantom1,
 						}, "enemies")));
 						Game.enemies[Game.enemies.length-1].say("What do you need that for?");
@@ -6902,6 +6903,9 @@ Last I saw him, he was visiting the <b>Eaglecrest Plains</b> to the <b>south</b>
 								: Player.class === "m" ? [{spellId: 3, spellTier: 1},{spellId: 4, spellTier: 1},{spellId: 5, spellTier: 1}]
 								: Player.class === "a" ? [{spellId: 6, spellTier: 1},{spellId: 7, spellTier: 1},{spellId: 8, spellTier: 1}]
 								: [],
+					},
+					{
+						role: "soulHealer",
 					},
 				],
 				chat: {
@@ -7757,8 +7761,6 @@ Last I saw him, he was visiting the <b>Eaglecrest Plains</b> to the <b>south</b>
 			displayOnEnter: false,
 		},
 
-		indoors: true,
-
 		tagGameAllowed: true,
 
 		song_day: "assets/music/Eaglecrest.mp3",
@@ -7767,6 +7769,8 @@ Last I saw him, he was visiting the <b>Eaglecrest Plains</b> to the <b>south</b>
 		checkpoint: false,
 
 		lootArea: "eaglecrest",
+
+		indoors: true,
 
 		mapData: {
 			cols: 10,
@@ -7832,9 +7836,37 @@ Last I saw him, he was visiting the <b>Eaglecrest Plains</b> to the <b>south</b>
 						template: EnemyTemplates.eaglecrest.snake,
 					}, "villagers")));
 				}
+
+				if (Player.quests.questProgress.bloodMoonUnlocked) {
+					Areas.samhainLair.indoors = false;
+					Areas.samhainLair.weather = "bloodRain";
+					Event.updateTime("samhainLair");
+					Weather.updateVariables();
+				}
 			}
 			else {
 				Game.loadArea("eaglecrestTavern", {x: 1158, y: 169});
+			}
+		},
+
+		callAreaLeaveOnLogout: true,
+		onAreaLeave: function (logout) {
+			// in case they died on the blood moon is coming quest
+			if (Event.time !== "bloodMoon") {
+				Areas.samhainLair.weather = undefined;
+				Areas.samhainLair.indoors = true;
+			}
+
+			// abandon blood moon is coming quest
+			if (Player.quests.activeQuestArray.includes("The Blood Moon is Coming...")) {
+				let chat = "<b>The Blood Moon is Coming...</b> has been failed. Restart the quest by speaking to <b>The Soothsssayer</b>.";
+				if (logout) {
+					Player.chatOnJoin.push(chat);
+				}
+				else {
+					Dom.chat.insert(chat);
+				}
+				Dom.quest.abandon(Quests.eaglecrest[6]);
 			}
 		},
 
@@ -7875,7 +7907,10 @@ Last I saw him, he was visiting the <b>Eaglecrest Plains</b> to the <b>south</b>
 				x: 300,
 				y: 280,
 				image: "snakeMan",
-				name: Player.quests.completedQuestArray.includes("Snaking Bad") ? "The Soothsssayer" : "???",
+				name: "The Soothsssayer",
+				nameHidden: function () {
+					return !Player.quests.completedQuestArray.includes("Snaking Bad");
+				},
 				hostility: "neutral",
 				level: 100,
 				stats: {
@@ -7915,7 +7950,7 @@ Last I saw him, he was visiting the <b>Eaglecrest Plains</b> to the <b>south</b>
 					},
 					{
 						quest: Quests.eaglecrest[6],
-						role: "questStartFinish",
+						role: "questStart",
 					},
 				],
 				chat: {
@@ -7929,24 +7964,7 @@ Last I saw him, he was visiting the <b>Eaglecrest Plains</b> to the <b>south</b>
 
 		characters: [
 			{
-				x: 300,
-				y: 526,
-				name: "The Soothsssayer's Cauldron",
-				hideNameTag: true,
-				image: "cauldron",
-				hostility: "neutral",
-				level: 1,
-				xpGiven: 0,
-				corpseOnDeath: false,
-				respawnOnDeath: true,
-				respawnTime: 10,
-				stats: {
-					walkSpeed: 0,
-					maxHealth: 350,
-					healthRegen: 0,
-				},
-				onDeath: function () {
-				}
+				template: NPCTemplates.soothsssayerCauldron
 			}
 		],
 
