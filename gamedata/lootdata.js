@@ -317,14 +317,14 @@ const BossLootTables = {
 		{ // loggers' flannel
 			item: Items.chest[9],
 			chance: [
-				50,				// 0
+				40,				// 0
 				0,				// 1
 			],
 		},
 		{ // marshall sheridan's logging axe
 			item: Items.sword[15],
 			chance: [
-				20,				// 0
+				30,				// 0
 				0,				// 1
 			],
 			condition: function () {
@@ -334,7 +334,7 @@ const BossLootTables = {
 		{ // logging boots
 			item: Items.boots[2],
 			chance: [
-				40,				// 0
+				30,				// 0
 				0,				// 1
 			],
 		},
@@ -369,10 +369,9 @@ const BossLootTables = {
 			item: Items.currency[2],
 			chance: [
 				100,			// 0
-				100,			// 1
-				60,				// 2
-				20,				// 3
-				0,				// 4
+				60,				// 1
+				20,				// 2
+				0,				// 3
 			],
 		},
 		{ // unidentified items
@@ -403,7 +402,7 @@ const BossLootTables = {
 				0,				// 1
 			],
 		},
-		{ // ellemental staff of the nilbog
+		/*{ // elemental staff of the nilbog
 			item: Items.staff[13],
 			chance: [
 				20,				// 0
@@ -412,7 +411,7 @@ const BossLootTables = {
 			condition: function () {
 				return Player.class === "m";
 			},
-		},
+		},*/
 	],
 };
 
