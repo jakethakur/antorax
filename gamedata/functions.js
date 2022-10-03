@@ -60,7 +60,7 @@ Loader.loadImage = function (key, src, deleteIf, flipMode) {
 		// image has already been loaded in
 		d = new Promise(function (resolve, reject) {
 			// warn the user, since it is possible this is an unintended side effect (two different images using same key name)
-			console.warn("An image was loaded under a key name (" + key + ") that already exists in loader. Please tell Jake.")
+			console.warn("An image was loaded under a key name (" + key + ") that already exists in loader.")
 			// return a promise that resolves instantly
 			resolve("image already loaded");
 		});

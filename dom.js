@@ -2181,7 +2181,7 @@ Dom.quest.finish = function (quest, npc) {
 			}
 			Dom.elements.questFinishChat.innerHTML = finishChat;
 
-			if (quest.numberOfRepeats !== undefined) {
+			if (quest.repeatTime === "daily" || quest.repeatTime === "repeatable" || quest.numberOfRepeats !== undefined) {
 				Player.quests.timesCompleted[quest.questArea][quest.id] = Increment(Player.quests.timesCompleted[quest.questArea][quest.id]);
 			}
 
@@ -6601,7 +6601,7 @@ Dom.init = function () {
 			    [{item: Items.helm[23]}]], [{item: Items.helm[23]}], true // noRepeat
 			);
 
-			if (!Player.quests.completedQuestArray.includes("The Slithering Truth") && Player.quests.timesCompleted.eaglecrest[1] >= 2) {
+			if (!Player.quests.completedQuestArray.includes("The Slithering Truth") && !Player.quests.activeQuestArray.includes("The Slithering Truth") && Player.quests.timesCompleted.eaglecrest[1] >= 2) {
 				// they haven't completed the quest this mail starts before, and they have completed "snakes and the city" at least twice
 				Dom.mail.give(
 					"The Slithering Truth",
