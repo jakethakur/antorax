@@ -1665,9 +1665,6 @@ After all, death is never the end in Antorax...<br>
 
 			rewards: {
 				xp: 25,
-				reputation: {
-					theSoothsayer: 25,
-				},
 			},
 
 			startRewards: {
@@ -2068,7 +2065,7 @@ After all, death is never the end in Antorax...<br>
 					{item: Items.consumable[9],},
 				],
 				reputation: {
-					theSoothsayer: 25,
+					theSoothsayer: 50,
 				},
 			},
 
