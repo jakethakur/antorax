@@ -2289,7 +2289,6 @@ var Areas = {
 							// nkkja
 							Player.quests.questProgress.samhainBossNilbogToday = "barebonesNkkja";
 						}
-						Player.quests.questProgress.samhainBossNilbogToday = "barebonesNkkja";
 
 						// make sure this isn't called again
 						Player.quests.questProgress.samhainBossIntroducedNilbog = date;
