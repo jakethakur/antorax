@@ -791,7 +791,7 @@ const EnemyTemplates = {
 			damageableByPlayer: true,
 			stats: {
 				walkSpeed: 0,
-				maxHealth: 100,
+				maxHealth: 80,
 				healthRegen: 0,
 			},
 		},

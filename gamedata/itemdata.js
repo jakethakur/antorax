@@ -358,7 +358,7 @@ var Items = {
             stats: {
                 defence: 2,
                 reflection: 20,
-                dodgeChance: 20,
+                dodgeChance: 10,
             },
         },
 		{
@@ -631,7 +631,7 @@ var Items = {
 			event: "Samhain",
 			stats: {
 				defence: 1,
-				dodgeChance: 30,
+				dodgeChance: 25,
 			},
 		},
 		{
@@ -931,8 +931,8 @@ var Items = {
 			unidentifiedArea: ["loggingCamp"],
 			stats: {
 				defence: 2,
-				criticalChance: 10,
-				dodgeChance: 10,
+				criticalChance: 5,
+				dodgeChance: 5,
 				healthRegen: 0.15,
 				looting: 10,
 				walkSpeed: 30,
@@ -1427,7 +1427,7 @@ var Items = {
 			event: "Samhain",
 			rarity: "mythic",
 			lore: "Sheridan may have been a legendary marshall, but he was never any good at cleaning his axe.",
-			obtainText: "Can be looted from Statue of Marshall Sheridan, a boss in The Nilbog during Blood Moons.",
+			obtainText: "Can be looted as a Knight from Statue of Marshall Sheridan, a boss in The Nilbog during Blood Moons.",
 			sellPrice: 5,
 			stats: {
 				damage: 4,

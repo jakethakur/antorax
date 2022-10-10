@@ -2376,9 +2376,9 @@ var Areas = {
 								// pan to wind cauldron
 								Game.camera.pan({x: 1554, y: 226}, 800, "accelerate", function () {
 									// pan to earth cauldron
-									Game.camera.pan({x: 2122, y: 1280}, 800, "accelerate", function () {
+									Game.camera.pan({x: 2070, y: 1150}, 800, "accelerate", function () {
 										// pan to lightning cauldron
-										Game.camera.pan({x: 540, y: 1300}, 800, "accelerate", function () {
+										Game.camera.pan({x: 1200, y: 1500}, 800, "accelerate", function () {
 											// pan back to player
 											Game.camera.pan(Game.hero, 800, "constant", function () {
 												// reset camera

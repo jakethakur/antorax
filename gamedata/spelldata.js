@@ -555,7 +555,7 @@ Spells = [
 			});
 			Game.statusEffects.stun({
 				target: properties.target,
-				time: 2,
+				time: 1,
 			});
 		},
 
