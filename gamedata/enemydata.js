@@ -519,7 +519,7 @@ const EnemyTemplates = {
 			level: 15,
 			expand: 0.8, // default size (changes with wood consumption)
 			stats: {
-				damage: Player.class === "k" ? 1.5 : 3, // doubled during blood moon
+				damage: Player.class === "k" ? 1 : 3, // doubled during blood moon
 				walkSpeed: 70,
 				swimSpeed: 70,
 				maxHealth: 140, // doubled during blood moon
