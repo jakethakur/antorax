@@ -522,7 +522,7 @@ const EnemyTemplates = {
 				damage: Player.class === "k" ? 1 : 3, // doubled during blood moon
 				walkSpeed: 70,
 				swimSpeed: 70,
-				maxHealth: 140, // doubled during blood moon
+				maxHealth: Player.class === "k" ? 90 : 140, // doubled during blood moon
 				defence: 10,
 				range: 90,
 				healthRegen: 0, // no regen in the blood moon
