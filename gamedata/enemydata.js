@@ -629,7 +629,7 @@ const EnemyTemplates = {
 			bossKilledVariable: "barebonesNkkja",
 			level: 15,
 			stats: {
-				damage: 2.5, // damage and health are doubled in blood moon
+				damage: 1.5, // damage and health are doubled in blood moon
 				walkSpeed: 110,
 				swimSpeed: 50,
 				iceSpeed: 160,
