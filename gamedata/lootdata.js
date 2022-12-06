@@ -5,7 +5,7 @@
 
 const EnemyLootTables = {
 	global: [
-		// all enemies have this (for events)
+		// all enemies have this (usually for events)
 		{ // ubik
 			item: Items.consumable[29],
 			chance: [
@@ -81,6 +81,17 @@ const EnemyLootTables = {
 			},
 			chance: [
 				1,				// 0
+				0,				// 1
+			],
+		},
+		// slingshot
+		{ // present
+			item: Items.consumable[34],
+			condition: function () {
+				return Player.inventory.weapon.category === "slingshot";
+			},
+			chance: [
+				3,				// 0
 				0,				// 1
 			],
 		},
@@ -197,6 +208,17 @@ const EnemyLootTables = {
 		},
 	],
 	frog: [
+		{ // unidentified item
+			item: {
+				name: "unidentified",
+				tier: 1,
+				area: "eaglecrest",
+			},
+			chance: [
+				15,				// 0
+				0,				// 1
+			],
+		},
 		{ // gold
 			item: Items.currency[2],
 			chance: [
@@ -206,6 +228,17 @@ const EnemyLootTables = {
 		},
 	],
 	chicken: [
+		{ // unidentified item
+			item: {
+				name: "unidentified",
+				tier: 1,
+				area: "eaglecrest",
+			},
+			chance: [
+				5,				// 0
+				0,				// 1
+			],
+		},
 		{ // gold
 			item: Items.currency[2],
 			chance: [
@@ -223,10 +256,27 @@ const EnemyLootTables = {
 			],
 		},
 		{ // red feather
-			item: Items.item[37],
+			item: Items.item[39],
 			chance: [
 				2.5,			// 0
 				0.03,			// 1
+				0,				// 2
+			],
+		},
+		{ // egg
+			item: Items.item[40],
+			chance: [
+				50,				// 0
+				15,				// 1
+				2,				// 2
+				0,				// 3
+			],
+		},
+		{ // sickly egg
+			item: Items.item[41],
+			chance: [
+				3,				// 0
+				2,				// 1
 				0,				// 2
 			],
 		},

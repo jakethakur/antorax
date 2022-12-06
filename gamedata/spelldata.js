@@ -325,7 +325,7 @@ Spells = [
 		id: 6,
 		img: "assets/runes/6.png",
 		class: "a",
-		description: ["", "Increase your movement speed by 100% for 5 seconds."],
+		description: ["", "Increase your movement speed by 100% and attack damage by 25% for 5 seconds."],
 		difficulty: "Easy",
 
 		// properties should contain tier (as int value), caster
@@ -335,6 +335,13 @@ Spells = [
 				effectTitle: "Arrowspeed!",
 				speedIncrease: Spells[6].movementMultiplier[properties.tier],
 				time: Spells[6].length[properties.tier],
+			});
+			Game.statusEffects.attackDamage({
+				target: Game.hero,
+				effectTitle: "Arrowspeed! (attack damage)",
+				damageIncrease: Spells[6].damageMultiplier[properties.tier],
+				time: Spells[6].length[properties.tier],
+				hidden: true,
 			});
 		},
 
@@ -346,6 +353,11 @@ Spells = [
 		movementMultiplier: [
 			0,
 			100,		// tier 1
+		],
+
+		damageMultiplier: [
+			0,
+			25,		// tier 1
 		],
 
 		length: [
@@ -369,7 +381,7 @@ Spells = [
 		id: 7,
 		img: "assets/runes/7.png",
 		class: "a",
-		description: ["", "Gain stealth."],
+		description: ["", "Gain stealth. Your next attack deals +200% damage."],
 		difficulty: "Medium",
 
 		// properties should contain tier (as int value), caster
@@ -377,6 +389,14 @@ Spells = [
 			Game.statusEffects.stealth({
 				target: Game.hero,
 				effectTitle: "Shadow Cloaked",
+			});
+			Game.statusEffects.attackDamage({
+				target: Game.hero,
+				effectTitle: "Shadow Strike",
+				effectDescription: "Your next attack deals more damage.",
+				damageIncrease: Spells[7].damageMultiplier[properties.tier],
+				removeOnAttack: true,
+				hidden: true,
 			});
 		},
 
@@ -394,6 +414,11 @@ Spells = [
 			0,
 			10000,	// tier 1
 		],
+
+		damageMultiplier: [
+			0,
+			200,		// tier 1
+		],
 	},
 
 	{
@@ -401,7 +426,7 @@ Spells = [
 		id: 8,
 		img: "assets/runes/8.png",
 		class: "a",
-		description: ["", "Your next attack swaps locations with the enemy hit."],
+		description: ["", "Your next attack swaps locations with the enemy hit and deals 30% more damage."],
 		difficulty: "Hard",
 
 		// properties should contain tier (as int value), caster
@@ -411,8 +436,18 @@ Spells = [
 				Game.statusEffects.generic({
 					target: Game.hero,
 					effectTitle: "Bamboozle",
-					effectDescription: "Your next attack swaps locations with the enemy hit",
+					effectDescription: "Your next attack swaps locations with the enemy hit and deals more damage.",
 					imageName: "bamboozle",
+					removeOnAttack: true
+				});
+				Game.statusEffects.attackDamage({
+					target: Game.hero,
+					effectTitle: "Bamboozle (damage increase)",
+					effectDescription: "Your next attack swaps locations with the enemy hit and deals more damage.",
+					damageIncrease: Spells[8].damageMultiplier[properties.tier],
+					imageName: "bamboozle",
+					removeOnAttack: true,
+					hidden: true,
 				});
 			}
 		},
@@ -430,6 +465,11 @@ Spells = [
 		cooldown: [
 			0,
 			2000,	// tier 1
+		],
+
+		damageMultiplier: [
+			0,
+			30,		// tier 1
 		],
 	},
 

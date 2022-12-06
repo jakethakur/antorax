@@ -45,11 +45,12 @@ Game.run = function (context, contextSecondary, contextDayNight, contextLight) {
 	// projectile name for hero (for use with projectile image loading)
 	this.heroProjectileName = Skins[Player.class][Player.skin].projectile;
 	this.heroProjectileAdjust = Skins[Player.class][Player.skin].projectileAdjust;
+	this.heroProjectileInfo = {}; // any additional info
 	this.heroBobberName = "bobber";
 
 	this.nextEntityId = 0; // unique entity ids are assigned using this variable, which is never reset
 
-	if (Player.oldPositionn !== undefined && Player.oldPosition.reason === "tag") {
+	if (typeof Player.oldPosition !== "undefined" && Player.oldPosition.reason === "tag") {
 		// teleport them back to their old location because they were in the middle of a tag game (but have now left it)
 		Player.areaName = Player.oldPosition.area;
 		Player.x = Player.oldPosition.x;
@@ -849,8 +850,10 @@ var map = {
 	//
 	// location is an object containing x and y properties of the location that it should be checked to see if tiles can be replaced
 	//
+	// areaName is an optional name of the area, where the tiles are not replaced if the area is different
+	//
 	// either returns false if no tiles were replaced, or a function that can be called to replace the tiles
-	setTilesAtLocation: function (tileData, location) {
+	setTilesAtLocation: function (tileData, location, areaName) {
 		let locationCol = map.getCol(location.x);
 		let locationRow = map.getRow(location.y);
 		let tileAtLocation = map.getTile(0, locationCol, locationRow);
@@ -860,13 +863,15 @@ var map = {
 		if (touchingTile !== undefined) {
 			// touching a tile, tiles should be replaced
 			return function () {
-				let origin = touchingTile.relativePosition;
+				if (Game.areaName === areaName || typeof areaName == "undefined") {
+					let origin = touchingTile.relativePosition;
 
-				for (let i = 0; i < tileData.length; i++) {
-					let relativeCol = tileData[i].relativePosition.x - origin.x;
-					let relativeRow = tileData[i].relativePosition.y - origin.y;
+					for (let i = 0; i < tileData.length; i++) {
+						let relativeCol = tileData[i].relativePosition.x - origin.x;
+						let relativeRow = tileData[i].relativePosition.y - origin.y;
 
-					map.setTile(0, locationCol + relativeCol, locationRow + relativeRow, tileData[i].replaceTo);
+						map.setTile(0, locationCol + relativeCol, locationRow + relativeRow, tileData[i].replaceTo);
+					}
 				}
 			}
 		}
@@ -1157,6 +1162,14 @@ class Entity {
 		this.collisionType = properties.collisionType || "body"; // "feet" = check collision with Game.hero.footHitbox
 		// collision type currently only applies to tripwires
 
+		/* checkTouching is an array of objects, where objects are in following format:
+		{
+			arrayName: (name of array in Game, i.e. "things" for Game.things)
+			objectName: (optional, objects of only a specific name in that array)
+			isTouchingFunction: (passed in object index as parameter, bound to this using call)
+		}*/
+		this.checkTouching = properties.checkTouching;
+
 		this.use = properties.use; // optional metadata about object, can be used by anything that needs it
 
 		// onLoad function
@@ -1398,6 +1411,8 @@ class Thing extends Entity {
 			this.name = properties.name;
 		}
 
+		this.removeIn = properties.removeIn; // measured in seconds
+
 		this.bright = properties.bright; // currently does nothing
 
 		this.transparency = properties.transparency; // global alpha that it should be drawn with (1 = opaque, 0 = transparent)
@@ -1565,8 +1580,9 @@ class Character extends Thing {
 		this.spawnX = properties.x;
 		this.spawnY = properties.y;
 
-		this.respawning = false;
-		this.isCorpse = false;
+		this.respawning = false; // is in the process of coming back from the dead (doesn't have to be a corpse to do this)
+		this.isCorpse = false; // is currently a corpse (doesn't mean it will respawn!)
+		// to check if it is dead, check respawning || isCorpse (if neither of these happen upon death, the entity is removed)
 
 		this.deathImage = {}; // corpse image (optional)
 		this.deathImage.image = properties.deathImage; // key name of image in loader (has already been loaded in)
@@ -1597,6 +1613,8 @@ class Character extends Thing {
 		this.stats.stealthed = properties.stats.stealthed || false; // can't be seen
 		this.stats.frostaura = properties.stats.frostaura || false;
 		this.stats.windShield = properties.stats.windShield || false; // can't be moved by wind
+		this.stats.healingPower = properties.stats.healingPower || 100; // multiplier of healing receieved (doesn't include usual health regen)
+		this.stats.unstoppable = properties.stats.unstoppable || false; // immunity to movement-reducing abilities
 
 		// array items that can damage the character (empty = any can)
 		// array should contain item names
@@ -1852,7 +1870,8 @@ class Character extends Thing {
 
 	// take damage
 	// damagedByHero is true or false depending on whether it was damaged by the hero
-	takeDamage (damage, damagedByHero) {
+	// successiveExplosions is for thermal runaway achivement
+	takeDamage (damage, damagedByHero, successiveExplosions) {
 		this.health -= damage;
 		this.damageTaken += damage;
 
@@ -1959,6 +1978,39 @@ class Character extends Thing {
 					if (!this.isCorpse) {
 						Game.removeObject(this.id, this.type);
 					}
+				}
+
+				// exploding
+				if (this.damageTakenFromHero && Game.hero.stats.exploding > 0) {
+					Game.setTimeout(function (x, y, successiveExplosions) {
+						successiveExplosions++; // for achievement
+						User.progress.successiveExplosions = Math.max(User.progress.successiveExplosions, successiveExplosions);
+
+						Game.projectiles.push(new Projectile({
+							map: map,
+							x: x,
+							y: y,
+							targets: [Game.damageableByPlayer],
+							rotate: 0,
+							image: "explosion",
+							type: "projectiles",
+							stats: {
+								damage: Game.hero.stats.damage/2,
+								flaming: 1,
+								splashDamage: true,
+							},
+							// aesthetics
+							stayOnScreen: 500,
+							transparency: 0.8,
+
+							successiveExplosions: successiveExplosions,
+						}));
+						let shotProjectile = Game.projectiles[Game.projectiles.length-1];
+						// damage characters that the projectile is touching
+						shotProjectile.dealDamage(shotProjectile.attacker, shotProjectile.targets);
+						// remove in 0.5s
+						shotProjectile.removeTimeout();
+					}, 300, [this.x, this.y, successiveExplosions]);
 				}
 
 				//
@@ -2423,6 +2475,7 @@ class Attacker extends Character {
 		// these stats must have a value
 		this.stats.damage = properties.stats.damage;
 		this.stats.range = properties.stats.range;
+		this.stats.rangeMultiplier = properties.stats.rangeMultiplier || 100; // decimal multiplied by range - note this only actually works for player currently! (in equipmentupdate)
 		this.stats.reloadTime = properties.stats.reloadTime; // time in ms to attack again
 
 		// optional stats
@@ -2432,15 +2485,19 @@ class Attacker extends Character {
 		this.stats.flaming = properties.stats.flaming || 0;
 		this.stats.poisonX = properties.stats.poisonX || 0;
 		this.stats.poisonY = properties.stats.poisonY || 0;
+		this.stats.poisonStrength = properties.stats.poisonStrength || 100; // multiplier for poison
 		this.stats.slowAmount = properties.stats.slowAmount || 0;
 		this.stats.slowTime = properties.stats.slowTime || 0;
 		this.stats.slowEffectTitle = properties.stats.slowEffectTitle; // string value - the title used for slow status effects
 		this.stats.stun = properties.stats.stun || 0;
+		this.stats.rooting = properties.stats.rooting || 0;
+		this.stats.knockback = properties.stats.knockback || 0;
 		this.stats.variance = properties.stats.variance || 0;
 		this.stats.lifesteal = properties.stats.lifesteal || 0;
 		this.stats.hex = properties.stats.hex || 0;
 		this.stats.splashDamage = properties.stats.splashDamage || true; // if projectile damages more than one thing
 		this.stats.moveDuringFocus = properties.stats.moveDuringFocus;
+		this.stats.numberOfProjectiles = properties.stats.numberOfProjectiles || 1; // archer only
 		// mana
 		this.stats.maxMana = properties.stats.maxMana;
 		this.stats.manaRegen = properties.stats.manaRegen;
@@ -2452,8 +2509,9 @@ class Attacker extends Character {
 		}
 		this.updateStats = properties.updateStats; // only works for enemies ATM
 
-		// trail (currently just works for hero ATM)
-		this.trail = properties.trail;
+		// trail (ATM just works for hero - tbd make work for all entities?)
+		// array of trails
+		this.trails = properties.trails || [];
 
 		// spells
 		this.spells = properties.spells || [];
@@ -2746,9 +2804,12 @@ class Hero extends Attacker {
 		this.statusEffects = Player.statusEffects; // tbd - maybe a similar system should be used for spells?
 
 		// stats
-		this.stats.looting = properties.stats.looting;
-		this.stats.rangeModifier = properties.stats.rangeModifier; // added to range
-		this.stats.domRange = 240; // distance from an entity that a DOM menu may be opened
+		this.stats.looting = properties.stats.looting || 100;
+		this.stats.stealing = properties.stats.stealing || 0;
+
+		this.stats.baseDomRange = properties.stats.baseDomRange || 240; // distance from an entity that a DOM menu may be opened
+		this.stats.interactRange = properties.stats.interactRange || 100; // percentage - DOM range is always base dom range * interactRange/100
+		this.stats.domRange = this.stats.baseDomRange * this.stats.interactRange /100;
 
 		// optional stats
 		// using || defaults to second value if first is undefined, 0 or ""
@@ -2782,6 +2843,8 @@ class Hero extends Attacker {
 		// if baseSpeed is a number instead, the speed is set to that without setSpeed being called
 		// this is only changed by displacement
 
+		let walked = false; // set to true if the player has walked along the ground (for item onWalk functions)
+
 		let gameSpeed = false; // whether speed should be altered by potions and equipment (but slow tiles is fine)
 		if (Game.minigameInProgress !== undefined && Game.minigameInProgress.game === "tag") {
 			// limit speed to just changed by tiles
@@ -2790,6 +2853,7 @@ class Hero extends Attacker {
 
 		// wind
 		if (Game.wind !== undefined && !this.stats.windShield) {
+			walked = true;
 			this.x += Game.wind.movex * delta;
 			this.y += Game.wind.movey * delta;
 		}
@@ -2804,10 +2868,11 @@ class Hero extends Attacker {
 				baseSpeed = this.isBeingDisplaced.velocity; // do not run setSpeed
 			}
 		}
-		else if (this.hasStatusEffectType("stun") || this.isCorpse) {
+		else if (this.hasStatusEffectType("stun") || this.isCorpse || this.hasStatusEffectType("root")) {
 			// player cannot move (any other stun effect)
 		}
 		else if (this.moveTowards !== undefined) {
+			walked = true;
 			// move towards a particular point
 			// player cannot control themselves
 			let direction = Game.bearing(this, this.moveTowards);
@@ -2838,6 +2903,7 @@ class Hero extends Attacker {
 			}
 		}
 		else {
+			walked = true;
 			// move normally!
 			this.x += dirx * this.speed * delta;
 			this.y += diry * this.speed * delta;
@@ -2856,6 +2922,22 @@ class Hero extends Attacker {
 			// no need to check collision!
 			this.updateFootHitbox();
 		}
+
+		// onWalk item functions
+		if (walked) {
+			for (let i = 0; i < Game.equipmentKeys.length; i++) {
+				let inventoryItem = Player.inventory[Game.equipmentKeys[i]];
+				if (typeof inventoryItem.id !== "undefined") {
+					// something in that inventory slot
+					// we want to refer to the item in itemdata, since functions aren't saved over after save
+					let item = Items[inventoryItem.type][inventoryItem.id];
+					if (typeof item.onWalk !== "undefined") {
+						item.onWalk();
+					}
+				}
+			}
+		}
+
 
 		// set walkspeed for next move() function call
 		// true = just set to base speed
@@ -2907,7 +2989,6 @@ class Hero extends Attacker {
 						if (Game.getAttackType() === "bow") { // alter variance based on distance to enemy if the class is archer
 							let distanceFraction = distanceToProjectile / 600; // fraction of maximum variance (max variance = Playerstats.variance)
 							variance *= distanceFraction;
-							minimumVariance *= distanceFraction;
 						}
 
 						this.channellingProjectileId = Game.nextEntityId;
@@ -2937,9 +3018,21 @@ class Hero extends Attacker {
 							variance: variance,
 							minimumVariance: minimumVariance,
 							type: "projectiles",
+
+							// optional stuff:
+							crop: Game.heroProjectileInfo.crop,
+							animateFunction: Game.heroProjectileInfo.animateFunction,
+							animationFrameTime: Game.heroProjectileInfo.animationFrameTime,
+							stayOnScreen: Game.heroProjectileInfo.stayOnScreen, // set to the time it stays on the screen for (default 1500) or true if never removed
+							doNotRotate: Game.heroProjectileInfo.doNotRotate,
+							onInteract: Game.heroProjectileInfo.onInteract,
+							z: Game.heroProjectileInfo.z,
 						}));
 
 						Game.secondary.updateCursor(e); // no longer crosshair because attack is reloading
+
+						// just in case there are multiple projectiles (which is dealt with at the end of finishAttack), save the value of e
+						this.currentAttackMouseEvent = e;
 					}
 				}
 
@@ -3333,7 +3426,9 @@ class Hero extends Attacker {
 			// set projectile as not channelling
 			shotProjectile.beingChannelled = false;
 
-			shotProjectile.varyPosition(); // vary projectile position based off its variance
+			shotProjectile.varyPosition(); // vary projectile position based off its variance (for archers)
+
+			this.currentAttackFinalVariance = shotProjectile.variance; // needed if there are multiple projectiles to be shot (see bottom of this fn)
 
 			// damage enemies that the projectile is touching
 			shotProjectile.dealDamage(shotProjectile.attacker, shotProjectile.targets);
@@ -3359,23 +3454,18 @@ class Hero extends Attacker {
 				}
 			}
 
-			//
-			// Status effects that are used on attack
-			//
-			if (this.hasStatusEffect("Bamboozle")) {
-				// from bamboozle spell
-				// remove the status effect
-				// (its effect should have happened in dealDamage, if an enemy was hit)
-				this.cleanse("Bamboozle", "title");
+			// Status effects that are used on attack - remove them
+			// (their effects should have happened in dealDamage, if an enemy was hit)
+			for (let i = 0; i < this.statusEffects.length; i++) {
+				if (this.statusEffects[i].info.removeOnAttack) {
+					this.removeStatusEffect(i, "attack");
+					i--;
+				}
 			}
 
 			// after a timeout (2s), remove the projectile that was just shot
 			// this doesn't work if the user attacks too fast, though this shouldn't be a problem...
-			let a = this.channellingProjectileId; // maintain a variable of the currently shot projectile
-			Game.objectRemoveTimeouts.push(Game.setTimeout(function (a) {
-				Game.removeObject(a, "projectiles");
-			}, 1500, a)); // pushed to objectRemoveTimeouts so it can be removed when the area is changed
-
+			shotProjectile.removeTimeout();
 			this.channellingProjectileId = null;
 
 			// wait for the player's reload time (1s) until they can attack again
@@ -3404,6 +3494,19 @@ class Hero extends Attacker {
 
 			// update quest log
 			Dom.checkProgress();
+
+			// almost done but...
+			// there might be multiple projectiles!
+			if (this.class === "a" && this.stats.numberOfProjectiles > 1 && !this.multipleProjectilesInProgress) {
+				this.multipleProjectilesInProgress = true; // so we don't get an infinite loop...
+				for (let i = 0; i < this.stats.numberOfProjectiles-1; i++) {
+					this.canAttack = true; // temporarily, so startAttack can trigger... (set back to false automatically)
+					this.startAttack(this.currentAttackMouseEvent);
+					Game.projectiles[Game.projectiles.length-1].variance = this.currentAttackFinalVariance; // set the shot projectile's variance to the variance of the first projectile
+					this.finishAttack(this.currentAttackMouseEvent);
+				}
+				this.multipleProjectilesInProgress = false;
+			}
 		}
 	}
 
@@ -3657,6 +3760,33 @@ class Hero extends Attacker {
 		}
 	}
 
+	// give the hero a new trail (it is fine if the trail is already on the hero - this checks that)
+	// name should be a unique name associated with the trail so it can be easily removed
+	// particleData is an object with all the particles' data (including variance etc - see party hat item)
+	// tbd extend to all entities
+	addTrail (name, particleData) {
+		for (let i = 0; i < this.trails.length; i++) {
+			if (this.trails[i].trailName === name) {
+				return false; // trail already exists
+			}
+		}
+		particleData.trailName = name;
+		this.trails.push(particleData);
+		return true;
+	}
+
+	removeTrail (name) {
+		let trailRemoved = false;
+		for (let i = 0; i < this.trails.length; i++) {
+			if (this.trails[i].trailName === name) {
+				this.trails.splice(i, 1);
+				trailRemoved = true;
+			}
+		}
+		return trailRemoved;
+	}
+
+
 	// testing: set hero's image to a different image for imageposition
 	imageTest (imageKey, imageAddress) {
 		let p = Loader.loadImage(imageKey, imageAddress, false); // false = don't delete on area change
@@ -3681,6 +3811,7 @@ class Projectile extends Thing {
 
 		this.attacker = properties.attacker || { // stats used for when dealing damage
 			// for if projectile deals its own damage (thus has its own stats)
+			// IF PROJECTILE HAS ITS OWN STATS, DON'T GIVE IT A PROPERTIES.ATTACKER!
 			stats: Object.assign({}, DefaultStats, properties.stats), // assign with DefaultStats used for compatibility
 			// for compatibility with dealDamage:
 			hostility: "projectile",
@@ -3692,9 +3823,15 @@ class Projectile extends Thing {
 		this.variance = properties.variance || 0; // diameter of circle that it could fall into
 		this.minimumVariance = properties.minimumVariance || 0; // minimum diameter of circle that it could fall into (after channelling)
 
-		this.rotate = properties.rotate || 0;
-
 		this.doNotRotate = properties.doNotRotate; // set to true if projectile should not be automatically rotated
+		this.stayOnScreen = properties.stayOnScreen; // set to a number if it is removed after that many ms rather than 1500, or set to true if never removed automatically
+
+		if (!this.doNotRotate) {
+			this.rotate = properties.rotate || 0;
+		}
+		else {
+			this.rotate = 0;
+		}
 
 		this.beingChannelled = properties.beingChannelled || false;
 
@@ -3744,6 +3881,8 @@ class Projectile extends Thing {
 		// stopMovingOnDamage is not required if projectile has a moveTowards
 
 		this.damageAllHit = properties.damageAllHit; // whether it should damage everything that is hit by it
+
+		this.successiveExplosions = properties.successiveExplosions || 0; // thermal runaway achievement
 	}
 
 	// deal damage to array of entities (to)
@@ -3798,10 +3937,29 @@ class Projectile extends Thing {
 						// first incorporate damage of attacker...
 						//
 
-						let attackerDamage = attacker.stats.damage;
+						// calculate damage percentage from damagePercentage stat anda ny status effects
+						let damagePercentage = 100 + attacker.stats.damagePercentage; // as percentage so far
 
+						// attackDamage status effects
+						// tbd these should change stats directly (and unchange them on expire)?
+						attacker.statusEffects.forEach(statusEffect => {
+							if (statusEffect.info.damageIncrease !== undefined) {
+								// increase damage dealt if the status effect does so
+								damagePercentage += statusEffect.info.damageIncrease;
+							}
+						});
+
+						// can't have negative damage!
+						if (damagePercentage < 0) {
+							damagePercentage = 0;
+						}
+
+						// convert to decimal
+						damagePercentage /= 100;
+
+						let attackerDamage = attacker.stats.damage;
 						// increase base damage based on damagePercentage
-						attackerDamage *= 1 + (attacker.stats.damagePercentage/100);
+						attackerDamage *= damagePercentage;
 
 						// calculate damage based on channelling time (if the attacker is a mage)
 						if (attacker.stats.maxDamage !== undefined && attacker.stats.maxDamage > attacker.stats.damage) {
@@ -3816,17 +3974,6 @@ class Projectile extends Thing {
 							let c = a * b; // extra damage dealt
 							attackerDamage += c;
 						}
-
-						// attackDamage status effect
-						attacker.statusEffects.forEach(statusEffect => {
-							if (statusEffect.info.damageIncrease !== undefined) {
-								// increase damage dealt if the status effect does so
-								attackerDamage *= 1 + (statusEffect.info.damageIncrease / 100);
-								if (attackerDamage < 0) {
-									attackerDamage = 0;
-								}
-							}
-						});
 
 						//
 						// now incorporate defence of enemy...
@@ -3876,7 +4023,7 @@ class Projectile extends Thing {
 						}
 
 						// deal the damage!
-						target.takeDamage(dmgDealt, attacker.constructor.name === "Hero");
+						target.takeDamage(dmgDealt, attacker.constructor.name === "Hero", this.successiveExplosions); // third param is just for an achivement to do with exploding
 						this.damageDealt.push({enemy: target, damage: dmgDealt, critical: critical});
 
 						// check they still exist
@@ -3886,7 +4033,7 @@ class Projectile extends Thing {
 							if (attacker.stats.poisonX > 0 && attacker.stats.poisonY > 0) { // check if target weapon has poison
 								Game.statusEffects.poison({
 									target: target,
-									poisonDamage: attacker.stats.poisonX,
+									poisonDamage: attacker.stats.poisonX*attacker.stats.poisonStrength/100,
 									time: attacker.stats.poisonY,
 								});
 							}
@@ -3906,8 +4053,8 @@ class Projectile extends Thing {
 								}
 							}
 
-							// stun and slow
-							if (attacker.stats.stun > 0) { // check if target weapon has stun
+							// stun
+							if (attacker.stats.stun > 0) { // check if attacker weapon has stun
 								let stunEffectParameters = {target: target, time: attacker.stats.stun};
 
 								// slow is done as onExpire for if they are stunned as well as slowed
@@ -3923,6 +4070,7 @@ class Projectile extends Thing {
 
 								Game.statusEffects.stun(stunEffectParameters);
 							}
+							// slow (if there's also stun, it's added on the end in extraInfo)
 							else if (attacker.stats.slowAmount > 0 && attacker.stats.slowTime > 0) {
 								Game.statusEffects.walkSpeed({
 									target: target,
@@ -3932,9 +4080,25 @@ class Projectile extends Thing {
 								});
 							}
 
-							// hex
-							if (Random(0, 99) < attacker.stats.hex) { // check if target weapon has hex
-								Game.statusEffects.hex({target: target});
+							// rooting
+							if (attacker.stats.rooting > 0) { // check if attacker weapon has rooting
+								let rootingEffectParameters = {target: target, time: attacker.stats.rooting};
+
+								// tbd make compatible with slow like stun is?
+
+								Game.statusEffects.root(rootingEffectParameters);
+							}
+
+							// hex (if not already dead!)
+							if (!target.isCorpse && !target.respawning && Random(0, 99) < attacker.stats.hex) { // check if attacker weapon has hex
+								Game.statusEffects.hex({target: target, image: Player.inventory.weapon.hexImages});
+							}
+
+							// knockback
+							if (attacker.stats.knockback > 0) { // check if attacker weapon has rooting
+								let displaceDirection = Game.bearing(attacker, target);
+								let time = attacker.stats.knockback / 180; // dist / speed
+								target.displace(0, 180, time, displaceDirection);
 							}
 
 							// spread any curse status effects
@@ -4018,6 +4182,23 @@ class Projectile extends Thing {
 		}
 
 		return enemyHit;
+	}
+
+	// initiates removing of projectile, usually in 1500s time
+	removeTimeout () {
+		if (typeof this.stayOnScreen !== "undefined") {
+			// different time than the 1.5s
+			if (this.stayOnScreen === true) {
+				// never remove!
+			}
+			else {
+				this.removeIn = this.stayOnScreen / 1000;
+			}
+		}
+		else {
+			this.removeIn = 1.5;
+		}
+		return this.removeIn;
 	}
 
 	// move projectile to random position in circle, where circle is its variance
@@ -4113,6 +4294,8 @@ class NPC extends Character {
 		super(properties);
 
 		this.roles = properties.roles; // array of objects, containing anything that can happen when the NPC is touched
+
+		this.meetable = properties.meetable === false ? false : true; // whether it can get added to Player.metNPCs (i.e. lost cat poster is not meetable)
 
 		if (properties.addToObjectArrays !== false) {
 			Game.allNPCs.push(this); // array for current area only
@@ -4352,14 +4535,6 @@ class Enemy extends Attacker {
 		this.loot = null; // loot that can be picked up by player (null if the player cannot loot the enemy or already has)
 		// loot is an array of objects, where the object has properties item and quantity
 
-		/* array of objects, where objects are in following format:
-		{
-			arrayName: (name of array in Game, i.e. "things" for Game.things)
-			objectName: (optional, objects of only a specific name in that array)
-			isTouchingFunction: (passed in object index as parameter, bound to this using call)
-		}*/
-		this.checkTouching = properties.checkTouching;
-
 		// boss stuff
 		if (this.hostility === "boss") {
 			this.bossKilledVariable = properties.bossKilledVariable; // set to date killed to check it hasn't been killed today
@@ -4466,7 +4641,7 @@ class Enemy extends Attacker {
 
 			this.updateFootHitbox();
 		}
-		else if (this.hasStatusEffectType("stun")) {
+		else if (this.hasStatusEffectType("stun") || this.hasStatusEffectType("root")) {
 			// enemy is stunned
 		}
 		else {
@@ -4681,11 +4856,7 @@ class Enemy extends Attacker {
 
 		// after a timeout (2s), remove the projectile that was just shot
 		// taken from Player
-		let a = this.channellingProjectileId; // maintain a variable of the currently shot projectile
-		Game.objectRemoveTimeouts.push(Game.setTimeout(function (a) {
-			Game.removeObject(a, "projectiles");
-		}, 1500, a)); // pushed to objectRemoveTimeouts so it can be removed when the area is changed
-
+		shotProjectile.removeTimeout();
 		this.channellingProjectileId = null;
 	}
 
@@ -4697,7 +4868,7 @@ class Enemy extends Attacker {
 
 		for (let i = 0; i < this.attackTargets.length; i++) {
 			let target = this.attackTargets[i];
-			if (typeof target.stats === "undefined" || !target.stats.stealthed || this.isTouching(target)) {  // target is not stealthed OR they are and this is touching them
+			if (typeof target.target.stats === "undefined" || (!target.target.stats.stealthed || this.isTouching(target.target))) {  // target is not stealthed OR they are and this is touching them
 				let distance = Game.distance(this, target.target);
 				let aggro = target.aggro + target.baseAggro;
 
@@ -5162,7 +5333,7 @@ Game.removeTileStatusEffects = function (target, keep) {
 Game.statusEffects.functions = {
 	// generic tick function for all timed status effects
 	tick: function (owner, timeTicked) { // decrease time
-		if (Round(this.info.ticks) < this.info.time) { // check effect has not expired
+		if (this.info.ticks < this.info.time) { // check effect has not expired
 			// call onTick
 			if (this.onTick !== undefined) {
 				this.onTick(owner);
@@ -5193,7 +5364,8 @@ Game.statusEffects.functions = {
 				this.tick(owner, nextTickTime);
 			}.bind(this), nextTickTime, [owner, nextTickTime]);
 		}
-		else { // remove effect interval
+
+		if (this.info.ticks >= this.info.time) { // remove effect interval
 			// status effect display if status effect is hidden
 			if (this.hidden) {
 				owner.numberOfHiddenStatusEffects--;
@@ -5317,9 +5489,11 @@ Game.statusEffects.generic = function (properties) {
 		properties.target.statusEffects.push(new statusEffect({
 			title: properties.effectTitle,
 			effect: effectText,
-			info: { // status effect in-game behaviour info (time remaining, etc.)
+			info: { // status effect in-game behaviour info (time remaining, etc.) - tbd needs removing..
 				curse: properties.curse, // transferred on to enemies on attack
 				worksForGames: properties.worksForGames, // also works in games such as tag (for speed status effects that normally wouldn't)
+				showTime: typeof properties.showTime==="undefined"?true:false,
+				removeOnAttack: properties.removeOnAttack, // if the status effect should be removed after player attacking - currently just works for player!
 			},
 			extraInfo: properties.extraInfo, // extra properties to be added to info
 			image: properties.imageName,
@@ -5520,11 +5694,28 @@ Game.statusEffects.stun = function (properties) {
 	newProperties.effectDescription = properties.effectDescription || "Cannot move or attack";
 	newProperties.imageName = "stunned";
 	newProperties.type = "stun";
-	this.generic(newProperties);
 
-	// remove what target is channelling
-	if (properties.target.removeChannelling !== undefined) {
-		properties.target.removeChannelling("stun");
+	if (!properties.target.stats.unstoppable) {
+		this.generic(newProperties);
+
+		// remove what target is channelling
+		if (properties.target.removeChannelling !== undefined) {
+			properties.target.removeChannelling("stun");
+		}
+	}
+}
+
+// give target the rooted debuff
+// just target and time parameters required
+Game.statusEffects.root = function (properties) {
+	let newProperties = properties;
+	newProperties.effectTitle = properties.effectTitle || "Rooted";
+	newProperties.effectDescription = properties.effectDescription || "Cannot move";
+	newProperties.imageName = "rooted";
+	newProperties.type = "root";
+
+	if (!properties.target.stats.unstoppable) {
+		this.generic(newProperties);
 	}
 }
 
@@ -5554,14 +5745,20 @@ Game.statusEffects.walkSpeed = function(properties) {
 	newProperties.increasePropertyName = "speedIncrease";
 	newProperties.increasePropertyValue = properties.speedIncrease;
 	if (properties.speedIncrease > 0) {
-		newProperties.imageName = "speedUp";
+		if (typeof properties.imageName === "undefined") {
+			newProperties.imageName = "speedUp";
+		}
 		newProperties.type = "speed";
 	}
 	else {
-		newProperties.imageName = "speedDown";
+		if (typeof properties.imageName === "undefined") {
+			newProperties.imageName = "speedDown";
+		}
 		newProperties.type = "slow";
 	}
-	this.generic(newProperties);
+	if (newProperties.type === "speed" || !newProperties.target.stats.unstoppable) {
+		this.generic(newProperties);
+	}
 }
 
 // give target a lifesteal buff
@@ -5663,75 +5860,81 @@ Game.statusEffects.xp = function(properties) {
 // properties can also include imageCrop, imageWidth, imageHeight, rotationImages (all optional and same as params for setImage)
 // otherwise a random animal is chosen as the image
 Game.statusEffects.hex = function (properties) {
-	let newProperties = properties;
-	newProperties.effectTitle = properties.effectTitle || "Hexed",
-	newProperties.damageIncrease = properties.damageIncrease || -90;
-	newProperties.time = properties.time || 2;
+	// first check that the target can actually be hexxed
+	let targetImmune = typeof Player.inventory.weapon.hexImmuneSpecies !== "undefined" && Player.inventory.weapon.hexImmuneSpecies.includes(properties.target.species);
 
-	// change image of target
-	let imageName, rotationImages;
-	if (properties.image === undefined) {
-		// one of the default images
-		// imageName is set in next switch statement...
-		switch (Random(0, 2)) {
-			case 0:
-				imageName = "sheepRight"; // likely this will be overwritten by next switch statement
-				rotationImages = {
-					left: "sheepLeft",
-					right: "sheepRight"
-				};
-				break;
+	if (!properties.target.stats.unstoppable && !targetImmune) {
+		let newProperties = properties;
+		newProperties.effectTitle = properties.effectTitle || "Hexxed",
+		newProperties.damageIncrease = properties.damageIncrease || -90;
+		newProperties.time = properties.time || 2;
 
-			case 1:
-				imageName = "chickenRight";
-				rotationImages = {
-					left: "chickenLeft",
-					right: "chickenRight"
-				};
-				break;
+		// change image of target
+		let imageName, rotationImages;
+		if (properties.image === undefined) {
+			// one of the default images
+			// imageName is set in next switch statement...
+			switch (Random(0, 2)) {
+				case 0:
+					imageName = "sheepRight"; // likely this will be overwritten by next switch statement
+					rotationImages = {
+						left: "sheepLeft",
+						right: "sheepRight"
+					};
+					break;
 
-			case 2:
-				imageName = "toadRight";
-				rotationImages = {
-					left: "toadLeft",
-					right: "toadRight"
-				};
-				break;
+				case 1:
+					imageName = "chickenRight";
+					rotationImages = {
+						left: "chickenLeft",
+						right: "chickenRight"
+					};
+					break;
+
+				case 2:
+					imageName = "toadRight";
+					rotationImages = {
+						left: "toadLeft",
+						right: "toadRight"
+					};
+					break;
+			}
 		}
-	}
-	else {
-		// specified image
-		imageName = properties.image;
-		rotationImages = properties.rotationImages;
-	}
-
-	// if rotation images exist, set image based on current rotation of character instead
-	if (rotationImages !== undefined) {
-		switch (properties.target.direction) {
-			case 1:
-				imageName = rotationImages.up;
-				break;
-			case 2:
-				imageName = rotationImages.left;
-				break;
-			case 3:
-				imageName = rotationImages.down;
-				break;
-			case 4:
-				imageName = rotationImages.right;
-				break;
+		else {
+			// specified image (as array of objects)
+			let imageIndex = Random(0, properties.image.length-1);
+			imageName = properties.image[imageIndex].imageName;
+			rotationImages = properties.image[imageIndex].rotationImages;
 		}
+
+		// if rotation images exist, set image based on current rotation of character instead
+		if (rotationImages !== undefined) {
+			switch (properties.target.direction) {
+				case 1:
+					imageName = rotationImages.up;
+					break;
+				case 2:
+					imageName = rotationImages.left;
+					break;
+				case 3:
+					imageName = rotationImages.down;
+					break;
+				case 4:
+					imageName = rotationImages.right;
+					break;
+			}
+		}
+
+		properties.target.changeImage(imageName,
+			properties.imageCrop,
+			properties.imageWidth,
+			properties.imageHeight,
+			rotationImages);
+
+		newProperties.onExpire = "resetImage"; // change image back when it expires
+
+		this.attackDamage(newProperties);
 	}
-
-	properties.target.changeImage(imageName,
-		properties.imageCrop,
-		properties.imageWidth,
-		properties.imageHeight,
-		rotationImages);
-
-	newProperties.onExpire = "resetImage"; // change image back when it expires
-
-	this.attackDamage(newProperties);
 }
 
 // give target a dodge chance buff
@@ -5855,6 +6058,12 @@ Game.getStatusIconNumber = function (statusEffect) {
 	else if (statusEffect.image === "bamboozle") {
 		iconNum = 21;
 	}
+	else if (statusEffect.image === "gloop") {
+		iconNum = 22;
+	}
+	else if (statusEffect.image === "rooted") {
+		iconNum = 23;
+	}
 	else { // no status effect image
 		iconNum = 3; // fire image used as placeholder
 		console.error("Status effect " + statusEffect.title + " icon not found");
@@ -5930,6 +6139,8 @@ Game.launchFirework = function (properties) {
 		// positioning (net movement from properties.x and properties.y)
 		let x = r*Math.cos(theta);
 		let y = r*Math.sin(theta);
+		// time that the partile stays on the screen for
+		let removeIn = properties.explodeTime + properties.lingerTime + Random(-60, 60);
 		// create a new particle
 		this.createParticle({
 			x: properties.x,
@@ -5942,7 +6153,7 @@ Game.launchFirework = function (properties) {
 				y: y + properties.y,
 				time: properties.explodeTime,
 			},
-			removeIn: properties.explodeTime + properties.lingerTime,
+			removeIn: removeIn,
 			light: true, // fireworks appear light
 		});
 	}
@@ -5993,7 +6204,7 @@ Game.levelUpFireworks = function (numberRemaining) {
 		radius: Random(125, 175),
 		particles: 500,
 		explodeTime: 500,
-		lingerTime: 1000,
+		lingerTime: 1500,
 		colours: colourArray,
 	});
 
@@ -6004,11 +6215,20 @@ Game.levelUpFireworks = function (numberRemaining) {
 }
 
 // add a new trail particle around the character (normally called by a setInterval)
-// the particle data is saved in trailParticle
-Game.addTrailParticle = function (character, trailParticle) {
-	trailParticle.x = character.x + Random(-trailParticle.variance, trailParticle.variance);
-	trailParticle.y = character.y + Random(-trailParticle.variance, trailParticle.variance);
-	Game.createParticle(trailParticle); // Game not this because it is called by setInterval
+// the particle data should be able to be found at character.trail
+Game.addTrailParticle = function (character) {
+	for (let i = 0; i < character.trails.length; i++) {
+		let trail = character.trails[i];
+		if (typeof trail.intensity === "undefined") {
+			// no. of particles to be added every 100ms
+			trail.intensity = 1; // default val
+		}
+		for (let i = 0; i < trail.intensity; i++) {
+			trail.x = character.x + Random(-trail.variance, trail.variance);
+			trail.y = character.y + Random(-trail.variance, trail.variance);
+			Game.createParticle(trail); // Game not this because it is called by setInterval
+		}
+	}
 }
 
 //
@@ -6288,7 +6508,7 @@ Game.tag.finish = function (leaderboardData) {
 				radius: 150,
 				particles: 600,
 				explodeTime: 500,
-				lingerTime: 1000,
+				lingerTime: 1500,
 				colours: "#f9ff54", // golden
 			});
 		}
@@ -6314,43 +6534,35 @@ Game.minigameReset = function () {
 
 // load default images (e.g. player, status effect, etc.)
 // returns an array of these promises
+// called on init by loadArea
 Game.loadDefaultImages = function () {
 	let toLoad = [];
 
-	// check player image has been loaded (if not, then load it)
-	if (!Object.keys(Loader.images).includes("player"+Player.class+Player.skin)) {
-		// load image based on class
-		toLoad.push(Loader.loadImage("player"+Player.class+Player.skin, "./assets/player/" + Player.class + Player.skin + ".png", false));
-	}
+	// load image based on class
+	toLoad.push(Loader.loadImage("player"+Player.class+Player.skin, "./assets/player/" + Player.class + Player.skin + ".png", false));
 
-	// check if the class' default projectile has been loaded
-	if (!Object.keys(Loader.images).includes(this.heroProjectileName)) {
-		// load class' default projectile
-		toLoad.push(Loader.loadImage(this.heroProjectileName, "./assets/projectiles/" + this.heroProjectileName + ".png", false));
-	}
+	// load class' default projectile
+	toLoad.push(Loader.loadImage(this.heroProjectileName, "./assets/projectiles/" + this.heroProjectileName + ".png", false));
 
-	// check status image has been loaded (if not, then load it)
-	if (!Object.keys(Loader.images).includes("status")) {
-		toLoad.push(Loader.loadImage("status", "./assets/icons/status.png", false));
-	}
-	// check spells image has been loaded (if not, then load it)
-	if (!Object.keys(Loader.images).includes("spells")) {
-		toLoad.push(Loader.loadImage("spells", "./assets/icons/spells.png", false));
-	}
+	toLoad.push(Loader.loadImage("status", "./assets/icons/status.png", false));
 
-	// check fishing bobber has been loaded (if not, then load it)
+	toLoad.push(Loader.loadImage("spells", "./assets/icons/spells.png", false));
+
 	// maybe this should just be done if the player has a fishing rod? - tbd
-	if (!Object.keys(Loader.images).includes("bobber")) {
-		toLoad.push(Loader.loadImage("bobber", "./assets/projectiles/bobber.png", false));
-	}
-
+	toLoad.push(Loader.loadImage("bobber", "./assets/projectiles/bobber.png", false));
 
 	// spell images
 	// maybe can be made more efficient? not that bothered about it at the moment buttt
-	if (Player.class === "m" && !Object.keys(Loader.images).includes("icebolt")) {
+	if (Player.class === "m") {
 		toLoad.push(Loader.loadImage("icebolt", "./assets/projectiles/icebolt.png", false));
 		toLoad.push(Loader.loadImage("fireBarrage", "./assets/projectiles/fireBarrage.png", false));
 	}
+
+	toLoad.push(Loader.loadImage("gloop", "./assets/projectiles/gloop.png", false));//aaaa
+
+	toLoad.push(Loader.loadImage("rootedStatusImage", "./assets/projectiles/roots.png", false));
+
+	toLoad.push(Loader.loadImage("explosion", "./assets/projectiles/explosion.png", false));
 
 	return toLoad;
 }
@@ -6405,8 +6617,10 @@ Game.loadArea = function (areaName, destination) {
 		p = p.concat(Loader.loadImage(this.hero.hasOnLead.imageName, this.hero.hasOnLead.imageSrc));
 	}
 
-	// check that default images are loaded (e.g. player, status effect, etc.) and add any that aren't to toLoad
-	p.push(...this.loadDefaultImages());
+	// on init - check that default images are loaded (e.g. player, status effect, etc.) and add any that aren't to toLoad
+	if (typeof this.hero === "undefined") {
+		p.push(...this.loadDefaultImages());
+	}
 
 	// wait until images have been loaded
     Promise.all(p).then(function (loaded) {
@@ -6803,6 +7017,19 @@ Game.loadArea = function (areaName, destination) {
 			Dom.checkProgress();
 		}
 
+		// call player onAreaChange functions
+		if (!init) {
+			for (let i = 0; i < this.equipmentKeys.length; i++) {
+				let inventoryItem = Player.inventory[this.equipmentKeys[i]];
+				if (typeof inventoryItem.type !== "undefined") {
+					let item = Items[inventoryItem.type][inventoryItem.id];
+					if (typeof item.onAreaChange !== "undefined") {
+						item.onAreaChange();
+					}
+				}
+			}
+		}
+
 		// update camera position
 		this.camera.update(0, true);
 
@@ -6822,7 +7049,7 @@ Game.loadArea = function (areaName, destination) {
 						radius: 250,
 						particles: 1500,
 						explodeTime: 750,
-						lingerTime: 1000,
+						lingerTime: 2500,
 						colours: ["#8cff91", "#ff82f8"], // lighter colours so they are more visible
 					});
 				}
@@ -6834,7 +7061,7 @@ Game.loadArea = function (areaName, destination) {
 						radius: 150,
 						particles: 600,
 						explodeTime: 500,
-						lingerTime: 1000,
+						lingerTime: 1500,
 						colours: ["#8cff91", "#ff82f8"], // lighter colours so they are more visible
 					});
 				}
@@ -6846,20 +7073,7 @@ Game.loadArea = function (areaName, destination) {
 			this.fireworkInterval = undefined;
 		}
 
-		// animations
-		// tick called every 100s (perhaps change in future?)
 		this.totalAnimationTime = 0; // used to find if animate should be called for an object
-		this.clearedIntervalsOnAreaChange.push(Game.setInterval(function () {
-			Game.totalAnimationTime += 100;
-
-			for (let i = 0; i < Game.animationList.length; i++) {
-				if (Game.animationList[i].lastAnimated + Game.animationList[i].animationFrameTime <= Game.totalAnimationTime) {
-					// should be animated
-					Game.animationList[i].animate();
-					Game.animationList[i].lastAnimated = Game.totalAnimationTime;
-				}
-			}
-		}, 100));
 
 		// time travel fog
 		/*
@@ -6917,6 +7131,7 @@ Game.init = function () {
 	// music
 	this.playingMusic = null;
 
+
 	// create the player
 	// its x and y are not set until Game.loadArea resumes
 	this.hero = new Hero({
@@ -6955,7 +7170,7 @@ Game.init = function () {
 		// stats
 		stats: Player.stats,
 
-		trail: Player.trail,
+		trails: Player.trails,
 
 		// projectile (TBD)
 		projectile: {},
@@ -7031,11 +7246,16 @@ Game.init = function () {
 	this.canvasDisplayQueue = [];
 
 	// hero trail interval
-	if (Game.hero.trail !== undefined) {
-		// hero has a trail
-		// new particle every 100ms
-		Game.hero.trailInterval = Game.setInterval(Game.addTrailParticle, 100, [Game.hero, Game.hero.trail]);
-	}
+	// new particle every 100ms
+	Game.hero.trailInterval = Game.setInterval(Game.addTrailParticle, 100, Game.hero);
+
+	// intervalEffects of items
+	this.equipmentKeys = ["helm", "chest", "greaves", "boots", "weapon"];
+	this.intervalEffects = {};
+	for (let i = 0; i < this.equipmentKeys.length; i++) {
+		this.intervalEffects[this.equipmentKeys[i]] = {}; // if there is an interval effect, .itemId is set to id in itemdata and .interval is set to interval number
+	} // populated in Game.inventoryUpdate
+	Game.equipmentUpdate();// tbd move where this is called
 
 	// game viewport camera
     this.camera = new Camera({map: map, width: Dom.canvas.width, height: Dom.canvas.height, addToObjectArrays: false, type: "camera"});
@@ -7389,7 +7609,20 @@ Game.generateLoot = function (lootTable) {
 			// the lowest number that the roll is higher than is selected for the number of that item that the player receives
 			// the numbers in the array are multiplied by player's looting
 
-			let possibleDropChances = lootTable[i].chance.map(element => element * (Game.hero.stats.looting/100) * 100); // multiply chances by looting (and by 100 to allow decimal chances), deep copying array in process
+			let possibleDropChances = lootTable[i].chance.map(function (element) {  // multiply chances by looting/stealing (and by 100 to allow decimal chances), deep copying array in process
+				if (lootTable[i].item.type === "currency") {
+					element *= (Game.hero.stats.stealing/100) * 100;
+				}
+				else if (lootTable[i].stealable) {
+					// stealing applies rather than looting to this item (note these items can often only be obtained through stealing, i.e. pícaro mask)
+					element *= (Game.hero.stats.stealing/100) * 100;
+				}
+				else {
+					element *= (Game.hero.stats.looting/100) * 100;
+				}
+				return element;
+			});
+
 			let rollRandom = Random(1, 10000); // random number to see how much of item i the player will get (lower is better)
 			let eligibleDropChances = possibleDropChances.filter(chance => rollRandom > chance); // filter chances of getting item to see all chances the player is eligible for with their roll
 			let itemQuantity = possibleDropChances.indexOf(Math.max(...eligibleDropChances)); // get the number of that item the player will get
@@ -7654,20 +7887,25 @@ Game.regen = function (delta) {
 Game.regenHealth = function (delta) {
 	for (let i = 0; i < this.allCharacters.length; i++) {
 		if (!this.allCharacters[i].respawning && !this.allCharacters[i].isCorpse) {
-			this.restoreHealth(this.allCharacters[i], this.allCharacters[i].stats.healthRegen * delta);
+			this.restoreHealth(this.allCharacters[i], this.allCharacters[i].stats.healthRegen * delta, false, true);
 		}
 	}
 }
 
 // restores health to the target, not allowing them to go above their maximum health
 // bloodMoonRestore should be set to true if health is restored even in blood moon
+// regen should be set to true if called from Game.regen (because doesn't work with healingPower)
 // returns true if the target was healed for the full amount
-Game.restoreHealth = function (target, health, bloodMoonRestore) {
+Game.restoreHealth = function (target, health, bloodMoonRestore, regen) {
 	let canBeRestored = true;
 
 	if (Event.time === "bloodMoon" && !bloodMoonRestore && !Areas[this.areaName].indoors) {
 		// non-lifesteal forms of healing don't work outdoors during blood moons
 		canBeRestored = false;
+	}
+
+	if (!regen) {
+		health *= target.stats.healingPower / 100;
 	}
 
 	if (canBeRestored && target.health !== target.stats.maxHealth) {
@@ -7797,9 +8035,9 @@ Game.update = function (delta) {
 		}
 
 		if (dirx !== 0 || diry !== 0 || Game.wind !== undefined) {
-        this.hero.move(delta, dirx, diry);
-				heroMoved = true;
-    }
+        	this.hero.move(delta, dirx, diry);
+			heroMoved = true;
+    	}
 	}
 	else {
 		// hero always moves until it reaches a certain destination
@@ -8306,28 +8544,6 @@ Game.update = function (delta) {
 				Dom.closeNPCPages();
 			}
 		}
-
-		// checkTouching
-		if (enemy.checkTouching !== undefined) {
-			// iterate through each separate thing that should be checked
-			for (let x = 0; x < enemy.checkTouching.length; x++) {
-				// array of things to check (of same type)
-				let touchingArray = this[enemy.checkTouching[x].arrayName];
-
-				// check if any of them are being touched
-				for (let y = 0; y < touchingArray.length; y++) {
-					// particular name for object in array
-					if (touchingArray[y].name === enemy.checkTouching[x].objectName) {
-						if (enemy.isTouching(touchingArray[y])) {
-							// it is touching it
-							// passes in index of object to function
-							// call is used to bind it to enemy
-							enemy.checkTouching[x].isTouchingFunction.call(enemy, y, touchingArray[y].id);
-						}
-					}
-				}
-			}
-		}
 	}
 
 	// move projectiles if they need to be moved
@@ -8363,9 +8579,7 @@ Game.update = function (delta) {
 				projectile.moveTowards = undefined;
 				projectile.moveDirection = undefined;
 				// after a timeout (2s), remove the projectile that was just shot
-				this.objectRemoveTimeouts.push(Game.setTimeout(function (id) {
-					Game.removeObject(id, "projectiles");
-				}, 1500, projectile.id)); // pushed to objectRemoveTimeouts so the timeout can be removed if the area is changed
+				projectile.removeTimeout();
 			}
 
 			// only deal damage if it hasn't before (or if damage is to be dealt to all targets)
@@ -8379,10 +8593,8 @@ Game.update = function (delta) {
 					if (projectile.stopMovingOnDamage) {
 						projectile.moveTowards = undefined;
 						projectile.moveDirection = undefined;
-						// after a timeout (2s), remove the projectile that was just shot
-						this.objectRemoveTimeouts.push(Game.setTimeout(function (id) {
-							Game.removeObject(id, "projectiles");
-						}, 1500, projectile.id)); // pushed to objectRemoveTimeouts so the timeout can be removed if the area is changed
+						// after a timeout (1.5s), remove the projectile that was just shot
+						projectile.removeTimeout();
 					}
 				}
 			}
@@ -8684,7 +8896,47 @@ Game.update = function (delta) {
 		}
 	}
 
+	// iterate through all entities
+	for (let i = 0; i < this.allEntities.length; i++) {
+		let entity = this.allEntities[i];
+
+		// checkTouching functions for any entity
+		if (entity.checkTouching !== undefined) {
+			// iterate through each separate thing that should be checked
+			for (let x = 0; x < entity.checkTouching.length; x++) {
+				// array of things to check (of same type)
+				let touchingArray = this[entity.checkTouching[x].arrayName];
+
+				// check if any of them are being touched
+				for (let y = 0; y < touchingArray.length; y++) {
+					// sometimes we require a particular name for object in array
+					if (typeof entity.checkTouching[x].objectName === "undefined" || touchingArray[y].name === entity.checkTouching[x].objectName) {
+						if (entity.isTouching(touchingArray[y])) {
+							// it is touching it
+							// passes in index of object to function
+							// call is used to bind it to enemy
+							entity.checkTouching[x].isTouchingFunction.call(entity, y, touchingArray[y].id);
+						}
+					}
+				}
+			}
+		}
+
+		// removeIn
+		// tbd should be replacing objectRemoveTimeouts
+		if (typeof entity.removeIn !== "undefined") {
+			entity.removeIn -= delta;
+			if (entity.removeIn <= 0) {
+				this.removeObject(entity.id, entity.type);
+			}
+		}
+	}
+
+
 	this.playerProjectileUpdate(delta); // update player's currently channelling projectile
+
+	Dom.inventory.conditionalStats(); // update any player conditional stats (must be done every tick to account for e.g. player movement, enemy movement, despawning etc.)
+
 
 	// update particles (move them)
 	if (document.getElementById("particlesOn").checked) { // check particle setting
@@ -8697,6 +8949,20 @@ Game.update = function (delta) {
 				particle.x += (particle.moveTowards.x - particle.x) * proportionTravelled;
 				particle.y += (particle.moveTowards.y - particle.y) * proportionTravelled;
 			}
+		}
+	}
+
+	// animations
+
+
+	// animations
+	// tick called every 100s (perhaps change in future?)
+	this.totalAnimationTime += delta * 1000;
+	for (let i = 0; i < this.animationList.length; i++) {
+		if (this.animationList[i].lastAnimated + this.animationList[i].animationFrameTime <= this.totalAnimationTime) {
+			// should be animated
+			this.animationList[i].animate();
+			this.animationList[i].lastAnimated = this.totalAnimationTime;
 		}
 	}
 
@@ -8768,8 +9034,9 @@ Game.playerProjectileUpdate = function(delta) {
 
 		// archer weapons slowly focus as they are channelling
 		if (this.getAttackType() === "bow") {
-			if (projectile.variance > projectile.minimumVariance + this.hero.stats.focusSpeed * delta * 16) { // check it won't be its minimumVariance or less
-				projectile.variance -= this.hero.stats.focusSpeed * delta * 16;
+			let focusSpeed = 16 * this.hero.stats.focusSpeed * (this.hero.stats.rangeMultiplier / 100); // additional range for archers gets turned into focus speed
+			if (projectile.variance > projectile.minimumVariance + focusSpeed*delta) { // check it won't be its minimumVariance or less
+				projectile.variance -= focusSpeed*delta;
 			}
 			else {
 				projectile.variance = projectile.minimumVariance + 1; // +1 so a circle of 0 diameter cannot be made
@@ -8914,11 +9181,11 @@ Game.equipmentUpdate = function () {
         // player has weapon equipped
 		if (Player.inventory.weapon.range !== undefined) {
 			// weapon has a set range that is different from the generic range type for that item (if one exists)
-			// note this "set range" is not displayed on the item (otherwise rangeModifier should be used)
-        	this.hero.stats.range = Player.inventory.weapon.range + this.hero.stats.rangeModifier;
+			// note this "set range" is not displayed on the item (otherwise rangeMultiplier (or make something called rangeModifier) should be used)
+        	this.hero.stats.range = Player.inventory.weapon.range * (this.hero.stats.rangeMultiplier/100);
 		}
 		else {
-        	this.hero.stats.range = WeaponRanges[weaponType] + this.hero.stats.rangeModifier;
+        	this.hero.stats.range = WeaponRanges[weaponType] * (this.hero.stats.rangeMultiplier/100);
 		}
     }
     else {
@@ -8956,6 +9223,48 @@ Game.equipmentUpdate = function () {
         this.hero.stats.splashDamage = true;
     }
 
+	// dom range is always base dom range * interact range
+	this.hero.stats.domRange = this.hero.stats.baseDomRange * this.hero.stats.interactRange / 100;
+
+	// intervalEffects
+	for (let i = 0; i < this.equipmentKeys.length; i++) {
+		let inventoryItem = Player.inventory[this.equipmentKeys[i]];
+		if (typeof inventoryItem.type !== "undefined") {
+			let item = Items[inventoryItem.type][inventoryItem.id];
+
+			if (typeof item.intervalEffect === "undefined" || typeof item.intervalEffect.time === "undefined") {
+				// no interval effect on current item equipped
+				if (typeof this.intervalEffects[this.equipmentKeys[i]].itemId !== "undefined") {
+					// there is currently an interval effect active for this item slot - clear it
+					this.clearInterval(this.intervalEffects[this.equipmentKeys[i]].interval);
+					this.intervalEffects[this.equipmentKeys[i]] = {};
+				}
+			}
+			else {
+				// there is an interval effect on this current item equipped
+				if (typeof this.intervalEffects[this.equipmentKeys[i]].itemId === "undefined" || this.intervalEffects[this.equipmentKeys[i]].itemId !== item.id) {
+					// interval effect is different to the existing one
+					if (typeof this.intervalEffects[this.equipmentKeys[i]].itemId !== "undefined") {
+						// there is currently an interval effect active for this item slot - clear it
+						this.clearInterval(this.intervalEffects[this.equipmentKeys[i]].interval);
+						this.intervalEffects[this.equipmentKeys[i]] = {};
+					}
+					// set new effect
+					this.intervalEffects[this.equipmentKeys[i]].interval = this.setInterval(item.intervalEffect.function, item.intervalEffect.time *1000);
+					this.intervalEffects[this.equipmentKeys[i]].itemId = item.id;
+				}
+			}
+		}
+		else {
+			// nothing equipped in this slot
+			if (typeof this.intervalEffects[this.equipmentKeys[i]].itemId !== "undefined") {
+				// there is currently an interval effect active for this item slot - clear it
+				this.clearInterval(this.intervalEffects[this.equipmentKeys[i]].interval);
+				this.intervalEffects[this.equipmentKeys[i]] = {};
+			}
+		}
+	}
+
     // send updated equipment information to websocket if websocket is open
     if (ws !== false && ws.readyState === 1) {
         ws.send(JSON.stringify({
@@ -8991,14 +9300,22 @@ Game.projectileImageUpdate = function () {
 	}
 
 	// if the player is now holding a weapon with a special projectile image, load that image and stop the player from attacking until this is done
-	if (Player.inventory.weapon.projectile !== undefined && this[nameAddress] !== Player.inventory.weapon.projectile) {
+	if (typeof Player.inventory.weapon.projectile !== "undefined" && this[nameAddress] !== Player.inventory.weapon.projectile) {
 		// not loaded projectile image before
-		this[nameAddress] = Player.inventory.weapon.projectile;
+		let weaponObj = Items[Player.inventory.weapon.type][Player.inventory.weapon.id];
+
+		this[nameAddress] = weaponObj.projectile;
 		if (adjustAddress !== null) { // set adjust for projectiles only (not bobbers)
-			this[adjustAddress] = Player.inventory.weapon.projectileAdjust;
+			this[adjustAddress] = weaponObj.projectileAdjust;
 			if (this[adjustAddress] === undefined) {
 				this[adjustAddress] = {x:0,y:0}; // default value
 			}
+		}
+
+		// crop, animateFunction, etc
+		this.heroProjectileInfo = weaponObj.extraProjectileInfo;
+		if (typeof this.heroProjectileInfo === "undefined") {
+			this.heroProjectileInfo = {};
 		}
 
 		// load image and stop player attacking until it has loaded
@@ -9019,6 +9336,7 @@ Game.projectileImageUpdate = function () {
 		if (adjustAddress !== null) { // set adjust for projectiles only (not bobbers)
 			this[adjustAddress] = Skins[Player.class][Player.skin].projectileAdjust;
 		}
+		this.heroProjectileInfo = Skins[Player.class][Player.skin].projectileInfo || {};
 
 		// load image and stop player attacking until it has loaded
 		this.loadImagesAndStopAttacking({[this[nameAddress]]: {normal: "./assets/projectiles/" + this[nameAddress] + ".png"}}, false);
@@ -9027,14 +9345,27 @@ Game.projectileImageUpdate = function () {
 
 // called whenever the "hex" stat has been changed from 0 to something else
 Game.loadHexImages = function () {
-	this.loadImagesAndStopAttacking({
-		sheepRight: {normal: "./assets/enemies/sheep.png"},
-		sheepLeft: {normal: "./assets/enemies/sheep.png", flip: "vertical"},
-		chickenRight: {normal: "./assets/enemies/chicken.png"},
-		chickenLeft: {normal: "./assets/enemies/chicken.png", flip: "vertical"},
-		toadRight: {normal: "./assets/enemies/toad.png"},
-		toadLeft: {normal: "./assets/enemies/toad.png", flip: "vertical"},
-	}, function () {
+	let hexImages = {};
+	if (typeof Player.inventory.weapon.hexImages !== "undefined") {
+		// specific images specifed by weapon
+		for (let i = 0; i < Player.inventory.weapon.hexImages.length; i++) {
+			Object.assign(hexImages, Player.inventory.weapon.hexImages[i].imageAddresses);
+		}
+	}
+	else {
+		// default images
+		hexImages = {
+			sheepRight: {normal: "./assets/enemies/sheep.png"},
+			sheepLeft: {normal: "./assets/enemies/sheep.png", flip: "vertical"},
+			chickenRight: {normal: "./assets/enemies/chicken.png"},
+			chickenLeft: {normal: "./assets/enemies/chicken.png", flip: "vertical"},
+			toadRight: {normal: "./assets/enemies/toad.png"},
+			toadLeft: {normal: "./assets/enemies/toad.png", flip: "vertical"},
+		};
+	}
+
+	// load the images
+	this.loadImagesAndStopAttacking(hexImages, function () {
 		return Game.hero.stats.hex === 0; // only delete on area change if hex is 0
 	});
 }
@@ -9336,7 +9667,7 @@ Game.resetFormatting = function () {
 
 // draw a rotated image (rotated in radians)
 // source: https://stackoverflow.com/a/11985464/9713957 --- thank you! <3
-Game.drawImageRotated = function (ctx, img, x, y, width, height, rad) {
+Game.drawImageRotated = function (ctx, img, cropX, cropY, cropWidth, cropHeight, x, y, width, height, rad) {
     // convert degrees to radian
     //var rad = deg * Math.PI / 180;
 
@@ -9347,7 +9678,7 @@ Game.drawImageRotated = function (ctx, img, x, y, width, height, rad) {
     ctx.rotate(rad);
 
     // draw the image
-    ctx.drawImage(img,width / 2 * (-1),height / 2 * (-1),width,height);
+    ctx.drawImage(img, cropX, cropY, cropWidth, cropHeight, width / 2 * (-1),height / 2 * (-1),width,height);
 
     // reset the canvas
     ctx.rotate(rad * ( -1 ) );
@@ -9686,8 +10017,8 @@ Game.drawStatusEffects = function (ctx, character, x, y, height, alignment) {
 			ctx.font = fontSize + "px El Messiri";
 			ctx.textAlign = "right";
 			if (typeof character.statusEffects[i].info !== "undefined") { // variable that contains time exists
-				if (typeof character.statusEffects[i].info.time !== "undefined" && typeof character.statusEffects[i].info.ticks !== "undefined") { // variable exists
-					ctx.fillText(Round(character.statusEffects[i].info.time - character.statusEffects[i].info.ticks), (startX+height*0.9) + (i-offsetNumber) * (height*1.2), y+height);
+				if (character.statusEffects[i].info.showTime !== false && typeof character.statusEffects[i].info.time !== "undefined" && typeof character.statusEffects[i].info.ticks !== "undefined") { // variable exists
+					ctx.fillText(Math.ceil((character.statusEffects[i].info.time - character.statusEffects[i].info.ticks)*10)/10, (startX+height*0.9) + (i-offsetNumber) * (height*1.2), y+height);
 				}
 			}
 		}
@@ -9956,6 +10287,8 @@ Game.render = function (delta) {
 						this.drawImageRotated(
 							this.ctx,
 							objectToRender.image,
+							objectToRender.crop.x, objectToRender.crop.y,
+							objectToRender.crop.width, objectToRender.crop.height,
 							objectToRender.screenX - objectToRender.width / 2,
 							objectToRender.screenY - objectToRender.height / 2,
 							objectToRender.width,
@@ -9983,6 +10316,17 @@ Game.render = function (delta) {
 					// set back transparency if it was set to something else
 					if (objectToRender.transparency !== undefined) {
 						this.ctx.globalAlpha = 1;
+					}
+
+					// effect images
+					// these are not treated as their own objects, since they are associated directly with the image of whatever was just drawn
+					if (typeof objectToRender.hasStatusEffectType !== "undefined" && objectToRender.hasStatusEffectType("root")) {
+						// objectToRender must be a character, so has a footHitbox
+						let img = Loader.getImage("rootedStatusImage");
+						this.ctx.drawImage(
+							img,
+							objectToRender.footHitbox.screenX - img.width/2, objectToRender.footHitbox.screenY - img.height*0.75
+						);
 					}
 				}
 			}
@@ -10401,6 +10745,11 @@ Game.renderDayNight = function () {
 				this.ctxDayNight.globalAlpha = Event.darkness;
 				this.ctxDayNight.fillRect(0, 0, Dom.canvas.width, Dom.canvas.height);
 			}
+
+			// fog
+			this.ctxDayNight.fillStyle = "#999999";
+			this.ctxDayNight.globalAlpha = Event.fog; // max 0.6 - darkness / 2 probs
+			this.ctxDayNight.fillRect(0, 0, Dom.canvas.width, Dom.canvas.height);
 		}
 	}
 
@@ -10420,7 +10769,7 @@ Game.saveProgress = function (saveType) { // if saveType is "auto" then the save
 		// save other player details that aren't otherwise saved to savedata
 		Player.health = Game.hero.health;
 		Player.mana = Game.hero.mana;
-		Player.trail = Game.hero.trail;
+		Player.trails = Game.hero.trails;
 		Player.oldPosition = Game.hero.oldPosition; // temporary teleport
 		// re-link status effects + spells (inefficient - tbd)
 		Player.statusEffects = Game.hero.statusEffects;

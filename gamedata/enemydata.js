@@ -960,7 +960,7 @@ var Villagers = [
         },
         hostility: "friendly",
         areas: [
-            "loggingCampTavern",
+            {area: "loggingCampTavern", probability: 0.5},
             "eaglecrestTavern",
         ],
         roles: [],
@@ -1221,6 +1221,7 @@ var Villagers = [
             "eaglecrestWest",
             "eaglecrestGraveyard",
             "eaglecrestElixirs",
+            "eaglecrestPlains",
         ],
         roles: [],
         speciesTemplate: SpeciesTemplates.cat,
@@ -1243,6 +1244,7 @@ var Villagers = [
             "eaglecrestWest",
             "eaglecrestGraveyard",
             "eaglecrestElixirs",
+            "eaglecrestPlains",
         ],
         roles: [],
         speciesTemplate: SpeciesTemplates.cat,
@@ -1265,6 +1267,7 @@ var Villagers = [
             "eaglecrestWest",
             "eaglecrestGraveyard",
             "eaglecrestElixirs",
+            "eaglecrestPlains",
         ],
         roles: [],
         speciesTemplate: SpeciesTemplates.cat,
@@ -1381,6 +1384,63 @@ var Villagers = [
         ],
 		chat: {
             notUnlockedRoles: "Eaglecrest contracted me to blow up those damn sewers. Heard there was a real big rat problem there. Blast, why do I care, I'm just here to blow the damn place up.",
+		},
+	},
+	{
+        id: 17,
+        images: {pieRomancer: {normal: "assets/npcs/pieRomancer.png"}},
+		name: "The Pie-Romancer",
+		hostility: "friendly",
+		level: 10,
+		stats: {
+			maxHealth: 100,
+			defence: 3,
+            walkSpeed: 124,
+		},
+        areas: [
+            "eaglecrest",
+            "eaglecrestEast",
+            "eaglecrestWest",
+            "eaglecrestTavern",
+            "eaglecrestBank",
+            "eaglecrestElixirs",
+            "eaglecrestBazaar",
+            "theForge",
+            "eaglecrestGraveyard",
+            "eaglecrestMonastery",
+            "eaglecrestPlains",
+        ],
+		chat: {
+            notUnlockedRoles: "Nothing to see here! Just an honest man going about his daily business <i>ahahaha</i>.",
+			//This will do for now <i>haha</i>.. at least until I can get my hands on some pie...
+			//What brings you here today? Nothing the matter, I hope <i>hehe</i>
+		},
+	},
+	{
+        id: 18,
+        images: {crazyCatLady: {normal: "assets/npcs/crazyCatLady.png"}},
+		name: "Crazy Cat Lady", // tbd give cat leads (sometimes?)
+		hostility: "friendly",
+		level: 20,
+		stats: {
+			maxHealth: 150,
+			defence: 6,
+            walkSpeed: 104,
+		},
+        areas: [
+            "eaglecrest",
+            "eaglecrestEast",
+            "eaglecrestWest",
+            "eaglecrestTavern",
+            "eaglecrestBank",
+            "eaglecrestElixirs",
+            "eaglecrestBazaar", // no The Forge
+            "eaglecrestGraveyard",
+            "eaglecrestMonastery",
+            "eaglecrestPlains",
+        ],
+		chat: {
+            notUnlockedRoles: "Hmph. You're not a cat.",
 		},
 	},
 ];

@@ -250,6 +250,10 @@ var Offsets = {
 	eaglecrestKing: {image: "assets/npcs/king", x: 33, y: -5},
 	lordOfThunder: {image: "assets/player/m5", x: 19, y: -2},
 	alysLoreworth: {image: "assets/npcs/alysLoreworth", x: 225, y: -2},
-	shadow: {image: "assets/npcs/shadow", x: 55, y: -2},
+	shadow: {image: "assets/npcs/shadow", x: 55, y: -5},
 	dolph: {image: "assets/npcs/dolph", x: 50, y: 6},
+	cartDriverAlaran: {image: "assets/npcs/alaran", x: 120, y: -3},
+	alfonsoMurbry: {image: "assets/npcs/alfonsoMurbry", x: 290, y: -6},
+	archbishopLynch: {image: "assets/npcs/archbishop", x: 95, y: 9},
+	shopkeeperBarda: {image: "assets/npcs/barda", x: 60, y: -7},
 };

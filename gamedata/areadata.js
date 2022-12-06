@@ -63,6 +63,7 @@ let Event = {
 		}
 
 		this.updateDarkness(d); // update how dark the canvas is
+		this.updateFog(d);
 	},
 
 	// update how dark the canvas is (called automatically by updateTime)
@@ -124,6 +125,13 @@ let Event = {
 		}
 
 		this.darkness = Math.max(timeDarkness, weatherDarkness); // take the darkest of the two
+	},
+
+	// update amount of foggg (called automatically by updateTime)
+	updateFog: function (d) {
+		// max 0.5 - darkness / 2
+		Event.fog = 0;
+		// tbd
 	},
 
 	// update event (called on loadArea)
@@ -208,6 +216,63 @@ const ChatText = {
 //
 
 var Areas = {
+	pawPeaks: {
+        id: 23,
+
+        data: {
+            name: "Paw Peaks",
+            level: "Level 1 - 5",
+            territory: "Neutral",
+            displayOnEnter: true,
+        },
+
+		lootArea: "loggingCamp",
+        lootTier: 1,
+
+		indoors: false,
+
+		tagGameAllowed: false,
+
+		song_day: "assets/music/Forest.mp3",
+		song_night: "assets/music/Forest.mp3",
+
+		checkpoint: false,
+
+		weather: "rain",
+
+        mapData: {
+            cols: 30,
+            rows: 20,
+            tsize: 60,
+            tilesPerRow: 6,
+            layers: [[2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,
+2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,8,8,2,
+2,2,2,8,8,2,2,2,2,2,2,2,2,2,2,2,2,8,8,2,2,2,2,9,2,2,2,2,2,2,
+2,2,8,8,2,2,2,9,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,
+2,2,8,2,2,2,2,2,2,2,2,8,2,2,2,2,2,2,2,2,2,8,8,2,8,2,2,2,2,2,
+2,8,8,2,2,2,2,2,2,8,8,8,2,2,2,2,2,2,2,2,2,2,8,8,2,2,2,2,2,2,
+2,2,2,2,2,2,2,2,8,8,2,2,2,2,2,9,2,2,2,2,2,2,2,2,2,2,2,2,2,2,
+2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,
+2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,1,5,4,4,4,4,4,4,4,3,
+2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,1,1,1,1,1,12,11,11,11,11,11,11,10,
+2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,1,1,1,1,1,1,2,2,2,2,2,2,2,2,
+2,2,2,2,2,2,1,5,4,4,4,4,4,4,3,1,1,1,1,1,2,2,2,2,2,2,2,8,8,2,
+4,4,4,3,1,1,1,1,12,11,11,11,11,11,10,1,1,1,2,2,2,2,2,2,2,2,8,8,2,2,
+11,11,11,10,1,1,1,1,1,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,
+2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,8,8,8,2,2,2,2,2,
+2,2,8,8,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,8,8,2,2,2,2,2,2,2,
+2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,8,8,2,2,2,2,2,2,2,2,
+2,2,2,2,2,2,2,8,8,8,8,8,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,8,8,8,
+2,2,2,2,2,9,2,2,2,2,2,8,8,2,2,2,2,2,2,2,2,2,2,2,2,2,8,8,2,2,
+2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2]]
+        },
+		images: {
+            tiles: {normal: "assets/tilemap/pawPeaks.png"},
+        },
+		things: [
+
+		]
+	},
 
 	tutorial: {
 		id: 0,
@@ -256,44 +321,28 @@ var Areas = {
 			],
 			interactWithTile: function(tileNum, x, y) {
 				// pick up snowball from rock
-				if (tileNum === 29 && Event.event === "Christmas") { // rock top centre
-					// channel for 1 second
+				let replaceTiles = map.setTilesAtLocation([
+					{tileNum: 101, replaceTo: 56, relativePosition: {x: 0, y: 0}},
+					{tileNum: 102, replaceTo: 72, relativePosition: {x: 1, y: 0}},
+					{tileNum: 109, replaceTo: 64, relativePosition: {x: 0, y: 1}},
+				], {x:x, y:y});
+				if (replaceTiles !== false) {
+					// touching a snowy rock
 					Game.hero.channel(function () {
 						// give snowball to player
 						if (Dom.inventory.give(Items.bow[8], 1) !== false) { // check if player has enough inventory space
 							Player.quests.questProgress.snowCollected = Increment(Player.quests.questProgress.snowCollected);
 							Dom.checkProgress();
-							// replace tiles with no snow rocks
-							map.setTile(0, map.getCol(x), map.getRow(y), 59); // new tiles: 108, 109, 110, 116, 117, 118
-							map.setTile(0, map.getCol(x + 60), map.getRow(y), 60);
-							map.setTile(0, map.getCol(x), map.getRow(y + 60), 69);
-							// add snow back after 5 minutes
-							Game.setTimeout(function(x, y) {
-								SetTile("tutorial", 0, map.getCol(x), map.getRow(y), 29);
-								SetTile("tutorial", 0, map.getCol(x + 60), map.getRow(y), 30);
-								SetTile("tutorial", 0, map.getCol(x), map.getRow(y + 60), 39);
-							}, 60000, [x, y]);
+							// remove snowy rock's snow from tilemap
+							replaceTiles();
 						}
-					}, [], 1000, "Making a Snowball");
-				}
-				else if (tileNum === 39 && Event.event === "Christmas") { // rock bottom centre
-					// channel for 1 second
-					Game.hero.channel(function () {
-					// give snowball to player
-						if (Dom.inventory.give(Items.bow[8], 1) !== false) { // check if player has enough inventory space
-							Player.quests.questProgress.snowCollected = Increment(Player.quests.questProgress.snowCollected);
-							Dom.checkProgress();
-							// replace tiles with no snow rocks
-							map.setTile(0, map.getCol(x), map.getRow(y - 60), 59);
-							map.setTile(0, map.getCol(x + 60), map.getRow(y - 60), 60);
-							map.setTile(0, map.getCol(x), map.getRow(y), 69);
-							// add snow back after 5 minutes
-							Game.setTimeout(function(x, y) {
-								SetTile("tutorial", 0, map.getCol(x), map.getRow(y), 29);
-								SetTile("tutorial", 0, map.getCol(x + 60), map.getRow(y), 30);
-								SetTile("tutorial", 0, map.getCol(x), map.getRow(y + 60), 39);
-							}, 60000, [x, y]);
-						}
+						// add snow back after 1 minute
+						let addSnowBack = map.setTilesAtLocation([
+							{tileNum: 56, replaceTo: 101, relativePosition: {x: 0, y: 0}},
+							{tileNum: 72, replaceTo: 102, relativePosition: {x: 1, y: 0}},
+							{tileNum: 64, replaceTo: 109, relativePosition: {x: 0, y: 1}},
+						], {x:x, y:y}, "tutorial");
+						Game.setTimeout(addSnowBack, 60000);
 					}, [], 1000, "Making a Snowball");
 				}
 			},
@@ -627,44 +676,28 @@ var Areas = {
 			],
 			interactWithTile: function(tileNum, x, y) {
 				// pick up snowball from rock
-				if (tileNum === 29 && Event.event === "Christmas") { // rock top centre
-					// channel for 1 second
+				let replaceTiles = map.setTilesAtLocation([
+					{tileNum: 101, replaceTo: 56, relativePosition: {x: 0, y: 0}},
+					{tileNum: 102, replaceTo: 72, relativePosition: {x: 1, y: 0}},
+					{tileNum: 109, replaceTo: 64, relativePosition: {x: 0, y: 1}},
+				], {x:x, y:y});
+				if (replaceTiles !== false) {
+					// touching a snowy rock
 					Game.hero.channel(function () {
 						// give snowball to player
 						if (Dom.inventory.give(Items.bow[8], 1) !== false) { // check if player has enough inventory space
 							Player.quests.questProgress.snowCollected = Increment(Player.quests.questProgress.snowCollected);
 							Dom.checkProgress();
-							// replace tiles with no snow rocks
-							map.setTile(0, map.getCol(x), map.getRow(y), 59);
-							map.setTile(0, map.getCol(x + 60), map.getRow(y), 60);
-							map.setTile(0, map.getCol(x), map.getRow(y + 60), 69);
-							// add snow back after 5 minutes
-							Game.setTimeout(function(x, y) {
-								SetTile("eaglecrestLoggingCamp", 0, map.getCol(x), map.getRow(y), 29);
-								SetTile("eaglecrestLoggingCamp", 0, map.getCol(x + 60), map.getRow(y), 30);
-								SetTile("eaglecrestLoggingCamp", 0, map.getCol(x), map.getRow(y + 60), 39);
-							}, 60000, [x, y]);
+							// remove snowy rock's snow from tilemap
+							replaceTiles();
 						}
-					}, [], 1000, "Making a Snowball");
-				}
-				else if (tileNum === 39 && Event.event === "Christmas") { // rock bottom centre
-					// channel for 1 second
-					Game.hero.channel(function () {
-						// give snowball to player
-						if (Dom.inventory.give(Items.bow[8], 1) !== false) { // check if player has enough inventory space
-							Player.quests.questProgress.snowCollected = Increment(Player.quests.questProgress.snowCollected);
-							Dom.checkProgress();
-							// replace tiles with no snow rocks
-							map.setTile(0, map.getCol(x), map.getRow(y - 60), 59);
-							map.setTile(0, map.getCol(x + 60), map.getRow(y - 60), 60);
-							map.setTile(0, map.getCol(x), map.getRow(y), 69);
-							// add snow back after 5 minutes
-							Game.setTimeout(function(x, y) {
-								SetTile("eaglecrestLoggingCamp", 0, map.getCol(x), map.getRow(y), 29);
-								SetTile("eaglecrestLoggingCamp", 0, map.getCol(x + 60), map.getRow(y), 30);
-								SetTile("eaglecrestLoggingCamp", 0, map.getCol(x), map.getRow(y + 60), 39);
-							}, 60000, [x, y]);
-						}
+						// add snow back after 1 minute
+						let addSnowBack = map.setTilesAtLocation([
+							{tileNum: 56, replaceTo: 101, relativePosition: {x: 0, y: 0}},
+							{tileNum: 72, replaceTo: 102, relativePosition: {x: 1, y: 0}},
+							{tileNum: 64, replaceTo: 109, relativePosition: {x: 0, y: 1}},
+						], {x:x, y:y}, "eaglecrestLoggingCamp");
+						Game.setTimeout(addSnowBack, 60000, [x, y]);
 					}, [], 1000, "Making a Snowball");
 				}
 			},
@@ -2143,48 +2176,29 @@ var Areas = {
 					}, [], 1000, "Retrieving Logs");
 				}
 
-				// TBD - change parameters to an object with x and y (please remind Jake)
-				// TBD - update snowball to use new system (same as above)
-
 				// pick up snowball from rock
-				else if (tileNum === 29 && Event.event === "Christmas") { // rock top centre
-					// channel for 1 second
+				replaceTiles = map.setTilesAtLocation([
+					{tileNum: 101, replaceTo: 56, relativePosition: {x: 0, y: 0}},
+					{tileNum: 102, replaceTo: 72, relativePosition: {x: 1, y: 0}},
+					{tileNum: 109, replaceTo: 64, relativePosition: {x: 0, y: 1}},
+				], {x:x, y:y});
+				if (replaceTiles !== false) {
+					// touching a snowy rock
 					Game.hero.channel(function () {
 						// give snowball to player
 						if (Dom.inventory.give(Items.bow[8], 1) !== false) { // check if player has enough inventory space
 							Player.quests.questProgress.snowCollected = Increment(Player.quests.questProgress.snowCollected);
 							Dom.checkProgress();
-							// replace tiles with no snow rocks
-							map.setTile(0, map.getCol(x), map.getRow(y), 59);
-							map.setTile(0, map.getCol(x + 60), map.getRow(y), 60);
-							map.setTile(0, map.getCol(x), map.getRow(y + 60), 69);
-							// add snow back after 5 minutes
-							Game.setTimeout(function(x, y) {
-								SetTile("nilbog", 0, map.getCol(x), map.getRow(y), 29);
-								SetTile("nilbog", 0, map.getCol(x + 60), map.getRow(y), 30);
-								SetTile("nilbog", 0, map.getCol(x), map.getRow(y + 60), 39);
-							}, 60000, [x, y]);
+							// remove snowy rock's snow from tilemap
+							replaceTiles();
 						}
-					}, [], 1000, "Making a Snowball");
-				}
-				else if (tileNum === 39 && Event.event === "Christmas") { // rock bottom centre
-					// channel for 1 second
-					Game.hero.channel(function () {
-					// give snowball to player
-						if (Dom.inventory.give(Items.bow[8], 1) !== false) { // check if player has enough inventory space
-							Player.quests.questProgress.snowCollected = Increment(Player.quests.questProgress.snowCollected);
-							Dom.checkProgress();
-							// replace tiles with no snow rocks
-							map.setTile(0, map.getCol(x), map.getRow(y - 60), 59);
-							map.setTile(0, map.getCol(x + 60), map.getRow(y - 60), 60);
-							map.setTile(0, map.getCol(x), map.getRow(y), 69);
-							// add snow back after 5 minutes
-							Game.setTimeout(function(x, y) {
-								SetTile("nilbog", 0, map.getCol(x), map.getRow(y), 29);
-								SetTile("nilbog", 0, map.getCol(x + 60), map.getRow(y), 30);
-								SetTile("nilbog", 0, map.getCol(x), map.getRow(y + 60), 39);
-							}, 60000, [x, y]);
-						}
+						// add snow back after 1 minute
+						let addSnowBack = map.setTilesAtLocation([
+							{tileNum: 56, replaceTo: 101, relativePosition: {x: 0, y: 0}},
+							{tileNum: 72, replaceTo: 102, relativePosition: {x: 1, y: 0}},
+							{tileNum: 64, replaceTo: 109, relativePosition: {x: 0, y: 1}},
+						], {x:x, y:y}, "nilbog");
+						Game.setTimeout(addSnowBack, 60000);
 					}, [], 1000, "Making a Snowball");
 				}
 			},
@@ -4042,6 +4056,7 @@ var Areas = {
 					return !Player.quests.completedQuestArray.includes("Help! Lost Cat");
 				},
 				showNameInChat: false,
+				meetable: false,
 			},
 		],
 
@@ -4378,10 +4393,21 @@ var Areas = {
 							{item: Items.helm[27], cost: 5}, // lovely mask
 						],
 						role: "merchant",
-						chooseText: "What have you got to sell on this day of love?",
+						chooseText: "Do you have anything special you're selling today?",
 						shopGreeting: "You'd <em>love</em> to hear how I made this mask.",
 						roleRequirement: function () {
 							return Game.event === "Valentine";
+						},
+					},
+					{
+						sold: [
+							{item: Items.helm[34], cost: 10, costCurrency: 5}, // mechanical santa mask
+						],
+						role: "merchant",
+						chooseText: "What have you got to sell this Christmas?",
+						shopGreeting: "Who says the Christmas season can't have a bit of horror?",
+						roleRequirement: function () {
+							return Event.event === "Christmas";
 						},
 					},
 				],
@@ -6263,7 +6289,7 @@ Last I saw him, he was visiting the <b>Eaglecrest Plains</b> to the <b>south</b>
 					}, [], 1666, "Rummaging through crate", {cancelChannelOnDamage: true});
 				},
                 canBeShown: function () {
-                    return Player.quests.completedQuestArray.includes("Snakes and the City");
+                    return Player.quests.completedQuestArray.includes("Snakes and the City") && Event.event === "Samhain";
                 }
 			},
 		],
@@ -6614,7 +6640,7 @@ Last I saw him, he was visiting the <b>Eaglecrest Plains</b> to the <b>south</b>
 					}, [], 1666, "Rummaging through crate", {cancelChannelOnDamage: true});
 				},
                 canBeShown: function () {
-                    return Player.quests.completedQuestArray.includes("Snakes and the City");
+                    return Player.quests.completedQuestArray.includes("Snakes and the City") && Event.event === "Samhain";
                 }
 			},
 			{
@@ -6654,7 +6680,7 @@ Last I saw him, he was visiting the <b>Eaglecrest Plains</b> to the <b>south</b>
 					}, [], 1666, "Rummaging through crate", {cancelChannelOnDamage: true});
 				},
                 canBeShown: function () {
-                    return Player.quests.completedQuestArray.includes("Snakes and the City");
+                    return Player.quests.completedQuestArray.includes("Snakes and the City") && Event.event === "Samhain";
                 }
 			},
 		],
@@ -6752,6 +6778,13 @@ Last I saw him, he was visiting the <b>Eaglecrest Plains</b> to the <b>south</b>
 						template: EnemyTemplates.eaglecrest.snake,
 					}, "villagers")));
 				}
+			}
+
+			// if they are holding old rusted staff, they get kicked out
+			if (Player.inventory.weapon.type === "staff" && Player.inventory.weapon.id === 16) {
+				Game.setTimeout(Game.statusEffects.stun, 1000, {target: Game.hero, time: 3});
+				Dom.chat.insert(Dom.chat.say("tbd", "tbd"), 1000);
+				Game.setTimeout(Game.loadArea, 3000, ["eaglecrestGraveyard", {x: 2010, y: 450}]);
 			}
 		},
 
@@ -7472,6 +7505,8 @@ Last I saw him, he was visiting the <b>Eaglecrest Plains</b> to the <b>south</b>
 			chickenRight: {normal: "assets/enemies/chicken.png"},
 			chickenLeft: {normal: "assets/enemies/chicken.png", flip: "vertical"},
 			chickenCorpse: {normal: "assets/corpses/chicken.png"},
+			//sprinkler: {normal: "assets/objects/sprinkler.png"},
+			well: {normal: "assets/objects/well.png"},
 		},
 
 		areaTeleports: [
@@ -7680,6 +7715,43 @@ Last I saw him, he was visiting the <b>Eaglecrest Plains</b> to the <b>south</b>
 		],
 
 		things: [
+			/*{
+				x: 2761,
+				y: 1127,
+				orderOffsetY: -10,
+				name: "Sprinkler",
+				image: "sprinkler",
+				crop: {
+					x: 0,
+					y: 0,
+					width: 120,
+					height: 120
+				},
+				animateFunction: function () { // tbd generalise for anything like this?
+					// state is an integer from 0 to 13 inclusive
+					// define state
+					if (this.state === undefined || this.state >= 13) {
+						this.state = 0;
+					}
+					else {
+						this.state++;
+					}
+					// change image
+					this.crop = {
+						x: (this.state % 4) * this.baseWidth,
+						y: Math.floor(this.state / 4) * this.baseHeight,
+						width: this.baseWidth,
+						height: this.baseHeight
+					}
+				},
+				animationFrameTime: 90,
+			},
+			{
+				x: 2361,
+				y: 1227,
+				name: "Well",
+				image: "well",
+			},*/
 			{
 				x: 257,
 				y: 1217,
@@ -7722,7 +7794,7 @@ Last I saw him, he was visiting the <b>Eaglecrest Plains</b> to the <b>south</b>
 					}, [], 1666, "Rummaging through crate", {cancelChannelOnDamage: true});
 				},
 				canBeShown: function () {
-					return Player.quests.completedQuestArray.includes("Snakes and the City");
+					return Player.quests.completedQuestArray.includes("Snakes and the City") && Event.event === "Samhain";
 				}
 			},
 		],
@@ -7801,7 +7873,7 @@ Last I saw him, he was visiting the <b>Eaglecrest Plains</b> to the <b>south</b>
 			eaglecrestGhost: {normal: "assets/enemies/eaglecrestGhost.png"},
 			eaglecrestGhost2: {normal: "assets/enemies/eaglecrestGhost2.png"},
 			melee: {normal: "assets/projectiles/melee.png"},
-			crateSamhain: {normal: "assets/objects/crateSamhain.png"},
+			crateSamhain: {normal: "assets/objects/crateSamhain.png"}, // tbd add a crate
 			cauldron: {normal: "assets/objects/cauldronSamhain.png"},
 		},
 

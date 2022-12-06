@@ -145,9 +145,6 @@ Weather.chooseWeather = function (areaName) {
 	if (this.weatherType !== oldWeatherType) {
 		// weather has been updated
 
-		// update conditional stats
-		Dom.inventory.conditionalStats();
-
 		// if weather is now rain and was not previously, call onRainStart function of area
 		if ((this.weatherType === "rain" || this.weatherType === "fish") &&
 		(oldWeatherType !== "rain" && oldWeatherType !== "fish")) {

@@ -564,7 +564,6 @@ Dom.checkProgress = function () {
 	Dom.achievements.update();
 	Dom.quests.active();
 	Dom.quests.possible();
-	Dom.inventory.conditionalStats();
 }
 
 Dom.closeNPCPages = function () {
@@ -1376,33 +1375,54 @@ Dom.inventory.displayIdentification = function (display) {
 		Dom.elements.innerStats.innerHTML += "<br>Block Defence: " + Player.stats.blockDefence;
 	}
 
-	// alphabetical order
+	if (Player.stats.rangeMultiplier !== 100) {
+		Dom.elements.innerStats.innerHTML += "<br>Range: " + Player.stats.rangeMultiplier + "%";
+	}
+
+	if (Player.stats.numberOfProjectiles !== 0 && Player.stats.numberOfProjectiles !== 1) {
+		Dom.elements.innerStats.innerHTML += "<br>Number of Projectiles: " + Player.stats.numberOfProjectiles;
+	}
+
+	if (Player.stats.healingPower !== 100) {
+		Dom.elements.innerStats.innerHTML += "<br>Healing power: " + Player.stats.healingPower + "%";
+	}
+
+	// vaguely alphabetical order
 	Dom.elements.innerStats.innerHTML += "<br>Critical Chance: " + Player.stats.criticalChance + "%";
 	Dom.elements.innerStats.innerHTML += "<br>Dodge Chance: " + Player.stats.dodgeChance + "%";
 	if (Player.stats.flaming !== 0) {
 		Dom.elements.innerStats.innerHTML += "<br>Flaming "+Romanize(Player.stats.flaming);
 	}
+	if (Player.stats.exploding !== 0) {
+		Dom.elements.innerStats.innerHTML += "<br>Exploding "+Romanize(Player.stats.exploding);
+	}
 	if (Player.stats.frostaura) {
 		Dom.elements.innerStats.innerHTML += "<br>Frostaura";
+	}
+	if (Player.stats.arcaneAura) {
+		Dom.elements.innerStats.innerHTML += "<br>Arcane aura";
+	}
+	if (Player.stats.unstoppable) {
+		Dom.elements.innerStats.innerHTML += "<br>Immunity to stuns and slows";
 	}
 	if (Player.class === "a") {
 		Dom.elements.innerStats.innerHTML += "<br>Focus Speed: " + Player.stats.focusSpeed + "/s";
 	}
 	Dom.elements.innerStats.innerHTML += "<br>Health Regen: " + Player.stats.healthRegen + "/s";
-	if (Player.stats.hex !== 0) {
-		Dom.elements.innerStats.innerHTML += "<br>Hex: " + Player.stats.hex + "%";
-	}
 	if (Player.stats.lifesteal !== 0) {
 		Dom.elements.innerStats.innerHTML += "<br>Lifesteal: " + Player.stats.lifesteal + "%";
 	}
 	if (Player.stats.looting !== 100) {
 		Dom.elements.innerStats.innerHTML += "<br>Looting: " + Player.stats.looting + "%";
 	}
+	if (Player.stats.stealing !== 0) {
+		Dom.elements.innerStats.innerHTML += "<br>Stealing: " + Player.stats.stealing + "%";
+	}
 	if (Player.stats.minimumVariance !== 0) {
 		Dom.elements.innerStats.innerHTML += "<br>Min Projectile Variance: " + Player.stats.minimumVariance;
 	}
 	if (Player.stats.poisonX !== 0 && Player.stats.posionY !== 0) {
-		Dom.elements.innerStats.innerHTML += "<br>Poison: " + Player.stats.poisonX + "/" + Player.stats.poisonY + "s";
+		Dom.elements.innerStats.innerHTML += "<br>Poison: " + (Player.stats.poisonX*Player.stats.poisonStrength/100) + "/" + Player.stats.poisonY + "s";
 	}
 	if (Player.stats.reflection !== 0) {
 		Dom.elements.innerStats.innerHTML += "<br>Reflection: " + Player.stats.reflection + "%";
@@ -1418,6 +1438,15 @@ Dom.inventory.displayIdentification = function (display) {
 	}
 	if (Player.stats.stun !== 0) {
 		Dom.elements.innerStats.innerHTML += "<br>Stun: " + Player.stats.stun + "s";
+	}
+	if (Player.stats.rooting !== 0) {
+		Dom.elements.innerStats.innerHTML += "<br>Rooting: " + Player.stats.rooting + "s";
+	}
+	if (Player.stats.hex !== 0) {
+		Dom.elements.innerStats.innerHTML += "<br>Hex: " + Player.stats.hex + "%";
+	}
+	if (Player.stats.knockback !== 0) {
+		Dom.elements.innerStats.innerHTML += "<br>Knockback: " + Player.stats.knockback + "px";
 	}
 	Dom.elements.innerStats.innerHTML += "<br>Swim Speed: " + Player.stats.swimSpeed + "/s";
 	Dom.elements.innerStats.innerHTML += "<br>Walk Speed: " + Player.stats.walkSpeed + "/s";
@@ -1457,19 +1486,19 @@ Dom.inventory.stats = function (stat, value, array) {
 	if (stat === "Defence" || stat === "Block Defence" || stat === "Fishing Skill" || stat === "Max Health") {
 		return stat+": "+NumberSign(value)+"<br>";
 	}
-	else if (stat === "Critical Chance" || stat === "Dodge Chance" || stat === "Looting" || stat === "Reflection" || stat === "Lifesteal" || stat === "Xp Bonus" || stat === "Hex" || stat === "Damage Percentage") {
+	else if (stat === "Critical Chance" || stat === "Dodge Chance" || stat === "Looting" || stat === "Reflection" || stat === "Lifesteal" || stat === "Xp Bonus" || stat === "Hex" || stat === "Damage Percentage" || stat === "Stealing" || stat === "Range Multiplier" || stat === "Healing Power" || stat === "Interact Range" || stat === "Poison Strength") {
 		return stat+": "+NumberSign(value)+"%<br>";
 	}
 	else if (stat === "Health Regen" || stat === "Swim Speed" || stat === "Walk Speed" || stat === "Ice Speed" || stat === "Focus Speed") {
 		return stat+": "+NumberSign(value)+"/s<br>";
 	}
-	else if (stat === "Stun") {
+	else if (stat === "Stun" || stat === "Rooting") {
 		return stat+": "+NumberSign(value)+"s<br>";
 	}
 	else if (stat === "Reload Time") {
 		return stat+": "+(NumberSign(value/1000))+"s<br>";
 	}
-	else if (stat === "Flaming") {
+	else if (stat === "Flaming" || stat === "Exploding") {
 		return stat+" "+Romanize(value)+"<br>";
 	}
 	else if (stat === "Poison X") {
@@ -1484,11 +1513,20 @@ Dom.inventory.stats = function (stat, value, array) {
 	else if (stat === "Minimum Variance") {
 		return stat+": "+value+"<br>";
 	}
+	else if (stat === "Knockback") {
+		return stat+": "+NumberSign(value)+"px<br>";
+	}
 	else if (stat === "Frostaura" || stat === "Splash Damage" || stat === "Wind Shield") {
 		return stat+"<br>";
 	}
 	else if (stat === "Move During Focus") {
 		return "Allows movement during attacks<br>";
+	}
+	else if (stat === "Unstoppable") {
+		return "Grants invulnerability to stuns and slows<br>";
+	}
+	else if (stat === "Number Of Projectiles") {
+		return "Number of Projectiles: "+value+"<br>";
 	}
 	else {
 		return "";
@@ -1533,7 +1571,7 @@ Dom.inventory.displayInformation = function (item, stacked, element, position, h
 			}
 
 			// weapon, armour, rod or tool
-			if (item.type !== "item" && item.type !== "bag" && item.type !== "currency" && item.type !== "fish" && item.type !== "consumable" && item.type !== "food" && item.type !== "teleport") {
+			if (item.type !== "item" && item.type !== "bag" && item.type !== "currency" && item.type !== "fish" && item.type !== "consumable" && item.type !== "food" && item.type !== "teleport" && item.type !== "dev") {
 
 				// weapons used to attack have tiers that should be displayed
 				if (item.type !== "rod" && item.type !== "tool") {
@@ -4034,8 +4072,7 @@ Dom.inventory.removeEquipment = function (array) {
 		}
 	}*/
 	if (array.trail !== undefined) {
-		Game.hero.trail = undefined;
-		clearInterval(Game.hero.trailInterval);
+		Game.hero.removeTrail(array.trailName);
 	}
 	Dom.inventory.afterChangedStats();
 }
@@ -4131,15 +4168,14 @@ Dom.inventory.addEquipment = function (array, noSet) {
 	}
 	if (array.conditionalStats !== undefined) {
 		Player.conditionalStats.push({type: array.type, id: array.id, active: [],});
-		Dom.inventory.conditionalStats();
+		//Dom.inventory.conditionalStats(); // now called every tick in main
 	}
 	/*if (array.conditionalChooseStats !== undefined) {
 		Player.conditionalChooseStats.push({type: array.type, id: array.id, active: [],});
 		Dom.inventory.conditionalStats();
 	}*/
 	if (array.trail !== undefined) {
-		Game.hero.trail = array.trail;
-		Game.hero.trailInterval = setInterval(Game.addTrailParticle, 100, Game.hero, Game.hero.trail);
+		Game.hero.addTrail(array.trailName, array.trail);
 	}
 	Dom.inventory.afterChangedStats();
 }
@@ -4568,7 +4604,7 @@ Dom.choose.page = function (npcs) {
 	let force = npcs[0].force;
 
 	let name = npc.name !== undefined ? npc.name : npc; // for cases like Goblin Torch
-	if (npc.constructor.name === "NPC" && !Player.metNPCs.includes(name)) {
+	if (npc.constructor.name === "NPC" && !Player.metNPCs.includes(name) && npc.meetable && name !== "???") {
 		Player.metNPCs.push(name);
 	}
 
@@ -5145,8 +5181,12 @@ Dom.mail.page = function (override) {
 				document.getElementsByClassName("mailImage")[ii].style.backgroundImage = "url('"+Player.mail.mail[i].image+".png')";
 			}
 			else {
-				document.getElementsByClassName("mailImage")[ii].style.backgroundImage = "url('"+Offsets[Player.mail.mail[i].image].image+".png')";
-				document.getElementsByClassName("mailImage")[ii].style.backgroundPosition = Offsets[Player.mail.mail[i].image].x+"%"+Offsets[Player.mail.mail[i].image].y+"%";
+				let offset = Offsets[Player.mail.mail[i].image];
+				if (typeof offset === "undefined") {
+					offset = Offsets.shadow;
+				}
+				document.getElementsByClassName("mailImage")[ii].style.backgroundImage = "url('"+offset.image+".png')";
+				document.getElementsByClassName("mailImage")[ii].style.backgroundPosition = offset.x+"%"+offset.y+"%";
 			}
 			document.getElementsByClassName("mailDelete")[ii].onclick = function () {
 				Dom.mail.notOpen = true;
@@ -5290,7 +5330,7 @@ Dom.inventory.prepare = function (array, i, element) {
 		if (array[i].chooseStats === undefined) {
 			array[i].chooseStats = [];
 		}
-		Dom.inventory.conditionalStats();
+		//Dom.inventory.conditionalStats(); // now called every tick in main
 	}
 
 	// add class stats to stats
@@ -5512,6 +5552,9 @@ Dom.inventory.prepare = function (array, i, element) {
 	else {
 		array[i].onClick = Dom.inventory.cooldown;
 	}*/
+
+	// copy over functions from itemdata to Player, since they are not saved by json
+	// tbd do this for intervalfunction, onwalk, etc. and make main nicer
 	array[i].onClick = Items[array[i].type][array[i].id].onClick;
 	array[i].onClickFunction = Items[array[i].type][array[i].id].onClickFunction;
 	array[i].onKill = Items[array[i].type][array[i].id].onKill;
@@ -5587,6 +5630,7 @@ Dom.inventory.conditionalChooseStats = function () {
 	}
 }
 
+// reevaluate conditional stats of equipped items (should be called every tick in main, since needs to account for player movement, enemy movement, despawning, etc.)
 Dom.inventory.conditionalStats = function () {
 	for (let i = 0; i < Player.conditionalStats.length; i++) {
 		for (let x = 0; x < Items[Player.conditionalStats[i].type][Player.conditionalStats[i].id].conditionalStats.length; x++) {
@@ -5626,12 +5670,17 @@ Dom.inventory.conditionalStats = function () {
 }
 
 Dom.inventory.beforeChangedStats = function () {
+	// for loading hex images
 	if (Player.stats.hex === 0) {
 		Dom.inventory.hexWasZero = true;
+	}
+	else {
+		Dom.inventory.hexWasZero = false;
 	}
 }
 
 Dom.inventory.afterChangedStats = function () {
+	// for loading hex images
 	if (Player.stats.hex > 0 && Dom.inventory.hexWasZero) {
 		Game.loadHexImages();
 	}
@@ -6457,6 +6506,7 @@ Dom.init = function () {
 
 	// MAIL (mostly)
 	let date = GetFullDate();
+	let yesterdayDate = GetFullDate(1);
 	// the first time the player logs on each day
 	if (!Player.days.includes(date)) {
 
@@ -6497,8 +6547,14 @@ Dom.init = function () {
 
 		// christmas daily rewards
 		if (Event.event === "Christmas") {
-			let randomNPC = Player.metNPCs[Random(0, Player.metNPCs.length-1)]; // NPC that sent message (one the player's met before!)
+			let randomNPC = "";
+			// keep finding a new npc the player has met until we find one that has information in Offsets
+			while (typeof Offsets[ToCamelCase(randomNPC)] === "undefined") {
+				randomNPC = Player.metNPCs[Random(0, Player.metNPCs.length-1)]; // NPC that sent message (one the player's met before!)
+			}
 			if (Event.christmasDay) { // christmas day
+				/*
+				// 2018 message
 				Dom.mail.give(
 					"Merry Christmas!",
 					"Father Christmas",
@@ -6506,6 +6562,18 @@ Dom.init = function () {
 					"text.page",
 					["Merry Christmas!",
 					"Have a great Christmas! Please enjoy the 2018 Christmas gift.", true, [], [],
+					[{item: Items.item[17],},{item: Items.currency[5], quantity: 5,}]],
+					[{item: Items.item[17],},{item: Items.currency[5], quantity: 5,}],
+				);
+				*/
+				// 2022 message
+				Dom.mail.give(
+					"Merry Christmas!",
+					"Father Christmas",
+					"fatherChristmas",
+					"text.page",
+					["Merry Christmas!",
+					"Have a great Christmas! Please enjoy the 2022 Christmas gift.", true, [], [],
 					[{item: Items.item[17],},{item: Items.currency[5], quantity: 5,}]],
 					[{item: Items.item[17],},{item: Items.currency[5], quantity: 5,}],
 				);
@@ -6525,6 +6593,8 @@ Dom.init = function () {
 
 		// Antorax Day mail
 		if (Event.event === "Antorax") {
+			/*
+			// 2019 message
 			Dom.mail.give(
 				"Antorax is " + Event.antoraxAge + " today!",
 				"The King of Eaglecrest",
@@ -6533,6 +6603,20 @@ Dom.init = function () {
 				["Antorax is " + Event.antoraxAge + " today!",
 				`<p>${Event.antoraxAge} years ago today, the realms of Antorax settled on an agreement to cooperate in the archaeology and exploration of these beautiful lands. Although there have been conflicts since then, there have been countless discoveries made by the Antorax alliance, and we endevour to continue.</p>
 				<p>This year, there have been countless advancements in the fields of Archaeology, with huge discoveries of mythic items. There have also been developments to the Eaglecrest Logging Camp, and improvements to the accessibility of Antorax for its citizens.</p>
+				<p>We hope you enjoy this special day, and that we will celebrate the many more Antorax Days to come together.</p>`, true, [], [],
+				[{item: Items.helm[10]}]], [{item: Items.helm[10]}],
+			);*/
+
+			// 2022 message
+			Dom.mail.give(
+				"Antorax is " + Event.antoraxAge + " today!",
+				"The King of Eaglecrest",
+				"eaglecrestKing",
+				"text.page",
+				["Antorax is " + Event.antoraxAge + " today!",
+				`<p>${Event.antoraxAge} years ago today, the realms of Antorax settled on an agreement to cooperate in the archaeology and exploration of these beautiful lands. Although there have been conflicts since then, there have been countless discoveries made by the Antorax alliance, and we endevour to continue.</p>
+				<p>This year, there have been countless advancements in the fields of Archaeology - mythic items have been unearthed from past and faraway lands, many within the realm of Eaglecrest's local plains. There have additionally been huge developments in the teaching of magic, which will be further consolidated in the coming years. Morever, we cannot go without mentioning the countless new citizens of Eaglecrest, to whom I hope you have given a warm welcome!</p>
+				<p>Antorax has not been without its challenges this year, facing a colder winter than ever, and a serpentine assault of Eaglecrest City. However these complications have been endured and resolved thanks to all of you adventurers, archaeologists, and even fishers.</p>
 				<p>We hope you enjoy this special day, and that we will celebrate the many more Antorax Days to come together.</p>`, true, [], [],
 				[{item: Items.helm[28]}]], [{item: Items.helm[28]}],
 			);
@@ -6629,6 +6713,28 @@ Dom.init = function () {
 		}
 
 		Player.days.push(date);
+
+		// login rewards
+		if (typeof Player.consecutiveDays === "undefined") {
+			Player.consecutiveDays = 0;
+		}
+		if (Player.days.includes(yesterdayDate)) {
+			Player.consecutiveDays++;
+		}
+
+		// seven days in a row
+		if (Player.consecutiveDays === 7) {
+			Dom.mail.give(
+				"We've Seen a Lot of You",
+				"The King of Eaglecrest",
+				"eaglecrestKing",
+				"text.page",
+				["We've Seen a Lot of You",
+				`<p>${Player.name}, I hope this letter finds you well and safe.</p>
+				<p>Your dedication to Eaglecrest's, and Antorax's, cause is truly remarkable. The Kingdom would like to personally thank you for your contributions with this <b style="color:orange;">Antorak</b>. We hope it will prove useful on your further adventures.</p>`, true, [], [],
+				[{item: Items.chest[11]}]], [{item: Items.chest[11]}],
+			);
+		}
 
 		// reset chest locations
 		Player.chests.locations = []

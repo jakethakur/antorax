@@ -24,11 +24,11 @@ var Items = {
 			image: "assets/items/helm/2.png",
 			tier: 1,
 			obtain: ["unidentified", "merchant"],
-			area: ["loggingCamp"],
+			area: ["loggingCamp", "eaglecrest"],
 			rarity: "common",
 			sellPrice: 1,
-			obtainText: "Can be found as an unidentified item in areas around Eaglecrest Logging Camp.",
-			unidentifiedArea: ["loggingCamp"],
+			obtainText: "Can be uncovered as an unidentified item in areas around Eaglecrest Logging Camp.",
+			unidentifiedArea: ["loggingCamp", "eaglecrest"],
 			stats: {
 				defence: 2,
 			},
@@ -44,7 +44,7 @@ var Items = {
 			rarity: "unique",
 			sellPrice: 3,
 			lore: "Only a goblin could forge armour that's too large for them, but fits humans perfectly.",
-			obtainText: "Can be found as an unidentified item in areas around Eaglecrest Logging Camp.",
+			obtainText: "Can be uncovered as an unidentified item in areas around Eaglecrest Logging Camp.",
 			unidentifiedArea: ["loggingCamp"],
 			set: 3,
 			stats: {
@@ -63,7 +63,7 @@ var Items = {
 			rarity: "unique",
 			sellPrice: 3,
 			lore: "Knightly armour (mages and archers also welcome).",
-			obtainText: "Can be found as an unidentified item in areas around Eaglecrest Logging Camp.",
+			obtainText: "Can be uncovered as an unidentified item in areas around Eaglecrest Logging Camp.",
 			unidentifiedArea: ["loggingCamp"],
 			set: 2,
 			stats: {
@@ -82,7 +82,7 @@ var Items = {
 			rarity: "mythic",
 			sellPrice: 5,
 			lore: "You have no idea how often those mammoth tusks need to be glued back on!",
-			obtainText: "Can be found as an unidentified item in areas around Eaglecrest Logging Camp.",
+			obtainText: "Can be uncovered as an unidentified item in areas around Eaglecrest Logging Camp.",
 			unidentifiedArea: ["loggingCamp"],
 			stats: {
 				defence: 3,
@@ -100,7 +100,7 @@ var Items = {
 			rarity: "mythic",
 			sellPrice: 5,
 			lore: "The Ocean Warrior came from the sea<br>His blade was sharp, no-one could stop his quest",
-			obtainText: "Can be found in a sunken chest from a tier 1 fishing area.",
+			obtainText: "Can be uncovered from a 'Sunken Chest' from a Tier 1 fishing area.",
 			set: 4,
 			stats: {
 				defence: 3,
@@ -108,7 +108,7 @@ var Items = {
 			chooseStats: {
 				criticalChance: 5,
 				dodgeChance: 5,
-				reflection: 10,
+				reflection: 15,
 			},
 		},
 		{
@@ -126,8 +126,8 @@ var Items = {
 			sellPrice: 4,
 			stats: {
 				defence: 2,
-				looting: 10,
-				xpBonus: 20,
+				looting: 20,
+				xpBonus: 30,
 			},
 		},
 		{
@@ -188,6 +188,7 @@ var Items = {
 				rotation: "random",
 				variance: 50, // variance in position (in x/y axis in one direction from player)
 			},
+			trailName: "partyHatConfetti",
 			event: "Antorax",
 			limitedEdition: true,
 		},
@@ -354,7 +355,7 @@ var Items = {
             rarity: "unique",
             sellPrice: 3,
             lore: "Pan shot!",
-            obtainText: "Can be received as a reward for completing the quest 'A Tale of Two Twintops' 11 times.",
+            obtainText: "Received as a reward for completing the 'A Tale of Two Twintops' questline.",
             stats: {
                 defence: 2,
                 reflection: 20,
@@ -474,7 +475,7 @@ var Items = {
 			event: "Valentine",
 			sellPrice: 2,
 			stats: {
-				damagePercentage: -50,
+				damagePercentage: -35,
 				healthRegen: 2,
 			},
 		},
@@ -482,7 +483,7 @@ var Items = {
 			id: 28,
 			name: "Party Hat",
 			type: "helm",
-			image: "assets/items/helm/10.png",
+			image: "assets/items/helm/10.png", // same art as initial antorax day
 			tier: 1,
 			obtain: ["other"],
 			area: [],
@@ -502,8 +503,128 @@ var Items = {
 				rotation: "random",
 				variance: 50, // variance in position (in x/y axis in one direction from player)
 			},
+			trailName: "partyHatConfetti",
 			event: "Antorax",
 			limitedEdition: true,
+		},
+		{
+			id: 29,
+			name: "Flower Crown",
+			type: "helm",
+			image: "assets/items/helm/29.png",
+			tier: 1,
+			obtain: ["boss"],
+			area: ["eaglecrest"],
+			rarity: "unique",
+			sellPrice: 3,
+			lore: "",
+			obtainText: "Can be looted from Baron Foxglove, a boss in the Eaglecrest Plains.",
+			stats: {
+				maxHealth: 5,
+				healingPower: 50,
+				poisonStrength: 50
+			},
+		},
+		{
+			id: 30,
+			name: "Blessed Headpiece of the River Idol",
+			type: "helm",
+			image: "assets/items/helm/30.png",
+			tier: 1,
+			obtain: ["unidentified"],
+			area: ["eaglecrest"],
+			rarity: "unique",
+			sellPrice: 3,
+			lore: "",
+			obtainText: "Can be uncovered as an unidentified item in areas around Eaglecrest Plains.",
+			unidentifiedArea: ["eaglecrest"],
+			set: 6,
+			stats: {
+				defence: 3,
+				maxHealth: 10,
+			},
+		},
+		{
+			id: 31,
+			name: "Leystone Helm",
+			type: "helm",
+			image: "assets/items/helm/31.png",
+			imageArchaeology: "assets/items/helm/31archaeology.png",
+			tier: 1,
+			obtain: ["unidentified"],
+			area: ["eaglecrest"],
+			rarity: "unique",
+			sellPrice: 3,
+			lore: "",
+			obtainText: "Can be uncovered as an unidentified item in areas around Eaglecrest Plains.",
+			unidentifiedArea: ["eaglecrest"],
+			stats: {
+				defence: 2,
+			},
+			functionText: "Grants +10% Attack Damage for 3 seconds after you take damage.", // tbd
+			archaeologyAdditionalStats: ["damagePercentage"],
+			onDamaged: function () {
+				// give strength status effect to player
+				Game.statusEffects.attackDamage({
+					target: Game.hero,
+					effectTitle: "Ley-Infused Armour",
+					damageIncrease: 10,
+					time: 3,
+				});
+			},
+		},
+		{
+			id: 32,
+			name: "Farfeather Headdress",
+			type: "helm",
+			image: "assets/items/helm/32.png",
+			imageArchaeology: "assets/items/helm/32archaeology.png",
+			tier: 1,
+			obtain: ["unidentified"],
+			area: ["eaglecrest"],
+			rarity: "mythic",
+			sellPrice: 5,
+			lore: "",
+			obtainText: "Can be uncovered as an unidentified item in areas around Eaglecrest Plains.",
+			unidentifiedArea: ["eaglecrest"],
+			stats: {
+				defence: 1,
+				rangeMultiplier: 100,
+			},
+		},
+		{
+			id: 33,
+			name: "Pícaro",
+			type: "helm",
+			image: "assets/items/helm/33.png",
+			tier: 1,
+			obtain: ["other"],
+			area: ["eaglecrest"],
+			rarity: "unique",
+			sellPrice: 5,
+			lore: "",
+			obtainText: "???",
+			stats: {
+				stealing: 100,
+				walkSpeed: 40,
+			},
+		},
+		{
+			id: 34,
+			name: "Mechanical Santa Mask",
+			type: "helm",
+			image: "assets/items/helm/34.png",
+			tier: 1,
+			obtain: ["merchant"],
+			area: ["eaglecrest"],
+			event: "Christmas",
+			rarity: "common",
+			sellPrice: 1,
+			lore: "",
+			obtainText: "Can be bought from a mask seller during Christmas", // maybe drops if you kill cutpurse with a certain weapon? or with enough "stealing"?
+			stats: {
+				exploding: 1
+			},
 		},
 	],
 	chest: [
@@ -529,11 +650,11 @@ var Items = {
 			image: "assets/items/chest/2.png",
 			tier: 1,
 			obtain: ["unidentified", "merchant"],
-			area: ["loggingCamp"],
+			area: ["loggingCamp", "eaglecrest"],
 			rarity: "common",
 			sellPrice: 1,
-			obtainText: "Can be found as an unidentified item in areas around Eaglecrest Logging Camp.",
-			unidentifiedArea: ["loggingCamp"],
+			obtainText: "Can be uncovered as an unidentified item in areas around Eaglecrest Logging Camp.",
+			unidentifiedArea: ["loggingCamp", "eaglecrest"],
 			stats: {
 				defence: 3,
 			},
@@ -549,7 +670,7 @@ var Items = {
 			rarity: "unique",
 			sellPrice: 3,
 			lore: "Only a goblin could forge armour that's too large for them, but fits humans perfectly.",
-			obtainText: "Can be found as an unidentified item in areas around Eaglecrest Logging Camp.",
+			obtainText: "Can be uncovered as an unidentified item in areas around Eaglecrest Logging Camp.",
 			unidentifiedArea: ["loggingCamp"],
 			set: 3,
 			stats: {
@@ -568,7 +689,7 @@ var Items = {
 			rarity: "unique",
 			sellPrice: 3,
 			lore: "Knightly armour (mages and archers also welcome).",
-			obtainText: "Can be found as an unidentified item in areas around Eaglecrest Logging Camp.",
+			obtainText: "Can be uncovered as an unidentified item in areas around Eaglecrest Logging Camp.",
 			unidentifiedArea: ["loggingCamp"],
 			set: 2,
 			stats: {
@@ -582,15 +703,15 @@ var Items = {
 			type: "chest",
 			image: "assets/items/chest/5.png",
 			tier: 1,
-			obtain: ["unidentified"],
+			obtain: ["unidentified", "boss"],
 			area: ["loggingCamp"],
 			rarity: "mythic",
 			sellPrice: 5,
 			lore: "Legend says the tattered knight is still wandering around shirtless.",
-			obtainText: "Can be found as an unidentified item in areas around Eaglecrest Logging Camp.",
+			obtainText: "Can be uncovered as an unidentified item in areas around Eaglecrest Logging Camp.",
 			unidentifiedArea: ["loggingCamp"],
 			stats: {
-				defence: 8,
+				defence: 12,
 				walkSpeed: -40,
 			},
 		},
@@ -605,7 +726,7 @@ var Items = {
 			rarity: "mythic",
 			sellPrice: 5,
 			lore: "He ruled the land with great ferocity<br>'till one day he arrived at Eaglecrest",
-			obtainText: "Can be found in a sunken chest from a tier 1 fishing area.",
+			obtainText: "Can be uncovered from a 'Sunken Chest' from a Tier 1 fishing area.",
 			set: 4,
 			stats: {
 				defence: 4,
@@ -613,7 +734,7 @@ var Items = {
 			chooseStats: {
 				criticalChance: 5,
 				dodgeChance: 5,
-				reflection: 10,
+				reflection: 15,
 			},
 		},
 		{
@@ -699,6 +820,138 @@ var Items = {
 				windShield: true
 			},
 		},
+		{
+			id: 11,
+			name: "Antorak",
+			type: "chest",
+			image: "assets/items/chest/11.png",
+			tier: 1,
+			obtain: ["other"],
+			area: [],
+			rarity: "unique",
+			lore: "",
+			obtainText: "Awarded after logging on for 7 days in a row.",
+			sellPrice: 7,
+			stats: {
+				defence: 4,
+				looting: 20,
+				stealing: 20,
+				xpBonus: 30,
+				walkSpeed: 40,
+			},
+		},
+		{
+			id: 12,
+			name: "Blessed Chestpiece of the River Idol",
+			type: "chest",
+			image: "assets/items/chest/12.png",
+			tier: 1,
+			obtain: ["unidentified"],
+			area: ["eaglecrest"],
+			rarity: "unique",
+			sellPrice: 3,
+			lore: "",
+			obtainText: "Can be uncovered as an unidentified item in areas around Eaglecrest Plains.",
+			unidentifiedArea: ["eaglecrest"],
+			set: 6,
+			stats: {
+				defence: 4,
+				maxHealth: 10,
+			},
+		},
+		{
+			id: 13,
+			name: "Leywoven Chestplate",
+			type: "chest",
+			image: "assets/items/chest/13.png",
+			tier: 1,
+			obtain: ["unidentified"],
+			area: ["eaglecrest"],
+			rarity: "unique",
+			sellPrice: 3,
+			lore: "",
+			obtainText: "Can be uncovered as an unidentified item in areas around Eaglecrest Plains.",
+			unidentifiedArea: ["eaglecrest"],
+			stats: {
+				defence: 2,
+			},
+			functionText: "Grants +10% Defence for 5 seconds after you take damage.", // tbd
+			archaeologyAdditionalStats: ["damagePercentage"],
+			onDamaged: function () {
+				// give strength status effect to player
+				Game.statusEffects.defence({
+					target: Game.hero,
+					effectTitle: "Ley-Infused Armour",
+					defenceIncrease: 10,
+					time: 5,
+				});
+			},
+		},
+		{
+			id: 14,
+			name: "City Guard Hauberk",
+			type: "chest",
+			image: "assets/items/chest/14.png",
+			tier: 1,
+			obtain: ["other"],
+			area: ["eaglecrest"],
+			rarity: "unique",
+			sellPrice: 3,
+			lore: "",
+			obtainText: "Not yet obtainable. Check back soon!",
+			stats: {
+				defence: 6,
+			},
+			set: 7,
+		},
+		{
+			id: 15,
+			name: "Kadaverous Chestplate",
+			type: "chest",
+			image: "assets/items/chest/15.png",
+			tier: 1,
+			obtain: ["unidentified"],
+			area: ["eaglecrest"],
+			rarity: "mythic",
+			sellPrice: 5,
+			lore: "",
+			obtainText: "Can be uncovered as an unidentified item in areas around Eaglecrest Plains.",
+			unidentifiedArea: ["eaglecrest"],
+			stats: {
+				defence: 4,
+			},
+			conditionalStats: [
+				{
+					text: "Grants the following stats when near a corpse:",
+					condition: function () {
+						for (let i = 0; i < Game.allCharacters.length; i++) {
+							if (Game.allCharacters[i].isCorpse && Game.areNearby(Game.allCharacters[i], Game.hero, 300)) { // potentially tweak this 300 range?
+								// visual indicator
+								Game.hero.addTrail("kadaverous", {
+									width: 3,
+									height: 3,
+									colour: ["#A1A1A1", "#DB0000", "#B78585", "F8FCC0", "FBFFC3"], // class Particle chooses random colour from array
+									removeIn: 1000,
+									rotation: 0,
+									variance: 50, // variance in position (in x/y axis in one direction from player)
+									intensity: 5, // no. of particles every 100ms
+									light: true,
+								});
+								return true;
+							}
+						}
+						// remove visual indicator if there was one
+						Game.hero.removeTrail("kadaverous");
+						return false;
+					},
+					stats: {
+						healthRegen: 1.5,
+						walkSpeed: 40,
+					},
+				},
+			],
+			archaeologyNotes: "The player must be within 300px from a corpse for the effect to trigger.",
+		},
 	],
 	greaves: [
 		{
@@ -723,11 +976,11 @@ var Items = {
 			image: "assets/items/greaves/2.png",
 			tier: 1,
 			obtain: ["unidentified", "merchant"],
-			area: ["loggingCamp"],
+			area: ["loggingCamp", "eaglecrest"],
 			rarity: "common",
 			sellPrice: 1,
-			obtainText: "Can be found as an unidentified item in areas around Eaglecrest Logging Camp.",
-			unidentifiedArea: ["loggingCamp"],
+			obtainText: "Can be uncovered as an unidentified item in areas around Eaglecrest Logging Camp.",
+			unidentifiedArea: ["loggingCamp", "eaglecrest"],
 			stats: {
 				defence: 3,
 			},
@@ -743,7 +996,7 @@ var Items = {
 			rarity: "unique",
 			sellPrice: 3,
 			lore: "Only a goblin could forge armour that's too large for them, but fits humans perfectly.",
-			obtainText: "Can be found as an unidentified item in areas around Eaglecrest Logging Camp.",
+			obtainText: "Can be uncovered as an unidentified item in areas around Eaglecrest Logging Camp.",
 			unidentifiedArea: ["loggingCamp"],
 			set: 3,
 			stats: {
@@ -762,7 +1015,7 @@ var Items = {
 			rarity: "unique",
 			sellPrice: 3,
 			lore: "Knightly armour (mages and archers also welcome).",
-			obtainText: "Can be found as an unidentified item in areas around Eaglecrest Logging Camp.",
+			obtainText: "Can be uncovered as an unidentified item in areas around Eaglecrest Logging Camp.",
 			unidentifiedArea: ["loggingCamp"],
 			set: 2,
 			stats: {
@@ -781,7 +1034,7 @@ var Items = {
 			rarity: "mythic",
 			sellPrice: 5,
 			lore: "You'll find none of those cheap MDF greaves from the Weirwood.",
-			obtainText: "Can be found as an unidentified item in areas around Eaglecrest Logging Camp.",
+			obtainText: "Can be uncovered as an unidentified item in areas around Eaglecrest Logging Camp.",
 			unidentifiedArea: ["loggingCamp"],
 			stats: {
 				defence: 4,
@@ -800,7 +1053,7 @@ var Items = {
 			rarity: "mythic",
 			sellPrice: 5,
 			lore: "A hero met him, he was pure and brave<br>They fought and fought, a duel for all mankind",
-			obtainText: "Can be found in a sunken chest from a tier 1 fishing area.",
+			obtainText: "Can be uncovered from a 'Sunken Chest' from a Tier 1 fishing area.",
 			set: 4,
 			stats: {
 				defence: 4,
@@ -808,7 +1061,7 @@ var Items = {
 			chooseStats: {
 				criticalChance: 5,
 				dodgeChance: 5,
-				reflection: 10,
+				reflection: 15,
 			},
 		},
 		{
@@ -826,6 +1079,110 @@ var Items = {
 			set: 5,
 			stats: {
 				defence: 4,
+			},
+		},
+		{
+			id: 8,
+			name: "tbd",
+			type: "greaves",
+			image: "assets/items/greaves/8.png",
+			tier: 1,
+			lore: "",
+			stats: {
+				defence: 4,
+			},
+			limitedEdition: true, // temp
+		},
+		{
+			id: 9,
+			name: "Blessed Legpiece of the River Idol",
+			type: "greaves",
+			image: "assets/items/greaves/9.png",
+			tier: 1,
+			obtain: ["unidentified"],
+			area: ["eaglecrest"],
+			rarity: "unique",
+			sellPrice: 3,
+			lore: "",
+			obtainText: "Can be uncovered as an unidentified item in areas around Eaglecrest Plains.",
+			unidentifiedArea: ["eaglecrest"],
+			set: 6,
+			stats: {
+				defence: 4,
+				maxHealth: 10,
+			},
+		},
+		{
+			id: 10,
+			name: "River Dredging Dungarees",
+			type: "greaves",
+			image: "assets/items/greaves/10.png",
+			imageArchaeology: "assets/items/greaves/10archaeology.png",
+			tier: 1,
+			obtain: ["other"],
+			area: ["eaglecrest"],
+			rarity: "unique",
+			sellPrice: 3,
+			lore: "",
+			obtainText: "Not yet obtainable. Check back soon!",
+			stats: {
+				defence: 3,
+				swimSpeed: 30,
+			},
+			conditionalStats: [
+				{
+					text: "Grants the following stats when in water:",
+					condition: function () {
+						return map.isSlowTileAtXY(Game.hero.x, Game.hero.y) === "water";
+					},
+					stats: {
+						defence: 5,
+					},
+				},
+			],
+			set: 8,
+		},
+		{
+			id: 11,
+			name: "City Guard Chausses",
+			type: "greaves",
+			image: "assets/items/greaves/11.png",
+			tier: 1,
+			obtain: ["unidentified"],
+			area: ["eaglecrest"],
+			rarity: "unique",
+			sellPrice: 3,
+			lore: "",
+			obtainText: "Can be uncovered as an unidentified item in areas around Eaglecrest Plains.",
+			unidentifiedArea: ["eaglecrest"],
+			stats: {
+				defence: 5,
+			},
+			set: 7,
+		},
+		{
+			id: 12,
+			name: "Honeyed Hivemind",
+			type: "greaves",
+			image: "assets/items/greaves/12.png",
+			tier: 1,
+			obtain: ["unidentified"],
+			area: ["eaglecrest"],
+			rarity: "mythic",
+			sellPrice: 5,
+			lore: "",
+			obtainText: "Can be uncovered as an unidentified item in areas around Eaglecrest Plains.",
+			unidentifiedArea: ["eaglecrest"],
+			functionText: "Produces <i>Hive Honey</i> which restores 10 health",
+			stats: {
+				defence: 4,
+				healingPower: 25,
+			},
+			intervalEffect: {
+				function: function () {
+					Dom.inventory.give(Items.consumable[32]);
+				},
+				time: 60, // seconds
 			},
 		},
 	],
@@ -869,11 +1226,11 @@ var Items = {
 			image: "assets/items/boots/3.png",
 			tier: 1,
 			obtain: ["unidentified", "merchant"],
-			area: ["loggingCamp"],
+			area: ["loggingCamp", "eaglecrest"],
 			rarity: "common",
 			sellPrice: 1,
-			obtainText: "Can be found as an unidentified item in areas around Eaglecrest Logging Camp.",
-			unidentifiedArea: ["loggingCamp"],
+			obtainText: "Can be uncovered as an unidentified item in areas around Eaglecrest Logging Camp.",
+			unidentifiedArea: ["loggingCamp", "eaglecrest"],
 			stats: {
 				defence: 2,
 			},
@@ -889,7 +1246,7 @@ var Items = {
 			rarity: "unique",
 			sellPrice: 3,
 			lore: "Only a goblin could forge armour that's too large for them, but fits humans perfectly.",
-			obtainText: "Can be found as an unidentified item in areas around Eaglecrest Logging Camp.",
+			obtainText: "Can be uncovered as an unidentified item in areas around Eaglecrest Logging Camp.",
 			unidentifiedArea: ["loggingCamp"],
 			set: 3,
 			stats: {
@@ -908,7 +1265,7 @@ var Items = {
 			rarity: "unique",
 			sellPrice: 3,
 			lore: "Knightly armour (mages and archers also welcome).",
-			obtainText: "Can be found as an unidentified item in areas around Eaglecrest Logging Camp.",
+			obtainText: "Can be uncovered as an unidentified item in areas around Eaglecrest Logging Camp.",
 			unidentifiedArea: ["loggingCamp"],
 			set: 2,
 			stats: {
@@ -927,7 +1284,7 @@ var Items = {
 			rarity: "mythic",
 			sellPrice: 5,
 			lore: "Marshall Teper's favourite boots. Maybe you could return them for a reward?",
-			obtainText: "Can be found as an unidentified item in areas around Eaglecrest Logging Camp.",
+			obtainText: "Can be uncovered as an unidentified item in areas around Eaglecrest Logging Camp.",
 			unidentifiedArea: ["loggingCamp"],
 			stats: {
 				defence: 2,
@@ -967,7 +1324,7 @@ var Items = {
 			rarity: "mythic",
 			sellPrice: 5,
 			lore: "The villain lost, he fled back to the waves<br>His set of armour simply left behind",
-			obtainText: "Can be found in a sunken chest from a tier 1 fishing area.",
+			obtainText: "Can be uncovered from a 'Sunken Chest' from a Tier 1 fishing area.",
 			set: 4,
 			stats: {
 				defence: 3,
@@ -975,7 +1332,7 @@ var Items = {
 			chooseStats: {
 				criticalChance: 5,
 				dodgeChance: 5,
-				reflection: 10,
+				reflection: 15,
 			},
 		},
 		{
@@ -1059,6 +1416,151 @@ var Items = {
 				healthRegen: 1,
 			},
 		},
+		{
+			id: 13,
+			name: "Blessed Footpieces of the River Idol",
+			type: "boots",
+			image: "assets/items/boots/13.png",
+			tier: 1,
+			obtain: ["unidentified"],
+			area: ["eaglecrest"],
+			rarity: "unique",
+			sellPrice: 3,
+			lore: "",
+			obtainText: "Can be uncovered as an unidentified item in areas around Eaglecrest Plains.",
+			unidentifiedArea: ["eaglecrest"],
+			set: 6,
+			stats: {
+				defence: 3,
+				maxHealth: 10,
+			},
+		},
+		{
+			id: 14,
+			name: "River Dredging Overshoes",
+			type: "boots",
+			image: "assets/items/boots/14.png",
+			tier: 1,
+			obtain: ["unidentified"],
+			area: ["eaglecrest"],
+			rarity: "unique",
+			sellPrice: 3,
+			lore: "",
+			obtainText: "tbd.",
+			stats: {
+				defence: 2,
+				swimSpeed: 40,
+			},
+			conditionalStats: [
+				{
+					text: "Grants the following stats when in water:",
+					condition: function () {
+						return map.isSlowTileAtXY(Game.hero.x, Game.hero.y) === "water";
+					},
+					stats: {
+						dodgeChance: 20,
+					},
+				},
+			],
+			set: 8,
+		},
+		{
+			id: 15,
+			name: "Iglak's Wretched Boots",
+			type: "boots",
+			image: "assets/items/boots/15.png",
+			tier: 1,
+			obtain: ["unidentified"],
+			area: ["eaglecrest"],
+			rarity: "mythic",
+			sellPrice: 5,
+			lore: "",
+			obtainText: "Can be uncovered as an unidentified item in areas around Eaglecrest Plains.",
+			unidentifiedArea: ["eaglecrest"],
+			functionText: "Lays a trail of gloop which slows enemies by 50% and makes them deal 30% less damage.",
+			stats: {
+				defence: 4,
+			},
+			onWalk: function () { // only triggered when on the ground
+				for (let i = 0; i < Game.allThings.length; i++) {
+					if (Game.allThings[i].name === "Iglak Gloop" && Game.distance(Game.allThings[i], Game.hero.footHitbox) < 62) {
+						return false;
+					}
+				}
+				// not touching any gloop
+				let gloopObj = {
+					map: map,
+					image: "gloop", // use the projectile system to load in a special image
+					name: "Iglak Gloop",
+					x: Game.hero.x,
+					y: Game.hero.y + 40,
+					type: "things",
+					z: -1,
+					removeIn: 10,
+					checkTouching: [{ // check for enemies
+						arrayName: "enemies",
+						isTouchingFunction: function (index, id) {
+							// check that enemy is not "in the air" (i.e. charging for goblin king, or being displaced)
+							if (this.expand === 1) {
+								Game.statusEffects.walkSpeed({
+									target: Game.enemies[index],
+									effectTitle: "Gloop",
+									speedIncrease: -50,
+									time: 0.5,
+									imageName: "gloop",
+									effectStack: "refresh", // effect refreshes (doesn't extend time above 0.5s)
+									extraInfo: {showTime: false,}
+								});
+								Game.statusEffects.attackDamage({
+									target: Game.enemies[index],
+									effectTitle: "Gloop",
+									damageIncrease: -30,
+									time: 0.5,
+									imageName: "gloop",
+									effectStack: "refresh", // effect refreshes (doesn't extend time above 0.5s)
+									extraInfo: {showTime: false,},
+									hidden: true, // only one of these needs to be shown
+								});
+							}
+						},
+					}],
+				};
+				Game.things.push(new Thing(gloopObj));
+				return true;
+			},
+		},
+		{
+			id: 16,
+			name: "Boots of Ostara",
+			type: "boots",
+			image: "assets/items/boots/16.png",
+			tier: 1,
+			obtain: ["boss"],
+			area: ["eaglecrest"],
+			rarity: "mythic",
+			sellPrice: 5,
+			lore: "",
+			obtainText: "Can be looted from Baron Foxglove, a boss in the Eaglecrest Plains.",
+			functionText: "Creates a trail of flowers on grass!",
+			stats: {
+				defence: 3,
+				walkSpeed: 30,
+			},
+			conditionalStats: [
+				{
+					text: "Gives the following stats when standing on grass:",
+					condition: function () {
+						return false; //tbd
+					},
+					stats: {
+						healingPower: 50,
+					},
+				},
+			],
+			onWalk: function () { // only triggered when on ground
+				// flower
+			},
+		},
 	],
 	sword: [
 		{
@@ -1102,11 +1604,11 @@ var Items = {
 			image: "assets/items/sword/3.png",
 			tier: 1,
 			obtain: ["unidentified"],
-			area: ["loggingCamp"],
+			area: ["loggingCamp", "eaglecrest"],
 			rarity: "common",
 			sellPrice: 1,
-			obtainText: "Can be found as an unidentified item in areas around Eaglecrest Logging Camp.",
-			unidentifiedArea: ["loggingCamp"],
+			obtainText: "Can be uncovered as an unidentified item in areas around Eaglecrest Logging Camp.",
+			unidentifiedArea: ["loggingCamp", "eaglecrest"],
 			stats: {
 				damage: 3,
 				defence: 2,
@@ -1123,7 +1625,7 @@ var Items = {
 			rarity: "unique",
 			sellPrice: 3,
 			lore: "Your hero power gives this... oh, wrong game.",
-			obtainText: "Can be found as an unidentified item in areas around Eaglecrest Logging Camp.",
+			obtainText: "Can be uncovered as an unidentified item in areas around Eaglecrest Logging Camp.",
 			unidentifiedArea: ["loggingCamp"],
 			stats: {
 				damage: 3,
@@ -1143,7 +1645,7 @@ var Items = {
 			rarity: "unique",
 			sellPrice: 3,
 			lore: "It might be falling apart, but those splinters hurt!",
-			obtainText: "Can be found as an unidentified item in areas around Eaglecrest Logging Camp.",
+			obtainText: "Can be uncovered as an unidentified item in areas around Eaglecrest Logging Camp.",
 			unidentifiedArea: ["loggingCamp"],
 			stats: {
 				damage: 4,
@@ -1162,7 +1664,7 @@ var Items = {
 			rarity: "mythic",
 			sellPrice: 5,
 			lore: "Not to be confused with the hit movie 'Raiders of the Lost Orc'.",
-			obtainText: "Can be found as an unidentified item in areas around Eaglecrest Logging Camp.",
+			obtainText: "Can be uncovered as an unidentified item in areas around Eaglecrest Logging Camp.",
 			unidentifiedArea: ["loggingCamp"],
 			stats: {
 				damage: 4,
@@ -1249,7 +1751,7 @@ var Items = {
 			area: [],
 			rarity: "common",
 			lore: "A fin-tastic weapon.",
-			obtainText: "Can be found during a rare fish rain storm.",
+			obtainText: "Can be uncovered during a rare fish rain storm.",
 			event: "Fish",
 			sellPrice: 1,
 			stats: {
@@ -1276,7 +1778,7 @@ var Items = {
 			event: "Heroes",
 			sellPrice: 5,
 			stats: {
-				damage: 3,
+				damage: 4,
 			},
 			classStats: {
 				k: {
@@ -1292,14 +1794,14 @@ var Items = {
 			gemstones: [], // array of item names for gemstones that have been added to the item
 			conditionalChooseStats: [
 				{
-					damagePercentage: 67,
+					damagePercentage: 100,
 					condition: function (item) {
 						// purple gemstone fragment
 						return item.gemstones.includes("Amethyst Fragment");
 					},
 				},
 				{
-					walkSpeed: 60,
+					walkSpeed: 90,
 					condition: function (item) {
 						// blue gemstone fragment
 						return item.gemstones.includes("Aquamarine Fragment");
@@ -1313,21 +1815,21 @@ var Items = {
 					},
 				},
 				{
-					maxHealth: 20,
+					maxHealth: 100,
 					condition: function (item) {
 						// orange gemstone fragment
 						return item.gemstones.includes("Jasper Fragment");
 					},
 				},
 				{
-					healthRegen: 0.5,
+					healthRegen: 2,
 					condition: function (item) {
 						// green gemstone fragment
 						return item.gemstones.includes("Emerald Fragment");
 					},
 				},
 				{
-					stun: 0.5,
+					stun: 0.3,
 					condition: function (item) {
 						// yellow gemstone fragment
 						return item.gemstones.includes("Citrine Fragment");
@@ -1463,6 +1965,92 @@ var Items = {
 				damage: 1,
 			},
 		},
+		{
+			id: 17,
+			name: "Coyote's Bite",
+			type: "sword",
+			image: "assets/items/sword/17.png",
+			tier: 1,
+			obtain: ["unidentified"],
+			area: ["eaglecrest"],
+			rarity: "unique",
+			sellPrice: 3,
+			lore: "",
+			obtainText: "Can be uncovered as an unidentified item in areas around Eaglecrest Plains.",
+			unidentifiedArea: ["eaglecrest"],
+			stats: { //tba
+				damage: 3,
+				defence: 3,
+				reflection: 50,
+			},
+		},
+		{
+			id: 18,
+			name: "Scoundrel's Sword",
+			type: "sword",
+			image: "assets/items/sword/18.png",
+			tier: 1,
+			obtain: ["unidentified"],
+			area: ["eaglecrest"],
+			rarity: "unique",
+			sellPrice: 3,
+			lore: "",
+			obtainText: "Can be uncovered as an unidentified item in areas around Eaglecrest Plains.",
+			unidentifiedArea: ["eaglecrest"],
+			stats: {
+				damage: 4,
+				defence: 2,
+				stealing: 20,
+			},
+			functionText: "Upon hitting an enemy, gain +10% Walk Speed for 2 seconds.",
+			archaeologyAdditionalStats: ["walkSpeed"], // additional stat help to display on the archaeology page
+			onHit: function () { // maybe stacks for each enemy hit - tbd maybe shouldn't?
+				Game.statusEffects.walkSpeed({
+					target: Game.hero,
+					effectTitle: "Scoundrel's Speed",
+					speedIncrease: 10,
+					time: 2,
+					effectStack: "noStack",
+				});
+			}
+		},
+		{
+			id: 19,
+			name: "Volcanic Knuckles",
+			type: "sword",
+			image: "assets/items/sword/19.png",
+			tier: 1,
+			obtain: ["unidentified"],
+			area: ["eaglecrest"],
+			rarity: "mythic",
+			sellPrice: 5,
+			lore: "",
+			obtainText: "Can be uncovered as an unidentified item in areas around Eaglecrest Plains.",
+			unidentifiedArea: ["eaglecrest"],
+			stats: {
+				damage: 4,
+				knockback: 75, // px knocked back
+				flaming: 1,
+			},
+		},
+		{
+			id: 20,
+			name: "Foxgloves",
+			type: "sword",
+			image: "assets/items/sword/20.png",
+			tier: 1,
+			obtain: ["boss"],
+			area: ["eaglecrest"],
+			rarity: "unique",
+			sellPrice: 3,
+			lore: "",
+			obtainText: "Can be looted from Baron Foxglove, a boss in the Eaglecrest Plains.",
+			stats: {
+				damage: 1,
+				poisonX: 4,
+				poisonY: 8,
+			},
+		},
 	],
 	staff: [
 		{
@@ -1506,11 +2094,11 @@ var Items = {
 			image: "assets/items/staff/3.png",
 			tier: 1,
 			obtain: ["unidentified"],
-			area: ["loggingCamp"],
+			area: ["loggingCamp", "eaglecrest"],
 			rarity: "common",
 			sellPrice: 1,
-			obtainText: "Can be found as an unidentified item in areas around Eaglecrest Logging Camp.",
-			unidentifiedArea: ["loggingCamp"],
+			obtainText: "Can be uncovered as an unidentified item in areas around Eaglecrest Logging Camp.",
+			unidentifiedArea: ["loggingCamp", "eaglecrest"],
 			stats: {
 				damage: 3,
 				maxDamage: 9,
@@ -1528,7 +2116,7 @@ var Items = {
 			rarity: "unique",
 			sellPrice: 3,
 			lore: "Far healthier than any of the logging camp's wood.",
-			obtainText: "Can be found as an unidentified item in areas around Eaglecrest Logging Camp.",
+			obtainText: "Can be uncovered as an unidentified item in areas around Eaglecrest Logging Camp.",
 			unidentifiedArea: ["loggingCamp"],
 			stats: {
 				damage: 3,
@@ -1548,7 +2136,7 @@ var Items = {
 			rarity: "unique",
 			sellPrice: 3,
 			lore: "POWER OVERWHELMING!",
-			obtainText: "Can be found as an unidentified item in areas around Eaglecrest Logging Camp.",
+			obtainText: "Can be uncovered as an unidentified item in areas around Eaglecrest Logging Camp.",
 			unidentifiedArea: ["loggingCamp"],
 			stats: {
 				damage: 2,
@@ -1568,7 +2156,7 @@ var Items = {
 			rarity: "mythic",
 			sellPrice: 5,
 			lore: "With looting that high, she couldn't help but become a hoarder.",
-			obtainText: "Can be found as an unidentified item in areas around Eaglecrest Logging Camp.",
+			obtainText: "Can be uncovered as an unidentified item in areas around Eaglecrest Logging Camp.",
 			unidentifiedArea: ["loggingCamp"],
 			stats: {
 				damage: 2,
@@ -1743,6 +2331,88 @@ var Items = {
 			projectile: "fireballGreen",
 			projectileAdjust: {x: 20, y: 20},
 		},
+		{
+			id: 14,
+			name: "Frog Staff", // tbc?
+			type: "staff",
+			image: "assets/items/staff/14.png",
+			imageArchaeology: "assets/items/staff/14archaeology.png",
+			tier: 1,
+			obtain: ["unidentified"],
+			area: ["eaglecrest"],
+			rarity: "unique",
+			sellPrice: 3,
+			lore: "",
+			obtainText: "Can be uncovered as an unidentified item in areas around Eaglecrest Plains.",
+			unidentifiedArea: ["eaglecrest"],
+			stats: {
+				damage: 4,
+				maxDamage: 12,
+				hex: 10,
+			},
+			hexImages: [
+				{
+					imageName: "toadRight",
+					rotationImages: {
+						left: "toadLeft",
+						right: "toadRight"
+					},
+					imageAddresses: {
+						toadRight: {normal: "./assets/enemies/toad.png"},
+						toadLeft: {normal: "./assets/enemies/toad.png", flip: "vertical"},
+					}
+				}
+			],
+			hexImmuneSpecies: ["frog"], // frogs can't be hexxed by this
+			archaeologyNotes: "This weapon's ability doesn't seem to work on frogs!",
+		},
+		{
+			id: 15,
+			name: "Supercharged Baton", //tbc?
+			type: "staff",
+			image: "assets/items/staff/15.png",
+			imageArchaeology: "assets/items/staff/15archaeology.png",
+			tier: 1,
+			obtain: ["unidentified"],
+			area: ["eaglecrest"],
+			rarity: "unique",
+			sellPrice: 3,
+			lore: "",
+			obtainText: "Can be uncovered as an unidentified item in areas around Eaglecrest Plains.",
+			unidentifiedArea: ["eaglecrest"],
+			stats: {
+				damage: 2,
+				maxDamage: 13, // tbc
+				reloadTime: -200,
+			},
+		},
+		{
+			id: 16,
+			name: "Old Rusted Staff",
+			type: "staff",
+			image: "assets/items/staff/16.png",
+			imageArchaeology: "assets/items/staff/16archaeology.png",
+			tier: 1,
+			obtain: ["unidentified"],
+			area: ["eaglecrest"],
+			rarity: "mythic",
+			sellPrice: 5,
+			lore: "", // tbd you cant take this into monsastery
+			obtainText: "Can be uncovered as an unidentified item in areas around Eaglecrest Plains.",
+			unidentifiedArea: ["eaglecrest"],
+			stats: {
+				damage: 6,
+				maxDamage: 18,
+				slowAmount: 25,
+				slowTime: 1,
+			},
+			functionText: "You take 5 damage every time you attack with this staff.",
+			onAttack: function () {
+				Game.hero.takeDamage(5);
+			},
+			projectile: "pinkBall",
+			projectileAdjust: {x: 0, y: 0},
+		},
 	],
 	bow: [
 		{
@@ -1785,11 +2455,11 @@ var Items = {
 			image: "assets/items/bow/3.png",
 			tier: 1,
 			obtain: ["unidentified"],
-			area: ["loggingCamp"],
+			area: ["loggingCamp", "eaglecrest"],
 			rarity: "common",
 			sellPrice: 1,
-			obtainText: "Can be found as an unidentified item in areas around Eaglecrest Logging Camp.",
-			unidentifiedArea: ["loggingCamp"],
+			obtainText: "Can be uncovered as an unidentified item in areas around Eaglecrest Logging Camp.",
+			unidentifiedArea: ["loggingCamp", "eaglecrest"],
 			stats: {
 				damage: 3,
 			},
@@ -1805,10 +2475,10 @@ var Items = {
 			rarity: "unique",
 			sellPrice: 3,
 			lore: "One shot, one kill.",
-			obtainText: "Can be found as an unidentified item in areas around Eaglecrest Logging Camp.",
+			obtainText: "Can be uncovered as an unidentified item in areas around Eaglecrest Logging Camp.",
 			unidentifiedArea: ["loggingCamp"],
 			stats: {
-				damage: 3.5,
+				damage: 4,
 				moveDuringFocus: true,
 			},
 		},
@@ -1823,7 +2493,7 @@ var Items = {
 			rarity: "unique",
 			sellPrice: 3,
 			lore: "It used to fire bolts. Now it just shoots wood.",
-			obtainText: "Can be found as an unidentified item in areas around Eaglecrest Logging Camp.",
+			obtainText: "Can be uncovered as an unidentified item in areas around Eaglecrest Logging Camp.",
 			unidentifiedArea: ["loggingCamp"],
 			stats: {
 				damage: 2.5,
@@ -1841,12 +2511,14 @@ var Items = {
 			rarity: "mythic",
 			sellPrice: 5,
 			lore: "Once this bow helped burn down Azuras; now it will burn down your enemies.",
-			obtainText: "Can be found as an unidentified item in areas around Eaglecrest Logging Camp.",
+			obtainText: "Can be uncovered as an unidentified item in areas around Eaglecrest Logging Camp.",
 			unidentifiedArea: ["loggingCamp"],
 			stats: {
 				damage: 4,
 				flaming: 1,
 			},
+			projectile: "arrowFire",
+			projectileAdjust: {x: 20, y: 13},
 		},
 		{
 			id: 7,
@@ -1972,6 +2644,7 @@ var Items = {
 			id: 12,
 			name: "Slingshot",
 			type: "bow",
+			category: "slingshot",
 			image: "assets/items/bow/12.png",
 			tier: 1,
 			obtain: ["merchant"],
@@ -1982,10 +2655,13 @@ var Items = {
 			sellPrice: 3,
 			stats: {
 				damage: 4,
-				minimumVariance: 70,
+				minimumVariance: 70, // tbd change to projectile variance percentage!
 			},
 			projectile: "greyPellet",
 			projectileAdjust: {x: 0, y: 0},
+			onKill: function () {
+				Player.quests.questProgress.enemiesKilledWithSlingshot = Increment(Player.quests.questProgress.enemiesKilledWithSlingshot);
+			}
 		},
 		{
 			id: 13,
@@ -2007,6 +2683,182 @@ var Items = {
 			},
 			projectile: "waterball",
 			projectileAdjust: {x: 10, y: 10},
+		},
+		{
+			id: 14,
+			name: "Flower Power",
+			type: "bow",
+			image: "assets/items/bow/14.png",
+			tier: 1,
+			obtain: ["boss"],
+			area: ["eaglecrest"],
+			rarity: "mythic",
+			sellPrice: 5,
+			lore: "",
+			obtainText: "Can be looted from Baron Foxglove.",
+			unidentifiedArea: ["eaglecrest"],
+			stats: {
+				damage: 5,
+				healthRegen: -0.5
+			},
+			functionText: "Fires flowers, which restore 5 health when collected in full bloom",
+			projectile: "flowerBud",
+			projectileAdjust: {x: 0, y: 0},
+			extraProjectileInfo: {
+				crop: {
+					x: 0,
+					y: 0,
+					width: 41,
+					height: 41
+				},
+				animateFunction: function () {
+					// state is an integer from 0 to 9 inclusive
+					// growth goes from 0 to 10, then it starts growing
+					// define state & growth
+					if (this.state === undefined) {
+						this.state = 0;
+						this.growth = 0;
+					}
+					else if (this.state === 0 && this.growth < 10) {
+						this.growth++;
+					}
+					else if (this.state < 9) {
+						this.z = -1; // now a flower so appears behind
+						this.state++;
+						// change image
+						this.crop = {
+							x: (this.state % 4) * this.baseWidth,
+							y: Math.floor(this.state / 4) * this.baseHeight,
+							width: this.baseWidth,
+							height: this.baseHeight
+						}
+
+						if (this.state === 9) {
+							this.removeIn = 5;
+						}
+					}
+				},
+				animationFrameTime: 150,
+				stayOnScreen: true, // done in animateFunction
+				doNotRotate: true,
+				onInteract: function () {
+					if (this.state === 9) {
+						Game.hero.channel(function (projectileRemoveId) {
+							Game.restoreHealth(Game.hero, 5);
+							Game.removeObject(projectileRemoveId, "projectiles");
+						}, [this.id], 200, "Flower power!");
+					}
+				},
+			}
+		},
+		{
+			id: 15,
+			name: "Straw Bow", // tbc?
+			type: "bow",
+			image: "assets/items/bow/15.png",
+			tier: 1,
+			obtain: ["unidentified"],
+			area: ["eaglecrest"],
+			rarity: "unique",
+			sellPrice: 3,
+			lore: "",
+			obtainText: "Can be uncovered as an unidentified item in areas around Eaglecrest Plains.",
+			unidentifiedArea: ["eaglecrest"],
+			stats: {
+				damage: 4,
+				rooting: 0.4,
+			},
+		},
+		{
+			id: 16,
+			name: "Feathered Bow", //tbc?
+			type: "bow",
+			image: "assets/items/bow/16.png",
+			imageArchaeology: "assets/items/bow/16archaeology.png",
+			tier: 1,
+			obtain: ["unidentified"],
+			area: ["eaglecrest"],
+			rarity: "unique",
+			sellPrice: 3,
+			lore: "",
+			obtainText: "Can be uncovered as an unidentified item in areas around Eaglecrest Plains.",
+			unidentifiedArea: ["eaglecrest"],
+			stats: {
+				damage: 4,
+				walkSpeed: 30,
+				hex: 10,
+			},
+			hexImages: [
+				{
+					imageName: "chickenRight",
+					rotationImages: {
+						left: "chickenLeft",
+						right: "chickenRight"
+					},
+					imageAddresses: {
+						chickenRight: {normal: "./assets/enemies/chicken.png"},
+						chickenLeft: {normal: "./assets/enemies/chicken.png", flip: "vertical"},
+					}
+				}
+			],
+			hexImmuneSpecies: ["chicken"], // frogs can't be hexxed by this
+			archaeologyNotes: "This weapon's ability doesn't seem to work on chickens!",
+		},
+		{
+			id: 17,
+			name: "Arm of the Blackguard",
+			type: "bow",
+			image: "assets/items/bow/17.png",
+			tier: 1,
+			obtain: ["unidentified"],
+			area: ["eaglecrest"],
+			rarity: "mythic",
+			sellPrice: 5,
+			lore: "", // tbd you cant take this into monsastery
+			obtainText: "Can be uncovered as an unidentified item in areas around Eaglecrest Plains.",
+			unidentifiedArea: ["eaglecrest"],
+			stats: {
+				damage: 4,
+				dodgeChance: 10,
+			},
+			functionText: "Upon changing location, gain Stealth and +100% Damage on your next attack",
+			archaeologyAdditionalStats: ["stealth"], // additional stat help to display on the archaeology page
+			onAreaChange: function () {
+				Game.statusEffects.stealth({
+					target: Game.hero,
+					effectTitle: "Blackguard Shroud",
+				});
+				Game.statusEffects.attackDamage({
+					target: Game.hero,
+					effectTitle: "Blackguard Strike",
+					effectDescription: "Your next attack deals 100% more damage.",
+					damageIncrease: 100,
+					removeOnAttack: true,
+					hidden: true,
+				});
+			}
+		},
+		{
+			id: 18,
+			name: "Golden Slingshot",
+			type: "bow",
+			category: "slingshot",
+			image: "assets/items/bow/18.png",
+			tier: 1,
+			obtain: ["other"],
+			limitedEdition: true, // hidden from archaeology
+			area: ["eaglecrest"],
+			rarity: "unique",
+			lore: "",
+			obtainText: "???",
+			sellPrice: 10,
+			stats: {
+				damage: 4,
+				minimumVariance: 70,
+				numberOfProjectiles: 3,
+			},
+			projectile: "goldPellet",
+			projectileAdjust: {x: 0, y: 0},
 		},
 	],
 	rod: [ // fishing rod
@@ -2087,8 +2939,8 @@ var Items = {
 			obtain: ["unidentified"],
 			area: ["loggingCamp"],
 			rarity: "unique",
-			obtainText: "Can be found the items of this set as unidentified items in areas around Eaglecrest Logging Camp.",
-			armour: [
+			obtainText: "Can be uncovered as unidentified items in areas around Eaglecrest Logging Camp.",
+			armour: [ // tbd make this use ids
 				"Siege Helm",
 				"Siege Chestplate",
 				"Siege Greaves",
@@ -2108,7 +2960,7 @@ var Items = {
 			obtain: ["unidentified"],
 			area: ["loggingCamp"],
 			rarity: "unique",
-			obtainText: "Can be found the items of this set as unidentified items in areas around Eaglecrest Logging Camp.",
+			obtainText: "Can be uncovered as unidentified items in areas around Eaglecrest Logging Camp.",
 			armour: [
 				"Goblin Forged Helm",
 				"Goblin Forged Chestplate",
@@ -2129,7 +2981,7 @@ var Items = {
 			obtain: ["fishing"],
 			area: ["loggingCamp"],
 			rarity: "mythic",
-			obtainText: "Can be found the items of this set in a sunken chest in a tier 1 fishing area.",
+			obtainText: "Can be uncovered from a 'Sunken Chest' from a Tier 1 fishing area.",
 			armour: [
 				"The Ocean Warrior's Helm",
 				"The Ocean Warrior's Chestplate",
@@ -2167,6 +3019,64 @@ var Items = {
 			],
 			stats: {
 				defence: 4
+			},
+		},
+		{
+			id: 6,
+			name: "River Idol's Blessing",
+			type: "set",
+			image: "assets/items/set/6.png",
+			tier: 1,
+			obtain: ["unidentified"],
+			area: ["eaglecrest"],
+			rarity: "unique",
+			obtainText: "Can be uncovered as unidentified items in areas around Eaglecrest Plains.",
+			armour: [
+				"Blessed Headpiece of the River Idol",
+				"Blessed Chestpiece of the River Idol",
+				"Blessed Legpiece of the River Idol",
+				"Blessed Footpieces of the River Idol",
+			],
+			stats: {
+				reflection: 100,
+			}, // tbd make set 2 bonus and set 4 bonus!
+		},
+		{
+			id: 7,
+			name: "Eaglecrest Guard Set",
+			type: "set",
+			image: "assets/items/set/7.png",
+			tier: 1,
+			obtain: ["unidentified"],
+			area: ["eaglecrest"],
+			rarity: "unique",
+			obtainText: "Can be uncovered around Eaglecrest.",
+			armour: [
+				"City Guard Hauberk",
+				"City Guard Chausses",
+			],
+			stats: {
+				unstoppable: true, // immunity to slows, stuns, roots, hexes
+			},
+		},
+		{
+			id: 8,
+			name: "River Dredging Set",
+			type: "set",
+			image: "assets/items/set/8.png",
+			tier: 1,
+			obtain: ["unidentified"],
+			area: ["eaglecrest"],
+			rarity: "unique",
+			obtainText: "Can be uncovered around Eaglecrest.",
+			armour: [
+				"River Dredging Dungarees",
+				"River Dredging Overshoes",
+			],
+			stats: {
+				swimSpeed: 30,
+				looting: 30, // tbd make this and stealing conditional stats?
+				stealing: 30,
 			},
 		},
 	],
@@ -2217,7 +3127,7 @@ var Items = {
 			name: "Christmas Token",
 			type: "currency",
 			image: "assets/items/currency/5.png",
-			functionText: "Used to buy special Christmas items around the Eaglecrest Logging Camp.",
+			functionText: "Used to buy festive Christmas items.",
 			stack: 256,
 		},
 	],
@@ -2226,8 +3136,8 @@ var Items = {
 			id: 0,
 			name: "Test bag 1",
 			type: "bag",
-			image: "assets/items/bag/2.png", // perhaps give it its own image?
-			size: 55, // biggest a bag can be
+			image: "assets/items/item/9.png", // perhaps give it its own image?
+			size: 48, // biggest a bag can be is 54
 		},
 		{
 			// unequipped item
@@ -2257,7 +3167,7 @@ var Items = {
 			name: "Fishing Pouch",
 			type: "bag",
 			image: "assets/items/bag/4.png",
-			sellPrice: 10,
+			sellPrice: 5,
 			size: 18,
 		},
 		{
@@ -2276,6 +3186,14 @@ var Items = {
 			lore: "Free merch",
 			sellPrice: 1,
 			size: 6,
+		},
+		{
+			id: 7,
+			name: "Cutpurse Sack",
+			type: "bag",
+			image: "assets/items/bag/7.png",
+			sellPrice: 5,
+			size: 18,
 		},
 	],
 	item: [
@@ -2693,6 +3611,7 @@ var Items = {
 			id: 33,
 			name: "ςคtภเթ",
 			type: "item",
+			category: "flower",
 			image: "assets/items/item/33.png",
 			stack: 3,
 			quest: true,
@@ -2794,13 +3713,56 @@ var Items = {
 		},
 		{
 			id: 39,
-			name: "Red Feather",
+			name: "Crimson Feather",
 			type: "item",
 			rarity: "junk",
 			image: "assets/items/item/39.png",
 			sellPrice: 1,
 			sellQuantity: 1,
 			stack: 64,
+		},
+		{
+			id: 40,
+			name: "Egg",
+			type: "item",
+			rarity: "junk",
+			image: "assets/items/item/40.png",
+			sellPrice: 1,
+			sellQuantity: 4,
+			stack: 16,
+		},
+		{
+			id: 41,
+			name: "Sickly Egg",
+			type: "item",
+			rarity: "junk",
+			image: "assets/items/item/41.png",
+			stack: 16,
+			lore: "This egg looks no good"
+		},
+		{
+			id: 42,
+			name: "Personal Portrait",
+			type: "item",
+			image: "assets/items/item/42.png",
+			stack: 1,
+			lore: "Must have been stolen from someone by a cutpurse"
+		},
+		{
+			id: 43,
+			name: "Glass Eye",
+			type: "item",
+			image: "assets/items/item/43.png",
+			stack: 2,
+			lore: "Must have been stolen from someone by a cutpurse"
+		},
+		{
+			id: 44,
+			name: "Polished Silver Fork",
+			type: "item",
+			image: "assets/items/item/44.png",
+			stack: 1,
+			lore: "Must have been stolen from someone by a cutpurse"
 		},
 	],
 	consumable: [
@@ -3329,7 +4291,7 @@ var Items = {
 						radius: 150,
 						particles: 600,
 						explodeTime: 500,
-						lingerTime: 1000,
+						lingerTime: 1500,
 						colours: ["#8cff91", "#ff82f8"], // lighter colours so they are more visible
 					});
 				}, 1000); // launch in 1 second
@@ -3345,9 +4307,9 @@ var Items = {
             cooldown: 5, // 5 seconds
 			onClickEventRequirement: "Antorax",
 			onClickFunction: function (inventoryPosition) {
+				// remove the item
+				Dom.inventory.remove(inventoryPosition);
 				Game.setTimeout(function () {
-					// remove the item
-					Dom.inventory.remove(inventoryPosition);
 					// set firework timeout
 					Game.launchFirework({
 						x: Game.hero.x,
@@ -3355,10 +4317,10 @@ var Items = {
 						radius: 250,
 						particles: 1500,
 						explodeTime: 750,
-						lingerTime: 1000,
+						lingerTime: 2500,
 						colours: ["#8cff91", "#ff82f8"], // lighter colours so they are more visible
 					});
-				}, 1000); // launch in 1 second
+				}, 1500); // launch in 1.5 seconds
 			},
 		},
 		{
@@ -3573,6 +4535,114 @@ var Items = {
 				// achievement progress
 				Player.quests.questProgress.pumpkinBrew = true;
 			}
+		},
+		{
+			id: 31,
+			name: "Cat Potion",
+			type: "consumable",
+			image: "assets/items/consumable/31.png",
+			functionText: "Restores 10 health",
+            cooldown: 10, // 10 seconds
+			onClickFunction: function (inventoryPosition) {
+				// remove the item
+				Dom.inventory.remove(inventoryPosition);
+				// restore the health
+				Game.restoreHealth(Game.hero, 10);
+			}
+		},
+		{
+			id: 32,
+			name: "Hive Honey",
+			type: "consumable",
+			image: "assets/items/consumable/32.png",
+			functionText: "Restores 10 health",
+            cooldown: 10, // 10 seconds
+			onClickFunction: function (inventoryPosition) {
+				// remove the item
+				Dom.inventory.remove(inventoryPosition);
+				// restore the health
+				Game.restoreHealth(Game.hero, 10);
+			}
+		},
+		{
+			id: 33,
+			name: "Dynamite",
+			type: "consumable",
+			image: "assets/items/consumable/33.png",
+			functionText: "tbd",
+            cooldown: 10, // tbc
+			onClickFunction: function (inventoryPosition) {
+				// tbd
+			}
+		},
+		{
+			id: 34,
+			name: "Present",
+			type: "consumable",
+			image: "assets/items/consumable/34.png",
+			functionText: "Click to open!",
+			onClickFunction: function (inventoryPosition) {
+				// remove item
+				Dom.inventory.remove(inventoryPosition);
+				// replace at the same slot
+				let item = null;
+				let itemQuantity = 0;
+				if (Player.quests.questProgress.slingshotPresentsOpened === 8) {
+					item = Items.bow[18]; // golden slingshot!~
+					itemQuantity = 1;
+				}
+				else {
+					switch (Random(1, 5)) {
+						case 1:
+							item = new UnId(Areas[Game.areaName].lootArea, Areas[Game.areaName].lootTier);
+							itemQuantity = 1;
+							break;
+						case 2:
+							item = Items.currency[2];
+							itemQuantity = Random(2,4);
+							break;
+						case 3:
+							item = Items.consumable[35]; // firework
+							itemQuantity = 1;
+							break;
+						case 4:
+							item = Items.consumable[24]; // regen potion
+							itemQuantity = 1;
+							break;
+						case 5:
+							item = Items.item[32]; // daisies - maybe make this a special flower or something?
+							itemQuantity = 5;
+							break;
+					}
+				}
+				Dom.inventory.give(item, itemQuantity, inventoryPosition);
+				Player.quests.questProgress.slingshotPresentsOpened = Increment(Player.quests.questProgress.slingshotPresentsOpened);
+			}
+		},
+		{
+			id: 35,
+			name: "Huge Multicoloured Firework",
+			type: "consumable",
+			image: "assets/items/consumable/19.png", // tbd give it its own image
+			functionText: "Lights up the skies!",
+            cooldown: 5, // 5 seconds
+			sellPrice: 2,
+			onClickFunction: function (inventoryPosition) {
+				// remove the item
+				Dom.inventory.remove(inventoryPosition);
+				Game.setTimeout(function () {
+					// set firework timeout
+					Game.launchFirework({
+						x: Game.hero.x,
+						y: Game.hero.y - 130,
+						radius: 350,
+						particles: 2500,
+						explodeTime: 750,
+						lingerTime: 3000,
+						colours: ["#ff0000", "#ff7b00", "#ffff00", "#00ff00", "#00ffff", "7b00ff", "#ff00ff"], // same colours as multicoloured levelup firework
+					});
+				}, 1000); // launch in 1 second
+			},
 		},
 	],
 	food: [
@@ -3878,7 +4948,7 @@ var Items = {
 			},
 			catchRequirement: function () {
                 // very rare!
-                return Random(0, 45) === 22;
+                return Random(0, 23) === 22;
             },
 		},
 		{
@@ -4284,7 +5354,7 @@ var Items = {
 			stack: 64,
 			plural: true,
 			lore: "Not an evil species.",
-			areas: ["loggingCamp"],
+			areas: ["eaglecrest"],
 		},
 		{
 			id: 24,
@@ -4451,6 +5521,83 @@ var Items = {
 			areas: ["loggingCamp"],
 			clicksToCatch: 9,
 			timeToCatch: 2000,
+		},
+		{
+			id: 33,
+			name: "Frogspawn",
+			fishingType: "waterjunk",
+			type: "fish",
+			image: "assets/items/fish/33.png",
+			rarity: "junk",
+			plural: true,
+			stack: 4,
+			areas: ["eaglecrest"],
+		},
+		{
+			id: 34,
+			name: "Tadpole",
+			fishingType: "waterjunk",
+			type: "fish",
+			image: "assets/items/fish/34.png",
+			rarity: "junk",
+			stack: 64,
+			areas: ["eaglecrest"],
+		},
+	],
+	dev: [
+		{
+			id: 0,
+			name: "Place Object",
+			type: "dev",
+			image: "assets/items/tool/0.png",
+			rarity: "common",
+			functionText: "Place object",
+			onClickFunction: function () {
+				// check it would not touch an existing tree
+				let treeArray = Game.things.filter(thing => thing.name === "Christmas Sapling");
+				if (!Game.hero.isTouchingType(treeArray)) {
+					// remove the item
+					Dom.inventory.remove(inventoryPosition);
+
+					// quest progress
+					Player.quests.questProgress.christmasSaplingsPlaced = Increment(Player.quests.questProgress.christmasSaplingsPlaced);
+
+					// place sapling
+					let saplingObject = {
+						map: map,
+						image: "christmasSapling",
+						name: "Christmas Sapling",
+						x: Game.hero.x,
+						y: Game.hero.y,
+						type: "things",
+					};
+					Game.things.push(new Thing(saplingObject)); // place in the current area
+					Areas.eaglecrestLoggingCamp.things.push(saplingObject); // save in areadata.js for if the player leaves and rejoins the area
+				}
+			},
+			image: "toBeSet",
+		},
+		{
+			id: 1,
+			name: "Place Object",
+			type: "dev",
+			image: "assets/items/tool/0.png",
+			rarity: "common",
+			functionText: "Remove placed objects at location",
+			onClickFunction: function () {
+
+			}
+		},
+		{
+			id: 1,
+			name: "Place Object",
+			type: "dev",
+			image: "assets/items/tool/0.png",
+			rarity: "common",
+			functionText: "Remove placed objects at location",
+			onClickFunction: function () {
+
+			}
 		},
 	],
 };

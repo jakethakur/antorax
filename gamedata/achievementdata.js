@@ -14,9 +14,10 @@ else {
 }
 
 var Achievements = [
+		//
 		// GENERAL
+		//
 	{
-		// id: 0,
 		name: "Level 5",
 		description: "Reach level 5.",
 		points: 5,
@@ -34,43 +35,25 @@ var Achievements = [
 		},
 	},
 	{
-		// id: 1,
-		name: "Christmas Dinner",
-		description: "Eat a mince pie and Christmas pudding, and wash it down with some mulled wine.",
-		points: 5,
+		name: "Social Butterfly I",
+		description: "Meet 50 different characters with one class.",
+		points: 10,
 		category: ["general"],
 		area: ["global"],
-		event: "Christmas",
-		image: "../assets/items/food/1.png",
+		image: "../assets/items/helm/11.png",
 		class: "single",
 		isCompleted: function () {
-			return Player.quests.questProgress.mincePie && Player.quests.questProgress.christmasPudding && Player.quests.questProgress.mulledWine;
+			return Player.metNPCs.length >= 50;
 		},
 		expand: {
-			type: "checkList",
-			text: ["Mince Pie", "Christmas Pudding", "Mulled Wine"],
-			complete: ["mincePie", "christmasPudding", "mulledWine"],
+			type: "progressBar",
+			value: function () { return Math.max(Archer.metNPCs.length, Mage.metNPCs.length, Knight.metNPCs.length); },
+			total: 50,
 		},
 	},
-	{
-		name: "Samhain Treats",
-		description: "Eat a pumpkin pie and caramel apple, and drink a pumpkin brew.",
-		points: 5,
-		category: ["general"],
-		area: ["global"],
-		event: "Samhain",
-		image: "../assets/items/food/7.png",
-		class: "single",
-		isCompleted: function () {
-			return Player.quests.questProgress.pumpkinPie && Player.quests.questProgress.caramelApple && Player.quests.questProgress.pumpkinBrew;
-		},
-		expand: {
-			type: "checkList",
-			text: ["Pumpkin Pie", "Caramel Apple", "Pumpkin Brew"],
-			complete: ["pumpkinPie", "caramelApple", "pumpkinBrew"],
-		},
-	},
+		//
 		// QUESTS
+		//
 	{
 		name: "Daily Quester I",
 		description: "Complete 50 daily quests.",
@@ -132,7 +115,10 @@ var Achievements = [
 			saved: "quest",
 		},
 	},
-		// COMBAT
+		//
+		// GENERAL COMBAT
+		// (not bosses)
+		//
 	{
 		// id: 5,
 		name: "Novice Combatant",
@@ -223,6 +209,29 @@ var Achievements = [
 			total: 10000,
 		},
 	},
+		//
+		// SPECIAL COMBAT
+		//
+	{
+		name: "Thermal Runaway",
+		description: "Set off 6 successive explosions with an Exploding weapon.",
+		points: 5,
+		category: ["combat"],
+		area: ["global"],
+		image: "../assets/achievements/explosion.png",
+		class: "single",
+		isCompleted: function () {
+			return User.progress.successiveExplosions >= 6;
+		},
+		expand: {
+			type: "progressBar",
+			value: User.progress.successiveExplosions,
+			total: 6,
+		},
+	},
+		//
+		// AREA SPECIFIC COMBAT
+		//
 	{
 		// id: 10,
 		name: "Goblin Slayer Bronze",
@@ -283,9 +292,12 @@ var Achievements = [
 			total: 500,
 		},
 	},
+		//
+		// BOSSES
+		//
 	{
 		// id: 13,
-		name: "Green-Skinned Assault",
+		name: "Kingslayer",
 		description: "Kill the Goblin King.",
 		points: 5,
 		category: ["combat"],
@@ -366,7 +378,9 @@ var Achievements = [
 			complete: ["marshallSheridan", "barebonesNkkja"],
 		},
 	},
+		//
 		// REPUTATION
+		//
 	{
 		name: "Tree Hugger",
 		description: "Reach venerated reputation with Eaglecrest Logging Camp.",
@@ -380,7 +394,9 @@ var Achievements = [
 			return Player.reputation.eaglecrestLoggingCamp.level >= 6;
 		}
 	},
+		//
 		// ARCHAEOLOGY
+		//
 	{
 		name: "Logging Camp Archaeologist",
 		description: "Uncover all unidentified items in Eaglecrest Logging Camp.",
@@ -465,23 +481,42 @@ var Achievements = [
 		},
 	},
 	{
-		// id: 18,
-		name: "Master Archaeologist",
-		description: "Complete archaeology.",
-		points: 100,
+		name: "Eaglecrest Plains Archaeologist",
+		description: "Uncover all unidentified items in the Eaglecrest Plains.",
+		points: 20,
 		category: ["archaeology"],
-		area: ["global"],
-		image: "../assets/items/helm/9.png",
+		area: ["eaglecrestLoggingCamp"],
+		image: "../assets/items/helm/30.png",
 		class: "cumulative",
 		isCompleted: function () {
-			return User.archaeology.includes("Master Archaeologist's Hat"); // owned only when all other items are owned
+			let done = true;
+			for(let i = 0; i < 7; i++){
+				for(let x = 0; x < Items[Object.keys(Items)[i]].length; x++){
+					if(Items[Object.keys(Items)[i]][x].unidentifiedArea !== undefined && Items[Object.keys(Items)[i]][x].unidentifiedArea.includes("eaglecrest") && !User.archaeology.includes(Items[Object.keys(Items)[i]][x].name)){
+						done = false;
+					}
+				}
+			}
+			return done;
 		},
 		expand: {
 			type: "redirect",
 			text: "View in archaeology",
-			location: "../archaeology/index.html",
-			total: GetTotalItems(function(item){return true}),
-			value: User.archaeology.length,
+			location: "../archaeology/index.html?obtained=unidentified&area=eaglecrest",
+			total: GetTotalItems(function(item) {
+				return item.obtain.includes("unidentified") && item.area.includes("loggingCamp");
+			}),
+			value: function () {
+				let done = 0;
+				for(let i = 0; i < 7; i++){
+					for(let x = 0; x < Items[Object.keys(Items)[i]].length; x++){
+						if(Items[Object.keys(Items)[i]][x].unidentifiedArea !== undefined && Items[Object.keys(Items)[i]][x].unidentifiedArea.includes("eaglecrest") && User.archaeology.includes(Items[Object.keys(Items)[i]][x].name)){
+							done++;
+						}
+					}
+				}
+				return done;
+			},
 		},
 	},
 	{
@@ -566,7 +601,79 @@ var Achievements = [
 			},
 		},
 	},
+	{
+		name: "I got a Golden Tool!",
+		description: "Obtain a golden tool.",
+		points: 15,
+		category: ["archaeology"],
+		area: ["global"],
+		image: "../assets/items/bow/18.png",
+		class: "cumulative",
+		isCompleted: function () {
+			return User.archaeology.includes("Golden Slingshot");
+		},
+	},
+	{
+		name: "Master Archaeologist",
+		description: "Complete archaeology.",
+		points: 100,
+		category: ["archaeology"],
+		area: ["global"],
+		image: "../assets/items/helm/9.png",
+		class: "cumulative",
+		isCompleted: function () {
+			return User.archaeology.includes("Master Archaeologist's Hat"); // owned only when all other items are owned
+		},
+		expand: {
+			type: "redirect",
+			text: "View in archaeology",
+			location: "../archaeology/index.html",
+			total: GetTotalItems(function(item){return true}),
+			value: User.archaeology.length,
+		},
+	},
+		//
+		// MISC I (more important than misc ii)
+		//
+	{
+		name: "Christmas Dinner",
+		description: "Eat a mince pie and Christmas pudding, and wash it down with some mulled wine.",
+		points: 5,
+		category: ["general"],
+		area: ["global"],
+		event: "Christmas",
+		image: "../assets/items/food/1.png",
+		class: "single",
+		isCompleted: function () {
+			return Player.quests.questProgress.mincePie && Player.quests.questProgress.christmasPudding && Player.quests.questProgress.mulledWine;
+		},
+		expand: {
+			type: "checkList",
+			text: ["Mince Pie", "Christmas Pudding", "Mulled Wine"],
+			complete: ["mincePie", "christmasPudding", "mulledWine"],
+		},
+	},
+	{
+		name: "Samhain Treats",
+		description: "Eat a pumpkin pie and caramel apple, and drink a pumpkin brew.",
+		points: 5,
+		category: ["general"],
+		area: ["global"],
+		event: "Samhain",
+		image: "../assets/items/food/7.png",
+		class: "single",
+		isCompleted: function () {
+			return Player.quests.questProgress.pumpkinPie && Player.quests.questProgress.caramelApple && Player.quests.questProgress.pumpkinBrew;
+		},
+		expand: {
+			type: "checkList",
+			text: ["Pumpkin Pie", "Caramel Apple", "Pumpkin Brew"],
+			complete: ["pumpkinPie", "caramelApple", "pumpkinBrew"],
+		},
+	},
+		//
 		// FISHING
+		//
 	{
 		// id: 21,
 		name: "Learning to Fish",
@@ -626,6 +733,7 @@ var Achievements = [
 			text: ["Yellow Perch", "Milkfish", "Saffron Cod", "Pink Salmon", "Sea Trout", "Cobia", "Dolphinfish"],
 			complete: [0, 1, 2, 3, 4, 5, 6],
 			//saved: "fish",
+			// tbd link to fishers log
 		},
 	},
 	{
@@ -740,6 +848,10 @@ var Achievements = [
 		},
 	},
 
+	//
+	// MISC II
+	//
+
 	{
 		name: "Master of Tag",
 		description: "Win a multiplayer game of tag with 5 or more players.",
@@ -752,7 +864,6 @@ var Achievements = [
 			return User.progress.tagAchievement === true;
 		},
 	},
-
 
 	{
         name: "A Blood Moon is Rising...",

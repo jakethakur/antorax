@@ -20,7 +20,7 @@
 	//top: -0.5px;
 	//left: -0.5px;
 	height: 100%;
-	background-color: purple;
+	background-color: #CCCCFF;
 	max-width: 433px;
 }
 .progressBarText{
@@ -135,7 +135,7 @@ input[type=number]{
 	text-indent: 5px;
 	width: 55px;
 }
-input[type=number]::-webkit-inner-spin-button{  
+input[type=number]::-webkit-inner-spin-button{
 	opacity: 1;
 }
 input, select {

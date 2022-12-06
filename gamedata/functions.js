@@ -452,8 +452,15 @@ function GetFullDateDisplay () {
 }
 
 // get date in format yyyymmdd
-function GetFullDate () {
+// optional param gives you the date "daysAgo" days ago
+function GetFullDate (daysAgo) {
     let d = new Date();
+	if (typeof daysAgo !== "undefined" && daysAgo > 0) {
+		for (let i = 0; i < daysAgo; i++) {
+			d.setDate(d.getDate() - 1);
+		}
+	}
+
     let dateString = "";
     // year
     dateString += d.getFullYear().toString();

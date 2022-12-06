@@ -113,19 +113,19 @@ function Stats (stat, value, array) {
 	if (stat === "Defence" || stat === "Block Defence" || stat === "Fishing Skill" || stat === "Max Health") {
 		return stat+": "+NumberSign(value)+"<br>";
 	}
-	else if (stat === "Critical Chance" || stat === "Dodge Chance" || stat === "Looting" || stat === "Reflection" || stat === "Lifesteal" || stat === "Xp Bonus" || stat === "Hex" || stat === "Damage Percentage") {
+	else if (stat === "Critical Chance" || stat === "Dodge Chance" || stat === "Looting" || stat === "Reflection" || stat === "Lifesteal" || stat === "Xp Bonus" || stat === "Hex" || stat === "Damage Percentage" || stat === "Stealing" || stat === "Range Multiplier" || stat === "Healing Power" || stat === "Interact Range" || stat === "Poison Strength") {
 		return stat+": "+NumberSign(value)+"%<br>";
 	}
 	else if (stat === "Health Regen" || stat === "Swim Speed" || stat === "Walk Speed" || stat === "Ice Speed" || stat === "Focus Speed") {
 		return stat+": "+NumberSign(value)+"/s<br>";
 	}
-	else if (stat === "Stun") {
+	else if (stat === "Stun" || stat === "Rooting") {
 		return stat+": "+NumberSign(value)+"s<br>";
 	}
 	else if (stat === "Reload Time") {
 		return stat+": "+(NumberSign(value/1000))+"s<br>";
 	}
-	else if (stat === "Flaming") {
+	else if (stat === "Flaming" || stat === "Exploding") {
 		return stat+" "+Romanize(value)+"<br>";
 	}
 	else if (stat === "Poison X") {
@@ -140,11 +140,20 @@ function Stats (stat, value, array) {
 	else if (stat === "Minimum Variance") {
 		return stat+": "+value+"<br>";
 	}
+	else if (stat === "Knockback") {
+		return stat+": "+NumberSign(value)+"px<br>";
+	}
 	else if (stat === "Frostaura" || stat === "Splash Damage" || stat === "Wind Shield") {
 		return stat+"<br>";
 	}
 	else if (stat === "Move During Focus") {
 		return "Allows movement during attacks<br>";
+	}
+	else if (stat === "Unstoppable") {
+		return "Grants invulnerability to stuns and slows<br>";
+	}
+	else if (stat === "Number Of Projectiles") {
+		return "Number of Projectiles: "+value+"<br>";
 	}
 	else {
 		return "";
@@ -663,7 +672,7 @@ function arrange(){
 			}
 		}
 		if(viewedItemType == "set"){
-			for(let i = 1; i < 5; i++){
+			for(let i = 1; i < Items[viewedItemType][viewedItemId].armour.length; i++){
 				document.getElementById("box"+i).onclick = function(){
 					url.searchParams.set("id", array[i].id);
 					url.searchParams.set("type", array[i].type);
@@ -685,6 +694,11 @@ function arrange(){
 		document.getElementById("stats").style.top = viewedItemType != "set" ? 130 + document.getElementById("obtain").offsetHeight + "px" : "100px";
 		document.getElementById("stats").style.width = (window.innerWidth - 500 < 1000 ? window.innerWidth - 500 : 1000) + "px";
 		document.getElementById("stats").innerHTML = "";
+
+		//
+		// displayed information about stats
+		//
+		// normal stats
 		for(var i = 0; i < Object.keys(Items[viewedItemType][viewedItemId].stats).length; i++){
 			var replaceStat = Object.keys(Items[viewedItemType][viewedItemId].stats)[i].replace( /([A-Z])/g, " $1" );
 			if(Object.keys(Items[viewedItemType][viewedItemId].stats)[i] == "damage" && Items[viewedItemType][viewedItemId].stats.maxDamage != undefined){
@@ -695,12 +709,35 @@ function arrange(){
 				document.getElementById("stats").innerHTML += "<tr><td>"+replaceStat[0].toUpperCase()+replaceStat.slice(1)+"</td><td>"+StatsInfo[Object.keys(Items[viewedItemType][viewedItemId].stats)[i]]+"</td></tr>";
 			}
 		}
+		// choose stats
 		if(Items[viewedItemType][viewedItemId].chooseStats != undefined){
 			for(var i = 0; i < Object.keys(Items[viewedItemType][viewedItemId].chooseStats).length; i++){
 				var replaceStat = Object.keys(Items[viewedItemType][viewedItemId].chooseStats)[i].replace( /([A-Z])/g, " $1" );
 				document.getElementById("stats").innerHTML += "<tr><td>"+replaceStat[0].toUpperCase()+replaceStat.slice(1)+"</td><td>"+StatsInfo[Object.keys(Items[viewedItemType][viewedItemId].chooseStats)[i]]+"</td></tr>";
 			}
 		}
+		// conditional stats
+		if(Items[viewedItemType][viewedItemId].conditionalStats != undefined){
+			for (let conditionNo = 0; conditionNo < Items[viewedItemType][viewedItemId].conditionalStats.length; conditionNo++) {
+				for(var i = 0; i < Object.keys(Items[viewedItemType][viewedItemId].conditionalStats[conditionNo].stats).length; i++){
+					var replaceStat = Object.keys(Items[viewedItemType][viewedItemId].conditionalStats[conditionNo].stats)[i].replace( /([A-Z])/g, " $1" );
+					document.getElementById("stats").innerHTML += "<tr><td>"+replaceStat[0].toUpperCase()+replaceStat.slice(1)+"</td><td>"+StatsInfo[Object.keys(Items[viewedItemType][viewedItemId].conditionalStats[conditionNo].stats)[i]]+"</td></tr>";
+				}
+			}
+		}
+		// additionally specified stats / stat related (i.e. status effects) help
+		if(Items[viewedItemType][viewedItemId].archaeologyAdditionalStats != undefined){
+			for(var i = 0; i < Object.keys(Items[viewedItemType][viewedItemId].archaeologyAdditionalStats).length; i++){
+				var replaceStat = Items[viewedItemType][viewedItemId].archaeologyAdditionalStats[i].replace( /([A-Z])/g, " $1" );
+				document.getElementById("stats").innerHTML += "<tr><td>"+replaceStat[0].toUpperCase()+replaceStat.slice(1)+"</td><td>"+StatsInfo[Items[viewedItemType][viewedItemId].archaeologyAdditionalStats[i]]+"</td></tr>";
+			}
+		}
+		// additional notes (tbd change formatting?)
+		if (typeof Items[viewedItemType][viewedItemId].archaeologyNotes !== "undefined") {
+			document.getElementById("stats").innerHTML += "<br><tr><td colspan='2'>"+Items[viewedItemType][viewedItemId].archaeologyNotes+"</td></tr>";
+		}
+		// tbd: class stats and additional choose stats
+
 		if(viewedItemType == "set"){
 			for(var i = 1; i < 5; i++){
 				document.getElementById("flashcardlist"+i).style.top = 150 + document.getElementById("stats").offsetHeight + "px";
@@ -732,8 +769,8 @@ var StatsInfo = {
 	staffDamage: "Changes damage dealt from a basic attack. The maximum damage is achieved by channelling the projectile to its full size. Can interact with some spells and abilities to affect how strong they are.",
 	defence: "Reduces damage taken. 1 defence = 0.1 less damage taken.",
 	maxHealth: "Changes your maximum health.",
-	range: "The value that should be added to your range.",
-	reloadTime: "Minimum time between finishing an attack and starting a new one. Includes blocking for knight.",
+	rangeMultiplier: "Changes the radius in which you can attack. Also increases an archer's focus speed.",
+	reloadTime: "Minimum time between finishing an attack and starting a new one.",
 	walkSpeed: "Changes movement speed on land.",
 	swimSpeed: "Changes movement speed in water (and mud).",
 	iceSpeed: "Changes movement speed on ice.",
@@ -745,21 +782,31 @@ var StatsInfo = {
 	criticalChance: "Changes chance of dealing double damage with an attack.",
 	dodgeChance: "Changes chance of ignoring an enemy attack.",
 	flaming: ["Error", "Makes your basic attacks flaming, meaning 1 damage is dealt every second for three seconds. On attack, this status is refreshed. Ignores defence."],
-	poison: "Deals bonus damage to the enemy over a time period in seconds. This ability can stack. Ignores defence.",
+	poisonX: "Deals bonus damage to the enemy over a time period in seconds. This ability can stack. Ignores defence.",
 	reflection: "Changes the amount of damage dealt back to enemies when you are attacked, as a percentage of the damage dealt to you. Doesn't reflect status effects.",
-	stun: "Changes the amount of time (in seconds) that you stun an enemy for after it attacks. When stunned, an enemy cannot move, attack, cast or channel. The enemy continues to regen.",
+	stun: "Changes the amount of time (in seconds) that you stun an enemy for after attacking it. When stunned, an enemy cannot move, attack, cast or channel. The enemy continues to regen.",
 	lifesteal: "Changes the amount of health healed for when you damage an enemy with a basic attack, as a percentage of the damage dealt. Doesn't heal for status effects.",
-	xpBonus: "Increases XP received as a percentage.",
-	frostaura: "Slows enemies by 50% within a 150px range.",
-	hex: "Changes the chance of transforming attacked enemies into an animal for 2 seconds, causing them to deal 90% less damage for tht time period.",
+	xpBonus: "Increases XP received from non-quest sources.",
+	frostaura: "Slows enemies by 50% within your attack range.",
+	hex: "Gives a chance to transform attacked enemies into an animal for 2 seconds, causing them to deal 90% less damage over that time period.",
 	damagePercentage: "Adds additional percentage of damage dealt with basic attacks and spells.",
 	fishingSkill: "Changes the fish that can be fished up from a location.",
 	minimumVariance: "Changes the minimum variance of projectiles fired by the weapon.",
 	durability: "The number of attacks that can be dealt by the weapon before it breaks.",
 	splashDamage: "Damages all enemies at the location, rather than just one.",
 	windShield: "Prevents player movement caused by wind.",
-	slow: "Slows hit enemies for a certain period of time. This effect can stack to slow them for longer.",
+	slowAmount: "Slows hit enemies for a certain period of time. This effect can stack to slow them for longer.",
 	moveDuringFocus: "Allows player movement whilst focussing shots.",
+	stealing: "Increases chance of looting gold and rare items from corpses.",
+	healingPower: "Changes the amount of healing you receieve (not including health regen).",
+	stealth: "Stops enemies from being able to target you (unless you are touching them or attack them).",
+	rooting: "Changes the amount of time (in seconds) that you root an enemy for after attacking it. When rooted, an enemy cannot move. However, it can attack, cast, channel and regen.",
+	knockback: "The distance enemies are knocked away from you when you attack them, in pixels.",
+	interactRange: "Multiplier for the range from which you can interact with entities, i.e. talk to NPCs or loot a corpse. (base value is 240px)",
+	poisonStrength: "Changes the amount poison damage dealt, as a percentage.",
+	unstoppable: "Invulnerability to stuns, slows, roots, hexes.",
+	exploding: "Whenever you kill an enemy, they explode, dealing 50% of your attack damage to nearby enemies and setting them on fire.",
+	numberOfProjectiles: "Multiple projectiles are fired at once!",
 }
 
 if(viewedItemId != undefined && viewedItemType != undefined){

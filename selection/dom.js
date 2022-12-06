@@ -116,7 +116,7 @@ function arrange(){
 	document.getElementById("random").style.height = document.getElementById("name").offsetHeight-10+"px";
 	document.getElementById("random").style.width = document.getElementById("name").offsetHeight-10+"px";
 	document.getElementById("logo").style.left = window.innerWidth/5*4+"px";
-	document.getElementById("logo").style.width = window.innerWidth/5-24+"px";
+	document.getElementById("logo").style.width = window.innerWidth/5-34+"px";
 	document.getElementById("info").style.left = window.innerWidth/5*4+"px";
 	document.getElementById("info").style.top = document.getElementById("logo").offsetHeight+40+"px";
 	document.getElementById("info").style.width = window.innerWidth/5-34+"px";

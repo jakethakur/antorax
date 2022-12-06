@@ -25,6 +25,7 @@ var Player = {
 
 	timeSpent: 0,
 	days: [], // days logged on (yyyymmdd)
+	consecutiveDays: 0,
 	metNPCs: ["Cart Driver"],
 
 	chatOnJoin: [],
@@ -100,7 +101,7 @@ var Player = {
 		defence: 0, // (4)
 		maxHealth: 50,
 		range: 0, // set in Game.equipmentUpdate based off of WeaponRanges in itemdata.js
-		rangeModifier: 0, // added to the player's base range (based off of WeaponRanges)
+		rangeMultiplier: 100, // (110%)
 		reloadTime: 500, // (0.5s) time that must be taken between attack channel finish and channel start (in ms)
 		criticalChance: 1, // (1%)
 		dodgeChance: 1, // (1%)
@@ -130,6 +131,13 @@ var Player = {
 		slowTime: 0, // time of slow to enemies on attack
 		moveDuringFocus: false, // whether you can move whilst charging basic attack
 		arcaneAura: false, // (boolean) from spell
+		stealing: 0, // (0%) looting for gold and some rare items
+		healingPower: 100, // (110%) only applies to non-health regen healing
+		rooting: 0, // (0.5s)
+		knockback: 0, // (50px) tiles knocked back
+		poisonStrength: 100, // (100%)
+		exploding: 0, // (I)
+		numberOfProjectiles: 0, // currently an archer only stat - if this isn't 0 or 1, multiple projectiles are fired!
 
 		// spells
 		maxMana: 0,
@@ -139,7 +147,8 @@ var Player = {
 		fishingSkill: 0, // (1.1) increased when you fish stuff up (increased by main.js)
 
 		// misc
-		domRange: 240, // distance from an entity that a DOM menu may be opened
+		baseDomRange: 240, // distance from an entity that a DOM menu may be opened
+		interactRange: 100, // multiplier for domRange (use as a treat on an item at some point?)
 	},
 	conditionalStats: [],
 

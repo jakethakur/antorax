@@ -1,7 +1,7 @@
 body{
 	text-align: center;
 }
-#archer, #mage, #knight, #name, #news, #play, #random, #info, #skins{
+#archer, #mage, #knight, #name, #news, #play, #random, #info, #skins, #logo{
 	background-color: var(--bottom);
 	border: 5px solid var(--border);
 }
