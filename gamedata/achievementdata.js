@@ -192,7 +192,6 @@ var Achievements = [
 		},
 	},
 	{
-		// id: 9,
 		name: "Master Combatant",
 		description: "Kill 10,000 enemies.",
 		points: 25,
@@ -213,6 +212,18 @@ var Achievements = [
 		// SPECIAL COMBAT
 		//
 	{
+		name: "Close One!",
+		description: "Defeat a boss with one health point remaining.",
+		points: 10,
+		category: ["combat"],
+		area: ["global"],
+		image: "../assets/items/consumable/4.png",
+		class: "single",
+		isCompleted: function () {
+			return User.progress.closeOne;
+		},
+	},
+	{
 		name: "Thermal Runaway",
 		description: "Set off 6 successive explosions with an Exploding weapon.",
 		points: 5,
@@ -229,6 +240,18 @@ var Achievements = [
 			total: 6,
 		},
 	},
+	/*{
+		name: "They'll Never See It Coming",
+		description: "While in stealth, kill an enemy on maximum health with one hit.",
+		points: 5,
+		category: ["combat"],
+		area: ["global"],
+		image: "../assets/helm/33.png",
+		class: "single",
+		isCompleted: function () {
+			return User.progress.theyllNeverSeeItComing; // need to add
+		},
+	},*/
 		//
 		// AREA SPECIFIC COMBAT
 		//

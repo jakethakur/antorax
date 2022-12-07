@@ -310,7 +310,8 @@ Dom.alert.page = function (text, type, values, page, target) { // can't pass in 
 				if (target.ev === undefined) {
 					target.ev = [];
 				}
-				target.target(...target.ev.unshift(value));
+				let newValue = target.ev.unshift(value); // add player input to the beginning of the parameter array
+				target.target(...newValue);
 				document.body.removeChild(alert);
 				Dom.alert.array.splice(Dom.alert.array.findIndex(index => index.id === target.id, 1));
 			}

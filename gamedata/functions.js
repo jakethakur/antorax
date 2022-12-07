@@ -415,6 +415,10 @@ function CreateFunction (context, varName, value) {
 	};
 }
 
+function IsNullLike (variable) {
+	return (typeof variable === "undefined" || isNaN(variable) || variable === null)
+}
+
 // second parameter optional - rounds by default to 1dp
 function Round (number, dp) {
     if (dp === undefined) {

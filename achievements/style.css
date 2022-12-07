@@ -20,7 +20,7 @@
 	//top: -0.5px;
 	//left: -0.5px;
 	height: 100%;
-	background-color: #CCCCFF;
+	background-color: var(--progress);
 	max-width: 433px;
 }
 .progressBarText{

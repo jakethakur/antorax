@@ -113,16 +113,17 @@ thead:after { /* space after bags in bank */
 /*					*/
 
 .DOM {
-	border: 1px solid black;
+	border: 1px solid black; /* can go soon */
 	width: 500px;
 	height: 600px;
 	padding-left: 10px;
 	padding-right: 10px;
-	background-color: var(--page);
+	background-color: var(--page); /* can go soon */
 	overflow: hidden;
 	position: absolute;
 	top: 10px;
 	zoom: var(--zoom);
+	/* background-image: url("assets/dom/bookBackground.png"); */
 }
 
 #questsPage, #settingsPage, #settingsTwoPage, #adventurePage, #leaderboardPage, #creditsPage{
@@ -1026,6 +1027,20 @@ thead:after { /* space after bags in bank */
 	position: relative;
 	width: 300px;
 	right: 12px;
+}
+
+/* For creative mode export */
+.codeExportText {
+	user-select: text;
+	-moz-user-select: text;
+	-webkit-user-select: text;
+	-ms-user-select: text;
+	background-color: white;
+	font-family: monospace;
+	text-align: left;
+	font-size: 16px;
+	height: 200px;
+	overflow-y: scroll;
 }
 
 /*					*/

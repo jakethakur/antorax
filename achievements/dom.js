@@ -10,7 +10,8 @@ if (User.settings.dark) {
 	--link: #99bfde;
 	--arrow: #454545;
 	--opacity: 0.8;
-	--input: #aaaaaa;`
+	--input: #aaaaaa;
+	--progress: purple;`
 }
 else {
 	document.documentElement.style = `
@@ -24,7 +25,8 @@ else {
 	--link: #0000ff;
 	--arrow: #886622;
 	--opacity: 0.6;
-	--input: #ffffff;`
+	--input: #ffffff;
+	--progress: #CCCCFF;`
 }
 
 var array = [];

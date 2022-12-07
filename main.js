@@ -1171,6 +1171,7 @@ class Entity {
 		this.checkTouching = properties.checkTouching;
 
 		this.use = properties.use; // optional metadata about object, can be used by anything that needs it
+		this.dev = properties.dev; // if this is true it was placed by a dev item, can be deleted by dev items, etc
 
 		// onLoad function
 		this.onLoad = properties.onLoad;
@@ -1437,6 +1438,8 @@ class Thing extends Entity {
 		}
 
 		this.canBeOnLead = properties.canBeOnLead || false; // whether a lead can be put on them
+
+		this.showNameTag = properties.showNameTag || false;
 	}
 
 	// imageName is the key name of the image stored in loader
@@ -1527,6 +1530,13 @@ class Thing extends Entity {
 	setExpandZ (value) {
 		this.setExpand(value);
 		this.z = value-1;
+	}
+
+	// overwritten by Character
+	postRenderFunction () {
+		if (this.showNameTag) {
+			Game.drawCharacterName(Game.ctx, this, this.screenX, this.screenY - this.height / 2 - 3);
+		}
 	}
 }
 
@@ -1983,8 +1993,12 @@ class Character extends Thing {
 				// exploding
 				if (this.damageTakenFromHero && Game.hero.stats.exploding > 0) {
 					Game.setTimeout(function (x, y, successiveExplosions) {
-						successiveExplosions++; // for achievement
+						successiveExplosions = Increment(successiveExplosions); // for achievement
+						if (IsNullLike(User.progress.successiveExplosions)) {
+							User.progress.successiveExplosions = 0;
+						}
 						User.progress.successiveExplosions = Math.max(User.progress.successiveExplosions, successiveExplosions);
+						Dom.checkProgress();
 
 						Game.projectiles.push(new Projectile({
 							map: map,
@@ -2020,6 +2034,10 @@ class Character extends Thing {
 				// enemies killed achievement
 				if ((this.hostility === "hostile" || this.hostility === "boss") && !inMinigame && this.damageTakenFromHero) {
 					User.progress.enemies = Increment(User.progress.enemies);
+				}
+
+				if (this.hostility === "boss" && Game.hero.health < 2) {
+					User.progress.closeOne = true;
 				}
 
 				// weapon chat message (some weapons have a chat message for when they kill something!)
@@ -2915,7 +2933,7 @@ class Hero extends Attacker {
 		}
 
 		// check if we walked into a non-walkable tile
-		if (this.moveTowards === undefined && (this.isBeingDisplaced === undefined || this.isBeingDisplaced.canGoOverWalls !== true)) { // hero should only collide if controlled by player
+		if (this.moveTowards === undefined && (this.isBeingDisplaced === undefined || this.isBeingDisplaced.canGoOverWalls !== true) && !Game.creativeMode) { // hero should only collide if controlled by player
 			this.collide(dirx, diry, delta);
 		}
 		else {
@@ -3242,7 +3260,7 @@ class Hero extends Attacker {
 								Dom.chat.insert("You fished up " + article + "<strong>" + this.channelling.name + "</strong>.");
 							}
 							else if (this.channelling.fishingType === "watermisc") { // misc
-								Dom.chat.insert("You reeled up a " + article + "<strong>" + this.channelling.name + "</strong>.");
+								Dom.chat.insert("You reeled up " + article + "<strong>" + this.channelling.name + "</strong>.");
 							}
 							else {
 								console.error("It is not known that an item of fishingType " + channelling.fishingType + " can be fished up.");
@@ -3342,9 +3360,8 @@ class Hero extends Attacker {
 							if (inventoryPosition === false) {
 								Dom.chat.insert("<i>You don't have any space to hold that item!</i>")
 							}
-
-							// onCatch function
-							if (this.channelling.onCatch !== undefined) {
+							// onCatch function (only called if the )
+							else if (this.channelling.onCatch !== undefined) {
 								this.channelling.onCatch(inventoryPosition);
 							}
 
@@ -7128,6 +7145,9 @@ Game.init = function () {
 	// init DOM
 	Dom.init();
 
+	// remove any creative mode items
+	Game.checkCreativeMode();
+
 	// music
 	this.playingMusic = null;
 
@@ -8794,7 +8814,7 @@ Game.update = function (delta) {
 	// check collision with area teleports
 	for (let i = 0; i < this.areaTeleports.length; i++) {
 		// teleport condition for the area teleport
-        if (this.hero.isTouching(this.areaTeleports[i])) {
+        if (this.hero.isTouching(this.areaTeleports[i]) && !Game.creativeMode) {
 			if (this.areaTeleports[i].teleportCondition === undefined
 			|| (this.areaTeleports[i].teleportCondition !== undefined && this.areaTeleports[i].teleportCondition())) {
 
@@ -8863,7 +8883,8 @@ Game.update = function (delta) {
 		}
 
 		if (canInteract) {
-			thing.onInteract();
+			let interactFunction = thing.onInteract.bind(thing);
+			interactFunction();
 			Dom.checkProgress();
 		}
 	}
@@ -9488,7 +9509,54 @@ Game.mailboxUpdate = function (type) {
 	}
 }
 
-// called by HIGH SPEED radio buttons
+//
+// Development functions!
+//
+
+// called on init to revert the player back to normal mode
+Game.checkCreativeMode = function () {
+	for (let i = 0; i < Player.inventory.items.length; i++) {
+		if (Player.inventory.items[i].type === "dev") {
+			Dom.inventory.remove(i);
+		}
+	}
+}
+
+// can be called from console
+Game.toggleCreativeMode = function () {
+	if (!this.creativeMode) {
+		// enter creative mode
+		this.creativeMode = true;
+		Dom.inventory.give(Items.dev[0]);
+		Dom.inventory.give(Items.dev[1]);
+		Dom.inventory.give(Items.dev[2]);
+		console.info("Entered creative mode! Type Game.toggleCreativeMode() again to leave.");
+	}
+	else {
+		// leave creative mode
+		this.creativeMode = false;
+		for (let i = 0; i < Player.inventory.items.length; i++) {
+			if (Player.inventory.items[i].type === "dev") {
+				Dom.inventory.remove(i);
+			}
+		}
+		console.info("Left creative mode.");
+	}
+}
+
+Game.exitCreativeMode = function () {
+	if (!this.creativeMode) {
+		this.creativeMode = true;
+		Dom.inventory.give(Items.dev[0]);
+		Dom.inventory.give(Items.dev[1]);
+		Dom.inventory.give(Items.dev[2]);
+	}
+	else {
+		console.log("You are already in creative mode!")
+	}
+}
+
+// called by HIGH SPEED radio buttons (deprecated)
 Game.highSpeed = function () {
     if (Dom.elements.speedOn.checked) {
         // add status effect

@@ -914,7 +914,7 @@ var Items = {
 			area: ["eaglecrest"],
 			rarity: "mythic",
 			sellPrice: 5,
-			lore: "",
+			lore: "An artefact brimming with sinister dark magic… not that you needed to be told that. Just look at it!",
 			obtainText: "Can be uncovered as an unidentified item in areas around Eaglecrest Plains.",
 			unidentifiedArea: ["eaglecrest"],
 			stats: {
@@ -1183,6 +1183,23 @@ var Items = {
 					Dom.inventory.give(Items.consumable[32]);
 				},
 				time: 60, // seconds
+			},
+		},
+		{
+			id: 13,
+			name: "Tiger Hide Trousers",
+			type: "greaves",
+			image: "assets/items/greaves/13.png",
+			tier: 1,
+			obtain: ["boss"],
+			area: ["eaglecrest"],
+			rarity: "unique",
+			sellPrice: 3,
+			lore: "",
+			obtainText: "Can be looted from a Coyote Pack Wrangler in Eaglecrest Plains.",
+			stats: {
+				defence: 4,
+				reflection: 30,
 			},
 		},
 	],
@@ -2032,6 +2049,7 @@ var Items = {
 				knockback: 75, // px knocked back
 				flaming: 1,
 			},
+			projectile: "slashFire",
 		},
 		{
 			id: 20,
@@ -2695,7 +2713,7 @@ var Items = {
 			rarity: "mythic",
 			sellPrice: 5,
 			lore: "",
-			obtainText: "Can be looted from Baron Foxglove.",
+			obtainText: "Can be looted from Baron Foxglove, a boss in the Eaglecrest Plains.",
 			unidentifiedArea: ["eaglecrest"],
 			stats: {
 				damage: 5,
@@ -2814,7 +2832,7 @@ var Items = {
 			area: ["eaglecrest"],
 			rarity: "mythic",
 			sellPrice: 5,
-			lore: "", // tbd you cant take this into monsastery
+			lore: "Keep away from smoke detectors!",
 			obtainText: "Can be uncovered as an unidentified item in areas around Eaglecrest Plains.",
 			unidentifiedArea: ["eaglecrest"],
 			stats: {
@@ -5549,56 +5567,77 @@ var Items = {
 			id: 0,
 			name: "Place Object",
 			type: "dev",
-			image: "assets/items/tool/0.png",
+			image: "assets/items/dev/0.png",
 			rarity: "common",
-			functionText: "Place object",
-			onClickFunction: function () {
-				// check it would not touch an existing tree
-				let treeArray = Game.things.filter(thing => thing.name === "Christmas Sapling");
-				if (!Game.hero.isTouchingType(treeArray)) {
-					// remove the item
-					Dom.inventory.remove(inventoryPosition);
-
-					// quest progress
-					Player.quests.questProgress.christmasSaplingsPlaced = Increment(Player.quests.questProgress.christmasSaplingsPlaced);
-
-					// place sapling
-					let saplingObject = {
-						map: map,
-						image: "christmasSapling",
-						name: "Christmas Sapling",
-						x: Game.hero.x,
-						y: Game.hero.y,
-						type: "things",
-					};
-					Game.things.push(new Thing(saplingObject)); // place in the current area
-					Areas.eaglecrestLoggingCamp.things.push(saplingObject); // save in areadata.js for if the player leaves and rejoins the area
-				}
+			functionText: "Place object at player location",
+			onClickFunction: function (inventoryPosition) {
+				let object = {
+					map: map,
+					image: Player.inventory.items[inventoryPosition].objectImage,
+					name: Player.inventory.items[inventoryPosition].objectName,
+					x: Round(Game.hero.x, 1),
+					y: Round(Game.hero.y, 1),
+					type: "things",
+					dev: true,
+				};
+				Game.things.push(new Thing(object));
 			},
-			image: "toBeSet",
+			objectImage: "marketStall",
+			objectName: "Market Stall",
 		},
 		{
 			id: 1,
-			name: "Place Object",
+			name: "Remove Object",
 			type: "dev",
-			image: "assets/items/tool/0.png",
+			image: "assets/items/dev/1.png",
 			rarity: "common",
-			functionText: "Remove placed objects at location",
+			functionText: "Remove placed object at player location",
 			onClickFunction: function () {
-
+				let touching = Game.hero.getTouching();
+				// remove the dev object which appears highest up (has highest sort value)
+				let highestSortValue = Number.MIN_VALUE;
+				let objectIndex = -1;
+				for (let i = 0; i < touching.length; i++) {
+					if (touching[i].dev) {
+						if (!IsNullLike(touching[i].sortValue) && touching[i].sortValue >= highestSortValue) {
+							highestSortValue = touching[i].sortValue;
+							objectIndex = i;
+						}
+					}
+				}
+				if (objectIndex !== -1) {
+					Game.removeObject(touching[objectIndex].id, touching[objectIndex].type);
+				}
 			}
 		},
 		{
-			id: 1,
-			name: "Place Object",
+			id: 2,
+			name: "Export Objects",
 			type: "dev",
-			image: "assets/items/tool/0.png",
+			image: "assets/items/dev/2.png",
 			rarity: "common",
-			functionText: "Remove placed objects at location",
+			functionText: "Export all placed objects into code",
 			onClickFunction: function () {
-
+				// placedItems string for exporting
+				let numThings = 0;
+				let code = "<div class='codeExportText' id='exportedCode'>";
+				for (let i = 0; i < Game.allThings.length; i++) {
+					let obj = Game.allThings[i];
+					if (obj.dev) {
+						code += "{x: "+obj.x+", y: "+obj.y+", image: '"+obj.imageName+"', name: '"+obj.name+"'},<br>";
+						numThings++;
+					}
+				}
+				code += "</div><br>";
+				if (numThings > 0) {
+					Dom.alert.page(code); // tbd make a copy to clipboard button?
+				}
+				else {
+					Dom.alert.page("You don't have any placed objects to export!");
+				}
 			}
 		},
+		//Dom.alert.page("Please enter the imageName of the item", "input", undefined, undefined, {target:function (input) {}})
 	],
 };
 

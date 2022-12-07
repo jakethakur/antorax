@@ -3778,6 +3778,8 @@ var Areas = {
 			yellowSnakeRight: {samhain: "assets/enemies/yellowSnake.png"},
 			yellowSnakeLeft: {samhain: "assets/enemies/yellowSnake.png", flip: "vertical"},
 			closedSign: {normal: "assets/objects/closedEaglecrest.png"},
+			marketStall: {normal: "assets/objects/marketStall.png"},
+			pieMerchant: {normal: "assets/npcs/pieMerchant.png"},
 		},
 
 		callAreaJoinOnInit: true,
@@ -4058,6 +4060,34 @@ var Areas = {
 				showNameInChat: false,
 				meetable: false,
 			},
+			{
+				x: 1323,
+				y: 1180,
+				image: "pieMerchant",
+				name: "Billie the Beetroot Merchant",
+				hideNameTag: true, // shown on stall instead
+				hostility: "friendly",
+				level: 30,
+				stats: {
+					maxHealth: 200,
+					defence: 6,
+				},
+				roles: [
+					{
+						sold: [
+							{item: Items.food[5], cost: 5},
+						],
+						role: "merchant",
+						shopGreeting: "Greetings, customer. Care to indulge in a beetroot pie?",
+					},
+				],
+				chat: {
+					shopLeave: "You'll be back. Nobody can resist my pies for long.",
+					inventoryFull: "Seems like you've been a little too indulgent lately. Come back when your inventory's emptier.",
+					tooPoor: "An empty stomach and an empty purse. Oh dear.",
+					// TBD - to beckon the player over: Smell something tasty?, Looks like you've got a full purse and an empty stomach! Fancy a pie?
+				},
+			},
 		],
 
 		mailboxes: [
@@ -4197,6 +4227,7 @@ var Areas = {
 					return !Player.quests.completedQuestArray.includes("Overdraft");
 				},
 			},
+			{x: 1322.4, y: 1147.4, image: 'marketStall', name: 'Billie the Beetroot Merchant', showNameTag: true},
 		],
 	},
 
@@ -6782,9 +6813,10 @@ Last I saw him, he was visiting the <b>Eaglecrest Plains</b> to the <b>south</b>
 
 			// if they are holding old rusted staff, they get kicked out
 			if (Player.inventory.weapon.type === "staff" && Player.inventory.weapon.id === 16) {
-				Game.setTimeout(Game.statusEffects.stun, 1000, {target: Game.hero, time: 3});
-				Dom.chat.insert(Dom.chat.say("tbd", "tbd"), 1000);
-				Game.setTimeout(Game.loadArea, 3000, ["eaglecrestGraveyard", {x: 2010, y: 450}]);
+				Game.setTimeout(Game.statusEffects.stun.bind(Game.statusEffects), 1000, {target: Game.hero, time: 3.5});
+				Dom.chat.insert(Dom.chat.say("Priestess Ronson", "You there! What's that you're holding?"), 500);
+				Dom.chat.insert(Dom.chat.say("Priestess Ronson", "By the Pantheon, what are you doing!? This is hallowed ground, no place for a thing like that!"), 2000);
+				Game.setTimeout(Game.loadArea.bind(Game), 4000, ["eaglecrestGraveyard", {x: 2010, y: 450}]);
 			}
 		},
 
@@ -7505,7 +7537,7 @@ Last I saw him, he was visiting the <b>Eaglecrest Plains</b> to the <b>south</b>
 			chickenRight: {normal: "assets/enemies/chicken.png"},
 			chickenLeft: {normal: "assets/enemies/chicken.png", flip: "vertical"},
 			chickenCorpse: {normal: "assets/corpses/chicken.png"},
-			//sprinkler: {normal: "assets/objects/sprinkler.png"},
+			sprinkler: {normal: "assets/objects/sprinkler.png"},
 			well: {normal: "assets/objects/well.png"},
 		},
 
@@ -7715,7 +7747,7 @@ Last I saw him, he was visiting the <b>Eaglecrest Plains</b> to the <b>south</b>
 		],
 
 		things: [
-			/*{
+			{
 				x: 2761,
 				y: 1127,
 				orderOffsetY: -10,
@@ -7751,7 +7783,7 @@ Last I saw him, he was visiting the <b>Eaglecrest Plains</b> to the <b>south</b>
 				y: 1227,
 				name: "Well",
 				image: "well",
-			},*/
+			},
 			{
 				x: 257,
 				y: 1217,
