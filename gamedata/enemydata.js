@@ -833,7 +833,7 @@ const EnemyTemplates = {
 	            right: "toadRight"
 	        },
 			deathImage: "toadCorpse",
-			name: "Toad",
+			name: "Large Toad",
 			hostility: "hostile",
 			level: 5,
 			stats: {

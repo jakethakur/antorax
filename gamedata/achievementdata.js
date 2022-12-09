@@ -315,9 +315,6 @@ var Achievements = [
 			total: 500,
 		},
 	},
-		//
-		// BOSSES
-		//
 	{
 		// id: 13,
 		name: "Kingslayer",
@@ -333,6 +330,62 @@ var Achievements = [
 			return Player.bossesKilled.goblinKing !== 0 && Player.bossesKilled.goblinKing !== undefined;
 		}
 	},
+	{
+		name: "Toadsbane Bronze",
+		description: "Kill 100 large toads.",
+		points: 10,
+		category: ["combat"],
+		area: ["eaglecrestLoggingCamp"],
+		image: "../assets/items/fish/33.png",
+		color: "#cd7f32",
+		class: "cumulative",
+		isCompleted: function () {
+			return User.progress.frogs >= 100;
+		},
+		expand: {
+			type: "progressBar",
+			value: User.progress.frogs,
+			total: 100,
+		},
+	},
+	{
+		name: "Toadsbane Silver",
+		description: "Kill 250 large toads.",
+		points: 10,
+		category: ["combat"],
+		area: ["eaglecrestLoggingCamp"],
+		image: "../assets/items/fish/34.png",
+		color: "lightgray",
+		class: "cumulative",
+		isCompleted: function () {
+			return User.progress.frogs >= 250;
+		},
+		expand: {
+			type: "progressBar",
+			value: User.progress.frogs,
+			total: 250,
+		},
+	},
+	{
+		name: "Toadsbane Gold",
+		description: "Kill 500 large toads.",
+		points: 10,
+		category: ["combat"],
+		area: ["eaglecrestLoggingCamp"],
+		image: "../assets/enemies/toad.png",
+		position: {x: 108, y: 0},
+		color: "#fac540",
+		class: "cumulative",
+		isCompleted: function () {
+			return User.progress.frogs >= 500;
+		},
+		expand: {
+			type: "progressBar",
+			value: User.progress.frogs,
+			total: 500,
+		},
+	},
+
 	{
         name: "The Slayer of the Tattered Knight",
         description: "Kill the Tattered Knight.",

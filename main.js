@@ -2176,7 +2176,7 @@ class Character extends Thing {
 			this.hasBeenSiphoned = false; // for quests
 
 			if (typeof this.spawnLocations !== "undefined") {
-				let respawnLocation = positionFromSpawnLocations(this.spawnLocations);
+				let respawnLocation = this.positionFromSpawnLocations(this.spawnLocations);
 				this.x = respawnLocation[0];
 				this.y = respawnLocation[1];
 			}
@@ -2314,7 +2314,7 @@ class Character extends Thing {
 			if (!waterWalking) {
 				// currently mud goes the same speed as in a water tile
 				this.speed = swimSpeed;
-				
+
 				if (!this.hasStatusEffect("Stuck in the mud")) { // give status effect if the player doesn't already have it
 					Game.statusEffects.generic({
 						target: this,
