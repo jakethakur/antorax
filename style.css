@@ -1039,7 +1039,7 @@ thead:after { /* space after bags in bank */
 	font-family: monospace;
 	text-align: left;
 	font-size: 16px;
-	height: 200px;
+	height: 100px;
 	overflow-y: scroll;
 }
 

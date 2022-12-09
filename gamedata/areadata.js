@@ -7744,12 +7744,22 @@ Last I saw him, he was visiting the <b>Eaglecrest Plains</b> to the <b>south</b>
 				y: 1227,
 				template: EnemyTemplates.eaglecrest.chicken,
 			},
+			{
+				spawnLocations: [{x: 2169, y: 3168, width: 3210, height: 1850}],
+				template: EnemyTemplates.eaglecrest.toad,
+				repeatNumber: 12,
+			},
+			{
+				spawnLocations: [{x: 100, y: 400, width: 5800, height: 5500}],
+				template: EnemyTemplates.eaglecrest.toad,
+				repeatNumber: 15,
+			},
 		],
 
 		things: [
 			{
-				x: 2761,
-				y: 1127,
+				x: [205.6, 1186.9, 341.7, 1237.3, 300.2, 367.7, 1237.3, 851.2],
+				y: [4521.9, 4661.7, 4768.2, 5019, 5080, 5372.7, 5384.3, 5835.4],
 				orderOffsetY: -10,
 				name: "Sprinkler",
 				image: "sprinkler",
@@ -7762,7 +7772,10 @@ Last I saw him, he was visiting the <b>Eaglecrest Plains</b> to the <b>south</b>
 				animateFunction: function () { // tbd generalise for anything like this?
 					// state is an integer from 0 to 13 inclusive
 					// define state
-					if (this.state === undefined || this.state >= 13) {
+					if (this.state === undefined) {
+						this.state = Random(0, 13);
+					}
+					else if (this.state >= 13) {
 						this.state = 0;
 					}
 					else {
@@ -7779,8 +7792,8 @@ Last I saw him, he was visiting the <b>Eaglecrest Plains</b> to the <b>south</b>
 				animationFrameTime: 90,
 			},
 			{
-				x: 2361,
-				y: 1227,
+				x: 4141,
+				y: 2626,
 				name: "Well",
 				image: "well",
 			},
@@ -7830,6 +7843,15 @@ Last I saw him, he was visiting the <b>Eaglecrest Plains</b> to the <b>south</b>
 				}
 			},
 		],
+
+		collisions: [
+			{
+				x: 4141,
+				y: 2736,
+				width: 120,
+				height: 1,
+			},
+		]
 	},
 
 	//

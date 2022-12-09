@@ -215,7 +215,7 @@ const EnemyLootTables = {
 				area: "eaglecrest",
 			},
 			chance: [
-				15,				// 0
+				20,				// 0
 				0,				// 1
 			],
 		},
@@ -223,6 +223,49 @@ const EnemyLootTables = {
 			item: Items.currency[2],
 			chance: [
 				6,				// 0
+				0,				// 1
+			],
+		},
+		{ // frogspawn
+			item: Items.fish[33],
+			chance: [
+				40,				// 0
+				0,				// 1
+			],
+		},
+		{ // tadpole
+			item: Items.fish[34],
+			chance: [
+				30,				// 0
+				20,				// 1
+				18,				// 2
+				15,				// 3
+				11,				// 4
+				0,				// 5
+			],
+		},
+		{ // tadpole
+			item: Items.fish[34],
+			chance: [
+				30,				// 0
+				20,				// 1
+				18,				// 2
+				15,				// 3
+				11,				// 4
+				0,				// 5
+			],
+		},
+		{ // water walking pot
+			item: Items.consumable[27],
+			chance: [
+				7,				// 0
+				0,				// 1
+			],
+		},
+		{ // frogfruit
+			item: Items.consumable[27],
+			chance: [
+				1,				// 0
 				0,				// 1
 			],
 		},

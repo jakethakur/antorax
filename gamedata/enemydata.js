@@ -313,7 +313,7 @@ const EnemyTemplates = {
 				walkSpeed: 95,
 				swimSpeed: 40,
 				iceSpeed: 160,
-				maxHealth: 16,
+				maxHealth: 18,
 				defence: 2,
 				range: 140,
 				reloadTime: 2250,

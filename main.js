@@ -1152,10 +1152,19 @@ class Entity {
 		this.area = Game.areaName;
 
 		this.map = properties.map;
-		this.x = properties.x || 0;
-		this.y = properties.y || 0;
+		this.x = properties.x;
+		this.y = properties.y;
 		this.width = properties.width;
 		this.height = properties.height;
+
+		// alternate spawning:
+		// tbd use for chests and villagers!
+		this.spawnLocations = properties.spawnLocations; // an array of objects denoting spawn boxes, a random place in a random one of them is chosen
+		if (typeof this.x === "undefined" && typeof this.y === "undefined" && typeof this.spawnLocations !== "undefined") {
+			let spawnPosition = this.positionFromSpawnLocations(this.spawnLocations);
+			this.x = spawnPosition[0];
+			this.y = spawnPosition[1];
+		}
 
 		this.hitboxColour = properties.hitboxColour || "#FF0000"; // hex colour for hitbox
 
@@ -1187,6 +1196,26 @@ class Entity {
 		if (properties.addToObjectArrays !== false) {
 			Game.allEntities.push(this); // array for current area only
 		}
+	}
+
+	// spawnLocations should be an array of objects with an x, y, optional width and height
+	// a random one is chosen and a random postion in that spawn location is chosen
+	positionFromSpawnLocations (spawnLocations) {
+		let x, y;
+		let spawnLocation = spawnLocations[Random(0, spawnLocations.length-1)];
+		if (typeof spawnLocation.width === "undefined") {
+			x = spawnLocation.x;
+		}
+		else {
+			x = Random(spawnLocation.x, spawnLocation.x+spawnLocation.width);
+		}
+		if (typeof spawnLocation.height === "undefined") {
+			y = spawnLocation.y;
+		}
+		else {
+			y = Random(spawnLocation.y, spawnLocation.y+spawnLocation.height);
+		}
+		return [x, y];
 	}
 
 	isTouching (object) {
@@ -1998,6 +2027,7 @@ class Character extends Thing {
 							User.progress.successiveExplosions = 0;
 						}
 						User.progress.successiveExplosions = Math.max(User.progress.successiveExplosions, successiveExplosions);
+						console.log(successiveExplosions)
 						Dom.checkProgress();
 
 						Game.projectiles.push(new Projectile({
@@ -2145,8 +2175,15 @@ class Character extends Thing {
 
 			this.hasBeenSiphoned = false; // for quests
 
-			this.x = this.spawnX;
-			this.y = this.spawnY;
+			if (typeof this.spawnLocations !== "undefined") {
+				let respawnLocation = positionFromSpawnLocations(this.spawnLocations);
+				this.x = respawnLocation[0];
+				this.y = respawnLocation[1];
+			}
+			else {
+				this.x = this.spawnX;
+				this.y = this.spawnY;
+			}
 
 			this.health = this.stats.maxHealth;
 			this.damageTaken = 0;
@@ -2206,6 +2243,8 @@ class Character extends Thing {
 		// test for slow tiles (e.g: water, mud)
 		let slowTile = this.map.isSlowTileAtXY(this.x, footY);
 
+		let waterWalking = this.hasStatusEffectType("waterWalking"); // can walk on water and mud
+
 		if (slowTile === null || baseSpeed) { // normal speed
 			this.speed = walkSpeed;
 			// remove swimming/mud/ice/path status effect
@@ -2229,14 +2268,14 @@ class Character extends Thing {
 		}
 
 		else if (slowTile === "path") { // on path
-			this.speed = walkSpeed * 1.15;
+			this.speed = walkSpeed + 30;
 
 			Game.removeTileStatusEffects(this, "On a path"); // remove all status effects from other tiles
 			if (!this.hasStatusEffect("On a path")) { // give status effect if the player doesn't already have it
 				Game.statusEffects.generic({
 					target: this,
 					effectTitle: "On a path",
-					effectDescription: "+15% movement speed",
+					effectDescription: "+30 walk speed",
 					imageName: "speedUp",
 					type: "path",
 					effectStack: "noStack",
@@ -2245,42 +2284,47 @@ class Character extends Thing {
 		}
 
 		else if (slowTile === "water") { // in water tile
-			this.speed = swimSpeed;
-
 			Game.removeTileStatusEffects(this, "Swimming"); // remove all status effects from other tiles
-			if (!this.hasStatusEffect("Swimming")) { // give status effect if the player doesn't already have it
-				// remove fire status effect
-				for (let i = 0; i < this.statusEffects.length; i++) {
-					if (this.statusEffects[i].title.substring(0, 4) === "Fire") {
-						this.removeStatusEffect(i, "environment");
+
+			if (!waterWalking) {
+				this.speed = swimSpeed;
+				if (!this.hasStatusEffect("Swimming")) { // give status effect if the player doesn't already have it
+					// remove fire status effect
+					for (let i = 0; i < this.statusEffects.length; i++) {
+						if (this.statusEffects[i].title.substring(0, 4) === "Fire") {
+							this.removeStatusEffect(i, "environment");
+						}
 					}
+					// add water status effect
+					Game.statusEffects.generic({
+						target: this,
+						effectTitle: "Swimming",
+						effectDescription: "Reduced movement speed",
+						imageName: "water",
+						type: "water",
+						effectStack: "noStack",
+					});
 				}
-				// add water status effect
-				Game.statusEffects.generic({
-					target: this,
-					effectTitle: "Swimming",
-					effectDescription: "Reduced movement speed",
-					imageName: "water",
-					type: "water",
-					effectStack: "noStack",
-				});
 			}
 		}
 
 		else if (slowTile === "mud") { // in mud tile
-			// currently mud goes the same speed as in a water tile
-			this.speed = swimSpeed;
-
 			Game.removeTileStatusEffects(this, "Stuck in the mud"); // remove all status effects from other tiles
-			if (!this.hasStatusEffect("Stuck in the mud")) { // give status effect if the player doesn't already have it
-				Game.statusEffects.generic({
-					target: this,
-					effectTitle: "Stuck in the mud",
-					effectDescription: "Reduced movement speed",
-					imageName: "mud",
-					type: "mud",
-					effectStack: "noStack",
-				});
+
+			if (!waterWalking) {
+				// currently mud goes the same speed as in a water tile
+				this.speed = swimSpeed;
+				
+				if (!this.hasStatusEffect("Stuck in the mud")) { // give status effect if the player doesn't already have it
+					Game.statusEffects.generic({
+						target: this,
+						effectTitle: "Stuck in the mud",
+						effectDescription: "Reduced movement speed",
+						imageName: "mud",
+						type: "mud",
+						effectStack: "noStack",
+					});
+				}
 			}
 		}
 
@@ -5992,7 +6036,7 @@ Game.statusEffects.healthRegen = function(properties) {
 	this.generic(newProperties);
 }
 
-// give target a health regen buff
+// give target fire res
 // properties includes target, effectTitle, time
 Game.statusEffects.fireResistance = function(properties) {
 	let newProperties = properties;
@@ -6000,6 +6044,19 @@ Game.statusEffects.fireResistance = function(properties) {
 	newProperties.effectDescription = properties.effectDescription || "Immune to fire damage";
 	newProperties.imageName = "fireResistance";
 	newProperties.type = "fireResistance";
+
+	this.generic(newProperties);
+}
+
+// give target water walking
+// properties includes target, effectTitle, time
+// tbd only works for player currently
+Game.statusEffects.waterWalking = function(properties) {
+	let newProperties = properties;
+	newProperties.effectTitle = properties.effectTitle || "Water Walking";
+	newProperties.effectDescription = properties.effectDescription || "Can walk on water and other similar substances";
+	newProperties.imageName = "waterWalking";
+	newProperties.type = "waterWalking";
 
 	this.generic(newProperties);
 }
@@ -6080,6 +6137,9 @@ Game.getStatusIconNumber = function (statusEffect) {
 	}
 	else if (statusEffect.image === "rooted") {
 		iconNum = 23;
+	}
+	else if (statusEffect.image === "waterWalking") {
+		iconNum = 24;
 	}
 	else { // no status effect image
 		iconNum = 3; // fire image used as placeholder
@@ -6830,8 +6890,17 @@ Game.loadArea = function (areaName, destination) {
 				// exists in areadata
 				// iterate through objects of that type in areadata
 				for (let i = 0; i < Areas[areaName][type].length; i++) {
-					// see if there are multiple entities of the type that should be added (i.e. the x and y coordinates are an array)
+					// see if there are multiple entities of the type that should be added (i.e. the x and y coordinates are an array, or there is a .repeat property)
 					// if there are, then split this into multiple npcs in areadata without arrays for coords
+					if (Areas[areaName][type][i].repeatNumber > 1) {
+						let numberOfEntities = Areas[areaName][type][i].repeatNumber;
+						Areas[areaName][type][i].repeatNumber = undefined;
+						for (let j = 0; j < numberOfEntities; j++) {
+							let clonedObject = Object.assign({}, Areas[areaName][type][i]);
+							Areas[areaName][type].push(clonedObject);
+						}
+					}
+
 					if (Array.isArray(Areas[areaName][type][i].x)) {
 						let xArray = Areas[areaName][type][i].x;
 						let yArray = Areas[areaName][type][i].y;

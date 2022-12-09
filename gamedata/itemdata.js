@@ -1170,7 +1170,7 @@ var Items = {
 			area: ["eaglecrest"],
 			rarity: "mythic",
 			sellPrice: 5,
-			lore: "",
+			lore: "Dignan's old greaves",
 			obtainText: "Can be uncovered as an unidentified item in areas around Eaglecrest Plains.",
 			unidentifiedArea: ["eaglecrest"],
 			functionText: "Produces <i>Hive Honey</i> which restores 10 health",
@@ -2330,7 +2330,7 @@ var Items = {
 			tier: 1,
 			obtain: ["boss"],
 			area: ["loggingCamp"],
-			event: "Samhain",
+			//event: "Samhain",
 			rarity: "mythic",
 			lore: "tbd",
 			obtainText: "Can be looted from 'Barebones' Nkkja, a boss in The Nilbog during Blood Moons.",
@@ -4099,7 +4099,7 @@ var Items = {
 			type: "consumable",
 			image: "assets/items/consumable/11.png",
 			sellPrice: 2,
-			functionText: "Increases defence against Nilbog goblins by 50% for 10 seconds",
+			functionText: "Increases defence against Nilbog goblins by 100% for 15 seconds",
             cooldown: 20, // 20 seconds
 			onClickFunction: function (inventoryPosition) {
 				// remove the item
@@ -4109,8 +4109,8 @@ var Items = {
 				Game.statusEffects.defence({
 					target: Game.hero,
 					effectTitle: "Goblin Resistance",
-					defenceIncrease: 50,
-					time: 10,
+					defenceIncrease: 100,
+					time: 15,
 					subSpecies: "nilbog goblin",
 				});
 			}
@@ -4240,7 +4240,7 @@ var Items = {
 			name: "Christmas Potion",
 			type: "consumable",
 			image: "assets/items/consumable/17.png",
-			functionText: "Increases non-quest XP gain by 20% for 30 seconds",
+			functionText: "Increases non-quest XP gain by 30% for 30 seconds",
 			lore: "This potion is made with a secret ingredient only found at Christmas.",
 			sellPrice: 1,
             cooldown: 20, // 20 seconds
@@ -4251,7 +4251,7 @@ var Items = {
 				Game.statusEffects.xp({
 					target: Game.hero,
 					effectTitle: "XP Bonus",
-					xpIncrease: 20,
+					xpIncrease: 30,
 					time: 30,
 				});
 			}
@@ -4482,15 +4482,18 @@ var Items = {
 			name: "Potion of Water Walking",
 			type: "consumable",
 			image: "assets/items/consumable/27.png",
-            cooldown: 20, // 20 seconds
-			sellPrice: 1, // tbc
-			functionText: "tbd",
+            cooldown: 60, // 60 seconds
+			sellPrice: 1,
+			functionText: "Allows you to walk on water for 30 seconds",
 			onClickFunction: function (inventoryPosition) {
                 // remove the item
                 Dom.inventory.remove(inventoryPosition);
 
                 // status effect
-				// tbd
+                Game.statusEffects.waterWalking({
+                    target: Game.hero,
+                    time: 60,
+                });
             },
 		},
 		{
@@ -4762,6 +4765,16 @@ var Items = {
 			    Player.quests.questProgress.caramelApple = true;
 			},
 			bloodMoonRestore: true,
+		},
+		{
+			id: 8,
+			name: "Frogfruit",
+			type: "food",
+			image: "assets/items/food/8.png",
+			sellPrice: 2,
+			healthRestore: 30,
+			healthRestoreTime: 3,
+			lore: "", // tbd
 		},
 	],
 	teleport: [
@@ -5579,11 +5592,17 @@ var Items = {
 					y: Round(Game.hero.y, 1),
 					type: "things",
 					dev: true,
+					crop: {
+						x: 0,
+						y: 0,
+						width: 120,
+						height: 120
+					},
 				};
 				Game.things.push(new Thing(object));
 			},
-			objectImage: "marketStall",
-			objectName: "Market Stall",
+			objectImage: "sprinkler",
+			objectName: "Sprinkler",
 		},
 		{
 			id: 1,
@@ -5620,17 +5639,23 @@ var Items = {
 			onClickFunction: function () {
 				// placedItems string for exporting
 				let numThings = 0;
-				let code = "<div class='codeExportText' id='exportedCode'>";
+				let code = "<div class='codeExportText'>";
+				let xPositions = "<div class='codeExportText' height='100px'>[";
+				let yPositions = "<div class='codeExportText' height='100px'>[";
 				for (let i = 0; i < Game.allThings.length; i++) {
 					let obj = Game.allThings[i];
 					if (obj.dev) {
 						code += "{x: "+obj.x+", y: "+obj.y+", image: '"+obj.imageName+"', name: '"+obj.name+"'},<br>";
+						xPositions += obj.x+", ";
+						yPositions += obj.y+", ";
 						numThings++;
 					}
 				}
 				code += "</div><br>";
+				xPositions = xPositions.substring(0, xPositions.length-2) + "]</div><br>"; // get rid of comma at end and end array
+				yPositions = yPositions.substring(0, yPositions.length-2) + "]</div><br>";
 				if (numThings > 0) {
-					Dom.alert.page(code); // tbd make a copy to clipboard button?
+					Dom.alert.page(code+xPositions+yPositions); // tbd make a copy to clipboard button?
 				}
 				else {
 					Dom.alert.page("You don't have any placed objects to export!");

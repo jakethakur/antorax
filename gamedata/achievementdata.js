@@ -226,7 +226,7 @@ var Achievements = [
 	{
 		name: "Thermal Runaway",
 		description: "Set off 6 successive explosions with an Exploding weapon.",
-		points: 5,
+		points: 10,
 		category: ["combat"],
 		area: ["global"],
 		image: "../assets/achievements/explosion.png",
