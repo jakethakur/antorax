@@ -754,6 +754,10 @@ thead:after { /* space after bags in bank */
 	text-align: center;
 }
 
+#bankPage {
+	overflow-y: auto;
+}
+
 /*					*/
 /*		TRADE		*/
 /*					*/

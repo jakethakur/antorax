@@ -215,14 +215,14 @@ const EnemyLootTables = {
 				area: "eaglecrest",
 			},
 			chance: [
-				20,				// 0
+				25,				// 0
 				0,				// 1
 			],
 		},
 		{ // gold
 			item: Items.currency[2],
 			chance: [
-				6,				// 0
+				4,				// 0
 				0,				// 1
 			],
 		},

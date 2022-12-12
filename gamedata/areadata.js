@@ -2161,28 +2161,28 @@ var Areas = {
 
 			interactWithTile: function(tileNum, x, y) { // pick up logs
 				// try to pick up a log
-				let replaceTiles = map.setTilesAtLocation([
+				let replaceTilesLog = map.setTilesAtLocation([
 					{tileNum: 93, replaceTo: 105, relativePosition: {x: 0, y: 0}},
 					{tileNum: 94, replaceTo: 105, relativePosition: {x: 1, y: 0}},
 				], {x:x, y:y});
-				if (replaceTiles !== false) {
+				if (replaceTilesLog !== false) {
 					// touching a log
 					Game.hero.channel(function () {
 						// give log item to player
 						if (Dom.inventory.give(Items.item[2], 1) !== false) { // check if player has enough inventory space
 							// remove log from tilemap
-							replaceTiles();
+							replaceTilesLog();
 						}
 					}, [], 1000, "Retrieving Logs");
 				}
 
 				// pick up snowball from rock
-				replaceTiles = map.setTilesAtLocation([
+				let replaceTilesSnow = map.setTilesAtLocation([
 					{tileNum: 101, replaceTo: 56, relativePosition: {x: 0, y: 0}},
 					{tileNum: 102, replaceTo: 72, relativePosition: {x: 1, y: 0}},
 					{tileNum: 109, replaceTo: 64, relativePosition: {x: 0, y: 1}},
 				], {x:x, y:y});
-				if (replaceTiles !== false) {
+				if (replaceTilesSnow !== false) {
 					// touching a snowy rock
 					Game.hero.channel(function () {
 						// give snowball to player
@@ -2190,7 +2190,7 @@ var Areas = {
 							Player.quests.questProgress.snowCollected = Increment(Player.quests.questProgress.snowCollected);
 							Dom.checkProgress();
 							// remove snowy rock's snow from tilemap
-							replaceTiles();
+							replaceTilesSnow();
 						}
 						// add snow back after 1 minute
 						let addSnowBack = map.setTilesAtLocation([

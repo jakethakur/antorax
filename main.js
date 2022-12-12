@@ -10576,6 +10576,19 @@ Game.render = function (delta) {
 	// only render the following if the player isn't pressing the shift key
 	// also do not render if a screenshot is going to be taken with the camera this tick
 	if (!this.keysDown.SHIFT && !this.takePhoto) {
+		// low health red border
+		let healthProportion = Game.hero.health / Game.hero.stats.maxHealth;
+		if (healthProportion < 0.2) {
+			let width = Dom.canvas.width - Game.viewportOffsetX; // takes into account black bars
+			let height = Dom.canvas.height - Game.viewportOffsetY;
+			let maxDimension = Math.max(width, height); // for rectangle canvases
+			let gradient = this.ctx.createRadialGradient(Dom.canvas.width/2, Dom.canvas.height/2, 0, Dom.canvas.width/2, Dom.canvas.height/2, maxDimension/2);
+			gradient.addColorStop(0, "rgba(0, 0, 0, 0)");
+			let opacity = (0.2 - healthProportion) * 2.5;
+			gradient.addColorStop(1, "rgba(255, 0, 0, "+opacity+")");
+			this.ctx.fillStyle = gradient;
+			this.ctx.fillRect(0, 0, width, height);
+		}
 
 		//
 		// Setting options

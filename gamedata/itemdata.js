@@ -1170,7 +1170,7 @@ var Items = {
 			area: ["eaglecrest"],
 			rarity: "mythic",
 			sellPrice: 5,
-			lore: "Dignan's old greaves",
+			lore: "Dignan's old trousers",
 			obtainText: "Can be uncovered as an unidentified item in areas around Eaglecrest Plains.",
 			unidentifiedArea: ["eaglecrest"],
 			functionText: "Produces <i>Hive Honey</i> which restores 10 health",
@@ -3764,6 +3764,8 @@ var Items = {
 			type: "item",
 			image: "assets/items/item/42.png",
 			stack: 1,
+			sellPrice: 1,
+			sellQuantity: 1,
 			lore: "Must have been stolen from someone by a cutpurse"
 		},
 		{
@@ -3772,6 +3774,8 @@ var Items = {
 			type: "item",
 			image: "assets/items/item/43.png",
 			stack: 2,
+			sellPrice: 1,
+			sellQuantity: 1,
 			lore: "Must have been stolen from someone by a cutpurse"
 		},
 		{
@@ -3780,7 +3784,63 @@ var Items = {
 			type: "item",
 			image: "assets/items/item/44.png",
 			stack: 1,
+			sellPrice: 2,
+			sellQuantity: 1,
 			lore: "Must have been stolen from someone by a cutpurse"
+		},
+		{
+			id: 45,
+			name: "Coyote Bone",
+			type: "item",
+			image: "assets/items/item/45.png",
+			stack: 64,
+			sellPrice: 1,
+			sellQuantity: 4,
+		},
+		{
+			id: 46,
+			name: "Tuft of Coyote Hair",
+			type: "item",
+			image: "assets/items/item/46.png",
+			stack: 64,
+			sellPrice: 1,
+			sellQuantity: 16,
+		},
+		{
+			id: 47,
+			name: "Fresh Meat",
+			type: "item",
+			image: "assets/items/item/47.png",
+			stack: 64,
+			sellPrice: 1,
+			sellQuantity: 4,
+		},
+		{
+			id: 48,
+			name: "Doohickey the Octopus",
+			type: "item",
+			image: "assets/items/item/48.png",
+			stack: 1,
+			functionText: "", // something to do with high potency
+			lore: "Has some alchemical uses."
+		},
+		{
+			id: 49,
+			name: "Enchanted Toy Soldier",
+			type: "item",
+			image: "assets/items/item/49.png",
+			stack: 16,
+			functionText: "", // something to do with high potency
+			lore: "Has some alchemical uses."
+		},
+		{
+			id: 50,
+			name: "Animated Frog's Leg",
+			type: "item",
+			image: "assets/items/item/50.png",
+			stack: 2,
+			functionText: "", // something to do with high potency
+			lore: "Has some alchemical uses."
 		},
 	],
 	consumable: [
@@ -5562,6 +5622,8 @@ var Items = {
 			rarity: "junk",
 			plural: true,
 			stack: 4,
+			sellPrice: 1,
+			sellQuantity: 16,
 			areas: ["eaglecrest"],
 		},
 		{
@@ -5572,6 +5634,8 @@ var Items = {
 			image: "assets/items/fish/34.png",
 			rarity: "junk",
 			stack: 64,
+			sellPrice: 1,
+			sellQuantity: 16,
 			areas: ["eaglecrest"],
 		},
 	],
