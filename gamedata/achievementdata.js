@@ -72,6 +72,23 @@ var Achievements = [
 		},
 	},
 	{
+		name: "Daily Quester II",
+		description: "Complete 250 daily quests.",
+		points: 10,
+		category: ["quests"],
+		area: ["global"],
+		image: "../assets/icons/dailyQuests.png",
+		class: "cumulative",
+		isCompleted: function () {
+			return User.progress.dailyQuests >= 250;
+		},
+		expand: {
+			type: "progressBar",
+			value: User.progress.dailyQuests,
+			total: 250,
+		},
+	},
+	{
 		name: "Questmaster I",
 		description: "Complete 50 quests.",
 		points: 10,
@@ -214,6 +231,7 @@ var Achievements = [
 	{
 		name: "Close One!",
 		description: "Defeat a boss with one health point remaining.",
+		hidden: true,
 		points: 10,
 		category: ["combat"],
 		area: ["global"],

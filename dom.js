@@ -3296,7 +3296,9 @@ Dom.inventory.removeById = function (ID, type, num, array, quest) {
 	}
 }
 
-// array is optional
+// array is optional array that the item is removed from (inventory by default)
+// num is the index in array that stuff is removed from
+// all is the number to be removed, or removes all of the items if it isn't a number
 Dom.inventory.remove = function (num, all, array) {
 
 	// loot (overwritten if not loot)
@@ -3323,15 +3325,17 @@ Dom.inventory.remove = function (num, all, array) {
 	for (let i = 0; i < (isNaN(all) ? 1 : all); i++) {
 		// remove item completely
 		if (array[num].stacked === 1 || array[num].stacked === undefined || all === true) {
-			// because they are unset
-			let id = array[num].id;
-			let type = array[num].type;
-			document.getElementById(element).getElementsByTagName("td")[num].innerHTML = "";
-			array[num] = {};
-			// if more items still need to be removed
-			if (!isNaN(all) && all - i !== 1) {
-				// check for more of the same items and remove them
-				Dom.inventory.removeById(id, type, all-i-1, array);
+			if (typeof array[num].id !== "undefined") { // check an item exists at this location
+				// almost removed - only 1 thing left to remove in the stack, or everything from the stack is being removed
+				let id = array[num].id;
+				let type = array[num].type;
+				document.getElementById(element).getElementsByTagName("td")[num].innerHTML = "";
+				array[num] = {};
+				// if more items still need to be removed
+				if (!isNaN(all) && all - i !== 1) {
+					// check for more of the same items and remove them
+					Dom.inventory.removeById(id, type, all-i-1, array);
+				}
 			}
 		}
 		// decrease stack size

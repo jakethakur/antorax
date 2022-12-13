@@ -2128,18 +2128,32 @@ class Character extends Thing {
 					}
 					ineffectiveAmount = Math.round(ineffectiveAmount);
 
-					// add stronger xp fatigue effect (or add one if the player doesn't already have one)
-					Game.hero.statusEffects.push(new statusEffect({
-						title: "XP Fatigue",
-						effect: "You recently died. Your next " + ineffectiveAmount + " XP is worth 50% less.",
-						info: {
-							stacks: stacks,
-							ineffectiveAmount: ineffectiveAmount,
-						},
-						image: "xpDown",
-					}));
-
 					Player.fatiguedXP = ineffectiveAmount;
+
+					if (Player.level < MaxLevel) {
+						// add stronger xp fatigue effect (or add one if the player doesn't already have one)
+						Game.hero.statusEffects.push(new statusEffect({
+							title: "XP Fatigue",
+							effect: "You recently died. Your next " + ineffectiveAmount + " XP is worth 50% less.",
+							info: {
+								stacks: stacks,
+								ineffectiveAmount: ineffectiveAmount,
+							},
+							image: "xpDown",
+						}));
+					}
+					else {
+						// bit different for max level ...
+						Game.hero.statusEffects.push(new statusEffect({
+							title: "XP Fatigue",
+							effect: "You recently died. Since you are max level, you move 30% slower until your XP debt of " + ineffectiveAmount + " is paid off.",
+							info: {
+								stacks: stacks,
+								ineffectiveAmount: ineffectiveAmount,
+							},
+							image: "xpDown",
+						}));
+					}
 
 					Game.hero.updateStatusEffects();
 
@@ -2349,7 +2363,13 @@ class Character extends Thing {
 				}
 			}
 
-			// frostaura (for enemie only)
+			// xp fatigue at max level
+			if (Player.level === MaxLevel && Player.fatiguedXP > 0 && this.constructor.name === "Hero") {
+				// 30% less speed
+				this.speed -= oldSpeed * 0.3;
+			}
+
+			// frostaura (for enemie only) - should be done last !
 			//if ((this.hostility === "hostile" || this.hostility === "boss") && // used to check hostility but now works on villagers as well!
 			if (Game.hero.stats.frostaura === true && Game.distance(this, Game.hero) < Game.hero.stats.range && this.constructor.name !== "Hero") {
 				// range of frostaura is currently same as hero's range
@@ -9214,6 +9234,16 @@ Game.getXP = function (xpGiven, xpBonus) {
 			else {
 				Player.xp -= xpGiven / 2;
 				Player.fatiguedXP -= xpGiven;
+
+				// update status effect
+				let statusEffect = Game.hero.statusEffects[Game.hero.statusEffects.findIndex(statusEffect => statusEffect.title === "XP Fatigue")];
+				statusEffect.info.ineffectiveAmount = Player.fatiguedXP;
+				if (Player.level < MaxLevel) {
+					statusEffect.effect = "You recently died. Your next "+Player.fatiguedXP+" XP is worth 50% less.";
+				}
+				else {
+					statusEffect.effect = "You recently died. Since you are max level, you move 30% slower until your XP debt of " + Player.fatiguedXP + " is paid off.";
+				}
 			}
 		}
 
@@ -9243,6 +9273,9 @@ Game.getXP = function (xpGiven, xpBonus) {
 					Player.stats.maxMana = 20;
 					Dom.chat.insert("Congratulations on level 7! You have unlocked spells. Speak to <b>Archbishop Lynch</b> to choose your first spell \u{1F320}");
 				}
+				else if (Player.level === MaxLevel) {
+					Dom.chat.insert("You have reached max level!");
+				}
 
 				if(Player.level >= LevelXP.length - 1){
 					// sets xp bar to fully completed because Game.getXP doesn't set it when you level up
@@ -9265,8 +9298,14 @@ Game.getXP = function (xpGiven, xpBonus) {
 			}
 		}
 		else {
-			// max level
+			// max level (can still pay off xp fatigue, but xp doesn't remain above level cap)
 			Player.xp = LevelXP[Player.level];
+
+			// change xp fatigue to xp debt
+			let xpFatigue = Game.hero.statusEffects.find(statusEffect => statusEffect.title === "XP Fatigue");
+			if (typeof xpFatigue !== "undefined") {
+				xpFatigue.effect = "You recently died. Since you are max level, you move 30% slower until your XP debt of " + Player.fatiguedXP + " is paid off.";
+			}
 		}
 
 		Dom.checkProgress();

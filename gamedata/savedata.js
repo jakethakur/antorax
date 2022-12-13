@@ -230,10 +230,10 @@ var User = {
 }
 
 //xp for lvl...  1  2   3    4    5    6    7    8     9     10    MAX
-const LevelXP = [0, 50, 100, 200, 300, 600, 900, 1250, 1600, 2000, 1]; // amount of xp required for next level (current level = array index)
+const LevelXP = [0, 50, 100, 200, 300, 600, 900, 1250, 1600, 2000, 2000]; // amount of xp required for next level (current level = array index)
 const MaxLevel = LevelXP.length-1;
 
-const ReputationPoints = [1,2500,500,100,500,2500,1]; // points to level up reputation
+const ReputationPoints = [1,2500,500,100,500,2500,1]; // points to level up/down reputation
 
 const BagSlotCosts = [0, 50, 250, 1250, 5000, 10000]; // cost to unlock a bag slot in the bank
 // blame peter for the costs lol
