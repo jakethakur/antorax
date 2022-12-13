@@ -2714,7 +2714,6 @@ var Items = {
 			sellPrice: 5,
 			lore: "",
 			obtainText: "Can be looted from Baron Foxglove, a boss in the Eaglecrest Plains.",
-			unidentifiedArea: ["eaglecrest"],
 			stats: {
 				damage: 5,
 				healthRegen: -0.5

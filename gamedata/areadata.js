@@ -342,7 +342,7 @@ var Areas = {
 							{tileNum: 72, replaceTo: 102, relativePosition: {x: 1, y: 0}},
 							{tileNum: 64, replaceTo: 109, relativePosition: {x: 0, y: 1}},
 						], {x:x, y:y}, "tutorial");
-						Game.setTimeout(addSnowBack, 60000);
+						Game.setTimeout(function (x, y) { if (Weather.weatherType === "snow") {addSnowBack(x, y)}}, 60000, [x, y]);
 					}, [], 1000, "Making a Snowball");
 				}
 			},
@@ -697,7 +697,7 @@ var Areas = {
 							{tileNum: 72, replaceTo: 102, relativePosition: {x: 1, y: 0}},
 							{tileNum: 64, replaceTo: 109, relativePosition: {x: 0, y: 1}},
 						], {x:x, y:y}, "eaglecrestLoggingCamp");
-						Game.setTimeout(addSnowBack, 60000, [x, y]);
+						Game.setTimeout(function (x, y) { if (Weather.weatherType === "snow") {addSnowBack(x, y)}}, 60000, [x, y]);
 					}, [], 1000, "Making a Snowball");
 				}
 			},
@@ -1054,7 +1054,7 @@ var Areas = {
 								Dom.chat.say("Soul Healer Nalaa", "Thank you for taking the time to bring this to me."),
 								Dom.chat.say("Soul Healer Nalaa", "/me gently unfolds the wrapping paper to reveal a brand new sceptre of Souls."),
 								Dom.chat.say("Soul Healer Nalaa", "It's a new sceptre of Souls! Thank you, adventurer. May the Demigods' blessings be bestowed upon you.")],
-							[500], undefined, undefined, true); // cutscene with no end function
+							[500, 1500, 2500], undefined, undefined, true); // cutscene with no end function
 						},
 						roleRequirement: function () {
 							let presentPositions = Dom.inventory.find(21, "fish", true); // array of present inventory positions
@@ -1171,7 +1171,7 @@ var Areas = {
 								Dom.chat.say("Item Buyer Noledar", "Wow, really? That's so nice, I don't think anyone has delivered me a present before!"),
 								Dom.chat.say("Item Buyer Noledar", "/me peels away at the wrapping paper to reveal a large heap of gold."),
 								Dom.chat.say("Item Buyer Noledar", "Wow! Gilas was right - good things <strong>can</strong> happen to ordinary people! Thank you very much, and a merry Christmas to you!")],
-							[500], undefined, undefined, true); // cutscene with no end function
+							[500, 1500, 2500], undefined, undefined, true); // cutscene with no end function
 						},
 						roleRequirement: function () {
 							let presentPositions = Dom.inventory.find(21, "fish", true); // array of present inventory positions
@@ -2198,7 +2198,7 @@ var Areas = {
 							{tileNum: 72, replaceTo: 102, relativePosition: {x: 1, y: 0}},
 							{tileNum: 64, replaceTo: 109, relativePosition: {x: 0, y: 1}},
 						], {x:x, y:y}, "nilbog");
-						Game.setTimeout(addSnowBack, 60000);
+						Game.setTimeout(function (x, y) { if (Weather.weatherType === "snow") {addSnowBack(x, y)}}, 60000, [x, y]);
 					}, [], 1000, "Making a Snowball");
 				}
 			},
@@ -7730,29 +7730,19 @@ Last I saw him, he was visiting the <b>Eaglecrest Plains</b> to the <b>south</b>
 				},
 			},
 			{
-				x: 4624,
-				y: 2678,
+				spawnLocations: [{x: 100, y: 400, width: 5800, height: 5500}],
 				template: EnemyTemplates.eaglecrest.chicken,
-			},
-			{
-				x: 3555,
-				y: 2644,
-				template: EnemyTemplates.eaglecrest.chicken,
-			},
-			{
-				x: 2561,
-				y: 1227,
-				template: EnemyTemplates.eaglecrest.chicken,
+				repeatNumber: 8,
 			},
 			{
 				spawnLocations: [{x: 2169, y: 3168, width: 3210, height: 1850}],
 				template: EnemyTemplates.eaglecrest.toad,
-				repeatNumber: 12,
+				repeatNumber: 15,
 			},
 			{
 				spawnLocations: [{x: 100, y: 400, width: 5800, height: 5500}],
 				template: EnemyTemplates.eaglecrest.toad,
-				repeatNumber: 15,
+				repeatNumber: 22,
 			},
 		],
 

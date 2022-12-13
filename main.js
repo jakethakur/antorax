@@ -1911,6 +1911,9 @@ class Character extends Thing {
 	// damagedByHero is true or false depending on whether it was damaged by the hero
 	// successiveExplosions is for thermal runaway achivement
 	takeDamage (damage, damagedByHero, successiveExplosions) {
+		this.healthBeforeDamage = this.health; // currently unused, updated after each damage
+		this.damageProportionTaken = damage / this.health;
+
 		this.health -= damage;
 		this.damageTaken += damage;
 
@@ -2027,7 +2030,6 @@ class Character extends Thing {
 							User.progress.successiveExplosions = 0;
 						}
 						User.progress.successiveExplosions = Math.max(User.progress.successiveExplosions, successiveExplosions);
-						console.log(successiveExplosions)
 						Dom.checkProgress();
 
 						Game.projectiles.push(new Projectile({
@@ -2577,15 +2579,18 @@ class Attacker extends Character {
 
 		// spells
 		this.spells = properties.spells || [];
-		for (let i = 0; i < this.spells.length; i++) {
-			if (this.spells[i].interval !== undefined) {
-				this.spells[i].ready = false; // cannot be used until interval has finished (just for ai, not player)
-				Game.setTimeout(function (i) {
+		if (this.constructor.name !== "Hero") { // hero spells are saved as an object instead (not sure why???)
+			this.spells = this.spells.map(a => Object.assign({}, a));; // deep copy objects in array
+			for (let i = 0; i < this.spells.length; i++) {
+				if (this.spells[i].interval !== undefined) {
+					this.spells[i].ready = false; // cannot be used until interval has finished (just for ai, not player)
+					Game.setTimeout(function (i) {
+						this.spells[i].ready = true;
+					}.bind(this), this.spells[i].interval, [i]);
+				}
+				else {
 					this.spells[i].ready = true;
-				}.bind(this), this.spells[i].interval, [i]);
-			}
-			else {
-				this.spells[i].ready = true;
+				}
 			}
 		}
 
@@ -3110,10 +3115,14 @@ class Hero extends Attacker {
 
 							this.channellingProjectileId = Game.nextEntityId;
 
+							// snap to tile centre
+							let projectileX = Math.floor(mouseX/60)*60 + 30;
+							let projectileY = Math.floor(mouseY/60)*60 + 30;
+
 							let bobber = new Projectile({
 								map: map,
-								x: mouseX,
-								y: mouseY,
+								x: projectileX,
+								y: projectileY,
 								crop: {
 									x: 0,
 									y: 0,
@@ -4083,6 +4092,14 @@ class Projectile extends Thing {
 							}
 						}
 
+
+						// stuff to be done before dealing damage ...
+
+						// they'll never see it coming achivement
+						if (attacker.stats.stealthed && target.health === target.stats.maxHealth && dmgDealt >= target.health && attacker.constructor.name === "Hero") {
+							User.progress.theyllNeverSeeItComing = true;
+						}
+
 						// deal the damage!
 						target.takeDamage(dmgDealt, attacker.constructor.name === "Hero", this.successiveExplosions); // third param is just for an achivement to do with exploding
 						this.damageDealt.push({enemy: target, damage: dmgDealt, critical: critical});
@@ -4186,10 +4203,17 @@ class Projectile extends Thing {
 									target.say(target.chat.firstDamaged, 0, true);
 								}
 							}
+
 							// remove target's stealth
 							if (target.stats.stealthed) {
 								target.stats.stealthed = false;
 								Game.removeStealthEffects(target);
+							}
+
+							// remove attacker's stealth if the target is still alive (otherwise they can keep stealth)
+							if (attacker.stats.stealthed && target.health > 0) {
+								attacker.stats.stealthed = false;
+								Game.removeStealthEffects(attacker);
 							}
 						}
 
@@ -4214,12 +4238,6 @@ class Projectile extends Thing {
 						// there should be a good system for this - maybe a list of functions called on attack or something, handled by Game.inventoryUpdate
 						if (attacker.constructor.name === "Hero" && Player.inventory.weapon.onHit !== undefined) {
 							Player.inventory.weapon.onHit(target);
-						}
-
-						// remove attacker's stealth
-						if (attacker.stats.stealthed) {
-							attacker.stats.stealthed = false;
-							Game.removeStealthEffects(attacker);
 						}
 
 						if (target.constructor.name === "Hero" || attacker.constructor.name === "Hero") {

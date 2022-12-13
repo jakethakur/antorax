@@ -240,18 +240,18 @@ var Achievements = [
 			total: 6,
 		},
 	},
-	/*{
+	{
 		name: "They'll Never See It Coming",
 		description: "While in stealth, kill an enemy on maximum health with one hit.",
 		points: 5,
 		category: ["combat"],
 		area: ["global"],
-		image: "../assets/helm/33.png",
+		image: "../assets/items/helm/33.png",
 		class: "single",
 		isCompleted: function () {
-			return User.progress.theyllNeverSeeItComing; // need to add
+			return User.progress.theyllNeverSeeItComing;
 		},
-	},*/
+	},
 		//
 		// AREA SPECIFIC COMBAT
 		//

@@ -313,7 +313,7 @@ const EnemyTemplates = {
 				walkSpeed: 95,
 				swimSpeed: 40,
 				iceSpeed: 160,
-				maxHealth: 18,
+				maxHealth: 24,
 				defence: 2,
 				range: 140,
 				reloadTime: 2250,
@@ -837,7 +837,7 @@ const EnemyTemplates = {
 			hostility: "hostile",
 			level: 5,
 			stats: {
-				damage: 10,
+				damage: 7.5,
 				walkSpeed: 25,
 				swimSpeed: 25,
 				iceSpeed: 50,

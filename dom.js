@@ -6722,6 +6722,9 @@ Dom.init = function () {
 		if (Player.days.includes(yesterdayDate)) {
 			Player.consecutiveDays++;
 		}
+		else {
+			Player.consecutiveDays = 1;
+		}
 
 		// seven days in a row
 		if (Player.consecutiveDays === 7) {
