@@ -5763,7 +5763,7 @@ function GetTotalItems(requirement, archaeology) {
 // unidentified item constructor
 // area = lootArea name
 function UnId (area, tier) {
-		this.id = 0;
+	this.id = 0;
     this.area = area;
     this.tier = tier;
     let types = ["helm", "chest", "greaves", "boots", "sword", "staff", "bow"];
@@ -5790,4 +5790,15 @@ function UnId (area, tier) {
     }
     this.unidentified = true;
     this.sellPrice = 1;
+	switch (area) {
+		case "loggingCamp":
+			this.functionText = "From the Logging Camp";
+			break;
+		case "eaglecrest":
+			this.functionText = "From Eaglecrest";
+			break;
+		default:
+			this.functionText = "From " + FromCamelCase(area);
+			break;
+	}
 }

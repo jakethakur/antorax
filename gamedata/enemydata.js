@@ -837,7 +837,7 @@ const EnemyTemplates = {
 			hostility: "hostile",
 			level: 5,
 			stats: {
-				damage: 7.5,
+				damage: 9,
 				walkSpeed: 25,
 				swimSpeed: 25,
 				iceSpeed: 50,

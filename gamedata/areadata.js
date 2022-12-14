@@ -353,13 +353,13 @@ var Areas = {
 		},
 
 		images: {
-			tiles: {normal: "assets/tilemap/loggingCamp.png", christmas: "assets/tilemap/loggingCamp-christmas.png"},
+			tiles: {normal: "assets/tilemap/loggingCamp.png", christmas: "assets/tilemap/loggingCampChristmas.png"},
 			driver: {normal: "assets/npcs/driver.png"},
 			weaponsmith: {normal: "assets/npcs/weaponsmith.png"},
 			cart: {normal: "assets/objects/cartEaglecrest.png"},
 			fisherman: {normal: "assets/npcs/tobenam.png"},
-			weaponsmithSign: {normal: "assets/objects/weaponsmithSign.png"},
-			eaglecrestBanner: {normal: "assets/objects/eaglecrestBanner.png"},
+			weaponsmithSign: {normal: "assets/objects/weaponsmithSign.png", christmas: "assets/objects/weaponsmithSignChristmas.png"},
+			eaglecrestBanner: {normal: "assets/objects/eaglecrestBanner.png", christmas: "assets/objects/eaglecrestBannerChristmas.png"},
 			torianTintop: {normal: "assets/npcs/torianTintop.png"},
 			nessyTintop: {normal: "assets/npcs/nessyTintop.png"},
 			present: {normal: "assets/objects/present.png"},
@@ -708,7 +708,7 @@ var Areas = {
 		},
 
 		images: {
-			tiles: {normal: "assets/tilemap/loggingCamp.png", christmas: "assets/tilemap/loggingCamp-christmas.png"},
+			tiles: {normal: "assets/tilemap/loggingCamp.png", christmas: "assets/tilemap/loggingCampChristmas.png"},
 			teper: {normal: "assets/npcs/teper.png"},
 			teperAngry: {christmas: "assets/npcs/teper-angry.png"},
 			identifier: {normal: "assets/npcs/gilas.png"},
@@ -729,8 +729,8 @@ var Areas = {
 			christmasSapling: {christmas: "assets/objects/christmasSapling.png"},
 			cart: {normal: "assets/objects/cartEaglecrest2.png"},
 			driver: {normal: "assets/npcs/alaran.png"},
-			eaglecrestBanner: {normal: "assets/objects/eaglecrestBanner.png"},
-			nilbogBanner: {normal: "assets/objects/nilbogBanner.png"},
+			eaglecrestBanner: {normal: "assets/objects/eaglecrestBanner.png", christmas: "assets/objects/eaglecrestBannerChristmas.png"},
+			nilbogBanner: {normal: "assets/objects/nilbogBanner.png", christmas: "assets/objects/nilbogBannerChristmas.png"},
 			torianTintop: {normal: "assets/npcs/torianTintop.png"},
 			nessyTintop: {normal: "assets/npcs/nessyTintop.png"},
 		},
@@ -2209,7 +2209,7 @@ var Areas = {
 		},
 
 		images: {
-			tiles: {normal: "assets/tilemap/loggingCamp.png", christmas: "assets/tilemap/loggingCamp-christmas.png"},
+			tiles: {normal: "assets/tilemap/loggingCamp.png", christmas: "assets/tilemap/loggingCampChristmas.png"},
 			goblinRockthrower: {normal: "assets/enemies/goblinRockthrower.png"},
 			rock: {normal: "assets/projectiles/rock.png"},
 			goblinSkirmisher: {normal: "assets/enemies/goblinSkirmisher.png"},
@@ -2227,8 +2227,8 @@ var Areas = {
 			torchNight2: {normal: "assets/objects/torchNight2.png"},
 			torchNight3: {normal: "assets/objects/torchNight3.png"},
 			lootChest: {normal: "assets/objects/chest.png"},
-			eaglecrestBanner: {normal: "assets/objects/eaglecrestBanner.png"},
-			nilbogBanner: {normal: "assets/objects/nilbogBanner.png"},
+			eaglecrestBanner: {normal: "assets/objects/eaglecrestBanner.png", christmas: "assets/objects/eaglecrestBannerChristmas.png"},
+			nilbogBanner: {normal: "assets/objects/nilbogBanner.png", christmas: "assets/objects/nilbogBannerChristmas.png"},
 			campfire1: {normal: "assets/objects/campfire1.png"},
 			campfire2: {normal: "assets/objects/campfire2.png"},
 			campfire3: {normal: "assets/objects/campfire3.png"},
@@ -2890,9 +2890,9 @@ var Areas = {
 		areaTeleports: [
 			{
 				// teleport to nilbog (bottom of tower)
-				x: 120,
+				x: 300,
 				y: 649,
-				width: 240,
+				width: 600,
 				height: 2,
 				teleportTo: "nilbog",
 				destinationX: 2250,
@@ -6031,7 +6031,7 @@ var Areas = {
 			wardrobeOpen1: {normal: "assets/objects/wardrobeOpen1.png"},
 			wardrobeOpen2: {normal: "assets/objects/wardrobeOpen2.png"},
 			crate: {normal: "assets/objects/crate.png"},
-			eaglecrestBanner: {normal: "assets/objects/eaglecrestBanner.png"},
+			eaglecrestBanner: {normal: "assets/objects/eaglecrestBanner.png", christmas: "assets/objects/eaglecrestBannerChristmas.png"},
 			table: {normal: "assets/objects/table.png"},
 			largeTable: {normal: "assets/objects/largeTable.png"},
 			gargoyle: {normal: "assets/objects/gargoyle.png"},
