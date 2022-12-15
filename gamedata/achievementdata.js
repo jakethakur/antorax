@@ -410,7 +410,7 @@ var Achievements = [
 		points: 10,
 		category: ["combat"],
 		area: ["eaglecrestLoggingCamp"],
-		image: "../assets/items/item/51.png",
+		image: "../assets/items/item/54.png",
 		color: "lightgray",
 		class: "cumulative",
 		isCompleted: function () {
