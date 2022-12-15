@@ -1761,7 +1761,7 @@ var Items = {
 			name: "Fishy",
 			type: "sword",
 			image: "assets/items/sword/10.png",
-			uncollectable: true,
+			limitedEdition: true,
 			allClasses: true,
 			tier: 1,
 			obtain: ["other"],
@@ -1773,6 +1773,7 @@ var Items = {
 			sellPrice: 1,
 			stats: {
 				damage: 2,
+				knockback: 150,
 			},
 			projectile: "slashWater",
 			projectileAdjust: {x: 0, y: 0},

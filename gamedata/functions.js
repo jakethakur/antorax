@@ -416,7 +416,7 @@ function CreateFunction (context, varName, value) {
 }
 
 function IsNullLike (variable) {
-	return (typeof variable === "undefined" || isNaN(variable) || variable === null)
+	return (typeof variable === "undefined" || isNaN(variable) || variable === null || variable === 0)
 }
 
 // second parameter optional - rounds by default to 1dp

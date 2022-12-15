@@ -10352,7 +10352,7 @@ Game.render = function (delta) {
 
 	// auras behind hero (currently just works for hero)
 	if (this.hero.stats.frostaura) {
-		this.ctx.globalAlpha = 0.3;
+		this.ctx.globalAlpha = 0.15;
 		this.ctx.fillStyle = "#b8fff4";
 		this.ctx.beginPath();
 		this.ctx.ellipse(this.hero.screenX, this.hero.screenY, this.hero.stats.range, this.hero.stats.range, 0, 0, Math.PI*2);

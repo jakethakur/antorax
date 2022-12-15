@@ -87,7 +87,7 @@ function arrange(){
 
 		let userData = JSON.parse(localStorage.getItem("user"));
 
-		if(localStorage.getItem("user") !== null && userData.fish[array[i].id] !== 0 && typeof userData.fish[array[i].id] !== "undefined"){
+		if(localStorage.getItem("user") !== null && !IsNullLike(userData.fish[array[i].id])){
 			// fish collected
 			document.getElementById("name"+i).innerHTML = "<b>"+array[i].name+"</b>";
 
