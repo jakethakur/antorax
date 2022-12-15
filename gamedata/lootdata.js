@@ -324,7 +324,7 @@ const EnemyLootTables = {
 			],
 		},
 		{ // golden feather
-			item: Items.item[54],
+			item: Items.item[51],
 			chance: [
 				0.1,			// 0
 				0,				// 1

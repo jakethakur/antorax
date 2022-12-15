@@ -3842,7 +3842,7 @@ var Items = {
 			lore: "Has some alchemical uses."
 		},
 		{
-			id: 54,
+			id: 51,
 			name: "Golden Feather",
 			type: "item",
 			rarity: "junk",
