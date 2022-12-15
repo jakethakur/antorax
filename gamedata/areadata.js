@@ -64,6 +64,7 @@ let Event = {
 
 		this.updateDarkness(d); // update how dark the canvas is
 		this.updateFog(d);
+		this.updateSeason(d);
 	},
 
 	// update how dark the canvas is (called automatically by updateTime)
@@ -177,7 +178,32 @@ let Event = {
 		else if (d.day === 14 && d.month === 2) {
 			this.event = "Valentine";
 		}
-	}
+	},
+
+	updateSeason: function (d) {
+        switch (d.month) {
+            case 12:
+            case 1:
+            case 2:
+                this.season = "winter";
+                break;
+            case 3:
+            case 4:
+            case 5:
+                this.season = "spring";
+                break;
+            case 6:
+            case 7:
+            case 8:
+                this.season = "summer";
+                break;
+            case 9:
+            case 10:
+            case 11:
+                this.season = "autumn";
+                break;
+        }
+    },
 };
 
 // init event variables needed for Area definition

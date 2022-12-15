@@ -3841,6 +3841,16 @@ var Items = {
 			functionText: "", // something to do with high potency
 			lore: "Has some alchemical uses."
 		},
+		{
+			id: 54,
+			name: "Golden Feather",
+			type: "item",
+			rarity: "junk",
+			image: "assets/items/item/54.png",
+			sellPrice: 10,
+			sellQuantity: 1,
+			stack: 64,
+		},
 	],
 	consumable: [
 		{
@@ -5636,6 +5646,27 @@ var Items = {
 			sellPrice: 1,
 			sellQuantity: 16,
 			areas: ["eaglecrest"],
+		},
+		{
+			// Winter only
+			id: 35,
+			name: "Walleye",
+			fishingType: "fish",
+			type: "fish",
+			image: "assets/items/fish/35.png",
+			imageArchaeology: "assets/items/fish/35archaeology.png",
+			rarity: "common",
+			sellPrice: 2,
+			howToCatch: "Can be fished up during winter.",
+			areas: [],
+			length: {
+				min: 32,
+				avg: 54,
+				max: 107,
+			},
+			catchRequirement: function () {
+                return Event.season === "winter";
+            },
 		},
 	],
 	dev: [

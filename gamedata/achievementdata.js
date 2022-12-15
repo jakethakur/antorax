@@ -7,10 +7,9 @@ if(JSON.parse(localStorage.getItem("user")) !== null){
 	User.notFirst = true;
 	User.skinPurchased = undefined;
 }
-else {
-	for (let i = 0; i < Items.fish.length; i++) {
-		User.fish.push(0);
-	}
+
+for (let i = User.fish.length; i < Items.fish.length; i++) {
+    User.fish.push(0);
 }
 
 var Achievements = [
@@ -402,6 +401,21 @@ var Achievements = [
 			value: User.progress.frogs,
 			total: 500,
 		},
+	},
+
+	{
+		name: "Many chickens were harmed in the process",
+		description: "Obtain a golden feather.",
+		hidden: true,
+		points: 10,
+		category: ["combat"],
+		area: ["eaglecrestLoggingCamp"],
+		image: "../assets/items/item/51.png",
+		color: "lightgray",
+		class: "cumulative",
+		isCompleted: function () {
+			return checkProgress(Dom.inventory.check(54, "item"), 1);
+		}
 	},
 
 	{
@@ -816,7 +830,7 @@ var Achievements = [
 		isCompleted: function () {
 			let done = true;
 			for(let i = 0; i < Items.fish.length; i++){
-				if(Items.fish[i].areas[0] === "loggingCamp" && Items.fish[i].areas.length === 1 && Items.fish[i].fishingType === "fish" && User.fish[i] === 0){
+				if(Items.fish[i].areas[0] === "loggingCamp" && Items.fish[i].areas.length === 1 && Items.fish[i].fishingType === "fish" && User.fish[i] === 0 || Items.fish[i].areas[0] === "loggingCamp" && Items.fish[i].areas.length === 1 && Items.fish[i].fishingType === "fish" && User.fish[i] === null){
 					done = false;
 				}
 			}
@@ -826,6 +840,31 @@ var Achievements = [
 			type: "checkList",
 			text: ["Yellow Perch", "Milkfish", "Saffron Cod", "Pink Salmon", "Sea Trout", "Cobia", "Dolphinfish"],
 			complete: [0, 1, 2, 3, 4, 5, 6],
+			//saved: "fish",
+			// tbd link to fishers log
+		},
+	},
+	{
+		name: "Eaglecrest Plains Angler",
+		description: "Fish up every fish native to Eaglecrest Plains.",
+		points: 10,
+		category: ["fishing"],
+		area: ["eaglecrest"],
+		image: "../assets/achievements/eaglecrestFishing.png",
+		class: "cumulative",
+		isCompleted: function () {
+			let done = true;
+			for(let i = 0; i < Items.fish.length; i++){
+				if(Items.fish[i].areas[0] === "eaglecrest" && Items.fish[i].areas.length === 1 && Items.fish[i].fishingType === "fish" && User.fish[i] === 0 || Items.fish[i].areas[0] === "eaglecrest" && Items.fish[i].areas.length === 1 && Items.fish[i].fishingType === "fish" && User.fish[i] === null){
+					done = false;
+				}
+			}
+			return done;
+		},
+		expand: {
+			type: "checkList",
+			text: ["Fallfish", "Grayling", "Rudd", "Weatherfish", "Asp", "Ide", "Goliath Grouper", "Oscar"],
+			complete: [24, 25, 26, 27, 28, 29, 30, 31],
 			//saved: "fish",
 			// tbd link to fishers log
 		},
