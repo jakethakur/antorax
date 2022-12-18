@@ -5422,25 +5422,65 @@ var Items = {
 					// autocomplete quest
 					Dom.checkProgress();
 				}
+				else if (Event.event === "Christmas")
+				{
+					// list of areas with NPCs
+					let possibleAreas = ["eaglecrestLoggingCamp", "tutorial", "eaglecrest", "eaglecrestBank", "eaglecrestBazaar", "theForge", "eaglecrest", "eaglecrestWest", "eaglecrestEast", "eaglecrestMonastery", "eaglecrestTavern"];
+					let randomArea = Areas[possibleAreas[Random(0, possibleAreas.length - 1)]];
+					let randomNPC = randomArea.npcs[Random(0, randomArea.npcs.length - 1)];
+
+					Player.inventory.items[inventoryPosition].functionText = "To be delivered to " + randomNPC.name;
+
+					if (randomArea === Player.areaName)
+					{
+						randomNPC = Game.npcs.find(npc => npc.name === randomNPC.name);
+					}
+					else
+				    {
+						randomNPC = randomArea.npcs.find(npc => npc.name === randomNPC.name);
+					}
+					randomNPC.roles.push({
+						role: "function",
+						chooseText: "Here is your present.",
+						forceChoose: true, // forces choose dom
+						onClick: function () {
+							// remove the item
+							Dom.inventory.removeById(22, "fish", 1);
+							// chat
+							Dom.chat.insert(Dom.chat.say(randomNPC.name, "Thank you for this present, here's a token for your troubles."));
+							// because it thinks a dom page is open
+							Dom.currentlyDisplayed = "";
+							Dom.currentNPC = {};
+							Dom.inventory.give(Items.currency[5], 1);
+						},
+						roleRequirement: function () {
+							return Dom.inventory.check(22, "fish", 1);
+						}
+					});
+				}
 			},
 			onClickFunction: function (inventoryPosition) {
-				// remove item
-				Dom.inventory.remove(inventoryPosition);
-				// replace at the same slot
-				let item = null;
-				let itemQuantity = 0;
-				if (!Player.quests.questProgress.christmasFishingRod) {
-					// fishing rod has not been obtained
-					item = Items.rod[4];
-					itemQuantity = 1;
-					Player.quests.questProgress.christmasFishingRod = true; // now obtained
+				// on click should only happen if not christmas
+				if (Event.event !== "Christmas")
+				{
+					// remove item
+					Dom.inventory.remove(inventoryPosition);
+					// replace at the same slot
+					let item = null;
+					let itemQuantity = 0;
+					if (!Player.quests.questProgress.christmasFishingRod) {
+						// fishing rod has not been obtained
+						item = Items.rod[4];
+						itemQuantity = 1;
+						Player.quests.questProgress.christmasFishingRod = true; // now obtained
+					}
+					else {
+						// fishing rod has been obtained
+						item = Items.currency[2];
+						itemQuantity = Random(3, 5);
+					}
+					Dom.inventory.give(item, itemQuantity, inventoryPosition);
 				}
-				else {
-					// fishing rod has been obtained
-					item = Items.currency[2];
-					itemQuantity = Random(3, 5);
-				}
-				Dom.inventory.give(item, itemQuantity, inventoryPosition);
 			}
 		},
 		{
@@ -5656,7 +5696,7 @@ var Items = {
 			type: "fish",
 			image: "assets/items/fish/35.png",
 			imageArchaeology: "assets/items/fish/35archaeology.png",
-			rarity: "common",
+			rarity: "unique",
 			sellPrice: 2,
 			howToCatch: "Can be fished up during winter.",
 			areas: [],

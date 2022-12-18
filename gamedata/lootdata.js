@@ -263,7 +263,7 @@ const EnemyLootTables = {
 			],
 		},
 		{ // frogfruit
-			item: Items.consumable[27],
+			item: Items.food[8],
 			chance: [
 				1,				// 0
 				0,				// 1
@@ -326,7 +326,7 @@ const EnemyLootTables = {
 		{ // golden feather
 			item: Items.item[51],
 			chance: [
-				0.1,			// 0
+				0.5,			// 0
 				0,				// 1
 			],
 		},
