@@ -877,9 +877,46 @@ var Achievements = [
 		area: ["eaglecrestLoggingCamp"],
 		event: "Christmas",
 		image: "../assets/items/fish/21.png",
+		color: "#cd7f32",
 		class: "single",
 		isCompleted: function () {
 			return Player.quests.completedQuestArray.includes("Sunken Presents");
+		},
+	},
+	{
+		name: "Present Collector",
+		description: "Open 10 presents.",
+		points: 5,
+		category: ["general"],
+		area: ["global"],
+		image: "../assets/items/fish/21.png",
+		color: "lightgray",
+		class: "cumulative",
+		isCompleted: function () {
+			return User.progress.presentsOpened >= 10;
+		},
+		expand: {
+			type: "progressBar",
+			value: User.progress.presentsOpened,
+			total: 10,
+		},
+	},
+	{
+		name: "Present Hoarder",
+		description: "Open 25 presents.",
+		points: 10,
+		category: ["general"],
+		area: ["global"],
+		image: "../assets/items/consumable/34.png",
+		color: "#fac540",
+		class: "cumulative",
+		isCompleted: function () {
+			return User.progress.presentsOpened >= 25;
+		},
+		expand: {
+			type: "progressBar",
+			value: User.progress.presentsOpened,
+			total: 25,
 		},
 	},
 	{

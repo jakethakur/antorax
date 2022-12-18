@@ -4708,6 +4708,7 @@ var Items = {
 				}
 				Dom.inventory.give(item, itemQuantity, inventoryPosition);
 				Player.quests.questProgress.slingshotPresentsOpened = Increment(Player.quests.questProgress.slingshotPresentsOpened);
+				User.progress.presentsOpened = Increment(User.progress.presentsOpened);
 			}
 		},
 		{
@@ -5452,6 +5453,9 @@ var Items = {
 							Dom.currentlyDisplayed = "";
 							Dom.currentNPC = {};
 							Dom.inventory.give(Items.currency[5], 1);
+							// remove role
+							randomNPC.roles.pop();
+							User.progress.presentsOpened = Increment(User.progress.presentsOpened); // increment achievment progress
 						},
 						roleRequirement: function () {
 							return Dom.inventory.check(22, "fish", 1);
@@ -5473,11 +5477,13 @@ var Items = {
 						item = Items.rod[4];
 						itemQuantity = 1;
 						Player.quests.questProgress.christmasFishingRod = true; // now obtained
+						Player.quests.questProgress.presentsOpened = Increment(Player.quests.questProgress.presentsOpened); // increment achievment progress
 					}
 					else {
 						// fishing rod has been obtained
 						item = Items.currency[2];
 						itemQuantity = Random(3, 5);
+						User.progress.presentsOpened = Increment(User.progress.presentsOpened); // increment achievment progress
 					}
 					Dom.inventory.give(item, itemQuantity, inventoryPosition);
 				}
