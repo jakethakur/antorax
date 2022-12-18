@@ -5425,7 +5425,7 @@ var Items = {
 				else if (Event.event === "Christmas")
 				{
 					// list of areas with NPCs
-					let possibleAreas = ["eaglecrestLoggingCamp", "tutorial", "eaglecrest", "eaglecrestBank", "eaglecrestBazaar", "theForge", "eaglecrest", "eaglecrestWest", "eaglecrestEast", "eaglecrestMonastery", "eaglecrestTavern"];
+					let possibleAreas = ["eaglecrestLoggingCamp", "tutorial", "eaglecrestBank", "eaglecrestBazaar", "theForge", "eaglecrest", "eaglecrestWest", "eaglecrestEast", "eaglecrestMonastery", "eaglecrestTavern"];
 					let randomArea = Areas[possibleAreas[Random(0, possibleAreas.length - 1)]];
 					let randomNPC = randomArea.npcs[Random(0, randomArea.npcs.length - 1)];
 
