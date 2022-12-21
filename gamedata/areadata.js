@@ -1,230 +1,4 @@
 //
-// Events and Time
-//
-
-let Event = {
-	// return variable with dates for use in event setting functions
-	getDate: function () {
-		let d = {};
-		d.today = new Date();
-		d.minute = d.today.getMinutes();
-		d.hour = d.today.getHours();
-		d.day = d.today.getDate();
-		d.month = d.today.getMonth() + 1; // January is 0, so add 1
-		d.year = d.today.getFullYear();
-		return d;
-	},
-
-	// init variables required for Areas definition (called straight away)
-	init: function () {
-		// get date
-		let d = this.getDate();
-
-		// antorax age
-		this.antoraxAge = d.year - 2016; // used for some NPC texts (especially on Antorax Day)
-		if (d.day < 20 && d.month === 1) {
-			// before Antorax day; subtract one from age
-			this.antoraxAge--;
-		}
-	},
-
-	// update time (called on loadArea)
-	// areaName passed in as parameter because Game.areaName has not been set yet by laodArea
-	updateTime: function (areaName) {
-		// get date
-		let d = this.getDate();
-
-		if (Areas[areaName].time !== undefined) {
-			// area always has a specific time
-			this.time = Areas[areaName].time;
-		}
-
-		else if (this.event === "Samhain" && Player.quests.questProgress.bloodMoonUnlocked) {
-			// halloween night time & bloodmoon unlocked
-			this.time = "bloodMoon";
-		}
-
-		else if (d.day == 21 && d.month == 6) {
-			// Summer Solstice - sun up all day
-			this.time = "day";
-		}
-		else if (d.day == 21 && d.month == 12) {
-			// Winter Solstice - sun down all day
-			this.time = "night";
-		}
-
-		else if (d.hour >= 7 && d.hour < 19) {
-			// day time
-			this.time = "day";
-		}
-		else {
-			// night time
-			this.time = "night";
-		}
-
-		this.updateDarkness(d); // update how dark the canvas is
-		this.updateFog(d);
-		this.updateSeason(d);
-	},
-
-	// update how dark the canvas is (called automatically by updateTime)
-	updateDarkness: function (d) {
-		// 0.40 darkness is max
-		// lights turn on at 0.20 darkness
-
-		if (d === undefined) {
-			// no date parameter
-			// get date
-			let d = this.getDate();
-		}
-
-		let timeDarkness = 0; // darkness due to time
-
-		if (d.hour === 18 && d.minute > 30) {
-			timeDarkness = 0.2 - ((60 - d.minute) * 0.2 / 30);
-			// linear darkness progression from 18:30 to 19:00 of 0.00 to 0.20
-		}
-		else if (d.hour === 19 && d.minute < 30) {
-			timeDarkness = 0.4 - ((30 - d.minute) * 0.2 / 30);
-			// linear darkness progression from 19:00 to 19:30 of 0.20 to 0.40
-		}
-		else if (d.hour === 6 && d.minute > 30) {
-			timeDarkness = 0.4 - ((60 - d.minute) * 0.2 / 30);
-			// linear darkness progression from 06:30 to 07:00 of 0.40 to 0.20
-		}
-		else if (d.hour === 7 && d.minute < 30) {
-			timeDarkness = 0.2 - ((30 - d.minute) * 0.2 / 30);
-			// linear darkness progression from 07:00 to 07:30 of 0.20 to 0.00
-		}
-		else if (this.time === "night" || this.time === "bloodMoon") {
-			// completely dark
-			timeDarkness = 0.4;
-		}
-		else { // time must be day
-			// completely light
-			timeDarkness = 0;
-		}
-
-		// if it is halloween and it is dark due to time, notify Game to make the sky blood dark for blood moon
-		// Game can't check Event.time because it isn't blood moon 30 mins before and after when it is getting dark
-		if (this.time === "bloodMoon" && timeDarkness > 0) {
-			this.redSky = true;
-		}
-		else {
-			this.redSky = false;
-		}
-
-		let weatherDarkness = 0; // darkness due to weather
-
-		if (Weather.weatherType === "rain") {
-			weatherDarkness = 0.3 * (Weather.intensity / 150) / (Game.canvasArea / 36000);
-			// 0.30 darkness if the weather is at its hightest intensity
-		}
-		else {
-			// completely light
-			weatherDarkness = 0;
-		}
-
-		this.darkness = Math.max(timeDarkness, weatherDarkness); // take the darkest of the two
-	},
-
-	// update amount of foggg (called automatically by updateTime)
-	updateFog: function (d) {
-		// max 0.5 - darkness / 2
-		Event.fog = 0;
-		// tbd
-	},
-
-	// update event (called on loadArea)
-	updateEvent: function () {
-		// get date
-		let d = this.getDate();
-
-		// James Day
-		// Summer Solstice
-		if (d.day === 21 && d.month === 6) {
-			this.event = "James";
-		}
-		// Samhain (Halloween)
-		// Blood Moon
-		else if (d.month === 10) {
-			this.event = "Samhain";
-		}
-		// Christmas
-		else if (d.month === 12) {
-			this.event = "Christmas";
-			// Christmas Day
-			if (d.day === 25) {
-				this.christmasDay = true;
-			}
-			else {
-				this.christmasDay = false;
-			}
-		}
-		// Antorax Day
-		else if (d.month === 1 && d.day === 20) {
-			this.event = "Antorax";
-		}
-		// Fish Day
-		else if (d.month === 4 && d.day === 1) {
-			this.event = "Fish";
-		}
-		// Heroes of Antorax
-		else if (d.year === 2019 && (d.month === 4 && d.day >= 24)
-		|| (d.month === 5 && d.day <= 5)) {
-			this.event = "Heroes";
-		}
-		// Valentine's
-		else if (d.day === 14 && d.month === 2) {
-			this.event = "Valentine";
-		}
-	},
-
-	updateSeason: function (d) {
-        switch (d.month) {
-            case 12:
-            case 1:
-            case 2:
-                this.season = "winter";
-                break;
-            case 3:
-            case 4:
-            case 5:
-                this.season = "spring";
-                break;
-            case 6:
-            case 7:
-            case 8:
-                this.season = "summer";
-                break;
-            case 9:
-            case 10:
-            case 11:
-                this.season = "autumn";
-                break;
-        }
-    },
-};
-
-// init event variables needed for Area definition
-Event.init();
-
-//
-// Functions that are required in Areas definition (i.e. to stop them being repeated throughout Areas)
-//
-
-let BuyFunctions = {}; // functions that are called on specific items being bought
-// item from role in areadata is passed in
-
-// called upon samhain marks being given to snake man to buy an item
-BuyFunctions.samhainItemBuy = function (item) {
-	let messages = ["Yesssss! I need more markssss.", "More markssssss for my collection. Good job adventurer.", "I need more marksssss than that!"];
-	Dom.chat.insert(Dom.chat.say("The Soothsssayer", messages[Random(0, messages.length-1)]));
-
-	Dom.reputation.give("theSoothsayer", item.cost * 5);
-}
-
-//
 // Loot area defintion
 //
 
@@ -242,63 +16,6 @@ const ChatText = {
 //
 
 var Areas = {
-	pawPeaks: {
-        id: 23,
-
-        data: {
-            name: "Paw Peaks",
-            level: "Level 1 - 5",
-            territory: "Neutral",
-            displayOnEnter: true,
-        },
-
-		lootArea: "loggingCamp",
-        lootTier: 1,
-
-		indoors: false,
-
-		tagGameAllowed: false,
-
-		song_day: "assets/music/Forest.mp3",
-		song_night: "assets/music/Forest.mp3",
-
-		checkpoint: false,
-
-		weather: "rain",
-
-        mapData: {
-            cols: 30,
-            rows: 20,
-            tsize: 60,
-            tilesPerRow: 6,
-            layers: [[2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,
-2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,8,8,2,
-2,2,2,8,8,2,2,2,2,2,2,2,2,2,2,2,2,8,8,2,2,2,2,9,2,2,2,2,2,2,
-2,2,8,8,2,2,2,9,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,
-2,2,8,2,2,2,2,2,2,2,2,8,2,2,2,2,2,2,2,2,2,8,8,2,8,2,2,2,2,2,
-2,8,8,2,2,2,2,2,2,8,8,8,2,2,2,2,2,2,2,2,2,2,8,8,2,2,2,2,2,2,
-2,2,2,2,2,2,2,2,8,8,2,2,2,2,2,9,2,2,2,2,2,2,2,2,2,2,2,2,2,2,
-2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,
-2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,1,5,4,4,4,4,4,4,4,3,
-2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,1,1,1,1,1,12,11,11,11,11,11,11,10,
-2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,1,1,1,1,1,1,2,2,2,2,2,2,2,2,
-2,2,2,2,2,2,1,5,4,4,4,4,4,4,3,1,1,1,1,1,2,2,2,2,2,2,2,8,8,2,
-4,4,4,3,1,1,1,1,12,11,11,11,11,11,10,1,1,1,2,2,2,2,2,2,2,2,8,8,2,2,
-11,11,11,10,1,1,1,1,1,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,
-2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,8,8,8,2,2,2,2,2,
-2,2,8,8,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,8,8,2,2,2,2,2,2,2,
-2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,8,8,2,2,2,2,2,2,2,2,
-2,2,2,2,2,2,2,8,8,8,8,8,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,8,8,8,
-2,2,2,2,2,9,2,2,2,2,2,8,8,2,2,2,2,2,2,2,2,2,2,2,2,2,8,8,2,2,
-2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2]]
-        },
-		images: {
-            tiles: {normal: "assets/tilemap/pawPeaks.png"},
-        },
-		things: [
-
-		]
-	},
 
 	tutorial: {
 		id: 0,
@@ -466,6 +183,7 @@ var Areas = {
 					},
 				],
 				chat: {
+					notUnlockedRoles: "Hope the journey wasn't too bumpy!",
 					questProgress: "Good luck with your adventures!",
 					questComplete: "I hope your quests are going well!",
 					inventoryFull: "Empty your bag a bit! You can't hold that.",
@@ -650,7 +368,7 @@ var Areas = {
                 },
 				onClose: function () {
 					Quests.eaglecrestLoggingCamp[25].autofinish = true;
-					//Quests.eaglecrestLoggingCamp[25].finishName = "From Torian and Nessy Tintop";
+					User.progress.presentsOpened = Increment(User.progress.presentsOpened); // achievement progress
 					Dom.checkProgress();
 				}
             },
@@ -768,6 +486,8 @@ var Areas = {
 				// show chat tab
 				Dom.instructions.unlockTab("chat");
 			}
+			Areas.eaglecrestLoggingCamp.npcs[9] = Game.prepareNPC(Areas.eaglecrestLoggingCamp.npcs[9], "npcs", true);
+			Game.things.push(new NPC(Areas.eaglecrestLoggingCamp.npcs[9]));
 		},
 
 		areaTeleports: [
@@ -1075,6 +795,7 @@ var Areas = {
 							Dom.inventory.removeById(21, "fish", 1);
 							// quest progress
 							Player.quests.questProgress.christmasPresentsDelivered = 1; // always the first NPC to be delivered to
+							User.progress.presentsDelivered = Increment(User.progress.presentsDelivered);
 							// chat
 							Dom.chat.insertSequence([
 								Dom.chat.say("Soul Healer Nalaa", "Thank you for taking the time to bring this to me."),
@@ -1192,6 +913,7 @@ var Areas = {
 							Dom.inventory.removeById(21, "fish");
 							// quest progress
 							Player.quests.questProgress.christmasPresentsDelivered = 2; // always the second NPC to be delivered to
+							User.progress.presentsDelivered = Increment(User.progress.presentsDelivered);
 							// chat
 							Dom.chat.insertSequence([
 								Dom.chat.say("Item Buyer Noledar", "Wow, really? That's so nice, I don't think anyone has delivered me a present before!"),
@@ -4696,7 +4418,7 @@ var Areas = {
 
 			// overdraft quest
 			if (Player.quests.activeQuestArray.includes("Overdraft") && Player.quests.npcProgress.eaglecrest[2] === 0) {
-				Dom.chat.insert(Dom.chat.say("Head Banker Jonos", "Uhhh can't you see we're closed ?"));
+				Dom.chat.insert(Dom.chat.say("Head Banker Jonos", "Uhhh can't you see we're closed?"));
 			}
 		},
 
@@ -4834,11 +4556,11 @@ var Areas = {
 				roles: [
 					{
 						role: "text",
-						chat: `Look , what are you doing in here ? Don't make me call the guards on you.<br><br>
-						Oh Sylvie sent you to help ? Well why didn't you say ! Well sorry for the rude introduction , let's try that again.<br><br>
-						I'm <b>Head Banker Jonos</b> , and I'm responsible for this mess of a situation ! The bank has had to close due to . . . well . . . we lent someone <b>all</b> of our Gold in error. So we had no choice but to close until we get it back. Don't go around telling people ! My job is on the line here ! If people found out . . .<br><br>
-						Do I know who we lent the Gold to ? Well if I did then you wouldn't be here would you ? I need to you help look around the City for whoever has all our Gold , and send them back here.<br><br>
-						What do you mean you're new to the City ? Why did Sylvie send you here then ? Ugh well a good place to start would be asking <b>Shopkeeper Barda</b> in <b>The Eaglecrest Bazaar</b> to the <b>west</b> of here. Her local knowledge is admittedly better than mine. And much better than yours from the sounds of it ! !`,
+						chat: `Look, what are you doing in here? Don't make me call the guards on you.<br><br>
+						Oh Sylvie sent you to help? Well why didn't you say! Well sorry for the rude introduction, let's try that again.<br><br>
+						I'm <b>Head Banker Jonos</b>, and I'm responsible for this mess of a situation! The bank has had to close due to . . . well . . . we lent someone <b>all</b> of our Gold in error. So we had no choice but to close until we get it back. Don't go around telling people! My job is on the line here! If people found out . . .<br><br>
+						Do I know who we lent the Gold to? Well if I did then you wouldn't be here would you? I need to you help look around the City for whoever has all our Gold, and send them back here.<br><br>
+						What do you mean you're new to the City? Why did Sylvie send you here then? Ugh, well a good place to start would be asking <b>Shopkeeper Barda</b> in <b>The Eaglecrest Bazaar</b> to the <b>west</b> of here. Her local knowledge is admittedly better than mine. And much better than yours from the sounds of it ! !`,
 						buttons: ["On it!"],
 						showCloseButton: false,
 						forceChoose: false,
@@ -4856,8 +4578,8 @@ var Areas = {
 					{
 						role: "text",
 						chooseText: "Explain the situation to Jonos.",
-						chat: `Oh thank the Pantheon ! I cannot thank you enough. So your local knowledge can't be too bad then !<br><br>
-						Look , whilst you're here , how about we show you how the bank works ?`,
+						chat: `Oh thank the Pantheon! I cannot thank you enough. So your local knowledge can't be too bad then!<br><br>
+						Look, whilst you're here, how about we show you how the bank works?`,
 						buttons: ["Sure!"],
 						showCloseButton: false,
 						forceChoose: true, // forces choose dom
@@ -4869,11 +4591,11 @@ var Areas = {
 							Dom.quests.active();
 							// bank tutorial
 							Dom.inventory.give(Items.bag[6]);
-							Dom.chat.insert(Dom.chat.say("Head Banker Jonos", "Here's an <b>Eaglecrest Bag</b>. Head over to the banker at the counter and speak to them about storing your items !")); // no repeat
+							Dom.chat.insert(Dom.chat.say("Head Banker Jonos", "Here's an <b>Eaglecrest Bag</b>. Head over to the banker at the counter and speak to them about storing your items!")); // no repeat
 						}],
 						roleRequirement: function () {
 							if (!Dom.inventory.requiredSpace([{item: Items.bag[6]}])) {
-								Dom.chat.insert(Dom.chat.say("Head Banker Jonos", "Free up some space in your inventory then we can discuss !"), undefined, undefined, true); // no repeat
+								Dom.chat.insert(Dom.chat.say("Head Banker Jonos", "Free up some space in your inventory then we can discuss!"), undefined, undefined, true); // no repeat
 								return false;
 							}
 							return Player.quests.npcProgress.eaglecrest[2] === 4;

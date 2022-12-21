@@ -42,7 +42,7 @@ var Quests = {
 			levelRequirement: 1,
 			questRequirements: [],
 			requirement: function () {
-				return Player.tutorialProgress === 1;
+				return Player.tutorialProgress === 1 || Player.skipTutorial;
 			},
 
 			rewards: {
@@ -247,8 +247,8 @@ var Quests = {
 			},
 
 			howToStart: "Speak to <strong>Marshall Teper</strong>.",
-			levelRequirement: 2,
-			questRequirements: ["Retrieval of Logs"],
+			levelRequirement: 3,
+			questRequirements: ["Making Yourself Useful"],
 			repeatTime: "daily",
 
 			rewards: {
@@ -888,7 +888,7 @@ var Quests = {
 
 			howToStart: "Speak to <strong>Combat Trainer Saral</strong>.",
 			levelRequirement: 3,
-			questRequirements: [],
+			questRequirements: ["Making Yourself Useful"],
 			repeatTime: "daily",
 
 			rewards: {
@@ -1434,19 +1434,16 @@ After all, death is never the end in Antorax...<br>
 			onQuestStart: function () {
 				if (Game.areaName === "eaglecrestLoggingCamp") {
 					if (Player.quests.timesCompleted.eaglecrestLoggingCamp[25] === null || Player.quests.timesCompleted.eaglecrestLoggingCamp[25] === undefined) {
-						if (Game.prepareNPC(Areas.eaglecrestLoggingCamp.npcs[9], "npcs", true)) {
-							Game.things.push(new NPC(Areas.eaglecrestLoggingCamp.npcs[9]));
-						}
+						Areas.eaglecrestLoggingCamp.npcs[9] = Game.prepareNPC(Areas.eaglecrestLoggingCamp.npcs[9], "npcs", true);
+						Game.things.push(new NPC(Areas.eaglecrestLoggingCamp.npcs[9]));
 	                }
 					else if (Player.quests.timesCompleted.eaglecrestLoggingCamp[25] === 5) {
-						if (Game.prepareNPC(Areas.eaglecrestLoggingCamp.npcs[10], "npcs", true)) {
-							Game.things.push(new NPC(Areas.eaglecrestLoggingCamp.npcs[10]));
-						}
+						Areas.eaglecrestLoggingCamp.npcs[10] = Game.prepareNPC(Areas.eaglecrestLoggingCamp.npcs[10], "npcs", true);
+						Game.things.push(new NPC(Areas.eaglecrestLoggingCamp.npcs[10]));
 					}
 					else if (Player.quests.timesCompleted.eaglecrestLoggingCamp[25] === 8) {
-						if (Game.prepareNPC(Areas.eaglecrestLoggingCamp.npcs[11], "npcs", true)) {
-							Game.things.push(new NPC(Areas.eaglecrestLoggingCamp.npcs[11]));
-						}
+						Areas.eaglecrestLoggingCamp.npcs[11] = Game.prepareNPC(Areas.eaglecrestLoggingCamp.npcs[11], "npcs", true);
+						Game.things.push(new NPC(Areas.eaglecrestLoggingCamp.npcs[11]));
 					}
 				}
 			}
@@ -2432,7 +2429,8 @@ After all, death is never the end in Antorax...<br>
 							Dom.currentNPC = {};
 						},
 						roleRequirement: function () {
-							return Dom.inventory.check(item.id, item.type, 1, true, undefined, true); // if they have the item AS A QUEST ITEM
+							// if they have the item AS A QUEST ITEM and they haven't been delivered it already!
+							return Dom.inventory.check(item.id, item.type, 1, true, undefined, true) && !Game.villagers[i].tavernGoodsDelivered;
 						}
 					});
 				}
@@ -2448,9 +2446,10 @@ After all, death is never the end in Antorax...<br>
 					}
 				}
 
-				// remove the role for giving the tavern goods of all the villagers
+				// remove the role for giving the tavern goods of all the villagers, and their tavernGoodsDelivered property
 				for (let i = 0; i < Game.villagers.length; i++) {
 					Game.villagers[i].roles.pop();
+					Game.villagers[i].tavernGoodsDelivered = false;
 				}
 
 				// reset the objectives

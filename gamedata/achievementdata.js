@@ -404,13 +404,13 @@ var Achievements = [
 	},
 
 	{
-		name: "Many chickens were harmed in the process",
+		name: "Many Chickens were Harmed in the Process",
 		description: "Obtain a golden feather.",
 		hidden: true,
 		points: 10,
 		category: ["combat"],
 		area: ["eaglecrestLoggingCamp"],
-		image: "../assets/items/item/54.png",
+		image: "../assets/items/item/51.png",
 		color: "lightgray",
 		class: "cumulative",
 		isCompleted: function () {
@@ -485,6 +485,20 @@ var Achievements = [
 			text: ["Marshall Sheridan", "'Barebones' Nkkja"],
 			complete: ["marshallSheridan", "barebonesNkkja"],
 		},
+	},
+
+	{
+		name: "Work-Life Balance",
+		description: "Complete 10 tavern jobs and kill 50 enemies in 10 minutes.",//tbd
+		points: 10,
+		category: ["combat", "quests"],
+		area: ["global"],
+		image: "../assets/items/consumable/15.png",
+		color: "fuchsia",
+		class: "single",
+		isCompleted: function () {
+			//return tbd;
+		}
 	},
 		//
 		// REPUTATION
@@ -870,56 +884,6 @@ var Achievements = [
 		},
 	},
 	{
-		name: "Saviour of Christmas",
-		description: "Complete the quest <em>Sunken Presents</em>.",
-		points: 5,
-		category: ["fishing", "quests"],
-		area: ["eaglecrestLoggingCamp"],
-		event: "Christmas",
-		image: "../assets/items/fish/21.png",
-		color: "#cd7f32",
-		class: "single",
-		isCompleted: function () {
-			return Player.quests.completedQuestArray.includes("Sunken Presents");
-		},
-	},
-	{
-		name: "Present Collector",
-		description: "Open 10 presents.",
-		points: 5,
-		category: ["general"],
-		area: ["global"],
-		image: "../assets/items/fish/21.png",
-		color: "lightgray",
-		class: "cumulative",
-		isCompleted: function () {
-			return User.progress.presentsOpened >= 10;
-		},
-		expand: {
-			type: "progressBar",
-			value: User.progress.presentsOpened,
-			total: 10,
-		},
-	},
-	{
-		name: "Present Hoarder",
-		description: "Open 25 presents.",
-		points: 10,
-		category: ["general"],
-		area: ["global"],
-		image: "../assets/items/consumable/34.png",
-		color: "#fac540",
-		class: "cumulative",
-		isCompleted: function () {
-			return User.progress.presentsOpened >= 25;
-		},
-		expand: {
-			type: "progressBar",
-			value: User.progress.presentsOpened,
-			total: 25,
-		},
-	},
-	{
 		name: "Novice Fisher",
 		description: "Fish up 100 fish.",
 		points: 10,
@@ -1017,6 +981,77 @@ var Achievements = [
 			return User.fish[7] >= 1;
 		},
 	},
+	//
+	// SEASONAL FISHING
+	//
+	{
+		name: "Saviour of Christmas",
+		description: "Complete the quest <em>Sunken Presents</em>.",
+		points: 5,
+		category: ["fishing", "quests"],
+		area: ["eaglecrestLoggingCamp"],
+		event: "Christmas",
+		image: "../assets/items/fish/21.png",
+		color: "#cd7f32",
+		class: "single",
+		isCompleted: function () {
+			return Player.quests.completedQuestArray.includes("Sunken Presents");
+		},
+	},
+	{
+		name: "Santa's Helper",
+		description: "Deliver 15 presents.",
+		points: 5,
+		category: ["general"],
+		area: ["global"],
+		image: "../assets/items/fish/21.png",
+		color: "lightgray",
+		class: "cumulative",
+		isCompleted: function () {
+			return User.progress.presentsDelivered >= 15;
+		},
+		expand: {
+			type: "progressBar",
+			value: User.progress.presentsDelivered,
+			total: 15,
+		},
+	},
+	{
+		name: "Present Collector",
+		description: "Open 10 presents.",
+		points: 5,
+		category: ["general"],
+		area: ["global"],
+		image: "../assets/items/consumable/34.png",
+		color: "lightgray",
+		class: "cumulative",
+		isCompleted: function () {
+			return User.progress.presentsOpened >= 10;
+		},
+		expand: {
+			type: "progressBar",
+			value: User.progress.presentsOpened,
+			total: 10,
+		},
+	},
+	/*{
+		name: "Present Hoarder",
+		description: "Open 25 presents.",
+		points: 10,
+		category: ["fishing", "general"],
+		area: ["global"],
+		image: "../assets/items/consumable/34.png",
+		color: "#fac540",
+		class: "cumulative",
+		isCompleted: function () {
+			return User.progress.presentsOpened >= 25;
+		},
+		expand: {
+			type: "progressBar",
+			value: User.progress.presentsOpened,
+			total: 25,
+		},
+	},*/
 
 	//
 	// MISC II

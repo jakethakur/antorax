@@ -244,17 +244,6 @@ const EnemyLootTables = {
 				0,				// 5
 			],
 		},
-		{ // tadpole
-			item: Items.fish[34],
-			chance: [
-				30,				// 0
-				20,				// 1
-				18,				// 2
-				15,				// 3
-				11,				// 4
-				0,				// 5
-			],
-		},
 		{ // water walking pot
 			item: Items.consumable[27],
 			chance: [
@@ -268,6 +257,88 @@ const EnemyLootTables = {
 				1,				// 0
 				0,				// 1
 			],
+		},
+		{ // soggy letter
+			item: Items.item[54],
+			chance: [
+				0.4,			// 0
+				0,				// 1
+			],
+		},
+		{ // soggy tendrils
+			item: Items.fish[23],
+			chance: [
+				20,				// 0
+				5,				// 1
+				3,				// 2
+				0,				// 3
+			],
+		},
+		{ // fallfish
+			item: Items.fish[24],
+			chance: [
+				4,				// 0
+				0,				// 1
+			],
+			onLootGenerate: function (item) {
+				item.item.length = Round(BiasedRandom(item.item.length.min, item.item.length.max, item.item.length.avg, 1));
+				return item;
+			}
+		},
+		{ // grayling
+			item: Items.fish[25],
+			chance: [
+				3,				// 0
+				0,				// 1
+			],
+			onLootGenerate: function (item) {
+				item.item.length = Round(BiasedRandom(item.item.length.min, item.item.length.max, item.item.length.avg, 1));
+				return item;
+			}
+		},
+		{ // rudd
+			item: Items.fish[26],
+			chance: [
+				4,				// 0
+				0,				// 1
+			],
+			onLootGenerate: function (item) {
+				item.item.length = Round(BiasedRandom(item.item.length.min, item.item.length.max, item.item.length.avg, 1));
+				return item;
+			}
+		},
+		{ // weatherfish
+			item: Items.fish[27],
+			chance: [
+				5,				// 0
+				0,				// 1
+			],
+			onLootGenerate: function (item) {
+				item.item.length = Round(BiasedRandom(item.item.length.min, item.item.length.max, item.item.length.avg, 1));
+				return item;
+			}
+		},
+		{ // asp
+			item: Items.fish[28],
+			chance: [
+				0.2,			// 0
+				0,				// 1
+			],
+			onLootGenerate: function (item) {
+				item.item.length = Round(BiasedRandom(item.item.length.min, item.item.length.max, item.item.length.avg, 1));
+				return item;
+			}
+		},
+		{ // ide
+			item: Items.fish[29],
+			chance: [
+				0.2,			// 0
+				0,				// 1
+			],
+			onLootGenerate: function (item) {
+				item.item.length = Round(BiasedRandom(item.item.length.min, item.item.length.max, item.item.length.avg, 1));
+				return item;
+			}
 		},
 	],
 	chicken: [
@@ -327,6 +398,13 @@ const EnemyLootTables = {
 			item: Items.item[51],
 			chance: [
 				0.5,			// 0
+				0,				// 1
+			],
+		},
+		{ // screwed-up letter
+			item: Items.item[53],
+			chance: [
+				0.4,			// 0
 				0,				// 1
 			],
 		},

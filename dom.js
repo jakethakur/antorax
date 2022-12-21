@@ -643,6 +643,7 @@ Dom.closePage = function (page, notClose) {
 	Dom.checkProgress();
 }
 
+// returns true if the page was hidden and will now be shown
 Dom.changeBook = function (page, openClose) {
 	let bookmark = false;
 	let tab = page
@@ -848,6 +849,7 @@ Dom.chat.decideMessage = function (message) {
 // format a message for chat, under the format of "name: message"
 // name is emboldened via <strong> tags
 // if message begins with "/me " (including space), the format changes to "this.name message"
+// if message is an array of objects with parameters text and condition, the message is decided from these (first object that satisfies)
 Dom.chat.say = function (name, message, language) {
 	if (message !== undefined) {
 		// update message for special chat cases
@@ -1376,6 +1378,10 @@ Dom.inventory.displayIdentification = function (display) {
 		Dom.elements.innerStats.innerHTML += "<br>Block Defence: " + Player.stats.blockDefence;
 	}
 
+	if (Player.stats.enemyAggro !== 100) {
+		Dom.elements.innerStats.innerHTML += "<br>Enemy aggro: " + Player.stats.enemyAggro + "%";
+	}
+
 	if (Player.stats.rangeMultiplier !== 100) {
 		Dom.elements.innerStats.innerHTML += "<br>Range: " + Player.stats.rangeMultiplier + "%";
 	}
@@ -1487,7 +1493,7 @@ Dom.inventory.stats = function (stat, value, array) {
 	if (stat === "Defence" || stat === "Block Defence" || stat === "Fishing Skill" || stat === "Max Health") {
 		return stat+": "+NumberSign(value)+"<br>";
 	}
-	else if (stat === "Critical Chance" || stat === "Dodge Chance" || stat === "Looting" || stat === "Reflection" || stat === "Lifesteal" || stat === "Xp Bonus" || stat === "Hex" || stat === "Damage Percentage" || stat === "Stealing" || stat === "Range Multiplier" || stat === "Healing Power" || stat === "Interact Range" || stat === "Poison Strength") {
+	else if (stat === "Critical Chance" || stat === "Dodge Chance" || stat === "Looting" || stat === "Reflection" || stat === "Lifesteal" || stat === "Xp Bonus" || stat === "Hex" || stat === "Damage Percentage" || stat === "Stealing" || stat === "Range Multiplier" || stat === "Healing Power" || stat === "Interact Range" || stat === "Poison Strength" || stat === "Enemy Aggro") {
 		return stat+": "+NumberSign(value)+"%<br>";
 	}
 	else if (stat === "Health Regen" || stat === "Swim Speed" || stat === "Walk Speed" || stat === "Ice Speed" || stat === "Focus Speed") {
@@ -2576,38 +2582,66 @@ Dom.quests.other = function () {
 }
 
 // sold is array of "sold" objects from areadata which include .item, .cost, etc. (see areadata, or get peter to comment his code!;))
+// npc and chat are for display purposes
+// the sold objects can contain a .buyButtonText property, which changes the "buy for x gold" text to some string
 Dom.merchant.page = function (npc, sold, chat) {
 	if (Dom.changeBook("merchantPage")) {//, true/*false*/, true);
 		//Dom.currentlyDisplayed = npc.name;
 		//Dom.changeBook("merchantPage", false); // stops close button being red
+
+		// init page
 		Dom.elements.merchantPageTitle.innerHTML = npc.name;
 		Dom.elements.merchantPageChat.innerHTML = chat;
 		Dom.elements.merchantPageOptions.innerHTML = "";
 		Dom.elements.merchantPageBuy.innerHTML = "";
+
+		// iterate through each item to be bought
 		for (let i = 0; i < sold.length; i++) {
+			// item to be bought image
 			Dom.elements.merchantPageOptions.innerHTML += "<img src=" + sold[i].item.image + " class='theseOptions' style='border: 5px solid var(--border);'></img><br><br>";
+
+			// buy currency variable
 			if (sold[i].costCurrency === undefined) {
 				sold[i].costCurrency = 2;
 			}
-			Dom.elements.merchantPageBuy.innerHTML += "<div class='buy'>Buy for: " + sold[i].cost + " " + Items.currency[sold[i].costCurrency].name + "</div><br>";
-			for (let x = 0; x < document.getElementsByClassName("buy").length; x++) {
-				document.getElementsByClassName("buy")[x].onclick = function () {
-					Dom.merchant.buy(sold[x], x, npc);
-				};
+
+			// buy button text
+			let buyButtonText;
+			if (typeof sold[i].buyButtonText !== "undefined") {
+				buyButtonText = sold[i].buyButtonText;
 			}
-			// repeats for every image
-			for (let x = 0; x < document.getElementsByClassName("theseOptions").length; x++) {
-				document.getElementsByClassName("theseOptions")[x].onmouseover = function () {
-					Dom.inventory.displayInformation(sold[x].item, undefined, "merchantPage");
-				};
-				document.getElementsByClassName("theseOptions")[x].onmouseleave = function () {
-					Dom.expand("information");
-				}
+			else if (sold[i].cost !== 0) {
+				buyButtonText = "Buy for: " + sold[i].cost + " " + Items.currency[sold[i].costCurrency].name;
 			}
-			Dom.elements.close.onclick = function () {
-				Dom.closePage('merchantPage');
-				npc.say(npc.chat.shopLeave, 0, true);
+			else {
+				buyButtonText = "Get for free";
 			}
+
+			// buy button
+			Dom.elements.merchantPageBuy.innerHTML += "<div class='buy'>" + buyButtonText + "</div><br>";
+		}
+
+		// buy onclicks
+		for (let x = 0; x < document.getElementsByClassName("buy").length; x++) {
+			document.getElementsByClassName("buy")[x].onclick = function () {
+				Dom.merchant.buy(sold[x], x, npc);
+			};
+		}
+
+		// image hoverovers, repeats for every image
+		for (let x = 0; x < document.getElementsByClassName("theseOptions").length; x++) {
+			document.getElementsByClassName("theseOptions")[x].onmouseover = function () {
+				Dom.inventory.displayInformation(sold[x].item, undefined, "merchantPage");
+			};
+			document.getElementsByClassName("theseOptions")[x].onmouseleave = function () {
+				Dom.expand("information");
+			}
+		}
+
+		// close button initiation
+		Dom.elements.close.onclick = function () {
+			Dom.closePage('merchantPage');
+			npc.say(npc.chat.shopLeave, 0, true);
 		}
 	}
 }
@@ -2699,22 +2733,25 @@ Dom.merchant.chooseItems = function (items, date, numberOfItems) {
 }
 
 Dom.identifier.displayed = 0;
-Dom.identifier.left = function (npc/*, over*/) {
+
+// toggle item display to the left
+Dom.identifier.left = function (npc) {
 	if (Dom.identifier.displayed !== 0) {
 		Dom.identifier.displayed--;
 	}else {
 		Dom.identifier.displayed = Dom.identifier.unId.length-1;
 	}
-	Dom.identifier.page(npc/*, over*/);
+	Dom.identifier.page(npc, true);
 }
 
-Dom.identifier.right = function (npc/*, over*/) {
+// toggle item display to the right
+Dom.identifier.right = function (npc) {
 	if (Dom.identifier.displayed !== Dom.identifier.unId.length-1) {
 		Dom.identifier.displayed++;
 	}else {
 		Dom.identifier.displayed = 0;
 	}
-	Dom.identifier.page(npc/*, over*/);
+	Dom.identifier.page(npc, true);
 }
 
 Dom.identifier.check = function () {
@@ -2731,10 +2768,11 @@ Dom.identifier.check = function () {
 	}
 }
 
-Dom.identifier.page = function (npc/*, over*/) {
-	if (Dom.changeBook("identifierPage")) {//, true/*false*/, true);
-		//Dom.currentlyDisplayed = npc.name;
-		//Dom.changeBook("identifierPage", false); // stops close button being red
+// display the identifier page!
+// refresh is set to true if the page is already open but needs to be updated (i.e. called from identifier.left)
+Dom.identifier.page = function (npc, refresh) {
+	let pageOpened = Dom.changeBook("identifierPage");
+	if (pageOpened || refresh) { // check whether page's display actually needs to be refreshed, or whether the page has just been closed
 		Dom.elements.identifierPageChat.innerHTML = npc.chat.identifierGreeting;
 		Dom.elements.identifierPageOption.innerHTML = "<img src=" + Dom.identifier.unId[Dom.identifier.displayed].image + " class='theseOptions' style='padding: 0px; margin: 0px; border: 5px solid var(--border); height: 50px; width: 50px;'></img>";
 		Dom.elements.identifierPageOption.onmouseover = function () {
@@ -2757,12 +2795,16 @@ Dom.identifier.page = function (npc/*, over*/) {
 	}
 }
 
+// identify the currently displayed item
+// note item rarity is predetermined
 Dom.identifier.identify = function (npc) {
 	if (Dom.inventory.check(2,"currency",1)/* && Dom.identifier.unId.length !== 0*/) {
+		// sufficient currency; identify th eitem
 		Dom.inventory.removeById(2,"currency",1);
 		Dom.closePage("identifierPage")//, true, true);
 		Dom.changeBook("identifiedPage")//, true, true);
 		Dom.currentlyDisplayed = npc.name;
+
 		for (let i = 0; i < Player.inventory.items.length; i++) {
 			if (Player.inventory.items[i].unidentified && Player.inventory.items[i].tier === Dom.identifier.unId[Dom.identifier.displayed].tier && Player.inventory.items[i].area === Dom.identifier.unId[Dom.identifier.displayed].area && Player.inventory.items[i].rarity === Dom.identifier.unId[Dom.identifier.displayed].rarity && Player.inventory.items[i].type === Dom.identifier.unId[Dom.identifier.displayed].type) {
 				Player.inventory.items[i] = {};
@@ -2770,14 +2812,22 @@ Dom.identifier.identify = function (npc) {
 				break; // stops multiple items being removed
 			}
 		}
+
 		Dom.identifier.array = []; // array of possible identified items
+
 		if (Dom.identifier.unId[Dom.identifier.displayed].rarity === "common") {
 			Dom.elements.identifiedPageChat.innerHTML = npc.chat.identifyCommon;
-		}else if (Dom.identifier.unId[Dom.identifier.displayed].rarity === "unique") {
+		}
+		else if (Dom.identifier.unId[Dom.identifier.displayed].rarity === "unique") {
 			Dom.elements.identifiedPageChat.innerHTML = npc.chat.identifyUnique;
-		}else {
+		}
+		else if (Dom.identifier.unId[Dom.identifier.displayed].rarity === "mythic") {
 			Dom.elements.identifiedPageChat.innerHTML = npc.chat.identifyMythic;
 		}
+		else {
+			Dom.elements.identifiedPageChat.innerHTML = npc.chat.identifyJunk;
+		}
+
 		// repeats for every item of the same catergory (e.g. bow)
 		for (let i = 2; i < Items[Object.keys(Items)[Dom.identifier.unId[Dom.identifier.displayed].typeNum]].length; i++) {
 			if (Items[Object.keys(Items)[Dom.identifier.unId[Dom.identifier.displayed].typeNum]][i].tier === Dom.identifier.unId[Dom.identifier.displayed].tier && Items[Object.keys(Items)[Dom.identifier.unId[Dom.identifier.displayed].typeNum]][i].unidentifiedArea !== undefined && Items[Object.keys(Items)[Dom.identifier.unId[Dom.identifier.displayed].typeNum]][i].unidentifiedArea.includes(Dom.identifier.unId[Dom.identifier.displayed].area) && Items[Object.keys(Items)[Dom.identifier.unId[Dom.identifier.displayed].typeNum]][i].rarity === Dom.identifier.unId[Dom.identifier.displayed].rarity) {
@@ -2807,11 +2857,14 @@ Dom.identifier.identify = function (npc) {
 		}
 		Dom.identifier.unId.splice(Dom.identifier.displayed, 1);
 		Game.saveProgress("auto");
-	}else/* if (Dom.identifier.unId.length !== 0)*/{
+	}
+
+	else/* if (Dom.identifier.unId.length !== 0)*/ {
+		// insufficient currency!
  		Dom.elements.identifierPageBuy.style.border = "5px solid red";
 		setTimeout(function () {
 			Dom.elements.identifierPageBuy.style.border = "5px solid var(--border)";
-		},200);
+		}, 200);
 		npc.say(npc.chat.tooPoor, 0, true);
 	}
 }
@@ -2986,6 +3039,8 @@ Dom.inventory.give = function (item, num, position, noSave, noArchaeology) {
 		if (item.onGive !== undefined) {
 			item.onGive();
 		}
+
+		Game.inventoryUpdate();
 
 		return position;
 	}
@@ -4370,7 +4425,7 @@ Dom.loot.page = function (name, items) {
 					//Dom.inventory.setItemFunctions(Dom.elements.loot.getElementsByTagName("td")[i], Dom.loot.items, i);
 				}
 			}
-			// repeats for each piece of loot
+			// add onclick for each piece of loot
 			let num = -1;
 			for (let i = 0; i < items.length; i++) {
 				if (items[i] !== undefined && items[i] !== null) {
@@ -4379,7 +4434,10 @@ Dom.loot.page = function (name, items) {
 					document.getElementsByClassName("lootOptions")[num].onclick = function () {
 						Dom.expand("information");
 						if (Dom.inventory.requiredSpace([items[i]])) {
-							Dom.inventory.give(items[i].item, items[i].quantity);
+							let inventoryPosition = Dom.inventory.give(items[i].item, items[i].quantity);
+							if (typeof items[i].item !== "undefined" && typeof items[i].item.onLoot !== "undefined") {
+								items[i].item.onLoot(inventoryPosition);
+							}
 							document.getElementsByClassName("lootOptions")[items[i].num].outerHTML = "<span class='lootOptions'></span>";
 							document.getElementsByClassName("lootStackNum")[items[i].num].outerHTML = "<span class='lootStackNum'></span>";
 							Dom.loot.looted[i] = undefined;
@@ -4698,7 +4756,7 @@ Dom.choose.page = function (npcs) {
 
 					// not players (normal)
 					else {
-						Dom.elements.choosePageContent.innerHTML += "<h1>"+name+"</h1>"+(npc.chat !== undefined ? "<p>"+npc.chat.chooseChat+"</p>" : "");
+						Dom.elements.choosePageContent.innerHTML += "<h1>"+name+"</h1>"+((npc.chat !== undefined && npc.chat.chooseChat !== undefined) ? "<p>"+npc.chat.chooseChat+"</p>" : "");
 						Dom.elements.choosePagePlayer.hidden = true;
 					}
 

@@ -1276,7 +1276,7 @@ class Entity {
 		return touchingArray;
 	}
 
-	// checks which directions (if any) this is colliding with object
+	// checks which directions (if any) this is touching object
 	// movex and movey are the most recent movements in the x and y directions
 	// returns an object with x and y properties, set to true/false depending on if there is a collision in that direction with the player's current movement direction
 	// tbd reduce code duplication
@@ -1377,6 +1377,13 @@ class Entity {
 			return false;
 		}
 		return true;
+	}
+
+	// returns true if touching a solid tile or collision, and false if not
+	isStuck () {
+		let touchingSolidTiles = this.footHitbox.getTouchingSolidTiles(); // array
+		let touchingCollision = this.footHitbox.isTouchingType(Game.collisions); // set to true or false depending on whether a collision is being touched
+		return (touchingSolidTiles.length > 0 || touchingCollision);
 	}
 }
 
@@ -1654,6 +1661,7 @@ class Character extends Thing {
 		this.stats.windShield = properties.stats.windShield || false; // can't be moved by wind
 		this.stats.healingPower = properties.stats.healingPower || 100; // multiplier of healing receieved (doesn't include usual health regen)
 		this.stats.unstoppable = properties.stats.unstoppable || false; // immunity to movement-reducing abilities
+		this.stats.enemyAggro = properties.stats.enemyAggro || 100; // percentage
 
 		// array items that can damage the character (empty = any can)
 		// array should contain item names
@@ -1871,6 +1879,175 @@ class Character extends Thing {
 	updateFootHitbox () {
 		this.footHitbox.x = this.x;
 		this.footHitbox.y = this.y + this.height/2 - this.footHitbox.height/2;
+	}
+
+	// collide with solid tiles
+	// returns true/false depending on whether it collided or not
+	// dirx and diry should be the amount moved in x and y directions (before multiplied by delta), i.e. dirx*speed
+	collide (xMovement, yMovement, delta) {
+		let row, col;
+
+		let collision = false; // whether a collision has occured
+
+		// whether a movement is possible in x/y direction without walking into whatever is being collided with
+		// (only used if collisiion is actually true!)
+		let possibleMovements = {
+			x: true,
+			y: true,
+		}
+
+		// update foot hitbox position
+		this.updateFootHitbox();
+
+		// check collisions with tiles
+		let touchingSolidTiles = this.footHitbox.getTouchingSolidTiles();
+		if (touchingSolidTiles.length > 0) {
+			collision = true;
+			for (let i = 0; i < touchingSolidTiles.length; i++) {
+				// find which directions it is touching the collision in
+				let colliding = this.footHitbox.isColliding(touchingSolidTiles[i], delta*xMovement, delta*yMovement);
+				if (colliding.x) {
+					possibleMovements.x = false;
+				}
+				if (colliding.y) {
+					possibleMovements.y = false;
+				}
+			}
+		}
+
+		// check collision with collisions - invisible entities that cannot be passed
+		for (let i = 0; i < Game.collisions.length; i++) {
+			// check if the player's feet are touching the collision
+			if (this.footHitbox.isTouching(Game.collisions[i])) {
+				collision = true;
+
+				// find which directions it is touching the collision in
+				let colliding = this.footHitbox.isColliding(Game.collisions[i], delta*xMovement, delta*yMovement);
+				if (colliding.x) {
+					possibleMovements.x = false;
+				}
+				if (colliding.y) {
+					possibleMovements.y = false;
+				}
+			}
+		}
+
+		if (!collision) {
+			// do not carry out the following code if there is no collision
+			return collision;
+		}
+
+		// undo movement
+		if (Math.abs(xMovement) > 0) {
+			this.x -= delta * xMovement;
+		}
+		if (Math.abs(yMovement) > 0) {
+			this.y -= delta * yMovement;
+		}
+
+		// try moving in a different direction instead
+		if (possibleMovements.x && xMovement !== 0) {
+			// can still move in x axis - move completely in direction that was being moved (dirx value is changed to 1 or -1)
+			this.x += this.speed * delta * (xMovement/Math.abs(xMovement));
+		}
+		else if (possibleMovements.y && yMovement !== 0) {
+			// can still move in y axis - move completely in direction that was being moved (diry value is changed to 1 or -1)
+			this.y += this.speed * delta * (yMovement/Math.abs(yMovement));
+		}
+		// neither of these might be possible, in which case the character will not move at all
+
+		// see if character is stuck, if they are then unstuck them
+		this.updateFootHitbox();
+		this.unstuck();
+
+		return collision;
+	}
+
+	// see if character is stuck on collisions, if they are then unstuck them
+	// called after collide() (i.e. after any new collisons have been dealt with)
+	unstuck () {
+		if (this.isStuck()) {
+			let collision = true;
+			let moveRadius = 30; // radius in which the hero will be moved around to try to find a place it is not colliding with anything (find the closest location)
+			while (collision) {
+				// horizontal and vertical movement
+
+				this.x += moveRadius;
+				this.updateFootHitbox();
+				if (!this.isStuck()) {
+					collision = false;
+					break;
+				}
+
+				this.x -= moveRadius*2;
+				this.updateFootHitbox();
+				if (!this.isStuck()) {
+					collision = false;
+					break;
+				}
+
+				this.x += moveRadius;
+				this.y += moveRadius;
+				this.updateFootHitbox();
+				if (!this.isStuck()) {
+					collision = false;
+					break;
+				}
+
+				this.y -= moveRadius*2;
+				this.updateFootHitbox();
+				if (!this.isStuck()) {
+					collision = false;
+					break;
+				}
+
+				// diagonal movement
+
+				this.y += moveRadius * 1.71;
+				this.x += moveRadius * 0.71;
+				this.updateFootHitbox();
+				if (!this.isStuck()) {
+					collision = false;
+					break;
+				}
+
+				this.x -= moveRadius * 1.42;
+				this.updateFootHitbox();
+				if (!this.isStuck()) {
+					collision = false;
+					break;
+				}
+
+				this.y -= moveRadius * 1.42;
+				this.updateFootHitbox();
+				if (!this.isStuck()) {
+					collision = false;
+					break;
+				}
+
+				this.x += moveRadius * 1.42;
+				this.updateFootHitbox();
+				if (!this.isStuck()) {
+					collision = false;
+					break;
+				}
+
+				// no luck .. let's reset position and try again with a larger "radius"
+				this.x -= moveRadius * 0.71;
+				this.y += moveRadius * 0.71;
+
+				if (moveRadius > 1000) {
+					// stop an infinite loop, just in case
+					break;
+				}
+				else {
+					moveRadius += 60;
+				}
+			}
+		}
+		else {
+			return false;
+		}
 	}
 
 	// remove status effect from the specified index of this.statusEffects
@@ -2518,14 +2695,14 @@ class Character extends Thing {
 			(this.rotationImageChange === "all" && // OR all images exist AND...
 			Math.abs(diry) > Math.abs(dirx))) { //...there is more up down movement than left right
 				// up down movement
-				if (diry > 0) {
+				if (diry < 0) {
 					// up movement
-					this.setImageMovement(this.rotationImages.up);
+					this.setImageMovement(this.rotationImages.up, this.crop, this.width, this.height);
 					this.direction = 1;
 				}
 				else {
 					// down movement
-					this.setImageMovement(this.rotationImages.down);
+					this.setImageMovement(this.rotationImages.down, this.crop, this.width, this.height);
 					this.direction = 3;
 				}
 			}
@@ -2533,12 +2710,12 @@ class Character extends Thing {
 				// left right movement
 				if (dirx > 0) {
 					// right movement
-					this.setImageMovement(this.rotationImages.right);
+					this.setImageMovement(this.rotationImages.right, this.crop, this.width, this.height);
 					this.direction = 4;
 				}
 				else {
 					// left movement
-					this.setImageMovement(this.rotationImages.left);
+					this.setImageMovement(this.rotationImages.left, this.crop, this.width, this.height);
 					this.direction = 2;
 				}
 			}
@@ -2645,89 +2822,6 @@ class Attacker extends Character {
 		else {
 			this.channel(Game.castSpell, [spellId, parameters], Spells[spellId].channelTime[spellTier], Spells[spellId].name);
 		}
-	}
-
-	// collide with solid tiles
-	// returns true/false depending on whether it collided or not (currently unused)
-	collide (dirx, diry, delta) {
-		let row, col;
-
-		let collision = false; // whether a collision has occured
-
-		// whether a movement is possible in x/y direction without walking into whatever is being collided with
-		// (only used if collisiion is actually true!)
-		let possibleMovements = {
-			x: true,
-			y: true,
-		}
-
-		// update foot hitbox position
-		this.updateFootHitbox();
-
-		// check collisions with tiles
-		let touchingSolidTiles = this.footHitbox.getTouchingSolidTiles();
-		if (touchingSolidTiles.length > 0) {
-			collision = true;
-			for (let i = 0; i < touchingSolidTiles.length; i++) {
-				// find which directions it is touching the collision in
-				let colliding = this.footHitbox.isColliding(touchingSolidTiles[i], this.speed*delta*dirx, this.speed*delta*diry);
-				if (colliding.x) {
-					possibleMovements.x = false;
-				}
-				if (colliding.y) {
-					possibleMovements.y = false;
-				}
-			}
-		}
-
-		// check collision with collisions - invisible entities that cannot be passed
-		for (let i = 0; i < Game.collisions.length; i++) {
-			// check if the player's feet are touching the collision
-			if (this.footHitbox.isTouching(Game.collisions[i])) {
-				collision = true;
-
-				// find which directions it is touching the collision in
-				let colliding = this.footHitbox.isColliding(Game.collisions[i], this.speed*delta*dirx, this.speed*delta*diry);
-				if (colliding.x) {
-					possibleMovements.x = false;
-				}
-				if (colliding.y) {
-					possibleMovements.y = false;
-				}
-			}
-		}
-
-		if (!collision) {
-			// do not carry out the following code if there is no collision
-			return collision;
-		}
-
-		// undo movement
-		if (diry > 0) {
-			this.y -= this.speed * delta * diry;
-		}
-		else if (diry < 0) {
-			this.y += this.speed * delta * Math.abs(diry);
-		}
-		if (dirx > 0) {
-			this.x -= this.speed * delta * dirx;
-		}
-		else if (dirx < 0) {
-			this.x += this.speed * delta * Math.abs(dirx);
-		}
-
-		// try moving in a different direction instead
-		if (possibleMovements.x && dirx !== 0) {
-			// can still move in x axis - move completely in direction that was being moved (dirx value is changed to 1 or -1)
-			this.x += this.speed * delta * (dirx/Math.abs(dirx));
-		}
-		else if (possibleMovements.y && diry !== 0) {
-			// can still move in y axis - move completely in direction that was being moved (diry value is changed to 1 or -1)
-			this.y += this.speed * delta * (diry/Math.abs(diry));
-		}
-		// neither of these might be possible, in which case the character will not move at all
-
-		return collision;
 	}
 }
 
@@ -2922,6 +3016,20 @@ class Hero extends Attacker {
 		this.oldPosition = properties.oldPosition; // might be undefined
 	}
 
+	// move on a mount
+	moveMounted (delta, dirx, diry) {
+		this.removeChannelling("move"); // stuff cannot be channelled whilst moving
+
+		this.mount.move(delta, dirx, diry);
+		if (this.mounted) { // check still mounted! might have been hit off the mount..
+			this.x = this.mount.x + this.mount.heroAdjustX;
+			this.y = this.mount.y + this.mount.heroAdjustY;
+		}
+		else {
+			this.move(delta, 0, 0);
+		}
+	}
+
 	move (delta, dirx, diry) { // called when hero being displaced, moving towards something, or player is moving hero
 
 		this.removeChannelling("move"); // stuff cannot be channelled whilst moving
@@ -3003,7 +3111,7 @@ class Hero extends Attacker {
 
 		// check if we walked into a non-walkable tile
 		if (this.moveTowards === undefined && (this.isBeingDisplaced === undefined || this.isBeingDisplaced.canGoOverWalls !== true) && !Game.creativeMode) { // hero should only collide if controlled by player
-			this.collide(dirx, diry, delta);
+			this.collide(dirx * this.speed, diry * this.speed, delta);
 		}
 		else {
 			// no need to check collision!
@@ -3036,8 +3144,6 @@ class Hero extends Attacker {
 		}
 
 		// clamp values
-		//let maxX = this.map.cols * this.map.tsize;
-		//let maxY = this.map.rows * this.map.tsize;
 		let maxX = Game.camera.maxX + Game.camera.width;
 		let maxY = Game.camera.maxY + Game.camera.height;
 		this.x = Math.max(0, Math.min(this.x, maxX));
@@ -3219,7 +3325,7 @@ class Hero extends Attacker {
 							else { // this.channelling
 								// calculate fish length
 								// between min and max; biased towards average
-								let fishLength = Round(BiasedRandom(this.channelling.length.min, this.channelling.length.max, this.channelling.length.avg, 1));
+								let fishLength = Round(BiasedRandom(this.channelling.length.min, this.channelling.length.max, this.channelling.length.avg, 1)); // if you ever change this, please also change it in frog looting!
 								this.channelling.length = fishLength; // replace length object with an integer saying the this.channelling's length
 
 								// clicks
@@ -4105,7 +4211,7 @@ class Projectile extends Thing {
 									if (typeof target.attackTargets[i].aggro === "undefined") {
 										target.attackTargets[i].aggro = 0;
 									}
-									target.attackTargets[i].aggro += dmgDealt / target.stats.maxHealth * 10;
+									target.attackTargets[i].aggro += dmgDealt / target.stats.maxHealth * 10 * target.attackTargets[i].target.stats.enemyAggro / 100;
 									target.attackTargets[i].lastAttacked = 0;
 									target.attackTargets[i].aggroBeforeForgiveness = undefined;
 								}
@@ -4383,6 +4489,150 @@ class CombatArea extends Entity {
 		this.activated = false;
 
 		this.text = properties.text || ""; // optional text to display in the shape
+	}
+}
+
+class Mount extends Character {
+	constructor(properties) {
+		super(properties);
+
+		this.passenger = properties.passenger; // object
+
+		this.speedX = 0;
+		this.speedY = 0;
+		this.velocity = 0; // pythag
+
+		this.acceleration = properties.acceleration || 250; // speed gain per second
+
+		this.maxVelocity = properties.maxVelocity || 300;
+
+		this.throwOffVelocity = properties.throwOffVelocity || 250; // change in velocity required to catapult the hero off..
+
+		// hero position on mount
+		this.heroAdjustX = properties.heroAdjustX || 0;
+		this.baseHeroAdjustX = this.heroAdjustX;
+		this.heroAdjustY = properties.heroAdjustY || 0;
+		this.baseHeroAdjustY = this.heroAdjustY;
+
+		this.direction = properties.direction || 4; // same numbers as hero directions
+
+		this.distanceTravelled = 0;
+		this.animateDistance = 30; // distance needed to travel to change image
+		this.lastAnimatedDistance = 0; // last distance travelled milestone at which the image was updated
+		this.state = 0; // image state, taken mod to find what image should be displayed
+	}
+
+	move (delta, dirx, diry) {
+		this.speedX += this.acceleration * dirx * delta;
+		this.speedY += this.acceleration * diry * delta;
+
+		// slow down a bit due to drag etc . .
+		//this.speedX *= 0.9;
+		//this.speedY *= 0.9;
+
+		// figure out and cap velocity
+		this.velocity = Math.sqrt(this.speedX*this.speedX + this.speedY*this.speedY);
+
+		if (this.velocity > this.maxVelocity) {
+			let ratio = this.velocity / this.maxVelocity;
+			let multiplier = 1/Math.sqrt(ratio);
+			this.speedX *= multiplier;
+			this.speedY *= multiplier;
+			// now it has been limited to maxVelocity
+			this.velocity = this.maxVelocity
+		}
+
+		// set rotation image
+		this.setRotationImage(this.speedX, this.speedY);
+
+		this.x += this.speedX*delta;
+		this.y += this.speedY*delta;
+
+		this.distanceTravelled += this.velocity*delta;
+
+		let collision = this.collide(this.speedX, this.speedY, delta);
+
+		// set speed to 0 if collision (and throw off the hero if enough of a change in speed!)
+		if (collision) {
+			// first see if we should catapult the hero off
+			if (Math.abs(this.velocity) > this.throwOffVelocity) {
+				Game.hero.displace(0, Math.abs(this.velocity), 1, Game.bearing({x:0, y:0}, {x: this.speedX, y: this.speedY}));
+
+				this.passenger.mounted = false;
+				this.passenger.mount = undefined;
+			}
+
+			this.velocity = 0;
+			this.speedX = 0;
+			this.speedY = 0;
+		}
+
+		// clamp values
+		let maxX = Game.camera.maxX + Game.camera.width;
+		let maxY = Game.camera.maxY + Game.camera.height;
+		this.x = Math.max(0, Math.min(this.x, maxX));
+		this.y = Math.max(0, Math.min(this.y, maxY));
+
+		// animation
+		if (this.distanceTravelled > this.lastAnimatedDistance + this.animateDistance) {
+			this.state++;
+			this.lastAnimatedDistance += this.animateDistance;
+
+			// tbd don't hardcode!
+			if (this.direction === 1) {
+				// up
+				let state = (this.state % 7);
+
+				this.crop = {
+					x: (state % 3) * this.baseWidth,
+					y: Math.floor(state / 3) * this.baseHeight,
+					width: this.baseWidth,
+					height: this.baseHeight
+				}
+			}
+			else if (this.direction === 3) {
+				// down
+				let state = (this.state % 6);
+
+				this.crop = {
+					x: (state % 2) * this.baseWidth,
+					y: Math.floor(state / 2) * this.baseHeight,
+					width: this.baseWidth,
+					height: this.baseHeight
+				}
+			}
+			else if (this.direction === 4 ) {
+				// right
+				let state = (this.state % 13);
+
+				this.crop = {
+					x: (state % 4) * this.baseWidth,
+					y: Math.floor(state / 4) * this.baseHeight,
+					width: this.baseWidth,
+					height: this.baseHeight
+				}
+			}
+			else {
+				// left
+				let state = (this.state % 13);
+
+				this.crop = {
+					x: (3-(state % 4)) * this.baseWidth,
+					y: Math.floor(state / 4) * this.baseHeight,
+					width: this.baseWidth,
+					height: this.baseHeight
+				}
+			}
+
+			// hero bobbing
+			if (this.state % 8 < 4) {
+				this.heroAdjustY += 2;
+			}
+			else if (this.state % 8 >= 4) {
+				this.heroAdjustY -= 2;
+			}
+		}
+
 	}
 }
 
@@ -4679,11 +4929,19 @@ class Enemy extends Attacker {
 		this.noCollision = properties.attackBehaviour.noCollision || false; // don't collide with anything
 
 		this.attackTargets = [];
+		let heroBaseAggro;
+		if (typeof properties.attackBehaviour.baseAggro !== "undefined") {
+			heroBaseAggro = properties.attackBehaviour.baseAggro;
+		}
+		else {
+			heroBaseAggro = 3.5;
+		}
+		heroBaseAggro *= Game.hero.stats.enemyAggro / 100;
 		// hero is always a target
 		this.attackTargets.push({
 			target: Game.hero,
 			aggro: 0, // increases by the percentage of health dealt to character (10% dealt -> aggro increased by 1)
-			baseAggro: typeof properties.attackBehaviour.baseAggro !== "undefined" ? properties.attackBehaviour.baseAggro : 3.5, // added to aggro, constant value (this is effectively a leashradius of 350 pixels, increased by aggro)
+			baseAggro: heroBaseAggro, // added to aggro, constant value (this is effectively a leashradius of 350 pixels, increased by aggro)
 			lastAttacked: undefined, // the time in ms since this character was last attacked. if it was longer ago than forgivenessTime, then the aggro halves each second
 		});
 		// 100(aggro+baseAggro)/distance is used to decide whether it is worth them attacking each target (above their attackThreshold)
@@ -4698,10 +4956,12 @@ class Enemy extends Attacker {
 			for (let i = 0; i < properties.attackTargets.length; i++) {
 				let target = properties.attackTargets[i].target();
 				if (typeof target !== "undefined" && target !== false) {
+					let targetBaseAggro = properties.attackTargets[i].baseAggro || properties.attackBehaviour.baseAggro || 0;
+					targetBaseAggro *= target.stats.enemyAggro / 100;
 					this.attackTargets.push({
 						target: target,
 						aggro: 0,
-						baseAggro: properties.attackTargets[i].baseAggro || properties.attackBehaviour.baseAggro || 0,
+						baseAggro: targetBaseAggro,
 					});
 				}
 			}
@@ -4895,7 +5155,7 @@ class Enemy extends Attacker {
 
 		// collide with solid tiles
 		if (!this.noCollision) {
-			this.collide(dirx, diry, delta);
+			this.collide(dirx * this.speed, diry * this.speed, delta);
 		}
 	}
 
@@ -5030,8 +5290,9 @@ class LootChest extends Thing {
 		}
 	}
 
+	// returns choose array object
 	openLoot (arrayIndex) {
-		Dom.choose.page([{
+		return {
             npc: this,
             buttons: ["Loot chest"],
             functions: [function (chest) {
@@ -5042,7 +5303,7 @@ class LootChest extends Thing {
                 // Dom.loot.currentId is only ever used in main, in the function Game.lootClosed() (called by index.html)
             }],
             parameters: [[this]]
-        }]);
+        };
 	}
 }
 
@@ -6673,7 +6934,12 @@ Game.loadDefaultImages = function () {
 		toLoad.push(Loader.loadImage("fireBarrage", "./assets/projectiles/fireBarrage.png", false));
 	}
 
-	toLoad.push(Loader.loadImage("gloop", "./assets/projectiles/gloop.png", false));//aaaa
+	toLoad.push(Loader.loadImage("brownHorseRight", "./assets/mounts/brownHorse/brownHorseSide.png", false));
+	toLoad.push(Loader.loadImage("brownHorseLeft", "./assets/mounts/brownHorse/brownHorseSide.png", false, "vertical"));
+	toLoad.push(Loader.loadImage("brownHorseFront", "./assets/mounts/brownHorse/brownHorseFront.png", false));
+	toLoad.push(Loader.loadImage("brownHorseBack", "./assets/mounts/brownHorse/brownHorseBack.png", false));
+
+	toLoad.push(Loader.loadImage("gloop", "./assets/projectiles/gloop.png", false)); // tbd only load if they have the armour
 
 	toLoad.push(Loader.loadImage("rootedStatusImage", "./assets/projectiles/roots.png", false));
 
@@ -6684,6 +6950,8 @@ Game.loadDefaultImages = function () {
 
 // pull data from areadata.js
 Game.loadArea = function (areaName, destination) {
+
+	this.loadingArea = true; // set to false at the end of this function, once the promise is dealt with (because of asynchronocity with animationframe)
 
 	this.areaTeleports = []; // stop player from teleporting again during promise
 
@@ -6885,6 +7153,7 @@ Game.loadArea = function (areaName, destination) {
 			players: UserControllable,
 			projectiles: Projectile,
 			combatAreas: CombatArea,
+			mounts: Mount,
 		};
 
 		// list of objects to be animated (with a .animate function)
@@ -7212,6 +7481,9 @@ Game.loadArea = function (areaName, destination) {
 			});
 		}
 		*/
+
+		// done loading!
+		this.loadingArea = false;
 
     }.bind(this))
 	.catch(function (err) {
@@ -7776,6 +8048,11 @@ Game.generateLoot = function (lootTable) {
 						item: item,
 						quantity: itemQuantity,
 					};
+
+					if (typeof lootTable[i].onLootGenerate !== "undefined") { // function to be called on the item
+						itemToBePushed = lootTable[i].onLootGenerate(itemToBePushed);
+					}
+
 					lootArray.push(itemToBePushed);
 				}
 			}
@@ -8144,6 +8421,13 @@ Game.update = function (delta) {
 	    if (this.keysDown.UP) { diry = -1; this.hero.direction = 1; this.hero.updateRotation(); }
 	    if (this.keysDown.DOWN) { diry = 1; this.hero.direction = 3; this.hero.updateRotation(); }
 
+		if (Dom.inventory.check(48, "item")) {//aaaaaaaaaaaaaaaaaaaaaaaaaaa
+			// swap x and y direction
+			let x = dirx;
+			dirx = diry;
+			diry = x;
+		}
+
 		// strafing is slower
 		if (dirx !== 0 && diry !== 0) {
 			// strafing
@@ -8161,7 +8445,11 @@ Game.update = function (delta) {
 			}
 		}
 
-		if (dirx !== 0 || diry !== 0 || Game.wind !== undefined) {
+		if (this.hero.mounted) {
+			this.hero.moveMounted(delta, dirx, diry);
+			heroMoved = true;
+		}
+		else if (dirx !== 0 || diry !== 0 || Game.wind !== undefined) {
         	this.hero.move(delta, dirx, diry);
 			heroMoved = true;
     	}
@@ -8598,19 +8886,15 @@ Game.update = function (delta) {
 		}
 	} // finished iterating through npcs
 
-	// choose page based on all npcs being touched when spcae bar is pressed (just in case there are two npcs on top of each other)
-	if (choosePageInformation.length > 0) {
-		Dom.choose.page(choosePageInformation);
-	}
-
 	// update villagers
 	for (let i = 0; i < this.villagers.length; i++) {
 		if (!this.villagers[i].respawning && !this.villagers[i].isCorpse) { // check villager is not dead
 			this.villagers[i].update(delta);
 		}
-  }
+	}
 
 	// update enemies
+	let lootingRoleCreated = false; // whether or not the looting choose dom has been created yet
 	for (let i = 0; i < this.enemies.length; i++) {
 		let enemy = this.enemies[i];
 
@@ -8646,11 +8930,11 @@ Game.update = function (delta) {
 				canBeLooted = false;
 			}
 
-			if (canBeLooted) {
-				// looting page
-				Dom.choose.page([{
-                    npc: this.enemies[i],
-                    buttons: ["Loot enemy"],
+			if (canBeLooted && !lootingRoleCreated) {
+				// looting page (add to choose dom options, no choose dom option has been made for looting yet)
+				choosePageInformation.push({
+                    npc: "Looting",
+                    buttons: ["Loot " + Game.enemies[i].name],
                     functions: [function () {
                         Dom.loot.page(Game.enemies[i].name, Game.enemies[i].loot);
                         Dom.loot.currentId = "e"+i;
@@ -8659,7 +8943,23 @@ Game.update = function (delta) {
                         // Dom.loot.currentId is only ever used in main, in the function Game.lootClosed() (called by index.html)
                     }],
                     parameters: [[]]
-                }]);
+                });
+
+				// future things to be looted in the same loop will be added to the same array object
+				lootingRoleCreated = true;
+			}
+			else if (canBeLooted && lootingRoleCreated) {
+				// looting page (add to choose dom options, a choose dom option has already been made and is thus the most recent option)
+				let lootingRole = choosePageInformation[choosePageInformation.length-1];
+				lootingRole.buttons.push("Loot " + Game.enemies[i].name);
+				lootingRole.functions.push(function () {
+					Dom.loot.page(Game.enemies[i].name, Game.enemies[i].loot);
+					Dom.loot.currentId = "e"+i;
+					// "e"+i is a string that allows the loot menu to be identified - e means enemy, and i is the index of the enemy in Game.enemies
+					// the loot menu closes when the area changes anyway, so this will always work
+					// Dom.loot.currentId is only ever used in main, in the function Game.lootClosed() (called by index.html)
+				});
+				lootingRole.parameters.push([]);
 			}
 		}
 
@@ -8752,12 +9052,12 @@ Game.update = function (delta) {
 		}
 
 		if (canBeOpened) {
-			Dom.choose.page([{
+			choosePageInformation.push({
                 npc: mailbox,
                 buttons: ["Check mail"],
                 functions: [Dom.mail.page],
                 parameters: [[]],
-            }]);
+            });
 		}
 
 		// check if the currently displayed DOM is for the current mailbox in the for loop
@@ -8779,13 +9079,13 @@ Game.update = function (delta) {
 			if (this.minigameInProgress === undefined || !this.minigameInProgress.playing) {
 				// normal interaction
 				// true = force choose dom
-				Dom.choose.page([{
+				choosePageInformation.push({
                     npc: player,
-                    buttons: ["Trade with this player"],
+                    buttons: ["Trade with " + player.name],
                     functions: [Dom.trade.request],
                     parameters: [[player.userID, player.name]],
                     force: true,
-                }]);
+                });
 			}
 			else {
 				// can't interact with other players normally
@@ -8894,7 +9194,7 @@ Game.update = function (delta) {
 
 				// if the chest has been unlocked, open the chest!
 				if (!chest.locked) {
-					chest.openLoot(i);
+					choosePageInformation.push(chest.openLoot(i));
 				}
 			}
 		}
@@ -9060,6 +9360,13 @@ Game.update = function (delta) {
 		}
 	}
 
+	//
+	// choose page based on all dom menus being touched when spcae bar is pressed (just in case there are two npcs on top of each other)
+	// this was generated above
+	if (choosePageInformation.length > 0) {
+		Dom.choose.page(choosePageInformation);
+	}
+
 
 	this.playerProjectileUpdate(delta); // update player's currently channelling projectile
 
@@ -9080,17 +9387,20 @@ Game.update = function (delta) {
 		}
 	}
 
+	//
 	// animations
-
+	//
 
 	// animations
 	// tick called every 100s (perhaps change in future?)
 	this.totalAnimationTime += delta * 1000;
-	for (let i = 0; i < this.animationList.length; i++) {
-		if (this.animationList[i].lastAnimated + this.animationList[i].animationFrameTime <= this.totalAnimationTime) {
-			// should be animated
-			this.animationList[i].animate();
-			this.animationList[i].lastAnimated = this.totalAnimationTime;
+	if (!this.loadingArea) {
+		for (let i = 0; i < this.animationList.length; i++) {
+			if (this.animationList[i].lastAnimated + this.animationList[i].animationFrameTime <= this.totalAnimationTime) {
+				// should be animated
+				this.animationList[i].animate();
+				this.animationList[i].lastAnimated = this.totalAnimationTime;
+			}
 		}
 	}
 
@@ -9427,11 +9737,17 @@ Game.equipmentUpdate = function () {
     }
 }
 
+// called whenever an item is removed / equipped / given / moved
 Game.inventoryUpdate = function () {
     // update item buyer page if it is open
     if (document.getElementById("buyerPage").hidden === false) {
         Dom.buyer.page();
     }
+
+	// check for items that give status effects
+	for (let i = 0; i < Player.inventory.items.length; i++) {
+		// tbd
+	}
 
     Dom.checkProgress(); // quest log update check
 }
@@ -9678,7 +9994,7 @@ Game.exitCreativeMode = function () {
 		Dom.inventory.give(Items.dev[2]);
 	}
 	else {
-		console.log("You are already in creative mode!")
+		console.info("You are already in creative mode!")
 	}
 }
 

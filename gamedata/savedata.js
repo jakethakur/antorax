@@ -138,6 +138,7 @@ var Player = {
 		poisonStrength: 100, // (100%)
 		exploding: 0, // (I)
 		numberOfProjectiles: 0, // currently an archer only stat - if this isn't 0 or 1, multiple projectiles are fired!
+		enemyAggro: 100, // (110%) multiplier
 
 		// spells
 		maxMana: 0,
@@ -185,6 +186,7 @@ var User = {
 		k: [0, 1],
 	},
 	progress: {},
+	lostLetterMessages: [],
 	settings: {
 		music: false,
 		particles: true,

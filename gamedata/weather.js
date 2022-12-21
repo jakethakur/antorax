@@ -1,3 +1,9 @@
+//
+// Weather
+//
+
+// Scroll down for Event (i.e. time, darkness, event definition, ...)~
+
 let Weather = {
 	particleData: {
 		snow: {
@@ -472,3 +478,214 @@ Weather.render = function () {
 	}
 	Game.ctx.globalAlpha = 1;
 }
+
+//
+// Events and Time
+//
+
+let Event = {
+	// return variable with dates for use in event setting functions
+	getDate: function () {
+		let d = {};
+		d.today = new Date();
+		d.minute = d.today.getMinutes();
+		d.hour = d.today.getHours();
+		d.day = d.today.getDate();
+		d.month = d.today.getMonth() + 1; // January is 0, so add 1
+		d.year = d.today.getFullYear();
+		return d;
+	},
+
+	// init variables required for Areas definition (called straight away)
+	init: function () {
+		// get date
+		let d = this.getDate();
+
+		// antorax age
+		this.antoraxAge = d.year - 2016; // used for some NPC texts (especially on Antorax Day)
+		if (d.day < 20 && d.month === 1) {
+			// before Antorax day; subtract one from age
+			this.antoraxAge--;
+		}
+	},
+
+	// update time (called on loadArea)
+	// areaName passed in as parameter because Game.areaName has not been set yet by laodArea
+	updateTime: function (areaName) {
+		// get date
+		let d = this.getDate();
+
+		if (Areas[areaName].time !== undefined) {
+			// area always has a specific time
+			this.time = Areas[areaName].time;
+		}
+
+		else if (this.event === "Samhain" && Player.quests.questProgress.bloodMoonUnlocked) {
+			// halloween night time & bloodmoon unlocked
+			this.time = "bloodMoon";
+		}
+
+		else if (d.day == 21 && d.month == 6) {
+			// Summer Solstice - sun up all day
+			this.time = "day";
+		}
+		else if (d.day == 21 && d.month == 12) {
+			// Winter Solstice - sun down all day
+			this.time = "night";
+		}
+
+		else if (d.hour >= 7 && d.hour < 19) {
+			// day time
+			this.time = "day";
+		}
+		else {
+			// night time
+			this.time = "night";
+		}
+
+		this.updateDarkness(d); // update how dark the canvas is
+		this.updateFog(d);
+		this.updateSeason(d);
+	},
+
+	// update how dark the canvas is (called automatically by updateTime)
+	updateDarkness: function (d) {
+		// 0.40 darkness is max
+		// lights turn on at 0.20 darkness
+
+		if (d === undefined) {
+			// no date parameter
+			// get date
+			let d = this.getDate();
+		}
+
+		let timeDarkness = 0; // darkness due to time
+
+		if (d.hour === 18 && d.minute > 30) {
+			timeDarkness = 0.2 - ((60 - d.minute) * 0.2 / 30);
+			// linear darkness progression from 18:30 to 19:00 of 0.00 to 0.20
+		}
+		else if (d.hour === 19 && d.minute < 30) {
+			timeDarkness = 0.4 - ((30 - d.minute) * 0.2 / 30);
+			// linear darkness progression from 19:00 to 19:30 of 0.20 to 0.40
+		}
+		else if (d.hour === 6 && d.minute > 30) {
+			timeDarkness = 0.4 - ((60 - d.minute) * 0.2 / 30);
+			// linear darkness progression from 06:30 to 07:00 of 0.40 to 0.20
+		}
+		else if (d.hour === 7 && d.minute < 30) {
+			timeDarkness = 0.2 - ((30 - d.minute) * 0.2 / 30);
+			// linear darkness progression from 07:00 to 07:30 of 0.20 to 0.00
+		}
+		else if (this.time === "night" || this.time === "bloodMoon") {
+			// completely dark
+			timeDarkness = 0.4;
+		}
+		else { // time must be day
+			// completely light
+			timeDarkness = 0;
+		}
+
+		// if it is halloween and it is dark due to time, notify Game to make the sky blood dark for blood moon
+		// Game can't check Event.time because it isn't blood moon 30 mins before and after when it is getting dark
+		if (this.time === "bloodMoon" && timeDarkness > 0) {
+			this.redSky = true;
+		}
+		else {
+			this.redSky = false;
+		}
+
+		let weatherDarkness = 0; // darkness due to weather
+
+		if (Weather.weatherType === "rain") {
+			weatherDarkness = 0.3 * (Weather.intensity / 150) / (Game.canvasArea / 36000);
+			// 0.30 darkness if the weather is at its hightest intensity
+		}
+		else {
+			// completely light
+			weatherDarkness = 0;
+		}
+
+		this.darkness = Math.max(timeDarkness, weatherDarkness); // take the darkest of the two
+	},
+
+	// update amount of foggg (called automatically by updateTime)
+	updateFog: function (d) {
+		// max 0.5 - darkness / 2
+		Event.fog = 0;
+		// tbd
+	},
+
+	// update event (called on loadArea)
+	updateEvent: function () {
+		// get date
+		let d = this.getDate();
+
+		// James Day
+		// Summer Solstice
+		if (d.day === 21 && d.month === 6) {
+			this.event = "James";
+		}
+		// Samhain (Halloween)
+		// Blood Moon
+		else if (d.month === 10) {
+			this.event = "Samhain";
+		}
+		// Christmas
+		else if (d.month === 12) {
+			this.event = "Christmas";
+			// Christmas Day
+			if (d.day === 25) {
+				this.christmasDay = true;
+			}
+			else {
+				this.christmasDay = false;
+			}
+		}
+		// Antorax Day
+		else if (d.month === 1 && d.day === 20) {
+			this.event = "Antorax";
+		}
+		// Fish Day
+		else if (d.month === 4 && d.day === 1) {
+			this.event = "Fish";
+		}
+		// Heroes of Antorax
+		else if (d.year === 2019 && (d.month === 4 && d.day >= 24)
+		|| (d.month === 5 && d.day <= 5)) {
+			this.event = "Heroes";
+		}
+		// Valentine's
+		else if (d.day === 14 && d.month === 2) {
+			this.event = "Valentine";
+		}
+	},
+
+	updateSeason: function (d) {
+        switch (d.month) {
+            case 12:
+            case 1:
+            case 2:
+                this.season = "winter";
+                break;
+            case 3:
+            case 4:
+            case 5:
+                this.season = "spring";
+                break;
+            case 6:
+            case 7:
+            case 8:
+                this.season = "summer";
+                break;
+            case 9:
+            case 10:
+            case 11:
+                this.season = "autumn";
+                break;
+        }
+    },
+};
+
+// init event variables needed for Area definition
+Event.init();

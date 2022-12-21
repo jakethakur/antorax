@@ -667,4 +667,29 @@ Spells = [
         ],
     },
 
+	{
+        name: "Cut Purse",
+        id: 15,
+        class: "a",
+        description: "Snippity snip",
+        enemyOnly: true, // cutpurses in plains
+
+        // properties should contain tier (as int value), caster, target
+		func: function (properties) {
+			Game.statusEffects.stun({
+				target: Game.properties.target,
+				time: 1,
+				effectTitle: "Knocked out",
+				effectDescription: "Zzz",
+			});
+			Dom.chat.insert("The Cutpurse stole 2 ");
+            //Game.properties.target.
+        },
+
+        channelTime: [
+            0,
+            2000,    // tier 1
+        ],
+    },
+
 ];

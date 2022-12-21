@@ -584,7 +584,7 @@ var Items = {
 			area: ["eaglecrest"],
 			rarity: "mythic",
 			sellPrice: 5,
-			lore: "",
+			lore: "Carried by the rivers from the great lake of Aztopia.",
 			obtainText: "Can be uncovered as an unidentified item in areas around Eaglecrest Plains.",
 			unidentifiedArea: ["eaglecrest"],
 			stats: {
@@ -605,7 +605,7 @@ var Items = {
 			lore: "",
 			obtainText: "???",
 			stats: {
-				stealing: 100,
+				stealing: 150,
 				walkSpeed: 40,
 			},
 		},
@@ -621,9 +621,26 @@ var Items = {
 			rarity: "common",
 			sellPrice: 1,
 			lore: "",
-			obtainText: "Can be bought from a mask seller during Christmas", // maybe drops if you kill cutpurse with a certain weapon? or with enough "stealing"?
+			obtainText: "Can be bought from a mask seller during Christmas",
 			stats: {
 				exploding: 1
+			},
+		},
+		{
+			id: 35,
+			name: "Post-Hat",
+			type: "helm",
+			image: "assets/items/helm/35.png",
+			tier: 1,
+			obtain: ["other"],
+			area: ["eaglecrest"],
+			rarity: "mythic",
+			sellPrice: 7,
+			lore: "Hats are so passé..",
+			obtainText: "Can be obtained by turning in lost letters to an Eaglecrest mail carrier.",
+			stats: {
+				defence: 2,
+				enemyAggro: -50,
 			},
 		},
 	],
@@ -744,7 +761,7 @@ var Items = {
 			image: "assets/items/chest/7.png",
 			tier: 1,
 			obtain: ["merchant"],
-			area: ["loggingCamp", "eaglecrest"],
+			area: ["eaglecrest"],
 			rarity: "unique",
 			sellPrice: 3,
 			lore: "Evil haunted sheet. Also doubles as an evil haunted blanket.",
@@ -1463,7 +1480,8 @@ var Items = {
 			rarity: "unique",
 			sellPrice: 3,
 			lore: "",
-			obtainText: "tbd.",
+			obtainText: "Can be uncovered as an unidentified item in areas around Eaglecrest Plains.",
+			unidentifiedArea: ["eaglecrest"],
 			stats: {
 				defence: 2,
 				swimSpeed: 40,
@@ -1505,7 +1523,7 @@ var Items = {
 					}
 				}
 				// not touching any gloop
-				let gloopObj = {
+				let gloopObj = { // tbd use Dom.inventory.loadItemRequiredImages !!!!!!!!!!!!!
 					map: map,
 					image: "gloop", // use the projectile system to load in a special image
 					name: "Iglak Gloop",
@@ -1576,6 +1594,23 @@ var Items = {
 			],
 			onWalk: function () { // only triggered when on ground
 				// flower
+			},
+		},
+		{
+			id: 17,
+			name: "Boots of the Busy",
+			type: "boots",
+			image: "assets/items/boots/17.png",
+			tier: 1,
+			obtain: ["other"],
+			area: ["eaglecrest"],
+			rarity: "mythic",
+			sellPrice: 7,
+			lore: "",
+			obtainText: "Can be obtained by turning in lost letters to an Eaglecrest mail carrier.",
+			stats: {
+				defence: 2,
+				walkSpeed: 50,
 			},
 		},
 	],
@@ -1697,7 +1732,7 @@ var Items = {
 			imageArchaeology: "assets/items/sword/7archaeology.png",
 			tier: 1,
 			obtain: ["merchant"],
-			area: ["loggingCamp", "eaglecrest"],
+			area: ["eaglecrest"],
 			rarity: "unique",
 			lore: "9/10 murderous farmers would recommend it to their friends.",
 			obtainText: "Can be bought from a merchant during the Samhain event.",
@@ -2018,7 +2053,7 @@ var Items = {
 			stats: {
 				damage: 4,
 				defence: 2,
-				stealing: 20,
+				stealing: 30,
 			},
 			functionText: "Upon hitting an enemy, gain +10% Walk Speed for 2 seconds.",
 			archaeologyAdditionalStats: ["walkSpeed"], // additional stat help to display on the archaeology page
@@ -2068,6 +2103,22 @@ var Items = {
 				damage: 1,
 				poisonX: 4,
 				poisonY: 8,
+			},
+		},
+		{
+			id: 21,
+			name: "Pointy Sword",
+			type: "sword",
+			image: "assets/items/sword/21.png",
+			tier: 1,
+			obtain: ["unidentified"],
+			area: ["eaglecrest"],
+			rarity: "junk",
+			lore: "'I'm not saying it's pointless, I'm just wondering what the point is' - Peter",
+			obtainText: "Can be uncovered as an unidentified item in areas around Eaglecrest Plains.",
+			stats: {
+				damage: 0,
+				defence: 1
 			},
 		},
 	],
@@ -2215,7 +2266,7 @@ var Items = {
 			imageArchaeology: "assets/items/staff/8archaeology.png",
 			tier: 1,
 			obtain: ["merchant"],
-			area: ["loggingCamp", "eaglecrest"],
+			area: ["eaglecrest"],
 			rarity: "unique",
 			lore: "Gives new meaning to the phrase 'a brush with death'.",
 			obtainText: "Can be bought from a merchant during the Samhain event.",
@@ -2546,7 +2597,7 @@ var Items = {
 			image: "assets/items/bow/7.png",
 			tier: 1,
 			obtain: ["merchant"],
-			area: ["loggingCamp", "eaglecrest"],
+			area: ["eaglecrest"],
 			rarity: "unique",
 			lore: "So this is what happens when you leave your crossbow in the shed for too long.",
 			obtainText: "Can be bought from a merchant during the Samhain event.",
@@ -3213,6 +3264,15 @@ var Items = {
 			sellPrice: 5,
 			size: 18,
 		},
+		{
+			id: 8,
+			name: "Mail-Carrier",
+			type: "bag",
+			rarity: "mythic",
+			image: "assets/items/bag/8.png",
+			sellPrice: 7,
+			size: 24,
+		},
 	],
 	item: [
 		{
@@ -3817,7 +3877,7 @@ var Items = {
 		},
 		{
 			id: 48,
-			name: "Doohickey the Octopus",
+			name: "<i>Doohickey</i>",
 			type: "item",
 			image: "assets/items/item/48.png",
 			stack: 1,
@@ -3847,10 +3907,58 @@ var Items = {
 			name: "Golden Feather",
 			type: "item",
 			rarity: "junk",
-			image: "assets/items/item/54.png",
+			image: "assets/items/item/51.png",
 			sellPrice: 10,
 			sellQuantity: 1,
 			stack: 64,
+		},
+		{
+			id: 52,
+			name: "Mud-Splattered Letter",
+			type: "item",
+			rarity: "junk",
+			image: "assets/items/item/52.png",
+			stack: 1,
+			functionText: "Click to read",
+			lore: "This letter looks undelivered. Perhaps you could do something about that?",
+			onClickFunction: function (inventoryPosition) {
+				Dom.text.page("Mud-Splattered Letter", Player.inventory.items[inventoryPosition].letterText);
+			},
+			onLoot: function (inventoryPosition) {
+				setLetterText(inventoryPosition);
+			},
+		},
+		{
+			id: 53,
+			name: "Screwed-Up Letter",
+			type: "item",
+			rarity: "junk",
+			image: "assets/items/item/53.png",
+			stack: 1,
+			functionText: "Click to read",
+			lore: "This letter looks undelivered. Perhaps you could do something about that?",
+			onClickFunction: function (inventoryPosition) {
+				Dom.text.page("Mud-Splattered Letter", Player.inventory.items[inventoryPosition].letterText);
+			},
+			onLoot: function (inventoryPosition) {
+				setLetterText(inventoryPosition);
+			},
+		},
+		{
+			id: 54,
+			name: "Water-Soaked Letter",
+			type: "item",
+			rarity: "junk",
+			image: "assets/items/item/54.png",
+			stack: 1,
+			functionText: "Click to read",
+			lore: "This letter looks undelivered. Perhaps you could do something about that?",
+			onClickFunction: function (inventoryPosition) {
+				Dom.text.page("Mud-Splattered Letter", Player.inventory.items[inventoryPosition].letterText);
+			},
+			onLoot: function (inventoryPosition) {
+				setLetterText(inventoryPosition);
+			},
 		},
 	],
 	consumable: [
@@ -4896,6 +5004,55 @@ var Items = {
 			leadRange: 250,
 		},
 	],
+	mount: [
+		{
+			id: 0,
+			name: "Horse Whistle",
+			type: "mount",
+			image: "assets/items/mount/0.png",
+			rarity: "unique",
+			functionText: "Summons your horse mount!",
+			mount: "whiteHorse", // set after quest is finished
+			onClickFunction: function () {
+				if (!Game.hero.mounted) {
+					Game.hero.mounted = true;
+					Game.mounts.push(new Mount({
+						passenger: Game.hero,
+						x: Game.hero.x,
+						y: Game.hero.y,
+						direction: Game.hero.direction,
+						//orderOffsetY: -150,
+						heroAdjustY: -40,
+						name: "Horsey",
+						hideNameTag: true,
+						type: "mounts",
+						hostility: "friendly",
+						rotationImages: {
+							up: "brownHorseBack",
+							down: "brownHorseFront",
+							left: "brownHorseLeft",
+							right: "brownHorseRight",
+						},
+						crop: {
+							x: 0,
+							y: 0,
+							width: 256,
+							height: 256
+						},
+						stats: {
+							maxHealth: 100,
+						},
+					}));
+					Game.hero.mount = Game.mounts[Game.mounts.length-1];
+				}
+				else {
+					Game.removeObject(Game.hero.mount.id, "mounts");
+					Game.hero.mounted = false;
+					Game.hero.mount = undefined;
+				}
+			}
+		},
+	],
 	fish: [
 		{
 			id: 0,
@@ -5423,12 +5580,13 @@ var Items = {
 					// autocomplete quest
 					Dom.checkProgress();
 				}
-				else if (Event.event === "Christmas")
+				else
 				{
 					// list of areas with NPCs
-					let possibleAreas = ["eaglecrestLoggingCamp", "tutorial", "eaglecrestBank", "eaglecrestBazaar", "theForge", "eaglecrest", "eaglecrestWest", "eaglecrestEast", "eaglecrestMonastery", "eaglecrestTavern"];
+					let possibleAreas = ["eaglecrestLoggingCamp", "tutorial", "eaglecrest", "eaglecrestBank", "eaglecrestBazaar", "theForge", "eaglecrest", "eaglecrestWest", "eaglecrestEast", "eaglecrestMonastery", "eaglecrestTavern"];
 					let randomArea = Areas[possibleAreas[Random(0, possibleAreas.length - 1)]];
 					let randomNPC = randomArea.npcs[Random(0, randomArea.npcs.length - 1)];
+					randomNPC = Game.setInformationFromTemplate(randomNPC);
 
 					Player.inventory.items[inventoryPosition].functionText = "To be delivered to " + randomNPC.name;
 
@@ -5442,50 +5600,42 @@ var Items = {
 					}
 					randomNPC.roles.push({
 						role: "function",
-						chooseText: "Here is your present.",
+						chooseText: "Here is a present.",
 						forceChoose: true, // forces choose dom
 						onClick: function () {
 							// remove the item
 							Dom.inventory.removeById(22, "fish", 1);
 							// chat
-							Dom.chat.insert(Dom.chat.say(randomNPC.name, "Thank you for this present, here's a token for your troubles."));
+							if (Event.event === "Christmas") {
+								Dom.chat.insert(Dom.chat.say(randomNPC.name, "Thank you for this present, here's a Christmas Token for your troubles."));
+								Dom.inventory.give(Items.currency[5], 1);
+							}
+							else {
+								Dom.chat.insert(Dom.chat.say(randomNPC.name, "Thank you for this present, here's some Gold for your troubles."));
+								Dom.inventory.give(Items.currency[5], 3);
+							}
+							// achievement progress
+							User.progress.presentsDelivered = Increment(User.progress.presentsDelivered);
 							// because it thinks a dom page is open
 							Dom.currentlyDisplayed = "";
 							Dom.currentNPC = {};
-							Dom.inventory.give(Items.currency[5], 1);
-							// remove role
-							randomNPC.roles.pop();
-							User.progress.presentsOpened = Increment(User.progress.presentsOpened); // increment achievment progress
 						},
 						roleRequirement: function () {
-							return Dom.inventory.check(22, "fish", 1);
+							return Dom.inventory.check(22, "fish", 1); // tbd needs to check it's delivered to them
 						}
 					});
 				}
 			},
-			onClickFunction: function (inventoryPosition) {
-				// on click should only happen if not christmas
-				if (Event.event !== "Christmas")
-				{
+			onClickFunction: function (inventoryPosition) { // if you don't have the christmas fishing rod, it gives it to you
+				if (!Player.quests.questProgress.christmasFishingRod) {
+					// fishing rod has not been obtained
 					// remove item
 					Dom.inventory.remove(inventoryPosition);
 					// replace at the same slot
-					let item = null;
-					let itemQuantity = 0;
-					if (!Player.quests.questProgress.christmasFishingRod) {
-						// fishing rod has not been obtained
-						item = Items.rod[4];
-						itemQuantity = 1;
-						Player.quests.questProgress.christmasFishingRod = true; // now obtained
-						Player.quests.questProgress.presentsOpened = Increment(Player.quests.questProgress.presentsOpened); // increment achievment progress
-					}
-					else {
-						// fishing rod has been obtained
-						item = Items.currency[2];
-						itemQuantity = Random(3, 5);
-						User.progress.presentsOpened = Increment(User.progress.presentsOpened); // increment achievment progress
-					}
-					Dom.inventory.give(item, itemQuantity, inventoryPosition);
+					Dom.inventory.give(Items.rod[4], 1, inventoryPosition);
+					Player.quests.questProgress.christmasFishingRod = true; // now obtained
+					// achievement progress
+					User.progress.presentsOpened = Increment(User.progress.presentsOpened);
 				}
 			}
 		},
@@ -5704,7 +5854,7 @@ var Items = {
 			imageArchaeology: "assets/items/fish/35archaeology.png",
 			rarity: "unique",
 			sellPrice: 2,
-			howToCatch: "Can be fished up during winter.",
+			howToCatch: "Can be fished up during the winter.",
 			areas: [],
 			length: {
 				min: 32,
@@ -5713,6 +5863,28 @@ var Items = {
 			},
 			catchRequirement: function () {
                 return Event.season === "winter";
+            },
+		},
+		{
+			id: 36, // identical to the one in items that can be dropped by frogs
+			name: "Water-Soaked Letter",
+			type: "fish",
+			fishingType: "waterjunk",
+			areas: ["eaglecrest"],
+			rarity: "junk",
+			image: "assets/items/item/54.png",
+			stack: 1,
+			functionText: "Click to read",
+			lore: "This letter looks undelivered. Perhaps you could do something about that?",
+			onClickFunction: function (inventoryPosition) {
+				Dom.text.page("Mud-Splattered Letter", Player.inventory.items[inventoryPosition].letterText);
+			},
+			onLoot: function (inventoryPosition) {
+				setLetterText(inventoryPosition);
+			},
+			catchRequirement: function () {
+                // very rare!
+                return Random(0, 9) === 1;
             },
 		},
 	],
@@ -5814,6 +5986,45 @@ const WeaponRanges = {
 	rod: 200,
 };
 
+const LostLetterMessages = {
+	curseOfTheWizard: `Please make haste,<br>
+		There is no time to waste!<br>
+		It has been icey this winter and a wizard fell And out of anger cast a spell!<br>
+		I seem forced to speak in rhyme,<br>
+		Constantly all the time !<br>
+		It is rather quite troublesome and so I write to you, I wish it were not true.<br>
+		I have been made to look lime a fool, People will think I am a right tool !<br>
+		I fear this curse will lead to trouble,<br>
+		If you do not get here on the double.`,
+
+	goblinAmbush: `Oh dear ! Frederick my old pal, please hurry to the Nilbog. Those dastardly fiends took me by surprise while I was making my deliveries and took everything ! One of them managed to pierce me what I can only presume was a poisoned arrow. Im no doctor but I do not think I have long and so I urge you to hurry before it is too late !<br><br>
+		I am not certain if you are caught up on herbal remedies but I urge you to bring some kind of antidote; the poison seems to be spreading as I write this and I cannot seem to feel my legs! I knew I should have gone a different route, if only somebody could sort out this cursed plane. Please do hurry Frederick, I feel myself growing weaker by the sec——-`,
+
+	theBanquet: `For the editors at Eagle-crest I suggest we post-pone the publication of a review for the new tavern that opened. I am not entirely sure this place is really a tavern…upon m arrival I noticed I was the only person there and the establishment looked rather abandoned aside from a man in a cloak. Said man titled himself as the waiter although he certainly didn’t match the appearance of any waiters I’ve seen.<br><br>
+		Anyway, I inquired as to the menu and was told I’d receive my food shortly and was given no choice of items at all ! This place clearly hasn’t kept to the dietary requirement orders sent by the city…<br><br>
+		The ‘food’ I did receive looked very questionable indeed. It was some kind of green and murky liquid, soup perhaps? Well, this ‘soup’ almost exited my mouth as soon as it made contact with my taste buds! It tasted like death itself! To be fair I did see something floating in it so that may not be out of the question…<br><br>
+		I quickly left the establishment although I did leave a tip for the cloaked ‘waiter’ as to be fair he was fairly civil to me and the place seemed to be struggling for customers. However, I do not see the point in publishing a review as I am not entirely certain it was even a tavern. As for the food I bet the goblins could cook something more flavoursome…`,
+};
+
+// functions that might be used by above items
+const ItemFunctions = {
+	setLetterText: function (inventoryPosition) {
+		let possibleMessages = Object.keys(LostLetterMessages);
+		let messageKey;
+		if (User.lostLetterMessages.length !== LostLetterMessages.length) {
+			// user not found all the messages, give them one they've not seen
+			possibleMessages.filter(title => !User.lostLetterMessages.includes(title));
+		}
+		messageKey = possibleMessages[Random(0, possibleMessages.length-1)];
+
+		// user has now obtained this letter
+		User.lostLetterMessages.push(messageKey);
+
+		// letter text
+		Player.inventory.items[inventoryPosition].letterText = LostLetterMessages[messageKey];
+	}
+}
+
 // returns total number of items in archaeology that satisfy a certain requirement
 // requirement parameter should be a function that returns true or false when passed in an item
 // archaeology parameter is an optional alternate (from User.archaeology) place to check if a limited edition item has been obtained (if it has, it is added to total, if not, it is not)
@@ -5844,8 +6055,13 @@ function UnId (area, tier) {
 	this.id = 0;
     this.area = area;
     this.tier = tier;
+    this.unidentified = true;
+    this.sellPrice = 1;
+
+	// decide the type of the unidentified item
     let types = ["helm", "chest", "greaves", "boots", "sword", "staff", "bow"];
     this.typeNum = Random(0, 4);
+	// classes can only get their own weapons
     if (this.typeNum === 4) {
         if (Player.class === "m") {
             this.typeNum++;
@@ -5855,9 +6071,22 @@ function UnId (area, tier) {
         }
     }
     this.type = types[this.typeNum];
+
+	// image
     this.image = "assets/items/"+this.type+"/unidentified.png";
-    this.rarityNum = Random(0, 25-1);
-    if (this.rarityNum < 18) {
+
+	// rarity: see if there are any unidentified junk items in the pool
+	let junkInPool = false;
+	if (area === "eaglecrest" && this.typeNum === 4) {
+		junkInPool = true; // pointy sword
+	}
+
+	// determine rarity
+    this.rarityNum = Random(0, 24);
+	if (this.rarityNum === 0 && junkInPool) {
+    	this.rarity = "junk";
+	}
+    else if (this.rarityNum < 18) {
     	this.rarity = "common";
     }
 	else if (this.rarityNum < 24) {
@@ -5866,8 +6095,8 @@ function UnId (area, tier) {
 	else {
         this.rarity = "mythic";
     }
-    this.unidentified = true;
-    this.sellPrice = 1;
+
+	// display which area it is from
 	switch (area) {
 		case "loggingCamp":
 			this.functionText = "From the Logging Camp";

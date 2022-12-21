@@ -113,7 +113,7 @@ function Stats (stat, value, array) {
 	if (stat === "Defence" || stat === "Block Defence" || stat === "Fishing Skill" || stat === "Max Health") {
 		return stat+": "+NumberSign(value)+"<br>";
 	}
-	else if (stat === "Critical Chance" || stat === "Dodge Chance" || stat === "Looting" || stat === "Reflection" || stat === "Lifesteal" || stat === "Xp Bonus" || stat === "Hex" || stat === "Damage Percentage" || stat === "Stealing" || stat === "Range Multiplier" || stat === "Healing Power" || stat === "Interact Range" || stat === "Poison Strength") {
+	else if (stat === "Critical Chance" || stat === "Dodge Chance" || stat === "Looting" || stat === "Reflection" || stat === "Lifesteal" || stat === "Xp Bonus" || stat === "Hex" || stat === "Damage Percentage" || stat === "Stealing" || stat === "Range Multiplier" || stat === "Healing Power" || stat === "Interact Range" || stat === "Poison Strength" || stat === "Enemy Aggro") {
 		return stat+": "+NumberSign(value)+"%<br>";
 	}
 	else if (stat === "Health Regen" || stat === "Swim Speed" || stat === "Walk Speed" || stat === "Ice Speed" || stat === "Focus Speed") {
@@ -516,14 +516,26 @@ function arrange(){
 		if(viewedItemType == "set"){
 			document.getElementById("flashcardlist"+c).style.left = 140+260*c+"px";
 		}
+
+		// item name
 		document.getElementById("name"+i).innerHTML = "<b>"+array[i].name+"</b>";
-		if(array[i].rarity == "common"){
+		// rarity colouring
+		if(array[i].rarity == "common") {
 			document.getElementById("name"+i).style.color = "var(--text)";
-		}else if(array[i].rarity == "unique"){
+		}
+		else if(array[i].rarity == "unique") {
 			document.getElementById("name"+i).style.color = "orange";
-		}else{
+		}
+		else if(array[i].rarity == "mythic") {
 			document.getElementById("name"+i).style.color = "#b13fea";
 		}
+		else if(array[i].rarity == "junk") {
+			document.getElementById("name"+i).style.color = "darkgray";
+		}
+		else {
+			document.getElementById("name"+i).style.color = "red";
+		}
+
 		/*if(category.value == 8){ // should be 8 but not sure if we want it
 			console.log("ERROR");
 			for(var f = 0; f < array[i].armour.length; f++){
@@ -807,6 +819,7 @@ var StatsInfo = {
 	unstoppable: "Invulnerability to stuns, slows, roots, hexes.",
 	exploding: "Whenever you kill an enemy, they explode, dealing 50% of your attack damage to nearby enemies and setting them on fire.",
 	numberOfProjectiles: "Multiple projectiles are fired at once!",
+	enemyAggro: "Changes how much aggro you generate from enemies.",
 }
 
 if(viewedItemId != undefined && viewedItemType != undefined){
