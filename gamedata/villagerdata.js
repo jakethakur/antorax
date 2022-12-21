@@ -470,7 +470,7 @@ var Villagers = [
 		chat: {
             notUnlockedRoles: "I recognise your face... have we met?",
 		},
-		roles: [{
+		/*roles: [{
 			role: "text",
 			chooseText: "I found an undelivered letter",
 			chat: "Oh. Phew... I always try to get everything delivered on time, but when your",
@@ -493,7 +493,7 @@ var Villagers = [
 			roleRequirement: function () {
 				return Player.level >= MaxLevel;
 			},
-		},],
+		},],*/
 	},
 	{
         id: 17,
