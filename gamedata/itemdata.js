@@ -5903,23 +5903,15 @@ var Items = {
 			onClickFunction: function (inventoryPosition) {
 				let object = {
 					map: map,
-					image: Player.inventory.items[inventoryPosition].objectImage,
-					name: Player.inventory.items[inventoryPosition].objectName,
+					image: Game.creativeImage,
+					name: Game.creativeName,
 					x: Round(Game.hero.x, 1),
 					y: Round(Game.hero.y, 1),
 					type: "things",
 					dev: true,
-					crop: {
-						x: 0,
-						y: 0,
-						width: 120,
-						height: 120
-					},
 				};
 				Game.things.push(new Thing(object));
 			},
-			objectImage: "sprinkler",
-			objectName: "Sprinkler",
 		},
 		{
 			id: 1,

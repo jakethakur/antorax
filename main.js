@@ -2091,8 +2091,10 @@ class Character extends Thing {
 		this.healthBeforeDamage = this.health; // currently unused, updated after each damage
 		this.damageProportionTaken = damage / this.health;
 
-		this.health -= damage;
-		this.damageTaken += damage;
+		if(Game.creativeMode) {
+			this.health -= damage;
+			this.damageTaken += damage;
+		}
 
 		// used to decide if hero should get xp etc
 		if (damagedByHero) {
@@ -9969,10 +9971,14 @@ Game.toggleCreativeMode = function () {
 	if (!this.creativeMode) {
 		// enter creative mode
 		this.creativeMode = true;
+		Game.hero.health = Game.hero.stats.maxHealth;
 		Dom.inventory.give(Items.dev[0]);
 		Dom.inventory.give(Items.dev[1]);
 		Dom.inventory.give(Items.dev[2]);
-		console.info("Entered creative mode! Type Game.toggleCreativeMode() again to leave.");
+		Game.creativeImage = "rootedStatusImage";
+		Game.creativeName = "default";
+		Dom.chat.insert("Entered creative mode! Type /creative again to leave.");
+		Dom.chat.insert("Type /image [Image Name] [Object Name] to set the object you're trying to place.");
 	}
 	else {
 		// leave creative mode
@@ -9982,7 +9988,27 @@ Game.toggleCreativeMode = function () {
 				Dom.inventory.remove(i);
 			}
 		}
-		console.info("Left creative mode.");
+		Dom.chat.insert("Left creative mode.");
+	}
+}
+
+Game.creativeImage = "rootedStatusImage";
+Game.creativeName = "default";
+Game.setCreativeItem = function (item) {
+	item = item.split(" ");
+	if (item.length === 2) {
+		if (item[0] in Loader.images) {
+			Game.creativeImage = item[0];
+			Game.creativeName = item[1];
+			Dom.chat.insert('Creative mode object name set to "'+ item[0] +'".');
+			Dom.chat.insert('Creative mode object image set to "'+ item[1] +'".');
+		}
+		else {
+			Dom.chat.insert("Creative item has not been updated because image was not found.")
+		}
+	}
+	else {
+		Dom.chat.insert("Incorrect format. Should be /image [Image Name] [Object Name]")
 	}
 }
 
@@ -10299,8 +10325,11 @@ Game.drawHealthBar = function (ctx, character, x, y, width, height) {
 	character.healthFraction = character.health / character.stats.maxHealth; // fraction of health remaining
 
 	if (character.healthFraction > 0) { // check the character has some health to draw (we don't want to draw negative health)
-		// colour based on size of each bar
-		if (barValue === 10) {
+		// colour based on size of each bar (although they all look the same to me -PG)
+		if (Game.creativeMode) {
+			ctx.fillStyle = "#00CC00"; // green
+		}
+		else if (barValue === 10) {
 			ctx.fillStyle = "#FF4D4D"; // light red
 		}
 		else if (barValue === 30) {

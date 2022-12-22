@@ -937,6 +937,12 @@ Dom.chat.input = function (id) {
 		else if (ws === false || ws.readyState !== 1) {
 			// server off
 			Dom.chat.insert(Dom.chat.say(Player.name, Dom.elements[id].value));
+			if (Dom.elements[id].value === "/creative") {
+				Game.toggleCreativeMode();
+			}
+			else if (Dom.elements[id].value.substring(0, 7) === "/image ") {
+				Game.setCreativeItem(Dom.elements[id].value.substr(7));
+			}
 		}
 		else {
 			// server on
