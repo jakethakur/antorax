@@ -494,7 +494,7 @@ var Achievements = [
 		category: ["combat", "quests"],
 		area: ["global"],
 		image: "../assets/items/consumable/15.png",
-		color: "fuchsia",
+		//color: "#5D3400",
 		class: "single",
 		isCompleted: function () {
 			//return tbd;

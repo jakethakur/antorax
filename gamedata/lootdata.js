@@ -281,6 +281,7 @@ const EnemyLootTables = {
 				0,				// 1
 			],
 			onLootGenerate: function (item) {
+				item.item = {...item.item};  // remove all references to itemdata in fish variable (otherwise length value changed in this will also affect itemData)!
 				item.item.length = Round(BiasedRandom(item.item.length.min, item.item.length.max, item.item.length.avg, 1));
 				return item;
 			}
@@ -292,6 +293,7 @@ const EnemyLootTables = {
 				0,				// 1
 			],
 			onLootGenerate: function (item) {
+				item.item = {...item.item};  // remove all references to itemdata in fish variable (otherwise length value changed in this will also affect itemData)!
 				item.item.length = Round(BiasedRandom(item.item.length.min, item.item.length.max, item.item.length.avg, 1));
 				return item;
 			}
@@ -303,6 +305,7 @@ const EnemyLootTables = {
 				0,				// 1
 			],
 			onLootGenerate: function (item) {
+				item.item = {...item.item};  // remove all references to itemdata in fish variable (otherwise length value changed in this will also affect itemData)!
 				item.item.length = Round(BiasedRandom(item.item.length.min, item.item.length.max, item.item.length.avg, 1));
 				return item;
 			}
@@ -314,6 +317,7 @@ const EnemyLootTables = {
 				0,				// 1
 			],
 			onLootGenerate: function (item) {
+				item.item = {...item.item};  // remove all references to itemdata in fish variable (otherwise length value changed in this will also affect itemData)!
 				item.item.length = Round(BiasedRandom(item.item.length.min, item.item.length.max, item.item.length.avg, 1));
 				return item;
 			}
@@ -325,6 +329,7 @@ const EnemyLootTables = {
 				0,				// 1
 			],
 			onLootGenerate: function (item) {
+				item.item = {...item.item};  // remove all references to itemdata in fish variable (otherwise length value changed in this will also affect itemData)!
 				item.item.length = Round(BiasedRandom(item.item.length.min, item.item.length.max, item.item.length.avg, 1));
 				return item;
 			}
@@ -336,6 +341,7 @@ const EnemyLootTables = {
 				0,				// 1
 			],
 			onLootGenerate: function (item) {
+				item.item = {...item.item};  // remove all references to itemdata in fish variable (otherwise length value changed in this will also affect itemData)!
 				item.item.length = Round(BiasedRandom(item.item.length.min, item.item.length.max, item.item.length.avg, 1));
 				return item;
 			}

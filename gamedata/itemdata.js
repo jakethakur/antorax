@@ -1606,7 +1606,7 @@ var Items = {
 			area: ["eaglecrest"],
 			rarity: "mythic",
 			sellPrice: 7,
-			lore: "",
+			lore: "An adventurer's work is never done!",
 			obtainText: "Can be obtained by turning in lost letters to an Eaglecrest mail carrier.",
 			stats: {
 				defence: 2,
@@ -2813,8 +2813,12 @@ var Items = {
 				onInteract: function () {
 					if (this.state === 9) {
 						Game.hero.channel(function (projectileRemoveId) {
-							Game.restoreHealth(Game.hero, 5);
-							Game.removeObject(projectileRemoveId, "projectiles");
+							let projectileIndex = Game.projectiles.findIndex(projectile => projectile.id === projectileRemoveId);
+							if (projectileIndex >= 0) {
+								// projectile still exists
+								Game.restoreHealth(Game.hero, 5);
+								Game.removeObject(projectileRemoveId, "projectiles", projectileIndex);
+							}
 						}, [this.id], 200, "Flower power!");
 					}
 				},
