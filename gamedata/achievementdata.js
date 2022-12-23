@@ -1004,7 +1004,7 @@ var Achievements = [
 		points: 5,
 		category: ["general"],
 		area: ["global"],
-		image: "../assets/items/fish/21.png",
+		image: "../assets/achievements/present.png",
 		color: "lightgray",
 		class: "cumulative",
 		isCompleted: function () {

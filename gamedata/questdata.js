@@ -2070,6 +2070,104 @@ After all, death is never the end in Antorax...<br>
 				Dom.alert.page("During a Blood Moon, enemies will be much stronger and will respawn much faster.<br>Health will no longer regenerate outdoors, unless using a special Samhain food item.<br><br>Some special bosses will also spawn. Kill them before the moon disappears at the end of the month!<br><br>Enemies have a chance to drop <b>Samhain Marks</b>, which can be brought to some merchants for rewards.<br>But at what cost?<br>", 0);
 			},
 		},
+		{
+			id: 7,
+			quest: "Troubled Waters",
+			questArea: "eaglecrest",
+
+			startName: "Fisherman Guimtal",
+			startChat: "Somethin' has been infesting the waters and makin' it so us fishermen can't get no fish. I think the toads may hold the answer. Can yah kill 10 of them for me so I can investigate.",
+
+			finishName: "Fisherman Guimtal",
+			finishChat: "Thanks for the help, I'll get back to yah.",
+
+			objectives: [
+				"Obtain 16 tadpoles.",
+				"Obtain 4 frogspawn.",
+				"Speak to <strong>Fisherman Guimtal</strong>.",
+			],
+
+			isCompleted: function() {
+				let completed = [];
+
+				// true or falses for each objective (apart from the turn-in objective)
+				completed.push(checkProgress(Dom.inventory.check(34, "fish"), 16));
+				completed.push(checkProgress(Dom.inventory.check(33, "fish"), 4));
+
+				completed = checkFinished(completed);
+
+				return completed;
+			},
+
+			howToStart: "Speak to <strong>Fisherman Guimtal</strong>.",
+			levelRequirement: 5,
+			questRequirements: ["Overdraft"],
+
+			rewards: {
+				xp: 50,
+				items: [
+					{item: Items.currency[2], quantity: 5,},
+				],
+			},
+
+			resetVariables: [
+			],
+		},
+		/*{
+			id: 8,
+			quest: "Troubled Waters II",
+			questArea: "eaglecrest",
+
+			startName: "Fisherman Guimtal",
+			startChat: "So I've investigat'd the toads and it don't seem to have anything to do anything with them. Yah should talk to Fisherman Sharptooth, I think they know more.",
+
+			finishName: "Fisherman Guimtal",
+			finishChat: "",
+
+			objectives: [
+				"Speak to <strong>Fisherman Sharptooth</strong>.",
+				"Get back to <strong>Fisherman Guimtal</strong>.",
+				"Speak to <strong>Fisherman Guimtal</strong>.",
+			],
+
+			isHidden: function() {
+				let hidden = [];
+
+				if (Player.quests.questProgress.troubledWatersProgress === undefined)
+				{
+					Player.quests.questProgress.troubledWatersProgress = 0;
+				}
+
+				// true or falses for each objective (apart from the turn-in objective)
+				hidden.push(false);
+				hidden.push(Player.quests.questProgress.troubledWatersProgress < 1);
+				hidden.push(false);
+
+				return hidden;
+			},
+
+			isCompleted: function() {
+				let completed = []; // contains true or false for all of the objectives, with the last element being if the quest is ready to complete
+
+				// true or falses for each objective (apart from the turn-in objective)
+				completed.push(checkProgress(Player.quests.questProgress.troubledWatersProgress, 10));
+
+				completed = checkFinished(completed);
+
+				return completed;
+			},
+
+			howToStart: "Speak to <strong>Fisherman Guimtal</strong>.",
+			levelRequirement: 5,
+			questRequirements: ["Troubled Waters"],
+
+			rewards: {
+				xp: 50,
+				items: [
+					{item: Items.currency[2], quantity: 5,},
+				],
+			},
+		},*/
 	],
 
 	tavern: [

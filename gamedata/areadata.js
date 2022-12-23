@@ -3715,6 +3715,10 @@ var Areas = {
 				x: 1150,
 				y: 1620,
 				image: "guard1",
+				roles:
+				[
+
+				],
 				template: NPCTemplates.guard,
 			},
 			{
@@ -3722,6 +3726,10 @@ var Areas = {
 				x: 770,
 				y: 1620,
 				image: "guard2",
+				roles:
+				[
+
+				],
 				template: NPCTemplates.guard,
 			},
 			{
@@ -3729,6 +3737,10 @@ var Areas = {
 				x: 130,
 				y: 800,
 				image: "guard1",
+				roles:
+				[
+
+				],
 				template: NPCTemplates.guard,
 			},
 			{
@@ -3736,6 +3748,10 @@ var Areas = {
 				x: 1795,
 				y: 800,
 				image: "guard2",
+				roles:
+				[
+
+				],
 				template: NPCTemplates.guard,
 			},
 			{
@@ -3743,6 +3759,10 @@ var Areas = {
 				x: 1795,
 				y: 1160,
 				image: "guard2",
+				roles:
+				[
+
+				],
 				template: NPCTemplates.guard,
 			},
 			{
@@ -3750,6 +3770,10 @@ var Areas = {
 				x: 1155,
 				y: 275,
 				image: "guard1",
+				roles:
+				[
+
+				],
 				template: NPCTemplates.guard,
 			},
 			{
@@ -3757,6 +3781,10 @@ var Areas = {
 				x: 770,
 				y: 275,
 				image: "guard2",
+				roles:
+				[
+
+				],
 				template: NPCTemplates.guard,
 			},
 			{
@@ -6654,6 +6682,10 @@ Last I saw him, he was visiting the <b>Eaglecrest Plains</b> to the <b>south</b>
 					maxHealth: 200,
 					defence: 3,
 				},
+				roles:
+				[
+
+				],
 				chat: {
 					notUnlockedRoles: "<i>'thee, and no man shall set on thee to hurt thee: for I'</i>. Oh, sorry, I didn't see you there.",
 				},
@@ -6670,6 +6702,10 @@ Last I saw him, he was visiting the <b>Eaglecrest Plains</b> to the <b>south</b>
 					maxHealth: 200,
 					defence: 3,
 				},
+				roles:
+				[
+
+				],
 				chat: {
 					notUnlockedRoles: "",
 				},
@@ -6686,6 +6722,10 @@ Last I saw him, he was visiting the <b>Eaglecrest Plains</b> to the <b>south</b>
 					maxHealth: 200,
 					defence: 3,
 				},
+				roles:
+				[
+
+				],
 				chat: {
 					notUnlockedRoles: "",
 				},
@@ -7357,6 +7397,7 @@ Last I saw him, he was visiting the <b>Eaglecrest Plains</b> to the <b>south</b>
 			chickenCorpse: {normal: "assets/corpses/chicken.png"},
 			sprinkler: {normal: "assets/objects/sprinkler.png"},
 			well: {normal: "assets/objects/well.png"},
+			fishermanGuimtal: {normal: "assets/npcs/fishermanGuimtal.png"},
 		},
 
 		areaTeleports: [
@@ -7518,6 +7559,35 @@ Last I saw him, he was visiting the <b>Eaglecrest Plains</b> to the <b>south</b>
 					},
 				],
 			},
+			{
+                x: 3175,
+                y: 1600,
+                image: "fishermanGuimtal",
+                name: "Fisherman Guimtal",
+                hostility: "friendly",
+                level: 10,
+                stats: {
+                    maxHealth: 100,
+                    defence: 1,
+                    healthRegen: 0.3,
+                },
+                roles: [
+                        {
+                            role: "questStartFinish",
+                            quest: Quests.eaglecrest[7]
+                        },
+                        {
+                            role: "questStartFinish",
+                            quest: Quests.eaglecrest[8]
+                        },
+                ],
+                chat: {
+                    questProgress: "What've yah caught?",
+                    notUnlockedRoles: "What've yah caught?",
+                    questComplete: "Thank yah for the help, I guess I'll see yah around.",
+                    inventoryFull: "Yah bags are full, come back when yah got room.",
+                },
+            },
 		],
 
 		enemies: [
