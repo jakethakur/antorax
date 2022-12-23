@@ -2091,7 +2091,7 @@ class Character extends Thing {
 		this.healthBeforeDamage = this.health; // currently unused, updated after each damage
 		this.damageProportionTaken = damage / this.health;
 
-		if(Game.creativeMode) {
+		if (!Game.creativeMode) {
 			this.health -= damage;
 			this.damageTaken += damage;
 		}
