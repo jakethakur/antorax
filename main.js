@@ -7058,7 +7058,7 @@ Game.loadArea = function (areaName, destination) {
 		}
 
 		// ice tiles only exist if the area isIcy
-		if (Areas[areaName].isIcy !== undefined && Areas[areaName].isIcy()) {
+		if (Areas[areaName].isIcy !== undefined && Areas[areaName].isIcy() && typeof map.waterTiles !== "undefined") {
 			// area is icy
 			// any water tiles that are also ice tiles are now no longer water tiles
 			map.waterTiles = map.waterTiles.filter(tile => {

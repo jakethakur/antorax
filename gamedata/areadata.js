@@ -99,7 +99,7 @@ var Areas = {
 			tiles: {normal: "assets/tilemap/loggingCamp.png", christmas: "assets/tilemap/loggingCampChristmas.png"},
 			driver: {normal: "assets/npcs/driver.png"},
 			weaponsmith: {normal: "assets/npcs/weaponsmith.png"},
-			cart: {normal: "assets/objects/cartEaglecrest.png"},
+			cart: {normal: "assets/objects/cartEaglecrest.png", christmas: "assets/objects/cartEaglecrestChristmas.png"},
 			fisherman: {normal: "assets/npcs/tobenam.png"},
 			weaponsmithSign: {normal: "assets/objects/weaponsmithSign.png", christmas: "assets/objects/weaponsmithSignChristmas.png"},
 			eaglecrestBanner: {normal: "assets/objects/eaglecrestBanner.png", christmas: "assets/objects/eaglecrestBannerChristmas.png"},
@@ -471,7 +471,7 @@ var Areas = {
 			lightsRB: {christmas: "assets/objects/lightsRB.png"},
 			lightsGY: {christmas: "assets/objects/lightsGY.png"},
 			christmasSapling: {christmas: "assets/objects/christmasSapling.png"},
-			cart: {normal: "assets/objects/cartEaglecrest2.png"},
+			cart: {normal: "assets/objects/cartEaglecrest2.png", christmas: "assets/objects/cartEaglecrestChristmas2.png"},
 			driver: {normal: "assets/npcs/alaran.png"},
 			eaglecrestBanner: {normal: "assets/objects/eaglecrestBanner.png", christmas: "assets/objects/eaglecrestBannerChristmas.png"},
 			nilbogBanner: {normal: "assets/objects/nilbogBanner.png", christmas: "assets/objects/nilbogBannerChristmas.png"},
@@ -1412,7 +1412,7 @@ var Areas = {
 			plate: {normal: "assets/items/item/26.png"},
 			table: {normal: "assets/objects/table.png"},
 			largeTable: {normal: "assets/objects/largeTable.png"},
-			barrel: {normal: "assets/objects/barrel.png"},
+			barrel: {normal: "assets/objects/barrel.png", christmas: "assets/objects/barrelChristmas.png"},
 			torianTintop: {normal: "assets/npcs/torianTintop.png"},
 			nessyTintop: {normal: "assets/npcs/nessyTintop.png"},
 		},
@@ -3497,36 +3497,41 @@ var Areas = {
 			dayTiles: [11, 27, 34, 42, 7], // windows and lights
 			nightTiles: [3, 19, 2, 18, 15],
 			pathTiles: [5, 12, 41, 50, 51, 57, 58, 59, 60, 76],
+			iceTiles: [27, 35],
 			layers: [
 				[43, 43, 43, 43, 43, 43, 43, 43, 43, 43, 43, 43, 43, 43, 43, 43, 43, 43, 43, 43, 43, 43, 43, 43, 43, 43, 43, 43, 43, 43, 43, 43, 35, 35, 35, 35, 35, 35, 35, 35, 35, 35, 35, 35, 35, 35, 35, 35, 35, 35, 35, 35, 35, 35, 35, 35, 35, 35, 35, 35, 35, 35, 35, 35, 11, 43, 43, 43, 43, 43, 43, 43, 43, 43, 43, 11, 43, 43, 43, 43, 43, 43, 43, 43, 11, 43, 43, 43, 43, 43, 43, 43, 43, 43, 11, 43, 43, 43, 43, 27, 43, 42, 34, 17, 27, 43, 43, 43, 43, 43, 43, 43, 43, 43, 43, 43, 43, 43, 43, 27, 1, 42, 34, 43, 27, 43, 43, 43, 43, 43, 43, 43, 43, 26, 10, 43, 43, 43, 43, 43, 43, 43, 43, 43, 43, 43, 43, 43, 43, 43, 43, 43, 43, 26, 10, 43, 43, 43, 43, 43, 41, 41, 41, 41, 41, 41, 41, 41, 41, 41, 41, 41, 41, 41, 41, 41, 41, 41, 41, 41, 41, 41, 41, 41, 41, 41, 41, 41, 41, 41, 41, 41, 41, 41, 41, 41, 41, 41, 41, 41, 41, 41, 41, 41, 41, 41, 41, 41, 41, 41, 41, 41, 41, 41, 41, 41, 41, 41, 41, 41, 41, 41, 41, 41, 41, 41, 41, 41, 41, 41, 41, 41, 41, 41, 41, 41, 41, 41, 41, 41, 41, 41, 41, 41, 41, 41, 41, 41, 41, 41, 41, 41, 41, 41, 41, 41, 41, 41, 41, 41, 41, 41, 41, 41, 41, 41, 41, 41, 41, 41, 41, 41, 41, 41, 41, 41, 41, 41, 41, 41, 41, 41, 41, 41, 41, 41, 41, 41, 41, 41, 41, 41, 41, 41, 51, 51, 51, 51, 51, 51, 51, 41, 41, 41, 41, 41, 41, 51, 51, 51, 51, 51, 51, 51, 41, 41, 41, 41, 41, 41, 41, 41, 41, 41, 41, 59, 49, 49, 49, 49, 49, 49, 49, 57, 41, 41, 41, 41, 59, 49, 49, 49, 49, 49, 49, 49, 57, 41, 41, 41, 41, 41, 41, 41, 41, 41, 41, 59, 49, 49, 49, 49, 49, 49, 49, 57, 41, 41, 41, 41, 59, 49, 49, 49, 49, 49, 49, 49, 57, 41, 41, 41, 41, 41, 41, 41, 41, 41, 41, 59, 49, 49, 49, 49, 49, 49, 49, 57, 41, 41, 41, 41, 59, 49, 49, 49, 49, 49, 49, 49, 57, 41, 41, 41, 41, 41, 41, 41, 41, 41, 41, 59, 49, 49, 49, 49, 49, 49, 49, 57, 41, 41, 41, 41, 59, 49, 49, 49, 49, 49, 49, 49, 57, 41, 41, 41, 41, 41, 41, 41, 41, 41, 41, 59, 49, 49, 49, 49, 49, 49, 49, 57, 41, 41, 41, 41, 59, 49, 49, 49, 49, 49, 49, 49, 57, 41, 41, 41, 41, 41, 41, 41, 41, 41, 41, 41, 58, 58, 58, 58, 58, 58, 58, 41, 41, 41, 41, 41, 41, 58, 58, 58, 58, 58, 58, 58, 41, 41, 41, 41, 41, 41, 41, 41, 41, 41, 41, 41, 41, 41, 41, 41, 41, 41, 41, 41, 41, 41, 41, 41, 41, 41, 41, 41, 41, 41, 41, 41, 41, 41, 41, 41, 41, 41, 41, 41, 41, 41, 41, 41, 41, 41, 41, 41, 41, 41, 41, 41, 41, 41, 41, 41, 41, 41, 41, 41, 41, 41, 41, 41, 41, 41, 41, 41, 41, 41, 41, 41, 41, 41, 41, 41, 51, 51, 51, 51, 51, 51, 51, 41, 41, 41, 41, 41, 41, 51, 51, 51, 51, 51, 51, 51, 41, 41, 41, 41, 41, 41, 41, 41, 41, 41, 41, 59, 49, 49, 49, 49, 49, 49, 49, 57, 41, 41, 41, 41, 59, 49, 49, 49, 49, 49, 49, 49, 57, 41, 41, 41, 41, 41, 41, 41, 41, 41, 41, 59, 49, 49, 49, 49, 49, 49, 49, 57, 41, 41, 41, 41, 59, 49, 49, 49, 49, 49, 49, 49, 57, 41, 41, 41, 41, 41, 41, 41, 41, 41, 41, 59, 49, 49, 49, 49, 49, 49, 49, 57, 41, 41, 41, 41, 59, 49, 49, 49, 49, 49, 49, 49, 57, 41, 41, 41, 41, 41, 41, 41, 41, 41, 41, 59, 49, 49, 49, 49, 49, 49, 49, 57, 41, 41, 41, 41, 59, 49, 49, 49, 49, 49, 49, 49, 57, 41, 41, 41, 41, 41, 41, 41, 41, 41, 41, 59, 49, 49, 49, 49, 49, 49, 49, 57, 41, 41, 41, 41, 59, 49, 49, 49, 49, 49, 49, 49, 57, 41, 41, 41, 41, 41, 41, 41, 41, 41, 41, 41, 58, 58, 58, 58, 58, 58, 58, 41, 41, 41, 41, 41, 41, 58, 58, 58, 58, 58, 58, 58, 41, 41, 41, 41, 41, 41, 41, 41, 41, 41, 41, 41, 41, 41, 41, 41, 41, 41, 41, 41, 41, 41, 41, 41, 41, 41, 41, 41, 41, 41, 41, 41, 41, 41, 41, 41, 41, 41, 41, 41, 41, 41, 41, 41, 41, 41, 41, 41, 41, 41, 41, 41, 41, 41, 41, 41, 41, 41, 41, 41, 41, 41, 41, 41, 41, 41, 41, 41, 41, 41, 41, 41, 41, 41, 41, 41, 41, 41, 41, 41, 41, 41, 41, 41, 41, 41, 41, 41, 41, 41, 41, 41, 41, 41, 41, 41, 41, 41, 41, 41, 41, 41, 41, 41, 41, 41, 41, 41, 41, 41, 41, 41, 41, 41, 41, 41, 41, 41, 41, 41, 41, 41, 41, 41, 41, 41, 41, 41, 41, 41, 41, 41, 41, 41],
 				[],
 			],
 		},
 
+		isIcy: function() {
+			return Event.event === "Christmas";
+		},
+
 		images: {
-			tiles: {normal: "assets/tilemap/eaglecrest.png"},
-			cart1: {normal: "assets/objects/cartEaglecrest.png"},
-			cart2: {normal: "assets/objects/cartEaglecrest2.png"},
-			cart3: {normal: "assets/objects/cartEaglecrest3.png"},
+			tiles: {normal: "assets/tilemap/eaglecrest.png", christmas: "assets/tilemap/eaglecrestChristmas.png"},
+			cart1: {normal: "assets/objects/cartEaglecrest.png", christmas: "assets/objects/cartEaglecrestChristmas.png"},
+			cart2: {normal: "assets/objects/cartEaglecrest2.png", christmas: "assets/objects/cartEaglecrestChristmas2.png"},
+			cart3: {normal: "assets/objects/cartEaglecrest3.png", christmas: "assets/objects/cartEaglecrestChristmas3.png"},
 			driver: {normal: "assets/npcs/alaran.png"},
 			guard1: {normal: "assets/npcs/eaglecrestGuard.png"},
 			guard2: {normal: "assets/npcs/eaglecrestGuard2.png"},
 			mailbox: {normal: "assets/objects/mailbox.png"},
 			mailboxUnread: {normal: "assets/objects/mailboxUnread.png"},
-			fountain1: {normal: "assets/objects/fountainFlowing1.png"},
-			fountain2: {normal: "assets/objects/fountainFlowing2.png"},
-			fountain3: {normal: "assets/objects/fountainFlowing3.png"},
-			fountain4: {normal: "assets/objects/fountainFlowing4.png"},
+			fountain1: {normal: "assets/objects/fountainFlowing1.png", christmas: "assets/objects/fountainChristmas.png"},
+			fountain2: {normal: "assets/objects/fountainFlowing2.png", christmas: "assets/objects/fountainChristmas.png"},
+			fountain3: {normal: "assets/objects/fountainFlowing3.png", christmas: "assets/objects/fountainChristmas.png"},
+			fountain4: {normal: "assets/objects/fountainFlowing4.png", christmas: "assets/objects/fountainChristmas.png"},
 			identifier: {normal: "assets/npcs/hranatha.png"},
-			eaglecrestLampDay: {normal: "assets/objects/eaglecrestLampDay.png"},
-			eaglecrestLampNight: {normal: "assets/objects/eaglecrestLampNight.png"},
+			eaglecrestLampDay: {normal: "assets/objects/eaglecrestLampDay.png", christmas: "assets/objects/eaglecrestLampDayChristmas.png"},
+			eaglecrestLampNight: {normal: "assets/objects/eaglecrestLampNight.png", christmas: "assets/objects/eaglecrestLampNightChristmas.png"},
 			eaglecrestLampSamhain: {samhain: "assets/objects/eaglecrestLampSamhain.png"},
 			helpNotice: {normal: "assets/objects/helpNotice.png"},
 			sylvie: {normal: "assets/npcs/sylvie.png"},
 			yellowSnakeRight: {samhain: "assets/enemies/yellowSnake.png"},
 			yellowSnakeLeft: {samhain: "assets/enemies/yellowSnake.png", flip: "vertical"},
 			closedSign: {normal: "assets/objects/closedEaglecrest.png"},
-			marketStall: {normal: "assets/objects/marketStall.png"},
+			marketStall: {normal: "assets/objects/marketStall.png", christmas: "assets/objects/marketStallChristmas.png"},
 			pieMerchant: {normal: "assets/npcs/pieMerchant.png"},
 		},
 
@@ -3810,7 +3815,7 @@ var Areas = {
 			},
 			{
 				x: 1323,
-				y: 1180,
+				y: 1168,
 				image: "pieMerchant",
 				name: "Billie the Beetroot Merchant",
 				hideNameTag: true, // shown on stall instead
@@ -4000,6 +4005,10 @@ var Areas = {
 
 		lootArea: "eaglecrest",
 
+		isIcy: function() {
+			return Event.event === "Christmas";
+		},
+
 		mapData: {
 			cols: 31,
 			rows: 12,
@@ -4016,7 +4025,7 @@ var Areas = {
 		},
 
 		images: {
-			tiles: {normal: "assets/tilemap/eaglecrest.png"},
+			tiles: {normal: "assets/tilemap/eaglecrest.png", christmas: "assets/tilemap/eaglecrestChristmas.png"},
 			maskSalesman: {normal: "assets/npcs/maskSalesman.png"},
 			yellowSnakeRight: {samhain: "assets/enemies/yellowSnake.png"},
 			yellowSnakeLeft: {samhain: "assets/enemies/yellowSnake.png", flip: "vertical"},
@@ -4221,6 +4230,10 @@ var Areas = {
 
 		lootArea: "eaglecrest",
 
+		isIcy: function() {
+			return Event.event === "Christmas";
+		},
+
 		mapData: {
 			cols: 31,
 			rows: 12,
@@ -4237,9 +4250,9 @@ var Areas = {
 		},
 
 		images: {
-			tiles: {normal: "assets/tilemap/eaglecrest.png"},
+			tiles: {normal: "assets/tilemap/eaglecrest.png", christmas: "assets/tilemap/eaglecrestChristmas.png"},
 			itemBuyer: {normal: "assets/npcs/nhkghghh.png"},
-			cart: {normal: "assets/objects/cartEaglecrest3.png"},
+			cart: {normal: "assets/objects/cartEaglecrest3.png", christmas: "assets/objects/cartEaglecrestChristmas3.png"},
 			yellowSnakeRight: {samhain: "assets/enemies/yellowSnake.png"},
 			yellowSnakeLeft: {samhain: "assets/enemies/yellowSnake.png", flip: "vertical"},
 		},
@@ -4395,7 +4408,7 @@ var Areas = {
 		},
 
 		images: {
-			tiles: {normal: "assets/tilemap/eaglecrest.png"},
+			tiles: {normal: "assets/tilemap/eaglecrest.png", christmas: "assets/tilemap/eaglecrestChristmas.png"},
 			banker1: {normal: "assets/npcs/eaglecrestBanker.png"},
 			banker2: {normal: "assets/npcs/eaglecrestBanker2.png"},
 			banker3: {normal: "assets/npcs/eaglecrestBanker3.png"},
@@ -4696,7 +4709,7 @@ var Areas = {
 		},
 
 		images: {
-			tiles: {normal: "assets/tilemap/eaglecrest.png"},
+			tiles: {normal: "assets/tilemap/eaglecrest.png", christmas: "assets/tilemap/eaglecrestChristmas.png"},
 			innkeeper: {normal: "assets/npcs/rhus-jak.png"},
 			stairsRight: {normal: "assets/objects/stairsRight.png"},
 			stairsLeft: {normal: "assets/objects/stairsLeft.png"},
@@ -4710,7 +4723,7 @@ var Areas = {
 			plate: {normal: "assets/items/item/26.png"},
 			table: {normal: "assets/objects/table.png"},
 			largeTable: {normal: "assets/objects/largeTable.png"},
-			barrel: {normal: "assets/objects/barrel.png"},
+			barrel: {normal: "assets/objects/barrel.png", christmas: "assets/objects/barrelChristmas.png"},
 			cat1Left: {normal: "assets/npcs/cat1.png"}, // for amelio
             cat1Right: {normal: "assets/npcs/cat1.png", flip: "vertical"},
 			yellowSnakeRight: {samhain: "assets/enemies/yellowSnake.png"},
@@ -5394,13 +5407,13 @@ var Areas = {
 		},
 
 		images: {
-			tiles: {normal: "assets/tilemap/eaglecrest.png"},
+			tiles: {normal: "assets/tilemap/eaglecrest.png", christmas: "assets/tilemap/eaglecrestChristmas.png"},
 			blacksmith: {normal: "assets/npcs/blacksmith.png"},
 			eaglecrestianForgedSet: {normal: "assets/items/set/5.png"},
 			eaglecrestianForgedBow: {normal: "assets/items/bow/11.png"},
 			eaglecrestianForgedStaff: {normal: "assets/items/staff/11archaeology.png"},
 			eaglecrestianForgedSword: {normal: "assets/items/sword/12.png"},
-			anvil: {normal: "assets/objects/anvil.png"},
+			anvil: {normal: "assets/objects/anvil.png", christmas: "assets/objects/anvilChristmas.png"},
 			yellowSnakeRight: {samhain: "assets/enemies/yellowSnake.png"},
 			yellowSnakeLeft: {samhain: "assets/enemies/yellowSnake.png", flip: "vertical"},
 		},
@@ -5576,10 +5589,10 @@ var Areas = {
 		},
 
 		images: {
-			tiles: {normal: "assets/tilemap/eaglecrest.png"},
+			tiles: {normal: "assets/tilemap/eaglecrest.png", christmas: "assets/tilemap/eaglecrestChristmas.png"},
 			tamtam: {normal: "assets/npcs/tamtam.png"},
 			potionStand: {normal: "assets/objects/potionStand.png"},
-			cauldronEaglecrest: {normal: "assets/objects/cauldronEaglecrest.png"},
+			cauldronEaglecrest: {normal: "assets/objects/cauldronEaglecrest.png", christmas: "assets/objects/cauldronEaglecrestChristmas.png"},
 			yellowSnakeRight: {samhain: "assets/enemies/yellowSnake.png"},
 			yellowSnakeLeft: {samhain: "assets/enemies/yellowSnake.png", flip: "vertical"},
 		},
@@ -5773,16 +5786,16 @@ var Areas = {
 		},
 
 		images: {
-			tiles: {normal: "assets/tilemap/eaglecrest.png"},
+			tiles: {normal: "assets/tilemap/eaglecrest.png", christmas: "assets/tilemap/eaglecrestChristmas.png"},
 			barda: {normal: "assets/npcs/barda.png"},
-			wardrobeClosed: {normal: "assets/objects/wardrobeClosed.png"},
+			wardrobeClosed: {normal: "assets/objects/wardrobeClosed.png", christmas: "assets/objects/wardrobeClosedChristmas.png"},
 			wardrobeOpen1: {normal: "assets/objects/wardrobeOpen1.png"},
 			wardrobeOpen2: {normal: "assets/objects/wardrobeOpen2.png"},
-			crate: {normal: "assets/objects/crate.png"},
+			crate: {normal: "assets/objects/crate.png", christmas: "assets/objects/crateChristmas.png"},
 			eaglecrestBanner: {normal: "assets/objects/eaglecrestBanner.png", christmas: "assets/objects/eaglecrestBannerChristmas.png"},
 			table: {normal: "assets/objects/table.png"},
 			largeTable: {normal: "assets/objects/largeTable.png"},
-			gargoyle: {normal: "assets/objects/gargoyle.png"},
+			gargoyle: {normal: "assets/objects/gargoyle.png", christmas: "assets/objects/gargoyleChristmas.png"},
 			sheepRight: {normal: "./assets/enemies/sheep.png"},
 			sheepLeft: {normal: "./assets/enemies/sheep.png", flip: "vertical"},
 			dummy: {normal: "./assets/enemies/dummy.png"},
@@ -6007,7 +6020,7 @@ Last I saw him, he was visiting the <b>Eaglecrest Plains</b> to the <b>south</b>
 			},
 			{
 				x: 220,
-				y: 350,
+				y: 340,
 				image: "gargoyle",
 				name: "Monastery Gargoyle Head",
 				crop: {
@@ -6122,6 +6135,10 @@ Last I saw him, he was visiting the <b>Eaglecrest Plains</b> to the <b>south</b>
 
 		lootArea: "eaglecrest",
 
+		isIcy: function() {
+			return Event.event === "Christmas";
+		},
+
 		mapData: {
 			cols: 50,
 			rows: 20,
@@ -6168,12 +6185,12 @@ Last I saw him, he was visiting the <b>Eaglecrest Plains</b> to the <b>south</b>
 		},
 
 		images: {
-			tiles: {normal: "assets/tilemap/eaglecrest.png"},
-			gravestone1: {normal: "assets/objects/gravestone1.png"},
-			gravestone2: {normal: "assets/objects/gravestone2.png"},
-			gravestone3: {normal: "assets/objects/gravestone3.png"},
-			gargoyleLeft: {normal: "assets/objects/gargoyle.png"},
-			gargoyleRight: {normal: "assets/objects/gargoyle.png", flip: "vertical"},
+			tiles: {normal: "assets/tilemap/eaglecrest.png", christmas: "assets/tilemap/eaglecrestChristmas.png"},
+			gravestone1: {normal: "assets/objects/gravestone1.png", christmas: "assets/objects/gravestone1Christmas.png"},
+			gravestone2: {normal: "assets/objects/gravestone2.png", christmas: "assets/objects/gravestone2Christmas.png"},
+			gravestone3: {normal: "assets/objects/gravestone3.png", christmas: "assets/objects/gravestone3Christmas.png"},
+			gargoyleLeft: {normal: "assets/objects/gargoyle.png", christmas: "assets/objects/gargoyleChristmas.png"},
+			gargoyleRight: {normal: "assets/objects/gargoyle.png", christmas: "assets/objects/gargoyleChristmas.png", flip: "vertical"},
 			gargoyleWaterLeft1: {normal: "assets/objects/waterShoot1.png"},
 			gargoyleWaterLeft2: {normal: "assets/objects/waterShoot2.png"},
 			gargoyleWaterLeft3: {normal: "assets/objects/waterShoot3.png"},
@@ -6257,7 +6274,7 @@ Last I saw him, he was visiting the <b>Eaglecrest Plains</b> to the <b>south</b>
 			{
 				// id: 0,
 				x: 684,
-				y: 259,
+				y: 249,
 				orderOffsetY: 100,
 				image: "gargoyleLeft",
 				name: "Monastery Gargoyle",
@@ -6265,7 +6282,7 @@ Last I saw him, he was visiting the <b>Eaglecrest Plains</b> to the <b>south</b>
 			{
 				// id: 1,
 				x: 2796,
-				y: 100,
+				y: 90,
 				orderOffsetY: 100,
 				image: "gargoyleRight",
 				name: "Monastery Gargoyle",
@@ -6533,7 +6550,7 @@ Last I saw him, he was visiting the <b>Eaglecrest Plains</b> to the <b>south</b>
 		},
 
 		images: {
-			tiles: {normal: "assets/tilemap/eaglecrest.png"},
+			tiles: {normal: "assets/tilemap/eaglecrest.png", christmas: "assets/tilemap/eaglecrestChristmas.png"},
 			kempEau: {normal: "assets/npcs/kemp-Eau.png"},
 			ronson: {normal: "assets/npcs/ronson.png"},
 			sollwyn: {normal: "assets/npcs/sollwyn.png"},
@@ -6876,6 +6893,10 @@ Last I saw him, he was visiting the <b>Eaglecrest Plains</b> to the <b>south</b>
 
 		lootArea: "eaglecrest",
 
+		isIcy: function() {
+			return Event.event === "Christmas";
+		},
+
 		mapData: {
 			cols: 100,
 			rows: 100,
@@ -6886,6 +6907,7 @@ Last I saw him, he was visiting the <b>Eaglecrest Plains</b> to the <b>south</b>
 			nightTiles: [3, 19, 2, 18, 15],
 			pathTiles: [5, 12, 41, 50, 51, 57, 58, 59, 60, 76, 86, 87, 88, 91, 92, 93, 99, 107, 108, 109, 110, 111, 113, 115, 117, 118, 119, 121, 125, 126, 127, 129, 133, 134, 135, 137, 138, 139, 140, 141, 147, 148, 149],
 			waterTiles: [32, 40, 48, 112, 120, 128],
+			iceTiles: [32, 40, 48],
 			transparentTiles: [94, 95, 96, 102, 103, 104, 114, 116, 122, 124, 130, 132], // these tiles should be ignored when considering water etc, even when they're at the front of the canvas
 			animateTiles: [{
 				// river tiles
@@ -6895,6 +6917,54 @@ Last I saw him, he was visiting the <b>Eaglecrest Plains</b> to the <b>south</b>
 				// rippling river tiles
 				tiles: [112, 120, 128],
 				animateTime: 200,
+			},{
+				// christmas lights!
+				tiles: [114, 161],
+				animateTime: 1000,
+			},{
+				// christmas lights!
+				tiles: [116, 162],
+				animateTime: 1000,
+			},{
+				// christmas lights!
+				tiles: [122, 169],
+				animateTime: 1000,
+			},{
+				// christmas lights!
+				tiles: [124, 170],
+				animateTime: 1000,
+			},{
+				// christmas lights!
+				tiles: [130, 177],
+				animateTime: 1000,
+			},{
+				// christmas lights!
+				tiles: [132, 178],
+				animateTime: 1000,
+			},{
+				// christmas lights!
+				tiles: [94, 163],
+				animateTime: 1000,
+			},{
+				// christmas lights!
+				tiles: [95, 164],
+				animateTime: 1000,
+			},{
+				// christmas lights!
+				tiles: [96, 165],
+				animateTime: 1000,
+			},{
+				// christmas lights!
+				tiles: [102, 171],
+				animateTime: 1000,
+			},{
+				// christmas lights!
+				tiles: [103, 172],
+				animateTime: 1000,
+			},{
+				// christmas lights!
+				tiles: [104, 173],
+				animateTime: 1000,
 			}],
 			numberOfLayers: 3,
 			interactWithTile: function (tileNum, x, y) {
@@ -7270,7 +7340,7 @@ Last I saw him, he was visiting the <b>Eaglecrest Plains</b> to the <b>south</b>
 		},
 
 		images: {
-			tiles: {normal: "assets/tilemap/eaglecrest.png"},
+			tiles: {normal: "assets/tilemap/eaglecrest.png", christmas: "assets/tilemap/eaglecrestChristmas.png"},
 			melee: {normal: "assets/projectiles/melee.png"},
 			eaglecrestGhost: {samhain: "assets/enemies/eaglecrestGhost.png"},
 			eaglecrestGhost2: {samhain: "assets/enemies/eaglecrestGhost2.png"},
@@ -7625,6 +7695,7 @@ Last I saw him, he was visiting the <b>Eaglecrest Plains</b> to the <b>south</b>
 			nightTiles: [3, 19, 2, 18, 15],
 			pathTiles: [5, 12, 41, 50, 51, 57, 58, 59, 60, 76, 86, 87, 88, 91, 92, 93, 99, 107, 108, 109, 110, 111, 113, 115, 117, 118, 119, 121, 125, 126, 127, 129, 133, 134, 135, 137, 138, 139, 140, 141, 147, 148, 149],
 			waterTiles: [32, 40, 48, 112, 120, 128],
+			iceTiles: [32, 40, 48],
 			layers: [[131, 123, 6, 6, 6, 123, 6, 6, 123, 6,
             6, 6, 6, 131, 6, 6, 131, 123, 6, 6,
             123, 131, 6, 131, 123, 131, 6, 6, 6, 123,
@@ -7658,7 +7729,7 @@ Last I saw him, he was visiting the <b>Eaglecrest Plains</b> to the <b>south</b>
 		},
 
 		images: {
-			tiles: {normal: "assets/tilemap/eaglecrest.png"},
+			tiles: {normal: "assets/tilemap/eaglecrest.png", christmas: "assets/tilemap/eaglecrestChristmas.png"},
 			yellowSnakeRight: {normal: "assets/enemies/yellowSnake.png"},
 			yellowSnakeLeft: {normal: "assets/enemies/yellowSnake.png", flip: "vertical"},
 			snakeMan: {normal: "assets/npcs/soothsssayer.png"},
