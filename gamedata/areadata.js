@@ -7576,10 +7576,10 @@ Last I saw him, he was visiting the <b>Eaglecrest Plains</b> to the <b>south</b>
                             role: "questStartFinish",
                             quest: Quests.eaglecrest[7]
                         },
-                        {
+                        /*{
                             role: "questStartFinish",
                             quest: Quests.eaglecrest[8]
-                        },
+                        },*/
                 ],
                 chat: {
                     questProgress: "What've yah caught?",
