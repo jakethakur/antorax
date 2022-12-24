@@ -120,6 +120,10 @@ const NPCTemplates = { // tbd combine with villagers
 			maxHealth: 300,
 			defence: 20,
 		},
+		roles:
+			[
+
+			],
 		chat: {
 			notUnlockedRoles: "Stay safe! Eaglecrest can be a dangerous place...",
 		}
@@ -909,6 +913,60 @@ const EnemyTemplates = {
 			lootTableTemplate: [EnemyLootTables.chicken],
 			inventorySpace: 8,
 		},
+		zararanath: {
+			speciesTemplate: SpeciesTemplates.chicken,
+	        rotationImages: {
+	            left: "chickenLeft",
+	            right: "chickenRight"
+	        },
+			deathImage: "chickenCorpse",
+			name: "The Mighty Zararanath",
+			hostility: "boss",
+			level: 20,
+			stats: {
+				damage: 20,
+				walkSpeed: 75,
+				swimSpeed: 30,
+				iceSpeed: 150,
+				maxHealth: 200,
+				defence: 15,
+				range: 60,
+				reloadTime: 500,
+				healthRegen: 1,
+				lootTime: 10000,
+				respawnTime: 20000,
+			},
+			attackBehaviour: {
+				baseAggro: 0,
+			},
+			xpGiven: 500,
+			projectile: {
+				image: "melee",
+			},
+			lootTableTemplate: [EnemyLootTables.zararanath, EnemyLootTables.chicken],
+			inventorySpace: 8,
+			chat: {
+				FiftyPercentHealth: `Oh. I've spoken to you before.`,
+				tenPercentHealth: `How are you finding the mystical kingdom of Antorax, ${Player.name}?`,
+				death: "I see you've learnt well..",
+			},
+			spells: [
+				{
+					id: 16,
+					tier: 1,
+					parameters: function () { // returns array of parameters
+						return {
+							target: Game.hero,
+						};
+					},
+					interval: 10000,
+					castCondition: function () {
+						this.health < 100;
+					}
+				},
+			],
+		},
+
 		phantom1: {
 			speciesTemplate: SpeciesTemplates.phantom, // most of the info is in here
 			image: "eaglecrestGhost",

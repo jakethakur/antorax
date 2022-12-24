@@ -692,4 +692,24 @@ Spells = [
         ],
     },
 
+	{
+        name: "Telepathic Link",
+        id: 16,
+        class: "m",
+        description: "",
+        enemyOnly: true, // zararanath
+
+        // properties should contain tier (as int value), caster, target
+		func: function (properties) {
+			properties.caster.x = properties.target.x;
+			properties.caster.y = properties.target.y;
+			Dom.chat.insert(Dom.chat.say(properties.caster.name, "<i>This</i> telepathic link <b>will</b> hurt.")); // zararanath
+        },
+
+        channelTime: [
+            0,
+            1600,    // tier 1
+        ],
+    },
+
 ];

@@ -696,7 +696,7 @@ var map = {
         let row = this.getRow(y);
 
 		// find layer to check - we want the highest layer with a non-transparent tile
-		let layer = this.numberOfLayers - 1;
+		let layer = this.layers.length - 1;
 		let foundLayer = false;
 		while(layer >= 1 && !foundLayer) {
 			let tileNum = this.getTile(layer, col, row);
@@ -767,7 +767,7 @@ var map = {
 				// iterate through tiles to replace
 				for (let replaceIndex = 0; replaceIndex < this.nightTiles.length; replaceIndex++) {
 					// iterate through layers
-					for (let layer = 0; layer < this.numberOfLayers; layer++) {
+					for (let layer = 0; layer < this.layers.length; layer++) {
 						// iterate through area's tiles to find those that need replacing
 						for (let tileIndex = 0; tileIndex < this.layers[layer].length; tileIndex++) {
 							// check day or night versions
@@ -820,7 +820,7 @@ var map = {
 	// todo: Make variables that find which cols and rows of tilemap are showing on screen, and then make functions like map.animateTilesFunction only animate tiles on screen
 	animateTilesFunction: function(animateIndex) {
 		// iterate through tiles
-		for (let layer = 0; layer < this.numberOfLayers; layer++) {
+		for (let layer = 0; layer < this.layers.length; layer++) {
 			for (let i = 0; i < this.layers[layer].length; i++) {
 				let tileNum = this.layers[layer][i];
 
@@ -881,7 +881,7 @@ var map = {
 	// replace all tiles in the area (any layer) of id "from" to id "to"
 	replaceTiles: function (from, to) {
 		// iterate through layers
-		for (let layer = 0; layer < this.numberOfLayers; layer++) {
+		for (let layer = 0; layer < this.layers.length; layer++) {
 			// iterate through tiles to find those that need replacing
 			for (let tileIndex = 0; tileIndex < this.layers[layer].length; tileIndex++) {
 				if (this.layers[layer][tileIndex] === from) {
@@ -5227,9 +5227,13 @@ class Enemy extends Attacker {
 
 		let currentTarget = undefined;
 
+		if (Game.creativeMode) {
+			return currentTarget;
+		}
+
 		for (let i = 0; i < this.attackTargets.length; i++) {
 			let target = this.attackTargets[i];
-			if (typeof target.target.stats === "undefined" || (!target.target.stats.stealthed || this.isTouching(target.target))) {  // target is not stealthed OR they are and this is touching them
+			if (!target.target.stats.stealthed || this.isTouching(target.target)) {  // target is not stealthed OR they are and this is touching them
 				let distance = Game.distance(this, target.target);
 				let aggro = target.aggro + target.baseAggro;
 
@@ -7044,18 +7048,11 @@ Game.loadArea = function (areaName, destination) {
 		map.animateTiles = undefined;
 		map.transparentTiles = []; // so it is always an array
 
-		map.numberOfLayers = undefined;
-
 		map.scrollX = undefined;
 		map.scrollY = undefined;
 
 		// now add all properties from areaData to the map variable
 		Object.assign(map, Areas[areaName].mapData);
-
-		// set numberOfLayers to 1 if there are no layers
-		if (typeof map.numberOfLayers === "undefined") {
-			map.numberOfLayers = 1;
-		}
 
 		// ice tiles only exist if the area isIcy
 		if (Areas[areaName].isIcy !== undefined && Areas[areaName].isIcy() && typeof map.waterTiles !== "undefined") {
@@ -7204,7 +7201,7 @@ Game.loadArea = function (areaName, destination) {
 					if (Areas[areaName][type][i].repeatNumber > 1) {
 						let numberOfEntities = Areas[areaName][type][i].repeatNumber;
 						Areas[areaName][type][i].repeatNumber = undefined;
-						for (let j = 0; j < numberOfEntities; j++) {
+						for (let j = 0; j < numberOfEntities-1; j++) {
 							let clonedObject = Object.assign({}, Areas[areaName][type][i]);
 							Areas[areaName][type].push(clonedObject);
 						}
@@ -7224,14 +7221,18 @@ Game.loadArea = function (areaName, destination) {
 						}
 						// remove the original npc
 						Areas[areaName][type].splice(i,1);
+						i--;
 					}
 
-					// check npc should be added, and prepare it to be added (e.g. by setting its map and type)
-					// also calls specific functions needed for certain npcs
-					let preparedNPC = this.prepareNPC(Areas[areaName][type][i], type);
-					if (preparedNPC !== false) {
-						preparedNPC.source = "area";
-						this[type].push(new className(preparedNPC));
+					// if the npc wasn't an array of npcs to be added (since this array has since been removed) then prepare + add it
+					else {
+						// check npc should be added, and prepare it to be added (e.g. by setting its map and type)
+						// also calls specific functions needed for certain npcs
+						let preparedNPC = this.prepareNPC(Areas[areaName][type][i], type);
+						if (preparedNPC !== false) {
+							preparedNPC.source = "area";
+							this[type].push(new className(preparedNPC));
+						}
 					}
 				}
 			}
@@ -9996,12 +9997,13 @@ Game.creativeImage = "rootedStatusImage";
 Game.creativeName = "default";
 Game.setCreativeItem = function (item) {
 	item = item.split(" ");
-	if (item.length === 2) {
+	if (item.length > 0) {
 		if (item[0] in Loader.images) {
 			Game.creativeImage = item[0];
-			Game.creativeName = item[1];
+			item.splice(0, 1);
+			Game.creativeName = item.join(" ");
 			Dom.chat.insert('Creative mode object name set to "'+ item[0] +'".');
-			Dom.chat.insert('Creative mode object image set to "'+ item[1] +'".');
+			Dom.chat.insert('Creative mode object image set to "'+ Game.creativeName +'".');
 		}
 		else {
 			Dom.chat.insert("Creative item has not been updated because image was not found.")
@@ -10683,16 +10685,9 @@ Game.render = function (delta) {
 	this.ctx.fillRect(0, 0, Dom.canvas.width, Dom.canvas.height);
 
 	// draw map background layer(s)
-	if (typeof map.numberOfLayers !== "undefined") {
-        // could be multiple layers
-        for (let layer = 0; layer < map.numberOfLayers; layer++) {
-            this.drawLayer(layer);
-        }
-    }
-    else {
-        // just one layer
-        this.drawLayer(0);
-    }
+	for (let layer = 0; layer < map.layers.length; layer++) {
+		this.drawLayer(layer);
+	}
 
 
 	// auras behind hero (currently just works for hero)

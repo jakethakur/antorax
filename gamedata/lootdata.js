@@ -597,6 +597,15 @@ const BossLootTables = {
 			},
 		},*/
 	],
+	zararanath: [
+		{ // golden feather
+			item: Items.item[51],
+			chance: [
+				100,			// 0
+				0,				// 1
+			],
+		},
+	],
 };
 
 const ChestLootTables = {
