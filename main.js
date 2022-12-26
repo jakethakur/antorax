@@ -7054,6 +7054,18 @@ Game.loadArea = function (areaName, destination) {
 		// now add all properties from areaData to the map variable
 		Object.assign(map, Areas[areaName].mapData);
 
+		// validate that map layers are right length
+		let layerLength = map.cols * map.rows;
+		let removedLayers = 0;
+		for (let i = 0; i < map.layers.length; i++) {
+			if (map.layers[i].length !== layerLength) {
+				console.error("Map layer " + (i+removedLayers) + " of area " + Game.areaName + " is not the correct length so has been removed.");
+				map.layers.splice(i, 1);
+				i--;
+				removedLayers++;
+			}
+		}
+
 		// ice tiles only exist if the area isIcy
 		if (Areas[areaName].isIcy !== undefined && Areas[areaName].isIcy() && typeof map.waterTiles !== "undefined") {
 			// area is icy

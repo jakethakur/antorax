@@ -3326,6 +3326,7 @@ Dom.inventory.dispose = function (ev) {
 
 // remove an item by its id and type
 // returns true is successful or false if not successful
+// set num to true to remove all items
 Dom.inventory.removeById = function (ID, type, num, array, quest) {
 
 	let equip = false;
@@ -3371,7 +3372,7 @@ Dom.inventory.removeById = function (ID, type, num, array, quest) {
 
 // array is optional array that the item is removed from (inventory by default)
 // num is the index in array that stuff is removed from
-// all is the number to be removed, or removes all of the items if it isn't a number
+// all is the number to be removed, or removes all of the items if it is set to true
 Dom.inventory.remove = function (num, all, array) {
 
 	// loot (overwritten if not loot)
