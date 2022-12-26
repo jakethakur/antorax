@@ -8158,7 +8158,7 @@ Game.generateVillagers = function (data, areaName) {
 	let images = {}; // images to be loaded (same format as in areadata)
 
 	for (let numberAdded = 0; numberAdded < numberToAdd; numberAdded++) {
-		let villagerIndex = (numberAdded+startValue+13) % possibleVillagers.length;
+		let villagerIndex = (numberAdded+startValue) % possibleVillagers.length;
 
 		villagersToAdd.push(villagerIndex);
 

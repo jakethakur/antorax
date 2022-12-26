@@ -7646,14 +7646,17 @@ Last I saw him, he was visiting the <b>Eaglecrest Plains</b> to the <b>south</b>
 				repeatNumber: 8,
 			},
 			{
-				spawnLocations: [{x: 2169, y: 3168, width: 3210, height: 1850}],
+				spawnLocations: [{x: 2169, y: 3168, width: 3210, height: 1850}], // central river
 				template: EnemyTemplates.eaglecrest.toad,
 				repeatNumber: 15,
 			},
 			{
-				spawnLocations: [{x: 100, y: 400, width: 5800, height: 5500}],
+				spawnLocations: [{x: 100, y: 400, width: 5800, height: 5500}], // whole area
 				template: EnemyTemplates.eaglecrest.toad,
 				repeatNumber: 22,
+				canBeShown: function () {
+					return Player.quests.npcProgress.eaglecrest[2] >= 3; // so they don't interfere with first part of overdraft
+				},
 			},
 			{
 				spawnLocations: [{x: 100, y: 400, width: 5800, height: 5500}],

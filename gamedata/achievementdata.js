@@ -402,7 +402,6 @@ var Achievements = [
 			total: 500,
 		},
 	},
-
 	{
 		name: "Many Chickens were Harmed in the Process",
 		description: "Obtain a golden feather.",
@@ -412,14 +411,45 @@ var Achievements = [
 		area: ["eaglecrest"],
 		image: "../assets/items/item/51.png",
 		color: "lightgray",
-		class: "cumulative",
+		class: "single",
 		isCompleted: function () {
 			return Dom.inventory.check(51, "item");
 		}
 	},
+	/*{
+		name: "Aconitum",
+		description: "Kill a coyote pack, and its wrangler.",
+		points: 5,
+		category: ["combat"],
+		area: ["eaglecrest"],
+		image: "../assets/items/item/46.png",
+		color: "lightgray",
+		class: "single",
+		isCompleted: function () {
+			return User.progress.coyotePackSizeKilled > 0;
+		},
+	},
+	{
+		name: "Queen of Poisons",
+		description: "Kill a coyote pack of at least 5 coyotes, and its wrangler.",
+		points: 5,
+		category: ["combat"],
+		area: ["eaglecrest"],
+		image: "../assets/items/item/45.png",
+		color: "lightgray",
+		class: "single",
+		isCompleted: function () {
+			return User.progress.coyotePackSizeKilled >= 5;
+		},
+		expand: {
+			type: "progressBar",
+			value: User.progress.coyotePackSizeKilled,
+			total: 5,
+		},
+	},*/
 
 	{
-		name: "Peace for Madeleine Wells",
+		name: "Peace for Madeleine Wallace",
 		description: "Hand in 9 letters to an Eaglecrest mail carrier (on any class).",
 		hidden: true,
 		points: 10,
@@ -507,7 +537,7 @@ var Achievements = [
 		},
 	},
 
-	{
+	/*{
 		name: "Work-Life Balance",
 		description: "Complete 10 tavern jobs and kill 50 enemies in 10 minutes.",//tbd
 		points: 10,
@@ -519,7 +549,7 @@ var Achievements = [
 		isCompleted: function () {
 			//return tbd;
 		}
-	},
+	},*/
 		//
 		// REPUTATION
 		//
