@@ -14,7 +14,7 @@ var Adventure = {
 	},
 
 	eaglecrestOverdraft: {
-		html: `<div id="eaglecrestLoggingCampAL" class="adventure">
+		html: `<div class="adventure">
 			Eaglecrest City<br>
 			<span class="adventureContent">Help the bank to reopen its doors.</span>
 		</div>`,
@@ -22,6 +22,16 @@ var Adventure = {
 			return !Player.quests.completedQuestArray.includes("Overdraft") && Player.quests.completedQuestArray.includes("To Eaglecrest, and Beyond!");
 		},
 	},
+
+	/*eaglecrestCats: {
+		html: `<div class="adventure">
+			SPECIAL<br>
+			<span class="adventureContent">Something's up with the cats in Eaglecrest.</span>
+		</div>`,
+		condition: function () {
+			return !Player.quests.completedQuestArray.includes("Overdraft") && Player.quests.completedQuestArray.includes("To Eaglecrest, and Beyond!");
+		},
+	},*/
 
 	// events
 
@@ -51,6 +61,16 @@ var Adventure = {
 		</div>`,
 		condition: function () {
 			return Event.event === "Christmas";
+		},
+	},
+
+	antoraxDay: {
+		html: `<div class="adventure">
+			Antorax Day Event<br>
+			<span class="adventureContent">Celebrate Antorax Day with double XP, a special quest and more!</span>
+		</div>`,
+		condition: function () {
+			return Event.event === "Antorax";
 		},
 	},
 

@@ -4705,7 +4705,7 @@ class Villager extends NPC {
 		}
 
 		// movement
-		else if (this.state.type === "move") {
+		else if (this.state.type === "move" && Dom.currentNPC.id !== this.id) { // (don't move if player is talking to them)
 
 			if (this.xInRange() && this.yInRange()) {
 				// movement destination reached (to nearest 10px)
@@ -8158,7 +8158,7 @@ Game.generateVillagers = function (data, areaName) {
 	let images = {}; // images to be loaded (same format as in areadata)
 
 	for (let numberAdded = 0; numberAdded < numberToAdd; numberAdded++) {
-		let villagerIndex = (numberAdded+startValue) % possibleVillagers.length;
+		let villagerIndex = (numberAdded+startValue+13) % possibleVillagers.length;
 
 		villagersToAdd.push(villagerIndex);
 
@@ -8522,6 +8522,7 @@ Game.update = function (delta) {
 			let textArray = []; // array of text to describe that function
 			let functionArray = []; // array of functions that can be called
 			let parameterArray = []; // array of arrays of parameters for these functions (to be ...spread into the function)
+			let additionalOnClickArray = []; // array of functions to be called as well as the role if this role is chosen (undefined if no additional function to be called)
 
 			let forceChoose = false; // whether choose dom should be forced (some roles want this)
 
@@ -8630,6 +8631,7 @@ Game.update = function (delta) {
 									textArray.push("Quest start: " + questToBeStarted.quest);
 									functionArray.push(Dom.quest.start);
 									parameterArray.push([questToBeStarted, npc]);
+									additionalOnClickArray.push(role.additionalOnClick);
 								}
 							}
 
@@ -8669,6 +8671,7 @@ Game.update = function (delta) {
 										textArray.push("Quest finish: " + questToBeFinished.quest);
 										functionArray.push(Dom.quest.finish);
 										parameterArray.push([questToBeFinished, npc]);
+										additionalOnClickArray.push(role.additionalOnClick);
 									}
 									// quest conditions have not been fulfilled
 									else {
@@ -8717,6 +8720,7 @@ Game.update = function (delta) {
 								textArray.push(role.chooseText || "I'd like to browse your goods.");
 								functionArray.push(Dom.merchant.page);
 								parameterArray.push([npc, soldItems, greetingMessage]);
+								additionalOnClickArray.push(role.additionalOnClick);
 							}
 
 							// soul healers
@@ -8750,6 +8754,7 @@ Game.update = function (delta) {
 											Game.currentSoulHealer.say(Game.currentSoulHealer.chat.tooPoor, 0, true);
 										}
 									}]]);
+									additionalOnClickArray.push(role.additionalOnClick);
 								}
 								else {
 									if (!Dom.chat.contents.includes("<strong>" + npc.name + "</strong>: " + npc.chat.healedText)) {
@@ -8770,6 +8775,7 @@ Game.update = function (delta) {
 									textArray.push(role.chooseText || "I have an item I'd like to identify.");
 									functionArray.push(Dom.identifier.page);
 									parameterArray.push([npc, true]);
+									additionalOnClickArray.push(role.additionalOnClick);
 								}
 								else {
 									if (Dom.currentlyDisplayed === "") {
@@ -8786,6 +8792,7 @@ Game.update = function (delta) {
 								textArray.push(role.chooseText || "I'd like to sell some items to you.");
 								functionArray.push(Dom.buyer.page);
 								parameterArray.push([npc]);
+								additionalOnClickArray.push(role.additionalOnClick);
 							}
 
 							// drivers
@@ -8794,6 +8801,7 @@ Game.update = function (delta) {
 								textArray.push(role.chooseText || "I'd like to ride your cart to somewhere.");
 								functionArray.push(Dom.driver.page);
 								parameterArray.push([npc, role.destinations]);
+								additionalOnClickArray.push(role.additionalOnClick);
 							}
 
 							// bankers
@@ -8802,6 +8810,7 @@ Game.update = function (delta) {
 								textArray.push(role.chooseText || "I'd like to access my bank storage.");
 								functionArray.push(Dom.bank.page);
 								parameterArray.push([]);
+								additionalOnClickArray.push(role.additionalOnClick);
 							}
 
 							// spell choosers
@@ -8810,6 +8819,7 @@ Game.update = function (delta) {
 								textArray.push(role.chooseText || "I'd like to choose a spell to unlock.");
 								functionArray.push(Dom.spellChoice.page);
 								parameterArray.push([npc, role.spells]);
+								additionalOnClickArray.push(role.additionalOnClick);
 							}
 
 							// generic text DOM
@@ -8818,6 +8828,7 @@ Game.update = function (delta) {
 								textArray.push(role.chooseText);
 								functionArray.push(Dom.text.page);
 								parameterArray.push([npc.name, role.chat, role.showCloseButton, role.buttons, role.functions]);
+								additionalOnClickArray.push(role.additionalOnClick);
 							}
 
 							// button just runs a function
@@ -8826,6 +8837,7 @@ Game.update = function (delta) {
 								textArray.push(role.chooseText);
 								functionArray.push(role.onClick);
 								parameterArray.push([]);
+								additionalOnClickArray.push(role.additionalOnClick);
 							}
 
 
@@ -8855,6 +8867,7 @@ Game.update = function (delta) {
 					buttons: textArray,
 					functions: functionArray,
 					parameters: parameterArray,
+					additionalOnClicks: additionalOnClickArray, // additional function to be called on opening the role
 					force: forceChoose
 				});
 				// if there is only one thing that can be chosen between, choose DOM handles this and just skips itself straight to that one thing
@@ -9530,7 +9543,7 @@ Game.getXP = function (xpGiven, xpBonus) {
 	if (typeof xpGiven === "number") {
 		// xp bonus
 		if (xpBonus !== false) {
-			xpGiven *= (1 + Game.hero.stats.xpBonus / 100)
+			xpGiven *= 1 + ((Game.hero.stats.xpBonus + Event.globalXpBonus) / 100);
 		}
 
 		// increase XP

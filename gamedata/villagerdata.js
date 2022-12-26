@@ -200,7 +200,7 @@ var Villagers = [
             receiveTavernGood: "Nothin' better than a hearty supper at the tavern.",
         },
 		canBeShown: function () {
-			!Player.quests.activeQuestArray.includes("Overdraft");
+			return !Player.quests.activeQuestArray.includes("Overdraft");
 		}
     },
     {
@@ -230,7 +230,7 @@ var Villagers = [
 			death: "My monocle...",
         },
 		canBeShown: function () {
-			Player.quests.completedQuestArray.includes("Overdraft");
+			return Player.quests.completedQuestArray.includes("Overdraft");
 		}
     },
     {
@@ -469,31 +469,187 @@ var Villagers = [
         ],
 		chat: {
             notUnlockedRoles: "I recognise your face... have we met?",
+			shopLeave: "Use this reward to bring me more missing letters, I'm getting worried about them..", // (free item shop)
+			inventoryFull: "Oh, you don't have any space for this reward. If only you had a bigger bag..",
 		},
-		/*roles: [{
-			role: "text",
-			chooseText: "I found an undelivered letter",
-			chat: "Oh. Phew... I always try to get everything delivered on time, but when your",
-			showCloseButton: true,
-			forceChoose: true, // forces choose dom
-			roleRequirement: function () {
-				return Dom.inventory.check(Items.item[52]) || Dom.inventory.check(Items.item[53]) || Dom.inventory.check(Items.item[54]);
+		roles: [
+			{
+				role: "text",
+				chooseText: "I found an undelivered letter", // first time turning in; not enough for reward
+				chat: "Oh. Phew... I always try to get everything delivered on time in one piece, but these frogs make it harder and harder to do so!<br><br>Hmm, there's a few that are still missing. Since you can navigate the Plains better than I can, how about you find me some more? I'll make sure you're aptly rewarded.",
+				showCloseButton: true,
+				forceChoose: true, // forces choose dom
+				roleRequirement: function () {
+					if (typeof Player.quests.questProgress.turnedInLetters !== "undefined" && Player.quests.questProgress.turnedInLetters !== 0) {
+						return false; // turned some in before
+					}
+					else {
+						let totalLetters = Dom.inventory.count(52, "item") + Dom.inventory.count(53, "item") + Dom.inventory.count(54, "item");
+						let lettersAwayFromReward = 3;
+						return totalLetters > 0 && totalLetters < lettersAwayFromReward; // have letters, but not enough to get a reward
+					}
+				},
+				additionalOnClick: function () {
+					// remove all the letters
+					let letterRemoved = true;
+					while (letterRemoved) {
+						letterRemoved = false;
+						if (Dom.inventory.removeById(52, "item", 1)) {
+							Player.quests.questProgress.turnedInLetters = Increment(Player.quests.questProgress.turnedInLetters);
+							User.progress.turnedInLetters = Increment(User.progress.turnedInLetters);
+							letterRemoved = true;
+						}
+						if (Dom.inventory.removeById(53, "item", 1)) {
+							Player.quests.questProgress.turnedInLetters = Increment(Player.quests.questProgress.turnedInLetters);
+							User.progress.turnedInLetters = Increment(User.progress.turnedInLetters);
+							letterRemoved = true;
+						}
+						if (Dom.inventory.removeById(54, "item", 1)) {
+							Player.quests.questProgress.turnedInLetters = Increment(Player.quests.questProgress.turnedInLetters);
+							User.progress.turnedInLetters = Increment(User.progress.turnedInLetters);
+							letterRemoved = true;
+						}
+					}
+				}
 			},
-		},
-		{
-			role: "merchant",
-			chooseText: "I found an undelivered letter",
-			shopGreeting: "A good archaeologist always has a hat. Oh. Do you not?",
-			forceChoose: true, // forces choose dom
-			sold: [
-				{item: Items.helm[35], cost: 0, buyButtonText: "Choose this item", buyFunction: BuyFunctions.closeDomPage}, // buyFunction should close the page
-				{item: Items.boots[17], cost: 0, buyButtonText: "Choose this item", buyFunction: BuyFunctions.closeDomPage},
-				{item: Items.bag[8], cost: 0, buyButtonText: "Choose this item", buyFunction: BuyFunctions.closeDomPage},
-			],
-			roleRequirement: function () {
-				return Player.level >= MaxLevel;
+			{
+				role: "merchant",
+				chooseText: "I found an undelivered letter", // first time turning in; enough for reward
+				shopGreeting: "Oh. Phew... I always try to get everything delivered on time in one piece, but these frogs make it harder and harder to do so!<br><br>Please, take one of these rewards. I was given them by the City just for situations like this.<br><br>There are still a few letters that are missing. Since you can navigate the Plains better than I can, how about you find me some more? You can take another reward if you bring me enough.",
+				forceChoose: true, // forces choose dom
+				sold: [
+					{item: Items.helm[35], cost: 0, buyButtonText: "Choose this item", buyFunction: BuyFunctions.closeDomPage}, // buyFunction should close the page
+					{item: Items.boots[17], cost: 0, buyButtonText: "Choose this item", buyFunction: BuyFunctions.closeDomPage},
+					{item: Items.bag[8], cost: 0, buyButtonText: "Choose this item", buyFunction: BuyFunctions.closeDomPage},
+				],
+				roleRequirement: function () {
+					if (typeof Player.quests.questProgress.turnedInLetters !== "undefined" && Player.quests.questProgress.turnedInLetters !== 0) {
+						return false; // turned some in before
+					}
+					else {
+						let totalLetters = Dom.inventory.count(52, "item") + Dom.inventory.count(53, "item") + Dom.inventory.count(54, "item");
+						let lettersAwayFromReward = 3; // never turned any in before
+						return totalLetters > 0 && totalLetters >= lettersAwayFromReward; // have letters, but not enough to get a reward
+					}
+				},
+				additionalOnClick: function () {
+					// remove the letters until the player unlocks a reward
+					let toBeRemoved = 3 - (Player.quests.questProgress.turnedInLetters % 3); // number of letters away from reward
+					if (typeof Player.quests.questProgress.turnedInLetters === "undefined") {
+						Player.quests.questProgress.turnedInLetters = toBeRemoved;
+					}
+					else {
+						Player.quests.questProgress.turnedInLetters += toBeRemoved;
+					}
+					if (typeof User.progress.turnedInLetters === "undefined") {
+						User.progress.turnedInLetters = toBeRemoved;
+					}
+					else {
+						User.progress.turnedInLetters += toBeRemoved;
+					}
+					// remove this many letters ..
+					while (toBeRemoved > 0) {
+						if (Dom.inventory.removeById(52, "item")) {
+							toBeRemoved--;
+						}
+						else if (Dom.inventory.removeById(53, "item")) {
+							toBeRemoved--;
+						}
+						else if (Dom.inventory.removeById(54, "item")) {
+							toBeRemoved--;
+						}
+					}
+				}
 			},
-		},],*/
+			{
+				role: "text",
+				chooseText: "I found an undelivered letter", // not first time turning in; not enough for reward
+				chat: "Great, I was worried you wouldn't be able to find any others!<br><br>There are still some more missing letters - you'll need to bring me a couple more before I can give you a reward. Good luck against those frogs..",
+				showCloseButton: true,
+				forceChoose: true, // forces choose dom
+				roleRequirement: function () {
+					if (typeof Player.quests.questProgress.turnedInLetters !== "undefined" && Player.quests.questProgress.turnedInLetters !== 0) {
+						let totalLetters = Dom.inventory.count(52, "item") + Dom.inventory.count(53, "item") + Dom.inventory.count(54, "item");
+						let lettersAwayFromReward = 3 - (Player.quests.questProgress.turnedInLetters % 3)
+						return totalLetters > 0 && totalLetters < lettersAwayFromReward; // have letters, but not enough to get a reward
+					}
+					else {
+						return false; // not turned any in before
+					}
+				},
+				additionalOnClick: function () {
+					// remove all the letters
+					let letterRemoved = true;
+					while (letterRemoved) {
+						letterRemoved = false;
+						if (Dom.inventory.removeById(52, "item", 1)) {
+							Player.quests.questProgress.turnedInLetters = Increment(Player.quests.questProgress.turnedInLetters);
+							User.progress.turnedInLetters = Increment(User.progress.turnedInLetters);
+							letterRemoved = true;
+						}
+						if (Dom.inventory.removeById(53, "item", 1)) {
+							Player.quests.questProgress.turnedInLetters = Increment(Player.quests.questProgress.turnedInLetters);
+							User.progress.turnedInLetters = Increment(User.progress.turnedInLetters);
+							letterRemoved = true;
+						}
+						if (Dom.inventory.removeById(54, "item", 1)) {
+							Player.quests.questProgress.turnedInLetters = Increment(Player.quests.questProgress.turnedInLetters);
+							User.progress.turnedInLetters = Increment(User.progress.turnedInLetters);
+							letterRemoved = true;
+						}
+					}
+				}
+			},
+			{
+				role: "merchant",
+				chooseText: "I found an undelivered letter", // not first time turning in; enough for reward
+				shopGreeting: "Great, I was worried you wouldn't be able to find any others! Lost mail always worries me, you never know what might be in there..<br><br>Please, take one of these rewards. I was given them by the City, so you know they are of fine quality.<br><br>Oh, and there's still some more letters out there. Have a look for them - you can have some more of these rewards.",
+				forceChoose: true, // forces choose dom
+				sold: [
+					{item: Items.helm[35], cost: 0, buyButtonText: "Choose this item", buyFunction: BuyFunctions.closeDomPage}, // buyFunction should close the page
+					{item: Items.boots[17], cost: 0, buyButtonText: "Choose this item", buyFunction: BuyFunctions.closeDomPage},
+					{item: Items.bag[8], cost: 0, buyButtonText: "Choose this item", buyFunction: BuyFunctions.closeDomPage},
+				],
+				roleRequirement: function () {
+					if (typeof Player.quests.questProgress.turnedInLetters !== "undefined" && Player.quests.questProgress.turnedInLetters !== 0) {
+						let totalLetters = Dom.inventory.count(52, "item") + Dom.inventory.count(53, "item") + Dom.inventory.count(54, "item");
+						let lettersAwayFromReward = 3 - (Player.quests.questProgress.turnedInLetters % 3);
+						return totalLetters > 0 && totalLetters >= lettersAwayFromReward; // have letters, and enough to get a reward
+					}
+					else {
+						return false; // not turned any in before
+					}
+				},
+				additionalOnClick: function () {
+					// remove the letters until the player unlocks a reward
+					let toBeRemoved = 3 - (Player.quests.questProgress.turnedInLetters % 3); // number of letters away from reward
+					if (typeof Player.quests.questProgress.turnedInLetters === "undefined") {
+						Player.quests.questProgress.turnedInLetters = toBeRemoved;
+					}
+					else {
+						Player.quests.questProgress.turnedInLetters += toBeRemoved;
+					}
+					if (typeof User.progress.turnedInLetters === "undefined") {
+						User.progress.turnedInLetters = toBeRemoved;
+					}
+					else {
+						User.progress.turnedInLetters += toBeRemoved;
+					}
+					// remove this many letters ..
+					while (toBeRemoved > 0) {
+						if (Dom.inventory.removeById(52, "item")) {
+							toBeRemoved--;
+						}
+						else if (Dom.inventory.removeById(53, "item")) {
+							toBeRemoved--;
+						}
+						else if (Dom.inventory.removeById(54, "item")) {
+							toBeRemoved--;
+						}
+					}
+				}
+			},
+		],
 	},
 	{
         id: 17,

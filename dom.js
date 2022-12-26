@@ -2682,17 +2682,27 @@ Dom.merchant.buy = function (item, index, npc) {
 	}
 	else {
 		// buy the item!
+
+		// flash buy button brown
 		document.getElementsByClassName("buy")[index].style.backgroundColor = "#bb9933";
 		setTimeout(function () {
 			document.getElementsByClassName("buy")[index].style.backgroundColor = "var(--bottom)";
 		},200);
+
 		Dom.inventory.removeById(item.costCurrency,"currency",item.cost);
 		item.item = Object.assign({}, item.item);
 		item.item.unconsumable = item.unconsumable;
 		item.item.quest = item.quest;
 		item.item.removeOnAbandon = item.removeOnAbandon;
 		Dom.inventory.give(item.item);
-		Dom.chat.insert("You bought a " + item.item.name + ".", 100);
+
+		// chat message
+		if (item.cost === 0) {
+			Dom.chat.insert("You got a " + item.item.name + ".", 100);
+		}
+		else {
+			Dom.chat.insert("You bought a " + item.item.name + ".", 100);
+		}
 
 		if (typeof item.buyFunction !== "undefined") {
 			item.buyFunction(item);
@@ -3314,6 +3324,8 @@ Dom.inventory.dispose = function (ev) {
 	}
 }
 
+// remove an item by its id and type
+// returns true is successful or false if not successful
 Dom.inventory.removeById = function (ID, type, num, array, quest) {
 
 	let equip = false;
@@ -4246,6 +4258,7 @@ Dom.inventory.addEquipment = function (array, noSet) {
 	Dom.inventory.afterChangedStats();
 }
 
+// returns array of inventory positions
 Dom.inventory.find = function (ID, type, notEquipped, calledByCheck, name, array, quest) {
 	if (array === undefined) {
 		array = Player.inventory.items;
@@ -4308,6 +4321,24 @@ Dom.inventory.check = function (ID, type, num, notEquipped, array, quest) {
 		}
 	}
 	return completed;
+}
+
+// returns the number of items in the inventory satisfying the critera
+// same params as above (but num is missing!!!) (tbd make these an object...)
+Dom.inventory.count = function (ID, type, notEquipped, array, quest) {
+	let foundItems = Dom.inventory.find(ID, type, notEquipped, false, array, undefined, quest);
+	let numberFound = 0;
+	// now count stacks
+	for (let i = 0; i < foundItems.length; i++) {
+		let inventoryItem = Player.inventory.items[foundItems[i]];
+		if (typeof inventoryItem.stacked === "undefined") {
+			numberFound++;
+		}
+		else {
+			numberFound += inventoryItem.stacked;
+		}
+	}
+	return numberFound;
 }
 
 if (Player.class === "a") {
@@ -4830,6 +4861,9 @@ Dom.choose.page = function (npcs) {
 					for (let i = 0; i < npcs[x].buttons.length; i++) {
 						document.getElementById("choosePageButtons"+total).onclick = function () {
 							Dom.closePage("choosePage", true);
+							if (typeof npcs[x].additionalOnClicks !== "undefined" && typeof npcs[x].additionalOnClicks[i] !== "undefined") {
+								npcs[x].additionalOnClicks[i](); // additional function to be called as well as opening the page
+							}
 							npcs[x].functions[i](...npcs[x].parameters[i]);
 							Dom.checkProgress();
 						}

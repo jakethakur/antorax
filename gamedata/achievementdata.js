@@ -409,13 +409,33 @@ var Achievements = [
 		hidden: true,
 		points: 10,
 		category: ["combat"],
-		area: ["eaglecrestLoggingCamp"],
+		area: ["eaglecrest"],
 		image: "../assets/items/item/51.png",
 		color: "lightgray",
 		class: "cumulative",
 		isCompleted: function () {
-			return checkProgress(Dom.inventory.check(54, "item"), 1);
+			return Dom.inventory.check(51, "item");
 		}
+	},
+
+	{
+		name: "Peace for Madeleine Wells",
+		description: "Hand in 9 letters to an Eaglecrest mail carrier (on any class).",
+		hidden: true,
+		points: 10,
+		category: ["general", "combat", "archaeology"],
+		area: ["eaglecrest"],
+		image: "../assets/items/bag/8.png",
+		color: "lightgrey",
+		class: "cumulative",
+		isCompleted: function () {
+			return User.progress.turnedInLetters >= 9;
+		},
+		expand: {
+			type: "progressBar",
+			value: User.progress.turnedInLetters,
+			total: 9,
+		},
 	},
 
 	{
@@ -1002,7 +1022,7 @@ var Achievements = [
 		name: "Santa's Helper",
 		description: "Deliver 15 presents.",
 		points: 5,
-		category: ["general"],
+		category: ["general", "fishing"],
 		area: ["global"],
 		image: "../assets/achievements/present.png",
 		color: "lightgray",

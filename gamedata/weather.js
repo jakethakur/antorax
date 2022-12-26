@@ -507,6 +507,8 @@ let Event = {
 			// before Antorax day; subtract one from age
 			this.antoraxAge--;
 		}
+
+		this.globalXpBonus = 0; // percentage
 	},
 
 	// update time (called on loadArea)
@@ -645,6 +647,7 @@ let Event = {
 		// Antorax Day
 		else if (d.month === 1 && d.day === 20) {
 			this.event = "Antorax";
+			this.globalXpBonus = 100;
 		}
 		// Fish Day
 		else if (d.month === 4 && d.day === 1) {

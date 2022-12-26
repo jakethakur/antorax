@@ -127,7 +127,7 @@ var Items = {
 			stats: {
 				defence: 2,
 				looting: 20,
-				xpBonus: 30,
+				xpBonus: 50,
 			},
 		},
 		{
@@ -640,7 +640,7 @@ var Items = {
 			obtainText: "Can be obtained by turning in lost letters to an Eaglecrest mail carrier.",
 			stats: {
 				defence: 3,
-				enemyAggro: -50,
+				enemyAggro: -75,
 			},
 		},
 		{
@@ -658,7 +658,7 @@ var Items = {
 			obtainText: "Can be bought from the Eaglecrest Bazaar during Christmas.",
 			stats: {
 				defence: 2,
-				enemyAggro: -30,
+				enemyAggro: -40,
 			},
 		},
 	],
@@ -3499,7 +3499,7 @@ var Items = {
 			type: "item",
 			image: "assets/items/item/17.png",
 			functionText: "Restores 15 health over 10 seconds (whilst not in combat)",
-			lore: "A trusty companion. A tasty snack.<br><br>Obtained as a present from Christmas Day, 2018",
+			lore: "A trusty companion. A tasty snack.<br><br>Obtained as a present from Christmas Day, 2018 or 2022.",
 			onClickFunction: function (inventoryPosition) {
 				// item is NOT removed!
 
@@ -3944,10 +3944,10 @@ var Items = {
 			functionText: "Click to read",
 			lore: "This letter looks undelivered. Perhaps you could do something about that?",
 			onClickFunction: function (inventoryPosition) {
-				Dom.text.page("Mud-Splattered Letter", Player.inventory.items[inventoryPosition].letterText);
+				Dom.text.page("Mud-Splattered Letter", Player.inventory.items[inventoryPosition].letterText, true);
 			},
 			onLoot: function (inventoryPosition) {
-				setLetterText(inventoryPosition);
+				ItemFunctions.setLetterText(inventoryPosition);
 			},
 		},
 		{
@@ -3960,10 +3960,10 @@ var Items = {
 			functionText: "Click to read",
 			lore: "This letter looks undelivered. Perhaps you could do something about that?",
 			onClickFunction: function (inventoryPosition) {
-				Dom.text.page("Mud-Splattered Letter", Player.inventory.items[inventoryPosition].letterText);
+				Dom.text.page("Screwed-Up Letter", Player.inventory.items[inventoryPosition].letterText, true);
 			},
 			onLoot: function (inventoryPosition) {
-				setLetterText(inventoryPosition);
+				ItemFunctions.setLetterText(inventoryPosition);
 			},
 		},
 		{
@@ -3976,10 +3976,10 @@ var Items = {
 			functionText: "Click to read",
 			lore: "This letter looks undelivered. Perhaps you could do something about that?",
 			onClickFunction: function (inventoryPosition) {
-				Dom.text.page("Mud-Splattered Letter", Player.inventory.items[inventoryPosition].letterText);
+				Dom.text.page("Water-Soaked Letter", Player.inventory.items[inventoryPosition].letterText, true);
 			},
 			onLoot: function (inventoryPosition) {
-				setLetterText(inventoryPosition);
+				ItemFunctions.setLetterText(inventoryPosition);
 			},
 		},
 	],
@@ -5899,14 +5899,14 @@ var Items = {
 			functionText: "Click to read",
 			lore: "This letter looks undelivered. Perhaps you could do something about that?",
 			onClickFunction: function (inventoryPosition) {
-				Dom.text.page("Mud-Splattered Letter", Player.inventory.items[inventoryPosition].letterText);
+				Dom.text.page("Water-Soaked Letter", Player.inventory.items[inventoryPosition].letterText, true);
 			},
 			onLoot: function (inventoryPosition) {
-				setLetterText(inventoryPosition);
+				ItemFunctions.setLetterText(inventoryPosition);
 			},
 			catchRequirement: function () {
                 // very rare!
-                return Random(0, 9) === 1;
+                return Random(0, 7) === 1;
             },
 		},
 	],
@@ -6025,14 +6025,16 @@ const ItemFunctions = {
 	setLetterText: function (inventoryPosition) {
 		let possibleMessages = Object.keys(LostLetterMessages);
 		let messageKey;
-		if (User.lostLetterMessages.length !== LostLetterMessages.length) {
+		if (User.lostLetterMessages.length !== Object.keys(LostLetterMessages).length) {
 			// user not found all the messages, give them one they've not seen
-			possibleMessages.filter(title => !User.lostLetterMessages.includes(title));
+			possibleMessages = possibleMessages.filter(title => !User.lostLetterMessages.includes(title));
 		}
 		messageKey = possibleMessages[Random(0, possibleMessages.length-1)];
 
-		// user has now obtained this letter
-		User.lostLetterMessages.push(messageKey);
+		// user has now obtained this letter (only add to the array if they've not obtained it yet)
+		if (User.lostLetterMessages.length !== Object.keys(LostLetterMessages).length) {
+			User.lostLetterMessages.push(messageKey);
+		}
 
 		// letter text
 		Player.inventory.items[inventoryPosition].letterText = LostLetterMessages[messageKey];
