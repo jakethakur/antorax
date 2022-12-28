@@ -697,8 +697,8 @@ var Villagers = [
         ],
 		chat: {
             notUnlockedRoles: "Nothing to see here! Just an honest man going about his daily business <i>ahahaha</i>.",
-			//This will do for now <i>haha</i>.. at least until I can get my hands on some pie...
-			//What brings you here today? Nothing the matter, I hope <i>hehe</i>
+			chooseChat: "What brings you here today? Nothing the matter, I hope <i>hehe</i>.",
+	        receiveTavernGood: "This will do for now <i>haha</i>.. at least until I can get my hands on some pie...",
 		},
 	},
 	{
@@ -708,7 +708,7 @@ var Villagers = [
 		hostility: "friendly",
 		level: 20,
 		stats: {
-			maxHealth: 150,
+			maxHealth: 200,
 			defence: 6,
             walkSpeed: 104,
 		},
@@ -726,6 +726,48 @@ var Villagers = [
         ],
 		chat: {
             notUnlockedRoles: "Hmph. You're not a cat.",
+			chooseChat: "They should hire cats here.",
+	        receiveTavernGood: "My kittens will love this.",
+		},
+	},
+	{
+        id: 19,
+        images: {necta: {normal: "assets/npcs/babii.png"}},
+		name: "Necta, Dune Surveyor",
+		hostility: "friendly",
+		level: 35,
+		stats: {
+			maxHealth: 350,
+			defence: 11,
+            walkSpeed: 120,
+		},
+        exceptAreas: [
+            "eaglecrestLoggingCamp",
+        ],
+		chat: {
+            notUnlockedRoles: "Who's the lead archaeologiist? ii've just returned from the dunes.",
+			chooseChat: "ii once met an angel made from a drop of golden blood.",
+	        receiveTavernGood: "ii love iit here!",
+		},
+	},
+	{
+        id: 20,
+        images: {espi: {normal: "assets/npcs/iglooghost.png"}},
+		name: "Espi, Ley Musician",
+		hostility: "friendly",
+		level: 35,
+		stats: {
+			maxHealth: 350,
+			defence: 11,
+            walkSpeed: 120,
+		},
+        exceptAreas: [
+            "eaglecrestLoggingCamp",
+        ],
+		chat: {
+            notUnlockedRoles: "I'VE HEARD THERE'S SOME RARE LEY DISKS OVER HERE.",
+			chooseChat: "DO THEY SELL PEA FRITTERS HERE?",
+	        receiveTavernGood: "YOU SHOULD COME AND WATCH US PERFORM ON THE MOORLANDS SOME TIME.",
 		},
 	},
 ];

@@ -3676,7 +3676,7 @@ var Items = {
 			id: 29,
 			name: "Burnt Cloth",
 			type: "item",
-			junk: true,
+			rarity: "junk",
 			image: "assets/items/item/29.png",
 			stack: 64,
 		},
@@ -3685,7 +3685,7 @@ var Items = {
 			name: "Lavender",
 			type: "item",
 			category: "flower",
-			junk: true,
+			rarity: "junk",
 			image: "assets/items/item/30.png",
 			stack: 64,
 		},
@@ -3694,7 +3694,7 @@ var Items = {
 			name: "Marigold",
 			type: "item",
 			category: "flower",
-			junk: true,
+			rarity: "junk",
 			image: "assets/items/item/31.png",
 			stack: 64,
 		},
@@ -3703,7 +3703,7 @@ var Items = {
 			name: "Daisy",
 			type: "item",
 			category: "flower",
-			junk: true,
+			rarity: "junk",
 			image: "assets/items/item/32.png",
 			stack: 64,
 		},
@@ -3721,7 +3721,6 @@ var Items = {
 			id: 34,
 			name: "Snake",
 			type: "item",
-			junk: true,
 			image: "assets/items/item/34.png",
 			stack: 16,
 			lore: "Where did they come from?",
@@ -3912,8 +3911,8 @@ var Items = {
 			type: "item",
 			image: "assets/items/item/49.png",
 			stack: 16,
-			functionText: "", // something to do with high potency
-			lore: "Has some alchemical uses."
+			functionText: "",
+			lore: "Has some alchemical uses." // not anymore..
 		},
 		{
 			id: 50,
@@ -3981,6 +3980,17 @@ var Items = {
 			onLoot: function (inventoryPosition) {
 				ItemFunctions.setLetterText(inventoryPosition);
 			},
+		},
+		{
+			id: 55,
+			name: "Cattails",
+			type: "item",
+			category: "flower",
+			rarity: "junk",
+			image: "assets/items/item/55.png",
+			stack: 64,
+			functionText: "",
+			lore: "Has some alchemichal uses."
 		},
 	],
 	consumable: [

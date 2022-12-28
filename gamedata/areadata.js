@@ -484,8 +484,6 @@ var Areas = {
 				// show chat tab
 				Dom.instructions.unlockTab("chat");
 			}
-			Areas.eaglecrestLoggingCamp.npcs[9] = Game.prepareNPC(Areas.eaglecrestLoggingCamp.npcs[9], "npcs", true);
-			Game.things.push(new NPC(Areas.eaglecrestLoggingCamp.npcs[9]));
 		},
 
 		areaTeleports: [
@@ -4462,7 +4460,7 @@ var Areas = {
 
 		villagerData: {
 			minPeople: 0,
-			maxPeople: Player.quests.completedQuestArray.includes("Overdraft") ? 3 : 0,
+			maxPeople: Player.quests.completedQuestArray.includes("Overdraft") ? 4 : 0,
 			locations: [
 				{
 					x: 39,

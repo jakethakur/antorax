@@ -676,7 +676,7 @@ var Achievements = [
 			text: "View in archaeology",
 			location: "../archaeology/index.html?obtained=unidentified&area=eaglecrest",
 			total: GetTotalItems(function(item) {
-				return item.obtain.includes("unidentified") && item.area.includes("loggingCamp");
+				return item.obtain.includes("unidentified") && item.area.includes("eaglecrest");
 			}),
 			value: function () {
 				let done = 0;

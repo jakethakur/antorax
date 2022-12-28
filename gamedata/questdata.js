@@ -2468,7 +2468,7 @@ After all, death is never the end in Antorax...<br>
 				finishChat: `<strong>Rhus</strong>: Good. People happy.
 <strong>Jak</strong>: Thank you!`,
 				objectives: [
-					"Hand out some tavern goods to people around the tavern",
+					"Hand out some tavern goods to people around the tavern <i>(check your quest log!)</i>",
 					"Speak to <strong>Innkeeper Rhus-Jak</strong>.",
 				],
 			},
@@ -2515,6 +2515,10 @@ After all, death is never the end in Antorax...<br>
 				for (let i = 0; i < Game.villagers.length; i++) {
 					let item = sold[Random(0, sold.length-1)].item;
 					this[ToObjectKey(npc.name)].objectives.unshift("Give " + item.name + " to " + Game.villagers[i].name + ".")
+
+					if (typeof Game.villagers[i].roles !== undefined) {
+						Game.villagers[i].roles = [];
+					}
 
 					Game.villagers[i].roles.push({
 						role: "function",

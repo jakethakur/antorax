@@ -700,7 +700,9 @@ function arrange(){
 			document.getElementById("obtain").style.width = (window.innerWidth - 500 < 1000 ? window.innerWidth - 500 : 1000) + "px";
 			document.getElementById("obtain").innerHTML = archaeology.includes(Items[viewedItemType][viewedItemId].name) ? "You have obtained this item." : "You have not yet obtained this item";
 			document.getElementById("obtain").innerHTML += "<br><br>"+Items[viewedItemType][viewedItemId].obtainText;
-			document.getElementById("obtain").innerHTML += "<br><br>Sells for "+Items[viewedItemType][viewedItemId].sellPrice+" gold at an item buyer.";
+			if (typeof Items[viewedItemType][viewedItemId].sellPrice !== "undefined" && Items[viewedItemType][viewedItemId].sellPrice !== 0) {
+				document.getElementById("obtain").innerHTML += "<br><br>Sells for "+Items[viewedItemType][viewedItemId].sellPrice+" gold at an item buyer.";
+			}
 		}
 		document.getElementById("stats").hidden = false;
 		document.getElementById("stats").style.top = viewedItemType != "set" ? 130 + document.getElementById("obtain").offsetHeight + "px" : "100px";
