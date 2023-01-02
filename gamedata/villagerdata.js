@@ -669,7 +669,24 @@ var Villagers = [
         ],
 		chat: {
             notUnlockedRoles: "Eaglecrest contracted me to blow up those damn sewers. Heard there was a real big rat problem there. Blast, why do I care, I'm just here to blow the damn place up.",
+			// merchant
+			shopLeave: "Have a blast.",
+			inventoryFull: "Blast, you've got no space for that.",
+			tooPoor: "You can't afford the damn thing... Look, if you need a side-job, you know who to ask.",
 		},
+		roles: [
+			{
+				sold: Player.class === "k" ? [{item: Items.sword[22], cost: 17},]
+					: Player.class === "m" ? [{item: Items.staff[17], cost: 17},]
+					: Player.class === "a" ? [{item: Items.bow[19], cost: 17,},]
+					: [],
+				role: "merchant",
+				roleRequirement: function () {
+					return Player.level >= MaxLevel;
+				},
+				shopGreeting: "They're made using the finest gunpowder I could source. So you can blow everything to the ground.",
+			},
+		],
 	},
 	{
         id: 17,

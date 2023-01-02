@@ -1824,7 +1824,7 @@ class Character extends Thing {
 			Game.allCharacters.push(this); // array for current area only
 		}
 
-		if (typeof properties.showNameTag === undefined) {
+		if (typeof properties.showNameTag === "undefined") {
 			this.showNameTag = true; // same as property in Thing, but now defaults to true
 		}
 	}

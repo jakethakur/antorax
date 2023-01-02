@@ -1486,7 +1486,7 @@ After all, death is never the end in Antorax...<br>
 
 			rewards: {
 				xp: 50,
-				items: [{item: Items.currency[2], quantity: 3}],
+				items: [{item: Items.currency[2], quantity: 5}],
 			},
 		},
 
@@ -1779,7 +1779,7 @@ After all, death is never the end in Antorax...<br>
 				completed.push(Player.quests.questProgress.bazaarCrate);
 				completed.push(Player.quests.questProgress.graveyardCrate);
 				completed.push(Player.quests.questProgress.plainsCrate);
-				completed.push(Player.quests.questProgress.westCrate || checkProgress(37, "item", 5));
+				completed.push(Player.quests.questProgress.westCrate || checkProgress(Dom.inventory.check(37, "item"), 5));
 				completed.push(Player.quests.questProgress.westCrate);
 
 				completed.push(Dom.inventory.check(38, "item", 4));
