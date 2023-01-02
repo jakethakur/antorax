@@ -10,6 +10,7 @@ Spells = [
 		name: "Charge",
 		id: 0,
 		img: "assets/runes/0.png",
+		imgIconNum: 0,
 		class: "k",
 		description: ["", "Leap towards your mouse location, up to 500 pixels."],
 		difficulty: "Medium",
@@ -17,15 +18,14 @@ Spells = [
 		// properties should contain tier (as int value), caster, target
 		func: function (properties) {
 			let dist = Game.distance(properties.caster, properties.target);
-			if (dist <= Spells[0].range[properties.tier]) {
-				let velocity = Spells[0].velocity[properties.tier];
-				let time = dist / velocity;
-				let bear = Game.bearing(properties.caster, properties.target);
-				properties.caster.displace(0, velocity, time, bear); // start displacement
+			if (dist >= Spells[0].range[properties.tier]) {
+				dist = Spells[0].range[properties.tier];
 			}
-			else {
-				Dom.chat.insert("<i>You can't charge that far!</i>")
-			}
+
+			let velocity = Spells[0].velocity[properties.tier];
+			let time = dist / velocity;
+			let bear = Game.bearing(properties.caster, properties.target);
+			properties.caster.displace(0, velocity, time, bear); // start displacement
 		},
 
 		range: [
@@ -58,6 +58,7 @@ Spells = [
 		name: "Parade",
 		id: 1,
 		img: "assets/runes/1.png",
+		imgIconNum: 1,
 		class: "k",
 		description: ["", "Gain +100% defence for 0.5 seconds."],
 		difficulty: "Hard",
@@ -102,6 +103,7 @@ Spells = [
 		name: "Seismic Wave",
 		id: 2,
 		img: "assets/runes/2.png",
+		imgIconNum: 2,
 		class: "k",
 		description: ["", "Deal 100% of your attack damage to all enemies in the area, and stun them for 2 seconds."],
 		difficulty: "Easy",
@@ -154,6 +156,7 @@ Spells = [
 		name: "Arcane Aura",
 		id: 3,
 		img: "assets/runes/3.png",
+		imgIconNum: 3,
 		class: "m",
 		description: ["", "Can be toggled to deal 25% of your maximum damage to nearby enemies every second, draining 3 mana per second."],
 		difficulty: "Easy",
@@ -219,6 +222,7 @@ Spells = [
 		name: "Icebolt",
 		id: 4,
 		img: "assets/runes/4.png",
+		imgIconNum: 4,
 		class: "m",
 		description: ["", "Launch an icicle towards your mouse pointer that deals 100% of your maximum attack damage to the first target hit, stunning them for 1 second."],
 		difficulty: "Hard",
@@ -269,6 +273,7 @@ Spells = [
 		name: "Fire Barrage",
 		id: 5,
 		img: "assets/runes/5.png",
+		imgIconNum: 5,
 		class: "m",
 		description: ["", "Launch an fireball towards your mouse pointer that deals 150% of your maximum attack damage to all targets hit, also setting them on fire."],
 		difficulty: "Medium",
@@ -324,6 +329,7 @@ Spells = [
 		name: "Arrowspeed",
 		id: 6,
 		img: "assets/runes/6.png",
+		imgIconNum: 6,
 		class: "a",
 		description: ["", "Increase your movement speed by 100% and attack damage by 25% for 5 seconds."],
 		difficulty: "Easy",
@@ -380,6 +386,7 @@ Spells = [
 		name: "Shadow Cloak",
 		id: 7,
 		img: "assets/runes/7.png",
+		imgIconNum: 7,
 		class: "a",
 		description: ["", "Gain stealth. Your next attack deals +200% damage."],
 		difficulty: "Medium",
@@ -425,6 +432,7 @@ Spells = [
 		name: "Bamboozle",
 		id: 8,
 		img: "assets/runes/8.png",
+		imgIconNum: 8,
 		class: "a",
 		description: ["", "Your next attack swaps locations with the enemy hit and deals 30% more damage."],
 		difficulty: "Hard",
@@ -711,5 +719,52 @@ Spells = [
             1600,    // tier 1
         ],
     },
+
+	{
+		name: "Pounce",
+		id: 17,
+		img: "assets/runes/0.png", // tbd make a unique image for this?
+		imgIconNum: 0,
+		class: "cat",
+		description: ["", "Leap towards your mouse location, up to 500 pixels."],
+
+		// properties should contain tier (as int value), caster, target
+		func: function (properties) {
+			let dist = Game.distance(properties.caster, properties.target);
+			if (dist >= Spells[17].range[properties.tier]) {
+				dist = Spells[17].range[properties.tier];
+			}
+
+			let velocity = Spells[17].velocity[properties.tier];
+			let time = dist / velocity;
+			let bear = Game.bearing(properties.caster, properties.target);
+			properties.caster.displace(0, velocity, time, bear); // start displacement
+		},
+
+		range: [
+			0,
+			150,	// tier 1
+		],
+
+		velocity: [
+			0,
+			400,	// tier 1
+		],
+
+		channelTime: [
+			0,
+			0,	// tier 1
+		],
+
+		manaCost: [
+			0,
+			4,		// tier 1
+		],
+
+		cooldown: [
+			0,
+			1000,	// tier 1
+		],
+	},
 
 ];

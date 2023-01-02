@@ -225,6 +225,17 @@ var Skins = {
             headAdjust: {x: 3, y: 0},
         },
 	],
+	// skins for player transformations
+	cat: [
+		{
+			id: 0,
+			name: "Ginger Cat",
+			projectile:	"gingerFurball",
+			projectileAdjust: {x: 0, y: 0},
+			cursor: "crosshair",
+			headAdjust: {x: 0, y: 0},
+		},
+	],
 };
 
 var Offsets = {

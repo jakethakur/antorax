@@ -1461,12 +1461,12 @@ var Areas = {
 					{
 						// must be the first role for Hungry Taverners
 						sold: [
-						    {item: Items.consumable[5], cost: 0, quest: true, unconsumable: true, removeOnAbandon: "Hungry Taverners", removeOnAbandon: "Hungry Taverners"}, // Wood-Brewed Beer
-							{item: Items.consumable[16], cost: 0, eventRequirement: "Christmas", quest: true, unconsumable: true, removeOnAbandon: "Hungry Taverners", removeOnAbandon: "Hungry Taverners"}, // Mulled Wine
-						    {item: Items.food[0], cost: 0, quest: true, unconsumable: true, removeOnAbandon: "Hungry Taverners", removeOnAbandon: "Hungry Taverners"}, // Bread
-						    {item: Items.food[1], cost: 0, eventRequirement: "Christmas", quest: true, unconsumable: true, removeOnAbandon: "Hungry Taverners", removeOnAbandon: "Hungry Taverners"}, // Mince Pie
-						    {item: Items.food[2], cost: 0, eventRequirement: "Christmas", quest: true, unconsumable: true, removeOnAbandon: "Hungry Taverners", removeOnAbandon: "Hungry Taverners"}, // Christmas Pudding
-						    {item: Items.food[3], cost: 0, eventRequirement: "Antorax", quest: true, unconsumable: true, removeOnAbandon: "Hungry Taverners", removeOnAbandon: "Hungry Taverners"}, // Birthday Cake (changed every year)
+						    {item: Items.consumable[5], cost: 0, quest: true, unconsumable: true, removeOnAbandon: "Hungry Taverners"}, // Wood-Brewed Beer
+							{item: Items.consumable[16], cost: 0, eventRequirement: "Christmas", quest: true, unconsumable: true, removeOnAbandon: "Hungry Taverners"}, // Mulled Wine
+						    {item: Items.food[0], cost: 0, quest: true, unconsumable: true, removeOnAbandon: "Hungry Taverners"}, // Bread
+						    {item: Items.food[1], cost: 0, eventRequirement: "Christmas", quest: true, unconsumable: true, removeOnAbandon: "Hungry Taverners"}, // Mince Pie
+						    {item: Items.food[2], cost: 0, eventRequirement: "Christmas", quest: true, unconsumable: true, removeOnAbandon: "Hungry Taverners"}, // Christmas Pudding
+						    {item: Items.food[9], cost: 0, eventRequirement: "Antorax", quest: true, unconsumable: true, removeOnAbandon: "Hungry Taverners"}, // Birthday Cake (changed every year)
 						],
 						role: "merchant",
 						roleRequirement: function () {
@@ -1492,7 +1492,7 @@ var Areas = {
 						    {item: Items.food[0], cost: 2,}, // Bread
 						    {item: Items.food[1], cost: 2, costCurrency: 5, eventRequirement: "Christmas"}, // Mince Pie
 						    {item: Items.food[2], cost: 2, costCurrency: 5, eventRequirement: "Christmas"}, // Christmas Pudding
-						    {item: Items.food[3], cost: 5, eventRequirement: "Antorax"}, // Birthday Cake (changed every year)
+						    {item: Items.food[9], cost: 7, eventRequirement: "Antorax"}, // Birthday Cake (changed every year)
 							{item: Items.teleport[0], cost: 30,}, // Logging Teleport Coin
 						],
 						role: "merchant",
@@ -3786,7 +3786,7 @@ var Areas = {
 				orderOffsetY: 37.5,
 				image: "helpNotice",
 				name: "Help Notice",
-				hideNameTag: true,
+				showNameTag: false,
 				hostility: "object",
 				stats: {
 					// tbd make it so this can be removed
@@ -3811,8 +3811,7 @@ var Areas = {
 				x: 1323,
 				y: 1168,
 				image: "pieMerchant",
-				name: "Billie the Beetroot Merchant",
-				hideNameTag: true, // shown on stall instead
+				showNameTag: false, // shown on stall instead
 				hostility: "friendly",
 				level: 30,
 				stats: {
@@ -3848,9 +3847,9 @@ var Areas = {
 		],
 
 		things: [
-			{x: 75.8, y: 281.2, image: 'gingerbreadHouse', name: 'Gingerbread House'},
-			{x: 718.9, y: 818.2, image: 'gingerbreadHouse', name: 'Gingerbread House'},
-			{x: 1295.2, y: 1671.8, image: 'gingerbreadHouse', name: 'Gingerbread House'},
+			{x: 75.8, y: 281.2, image: 'gingerbreadHouse', name: 'Gingerbread House', canBeShown: function (){return Event.event === "Christmas"}},
+			{x: 718.9, y: 818.2, image: 'gingerbreadHouse', name: 'Gingerbread House', canBeShown: function (){return Event.event === "Christmas"}},
+			{x: 1295.2, y: 1671.8, image: 'gingerbreadHouse', name: 'Gingerbread House', canBeShown: function (){return Event.event === "Christmas"}},
 			{
 				x: 300,
 				y: 1540,
@@ -5024,7 +5023,7 @@ var Areas = {
 							{item: Items.food[4], cost: 0, quest: true, unconsumable: true, removeOnAbandon: "Hungry Taverners"}, // Sandwich
 							{item: Items.food[1], cost: 0, eventRequirement: "Christmas", quest: true, unconsumable: true, removeOnAbandon: "Hungry Taverners"}, // Mince Pie
 							{item: Items.food[2], cost: 0, eventRequirement: "Christmas", quest: true, unconsumable: true, removeOnAbandon: "Hungry Taverners"}, // Christmas Pudding
-							{item: Items.food[3], cost: 0, eventRequirement: "Antorax", quest: true, unconsumable: true, removeOnAbandon: "Hungry Taverners"}, // Birthday Cake (changed every year)
+							{item: Items.food[9], cost: 0, eventRequirement: "Antorax", quest: true, unconsumable: true, removeOnAbandon: "Hungry Taverners"}, // Birthday Cake (changed every year)
 						],
 						role: "merchant",
 						roleRequirement: function () {
@@ -5044,7 +5043,7 @@ var Areas = {
 							{item: Items.consumable[16], cost: 2, costCurrency: 5, eventRequirement: "Christmas"}, // Mulled Wine
 							{item: Items.food[1], cost: 2, costCurrency: 5, eventRequirement: "Christmas"}, // Mince Pie
 							{item: Items.food[2], cost: 2, costCurrency: 5, eventRequirement: "Christmas"}, // Christmas Pudding
-							{item: Items.food[3], cost: 5, eventRequirement: "Antorax"}, // Birthday Cake (changed every year)
+							{item: Items.food[9], cost: 7, eventRequirement: "Antorax"}, // Birthday Cake (changed every year)
 							{item: Items.consumable[21], cost: 3,}, // Beetroot Beer
 							{item: Items.food[0], cost: 2,}, // Bread
 							{item: Items.food[4], cost: 4,}, // Sandwich
@@ -5864,10 +5863,11 @@ var Areas = {
 				y: 145,
 				width: 60,
 				height: 2,
-				teleportTo: "eaglecrestElixirsStorerooms",
+				teleportTo: "catLife",
 				destinationX: 292,
 				destinationY: 360,
 				teleportCondition: function () {
+					return true;
 					return Player.quests.activeQuestArray.includes("Cat Life");
 				},
 				teleportFailText: "<b>Alchemist Tamtam</b>: <sup>Nooo!</sup> You can't go into the storerooms!!!!",
@@ -6048,6 +6048,7 @@ var Areas = {
 			eaglecrestGhost2: {samhain: "assets/enemies/eaglecrestGhost2.png"},
 			crateSamhain: {samhain: "assets/objects/crateSamhain.png"},
 			melee: {samhain: "assets/projectiles/melee.png"},
+			gnome: {normal: "assets/objects/gnomeYellow.png"},
 		},
 
 		callAreaJoinOnInit: true,
@@ -6183,6 +6184,18 @@ Last I saw him, he was visiting the <b>Eaglecrest Plains</b> to the <b>south</b>
 		],
 
 		things: [
+			{
+				x: 706.5, y: 205.8, orderOffsetY: -100, image: 'gnome', name: 'Gnome',
+				onInteract: function () {
+					if (typeof User.progress.gnomesFound === "undefined") {
+						User.progress.gnomesFound = [];
+					}
+					if (!User.progress.gnomesFound.includes("yellow")) {
+						Dom.chat.insert("<i>You found a yellow gnome~")
+						User.progress.gnomesFound.push("yellow");
+					}
+				}
+			},
 			{
 				x: 180,
 				y: 170,
@@ -7617,6 +7630,12 @@ Last I saw him, he was visiting the <b>Eaglecrest Plains</b> to the <b>south</b>
 			lanternDayRight: {normal: "assets/objects/lanternDayLeft.png", flip: "vertical"},
 			lanternNightRight: {normal: "assets/objects/lanternNightLeft.png", flip: "vertical"},
 			fishermanGuimtal: {normal: "assets/npcs/fishermanGuimtal.png"},
+			gnome: {normal: "assets/objects/gnomeBlue.png"},
+			statue1: {normal: "assets/objects/plainsStatue1.png"},
+			statue2: {normal: "assets/objects/plainsStatue2.png"},
+			statue3: {normal: "assets/objects/plainsStatue3.png"},
+			statue4: {normal: "assets/objects/plainsStatue4.png"},
+			statue5: {normal: "assets/objects/plainsStatue5.png"},
 		},
 
 		areaTeleports: [
@@ -7863,7 +7882,36 @@ Last I saw him, he was visiting the <b>Eaglecrest Plains</b> to the <b>south</b>
 			},
 		],
 
+		infoPoints: [
+			{
+				x: 2594,
+				y: 1299,
+				image: "statue1",
+				name: "I",
+				onTouchChat: "This looks like the beginning of a statue being built. It is entitled 'I'."
+			},
+		],
+
 		things: [
+			{
+				x: 4225, y: 2701,  image: 'gnome', name: 'Gnome',
+				onInteract: function () {
+					if (typeof User.progress.gnomesFound === "undefined") {
+						User.progress.gnomesFound = [];
+					}
+					if (!User.progress.gnomesFound.includes("blue")) {
+						Dom.chat.insert("<i>You found a blue gnome ⚬°</i>")
+						User.progress.gnomesFound.push("blue");
+					}
+				}
+			},
+			{
+                x: [2667.7, 2054.5, 2055.1, 2150.1, 2363.3, 2291.2, 2020.4, 4543.8],
+                y: [484.3, 1052.7, 1432.1, 1764.4, 2633.2, 3173.4, 3526, 4270.5],
+                name: "Lantern",
+				imageDay: "lanternDayRight",
+				imageNight: "lanternNightRight",
+            },
 			{
                 x: [3099, 2434.9, 2819.4, 2306.6, 2555.5, 2627.6, 2557.2, 5077.8, 2603.3, 2244, 5045.3, 2246.9, 4788.8],
                 y: [377.4, 623.7, 625.9, 1155.9, 1908.7, 2445.1, 2958, 3411.8, 3424.6, 3754.2, 4095.2, 4285.4, 4417.7],
@@ -7959,11 +8007,17 @@ Last I saw him, he was visiting the <b>Eaglecrest Plains</b> to the <b>south</b>
 		],
 
 		collisions: [
-			{
+			{ // well
 				x: 4141,
 				y: 2736,
 				width: 120,
 				height: 1,
+			},
+			{ // statue
+				x: 2588,
+				y: 1310,
+				width: 146,
+				height: 10,
 			},
 		]
 	},
@@ -8198,12 +8252,626 @@ Last I saw him, he was visiting the <b>Eaglecrest Plains</b> to the <b>south</b>
 		],
 	},
 
+
+
+	samhainLair: {
+		id: 21,
+
+		data: {
+			name: "Lair",
+			displayOnEnter: false,
+		},
+
+		tagGameAllowed: true,
+
+		song_day: "assets/music/Eaglecrest.mp3",
+		song_night: "assets/music/Eaglecrest.mp3",
+
+		checkpoint: false,
+
+		lootArea: "eaglecrest",
+
+		indoors: true,
+
+		mapData: {
+			cols: 10,
+			rows: 30,
+			tsize: 60,
+			tilesPerRow: 8,
+			solidTiles: [1, 2, 3, 6, 7, 9, 10, 11, 13, 15, 17, 18, 19, 20, 21, 23, 25, 26, 27, 28, 29, 31, 33, 34, 35, 36, 37, 38, 39, 42, 43, 44, 45, 46, 47, 53, 55, 61, 65, 69, 70, 73, 77, 82, 83, 89, 90, 97, 98, 123, 131, 155],
+			dayTiles: [11, 27, 34, 42, 7], // windows and lights
+			nightTiles: [3, 19, 2, 18, 15],
+			pathTiles: [5, 12, 41, 50, 51, 57, 58, 59, 60, 76, 86, 87, 88, 91, 92, 93, 99, 107, 108, 109, 110, 111, 113, 115, 117, 118, 119, 121, 125, 126, 127, 129, 133, 134, 135, 137, 138, 139, 140, 141, 147, 148, 149],
+			waterTiles: [32, 40, 48, 112, 120, 128],
+			iceTiles: [32, 40, 48],
+			layers: [[131, 123, 6, 6, 6, 123, 6, 6, 123, 6,
+            6, 6, 6, 131, 6, 6, 131, 123, 6, 6,
+            123, 131, 6, 131, 123, 131, 6, 6, 6, 123,
+            131, 6, 123, 6, 6, 6, 6, 123, 131, 123,
+            100, 100, 100, 100, 100, 100, 100, 100, 100, 100,
+            100, 100, 100, 100, 100, 100, 100, 100, 100, 100,
+            100, 100, 100, 100, 100, 100, 100, 100, 100, 100,
+            100, 100, 100, 100, 100, 100, 100, 100, 100, 100,
+            100, 100, 100, 100, 100, 100, 100, 100, 100, 100,
+            100, 100, 100, 100, 100, 100, 100, 100, 100, 100,
+            100, 100, 100, 100, 100, 100, 100, 100, 100, 100,
+            100, 100, 100, 100, 100, 100, 100, 100, 100, 100,
+            100, 100, 100, 100, 100, 100, 100, 100, 100, 100,
+            100, 100, 100, 100, 100, 100, 100, 100, 100, 100,
+            155, 155, 155, 100, 100, 100, 100, 155, 155, 155,
+            155, 155, 155, 100, 100, 100, 100, 155, 155, 155,
+            155, 155, 155, 100, 100, 100, 100, 155, 155, 155,
+            155, 155, 155, 100, 100, 100, 100, 155, 155, 155,
+            155, 155, 155, 100, 100, 100, 100, 155, 155, 155,
+            155, 155, 155, 100, 100, 100, 100, 155, 155, 155,
+            155, 155, 155, 100, 100, 100, 100, 155, 155, 155,
+            155, 155, 155, 100, 100, 100, 100, 155, 155, 155,
+            155, 155, 155, 100, 100, 100, 100, 155, 155, 155,
+            155, 155, 155, 100, 100, 100, 100, 155, 155, 155,
+            155, 155, 155, 100, 100, 100, 100, 155, 155, 155,
+            155, 155, 155, 100, 100, 100, 100, 155, 155, 155,
+            155, 155, 155, 100, 100, 100, 100, 155, 155, 155,
+            155, 155, 155, 100, 100, 100, 100, 155, 155, 155,
+            155, 155, 155, 100, 100, 100, 100, 155, 155, 155,
+            155, 155, 155, 100, 100, 100, 100, 155, 155, 155],]
+		},
+
+		images: {
+			tiles: {normal: "assets/tilemap/eaglecrest.png", christmas: "assets/tilemap/eaglecrestChristmas.png"},
+			yellowSnakeRight: {normal: "assets/enemies/yellowSnake.png"},
+			yellowSnakeLeft: {normal: "assets/enemies/yellowSnake.png", flip: "vertical"},
+			snakeMan: {normal: "assets/npcs/soothsssayer.png"},
+			eaglecrestGhost: {normal: "assets/enemies/eaglecrestGhost.png"},
+			eaglecrestGhost2: {normal: "assets/enemies/eaglecrestGhost2.png"},
+			melee: {normal: "assets/projectiles/melee.png"},
+			crateSamhain: {normal: "assets/objects/crateSamhain.png"}, // tbd add a crate
+			cauldron: {normal: "assets/objects/cauldronSamhain.png"},
+		},
+
+		callAreaJoinOnInit: true,
+		onAreaJoin: function () {
+			if (Event.event === "Samhain") {
+				// samhain snakes
+				let no = Random(10,30); // num of snakes
+				for (let i = 0; i < no; i++) {
+					Game.villagers.push(new Villager(Game.prepareNPC({
+						template: EnemyTemplates.eaglecrest.snake,
+					}, "villagers")));
+				}
+
+				if (Player.quests.questProgress.bloodMoonUnlocked) {
+					Areas.samhainLair.indoors = false;
+					Areas.samhainLair.weather = "bloodRain";
+					Event.updateTime("samhainLair");
+					Weather.updateVariables();
+				}
+			}
+			else {
+				Game.loadArea("eaglecrestTavern", {x: 1158, y: 169});
+			}
+		},
+
+		callAreaLeaveOnLogout: true,
+		onAreaLeave: function (logout) {
+			// in case they died on the blood moon is coming quest
+			if (Event.time !== "bloodMoon") {
+				Areas.samhainLair.weather = undefined;
+				Areas.samhainLair.indoors = true;
+			}
+
+			// abandon blood moon is coming quest
+			if (Player.quests.activeQuestArray.includes("The Blood Moon is Coming...")) {
+				let chat = "<b>The Blood Moon is Coming...</b> has been failed. Restart the quest by speaking to <b>The Soothsssayer</b>.";
+				if (logout) {
+					Player.chatOnJoin.push(chat);
+				}
+				else {
+					Dom.chat.insert(chat);
+				}
+				Dom.quest.abandon(Quests.eaglecrest[6]);
+			}
+		},
+
+		areaTeleports: [
+			{
+				// teleport to eaglecrest tavern
+				x: 300,
+				y: 1800,
+				width: 240,
+				height: 2,
+				teleportTo: "eaglecrestTavern",
+				destinationX: 1230,
+				destinationY: 160,
+			},
+		],
+
+		villagerData: {
+			minPeople: 0,
+			maxPeople: 0,
+			locations: [
+				{
+					x: 25,
+					y: 260,
+					width: 550,
+					height: 570,
+				},
+				{
+					x: 205,
+					y: 830,
+					width: 190,
+					height: 900,
+				},
+			],
+		},
+
+		npcs: [
+			{
+				x: 300,
+				y: 280,
+				image: "snakeMan",
+				name: "The Soothsssayer",
+				nameHidden: function () {
+					return !Player.quests.completedQuestArray.includes("Snaking Bad");
+				},
+				hostility: "neutral",
+				level: 100,
+				stats: {
+					maxHealth: 550,
+					defence: 50,
+					dodgeChance: 100,
+					healthRegen: 666,
+				},
+				roles: [
+					{
+						sold: [
+							{item: Items.consumable[9], cost: 1, costCurrency: 4, buyFunction: BuyFunctions.samhainItemBuy}, // samhain pot o' gloop
+							{item: Items.consumable[10], cost: 2, costCurrency: 4, buyFunction: BuyFunctions.samhainItemBuy}, // bunch of blood bats
+							{item: Items.chest[7], cost: 10, costCurrency: 4, buyFunction: BuyFunctions.samhainItemBuy}, // ghost sheet
+							Player.class === "a" ? {item: Items.bow[7], cost: 15, costCurrency: 4, buyFunction: BuyFunctions.samhainItemBuy} // samhain spiderbow
+							: Player.class === "k" ? {item: Items.sword[7], cost: 15, costCurrency: 4, buyFunction: BuyFunctions.samhainItemBuy} // samhain scythe
+							: {item: Items.staff[8], cost: 15, costCurrency: 4, buyFunction: BuyFunctions.samhainItemBuy}, // samhain broomstick
+						],
+						role: "merchant",
+						chooseText: "I'd like to turn in some Samhain Marks for items.",
+						shopGreeting: "Now there'ssss the Blood Moon, I need <b>Sssssamhain Marksssss</b> for the next ssstage of my plan. There'ssss itemss in it for you of coursssse...",
+						roleRequirement: function () {
+							return Event.time === "bloodMoon";
+						},
+					},
+					{
+						quest: Quests.eaglecrest[3],
+						role: "questFinish",
+					},
+					{
+						quest: Quests.eaglecrest[4],
+						role: "questStartFinish",
+					},
+					{
+						quest: Quests.eaglecrest[5],
+						role: "questStartFinish",
+					},
+					{
+						quest: Quests.eaglecrest[6],
+						role: "questStart",
+					},
+				],
+				chat: {
+					shopLeave: "I still need more markssssss. You'll be back.",
+					inventoryFull: "You cannot hold that.",
+					tooPoor: "You cannot afford that. Kill more enemiesssss.",
+					questProgress: "I have rewardssssss waiting.",
+				},
+			},
+		],
+
+		characters: [
+			{
+				template: NPCTemplates.soothsssayerCauldron
+			}
+		],
+
+		collisions: [
+			{
+				x: 300, // cauldron
+				y: 566,
+				width: 110,
+				height: 60,
+			},
+		],
+	},
+
+	catLife: {
+		id: 22,
+
+		data: {
+			name: "Eaglecrest Elixirs Storerooms",
+			displayOnEnter: true,
+		},
+
+		song_day: "assets/music/Eaglecrest.mp3",
+		song_night: "assets/music/Eaglecrest.mp3",
+
+		checkpoint: false,
+
+		lootArea: "eaglecrest",
+
+		indoors: true,
+
+		// start race function - called by initLap1 to announce the start of the race, start timer, etc.
+		startRace: function () {
+			Game.displayOnCanvas("Ready?", [], 2.5, true);
+			Game.displayOnCanvas("Set?", [], 2.5, true);
+			Game.displayOnCanvas("Go!", ["Lap 1 of 3"], 2.5, true);
+
+			Game.setTimeout(function () {
+				// race begins!
+				let timer = new Timer();
+				Player.quests.questProgress.catLifeTimerId = timer.id;
+			}, 5000);
+		},
+
+		//
+		// following fns are called by the tripwire on start line
+		//
+
+		// init lap 1 and also the race in general
+		// called when they touch the tripwire on the start line after the quest has been started
+		initLap1: function () {
+			let playerStunTime = 5; // stun them until they're allowed to go
+
+			if (!Player.quests.questProgress.seenCatLifeCourse) {
+				// show them the pan of the course if they haven't seen it yet
+				Player.quests.questProgress.seenCatLifeCourse = true;
+
+				Game.camera.pan({x: Game.hero.x, y: 0}, 400, "accelerate", function () {
+					Game.camera.pan(Game.hero, 700, "accelerate", function () {
+						// reset camera
+						Game.camera.follow(Game.hero);
+
+						Areas.catLife.startRace();
+					}, 0);
+				}, 1000);
+
+				playerStunTime += 9; // can't move during pan cutscene
+			}
+			else {
+				Areas.catLife.startRace(); // announces the start of the race and starts the timer etc
+			}
+
+			Game.statusEffects.stun({target: Game.hero, time: playerStunTime, hidden: true});
+
+			Player.quests.questProgress.catLifeProgress = 1;
+
+			// targets
+			for (let i = 1; i <= 4; i++) {
+				Game.projectiles.push(new Character({
+					map: map,
+					type: "characters",
+					x: 230*i,
+					y: Random(200, 360),
+					image: "target",
+					name: "Target",
+					showNameTag: false,
+					hostility: "neutral",
+					level: 1,
+					xpGiven: 0,
+					corpseOnDeath: false,
+					respawnOnDeath: false,
+					damageableByPlayer: true,
+					stats: {
+						walkSpeed: 0,
+						maxHealth: 1,
+					},
+					onDeath: function () {
+						Player.quests.questProgress.catLifeTargets = Increment(Player.quests.questProgress.catLifeTargets);
+					}
+				}));
+			}
+
+			// projectiles
+			//for (let i = 0; i < )
+
+
+
+			for (let projectileNum = 0; projectileNum < 32; projectileNum++) {
+				let projectileY = 570+60*projectileNum;
+				let staggerTime = projectileNum * 1000;
+				Game.setTimeout(function () {
+					Game.setInterval(function () {
+						Game.projectiles.push(new Projectile({
+							map: map,
+							x: 0,
+							y: projectileY,
+							stats: {
+								damage: 0,
+								//stun: 2,
+							},
+							targets: [[Game.hero]],
+							image: "icebolt",
+							moveDirection: 0,
+							stopMovingOnDamage: true,
+							moveSpeed: 150,
+							type: "projectiles",
+						}));
+					}, 6000, undefined, true);
+				}, staggerTime);
+			}
+
+			for (let projectileY = 630; projectileY < 2340; projectileY+=240) {
+				let staggerTime = (projectileY - 750) / 240 * 1000;
+				Game.setTimeout(function () {
+					Game.setInterval(function () {
+						Game.projectiles.push(new Projectile({
+							map: map,
+							x: 1140,
+							y: projectileY,
+							stats: {
+								damage: 0,
+								stun: 2,
+							},
+							targets: [Game.hero],
+							image: "icebolt",
+							moveDirection: Math.PI,
+							stopMovingOnDamage: true,
+							moveSpeed: 150,
+							type: "projectiles",
+						}));
+					}, 6000);
+				}, staggerTime);
+			}
+		},
+
+		mapData: {
+			cols: 19,
+			rows: 45,
+			tsize: 60,
+			tilesPerRow: 8,
+			solidTiles: [1, 2, 3, 6, 7, 9, 10, 11, 13, 15, 17, 18, 19, 20, 21, 23, 25, 26, 27, 28, 29, 31, 33, 34, 35, 36, 37, 38, 39, 42, 43, 44, 45, 46, 47, 53, 55, 61, 65, 69, 70, 73, 77, 82, 83, 89, 90, 97, 98, 123, 131, 155, 150, 151, 143, 152],
+			dayTiles: [11, 27, 34, 42, 7], // windows and lights
+			nightTiles: [3, 19, 2, 18, 15],
+			pathTiles: [5, 12, 41, 50, 51, 57, 58, 59, 60, 76, 86, 87, 88, 91, 92, 93, 99, 107, 108, 109, 110, 111, 113, 115, 117, 118, 119, 121, 125, 126, 127, 129, 133, 134, 135, 137, 138, 139, 140, 141, 147, 148, 149],
+			waterTiles: [32, 40, 48, 112, 120, 128],
+			iceTiles: [32, 40, 48],
+			layers: [
+				[31, 55, 39, 47, 55, 23, 39, 55, 55, 31, 23, 39, 31, 47, 55, 39, 55, 31, 47,
+	            39, 7, 47, 55, 31, 7, 55, 23, 31, 7, 31, 39, 31, 7, 23, 47, 31, 7, 39,
+	            6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6,
+	            6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6,
+	            30, 30, 30, 30, 30, 30, 30, 30, 30, 30, 30, 30, 30, 30, 30, 30, 30, 30, 30,
+	            30, 30, 30, 30, 30, 30, 30, 30, 30, 30, 30, 30, 30, 30, 30, 30, 30, 30, 30,
+	            30, 30, 30, 30, 30, 30, 30, 30, 30, 30, 30, 30, 30, 30, 30, 30, 30, 30, 30,
+	            30, 30, 30, 30, 30, 30, 30, 30, 30, 30, 30, 30, 30, 30, 30, 30, 30, 30, 30,
+	            30, 46, 46, 46, 46, 46, 46, 46, 30, 30, 46, 46, 46, 46, 46, 46, 46, 30, 30,
+	            30, 30, 30, 30, 30, 30, 30, 30, 30, 30, 30, 30, 30, 30, 30, 30, 30, 30, 30,
+	            30, 30, 30, 30, 30, 30, 30, 30, 30, 30, 30, 30, 30, 30, 30, 30, 30, 30, 30,
+	            30, 30, 30, 30, 30, 30, 30, 30, 30, 30, 30, 30, 30, 30, 30, 30, 30, 30, 30,
+	            30, 30, 30, 30, 30, 30, 30, 30, 30, 30, 30, 30, 30, 30, 30, 30, 30, 30, 30,
+	            30, 30, 30, 30, 30, 30, 30, 30, 30, 30, 30, 30, 30, 30, 30, 30, 30, 30, 30,
+	            30, 30, 30, 30, 30, 30, 30, 30, 30, 30, 30, 30, 30, 30, 30, 30, 30, 30, 30,
+	            30, 30, 30, 30, 30, 30, 30, 30, 30, 30, 30, 30, 30, 30, 30, 30, 30, 30, 30,
+	            30, 30, 30, 30, 30, 30, 30, 30, 30, 30, 30, 30, 30, 30, 30, 30, 30, 30, 30,
+	            30, 30, 30, 30, 30, 30, 30, 30, 30, 30, 30, 30, 30, 30, 30, 30, 30, 30, 30,
+	            30, 30, 30, 30, 30, 30, 30, 30, 30, 30, 30, 30, 30, 30, 30, 30, 30, 30, 30,
+	            30, 30, 30, 30, 30, 30, 30, 30, 30, 30, 30, 30, 30, 30, 30, 30, 30, 30, 30,
+	            30, 30, 30, 30, 30, 30, 30, 30, 30, 30, 30, 30, 30, 30, 30, 30, 30, 30, 30,
+	            30, 30, 30, 30, 30, 30, 30, 30, 30, 30, 30, 30, 30, 30, 30, 30, 30, 30, 30,
+	            30, 30, 30, 30, 30, 30, 30, 30, 30, 30, 30, 30, 30, 30, 30, 30, 30, 30, 30,
+	            30, 30, 30, 30, 30, 30, 30, 30, 30, 30, 30, 30, 30, 30, 30, 30, 30, 30, 30,
+	            30, 30, 30, 30, 30, 30, 30, 30, 30, 30, 30, 30, 30, 30, 30, 30, 30, 30, 30,
+	            30, 30, 30, 30, 30, 30, 30, 30, 30, 30, 30, 30, 30, 30, 30, 30, 30, 30, 30,
+	            30, 30, 30, 30, 30, 30, 30, 30, 30, 46, 46, 46, 46, 46, 46, 46, 30, 30, 30,
+	            30, 30, 30, 30, 30, 30, 30, 30, 30, 30, 30, 30, 30, 30, 30, 30, 30, 30, 30,
+	            30, 30, 30, 30, 30, 30, 30, 30, 30, 32, 32, 32, 32, 32, 32, 32, 32, 32, 30,
+	            30, 30, 30, 30, 30, 30, 30, 30, 30, 32, 32, 32, 32, 32, 32, 32, 32, 32, 30,
+	            30, 30, 30, 30, 30, 30, 30, 30, 30, 32, 32, 32, 32, 32, 32, 32, 32, 32, 30,
+	            30, 30, 30, 30, 30, 30, 30, 30, 30, 32, 32, 32, 32, 32, 32, 32, 32, 32, 30,
+	            30, 30, 30, 30, 30, 30, 30, 30, 30, 32, 32, 32, 32, 32, 32, 32, 32, 32, 30,
+	            30, 30, 30, 30, 30, 30, 30, 30, 30, 32, 32, 32, 32, 32, 32, 32, 32, 32, 30,
+	            30, 30, 30, 30, 30, 30, 30, 30, 30, 32, 32, 32, 32, 32, 32, 32, 32, 32, 30,
+	            30, 30, 30, 30, 30, 30, 30, 30, 30, 32, 32, 32, 32, 32, 32, 32, 32, 32, 30,
+	            30, 30, 30, 30, 30, 30, 30, 30, 30, 32, 32, 32, 32, 32, 32, 32, 32, 32, 30,
+	            30, 30, 30, 30, 30, 30, 30, 30, 30, 32, 32, 32, 32, 32, 32, 32, 32, 32, 30,
+	            30, 30, 30, 30, 30, 30, 30, 30, 30, 32, 32, 32, 32, 32, 32, 32, 32, 32, 30,
+	            30, 30, 30, 30, 30, 30, 30, 30, 30, 32, 32, 32, 32, 32, 32, 32, 32, 32, 30,
+	            30, 30, 30, 30, 30, 30, 30, 30, 30, 30, 30, 30, 30, 30, 30, 30, 30, 30, 30,
+	            30, 159, 159, 159, 159, 159, 159, 159, 30, 30, 30, 30, 30, 30, 30, 30, 30, 30, 30,
+	            30, 30, 30, 30, 30, 30, 30, 30, 30, 30, 30, 30, 30, 30, 30, 30, 30, 30, 30,
+	            30, 30, 30, 30, 30, 30, 30, 30, 30, 159, 159, 159, 159, 159, 159, 159, 159, 159, 30,
+	            30, 30, 30, 30, 30, 30, 30, 30, 30, 30, 30, 30, 30, 30, 30, 30, 30, 30, 30],
+				[0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
+	            0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
+	            0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
+	            0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
+	            0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
+	            151, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 151,
+	            0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 151, 151,
+	            142, 0, 0, 0, 0, 0, 0, 0, 142, 142, 0, 0, 0, 0, 0, 0, 0, 152, 151,
+	            143, 0, 0, 0, 0, 0, 0, 0, 150, 143, 0, 0, 0, 0, 0, 0, 0, 150, 152,
+	            143, 0, 0, 0, 0, 0, 0, 0, 0, 150, 0, 0, 0, 142, 0, 0, 0, 0, 143,
+	            143, 0, 0, 0, 0, 142, 0, 0, 0, 0, 0, 0, 0, 150, 0, 0, 0, 0, 143,
+	            143, 0, 0, 0, 0, 150, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 143,
+	            150, 0, 0, 0, 0, 0, 0, 0, 142, 142, 0, 0, 142, 142, 142, 0, 0, 142, 143,
+	            151, 0, 0, 0, 0, 0, 0, 142, 150, 143, 0, 0, 150, 150, 150, 0, 0, 150, 150,
+	            152, 0, 0, 0, 0, 0, 0, 150, 152, 143, 0, 142, 142, 142, 142, 142, 0, 0, 0,
+	            143, 0, 0, 0, 0, 0, 0, 151, 143, 150, 0, 143, 150, 150, 150, 143, 0, 142, 142,
+	            143, 0, 0, 0, 0, 0, 0, 0, 143, 0, 142, 143, 0, 142, 0, 143, 0, 150, 143,
+	            143, 0, 0, 0, 0, 0, 0, 0, 150, 0, 150, 150, 0, 143, 0, 143, 142, 0, 143,
+	            143, 0, 0, 0, 0, 0, 0, 0, 0, 0, 142, 142, 142, 143, 0, 150, 150, 0, 143,
+	            143, 0, 0, 0, 0, 0, 0, 0, 142, 0, 150, 150, 143, 143, 0, 142, 0, 0, 143,
+	            143, 0, 0, 0, 0, 0, 0, 0, 143, 142, 142, 142, 143, 150, 0, 143, 0, 142, 143,
+	            143, 0, 0, 0, 0, 0, 0, 0, 143, 150, 150, 150, 143, 0, 142, 143, 142, 143, 143,
+	            143, 142, 142, 142, 142, 142, 0, 0, 143, 0, 142, 0, 150, 0, 143, 150, 150, 150, 143,
+	            143, 150, 150, 150, 150, 150, 0, 0, 143, 0, 143, 142, 142, 142, 143, 0, 142, 0, 143,
+	            150, 0, 0, 142, 142, 142, 142, 142, 143, 0, 150, 150, 150, 150, 150, 0, 143, 0, 150,
+	            151, 0, 0, 150, 150, 150, 150, 150, 143, 0, 0, 0, 0, 0, 0, 0, 143, 0, 0,
+	            151, 142, 142, 142, 0, 142, 0, 0, 143, 0, 0, 0, 0, 0, 0, 0, 150, 0, 142,
+	            151, 150, 150, 150, 151, 150, 0, 0, 143, 0, 0, 0, 0, 0, 0, 0, 0, 0, 143,
+	            152, 0, 0, 0, 0, 0, 0, 0, 143, 0, 0, 0, 0, 0, 0, 0, 0, 0, 150,
+	            143, 0, 0, 142, 142, 142, 142, 142, 143, 0, 0, 0, 0, 0, 0, 0, 0, 0, 151,
+	            143, 0, 0, 150, 150, 150, 150, 150, 143, 0, 0, 0, 0, 0, 0, 0, 0, 0, 151,
+	            143, 0, 0, 0, 0, 0, 0, 0, 143, 0, 0, 0, 0, 0, 0, 0, 0, 0, 151,
+	            143, 142, 0, 142, 142, 142, 0, 0, 143, 0, 0, 0, 0, 0, 0, 0, 0, 0, 151,
+	            143, 150, 151, 150, 150, 150, 0, 0, 150, 0, 0, 0, 0, 0, 0, 0, 0, 0, 151,
+	            143, 0, 0, 0, 0, 0, 0, 0, 152, 0, 0, 0, 0, 0, 0, 0, 0, 0, 151,
+	            150, 0, 0, 0, 0, 0, 0, 0, 143, 0, 0, 0, 0, 0, 0, 0, 0, 0, 152,
+	            0, 0, 0, 142, 142, 142, 142, 142, 143, 0, 0, 0, 0, 0, 0, 0, 0, 0, 143,
+	            142, 0, 0, 150, 150, 150, 150, 150, 143, 0, 0, 0, 0, 0, 0, 0, 0, 0, 143,
+	            143, 0, 0, 0, 0, 0, 0, 0, 143, 0, 0, 0, 0, 0, 0, 0, 0, 0, 143,
+	            143, 0, 0, 0, 0, 0, 0, 0, 143, 0, 0, 0, 0, 0, 0, 0, 0, 0, 150,
+	            150, 0, 0, 0, 0, 0, 0, 0, 143, 0, 0, 0, 0, 0, 0, 0, 0, 0, 151,
+	            152, 0, 0, 0, 0, 0, 0, 0, 143, 0, 0, 0, 0, 0, 0, 0, 0, 0, 151,
+	            143, 0, 0, 0, 0, 0, 0, 0, 150, 30, 30, 30, 30, 30, 0, 0, 0, 0, 152,
+	            143, 0, 0, 0, 0, 0, 0, 0, 0, 30, 30, 30, 30, 30, 30, 30, 30, 30, 143,
+	            150, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 150],
+			],
+			animateTiles: [{
+				// water tiles
+				tiles: [32, 40, 48],
+				animateTime: 400,
+			}],
+		},
+
+		images: {
+			tiles: {normal: "assets/tilemap/eaglecrest.png"},
+			cauldron: {normal: "assets/objects/cauldronEaglecrest.png", christmas: "assets/objects/cauldronEaglecrestChristmas.png"},
+			icebolt: {normal: "assets/projectiles/icebolt.png"},
+			target: {normal: "assets/objects/target.png"},
+			movingPlatform: {normal: "assets/objects/movingPlatform1.png"},
+			potionStand: {normal: "assets/objects/potionStand.png"},
+		},
+
+		npcs: [
+		],
+
+		collisions: [
+			// finish line
+			{x: 310, y: 920, width: 220, height: 120},
+			{x: 240, y: 1150, width: 200, height: 120},
+			{x: 510, y: 1120, width: 60, height: 180},
+			{x: 30, y: 2190, width: 60, height: 180},
+			{x: 1080, y: 890, width: 120, height: 180},
+			{x: 1110, y: 1560, width: 60, height: 180},
+			// after target practice
+			{x: 800, y: 810, width: 500, height: 60, collisionCondition: function () {
+				if (Player.quests.questProgress.catLifeTargets === 4) {
+					return false; // no collision
+				}
+				else {
+					return true;
+				}
+			}},
+			// finish line
+			{x: 270, y: 2470, width: 420, height: 2, collisionCondition: function () {
+				if (Player.quests.activeQuestArray.includes("Cat Warrior")) {
+					return false; // no collision
+				}
+				else {
+					return true;
+				}
+			}},
+			// bit leading from the start to the water bit
+			{x: 510, y: 2660, width: 60, height: 300, collisionCondition: function () {
+				if (Player.quests.activeQuestArray.includes("Cat Warrior") && Player.quests.questProgress.catLifeProgress > 1) {
+					return false; // no collision
+				}
+				else {
+					return true;
+				}
+			}}
+		],
+
+		tripwires: [ // make sure the player is doing the course in order!
+			{x: 270, y: 780, width: 420, height: 2, collisionType: "feet", onPlayerTouch: function () { // after the first stretch
+				if (Player.quests.questProgress.catLifeProgress % 3 === 1) {
+					Player.quests.questProgress.catLifeProgress++;
+					Game.displayOnCanvas("split time .. tbd", ["Shoot down all the targets!"], 6, true);
+				}
+			}},
+			{x: 810, y: 1620, width: 540, height: 2, collisionType: "feet", onPlayerTouch: function () { // after the targets and maze
+				if (Player.quests.questProgress.catLifeProgress % 3 === 2) {
+					Player.quests.questProgress.catLifeProgress++;
+					Game.displayOnCanvas("split time .. tbd", ["Keep going!!"], 4, true);
+				}
+			}},
+			{x: 270, y: 2470, width: 420, height: 2, collisionType: "feet", onPlayerTouch: function () { // finish line
+				if (Player.quests.questProgress.catLifeProgress === 3) {
+					// start lap 2
+					Areas.catLife.initLap2();
+					Game.displayOnCanvas("split time .. tbd", ["Lap 2 of 3"], 4, true);
+					// catLifeProgress is incremented in initLap2
+				}
+				else if (Player.quests.questProgress.catLifeProgress === 6) {
+					// start lap 3
+					Areas.catLife.initLap3();
+					Game.displayOnCanvas("split time .. tbd", ["Lap 3 of 3"], 4, true);
+				}
+				else if (Player.quests.activeQuestArray.includes("Cat Warrior") && (typeof Player.quests.questProgress.catLifeProgress === "undefined" || Player.quests.questProgress.catLifeProgress === 0)) {
+					// start lap 1
+					Areas.catLife.initLap1();
+				}
+				else if (Player.quests.questProgress.catLifeProgress === 9) {
+					// finish race!
+					//tbd
+					// remember to reset timer variable and catlifeprogress variable on race finish !!!!!
+				}
+			}},
+		],
+
+		things: [
+			// potion stands
+			{x: [153.4, 424.5, 666.4, 730.2, 671.8, 788.6], y: [455.4, 455.4, 455.4, 1533.1, 1533.1, 1533.1], image: 'potionStand', name: 'Potion Stand'},
+			// cauldrons
+			{x: [251.7, 1078.1, 364.2, 367.8, 269.7, 289.3, 203.3, 478.5, 289.3, 187.5, 1140, 0], y: [868.6, 879.5, 881, 933.9, 936.2, 1098.8, 1108.8, 1116.6, 1165.5, 1170.1, 1540.9, 2198.1], image: 'cauldron', name: 'Cauldron'},
+			// moving platforms
+			{
+				x: 680,
+				y: 1800,
+				z: -1,
+				walkable: true,
+				image: "movingPlatform",
+				name: "Moving Platform",
+				speed: 100,
+				moveTowardsLoop: [
+					{
+						x: 680,
+						y: 1800
+					},
+					{
+						x: 680,
+						y: 2100
+					}
+				]
+			},
+			{
+				x: 930,
+				y: 2270,
+				z: -1,
+				walkable: true,
+				image: "movingPlatform",
+				name: "Moving Platform",
+				speed: 100,
+				moveTowardsLoop: [
+					{
+						x: 930,
+						y: 2270
+					},
+					{
+						x: 930,
+						y: 1970
+					}
+				]
+			},
+		],
+
+
+	},
+
 	//
 	// Forest
 	//
 
 	forest: {
-		id: 22,
+		id: 23,
 
 		data: {
 			name: "Forest",

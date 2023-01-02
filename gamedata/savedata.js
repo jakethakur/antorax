@@ -172,6 +172,46 @@ var Player = {
 // assign is used so the properties cannot be changed
 const DefaultStats = Object.assign({}, Player.stats);
 
+// array of objects of characters player can transform into
+// if the player is transformed into one of these, the only thing that is changed in Player is Player.transformedInto (set to the id of the object in this array)
+// if player is transformed, stats are set to DefaultStats with any exceptions given in PlayerTransformations
+const PlayerTransformations = [
+	{
+		id: 0,
+		class: "cat",
+		skin: "0",
+
+		stats: {
+			damage: 2,
+			defence: 5,
+			maxHealth: 50,
+			range: 0,
+			reloadTime: 500, // (0.5s) time that must be taken between attack channel finish and channel start (in ms)
+			criticalChance: 5, // (1%)
+			dodgeChance: 10, // (1%)
+			flaming: 0, // (I)
+			healthRegen: 0.5, // (0.5/s)
+			swimSpeed: 60, // (300/s)
+			walkSpeed: 180, // (300/s)
+			iceSpeed: 270, // (300/s)
+			variance: 0, // default variance projectiles when 600px away - set to 100 by default for any archer weapons; can be overriden in itemdata
+			minimumVariance: 0, // (50) minimum variance of a fired projectile
+			focusSpeed: 6, // (1/s) archers only (speed at which the variance for archer projectiles gets smaller)
+			moveDuringFocus: true, // whether you can move whilst charging basic attack
+			looting: 150,
+			// spells
+			maxMana: 10,
+			manaRegen: 0.75, //tbd balance
+		},
+		conditionalStats: [],//?????change??????
+
+		health: 50,
+
+		// spells
+		spells: [{id: 13, tier: 1}],
+	},
+];
+
 var User = {
 	archaeology: [],
 	fish: [],

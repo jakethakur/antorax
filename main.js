@@ -1102,13 +1102,18 @@ Game.setTimeout = function (func, time, params) {
 	this.timeouts.push(timeoutObject);
 	return this.currentTimeoutId;
 }
-Game.setInterval = function (func, time, params) {
+Game.setInterval = function (func, time, params, call) { // call is set to true if it should be called straight away rather than before the delay
 	if (!Array.isArray(params)) {
 		params = [params];
 	}
 	this.currentTimeoutId++;
 	let timeoutObject = {id: this.currentTimeoutId, func: func, time: time, elapsed: 0, params: params};
 	this.intervals.push(timeoutObject);
+
+	if (call) {
+		func(...params);
+	}
+
 	return this.currentTimeoutId;
 }
 
@@ -1128,6 +1133,48 @@ Game.clearInterval = function(id) {
 		return true;
 	}
 	return false;
+}
+
+//
+// Timers
+//
+
+Game.timers = []; // timers are all be added to this array so they are incremented
+Game.nextTimerId = 0;
+
+class Timer {
+	constructor () {
+		this.id = Game.nextTimerId;
+		Game.nextTimerId++;
+
+		this.paused = false;
+
+		this.elapsed = 0; // in ms
+
+		this.splitTimes = []; // this is an array of arrays of split times, where the array the split time is placed in is the parameter of this.split (i.e. the leg of the lap)
+		this.lastSplitAt = 0; // elapsed time when split was last called
+
+		Game.timers.push(this);
+	}
+
+	reset () {
+		this.elapsed = 0;
+	}
+
+	// returns the time (in ms) since the last split time (/ initiation if there wasn't a prev split time)
+	// leg is an interger that corresponds to the array of this.splitTimes that the split time is placed in (i.e. the leg of the lap - set to 0 by default!)
+	split (leg) {
+		if (typeof leg === "undefined") {
+			leg = 0; // set to 0 by default
+		}
+		if (!Array.isArray(this.splitTimes[leg])) {
+			this.splitTimes[leg] = [];
+		}
+		let splitTime = this.elapsed - this.lastSplitTime;
+		this.splitTimes[leg].push(splitTime);
+		this.lastSplitAt = this.elapsed;
+		return splitTime;
+	}
 }
 
 //
@@ -1166,7 +1213,24 @@ class Entity {
 			this.y = spawnPosition[1];
 		}
 
-		this.hitboxColour = properties.hitboxColour || "#FF0000"; // hex colour for hitbox
+		this.moveTowards = properties.moveTowards; // should be an object with an x and y, and a speed property if this entity doesn't have a .speed/this speed should be overriden
+		// note moveTowards is currently incompatible with player / enemy / projectile move towards - tbd merge them into this one :)
+		this.moveTowardsLoop = properties.moveTowardsLoop;// moveTowardsLoop is an optional array of moveTowards objects which are iterated through one after another
+		if (typeof this.moveTowardsLoop !== "undefined") {
+			this.moveTowards = this.moveTowardsLoop[0];
+			this.moveTowardsState = 0; // index in loop that is currently being followed
+		}
+		this.speed = properties.speed; // potentially used with moveTowards
+
+		if (this.type === "collisions") { // done here because collisions are actually entities in a special array .. tbd change this?
+			this.hitboxColour = properties.hitboxColour || "#FF00000";
+		}
+		else if (this.type === "tripwires") { // done here because collisions are actually entities in a special array .. tbd change this?
+			this.hitboxColour = properties.hitboxColour || "#00FF00";
+		}
+		else {
+			this.hitboxColour = properties.hitboxColour || "#0000FF"; // hex colour for hitbox
+		}
 
 		this.collisionType = properties.collisionType || "body"; // "feet" = check collision with Game.hero.footHitbox
 		// collision type currently only applies to tripwires
@@ -1476,6 +1540,11 @@ class Thing extends Entity {
 		this.canBeOnLead = properties.canBeOnLead || false; // whether a lead can be put on them
 
 		this.showNameTag = properties.showNameTag || false;
+
+		this.walkable = properties.walkable || false; // whether the object can be walked on as normal ground (i.e. even if it is over water)
+		if (this.walkable && properties.addToObjectArrays !== false) {
+			Game.walkableObjects.push(this);
+		}
 	}
 
 	// imageName is the key name of the image stored in loader
@@ -1753,7 +1822,7 @@ class Character extends Thing {
 			Game.allCharacters.push(this); // array for current area only
 		}
 
-		this.hideNameTag = properties.hideNameTag; // if name tag should be hidden
+		this.showNameTag = properties.showNameTag || true; // same as property in Thing, but now defaults to true
 	}
 
 
@@ -1917,17 +1986,20 @@ class Character extends Thing {
 
 		// check collision with collisions - invisible entities that cannot be passed
 		for (let i = 0; i < Game.collisions.length; i++) {
-			// check if the player's feet are touching the collision
-			if (this.footHitbox.isTouching(Game.collisions[i])) {
-				collision = true;
+			// check collision condition is true
+			if (typeof Game.collisions[i].collisionCondition === "undefined" || Game.collisions[i].collisionCondition()) {
+				// check if the player's feet are touching the collision
+				if (this.footHitbox.isTouching(Game.collisions[i])) {
+					collision = true;
 
-				// find which directions it is touching the collision in
-				let colliding = this.footHitbox.isColliding(Game.collisions[i], delta*xMovement, delta*yMovement);
-				if (colliding.x) {
-					possibleMovements.x = false;
-				}
-				if (colliding.y) {
-					possibleMovements.y = false;
+					// find which directions it is touching the collision in
+					let colliding = this.footHitbox.isColliding(Game.collisions[i], delta*xMovement, delta*yMovement);
+					if (colliding.x) {
+						possibleMovements.x = false;
+					}
+					if (colliding.y) {
+						possibleMovements.y = false;
+					}
 				}
 			}
 		}
@@ -2435,12 +2507,20 @@ class Character extends Thing {
 			iceSpeed = this.stats.iceSpeed;
 		}
 
+		// test for walkable objects (i.e. platforms)
+		let walkableObject;
+		for (let i = 0; i < Game.walkableObjects.length; i++) {
+			if (this.footHitbox.isTouching(Game.walkableObjects[i])) {
+				walkableObject = true;
+			}
+		}
+
 		// test for slow tiles (e.g: water, mud)
 		let slowTile = this.map.isSlowTileAtXY(this.x, footY);
 
 		let waterWalking = this.hasStatusEffectType("waterWalking"); // can walk on water and mud
 
-		if (slowTile === null || baseSpeed) { // normal speed
+		if (slowTile === null || walkableObject || baseSpeed) { // normal speed
 			this.speed = walkSpeed;
 			// remove swimming/mud/ice/path status effect
 			Game.removeTileStatusEffects(this);
@@ -4491,6 +4571,15 @@ class CombatArea extends Entity {
 		this.activated = false;
 
 		this.text = properties.text || ""; // optional text to display in the shape
+	}
+}
+
+// entities that the player collides with
+class Collision extends Entity {
+	constructor(properties) {
+		super(properties);
+
+		this.collisionCondition = properties.collisionCondition; // an optional function where collision only happens if this returns true
 	}
 }
 
@@ -7113,6 +7202,7 @@ Game.loadArea = function (areaName, destination) {
 		this.allAttackers = [];
 		this.allNPCs = []; // includes villagers
 		this.damageableByPlayer = []; // everything that has this.damageableByPlayer set to true (ofc must be character or higher in hierarchy)
+		this.walkableObjects = []; // moving platforms etc (things with .walkable as true)
 
 		// init game (if it hasn't been done so already)
 		let init = false; // set to if this is the first areaTeleport of the game
@@ -7147,7 +7237,7 @@ Game.loadArea = function (areaName, destination) {
 
 		// object containing the class associated to each type (must be hard-coded)
 		this.typeClasses = {
-			collisions: Entity,
+			collisions: Collision,
 			areaTeleports: AreaTeleport,
 			tripwires: Tripwire,
 			particles: Particle,
@@ -8393,6 +8483,15 @@ Game.update = function (delta) {
 		}
 	}
 
+	//
+	// Timers
+	//
+	for (let i = 0; i < this.timers.length; i++) {
+		if (!this.timers[i].paused) {
+			this.timers[i].elapsed += delta * 1000;
+		}
+	}
+
 	// CombatArea intervals (done locally in combatAreas for simplicity)
 	for (let i = 0; i < this.combatAreas.length; i++) {
 		this.combatAreas[i].elapsed += delta * 1000;
@@ -9386,6 +9485,45 @@ Game.update = function (delta) {
 				this.removeObject(entity.id, entity.type);
 			}
 		}
+
+		// moveTowards
+		// move entity towards a particular point until they are there
+		if (typeof entity.moveTowards !== "undefined") {
+			let direction = Game.bearing(entity, entity.moveTowards);
+			let dirx = Math.cos(direction);
+			let diry = Math.sin(direction);
+
+			// movement speed
+			let speed = entity.moveTowards.speed; // speed should be specified in the moveTowards if the entity has no speed of its own
+			if (typeof speed === "undefined") {
+				speed = entity.speed; // uses the entity's own speed by default
+			}
+			// speed scalar due to moveTowards (decimal value)
+			if (typeof entity.moveTowards.speedScalar !== "undefined") {
+				speed *= entity.moveTowards.speedScalar;
+			}
+
+			entity.x += dirx * speed * delta;
+			entity.y += diry * speed * delta;
+
+			// check if destination has been reached
+			if (Math.round(entity.x) < entity.moveTowards.x + 2 && Math.round(entity.x) > entity.moveTowards.x - 2
+			&& Math.round(entity.y) < entity.moveTowards.y + 2 && Math.round(entity.y) > entity.moveTowards.y - 2) {
+				// destination reached
+				// remove moveTowards
+				entity.moveTowards = undefined;
+
+				// some entities now begin another moveTowards
+				// see entity class definition for more info <3
+				if (typeof entity.moveTowardsLoop !== "undefined") {
+					entity.moveTowardsState++;
+					if (entity.moveTowardsState >= entity.moveTowardsLoop.length) {
+						entity.moveTowardsState = 0; // loop round
+					}
+					entity.moveTowards = entity.moveTowardsLoop[entity.moveTowardsState];
+				}
+			}
+		}
 	}
 
 	//
@@ -10316,7 +10454,7 @@ Game.drawCharacterInformation = function (ctx, character) {
 		characterInformationHeight += 2; // padding for name
 	}
 
-	if (!character.hideNameTag) { // some characters want to hide thier name tag
+	if (character.showNameTag) { // some characters want to hide thier name tag
 		this.drawCharacterName(ctx, character, character.screenX, character.screenY - character.height / 2 - characterInformationHeight - 3);
 	}
 }
@@ -10624,7 +10762,7 @@ Game.drawSpells = function (ctx, character, x, y, height, alignment) {
 	// iterate through character's spells
 	for (let i = 0; i < character.spells.length; i++) {
 		// get number of image in spell image tileset
-		let iconNum = character.spells[i].id;
+		let iconNum = Spells[character.spells[i].id].imgIconNum;
 
 		// draw the image
 		ctx.drawImage(this.spellImage, 0, 27 * iconNum, 27, 27, startX + i * (height*1.2), y, height, height);

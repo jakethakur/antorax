@@ -2485,7 +2485,7 @@ var Items = {
 			area: ["eaglecrest"],
 			rarity: "mythic",
 			sellPrice: 5,
-			lore: "", // tbd you cant take this into monsastery
+			lore: "The staff feels strangely hot to the touch.",
 			obtainText: "Can be uncovered as an unidentified item in areas around Eaglecrest Plains.",
 			unidentifiedArea: ["eaglecrest"],
 			stats: {
@@ -4986,6 +4986,27 @@ var Items = {
 			healthRestore: 30,
 			healthRestoreTime: 3,
 			lore: "", // tbd
+		},
+		{
+			id: 9,
+			name: "Antorax Day Birthday Cake",
+			type: "food",
+			image: "assets/items/food/9.png",
+			sellPrice: 7,
+			healthRestore: 77,
+			healthRestoreTime: 7,
+			lore: "Antorax turns seven!",
+		},
+		{
+			id: 10,
+			name: "Block of Cheese",
+			type: "food",
+			image: "assets/items/food/10.png",
+			sellPrice: 1,
+			sellQuantity: 4,
+			stack: 16,
+			healthRestore: 30,
+			healthRestoreTime: 5,
 		},
 	],
 	teleport: [
