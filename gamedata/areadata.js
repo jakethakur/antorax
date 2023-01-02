@@ -7186,50 +7186,62 @@ Last I saw him, he was visiting the <b>Eaglecrest Plains</b> to the <b>south</b>
 				// christmas lights! (bridge)
 				tiles: [114, 161],
 				animateTime: 1000,
+				animateCondition: function () {return Event.event === "Christmas"}
 			},{
 				// christmas lights! (bridge)
 				tiles: [116, 162],
 				animateTime: 1000,
+				animateCondition: function () {return Event.event === "Christmas"}
 			},{
 				// christmas lights! (bridge)
 				tiles: [122, 169],
 				animateTime: 1000,
+				animateCondition: function () {return Event.event === "Christmas"}
 			},{
 				// christmas lights! (bridge)
 				tiles: [124, 170],
 				animateTime: 1000,
+				animateCondition: function () {return Event.event === "Christmas"}
 			},{
 				// christmas lights! (bridge)
 				tiles: [130, 177],
 				animateTime: 1000,
+				animateCondition: function () {return Event.event === "Christmas"}
 			},{
 				// christmas lights! (bridge)
 				tiles: [132, 178],
 				animateTime: 1000,
+				animateCondition: function () {return Event.event === "Christmas"}
 			},{
 				// christmas lights! (bridge)
 				tiles: [94, 163],
 				animateTime: 1000,
+				animateCondition: function () {return Event.event === "Christmas"}
 			},{
 				// christmas lights! (bridge)
 				tiles: [95, 164],
 				animateTime: 1000,
+				animateCondition: function () {return Event.event === "Christmas"}
 			},{
 				// christmas lights! (bridge)
 				tiles: [96, 165],
 				animateTime: 1000,
+				animateCondition: function () {return Event.event === "Christmas"}
 			},{
 				// christmas lights! (bridge)
 				tiles: [102, 171],
 				animateTime: 1000,
+				animateCondition: function () {return Event.event === "Christmas"}
 			},{
 				// christmas lights! (bridge)
 				tiles: [103, 172],
 				animateTime: 1000,
+				animateCondition: function () {return Event.event === "Christmas"}
 			},{
 				// christmas lights! (bridge)
 				tiles: [104, 173],
 				animateTime: 1000,
+				animateCondition: function () {return Event.event === "Christmas"}
 			},{
 				// christmas lights on walls!
 				tiles: [166, 174, 167, 175, 168, 176],

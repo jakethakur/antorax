@@ -809,7 +809,9 @@ var map = {
 		// set new intervals if there are tiles to be animated
 		if (this.animateTiles !== undefined) {
 			for (let animateIndex = 0; animateIndex < this.animateTiles.length; animateIndex++) {
-				this.tileAnimationIntervals.push(Game.setInterval(this.animateTilesFunction.bind(this), this.animateTiles[animateIndex].animateTime, [animateIndex]));
+				if (typeof this.animateTiles[animateIndex].animateCondition === "undefined" || this.animateTiles[animateIndex].animateCondition()) {
+					this.tileAnimationIntervals.push(Game.setInterval(this.animateTilesFunction.bind(this), this.animateTiles[animateIndex].animateTime, [animateIndex]));
+				}
 			}
 		}
 	},
@@ -1822,7 +1824,9 @@ class Character extends Thing {
 			Game.allCharacters.push(this); // array for current area only
 		}
 
-		this.showNameTag = properties.showNameTag || true; // same as property in Thing, but now defaults to true
+		if (typeof properties.showNameTag === undefined) {
+			this.showNameTag = true; // same as property in Thing, but now defaults to true
+		}
 	}
 
 
@@ -10454,7 +10458,7 @@ Game.drawCharacterInformation = function (ctx, character) {
 		characterInformationHeight += 2; // padding for name
 	}
 
-	if (character.showNameTag) { // some characters want to hide thier name tag
+	if (character.showNameTag) { // some characters want to hide their name tag
 		this.drawCharacterName(ctx, character, character.screenX, character.screenY - character.height / 2 - characterInformationHeight - 3);
 	}
 }

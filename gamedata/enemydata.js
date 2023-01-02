@@ -841,11 +841,11 @@ const EnemyTemplates = {
 			hostility: "hostile",
 			level: 5,
 			stats: {
-				damage: 8,
+				damage: 7,
 				walkSpeed: 25,
 				swimSpeed: 25,
 				iceSpeed: 50,
-				maxHealth: 50,
+				maxHealth: 40,
 				defence: 4,
 				range: 150,
 				reloadTime: 1500,
