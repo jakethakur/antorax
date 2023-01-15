@@ -2173,6 +2173,45 @@ After all, death is never the end in Antorax...<br>
 				],
 			},
 		},*/
+		/*{
+			id: "tbd", // tbdddddddddddddddd
+			quest: "Cat Warrior",
+			questArea: "eaglecrest",
+
+			startName: "tbd",
+			startChat: "tbd.",
+
+			finishName: "tbd",
+			finishChat: "tbd.",
+
+			objectives: [
+				"Drink the <strong>cat potion</strong>.",
+				"Speak to <strong>tbd</strong> in the <strong>Eaglecrest Elixirs Storerooms.</strong>",
+				"Complete three laps of the obstacle course!", // hidden obj
+				"Speak to <strong>Alchemist Tamtam</strong>.",
+			],
+
+			isCompleted: function() {
+				let completed = [];
+
+				let lapsCompleted = 0; //tbd
+				completed.push(false);
+				completed.push(checkProgress(lapsCompleted, 3));
+
+				completed = checkFinished(completed);
+
+				return completed;
+			},
+
+			howToStart: "tbd.",
+			levelRequirement: 4,
+			questRequirements: ["Potion Making II"],
+
+			rewards: {
+				xp: 50,
+				items: [{}], // cat toy tbd
+			},
+		},*/
 	],
 
 	tavern: [

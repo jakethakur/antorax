@@ -965,21 +965,30 @@ Game.removeObject = function (id, type, index) {
 	// remove from allEntities
 	this.allEntities.splice(this.searchFor(id, this.allEntities), 1);
 
-	if (className.prototype instanceof Thing || className.name === "Thing") {
+	if (className.prototype instanceof Visible || className.name === "Visible") {
 		// extends off Thing or is Thing
-		// remove from allThings
-		this.allThings.splice(this.searchFor(id, this.allThings), 1);
+		// remove from allVisibles
+		this.allVisibles.splice(this.searchFor(id, this.allVisibles), 1);
 
-		if (className.prototype instanceof Character || className.name === "Character") {
-			// extends off Character or is Character
-			// remove from allCharacters
-			this.allCharacters.splice(this.searchFor(id, this.allCharacters), 1);
+		if (className.prototype instanceof Thing || className.name === "Thing") {
+			// extends off Thing or is Thing
+			// remove from allThings
+			this.allThings.splice(this.searchFor(id, this.allThings), 1);
 
-			if (className.prototype instanceof Attacker || className.name === "Attacker") {
-				// extends off Attacker or is Attacker
-				// remove from allAttackers
-				this.allAttackers.splice(this.searchFor(id, this.allAttackers), 1);
+			if (className.prototype instanceof Character || className.name === "Character") {
+				// extends off Character or is Character
+				// remove from allCharacters
+				this.allCharacters.splice(this.searchFor(id, this.allCharacters), 1);
+
+				if (className.prototype instanceof Attacker || className.name === "Attacker") {
+					// extends off Attacker or is Attacker
+					// remove from allAttackers
+					this.allAttackers.splice(this.searchFor(id, this.allAttackers), 1);
+				}
 			}
+		}
+		else if (className.prototype instanceof Shape || className.name === "Shape") {
+			this.allShapes.splice(this.searchFor(id, this.allShapes), 1);
 		}
 	}
 
@@ -1453,8 +1462,52 @@ class Entity {
 	}
 }
 
+// Shape and Thing both inherit from this
+class Visible extends Entity {
+	constructor(properties) {
+		super(properties);
+
+		// canvas positioning
+		this.z = properties.z || 0; // -1 is always below (e.g. wizard's lore) and 1 is always on top (e.g. projectile)
+		this.orderOffsetY = properties.orderOffsetY || 0; // offset to how the y acts in canvas positioning sorting algorithm
+
+
+		this.removeIn = properties.removeIn; // measured in seconds
+
+		this.transparency = properties.transparency; // global alpha that it should be drawn with (1 = opaque, 0 = transparent)
+
+		// optional function for when space is pressed when touching
+		this.onInteract = properties.onInteract;
+
+		if (properties.addToObjectArrays !== false) {
+			Game.allVisibles.push(this); // array for current area only
+		}
+	}
+}
+
+// rather than having an image, this displays a shape
+class Shape extends Visible {
+	constructor(properties) {
+		super(properties);
+
+		this.shape = properties.shape || "ellipse"; // "rect", "ellipse" are the only currently supported types
+
+		this.colour = properties.colour; // if undefined there is no inside fill
+		this.borderColour = properties.borderColour;
+		this.thickness = properties.thickness || 0; // border thickness, if 0 there is no border
+
+		// optional changing between colours
+		this.colourTransition = properties.colourTransition; // array of colours to transition between
+		this.transitionSpeed = properties.transitionSpeed;
+
+		if (properties.addToObjectArrays !== false) {
+			Game.allShapes.push(this); // array for current area only
+		}
+	}
+}
+
 // a version of entity that can be seen + has an image
-class Thing extends Entity {
+class Thing extends Visible {
 	constructor(properties) {
 		super(properties);
 
@@ -1503,9 +1556,6 @@ class Thing extends Entity {
 		}
 
 
-		// canvas positioning
-		this.z = properties.z || 0; // -1 is always below (e.g. wizard's lore) and 1 is always on top (e.g. projectile)
-		this.orderOffsetY = properties.orderOffsetY || 0; // offset to how the y acts in canvas positioning sorting algorithm
 
 		if (typeof properties.nameHidden !== "undefined" && properties.nameHidden()) {
 			this.name = "???";
@@ -1514,11 +1564,7 @@ class Thing extends Entity {
 			this.name = properties.name;
 		}
 
-		this.removeIn = properties.removeIn; // measured in seconds
-
 		this.bright = properties.bright; // currently does nothing
-
-		this.transparency = properties.transparency; // global alpha that it should be drawn with (1 = opaque, 0 = transparent)
 
 		if (properties.animationFrameTime !== undefined) {
 			// animation (tick is every 250s)
@@ -1532,9 +1578,6 @@ class Thing extends Entity {
 			Game.animationList.push(this);
 		}
 
-		// optional function for when space is pressed when touching
-		this.onInteract = properties.onInteract;
-
 		if (properties.addToObjectArrays !== false) {
 			Game.allThings.push(this); // array for current area only
 		}
@@ -1547,6 +1590,8 @@ class Thing extends Entity {
 		if (this.walkable && properties.addToObjectArrays !== false) {
 			Game.walkableObjects.push(this);
 		}
+
+		this.onDarkBackground = properties.onDarkBackground || false; // for darker character names
 	}
 
 	// imageName is the key name of the image stored in loader
@@ -3799,8 +3844,22 @@ class Hero extends Attacker {
 	}
 
 	// map.getTile for Game.hero
-	getTileAtFeet () {
-		return map.getTile(0, map.getCol(this.x), map.getRow(this.y + this.height/2));
+	// layer defaults to the highest layer with a tile on
+	getTileAtFeet (layer) {
+		let repeatUntilTileFound = false;
+		if (typeof layer === "undefined") {
+			layer = map.layers.length - 1;
+			repeatUntilTileFound = true;
+		}
+		let tile = map.getTile(layer, map.getCol(this.x), map.getRow(this.y + this.height/2));
+		if (repeatUntilTileFound && tile === 0) {
+			// repeat until a tile is found :)
+			while (layer > 0 && tile === 0) {
+				layer--;
+				tile = map.getTile(layer, map.getCol(this.x), map.getRow(this.y + this.height/2));
+			}
+		}
+		return tile;
 	}
 
 	// called by fishing bobber once a fish is on the line, every time it should bob (bob down or up!)
@@ -4559,13 +4618,11 @@ class Projectile extends Thing {
 }
 
 // appears as a shape, activates to apply an effect to all targets in the shape after a specific time period
-class CombatArea extends Entity {
+class CombatArea extends Shape {
 	constructor(properties) {
 		super(properties);
 
 		this.shape = properties.shape || "circle"; // should be "circle", (more to be added!)
-		this.colour = properties.colour;
-		this.thickness = properties.thickness || 5;
 
 		this.effect = properties.effect; // function to be triggered after time
 		this.targets = properties.targets; // array of arrays of objects to deal damage to
@@ -7139,6 +7196,7 @@ Game.loadArea = function (areaName, destination) {
 		map.dayTiles = undefined;
 		map.nightTiles = undefined;
 		map.animateTiles = undefined;
+		map.objectTiles = [];
 		map.transparentTiles = []; // so it is always an array
 
 		map.scrollX = undefined;
@@ -7201,12 +7259,14 @@ Game.loadArea = function (areaName, destination) {
 
 		// class arrays
 		this.allEntities = [];
+		this.allVisibles = [];
 		this.allThings = [];
 		this.allCharacters = [];
 		this.allAttackers = [];
 		this.allNPCs = []; // includes villagers
 		this.damageableByPlayer = []; // everything that has this.damageableByPlayer set to true (ofc must be character or higher in hierarchy)
 		this.walkableObjects = []; // moving platforms etc (things with .walkable as true)
+		this.allShapes = [];
 
 		// init game (if it hasn't been done so already)
 		let init = false; // set to if this is the first areaTeleport of the game
@@ -7227,7 +7287,9 @@ Game.loadArea = function (areaName, destination) {
 			Dom.closeNPCPages();
 
 			// re-add player to allEntities etc.
+			// aaaaaaaaaaa tbd with pets, mount..
 			this.allEntities.push(Game.hero);
+			this.allVisibles.push(Game.hero);
 			this.allThings.push(Game.hero);
 			this.allCharacters.push(Game.hero);
 			this.allAttackers.push(Game.hero);
@@ -7259,6 +7321,7 @@ Game.loadArea = function (areaName, destination) {
 			projectiles: Projectile,
 			combatAreas: CombatArea,
 			mounts: Mount,
+			shapes: Shape,
 		};
 
 		// list of objects to be animated (with a .animate function)
@@ -7400,6 +7463,38 @@ Game.loadArea = function (areaName, destination) {
 			else {
 				console.error("Animal on lead could not be shown. Please tell Jake.", animal)
 			}
+		}
+
+		// add any object tiles as objects themselves
+		for (let layer = 0; layer < map.layers.length; layer++) {
+			for (let c = 0; c <= map.cols; c++) {
+		        for (let r = 0; r <= map.rows; r++) {
+		            let tile = map.getTile(layer, c, r); // tile number
+
+		            if (tile !== 0 && map.objectTiles.includes(tile)) { // 0 is empty tile
+						// draw position
+						let x = Math.round((c) * map.tsize) + 30;
+			            let y = Math.round((r) * map.tsize) + 30;
+
+						let crop = {
+							x: ((tile - 1) % map.tilesPerRow) * map.tsize,
+							y: Math.floor((tile - 1) / map.tilesPerRow) * map.tsize,
+							width: map.tsize,
+							height: map.tsize
+						}
+
+						this.things.push(new Thing({
+							x: x,
+							y: y,
+							width: map.tsize,
+							height: map.tsize,
+							image: "tiles",
+							crop: crop,
+							type: "things"
+						}));
+		            }
+		        }
+		    }
 		}
 
 		// players (these are added from websocket instead of areadata)
@@ -9397,9 +9492,9 @@ Game.update = function (delta) {
 		}
 	}
 
-	// check collision with any things (if they have an interact function to be called)
-	for (let i = 0; i < this.allThings.length; i++) {
-		let thing = this.allThings[i];
+	// check collision with any visibles (if they have an interact function to be called)
+	for (let i = 0; i < this.allVisibles.length; i++) {
+		let thing = this.allVisibles[i];
 
 		let canInteract = true; // set to false if it cannot be interacted with
 
@@ -10254,11 +10349,11 @@ Game.drawLayer = function (layer) {
         for (let r = startRow; r <= endRow; r++) {
             let tile = map.getTile(layer, c, r); // tile number
 
-			// draw position
-			let x = (c - startCol) * map.tsize + offsetX;
-            let y = (r - startRow) * map.tsize + offsetY;
+            if (tile !== 0 && !map.objectTiles.includes(tile)) { // 0 is empty tile,, objectTiles are rendered on top of player potentially
+				// draw position
+				let x = (c - startCol) * map.tsize + offsetX;
+	            let y = (r - startRow) * map.tsize + offsetY;
 
-            if (tile !== 0) { // 0 is empty tile
                 this.ctx.drawImage(
                     this.tileAtlas, // image
 					// cropping
@@ -10406,6 +10501,10 @@ Game.updateScreenPosition = function (entity) {
 		entity.hitbox.screenX = (entity.hitbox.x) - this.camera.x + this.viewportOffsetX;
 		entity.hitbox.screenY = (entity.hitbox.y) - this.camera.y + this.viewportOffsetY;
 	}
+
+	// round screen position
+	entity.screenX = Math.round(entity.screenX);
+	entity.screenY = Math.round(entity.screenY);
 }
 
 // draw character health bar, name etc. in correct place
@@ -10612,9 +10711,8 @@ Game.drawDamageTaken = function (ctx, character, x, y, fontSize) {
 // draw character's name (often positioned to be above their head
 // tbd : change colour for friendly characters?
 Game.drawCharacterName = function (ctx, character, x, y) {
-
 	// text formatting
-	ctx.font = "13px El Messiri";
+	ctx.font = "15px El Messiri";
 	ctx.textAlign = "center";
 	ctx.strokeStyle = "black";
 	ctx.lineWidth = 0.5;
@@ -10623,7 +10721,12 @@ Game.drawCharacterName = function (ctx, character, x, y) {
 		ctx.fillStyle = "red";
 	}
 	else if (character.hostility === "friendly") {
-		ctx.fillStyle = "#08720d"; // dark green name
+		if (character.onDarkBackground) {
+			ctx.fillStyle = "#39ff14"; // light green name
+		}
+		else {
+			ctx.fillStyle = "#08720d"; // dark green name
+		}
 	}
 	else if (character.hostility === "neutral") {
 		ctx.fillStyle = "#c9c202"; // yellow name
@@ -10840,14 +10943,39 @@ Game.canvasDisplayFinished = function () {
 	}
 }
 
+// checks if the passed in object of type Visible should be rendered
+Game.shouldBeRendered = function (objectToRender) {
+	let renderImage = true; // if image should be rendered
+
+	if (!this.camera.isOnScreen(objectToRender, "image")) {
+		// not on screen
+		renderImage = false;
+	}
+	else if (objectToRender.stats !== undefined && objectToRender.stats.stealthed && objectToRender.constructor.name !== "Hero") {
+		// stealthed + not the player
+		renderImage = false;
+	}
+	else if (objectToRender.hidden === true) {
+		// hidden
+		renderImage = false;
+	}
+
+	return renderImage;
+}
+
 // draw images on canvas
 Game.render = function (delta) {
 	// clear previous frame
 	this.ctx.clearRect(0, 0, Dom.canvas.width, Dom.canvas.height);
     this.ctxLight.clearRect(0, 0, Dom.canvas.width, Dom.canvas.height);
 
-    // fill canvas 'background colour' as black
-    this.ctx.fillStyle = "black";
+    // fill canvas 'background colour' as black (or whatever other colour it should be)
+	if (typeof Areas[this.areaName].borderColour !== "undefined") {
+    	this.ctx.fillStyle = Areas[this.areaName].borderColour;
+	}
+	else {
+	    this.ctx.fillStyle = "black";
+	}
 	this.ctx.globalAlpha = 1;
 	this.ctx.fillRect(0, 0, Dom.canvas.width, Dom.canvas.height);
 
@@ -10883,23 +11011,6 @@ Game.render = function (delta) {
 	}
 	this.ctx.globalAlpha = 1;
 
-	// combat areas
-	for (let i = 0; i < this.combatAreas.length; i++) {
-		let area = this.combatAreas[i];
-
-		this.ctx.strokeStyle = area.colour;
-		this.ctx.lineWidth = area.thickness;
-
-		if (area.shape === "circle") {
-			this.ctx.beginPath();
-			this.ctx.ellipse(area.x, area.y, area.width, area.height, 0, 0, 2 * Math.PI);
-			this.ctx.stroke();
-		}
-		else {
-			console.error("Combat area has an unknown shape", area);
-		}
-	}
-
 	// set canvas settings to what they were
 	this.ctx.lineWidth = 1;
 
@@ -10909,63 +11020,113 @@ Game.render = function (delta) {
 	// sort by y value (from bottom of npc)
 	// set values to sort by, basing their value on their z position as well as y value
 	// 10^10 is an arbitrary value that should always be out of reach of y values
-	for (let i = 0; i < this.allThings.length; i++) {
-		if (this.allThings[i].hidden !== true) {
-			this.allThings[i].sortValue = this.allThings[i].y + this.allThings[i].height/2 + this.allThings[i].orderOffsetY + this.allThings[i].z * 10000000000;
+	for (let i = 0; i < this.allVisibles.length; i++) {
+		if (this.allVisibles[i].hidden !== true) {
+			this.allVisibles[i].sortValue = this.allVisibles[i].y + this.allVisibles[i].height/2 + this.allVisibles[i].orderOffsetY + this.allVisibles[i].z * 10000000000;
 		}
 		else {
 			// a y value might not have been assigned to the object yet
 			// arbitary sort value
-			this.allThings[i].sortValue = 0;
+			this.allVisibles[i].sortValue = 0;
 		}
 
-		if (isNaN(this.allThings[i].sortValue)) {
+		if (isNaN(this.allVisibles[i].sortValue)) {
 			// illegal sortValue due to an NaN value in one of the character's positions
-			console.error("NaN sortValue for " + this.allThings[i].name + ". Please tell Jake!");
+			console.error("NaN sortValue for " + this.allVisibles[i].name + ". Please tell Jake!");
 			// arbitary sort value
-			this.allThings[i].sortValue = 0;
+			this.allVisibles[i].sortValue = 0;
 		}
 	}
 	// gnomesort - used because it is fast on mostly sorted data (which this will be because NPCs don't move)
 	let i = 0;
-	while (i < this.allThings.length) {
-		if (i === 0 || this.allThings[i].sortValue >= this.allThings[i-1].sortValue) {
+	while (i < this.allVisibles.length) {
+		if (i === 0 || this.allVisibles[i].sortValue >= this.allVisibles[i-1].sortValue) {
 			// nothing to swap
 	        i++;
 	    }
 	    else {
 	        // swap
-	        let mem = this.allThings[i];
-	        this.allThings[i] = this.allThings[i-1];
-	        this.allThings[i-1] = mem;
+	        let mem = this.allVisibles[i];
+	        this.allVisibles[i] = this.allVisibles[i-1];
+	        this.allVisibles[i-1] = mem;
 	        i--;
 	    }
 	}
+
+	// render everything of class Shape
+	for (let i = 0; i < this.allShapes.length; i++) { // iterate through everything to be rendered
+
+		let objectToRender = this.allShapes[i];
+
+		// check object should be rendered
+		if (Game.shouldBeRendered(objectToRender)) {
+			if (objectToRender.shape === "ellipse") {
+				this.ctx.fillStyle = objectToRender.colour;
+				this.ctx.strokeStyle = objectToRender.colour;
+				this.ctx.lineWidth = objectToRender.thickness;
+				this.ctx.beginPath();
+				this.ctx.ellipse(objectToRender.x, objectToRender.y, objectToRender.width, objectToRender.height, objectToRender.rotation);
+				if (typeof this.ctx.fillStyle !== "undefined") {
+					this.ctx.fill();
+				}
+				if (typeof this.ctx.strokeStyle !== "undefined" && typeof this.ctx.lineWidth !== "undefined") {
+					this.ctx.stroke();
+				}
+
+				// if it has a colour transition, carry this out
+				if (typeof objectToRender.colourTransition !== "undefined") {
+					if (typeof objectToRender.deltaRed !== "undefined") {
+						// delta red is the amount of red to be changed by every second, in RBG
+					}
+
+
+					// split into decimal rgb components
+					let r = parseInt(color.substring(1, 3), 16);
+					let g = parseInt(color.substring(3, 5), 16);
+					let b = parseInt(color.substring(5), 16);
+				}
+
+					// texture colors
+					let random = randomNum(depth * -1, depth * 1); // textures all colors by the same amount
+					r = Math.max(Math.min(r + random, 255), 0);
+					g = Math.max(Math.min(g + random, 255), 0);
+					b = Math.max(Math.min(b + random, 255), 0);
+
+					// convert back to hex
+					r = r.toString(16);
+					g = g.toString(16);
+					b = b.toString(16);
+					if (r.length === 1) {
+						r = "0" + r;
+					}
+					if (g.length === 1) {
+						g = "0" + g;
+					}
+					if (b.length === 1) {
+						b = "0" + b;
+					}
+
+					return "#"+r+g+b;
+
+				// optional changing between colours
+				this.colourTransition = properties.colourTransition; // array of colours to transition between
+				this.transitionSpeed = properties.transitionSpeed;
+			}
+			else if (objectToRender.shape === "rect") {
+				console.error("Jake still needs to add rectangle shape rendering ! Please tell him ! !")
+			}
+		}
+	}
+	// reset lineWidth
+	this.ctx.lineWidth = 1;
 
 	// render everything with image
 	for (let i = 0; i < this.allThings.length; i++) { // iterate through everything to be rendered
 
 		let objectToRender = this.allThings[i];
 
-		let renderImage = true; // if image should be rendered
-
-		// check if object should be rendered
-
-		if (!this.camera.isOnScreen(objectToRender, "image")) {
-			// not on screen
-			renderImage = false;
-		}
-		else if (objectToRender.stats !== undefined && objectToRender.stats.stealthed && objectToRender.constructor.name !== "Hero") {
-			// stealthed + not the player
-			renderImage = false;
-		}
-		else if (objectToRender.hidden === true) {
-			// hidden
-			renderImage = false;
-		}
-
 		// check object should be rendered
-		if (renderImage) {
+		if (Game.shouldBeRendered(objectToRender)) {
 
 			// do not render if it is dead and not showing a corpse
 			if (!objectToRender.respawning || objectToRender.isCorpse) {

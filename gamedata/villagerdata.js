@@ -681,9 +681,6 @@ var Villagers = [
 					: Player.class === "a" ? [{item: Items.bow[19], cost: 17,},]
 					: [],
 				role: "merchant",
-				roleRequirement: function () {
-					return Player.level >= MaxLevel;
-				},
 				shopGreeting: "They're made using the finest gunpowder I could source. So you can blow everything to the ground.",
 			},
 		],

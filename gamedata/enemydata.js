@@ -981,6 +981,7 @@ const EnemyTemplates = {
 				death: "For the city...",
 			},
 		},
+
 		cutpurse1: {
 			speciesTemplate: SpeciesTemplates.cutpurse,
 			image: "cutpurse1",
@@ -1007,8 +1008,21 @@ const EnemyTemplates = {
 			},
 			spells: [
 	            {
-	                id: 14,
+	                id: 18, // stupefy
 	                tier: 1,
+	                parameters: function () { // returns array of parameters
+	                    return {
+	                        target: this.calculateTarget(),
+	                    };
+	                },
+					castCondition: function (caster) {
+	                    return typeof this.calculateTarget() !== "undefined" && Game.distance(caster, this.calculateTarget()) > caster.stats.range - 25;
+	                },
+	                interval: 1000,
+	            },
+	            {
+	                id: 15, // cut purse
+	                tier: 1,aaaaaaaaaaaaaa
 	                parameters: function () { // returns array of parameters
 	                    return {
 	                        target: this.calculateTarget(),

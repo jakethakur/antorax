@@ -2526,7 +2526,7 @@ var Items = {
 			name: "Demolitionist's Staff",
 			type: "staff",
 			image: "assets/items/staff/17.png",
-			imageArchaeology: "assets/items/staff/17archaeology.png",
+			imageArchaeology: "assets/items/staff/17Archaeology.png",
 			tier: 1,
 			obtain: ["merchant"],
 			area: ["eaglecrest"],
@@ -3962,7 +3962,10 @@ var Items = {
 			image: "assets/items/item/48.png",
 			stack: 1,
 			functionText: "", // something to do with high potency
-			lore: "Has some alchemical uses."
+			lore: "Has some alchemical uses.",
+			holdingEffect: {
+				
+			}
 		},
 		{
 			id: 49,
@@ -4049,7 +4052,7 @@ var Items = {
 			image: "assets/items/item/55.png",
 			stack: 64,
 			functionText: "",
-			lore: "Has some alchemichal uses."
+			lore: "Have some alchemichal uses."
 		},
 	],
 	consumable: [

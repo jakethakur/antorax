@@ -283,6 +283,9 @@ const EnemyLootTables = {
 			onLootGenerate: function (item) {
 				item.item = {...item.item};  // remove all references to itemdata in fish variable (otherwise length value changed in this will also affect itemData)!
 				item.item.length = Round(BiasedRandom(item.item.length.min, item.item.length.max, item.item.length.avg, 1));
+				if (item.item.length > User.fish[item.item.id] || typeof User.fish[item.item.id] === "undefined") {
+					User.fish[item.item.id] = item.item.length;
+				}
 				return item;
 			}
 		},
@@ -295,6 +298,9 @@ const EnemyLootTables = {
 			onLootGenerate: function (item) {
 				item.item = {...item.item};  // remove all references to itemdata in fish variable (otherwise length value changed in this will also affect itemData)!
 				item.item.length = Round(BiasedRandom(item.item.length.min, item.item.length.max, item.item.length.avg, 1));
+				if (item.item.length > User.fish[item.item.id] || typeof User.fish[item.item.id] === "undefined") {
+					User.fish[item.item.id] = item.item.length;
+				}
 				return item;
 			}
 		},
@@ -307,18 +313,24 @@ const EnemyLootTables = {
 			onLootGenerate: function (item) {
 				item.item = {...item.item};  // remove all references to itemdata in fish variable (otherwise length value changed in this will also affect itemData)!
 				item.item.length = Round(BiasedRandom(item.item.length.min, item.item.length.max, item.item.length.avg, 1));
+				if (item.item.length > User.fish[item.item.id] || typeof User.fish[item.item.id] === "undefined") {
+					User.fish[item.item.id] = item.item.length;
+				}
 				return item;
 			}
 		},
 		{ // weatherfish
 			item: Items.fish[27],
 			chance: [
-				5,				// 0
+				4,				// 0
 				0,				// 1
 			],
 			onLootGenerate: function (item) {
 				item.item = {...item.item};  // remove all references to itemdata in fish variable (otherwise length value changed in this will also affect itemData)!
 				item.item.length = Round(BiasedRandom(item.item.length.min, item.item.length.max, item.item.length.avg, 1));
+				if (item.item.length > User.fish[item.item.id] || typeof User.fish[item.item.id] === "undefined") {
+					User.fish[item.item.id] = item.item.length;
+				}
 				return item;
 			}
 		},
@@ -331,6 +343,9 @@ const EnemyLootTables = {
 			onLootGenerate: function (item) {
 				item.item = {...item.item};  // remove all references to itemdata in fish variable (otherwise length value changed in this will also affect itemData)!
 				item.item.length = Round(BiasedRandom(item.item.length.min, item.item.length.max, item.item.length.avg, 1));
+				if (item.item.length > User.fish[item.item.id] || typeof User.fish[item.item.id] === "undefined") {
+					User.fish[item.item.id] = item.item.length;
+				}
 				return item;
 			}
 		},
@@ -343,6 +358,9 @@ const EnemyLootTables = {
 			onLootGenerate: function (item) {
 				item.item = {...item.item};  // remove all references to itemdata in fish variable (otherwise length value changed in this will also affect itemData)!
 				item.item.length = Round(BiasedRandom(item.item.length.min, item.item.length.max, item.item.length.avg, 1));
+				if (item.item.length > User.fish[item.item.id] || typeof User.fish[item.item.id] === "undefined") {
+					User.fish[item.item.id] = item.item.length;
+				}
 				return item;
 			}
 		},

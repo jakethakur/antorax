@@ -682,21 +682,35 @@ Spells = [
         description: "Snippity snip",
         enemyOnly: true, // cutpurses in plains
 
-        // properties should contain tier (as int value), caster, target
+        // target always assumed to be hero
 		func: function (properties) {
-			Game.statusEffects.stun({
-				target: Game.properties.target,
-				time: 1,
-				effectTitle: "Knocked out",
-				effectDescription: "Zzz",
-			});
-			Dom.chat.insert("The Cutpurse stole 2 ");
-            //Game.properties.target.
+			let targetGold = Dom.inventory.count(2, "currency");
+			let chatMessage = "";
+			let goldStolen = 0;
+			if (targetGold === 0) {
+				chatMessage = "<i>You had nothing for the cutpurse to steal!</i>";
+			}
+			else if (targetGold < 6) {
+				chatMessage = "<i>The Cutpurse stole 1 Gold from you!</i>";
+				goldStolen = 1;
+			}
+			else if (targetGold < 15) {
+				chatMessage = "<i>The Cutpurse stole 2 Gold from you!</i>";
+				goldStolen = 2;
+			}
+			else {
+				chatMessage = "<i>The Cutpurse stole 3 Gold from you!</i>";
+				goldStolen = 3;
+			}
+
+			Dom.chat.insert(chatMessage);
+			Dom.inventory.removeById(2, "currency", goldStolen);
+            // tbd add it to the loot
         },
 
         channelTime: [
             0,
-            2000,    // tier 1
+            1000,    // tier 1
         ],
     },
 
@@ -766,5 +780,28 @@ Spells = [
 			1000,	// tier 1
 		],
 	},
+
+	{
+        name: "Stupefy",
+        id: 18,
+        class: "k",
+        description: "Bosh",
+        enemyOnly: true, // cutpurses in plains
+
+        // properties should contain tier (as int value), caster, target
+		func: function (properties) {
+			Game.statusEffects.stun({
+				target: Game.properties.target,
+				time: 2,
+				effectTitle: "Knocked out",
+				effectDescription: "Zzz",
+			});
+        },
+
+        channelTime: [
+            0,
+            0,    // tier 1
+        ],
+    },
 
 ];

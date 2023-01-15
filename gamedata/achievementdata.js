@@ -1134,4 +1134,18 @@ var Achievements = [
             return Player.quests.questProgress.bloodMoonUnlocked;
         },
     },
+
+	/*{
+        name: "Speedy Cat",
+        description: "Complete Tamtam's obstacle course in less than .",
+		hidden: true,
+        points: 10,
+        category: ["quests"],
+        area: ["eaglecrestCity"],
+        image: "../assets/items/consumable/10.png",
+        class: "single",
+        isCompleted: function () {
+            return false;
+        },
+    },*/
 ]
