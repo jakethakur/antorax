@@ -239,6 +239,7 @@ Spells = [
 					damage: Game.hero.stats.maxDamage * Spells[4].damageMultiplier[properties.tier] / 100,
 					stun: 1,
 				},
+				attacker: properties.caster,
 				targets: [Game.damageableByPlayer],
 				image: "icebolt",
 				moveDirection: Game.bearing(properties.caster, properties.target),
@@ -290,6 +291,7 @@ Spells = [
 					damage: Game.hero.stats.maxDamage * Spells[5].damageMultiplier[properties.tier] / 100,
 					flaming: 1,
 				},
+				attacker: properties.caster,
 				targets: [Game.damageableByPlayer],
 				image: "fireBarrage",
 				moveDirection: Game.bearing(properties.caster, properties.target),
@@ -536,6 +538,7 @@ Spells = [
 					damage: 20,
 					stun: 3,
 				},
+				attacker: properties.caster,
 				targets: [Game.allCharacters],
 				exceptTargets: [properties.caster],
 				image: "sawblade",
@@ -801,6 +804,134 @@ Spells = [
         channelTime: [
             0,
             0,    // tier 1
+        ],
+    },
+
+	{
+        name: "Seek Prey",
+        id: 19,
+        class: "k",
+        description: "Jaws",
+        enemyOnly: true, // coyote hiyote
+
+        // properties should contain caster, target
+		func: function (properties) {
+			Game.projectiles.push(new Projectile({
+				map: map,
+				x: properties.caster.x,
+				y: properties.caster.y,
+				attacker: properties.caster,
+				stats: {
+					damage: 5,
+					stun: 1,
+				},
+				onHit: function (target, caster) {
+					// reduce enemy's defence
+					Game.statusEffects.defence({
+						target: target,
+						effectTitle: "Target Acquired",
+						defenceIncrease: -100,
+						time: 20,
+						effectStack: "multiply"
+					});
+
+					// caster should charge towrards location
+					let dist = Game.distance(caster, target);
+					let velocity = 600;
+					let time = dist / velocity;
+					let bear = Game.bearing(caster, target);
+					caster.displace(0, velocity, time, bear); // start displacement
+				},
+				targets: [[properties.target]],
+				image: "jaws",
+				moveDirection: Game.bearing(properties.caster, properties.target),
+				moveSpeed: 250,
+				type: "projectiles"
+			}));
+        },
+
+        channelTime: [
+            0,
+            1000,    // tier 1
+        ],
+    },
+
+	{
+        name: "Mend Pets",
+        id: 20,
+        class: "a",
+        description: "Health is good",
+        enemyOnly: true, // coyote wrangler
+
+        // properties should contain tier & pets, an array which contains all animals to be healed
+		func: function (properties) {
+			for (let i = 0; i < properties.pets.length; i++) {
+				Game.restoreHealth(properties.pets[i], Spells[20].healthRestored[properties.tier]);
+			}
+
+			properties.pets[i].addTrail("empowered", {
+				width: 3,
+				colour: ["#2CE831"],
+				removeIn: 1000,
+				variance: 50,
+				intensity: 6,
+				duration: 3,
+			});
+        },
+
+        channelTime: [
+            0,
+            4000,    // tier 1
+        ],
+
+        healthRestored: [
+            0,
+            30,    // tier 1
+        ],
+    },
+
+	{
+        name: "Empower Pets",
+        id: 21,
+        class: "a",
+        description: "",
+        enemyOnly: true, // coyote wrangler
+
+        // properties should contain tier & pets, an array which contains all animals to be healed
+		func: function (properties) {
+			for (let i = 0; i < properties.pets.length; i++) {
+				Game.statusEffects.attackDamage({
+					target: properties.pets[i],
+					effectTitle: "Empowered",
+					damageIncrease: Spells[21].damageIncrease[properties.tier],
+					time: Spells[21].length[properties.tier],
+				});
+				// tbd also make this double the speed of their projectiles? or double move speed maybe?
+
+				properties.pets[i].addTrail("empowered", {
+					width: 3,
+					colour: ["#ac0404"],
+					removeIn: 1000,
+					variance: 50,
+					intensity: 4,
+					duration: 10,
+				});
+			}
+        },
+
+        channelTime: [
+            0,
+            4000,    // tier 1
+        ],
+
+        damageIncrease: [
+            0,
+            100,    // tier 1
+        ],
+
+        length: [
+            0,
+            10,    // tier 1
         ],
     },
 

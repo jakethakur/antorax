@@ -570,9 +570,13 @@ function arrange(){
 		if(array[i].set != undefined && array[i].set != ""){
 			document.getElementById("set"+i).innerHTML = "<br>Part of "+Items.set[array[i].set].name;
 		}
-		if(array[i].lore != undefined && array[i].lore != ""){
+
+		// lore
+		// note the player also needs to have unlocked the item for it to show lore
+		if(array[i].lore != undefined && array[i].lore != "" && archaeology != null && archaeology.includes(array[i].name)){
 			document.getElementById("lore"+i).innerHTML = "<br><i>"+array[i].lore+"</i>";
 		}
+
 		if(array[i].chooseStats != undefined){
 			document.getElementById("chooseStats"+i).innerHTML = "<br>One of the following stats may be chosen:<br>";
 			for(var a = 0; a < Object.keys(array[i].chooseStats).length; a++){

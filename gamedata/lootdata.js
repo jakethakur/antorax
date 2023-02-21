@@ -84,14 +84,20 @@ const EnemyLootTables = {
 				0,				// 1
 			],
 		},
-		// slingshot
-		{ // present
+		{ // slingshot present
 			item: Items.consumable[34],
 			condition: function () {
 				return Player.inventory.weapon.category === "slingshot";
 			},
 			chance: [
 				3,				// 0
+				0,				// 1
+			],
+		},
+		{ // lei fracture
+			item: Items.item[56],
+			chance: [
+				0.5,			// 0
 				0,				// 1
 			],
 		},
@@ -425,10 +431,144 @@ const EnemyLootTables = {
 				0,				// 1
 			],
 		},
-		{ // screwed-up letter
-			item: Items.item[53],
+		{ // mud-splattered letter
+			item: Items.item[52],
 			chance: [
 				0.4,			// 0
+				0,				// 1
+			],
+		},
+	],
+	coyote: [
+		{ // unidentified item
+			item: {
+				name: "unidentified",
+				tier: 1,
+				area: "eaglecrest",
+			},
+			chance: [
+				30,				// 0
+				0,				// 1
+			],
+		},
+		{ // gold
+			item: Items.currency[2],
+			chance: [
+				5,				// 0
+				0,				// 1
+			],
+		},
+		{ // bone
+			item: Items.item[45],
+			chance: [
+				50,				// 0
+				20,				// 1
+				0.1,			// 2
+				0,				// 3
+			],
+		},
+		{ // tuft of hair
+			item: Items.item[46],
+			chance: [
+				70,				// 0
+				40,				// 1
+				11,				// 2
+				0,				// 3
+			],
+		},
+		{ // meat
+			item: Items.item[47],
+			chance: [
+				40,				// 0
+				25,				// 1
+				15,				// 2
+				10,				// 3
+				5,				// 4
+				0,				// 5
+			],
+		},
+		{ // mud-splattered letter
+			item: Items.item[52],
+			chance: [
+				0.4,			// 0
+				0,				// 1
+			],
+		},
+	],
+	coyoteWrangler: [
+		{ // unidentified item
+			item: {
+				name: "unidentified",
+				tier: 1,
+				area: "eaglecrest",
+			},
+			chance: [
+				100,			// 0
+				30,				// 1
+				0,				// 2
+			],
+		},
+		{ // gold
+			item: Items.currency[2],
+			chance: [
+				100,			// 0
+				48,				// 1
+				5,				// 2
+				0,				// 3
+			],
+		},
+		{ // health potion
+			item: Items.consumable[4],
+			chance: [
+				45,				// 0
+				0,				// 1
+			],
+		},
+		{ // strength potion
+			item: Items.consumable[2],
+			chance: [
+				30,				// 0
+				0,				// 1
+			],
+		},
+		{ // scrap of cloth
+			item: Items.item[3],
+			chance: [
+				100,			// 0
+				70,				// 1
+				40,				// 2
+				10,				// 3
+				0,				// 4
+			],
+		},
+		{ // tiger hide trousers
+			item: Items.greaves[13],
+			condition: function () {
+				// the pack is of size 6, and the player hasn't obtained this before (note the quest variable is incremented by onDeath, i.e. before the loot is generated, which is why it's 7 not 6)
+				return Player.quests.questProgress.coyotePackSize === 7;
+			},
+			chance: [
+				100,			// 0
+				0,				// 1
+			],
+			important: true, //  tbd make this get mailed to the player if they miss it
+		},
+		{ // coyote's devour
+			item: Items.sword[23],
+			condition: function () {
+				// the pack is of size 10, and the player hasn't obtained this before (note the quest variable is incremented by onDeath, i.e. before the loot is generated, which is why it's 11 not 10)
+				return Player.class === "k" && Player.quests.questProgress.coyotePackSize === 11;
+			},
+			chance: [
+				100,			// 0
+				0,				// 1
+			],
+			important: true, //  tbd make this get mailed to the player if they miss it
+		},
+		{ // mud-splattered letter
+			item: Items.item[52],
+			chance: [
+				3,				// 0
 				0,				// 1
 			],
 		},
@@ -702,6 +842,8 @@ const ChestLootTables = {
 		},
 	],
 };
+
+
 
 const QuestRewardTables = { // currently not in use
 	// rewards for all quests

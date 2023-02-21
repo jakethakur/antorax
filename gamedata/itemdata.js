@@ -473,6 +473,7 @@ var Items = {
 			rarity: "common",
 			obtainText: "Can be bought from a mask seller during The Feast of Saint Valentine.",
 			event: "Valentine",
+			limitedEdition: true, // change this when event next comes round
 			sellPrice: 2,
 			stats: {
 				damagePercentage: -35,
@@ -517,7 +518,7 @@ var Items = {
 			area: ["eaglecrest"],
 			rarity: "unique",
 			sellPrice: 3,
-			lore: "",
+			lore: "The sun will never shine on a garden grown from power.",
 			obtainText: "Can be looted from Baron Foxglove, a boss in the Eaglecrest Plains.",
 			stats: {
 				maxHealth: 5,
@@ -1229,9 +1230,9 @@ var Items = {
 			obtain: ["boss"],
 			area: ["eaglecrest"],
 			rarity: "unique",
-			sellPrice: 3,
-			lore: "",
-			obtainText: "Can be looted from a Coyote Pack Wrangler in Eaglecrest Plains.",
+			sellPrice: 5,
+			lore: "The tigerskin feels oddly spacious, as if it came from something much larger.",
+			obtainText: "Can be looted from a sufficiently skilled Coyote Pack Wrangler in Eaglecrest Plains.",
 			stats: {
 				defence: 4,
 				reflection: 30,
@@ -2046,7 +2047,7 @@ var Items = {
 			area: ["eaglecrest"],
 			rarity: "unique",
 			sellPrice: 3,
-			lore: "",
+			lore: "This tooth seems too large to have come from a coyote.",
 			obtainText: "Can be uncovered as an unidentified item in areas around Eaglecrest Plains.",
 			unidentifiedArea: ["eaglecrest"],
 			stats: { //tba
@@ -2095,7 +2096,7 @@ var Items = {
 			area: ["eaglecrest"],
 			rarity: "mythic",
 			sellPrice: 5,
-			lore: "",
+			lore: "Buried for millennia under the Eaglecrest schists, these were once formed in a land of Legends.",
 			obtainText: "Can be uncovered as an unidentified item in areas around Eaglecrest Plains.",
 			unidentifiedArea: ["eaglecrest"],
 			stats: {
@@ -2144,7 +2145,7 @@ var Items = {
 			name: "Demolitionist's Mallet",
 			type: "sword",
 			image: "assets/items/sword/22.png",
-			imageArchaeology: "assets/items/sword/22Archaeology.png",
+			imageArchaeology: "assets/items/sword/22archaeology.png",
 			tier: 1,
 			obtain: ["merchant"],
 			area: ["eaglecrest"],
@@ -2158,6 +2159,27 @@ var Items = {
 				exploding: 1,
 			},
 			projectile: "slashFire",
+		},
+		{
+			id: 23,
+			name: "Coyote's Devour",
+			type: "sword",
+			image: "assets/items/sword/23.png",
+			imageArchaeology: "assets/items/sword/23archaeology.png",
+			tier: 1,
+			obtain: ["boss"],
+			area: ["eaglecrest"],
+			rarity: "unique",
+			sellPrice: 5,
+			lore: "Teeth these large must have come from terafauna..",
+			obtainText: "Can be looted from a sufficiently skilled Coyote Pack Wrangler in Eaglecrest Plains.",
+			unidentifiedArea: ["eaglecrest"],
+			stats: { //tba
+				damage: 6,
+				reloadTime: 250,
+				defence: 4,
+				reflection: 50,
+			},
 		},
 	],
 	staff: [
@@ -2450,7 +2472,7 @@ var Items = {
 			area: ["eaglecrest"],
 			rarity: "unique",
 			sellPrice: 3,
-			lore: "",
+			lore: "Bears the power of Hilbert.",
 			obtainText: "Can be uncovered as an unidentified item in areas around Eaglecrest Plains.",
 			unidentifiedArea: ["eaglecrest"],
 			stats: {
@@ -2883,7 +2905,7 @@ var Items = {
 		},
 		{
 			id: 15,
-			name: "Straw Bow", // tbc?
+			name: "Scarebow",
 			type: "bow",
 			image: "assets/items/bow/15.png",
 			tier: 1,
@@ -2901,7 +2923,7 @@ var Items = {
 		},
 		{
 			id: 16,
-			name: "Feathered Bow", //tbc?
+			name: "Feathered Bow",
 			type: "bow",
 			image: "assets/items/bow/16.png",
 			imageArchaeology: "assets/items/bow/16archaeology.png",
@@ -2910,7 +2932,7 @@ var Items = {
 			area: ["eaglecrest"],
 			rarity: "unique",
 			sellPrice: 3,
-			lore: "",
+			lore: "What came first, the chicken or the bow?",
 			obtainText: "Can be uncovered as an unidentified item in areas around Eaglecrest Plains.",
 			unidentifiedArea: ["eaglecrest"],
 			stats: {
@@ -3964,7 +3986,7 @@ var Items = {
 			functionText: "", // something to do with high potency
 			lore: "Has some alchemical uses.",
 			holdingEffect: {
-				
+
 			}
 		},
 		{
@@ -4052,7 +4074,17 @@ var Items = {
 			image: "assets/items/item/55.png",
 			stack: 64,
 			functionText: "",
-			lore: "Have some alchemichal uses."
+			lore: "Has some alchemichal uses."
+		},
+		{
+			id: 56,
+			name: "Ley Fracture",
+			type: "item",
+			rarity: "common",
+			image: "assets/items/item/56.png",
+			stack: 64,
+			sellPrice: 2,
+			lore: "A strange manifestation of Antorax's ley lines."
 		},
 	],
 	consumable: [
@@ -4352,6 +4384,7 @@ var Items = {
 							damage: 5,
 							stun: 1,
 						},
+						attacker: Game.hero,
 						targets: [[moveTowards]],
 						image: "bloodBat",
 						moveTowards: moveTowards,

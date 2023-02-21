@@ -784,4 +784,42 @@ var Villagers = [
 	        receiveTavernGood: "YOU SHOULD COME AND WATCH US PERFORM ON THE MOORLANDS SOME TIME.",
 		},
 	},
+	{
+        id: 21,
+        images: {othmar: {normal: "assets/npcs/othmar.png"}},
+		name: "Othmar",
+		hostility: "friendly",
+		level: 35,
+		stats: {
+			maxHealth: 350,
+			defence: 11,
+            walkSpeed: 120,
+		},
+        exceptAreas: [
+            "eaglecrestLoggingCamp",
+        ],
+		roles: [
+			{
+				role: "text",
+				chooseText: "Free gold!",
+				chat: `You're the new farmer, aren't you? `,
+				buttons: ["Thanks!"],
+				showCloseButton: false,
+				functions: [function () {
+					// close page
+					Dom.closePage("textPage");
+					// give player the gold for today
+
+				}],
+				roleRequirement: function () {
+					return tbd
+				},
+			},
+		],
+		chat: {
+            notUnlockedRoles: "I'VE HEARD THERE'S SOME RARE LEY DISKS OVER HERE.",
+			chooseChat: "I guess they call me Open-Handed Othmar for a reason!",
+	        receiveTavernGood: "You've got to spend some gold on yourself every now and then!",
+		},
+	},
 ];

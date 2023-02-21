@@ -648,6 +648,17 @@ var map = {
         return this.layers[layer][row * map.cols + col];
     },
 
+	// gets tiles of all layers at location, returning an array
+    getTiles: function (col, row) {
+		col = this.validateCol(col);
+		row = this.validateRow(row);
+		let tileArray = [];
+		for (let layer = 0; layer < this.layers.length; layer++) {
+			tileArray.push(this.getTile(layer, col, row));
+		}
+        return tileArray;
+    },
+
     getCol: function (x) {
         let col = Math.floor(x / this.tsize);
 		return this.validateCol(col);
@@ -714,6 +725,7 @@ var map = {
 
 		let isSlow = null; // set to a string for any slow/fast tile being touched
 
+		// move slower in water
 		if (typeof this.waterTiles !== "undefined") { // check that this map contains waterTiles
 			for (let i = 0; i < this.waterTiles.length; i++) {
 				if (tile === this.waterTiles[i]) {
@@ -723,7 +735,8 @@ var map = {
 				}
 			}
 		}
-		if (typeof this.mudTiles !== "undefined") { // check that this map contains mudTiles
+		// move slower in mud
+		if (typeof this.mudTiles !== "undefined") {
 			for (let i = 0; i < this.mudTiles.length; i++) {
 				if (tile === this.mudTiles[i]) {
 					// mud tile found
@@ -732,7 +745,8 @@ var map = {
 				}
 			}
 		}
-		if (typeof this.iceTiles !== "undefined") { // check that this map contains iceTiles
+		// move faster on ice
+		if (typeof this.iceTiles !== "undefined") {
 			for (let i = 0; i < this.iceTiles.length; i++) {
 				if (tile === this.iceTiles[i]) {
 					// ice tile found
@@ -741,7 +755,8 @@ var map = {
 				}
 			}
 		}
-		if (typeof this.pathTiles !== "undefined") { // check that this map contains pathTiles
+		// move faster on paths
+		if (typeof this.pathTiles !== "undefined") {
 			for (let i = 0; i < this.pathTiles.length; i++) {
 				if (tile === this.pathTiles[i]) {
 					// path tile found
@@ -750,6 +765,20 @@ var map = {
 				}
 			}
 		}
+
+		// some tiles are irrespective of layer !
+		let tileArray = this.getTiles(col, row);
+		// move slower in tall grass
+		if (typeof this.tallGrassBottoms !== "undefined") {
+			for (let i = 0; i < this.tallGrassBottoms.length; i++) {
+				if (tileArray.includes(this.tallGrassBottoms[i])) {
+					// tall grass found
+					isSlow = "tallGrass";
+					break;
+				}
+			}
+		}
+
 		return isSlow;
 	},
 
@@ -1254,6 +1283,11 @@ class Entity {
 		}*/
 		this.checkTouching = properties.checkTouching;
 
+		// trail
+		// array of particle trails
+		this.trails = properties.trails || [];
+
+
 		this.use = properties.use; // optional metadata about object, can be used by anything that needs it
 		this.dev = properties.dev; // if this is true it was placed by a dev item, can be deleted by dev items, etc
 
@@ -1460,6 +1494,38 @@ class Entity {
 		let touchingCollision = this.footHitbox.isTouchingType(Game.collisions); // set to true or false depending on whether a collision is being touched
 		return (touchingSolidTiles.length > 0 || touchingCollision);
 	}
+
+
+	// give the entity a new particle trail (it is fine if the trail is already on the entity - this checks that)
+	// name should be a unique name associated with the trail so it can be easily removed
+	// particleData is an object with all the particles' data (including variance etc - see party hat item)
+	// additional particleData properties:
+	// trailDuration removes the trail after a certain time in SECONDS has elapsed
+	addTrail (name, particleData) {
+		for (let i = 0; i < this.trails.length; i++) {
+			if (this.trails[i].trailName === name) {
+				return false; // trail already exists
+			}
+		}
+		particleData.trailName = name;
+		if (typeof particleData.height === "undefined") {
+			particleData.height = particleData.width;
+		}
+		this.trails.push(particleData);
+		return true;
+	}
+
+	// remove trail by name (if it's being removed by id instead it's fine to just splice)
+	removeTrail (name) {
+		let trailRemoved = false;
+		for (let i = 0; i < this.trails.length; i++) {
+			if (this.trails[i].trailName === name) {
+				this.trails.splice(i, 1);
+				trailRemoved = true;
+			}
+		}
+		return trailRemoved;
+	}
 }
 
 // Shape and Thing both inherit from this
@@ -1490,6 +1556,8 @@ class Shape extends Visible {
 	constructor(properties) {
 		super(properties);
 
+		this.renderType = "shape";
+
 		this.shape = properties.shape || "ellipse"; // "rect", "ellipse" are the only currently supported types
 
 		this.colour = properties.colour; // if undefined there is no inside fill
@@ -1510,6 +1578,8 @@ class Shape extends Visible {
 class Thing extends Visible {
 	constructor(properties) {
 		super(properties);
+
+		this.renderType = "image";
 
 		// set image related variables
 
@@ -1566,17 +1636,48 @@ class Thing extends Visible {
 
 		this.bright = properties.bright; // currently does nothing
 
-		if (properties.animationFrameTime !== undefined) {
-			// animation (tick is every 250s)
+		//
+		// animation
+		//
+		this.animation = properties.animation; // this should be an object with the following properties:
+		// "type" which should be either "carousel" (separate images used) or "spritesheet" (all images on one spritesheet) or "function" (no extra properties required besides frameTime; just has a function called every frameTime)
+		// "frameTime" is the time in ms until the next animation frame
+		// in addition, "carousel" type needs an animation.images array
+		// .. and "spritesheet" type needs an imagesPerRow and totalImages property. the border width (if any) between the images is figured out from the current object.crop properties
+		// also, animation.state is set to the index of the current image, animation.animateObj is set to this, and animation.lastAnimated is set to the time in ms since it was last animated
+		// a random state is chosen to begin with, but if this isn't desired then it can be set using animation.startState
 
-			this.animationFrameTime = properties.animationFrameTime; // time until next animation frame (can be changed by animate function)
-			this.lastAnimated = 0; // in ms, time it was last animated (used with animationFrameTime)
+		// input validation for animation.type:
+		if (typeof this.animation !== "undefined" && this.animation.type !== "carousel" && this.animation.type !== "spritesheet" && this.animation.type !== "function") {
+			console.error("Unknown animation.type for "+this.name, this.animation);
+			this.animation = undefined;
+		}
 
-			this.animate = properties.animateFunction;
+		if (typeof this.animation !== "undefined") {
+			// set totalImages property if necessary
+			if (this.animation.type === "carousel") {
+				this.animation.totalImages = this.animation.images.length;
+			}
+			if (this.animation.type === "function" && typeof this.animation.totalImages === "undefined") {
+				this.animation.totalImages = 1; // some random default value since it doesn't matter for function type
+			}
+
+			this.animation.lastAnimated = 0; // in ms, time it was last animated (used with frameTime)
+
+			this.animation.animateObj = this;
+
+			if (typeof this.animation.startState !== "undefined") {
+				this.animation.state = this.animation.startState;
+			}
+			else {
+				this.animation.state = Random(0, this.animation.totalImages-1);
+			}
 
 			// let Game know this should be animated in animationTick (and that there should be an animationTick at all)
 			Game.animationList.push(this);
 		}
+
+
 
 		if (properties.addToObjectArrays !== false) {
 			Game.allThings.push(this); // array for current area only
@@ -1591,7 +1692,7 @@ class Thing extends Visible {
 			Game.walkableObjects.push(this);
 		}
 
-		this.onDarkBackground = properties.onDarkBackground || false; // for darker character names
+		this.onDarkBackground = properties.onDarkBackground || false; // for darker character names (not currently finished - tbd)
 	}
 
 	// imageName is the key name of the image stored in loader
@@ -2187,6 +2288,16 @@ class Character extends Thing {
 			statusEffect.onExpire(this);
 		}
 
+		// status effect display if status effect is hidden
+		if (statusEffect.hidden) {
+			this.numberOfHiddenStatusEffects--;
+		}
+
+		// hide infobar if there was one
+		if (statusEffect.infoBarText !== undefined && Game.minigameInProgress === undefined) {
+			Dom.infoBar.page("");
+		}
+
 		// remove it
 		this.statusEffects.splice(index, 1);
 
@@ -2266,6 +2377,12 @@ class Character extends Thing {
 					this.onDeathAdditional(); // so that we can have an ondeath from speciestemplate and from areadata
 				}
 
+				if (this.hostility === "boss" && !inMinigame) {
+					// set boss date killed
+					Player.bossesKilled[this.bossKilledVariable] = GetFullDate();
+				}
+
+
 				this.footHitbox.drawHitbox = false; // don't draw foot hitbox whilst dead
 
 				if (this.corpseOnDeath) {
@@ -2308,12 +2425,6 @@ class Character extends Thing {
 							this.respawn();
 						}.bind(this), this.stats.respawnTime);
 					}
-					else {
-						if (!inMinigame) {
-							// set boss date killed
-							Player.bossesKilled[this.bossKilledVariable] = GetFullDate();
-						}
-					}
 				}
 				else {
 					// remove the object if it is not a corpse upon death
@@ -2353,7 +2464,7 @@ class Character extends Thing {
 						}));
 						let shotProjectile = Game.projectiles[Game.projectiles.length-1];
 						// damage characters that the projectile is touching
-						shotProjectile.dealDamage(shotProjectile.attacker, shotProjectile.targets);
+						shotProjectile.dealDamage(shotProjectile.projectileStats, shotProjectile.targets);
 						// remove in 0.5s
 						shotProjectile.removeTimeout();
 					}, 300, [this.x, this.y, successiveExplosions]);
@@ -2652,6 +2763,22 @@ class Character extends Thing {
 			}
 		}
 
+		else if (slowTile === "tallGrass") { // in tall grass, i.e. eaglecrest plains
+			this.speed = walkSpeed - 40;
+
+			Game.removeTileStatusEffects(this, "In the tall grass"); // remove all status effects from other tiles
+			if (!this.hasStatusEffect("In the tall grass")) { // give status effect if the player doesn't already have it
+				Game.statusEffects.generic({
+					target: this,
+					effectTitle: "In the tall grass",
+					effectDescription: "-40 walk speed",
+					imageName: "speedDown",
+					type: "tallGrass",
+					effectStack: "noStack",
+				});
+			}
+		}
+
 		else {
 			console.error("Unknown slow tile: " + slowTile);
 		}
@@ -2901,10 +3028,6 @@ class Attacker extends Character {
 		}
 		this.updateStats = properties.updateStats; // only works for enemies ATM
 
-		// trail (ATM just works for hero - tbd make work for all entities?)
-		// array of trails
-		this.trails = properties.trails || [];
-
 		// spells
 		this.spells = properties.spells || [];
 		if (this.constructor.name !== "Hero") { // hero spells are saved as an object instead (not sure why???)
@@ -2912,9 +3035,14 @@ class Attacker extends Character {
 			for (let i = 0; i < this.spells.length; i++) {
 				if (this.spells[i].interval !== undefined) {
 					this.spells[i].ready = false; // cannot be used until interval has finished (just for ai, not player)
+					// set initial cooldown
+					let initialCooldown = this.spells[i].interval; // default initial cooldown
+					if (typeof this.spells[i].initialCooldown !== "undefined") {
+						initialCooldown = this.spells[i].initialCooldown;
+					}
 					Game.setTimeout(function (i) {
 						this.spells[i].ready = true;
-					}.bind(this), this.spells[i].interval, [i]);
+					}.bind(this), initialCooldown, [i]);
 				}
 				else {
 					this.spells[i].ready = true;
@@ -3323,6 +3451,7 @@ class Hero extends Attacker {
 							x: mouseX,
 							y: mouseY,
 							attacker: this,
+							projectileStats: this,
 							targets: [Game.damageableByPlayer],
 							rotate: projectileRotate,
 							adjust: {
@@ -3346,7 +3475,7 @@ class Hero extends Attacker {
 							// optional stuff:
 							crop: Game.heroProjectileInfo.crop,
 							animateFunction: Game.heroProjectileInfo.animateFunction,
-							animationFrameTime: Game.heroProjectileInfo.animationFrameTime,
+							frameTime: Game.heroProjectileInfo.frameTime,
 							stayOnScreen: Game.heroProjectileInfo.stayOnScreen, // set to the time it stays on the screen for (default 1500) or true if never removed
 							doNotRotate: Game.heroProjectileInfo.doNotRotate,
 							onInteract: Game.heroProjectileInfo.onInteract,
@@ -3758,7 +3887,7 @@ class Hero extends Attacker {
 			this.currentAttackFinalVariance = shotProjectile.variance; // needed if there are multiple projectiles to be shot (see bottom of this fn)
 
 			// damage enemies that the projectile is touching
-			shotProjectile.dealDamage(shotProjectile.attacker, shotProjectile.targets);
+			shotProjectile.dealDamage(shotProjectile.projectileStats, shotProjectile.targets);
 
 			// function called for all attacks whether they hit an enemy or not
 			if (Player.inventory.weapon.onAttack !== undefined) {
@@ -4101,32 +4230,6 @@ class Hero extends Attacker {
 		}
 	}
 
-	// give the hero a new trail (it is fine if the trail is already on the hero - this checks that)
-	// name should be a unique name associated with the trail so it can be easily removed
-	// particleData is an object with all the particles' data (including variance etc - see party hat item)
-	// tbd extend to all entities
-	addTrail (name, particleData) {
-		for (let i = 0; i < this.trails.length; i++) {
-			if (this.trails[i].trailName === name) {
-				return false; // trail already exists
-			}
-		}
-		particleData.trailName = name;
-		this.trails.push(particleData);
-		return true;
-	}
-
-	removeTrail (name) {
-		let trailRemoved = false;
-		for (let i = 0; i < this.trails.length; i++) {
-			if (this.trails[i].trailName === name) {
-				this.trails.splice(i, 1);
-				trailRemoved = true;
-			}
-		}
-		return trailRemoved;
-	}
-
 
 	// testing: set hero's image to a different image for imageposition
 	imageTest (imageKey, imageAddress) {
@@ -4150,9 +4253,9 @@ class Projectile extends Thing {
 
 		this.z = properties.z || 1; // appears on top by default (z would normally be 0)
 
-		this.attacker = properties.attacker || { // stats used for when dealing damage
+		this.projectileStats = properties.projectileStats || { // stats used for when dealing damage. these can be the own projectile's or the actual attacker's
 			// for if projectile deals its own damage (thus has its own stats)
-			// IF PROJECTILE HAS ITS OWN STATS, DON'T GIVE IT A PROPERTIES.ATTACKER!
+			// IF PROJECTILE HAS ITS OWN PROPERTIES.STATS, DON'T GIVE IT A PROPERTIES.PROJECTILESTATS! IT WILL OVERRIDE THE STATS!
 			stats: Object.assign({}, DefaultStats, properties.stats), // assign with DefaultStats used for compatibility
 			// for compatibility with dealDamage:
 			hostility: "projectile",
@@ -4160,6 +4263,8 @@ class Projectile extends Thing {
 		};
 		this.targets = properties.targets; // array of arrays of objects to deal damage to
 		this.exceptTargets = properties.exceptTargets || []; // array of objects that would also be included in targets, but should not be damaged
+
+		this.attacker = properties.attacker; // the caster of the projectile if applicable (used only in some onHit functions)
 
 		this.variance = properties.variance || 0; // diameter of circle that it could fall into
 		this.minimumVariance = properties.minimumVariance || 0; // minimum diameter of circle that it could fall into (after channelling)
@@ -4222,6 +4327,8 @@ class Projectile extends Thing {
 		// stopMovingOnDamage is not required if projectile has a moveTowards
 
 		this.damageAllHit = properties.damageAllHit; // whether it should damage everything that is hit by it
+
+		this.onHit = properties.onHit; // function. parameters passed in are target and caster
 
 		this.successiveExplosions = properties.successiveExplosions || 0; // thermal runaway achievement
 	}
@@ -4322,16 +4429,20 @@ class Projectile extends Thing {
 
 						let targetDefence = target.stats.defence; // calculate target defence
 
+						let defenceMultiplier = 1; // status effects
+
 						// defence status effect
 						target.statusEffects.forEach(statusEffect => {
 							if (statusEffect.info.defenceIncrease !== undefined) {
 								// increase defence if the status effect does so
 								// check what the attacker's species is (or that status effect is not geared towards a certain subspecies)
 								if (statusEffect.info.subSpecies === undefined || attacker.subSpecies === statusEffect.info.subSpecies) {
-									targetDefence *= 1 + (statusEffect.info.defenceIncrease / 100);
+									defenceMultiplier += (statusEffect.info.defenceIncrease / 100);
 								}
 							}
 						});
+
+						targetDefence *= defenceMultiplier;
 
 						// defence
 						let dmgDealt = attackerDamage - (targetDefence / 10);
@@ -5334,6 +5445,7 @@ class Enemy extends Attacker {
 			x: projectileX,
 			y: projectileY,
 			attacker: this,
+			projectileStats: this,
 			targets: at,
 			width: this.projectile.width,
 			height: this.projectile.height,
@@ -5836,7 +5948,8 @@ Game.removeTileStatusEffects = function (target, keep) {
 		if ((target.statusEffects[i].title === "Swimming"
 		|| target.statusEffects[i].title === "Stuck in the mud"
 		|| target.statusEffects[i].title === "Ice skating"
-		|| target.statusEffects[i].title === "On a path")
+		|| target.statusEffects[i].title === "On a path"
+		|| target.statusEffects[i].title === "In the tall grass")
 		&& target.statusEffects[i].title !== keep) {
 			// remove status effect
 			target.removeStatusEffect(i, "environment");
@@ -5882,15 +5995,6 @@ Game.statusEffects.functions = {
 		}
 
 		if (this.info.ticks >= this.info.time) { // remove effect interval
-			// status effect display if status effect is hidden
-			if (this.hidden) {
-				owner.numberOfHiddenStatusEffects--;
-			}
-
-			// hide infobar if there was one
-			if (this.infoBarText !== undefined && Game.minigameInProgress === undefined) {
-				Dom.infoBar.page("");
-			}
 
 			// remove effect
 			Game.removeExpiredStatusEffect(owner);
@@ -6746,20 +6850,44 @@ Game.levelUpFireworks = function (numberRemaining) {
 	}
 }
 
-// add a new trail particle around the character (normally called by a setInterval)
+// called every 100ms by Game.trailInterval
+Game.addTrailParticles = function () {
+	// check game has initialised already !
+	if (typeof this.allEntities !== "undefined") {
+		for (let i = 0; i < this.allEntities.length; i++) {
+			let entity = this.allEntities[i];
+			if (typeof entity.trails !== "undefined") {
+				// iterate through each trail
+				for (let j = 0; j < entity.trails.length; j++) {
+					let trail = entity.trails[j];
+					if (typeof trail.trailDuration !== "undefined") {
+						trail.trailDuration -= 0.1; // measured in seconds
+					}
+					if (typeof trail.trailDuration !== "undefined" && trail.trailDuration <= 0) {
+						entity.trails.splice(j);
+						j--;
+					}
+					else {
+						this.drawTrail(entity, trail)
+					}
+				}
+			}
+		}
+	}
+}
+
+// draws a trail's particles around the entity
+// this function is called by addTrailPartcicles
 // the particle data should be able to be found at character.trail
-Game.addTrailParticle = function (character) {
-	for (let i = 0; i < character.trails.length; i++) {
-		let trail = character.trails[i];
-		if (typeof trail.intensity === "undefined") {
-			// no. of particles to be added every 100ms
-			trail.intensity = 1; // default val
-		}
-		for (let i = 0; i < trail.intensity; i++) {
-			trail.x = character.x + Random(-trail.variance, trail.variance);
-			trail.y = character.y + Random(-trail.variance, trail.variance);
-			Game.createParticle(trail); // Game not this because it is called by setInterval
-		}
+Game.drawTrail = function (entity, trail) {
+	if (typeof trail.intensity === "undefined") {
+		// no. of particles to be added every 100ms
+		trail.intensity = 1; // default val
+	}
+	for (let i = 0; i < trail.intensity; i++) {
+		trail.x = character.x + Random(-trail.variance, trail.variance);
+		trail.y = character.y + Random(-trail.variance, trail.variance);
+		this.createParticle(trail); // Game not this because it is called by setInterval
 	}
 }
 
@@ -7197,6 +7325,8 @@ Game.loadArea = function (areaName, destination) {
 		map.nightTiles = undefined;
 		map.animateTiles = undefined;
 		map.objectTiles = [];
+		map.tallGrassBottoms = [];
+		map.tallGrassTops = [];
 		map.transparentTiles = []; // so it is always an array
 
 		map.scrollX = undefined;
@@ -7324,7 +7454,7 @@ Game.loadArea = function (areaName, destination) {
 			shapes: Shape,
 		};
 
-		// list of objects to be animated (with a .animate function)
+		// list of objects to be animated (with a .animation object - see Thing constructor for a breakdown of this object's properties)
 		this.animationList = [];
 
 		// remove all status effect timeouts for previous area's characters
@@ -7493,6 +7623,48 @@ Game.loadArea = function (areaName, destination) {
 							type: "things"
 						}));
 		            }
+
+					else if (tile !== 0 && (map.tallGrassBottoms.includes(tile) || map.tallGrassTops.includes(tile))) {
+						// kinda hard-coded for now - make multiple copies of this object to give a tall-grass effect (as in eaglecrest plains)
+						// draw position
+						let baseX = Math.round((c) * map.tsize) + 30;
+			            let baseY = Math.round((r) * map.tsize) + 30;
+
+						let crop = {
+							x: ((tile - 1) % map.tilesPerRow) * map.tsize,
+							y: Math.floor((tile - 1) / map.tilesPerRow) * map.tsize,
+							width: map.tsize,
+							height: map.tsize
+						}
+
+						let orderOffsetY = 0;
+						let k;
+						if (map.tallGrassTops.includes(tile)) {
+							orderOffsetY = 60;
+
+							k = Math.floor((baseY+60)/120)%3; // tiles are adjusted based on how high up they are
+						}
+						else {
+							k = Math.floor(baseY/120)%3;
+						}
+
+						for (let tileNo = 0; tileNo < 3; tileNo++) {
+							let x = baseX + 5*(tileNo%3) + k*5; // adjusted just for plains grass!!
+							let y = baseY - 20*tileNo;
+
+							this.things.push(new Thing({
+								x: x,
+								y: y,
+								orderOffsetY: orderOffsetY,
+								width: map.tsize,
+								height: map.tsize,
+								image: "tiles",
+								crop: crop,
+								type: "things",
+								name: "Tall grass"
+							}));
+						}
+					}
 		        }
 		    }
 		}
@@ -7848,9 +8020,9 @@ Game.init = function () {
 	this.canvasDisplay = {};
 	this.canvasDisplayQueue = [];
 
-	// hero trail interval
-	// new particle every 100ms
-	Game.hero.trailInterval = Game.setInterval(Game.addTrailParticle, 100, Game.hero);
+	// trail interval
+	// new particle(s) every 100ms (tbd make this called more often?)
+	Game.trailInterval = Game.setInterval(Game.addTrailParticles, 100);
 
 	// intervalEffects of items
 	this.equipmentKeys = ["helm", "chest", "greaves", "boots", "weapon"];
@@ -9238,7 +9410,7 @@ Game.update = function (delta) {
 			// only deal damage if it hasn't before (or if damage is to be dealt to all targets)
 			else if (projectile.damageDealt.length === 0 || projectile.damageAllHit) {
 				// hasn't dealt damage - try to
-				projectile.dealDamage(projectile.attacker, projectile.targets);
+				projectile.dealDamage(projectile.projectileStats, projectile.targets);
 
 				// check if damage was dealt
 				if (projectile.damageDealt.length !== 0) {
@@ -9656,17 +9828,43 @@ Game.update = function (delta) {
 	// animations
 	//
 
-	// animations
-	// tick called every 100s (perhaps change in future?)
 	this.totalAnimationTime += delta * 1000;
 	if (!this.loadingArea) {
 		for (let i = 0; i < this.animationList.length; i++) {
-			if (this.animationList[i].lastAnimated + this.animationList[i].animationFrameTime <= this.totalAnimationTime) {
+			if (this.animationList[i].animation.lastAnimated + this.animationList[i].animation.frameTime <= this.totalAnimationTime) {
 				// should be animated
-				this.animationList[i].animate();
-				this.animationList[i].lastAnimated = this.totalAnimationTime;
+				let animate = this.animationList[i].animation;
+				let object = this.animationList[i];
+
+				// increment state
+				if (animate.state >= animate.totalImages-1) {
+					animate.state = 0;
+				}
+				else {
+					animate.state++;
+				}
+
+				if (animate.type === "carousel") {
+					// change image
+					object.setImage(animate.images[animate.state]);
+				}
+				else if (animate.type === "spritesheet") {
+					// change image using spritesheet
+					object.crop = {
+						x: (animate.state % animate.imagesPerRow) * object.baseWidth,
+						y: Math.floor(this.state / 4) * object.baseHeight,
+						width: object.baseWidth,
+						height: object.baseHeight
+					}
+				}
+				else if (animate.type === "function") {
+					animate.animateFunction();
+				}
+
+				animate.lastAnimated = this.totalAnimationTime;
 			}
 		}
+
 	}
 
 	// update weather particles
@@ -10264,8 +10462,8 @@ Game.setCreativeItem = function (item) {
 			Game.creativeImage = item[0];
 			item.splice(0, 1);
 			Game.creativeName = item.join(" ");
-			Dom.chat.insert('Creative mode object name set to "'+ item[0] +'".');
-			Dom.chat.insert('Creative mode object image set to "'+ Game.creativeName +'".');
+			Dom.chat.insert('Creative mode object name set to "'+ Game.creativeName+'".');
+			Dom.chat.insert('Creative mode object image set to "'+ Game.creativeImage +'".');
 		}
 		else {
 			Dom.chat.insert("Creative item has not been updated because image was not found.")
@@ -10959,6 +11157,15 @@ Game.shouldBeRendered = function (objectToRender) {
 		// hidden
 		renderImage = false;
 	}
+	else if (objectToRender.respawning && !objectToRender.isCorpse) {
+		// respawning and not a corpse
+		renderImage = false;
+	}
+	else if (objectToRender.preRenderFunction !== undefined) {
+		renderImage = objectToRender.preRenderFunction();
+		// whether image is rendered is based off the return value of preRenderFunction
+		// also applies for whether postRenderFunction is called
+	}
 
 	return renderImage;
 }
@@ -11053,144 +11260,125 @@ Game.render = function (delta) {
 	    }
 	}
 
-	// render everything of class Shape
-	for (let i = 0; i < this.allShapes.length; i++) { // iterate through everything to be rendered
+	// render everything with image or shape
+	for (let i = 0; i < this.allVisibles.length; i++) { // iterate through everything to be rendered
 
-		let objectToRender = this.allShapes[i];
-
-		// check object should be rendered
-		if (Game.shouldBeRendered(objectToRender)) {
-			if (objectToRender.shape === "ellipse") {
-				this.ctx.fillStyle = objectToRender.colour;
-				this.ctx.strokeStyle = objectToRender.colour;
-				this.ctx.lineWidth = objectToRender.thickness;
-				this.ctx.beginPath();
-				this.ctx.ellipse(objectToRender.x, objectToRender.y, objectToRender.width, objectToRender.height, objectToRender.rotation);
-				if (typeof this.ctx.fillStyle !== "undefined") {
-					this.ctx.fill();
-				}
-				if (typeof this.ctx.strokeStyle !== "undefined" && typeof this.ctx.lineWidth !== "undefined") {
-					this.ctx.stroke();
-				}
-
-				// if it has a colour transition, carry this out
-				if (typeof objectToRender.colourTransition !== "undefined") {
-					if (typeof objectToRender.deltaRed !== "undefined") {
-						// delta red is the amount of red to be changed by every second, in RBG
-					}
-
-
-					// split into decimal rgb components
-					let r = parseInt(color.substring(1, 3), 16);
-					let g = parseInt(color.substring(3, 5), 16);
-					let b = parseInt(color.substring(5), 16);
-				}
-
-					// texture colors
-					let random = randomNum(depth * -1, depth * 1); // textures all colors by the same amount
-					r = Math.max(Math.min(r + random, 255), 0);
-					g = Math.max(Math.min(g + random, 255), 0);
-					b = Math.max(Math.min(b + random, 255), 0);
-
-					// convert back to hex
-					r = r.toString(16);
-					g = g.toString(16);
-					b = b.toString(16);
-					if (r.length === 1) {
-						r = "0" + r;
-					}
-					if (g.length === 1) {
-						g = "0" + g;
-					}
-					if (b.length === 1) {
-						b = "0" + b;
-					}
-
-					return "#"+r+g+b;
-
-				// optional changing between colours
-				this.colourTransition = properties.colourTransition; // array of colours to transition between
-				this.transitionSpeed = properties.transitionSpeed;
-			}
-			else if (objectToRender.shape === "rect") {
-				console.error("Jake still needs to add rectangle shape rendering ! Please tell him ! !")
-			}
-		}
-	}
-	// reset lineWidth
-	this.ctx.lineWidth = 1;
-
-	// render everything with image
-	for (let i = 0; i < this.allThings.length; i++) { // iterate through everything to be rendered
-
-		let objectToRender = this.allThings[i];
+		let objectToRender = this.allVisibles[i];
 
 		// check object should be rendered
 		if (Game.shouldBeRendered(objectToRender)) {
 
-			// do not render if it is dead and not showing a corpse
-			if (!objectToRender.respawning || objectToRender.isCorpse) {
-				if (objectToRender.preRenderFunction !== undefined) {
-					renderImage = objectToRender.preRenderFunction();
-					// whether image is rendered is based off the return value of preRenderFunction
-					// also applies for whether postRenderFunction is called
+			if (objectToRender.transparency !== undefined) {
+				this.ctx.globalAlpha = objectToRender.transparency;
+			}
+
+			if (objectToRender.renderType === "image") {
+				// rendering an image!
+				if (objectToRender.rotate !== undefined && objectToRender.rotate !== 0) {
+					// rotate and draw (just for projectiles currently)
+					// no crop information passed in
+					this.drawImageRotated(
+						this.ctx,
+						objectToRender.image,
+						objectToRender.crop.x, objectToRender.crop.y,
+						objectToRender.crop.width, objectToRender.crop.height,
+						objectToRender.screenX - objectToRender.width / 2,
+						objectToRender.screenY - objectToRender.height / 2,
+						objectToRender.width,
+						objectToRender.height,
+						objectToRender.rotate
+					);
 				}
-
-				// check if render function prevents object from being rendered (could act as special condition for some items)
-				if (renderImage) {
-
-					if (objectToRender.transparency !== undefined) {
-						this.ctx.globalAlpha = objectToRender.transparency;
-					}
-
-					if (objectToRender.rotate !== undefined && objectToRender.rotate !== 0) {
-						// rotate and draw (just for projectiles currently)
-						// no crop information passed in
-						this.drawImageRotated(
-							this.ctx,
-							objectToRender.image,
-							objectToRender.crop.x, objectToRender.crop.y,
-							objectToRender.crop.width, objectToRender.crop.height,
-							objectToRender.screenX - objectToRender.width / 2,
-							objectToRender.screenY - objectToRender.height / 2,
-							objectToRender.width,
-							objectToRender.height,
-							objectToRender.rotate
-						);
-					}
-					else {
-						// draw image (unrotated)
-						this.ctx.drawImage(
-							objectToRender.image,
-							objectToRender.crop.x, objectToRender.crop.y,
-							objectToRender.crop.width, objectToRender.crop.height,
-							objectToRender.screenX - objectToRender.width / 2,
-							objectToRender.screenY - objectToRender.height / 2,
-							objectToRender.width,
-							objectToRender.height
-						);
-					}
-
-					if (objectToRender.postRenderFunction !== undefined) {
-						objectToRender.postRenderFunction();
-					}
-
-					// set back transparency if it was set to something else
-					if (objectToRender.transparency !== undefined) {
-						this.ctx.globalAlpha = 1;
-					}
-
-					// effect images
-					// these are not treated as their own objects, since they are associated directly with the image of whatever was just drawn
-					if (typeof objectToRender.hasStatusEffectType !== "undefined" && objectToRender.hasStatusEffectType("root")) {
-						// objectToRender must be a character, so has a footHitbox
-						let img = Loader.getImage("rootedStatusImage");
-						this.ctx.drawImage(
-							img,
-							objectToRender.footHitbox.screenX - img.width/2, objectToRender.footHitbox.screenY - img.height*0.75
-						);
-					}
+				else {
+					// draw image (unrotated)
+					this.ctx.drawImage(
+						objectToRender.image,
+						objectToRender.crop.x, objectToRender.crop.y,
+						objectToRender.crop.width, objectToRender.crop.height,
+						objectToRender.screenX - objectToRender.width / 2,
+						objectToRender.screenY - objectToRender.height / 2,
+						objectToRender.width,
+						objectToRender.height
+					);
 				}
+			}
+			else if (objectToRender.renderType === "shape") {
+				// rendering a shape!
+				if (objectToRender.shape === "ellipse") {
+					this.ctx.fillStyle = objectToRender.colour;
+					this.ctx.strokeStyle = objectToRender.colour;
+					this.ctx.lineWidth = objectToRender.thickness;
+					this.ctx.beginPath();
+					this.ctx.ellipse(objectToRender.x, objectToRender.y, objectToRender.width, objectToRender.height, objectToRender.rotation);
+					if (typeof this.ctx.fillStyle !== "undefined") {
+						this.ctx.fill();
+					}
+					if (typeof this.ctx.strokeStyle !== "undefined" && typeof this.ctx.lineWidth !== "undefined") {
+						this.ctx.stroke();
+					}
+
+					// if it has a colour transition, carry this out
+					if (typeof objectToRender.colourTransition !== "undefined") {
+						if (typeof objectToRender.deltaRed !== "undefined") {
+							// delta red is the amount of red to be changed by every second, in RBG
+						}
+
+
+						// split into decimal rgb components
+						let r = parseInt(color.substring(1, 3), 16);
+						let g = parseInt(color.substring(3, 5), 16);
+						let b = parseInt(color.substring(5), 16);
+					}
+
+						// texture colors
+						let random = randomNum(depth * -1, depth * 1); // textures all colors by the same amount
+						r = Math.max(Math.min(r + random, 255), 0);
+						g = Math.max(Math.min(g + random, 255), 0);
+						b = Math.max(Math.min(b + random, 255), 0);
+
+						// convert back to hex
+						r = r.toString(16);
+						g = g.toString(16);
+						b = b.toString(16);
+						if (r.length === 1) {
+							r = "0" + r;
+						}
+						if (g.length === 1) {
+							g = "0" + g;
+						}
+						if (b.length === 1) {
+							b = "0" + b;
+						}
+
+						return "#"+r+g+b;
+
+					// optional changing between colours
+					this.colourTransition = properties.colourTransition; // array of colours to transition between
+					this.transitionSpeed = properties.transitionSpeed;
+				}
+				else if (objectToRender.shape === "rect") {
+					console.error("Jake still needs to add rectangle shape rendering ! Please tell him ! !")
+				}
+			}
+
+			if (objectToRender.postRenderFunction !== undefined) {
+				objectToRender.postRenderFunction();
+			}
+
+			// set back transparency if it was set to something else
+			if (objectToRender.transparency !== undefined) {
+				this.ctx.globalAlpha = 1;
+			}
+
+			// effect images
+			// these are not treated as their own objects, since they are associated directly with the image of whatever was just drawn
+			if (typeof objectToRender.hasStatusEffectType !== "undefined" && objectToRender.hasStatusEffectType("root")) {
+				// objectToRender must be a character, so has a footHitbox
+				let img = Loader.getImage("rootedStatusImage");
+				this.ctx.drawImage(
+					img,
+					objectToRender.footHitbox.screenX - img.width/2, objectToRender.footHitbox.screenY - img.height*0.75
+				);
 			}
 		}
 

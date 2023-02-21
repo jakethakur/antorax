@@ -662,6 +662,10 @@ let Event = {
 		else if (d.day === 14 && d.month === 2) {
 			this.event = "Valentine";
 		}
+		// New Year's
+		else if (d.day === 1 && d.month === 1) {
+			this.event = "New Year";
+		}
 	},
 
 	updateSeason: function (d) {

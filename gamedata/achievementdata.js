@@ -416,7 +416,7 @@ var Achievements = [
 			return Dom.inventory.check(51, "item");
 		}
 	},
-	/*{
+	{
 		name: "Aconitum",
 		description: "Kill a coyote pack, and its wrangler.",
 		points: 5,
@@ -431,7 +431,7 @@ var Achievements = [
 	},
 	{
 		name: "Queen of Poisons",
-		description: "Kill a coyote pack of at least 5 coyotes, and its wrangler.",
+		description: "Kill a coyote pack of at least 10 coyotes, and its wrangler.",
 		points: 5,
 		category: ["combat"],
 		area: ["eaglecrest"],
@@ -439,14 +439,14 @@ var Achievements = [
 		color: "lightgray",
 		class: "single",
 		isCompleted: function () {
-			return User.progress.coyotePackSizeKilled >= 5;
+			return User.progress.coyotePackSizeKilled >= 10;
 		},
 		expand: {
 			type: "progressBar",
 			value: User.progress.coyotePackSizeKilled,
-			total: 5,
+			total: 10,
 		},
-	},*/
+	},
 
 	{
 		name: "Peace for Madeleine Wallace",

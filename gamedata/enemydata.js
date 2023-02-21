@@ -1022,10 +1022,10 @@ const EnemyTemplates = {
 	            },
 	            {
 	                id: 15, // cut purse
-	                tier: 1,aaaaaaaaaaaaaa
+	                tier: 1,
 	                parameters: function () { // returns array of parameters
 	                    return {
-	                        target: this.calculateTarget(),
+	                        target: this.calculateTarget(),// tbd
 	                    };
 	                },
 					castCondition: function (caster) {
@@ -1037,5 +1037,129 @@ const EnemyTemplates = {
 			lootTableTemplate: [EnemyLootTables.cutpurse],
 			inventorySpace: 16,
 		},
+
+
+
+
+
+		coyote: {
+			image: "coyoteRight",
+			deathImage: "coyoteCorpse",
+			name: "Coyote",
+			hostility: "hostile",
+			level: 15,
+			respawnOnDeath: false, // generated with the wrangler
+			stats: {
+				damage: 9,
+				walkSpeed: 190,
+				swimSpeed: 55,
+				iceSpeed: 210,
+				maxHealth: 70,
+				defence: 5,
+				range: 60,
+				reloadTime: 1300,
+				healthRegen: 0.5,
+				lootTime: 15000,
+			},
+			xpGiven: 100,
+			projectile: {
+				image: "melee",
+			},
+			attackBehaviour: {
+				//tbd
+			},
+			spells: [
+	            {
+	                id: 19, // seek prey
+	                tier: 1,
+	                parameters: function () { // returns array of parameters
+	                    return {
+	                        target: this.calculateTarget(),
+	                    };
+	                },
+					castCondition: function (caster) {
+	                    return typeof this.calculateTarget() !== "undefined" && Game.distance(caster, this.calculateTarget()) > caster.stats.range - 25;
+	                },
+	                interval: 5000,
+	            },
+	        ],
+			lootTableTemplate: [EnemyLootTables.coyote],
+			inventorySpace: 8,
+			onDeath: function () {
+				// coyotes killed achievement
+				User.progress.coyotes = Increment(User.progress.coyotes);
+
+				// check if whole pack is dead
+				//tbd aaaaaaaaaaaaaaaaaa
+			}
+		},
+		coyoteWrangler: {
+			image: "coyoteWranger",
+			deathImage: "coyoteWrangerCorpse",
+			name: "Coyote Pack Wrangler",
+			hostility: "boss",
+			level: 15,
+			respawnOnDeath: false, // generated with the wrangler
+			stats: {
+				damage: 4,
+				walkSpeed: 120,
+				swimSpeed: 50,
+				iceSpeed: 190,
+				maxHealth: 125,
+				defence: 8,
+				range: 90,
+				reloadTime: 1000,
+				healthRegen: 1,
+				lootTime: 15000,
+			},
+			xpGiven: 400,
+			projectile: {
+				image: "melee",
+			},
+			attackBehaviour: {
+				// tbd
+			},
+			spells: [
+	            {
+	                id: 20, // mend pets
+	                tier: 1,
+	                parameters: function () { // returns array of parameters
+						let petArray = Game.enemies.filter(enemy => enemy.name === "Coyote" && enemy.inPack);
+	                    return {
+							pets: petArray,
+	                    };
+	                },
+					castCondition: function (caster) {
+	                    //return a coyote is angry; aaaaaaaaaaaaaaaaaa
+	                },
+	                interval: 13000,
+					initialCooldown: 13000
+	            },
+	            {
+	                id: 21, // incite pets
+	                tier: 1,
+	                parameters: function () { // returns array of parameters
+						let petArray = Game.enemies.filter(enemy => enemy.name === "Coyote" && enemy.inPack);
+	                    return {
+							pets: petArray,
+	                    };
+	                },
+					castCondition: function (caster) {
+	                    //return same ass above; aaaaaaaaaaaaaaaaa
+	                },
+	                interval: 13000,
+					initialCooldown: 6000
+	            },
+	        ],
+			lootTableTemplate: [EnemyLootTables.coyoteWrangler],
+			inventorySpace: 16,
+		},
+		onDeath: function () {
+			// coyote wrangler killed achievement
+			User.progress.coyoteWranglers = Increment(User.progress.coyoteWranglers);
+
+			// check if whole pack is dead
+			//same ase abpveeee aaaaaaaaaaaaaaaaa
+		}
 	}
 };

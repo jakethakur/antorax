@@ -6912,15 +6912,84 @@ Dom.init = function () {
 	// clear any unintentional chat and welcome player
 	Dom.chat.contents = [];
 
-	if (Event.christmasDay) {
-	    Dom.chat.insert("Merry Christmas, " + Player.name + "!", 0, undefined, true);
+	let dateObj = Event.getDate();
+
+	// welcome back message
+	if (localStorage.getItem(Player.class) !== null) {
+		// events
+		if (Event.christmasDay) {
+		    Dom.chat.insert("Merry Christmas, " + Player.name + "!", 0, undefined, true);
+		}
+		else if (Event.event === "Antorax") {
+		    Dom.chat.insert("Happy Antorax Day, " + Player.name + "!!", 0, undefined, true);
+		}
+		else if (Event.event === "New Year") {
+		    Dom.chat.insert("Happy new year, " + Player.name + "! Make a wish~", 0, undefined, true);
+		}
+		else if (Event.event === "Valentine") {
+		    Dom.chat.insert("We love you, " + Player.name + "!", 0, undefined, true);
+		}
+		// consecutive days
+		else if (Player.consecutiveDays === 5) {
+		    Dom.chat.insert("Welcome back, " + Player.name + "! Back already?!", 0, undefined, true);
+		}
+		else if (Player.consecutiveDays === 20) {
+		    Dom.chat.insert("What a surprise, " + Player.name + "'s back!", 0, undefined, true);
+		}
+		else if (Player.consecutiveDays === -1) {
+			// needs finishing lol
+		    //Dom.chat.insert("We've been missing you, " + Player.name + ". . .only joking!", 0, undefined, true);
+		}
+		// times of the day (50% chance of this message being given)
+		else if (dateObj.hour >= 6 && dateObj.hour <= 10 && Random(0,1) === 0) {
+		    Dom.chat.insert("Good morning, " + Player.name + "!", 0, undefined, true);
+		}
+		else if (dateObj.hour >= 13 && dateObj.hour <= 15 && Random(0,1) === 0) {
+		    Dom.chat.insert("Good afternoon, " + Player.name + "!", 0, undefined, true);
+		}
+		else if (dateObj.hour >= 17 && dateObj.hour <= 19 && Random(0,1) === 0) {
+		    Dom.chat.insert("Good evening, " + Player.name + "!", 0, undefined, true);
+		}
+		else if (dateObj.hour <= 4 && Random(0,30) === 0) {
+		    Dom.chat.insert(Player.name + "! What brings you here at this hour?", 0, undefined, true);
+		}
+		// lucky greetings
+		else if (Random(0,100) === 0) {
+		    Dom.chat.insert("Howdy " + Player.name + "!", 0, undefined, true);
+		}
+		else if (Random(0,100) === 0) {
+		    Dom.chat.insert("Welcome back, " + Player.name + "! How are you?", 0, undefined, true);
+		}
+		else if (Random(0,100) === 0) {
+		    Dom.chat.insert("Make a wish, " + Player.name + "! Today's going to be a lucky day.", 0, undefined, true);
+		}
+		// slightly less rare
+		else if (Random(0,30) === 0) {
+		    Dom.chat.insert("How's it going, " + Player.name + "?", 0, undefined, true);
+		}
+		else if (Random(0,30) === 0) {
+		    Dom.chat.insert("Good to see you, " + Player.name + "!", 0, undefined, true);
+		}
+		else if (Random(0,30) === 0) {
+		    Dom.chat.insert("Hello " + Player.name + "!", 0, undefined, true);
+		}
+		// various rare punctuation variants lol
+		else if (Random(0,30) === 0) {
+		    Dom.chat.insert("Welcome back, " + Player.name + ".", 0, undefined, true);
+		}
+		else if (Random(0,30) === 0) {
+		    Dom.chat.insert("Welcome back, " + Player.name + "!!", 0, undefined, true);
+		}
+		// default :)
+		else {
+	    	Dom.chat.insert("Welcome back, " + Player.name + "!", 0, undefined, true);
+		}
 	}
-	else if(localStorage.getItem(Player.class) !== null) {
-	    Dom.chat.insert("Welcome back, " + Player.name + "!", 0, undefined, true);
-	}
+	// secondary additionl message
 	if (Event.event === "Fish") {
 	    Dom.chat.insert("Something <em>fishy</em> is going on...", 2000, undefined, true);
 	}
+
 
 	// tell the player if they have unread mail
 	let unreadMail = Dom.mail.unread();
