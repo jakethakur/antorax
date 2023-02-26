@@ -832,7 +832,7 @@ Spells = [
 						effectTitle: "Target Acquired",
 						defenceIncrease: -100,
 						time: 20,
-						effectStack: "multiply"
+						effectStack: "multiply",
 					});
 
 					// caster should charge towrards location
@@ -846,7 +846,13 @@ Spells = [
 				image: "jaws",
 				moveDirection: Game.bearing(properties.caster, properties.target),
 				moveSpeed: 250,
-				type: "projectiles"
+				type: "projectiles",
+				animation: {
+					type: "spritesheet",
+					imagesPerRow: 3,
+					frameTime: 90,
+					totalImages: 7
+				},
 			}));
         },
 

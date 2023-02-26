@@ -2859,32 +2859,63 @@ var Items = {
 					width: 41,
 					height: 41
 				},
-				animateFunction: function () {
-					// state is an integer from 0 to 9 inclusive
-					// growth goes from 0 to 10, then it starts growing
-					// define state & growth
-					if (this.state === undefined) {
-						this.state = 0;
-						this.growth = 0;
-					}
-					else if (this.state === 0 && this.growth < 10) {
-						this.growth++;
-					}
-					else if (this.state < 9) {
-						this.z = -1; // now a flower so appears behind
-						this.state++;
-						// change image
-						this.crop = {
-							x: (this.state % 4) * this.baseWidth,
-							y: Math.floor(this.state / 4) * this.baseHeight,
-							width: this.baseWidth,
-							height: this.baseHeight
+				animation: {
+					type: "function",
+					frameTime: 1100,
+					animateFunction: function () { // tbd maybe change this to be a function that updates the frame number, and leave it to the main code to do the cropping
+						// state is an integer from 0 to 9 inclusive
+						// growth goes from 0 to 10, then it starts growing
+						// define state & growth
+						if (this.state === undefined) {
+							this.state = 0;
+							this.growth = 0;
 						}
+						else if (this.state === 0 && this.growth < 10) {
+							this.growth++;
+						}
+						else if (this.state < 9) {
+							this.z = -1; // now a flower so appears behind
+							this.state++;
+							// change image
+							let obj = this.animateObj; // actual projectile object
+							obj.crop = {
+								x: (this.state % 4) * obj.baseWidth,
+								y: Math.floor(this.state / 4) * obj.baseHeight,
+								width: obj.baseWidth,
+								height: obj.baseHeight
+							}
 
-						if (this.state === 9) {
-							this.removeIn = 5;
+							if (this.state === 9) {
+								this.removeIn = 5;
+							}
 						}
-					}
+					},
+					animateFunction: function () {
+						// increase number of ticks
+						if (this.timeoutTicks === undefined || this.timeoutTicks >= 20) {
+							this.timeoutTicks = 1;
+						}
+						else {
+							this.timeoutTicks++;
+						}
+						// alternate image
+						// the first time this is called, imageName is undefined so the image is not changed
+						if (this.animateObj.imageName === "lightsRB") {
+							this.animateObj.image = Loader.getImage("lightsGY");
+							this.animateObj.imageName = "lightsGY";
+						}
+						else if (this.animateObj.imageName === "lightsGY") {
+							this.animateObj.image = Loader.getImage("lightsRB");
+							this.animateObj.imageName = "lightsRB";
+						}
+						// time for next animation frame
+						if (this.timeoutTicks > 10) {
+							this.frameTime = 300; // formerly 250
+						}
+						else {
+							this.frameTime = 1100;
+						}
+					},
 				},
 				animationFrameTime: 150,
 				stayOnScreen: true, // done in animateFunction

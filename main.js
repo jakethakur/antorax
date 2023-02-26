@@ -1654,6 +1654,8 @@ class Thing extends Visible {
 		}
 
 		if (typeof this.animation !== "undefined") {
+			// deep copy ..
+			this.animation = Object.assign({}, this.animation);
 			// set totalImages property if necessary
 			if (this.animation.type === "carousel") {
 				this.animation.totalImages = this.animation.images.length;
@@ -3031,7 +3033,7 @@ class Attacker extends Character {
 		// spells
 		this.spells = properties.spells || [];
 		if (this.constructor.name !== "Hero") { // hero spells are saved as an object instead (not sure why???)
-			this.spells = this.spells.map(a => Object.assign({}, a));; // deep copy objects in array
+			this.spells = this.spells.map(a => Object.assign({}, a)); // deep copy objects in array
 			for (let i = 0; i < this.spells.length; i++) {
 				if (this.spells[i].interval !== undefined) {
 					this.spells[i].ready = false; // cannot be used until interval has finished (just for ai, not player)
@@ -3474,7 +3476,7 @@ class Hero extends Attacker {
 
 							// optional stuff:
 							crop: Game.heroProjectileInfo.crop,
-							animateFunction: Game.heroProjectileInfo.animateFunction,
+							animation: Game.heroProjectileInfo.animation,
 							frameTime: Game.heroProjectileInfo.frameTime,
 							stayOnScreen: Game.heroProjectileInfo.stayOnScreen, // set to the time it stays on the screen for (default 1500) or true if never removed
 							doNotRotate: Game.heroProjectileInfo.doNotRotate,
@@ -9852,7 +9854,7 @@ Game.update = function (delta) {
 					// change image using spritesheet
 					object.crop = {
 						x: (animate.state % animate.imagesPerRow) * object.baseWidth,
-						y: Math.floor(this.state / 4) * object.baseHeight,
+						y: Math.floor(animate.state / 4) * object.baseHeight,
 						width: object.baseWidth,
 						height: object.baseHeight
 					}
@@ -10238,7 +10240,7 @@ Game.projectileImageUpdate = function () {
 			}
 		}
 
-		// crop, animateFunction, etc
+		// crop, animation, etc
 		this.heroProjectileInfo = weaponObj.extraProjectileInfo;
 		if (typeof this.heroProjectileInfo === "undefined") {
 			this.heroProjectileInfo = {};

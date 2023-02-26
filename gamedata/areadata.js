@@ -1327,33 +1327,36 @@ var Areas = {
 					return Event.event === "Christmas";
 				},
 				// change colour!
-				animateFunction: function () {
-					// increase number of ticks
-					if (this.timeoutTicks === undefined || this.timeoutTicks >= 20) {
-						this.timeoutTicks = 1;
-					}
-					else {
-						this.timeoutTicks++;
-					}
-					// alternate image
-					// the first time this is called, imageName is undefined so the image is not changed
-					if (this.imageName === "lightsRB") {
-						this.image = Loader.getImage("lightsGY");
-						this.imageName = "lightsGY";
-					}
-					else if (this.imageName === "lightsGY") {
-						this.image = Loader.getImage("lightsRB");
-						this.imageName = "lightsRB";
-					}
-					// time for next animation frame
-					if (this.timeoutTicks > 10) {
-						this.animationFrameTime = 300; // formerly 250
-					}
-					else {
-						this.animationFrameTime = 1100;
-					}
+				animation: {
+					type: "function",
+					frameTime: 1100,
+					animateFunction: function () {
+						// increase number of ticks
+						if (this.timeoutTicks === undefined || this.timeoutTicks >= 20) {
+							this.timeoutTicks = 1;
+						}
+						else {
+							this.timeoutTicks++;
+						}
+						// alternate image
+						// the first time this is called, imageName is undefined so the image is not changed
+						if (this.animateObj.imageName === "lightsRB") {
+							this.animateObj.image = Loader.getImage("lightsGY"); // tbd use setImage
+							this.animateObj.imageName = "lightsGY";
+						}
+						else if (this.animateObj.imageName === "lightsGY") {
+							this.animateObj.image = Loader.getImage("lightsRB");
+							this.animateObj.imageName = "lightsRB";
+						}
+						// time for next animation frame
+						if (this.timeoutTicks > 10) {
+							this.frameTime = 300; // formerly 250
+						}
+						else {
+							this.frameTime = 1100;
+						}
+					},
 				},
-				animationFrameTime: 1100,
 			},
 		],
 
@@ -1615,21 +1618,11 @@ var Areas = {
 				image: "hearth1",
 				name: "Tavern Hearth",
 				// animation!
-				animateFunction: function () {
-					if (this.imageName === "hearth1") {
-						this.image = Loader.getImage("hearth2");
-						this.imageName = "hearth2";
-					}
-					else if (this.imageName === "hearth2") {
-						this.image = Loader.getImage("hearth3");
-						this.imageName = "hearth3";
-					}
-					else if (this.imageName === "hearth3") {
-						this.image = Loader.getImage("hearth1");
-						this.imageName = "hearth1";
-					}
+				animation: {
+					type: "carousel",
+					frameTime: 200,
+					images: ["hearth1", "hearth2", "hearth3"],
 				},
-				animationFrameTime: 200,
 			},
 			{
 				x: 741,
@@ -2192,21 +2185,11 @@ var Areas = {
 					healthRegen: 0.1,
 				},
 				// animation!
-				animateFunction: function () {
-					if (this.imageName === "torchNight1") {
-						this.image = Loader.getImage("torchNight2");
-						this.imageName = "torchNight2";
-					}
-					else if (this.imageName === "torchNight2") {
-						this.image = Loader.getImage("torchNight3");
-						this.imageName = "torchNight3";
-					}
-					else if (this.imageName === "torchNight3") {
-						this.image = Loader.getImage("torchNight1");
-						this.imageName = "torchNight1";
-					}
+				animation: {
+					type: "carousel",
+					frameTime: 200,
+					images: ["torchNight1", "torchNight2", "torchNight3"],
 				},
-				animationFrameTime: 200,
 				roles: [
 					{
 						quest: Quests.eaglecrestLoggingCamp[11],
@@ -2390,21 +2373,11 @@ var Areas = {
 				image: "campfire1",
 				name: "Campfire",
 				// animation!
-				animateFunction: function () {
-					if (this.imageName === "campfire1") {
-						this.image = Loader.getImage("campfire2");
-						this.imageName = "campfire2";
-					}
-					else if (this.imageName === "campfire2") {
-						this.image = Loader.getImage("campfire3");
-						this.imageName = "campfire3";
-					}
-					else if (this.imageName === "campfire3") {
-						this.image = Loader.getImage("campfire1");
-						this.imageName = "campfire1";
-					}
+				animation: {
+					type: "carousel",
+					frameTime: 200,
+					images: ["campfire1", "campfire2", "campfire3"],
 				},
-				animationFrameTime: 200,
 			},
 			{
 				x: 840,
@@ -2412,21 +2385,11 @@ var Areas = {
 				image: "campfire1",
 				name: "Campfire",
 				// animation!
-				animateFunction: function () {
-					if (this.imageName === "campfire1") {
-						this.image = Loader.getImage("campfire2");
-						this.imageName = "campfire2";
-					}
-					else if (this.imageName === "campfire2") {
-						this.image = Loader.getImage("campfire3");
-						this.imageName = "campfire3";
-					}
-					else if (this.imageName === "campfire3") {
-						this.image = Loader.getImage("campfire1");
-						this.imageName = "campfire1";
-					}
+				animation: {
+					type: "carousel",
+					frameTime: 200,
+					images: ["campfire1", "campfire2", "campfire3"],
 				},
-				animationFrameTime: 200,
 			},
 			{
 				x: 270,
@@ -2458,33 +2421,11 @@ var Areas = {
 				imageDay: "torchDay1",
 				imageNight: "torchNight1",
 				name: "Goblin Torch",
-				animateFunction: function () {
-					if (this.imageName === "torchDay1") {
-						this.image = Loader.getImage("torchDay2");
-						this.imageName = "torchDay2";
-					}
-					else if (this.imageName === "torchDay2") {
-						this.image = Loader.getImage("torchDay3");
-						this.imageName = "torchDay3";
-					}
-					else if (this.imageName === "torchDay3") {
-						this.image = Loader.getImage("torchDay1");
-						this.imageName = "torchDay1";
-					}
-					else if (this.imageName === "torchNight1") {
-						this.image = Loader.getImage("torchNight2");
-						this.imageName = "torchNight2";
-					}
-					else if (this.imageName === "torchNight2") {
-						this.image = Loader.getImage("torchNight3");
-						this.imageName = "torchNight3";
-					}
-					else if (this.imageName === "torchNight3") {
-						this.image = Loader.getImage("torchNight1");
-						this.imageName = "torchNight1";
-					}
+				animation: {
+					type: "carousel",
+					frameTime: 200,
+					images: ["torchDay1", "torchDay2", "torchDay3"],
 				},
-				animationFrameTime: 200,
 			},
 		],
 
@@ -3879,25 +3820,11 @@ var Areas = {
 				image: "fountain1",
 				name: "Water Fountain",
 				// animation!
-				animateFunction: function () {
-					if (this.imageName === "fountain1") {
-						this.image = Loader.getImage("fountain2");
-						this.imageName = "fountain2";
-					}
-					else if (this.imageName === "fountain2") {
-						this.image = Loader.getImage("fountain3");
-						this.imageName = "fountain3";
-					}
-					else if (this.imageName === "fountain3") {
-						this.image = Loader.getImage("fountain4");
-						this.imageName = "fountain4";
-					}
-					else if (this.imageName === "fountain4") {
-						this.image = Loader.getImage("fountain1");
-						this.imageName = "fountain1";
-					}
+				animation: {
+					type: "carousel",
+					frameTime: 300,
+					images: ["fountain1", "fountain2", "fountain3", "fountain4"],
 				},
-				animationFrameTime: 300, // formerly 250
 			},
 			// border lampposts
 			{
@@ -5849,7 +5776,6 @@ var Areas = {
 				destinationX: 292,
 				destinationY: 360,
 				teleportCondition: function () {
-					return true;
 					return Player.quests.activeQuestArray.includes("Cat Life");
 				},
 				teleportFailText: "<b>Alchemist Tamtam</b>: <sup>Nooo!</sup> You can't go into the storerooms!!!!",
@@ -6557,18 +6483,11 @@ Last I saw him, he was visiting the <b>Eaglecrest Plains</b> to the <b>south</b>
 				y: 202,
 				image: "gargoyleWaterRight1",
 				name: "Gargoyle Water",
-				animateFunction: function () {
-					if (this.imageName === "gargoyleWaterRight1") {
-						this.setImage("gargoyleWaterRight2");
-					}
-					else if (this.imageName === "gargoyleWaterRight2") {
-						this.setImage("gargoyleWaterRight3");
-					}
-					else if (this.imageName === "gargoyleWaterRight3") {
-						this.setImage("gargoyleWaterRight1");
-					}
+				animation: {
+					type: "carousel",
+					frameTime: 200,
+					images: ["gargoyleWaterLeft1", "gargoyleWaterLeft2", "gargoyleWaterLeft3"],
 				},
-				animationFrameTime: 200,
 				canBeShown: function () {
 					return Weather.weatherType === "rain";
 				},
@@ -7918,27 +7837,12 @@ Last I saw him, he was visiting the <b>Eaglecrest Plains</b> to the <b>south</b>
 					width: 450,
 					height: 450
 				},
-				animateFunction: function () {
-					// state is an integer from 0 to 15 inclusive
-					// define state
-					if (this.state === undefined) {
-						this.state = Random(0, 15);
-					}
-					else if (this.state >= 15) {
-						this.state = 0;
-					}
-					else {
-						this.state++;
-					}
-					// change image
-					this.crop = {
-						x: (this.state % 4) * this.baseWidth,
-						y: Math.floor(this.state / 4) * this.baseHeight,
-						width: this.baseWidth,
-						height: this.baseHeight
-					}
+				animation: {
+					type: "spritesheet",
+					imagesPerRow: 4,
+					frameTime: 90,
+					totalImages: 16
 				},
-				animationFrameTime: 90,
 			},
 			{
 				x: 315,
@@ -7952,27 +7856,12 @@ Last I saw him, he was visiting the <b>Eaglecrest Plains</b> to the <b>south</b>
 					width: 450,
 					height: 450
 				},
-				animateFunction: function () {
-					// state is an integer from 0 to 15 inclusive
-					// define state
-					if (this.state === undefined) {
-						this.state = Random(0, 15);
-					}
-					else if (this.state >= 15) {
-						this.state = 0;
-					}
-					else {
-						this.state++;
-					}
-					// change image
-					this.crop = {
-						x: (this.state % 4) * this.baseWidth,
-						y: Math.floor(this.state / 4) * this.baseHeight,
-						width: this.baseWidth,
-						height: this.baseHeight
-					}
+				animation: {
+					type: "spritesheet",
+					frameTime: 90,
+					imagesPerRow: 4,
+					totalImages: 16,
 				},
-				animationFrameTime: 90,
 			},
 			{
 				x: 4225, y: 2701,  image: 'gnome', name: 'Gnome',
@@ -8012,27 +7901,12 @@ Last I saw him, he was visiting the <b>Eaglecrest Plains</b> to the <b>south</b>
 					width: 120,
 					height: 120
 				},
-				animateFunction: function () { // tbd generalise for anything like this?
-					// state is an integer from 0 to 13 inclusive
-					// define state
-					if (this.state === undefined) {
-						this.state = Random(0, 13);
-					}
-					else if (this.state >= 13) {
-						this.state = 0;
-					}
-					else {
-						this.state++;
-					}
-					// change image
-					this.crop = {
-						x: (this.state % 4) * this.baseWidth,
-						y: Math.floor(this.state / 4) * this.baseHeight,
-						width: this.baseWidth,
-						height: this.baseHeight
-					}
+				animation: {
+					type: "spritesheet",
+					frameTime: 90,
+					imagesPerRow: 4,
+					totalImages: 14,
 				},
-				animationFrameTime: 90,
 			},
 			{
 				x: 4141,
