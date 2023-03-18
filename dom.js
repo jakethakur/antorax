@@ -920,10 +920,20 @@ Dom.chat.insertSequence = function (text, values, end, endParameters, cutscene) 
 	}
 }
 
-Dom.chat.input = function (id) {
-	if (Dom.elements[id].value !== "") {
 
-		if (Dom.elements[id].value === "/help") {
+// input to chat via chat page or bottom right of screen
+Dom.chat.input = function (id) {
+	Dom.chat.playerMessage(Dom.elements[id].value);
+
+	Dom.elements[id].select();
+	Dom.elements[id].focus();
+}
+
+// player sending a message to chat
+Dom.chat.playerMessage = function (message) {
+	if (message !== "") {
+
+		if (message === "/help") {
 			Dom.chat.insert(Dom.chat.say("The Mighty Zararanath",
 			`Hello again, ${Player.name}. Here is a list of commands that you can type in chat:
 			<br><br>/me [message] - refer to yourself in the third person.
@@ -936,18 +946,18 @@ Dom.chat.input = function (id) {
 		// message intended to be sent to other players
 		else if (ws === false || ws.readyState !== 1) {
 			// server off
-			Dom.chat.insert(Dom.chat.say(Player.name, Dom.elements[id].value));
-			if (Dom.elements[id].value === "/creative") {
+			Dom.chat.insert(Dom.chat.say(Player.name, message));
+			if (message === "/creative") {
 				Game.toggleCreativeMode();
 			}
-			else if (Dom.elements[id].value.substring(0, 7) === "/image ") {
-				Game.setCreativeItem(Dom.elements[id].value.substr(7));
+			else if (message.substring(0, 7) === "/image ") {
+				Game.setCreativeItem(message.substr(7));
 			}
 		}
 		else {
 			// server on
 
-			if (Dom.elements[id].value === "/ping") {
+			if (message === "/ping") {
 				let message = {
 			        type: "ping",
 			        content: Date.now(),
@@ -956,8 +966,8 @@ Dom.chat.input = function (id) {
 			    ws.send(jsonMessage);
 			}
 
-			else if (Dom.elements[id].value.substring(0, 5) === "/msg ") {
-				let array = Dom.elements[id].value.split(" ");
+			else if (message.substring(0, 5) === "/msg ") {
+				let array = message.split(" ");
 				if (array.length > 2 && Dom.players.findIndex(player => player.name === array[1]) !== -1) {
 					let string = array[2];
 					for (let i = 3; i < array.length; i++) {
@@ -980,13 +990,13 @@ Dom.chat.input = function (id) {
 				}
 			}
 
-			else if (Dom.elements[id].value.substring(0, 3) === "/r ") {
+			else if (message.substring(0, 3) === "/r ") {
 				if (Dom.chat.replyTo !== undefined) {
-					Dom.chat.insert(Dom.chat.say(Player.name + " &#10132; " + Dom.chat.replyTo, Dom.elements[id].value.substring(3)));
+					Dom.chat.insert(Dom.chat.say(Player.name + " &#10132; " + Dom.chat.replyTo, message.substring(3)));
 					let message = {
 						type: "msg",
 						name: Dom.chat.replyTo,
-						content: Dom.elements[id].value.substring(3),
+						content: message.substring(3),
 					}
 					let jsonMessage = JSON.stringify(message);
 					ws.send(jsonMessage);
@@ -1001,17 +1011,15 @@ Dom.chat.input = function (id) {
 				let message = {
 			        type: "chat",
 			        name: Player.name,
-			        content: Dom.elements[id].value,
+			        content: message,
 			    }
 			    let jsonMessage = JSON.stringify(message);
 			    ws.send(jsonMessage);
 			}
 		}
 
-		Dom.elements[id].value = "";
+		message = "";
 	}
-	Dom.elements[id].select();
-	Dom.elements[id].focus();
 }
 
 Dom.elements.canvasChatInput.onblur = function () {
@@ -4522,8 +4530,17 @@ Dom.loot.page = function (name, items) {
 	}
 }
 
+// name is the large text shown at the top of the page
+// text is the text displayed in the page - can be a function which returns the text displayed on the page alternatively
+// more documentation tbd : )
+// give parameter is just cosmetic, showing the item on the page as an "attached item". to actually give the item to the player, add this to the "functions" parameter
 Dom.text.page = function (name, text, close, buttons, functions, give) {
 	if (Dom.changeBook("textPage")) {//, true/*false*/, true);
+		// text might be a function in which case the value taken is the value returned
+		if (typeof text === "function") {
+			text = text();
+		}
+
 		Dom.elements.textPage.innerHTML = '<h1 id="textPageName">'+name+'</h1>'
 		Dom.elements.textPage.innerHTML += '<p id="textPageText">'+text+'</p>'
 		if (give !== undefined) {

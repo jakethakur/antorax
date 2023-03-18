@@ -831,8 +831,12 @@ Spells = [
 						target: target,
 						effectTitle: "Target Acquired",
 						defenceIncrease: -100,
-						time: 20,
+						time: 5,
 						effectStack: "multiply",
+						// end blood effect when this effect expires
+						onExpire: "removeTrail",
+						callExpireOnRemove: true,
+						onExpireParams: ["coyoteBlood"]
 					});
 
 					// caster should charge towrards location
@@ -841,9 +845,26 @@ Spells = [
 					let time = dist / velocity;
 					let bear = Game.bearing(caster, target);
 					caster.displace(0, velocity, time, bear); // start displacement
+
+					// blood on target
+					target.addTrail("coyoteBlood", {
+						width: 3,
+						height: 3,
+						colour: ["#880808", "#8a0303"], // class Particle chooses random colour from array
+						removeIn: 1500,
+						rotation: 0,
+						variance: 50, // variance in position (in x/y axis in one direction from player)
+						intensity: 1, // no. of particles every 100ms
+					});
 				},
 				targets: [[properties.target]],
 				image: "jaws",
+				crop: {
+					x: 0,
+					y: 0,
+					width: 150,
+					height: 150
+				},
 				moveDirection: Game.bearing(properties.caster, properties.target),
 				moveSpeed: 250,
 				type: "projectiles",
@@ -853,6 +874,8 @@ Spells = [
 					frameTime: 90,
 					totalImages: 7
 				},
+				transparency: 0.7,
+				stopMovingOnDamage: true,
 			}));
         },
 
@@ -873,16 +896,16 @@ Spells = [
 		func: function (properties) {
 			for (let i = 0; i < properties.pets.length; i++) {
 				Game.restoreHealth(properties.pets[i], Spells[20].healthRestored[properties.tier]);
-			}
 
-			properties.pets[i].addTrail("empowered", {
-				width: 3,
-				colour: ["#2CE831"],
-				removeIn: 1000,
-				variance: 50,
-				intensity: 6,
-				duration: 3,
-			});
+				properties.pets[i].addTrail("mended", {
+					width: 3,
+					colour: ["#2CE831"],
+					removeIn: 1000,
+					variance: 50,
+					intensity: 4,
+					duration: 3,
+				});
+			}
         },
 
         channelTime: [
@@ -912,16 +935,16 @@ Spells = [
 					damageIncrease: Spells[21].damageIncrease[properties.tier],
 					time: Spells[21].length[properties.tier],
 				});
-				// tbd also make this double the speed of their projectiles? or double move speed maybe?
 
 				properties.pets[i].addTrail("empowered", {
 					width: 3,
-					colour: ["#ac0404"],
+					colour: ["#cc0404"],
 					removeIn: 1000,
 					variance: 50,
-					intensity: 4,
-					duration: 10,
+					intensity: 2,
+					duration: 7,
 				});
+				// tbd also make this double the speed of their projectiles? or double move speed maybe?
 			}
         },
 
@@ -937,8 +960,42 @@ Spells = [
 
         length: [
             0,
-            10,    // tier 1
+            7,    // tier 1
         ],
     },
+
+	{
+		name: "Bees!!!!!!!!",
+		id: 22,
+		class: "k",
+		description: "",
+		enemyOnly: true, // bee swarm
+
+		// properties should contain tier (as int value), caster
+		func: function (properties) {
+			// summon projectile (note its image should have already been loaded in)
+			for (let i = 0; i < Spells[22].numberSummoned[properties.tier]; i++) {
+				let x = properties.caster.x + Random(-75, 75);
+				let y = properties.caster.y + Random(-75, 75);
+				let preparedEnemy = Game.prepareNPC({
+					x: x,
+					y: y,
+					template: EnemyTemplates.eaglecrest.bumblebee,
+				}, "enemies");
+				Game.enemies.push(new Enemy(preparedEnemy));
+			}
+		},
+
+		channelTime: [
+			0,
+			0,		// tier 1
+		],
+
+		numberSummoned: [
+			0,
+			3,		// tier 1
+			5,		// tier 2
+		],
+	},
 
 ];

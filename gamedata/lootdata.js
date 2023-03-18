@@ -568,10 +568,65 @@ const EnemyLootTables = {
 		{ // mud-splattered letter
 			item: Items.item[52],
 			chance: [
-				3,				// 0
+				2.5,			// 0
 				0,				// 1
 			],
 		},
+	],
+	beeSwarm: [
+		{ // unidentified item
+			item: {
+				name: "unidentified",
+				tier: 1,
+				area: "eaglecrest",
+			},
+			chance: [
+				30,				// 0
+				0,				// 1
+			],
+		},
+		{ // gold
+			item: Items.currency[2],
+			chance: [
+				5,				// 0
+				0,				// 1
+			],
+		},
+		{ // honeycomb
+			item: Items.item[61],
+			chance: [
+				60,				// 0
+				50,				// 1
+				30,				// 2
+				10,				// 3
+				0,				// 4
+			],
+			repeatTimes: 4
+		},
+		{ // bee sting
+			item: Items.item[62],
+			chance: [
+				35,				// 0
+				0,				// 1
+			],
+			repeatTimes: 3
+		},
+		{ // honey
+			item: Items.consumable[36],
+			chance: [
+				60,				// 0
+				0,				// 1
+			],
+			repeatTimes: 3
+		},
+		{ // crumpled letter
+			item: Items.item[53],
+			chance: [
+				0.5,			// 0
+				0,				// 1
+			],
+		},
+		// tbd add flowers
 	],
 };
 

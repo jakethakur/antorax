@@ -1043,7 +1043,10 @@ const EnemyTemplates = {
 
 
 		coyote: {
-			image: "coyoteRight",
+			rotationImages: {
+				left: "coyoteUnbotheredLeft",
+				right: "coyoteUnbotheredRight"
+			},
 			deathImage: "coyoteCorpse",
 			name: "Coyote",
 			hostility: "hostile",
@@ -1094,8 +1097,8 @@ const EnemyTemplates = {
 			}
 		},
 		coyoteWrangler: {
-			image: "coyoteWranger",
-			deathImage: "coyoteWrangerCorpse",
+			image: "coyoteWrangler",
+			deathImage: "coyoteWranglerCorpse",
 			name: "Coyote Pack Wrangler",
 			hostility: "boss",
 			level: 15,
@@ -1120,17 +1123,18 @@ const EnemyTemplates = {
 				// tbd
 			},
 			spells: [
-	            {
+	            /*{
 	                id: 20, // mend pets
 	                tier: 1,
 	                parameters: function () { // returns array of parameters
-						let petArray = Game.enemies.filter(enemy => enemy.name === "Coyote" && enemy.inPack);
+						let petArray = Game.enemies.filter(enemy => enemy.name === "Coyote" && enemy.association === "coyotePack");
 	                    return {
 							pets: petArray,
 	                    };
 	                },
 					castCondition: function (caster) {
 	                    //return a coyote is angry; aaaaaaaaaaaaaaaaaa
+						return true;
 	                },
 	                interval: 13000,
 					initialCooldown: 13000
@@ -1139,27 +1143,106 @@ const EnemyTemplates = {
 	                id: 21, // incite pets
 	                tier: 1,
 	                parameters: function () { // returns array of parameters
-						let petArray = Game.enemies.filter(enemy => enemy.name === "Coyote" && enemy.inPack);
+						let petArray = Game.enemies.filter(enemy => enemy.name === "Coyote" && enemy.association === "coyotePack");
 	                    return {
 							pets: petArray,
 	                    };
 	                },
 					castCondition: function (caster) {
 	                    //return same ass above; aaaaaaaaaaaaaaaaa
+						return true;
 	                },
 	                interval: 13000,
 					initialCooldown: 6000
-	            },
+	            },*/
 	        ],
 			lootTableTemplate: [EnemyLootTables.coyoteWrangler],
 			inventorySpace: 16,
-		},
-		onDeath: function () {
-			// coyote wrangler killed achievement
-			User.progress.coyoteWranglers = Increment(User.progress.coyoteWranglers);
+			onDeath: function () {
+				// coyote wrangler killed achievement
+				User.progress.coyoteWranglers = Increment(User.progress.coyoteWranglers);
 
-			// check if whole pack is dead
-			//same ase abpveeee aaaaaaaaaaaaaaaaa
-		}
-	}
+				// check if whole pack is dead
+				//same ase abpveeee aaaaaaaaaaaaaaaaa
+			}
+		},
+
+
+		beeSwarm: {
+			rotationImages: {
+				left: "beeSwarmLeft",
+				right: "beeSwarmRight"
+			},
+			deathImage: "beeSwarmCorpse",
+			name: "Bee Swarm",
+			hostility: "hostile",
+			level: 10,
+			stats: {
+				damage: 7,
+				walkSpeed: 110,
+				swimSpeed: 110,
+				iceSpeed: 110, // tbd give flying property
+				maxHealth: 55,
+				defence: 0,
+				range: 50,
+				reloadTime: 1500,
+				healthRegen: 0.5,
+			},
+			xpGiven: 100,
+			projectile: {
+				image: "melee",
+			},
+			spells: [
+				{
+					id: 22,
+					tier: 1,
+					parameters: function () { // returns array of parameters
+						return {}
+					},
+					castCondition: function (caster) {
+						return typeof this.calculateTarget() !== "undefined";
+					},
+					interval: 2000,
+				},
+			],
+			lootTableTemplate: [EnemyLootTables.beeSwarm],
+			inventorySpace: 16,
+			onDeath: function () {
+				// bee swarms killed achievement
+				User.progress.beeSwarms = Increment(User.progress.beeSwarms);
+			}
+		},
+
+		bumblebee: {
+			rotationImages: {
+				left: "bumblebeeLeft1",
+				right: "bumblebeeRight1"
+			},
+			name: "Bee",
+			hostility: "hostile",
+			critter: true, // not counted for combatant achivements
+			level: 1,
+			stats: {
+				damage: 20,
+				walkSpeed: 200,
+				swimSpeed: 200,
+				iceSpeed: 200, // tbd give flying property
+				maxHealth: 1,
+				defence: 0,
+				range: 30,
+				reloadTime: 1500,
+				healthRegen: 10,
+				onAttack: function () {
+					// die
+					this.takeDamage(10);
+				}
+			},
+			respawnOnDeath: false,
+			corpseOnDeath: false,
+			xpGiven: 0,
+			projectile: {
+				image: "melee",
+			},
+		},
+	},
 };

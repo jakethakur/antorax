@@ -319,7 +319,7 @@ var Villagers = [
             right: "cat1Right"
         },
         name: "Cat",
-        hideNameTag: true,
+        showNameTag: false,
         areas: [
             "eaglecrest",
             "eaglecrestEast",
@@ -342,7 +342,7 @@ var Villagers = [
             right: "cat2Right"
         },
         name: "Cat",
-        hideNameTag: true,
+        showNameTag: false,
         areas: [
             "eaglecrest",
             "eaglecrestEast",
@@ -365,7 +365,7 @@ var Villagers = [
             right: "cat3Right"
         },
         name: "Cat",
-        hideNameTag: true,
+        showNameTag: false,
         areas: [
             "eaglecrest",
             "eaglecrestEast",
@@ -388,7 +388,7 @@ var Villagers = [
             right: "cat4Right"
         },
         name: "Cat",
-        hideNameTag: true,
+        showNameTag: false,
         areas: [
             "eaglecrest",
             "eaglecrestEast",
@@ -789,37 +789,74 @@ var Villagers = [
         images: {othmar: {normal: "assets/npcs/othmar.png"}},
 		name: "Othmar",
 		hostility: "friendly",
-		level: 35,
+		level: 15,
 		stats: {
-			maxHealth: 350,
-			defence: 11,
-            walkSpeed: 120,
+			maxHealth: 125,
+			defence: 5,
+            walkSpeed: 128,
 		},
         exceptAreas: [
-            "eaglecrestLoggingCamp",
+            "eaglecrestLoggingCamp", "loggingCampTavern"
         ],
 		roles: [
 			{
 				role: "text",
 				chooseText: "Free gold!",
-				chat: `You're the new farmer, aren't you? `,
+				chat: function () {
+					if (typeof Player.quests.questProgress.othmarGold === "undefined") {
+						return `You're the new farmer, aren't you? Oh you're not?! ...Well I've not seen you round here much anyway. What's your name?<br><br>That's a great name, ${Player.name}! Well, I'm Othmar, and nothing makes me content like helping out new recruits like yourself. So say, how does <b>3 Gold</b> sound?`;
+					}
+					else {
+						return `Hey again ${Player.name}! Hope your adventures have been going well - I hope this gold helps out!<br><br>Have a great day!`
+					}
+					// tbd maybe add one for if he's not spoken to player in a while like AC - need a daysbetween function for this
+					// maybe also a few text variants?
+				},
 				buttons: ["Thanks!"],
 				showCloseButton: false,
+				give: [{item: Items.currency[2], quantity: 3}],
 				functions: [function () {
 					// close page
 					Dom.closePage("textPage");
 					// give player the gold for today
-
+					Dom.inventory.give(Items.currency[2], 3);
+					// set progress variable
+					let today = GetFullDate();
+					Player.quests.questProgress.othmarGold = today;
 				}],
 				roleRequirement: function () {
-					return tbd
+					let today = GetFullDate();
+					return typeof Player.quests.questProgress.othmarGold === "undefined" && Player.quests.questProgress.othmarGold !== today;
 				},
 			},
 		],
 		chat: {
-            notUnlockedRoles: "I'VE HEARD THERE'S SOME RARE LEY DISKS OVER HERE.",
+            notUnlockedRoles: "Come and see me tomorrow if you want some more gold!",
 			chooseChat: "I guess they call me Open-Handed Othmar for a reason!",
 	        receiveTavernGood: "You've got to spend some gold on yourself every now and then!",
 		},
+	},
+	{
+        id: 22,
+        images: {espi: {normal: "assets/npcs/ghost.png"}},
+		name: "Ghost?",
+		hostility: "friendly",
+		level: 25,
+		stats: {
+			maxHealth: 175,
+			defence: 0,
+            dodgeChance: 100,
+		},
+        exceptAreas: [
+            "eaglecrestLoggingCamp",
+        ],
+		chat: {
+            notUnlockedRoles: "                BOO!",
+			chooseChat: "ooooOOOOOoooOOoooᵒᵒᵒᵒᵒᵒᵒOOO",
+	        receiveTavernGood: "I should have cut a mouth hole...",
+		},
+		canBeShown: function () {
+			return Event.event === "Samhain";
+		}
 	},
 ];

@@ -2,7 +2,7 @@
 
 //
 // Realms of Antorax canvas code
-// Jake Thakur 2018-2022
+// Jake Thakur 2018-2023
 //
 
 // https://developer.mozilla.org/en-US/docs/Games/Techniques/Tilemaps
@@ -620,6 +620,13 @@ window.onload = function () {
 // Map
 //
 
+// Information about how the map origin works:
+// columns/rows are always considered as being from 0 to the number of columns
+// so getting coordinates from columns needs to involve the origin
+// origin should only be used by map functions when dealing with convering columns (i.e. in a for loop, or from getCol) to coordinates
+// OR when dealing with camera / player clamping (i.e. the limit coordinates)
+// ctrl-f to find all the uses of map.origin if confused !
+
 var map = {
 	// validate that row/col exist on the map
 	// if they do not, return the closest existing row/col
@@ -660,22 +667,22 @@ var map = {
     },
 
     getCol: function (x) {
-        let col = Math.floor(x / this.tsize);
+        let col = Math.floor((x+this.origin.x) / this.tsize);
 		return this.validateCol(col);
     },
     getRow: function (y) {
-        let row = Math.floor(y / this.tsize);
+        let row = Math.floor((y+this.origin.y) / this.tsize);
 		return this.validateRow(row);
     },
 
 	// top/left of tile
     getX: function (col) {
 		col = this.validateCol(col);
-        return col * this.tsize;
+        return col * this.tsize - this.origin.x;
     },
     getY: function (row) {
 		row = this.validateRow(row);
-        return row * this.tsize;
+        return row * this.tsize - this.origin.y;
     },
 
 	isSolidTileAtXY: function (x, y) {
@@ -1244,6 +1251,12 @@ class Entity {
 		this.width = properties.width;
 		this.height = properties.height;
 
+		// for if it can be mounted.. mountee position relative to this
+		this.rideAdjustX = properties.rideAdjustX || 0;
+		this.baseRideAdjustX = this.rideAdjustX;
+		this.rideAdjustY = properties.rideAdjustY || 0;
+		this.baseRideAdjustY = this.rideAdjustY;
+
 		// alternate spawning:
 		// tbd use for chests and villagers!
 		this.spawnLocations = properties.spawnLocations; // an array of objects denoting spawn boxes, a random place in a random one of them is chosen
@@ -1286,6 +1299,12 @@ class Entity {
 		// trail
 		// array of particle trails
 		this.trails = properties.trails || [];
+
+		// sparkling trail for quest
+		if (properties.sparkle) {
+			this.sparkle(properties.sparkleColour); // leave as undefined for gold
+			// sets this.sparkling to true
+		}
 
 
 		this.use = properties.use; // optional metadata about object, can be used by anything that needs it
@@ -1500,7 +1519,7 @@ class Entity {
 	// name should be a unique name associated with the trail so it can be easily removed
 	// particleData is an object with all the particles' data (including variance etc - see party hat item)
 	// additional particleData properties:
-	// trailDuration removes the trail after a certain time in SECONDS has elapsed
+	// duration removes the trail after a certain time in SECONDS has elapsed
 	addTrail (name, particleData) {
 		for (let i = 0; i < this.trails.length; i++) {
 			if (this.trails[i].trailName === name) {
@@ -1525,6 +1544,34 @@ class Entity {
 			}
 		}
 		return trailRemoved;
+	}
+
+	// specific trails for "sparkling" entities (i.e. quest locations)
+	// only one of these can be set at once
+	sparkleOn (colour) {
+		if (!this.sparkling) {
+			if (typeof colour === "undefined") {
+				colour = "FFE000"; // gold , default
+			}
+			this.addTrail("&sparkle", {
+				width: 3,
+				height: 3,
+				colour: colour,
+				removeIn: 1000,
+				rotation: 0,
+				variance: 50, // variance in position (in x/y axis in one direction from player)
+				intensity: 4, // no. of particles every 100ms
+				light: true
+			});
+			this.sparkling = true;
+		}
+	}
+
+	sparkleOff (colour) {
+		if (this.sparkling) {
+			this.removeTrail("&sparkle");
+			this.sparkling = false;
+		}
 	}
 }
 
@@ -1621,6 +1668,9 @@ class Thing extends Visible {
 						this.rotationImageSources[imageKeys[i]] = Areas[Game.areaName].images[imageKeys[i]];
 					}
 				}
+			}
+			else if (this.source.location === "prevArea") { // i.e. characters from lead
+				this.rotationImageSources = properties.rotationImageSources;
 			}
 			// note nothing is yet done for enemies summonned by spells
 		}
@@ -1842,6 +1892,8 @@ class Character extends Thing {
 
 		this.hostility = properties.hostility; // used for name colour
 
+		this.association = properties.association; // used e.g. by coyotes (set to "coyotePack") to see which are in a pack and should be healed by wrangler
+
 		this.spawnX = properties.x;
 		this.spawnY = properties.y;
 
@@ -1881,6 +1933,8 @@ class Character extends Thing {
 		this.stats.healingPower = properties.stats.healingPower || 100; // multiplier of healing receieved (doesn't include usual health regen)
 		this.stats.unstoppable = properties.stats.unstoppable || false; // immunity to movement-reducing abilities
 		this.stats.enemyAggro = properties.stats.enemyAggro || 100; // percentage
+
+		this.critter = properties.critter; // if this is set to true, doesn't count for combatant achivements
 
 		// array items that can damage the character (empty = any can)
 		// array should contain item names
@@ -2287,7 +2341,7 @@ class Character extends Thing {
 		// call onExpire
 		// only called if the status effect has run out of time, or if onExpire is called on any remove
 		if (statusEffect.onExpire !== undefined && (reason==="time" || statusEffect.callExpireOnRemove)) {
-			statusEffect.onExpire(this);
+			statusEffect.onExpire(this, ...statusEffect.onExpireParams);
 		}
 
 		// status effect display if status effect is hidden
@@ -2477,7 +2531,7 @@ class Character extends Thing {
 				//
 
 				// enemies killed achievement
-				if ((this.hostility === "hostile" || this.hostility === "boss") && !inMinigame && this.damageTakenFromHero) {
+				if ((this.hostility === "hostile" || this.hostility === "boss") && !inMinigame && this.damageTakenFromHero && !this.critter) {
 					User.progress.enemies = Increment(User.progress.enemies);
 				}
 
@@ -2981,6 +3035,29 @@ class Character extends Thing {
 			}
 		}
 	}
+
+	// currently just works for hero I think - need to move moveMounted to character
+	getOnMount (object) {
+		this.mounted = true;
+		this.mount = object;
+		this.moveMounted(0,0,0); // to update screen position etc
+	}
+
+	getOffMount () {
+		this.mounted = false;
+		this.mount = undefined;
+	}
+
+	// get off mount with displacement in the direction moving!
+	throwOffMount () {
+		// displace!
+		this.displace(0, Math.abs(this.mount.velocity), 1, Game.bearing({x:0, y:0}, {x: this.mount.speedX, y: this.mount.speedY}));
+		// take damage! (after the 1s displacement)
+		let damageQuotient = (this.mount.velocity - this.mount.throwOffVelocity) / (this.mount.maxVelocity - this.mount.throwOffVelocity)
+		Game.setTimeout(this.takeDamage.bind(this), 1000, 10 + 10*damageQuotient);
+
+		this.getOffMount();
+	}
 }
 
 // a version of character that can deal damage
@@ -3124,6 +3201,12 @@ class Particle extends Entity {
 	constructor(properties) {
 		super(properties);
 
+		// position variance
+		if (typeof properties.variance !== "undefined") {
+			this.x += Random(-properties.variance, properties.variance);
+			this.y += Random(-properties.variance, properties.variance);
+		}
+
 		if (properties.colour.constructor === Array) {
 			// pick a random colour
 			this.colour = properties.colour[Random(0, properties.colour.length-1)];
@@ -3131,8 +3214,6 @@ class Particle extends Entity {
 		else {
 			this.colour = properties.colour;
 		}
-
-		this.moveTowards = properties.moveTowards; // optional
 
 		// rotation: optional; in radians; distorts coordinates of particle
 		if (properties.rotation === "random") {
@@ -3281,10 +3362,18 @@ class Hero extends Attacker {
 	moveMounted (delta, dirx, diry) {
 		this.removeChannelling("move"); // stuff cannot be channelled whilst moving
 
-		this.mount.move(delta, dirx, diry);
+		if (typeof this.mount.move !== "undefined") {
+			this.mount.move(delta, dirx, diry);
+		}
 		if (this.mounted) { // check still mounted! might have been hit off the mount..
-			this.x = this.mount.x + this.mount.heroAdjustX;
-			this.y = this.mount.y + this.mount.heroAdjustY;
+			if (typeof this.mount.rideAdjustX === "undefined") {
+				this.mount.rideAdjustX = 0;
+			}
+			else if (typeof this.mount.rideAdjustY === "undefined") {
+				this.mount.rideAdjustY = 0;
+			}
+			this.x = this.mount.x + this.mount.rideAdjustX;
+			this.y = this.mount.y + this.mount.rideAdjustY;
 		}
 		else {
 			this.move(delta, 0, 0);
@@ -3407,8 +3496,8 @@ class Hero extends Attacker {
 		// clamp values
 		let maxX = Game.camera.maxX + Game.camera.width;
 		let maxY = Game.camera.maxY + Game.camera.height;
-		this.x = Math.max(0, Math.min(this.x, maxX));
-		this.y = Math.max(0, Math.min(this.y, maxY));
+		this.x = Math.max(-map.origin.x, Math.min(this.x, maxX));
+		this.y = Math.max(-map.origin.y, Math.min(this.y, maxY));
 	}
 
 	// start channeling basic attack
@@ -4617,11 +4706,15 @@ class Projectile extends Thing {
 							Game.restoreHealth(attacker, dmgDealt * (lifestealPercentage / 100), true); // true because lifesteal restores health during blood moon
 						}
 
-						// onHit function
-						// perhaps make work for other non-weapon things in the future? (TBD)
-						// there should be a good system for this - maybe a list of functions called on attack or something, handled by Game.inventoryUpdate
+						// onHit function for player weapon
+						// tbd make a way other equipment can have onhit - there should be a good system for this - maybe a list of functions called on attack or something, handled by Game.inventoryUpdate
 						if (attacker.constructor.name === "Hero" && Player.inventory.weapon.onHit !== undefined) {
 							Player.inventory.weapon.onHit(target);
+						}
+
+						// ohHit function for projectile
+						if (typeof this.onHit !== "undefined") {
+							this.onHit(target, this.attacker);
 						}
 
 						if (target.constructor.name === "Hero" || attacker.constructor.name === "Hero") {
@@ -4757,6 +4850,7 @@ class Collision extends Entity {
 	}
 }
 
+// all entities can be mounted, but these are ones that can be moved by the player in particular (i.e. horses)
 class Mount extends Character {
 	constructor(properties) {
 		super(properties);
@@ -4767,17 +4861,13 @@ class Mount extends Character {
 		this.speedY = 0;
 		this.velocity = 0; // pythag
 
-		this.acceleration = properties.acceleration || 250; // speed gain per second
+		this.acceleration = properties.acceleration || 750; // speed gain per second
 
 		this.maxVelocity = properties.maxVelocity || 300;
 
 		this.throwOffVelocity = properties.throwOffVelocity || 250; // change in velocity required to catapult the hero off..
 
-		// hero position on mount
-		this.heroAdjustX = properties.heroAdjustX || 0;
-		this.baseHeroAdjustX = this.heroAdjustX;
-		this.heroAdjustY = properties.heroAdjustY || 0;
-		this.baseHeroAdjustY = this.heroAdjustY;
+		// hero position on mount specified by rideAdjustX and Y in entity class
 
 		this.direction = properties.direction || 4; // same numbers as hero directions
 
@@ -4810,6 +4900,16 @@ class Mount extends Character {
 		// set rotation image
 		this.setRotationImage(this.speedX, this.speedY);
 
+		// appears in front of / behind player depending on its rotation image
+		if (this.direction === 3) {
+			// player appears behind
+			this.orderOffsetY = 0;
+		}
+		else {
+			// player appears in front
+			this.orderOffsetY = -600;
+		}
+
 		this.x += this.speedX*delta;
 		this.y += this.speedY*delta;
 
@@ -4821,10 +4921,7 @@ class Mount extends Character {
 		if (collision) {
 			// first see if we should catapult the hero off
 			if (Math.abs(this.velocity) > this.throwOffVelocity) {
-				Game.hero.displace(0, Math.abs(this.velocity), 1, Game.bearing({x:0, y:0}, {x: this.speedX, y: this.speedY}));
-
-				this.passenger.mounted = false;
-				this.passenger.mount = undefined;
+				this.passenger.throwOffMount();
 			}
 
 			this.velocity = 0;
@@ -4835,8 +4932,8 @@ class Mount extends Character {
 		// clamp values
 		let maxX = Game.camera.maxX + Game.camera.width;
 		let maxY = Game.camera.maxY + Game.camera.height;
-		this.x = Math.max(0, Math.min(this.x, maxX));
-		this.y = Math.max(0, Math.min(this.y, maxY));
+		this.x = Math.max(-map.origin.x, Math.min(this.x, maxX));
+		this.y = Math.max(-map.origin.y, Math.min(this.y, maxY));
 
 		// animation
 		if (this.distanceTravelled > this.lastAnimatedDistance + this.animateDistance) {
@@ -4866,7 +4963,7 @@ class Mount extends Character {
 					height: this.baseHeight
 				}
 			}
-			else if (this.direction === 4 ) {
+			else if (this.direction === 4) {
 				// right
 				let state = (this.state % 13);
 
@@ -4891,10 +4988,10 @@ class Mount extends Character {
 
 			// hero bobbing
 			if (this.state % 8 < 4) {
-				this.heroAdjustY += 2;
+				this.rideAdjustY += 2;
 			}
 			else if (this.state % 8 >= 4) {
-				this.heroAdjustY -= 2;
+				this.rideAdjustY -= 2;
 			}
 		}
 
@@ -5658,7 +5755,7 @@ class Camera extends Entity {
 			this.maxX = 0;
 		}
 		else {
-			this.maxX = this.map.cols * this.map.tsize - this.width;
+			this.maxX = this.map.cols * this.map.tsize - this.width - map.origin.x;
 		}
 
 		if (this.map.scrollY === false) {
@@ -5666,7 +5763,7 @@ class Camera extends Entity {
 			this.maxY = 0;
 		}
 		else {
-			this.maxY = this.map.rows * this.map.tsize - this.height;
+			this.maxY = this.map.rows * this.map.tsize - this.height - map.origin.y;
 		}
 	}
 
@@ -5766,8 +5863,8 @@ class Camera extends Entity {
 			}
 
 		    // clamp values between 0 and maxX/Y
-		    this.x = Math.max(0, Math.min(this.x, this.maxX));
-		    this.y = Math.max(0, Math.min(this.y, this.maxY));
+		    this.x = Math.max(-map.origin.x, Math.min(this.x, this.maxX));
+		    this.y = Math.max(-map.origin.y, Math.min(this.y, this.maxY));
 
 			// screen shake overrides clamping
 			this.x += this.offsetX;
@@ -5812,8 +5909,8 @@ class Camera extends Entity {
 		};
 
 		// clamp values
-		cameraPosition.x = Math.max(0, Math.min(cameraPosition.x, this.maxX));
-		cameraPosition.y = Math.max(0, Math.min(cameraPosition.y, this.maxY));
+		cameraPosition.x = Math.max(-map.origin.x, Math.min(cameraPosition.x, this.maxX));
+		cameraPosition.y = Math.max(-map.origin.y, Math.min(cameraPosition.y, this.maxY));
 
 		return cameraPosition;
 	}
@@ -6056,6 +6153,11 @@ Game.statusEffects.functions = {
 		target.setExpandZ(1);
 	},
 
+	// remove the trail trailName
+	removeTrail: function (target, trailName) {
+		target.removeTrail(trailName);
+	},
+
 	// reset target's image back to its "initialImage" (e.g. for hex)
 	// also reset its dimensions
 	resetImage: function (target) {
@@ -6169,6 +6271,11 @@ Game.statusEffects.generic = function (properties) {
 				addedStatusEffect.onExpireSource = properties.onExpire; // key name of function reference in Game.statusEffects.functions
 
 				addedStatusEffect.callExpireOnRemove = properties.callExpireOnRemove; // whether exire should be called on remove of the status effect (not just for time over)
+
+				addedStatusEffect.onExpireParams = properties.onExpireParams; // must be an array! since spread syntax is used
+				if (typeof addedStatusEffect.onExpireParams === "undefined") {
+					addedStatusEffect.onExpireParams = [];
+				}
 			}
 			if (properties.onTick !== undefined) {
 				// this is bound to the status effect (hence this.owner and this.info work)
@@ -6855,22 +6962,22 @@ Game.levelUpFireworks = function (numberRemaining) {
 // called every 100ms by Game.trailInterval
 Game.addTrailParticles = function () {
 	// check game has initialised already !
-	if (typeof this.allEntities !== "undefined") {
-		for (let i = 0; i < this.allEntities.length; i++) {
-			let entity = this.allEntities[i];
+	if (typeof Game.allEntities !== "undefined") {
+		for (let i = 0; i < Game.allEntities.length; i++) {
+			let entity = Game.allEntities[i];
 			if (typeof entity.trails !== "undefined") {
 				// iterate through each trail
 				for (let j = 0; j < entity.trails.length; j++) {
 					let trail = entity.trails[j];
-					if (typeof trail.trailDuration !== "undefined") {
-						trail.trailDuration -= 0.1; // measured in seconds
+					if (typeof trail.duration !== "undefined") {
+						trail.duration -= 0.1; // measured in seconds
 					}
-					if (typeof trail.trailDuration !== "undefined" && trail.trailDuration <= 0) {
+					if (typeof trail.duration !== "undefined" && trail.duration <= 0) {
 						entity.trails.splice(j);
 						j--;
 					}
 					else {
-						this.drawTrail(entity, trail)
+						Game.drawTrail(entity, trail)
 					}
 				}
 			}
@@ -6887,8 +6994,6 @@ Game.drawTrail = function (entity, trail) {
 		trail.intensity = 1; // default val
 	}
 	for (let i = 0; i < trail.intensity; i++) {
-		trail.x = character.x + Random(-trail.variance, trail.variance);
-		trail.y = character.y + Random(-trail.variance, trail.variance);
 		this.createParticle(trail); // Game not this because it is called by setInterval
 	}
 }
@@ -7313,6 +7418,13 @@ Game.loadArea = function (areaName, destination) {
 			console.error("No loot area set for area " + areaName);
 		}
 
+		// call onAreaLoad if there is one
+		// (this is the same as onAreaJoin but is called before anything is loaded, and is also called even on init)
+		// note that Game.run has already been called, so save data has been loaded etc (but nothing from Areas etc has been loaded yet)
+		if (typeof Areas[this.areaName].onAreaLoad !== "undefined") {
+			Areas[this.areaName].onAreaLoad();
+		}
+
 		//
 		// map
 		//
@@ -7329,10 +7441,15 @@ Game.loadArea = function (areaName, destination) {
 		map.objectTiles = [];
 		map.tallGrassBottoms = [];
 		map.tallGrassTops = [];
+		map.repeatTiles = []; // these are like tall grass, flowers, etc.. An array of objects where the objects include "tile", "orderOffsetY" (optionally), name, "ySpacing", "xSpacing" (how much x it moves for every time it moves up one)
 		map.transparentTiles = []; // so it is always an array
 
 		map.scrollX = undefined;
 		map.scrollY = undefined;
+
+		map.origin = {x:0, y:0}; // this can be set in mapData; it is the coordinate that should be taken as the origin
+		// from there, map.origin.x becomes the new x=0 (and negative x is beyond there). same for y.
+		// designed for when the map is extended to the top/left!
 
 		// now add all properties from areaData to the map variable
 		Object.assign(map, Areas[areaName].mapData);
@@ -7571,12 +7688,12 @@ Game.loadArea = function (areaName, destination) {
 				let className = this.typeClasses[typeName]; // name of Class
 				let source = preparedNPC.source; // used for finding images on future area changes (since the source is the same it can just be taken from previous villager)
 				// make consistent with parameters...
-				preparedNPC.sourceId = source.id;
-				preparedNPC.source = source.location;
+				preparedNPC.source = "prevArea";
 				// construct npc
 				let newNPC = new className(preparedNPC);
 
 				// remove character that is the same as one to be added in the area (if one exists)
+				// i.e. if you put amelio on a lead then head back into tavern there shouldn't be two of him !
 				// only remove the first one found
 				// same == same name, same imageSrc, same hostility (maybe add more requirements?)
 				let foundIndex = this[typeName].findIndex(villager => villager.name === newNPC.name && villager.imageSrc === newNPC.imageSrc && villager.hostility === newNPC.hostility);
@@ -7597,6 +7714,8 @@ Game.loadArea = function (areaName, destination) {
 			}
 		}
 
+		let repeatTileNos = map.repeatTiles.map(obj => obj.tile);
+
 		// add any object tiles as objects themselves
 		for (let layer = 0; layer < map.layers.length; layer++) {
 			for (let c = 0; c <= map.cols; c++) {
@@ -7605,8 +7724,8 @@ Game.loadArea = function (areaName, destination) {
 
 		            if (tile !== 0 && map.objectTiles.includes(tile)) { // 0 is empty tile
 						// draw position
-						let x = Math.round((c) * map.tsize) + 30;
-			            let y = Math.round((r) * map.tsize) + 30;
+						let x = Math.round((c) * map.tsize) + 30 - map.origin.x;
+			            let y = Math.round((r) * map.tsize) + 30 - map.origin.y;
 
 						let crop = {
 							x: ((tile - 1) % map.tilesPerRow) * map.tsize,
@@ -7626,11 +7745,13 @@ Game.loadArea = function (areaName, destination) {
 						}));
 		            }
 
-					else if (tile !== 0 && (map.tallGrassBottoms.includes(tile) || map.tallGrassTops.includes(tile))) {
+					else if (tile !== 0 && (repeatTileNos.includes(tile))) {
+						let i = map.repeatTiles.findIndex(obj => obj.tile === tile);
+
 						// kinda hard-coded for now - make multiple copies of this object to give a tall-grass effect (as in eaglecrest plains)
 						// draw position
-						let baseX = Math.round((c) * map.tsize) + 30;
-			            let baseY = Math.round((r) * map.tsize) + 30;
+						let baseX = Math.round((c) * map.tsize) + 30 - map.origin.x;
+			            let baseY = Math.round((r) * map.tsize) + 30 - map.origin.y;
 
 						let crop = {
 							x: ((tile - 1) % map.tilesPerRow) * map.tsize,
@@ -7639,8 +7760,8 @@ Game.loadArea = function (areaName, destination) {
 							height: map.tsize
 						}
 
-						let orderOffsetY = 0;
-						let k;
+						let orderOffsetY = map.repeatTiles[i].orderOffsetY || 0;
+						/*let k;
 						if (map.tallGrassTops.includes(tile)) {
 							orderOffsetY = 60;
 
@@ -7664,6 +7785,24 @@ Game.loadArea = function (areaName, destination) {
 								crop: crop,
 								type: "things",
 								name: "Tall grass"
+							}));
+						}*/
+
+						let xSpacingMultiplier = [-1, 0, 1];
+						for (let tileNo = 0; tileNo < 60/map.repeatTiles[i].ySpacing; tileNo++) {
+							let x = baseX + map.repeatTiles[i].xSpacing*xSpacingMultiplier[tileNo%map.repeatTiles[i].ySpacing];
+							let y = baseY - map.repeatTiles[i].ySpacing*tileNo;
+
+							this.things.push(new Thing({
+								x: x,
+								y: y,
+								orderOffsetY: orderOffsetY,
+								width: map.tsize,
+								height: map.tsize,
+								image: "tiles",
+								crop: crop,
+								type: "things",
+								name: map.repeatTiles[i].name
 							}));
 						}
 					}
@@ -8400,38 +8539,43 @@ Game.generateLoot = function (lootTable) {
 				return element;
 			});
 
-			let rollRandom = Random(1, 10000); // random number to see how much of item i the player will get (lower is better)
-			let eligibleDropChances = possibleDropChances.filter(chance => rollRandom > chance); // filter chances of getting item to see all chances the player is eligible for with their roll
-			let itemQuantity = possibleDropChances.indexOf(Math.max(...eligibleDropChances)); // get the number of that item the player will get
+			// some items are split into a few stacks in the loot screen
+			let repeatTimes = lootTable[i].repeatTimes || 1;
 
-			if (itemQuantity > 0) { // check that the player should receive the item
-				let item = lootTable[i].item;
-				if (item.constructor === Array) {
-					// if there are multiple items in an array, pick one at random
-					item = item[Random(0, item.length - 1)];
-				}
+			for (let j = 0; j < repeatTimes; j++) {
+				let rollRandom = Random(1, 10000); // random number to see how much of item i the player will get (lower is better)
+				let eligibleDropChances = possibleDropChances.filter(chance => rollRandom > chance); // filter chances of getting item to see all chances the player is eligible for with their roll
+				let itemQuantity = possibleDropChances.indexOf(Math.max(...eligibleDropChances)); // get the number of that item the player will get
 
-				if (item.name === "unidentified") {
-					// repeat separately for each unidentified item
-					for (let i = 0; i < itemQuantity; i++) {
+				if (itemQuantity > 0) { // check that the player should receive the item
+					let item = lootTable[i].item;
+					if (item.constructor === Array) {
+						// if there are multiple items in an array, pick one at random
+						item = item[Random(0, item.length - 1)];
+					}
+
+					if (item.name === "unidentified") {
+						// repeat separately for each unidentified item
+						for (let i = 0; i < itemQuantity; i++) {
+							let itemToBePushed = {
+								item: new UnId(item.area, item.tier), // construct unidentified item
+								quantity: 1,
+							};
+							lootArray.push(itemToBePushed);
+						}
+					}
+					else {
 						let itemToBePushed = {
-							item: new UnId(item.area, item.tier), // construct unidentified item
-							quantity: 1,
+							item: item,
+							quantity: itemQuantity,
 						};
+
+						if (typeof lootTable[i].onLootGenerate !== "undefined") { // function to be called on the item
+							itemToBePushed = lootTable[i].onLootGenerate(itemToBePushed);
+						}
+
 						lootArray.push(itemToBePushed);
 					}
-				}
-				else {
-					let itemToBePushed = {
-						item: item,
-						quantity: itemQuantity,
-					};
-
-					if (typeof lootTable[i].onLootGenerate !== "undefined") { // function to be called on the item
-						itemToBePushed = lootTable[i].onLootGenerate(itemToBePushed);
-					}
-
-					lootArray.push(itemToBePushed);
 				}
 			}
 		}
@@ -9211,7 +9355,7 @@ Game.update = function (delta) {
 								// npc chat appears as an option in choose DOM
 								textArray.push(role.chooseText);
 								functionArray.push(Dom.text.page);
-								parameterArray.push([npc.name, role.chat, role.showCloseButton, role.buttons, role.functions]);
+								parameterArray.push([npc.name, role.chat, role.showCloseButton, role.buttons, role.functions, role.give]);
 								additionalOnClickArray.push(role.additionalOnClick);
 							}
 
@@ -9811,21 +9955,6 @@ Game.update = function (delta) {
 
 	Dom.inventory.conditionalStats(); // update any player conditional stats (must be done every tick to account for e.g. player movement, enemy movement, despawning etc.)
 
-
-	// update particles (move them)
-	if (document.getElementById("particlesOn").checked) { // check particle setting
-		for (let i = 0; i < this.particles.length; i++) {
-			let particle = this.particles[i]; // save to variable for easy access
-
-			if (particle.moveTowards !== undefined) {
-				// move the particle towards a location over its time period
-				let proportionTravelled = delta*1000 / particle.moveTowards.time;
-				particle.x += (particle.moveTowards.x - particle.x) * proportionTravelled;
-				particle.y += (particle.moveTowards.y - particle.y) * proportionTravelled;
-			}
-		}
-	}
-
 	//
 	// animations
 	//
@@ -9854,7 +9983,7 @@ Game.update = function (delta) {
 					// change image using spritesheet
 					object.crop = {
 						x: (animate.state % animate.imagesPerRow) * object.baseWidth,
-						y: Math.floor(animate.state / 4) * object.baseHeight,
+						y: Math.floor(animate.state / animate.imagesPerRow) * object.baseHeight,
 						width: object.baseWidth,
 						height: object.baseHeight
 					}
@@ -10517,7 +10646,7 @@ Game.drawLayer = function (layer) {
 
 	// start and end positions of tilemap to draw (tiles on screen)
 
-	startCol = Math.floor(this.camera.x / map.tsize);
+	startCol = Math.floor(this.camera.x / map.tsize) + map.origin.x/60;
 	if (this.viewportOffsetX > 0) {
 		// area width not big enough to fill camera
 		// set end column so canvas drawing does not loop
@@ -10529,7 +10658,7 @@ Game.drawLayer = function (layer) {
 	    endCol = startCol + Math.ceil(this.camera.width / map.tsize);
 	}
 
-	startRow = Math.floor(this.camera.y / map.tsize);
+	startRow = Math.floor(this.camera.y / map.tsize) + map.origin.y/60;
 	if (this.viewportOffsetY > 0) {
 		// area height not big enough to fill camera
 		// set end column so canvas drawing does not loop
@@ -10542,8 +10671,8 @@ Game.drawLayer = function (layer) {
 	}
 
 	// tile draw offset
-    offsetX += -this.camera.x + startCol * map.tsize;
-    offsetY += -this.camera.y + startRow * map.tsize;
+    offsetX += -this.camera.x + startCol * map.tsize - map.origin.x;
+    offsetY += -this.camera.y + startRow * map.tsize - map.origin.y;
 
     for (let c = startCol; c <= endCol; c++) {
         for (let r = startRow; r <= endRow; r++) {
@@ -10702,7 +10831,7 @@ Game.updateScreenPosition = function (entity) {
 		entity.hitbox.screenY = (entity.hitbox.y) - this.camera.y + this.viewportOffsetY;
 	}
 
-	// round screen position
+	// not ideal because it makes objects a bit juddery, but without it tiles sometimes have white gaps between them :(
 	entity.screenX = Math.round(entity.screenX);
 	entity.screenY = Math.round(entity.screenY);
 }

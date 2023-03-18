@@ -4109,13 +4109,113 @@ var Items = {
 		},
 		{
 			id: 56,
-			name: "Ley Fracture",
+			name: "Ley∘Fracture", // see if this unicode causes any problems..
 			type: "item",
 			rarity: "common",
 			image: "assets/items/item/56.png",
 			stack: 64,
 			sellPrice: 2,
-			lore: "A strange manifestation of Antorax's ley lines."
+			lore: "A strange manifestation of Antorax's ley linesₒ"
+		},
+		{
+			id: 57,
+			name: "Juggling Ball",
+			type: "item",
+			rarity: "common",
+			image: "assets/items/item/57.png",
+			stack: 8,
+			lore: "",
+			quest: true, // tbd once peter has added onDiscard, make this not a quest item but reset the quest variable if discarded
+		},
+		{
+			id: 58,
+			name: "Brass Bugle",
+			type: "item",
+			rarity: "common",
+			image: "assets/items/item/58.png",
+			lore: "",
+			onClickFunction: function () {
+				// play a sound?
+				Dom.chat.playerMessage("/me toots bugle");
+			},
+			cooldown: 5,
+			quest: true, // tbd once peter has added onDiscard, make this not a quest item but reset the quest variable if discarded
+		},
+		{
+			id: 59,
+			name: "Triangle",
+			type: "item",
+			rarity: "common",
+			image: "assets/items/item/59.png",
+			lore: "",
+			onClickFunction: function () {
+				// play a sound?
+				Dom.chat.playerMessage("/me dings triangle");
+			},
+			cooldown: 5,
+			quest: true, // tbd once peter has added onDiscard, make this not a quest item but reset the quest variable if discarded
+		},
+		{
+			id: 60,
+			name: "Confetti Launcher",
+			type: "item",
+			rarity: "common",
+			image: "assets/items/item/60.png",
+			lore: "",
+			uses: 5, // so that they have an incentive to finish the quest lol!
+			onClickFunction: function (inventoryPosition) {
+				if (Player.inventory.items[inventoryPosition].uses > 0) {
+					// play a sound?
+
+					Player.inventory.items[inventoryPosition].uses--;
+
+					for (let i = 0; i < 50; i++) {
+						let moveTowards = {
+							x: Random(Game.hero.x - 60, Game.hero.x + 60),
+							y: Random(Game.hero.y - 60, Game.hero.y + 60),
+							speed: 100,
+						}
+
+						Game.createParticle({
+							map: map,
+							x: Game.hero.x,
+							y: Game.hero.y,
+							width: 15,
+							height: 7,
+							colour: ["#02B417", "#0000A1", "#F2F200", "#8E00DA"], // class Particle chooses random colour from array
+							removeIn: Random(10000, 11000),
+							rotation: "random",
+							moveTowards: moveTowards,
+						});
+					}
+				}
+				else {
+					Dom.chat.insert("<i>The Confetti Launcher has run out of confetti!</i>");
+				}
+			},
+			cooldown: 5,
+			quest: true, // tbd once peter has added onDiscard, make this not a quest item but reset the quest variable if discarded
+		},
+		{
+			id: 61,
+			name: "Honeycomb",
+			type: "item",
+			image: "assets/items/item/61.png",
+			rarity: "junk",
+			stack: 64,
+			sellPrice: 1,
+			sellQuantity: 8,
+		},
+		{
+			id: 62,
+			name: "Bee Sting",
+			type: "item",
+			image: "assets/items/item/62.png",
+			rarity: "junk",
+			stack: 64,
+			sellPrice: 1,
+			sellQuantity: 8,
+			areas: ["eaglecrest"],
 		},
 	],
 	consumable: [
@@ -5002,6 +5102,20 @@ var Items = {
 				}, 1000); // launch in 1 second
 			},
 		},
+		{
+			id: 36,
+			name: "Floral Honey",
+			type: "consumable",
+			image: "assets/items/consumable/32.png",
+			functionText: "Restores 10 health",
+            cooldown: 10, // 10 seconds
+			onClickFunction: function (inventoryPosition) {
+				// remove the item
+				Dom.inventory.remove(inventoryPosition);
+				// restore the health
+				Game.restoreHealth(Game.hero, 10);
+			}
+		},
 	],
 	food: [
 		{
@@ -5169,6 +5283,52 @@ var Items = {
 			channel: 5000,
         },
     ],
+	marble: [
+		{
+			id: 0,
+			name: "Abyssal Purple Marble",
+			type: "marble",
+			series: 1,
+			image: "assets/items/marble/0.png",
+			rarity: "unique",
+			sellPrice: 4,
+			//functionText: "Collecting many marbles of this colour may unravel cavern mysteries.",
+			lore: "",
+		},
+		{
+			id: 1,
+			name: "Verdant Green Marble",
+			type: "marble",
+			series: 1,
+			image: "assets/items/marble/1.png",
+			rarity: "unique",
+			sellPrice: 4,
+			functionText: "",
+			lore: "",
+		},
+		{
+			id: 2,
+			name: "Kaihpe Marble",
+			type: "marble",
+			series: 1,
+			image: "assets/items/marble/2.png",
+			rarity: "unique",
+			sellPrice: 4,
+			functionText: "",
+			lore: "",
+		},
+		{
+			id: 3,
+			name: "Sanguine Marble",
+			type: "marble",
+			series: 1,
+			image: "assets/items/marble/3.png",
+			rarity: "unique",
+			sellPrice: 4,
+			functionText: "",
+			lore: "",
+		},
+	],
 	tool: [
 		{
 			id: 0,
@@ -5193,17 +5353,16 @@ var Items = {
 			functionText: "Summons your horse mount!",
 			mount: "whiteHorse", // set after quest is finished
 			onClickFunction: function () {
-				if (!Game.hero.mounted) {
-					Game.hero.mounted = true;
+				if (typeof Game.hero.summonedMount === "undefined") {
 					Game.mounts.push(new Mount({
 						passenger: Game.hero,
 						x: Game.hero.x,
 						y: Game.hero.y,
 						direction: Game.hero.direction,
 						//orderOffsetY: -150,
-						heroAdjustY: -40,
+						rideAdjustY: -40,
 						name: "Horsey",
-						hideNameTag: true,
+						showNameTag: false,
 						type: "mounts",
 						hostility: "friendly",
 						rotationImages: {
@@ -5222,12 +5381,28 @@ var Items = {
 							maxHealth: 100,
 						},
 					}));
-					Game.hero.mount = Game.mounts[Game.mounts.length-1];
+					Game.hero.getOnMount(Game.mounts[Game.mounts.length-1]);
+					Game.hero.summonedMount = Game.mounts[Game.mounts.length-1];
 				}
 				else {
-					Game.removeObject(Game.hero.mount.id, "mounts");
-					Game.hero.mounted = false;
-					Game.hero.mount = undefined;
+					// hero might not necessarily be mounted, but they do have a mount summoned
+
+					if (Game.hero.mounted) {
+						// throw hero off if they're mounted and moving too fast !
+						if (Math.abs(Game.hero.mount.velocity) > Game.hero.mount.throwOffVelocity) {
+							Game.hero.throwOffMount();
+						}
+						else {
+							// unmount hero
+							Game.hero.getOffMount();
+						}
+					}
+
+					// remove the mount
+					Game.removeObject(Game.hero.summonedMount.id, "mounts");
+					Game.hero.summonedMount = undefined;
+
+					// poof animation ? :)
 				}
 			}
 		},
@@ -6058,7 +6233,7 @@ var Items = {
 			onClickFunction: function (inventoryPosition) {
 				Dom.text.page("Water-Soaked Letter", Player.inventory.items[inventoryPosition].letterText, true);
 			},
-			onLoot: function (inventoryPosition) {
+			onCatch: function (inventoryPosition) {
 				ItemFunctions.setLetterText(inventoryPosition);
 			},
 			catchRequirement: function () {
@@ -6171,7 +6346,7 @@ const LostLetterMessages = {
 	goblinAmbush: `Oh dear ! Frederick my old pal, please hurry to the Nilbog. Those dastardly fiends took me by surprise while I was making my deliveries and took everything ! One of them managed to pierce me what I can only presume was a poisoned arrow. Im no doctor but I do not think I have long and so I urge you to hurry before it is too late !<br><br>
 		I am not certain if you are caught up on herbal remedies but I urge you to bring some kind of antidote; the poison seems to be spreading as I write this and I cannot seem to feel my legs! I knew I should have gone a different route, if only somebody could sort out this cursed plane. Please do hurry Frederick, I feel myself growing weaker by the sec——-`,
 
-	theBanquet: `For the editors at Eagle-crest I suggest we post-pone the publication of a review for the new tavern that opened. I am not entirely sure this place is really a tavern…upon m arrival I noticed I was the only person there and the establishment looked rather abandoned aside from a man in a cloak. Said man titled himself as the waiter although he certainly didn’t match the appearance of any waiters I’ve seen.<br><br>
+	theBanquet: `For the editors at Eagle-crest I suggest we post-pone the publication of a review for the new tavern that opened. I am not entirely sure this place is really a tavern…upon my arrival I noticed I was the only person there and the establishment looked rather abandoned aside from a man in a cloak. Said man titled himself as the waiter although he certainly didn’t match the appearance of any waiters I’ve seen.<br><br>
 		Anyway, I inquired as to the menu and was told I’d receive my food shortly and was given no choice of items at all ! This place clearly hasn’t kept to the dietary requirement orders sent by the city…<br><br>
 		The ‘food’ I did receive looked very questionable indeed. It was some kind of green and murky liquid, soup perhaps? Well, this ‘soup’ almost exited my mouth as soon as it made contact with my taste buds! It tasted like death itself! To be fair I did see something floating in it so that may not be out of the question…<br><br>
 		I quickly left the establishment although I did leave a tip for the cloaked ‘waiter’ as to be fair he was fairly civil to me and the place seemed to be struggling for customers. However, I do not see the point in publishing a review as I am not entirely certain it was even a tavern. As for the food I bet the goblins could cook something more flavoursome…`,
@@ -6256,7 +6431,7 @@ function UnId (area, tier) {
 
 	// determine rarity
     this.rarityNum = Random(0, 24);
-	if (this.rarityNum === 0 && junkInPool) {
+	if (this.rarityNum <= 1 && junkInPool) {
     	this.rarity = "junk";
 	}
     else if (this.rarityNum < 18) {
