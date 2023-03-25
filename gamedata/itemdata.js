@@ -4042,10 +4042,9 @@ var Items = {
 			id: 51,
 			name: "Golden Feather",
 			type: "item",
-			rarity: "junk",
+			rarity: "unique",
 			image: "assets/items/item/51.png",
 			sellPrice: 10,
-			sellQuantity: 1,
 			stack: 64,
 		},
 		{
@@ -4109,7 +4108,7 @@ var Items = {
 		},
 		{
 			id: 56,
-			name: "Ley∘Fracture", // see if this unicode causes any problems..
+			name: "Ley҈Fracture", // see if this unicode causes any problems..
 			type: "item",
 			rarity: "common",
 			image: "assets/items/item/56.png",
@@ -4216,6 +4215,77 @@ var Items = {
 			sellPrice: 1,
 			sellQuantity: 8,
 			areas: ["eaglecrest"],
+		},
+		{
+			id: 63,
+			name: "Pink Alcea",
+			type: "item",
+			category: "flower",
+			rarity: "junk",
+			image: "assets/items/item/63.png",
+			stack: 64,
+		},
+		{
+			id: 64,
+			name: "Poppy",
+			type: "item",
+			category: "flower",
+			rarity: "junk",
+			image: "assets/items/item/64.png",
+			stack: 64,
+		},
+		{
+			id: 65,
+			name: "Orange Tulip",
+			type: "item",
+			category: "flower",
+			rarity: "junk",
+			image: "assets/items/item/65.png",
+			stack: 64,
+		},
+		{
+			id: 66,
+			name: "Cyan Wallflower",
+			type: "item",
+			category: "flower",
+			rarity: "junk",
+			image: "assets/items/item/66.png",
+			stack: 64,
+		},
+		{
+			id: 67,
+			name: "Wolfsbane",
+			type: "item",
+			category: "flower",
+			rarity: "junk",
+			image: "assets/items/item/67.png",
+			stack: 32,
+		},
+		{
+			id: 68,
+			name: "Teal Callalily",
+			type: "item",
+			category: "flower",
+			rarity: "junk",
+			image: "assets/items/item/68.png",
+			stack: 16,
+		},
+		{
+			id: 69,
+			name: "Royal Jelly",
+			type: "item",
+			rarity: "common",
+			image: "assets/items/item/69.png",
+			stack: 64,
+			sellPrice: 1,
+		},
+		{
+			id: 70,
+			name: "Rusty Key",
+			type: "item",
+			rarity: "junk",
+			image: "assets/items/item/70.png",
+			lore: "'AUCTIONHOUSE' is engraved on the key."
 		},
 	],
 	consumable: [
@@ -6272,13 +6342,13 @@ var Items = {
 			functionText: "Remove placed object at player location",
 			onClickFunction: function () {
 				let touching = Game.hero.getTouching();
-				// remove the dev object which appears highest up (has highest sort value)
-				let highestSortValue = Number.MIN_VALUE;
+				// remove the dev object which has been placed most recently (has highest id)
+				let highestId = Number.MIN_VALUE;
 				let objectIndex = -1;
 				for (let i = 0; i < touching.length; i++) {
 					if (touching[i].dev) {
-						if (!IsNullLike(touching[i].sortValue) && touching[i].sortValue >= highestSortValue) {
-							highestSortValue = touching[i].sortValue;
+						if (touching[i].id >= highestId) {
+							highestId = touching[i].id;
 							objectIndex = i;
 						}
 					}

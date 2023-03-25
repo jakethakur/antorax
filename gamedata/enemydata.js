@@ -867,7 +867,8 @@ const EnemyTemplates = {
 	                    };
 	                },
 					castCondition: function (caster) {
-	                    return typeof this.calculateTarget() !== "undefined" && Game.distance(caster, this.calculateTarget()) > caster.stats.range - 25;
+						let target = caster.calculateTarget();
+	                    return typeof target !== "undefined" && Game.distance(caster, target) > caster.stats.range - 25;
 	                },
 	                interval: 1000,
 	            },
@@ -877,6 +878,9 @@ const EnemyTemplates = {
 			attackTargets: [{target: function () { // for Overdraft quest
 				if (Player.quests.npcProgress.eaglecrest[2] === 2) {
 					return Game.npcs.find(character => character.name === "Gildo Cleftbeard");
+				}
+				else if (Player.quests.possibleQuestArray.includes("A Fool's Errand")) {
+					return Game.npcs.find(character => character.name === "The Jester");
 				}
 			}, baseAggro: 5}],
 		},
@@ -922,13 +926,14 @@ const EnemyTemplates = {
 			deathImage: "chickenCorpse",
 			name: "The Mighty Zararanath",
 			hostility: "boss",
+			bossKilledVariable: "mightyZararanath",
 			level: 20,
 			stats: {
 				damage: 20,
 				walkSpeed: 75,
 				swimSpeed: 30,
 				iceSpeed: 150,
-				maxHealth: 200,
+				maxHealth: 300,
 				defence: 15,
 				range: 60,
 				reloadTime: 500,
@@ -943,10 +948,10 @@ const EnemyTemplates = {
 			projectile: {
 				image: "melee",
 			},
-			lootTableTemplate: [EnemyLootTables.zararanath, EnemyLootTables.chicken],
+			lootTableTemplate: [BossLootTables.zararanath, EnemyLootTables.chicken],
 			inventorySpace: 8,
 			chat: {
-				FiftyPercentHealth: `Oh. I've spoken to you before.`,
+				fiftyPercentHealth: `Oh. I've spoken to you before.`,
 				tenPercentHealth: `How are you finding the mystical kingdom of Antorax, ${Player.name}?`,
 				death: "I see you've learnt well..",
 			},
@@ -960,8 +965,8 @@ const EnemyTemplates = {
 						};
 					},
 					interval: 10000,
-					castCondition: function () {
-						this.health < 100;
+					castCondition: function (caster) {
+						return caster.health < 100;
 					}
 				},
 			],
@@ -1016,7 +1021,8 @@ const EnemyTemplates = {
 	                    };
 	                },
 					castCondition: function (caster) {
-	                    return typeof this.calculateTarget() !== "undefined" && Game.distance(caster, this.calculateTarget()) > caster.stats.range - 25;
+						let target = caster.calculateTarget();
+	                    return typeof target.calculateTarget() !== "undefined" && Game.distance(caster, target.calculateTarget()) > caster.stats.range - 25;
 	                },
 	                interval: 1000,
 	            },
@@ -1029,7 +1035,8 @@ const EnemyTemplates = {
 	                    };
 	                },
 					castCondition: function (caster) {
-	                    return typeof this.calculateTarget() !== "undefined" && Game.distance(caster, this.calculateTarget()) > caster.stats.range - 25;
+						let target = caster.calculateTarget();
+	                    return typeof target.calculateTarget() !== "undefined" && Game.distance(caster, target.calculateTarget()) > caster.stats.range - 25;
 	                },
 	                interval: 1000,
 	            },
@@ -1081,7 +1088,8 @@ const EnemyTemplates = {
 	                    };
 	                },
 					castCondition: function (caster) {
-	                    return typeof this.calculateTarget() !== "undefined" && Game.distance(caster, this.calculateTarget()) > caster.stats.range - 25;
+						let target = caster.calculateTarget();
+	                    return typeof target.calculateTarget() !== "undefined" && Game.distance(caster, target.calculateTarget()) > caster.stats.range - 25;
 	                },
 	                interval: 5000,
 	            },
@@ -1101,6 +1109,7 @@ const EnemyTemplates = {
 			deathImage: "coyoteWranglerCorpse",
 			name: "Coyote Pack Wrangler",
 			hostility: "boss",
+			bossKilledVariable: "coyoteWrangler",
 			level: 15,
 			respawnOnDeath: false, // generated with the wrangler
 			stats: {
@@ -1200,7 +1209,7 @@ const EnemyTemplates = {
 						return {}
 					},
 					castCondition: function (caster) {
-						return typeof this.calculateTarget() !== "undefined";
+						return typeof caster.calculateTarget() !== "undefined";
 					},
 					interval: 2000,
 				},

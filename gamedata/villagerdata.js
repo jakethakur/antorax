@@ -484,7 +484,7 @@ var Villagers = [
 						return false; // turned some in before
 					}
 					else {
-						let totalLetters = Dom.inventory.count(52, "item") + Dom.inventory.count(53, "item") + Dom.inventory.count(54, "item");
+						let totalLetters = Dom.inventory.count(52, "item") + Dom.inventory.count(53, "item") + Dom.inventory.count(54, "item") + Dom.inventory.count(36, "fish");
 						let lettersAwayFromReward = 3;
 						return totalLetters > 0 && totalLetters < lettersAwayFromReward; // have letters, but not enough to get a reward
 					}
@@ -509,6 +509,11 @@ var Villagers = [
 							User.progress.turnedInLetters = Increment(User.progress.turnedInLetters);
 							letterRemoved = true;
 						}
+						if (Dom.inventory.removeById(36, "fish", 1)) {
+							Player.quests.questProgress.turnedInLetters = Increment(Player.quests.questProgress.turnedInLetters);
+							User.progress.turnedInLetters = Increment(User.progress.turnedInLetters);
+							letterRemoved = true;
+						}
 					}
 				}
 			},
@@ -527,7 +532,7 @@ var Villagers = [
 						return false; // turned some in before
 					}
 					else {
-						let totalLetters = Dom.inventory.count(52, "item") + Dom.inventory.count(53, "item") + Dom.inventory.count(54, "item");
+						let totalLetters = Dom.inventory.count(52, "item") + Dom.inventory.count(53, "item") + Dom.inventory.count(54, "item") + Dom.inventory.count(36, "fish");
 						let lettersAwayFromReward = 3; // never turned any in before
 						return totalLetters > 0 && totalLetters >= lettersAwayFromReward; // have letters, but not enough to get a reward
 					}
@@ -558,6 +563,9 @@ var Villagers = [
 						else if (Dom.inventory.removeById(54, "item")) {
 							toBeRemoved--;
 						}
+						else if (Dom.inventory.removeById(36, "fish")) {
+							toBeRemoved--;
+						}
 					}
 				}
 			},
@@ -569,7 +577,7 @@ var Villagers = [
 				forceChoose: true, // forces choose dom
 				roleRequirement: function () {
 					if (typeof Player.quests.questProgress.turnedInLetters !== "undefined" && Player.quests.questProgress.turnedInLetters !== 0) {
-						let totalLetters = Dom.inventory.count(52, "item") + Dom.inventory.count(53, "item") + Dom.inventory.count(54, "item");
+						let totalLetters = Dom.inventory.count(52, "item") + Dom.inventory.count(53, "item") + Dom.inventory.count(54, "item") + Dom.inventory.count(36, "fish");
 						let lettersAwayFromReward = 3 - (Player.quests.questProgress.turnedInLetters % 3)
 						return totalLetters > 0 && totalLetters < lettersAwayFromReward; // have letters, but not enough to get a reward
 					}
@@ -597,6 +605,11 @@ var Villagers = [
 							User.progress.turnedInLetters = Increment(User.progress.turnedInLetters);
 							letterRemoved = true;
 						}
+						if (Dom.inventory.removeById(36, "fish", 1)) {
+							Player.quests.questProgress.turnedInLetters = Increment(Player.quests.questProgress.turnedInLetters);
+							User.progress.turnedInLetters = Increment(User.progress.turnedInLetters);
+							letterRemoved = true;
+						}
 					}
 				}
 			},
@@ -612,7 +625,7 @@ var Villagers = [
 				],
 				roleRequirement: function () {
 					if (typeof Player.quests.questProgress.turnedInLetters !== "undefined" && Player.quests.questProgress.turnedInLetters !== 0) {
-						let totalLetters = Dom.inventory.count(52, "item") + Dom.inventory.count(53, "item") + Dom.inventory.count(54, "item");
+						let totalLetters = Dom.inventory.count(52, "item") + Dom.inventory.count(53, "item") + Dom.inventory.count(54, "item") + Dom.inventory.count(36, "fish");
 						let lettersAwayFromReward = 3 - (Player.quests.questProgress.turnedInLetters % 3);
 						return totalLetters > 0 && totalLetters >= lettersAwayFromReward; // have letters, and enough to get a reward
 					}
@@ -644,6 +657,9 @@ var Villagers = [
 							toBeRemoved--;
 						}
 						else if (Dom.inventory.removeById(54, "item")) {
+							toBeRemoved--;
+						}
+						else if (Dom.inventory.removeById(36, "fish")) {
 							toBeRemoved--;
 						}
 					}
@@ -686,7 +702,7 @@ var Villagers = [
 		],
 	},
 	{
-        id: 17,
+        id: 18,
         images: {pieRomancer: {normal: "assets/npcs/pieRomancer.png"}},
 		name: "Peto the Pyromancer",
 		hostility: "friendly",
@@ -716,7 +732,7 @@ var Villagers = [
 		},
 	},
 	{
-        id: 18,
+        id: 19,
         images: {crazyCatLady: {normal: "assets/npcs/crazyCatLady.png"}},
 		name: "Crazy Cat Lady", // tbd give cat leads (sometimes?)
 		hostility: "friendly",
@@ -745,7 +761,7 @@ var Villagers = [
 		},
 	},
 	{
-        id: 19,
+        id: 20,
         images: {necta: {normal: "assets/npcs/babii.png"}},
 		name: "Necta, Dune Surveyor",
 		hostility: "friendly",
@@ -765,7 +781,7 @@ var Villagers = [
 		},
 	},
 	{
-        id: 20,
+        id: 21,
         images: {espi: {normal: "assets/npcs/iglooghost.png"}},
 		name: "Espi, Ley Musician",
 		hostility: "friendly",
@@ -785,7 +801,7 @@ var Villagers = [
 		},
 	},
 	{
-        id: 21,
+        id: 22,
         images: {othmar: {normal: "assets/npcs/othmar.png"}},
 		name: "Othmar",
 		hostility: "friendly",
@@ -826,7 +842,7 @@ var Villagers = [
 				}],
 				roleRequirement: function () {
 					let today = GetFullDate();
-					return typeof Player.quests.questProgress.othmarGold === "undefined" && Player.quests.questProgress.othmarGold !== today;
+					return typeof Player.quests.questProgress.othmarGold === "undefined" || Player.quests.questProgress.othmarGold !== today;
 				},
 			},
 		],
@@ -837,7 +853,7 @@ var Villagers = [
 		},
 	},
 	{
-        id: 22,
+        id: 23,
         images: {espi: {normal: "assets/npcs/ghost.png"}},
 		name: "Ghost?",
 		hostility: "friendly",
@@ -851,7 +867,7 @@ var Villagers = [
             "eaglecrestLoggingCamp",
         ],
 		chat: {
-            notUnlockedRoles: "                BOO!",
+            notUnlockedRoles: "                BOO!",  // tbd maybe change to two messages where the boo is delayed
 			chooseChat: "ooooOOOOOoooOOoooᵒᵒᵒᵒᵒᵒᵒOOO",
 	        receiveTavernGood: "I should have cut a mouth hole...",
 		},
@@ -859,4 +875,130 @@ var Villagers = [
 			return Event.event === "Samhain";
 		}
 	},
+    {
+        id: 24,
+        images: {jester: {normal: "assets/npcs/jester.png"}},
+        name: "The Jester",
+        level: 19,
+		corpseOnDeath: false,
+        stats: {
+            maxHealth: 95,
+            walkSpeed: 99,
+            defence: 7,
+        },
+        hostility: "friendly",
+        exceptAreas: [
+            "eaglecrestLoggingCamp",
+        ],
+		roles: [{
+			role: "questStart",
+			quest: Quests.eaglecrest[8],
+			roleRequirement: function () {
+				if (Player.quests.activeQuestArray.includes("A Fool's Errand")) {
+					return true; // for questProgress chat message
+				}
+				if (!Player.quests.possibleQuestArray.includes("A Fool's Errand")) {
+					return false; // to avoid the chat lines below being triggered
+				}
+				let range = 240; // must be no toads in this range
+				let toadNearby = false;
+				let jester = Game.npcs.find(npc => npc.name === "The Jester");
+				for (let i = 0; i < Game.enemies.length; i++) {
+					if (Game.enemies[i].name === "Large Toad") {
+						if (Game.areNearby(jester, Game.enemies[i], range)) {
+							toadNearby = true;
+							break;
+						}
+					}
+				}
+				if (toadNearby) {
+					Dom.chat.insert(Dom.chat.say("The Jester", "Help me with these frogs!"), 0, 0, true); // noRepeat on
+					return false;
+				}
+				else {
+					Dom.chat.insert(Dom.chat.say("The Jester", "Whew! Wait... My props!"), 0, 0, true); // noRepeat on
+					return true;
+				}
+			}
+		},
+		{
+			role: "questFinish",
+			quest: Quests.eaglecrest[8],
+		},
+		{
+			role: "function",
+			chooseText: "Tell me a joke!",
+			roleRequirement: function () {
+				let jesterQuests = ["A Fool's Errand"]; // tbd add the Jester's other quests to this
+				for (let i = 0; i < jesterQuests.length; i++) {
+					if (Player.quests.activeQuestArray.includes(jesterQuests[i]) || Player.quests.possibleQuestArray.includes(jesterQuests[i])) {
+						return false;
+					}
+				}
+			},
+			onClick: function () {
+				let waitTime = 1500; // time to wait between messages
+				switch (Random(0, 6)) {
+					case 0:
+						Dom.chat.insertSequence([
+							Dom.chat.say("The Jester", "What eats more people than a dragon?"),
+							Dom.chat.say("The Jester", "..."),
+							Dom.chat.say("The Jester", "Two dragons!")],
+						waitTime, undefined, undefined, true); // cutscene
+						break;
+					case 1:
+						Dom.chat.insertSequence([
+							Dom.chat.say("The Jester", "Have you heard about the psychic gnome who escaped from prison?"),
+							Dom.chat.say("The Jester", "..."),
+							Dom.chat.say("The Jester", "He's a small medium at large!")],
+						waitTime, undefined, undefined, true); // cutscene
+						break;
+					case 2:
+						Dom.chat.insertSequence([
+							Dom.chat.say("The Jester", "What do you call a magic bee?"),
+							Dom.chat.say("The Jester", "..."),
+							Dom.chat.say("The Jester", "Bee-witched!")],
+						waitTime, undefined, undefined, true); // cutscene
+						break;
+					case 3:
+						Dom.chat.insertSequence([
+							Dom.chat.say("The Jester", "The mage showed the mime her magic tricks."),
+							Dom.chat.say("The Jester", "..."),
+							Dom.chat.say("The Jester", "The mime was speechless!")],
+						waitTime, undefined, undefined, true); // cutscene
+						break;
+					case 4:
+						Dom.chat.insertSequence([
+							Dom.chat.say("The Jester", "Have you ever tried blindfold archery?"),
+							Dom.chat.say("The Jester", "...You haven’t?"),
+							Dom.chat.say("The Jester", "Well, you don’t know what you’re missing!")],
+						waitTime, undefined, undefined, true); // cutscene
+						break;
+					case 5:
+						Dom.chat.insertSequence([
+							Dom.chat.say("The Jester", "I’d make a hat joke, but it would just go over your head.")],
+						waitTime, undefined, undefined, true); // cutscene
+						break;
+					case 6:
+						Dom.chat.insertSequence([
+							Dom.chat.say("The Jester", "Why did the chicken cross the road?"),
+							Dom.chat.say("The Jester", "..."),
+							Dom.chat.say("The Jester", "Weedeater")],
+						waitTime, undefined, undefined, true); // cutscene
+						break;
+				}
+			},
+		}],
+        chat: {
+			questProgress: "Back already? All empty-handed? And I thought I was supposed to be the fool!",
+            notUnlockedRoles: "That's a bug... tell Jake please!", // should never be shown because jokes
+            chooseChat: "Better a witty fool than a foolish wit. Or so I’ve heard.",
+            receiveTavernGood: "A thousand thanks! Being this funny is hungry work.",
+			tenPercentHealth: "Make haste! I can’t hold on much longer!",
+			death: "Not even I can see the funny side in this.",
+        },
+		canBeShown: function () {
+			return Player.quests.completedQuestArray.includes("A Fool's Errand") || !Player.quests.possibleQuestArray.includes("A Fool's Errand");
+		}
+    },
 ];

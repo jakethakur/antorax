@@ -1296,6 +1296,21 @@ class Entity {
 		}*/
 		this.checkTouching = properties.checkTouching;
 
+		this.collision = properties.collision; // if the player should collide with this (i.e. it has a nested collision)
+		// this.collision is an object, with properties relativeX, relativeY, width, height
+		// relative position means from the centre of this, to the centre of the collision
+		if (typeof this.collision !== "undefined") {
+			let collisionData = {
+				x: this.x + this.collision.relativeX,
+				y: this.y + this.collision.relativeY,
+				width: this.collision.width,
+				height: this.collision.height,
+				source: "childCollision",
+				type: "collisions"
+			}
+			Game.collisions.push(new Collision(collisionData));
+		}
+
 		// trail
 		// array of particle trails
 		this.trails = properties.trails || [];
@@ -3364,6 +3379,9 @@ class Hero extends Attacker {
 
 		if (typeof this.mount.move !== "undefined") {
 			this.mount.move(delta, dirx, diry);
+
+			this.direction = this.mount.direction;
+			this.updateRotation();
 		}
 		if (this.mounted) { // check still mounted! might have been hit off the mount..
 			if (typeof this.mount.rideAdjustX === "undefined") {
@@ -5213,13 +5231,17 @@ class Enemy extends Attacker {
 		}
 		this.damageableByPlayer = true; // all enemies are damageable by player
 
-
 		// lootTable: an array of objects for each loot item - these objects contain the item ("item") and chances of looting them ("chance")
 		// if properties.lootTableTemplate is an array of lootTables (more than one template), merge them
 		let lootTableTemplate = [];
 		if (properties.lootTableTemplate !== undefined) {
 			for (let i = 0; i < properties.lootTableTemplate.length; i++) {
 				lootTableTemplate = lootTableTemplate.concat(properties.lootTableTemplate[i]);
+
+				// validation
+				if (typeof properties.lootTableTemplate[i] === "undefined") {
+					console.error(this.name + " has undefined loot table template at index " + i + ".")
+				}
 			}
 		}
 		// merge the arrays properties.lootTable and properties.lootTableTemplate
@@ -5249,6 +5271,10 @@ class Enemy extends Attacker {
 		// boss stuff
 		if (this.hostility === "boss") {
 			this.bossKilledVariable = properties.bossKilledVariable; // set to date killed to check it hasn't been killed today
+			// validation
+			if (typeof this.bossKilledVariable === "undefined") {
+				console.error("No bossKilledVariable for " + this.name);
+			}
 			// set the variable if it has not been set before
 			if (Player.bossesKilled[this.bossKilledVariable] === undefined) {
 				Player.bossesKilled[this.bossKilledVariable] = 0;
@@ -7435,12 +7461,11 @@ Game.loadArea = function (areaName, destination) {
 		map.iceTiles = undefined;
 		map.mudTiles = undefined;
 		map.pathTiles = undefined;
+		map.tallGrassBottoms = undefined;
 		map.dayTiles = undefined;
 		map.nightTiles = undefined;
 		map.animateTiles = undefined;
 		map.objectTiles = [];
-		map.tallGrassBottoms = [];
-		map.tallGrassTops = [];
 		map.repeatTiles = []; // these are like tall grass, flowers, etc.. An array of objects where the objects include "tile", "orderOffsetY" (optionally), name, "ySpacing", "xSpacing" (how much x it moves for every time it moves up one)
 		map.transparentTiles = []; // so it is always an array
 
@@ -7761,36 +7786,20 @@ Game.loadArea = function (areaName, destination) {
 						}
 
 						let orderOffsetY = map.repeatTiles[i].orderOffsetY || 0;
-						/*let k;
-						if (map.tallGrassTops.includes(tile)) {
-							orderOffsetY = 60;
 
-							k = Math.floor((baseY+60)/120)%3; // tiles are adjusted based on how high up they are
+						// some repeatTiles (i.e. tall grass) are adjusted in the x direction based on how high up they are
+						// this adjust amount is given by kMultiplier
+						if (typeof map.repeatTiles[i].orderOffsetY === "undefined") {
+							map.repeatTiles[i].orderOffsetY = 0;
 						}
-						else {
-							k = Math.floor(baseY/120)%3;
+						if (typeof map.repeatTiles[i].kMultiplier === "undefined") {
+							map.repeatTiles[i].kMultiplier = 0;
 						}
+						let k = Math.floor((baseY+map.repeatTiles[i].orderOffsetY)/120)%3;
 
-						for (let tileNo = 0; tileNo < 3; tileNo++) {
-							let x = baseX + 5*(tileNo%3) + k*5; // adjusted just for plains grass!!
-							let y = baseY - 20*tileNo;
-
-							this.things.push(new Thing({
-								x: x,
-								y: y,
-								orderOffsetY: orderOffsetY,
-								width: map.tsize,
-								height: map.tsize,
-								image: "tiles",
-								crop: crop,
-								type: "things",
-								name: "Tall grass"
-							}));
-						}*/
-
-						let xSpacingMultiplier = [-1, 0, 1];
+						let xSpacingMultiplier = [0, -1, 0, 1];
 						for (let tileNo = 0; tileNo < 60/map.repeatTiles[i].ySpacing; tileNo++) {
-							let x = baseX + map.repeatTiles[i].xSpacing*xSpacingMultiplier[tileNo%map.repeatTiles[i].ySpacing];
+							let x = baseX + (map.repeatTiles[i].xSpacing*xSpacingMultiplier[tileNo%xSpacingMultiplier.length]) + k*map.repeatTiles[i].kMultiplier;
 							let y = baseY - map.repeatTiles[i].ySpacing*tileNo;
 
 							this.things.push(new Thing({
@@ -9002,7 +9011,9 @@ Game.update = function (delta) {
 			x: this.hero.x,
 			y: this.hero.y,
 			direction: this.hero.direction,
-			expand: this.hero.expand
+			expand: this.hero.expand,
+			mounted: this.hero.mounted,
+			mountImg: aaaaaaaaaaaaaaaaaa
 		}));
 	}
 
@@ -9044,7 +9055,8 @@ Game.update = function (delta) {
 			canSpeak = false;
 		}
 
-		if (canSpeak) {
+		if (canSpeak && this.keysDown.SPACE) {
+			// choosing to interact with NPC - bring up a DOM menu if possible
 
 			// arrays for choose DOM (these are populated in the below for loop)
 			let textArray = []; // array of text to describe that function
@@ -9061,331 +9073,329 @@ Game.update = function (delta) {
 			let textSaid = false; // if all of the above variables should be ignored (because something else has been said instead, e.g: soul healer cannot be healed text)
 			// see below for loop for logic regarding these variables
 
-			if (this.keysDown.SPACE) {
-				// choosing to interact with NPC - bring up a DOM menu if possible
+			if (npc.roles !== undefined && npc.roles.length !== 0) {
+				// the NPC is a functional NPC (does something when spoken to)
 
-				if (npc.roles !== undefined && npc.roles.length !== 0) {
-					// the NPC is a functional NPC (does something when spoken to)
+				for (let x = 0; x < npc.roles.length; x++) { // iterate through quests involving that npc
+					let role = npc.roles[x];
 
-					for (let x = 0; x < npc.roles.length; x++) { // iterate through quests involving that npc
-						let role = npc.roles[x];
+					if (role.roleRequirement === undefined || role.roleRequirement()) {
+						// quest starts
+						if (role.role === "questStart" || role.role === "questStartFinish") {
+							// quest is ready to be accepted
 
-						if (role.roleRequirement === undefined || role.roleRequirement()) {
-							// quest starts
-							if (role.role === "questStart" || role.role === "questStartFinish") {
-								// quest is ready to be accepted
+							let questCanBeStarted = true; // set to false if the quest cannot be started
+							let questToBeStarted = role.quest;
 
-								let questCanBeStarted = true; // set to false if the quest cannot be started
-								let questToBeStarted = role.quest;
-
-								if (role.quest.constructor === Array && (role.newQuestFrequency === "daily" || role.newQuestFrequency === "repeatable")) {
-									// quest is an array (hence a random one is picked each questing time period)
-									// all of these quests are daily quests or jobs (repeatable)
-									if (role.quest.some(quest => Player.quests.activeQuestArray.includes(quest.quest))) {
-										// one of the quests is currently active
-										questCanBeStarted = false;
-										questActive = true; // for npc dialogue
-									}
-									else if (role.newQuestFrequency === "daily" && role.quest.some(quest => Player.quests.questLastFinished[quest.questArea][quest.id] >= GetFullDate())) {
-										// daily quest and one of the quests has already been done today (or after today o.O)
-										questCanBeStarted = false;
-										questComplete = true; // for npc dialogue
+							if (role.quest.constructor === Array && (role.newQuestFrequency === "daily" || role.newQuestFrequency === "repeatable")) {
+								// quest is an array (hence a random one is picked each questing time period)
+								// all of these quests are daily quests or jobs (repeatable)
+								if (role.quest.some(quest => Player.quests.activeQuestArray.includes(quest.quest))) {
+									// one of the quests is currently active
+									questCanBeStarted = false;
+									questActive = true; // for npc dialogue
+								}
+								else if (role.newQuestFrequency === "daily" && role.quest.some(quest => Player.quests.questLastFinished[quest.questArea][quest.id] >= GetFullDate())) {
+									// daily quest and one of the quests has already been done today (or after today o.O)
+									questCanBeStarted = false;
+									questComplete = true; // for npc dialogue
+								}
+								else {
+									// pick a quest to be started
+									if (Player.quests.randomDailyQuests[role.questVariable] !== undefined) {
+										// a quest has already been chosen for the player today
+										// note the same system is used for daily and repeatable, because at the moment the chosen repeatable quest is reset every day
+										questToBeStarted = questToBeStarted.find(quest => quest.quest === Player.quests.randomDailyQuests[role.questVariable]);
 									}
 									else {
-										// pick a quest to be started
-										if (Player.quests.randomDailyQuests[role.questVariable] !== undefined) {
-											// a quest has already been chosen for the player today
-											// note the same system is used for daily and repeatable, because at the moment the chosen repeatable quest is reset every day
-											questToBeStarted = questToBeStarted.find(quest => quest.quest === Player.quests.randomDailyQuests[role.questVariable]);
+										// a quest has not been chosen for the player today
+										questToBeStarted = questToBeStarted.filter(quest => Player.quests.possibleQuestArray.includes(quest.quest));
+										if (questToBeStarted.length > 0) { // at least one quest survived the level and quest requirements
+											// pick random quest
+											questToBeStarted = questToBeStarted[Random(0, questToBeStarted.length - 1)];
+
+											// set variable so future quests today are the same
+											Player.quests.randomDailyQuests[role.questVariable] = questToBeStarted.quest;
 										}
 										else {
-											// a quest has not been chosen for the player today
-											questToBeStarted = questToBeStarted.filter(quest => Player.quests.possibleQuestArray.includes(quest.quest));
-											if (questToBeStarted.length > 0) { // at least one quest survived the level and quest requirements
-												// pick random quest
-												questToBeStarted = questToBeStarted[Random(0, questToBeStarted.length - 1)];
+											questCanBeStarted = false;
+											notUnlockedRoles = true;
+										}
+									}
+								}
+							}
+							else {
+								// single quest
+								if (!Player.quests.possibleQuestArray.includes(role.quest.quest)) {
+									// quest is not possible
+									questCanBeStarted = false;
 
-												// set variable so future quests today are the same
-												Player.quests.randomDailyQuests[role.questVariable] = questToBeStarted.quest;
+									// figure out what NPC should say to the player
+									if (Player.quests.activeQuestArray.includes(role.quest.quest)) { // quest is already active
+										questActive = true; // for npc dialogue
+									}
+									else {
+										// check if it is daily or one time
+										if (role.quest.repeatTime === undefined) {
+											// one time
+											if (Player.quests.completedQuestArray.includes(role.quest.quest)) {
+												// quest has already been completed
+												questComplete = true; // for npc dialogue
 											}
 											else {
-												questCanBeStarted = false;
+												// quest not unlocked at all (is in "other quests")
+												notUnlockedRoles = true;
+											}
+										}
+										else if (role.quest.repeatTime === "daily") {
+											// daily
+											if (Player.quests.questLastFinished[role.quest.questArea][role.quest.id] >= GetFullDate()) { // quest has already been done today (or after today o.O)
+												// note that if the quest has not been finished (hence questLastFinished is undefined) the condition will always return false
+												questComplete = true; // for npc dialogue
+											}
+											else {
+												// quest not unlocked at all (is in "other quests")
 												notUnlockedRoles = true;
 											}
 										}
 									}
-								}
-								else {
-									// single quest
-									if (!Player.quests.possibleQuestArray.includes(role.quest.quest)) {
-										// quest is not possible
-										questCanBeStarted = false;
 
-										// figure out what NPC should say to the player
-										if (Player.quests.activeQuestArray.includes(role.quest.quest)) { // quest is already active
-											questActive = true; // for npc dialogue
-										}
-										else {
-											// check if it is daily or one time
-											if (role.quest.repeatTime === undefined) {
-												// one time
-												if (Player.quests.completedQuestArray.includes(role.quest.quest)) {
-													// quest has already been completed
-													questComplete = true; // for npc dialogue
-												}
-												else {
-													// quest not unlocked at all (is in "other quests")
-													notUnlockedRoles = true;
-												}
-											}
-											else if (role.quest.repeatTime === "daily") {
-												// daily
-												if (Player.quests.questLastFinished[role.quest.questArea][role.quest.id] >= GetFullDate()) { // quest has already been done today (or after today o.O)
-													// note that if the quest has not been finished (hence questLastFinished is undefined) the condition will always return false
-													questComplete = true; // for npc dialogue
-												}
-												else {
-													// quest not unlocked at all (is in "other quests")
-													notUnlockedRoles = true;
-												}
-											}
-										}
-
-									}
-								}
-
-								if (questCanBeStarted) {
-									// choose dom checks inventory space
-									textArray.push("Quest start: " + questToBeStarted.quest);
-									functionArray.push(Dom.quest.start);
-									parameterArray.push([questToBeStarted, npc]);
-									additionalOnClickArray.push(role.additionalOnClick);
 								}
 							}
 
-							// quest finishes
-							if (role.role === "questFinish" || role.role === "questStartFinish") {
-								// check if quest is ready to be finished
-
-								let questCanBeFinished = true; // set to false if the quest cannot be finished
-								let questToBeFinished = role.quest;
-
-								if (role.quest.constructor === Array && (role.newQuestFrequency === "daily" || role.newQuestFrequency === "repeatable")) {
-									// quest is an array (hence a Random one is picked each questing time period)
-									// all of these quests are daily quests or repeatable quests
-
-									questToBeFinished = role.quest.find(quest => Player.quests.activeQuestArray.includes(quest.quest)); // find which quest the active one is
-
-									if (questToBeFinished === undefined) { // none of the quests are currently active
-										questCanBeFinished = false;
-										notUnlockedRoles = true;
-									}
-
-									// no need to check if it has already been completed as these are all daily
-								}
-								else {
-									// single quest
-									if (!Player.quests.activeQuestArray.includes(role.quest.quest)) { // quest is not already active
-										questCanBeFinished = false;
-										notUnlockedRoles = true;
-									}
-								}
-
-								if (questCanBeFinished) {
-									// check if quest conditions have been fulfilled
-									// canBeFinishedArray used for efficiency
-									if (Player.quests.canBeFinishedArray.includes(questToBeFinished.quest)) {
-										// inventory space is checked by choose DOM
-										textArray.push("Quest finish: " + questToBeFinished.quest);
-										functionArray.push(Dom.quest.finish);
-										parameterArray.push([questToBeFinished, npc]);
-										additionalOnClickArray.push(role.additionalOnClick);
-									}
-									// quest conditions have not been fulfilled
-									else {
-										questActive = true;
-									}
-
-								}
-								// quest has already been completed
-								else if (Player.quests.completedQuestArray.includes(role.quest.quest)) {
-									questComplete = true;
-								}
-							}
-
-							// merchants
-							else if (role.role === "merchant") {
-								// merchant appears as an option for choose DOM
-
-								// filter the sold items to check that they are eligible to be sold
-								let soldItems = role.sold.filter(soldItem => soldItem.eventRequirement === undefined || soldItem.eventRequirement === Event.event);
-
-								// filter for condition
-								soldItems = soldItems.filter(soldItem => soldItem.condition === undefined || soldItem.condition() === true);
-
-								if (typeof role.numberSold !== "undefined") {
-									// sell a particular amount of items that rotate over time
-									let dateValue = 1;
-									let date = new Date();
-									switch (role.rotation) {
-										case "day":
-											dateValue = date.getDate(); // 1 to 31
-											break;
-
-										case "week":
-											dateValue = GetWeek(); // 1 to 52
-											break;
-
-										default:
-											console.error("Unrecognised rotation type for merchant " + npc.name);
-									}
-
-									soldItems = Dom.merchant.chooseItems(soldItems, dateValue, role.numberSold);
-								}
-
-								let greetingMessage = Dom.chat.decideMessage(role.shopGreeting); // allow for conditional messages
-
-								textArray.push(role.chooseText || "I'd like to browse your goods.");
-								functionArray.push(Dom.merchant.page);
-								parameterArray.push([npc, soldItems, greetingMessage]);
+							if (questCanBeStarted) {
+								// choose dom checks inventory space
+								textArray.push("Quest start: " + questToBeStarted.quest);
+								functionArray.push(Dom.quest.start);
+								parameterArray.push([questToBeStarted, npc]);
 								additionalOnClickArray.push(role.additionalOnClick);
 							}
+						}
 
-							// soul healers
-							else if (role.role === "soulHealer") {
-								let statusEffect = this.hero.statusEffects.find(statusEffect => statusEffect.title === "XP Fatigue"); // try to find xp fatigue effect
-								if (statusEffect !== undefined) {
-									// calculate cost
-									this.soulHealerCost = Math.floor(statusEffect.info.ineffectiveAmount / 50); // set to Game so that it can be accessed from the function in Dom.text.page
-									if (this.soulHealerCost < 1) {
-										this.soulHealerCost = 1;
-									}
+						// quest finishes
+						if (role.role === "questFinish" || role.role === "questStartFinish") {
+							// check if quest is ready to be finished
 
-									// save the npc into a variable so that it can say something if the person is healed
-									this.currentSoulHealer = npc;
+							let questCanBeFinished = true; // set to false if the quest cannot be finished
+							let questToBeFinished = role.quest;
 
-									// soul healer appears as an option for choose DOM
-									textArray.push(role.chooseText || "I'd like to remove my 'XP Fatigue' status effect.");
-									functionArray.push(Dom.text.page);
-									parameterArray.push(["Soul Healer", npc.chat.canBeHealedText, true, ["Remove XP Fatigue for " + this.soulHealerCost + " gold"], [function () {
-										if (Dom.inventory.check(2, "currency", Game.soulHealerCost)) {
-											Dom.inventory.removeById(2, "currency", Game.soulHealerCost);
-											Game.hero.removeStatusEffect(Game.hero.statusEffects.findIndex(statusEffect => statusEffect.title === "XP Fatigue"), "soulHealer"); // remove xp fatigue effect
-											Player.fatiguedXP = 0;
-											Dom.closePage("textPage");
-											Game.currentSoulHealer.say(Game.currentSoulHealer.chat.healedText, 0, false);
-											Game.currentSoulHealer = undefined; // reset variable that remembers which soul healer the player is speaking to
-											Game.soulHealerCost = undefined; // reset variable that remembers the cost for soul healing
-										}
-										else {
-											// player cannot afford it
-											Game.currentSoulHealer.say(Game.currentSoulHealer.chat.tooPoor, 0, true);
-										}
-									}]]);
-									additionalOnClickArray.push(role.additionalOnClick);
+							if (role.quest.constructor === Array && (role.newQuestFrequency === "daily" || role.newQuestFrequency === "repeatable")) {
+								// quest is an array (hence a Random one is picked each questing time period)
+								// all of these quests are daily quests or repeatable quests
+
+								questToBeFinished = role.quest.find(quest => Player.quests.activeQuestArray.includes(quest.quest)); // find which quest the active one is
+
+								if (questToBeFinished === undefined) { // none of the quests are currently active
+									questCanBeFinished = false;
+									notUnlockedRoles = true;
 								}
-								else {
-									if (!Dom.chat.contents.includes("<strong>" + npc.name + "</strong>: " + npc.chat.healedText)) {
-										if (Dom.currentlyDisplayed === "") {
-											// display instruction text if user cannot be healed and hasn't just been healed
-											npc.say(npc.chat.cannotBeHealedText, 0, true);
-											textSaid = true; // do not say something in chat, as something has already been said
-										}
-									}
+
+								// no need to check if it has already been completed as these are all daily
+							}
+							else {
+								// single quest
+								if (!Player.quests.activeQuestArray.includes(role.quest.quest)) { // quest is not already active
+									questCanBeFinished = false;
+									notUnlockedRoles = true;
 								}
 							}
 
-							// identifiers
-							else if (role.role === "identifier") {
-								// identifier appears as an option for choose DOM
-								if (Dom.identifier.check()) {
-									// player has unidentified items
-									textArray.push(role.chooseText || "I have an item I'd like to identify.");
-									functionArray.push(Dom.identifier.page);
-									parameterArray.push([npc, true]);
+							if (questCanBeFinished) {
+								// check if quest conditions have been fulfilled
+								// canBeFinishedArray used for efficiency
+								if (Player.quests.canBeFinishedArray.includes(questToBeFinished.quest)) {
+									// inventory space is checked by choose DOM
+									textArray.push("Quest finish: " + questToBeFinished.quest);
+									functionArray.push(Dom.quest.finish);
+									parameterArray.push([questToBeFinished, npc]);
 									additionalOnClickArray.push(role.additionalOnClick);
 								}
+								// quest conditions have not been fulfilled
 								else {
+									questActive = true;
+								}
+
+							}
+							// quest has already been completed
+							else if (Player.quests.completedQuestArray.includes(role.quest.quest)) {
+								questComplete = true;
+							}
+						}
+
+						// merchants
+						else if (role.role === "merchant") {
+							// merchant appears as an option for choose DOM
+
+							// filter the sold items to check that they are eligible to be sold
+							let soldItems = role.sold.filter(soldItem => soldItem.eventRequirement === undefined || soldItem.eventRequirement === Event.event);
+
+							// filter for condition
+							soldItems = soldItems.filter(soldItem => soldItem.condition === undefined || soldItem.condition() === true);
+
+							if (typeof role.numberSold !== "undefined") {
+								// sell a particular amount of items that rotate over time
+								let dateValue = 1;
+								let date = new Date();
+								switch (role.rotation) {
+									case "day":
+										dateValue = date.getDate(); // 1 to 31
+										break;
+
+									case "week":
+										dateValue = GetWeek(); // 1 to 52
+										break;
+
+									default:
+										console.error("Unrecognised rotation type for merchant " + npc.name);
+								}
+
+								soldItems = Dom.merchant.chooseItems(soldItems, dateValue, role.numberSold);
+							}
+
+							let greetingMessage = Dom.chat.decideMessage(role.shopGreeting); // allow for conditional messages
+
+							textArray.push(role.chooseText || "I'd like to browse your goods.");
+							functionArray.push(Dom.merchant.page);
+							parameterArray.push([npc, soldItems, greetingMessage]);
+							additionalOnClickArray.push(role.additionalOnClick);
+						}
+
+						// soul healers
+						else if (role.role === "soulHealer") {
+							let statusEffect = this.hero.statusEffects.find(statusEffect => statusEffect.title === "XP Fatigue"); // try to find xp fatigue effect
+							if (statusEffect !== undefined) {
+								// calculate cost
+								this.soulHealerCost = Math.floor(statusEffect.info.ineffectiveAmount / 50); // set to Game so that it can be accessed from the function in Dom.text.page
+								if (this.soulHealerCost < 1) {
+									this.soulHealerCost = 1;
+								}
+
+								// save the npc into a variable so that it can say something if the person is healed
+								this.currentSoulHealer = npc;
+
+								// soul healer appears as an option for choose DOM
+								textArray.push(role.chooseText || "I'd like to remove my 'XP Fatigue' status effect.");
+								functionArray.push(Dom.text.page);
+								parameterArray.push(["Soul Healer", npc.chat.canBeHealedText, true, ["Remove XP Fatigue for " + this.soulHealerCost + " gold"], [function () {
+									if (Dom.inventory.check(2, "currency", Game.soulHealerCost)) {
+										Dom.inventory.removeById(2, "currency", Game.soulHealerCost);
+										Game.hero.removeStatusEffect(Game.hero.statusEffects.findIndex(statusEffect => statusEffect.title === "XP Fatigue"), "soulHealer"); // remove xp fatigue effect
+										Player.fatiguedXP = 0;
+										Dom.closePage("textPage");
+										Game.currentSoulHealer.say(Game.currentSoulHealer.chat.healedText, 0, false);
+										Game.currentSoulHealer = undefined; // reset variable that remembers which soul healer the player is speaking to
+										Game.soulHealerCost = undefined; // reset variable that remembers the cost for soul healing
+									}
+									else {
+										// player cannot afford it
+										Game.currentSoulHealer.say(Game.currentSoulHealer.chat.tooPoor, 0, true);
+									}
+								}]]);
+								additionalOnClickArray.push(role.additionalOnClick);
+							}
+							else {
+								if (!Dom.chat.contents.includes("<strong>" + npc.name + "</strong>: " + npc.chat.healedText)) {
 									if (Dom.currentlyDisplayed === "") {
-										// player has no unidentified items; send chat message explaining this instead==
-										npc.say(npc.chat.noUnidentified, 0, true);
+										// display instruction text if user cannot be healed and hasn't just been healed
+										npc.say(npc.chat.cannotBeHealedText, 0, true);
 										textSaid = true; // do not say something in chat, as something has already been said
 									}
 								}
 							}
+						}
 
-							// item buyers
-							else if (role.role === "itemBuyer") {
-								// item buyer appears as an option for choose DOM
-								textArray.push(role.chooseText || "I'd like to sell some items to you.");
-								functionArray.push(Dom.buyer.page);
-								parameterArray.push([npc]);
+						// identifiers
+						else if (role.role === "identifier") {
+							// identifier appears as an option for choose DOM
+							if (Dom.identifier.check()) {
+								// player has unidentified items
+								textArray.push(role.chooseText || "I have an item I'd like to identify.");
+								functionArray.push(Dom.identifier.page);
+								parameterArray.push([npc, true]);
 								additionalOnClickArray.push(role.additionalOnClick);
 							}
-
-							// drivers
-							else if (role.role === "driver") {
-								// driver appears as an option for choose DOM
-								textArray.push(role.chooseText || "I'd like to ride your cart to somewhere.");
-								functionArray.push(Dom.driver.page);
-								parameterArray.push([npc, role.destinations]);
-								additionalOnClickArray.push(role.additionalOnClick);
-							}
-
-							// bankers
-							else if (role.role === "banker") {
-								// bank appears as an option for choose DOM
-								textArray.push(role.chooseText || "I'd like to access my bank storage.");
-								functionArray.push(Dom.bank.page);
-								parameterArray.push([]);
-								additionalOnClickArray.push(role.additionalOnClick);
-							}
-
-							// spell choosers
-							else if (role.role === "spellChoice") {
-								// spell choice appears as an option for choose DOM
-								textArray.push(role.chooseText || "I'd like to choose a spell to unlock.");
-								functionArray.push(Dom.spellChoice.page);
-								parameterArray.push([npc, role.spells]);
-								additionalOnClickArray.push(role.additionalOnClick);
-							}
-
-							// generic text DOM
-							else if (role.role === "text") {
-								// npc chat appears as an option in choose DOM
-								textArray.push(role.chooseText);
-								functionArray.push(Dom.text.page);
-								parameterArray.push([npc.name, role.chat, role.showCloseButton, role.buttons, role.functions, role.give]);
-								additionalOnClickArray.push(role.additionalOnClick);
-							}
-
-							// button just runs a function
-							else if (role.role === "function") {
-								// npc chat appears as an option in choose DOM
-								textArray.push(role.chooseText);
-								functionArray.push(role.onClick);
-								parameterArray.push([]);
-								additionalOnClickArray.push(role.additionalOnClick);
-							}
-
-
-							// force choose DOM if the role wants this
-							if (role.forceChoose === true) {
-								forceChoose = true;
+							else {
+								if (Dom.currentlyDisplayed === "") {
+									// player has no unidentified items; send chat message explaining this instead==
+									npc.say(npc.chat.noUnidentified, 0, true);
+									textSaid = true; // do not say something in chat, as something has already been said
+								}
 							}
 						}
-						else {
-							notUnlockedRoles = true;
-						}
-					} // finished iterating through this npc's roles
 
-				}
-				else if (npc.roles === undefined || npc.roles.length === 0) {
-					// no roles exist
-					notUnlockedRoles = true;
-				}
+						// item buyers
+						else if (role.role === "itemBuyer") {
+							// item buyer appears as an option for choose DOM
+							textArray.push(role.chooseText || "I'd like to sell some items to you.");
+							functionArray.push(Dom.buyer.page);
+							parameterArray.push([npc]);
+							additionalOnClickArray.push(role.additionalOnClick);
+						}
+
+						// drivers
+						else if (role.role === "driver") {
+							// driver appears as an option for choose DOM
+							textArray.push(role.chooseText || "I'd like to ride your cart to somewhere.");
+							functionArray.push(Dom.driver.page);
+							parameterArray.push([npc, role.destinations]);
+							additionalOnClickArray.push(role.additionalOnClick);
+						}
+
+						// bankers
+						else if (role.role === "banker") {
+							// bank appears as an option for choose DOM
+							textArray.push(role.chooseText || "I'd like to access my bank storage.");
+							functionArray.push(Dom.bank.page);
+							parameterArray.push([]);
+							additionalOnClickArray.push(role.additionalOnClick);
+						}
+
+						// spell choosers
+						else if (role.role === "spellChoice") {
+							// spell choice appears as an option for choose DOM
+							textArray.push(role.chooseText || "I'd like to choose a spell to unlock.");
+							functionArray.push(Dom.spellChoice.page);
+							parameterArray.push([npc, role.spells]);
+							additionalOnClickArray.push(role.additionalOnClick);
+						}
+
+						// generic text DOM
+						else if (role.role === "text") {
+							// npc chat appears as an option in choose DOM
+							textArray.push(role.chooseText);
+							functionArray.push(Dom.text.page);
+							parameterArray.push([npc.name, role.chat, role.showCloseButton, role.buttons, role.functions, role.give]);
+							additionalOnClickArray.push(role.additionalOnClick);
+						}
+
+						// button just runs a function
+						else if (role.role === "function") {
+							// npc chat appears as an option in choose DOM
+							textArray.push(role.chooseText);
+							functionArray.push(role.onClick);
+							parameterArray.push([]);
+							additionalOnClickArray.push(role.additionalOnClick);
+						}
+
+
+						// force choose DOM if the role wants this
+						if (role.forceChoose === true) {
+							forceChoose = true;
+						}
+					}
+					else {
+						notUnlockedRoles = true;
+					}
+				} // finished iterating through this npc's roles
+
+			}
+			else if (npc.roles === undefined || npc.roles.length === 0) {
+				// no roles exist
+				notUnlockedRoles = true;
 			}
 
+
+			// now functionarray has been populated, see if anything needs to be done ...
 			if (functionArray.length > 0) {
 				// npc can be spoken to, hence choose DOM should be opened
 				// Dom.choose.page checks whether or not the DOM is occupied, and handles red flashing of close button
@@ -10760,7 +10770,7 @@ Game.coordinates = function (character) {
 	this.resetFormatting();
 
 	this.ctx.fillText("x: " + Math.round(character.x), 10 + this.viewportOffsetX, 90 + this.viewportOffsetY);
-	this.ctx.fillText("y: " + Math.round(character.y), 10 + this.viewportOffsetX, 100 + this.viewportOffsetY);
+	this.ctx.fillText("y: " + Math.round(character.y), 10 + this.viewportOffsetX, 106 + this.viewportOffsetY);
 }
 
 // display frames per second on canvas (settings option)
@@ -10784,14 +10794,14 @@ Game.fps = function (delta) {
 	let average = sum / this.fpsArray.length;
 
 	// write on canvas
-	this.ctx.fillText("fps: " + Round(average), 10 + this.viewportOffsetX, 115 + this.viewportOffsetY);
+	this.ctx.fillText("fps: " + Round(average), 10 + this.viewportOffsetX, 127 + this.viewportOffsetY);
 }
 
 // reset text formatting
 Game.resetFormatting = function () {
 	this.ctx.textAlign = "left";
 	this.ctx.fillStyle = "rgba(0, 0, 0, 1)";
-	this.ctx.font = "10px El Messiri"; // maybe serif instead?
+	this.ctx.font = "16px El Messiri"; // maybe serif instead?
 }
 
 // draw a rotated image (rotated in radians)
@@ -10831,9 +10841,9 @@ Game.updateScreenPosition = function (entity) {
 		entity.hitbox.screenY = (entity.hitbox.y) - this.camera.y + this.viewportOffsetY;
 	}
 
-	// not ideal because it makes objects a bit juddery, but without it tiles sometimes have white gaps between them :(
-	entity.screenX = Math.round(entity.screenX);
-	entity.screenY = Math.round(entity.screenY);
+	// not ideal because it makes objects a bit juddery, but without it tiles (i.e. long grass in plains) sometimes have white gaps between them :(
+	entity.screenX = Round(entity.screenX, 0);
+	entity.screenY = Round(entity.screenY, 0);
 }
 
 // draw character health bar, name etc. in correct place

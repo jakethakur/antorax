@@ -417,12 +417,12 @@ var Achievements = [
 		}
 	},
 	{
-		name: "Aconitum",
+		name: "Aconite",
 		description: "Kill a coyote pack, and its wrangler.",
 		points: 5,
 		category: ["combat"],
 		area: ["eaglecrest"],
-		image: "../assets/items/item/46.png",
+		image: "../assets/items/item/67.png",
 		color: "lightgray",
 		class: "single",
 		isCompleted: function () {
@@ -435,7 +435,7 @@ var Achievements = [
 		points: 5,
 		category: ["combat"],
 		area: ["eaglecrest"],
-		image: "../assets/items/item/45.png",
+		image: "../assets/achievements/queenOfPoisons.png",
 		color: "lightgray",
 		class: "single",
 		isCompleted: function () {

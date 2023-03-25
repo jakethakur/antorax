@@ -7072,16 +7072,15 @@ Last I saw him, he was visiting the <b>Eaglecrest Plains</b> to the <b>south</b>
 			pathTiles: [5, 12, 41, 50, 51, 57, 58, 59, 60, 76, 86, 87, 88, 91, 92, 93, 99, 107, 108, 109, 110, 111, 113, 115, 117, 118, 119, 121, 125, 126, 127, 129, 133, 134, 135, 137, 138, 139, 140, 141, 147, 148, 149],
 			waterTiles: [32, 40, 48, 112, 120, 128],
 			iceTiles: [32, 40, 48],
-			objectTiles: [142, 196, 197], // top of barrel, fences
-			tallGrassBottoms: [215, 160], // tall grass
-			tallGrassTops: [207], // tall grass
+			tallGrassBottoms: [215], // tall grass (slows player)
+			objectTiles: [142, 196, 197], // top of barrel, fences, (cattails are 136 and 144 but picking object flowers, cattails etc doesn't work yet)
 			transparentTiles: [94, 95, 96, 102, 103, 104, 114, 116, 122, 124, 130, 132, 136, 144], // these tiles should be ignored when considering water etc, even when they're at the front of the canvas
 			repeatTiles: [
 				{
 					tile: 243,
 					ySpacing: 20,
 					xSpacing: 30,
-					name: "Huge flower"
+					name: "Teal Callalilies"
 				},
 				{
 					tile: 242,
@@ -7097,7 +7096,7 @@ Last I saw him, he was visiting the <b>Eaglecrest Plains</b> to the <b>south</b>
 				},
 				{
 					tile: 239,
-					ySpacing: 10,
+					ySpacing: 20,
 					xSpacing: 6,
 					name: "Lavender"
 				},
@@ -7105,32 +7104,54 @@ Last I saw him, he was visiting the <b>Eaglecrest Plains</b> to the <b>south</b>
 					tile: 238,
 					ySpacing: 30,
 					xSpacing: 20,
-					name: "Bluebells?"
+					name: "Wolfsbane"
 				},
 				{
 					tile: 237,
 					ySpacing: 20,
 					xSpacing: 20,
-					name: "Cyan flowers"
+					name: "Cyan Wallflowers"
 				},
 				{
 					tile: 236,
-					ySpacing: 20,
+					ySpacing: 30,
 					xSpacing: 30,
-					name: "Orange tulips"
+					name: "Orange Tulips"
 				},
 				{
 					tile: 234,
 					ySpacing: 20,
 					xSpacing: 20,
-					name: "Red flowers"
+					name: "Poppies"
 				},
 				{
 					tile: 235,
 					ySpacing: 20,
 					xSpacing: 20,
-					name: "Pink flowers"
-				}
+					name: "Pink Alcea"
+				},
+				{
+					tile: 215,
+					ySpacing: 20,
+					xSpacing: 6,
+					name: "Tall Grass",
+					kMultiplier: 6,
+				},
+				{
+					tile: 207,
+					ySpacing: 20,
+					xSpacing: 6,
+					name: "Tall Grass Tops",
+					orderOffsetY: 60,
+					kMultiplier: 6,
+				},
+				{
+					tile: 160,
+					ySpacing: 20,
+					xSpacing: 6,
+					name: "Grass",
+					kMultiplier: 6,
+				},
 			],
 			animateTiles: [
 			{
@@ -7707,6 +7728,10 @@ Last I saw him, he was visiting the <b>Eaglecrest Plains</b> to the <b>south</b>
 			jesterConfetti: {normal: "assets/objects/jesterConfetti.png"},
 			jesterBall: {normal: "assets/items/item/57.png"},
 			rockSpike: {normal: "assets/objects/rockSpike.png"},
+			conductor: {normal: "assets/npcs/conductorDanes.png"},
+			steppingStone: {normal: "assets/objects/steppingStone.png"},
+			wiseMan: {normal: "assets/npcs/wiseMan.png"},
+			jester: {normal: "assets/npcs/jester.png"},
 		},
 
 		areaTeleports: [
@@ -7719,6 +7744,34 @@ Last I saw him, he was visiting the <b>Eaglecrest Plains</b> to the <b>south</b>
 				teleportTo: "eaglecrest",
 				destinationX: 960,
 				destinationY: 1670,
+			},
+			{
+				// teleport to cave opening
+				x: 7450,
+				y: 4100,
+				width: 2,
+				height: 600,
+				teleportTo: "caveOpening",
+				destinationX: 960, // tba
+				destinationY: 1670,
+				teleportCondition: function () {
+					return false;
+				},
+				teleportFailText: "Archaeological exploration of the <i>Eaglecrest Caverns</i> has not yet commenced! Check back soon.",
+			},
+			{
+				// teleport to forest
+				x: -260,
+				y: 3440,
+				width: 2,
+				height: 900,
+				teleportTo: "forest",
+				destinationX: 960, // tba
+				destinationY: 1670,
+				teleportCondition: function () {
+					return false;
+				},
+				teleportFailText: "Archaeological exploration of <i>the Forest</i> has not yet commenced!",
 			},
 		],
 
@@ -7832,7 +7885,7 @@ Last I saw him, he was visiting the <b>Eaglecrest Plains</b> to the <b>south</b>
 				image: "gildoCleftbeard",
 				template: Villagers[8],
 				stats: {
-					defence: 77,
+					defence: 57,
 				},
 				health: 83, // damaged
 				canBeShown: function () {
@@ -7897,14 +7950,109 @@ Last I saw him, he was visiting the <b>Eaglecrest Plains</b> to the <b>south</b>
                     inventoryFull: "Yah bags are full, come back when yah got room.",
                 },
             },
+			{
+				x: 428,
+				y: 391,
+				image: "conductor",
+				name: "Conductor Danes",
+				hostility: "friendly",
+				level: 30,
+				stats: {
+					maxHealth: 200,
+					defence: 14,
+				},
+				roles: [
+					{
+						role: "driver",
+						roleRequirement: function () {
+							return false;
+						},
+						destinations: [
+							{
+								destinationName: "pawPeaks",
+								destinationPosition: {
+									x: 86,
+									y: 1641,
+								},
+								title: "Paw Peaks",
+								description: "A faraway mountainous land.",
+								image: "achievements/pawPeaks.png",
+								cost: 5,
+							},
+						],
+					},
+				],
+				chat: {
+					notUnlockedRoles: "Tickets please!",
+					driverText: "What's your destination?",
+					tooPoor: "",
+					chooseChat: "",
+					christmasGreeting: "",
+					antoraxDayGreeting: "",
+				},
+			},
+			{
+				x: 6142,
+				y: 5990,
+				image: "wiseMan",
+				name: "Wise Man",
+				hostility: "friendly",
+				level: 100,
+				stats: {
+					maxHealth: 50,
+					defence: 2,
+				},
+				roles: [ // maybe a quest / chat thing where you need to fetch something for him in return for some knowledge? (i.e. help with golden slingshot, etc.)
+				],
+				chat: {
+					notUnlockedRoles: "You see, at my age, there's nothing to do but watch the horizon, and look for gnomes. Can't say I've found any yet though.",
+					//notUnlockedRoles: "I believe the king is waiting for you - follow the path!", // his line from the original game! can seem like he's demented here
+				},
+			},
+			{
+				x: 375,
+				y: 2222,
+				image: "jester",
+				template: Villagers[24],
+				health: 56, // damaged
+				stats: {
+					defence: 62,
+					healthRegen: 0,
+				},
+				canBeShown: function () {
+					return Player.quests.possibleQuestArray.includes("A Fool's Errand") || Player.quests.activeQuestArray.includes("A Fool's Errand");
+				},
+			},
 		],
 
 		enemies: [
+			// enemies with jester
+			{
+				x: [359.9, 251, 182.8, 650.9],
+				y: [1950.2, 2451.6, 2103, 2042.6],
+				template: EnemyTemplates.eaglecrest.toad,
+				respawnOnDeath: false,
+				canBeShown: function () {
+					return Player.quests.possibleQuestArray.includes("A Fool's Errand");
+				},
+			},
+			{
+				x: 570.9,
+				y: 2286.6,
+				template: EnemyTemplates.eaglecrest.toad,
+				health: 26,
+				respawnOnDeath: false,
+				canBeShown: function () {
+					return Player.quests.possibleQuestArray.includes("A Fool's Errand");
+				},
+			},
+			// flower forest
 			{
 				x: 1000,
 				y: 5500,
 				template: EnemyTemplates.eaglecrest.beeSwarm,
 			},
+			// overdraft
 			{
 				x: 3236, // with gildo!
 				y: 1091,
@@ -7931,6 +8079,7 @@ Last I saw him, he was visiting the <b>Eaglecrest Plains</b> to the <b>south</b>
 					Player.quests.questProgress.overdraftFrogDeadTwo = true;
 				},
 			},
+			// general
 			{
 				spawnLocations: [{x: 100, y: 400, width: 5800, height: 5500}],
 				template: EnemyTemplates.eaglecrest.chicken,
@@ -8036,8 +8185,34 @@ Last I saw him, he was visiting the <b>Eaglecrest Plains</b> to the <b>south</b>
 		],
 
 		things: [
+			// barrels and crates and stepping stones
+			{x: 1454.9, y: 234.4, image: 'barrel', name: 'Barrel'},
+			{x: 1357.2, y: 290.3, image: 'barrel', name: 'Barrel'},
+			{x: 3567.7, y: 633.9, image: 'barrel', name: 'Barrel'},
+			{x: 3629.1, y: 633.9, image: 'barrel', name: 'Barrel'},
+			{x: 3695.3, y: 633.9, image: 'barrel', name: 'Barrel'},
+			{x: 2372.9, y: 3639.7, image: 'barrel', name: 'Barrel'},
+			{x: 2436.7, y: 3639.7, image: 'barrel', name: 'Barrel'},
+			{x: 2873.5, y: 4149.4, image: 'barrel', name: 'Barrel'},
+			{x: 5845.3, y: 5802.3, image: 'barrel', name: 'Barrel'},
+			{x: 5781.6, y: 5802.3, image: 'barrel', name: 'Barrel'},
+			{x: 5433.7, y: 5943.1, image: 'barrel', name: 'Barrel'},
+			{x: 5572.8, y: 5764.6, image: 'crate', name: 'Crate'},
+			{x: 5710.3, y: 5817.5, image: 'crate', name: 'Crate'},
+			{x: 2274.5, y: 5095.4, image: 'crate', name: 'Crate'},
+			{x: 2346.2, y: 5119.1, image: 'crate', name: 'Crate'},
+			{x: 2346.2, y: 5027, image: 'crate', name: 'Crate'},
+			{x: 3118.5, y: 3542, image: 'crate', name: 'Crate'},
+			{x: 2308.2, y: 3653.3, image: 'crate', name: 'Crate'},
+			{x: 2249.3, y: 3641, image: 'barrel', name: 'Barrel'},
+			{x: 2363.7, y: 3443.2, image: 'crate', name: 'Crate'},
+			{x: 3501, y: 665.1, image: 'crate', name: 'Crate'},
+			{x: [1455.7, 1390.6, 1317.1, 1371], y: [300.7, 240.6, 240.6, 174.7], image: 'crate', name: 'Crate'},
+			{x: [-115.4, -83.5, -45.6, 19, 88.3, -5.1, 36, 154.1, 230.4, 6870.7, 6850.6, 6927, 6977.7, 6948.5, 6970.9, 7037.2, 7004.9, 6926.4, 6893.4, 6597.4, 6543.4, 6561.7, 6641.8, 6671.1, 6700.9, 6836.5, 6770.1, 6820.2, 6793.4, 6698.6, 6738.9, 6989.6, 6989.6, 6965.7, 6986.3, 6368.7, 6433.9, 6504, 6893.4, 6873.7, 6857.3, 7048.2, 7115.5, 7182.7, 7241.6]
+, y: [1227.5, 1415, 737.6, 703.2, 1719.3, 1597.6, 1663.9, 1759.5, 1772.2, 5320.3, 5460.1, 5472, 5399, 5324.9, 4998.1, 4960.6, 4893.9, 4885.5, 4952.9, 5014.6, 5060.9, 5136, 5151.2, 5022.6, 5090.8, 4997.8, 5053.9, 5384.4, 5324, 5214.2, 5268.5, 5070.4, 5137.6, 5264.7, 5200.1, 5203.4, 5191.4, 5160.4, 4819, 4746.1, 4683.3, 5404.5, 5412.9, 5421.3, 5412.9],
+image: 'steppingStone', name: 'Stepping Stone', z: -1, walkable: true,},
 			// rocks for cave
-			{x: [7434.1, 7359.9, 7419.3, 7361.1, 7403.5, 7361, 7405.9, 7370.8, 7392.4, 7436.5, 7440, 7390, 7341.8], y: [3377.6, 3303.3, 3209.6, 3097.5, 2921, 2821.2, 2641.6, 4105.2, 4210.3, 4285.5, 3708.4, 3768.7, 2719.6], image: 'rockSpike', name: 'Rock Spike'},
+			{x: [7434.1, 7359.9, 7419.3, 7361.1, 7403.5, 7361, 7405.9, 7370.8, 7392.4, 7436.5, 7440, 7390, 7341.8], y: [3377.6, 3303.3, 3209.6, 3097.5, 2921, 2821.2, 2641.6, 4105.2, 4210.3, 4285.5, 3708.4, 3768.7, 2719.6], image: 'rockSpike', name: 'Rock Spike', collision: {relativeX: 0, relativeY: 105, width: 100, height: 20}},
 			// jester quest
 			// aaaaaaaaaa tbd make sparkle if quest is active
 			{x: 302, y: 671, z: -0.5, image: 'jesterTriangle', name: 'Triangle', onInteract: function () {
@@ -8138,9 +8313,9 @@ Last I saw him, he was visiting the <b>Eaglecrest Plains</b> to the <b>south</b>
 			{x: -180.1, y: 3301.2, image: 'tree2A', name: 'Tree'},
 			{x: -205, y: 3180.7, image: 'tree3A', name: 'Tree'},
 			{x: -216.9, y: 3557.7, image: 'tree3A', name: 'Tree'},
-
-			{x: [1142.7, 1220.4, 1123, 1015.7, 970.9, 978.3, 971.6, 1084.8, 1158.4, 1200.8, 962.4, 1139, 1141.7, 957, 1564.4, 1480.4, 1395.9, 1624.6, 1624.6, 1622.8]
-, y: [1279.1, 1260.2, 1340.4, 1139.7, 1187, 1263, 1336.4, 1127.3, 1134.6, 1323.8, 1526.3, 1526.3, 1815.1, 1815.1, 1864.8, 1864.8, 1860.1, 2399.7, 2548.6, 2675.3], image: 'flowerPot', name: 'Flower Pot'},
+			// misc decorations
+			{x: [962.4, 1139, 1141.7, 957, 1564.4, 1480.4, 1395.9, 1624.6, 1624.6, 1622.8, 1126, 1121.8, 972.4, 979.3, 3334.6, 3221.8, 3101.7, 2979.1, 5170, 5170, 5170, -42.6, -72.2, 92.7, 542.7, 805.3, 876.4, 960.6]
+, y: [1526.3, 1526.3, 1815.1, 1815.1, 1864.8, 1864.8, 1860.1, 2399.7, 2548.6, 2675.3, 1271.4, 1139.9, 1270, 1143.5, 2330.9, 2330.9, 2330.9, 2330.9, 2659.7, 2557, 2456.5, 3965.8, 4012.5, 4078.1, 711.4, -38.1, 20.7, -38.3], image: 'flowerPot', name: 'Flower Pot'},
 			{x: 3333.1, y: 2032.9, z: -1, image: 'sewerEntrance', name: 'Sewer Entrance'},
 			{x: 1833.2, y: 213, image: 'signTrain', name: 'Train Sign'},
 			{
@@ -8185,7 +8360,7 @@ Last I saw him, he was visiting the <b>Eaglecrest Plains</b> to the <b>south</b>
 				},
 			},
 			{
-				x: 4225, y: 2701,  image: 'gnome', name: 'Gnome',
+				x: 5795, y: 5780,  image: 'gnome', name: 'Gnome',
 				onInteract: function () {
 					if (typeof User.progress.gnomesFound === "undefined") {
 						User.progress.gnomesFound = [];

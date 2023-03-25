@@ -887,13 +887,22 @@ Dom.chat.say = function (name, message, language) {
 }
 
 // text - array of strings
-// values - array of integers which are times in milliseconds between messages
+// values - array of integers which are times in milliseconds between messages (OR a single value, time waited between each message)
 // end - function called when sequence is done
 // endParameters - array of parameters passed in to end function
+// cutscene true means no other npcs can be spoken to whilst this is running
 Dom.chat.insertSequence = function (text, values, end, endParameters, cutscene) {
 	if (values === undefined) {
 		values = [];
-		values.length = text.length+1;
+		values.length = text.length+1; // should be text.length ??
+	}
+	else if (!Array.isArray(values)) {
+		// single integer value
+		let x = values;
+		values = [];
+		for (let i = 0; i < text.length; i++) {
+			values.push(x);
+		}
 	}
 	values.push(0);
 
@@ -1236,41 +1245,47 @@ Dom.reputation.update = function () {
 			}
 		}
 	}
+
+	let visibleReputation = []; // array of player reputations that are visible in their reputation menu
 	for (let i = 0; i < Object.keys(Player.reputation).length; i++) {
 		if (Player.reputation[Object.keys(Player.reputation)[i]].changed) {
-			if (Player.reputation[Object.keys(Player.reputation)[i]].score >= ReputationPoints[Player.reputation[Object.keys(Player.reputation)[i]].level]) {
-				this.upLevel(Player.reputation[Object.keys(Player.reputation)[i]],i);
-			}else if (Player.reputation[Object.keys(Player.reputation)[i]].score < 0) {
-				this.downLevel(Player.reputation[Object.keys(Player.reputation)[i]],i);
-			}else if (Dom.reputation.ready) {
-				if (Player.reputation[Object.keys(Player.reputation)[i]].level > 3) {
-					document.getElementsByClassName("reputationBar")[i].style.backgroundColor = "green";
-				}else if (Player.reputation[Object.keys(Player.reputation)[i]].level < 3) {
-					document.getElementsByClassName("reputationBar")[i].style.backgroundColor = "red";
-				}else {
-					document.getElementsByClassName("reputationBar")[i].style.backgroundColor = "gold";
-				}
-				if (Player.reputation[Object.keys(Player.reputation)[i]].level !== 6 && Player.reputation[Object.keys(Player.reputation)[i]].level !== 0) {
-					document.getElementsByClassName("reputationBar")[i].innerHTML = this.levels[Player.reputation[Object.keys(Player.reputation)[i]].level] + "&nbsp;&nbsp;(" + Player.reputation[Object.keys(Player.reputation)[i]].score + "/"+ReputationPoints[Player.reputation[Object.keys(Player.reputation)[i]].level]+")";
-					document.getElementsByClassName("widthPadding")[i].innerHTML = this.levels[Player.reputation[Object.keys(Player.reputation)[i]].level] + " (" + Player.reputation[Object.keys(Player.reputation)[i]].score + "/"+ReputationPoints[Player.reputation[Object.keys(Player.reputation)[i]].level]+")";
-				}else {
-					document.getElementsByClassName("reputationBar")[i].innerHTML = this.levels[Player.reputation[Object.keys(Player.reputation)[i]].level];
-					document.getElementsByClassName("widthPadding")[i].innerHTML = this.levels[Player.reputation[Object.keys(Player.reputation)[i]].level];
-				}
-				if (Player.reputation[Object.keys(Player.reputation)[i]].level >= 3) {
-					document.getElementsByClassName("reputationBar")[i].style.textIndent = ((250-document.getElementsByClassName("widthPadding")[i].clientWidth)/2) + "px";
-					document.getElementsByClassName("reputationBar")[i].style.width = Player.reputation[Object.keys(Player.reputation)[i]].score*250/ReputationPoints[Player.reputation[Object.keys(Player.reputation)[i]].level]+"px";
-					document.getElementsByClassName("reputationBar")[i].style.left = "0px";
-				}else {
-					document.getElementsByClassName("reputationBar")[i].style.textIndent = ((250-document.getElementsByClassName("widthPadding")[i].clientWidth)/2)-Player.reputation[Object.keys(Player.reputation)[i]].score*250/ReputationPoints[Player.reputation[Object.keys(Player.reputation)[i]].level]+ "px";
-					document.getElementsByClassName("reputationBar")[i].style.width = (ReputationPoints[Player.reputation[Object.keys(Player.reputation)[i]].level]-Player.reputation[Object.keys(Player.reputation)[i]].score)*250/ReputationPoints[Player.reputation[Object.keys(Player.reputation)[i]].level]+"px";
-					document.getElementsByClassName("reputationBar")[i].style.left = Player.reputation[Object.keys(Player.reputation)[i]].score*250/ReputationPoints[Player.reputation[Object.keys(Player.reputation)[i]].level]+"px";
-				}
-				if (Player.reputation[Object.keys(Player.reputation)[i]].level === 6) {
-					document.getElementsByClassName("reputationBar")[i].style.width = "250px";
-				}
-				document.getElementsByClassName("widthPadding")[i].innerHTML = "";
+			visibleReputation.push(Object.keys(Player.reputation)[i]);
+		}
+	}
+
+	for (let i = 0; i < visibleReputation.length; i++) {
+		if (Player.reputation[visibleReputation[i]].score >= ReputationPoints[Player.reputation[visibleReputation[i]].level]) {
+			this.upLevel(Player.reputation[visibleReputation[i]],i);
+		}else if (Player.reputation[visibleReputation[i]].score < 0) {
+			this.downLevel(Player.reputation[visibleReputation[i]],i);
+		}else if (Dom.reputation.ready) {
+			if (Player.reputation[visibleReputation[i]].level > 3) {
+				document.getElementsByClassName("reputationBar")[i].style.backgroundColor = "green";
+			}else if (Player.reputation[visibleReputation[i]].level < 3) {
+				document.getElementsByClassName("reputationBar")[i].style.backgroundColor = "red";
+			}else {
+				document.getElementsByClassName("reputationBar")[i].style.backgroundColor = "gold";
 			}
+			if (Player.reputation[visibleReputation[i]].level !== 6 && Player.reputation[visibleReputation[i]].level !== 0) {
+				document.getElementsByClassName("reputationBar")[i].innerHTML = this.levels[Player.reputation[visibleReputation[i]].level] + "&nbsp;&nbsp;(" + Player.reputation[visibleReputation[i]].score + "/"+ReputationPoints[Player.reputation[visibleReputation[i]].level]+")";
+				document.getElementsByClassName("widthPadding")[i].innerHTML = this.levels[Player.reputation[visibleReputation[i]].level] + " (" + Player.reputation[visibleReputation[i]].score + "/"+ReputationPoints[Player.reputation[visibleReputation[i]].level]+")";
+			}else {
+				document.getElementsByClassName("reputationBar")[i].innerHTML = this.levels[Player.reputation[visibleReputation[i]].level];
+				document.getElementsByClassName("widthPadding")[i].innerHTML = this.levels[Player.reputation[visibleReputation[i]].level];
+			}
+			if (Player.reputation[visibleReputation[i]].level >= 3) {
+				document.getElementsByClassName("reputationBar")[i].style.textIndent = ((250-document.getElementsByClassName("widthPadding")[i].clientWidth)/2) + "px";
+				document.getElementsByClassName("reputationBar")[i].style.width = Player.reputation[visibleReputation[i]].score*250/ReputationPoints[Player.reputation[visibleReputation[i]].level]+"px";
+				document.getElementsByClassName("reputationBar")[i].style.left = "0px";
+			}else {
+				document.getElementsByClassName("reputationBar")[i].style.textIndent = ((250-document.getElementsByClassName("widthPadding")[i].clientWidth)/2)-Player.reputation[visibleReputation[i]].score*250/ReputationPoints[Player.reputation[visibleReputation[i]].level]+ "px";
+				document.getElementsByClassName("reputationBar")[i].style.width = (ReputationPoints[Player.reputation[visibleReputation[i]].level]-Player.reputation[visibleReputation[i]].score)*250/ReputationPoints[Player.reputation[visibleReputation[i]].level]+"px";
+				document.getElementsByClassName("reputationBar")[i].style.left = Player.reputation[visibleReputation[i]].score*250/ReputationPoints[Player.reputation[visibleReputation[i]].level]+"px";
+			}
+			if (Player.reputation[visibleReputation[i]].level === 6) {
+				document.getElementsByClassName("reputationBar")[i].style.width = "250px";
+			}
+			document.getElementsByClassName("widthPadding")[i].innerHTML = "";
 		}
 	}
 }

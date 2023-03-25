@@ -2104,9 +2104,9 @@ After all, death is never the end in Antorax...<br>
 			questRequirements: ["Overdraft"],
 
 			rewards: {
-				xp: 50,
+				xp: 30,
 				items: [
-					{item: Items.currency[2], quantity: 5,},
+					{item: Items.currency[2], quantity: 3,},
 				],
 			},
 
@@ -2116,6 +2116,63 @@ After all, death is never the end in Antorax...<br>
 			],
 
 			resetVariables: [
+			],
+		},
+		{
+			id: 8,
+			quest: "A Fool's Errand",
+			questArea: "eaglecrest",
+
+			startName: "The Jester",
+			startChat: `Good heavens, I’m all out of tricks! See, I’m the Eaglecrest court jester but nothing’s funny about getting robbed. I was just frolicking in the praries when waylay hit - those toads must have thought my foghorn was a froghorn the way they hopped off with it! My confetti cannon has been pilfered, my triangle’s gone pear-shaped, but worst of all, my prized juggling balls have been nicked. Anyone in the Eaglecrest plains could have them by now!
+<br><br>
+I can’t do my routine without my props… I’d have to become a… <i>(shudders)</i> a mime! NO! I need them back. They must be somewhere in the plains! I’d help you… But look at me - I’m not exactly camouflaged!`,
+
+			finishName: "The Jester",
+			finishChat: `Thank you so much! Now that you’ve helped this poor clown, you’ll be laughing all the way to the bank. I’ll make sure of it! And to whoever stole my magic mirror… you need to take a long hard look at yourself!`,
+
+			objectives: [
+				"Find The Jester's <b>Brass Bugle</b> in the Eaglecrest Plains.",
+				"Find The Jester's <b>Confetti Cannon</b> in the Eaglecrest Plains.",
+				"Find The Jester's <b>Triangle</b> in the Eaglecrest Plains.",
+				"Find The Jester's three <b>Juggling Balls</b> in the Eaglecrest Plains.",
+				"Speak to <b>The Jester</b>.",
+			],
+
+			isCompleted: function() {
+				let completed = [];
+
+				// true or falses for each objective (apart from the turn-in objective)
+				completed.push(checkProgress(Dom.inventory.check(58, "item"), 1));
+				completed.push(checkProgress(Dom.inventory.check(60, "item"), 1));
+				completed.push(checkProgress(Dom.inventory.check(59, "item"), 1));
+				completed.push(checkProgress(Dom.inventory.check(57, "item"), 3));
+
+				completed = checkFinished(completed);
+
+				return completed;
+			},
+
+			howToStart: "Speak to <b>The Jester</b> in the Eaglecrest Plains.",
+			levelRequirement: 7,
+			questRequirements: ["Overdraft"],
+
+			rewards: {
+				xp: 50,
+				items: [
+					{item: Items.currency[2], quantity: 4,},
+				],
+				reputation: {
+					eaglecrestCity: 30,
+					theJester: 100,
+				},
+			},
+
+			removeItems: [
+				{item: Items.item[58],},
+				{item: Items.item[60],},
+				{item: Items.item[59],},
+				{item: Items.item[57], quantity: 3},
 			],
 		},
 		/*{
