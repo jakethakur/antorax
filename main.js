@@ -855,28 +855,52 @@ var map = {
 	// animates tiles based on this.animateTiles
 	// called by intervals set by initTileAnimation
 	// parameter is the index to be animated of the array map.animateTimes
-	// todo: Make variables that find which cols and rows of tilemap are showing on screen, and then make functions like map.animateTilesFunction only animate tiles on screen
 	animateTilesFunction: function(animateIndex) {
+		// finding startCol etc is exactly the same as in drawLayer - tbd mayb try to generalise into a fn
+		let startCol, endCol, startRow, endRow;
+
+		startCol = Math.floor(Game.camera.x / this.tsize) + this.origin.x/60;
+		if (this.viewportOffsetX > 0) {
+			// area width not big enough to fill camera
+			// set end column so canvas drawing does not loop
+			endCol = this.cols - 1;
+		}
+		else {
+		    endCol = startCol + Math.ceil(Game.camera.width / this.tsize);
+		}
+
+		startRow = Math.floor(Game.camera.y / this.tsize) + this.origin.y/60;
+		if (this.viewportOffsetY > 0) {
+			// area height not big enough to fill camera
+			// set end column so canvas drawing does not loop
+			endRow = this.rows - 1;
+		}
+		else {
+		    endRow = startRow + Math.ceil(Game.camera.height / this.tsize);
+		}
+
 		// iterate through tiles
 		for (let layer = 0; layer < this.layers.length; layer++) {
-			for (let i = 0; i < this.layers[layer].length; i++) {
-				let tileNum = this.layers[layer][i];
+		    for (let c = startCol; c <= endCol; c++) {
+		        for (let r = startRow; r <= endRow; r++) {
+		            let tileNum = map.getTile(layer, c, r); // tile number
 
-				// see if tile should be animated by appearing in this.animateTiles[animateIndex]
-				let index = this.animateTiles[animateIndex].tiles.findIndex(tile => tile === tileNum);
-				if (index >= 0) {
-					// tile should be animated!
-					index++;
-					if (index === this.animateTiles[animateIndex].tiles.length) {
-						// wrap around to start of animate array
-						index = 0;
+					// see if tile should be animated by appearing in this.animateTiles[animateIndex]
+					let index = this.animateTiles[animateIndex].tiles.findIndex(tile => tile === tileNum);
+					if (index >= 0) {
+						// tile should be animated!
+						index++;
+						if (index === this.animateTiles[animateIndex].tiles.length) {
+							// wrap around to start of animate array
+							index = 0;
+						}
+						// set the tile
+						// could use map.setTile? not sure if necessary
+						this.setTile(layer, c, r, this.animateTiles[animateIndex].tiles[index]);
 					}
-					// set the tile
-					// could use map.setTile? not sure if necessary
-					this.layers[layer][i] = this.animateTiles[animateIndex].tiles[index];
-				}
+		        }
 			}
-		}
+	    }
 	},
 
 	// replaces a tile or group of tiles - these tiles should all be distinct (e.g. 6 different tiles make up a rock)
