@@ -854,7 +854,7 @@ var Villagers = [
 	},
 	{
         id: 23,
-        images: {espi: {normal: "assets/npcs/ghost.png"}},
+        images: {ghostVillager: {normal: "assets/npcs/ghost.png"}},
 		name: "Ghost?",
 		hostility: "friendly",
 		level: 25,
@@ -935,6 +935,7 @@ var Villagers = [
 						return false;
 					}
 				}
+				return true;
 			},
 			onClick: function () {
 				let waitTime = 1500; // time to wait between messages
@@ -1001,4 +1002,29 @@ var Villagers = [
 			return Player.quests.completedQuestArray.includes("A Fool's Errand") || !Player.quests.possibleQuestArray.includes("A Fool's Errand");
 		}
     },
+	{
+        id: 25,
+        images: {countVarney: {normal: "assets/npcs/countVarney.png"}},
+		name: "Count Varney",
+		hostility: "friendly",
+		level: 35,
+		stats: {
+			maxHealth: 225,
+			defence: 14,
+			lifesteal: 100,
+		},
+        exceptAreas: [
+            "eaglecrestLoggingCamp",
+        ],
+		chat: {
+            notUnlockedRoles: "They say it hurts to look directly at the sun... that's one thing us vampires have in common with you.",
+			//No need to fear... I don't bite! Unless you're a delicious beetroot pie of course.
+			//maybe other characters can say negative things about varney when u talk to them like 'That Count Varney's no good if you ask me! I wouldn't touch it with a twelve-foot garlic-soaked pole!'
+			//or if they're a shopkeeper they could say something like: 'Don't get me started on Count Varney! Frightening creature - scares away all my customers!'
+		},
+		canBeShown: function () {
+			return (Event.time === "night" || Event.time === "bloodMoon");
+		},
+		outdoorOnly: true,
+	},
 ];

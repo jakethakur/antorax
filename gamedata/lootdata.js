@@ -213,7 +213,7 @@ const EnemyLootTables = {
 			],
 		},
 	],
-	frog: [
+	plainsToad: [
 		{ // unidentified item
 			item: {
 				name: "unidentified",

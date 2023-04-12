@@ -23,7 +23,7 @@ var Player = {
 	unlockedTabs: [],
 	skippedTabs: [],
 
-	timeSpent: 0,
+	playtime: 0, // seconds on the game
 	days: [], // days logged on (yyyymmdd)
 	consecutiveDays: 0,
 	metNPCs: ["Cart Driver"],
@@ -53,6 +53,11 @@ var Player = {
 			score: 0,
 			level: 4,
 		},
+		eaglecrestFarm: {
+			score: 0,
+			level: 3,
+		},
+		// people
 		theSoothsayer: {
 			score: 0,
 			level: 3,
@@ -104,9 +109,8 @@ var Player = {
 		damage: 0, // (8)
 		defence: 0, // (4)
 		maxHealth: 50,
-		range: 0, // set in Game.equipmentUpdate based off of WeaponRanges in itemdata.js
-		rangeMultiplier: 100, // (110%)
 		reloadTime: 500, // (0.5s) time that must be taken between attack channel finish and channel start (in ms)
+		projectileRange: 0, // set in AttackConstants; how far the projectile can travel
 		criticalChance: 1, // (1%)
 		dodgeChance: 1, // (1%)
 		flaming: 0, // (I)
@@ -119,21 +123,16 @@ var Player = {
 		swimSpeed: 60, // (300/s)
 		walkSpeed: 180, // (300/s)
 		iceSpeed: 270, // (300/s)
-		variance: 0, // default variance projectiles when 600px away - set to 100 by default for any archer weapons; can be overriden in itemdata
-		minimumVariance: 0, // (50) minimum variance of a fired projectile
-		focusSpeed: 6, // (1/s) archers only (speed at which the variance for archer projectiles gets smaller)
+		focusSpeed: 6, // (1/s) archers only (speed at which the variance for archer projectiles gets smaller) - multiplied by a quotient which can be seen in AttackConstants
 		maxDamage: 0, // (3-9) mages only (damage done when channelled)
-		blockDefence: 0, // (16) knights only DEPRECATED
 		lifesteal: 0, // (10%)
 		xpBonus: 0, // (20%)
 		frostaura: false, // boolean
-		splashDamage: false, // boolean (if projectile damages more than one enemy)
 		hex: 0, // (30%)
 		damagePercentage: 0, // (40%) extra percentage of damage dealt
 		windShield: false, // (boolean)
 		slowAmount: 0, // (50% for 3s) amount of slow to enemies on attack
 		slowTime: 0, // time of slow to enemies on attack
-		moveDuringFocus: false, // whether you can move whilst charging basic attack
 		arcaneAura: false, // (boolean) from spell
 		stealing: 0, // (0%) looting for gold and some rare items
 		healingPower: 100, // (110%) only applies to non-health regen healing
@@ -143,6 +142,17 @@ var Player = {
 		exploding: 0, // (I)
 		numberOfProjectiles: 0, // currently an archer only stat - if this isn't 0 or 1, multiple projectiles are fired!
 		enemyAggro: 100, // (110%) multiplier
+		channellingMoveSpeed: 30, // percentage of usual move speed
+
+		// projectiles
+		variance: 0, // default angle variance of projectiles - set by default in AttackConstants; can be overriden in itemdata
+		minimumVariance: 0, // minimum angle variance of a fired projectile. default is set in AttackConstants
+		projectileSpeed: 200, // set in Game.equipmentUpdate off of AttackConstants[weaponType].projectileSpeed (or based off of custom weapon projectileSpeed)
+		damageAllHit: true,
+		//projectileRange: 300,
+		//projectileAcceleration: 0,aaaaaaaaaaaaaaaaaaaaaaaa
+		//projectileStopMovingOnDamage: false,
+		// aaaaaaaaaaaa tbd make a variable here that contains all the class' default stats for these things
 
 		// spells
 		maxMana: 0,
@@ -154,6 +164,13 @@ var Player = {
 		// misc
 		baseDomRange: 240, // distance from an entity that a DOM menu may be opened
 		interactRange: 100, // multiplier for domRange (use as a treat on an item at some point?)
+
+		// DEPRECATED
+		blockDefence: 0, // (16) knights only DEPRECATED
+		range: 0, // set in Game.equipmentUpdate based off of AttackConstants.weaponType.range or whatever might have been updated . . .
+		rangeMultiplier: 100, // (110%)
+		splashDamage: false, // use damageAllHit or pierce instead
+		moveDuringFocus: false, // whether you can move whilst charging basic  // aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa make sure this is removed acc
 	},
 	conditionalStats: [],
 
@@ -175,6 +192,25 @@ var Player = {
 // template object for all stats and their default values
 // assign is used so the properties cannot be changed
 const DefaultStats = Object.assign({}, Player.stats);
+
+// base values used in player attacks, for balancing purposes
+const AttackConstants = {
+	bow: {
+		projectileSpeed: 850,
+		projectileRange: 1000,
+		focusSpeedMultiplier: 10, // affects how quickly attacks focus
+		variance: 45, // base variance IN DEGREES
+		minimumVariance: 3, // also in degrees
+	},
+	staff: {
+		projectileSpeed: 150,
+		projectileRange: 1000,
+	},
+	sword: {
+		projectileSpeed: 300,
+		projectileRange: 1000,
+	}
+};
 
 // array of objects of characters player can transform into
 // if the player is transformed into one of these, the only thing that is changed in Player is Player.transformedInto (set to the id of the object in this array)
@@ -199,7 +235,7 @@ const PlayerTransformations = [
 			walkSpeed: 180, // (300/s)
 			iceSpeed: 270, // (300/s)
 			variance: 0, // default variance projectiles when 600px away - set to 100 by default for any archer weapons; can be overriden in itemdata
-			minimumVariance: 0, // (50) minimum variance of a fired projectile
+			minimumVariance: 0, // (50) minimum variance of a fired projectile //updateeeeeeeeeeeeeeeeeee
 			focusSpeed: 6, // (1/s) archers only (speed at which the variance for archer projectiles gets smaller)
 			moveDuringFocus: true, // whether you can move whilst charging basic attack
 			looting: 150,

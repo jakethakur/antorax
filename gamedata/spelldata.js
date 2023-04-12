@@ -831,7 +831,7 @@ Spells = [
 						target: target,
 						effectTitle: "Target Acquired",
 						defenceIncrease: -100,
-						time: 5,
+						time: 8,
 						effectStack: "multiply",
 						// end blood effect when this effect expires
 						onExpire: "removeTrail",
@@ -989,12 +989,100 @@ Spells = [
 		channelTime: [
 			0,
 			0,		// tier 1
+			0,		// tier 2
 		],
 
 		numberSummoned: [
 			0,
 			3,		// tier 1
 			5,		// tier 2
+		],
+	},
+
+	{
+		name: "Goblin Reinforcements",
+		id: 23,
+		class: "k",
+		description: "",
+		enemyOnly: true, // goblin king
+
+		// properties should contain tier (as int value), caster
+		func: function (properties) {
+			// summon projectile (note its image should have already been loaded in)
+			for (let i = 0; i < Spells[23].numberSummoned[properties.tier]; i++) {
+				Game.setTimeout(function () {
+					let template;
+					if (Random(0,1) === 1) {
+						template = "goblinCrusader";
+					}
+					else {
+						template = "goblinTowerkeeper";
+					}
+
+					let preparedEnemy = Game.prepareNPC({
+						x: 90,
+						y: 560,
+						template: EnemyTemplates.nilbog[template],
+						moveTowards: { // walk up stairs
+							x: 15,
+							y: 520,
+							speedScalar: 0.6,
+						},
+						attackBehaviour: {
+							baseAggro: 100, // always aggroed on player
+						},
+						respawnOnDeath: false,
+					}, "enemies");
+					Game.enemies.push(new Enemy(preparedEnemy));
+				}, Spells[23].timeSpacing[properties.tier] * i);
+			}
+		},
+
+		channelTime: [
+			0,
+			3000,	// tier 1
+			3000,	// tier 2
+		],
+
+		numberSummoned: [
+			0,
+			2,		// tier 1
+			4,		// tier 2
+		],
+
+		timeSpacing: [ // spacing between enemy summons
+			0,
+			3000,	// tier 1
+			2000,	// tier 2
+		],
+	},
+
+	{
+		name: "Reflux",
+		id: 24,
+		img: "assets/runes/6.png", // tbd
+		imgIconNum: 6, // tbd
+		class: "m",
+		description: ["", "Reverse the direction of all projectiles on the map, and allow them to deal damage to targets they have already damaged."],
+		difficulty: "Easy",
+
+		// properties should contain tier (as int value), caster
+		func: function (properties) { // tbd
+		},
+
+		channelTime: [
+			0,
+			1000,	// tier 1
+		],
+
+		manaCost: [
+			0,
+			20,		// tier 1
+		],
+
+		cooldown: [
+			0,
+			15000,	// tier 1
 		],
 	},
 

@@ -1257,10 +1257,14 @@ class Entity {
 	constructor(properties) {
 		this.id = Game.nextEntityId; // for choose DOM and removing entity
 		Game.nextEntityId++;
+
 		this.type = properties.type; // array the NPC is in (for choose DOM and removing entity)
 		if (this.type === undefined) {
 			console.error("The type of this entity was not specified - please tell Jake~", this);
 		}
+
+		this.createdAt = Game.gameTime; // game time at which this was created
+		this.createdAtTicks = Game.gameTicks; // the above but in ticks
 
 		this.source = {
 			location: properties.source, // where the entity came from (villager, area, etc.) - used for finding location of images
@@ -1284,6 +1288,10 @@ class Entity {
 		// alternate spawning:
 		// tbd use for chests and villagers!
 		this.spawnLocations = properties.spawnLocations; // an array of objects denoting spawn boxes, a random place in a random one of them is chosen
+		if (this.spawnLocations === "villager") {
+			// take villager spawn locations (from Area villagerData)
+			this.spawnLocations = Game.villagerLocationArray;
+		}
 		if (typeof this.x === "undefined" && typeof this.y === "undefined" && typeof this.spawnLocations !== "undefined") {
 			let spawnPosition = this.positionFromSpawnLocations(this.spawnLocations);
 			this.x = spawnPosition[0];
@@ -1540,7 +1548,7 @@ class Entity {
 	}
 
 	isOnMap () {
-		if (this.x < 0 || this.x > map.rows*60 || this.y < 0 || this.y > map.cols*60) {
+		if (this.x < -map.origin.x || this.x > map.cols*60 - map.origin.x || this.y < -map.origin.y || this.y > map.rows*60 -map.origin.y) {
 			return false;
 		}
 		return true;
@@ -1728,45 +1736,7 @@ class Thing extends Visible {
 		//
 		// animation
 		//
-		this.animation = properties.animation; // this should be an object with the following properties:
-		// "type" which should be either "carousel" (separate images used) or "spritesheet" (all images on one spritesheet) or "function" (no extra properties required besides frameTime; just has a function called every frameTime)
-		// "frameTime" is the time in ms until the next animation frame
-		// in addition, "carousel" type needs an animation.images array
-		// .. and "spritesheet" type needs an imagesPerRow and totalImages property. the border width (if any) between the images is figured out from the current object.crop properties
-		// also, animation.state is set to the index of the current image, animation.animateObj is set to this, and animation.lastAnimated is set to the time in ms since it was last animated
-		// a random state is chosen to begin with, but if this isn't desired then it can be set using animation.startState
-
-		// input validation for animation.type:
-		if (typeof this.animation !== "undefined" && this.animation.type !== "carousel" && this.animation.type !== "spritesheet" && this.animation.type !== "function") {
-			console.error("Unknown animation.type for "+this.name, this.animation);
-			this.animation = undefined;
-		}
-
-		if (typeof this.animation !== "undefined") {
-			// deep copy ..
-			this.animation = Object.assign({}, this.animation);
-			// set totalImages property if necessary
-			if (this.animation.type === "carousel") {
-				this.animation.totalImages = this.animation.images.length;
-			}
-			if (this.animation.type === "function" && typeof this.animation.totalImages === "undefined") {
-				this.animation.totalImages = 1; // some random default value since it doesn't matter for function type
-			}
-
-			this.animation.lastAnimated = 0; // in ms, time it was last animated (used with frameTime)
-
-			this.animation.animateObj = this;
-
-			if (typeof this.animation.startState !== "undefined") {
-				this.animation.state = this.animation.startState;
-			}
-			else {
-				this.animation.state = Random(0, this.animation.totalImages-1);
-			}
-
-			// let Game know this should be animated in animationTick (and that there should be an animationTick at all)
-			Game.animationList.push(this);
-		}
+		this.setAnimation(properties.animation); // see setAnimation function for what properties should be passed in etc
 
 
 
@@ -1876,6 +1846,58 @@ class Thing extends Visible {
 		this.z = value-1;
 	}
 
+	// sets the object to have a certain animation, which can be removed by removeAnimaton
+	setAnimation (properties) {
+		this.animation = properties; // this should be an object with the following properties:
+		// "type" which should be either "carousel" (separate images used) or "spritesheet" (all images on one spritesheet) or "function" (no extra properties required besides frameTime; just has a function called every frameTime)
+		// "frameTime" is the time in ms until the next animation frame
+		// in addition, "carousel" type needs an animation.images array
+		// .. and "spritesheet" type needs an imagesPerRow and totalImages property. the border width (if any) between the images is figured out from the current object.crop properties
+		// also, animation.state is set to the index of the current image, animation.animateObj is set to this, and animation.lastAnimated is set to the time in ms since it was last animated
+		// a random state is chosen to begin with, but if this isn't desired then it can be set using animation.startState
+
+		// input validation for animation.type:
+		if (typeof this.animation !== "undefined" && this.animation.type !== "carousel" && this.animation.type !== "spritesheet" && this.animation.type !== "function") {
+			console.error("Unknown animation.type for "+this.name, this.animation);
+			this.animation = undefined;
+		}
+
+		if (typeof this.animation !== "undefined") {
+			// deep copy ..
+			this.animation = Object.assign({}, this.animation);
+			// set totalImages property if necessary
+			if (this.animation.type === "carousel") {
+				this.animation.totalImages = this.animation.images.length;
+			}
+			if (this.animation.type === "function" && typeof this.animation.totalImages === "undefined") {
+				this.animation.totalImages = 1; // some random default value since it doesn't matter for function type
+			}
+
+			this.animation.lastAnimated = 0; // in ms, time it was last animated (used with frameTime)
+
+			this.animation.animateObj = this;
+
+			if (typeof this.animation.startState !== "undefined") {
+				this.animation.state = this.animation.startState;
+			}
+			else {
+				this.animation.state = Random(0, this.animation.totalImages-1);
+			}
+
+			// let Game know this should be animated in animationTick (and that there should be an animationTick at all)
+			Game.animationList.push(this);
+		}
+	}
+
+	removeAnimation () {
+		// remove all animatoin properties
+		this.animation = undefined;
+
+		// remove this from game animationlist
+		let i = Game.animationList.findIndex(object => object.id === this.id);
+		Game.animationList.splice(i, 1);
+	}
+
 	// overwritten by Character
 	postRenderFunction () {
 		if (this.showNameTag) {
@@ -1959,6 +1981,7 @@ class Character extends Thing {
 		this.stats.walkSpeed = properties.stats.walkSpeed || 180; // base speed values are same as player
 		this.stats.swimSpeed = properties.stats.swimSpeed || 60;
 		this.stats.iceSpeed = properties.stats.iceSpeed || 270;
+		this.stats.channellingMoveSpeed = properties.stats.channellingMoveSpeed || 30; // percentage of speed if moving whilst channelling smth
 		this.stats.lootTime = properties.stats.lootTime || 10000; // time that it can be looted for
 		this.stats.respawnTime = properties.stats.respawnTime || 11000; // time to respawn (should be more than lootTime)
 
@@ -2073,36 +2096,40 @@ class Character extends Thing {
 
 	// remove whatever is currently being channelled
 	// called when the character moves or tries to channel something else
-	// reason is set to why the channel was removed (not used yet)
+	// reason is set to why the channel was removed (i.e. "move", "damage", ...)
 	// if there is one, this also calls and resets channelCancelFunction (which should always be set after channel() is called!)
 	removeChannelling (reason) {
 		if (this.channelling !== false) {
+
+			// check that reason is a valid reason...
+			if (reason === "move" && !this.channellingInfo.cancelChannelOnMove) {
+				return;
+			}
+			if (reason === "damage" && !this.channellingInfo.cancelChannelOnDamage) {
+				return;
+			}
+
 			// remove existing channelling
 			if (this.channelling === "fishing") {
 				// remove fishing bobber
 				Game.removeObject(this.channellingProjectileId, "projectiles");
-				this.channelling = false;
-				this.channellingInfo = false;
 				this.channellingProjectileId = null;
 
 				Game.clearTimeout(Game.fishTimeout);
 			}
 			else if (this.channelling === "projectile") {
-				if (this.stats.moveDuringFocus !== true)
-				{
+				if (reason !== "projectileAttackFinished") {
 					this.finishAttack(); // for attack channelling for hero
-					this.channelling = false;
-					this.channellingInfo = false;
 				}
 			}
 			else {
 				Game.clearTimeout(this.channelling); // might not always be a timeout, but this doesn't matter (does nothing if not a timeout)
-				// N.B. this.channelling should never be an int, otherwise clearTimeout *does* mess it up
-
-				// now nothing is being channelled
-				this.channelling = false;
-				this.channellingInfo = false;
+				// N.B. this.channelling should never be an int, otherwise clearTimeout *does* mess it up (maybs validate this?))
 			}
+
+			// now nothing is being channelled
+			this.channelling = false;
+			this.channellingInfo = false;
 
 			// if there was a channelCancelFunction, call it then set it back to undefined
 			if (typeof this.channelCancelFunction !== "undefined") {
@@ -2112,17 +2139,53 @@ class Character extends Thing {
 		}
 	}
 
-	// channel a function
-	// this.channelling is set to the timeout
-	// channelling fails (thus the timeout is cleared) if the character's channelling is set to something else or if the user moves
+	// set the values of this.channelling and this.channellingInfo
+	// these should never be set / removed without using these functions !
+	// channellingValue is what this.channelling is set to
 	// parameters must be an array
-	// time is in ms
+	// time is in ms, and is optional here (but required for "channel" fn below)
 	// description is a short description shown on the channelling bar
 	// description is set to false if a bar should not be shown
 	// extraInfo is an object that could have the following properties: (all saved in channellingInfo)
 	// extraInfo.colour is an optional colour for the channelling bar (otherwise it uses default magenta)
 	// extraInfo.cancelChannelOnDamage means the channel is cancelled when they take damage
+	// extraInfo.cancelChannelOnMove means the channel is cancelled when they move (on by default)
 	// extraInfo.channelCancelFunction is a function to be called on the channel being cancelled
+	// extraInfo.timeout is set to true if this was called from this.channel. otherwise channellingValue is not allowed to be an integer!!
+	setChannelling (channellingValue, time, description, extraInfo) {
+		this.removeChannelling("channellingForceSet"); // should never be the reason removeChannelling is called, but just in case...
+
+		if (typeof extraInfo === "undefined") {
+			extraInfo = {};
+		}
+
+		if (Number.isInteger(channellingValue) && !extraInfo.timeout) {
+			// not allowed !!!!
+			console.error("Channelling value was attempted to be set to an integer but wasn't a timeout!!", channellingValue);
+		}
+
+		// set channelling to the timeout
+		this.channelling = channellingValue; // parameters is ...spread twice (from setTimeout and channelFunction) so array of array of params :)
+
+		if (typeof extraInfo.cancelChannelOnMove === "undefined") {
+			extraInfo.cancelChannelOnMove = true; // default value
+		}
+
+		this.channellingInfo = {
+			description: description,
+			time: time,
+			start: Date.now(), // tbd use Game.gameTicks or Game.gameTime here instead?
+			colour: extraInfo.colour,
+			cancelChannelOnDamage: extraInfo.cancelChannelOnDamage, // cancel the channelling when they take damage
+			cancelChannelOnMove: extraInfo.cancelChannelOnMove, // cancel the channelling when they move
+			timeout: extraInfo.timeout, // true or false
+		};
+	}
+
+	// **channel a function** (channelling projectiles etc is handled separately, in setChannelling above this)
+	// this.channelling is set to the timeout
+	// channelling fails (thus the timeout is cleared) if the character's channelling is set to something else or if the user moves
+	// see setChannelling function above for documentation & constraints on params
 	channel (func, parameters, time, description, extraInfo) {
 		if (!this.hasStatusEffectType("stun")) { // cannot channel when stunned
 			// remove whatever was previously channelled
@@ -2133,26 +2196,15 @@ class Character extends Thing {
 				this.channelling = false;
 				this.channellingInfo = false;
 			}.bind(this);
-			// set channelling to the timeout
-			this.channelling = Game.setTimeout(channelFunction, time, [parameters]); // parameters is ...spread twice (from setTimeout and channelFunction) so array of array of params :)
+
+			let channellingValue = Game.setTimeout(channelFunction, time, [parameters]); // what this.channelling is set to
 
 			if (typeof extraInfo === "undefined") {
 				extraInfo = {};
 			}
+			extraInfo.timeout = true; // because called from this fn, so channellingValue is allwoed to be an int
 
-			// channelling progress bar information
-			if (description !== false) {
-				// channelling bar should be shown
-				this.channellingInfo = {
-					description: description,
-					time: time,
-					start: Date.now(),
-					colour:extraInfo.colour,
-					cancelChannelOnDamage: extraInfo.cancelChannelOnDamage, // cancel the channelling when they take damage
-				};
-
-				this.channelCancelFunction = extraInfo.channelCancelFunction;
-			}
+			this.setChannelling(channellingValue, time, description, extraInfo)
 		}
 	}
 
@@ -2538,7 +2590,7 @@ class Character extends Thing {
 						User.progress.successiveExplosions = Math.max(User.progress.successiveExplosions, successiveExplosions);
 						Dom.checkProgress();
 
-						Game.projectiles.push(new Projectile({
+						Game.projectiles.push(new Projectile({ // explosion projectile
 							map: map,
 							x: x,
 							y: y,
@@ -2549,7 +2601,7 @@ class Character extends Thing {
 							stats: {
 								damage: Game.hero.stats.damage/2,
 								flaming: 1,
-								splashDamage: true,
+								damageAllHit: true,
 							},
 							// aesthetics
 							stayOnScreen: 500,
@@ -2558,10 +2610,8 @@ class Character extends Thing {
 							successiveExplosions: successiveExplosions,
 						}));
 						let shotProjectile = Game.projectiles[Game.projectiles.length-1];
-						// damage characters that the projectile is touching
-						shotProjectile.dealDamage(shotProjectile.projectileStats, shotProjectile.targets);
 						// remove in 0.5s
-						shotProjectile.removeTimeout();
+						shotProjectile.startRemoveTimeout();
 					}, 300, [this.x, this.y, successiveExplosions]);
 				}
 
@@ -2593,9 +2643,7 @@ class Character extends Thing {
 		}
 		// player
 		else {
-			if (this.channellingInfo !== false && this.channellingInfo !== undefined && this.channellingInfo.cancelChannelOnDamage) {
-				this.removeChannelling("damage");
-			}
+			this.removeChannelling("damage"); // might not cancel the channel.. whether it does or not depends on this function
 
 			if (this.health <= 0 && !this.respawning) { // check it is dead and not already respawning
 
@@ -2905,6 +2953,11 @@ class Character extends Thing {
 				// range of frostaura is currently same as hero's range
 				this.speed /= 2; // currently applied at end, TBD change?
 			}
+
+			// if channelling but can move during this channelling (i.e. player attacks), then speed might be reduced...
+			if (this.channelling !== false) {
+				this.speed *= this.stats.channelingMoveSpeed / 100; // channellingMoveSpeed is a percentage
+			}
 		}
 	}
 
@@ -3115,7 +3168,7 @@ class Attacker extends Character {
 		this.stats.rangeMultiplier = properties.stats.rangeMultiplier || 100; // decimal multiplied by range - note this only actually works for player currently! (in equipmentupdate)
 		this.stats.reloadTime = properties.stats.reloadTime; // time in ms to attack again
 
-		// optional stats
+		// optional stats (projectile stats are set below ..)
 		// using || defaults to second value if first is undefined, 0 or ""
 		this.stats.damagePercentage = properties.stats.damagePercentage || 0; // bonus damage percentage
 		this.stats.criticalChance = properties.stats.criticalChance || 0;
@@ -3129,11 +3182,8 @@ class Attacker extends Character {
 		this.stats.stun = properties.stats.stun || 0;
 		this.stats.rooting = properties.stats.rooting || 0;
 		this.stats.knockback = properties.stats.knockback || 0;
-		this.stats.variance = properties.stats.variance || 0;
 		this.stats.lifesteal = properties.stats.lifesteal || 0;
 		this.stats.hex = properties.stats.hex || 0;
-		this.stats.splashDamage = properties.stats.splashDamage || true; // if projectile damages more than one thing
-		this.stats.moveDuringFocus = properties.stats.moveDuringFocus;
 		this.stats.numberOfProjectiles = properties.stats.numberOfProjectiles || 1; // archer only
 		// mana
 		this.stats.maxMana = properties.stats.maxMana;
@@ -3145,6 +3195,45 @@ class Attacker extends Character {
 			this.stats.onAttack = properties.stats.onAttack.bind(this); // bound to this
 		}
 		this.updateStats = properties.updateStats; // only works for enemies ATM
+
+		// base attack
+		this.projectileType = properties.projectileType; // "travelling" or "instant" (automatically determined from range but can be specified)
+		if (typeof this.projectileType === "undefined") {
+			if (this.stats.range < 100) {
+				// melee range so assumed instant projectile
+				this.projectileType = "instant";
+			}
+			else {
+				this.projectileType = "travelling";
+			}
+		}
+		// projectile stats
+		this.stats.projectileRange = properties.stats.projectileRange; // for travelling projectiles - how far it travels before being removed
+		this.stats.projectileRemoveAfterRest = properties.stats.projectileRemoveAfterRest; // for travelling projectiles - in SECONDS - projectile is removed after being at rest (because of accel for example) for this period of time
+		this.stats.projectileSpeed = properties.stats.projectileSpeed; // for travelling projectiles
+		this.stats.projectileAcceleration = properties.stats.projectileAcceleration;
+		this.stats.variance = properties.stats.variance || 0; // for travelling projectiles; angle variance in DEGREES (plus minus this value)
+		this.stats.positionVariance = properties.stats.positionVariance || 0; // for instant projectiles (should probably depricate, not really much reason for this to be used)
+		if (typeof properties.stats.positionVariance !== "undefined") {
+			//console.error("positionVariance is being phased out, but was set for " + this.name +" , please tell Jake !")
+		}
+		this.stats.projectileStopMovingOnDamage = properties.stats.projectileStopMovingOnDamage;
+		this.stats.pierce = properties.stats.pierce; // if infinite, use damageAllHit instead
+		this.stats.damageAllHit = properties.stats.damageAllHit; // if projectile damages all things hit
+
+
+		// information about projectile (how it looks)
+		// only supported for enemies - should be updated to work for player as well (TBD TBD!!!)
+		this.projectile = {};
+		this.projectile.image = properties.projectile.image;
+		// not necessary (can be left as undefined to just fit to projectile image size)
+		this.projectile.width = properties.projectile.width;
+		this.projectile.height = properties.projectile.height;
+		// not necessary (defaults to x: 0 and y: 0 later on if it is undefined)
+		this.projectile.adjust = properties.projectile.adjust || {};
+
+		this.canAttack = true; // check attack is not reloading
+
 
 		// spells
 		this.spells = properties.spells || [];
@@ -3168,17 +3257,8 @@ class Attacker extends Character {
 			}
 		}
 
-		// information about projectile
-		// only supported for enemies - should be updated to work for player as well (TBD TBD!!!)
-		this.projectile = {};
-		this.projectile.image = properties.projectile.image;
-		// not necessary (can be left as undefined to just fit to projectile image size)
-		this.projectile.width = properties.projectile.width;
-		this.projectile.height = properties.projectile.height;
-		// not necessary (defaults to x: 0 and y: 0 later on if it is undefined)
-		this.projectile.adjust = properties.projectile.adjust || {};
+		this.spellCasts = 0; // total number of spell casts
 
-		this.canAttack = true; // check attack is not reloading
 
 		if (properties.addToObjectArrays !== false) {
 			Game.allAttackers.push(this); // array for current area only
@@ -3236,11 +3316,11 @@ class Tripwire extends Entity {
 }
 
 // drawn as a rectangle with a colour; is removed after a certain period of time
-class Particle extends Entity {
+class Particle extends Entity { // tbd should extend shape ?
 	constructor(properties) {
 		super(properties);
 
-		// position variance
+		// variance
 		if (typeof properties.variance !== "undefined") {
 			this.x += Random(-properties.variance, properties.variance);
 			this.y += Random(-properties.variance, properties.variance);
@@ -3553,73 +3633,66 @@ class Hero extends Attacker {
 				// left-click (normal) attack
 
 				// position of projectile
-				let distanceToProjectile = Game.distance({x: mouseX, y: mouseY,}, this);
+				let distanceToMouse = Game.distance({x: mouseX, y: mouseY,}, this);
 
 				if (Player.inventory.weapon.type === "staff" || Player.inventory.weapon.type === "bow" || Player.inventory.weapon.type === "sword") {
 					// player is using conventional weapon
 
-					if (distanceToProjectile < this.stats.range) {
-						// player is in range
+					this.canAttack = false;
 
-						this.canAttack = false;
+					this.removeChannelling("attack"); // remove anything that was previously channelling
 
-						this.removeChannelling("attack"); // remove anything that was previously channelling
+					this.setChannelling("projectile", undefined, undefined, {cancelChannelOnMove: false});
 
-						this.channelling = "projectile";
+					let projectileDirection = Game.bearing(this, {x: mouseX, y: mouseY}); // movement
 
-						let projectileRotate = Game.bearing(this, {x: mouseX, y: mouseY}) + Math.PI / 2;
+					this.channellingProjectileId = Game.nextEntityId;
 
-						let variance = this.stats.variance;
-						let minimumVariance = this.stats.minimumVariance;
-						if (Game.getAttackType() === "bow") { // alter variance based on distance to enemy if the class is archer
-							let distanceFraction = distanceToProjectile / 600; // fraction of maximum variance (max variance = Playerstats.variance)
-							variance *= distanceFraction;
-						}
+					Game.projectiles.push(new Projectile({ // HERO projectile
+						map: map,
+						x: Game.hero.x,
+						y: Game.hero.y,
+						attacker: this,
+						projectileStats: this,
+						targets: [Game.damageableByPlayer],
+						adjust: {
+							// manually adjust position (programmed for each projectile in skindata/itemdata)
+							x: Game.heroProjectileAdjust.x,
+							y: Game.heroProjectileAdjust.y,
+							towards: {x: this.x, y: this.y},
+						},
+						hitbox: {
+							x: Game.hero.x,
+							y: Game.hero.y,
+							width: this.class === "k" ? 60 : (this.class === "m" ? 23 : (this.class === "a" ? 10 : 0)),
+							height: this.class === "k" ? 60 : (this.class === "m" ? 23 : (this.class === "a" ? 10 : 0)),
+						},
+						image: Game.heroProjectileName,
+						name: "Hero Projectile",
+						beingChannelled: true,
+						type: "projectiles",
 
-						this.channellingProjectileId = Game.nextEntityId;
+						// properties
+						moveSpeed: this.stats.projectileSpeed,
+						moveDirection: projectileDirection,
+						variance: this.stats.variance,
+						damageAllHit: this.stats.damageAllHit, // usually true
 
-						// tbd make work the same as enemy projectile
-						Game.projectiles.push(new Projectile({
-							map: map,
-							x: mouseX,
-							y: mouseY,
-							attacker: this,
-							projectileStats: this,
-							targets: [Game.damageableByPlayer],
-							rotate: projectileRotate,
-							adjust: {
-								// manually adjust position (programmed for each projectile in skindata/itemdata)
-								x: Game.heroProjectileAdjust.x,
-								y: Game.heroProjectileAdjust.y,
-								towards: {x: this.x, y: this.y},
-							},
-							hitbox: { // arrow tip at mouse position
-								x: mouseX,
-								y: mouseY,
-								width: this.class === "k" ? 60 : (this.class === "m" ? 23 : (this.class === "a" ? 10 : 0)),
-								height: this.class === "k" ? 60 : (this.class === "m" ? 23 : (this.class === "a" ? 10 : 0)),
-							},
-							image: Game.heroProjectileName,
-							beingChannelled: true,
-							variance: variance,
-							minimumVariance: minimumVariance,
-							type: "projectiles",
+						// optional stuff:
+						// aaaaaaaaaaaaa look at ; might need to fix some of these
+						crop: Game.heroProjectileInfo.crop,
+						animation: Game.heroProjectileInfo.animation,
+						frameTime: Game.heroProjectileInfo.frameTime,
+						stayOnScreen: Game.heroProjectileInfo.stayOnScreen, // set to the time it stays on the screen for (default 1500) or true if never removed
+						//doNotRotate: Game.heroProjectileInfo.doNotRotate, // aaaaaaaaaaaaaa readd but just as a visual thing - not affecting the projectile's direction as it would because this is needed for variance
+						onInteract: Game.heroProjectileInfo.onInteract,
+						z: Game.heroProjectileInfo.z,
+					}));
 
-							// optional stuff:
-							crop: Game.heroProjectileInfo.crop,
-							animation: Game.heroProjectileInfo.animation,
-							frameTime: Game.heroProjectileInfo.frameTime,
-							stayOnScreen: Game.heroProjectileInfo.stayOnScreen, // set to the time it stays on the screen for (default 1500) or true if never removed
-							doNotRotate: Game.heroProjectileInfo.doNotRotate,
-							onInteract: Game.heroProjectileInfo.onInteract,
-							z: Game.heroProjectileInfo.z,
-						}));
+					Game.secondary.updateCursor(e); // no longer crosshair because attack is reloading
 
-						Game.secondary.updateCursor(e); // no longer crosshair because attack is reloading
-
-						// just in case there are multiple projectiles (which is dealt with at the end of finishAttack), save the value of e
-						this.currentAttackMouseEvent = e;
-					}
+					// just in case there are multiple projectiles (which is dealt with at the end of finishAttack), save the value of e
+					this.currentAttackMouseEvent = e;
 				}
 
 				else if (Player.inventory.weapon.type === "rod") {
@@ -3630,7 +3703,7 @@ class Hero extends Attacker {
 						if (distanceToProjectile < this.stats.range && this.map.isSlowTileAtXY(mouseX, mouseY) === "water") {
 							// player is in range and clicked in water
 
-							this.channelling = "fishing";
+							this.setChannelling("fishing", undefined, undefined);
 
 							this.channellingProjectileId = Game.nextEntityId;
 
@@ -3638,7 +3711,7 @@ class Hero extends Attacker {
 							let projectileX = Math.floor(mouseX/60)*60 + 30;
 							let projectileY = Math.floor(mouseY/60)*60 + 30;
 
-							let bobber = new Projectile({
+							let bobber = new Projectile({ // fishing projectile
 								map: map,
 								x: projectileX,
 								y: projectileY,
@@ -3673,8 +3746,7 @@ class Hero extends Attacker {
 						// bobber has been cast
 						// fishing bobber removed as player is not mid-game to catch a fish
 				        Game.removeObject(this.channellingProjectileId, "projectiles"); // remove bobber
-				        this.channelling = false;
-				        this.channellingProjectileId = null;
+				        this.removeChannelling("fishingBobberRemoved");
 						Game.clearTimeout(Game.fishTimeout);
 					}
 					else if (FishingGame.currentGame === "timing" && FishingGame.status === 1)
@@ -3778,7 +3850,7 @@ class Hero extends Attacker {
 							FishingGame.startClickerGame(time, clicks);
 
 							// fish finished! time for player to fish it up...
-							this.channelling = this.channelling;
+							//this.channelling = this.channelling;???
 
 							// submerged image for projectile
 							let projectile = Game.projectiles[Game.searchFor(this.channellingProjectileId, Game.projectiles)];
@@ -3796,8 +3868,7 @@ class Hero extends Attacker {
 
 							// remove fishing bobber
 							Game.removeObject(this.channellingProjectileId, "projectiles");
-							this.channelling = false;
-							this.channellingProjectileId = null;
+							this.removeChannelling("fishingBobberRemoved");
 							Game.clearTimeout(Game.fishTimeout);
 
 							Dom.chat.insert("<i>The fish swam away!</i>");
@@ -3951,8 +4022,7 @@ class Hero extends Attacker {
 
 							// remove fishing bobber
 							Game.removeObject(this.channellingProjectileId, "projectiles");
-							this.channelling = false;
-							this.channellingProjectileId = null;
+							this.removeChannelling("fishingBobberRemoved");
 							Game.clearTimeout(Game.fishTimeout);
 
 							// end fishing games
@@ -4007,7 +4077,7 @@ class Hero extends Attacker {
 	finishAttack (e) {
 		if (this.channelling === "projectile") { // check that the player is channelling a projectile (they might not have a weapon equipped so are not channelling, for example)
 			this.channelTime = 0;
-			this.channelling = false;
+			this.removeChannelling("projectileAttackFinished");
 
 			// get projectile
 			let shotProjectile = Game.projectiles[Game.searchFor(this.channellingProjectileId, Game.projectiles)];
@@ -4015,12 +4085,11 @@ class Hero extends Attacker {
 			// set projectile as not channelling
 			shotProjectile.beingChannelled = false;
 
-			shotProjectile.varyPosition(); // vary projectile position based off its variance (for archers)
+			if (typeof shotProjectile.variance !== "undefined") {
+				shotProjectile.moveDirection += ToRadians(Random(-shotProjectile.variance, shotProjectile.variance));
+			}
 
 			this.currentAttackFinalVariance = shotProjectile.variance; // needed if there are multiple projectiles to be shot (see bottom of this fn)
-
-			// damage enemies that the projectile is touching
-			shotProjectile.dealDamage(shotProjectile.projectileStats, shotProjectile.targets);
 
 			// function called for all attacks whether they hit an enemy or not
 			if (Player.inventory.weapon.onAttack !== undefined) {
@@ -4039,7 +4108,7 @@ class Hero extends Attacker {
 
 				// remove weapon if its durability is 0
 				if (Player.inventory.weapon.durability === 0) {
-					Dom.chat.insert("Your " + Player.inventory.weapon.name + " ran out of durability.");
+					Dom.chat.insert("Your " + Player.inventory.weapon.name + " broke, since it ran out of durability.");
 				}
 			}
 
@@ -4052,12 +4121,9 @@ class Hero extends Attacker {
 				}
 			}
 
-			// after a timeout (2s), remove the projectile that was just shot
-			// this doesn't work if the user attacks too fast, though this shouldn't be a problem...
-			shotProjectile.removeTimeout();
 			this.channellingProjectileId = null;
 
-			// wait for the player's reload time (1s) until they can attack again
+			// wait for the player's reload time (0.5s) until they can attack again
 			Game.setTimeout(function () {
 				this.canAttack = true;
 				// remove beam animation if there was one
@@ -4091,7 +4157,7 @@ class Hero extends Attacker {
 				for (let i = 0; i < this.stats.numberOfProjectiles-1; i++) {
 					this.canAttack = true; // temporarily, so startAttack can trigger... (set back to false automatically)
 					this.startAttack(this.currentAttackMouseEvent);
-					Game.projectiles[Game.projectiles.length-1].variance = this.currentAttackFinalVariance; // set the shot projectile's variance to the variance of the first projectile
+					Game.projectiles[Game.projectiles.length-1].positionVariance = this.currentAttackFinalVariance; // set the shot projectile's variance to the variance of the first projectile
 					this.finishAttack(this.currentAttackMouseEvent);
 				}
 				this.multipleProjectilesInProgress = false;
@@ -4389,7 +4455,7 @@ class Projectile extends Thing {
 		this.projectileStats = properties.projectileStats || { // stats used for when dealing damage. these can be the own projectile's or the actual attacker's
 			// for if projectile deals its own damage (thus has its own stats)
 			// IF PROJECTILE HAS ITS OWN PROPERTIES.STATS, DON'T GIVE IT A PROPERTIES.PROJECTILESTATS! IT WILL OVERRIDE THE STATS!
-			stats: Object.assign({}, DefaultStats, properties.stats), // assign with DefaultStats used for compatibility
+			stats: Object.assign({}, DefaultStats, properties.stats), // assign with DefaultStats used for compatibility. note that you have to access projectilestats by going .stats!!
 			// for compatibility with dealDamage:
 			hostility: "projectile",
 			statusEffects: [],
@@ -4399,14 +4465,11 @@ class Projectile extends Thing {
 
 		this.attacker = properties.attacker; // the caster of the projectile if applicable (used only in some onHit functions)
 
-		this.variance = properties.variance || 0; // diameter of circle that it could fall into
-		this.minimumVariance = properties.minimumVariance || 0; // minimum diameter of circle that it could fall into (after channelling)
-
 		this.doNotRotate = properties.doNotRotate; // set to true if projectile should not be automatically rotated
 		this.stayOnScreen = properties.stayOnScreen; // set to a number if it is removed after that many ms rather than 1500, or set to true if never removed automatically
 
 		if (!this.doNotRotate) {
-			this.rotate = properties.rotate || 0;
+			this.rotate = properties.rotate || properties.moveDirection + Math.PI/2 || 0;
 		}
 		else {
 			this.rotate = 0;
@@ -4449,21 +4512,178 @@ class Projectile extends Thing {
 		// direction the projectile should move towards
 		// input should be in radians, works in samme  fashion to unit circle (anticlockwise from east)
 		this.moveDirection = properties.moveDirection;
-
+		// moveDirection comes with...
 		// speed is multiplied by delta like other speeds
 		this.moveSpeed = properties.moveSpeed;
 
-		this.movementRange = properties.movementRange || 2000; // maximum displacement that can be moved (for a moveTowards rather than moveDirection this is not necessary to be set)
+		this.moveAcceleration = properties.moveAcceleration;
+		if (typeof this.moveAcceleration !== "undefined") {
+			// for suvat ... (used with createdAt)
+			this.baseSpeed = properties.moveSpeed;
+		}
+
+		this.movementRange = properties.projectileRange || 2000; // maximum displacement that can be moved (for a moveTowards rather than moveDirection this is not necessary to be set)
 		this.startPosition = {x: this.x, y: this.y}; // saved so the displacement is known
 
 		this.stopMovingOnDamage = properties.stopMovingOnDamage; // whether it should stop moving upon damaging something (this is not the same as damageAllHit)
 		// stopMovingOnDamage is not required if projectile has a moveTowards
 
-		this.damageAllHit = properties.damageAllHit; // whether it should damage everything that is hit by it
+		// pierce and damageAllHit are in this.projectileStats since they are required for dealDamage
+
+		this.removeAfterRest = properties.projectileRemoveAfterRest; // projectile is removed after being at rest for this period of time, in SECONDS (optional)
+//tbdddddddddddddddddddddddddd ^^^^^^^^^^^^^^^^^ aaaaaaaaaaaaaaaaaaaaaa
+
+		this.variance = properties.variance; // just for player - variance is always dealt with outside of projectile (since player wants it varied after proejctile is acc made)
 
 		this.onHit = properties.onHit; // function. parameters passed in are target and caster
 
 		this.successiveExplosions = properties.successiveExplosions || 0; // thermal runaway achievement
+
+		//
+		// calculate projectile type ~
+		//
+		if (typeof this.moveSpeed !== "undefined" || typeof this.moveTowards !== "undefined") {
+			this.projectileType = "travelling";
+		}
+		else {
+			this.projectileType = "instant";
+
+			// deal damage!
+			// damage enemies that the projectile is touching
+			this.dealDamage(this.projectileStats, this.targets);
+
+			// start remove timeout (remove it in a couple of secs)
+			this.startRemoveTimeout();
+		}
+	}
+
+	// only currently does stuff for moving projectiles (otherwise dealDamage is called on creation) // aaaaaaaaaaaaaaaa it's should be called in the constructor not wherever it is currently
+	update (delta) { // PROJECTILE update
+		if (!this.beingChannelled) {
+			// not a projectile that hasn't been fired yet
+			if (this.projectileType === "travelling") {
+				// projectile should be moved
+				let direction;
+
+				if (this.moveTowards !== undefined) {
+					// move towards a position
+					direction = this.bearing(this, this.moveTowards);
+				}
+				else if (this.moveDirection !== undefined && this.moveSpeed !== undefined) {
+					// move at a bearing
+					direction = this.moveDirection;
+				}
+
+				if (typeof direction !== "undefined") { // might be undefined if it's about to be removed
+					// rotate projectile in the direction
+					if (!this.doNotRotate) {
+						this.rotate = direction + Math.PI/2;
+					}
+
+					// this should be moved
+					this.x += Math.cos(direction) * this.moveSpeed * delta;
+					this.y += Math.sin(direction) * this.moveSpeed * delta;
+
+					if (typeof this.hitbox !== "undefined") {
+						// move its hitbox as well
+						this.hitbox.x += Math.cos(direction) * this.moveSpeed * delta;
+						this.hitbox.y += Math.sin(direction) * this.moveSpeed * delta;
+					}
+				}
+
+				if (typeof this.baseSpeed !== "undefined" && this.moveAcceleration !== "undefined") {
+					// acceleration
+					this.moveSpeed = this.baseSpeed + this.moveAcceleration*(Game.gameTime-this.createdAt);
+					if (this.moveSpeed < 0) {
+						this.moveSpeed = 0;
+					}
+				}
+
+				// remove the this if it has moved too far, or it is at its destination
+				if (Game.distance(this.startPosition, this) > this.movementRange || Game.isAtLocation(this, this.moveTowards) || !this.isOnMap()) {
+					// stop moving
+					this.moveTowards = undefined;
+					this.moveDirection = undefined;
+					// after a timeout (1.5s), remove the this that was just shot
+					this.startRemoveTimeout();
+				}
+
+				// only deal damage if it hasn't before (or if damage is to be dealt to all targets, or pierces)
+				else if (this.damageDealt.length === 0 || this.projectileStats.stats.damageAllHit) {
+					// hasn't dealt damage - try to
+					this.dealDamage(this.projectileStats, this.targets);
+
+					// check if damage was dealt
+					if (this.damageDealt.length !== 0) {
+						// stop moving
+						if (this.stopMovingOnDamage) {
+							this.moveTowards = undefined;
+							this.moveDirection = undefined;
+							// after a timeout (1.5s), remove the projectile that was just shot
+							this.startRemoveTimeout();
+						}
+					}
+				}
+			}
+		}
+		else {
+			// projectile hasn't been fired yet ; currently just for when a hero is channelling it
+			//aaaaaaaaaaaaaaaaa
+		}
+	}
+
+	// carry out before image render
+	preRenderFunction() {
+		if (Game.getAttackType() === "bow" && this.beingChannelled && Game.hero.channelling === "projectile") {
+			// show archer red arc instead of projectile if they are currently channelling it
+			let radius = 200;
+			Game.ctx.globalAlpha = 0.3;
+			Game.ctx.strokeStyle = "red";
+			Game.ctx.lineWidth = 7;
+			Game.ctx.beginPath();
+			Game.ctx.arc(Game.hero.screenX, Game.hero.screenY, radius, this.moveDirection - ToRadians(this.variance), this.moveDirection + ToRadians(this.variance));
+			Game.ctx.stroke();
+
+			// restore globalAlpha
+			Game.ctx.globalAlpha = 1;
+
+			return false; // don't render the projectile's image
+		}
+
+		else {
+			// render projectile normally
+			if (Game.getAttackType() === "staff" && this.beingChannelled && Game.hero.channelling === "projectile") {
+				// mage projectiles are transparent when being channelled
+				Game.ctx.globalAlpha = 0.6;
+			}
+
+			return true; // do render the image
+		}
+	}
+
+	// carry out after image render
+	postRenderFunction() {
+		// shows damage dealt by projectile
+		for (let x = 0; x < this.damageDealt.length; x++) {
+			// formatting
+			if (this.damageDealt[x].critical) {
+				Game.ctx.fillStyle = "rgb(255, 0, 0)"; // maybe use rgba to make it fade away?
+			}
+			else {
+				Game.ctx.fillStyle = "rgb(0, 0, 0)"; // maybe use rgba to make it fade away?
+			}
+			Game.ctx.textAlign = "left";
+			Game.ctx.font = "18px El Messiri";
+
+			let damage = this.damageDealt[x].damage;
+			if (damage !== "hit dodged") {
+				damage = Round(damage); // round damage to 1d.p. if it is an integer value
+			}
+
+			Game.ctx.fillText(damage, this.screenX, this.screenY);
+		}
+
+		Game.ctx.globalAlpha = 1; // restore transparency if it was changed by preRenderFunction (e.g: mage channelled projectile)
 	}
 
 	// deal damage to array of entities (to)
@@ -4473,12 +4693,12 @@ class Projectile extends Thing {
 	// hence, if you want to damage a single target still put it in an array, e.g: dealDamage(attacker, [[Game.hero]])
 	// returns true if at least one enemy is hit
 	dealDamage (attacker, to) {
-		let endLoops = false; // set to true if loops should be ended (e.g. after dealing damage with splashDamage = false)
+		let endLoops = false; // set to true if loops should be ended (e.g. after dealing damage with damageAllHit = false)
 
 		let enemyHit = false;
 
 		for (let i = 0; i < to.length && !endLoops; i++) { // iterate through arrays of objects in to
-			// the following loop is iterated through backwards so that, if there is no splashDamage, the top enemy is hit not bottom
+			// the following loop is iterated through backwards so that, if there is no damageAllHit, the top enemy is hit not bottom
 			for (let x = to[i].length-1; x >= 0 && !endLoops; x--) { // iterate through objects in to
 
 				let target = to[i][x];
@@ -4771,7 +4991,7 @@ class Projectile extends Thing {
 						}
 					}
 
-					if (attacker.stats.splashDamage === false) {
+					if (attacker.stats.damageAllHit === false) {
 						// only one enemy should be damaged
 						endLoops = true;
 					}
@@ -4783,85 +5003,23 @@ class Projectile extends Thing {
 	}
 
 	// initiates removing of projectile, usually in 1500s time
-	removeTimeout () {
-		if (typeof this.stayOnScreen !== "undefined") {
-			// different time than the 1.5s
-			if (this.stayOnScreen === true) {
-				// never remove!
-			}
-			else {
-				this.removeIn = this.stayOnScreen / 1000;
-			}
-		}
-		else {
-			this.removeIn = 1.5;
-		}
-		return this.removeIn;
-	}
-
-	// move projectile to random position in circle, where circle is its variance
-	varyPosition () {
-		if (this.variance !== undefined) {
-			if (this.variance > 0) {
-				let RandomDistance = Random(0, this.variance * this.variance);
-				let RandomAngle = Random(0, Math.PI * 2);
-				this.x += Math.sqrt(RandomDistance) * Math.cos(RandomAngle);
-				this.y += Math.sqrt(RandomDistance) * Math.sin(RandomAngle);
-
-				if (this.hitbox !== undefined) { // move special hitbox
-					this.hitbox.x += Math.sqrt(RandomDistance) * Math.cos(RandomAngle);
-					this.hitbox.y += Math.sqrt(RandomDistance) * Math.sin(RandomAngle);
+	startRemoveTimeout () {
+		if (!this.onRemoveTimeout) { // check it's not already being removed
+			if (typeof this.stayOnScreen !== "undefined") {
+				// different time than the 1.5s
+				if (this.stayOnScreen === true) {
+					// never remove!
+				}
+				else {
+					this.removeIn = this.stayOnScreen / 1000;
 				}
 			}
-		}
-	}
-
-	// carry out before image render
-	preRenderFunction() {
-		if (Game.getAttackType() === "bow" && this.beingChannelled && Game.hero.channelling === "projectile") {
-			// show archer red circle instead of projectile if they are currently channelling it
-			Game.ctx.strokeStyle = "red";
-			Game.ctx.beginPath();
-			Game.ctx.arc(this.hitbox.screenX, this.hitbox.screenY, this.variance, 0, 2*Math.PI);
-			Game.ctx.stroke();
-
-			return false; // don't render the projectile's image
-		}
-
-		else {
-			// render projectile normally
-			if (Game.getAttackType() === "staff" && this.beingChannelled && Game.hero.channelling === "projectile") {
-				// mage projectiles are transparent when being channelled
-				Game.ctx.globalAlpha = 0.6;
-			}
-
-			return true; // do render the image
-		}
-	}
-
-	// carry out after image render
-	postRenderFunction() {
-		// shows damage dealt by projectile
-		for (let x = 0; x < this.damageDealt.length; x++) {
-			// formatting
-			if (this.damageDealt[x].critical) {
-				Game.ctx.fillStyle = "rgb(255, 0, 0)"; // maybe use rgba to make it fade away?
-			}
 			else {
-				Game.ctx.fillStyle = "rgb(0, 0, 0)"; // maybe use rgba to make it fade away?
+				this.removeIn = 1.5;
+				this.onRemoveTimeout = true;
 			}
-			Game.ctx.textAlign = "left";
-			Game.ctx.font = "18px El Messiri";
-
-			let damage = this.damageDealt[x].damage;
-			if (damage !== "hit dodged") {
-				damage = Round(damage); // round damage to 1d.p. if it is an integer value
-			}
-
-			Game.ctx.fillText(damage, this.screenX, this.screenY);
+			return this.removeIn;
 		}
-
-		Game.ctx.globalAlpha = 1; // restore transparency if it was changed by preRenderFunction (e.g: mage channelled projectile)
 	}
 }
 
@@ -4920,7 +5078,7 @@ class Mount extends Character {
 	}
 
 	move (delta, dirx, diry) {
-		this.speedX += this.acceleration * dirx * delta;
+		this.speedX += this.acceleration * dirx * delta; // aaaaaaaaaaaaaaaa tbd use suvat !!!!!!!!!
 		this.speedY += this.acceleration * diry * delta;
 
 		// slow down a bit due to drag etc . .
@@ -5067,8 +5225,8 @@ class Villager extends NPC {
 
 		if (this.boundary === undefined && Areas[Game.areaName].villagerData !== undefined) {
 			// random boundary from the villagerdata of the villager's area
-			let locationIndex = Math.round(Game.villagers.length + (Game.villagerSeed*2)) % Areas[Game.areaName].villagerData.locations.length;
-			this.boundary = Areas[Game.areaName].villagerData.locations[locationIndex];
+			let locationIndex = Math.round(Game.villagers.length + (Game.villagerSeed*2)) % Game.villagerLocationArray.length;
+			this.boundary = Game.villagerLocationArray[locationIndex];
 		}
 
 		// random position inside the boundary
@@ -5081,12 +5239,7 @@ class Villager extends NPC {
 	}
 
 	// organises movement
-	update (delta) {
-		// player time spent :)
-		if (Player.timeSpent === undefined) {
-			Player.timeSpent = 0;
-		}
-		Player.timeSpent += delta;
+	update (delta) { // VILLAGER update
 
 		// remember initial postiion and state (used to change state if they try to move but can't, e.g. due to lead)
 		let initialPosition = {x: this.x, y: this.y};
@@ -5254,6 +5407,7 @@ class Enemy extends Attacker {
 			Game.damageableByPlayer.push(this);
 		}
 		this.damageableByPlayer = true; // all enemies are damageable by player
+		// tbd make it so this isn't necessarily the case , i.e. for farm animals (probs by another property which can easily be switched to true or false so doesn't need to remove things from arrays etc)
 
 		// lootTable: an array of objects for each loot item - these objects contain the item ("item") and chances of looting them ("chance")
 		// if properties.lootTableTemplate is an array of lootTables (more than one template), merge them
@@ -5345,6 +5499,9 @@ class Enemy extends Attacker {
 		if (typeof properties.attackBehaviour.baseAggro !== "undefined") {
 			heroBaseAggro = properties.attackBehaviour.baseAggro;
 		}
+		else if (this.hostility === "neutral") {
+			heroBaseAggro = 0;
+		}
 		else {
 			heroBaseAggro = 3.5;
 		}
@@ -5381,7 +5538,7 @@ class Enemy extends Attacker {
 	}
 
 	// we are in enemy class - this is called every time update is called
-	update (delta) {
+	update (delta) { // ENEMY update
 		// update aggros
 		for (let i = 0; i < this.attackTargets.length; i++) {
 			let target = this.attackTargets[i];
@@ -5576,11 +5733,35 @@ class Enemy extends Attacker {
 	shoot (at) {
 		this.canAttack = false;
 
-		let projectileX, projectileY, projectileRotate;
+		let projectileX, projectileY, projectileRotate, projectileDirection; // projectileRotate is cosmetic, projectileDirection mathematical movement direction
 
-		projectileX = at[0][0].x;
-		projectileY = at[0][0].y;
-		projectileRotate = Game.bearing(this, {x: projectileX, y: projectileY}) + Math.PI / 2;
+		projectileDirection = Game.bearing(this, at[0][0]);
+
+		if (this.projectileType === "instant") {
+			// i.e. melee projectiles ; can't be dodged
+			projectileX = at[0][0].x;
+			projectileY = at[0][0].y;
+
+			// variance in position
+			if (typeof this.stats.positionVariance !== "undefined") {
+				if (this.stats.positionVariance > 0) {
+					let RandomDistance = Random(0, this.stats.positionVariance * this.stats.positionVariance);
+					let RandomAngle = Random(0, Math.PI * 2);
+					projectileX.x += Math.sqrt(RandomDistance) * Math.cos(RandomAngle);
+					projectileY.y += Math.sqrt(RandomDistance) * Math.sin(RandomAngle);
+				}
+			}
+		}
+		else if (this.projectileType === "travelling") {
+			// i.e. ranged projectiles ; can be dodged
+			projectileX = this.x;
+			projectileY = this.y;
+
+			// variance in angle (in degrees)
+			if (typeof this.stats.variance !== "undefined") {
+				projectileDirection += ToRadians(Random(-this.stats.variance, this.stats.variance));
+			}
+		}
 
 		// set image based on direction of projectile (if there are multiple rotation images for this character)
 		// sin and cos wrong direction because pi/2 was added to it
@@ -5589,8 +5770,9 @@ class Enemy extends Attacker {
 		this.channellingProjectileId = Game.nextEntityId;
 
 		// save projectile into variable
-		let shotProjectile = new Projectile({
+		let shotProjectile = new Projectile({ // ENEMY projectile
 			map: map,
+			name: this.name + " Projectile",
 			x: projectileX,
 			y: projectileY,
 			attacker: this,
@@ -5598,25 +5780,24 @@ class Enemy extends Attacker {
 			targets: at,
 			width: this.projectile.width,
 			height: this.projectile.height,
-			rotate: projectileRotate,
 			adjust: {
 				x: this.projectile.adjust.x || undefined,
 				y: this.projectile.adjust.y || undefined,
 				towards: this.projectile.adjust.towards || undefined,
 			},
 			image: this.projectile.image,
-			variance: this.stats.variance,
-			minimumVariance: this.stats.minimumVariance,
-			type: "projectiles"
+			type: "projectiles",
+			// optional...
+			moveDirection: projectileDirection,
+			moveSpeed: this.stats.projectileSpeed,
+			moveAcceleration: this.stats.projectileAcceleration,
+			projectileRange: this.stats.projectileRange,
+			stopMovingOnDamage: this.stats.projectileStopMovingOnDamage,
 		});
-		shotProjectile.varyPosition(); // move projectile based on its variance
 
 		Game.projectiles.push(shotProjectile); // add projectile to array of projectiles
 
-		// damage allies that the projectile is touching
-		shotProjectile.dealDamage(this, at);
-
-		// onAttck function for enemy
+		// onAttack function for enemy
 		if (this.stats.onAttack !== undefined) {
 			this.stats.onAttack();
 		}
@@ -5628,7 +5809,7 @@ class Enemy extends Attacker {
 
 		// after a timeout (2s), remove the projectile that was just shot
 		// taken from Player
-		shotProjectile.removeTimeout();
+		//shotProjectile.startRemoveTimeout();//aaaaaaaaaaaaaaaaaaaaaaa
 		this.channellingProjectileId = null;
 	}
 
@@ -5854,7 +6035,7 @@ class Camera extends Entity {
 
 	// called on loadArea or hero move
 	// parameter init is set to true if this is being called on area change
-	update (delta, init) {
+	update (delta, init) { // CAMERA update
 		if (this.following !== undefined || this.panTowards !== undefined) {
 			// a reason to move
 
@@ -6901,6 +7082,8 @@ Game.castSpell = function (id, parameters) {
 	}
 
 	Spells[id].func(parameters);
+
+	parameters.caster.spellCasts++; // tracks total number of spell casts by character
 }
 
 // see also spelldata.js
@@ -7037,12 +7220,15 @@ Game.addTrailParticles = function () {
 
 // draws a trail's particles around the entity
 // this function is called by addTrailPartcicles
-// the particle data should be able to be found at character.trail
 Game.drawTrail = function (entity, trail) {
 	if (typeof trail.intensity === "undefined") {
 		// no. of particles to be added every 100ms
 		trail.intensity = 1; // default val
 	}
+	// set trail position
+	trail.x = entity.x;
+	trail.y = entity.y;
+	// draw particles
 	for (let i = 0; i < trail.intensity; i++) {
 		this.createParticle(trail); // Game not this because it is called by setInterval
 	}
@@ -7419,8 +7605,18 @@ Game.loadArea = function (areaName, destination) {
     let p = Loader.loadMultipleImages(Areas[areaName].images);
 
 	// load in randomly generated villagers if the area has data for them
+
 	let possibleVillagers, villagersToAdd;
 	if (Areas[areaName].villagerData !== undefined) {
+		// first make array of all valid villager locations (used until area is changed)
+		Game.villagerLocationArray = [];
+		for (let i = 0; i < Areas[areaName].villagerData.locations.length; i++) {
+			if (typeof Areas[areaName].villagerData.locations[i].condition === "undefined" || Areas[areaName].villagerData.locations[i].condition()) {
+				Game.villagerLocationArray.push(Areas[areaName].villagerData.locations[i]);
+			}
+		}
+
+		// now make the villagers!
 		let returnValues = this.generateVillagers(Areas[areaName].villagerData, areaName);
 
 		p = p.concat(returnValues.p); // more images to be loaded
@@ -7645,7 +7841,7 @@ Game.loadArea = function (areaName, destination) {
 		// reset any channelling projectile (if the player has existed before)
 		if (!init) {
 			this.hero.channellingProjectileId = null;
-			this.hero.channelling = false;
+			this.hero.removeChannelling("loadArea")
 			this.hero.canAttack = true;
 		}
 
@@ -7712,10 +7908,16 @@ Game.loadArea = function (areaName, destination) {
 
 				// pick random location for villager based on random seed and length of its name
 				// changes approximately every 25 minutes
-				let locationIndex = Math.round(i + (this.villagerSeed*2)) % Areas[areaName].villagerData.locations.length;
-				villager.boundary = Areas[areaName].villagerData.locations[locationIndex];
+				// this is now done in villager class instead
 
-				let preparedNPC = this.prepareNPC(villager, "villagers");
+				let preparedNPC;
+				// check villager can be shown
+				if ((villager.outdoorOnly && Areas[areaName].indoors) || (villager.indoorOnly && !Areas[areaName].indoors)) {
+					preparedNPC = false; // can't be shown
+				}
+				else {
+					preparedNPC = this.prepareNPC(villager, "villagers");
+				}
 
 				if (preparedNPC !== false) {
 					preparedNPC.source = "villager"; // image came from villager variable (used for finding images if they have to persist over areas)
@@ -8074,12 +8276,17 @@ Game.init = function () {
 	// init DOM
 	Dom.init();
 
+
+	// game timer
+	Game.gameTime = 0; // counts in seconds
+	Game.gameTicks = 0; // counts in ticks
+
+
 	// remove any creative mode items
 	Game.checkCreativeMode();
 
 	// music
 	this.playingMusic = null;
-
 
 	// create the player
 	// its x and y are not set until Game.loadArea resumes
@@ -8906,6 +9113,16 @@ Game.restoreMana = function (target, mana) {
 //
 
 Game.update = function (delta) {
+	// update game time
+	Game.gameTime += delta;
+	Game.gameTicks++;
+
+	// player total playtime
+	if (Player.playtime === undefined) {
+		Player.playtime = 0;
+	}
+	Player.playtime += delta / 1000;
+
 	//
 	// Timeouts & Intervals
 	// these replace setTimeout so they can be run synchronously
@@ -9553,57 +9770,7 @@ Game.update = function (delta) {
 
 	// move projectiles if they need to be moved
 	for (let i = 0; i < this.projectiles.length; i++) {
-		let projectile = this.projectiles[i];
-
-		// check if projectile should be moved
-
-		let direction;
-
-		if (projectile.moveTowards !== undefined) {
-			// move towards a position
-			direction = this.bearing(projectile, projectile.moveTowards);
-		}
-		else if (projectile.moveDirection !== undefined) {
-			// move at a bearing
-			direction = projectile.moveDirection;
-		}
-
-		if (direction !== undefined) {
-			// rotate projectile in the direction
-			if (!projectile.doNotRotate) {
-				projectile.rotate = direction;
-			}
-
-			// projectile should be moved
-			projectile.x += Math.cos(direction) * projectile.moveSpeed * delta;
-			projectile.y += Math.sin(direction) * projectile.moveSpeed * delta;
-
-			// remove the projectile if it has moved too far, or it is at its destination
-			if (this.distance(projectile.startPosition, projectile) > projectile.movementRange || this.isAtLocation(projectile, projectile.moveTowards) || !projectile.isOnMap) {
-				// stop moving
-				projectile.moveTowards = undefined;
-				projectile.moveDirection = undefined;
-				// after a timeout (2s), remove the projectile that was just shot
-				projectile.removeTimeout();
-			}
-
-			// only deal damage if it hasn't before (or if damage is to be dealt to all targets)
-			else if (projectile.damageDealt.length === 0 || projectile.damageAllHit) {
-				// hasn't dealt damage - try to
-				projectile.dealDamage(projectile.projectileStats, projectile.targets);
-
-				// check if damage was dealt
-				if (projectile.damageDealt.length !== 0) {
-					// stop moving
-					if (projectile.stopMovingOnDamage) {
-						projectile.moveTowards = undefined;
-						projectile.moveDirection = undefined;
-						// after a timeout (1.5s), remove the projectile that was just shot
-						projectile.removeTimeout();
-					}
-				}
-			}
-		}
+		this.projectiles[i].update(delta);
 	}
 
 	// check collision with mailboxes
@@ -9898,7 +10065,7 @@ Game.update = function (delta) {
 		}
 
 		if (canInteract) {
-			Dom.chat.insert(thing.onTouchChat, 0, undefined, true); // noRepeat is true
+			Dom.chat.insert("<i>"+thing.onTouchChat+"</i>", 0, undefined, true); // noRepeat is true
 		}
 	}
 
@@ -10051,7 +10218,7 @@ Game.update = function (delta) {
 
 		// remove fishing bobber
 		this.removeObject(this.hero.channellingProjectileId, "projectiles");
-		this.hero.channelling = false;
+		this.hero.removeChannelling("fishingBobberRemoved");
 		this.hero.channellingProjectileId = null;
 		this.clearTimeout(this.fishTimeout);
 		Dom.chat.insert("<i>The fish swam away!</i>");
@@ -10098,14 +10265,14 @@ Game.playerProjectileUpdate = function(delta) {
 			this.hero.channelTime += delta;
 		}
 
-		// archer weapons slowly focus as they are channelling
+		// archer weapons focus as they are channelling
 		if (this.getAttackType() === "bow") {
-			let focusSpeed = 16 * this.hero.stats.focusSpeed * (this.hero.stats.rangeMultiplier / 100); // additional range for archers gets turned into focus speed
-			if (projectile.variance > projectile.minimumVariance + focusSpeed*delta) { // check it won't be its minimumVariance or less
+			let focusSpeed = AttackConstants.bow.focusSpeedMultiplier * this.hero.stats.focusSpeed;//aaaaaaaaaaaaaaaaaaa range multiplier used to do something here
+			if (projectile.variance > this.hero.stats.minimumVariance + focusSpeed*delta) { // check it won't be its minimumVariance or less
 				projectile.variance -= focusSpeed*delta;
 			}
 			else {
-				projectile.variance = projectile.minimumVariance + 1; // +1 so a circle of 0 diameter cannot be made
+				projectile.variance = this.hero.stats.minimumVariance;
 			}
 		}
 
@@ -10261,20 +10428,47 @@ Game.equipmentUpdate = function () {
 
 	let weaponType = this.getAttackType(); // type of weapon equipped of player
 
-    // if the player is holding a weapon, set their range
+    // if the player is holding a weapon, set their projectile details
+	// aaaaaaaaaaaaaaaaaaaaaaaaaaaa do projectile speed etc here
     if (Player.inventory.weapon.type !== undefined) {
         // player has weapon equipped
+
+		// projectile speed
+	    if (typeof Player.inventory.weapon.projectileSpeed !== "undefined") {
+	        this.hero.stats.projectileSpeed = Player.inventory.weapon.projectileSpeed;
+	    }
+	    else {
+			this.hero.stats.projectileSpeed = AttackConstants[weaponType].projectileSpeed;
+	    }
+
 		if (Player.inventory.weapon.range !== undefined) {
 			// weapon has a set range that is different from the generic range type for that item (if one exists)
 			// note this "set range" is not displayed on the item (otherwise rangeMultiplier (or make something called rangeModifier) should be used)
-        	this.hero.stats.range = Player.inventory.weapon.range * (this.hero.stats.rangeMultiplier/100);
+        	this.hero.stats.range = Player.inventory.weapon.range * (this.hero.stats.rangeMultiplier/100);//pppppppppppp  under cons
 		}
 		else {
-        	this.hero.stats.range = WeaponRanges[weaponType] * (this.hero.stats.rangeMultiplier/100);
+        	this.hero.stats.projectileRange = AttackConstants[weaponType].projectileRange;
+			//ppppppppppppppppp readd fishing rod range
 		}
+
+		// set weapon angle variance
+		// because variance is not a stat unless manually overwritten, this is required
+	    if (weaponType === "bow" || Player.inventory.weapon.variance !== undefined) {
+	        this.hero.stats.variance = Player.inventory.weapon.variance || AttackConstants.bow.variance;
+	    }
+	    else {
+	        this.hero.stats.variance = 0;
+	    }
+		// same for minimumVariance
+	    if (weaponType === "bow" || Player.inventory.weapon.minimumVariance !== undefined) {
+	        this.hero.stats.minimumVariance = Player.inventory.weapon.minimumVariance || AttackConstants.bow.minimumVariance;
+	    }
+	    else {
+	        this.hero.stats.minimumVariance = 0;
+	    }
     }
     else {
-        // no weapon equipped
+        // no weapon equipped (setting range to 0 is how this is sometimes read)
         this.hero.stats.range = 0;
     }
 
@@ -10285,27 +10479,16 @@ Game.equipmentUpdate = function () {
     if (Player.inventory.weapon.type !== "rod" && this.hero.channelling === "fishing") {
         this.removeObject(this.hero.channellingProjectileId, "projectiles"); // remove bobber
 
-        this.hero.channelling = false;
+        this.hero.removeChannelling("fishingBobberRemoved");
         this.hero.channellingProjectileId = null;
     }
 
-	// set weapon variance
-	// because variance is not a stat unless manually overwritten, this is required
-    if (weaponType === "bow" || Player.inventory.weapon.variance !== undefined) {
-        this.hero.stats.variance = Player.inventory.weapon.variance || 100; // 100 is default
+	// damageAllHit
+    if (Player.inventory.weapon.damageAllHit !== undefined) {
+        this.hero.stats.damageAllHit = Player.inventory.weapon.damageAllHit || false;
     }
     else {
-        // non-bows have no variance
-        this.hero.stats.variance = 0;
-    }
-
-    // set weapon splashDamage
-    if (weaponType === "bow" || Player.inventory.weapon.splashDamage !== undefined) {
-        this.hero.stats.splashDamage = Player.inventory.weapon.penentration || false;
-    }
-    else {
-        // non-bows do penetrate
-        this.hero.stats.splashDamage = true;
+        this.hero.stats.damageAllHit = true;
     }
 
 	// dom range is always base dom range * interact range
@@ -10601,6 +10784,8 @@ Game.toggleCreativeMode = function () {
 		Dom.inventory.give(Items.dev[0]);
 		Dom.inventory.give(Items.dev[1]);
 		Dom.inventory.give(Items.dev[2]);
+		Dom.inventory.give(Items.dev[3]);
+		Dom.inventory.give(Items.dev[4]);
 		Game.creativeImage = "rootedStatusImage";
 		Game.creativeName = "default";
 		Dom.chat.insert("Entered creative mode! Type /creative again to leave.");
@@ -10645,6 +10830,8 @@ Game.exitCreativeMode = function () {
 		Dom.inventory.give(Items.dev[0]);
 		Dom.inventory.give(Items.dev[1]);
 		Dom.inventory.give(Items.dev[2]);
+		Dom.inventory.give(Items.dev[3]);
+		Dom.inventory.give(Items.dev[4]);
 	}
 	else {
 		console.info("You are already in creative mode!")
@@ -10866,8 +11053,8 @@ Game.updateScreenPosition = function (entity) {
 	}
 
 	// not ideal because it makes objects a bit juddery, but without it tiles (i.e. long grass in plains) sometimes have white gaps between them :(
-	entity.screenX = Round(entity.screenX, 0);
-	entity.screenY = Round(entity.screenY, 0);
+	entity.screenX = Round(entity.screenX, 1);
+	entity.screenY = Round(entity.screenY, 1);
 }
 
 // draw character health bar, name etc. in correct place
@@ -11469,18 +11656,12 @@ Game.render = function (delta) {
 			}
 			else if (objectToRender.renderType === "shape") {
 				// rendering a shape!
+				this.ctx.fillStyle = objectToRender.colour;
+				this.ctx.strokeStyle = objectToRender.borderColour;
+				this.ctx.lineWidth = objectToRender.thickness;
 				if (objectToRender.shape === "ellipse") {
-					this.ctx.fillStyle = objectToRender.colour;
-					this.ctx.strokeStyle = objectToRender.colour;
-					this.ctx.lineWidth = objectToRender.thickness;
 					this.ctx.beginPath();
-					this.ctx.ellipse(objectToRender.x, objectToRender.y, objectToRender.width, objectToRender.height, objectToRender.rotation);
-					if (typeof this.ctx.fillStyle !== "undefined") {
-						this.ctx.fill();
-					}
-					if (typeof this.ctx.strokeStyle !== "undefined" && typeof this.ctx.lineWidth !== "undefined") {
-						this.ctx.stroke();
-					}
+					this.ctx.ellipse(objectToRender.screenX, objectToRender.screenY, objectToRender.width, objectToRender.height, objectToRender.rotation);
 
 					// if it has a colour transition, carry this out
 					if (typeof objectToRender.colourTransition !== "undefined") {
@@ -11522,7 +11703,15 @@ Game.render = function (delta) {
 					this.transitionSpeed = properties.transitionSpeed;
 				}
 				else if (objectToRender.shape === "rect") {
-					console.error("Jake still needs to add rectangle shape rendering ! Please tell him ! !")
+					this.ctx.beginPath();
+					this.ctx.rect(objectToRender.screenX, objectToRender.screenY, objectToRender.width, objectToRender.height);
+				}
+
+				if (typeof objectToRender.colour !== "undefined") {
+					this.ctx.fill();
+				}
+				if (typeof objectToRender.borderColour !== "undefined") {
+					this.ctx.stroke();
 				}
 			}
 
@@ -11831,10 +12020,6 @@ Game.secondary.updateCursor = function (event) {
 		};
 	}
 
-	// get player's range and mouse distance
-	let mouseDistanceFromHero = Game.distance({x: Game.camera.x + event.clientX - Game.viewportOffsetX, y: Game.camera.y + event.clientY - Game.viewportOffsetY,}, Game.hero);
-	let range = Game.hero.stats.range;
-
 	// if the weapon is a fishing rod, check the mouse is in water
 	let rodInWater = true;
 	if (Player.inventory.weapon.type === "rod") {
@@ -11845,9 +12030,10 @@ Game.secondary.updateCursor = function (event) {
 		}
 	}
 
-	// check the player's mouse distance is within range and they are not reloading
-	if (mouseDistanceFromHero < range && Game.hero.canAttack && rodInWater) {
-		// mouse in range and hero can attack (crosshair)
+	// check the player's not reloading and that they have a weapon equipped (i.e. range > 0)
+	// pppppppppppppppppp readd rod range
+	if (Game.hero.stats.range > 0 && Game.hero.canAttack && rodInWater) {
+		// hero can attack (crosshair)
 		let cursor = Skins[Player.class][Player.skin].cursor;
 		if (cursor !== "crosshair") {
 			// cursor requires custom image
@@ -11856,7 +12042,7 @@ Game.secondary.updateCursor = function (event) {
 		document.getElementById("click").setAttribute("style","cursor: " + cursor);
 	}
 	else {
-		// mouse not in range or hero cannot attack (normal cursor)
+		// hero cannot attack (normal cursor)
 		document.getElementById("click").style.cursor = "default";
 	}
 }

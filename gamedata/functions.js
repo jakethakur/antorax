@@ -205,6 +205,14 @@ Loader.prepareImageInformation = function (images) {
 			// samhain images
 			imageInformation.addresses.push(image.samhain);
 		}
+		else if (Event.time === "day" && image.day !== undefined) {
+			// day images
+			imageInformation.addresses.push(image.day);
+		}
+		else if ((Event.time === "night" || Event.time === "bloodMoon") && image.night !== undefined) {
+			// night images
+			imageInformation.addresses.push(image.night);
+		}
 		else {
 			imageInformation.addresses.push(image.normal); // if this is undefined, the image is not loaded in by Game.load
 		}
@@ -744,4 +752,13 @@ function IsVowel(char) {
 		return true;
 	}
 	return false;
+}
+
+// copy some text to user's clipboard
+function CopyToClipboard (text) {
+	navigator.clipboard.writeText(text).then(function () {
+		Dom.chat.insert("Location copied to clipboard!");
+	}, function () {
+		Dom.chat.insert('Failed to copy to clipboard - check the clipboard permissions!')
+	});
 }

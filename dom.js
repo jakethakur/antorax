@@ -1469,9 +1469,6 @@ Dom.inventory.displayIdentification = function (display) {
 	if (Player.stats.slowAmount !== 0 && Player.stats.slowTime !== 0) {
 		Dom.elements.innerStats.innerHTML += "<br>Slow: " + Player.stats.slowAmount + "% for " + Player.stats.slowTime + "s";
 	}
-	if (Player.stats.splashDamage && Player.class === "a") {
-		Dom.elements.innerStats.innerHTML += "<br>Splash Damage";
-	}
 	if (Player.stats.stun !== 0) {
 		Dom.elements.innerStats.innerHTML += "<br>Stun: " + Player.stats.stun + "s";
 	}
@@ -1555,9 +1552,9 @@ Dom.inventory.stats = function (stat, value, array) {
 	else if (stat === "Frostaura" || stat === "Splash Damage" || stat === "Wind Shield") {
 		return stat+"<br>";
 	}
-	else if (stat === "Move During Focus") {
+	/*else if (stat === "Move During Focus") {
 		return "Allows movement during attacks<br>";
-	}
+	}*/
 	else if (stat === "Unstoppable") {
 		return "Grants invulnerability to stuns and slows<br>";
 	}

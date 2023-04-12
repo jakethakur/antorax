@@ -59,8 +59,17 @@ const SpeciesTemplates = {
 		},
 		canBeOnLead: true,
 	},
-	frog: {
+	plainsToad: {
 		species: "frog",
+		subSpecies: "plains toad",
+		attackTargets: [{target: function () { // for Overdraft quest
+			if (Player.quests.npcProgress.eaglecrest[2] === 2) {
+				return Game.npcs.find(character => character.name === "Gildo Cleftbeard");
+			}
+			else if (Player.quests.possibleQuestArray.includes("A Fool's Errand")) {
+				return Game.npcs.find(character => character.name === "The Jester");
+			}
+		}, baseAggro: 5}],
 		onDeath: function () {
 			// frogs killed achievement
 			User.progress.frogs = Increment(User.progress.frogs);
@@ -73,6 +82,13 @@ const SpeciesTemplates = {
 		onDeath: function () {
 			User.progress.chickens = Increment(User.progress.chickens);
 			Player.quests.questProgress.chickensKilled = Increment(Player.quests.questProgress.chickensKilled);
+		}
+	},
+	sheep: {
+		species: "sheep",
+		onDeath: function () {
+			User.progress.sheep = Increment(User.progress.sheep);
+			Player.quests.questProgress.sheepKilled = Increment(Player.quests.questProgress.sheepKilled);
 		}
 	},
 	phantom: { // samhain questline only
@@ -226,12 +242,15 @@ const EnemyTemplates = {
 				swimSpeed: 45,
 				iceSpeed: 170,
 				maxHealth: 10,
-				range: 200,
+				range: 300,
 				healthRegen: 0.4,
 				reloadTime: 2000,
 				lootTime: 10000,
 				respawnTime: 11000,
-				variance: 100,
+				variance: 35,
+				projectileSpeed: 200,
+				projectileStopMovingOnDamage: true,
+				projectileRange: 200,
 			},
 			xpGiven: 10,
 			projectile: {
@@ -319,12 +338,14 @@ const EnemyTemplates = {
 				iceSpeed: 160,
 				maxHealth: 24,
 				defence: 2,
-				range: 140,
-				reloadTime: 2250,
+				range: 390,
+				reloadTime: 1550,
 				healthRegen: 0.4,
 				flaming: 1,
 				lootTime: 10000,
 				respawnTime: 20000,
+				projectileSpeed: 200,
+				projectileRange: 400,
 			},
 			xpGiven: 20,
 			projectile: {
@@ -416,22 +437,36 @@ const EnemyTemplates = {
 				range: 90,
 				healthRegen: 0.4,
 				reloadTime: 1500,
-				lootTime: 10000,
+				lootTime: 20000,
 			},
 			attackBehaviour: {
-				alwaysMove: true, // move even when in range
+				alwaysMove: true, // move even when in range//aaaaaaaaaaaaaaaaaaa
 				baseAggro: 100, // always aggroed on player
 			},
 			spells: [
 				{
-					id: 0,
+					id: 23, // summon more goblins
 					tier: 1,
-					parameters: function () { // returns array of parameters
-						return {
-							target: Game.hero,
-						};
+					parameters: function () {
+						return {};
 					},
-					interval: 5000,
+					castCondition: function (caster) {
+						let healthProportion = caster.health / caster.stats.maxHealth;
+						return caster.spellCasts === 0 && healthProportion < 0.67;
+					},
+					interval: 5000, // n/a
+				},
+				{
+					id: 23, // summon more goblins
+					tier: 2,
+					parameters: function () {
+						return {};
+					},
+					castCondition: function (caster) {
+						let healthProportion = caster.health / caster.stats.maxHealth;
+						return caster.spellCasts === 1 && healthProportion < 0.33;
+					},
+					interval: 5000, // n/a
 				},
 			],
 			updateStats: function () { // choose attack based on distance
@@ -831,7 +866,7 @@ const EnemyTemplates = {
 			},
 		},
 		toad: {
-			speciesTemplate: SpeciesTemplates.frog,
+			speciesTemplate: SpeciesTemplates.plainsToad,
 	        rotationImages: {
 	            left: "toadLeft",
 	            right: "toadRight"
@@ -847,11 +882,13 @@ const EnemyTemplates = {
 				iceSpeed: 50,
 				maxHealth: 40,
 				defence: 4,
-				range: 150,
+				range: 170,
 				reloadTime: 1500,
 				healthRegen: 0.5,
 				lootTime: 10000,
 				respawnTime: 20000,
+				projectileSpeed: 250,
+				projectileRange: 400,
 			},
 			xpGiven: 50,
 			projectile: {
@@ -873,16 +910,86 @@ const EnemyTemplates = {
 	                interval: 1000,
 	            },
 	        ],
-			lootTableTemplate: [EnemyLootTables.frog],
+			lootTableTemplate: [EnemyLootTables.plainsToad],
 			inventorySpace: 8,
-			attackTargets: [{target: function () { // for Overdraft quest
-				if (Player.quests.npcProgress.eaglecrest[2] === 2) {
-					return Game.npcs.find(character => character.name === "Gildo Cleftbeard");
-				}
-				else if (Player.quests.possibleQuestArray.includes("A Fool's Errand")) {
-					return Game.npcs.find(character => character.name === "The Jester");
-				}
-			}, baseAggro: 5}],
+		},
+		armouredToad: {
+			speciesTemplate: SpeciesTemplates.plainsToad,
+	        rotationImages: {
+	            left: "armouredToadLeft",
+	            right: "armouredToadRight"
+	        },
+			deathImage: "toadCorpse",
+			name: "Large Toad",
+			hostility: "hostile",
+			level: 10,
+			stats: {
+				damage: 7,
+				walkSpeed: 25,
+				swimSpeed: 25,
+				iceSpeed: 50,
+				maxHealth: 40,
+				defence: 18, // only changed value to normal toad - maybe put the rest in species template?
+				range: 170,
+				reloadTime: 1500,
+				healthRegen: 0.5,
+				lootTime: 10000,
+				respawnTime: 20000,
+				projectileSpeed: 320, // ok this was also changed a little...
+				projectileRange: 400,
+			},
+			xpGiven: 150,
+			projectile: {
+				image: "waterball",
+			},
+			spells: [
+	            {
+	                id: 14,
+	                tier: 1,
+	                parameters: function () { // returns array of parameters
+	                    return {
+	                        target: this.calculateTarget(),
+	                    };
+	                },
+					castCondition: function (caster) {
+						let target = caster.calculateTarget();
+	                    return typeof target !== "undefined" && Game.distance(caster, target) > caster.stats.range - 25;
+	                },
+	                interval: 1000,
+	            },
+	        ],
+			lootTableTemplate: [EnemyLootTables.plainsToad],
+			lootTable: [
+				{ // unidentified item
+					item: {
+						name: "unidentified",
+						tier: 1,
+						area: "eaglecrest",
+					},
+					chance: [
+						100,			// 0
+						30, 			// 1
+						0.5,			// 2
+						0,				// 3
+					],
+				},
+				{ // gold
+					item: Items.currency[2],
+					chance: [
+						20,				// 0
+						5,				// 1
+						0,				// 2
+					],
+				},
+				{ // soggy letter
+					item: Items.item[54],
+					chance: [
+						1,				// 0
+						0,				// 1
+					],
+				},
+			],
+			inventorySpace: 16,
 		},
 		chicken: {
 			speciesTemplate: SpeciesTemplates.chicken,
@@ -1061,10 +1168,10 @@ const EnemyTemplates = {
 			respawnOnDeath: false, // generated with the wrangler
 			stats: {
 				damage: 9,
-				walkSpeed: 190,
+				walkSpeed: 140,
 				swimSpeed: 55,
 				iceSpeed: 210,
-				maxHealth: 70,
+				maxHealth: 65,
 				defence: 5,
 				range: 60,
 				reloadTime: 1300,
@@ -1089,7 +1196,7 @@ const EnemyTemplates = {
 	                },
 					castCondition: function (caster) {
 						let target = caster.calculateTarget();
-	                    return typeof target.calculateTarget() !== "undefined" && Game.distance(caster, target.calculateTarget()) > caster.stats.range - 25;
+	                    return typeof target !== "undefined" && Game.distance(caster, target) > caster.stats.range - 25;
 	                },
 	                interval: 5000,
 	            },
@@ -1117,7 +1224,7 @@ const EnemyTemplates = {
 				walkSpeed: 120,
 				swimSpeed: 50,
 				iceSpeed: 190,
-				maxHealth: 125,
+				maxHealth: 115,
 				defence: 8,
 				range: 90,
 				reloadTime: 1000,
@@ -1209,7 +1316,20 @@ const EnemyTemplates = {
 						return {}
 					},
 					castCondition: function (caster) {
-						return typeof caster.calculateTarget() !== "undefined";
+						let healthProportion = caster.health / caster.stats.maxHealth;
+						return typeof caster.calculateTarget() !== "undefined" && healthProportion > 0.3;
+					},
+					interval: 2000,
+				},
+				{
+					id: 22,
+					tier: 2, // tier 2 instead
+					parameters: function () { // returns array of parameters
+						return {}
+					},
+					castCondition: function (caster) {
+						let healthProportion = caster.health / caster.stats.maxHealth;
+						return typeof caster.calculateTarget() !== "undefined" && healthProportion <= 0.3;
 					},
 					interval: 2000,
 				},
@@ -1251,6 +1371,11 @@ const EnemyTemplates = {
 			xpGiven: 0,
 			projectile: {
 				image: "melee",
+			},
+			animation: {
+				type: "carousel",
+				frameTime: 300,
+				images: ["bumblebeeLeft1", "bumblebeeLeft2"], // tbd make work with rotationImages
 			},
 		},
 	},

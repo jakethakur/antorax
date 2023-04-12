@@ -2828,7 +2828,7 @@ var Items = {
 			stats: {
 				damage: 5,
 				reloadTime: 750,
-				splashDamage: true,
+				//splashDamage: true, // not a thing anymore ... needs changing
 			},
 			projectile: "waterball",
 			projectileAdjust: {x: 10, y: 10},
@@ -3031,7 +3031,7 @@ var Items = {
 			obtain: ["other"],
 			limitedEdition: true, // hidden from archaeology
 			area: ["eaglecrest"],
-			rarity: "unique",
+			rarity: "mythic",
 			lore: "",
 			obtainText: "???",
 			sellPrice: 10,
@@ -5243,6 +5243,7 @@ var Items = {
 			sellPrice: 2,
 			healthRestore: 50,
 			healthRestoreTime: 15,
+			lore: "Crisp beetroot chard with some indulgent beetroot spread."
 		},
 		{
 			id: 5,
@@ -5411,6 +5412,74 @@ var Items = {
 			functionText: "Can be used to move a domestic animal around",
 			range: 150, // range it can be applied from
 			leadRange: 250,
+		},
+		{
+			id: 1,
+			name: "Test tool",
+			type: "tool",
+			toolType: "test",
+			image: "assets/items/tool/1.png",
+			rarity: "common",
+			functionText: "test",
+			range: 150, // range it can be applied from
+		},
+		{
+			id: 2,
+			name: "Mop",
+			type: "tool",
+			toolType: "melee", // acts like how old swords used to
+			image: "assets/items/tool/2.png",
+			projectile: "slashWater",
+			rarity: "common",
+			quest: true,
+			removeOnAbandon: "Cleaning the Floor",
+			stats: {
+				damage: 1,//?
+			},
+			functionText: "Cleans the floor",
+			//range: melee??, // tbd
+		},
+		{
+			id: 3,
+			name: "Net",
+			type: "tool",
+			toolType: "melee", // acts like how old swords used to
+			image: "assets/items/tool/3.png",
+			projectile: "slash",
+			rarity: "common",
+			stats: {
+				damage: 1,
+			},
+			functionText: "Can be used at a melee range to catch some small creatures",
+			//range: melee??, // tbd
+		},
+		{
+			id: 4,
+			name: "Watering Can",
+			type: "tool",
+			toolType: "melee", // acts like how old swords used to
+			image: "assets/items/tool/4.png",
+			projectile: "slashWater",
+			rarity: "common",
+			stats: {
+				damage: 0,
+			},
+			//range: melee??, // tbd
+			//functionText: "",
+		},
+		{
+			id: 5,
+			name: "Golden Watering Can",
+			type: "tool",
+			toolType: "melee", // acts like how old swords used to
+			image: "assets/items/tool/4.png",
+			projectile: "slashWater",
+			rarity: "mythic",
+			stats: {
+				damage: 0,
+			},
+			//range: melee??, // tbd
+			//functionText: "",
 		},
 	],
 	mount: [
@@ -6392,14 +6461,64 @@ var Items = {
 			}
 		},
 		//Dom.alert.page("Please enter the imageName of the item", "input", undefined, undefined, {target:function (input) {}})
-	],
-};
+		{
+			id: 3,
+			name: "Save Player Position",
+			type: "dev",
+			image: "assets/runes/7.png", // temp
+			rarity: "common",
+			functionText: "Save the player's current location to the clipboard",
+			onClickFunction: function () {
+				let textToCopy = "x: " + Round(Game.hero.x, 1) + ", y: " + Round(Game.hero.y, 1) + ",";
+				// copy to clipboard!
+				CopyToClipboard(textToCopy);
+			}
+		},
+		{
+			id: 4,
+			name: "Create Boundary: Place starting point",
+			type: "dev",
+			image: "assets/items/dev/4.png",
+			rarity: "common",
+			functionText: "Place the starting point of a boundary, to be saved to clipboard",
+			onClickFunction: function (inventoryPosition) {
+				let thisItem = Player.inventory.items[inventoryPosition];
+				// see what state this item is in
+				if (thisItem.name === "Create Boundary: Place starting point") {
+					thisItem.startingPoint = {x: Round(Game.hero.x, 1), y: Round(Game.hero.y, 1)};
 
-const WeaponRanges = {
-	bow: 1000,
-	staff: 200,
-	sword: 100,
-	rod: 200,
+					thisItem.name = "Create Boundary: Place end point";
+				}
+				else if (thisItem.name === "Create Boundary: Place end point") {
+					thisItem.finishingPoint = {x: Round(Game.hero.x, 1), y: Round(Game.hero.y, 1)};
+
+					let x = Math.min(thisItem.startingPoint.x, thisItem.finishingPoint.x);
+					let y = Math.min(thisItem.startingPoint.y, thisItem.finishingPoint.y);
+					let width = Round(Math.abs(thisItem.finishingPoint.x - thisItem.startingPoint.x), 1);
+					let height = Round(Math.abs(thisItem.finishingPoint.y - thisItem.startingPoint.y), 1);
+
+					// copy to clipboard
+					let textToCopy = "{x: " + x + ", y: " + y + ", width: " + width + ", height: " + height + "},";
+					// copy to clipboard!
+					CopyToClipboard(textToCopy);
+
+					// draw boundary on map
+					Game.shapes.push(new Shape ({
+						x: x,
+						y: y,
+						width: width,
+						height: height,
+						shape: "rect",
+						borderColour: "#8653fd",
+						thickness: 5,
+						type: "shapes",
+					}));
+
+					thisItem.name = "Create Boundary: Place starting point";
+				}
+			}
+		},
+	],
 };
 
 const LostLetterMessages = {

@@ -2158,12 +2158,12 @@ I can’t do my routine without my props… I’d have to become a… <i>(shudde
 			questRequirements: ["Overdraft"],
 
 			rewards: {
-				xp: 50,
+				xp: 55,
 				items: [
 					{item: Items.currency[2], quantity: 4,},
 				],
 				reputation: {
-					eaglecrestCity: 30,
+					eaglecrestCity: 20,
 					theJester: 100,
 				},
 			},
@@ -2173,6 +2173,66 @@ I can’t do my routine without my props… I’d have to become a… <i>(shudde
 				{item: Items.item[60],},
 				{item: Items.item[59],},
 				{item: Items.item[57], quantity: 3},
+			],
+		},
+		{
+			id: 9,
+			quest: "Every Flower in My Garden",
+			questArea: "eaglecrest",
+
+			startName: "Farmer Eloise",
+			startChat: `Hmm~ Do you think the bees are happy?˚<br><br>
+
+			They keep swarming down in that flower forest˚ I hope they're not sad about my flower patches⁀!<br><br>
+
+			You see that empty patch over there˚?<br><br>
+
+			Some <b>blue callalilies</b> would be great there~⁀They're big and blue and there's some in the flower forest~<br><br>
+
+			Oh⁀and some <b>Marigolds</b>˚ they're the yellow flowers all around the plains~`,
+
+			finishName: "Farmer Eloise",
+			finishChat: `I'll plant these tomorrow~<br><br>
+
+			ᵔ ᵕ ᵔ`,
+
+			objectives: [
+				"Pick 6 <b>blue callalillies</i> from the <b>flower forest</b> in the Eaglecrest Plains <i>(they're big and blue~)</i>.",
+				"Pick 6 <b>marigolds</i> from around the Eaglecrest Plains <i>(they're yellow)</i>.",
+				"Speak to <b>Farmer Eloise</b>.",
+			],
+
+			isCompleted: function() {
+				let completed = [];
+
+				// true or falses for each objective (apart from the turn-in objective)
+				completed.push(checkProgress(Dom.inventory.check(68, "item"), 6));
+				completed.push(checkProgress(Dom.inventory.check(31, "item"), 6));
+
+				completed = checkFinished(completed);
+
+				return completed;
+			},
+
+			howToStart: "Speak to <b>Farmer Eloise</b> in the Eaglecrest Plains.",
+			levelRequirement: 8,
+			questRequirements: ["Overdraft"],
+			// tbd reputation requirement
+
+			rewards: {
+				xp: 40,
+				items: [
+					{item: Items.tool[4]},
+					{item: Items.currency[2], quantity: 2,},
+				],
+				reputation: {
+					eaglecrestFarm: 50,
+				},
+			},
+
+			removeItems: [
+				{item: Items.item[68], quantity: 6},
+				{item: Items.item[31], quantity: 6},
 			],
 		},
 		/*{
