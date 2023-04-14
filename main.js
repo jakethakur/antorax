@@ -3463,6 +3463,8 @@ class Hero extends Attacker {
 		this.stats.maxDamage = properties.stats.maxDamage; // mage only
 		this.stats.xpBonus = properties.stats.xpBonus || 0; // perentage
 
+		// class specific
+
 		this.stats.arcaneAura = properties.stats.arcaneAura || false;
 		// start arcaneAura interval if one is active (from the mage spell)
 		if (this.stats.arcaneAura) {
@@ -3470,6 +3472,8 @@ class Hero extends Attacker {
 			let spellObj = this.spells.find(spellObj => spellObj.id === 3);
 			this.auraInterval = Game.setInterval(Spells[3].tickFunc, 100, {tier: spellObj.tier, caster: this});
 		}
+
+		this.stats.meleeRange = AttackConstants.sword.meleeRange; // attack constants used because it's not something items change currently
 
 		// fishing stats
 		this.stats.fishingSkill = properties.stats.fishingSkill || 0;
@@ -3650,48 +3654,103 @@ class Hero extends Attacker {
 
 					let projectileDirection = Game.bearing(this, {x: mouseX, y: mouseY}); // movement
 
-					this.channellingProjectileId = Game.nextEntityId;
+					if (Player.inventory.weapon.type === "staff" || Player.inventory.weapon.type === "bow") {
+						// moving projectile
 
-					Game.projectiles.push(new Projectile({ // HERO projectile
-						map: map,
-						x: Game.hero.x,
-						y: Game.hero.y,
-						attacker: this,
-						projectileStats: this,
-						targets: [Game.damageableByPlayer],
-						adjust: {
-							// manually adjust position (programmed for each projectile in skindata/itemdata)
-							x: Game.heroProjectileAdjust.x,
-							y: Game.heroProjectileAdjust.y,
-							towards: {x: this.x, y: this.y},
-						},
-						hitbox: {
+						this.channellingProjectileId = Game.nextEntityId;
+
+						Game.projectiles.push(new Projectile({ // HERO projectile
+							map: map,
 							x: Game.hero.x,
 							y: Game.hero.y,
-							width: this.class === "k" ? 60 : (this.class === "m" ? 23 : (this.class === "a" ? 10 : 0)),
-							height: this.class === "k" ? 60 : (this.class === "m" ? 23 : (this.class === "a" ? 10 : 0)),
-						},
-						image: Game.heroProjectileName,
-						name: "Hero Projectile",
-						beingChannelled: true,
-						type: "projectiles",
+							attacker: this,
+							projectileStats: this,
+							targets: [Game.damageableByPlayer],
+							adjust: {
+								// manually adjust position (programmed for each projectile in skindata/itemdata)
+								x: Game.heroProjectileAdjust.x,
+								y: Game.heroProjectileAdjust.y,
+								towards: {x: this.x, y: this.y},
+							},
+							hitbox: {
+								x: Game.hero.x,
+								y: Game.hero.y,
+								width: this.class === "k" ? 60 : (this.class === "m" ? 23 : (this.class === "a" ? 10 : 0)),
+								height: this.class === "k" ? 60 : (this.class === "m" ? 23 : (this.class === "a" ? 10 : 0)),
+							},
+							image: Game.heroProjectileName,
+							name: "Hero Projectile",
+							beingChannelled: true,
+							type: "projectiles",
 
-						// properties
-						moveSpeed: this.stats.projectileSpeed,
-						moveDirection: projectileDirection,
-						variance: this.stats.variance,
-						damageAllHit: this.stats.damageAllHit, // usually true
+							// properties
+							moveSpeed: this.stats.projectileSpeed,
+							moveDirection: projectileDirection,
+							variance: this.stats.variance,
+							damageAllHit: this.stats.damageAllHit, // usually true
 
-						// optional stuff:
-						// aaaaaaaaaaaaa look at ; might need to fix some of these
-						crop: Game.heroProjectileInfo.crop,
-						animation: Game.heroProjectileInfo.animation,
-						frameTime: Game.heroProjectileInfo.frameTime,
-						stayOnScreen: Game.heroProjectileInfo.stayOnScreen, // set to the time it stays on the screen for (default 1500) or true if never removed
-						//doNotRotate: Game.heroProjectileInfo.doNotRotate, // aaaaaaaaaaaaaa readd but just as a visual thing - not affecting the projectile's direction as it would because this is needed for variance
-						onInteract: Game.heroProjectileInfo.onInteract,
-						z: Game.heroProjectileInfo.z,
-					}));
+							// optional stuff:
+							// aaaaaaaaaaaaa look at ; might need to fix some of these
+							crop: Game.heroProjectileInfo.crop,
+							animation: Game.heroProjectileInfo.animation,
+							frameTime: Game.heroProjectileInfo.frameTime,
+							stayOnScreen: Game.heroProjectileInfo.stayOnScreen, // set to the time it stays on the screen for (default 1500) or true if never removed
+							//doNotRotate: Game.heroProjectileInfo.doNotRotate, // aaaaaaaaaaaaaa readd but just as a visual thing - not affecting the projectile's direction as it would because this is needed for variance
+							onInteract: Game.heroProjectileInfo.onInteract,
+							z: Game.heroProjectileInfo.z,
+						}));
+					}
+					else if (Player.inventory.weapon.type === "sword" && distanceToMouse < this.stats.meleeRange) {
+						// knight not moving (melee) projectile
+
+						this.channellingProjectileId = Game.nextEntityId;
+
+						Game.projectiles.push(new Projectile({ // HERO projectile
+							map: map,
+							x: mouseX,
+							y: mouseY,
+							attacker: this,
+							projectileStats: this,
+							targets: [Game.damageableByPlayer],
+							adjust: {
+								// manually adjust position (programmed for each projectile in skindata/itemdata)
+								x: Game.heroProjectileAdjust.x,
+								y: Game.heroProjectileAdjust.y,
+								towards: {x: this.x, y: this.y},
+							},
+							hitbox: {
+								x: mouseX,
+								y: mouseY,
+								width: 60,
+								height: 60,
+							},
+							image: Game.heroProjectileName,
+							name: "Hero Projectile",
+							beingChannelled: true,
+							type: "projectiles",
+
+							rotate: projectileDirection + Math.PI/2,
+
+							// optional stuff:
+							// aaaaaaaaaaaaa look at ; might need to fix some of these
+							crop: Game.heroProjectileInfo.crop,
+							animation: Game.heroProjectileInfo.animation,
+							frameTime: Game.heroProjectileInfo.frameTime,
+							stayOnScreen: Game.heroProjectileInfo.stayOnScreen, // set to the time it stays on the screen for (default 1500) or true if never removed
+							//doNotRotate: Game.heroProjectileInfo.doNotRotate, // aaaaaaaaaaaaaa readd but just as a visual thing - not affecting the projectile's direction as it would because this is needed for variance
+							onInteract: Game.heroProjectileInfo.onInteract,
+							z: Game.heroProjectileInfo.z,
+						}));
+
+						// finish attack instantly
+						this.finishAttack(e);
+					}
+					else {
+						// tbd... but for now do nothing
+						this.channelling = false; // very temp...
+						this.channellingInfo = false;
+						this.canAttack = true;
+					}
 
 					Game.secondary.updateCursor(e); // no longer crosshair because attack is reloading
 
@@ -11114,7 +11173,7 @@ Game.drawCharacterInformation = function (ctx, character) {
 		console.error("Unknown character hostility: ", character.hostility);
 	}
 
-	if (character.channellingInfo !== false) {
+	if (character.channellingInfo !== false && typeof character.channellingInfo.description !== "undefined") {
 		// character is channelling something
 		this.drawChannellingBar(ctx, character, character.screenX - character.width * 0.5, character.screenY - character.height * 0.5 - 15 - characterInformationHeight, character.width, 15);
 		characterInformationHeight += 15;
@@ -12136,7 +12195,7 @@ Game.secondary.render = function () {
 		this.ctx.globalAlpha = 0.6;
 
 		// hero channelling bar above xp bar
-		if (Game.hero.channellingInfo !== false) {
+		if (Game.hero.channellingInfo !== false && typeof Game.hero.channellingInfo.description !== "undefined") {
 			Game.drawChannellingBar(this.ctx, Game.hero, Dom.canvas.width/2-167.6, Dom.canvas.height-104, 335, 12);
 		}
 

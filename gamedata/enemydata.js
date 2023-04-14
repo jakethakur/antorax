@@ -901,7 +901,7 @@ const EnemyTemplates = {
 				healthRegen: 0.5,
 				lootTime: 10000,
 				respawnTime: 20000,
-				projectileSpeed: 250,
+				projectileSpeed: 190,
 				projectileRange: 400,
 			},
 			xpGiven: 50,

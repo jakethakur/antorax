@@ -3,6 +3,26 @@ let playerName = sessionStorage.getItem("name");
 let playerClass = sessionStorage.getItem("class");
 let playerSkin = sessionStorage.getItem("skin");
 
+// base values used in player attacks, for balancing purposes
+const AttackConstants = {
+	bow: {
+		projectileSpeed: 850,
+		projectileRange: 1000,
+		focusSpeedMultiplier: 10, // affects how quickly attacks focus
+		variance: 45, // base variance IN DEGREES
+		minimumVariance: 3, // also in degrees
+	},
+	staff: {
+		projectileSpeed: 150,
+		projectileRange: 1000,
+	},
+	sword: {
+		projectileSpeed: 300,
+		projectileRange: 1000,
+		meleeRange: 100, // range at which melee damage is dealt
+	}
+};
+
 var Player = {
 	name: playerName,
 	class: playerClass,
@@ -154,6 +174,9 @@ var Player = {
 		//projectileStopMovingOnDamage: false,
 		// aaaaaaaaaaaa tbd make a variable here that contains all the class' default stats for these things
 
+		// class specific
+		meleeRange: AttackConstants.sword.meleeRange,
+
 		// spells
 		maxMana: 0,
 		manaRegen: 0.5, // (0.5/s)
@@ -192,25 +215,6 @@ var Player = {
 // template object for all stats and their default values
 // assign is used so the properties cannot be changed
 const DefaultStats = Object.assign({}, Player.stats);
-
-// base values used in player attacks, for balancing purposes
-const AttackConstants = {
-	bow: {
-		projectileSpeed: 850,
-		projectileRange: 1000,
-		focusSpeedMultiplier: 10, // affects how quickly attacks focus
-		variance: 45, // base variance IN DEGREES
-		minimumVariance: 3, // also in degrees
-	},
-	staff: {
-		projectileSpeed: 150,
-		projectileRange: 1000,
-	},
-	sword: {
-		projectileSpeed: 300,
-		projectileRange: 1000,
-	}
-};
 
 // array of objects of characters player can transform into
 // if the player is transformed into one of these, the only thing that is changed in Player is Player.transformedInto (set to the id of the object in this array)

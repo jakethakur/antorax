@@ -8206,14 +8206,14 @@ Last I saw him, he was visiting the <b>Eaglecrest Plains</b> to the <b>south</b>
 					return Random(0, 365) === 0;
 				},
 			},
-			{
+			/*{
 				spawnLocations: "villager",
 				template: EnemyTemplates.eaglecrest.coyote,
 				canBeShown: function () {
 					return Player.quests.npcProgress.eaglecrest[2] >= 3; // so they don't interfere with first part of overdraft
 				},
 				repeatNumber: 3,
-			},
+			},*/
 			// coyotes (tall grass)
 			/*{
 				x: 6000,
