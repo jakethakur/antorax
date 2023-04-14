@@ -2956,7 +2956,7 @@ class Character extends Thing {
 
 			// if channelling but can move during this channelling (i.e. player attacks), then speed might be reduced...
 			if (this.channelling !== false) {
-				this.speed *= this.stats.channelingMoveSpeed / 100; // channellingMoveSpeed is a percentage
+				this.speed *= this.stats.channellingMoveSpeed / 100; // channellingMoveSpeed is a percentage
 			}
 		}
 	}
