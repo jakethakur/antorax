@@ -1254,35 +1254,42 @@ Dom.reputation.update = function () {
 	}
 
 	for (let i = 0; i < visibleReputation.length; i++) {
-		if (Player.reputation[visibleReputation[i]].score >= ReputationPoints[Player.reputation[visibleReputation[i]].level]) {
-			this.upLevel(Player.reputation[visibleReputation[i]],i);
-		}else if (Player.reputation[visibleReputation[i]].score < 0) {
-			this.downLevel(Player.reputation[visibleReputation[i]],i);
-		}else if (Dom.reputation.ready) {
-			if (Player.reputation[visibleReputation[i]].level > 3) {
+		let reputationName = visibleReputation[i]; // key name of reputation currently being considered
+		if (Player.reputation[reputationName].score >= ReputationPoints[Player.reputation[reputationName].level]) {
+			this.upLevel(Player.reputation[reputationName], reputationName);
+		}
+		else if (Player.reputation[reputationName].score < 0) {
+			this.downLevel(Player.reputation[reputationName], reputationName);
+		}
+		else if (Dom.reputation.ready) {
+			if (Player.reputation[reputationName].level > 3) {
 				document.getElementsByClassName("reputationBar")[i].style.backgroundColor = "green";
-			}else if (Player.reputation[visibleReputation[i]].level < 3) {
+			}
+			else if (Player.reputation[reputationName].level < 3) {
 				document.getElementsByClassName("reputationBar")[i].style.backgroundColor = "red";
-			}else {
+			}
+			else {
 				document.getElementsByClassName("reputationBar")[i].style.backgroundColor = "gold";
 			}
-			if (Player.reputation[visibleReputation[i]].level !== 6 && Player.reputation[visibleReputation[i]].level !== 0) {
-				document.getElementsByClassName("reputationBar")[i].innerHTML = this.levels[Player.reputation[visibleReputation[i]].level] + "&nbsp;&nbsp;(" + Player.reputation[visibleReputation[i]].score + "/"+ReputationPoints[Player.reputation[visibleReputation[i]].level]+")";
-				document.getElementsByClassName("widthPadding")[i].innerHTML = this.levels[Player.reputation[visibleReputation[i]].level] + " (" + Player.reputation[visibleReputation[i]].score + "/"+ReputationPoints[Player.reputation[visibleReputation[i]].level]+")";
-			}else {
-				document.getElementsByClassName("reputationBar")[i].innerHTML = this.levels[Player.reputation[visibleReputation[i]].level];
-				document.getElementsByClassName("widthPadding")[i].innerHTML = this.levels[Player.reputation[visibleReputation[i]].level];
+			if (Player.reputation[reputationName].level !== 6 && Player.reputation[reputationName].level !== 0) {
+				document.getElementsByClassName("reputationBar")[i].innerHTML = this.levels[Player.reputation[reputationName].level] + "&nbsp;&nbsp;(" + Player.reputation[reputationName].score + "/"+ReputationPoints[Player.reputation[reputationName].level]+")";
+				document.getElementsByClassName("widthPadding")[i].innerHTML = this.levels[Player.reputation[reputationName].level] + " (" + Player.reputation[reputationName].score + "/"+ReputationPoints[Player.reputation[reputationName].level]+")";
 			}
-			if (Player.reputation[visibleReputation[i]].level >= 3) {
+			else {
+				document.getElementsByClassName("reputationBar")[i].innerHTML = this.levels[Player.reputation[reputationName].level];
+				document.getElementsByClassName("widthPadding")[i].innerHTML = this.levels[Player.reputation[reputationName].level];
+			}
+			if (Player.reputation[reputationName].level >= 3) {
 				document.getElementsByClassName("reputationBar")[i].style.textIndent = ((250-document.getElementsByClassName("widthPadding")[i].clientWidth)/2) + "px";
-				document.getElementsByClassName("reputationBar")[i].style.width = Player.reputation[visibleReputation[i]].score*250/ReputationPoints[Player.reputation[visibleReputation[i]].level]+"px";
+				document.getElementsByClassName("reputationBar")[i].style.width = Player.reputation[reputationName].score*250/ReputationPoints[Player.reputation[reputationName].level]+"px";
 				document.getElementsByClassName("reputationBar")[i].style.left = "0px";
-			}else {
-				document.getElementsByClassName("reputationBar")[i].style.textIndent = ((250-document.getElementsByClassName("widthPadding")[i].clientWidth)/2)-Player.reputation[visibleReputation[i]].score*250/ReputationPoints[Player.reputation[visibleReputation[i]].level]+ "px";
-				document.getElementsByClassName("reputationBar")[i].style.width = (ReputationPoints[Player.reputation[visibleReputation[i]].level]-Player.reputation[visibleReputation[i]].score)*250/ReputationPoints[Player.reputation[visibleReputation[i]].level]+"px";
-				document.getElementsByClassName("reputationBar")[i].style.left = Player.reputation[visibleReputation[i]].score*250/ReputationPoints[Player.reputation[visibleReputation[i]].level]+"px";
 			}
-			if (Player.reputation[visibleReputation[i]].level === 6) {
+			else {
+				document.getElementsByClassName("reputationBar")[i].style.textIndent = ((250-document.getElementsByClassName("widthPadding")[i].clientWidth)/2)-Player.reputation[reputationName].score*250/ReputationPoints[Player.reputation[reputationName].level]+ "px";
+				document.getElementsByClassName("reputationBar")[i].style.width = (ReputationPoints[Player.reputation[reputationName].level]-Player.reputation[reputationName].score)*250/ReputationPoints[Player.reputation[reputationName].level]+"px";
+				document.getElementsByClassName("reputationBar")[i].style.left = Player.reputation[reputationName].score*250/ReputationPoints[Player.reputation[reputationName].level]+"px";
+			}
+			if (Player.reputation[reputationName].level === 6) {
 				document.getElementsByClassName("reputationBar")[i].style.width = "250px";
 			}
 			document.getElementsByClassName("widthPadding")[i].innerHTML = "";
@@ -1290,14 +1297,15 @@ Dom.reputation.update = function () {
 	}
 }
 
-Dom.reputation.upLevel = function (Area, i) {
+// name is key name of this in Player.reputation
+Dom.reputation.upLevel = function (Area, keyName) {
 	if (Area.level <= 5) {
-		Area.score -= ReputationPoints[Player.reputation[Object.keys(Player.reputation)[i]].level];
+		Area.score -= ReputationPoints[Player.reputation[keyName].level];
 		Area.level++;
-		Dom.chat.insert("Your reputation level with " + FromCamelCase(Object.keys(Player.reputation)[i]) + " has increased to " + Dom.reputation.levels[Area.level]);
-		Game.displayOnCanvas("Reputation Level Up!", [FromCamelCase(Object.keys(Player.reputation)[i]), Dom.reputation.levels[Player.reputation[Object.keys(Player.reputation)[i]].level-1] + " \u{2794} " + Dom.reputation.levels[Player.reputation[Object.keys(Player.reputation)[i]].level]], 4, true); // display on canvas for 4s or enters a queue (true)
+		Dom.chat.insert("Your reputation level with " + FromCamelCase(keyName) + " has increased to " + Dom.reputation.levels[Area.level]);
+		Game.displayOnCanvas("Reputation Level Up!", [FromCamelCase(keyName), Dom.reputation.levels[Player.reputation[keyName].level-1] + " \u{2794} " + Dom.reputation.levels[Player.reputation[keyName].level]], 4, true); // display on canvas for 4s or enters a queue (true)
 		if (Area.level === 6) {
-			Dom.chat.announce("<strong>" + Player.name + "</strong> has reached venerated reputation with " + FromCamelCase(Object.keys(Player.reputation)[i]) + "!", true);
+			Dom.chat.announce("<strong>" + Player.name + "</strong> has reached venerated reputation with " + FromCamelCase(keyName) + "!", true);
 		}
 		this.update();
 	}
@@ -1308,13 +1316,15 @@ Dom.reputation.upLevel = function (Area, i) {
 	}
 }
 
-Dom.reputation.downLevel = function (Area, i) {
+// name is key name of this in Player.reputation
+Dom.reputation.downLevel = function (Area, keyName) {
 	if (Area.level > 1) {
 		Area.level--;
-		Area.score += ReputationPoints[Player.reputation[Object.keys(Player.reputation)[i]].level];
-		Dom.chat.insert("Your reputation level with " + FromCamelCase(Object.keys(Player.reputation)[i]) + " has decreased to " + Dom.reputation.levels[Area.level]);
+		Area.score += ReputationPoints[Player.reputation[keyName].level];
+		Dom.chat.insert("Your reputation level with " + FromCamelCase(keyName) + " has decreased to " + Dom.reputation.levels[Area.level]);
 		this.update();
-	}else {
+	}
+	else {
 		Area.level = 0;
 		Area.score = 0;
 		this.update();

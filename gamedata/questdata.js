@@ -2197,8 +2197,8 @@ I can’t do my routine without my props… I’d have to become a… <i>(shudde
 			ᵔ ᵕ ᵔ`,
 
 			objectives: [
-				"Pick 6 <b>blue callalillies</i> from the <b>flower forest</b> in the Eaglecrest Plains <i>(they're big and blue~)</i>.",
-				"Pick 6 <b>marigolds</i> from around the Eaglecrest Plains <i>(they're yellow)</i>.",
+				"Pick 6 <b>blue callalillies</b> from the <b>flower forest</b> in the Eaglecrest Plains <i>(they're big and blue~)</i>.",
+				"Pick 6 <b>marigolds</b> from around the Eaglecrest Plains <i>(they're yellow)</i>.",
 				"Speak to <b>Farmer Eloise</b>.",
 			],
 

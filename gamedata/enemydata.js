@@ -901,7 +901,7 @@ const EnemyTemplates = {
 				healthRegen: 0.5,
 				lootTime: 10000,
 				respawnTime: 20000,
-				projectileSpeed: 190,
+				projectileSpeed: 310,
 				projectileRange: 400,
 			},
 			xpGiven: 50,
@@ -949,7 +949,7 @@ const EnemyTemplates = {
 				healthRegen: 0.5,
 				lootTime: 10000,
 				respawnTime: 20000,
-				projectileSpeed: 320, // ok this was also changed a little...
+				projectileSpeed: 420, // ok this was also changed a little...
 				projectileRange: 400,
 			},
 			xpGiven: 150,

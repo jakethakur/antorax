@@ -8357,6 +8357,10 @@ Game.init = function () {
 	// init keyboard
 	Keyboard.init();
 
+	// init canvas display variables (used by displayOnCanvas) - needs to be done early for dom
+	this.canvasDisplay = {};
+	this.canvasDisplayQueue = [];
+
 	// init DOM
 	Dom.init();
 
@@ -8480,10 +8484,6 @@ Game.init = function () {
 
 	// fps array (used for tracking frames per second in Game.fps())
 	this.fpsArray = [];
-
-	// init canvas display variables (used by displayOnCanvas)
-	this.canvasDisplay = {};
-	this.canvasDisplayQueue = [];
 
 	// trail interval
 	// new particle(s) every 100ms (tbd make this called more often?)
