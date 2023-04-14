@@ -9338,7 +9338,7 @@ Game.update = function (delta) {
 			direction: this.hero.direction,
 			expand: this.hero.expand,
 			mounted: this.hero.mounted,
-			mountImg: aaaaaaaaaaaaaaaaaa
+			//mountImg: aaaaaaaaaaaaaaaaaa
 		}));
 	}
 
