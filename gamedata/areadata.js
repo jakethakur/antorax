@@ -7640,6 +7640,9 @@ Last I saw him, he was visiting the <b>Eaglecrest Plains</b> to the <b>south</b>
 					map.layers[2][i] = 0;
 				}
 			}
+
+			// reset if player has seen jester or not
+			Player.quests.questProgress.seenJesterOnScreen = false;
 		},
 
 		// same as onAreaJoin but called before anything is loaded
@@ -8024,7 +8027,7 @@ Last I saw him, he was visiting the <b>Eaglecrest Plains</b> to the <b>south</b>
 				template: Villagers[24],
 				health: 56, // damaged
 				stats: {
-					defence: 62,
+					defence: 64,
 					healthRegen: 0,
 				},
 				canBeShown: function () {

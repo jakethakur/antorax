@@ -62,14 +62,28 @@ const SpeciesTemplates = {
 	plainsToad: {
 		species: "frog",
 		subSpecies: "plains toad",
-		attackTargets: [{target: function () { // for Overdraft quest
-			if (Player.quests.npcProgress.eaglecrest[2] === 2) {
-				return Game.npcs.find(character => character.name === "Gildo Cleftbeard");
-			}
-			else if (Player.quests.possibleQuestArray.includes("A Fool's Errand")) {
-				return Game.npcs.find(character => character.name === "The Jester");
-			}
-		}, baseAggro: 5}],
+		attackTargets: [
+			{target: function () { // for Overdraft quest
+				if (Player.quests.npcProgress.eaglecrest[2] === 2) {
+					return Game.npcs.find(character => character.name === "Gildo Cleftbeard");
+				}
+			}, baseAggro: 5},
+			{target: function () { // for Jester quest
+				if (Player.quests.possibleQuestArray.includes("A Fool's Errand")) {
+					return Game.npcs.find(character => character.name === "The Jester");
+				}
+			}, baseAggro: 5,
+			requirement: function (target) { // jester is passed in
+				// dynamic requirement for if jester is attacked (checked every tick)
+				if (!Player.quests.questProgress.seenJesterOnScreen) {
+					if (Game.camera.isOnScreen(target)) {
+						Player.quests.questProgress.seenJesterOnScreen = true;
+						Dom.chat.insert(Dom.chat.say("The Jester", "Argh! Help me with these frogs!"), 0, 0, false);
+					}
+				}
+				return Player.quests.questProgress.seenJesterOnScreen; // note this variable is reset on reentering plains
+			}},
+		],
 		onDeath: function () {
 			// frogs killed achievement
 			User.progress.frogs = Increment(User.progress.frogs);

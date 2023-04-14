@@ -3220,6 +3220,10 @@ class Attacker extends Character {
 		this.stats.projectileStopMovingOnDamage = properties.stats.projectileStopMovingOnDamage;
 		this.stats.pierce = properties.stats.pierce; // if infinite, use damageAllHit instead
 		this.stats.damageAllHit = properties.stats.damageAllHit; // if projectile damages all things hit
+		// true by default
+		if (typeof this.stats.damageAllHit === "undefined") {
+			this.stats.damageAllHit = true;
+		}
 
 
 		// information about projectile (how it looks)
@@ -4523,6 +4527,9 @@ class Projectile extends Thing {
 		}
 
 		this.movementRange = properties.projectileRange || 2000; // maximum displacement that can be moved (for a moveTowards rather than moveDirection this is not necessary to be set)
+		// add a bit of variance so not all of the projectiles land in the same place
+		this.movementRange += Random(-30, 30);
+
 		this.startPosition = {x: this.x, y: this.y}; // saved so the displacement is known
 
 		this.stopMovingOnDamage = properties.stopMovingOnDamage; // whether it should stop moving upon damaging something (this is not the same as damageAllHit)
@@ -4610,12 +4617,12 @@ class Projectile extends Thing {
 
 				// only deal damage if it hasn't before (or if damage is to be dealt to all targets, or pierces)
 				else if (this.damageDealt.length === 0 || this.projectileStats.stats.damageAllHit) {
-					// hasn't dealt damage - try to
+					// deal damage
 					this.dealDamage(this.projectileStats, this.targets);
 
 					// check if damage was dealt
 					if (this.damageDealt.length !== 0) {
-						// stop moving
+						// stop moving potentially
 						if (this.stopMovingOnDamage) {
 							this.moveTowards = undefined;
 							this.moveDirection = undefined;
@@ -4665,22 +4672,25 @@ class Projectile extends Thing {
 	postRenderFunction() {
 		// shows damage dealt by projectile
 		for (let x = 0; x < this.damageDealt.length; x++) {
-			// formatting
-			if (this.damageDealt[x].critical) {
-				Game.ctx.fillStyle = "rgb(255, 0, 0)"; // maybe use rgba to make it fade away?
-			}
-			else {
-				Game.ctx.fillStyle = "rgb(0, 0, 0)"; // maybe use rgba to make it fade away?
-			}
-			Game.ctx.textAlign = "left";
-			Game.ctx.font = "18px El Messiri";
+			// only display if damage was dealt to hero, or if it was hero's projectile
+			if (this.damageDealt[x].enemy.constructor.name === "Hero" || this.attacker.constructor.name === "Hero") {
+				// formatting
+				if (this.damageDealt[x].critical) {
+					Game.ctx.fillStyle = "rgb(255, 0, 0)"; // maybe use rgba to make it fade away?
+				}
+				else {
+					Game.ctx.fillStyle = "rgb(0, 0, 0)"; // maybe use rgba to make it fade away?
+				}
+				Game.ctx.textAlign = "left";
+				Game.ctx.font = "18px El Messiri";
 
-			let damage = this.damageDealt[x].damage;
-			if (damage !== "hit dodged") {
-				damage = Round(damage); // round damage to 1d.p. if it is an integer value
-			}
+				let damage = this.damageDealt[x].damage;
+				if (damage !== "hit dodged") {
+					damage = Round(damage); // round damage to 1d.p. if it is an integer value
+				}
 
-			Game.ctx.fillText(damage, this.screenX, this.screenY);
+				Game.ctx.fillText(damage, this.screenX, this.screenY);
+			}
 		}
 
 		Game.ctx.globalAlpha = 1; // restore transparency if it was changed by preRenderFunction (e.g: mage channelled projectile)
@@ -5015,7 +5025,12 @@ class Projectile extends Thing {
 				}
 			}
 			else {
-				this.removeIn = 1.5;
+				if (this.projectileType === "travelling") {
+					this.removeIn = 0.75;
+				}
+				else {
+					this.removeIn = 1.5;
+				}
 				this.onRemoveTimeout = true;
 			}
 			return this.removeIn;
@@ -5531,10 +5546,14 @@ class Enemy extends Attacker {
 						target: target,
 						aggro: 0,
 						baseAggro: targetBaseAggro,
+						requirement: properties.attackTargets[i].requirement // this is a dynamic requirement that is checked every tick. for a requirement that is just checked on area load, put this in .target
 					});
 				}
 			}
 		}
+
+		// make array of targets that should be damaged by each projectile, from attackTargets
+		this.canDamage = this.attackTargets.map(target => target.target);
 	}
 
 	// we are in enemy class - this is called every time update is called
@@ -5635,16 +5654,21 @@ class Enemy extends Attacker {
 							// see if target appears in attackTargets
 							let attackTarget = false;
 							for (let i = 0; i < this.attackTargets.length; i++) {
-								if (this.attackTargets[i].target.id === target.id) {
+								if (this.attackTargets[i].target.id === target.id && (typeof this.attackTargets[i].requirement === "undefined" || this.attackTargets[i].requirement(this.attackTargets[i].target))) {
 									attackTarget = true;
 									break;
 								}
+							}
+							// I think target should always be in attack targets... but just in case...
+							if (!attackTarget) {
+								console.error("A target was found that's not in attack targets! Please tell Jake. ", target)
 							}
 
 							// enemy should attack target
 							// canAttack is inside if statement because otherwise the enemy moves when it is in range but cannot attack
 							if (this.canAttack && attackTarget) { // projectile can be shot
-								this.shoot([[target]]);
+								// even though projectile is aimed at target, it can hit all enemies in attackTarget
+								this.shoot([this.canDamage], target);
 							}
 
 							// alwaysMove stat means that it always moves even when in range
@@ -5728,19 +5752,19 @@ class Enemy extends Attacker {
 		}
 	}
 
-	// shoot projectile at array of arrays of enemies (at)
-	// currently just the first thing in at is shot at - tbd
-	shoot (at) {
+	// shoot projectile at array of arrays of enemies (targets)
+	// it is fired in the direction of "at".
+	shoot (targets, at) {
 		this.canAttack = false;
 
 		let projectileX, projectileY, projectileRotate, projectileDirection; // projectileRotate is cosmetic, projectileDirection mathematical movement direction
 
-		projectileDirection = Game.bearing(this, at[0][0]);
+		projectileDirection = Game.bearing(this, at);
 
 		if (this.projectileType === "instant") {
 			// i.e. melee projectiles ; can't be dodged
-			projectileX = at[0][0].x;
-			projectileY = at[0][0].y;
+			projectileX = at.x;
+			projectileY = at.y;
 
 			// variance in position
 			if (typeof this.stats.positionVariance !== "undefined") {
@@ -5777,7 +5801,7 @@ class Enemy extends Attacker {
 			y: projectileY,
 			attacker: this,
 			projectileStats: this,
-			targets: at,
+			targets: targets,
 			width: this.projectile.width,
 			height: this.projectile.height,
 			adjust: {
@@ -5825,7 +5849,8 @@ class Enemy extends Attacker {
 
 		for (let i = 0; i < this.attackTargets.length; i++) {
 			let target = this.attackTargets[i];
-			if (!target.target.stats.stealthed || this.isTouching(target.target)) {  // target is not stealthed OR they are and this is touching them
+			// check that target is not stealthed OR they are and this is touching them. also check they're not dead lol. and check requirement function
+			if ((!target.target.stats.stealthed || this.isTouching(target.target)) && !target.target.isCorpse && !target.target.respawning && (typeof target.requirement === "undefined" || target.requirement(target.target))) {
 				let distance = Game.distance(this, target.target);
 				let aggro = target.aggro + target.baseAggro;
 

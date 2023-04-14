@@ -992,7 +992,7 @@ var Villagers = [
 		}],
         chat: {
 			questProgress: "Back already? All empty-handed? And I thought I was supposed to be the fool!",
-            notUnlockedRoles: "That's a bug... tell Jake please!", // should never be shown because jokes
+            notUnlockedRoles: "",
             chooseChat: "Better a witty fool than a foolish wit. Or so I’ve heard.",
             receiveTavernGood: "A thousand thanks! Being this funny is hungry work.",
 			tenPercentHealth: "Make haste! I can’t hold on much longer!",
