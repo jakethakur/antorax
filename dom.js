@@ -983,12 +983,12 @@ Dom.chat.playerMessage = function (message) {
 						string += " " + array[i];
 					}
 					Dom.chat.insert(Dom.chat.say(Player.name + " &#10132; " + array[1], string));
-					let message = {
+					let messageObj = {
 				        type: "msg",
 				        name: array[1],
 				        content: string,
 				    }
-				    let jsonMessage = JSON.stringify(message);
+				    let jsonMessage = JSON.stringify(messageObj);
 				    ws.send(jsonMessage);
 				}
 				else if (array.length <= 2) {
@@ -1002,12 +1002,12 @@ Dom.chat.playerMessage = function (message) {
 			else if (message.substring(0, 3) === "/r ") {
 				if (Dom.chat.replyTo !== undefined) {
 					Dom.chat.insert(Dom.chat.say(Player.name + " &#10132; " + Dom.chat.replyTo, message.substring(3)));
-					let message = {
+					let messageObj = {
 						type: "msg",
 						name: Dom.chat.replyTo,
 						content: message.substring(3),
 					}
-					let jsonMessage = JSON.stringify(message);
+					let jsonMessage = JSON.stringify(messageObj);
 					ws.send(jsonMessage);
 				}
 				else {
@@ -1017,12 +1017,12 @@ Dom.chat.playerMessage = function (message) {
 
 			// send message which is thus broadcasted to all others (no KAO)
 			else {
-				let message = {
+				let messageObj = {
 			        type: "chat",
 			        name: Player.name,
 			        content: message,
 			    }
-			    let jsonMessage = JSON.stringify(message);
+			    let jsonMessage = JSON.stringify(messageObj);
 			    ws.send(jsonMessage);
 			}
 		}
