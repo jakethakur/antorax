@@ -999,7 +999,7 @@ var Villagers = [
 			death: "Not even I can see the funny side in this.",
         },
 		canBeShown: function () {
-			return Player.quests.completedQuestArray.includes("A Fool's Errand") || !Player.quests.possibleQuestArray.includes("A Fool's Errand");
+			return Player.quests.completedQuestArray.includes("A Fool's Errand") || (!Player.quests.possibleQuestArray.includes("A Fool's Errand") && !Player.quests.activeQuestArray.includes("A Fool's Errand"));
 		}
     },
 	{
