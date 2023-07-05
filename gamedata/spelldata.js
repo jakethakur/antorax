@@ -816,6 +816,12 @@ Spells = [
 
         // properties should contain caster, target
 		func: function (properties) {
+			let projectileSpeed = 250; // default
+
+			if (properties.caster.hasStatusEffect("Empowered")) {
+				projectileSpeed *= 1.6;
+			}
+
 			Game.projectiles.push(new Projectile({
 				map: map,
 				x: properties.caster.x,
@@ -860,19 +866,19 @@ Spells = [
 				targets: [[properties.target]],
 				image: "jaws",
 				crop: {
-					x: 0,
-					y: 0,
-					width: 150,
-					height: 150
+					x: 47,
+					y: 42,
+					width: 61,
+					height: 66,
 				},
 				moveDirection: Game.bearing(properties.caster, properties.target),
-				moveSpeed: 250,
+				moveSpeed: projectileSpeed,
 				type: "projectiles",
 				animation: {
 					type: "spritesheet",
 					imagesPerRow: 3,
 					frameTime: 90,
-					totalImages: 7
+					totalImages: 7,
 				},
 				transparency: 0.7,
 				stopMovingOnDamage: true,
@@ -903,7 +909,7 @@ Spells = [
 					removeIn: 1000,
 					variance: 50,
 					intensity: 4,
-					duration: 3,
+					duration: 2.5,
 				});
 			}
         },
@@ -915,7 +921,7 @@ Spells = [
 
         healthRestored: [
             0,
-            30,    // tier 1
+            25,    // tier 1
         ],
     },
 
@@ -942,9 +948,8 @@ Spells = [
 					removeIn: 1000,
 					variance: 50,
 					intensity: 2,
-					duration: 7,
+					duration: 6,
 				});
-				// tbd also make this double the speed of their projectiles? or double move speed maybe?
 			}
         },
 
@@ -955,12 +960,12 @@ Spells = [
 
         damageIncrease: [
             0,
-            100,    // tier 1
+            50,    // tier 1
         ],
 
         length: [
             0,
-            7,    // tier 1
+            6,    // tier 1
         ],
     },
 
@@ -1085,5 +1090,59 @@ Spells = [
 			15000,	// tier 1
 		],
 	},
+
+	{
+		// tbd fissure
+		func: function (properties) {
+
+
+			Game.camera.initScreenShake(3,1000);
+
+			Game.projectiles.push(new Projectile({ // HERO fissure projectile
+				map: map,
+				x: Game.hero.x,
+				y: Game.hero.y,
+				z: -1,
+				attacker: this,
+				projectileStats: this,
+				targets: [Game.damageableByPlayer],
+				adjust: {
+					// manually adjust position (programmed for each projectile in skindata/itemdata)
+					x: Game.heroProjectileAdjust.x,
+					y: Game.heroProjectileAdjust.y,
+					towards: {x: this.x, y: this.y},
+				},
+				hitbox: {
+					x: Game.hero.x,
+					y: Game.hero.y,
+					width: this.class === "k" ? 60 : (this.class === "m" ? 23 : (this.class === "a" ? 10 : 0)),//kkkkkkkkkk
+					height: this.class === "k" ? 60 : (this.class === "m" ? 23 : (this.class === "a" ? 10 : 0)),
+				},
+				image: Game.heroProjectile2Name, // projectile 2
+				name: "Hero Fissure Projectile",
+				beingChannelled: true, // speeds it up
+				type: "projectiles",
+
+				projectileType: "snake",
+
+				// properties
+				iterationSpacing: this.stats.iterationSpacing, // in ms
+				maxIterations: this.stats.maxIterations,
+				moveDirection: projectileDirection,
+				damageAllHit: this.stats.damageAllHit, // usually true
+
+				// optional stuff:
+				// aaaaaaaaaaaaa look at ; might need to fix some of these
+				// also, doesn't work for projectile2 since these properties don't exist
+				/*crop: Game.heroProjectileInfo.crop,
+				animation: Game.heroProjectileInfo.animation,
+				frameTime: Game.heroProjectileInfo.frameTime,
+				stayOnScreen: Game.heroProjectileInfo.stayOnScreen, // set to the time it stays on the screen for (default 1500) or true if never removed
+				//doNotRotate: Game.heroProjectileInfo.doNotRotate, // aaaaaaaaaaaaaa readd but just as a visual thing - not affecting the projectile's direction as it would because this is needed for variance
+				onInteract: Game.heroProjectileInfo.onInteract,
+				z: Game.heroProjectileInfo.z,*/
+			}));
+		}
+	}
 
 ];

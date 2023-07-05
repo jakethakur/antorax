@@ -3859,19 +3859,19 @@ tripwires: [
 	width: 200,
 	height: 2,
 	onPlayerTouch: function () {
-                    if (Game.hero.moveTowards === undefined) {
+					if (Game.hero.moveTowards === undefined) {
 
-                        Game.hero.hidden = true;
-                        Game.hero.moveTowards = {
-                            x: Game.hero.x,
-                            y: Game.hero.y + 600,
-                            moveTowardsFinishFunction: function () {
-                                Game.hero.hidden = false;
-                            }
-                        };
-                        Game.hero.updateRotation();
-                    }
-                }
+						Game.hero.hidden = true;
+						Game.hero.moveTowards = {
+							x: Game.hero.x,
+							y: Game.hero.y + 600,
+							moveTowardsFinishFunction: function () {
+								Game.hero.hidden = false;
+							}
+						};
+						Game.hero.updateRotation();
+					}
+				}
 },
 
 {
@@ -3885,7 +3885,7 @@ onPlayerTouch: function () {
 											Game.hero.hidden = true;
 											Game.hero.moveTowards = {
 													x: Game.hero.x,
-													y: Game.hero.y - 650,
+													y: Game.hero.y - 600,
 													moveTowardsFinishFunction: function () {
 															Game.hero.hidden = false;
 													}
@@ -4023,7 +4023,7 @@ onPlayerTouch: function () {
 				stats: {
 					maxHealth: 400,
 					defence: 6,
-		            walkSpeed: 131,
+					walkSpeed: 131,
 				},
 				roles: [
 					{
@@ -4273,11 +4273,11 @@ onPlayerTouch: function () {
 						chooseText: "Here are 5 Wispy Feathers",
 						onClick: function () {
 							if (Dom.inventory.check(37, "item", 5)) {
-                                Dom.inventory.removeById(37, "item", 5);
+								Dom.inventory.removeById(37, "item", 5);
 								Dom.inventory.give(Items.item[38]);
-                                Player.quests.questProgress.westCrate = true;
-                                Dom.text.page("Mask Salesman", "You have my feathers? Great. These will prove rather helpful.<br><br>I know what you're doing with these Crystals. All I can say, is make sure I get my cut of Marks once the blood has risen from the depths. <b><i>I insist</i></b>.", true, [], [], [{item: Items.item[38]}]);
-                            }
+								Player.quests.questProgress.westCrate = true;
+								Dom.text.page("Mask Salesman", "You have my feathers? Great. These will prove rather helpful.<br><br>I know what you're doing with these Crystals. All I can say, is make sure I get my cut of Marks once the blood has risen from the depths. <b><i>I insist</i></b>.", true, [], [], [{item: Items.item[38]}]);
+							}
 						},
 						forceChoose: true, // forces choose dom
 						roleRequirement: function () {
@@ -4384,7 +4384,7 @@ onPlayerTouch: function () {
 
 			{x: 7126.9, y: 2021.4, image: 'cauldronEaglecrest', name: ''},
 			{x: 6539.9, y: 2039.2, image: 'anvil', name: ''},
-{x: 3747.5, y: 2409.9, image: 'eaglecrestStatue', name: ''},
+{x: 3747.5, y: 2409.9, z: -2, image: 'eaglecrestStatue', name: 'Eaglecrest Statue'},
 {x: 8306.1, y: 1658.7, image: 'gargoyleLeft', name: ''},
 {x: 10474.3, y: 1581.6, image: 'gargoyleRight', name: ''},
 {x: [8941.2, 9427.7, 9842, 10055.4], y: [2755.6, 3060.4, 2800, 2315.6], image: 'gravestone1', name: ''},
@@ -4548,8 +4548,26 @@ onPlayerTouch: function () {
 		},
 
 		areaTeleports: [
-
-
+			{
+				// teleport to shop
+				x: 510,
+				y: 210,
+				width: 60,
+				height: 2,
+				teleportTo: "eaglecrestBazaar",
+				destinationX: 395,
+				destinationY: 770,
+			},
+			{
+				// teleport to the forge
+				x: 1350,
+				y: 210,
+				width: 60,
+				height: 2,
+				teleportTo: "theForge",
+				destinationX: 395,
+				destinationY: 770,
+			},
 			{
 				// teleport to eaglecrest plaza
 				x: 1880,
@@ -4909,6 +4927,7 @@ onPlayerTouch: function () {
 			banker4: {normal: "assets/npcs/eaglecrestBanker4.png"},
 			yellowSnakeRight: {samhain: "assets/enemies/yellowSnake.png"},
 			yellowSnakeLeft: {samhain: "assets/enemies/yellowSnake.png", flip: "vertical"},
+			//constellation1: {normal: "assets/objects/constellation1.png",},
 		},
 
 		callAreaJoinOnInit: true,
@@ -4928,6 +4947,53 @@ onPlayerTouch: function () {
 				Dom.chat.insert(Dom.chat.say("Head Banker Jonos", "Uhhh can't you see we're closed?"));
 			}
 		},
+
+		/*things: [
+			{
+				x: [249.8, 333.4, 553.7, 870.2, 777.1, 574.7, 116.5, 502.6],
+				y: [337.5, 95.2, 138.8, 333.3, 743.1, 541.9, 766.6, 422.2],
+				z: 1,
+				image: "constellation1",
+				name: "Constellation",
+				speed: 70,
+				rotateSpeed: 10,
+				transparency: 0.7,
+				moveTowardsLoopStartIndex: "random",
+				moveTowardsLoop: [
+					{x: 485, y: 459.4, image: 'rootedStatusImage', name: 'default'},
+					{x: 269.6, y: 495.2, image: 'rootedStatusImage', name: 'default'},
+					{x: 170.3, y: 628.4, image: 'rootedStatusImage', name: 'default'},
+					{x: 240.1, y: 744.7, image: 'rootedStatusImage', name: 'default'},
+					{x: 374.8, y: 786.3, image: 'rootedStatusImage', name: 'default'},
+					{x: 519.1, y: 725.3, image: 'rootedStatusImage', name: 'default'},
+					{x: 580.1, y: 556.5, image: 'rootedStatusImage', name: 'default'},
+					{x: 407.7, y: 293.6, image: 'rootedStatusImage', name: 'default'},
+					{x: 341.5, y: 158.8, image: 'rootedStatusImage', name: 'default'},
+					{x: 437.3, y: 50.8, image: 'rootedStatusImage', name: 'default'},
+					{x: 606.6, y: 19.4, image: 'rootedStatusImage', name: 'default'},
+					{x: 688.4, y: 101.3, image: 'rootedStatusImage', name: 'default'},
+					{x: 758.1, y: 220, image: 'rootedStatusImage', name: 'default'},
+					{x: 751.1, y: 359.4, image: 'rootedStatusImage', name: 'default'},
+					{x: 546.6, y: 429, image: 'rootedStatusImage', name: 'default'},
+					{x: 611.9, y: 614.8, image: 'rootedStatusImage', name: 'default'},
+					{x: 757.6, y: 716.4, image: 'rootedStatusImage', name: 'default'},
+					{x: 924.2, y: 699.1, image: 'rootedStatusImage', name: 'default'},
+					{x: 950.3, y: 545.8, image: 'rootedStatusImage', name: 'default'},
+					{x: 777.5, y: 446.6, image: 'rootedStatusImage', name: 'default'},
+					{x: 591.3, y: 410, image: 'rootedStatusImage', name: 'default'},
+					{x: 331.6, y: 361.2, image: 'rootedStatusImage', name: 'default'},
+					{x: 151.4, y: 328.2, image: 'rootedStatusImage', name: 'default'},
+					{x: 99.2, y: 222, image: 'rootedStatusImage', name: 'default'},
+					{x: 85.2, y: 104.8, image: 'rootedStatusImage', name: 'default'},
+					{x: 199.2, y: 59.5, image: 'rootedStatusImage', name: 'default'},
+					{x: 317.4, y: 56, image: 'rootedStatusImage', name: 'default'},
+					{x: 451.3, y: 106.5, image: 'rootedStatusImage', name: 'default'},
+					{x: 575.6, y: 174.4, image: 'rootedStatusImage', name: 'default'},
+					{x: 648.7, y: 286.8, image: 'rootedStatusImage', name: 'default'},
+					{x: 554.7, y: 402.9, image: 'rootedStatusImage', name: 'default'},
+				]
+			},
+		],*/
 
 		areaTeleports: [
 			{
@@ -5451,7 +5517,6 @@ onPlayerTouch: function () {
 				teleportTo: "eaglecrest",
 				destinationX: 2849.6,
 				destinationY: 1423.7,
-
 			},
 			{
 				x: 1235,
@@ -6086,8 +6151,11 @@ onPlayerTouch: function () {
 				[6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 7, 6, 6, 6, 6, 7, 6, 6, 6, 6, 7, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 30, 30, 30, 30, 30, 30, 30, 30, 30, 30, 30, 30, 30, 30, 30, 30, 30, 30, 30, 30, 30, 30, 30, 30, 30, 30, 30, 30, 30, 46, 46, 46, 46, 46, 46, 46, 30, 30, 30, 30, 30, 30, 30, 30, 30, 30, 30, 30, 30, 30, 30, 30, 30, 30, 30, 30, 30, 30, 30, 30, 30, 30, 30, 30, 30, 30, 30, 30, 30, 30, 30, 30, 30, 30, 30, 30, 30, 30, 30, 30, 30, 30, 30, 30, 30, 30, 30, 30, 30, 30, 30, 30, 30, 30, 30, 30, 30, 30, 30, 30, 30, 30, 30, 30, 30, 30, 30, 30, 30, 30, 30, 30, 30, 30, 30, 30, 30, 30, 30, 30, 30, 30, 30, 30, 30, 30, 30, 30, 30, 30],
 				[0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 166, 166, 166, 166, 166, 166, 166, 166, 166, 166, 166, 166, 166, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
 			],
-
-
+			animateTiles: [{
+				// christmas lights on walls!
+				tiles: [166, 174, 167, 175, 168, 176],
+				animateTime: 600,
+			}],
 		},
 
 		images: {
@@ -6270,7 +6338,11 @@ onPlayerTouch: function () {
 				[6, 6, 6, 23, 47, 31, 55, 31, 55, 39, 6, 6, 6, 6, 7, 6, 31, 55, 39, 7, 39, 23, 47, 6, 7, 6, 6, 101, 6, 39, 23, 47, 23, 47, 31, 55, 6, 6, 6, 6, 10, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 30, 30, 30, 30, 30, 30, 30, 30, 30, 30, 30, 30, 30, 30, 30, 30, 30, 30, 30, 30, 30, 30, 30, 30, 30, 30, 30, 30, 30, 46, 46, 46, 46, 46, 46, 46, 30, 30, 30, 30, 30, 30, 30, 30, 30, 30, 30, 30, 30, 30, 30, 30, 30, 30, 30, 30, 30, 30, 30, 30, 30, 30, 30, 30, 30, 30, 30, 30, 30, 30, 30, 30, 30, 30, 30, 30, 30, 30, 30, 30, 30, 30, 30, 30, 30, 30, 30, 30, 30, 30, 30, 30, 30, 30, 30, 30, 30, 30, 30, 30, 30, 30, 30, 30, 30, 30, 30, 30, 30, 30, 30, 30, 30, 30, 30, 30, 30, 30, 30, 30, 30, 30, 30, 30, 30, 30, 30, 30, 30, 30],
 				[166, 166, 166, 166, 166, 166, 166, 166, 166, 166, 166, 166, 166, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
 			],
-
+			animateTiles: [{
+				// christmas lights on walls!
+				tiles: [166, 174, 167, 175, 168, 176],
+				animateTime: 600,
+			}],
 		},
 
 		images: {
@@ -6299,7 +6371,7 @@ onPlayerTouch: function () {
 
 		areaTeleports: [
 			{
-				// teleport to eaglecrest east
+				// teleport to eaglecrest east side
 				x: 390,
 				y: 889,
 				width: 240,
@@ -6471,7 +6543,11 @@ onPlayerTouch: function () {
 				[6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 7, 6, 6, 6, 6, 7, 6, 6, 6, 6, 7, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 30, 30, 30, 30, 30, 30, 30, 30, 30, 30, 30, 30, 30, 30, 30, 30, 30, 30, 30, 30, 30, 30, 30, 30, 30, 30, 30, 30, 30, 46, 46, 46, 46, 46, 46, 46, 30, 30, 30, 30, 30, 30, 30, 30, 30, 30, 30, 30, 30, 30, 30, 30, 30, 30, 30, 30, 30, 30, 30, 30, 30, 30, 30, 30, 30, 30, 30, 30, 30, 30, 30, 30, 30, 30, 30, 30, 30, 30, 30, 30, 30, 30, 30, 30, 30, 30, 30, 30, 30, 30, 30, 30, 30, 30, 30, 30, 30, 30, 30, 30, 30, 30, 30, 30, 30, 30, 30, 30, 30, 30, 30, 30, 30, 30, 30, 30, 30, 30, 30, 30, 30, 30, 30, 30, 30, 30, 30, 30, 30, 30],
 				[166, 167, 168, 166, 167, 168, 166, 167, 168, 166, 167, 168, 166, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
 			],
-
+			animateTiles: [{
+				// christmas lights on walls!
+				tiles: [166, 174, 167, 175, 168, 176],
+				animateTime: 600,
+			}],
 		},
 
 		images: {
@@ -6524,8 +6600,8 @@ onPlayerTouch: function () {
 				width: 240,
 				height: 2,
 				teleportTo: "eaglecrest",
-				destinationX: 691,
-				destinationY: 2020,
+				destinationX: 689,
+				destinationY: 2029,
 			},
 		],
 
@@ -6949,7 +7025,16 @@ Last I saw him, he was visiting the <b>Eaglecrest Plains</b> to the <b>south</b>
 				destinationX: 1840,
 				playerAdjustY: -310,
 			},
-
+			{
+				// teleport to eaglecrest monastery
+				x: 2010,
+				y: 384,
+				width: 60,
+				height: 2,
+				teleportTo: "eaglecrestMonastery",
+				destinationX: 1100,
+				destinationY: 1730,
+			},
 		],
 
 		villagerData: {
@@ -7284,6 +7369,7 @@ Last I saw him, he was visiting the <b>Eaglecrest Plains</b> to the <b>south</b>
 				y: 1850,
 				width: 2220,
 				height: 2,
+				teleportTo: "eaglecrestGraveyard",
 				teleportTo: "eaglecrest",
 				destinationX: 9634,
 				destinationY: 1950,
@@ -7609,67 +7695,122 @@ Last I saw him, he was visiting the <b>Eaglecrest Plains</b> to the <b>south</b>
 					tile: 192,
 					ySpacing: 20,
 					xSpacing: 5,
-					name: "Beetroot"
+					name: "Beetroot",
+					objectProperties: {
+						canBePickedUp: {
+							channelTime: 1000, itemType: "item", itemId: 72, channelText: "Harvesting crop"
+						},
+					},
 				},
 				{
 					tile: 216,
 					ySpacing: 20,
 					xSpacing: 10,
-					name: "Amaranth"
+					name: "Amaranth",
+					objectProperties: {
+						canBePickedUp: {
+							channelTime: 1000, itemType: "item", itemId: 73, channelText: "Harvesting crop"
+						},
+					},
 				},
 				{
 					tile: 243,
 					ySpacing: 20,
 					xSpacing: -30,
-					name: "Teal Callalilies"
+					name: "Teal Callalilies",
+					objectProperties: {
+						canBePickedUp: {
+							channelTime: 1000, itemType: "item", itemId: 68, channelText: "Flower picking"
+						},
+					},
 				},
 				{
 					tile: 242,
 					ySpacing: 20,
 					xSpacing: -20,
-					name: "Daisies"
+					name: "Daisies",
+					objectProperties: {
+						canBePickedUp: {
+							channelTime: 1000, itemType: "item", itemId: 32, channelText: "Flower picking"
+						},
+					},
 				},
 				{
 					tile: 241,
 					ySpacing: 20,
 					xSpacing: -30,
-					name: "Marigolds"
+					name: "Marigolds",
+					objectProperties: {
+						canBePickedUp: {
+							channelTime: 1000, itemType: "item", itemId: 31, channelText: "Flower picking"
+						},
+					},
 				},
 				{
 					tile: 239,
 					ySpacing: 20,
 					xSpacing: -6,
-					name: "Lavender"
+					name: "Lavender",
+					objectProperties: {
+						canBePickedUp: {
+							channelTime: 1000, itemType: "item", itemId: 30, channelText: "Flower picking"
+						},
+					},
 				},
 				{
 					tile: 238,
 					ySpacing: 30,
 					xSpacing: -20,
-					name: "Wolfsbane"
+					name: "Wolfsbane",
+					objectProperties: {
+						canBePickedUp: {
+							channelTime: 1000, itemType: "item", itemId: 67, channelText: "Flower picking"
+						},
+					},
 				},
 				{
 					tile: 237,
 					ySpacing: 20,
 					xSpacing: -10,
-					name: "Cyan Wallflowers"
+					name: "Cyan Wallflowers",
+					objectProperties: {
+						canBePickedUp: {
+							channelTime: 1000, itemType: "item", itemId: 66, channelText: "Flower picking"
+						},
+					},
 				},
 				{
 					tile: 236,
 					ySpacing: 30,
 					xSpacing: -10,
-					name: "Orange Tulips"
+					name: "Orange Tulips",
+					objectProperties: {
+						canBePickedUp: {
+							channelTime: 1000, itemType: "item", itemId: 65, channelText: "Flower picking"
+						},
+					},
 				},
 				{
 					tile: 234,
 					ySpacing: 20,
 					xSpacing: -10,
-					name: "Poppies"
+					name: "Poppies",
+					objectProperties: {
+						canBePickedUp: {
+							channelTime: 1000, itemType: "item", itemId: 64, channelText: "Flower picking"
+						},
+					},
 				},
 				{
 					tile: 235,
 					ySpacing: 20,
 					xSpacing: -10,
-					name: "Pink Alcea"
+					name: "Pink Alcea",
+					objectProperties: {
+						canBePickedUp: {
+							channelTime: 1000, itemType: "item", itemId: 63, channelText: "Flower picking"
+						},
+					},
 				},
 				{
 					tile: 215,
@@ -8224,7 +8365,7 @@ Last I saw him, he was visiting the <b>Eaglecrest Plains</b> to the <b>south</b>
 		},
 
 		// called when the hero gets on the train to paw peaks
-		getOnTrain: function () {
+		getOnTrainOutbound: function () {
 			let trainComponents = Game.things.filter(thing => thing.name === "Train Carriage" || thing.name === "Train Driver's Carriage");
 			let carriage = trainComponents.find(thing => thing.name === "Train Carriage");
 			Game.hero.getOnMount(carriage);
@@ -8246,7 +8387,7 @@ Last I saw him, he was visiting the <b>Eaglecrest Plains</b> to the <b>south</b>
 			}
 
 			// load area
-
+			Game.setTimeout(Game.loadArea.bind(Game), 8000, "pawPeaks");
 		},
 
 		images: {
@@ -8289,8 +8430,10 @@ Last I saw him, he was visiting the <b>Eaglecrest Plains</b> to the <b>south</b>
 			coyoteBotheredRight: {normal: "assets/enemies/coyoteBothered.png", flip: "vertical"},
 			coyoteShootingLeft: {normal: "assets/enemies/coyoteShooting.png"},
 			coyoteShootingRight: {normal: "assets/enemies/coyoteShooting.png", flip: "vertical"},
+			coyoteCorpse: {normal: "assets/corpses/coyote.png"},
 			jaws: {normal: "assets/projectiles/jaws.png",},
 			coyoteWrangler: {normal: "assets/enemies/coyotePackWrangler.png"},
+			coyoteWranglerCorpse: {normal: "assets/corpses/coyotePackWrangler.png"},
 			beeSwarmLeft: {normal: "assets/enemies/beeSwarm.png"},
 			beeSwarmRight: {normal: "assets/enemies/beeSwarm.png", flip: "vertical"},
 			beeSwarmCorpse: {normal: "assets/corpses/toad.png"},
@@ -8336,8 +8479,8 @@ Last I saw him, he was visiting the <b>Eaglecrest Plains</b> to the <b>south</b>
 			waterTrough: {normal: "assets/objects/waterTrough.png"},
 			wateringCan: {normal: "assets/objects/wateringCan.png"},
 			catBowlEmpty: {normal: "assets/objects/catBowlEmpty.png"},
-			farmerLenny: {normal: "assets/npcs/farmerLenny.png"},
-			farmerCurley: {normal: "assets/npcs/farmerCurley.png"},
+			farmerLennie: {normal: "assets/npcs/farmerLennie.png"},
+			farmerScop: {normal: "assets/npcs/farmerScop.png"},
 			farmerEloise: {normal: "assets/npcs/farmerEloise.png"},
 			armouredToadLeft: {normal: "assets/enemies/toadArmoured.png"},
 			armouredToadRight: {normal: "assets/enemies/toadArmoured.png", flip: "vertical"},
@@ -8351,8 +8494,8 @@ Last I saw him, he was visiting the <b>Eaglecrest Plains</b> to the <b>south</b>
 				width: 120,
 				height: 2,
 				teleportTo: "eaglecrest",
-				destinationX: 3751,
-				destinationY: 4701,
+				destinationX: 3750,
+				destinationY: 4735,
 			},
 			{
 				// teleport to cave opening
@@ -8399,8 +8542,8 @@ Last I saw him, he was visiting the <b>Eaglecrest Plains</b> to the <b>south</b>
 				{x: 2054.4, y: 2652, width: 156.6, height: 2009.3}, // bottom middle island with river idols
 				//{x: 3466.5, y: 4969.3, width: 1535.6, height: 1071.8}, // purple ley shard spike island
 				{x: 5444.8, y: 5024.6, width: 642.5, height: 665.8}, // wise man reflection island
-				{x: 5377.8, y: 3837.3, width: 1302.3, height: 641.1}, // tall grass island lower side
-				{x: 5570.9, y: 2578.3, width: 676.1, height: 1947.5}, // tall grass island vertical boundary
+				//{x: 5377.8, y: 3837.3, width: 1302.3, height: 641.1}, // tall grass island lower side
+				//{x: 5570.9, y: 2578.3, width: 676.1, height: 1947.5}, // tall grass island vertical boundary
 				{x: 5618.2, y: 1085.3, width: 344.6, height: 991}, // farm flower garden
 				{x: 6334.7, y: 1374.6, width: 341.6, height: 950.9}, // farm animal island
 				{x: 6939.6, y: 827.7, width: 272.2, height: 468.5}, // farm hay island
@@ -8597,14 +8740,15 @@ Last I saw him, he was visiting the <b>Eaglecrest Plains</b> to the <b>south</b>
 				chat: {
 					notUnlockedRoles: "Everything's going grand in the gardens~",
 					questProgress: "I love flowers~˚",
-					questComplete: "I love flowers~˚",
+					questComplete: "A man made of flowers? Now that I'd like to see~",
+					//choose text: 'Eaglecrest air is foul! Lucky my flowers keep me smellin' sweet.' getting food: 'Thanks for that. Farming's 'ungry work.'
 				},
 			},
 			{
 				x: 4623,
 				y: 880,
-				image: "farmerCurley",
-				name: "Farmer Curley",
+				image: "farmerScop",
+				name: "Farmer Scop",
 				hostility: "friendly",
 				level: 40,
 				stats: {
@@ -8615,6 +8759,9 @@ Last I saw him, he was visiting the <b>Eaglecrest Plains</b> to the <b>south</b>
 				],
 				chat: {
 					notUnlockedRoles: "I could have y' done for trespassin'.",
+					chooseText: "I don't 'ave time for you. The city won't feed itself.'",
+					receiveTavernGood: "I remember growing those beets. Now look what you've done to 'em",
+					//alt choose text : What more d'you want?
 				},
 			},
 		],
@@ -8655,8 +8802,8 @@ Last I saw him, he was visiting the <b>Eaglecrest Plains</b> to the <b>south</b>
 					width: 340,
 					height: 630,
 				},
-				image: "farmerLenny",
-				name: "Farmer Lenny",
+				image: "farmerLennie",
+				name: "Farmer Lennie",
 				hostility: "friendly",
 				level: 30,
 				stats: {
@@ -8667,7 +8814,10 @@ Last I saw him, he was visiting the <b>Eaglecrest Plains</b> to the <b>south</b>
 				roles: [
 				],
 				chat: {
-					notUnlockedRoles: "It's really som'ing, to live off the fatta the lan’.",
+					notUnlockedRoles: "Farming's no easy job but someone's gotta do it! I guess I'm that someone.",
+					chooseText: "Don't stand too close! We're not friends.",
+					tavernGoodsDelivered: "Just what I needed! The taste of wheat gets dull after a while.",
+					//notUnlockedRoles: "It's really som'ing, to live off the fatta the lan’.",
 				},
 			},
 			{
@@ -8732,38 +8882,116 @@ Last I saw him, he was visiting the <b>Eaglecrest Plains</b> to the <b>south</b>
 					return Random(0, 365) === 0;
 				},
 			},
-			/*{
+			{
 				spawnLocations: "villager",
 				template: EnemyTemplates.eaglecrest.coyote,
 				canBeShown: function () {
 					return Player.quests.npcProgress.eaglecrest[2] >= 3; // so they don't interfere with first part of overdraft
 				},
-				repeatNumber: 3,
-			},*/
+				repeatNumber: 1,
+			},
 			// coyotes (tall grass)
-			/*{
-				x: 6000,
-				y: 4000,
-				template: EnemyTemplates.eaglecrest.coyote,
-				association: "coyotePack",
-			},
 			{
-				x: 6300,
-				y: 3800,
+				x: [5831.2, 6333.9, 5749.8],
+				y: [3402.9, 3004.1, 2726.3],
 				template: EnemyTemplates.eaglecrest.coyote,
-				association: "coyotePack",
-			},
-			{
-				x: 5600,
-				y: 4200,
-				template: EnemyTemplates.eaglecrest.coyote,
-				association: "coyotePack",
 			},
 			{
 				x: 6200,
 				y: 4100,
 				template: EnemyTemplates.eaglecrest.coyoteWrangler,
-			},*/
+			},
+			{
+				x: 6300,
+				y: 3800,
+				template: EnemyTemplates.eaglecrest.coyote,
+				name: "Pack Coyote",
+				association: "coyotePack",
+				canBeShown: function () {
+					 return Player.bossesKilled.coyoteWrangler !== Game.fullDate;
+				}
+			},
+			{
+				x: 5770,
+				y: 4200,
+				template: EnemyTemplates.eaglecrest.coyote,
+				name: "Pack Coyote",
+				association: "coyotePack",
+				canBeShown: function () {
+					 return Player.bossesKilled.coyoteWrangler !== Game.fullDate;
+				}
+			},
+			{
+				x: 6000,
+				y: 4000,
+				template: EnemyTemplates.eaglecrest.coyote,
+				name: "Pack Coyote",
+				association: "coyotePack",
+				canBeShown: function () {
+					// must have killed the pack once before
+					return Player.quests.questProgress.coyoteWranglers > 0 && Player.bossesKilled.coyoteWrangler !== Game.fullDate;
+				}
+			},
+			{
+				x: 6031.8, y: 4363.1,
+				template: EnemyTemplates.eaglecrest.coyote,
+				name: "Pack Coyote",
+				association: "coyotePack",
+				canBeShown: function () {
+					// must have killed the pack twice before
+					return Player.quests.questProgress.coyoteWranglers > 1 && Player.bossesKilled.coyoteWrangler !== Game.fullDate;
+				}
+			},
+			{
+				x: 6313.9, y: 4155.3,
+				template: EnemyTemplates.eaglecrest.coyote,
+				name: "Pack Coyote",
+				association: "coyotePack",
+				canBeShown: function () {
+					// must have killed the pack three times before
+					return Player.quests.questProgress.coyoteWranglers > 2 && Player.bossesKilled.coyoteWrangler !== Game.fullDate;
+				}
+			},
+			{
+				x: 6482.1, y: 4351.4,
+				template: EnemyTemplates.eaglecrest.coyote,
+				name: "Pack Coyote",
+				association: "coyotePack",
+				canBeShown: function () {
+					// must have killed the pack four times before
+					return Player.quests.questProgress.coyoteWranglers > 3 && Player.bossesKilled.coyoteWrangler !== Game.fullDate;
+				}
+			},
+			{
+				x: 6529.3, y: 3950.2,
+				template: EnemyTemplates.eaglecrest.coyote,
+				name: "Pack Coyote",
+				association: "coyotePack",
+				canBeShown: function () {
+					// must have killed the pack five times before
+					return Player.quests.questProgress.coyoteWranglers > 4 && Player.bossesKilled.coyoteWrangler !== Game.fullDate;
+				}
+			},
+			{
+				x: 5740.3, y: 4029.5,
+				template: EnemyTemplates.eaglecrest.coyote,
+				name: "Pack Coyote",
+				association: "coyotePack",
+				canBeShown: function () {
+					// must have killed the pack six times before
+					return Player.quests.questProgress.coyoteWranglers > 5 && Player.bossesKilled.coyoteWrangler !== Game.fullDate;
+				}
+			},
+			{
+				x: 6282.4, y: 3984.7,
+				template: EnemyTemplates.eaglecrest.coyote,
+				name: "Pack Coyote",
+				association: "coyotePack",
+				canBeShown: function () {
+					// must have killed the pack seven times before
+					return Player.quests.questProgress.coyoteWranglers > 6 && Player.bossesKilled.coyoteWrangler !== Game.fullDate;
+				}
+			},
 			// flower forest
 			{
 				spawnLocations: [{x: -69.8, y: 4254.4, width: 1651.9, height: 1543.3}], // flower forest
@@ -8927,52 +9155,22 @@ image: 'steppingStone', name: 'Stepping Stone', z: -1, walkable: true,},
 			{x: [7470, 7168.3, 7221.8, 7176, 7346.8, 7434.1, 7359.9, 7419.3, 7361.1, 7403.5, 7361, 7405.9, 7370.8, 7392.4, 7436.5, 7440, 7390, 7341.8], y: [4505.8, 2851.9, 3031.5, 3243.7, 3457.7, 3377.6, 3303.3, 3209.6, 3097.5, 2921, 2821.2, 2641.6, 4105.2, 4210.3, 4285.5, 3708.4, 3768.7, 2719.6], image: 'rockSpike', name: 'Rock Spike', collision: {relativeX: 0, relativeY: 105, width: 100, height: 20}},
 			// jester quest
 			// aaaaaaaaaa tbd make sparkle if quest is active
-			{x: 302, y: 671, z: -0.5, image: 'jesterTriangle', name: 'Triangle', onInteract: function () {
-				Game.hero.channel(function () { // tbd generalise this as a property of Things ?
-					if (Dom.inventory.give(Items.item[59]) === false) {
-						Dom.chat.insert("<i>Your inventory is full! Try again when you have space.</i>");
-					}
-					else {
-						Player.quests.questProgress.jesterTriangle = true;
-						// remove this object from the map
-						let removeObj = Game.things.find(thing => thing.name === "Triangle");
-						Game.removeObject(removeObj.id, "things");
-					}
-				}, [], 1000, "Picking item up");
+			{x: 302, y: 671, z: -0.5, image: 'jesterTriangle', name: 'Triangle', canBePickedUp: {
+				channelTime: 1000, itemType: "item", itemId: 59, onPickUp: function () {Player.quests.questProgress.jesterTriangle = true;}
 			}, canBeShown: function () {
 				return !Player.quests.questProgress.jesterTriangle;
 			}},
-			{x: 2763, y: 3632, orderOffsetY: -10, image: 'jesterConfetti', name: 'Confetti Cannon', onInteract: function () {
-				Game.hero.channel(function () { // tbd generalise this as a property of Things ?
-					if (Dom.inventory.give(Items.item[60]) === false) {
-						Dom.chat.insert("<i>Your inventory is full! Try again when you have space.</i>");
-					}
-					else {
-						Player.quests.questProgress.jesterConfetti = true;
-						// remove this object from the map
-						let removeObj = Game.things.find(thing => thing.name === "Confetti Cannon");
-						Game.removeObject(removeObj.id, "things");
-					}
-				}, [], 1000, "Picking item up");
+			{x: 2763, y: 3632, orderOffsetY: -10, image: 'jesterConfetti', name: 'Confetti Cannon', canBePickedUp: {
+				channelTime: 1000, itemType: "item", itemId: 60, onPickUp: function () {Player.quests.questProgress.jesterConfetti = true;}
 			}, canBeShown: function () {
 				return !Player.quests.questProgress.jesterConfetti;
 			}},
-			{x: 3574, y: 4444, orderOffsetY: -10, image: 'jesterBugle', name: 'Bugle', onInteract: function () {
-				Game.hero.channel(function () { // tbd generalise this as a property of Things ?
-					if (Dom.inventory.give(Items.item[58]) === false) {
-						Dom.chat.insert("<i>Your inventory is full! Try again when you have space.</i>");
-					}
-					else {
-						Player.quests.questProgress.jesterBugle = true;
-						// remove this object from the map
-						let removeObj = Game.things.find(thing => thing.name === "Bugle");
-						Game.removeObject(removeObj.id, "things");
-					}
-				}, [], 1000, "Picking item up");
+			{x: 3574, y: 4444, orderOffsetY: -10, image: 'jesterBugle', name: 'Bugle', canBePickedUp: {
+				channelTime: 1000, itemType: "item", itemId: 58, onPickUp: function () {Player.quests.questProgress.jesterBugle = true;}
 			}, canBeShown: function () {
 				return !Player.quests.questProgress.jesterBugle;
 			}},
-			{x: 6393.7, y: 4332.1, orderOffsetY: -10, image: 'jesterBall', name: 'Juggling Ball', onInteract: function () {
+			/*{x: 6393.7, y: 4332.1, orderOffsetY: -10, image: 'jesterBall', name: 'Juggling Ball', onInteract: function () {
 				Game.hero.channel(function () { // tbd generalise this as a property of Things ?
 					if (Dom.inventory.give(Items.item[57]) === false) {
 						Dom.chat.insert("<i>Your inventory is full! Try again when you have space.</i>");
@@ -8986,34 +9184,19 @@ image: 'steppingStone', name: 'Stepping Stone', z: -1, walkable: true,},
 				}, [], 1000, "Picking item up");
 			}, canBeShown: function () {
 				return !Player.quests.questProgress.jesterBall1;
+			}},*/
+			{x: 6393.7, y: 4332.1, orderOffsetY: -10, image: 'jesterBall', name: 'Juggling Ball', canBePickedUp: {
+				channelTime: 1000, itemType: "item", itemId: 57, onPickUp: function () {Player.quests.questProgress.jesterBall1 = true;}
+			}, canBeShown: function () {
+				return !Player.quests.questProgress.jesterBall1;
 			}},
-			{x: 5639.3, y: 3690.3, orderOffsetY: -10, image: 'jesterBall', name: 'Juggling Ball', onInteract: function () {
-				Game.hero.channel(function () { // tbd generalise this as a property of Things ?
-					if (Dom.inventory.give(Items.item[57]) === false) {
-						Dom.chat.insert("<i>Your inventory is full! Try again when you have space.</i>");
-					}
-					else {
-						Player.quests.questProgress.jesterBall2 = true;
-						// remove this object from the map
-						let removeObj = Game.things.find(thing => thing.name === "Juggling Ball" && thing.isTouching(Game.hero));
-						Game.removeObject(removeObj.id, "things");
-					}
-				}, [], 1000, "Picking item up");
+			{x: 5639.3, y: 3690.3, orderOffsetY: -10, image: 'jesterBall', name: 'Juggling Ball', canBePickedUp: {
+				channelTime: 1000, itemType: "item", itemId: 57, onPickUp: function () {Player.quests.questProgress.jesterBall2 = true;}
 			}, canBeShown: function () {
 				return !Player.quests.questProgress.jesterBall2;
 			}},
-			{x: 6159, y: 2880.5, orderOffsetY: -10, image: 'jesterBall', name: 'Juggling Ball', onInteract: function () {
-				Game.hero.channel(function () { // tbd generalise this as a property of Things ?
-					if (Dom.inventory.give(Items.item[57]) === false) {
-						Dom.chat.insert("<i>Your inventory is full! Try again when you have space.</i>");
-					}
-					else {
-						Player.quests.questProgress.jesterBall3 = true;
-						// remove this object from the map
-						let removeObj = Game.things.find(thing => thing.name === "Juggling Ball" && thing.isTouching(Game.hero));
-						Game.removeObject(removeObj.id, "things");
-					}
-				}, [], 1000, "Picking item up");
+			{x: 6159, y: 2880.5, orderOffsetY: -10, image: 'jesterBall', name: 'Juggling Ball', canBePickedUp: {
+				channelTime: 1000, itemType: "item", itemId: 57, onPickUp: function () {Player.quests.questProgress.jesterBall3 = true;}
 			}, canBeShown: function () {
 				return !Player.quests.questProgress.jesterBall3;
 			}},
@@ -10735,7 +10918,7 @@ animateTiles: [
 	            0, 0, 0, 0, 0, 354, 0, 0, 0, 0, 0, 0, 365, 0, 0, 0, 0, 0, 354, 0, 0, 0, 159, 0, 365, 0, 0, 0, 0, 0, 0, 354, 0, 0, 0, 0, 0, 365, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 0, 0, 0, 0, 0, 0, 2, 2, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 354, 0, 0, 0, 395, 375, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 2, 2, 2, 0, 0, 0, 0, 0, 0, 0, 0, 0, 422, 421, 365, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 2],
 			],
         },
-	images: {
+		images: {
             tiles: {normal: "assets/tilemap/pawPeaks.png"},
 spruceTree: {normal: "assets/objects/spruceTree.png"},
 well: {normal: "assets/objects/well.png"},
@@ -10754,6 +10937,7 @@ geo: {normal: "assets/npcs/geo.png"},
 sparksCartographer: {normal: "assets/npcs/sparksCartographer.png"},
 trainCarriage: {normal: "assets/objects/trainCarriage.png"},
 trainFront: {normal: "assets/objects/trainFront.png"},
+trainFrontRight: {normal: "assets/objects/trainFront.png", flip: "vertical"},
 hayBale2: {normal: "assets/objects/hayBale2PawPeaks.png"},
 hayBale1: {normal: "assets/objects/hayBale1PawPeaks.png"},
 iceSpike: {normal: "assets/objects/iceSpike.png"},
@@ -10773,8 +10957,41 @@ flowerBasketSide: {normal: "assets/objects/flowerBasketSide.png"},
 mountain: {normal: "assets/objects/mountain.png"},
 target: {normal: "assets/objects/targetArchery.png"},
 horseshoe: {normal: "assets/objects/horseshoe.png"},
-        },
-collisions: [
+},
+
+		onAreaJoin: function () {
+			Areas.pawPeaks.getOnTrainInbound();
+		},
+
+		// called when the hero is arriving to paw peaks
+		getOnTrainInbound: function () {
+			let trainComponents = Game.things.filter(thing => thing.name === "Train Carriage" || thing.name === "Train Driver's Carriage");
+			let carriages = trainComponents.filter(thing => thing.name === "Train Carriage");
+			let carriage = carriages[carriages.length-1];
+			Game.hero.getOnMount(carriage);
+			for (let i = 0; i < trainComponents.length; i++) {
+				// start train animation
+				trainComponents[i].setAnimation({
+					type: "spritesheet",
+					imagesPerRow: 4,
+					frameTime: 90,
+					totalImages: 16
+				});
+
+				// move train
+				trainComponents[i].moveTowards = {
+					x: trainComponents[i].x + 2000,
+					y: trainComponents[i].y,
+					speed: 100,
+					//moveTowardsFinishFunction:
+				};
+			}
+
+			// unmount player once train has reached destination
+			Game.setTimeout(Game.hero.getOffMount.bind(Game.hero), 10000);removeAnimation
+		},
+
+		collisions: [
             {
                 x: 412,
                 y: 412,
@@ -10880,8 +11097,8 @@ mailboxes: [
 ],
 things: [
 {
-				x: [1775, 2050, 2320],
-				y: [4450, 4450, 4450],
+				x: [-700, -430, -160],
+				y: [4478, 4478, 4478],
 				orderOffsetY: -100,
 				name: "Train Carriage",
 				image: "trainCarriage",
@@ -10891,13 +11108,16 @@ things: [
 					width: 450,
 					height: 450
 				},
+				// for hero / npc "mounting" in carriage
+				rideAdjustX: -27,
+				rideAdjustY: 25,
 			},
 			{
-				x: 1520,
-				y: 4450,
+				x: 110,
+				y: 4478,
 				orderOffsetY: -100,
 				name: "Train Driver's Carriage",
-				image: "trainFront",
+				image: "trainFrontRight",
 				crop: {
 					x: 0,
 					y: 0,

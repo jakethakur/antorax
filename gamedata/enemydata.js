@@ -1179,7 +1179,7 @@ const EnemyTemplates = {
 			name: "Coyote",
 			hostility: "hostile",
 			level: 15,
-			respawnOnDeath: false, // generated with the wrangler
+			respawnOnDeath: false,
 			stats: {
 				damage: 9,
 				walkSpeed: 140,
@@ -1196,8 +1196,12 @@ const EnemyTemplates = {
 			projectile: {
 				image: "melee",
 			},
-			attackBehaviour: {
-				//tbd
+			jointAggro: function () { // any aggro gained on coyote is also gained on coyote wrangler
+				let aggroList = [];
+				if (this.association === "coyotePack") {
+					aggroList = Game.enemies.filter(enemy => enemy.name === "Coyote Pack Wrangler");
+				}
+				return aggroList;
 			},
 			spells: [
 	            {
@@ -1220,9 +1224,6 @@ const EnemyTemplates = {
 			onDeath: function () {
 				// coyotes killed achievement
 				User.progress.coyotes = Increment(User.progress.coyotes);
-
-				// check if whole pack is dead
-				//tbd aaaaaaaaaaaaaaaaaa
 			}
 		},
 		coyoteWrangler: {
@@ -1232,7 +1233,6 @@ const EnemyTemplates = {
 			hostility: "boss",
 			bossKilledVariable: "coyoteWrangler",
 			level: 15,
-			respawnOnDeath: false, // generated with the wrangler
 			stats: {
 				damage: 4,
 				walkSpeed: 120,
@@ -1250,21 +1250,21 @@ const EnemyTemplates = {
 				image: "melee",
 			},
 			attackBehaviour: {
-				// tbd
+				// tbd?
+			},
+			jointAggro: function () { // any aggro gained on coyote wrangler is also gained on these enemies (the pack)
+				let petArray = Game.enemies.filter(enemy => enemy.name === "Pack Coyote" && enemy.association === "coyotePack");
+				return petArray;
 			},
 			spells: [
-	            /*{
+	            {
 	                id: 20, // mend pets
 	                tier: 1,
 	                parameters: function () { // returns array of parameters
-						let petArray = Game.enemies.filter(enemy => enemy.name === "Coyote" && enemy.association === "coyotePack");
+						let petArray = Game.enemies.filter(enemy => enemy.name === "Pack Coyote" && enemy.association === "coyotePack");
 	                    return {
 							pets: petArray,
 	                    };
-	                },
-					castCondition: function (caster) {
-	                    //return a coyote is angry; aaaaaaaaaaaaaaaaaa
-						return true;
 	                },
 	                interval: 13000,
 					initialCooldown: 13000
@@ -1273,18 +1273,14 @@ const EnemyTemplates = {
 	                id: 21, // incite pets
 	                tier: 1,
 	                parameters: function () { // returns array of parameters
-						let petArray = Game.enemies.filter(enemy => enemy.name === "Coyote" && enemy.association === "coyotePack");
+						let petArray = Game.enemies.filter(enemy => enemy.name === "Pack Coyote" && enemy.association === "coyotePack");
 	                    return {
 							pets: petArray,
 	                    };
 	                },
-					castCondition: function (caster) {
-	                    //return same ass above; aaaaaaaaaaaaaaaaa
-						return true;
-	                },
 	                interval: 13000,
 					initialCooldown: 6000
-	            },*/
+	            },
 	        ],
 			lootTableTemplate: [EnemyLootTables.coyoteWrangler],
 			inventorySpace: 16,
@@ -1292,8 +1288,8 @@ const EnemyTemplates = {
 				// coyote wrangler killed achievement
 				User.progress.coyoteWranglers = Increment(User.progress.coyoteWranglers);
 
-				// check if whole pack is dead
-				//same ase abpveeee aaaaaaaaaaaaaaaaa
+				// coyote wrangler killed achievement
+				Player.quests.questProgress.coyoteWranglers = Increment(Player.quests.questProgress.coyoteWranglers);
 			}
 		},
 

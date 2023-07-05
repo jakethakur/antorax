@@ -126,6 +126,10 @@ thead:after { /* space after bags in bank */
 	/* background-image: url("assets/dom/bookBackground.png"); */
 }
 
+.shortDOM { /* page is shorter, i.e. for quest start and finish */
+	height: 600px;
+}
+
 #questsPage, #settingsPage, #settingsTwoPage, #adventurePage, #leaderboardPage, #creditsPage{
 	overflow-y: auto;
 	overflow-x: hidden;
@@ -136,7 +140,7 @@ thead:after { /* space after bags in bank */
 	overflow-y: auto;
 }
 
-#questStartChat, #questFinishChat, #questStartQuest, #questFinishQuest, #questStartName, #questFinishName, #questStartObjectives, #questStartRewards, #questStartStartRewards, #questStartRewardsTitle, #questStartStartRewardsTitle, #questFinishRewardsTitle, #questFinishRewards, #merchantPageTitle, #merchantPageChat, #merchantPageOptions, #identifierPageTitle, #identifierPageChat, #leftArrow, #identifierPageOption, #rightArrow, #identifiedPageTitle, #identifiedPageChat, #identifiedPageOptions{
+#questStartQuest, #questFinishQuest, #questStartObjectives, #questStartRewards, #questStartStartRewards, #questStartRewardsTitle, #questStartStartRewardsTitle, #questFinishRewardsTitle, #questFinishRewards, #merchantPageTitle, #merchantPageChat, #merchantPageOptions, #identifierPageTitle, #identifierPageChat, #leftArrow, #identifierPageOption, #rightArrow, #identifiedPageTitle, #identifiedPageChat, #identifiedPageOptions{
 	display: inline;
 }
 
@@ -241,6 +245,93 @@ thead:after { /* space after bags in bank */
 
 .questStackNum, .questFinishStackNum, .questStartStackNum, .textStackNum{
 	position: absolute;
+}
+
+/*							*/
+/*		NPC CHAT BANNERS	*/
+/*							*/
+
+.npcChatBanner {
+	border: 1px solid black; /* can go soon */
+	width: 700px;
+	height: 116px;
+	padding-left: 10px;
+	padding-right: 10px;
+	background-color: var(--page); /* can go soon */
+	overflow: visible; /* for image popping out */
+	position: relative;
+	top: 50px;
+	zoom: var(--zoom);
+	/* background-image: url("assets/dom/bookBackground.png"); */
+	text-align: left;
+	margin: auto;
+	opacity: var(--opacity);
+}
+
+#npcChatImage {
+	background-image: url("./assets/npcs/dolph.png");
+	background-repeat: no-repeat;
+	width: 100px;
+	height: 80px;
+	position: absolute;
+	top: -33px;
+}
+
+.npcChatBannerHeader {
+	margin-top: 20px;
+	margin-bottom: 15px;
+	margin-left: 80px;
+	font-weight: bold;
+	font-size: 32px;
+}
+
+.npcChatBannerText {
+	margin-top: 10px;
+	margin-bottom: 10px;
+	margin-right: 26px; /* so it doesn't overlap the dialogueNext image */
+
+	font-size: 22px;
+	line-height: 26px;
+}
+
+#npcChatNext {
+	height: 22px;
+
+	position: absolute;
+	right: 7px;
+	bottom: 7px;
+
+	z-index: 50;
+}
+
+#chatBannerOptions {
+	border: 1px solid black; /* can go soon */
+	width: 260px;
+	padding-left: 10px;
+	padding-right: 10px;
+	background-color: var(--page); /* can go soon */
+	overflow: visible; /* for image popping out */
+	position: relative;
+	top: 49px;
+	left: 220px;
+	zoom: var(--zoom);
+	text-align: left;
+	margin: auto;
+	opacity: var(--opacity);
+
+	z-index: 50;
+}
+
+#chatBannerOptionList {
+	margin-top: 5px;
+	margin-bottom: 5px;
+	padding-left: 22px;
+}
+
+.chatBannerOption {
+	 list-style-image: url(assets/icons/dialogueChoiceBullet.png);
+	 font-size: 22px;
+	 line-height: 36px;
 }
 
 /*					*/

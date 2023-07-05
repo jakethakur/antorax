@@ -24,6 +24,7 @@ let Dom = {
 		achievementPoints: document.getElementById("achievementPoints"),
 		activeQuestBox: document.getElementById("activeQuestBox"),
 		adventurePage: document.getElementById("adventurePage"),
+		aggroOn: document.getElementById("aggroOn"),
 		bagText: document.getElementById("bagText"),
 		bankPage: document.getElementById("bankPage"),
 		bankPageInventory: document.getElementById("bankPageInventory"),
@@ -127,6 +128,11 @@ let Dom = {
 		musicOn: document.getElementById("musicOn"),
 		name: document.getElementById("name"),
 		notifsOn: document.getElementById("notifsOn"),
+		npcChatBanner1: document.getElementById("npcChatBanner1"),
+		npcChatBannerText1: document.getElementById("npcChatBannerText1"),
+		npcChatBannerHeader1: document.getElementById("npcChatBannerHeader1"),
+		npcChatImage: document.getElementById("npcChatImage"),
+		npcChatNext: document.getElementById("npcChatNext"),
 		otherQuestBox: document.getElementById("otherQuestBox"),
 		outIdtriangle: document.getElementById("outIdtriangle"),
 		outTriangle: document.getElementById("outTriangle"),
@@ -137,18 +143,14 @@ let Dom = {
 		possibleQuestBox: document.getElementById("possibleQuestBox"),
 		quest: document.getElementById("quest"),
 		questFinish: document.getElementById("questFinish"),
-		questFinishChat: document.getElementById("questFinishChat"),
 		questFinishItems: document.getElementById("questFinishItems"),
-		questFinishName: document.getElementById("questFinishName"),
 		questFinishQuest: document.getElementById("questFinishQuest"),
 		questFinishRewardsTitle: document.getElementById("questFinishRewardsTitle"),
 		//questFinishStartItems: document.getElementById("questFinishStartItems"),
 		questFinishXP: document.getElementById("questFinishXP"),
 		questsPage: document.getElementById("questsPage"),
 		questStart: document.getElementById("questStart"),
-		questStartChat: document.getElementById("questStartChat"),
 		questStartItems: document.getElementById("questStartItems"),
-		questStartName: document.getElementById("questStartName"),
 		questStartObjectives: document.getElementById("questStartObjectives"),
 		questStartQuest: document.getElementById("questStartQuest"),
 		questStartRewardsTitle: document.getElementById("questStartRewardsTitle"),
@@ -827,6 +829,10 @@ Dom.elements.tutorialOff.onclick = function () {
 }
 
 
+//
+// Chat
+//
+
 // if message is an array of objects with parameters text and condition
 // returns the first message where condition is true or undefined
 Dom.chat.decideMessage = function (message) {
@@ -1182,6 +1188,183 @@ Dom.chat.insert = function (text, delay, time, noRepeat) {
 	}.bind(this), delay);
 }
 
+
+//
+// NPC dialogue banners
+//
+
+Dom.chat.timeoutTime = 30; // ms between each character being shown
+
+// npc is the npc object, which has .name (used for title) and .image
+// text is either a single string, or an object with required property "text" and any additional properties (see below)...
+// ... or an array of these objects to be displayed in sequence
+// optional properties of object inputs include "onFinish" (function)
+Dom.chat.npcBanner = function (npc, text) {
+	Dom.chat.npcBannerReadyToProgress = false;
+
+	// reinit
+	//Dom.elements.npcChatBanner1.style.height = "116px";
+	Dom.chat.npcBannerText = "";
+	Dom.chat.npcBannerArray = undefined;
+
+	let toShow;
+	if (Array.isArray(text)) {
+		if (text.length > 1) {
+			// still some text left to be shown after this
+			Dom.chat.upcomingBannerText = []; // used as parameter for successive npcBanner function calls
+			// deep copy text into upcomingBannerText:
+			for (let i = 0; i < text.length; i++) {
+				Dom.chat.upcomingBannerText.push(text[i]);
+			}
+
+			Dom.chat.upcomingBannerNpc = npc;
+
+			// array of text parameters
+			toShow = Dom.chat.upcomingBannerText.shift();
+		}
+		else {
+			Dom.chat.upcomingBannerText = undefined;
+
+			toShow = text[0];
+		}
+	}
+	else {
+		Dom.chat.upcomingBannerText = undefined;
+
+		toShow = text;
+	}
+
+	Dom.chat.npcBannerParams = {}; // any additional params that are needed by the functions below
+
+	if (typeof toShow === "object") {
+		if (toShow.long) {
+			// show three lines
+			Dom.elements.npcChatBanner1.style.height = "142px";
+		}
+		else {
+			// show two lines
+			Dom.elements.npcChatBanner1.style.height = "116px";
+		}
+
+		Dom.chat.npcBannerText = toShow.text;
+
+		Dom.chat.npcBannerParams.onFinish = toShow.onFinish; // function or undefined
+		Dom.chat.npcBannerParams.onFinishParams = toShow.onFinishParams; // array or undefined
+
+		// these are just to be set by DOM functions
+		Dom.chat.npcBannerParams.onFinishDom = toShow.onFinishDom; // function or undefined
+		Dom.chat.npcBannerParams.onFinishDomParams = toShow.onFinishDomParams; // array or undefined
+
+		Dom.chat.npcBannerParams.autoProgress = toShow.autoProgress;
+
+		if (typeof toShow.progressIn !== "undefined") {
+			// in ms
+			setTimeout(this.npcChatProgress, toShow.progressIn, true);
+		}
+	}
+	else if (typeof toShow === "string") {
+		Dom.chat.npcBannerText = toShow;
+	}
+	else {
+		console.error("Unexpected type of text parameter for NPC chat banner", toShow);
+		return;
+	}
+
+	// finish reinit
+	if (toShow.saidBy === "none") {
+		// i.e. an action rather than a person saying it
+		Dom.elements.npcChatBannerHeader1.innerHTML = "";
+		Dom.elements.npcChatImage.style.background = "none";
+	}
+	else {
+		// npc parameter is saying it
+		Dom.elements.npcChatImage.style.background = "";
+		Dom.elements.npcChatBannerHeader1.innerHTML = npc.name;
+		Dom.elements.npcChatImage.style.backgroundImage = "url('"+npc.imageSrc+"')";
+	}
+
+	// show
+	Dom.elements.npcChatNext.src = "assets/icons/dialogueWait.png";
+	Dom.elements.npcChatBanner1.hidden = false;
+
+	setTimeout(Dom.chat.npcBannerIterate, this.timeoutTime, 1);
+}
+
+Dom.chat.npcBannerIterate = function (i) {
+	if (Dom.chat.npcBannerText[i-1] === "<") {
+		let afterSubstring = Dom.chat.npcBannerText.substr(i); // ith index onwards
+		i += afterSubstring.indexOf(">") + 1;
+	}
+
+	let textToShow = Dom.chat.npcBannerText.substr(0, i); // 0th to i-1th index
+	Dom.elements.npcChatBannerText1.innerHTML = textToShow;
+
+	if (i < Dom.chat.npcBannerText.length) {
+		let timeoutTime = Dom.chat.timeoutTime; // default
+
+		let longerPauseArray = [".", "-", "!", "?", ";", "…", "⁀", "‿", "~", "ᵔ", "ᵕ"];
+		if (longerPauseArray.includes(Dom.chat.npcBannerText[i-1])) {
+			timeoutTime *= 10;
+		}
+
+		let shorterPauseArray = [",", ":", "˚"];
+		if (shorterPauseArray.includes(Dom.chat.npcBannerText[i-1])) {
+			timeoutTime *= 4;
+		}
+
+		setTimeout(Dom.chat.npcBannerIterate, timeoutTime, i+1);
+	}
+	else if (!Dom.chat.npcBannerParams.autoProgress) {
+		// done
+		Dom.elements.npcChatNext.src = "assets/icons/dialogueNext.png";
+
+		Dom.chat.npcBannerReadyToProgress = true;
+	}
+}
+
+// called on enter key press
+// forceProgress set to true if npcBannerReadyToProgress should be ignored
+Dom.chat.npcChatProgress = function (forceProgress) {
+	if (Dom.chat.npcBannerReadyToProgress || forceProgress === true) { // current chat has showed
+		Dom.chat.npcBannerReadyToProgress = false;
+
+		// onFinish fn
+		if (typeof Dom.chat.npcBannerParams.onFinish !== "undefined") {
+			if (typeof Dom.chat.npcBannerParams.onFinishParams === "undefined") {
+				Dom.chat.npcBannerParams.onFinishParams = [];
+			}
+			Dom.chat.npcBannerParams.onFinish(...Dom.chat.npcBannerParams.onFinishParams);
+			Dom.chat.npcBannerParams.onFinish = undefined;
+		}
+
+		// onFinishDom fn
+		if (typeof Dom.chat.npcBannerParams.onFinishDom !== "undefined") {
+			if (typeof Dom.chat.npcBannerParams.onFinishDomParams === "undefined") {
+				Dom.chat.npcBannerParams.onFinishDomParams = [];
+			}
+			Dom.chat.npcBannerParams.onFinishDom(...Dom.chat.npcBannerParams.onFinishDomParams);
+			Dom.chat.npcBannerParams.onFinishDom = undefined;
+		}
+
+		if (typeof Dom.chat.upcomingBannerText !== "undefined") {
+			// new stuff to be shown
+			Dom.chat.npcBanner(Dom.chat.upcomingBannerNpc, Dom.chat.upcomingBannerText);
+		}
+		else {
+			// nothing more to be shown
+			Dom.elements.npcChatBanner1.hidden = true;
+		}
+	}
+}
+
+// called by onclick
+// choice is a number from 0 to the number of choices-1
+Dom.chat.chooseOption = function (choice) {
+	console.log(choice);
+}
+
+
+
 Dom.expand = function (block) {
 	block = document.getElementById(block);
 	if (block.hidden) {
@@ -1194,6 +1377,10 @@ Dom.expand = function (block) {
 		block.hidden = true;
 	}
 }
+
+//
+// Reputation
+//
 
 Dom.reputation.give = function (area, amount) {
 	if (Player.reputation[area].changed) {
@@ -1954,6 +2141,16 @@ Dom.inventory.removeItemCharge = function (inventoryPosition, hotbar) {
 
 Dom.currentlyDisplayed = "";
 Dom.currentNPC = {};
+
+// just spoken to an npc to start the quest - display chat then call dom.quest.start
+Dom.quest.startFromNpc = function (quest, npc) {
+	let chat = quest.startChat;
+	chat[chat.length-1].onFinishDom = Dom.quest.start;
+	chat[chat.length-1].onFinishDomParams = [quest, npc];
+	Dom.chat.npcBanner(npc, chat);
+}
+
+// starts a quest without dialogue (assumes dialogue it has already been shown by startFromNpc)
 Dom.quest.start = function (quest, npc) {
 	if (quest.startRewards === undefined || quest.startRewards.items === undefined || Dom.inventory.requiredSpace(quest.startRewards.items)) {
 		if (Dom.changeBook("questStart")) {
@@ -1968,16 +2165,16 @@ Dom.quest.start = function (quest, npc) {
 				timesCompleted = 0;
 			}
 
-			let startName = quest.startName || quest[ToObjectKey(npc.name)].startName;
+			// following is now no longer displayed on quest start
+			/*let startName = quest.startName || quest[ToObjectKey(npc.name)].startName;
 			if (Array.isArray(startName)) {
 				startName = startName[timesCompleted];
 			}
-			Dom.elements.questStartName.innerHTML = startName;
 
 			let startChat = quest.startChat || quest[ToObjectKey(npc.name)].startChat;
 			if (Array.isArray(startChat)) {
 				startChat = startChat[timesCompleted];
-			}
+			}*/
 
 			let objectives = quest.objectives || quest[ToObjectKey(npc.name)].objectives;
 			if (Array.isArray(objectives[0]) &&
@@ -1987,7 +2184,6 @@ Dom.quest.start = function (quest, npc) {
 				objectives = objectives[timesCompleted];
 			}
 
-			Dom.elements.questStartChat.innerHTML = startChat;
 			Dom.elements.questStartObjectives.innerHTML = "";
 			let isHidden = [];
 			if (quest.isHidden !== undefined) {
@@ -2195,6 +2391,15 @@ Dom.quest.declineRewards = function () {
 	Dom.closePage('questFinish');
 }
 
+// just spoken to an npc to finish the quest - display chat then call dom.quest.finish
+Dom.quest.finishFromNpc = function (quest, npc) {
+	let chat = quest.finishChat;
+	chat[chat.length-1].onFinishDom = Dom.quest.finish;
+	chat[chat.length-1].onFinishDomParams = [quest, npc];
+	Dom.chat.npcBanner(npc, chat);
+}
+
+// finishes a quest without dialogue (assumes dialogue it has already been shown by startFromNpc)
 Dom.quest.finish = function (quest, npc) {
 	let timesCompleted = Player.quests.timesCompleted[quest.questArea][quest.id]; // the number of times the player has completed this quest already (helpful for if the dialogue varies for each attempt for example
 	if (timesCompleted === null || timesCompleted === undefined)
@@ -2240,17 +2445,15 @@ Dom.quest.finish = function (quest, npc) {
 		if (Dom.changeBook("questFinish")) {//, true/*false*/, true)) {
 			Dom.elements.questFinishQuest.innerHTML = quest.quest;
 
-			let finishName = quest.finishName || quest[ToObjectKey(npc.name)].finishName;
+			/*let finishName = quest.finishName || quest[ToObjectKey(npc.name)].finishName;
 			if (Array.isArray(finishName)) {
 				finishName = finishName[timesCompleted];
 			}
-			Dom.elements.questFinishName.innerHTML = finishName;
 
 			let finishChat = quest.finishChat || quest[ToObjectKey(npc.name)].finishChat;
 			if (Array.isArray(finishChat)) {
 				finishChat = finishChat[timesCompleted];
-			}
-			Dom.elements.questFinishChat.innerHTML = finishChat;
+			}*/
 
 			if (quest.repeatTime === "daily" || quest.repeatTime === "repeatable" || quest.numberOfRepeats !== undefined) {
 				Player.quests.timesCompleted[quest.questArea][quest.id] = Increment(Player.quests.timesCompleted[quest.questArea][quest.id]);
@@ -5012,6 +5215,9 @@ if (User.settings.fps === true) {
 if (User.settings.hitbox === true) {
 	Dom.elements.hitboxesOn.checked = true;
 }
+if (User.settings.aggro === true) {
+	Dom.elements.aggroOn.checked = true;
+}
 if (User.settings.grid === true) {
 	Dom.elements.gridOn.checked = true;
 }
@@ -6294,6 +6500,15 @@ Dom.settings.hitbox = function () {
 	}
 }
 
+Dom.settings.aggro = function () {
+	if (Dom.elements.aggroOn.checked) {
+		User.settings.aggro = true;
+	}
+	else {
+		User.settings.aggro = false;
+	}
+}
+
 Dom.settings.grid = function () {
 	if (Dom.elements.gridOn.checked) {
 		User.settings.grid = true;
@@ -6422,6 +6637,7 @@ Dom.updateScreenSize = function (init) {
 	Dom.canvas.width = window.innerWidth;//document.body.style.zoom;
 	Dom.canvas.height = window.innerHeight;//document.body.style.zoom;
 
+	// everything that needs to be centred etc. based on canvas size
 	Dom.elements.interact.style.left = Dom.canvas.width-110+"px";
 	Dom.elements.game.width = Dom.canvas.width;
 	Dom.elements.game.height = Dom.canvas.height;
@@ -6989,7 +7205,7 @@ Dom.init = function () {
 		else if (Random(0,100) === 0) {
 		    Dom.chat.insert("Welcome back, " + Player.name + "! How are you?", 0, undefined, true);
 		}
-		else if (Random(0,100) === 0) {
+		else if (Random(0,333) === 0) {
 		    Dom.chat.insert("Make a wish, " + Player.name + "! Today's going to be a lucky day.", 0, undefined, true);
 		}
 		// slightly less rare

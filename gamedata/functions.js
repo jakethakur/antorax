@@ -342,6 +342,11 @@ Keyboard.downFunctions = {
 			Dom.chat.hideInput = true;
         }, 1);
     },
+    ENTER: function () {
+        setTimeout (function () {
+			Dom.chat.npcChatProgress();
+        }, 1);
+    },
 };
 Keyboard.upFunctions = {
     SHIFT: function () {

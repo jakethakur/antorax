@@ -7,11 +7,25 @@ var Quests = {
 
 			important: true, // appears at top of quest log and choose dom
 
-			startName: "Cart Driver",
-			startChat: `That's it, we're here! I'm afraid you're going to have to walk to the <strong>Eaglecrest Logging Camp</strong> from here. If you walk down a bit to the west you should see the entrance to the camp.<br>You should probably buy a weapon on your way there. It looks like you have enough gold on you to do so. There's a good weaponsmith on your way to the camp, not far from here.`,
+			//startName: "Cart Driver",
+			startChat: [{
+				text: `That's it, we're here!`,
+			},{
+				text: `I'm afraid you're going to have to walk to the <strong>Eaglecrest Logging Camp</strong> on your own from here. `,
+			},{
+				text: `If you walk down a bit to the west you should see the entrance to the camp.`,
+			},{
+				text: `Oh, and you should probably buy a weapon on your way there...`,
+			},],
 
-			finishName: "Marshall Teper",
-			finishChat: `Welcome to the Eaglecrest Logging Camp, adventurer. It's useful to have you here. I hope your journey was fine.<br>Take this gold and pair of boots. They're provided by the King's Covenant to all new adventurers. Feel free to have a look around the camp and buy anything you want, but not for too long. We've got work to be done.`,
+			//finishName: "Marshall Teper",
+			finishChat: [{
+				text: `Welcome to the Eaglecrest Logging Camp, adventurer. It's useful to have you here. I hope your journey was fine.`,
+			},{
+				text: `Take this gold and pair of boots. They're provided by the King's Covenant to all new adventurers.`,
+			},{
+				text: `Feel free to have a look around the camp and buy anything you want, but not for too long. We've got work to be done.`,
+			},],
 
 			objectives: [
 				"Buy a weapon from a nearby weaponsmith.",
@@ -69,10 +83,16 @@ var Quests = {
 			important: true,
 
 			startName: "Mashall Teper",
-			startChat: `You're going to need to learn how to fight if you're going to be able to help us gather some wood - there are goblins out there.<br>Go and see <strong>Combat Trainer Saral</strong>. She's more skilled in combat than anyone else here. She'll be able to teach you what you need to know.`,
+			startChat: [{
+				text: `You'll need to learn how to fight if you can be of any worth here - there are goblins out there, and they'll want you dead.`,
+			},{
+				text: `Go and see <strong>Combat Trainer Saral</strong>. She's more skilled in combat than anyone else here.`,
+			},],
 
 			finishName: "Combat Trainer Saral",
-			finishChat: `Why hello, ${Player.name}. I always love new blood in the Logging Camp. Now let's get started, shall we?`,
+			finishChat: [{
+				text: `Why hello, ${Player.name}. I always love new blood in the Logging Camp. Now let's get started, shall we?`,
+			},],
 
 			objectives: [
 				"Equip your weapon in the inventory.",
@@ -124,10 +144,16 @@ var Quests = {
 			important: true,
 
 			startName: "Combat Trainer Saral",
-			startChat: `${Player.name}, I'd like for you to deal some damage to this <strong>Training Dummy</strong>. 10 should suffice.`,
+			startChat: [{
+				text: `${Player.name}, I'd like for you to deal some damage to this <strong>Training Dummy</strong>. 10 should suffice.`,
+			},],
 
 			finishName: "Combat Trainer Saral",
-			finishChat: `Well done. It's inspiring to watch a new adventurer learn their ways - I look forward to seeing more of you in the future. I imagine <strong>Marshall Teper</strong> would like for you to get to work with him now.`,
+			finishChat: [{
+				text: `Well done. It's inspiring to watch a new adventurer learn their ways - I look forward to seeing more of you in the future.`,
+			},{
+				text: `I imagine <strong>Marshall Teper</strong> would like for you to get to work with him now.`,
+			},],
 
 			objectives: [
 				"Deal at least 10 damage to the <strong>Training Dummy</strong>.",
@@ -174,10 +200,20 @@ var Quests = {
 			important: true,
 
 			startName: "Marshall Teper",
-			startChat: `You looked good enough at the training dummy to go out to <strong>The Nilbog</strong>. It's the camp of some goblins, but trust me - they're not much stronger than that dummy you just fought.<br>They recently invaded our camp in huge numbers, and managed to steal some logs of wood whilst we were fighting them off. Head east to <strong>The Nilbog</strong> and retrieve some wood from them, and return it to me.`,
+			startChat: [{
+				text: `You looked good enough at the training dummy to go out to <strong>The Nilbog</strong>.`,
+			},{
+				text: `It's a camp of some goblins, but trust me - they're not much stronger than that dummy you just fought.`,
+			},{
+				text: `They recently invaded our camp in huge numbers, and managed to steal some logs of wood whilst we were fighting them off.`,
+			},{
+				text: `Head <b>east</b> to <strong>The Nilbog</strong> and retrieve some wood from them, and return it to me.`,
+			},],
 
 			finishName: "Marshall Teper",
-			finishChat: `Good. Now we need to make sure that a goblin attack like this won't happen again.`,
+			finishChat: [{
+				text: `Good. Now we need to make sure that a goblin attack like this won't happen again.`,
+			},],
 
 			objectives: [
 				"Retrieve 4 logs from The Nilbog to the <b>east</b>. <em>(press space whilst standing on one to pick it up)</em>",
@@ -225,10 +261,16 @@ var Quests = {
 			questArea: "eaglecrestLoggingCamp",
 
 			startName: "Marshall Teper",
-			startChat: `There's still more logs out there in The Nilbog. We need to retrieve some more.`,
+			startChat: [{
+				text: `There's still more logs out there in The Nilbog. We need to retrieve some more.`,
+			},],
 
 			finishName: "Marshall Teper",
-			finishChat: `Good. Come back tomorrow and we can retrieve some more.`,
+			finishChat: [{
+				text: `Good. Sometimes it feels like you're the only one that wants to work around here.`,
+			},{
+				text: `Come back tomorrow and we can retrieve some more.`,
+			},],
 
 			objectives: [
 				"Retrieve 4 logs from The Nilbog.",
@@ -274,10 +316,16 @@ var Quests = {
 			important: true,
 
 			startName: "Marshall Teper",
-			startChat: `There's lots going on around the logging camp at the moment, especially after the goblin attack. Speak to some people in the camp and see if there's anyone that could use your help.`,
+			startChat: [{
+				text: `There's lots going on around the Logging Camp at the moment, especially after the goblin attack.`,
+			},{
+				text: `Make yourself known to the people in the camp and see if there's anyone that could use your help.`,
+			},],
 
 			finishName: "Marshall Teper",
-			finishChat: `You made quick work of that. I believe it is time for you to head to Eaglecrest soon, but first we need to get to the root of this goblin problem.`,
+			finishChat: [{
+				text: `You made quick work of that. It is time for you to head to the city soon, but first we need to get to the root of this goblin issue.`,
+			},],
 
 			objectives: [
 				"Help 3 people around the Logging Camp.",
@@ -325,10 +373,18 @@ var Quests = {
 			questArea: "eaglecrestLoggingCamp",
 
 			startName: "Eaglecrest Mailman",
-			startChat: `Oh no - I was driving my mail cart through that boggy area to the east and came across a huge group of goblins! I had to abandon the cart and flee for my life, but I left a mail sack in the cart. Please, would you be able to try to find my missing mail sack?`,
+			startChat: [{
+				text: `Oh no - I was driving my mail cart through that boggy area to the east and came across a huge group of goblins!`,
+			},{
+				text: `I had to abandon the cart and flee for my life, but I left a mail sack in the cart...`,
+			},{
+				text: `Please, would you be able to try to find my missing mail sack?`,
+			},],
 
 			finishName: "Eaglecrest Mailman",
-			finishChat: `Phew, I was so worried. It's a shame about the cart though...`,
+			finishChat: [{
+				text: `Phew, I was so worried. It's a shame about the cart though...`,
+			},],
 
 			objectives: [
 				"Find a mail sack inside the mail cart at the Nilbog.",
@@ -371,10 +427,26 @@ var Quests = {
 			questArea: "eaglecrestLoggingCamp",
 
 			startName: "Fisherman Tobenam",
-			startChat: "You! You look like you've been to see the goblins! One of my fav'rite fishing rods has been stolen from me, and I think it was one of those goblins, heheh! Would you be able to head down to them and see if you can find it? I'll happily give you a couple o' lessons on fishing if you're able to get your hands on it.",
+			startChat: [{
+				text: `You! You look like you've been to see the goblins!`,
+			},{
+				text: `One of my fav'rite fishing rods has been stolen from me, and I think it was one of those goblins, heheh!`,
+			},{
+				text: `Would you be able to head down to them and see if you can find it?`,
+			},{
+				text: `I'll happily give you a couple o' lessons on fishing if you're able to get your hands on it.`,
+			},],
 
 			finishName: "Fisherman Tobenam",
-			finishChat: "You found it! Heheh, let me clean it for you. You can keep it for your fishing lessons with me. I've plenty of other rods I can be using. Now, let me teach you... the way of the water! Heheheh.",
+			startChat: [{
+				text: `You found it!`,
+			},{
+				text: `Heheh, let me clean it for you.`,
+			},{
+				text: `You can keep it for your fishing lessons with me. I've plenty of other rods I can be using.`,
+			},{
+				text: `Now, let me teach you... the way of the water! Heheheh.`,
+			},],
 
 			objectives: [
 				"Find <strong>Fisherman Tobenam's</strong> fishing rod. He thinks it has been taken by a goblin.",
@@ -414,10 +486,20 @@ var Quests = {
 			questArea: "eaglecrestLoggingCamp",
 
 			startName: "Galuthel the Trap Mechanic",
-			startChat: `Welcome to the logging camp, adventurer. I hope Teper hasn't been too harsh to you. Since the goblin attack, we've been investing in ways to stop something like it happening again. My traps are some of the best technology this area has to offer to stop those goblins.<br>Help me by taking some traps and place them around in The Nilbog. 3 should suffice. They will make a huge impact in deterring the goblins, and will maybe help out in your combats!`,
+			startChat: [{
+				text: `Welcome to the logging camp, adventurer. I hope Teper hasn't been too harsh on you.`,
+			},{
+				text: `My traps are some of the best technology this area has to offer to stop those goblins.`,
+			},{
+				text: `>Help me by taking some traps and place them around in The Nilbog. 3 should suffice.`,
+			},{
+				text: `They will make a huge impact in deterring the goblins, and will maybe help out in your combats!`,
+			},],
 
 			finishName: "Galuthel the Trap Mechanic",
-			finishChat: `Excellent. You can always come back later if you have a bit of spare time. I'd appreciate your help.`,
+			finishChat: [{
+				text: `Excellent. You can always come back later if you have a bit of spare time. I'd appreciate your help.`,
+			},],
 
 			objectives: [
 				"Place 3 goblin traps around The Nilbog. <em>(click on one to place it)</em>",
@@ -460,10 +542,14 @@ var Quests = {
 			questArea: "eaglecrestLoggingCamp",
 
 			startName: "Galuthel the Trap Mechanic",
-			startChat: `If you have some time, I need 3 more traps placed around The Nilbog and The Tower. We can't let those goblins attack us again!`,
+			startChat: [{
+				text: `If you have some time, I need 3 more traps placed around The Nilbog and The Tower. We can't let those goblins attack us again!`,
+			},],
 
 			finishName: "Galuthel the Trap Mechanic",
-			finishChat: `Thank you. Same time tomorrow?`,
+			finishChat: [{
+				text: `Thank you. Same time tomorrow?`,
+			},],
 
 			objectives: [
 				"Place 3 goblin traps around The Nilbog. <em>(click on one to place it)</em>",
@@ -512,13 +598,21 @@ var Quests = {
 			questArea: "eaglecrestLoggingCamp",
 
 			startName: "Soul Healer Nalaa",
-			startChat: `My blessings to you. My sceptre is running low on soul essence, a sacred power contained in the corpses of those who have recently died. I use it to remove XP fatigue from those who have died, here at the logging camp. I am not well equipped to go out to collect this essence, however I believe that you are. May you restore my sceptre's power?`,
+			startChat: [{
+				text: `My blessings to you. My sceptre is running low on soul essence, a sacred power contained in the corpses of those who have recently died.`,
+			},{
+				text: `I use it to remove XP fatigue from those who have died, here at the Logging Camp.`,
+			},{
+				text: `I am not well equipped to go out to collect this essence, however I believe that you are. May you restore my sceptre's power?`,
+			},],
 
 			finishName: "Soul Healer Nalaa",
-			finishChat: `Thank you. It is people like you that allow the Logging Camp to flourish.`,
+			finishChat: [{
+				text: `Thank you. It is people like you that allow the Logging Camp to flourish.`,
+			},],
 
 			objectives: [
-				"Use the Sceptre of Ssouls near 5 corpses to restore its power. <em>(click on it to use it)</em>",
+				"Use the Sceptre of Souls near 5 corpses to restore its power. <em>(click on it to use it)</em>",
 				"Speak to <strong>Soul Healer Nalaa</strong>.",
 			],
 
@@ -564,13 +658,21 @@ var Quests = {
 			questArea: "eaglecrestLoggingCamp",
 
 			startName: "Goblin Torch",
-			startChat: `<em>The torch speaks to you with a coarse whisper.</em><br>Please help. Goblins used wrong spell. On me. I can think. And speak. Other torches. Can not.<br>I hate goblins. As much as you. Please. Give me. A lift? We can kill. Together.`,
+			startChat: [{
+				text: `<em>The torch speaks to you with a coarse whisper.</em><br>Please help. Goblins used wrong spell. On me.`,
+			},{
+				text: `I can think. And speak. Other torches. Can not.`,
+			},{
+				text: `I hate goblins. As much as you. Please. Give me. A lift? We can kill. Together.`,
+			},],
 
 			finishName: "Goblin Torch",
-			finishChat: `Thank you. That was the. Best time of my life.`,
+			finishChat: [{
+				text: `Thank you. That was the. Best time of my life.`,
+			}],
 
 			objectives: [
-				"Kill 10 goblins with the help of the goblin torch.",
+				"Kill 20 goblins with the help of the goblin torch.",
 				"Place the torch back at the goblin camp.",
 			],
 
@@ -578,7 +680,7 @@ var Quests = {
 				let completed = [];
 
 				// true or falses for each objective (apart from the turn-in objective)
-				completed.push(checkProgress(Player.quests.questProgress.goblinsKilledWithTorch, 10));
+				completed.push(checkProgress(Player.quests.questProgress.goblinsKilledWithTorch, 20));
 				completed.push(completed[0] === true); // second objective isn't actually an objective so just mirrors the first
 
 				completed = checkFinished(completed);
@@ -624,10 +726,21 @@ var Quests = {
 			questArea: "eaglecrestLoggingCamp",
 
 			startName: "Item Buyer Noledar",
-			startChat: `Hello. I've been working on my latest achievement and need some assistance if you wouldn't mind. I need to collect 8 <strong>Scraps of Cloth</strong> and 4 <strong>Polished Rocks</strong> from the goblins in <strong>The Nilbog</strong>, but I've heard it's dangerous out there and don't want to leave my cart unattended. Is there any chance you could head down there to help me? I've heard you're good around the goblins.`,
+			startChat: [{
+				text: `Hello. I've been working on my latest achievement and need some assistance if you wouldn't mind.`,
+			},{
+				text: `I need to collect 8 <strong>Scraps of Cloth</strong> and 4 <strong>Polished Rocks</strong> from the goblins in <strong>The Nilbog</strong>, but I've heard it's dangerous out there and don't want to leave my cart unattended.`,
+				long: true,
+			},{
+				text: `Is there any chance you could head down there to help me? I've heard you're good around the goblins.`,
+			},],
 
 			finishName: "Item Buyer Noledar",
-			finishChat: `Thank you so much! Now, I just need to find some space in my cart...<br>If you ever have more items you don't want, you can come and visit me to sell them any time.`,
+			finishChat: [{
+				text: `Thank you so much! Now, I just need to find some space in my cart...`,
+			},{
+				text: `If you ever have more items you don't want, you can come and visit me to sell them any time.`,
+			},],
 
 			objectives: [
 				"Obtain 8 <strong>Scraps of Cloth</strong> from goblins.",
@@ -676,10 +789,20 @@ var Quests = {
 			questArea: "eaglecrestLoggingCamp",
 
 			startName: "Identifier Gilas",
-			startChat: `As part of my research, I have been looking into what makes the <strong>fire goblin</strong> so much stronger than the other goblins. You might have seen one at the <strong>north</strong> of <strong>The Nilbog</strong>. I believe their strength is down to <strong>Fiery Rocks</strong>, which would have been sourced from the <strong>Nilbog Tower</strong>. They are potentially very strong forms of magic, but not that the goblins would know how to use them to their full potential!<br><br>Please, find one of these rocks from a fire goblin and return it to me. It will be very useful in my research.`,
+			startChat: [{
+				text: `As part of my research, I have been looking into what makes the <strong>Fire Goblin</strong> so much stronger than the other goblins. You might have seen one at the <strong>north</strong> of <strong>The Nilbog</strong>.`,
+				long: true,
+			},{
+				text: `I believe their strength is down to <strong>Fiery Rocks</strong>, sourced from the <strong>Nilbog Tower</strong>. They are potentially very strong forms of magic, but not that the goblins would know how to use them to their full potential!`,
+				long: true,
+			},{
+				text: `Please, find one of these rocks from a fire goblin and return it to me. It will be very useful in my research.`,
+			},],
 
 			finishName: "Identifier Gilas",
-			finishChat: `Thank you. This will be very useful for my research.`,
+			finishChat: [{
+				text: `Thank you. This will be very useful for my research.`,
+			},],
 
 			objectives: [
 				"Obtain a <strong>Fiery Rock</strong> from a <strong>Fire Goblin</strong>.",
@@ -722,12 +845,48 @@ var Quests = {
 			questArea: "eaglecrestLoggingCamp",
 
 			startName: "Ciarra Darkbrew",
-			startChat: `It's important that we potion merchants experiment with our wares. You wouldn't want to feel to safe as a customer, would you? Gather some potion ingredients for me and let's see what we can brew up.`,
+			startChat: [{
+				text: `It's important that we potion merchants experiment with our wares. You wouldn't want to feel <i>too</i> safe as a customer, would you?`,
+			},{
+				text: `Gather some potion ingredients for me and let's see what we can brew up.`,
+			},],
 
 			finishName: "Ciarra Darkbrew",
-			finishChat: `Interesting. Let's see how this goes.`,
+			finishChat: [{
+				text: `Interesting. Let's see how this goes.`,
+			},{
+				text: `Stand back. We wouldn't want your arms to detatch so soon.`,
+			},{
+				text: `Ciarra adds the potion ingredients to an inert vial.`,
+				saidBy: "none",
+				autoProgress: true, // doesn't require player clicking
+				progressIn: 3000,
+			},{
+				text: `The vial fizzes rapidly.`,
+				saidBy: "none",
+				autoProgress: true,
+				progressIn: 3000,
+				onFinish: function () {
+					if (Game.areaName === "eaglecrestLoggingCamp") {
+						// damage Ciarra
+						Game.npcs.find(NPC => NPC.name === "Ciarra Darkbrew").takeDamage(100);
+						// displace player if they are too close
+						let d = Game.distance(Game.hero, {x: 1571, y: 633}); // distance from ciarra
+						if (d < 240) {
+							Game.hero.displace(0, 240-d, 1, Game.bearing({x: 1571, y: 633}, Game.hero));
+						}
+					}
+				}
+			},{
+				text: `The vial explodes.`,
+				saidBy: "none",
+				autoProgress: true,
+				progressIn: 2500,
+			},{
+				text: `That... didn't go as planned.`,
+			},],
 
-			onQuestFinish: function () {
+			/*onQuestFinish: function () {
 				Dom.closePage('questFinish');
 				Dom.chat.insertSequence([
 					Dom.chat.say("Ciarra Darkbrew", "Stand back. We wouldn't want your arms to detatch so soon."),
@@ -748,7 +907,7 @@ var Quests = {
                         }
 					}
 				}, 8600);
-			},
+			},*/
 
 			objectives: [
 				"Gather 2 goblin eyes.",
@@ -803,12 +962,36 @@ var Quests = {
 			questArea: "eaglecrestLoggingCamp",
 
 			startName: "Ciarra Darkbrew",
-			startChat: `Let's try again. Perhaps adding Nilbog mud wasn't a good idea. To stop such a violent reaction, <strong>direweed</strong> should be added. If you know how to fish, you can catch it from nearby waters.`,
+			startChat: [{
+				text: `Let's try again. Perhaps adding Nilbog mud wasn't a good idea.`,
+			},{
+				text: `To stop such a violent reaction, <strong>direweed</strong> should be added. If you know how to fish, you can catch it from nearby waters.`,
+			},],
 
 			finishName: "Ciarra Darkbrew",
-			finishChat: `Try two. Stand back; you wouldn't want to die <em>such</em> a horrible death.`,
+			finishChat: [{
+				text: `Try two. Stand back; you wouldn't want to die <em>such</em> a horrible death.`,
+			},{
+				text: `Ciarra adds the potion ingredients to an inert vial.`,
+				saidBy: "none",
+				autoProgress: true, // doesn't require player clicking
+				progressIn: 3000,
+			},{
+				text: `The vial fizzes rapidly.`,
+				saidBy: "none",
+				autoProgress: true,
+				progressIn: 3000,
+			},{
+				text: `The vial simmers to produce a bluish-green coloured liquid.`,
+				saidBy: "none",
+				autoProgress: true,
+				progressIn: 2500,
+			},{
+				text: `Excellent. If you'd like to try the potion, you can buy some from me. I promise it won't kill you. Probably.`,
+			},],
 
-			onQuestFinish: function () {
+			// below is legacy code
+			/*onQuestFinish: function () {
 				Dom.closePage('questFinish');
 				Dom.chat.insertSequence([
 					Dom.chat.say("Ciarra Darkbrew", "/me adds the potion ingredients to an inert vial."),
@@ -816,7 +999,7 @@ var Quests = {
 					"The vial simmers to produce a bluish-green coloured liquid.",
 					Dom.chat.say("Ciarra Darkbrew", "Excellent. If you'd like to try the potion, you can buy some from me. I promise it won't kill you. Probably.")],
 				[1500, 4000, 6000, 8000], undefined, undefined, true); // cutscene with no end function
-			},
+			},*/
 
 			objectives: [
 				"Gather 2 more goblin eyes.",
@@ -865,10 +1048,16 @@ var Quests = {
 			questArea: "eaglecrestLoggingCamp",
 
 			startName: "Combat Trainer Saral",
-			startChat: `We meet again, ${Player.name}. It's always important to warm up before a day of combat. Hone your skills and kill 9 goblins in The Nilbog.`,
+			startChat: [{
+				text: `We meet again, ${Player.name}.`,
+			},{
+				text: `It's always important to warm up before a day of combat. Hone your skills and kill 9 goblins in The Nilbog.`,
+			},],
 
 			finishName: "Combat Trainer Saral",
-			finishChat: `Beautifully done, ${Player.name}. I love the smell of goblin blood. Same time tomorrow?`,
+			finishChat: [{
+				text: `Beautifully done, ${Player.name}. I love the smell of goblin blood. Same time tomorrow?`,
+			},],
 
 			objectives: [
 				"Kill 9 goblins.",
@@ -914,10 +1103,23 @@ var Quests = {
 			important: true,
 
 			startName: "Marshall Teper",
-			startChat: `The Goblin King is the ruler over the goblins. We believe it is because of their ruler that the goblins act as hostile towards us as they do. Unfortunately, the Antorax ley energy nearby means that the goblins and their ruler come back to life after killed, however killing the Goblin King will certainly offset the goblins for a while.<br>The Goblin Tower has been a dangerous place since they first took it over - it has all sorts of magical items left over that will will be unlike anything you have seen before. Moreover, only the strongest of goblins are elected to protect their ruler. I suggest not engaging them. Prepare yourself with equipment, traps and potions, and see how you fare against the Goblin King.`,
+			startChat: [{
+				text: `<b>The Goblin King</b> rules over the goblins. We believe it is because of their ruler that the goblins act as hostile towards us as they do.`,
+			},{
+				text: `Unfortunately, the Antorax ley energy nearby means that the goblins and their ruler come back to life after killed, however killing the Goblin King will certainly throw off the goblins for a while.`,
+				long: true,
+			},{
+				text: `<b>The Nilbog Tower</b> has been a dangerous place since they first took it over - it has all sorts of magical items left over that will will be unlike anything you have seen before.`,
+				long: true,
+			},{
+				text: `Moreover, only the strongest of goblins are elected to protect their ruler. I suggest not engaging them. Prepare yourself with <b>equipment</b>, <b>traps</b> and <b>potions</b>, and see how you fare against the Goblin King.`,
+				long: true,
+			},],
 
 			finishName: "Marshall Teper",
-			finishChat: `Well done. Few novices can say they have killed the Goblin King.`,
+			finishChat: [{
+				text: `Well done. Few novices can say they have killed the Goblin King.`,
+			},],
 
 			objectives: [
 				"Kill the Goblin King at the top of the Nilbog Tower.",
@@ -1106,10 +1308,14 @@ var Quests = {
 			questArea: "eaglecrestLoggingCamp",
 
 			startName: "Goblin Torch",
-			startChat: `Hello. Conscious goblin torch. Gets very bored. Please. Bring some books. Tower has books. Books cure boredom.`,
+			startChat: [{
+				text: `Hello. Conscious goblin torch. Gets very bored. Please. Bring some books. Tower has books. Books cure boredom.`,
+			},],
 
 			finishName: "Goblin Torch",
-			finishChat: `This will be. Exciting. Thank you.`,
+			finishChat: [{
+				text: `This will be. Exciting. Thank you.`,
+			},],
 
 			objectives: [
 				"Gather 4 tattered tomes from goblins in the Nilbog Tower.",
@@ -1214,10 +1420,20 @@ After all, death is never the end in Antorax...<br>
 			important: true,
 
 			startName: "Marshall Teper",
-			startChat: `You've done fine with your work here in the Logging Camp, but it's time for you to head to Eaglecrest. Finish off anything you want to here, then speak to <strong>Cart Driver Alaran</strong> to take a cart to Eaglecrest, the capital city of Antorax.<br>You'll always be able to come back here in the future; just speak to Alaran in Eaglecrest and he can take you over. There's always work to be done and goblins to be defended against. I hope we'll be seeing you again soon.`,
+			startChat: [{
+				text: `You've done fine with your work here in the Logging Camp, but it's time for you to head to Eaglecrest.`,
+			},{
+				text: `Finish off anything you want to here, then speak to <strong>Cart Driver Alaran</strong> to take a cart to Eaglecrest, the capital city of Antorax.`,
+			},{
+				text: `You'll always be able to come back here in the future; just speak to <b>Alaran</b> in Eaglecrest and he can take you over.`,
+			},{
+				text: `There's always work to be done and goblins to be defended against. I hope we'll be seeing you again soon.`,
+			},],
 
 			finishName: "Cart Driver Alaran",
-			finishChat: `Here we are, Eaglecrest! You'll love it here.`,
+			finishChat: [{
+				text: `Here we are, Eaglecrest! You'll love it here.`,
+			}],
 
 			objectives: [
 				"Take a cart to Eaglecrest.",
@@ -1256,10 +1472,16 @@ After all, death is never the end in Antorax...<br>
 			questArea: "eaglecrestLoggingCamp",
 
 			startName: "Goblin Torch",
-			startChat: `Goblins. Make goblin torch dirty. Please, clean me. No water. Just cloth.`,
+			startChat: [{
+				text: `Goblins. Make goblin torch dirty. Please, clean me. No water. Just cloth.`,
+			},],
 
 			finishName: "Goblin Torch",
-			finishChat: `I am clean! Thank you. Adventurer.<br>Oh. What is your name?`,
+			startChat: [{
+				text: `I am clean! Thank you. Adventurer.`,
+			},{
+				text: `Oh. What is your name?`
+			}],
 
 			objectives: [
 				"Obtain 1 scrap of cloth.",
@@ -1458,11 +1680,37 @@ After all, death is never the end in Antorax...<br>
 			quest: "Help! Lost Cat",
 			questArea: "eaglecrest",
 
-			startName: "Have you seen this cat?",
-			startChat: "Black cat with white paws and nose.<br>His name is Amelio.<br>Last seen outside the Eaglecrest tavern.<br>Please bring to Priest Kemp-Eau inside Eaglecrest Monastery for a reward.",
+			startName: "Help Notice",
+			startChat: [{
+				text: `<b>Have you seen this cat?</b>`,
+			},{
+				text: `Black cat with white paws and nose.`,
+			},{
+				text: `His name is <b>Amelio</b>.`,
+			},{
+				text: `Last seen outside the Eaglecrest tavern.`,
+			},{
+				text: `If found, please bring to <b>Priest Kemp-Eau</b> inside Eaglecrest Monastery for a reward.`,
+			},],
 
 			finishName: "Priest Kemp-Eau",
-			finishChat: `Is that Amelio?!<br><br>Awww come here little boy, you haven't been to the tavern again have you?!<br><br>No, I meant the cat not you ${Player.name}!<br><br>Anyway, thank you immensely ${Player.name}. I assume you saw our notice!? He usually goes on his little séjours but never for this long! We have been searching for weeks. I cannot state how happy we are to see him back.<br><br>Ahh yes your reward. Here is some gold. I hope it goes towards a good cause.<br><br>Wait, adventurer!! If you want some more rewards.. we still need to find out why Amelio was missing for so long. He's never done this before. I'm sure it's nothing, but..`,
+			finishChat: [{
+				text: `Is that Amelio?!`,
+			},{
+				text: `Awww come over here, you haven't been to the tavern again have you?!`,
+			},{
+				text: `No, I meant the cat, not you ${Player.name}!`,
+			},{
+				text: `Anyway, thank you immensely ${Player.name}. I assume you saw our notice!? He usually goes on his little séjours but never for this long!`,
+			},{
+				text: `We have been searching for weeks. I cannot state how happy we are to see him back.`,
+			},{
+				text: `Ahh yes your reward. Here is some gold. I hope it goes towards a good cause.`,
+			},{
+				text: `Wait, adventurer!! If you want some more rewards.. we still need to find out why Amelio was missing for so long.`,
+			},{
+				text: `He's never done this before. I'm sure it's nothing, but..`
+			}],
 
 			objectives: [
 				"Find the lost cat, Amelio.",
@@ -1554,15 +1802,32 @@ After all, death is never the end in Antorax...<br>
 			important: true,
 
 			startName: "Recruiter Sylvie",
-			startChat: `A new archaeologist! Welcome, from all of the citizens and workers, to the most resplendent, excellent, grand, opulent, showstopping city of all of Antorax!<br><br>
-			Let me not get ahead of myself. What is your name?<br><br>
-			Well, <b>Eaglecrest needs you</b>, ${Player.name}!<br> I will be your task-master, quest-setter, direction-giver for the forseeable future! I am sure you are glad to be out of the hands of <b>Marshall Teper</b>. And out of that pit of a logging camp! But don't let the archaeologists fool you - everyone still has their part to play in maintining the city.<br><br>
-			Speaking of which... the <b>Eaglecrest Bank</b> has been closed for the past couple of days due to an... unforseen issue. I was told it would be reopening today - can you head over there and help them out?<br><br>
-			Ah yes - the bank is just <b>north</b> of here. It is indicated with a gold coin outside.`,
+			startChat: [{
+				text: `A new archaeologist! Welcome, from all of the citizens and workers, to the most resplendent, excellent, grand, opulent, showstopping city of all of Antorax!`,
+			},{
+				text: `Let me not get ahead of myself. What is your name?`,
+			},{
+				text: `Well, <b>Eaglecrest needs you</b>, ${Player.name}! I will be your task-master, quest-setter, direction-giver for the forseeable future!`,
+			},{
+				text: `I am sure you are glad to be out of the hands of <b>Marshall Teper</b>. And out of that pit of a logging camp!`,
+			},{
+				text: `But don't let the archaeologists fool you - everyone still has their part to play in maintining the city.`,
+			},{
+				text: `Speaking of which... the <b>Eaglecrest Bank</b> has been closed for the past couple of days due to an... unforseen issue.`,
+			},{
+				text: `I was told it would be reopening today - can you head over there and help them out?`,
+			},{
+				text: `Ah yes - the bank is just <b>north</b> of here. It is indicated with a gold coin outside.`,
+			},],
 
 			finishName: "Recruiter Sylvie",
-			finishChat: `All sorted? Excellent! Well, ${Player.name}, you definitely deserve a rest in our beautiful city. Have a look around, and I am sure I will be seeing more of you in good time.<br><br>
-			Speaking of resting... have you tried a <b>beetroot pie</b>? They are one of the many delicacies of <b>Eaglecrest</b>, and I happen to have a few on me!`,
+			finishChat: [{
+				text: `All sorted? Excellent! Well, ${Player.name}, you definitely deserve a rest in our beautiful city.`,
+			},{
+				text: `Have a look around, and I am sure I will be seeing more of you in good time.`,
+			},{
+				text: `Speaking of resting... have you tried a <b>beetroot pie</b>? They are one of the many delicacies of <b>Eaglecrest</b>, and I happen to have a few on me!`,
+			},],
 
 			objectives: [
 				"Speak to <b>Head Banker Jonos</b> about the situation at the bank, to the <b>north</b> of Eaglecrest.",
@@ -2124,12 +2389,27 @@ After all, death is never the end in Antorax...<br>
 			questArea: "eaglecrest",
 
 			startName: "The Jester",
-			startChat: `Good heavens, I’m all out of tricks! See, I’m the Eaglecrest court jester but nothing’s funny about getting robbed. I was just frolicking in the praries when waylay hit - those toads must have thought my foghorn was a froghorn the way they hopped off with it! My confetti cannon has been pilfered, my triangle’s gone pear-shaped, but worst of all, my prized juggling balls have been nicked. Anyone in the Eaglecrest plains could have them by now!
-<br><br>
-I can’t do my routine without my props… I’d have to become a… <i>(shudders)</i> a mime! NO! I need them back. They must be somewhere in the plains! I’d help you… But look at me - I’m not exactly camouflaged!`,
+			startChat: [{
+				text: `Good heavens, I’m all out of tricks!`,
+			},{
+				text: `See, I’m the Eaglecrest court jester but nothing’s funny about getting robbed.`,
+			},{
+				text: `I was just frolicking in the praries when waylay hit - those toads must have thought my foghorn was a froghorn the way they hopped off with it!`,
+			},{
+				text: `My confetti cannon has been pilfered, my triangle’s gone pear-shaped, but worst of all, my prized juggling balls have been nicked. Anyone in the Eaglecrest plains could have them by now!`,
+				long: true
+			},{
+				text: `I can’t do my routine without my props... I’d have to become a... <i>(shudders)</i> a mime! NO! I need them back`,
+			},{
+				text: `They must be somewhere in the plains! I’d help you... But look at me - I’m not exactly camouflaged!`,
+			},],
 
 			finishName: "The Jester",
-			finishChat: `Thank you so much! Now that you’ve helped this poor clown, you’ll be laughing all the way to the bank. I’ll make sure of it! And to whoever stole my magic mirror… you need to take a long hard look at yourself!`,
+			finishChat: [{
+				text: `Thank you so much! Now that you’ve helped this poor clown, you’ll be laughing all the way to the bank. I’ll make sure of it!`,
+			},{
+				text: `And to whoever stole my magic mirror... you need to take a long hard look at yourself!`,
+			},],
 
 			objectives: [
 				"Find The Jester's <b>Brass Bugle</b> in the Eaglecrest Plains.",
@@ -2158,7 +2438,7 @@ I can’t do my routine without my props… I’d have to become a… <i>(shudde
 			questRequirements: ["Overdraft"],
 
 			rewards: {
-				xp: 55,
+				xp: 85,
 				items: [
 					{item: Items.currency[2], quantity: 4,},
 				],
@@ -2181,20 +2461,35 @@ I can’t do my routine without my props… I’d have to become a… <i>(shudde
 			questArea: "eaglecrest",
 
 			startName: "Farmer Eloise",
-			startChat: `Hmm~ Do you think the bees are happy?˚<br><br>
-
-			They keep swarming down in that flower forest˚ I hope they're not sad about my flower patches⁀!<br><br>
-
-			You see that empty patch over there˚?<br><br>
-
-			Some <b>blue callalilies</b> would be great there~⁀They're big and blue and there's some in the flower forest~<br><br>
-
-			Oh⁀and some <b>Marigolds</b>˚ they're the yellow flowers all around the plains~`,
+			startChat: [{
+				text: `Hmm~ Do you think the bees are happy?˚`,
+			},{
+				text: `They keep swarming down in that flower forest˚ I hope they're not sad about my flower patches⁀!`,
+				onFinish: function () {
+					// pan to the patch
+					Game.camera.pan({x: 5875, y:1790}, 250, "constant");
+				}
+			},{
+				text: `You see that empty patch over there˚?`,
+			},{
+				text: `Some <b>blue callalilies</b> would be great there~⁀They're big and blue and there's some in the flower forest~`,
+				onFinish: function () {
+					// pan back
+					Game.camera.pan(Game.hero, 250, "constant", function () {
+						// reset camera
+						Game.camera.follow(Game.hero);
+					}, 0);
+				}
+			},{
+				text: `Oh⁀and some <b>Marigolds</b>˚ they're the yellow flowers all around the plains~`,
+			},],
 
 			finishName: "Farmer Eloise",
-			finishChat: `I'll plant these tomorrow~<br><br>
-
-			ᵔ ᵕ ᵔ`,
+			finishChat: [{
+				text: `I'll plant these tomorrow~`,
+			},{
+				text: `⁀ ‿ ⁀`,
+			},],
 
 			objectives: [
 				"Pick 6 <b>blue callalillies</i> from the <b>flower forest</b> in the Eaglecrest Plains <i>(they're big and blue~)</i>.",
@@ -2235,6 +2530,185 @@ I can’t do my routine without my props… I’d have to become a… <i>(shudde
 				{item: Items.item[31], quantity: 6},
 			],
 		},
+		/*{
+			id: 10,
+			quest: "The Pyromancer's Shopping List",
+			questArea: "eaglecrest",
+
+			startName: "Peto the Pyromancer",
+			startChat: [{
+				text: `Hello there, stranger! Would you mind helping me with a a certain... <i>ahahaha</i>... a certain matter?`,
+			},{
+				text: `I need a number of specific reagents for my... uh... experiments and you seem like you'd be able to help.`,
+			},{
+				text: `A pyromancer's work is never done, but a bag of flour would certainly help speed it up. <i>hehe</i>`,
+			},{
+				text: `Could you retreive some from the nearby farm if you're willing?`,
+			}],
+
+			stepName1: "Farmer Scop",
+			stepChat1: [{
+				text: `That pyromancer's an odd fella. He loves his pies, but the rumours I've 'eard are bloomin' unsavoury.`
+			},{
+				text: `I don't want you on me land a second longer! Get one of 'em sacks of flour by the entrance, then get off with ye!`
+			},],
+
+			stepName2: "Peto the Pyromancer",
+			stepChat2: [{
+				text: `Oh goody! A bag of flour! This'll do nicely for my pyromancer experiments <i>hahaha</i>.`
+			},{
+				text: `If you're still willing, some eggs would go down a treat! You can nick them off the local chickens <i>hehe</i>.`
+			},],
+
+			stepName3: "Peto the Pyromancer",
+			stepChat3: [{
+				text: `Are those my eggs? Why, thank you!`
+			},{
+				text: `What do I need them for? Why, that's <i>ahaha</i>.. why, that would be <i>hahaha</i>... that would be none of your business!`
+			},{
+				text: `But if you're willing to fetch one final ingredient, I could do with some milk! That farm might be worth another try...`
+			}],
+
+			stepName4: "Farmer Scop",
+			stepChat4: [{
+				text: `I thought I told ya to get lost! We've got no cows here and besides... I'm not makin' any more pies for that Peto fella! Not after..... last time.`,
+			},{
+				text: `You city folk make me sick.`,
+			},{
+				text: `But if you're that desperate, I reckon that <b>Alchemist Tamtam</b> would sell you some milk. Now get off me land! I've nowt left for ye here!`
+			},],
+
+			stepName5: "Alchemist Tamtam",
+			stepChat5: [{
+				text: `Milk??<br><em>Tamtam's ears drop down.</em>`,
+			},{
+				text: `It's been a long time since someone's asked me for that...`,
+			},{
+				text: `I guess... we can brew some!!!`
+			},{
+				text: `Yesss... We'll need a <b>Katydid</b>, a piece of <b>Iron Ore</b>, a <b>Milkfish</b> and some <b>Lavender</b>.`
+			},{
+				text: `Oooonly thing is... I can't remember the order we need to add them to the cauldron in!`
+			},{
+				text: `You'll need to add the <b>Milkfish</b> first... After that, I guess there's only one way to find out!!`
+			},],
+
+			finishName: "Peto the Pyromancer",
+			finishChat: [{
+				text: `My ingredients!`,
+			},{
+				text: `Wait. Did I say 'ingredients'? Well I meant... <i>ahaha</i> my pyromancer potion ingredients! For a potion! <i>oh no.</i>.`,
+			},{
+				text: `A pie romancer's work is never done!... Wait... did I say pie romancer? <i>heh</i>.. Well now I've said too much....`
+			},],
+
+			objectives: [
+				"Ask <b>Farmer Scop</b> where you can find some <b>flour</b>.",
+				"Give <b>Peto the Pyromancer</b> some flour.",
+				"Give <b>Peto the Pyromancer</b> three <b>eggs</b> from chickens.",
+				"Ask <b>Farmer Scop</b> where you can find some <b>milk</b>.",
+				"Ask <b>Alchemist Tamtam</b> for some milk.",
+				"Add the four ingredients in the right order to brew some milk <i>(Milkfish is first!)</i>",
+				"Give <b>Peto the Pyromancer</b> the milk.",
+			],
+
+			isHidden: function() {
+				let hidden = [];
+
+				if (Player.quests.npcProgress.eaglecrest[2] === undefined) {
+					Player.quests.npcProgress.eaglecrest[2] = 0;
+				}
+
+				// true or falses for each objective (apart from the turn-in objective)
+				hidden.push(false);
+				hidden.push(Player.quests.npcProgress.eaglecrest[2] < 1);
+				hidden.push(Player.quests.npcProgress.eaglecrest[2] < 2);
+				hidden.push(Player.quests.npcProgress.eaglecrest[2] < 3);
+				hidden.push(Player.quests.npcProgress.eaglecrest[2] < 1);
+				hidden.push(false);
+
+				return hidden;
+			},
+
+			isCompleted: function() {
+				let completed = [];
+
+				// true or falses for each objective (apart from the turn-in objective)
+				completed.push(checkProgress(Dom.inventory.check(68, "item"), 6));
+				completed.push(checkProgress(Dom.inventory.check(31, "item"), 6));
+
+				completed = checkFinished(completed);
+
+				return completed;
+			},
+
+			howToStart: "Speak to <b>Peto the Pyromancer</b> in Eaglecrest City.",
+			levelRequirement: 7,
+			questRequirements: ["Overdraft"],
+
+			rewards: {
+				xp: 100,
+				items: [
+					{item: Items.item[1]}, // mystery (get the helm the next day)
+					{item: Items.currency[2], quantity: 2,},
+				],
+			},
+
+			removeItems: [
+				{item: Items.item[68], quantity: 6},
+				{item: Items.item[31], quantity: 6},
+			],
+		},
+
+		{
+			id: 11,
+			quest: "WANTED: Coyote Pack Wrangler!", // tbd make daily version of this (?) and foxglove
+			questArea: "eaglecrest",
+
+			startName: "Recruiter Sylvie",
+			startChat: [{
+				text: `${Player.name}! You look like you need something to do!`,
+			},{
+				text: `The City has recently been having trouble with Coyotes in the eastern grassy region of the Plains.`,
+			},{
+				text: `It is believed that one or many <b>Coyote Pack Wranglers</b> are causing this trouble. If you feel ready, seek one out and deal with them!`,
+			},],
+
+			finishName: "Recruiter Sylvie",
+			finishChat: [{
+				text: ``,
+			},],
+
+			objectives: [
+				"Kill a <b>Coyote Pack Wrangler</b> in the eastern grassy region of the Plains.",
+				"Speak to <strong>Recruiter Sylvie</strong>.",
+			],
+
+			isCompleted: function() {
+				let completed = [];
+
+				// true or falses for each objective (apart from the turn-in objective)
+				completed.push(false);
+
+				completed = checkFinished(completed);
+
+				return completed;
+			},
+
+			howToStart: "Speak to <strong>Recruiter Sylvie</strong>.",
+			levelRequirement: 7,
+			questRequirements: ["Overdraft"],
+
+			rewards: {
+				xp: 50,
+				items: [
+					{item: Items.currency[2], quantity: 5,},
+				],
+				reputation: {
+					eaglecrestCity: 100,
+				},
+			},
+		},*/
 		/*{
 			id: 8,
 			quest: "Troubled Waters II",

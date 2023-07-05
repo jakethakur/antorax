@@ -44,6 +44,7 @@ Game.run = function (context, contextSecondary, contextDayNight, contextLight) {
 
 	// projectile name for hero (for use with projectile image loading)
 	this.heroProjectileName = Skins[Player.class][Player.skin].projectile;
+	this.heroProjectile2Name = Skins[Player.class][Player.skin].projectile2; // currently just for knight's fissure
 	this.heroProjectileAdjust = Skins[Player.class][Player.skin].projectileAdjust;
 	this.heroProjectileInfo = {}; // any additional info
 	this.heroBobberName = "bobber";
@@ -1299,13 +1300,28 @@ class Entity {
 		}
 
 		this.moveTowards = properties.moveTowards; // should be an object with an x and y, and a speed property if this entity doesn't have a .speed/this speed should be overriden
+		// movetowards can also be given a moveTowardsFinishFunction which is called when the locations is reached (not if it's interrupted before this!)
 		// note moveTowards is currently incompatible with player / enemy / projectile move towards - tbd merge them into this one :)
 		this.moveTowardsLoop = properties.moveTowardsLoop;// moveTowardsLoop is an optional array of moveTowards objects which are iterated through one after another
 		if (typeof this.moveTowardsLoop !== "undefined") {
-			this.moveTowards = this.moveTowardsLoop[0];
-			this.moveTowardsState = 0; // index in loop that is currently being followed
+			let startIndex;
+			if (typeof properties.moveTowardsLoopStartIndex !== "undefined") {
+				this.moveTowardsLoopStartIndex = properties.moveTowardsLoopStartIndex;
+				if (this.moveTowardsLoopStartIndex === "random") {
+					this.moveTowardsLoopStartIndex = Random(0,this.moveTowardsLoop.length);
+				}
+				startIndex = this.moveTowardsLoopStartIndex;
+			}
+			else {
+				startIndex = 0;
+			}
+			this.moveTowards = this.moveTowardsLoop[startIndex];
+			this.moveTowardsState = startIndex; // index in loop that is currently being followed
 		}
 		this.speed = properties.speed; // potentially used with moveTowards
+
+		this.rotate = 0;
+		this.rotateSpeed = ToRadians(properties.rotateSpeed); // input is in deg per second
 
 		if (this.type === "collisions") { // done here because collisions are actually entities in a special array .. tbd change this?
 			this.hitboxColour = properties.hitboxColour || "#FF00000";
@@ -1736,6 +1752,9 @@ class Thing extends Visible {
 		//
 		// animation
 		//
+		if (typeof properties.crop !== "undefined" && typeof properties.animation !== "undefined") {
+			properties.animation.baseCrop = properties.crop; // for cropping borders of spritesheet animation
+		}
 		this.setAnimation(properties.animation); // see setAnimation function for what properties should be passed in etc
 
 
@@ -1752,6 +1771,42 @@ class Thing extends Visible {
 		if (this.walkable && properties.addToObjectArrays !== false) {
 			Game.walkableObjects.push(this);
 		}
+
+
+		this.canBePickedUp = properties.canBePickedUp || false; // player can press space to channel and pick up
+		// if it can be picked up, it should be an object with properties "channelTime" (ms), "itemType" (i.e. "sword"), "itemId" (in itemdata), "channelText" (optional), "inventoryFullText" (optional), "onPickUp" (optional)
+		if (this.canBePickedUp !== false) {
+			if (typeof this.onInteract === "undefined") {
+				let channelText = this.canBePickedUp.channelText || "Picking item up";
+				let inventoryFullText = this.canBePickedUp.inventoryFullText || "<i>Your inventory is full! Try again when you have space.</i>";
+
+				let pickUpProperties = this.canBePickedUp;
+				let removeId = this.id;
+				let removeType = this.type;
+
+				let channelFunction = function () {
+					if (Dom.inventory.give(Items[pickUpProperties.itemType][pickUpProperties.itemId]) === false) {
+						Dom.chat.insert(inventoryFullText);
+					}
+					else {
+						if (typeof pickUpProperties.onPickUp !== "undefined") {
+							pickUpProperties.onPickUp();
+						}
+						// remove this object from the map
+						Game.removeObject(removeId, removeType);
+					}
+				}
+
+				this.onInteract = function () {
+					Game.hero.channel(channelFunction, [], this.canBePickedUp.channelTime, channelText);
+				}
+			}
+			else {
+				this.canBePickedUp = false;
+				console.error(this.name, "could not have canBePickedUp property since onInteract had already been set.")
+			}
+		}
+
 
 		this.onDarkBackground = properties.onDarkBackground || false; // for darker character names (not currently finished - tbd)
 	}
@@ -3197,7 +3252,7 @@ class Attacker extends Character {
 		this.updateStats = properties.updateStats; // only works for enemies ATM
 
 		// base attack
-		this.projectileType = properties.projectileType; // "travelling" or "instant" (automatically determined from range but can be specified)
+		this.projectileType = properties.projectileType; // "snake" or "travelling" or "instant" (automatically determined from range but can be specified)
 		if (typeof this.projectileType === "undefined") {
 			if (this.stats.range < 100) {
 				// melee range so assumed instant projectile
@@ -3573,6 +3628,12 @@ class Hero extends Attacker {
 			if (Math.round(this.x) < this.moveTowards.x + 2 && Math.round(this.x) > this.moveTowards.x - 2
 			&& Math.round(this.y) < this.moveTowards.y + 2 && Math.round(this.y) > this.moveTowards.y - 2) {
 				// destination reached
+
+				// call move towards finish function
+				if (typeof this.moveTowards.moveTowardsFinishFunction !== "undefined") {
+					this.moveTowards.moveTowardsFinishFunction();
+				}
+
 				// remove moveTowards
 				this.moveTowards = undefined;
 			}
@@ -3705,7 +3766,7 @@ class Hero extends Attacker {
 
 						this.channellingProjectileId = Game.nextEntityId;
 
-						Game.projectiles.push(new Projectile({ // HERO projectile
+						Game.projectiles.push(new Projectile({ // HERO melee projectile
 							map: map,
 							x: mouseX,
 							y: mouseY,
@@ -3725,7 +3786,7 @@ class Hero extends Attacker {
 								height: 60,
 							},
 							image: Game.heroProjectileName,
-							name: "Hero Projectile",
+							name: "Hero Slash Projectile",
 							beingChannelled: true,
 							type: "projectiles",
 
@@ -3744,6 +3805,12 @@ class Hero extends Attacker {
 
 						// finish attack instantly
 						this.finishAttack(e);
+					}
+					else if (Player.inventory.weapon.type === "sword" && distanceToMouse >= this.stats.meleeRange) {
+						// knight moving projectile
+						aaaaaaaaaaaaaaaaaaaaaaaaaaa
+
+
 					}
 					else {
 						// tbd... but for now do nothing
@@ -4569,6 +4636,7 @@ class Projectile extends Thing {
 		// position the projectile should move towards
 		// this object should contain an x and y if you want the projectile to move
 		// could be set to an enemy, for example, if you want the projectile to home into that enemy
+		// movetowards can also be given a moveTowardsFinishFunction which is called when the locations is reached (not if it's interrupted before this!)
 		this.moveTowards = properties.moveTowards;
 
 		// alternatively...
@@ -4608,7 +4676,38 @@ class Projectile extends Thing {
 		//
 		// calculate projectile type ~
 		//
-		if (typeof this.moveSpeed !== "undefined" || typeof this.moveTowards !== "undefined") {
+		if (properties.projectileType === "snake") {
+			// copies of the projectile are made rather than the image itself moving, so it "snakes", i.e. fissure
+			// note that for placement of projectiles it is assumed that they tile vertically
+			this.projectileType = "snake";
+			this.maxIterations = properties.maxIterations || 20;
+			this.iterationNumber = properties.iterationNumber || 0;
+			this.iterationNumber++;
+			properties.iterationNumber = this.iterationNumber;
+			this.iterationSpacing = properties.iterationSpacing; // in ms
+
+			if (this.iterationNumber < this.maxIterations) {
+				// tiles vertically
+				properties.x += this.height*Math.cos(this.rotate-Math.PI/2);
+				properties.y += this.height*Math.sin(this.rotate-Math.PI/2);
+				properties.hitbox.x += this.height*Math.cos(this.rotate-Math.PI/2);
+				properties.hitbox.y += this.height*Math.sin(this.rotate-Math.PI/2);
+
+				Game.setTimeout(function () {
+					Game.projectiles.push(new Projectile(properties));
+				}, this.iterationSpacing, properties);
+			}
+
+			// rest is borrowed from instant projectiles:
+
+			// deal damage!
+			// damage enemies that the projectile is touching
+			this.dealDamage(this.projectileStats, this.targets);
+
+			// start remove timeout (remove it in a couple of secs)
+			this.startRemoveTimeout();
+		}
+		else if (typeof this.moveSpeed !== "undefined" || typeof this.moveTowards !== "undefined") {
 			this.projectileType = "travelling";
 		}
 		else {
@@ -4714,7 +4813,7 @@ class Projectile extends Thing {
 			Game.ctx.globalAlpha = 1;
 
 			return false; // don't render the projectile's image
-		}
+		}//mmmmmmmmmmmmmmmmmmmmmmmmmmm knight projectile
 
 		else {
 			// render projectile normally
@@ -4881,17 +4980,31 @@ class Projectile extends Thing {
 
 
 						// let's now affect target aggro on attacker (if such a thing exists)
+						// the target might also have other targets with "joint aggro", i.e. their aggro is increased as well
 						// 10% of max health dealt -> aggro increased by 1 (i.e. "leashradius" increased by 100)
-						if (typeof target.attackTargets !== "undefined") {
-							// try to find the attacker in the target's targets (I'm getting jamais vu...)
-							for (let i = 0; i < target.attackTargets.length; i++) {
-								if (target.attackTargets[i].target === attacker) {
-									if (typeof target.attackTargets[i].aggro === "undefined") {
-										target.attackTargets[i].aggro = 0;
+						let aggroList = [target];
+						if (typeof target.jointAggro !== "undefined") {
+							let add = target.jointAggro();
+							if (!Array.isArray(add)) {
+								console.error(add, "is not an array but should be.");
+							}
+							else {
+								aggroList = aggroList.concat(add);
+							}
+						}
+						for (let i = 0; i < aggroList.length; i++) {
+							let entity = aggroList[i]
+							if (typeof entity.attackTargets !== "undefined") {
+								// try to find the attacker in the target's targets (I'm getting jamais vu...)
+								for (let i = 0; i < entity.attackTargets.length; i++) {
+									if (entity.attackTargets[i].target === attacker) {
+										if (typeof entity.attackTargets[i].aggro === "undefined") {
+											entity.attackTargets[i].aggro = 0;
+										}
+										entity.attackTargets[i].aggro += dmgDealt / entity.stats.maxHealth * 10 * entity.attackTargets[i].target.stats.enemyAggro / 100;
+										entity.attackTargets[i].lastAttacked = 0;
+										entity.attackTargets[i].aggroBeforeForgiveness = undefined;
 									}
-									target.attackTargets[i].aggro += dmgDealt / target.stats.maxHealth * 10 * target.attackTargets[i].target.stats.enemyAggro / 100;
-									target.attackTargets[i].lastAttacked = 0;
-									target.attackTargets[i].aggroBeforeForgiveness = undefined;
 								}
 							}
 						}
@@ -5088,6 +5201,7 @@ class Projectile extends Thing {
 					this.removeIn = 0.75;
 				}
 				else {
+					// instant or snake
 					this.removeIn = 1.5;
 				}
 				this.onRemoveTimeout = true;
@@ -5611,6 +5725,8 @@ class Enemy extends Attacker {
 			}
 		}
 
+		this.jointAggro = properties.jointAggro; // function that returns *array* of enemies which also gain aggro when this is attacked
+
 		// make array of targets that should be damaged by each projectile, from attackTargets
 		this.canDamage = this.attackTargets.map(target => target.target);
 	}
@@ -5821,7 +5937,7 @@ class Enemy extends Attacker {
 		projectileDirection = Game.bearing(this, at);
 
 		if (this.projectileType === "instant") {
-			// i.e. melee projectiles ; can't be dodged
+			// i.e. melee projectiles ; can't be dodged through movement
 			projectileX = at.x;
 			projectileY = at.y;
 
@@ -5835,8 +5951,15 @@ class Enemy extends Attacker {
 				}
 			}
 		}
+		else if (this.projectileType === "snake") {
+			// i.e. fissure-like projectiles ; individual instances can't be dodged through movement
+			projectileX = this.x;
+			projectileY = this.y;
+
+			// not any variance yet
+		}
 		else if (this.projectileType === "travelling") {
-			// i.e. ranged projectiles ; can be dodged
+			// i.e. ranged projectiles ; can be dodged through movement
 			projectileX = this.x;
 			projectileY = this.y;
 
@@ -6471,6 +6594,10 @@ Game.statusEffects.functions = {
 	// remove the trail trailName
 	removeTrail: function (target, trailName) {
 		target.removeTrail(trailName);
+	},
+
+	resetExpand: function (target) {
+		target.setExpand(1);
 	},
 
 	// reset target's image back to its "initialImage" (e.g. for hex)
@@ -7630,6 +7757,9 @@ Game.loadDefaultImages = function () {
 
 	// load class' default projectile
 	toLoad.push(Loader.loadImage(this.heroProjectileName, "./assets/projectiles/" + this.heroProjectileName + ".png", false));
+	if (typeof this.heroProjectile2Name !== "undefined") {
+		toLoad.push(Loader.loadImage(this.heroProjectile2Name, "./assets/projectiles/" + this.heroProjectile2Name + ".png", false));
+	}
 
 	toLoad.push(Loader.loadImage("status", "./assets/icons/status.png", false));
 
@@ -7683,6 +7813,8 @@ Game.loadArea = function (areaName, destination) {
 	Event.updateEvent();
 	// set time of day
 	Event.updateTime(areaName);
+
+	this.fullDate = GetFullDate(); // updated on area change
 
 	// load images
 	// p = array of promises of images being loaded
@@ -8078,6 +8210,8 @@ Game.loadArea = function (areaName, destination) {
 							crop: crop,
 							type: "things"
 						}));
+
+						map.setTile(layer, c, r, 0);
 		            }
 
 					else if (tile !== 0 && (repeatTileNos.includes(tile))) {
@@ -8112,7 +8246,7 @@ Game.loadArea = function (areaName, destination) {
 							let x = baseX + (map.repeatTiles[i].xSpacing*xSpacingMultiplier[tileNo%xSpacingMultiplier.length]) + k*map.repeatTiles[i].kMultiplier;
 							let y = baseY - map.repeatTiles[i].ySpacing*tileNo;
 
-							this.things.push(new Thing({
+							let objectProperties = {
 								x: x,
 								y: y,
 								orderOffsetY: orderOffsetY,
@@ -8122,8 +8256,15 @@ Game.loadArea = function (areaName, destination) {
 								crop: crop,
 								type: "things",
 								name: map.repeatTiles[i].name
-							}));
+							};
+
+							// assign any additional properties from areadata
+							Object.assign(objectProperties, map.repeatTiles[i].objectProperties);
+
+							this.things.push(new Thing(objectProperties));
 						}
+
+						map.setTile(layer, c, r, 0);
 					}
 		        }
 		    }
@@ -8464,9 +8605,14 @@ Game.init = function () {
 		Keyboard.listenForKeyWithVariable(User.settings.keyboard[keysToAdd[i]], this.keysDown, keysToAdd[i]);
 	}
 
+	// dom-related keys work a bit different:
+
 	// shift
 	// special method of adding key because it calls a separate function
 	Keyboard.listenForKey(User.settings.keyboard.SHIFT, Keyboard.downFunctions.SHIFT, Keyboard.upFunctions.SHIFT);
+
+	// enter
+	Keyboard.listenForKey(User.settings.keyboard.ENTER, Keyboard.downFunctions.ENTER);
 
 	// player attack on click
 	document.getElementById("click").addEventListener("mousedown", Game.hero.startAttack.bind(this.hero));
@@ -9491,7 +9637,7 @@ Game.update = function (delta) {
 							if (questCanBeStarted) {
 								// choose dom checks inventory space
 								textArray.push("Quest start: " + questToBeStarted.quest);
-								functionArray.push(Dom.quest.start);
+								functionArray.push(Dom.quest.startFromNpc);
 								parameterArray.push([questToBeStarted, npc]);
 								additionalOnClickArray.push(role.additionalOnClick);
 							}
@@ -9531,7 +9677,57 @@ Game.update = function (delta) {
 								if (Player.quests.canBeFinishedArray.includes(questToBeFinished.quest)) {
 									// inventory space is checked by choose DOM
 									textArray.push("Quest finish: " + questToBeFinished.quest);
-									functionArray.push(Dom.quest.finish);
+									functionArray.push(Dom.quest.finishFromNpc);
+									parameterArray.push([questToBeFinished, npc]);
+									additionalOnClickArray.push(role.additionalOnClick);
+								}
+								// quest conditions have not been fulfilled
+								else {
+									questActive = true;
+								}
+
+							}
+							// quest has already been completed
+							else if (Player.quests.completedQuestArray.includes(role.quest.quest)) {
+								questComplete = true;
+							}
+						}
+
+						// quest finishes
+						if (role.role === "questProgress") {
+							// check if quest is ready to be progressed
+
+							let questCanBeFinished = true; // set to false if the quest cannot be finished
+							let questToBeFinished = role.quest;
+
+							if (role.quest.constructor === Array && (role.newQuestFrequency === "daily" || role.newQuestFrequency === "repeatable")) {
+								// quest is an array (hence a Random one is picked each questing time period)
+								// all of these quests are daily quests or repeatable quests
+
+								questToBeFinished = role.quest.find(quest => Player.quests.activeQuestArray.includes(quest.quest)); // find which quest the active one is
+
+								if (questToBeFinished === undefined) { // none of the quests are currently active
+									questCanBeFinished = false;
+									notUnlockedRoles = true;
+								}
+
+								// no need to check if it has already been completed as these are all daily
+							}
+							else {
+								// single quest
+								if (!Player.quests.activeQuestArray.includes(role.quest.quest)) { // quest is not already active
+									questCanBeFinished = false;
+									notUnlockedRoles = true;
+								}
+							}
+
+							if (questCanBeFinished) {
+								// check if quest conditions have been fulfilled
+								// canBeFinishedArray used for efficiency
+								if (Player.quests.canBeFinishedArray.includes(questToBeFinished.quest)) {
+									// inventory space is checked by choose DOM
+									textArray.push("Quest finish: " + questToBeFinished.quest);
+									functionArray.push(Dom.quest.finishFromNpc);
 									parameterArray.push([questToBeFinished, npc]);
 									additionalOnClickArray.push(role.additionalOnClick);
 								}
@@ -10212,6 +10408,12 @@ Game.update = function (delta) {
 			if (Math.round(entity.x) < entity.moveTowards.x + 2 && Math.round(entity.x) > entity.moveTowards.x - 2
 			&& Math.round(entity.y) < entity.moveTowards.y + 2 && Math.round(entity.y) > entity.moveTowards.y - 2) {
 				// destination reached
+
+				// call move towards finish function
+				if (typeof entity.moveTowards.moveTowardsFinishFunction !== "undefined") {
+					entity.moveTowards.moveTowardsFinishFunction();
+				}
+
 				// remove moveTowards
 				entity.moveTowards = undefined;
 
@@ -10225,6 +10427,11 @@ Game.update = function (delta) {
 					entity.moveTowards = entity.moveTowardsLoop[entity.moveTowardsState];
 				}
 			}
+		}
+
+		// rotateSpeed
+		if (typeof entity.rotateSpeed !== "undefined") {
+			entity.rotate += entity.rotateSpeed*delta;
 		}
 	}
 
@@ -10266,11 +10473,24 @@ Game.update = function (delta) {
 				}
 				else if (animate.type === "spritesheet") {
 					// change image using spritesheet
-					object.crop = {
-						x: (animate.state % animate.imagesPerRow) * object.baseWidth,
-						y: Math.floor(animate.state / animate.imagesPerRow) * object.baseHeight,
-						width: object.baseWidth,
-						height: object.baseHeight
+					let w = object.image.width / animate.imagesPerRow; // width of an image BEFORE cropping
+					let h = object.image.height / (Math.ceil(animate.totalImages / animate.imagesPerRow));
+					if (typeof animate.baseCrop === "undefined") {
+						// there are borders in the spritesheet that need to be cropped out
+						object.crop = {
+							x: (animate.state % animate.imagesPerRow) * w,
+							y: Math.floor(animate.state / animate.imagesPerRow) * h,
+							width: w,
+							height: h
+						}
+					}
+					else {
+						object.crop = {
+							x: (animate.state % animate.imagesPerRow) * w + animate.baseCrop.x,
+							y: Math.floor(animate.state / animate.imagesPerRow) * h + animate.baseCrop.y,
+							width: animate.baseCrop.width,
+							height: animate.baseCrop.height
+						}
 					}
 				}
 				else if (animate.type === "function") {
@@ -10370,6 +10590,14 @@ Game.playerProjectileUpdate = function(delta) {
 				projectile.hitbox.width += 23 * delta; // assumes the mage hitbox's width is always 30
 				projectile.hitbox.height += 23 * delta;
 			}
+		}
+
+		// knight weapon
+		else if (this.getAttackType() === "sword") {
+			let distanceTravelled = this.hero.channelTime * AttackConstants.sword.channelDistancePerSecond;
+
+			let destinationX = this.hero.x + Math.cos(projectile.rotate)*distanceTravelled;
+			let destinationY = this.hero.y + Math.sin(projectile.rotate)*distanceTravelled;//kkkkkkkkkkkkkkkkkk
 		}
 	}
 }
@@ -10517,6 +10745,13 @@ Game.equipmentUpdate = function () {
     if (Player.inventory.weapon.type !== undefined) {
         // player has weapon equipped
 
+		if (Player.inventory.weapon.reloadTime !== undefined) {
+        	this.hero.stats.reloadTime = Player.inventory.weapon.reloadTime;
+		}
+		else {
+        	this.hero.stats.reloadTime = AttackConstants[weaponType].reloadTime;
+		}
+
 		// projectile speed
 	    if (typeof Player.inventory.weapon.projectileSpeed !== "undefined") {
 	        this.hero.stats.projectileSpeed = Player.inventory.weapon.projectileSpeed;
@@ -10549,6 +10784,22 @@ Game.equipmentUpdate = function () {
 	    }
 	    else {
 	        this.hero.stats.minimumVariance = 0;
+	    }
+
+		// swords etc
+	    /*if (weaponType === "sword" || typeof Player.inventory.weapon.iterationSpacing !== undefined) {  // spacing in ms between snake projectiles and max number of snake projectiles
+	        this.hero.stats.iterationSpacing = Player.inventory.weapon.iterationSpacing || AttackConstants.sword.iterationSpacing;
+	        this.hero.stats.maxIterations = Player.inventory.weapon.maxIterations || AttackConstants.sword.maxIterations;
+	    }
+	    else {
+	        this.hero.stats.iterationSpacing = 0;
+	        this.hero.stats.maxIterations = 0;
+	    }*/
+
+		// swords etc
+	    if (weaponType === "sword" || typeof Player.inventory.weapon.maxIterations !== undefined) {  //
+	    }
+	    else {
 	    }
     }
     else {
@@ -10648,6 +10899,7 @@ Game.inventoryUpdate = function () {
 }
 
 // set player projectile/bobber image
+// currently only works for heroProjectile not heroProjectile2
 Game.projectileImageUpdate = function () {
 	// figure out if it is a projectile or bobber, and save variable names for later
 	let nameAddress = "heroProjectileName";
@@ -11378,10 +11630,31 @@ Game.drawCharacterName = function (ctx, character, x, y) {
 		ctx.fillStyle = "black";
 	}
 
+	let nameText = character.name;
+
+	// also show aggro if setting is on
+	if (User.settings.aggro) {
+		let aggro = undefined; // aggro of character on hero
+		// see if character even has aggro on player
+		if (typeof character.attackTargets !== "undefined") {
+			// try to find the attacker in the target's targets (I'm getting jamais vu...)
+			for (let i = 0; i < character.attackTargets.length; i++) {
+				if (character.attackTargets[i].target.constructor.name === "Hero") {
+					aggro = Round(character.attackTargets[i].aggro, 1);
+					aggro += character.attackTargets[i].baseAggro;
+					break;
+				}
+			}
+		}
+		if (typeof aggro !== "undefined") {
+			nameText += " | "+aggro+"💢";
+		}
+	}
+
 	// draw text
-	ctx.fillText(character.name, x, y);
+	ctx.fillText(nameText, x, y);
 	// black border (easier to read)
-	ctx.strokeText(character.name, x, y);
+	ctx.strokeText(nameText, x, y);
 }
 
 // draw a channelling bar (on given context, for given character, at given position, with given dimensions)
@@ -11622,9 +11895,24 @@ Game.render = function (delta) {
 	this.ctx.globalAlpha = 1;
 	this.ctx.fillRect(0, 0, Dom.canvas.width, Dom.canvas.height);
 
-	// draw map background layer(s)
-	for (let layer = 0; layer < map.layers.length; layer++) {
-		this.drawLayer(layer);
+	// draw map background layer
+	this.drawLayer(0);
+
+	// draw any objects that have z value less than -1
+	for (let i = 0; i < this.allVisibles.length; i++) { // iterate through everything to be rendered
+		let objectToRender = this.allVisibles[i];
+
+		// check object should be rendered
+		if (objectToRender.z < -1 && this.shouldBeRendered(objectToRender)) {
+			this.renderObject(objectToRender);
+		}
+	}
+
+	// draw other map layers
+	if (map.layers.length > 1) {
+		for (let layer = 1; layer < map.layers.length; layer++) {
+			this.drawLayer(layer);
+		}
 	}
 
 
@@ -11702,122 +11990,8 @@ Game.render = function (delta) {
 		let objectToRender = this.allVisibles[i];
 
 		// check object should be rendered
-		if (Game.shouldBeRendered(objectToRender)) {
-
-			if (objectToRender.transparency !== undefined) {
-				this.ctx.globalAlpha = objectToRender.transparency;
-			}
-
-			if (objectToRender.renderType === "image") {
-				// rendering an image!
-				if (objectToRender.rotate !== undefined && objectToRender.rotate !== 0) {
-					// rotate and draw (just for projectiles currently)
-					// no crop information passed in
-					this.drawImageRotated(
-						this.ctx,
-						objectToRender.image,
-						objectToRender.crop.x, objectToRender.crop.y,
-						objectToRender.crop.width, objectToRender.crop.height,
-						objectToRender.screenX - objectToRender.width / 2,
-						objectToRender.screenY - objectToRender.height / 2,
-						objectToRender.width,
-						objectToRender.height,
-						objectToRender.rotate
-					);
-				}
-				else {
-					// draw image (unrotated)
-					this.ctx.drawImage(
-						objectToRender.image,
-						objectToRender.crop.x, objectToRender.crop.y,
-						objectToRender.crop.width, objectToRender.crop.height,
-						objectToRender.screenX - objectToRender.width / 2,
-						objectToRender.screenY - objectToRender.height / 2,
-						objectToRender.width,
-						objectToRender.height
-					);
-				}
-			}
-			else if (objectToRender.renderType === "shape") {
-				// rendering a shape!
-				this.ctx.fillStyle = objectToRender.colour;
-				this.ctx.strokeStyle = objectToRender.borderColour;
-				this.ctx.lineWidth = objectToRender.thickness;
-				if (objectToRender.shape === "ellipse") {
-					this.ctx.beginPath();
-					this.ctx.ellipse(objectToRender.screenX, objectToRender.screenY, objectToRender.width, objectToRender.height, objectToRender.rotation);
-
-					// if it has a colour transition, carry this out
-					if (typeof objectToRender.colourTransition !== "undefined") {
-						if (typeof objectToRender.deltaRed !== "undefined") {
-							// delta red is the amount of red to be changed by every second, in RBG
-						}
-
-
-						// split into decimal rgb components
-						let r = parseInt(color.substring(1, 3), 16);
-						let g = parseInt(color.substring(3, 5), 16);
-						let b = parseInt(color.substring(5), 16);
-					}
-
-						// texture colors
-						let random = randomNum(depth * -1, depth * 1); // textures all colors by the same amount
-						r = Math.max(Math.min(r + random, 255), 0);
-						g = Math.max(Math.min(g + random, 255), 0);
-						b = Math.max(Math.min(b + random, 255), 0);
-
-						// convert back to hex
-						r = r.toString(16);
-						g = g.toString(16);
-						b = b.toString(16);
-						if (r.length === 1) {
-							r = "0" + r;
-						}
-						if (g.length === 1) {
-							g = "0" + g;
-						}
-						if (b.length === 1) {
-							b = "0" + b;
-						}
-
-						return "#"+r+g+b;
-
-					// optional changing between colours
-					this.colourTransition = properties.colourTransition; // array of colours to transition between
-					this.transitionSpeed = properties.transitionSpeed;
-				}
-				else if (objectToRender.shape === "rect") {
-					this.ctx.beginPath();
-					this.ctx.rect(objectToRender.screenX, objectToRender.screenY, objectToRender.width, objectToRender.height);
-				}
-
-				if (typeof objectToRender.colour !== "undefined") {
-					this.ctx.fill();
-				}
-				if (typeof objectToRender.borderColour !== "undefined") {
-					this.ctx.stroke();
-				}
-			}
-
-			if (objectToRender.postRenderFunction !== undefined) {
-				objectToRender.postRenderFunction();
-			}
-
-			// set back transparency if it was set to something else
-			if (objectToRender.transparency !== undefined) {
-				this.ctx.globalAlpha = 1;
-			}
-
-			// effect images
-			// these are not treated as their own objects, since they are associated directly with the image of whatever was just drawn
-			if (typeof objectToRender.hasStatusEffectType !== "undefined" && objectToRender.hasStatusEffectType("root")) {
-				// objectToRender must be a character, so has a footHitbox
-				let img = Loader.getImage("rootedStatusImage");
-				this.ctx.drawImage(
-					img,
-					objectToRender.footHitbox.screenX - img.width/2, objectToRender.footHitbox.screenY - img.height*0.75
-				);
-			}
+		if (objectToRender.z >= -1 && this.shouldBeRendered(objectToRender)) {
+			this.renderObject(objectToRender);
 		}
 
 	}
@@ -12007,6 +12181,124 @@ Game.render = function (delta) {
 		this.screenshot();
 	}
 };
+
+// render a particular object
+Game.renderObject = function (objectToRender) {
+	if (objectToRender.transparency !== undefined) {
+		this.ctx.globalAlpha = objectToRender.transparency;
+	}
+
+	if (objectToRender.renderType === "image") {
+		// rendering an image!
+		if (objectToRender.rotate !== undefined && objectToRender.rotate !== 0) {
+			// rotate and draw (just for projectiles currently)
+			// no crop information passed in
+			this.drawImageRotated(
+				this.ctx,
+				objectToRender.image,
+				objectToRender.crop.x, objectToRender.crop.y,
+				objectToRender.crop.width, objectToRender.crop.height,
+				objectToRender.screenX - objectToRender.width / 2,
+				objectToRender.screenY - objectToRender.height / 2,
+				objectToRender.width,
+				objectToRender.height,
+				objectToRender.rotate
+			);
+		}
+		else {
+			// draw image (unrotated)
+			this.ctx.drawImage(
+				objectToRender.image,
+				objectToRender.crop.x, objectToRender.crop.y,
+				objectToRender.crop.width, objectToRender.crop.height,
+				objectToRender.screenX - objectToRender.width / 2,
+				objectToRender.screenY - objectToRender.height / 2,
+				objectToRender.width,
+				objectToRender.height
+			);
+		}
+	}
+	else if (objectToRender.renderType === "shape") {
+		// rendering a shape!
+		this.ctx.fillStyle = objectToRender.colour;
+		this.ctx.strokeStyle = objectToRender.borderColour;
+		this.ctx.lineWidth = objectToRender.thickness;
+		if (objectToRender.shape === "ellipse") {
+			this.ctx.beginPath();
+			this.ctx.ellipse(objectToRender.screenX, objectToRender.screenY, objectToRender.width, objectToRender.height, objectToRender.rotation);
+
+			// if it has a colour transition, carry this out
+			if (typeof objectToRender.colourTransition !== "undefined") {
+				if (typeof objectToRender.deltaRed !== "undefined") {
+					// delta red is the amount of red to be changed by every second, in RBG
+				}
+
+
+				// split into decimal rgb components
+				let r = parseInt(color.substring(1, 3), 16);
+				let g = parseInt(color.substring(3, 5), 16);
+				let b = parseInt(color.substring(5), 16);
+			}
+
+				// texture colors
+				let random = randomNum(depth * -1, depth * 1); // textures all colors by the same amount
+				r = Math.max(Math.min(r + random, 255), 0);
+				g = Math.max(Math.min(g + random, 255), 0);
+				b = Math.max(Math.min(b + random, 255), 0);
+
+				// convert back to hex
+				r = r.toString(16);
+				g = g.toString(16);
+				b = b.toString(16);
+				if (r.length === 1) {
+					r = "0" + r;
+				}
+				if (g.length === 1) {
+					g = "0" + g;
+				}
+				if (b.length === 1) {
+					b = "0" + b;
+				}
+
+				return "#"+r+g+b;
+
+			// optional changing between colours
+			this.colourTransition = properties.colourTransition; // array of colours to transition between
+			this.transitionSpeed = properties.transitionSpeed;
+		}
+		else if (objectToRender.shape === "rect") {
+			this.ctx.beginPath();
+			this.ctx.rect(objectToRender.screenX, objectToRender.screenY, objectToRender.width, objectToRender.height);
+		}
+
+		if (typeof objectToRender.colour !== "undefined") {
+			this.ctx.fill();
+		}
+		if (typeof objectToRender.borderColour !== "undefined") {
+			this.ctx.stroke();
+		}
+	}
+
+	if (objectToRender.postRenderFunction !== undefined) {
+		objectToRender.postRenderFunction();
+	}
+
+	// set back transparency if it was set to something else
+	if (objectToRender.transparency !== undefined) {
+		this.ctx.globalAlpha = 1;
+	}
+
+	// effect images
+	// these are not treated as their own objects, since they are associated directly with the image of whatever was just drawn
+	if (typeof objectToRender.hasStatusEffectType !== "undefined" && objectToRender.hasStatusEffectType("root")) {
+		// objectToRender must be a character, so has a footHitbox
+		let img = Loader.getImage("rootedStatusImage");
+		this.ctx.drawImage(
+			img,
+			objectToRender.footHitbox.screenX - img.width/2, objectToRender.footHitbox.screenY - img.height*0.75
+		);
+	}
+}
 
 // take a screenshot of the main canvas and show the user the image to be downloaded
 // called by Game.render after Game.takePhoto has been set to true

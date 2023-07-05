@@ -729,6 +729,8 @@ var Villagers = [
             notUnlockedRoles: "Nothing to see here! Just an honest man going about his daily business <i>ahahaha</i>.",
 			chooseChat: "What brings you here today? Nothing the matter, I hope <i>hehe</i>.",
 	        receiveTavernGood: "This will do for now <i>haha</i>.. at least until I can get my hands on some pie...",
+			questProgress: "<i>heheh</i> Do you have my reagents yet?",
+			questFinish: "I would source my pies from the Billy Goat but... <i>heh</i>.. He reckons I'm bad for business.",
 		},
 	},
 	{
