@@ -3856,7 +3856,7 @@ tripwires: [
 	{
 	x: 3753,
 	y: 3640,
-	width: 200,
+	width: 120,
 	height: 2,
 	onPlayerTouch: function () {
 					if (Game.hero.moveTowards === undefined) {
@@ -3877,7 +3877,7 @@ tripwires: [
 {
 x: 3753,
 y: 4080,
-width: 200,
+width: 120,
 height: 2,
 onPlayerTouch: function () {
 									if (Game.hero.moveTowards === undefined) {

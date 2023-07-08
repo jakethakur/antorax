@@ -4420,6 +4420,8 @@ var Items = {
 			rarity: "junk",
 			image: "assets/items/item/72.png",
 			stack: 32,
+			sellPrice: 1,
+			sellQuantity: 16,
 		},
 		{
 			id: 73,
@@ -4429,6 +4431,8 @@ var Items = {
 			rarity: "junk",
 			image: "assets/items/item/73.png",
 			stack: 32,
+			sellPrice: 1,
+			sellQuantity: 16,
 		},
 	],
 	consumable: [

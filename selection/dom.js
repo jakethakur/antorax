@@ -96,13 +96,13 @@ function arrange(){
 	}else{
 		document.getElementById("play").innerHTML = "Begin Your Adventure";
 	}
-	document.getElementById("archer").style.width = window.innerWidth/5-54+"px";
+	/*document.getElementById("archer").style.width = window.innerWidth/5-54+"px";
 	document.getElementById("archer").style.height = window.innerHeight/3-58+"px";
 	document.getElementById("mage").style.width = window.innerWidth/5-54+"px";
 	document.getElementById("mage").style.height = window.innerHeight/3-58+"px";
 	document.getElementById("knight").style.width = window.innerWidth/5-54+"px";
 	document.getElementById("knight").style.height = window.innerHeight/3-58+"px";
-	document.getElementById("image").style.height = window.innerHeight-205+"px";
+	document.getElementById("playerPreview").style.height = window.innerHeight-205+"px";
 	document.getElementById("play").style.top = window.innerHeight-85+"px";
 	document.getElementById("play").style.left = window.innerWidth/2-document.getElementById("play").offsetWidth/2+"px";
 	document.getElementById("left").style.left = window.innerWidth/100*27-document.getElementById("left").offsetWidth/2+"px";
@@ -126,7 +126,7 @@ function arrange(){
 	document.getElementById("news").style.left = window.innerWidth/5*4+"px";
 	document.getElementById("news").style.top = document.getElementById("logo").offsetHeight+40+90+103+"px";
 	document.getElementById("news").style.width = window.innerWidth/5-34+"px";
-	document.getElementById("news").style.height = window.innerHeight-document.getElementById("logo").offsetHeight-95-90-103+"px";
+	document.getElementById("news").style.height = window.innerHeight-document.getElementById("logo").offsetHeight-95-90-103+"px";*/
 	display();
 }
 
@@ -180,19 +180,22 @@ document.getElementById("play").onclick = function(){
 
 function display(){
 	document.getElementById("random").style.backgroundImage = "url('./assets/random.png')";
+
+	// player rotation
 	if(num === 0){ // forward
-		document.getElementById("image").src="./assets/"+selected.class+selected[selected.class]+"/f.png";
-		document.getElementById("image").style.left = window.innerWidth/2-document.getElementById("image").offsetWidth/2+parseInt(document.getElementById("image").width)/Skins[selected.class][selected[selected.class]].position.x+"px";
+		document.getElementById("playerPreview").src="./assets/"+selected.class+selected[selected.class]+"/f.png";
+		//document.getElementById("playerPreview").style.left = window.innerWidth/2-document.getElementById("playerPreview").offsetWidth/2+parseInt(document.getElementById("playerPreview").width)/Skins[selected.class][selected[selected.class]].position.x+"px";
 	}else if(num === 1){ // left
-		document.getElementById("image").src="./assets/"+selected.class+selected[selected.class]+"/l.png";
-		document.getElementById("image").style.left = window.innerWidth/2-document.getElementById("image").offsetWidth/2+parseInt(document.getElementById("image").width)/Skins[selected.class][selected[selected.class]].position.y+"px";
+		document.getElementById("playerPreview").src="./assets/"+selected.class+selected[selected.class]+"/l.png";
+		//document.getElementById("playerPreview").style.left = window.innerWidth/2-document.getElementById("playerPreview").offsetWidth/2+parseInt(document.getElementById("playerPreview").width)/Skins[selected.class][selected[selected.class]].position.y+"px";
 	}else if(num === 2){ // backward
-		document.getElementById("image").src="./assets/"+selected.class+selected[selected.class]+"/b.png";
-		document.getElementById("image").style.left = window.innerWidth/2-document.getElementById("image").offsetWidth/2-parseInt(document.getElementById("image").width)/Skins[selected.class][selected[selected.class]].position.x+"px";
+		document.getElementById("playerPreview").src="./assets/"+selected.class+selected[selected.class]+"/b.png";
+		//document.getElementById("playerPreview").style.left = window.innerWidth/2-document.getElementById("playerPreview").offsetWidth/2-parseInt(document.getElementById("playerPreview").width)/Skins[selected.class][selected[selected.class]].position.x+"px";
 	}else { // right
-		document.getElementById("image").src="./assets/"+selected.class+selected[selected.class]+"/r.png";
-		document.getElementById("image").style.left = window.innerWidth/2-document.getElementById("image").offsetWidth/2-parseInt(document.getElementById("image").width)/Skins[selected.class][selected[selected.class]].position.y+"px";
+		document.getElementById("playerPreview").src="./assets/"+selected.class+selected[selected.class]+"/r.png";
+		//document.getElementById("playerPreview").style.left = window.innerWidth/2-document.getElementById("playerPreview").offsetWidth/2-parseInt(document.getElementById("playerPreview").width)/Skins[selected.class][selected[selected.class]].position.y+"px";
 	}
+
 	if(localStorage.getItem(selected.class) !== null) {
 		document.getElementById("info").innerHTML = "<strong>Level "+JSON.parse(localStorage.getItem(selected.class)).level+"</strong>"+
 		"<br><span style='font-size: 16px;'>"+JSON.parse(localStorage.getItem(selected.class)).displayAreaName+"</span>";
