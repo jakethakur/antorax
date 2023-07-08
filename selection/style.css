@@ -23,6 +23,7 @@ body{
 #centralImage {
 	background-image: url("./assets/background.png");
 	background-size: cover;
+	background-position: center center;
 	height: 100vh;
 
 	margin-left: 500px;
@@ -33,7 +34,7 @@ body{
 }
 
 #logo {
-	width: 50%;
+	width: 40%;
 	margin-top: 12px;
 }
 
@@ -44,6 +45,10 @@ body{
 	width: 350px;
 	height: 100%;
 	float: right;
+
+	background-image: url("./assets/caravanBackground.png");
+	background-size: cover;
+	height: 100vh;
 }
 
 #mainScreen:after {
@@ -154,13 +159,15 @@ body{
 	vertical-align: top;
 
 	margin-top: 10px;
+
+	color: saddlebrown;
 }
 
 #playerPreview {
 	height: 500px;
 	top: 100px;
-
-	margin-top: 20px;
+	margin-top: 15px;
+	margin-bottom: 5px;
 }
 
 #play{
