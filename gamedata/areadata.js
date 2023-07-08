@@ -3408,15 +3408,15 @@ var Areas = {
 
 		indoors: false,
 
-		tagGameAllowed: ["eaglecrest", "eaglecrestEast", "eaglecrestWest"],
+		tagGameAllowed: "eaglecrest",
 
 		song_day: "assets/music/Eaglecrest.mp3",
 		song_night: "assets/music/Eaglecrest.mp3",
 
 		checkpoint: true,
 		player: {
-			x: 1570,
-			y: 666,
+			x: 2860,
+			y: 1786,
 		},
 
 		lootArea: "eaglecrest",

@@ -7,7 +7,7 @@ Spells = [
 	//
 
 	{
-		name: "Charge",
+		name: "Heroic Charge",
 		id: 0,
 		img: "assets/runes/0.png",
 		imgIconNum: 0,

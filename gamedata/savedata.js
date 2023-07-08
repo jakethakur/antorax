@@ -12,21 +12,29 @@ const AttackConstants = {
 		variance: 45, // base variance IN DEGREES
 		minimumVariance: 3, // also in degrees
 		reloadTime: 500,
+
+		damageMultiplier: 1,
 	},
 	staff: {
 		projectileSpeed: 150,
 		projectileRange: 1000,
 		reloadTime: 500,
+
+		damageMultiplier: 1,
 	},
 	sword: {
-		projectileSpeed: 0, // not a thing for swords
+		projectileSpeed: 390, // for charge attack
 		projectileRange: 0, // not a thing for swords
+
 		//iterationSpacing: 130, // (old snake projectile system)
 		//maxIterations: 10,
+
 		meleeRange: 100, // range at which melee damage is dealt
 		reloadTime: 1000,
 
-		channelDistancePerSecond: 120,
+		damageMultiplier: 2,
+
+		channelDistancePerSecond: 240,
 		channelMaxDistance: 480,
 		channelMinDistance: 120,
 	}

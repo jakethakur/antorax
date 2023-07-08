@@ -3011,7 +3011,17 @@ class Character extends Thing {
 
 			// if channelling but can move during this channelling (i.e. player attacks), then speed might be reduced...
 			if (this.channelling !== false) {
-				this.speed *= this.stats.channelingMoveSpeed / 100; // channellingMoveSpeed is a percentage
+				this.speed *= this.stats.channellingMoveSpeed / 100; // channellingMoveSpeed is a percentage
+
+				if (this.channelling === "projectile") {
+					// move the projectile with the player
+
+					// get projectile
+					let shotProjectile = Game.projectiles[Game.searchFor(this.channellingProjectileId, Game.projectiles)];
+
+					shotProjectile.x = this.x;
+					shotProjectile.y = this.y
+				}
 			}
 		}
 	}
@@ -3605,11 +3615,13 @@ class Hero extends Attacker {
 			walked = true;
 			// move towards a particular point
 			// player cannot control themselves
+			// just set direction for direction image of player
 			let direction = Game.bearing(this, this.moveTowards);
 			dirx = Math.cos(direction);
 			diry = Math.sin(direction);
 
-			// movement speed
+			// now the below is all done in general update function for all entities
+			/*// movement speed
 			if (!gameSpeed) {
 				this.speed = this.stats.walkSpeed;
 			}
@@ -3636,7 +3648,7 @@ class Hero extends Attacker {
 
 				// remove moveTowards
 				this.moveTowards = undefined;
-			}
+			}*/
 		}
 		else {
 			walked = true;
@@ -3689,6 +3701,25 @@ class Hero extends Attacker {
 		let maxY = Game.camera.maxY + Game.camera.height;
 		this.x = Math.max(-map.origin.x, Math.min(this.x, maxX));
 		this.y = Math.max(-map.origin.y, Math.min(this.y, maxY));
+
+		// set direction based on dirx and diry
+		if (Math.abs(dirx) > Math.abs(diry)) {
+			if (dirx > 0) {
+				this.direction = 4;
+			}
+			else {
+				this.direction = 2;
+			}
+		}
+		else {
+			if (diry > 0) {
+				this.direction = 3;
+			}
+			else {
+				this.direction = 1;
+			}
+		}
+		this.updateRotation();
 	}
 
 	// start channeling basic attack
@@ -3704,7 +3735,9 @@ class Hero extends Attacker {
 				// position of projectile
 				let distanceToMouse = Game.distance({x: mouseX, y: mouseY,}, this);
 
-				if (Player.inventory.weapon.type === "staff" || Player.inventory.weapon.type === "bow" || Player.inventory.weapon.type === "sword") {
+				let weaponType = Game.getAttackType();
+
+				if (weaponType === "staff" || weaponType === "bow" || weaponType === "sword") {
 					// player is using conventional weapon
 
 					this.canAttack = false;
@@ -3715,10 +3748,31 @@ class Hero extends Attacker {
 
 					let projectileDirection = Game.bearing(this, {x: mouseX, y: mouseY}); // movement
 
-					if (Player.inventory.weapon.type === "staff" || Player.inventory.weapon.type === "bow") {
+					if (weaponType === "staff" || weaponType === "bow" || (weaponType === "sword" && distanceToMouse >= this.stats.meleeRange)) {
 						// moving projectile
 
 						this.channellingProjectileId = Game.nextEntityId;
+
+						let hitboxSize = 0;
+						let projectileName = "";
+						let knightChargeAttack = false;
+						let imageName = "";
+						if (weaponType === "staff") {
+							hitboxSize = 23;
+							projectileName = "Fireball Attack";
+							imageName = Game.heroProjectileName;
+						}
+						else if (weaponType === "bow") {
+							hitboxSize = 10;
+							projectileName = "Arrow Attack";
+							imageName = Game.heroProjectileName;
+						}
+						else if (weaponType === "sword") {
+							hitboxSize = 10;
+							projectileName = "Charge Attack";
+							knightChargeAttack = true;
+							imageName = "melee";
+						}
 
 						Game.projectiles.push(new Projectile({ // HERO projectile
 							map: map,
@@ -3736,11 +3790,11 @@ class Hero extends Attacker {
 							hitbox: {
 								x: Game.hero.x,
 								y: Game.hero.y,
-								width: this.class === "k" ? 60 : (this.class === "m" ? 23 : (this.class === "a" ? 10 : 0)),
-								height: this.class === "k" ? 60 : (this.class === "m" ? 23 : (this.class === "a" ? 10 : 0)),
+								width: hitboxSize,
+								height: hitboxSize,
 							},
-							image: Game.heroProjectileName,
-							name: "Hero Projectile",
+							image: imageName,
+							name: projectileName,
 							beingChannelled: true,
 							type: "projectiles",
 
@@ -3749,6 +3803,7 @@ class Hero extends Attacker {
 							moveDirection: projectileDirection,
 							variance: this.stats.variance,
 							damageAllHit: this.stats.damageAllHit, // usually true
+							knightChargeAttack: knightChargeAttack,
 
 							// optional stuff:
 							// aaaaaaaaaaaaa look at ; might need to fix some of these
@@ -3761,7 +3816,7 @@ class Hero extends Attacker {
 							z: Game.heroProjectileInfo.z,
 						}));
 					}
-					else if (Player.inventory.weapon.type === "sword" && distanceToMouse < this.stats.meleeRange) {
+					else if (weaponType === "sword" && distanceToMouse < this.stats.meleeRange) {
 						// knight not moving (melee) projectile
 
 						this.channellingProjectileId = Game.nextEntityId;
@@ -3805,12 +3860,6 @@ class Hero extends Attacker {
 
 						// finish attack instantly
 						this.finishAttack(e);
-					}
-					else if (Player.inventory.weapon.type === "sword" && distanceToMouse >= this.stats.meleeRange) {
-						// knight moving projectile
-						aaaaaaaaaaaaaaaaaaaaaaaaaaa
-
-
 					}
 					else {
 						// tbd... but for now do nothing
@@ -4212,86 +4261,111 @@ class Hero extends Attacker {
 			// get projectile
 			let shotProjectile = Game.projectiles[Game.searchFor(this.channellingProjectileId, Game.projectiles)];
 
-			// set projectile as not channelling
-			shotProjectile.beingChannelled = false;
+			if (shotProjectile.knightChargeAttack && shotProjectile.movementRange < AttackConstants.sword.channelMinDistance) {
+				// not channelled for long enough - cancel
 
-			if (typeof shotProjectile.variance !== "undefined") {
-				shotProjectile.moveDirection += ToRadians(Random(-shotProjectile.variance, shotProjectile.variance));
+				Game.removeObject(shotProjectile.id, shotProjectile.type);
+
+				this.canAttack = true;
+				// add back crosshair to cursor (if mouse is in range)
+				Game.secondary.updateCursor();
 			}
+			else {
+				// projectile is valid - shoot it !
 
-			this.currentAttackFinalVariance = shotProjectile.variance; // needed if there are multiple projectiles to be shot (see bottom of this fn)
+				// set projectile as not channelling
+				shotProjectile.beingChannelled = false;
 
-			// function called for all attacks whether they hit an enemy or not
-			if (Player.inventory.weapon.onAttack !== undefined) {
-			    Player.inventory.weapon.onAttack(shotProjectile);
-			}
-
-			// decrement durability of player's weapon (if it has durability)
-			if (Player.inventory.weapon.maxDurability !== undefined) {
-				if (Player.inventory.weapon.durability === undefined) {
-					// weapon's durability not been decremented before
-					Player.inventory.weapon.durability = Player.inventory.weapon.maxDurability - 1;
-				}
-				else {
-					Player.inventory.weapon.durability--;
+				if (typeof shotProjectile.variance !== "undefined") {
+					shotProjectile.moveDirection += ToRadians(Random(-shotProjectile.variance, shotProjectile.variance));
 				}
 
-				// remove weapon if its durability is 0
-				if (Player.inventory.weapon.durability === 0) {
-					Dom.chat.insert("Your " + Player.inventory.weapon.name + " broke, since it ran out of durability.");
-				}
-			}
+				this.currentAttackFinalVariance = shotProjectile.variance; // needed if there are multiple projectiles to be shot (see bottom of this fn)
 
-			// Status effects that are used on attack - remove them
-			// (their effects should have happened in dealDamage, if an enemy was hit)
-			for (let i = 0; i < this.statusEffects.length; i++) {
-				if (this.statusEffects[i].info.removeOnAttack) {
-					this.removeStatusEffect(i, "attack");
-					i--;
+				// function called for all attacks whether they hit an enemy or not
+				if (Player.inventory.weapon.onAttack !== undefined) {
+				    Player.inventory.weapon.onAttack(shotProjectile);
+				}
+
+				// decrement durability of player's weapon (if it has durability)
+				if (Player.inventory.weapon.maxDurability !== undefined) {
+					if (Player.inventory.weapon.durability === undefined) {
+						// weapon's durability not been decremented before
+						Player.inventory.weapon.durability = Player.inventory.weapon.maxDurability - 1;
+					}
+					else {
+						Player.inventory.weapon.durability--;
+					}
+
+					// remove weapon if its durability is 0
+					if (Player.inventory.weapon.durability === 0) {
+						Dom.chat.insert("Your " + Player.inventory.weapon.name + " broke, since it ran out of durability.");
+					}
+				}
+
+				// Status effects that are used on attack - remove them
+				// (their effects should have happened in dealDamage, if an enemy was hit)
+				for (let i = 0; i < this.statusEffects.length; i++) {
+					if (this.statusEffects[i].info.removeOnAttack) {
+						this.removeStatusEffect(i, "attack");
+						i--;
+					}
+				}
+
+				// if knight is doing a charge attack, move player with the projectile
+				if (shotProjectile.knightChargeAttack) {
+					let destinationX = this.x + Math.cos(shotProjectile.rotate - Math.PI/2)*shotProjectile.movementRange;
+					let destinationY = this.y + Math.sin(shotProjectile.rotate - Math.PI/2)*shotProjectile.movementRange;
+
+					this.moveTowards = {
+						x: destinationX,
+						y: destinationY,
+						speed: shotProjectile.moveSpeed,
+					};
+				}
+
+				// wait for the player's reload time (0.5s) until they can attack again
+				Game.setTimeout(function () {
+					this.canAttack = true;
+					// remove beam animation if there was one
+					this.beam = undefined;
+					// add back crosshair to cursor (if mouse is in range)
+					Game.secondary.updateCursor();
+				}.bind(this), this.stats.reloadTime);
+
+				// special animations
+				if (typeof Skins[Player.class][Player.skin].animations !== "undefined" && typeof Skins[Player.class][Player.skin].animations.onHit !== "undefined") {
+					// on attack animation
+					let animation = Skins[Player.class][Player.skin].animations.onHit;
+					if (animation.type === "beam") {
+						// cast a beam to the projectile for 0.5s
+						this.beam = {
+							x: shotProjectile.x,
+							y: shotProjectile.y,
+							width: animation.width * shotProjectile.expand,
+							colour: animation.colour,
+						}
+					}
+				}
+
+				// update quest log
+				Dom.checkProgress();
+
+				// almost done but...
+				// there might be multiple projectiles!
+				if (this.class === "a" && this.stats.numberOfProjectiles > 1 && !this.multipleProjectilesInProgress) {
+					this.multipleProjectilesInProgress = true; // so we don't get an infinite loop...
+					for (let i = 0; i < this.stats.numberOfProjectiles-1; i++) {
+						this.canAttack = true; // temporarily, so startAttack can trigger... (set back to false automatically)
+						this.startAttack(this.currentAttackMouseEvent);
+						Game.projectiles[Game.projectiles.length-1].positionVariance = this.currentAttackFinalVariance; // set the shot projectile's variance to the variance of the first projectile
+						this.finishAttack(this.currentAttackMouseEvent);
+					}
+					this.multipleProjectilesInProgress = false;
 				}
 			}
 
 			this.channellingProjectileId = null;
-
-			// wait for the player's reload time (0.5s) until they can attack again
-			Game.setTimeout(function () {
-				this.canAttack = true;
-				// remove beam animation if there was one
-				this.beam = undefined;
-				// add back crosshair to cursor (if mouse is in range)
-				Game.secondary.updateCursor();
-			}.bind(this), this.stats.reloadTime);
-
-			// special animations
-			if (typeof Skins[Player.class][Player.skin].animations !== "undefined" && typeof Skins[Player.class][Player.skin].animations.onHit !== "undefined") {
-				// on attack animation
-				let animation = Skins[Player.class][Player.skin].animations.onHit;
-				if (animation.type === "beam") {
-					// cast a beam to the projectile for 0.5s
-					this.beam = {
-						x: shotProjectile.x,
-						y: shotProjectile.y,
-						width: animation.width * shotProjectile.expand,
-						colour: animation.colour,
-					}
-				}
-			}
-
-			// update quest log
-			Dom.checkProgress();
-
-			// almost done but...
-			// there might be multiple projectiles!
-			if (this.class === "a" && this.stats.numberOfProjectiles > 1 && !this.multipleProjectilesInProgress) {
-				this.multipleProjectilesInProgress = true; // so we don't get an infinite loop...
-				for (let i = 0; i < this.stats.numberOfProjectiles-1; i++) {
-					this.canAttack = true; // temporarily, so startAttack can trigger... (set back to false automatically)
-					this.startAttack(this.currentAttackMouseEvent);
-					Game.projectiles[Game.projectiles.length-1].positionVariance = this.currentAttackFinalVariance; // set the shot projectile's variance to the variance of the first projectile
-					this.finishAttack(this.currentAttackMouseEvent);
-				}
-				this.multipleProjectilesInProgress = false;
-			}
 		}
 	}
 
@@ -4720,6 +4794,8 @@ class Projectile extends Thing {
 			// start remove timeout (remove it in a couple of secs)
 			this.startRemoveTimeout();
 		}
+
+		this.knightChargeAttack = properties.knightChargeAttack; // knight class' ranged attack
 	}
 
 	// only currently does stuff for moving projectiles (otherwise dealDamage is called on creation) // aaaaaaaaaaaaaaaa it's should be called in the constructor not wherever it is currently
@@ -4813,7 +4889,36 @@ class Projectile extends Thing {
 			Game.ctx.globalAlpha = 1;
 
 			return false; // don't render the projectile's image
-		}//mmmmmmmmmmmmmmmmmmmmmmmmmmm knight projectile
+		}
+
+		else if (Game.getAttackType() === "sword" && this.beingChannelled && this.knightChargeAttack && Game.hero.channelling === "projectile") {
+			// show attack route
+			let destinationX = Game.hero.x + Math.cos(this.rotate - Math.PI/2)*this.movementRange;
+			let destinationY = Game.hero.y + Math.sin(this.rotate - Math.PI/2)*this.movementRange;
+
+			let moveX = destinationX - Game.hero.x;
+			let moveY = destinationY - Game.hero.y;
+
+			// colour of line
+			if (this.movementRange < AttackConstants.sword.channelMinDistance) {
+				Game.ctx.strokeStyle = "red";
+			}
+			else {
+				Game.ctx.strokeStyle = "yellow";
+			}
+
+			Game.ctx.globalAlpha = 0.3;
+			Game.ctx.lineWidth = 7;
+			Game.ctx.beginPath();
+		    Game.ctx.moveTo(Game.hero.screenX, Game.hero.screenY);
+		    Game.ctx.lineTo(Game.hero.screenX + moveX, Game.hero.screenY + moveY);
+		    Game.ctx.stroke();
+
+			// restore globalAlpha
+			Game.ctx.globalAlpha = 1;
+
+			return false; // don't render the projectile's image
+		}
 
 		else {
 			// render projectile normally
@@ -5008,6 +5113,9 @@ class Projectile extends Thing {
 								}
 							}
 						}
+
+						// now apply overall attack damage modifier (a constant value, decided by devs and not affected by anything ingame)
+						dmgDealt *= AttackConstants[Game.getAttackType()].damageMultiplier;
 
 
 						// stuff to be done before dealing damage ...
@@ -9427,10 +9535,10 @@ Game.update = function (delta) {
 		let dirx = 0;
 		let diry = 0;
 		// player has control over themselves
-	    if (this.keysDown.LEFT) { dirx = -1; this.hero.direction = 2; this.hero.updateRotation(); }
-	    if (this.keysDown.RIGHT) { dirx = 1; this.hero.direction = 4; this.hero.updateRotation(); }
-	    if (this.keysDown.UP) { diry = -1; this.hero.direction = 1; this.hero.updateRotation(); }
-	    if (this.keysDown.DOWN) { diry = 1; this.hero.direction = 3; this.hero.updateRotation(); }
+	    if (this.keysDown.LEFT) { dirx = -1; }
+	    if (this.keysDown.RIGHT) { dirx = 1; }
+	    if (this.keysDown.UP) { diry = -1; }
+	    if (this.keysDown.DOWN) { diry = 1; }
 
 		if (Dom.inventory.check(48, "item")) {//aaaaaaaaaaaaaaaaaaaaaaaaaaa
 			// swap x and y direction
@@ -9484,7 +9592,7 @@ Game.update = function (delta) {
 			direction: this.hero.direction,
 			expand: this.hero.expand,
 			mounted: this.hero.mounted,
-			mountImg: aaaaaaaaaaaaaaaaaa
+			//mountImg: aaaaaaaaaaaaaaaaaa
 		}));
 	}
 
@@ -10405,8 +10513,8 @@ Game.update = function (delta) {
 			entity.y += diry * speed * delta;
 
 			// check if destination has been reached
-			if (Math.round(entity.x) < entity.moveTowards.x + 2 && Math.round(entity.x) > entity.moveTowards.x - 2
-			&& Math.round(entity.y) < entity.moveTowards.y + 2 && Math.round(entity.y) > entity.moveTowards.y - 2) {
+			if (Math.round(entity.x) < entity.moveTowards.x + 5 && Math.round(entity.x) > entity.moveTowards.x - 5
+			&& Math.round(entity.y) < entity.moveTowards.y + 5 && Math.round(entity.y) > entity.moveTowards.y - 5) {
 				// destination reached
 
 				// call move towards finish function
@@ -10593,11 +10701,14 @@ Game.playerProjectileUpdate = function(delta) {
 		}
 
 		// knight weapon
-		else if (this.getAttackType() === "sword") {
+		else if (this.getAttackType() === "sword" && projectile.knightChargeAttack) {
 			let distanceTravelled = this.hero.channelTime * AttackConstants.sword.channelDistancePerSecond;
 
-			let destinationX = this.hero.x + Math.cos(projectile.rotate)*distanceTravelled;
-			let destinationY = this.hero.y + Math.sin(projectile.rotate)*distanceTravelled;//kkkkkkkkkkkkkkkkkk
+			if (distanceTravelled > AttackConstants.sword.channelMaxDistance) {
+				distanceTravelled = AttackConstants.sword.channelMaxDistance;
+			}
+
+			projectile.movementRange = distanceTravelled;
 		}
 	}
 }
@@ -10742,7 +10853,7 @@ Game.equipmentUpdate = function () {
 
     // if the player is holding a weapon, set their projectile details
 	// aaaaaaaaaaaaaaaaaaaaaaaaaaaa do projectile speed etc here
-    if (Player.inventory.weapon.type !== undefined) {
+    if (weaponType !== undefined) {
         // player has weapon equipped
 
 		if (Player.inventory.weapon.reloadTime !== undefined) {
@@ -10767,7 +10878,7 @@ Game.equipmentUpdate = function () {
 		}
 		else {
         	this.hero.stats.projectileRange = AttackConstants[weaponType].projectileRange;
-			//ppppppppppppppppp readd fishing rod range
+			//aaaaaaaaaaaaaaaaaaa readd fishing rod range
 		}
 
 		// set weapon angle variance
@@ -11308,6 +11419,7 @@ Game.drawHitboxes = function () {
 
 // draw an entity's hitbox
 Game.drawHitbox = function(entity) {
+	this.ctx.lineWidth = 1;
 	this.ctx.strokeRect(entity.screenX - entity.width / 2, entity.screenY - entity.height / 2, entity.width, entity.height);
 }
 
