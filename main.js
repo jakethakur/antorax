@@ -44,7 +44,7 @@ Game.run = function (context, contextSecondary, contextDayNight, contextLight) {
 
 	// projectile name for hero (for use with projectile image loading)
 	this.heroProjectileName = Skins[Player.class][Player.skin].projectile;
-	this.heroProjectile2Name = Skins[Player.class][Player.skin].projectile2; // currently just for knight's fissure
+	this.heroProjectile2Name = Skins[Player.class][Player.skin].projectile2; // currently just for knight's ranged attack
 	this.heroProjectileAdjust = Skins[Player.class][Player.skin].projectileAdjust;
 	this.heroProjectileInfo = {}; // any additional info
 	this.heroBobberName = "bobber";

@@ -3864,7 +3864,7 @@ tripwires: [
 						Game.hero.hidden = true;
 						Game.hero.moveTowards = {
 							x: Game.hero.x,
-							y: Game.hero.y + 600,
+							y: Game.hero.y + 570,
 							moveTowardsFinishFunction: function () {
 								Game.hero.hidden = false;
 							}
@@ -3876,7 +3876,7 @@ tripwires: [
 
 {
 x: 3753,
-y: 4050,
+y: 4080,
 width: 200,
 height: 2,
 onPlayerTouch: function () {
@@ -3885,7 +3885,7 @@ onPlayerTouch: function () {
 											Game.hero.hidden = true;
 											Game.hero.moveTowards = {
 													x: Game.hero.x,
-													y: Game.hero.y - 600,
+													y: Game.hero.y - 570,
 													moveTowardsFinishFunction: function () {
 															Game.hero.hidden = false;
 													}
@@ -3977,8 +3977,8 @@ onPlayerTouch: function () {
 
 		collisions: [
 			{
-				x: 960, // fountain
-				y: 1040,
+				x: 3740, // fountain
+				y: 1700,
 				width: 170,
 				height: 60,
 			},
@@ -11162,27 +11162,12 @@ things: [
 					width: 120,
 					height: 120
 				},
-				animateFunction: function () { // tbd generalise for anything like this?
-					// state is an integer from 0 to 13 inclusive
-					// define state
-					if (this.state === undefined) {
-						this.state = Random(0, 13);
-					}
-					else if (this.state >= 13) {
-						this.state = 0;
-					}
-					else {
-						this.state++;
-					}
-					// change image
-					this.crop = {
-						x: (this.state % 4) * this.baseWidth,
-						y: Math.floor(this.state / 4) * this.baseHeight,
-						width: this.baseWidth,
-						height: this.baseHeight
-					}
+				animation: {
+					type: "spritesheet",
+					frameTime: 90,
+					imagesPerRow: 4,
+					totalImages: 14,
 				},
-				animationFrameTime: 90,
 			},
 {x:[276.3, 5465.4, 4672.4, 6117, 1116.1, 5262.9, 4816.3, 684.9, 5794.1, 5241.9, 6240.3, 1085.8, 100, 993, 8050.5, 9892.5, 7815.9, 1689.8, 353.3, 2307.1, 1137.4, 2294.6, 7954.1, 9079.4, 8601.8, 1726.8, 3494.1, 3280.2, 3673.5, 3475.7, 3636.1, 3301.2, 3577.9],y:[1683.8, 1715.1, 2021.5, 2159.9, 2529.6, 2713.6, 2741.5, 2771.6, 3057.6, 3250.3, 3252.3, 3293, 3385, 4005.1, 4105.8, 4153.3, 4767.8, 4879.4, 4974.3, 5016.7, 5411.6, 5493.4, 5532.6, 5769.2, 5840.2, 5894.4, 4976.7, 5149.4, 5149.4, 5169.4, 5272.1, 5297.3, 5423.6],image:"winterMelon",name:"winterMelon",},
 

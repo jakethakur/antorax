@@ -23,7 +23,7 @@ const AttackConstants = {
 		damageMultiplier: 1,
 	},
 	sword: {
-		projectileSpeed: 390, // for charge attack
+		projectileSpeed: 440, // for charge attack
 		projectileRange: 0, // not a thing for swords
 
 		//iterationSpacing: 130, // (old snake projectile system)
