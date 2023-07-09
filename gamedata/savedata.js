@@ -29,12 +29,12 @@ const AttackConstants = {
 		//iterationSpacing: 130, // (old snake projectile system)
 		//maxIterations: 10,
 
-		meleeRange: 100, // range at which melee damage is dealt
+		meleeRange: 160, // range at which melee damage is dealt
 		reloadTime: 1000,
 
 		damageMultiplier: 2,
 
-		channelDistancePerSecond: 240,
+		channelDistancePerSecond: 270,
 		channelMaxDistance: 480,
 		channelMinDistance: 120,
 	},
@@ -42,7 +42,7 @@ const AttackConstants = {
 		projectileSpeed: 0, // N/A
 		projectileRange: 0, // N/A
 
-		meleeRange: 100, // range at which melee damage is dealt
+		meleeRange: 160, // range at which melee damage is dealt
 
 		reloadTime: 1000,
 

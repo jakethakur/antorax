@@ -2401,11 +2401,12 @@ After all, death is never the end in Antorax...<br>
 				text: `See, I’m the Eaglecrest court jester but nothing’s funny about getting robbed.`,
 			},{
 				text: `I was just frolicking in the praries when waylay hit - those toads must have thought my foghorn was a froghorn the way they hopped off with it!`,
+				long: true
 			},{
 				text: `My confetti cannon has been pilfered, my triangle’s gone pear-shaped, but worst of all, my prized juggling balls have been nicked. Anyone in the Eaglecrest plains could have them by now!`,
 				long: true
 			},{
-				text: `I can’t do my routine without my props... I’d have to become a... <i>(shudders)</i> a mime! NO! I need them back`,
+				text: `I can’t do my routine without my props... I’d have to become a... <i>(shudders)</i> a mime! NO! I need them back.`,
 			},{
 				text: `They must be somewhere in the plains! I’d help you... But look at me - I’m not exactly camouflaged!`,
 			},],

@@ -8302,6 +8302,9 @@ Game.loadArea = function (areaName, destination) {
 		            let tile = map.getTile(layer, c, r); // tile number
 
 		            if (tile !== 0 && (map.objectTiles.includes(tile) || map.objectTiles.includes(-tile))) { // 0 is empty tile
+						if (tile < 0) {
+							tile = -tile;
+						}
 
 						// draw position
 						let x = Math.round((c) * map.tsize) + 30 - map.origin.x;

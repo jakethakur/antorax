@@ -907,7 +907,7 @@ var Villagers = [
 				let toadNearby = false;
 				let jester = Game.npcs.find(npc => npc.name === "The Jester");
 				for (let i = 0; i < Game.enemies.length; i++) {
-					if (Game.enemies[i].name === "Large Toad") {
+					if (Game.enemies[i].name === "Large Toad" && !Game.enemies[i].isCorpse && !Game.enemies[i].respawning) {
 						if (Game.areNearby(jester, Game.enemies[i], range)) {
 							toadNearby = true;
 							break;
@@ -995,7 +995,7 @@ var Villagers = [
 		}],
         chat: {
 			questProgress: "Back already? All empty-handed? And I thought I was supposed to be the fool!",
-            notUnlockedRoles: "",
+            notUnlockedRoles: "Whew. Close.",
             chooseChat: "Better a witty fool than a foolish wit. Or so I’ve heard.",
             receiveTavernGood: "A thousand thanks! Being this funny is hungry work.",
 			tenPercentHealth: "Make haste! I can’t hold on much longer!",
