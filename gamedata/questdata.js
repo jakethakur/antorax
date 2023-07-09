@@ -2348,7 +2348,7 @@ After all, death is never the end in Antorax...<br>
 			},],
 
 			finishName: "Fisherman Guimtal",
-			startChat: [{
+			finishChat: [{
 				text: `Thanks for the help, I'll get back to yah.`,
 			},],
 
