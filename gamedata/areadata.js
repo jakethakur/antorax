@@ -3427,11 +3427,12 @@ var Areas = {
 			rows: 80,
 			tsize: 60,
 			tilesPerRow: 8,
-			solidTiles: [1, 2, 3, 4, 6, 7, 9, 10, 11, 12, 13, 15, 17, 18, 19, 20, 21, 23, 25, 26, 27, 28, 29, 31, 33, 34, 35, 36, 37, 38, 39, 42, 43, 44, 45, 46, 47, 51, 53, 55, 57, 58, 61, 65, 69, 73, 77, 82, 83, 161, 164, 168, 196, 197, 286, 292, 303, 304],
+			solidTiles: [1, 2, 3, 4, 6, 7, 9, 10, 11, 12, 13, 15, 17, 18, 19, 20, 21, 23, 25, 26, 27, 28, 29, 31, 33, 34, 35, 36, 37, 38, 39, 42, 43, 44, 45, 46, 47, 51, 53, 55, 57, 58, 61, 65, 69, 73, 77, 82, 83, 161, 164, 168, 196, 197, 286, 292, 303, 304, 328, 327],
 			dayTiles: [11, 27, 34, 42, 7], // windows and lights
 			nightTiles: [3, 19, 2, 18, 15],
 			pathTiles: [5, 12, 41, 50, 51, 57, 58, 59, 60, 76],
 			iceTiles: [27, 35],
+			objectTiles: [169], // upper roof tile
 			repeatTiles: [
 				{
 					tile: 192,
@@ -3796,6 +3797,7 @@ var Areas = {
 			cauldronEaglecrest: {normal: "assets/objects/cauldronEaglecrest.png"},
 			anvil: {normal: "assets/objects/anvil.png"},
 			eaglecrestStatue: {normal: "assets/objects/eaglecrestStatue.png"},
+			eaglecrestStatueHead: {normal: "assets/objects/eaglecrestStatueHead.png"},
 			gravestone1: {normal: "assets/objects/gravestone1.png", christmas: "assets/objects/gravestone1Christmas.png"},
 			gravestone2: {normal: "assets/objects/gravestone2.png", christmas: "assets/objects/gravestone2Christmas.png"},
 			gravestone3: {normal: "assets/objects/gravestone3.png", christmas: "assets/objects/gravestone3Christmas.png"},
@@ -4394,12 +4396,13 @@ onPlayerTouch: function () {
 
 			{x: 7126.9, y: 2021.4, image: 'cauldronEaglecrest', name: ''},
 			{x: 6539.9, y: 2039.2, image: 'anvil', name: ''},
-{x: 3747.5, y: 2409.9, z: -2, image: 'eaglecrestStatue', name: 'Eaglecrest Statue'},
-{x: 8306.1, y: 1658.7, image: 'gargoyleLeft', name: ''},
-{x: 10474.3, y: 1581.6, image: 'gargoyleRight', name: ''},
-{x: [8941.2, 9427.7, 9842, 10055.4], y: [2755.6, 3060.4, 2800, 2315.6], image: 'gravestone1', name: ''},
-{x: [9394.4, 10325.8, 10324.7], y: [2735.1, 2167.8, 3069.1], image: 'gravestone2', name: ''},
-{x: [9854.3, 10177.2, 9997, 10304.1, 9093.2], y: [3114.7, 2768, 2592.6, 2531.2, 3021.7], image: 'gravestone3', name: ''},
+{x: 3747.5, y: 2561.9, z: -2, image: 'eaglecrestStatue', name: 'Eaglecrest Statue'},
+{x: 3747.5, y: 2104.9, z: 2, image: 'eaglecrestStatueHead', name: 'Eaglecrest Statue'},
+{x: 8306.1, y: 1658.7, image: 'gargoyleLeft', name: 'Monastery Gargoyle', orderOffsetY: 100,},
+{x: 10474.3, y: 1581.6, image: 'gargoyleRight', name: 'Monastery Gargoyle', orderOffsetY: 100,},
+{x: [8941.2, 9427.7, 9842, 10055.4], y: [2755.6, 3060.4, 2800, 2315.6], image: 'gravestone1', name: 'Gravestone'},
+{x: [9394.4, 10325.8, 10324.7], y: [2735.1, 2167.8, 3069.1], image: 'gravestone2', name: 'Gravestone'},
+{x: [9854.3, 10177.2, 9997, 10304.1, 9093.2], y: [3114.7, 2768, 2592.6, 2531.2, 3021.7], image: 'gravestone3', name: 'Gravestone'},
 {
 	// id: 2,
 	// if this id is changed, change the onRainStart function as well
