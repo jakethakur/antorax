@@ -557,7 +557,7 @@ const EnemyLootTables = {
 			item: Items.sword[23],
 			condition: function () {
 				// killed the pack 8 times, and the player hasn't obtained this before (note the quest variable is incremented by onDeath, i.e. before the loot is generated, which is why it's 8 not 7)
-				return Player.class === "m" && Player.quests.questProgress.coyoteWranglers === 8;
+				return Player.class === "k" && Player.quests.questProgress.coyoteWranglers === 8;
 			},
 			chance: [
 				100,			// 0

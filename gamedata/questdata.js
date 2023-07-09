@@ -2530,8 +2530,109 @@ After all, death is never the end in Antorax...<br>
 				{item: Items.item[31], quantity: 6},
 			],
 		},
-		/*{
+		{
 			id: 10,
+			quest: "WANTED: Coyote Pack Wrangler!",
+			questArea: "eaglecrest",
+
+			startName: "Recruiter Sylvie",
+			startChat: [{
+				text: `${Player.name}! You look like you need something to do!`,
+			},{
+				text: `The City has recently been having trouble with Coyotes in the eastern grassy region of the Plains.`,
+			},{
+				text: `It is believed that one or many <b>Coyote Pack Wranglers</b> are causing this trouble. If you feel ready, seek one out and deal with them!`,
+			},],
+
+			finishName: "Recruiter Sylvie",
+			finishChat: [{
+				text: `Well done. Although the Pack Wrangler may be back soon, this will surely act as a deterrent.`,
+			},],
+
+			objectives: [
+				"Kill a <b>Coyote Pack Wrangler</b> in the eastern grassy region of the Plains.",
+				"Speak to <strong>Recruiter Sylvie</strong>.",
+			],
+
+			isCompleted: function() {
+				let completed = [];
+
+				// true or falses for each objective (apart from the turn-in objective)
+				completed.push(false);
+
+				completed = checkFinished(completed);
+
+				return completed;
+			},
+
+			howToStart: "Speak to <strong>Recruiter Sylvie</strong>.",
+			levelRequirement: 7,
+			questRequirements: ["Overdraft"],
+
+			rewards: {
+				xp: 50,
+				items: [
+					{item: Items.currency[2], quantity: 4,},
+				],
+				reputation: {
+					eaglecrestCity: 60,
+				},
+			},
+		},
+		{
+			id: 11,
+			quest: "WANTED: Coyote Pack Wrangler! (bis)",
+			questArea: "eaglecrest",
+
+			startName: "Recruiter Sylvie",
+			startChat: [{
+				text: `Hello again, ${Player.name}. It is unfortunate, but the <b>Coyote Pack Wrangler</b> has been sighted again the Plains' eastern grassy region.`,
+			},{
+				text: `Even more unfortunate - it seems to have come with backup...`,
+			},{
+				text: `Best you deal with it for the safety of the City's citizens. Maybe the Wrangler and its coyotes will get the message this time??`,
+			},],
+
+			finishName: "Recruiter Sylvie",
+			finishChat: [{
+				text: `Great. Let's hope the Pack Wrangler finds somewhere else to go now, for the City's sake...`,
+			},],
+
+			objectives: [
+				"Kill a <b>Coyote Pack Wrangler</b> in the eastern grassy region of the Plains.",
+				"Speak to <strong>Recruiter Sylvie</strong>.",
+			],
+
+			isCompleted: function() {
+				let completed = [];
+
+				// true or falses for each objective (apart from the turn-in objective)
+				completed.push(false);
+
+				completed = checkFinished(completed);
+
+				return completed;
+			},
+
+			howToStart: "Speak to <strong>Recruiter Sylvie</strong>.",
+			levelRequirement: 7,
+			questRequirements: ["WANTED: Coyote Pack Wrangler!"],
+
+			repeatTime: "daily",
+			shareCooldownWith: [{questArea: "eaglecrest", id: 10}],
+
+			rewards: {
+				xp: 50,
+				items: [
+					{item: Items.currency[2], quantity: 4,},
+				],
+				reputation: {
+					eaglecrestCity: 60,
+				},
+			},
+		},
+		/*{
+			id: 12,
 			quest: "The Pyromancer's Shopping List",
 			questArea: "eaglecrest",
 
@@ -2660,55 +2761,7 @@ After all, death is never the end in Antorax...<br>
 			],
 		},
 
-		{
-			id: 11,
-			quest: "WANTED: Coyote Pack Wrangler!", // tbd make daily version of this (?) and foxglove
-			questArea: "eaglecrest",
-
-			startName: "Recruiter Sylvie",
-			startChat: [{
-				text: `${Player.name}! You look like you need something to do!`,
-			},{
-				text: `The City has recently been having trouble with Coyotes in the eastern grassy region of the Plains.`,
-			},{
-				text: `It is believed that one or many <b>Coyote Pack Wranglers</b> are causing this trouble. If you feel ready, seek one out and deal with them!`,
-			},],
-
-			finishName: "Recruiter Sylvie",
-			finishChat: [{
-				text: ``,
-			},],
-
-			objectives: [
-				"Kill a <b>Coyote Pack Wrangler</b> in the eastern grassy region of the Plains.",
-				"Speak to <strong>Recruiter Sylvie</strong>.",
-			],
-
-			isCompleted: function() {
-				let completed = [];
-
-				// true or falses for each objective (apart from the turn-in objective)
-				completed.push(false);
-
-				completed = checkFinished(completed);
-
-				return completed;
-			},
-
-			howToStart: "Speak to <strong>Recruiter Sylvie</strong>.",
-			levelRequirement: 7,
-			questRequirements: ["Overdraft"],
-
-			rewards: {
-				xp: 50,
-				items: [
-					{item: Items.currency[2], quantity: 5,},
-				],
-				reputation: {
-					eaglecrestCity: 100,
-				},
-			},
-		},*/
+		*/
 		/*{
 			id: 8,
 			quest: "Troubled Waters II",

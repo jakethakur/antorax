@@ -37,7 +37,17 @@ const AttackConstants = {
 		channelDistancePerSecond: 240,
 		channelMaxDistance: 480,
 		channelMinDistance: 120,
-	}
+	},
+	meleeTool: {
+		projectileSpeed: 0, // N/A
+		projectileRange: 0, // N/A
+
+		meleeRange: 100, // range at which melee damage is dealt
+
+		reloadTime: 1000,
+
+		damageMultiplier: 1,
+	},
 };
 
 var Player = {

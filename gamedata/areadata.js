@@ -3867,7 +3867,8 @@ tripwires: [
 							y: Game.hero.y + 570,
 							moveTowardsFinishFunction: function () {
 								Game.hero.hidden = false;
-							}
+							},
+							speedScalar: 2,
 						};
 						Game.hero.updateRotation();
 					}
@@ -3887,8 +3888,9 @@ onPlayerTouch: function () {
 													x: Game.hero.x,
 													y: Game.hero.y - 570,
 													moveTowardsFinishFunction: function () {
-															Game.hero.hidden = false;
-													}
+														Game.hero.hidden = false;
+													},
+													speedScalar: 2,
 											};
 											Game.hero.updateRotation();
 									}
@@ -4032,6 +4034,14 @@ onPlayerTouch: function () {
 					},
 					{
 						quest: Quests.eaglecrest[2],
+						role: "questStartFinish"
+					},
+					{
+						quest: Quests.eaglecrest[10],
+						role: "questStartFinish"
+					},
+					{
+						quest: Quests.eaglecrest[11],
 						role: "questStartFinish"
 					},
 				],
@@ -7687,7 +7697,7 @@ Last I saw him, he was visiting the <b>Eaglecrest Plains</b> to the <b>south</b>
 			pathTiles: [5, 12, 41, 50, 51, 57, 58, 59, 60, 76, 86, 87, 88, 91, 92, 93, 99, 107, 108, 109, 110, 111, 113, 115, 117, 118, 119, 121, 125, 126, 127, 129, 133, 134, 135, 137, 138, 139, 140, 141, 147, 148, 149],
 			waterTiles: [32, 40, 48, 112, 120, 128],
 			iceTiles: [32, 40, 48],
-			tallGrassBottoms: [215], // tall grass (slows player)
+			tallGrassBottoms: [215, -215], // tall grass (slows player)
 			objectTiles: [142, 196, 197], // top of barrel, fences, (cattails are 136 and 144 but picking object flowers, cattails etc doesn't work yet)
 			transparentTiles: [94, 95, 96, 102, 103, 104, 114, 116, 122, 124, 130, 132, 136, 144], // these tiles should be ignored when considering water etc, even when they're at the front of the canvas
 			repeatTiles: [
@@ -8346,8 +8356,8 @@ Last I saw him, he was visiting the <b>Eaglecrest Plains</b> to the <b>south</b>
 			// remove callalillies and marigolds from farm flower beds unless every flower in my garden has been finished for at least a day
 			let yesterdayDate = GetFullDate(1);
 			let mapCols = Areas["eaglecrestPlains"].mapData.cols;
-			if (Areas["eaglecrestPlains"].mapData.layers[1][101+31*mapCols] !== 0 && Areas["eaglecrestPlains"].mapData.layers[1][101+31*mapCols] !== 241) { // first some validation... (just in case map has been changed without this code being changed) - this isn't foolproof but should catch any change
-				console.error("Position of marigold flower bed has been moved but code has not been updated - please tell Jake!")
+			if (Areas["eaglecrestPlains"].mapData.layers[1][101+31*mapCols] !== 0 && Math.abs(Areas["eaglecrestPlains"].mapData.layers[1][101+31*mapCols]) !== 241) { // first some validation... (just in case map has been changed without this code being changed) - this isn't foolproof but should catch any change
+				console.error("Position of marigold flower bed has been moved but code has not been updated - please tell Jake!");
 			}
 			if (Player.quests.questLastFinished.eaglecrest[9] > yesterdayDate || IsNullLike(Player.quests.questLastFinished.eaglecrest[9])) { // not finished, or finished after yesterday
 				// remove them

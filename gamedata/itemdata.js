@@ -293,7 +293,7 @@ var Items = {
 			event: "Samhain",
 			sellPrice: 1,
 			stats: {
-				lifesteal: 40,
+				lifesteal: 25,
 			},
 		},
 		{
@@ -1874,7 +1874,7 @@ var Items = {
 			sellPrice: 4,
 			stats: {
 				damage: 3,
-				lifesteal: 25,
+				lifesteal: 20,
 				defence: 3,
 			},
 			projectile: "slashBlood",
@@ -5574,7 +5574,7 @@ var Items = {
 			id: 2,
 			name: "Mop",
 			type: "tool",
-			toolType: "melee", // acts like how old swords used to
+			toolType: "meleeTool", // acts like how old swords used to
 			image: "assets/items/tool/2.png",
 			projectile: "slashWater",
 			rarity: "common",
@@ -5590,7 +5590,7 @@ var Items = {
 			id: 3,
 			name: "Net",
 			type: "tool",
-			toolType: "melee", // acts like how old swords used to
+			toolType: "meleeTool", // acts like how old swords used to
 			image: "assets/items/tool/3.png",
 			projectile: "slash",
 			rarity: "common",
@@ -5604,7 +5604,7 @@ var Items = {
 			id: 4,
 			name: "Watering Can",
 			type: "tool",
-			toolType: "melee", // acts like how old swords used to
+			toolType: "meleeTool", // acts like how old swords used to
 			image: "assets/items/tool/4.png",
 			projectile: "slashWater",
 			rarity: "common",
@@ -5618,7 +5618,7 @@ var Items = {
 			id: 5,
 			name: "Golden Watering Can",
 			type: "tool",
-			toolType: "melee", // acts like how old swords used to
+			toolType: "meleeTool", // acts like how old swords used to
 			image: "assets/items/tool/4.png",
 			projectile: "slashWater",
 			rarity: "mythic",

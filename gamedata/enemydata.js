@@ -901,7 +901,7 @@ const EnemyTemplates = {
 				healthRegen: 0.5,
 				lootTime: 10000,
 				respawnTime: 20000,
-				projectileSpeed: 190,
+				projectileSpeed: 160,
 				projectileRange: 400,
 			},
 			xpGiven: 50,
@@ -949,7 +949,7 @@ const EnemyTemplates = {
 				healthRegen: 0.5,
 				lootTime: 10000,
 				respawnTime: 20000,
-				projectileSpeed: 320, // ok this was also changed a little...
+				projectileSpeed: 300, // ok this was also changed a little...
 				projectileRange: 400,
 			},
 			xpGiven: 150,
@@ -1181,9 +1181,9 @@ const EnemyTemplates = {
 			level: 15,
 			respawnOnDeath: false,
 			stats: {
-				damage: 9,
-				walkSpeed: 140,
-				swimSpeed: 55,
+				damage: 8,
+				walkSpeed: 80,
+				swimSpeed: 25,
 				iceSpeed: 210,
 				maxHealth: 65,
 				defence: 5,

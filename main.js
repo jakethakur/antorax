@@ -3737,7 +3737,7 @@ class Hero extends Attacker {
 
 				let weaponType = Game.getAttackType();
 
-				if (weaponType === "staff" || weaponType === "bow" || weaponType === "sword") {
+				if (weaponType === "staff" || weaponType === "bow" || weaponType === "sword" || weaponType === "meleeTool") {
 					// player is using conventional weapon
 
 					this.canAttack = false;
@@ -3816,7 +3816,7 @@ class Hero extends Attacker {
 							z: Game.heroProjectileInfo.z,
 						}));
 					}
-					else if (weaponType === "sword" && distanceToMouse < this.stats.meleeRange) {
+					else if ((weaponType === "sword" || weaponType === "meleeTool") && distanceToMouse < this.stats.meleeRange) {
 						// knight not moving (melee) projectile
 
 						this.channellingProjectileId = Game.nextEntityId;
@@ -3874,7 +3874,7 @@ class Hero extends Attacker {
 					this.currentAttackMouseEvent = e;
 				}
 
-				else if (Player.inventory.weapon.type === "rod") {
+				else if (weaponType === "rod") {
 					// fishing rod
 
 					if (this.channelling === false) {
@@ -4212,7 +4212,7 @@ class Hero extends Attacker {
 					}
 				}
 
-				else if (Player.inventory.weapon.type === "tool" && Player.inventory.weapon.toolType === "lead") {
+				else if (weaponType === "lead") {
 					// animal lead
 
 					// get animals being touched
@@ -8293,11 +8293,12 @@ Game.loadArea = function (areaName, destination) {
 
 		// add any object tiles as objects themselves
 		for (let layer = 0; layer < map.layers.length; layer++) {
-			for (let c = 0; c <= map.cols; c++) {
-		        for (let r = 0; r <= map.rows; r++) {
+			for (let c = 0; c < map.cols; c++) {
+		        for (let r = 0; r < map.rows; r++) {
 		            let tile = map.getTile(layer, c, r); // tile number
 
-		            if (tile !== 0 && map.objectTiles.includes(tile)) { // 0 is empty tile
+		            if (tile !== 0 && (map.objectTiles.includes(tile) || map.objectTiles.includes(-tile))) { // 0 is empty tile
+
 						// draw position
 						let x = Math.round((c) * map.tsize) + 30 - map.origin.x;
 			            let y = Math.round((r) * map.tsize) + 30 - map.origin.y;
@@ -8319,10 +8320,14 @@ Game.loadArea = function (areaName, destination) {
 							type: "things"
 						}));
 
-						map.setTile(layer, c, r, 0);
+						map.setTile(layer, c, r, -tile); // negative so it's not drawn, but still remains there if you change areas then come back
 		            }
 
-					else if (tile !== 0 && (repeatTileNos.includes(tile))) {
+					else if (tile !== 0 && (repeatTileNos.includes(tile) || repeatTileNos.includes(-tile))) {
+						if (tile < 0) {
+							tile = -tile;
+						}
+
 						let i = map.repeatTiles.findIndex(obj => obj.tile === tile);
 
 						// kinda hard-coded for now - make multiple copies of this object to give a tall-grass effect (as in eaglecrest plains)
@@ -8372,7 +8377,7 @@ Game.loadArea = function (areaName, destination) {
 							this.things.push(new Thing(objectProperties));
 						}
 
-						map.setTile(layer, c, r, 0);
+						map.setTile(layer, c, r, -map.repeatTiles[i].tile);
 					}
 		        }
 		    }
@@ -10513,8 +10518,8 @@ Game.update = function (delta) {
 			entity.y += diry * speed * delta;
 
 			// check if destination has been reached
-			if (Math.round(entity.x) < entity.moveTowards.x + 5 && Math.round(entity.x) > entity.moveTowards.x - 5
-			&& Math.round(entity.y) < entity.moveTowards.y + 5 && Math.round(entity.y) > entity.moveTowards.y - 5) {
+			if (Math.round(entity.x) < entity.moveTowards.x + 2 && Math.round(entity.x) > entity.moveTowards.x - 2
+			&& Math.round(entity.y) < entity.moveTowards.y + 2 && Math.round(entity.y) > entity.moveTowards.y - 2) {
 				// destination reached
 
 				// call move towards finish function
@@ -10735,6 +10740,10 @@ Game.getAttackType = function () {
                 console.error("Unknown player class: " + Player.class);
         }
     }
+
+	if (weaponType === "tool") {
+		weaponType = Player.inventory.weapon.toolType;
+	}
 
     return weaponType;
 }
@@ -11346,7 +11355,7 @@ Game.drawLayer = function (layer) {
         for (let r = startRow; r <= endRow; r++) {
             let tile = map.getTile(layer, c, r); // tile number
 
-            if (tile !== 0 && !map.objectTiles.includes(tile)) { // 0 is empty tile,, objectTiles are rendered on top of player potentially
+            if (tile > 0 && !map.objectTiles.includes(tile)) { // 0 is empty tile,, objectTiles are rendered on top of player potentially
 				// draw position
 				let x = (c - startCol) * map.tsize + offsetX;
 	            let y = (r - startRow) * map.tsize + offsetY;

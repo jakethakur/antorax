@@ -816,7 +816,7 @@ Spells = [
 
         // properties should contain caster, target
 		func: function (properties) {
-			let projectileSpeed = 250; // default
+			let projectileSpeed = 150; // default
 
 			if (properties.caster.hasStatusEffect("Empowered")) {
 				projectileSpeed *= 1.6;
