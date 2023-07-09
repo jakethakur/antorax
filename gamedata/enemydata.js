@@ -1290,6 +1290,9 @@ const EnemyTemplates = {
 
 				// coyote wrangler killed achievement
 				Player.quests.questProgress.coyoteWranglers = Increment(Player.quests.questProgress.coyoteWranglers);
+
+				// resetable achievement for quest
+				Player.quests.questProgress.coyoteWranglersQuest = Increment(Player.quests.questProgress.coyoteWranglersQuest);
 			}
 		},
 

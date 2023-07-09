@@ -7,6 +7,11 @@ body{
 }
 
 
+#preload {
+	visibility: hidden;
+}
+
+
 
 
 #bulletinBoard {
@@ -39,6 +44,41 @@ body{
 }
 
 
+#classSelect {
+	position: relative;
+	top: 43%;
+}
+
+#archer, #mage, #knight {
+	cursor: pointer;
+	display: inline-block;
+
+	width: 250px;
+	height: 250px;
+
+	margin-left: -40px;
+	margin-right: -40px;
+}
+
+#archer {
+	background-image: url("./assets/bowAnim/hover.png");
+
+	background-position: 0 0px;
+}
+
+#mage {
+	background-image: url("./assets/staffAnim/hover.png");
+
+	background-position: 0 0px;
+}
+
+#knight {
+	background-image: url("./assets/swordAnim/hover.png");
+
+	background-position: 0 0px;
+}
+
+
 
 
 #playerView {
@@ -58,7 +98,7 @@ body{
 }
 
 
-#archer, #mage, #knight, #name, #play, #random, #info, #skins, #logo, .news {
+#name, #play, #random, #info, #skins, #logo, .news {
 	background-color: var(--bottom);
 	border: 5px solid var(--border);
 }
@@ -67,22 +107,15 @@ body{
 	/* position: absolute;*/
 }
 
-#archer, #mage, #knight, .news {
-	padding: 10px;
-	margin: 20px;
-	margin-left: 15px;
-	padding-bottom: 2px;
-}
-
-#archer, #mage, #knight {
-	cursor: pointer;
-}
-
 #logo, #random, #name{
 	top: 20px;
 }
 
 .news{
+	padding: 10px;
+	margin: 20px;
+	margin-left: 15px;
+	padding-bottom: 2px;
 	padding-top: 25px;
 }
 .newsTitle{

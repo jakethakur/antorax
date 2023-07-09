@@ -940,6 +940,8 @@ Dom.chat.insertSequence = function (text, values, end, endParameters, cutscene) 
 Dom.chat.input = function (id) {
 	Dom.chat.playerMessage(Dom.elements[id].value);
 
+	Dom.elements[id].value = "";
+
 	Dom.elements[id].select();
 	Dom.elements[id].focus();
 }
@@ -950,7 +952,7 @@ Dom.chat.playerMessage = function (message) {
 
 		if (message === "/help") {
 			Dom.chat.insert(Dom.chat.say("The Mighty Zararanath",
-			`Hello again, ${Player.name}. Here is a list of commands that you can type in chat:
+			`Hello, ${Player.name}. Here is a list of commands that you can type in chat:
 			<br><br>/me [message] - refer to yourself in the third person.
 			<br>/msg [player name] [message] - send a message to only one player.
 			<br>/r [message] - respond to the person who most recently messaged you through /msg.
@@ -1118,7 +1120,7 @@ Dom.chat.insert = function (text, delay, time, noRepeat) {
 					// if not shift and there are messages to show then show the input box
 					if (!Dom.chat.hideInput && Dom.chat.displayOpacity.length > 0) {
 						Dom.elements.canvasChatInput.style.zIndex = 10;
-						Dom.elements.canvasSend.style.zIndex = 10;
+						Dom.elements.canvasSend.style.zIndex = 11;
 						Dom.elements.canvasChatInput.style.visibility = "visible";
 						Dom.elements.canvasSend.style.visibility = "visible";
 					}

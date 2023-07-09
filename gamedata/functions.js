@@ -367,7 +367,7 @@ Keyboard.upFunctions = {
     },
 	TALK: function () { // t
 		Dom.elements.canvasChatInput.style.zIndex = 10;
-		Dom.elements.canvasSend.style.zIndex = 10;
+		Dom.elements.canvasSend.style.zIndex = 11;
 		Dom.elements.canvasChatInput.style.visibility = "visible";
 		Dom.elements.canvasSend.style.visibility = "visible";
 		Dom.elements.canvasChatInput.style.opacity = 0.6;

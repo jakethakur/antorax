@@ -5520,9 +5520,13 @@ class Villager extends NPC {
 		this.boundary = properties.boundary; // object of rectangle that the npc cannot walk out of (x, y, width, height)
 
 		if (this.boundary === undefined && Areas[Game.areaName].villagerData !== undefined) {
-			// random boundary from the villagerdata of the villager's area
-			let locationIndex = Math.round(Game.villagers.length + (Game.villagerSeed*2)) % Game.villagerLocationArray.length;
-			this.boundary = Game.villagerLocationArray[locationIndex];
+			this.boundary = Game.villagerLocationArray;
+		}
+
+		// if boundary is an array , pick a random one
+		if (Array.isArray(this.boundary)) {
+			let locationIndex = Math.round(Game.villagers.length + (Game.villagerSeed*2)) % this.boundary.length;
+			this.boundary = this.boundary[locationIndex];
 		}
 
 		// random position inside the boundary

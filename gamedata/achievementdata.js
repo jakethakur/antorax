@@ -403,7 +403,7 @@ var Achievements = [
 		},
 	},
 	{
-		name: "Many Chickens were Harmed in the Process",
+		name: "Many Chickens Harmed in the Process",
 		description: "Obtain a golden feather.",
 		hidden: true,
 		points: 10,
@@ -430,7 +430,7 @@ var Achievements = [
 		},
 		expand: {
 			type: "progressBar",
-			value: Player.quests.questProgress.coyoteWranglers, //?
+			value: function () { return Math.max(Archer.quests.questProgress.coyoteWranglers||0, Mage.quests.questProgress.coyoteWranglers||0, Knight.quests.questProgress.coyoteWranglers||0); },
 			total: 8,
 		},
 	},

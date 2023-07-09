@@ -138,23 +138,187 @@ function save () {
 	}
 }
 
-document.getElementById("archer").onclick = function(){
+
+
+
+let bowEl = document.getElementById("archer");
+let staffEl = document.getElementById("mage");
+let swordEl = document.getElementById("knight");
+
+bowEl.onclick = function(){
 	selected.class = "a";
+
+	bowEl.style.backgroundImage = 'url("./assets/bowAnim/hoverSelect.png")';
+
+	staffEl.style.backgroundImage = 'url("./assets/staffAnim/hover.png")';
+	staffEl.style.backgroundPosition = "0px 0px";
+	staffFrame = 0;
+	clearInterval(staffAnimInterval);
+	staffAnimInterval = null;
+
+	swordEl.style.backgroundImage = 'url("./assets/swordAnim/hover.png")';
+	swordEl.style.backgroundPosition = "0px 0px";
+	swordFrame = 0;
+	clearInterval(swordAnimInterval);
+	swordAnimInterval = null;
+
 	save();
 	arrange();
 }
 
-document.getElementById("mage").onclick = function(){
+staffEl.onclick = function(){
 	selected.class = "m";
+
+	bowEl.style.backgroundImage = 'url("./assets/bowAnim/hover.png")';
+	bowEl.style.backgroundPosition = "0px 0px";
+	bowFrame = 0;
+	clearInterval(bowAnimInterval);
+	bowAnimInterval = null;
+
+	staffEl.style.backgroundImage = 'url("./assets/staffAnim/hoverSelect.png")';
+
+	swordEl.style.backgroundImage = 'url("./assets/swordAnim/hover.png")';
+	swordEl.style.backgroundPosition = "0px 0px";
+	swordFrame = 0;
+	clearInterval(swordAnimInterval);
+	swordAnimInterval = null;
+
+
 	save();
 	arrange();
 }
 
-document.getElementById("knight").onclick = function(){
+swordEl.onclick = function(){
 	selected.class = "k";
+
+	bowEl.style.backgroundImage = 'url("./assets/bowAnim/hover.png")';
+	bowEl.style.backgroundPosition = "0px 0px";
+	bowFrame = 0;
+	clearInterval(bowAnimInterval);
+	bowAnimInterval = null;
+
+	staffEl.style.backgroundImage = 'url("./assets/staffAnim/hover.png")';
+	staffEl.style.backgroundPosition = "0px 0px";
+	staffFrame = 0;
+	clearInterval(staffAnimInterval);
+	staffAnimInterval = null;
+
+	swordEl.style.backgroundImage = 'url("./assets/swordAnim/hoverSelect.png")';
+
 	save();
 	arrange();
 }
+
+// animations
+
+var bowFrame = 0;
+var bowAnimInterval = null;
+const totalBowHoverFrames = 21;
+const bowHoverFramesPerRow = 5;
+const bowIdleFramesPerRow = 2;
+
+bowEl.addEventListener(
+	"mouseenter",
+	(event) => {
+		if (bowAnimInterval === null) {
+			bowAnimInterval = setInterval(function () {
+				bowFrame++;
+				console.log(bowFrame);
+				if (bowFrame < totalBowHoverFrames) {
+					let xSpacing = 250 * (bowFrame%bowHoverFramesPerRow);
+					let ySpacing = 250 * Math.floor(bowFrame/bowHoverFramesPerRow);
+					bowEl.style.backgroundPosition = "-" + xSpacing + "px -" + ySpacing + "px";
+					console.log("-" + xSpacing + "px -" + ySpacing + "px");
+				}
+				else {
+					if (bowEl.style.backgroundImage === 'url("./assets/bowAnim/hover.png")' || bowEl.style.backgroundImage === '') {
+						bowEl.style.backgroundImage = 'url("./assets/bowAnim/idle.png")';
+					}
+					else if (bowEl.style.backgroundImage === 'url("./assets/bowAnim/hoverSelect.png")') {
+						bowEl.style.backgroundImage = 'url("./assets/bowAnim/idleSelect.png")';
+					}
+					let xSpacing = 250 * (bowFrame%bowIdleFramesPerRow);
+					let ySpacing = 250 * Math.floor(bowFrame/bowIdleFramesPerRow);
+					bowEl.style.backgroundPosition = "-" + xSpacing + "px -" + ySpacing + "px";
+					console.log("-" + xSpacing + "px -" + ySpacing + "px");
+				}
+				console.log("-");
+			}, 100);
+		}
+	},
+	false,
+);
+
+var staffFrame = 0;
+var staffAnimInterval = null;
+const totalstaffHoverFrames = 10;
+const staffHoverFramesPerRow = 3;
+const staffIdleFramesPerRow = 2;
+
+staffEl.addEventListener(
+	"mouseenter",
+	(event) => {
+		if (staffAnimInterval === null) {
+			staffAnimInterval = setInterval(function () {
+				staffFrame++;
+				if (staffFrame < totalstaffHoverFrames) {
+					let xSpacing = 250 * (staffFrame%staffHoverFramesPerRow);
+					let ySpacing = 250 * Math.floor(staffFrame/staffHoverFramesPerRow);
+					staffEl.style.backgroundPosition = "-" + xSpacing + "px -" + ySpacing + "px";
+				}
+				else {
+					if (staffEl.style.backgroundImage === 'url("./assets/staffAnim/hover.png")' || staffEl.style.backgroundImage === '') {
+						staffEl.style.backgroundImage = 'url("./assets/staffAnim/idle.png")';
+					}
+					else if (staffEl.style.backgroundImage === 'url("./assets/staffAnim/hoverSelect.png")') {
+						staffEl.style.backgroundImage = 'url("./assets/staffAnim/idleSelect.png")';
+					}
+					let xSpacing = 250 * (staffFrame%staffIdleFramesPerRow);
+					let ySpacing = 250 * Math.floor(staffFrame/staffIdleFramesPerRow);
+					staffEl.style.backgroundPosition = "-" + xSpacing + "px -" + ySpacing + "px";
+				}
+			}, 100);
+		}
+	},
+	false,
+);
+
+var swordFrame = 0;
+var swordAnimInterval = null;
+const totalswordHoverFrames = 16;
+const swordHoverFramesPerRow = 4;
+const swordIdleFramesPerRow = 2;
+
+swordEl.addEventListener(
+	"mouseenter",
+	(event) => {
+		if (swordAnimInterval === null) {
+			swordAnimInterval = setInterval(function () {
+				swordFrame++;
+				if (swordFrame < totalswordHoverFrames) {
+					let xSpacing = 250 * (swordFrame%swordHoverFramesPerRow);
+					let ySpacing = 250 * Math.floor(swordFrame/swordHoverFramesPerRow);
+					swordEl.style.backgroundPosition = "-" + xSpacing + "px -" + ySpacing + "px";
+				}
+				else {
+					if (swordEl.style.backgroundImage === 'url("./assets/swordAnim/hover.png")' || swordEl.style.backgroundImage === '') {
+						swordEl.style.backgroundImage = 'url("./assets/swordAnim/idle.png")';
+					}
+					else if (swordEl.style.backgroundImage === 'url("./assets/swordAnim/hoverSelect.png")') {
+						swordEl.style.backgroundImage = 'url("./assets/swordAnim/idleSelect.png")';
+					}
+					let xSpacing = 250 * (swordFrame%swordIdleFramesPerRow);
+					let ySpacing = 250 * Math.floor(swordFrame/swordIdleFramesPerRow);
+					swordEl.style.backgroundPosition = "-" + xSpacing + "px -" + ySpacing + "px";
+				}
+			}, 100);
+		}
+	},
+	false,
+);
+
+
+
 
 document.getElementById("random").onclick = function(){
 	document.getElementById("name").value = randomName();

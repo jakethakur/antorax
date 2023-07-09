@@ -4016,8 +4016,8 @@ onPlayerTouch: function () {
 
 		villagers: [
 			{
-				x: 1172,
-				y: 770,
+				boundary: [{x: 4312.3, y: 2264, width: 235.8, height: 914.8},
+				{x: 3017.9, y: 2185.6, width: 185, height: 983.9},],
 				image: "sylvie",
 				name: "Recruiter Sylvie",
 				hostility: "friendly",

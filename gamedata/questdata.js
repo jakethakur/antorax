@@ -2558,7 +2558,7 @@ After all, death is never the end in Antorax...<br>
 				let completed = [];
 
 				// true or falses for each objective (apart from the turn-in objective)
-				completed.push(false);
+				completed.push(Player.quests.questProgress.coyoteWranglersQuest > 0);
 
 				completed = checkFinished(completed);
 
@@ -2566,7 +2566,7 @@ After all, death is never the end in Antorax...<br>
 			},
 
 			howToStart: "Speak to <strong>Recruiter Sylvie</strong>.",
-			levelRequirement: 7,
+			levelRequirement: 8,
 			questRequirements: ["Overdraft"],
 
 			rewards: {
@@ -2607,7 +2607,7 @@ After all, death is never the end in Antorax...<br>
 				let completed = [];
 
 				// true or falses for each objective (apart from the turn-in objective)
-				completed.push(false);
+				completed.push(Player.quests.questProgress.coyoteWranglersQuest > 0);
 
 				completed = checkFinished(completed);
 
@@ -2615,7 +2615,7 @@ After all, death is never the end in Antorax...<br>
 			},
 
 			howToStart: "Speak to <strong>Recruiter Sylvie</strong>.",
-			levelRequirement: 7,
+			levelRequirement: 8,
 			questRequirements: ["WANTED: Coyote Pack Wrangler!"],
 
 			repeatTime: "daily",
@@ -2630,6 +2630,10 @@ After all, death is never the end in Antorax...<br>
 					eaglecrestCity: 60,
 				},
 			},
+
+			resetVariables: [
+				"coyoteWranglersQuest",
+			],
 		},
 		/*{
 			id: 12,
