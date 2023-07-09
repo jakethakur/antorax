@@ -293,7 +293,7 @@ var Items = {
 			event: "Samhain",
 			sellPrice: 1,
 			stats: {
-				lifesteal: 40,
+				lifesteal: 25,
 			},
 		},
 		{
@@ -660,6 +660,121 @@ var Items = {
 			stats: {
 				defence: 2,
 				enemyAggro: -40,
+			},
+		},
+		{
+			id: 37,
+			name: "Jester Hat",
+			type: "helm",
+			image: "assets/items/helm/37.png",
+			imageArchaeology: "assets/items/helm/37archaeology.png",
+			tier: 1,
+			obtain: ["tbd"],
+			area: ["eaglecrest"],
+			rarity: "unique",
+			sellPrice: 3,
+			lore: "",
+			obtainText: "tbd.",
+			stats: {
+				defence: 2,
+			},
+		},
+		{
+			id: 38,
+			name: "Common Hat",
+			type: "helm",
+			image: "assets/items/helm/38.png",
+			tier: 1,
+			obtain: ["tbd"],
+			area: ["eaglecrest"],
+			rarity: "unique",
+			sellPrice: 3,
+			lore: "",
+			obtainText: "tbd.",
+			stats: {
+				defence: 2,
+			},
+		},
+		{
+			id: 39,
+			name: "Rock Hat",
+			type: "helm",
+			image: "assets/items/helm/39.png",
+			tier: 2,
+			obtain: ["tbd"],
+			area: ["caves"],
+			rarity: "unique",
+			sellPrice: 3,
+			lore: "",
+			obtainText: "tbd.",
+			stats: {
+				defence: 2,
+			},
+		},
+		{
+			id: 40,
+			name: "Tinkerer's Hat",
+			type: "helm",
+			image: "assets/items/helm/40.png",
+			tier: 2,
+			obtain: ["tbd"],
+			area: ["caves"],
+			rarity: "unique",
+			sellPrice: 3,
+			lore: "",
+			obtainText: "tbd.",
+			stats: {
+				defence: 2,
+			},
+		},
+		{
+			id: 41,
+			name: "Orzoth Hat",
+			type: "helm",
+			image: "assets/items/helm/41.png",
+			tier: 2,
+			obtain: ["tbd"],
+			area: ["caves"],
+			rarity: "unique",
+			sellPrice: 3,
+			lore: "",
+			obtainText: "tbd.",
+			stats: {
+				defence: 2,
+			},
+		},
+		{
+			id: 43,
+			name: "Thlock's Hat",
+			type: "helm",
+			image: "assets/items/helm/43.png",
+			tier: 2,
+			obtain: ["tbd"],
+			area: ["caves"],
+			rarity: "mythic",
+			sellPrice: 5,
+			lore: "",
+			obtainText: "tbd.",
+			stats: {
+				defence: 2,
+			},
+		},
+		{
+			id: 44,
+			name: "Pie Hat",
+			type: "helm",
+			image: "assets/items/helm/44.png",
+			tier: 1,
+			obtain: ["quest"],
+			area: ["eaglecrest"],
+			rarity: "unique",
+			sellPrice: 3,
+			lore: "",
+			obtainText: "???",
+			stats: {
+				defence: 1,
+				healthRegen: 1, // ? idk abt effect
+				enemyAggro: 40,
 			},
 		},
 	],
@@ -1759,7 +1874,7 @@ var Items = {
 			sellPrice: 4,
 			stats: {
 				damage: 3,
-				lifesteal: 25,
+				lifesteal: 20,
 				defence: 3,
 			},
 			projectile: "slashBlood",
@@ -2308,7 +2423,9 @@ var Items = {
 			quest: true,
 			lore: "Hates the goblins just as much as you do.",
 			stats: {
-				damage: 2,
+				damage: 5,
+				maxDamage: 15,
+				criticalChance: 20,
 				flaming: 1,
 			},
 			chat: {
@@ -4287,6 +4404,36 @@ var Items = {
 			image: "assets/items/item/70.png",
 			lore: "'AUCTIONHOUSE' is engraved on the key."
 		},
+		{
+			id: 71,
+			name: "Iron Ore",
+			type: "item",
+			rarity: "crop",
+			image: "assets/items/item/71.png",
+			stack: 32,
+		},
+		{
+			id: 72,
+			name: "Beetroot",
+			type: "item",
+			category: "crop",
+			rarity: "junk",
+			image: "assets/items/item/72.png",
+			stack: 32,
+			sellPrice: 1,
+			sellQuantity: 16,
+		},
+		{
+			id: 73,
+			name: "Amaranth",
+			type: "item",
+			category: "crop",
+			rarity: "junk",
+			image: "assets/items/item/73.png",
+			stack: 32,
+			sellPrice: 1,
+			sellQuantity: 16,
+		},
 	],
 	consumable: [
 		{
@@ -5427,7 +5574,7 @@ var Items = {
 			id: 2,
 			name: "Mop",
 			type: "tool",
-			toolType: "melee", // acts like how old swords used to
+			toolType: "meleeTool", // acts like how old swords used to
 			image: "assets/items/tool/2.png",
 			projectile: "slashWater",
 			rarity: "common",
@@ -5443,7 +5590,7 @@ var Items = {
 			id: 3,
 			name: "Net",
 			type: "tool",
-			toolType: "melee", // acts like how old swords used to
+			toolType: "meleeTool", // acts like how old swords used to
 			image: "assets/items/tool/3.png",
 			projectile: "slash",
 			rarity: "common",
@@ -5457,7 +5604,7 @@ var Items = {
 			id: 4,
 			name: "Watering Can",
 			type: "tool",
-			toolType: "melee", // acts like how old swords used to
+			toolType: "meleeTool", // acts like how old swords used to
 			image: "assets/items/tool/4.png",
 			projectile: "slashWater",
 			rarity: "common",
@@ -5471,7 +5618,7 @@ var Items = {
 			id: 5,
 			name: "Golden Watering Can",
 			type: "tool",
-			toolType: "melee", // acts like how old swords used to
+			toolType: "meleeTool", // acts like how old swords used to
 			image: "assets/items/tool/4.png",
 			projectile: "slashWater",
 			rarity: "mythic",

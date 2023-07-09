@@ -11,40 +11,77 @@
 	<meta charset="UTF-8">
 </head>
 <body>
-<div id="archer">
-	<p class="title">Archer ➶</p>
-	<p>Archers have a low defence but can outrun their enemies and attack them from a distance.</p>
-	<p>Attack method: Ranged</p>
+
+<div id="mainScreen">
+
+	<div class="column" id="bulletinBoard">
+		<div class="news">
+			<p class="newsTitle">About</p>
+			<p id="aboutText">Realms of Antorax is a browser RPG, made entirely in Javascript by Peter Gill, James Richards, Jake Thakur and Sammer Atta.</p>
+			<p>Want to contribute? See our <a href="https://github.com/jakethakur/antorax" target=”_blank”>Github</a>.</p>
+			<p>If you have any feedback, please leave us a message <a href="https://docs.google.com/forms/d/e/1FAIpQLSc820vD_9Ya7v2SBqsNqgfdbvQskqWJPRjaVUVf-MByGxtJpQ/viewform" target=”_blank”>here</a> : )</p>
+			<p>See also Jake's <a href="https://jakethakur.github.io/8-bit-editor/" target=”_blank”>8-bit art editor</a>!</p>
+		</div>
+
+		<div class="news">
+			<p class="newsTitle">Notice</p>
+			<p>Selection screen still work in progress.<br>Let us know what you think!</p>
+		</div>
+
+		<div class="news">
+			<p class="newsTitle">Update Log</p>
+			<p><b>08/07/2023</b>: Neo Eaglecrest! And new selection screen!</p>
+			<p><b>14/04/2023</b>: Plains expansions and new combat system.</p>
+		</div>
+	</div>
+
+	<div class="column" id="playerView">
+		<div id="info"></div>
+		<div id="skins"></div>
+
+		<input type="text" id="name" placeholder="Enter your name"></input>
+		<div id="random"></div>
+
+		<img src="./assets/a0/f.png" id="playerPreview" draggable="false"><br>
+		<div id="left">&#11013;</div>
+		<div id="right">&#10145;</div>
+
+		<div id="play"></div>
+	</div>
+
+	<div class="column" id="centralImage">
+		<img src="./assets/logo.png" id="logo" draggable="false"><br>
+
+		<div id="classSelect">
+			<div id="archer">
+			</div>
+			<div id="mage">
+			</div>
+			<div id="knight">
+			</div>
+		</div>
+	</div>
+
 </div>
-<div id="mage">
-	<p class="title">Mage ⚚</p>
-	<p>Mages use an arsenal of magic to damage and heal from a moderate range.</p>
-	<p>Attack method: Aura</p>
+
+<div id="preload">
+	<img src="./assets/bowAnim/hover.png" />
+	<img src="./assets/bowAnim/hoverSelect.png" />
+	<img src="./assets/bowAnim/idle.png" />
+	<img src="./assets/bowAnim/idleSelect.png" />
+
+	<img src="./assets/staffAnim/hover.png" />
+	<img src="./assets/staffAnim/hoverSelect.png" />
+	<img src="./assets/staffAnim/idle.png" />
+	<img src="./assets/staffAnim/idleSelect.png" />
+
+	<img src="./assets/swordAnim/hover.png" />
+	<img src="./assets/swordAnim/hoverSelect.png" />
+	<img src="./assets/swordAnim/idle.png" />
+	<img src="./assets/swordAnim/idleSelect.png" />
 </div>
-<div id="knight">
-	<p class="title">Knight ⚔</p>
-	<p>Knights may be melee, however they have a large range of damage and defence spells.</p>
-	<p>Attack method: Melee</p>
-</div>
-<input type="text" id="name" placeholder="Enter your name"></input>
-<div id="left">&#11013;</div>
-<div id="right">&#10145;</div>
-<div id="random"></div>
-<img src="./assets/a0/f.png" id="image" draggable="false"></div>
-<div id="play"></div>
-<img src="./assets/logo.png" id="logo" draggable="false"></div>
-<div id="info"></div>
-<div id="skins"></div>
-<div id="news">
-	<p id="newsTitle" class="title">News</p>
-	<div class="newsItem"></div>
-	<p id="aboutText">Realms of Antorax is a browser RPG, made entirely in Javascript by Peter Gill, James Richards, Jake Thakur and Sammer Atta.</p>
-	<p><b>14/04/2023</b>: Plains expansions and new combat system (for mage and archer).</p>
-	<p><b>06/12/2022</b>: Enjoy over 30 new items and our new logo! Lots coming soon 🧡</p>
-	<p>Want to contribute? See our <a href="https://github.com/jakethakur/antorax" target=”_blank”>Github</a>.</p>
-	<p>If you have any feedback, please leave us a message <a href="https://docs.google.com/forms/d/e/1FAIpQLSc820vD_9Ya7v2SBqsNqgfdbvQskqWJPRjaVUVf-MByGxtJpQ/viewform" target=”_blank”>here</a> : )</p>
-	<p>See also Jake's <a href="https://jakethakur.github.io/8-bit-editor/" target=”_blank”>8-bit art editor</a>!</p>
-</div>
+
+
 <script src="./nameGenerator.js"></script>
 <script src="../gamedata/skindata.js"></script>
 <script src="./dom.js"></script>

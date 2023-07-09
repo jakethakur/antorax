@@ -403,7 +403,7 @@ var Achievements = [
 		},
 	},
 	{
-		name: "Many Chickens were Harmed in the Process",
+		name: "Many Chickens Harmed in the Process",
 		description: "Obtain a golden feather.",
 		hidden: true,
 		points: 10,
@@ -418,33 +418,20 @@ var Achievements = [
 	},
 	{
 		name: "Aconite",
-		description: "Kill a coyote pack, and its wrangler.",
-		points: 5,
+		description: "Kill a Coyote Pack Wrangler 8 times on one class.",
+		points: 10,
 		category: ["combat"],
 		area: ["eaglecrest"],
 		image: "../assets/items/item/67.png",
 		color: "lightgray",
 		class: "single",
 		isCompleted: function () {
-			return User.progress.coyotePackSizeKilled > 0;
-		},
-	},
-	{
-		name: "Queen of Poisons",
-		description: "Kill a coyote pack of at least 10 coyotes, and its wrangler.",
-		points: 5,
-		category: ["combat"],
-		area: ["eaglecrest"],
-		image: "../assets/achievements/queenOfPoisons.png",
-		color: "lightgray",
-		class: "single",
-		isCompleted: function () {
-			return User.progress.coyotePackSizeKilled >= 10;
+			return Player.quests.questProgress.coyoteWranglers >= 8;
 		},
 		expand: {
 			type: "progressBar",
-			value: User.progress.coyotePackSizeKilled,
-			total: 10,
+			value: function () { return Math.max(Archer.quests.questProgress.coyoteWranglers||0, Mage.quests.questProgress.coyoteWranglers||0, Knight.quests.questProgress.coyoteWranglers||0); },
+			total: 8,
 		},
 	},
 

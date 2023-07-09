@@ -1,66 +1,146 @@
 body{
 	text-align: center;
+	margin: 0px;
+	height: 100vh;
+
+	overflow: hidden;
 }
-#archer, #mage, #knight, #name, #news, #play, #random, #info, #skins, #logo{
+
+
+#preload {
+	visibility: hidden;
+}
+
+
+
+
+#bulletinBoard {
+	width: 500px;
+	background-image: url("./assets/bulletinBackground.png");
+	height: 100vh;
+
+	float: left;
+}
+
+
+
+
+#centralImage {
+	background-image: url("./assets/background.png");
+	background-size: cover;
+	background-position: center center;
+	height: 100vh;
+
+	margin-left: 500px;
+	margin-right: 350px;
+
+	border-left: 5px solid var(--border);
+	border-right: 5px solid var(--border);
+}
+
+#logo {
+	width: 40%;
+	margin-top: 12px;
+}
+
+
+#classSelect {
+	position: relative;
+	top: 43%;
+}
+
+#archer, #mage, #knight {
+	cursor: pointer;
+	display: inline-block;
+
+	width: 250px;
+	height: 250px;
+
+	margin-left: -40px;
+	margin-right: -40px;
+}
+
+#archer {
+	background-image: url("./assets/bowAnim/hover.png");
+
+	background-position: 0 0px;
+}
+
+#mage {
+	background-image: url("./assets/staffAnim/hover.png");
+
+	background-position: 0 0px;
+}
+
+#knight {
+	background-image: url("./assets/swordAnim/hover.png");
+
+	background-position: 0 0px;
+}
+
+
+
+
+#playerView {
+	width: 350px;
+	height: 100%;
+	float: right;
+
+	background-image: url("./assets/caravanBackground.png");
+	background-size: cover;
+	height: 100vh;
+}
+
+#mainScreen:after {
+	content: "";
+	display: table;
+	clear: both;
+}
+
+
+#name, #play, #random, #info, #skins, #logo, .news {
 	background-color: var(--bottom);
 	border: 5px solid var(--border);
 }
-#name, #image, #logo, #news, #play, #random, #left, #right, #info, #skins{
-	 position: absolute;
- }
-#archer, #mage, #knight, #play{
-	padding: 10px;
-	margin: 20px;
-	margin-left: 15px;
-	vertical-align: middle;
-	cursor: pointer;
+
+#name, #playerPreview, #logo, #play, #random, #left, #right, #info, #skins {
+	/* position: absolute;*/
 }
+
 #logo, #random, #name{
 	top: 20px;
 }
-#image{
-	top: 100px;
+
+.news{
+	padding: 10px;
+	margin: 20px;
+	margin-left: 15px;
+	padding-bottom: 2px;
+	padding-top: 25px;
 }
-#name{
-	font-size: 25px;
-	line-height: 45px;
-	vertical-align: middle;
-	text-align: center;
-	font-family: 'El Messiri', serif;
-	color: var(--text);
-}
-#news{
-	padding-top: 20px;
-}
-#info, #skins {
-	height: 50px;
-	font-size: 20px;
-	padding-top: 10px;
-}
-#newsTitle{
-	font-size: 50px;
-}
-#play{
-	font-size: 25px;
-	margin: 0px;
-	color: var(--text);
-	width: 290px;
-}
-#random{
-	width: 50px;
-	background-repeat: no-repeat;
-	background-position: center;
-	cursor: pointer;
-}
-#left, #right{
-	font-size: 100px;
-	cursor: pointer;
-}
-.title{
+.newsTitle{
 	display: inline;
-	font-size: 25px;
+	font-size: 42px;
 	font-weight: bold;
 }
+
+
+
+#info, #skins {
+	/* height: 50px; */
+	font-size: 20px;
+	display:inline-block;
+	width: 290px;
+
+	padding: 10px;
+	margin: 10px;
+	margin-left: 15px;
+}
+
+#info {
+	margin-bottom: 5px;
+}
+
 #skins {
 	white-space: nowrap;
 	overflow-x: auto;
@@ -75,4 +155,69 @@ body{
 	background-repeat: no-repeat;
 	display: inline-block;
 	cursor: pointer;
+}
+
+#name{
+	font-size: 25px;
+	line-height: 45px;
+	vertical-align: middle;
+	text-align: center;
+	font-family: 'El Messiri', serif;
+	color: var(--text);
+
+	display:inline-block;
+	vertical-align: top;
+
+	width: 228px;
+}
+#random {
+	width: 47px;
+	height: 47px;
+	background-repeat: no-repeat;
+	background-position: center;
+	cursor: pointer;
+
+	border-left: none;
+	margin-left: -5px;
+
+	display:inline-block;
+	vertical-align: top;
+}
+
+#left, #right {
+	font-size: 100px;
+	cursor: pointer;
+
+	display:inline-block;
+	vertical-align: top;
+
+	margin-top: 10px;
+
+	color: saddlebrown;
+}
+
+#playerPreview {
+	height: 500px;
+	top: 100px;
+	margin-top: 15px;
+	margin-bottom: 5px;
+}
+
+#play{
+	font-size: 25px;
+	margin: 0px;
+	color: var(--text);
+	width: 290px;
+
+	padding: 10px;
+	margin: 20px;
+	cursor: pointer;
+
+	display: inline-block;
+}
+
+.title{
+	display: inline;
+	font-size: 25px;
+	font-weight: bold;
 }

@@ -11,16 +11,43 @@ const AttackConstants = {
 		focusSpeedMultiplier: 10, // affects how quickly attacks focus
 		variance: 45, // base variance IN DEGREES
 		minimumVariance: 3, // also in degrees
+		reloadTime: 500,
+
+		damageMultiplier: 1,
 	},
 	staff: {
 		projectileSpeed: 150,
 		projectileRange: 1000,
+		reloadTime: 500,
+
+		damageMultiplier: 1,
 	},
 	sword: {
-		projectileSpeed: 300,
-		projectileRange: 1000,
+		projectileSpeed: 640, // for charge attack
+		projectileRange: 0, // not a thing for swords
+
+		//iterationSpacing: 130, // (old snake projectile system)
+		//maxIterations: 10,
+
 		meleeRange: 100, // range at which melee damage is dealt
-	}
+		reloadTime: 1000,
+
+		damageMultiplier: 2,
+
+		channelDistancePerSecond: 240,
+		channelMaxDistance: 480,
+		channelMinDistance: 120,
+	},
+	meleeTool: {
+		projectileSpeed: 0, // N/A
+		projectileRange: 0, // N/A
+
+		meleeRange: 100, // range at which melee damage is dealt
+
+		reloadTime: 1000,
+
+		damageMultiplier: 1,
+	},
 };
 
 var Player = {
@@ -102,6 +129,7 @@ var Player = {
 		npcProgress: {}, // stores the number of NPCs spoken to for that quest (the key name is the quest area followed by the quest id)
 		questProgress: {}, // stores properties for quest objectives (and achievements) that cannot otherwise be tracked between saves
 		// npcProgress and questProgress can mostly be used for the same thing, but have different data structures
+		// npcProgress is incremented automatically by quest progress steps, so there should be no need to increment manually
 
 		questLastFinished: {}, // stores the last date (format ddmmyyyy) that the quest was finished (for seeing if daily quests can be started again)
 		timesCompleted: {}, // number of times a player has completed a repeatable quest (e.g. hide and seek)
@@ -282,6 +310,7 @@ var User = {
 		coords: false,
 		fps: false,
 		hitboxes: false,
+		aggro: false,
 		grid: false,
 		keyboard: {
 			// handled by main
@@ -292,6 +321,8 @@ var User = {
 			DOWN: "S", // 40
 			// space (action button)
 			SPACE: " ", // 32
+			// enter (progress dialogue)
+			ENTER: "ENTER",
 			// shift (hide secondary canvas)
 			SHIFT: "SHIFT", // 16
 			// handled by dom

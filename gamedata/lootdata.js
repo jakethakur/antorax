@@ -544,8 +544,8 @@ const EnemyLootTables = {
 		{ // tiger hide trousers
 			item: Items.greaves[13],
 			condition: function () {
-				// the pack is of size 6, and the player hasn't obtained this before (note the quest variable is incremented by onDeath, i.e. before the loot is generated, which is why it's 7 not 6)
-				return Player.quests.questProgress.coyotePackSize === 7;
+				// killed the pack 5 times, and the player hasn't obtained this before (note the quest variable is incremented by onDeath, i.e. before the loot is generated)
+				return Player.quests.questProgress.coyotePackSize === 5;
 			},
 			chance: [
 				100,			// 0
@@ -556,8 +556,8 @@ const EnemyLootTables = {
 		{ // coyote's devour
 			item: Items.sword[23],
 			condition: function () {
-				// the pack is of size 10, and the player hasn't obtained this before (note the quest variable is incremented by onDeath, i.e. before the loot is generated, which is why it's 11 not 10)
-				return Player.class === "k" && Player.quests.questProgress.coyotePackSize === 11;
+				// killed the pack 8 times, and the player hasn't obtained this before (note the quest variable is incremented by onDeath, i.e. before the loot is generated, which is why it's 8 not 7)
+				return Player.class === "k" && Player.quests.questProgress.coyoteWranglers === 8;
 			},
 			chance: [
 				100,			// 0

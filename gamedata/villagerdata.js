@@ -55,7 +55,8 @@ var Villagers = [
         },
         hostility: "friendly",
         areas: [
-            {area: "loggingCampTavern", probability: 0.5},
+            //{area: "loggingCampTavern", probability: 0.5},
+            "loggingCampTavern",
             "eaglecrestTavern",
         ],
         roles: [],
@@ -729,6 +730,8 @@ var Villagers = [
             notUnlockedRoles: "Nothing to see here! Just an honest man going about his daily business <i>ahahaha</i>.",
 			chooseChat: "What brings you here today? Nothing the matter, I hope <i>hehe</i>.",
 	        receiveTavernGood: "This will do for now <i>haha</i>.. at least until I can get my hands on some pie...",
+			questProgress: "<i>heheh</i> Do you have my reagents yet?",
+			questFinish: "I would source my pies from the Billy Goat but... <i>heh</i>.. He reckons I'm bad for business.",
 		},
 	},
 	{
@@ -1018,7 +1021,7 @@ var Villagers = [
         ],
 		chat: {
             notUnlockedRoles: "They say it hurts to look directly at the sun... that's one thing us vampires have in common with you.",
-			//No need to fear... I don't bite! Unless you're a delicious beetroot pie of course.
+			chooseChat: "No need to fear... I don't bite! Unless you're a delicious beetroot pie of course.",
 			//maybe other characters can say negative things about varney when u talk to them like 'That Count Varney's no good if you ask me! I wouldn't touch it with a twelve-foot garlic-soaked pole!'
 			//or if they're a shopkeeper they could say something like: 'Don't get me started on Count Varney! Frightening creature - scares away all my customers!'
 		},
@@ -1026,5 +1029,29 @@ var Villagers = [
 			return (Event.time === "night" || Event.time === "bloodMoon");
 		},
 		outdoorOnly: true,
+	},
+	{
+        id: 26,
+        images: {fishTankFront: {normal: "assets/npcs/fishTankFront.png"}, fishTankSide: {normal: "assets/npcs/fishTankSide.png"}},
+		name: "Fish Tank",
+		hostility: "friendly",
+		level: 1,
+		stats: {
+			maxHealth: 1,
+			defence: 0,
+		},
+        areas: [
+            "eaglecrestTavern",
+        ],
+		chat: {
+            notUnlockedRoles: "No tapping on the glass.",
+			chooseChat: "Glug. Glug.",
+            receiveTavernGood: "Gluuuug.",
+		},
+		animation: {
+			type: "carousel",
+			frameTime: 7000,
+			images: ["fishTankFront", "fishTankSide"],
+		},
 	},
 ];

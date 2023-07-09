@@ -55,7 +55,7 @@
 
 	<ul id="chat"></ul>
 	<input id="canvasChatInput" type="text" class="canvasChatInput" placeholder="Type a message to send to chat."></input>
-	<p id="canvasSend" onclick="Dom.chat.input()">send</p>
+	<p id="canvasSend" onclick="Dom.chat.input('chatInput')">send</p>
 
 	<div id="chatPage" hidden class="DOM">
 		<div id="players" hidden></div>
@@ -195,6 +195,11 @@
 			<span class="radio1"><input type="radio" id="hitboxesOn" name="hitboxOnOff" onclick="Dom.settings.hitbox()">Yes</input></span>
 			<span class="radio2"><input type="radio" name="hitboxOnOff" checked="true" onclick="Dom.settings.hitbox()">No</input></span>
 		</div>
+		<div id="settingAggro" class="settings">
+			Show enemy aggro:
+			<span class="radio1"><input type="radio" id="aggroOn" name="aggroOnOff" onclick="Dom.settings.aggro()">Yes</input></span>
+			<span class="radio2"><input type="radio" name="aggroOnOff" checked="true" onclick="Dom.settings.aggro()">No</input></span>
+		</div>
 		<div id="settingGrid" class="settings">
 			Show grid:
 			<span class="radio1"><input type="radio" id="gridOn" name="gridOnOff" onclick="Dom.settings.grid()">Yes</input></span>
@@ -212,6 +217,7 @@
 			<p style="display: inline"><br>Move up:</p><div class="hotkey"></div><br>
 			<p style="display: inline"><br>Move down:</p><div class="hotkey"></div><br>
 			<p style="display: inline"><br>Action button:</p><div class="hotkey"></div><br>
+			<p style="display: inline"><br>Progress dialogue:</p><div class="hotkey"></div><br>
 			<p style="display: inline"><br>Hide information:</p><div class="hotkey"></div><br>
 			<p style="display: inline"><br>Talk in chat:</p><div class="hotkey"></div><br>
 			<p style="display: inline"><br>Chat Page:</p><div class="hotkey"></div><br>
@@ -233,7 +239,7 @@
 	<div id="creditsPage" hidden class="DOM">
 		<div id="creditsTexts">
 			<h1 class="creditsHeading"><b>REALMS OF ANTORAX</b></h1><br>
-			<p class="creditsLine"><b>Team leader & UI programming</b>: Peter Gill</p>
+			<p class="creditsLine"><b>UI programming</b>: Peter Gill</p>
 			<p class="creditsLine"><b>Art lead</b>: James Richards</p>
 			<p class="creditsLine"><b>Game programming</b>: Jake Thakur</p>
 			<p class="creditsLine"><b>Animation & Area design</b>: Sammer Atta</p>
@@ -254,10 +260,8 @@ Licensed under Creative Commons: By Attribution 3.0<br>
 		<center><div id="closeCredits" onclick="Dom.settings.page('settingsPage')">Close</div></center>
 	</div>
 
-	<div id="questStart" hidden class="DOM">
+	<div id="questStart" hidden class="DOM shortDOM">
 		<br><h1 id="questStartQuest"></h1><br><br>
-		<b id="questStartName"></b><br>
-		<p id="questStartChat"></p><br><br>
 		<b>Quest Objectives</b>
 		<p id="questStartObjectives"></p>
 		<p id="questStartStartRewardsTitle"></p>
@@ -270,10 +274,8 @@ Licensed under Creative Commons: By Attribution 3.0<br>
 		<div id="accept" class="closeClass" onclick="Dom.quest.accept()">Accept</div>
 		<div id="decline" class="closeClass" onclick="Dom.closePage('questStart')">Decline</div>
 	</div>
-	<div id="questFinish" hidden class="DOM">
-		<br><h1 id="questFinishQuest"></h1><br><br>
-		<b id="questFinishName"></b><br>
-		<p id="questFinishChat"></p>
+	<div id="questFinish" hidden class="DOM shortDOM">
+		<br><h1 id="questFinishQuest"></h1>
 		<p id="questFinishRewardsTitle"></p>
 		<p id="questFinishRewards"></p>
 		<div id="questFinishXP"></div><span id="xpClass">&nbsp;&nbsp;</span>
@@ -355,6 +357,20 @@ Licensed under Creative Commons: By Attribution 3.0<br>
 		<div id="choosePageContent"></div>
 	</div>
 	<div id="textPage" hidden class="DOM"></div>
+
+	<div id="npcChatBanner1" class="npcChatBanner" hidden>
+		<div id="npcChatImage"></div>
+		<p id="npcChatBannerHeader1" class="npcChatBannerHeader"></p>
+		<p id="npcChatBannerText1" class="npcChatBannerText"></p>
+		<img id="npcChatNext" src="assets/icons/dialogueNext.png"></img>
+	</div>
+
+	<div id="chatBannerOptions" hidden>
+		<ul id="chatBannerOptionList">
+			<li class="chatBannerOption" onclick="Dom.chat.chooseOption(0)">Say hello casually</li>
+			<li class="chatBannerOption" onclick="Dom.chat.chooseOption(1)">Reveal your identity</li>
+		</ul>
+	</div>
 
 	<div id="bookmarks">
 		<img id="changeChat" class="changePage" src="assets/icons/Tag1.png" onclick="Dom.changeBook('chatPage', true)"></img>

@@ -342,6 +342,11 @@ Keyboard.downFunctions = {
 			Dom.chat.hideInput = true;
         }, 1);
     },
+    ENTER: function () {
+        setTimeout (function () {
+			Dom.chat.npcChatProgress();
+        }, 1);
+    },
 };
 Keyboard.upFunctions = {
     SHIFT: function () {
@@ -362,7 +367,7 @@ Keyboard.upFunctions = {
     },
 	TALK: function () { // t
 		Dom.elements.canvasChatInput.style.zIndex = 10;
-		Dom.elements.canvasSend.style.zIndex = 10;
+		Dom.elements.canvasSend.style.zIndex = 11;
 		Dom.elements.canvasChatInput.style.visibility = "visible";
 		Dom.elements.canvasSend.style.visibility = "visible";
 		Dom.elements.canvasChatInput.style.opacity = 0.6;
