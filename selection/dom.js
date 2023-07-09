@@ -285,7 +285,7 @@ staffEl.addEventListener(
 
 var swordFrame = 0;
 var swordAnimInterval = null;
-const totalswordHoverFrames = 16;
+const totalswordHoverFrames = 17;
 const swordHoverFramesPerRow = 4;
 const swordIdleFramesPerRow = 2;
 
