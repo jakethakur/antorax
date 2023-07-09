@@ -2341,10 +2341,16 @@ After all, death is never the end in Antorax...<br>
 			questArea: "eaglecrest",
 
 			startName: "Fisherman Guimtal",
-			startChat: "Somethin' has been infesting the waters and makin' it so us fishermen can't get no fish. I think the toads may hold the answer. Can yah get some parts from them for me so I can investigate.",
+			startChat: [{
+				text: `Somethin' has been infesting the waters and makin' it so us fishermen can't get no fish.`,
+			},{
+				text: `I think the toads may hold the answer. Can yah get some parts from them for me so I can investigate.`,
+			},],
 
 			finishName: "Fisherman Guimtal",
-			finishChat: "Thanks for the help, I'll get back to yah.",
+			startChat: [{
+				text: `Thanks for the help, I'll get back to yah.`,
+			},],
 
 			objectives: [
 				"Obtain 16 tadpoles.",
