@@ -545,7 +545,7 @@ const EnemyLootTables = {
 			item: Items.greaves[13],
 			condition: function () {
 				// killed the pack 5 times, and the player hasn't obtained this before (note the quest variable is incremented by onDeath, i.e. before the loot is generated)
-				return Player.quests.questProgress.coyotePackSize === 5;
+				return Player.quests.questProgress.coyoteWranglers === 5;
 			},
 			chance: [
 				100,			// 0

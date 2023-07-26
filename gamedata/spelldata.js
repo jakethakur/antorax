@@ -40,7 +40,7 @@ Spells = [
 
 		channelTime: [
 			0,
-			500,	// tier 1
+			0,		// tier 1
 		],
 
 		manaCost: [
@@ -60,7 +60,7 @@ Spells = [
 		img: "assets/runes/1.png",
 		imgIconNum: 1,
 		class: "k",
-		description: ["", "Gain +100% defence for 0.5 seconds."],
+		description: ["", "Gain +200% defence for 0.5 seconds."],
 		difficulty: "Hard",
 
 		// properties should contain tier (as int value), caster
@@ -75,7 +75,7 @@ Spells = [
 
 		defenceMultiplier: [
 			0,
-			100,	// tier 1
+			200,	// tier 1
 		],
 
 		channelTime: [
@@ -105,7 +105,7 @@ Spells = [
 		img: "assets/runes/2.png",
 		imgIconNum: 2,
 		class: "k",
-		description: ["", "Deal 100% of your attack damage to all enemies in the area, and stun them for 2 seconds."],
+		description: ["", "Deal 150% of your attack damage to all enemies in the area, and stun them for 3 seconds."],
 		difficulty: "Easy",
 
 		// properties should contain tier (as int value), caster
@@ -124,7 +124,7 @@ Spells = [
 
 		damageMultiplier: [
 			0,
-			100,	// tier 1
+			150,	// tier 1
 		],
 
 		channelTime: [
@@ -134,7 +134,7 @@ Spells = [
 
 		stunTime: [
 			0,
-			2,	// tier 1
+			3,	// tier 1
 		],
 
 		manaCost: [
@@ -224,7 +224,7 @@ Spells = [
 		img: "assets/runes/4.png",
 		imgIconNum: 4,
 		class: "m",
-		description: ["", "Launch an icicle towards your mouse pointer that deals 100% of your maximum attack damage to the first target hit, stunning them for 1 second."],
+		description: ["", "Launch an icicle towards your mouse pointer that deals 150% of your maximum attack damage to the first target hit, stunning them for 1 second."],
 		difficulty: "Hard",
 
 		// properties should contain tier (as int value), caster, target
@@ -256,7 +256,7 @@ Spells = [
 
 		damageMultiplier: [
 			0,
-			100,	// tier 1
+			150,	// tier 1
 		],
 
 		manaCost: [
@@ -390,7 +390,7 @@ Spells = [
 		img: "assets/runes/7.png",
 		imgIconNum: 7,
 		class: "a",
-		description: ["", "Gain stealth. Your next attack deals +200% damage."],
+		description: ["", "Gain stealth. Your next attack deals +400% damage."],
 		difficulty: "Medium",
 
 		// properties should contain tier (as int value), caster
@@ -421,12 +421,12 @@ Spells = [
 
 		cooldown: [
 			0,
-			10000,	// tier 1
+			3000,	// tier 1
 		],
 
 		damageMultiplier: [
 			0,
-			200,		// tier 1
+			400,		// tier 1
 		],
 	},
 
@@ -436,7 +436,7 @@ Spells = [
 		img: "assets/runes/8.png",
 		imgIconNum: 8,
 		class: "a",
-		description: ["", "Your next attack swaps locations with the enemy hit and deals 30% more damage."],
+		description: ["", "Your next attack swaps locations with the enemy hit and deals 40% more damage."],
 		difficulty: "Hard",
 
 		// properties should contain tier (as int value), caster
@@ -479,7 +479,7 @@ Spells = [
 
 		damageMultiplier: [
 			0,
-			30,		// tier 1
+			40,		// tier 1
 		],
 	},
 

@@ -1256,6 +1256,17 @@ const EnemyTemplates = {
 				let petArray = Game.enemies.filter(enemy => enemy.name === "Pack Coyote" && enemy.association === "coyotePack");
 				return petArray;
 			},
+			canBeShown: function () {
+				this.stats.maxHealth += Player.quests.questProgress.coyoteWranglers * 10; // scales in health infinitely
+				 return true;
+			},
+			onDeath: function () {
+				let petArray = Game.enemies.filter(enemy => enemy.name === "Pack Coyote" && enemy.association === "coyotePack");
+				for (let i = 0; i < petArray.length; i++) {
+					let pet = petArray[i];
+					pet.setAggro(Game.hero, "unAggro");
+				}
+			},
 			spells: [
 	            {
 	                id: 20, // mend pets

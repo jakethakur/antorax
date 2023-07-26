@@ -438,7 +438,7 @@ var Quests = {
 			},],
 
 			finishName: "Fisherman Tobenam",
-			startChat: [{
+			finishChat: [{
 				text: `You found it!`,
 			},{
 				text: `Heheh, let me clean it for you.`,
@@ -1477,7 +1477,7 @@ After all, death is never the end in Antorax...<br>
 			},],
 
 			finishName: "Goblin Torch",
-			startChat: [{
+			finishChat: [{
 				text: `I am clean! Thank you. Adventurer.`,
 			},{
 				text: `Oh. What is your name?`
@@ -2586,7 +2586,7 @@ After all, death is never the end in Antorax...<br>
 
 			startName: "Recruiter Sylvie",
 			startChat: [{
-				text: `Hello again, ${Player.name}. It is unfortunate, but the <b>Coyote Pack Wrangler</b> has been sighted again the Plains' eastern grassy region.`,
+				text: `Hello again, ${Player.name}. It is unfortunate, but the <b>Coyote Pack Wrangler</b> has been sighted again in the Plains' eastern grassy region.`,
 			},{
 				text: `Even more unfortunate - it seems to have come with backup...`,
 			},{

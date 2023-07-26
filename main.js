@@ -2036,7 +2036,7 @@ class Character extends Thing {
 		this.stats.walkSpeed = properties.stats.walkSpeed || 180; // base speed values are same as player
 		this.stats.swimSpeed = properties.stats.swimSpeed || 60;
 		this.stats.iceSpeed = properties.stats.iceSpeed || 270;
-		this.stats.channellingMoveSpeed = properties.stats.channellingMoveSpeed || 30; // percentage of speed if moving whilst channelling smth
+		this.stats.channellingMoveSpeed = properties.stats.channellingMoveSpeed || 100; // percentage scalar of speed if moving whilst channelling smth
 		this.stats.lootTime = properties.stats.lootTime || 10000; // time that it can be looted for
 		this.stats.respawnTime = properties.stats.respawnTime || 11000; // time to respawn (should be more than lootTime)
 
@@ -2650,8 +2650,10 @@ class Character extends Thing {
 							x: x,
 							y: y,
 							targets: [Game.damageableByPlayer],
+							attacker: Game.hero,
 							rotate: 0,
 							image: "explosion",
+							name: "Explosion",
 							type: "projectiles",
 							stats: {
 								damage: Game.hero.stats.damage/2,
@@ -3011,7 +3013,7 @@ class Character extends Thing {
 
 			// if channelling but can move during this channelling (i.e. player attacks), then speed might be reduced...
 			if (this.channelling !== false) {
-				this.speed *= this.stats.channellingMoveSpeed / 100; // channellingMoveSpeed is a percentage
+				this.speed *= AttackConstants[Player.class].baseChannellingMoveSpeed this.stats.channellingMoveSpeed / 10000; // both values are percentages
 
 				if (this.channelling === "projectile") {
 					// move the projectile with the player
@@ -6165,6 +6167,21 @@ class Enemy extends Attacker {
 		return currentTarget;
 	}
 
+	// target should be an object
+	// aggro value doesn't take into account base aggro !
+	// set aggroValue to "unAggro" for base aggro + aggro to equal 0
+	setAggro (target, aggroValue) {
+		for (let i = 0; i < this.attackTargets.length; i++) {
+			if (this.attackTargets[i].target.id === target.id) {
+				if (aggroValue === "unAggro") {
+					aggroValue = -this.attackTargets[i].baseAggro;
+				}
+				this.attackTargets[i].aggro = aggroValue;
+				return true;
+			}
+		}
+	}
+
 	// generate loot from lootTable (called when enemy dies or a chest is added)
 	generateLoot (lootTable) {
 		if (this.loot === null) {
@@ -6930,6 +6947,10 @@ Game.statusEffects.fire = function(properties) {
 			if (newProperties.tier === "I") {
 				newProperties.increasePropertyValue = 1; // fireDamagePerSecond
 				newProperties.time = 3;
+			}
+			else if {
+				newProperties.increasePropertyValue = 2; // fireDamagePerSecond
+				newProperties.time = 4;
 			}
 			else {
 				console.error("Fire status effect tier " + tier + " has not been assigned damage and time");
@@ -8773,6 +8794,9 @@ Game.init = function () {
 	// re-init hero's saved status effects
 	this.initStatusEffects();
 
+	// fixes changed base stats (tbd - temp)
+	Dom.testing.resetStats();
+
 	// start Game tick
 	window.requestAnimationFrame(this.tick);
 
@@ -9237,7 +9261,7 @@ Game.generateVillagers = function (data, areaName) {
 	let possibleVillagers = Villagers.filter(villager => {
 		return ((villager.areas !== undefined && villager.areas.includes(areaName)) ||
 			(villager.exceptAreas !== undefined && !villager.exceptAreas.includes(areaName))) &&
-			(villager.canBeShown === undefined || villager.canBeShown());
+			(this.canBeShown(villager));
 	});
 
 	// loop through possible villagers, picking them based the number of possible villagers in the area
@@ -10610,11 +10634,18 @@ Game.update = function (delta) {
 						}
 					}
 				}
-				else if (animate.type === "function") {
+
+				if (animate.type === "function" || typeof animate.animateFunction !== "undefined") {
 					animate.animateFunction();
 				}
 
 				animate.lastAnimated = this.totalAnimationTime;
+
+				if (typeof animate.stopAnimationOnState !== "undefined" && animate.state === animate.stopAnimationOnState) {
+					animate = undefined;
+					this.animationList.splice(i, 1);
+					i--;
+				}
 			}
 		}
 
