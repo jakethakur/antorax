@@ -443,7 +443,7 @@ var Items = {
 			sellPrice: 2,
 			stats: {
 				walkSpeed: -30,
-				criticalChance: 30,
+				criticalChance: 40,
 			},
 		},
 		{
@@ -536,7 +536,7 @@ var Items = {
 			area: ["eaglecrest"],
 			rarity: "unique",
 			sellPrice: 3,
-			lore: "",
+			lore: "⚬⊹﹏ ⚬⊹✧⚬﹏⊹",
 			obtainText: "Can be uncovered as an unidentified item in areas around Eaglecrest Plains.",
 			unidentifiedArea: ["eaglecrest"],
 			set: 6,
@@ -590,7 +590,7 @@ var Items = {
 			unidentifiedArea: ["eaglecrest"],
 			stats: {
 				defence: 1,
-				rangeMultiplier: 100,
+				channellingMoveSpeed: 100,
 			},
 		},
 		{
@@ -681,16 +681,16 @@ var Items = {
 		},
 		{
 			id: 38,
-			name: "Common Hat",
+			name: "Cloth Hat",
 			type: "helm",
 			image: "assets/items/helm/38.png",
 			tier: 1,
-			obtain: ["tbd"],
+			obtain: ["unid"],
 			area: ["eaglecrest"],
-			rarity: "unique",
-			sellPrice: 3,
-			lore: "",
-			obtainText: "tbd.",
+			rarity: "common",
+			sellPrice: 1,
+			limitedEdition: true, // not added yet !
+			obtainText: "Can be uncovered as an unidentified item in areas around Eaglecrest Plains.",
 			stats: {
 				defence: 2,
 			},
@@ -701,31 +701,33 @@ var Items = {
 			type: "helm",
 			image: "assets/items/helm/39.png",
 			tier: 2,
-			obtain: ["tbd"],
+			obtain: ["unidentified"],
 			area: ["caves"],
-			rarity: "unique",
-			sellPrice: 3,
-			lore: "",
-			obtainText: "tbd.",
+			rarity: "common",
+			sellPrice: 1,
+			obtainText: "Can be uncovered as an unidentified item in areas around Eaglecrest Caves.",
 			stats: {
-				defence: 2,
+				defence: 5,
 			},
 		},
 		{
 			id: 40,
-			name: "Tinkerer's Hat",
+			name: "Tinkered Headpiece",
 			type: "helm",
 			image: "assets/items/helm/40.png",
 			tier: 2,
-			obtain: ["tbd"],
+			obtain: ["unidentified"],
 			area: ["caves"],
 			rarity: "unique",
-			sellPrice: 3,
+			sellPrice: 4,
 			lore: "",
-			obtainText: "tbd.",
+			obtainText: "Can be uncovered as an unidentified item in areas around Eaglecrest Caves.",
 			stats: {
-				defence: 2,
+				defence: 6,
 			},
+			onIdentify: function () {
+
+			}
 		},
 		{
 			id: 41,
@@ -733,43 +735,44 @@ var Items = {
 			type: "helm",
 			image: "assets/items/helm/41.png",
 			tier: 2,
-			obtain: ["tbd"],
+			obtain: ["unidentified"],
 			area: ["caves"],
 			rarity: "unique",
-			sellPrice: 3,
+			sellPrice: 4,
 			lore: "",
-			obtainText: "tbd.",
+			obtainText: "Can be uncovered as an unidentified item in areas around Eaglecrest Caves.",
+			stats: {
+				defence: 6,
+				criticalChance: 10,
+			},
+		},
+		{
+			id: 42,
+			name: "Thlock's Hat",
+			type: "helm",
+			image: "assets/items/helm/42.png",
+			tier: 2,
+			obtain: ["unidentified"],
+			area: ["caves"],
+			rarity: "mythic",
+			sellPrice: 7,
+			lore: "",
+			obtainText: "Can be uncovered as an unidentified item in areas around Eaglecrest Caves.",
 			stats: {
 				defence: 2,
 			},
 		},
 		{
 			id: 43,
-			name: "Thlock's Hat",
-			type: "helm",
-			image: "assets/items/helm/43.png",
-			tier: 2,
-			obtain: ["tbd"],
-			area: ["caves"],
-			rarity: "mythic",
-			sellPrice: 5,
-			lore: "",
-			obtainText: "tbd.",
-			stats: {
-				defence: 2,
-			},
-		},
-		{
-			id: 44,
 			name: "Pie Hat",
 			type: "helm",
-			image: "assets/items/helm/44.png",
+			image: "assets/items/helm/43.png",
 			tier: 1,
 			obtain: ["quest"],
 			area: ["eaglecrest"],
 			rarity: "unique",
 			sellPrice: 3,
-			lore: "",
+			lore: "Human equivalent of a carrot on a stick.",
 			obtainText: "???",
 			stats: {
 				defence: 1,
@@ -937,7 +940,7 @@ var Items = {
 			sellPrice: 3,
 			obtainText: "Can be looted from Statue of Marshall Sheridan, a boss in The Nilbog during Blood Moons.",
 			stats: {
-				defence: 2,
+				defence: 1,
 			},
 			conditionalStats: [
 				{
@@ -946,7 +949,7 @@ var Items = {
 						return !Areas[Game.areaName].indoors;
 					},
 					stats: {
-						walkSpeed: 40,
+						walkSpeed: 30,
 						healthRegen: 0.25,
 					},
 				},
@@ -967,7 +970,7 @@ var Items = {
 			event: "Samhain",
 			stats: {
 				defence: 2,
-				walkSpeed: 40,
+				walkSpeed: 30,
 				windShield: true
 			},
 		},
@@ -988,7 +991,7 @@ var Items = {
 				looting: 20,
 				stealing: 20,
 				xpBonus: 30,
-				walkSpeed: 40,
+				walkSpeed: 30,
 			},
 		},
 		{
@@ -1001,7 +1004,7 @@ var Items = {
 			area: ["eaglecrest"],
 			rarity: "unique",
 			sellPrice: 3,
-			lore: "",
+			lore: "⚬ 〜〜 ∞",
 			obtainText: "Can be uncovered as an unidentified item in areas around Eaglecrest Plains.",
 			unidentifiedArea: ["eaglecrest"],
 			set: 6,
@@ -1096,12 +1099,95 @@ var Items = {
 						return false;
 					},
 					stats: {
-						healthRegen: 1.5,
-						walkSpeed: 40,
+						healthRegen: 0.75,
+						walkSpeed: 30,
 					},
 				},
 			],
 			archaeologyNotes: "The player must be within 300px from a corpse for the effect to trigger.",
+		},
+		{
+			id: 16,
+			name: "Cloth Tunic",
+			type: "chest",
+			image: "assets/items/chest/16.png",
+			tier: 1,
+			obtain: ["unid"],
+			area: ["eaglecrest"],
+			rarity: "common",
+			sellPrice: 1,
+			limitedEdition: true, // not added yet !
+			obtainText: "Can be uncovered as an unidentified item in areas around Eaglecrest Plains.",
+			stats: {
+				defence: 3,
+			},
+		},
+		{
+			id: 17,
+			name: "Rock Chestplate",
+			type: "chest",
+			image: "assets/items/chest/17.png",
+			tier: 2,
+			obtain: ["unidentified"],
+			area: ["caves"],
+			rarity: "common",
+			sellPrice: 1,
+			obtainText: "Can be uncovered as an unidentified item in areas around Eaglecrest Caves.",
+			stats: {
+				defence: 6,
+			},
+		},
+		{
+			id: 18,
+			name: "Tinkered Chestpiece",
+			type: "chest",
+			image: "assets/items/chest/18.png",
+			tier: 2,
+			obtain: ["unidentified"],
+			area: ["caves"],
+			rarity: "unique",
+			sellPrice: 4,
+			lore: "",
+			obtainText: "Can be uncovered as an unidentified item in areas around Eaglecrest Caves.",
+			stats: {
+				defence: 7,
+			},
+			onIdentify: function () {
+
+			}
+		},
+		{
+			id: 19,
+			name: "Orzoth Breastplate",
+			type: "chest",
+			image: "assets/items/chest/19.png",
+			tier: 2,
+			obtain: ["unidentified"],
+			area: ["caves"],
+			rarity: "unique",
+			sellPrice: 4,
+			lore: "",
+			obtainText: "Can be uncovered as an unidentified item in areas around Eaglecrest Caves.",
+			stats: {
+				defence: 7,
+				criticalChance: 10,
+			},
+		},
+		{
+			id: 20,
+			name: "Soulcrusher's Chestplate",
+			type: "chest",
+			image: "assets/items/chest/20.png",
+			tier: 2,
+			obtain: ["unidentified"],
+			area: ["caves"],
+			rarity: "mythic",
+			sellPrice: 7,
+			lore: "",
+			obtainText: "Can be uncovered as an unidentified item in areas around Eaglecrest Caves.",
+			stats: {
+				defence: 10,
+			},
 		},
 	],
 	greaves: [
@@ -1238,7 +1324,7 @@ var Items = {
 			type: "greaves",
 			image: "assets/items/greaves/8.png",
 			tier: 1,
-			lore: "",
+			lore: "Tell 'em to bring out the whole ocean!",
 			stats: {
 				defence: 4,
 			},
@@ -1254,7 +1340,7 @@ var Items = {
 			area: ["eaglecrest"],
 			rarity: "unique",
 			sellPrice: 3,
-			lore: "",
+			lore: "✧〜ᵔ⁀ᵕ✧﹏",
 			obtainText: "Can be uncovered as an unidentified item in areas around Eaglecrest Plains.",
 			unidentifiedArea: ["eaglecrest"],
 			set: 6,
@@ -1351,6 +1437,106 @@ var Items = {
 			stats: {
 				defence: 4,
 				reflection: 30,
+			},
+		},
+		{
+			id: 14,
+			name: "Farming Trousers",
+			type: "greaves",
+			image: "assets/items/greaves/14.png",
+			tier: 1,
+			obtain: ["quest"],
+			area: ["plains"],
+			rarity: "common",
+			sellPrice: 2,
+			obtainText: "Not yet obtainable - check back soon!",
+			stats: {
+				defence: 2,
+			},
+		},
+		{
+			id: 15,
+			name: "Cloth Trousers",
+			type: "greaves",
+			image: "assets/items/greaves/15.png",
+			tier: 1,
+			obtain: ["unid"],
+			area: ["eaglecrest"],
+			rarity: "common",
+			sellPrice: 1,
+			limitedEdition: true, // not added yet !
+			obtainText: "Can be uncovered as an unidentified item in areas around Eaglecrest Plains.",
+			stats: {
+				defence: 2,
+			},
+		},
+		{
+			id: 16,
+			name: "Rock Bottoms",
+			type: "greaves",
+			image: "assets/items/greaves/16.png",
+			tier: 2,
+			obtain: ["unidentified"],
+			area: ["caves"],
+			rarity: "common",
+			sellPrice: 1,
+			lore: "Wearing rock as armour? That's a new rock bottom...",
+			obtainText: "Can be uncovered as an unidentified item in areas around Eaglecrest Caves.",
+			stats: {
+				defence: 6,
+			},
+		},
+		{
+			id: 17,
+			name: "Tinkered Trouserpiece",
+			type: "greaves",
+			image: "assets/items/greaves/17.png",
+			tier: 2,
+			obtain: ["unidentified"],
+			area: ["caves"],
+			rarity: "unique",
+			sellPrice: 4,
+			lore: "",
+			obtainText: "Can be uncovered as an unidentified item in areas around Eaglecrest Caves.",
+			stats: {
+				defence: 7,
+			},
+			onIdentify: function () {
+
+			}
+		},
+		{
+			id: 18,
+			name: "Orzoth Legplates",
+			type: "greaves",
+			image: "assets/items/greaves/18.png",
+			tier: 2,
+			obtain: ["unidentified"],
+			area: ["caves"],
+			rarity: "unique",
+			sellPrice: 4,
+			lore: "",
+			obtainText: "Can be uncovered as an unidentified item in areas around Eaglecrest Caves.",
+			stats: {
+				defence: 7,
+				criticalChance: 10,
+			},
+		},
+		{
+			id: 19,
+			name: "Sciron's Greaves",
+			type: "greaves",
+			image: "assets/items/greaves/19.png",
+			tier: 2,
+			obtain: ["unidentified"],
+			area: ["caves"],
+			rarity: "mythic",
+			sellPrice: 7,
+			lore: "",
+			obtainText: "Can be uncovered as an unidentified item in areas around Eaglecrest Caves.",
+			stats: {
+				defence: 4,
+				dodgeChance: 15,
 			},
 		},
 	],
@@ -1594,7 +1780,7 @@ var Items = {
 			area: ["eaglecrest"],
 			rarity: "unique",
 			sellPrice: 3,
-			lore: "",
+			lore: "⌇ᵔᵕ✧⌇⌇〜",
 			obtainText: "Can be uncovered as an unidentified item in areas around Eaglecrest Plains.",
 			unidentifiedArea: ["eaglecrest"],
 			set: 6,
@@ -1712,7 +1898,7 @@ var Items = {
 			obtainText: "Can be looted from Baron Foxglove, a boss in the Eaglecrest Plains.",
 			functionText: "Creates a trail of flowers on grass!",
 			stats: {
-				defence: 3,
+				defence: 2,
 				walkSpeed: 30,
 			},
 			conditionalStats: [
@@ -1745,6 +1931,89 @@ var Items = {
 			stats: {
 				defence: 2,
 				walkSpeed: 50,
+			},
+		},
+		{
+			id: 18,
+			name: "Cloth Shoes",
+			type: "boots",
+			image: "assets/items/boots/18.png",
+			tier: 1,
+			obtain: ["unid"],
+			area: ["eaglecrest"],
+			rarity: "common",
+			sellPrice: 1,
+			limitedEdition: true, // not added yet !
+			obtainText: "Can be uncovered as an unidentified item in areas around Eaglecrest Plains.",
+			stats: {
+				defence: 2,
+			},
+		},
+		{
+			id: 19,
+			name: "Rock Shoes",
+			type: "boots",
+			image: "assets/items/boots/19.png",
+			tier: 2,
+			obtain: ["unidentified"],
+			area: ["caves"],
+			rarity: "common",
+			sellPrice: 1,
+			obtainText: "Can be uncovered as an unidentified item in areas around Eaglecrest Caves.",
+			stats: {
+				defence: 5,
+			},
+		},
+		{
+			id: 20,
+			name: "Tinkered Shoepiece",
+			type: "boots",
+			image: "assets/items/boots/20.png",
+			tier: 2,
+			obtain: ["unidentified"],
+			area: ["caves"],
+			rarity: "unique",
+			sellPrice: 4,
+			lore: "",
+			obtainText: "Can be uncovered as an unidentified item in areas around Eaglecrest Caves.",
+			stats: {
+				defence: 6,
+			},
+			onIdentify: function () {
+
+			}
+		},
+		{
+			id: 21,
+			name: "Orzoth Sabatons",
+			type: "boots",
+			image: "assets/items/boots/21.png",
+			tier: 2,
+			obtain: ["unidentified"],
+			area: ["caves"],
+			rarity: "unique",
+			sellPrice: 4,
+			lore: "",
+			obtainText: "Can be uncovered as an unidentified item in areas around Eaglecrest Caves.",
+			stats: {
+				defence: 6,
+				criticalChance: 10,
+			},
+		},
+		{
+			id: 22,
+			name: "The Behemoth's Crushers",
+			type: "boots",
+			image: "assets/items/boots/22.png",
+			tier: 2,
+			obtain: ["unidentified"],
+			area: ["caves"],
+			rarity: "mythic",
+			sellPrice: 7,
+			lore: "",
+			obtainText: "Can be uncovered as an unidentified item in areas around Eaglecrest Caves.",
+			stats: {
+				defence: 10,
 			},
 		},
 	],
@@ -2266,7 +2535,7 @@ var Items = {
 			area: ["eaglecrest"],
 			rarity: "unique",
 			sellPrice: 5,
-			lore: "",
+			lore: "KAPOW",
 			obtainText: "Can be bought from Demolitionist Darrow in Eaglecrest.",
 			stats: {
 				damage: 4,
@@ -2294,6 +2563,95 @@ var Items = {
 				reloadTime: 250,
 				defence: 4,
 				reflection: 50,
+			},
+		},
+		{
+			id: 24,
+			name: "Common plains weapon",
+			type: "sword",
+			image: "assets/items/sword/24.png",
+			tier: 1,
+			obtain: ["unid"],
+			area: ["eaglecrest"],
+			rarity: "common",
+			sellPrice: 1,
+			limitedEdition: true, // not added yet !
+			obtainText: "Can be uncovered as an unidentified item in areas around Eaglecrest Plains.",
+			stats: {
+				damage: 3,
+			},
+		},
+		{
+			id: 25,
+			name: "Rock Sword",
+			type: "sword",
+			image: "assets/items/sword/25.png",
+			tier: 2,
+			obtain: ["unidentified"],
+			area: ["caves"],
+			rarity: "common",
+			sellPrice: 1,
+			obtainText: "Can be uncovered as an unidentified item in areas around Eaglecrest Caves.",
+			stats: {
+				damage: 6,
+				defence: 5,
+			},
+		},
+		{
+			id: 26,
+			name: "Sharpened Blade",
+			type: "sword",
+			image: "assets/items/sword/26.png",
+			tier: 2,
+			obtain: ["unidentified"],
+			area: ["caves"],
+			rarity: "unique",
+			sellPrice: 4,
+			lore: "",
+			obtainText: "Can be uncovered as an unidentified item in areas around Eaglecrest Caves.",
+			stats: {
+				damage: 7,
+				defence: 6,
+				criticalChance: 10,
+				reflection: 10,
+			},
+		},
+		{
+			id: 27,
+			name: "Orzoth Blade",
+			type: "sword",
+			image: "assets/items/sword/27.png",
+			tier: 2,
+			obtain: ["unidentified"],
+			area: ["caves"],
+			rarity: "unique",
+			sellPrice: 4,
+			lore: "",
+			obtainText: "Can be uncovered as an unidentified item in areas around Eaglecrest Caves.",
+			stats: {
+				damage: 6,
+				defence: 5,
+				flaming: 2,
+				criticalChance: 10,
+			},
+			projectile: "slashFire",
+		},
+		{
+			id: 28,
+			name: "Horned Orn's Hammer",
+			type: "sword",
+			image: "assets/items/sword/28.png",
+			tier: 2,
+			obtain: ["unidentified"],
+			area: ["caves"],
+			rarity: "mythic",
+			sellPrice: 7,
+			lore: "",
+			obtainText: "Can be uncovered as an unidentified item in areas around Eaglecrest Caves.",
+			stats: {
+				damage: 4,
+				defence: 5,
+				impact: true,
 			},
 		},
 	],
@@ -2404,9 +2762,10 @@ var Items = {
 			obtainText: "Can be uncovered as an unidentified item in areas around Eaglecrest Logging Camp.",
 			unidentifiedArea: ["loggingCamp"],
 			stats: {
-				damage: 2,
-				maxDamage: 8,
-				looting: 100,
+				damage: 3,
+				maxDamage: 9,
+				looting: 60,
+				criticalChance: 5,
 			},
 		},
 		{
@@ -2459,10 +2818,10 @@ var Items = {
 					target: Game.hero,
 					effectTitle: "Soul Rush",
 					speedIncrease: 100,
-					time: 2,
+					time: 1,
 				});
 			},
-			functionText: "Gives +100% walk speed for 2 seconds when an enemy is killed",
+			functionText: "Gives +100% walk speed for 1 second when an enemy is killed",
 			projectile: "fireballGreen",
 			projectileAdjust: {x: 20, y: 20},
 		},
@@ -2580,7 +2939,7 @@ var Items = {
 		},
 		{
 			id: 14,
-			name: "Frog Staff", // tbc?
+			name: "Frog Staff",
 			type: "staff",
 			image: "assets/items/staff/14.png",
 			imageArchaeology: "assets/items/staff/14archaeology.png",
@@ -2615,7 +2974,7 @@ var Items = {
 		},
 		{
 			id: 15,
-			name: "Supercharged Baton", //tbc?
+			name: "Supercharged Baton",
 			type: "staff",
 			image: "assets/items/staff/15.png",
 			imageArchaeology: "assets/items/staff/15archaeology.png",
@@ -2624,7 +2983,7 @@ var Items = {
 			area: ["eaglecrest"],
 			rarity: "unique",
 			sellPrice: 3,
-			lore: "",
+			lore: "A must for the Antorax Tournament's relay race.",
 			obtainText: "Can be uncovered as an unidentified item in areas around Eaglecrest Plains.",
 			unidentifiedArea: ["eaglecrest"],
 			stats: {
@@ -2671,12 +3030,102 @@ var Items = {
 			area: ["eaglecrest"],
 			rarity: "unique",
 			sellPrice: 5,
-			lore: "",
+			lore: "KAPOW",
 			obtainText: "Can be bought from Demolitionist Darrow in Eaglecrest.",
 			stats: {
 				damage: 3.5,
 				maxDamage: 10.5,
 				exploding: 1,
+			},
+		},
+		{
+			id: 18,
+			name: "Common plains weapon",
+			type: "staff",
+			image: "assets/items/staff/18.png",
+			tier: 1,
+			obtain: ["unid"],
+			area: ["eaglecrest"],
+			rarity: "common",
+			sellPrice: 1,
+			limitedEdition: true, // not added yet !
+			obtainText: "Can be uncovered as an unidentified item in areas around Eaglecrest Plains.",
+			stats: {
+				damage: 3,
+				maxDamage: 9,
+			},
+		},
+		{
+			id: 19,
+			name: "Rock Wand",
+			type: "staff",
+			image: "assets/items/staff/19.png",
+			tier: 2,
+			obtain: ["unidentified"],
+			area: ["caves"],
+			rarity: "common",
+			sellPrice: 1,
+			obtainText: "Can be uncovered as an unidentified item in areas around Eaglecrest Caves.",
+			stats: {
+				damage: 6,
+				maxDamage: 18,
+			},
+		},
+		{
+			id: 20,
+			name: "Cave Staff",
+			type: "staff",
+			image: "assets/items/staff/20.png",
+			imageArchaeology: "assets/items/staff/20archaeology.png",
+			tier: 2,
+			obtain: ["unidentified"],
+			area: ["caves"],
+			rarity: "unique",
+			sellPrice: 4,
+			lore: "",
+			obtainText: "Can be uncovered as an unidentified item in areas around Eaglecrest Caves.",
+			stats: {
+				damage: 6,
+				maxDamage: 18,
+				stun: 0.3,
+			},
+		},
+		{
+			id: 21,
+			name: "Orzoth Wand",
+			type: "staff",
+			image: "assets/items/staff/21.png",
+			tier: 2,
+			obtain: ["unidentified"],
+			area: ["caves"],
+			rarity: "unique",
+			sellPrice: 4,
+			lore: "",
+			obtainText: "Can be uncovered as an unidentified item in areas around Eaglecrest Caves.",
+			stats: {
+				damage: 6,
+				maxDamage: 18,
+				flaming: 2,
+				criticalChance: 10,
+			},
+		},
+		{
+			id: 22,
+			name: "Kenda's Iron Staff",
+			type: "staff",
+			image: "assets/items/staff/22.png",
+			imageArchaeology: "assets/items/staff/22archaeology.png",
+			tier: 2,
+			obtain: ["unidentified"],
+			area: ["caves"],
+			rarity: "mythic",
+			sellPrice: 7,
+			lore: "",
+			obtainText: "Can be uncovered as an unidentified item in areas around Eaglecrest Caves.",
+			stats: {
+				damage: 5,
+				maxDamage: 15,
+				criticalChance: 50,
 			},
 		},
 	],
@@ -2745,7 +3194,7 @@ var Items = {
 			unidentifiedArea: ["loggingCamp"],
 			stats: {
 				damage: 4,
-				moveDuringFocus: true,
+				focusSpeed: 2,
 			},
 		},
 		{
@@ -2966,7 +3415,7 @@ var Items = {
 				damage: 5,
 				healthRegen: -0.5
 			},
-			functionText: "Fires flowers, which restore 5 health when collected in full bloom",
+			functionText: "Fires flowers, which restore 10 health when collected in full bloom",
 			projectile: "flowerBud",
 			projectileAdjust: {x: 0, y: 0},
 			extraProjectileInfo: {
@@ -2976,80 +3425,44 @@ var Items = {
 					width: 41,
 					height: 41
 				},
-				animation: {
-					type: "function",
-					frameTime: 1100,
-					animateFunction: function () { // tbd maybe change this to be a function that updates the frame number, and leave it to the main code to do the cropping
-						// state is an integer from 0 to 9 inclusive
-						// growth goes from 0 to 10, then it starts growing
-						// define state & growth
-						if (this.state === undefined) {
-							this.state = 0;
-							this.growth = 0;
+			},
+			onHit: function (target) {
+				Game.things.push(new Thing({
+					image: "flowerBud",
+					name: "Flower",
+					x: target.x,
+					y: target.y,
+					type: "thing",
+					animation: {
+						type: "spritesheet",
+						frameTime: 160,
+						imagesPerRow: 4,
+						totalImages: 10,
+						stopAnimationOnState: 9,
+						startState: 0,
+					},
+					crop: {
+						x: 0,
+						y: 0,
+						width: 41,
+						height: 41
+					},
+					onInteract: function () {
+						if (this.animation.state === 9) {
+							Game.hero.channel(function (id) {
+								let i = Game.things.findIndex(thing => thing.id === id);
+								if (i >= 0) {
+									// projectile still exists
+									Game.restoreHealth(Game.hero, 10);
+									Game.removeObject(id, "things", i);
+								}
+							}, [this.id], 200, "Flower power!");
 						}
-						else if (this.state === 0 && this.growth < 10) {
-							this.growth++;
-						}
-						else if (this.state < 9) {
-							this.z = -1; // now a flower so appears behind
-							this.state++;
-							// change image
-							let obj = this.animateObj; // actual projectile object
-							obj.crop = {
-								x: (this.state % 4) * obj.baseWidth,
-								y: Math.floor(this.state / 4) * obj.baseHeight,
-								width: obj.baseWidth,
-								height: obj.baseHeight
-							}
+					},
+				}));
 
-							if (this.state === 9) {
-								this.removeIn = 5;
-							}
-						}
-					},
-					animateFunction: function () {
-						// increase number of ticks
-						if (this.timeoutTicks === undefined || this.timeoutTicks >= 20) {
-							this.timeoutTicks = 1;
-						}
-						else {
-							this.timeoutTicks++;
-						}
-						// alternate image
-						// the first time this is called, imageName is undefined so the image is not changed
-						if (this.animateObj.imageName === "lightsRB") {
-							this.animateObj.image = Loader.getImage("lightsGY");
-							this.animateObj.imageName = "lightsGY";
-						}
-						else if (this.animateObj.imageName === "lightsGY") {
-							this.animateObj.image = Loader.getImage("lightsRB");
-							this.animateObj.imageName = "lightsRB";
-						}
-						// time for next animation frame
-						if (this.timeoutTicks > 10) {
-							this.frameTime = 300; // formerly 250
-						}
-						else {
-							this.frameTime = 1100;
-						}
-					},
-				},
-				animationFrameTime: 150,
-				stayOnScreen: true, // done in animateFunction
-				doNotRotate: true,
-				onInteract: function () {
-					if (this.state === 9) {
-						Game.hero.channel(function (projectileRemoveId) {
-							let projectileIndex = Game.projectiles.findIndex(projectile => projectile.id === projectileRemoveId);
-							if (projectileIndex >= 0) {
-								// projectile still exists
-								Game.restoreHealth(Game.hero, 5);
-								Game.removeObject(projectileRemoveId, "projectiles", projectileIndex);
-							}
-						}, [this.id], 200, "Flower power!");
-					}
-				},
-			}
+				console.log(Game.things[Game.things.length - 1].animation.state);
+			},
 		},
 		{
 			id: 15,
@@ -3061,7 +3474,7 @@ var Items = {
 			area: ["eaglecrest"],
 			rarity: "unique",
 			sellPrice: 3,
-			lore: "",
+			lore: "Keeps the frogs away!",
 			obtainText: "Can be uncovered as an unidentified item in areas around Eaglecrest Plains.",
 			unidentifiedArea: ["eaglecrest"],
 			stats: {
@@ -3084,7 +3497,7 @@ var Items = {
 			obtainText: "Can be uncovered as an unidentified item in areas around Eaglecrest Plains.",
 			unidentifiedArea: ["eaglecrest"],
 			stats: {
-				damage: 4,
+				damage: 3,
 				walkSpeed: 30,
 				hex: 10,
 			},
@@ -3149,7 +3562,7 @@ var Items = {
 			limitedEdition: true, // hidden from archaeology
 			area: ["eaglecrest"],
 			rarity: "mythic",
-			lore: "",
+			lore: "Guess there really are presents in the sky~",
 			obtainText: "???",
 			sellPrice: 10,
 			stats: {
@@ -3170,7 +3583,7 @@ var Items = {
 			area: ["eaglecrest"],
 			rarity: "unique",
 			sellPrice: 5,
-			lore: "",
+			lore: "KAPOW",
 			obtainText: "Can be bought from Demolitionist Darrow in Eaglecrest.",
 			stats: {
 				damage: 5,
@@ -3179,6 +3592,89 @@ var Items = {
 			},
 			projectile: "redPellet",
 			projectileAdjust: {x: 0, y: 0},
+		},
+		{
+			id: 20,
+			name: "Common plains weapon",
+			type: "bow",
+			image: "assets/items/bow/20.png",
+			tier: 1,
+			obtain: ["unid"],
+			area: ["eaglecrest"],
+			rarity: "common",
+			sellPrice: 1,
+			limitedEdition: true, // not added yet !
+			obtainText: "Can be uncovered as an unidentified item in areas around Eaglecrest Plains.",
+			stats: {
+				damage: 3,
+			},
+		},
+		{
+			id: 21,
+			name: "Rock Bow",
+			type: "bow",
+			image: "assets/items/bow/21.png",
+			tier: 2,
+			obtain: ["unidentified"],
+			area: ["caves"],
+			rarity: "common",
+			sellPrice: 1,
+			obtainText: "Can be uncovered as an unidentified item in areas around Eaglecrest Caves.",
+			stats: {
+				damage: 6,
+			},
+		},
+		{
+			id: 22,
+			name: "Spider Venom Bow",
+			type: "bow",
+			image: "assets/items/bow/22.png",
+			tier: 2,
+			obtain: ["unidentified"],
+			area: ["caves"],
+			rarity: "unique",
+			sellPrice: 4,
+			lore: "",
+			obtainText: "Can be uncovered as an unidentified item in areas around Eaglecrest Caves.",
+			stats: {
+				damage: 4,
+				poisonX: 4,
+				poisonY: 1,
+			},
+		},
+		{
+			id: 23,
+			name: "Orzoth Bow",
+			type: "bow",
+			image: "assets/items/bow/23.png",
+			tier: 2,
+			obtain: ["unidentified"],
+			area: ["caves"],
+			rarity: "unique",
+			sellPrice: 4,
+			lore: "",
+			obtainText: "Can be uncovered as an unidentified item in areas around Eaglecrest Caves.",
+			stats: {
+				damage: 6,
+				flaming: 2,
+				criticalChance: 10,
+			},
+		},
+		{
+			id: 24,
+			name: "Divine Lyre", // name tbc
+			type: "bow",
+			image: "assets/items/bow/24.png",
+			tier: 2,
+			obtain: ["unidentified"],
+			area: ["caves"],
+			rarity: "mythic",
+			sellPrice: 7,
+			lore: "",
+			obtainText: "Can be uncovered as an unidentified item in areas around Eaglecrest Caves.",
+			stats: {
+				damage: 6,
+			},
 		},
 	],
 	rod: [ // fishing rod
@@ -3289,7 +3785,7 @@ var Items = {
 			],
 			stats: {
 				looting: 30,
-				walkSpeed: 60,
+				walkSpeed: 50,
 			},
 		},
 		{

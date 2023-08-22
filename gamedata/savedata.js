@@ -8,12 +8,14 @@ const AttackConstants = {
 	bow: {
 		projectileSpeed: 850,
 		projectileRange: 1000,
-		focusSpeedMultiplier: 10, // affects how quickly attacks focus
+		focusSpeedMultiplier: 50, // affects how quickly attacks focus
 		variance: 45, // base variance IN DEGREES
 		minimumVariance: 3, // also in degrees
 		reloadTime: 500,
 
 		damageMultiplier: 1,
+
+		baseChannellingMoveSpeed: 30,
 	},
 	staff: {
 		projectileSpeed: 150,
@@ -21,6 +23,8 @@ const AttackConstants = {
 		reloadTime: 500,
 
 		damageMultiplier: 1,
+
+		baseChannellingMoveSpeed: 30,
 	},
 	sword: {
 		projectileSpeed: 640, // for charge attack
@@ -37,6 +41,8 @@ const AttackConstants = {
 		channelDistancePerSecond: 270,
 		channelMaxDistance: 480,
 		channelMinDistance: 120,
+
+		baseChannellingMoveSpeed: 30,
 	},
 	meleeTool: {
 		projectileSpeed: 0, // N/A
@@ -171,7 +177,7 @@ var Player = {
 		swimSpeed: 60, // (300/s)
 		walkSpeed: 180, // (300/s)
 		iceSpeed: 270, // (300/s)
-		focusSpeed: 6, // (1/s) archers only (speed at which the variance for archer projectiles gets smaller) - multiplied by a quotient which can be seen in AttackConstants
+		focusSpeed: 1, // additional multiplier!!!! archers only (speed at which the variance for archer projectiles gets smaller) - multiplied by a quotient which can be seen in AttackConstants
 		maxDamage: 0, // (3-9) mages only (damage done when channelled)
 		lifesteal: 0, // (10%)
 		xpBonus: 0, // (20%)
@@ -190,7 +196,7 @@ var Player = {
 		exploding: 0, // (I)
 		numberOfProjectiles: 0, // currently an archer only stat - if this isn't 0 or 1, multiple projectiles are fired!
 		enemyAggro: 100, // (110%) multiplier
-		channellingMoveSpeed: 30, // percentage of usual move speed
+		channellingMoveSpeed: 100, // percentage of value in attackConstants
 
 		// projectiles
 		variance: 0, // default angle variance of projectiles - set by default in AttackConstants; can be overriden in itemdata
@@ -221,7 +227,6 @@ var Player = {
 		range: 0, // set in Game.equipmentUpdate based off of AttackConstants.weaponType.range or whatever might have been updated . . .
 		rangeMultiplier: 100, // (110%)
 		splashDamage: false, // use damageAllHit or pierce instead
-		moveDuringFocus: false, // whether you can move whilst charging basic  // aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa make sure this is removed acc
 	},
 	conditionalStats: [],
 
@@ -269,7 +274,6 @@ const PlayerTransformations = [
 			variance: 0, // default variance projectiles when 600px away - set to 100 by default for any archer weapons; can be overriden in itemdata
 			minimumVariance: 0, // (50) minimum variance of a fired projectile //updateeeeeeeeeeeeeeeeeee
 			focusSpeed: 6, // (1/s) archers only (speed at which the variance for archer projectiles gets smaller)
-			moveDuringFocus: true, // whether you can move whilst charging basic attack
 			looting: 150,
 			// spells
 			maxMana: 10,

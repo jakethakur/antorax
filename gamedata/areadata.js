@@ -9310,12 +9310,12 @@ Last I saw him, he was visiting the <b>Eaglecrest Plains</b> to the <b>south</b>
 			{
 				spawnLocations: [{x: 1989, y: 3168, width: 3210, height: 1700}], // central river (entrance to frog queen's base // river's blessing)
 				template: EnemyTemplates.eaglecrest.toad,
-				repeatNumber: 16,
+				repeatNumber: 18,
 			},
 			{
 				spawnLocations: [{x: -164, y: 401.6, width: 7574.4, height: 5718},], // whole map
 				template: EnemyTemplates.eaglecrest.toad,
-				repeatNumber: 26,
+				repeatNumber: 22,
 				canBeShown: function () {
 					return Player.quests.npcProgress.eaglecrest[2] >= 3; // so they don't interfere with first part of overdraft
 				},

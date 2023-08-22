@@ -1640,8 +1640,8 @@ Dom.inventory.displayIdentification = function (display) {
 	if (Player.stats.unstoppable) {
 		Dom.elements.innerStats.innerHTML += "<br>Immunity to stuns and slows";
 	}
-	if (Player.class === "a") {
-		Dom.elements.innerStats.innerHTML += "<br>Focus Speed: " + Player.stats.focusSpeed + "/s";
+	if (Player.class === "a" && Player.stats.focusSpeed !== 1) {
+		Dom.elements.innerStats.innerHTML += "<br>Focus Speed: " + (Player.stats.focusSpeed*100) + "%";
 	}
 	Dom.elements.innerStats.innerHTML += "<br>Health Regen: " + Player.stats.healthRegen + "/s";
 	if (Player.stats.lifesteal !== 0) {
@@ -1653,7 +1653,7 @@ Dom.inventory.displayIdentification = function (display) {
 	if (Player.stats.stealing !== 0) {
 		Dom.elements.innerStats.innerHTML += "<br>Stealing: " + Player.stats.stealing + "%";
 	}
-	if (Player.stats.minimumVariance !== 0) {
+	if (Player.stats.minimumVariance > 10) {
 		Dom.elements.innerStats.innerHTML += "<br>Min Projectile Variance: " + Player.stats.minimumVariance;
 	}
 	if (Player.stats.poisonX !== 0 && Player.stats.posionY !== 0) {
@@ -1721,7 +1721,10 @@ Dom.inventory.stats = function (stat, value, array) {
 	else if (stat === "Critical Chance" || stat === "Dodge Chance" || stat === "Looting" || stat === "Reflection" || stat === "Lifesteal" || stat === "Xp Bonus" || stat === "Hex" || stat === "Damage Percentage" || stat === "Stealing" || stat === "Range Multiplier" || stat === "Healing Power" || stat === "Interact Range" || stat === "Poison Strength" || stat === "Enemy Aggro") {
 		return stat+": "+NumberSign(value)+"%<br>";
 	}
-	else if (stat === "Health Regen" || stat === "Swim Speed" || stat === "Walk Speed" || stat === "Ice Speed" || stat === "Focus Speed") {
+	else if (stat === "Focus Speed") {
+		return stat+": "+NumberSign(value*100)+"%<br>";
+	}
+	else if (stat === "Health Regen" || stat === "Swim Speed" || stat === "Walk Speed" || stat === "Ice Speed") {
 		return stat+": "+NumberSign(value)+"/s<br>";
 	}
 	else if (stat === "Stun" || stat === "Rooting") {

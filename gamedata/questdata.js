@@ -2593,7 +2593,7 @@ var Quests = {
 
 			startName: "Recruiter Sylvie",
 			startChat: [{
-				text: `Hello again, ${Player.name}. It is unfortunate, but the <b>Coyote Pack Wrangler</b> has been sighted again the Plains' eastern grassy region.`,
+				text: `Hello again, ${Player.name}. It is unfortunate, but the <b>Coyote Pack Wrangler</b> has been sighted again in the Plains' eastern grassy region.`,
 			},{
 				text: `Even more unfortunate - it seems to have come with backup...`,
 			},{

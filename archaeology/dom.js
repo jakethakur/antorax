@@ -116,7 +116,10 @@ function Stats (stat, value, array) {
 	else if (stat === "Critical Chance" || stat === "Dodge Chance" || stat === "Looting" || stat === "Reflection" || stat === "Lifesteal" || stat === "Xp Bonus" || stat === "Hex" || stat === "Damage Percentage" || stat === "Stealing" || stat === "Range Multiplier" || stat === "Healing Power" || stat === "Interact Range" || stat === "Poison Strength" || stat === "Enemy Aggro") {
 		return stat+": "+NumberSign(value)+"%<br>";
 	}
-	else if (stat === "Health Regen" || stat === "Swim Speed" || stat === "Walk Speed" || stat === "Ice Speed" || stat === "Focus Speed") {
+	else if (stat === "Focus Speed") {
+		return stat+": "+NumberSign(value*100)+"%<br>";
+	}
+	else if (stat === "Health Regen" || stat === "Swim Speed" || stat === "Walk Speed" || stat === "Ice Speed") {
 		return stat+": "+NumberSign(value)+"/s<br>";
 	}
 	else if (stat === "Stun" || stat === "Rooting") {
@@ -799,7 +802,7 @@ var StatsInfo = {
 	blockDefence: "Changes the defence gained when you block (hold your right click button).",
 	criticalChance: "Changes chance of dealing double damage with an attack.",
 	dodgeChance: "Changes chance of ignoring an enemy attack.",
-	flaming: ["Error", "Makes your basic attacks flaming, meaning 1 damage is dealt every second for three seconds. On attack, this status is refreshed. Ignores defence."],
+	flaming: ["Error", "Makes your basic attacks flaming, meaning 1 damage is dealt every second for 3 seconds. On attack, this status is refreshed. Ignores defence.", "Makes your basic attacks flaming, meaning 2 damage is dealt every second for 4 seconds. On attack, this status is refreshed. Ignores defence."],
 	poisonX: "Deals bonus damage to the enemy over a time period in seconds. This ability can stack. Ignores defence.",
 	reflection: "Changes the amount of damage dealt back to enemies when you are attacked, as a percentage of the damage dealt to you. Doesn't reflect status effects.",
 	stun: "Changes the amount of time (in seconds) that you stun an enemy for after attacking it. When stunned, an enemy cannot move, attack, cast or channel. The enemy continues to regen.",
