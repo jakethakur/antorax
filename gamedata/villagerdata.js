@@ -312,95 +312,66 @@ var Villagers = [
     {
         id: 12,
         images: {
-            cat1Left: {normal: "assets/npcs/cat1.png"},
-            cat1Right: {normal: "assets/npcs/cat1.png", flip: "vertical"},
+            catTabbyLeft: {normal: "assets/npcs/catTabbyLeft.png"},
+            catTabbyRight: {normal: "assets/npcs/catTabbyLeft.png", flip: "vertical"},
         },
         rotationImages: {
-            left: "cat1Left",
-            right: "cat1Right"
+            left: "catTabbyLeft",
+            right: "catTabbyRight"
         },
-        name: "Cat",
-        showNameTag: false,
-        areas: [
-            "eaglecrest",
-            "eaglecrestEast",
-            "eaglecrestWest",
-            "eaglecrestGraveyard",
-            "eaglecrestElixirs",
-            "eaglecrestPlains",
-        ],
+		animation: {
+			type: "spritesheet",
+			frameTime: 30,
+			imagesPerRow: 3,
+			totalImages: 3,
+			animateBasis: "walk"
+		},
+        name: "Bruno",
         roles: [],
         speciesTemplate: SpeciesTemplates.cat,
     },
     {
         id: 13,
         images: {
-            cat2Left: {normal: "assets/npcs/cat2.png"},
-            cat2Right: {normal: "assets/npcs/cat2.png", flip: "vertical"},
+            catTigerLeft: {normal: "assets/npcs/catTigerLeft.png"},
+            catTigerRight: {normal: "assets/npcs/catTigerLeft.png", flip: "vertical"},
         },
         rotationImages: {
-            left: "cat2Left",
-            right: "cat2Right"
+            left: "catTigerLeft",
+            right: "catTigerRight"
         },
-        name: "Cat",
-        showNameTag: false,
-        areas: [
-            "eaglecrest",
-            "eaglecrestEast",
-            "eaglecrestWest",
-            "eaglecrestGraveyard",
-            "eaglecrestElixirs",
-            "eaglecrestPlains",
-        ],
+		animation: {
+			type: "spritesheet",
+			frameTime: 30,
+			imagesPerRow: 3,
+			totalImages: 3,
+			animateBasis: "walk"
+		},
+        name: "Tiger Cat",
         roles: [],
         speciesTemplate: SpeciesTemplates.cat,
     },
     {
         id: 14,
         images: {
-            cat3Left: {normal: "assets/npcs/cat3.png"},
-            cat3Right: {normal: "assets/npcs/cat3.png", flip: "vertical"},
+            catCowLeft: {normal: "assets/npcs/cat3.png"},
+            catCowRight: {normal: "assets/npcs/cat3.png", flip: "vertical"},
         },
         rotationImages: {
-            left: "cat3Left",
-            right: "cat3Right"
+            left: "catCowLeft",
+            right: "catCowRight"
         },
-        name: "Cat",
-        showNameTag: false,
-        areas: [
-            "eaglecrest",
-            "eaglecrestEast",
-            "eaglecrestWest",
-            "eaglecrestGraveyard",
-            "eaglecrestElixirs",
-            "eaglecrestPlains",
-        ],
+		animation: {
+			type: "spritesheet",
+			frameTime: 30,
+			imagesPerRow: 3,
+			totalImages: 3,
+			animateBasis: "walk"
+		},
+        name: "Cow Cat",
         roles: [],
         speciesTemplate: SpeciesTemplates.cat,
     },
-    /*{
-        id: 15,
-        images: {
-            cat4Left: {normal: "assets/npcs/cat4.png"},
-            cat4Right: {normal: "assets/npcs/cat4.png", flip: "vertical"},
-        },
-        rotationImages: {
-            left: "cat4Left",
-            right: "cat4Right"
-        },
-        name: "Cat",
-        showNameTag: false,
-        areas: [
-            "eaglecrest",
-            "eaglecrestEast",
-            "eaglecrestWest",
-            "eaglecrestGraveyard",
-            "eaglecrestElixirs",
-        ],
-		rarity: 20, // ie 20 times less common (doesn't acc work yet)
-        roles: [],
-        speciesTemplate: SpeciesTemplates.cat,
-    },*/
 	{
         id: 15,
         images: {alysLoreworth: {normal: "assets/npcs/alysLoreworth.png"}},
@@ -1054,4 +1025,220 @@ var Villagers = [
 			images: ["fishTankFront", "fishTankSide"],
 		},
 	},
+    {
+        id: 27,
+        images: {
+            catOcelotLeft: {normal: "assets/npcs/catOcelotLeft.png"},
+            catOcelotRight: {normal: "assets/npcs/catOcelotLeft.png", flip: "vertical"},
+        },
+        rotationImages: {
+            left: "catOcelotLeft",
+            right: "catOcelotRight"
+        },
+		animation: {
+			type: "spritesheet",
+			frameTime: 30,
+			imagesPerRow: 3,
+			totalImages: 3,
+			animateBasis: "walk"
+		},
+		crop: {
+			x: 3,
+			y: 1,
+			width: 88,
+			height: 79,
+		},
+        name: "Ozzy",
+        roles: [],
+        speciesTemplate: SpeciesTemplates.cat,
+    },
+    {
+        id: 28,
+        images: { // tbd make observatory cat ??
+            catBlueLeft: {normal: "assets/npcs/catBlueLeft.png"},
+            catBlueRight: {normal: "assets/npcs/catBlueLeft.png", flip: "vertical"},
+        },
+        rotationImages: {
+            left: "catBlueLeft",
+            right: "catBlueRight"
+        },
+		animation: {
+			type: "spritesheet",
+			frameTime: 30,
+			imagesPerRow: 3,
+			totalImages: 3,
+			animateBasis: "walk"
+		},
+		crop: {
+			x: 3,
+			y: 1,
+			width: 88,
+			height: 79,
+		},
+        name: "Luna",
+        roles: [],
+        speciesTemplate: SpeciesTemplates.cat,
+    },
+    {
+        id: 29,
+        images: { // jamie's cat
+            catThorLeft: {normal: "assets/npcs/catCowLeft.png"},// tbd needs its own art !!!!
+            catThorRight: {normal: "assets/npcs/catCowLeft.png", flip: "vertical"},
+        },
+        rotationImages: {
+            left: "catThorLeft",
+            right: "catThorRight"
+        },
+		animation: {
+			type: "spritesheet",
+			frameTime: 30,
+			imagesPerRow: 3,
+			totalImages: 3,
+			animateBasis: "walk"
+		},
+		crop: {
+			x: 3,
+			y: 1,
+			width: 88,
+			height: 79,
+		},
+        name: "Thor",
+        roles: [],
+        speciesTemplate: SpeciesTemplates.cat,
+    },
+    {
+        id: 30,
+        images: { // jamie's cat
+            catLokiLeft: {normal: "assets/npcs/catLokiLeft.png"},
+            catLokiRight: {normal: "assets/npcs/catLokiLeft.png", flip: "vertical"},
+        },
+        rotationImages: {
+            left: "catLokiLeft",
+            right: "catLokiRight"
+        },
+		animation: {
+			type: "spritesheet",
+			frameTime: 30,
+			imagesPerRow: 3,
+			totalImages: 3,
+			animateBasis: "walk"
+		},
+		crop: {
+			x: 3,
+			y: 1,
+			width: 88,
+			height: 79,
+		},
+        name: "Loki",
+        roles: [],
+        speciesTemplate: SpeciesTemplates.cat,
+    },
+    {
+        id: 31,
+        images: {
+            catObsidianLeft: {normal: "assets/npcs/catObsidianLeft.png"},
+            catObsidianRight: {normal: "assets/npcs/catObsidianLeft.png", flip: "vertical"},
+        },
+        rotationImages: {
+            left: "catObsidianLeft",
+            right: "catObsidianRight"
+        },
+		animation: {
+			type: "spritesheet",
+			frameTime: 30,
+			imagesPerRow: 3,
+			totalImages: 3,
+			animateBasis: "walk"
+		},
+		crop: {
+			x: 3,
+			y: 1,
+			width: 88,
+			height: 79,
+		},
+        name: "Hebes",
+        roles: [],
+        speciesTemplate: SpeciesTemplates.cat,
+    },
+    {
+        id: 32,
+        images: { // alex's cat
+            catSnowyLeft: {normal: "assets/npcs/catSnowyLeft.png"},
+            catSnowyRight: {normal: "assets/npcs/catSnowyLeft.png", flip: "vertical"},
+        },
+        rotationImages: {
+            left: "catSnowyLeft",
+            right: "catSnowyRight"
+        },
+		animation: {
+			type: "spritesheet",
+			frameTime: 30,
+			imagesPerRow: 3,
+			totalImages: 3,
+			animateBasis: "walk"
+		},
+		crop: {
+			x: 3,
+			y: 1,
+			width: 88,
+			height: 79,
+		},
+        name: "Snowy",
+        roles: [],
+        speciesTemplate: SpeciesTemplates.cat,
+    },
+    {
+        id: 33,
+        images: {
+            catSphynxLeft: {normal: "assets/npcs/catSphynxLeft.png"},
+            catSphynxRight: {normal: "assets/npcs/catSphynxLeft.png", flip: "vertical"},
+        },
+        rotationImages: {
+            left: "catSphynxLeft",
+            right: "catSphynxRight"
+        },
+		animation: {
+			type: "spritesheet",
+			frameTime: 30,
+			imagesPerRow: 3,
+			totalImages: 3,
+			animateBasis: "walk"
+		},
+		crop: {
+			x: 3,
+			y: 1,
+			width: 88,
+			height: 79,
+		},
+        name: "Zig",
+        roles: [],
+        speciesTemplate: SpeciesTemplates.cat,
+    },
+    {
+        id: 34,
+        images: {
+            catWitchLeft: {normal: "assets/npcs/catWitchLeft.png"},
+            catWitchRight: {normal: "assets/npcs/catWitchLeft.png", flip: "vertical"},
+        },
+        rotationImages: {
+            left: "catWitchLeft",
+            right: "catWitchRight"
+        },
+		animation: {
+			type: "spritesheet",
+			frameTime: 30,
+			imagesPerRow: 3,
+			totalImages: 3,
+			animateBasis: "walk"
+		},
+		crop: {
+			x: 1,
+			y: 0,
+			width: 104,
+			height: 108,
+		},
+        name: "Witchy",
+        roles: [],
+        speciesTemplate: SpeciesTemplates.cat,
+    },
 ];

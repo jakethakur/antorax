@@ -1749,6 +1749,8 @@ class Thing extends Visible {
 
 		this.bright = properties.bright; // currently does nothing
 
+		this.totalDistanceWalked = 0; // in px
+
 		//
 		// animation
 		//
@@ -1906,6 +1908,7 @@ class Thing extends Visible {
 		this.animation = properties; // this should be an object with the following properties:
 		// "type" which should be either "carousel" (separate images used) or "spritesheet" (all images on one spritesheet) or "function" (no extra properties required besides frameTime; just has a function called every frameTime)
 		// "frameTime" is the time in ms until the next animation frame
+		// "animateBasis" defaults to "time", but can be set to "walk" where milliseconds of time passed is replaced with px walked by character
 		// in addition, "carousel" type needs an animation.images array
 		// .. and "spritesheet" type needs an imagesPerRow and totalImages property. the border width (if any) between the images is figured out from the current object.crop properties
 		// also, animation.state is set to the index of the current image, animation.animateObj is set to this, and animation.lastAnimated is set to the time in ms since it was last animated
@@ -1915,6 +1918,10 @@ class Thing extends Visible {
 		if (typeof this.animation !== "undefined" && this.animation.type !== "carousel" && this.animation.type !== "spritesheet" && this.animation.type !== "function") {
 			console.error("Unknown animation.type for "+this.name, this.animation);
 			this.animation = undefined;
+		}
+		// input validation for animation.animateBasis:
+		if (typeof this.animation !== "undefined" && this.animation.animateBasis !== "time" && this.animation.animateBasis !== "walk") {
+			this.animation.animateBasis = "time";
 		}
 
 		if (typeof this.animation !== "undefined") {
@@ -2006,7 +2013,9 @@ class Character extends Thing {
 		this.species = properties.species; // "human", "goblin", "orc", etc.
 		this.subSpecies = properties.subSpecies; // "nilbog goblin", "fire orc", etc.
 
-		this.hostility = properties.hostility; // used for name colour
+		this.hostility = properties.hostility; // used for name colour and base aggro against hero
+
+		this.createdByPlayer = properties.createdByPlayer; // player and player's summons have this as true for damagedByHero
 
 		this.association = properties.association; // used e.g. by coyotes (set to "coyotePack") to see which are in a pack and should be healed by wrangler
 
@@ -2071,6 +2080,7 @@ class Character extends Thing {
 		this.onDeath = properties.onDeath;
 		this.onDeathAdditional = properties.onDeathAdditional; // so that we can have an ondeath from the speciestemplate and from areadata for example
 		// onDeathAdditional doesn't require damage to be dealt by hero, but onDeath does!!!
+
 
 		this.chat = properties.chat || {}; // object containing properties that are inserted into chat when specific things happen
 		/* examples of chat properties:
@@ -3013,7 +3023,7 @@ class Character extends Thing {
 
 			// if channelling but can move during this channelling (i.e. player attacks), then speed might be reduced...
 			if (this.channelling !== false) {
-				this.speed *= AttackConstants[Player.class].baseChannellingMoveSpeed this.stats.channellingMoveSpeed / 10000; // both values are percentages
+				this.speed *= AttackConstants[Player.class].baseChannellingMoveSpeed * this.stats.channellingMoveSpeed / 10000; // both values are percentages
 
 				if (this.channelling === "projectile") {
 					// move the projectile with the player
@@ -3266,7 +3276,7 @@ class Attacker extends Character {
 		// base attack
 		this.projectileType = properties.projectileType; // "snake" or "travelling" or "instant" (automatically determined from range but can be specified)
 		if (typeof this.projectileType === "undefined") {
-			if (this.stats.range < 100) {
+			if (this.stats.range <= 120) {
 				// melee range so assumed instant projectile
 				this.projectileType = "instant";
 			}
@@ -3510,6 +3520,8 @@ class Hero extends Attacker {
 	constructor (properties) {
 		super(properties);
 
+		this.createdByPlayer = true; // player and player's summons have this as true for damagedByHero
+
 		// perhaps condense channelling with enemy's canAttack?
 		this.channelTime = 0;
 
@@ -3743,6 +3755,7 @@ class Hero extends Attacker {
 					// player is using conventional weapon
 
 					this.canAttack = false;
+					this.channellingProjectileType = "projectiles"; // default
 
 					this.removeChannelling("attack"); // remove anything that was previously channelling
 
@@ -3750,14 +3763,13 @@ class Hero extends Attacker {
 
 					let projectileDirection = Game.bearing(this, {x: mouseX, y: mouseY}); // movement
 
-					if (weaponType === "staff" || weaponType === "bow" || (weaponType === "sword" && distanceToMouse >= this.stats.meleeRange)) {
+					if (weaponType === "staff" || weaponType === "bow") {
 						// moving projectile
 
 						this.channellingProjectileId = Game.nextEntityId;
 
 						let hitboxSize = 0;
 						let projectileName = "";
-						let knightChargeAttack = false;
 						let imageName = "";
 						if (weaponType === "staff") {
 							hitboxSize = 23;
@@ -3768,12 +3780,6 @@ class Hero extends Attacker {
 							hitboxSize = 10;
 							projectileName = "Arrow Attack";
 							imageName = Game.heroProjectileName;
-						}
-						else if (weaponType === "sword") {
-							hitboxSize = 10;
-							projectileName = "Charge Attack";
-							knightChargeAttack = true;
-							imageName = "melee";
 						}
 
 						Game.projectiles.push(new Projectile({ // HERO projectile
@@ -3805,7 +3811,6 @@ class Hero extends Attacker {
 							moveDirection: projectileDirection,
 							variance: this.stats.variance,
 							damageAllHit: this.stats.damageAllHit, // usually true
-							knightChargeAttack: knightChargeAttack,
 
 							// optional stuff:
 							// aaaaaaaaaaaaa look at ; might need to fix some of these
@@ -3862,6 +3867,88 @@ class Hero extends Attacker {
 
 						// finish attack instantly
 						this.finishAttack(e);
+					}
+					else if (weaponType === "sword" && distanceToMouse >= this.stats.meleeRange) {
+						// knight summoned projectile (moving)
+						if (typeof this.summonsActive === "undefined") {
+							this.summonsActive = 0;
+						}
+
+						if (this.summonsActive < AttackConstants.sword.maxSummons) {
+							this.summonsActive++;
+
+							this.channellingProjectileId = Game.nextEntityId;
+							this.channellingProjectileType = "nonPlayerAttackers";
+
+							let x = this.x + AttackConstants.sword.summonDistance * Math.cos(projectileDirection);
+							let y = this.y + AttackConstants.sword.summonDistance * Math.sin(projectileDirection);
+
+							Game.nonPlayerAttackers.push(new NonPlayerAttacker({ // HERO knight summon
+								map: map,
+								type: "nonPlayerAttackers",
+
+								x: x,
+								y: y,
+								hitbox: {
+									x: x,
+									y: y,
+									width: 30,
+									height: 80, // vals tbc
+								},
+
+								crop: {
+									x: 0,
+									y: 0,
+									width: 50,
+									height: 100
+								},
+								rotationImages: {
+									up: "knightMinionBack",
+									down: "knightMinionFront",
+									left: "knightMinionLeft",
+									right: "knightMinionRight",
+								},
+
+								name: "Ally",
+								hostility: "friendly",
+								level: this.level,
+								createdByPlayer: true,
+
+								stats: {
+									damage: this.stats.damage,
+									walkSpeed: 120,
+									swimSpeed: 40,
+									iceSpeed: 180,
+									maxHealth: 10,
+									defence: 0,
+									range: AttackConstants.sword.summonMeleeRange,
+									reloadTime: AttackConstants.sword.summonReloadTime,
+									healthRegen: 0,
+								},
+
+								attackAllEnemies: true,
+								projectile: {
+									image: Game.heroProjectileName,
+								},
+
+								onDeath: function () {
+									this.summonsActive--;
+								},
+								corpseOnDeath: false,
+								respawnOnDeath: false,
+
+								animation: {
+									type: "spritesheet",
+									frameTime: 30,
+									imagesPerRow: 3,
+									totalImages: 5,
+									animateBasis: "walk"
+								},
+							}));
+
+							// finish attack instantly
+							this.finishAttack(e);
+						}
 					}
 					else {
 						// tbd... but for now do nothing
@@ -4261,9 +4348,15 @@ class Hero extends Attacker {
 			this.removeChannelling("projectileAttackFinished");
 
 			// get projectile
-			let shotProjectile = Game.projectiles[Game.searchFor(this.channellingProjectileId, Game.projectiles)];
+			let shotProjectile = Game[this.channellingProjectileType][Game.searchFor(this.channellingProjectileId, Game[this.channellingProjectileType])];
 
-			if (shotProjectile.knightChargeAttack && shotProjectile.movementRange < AttackConstants.sword.channelMinDistance) {
+			if (this.channellingProjectileType === "nonPlayerAttackers" || typeof shotProjectile === "undefined") {
+				// a summon or a failed attack
+				this.canAttack = true;
+				// add back crosshair to cursor (if mouse is in range)
+				Game.secondary.updateCursor();
+			}
+			else if (shotProjectile.knightChargeAttack && shotProjectile.movementRange < AttackConstants.sword.channelMinDistance) {
 				// not channelled for long enough - cancel
 
 				Game.removeObject(shotProjectile.id, shotProjectile.type);
@@ -4368,6 +4461,7 @@ class Hero extends Attacker {
 			}
 
 			this.channellingProjectileId = null;
+			this.channellingProjectileType = null;
 		}
 	}
 
@@ -5128,7 +5222,7 @@ class Projectile extends Thing {
 						}
 
 						// deal the damage!
-						target.takeDamage(dmgDealt, attacker.constructor.name === "Hero", this.successiveExplosions); // third param is just for an achivement to do with exploding
+						target.takeDamage(dmgDealt, attacker.createdByPlayer, this.successiveExplosions); // third param is just for an achivement to do with exploding
 						this.damageDealt.push({enemy: target, damage: dmgDealt, critical: critical});
 
 						// check they still exist
@@ -5154,7 +5248,7 @@ class Projectile extends Thing {
 							// reflection
 							if (target.stats.reflection > 0) { // check if target has reflection
 								if (typeof attacker.takeDamage !== "undefined") {
-									attacker.takeDamage(dmgDealt * (target.stats.reflection / 100), target.constructor.name === "Hero");
+									attacker.takeDamage(dmgDealt * (target.stats.reflection / 100), target.createdByPlayer);
 								}
 							}
 
@@ -5482,7 +5576,7 @@ class Mount extends Character {
 					width: this.baseWidth,
 					height: this.baseHeight
 				}
-			}
+			}ppppppppppppppppppppp
 
 			// hero bobbing
 			if (this.state % 8 < 4) {
@@ -5672,6 +5766,9 @@ class Villager extends NPC {
 
 		// update foot hitbox position (required here because it doesn't collide)
 		this.updateFootHitbox();
+
+		// for some animations
+		this.totalDistanceWalked += Math.sqrt((dirx * this.speed * delta)*(dirx * this.speed * delta) + (diry * this.speed * delta)*(diry * this.speed * delta))
 	}
 
 	// check if movement should be stopped (x or y are in range to nearest 10)
@@ -5698,81 +5795,11 @@ class Dummy extends Character {
 	}
 }
 
-// moves and attacks in a hostile way...
-class Enemy extends Attacker {
+// moves and attacks, but not necessarily against player
+// type nonPlayerAttackers are generally for friendly attackers
+class NonPlayerAttacker extends Attacker {
 	constructor(properties) {
 		super(properties);
-
-		if (!this.damageableByPlayer && properties.addToObjectArrays !== false) {
-			// damageableByPlayer hasn't already been set to true (manually through properties)
-			// ie hasn't yet been added to the array
-			Game.damageableByPlayer.push(this);
-		}
-		this.damageableByPlayer = true; // all enemies are damageable by player
-		// tbd make it so this isn't necessarily the case , i.e. for farm animals (probs by another property which can easily be switched to true or false so doesn't need to remove things from arrays etc)
-
-		// lootTable: an array of objects for each loot item - these objects contain the item ("item") and chances of looting them ("chance")
-		// if properties.lootTableTemplate is an array of lootTables (more than one template), merge them
-		let lootTableTemplate = [];
-		if (properties.lootTableTemplate !== undefined) {
-			for (let i = 0; i < properties.lootTableTemplate.length; i++) {
-				lootTableTemplate = lootTableTemplate.concat(properties.lootTableTemplate[i]);
-
-				// validation
-				if (typeof properties.lootTableTemplate[i] === "undefined") {
-					console.error(this.name + " has undefined loot table template at index " + i + ".")
-				}
-			}
-		}
-		// merge the arrays properties.lootTable and properties.lootTableTemplate
-		if (properties.lootTable !== undefined) {
-			this.lootTable = properties.lootTable.concat(lootTableTemplate);
-		}
-		else {
-			this.lootTable = lootTableTemplate;
-		}
-		// merge the loot table with the global loot table as well
-		if (this.hostility === "hostile") {
-			this.lootTable = this.lootTable.concat(EnemyLootTables.global);
-		}
-		else if (this.hostility === "boss") {
-			this.lootTable = this.lootTable.concat(BossLootTables.global);
-		}
-		// see generateLoot() function in Enemy for how the lootTable works
-
-		this.xpGiven = properties.xpGiven || 0;
-
-		this.inventorySpace = properties.inventorySpace;
-
-		// set when the enemy dies
-		this.loot = null; // loot that can be picked up by player (null if the player cannot loot the enemy or already has)
-		// loot is an array of objects, where the object has properties item and quantity
-
-		// boss stuff
-		if (this.hostility === "boss") {
-			this.bossKilledVariable = properties.bossKilledVariable; // set to date killed to check it hasn't been killed today
-			// validation
-			if (typeof this.bossKilledVariable === "undefined") {
-				console.error("No bossKilledVariable for " + this.name);
-			}
-			// set the variable if it has not been set before
-			if (Player.bossesKilled[this.bossKilledVariable] === undefined) {
-				Player.bossesKilled[this.bossKilledVariable] = 0;
-			}
-		}
-
-
-		// blood moon modifiers
-		if (Event.time === "bloodMoon") {
-			// respawn faster
-			this.stats.lootTime /= 2;
-			this.stats.respawnTime /= 2;
-			// double health and damage
-			this.stats.maxHealth *= 2;
-			this.health = this.stats.maxHealth;
-			this.stats.damage *= 2;
-		}
-
 
 		// behaviour functions
 		// used for special behaviour in update()
@@ -5796,57 +5823,29 @@ class Enemy extends Attacker {
 
 		this.noCollision = properties.attackBehaviour.noCollision || false; // don't collide with anything
 
-		this.attackTargets = [];
-		let heroBaseAggro;
-		if (typeof properties.attackBehaviour.baseAggro !== "undefined") {
-			heroBaseAggro = properties.attackBehaviour.baseAggro;
-		}
-		else if (this.hostility === "neutral") {
-			heroBaseAggro = 0;
-		}
-		else {
-			heroBaseAggro = 3.5;
-		}
-		heroBaseAggro *= Game.hero.stats.enemyAggro / 100;
-		// hero is always a target
-		this.attackTargets.push({
-			target: Game.hero,
-			aggro: 0, // increases by the percentage of health dealt to character (10% dealt -> aggro increased by 1)
-			baseAggro: heroBaseAggro, // added to aggro, constant value (this is effectively a leashradius of 350 pixels, increased by aggro)
-			lastAttacked: undefined, // the time in ms since this character was last attacked. if it was longer ago than forgivenessTime, then the aggro halves each second
-		});
-		// 100(aggro+baseAggro)/distance is used to decide whether it is worth them attacking each target (above their attackThreshold)
-		// 1 aggro is effectively 100 leash radius
+
+		this.stats.doesNotAttack = properties.stats.doesNotAttack;
+
+
+		//
+		// aggro
+		//
+
+		this.attackTargets = []; // for format of this and how aggro works , see the comments at the bottom of the Enemy constructor
+
+		this.baseAggro = properties.attackBehaviour.baseAggro || 3.5;
 
 		this.forgivenessTime = properties.attackBehaviour.forgivenessTime || 4000; // if this is negative then they never forgive you (:
-		this.forgivenessRate = properties
 		this.attackThreshold = properties.attackBehaviour.attackThreshold || 1; // aggro-distance quotients below this aren't attacked
 
-		if (typeof properties.attackTargets !== "undefined") {
-			// for anything they should target other than hero
-			for (let i = 0; i < properties.attackTargets.length; i++) {
-				let target = properties.attackTargets[i].target();
-				if (typeof target !== "undefined" && target !== false) {
-					let targetBaseAggro = properties.attackTargets[i].baseAggro || properties.attackBehaviour.baseAggro || 0;
-					targetBaseAggro *= target.stats.enemyAggro / 100;
-					this.attackTargets.push({
-						target: target,
-						aggro: 0,
-						baseAggro: targetBaseAggro,
-						requirement: properties.attackTargets[i].requirement // this is a dynamic requirement that is checked every tick. for a requirement that is just checked on area load, put this in .target
-					});
-				}
-			}
-		}
+		this.jointAggro = properties.jointAggro; // function that returns *array* of characters which also gain aggro when this is attacked
 
-		this.jointAggro = properties.jointAggro; // function that returns *array* of enemies which also gain aggro when this is attacked
-
-		// make array of targets that should be damaged by each projectile, from attackTargets
-		this.canDamage = this.attackTargets.map(target => target.target);
+		this.attackTargetTypes = properties.attackTargetTypes || []; // properties are the array names that targets are found in OR the actual objects to be targeted themselves (or a mix)
+		// for enemies, this is Game.hero and "nonPlayerAttackers" by default
 	}
 
-	// we are in enemy class - this is called every time update is called
-	update (delta) { // ENEMY update
+	// we are in NonPlayerAttacker class - this is called every time update is called
+	update (delta) { // NONPLAYERATTACKER update
 		// update aggros
 		for (let i = 0; i < this.attackTargets.length; i++) {
 			let target = this.attackTargets[i];
@@ -5955,7 +5954,7 @@ class Enemy extends Attacker {
 
 							// enemy should attack target
 							// canAttack is inside if statement because otherwise the enemy moves when it is in range but cannot attack
-							if (this.canAttack && attackTarget) { // projectile can be shot
+							if (this.canAttack && !this.stats.doesNotAttack && attackTarget) { // projectile can be shot
 								// even though projectile is aimed at target, it can hit all enemies in attackTarget
 								this.shoot([this.canDamage], target);
 							}
@@ -6129,7 +6128,6 @@ class Enemy extends Attacker {
 
 		// after a timeout (2s), remove the projectile that was just shot
 		// taken from Player
-		//shotProjectile.startRemoveTimeout();//aaaaaaaaaaaaaaaaaaaaaaa
 		this.channellingProjectileId = null;
 	}
 
@@ -6180,6 +6178,108 @@ class Enemy extends Attacker {
 				return true;
 			}
 		}
+	}
+}
+
+// moves and attacks in a hostile way...
+// so has lootTable, damageableByPlayer, xpGiven, etc.
+class Enemy extends NonPlayerAttacker {
+	constructor(properties) {
+		super(properties);
+
+		if (!this.damageableByPlayer && properties.addToObjectArrays !== false) {
+			// damageableByPlayer hasn't already been set to true (manually through properties)
+			// ie hasn't yet been added to the array
+			Game.damageableByPlayer.push(this);
+		}
+		this.damageableByPlayer = true; // all enemies are damageable by player
+
+		// lootTable: an array of objects for each loot item - these objects contain the item ("item") and chances of looting them ("chance")
+		// if properties.lootTableTemplate is an array of lootTables (more than one template), merge them
+		let lootTableTemplate = [];
+		if (properties.lootTableTemplate !== undefined) {
+			for (let i = 0; i < properties.lootTableTemplate.length; i++) {
+				lootTableTemplate = lootTableTemplate.concat(properties.lootTableTemplate[i]);
+
+				// validation
+				if (typeof properties.lootTableTemplate[i] === "undefined") {
+					console.error(this.name + " has undefined loot table template at index " + i + ".")
+				}
+			}
+		}
+		// merge the arrays properties.lootTable and properties.lootTableTemplate
+		if (properties.lootTable !== undefined) {
+			this.lootTable = properties.lootTable.concat(lootTableTemplate);
+		}
+		else {
+			this.lootTable = lootTableTemplate;
+		}
+		// merge the loot table with the global loot table as well
+		if (this.hostility === "hostile") {
+			this.lootTable = this.lootTable.concat(EnemyLootTables.global);
+		}
+		else if (this.hostility === "boss") {
+			this.lootTable = this.lootTable.concat(BossLootTables.global);
+		}
+		// see generateLoot() function in Enemy for how the lootTable works
+
+		this.xpGiven = properties.xpGiven || 0;
+
+		this.inventorySpace = properties.inventorySpace;
+
+		// set when the enemy dies
+		this.loot = null; // loot that can be picked up by player (null if the player cannot loot the enemy or already has)
+		// loot is an array of objects, where the object has properties item and quantity
+
+		// boss stuff
+		if (this.hostility === "boss") {
+			this.bossKilledVariable = properties.bossKilledVariable; // set to date killed to check it hasn't been killed today
+			// validation
+			if (typeof this.bossKilledVariable === "undefined") {
+				console.error("No bossKilledVariable for " + this.name);
+			}
+			// set the variable if it has not been set before
+			if (Player.bossesKilled[this.bossKilledVariable] === undefined) {
+				Player.bossesKilled[this.bossKilledVariable] = 0;
+			}
+		}
+
+
+		// blood moon modifiers
+		if (Event.time === "bloodMoon") {
+			// respawn faster
+			this.stats.lootTime /= 2;
+			this.stats.respawnTime /= 2;
+			// double health and damage
+			this.stats.maxHealth *= 2;
+			this.health = this.stats.maxHealth;
+			this.stats.damage *= 2;
+		}
+
+
+		//
+		// combat behaviour against heroes - added on from NonPlayerAttacker class
+		//
+		let heroBaseAggro;
+		if (typeof properties.attackBehaviour.baseAggro !== "undefined") {
+			heroBaseAggro = properties.attackBehaviour.baseAggro;
+		}
+		else if (this.hostility === "neutral") {
+			heroBaseAggro = 0;
+		}
+		else {
+			heroBaseAggro = 3.5;
+		}
+		heroBaseAggro *= Game.hero.stats.enemyAggro / 100;
+		// hero is always a target
+		this.attackTargets.push({
+			target: Game.hero,
+			aggro: 0, // increases by the percentage of health dealt to character (10% dealt -> aggro increased by 1)
+			baseAggro: heroBaseAggro, // added to aggro, constant value (this is effectively a leashradius of 350 pixels, increased by aggro)
+			lastAttacked: undefined, // the time in ms since this character was last attacked. if it was longer ago than forgivenessTime, then the aggro halves each second
+		});
+		// 100(aggro+baseAggro)/distance is used to decide whether it is worth them attacking each target (above their attackThreshold)
+		// 1 aggro is effectively 100 leash radius
 	}
 
 	// generate loot from lootTable (called when enemy dies or a chest is added)
@@ -6948,7 +7048,7 @@ Game.statusEffects.fire = function(properties) {
 				newProperties.increasePropertyValue = 1; // fireDamagePerSecond
 				newProperties.time = 3;
 			}
-			else if {
+			else if (newProperties.tier === "II") {
 				newProperties.increasePropertyValue = 2; // fireDamagePerSecond
 				newProperties.time = 4;
 			}
@@ -7908,6 +8008,14 @@ Game.loadDefaultImages = function () {
 		toLoad.push(Loader.loadImage("fireBarrage", "./assets/projectiles/fireBarrage.png", false));
 	}
 
+	// knight summon images
+	if (Player.class === "k") {
+		toLoad.push(Loader.loadImage("knightMinionFront", "./assets/projectiles/knightMinionFront.png", false));
+		toLoad.push(Loader.loadImage("knightMinionBack", "./assets/projectiles/knightMinionBack.png", false));
+		toLoad.push(Loader.loadImage("knightMinionRight", "./assets/projectiles/knightMinionRight.png", false));
+		toLoad.push(Loader.loadImage("knightMinionLeft", "./assets/projectiles/knightMinionRight.png", false, "vertical"));
+	}
+
 	toLoad.push(Loader.loadImage("brownHorseRight", "./assets/mounts/brownHorse/brownHorseSide.png", false));
 	toLoad.push(Loader.loadImage("brownHorseLeft", "./assets/mounts/brownHorse/brownHorseSide.png", false, "vertical"));
 	toLoad.push(Loader.loadImage("brownHorseFront", "./assets/mounts/brownHorse/brownHorseFront.png", false));
@@ -8165,6 +8273,7 @@ Game.loadArea = function (areaName, destination) {
 			combatAreas: CombatArea,
 			mounts: Mount,
 			shapes: Shape,
+			nonPlayerAttackers: NonPlayerAttacker,
 		};
 
 		// list of objects to be animated (with a .animation object - see Thing constructor for a breakdown of this object's properties)
@@ -8323,9 +8432,6 @@ Game.loadArea = function (areaName, destination) {
 		            let tile = map.getTile(layer, c, r); // tile number
 
 		            if (tile !== 0 && (map.objectTiles.includes(tile) || map.objectTiles.includes(-tile))) { // 0 is empty tile
-						if (tile < 0) {
-							tile = -tile;
-						}
 
 						// draw position
 						let x = Math.round((c) * map.tsize) + 30 - map.origin.x;
@@ -9260,6 +9366,21 @@ Game.generateVillagers = function (data, areaName) {
 	// vary seed based on area as well
 	seed += Areas[areaName].id/3;
 
+	// incorporate villager areas from their templates
+	for (let i = 0; i < Villagers.length; i++) {
+		if (typeof Villagers[i].areas === "undefined") {
+			if (typeof Villagers[i].template !== "undefined") {
+				Villagers[i].areas = Villagers[i].template.areas;
+			}
+		}
+
+		if (typeof Villagers[i].areas === "undefined") {
+			if (typeof Villagers[i].speciesTemplate !== "undefined") {
+				Villagers[i].areas = Villagers[i].speciesTemplate.areas;
+			}
+		}
+	}
+
 	// find possible villagers for the area (and based on their canBeShown condition)
 	let possibleVillagers = Villagers.filter(villager => {
 		return ((villager.areas !== undefined && villager.areas.includes(areaName)) ||
@@ -10112,6 +10233,16 @@ Game.update = function (delta) {
 		}
 	}
 
+	// update non player attackers
+	for (let i = 0; i < this.nonPlayerAttackers.length; i++) {
+		let attacker = this.nonPlayerAttackers[i];
+
+		if (!attacker.respawning && !attacker.isCorpse) { // check enemy is not dead
+			attacker.update(delta);
+		}
+	}
+
+
 	// update enemies
 	let lootingRoleCreated = false; // whether or not the looting choose dom has been created yet
 	for (let i = 0; i < this.enemies.length; i++) {
@@ -10598,10 +10729,25 @@ Game.update = function (delta) {
 	this.totalAnimationTime += delta * 1000;
 	if (!this.loadingArea) {
 		for (let i = 0; i < this.animationList.length; i++) {
-			if (this.animationList[i].animation.lastAnimated + this.animationList[i].animation.frameTime <= this.totalAnimationTime) {
+			let nextFrame = false; // whether next frame is ready to be animated
+
+			let object = this.animationList[i];
+			let animate = object.animation;
+
+			if (animate.animateBasis === "time" && animate.lastAnimated + animate.frameTime <= this.totalAnimationTime) {
+				nextFrame = true;
+				animate.lastAnimated = this.totalAnimationTime;
+			}
+			else if (animate.animateBasis === "walk" && animate.lastAnimated + animate.frameTime <= object.totalDistanceWalked) { // "walk" means that anything that did count milliseconds of time passed now counts pixels walked
+				nextFrame = true;
+				animate.lastAnimated = object.totalDistanceWalked;
+			}
+			else if (typeof animate.animateBasis === "undefined") {
+				console.error("Undefined animateBasis for ", object);
+			}
+
+			if (nextFrame) {
 				// should be animated
-				let animate = this.animationList[i].animation;
-				let object = this.animationList[i];
 
 				// increment state
 				if (animate.state >= animate.totalImages-1) {
@@ -10641,8 +10787,6 @@ Game.update = function (delta) {
 				if (animate.type === "function" || typeof animate.animateFunction !== "undefined") {
 					animate.animateFunction();
 				}
-
-				animate.lastAnimated = this.totalAnimationTime;
 
 				if (typeof animate.stopAnimationOnState !== "undefined" && animate.state === animate.stopAnimationOnState) {
 					animate = undefined;
@@ -11310,7 +11454,7 @@ Game.setCreativeItem = function (item) {
 			Dom.chat.insert('Creative mode object image set to "'+ Game.creativeImage +'".');
 		}
 		else {
-			Dom.chat.insert("Creative item has not been updated because image was not found.")
+			Dom.chat.insert("Creative item has not been updated because image was not found. Is it loaded in for your current area?")
 		}
 	}
 	else {

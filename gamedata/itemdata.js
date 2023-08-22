@@ -3662,7 +3662,7 @@ var Items = {
 		},
 		{
 			id: 24,
-			name: "Divine Lyre", // name tbc
+			name: "Harpshooter's Bow",
 			type: "bow",
 			image: "assets/items/bow/24.png",
 			tier: 2,

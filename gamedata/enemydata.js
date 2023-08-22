@@ -58,6 +58,12 @@ const SpeciesTemplates = {
 			notUnlockedRoles: "Miau.",
 		},
 		canBeOnLead: true,
+		// for villagers only (think this works ?)
+        areas: [
+            "eaglecrest",
+            "eaglecrestElixirs",
+            "eaglecrestPlains",
+        ],
 	},
 	plainsToad: {
 		species: "frog",
@@ -218,7 +224,7 @@ const NPCTemplates = { // tbd combine with villagers
 		respawnTime: 10,
 		stats: {
 			walkSpeed: 0,
-			maxHealth: Player.class === "a" ? 500 : 350, // because archer shots don't pierce
+			maxHealth: 500,
 			healthRegen: 0,
 		},
 		onDeathAdditional: function () {

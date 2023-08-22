@@ -6927,6 +6927,7 @@ onPlayerTouch: function () {
 			crateSamhain: {samhain: "assets/objects/crateSamhain.png"},
 			melee: {samhain: "assets/projectiles/melee.png"},
 			gnome: {normal: "assets/objects/gnomeYellow.png"},
+			stuffedCat: {normal: "assets/objects/stuffedCat.png"},
 		},
 
 		callAreaJoinOnInit: true,
@@ -6972,6 +6973,10 @@ onPlayerTouch: function () {
 				},
 			],
 		},
+
+		infoPoints: [
+			{x: 670.5, y: 227.1, image: 'stuffedCat', name: 'Stuffed Cat', onTouchChat: "A stuffed cat."},
+		],
 
 		npcs: [
 			{
@@ -7117,7 +7122,7 @@ Last I saw him, he was visiting the <b>Eaglecrest Plains</b> to the <b>south</b>
 				name: "Wardrobe"
 			},
 			{
-				x: 600,
+				x: 560,
 				y: 170,
 				image: "wardrobeOpen2",
 				name: "Wardrobe"
