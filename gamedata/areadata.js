@@ -281,6 +281,43 @@ var Areas = {
 						},
 						shopGreeting: "If ya do enough fishing, you can get some rare items. Heheh.",
 					},
+					{
+						role: "text",
+						chooseText: "Show <strong>Fisherman Tobenam</strong> the <b>blueprint</b>.",
+						chat: `I haven't seen one of those in a while, heheh. Those fish are pretty rare, heheh, but I'm sure you can find one of them here. Trying fishing a while and you should find one.`,
+						buttons: ["Leave"],
+						showCloseButton: false,
+						forceChoose: true, // forces choose dom
+						functions: [function () {
+							// close page
+							Dom.closePage("textPage");
+							// quest progress
+							Player.quests.questProgress.troubledWaters2Progress = 5;
+							Dom.quests.active();
+							Dom.inventory.removeById(74, "item", 1);
+						}],
+						roleRequirement: function () {
+							return Player.quests.questProgress.troubledWaters2Progress === 4;
+						},
+					},
+					{
+						role: "text",
+						chooseText: "Show <strong>Fisherman Tobenam</strong> the <b>Universal Translator</b>.",
+						chat: `Heheheh, you found one. I'll see you around then, heheh.`,
+						buttons: ["Leave"],
+						showCloseButton: false,
+						forceChoose: true, // forces choose dom
+						functions: [function () {
+							// close page
+							Dom.closePage("textPage");
+							// quest progress
+							Player.quests.questProgress.troubledWaters2Progress = 7;
+							Dom.quests.active();
+						}],
+						roleRequirement: function () {
+							return Player.quests.questProgress.troubledWaters2Progress === 6;
+						},
+					},
 				],
 				chat: {
 					notUnlockedRoles: "It's a great day to fish, heheh.",
@@ -1058,8 +1095,8 @@ var Areas = {
 							{
 								destinationName: "eaglecrest",
 								destinationPosition: {
-									x: 86,
-									y: 1641,
+									x: 5000,
+									y: 3500,
 								},
 								title: "Eaglecrest",
 								description: "The capital city of Antorax! One can visit the resplendent Eaglecrest Monastery, buy from the impressive range of merchants, and taste the finest beetroot pies of Antorax.",
@@ -4063,6 +4100,24 @@ onPlayerTouch: function () {
 						quest: Quests.eaglecrest[11],
 						role: "questStartFinish"
 					},
+					{
+                        role: "text",
+                        chooseText: "Ask about a <b>translator</b>.",
+                        chat: `A <b>translator</b>? Unfortunately I don't, but I'm sure you can find one around! Maybe some of the <b>shopkeepers</b> would have one.<br><br>
+						Remember to come back to me later and maybe I'll have something for you to do!`,
+                        buttons: ["Leave"],
+                        showCloseButton: false,
+                        forceChoose: true, // forces choose dom
+                        functions: [function () {
+                            // close page
+                            Dom.closePage("textPage");
+                            // quest progress
+                            Dom.quests.active();
+                        }],
+                        roleRequirement: function () {
+                            return Player.quests.questProgress.troubledWaters2Progress === 2;
+                        },
+                    },
 				],
 				chat: {
 					notUnlockedRoles: "Eaglecrest needs you! But... not yet.",
@@ -4110,6 +4165,23 @@ onPlayerTouch: function () {
 							},
 						],
 					},
+					{
+                        role: "text",
+                        chooseText: "Ask about a <b>translator</b>.",
+                        chat: `A <b>Translator</b>? No. Try asking some of the <b>shopkeepers</b>.`,
+                        buttons: ["Leave"],
+                        showCloseButton: false,
+                        forceChoose: true, // forces choose dom
+                        functions: [function () {
+                            // close page
+                            Dom.closePage("textPage");
+                            // quest progress
+                            Dom.quests.active();
+                        }],
+                        roleRequirement: function () {
+                            return Player.quests.questProgress.troubledWaters2Progress === 2;
+                        },
+                    },
 				],
 				chat: {
 					driverText: "Where are you heading?",
@@ -4139,6 +4211,23 @@ onPlayerTouch: function () {
 							return true;
 						}
 					},
+					{
+                        role: "text",
+                        chooseText: "Ask about a <b>translator</b>.",
+                        chat: `I only buy, not sell. Speaking of selling, you got anything for me?`,
+                        buttons: ["Leave"],
+                        showCloseButton: false,
+                        forceChoose: true, // forces choose dom
+                        functions: [function () {
+                            // close page
+                            Dom.closePage("textPage");
+                            // quest progress
+                            Dom.quests.active();
+                        }],
+                        roleRequirement: function () {
+                            return Player.quests.questProgress.troubledWaters2Progress === 2;
+                        },
+                    },
 				],
 				chat: {
 					notUnlockedRoles: "I promise I'm not like other goblins. I just buy stuff. Lots of good stuff to collect. I'm trying to make my own armour. Can you help?",
@@ -4151,6 +4240,25 @@ onPlayerTouch: function () {
 				y: 1140,
 				image: "guard1",
 				template: NPCTemplates.guard,
+				roles: [
+					{
+                        role: "text",
+                        chooseText: "Ask about a <b>translator</b>.",
+                        chat: `I'm busy, go ask someone else.`,
+                        buttons: ["Leave"],
+                        showCloseButton: false,
+                        forceChoose: true, // forces choose dom
+                        functions: [function () {
+                            // close page
+                            Dom.closePage("textPage");
+                            // quest progress
+                            Dom.quests.active();
+                        }],
+                        roleRequirement: function () {
+                            return Player.quests.questProgress.troubledWaters2Progress === 2;
+                        },
+                    },
+				]
 			},
 			{
 				// id: 2,
@@ -4217,6 +4325,23 @@ onPlayerTouch: function () {
 					{
 						role: "identifier",
 					},
+					{
+                        role: "text",
+                        chooseText: "Ask about a <b>translator</b>.",
+                        chat: `Don't have a <b>translator</b>. Feel free to come back if you have something for me to identify!`,
+                        buttons: ["Leave"],
+                        showCloseButton: false,
+                        forceChoose: true, // forces choose dom
+                        functions: [function () {
+                            // close page
+                            Dom.closePage("textPage");
+                            // quest progress
+                            Dom.quests.active();
+                        }],
+                        roleRequirement: function () {
+                            return Player.quests.questProgress.troubledWaters2Progress === 2;
+                        },
+                    },
 				],
 				chat: {
 					identifierGreeting: "Something for me to identify for you, hm?",
@@ -4224,7 +4349,7 @@ onPlayerTouch: function () {
 					identifyCommon: "Nothing special this time.",
 					identifyUnique: "Hm, a unique item. Nice.",
 					identifyMythic: "Ooh! It's been a while since I last saw one of those!",
-					tooPoor: "I can't itentify that for free, you know.",
+					tooPoor: "I can't identify that for free, you know.",
 				},
 			},
 			{
@@ -4275,6 +4400,23 @@ onPlayerTouch: function () {
 						role: "merchant",
 						shopGreeting: "Greetings, customer. Care to indulge in a beetroot pie?",
 					},
+					{
+                        role: "text",
+                        chooseText: "Ask about a <b>translator</b>.",
+                        chat: `I've only got pies, but they'll be sure to fill your stomach!`,
+                        buttons: ["Leave"],
+                        showCloseButton: false,
+                        forceChoose: true, // forces choose dom
+                        functions: [function () {
+                            // close page
+                            Dom.closePage("textPage");
+                            // quest progress
+                            Dom.quests.active();
+                        }],
+                        roleRequirement: function () {
+                            return Player.quests.questProgress.troubledWaters2Progress === 2;
+                        },
+                    },
 				],
 				chat: {
 					shopLeave: "You'll be back. Nobody can resist my pies for long.",
@@ -4386,6 +4528,24 @@ onPlayerTouch: function () {
 							return Event.event === "Christmas";
 						},
 					},
+					{
+                        role: "text",
+                        chooseText: "Ask about a <b>translator</b>.",
+                        chat: `<b>Translator</b>? No. But I do have some of the best and most authentic marks you'll find for miles around.<br><br>
+						Talk to some other <strong>shopkeepers</strong> to see if they have any.`,
+                        buttons: ["Leave"],
+                        showCloseButton: false,
+                        forceChoose: true, // forces choose dom
+                        functions: [function () {
+                            // close page
+                            Dom.closePage("textPage");
+                            // quest progress
+                            Dom.quests.active();
+                        }],
+                        roleRequirement: function () {
+                            return Player.quests.questProgress.troubledWaters2Progress === 2;
+                        },
+                    },
 				],
 				chat: {
 					shopLeave: "Come back soon. There'll be more masks for you to choose from.",
@@ -4732,6 +4892,23 @@ onPlayerTouch: function () {
 							return Event.event === "Christmas";
 						},
 					},
+					{
+                        role: "text",
+                        chooseText: "Ask about a <b>translator</b>.",
+                        chat: `<b>Translator</b>? No. But I do have some of the best and most authentic marks you'll find for miles around. Talk to some other <strong>shopkeepers</strong> to see if they have any.`,
+                        buttons: ["Leave"],
+                        showCloseButton: false,
+                        forceChoose: true, // forces choose dom
+                        functions: [function () {
+                            // close page
+                            Dom.closePage("textPage");
+                            // quest progress
+                            Dom.quests.active();
+                        }],
+                        roleRequirement: function () {
+                            return Player.quests.questProgress.troubledWaters2Progress === 2;
+                        },
+                    },
 				],
 				chat: {
 					shopLeave: "Come back soon. There'll be more masks for you to choose from.",
@@ -5125,6 +5302,23 @@ onPlayerTouch: function () {
 							return (Dom.inventory.check(4, "currency") && Event.event !== "Samhain") || (Dom.inventory.check(5, "currency") && Event.event !== "Christmas"); // paste over, remove the item
 						},
 					},
+					{
+                        role: "text",
+                        chooseText: "Ask about a <b>translator</b>.",
+                        chat: "I'm afraid we don't have any. Unless you have one in your bank storage I'm afraid I can't help you.",
+                        buttons: ["Leave"],
+                        showCloseButton: false,
+                        forceChoose: true, // forces choose dom
+                        functions: [function () {
+                            // close page
+                            Dom.closePage("textPage");
+                            // quest progress
+                            Dom.quests.active();
+                        }],
+                        roleRequirement: function () {
+                            return Player.quests.questProgress.troubledWaters2Progress === 2;
+                        },
+                    },
 				],
 				canBeShown: function () {
 					return Player.quests.completedQuestArray.includes("Overdraft");
@@ -5200,6 +5394,24 @@ onPlayerTouch: function () {
 							return (Dom.inventory.check(4, "currency") && Event.event !== "Samhain") || (Dom.inventory.check(5, "currency") && Event.event !== "Christmas");
 						},
 					},
+					{
+                        role: "text",
+                        chooseText: "Ask about a <b>translator</b>.",
+                        chat: `A <b>translator</b>? What would you need that for?<br><br>
+						Unless you have one in your bank storage I'm afraid I can't help you. Try asking some other <b>shopkeepers</b>.`,
+                        buttons: ["Leave"],
+                        showCloseButton: false,
+                        forceChoose: true, // forces choose dom
+                        functions: [function () {
+                            // close page
+                            Dom.closePage("textPage");
+                            // quest progress
+                            Dom.quests.active();
+                        }],
+                        roleRequirement: function () {
+                            return Player.quests.questProgress.troubledWaters2Progress === 2;
+                        },
+                    },
 				],
 				canBeShown: function () {
 					return Player.quests.completedQuestArray.includes("Overdraft");
@@ -5275,6 +5487,23 @@ onPlayerTouch: function () {
 							return (Dom.inventory.check(4, "currency") && Event.event !== "Samhain") || (Dom.inventory.check(5, "currency") && Event.event !== "Christmas");
 						},
 					},
+					{
+                        role: "text",
+                        chooseText: "Ask about a <b>translator</b>.",
+                        chat: "I'm afraid we don't have any. Unless you have one in your bank storage I'm afraid I can't help you.",
+                        buttons: ["Leave"],
+                        showCloseButton: false,
+                        forceChoose: true, // forces choose dom
+                        functions: [function () {
+                            // close page
+                            Dom.closePage("textPage");
+                            // quest progress
+                            Dom.quests.active();
+                        }],
+                        roleRequirement: function () {
+                            return Player.quests.questProgress.troubledWaters2Progress === 2;
+                        },
+                    },
 				],
 				canBeShown: function () {
 					return Player.quests.completedQuestArray.includes("Overdraft") || Player.quests.npcProgress.eaglecrest[2] >= 4;
@@ -5350,6 +5579,23 @@ onPlayerTouch: function () {
 							return (Dom.inventory.check(4, "currency") && Event.event !== "Samhain") || (Dom.inventory.check(5, "currency") && Event.event !== "Christmas");
 						},
 					},
+					{
+                        role: "text",
+                        chooseText: "Ask about a <b>translator</b>.",
+                        chat: "I'm afraid we don't have any. Unless you have one in your bank storage I'm afraid I can't help you.",
+                        buttons: ["Leave"],
+                        showCloseButton: false,
+                        forceChoose: true, // forces choose dom
+                        functions: [function () {
+                            // close page
+                            Dom.closePage("textPage");
+                            // quest progress
+                            Dom.quests.active();
+                        }],
+                        roleRequirement: function () {
+                            return Player.quests.questProgress.troubledWaters2Progress === 2;
+                        },
+                    },
 				],
 				canBeShown: function () {
 					return Player.quests.completedQuestArray.includes("Overdraft");
@@ -5653,6 +5899,24 @@ onPlayerTouch: function () {
 									<strong>Jak</strong>: Don't worry, no tricks here! What about a Samhain treat?<br>`,
 						chooseText: "I'd like to browse your Samhain goods.",
 					},
+					{
+                        role: "text",
+                        chooseText: "Ask about a <b>translator</b>.",
+                        chat: `<strong>Rhus</strong>: Why would a tavern have a <b>translator</b>!<br>
+						<strong>Jak</strong>: Sorry, we don't have one, try asking some of the <strong>shopkeepers</strong>.`,
+                        buttons: ["Leave"],
+                        showCloseButton: false,
+                        forceChoose: true, // forces choose dom
+                        functions: [function () {
+                            // close page
+                            Dom.closePage("textPage");
+                            // quest progress
+                            Dom.quests.active();
+                        }],
+                        roleRequirement: function () {
+                            return Player.quests.questProgress.troubledWaters2Progress === 2;
+                        },
+                    },
 				],
 				chat: {
 					questProgress: "<strong>Jak</strong>: You're not done yet! Keep going.",
@@ -6271,6 +6535,24 @@ onPlayerTouch: function () {
 						role: "merchant",
 						shopGreeting: "Behold the finest steel o' Eaglecrest! It's worth every coin.",
 					},
+					{
+                        role: "text",
+                        chooseText: "Ask about a <b>translator</b>.",
+                        chat: `I don't have 'un, but I do have the finest steel o' Eaglecrest! You could ask some other <strong>shopkeepers</strong>.<br><br>
+						<em>Oh, you're leavin' already</em>.`,
+                        buttons: ["Leave"],
+                        showCloseButton: false,
+                        forceChoose: true, // forces choose dom
+                        functions: [function () {
+                            // close page
+                            Dom.closePage("textPage");
+                            // quest progress
+                            Dom.quests.active();
+                        }],
+                        roleRequirement: function () {
+                            return Player.quests.questProgress.troubledWaters2Progress === 2;
+                        },
+                    },
 				],
 				chat: {
 					shopLeave: "The equipment'll last forever, we guarantee it.",
@@ -6511,6 +6793,42 @@ onPlayerTouch: function () {
 							return Player.quests.npcProgress.eaglecrestLoggingCamp[24] === 3 && Dom.inventory.check(28, "item");
 						}
 					},
+					{
+                        role: "text",
+                        chooseText: "Ask about a <b>translator</b>.",
+                        chat: `Noooooo! Unfortunately I don't have one! You could ask the other <strong>shopkeepers</strong>, I'm sure one of them will have one!`,
+                        buttons: ["Leave"],
+                        showCloseButton: false,
+                        forceChoose: true, // forces choose dom
+                        functions: [function () {
+                            // close page
+                            Dom.closePage("textPage");
+                            // quest progress
+                            Dom.quests.active();
+                        }],
+                        roleRequirement: function () {
+                            return Player.quests.questProgress.troubledWaters2Progress === 2;
+                        },
+                    },
+					{
+                        role: "text",
+                        chooseText: "Give blueprint to <strong>Alchemist Tamtam</strong>.",
+                        chat: `Not suuuuuure what I can do with this! This looks more like a fish than a device or alchemy ingrediant!<br><br>
+						Maybe talk to <strong>Fisherman Tobenam</strong> and see if he can do something with it!`,
+                        buttons: ["Leave"],
+                        showCloseButton: false,
+                        forceChoose: true, // forces choose dom
+                        functions: [function () {
+                            // close page
+                            Dom.closePage("textPage");
+                            // quest progress
+							Player.quests.questProgress.troubledWaters2Progress = 4;
+                            Dom.quests.active();
+                        }],
+                        roleRequirement: function () {
+                            return Player.quests.questProgress.troubledWaters2Progress === 3;
+                        },
+                    },
 				],
 				chat: {
 					chooseChat: "Loooooking good my friend! Wanna buy a potion?",
@@ -6731,6 +7049,36 @@ Last I saw him, he was visiting the <b>Eaglecrest Plains</b> to the <b>south</b>
 							},
 						],
 					},
+					{
+                        role: "text",
+                        chooseText: "Ask about a <b>translator</b>.",
+                        chat: `A <b>translator?</b> I have things much greater!<br><br>
+						But I also have something that you could be looking for. Here's a <b>blueprint</b> which I found while trying to find some more wares to sell. I was going to bring it to <strong>Alchemist Tamtam</strong> later, but it seems it could be more useful to you.<br><br>
+						Try bringing it to <strong>Alchemist Tamtam</strong> and see if he can build the <b>translator</b> for you!<br><br>
+						Gold? No need, take it for free. Although, make sure to buy some of my wares later!`,
+                        buttons: ["Leave"],
+                        showCloseButton: false,
+                        forceChoose: true, // forces choose dom
+                        functions: [function () {
+                            // close page
+                            Dom.closePage("textPage");
+                            // quest progress
+							if (Dom.inventory.checkSpace() > 0)
+							{
+								Player.quests.questProgress.troubledWaters2Progress = 3;
+	                            Dom.quests.active();
+								//give quest item
+								Dom.inventory.give(Items.item[74]);
+							}
+							else {
+								//say users inventory is full
+								Dom.chat.insert("<strong>Shopkeeper Barda</strong>: Unless the cards have bluffed... your inventory is stuffed. Come back when you have more space.");
+							}
+                        }],
+                        roleRequirement: function () {
+                            return Player.quests.questProgress.troubledWaters2Progress === 2;
+                        },
+                    },
 				],
 				chat: {
 					chooseChat: "My shop's a given, now make a decision.",
@@ -8524,6 +8872,7 @@ Last I saw him, he was visiting the <b>Eaglecrest Plains</b> to the <b>south</b>
 			farmerEloise: {normal: "assets/npcs/farmerEloise.png"},
 			armouredToadLeft: {normal: "assets/enemies/toadArmoured.png"},
 			armouredToadRight: {normal: "assets/enemies/toadArmoured.png", flip: "vertical"},
+			sharptooth: {normal: "assets/npcs/sharptooth.png"}
 		},
 
 		areaTeleports: [
@@ -8658,16 +9007,80 @@ Last I saw him, he was visiting the <b>Eaglecrest Plains</b> to the <b>south</b>
                             role: "questStartFinish",
                             quest: Quests.eaglecrest[7]
                         },
-                        /*{
-                            role: "questStartFinish",
-                            quest: Quests.eaglecrest[8]
-                        },*/
+                        {
+                            role: "questStart",
+                            quest: Quests.eaglecrest[12]
+                        },
+						{
+	                        role: "text",
+	                        chooseText: "Tell <strong>Fisherman Guimtal</strong> about <strong>Fisher Sharptooth</strong>.",
+	                        chat: `Ah, I see. They're a cat.<br><br>
+							Yah see, I've never actually spoken to 'em, I just heard from mah friends.<br><br>
+							Why don't yah try speakin' to some <b>shopkeepers</b> in <strong>Eaglecrest</strong> and see if they sellin' any <b>translators</b> or somethin' like that.<br><br>
+							I'll see yah around, then.`,
+	                        buttons: ["Leave"],
+	                        showCloseButton: false,
+	                        forceChoose: true, // forces choose dom
+	                        functions: [function () {
+	                            // close page
+	                            Dom.closePage("textPage");
+	                            // quest progress
+	                            Player.quests.questProgress.troubledWaters2Progress = 2;
+	                            Dom.quests.active();
+	                        }],
+	                        roleRequirement: function () {
+	                            return Player.quests.questProgress.troubledWaters2Progress === 1;
+	                        },
+	                    },
                 ],
                 chat: {
                     questProgress: "What've yah caught?",
                     notUnlockedRoles: "What've yah caught?",
                     questComplete: "Thank yah for the help, I guess I'll see yah around.",
                     inventoryFull: "Yah bags are full, come back when yah got room.",
+                },
+            },
+			{
+                x: 4950,
+                y: 3800,
+                image: "sharptooth",
+                name: "Fisher Sharptooh",
+                hostility: "friendly",
+                level: 10,
+                stats: {
+                    maxHealth: 100,
+                    defence: 1,
+                    healthRegen: 0.3,
+                },
+                roles: [
+	                    {
+	                        role: "text",
+	                        chooseText: "Say that Fisherman Guimtal sent you.",
+	                        chat: "Miau, miau miau miau miau! Miau miau miau.",
+	                        buttons: ["Leave"],
+	                        showCloseButton: false,
+	                        forceChoose: true, // forces choose dom
+	                        functions: [function () {
+	                            // close page
+	                            Dom.closePage("textPage");
+	                            // quest progress
+	                            Player.quests.questProgress.troubledWaters2Progress = 1;
+	                            Dom.quests.active();
+	                        }],
+	                        roleRequirement: function () {
+	                            return Player.quests.questProgress.troubledWaters2Progress === 0;
+	                        },
+	                    },
+						{
+	                        role: "questFinish",
+	                        quest: Quests.eaglecrest[12],
+						},
+                ],
+                chat: {
+                    questProgress: "Yous looks like yous never seen a cat fish before.",
+                    notUnlockedRoles: "Miau, miau miau miau.",
+                    //questComplete: "Thank yah for the help, I guess I'll see yah around.",
+                    //inventoryFull: "Yah bags are full, come back when yah got room.",
                 },
             },
 			{

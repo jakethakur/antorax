@@ -1391,5 +1391,77 @@ const EnemyTemplates = {
 				images: ["bumblebeeLeft1", "bumblebeeLeft2"], // tbd make work with rotationImages
 			},
 		},
+
+		seaMonsterTail: {
+			image: "seaMonsterTail",
+			name: "Sea Monter Tail",
+			hostility: "boss",
+			level: 5,
+			stats: {
+				damage: 0,
+				walkSpeed: 0,
+				swimSpeed: 0,
+				iceSpeed: 0,
+				maxHealth: 10000,
+				defence: 10000,
+				range: 1000,
+				healthRegen: 0.5,
+				doesNotAttack: true,
+			},
+			xpGiven: 0,
+			corpseOnDeath: false,
+			respawnOnDeath: false,
+			spells: [
+
+	        ],
+		},
+
+		seaMonsterArch: {
+			image: "seaMonsterArch",
+			name: "Sea Monter Arch",
+			hostility: "boss",
+			level: 5,
+			stats: {
+				damage: 0,
+				walkSpeed: 0,
+				swimSpeed: 0,
+				iceSpeed: 0,
+				maxHealth: 10000,
+				defence: 10000,
+				range: 1000,
+				healthRegen: 0.5,
+				doesNotAttack: true,
+			},
+			xpGiven: 0,
+			corpseOnDeath: false,
+			respawnOnDeath: false,
+			spells: [
+
+	        ],
+		},
+
+		seaMonster: {
+			image: "seaMonster",
+			name: "Sea Monster",
+			hostility: "boss",
+			level: 5,
+			stats: {
+				damage: 0,
+				walkSpeed: 0,
+				swimSpeed: 0,
+				iceSpeed: 0,
+				maxHealth: 10000,
+				defence: 10000,
+				range: 1000,
+				healthRegen: 0.5,
+				doesNotAttack: true,
+			},
+			xpGiven: 0,
+			corpseOnDeath: false,
+			respawnOnDeath: false,
+			spells: [
+
+	        ],
+		},
 	},
 };

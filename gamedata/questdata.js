@@ -63,6 +63,7 @@ var Quests = {
 				xp: 10,
 				items: [
 					{item: Items.boots[2],},
+					{item: Items.currency[2], quantity: 3,},
 				],
 			},
 
@@ -438,7 +439,7 @@ var Quests = {
 			},],
 
 			finishName: "Fisherman Tobenam",
-			startChat: [{
+			finishChat: [{
 				text: `You found it!`,
 			},{
 				text: `Heheh, let me clean it for you.`,
@@ -457,7 +458,7 @@ var Quests = {
 				let completed = [];
 
 				// true or falses for each objective (apart from the turn-in objective)
-				completed.push((Dom.inventory.check(7, "item", 1)) ? true : false);
+				completed.push((Dom.inventory.check(7, "item", 1)));
 
 				completed = checkFinished(completed);
 
@@ -491,7 +492,7 @@ var Quests = {
 			},{
 				text: `My traps are some of the best technology this area has to offer to stop those goblins.`,
 			},{
-				text: `>Help me by taking some traps and place them around in The Nilbog. 3 should suffice.`,
+				text: `Help me by taking some traps and place them around in The Nilbog. 3 should suffice.`,
 			},{
 				text: `They will make a huge impact in deterring the goblins, and will maybe help out in your combats!`,
 			},],
@@ -1358,19 +1359,18 @@ var Quests = {
 
 			startName: "There once was a knight sent into exile, from the magical realm of Azuras,",
 			startChat: `He invaded towers, looted innocents, and stole from the vulnerable and young.<br>
-He was defeated by the great Wizard Andrews, near his tower in the Nilbog,<br>
-The same great wizard who would become the leader of the Wizards in Antorax.<br><br>
-Since then, many have recounted sightings of a knight in red and orange armour,<br>
-However few have fought him, and even fewer have lived to tell the tale.<br>
-It is said that there are riches to behold for those who emerge victorious,<br>
-In a past timezone where the knight still stands, can you reap his spoils?<br>
-<br><i>You will be teleported upon starting this quest</i>`,
-
+						He was defeated by the great Wizard Andrews, near his tower in the Nilbog,<br>
+						The same great wizard who would become the leader of the Wizards in Antorax.<br><br>
+						Since then, many have recounted sightings of a knight in red and orange armour,<br>
+						However few have fought him, and even fewer have lived to tell the tale.<br>
+						It is said that there are riches to behold for those who emerge victorious,<br>
+						In a past timezone where the knight still stands, can you reap his spoils?<br>
+						<br><i>You will be teleported upon starting this quest</i>`,
 			finishName: "To the victor goes the spoils!",
 			finishChat: `And thus, ${Player.name} defeats the tattered knight. However this was not his end.<br>
-Many still recount seeing a knight in red and yellow armour around Antorax and its outskirts.<br>
-After all, death is never the end in Antorax...<br>
-<br><i>You will be teleported back upon finishing this quest</i>`,
+						Many still recount seeing a knight in red and yellow armour around Antorax and its outskirts.<br>
+						After all, death is never the end in Antorax...<br>
+						<br><i>You will be teleported back upon finishing this quest</i>`,
 
 			objectives: [
 				"Defeat and loot the Tattered Knight in Nilbog Past.",
@@ -1477,7 +1477,7 @@ After all, death is never the end in Antorax...<br>
 			},],
 
 			finishName: "Goblin Torch",
-			startChat: [{
+			finishChat: [{
 				text: `I am clean! Thank you. Adventurer.`,
 			},{
 				text: `Oh. What is your name?`
@@ -1590,9 +1590,9 @@ After all, death is never the end in Antorax...<br>
 				"Yes, I'm looking for Torian. He says I <strong>have</strong> to let you join in, but don't take all the reward this time!",
 				"I swear, Nessy's not <strong>anywhere</strong>!!! No way you'll be able to find her this time.",
 				`<strong>Torian Tintop</strong>: Haha, thanks from us for all the help with our hide 'n' find games. Not sure Nessy would 'ave ever found me otherwise!<br><br>
-<strong>Nessy Tintop</strong>: Hey! I'm good as well y'know! They're taller than me! But yeah, Torian's not very good.<br><br>
-<strong>Torian Tintop</strong>: Remember the time you were eaten by a goblin Nessy? ... Anyway, we've set up one last game for y'. We've hidden a present somewhere in the Camp for y'. We promise the reward's worth your time!<br><br>
-<strong>Nessy Tintop</strong>: Bet y' can't find it!`,
+				<strong>Nessy Tintop</strong>: Hey! I'm good as well y'know! They're taller than me! But yeah, Torian's not very good.<br><br>
+				<strong>Torian Tintop</strong>: Remember the time you were eaten by a goblin Nessy? ... Anyway, we've set up one last game for y'. We've hidden a present somewhere in the Camp for y'. We promise the reward's worth your time!<br><br>
+				<strong>Nessy Tintop</strong>: Bet y' can't find it!`,
 			],
 
 			finishChat: [
@@ -2344,7 +2344,7 @@ After all, death is never the end in Antorax...<br>
 			startChat: [{
 				text: `Somethin' has been infesting the waters and makin' it so us fishermen can't get no fish.`,
 			},{
-				text: `I think the toads may hold the answer. Can yah get some parts from them for me so I can investigate.`,
+				text: `I think the toads may hold the answer. Can yah get some parts from 'em for me so I can investigate 'em.`,
 			},],
 
 			finishName: "Fisherman Guimtal",
@@ -2372,7 +2372,7 @@ After all, death is never the end in Antorax...<br>
 
 			howToStart: "Speak to <strong>Fisherman Guimtal</strong>.",
 			levelRequirement: 5,
-			questRequirements: ["Overdraft"],
+			questRequirements: ["Learning to Fish III"],
 
 			rewards: {
 				xp: 30,
@@ -2641,6 +2641,98 @@ After all, death is never the end in Antorax...<br>
 			resetVariables: [
 				"coyoteWranglersQuest",
 			],
+		},
+		{
+			id: 12,
+			quest: "Troubled Waters II",
+			questArea: "eaglecrest",
+
+			startName: "Fisherman Guimtal",
+			startChat: [{
+				text: `Ah yah back. Seems like the toads ain't the ones causin' the fish to go.`,
+			},{
+				text: `Try speakin' to <strong>Fisher Sharptooth</strong> to if they know anythin' about this.`,
+			},{
+				text: `They should be fishin' <b>east</b> of the lake.`,
+			},],
+
+			finishName: "Fisher Sharptooth",
+			finishChat: [{
+				text: `Yous looks surprised? Did yous nots thinks I woulds eat the translator?`,
+			},{
+				text: `This translator was for mes right? Oh well, yous can hears mes now.`,
+			},{
+				text: `Oh, yous wants to learns abouts whys there no fish? Well it's tragic indeeds.`,
+			},{
+				text: `I'm sures with yours help we cans solve this issue.`,
+			},],
+
+			objectives: [
+				"Speak to <strong>Fisher Sharptooth</strong> located <b>east</b> of the lake.",
+				"Speak to <strong>Fisherman Guimtal</strong> to see how to speak to <strong>Fisher Sharptooth</strong>.",
+				"Speak to the <b>shopkeepers</b> of <strong>Eaglecrest City</strong> to see if they have a <b>translator</b>.",
+				"Speak to <strong>Alchemist Tamtam</strong> in the <b>east</b> of <strong>Eaglecrest City</strong> and give him the <b>blueprint</b>.",
+				"Speak to <strong>Fisherman Tobenam</strong> in <strong>Fisher's Valley</strong> and see what he can do with the <b>blueprint</b>.",
+				"Fish up a <b>Universal Translator</b> in <strong>Fisher's Valley</strong>.",
+				"Speak to <strong>Fisherman Tobenam</strong>.",
+				"Return to <strong>Fisher Sharptooth</strong> and give them the <b>Universal Translator</b>."
+			],
+
+			isHidden: function() {
+				let hidden = [];
+
+				// true or falses for each objective (apart from the turn-in objective)
+				hidden.push(false);
+				hidden.push(Player.quests.questProgress.troubledWaters2Progress < 1);
+				hidden.push(Player.quests.questProgress.troubledWaters2Progress < 2);
+				hidden.push(Player.quests.questProgress.troubledWaters2Progress < 3);
+				hidden.push(Player.quests.questProgress.troubledWaters2Progress < 4);
+				hidden.push(Player.quests.questProgress.troubledWaters2Progress < 5);
+				hidden.push(Player.quests.questProgress.troubledWaters2Progress < 6);
+				hidden.push(Player.quests.questProgress.troubledWaters2Progress < 7);
+
+				return hidden;
+			},
+
+			isCompleted: function() {
+				let completed = [];
+
+				if (Player.quests.questProgress.troubledWaters2Progress === undefined)
+				{
+					Player.quests.questProgress.troubledWaters2Progress = 0;
+				}
+				// true or falses for each objective (apart from the turn-in objective)
+				completed.push(Player.quests.questProgress.troubledWaters2Progress > 0);
+				completed.push(Player.quests.questProgress.troubledWaters2Progress > 1);
+				completed.push(Player.quests.questProgress.troubledWaters2Progress > 2);
+				completed.push(Player.quests.questProgress.troubledWaters2Progress > 3);
+				completed.push(Player.quests.questProgress.troubledWaters2Progress > 4);
+				completed.push(Player.quests.questProgress.troubledWaters2Progress > 5);
+				completed.push(Player.quests.questProgress.troubledWaters2Progress > 6);
+
+				completed = checkFinished(completed);
+
+				return completed;
+			},
+
+			howToStart: "Speak to <strong>Fisherman Guimtal</strong>.",
+			levelRequirement: 5,
+			questRequirements: ["Troubled Waters"],
+
+			rewards: {
+				xp: 50,
+				reputation: {
+					eaglecrestCity: 30,
+				},
+			},
+
+			removeItems: [
+				{item: Items.fish[37],}, // remove the translator
+			],
+
+			onQuestStart: function() {
+				Player.quests.questProgress.troubledWaters2Progress = 0;
+			}
 		},
 		/*{
 			id: 12,
@@ -2937,10 +3029,10 @@ After all, death is never the end in Antorax...<br>
 			innkeepersRhusJak: {
 				startName: "Innkeepers Rhus-Jak",
 				startChat: `<strong>Jak</strong>: The tavern's a bit dirty at the moment. We're both busy serving guests, but if you wanted a job and a bit of gold ...
-<br><strong>Rhus</strong>: Then clean the floor with mop!!`,
+							<br><strong>Rhus</strong>: Then clean the floor with mop!!`,
 				finishName: "Innkeepers Rhus-Jak",
 				finishChat: `<strong>Rhus</strong>: Give mop back here!
-<br><strong>Jak</strong>: Thank you! It's looking a lot better here now.`,
+							<br><strong>Jak</strong>: Thank you! It's looking a lot better here now.`,
 				objectives: [
 					"Use the mop to clean away the dirt in the tavern.",
 					"Speak to <strong>Innkeeper Rhus-Jak</strong>.",
@@ -3066,11 +3158,11 @@ After all, death is never the end in Antorax...<br>
 			innkeepersRhusJak: {
 				startName: "Innkeepers Rhus-Jak",
 				startChat: `<strong>Rhus</strong>: Tables are messy.
-<br><strong>Jak</strong>: Could you help us tidy them a little? You can have a bit of gold for your time.
-<br><strong>Rhus</strong>: Tables are <strong>very</strong> messy.`,
+							<br><strong>Jak</strong>: Could you help us tidy them a little? You can have a bit of gold for your time.
+							<br><strong>Rhus</strong>: Tables are <strong>very</strong> messy.`,
 				finishName: "Innkeepers Rhus-Jak",
 				finishChat: `<strong>Jak</strong>: Thank you! I'm sure they'll get cluttered again, but the tavern's looking great at the moment.
-<br><strong>Rhus</strong>: Tables are clean.`,
+							<br><strong>Rhus</strong>: Tables are clean.`,
 				objectives: [
 					"Collect mugs and plates from tables.",
 					"Return them to <strong>Innkeeper Rhus-Jak</strong>.",
@@ -3160,7 +3252,7 @@ After all, death is never the end in Antorax...<br>
 				startChat: `<strong>Jak</strong>: There's a lot of people waiting for their orders! Could you lend us a hand and give out some foodstuffs?`,
 				finishName: "Innkeepers Rhus-Jak",
 				finishChat: `<strong>Rhus</strong>: Good. People happy.
-<strong>Jak</strong>: Thank you!`,
+							<strong>Jak</strong>: Thank you!`,
 				objectives: [
 					"Hand out some tavern goods to people around the tavern <i>(check your quest log!)</i>",
 					"Speak to <strong>Innkeeper Rhus-Jak</strong>.",

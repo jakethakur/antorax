@@ -4437,6 +4437,16 @@ var Items = {
 			sellPrice: 1,
 			sellQuantity: 16,
 		},
+		{
+			id: 74,
+			name: "Translator Blueprint",
+			type: "item",
+			category: "item",
+			rarity: "common",
+			image: "assets/items/item/74.png",
+			stack: 1,
+			quest: true,
+		},
 	],
 	consumable: [
 		{
@@ -6529,6 +6539,27 @@ var Items = {
                 // very rare!
                 return Random(0, 7) === 1;
             },
+		},
+		{
+			id: 37,
+			name: "Universal Translator",
+			type: "fish",
+			rarity: "junk",
+			image: "assets/items/fish/37.png",
+			lore: "Probably the oddest thing in the universe.",
+			stack: 1,
+			consumption: false,
+			areas: ["loggingCamp"],
+			catchRequirement: function () {
+				return (Player.quests.questProgress.troubledWaters2Progress === 5);
+				return Random(0, 1) === 1;
+			},
+			onCatch: function()
+			{
+				Player.quests.questProgress.troubledWaters2Progress = 6;
+				Dom.quests.active();
+			},
+			quest: true,
 		},
 	],
 	dev: [
