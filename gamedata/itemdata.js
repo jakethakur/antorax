@@ -4364,7 +4364,7 @@ var Items = {
 				Game.statusEffects.generic({
 					target: Game.hero,
 					effectTitle: "fireroot",
-					time: 22,
+					time: 37,
 					showInfoBar: true,
 					infoBarText: "Fireroot explodes in:",
 					infoBarColour: "#b3190e",
@@ -4394,7 +4394,7 @@ var Items = {
 				}
 				Game.hero.cleanse("fireroot", "title");
 			},
-			countdown: 22,
+			countdown: 37,
 			countdownText: "Explodes in",
 		},
 		{

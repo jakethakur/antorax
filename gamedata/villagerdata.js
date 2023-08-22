@@ -326,6 +326,12 @@ var Villagers = [
 			totalImages: 3,
 			animateBasis: "walk"
 		},
+		crop: {
+			x: 3,
+			y: 1,
+			width: 88,
+			height: 79,
+		},
         name: "Bruno",
         roles: [],
         speciesTemplate: SpeciesTemplates.cat,
@@ -347,6 +353,12 @@ var Villagers = [
 			totalImages: 3,
 			animateBasis: "walk"
 		},
+		crop: {
+			x: 3,
+			y: 1,
+			width: 88,
+			height: 79,
+		},
         name: "Tiger Cat",
         roles: [],
         speciesTemplate: SpeciesTemplates.cat,
@@ -354,8 +366,8 @@ var Villagers = [
     {
         id: 14,
         images: {
-            catCowLeft: {normal: "assets/npcs/cat3.png"},
-            catCowRight: {normal: "assets/npcs/cat3.png", flip: "vertical"},
+            catCowLeft: {normal: "assets/npcs/catCowLeft.png"},
+            catCowRight: {normal: "assets/npcs/catCowLeft.png", flip: "vertical"},
         },
         rotationImages: {
             left: "catCowLeft",
@@ -367,6 +379,12 @@ var Villagers = [
 			imagesPerRow: 3,
 			totalImages: 3,
 			animateBasis: "walk"
+		},
+		crop: {
+			x: 3,
+			y: 1,
+			width: 88,
+			height: 79,
 		},
         name: "Cow Cat",
         roles: [],
@@ -1237,7 +1255,34 @@ var Villagers = [
 			width: 104,
 			height: 108,
 		},
-        name: "Witchy",
+        name: "Twilight",
+        roles: [],
+        speciesTemplate: SpeciesTemplates.cat,
+    },
+    {
+        id: 35,
+        images: { // leo's cat
+            catMerlinLeft: {normal: "assets/npcs/catMerlinLeft.png"},// tbd needs its own art !!!!
+            catMerlinRight: {normal: "assets/npcs/catMerlinLeft.png", flip: "vertical"},
+        },
+        rotationImages: {
+            left: "catMerlinLeft",
+            right: "catMerlinRight"
+        },
+		animation: {
+			type: "spritesheet",
+			frameTime: 30,
+			imagesPerRow: 3,
+			totalImages: 3,
+			animateBasis: "walk"
+		},
+		crop: {
+			x: 3,
+			y: 1,
+			width: 88,
+			height: 79,
+		},
+        name: "Merlin",
         roles: [],
         speciesTemplate: SpeciesTemplates.cat,
     },
