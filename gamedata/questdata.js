@@ -1803,7 +1803,7 @@ var Quests = {
 
 			startName: "Recruiter Sylvie",
 			startChat: [{
-				text: `A new archaeologist! Welcome, from all of the citizens and workers, to the most resplendent, excellent, grand, opulent, showstopping city of all of Antorax!`,
+				text: `A new archaeologist! Welcome, from all of the citizens and workers, to the most resplendent, excellent, grand, opulent, showstopping city of all of Antorax!`,long:true
 			},{
 				text: `Let me not get ahead of myself. What is your name?`,
 			},{

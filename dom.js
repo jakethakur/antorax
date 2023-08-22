@@ -1195,7 +1195,7 @@ Dom.chat.insert = function (text, delay, time, noRepeat) {
 // NPC dialogue banners
 //
 
-Dom.chat.timeoutTime = 25; // ms between each character being shown
+Dom.chat.timeoutTime = 20; // ms between each character being shown
 
 // npc is the npc object, which has .name (used for title) and .image
 // text is either a single string, or an object with required property "text" and any additional properties (see below)...

@@ -7048,7 +7048,6 @@ var Items = {
 			areas: ["loggingCamp"],
 			catchRequirement: function () {
 				return (Player.quests.questProgress.troubledWaters2Progress === 5);
-				return Random(0, 1) === 1;
 			},
 			onCatch: function()
 			{

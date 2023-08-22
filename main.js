@@ -3968,7 +3968,7 @@ class Hero extends Attacker {
 
 					if (this.channelling === false) {
 						// bobber has not been cast yet
-						if (distanceToProjectile < this.stats.range && this.map.isSlowTileAtXY(mouseX, mouseY) === "water") {
+						if (distanceToMouse < AttackConstants.rod.baseRange && this.map.isSlowTileAtXY(mouseX, mouseY) === "water") {
 							// player is in range and clicked in water
 
 							this.setChannelling("fishing", undefined, undefined);
@@ -3992,6 +3992,7 @@ class Hero extends Attacker {
 								image: Game.heroBobberName,
 								beingChannelled: true,
 								type: "projectiles",
+								nonDamaging: true,
 							});
 							Game.projectiles.push(bobber);
 							bobber.bobberState = 0;
@@ -4013,9 +4014,7 @@ class Hero extends Attacker {
 					else if (this.channelling === "fishing") {
 						// bobber has been cast
 						// fishing bobber removed as player is not mid-game to catch a fish
-				        Game.removeObject(this.channellingProjectileId, "projectiles"); // remove bobber
-				        this.removeChannelling("fishingBobberRemoved");
-						Game.clearTimeout(Game.fishTimeout);
+				        this.removeChannelling("fishingBobberRemoved"); // also removes bobber and clears timeout
 					}
 					else if (FishingGame.currentGame === "timing" && FishingGame.status === 1)
 					{
@@ -4885,10 +4884,12 @@ class Projectile extends Thing {
 
 			// deal damage!
 			// damage enemies that the projectile is touching
-			this.dealDamage(this.projectileStats, this.targets);
+			if (!properties.nonDamaging) { // i.e. bobber
+				this.dealDamage(this.projectileStats, this.targets);
 
-			// start remove timeout (remove it in a couple of secs)
-			this.startRemoveTimeout();
+				// start remove timeout (remove it in a couple of secs)
+				this.startRemoveTimeout();
+			}
 		}
 
 		this.knightChargeAttack = properties.knightChargeAttack; // knight class' ranged attack
@@ -11043,7 +11044,6 @@ Game.equipmentUpdate = function () {
 	let weaponType = this.getAttackType(); // type of weapon equipped of player
 
     // if the player is holding a weapon, set their projectile details
-	// aaaaaaaaaaaaaaaaaaaaaaaaaaaa do projectile speed etc here
     if (weaponType !== undefined) {
         // player has weapon equipped
 
@@ -11069,7 +11069,6 @@ Game.equipmentUpdate = function () {
 		}
 		else {
         	this.hero.stats.projectileRange = AttackConstants[weaponType].projectileRange;
-			//aaaaaaaaaaaaaaaaaaa readd fishing rod range
 		}
 
 		// set weapon angle variance
@@ -11099,7 +11098,7 @@ Game.equipmentUpdate = function () {
 	    }*/
 
 		// swords etc
-	    if (weaponType === "sword" || typeof Player.inventory.weapon.maxIterations !== undefined) {  //
+	    if (weaponType === "sword" || typeof Player.inventory.weapon.maxIterations !== undefined) {  //tbddddddddd
 	    }
 	    else {
 	    }

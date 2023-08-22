@@ -53,11 +53,19 @@ const AttackConstants = {
 		projectileSpeed: 0, // N/A
 		projectileRange: 0, // N/A
 
-		meleeRange: 160, // range at which melee damage is dealt
+		meleeRange: 100, // range at which melee damage is dealt
 
 		reloadTime: 1000,
 
 		damageMultiplier: 1,
+	},
+	rod: {
+		projectileSpeed: 0, // N/A
+		projectileRange: 0, // N/A
+
+		baseRange: 240, // range at which rod can be fired
+
+		reloadTime: 500,
 	},
 };
 
