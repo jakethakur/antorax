@@ -7040,6 +7040,7 @@ var Items = {
 			id: 37,
 			name: "Universal Translator",
 			type: "fish",
+			fishingType: "watermisc",
 			rarity: "junk",
 			image: "assets/items/fish/37.png",
 			lore: "Probably the oddest thing in the universe.",
@@ -7055,6 +7056,8 @@ var Items = {
 				Dom.quests.active();
 			},
 			quest: true,
+			clicksToCatch: 25,
+			timeToCatch: 5000,
 		},
 	],
 	dev: [

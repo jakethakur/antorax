@@ -254,7 +254,7 @@ const Tutorial = [
 					Dom.alert.page("Press your <b>Left Mouse Button</b> to attack something near you.<br><br>The longer you hold it down, the more damage your attack will do!", 0);
 					break;
 				case "k":
-					Dom.alert.page("Click your <b>Left Mouse Button</b> to attack something.<br><br>You can only attack enemies close to you!", 0);
+					Dom.alert.page("Click your <b>Left Mouse Button</b> to attack something.<br><br>Attacks from a distance create an ally to fight for you! You also have a close-range attack.", 0);
 					break;
 			}
 		},

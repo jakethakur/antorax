@@ -1060,8 +1060,10 @@ Game.removeObject = function (id, type, index) {
 	}
 
 	// remove from enemy attackTargets arrays
-	for (let i = 0; i < this.nonPlayerAttackers.length; i++) {
-		this.nonPlayerAttackers[i].attackTargets[id] = undefined;
+	if (className.prototype instanceof Character) {
+		for (let i = 0; i < this.nonPlayerAttackers.length; i++) {
+			this.nonPlayerAttackers[i].attackTargets[id] = undefined;
+		}
 	}
 
 	// remove from specific array of its type
@@ -2569,8 +2571,10 @@ class Character extends Thing {
 				// reset aggro
 				if (typeof this.attackTargets !== "undefined") {
 					Object.keys(this.attackTargets).forEach(function(key, index) {
-						this.attackTargets[key].aggro = 0;
-					});
+						if (typeof this.attackTargets[key] !== "undefined") {
+							this.attackTargets[key].aggro = 0;
+						}
+					}.bind(this));
 				}
 
 				// on death function (of enemy)
@@ -3017,7 +3021,7 @@ class Character extends Thing {
 
 			// if channelling but can move during this channelling (i.e. player attacks), then speed might be reduced...
 			if (this.channelling !== false) {
-				this.speed *= AttackConstants[Player.class].baseChannellingMoveSpeed * this.stats.channellingMoveSpeed / 10000; // both values are percentages
+				this.speed *= AttackConstants[Game.getAttackType()].baseChannellingMoveSpeed * this.stats.channellingMoveSpeed / 10000; // both values are percentages
 
 				if (this.channelling === "projectile") {
 					// move the projectile with the player
@@ -3920,20 +3924,20 @@ class Hero extends Attacker {
 									healthRegen: 0,
 								},
 
-								attackAllEnemies: true,
+								attackTargetTypes: ["enemies"],
 								projectile: {
 									image: Game.heroProjectileName,
 								},
 
-								onDeath: function () {
-									this.summonsActive--;
+								onDeathAdditional: function () { // additional so that it doesn't require damage from hero
+									Game.hero.summonsActive--;
 								},
 								corpseOnDeath: false,
 								respawnOnDeath: false,
 
 								animation: {
 									type: "spritesheet",
-									frameTime: 30,
+									frameTime: 15,
 									imagesPerRow: 3,
 									totalImages: 5,
 									animateBasis: "walk"
@@ -3942,6 +3946,13 @@ class Hero extends Attacker {
 
 							// finish attack instantly
 							this.finishAttack(e);
+						}
+						else {
+							// too many summons active - cancel attack
+							Dom.chat.insert("You can only have " + AttackConstants.sword.maxSummons + " allies at once!")
+							this.channelling = false;
+							this.channellingInfo = false;
+							this.canAttack = true;
 						}
 					}
 					else {
@@ -4514,8 +4525,11 @@ class Hero extends Attacker {
 				let usingBait;
 				let baitStatusEffectIndex = this.statusEffects.findIndex(statusEffect => statusEffect.title === "Fish bait");
 				if (baitStatusEffectIndex !== -1) { // check if player has a bait status effect
+					if (this.statusEffects[baitStatusEffectIndex].info.skillIncrease>=0) {
+						// helps them catch fish
+						usingBait = true;
+					}
 					this.removeStatusEffect(baitStatusEffectIndex, "used");
-					usingBait = true;
 				}
 
 				// find what rarities the player can fish up
@@ -5883,21 +5897,23 @@ class NonPlayerAttacker extends Attacker {
 		Object.keys(this.attackTargets).forEach(function(key, index) {
 			let target = this.attackTargets[key];
 
-			// update lastAttacked times
-			if (typeof target.lastAttacked === "undefined") {
-				target.lastAttacked = 0;
-			}
-			target.lastAttacked += delta*1000; // everything in ms
-
-			if (this.forgivenessTime >= 0 && target.lastAttacked > this.forgivenessTime) {
-				// target is being forgiven for their aggression...
-				if (typeof target.aggroBeforeForgiveness === "undefined") {
-					// init forgiveness (this variable is reset on damage being dealt to the enemy)
-					target.aggroBeforeForgiveness = target.aggro; // this is the initial aggro before the forgiveness started, so it can be calculated using exponential decay
+			if (typeof target !== "undefined") {
+				// update lastAttacked times
+				if (typeof target.lastAttacked === "undefined") {
+					target.lastAttacked = 0;
 				}
+				target.lastAttacked += delta*1000; // everything in ms
 
-				let timeSinceForgiveness = target.lastAttacked - this.forgivenessTime; // this is the time they have been forgiven for
-				target.aggro = target.aggroBeforeForgiveness / Math.pow(2, timeSinceForgiveness/1000); // exponential decay
+				if (this.forgivenessTime >= 0 && target.lastAttacked > this.forgivenessTime) {
+					// target is being forgiven for their aggression...
+					if (typeof target.aggroBeforeForgiveness === "undefined") {
+						// init forgiveness (this variable is reset on damage being dealt to the enemy)
+						target.aggroBeforeForgiveness = target.aggro; // this is the initial aggro before the forgiveness started, so it can be calculated using exponential decay
+					}
+
+					let timeSinceForgiveness = target.lastAttacked - this.forgivenessTime; // this is the time they have been forgiven for
+					target.aggro = target.aggroBeforeForgiveness / Math.pow(2, timeSinceForgiveness/1000); // exponential decay
+				}
 			}
 		}.bind(this));
 
@@ -5974,10 +5990,11 @@ class NonPlayerAttacker extends Attacker {
 
 							// see if target appears in attackTargetTypes, and that its requirement is true
 							let attackTarget = false;
-							if (typeof this.attackTargets[target.id].requirement === "undefined" || this.attackTargets[target.id].requirement(target)) {
+							if (this.attackTargetTypes.includes(target.type) || this.additionalAttackTargets.includes(target)) {
 								attackTarget = true;
 							}
-							if (!this.attackTargetTypes.includes(target.type)) {
+							if (typeof this.attackTargets[target.id] !== "undefined" && typeof this.attackTargets[target.id].requirement !== "undefined" && !this.attackTargets[target.id].requirement(target)) {
+								// requirement is false
 								attackTarget = false;
 							}
 							// I think target should always be in attack targets... but just in case...
@@ -6072,6 +6089,9 @@ class NonPlayerAttacker extends Attacker {
 
 		this.x += dirx * this.speed * delta;
 		this.y += diry * this.speed * delta;
+
+		// for some animations
+		this.totalDistanceWalked += Math.sqrt((dirx * this.speed * delta)*(dirx * this.speed * delta) + (diry * this.speed * delta)*(diry * this.speed * delta));
 
 		// collide with solid tiles
 		if (!this.noCollision) {
@@ -6188,7 +6208,7 @@ class NonPlayerAttacker extends Attacker {
 			else {
 				array = Game[this.attackTargetTypes[i]];
 			}
-			for (let j = 0; j < array.length; i++) {
+			for (let j = 0; j < array.length; j++) {
 				let target = array[j];
 				// check that target is not stealthed OR they are and this is touching them. also check they're not dead lol. and check requirement function
 				if ((!target.stats.stealthed || this.isTouching(target)) && !target.isCorpse && !target.respawning
@@ -6330,6 +6350,7 @@ class Enemy extends NonPlayerAttacker {
 			baseAggro: heroBaseAggro, // added to aggro, constant value (this is effectively a leashradius of 350 pixels, increased by aggro)
 			lastAttacked: undefined, // the time in ms since this character was last attacked. if it was longer ago than forgivenessTime, then the aggro halves each second
 		};
+		this.additionalAttackTargets.push(Game.hero);
 		// 100(aggro+baseAggro)/distance is used to decide whether it is worth them attacking each target (above their attackThreshold)
 		// 1 aggro is effectively 100 leash radius
 
@@ -11988,7 +12009,7 @@ Game.drawCharacterName = function (ctx, character, x, y) {
 	if (User.settings.aggro) {
 		let aggro = undefined; // aggro of character on hero
 		// see if character even has aggro on player
-		if (typeof character.attackTargets !== "undefined") {
+		if (typeof character.attackTargets !== "undefined" && typeof character.attackTargets[Game.hero.id] !== "undefined") {
 			// find the attacker in the target's targets (I'm getting jamais vu...)
 			aggro = Round(character.attackTargets[Game.hero.id].aggro, 1);
 			aggro += character.attackTargets[Game.hero.id].baseAggro;
