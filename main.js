@@ -1060,14 +1060,8 @@ Game.removeObject = function (id, type, index) {
 	}
 
 	// remove from enemy attackTargets arrays
-	for (let i = 0; i < this.enemies.length; i++) {
-		for (let j = 0; j < this.enemies[i].attackTargets.length; j++) {
-			if (this.enemies[i].attackTargets[j].target.id === id) {
-				// remove it
-				this.enemies[i].attackTargets.splice(j);
-				j--;
-			}
-		}
+	for (let i = 0; i < this.nonPlayerAttackers.length; i++) {
+		this.nonPlayerAttackers[i].attackTargets[id] = undefined;
 	}
 
 	// remove from specific array of its type
@@ -2574,9 +2568,9 @@ class Character extends Thing {
 
 				// reset aggro
 				if (typeof this.attackTargets !== "undefined") {
-					for (let i = 0; i < this.attackTargets.length; i++) {
-						this.attackTargets[i].aggro = 0;
-					}
+					Object.keys(this.attackTargets).forEach(function(key, index) {
+						this.attackTargets[key].aggro = 0;
+					});
 				}
 
 				// on death function (of enemy)
@@ -5194,19 +5188,37 @@ class Projectile extends Thing {
 								aggroList = aggroList.concat(add);
 							}
 						}
-						for (let i = 0; i < aggroList.length; i++) {
+						for (let i = 0; i < aggroList.length; i++) { // everything that needs its aggro changed
 							let entity = aggroList[i]
 							if (typeof entity.attackTargets !== "undefined") {
 								// try to find the attacker in the target's targets (I'm getting jamais vu...)
-								for (let i = 0; i < entity.attackTargets.length; i++) {
-									if (entity.attackTargets[i].target === attacker) {
-										if (typeof entity.attackTargets[i].aggro === "undefined") {
-											entity.attackTargets[i].aggro = 0;
-										}
-										entity.attackTargets[i].aggro += dmgDealt / entity.stats.maxHealth * 10 * entity.attackTargets[i].target.stats.enemyAggro / 100;
-										entity.attackTargets[i].lastAttacked = 0;
-										entity.attackTargets[i].aggroBeforeForgiveness = undefined;
+								let targetFound = false;
+								if (typeof entity.attackTargets[attacker.id] !== "undefined") {
+									targetFound = true;
+								}
+
+								if (targetFound === false && typeof entity.attackTargetTypes !== "undefined") {
+									// add to attackTargets if it is in attackTargetTypes
+									if (entity.attackTargetTypes.includes(attacker.type)) {
+										entity.attackTargets[attacker.id] = {
+											target: attacker,
+											aggro: 0,
+											baseAggro: entity.baseAggro,
+										};
+
+										targetFound = true;
 									}
+								}
+
+								if (targetFound !== false) {
+									// increase aggro on the target
+									let aggroIncreaseObj = entity.attackTargets[attacker.id];
+									if (typeof aggroIncreaseObj.aggro === "undefined") {
+										aggroIncreaseObj.aggro = 0;
+									}
+									aggroIncreaseObj.aggro += dmgDealt / entity.stats.maxHealth * 10 * aggroIncreaseObj.target.stats.enemyAggro / 100;
+									aggroIncreaseObj.lastAttacked = 0;
+									aggroIncreaseObj.aggroBeforeForgiveness = undefined;
 								}
 							}
 						}
@@ -5832,24 +5844,44 @@ class NonPlayerAttacker extends Attacker {
 		// aggro
 		//
 
-		this.attackTargets = []; // for format of this and how aggro works , see the comments at the bottom of the Enemy constructor
+		this.attackTargets = {}; // each id corresponds to the id of the character it has aggro on. if it is undefined, it just has baseaggro on this character
+		// for format of its constituent objects and how aggro works , see the comments at the bottom of the Enemy constructor
 
-		this.baseAggro = properties.attackBehaviour.baseAggro || 3.5;
+		this.attackTargetTypes = properties.attackTargetTypes || []; // properties are the array names that targets are found in
+		// any additional attack targets (or any attack targets with a different baseAggro or a requirement function) should be added directly to attackTargets via properties.attackTargets (where .target is a function that returns the target)
+		// these additional attack targets are stored in additionalAttackTargets as seen below
+		// for enemies, this is just "nonPlayerAttackers" by default (this array doesn't include enemies themselves)
+
+		this.baseAggro = properties.attackBehaviour.baseAggro || 3.5; // base aggro of this ON *ALL* its targets (can be overridden for individual targets)
 
 		this.forgivenessTime = properties.attackBehaviour.forgivenessTime || 4000; // if this is negative then they never forgive you (:
 		this.attackThreshold = properties.attackBehaviour.attackThreshold || 1; // aggro-distance quotients below this aren't attacked
 
-		this.jointAggro = properties.jointAggro; // function that returns *array* of characters which also gain aggro when this is attacked
+		// construct attackTargets from properties (these are additional attackTargets that aren't included in attackTargetTypes)
+		this.additionalAttackTargets = [];
+		if (typeof properties.attackTargets !== "undefined") {
+			for (let i = 0; i < properties.attackTargets.length; i++) {
+				let target = properties.attackTargets[i].target();
+				if (target) {
+					this.attackTargets[target.id] = {
+						target: target,
+						aggro: 0,
+						baseAggro: properties.attackTargets[i].baseAggro || this.baseAggro,
+						requirement: properties.attackTargets[i].requirement, // optional
+					};
+					this.additionalAttackTargets.push(target);
+				}
+			}
+		}
 
-		this.attackTargetTypes = properties.attackTargetTypes || []; // properties are the array names that targets are found in OR the actual objects to be targeted themselves (or a mix)
-		// for enemies, this is Game.hero and "nonPlayerAttackers" by default
+		this.jointAggro = properties.jointAggro; // function that returns *array* of characters which also gain aggro when this is attacked
 	}
 
 	// we are in NonPlayerAttacker class - this is called every time update is called
 	update (delta) { // NONPLAYERATTACKER update
 		// update aggros
-		for (let i = 0; i < this.attackTargets.length; i++) {
-			let target = this.attackTargets[i];
+		Object.keys(this.attackTargets).forEach(function(key, index) {
+			let target = this.attackTargets[key];
 
 			// update lastAttacked times
 			if (typeof target.lastAttacked === "undefined") {
@@ -5867,7 +5899,7 @@ class NonPlayerAttacker extends Attacker {
 				let timeSinceForgiveness = target.lastAttacked - this.forgivenessTime; // this is the time they have been forgiven for
 				target.aggro = target.aggroBeforeForgiveness / Math.pow(2, timeSinceForgiveness/1000); // exponential decay
 			}
-		}
+		}.bind(this));
 
 		let moved = false; // whether character has called this.move
 
@@ -5940,24 +5972,30 @@ class NonPlayerAttacker extends Attacker {
 
 						if (targetDist < this.stats.range) { // target is within range of attacking
 
-							// see if target appears in attackTargets
+							// see if target appears in attackTargetTypes, and that its requirement is true
 							let attackTarget = false;
-							for (let i = 0; i < this.attackTargets.length; i++) {
-								if (this.attackTargets[i].target.id === target.id && (typeof this.attackTargets[i].requirement === "undefined" || this.attackTargets[i].requirement(this.attackTargets[i].target))) {
-									attackTarget = true;
-									break;
-								}
+							if (typeof this.attackTargets[target.id].requirement === "undefined" || this.attackTargets[target.id].requirement(target)) {
+								attackTarget = true;
+							}
+							if (!this.attackTargetTypes.includes(target.type)) {
+								attackTarget = false;
 							}
 							// I think target should always be in attack targets... but just in case...
 							if (!attackTarget) {
-								console.error("A target was found that's not in attack targets! Please tell Jake. ", target)
+								console.error("A target was found that's not in attackTargets or attackTargetTypes! Please tell Jake. ", target)
 							}
 
 							// enemy should attack target
 							// canAttack is inside if statement because otherwise the enemy moves when it is in range but cannot attack
 							if (this.canAttack && !this.stats.doesNotAttack && attackTarget) { // projectile can be shot
-								// even though projectile is aimed at target, it can hit all enemies in attackTarget
-								this.shoot([this.canDamage], target);
+								// even though projectile is aimed at target, it can hit all enemies in attackTargetTypes
+								let canDamage = []; // array of arrays of enemies; doesn't matter if there's duplication
+								for (let i = 0; i < this.attackTargetTypes.length; i++) {
+									canDamage.push(Game[this.attackTargetTypes[i]]);
+								}
+								canDamage.push(this.additionalAttackTargets);
+
+								this.shoot(canDamage, target); // target is the direction of the projectile; canDamage is what it can hit
 							}
 
 							// alwaysMove stat means that it always moves even when in range
@@ -6142,23 +6180,35 @@ class NonPlayerAttacker extends Attacker {
 			return currentTarget;
 		}
 
-		for (let i = 0; i < this.attackTargets.length; i++) {
-			let target = this.attackTargets[i];
-			// check that target is not stealthed OR they are and this is touching them. also check they're not dead lol. and check requirement function
-			if ((!target.target.stats.stealthed || this.isTouching(target.target)) && !target.target.isCorpse && !target.target.respawning && (typeof target.requirement === "undefined" || target.requirement(target.target))) {
-				let distance = Game.distance(this, target.target);
-				let aggro = target.aggro + target.baseAggro;
+		for (let i = -1; i < this.attackTargetTypes.length; i++) { // i starts at -1 which is used for additionalAttackTargets
+			let array;
+			if (i === -1) {
+				array = this.additionalAttackTargets;
+			}
+			else {
+				array = Game[this.attackTargetTypes[i]];
+			}
+			for (let j = 0; j < array.length; i++) {
+				let target = array[j];
+				// check that target is not stealthed OR they are and this is touching them. also check they're not dead lol. and check requirement function
+				if ((!target.stats.stealthed || this.isTouching(target)) && !target.isCorpse && !target.respawning
+				&& (typeof this.attackTargets[target.id] === "undefined" || typeof this.attackTargets[target.id].requirement === "undefined" || this.attackTargets[target.id].requirement(target))) {
+					let distance = Game.distance(this, target);
+					// if distance is less than 100 (maybe change?) then 100 is the value used for aggro quotient
+					distance = Math.max(100, distance);
 
-				// if distance is less than 100 (maybe change?) then 100 is the value used for aggro quotient
-				distance = Math.max(100, distance);
+					// calculate aggro (before incorporating distance)
+					let aggro = this.baseAggro;
+					if (typeof this.attackTargets[target.id] !== "undefined") {
+						aggro = this.attackTargets[target.id].aggro + this.attackTargets[target.id].baseAggro;
+					}
 
-				let aggroQuotient = aggro / distance * 100; // what the target is calculated based off of
+					let aggroQuotient = aggro / distance * 100; // what the target is calculated based off of
 
-				target.aggroQuotient = aggroQuotient; // for ease of testing in console
-
-				if (aggroQuotient >= currentMaximum) {
-					currentTarget = target.target;
-					currentMaximum = aggroQuotient;
+					if (aggroQuotient >= currentMaximum) {
+						currentTarget = target;
+						currentMaximum = aggroQuotient;
+					}
 				}
 			}
 		}
@@ -6170,14 +6220,15 @@ class NonPlayerAttacker extends Attacker {
 	// aggro value doesn't take into account base aggro !
 	// set aggroValue to "unAggro" for base aggro + aggro to equal 0
 	setAggro (target, aggroValue) {
-		for (let i = 0; i < this.attackTargets.length; i++) {
-			if (this.attackTargets[i].target.id === target.id) {
-				if (aggroValue === "unAggro") {
-					aggroValue = -this.attackTargets[i].baseAggro;
-				}
-				this.attackTargets[i].aggro = aggroValue;
-				return true;
-			}
+		if (aggroValue === "unAggro") {
+			aggroValue = -this.attackTargets[i].baseAggro;
+		}
+		if (typeof this.attackTargets[target.id] !== "undefined") {
+			this.attackTargets[target.id].aggro = aggroValue;
+			return true;
+		}
+		else {
+			return false;
 		}
 	}
 }
@@ -6273,14 +6324,16 @@ class Enemy extends NonPlayerAttacker {
 		}
 		heroBaseAggro *= Game.hero.stats.enemyAggro / 100;
 		// hero is always a target
-		this.attackTargets.push({
+		this.attackTargets[Game.hero.id] = {
 			target: Game.hero,
 			aggro: 0, // increases by the percentage of health dealt to character (10% dealt -> aggro increased by 1)
 			baseAggro: heroBaseAggro, // added to aggro, constant value (this is effectively a leashradius of 350 pixels, increased by aggro)
 			lastAttacked: undefined, // the time in ms since this character was last attacked. if it was longer ago than forgivenessTime, then the aggro halves each second
-		});
+		};
 		// 100(aggro+baseAggro)/distance is used to decide whether it is worth them attacking each target (above their attackThreshold)
 		// 1 aggro is effectively 100 leash radius
+
+		this.attackTargetTypes.push("nonPlayerAttackers");
 	}
 
 	// generate loot from lootTable (called when enemy dies or a chest is added)
@@ -8903,9 +8956,6 @@ Game.init = function () {
 
 	// re-init hero's saved status effects
 	this.initStatusEffects();
-
-	// fixes changed base stats (tbd - temp)
-	Dom.testing.resetStats();
 
 	// start Game tick
 	window.requestAnimationFrame(this.tick);
@@ -11939,14 +11989,9 @@ Game.drawCharacterName = function (ctx, character, x, y) {
 		let aggro = undefined; // aggro of character on hero
 		// see if character even has aggro on player
 		if (typeof character.attackTargets !== "undefined") {
-			// try to find the attacker in the target's targets (I'm getting jamais vu...)
-			for (let i = 0; i < character.attackTargets.length; i++) {
-				if (character.attackTargets[i].target.constructor.name === "Hero") {
-					aggro = Round(character.attackTargets[i].aggro, 1);
-					aggro += character.attackTargets[i].baseAggro;
-					break;
-				}
-			}
+			// find the attacker in the target's targets (I'm getting jamais vu...)
+			aggro = Round(character.attackTargets[Game.hero.id].aggro, 1);
+			aggro += character.attackTargets[Game.hero.id].baseAggro;
 		}
 		if (typeof aggro !== "undefined") {
 			nameText += " | "+aggro+"💢";
@@ -12698,19 +12743,27 @@ Game.secondary.updateCursor = function (event) {
 		};
 	}
 
+	let mouseX = Game.camera.x + event.clientX - Game.viewportOffsetX;
+	let mouseY = Game.camera.y + event.clientY - Game.viewportOffsetY;
+
+	let distanceToMouse = Game.distance({x: mouseX, y: mouseY,}, Game.hero);
+
 	// if the weapon is a fishing rod, check the mouse is in water
 	let rodInWater = true;
 	if (Player.inventory.weapon.type === "rod") {
 		// rod equipped
-		if (map.isSlowTileAtXY(event.clientX + Game.camera.x, event.clientY + Game.camera.y) !== "water") {
+		if (map.isSlowTileAtXY(mouseX, event.clientY + mouseY) !== "water") {
 			// no water tile at mouse pointer
+			rodInWater = false;
+		}
+		else if (distanceToMouse > AttackConstants.rod.baseRange) {
+			// out of range
 			rodInWater = false;
 		}
 	}
 
-	// check the player's not reloading and that they have a weapon equipped (i.e. range > 0)
-	// pppppppppppppppppp readd rod range
-	if (Game.hero.stats.range > 0 && Game.hero.canAttack && rodInWater) {
+	// check the player's not reloading and that they have a weapon equipped (i.e. its id is defined)
+	if (typeof Player.inventory.weapon.id !== "undefined" > 0 && Game.hero.canAttack && rodInWater) {
 		// hero can attack (crosshair)
 		let cursor = Skins[Player.class][Player.skin].cursor;
 		if (cursor !== "crosshair") {

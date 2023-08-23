@@ -63,7 +63,7 @@ var Quests = {
 				xp: 10,
 				items: [
 					{item: Items.boots[2],},
-					{item: Items.currency[2], quantity: 3,},
+					{item: Items.currency[2], quantity: 2,},
 				],
 			},
 

@@ -5781,8 +5781,8 @@ onPlayerTouch: function () {
 			table: {normal: "assets/objects/table.png"},
 			largeTable: {normal: "assets/objects/largeTable.png"},
 			barrel: {normal: "assets/objects/barrel.png", christmas: "assets/objects/barrelChristmas.png"},
-			cat1Left: {normal: "assets/npcs/cat1.png"}, // for amelio
-            cat1Right: {normal: "assets/npcs/cat1.png", flip: "vertical"},
+			catAmelioLeft: {normal: "assets/npcs/catAmelioLeft.png"}, // for amelio
+            catAmelioRight: {normal: "assets/npcs/catAmelioLeft.png", flip: "vertical"},
 			yellowSnakeRight: {samhain: "assets/enemies/yellowSnake.png"},
 			yellowSnakeLeft: {samhain: "assets/enemies/yellowSnake.png", flip: "vertical"},
 			greenbeard: {normal: "assets/npcs/greenbeard.png"}, // for overdraft
@@ -5972,11 +5972,24 @@ onPlayerTouch: function () {
 				],
 			},
 			{
-				image: "cat1Left",
+				image: "catAmelioLeft",
         		rotationImages: {
-            		left: "cat1Left",
-            		right: "cat1Right"
+            		left: "catAmelioLeft",
+            		right: "catAmelioRight"
         		},
+				animation: {
+					type: "spritesheet",
+					frameTime: 30,
+					imagesPerRow: 3,
+					totalImages: 3,
+					animateBasis: "walk"
+				},
+				crop: {
+					x: 3,
+					y: 1,
+					width: 88,
+					height: 79,
+				},
                 name: "Amelio",
                 speciesTemplate: SpeciesTemplates.cat,
                 canBeShown: function () {
@@ -7727,8 +7740,8 @@ Last I saw him, he was visiting the <b>Eaglecrest Plains</b> to the <b>south</b>
 			archbishop: {normal: "assets/npcs/archbishop.png"},
 			stairsLeft: {normal: "assets/objects/stairsLeft.png"},
 			stairsRight: {normal: "assets/objects/stairsRight.png"},
-			cat1Left: {normal: "./assets/npcs/cat1.png"},
-			cat1Right: {normal: "./assets/npcs/cat1.png", flip: "vertical"},
+			catAmelioLeft: {normal: "./assets/npcs/catAmelio.png"},
+			catAmelioRight: {normal: "./assets/npcs/catAmelio.png", flip: "vertical"},
 			yellowSnakeRight: {samhain: "assets/enemies/yellowSnake.png"},
 			yellowSnakeLeft: {samhain: "assets/enemies/yellowSnake.png", flip: "vertical"},
 		},
@@ -8026,11 +8039,24 @@ Last I saw him, he was visiting the <b>Eaglecrest Plains</b> to the <b>south</b>
 
 		villagers: [
 			{
-				image: "cat1Left",
+				image: "catAmelioLeft",
         		rotationImages: {
-            		left: "cat1Left",
-            		right: "cat1Right"
+            		left: "catAmelioLeft",
+            		right: "catAmelioLeft"
         		},
+				animation: {
+					type: "spritesheet",
+					frameTime: 30,
+					imagesPerRow: 3,
+					totalImages: 3,
+					animateBasis: "walk"
+				},
+				crop: {
+					x: 3,
+					y: 1,
+					width: 88,
+					height: 79,
+				},
                 name: "Amelio",
                 speciesTemplate: SpeciesTemplates.cat,
                 canBeShown: function () {
