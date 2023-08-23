@@ -223,12 +223,10 @@ bowEl.addEventListener(
 		if (bowAnimInterval === null) {
 			bowAnimInterval = setInterval(function () {
 				bowFrame++;
-				console.log(bowFrame);
 				if (bowFrame < totalBowHoverFrames) {
 					let xSpacing = 250 * (bowFrame%bowHoverFramesPerRow);
 					let ySpacing = 250 * Math.floor(bowFrame/bowHoverFramesPerRow);
 					bowEl.style.backgroundPosition = "-" + xSpacing + "px -" + ySpacing + "px";
-					console.log("-" + xSpacing + "px -" + ySpacing + "px");
 				}
 				else {
 					if (bowEl.style.backgroundImage === 'url("./assets/bowAnim/hover.png")' || bowEl.style.backgroundImage === '') {
@@ -240,9 +238,7 @@ bowEl.addEventListener(
 					let xSpacing = 250 * (bowFrame%bowIdleFramesPerRow);
 					let ySpacing = 250 * Math.floor(bowFrame/bowIdleFramesPerRow);
 					bowEl.style.backgroundPosition = "-" + xSpacing + "px -" + ySpacing + "px";
-					console.log("-" + xSpacing + "px -" + ySpacing + "px");
 				}
-				console.log("-");
 			}, 100);
 		}
 	},

@@ -1366,6 +1366,18 @@ class Entity {
 		}
 
 
+		this.fishable = properties.fishable; // an object, if fishing rod can interact with it
+		// object properties: giveItem should be set to an item if an item should be given on fishing up
+		// clicksToCatch and timeToCatch for clicker stage of fishing game (only works for fishingType waterMisc)
+		// challengeRarity for bar stage of fishing game
+		// removeOnCatch if this should be removed on the fish being caught
+		// onCatchAdditional is a function that's always called
+		// also needs a fishingType, which is set to waterMisc by default. this effects the fishing skill gained and other fishing behaviour
+		if (typeof this.fishable !== "undefined" && typeof this.fishable.fishingType === "undefined") {
+			this.fishable.fishingType = "waterMisc";
+		}
+
+
 		this.use = properties.use; // optional metadata about object, can be used by anything that needs it
 		this.dev = properties.dev; // if this is true it was placed by a dev item, can be deleted by dev items, etc
 
@@ -2547,7 +2559,7 @@ class Character extends Thing {
 			// TBD use hostility to check if it is killed by player
 			if (this.health <= 0 && !this.isCorpse) { // check it is dead and not already a corpse
 
-				// death
+				// death ! !
 
 				let inMinigame = Game.minigameInProgress !== undefined && Game.minigameInProgress.playing; // no xp, achievement or quest progress, etc. whilst in minigame
 
@@ -3971,18 +3983,45 @@ class Hero extends Attacker {
 				else if (weaponType === "rod") {
 					// fishing rod
 
-					if (this.channelling === false) {
-						// bobber has not been cast yet
-						if (distanceToMouse < AttackConstants.rod.baseRange && this.map.isSlowTileAtXY(mouseX, mouseY) === "water") {
-							// player is in range and clicked in water
+					if (this.channelling === false && distanceToMouse < AttackConstants.rod.baseRange) {
+						// bobber has not been cast yet, and player is in range
+
+						// check if mouse is over any "fishable" entity
+						let fishableEntities = Game.allEntities.filter(entity => typeof entity.fishable !== "undefined");
+						let fishUp = undefined;
+						for (let i = 0; i < fishableEntities.length; i++) {
+							if (Game.isTouching({x: mouseX, y: mouseY}, fishableEntities[i])) {
+								// currently just takes first fishable entity
+								fishUp = fishableEntities[i];
+								break;
+							}
+						}
+
+						if (typeof fishUp !== "undefined" ||this.map.isSlowTileAtXY(mouseX, mouseY) === "water") {
+							// player clicked in water, or has an entity to fish up !!
 
 							this.setChannelling("fishing", undefined, undefined);
 
 							this.channellingProjectileId = Game.nextEntityId;
 
-							// snap to tile centre
-							let projectileX = Math.floor(mouseX/60)*60 + 30;
-							let projectileY = Math.floor(mouseY/60)*60 + 30;
+							let projectileX, projectileY;
+
+							if (typeof fishUp !== "undefined") {
+								// entity to fish up !!
+								Game.fishUp = fishUp;
+
+								// snap to tile centre
+								projectileX = mouseX;
+								projectileY = mouseY;
+							}
+							else {
+								// fishing in water
+								Game.fishUp = undefined;
+
+								// snap to tile centre
+								projectileX = Math.floor(mouseX/60)*60 + 30;
+								projectileY = Math.floor(mouseY/60)*60 + 30;
+							}
 
 							let bobber = new Projectile({ // fishing projectile
 								map: map,
@@ -4004,7 +4043,7 @@ class Hero extends Attacker {
 
 							// timer until it starts bobbing
 							let bobTime = Random(2000, 15000);
-							if (Weather.weatherType === "rain") {
+							if (Weather.weatherType === "rain" && !Areas[Game.areaName].indoors) {
 								// shorter bobTime if it is raining
 								bobTime = Math.round(bobTime / 1.5);
 							}
@@ -4160,6 +4199,11 @@ class Hero extends Attacker {
 							// quest progress
 							Player.quests.questProgress.itemsFishedUp = Increment(Player.quests.questProgress.itemsFishedUp);
 
+							// for quest progress etc
+							if (typeof Areas[Game.areaName].onFishCaught !== "undefined") {
+								Areas[Game.areaName].onFishCaught();
+							}
+
 							// chat message
 							let article = "a ";
 							if (this.channelling.plural === true) {
@@ -4267,18 +4311,25 @@ class Hero extends Attacker {
 								Player.quests.questProgress.mythicFishCaught = Increment(Player.quests.questProgress.mythicFishCaught);
 							}
 
-							// give fish
-							// must be after quest progress and fishing skill
-							let inventoryPosition = Dom.inventory.give(this.channelling);
-							// inventory position saved for if onCatch needs it
+							if (this.channelling.giveItem !== false) {
+								// give fish
+								// must be after quest progress and fishing skill
+								let inventoryPosition = Dom.inventory.give(this.channelling);
+								// inventory position saved for if onCatch needs it
 
-							if (inventoryPosition === false) {
-								Dom.chat.insert("<i>You don't have any space to hold that item!</i>")
+								if (inventoryPosition === false) {
+									Dom.chat.insert("<i>You don't have any space to hold that item!</i>")
+								}
+								// onCatch function (only called if the player has space to hold the item)
+								else if (this.channelling.onCatch !== undefined) {
+									this.channelling.onCatch(inventoryPosition);
+								}
 							}
-							// onCatch function (only called if the )
-							else if (this.channelling.onCatch !== undefined) {
-								this.channelling.onCatch(inventoryPosition);
+
+							if (this.channelling.onCatchAdditional !== undefined) { // this one is ALWAYS called !!!
+								this.channelling.onCatchAdditional();
 							}
+
 
 							if (Math.floor(this.stats.fishingSkill) - Math.floor(oldFishingSkill) > 0) { // check if the player's fishing skill has increased to the next integer (or more)
 								Dom.chat.insert("Your fishing skill has increased to " + Math.floor(this.stats.fishingSkill) + "."); // notify them of this in chat
@@ -4290,6 +4341,11 @@ class Hero extends Attacker {
 							// fish length for fisher's log
 							if (this.channelling.length > User.fish[this.channelling.id] || typeof User.fish[this.channelling.id] === "undefined") {
 								User.fish[this.channelling.id] = this.channelling.length;
+							}
+
+							// fishUp might mean an entity needs to be removed
+							if (typeof this.channelling.deleteEntityOnCatch !== "undefined") {
+								Game.removeObject(this.channelling.deleteEntityOnCatch.id, this.channelling.deleteEntityOnCatch.type);
 							}
 
 							// remove fishing bobber
@@ -4503,12 +4559,40 @@ class Hero extends Attacker {
 		if (FishingGame.status === 0)
 		{
 			// fish hasn't even been decided yet! let's do that now
-			let fish;
+			let fish = [];
 			let itemRarity;
 
-			if (Player.stats.fishingSkill === 0) {
+			if (typeof Game.fishUp !== "undefined") {
+				// fishing up a certain entity in particular, which is saved as fishUp
+				let obj = Game.fishUp.fishable;
+
+				if (obj.giveItem) {
+					fish = obj.giveItem;
+				}
+				else {
+					fish = {giveItem: false,};
+				}
+
+				fish.clicksToCatch = obj.clicksToCatch;
+				fish.timeToCatch = obj.timeToCatch;
+
+				if (typeof obj.onCatchAdditional !== "undefined") {
+					fish.onCatchAdditional = obj.onCatchAdditional;
+				}
+
+				itemRarity = obj.challengeRarity; // for difficulty of bars
+
+				if (obj.removeOnCatch) {
+					fish.deleteEntityOnCatch = Game.fishUp;
+				}
+
+				if (typeof fish.fishingType === "undefined") {
+					fish.fishingType = obj.fishingType;
+				}
+			}
+			else if (Player.stats.fishingSkill === 0) {
 				// tutorial
-				fish = Items.fish[9];
+				fish = Items.fish[9]; // tbd make depend on area
 				itemRarity = "tutorial";
 
 				// close prev alert if it's still open
@@ -4535,7 +4619,7 @@ class Hero extends Attacker {
 				// find what rarities the player can fish up
 				// junk is fished up in the proportion not unlocked by common/unique/mythic
 				let raritiesAvailable = [];
-					if (Player.stats.fishingSkill >= FishingLevels[Player.lootArea]) {
+					if (Player.stats.fishingSkill >= FishingLevels[Player.lootArea] ) {
 					// can fish up commons
 					raritiesAvailable.push("common");
 				}
@@ -4552,48 +4636,57 @@ class Hero extends Attacker {
 					raritiesAvailable.push("junk");
 				}
 
-				// pick a random rarity from the raritiesAvailable array
-				let RandomNum = Random(1, 20);
-				itemRarity = "";
-				if (RandomNum === 1) {
-					// 1 in 20 chance for a mythic
-					itemRarity = "mythic";
-				}
-				else if (RandomNum <= 4) {
-					// 3 in 20 chance for a unique
-					itemRarity = "unique";
-				}
-				else if (RandomNum <= 11) {
-					// 7 in 20 chance for a common
-					itemRarity = "common";
-				}
-				else {
-					itemRarity = "junk";
-				}
-				// check if the player has unlocked that rarity, otherwise give them a junk item
-				if (!raritiesAvailable.includes(itemRarity)) {
-					if (!usingBait) {
-						itemRarity = "junk";
+				// repeat the following until a valid fish is found ..
+				while (typeof fish.id === "undefined") {
+					// pick a random rarity from the raritiesAvailable array
+					let RandomNum = Random(1, 20);
+					itemRarity = "";
+					if (RandomNum === 1) {
+						// 1 in 20 chance for a mythic
+						itemRarity = "mythic";
 					}
-					else {
-						// guaranteed fish with bait
+					else if (RandomNum <= 4) {
+						// 3 in 20 chance for a unique
+						itemRarity = "unique";
+					}
+					else if (RandomNum <= 11) {
+						// 7 in 20 chance for a common
 						itemRarity = "common";
 					}
-				}
+					else {
+						itemRarity = "junk";
+					}
+					// check if the player has unlocked that rarity, otherwise give them a junk item
+					if (!raritiesAvailable.includes(itemRarity)) {
+						if (!usingBait) {
+							itemRarity = "junk";
+						}
+						else {
+							// guaranteed fish with bait
+							itemRarity = "common";
+						}
+					}
 
-				// find the fish that should be caught
-				fish = Items.fish;
-				fish = fish.filter(item => item.areas.includes(Player.lootArea) || item.areas.includes(Game.areaName) || item.areas.length === 0); // filter for area (either lootArea or areaName)
-				fish = fish.filter(item => item.rarity === itemRarity); // filter for rarity
-				fish = fish.filter(item => item.timeRequirement === undefined || Event.time === item.timeRequirement); // filter for time that it can be fished up
-				fish = fish.filter(item => item.catchRequirement === undefined || item.catchRequirement()); // filter for general fishing requirement
-				if (usingBait) {
-					// can't get watermisc
-					fish = fish.filter(item => item.fishingType === "fish");
-				}
-				if (fish.constructor === Array) {
-					// still more fish to pick from
-					fish = fish[Random(0, fish.length - 1)]; // Random fish that fulfils requirements above
+					// find the fish that should be caught
+					fish = Items.fish;
+					fish = fish.filter(item => item.areas.includes(Player.lootArea) || item.areas.includes(Game.areaName) || item.areas.length === 0); // filter for area (either lootArea or areaName)
+					fish = fish.filter(item => item.rarity === itemRarity); // filter for rarity
+					fish = fish.filter(item => item.timeRequirement === undefined || Event.time === item.timeRequirement); // filter for time that it can be fished up
+					fish = fish.filter(item => item.catchRequirement === undefined || item.catchRequirement()); // filter for general fishing requirement
+					if (usingBait) {
+						// can't get watermisc
+						fish = fish.filter(item => item.fishingType === "fish");
+					}
+
+					if (fish.constructor === Array) {
+						// still more fish to pick from
+						fish = fish[Random(0, fish.length - 1)]; // Random fish that fulfils requirements above
+					}
+
+					if (typeof fish.id === "undefined") {
+						// no fish exists! Must have filtered it too much (maybe a certain rarity doesn't exist)
+						raritiesAvailable = ["junk", "common"];
+					}
 				}
 				fish = { ...fish }; // remove all references to itemdata in fish variable (otherwise length value changed in this will also affect itemData)!
 			}

@@ -1414,6 +1414,7 @@ const EnemyTemplates = {
 			name: "Sea Monter Tail",
 			hostility: "boss",
 			level: 5,
+			canBeDamagedBy: [""],
 			stats: {
 				damage: 0,
 				walkSpeed: 0,
@@ -1428,14 +1429,25 @@ const EnemyTemplates = {
 			xpGiven: 0,
 			corpseOnDeath: false,
 			respawnOnDeath: false,
+			fishable: {
+				removeOnCatch: true,
+				giveItem: false,
+				challengeRarity: "mythic",
+				clicksToCatch: "tbd",
+				timeToCatch: "tbd",
+				fishingType: "waterMisc",
+				onCatchAdditional: function () {
+					// deal the damage to the head
+				}
+			},
 			spells: [
 
 	        ],
 		},
 
-		seaMonsterArch: {
-			image: "seaMonsterArch",
-			name: "Sea Monter Arch",
+		seaMonsterCoil: {
+			image: "seaMonsterCoil",
+			name: "Sea Monter Coil",
 			hostility: "boss",
 			level: 5,
 			stats: {
@@ -1470,7 +1482,7 @@ const EnemyTemplates = {
 				maxHealth: 10000,
 				defence: 10000,
 				range: 1000,
-				healthRegen: 0.5,
+				healthRegen: 0,
 				doesNotAttack: true,
 			},
 			xpGiven: 0,
