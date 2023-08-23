@@ -3030,7 +3030,9 @@ class Character extends Thing {
 					let shotProjectile = Game.projectiles[Game.searchFor(this.channellingProjectileId, Game.projectiles)];
 
 					shotProjectile.x = this.x;
-					shotProjectile.y = this.y
+					shotProjectile.y = this.y;
+					shotProjectile.hitbox.x = this.x;
+					shotProjectile.hitbox.y = this.y;
 				}
 			}
 		}
@@ -5603,7 +5605,7 @@ class Mount extends Character {
 					width: this.baseWidth,
 					height: this.baseHeight
 				}
-			}ppppppppppppppppppppp
+			}
 
 			// hero bobbing
 			if (this.state % 8 < 4) {

@@ -133,6 +133,8 @@ let Dom = {
 		npcChatBannerHeader1: document.getElementById("npcChatBannerHeader1"),
 		npcChatImage: document.getElementById("npcChatImage"),
 		npcChatNext: document.getElementById("npcChatNext"),
+		npcChatOptions: document.getElementById("chatBannerOptions"),
+		npcChatOptionList: document.getElementById("chatBannerOptionList"),
 		otherQuestBox: document.getElementById("otherQuestBox"),
 		outIdtriangle: document.getElementById("outIdtriangle"),
 		outTriangle: document.getElementById("outTriangle"),
@@ -1263,6 +1265,11 @@ Dom.chat.npcBanner = function (npc, text) {
 			// in ms
 			setTimeout(this.npcChatProgress, toShow.progressIn, true);
 		}
+
+		if (typeof toShow.options !== "undefined") {
+			// in ms
+			Dom.chat.npcBannerParams.options = toShow.options;
+		}
 	}
 	else if (typeof toShow === "string") {
 		Dom.chat.npcBannerText = toShow;
@@ -1318,13 +1325,36 @@ Dom.chat.npcBannerIterate = function (i) {
 	}
 	else if (!Dom.chat.npcBannerParams.autoProgress) {
 		// done
-		Dom.elements.npcChatNext.src = "assets/icons/dialogueNext.png";
 
-		Dom.chat.npcBannerReadyToProgress = true;
+		// check if there are options to be made by the player
+		if (typeof Dom.chat.npcBannerParams.options !== "undefined") {
+			// player must make choice
+			Dom.elements.npcChatNext.src = "assets/icons/dialogueChoice.png";
+
+			Dom.elements.npcChatOptionList.innerHTML = "";
+			Dom.elements.npcChatOptions.hidden = false;
+			for (let i = 0; i < Dom.chat.npcBannerParams.options.length; i++) {
+				Dom.elements.npcChatOptionList.innerHTML += "<li class='chatBannerOption' onclick='Dom.chat.chooseOption("+i+")'>"+Dom.chat.npcBannerParams.options[i].text+"</li>";
+			}
+
+			Dom.chat.npcBannerReadyToProgress = false;
+		}
+		else {
+			Dom.elements.npcChatNext.src = "assets/icons/dialogueNext.png";
+			Dom.chat.npcBannerReadyToProgress = true;
+		}
 	}
 }
 
-// called on enter key press
+// called by onclick
+// choice is a number from 0 to the number of choices-1
+Dom.chat.chooseOption = function (choice) {
+	Dom.elements.npcChatOptions.hidden = true;
+
+	Dom.chat.npcChatProgress(true); // currently choice does nothing, tbd
+}
+
+// called on enter key press, or an answer being picked
 // forceProgress set to true if npcBannerReadyToProgress should be ignored
 Dom.chat.npcChatProgress = function (forceProgress) {
 	if (Dom.chat.npcBannerReadyToProgress || forceProgress === true) { // current chat has showed
@@ -1357,12 +1387,6 @@ Dom.chat.npcChatProgress = function (forceProgress) {
 			Dom.elements.npcChatBanner1.hidden = true;
 		}
 	}
-}
-
-// called by onclick
-// choice is a number from 0 to the number of choices-1
-Dom.chat.chooseOption = function (choice) {
-	console.log(choice);
 }
 
 

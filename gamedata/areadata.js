@@ -300,7 +300,7 @@ var Areas = {
 							return Player.quests.questProgress.troubledWaters2Progress === 4;
 						},
 					},
-					{
+					/*{
 						role: "text",
 						chooseText: "Show <strong>Fisherman Tobenam</strong> the <b>Universal Translator</b>.",
 						chat: `Heheheh, you found one. I'll see you around then, heheh.`,
@@ -317,7 +317,7 @@ var Areas = {
 						roleRequirement: function () {
 							return Player.quests.questProgress.troubledWaters2Progress === 6;
 						},
-					},
+					},*/
 				],
 				chat: {
 					notUnlockedRoles: "It's a great day to fish, heheh.",
@@ -4006,6 +4006,10 @@ onPlayerTouch: function () {
 				teleportTo: "eaglecrestMonastery",
 				destinationX: 1100,
 				destinationY: 1730,
+				teleportCondition: function () {
+					return false;
+				},
+				teleportFailText: "The Monastery is currently closed for rennovation."
 			},
 			{
 				// teleport to eaglecrest plains
@@ -7740,8 +7744,8 @@ Last I saw him, he was visiting the <b>Eaglecrest Plains</b> to the <b>south</b>
 			archbishop: {normal: "assets/npcs/archbishop.png"},
 			stairsLeft: {normal: "assets/objects/stairsLeft.png"},
 			stairsRight: {normal: "assets/objects/stairsRight.png"},
-			catAmelioLeft: {normal: "./assets/npcs/catAmelio.png"},
-			catAmelioRight: {normal: "./assets/npcs/catAmelio.png", flip: "vertical"},
+			catAmelioLeft: {normal: "./assets/npcs/catAmelioLeft.png"},
+			catAmelioRight: {normal: "./assets/npcs/catAmelioLeft.png", flip: "vertical"},
 			yellowSnakeRight: {samhain: "assets/enemies/yellowSnake.png"},
 			yellowSnakeLeft: {samhain: "assets/enemies/yellowSnake.png", flip: "vertical"},
 		},

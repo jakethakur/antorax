@@ -2658,6 +2658,16 @@ var Quests = {
 
 			finishName: "Fisher Sharptooth",
 			finishChat: [{
+				text: `Miau, miau miau?`,
+				options: [
+					{
+						text: "Present the translator to Sharptooth.",
+						action: "progress",
+					},
+				]
+			},{
+				text: `<i>Sharptooth snaches the translator out of your hand and eats it!!</i>`,
+			},{
 				text: `Yous looks surprised? Did yous nots thinks I woulds eat the translator?`,
 			},{
 				text: `This translator was for mes right? Oh well, yous can hears mes now.`,
@@ -2674,12 +2684,17 @@ var Quests = {
 				"Speak to <strong>Alchemist Tamtam</strong> in the <b>east</b> of <strong>Eaglecrest City</strong> and give him the <b>blueprint</b>.",
 				"Speak to <strong>Fisherman Tobenam</strong> in <strong>Fisher's Valley</strong> and see what he can do with the <b>blueprint</b>.",
 				"Fish up a <b>Universal Translator</b> in <strong>Fisher's Valley</strong>.",
-				"Speak to <strong>Fisherman Tobenam</strong>.",
+				//"Speak to <strong>Fisherman Tobenam</strong>.",
 				"Return to <strong>Fisher Sharptooth</strong> and give them the <b>Universal Translator</b>."
 			],
 
 			isHidden: function() {
 				let hidden = [];
+
+				if (Player.quests.questProgress.troubledWaters2Progress === undefined)
+				{
+					Player.quests.questProgress.troubledWaters2Progress = 0;
+				}
 
 				// true or falses for each objective (apart from the turn-in objective)
 				hidden.push(false);
@@ -2689,7 +2704,7 @@ var Quests = {
 				hidden.push(Player.quests.questProgress.troubledWaters2Progress < 4);
 				hidden.push(Player.quests.questProgress.troubledWaters2Progress < 5);
 				hidden.push(Player.quests.questProgress.troubledWaters2Progress < 6);
-				hidden.push(Player.quests.questProgress.troubledWaters2Progress < 7);
+				//hidden.push(Player.quests.questProgress.troubledWaters2Progress < 7);
 
 				return hidden;
 			},
@@ -2697,10 +2712,6 @@ var Quests = {
 			isCompleted: function() {
 				let completed = [];
 
-				if (Player.quests.questProgress.troubledWaters2Progress === undefined)
-				{
-					Player.quests.questProgress.troubledWaters2Progress = 0;
-				}
 				// true or falses for each objective (apart from the turn-in objective)
 				completed.push(Player.quests.questProgress.troubledWaters2Progress > 0);
 				completed.push(Player.quests.questProgress.troubledWaters2Progress > 1);
@@ -2708,7 +2719,7 @@ var Quests = {
 				completed.push(Player.quests.questProgress.troubledWaters2Progress > 3);
 				completed.push(Player.quests.questProgress.troubledWaters2Progress > 4);
 				completed.push(Player.quests.questProgress.troubledWaters2Progress > 5);
-				completed.push(Player.quests.questProgress.troubledWaters2Progress > 6);
+				//completed.push(Player.quests.questProgress.troubledWaters2Progress > 6);
 
 				completed = checkFinished(completed);
 
@@ -2758,7 +2769,7 @@ var Quests = {
 			},],
 
 			objectives: [
-				"Fish up a fish near the <b>train</b> in the <b>north west</b> of the <b>plains</b>.",
+				"Fish up a fish near the <b>train station</b> in the <b>north west</b> of the <b>plains</b>.",
 				"Fish up a fish near the <b>flower forest</b> in the <b>south west</b> of the <b>plains</b>.",
 				"Fish up a fish near the <b>lake</b> in the <b>centre</b> of the <b>plains</b>.",
 				"Fish up a fish near the <b>farm</b> in the <b>north east</b> of the <b>plains</b>.",
@@ -2770,6 +2781,11 @@ var Quests = {
 
 			isHidden: function() {
 				let hidden = [];
+
+				if (Player.quests.questProgress.troubledWaters3Progress === undefined)
+				{
+					Player.quests.questProgress.troubledWaters3Progress = 1;
+				}
 
 				// true or falses for each objective (apart from the turn-in objective)
 				hidden.push(false);
@@ -2785,11 +2801,6 @@ var Quests = {
 
 			isCompleted: function() {
 				let completed = [];
-
-				if (Player.quests.questProgress.troubledWaters3Progress === undefined)
-				{
-					Player.quests.questProgress.troubledWaters3Progress = 1;
-				}
 				// true or falses for each objective (apart from the turn-in objective)
 				completed.push(Player.quests.questProgress.northWestFish > 0);
 				completed.push(Player.quests.questProgress.southWestFish > 0);
@@ -2809,7 +2820,7 @@ var Quests = {
 			questRequirements: ["Troubled Waters II"],
 
 			rewards: {
-				xp: 50,
+				xp: 75,
 				reputation: {
 					eaglecrestCity: 30,
 				},

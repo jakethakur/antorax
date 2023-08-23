@@ -1324,11 +1324,15 @@ var Items = {
 			type: "greaves",
 			image: "assets/items/greaves/8.png",
 			tier: 1,
-			lore: "Tell 'em to bring out the whole ocean!",
+			lore: "Call me asparagus!",
+			obtain: ["boss"],
+			area: ["eaglecrest"],
+			rarity: "unique",
+			sellPrice: 4,
+			obtainText: "Can be looted from TBD",
 			stats: {
-				defence: 4,
+				defence: 4,//tbd
 			},
-			limitedEdition: true, // temp
 		},
 		{
 			id: 9,
@@ -1360,7 +1364,7 @@ var Items = {
 			area: ["eaglecrest"],
 			rarity: "unique",
 			sellPrice: 3,
-			lore: "",
+			lore: "Tell 'em to bring out the whole ocean!",
 			obtainText: "Not yet obtainable. Check back soon!",
 			stats: {
 				defence: 3,
@@ -2014,6 +2018,22 @@ var Items = {
 			obtainText: "Can be uncovered as an unidentified item in areas around Eaglecrest Caves.",
 			stats: {
 				defence: 10,
+			},
+		},
+		{
+			id: 23,
+			name: "Water Coalesce Boots",
+			type: "boots",
+			image: "assets/items/boots/23.png",
+			tier: 1,
+			lore: "One fish, two fish, red fish... shoe fish",
+			obtain: ["boss"],
+			area: ["eaglecrest"],
+			rarity: "unique",
+			sellPrice: 4,
+			obtainText: "Can be looted from TBD",
+			stats: {
+				defence: 3,//tbd
 			},
 		},
 	],
@@ -6675,7 +6695,7 @@ var Items = {
 				&& Player.quests.questProgress.christmasPresentsCaught === Player.quests.questProgress.christmasPresentsDelivered);
 				// must deliver present before catching another
 			},
-			onCatch: function (inventoryPosition) {
+			onCatch: function (inventoryPosition) { // tbd this also needs to be called on init !!!!
 				// quest variable increase
 				Player.quests.questProgress.christmasPresentsCaught = Increment(Player.quests.questProgress.christmasPresentsCaught);
 				// set function text and targetNPC
@@ -7054,6 +7074,7 @@ var Items = {
 			{
 				Player.quests.questProgress.troubledWaters2Progress = 6;
 				Dom.quests.active();
+				Dom.chat.npcBanner({name: "Fisherman Tobenam", imageSrc: "assets/npcs/tobenam.png"}, "Heheheh, you found one. I'll see you around then, heheh.");
 			},
 			quest: true,
 			clicksToCatch: 25,
