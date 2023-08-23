@@ -4244,7 +4244,7 @@ onPlayerTouch: function () {
 					{
                         role: "text",
                         chooseText: "Ask about a <b>translator</b>.",
-                        chat: `I'm busy, go ask someone else.`,
+                        chat: `I'm busy, leave.`,
                         buttons: ["Leave"],
                         showCloseButton: false,
                         forceChoose: true, // forces choose dom
@@ -8809,6 +8809,72 @@ Last I saw him, he was visiting the <b>Eaglecrest Plains</b> to the <b>south</b>
 			Game.setTimeout(Game.loadArea.bind(Game), 8000, "pawPeaks");
 		},
 
+		onFishCaught: function()
+		{
+			//troubled waters area fishing progress
+			if(Game.hero.x >= -240 && Game.hero.x <= 2000 && Game.hero.y >= -120 && Game.hero.y <= 1000)
+			{
+				if(Player.quests.questProgress.northWestFish === undefined)
+				{
+					Player.quests.questProgress.northWestFish = 1;
+					Dom.quests.active();
+				}
+				else
+				{
+					Player.quests.questProgress.northWestFish += 1;
+				}
+			}
+			else if(Game.hero.x >= -240 && Game.hero.x <= 2000 && Game.hero.y >= 4150 && Game.hero.y <= 6180)
+			{
+				if(Player.quests.questProgress.southWestFish === undefined)
+				{
+					Player.quests.questProgress.southWestFish = 1;
+					Dom.quests.active();
+				}
+				else
+				{
+					Player.quests.questProgress.southWestFish += 1;
+				}
+			}
+			else if(Game.hero.x >= 2040 && Game.hero.x <= 5040 && Game.hero.y >= 3200 && Game.hero.y <= 4500)
+			{
+				if(Player.quests.questProgress.centreFish === undefined)
+				{
+					Player.quests.questProgress.centreFish = 1;
+					Dom.quests.active();
+				}
+				else
+				{
+					Player.quests.questProgress.centreFish += 1;
+				}
+			}
+			else if(Game.hero.x >= 4200 && Game.hero.x <= 7440 && Game.hero.y >= -120 && Game.hero.y <= 2200)
+			{
+				if(Player.quests.questProgress.northEastFish === undefined)
+				{
+					Player.quests.questProgress.northEastFish = 1;
+					Dom.quests.active();
+				}
+				else
+				{
+					Player.quests.questProgress.northEastFish += 1;
+				}
+			}
+			else if(Game.hero.x >= 5300 && Game.hero.x <= 7440 && Game.hero.y >= 2360 && Game.hero.y <= 4800)
+			{
+				if(Player.quests.questProgress.southEastFish === undefined)
+				{
+					Player.quests.questProgress.southEastFish = 1;
+					Dom.quests.active();
+				}
+				else
+				{
+					Player.quests.questProgress.southEastFish += 1;
+				}
+			}
+			Dom.quests.active();
+		},
+
 		images: {
 			tiles: {normal: "assets/tilemap/eaglecrest.png", christmas: "assets/tilemap/eaglecrestChristmas.png"},
 			melee: {normal: "assets/projectiles/melee.png"},
@@ -9072,7 +9138,7 @@ Last I saw him, he was visiting the <b>Eaglecrest Plains</b> to the <b>south</b>
                 },
             },
 			{
-                x: 4950,
+                x: 4910,
                 y: 3800,
                 image: "sharptooth",
                 name: "Fisher Sharptooh",
@@ -9086,7 +9152,7 @@ Last I saw him, he was visiting the <b>Eaglecrest Plains</b> to the <b>south</b>
                 roles: [
 	                    {
 	                        role: "text",
-	                        chooseText: "Say that Fisherman Guimtal sent you.",
+	                        chooseText: "Say that <b>Fisherman Guimtal</b> sent you.",
 	                        chat: "Miau, miau miau miau miau! Miau miau miau.",
 	                        buttons: ["Leave"],
 	                        showCloseButton: false,
@@ -9106,6 +9172,29 @@ Last I saw him, he was visiting the <b>Eaglecrest Plains</b> to the <b>south</b>
 	                        role: "questFinish",
 	                        quest: Quests.eaglecrest[12],
 						},
+						{
+	                        role: "questStartFinish",
+	                        quest: Quests.eaglecrest[13],
+						},
+						{
+	                        role: "text",
+	                        chooseText: "Show <b>Fisher Sharptooth</b> the fish you collected.",
+	                        chat: `It seems the fish seems to bes comings froms thes <b>well</b>. Perhaps theres ares somethings downs theres gettings all the fish.<br><br>
+							Whys don'ts yous head downs the well and do some fishing to sees if theres anything downs theres.`,
+	                        buttons: ["Leave"],
+	                        showCloseButton: false,
+	                        forceChoose: true, // forces choose dom
+	                        functions: [function () {
+	                            // close page
+	                            Dom.closePage("textPage");
+	                            // quest progress
+	                            Player.quests.questProgress.troubledWaters3Progress = 2;
+	                            Dom.quests.active();
+	                        }],
+	                        roleRequirement: function () {
+	                            return (Player.quests.questProgress.northWestFish > 0 && Player.quests.questProgress.southWestFish > 0 && Player.quests.questProgress.centreFish > 0 && Player.quests.questProgress.northEastFish > 0 && Player.quests.questProgress.southEastFish > 0 && Player.quests.questProgress.troubledWaters3Progress === 1);
+	                        },
+	                    },
                 ],
                 chat: {
                     questProgress: "Yous looks like yous never seen a cat fish before.",

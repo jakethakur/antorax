@@ -2662,9 +2662,9 @@ var Quests = {
 			},{
 				text: `This translator was for mes right? Oh well, yous can hears mes now.`,
 			},{
-				text: `Oh, yous wants to learns abouts whys there no fish? Well it's tragic indeeds.`,
+				text: `Oh, yous wants to learns abouts whys there no fish? Wells it's tragic indeeds.`,
 			},{
-				text: `I'm sures with yours help we cans solve this issue.`,
+				text: `I'm sures with yours helps we cans solves this issue.`,
 			},],
 
 			objectives: [
@@ -2732,6 +2732,94 @@ var Quests = {
 
 			onQuestStart: function() {
 				Player.quests.questProgress.troubledWaters2Progress = 0;
+			}
+		},
+		{
+			id: 13,
+			quest: "Troubled Waters III (Eaglecrest Plains Fishing Tourǃǃ)",
+			questArea: "eaglecrest",
+
+			startName: "Fisher Sharptooth",
+			startChat: [{
+				text: `So wes needs to finds wheres the source of this issue is.`,
+			},{
+				text: `I thinks wes could do this bys fishing arounds the plains. This should helps us finds wheres the issue.`,
+			},],
+
+			finishName: "Fisher Sharptooth",
+			finishChat: [{
+				text: `Yous looks surprised? Did yous nots thinks I woulds eat the translator?`,
+			},{
+				text: `This translator was for mes right? Oh well, yous can hears mes now.`,
+			},{
+				text: `Oh, yous wants to learns abouts whys there no fish? Well it's tragic indeeds.`,
+			},{
+				text: `I'm sures with yours help we cans solve this issue.`,
+			},],
+
+			objectives: [
+				"Fish up a fish near the <b>train</b> in the <b>north west</b> of the <b>plains</b>.",
+				"Fish up a fish near the <b>flower forest</b> in the <b>south west</b> of the <b>plains</b>.",
+				"Fish up a fish near the <b>lake</b> in the <b>centre</b> of the <b>plains</b>.",
+				"Fish up a fish near the <b>farm</b> in the <b>north east</b> of the <b>plains</b>.",
+				"Fish up a fish near the <b>tall grass</b> in the <b>south east</b> of the <b>plains</b>.",
+				"Return to <b>Fisher Sharptooth</b>.",
+				"Head down the <b>Eaglecrest Well</b> and fish up a fish.",
+				"",
+			],
+
+			isHidden: function() {
+				let hidden = [];
+
+				// true or falses for each objective (apart from the turn-in objective)
+				hidden.push(false);
+				hidden.push(false);
+				hidden.push(false);
+				hidden.push(false);
+				hidden.push(false);
+				hidden.push(Player.quests.questProgress.northWestFish === 0 || Player.quests.questProgress.southWestFish === 0 || Player.quests.questProgress.centreFish === 0 || Player.quests.questProgress.northEastFish === 0 || Player.quests.questProgress.southEastFish === 0);
+				hidden.push(Player.quests.questProgress.troubledWaters3Progress < 2);
+
+				return hidden;
+			},
+
+			isCompleted: function() {
+				let completed = [];
+
+				if (Player.quests.questProgress.troubledWaters3Progress === undefined)
+				{
+					Player.quests.questProgress.troubledWaters3Progress = 1;
+				}
+				// true or falses for each objective (apart from the turn-in objective)
+				completed.push(Player.quests.questProgress.northWestFish > 0);
+				completed.push(Player.quests.questProgress.southWestFish > 0);
+				completed.push(Player.quests.questProgress.centreFish > 0);
+				completed.push(Player.quests.questProgress.northEastFish > 0);
+				completed.push(Player.quests.questProgress.southEastFish > 0);
+				completed.push(Player.quests.questProgress.troubledWaters3Progress > 1);
+				completed.push(Player.quests.questProgress.troubledWaters3Progress > 2);
+
+				completed = checkFinished(completed);
+
+				return completed;
+			},
+
+			howToStart: "Speak to <strong>Fisher Sharptooth</strong>.",
+			levelRequirement: 5,
+			questRequirements: ["Troubled Waters II"],
+
+			rewards: {
+				xp: 50,
+				reputation: {
+					eaglecrestCity: 30,
+				},
+			},
+
+			removeItems: [
+			],
+
+			onQuestStart: function() {
+				Player.quests.questProgress.troubledWaters3Progress = 1;
 			}
 		},
 		/*{
