@@ -1412,9 +1412,9 @@ const EnemyTemplates = {
 			},
 		},
 
-		seaMonsterTail: {
+		lakeLurkerTail: {
 			image: "seaMonsterTail",
-			name: "Sea Monter Tail",
+			name: "Lake Lurker Tail",
 			hostility: "boss",
 			level: 5,
 			canBeDamagedBy: [""],
@@ -1448,9 +1448,9 @@ const EnemyTemplates = {
 	        ],
 		},
 
-		seaMonsterCoil: {
-			image: "seaMonsterCoil",
-			name: "Sea Monter Coil",
+		lakeLurkerArch: {
+			image: "seaMonsterArch",
+			name: "Lake Lurker Arch",
 			hostility: "boss",
 			level: 5,
 			stats: {
@@ -1472,9 +1472,9 @@ const EnemyTemplates = {
 	        ],
 		},
 
-		seaMonster: {
+		lakeLurker: {
 			image: "seaMonster",
-			name: "Sea Monster",
+			name: "Lake Lurker",
 			hostility: "boss",
 			level: 5,
 			stats: {

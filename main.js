@@ -4704,7 +4704,7 @@ class Hero extends Attacker {
 						fish = fish[Random(0, fish.length - 1)]; // Random fish that fulfils requirements above
 					}
 
-					if (typeof fish.id === "undefined") {
+					if (typeof fish === "undefined" || typeof fish.id === "undefined") {
 						// no fish exists! Must have filtered it too much (maybe a certain rarity doesn't exist)
 						raritiesAvailable = ["junk", "common"];
 					}
