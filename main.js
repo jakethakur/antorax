@@ -2725,7 +2725,7 @@ class Character extends Thing {
 			// onDamaged
 			let check = ["helm", "chest", "greaves", "boots", "weapon"];
 			for (let i = 0; i < check.length; i++) {
-				if (typeof Player.inventory.items[check[i]].onDamaged !== "undefined") {
+				if (typeof Player.inventory.items[check[i]] !== "undefined" && typeof Player.inventory.items[check[i]].onDamaged !== "undefined") {
 					Player.inventory.items[check[i]].onDamaged();
 				}
 			}

@@ -2904,7 +2904,7 @@ var Quests = {
 		},
 		{
 			id: 15,
-			quest: "Bee Careful ! !",
+			quest: "Bee Careful ǃ ǃ",
 			questArea: "eaglecrest",
 
 			startName: "Farmer Eloise",
@@ -2963,7 +2963,7 @@ var Quests = {
 
 			rewards: {
 				xp: 60,
-				items: [,
+				items: [
 					{item: Items.currency[2], quantity: 4,},
 				],
 				reputation: {
