@@ -47,11 +47,17 @@ FishingGame.startTimingGame = function(difficulty)
 		this.zoneSize = 26;
 		this.bars = 2;
 	}
-	else
+	else if(difficulty === "mythic")
 	{
 		this.totalTimeToReachEnd = 1.5;
 		this.zoneSize = 23;
 		this.bars = 3;
+	}
+	else if(difficulty === "kingOfHerrings")
+	{
+		this.totalTimeToReachEnd = 1.5;
+		this.zoneSize = 25;
+		this.bars = 5;
 	}
 	this.timeToReachEnd = this.totalTimeToReachEnd;
 
@@ -110,6 +116,20 @@ FishingGame.update = function (delta)
 				this.ctx.fillRect(150, 400, 300, 50);
 				this.ctx.fillStyle = "#3dfc03";
 				this.ctx.fillRect(this.x[2], 400, this.zoneSize, 50);
+				if(this.bars > 3)
+				{
+					this.ctx.fillStyle = "#000000";
+					this.ctx.fillRect(150, 500, 300, 50);
+					this.ctx.fillStyle = "#3dfc03";
+					this.ctx.fillRect(this.x[3], 500, this.zoneSize, 50);
+					if(this.bars > 4)
+					{
+						this.ctx.fillStyle = "#000000";
+						this.ctx.fillRect(150, 400, 300, 50);
+						this.ctx.fillStyle = "#3dfc03";
+						this.ctx.fillRect(this.x[4], 600, this.zoneSize, 50);
+					}
+				}
 			}
 		}
 		// change time to reach end
@@ -126,10 +146,20 @@ FishingGame.update = function (delta)
 			this.ctx.fillStyle = "#FFFFFF";
 			this.ctx.fillRect((this.totalTimeToReachEnd - this.timeToReachEnd) * (300 / this.totalTimeToReachEnd) + 150, 300, 5, 50);
 		}
-		else
+		else if(this.currentBar === 3)
 		{
 			this.ctx.fillStyle = "#FFFFFF";
 			this.ctx.fillRect((this.totalTimeToReachEnd - this.timeToReachEnd) * (300 / this.totalTimeToReachEnd) + 150, 400, 5, 50);
+		}
+		else if(this.currentBar === 4)
+		{
+			this.ctx.fillStyle = "#FFFFFF";
+			this.ctx.fillRect((this.totalTimeToReachEnd - this.timeToReachEnd) * (300 / this.totalTimeToReachEnd) + 150, 500, 5, 50);
+		}
+		else if(this.currentBar === 5)
+		{
+			this.ctx.fillStyle = "#FFFFFF";
+			this.ctx.fillRect((this.totalTimeToReachEnd - this.timeToReachEnd) * (300 / this.totalTimeToReachEnd) + 150, 600, 5, 50);
 		}
 		if(this.timeToReachEnd < 0)
 		{

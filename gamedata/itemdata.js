@@ -7080,6 +7080,40 @@ var Items = {
 			clicksToCatch: 25,
 			timeToCatch: 5000,
 		},
+		//well fish
+		{
+			id: 38,
+			name: "Bone Fish",
+			fishingType: "fish",
+			type: "fish",
+			image: "assets/items/fish/0.png",
+			rarity: "common",
+			lore: "Remnants of a fish.",
+			sellPrice: 1,
+			sellQuantity: 4,
+			howToCatch: "Fished up in Eaglecrest Well.",
+			consumption: false,
+			areas: ["eaglecrestWell"], // empty = every area
+			length: {
+				min: 5,
+				avg: 9,
+				max: 30,
+			},
+		},
+		//well junk
+		{
+			id: 39,
+			name: "Fish Bones",
+			fishingType: "waterjunk",
+			type: "fish",
+			image: "assets/items/item/45.png",
+			rarity: "junk",
+			plural: true,
+			stack: 4,
+			sellPrice: 1,
+			sellQuantity: 16,
+			areas: ["eaglecrestWell"],
+		},
 	],
 	dev: [
 		{
