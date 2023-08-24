@@ -2516,7 +2516,7 @@ var Quests = {
 				return completed;
 			},
 
-			howToStart: "Speak to <b>Farmer Eloise</b> in the Eaglecrest Plains.",
+			howToStart: "Speak to <b>Farmer Eloise</b> in the Eaglecrest Plains Farms.",
 			levelRequirement: 8,
 			questRequirements: ["Overdraft"],
 			// tbd reputation requirement
@@ -2902,7 +2902,7 @@ var Quests = {
 				Player.quests.questProgress.troubledWaters4Progress = 1;
 			}
 		},*/
-		
+
 		/*{
 			id: 14,
 			quest: "The Pyromancer's Shopping List",

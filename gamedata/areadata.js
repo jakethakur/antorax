@@ -3877,6 +3877,7 @@ var Areas = {
 			catBowlEmpty: {normal: "assets/objects/catBowlEmpty.png"},
 			catBowlFull: {normal: "assets/objects/catBowlFull.png"},
 			eagleStatue: {normal: "assets/objects/eagleStatue.png"},
+			eaglecrestBanner: {normal: "assets/objects/eagleStatue.png"}
 		},
 
 		callAreaJoinOnInit: true,
@@ -3896,7 +3897,57 @@ var Areas = {
 			}
 		},
 
-tripwires: [
+		tripwires: [
+	{ // eagle statue speed buffs
+		x: [2278.3, 5269.2, 5244.5, 8034.2, 2276, 3566, 3937.8], y: [2201.9, 3113.7, 2179.2, 1873.1, 3156.8, 3079.2, 3079.2],
+		width: 500, height: 500,
+		collisionType: "feet",
+		onPlayerTouch: function () {
+			Game.statusEffects.walkSpeed({
+				target: Game.hero,
+				effectTitle: "Eagle's Swiftness",
+				speedIncrease: 75,
+				time: 10,
+				effectStack: "refresh", // effect refreshes (doesn't extend time above 0.5s)
+				// end purple effect when this effect expires
+				onExpire: "removeTrail",
+				callExpireOnRemove: true,
+				onExpireParams: ["eagleStatueSpeed"]
+			});
+			// purple particle effect trail
+			Game.hero.addTrail("eagleStatueSpeed", {
+				width: 3,
+				height: 3,
+				colour: ["#8317C6", "#621191"], // class Particle chooses random colour from array
+				removeIn: 1000,
+				rotation: 0,
+				variance: 50, // variance in position (in x/y axis in one direction from player)
+				intensity: 4, // no. of particles every 100ms
+			});
+			// find nearest statue; give it trail and animate it
+			let statueArray = Game.things.filter(entity => entity.name === "Eagle Statue");
+			let statue = Game.closest(statueArray, Game.hero);
+			/*statue.addTrail("eagleStatueSpeed", { // commented because was hard to remove the trail
+				width: 3,
+				height: 3,
+				colour: ["#8317C6", "#621191"], // class Particle chooses random colour from array
+				removeIn: 1000,
+				rotation: 0,
+				variance: 80, // variance in position (in x/y axis in one direction from player)
+				intensity: 8, // no. of particles every 100ms
+			});*/
+			if (typeof statue.animation === "undefined") {
+				statue.setAnimation({
+					type: "spritesheet",
+					frameTime: 250,
+					imagesPerRow: 3,
+					totalImages: 5,
+					stopAnimationOnState: 4,
+					startState: 0,
+				});
+			}
+		}
+	},
 	{
 	x: 3753,
 	y: 3640,
@@ -9017,7 +9068,9 @@ Last I saw him, he was visiting the <b>Eaglecrest Plains</b> to the <b>south</b>
 			farmerEloise: {normal: "assets/npcs/farmerEloise.png"},
 			armouredToadLeft: {normal: "assets/enemies/toadArmoured.png"},
 			armouredToadRight: {normal: "assets/enemies/toadArmoured.png", flip: "vertical"},
-			sharptooth: {normal: "assets/npcs/sharptooth.png"}
+			sharptooth: {normal: "assets/npcs/sharptooth.png"},
+			eagleStatue: {normal: "assets/objects/eagleStatue.png"},
+			eaglecrestBanner: {normal: "assets/objects/eaglecrestBanner.png", christmas: "assets/objects/eaglecrestBannerChristmas.png"},
 		},
 
 		areaTeleports: [
@@ -9791,6 +9844,33 @@ Last I saw him, he was visiting the <b>Eaglecrest Plains</b> to the <b>south</b>
 		],
 
 		things: [
+			{x: [3117.2, 2883.4], y: [222.8, 222.8], image: 'eagleStatue', name: 'Eagle Statue', crop: {x: 0,y: 2,width: 150,height: 188}, canBeShown: function () {
+				return Player.reputation.eaglecrestCity.level === 5; // honoured
+			}},
+			// by statue
+			{x: 2571.1, y: 2725.2, image: 'eagleStatue', name: 'Eagle Statue', crop: {x: 0,y: 2,width: 150,height: 188}, canBeShown: function () {
+				return Player.reputation.eaglecrestCity.level === 5; // honoured
+			}},
+			// lake north west
+			{x: 2274.2, y: 4469.9, image: 'eagleStatue', name: 'Eagle Statue', crop: {x: 0,y: 2,width: 150,height: 188}, canBeShown: function () {
+				return Player.reputation.eaglecrestCity.level === 5; // honoured
+			}},
+			// lake south west
+			{x: 2109.2, y: 1544.4, image: 'eagleStatue', name: 'Eagle Statue', crop: {x: 0,y: 2,width: 150,height: 188}, canBeShown: function () {
+				return Player.reputation.eaglecrestCity.level === 6; // venerated
+			}},
+			// prarie
+			{x: 1433, y: 3498.7, image: 'eagleStatue', name: 'Eagle Statue', crop: {x: 0,y: 2,width: 150,height: 188}, canBeShown: function () {
+				return Player.reputation.eaglecrestCity.level === 6; // venerated
+			}},
+			// lake south east
+			{x: 4804.9, y: 4222.6, image: 'eagleStatue', name: 'Eagle Statue', crop: {x: 0,y: 2,width: 150,height: 188}, canBeShown: function () {
+				return Player.reputation.eaglecrestCity.level === 6; // venerated
+			}},
+
+			// misc again
+			{x: 2839.4, y: 257.1, image: 'eaglecrestBanner', name: 'Eaglecrest Banner'},
+			{x: 3167.2, y: 257.1, image: 'eaglecrestBanner', name: 'Eaglecrest Banner'},
 			// misc again
 			{x: 6581.3, y: 2435.8, image: 'hayBale1', name: 'Hay Bale'}, // more hay bales..
 			{x: 6743, y: 1691.3, image: 'hayBale2', name: 'Hay Bale'}, // more hay bales..

@@ -5171,6 +5171,9 @@ var Items = {
 					Game.hero.statusEffects.push(new statusEffect({
 						title: "Fish bait",
 						effect: "Guaranteed to fish up a fish on your next fishing attempt",
+						info: {
+							skillIncrease: 0,
+						},
 						image: "bait",
 					}));
 
@@ -5862,6 +5865,66 @@ var Items = {
 				Game.restoreHealth(Game.hero, 10);
 			}
 		},
+		{
+			id: 37,
+			name: "King of Herrings Bait",
+			type: "consumable",
+			image: "assets/items/consumable/37.png",
+			functionText: "Guarantees you to fish up a King of Herrings on your next fishing attempt (if you haven't caught one yet today)",
+			lore: "Made from a big fish",
+			maxCharges: 3,
+			onClickFunction: function (inventoryPosition, hotbar) {
+				if (!Game.hero.hasStatusEffect("Fish bait")) { // player does not have an existing fishing status effect
+					// remove one charge from the item
+					Dom.inventory.removeItemCharge(inventoryPosition, hotbar);
+
+					// give fish bait status effect
+					Game.hero.statusEffects.push(new statusEffect({
+						title: "Fish bait",
+						effect: "Guaranteed to fish up a King of Herrings on your next fishing attempt",
+						info: {
+							fishPool: [Items.fish[40]]
+						},
+						image: "bait",
+					}));
+
+					// update status effect display
+					Game.hero.updateStatusEffects();
+
+					// tbd player quest questprogress
+				}
+			}
+		},
+		{
+			id: 38,
+			name: "Lake Lurker Bait",
+			type: "consumable",
+			image: "assets/items/consumable/38.png",
+			functionText: "Guarantees you to fish up a Lake Lurker on your next fishing attempt",
+			lore: "Made from an even bigger fish",
+			maxCharges: 1,
+			onClickFunction: function (inventoryPosition, hotbar) {
+				if (!Game.hero.hasStatusEffect("Fish bait")) { // player does not have an existing fishing status effect
+					// remove one charge from the item
+					Dom.inventory.removeItemCharge(inventoryPosition, hotbar);
+
+					// give fish bait status effect
+					Game.hero.statusEffects.push(new statusEffect({
+						title: "Fish bait",
+						effect: "Guaranteed to fish up a King of Herrings on your next fishing attempt",
+						info: {
+							fishPool: [{}]
+						},
+						image: "bait",
+					}));
+
+					// update status effect display
+					Game.hero.updateStatusEffects();
+
+					// tbd player quest questprogress
+				}
+			}
+		},
 	],
 	food: [
 		{
@@ -6222,6 +6285,8 @@ var Items = {
 			}
 		},
 	],
+	// when adding new area remember to add fishing skill to top of area data
+
 	fish: [
 		{
 			id: 0,
@@ -6389,7 +6454,7 @@ var Items = {
 			sellPrice: 1,
 			sellQuantity: 2,
 			lore: "I wonder who this belongs to?",
-			areas: [],
+			areas: ["loggingCamp", "eaglecrest"],
 		},
 		{
 			id: 9,
@@ -6402,7 +6467,7 @@ var Items = {
 			sellPrice: 1,
 			sellQuantity: 16,
 			stack: 64,
-			areas: [],
+			areas: ["loggingCamp", "eaglecrest"],
 		},
 		{
 			id: 10,
@@ -6415,7 +6480,7 @@ var Items = {
 			sellPrice: 1,
 			sellQuantity: 16,
 			stack: 16,
-			areas: [],
+			areas: ["loggingCamp"],
 		},
 		{
 			id: 11,
@@ -6428,7 +6493,7 @@ var Items = {
 			sellPrice: 1,
 			sellQuantity: 16,
 			stack: 16,
-			areas: [],
+			areas: ["loggingCamp"],
 		},
 		{
 			id: 12,
@@ -6441,7 +6506,7 @@ var Items = {
 			sellPrice: 1,
 			sellQuantity: 16,
 			stack: 16,
-			areas: [],
+			areas: ["loggingCamp"],
 		},
 		{
 			id: 13,
@@ -6493,7 +6558,7 @@ var Items = {
 			sellPrice: 3,
 			lore: "It seems to be locked. You need a key to open it.",
 			locked: true, // can only be opened if locked is false
-			areas: [],
+			areas: ["loggingCamp", "eaglecrest"],
 			clicksToCatch: 25,
 			timeToCatch: 5000,
 			onCatch: function (inventoryPosition) {
@@ -6608,7 +6673,7 @@ var Items = {
 			rarity: "mythic",
 			sellPrice: 1,
 			lore: "I wonder what this opens?",
-			areas: [],
+			areas: ["loggingCamp", "eaglecrest"],
 			clicksToCatch: 6,
 			timeToCatch: 1000,
 			opens: {
@@ -6631,7 +6696,7 @@ var Items = {
 			"The message reads: 'Dearest Audrey, I am sending this message from the Dragon Cove. We're looking for new volunteers to undertake our dragonkin convertee program. Reply if interested.'",
 			"The message reads: 'Dearest Audrey, I have sent five other messages to you. Please check your nearby shores for them.'",
 			"The message reads: 'Dearest Audrey, It is very cold at the moment so there is no sea. Decided to roll this bottle to you instead of the normal method. Please reply if it worked.'"],
-			areas: [],
+			areas: ["loggingCamp", "eaglecrest"],
 			clicksToCatch: 5,
 			timeToCatch: 3000,
 		},
@@ -6647,7 +6712,7 @@ var Items = {
 			sellQuantity: 16,
 			stack: 64,
 			lore: "Has some alchemical uses.",
-			areas: ["loggingCamp"],
+			areas: ["loggingCamp", "eaglecrest"],
 		},
 		{
 			// Blood Moon only
@@ -6661,7 +6726,7 @@ var Items = {
 			lore: "Its red eyes glisten under the Blood Moon.",
 			howToCatch: "Can be fished up during a Blood Moon.",
 			consumption: false,
-			areas: [],
+			areas: ["loggingCamp", "eaglecrest"],
 			length: {
 				min: 30,
 				avg: 55,
@@ -6916,6 +6981,9 @@ var Items = {
 				avg: 55,
 				max: 120,
 			},
+			catchRequirement: function () {
+				return Player.quests.completedQuestArray.includes("Troubled Waters IV (Big Fish in a Small Pond)");
+			}
 		},
 		{
 			id: 29,
@@ -6935,6 +7003,9 @@ var Items = {
 				avg: 30,
 				max: 85,
 			},
+			catchRequirement: function () {
+				return Player.quests.completedQuestArray.includes("Troubled Waters IV (Big Fish in a Small Pond)");
+			}
 		},
 		{
 			id: 30,
@@ -6954,6 +7025,9 @@ var Items = {
 				avg: 115,
 				max: 250,
 			},
+			catchRequirement: function () {
+				return Player.quests.completedQuestArray.includes("Troubled Waters IV (Big Fish in a Small Pond)");
+			}
 		},
 		{
 			id: 31,
@@ -6973,6 +7047,9 @@ var Items = {
 				avg: 24,
 				max: 46,
 			},
+			catchRequirement: function () {
+				return Player.quests.completedQuestArray.includes("Troubled Waters IV (Big Fish in a Small Pond)");
+			}
 		},
 		{
 			id: 32,
@@ -7024,7 +7101,7 @@ var Items = {
 			rarity: "unique",
 			sellPrice: 2,
 			howToCatch: "Can be fished up during the winter.",
-			areas: [],
+			areas: ["loggingCamp", "eaglecrest"],
 			length: {
 				min: 32,
 				avg: 54,
@@ -7086,12 +7163,12 @@ var Items = {
 			name: "Bone Fish",
 			fishingType: "fish",
 			type: "fish",
-			image: "assets/items/fish/0.png",
+			image: "assets/items/fish/38.png",
 			rarity: "common",
 			lore: "Remnants of a fish.",
 			sellPrice: 1,
 			sellQuantity: 4,
-			howToCatch: "Fished up in Eaglecrest Well.",
+			howToCatch: "Can be fished up in Eaglecrest Well.",
 			consumption: false,
 			areas: ["eaglecrestWell"], // empty = every area
 			length: {
@@ -7099,6 +7176,14 @@ var Items = {
 				avg: 9,
 				max: 30,
 			},
+			onCatch: function()
+            {
+                if(Player.quests.questProgress.troubledWaters3Progress === 2)
+                {
+                    Player.quests.questProgress.troubledWaters3Progress = 3;
+                    Dom.quests.active();
+                }
+            }
 		},
 		//well junk
 		{
@@ -7112,7 +7197,41 @@ var Items = {
 			stack: 4,
 			sellPrice: 1,
 			sellQuantity: 16,
-			areas: ["eaglecrestWell"],
+			areas: ["eaglecrestWell", "eaglecrest"],
+		},
+		{
+			id: 40,
+			name: "King of Herrings",
+			fishingType: "fish",
+			type: "fish",
+			image: "assets/items/fish/40.png",
+			imageArchaeology: "assets/items/fish/40archaeology.png",
+			rarity: "mythic",
+			lore: "",
+			sellPrice: 8,
+			sellQuantity: 4,
+			howToCatch: "Can be fished up in Eaglecrest Well with the help of a special bait.",
+			consumption: true,
+			areas: ["eaglecrestWell"], // empty = every area
+			length: {
+				min: 250,
+				avg: 300,
+				max: 860,
+			},
+			onCatch: function()
+            {
+                if(Player.quests.questProgress.troubledWaters3Progress === 2)
+                {
+                    Player.quests.questProgress.troubledWaters4Progress = 3;
+                    Dom.quests.active();
+                }
+            },
+			catchRequirement: function () {
+				if (Player.quests.questProgress.kingOfHerringsBaitUsed) {
+					//Player.quests.questProgress.kingOfHerringsBaitUsed = false;
+					return true;
+				}
+			}
 		},
 	],
 	dev: [

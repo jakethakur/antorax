@@ -1199,11 +1199,12 @@ Dom.chat.insert = function (text, delay, time, noRepeat) {
 
 Dom.chat.timeoutTime = 20; // ms between each character being shown
 
-// npc is the npc object, which has .name (used for title) and .image
+// npc is the npc object, which has .name (used for title) and .image (or you can set npc to false)
 // text is either a single string, or an object with required property "text" and any additional properties (see below)...
 // ... or an array of these objects to be displayed in sequence
-// optional properties of object inputs include "onFinish" (function)
-Dom.chat.npcBanner = function (npc, text) {
+// optional properties of object inputs include "onFinish" (function) and "options" (see questdata for format)
+// skippable is whether the text can be skipped by pressing enter
+Dom.chat.npcBanner = function (npc, text, skippable) {
 	Dom.chat.npcBannerReadyToProgress = false;
 
 	// reinit
@@ -1239,6 +1240,8 @@ Dom.chat.npcBanner = function (npc, text) {
 	}
 
 	Dom.chat.npcBannerParams = {}; // any additional params that are needed by the functions below
+
+	Dom.chat.npcBannerParams.skippable = skippable;
 
 	if (typeof toShow === "object") {
 		if (toShow.long) {
@@ -1280,7 +1283,7 @@ Dom.chat.npcBanner = function (npc, text) {
 	}
 
 	// finish reinit
-	if (toShow.saidBy === "none") {
+	if (toShow.saidBy === "none" || npc === false) {
 		// i.e. an action rather than a person saying it
 		Dom.elements.npcChatBannerHeader1.innerHTML = "";
 		Dom.elements.npcChatImage.style.background = "none";
@@ -1321,7 +1324,7 @@ Dom.chat.npcBannerIterate = function (i) {
 			timeoutTime *= 4;
 		}
 
-		setTimeout(Dom.chat.npcBannerIterate, timeoutTime, i+1);
+		Dom.chat.npcBannerParams.timeout = setTimeout(Dom.chat.npcBannerIterate, timeoutTime, i+1);
 	}
 	else if (!Dom.chat.npcBannerParams.autoProgress) {
 		// done
@@ -1351,12 +1354,20 @@ Dom.chat.npcBannerIterate = function (i) {
 Dom.chat.chooseOption = function (choice) {
 	Dom.elements.npcChatOptions.hidden = true;
 
-	Dom.chat.npcChatProgress(true); // currently choice does nothing, tbd
+	let choiceObj = Dom.chat.npcBannerParams.options[choice];
+
+	Dom.chat.npcChatProgress(true, choiceObj.jumpToId); // currently choice does nothing, tbd
 }
 
 // called on enter key press, or an answer being picked
 // forceProgress set to true if npcBannerReadyToProgress should be ignored
-Dom.chat.npcChatProgress = function (forceProgress) {
+// jumpToId skips to a chat with the specified id parameter
+Dom.chat.npcChatProgress = function (forceProgress, jumpToId) {
+	if (Dom.chat.npcBannerParams.skippable && !Dom.chat.npcBannerReadyToProgress) {
+		clearTimeout(Dom.chat.npcBannerParams.timeout);
+		Dom.chat.npcBanneriterate(Dom.chat.npcBannerText.length);
+	}
+
 	if (Dom.chat.npcBannerReadyToProgress || forceProgress === true) { // current chat has showed
 		Dom.chat.npcBannerReadyToProgress = false;
 
@@ -1376,6 +1387,22 @@ Dom.chat.npcChatProgress = function (forceProgress) {
 			}
 			Dom.chat.npcBannerParams.onFinishDom(...Dom.chat.npcBannerParams.onFinishDomParams);
 			Dom.chat.npcBannerParams.onFinishDom = undefined;
+		}
+
+		// jumpToId
+		if (Array.isArray(text) && typeof jumpToId !== "undefined") {
+			while (toShow.length > 0 && (typeof toShow[0] === "string" || (typeof toShow[0] === "object" && toShow[0].id !== jumpToId))) {
+				toShow.splice[0];
+			}
+			if (toShow.length === 0) {
+				console.warn("Could not find an upcoming chat message with the id ", jumpToId);
+				Dom.chat.upcomingBannerText = undefined;
+			}
+		}
+		else if (typeof toShow === "string" || (typeof toShow === "object" && toShow.id !== jumpToId)) {
+			// nothing fits the given criteria
+			console.warn("Could not find an upcoming chat message with the id ", jumpToId, Dom.chat.upcomingBannerText);
+			Dom.chat.upcomingBannerText = undefined;
 		}
 
 		if (typeof Dom.chat.upcomingBannerText !== "undefined") {
@@ -2181,8 +2208,13 @@ Dom.inventory.removeItemCharge = function (inventoryPosition, hotbar) {
 Dom.currentlyDisplayed = "";
 Dom.currentNPC = {};
 
+//
+// quest start
+//
+
 // just spoken to an npc to start the quest - display chat then call dom.quest.start
 Dom.quest.startFromNpc = function (quest, npc) {
+	// tbd needs to take into account currentlyDisplayed
 	let chat = quest.startChat;
 	chat[chat.length-1].onFinishDom = Dom.quest.start;
 	chat[chat.length-1].onFinishDomParams = [quest, npc];
@@ -2430,8 +2462,40 @@ Dom.quest.declineRewards = function () {
 	Dom.closePage('questFinish');
 }
 
+//
+// quest progress
+//
+
+// just spoken to an npc to start the quest - display chat then call dom.quest.start
+Dom.quest.progressFromNpc = function (quest, npc, stage) {
+	// tbd needs to take into account currentlyDisplayed
+	let chat = quest["stepChat"+stage];
+	chat[chat.length-1].onFinishDom = Dom.quest.progress;
+	chat[chat.length-1].onFinishDomParams = [quest, npc, stage];
+	Dom.chat.npcBanner(npc, chat);
+}
+
+// just variable incrementing and removing items etc
+Dom.quest.progress = function (quest, npc, stage) {
+	// increment variable
+	Player.quests.npcProgress[questArea][quest] = stage;
+
+	// removeItems
+	if (quest["removeItemsStep"+stage] !== undefined) {
+		let itemsToRemove = quest["removeItemsStep"+stage];
+		for (let i = 0; i < Dom.currentlyDisplayed.removeItems.length; i++) {
+			Dom.inventory.removeById(Dom.currentlyDisplayed.removeItems[i].item.id, Dom.currentlyDisplayed.removeItems[i].item.type, Dom.currentlyDisplayed.removeItems[i].quantity);
+		}
+	}
+}
+
+//
+// quest finish
+//
+
 // just spoken to an npc to finish the quest - display chat then call dom.quest.finish
 Dom.quest.finishFromNpc = function (quest, npc) {
+	// tbd needs to take into account currentlyDisplayed
 	let chat = quest.finishChat;
 	chat[chat.length-1].onFinishDom = Dom.quest.finish;
 	chat[chat.length-1].onFinishDomParams = [quest, npc];
@@ -2857,6 +2921,11 @@ Dom.quests.other = function () {
 		Dom.elements.otherQuestBox.innerText = "You have unlocked every quest";
 	}
 }
+
+
+//
+// Merchant
+//
 
 // sold is array of "sold" objects from areadata which include .item, .cost, etc. (see areadata, or get peter to comment his code!;))
 // npc and chat are for display purposes
@@ -4985,12 +5054,14 @@ Dom.choose.page = function (npcs) {
 	let force = npcs[0].force;
 
 	let name = npc.name !== undefined ? npc.name : npc; // for cases like Goblin Torch
-	if (npc.constructor.name === "NPC" && !Player.metNPCs.includes(name) && npc.meetable && name !== "???") {
-		Player.metNPCs.push(name);
-	}
 
 	if (Dom.currentlyDisplayed === "") {
 		Dom.currentlyDisplayed = name;
+
+		if (npc.constructor.name === "NPC" && !Player.metNPCs.includes(name) && npc.meetable && name !== "???") {
+			Player.metNPCs.push(name);
+		}
+
 		if (name !== npc) {
 			Dom.currentNPC.type = npc.type;
 			Dom.currentNPC.id = npc.id;

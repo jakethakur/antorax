@@ -1263,8 +1263,11 @@ const EnemyTemplates = {
 				return petArray;
 			},
 			canBeShown: function () {
+				if (typeof Player.quests.questProgress.coyoteWranglers !== "undefined") {
+					Player.quests.questProgress.coyoteWranglers = 0;
+				}
 				this.stats.maxHealth += Player.quests.questProgress.coyoteWranglers * 10; // scales in health infinitely
-				 return true;
+				return true;
 			},
 			onDeath: function () {
 				let petArray = Game.enemies.filter(enemy => enemy.name === "Pack Coyote" && enemy.association === "coyotePack");
