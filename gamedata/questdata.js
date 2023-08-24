@@ -2935,7 +2935,7 @@ var Quests = {
 				let objCompleted;
 				if (!Player.quests.questProgress.beeCarefulFinished) {
 					let beeSwarms = Game.enemies.filter(enemy => enemy.name === "Bee Swarm" && enemy.hostility === "hostile");
-					let farmerEloise = Game.npcs.filter(npc => npc.name === "Farmer Eloise");
+					let farmerEloise = Game.npcs.filter(npc => npc.name === "Farmer Eloise")[0];
 					let nearest = Game.closest(beeSwarms, farmerEloise);
 					objCompleted = (Game.distance(nearest, farmerEloise) < 300);
 					if (completed) {
