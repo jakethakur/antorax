@@ -503,6 +503,45 @@ var Achievements = [
 		},
     },
 	{
+		name: "Luck of Samme",
+		description: "Have 3 of the same mythic equipment pieces in your inventory.",
+		hidden: true,
+		points: 5,
+		category: ["general"],
+		area: ["global"],
+		image: "../assets/items/chest/21.png",
+		color: "lightgrey",
+		class: "single",
+		isCompleted: function () {
+			let mythics = {};
+			let validTypes = ["helm", "chest", "greaves", "boots", "sword", "bow", "staff"];
+			let val = 0;
+			for (let i = 0; i < Player.inventory.items.length; i++) {
+				if (Player.inventory.items[i].rarity === "mythic" && validTypes.includes(Player.inventory.items[i].type)) {
+					let key = Player.inventory.items[i].type + "" + Player.inventory.items[i].id;
+					if (typeof mythics[key] === "undefined") {
+						mythics[key] = 0;
+					}
+					else {
+						mythics[key]++;
+						if (mythics[key] > val) {
+							val = mythics[key];
+						}
+					}
+				}
+			}
+			if (val > User.progress.luckOfSammeProgress) {
+				User.progress.luckOfSammeProgress = val;
+			}
+			return User.progress.luckOfSammeProgress;
+		},
+		expand: {
+			type: "progressBar",
+			value: User.progress.luckOfSammeProgress,
+			total: 3,
+		},
+	},
+	{
 		name: "Nilbog under Blood Moon",
 		description: "Kill the two Blood Moon bosses in the Nilbog.",
 		points: 10,

@@ -1189,6 +1189,25 @@ var Items = {
 				defence: 10,
 			},
 		},
+		{
+			id: 21,
+			name: "Luck of Samme",
+			type: "chest",
+			image: "assets/items/chest/21.png",
+			tier: 1,
+			obtain: ["other"],
+			area: [],
+			rarity: "unique",
+			sellPrice: 3,
+			lore: "Crit chance chestplate, just what you wanted xoxo",
+			obtainText: "Sent in the mail on Samme Day.",
+			event: "Samme",
+			stats: {
+				defence: 6,
+				critChance: 5,
+				looting: -30,
+			},
+		},
 	],
 	greaves: [
 		{
@@ -6628,6 +6647,8 @@ var Items = {
 							break;
 					}
 					loot.push(toBePushed);
+
+					// tbd their oncatches need to be called somehow...
 
 					// format and position loot
 					loot = Game.formatLoot(loot);

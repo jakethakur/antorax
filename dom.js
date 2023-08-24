@@ -1363,7 +1363,7 @@ Dom.chat.chooseOption = function (choice) {
 // forceProgress set to true if npcBannerReadyToProgress should be ignored
 // jumpToId skips to a chat with the specified id parameter
 Dom.chat.npcChatProgress = function (forceProgress, jumpToId) {
-	if (Dom.chat.npcBannerParams.skippable && !Dom.chat.npcBannerReadyToProgress) {
+	if (typeof Dom.chat.npcBannerParams !== "undefined" && Dom.chat.npcBannerParams.skippable && !Dom.chat.npcBannerReadyToProgress) {
 		clearTimeout(Dom.chat.npcBannerParams.timeout);
 		Dom.chat.npcBanneriterate(Dom.chat.npcBannerText.length);
 	}
