@@ -2722,6 +2722,14 @@ class Character extends Thing {
 		else {
 			this.removeChannelling("damage"); // might not cancel the channel.. whether it does or not depends on this function
 
+			// onDamaged
+			let check = ["helm", "chest", "greaves", "boots", "weapon"];
+			for (let i = 0; i < check.length; i++) {
+				if (typeof Player.inventory.items[check[i]].onDamaged !== "undefined") {
+					Player.inventory.items[check[i]].onDamaged();
+				}
+			}
+
 			if (this.health <= 0 && !this.respawning) { // check it is dead and not already respawning
 
 				if (!Game.minigameInProgress || !Game.minigameInProgress.playing) {
@@ -3042,7 +3050,9 @@ class Character extends Thing {
 					let shotProjectile = Game.projectiles[Game.searchFor(this.channellingProjectileId, Game.projectiles)];
 
 					shotProjectile.x = this.x;
-					shotProjectile.y = this.y
+					shotProjectile.y = this.y;
+					shotProjectile.hitbox.x = this.x;
+					shotProjectile.hitbox.y = this.y;
 				}
 			}
 		}
@@ -4613,7 +4623,18 @@ class Hero extends Attacker {
 						// helps them catch fish
 						usingBait = true;
 					}
+					if (typeof this.statusEffects[baitStatusEffectIndex].info.fishPool !== "undefined") {
+						// helps them catch fish
+						fish = this.statusEffects[baitStatusEffectIndex].info.fishPool;
+					}
 					this.removeStatusEffect(baitStatusEffectIndex, "used");
+				}
+
+				if (typeof fish !== "undefined") {
+					// fish pool has already been specified by bait
+				}
+				else {
+					fish = Items.fish;
 				}
 
 				// find what rarities the player can fish up
@@ -5696,7 +5717,7 @@ class Mount extends Character {
 					width: this.baseWidth,
 					height: this.baseHeight
 				}
-			}ppppppppppppppppppppp
+			}
 
 			// hero bobbing
 			if (this.state % 8 < 4) {
@@ -8414,6 +8435,8 @@ Game.loadArea = function (areaName, destination) {
 			this.allAttackers.push(Game.hero);
 
 			this.allEntities.push(Game.hero.footHitbox);
+
+			Game.hero.summonsActive = 0;
 		}
 
 		//
@@ -10123,21 +10146,21 @@ Game.update = function (delta) {
 							}
 						}
 
-						// quest finishes
+						// quest progression
 						if (role.role === "questProgress") {
 							// check if quest is ready to be progressed
 
-							let questCanBeFinished = true; // set to false if the quest cannot be finished
-							let questToBeFinished = role.quest;
+							let questCanBeProgressed = true; // set to false if the quest cannot be finished
+							let questToBeProgressed = role.quest;
 
 							if (role.quest.constructor === Array && (role.newQuestFrequency === "daily" || role.newQuestFrequency === "repeatable")) {
 								// quest is an array (hence a Random one is picked each questing time period)
 								// all of these quests are daily quests or repeatable quests
 
-								questToBeFinished = role.quest.find(quest => Player.quests.activeQuestArray.includes(quest.quest)); // find which quest the active one is
+								questToBeProgressed = role.quest.find(quest => Player.quests.activeQuestArray.includes(quest.quest)); // find which quest the active one is
 
-								if (questToBeFinished === undefined) { // none of the quests are currently active
-									questCanBeFinished = false;
+								if (questToBeProgressed === undefined) { // none of the quests are currently active
+									questCanBeProgressed = false;
 									notUnlockedRoles = true;
 								}
 
@@ -10146,22 +10169,31 @@ Game.update = function (delta) {
 							else {
 								// single quest
 								if (!Player.quests.activeQuestArray.includes(role.quest.quest)) { // quest is not already active
-									questCanBeFinished = false;
+									questCanBeProgressed = false;
 									notUnlockedRoles = true;
 								}
 							}
 
-							if (questCanBeFinished) {
+							if (questCanBeProgressed) {
 								// check if quest conditions have been fulfilled
-								// canBeFinishedArray used for efficiency
-								if (Player.quests.canBeFinishedArray.includes(questToBeFinished.quest)) {
+
+								let isCompleted = questToBeProgressed.isCompleted();
+								let canBeProgressed = true;
+								for (let i = 0; i < role.step; i++) { // one step for each quest objective
+									if (isCompleted[i] !== true) {
+										canBeProgressed = false;
+										break;
+									}
+								}
+
+								if (canBeProgressed) {
 									// inventory space is checked by choose DOM
-									textArray.push("Quest finish: " + questToBeFinished.quest);
-									functionArray.push(Dom.quest.finishFromNpc);
-									parameterArray.push([questToBeFinished, npc]);
+									textArray.push(role.chooseText || "Quest progress: " + questToBeProgressed.quest);
+									functionArray.push(Dom.quest.progressFromNpc);
+									parameterArray.push([questToBeProgressed, npc, role.step]);
 									additionalOnClickArray.push(role.additionalOnClick);
 								}
-								// quest conditions have not been fulfilled
+								// quest progress conditions have not been fulfilled
 								else {
 									questActive = true;
 								}
@@ -10844,10 +10876,16 @@ Game.update = function (delta) {
 			entity.x += dirx * speed * delta;
 			entity.y += diry * speed * delta;
 
+			let smallNudge = speed * 0.01;
+
 			// check if destination has been reached
-			if (Math.round(entity.x) < entity.moveTowards.x + 2 && Math.round(entity.x) > entity.moveTowards.x - 2
-			&& Math.round(entity.y) < entity.moveTowards.y + 2 && Math.round(entity.y) > entity.moveTowards.y - 2) {
+			if (Math.round(entity.x) < entity.moveTowards.x + smallNudge && Math.round(entity.x) > entity.moveTowards.x - smallNudge
+			&& Math.round(entity.y) < entity.moveTowards.y + smallNudge && Math.round(entity.y) > entity.moveTowards.y - smallNudge) {
 				// destination reached
+
+				// put them directly at the destination
+				entity.x = entity.moveTowards.x;
+				entity.y = entity.moveTowards.y;
 
 				// call move towards finish function
 				if (typeof entity.moveTowards.moveTowardsFinishFunction !== "undefined") {

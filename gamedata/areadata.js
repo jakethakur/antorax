@@ -5,6 +5,7 @@
 const FishingLevels = {
 	loggingCamp: 10,
 	eaglecrest: 20,
+	eaglecrestWell: 0,
 };
 
 // for dynamic lookup in messages ie class
@@ -300,7 +301,7 @@ var Areas = {
 							return Player.quests.questProgress.troubledWaters2Progress === 4;
 						},
 					},
-					{
+					/*{
 						role: "text",
 						chooseText: "Show <strong>Fisherman Tobenam</strong> the <b>Universal Translator</b>.",
 						chat: `Heheheh, you found one. I'll see you around then, heheh.`,
@@ -317,7 +318,7 @@ var Areas = {
 						roleRequirement: function () {
 							return Player.quests.questProgress.troubledWaters2Progress === 6;
 						},
-					},
+					},*/
 				],
 				chat: {
 					notUnlockedRoles: "It's a great day to fish, heheh.",
@@ -3875,6 +3876,8 @@ var Areas = {
 			gingerbreadHouse: {christmas: "assets/objects/gingerbreadHouse.png"},
 			catBowlEmpty: {normal: "assets/objects/catBowlEmpty.png"},
 			catBowlFull: {normal: "assets/objects/catBowlFull.png"},
+			eagleStatue: {normal: "assets/objects/eagleStatue.png"},
+			eaglecrestBanner: {normal: "assets/objects/eagleStatue.png"}
 		},
 
 		callAreaJoinOnInit: true,
@@ -3894,7 +3897,57 @@ var Areas = {
 			}
 		},
 
-tripwires: [
+		tripwires: [
+	{ // eagle statue speed buffs
+		x: [2278.3, 5269.2, 5244.5, 8034.2, 2276, 3566, 3937.8], y: [2201.9, 3113.7, 2179.2, 1873.1, 3156.8, 3079.2, 3079.2],
+		width: 500, height: 500,
+		collisionType: "feet",
+		onPlayerTouch: function () {
+			Game.statusEffects.walkSpeed({
+				target: Game.hero,
+				effectTitle: "Eagle's Swiftness",
+				speedIncrease: 75,
+				time: 10,
+				effectStack: "refresh", // effect refreshes (doesn't extend time above 0.5s)
+				// end purple effect when this effect expires
+				onExpire: "removeTrail",
+				callExpireOnRemove: true,
+				onExpireParams: ["eagleStatueSpeed"]
+			});
+			// purple particle effect trail
+			Game.hero.addTrail("eagleStatueSpeed", {
+				width: 3,
+				height: 3,
+				colour: ["#8317C6", "#621191"], // class Particle chooses random colour from array
+				removeIn: 1000,
+				rotation: 0,
+				variance: 50, // variance in position (in x/y axis in one direction from player)
+				intensity: 4, // no. of particles every 100ms
+			});
+			// find nearest statue; give it trail and animate it
+			let statueArray = Game.things.filter(entity => entity.name === "Eagle Statue");
+			let statue = Game.closest(statueArray, Game.hero);
+			/*statue.addTrail("eagleStatueSpeed", { // commented because was hard to remove the trail
+				width: 3,
+				height: 3,
+				colour: ["#8317C6", "#621191"], // class Particle chooses random colour from array
+				removeIn: 1000,
+				rotation: 0,
+				variance: 80, // variance in position (in x/y axis in one direction from player)
+				intensity: 8, // no. of particles every 100ms
+			});*/
+			if (typeof statue.animation === "undefined") {
+				statue.setAnimation({
+					type: "spritesheet",
+					frameTime: 250,
+					imagesPerRow: 3,
+					totalImages: 5,
+					stopAnimationOnState: 4,
+					startState: 0,
+				});
+			}
+		}
+	},
 	{
 	x: 3753,
 	y: 3640,
@@ -3906,7 +3959,7 @@ tripwires: [
 						Game.hero.hidden = true;
 						Game.hero.moveTowards = {
 							x: Game.hero.x,
-							y: Game.hero.y + 570,
+							y: Game.hero.y + 580,
 							moveTowardsFinishFunction: function () {
 								Game.hero.hidden = false;
 							},
@@ -3928,7 +3981,7 @@ onPlayerTouch: function () {
 											Game.hero.hidden = true;
 											Game.hero.moveTowards = {
 													x: Game.hero.x,
-													y: Game.hero.y - 570,
+													y: Game.hero.y - 580,
 													moveTowardsFinishFunction: function () {
 														Game.hero.hidden = false;
 													},
@@ -4006,6 +4059,10 @@ onPlayerTouch: function () {
 				teleportTo: "eaglecrestMonastery",
 				destinationX: 1100,
 				destinationY: 1730,
+				teleportCondition: function () {
+					return false;
+				},
+				teleportFailText: "The Monastery is currently closed for rennovation."
 			},
 			{
 				// teleport to eaglecrest plains
@@ -4244,7 +4301,7 @@ onPlayerTouch: function () {
 					{
                         role: "text",
                         chooseText: "Ask about a <b>translator</b>.",
-                        chat: `I'm busy, go ask someone else.`,
+                        chat: `I'm busy, leave.`,
                         buttons: ["Leave"],
                         showCloseButton: false,
                         forceChoose: true, // forces choose dom
@@ -4568,6 +4625,19 @@ onPlayerTouch: function () {
 		],
 
 		things: [
+			{
+				x: [2278.3, 5269.2, 5244.5, 8034.2, 2276, 3566, 3937.8], y: [2201.9, 3113.7, 2179.2, 1873.1, 3156.8, 3079.2, 3079.2],
+				image: 'eagleStatue',
+				name: 'Eagle Statue',
+				crop: {
+					x: 0,
+					y: 2,
+					width: 150,
+					height: 188
+				}
+			},
+
+
 			{x: [5887], y: [1872], image: 'catBowlEmpty', orderOffsetY: -6, name: 'Cat Bowl'},
 
 
@@ -6181,6 +6251,14 @@ onPlayerTouch: function () {
 		],
 
 		tripwires: [
+			{ // eagle statue speed buffs
+				x: [2078.3, 5069.2, 5044.5, 7834.2, 2076, 3366, 3737.8], y: [2001.9, 2913.7, 1979.2, 1673.1, 2956.8, 2879.2, 2879.2],
+				width: 400, height: 400,
+				collisionType: "feet",
+				onPlayerTouch: function () {
+
+				}
+			},
 			// right stairs
 			{
 				// bottom of right stairs (to top)
@@ -7740,10 +7818,24 @@ Last I saw him, he was visiting the <b>Eaglecrest Plains</b> to the <b>south</b>
 			archbishop: {normal: "assets/npcs/archbishop.png"},
 			stairsLeft: {normal: "assets/objects/stairsLeft.png"},
 			stairsRight: {normal: "assets/objects/stairsRight.png"},
-			catAmelioLeft: {normal: "./assets/npcs/catAmelio.png"},
-			catAmelioRight: {normal: "./assets/npcs/catAmelio.png", flip: "vertical"},
+			catAmelioLeft: {normal: "./assets/npcs/catAmelioLeft.png"},
+			catAmelioRight: {normal: "./assets/npcs/catAmelioLeft.png", flip: "vertical"},
 			yellowSnakeRight: {samhain: "assets/enemies/yellowSnake.png"},
 			yellowSnakeLeft: {samhain: "assets/enemies/yellowSnake.png", flip: "vertical"},
+
+			bookPage: {normal: "assets/objects/bookPage.png"},
+			candle: {normal: "assets/objects/candle.png"},
+			candles: {normal: "assets/objects/candles.png"},
+			dowsingRodStand: {normal: "assets/objects/dowsingRodStand.png"},
+			multitoolStand: {normal: "assets/objects/multitoolStand.png"},
+			monasteryFlowerPot: {normal: "assets/objects/monasteryFlowerPot.png"},
+			monasteryHolyWater: {normal: "assets/objects/monasteryHolyWater.png"},
+			monasteryLectern: {normal: "assets/objects/monasteryLectern.png"},
+			monasteryPew: {normal: "assets/objects/monasteryPew.png"},
+			monasteryPrayerMat: {normal: "assets/objects/monasteryPrayerMat.png"},
+			riverIdol: {normal: "assets/objects/riverIdol.png"},
+			winterMelon: {normal: "assets/objects/winterMelon.png"},
+			catBowlEmpty: {normal: "assets/objects/catBowlEmpty.png"},
 		},
 
 		callAreaJoinOnInit: true,
@@ -7763,7 +7855,7 @@ Last I saw him, he was visiting the <b>Eaglecrest Plains</b> to the <b>south</b>
 				Game.setTimeout(Game.statusEffects.stun.bind(Game.statusEffects), 1000, {target: Game.hero, time: 3.5});
 				Dom.chat.insert(Dom.chat.say("Priestess Ronson", "You there! What's that you're holding?"), 500);
 				Dom.chat.insert(Dom.chat.say("Priestess Ronson", "By the Pantheon, what are you doing!? This is hallowed ground, no place for a thing like that!"), 2000);
-				Game.setTimeout(Game.loadArea.bind(Game), 4000, ["eaglecrestGraveyard", {x: 2010, y: 450}]);
+				Game.setTimeout(Game.loadArea.bind(Game), 4000, ["eaglecrest", {x: 9634, y: 1950}]);
 			}
 		},
 
@@ -7875,7 +7967,7 @@ Last I saw him, he was visiting the <b>Eaglecrest Plains</b> to the <b>south</b>
 			},
 
 			{
-				x: 1225,
+				x: 1095,
 				y: 500,
 				image: "archbishop",
 				name: "Archbishop Lynch",
@@ -7935,6 +8027,13 @@ Last I saw him, he was visiting the <b>Eaglecrest Plains</b> to the <b>south</b>
 				},
 			},
 
+			{x: [904, 1312.7, 904, 1312.7, 904, 1312.7, 904, 1312.7, 904, 1312.7], y: [1015, 1015, 1145, 1145, 1405, 1405, 1535, 1535, 1665, 1665], image: 'monasteryPew', name: 'Pew'},
+
+			{x: 449.9, y: 1010.7, image: 'riverIdol', name: 'River Idol'},
+			{x: 134.6, y: 1045.8, image: 'riverIdol', name: 'River Idol'},
+			{x: 303.2, y: 1075.4, image: 'monasteryHolyWater', name: 'Holy Water'},
+			{x: 474.7, y: 853.5, image: 'monasteryHolyWater', name: 'Holy Water'},
+			{x: 100.9, y: 853.5, image: 'monasteryHolyWater', name: 'Holy Water'},
 		],
 
 		collisions: [
@@ -8809,6 +8908,72 @@ Last I saw him, he was visiting the <b>Eaglecrest Plains</b> to the <b>south</b>
 			Game.setTimeout(Game.loadArea.bind(Game), 8000, "pawPeaks");
 		},
 
+		onFishCaught: function()
+		{
+			//troubled waters area fishing progress
+			if(Game.hero.x >= -240 && Game.hero.x <= 2000 && Game.hero.y >= -120 && Game.hero.y <= 1000)
+			{
+				if(Player.quests.questProgress.northWestFish === undefined)
+				{
+					Player.quests.questProgress.northWestFish = 1;
+					Dom.quests.active();
+				}
+				else
+				{
+					Player.quests.questProgress.northWestFish += 1;
+				}
+			}
+			else if(Game.hero.x >= -240 && Game.hero.x <= 2000 && Game.hero.y >= 4150 && Game.hero.y <= 6180)
+			{
+				if(Player.quests.questProgress.southWestFish === undefined)
+				{
+					Player.quests.questProgress.southWestFish = 1;
+					Dom.quests.active();
+				}
+				else
+				{
+					Player.quests.questProgress.southWestFish += 1;
+				}
+			}
+			else if(Game.hero.x >= 2040 && Game.hero.x <= 5040 && Game.hero.y >= 3200 && Game.hero.y <= 4500)
+			{
+				if(Player.quests.questProgress.centreFish === undefined)
+				{
+					Player.quests.questProgress.centreFish = 1;
+					Dom.quests.active();
+				}
+				else
+				{
+					Player.quests.questProgress.centreFish += 1;
+				}
+			}
+			else if(Game.hero.x >= 4200 && Game.hero.x <= 7440 && Game.hero.y >= -120 && Game.hero.y <= 2200)
+			{
+				if(Player.quests.questProgress.northEastFish === undefined)
+				{
+					Player.quests.questProgress.northEastFish = 1;
+					Dom.quests.active();
+				}
+				else
+				{
+					Player.quests.questProgress.northEastFish += 1;
+				}
+			}
+			else if(Game.hero.x >= 5300 && Game.hero.x <= 7440 && Game.hero.y >= 2360 && Game.hero.y <= 4800)
+			{
+				if(Player.quests.questProgress.southEastFish === undefined)
+				{
+					Player.quests.questProgress.southEastFish = 1;
+					Dom.quests.active();
+				}
+				else
+				{
+					Player.quests.questProgress.southEastFish += 1;
+				}
+			}
+			Dom.quests.active();
+		},
+
 		images: {
 			tiles: {normal: "assets/tilemap/eaglecrest.png", christmas: "assets/tilemap/eaglecrestChristmas.png"},
 			melee: {normal: "assets/projectiles/melee.png"},
@@ -8903,7 +9068,9 @@ Last I saw him, he was visiting the <b>Eaglecrest Plains</b> to the <b>south</b>
 			farmerEloise: {normal: "assets/npcs/farmerEloise.png"},
 			armouredToadLeft: {normal: "assets/enemies/toadArmoured.png"},
 			armouredToadRight: {normal: "assets/enemies/toadArmoured.png", flip: "vertical"},
-			sharptooth: {normal: "assets/npcs/sharptooth.png"}
+			sharptooth: {normal: "assets/npcs/sharptooth.png"},
+			eagleStatue: {normal: "assets/objects/eagleStatue.png"},
+			eaglecrestBanner: {normal: "assets/objects/eaglecrestBanner.png", christmas: "assets/objects/eaglecrestBannerChristmas.png"},
 		},
 
 		areaTeleports: [
@@ -9072,7 +9239,7 @@ Last I saw him, he was visiting the <b>Eaglecrest Plains</b> to the <b>south</b>
                 },
             },
 			{
-                x: 4950,
+                x: 4910,
                 y: 3800,
                 image: "sharptooth",
                 name: "Fisher Sharptooh",
@@ -9086,7 +9253,7 @@ Last I saw him, he was visiting the <b>Eaglecrest Plains</b> to the <b>south</b>
                 roles: [
 	                    {
 	                        role: "text",
-	                        chooseText: "Say that Fisherman Guimtal sent you.",
+	                        chooseText: "Say that <b>Fisherman Guimtal</b> sent you.",
 	                        chat: "Miau, miau miau miau miau! Miau miau miau.",
 	                        buttons: ["Leave"],
 	                        showCloseButton: false,
@@ -9106,12 +9273,81 @@ Last I saw him, he was visiting the <b>Eaglecrest Plains</b> to the <b>south</b>
 	                        role: "questFinish",
 	                        quest: Quests.eaglecrest[12],
 						},
+						{
+	                        role: "questStartFinish",
+	                        quest: Quests.eaglecrest[13],
+						},
+						{
+	                        role: "text",
+	                        chooseText: "Show <b>Fisher Sharptooth</b> the fish you collected.",
+	                        chat: `It seems the fish seems to bes comings froms thes <b>well</b>. Perhaps theres ares somethings downs theres gettings all the fish.<br><br>
+							Whys don'ts yous head downs the well and do some fishing to sees if theres anything downs theres.`,
+	                        buttons: ["Leave"],
+	                        showCloseButton: false,
+	                        forceChoose: true, // forces choose dom
+	                        functions: [function () {
+	                            // close page
+	                            Dom.closePage("textPage");
+	                            // quest progress
+	                            Player.quests.questProgress.troubledWaters3Progress = 2;
+	                            Dom.quests.active();
+	                        }],
+	                        roleRequirement: function () {
+	                            return (Player.quests.questProgress.northWestFish > 0 && Player.quests.questProgress.southWestFish > 0 && Player.quests.questProgress.centreFish > 0 && Player.quests.questProgress.northEastFish > 0 && Player.quests.questProgress.southEastFish > 0 && Player.quests.questProgress.troubledWaters3Progress === 1);
+	                        },
+	                    },
+						{
+	                        role: "questStart",
+	                        quest: Quests.eaglecrest[14],
+						},
+						{
+	                        role: "text",
+	                        chooseText: "Give <b>Fisher Sharptooth</b> a fish longer than <b>100cm</b>.",
+	                        chat: `Okays, nows wes has the fishs Is needs to turns its intos bait.<br><br>
+							<em><b>Fisher Sharptooth</b> turns around and you hear multiple clangs and some switch sqwelching afterwards</em><br><br>
+							Heres yous goes. Yous shoulds nows fish ups a <b>King of Herrings</b>. Its a large fish so the large fish shouldn'ts be ables to eats it, so yous shoulds be ables to finds one in the well.`,
+	                        buttons: ["Leave"],
+	                        showCloseButton: false,
+	                        forceChoose: true, // forces choose dom
+	                        functions: [function () {
+	                            // close page
+	                            Dom.closePage("textPage");
+	                            // quest progress
+	                            Player.quests.questProgress.troubledWaters4Progress = 2;
+	                            Dom.quests.active();
+
+								Dom.inventory.give(Items.consumable[37], 1);
+	                        }],
+	                        roleRequirement: function () {
+								if(Player.quests.questProgress.troubledWaters4Progress > 0)
+								{
+									for (let i = 0; i < Player.inventory.items.length; i++) {
+									    if (Player.inventory.items[i].type === "fish" && Player.inventory.items[i].length > 100) {
+										   	Dom.inventory.remove(i);
+									       	return true;
+									    }
+									}
+								}
+								return false;
+	                        },
+	                    },
                 ],
                 chat: {
-                    questProgress: "Yous looks like yous never seen a cat fish before.",
+					questProgress: [
+						{
+							text: "Yous looks likes yous nevers seens a cat fish befores.",
+							condition: function()
+							{
+								return Player.quests.questProgress.troubledWaters2Progress > 5;
+							}
+						},
+						{
+							text: "Miau, miau miau miau."
+						},
+					],
                     notUnlockedRoles: "Miau, miau miau miau.",
-                    //questComplete: "Thank yah for the help, I guess I'll see yah around.",
-                    //inventoryFull: "Yah bags are full, come back when yah got room.",
+                    questComplete: "Yous looks likes yous nevers seens a cat fish befores.",
+                    inventoryFull: "Yous needs mores space. Comes back laters.",
                 },
             },
 			{
@@ -9218,6 +9454,10 @@ Last I saw him, he was visiting the <b>Eaglecrest Plains</b> to the <b>south</b>
 				roles: [
 					{
 						quest: Quests.eaglecrest[9],
+						role: "questStartFinish",
+					},
+					{
+						quest: Quests.eaglecrest[15],
 						role: "questStartFinish",
 					}
 				],
@@ -9608,6 +9848,33 @@ Last I saw him, he was visiting the <b>Eaglecrest Plains</b> to the <b>south</b>
 		],
 
 		things: [
+			{x: [3117.2, 2883.4], y: [222.8, 222.8], image: 'eagleStatue', name: 'Eagle Statue', crop: {x: 0,y: 2,width: 150,height: 188}, canBeShown: function () {
+				return Player.reputation.eaglecrestCity.level === 5; // honoured
+			}},
+			// by statue
+			{x: 2571.1, y: 2725.2, image: 'eagleStatue', name: 'Eagle Statue', crop: {x: 0,y: 2,width: 150,height: 188}, canBeShown: function () {
+				return Player.reputation.eaglecrestCity.level === 5; // honoured
+			}},
+			// lake north west
+			{x: 2274.2, y: 4469.9, image: 'eagleStatue', name: 'Eagle Statue', crop: {x: 0,y: 2,width: 150,height: 188}, canBeShown: function () {
+				return Player.reputation.eaglecrestCity.level === 5; // honoured
+			}},
+			// lake south west
+			{x: 2109.2, y: 1544.4, image: 'eagleStatue', name: 'Eagle Statue', crop: {x: 0,y: 2,width: 150,height: 188}, canBeShown: function () {
+				return Player.reputation.eaglecrestCity.level === 6; // venerated
+			}},
+			// prarie
+			{x: 1433, y: 3498.7, image: 'eagleStatue', name: 'Eagle Statue', crop: {x: 0,y: 2,width: 150,height: 188}, canBeShown: function () {
+				return Player.reputation.eaglecrestCity.level === 6; // venerated
+			}},
+			// lake south east
+			{x: 4804.9, y: 4222.6, image: 'eagleStatue', name: 'Eagle Statue', crop: {x: 0,y: 2,width: 150,height: 188}, canBeShown: function () {
+				return Player.reputation.eaglecrestCity.level === 6; // venerated
+			}},
+
+			// misc again
+			{x: 2839.4, y: 257.1, image: 'eaglecrestBanner', name: 'Eaglecrest Banner'},
+			{x: 3167.2, y: 257.1, image: 'eaglecrestBanner', name: 'Eaglecrest Banner'},
 			// misc again
 			{x: 6581.3, y: 2435.8, image: 'hayBale1', name: 'Hay Bale'}, // more hay bales..
 			{x: 6743, y: 1691.3, image: 'hayBale2', name: 'Hay Bale'}, // more hay bales..
@@ -9779,6 +10046,17 @@ image: 'steppingStone', name: 'Stepping Stone', z: -1, walkable: true,},
 				y: 2816,
 				name: "Well",
 				image: "well",
+				onInteract: function () {
+				    if (Player.quests.questProgress.troubledWaters3Progress > 1) {
+						Game.hero.channel(function () {
+				            Game.loadArea("eaglecrestWell", {x: 750, y: 170});
+				        }, [], 1500, "Entering well");
+
+				    }
+				    else {
+				        Dom.chat.npcBanner(false, "<i>Looks like a pretty deep well...</i>", true);
+				    }
+				}
 			},
 			{
 				x: 257,
@@ -9842,6 +10120,9 @@ image: 'steppingStone', name: 'Stepping Stone', z: -1, walkable: true,},
 			},
 		],
 	},
+
+
+
 
 	//
 	// the city again ! ! !
@@ -10995,6 +11276,9 @@ areaTeleports: [
         ]
 
 	},
+
+
+
     pawPeaks: {
         id: 23,
 
@@ -11674,6 +11958,106 @@ things: [
                 },}
 */
           ],
+},
+
+//Eaglecrest well for fishing tour
+
+eaglecrestWell: {
+	id: 24,
+
+	data: {
+		name: "Eaglecrest Well",
+		displayOnEnter: true,
+	},
+
+	indoors: true,
+
+	tagGameAllowed: true,
+
+	song_day: "assets/music/Eaglecrest.mp3",
+	song_night: "assets/music/Eaglecrest.mp3",
+
+	checkpoint: false,
+
+	lootArea: "eaglecrestWell",
+
+	mapData: {
+		cols: 25,
+		rows: 25,
+		tsize: 60,
+		tilesPerRow: 10,
+		solidTiles: [23, 24, 33, 34],
+		pathTiles: [],
+		waterTiles: [28],
+		layers: [
+			[23, 23, 23, 23, 23, 23, 23, 23, 23, 23, 23, 23, 23, 23, 23, 23, 23, 23, 23, 23, 23, 23, 23, 23, 23,
+            23, 23, 23, 23, 23, 23, 23, 23, 23, 23, 23, 23, 23, 23, 23, 23, 23, 23, 23, 23, 23, 23, 23, 23, 23,
+            23, 23, 23, 23, 23, 23, 23, 23, 23, 23, 23, 23, 23, 23, 23, 23, 23, 23, 23, 23, 23, 23, 23, 23, 23,
+            1, 12, 2, 1, 12, 2, 12, 12, 2, 2, 2, 1, 1, 1, 1, 11, 11, 2, 1, 2, 1, 1, 1, 1, 1,
+            1, 1, 11, 12, 1, 1, 2, 11, 11, 1, 12, 1, 11, 11, 1, 11, 2, 11, 1, 2, 11, 1, 11, 1, 1,
+            1, 1, 1, 2, 1, 12, 1, 11, 1, 2, 11, 1, 1, 1, 1, 1, 1, 11, 11, 1, 1, 1, 1, 1, 1,
+            1, 1, 12, 12, 2, 2, 1, 2, 1, 1, 1, 28, 28, 28, 28, 1, 1, 1, 1, 12, 1, 2, 12, 1, 1,
+            1, 2, 1, 1, 1, 2, 1, 1, 11, 28, 28, 28, 28, 28, 28, 28, 28, 28, 1, 1, 1, 1, 12, 1, 1,
+            1, 1, 2, 1, 1, 2, 1, 11, 28, 28, 28, 28, 28, 28, 28, 28, 28, 28, 28, 1, 1, 1, 1, 1, 1,
+            1, 1, 1, 1, 1, 1, 1, 28, 28, 28, 28, 28, 28, 28, 28, 28, 28, 28, 28, 28, 1, 11, 1, 1, 1,
+            1, 12, 1, 11, 1, 1, 28, 28, 28, 28, 28, 28, 28, 28, 28, 28, 28, 28, 28, 28, 1, 11, 11, 12, 1,
+            1, 1, 1, 1, 1, 28, 28, 28, 28, 28, 28, 28, 28, 28, 28, 28, 28, 28, 28, 28, 28, 1, 11, 11, 1,
+            1, 1, 1, 1, 1, 28, 28, 28, 28, 28, 28, 28, 28, 28, 28, 28, 28, 28, 28, 28, 28, 1, 1, 11, 1,
+            1, 1, 11, 1, 28, 28, 28, 28, 28, 28, 28, 28, 28, 28, 28, 28, 28, 28, 28, 28, 28, 28, 1, 11, 1,
+            1, 1, 1, 12, 28, 28, 28, 28, 28, 28, 28, 28, 28, 28, 28, 28, 28, 28, 28, 28, 28, 28, 1, 1, 1,
+            1, 1, 1, 1, 28, 28, 28, 28, 28, 28, 28, 28, 28, 28, 28, 28, 28, 28, 28, 28, 28, 28, 1, 1, 1,
+            1, 1, 1, 12, 28, 28, 28, 28, 28, 28, 28, 28, 28, 28, 28, 28, 28, 28, 28, 28, 28, 28, 1, 1, 1,
+            1, 2, 1, 11, 11, 28, 28, 28, 28, 28, 28, 28, 28, 28, 28, 28, 28, 28, 28, 28, 28, 28, 1, 1, 1,
+            1, 2, 12, 12, 1, 1, 28, 28, 28, 28, 28, 28, 28, 28, 28, 28, 28, 28, 28, 28, 28, 28, 1, 1, 1,
+            1, 1, 12, 1, 1, 1, 1, 1, 28, 28, 28, 28, 28, 28, 28, 28, 28, 28, 28, 28, 28, 1, 1, 12, 1,
+            1, 1, 11, 1, 2, 1, 1, 1, 11, 28, 28, 28, 28, 28, 28, 28, 28, 28, 28, 28, 1, 1, 2, 11, 1,
+            1, 1, 12, 1, 12, 12, 1, 1, 1, 11, 1, 1, 28, 28, 28, 28, 1, 1, 1, 1, 1, 11, 12, 2, 1,
+            1, 1, 1, 12, 1, 1, 12, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 2, 1, 2, 2, 12, 2, 1,
+            1, 1, 1, 1, 1, 1, 12, 1, 1, 1, 1, 1, 1, 2, 12, 1, 11, 11, 1, 2, 11, 1, 1, 1, 1,
+            1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1],
+
+			[0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 19, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
+            0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 19, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
+            0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 19, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
+            0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
+            0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
+            0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
+            0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
+            0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
+            0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
+            0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
+            0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
+            0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
+            0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
+            0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
+            0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
+            0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
+            0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
+            0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
+            0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
+            0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
+            0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
+            0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
+            0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
+            0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
+            0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
+		],
+	},
+
+	images: {
+		tiles: {normal: "assets/tilemap/caves.png"}
+	},
+
+	callAreaJoinOnInit: true,
+	onAreaJoin: function () {
+
+	},
+
+	areaTeleports: [
+		{
+
+		},
+	],
 },
 
 

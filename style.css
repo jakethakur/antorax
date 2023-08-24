@@ -266,6 +266,8 @@ thead:after { /* space after bags in bank */
 	text-align: left;
 	margin: auto;
 	opacity: var(--opacity);
+
+	z-index: 50;
 }
 
 #npcChatImage {
@@ -331,7 +333,8 @@ thead:after { /* space after bags in bank */
 .chatBannerOption {
 	 list-style-image: url(assets/icons/dialogueChoiceBullet.png);
 	 font-size: 22px;
-	 line-height: 36px;
+	 padding-bottom: 5px;
+	padding-top: 5px;
 }
 
 /*					*/
