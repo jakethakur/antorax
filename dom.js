@@ -1390,16 +1390,16 @@ Dom.chat.npcChatProgress = function (forceProgress, jumpToId) {
 		}
 
 		// jumpToId
-		if (Array.isArray(text) && typeof jumpToId !== "undefined") {
-			while (toShow.length > 0 && (typeof toShow[0] === "string" || (typeof toShow[0] === "object" && toShow[0].id !== jumpToId))) {
-				toShow.splice[0];
+		if (Array.isArray(Dom.chat.upcomingBannerText) && typeof jumpToId !== "undefined") {
+			while (Dom.chat.upcomingBannerText.length > 0 && (typeof Dom.chat.upcomingBannerText[0] === "string" || (typeof Dom.chat.upcomingBannerText[0] === "object" && Dom.chat.upcomingBannerText[0].id !== jumpToId))) {
+				Dom.chat.upcomingBannerText.splice[0];
 			}
-			if (toShow.length === 0) {
+			if (Dom.chat.upcomingBannerText.length === 0) {
 				console.warn("Could not find an upcoming chat message with the id ", jumpToId);
 				Dom.chat.upcomingBannerText = undefined;
 			}
 		}
-		else if (typeof toShow === "string" || (typeof toShow === "object" && toShow.id !== jumpToId)) {
+		else if (typeof Dom.chat.upcomingBannerText === "string" || (typeof Dom.chat.upcomingBannerText === "object" && Dom.chat.upcomingBannerText.id !== jumpToId)) {
 			// nothing fits the given criteria
 			console.warn("Could not find an upcoming chat message with the id ", jumpToId, Dom.chat.upcomingBannerText);
 			Dom.chat.upcomingBannerText = undefined;
@@ -2216,9 +2216,34 @@ Dom.currentNPC = {};
 Dom.quest.startFromNpc = function (quest, npc) {
 	// tbd needs to take into account currentlyDisplayed
 	let chat = quest.startChat;
+
+	// format chat so the onFinishDom property can be given to it
+	chat = Dom.quest.formatChatForQuest(chat);
+
 	chat[chat.length-1].onFinishDom = Dom.quest.start;
 	chat[chat.length-1].onFinishDomParams = [quest, npc];
+
 	Dom.chat.npcBanner(npc, chat);
+}
+
+// format chat so the onFinishDom property can be given to it
+Dom.quest.formatChatForQuest = function (chat) {
+	if (Array.isArray(chat)) {
+		if (typeof chat[chat.length-1] === "string") {
+			chat[chat.length-1] = {text: chat[chat.length-1]};
+		}
+	}
+	else if (typeof chat === "object") {
+		chat = [chat];
+	}
+	else if (typeof chat === "string") {
+		chat = [{text: chat}];
+	}
+	else {
+		console.error("Unknown type of chat", chat);
+	}
+
+	return chat;
 }
 
 // starts a quest without dialogue (assumes dialogue it has already been shown by startFromNpc)
@@ -2497,6 +2522,10 @@ Dom.quest.progress = function (quest, npc, stage) {
 Dom.quest.finishFromNpc = function (quest, npc) {
 	// tbd needs to take into account currentlyDisplayed
 	let chat = quest.finishChat;
+
+	// format chat so the onFinishDom property can be given to it
+	chat = Dom.quest.formatChatForQuest(chat);
+
 	chat[chat.length-1].onFinishDom = Dom.quest.finish;
 	chat[chat.length-1].onFinishDomParams = [quest, npc];
 	Dom.chat.npcBanner(npc, chat);

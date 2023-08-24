@@ -2451,7 +2451,7 @@ var Quests = {
 				],
 				reputation: {
 					eaglecrestCity: 20,
-					theJester: 100,
+					theJester: 110,
 				},
 			},
 
@@ -2748,7 +2748,7 @@ var Quests = {
 				Player.quests.questProgress.troubledWaters2Progress = 0;
 			}
 		},
-		/*{
+		{
 			id: 13,
 			quest: "Troubled Waters III (Eaglecrest Plains Fishing Tourǃǃ)",
 			questArea: "eaglecrest",
@@ -2815,7 +2815,7 @@ var Quests = {
 
 			howToStart: "Speak to <strong>Fisher Sharptooth</strong>.",
 			levelRequirement: 5,
-			questRequirements: ["Troubled Waters II"],
+			questRequirements: ["Troubled Waters II", "tbd"],
 
 			rewards: {
 				xp: 75,
@@ -2885,7 +2885,7 @@ var Quests = {
 
 			howToStart: "Speak to <strong>Fisher Sharptooth</strong>.",
 			levelRequirement: 5,
-			questRequirements: ["Troubled Waters III (Eaglecrest Plains Fishing Tourǃǃ)"],
+			questRequirements: ["Troubled Waters III (Eaglecrest Plains Fishing Tourǃǃ)", "tba"],
 
 			rewards: {
 				xp: 75,
@@ -2901,7 +2901,76 @@ var Quests = {
 			onQuestStart: function() {
 				Player.quests.questProgress.troubledWaters4Progress = 1;
 			}
-		},*/
+		},
+		{
+			id: 15,
+			quest: "Bee Careful ! !",
+			questArea: "eaglecrest",
+
+			startName: "Farmer Eloise",
+			startChat: [{
+				text: `The bees won't stop swarming that flower forest~!`,
+			},{
+				text: `Maybe they're lost⁀˚`,
+			},{
+				text: `Could you try to lure a swarm back˚?`,
+			},{
+				text: `Try not to hurt the bees~`,
+			},],
+
+			finishName: "Farmer Eloise",
+			finishChat: [{
+				text: `Welcome back, bees˚!⁀!`,
+			},],
+
+			objectives: [
+				"Lure a <b>Bee Swarm</b> from the Plains flower forest to the farm.",
+				"Speak to <b>Farmer Eloise</b>.",
+			],
+
+			isCompleted: function() {
+				let completed = [];
+
+				// true or falses for each objective (apart from the turn-in objective)
+				let objCompleted;
+				if (!Player.quests.questProgress.beeCarefulFinished) {
+					let beeSwarms = Game.enemies.filter(enemy => enemy.name === "Bee Swarm" && enemy.hostility === "hostile");
+					let farmerEloise = Game.npcs.filter(npc => npc.name === "Farmer Eloise");
+					let nearest = Game.closest(beeSwarms, farmerEloise);
+					objCompleted = (Game.distance(nearest, farmerEloise) < 300);
+					if (completed) {
+						Player.quests.questProgress.beeCarefulFinished = true;
+
+						nearest.attackTargets[Game.hero.id].baseAggro = 0;
+						nearest.attackTargets[Game.hero.id].aggro = 0;
+						nearest.hostility = "neutral";
+					}
+				}
+				else {
+					objCompleted = true;
+				}
+				completed.push(objCompleted);
+
+				completed = checkFinished(completed);
+
+				return completed;
+			},
+
+			howToStart: "Speak to <b>Farmer Eloise</b> in the Eaglecrest Plains Farms.",
+			levelRequirement: 9,
+			questRequirements: ["Every Flower in My Garden"],
+			// tbd reputation requirement
+
+			rewards: {
+				xp: 60,
+				items: [,
+					{item: Items.currency[2], quantity: 4,},
+				],
+				reputation: {
+					eaglecrestFarm: 100,
+				},
+			},
+		},
 
 		/*{
 			id: 14,
@@ -3137,10 +3206,14 @@ var Quests = {
 			questArea: "tavern",
 
 			startName: "Gregor Goldenbrew",
-			startChat: "I 'aven't seen you round 'ere before! Hehe, enjoy a drink by the hearth - free on us!",
+			startChat: [{
+				text: `I 'aven't seen you round 'ere before! Hehe, enjoy a drink by the hearth - free on us!`,
+			},],
 
 			finishName: "Gregor Goldenbrew",
-			finishChat: "Heh, yer gonna love it here!",
+			finishChat: [{
+				text: `Heh, yer gonna love it here!`,
+			},],
 
 			objectives: [
 				"Take a sip from your wood-brewed beer around the hearth.",
@@ -3186,9 +3259,13 @@ var Quests = {
 
 			gregorGoldenbrew: {
 				startName: "Gregor Goldenbrew",
-				startChat: "It's getting a bit dirty 'round 'ere! Any chance ya can help clean up for a li'l gold?",
+				startChat: [{
+					text: `It's getting a bit dirty 'round 'ere! Any chance ya can help clean up for a li'l gold?`,
+				},],
 				finishName: "Gregor Goldenbrew",
-				finishChat: "Wow! The tavern's looking better than ever. Here's yer reward.",
+				finishChat: [{
+					text: `Wow! The tavern's looking better than ever. Here's yer reward.`,
+				},],
 				objectives: [
 					"Use the mop to clean away the dirt in the tavern.",
 					"Speak to <strong>Gregor Goldenbrew</strong>.",
@@ -3197,14 +3274,20 @@ var Quests = {
 
 			innkeepersRhusJak: {
 				startName: "Innkeepers Rhus-Jak",
-				startChat: `<strong>Jak</strong>: The tavern's a bit dirty at the moment. We're both busy serving guests, but if you wanted a job and a bit of gold ...
-							<br><strong>Rhus</strong>: Then clean the floor with mop!!`,
+				startChat: [{
+					text: `<strong>Jak</strong>: The tavern's a bit dirty at the moment. We're both busy serving guests, but if you wanted a job and a bit of gold ...`,
+				},{
+					text: `<strong>Rhus</strong>: Then clean the floor with mop!!`,
+				},],
 				finishName: "Innkeepers Rhus-Jak",
-				finishChat: `<strong>Rhus</strong>: Give mop back here!
-							<br><strong>Jak</strong>: Thank you! It's looking a lot better here now.`,
+				finishChat: [{
+					text: `<strong>Rhus</strong>: Give mop back here!`,
+				},{
+					text: `<strong>Jak</strong>: Thank you! It's looking a lot better here now.`,
+				},],
 				objectives: [
 					"Use the mop to clean away the dirt in the tavern.",
-					"Speak to <strong>Innkeeper Rhus-Jak</strong>.",
+					"Speak to <strong>Innkeepera Rhus-Jak</strong>.",
 				],
 			},
 
@@ -3315,9 +3398,15 @@ var Quests = {
 
 			gregorGoldenbrew: {
 				startName: "Gregor Goldenbrew",
-				startChat: "My tables are getting covered with all these plates and mugs. Would ya mind collecting 'em all and bringing 'em back 'ere for me? I'll give ya some gold for yer time.",
+				startChat: [{
+					text: `My tables are getting covered with all these plates and mugs. Would ya mind collecting 'em all and bringing 'em back 'ere for me?`,
+				},{
+					text: `I'll give ya some gold for yer time.`,
+				},],
 				finishName: "Gregor Goldenbrew",
-				finishChat: "Don't worry, I got yer reward here. My tavern's very popular so come back 'n' help whenever ya want.",
+				finishChat: [{
+					text: `Don't worry, I got yer reward here. My tavern's very popular so come back 'n' help whenever ya want.`,
+				},],
 				objectives: [
 					"Collect mugs and plates from tables.",
 					"Return them to <strong>Gregor Goldenbrew</strong>.",
@@ -3326,15 +3415,22 @@ var Quests = {
 
 			innkeepersRhusJak: {
 				startName: "Innkeepers Rhus-Jak",
-				startChat: `<strong>Rhus</strong>: Tables are messy.
-							<br><strong>Jak</strong>: Could you help us tidy them a little? You can have a bit of gold for your time.
-							<br><strong>Rhus</strong>: Tables are <strong>very</strong> messy.`,
+				startChat: [{
+					text: `<strong>Rhus</strong>: Tables are messy.`,
+				},{
+					text: `<strong>Jak</strong>: Could you help us tidy them a little? You can have a bit of gold for your time.`,
+				},{
+					text: `<strong>Rhus</strong>: Tables are <strong>very</strong> messy.`,
+				},],
 				finishName: "Innkeepers Rhus-Jak",
-				finishChat: `<strong>Jak</strong>: Thank you! I'm sure they'll get cluttered again, but the tavern's looking great at the moment.
-							<br><strong>Rhus</strong>: Tables are clean.`,
+				finishChat: [{
+					text: `<strong>Jak</strong>: Thank you! I'm sure they'll get cluttered again, but the tavern's looking great at the moment.`,
+				},{
+					text: `<strong>Rhus</strong>: Tables are clean.`,
+				},],
 				objectives: [
 					"Collect mugs and plates from tables.",
-					"Return them to <strong>Innkeeper Rhus-Jak</strong>.",
+					"Return them to <strong>Innkeepers Rhus-Jak</strong>.",
 				],
 			},
 
@@ -3407,9 +3503,17 @@ var Quests = {
 
 			gregorGoldenbrew: {
 				startName: "Gregor Goldenbrew",
-				startChat: "'Ey you! Wanna make a bit o' money helpin' me out? If ya do I need someone to hand out these tavern goods for me.",
+				startChat: [{
+					text: `'Ey you!`,
+				},{
+					text: `Wanna make a bit o' money helpin' me out? If ya do I need someone to hand out these tavern goods for me.`,
+				},],
 				finishName: "Gregor Goldenbrew",
-				finishChat: "Great! That should keep 'em happy for a few minutes",
+				finishChat: [{
+					text: `'Ey you!`,
+				},{
+					text: `Great! That should keep 'em happy for a few minutes.`,
+				},],
 				objectives: [
 					"Hand out some tavern goods to people around the tavern",
 					"Speak to <strong>Gregor Goldenbrew</strong>.",
@@ -3418,13 +3522,17 @@ var Quests = {
 
 			innkeepersRhusJak: {
 				startName: "Innkeepers Rhus-Jak",
-				startChat: `<strong>Jak</strong>: There's a lot of people waiting for their orders! Could you lend us a hand and give out some foodstuffs?`,
+				startChat: [{
+					text: `<strong>Jak</strong>: There's a lot of people waiting for their orders! Could you lend us a hand and give out some foodstuffs?`,
+				},],
 				finishName: "Innkeepers Rhus-Jak",
-				finishChat: `<strong>Rhus</strong>: Good. People happy.
-							<strong>Jak</strong>: Thank you!`,
+				finishChat: [{
+					text: `<strong>Rhus</strong>: Good. People happy.`,
+					text: `<strong>Jak</strong>: Thank you!`,
+				},],
 				objectives: [
 					"Hand out some tavern goods to people around the tavern <i>(check your quest log!)</i>",
-					"Speak to <strong>Innkeeper Rhus-Jak</strong>.",
+					"Speak to <strong>Innkeepers Rhus-Jak</strong>.",
 				],
 			},
 
@@ -3527,10 +3635,16 @@ var Quests = {
 			questArea: "fishing",
 
 			startName: "Fisherman Tobenam",
-			startChat: "Heheh, you can't always fish up a fish right away, but you can always fish up some driftwood! Take a fish and see what you're gettin', heh.",
+			startChat: [{
+				text: `Heheh, you can't always fish up a fish right away, but you can always fish up some driftwood!`,
+			},{
+				text: `Take a fish and see what you're gettin', heh.`,
+			},],
 
 			finishName: "Fisherman Tobenam",
-			finishChat: "Heheh, you'll slowly improve at fishing the more you do it.",
+			finishChat: [{
+				text: `Heheh, you'll improve at fishing the more you do it.`,
+			},],
 
 			objectives: [
 				"Fish something up!",
@@ -3563,10 +3677,14 @@ var Quests = {
 			questArea: "fishing",
 
 			startName: "Fisherman Tobenam",
-			startChat: "What better way to get a fish than to use some bait? Buy a <strong>Can of Worms</strong> from me, and try your luck, heheh.",
+			startChat: [{
+				text: `What better way to get a fish than to use some bait? Buy a <strong>Can of Worms</strong> from me, and try your luck, heheh.`,
+			},],
 
 			finishName: "Fisherman Tobenam",
-			finishChat: "Heheh, your first catch! You'll be good as me in no time...",
+			finishChat: [{
+				text: `Heheh, your first catch! You'll be good as me in no time...`,
+			},],
 
 			objectives: [
 				"Buy a can of worms from Fisherman Tobenam and use it.",
@@ -3601,10 +3719,16 @@ var Quests = {
 			questArea: "fishing",
 
 			startName: "Fisherman Tobenam",
-			startChat: "What did I say, you can't get fish all the time without practising! Keep fishing until your skill is level 10... your effort now will be made up for later, heheh. Oh, and don't forget to use up that bait!",
+			startChat: [{
+				text: `What did I say, you can't get fish all the time without practising!`,
+			},{
+				text: `Keep fishing until your skill is level 10... your effort now will be made up for later, heheh. Oh, and don't forget to use up that bait!`,
+			},],
 
 			finishName: "Fisherman Tobenam",
-			finishChat: "Wow, well done! You're now a fishing master, heheh, almost. Come back to me every day and I'll give you something to do, heheh.",
+			finishChat: [{
+				text: `Wow, well done! You're now a fishing master, heheh, almost. Come back to me every day and I'll give you something to do, heheh.`,
+			},],
 
 			objectives: [
 				"Level your base fishing skill to 10.",

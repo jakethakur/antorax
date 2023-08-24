@@ -9455,6 +9455,10 @@ Last I saw him, he was visiting the <b>Eaglecrest Plains</b> to the <b>south</b>
 					{
 						quest: Quests.eaglecrest[9],
 						role: "questStartFinish",
+					},
+					{
+						quest: Quests.eaglecrest[15],
+						role: "questStartFinish",
 					}
 				],
 				chat: {
