@@ -2932,8 +2932,8 @@ var Quests = {
 				let completed = [];
 
 				// true or falses for each objective (apart from the turn-in objective)
-				let objCompleted;
-				if (!Player.quests.questProgress.beeCarefulFinished) {
+				let objCompleted = false;
+				if (!Player.quests.questProgress.beeCarefulFinished && typeof Game.enemies !== "undefined") {
 					let beeSwarms = Game.enemies.filter(enemy => enemy.name === "Bee Swarm" && enemy.hostility === "hostile");
 					let farmerEloise = Game.npcs.filter(npc => npc.name === "Farmer Eloise")[0];
 					let nearest = Game.closest(beeSwarms, farmerEloise);
