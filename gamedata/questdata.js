@@ -2728,10 +2728,13 @@ var Quests = {
 
 			howToStart: "Speak to <strong>Fisherman Guimtal</strong>.",
 			levelRequirement: 5,
-			questRequirements: ["Troubled Waters"],
+			questRequirements: ["Troubled Waters", "Learning to Fish III"],
 
 			rewards: {
 				xp: 50,
+				items: [
+					{item: Items.currency[2], quantity: 5,},
+				],
 				reputation: {
 					eaglecrestCity: 30,
 				},
@@ -2834,7 +2837,7 @@ var Quests = {
 			}
 		},
 		/*{
-			id: 12,
+			id: 14,
 			quest: "The Pyromancer's Shopping List",
 			questArea: "eaglecrest",
 

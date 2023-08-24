@@ -3875,6 +3875,7 @@ var Areas = {
 			gingerbreadHouse: {christmas: "assets/objects/gingerbreadHouse.png"},
 			catBowlEmpty: {normal: "assets/objects/catBowlEmpty.png"},
 			catBowlFull: {normal: "assets/objects/catBowlFull.png"},
+			eagleStatue: {normal: "assets/objects/eagleStatue.png"},
 		},
 
 		callAreaJoinOnInit: true,
@@ -3906,7 +3907,7 @@ tripwires: [
 						Game.hero.hidden = true;
 						Game.hero.moveTowards = {
 							x: Game.hero.x,
-							y: Game.hero.y + 570,
+							y: Game.hero.y + 580,
 							moveTowardsFinishFunction: function () {
 								Game.hero.hidden = false;
 							},
@@ -3928,7 +3929,7 @@ onPlayerTouch: function () {
 											Game.hero.hidden = true;
 											Game.hero.moveTowards = {
 													x: Game.hero.x,
-													y: Game.hero.y - 570,
+													y: Game.hero.y - 580,
 													moveTowardsFinishFunction: function () {
 														Game.hero.hidden = false;
 													},
@@ -4572,6 +4573,19 @@ onPlayerTouch: function () {
 		],
 
 		things: [
+			{
+				x: [2278.3, 5269.2, 5244.5, 8034.2, 2276, 3566, 3937.8], y: [2201.9, 3113.7, 2179.2, 1873.1, 3156.8, 3079.2, 3079.2],
+				image: 'eagleStatue',
+				name: 'Eagle Statue',
+				crop: {
+					x: 0,
+					y: 2,
+					width: 150,
+					height: 188
+				}
+			},
+
+
 			{x: [5887], y: [1872], image: 'catBowlEmpty', orderOffsetY: -6, name: 'Cat Bowl'},
 
 
@@ -6185,6 +6199,14 @@ onPlayerTouch: function () {
 		],
 
 		tripwires: [
+			{ // eagle statue speed buffs
+				x: [2078.3, 5069.2, 5044.5, 7834.2, 2076, 3366, 3737.8], y: [2001.9, 2913.7, 1979.2, 1673.1, 2956.8, 2879.2, 2879.2],
+				width: 400, height: 400,
+				collisionType: "feet",
+				onPlayerTouch: function () {
+					
+				}
+			},
 			// right stairs
 			{
 				// bottom of right stairs (to top)
@@ -7748,6 +7770,20 @@ Last I saw him, he was visiting the <b>Eaglecrest Plains</b> to the <b>south</b>
 			catAmelioRight: {normal: "./assets/npcs/catAmelioLeft.png", flip: "vertical"},
 			yellowSnakeRight: {samhain: "assets/enemies/yellowSnake.png"},
 			yellowSnakeLeft: {samhain: "assets/enemies/yellowSnake.png", flip: "vertical"},
+
+			bookPage: {normal: "assets/objects/bookPage.png"},
+			candle: {normal: "assets/objects/candle.png"},
+			candles: {normal: "assets/objects/candles.png"},
+			dowsingRodStand: {normal: "assets/objects/dowsingRodStand.png"},
+			multitoolStand: {normal: "assets/objects/multitoolStand.png"},
+			monasteryFlowerPot: {normal: "assets/objects/monasteryFlowerPot.png"},
+			monasteryHolyWater: {normal: "assets/objects/monasteryHolyWater.png"},
+			monasteryLectern: {normal: "assets/objects/monasteryLectern.png"},
+			monasteryPew: {normal: "assets/objects/monasteryPew.png"},
+			monasteryPrayerMat: {normal: "assets/objects/monasteryPrayerMat.png"},
+			riverIdol: {normal: "assets/objects/riverIdol.png"},
+			winterMelon: {normal: "assets/objects/winterMelon.png"},
+			catBowlEmpty: {normal: "assets/objects/catBowlEmpty.png"},
 		},
 
 		callAreaJoinOnInit: true,
@@ -7767,7 +7803,7 @@ Last I saw him, he was visiting the <b>Eaglecrest Plains</b> to the <b>south</b>
 				Game.setTimeout(Game.statusEffects.stun.bind(Game.statusEffects), 1000, {target: Game.hero, time: 3.5});
 				Dom.chat.insert(Dom.chat.say("Priestess Ronson", "You there! What's that you're holding?"), 500);
 				Dom.chat.insert(Dom.chat.say("Priestess Ronson", "By the Pantheon, what are you doing!? This is hallowed ground, no place for a thing like that!"), 2000);
-				Game.setTimeout(Game.loadArea.bind(Game), 4000, ["eaglecrestGraveyard", {x: 2010, y: 450}]);
+				Game.setTimeout(Game.loadArea.bind(Game), 4000, ["eaglecrest", {x: 9634, y: 1950}]);
 			}
 		},
 
@@ -7879,7 +7915,7 @@ Last I saw him, he was visiting the <b>Eaglecrest Plains</b> to the <b>south</b>
 			},
 
 			{
-				x: 1225,
+				x: 1095,
 				y: 500,
 				image: "archbishop",
 				name: "Archbishop Lynch",
@@ -7939,6 +7975,13 @@ Last I saw him, he was visiting the <b>Eaglecrest Plains</b> to the <b>south</b>
 				},
 			},
 
+			{x: [904, 1312.7, 904, 1312.7, 904, 1312.7, 904, 1312.7, 904, 1312.7], y: [1015, 1015, 1145, 1145, 1405, 1405, 1535, 1535, 1665, 1665], image: 'monasteryPew', name: 'Pew'},
+
+			{x: 449.9, y: 1010.7, image: 'riverIdol', name: 'River Idol'},
+			{x: 134.6, y: 1045.8, image: 'riverIdol', name: 'River Idol'},
+			{x: 303.2, y: 1075.4, image: 'monasteryHolyWater', name: 'Holy Water'},
+			{x: 474.7, y: 853.5, image: 'monasteryHolyWater', name: 'Holy Water'},
+			{x: 100.9, y: 853.5, image: 'monasteryHolyWater', name: 'Holy Water'},
 		],
 
 		collisions: [

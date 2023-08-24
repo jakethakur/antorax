@@ -8323,6 +8323,8 @@ Game.loadArea = function (areaName, destination) {
 			this.allAttackers.push(Game.hero);
 
 			this.allEntities.push(Game.hero.footHitbox);
+
+			Game.hero.summonsActive = 0;
 		}
 
 		//
