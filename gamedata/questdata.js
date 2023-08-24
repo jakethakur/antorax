@@ -2938,7 +2938,7 @@ var Quests = {
 					let farmerEloise = Game.npcs.filter(npc => npc.name === "Farmer Eloise")[0];
 					let nearest = Game.closest(beeSwarms, farmerEloise);
 					objCompleted = (Game.distance(nearest, farmerEloise) < 300);
-					if (completed) {
+					if (objCompleted) {
 						Player.quests.questProgress.beeCarefulFinished = true;
 
 						nearest.attackTargets[Game.hero.id].baseAggro = 0;
