@@ -2748,7 +2748,7 @@ var Quests = {
 				Player.quests.questProgress.troubledWaters2Progress = 0;
 			}
 		},
-		{
+		/*{
 			id: 13,
 			quest: "Troubled Waters III (Eaglecrest Plains Fishing Tourǃǃ)",
 			questArea: "eaglecrest",
@@ -2762,13 +2762,7 @@ var Quests = {
 
 			finishName: "Fisher Sharptooth",
 			finishChat: [{
-				text: `Yous looks surprised? Did yous nots thinks I woulds eat the translator?`,
-			},{
-				text: `This translator was for mes right? Oh well, yous can hears mes now.`,
-			},{
-				text: `Oh, yous wants to learns abouts whys there no fish? Well it's tragic indeeds.`,
-			},{
-				text: `I'm sures with yours help we cans solve this issue.`,
+				text: `I'lls examines this fish fors yous. Comes backs laters and I'lls tells you the lasts things to do.`,
 			},],
 
 			objectives: [
@@ -2779,7 +2773,7 @@ var Quests = {
 				"Fish up a fish near the <b>tall grass</b> in the <b>south east</b> of the <b>plains</b>.",
 				"Return to <b>Fisher Sharptooth</b>.",
 				"Head down the <b>Eaglecrest Well</b> and fish up a fish.",
-				"",
+				"Return to <b>Fisher Sharptooth</b>.",
 			],
 
 			isHidden: function() {
@@ -2798,6 +2792,7 @@ var Quests = {
 				hidden.push(false);
 				hidden.push(Player.quests.questProgress.northWestFish === 0 || Player.quests.questProgress.southWestFish === 0 || Player.quests.questProgress.centreFish === 0 || Player.quests.questProgress.northEastFish === 0 || Player.quests.questProgress.southEastFish === 0);
 				hidden.push(Player.quests.questProgress.troubledWaters3Progress < 2);
+				hidden.push(Player.quests.questProgress.troubledWaters3Progress < 3);
 
 				return hidden;
 			},
@@ -2830,12 +2825,84 @@ var Quests = {
 			},
 
 			removeItems: [
+
 			],
 
 			onQuestStart: function() {
 				Player.quests.questProgress.troubledWaters3Progress = 1;
 			}
 		},
+		{
+			id: 14,
+			quest: "Troubled Waters IV (Big Fish in a Small Pond)",
+			questArea: "eaglecrest",
+
+			startName: "Fisher Sharptooth",
+			startChat: [{
+				text: `I looks at the fish ands its seems thats theres is a large fish in the well.`,
+			},{
+				text: `I needs somes bait to gets the fish outs. Gets mes a fish longer thans a metre please ands wes cans ends this.`,
+			},],
+
+			finishName: "Fisher Sharptooth",
+			finishChat: [{
+				text: `I'lls examines this fish fors yous. Comes backs laters and I'lls tells you the lasts things to do.`,
+			},],
+
+			objectives: [
+				"Fish up a fish longer than <b>100cm</b> and return to <b>Fisher Sharptooth</b> to make into bait.",
+				"Fish up the <b>King of Herrings</b> located in <b>Eaglecrest Well</b>.",
+				"Defeat the <b>Lake Lurker</b>.",
+				"Return to <b>Fisherman Guimtal</b>"
+			],
+
+			isHidden: function() {
+				let hidden = [];
+
+				if (Player.quests.questProgress.troubledWaters4Progress === undefined)
+				{
+					Player.quests.questProgress.troubledWaters4Progress = 1;
+				}
+
+				// true or falses for each objective (apart from the turn-in objective)
+				hidden.push(false);
+				hidden.push(Player.quests.questProgress.troubledWaters4Progress < 2);
+				hidden.push(Player.quests.questProgress.troubledWaters4Progress < 3);
+
+				return hidden;
+			},
+
+			isCompleted: function() {
+				let completed = [];
+				// true or falses for each objective (apart from the turn-in objective)
+				completed.push(Player.quests.questProgress.troubledWaters4Progress > 1 && Dom.inventory.check(37, "consumable", 1) || Player.quests.questProgress.troubledWaters4Progress > 2);
+				completed.push(Player.quests.questProgress.troubledWaters4Progress > 2);
+
+				completed = checkFinished(completed);
+
+				return completed;
+			},
+
+			howToStart: "Speak to <strong>Fisher Sharptooth</strong>.",
+			levelRequirement: 5,
+			questRequirements: ["Troubled Waters III (Eaglecrest Plains Fishing Tourǃǃ)"],
+
+			rewards: {
+				xp: 75,
+				reputation: {
+					eaglecrestCity: 30,
+				},
+			},
+
+			removeItems: [
+				{item: Items.fish[38]},
+			],
+
+			onQuestStart: function() {
+				Player.quests.questProgress.troubledWaters4Progress = 1;
+			}
+		},*/
+		
 		/*{
 			id: 14,
 			quest: "The Pyromancer's Shopping List",

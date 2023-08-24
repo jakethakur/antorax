@@ -5,6 +5,7 @@
 const FishingLevels = {
 	loggingCamp: 10,
 	eaglecrest: 20,
+	eaglecrestWell: 0,
 };
 
 // for dynamic lookup in messages ie class
@@ -9242,6 +9243,41 @@ Last I saw him, he was visiting the <b>Eaglecrest Plains</b> to the <b>south</b>
 	                            return (Player.quests.questProgress.northWestFish > 0 && Player.quests.questProgress.southWestFish > 0 && Player.quests.questProgress.centreFish > 0 && Player.quests.questProgress.northEastFish > 0 && Player.quests.questProgress.southEastFish > 0 && Player.quests.questProgress.troubledWaters3Progress === 1);
 	                        },
 	                    },
+						{
+	                        role: "questStart",
+	                        quest: Quests.eaglecrest[14],
+						},
+						{
+	                        role: "text",
+	                        chooseText: "Give <b>Fisher Sharptooth</b> a fish longer than <b>100cm</b>.",
+	                        chat: `Okays, nows wes has the fishs Is needs to turns its intos bait.<br><br>
+							<em><b>Fisher Sharptooth</b> turns around and you hear multiple clangs and some switch sqwelching afterwards</em><br><br>
+							Heres yous goes. Yous shoulds nows fish ups a <b>King of Herrings</b>. Its a large fish so the large fish shouldn'ts be ables to eats it, so yous shoulds be ables to finds one in the well.`,
+	                        buttons: ["Leave"],
+	                        showCloseButton: false,
+	                        forceChoose: true, // forces choose dom
+	                        functions: [function () {
+	                            // close page
+	                            Dom.closePage("textPage");
+	                            // quest progress
+	                            Player.quests.questProgress.troubledWaters4Progress = 2;
+	                            Dom.quests.active();
+
+								Dom.inventory.give(Items.consumable[37], 1);
+	                        }],
+	                        roleRequirement: function () {
+								if(Player.quests.questProgress.troubledWaters4Progress > 0)
+								{
+									for (let i = 0; i < Player.inventory.items.length; i++) {
+									    if (Player.inventory.items[i].type === "fish" && Player.inventory.items[i].length > 100) {
+										   	Dom.inventory.remove(i);
+									       	return true;
+									    }
+									}
+								}
+								return false;
+	                        },
+	                    },
                 ],
                 chat: {
 					questProgress: [
@@ -9257,8 +9293,8 @@ Last I saw him, he was visiting the <b>Eaglecrest Plains</b> to the <b>south</b>
 						},
 					],
                     notUnlockedRoles: "Miau, miau miau miau.",
-                    //questComplete: "Thank yah for the help, I guess I'll see yah around.",
-                    //inventoryFull: "Yah bags are full, come back when yah got room.",
+                    questComplete: "Yous looks likes yous nevers seens a cat fish befores.",
+                    inventoryFull: "Yous needs mores space. Comes back laters.",
                 },
             },
 			{
