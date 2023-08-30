@@ -1091,7 +1091,7 @@ Spells = [
 		],
 	},
 
-	{
+	/*{
 		// tbd fissure
 		func: function (properties) {
 
@@ -1134,15 +1134,62 @@ Spells = [
 				// optional stuff:
 				// aaaaaaaaaaaaa look at ; might need to fix some of these
 				// also, doesn't work for projectile2 since these properties don't exist
-				/*crop: Game.heroProjectileInfo.crop,
+				crop: Game.heroProjectileInfo.crop,
 				animation: Game.heroProjectileInfo.animation,
 				frameTime: Game.heroProjectileInfo.frameTime,
 				stayOnScreen: Game.heroProjectileInfo.stayOnScreen, // set to the time it stays on the screen for (default 1500) or true if never removed
 				//doNotRotate: Game.heroProjectileInfo.doNotRotate, // aaaaaaaaaaaaaa readd but just as a visual thing - not affecting the projectile's direction as it would because this is needed for variance
 				onInteract: Game.heroProjectileInfo.onInteract,
-				z: Game.heroProjectileInfo.z,*/
+				z: Game.heroProjectileInfo.z,
 			}));
 		}
-	}
+	},*/
+
+	{
+		name: "Splish Splash",
+		id: 25,
+		class: "m",
+
+		// properties should contain tier (as int value), caster, target
+		func: function (properties) {
+			let numOfProjectiles = Spells[25].numOfProjectiles[properties.tier];
+			let radianIncrement = Math.PI*2 / numOfProjectiles;
+			for(let direction = 0; direction < Math.PI*2; direction += radianIncrement) {
+				Game.projectiles.push(new Projectile({
+					map: map,
+					x: properties.caster.x,
+					y: properties.caster.y,
+					stats: {
+						damage: Spells[25].damage[properties.tier],
+						slowAmount: 35,
+						slowTime: 5,
+					},
+					attacker: properties.caster,
+					targets: [properties.target],
+					image: "waterball",
+					moveDirection: direction,
+					stopMovingOnDamage: true,
+					moveSpeed: 400,
+					type: "projectiles",
+				}));
+			}
+		},
+
+		channelTime: [
+			0,
+			5000,	// tier 1
+		],
+
+		damage: [
+			0,
+			15,	// tier 1
+		],
+
+		numOfProjectiles: [
+			0,
+			18, // tier 1
+		]
+	},
+
 
 ];

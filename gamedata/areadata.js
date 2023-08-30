@@ -9020,7 +9020,7 @@ Last I saw him, he was visiting the <b>Eaglecrest Plains</b> to the <b>south</b>
 			coyoteWranglerCorpse: {normal: "assets/corpses/coyotePackWrangler.png"},
 			beeSwarmLeft: {normal: "assets/enemies/beeSwarm.png"},
 			beeSwarmRight: {normal: "assets/enemies/beeSwarm.png", flip: "vertical"},
-			beeSwarmCorpse: {normal: "assets/corpses/toad.png"},
+			beeSwarmCorpse: {normal: "assets/corpses/beeSwarm.png"},
 			bumblebeeLeft1: {normal: "assets/enemies/bumblebee1.png"},
 			bumblebeeRight1: {normal: "assets/enemies/bumblebee1.png", flip: "vertical"},
 			bumblebeeLeft2: {normal: "assets/enemies/bumblebee2.png"},
@@ -9278,10 +9278,14 @@ Last I saw him, he was visiting the <b>Eaglecrest Plains</b> to the <b>south</b>
 	                        quest: Quests.eaglecrest[13],
 						},
 						{
+	                        role: "questStartFinish",
+	                        quest: Quests.eaglecrest[14],
+						},
+						{
 	                        role: "text",
 	                        chooseText: "Show <b>Fisher Sharptooth</b> the fish you collected.",
 	                        chat: `It seems the fish seems to bes comings froms thes <b>well</b>. Perhaps theres ares somethings downs theres gettings all the fish.<br><br>
-							Whys don'ts yous head downs the well and do some fishing to sees if theres anything downs theres.`,
+													Whys don'ts yous head downs the well and do some fishing to sees if theres anything downs theres.`,
 	                        buttons: ["Leave"],
 	                        showCloseButton: false,
 	                        forceChoose: true, // forces choose dom
@@ -9297,15 +9301,11 @@ Last I saw him, he was visiting the <b>Eaglecrest Plains</b> to the <b>south</b>
 	                        },
 	                    },
 						{
-	                        role: "questStart",
-	                        quest: Quests.eaglecrest[14],
-						},
-						{
 	                        role: "text",
 	                        chooseText: "Give <b>Fisher Sharptooth</b> a fish longer than <b>100cm</b>.",
 	                        chat: `Okays, nows wes has the fishs Is needs to turns its intos bait.<br><br>
-							<em><b>Fisher Sharptooth</b> turns around and you hear multiple clangs and some switch sqwelching afterwards</em><br><br>
-							Heres yous goes. Yous shoulds nows fish ups a <b>King of Herrings</b>. Its a large fish so the large fish shouldn'ts be ables to eats it, so yous shoulds be ables to finds one in the well.`,
+													<em><b>Fisher Sharptooth</b> turns around and you hear multiple clangs and some switch sqwelching afterwards</em><br><br>
+													Heres yous goes. Yous shoulds nows fish ups a <b>King of Herrings</b>. Its a large fish so the large fish shouldn'ts be ables to eats it, so yous shoulds be ables to finds one in the well.`,
 	                        buttons: ["Leave"],
 	                        showCloseButton: false,
 	                        forceChoose: true, // forces choose dom
@@ -9313,10 +9313,13 @@ Last I saw him, he was visiting the <b>Eaglecrest Plains</b> to the <b>south</b>
 	                            // close page
 	                            Dom.closePage("textPage");
 	                            // quest progress
-	                            Player.quests.questProgress.troubledWaters4Progress = 2;
+															if(Player.quests.questProgress.troubledWaters4Progress === 1)
+															{
+																Player.quests.questProgress.troubledWaters4Progress = 2;
+															}
 	                            Dom.quests.active();
 
-								Dom.inventory.give(Items.consumable[37], 1);
+															Dom.inventory.give(Items.consumable[37], 1);
 	                        }],
 	                        roleRequirement: function () {
 								if(Player.quests.questProgress.troubledWaters4Progress > 0)
@@ -9331,6 +9334,29 @@ Last I saw him, he was visiting the <b>Eaglecrest Plains</b> to the <b>south</b>
 								return false;
 	                        },
 	                    },
+											{
+						                        role: "text", // aaaaaaaaaaaaaaaaaaaa
+						                        chooseText: "Give <b>Fisher Sharptooth</b> the <b>King of Herrings</b>.",
+						                        chat: `Wows! This is reallys bigs! Is only heards abouts thems befores. Anyways Is needs to turns this intos bait so yous cans catch whats is eatings all the fish.<br><br>
+																		<em><b>Fisher Sharptooth</b> turns around and you see them eat a bit off before turning it into bait</em>.<br><br>
+																		Okays. Heres is the baits for yous. Nows go downs the well and fish ups the <b>Lake Lurker</b>!`,
+						                        buttons: ["Leave"],
+						                        showCloseButton: false,
+						                        forceChoose: true, // forces choose dom
+						                        functions: [function () {
+						                            // close page
+						                            Dom.closePage("textPage");
+						                            // quest progress
+																				if(Player.quests.questProgress.troubledWaters4Progress === 3)
+																				{
+																					Player.quests.questProgress.troubledWaters3Progress = 4;
+																				}
+						                            Dom.quests.active();
+						                        }],
+						                        roleRequirement: function () {
+						                            return (Player.quests.questProgress.troubledWaters3Progress >= 3 && Dom.inventory.check(40 , "fish"));
+						                        },
+						                    },
                 ],
                 chat: {
 					questProgress: [
@@ -12045,7 +12071,112 @@ eaglecrestWell: {
 	},
 
 	images: {
-		tiles: {normal: "assets/tilemap/caves.png"}
+		tiles: {normal: "assets/tilemap/caves.png"},
+		melee: {normal: "assets/projectiles/melee.png"},
+		seaMonster: {normal: "assets/enemies/seaMonster.png"},
+		seaMonsterTail: {normal: "assets/enemies/seaMonsterTail.png"},
+		seaMonsterArch: {normal: "assets/enemies/seaMonsterCoil.png"},
+		waterCoalesce: {normal: "assets/enemies/waterCoalesce.png"},
+		waterball: {normal: "assets/projectiles/waterball.png"},
+		seaMonsterCorpse: {normal: "assets/corpses/seaMonster.png"},
+	},
+
+	startBoss: function()
+	{
+		// remember to deal with player dying
+			let preparedEnemy = Game.prepareNPC({
+				x: 800,
+				y: 900,
+				template: EnemyTemplates.eaglecrest.lakeLurker,
+			}, "enemies");
+			Game.enemies.push(new Enemy(preparedEnemy));
+			Areas.eaglecrestWell.initNewPhase();
+			Game.setInterval(	Areas.eaglecrestWell.initNewPhase, 30000);
+	},
+
+	// remove old apprendages
+	initNewPhase: function () {
+		let removeList = Game.enemies.filter(enemy => enemy.name === "Lake Lurker Arch" || enemy.name === "Lake Lurker Tail");
+		for (let i = 0; i <removeList.length; i++) {
+			Game.removeObject(removeList[i].id, "enemies");
+		}
+		let boss = Game.enemies.find(enemy => enemy.name === "Lake Lurker");
+		let bossHealthProportion = boss.health / boss.stats.maxHealth;
+
+		if(bossHealthProportion > 0.4)
+		{
+			Areas.eaglecrestWell.startEasyPhase();
+		}
+		else {
+			Areas.eaglecrestWell.startHardPhase();
+		}
+	},
+
+	startEasyPhase: function ()
+	{
+	  Areas.eaglecrestWell.summonTail();
+		Areas.eaglecrestWell.summonTail();
+		Areas.eaglecrestWell.summonArch();
+	},
+
+	startHardPhase: function ()
+	{
+	  Areas.eaglecrestWell.summonTail();
+		Areas.eaglecrestWell.summonTail();
+		Areas.eaglecrestWell.summonTail();
+		Areas.eaglecrestWell.summonArch();
+		Areas.eaglecrestWell.summonArch();
+	},
+
+	summonTail: function()
+	{
+		let tailX = [1217.5, 1057.6, 855.3, 650, 464, 393, 506.6, 668.8, 868.4, 1027.3, 1109, 1165.7, 1193.6];
+		let tailY = [1041.8, 1149.7, 1198, 1132.7, 1017.7, 799.2, 608.6, 473.4, 459.9, 514.4, 630.1, 765.8, 874.6];
+
+		let index = Random(0, tailX.length-1);
+
+		let x = tailX[index];
+		let y = tailY[index];
+
+		let preparedEnemy = Game.prepareNPC({
+			x: x,
+			y: y,
+			template: EnemyTemplates.eaglecrest.lakeLurkerTail,
+		}, "enemies");
+		Game.enemies.push(new Enemy(preparedEnemy));
+
+
+		let preparedEnemy2 = Game.prepareNPC({
+			spawnLocations: [{x: x-100, y: y-100, width: 200, height: 200}], // central river (entrance to frog queen's base // river's blessing)
+			template: EnemyTemplates.eaglecrest.waterCoalesce,
+			repeatNumber: 3,
+		}, "enemies");
+		Game.enemies.push(new Enemy(preparedEnemy2));
+	},
+
+	summonArch: function()
+	{
+		let archX = [1050.4, 960.8, 758.2, 576.7, 641.5, 782.1, 954.7, 1028.6];
+		let archY = [938, 1018, 1002.4, 889.8, 732.8, 630.2, 671.9, 779.8];
+
+		let index = Random(0, archX.length-1);
+
+		let x = archX[index];
+		let y = archY[index];
+
+		let preparedEnemy = Game.prepareNPC({
+			x: x,
+			y: y,
+			template: EnemyTemplates.eaglecrest.lakeLurkerArch,
+		}, "enemies");
+		Game.enemies.push(new Enemy(preparedEnemy));
+
+		let preparedEnemy2 = Game.prepareNPC({
+			spawnLocations: [{x: x-100, y: y-100, width: 200, height: 200}], // central river (entrance to frog queen's base // river's blessing)
+			template: EnemyTemplates.eaglecrest.waterCoalesce,
+			repeatNumber: 4,
+		}, "enemies");
+		Game.enemies.push(new Enemy(preparedEnemy2));
 	},
 
 	callAreaJoinOnInit: true,

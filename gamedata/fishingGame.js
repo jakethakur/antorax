@@ -53,11 +53,29 @@ FishingGame.startTimingGame = function(difficulty)
 		this.zoneSize = 23;
 		this.bars = 3;
 	}
+	else if(difficulty === "lakeLurker")
+	{
+		this.totalTimeToReachEnd = 10;
+		this.zoneSize = 250;
+		this.bars = 1;
+	}
 	else if(difficulty === "kingOfHerrings")
 	{
 		this.totalTimeToReachEnd = 1.5;
 		this.zoneSize = 25;
 		this.bars = 5;
+	}
+	else if(difficulty === "lakeLurkerTail")
+	{
+		this.totalTimeToReachEnd = 1.5;
+		this.zoneSize = 25;
+		this.bars = 3;
+	}
+	else if(difficulty === "lakeLurkerArch")
+	{
+		this.totalTimeToReachEnd = 1.5;
+		this.zoneSize = 23;
+		this.bars = 4;
 	}
 	this.timeToReachEnd = this.totalTimeToReachEnd;
 
@@ -125,7 +143,7 @@ FishingGame.update = function (delta)
 					if(this.bars > 4)
 					{
 						this.ctx.fillStyle = "#000000";
-						this.ctx.fillRect(150, 400, 300, 50);
+						this.ctx.fillRect(150, 600, 300, 50);
 						this.ctx.fillStyle = "#3dfc03";
 						this.ctx.fillRect(this.x[4], 600, this.zoneSize, 50);
 					}
@@ -174,7 +192,7 @@ FishingGame.update = function (delta)
 FishingGame.render = function ()
 {
 	// clear previous frame
-	this.ctx.clearRect(0, 0, 600, 600);
+	this.ctx.clearRect(0, 0, 1000, 1000);
 	// render new frame
 }
 

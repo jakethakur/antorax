@@ -2372,12 +2372,13 @@ var Quests = {
 
 			howToStart: "Speak to <strong>Fisherman Guimtal</strong>.",
 			levelRequirement: 5,
-			questRequirements: ["Learning to Fish III"],
+			questRequirements: ["Overdraft"],
 
 			rewards: {
 				xp: 30,
 				items: [
 					{item: Items.currency[2], quantity: 3,},
+					{item: Items.currency[3], quantity: 1,},
 				],
 			},
 
@@ -2734,6 +2735,7 @@ var Quests = {
 				xp: 50,
 				items: [
 					{item: Items.currency[2], quantity: 5,},
+					{item: Items.currency[3], quantity: 2,},
 				],
 				reputation: {
 					eaglecrestCity: 30,
@@ -2815,10 +2817,14 @@ var Quests = {
 
 			howToStart: "Speak to <strong>Fisher Sharptooth</strong>.",
 			levelRequirement: 5,
-			questRequirements: ["Troubled Waters II", "tbd"],
+			questRequirements: ["Troubled Waters II"],
 
 			rewards: {
-				xp: 75,
+				xp: 50,
+				items: [
+					{item: Items.currency[2], quantity: 3,},
+					{item: Items.currency[3], quantity: 2,},
+				],
 				reputation: {
 					eaglecrestCity: 30,
 				},
@@ -2846,14 +2852,18 @@ var Quests = {
 
 			finishName: "Fisher Sharptooth",
 			finishChat: [{
-				text: `I'lls examines this fish fors yous. Comes backs laters and I'lls tells you the lasts things to do.`,
+				text: `Ooohs, yous kills it. The fish shoulds be comings backs nows. Alls the fishers wills be pleased whens yous sees thems next.`,
+			},{
+				text: `Here's somes <b>gold</b> ands <b>fishing seals</b> fors yours troubles. I'lls sees yous soons.`,
 			},],
 
 			objectives: [
 				"Fish up a fish longer than <b>100cm</b> and return to <b>Fisher Sharptooth</b> to make into bait.",
 				"Fish up the <b>King of Herrings</b> located in <b>Eaglecrest Well</b>.",
+				"Talk to <b>Fisher Sharptooth</b>.",
+				"Fish up the <b>Lake Lurker</b> located in <b>Eaglecrest Well</b>.",
 				"Defeat the <b>Lake Lurker</b>.",
-				"Return to <b>Fisherman Guimtal</b>"
+				"Return to <b>Fisherman Sharptooth</b>"
 			],
 
 			isHidden: function() {
@@ -2868,6 +2878,8 @@ var Quests = {
 				hidden.push(false);
 				hidden.push(Player.quests.questProgress.troubledWaters4Progress < 2);
 				hidden.push(Player.quests.questProgress.troubledWaters4Progress < 3);
+				hidden.push(Player.quests.questProgress.troubledWaters4Progress < 4);
+				hidden.push(Player.quests.questProgress.troubledWaters4Progress < 5);
 
 				return hidden;
 			},
@@ -2877,6 +2889,9 @@ var Quests = {
 				// true or falses for each objective (apart from the turn-in objective)
 				completed.push(Player.quests.questProgress.troubledWaters4Progress > 1 && Dom.inventory.check(37, "consumable", 1) || Player.quests.questProgress.troubledWaters4Progress > 2);
 				completed.push(Player.quests.questProgress.troubledWaters4Progress > 2);
+				completed.push(Player.quests.questProgress.troubledWaters4Progress > 3);
+				completed.push(Player.quests.questProgress.troubledWaters4Progress > 4);
+				completed.push(Player.bossesKilled.lakeLurker > 0);
 
 				completed = checkFinished(completed);
 
@@ -2885,17 +2900,21 @@ var Quests = {
 
 			howToStart: "Speak to <strong>Fisher Sharptooth</strong>.",
 			levelRequirement: 5,
-			questRequirements: ["Troubled Waters III (Eaglecrest Plains Fishing Tourǃǃ)", "tba"],
+			questRequirements: ["Troubled Waters III (Eaglecrest Plains Fishing Tourǃǃ)"],
 
 			rewards: {
-				xp: 75,
+				xp: 100,
 				reputation: {
-					eaglecrestCity: 30,
+					eaglecrestCity: 100,
 				},
+				items: [
+					{item: Items.currency[2], quantity: 5,},
+					{item: Items.currency[3], quantity: 3,},
+				],
+
 			},
 
 			removeItems: [
-				{item: Items.fish[38]},
 			],
 
 			onQuestStart: function() {

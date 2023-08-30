@@ -1415,7 +1415,7 @@ const EnemyTemplates = {
 		lakeLurkerTail: {
 			image: "seaMonsterTail",
 			name: "Lake Lurker Tail",
-			hostility: "boss",
+			hostility: "hostile",
 			level: 5,
 			canBeDamagedBy: [""],
 			stats: {
@@ -1433,14 +1433,17 @@ const EnemyTemplates = {
 			corpseOnDeath: false,
 			respawnOnDeath: false,
 			fishable: {
+				bobTimeMin: 200,
+				bobTimeMax: 1400,
 				removeOnCatch: true,
 				giveItem: false,
-				challengeRarity: "mythic",
-				clicksToCatch: "tbd",
-				timeToCatch: "tbd",
-				fishingType: "waterMisc",
+				challengeRarity: "lakeLurkerTail",
+				clicksToCatch: 18,
+				timeToCatch: 3000,
+				fishingType: "watermisc",
 				onCatchAdditional: function () {
-					// deal the damage to the head
+					let boss = Game.enemies.find(enemy => enemy.name === "Lake Lurker");
+					boss.takeDamage(7000, true);
 				}
 			},
 			spells: [
@@ -1451,8 +1454,9 @@ const EnemyTemplates = {
 		lakeLurkerArch: {
 			image: "seaMonsterArch",
 			name: "Lake Lurker Arch",
-			hostility: "boss",
+			hostility: "hostile",
 			level: 5,
+			canBeDamagedBy: [""],
 			stats: {
 				damage: 0,
 				walkSpeed: 0,
@@ -1469,31 +1473,96 @@ const EnemyTemplates = {
 			respawnOnDeath: false,
 			spells: [
 
-	        ],
+			],
+			fishable: {
+				bobTimeMin: 100,
+				bobTimeMax: 1100,
+				removeOnCatch: true,
+				giveItem: false,
+				challengeRarity: "lakeLurkerArch",
+				clicksToCatch: "16",
+				timeToCatch: "2500",
+				fishingType: "watermisc",
+				onCatchAdditional: function () {
+					let boss = Game.enemies.find(enemy => enemy.name === "Lake Lurker");
+					boss.takeDamage(12000, true);
+				}
+			}
 		},
 
 		lakeLurker: {
 			image: "seaMonster",
+			deathImage: "seaMonsterCorpse",
 			name: "Lake Lurker",
 			hostility: "boss",
-			level: 5,
+			level: 15,
 			stats: {
-				damage: 0,
+				damage: 10,
 				walkSpeed: 0,
 				swimSpeed: 0,
 				iceSpeed: 0,
-				maxHealth: 10000,
-				defence: 10000,
+				maxHealth: 100000,
+				defence: 0,
 				range: 1000,
 				healthRegen: 0,
 				doesNotAttack: true,
+				lootTime: 180000
+			},
+			xpGiven: 0,
+			corpseOnDeath: true,
+			respawnOnDeath: false,
+			lootTableTemplate: [BossLootTables.lakeLurker],
+			inventorySpace: 32,
+			bossKilledVariable: "lakeLurker",
+			spells: [
+					{
+						id: 25,
+						tier: 1,
+						parameters: function () {
+								return {
+									target: [Game.hero],
+								};
+						},
+						interval: 25000,
+				 },
+      ],
+			onDeath: function () {
+				// destroy all things related to the boss
+				let remove = Game.enemies.filter(enemy => enemy.name === "Sea Monster Tail" || enemy.name === "Sea Monster Arch" || enemy.name === "Water Coalesce");
+				for (let i = 0; i < remove.length; i++) {
+					Game.removeObject(remove[i].id, remove[i].type);
+				}
+			},
+		},
+
+		waterCoalesce: {
+			image: "waterCoalesce",
+			name: "Water Coalesce",
+			hostility: "hostile",
+			level: 10,
+			stats: {
+				damage: 10,
+				walkSpeed: 140,
+				swimSpeed: 180,
+				iceSpeed: 0,
+				maxHealth: 10,
+				defence: 5,
+				range: 60,
+				reloadTime: 800,
+				healthRegen: 1,
+			},
+			attackBehaviour: {
+				baseAggro: 1000,
+			},
+			projectile: {
+				image: "melee",
 			},
 			xpGiven: 0,
 			corpseOnDeath: false,
 			respawnOnDeath: false,
 			spells: [
 
-	        ],
+	    ],
 		},
 	},
-};
+}

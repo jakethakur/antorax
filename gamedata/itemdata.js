@@ -1339,18 +1339,20 @@ var Items = {
 		},
 		{
 			id: 8,
-			name: "tbd",
+			name: "Green Scaled Trousers",
 			type: "greaves",
 			image: "assets/items/greaves/8.png",
 			tier: 1,
-			lore: "Call me asparagus!",
+			lore: "Call me asparagus",
 			obtain: ["boss"],
 			area: ["eaglecrest"],
 			rarity: "unique",
 			sellPrice: 4,
-			obtainText: "Can be looted from TBD",
+			obtainText: "Can be looted from the Lake Lurker.",
 			stats: {
-				defence: 4,//tbd
+				defence: 3,
+				maxHealth: 10,
+				swimSpeed: 40,
 			},
 		},
 		{
@@ -2577,8 +2579,9 @@ var Items = {
 			lore: "KAPOW",
 			obtainText: "Can be bought from Demolitionist Darrow in Eaglecrest.",
 			stats: {
-				damage: 4,
+				damage: 7,
 				defence: 4,
+				reloadTime: 500,
 				exploding: 1,
 			},
 			projectile: "slashFire",
@@ -3074,6 +3077,7 @@ var Items = {
 			stats: {
 				damage: 3.5,
 				maxDamage: 10.5,
+				// tbd reloadTime: 250,
 				exploding: 1,
 			},
 		},
@@ -3427,13 +3431,14 @@ var Items = {
 			area: ["eaglecrest"],
 			rarity: "mythic",
 			lore: "A pirate heirloom, passed down from sea monster to sea monster for centuries.",
-			obtainText: "Currently unobtainable",
-			limitedEdition: true, // temp
+			obtainText: "Can be looted from the Lake Lurker.",
 			sellPrice: 5,
 			stats: {
-				damage: 5,
+				damage: 9,
 				reloadTime: 750,
-				//splashDamage: true, // not a thing anymore ... needs changing
+				slowAmount: 35,
+				slowTime: 1,
+				//splashDamage: true, // tbd turn into water explosion ?
 			},
 			projectile: "waterball",
 			projectileAdjust: {x: 10, y: 10},
@@ -3625,7 +3630,7 @@ var Items = {
 			lore: "KAPOW",
 			obtainText: "Can be bought from Demolitionist Darrow in Eaglecrest.",
 			stats: {
-				damage: 5,
+				damage: 7,
 				reloadTime: 750,
 				exploding: 1,
 			},
@@ -5889,28 +5894,34 @@ var Items = {
 			name: "King of Herrings Bait",
 			type: "consumable",
 			image: "assets/items/consumable/37.png",
-			functionText: "Guarantees you to fish up a King of Herrings on your next fishing attempt (if you haven't caught one yet today)",
+			functionText: "Guarantees you to fish up a King of Herrings on your next fishing attempt (if you haven't caught one yet today!)",
 			lore: "Made from a big fish",
 			maxCharges: 3,
 			onClickFunction: function (inventoryPosition, hotbar) {
 				if (!Game.hero.hasStatusEffect("Fish bait")) { // player does not have an existing fishing status effect
-					// remove one charge from the item
-					Dom.inventory.removeItemCharge(inventoryPosition, hotbar);
+					if (Player.quests.questProgress.kingOfHerringsLastCaught !== GetFullDate()) {
+						// remove one charge from the item
+						Dom.inventory.removeItemCharge(inventoryPosition, hotbar);
 
-					// give fish bait status effect
-					Game.hero.statusEffects.push(new statusEffect({
-						title: "Fish bait",
-						effect: "Guaranteed to fish up a King of Herrings on your next fishing attempt",
-						info: {
-							fishPool: [Items.fish[40]]
-						},
-						image: "bait",
-					}));
+						// give fish bait status effect
+						Game.hero.statusEffects.push(new statusEffect({
+							title: "Fish bait",
+							effect: "Guaranteed to fish up a King of Herrings on your next fishing attempt",
+							info: {
+								fishPool: [Items.fish[40]]
+							},
+							image: "bait",
+						}));
 
-					// update status effect display
-					Game.hero.updateStatusEffects();
-
-					// tbd player quest questprogress
+						// update status effect display
+						Game.hero.updateStatusEffects();
+					}
+					else {
+							Dom.chat.insert("<i>You have already fished up a King of Herrings today!</i>", undefined, undefined, true);
+					}
+				}
+				else {
+					Dom.chat.insert("<i>You already have some bait active!</i>", undefined, undefined, true);
 				}
 			}
 		},
@@ -5923,26 +5934,32 @@ var Items = {
 			lore: "Made from an even bigger fish",
 			maxCharges: 1,
 			onClickFunction: function (inventoryPosition, hotbar) {
-				if (!Game.hero.hasStatusEffect("Fish bait")) { // player does not have an existing fishing status effect
+			if (!Game.hero.hasStatusEffect("Fish bait")) { // player does not have an existing fishing status effect
+				if (Player.quests.questProgress.lakeLurkerLastCaught !== GetFullDate()) {
 					// remove one charge from the item
 					Dom.inventory.removeItemCharge(inventoryPosition, hotbar);
 
 					// give fish bait status effect
 					Game.hero.statusEffects.push(new statusEffect({
 						title: "Fish bait",
-						effect: "Guaranteed to fish up a King of Herrings on your next fishing attempt",
+						effect: "Guaranteed to fish up a Lake Lurker on your next fishing attempt",
 						info: {
-							fishPool: [{}]
+							fishPool: [Items.fish[41]]
 						},
 						image: "bait",
 					}));
 
 					// update status effect display
 					Game.hero.updateStatusEffects();
-
-					// tbd player quest questprogress
+				}
+				else {
+						Dom.chat.insert("<i>You have already fished up a Lake Lurker today!</i>", undefined, undefined, true);
 				}
 			}
+			else {
+				Dom.chat.insert("<i>You already have some bait active!</i>", undefined, undefined, true);
+			}
+		}
 		},
 	],
 	food: [
@@ -7230,7 +7247,7 @@ var Items = {
 			rarity: "mythic",
 			lore: "",
 			sellPrice: 8,
-			sellQuantity: 4,
+			sellQuantity: 1,
 			howToCatch: "Can be fished up in Eaglecrest Well with the help of a special bait.",
 			consumption: true,
 			areas: ["eaglecrestWell"], // empty = every area
@@ -7239,20 +7256,60 @@ var Items = {
 				avg: 300,
 				max: 860,
 			},
+			barGameDifficulty: "kingOfHerrings",
 			onCatch: function()
             {
-                if(Player.quests.questProgress.troubledWaters3Progress === 2)
+								Player.quests.questProgress.kingOfHerringsLastCaught = GetFullDate();
+                if(Player.quests.questProgress.troubledWaters4Progress === 2)
                 {
                     Player.quests.questProgress.troubledWaters4Progress = 3;
                     Dom.quests.active();
                 }
             },
-			catchRequirement: function () {
-				if (Player.quests.questProgress.kingOfHerringsBaitUsed) {
-					//Player.quests.questProgress.kingOfHerringsBaitUsed = false;
-					return true;
-				}
-			}
+			onlyFromBaitPool: true,
+		},
+		{
+			id: 41,
+			name: "Lake Lurker",
+			fishingType: "watermisc",
+			type: "fish",
+			image: "assets/items/fish/40.png",
+			rarity: "mythic",
+			lore: "",
+			sellPrice: 8,
+			sellQuantity: 4,
+			howToCatch: "Can be fished up in Eaglecrest Well with the help of a special bait.",
+			consumption: true,
+			areas: ["eaglecrestWell"], // empty = every area
+			length: {
+				min: 1000,
+				avg: 1500,
+				max: 2500,
+			},
+			barGameDifficulty: "lakeLurker",
+			clicksToCatch: 2,
+			timeToCatch: 10000,
+			onCatch: function(position)
+            {
+						   	Player.quests.questProgress.kingOfHerringsLastCaught = GetFullDate();
+							  Dom.inventory.remove(position);
+                if(Player.quests.questProgress.troubledWaters4Progress === 4)
+                {
+                    Player.quests.questProgress.troubledWaters4Progress = 5;
+                    Dom.quests.active();
+                }
+								Areas.eaglecrestWell.startBoss();
+
+								// screen shake and pan to boss
+								Game.camera.initScreenShake(5,5000);
+								Game.camera.pan({x: 800, y: 900}, 500, "accelerate", function () {
+									Game.camera.pan(Game.hero, 500, "accelerate", function () {
+										// reset camera
+										Game.camera.follow(Game.hero);
+									}, 0);
+								}, 1000);
+            },
+			onlyFromBaitPool: true,
 		},
 	],
 	dev: [

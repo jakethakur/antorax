@@ -1374,7 +1374,10 @@ class Entity {
 		// onCatchAdditional is a function that's always called
 		// also needs a fishingType, which is set to waterMisc by default. this effects the fishing skill gained and other fishing behaviour
 		if (typeof this.fishable !== "undefined" && typeof this.fishable.fishingType === "undefined") {
-			this.fishable.fishingType = "waterMisc";
+			this.fishable.fishingType = "watermisc";
+		}
+		if (typeof this.fishable !== "undefined" && typeof this.fishable.name === "undefined") {
+			this.fishable.name = properties.name;
 		}
 
 
@@ -3326,12 +3329,16 @@ class Attacker extends Character {
 		// information about projectile (how it looks)
 		// only supported for enemies - should be updated to work for player as well (TBD TBD!!!)
 		this.projectile = {};
-		this.projectile.image = properties.projectile.image;
-		// not necessary (can be left as undefined to just fit to projectile image size)
-		this.projectile.width = properties.projectile.width;
-		this.projectile.height = properties.projectile.height;
-		// not necessary (defaults to x: 0 and y: 0 later on if it is undefined)
-		this.projectile.adjust = properties.projectile.adjust || {};
+		if(typeof properties.projectile !== "undefined")
+		{
+			this.projectile.image = properties.projectile.image;
+			// not necessary (can be left as undefined to just fit to projectile image size)
+			this.projectile.width = properties.projectile.width;
+			this.projectile.height = properties.projectile.height;
+			// not necessary (defaults to x: 0 and y: 0 later on if it is undefined)
+			this.projectile.adjust = properties.projectile.adjust || {};
+		}
+
 
 		this.canAttack = true; // check attack is not reloading
 
@@ -4000,7 +4007,7 @@ class Hero extends Attacker {
 						let fishableEntities = Game.allEntities.filter(entity => typeof entity.fishable !== "undefined");
 						let fishUp = undefined;
 						for (let i = 0; i < fishableEntities.length; i++) {
-							if (Game.isTouching({x: mouseX, y: mouseY}, fishableEntities[i])) {
+							if (fishableEntities[i].isTouching({x: mouseX, y: mouseY, width: 10, height: 10})) {
 								// currently just takes first fishable entity
 								fishUp = fishableEntities[i];
 								break;
@@ -4052,7 +4059,15 @@ class Hero extends Attacker {
 							bobber.bobberState = 0;
 
 							// timer until it starts bobbing
-							let bobTime = Random(2000, 15000);
+							let bobTimeMin = 2000;
+							let bobTimeMax = 15000;
+							if (typeof Game.fishUp !== "undefined" && typeof Game.fishUp.fishable !== "undefined" && typeof Game.fishUp.fishable.bobTimeMin !== "undefined") {
+								bobTimeMin = Game.fishUp.fishable.bobTimeMin;
+							}
+							if (typeof Game.fishUp !== "undefined" && typeof Game.fishUp.fishable !== "undefined" && typeof Game.fishUp.fishable.bobTimeMax !== "undefined"){
+								bobTimeMax = Game.fishUp.fishable.bobTimeMax;
+							}
+							let bobTime = Random(bobTimeMin, bobTimeMax);
 							if (Weather.weatherType === "rain" && !Areas[Game.areaName].indoors) {
 								// shorter bobTime if it is raining
 								bobTime = Math.round(bobTime / 1.5);
@@ -4130,8 +4145,17 @@ class Hero extends Attacker {
 											if (fishLength / 100 >= 2) {
 												clicks += 4;
 												//fishLength -= 400;
-												console.error("this.channelling length " + this.channelling.length + " is not accounted for being so large!");
+
+												if (fishLength / 200 >= 2) {
+													clicks += 4;
+													console.error("this.channelling length " + this.channelling.length + " is not accounted for being so large!");
+												}
+												else {
+													clicks += Math.floor(fishLength / 200);
+												}
+
 											}
+
 											else {
 												clicks += Math.floor(fishLength / 100);
 											}
@@ -4569,7 +4593,8 @@ class Hero extends Attacker {
 		if (FishingGame.status === 0)
 		{
 			// fish hasn't even been decided yet! let's do that now
-			let fish = [];
+			let fish = []; // array of fish to be picked from
+			let filteredFish = {}; // the fish that has been chosen from fish array
 			let itemRarity;
 
 			if (typeof Game.fishUp !== "undefined") {
@@ -4580,7 +4605,8 @@ class Hero extends Attacker {
 					fish = obj.giveItem;
 				}
 				else {
-					fish = {giveItem: false,};
+					fish = obj;
+					fish.giveItem = false;
 				}
 
 				fish.clicksToCatch = obj.clicksToCatch;
@@ -4599,6 +4625,8 @@ class Hero extends Attacker {
 				if (typeof fish.fishingType === "undefined") {
 					fish.fishingType = obj.fishingType;
 				}
+
+				fish = {...fish};
 			}
 			else if (Player.stats.fishingSkill === 0) {
 				// tutorial
@@ -4619,7 +4647,7 @@ class Hero extends Attacker {
 				let usingBait;
 				let baitStatusEffectIndex = this.statusEffects.findIndex(statusEffect => statusEffect.title === "Fish bait");
 				if (baitStatusEffectIndex !== -1) { // check if player has a bait status effect
-					if (this.statusEffects[baitStatusEffectIndex].info.skillIncrease>=0) {
+					if (typeof this.statusEffects[baitStatusEffectIndex].info.skillIncrease !== "undefined" && this.statusEffects[baitStatusEffectIndex].info.skillIncrease>=0) {
 						// helps them catch fish
 						usingBait = true;
 					}
@@ -4630,8 +4658,10 @@ class Hero extends Attacker {
 					this.removeStatusEffect(baitStatusEffectIndex, "used");
 				}
 
+				let usingBaitPool = false;
 				if (typeof fish !== "undefined") {
 					// fish pool has already been specified by bait
+					usingBaitPool = true;
 				}
 				else {
 					fish = Items.fish;
@@ -4640,7 +4670,11 @@ class Hero extends Attacker {
 				// find what rarities the player can fish up
 				// junk is fished up in the proportion not unlocked by common/unique/mythic
 				let raritiesAvailable = [];
-					if (Player.stats.fishingSkill >= FishingLevels[Player.lootArea] ) {
+				if (!usingBait) {
+					// can fish up junk
+					raritiesAvailable.push("junk");
+				}
+				if (Player.stats.fishingSkill >= FishingLevels[Player.lootArea] ) {
 					// can fish up commons
 					raritiesAvailable.push("common");
 				}
@@ -4652,13 +4686,9 @@ class Hero extends Attacker {
 					// can fish up mythics
 					raritiesAvailable.push("mythic");
 				}
-				if (!usingBait) {
-					// can fish up junk
-					raritiesAvailable.push("junk");
-				}
 
 				// repeat the following until a valid fish is found ..
-				while (typeof fish.id === "undefined") {
+				while (typeof filteredFish.id === "undefined") {
 					// pick a random rarity from the raritiesAvailable array
 					let RandomNum = Random(1, 20);
 					itemRarity = "";
@@ -4679,43 +4709,44 @@ class Hero extends Attacker {
 					}
 					// check if the player has unlocked that rarity, otherwise give them a junk item
 					if (!raritiesAvailable.includes(itemRarity)) {
-						if (!usingBait) {
-							itemRarity = "junk";
-						}
-						else {
-							// guaranteed fish with bait
-							itemRarity = "common";
-						}
+						itemRarity = raritiesAvailable[0];
 					}
 
 					// find the fish that should be caught
-					fish = Items.fish;
-					fish = fish.filter(item => item.areas.includes(Player.lootArea) || item.areas.includes(Game.areaName) || item.areas.length === 0); // filter for area (either lootArea or areaName)
-					fish = fish.filter(item => item.rarity === itemRarity); // filter for rarity
-					fish = fish.filter(item => item.timeRequirement === undefined || Event.time === item.timeRequirement); // filter for time that it can be fished up
-					fish = fish.filter(item => item.catchRequirement === undefined || item.catchRequirement()); // filter for general fishing requirement
+					filteredFish = fish.filter(item => item.areas.includes(Player.lootArea) || item.areas.includes(Game.areaName) || item.areas.length === 0); // filter for area (either lootArea or areaName)
+					filteredFish = filteredFish.filter(item => item.rarity === itemRarity); // filter for rarity
+					filteredFish = filteredFish.filter(item => item.onlyFromBaitPool === undefined || usingBaitPool); // filter for rarity
+					filteredFish = filteredFish.filter(item => item.timeRequirement === undefined || Event.time === item.timeRequirement); // filter for time that it can be fished up
+					filteredFish = filteredFish.filter(item => item.catchRequirement === undefined || item.catchRequirement()); // filter for general fishing requirement
 					if (usingBait) {
 						// can't get watermisc
-						fish = fish.filter(item => item.fishingType === "fish");
+						filteredFish = filteredFish.filter(item => item.fishingType === "fish");
 					}
 
-					if (fish.constructor === Array) {
+					if (filteredFish.constructor === Array) {
 						// still more fish to pick from
-						fish = fish[Random(0, fish.length - 1)]; // Random fish that fulfils requirements above
+						filteredFish = filteredFish[Random(0, filteredFish.length - 1)]; // Random fish that fulfils requirements above
 					}
 
-					if (typeof fish === "undefined" || typeof fish.id === "undefined") {
+					if (typeof filteredFish === "undefined" || typeof filteredFish.id === "undefined") {
 						// no fish exists! Must have filtered it too much (maybe a certain rarity doesn't exist)
-						raritiesAvailable = ["junk", "common"];
+						let index = raritiesAvailable.findIndex(rarity => rarity === itemRarity);
+						raritiesAvailable.splice(index, 1);
+						filteredFish = {};
 					}
 				}
-				fish = { ...fish }; // remove all references to itemdata in fish variable (otherwise length value changed in this will also affect itemData)!
+				filteredFish = { ...filteredFish }; // remove all references to itemdata in fish variable (otherwise length value changed in this will also affect itemData)!
 			}
 
-			this.channelling = fish;
+			this.channelling = filteredFish;
+
+			let difficulty = itemRarity; // rarity of first minigame only
+			if (typeof filteredFish.barGameDifficulty !== "undefined") {
+				difficulty = filteredFish.barGameDifficulty;
+			}
 
 			// fishing minigame is not active, so start it
-			FishingGame.startTimingGame(itemRarity);
+			FishingGame.startTimingGame(difficulty);
 
 			this.fish(); // recursively update bobber!
 		}
@@ -4734,7 +4765,9 @@ class Hero extends Attacker {
 				});
 
 				// bob back down
-				let bobTime = Random(300, 1300);
+				let bobTimeMin = 300;
+				let bobTimeMax = 1300;
+				let bobTime = Random(bobTimeMin, bobTimeMax);
 				Game.fishTimeout = Game.setTimeout(this.fish.bind(this), bobTime);
 			}
 
@@ -5352,7 +5385,9 @@ class Projectile extends Thing {
 						}
 
 						// now apply overall attack damage modifier (a constant value, decided by devs and not affected by anything ingame)
-						dmgDealt *= AttackConstants[Game.getAttackType()].damageMultiplier;
+						if (attacker.constructor.name === "Hero") {
+							dmgDealt *= AttackConstants[Game.getAttackType()].damageMultiplier;
+						}
 
 
 						// stuff to be done before dealing damage ...
@@ -6697,6 +6732,7 @@ class Camera extends Entity {
 						// speed should vary based on distance to location (fastest at midpoint)
 						let panDistance = Game.distance(this, this.panMidpoint);
 						let distanceFraction = panDistance / (this.panDistanceTotal/2);
+						distanceFraction = Math.min(distanceFraction,1);
 						speed *= 0.5 + (1-distanceFraction);
 					}
 
@@ -12005,7 +12041,7 @@ Game.drawHealthBar = function (ctx, character, x, y, width, height) {
 		else {
 			// default
 			ctx.fillStyle = "FFFF00";
-			console.warn("No dedicated health bar colour for bar size " + barValue);
+			//console.warn("No dedicated health bar colour for bar size " + barValue);
 		}
 
 		// health bar body

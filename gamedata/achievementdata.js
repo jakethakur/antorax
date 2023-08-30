@@ -1057,6 +1057,31 @@ var Achievements = [
 			return User.fish[7] >= 1;
 		},
 	},
+	{
+		name: "That's Not a Fish!!",
+		description: "Kill the Lake Lurker.",
+		points: 10,
+		category: ["fishing", "combat"],
+		area: ["eaglecrest"],
+		image: "../assets/enemies/seaMonster.png",
+		position: {x: 50, y: -1},
+		class: "single",
+		isCompleted: function () {
+			return Player.bossesKilled.lakeLurker !== 0 && Player.bossesKilled.lakeLurker !== undefined;
+		}
+	},
+	{
+		name: "Legacy of Captain Calaca",
+		description: "Last hit the Lake Lurker with your weapon.",
+		points: 5,
+		category: ["fishing", "combat"],
+		area: ["eaglecrest"],
+		image: "../assets/items/bow/13.png",
+		class: "single",
+		isCompleted: function () {
+			return false;
+		}
+	},
 	//
 	// SEASONAL FISHING
 	//
