@@ -323,7 +323,7 @@ var Items = {
 			obtainText: "Can be bought from a mask seller.",
 			sellPrice: 1,
 			stats: {
-				walkSpeed: 40,
+				walkSpeed: 35,
 				reloadTime: -100,
 			},
 		},
@@ -703,6 +703,7 @@ var Items = {
 			tier: 2,
 			obtain: ["unidentified"],
 			area: ["caves"],
+unidentifiedArea: ["caves"],
 			rarity: "common",
 			sellPrice: 1,
 			obtainText: "Can be uncovered as an unidentified item in areas around Eaglecrest Caves.",
@@ -718,6 +719,7 @@ var Items = {
 			tier: 2,
 			obtain: ["unidentified"],
 			area: ["caves"],
+unidentifiedArea: ["caves"],
 			rarity: "unique",
 			sellPrice: 4,
 			lore: "",
@@ -737,6 +739,7 @@ var Items = {
 			tier: 2,
 			obtain: ["unidentified"],
 			area: ["caves"],
+unidentifiedArea: ["caves"],
 			rarity: "unique",
 			sellPrice: 4,
 			lore: "",
@@ -754,6 +757,7 @@ var Items = {
 			tier: 2,
 			obtain: ["unidentified"],
 			area: ["caves"],
+unidentifiedArea: ["caves"],
 			rarity: "mythic",
 			sellPrice: 7,
 			lore: "",
@@ -1130,6 +1134,7 @@ var Items = {
 			tier: 2,
 			obtain: ["unidentified"],
 			area: ["caves"],
+unidentifiedArea: ["caves"],
 			rarity: "common",
 			sellPrice: 1,
 			obtainText: "Can be uncovered as an unidentified item in areas around Eaglecrest Caves.",
@@ -1145,6 +1150,7 @@ var Items = {
 			tier: 2,
 			obtain: ["unidentified"],
 			area: ["caves"],
+unidentifiedArea: ["caves"],
 			rarity: "unique",
 			sellPrice: 4,
 			lore: "",
@@ -1164,6 +1170,7 @@ var Items = {
 			tier: 2,
 			obtain: ["unidentified"],
 			area: ["caves"],
+unidentifiedArea: ["caves"],
 			rarity: "unique",
 			sellPrice: 4,
 			lore: "",
@@ -1181,6 +1188,7 @@ var Items = {
 			tier: 2,
 			obtain: ["unidentified"],
 			area: ["caves"],
+unidentifiedArea: ["caves"],
 			rarity: "mythic",
 			sellPrice: 7,
 			lore: "",
@@ -1440,9 +1448,14 @@ var Items = {
 				defence: 4,
 				healingPower: 25,
 			},
+			functionStats: {
+				heal: 10,
+			},
 			intervalEffect: {
 				function: function () {
-					Dom.inventory.give(Items.consumable[32]);
+					let position = Dom.inventory.give(Items.consumable[32]);
+					Player.inventory.items[position].healAmount = Player.inventory.greaves.functionStats.heal;
+					Player.inventory.items[position].functionText = "Restores " + Player.inventory.greaves.functionStats.heal + " health";
 				},
 				time: 60, // seconds
 			},
@@ -1503,6 +1516,7 @@ var Items = {
 			tier: 2,
 			obtain: ["unidentified"],
 			area: ["caves"],
+unidentifiedArea: ["caves"],
 			rarity: "common",
 			sellPrice: 1,
 			lore: "Wearing rock as armour? That's a new rock bottom...",
@@ -1519,6 +1533,7 @@ var Items = {
 			tier: 2,
 			obtain: ["unidentified"],
 			area: ["caves"],
+unidentifiedArea: ["caves"],
 			rarity: "unique",
 			sellPrice: 4,
 			lore: "",
@@ -1538,6 +1553,7 @@ var Items = {
 			tier: 2,
 			obtain: ["unidentified"],
 			area: ["caves"],
+unidentifiedArea: ["caves"],
 			rarity: "unique",
 			sellPrice: 4,
 			lore: "",
@@ -1555,6 +1571,7 @@ var Items = {
 			tier: 2,
 			obtain: ["unidentified"],
 			area: ["caves"],
+unidentifiedArea: ["caves"],
 			rarity: "mythic",
 			sellPrice: 7,
 			lore: "",
@@ -1982,6 +1999,7 @@ var Items = {
 			tier: 2,
 			obtain: ["unidentified"],
 			area: ["caves"],
+unidentifiedArea: ["caves"],
 			rarity: "common",
 			sellPrice: 1,
 			obtainText: "Can be uncovered as an unidentified item in areas around Eaglecrest Caves.",
@@ -1997,6 +2015,7 @@ var Items = {
 			tier: 2,
 			obtain: ["unidentified"],
 			area: ["caves"],
+unidentifiedArea: ["caves"],
 			rarity: "unique",
 			sellPrice: 4,
 			lore: "",
@@ -2016,6 +2035,7 @@ var Items = {
 			tier: 2,
 			obtain: ["unidentified"],
 			area: ["caves"],
+unidentifiedArea: ["caves"],
 			rarity: "unique",
 			sellPrice: 4,
 			lore: "",
@@ -2033,6 +2053,7 @@ var Items = {
 			tier: 2,
 			obtain: ["unidentified"],
 			area: ["caves"],
+unidentifiedArea: ["caves"],
 			rarity: "mythic",
 			sellPrice: 7,
 			lore: "",
@@ -2204,7 +2225,7 @@ var Items = {
 			event: "Christmas",
 			sellPrice: 4,
 			stats: {
-				damage: 8,
+				damage: 9,
 				reloadTime: 500,
 				defence: 5,
 			},
@@ -2631,6 +2652,7 @@ var Items = {
 			tier: 2,
 			obtain: ["unidentified"],
 			area: ["caves"],
+unidentifiedArea: ["caves"],
 			rarity: "common",
 			sellPrice: 1,
 			obtainText: "Can be uncovered as an unidentified item in areas around Eaglecrest Caves.",
@@ -2647,6 +2669,7 @@ var Items = {
 			tier: 2,
 			obtain: ["unidentified"],
 			area: ["caves"],
+unidentifiedArea: ["caves"],
 			rarity: "unique",
 			sellPrice: 4,
 			lore: "",
@@ -2666,6 +2689,7 @@ var Items = {
 			tier: 2,
 			obtain: ["unidentified"],
 			area: ["caves"],
+unidentifiedArea: ["caves"],
 			rarity: "unique",
 			sellPrice: 4,
 			lore: "",
@@ -2686,6 +2710,7 @@ var Items = {
 			tier: 2,
 			obtain: ["unidentified"],
 			area: ["caves"],
+unidentifiedArea: ["caves"],
 			rarity: "mythic",
 			sellPrice: 7,
 			lore: "",
@@ -3054,9 +3079,12 @@ var Items = {
 				slowAmount: 25,
 				slowTime: 1,
 			},
+			functionStats: {
+				damageTaken: 5
+			},
 			functionText: "You take 5 damage every time you attack with this staff.",
 			onAttack: function () {
-				Game.hero.takeDamage(5);
+				Game.hero.takeDamage(Player.weapon.functionStats.damageTaken);
 			},
 			projectile: "pinkBall",
 			projectileAdjust: {x: 0, y: 0},
@@ -3106,6 +3134,7 @@ var Items = {
 			tier: 2,
 			obtain: ["unidentified"],
 			area: ["caves"],
+unidentifiedArea: ["caves"],
 			rarity: "common",
 			sellPrice: 1,
 			obtainText: "Can be uncovered as an unidentified item in areas around Eaglecrest Caves.",
@@ -3123,6 +3152,7 @@ var Items = {
 			tier: 2,
 			obtain: ["unidentified"],
 			area: ["caves"],
+unidentifiedArea: ["caves"],
 			rarity: "unique",
 			sellPrice: 4,
 			lore: "",
@@ -3141,6 +3171,7 @@ var Items = {
 			tier: 2,
 			obtain: ["unidentified"],
 			area: ["caves"],
+unidentifiedArea: ["caves"],
 			rarity: "unique",
 			sellPrice: 4,
 			lore: "",
@@ -3161,15 +3192,41 @@ var Items = {
 			tier: 2,
 			obtain: ["unidentified"],
 			area: ["caves"],
+unidentifiedArea: ["caves"],
 			rarity: "mythic",
 			sellPrice: 7,
 			lore: "",
 			obtainText: "Can be uncovered as an unidentified item in areas around Eaglecrest Caves.",
 			stats: {
-				damage: 5,
-				maxDamage: 15,
+				damage: 4,
+				maxDamage: 12,
 				criticalChance: 50,
 			},
+			conditionalStats: [
+				{
+					text: "Gives the following stats whilst fully charged:",
+					condition: function () {
+						if (Player.inventory.items.weapon.charge > 30) {
+							// reset the charge in a certain time period tbd
+							return true;
+						}
+						return false;
+					},
+					stats: {
+						reflection: 50,
+						xpBonus: 50,
+					},
+				},
+			],
+			functionText: "Hitting enemies charges up this staff.",
+			onHit: function () { // stacks for each enemy hit I think
+				//if (Player.inventory.weapon.name === "Kenda's Iron Staff") {
+					if (typeof Player.inventory.weapon.charge === "undefined") {
+						Player.inventory.weapon.charge = 0;
+					}
+					Player.inventory.weapon.charge++;
+				//}
+			}
 		},
 	],
 	bow: [
@@ -3434,8 +3491,8 @@ var Items = {
 			obtainText: "Can be looted from the Lake Lurker.",
 			sellPrice: 5,
 			stats: {
-				damage: 9,
-				reloadTime: 750,
+				damage: 10,
+				reloadTime: 500,
 				slowAmount: 35,
 				slowTime: 1,
 				//splashDamage: true, // tbd turn into water explosion ?
@@ -3459,7 +3516,10 @@ var Items = {
 				damage: 5,
 				healthRegen: -0.5
 			},
-			functionText: "Fires flowers, which restore 10 health when collected in full bloom",
+			functionStats: {
+				heal: 10,
+			},
+			functionText: "Fires flowers, which restore 10 health when collected in full bloom", // tbd make a function that checks the value of the functionStat
 			projectile: "flowerBud",
 			projectileAdjust: {x: 0, y: 0},
 			extraProjectileInfo: {
@@ -3497,15 +3557,16 @@ var Items = {
 								let i = Game.things.findIndex(thing => thing.id === id);
 								if (i >= 0) {
 									// projectile still exists
-									Game.restoreHealth(Game.hero, 10);
+									Game.restoreHealth(Game.hero, Game.things[i].healAmountOnCollect);
 									Game.removeObject(id, "things", i);
 								}
 							}, [this.id], 200, "Flower power!");
 						}
 					},
 				}));
+				Game.things[Game.things.length - 1].healAmountOnCollect = this.functionStats.heal;
 
-				console.log(Game.things[Game.things.length - 1].animation.state);
+				//console.log(Game.things[Game.things.length - 1].animation.state);
 			},
 		},
 		{
@@ -3631,7 +3692,7 @@ var Items = {
 			obtainText: "Can be bought from Demolitionist Darrow in Eaglecrest.",
 			stats: {
 				damage: 7,
-				reloadTime: 750,
+				reloadTime: 500,
 				exploding: 1,
 			},
 			projectile: "redPellet",
@@ -3661,6 +3722,7 @@ var Items = {
 			tier: 2,
 			obtain: ["unidentified"],
 			area: ["caves"],
+unidentifiedArea: ["caves"],
 			rarity: "common",
 			sellPrice: 1,
 			obtainText: "Can be uncovered as an unidentified item in areas around Eaglecrest Caves.",
@@ -3676,6 +3738,7 @@ var Items = {
 			tier: 2,
 			obtain: ["unidentified"],
 			area: ["caves"],
+unidentifiedArea: ["caves"],
 			rarity: "unique",
 			sellPrice: 4,
 			lore: "",
@@ -3694,6 +3757,7 @@ var Items = {
 			tier: 2,
 			obtain: ["unidentified"],
 			area: ["caves"],
+unidentifiedArea: ["caves"],
 			rarity: "unique",
 			sellPrice: 4,
 			lore: "",
@@ -3712,6 +3776,7 @@ var Items = {
 			tier: 2,
 			obtain: ["unidentified"],
 			area: ["caves"],
+unidentifiedArea: ["caves"],
 			rarity: "mythic",
 			sellPrice: 7,
 			lore: "",
@@ -3719,6 +3784,21 @@ var Items = {
 			stats: {
 				damage: 6,
 			},
+			functionText: "Upon hitting 3 enemies with the same projectile, deal 4 damage to them all.",
+			onHit: function (target, attacker, projectile) {
+				if (typeof projectile.chordNumber === "undefined") {
+					projectile.chordNumber = 0;
+					projectile.chordEnemiesHit = [];
+				}
+				projectile.chordNumber++;
+				projectile.chordEnemiesHit.push(target);
+				// animation tbd
+				if (projectile.chordNumber === 3) {
+					for (let i = 0; i < projectile.chordEnemiesHit; i++) {
+						projectile.chordEnemiesHit[i].dealDamage(4, true);
+					}
+				}
+			}
 		},
 	],
 	rod: [ // fishing rod
@@ -4987,6 +5067,33 @@ var Items = {
 			stack: 1,
 			quest: true,
 		},
+		{
+			id: 75,
+			name: "Tinkered Timepiece",
+			type: "item",
+			category: "item",
+			rarity: "common",
+			functionText: "Controls the game's timer",
+			status: "stopped",
+			lore: "Never be late again ! !",
+			image: "assets/items/item/75.png",
+			stack: 1,
+			sellPrice: 4,
+			onClickFunction: function (position) {
+				if (!Timer.inUse) {
+					if (Timer.status === "stopped") {
+
+
+					}
+					if (Timer.status === "started") {
+
+					}
+				}
+				else {
+					Dom.chat.insert("Timer is currently in use.")
+				}
+			}
+		},
 	],
 	consumable: [
 		{
@@ -5786,12 +5893,14 @@ var Items = {
 			type: "consumable",
 			image: "assets/items/consumable/32.png",
 			functionText: "Restores 10 health",
-            cooldown: 10, // 10 seconds
+      cooldown: 5, // 5 seconds
+			healAmount: 10,
 			onClickFunction: function (inventoryPosition) {
+				let healAmount = Player.inventory.items[inventoryPosition].healAmount;
 				// remove the item
 				Dom.inventory.remove(inventoryPosition);
 				// restore the health
-				Game.restoreHealth(Game.hero, 10);
+				Game.restoreHealth(Game.hero, healAmount);
 			}
 		},
 		{
@@ -7298,17 +7407,8 @@ var Items = {
                     Player.quests.questProgress.troubledWaters4Progress = 5;
                     Dom.quests.active();
                 }
-								Areas.eaglecrestWell.startBoss();
-
-								// screen shake and pan to boss
-								Game.camera.initScreenShake(5,5000);
-								Game.camera.pan({x: 800, y: 900}, 500, "accelerate", function () {
-									Game.camera.pan(Game.hero, 500, "accelerate", function () {
-										// reset camera
-										Game.camera.follow(Game.hero);
-									}, 0);
-								}, 1000);
-            },
+								Areas.eaglecrestWell.startBoss(); // includes screen shake and pan to boss
+							},
 			onlyFromBaitPool: true,
 		},
 	],
@@ -7575,5 +7675,82 @@ function UnId (area, tier) {
 		default:
 			this.functionText = "From " + FromCamelCase(area);
 			break;
+	}
+}
+
+
+var TierUp = function (item) {
+	switch (item.tier) {
+		case 1:
+			return TierOneToTwo(item);
+		default:
+			console.error("Item's tier is not accounted for!", item);
+			break;
+	}
+}
+
+var TierOneToTwo = function (item) {
+	item.tier = 2;
+
+	let checkArray = [item.stats, item.functionStats];
+	if (typeof item.conditionalStats !== "undefined") {
+		for (let i = 0; i < item.conditionalStats.length; i++) {
+			checkArray.push(item.conditionalStats[i].stats);
+		}
+	}
+
+	for (let i = 0; i < checkArray.length; i++) {
+		check = checkArray[i];
+
+		if(typeof check.damage !== "undefined")
+		{
+			check.damage = check.damage * 2;
+		}
+
+		if(typeof check.maxDamage !== "undefined")
+		{
+			check.maxDamage = check.maxDamage * 2;
+		}
+
+		if(typeof check.defence !== "undefined")
+		{
+			check.defence = check.defence * 2;
+		}
+
+		if(typeof check.maxHealth !== "undefined")
+		{
+			check.maxHealth = check.maxHealth * 2;
+		}
+
+		if(typeof check.healthRegen !== "undefined")
+		{
+			check.healthRegen = check.healthRegen * 2;
+		}
+
+		if(typeof check.exploding !== "undefined")
+		{
+			check.exploding = 2;
+		}
+
+		if(typeof check.flaming !== "undefined")
+		{
+			check.flaming = 2;
+		}
+
+		if(typeof check.poisonX !== "undefined")
+		{
+			check.poisonX = 2;
+		}
+
+		// functionStats mostly:
+		if(typeof check.heal !== "undefined")
+		{
+			check.heal *= 2;
+		}
+
+		if(typeof check.damageTaken !== "undefined")
+		{
+			check.damageTaken *= 2;
+		}
 	}
 }

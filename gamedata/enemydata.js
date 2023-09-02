@@ -1443,7 +1443,7 @@ const EnemyTemplates = {
 				fishingType: "watermisc",
 				onCatchAdditional: function () {
 					let boss = Game.enemies.find(enemy => enemy.name === "Lake Lurker");
-					boss.takeDamage(7000, true);
+					boss.takeDamage(7000, true, "Lake Lurker Tail");
 				}
 			},
 			spells: [
@@ -1485,7 +1485,7 @@ const EnemyTemplates = {
 				fishingType: "watermisc",
 				onCatchAdditional: function () {
 					let boss = Game.enemies.find(enemy => enemy.name === "Lake Lurker");
-					boss.takeDamage(12000, true);
+					boss.takeDamage(12000, true, "Lake Lurker Arch");
 				}
 			}
 		},
@@ -1532,6 +1532,11 @@ const EnemyTemplates = {
 				for (let i = 0; i < remove.length; i++) {
 					Game.removeObject(remove[i].id, remove[i].type);
 				}
+
+				// boss last hit achievement
+				if (this.killedByName !== "Lake Lurker Arch" && this.killedByName !== "Lake Lurker Tail") {
+					User.progress.legacyOfCaptainCalaca = true;
+				}
 			},
 		},
 
@@ -1564,5 +1569,81 @@ const EnemyTemplates = {
 
 	    ],
 		},
+
+
+
+		baronFoxglove: {
+			image: "foxglove",
+			deathImage: "foxgloveCorpse",
+			name: "Baron Foxglove",
+			hostility: "boss",
+			level: 15,
+			stats: {
+				damage: 9,
+				walkSpeed: 100,
+				swimSpeed: 40,
+				iceSpeed: 200,
+				maxHealth: 1000,
+				defence: 9,
+				dodgeChance: 80,
+				healthRegen: 1,
+				lootTime: 180000,
+				variance: 15,
+				projectileSpeed: 850,
+				projectileRange: 1000,
+				reloadTime: 1500,
+				range: 400,
+			},
+			projectile: {
+				image: "arrow",
+			},
+			xpGiven: 500,
+			corpseOnDeath: true,
+			respawnOnDeath: false,
+			lootTableTemplate: [BossLootTables.foxglove],
+			inventorySpace: 32,
+			bossKilledVariable: "foxglove",
+			spells: [
+					{
+						id: 25,
+						tier: 1,
+						parameters: function () {
+								return {
+									target: [Game.hero],
+								};
+						},
+						interval: 25000,
+				 },
+      ],
+		},
+
+		foxgloveHands: {
+			image: "foxgloveHand",
+			name: "Foxglove Hand",
+			level: 15,
+			hostility: "hostile",
+			stats: {
+				damage: 9,
+				walkSpeed: 250,
+				swimSpeed: 100,
+				iceSpeed: 300,
+				maxHealth: 5,
+				defence: 0,
+				healthRegen: 1,
+				reloadTime: 1000,
+				range: 90,
+				rooting: 1,
+				respawnTime: 4000,
+			},
+			projectile: {
+				image: "melee",
+			},
+			xpGiven: 0,
+			corpseOnDeath: false,
+			respawnOnDeath: true,
+			spells: [
+      ],
+		},
+
 	},
 }

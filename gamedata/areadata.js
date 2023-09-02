@@ -4157,6 +4157,10 @@ onPlayerTouch: function () {
 						quest: Quests.eaglecrest[11],
 						role: "questStartFinish"
 					},
+									{
+											role: "questStartFinish",
+											quest: Quests.eaglecrest[17]
+									},
 					{
                         role: "text",
                         chooseText: "Ask about a <b>translator</b>.",
@@ -7130,6 +7134,8 @@ Last I saw him, he was visiting the <b>Eaglecrest Plains</b> to the <b>south</b>
 
 							{item: Items.bag[5], cost: 10}, // brown backsack
 
+							{item: Items.item[75], cost: 7}, // speedrun clock
+
 							{item: Items.consumable[22], cost: 5}, // tag
 						],
 						role: "merchant",
@@ -8237,7 +8243,8 @@ Last I saw him, he was visiting the <b>Eaglecrest Plains</b> to the <b>south</b>
 					name: "Teal Callalilies",
 					objectProperties: {
 						canBePickedUp: {
-							channelTime: 1000, itemType: "item", itemId: 68, channelText: "Flower picking"
+							channelTime: 1000, itemType: "item", itemId: 68, channelText: "Flower picking",
+							//additionalFunction: Areas.eaglecrestPlains.flowerPickUp(68),
 						},
 					},
 				},
@@ -8248,7 +8255,8 @@ Last I saw him, he was visiting the <b>Eaglecrest Plains</b> to the <b>south</b>
 					name: "Daisies",
 					objectProperties: {
 						canBePickedUp: {
-							channelTime: 1000, itemType: "item", itemId: 32, channelText: "Flower picking"
+							channelTime: 1000, itemType: "item", itemId: 32, channelText: "Flower picking",
+							//additionalFunction: Areas.eaglecrestPlains.flowerPickUp(32),
 						},
 					},
 				},
@@ -8259,7 +8267,8 @@ Last I saw him, he was visiting the <b>Eaglecrest Plains</b> to the <b>south</b>
 					name: "Marigolds",
 					objectProperties: {
 						canBePickedUp: {
-							channelTime: 1000, itemType: "item", itemId: 31, channelText: "Flower picking"
+							channelTime: 1000, itemType: "item", itemId: 31, channelText: "Flower picking",
+							//additionalFunction: Areas.eaglecrestPlains.flowerPickUp(31),
 						},
 					},
 				},
@@ -8270,7 +8279,8 @@ Last I saw him, he was visiting the <b>Eaglecrest Plains</b> to the <b>south</b>
 					name: "Lavender",
 					objectProperties: {
 						canBePickedUp: {
-							channelTime: 1000, itemType: "item", itemId: 30, channelText: "Flower picking"
+							channelTime: 1000, itemType: "item", itemId: 30, channelText: "Flower picking",
+							//additionalFunction: Areas.eaglecrestPlains.flowerPickUp(64),
 						},
 					},
 				},
@@ -8281,7 +8291,8 @@ Last I saw him, he was visiting the <b>Eaglecrest Plains</b> to the <b>south</b>
 					name: "Wolfsbane",
 					objectProperties: {
 						canBePickedUp: {
-							channelTime: 1000, itemType: "item", itemId: 67, channelText: "Flower picking"
+							channelTime: 1000, itemType: "item", itemId: 67, channelText: "Flower picking",
+							//additionalFunction: Areas.eaglecrestPlains.flowerPickUp(67),
 						},
 					},
 				},
@@ -8292,7 +8303,8 @@ Last I saw him, he was visiting the <b>Eaglecrest Plains</b> to the <b>south</b>
 					name: "Cyan Wallflowers",
 					objectProperties: {
 						canBePickedUp: {
-							channelTime: 1000, itemType: "item", itemId: 66, channelText: "Flower picking"
+							channelTime: 1000, itemType: "item", itemId: 66, channelText: "Flower picking",
+							//additionalFunction: Areas.eaglecrestPlains.flowerPickUp(66),
 						},
 					},
 				},
@@ -8303,7 +8315,8 @@ Last I saw him, he was visiting the <b>Eaglecrest Plains</b> to the <b>south</b>
 					name: "Orange Tulips",
 					objectProperties: {
 						canBePickedUp: {
-							channelTime: 1000, itemType: "item", itemId: 65, channelText: "Flower picking"
+							channelTime: 1000, itemType: "item", itemId: 65, channelText: "Flower picking",
+							//additionalFunction: Areas.eaglecrestPlains.flowerPickUp(65),
 						},
 					},
 				},
@@ -8314,7 +8327,8 @@ Last I saw him, he was visiting the <b>Eaglecrest Plains</b> to the <b>south</b>
 					name: "Poppies",
 					objectProperties: {
 						canBePickedUp: {
-							channelTime: 1000, itemType: "item", itemId: 64, channelText: "Flower picking"
+							channelTime: 1000, itemType: "item", itemId: 64, channelText: "Flower picking",
+							//additionalFunction: Areas.eaglecrestPlains.flowerPickUp(64),
 						},
 					},
 				},
@@ -8325,7 +8339,8 @@ Last I saw him, he was visiting the <b>Eaglecrest Plains</b> to the <b>south</b>
 					name: "Pink Alcea",
 					objectProperties: {
 						canBePickedUp: {
-							channelTime: 1000, itemType: "item", itemId: 63, channelText: "Flower picking"
+							channelTime: 1000, itemType: "item", itemId: 63, channelText: "Flower picking",
+							//additionalFunction: Areas.eaglecrestPlains.flowerPickUp(63),
 						},
 					},
 				},
@@ -8882,6 +8897,17 @@ Last I saw him, he was visiting the <b>Eaglecrest Plains</b> to the <b>south</b>
 			Player.quests.questProgress.plainsCrateGhosts = false;
 		},
 
+		// for foxglove boss
+		pickUpFlower: function (flowerId) {
+			let foxgloveBoss = Game.enemies.find(enemy => enemy.name === "Baron Foxglove");
+			if (typeof foxgloveBoss !== "undefined" && typeof foxgloveBoss.flowersToCollect !== "undefined") {
+				let spliceId = foxgloveBoss.flowersToCollect.find
+				if (typeof foxgloveBoss.flowersToCollect.includes(flowerId)) {
+					foxgloveBoss.s
+				}
+			}
+		},
+
 		// called when the hero gets on the train to paw peaks
 		getOnTrainOutbound: function () {
 			let trainComponents = Game.things.filter(thing => thing.name === "Train Carriage" || thing.name === "Train Driver's Carriage");
@@ -9069,6 +9095,11 @@ Last I saw him, he was visiting the <b>Eaglecrest Plains</b> to the <b>south</b>
 			armouredToadLeft: {normal: "assets/enemies/toadArmoured.png"},
 			armouredToadRight: {normal: "assets/enemies/toadArmoured.png", flip: "vertical"},
 			sharptooth: {normal: "assets/npcs/sharptooth.png"},
+			foxglove: {normal: "assets/enemies/foxglove.png"},
+			foxgloveHand: {normal: "assets/enemies/foxgloveHands.png"},
+			foxgloveSunken: {normal: "assets/enemies/foxgloveSunken.png"},
+			foxgloveCorpse: {normal: "assets/corpses/foxglove.png"},
+			arrow: {normal: "assets/projectiles/arrow.png"},
 			eagleStatue: {normal: "assets/objects/eagleStatue.png"},
 			eaglecrestBanner: {normal: "assets/objects/eaglecrestBanner.png", christmas: "assets/objects/eaglecrestBannerChristmas.png"},
 		},
@@ -9281,6 +9312,10 @@ Last I saw him, he was visiting the <b>Eaglecrest Plains</b> to the <b>south</b>
 	                        role: "questStartFinish",
 	                        quest: Quests.eaglecrest[14],
 						},
+										{
+												role: "questStartFinish",
+												quest: Quests.eaglecrest[16]
+										},
 						{
 	                        role: "text",
 	                        chooseText: "Show <b>Fisher Sharptooth</b> the fish you collected.",
@@ -9749,6 +9784,12 @@ Last I saw him, he was visiting the <b>Eaglecrest Plains</b> to the <b>south</b>
 				repeatNumber: 5,
 			},
 			{
+				x: 1050,
+				y: 5400,
+				template: EnemyTemplates.eaglecrest.baronFoxglove,
+			},
+			// farmyard
+			{
 				spawnLocations: [{x: 5618.2, y: 1085.3, width: 344.6, height: 991}], // flower garden (farm)
 				template: EnemyTemplates.eaglecrest.beeSwarm,
 				hostility: "neutral",
@@ -10075,7 +10116,7 @@ image: 'steppingStone', name: 'Stepping Stone', z: -1, walkable: true,},
 				onInteract: function () {
 				    if (Player.quests.questProgress.troubledWaters3Progress > 1) {
 						Game.hero.channel(function () {
-				            Game.loadArea("eaglecrestWell", {x: 750, y: 170});
+				            Game.loadArea("eaglecrestWell", {x: 760, y: 0});
 				        }, [], 1500, "Entering well");
 
 				    }
@@ -12081,17 +12122,69 @@ eaglecrestWell: {
 		seaMonsterCorpse: {normal: "assets/corpses/seaMonster.png"},
 	},
 
+	callAreaJoinOnInit: true,
+	onAreaJoin: function () {
+		// if boss was caught today but not yet killed, summon it.
+		if (Player.quests.questProgress.lakeLurkerLastCaught === GetFullDate() && Player.bossesKilled.lakeLurker !== GetFullDate()) {
+
+			Areas.eaglecrestWell.startBoss();
+		}
+
+		if (Game.hero.y < 150) {
+			//Game.hero.direction = 2;
+			//Game.hero.updateRotation();
+			Game.hero.moveTowards = {
+				x: 760,
+				y: 180,
+				speedScalar: 0.6,
+			};
+		}
+
+	},
+
+	entities: [
+		{
+				x: 750,
+				y: 200,
+				width: 200,
+				height: 150,
+				onInteract: function () {
+						Game.hero.channel(function () {
+								Game.hero.direction = 1;
+								Game.hero.moveTowards = {
+									x: 760,
+									y: 0,
+									speedScalar: 0.6,
+									moveTowardsFinishFunction: function () {
+										Game.loadArea("eaglecrestPlains", {x: 4130, y: 2970});
+									}
+								};
+								Game.hero.updateRotation();
+		        }, [], 1000, "Leaving well");
+				}
+		},
+	],
+
 	startBoss: function()
 	{
-		// remember to deal with player dying
 			let preparedEnemy = Game.prepareNPC({
 				x: 800,
 				y: 900,
 				template: EnemyTemplates.eaglecrest.lakeLurker,
 			}, "enemies");
 			Game.enemies.push(new Enemy(preparedEnemy));
-			Areas.eaglecrestWell.initNewPhase();
-			Game.setInterval(	Areas.eaglecrestWell.initNewPhase, 30000);
+
+			// screen shake and pan to boss
+			Game.camera.initScreenShake(5,5000);
+			Game.camera.pan({x: 800, y: 900}, 500, "accelerate", function () {
+				Areas.eaglecrestWell.initNewPhase();
+				Game.setInterval(	Areas.eaglecrestWell.initNewPhase, 30000);
+
+				Game.camera.pan(Game.hero, 500, "accelerate", function () {
+					// reset camera
+					Game.camera.follow(Game.hero);
+				}, 0);
+			}, 1000);
 	},
 
 	// remove old apprendages
@@ -12177,11 +12270,6 @@ eaglecrestWell: {
 			repeatNumber: 4,
 		}, "enemies");
 		Game.enemies.push(new Enemy(preparedEnemy2));
-	},
-
-	callAreaJoinOnInit: true,
-	onAreaJoin: function () {
-
 	},
 
 	areaTeleports: [

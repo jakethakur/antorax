@@ -2991,8 +2991,111 @@ var Quests = {
 			},
 		},
 
-		/*{
-			id: 14,
+		{
+			id: 16,
+			quest: "Troubled Waters (bis)",
+			questArea: "eaglecrest",
+
+			repeatTime: "daily",
+
+			startName: "Fisher Sharptooth",
+			startChat: [{
+				text: `The fish numbers seems to bes dwindling agains.`,
+			},{
+				text: `I needs somes bait to gets the fish outs. Gets mes a fish longer thans a metre please ands wes cans ends this.`,
+			},],
+
+			finishName: "Fisher Sharptooth",
+			finishChat: [{
+				text: `Ooohs, yous kills it. The fish shoulds be comings backs nows. Alls the fishers wills be pleased whens yous sees thems next.`,
+			},{
+				text: `Here's somes <b>gold</b> ands <b>fishing seals</b> fors yours troubles. I'lls sees yous soons.`,
+			},],
+
+			objectives: [
+				"Fish up a fish longer than <b>100cm</b> and return to <b>Fisher Sharptooth</b> to make into bait.",
+				"Fish up the <b>King of Herrings</b> located in <b>Eaglecrest Well</b> and return to <b>Fisher Sharptooth</b> to make into bait.",
+				"Fish up and defeat the <b>Lake Lurker</b> located in <b>Eaglecrest Well</b>.",
+				"Return to <b>Fisherman Sharptooth</b>"
+			],
+
+			isCompleted: function() {
+				let completed = [];
+				// true or falses for each objective (apart from the turn-in objective)
+				completed.push(Dom.inventory.check(37, "consumable", 1) || Dom.inventory.check(38, "consumable", 1) || Player.bossesKilled.lakeLurker === GetFullDate());
+				completed.push(Dom.inventory.check(38, "consumable", 1) || Player.bossesKilled.lakeLurker === GetFullDate());
+				completed.push(Player.bossesKilled.lakeLurker === GetFullDate());
+
+				completed = checkFinished(completed);
+
+				return completed;
+			},
+
+			howToStart: "Speak to <strong>Fisher Sharptooth</strong>.",
+			levelRequirement: 5,
+			questRequirements: ["Troubled Waters IV (Big Fish in a Small Pond)"],
+
+			rewards: {
+				xp: 50,
+				reputation: {
+					eaglecrestCity: 50,
+				},
+				items: [
+					{item: Items.currency[2], quantity: 2,},
+					{item: Items.currency[3], quantity: 1,},
+				],
+
+			},
+		},
+		{
+			id: 17,
+			quest: "WANTED: Baron Foxglove!!",
+			questArea: "eaglecrest",
+
+			startName: "Recruiter Sylvie",
+			startChat: [{
+				text: `Greetings, ${Player.name}. Another Party has come to the City's attention - tbd.`,
+			},],
+
+			finishName: "Recruiter Sylvie",
+			finishChat: [{
+				text: `tbd`,
+			},],
+
+			objectives: [
+				"Challenge <b>Baron Foxglove</b> to combat and win, in the Plains' flower forest.",
+				"Speak to <strong>Recruiter Sylvie</strong>.",
+			],
+
+			isCompleted: function() {
+				let completed = [];
+
+				// true or falses for each objective (apart from the turn-in objective)
+				completed.push(Player.bossesKilled.baronFoxglove === GetFullDate());
+
+				completed = checkFinished(completed);
+
+				return completed;
+			},
+
+			howToStart: "Speak to <strong>Recruiter Sylvie</strong>.",
+			levelRequirement: 10,
+			questRequirements: [],
+
+			repeatTime: "daily",
+
+			rewards: {
+				xp: 50,
+				items: [
+					{item: Items.currency[2], quantity: 4,},
+				],
+				reputation: {
+					eaglecrestCity: 60,
+				},
+			},
+		},
+		{
+			id: 18,
 			quest: "The Pyromancer's Shopping List",
 			questArea: "eaglecrest",
 
@@ -3076,17 +3179,18 @@ var Quests = {
 			isHidden: function() {
 				let hidden = [];
 
-				if (Player.quests.npcProgress.eaglecrest[2] === undefined) {
-					Player.quests.npcProgress.eaglecrest[2] = 0;
+				if (Player.quests.npcProgress.eaglecrest[18] === undefined) {
+					Player.quests.npcProgress.eaglecrest[18] = 0;
 				}
 
 				// true or falses for each objective (apart from the turn-in objective)
 				hidden.push(false);
-				hidden.push(Player.quests.npcProgress.eaglecrest[2] < 1);
-				hidden.push(Player.quests.npcProgress.eaglecrest[2] < 2);
-				hidden.push(Player.quests.npcProgress.eaglecrest[2] < 3);
-				hidden.push(Player.quests.npcProgress.eaglecrest[2] < 1);
 				hidden.push(false);
+				hidden.push(Player.quests.npcProgress.eaglecrest[18] < 2);
+				hidden.push(Player.quests.npcProgress.eaglecrest[18] < 3);
+				hidden.push(Player.quests.npcProgress.eaglecrest[18] < 4);
+				hidden.push(Player.quests.npcProgress.eaglecrest[18] < 5);
+				hidden.push(Player.quests.npcProgress.eaglecrest[18] < 3);
 
 				return hidden;
 			},
@@ -3120,8 +3224,6 @@ var Quests = {
 				{item: Items.item[31], quantity: 6},
 			],
 		},
-
-		*/
 		/*{
 			id: 8,
 			quest: "Troubled Waters II",

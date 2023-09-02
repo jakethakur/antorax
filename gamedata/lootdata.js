@@ -1063,6 +1063,198 @@ const BossLootTables = {
 			repeatTimes: 5
 		},
 	],
+	foxglove: [
+		{ // unidentified item
+			item: {
+				name: "unidentified",
+				tier: 1,
+				area: "eaglecrest",
+			},
+			chance: [
+				100,				// 0
+				30,				// 1
+				5, 				//2
+				0,				// 3
+			],
+		},
+		{ // gold
+			item: Items.currency[2],
+			chance: [
+				100,				// 0
+				100, 			//1
+				80,			//2
+				70, 		//3
+				50, //4
+				20, //5
+				0,				// 6
+			],
+		},
+		{ // bee sting
+			item: Items.item[62],
+			chance: [
+				20,				// 0
+				0,				// 1
+			],
+		},
+		{ // honey
+			item: Items.consumable[36],
+			chance: [
+				4,				// 0
+				0,				// 1
+			],
+		},
+		{ // crumpled letter
+			item: Items.item[53],
+			chance: [
+				3,			// 0
+				0,				// 1
+			],
+		},
+		{ // flower
+			item: Items.item[30],
+			chance: [
+				60,			// 0
+				45,	//1
+				32,	//2
+				14,	//3
+				5,	//4
+				0,				// 5
+			],
+		},
+		{ // flower
+			item: Items.item[31],
+			chance: [
+				60,			// 0
+				45,	//1
+				32,	//2
+				14,	//3
+				5,	//4
+				0,				// 5
+			],
+		},
+		{ // flower
+			item: Items.item[32],
+			chance: [
+				60,			// 0
+				45,	//1
+				32,	//2
+				14,	//3
+				5,	//4
+				0,				// 5
+			],
+		},
+		{ // flower
+			item: Items.item[55],
+			chance: [
+				60,			// 0
+				45,	//1
+				32,	//2
+				14,	//3
+				5,	//4
+				0,				// 5
+			],
+		},
+		{ // flower
+			item: Items.item[63],
+			chance: [
+				60,			// 0
+				45,	//1
+				32,	//2
+				14,	//3
+				5,	//4
+				0,				// 5
+			],
+		},
+		{ // flower
+			item: Items.item[64],
+			chance: [
+				60,			// 0
+				45,	//1
+				32,	//2
+				14,	//3
+				5,	//4
+				0,				// 5
+			],
+		},
+		{ // flower
+			item: Items.item[65],
+			chance: [
+				60,			// 0
+				45,	//1
+				32,	//2
+				14,	//3
+				5,	//4
+				0,				// 5
+			],
+		},
+		{ // flower
+			item: Items.item[66],
+			chance: [
+				60,			// 0
+				45,	//1
+				32,	//2
+				14,	//3
+				5,	//4
+				0,				// 5
+			],
+		},
+		{ // flower
+			item: Items.item[67],
+			chance: [
+				60,			// 0
+				45,	//1
+				32,	//2
+				14,	//3
+				5,	//4
+				0,				// 5
+			],
+		},
+		{ // flower
+			item: Items.item[68],
+			chance: [
+				60,			// 0
+				45,	//1
+				32,	//2
+				14,	//3
+				5,	//4
+				0,				// 5
+			],
+		},
+		{ // flower crown
+			item: Items.helm[29],
+			chance: [
+				50,			// 0
+				0,				// 1
+			],
+		},
+		{ // ostara
+			item: Items.boots[16],
+			chance: [
+				25,			// 0
+				0,				// 1
+			],
+		},
+		{
+			item: Items.sword[20],
+			condition: function () {
+				return Player.class === "k";
+			},
+			chance: [
+				40,			// 0
+				0,				// 1
+			],
+		},
+		{
+			item: Items.bow[14],
+			condition: function () {
+				return Player.class === "a";
+			},
+			chance: [
+				20,			// 0
+				0,				// 1
+			],
+		},
+	],
 };
 
 const ChestLootTables = {

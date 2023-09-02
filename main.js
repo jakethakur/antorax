@@ -1022,9 +1022,14 @@ Game.removeObject = function (id, type, index) {
 	// find the class of the object from its type
 	let className = this.typeClasses[type];
 
+	// find object
+	let i = this.searchFor(id, this.allEntities);
+	let obj = this.allEntities[i];
+	obj.removed = true; // used to stop further code in the object from being run after it is removed
+
 	// every object is an entity
 	// remove from allEntities
-	this.allEntities.splice(this.searchFor(id, this.allEntities), 1);
+	this.allEntities.splice(i, 1);
 
 	if (className.prototype instanceof Visible || className.name === "Visible") {
 		// extends off Thing or is Thing
@@ -1275,6 +1280,9 @@ class Entity {
 		this.y = properties.y;
 		this.width = properties.width;
 		this.height = properties.height;
+
+		// optional function for when space is pressed when touching
+		this.onInteract = properties.onInteract;
 
 		// for if it can be mounted.. mountee position relative to this
 		this.rideAdjustX = properties.rideAdjustX || 0;
@@ -1663,9 +1671,6 @@ class Visible extends Entity {
 
 		this.transparency = properties.transparency; // global alpha that it should be drawn with (1 = opaque, 0 = transparent)
 
-		// optional function for when space is pressed when touching
-		this.onInteract = properties.onInteract;
-
 		if (properties.addToObjectArrays !== false) {
 			Game.allVisibles.push(this); // array for current area only
 		}
@@ -1788,6 +1793,7 @@ class Thing extends Visible {
 
 		this.canBePickedUp = properties.canBePickedUp || false; // player can press space to channel and pick up
 		// if it can be picked up, it should be an object with properties "channelTime" (ms), "itemType" (i.e. "sword"), "itemId" (in itemdata), "channelText" (optional), "inventoryFullText" (optional), "onPickUp" (optional)
+		// optional property additionalFunction which is only called on pick up success
 		if (this.canBePickedUp !== false) {
 			if (typeof this.onInteract === "undefined") {
 				let channelText = this.canBePickedUp.channelText || "Picking item up";
@@ -1796,6 +1802,8 @@ class Thing extends Visible {
 				let pickUpProperties = this.canBePickedUp;
 				let removeId = this.id;
 				let removeType = this.type;
+
+				let additionalFunction = properties.canBePickedUp.additionalFunction; // only called on success
 
 				let channelFunction = function () {
 					if (Dom.inventory.give(Items[pickUpProperties.itemType][pickUpProperties.itemId]) === false) {
@@ -1807,6 +1815,10 @@ class Thing extends Visible {
 						}
 						// remove this object from the map
 						Game.removeObject(removeId, removeType);
+
+						if (typeof additionalFunction !== "undefined") {
+							additionalFunction();
+						}
 					}
 				}
 
@@ -2541,8 +2553,9 @@ class Character extends Thing {
 
 	// take damage
 	// damagedByHero is true or false depending on whether it was damaged by the hero
+	// damagedByName is the name of what damaged this (attacker.name) - optional, just for achievement use currently
 	// successiveExplosions is for thermal runaway achivement
-	takeDamage (damage, damagedByHero, successiveExplosions) {
+	takeDamage (damage, damagedByHero, damagedByName, successiveExplosions) {
 		this.healthBeforeDamage = this.health; // currently unused, updated after each damage
 		this.damageProportionTaken = damage / this.health;
 
@@ -2565,6 +2578,8 @@ class Character extends Thing {
 				// death ! !
 
 				let inMinigame = Game.minigameInProgress !== undefined && Game.minigameInProgress.playing; // no xp, achievement or quest progress, etc. whilst in minigame
+
+				this.killedByName = damagedByName;
 
 				// xp
 				if (!inMinigame && this.xpGiven !== undefined && this.damageTakenFromHero) {
@@ -5398,7 +5413,7 @@ class Projectile extends Thing {
 						}
 
 						// deal the damage!
-						target.takeDamage(dmgDealt, attacker.createdByPlayer, this.successiveExplosions); // third param is just for an achivement to do with exploding
+						target.takeDamage(dmgDealt, attacker.createdByPlayer, attacker.name, this.successiveExplosions); // third param is just for an achivement to do with exploding
 						this.damageDealt.push({enemy: target, damage: dmgDealt, critical: critical});
 
 						// check they still exist
@@ -5538,7 +5553,7 @@ class Projectile extends Thing {
 
 						// ohHit function for projectile
 						if (typeof this.onHit !== "undefined") {
-							this.onHit(target, this.attacker);
+							this.onHit(target, this.attacker, this);
 						}
 
 						if (target.constructor.name === "Hero" || attacker.constructor.name === "Hero") {
@@ -6324,19 +6339,22 @@ class NonPlayerAttacker extends Attacker {
 
 		Game.projectiles.push(shotProjectile); // add projectile to array of projectiles
 
-		// onAttack function for enemy
-		if (this.stats.onAttack !== undefined) {
-			this.stats.onAttack();
+		// check it didn't die lolll
+		if (!this.removed) {
+			// onAttack function for enemy
+			if (this.stats.onAttack !== undefined) {
+				this.stats.onAttack();
+			}
+
+			// wait to shoot next projectile
+			Game.setTimeout(function () {
+				this.canAttack = true;
+			}.bind(this), this.stats.reloadTime);
+
+			// after a timeout (2s), remove the projectile that was just shot
+			// taken from Player
+			this.channellingProjectileId = null;
 		}
-
-		// wait to shoot next projectile
-		Game.setTimeout(function () {
-			this.canAttack = true;
-		}.bind(this), this.stats.reloadTime);
-
-		// after a timeout (2s), remove the projectile that was just shot
-		// taken from Player
-		this.channellingProjectileId = null;
 	}
 
 	// calculates target to move towards & attack from aggro and distances
@@ -8501,6 +8519,7 @@ Game.loadArea = function (areaName, destination) {
 			mounts: Mount,
 			shapes: Shape,
 			nonPlayerAttackers: NonPlayerAttacker,
+			entities: Entity,
 		};
 
 		// list of objects to be animated (with a .animation object - see Thing constructor for a breakdown of this object's properties)
@@ -10799,9 +10818,9 @@ Game.update = function (delta) {
 		}
 	}
 
-	// check collision with any visibles (if they have an interact function to be called)
-	for (let i = 0; i < this.allVisibles.length; i++) {
-		let thing = this.allVisibles[i];
+	// check collision with any entities (if they have an interact function to be called)
+	for (let i = 0; i < this.allEntities.length; i++) {
+		let thing = this.allEntities[i];
 
 		let canInteract = true; // set to false if it cannot be interacted with
 
@@ -11285,8 +11304,8 @@ Game.equipmentUpdate = function () {
     if (weaponType !== undefined) {
         // player has weapon equipped
 
-		if (Player.inventory.weapon.reloadTime !== undefined) {
-        	this.hero.stats.reloadTime = Player.inventory.weapon.reloadTime;
+		if (Player.inventory.weapon.stats.reloadTime !== undefined) {
+        	this.hero.stats.reloadTime = AttackConstants[weaponType].reloadTime + Player.inventory.weapon.stats.reloadTime;
 		}
 		else {
         	this.hero.stats.reloadTime = AttackConstants[weaponType].reloadTime;
@@ -12040,7 +12059,7 @@ Game.drawHealthBar = function (ctx, character, x, y, width, height) {
 		}
 		else {
 			// default
-			ctx.fillStyle = "FFFF00";
+			ctx.fillStyle = "#DAA520"; // gold
 			//console.warn("No dedicated health bar colour for bar size " + barValue);
 		}
 

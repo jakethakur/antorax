@@ -1192,4 +1192,68 @@ Spells = [
 	},
 
 
+
+	{
+		name: "Sink",
+		id: 26,
+		// for foxglove
+
+		// properties should contain tier (as int value), caster, target
+		func: function (properties) {
+			let boss = properties.caster;
+
+			//boss.setImage("foxgloveSunken");
+			boss.transform({
+				image: foxgloveSunken,
+				stats: {
+					doesNotAttack: true,
+					dodgeChance: 100,
+				},
+			});
+
+			Game.setTimeout(boss.untransform.bind(boss), Spells[26].sinkDuration[properties.tier]);
+			// also needs to remove player status effects and delete hands !!!!!!!!! and reset flowersToCollect !!!!
+
+			// summon foxglove's hands
+			let preparedEnemy = Game.prepareNPC({
+				x: boss.x + 40,
+				y: boss.y,
+				template: EnemyTemplates.eaglecrest.foxgloveHand,
+			}, "enemies");
+			Game.enemies.push(new Enemy(preparedEnemy));
+
+			let preparedEnemy2 = Game.prepareNPC({
+				x: boss.x - 40,
+				y: boss.y,
+				template: EnemyTemplates.eaglecrest.foxgloveHand,
+			}, "enemies");
+			Game.enemies.push(new Enemy(preparedEnemy2));
+
+			// give hero status effects of flowers to collect
+			let flowers = [];
+			boss.flowersToCollect = [];
+			for (let i = 0; i < 3; i++) {
+				let flowerId = flowers[Random(0, flowers.length-1)];
+				Game.statusEffects.generic({
+					target: Game.hero,
+					effectTitle: "Flower to Collect " + i,
+					effectDescription: "Collect the three flow to deal damage to Foxglove!",
+					imageName: "flower"+flowersId,
+				});
+				boss.flowersToCollect.push(flowerId);
+			}
+		},
+
+		channelTime: [
+			0,
+			5000,	// tier 1
+		],
+
+		sinkDuraction: [
+			0,
+			30000
+		]
+	},
+
+
 ];
