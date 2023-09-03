@@ -1230,7 +1230,20 @@ const EnemyTemplates = {
 			onDeath: function () {
 				// coyotes killed achievement
 				User.progress.coyotes = Increment(User.progress.coyotes);
-			}
+			},
+			animation: {
+				type: "spritesheet",
+				frameTime: 30,
+				imagesPerRow: 3,
+				totalImages: 3,
+				animateBasis: "walk"
+			},
+			crop: {
+				x: 0,
+				y: 0,
+				width: 151,
+				height: 98,
+			},
 		},
 		coyoteWrangler: {
 			image: "coyoteWrangler",

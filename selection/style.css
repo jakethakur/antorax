@@ -81,15 +81,27 @@ body{
 
 
 
-#playerView {
-	width: 350px;
-	height: 100%;
+.rightColumn {
+	height: 100vh;
 	float: right;
 
 	background-image: url("./assets/caravanBackground.png");
 	background-size: cover;
-	height: 100vh;
 }
+
+#playerView {
+	width: 350px;
+}
+
+.playerViewCustomisation {
+	animation: panelWidth 1.0s forwards;
+}
+
+@keyframes panelWidth {
+	from {width: 350px;}
+	to {width: 700px;}
+}
+
 
 #mainScreen:after {
 	content: "";
@@ -176,10 +188,8 @@ body{
 	background-repeat: no-repeat;
 	background-position: center;
 	cursor: pointer;
-
 	border-left: none;
 	margin-left: -5px;
-
 	display:inline-block;
 	vertical-align: top;
 }

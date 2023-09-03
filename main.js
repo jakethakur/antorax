@@ -1715,6 +1715,14 @@ class Thing extends Visible {
 			properties.image = properties.rotationImages.left || properties.rotationImages.forward;
 		}
 
+		if (properties.image === undefined && properties.images !== undefined) {
+			// multiple images included in an array, to be rendered on top of each other
+			this.additionalImages = properties.images;
+			properties.image = this.additionalImages.shift();
+			properties.image = properties.image.imageName;
+			this.setAdditionalImages(this.additionalImages);
+		}
+
 		if (properties.image !== undefined) {
 			this.setImage(properties.image, properties.crop, properties.width, properties.height, properties.rotationImages);
 		}
@@ -1862,6 +1870,22 @@ class Thing extends Visible {
 			if (this.setRotationImageVariables !== undefined && rotationImages !== false) {
 				this.setRotationImageVariables(rotationImages);
 			}
+		}
+	}
+
+	// images to be rendered on top of the main image
+	// crop etc is inherited from main image
+	setAdditionalImages (additionalImageArray) {
+		this.additionalImages = [];
+
+		for (let i = 0; i < additionalImageArray.length; i++) {
+			let imageObject = Loader.getImageInfo(additionalImageArray[i].imageName);
+			this.additionalImages.push({
+				image: imageObject.img,
+				imageSrc: imageObject.src,
+				doNotAnimate: additionalImageArray[i].doNotAnimate, // optional
+				// more tbd ?
+			})
 		}
 	}
 
@@ -3712,6 +3736,9 @@ class Hero extends Attacker {
 			this.x += dirx * this.speed * delta;
 			this.y += diry * this.speed * delta;
 
+			// for walking anim
+			this.totalDistanceWalked += Math.sqrt((dirx * this.speed * delta)*(dirx * this.speed * delta) + (diry * this.speed * delta)*(diry * this.speed * delta))
+
 			// tutorial (from beginning of game)
 			if (Player.tutorialProgress === 0 && typeof Game.tutorialTimeout === "undefined") {
 				Game.tutorialTimeout === Game.setTimeout(Dom.instructions.page, 2000, 1);
@@ -4861,40 +4888,24 @@ class Hero extends Attacker {
 	// called after this.direction is updated
 	// +1 or +3 are because of padding in spritesheet (see comment at top of skindata.js)
 	updateRotation () {
-		if (this.direction === 1) {
-			this.crop = {
-				x: 1,
-				y: this.baseHeight+3,
-				width: this.baseWidth,
-				height: this.baseHeight
-			};
+		if (this.direction === 1) { // facing up
+			this.crop.y = this.baseHeight*2;
+			this.animation.baseCrop.y = this.baseHeight*2;
 		}
 
-		else if (this.direction === 2) {
-			this.crop = {
-				x: this.baseWidth+3,
-				y: this.baseHeight+3,
-				width: this.baseWidth,
-				height: this.baseHeight
-			};
+		else if (this.direction === 2) { // facing left
+			this.crop.y = this.baseHeight*3;
+			this.animation.baseCrop.y = this.baseHeight*3;
 		}
 
-		else if (this.direction === 3) {
-			this.crop = {
-				x: 1,
-				y: 1,
-				width: this.baseWidth,
-				height: this.baseHeight
-			};
+		else if (this.direction === 3) { // facing down
+			this.crop.y = 0;
+			this.animation.baseCrop.y = 0;
 		}
 
-		else if (this.direction === 4) {
-			this.crop = {
-				x: this.baseWidth+3,
-				y: 1,
-				width: this.baseWidth,
-				height: this.baseHeight
-			};
+		else if (this.direction === 4) { // facing right
+			this.crop.y = this.baseHeight;
+			this.animation.baseCrop.y = this.baseHeight;
 		}
 	}
 
@@ -8228,8 +8239,15 @@ Game.minigameReset = function () {
 Game.loadDefaultImages = function () {
 	let toLoad = [];
 
+// temp:
+	Player.skinTone = "humanLight1";
+	Player.clothing = "mageCloakLapis";
+	Player.hair = "longSpikyBrown";
+
 	// load image based on class
-	toLoad.push(Loader.loadImage("player"+Player.class+Player.skin, "./assets/player/" + Player.class + Player.skin + ".png", false));
+	toLoad.push(Loader.loadImage("player_"+Player.skinTone, "./assets/playerCustom/skinTone/" + Player.skinTone + ".png", false));
+	toLoad.push(Loader.loadImage("player_"+Player.clothing, "./assets/playerCustom/clothing/" + Player.clothing + ".png", false));
+	toLoad.push(Loader.loadImage("player_"+Player.hair, "./assets/playerCustom/hair/" + Player.hair + ".png", false));
 
 	// load class' default projectile
 	toLoad.push(Loader.loadImage(this.heroProjectileName, "./assets/projectiles/" + this.heroProjectileName + ".png", false));
@@ -8462,6 +8480,9 @@ Game.loadArea = function (areaName, destination) {
 		this.walkableObjects = []; // moving platforms etc (things with .walkable as true)
 		this.allShapes = [];
 
+		// list of objects to be animated (with a .animation object - see Thing constructor for a breakdown of this object's properties)
+		this.animationList = [];
+
 		// init game (if it hasn't been done so already)
 		let init = false; // set to if this is the first areaTeleport of the game
 		if (this.hero === undefined) {
@@ -8470,6 +8491,9 @@ Game.loadArea = function (areaName, destination) {
 		}
 		else {
 			// code to be called when area is accessed due to area teleport (not game load)
+
+			// readd the hero's animation to animationList
+			this.animationList.push(this.hero);
 
 			// reset weather
 			if (document.getElementById("weatherOn").checked) {
@@ -8521,9 +8545,6 @@ Game.loadArea = function (areaName, destination) {
 			nonPlayerAttackers: NonPlayerAttacker,
 			entities: Entity,
 		};
-
-		// list of objects to be animated (with a .animation object - see Thing constructor for a breakdown of this object's properties)
-		this.animationList = [];
 
 		// remove all status effect timeouts for previous area's characters
 		if (!init) {
@@ -9006,6 +9027,7 @@ Game.init = function () {
 	// music
 	this.playingMusic = null;
 
+
 	// create the player
 	// its x and y are not set until Game.loadArea resumes
 	this.hero = new Hero({
@@ -9013,14 +9035,14 @@ Game.init = function () {
 		map: map,
 		x: Areas[this.areaName].player !== undefined ? Areas[this.areaName].player.x : 0,
 		y: Areas[this.areaName].player !== undefined ? Areas[this.areaName].player.y : 0,
-		width: 57,
-		height: 120,
+		width: 52,
+		height: 127, // tbd separate hitbox
 
 		type: "hero",
 		hostility: "hero",
 
 		// properties inheritied from Thing
-		image: "player"+Player.class+Player.skin,
+		images: [{imageName: "player_"+Player.skinTone}, {imageName: "player_"+Player.clothing}, {imageName: "player_"+Player.hair, doNotAnimate: true}],
 
 		// properties inherited from Character
 		health: Player.health,
@@ -9033,9 +9055,17 @@ Game.init = function () {
 		crop: {
 			x: 0,
 			y: 0,
-			width: 57,
-			height: 120
+			width: 52,
+			height: 127
 		},
+		animation: {
+			type: "spritesheet",
+			frameTime: 15,
+			imagesPerRow: 4,
+			totalImages: 4,
+			animateBasis: "walk"
+		},
+
 
 		// properties inherited from Attacker
 
@@ -10931,6 +10961,8 @@ Game.update = function (delta) {
 			entity.x += dirx * speed * delta;
 			entity.y += diry * speed * delta;
 
+			entity.totalDistanceWalked += Math.sqrt((dirx * speed * delta)*(dirx * speed * delta) + (diry * speed * delta)*(diry * speed * delta))
+
 			let smallNudge = speed * 0.01;
 
 			// check if destination has been reached
@@ -11491,7 +11523,7 @@ Game.projectileImageUpdate = function () {
 	}
 
 	// if the player is NOT holding a weapon with a special projectile image, and the skin does have a special projectile image
-	else if (Player.inventory.weapon.projectile === undefined && this[nameAddress] !== Skins[Player.class][Player.skin].projectile) {
+	/*else if (Player.inventory.weapon.projectile === undefined && this[nameAddress] !== Skins[Player.class][Player.skin].projectile) {
 		// needs to reload default projectile image
 		if (nameAddress === "heroProjectileName") {
 			// weapon projectile - saved in skindata by default
@@ -11508,7 +11540,7 @@ Game.projectileImageUpdate = function () {
 
 		// load image and stop player attacking until it has loaded
 		this.loadImagesAndStopAttacking({[this[nameAddress]]: {normal: "./assets/projectiles/" + this[nameAddress] + ".png"}}, false);
-	}
+	}*/ // disabled for now, can be brought back whenevs :)
 }
 
 // called whenever the "hex" stat has been changed from 0 to something else
@@ -12770,6 +12802,25 @@ Game.renderObject = function (objectToRender) {
 				objectToRender.width,
 				objectToRender.height
 			);
+		}
+
+		if (typeof objectToRender.additionalImages !== "undefined") {
+			for (let i = 0; i < objectToRender.additionalImages.length; i++) {
+				let crop = objectToRender.crop;
+				if (typeof objectToRender.animation !== "undefined" && objectToRender.additionalImages[i].doNotAnimate) {
+					crop = objectToRender.animation.baseCrop;
+				}
+
+				this.ctx.drawImage(
+					objectToRender.additionalImages[i].image,
+					crop.x, crop.y,
+					crop.width, crop.height,
+					objectToRender.screenX - objectToRender.width / 2,
+					objectToRender.screenY - objectToRender.height / 2,
+					objectToRender.width,
+					objectToRender.height
+				);
+			}
 		}
 	}
 	else if (objectToRender.renderType === "shape") {

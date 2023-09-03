@@ -391,3 +391,9 @@ document.getElementById("right").onclick = function () {
 	if(num < 0){num = 3;}
 	display();
 }
+
+//startCustomisation();
+
+function startCustomisation () {
+	document.getElementById("playerView").classList.add("playerViewCustomisation");
+}
