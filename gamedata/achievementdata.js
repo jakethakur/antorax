@@ -596,7 +596,7 @@ var Achievements = [
 		},
 	},
 
-	{
+	/*{
 		name: "Work-Life Balance",
 		description: "Work 10 tavern jobs and kill 50 enemies in 10 minutes, recorded by a timepiece.",//tbc
 		points: 5,
@@ -608,7 +608,7 @@ var Achievements = [
 		isCompleted: function () {
 			//return tbd;
 		}
-	},
+	},*/
 		//
 		// REPUTATION
 		//

@@ -1578,9 +1578,47 @@ const EnemyTemplates = {
 			xpGiven: 0,
 			corpseOnDeath: false,
 			respawnOnDeath: false,
+
 			spells: [
 
-	    ],
+	    	],
+
+			/*animation: {
+				type: "spritesheet",
+				frameTime: 30,
+				imagesPerRow: 18,
+				totalImages: 18,
+				startState: 17
+				stopAnimationOnState: 18,
+			},*/
+			crop: {
+				x: 0,
+				y: 0,
+				width: 151,
+				height: 98,
+			},
+
+			/*onDeath: function () {
+				Game.things.push({
+					image: "waterCoalesce",
+					name: "Water Coalesce",
+					hostility: "hostile",
+					level: 10,
+					animation: {
+						type: "spritesheet",
+						frameTime: 30,
+						imagesPerRow: 18,
+						totalImages: 18,
+						stopAnimationOnState: 17,
+					},
+					crop: {
+						x: 1,
+						y: 0,
+						width: 48,
+						height: 124,
+					},
+				});
+			}*/
 		},
 
 

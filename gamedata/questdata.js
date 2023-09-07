@@ -3047,7 +3047,7 @@ var Quests = {
 
 			},
 		},
-		{
+		/*{
 			id: 17,
 			quest: "WANTED: Baron Foxglove!!",
 			questArea: "eaglecrest",
@@ -3223,100 +3223,6 @@ var Quests = {
 				{item: Items.item[68], quantity: 6},
 				{item: Items.item[31], quantity: 6},
 			],
-		},
-		/*{
-			id: 8,
-			quest: "Troubled Waters II",
-			questArea: "eaglecrest",
-
-			startName: "Fisherman Guimtal",
-			startChat: "So I've investigat'd the toads and it don't seem to have anything to do anything with them. Yah should talk to Fisherman Sharptooth, I think they know more.",
-
-			finishName: "Fisherman Guimtal",
-			finishChat: "",
-
-			objectives: [
-				"Speak to <strong>Fisherman Sharptooth</strong>.",
-				"Get back to <strong>Fisherman Guimtal</strong>.",
-				"Speak to <strong>Fisherman Guimtal</strong>.",
-			],
-
-			isHidden: function() {
-				let hidden = [];
-
-				if (Player.quests.questProgress.troubledWatersProgress === undefined)
-				{
-					Player.quests.questProgress.troubledWatersProgress = 0;
-				}
-
-				// true or falses for each objective (apart from the turn-in objective)
-				hidden.push(false);
-				hidden.push(Player.quests.questProgress.troubledWatersProgress < 1);
-				hidden.push(false);
-
-				return hidden;
-			},
-
-			isCompleted: function() {
-				let completed = []; // contains true or false for all of the objectives, with the last element being if the quest is ready to complete
-
-				// true or falses for each objective (apart from the turn-in objective)
-				completed.push(checkProgress(Player.quests.questProgress.troubledWatersProgress, 10));
-
-				completed = checkFinished(completed);
-
-				return completed;
-			},
-
-			howToStart: "Speak to <strong>Fisherman Guimtal</strong>.",
-			levelRequirement: 5,
-			questRequirements: ["Troubled Waters"],
-
-			rewards: {
-				xp: 50,
-				items: [
-					{item: Items.currency[2], quantity: 5,},
-				],
-			},
-		},*/
-		/*{
-			id: "tbd", // tbdddddddddddddddd
-			quest: "Cat Warrior",
-			questArea: "eaglecrest",
-
-			startName: "tbd",
-			startChat: "tbd.",
-
-			finishName: "tbd",
-			finishChat: "tbd.",
-
-			objectives: [
-				"Drink the <strong>cat potion</strong>.",
-				"Speak to <strong>tbd</strong> in the <strong>Eaglecrest Elixirs Storerooms.</strong>",
-				"Complete three laps of the obstacle course!", // hidden obj
-				"Speak to <strong>Alchemist Tamtam</strong>.",
-			],
-
-			isCompleted: function() {
-				let completed = [];
-
-				let lapsCompleted = 0; //tbd
-				completed.push(false);
-				completed.push(checkProgress(lapsCompleted, 3));
-
-				completed = checkFinished(completed);
-
-				return completed;
-			},
-
-			howToStart: "tbd.",
-			levelRequirement: 4,
-			questRequirements: ["Potion Making II"],
-
-			rewards: {
-				xp: 50,
-				items: [{}], // cat toy tbd
-			},
 		},*/
 	],
 

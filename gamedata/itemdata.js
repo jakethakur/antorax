@@ -4125,7 +4125,7 @@ unidentifiedArea: ["caves"],
 			image: "assets/items/bag/6.png",
 			lore: "Free merch",
 			sellPrice: 1,
-			size: 6,
+			size: 12,
 		},
 		{
 			id: 7,

@@ -4701,7 +4701,7 @@ class Hero extends Attacker {
 				}
 
 				let usingBaitPool = false;
-				if (typeof fish !== "undefined") {
+				if (typeof fish !== "undefined" && (!Array.isArray(fish) || fish.length > 0)) {
 					// fish pool has already been specified by bait
 					usingBaitPool = true;
 				}
@@ -9889,7 +9889,7 @@ Game.update = function (delta) {
 	if (Player.playtime === undefined) {
 		Player.playtime = 0;
 	}
-	Player.playtime += delta / 1000;
+	Player.playtime += delta / 1000; // in 1/1000ths of a second oops
 
 	//
 	// Timeouts & Intervals
