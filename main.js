@@ -9166,6 +9166,18 @@ Game.init = function () {
 	} // populated in Game.inventoryUpdate
 	Game.equipmentUpdate();// tbd move where this is called
 
+	// onGameJoin property of inventory items
+	for (let i = 0; i < Player.inventory.items.length; i++) {
+		if (typeof Player.inventory.items[i].onGameJoin !== "undefined") {
+			Player.inventory.items[i].onGameJoin(i); // i is inventory position
+		}
+	}
+	for (let i = 0; i < this.equipmentKeys.length; i++) { // equipped items
+		if (typeof Player.inventory[this.equipmentKeys[i]].onGameJoin !== "undefined") {
+			Player.inventory[this.equipmentKeys[i]].onGameJoin(this.equipmentKeys[i]);
+		}
+	}
+
 	// game viewport camera
     this.camera = new Camera({map: map, width: Dom.canvas.width, height: Dom.canvas.height, addToObjectArrays: false, type: "camera"});
     this.camera.follow(this.hero);
