@@ -6039,7 +6039,7 @@ unidentifiedArea: ["caves"],
 			name: "Lake Lurker Bait",
 			type: "consumable",
 			image: "assets/items/consumable/38.png",
-			functionText: "Guarantees you to fish up a Lake Lurker on your next fishing attempt",
+			functionText: "Guarantees you to fish up a Lake Lurker on your next fishing attempt (if you haven't caught one yet today!)",
 			lore: "Made from an even bigger fish",
 			maxCharges: 1,
 			onClickFunction: function (inventoryPosition, hotbar) {
@@ -6951,7 +6951,9 @@ unidentifiedArea: ["caves"],
 				|| (Player.inventory.weapon.type === "rod"
 				&& Player.inventory.weapon.id === 4));
 			},
-			onCatch: function (inventoryPosition) {
+			randomNPC:"",
+			randomArea:"",
+			onCatch: function (position) {
 				if (Player.quests.questProgress.christmasPresentsCaught === 2) {
 					// third part of christmas fishing quest
 					// quest variable increase
@@ -6964,22 +6966,22 @@ unidentifiedArea: ["caves"],
 				else
 				{
 					// list of areas with NPCs
-					let possibleAreas = ["eaglecrestLoggingCamp", "tutorial", "eaglecrest", "eaglecrestBank", "eaglecrestBazaar", "theForge", "eaglecrest", "eaglecrestWest", "eaglecrestEast", "eaglecrestMonastery", "eaglecrestTavern"];
-					let randomArea = Areas[possibleAreas[Random(0, possibleAreas.length - 1)]];
-					let randomNPC = randomArea.npcs[Random(0, randomArea.npcs.length - 1)];
-					randomNPC = Game.setInformationFromTemplate(randomNPC);
+					let possibleAreas = ["eaglecrestLoggingCamp", "tutorial", "eaglecrest", "eaglecrestBank", "eaglecrestBazaar", "theForge", "eaglecrest", "eaglecrestTavern", "eaglecrestPlains"];
+					Player.inventory.items[position].randomArea = Areas[possibleAreas[Random(0, possibleAreas.length - 1)]];
+					Player.inventory.items[position].randomNPC = Player.inventory.items[position].randomArea.npcs[Random(0, Player.inventory.items[position].randomArea.npcs.length - 1)];
+					Player.inventory.items[position].randomNPC = Game.setInformationFromTemplate(Player.inventory.items[position].randomNPC);
 
-					Player.inventory.items[inventoryPosition].functionText = "To be delivered to " + randomNPC.name;
+					Player.inventory.items[position].functionText = "To be delivered to " + Player.inventory.items[position].randomNPC.name;
 
-					if (randomArea === Player.areaName)
+					if (Player.inventory.items[position].randomArea === Player.areaName)
 					{
-						randomNPC = Game.npcs.find(npc => npc.name === randomNPC.name);
+						Player.inventory.items[position].randomNPC = Game.npcs.find(npc => npc.name === Player.inventory.items[position].randomNPC.name);
 					}
 					else
 				    {
-						randomNPC = randomArea.npcs.find(npc => npc.name === randomNPC.name);
+						Player.inventory.items[position].randomNPC = Player.inventory.items[position].randomArea.npcs.find(npc => npc.name === Player.inventory.items[position].randomNPC.name);
 					}
-					randomNPC.roles.push({
+					Player.inventory.items[position].randomNPC.roles.push({
 						role: "function",
 						chooseText: "Here is a present.",
 						forceChoose: true, // forces choose dom
@@ -6988,11 +6990,11 @@ unidentifiedArea: ["caves"],
 							Dom.inventory.removeById(22, "fish", 1);
 							// chat
 							if (Event.event === "Christmas") {
-								Dom.chat.insert(Dom.chat.say(randomNPC.name, "Thank you for this present, here's a Christmas Token for your troubles."));
+								Dom.chat.insert(Dom.chat.say(Player.inventory.items[position].randomNPC.name, "Thank you for this present, here's a Christmas Token for your troubles."));
 								Dom.inventory.give(Items.currency[5], 1);
 							}
 							else {
-								Dom.chat.insert(Dom.chat.say(randomNPC.name, "Thank you for this present, here's some Gold for your troubles."));
+								Dom.chat.insert(Dom.chat.say(Player.inventory.items[position].randomNPC.name, "Thank you for this present, here's some Gold for your troubles."));
 								Dom.inventory.give(Items.currency[5], 3);
 							}
 							// achievement progress
@@ -7006,6 +7008,35 @@ unidentifiedArea: ["caves"],
 						}
 					});
 				}
+			},
+			onGameJoin: function(position)
+			{
+				Player.inventory.items[position].randomNPC.roles.push({
+					role: "function",
+					chooseText: "Here is a present.",
+					forceChoose: true, // forces choose dom
+					onClick: function () {
+						// remove the item
+						Dom.inventory.removeById(22, "fish", 1);
+						// chat
+						if (Event.event === "Christmas") {
+							Dom.chat.insert(Dom.chat.say(Player.inventory.items[position].randomNPC.name, "Thank you for this present, here's a Christmas Token for your troubles."));
+							Dom.inventory.give(Items.currency[5], 1);
+						}
+						else {
+							Dom.chat.insert(Dom.chat.say(Player.inventory.items[position].randomNPC.name, "Thank you for this present, here's some Gold for your troubles."));
+							Dom.inventory.give(Items.currency[5], 3);
+						}
+						// achievement progress
+						User.progress.presentsDelivered = Increment(User.progress.presentsDelivered);
+						// because it thinks a dom page is open
+						Dom.currentlyDisplayed = "";
+						Dom.currentNPC = {};
+					},
+					roleRequirement: function () {
+						return Dom.inventory.check(22, "fish", 1); // tbd needs to check it's delivered to them
+					}
+				});
 			},
 			onClickFunction: function (inventoryPosition) { // if you don't have the christmas fishing rod, it gives it to you
 				if (!Player.quests.questProgress.christmasFishingRod) {
@@ -7400,7 +7431,7 @@ unidentifiedArea: ["caves"],
 			timeToCatch: 10000,
 			onCatch: function(position)
             {
-						   	Player.quests.questProgress.kingOfHerringsLastCaught = GetFullDate();
+						   	Player.quests.questProgress.lakeLurkerLastCaught = GetFullDate();
 							  Dom.inventory.remove(position);
                 if(Player.quests.questProgress.troubledWaters4Progress === 4)
                 {

@@ -4157,10 +4157,6 @@ onPlayerTouch: function () {
 						quest: Quests.eaglecrest[11],
 						role: "questStartFinish"
 					},
-									{
-											role: "questStartFinish",
-											quest: Quests.eaglecrest[17]
-									},
 					{
                         role: "text",
                         chooseText: "Ask about a <b>translator</b>.",
@@ -9386,7 +9382,7 @@ Last I saw him, he was visiting the <b>Eaglecrest Plains</b> to the <b>south</b>
 															Dom.inventory.give(Items.consumable[37], 1);
 	                        }],
 	                        roleRequirement: function () {
-								if(Player.quests.questProgress.troubledWaters4Progress > 0)
+									if(Player.quests.questProgress.troubledWaters4Progress > 0 && Dom.inventory.check(40, "fish") === 0)
 								{
 									for (let i = 0; i < Player.inventory.items.length; i++) {
 									    if (Player.inventory.items[i].type === "fish" && Player.inventory.items[i].length > 100) {
@@ -9411,14 +9407,16 @@ Last I saw him, he was visiting the <b>Eaglecrest Plains</b> to the <b>south</b>
 						                            // close page
 						                            Dom.closePage("textPage");
 						                            // quest progress
-																				if(Player.quests.questProgress.troubledWaters4Progress === 3)
-																				{
-																					Player.quests.questProgress.troubledWaters3Progress = 4;
-																				}
+													if(Player.quests.questProgress.troubledWaters4Progress === 3)
+													{
+														Player.quests.questProgress.troubledWaters4Progress = 4;
+													}
 						                            Dom.quests.active();
+													Dom.inventory.removeById(40, "fish");
+													Dom.inventory.give(Items.consumable[38]);
 						                        }],
 						                        roleRequirement: function () {
-						                            return (Player.quests.questProgress.troubledWaters3Progress >= 3 && Dom.inventory.check(40 , "fish"));
+						                            return (Player.quests.questProgress.troubledWaters4Progress >= 3 && Dom.inventory.check(40 , "fish"));
 						                        },
 						                    },
                 ],
@@ -12201,19 +12199,24 @@ eaglecrestWell: {
 				y: 900,
 				template: EnemyTemplates.eaglecrest.lakeLurker,
 			}, "enemies");
-			Game.enemies.push(new Enemy(preparedEnemy));
 
-			// screen shake and pan to boss
-			Game.camera.initScreenShake(5,5000);
-			Game.camera.pan({x: 800, y: 900}, 500, "accelerate", function () {
-				Areas.eaglecrestWell.initNewPhase();
-				Game.setInterval(	Areas.eaglecrestWell.initNewPhase, 30000);
+			if (preparedEnemy !== false) {
+				Game.enemies.push(new Enemy(preparedEnemy));
 
-				Game.camera.pan(Game.hero, 500, "accelerate", function () {
-					// reset camera
-					Game.camera.follow(Game.hero);
-				}, 0);
-			}, 1000);
+				// screen shake and pan to boss
+				Game.camera.initScreenShake(5,5000);
+				Game.camera.pan({x: 800, y: 900}, 500, "accelerate", function () {
+					Areas.eaglecrestWell.initNewPhase();
+					let num = Game.setInterval(Areas.eaglecrestWell.initNewPhase, 30000);
+					Game.clearedIntervalsOnAreaChange.push(num);
+					Areas.eaglecrestWell.intervalToClear = num;
+
+					Game.camera.pan(Game.hero, 500, "accelerate", function () {
+						// reset camera
+						Game.camera.follow(Game.hero);
+					}, 0);
+				}, 1000);
+			}
 	},
 
 	// remove old apprendages
@@ -12274,6 +12277,7 @@ eaglecrestWell: {
 			repeatNumber: 3,
 		}, "enemies");
 		Game.enemies.push(new Enemy(preparedEnemy2));
+		Game.enemies.push(new Enemy(preparedEnemy2));
 	},
 
 	summonArch: function()
@@ -12294,10 +12298,12 @@ eaglecrestWell: {
 		Game.enemies.push(new Enemy(preparedEnemy));
 
 		let preparedEnemy2 = Game.prepareNPC({
-			spawnLocations: [{x: x-100, y: y-100, width: 200, height: 200}], // central river (entrance to frog queen's base // river's blessing)
+			spawnLocations: [{x: x-200, y: y-200, width: 400, height: 400}], // central river (entrance to frog queen's base // river's blessing)
 			template: EnemyTemplates.eaglecrest.waterCoalesce,
 			repeatNumber: 4,
 		}, "enemies");
+		Game.enemies.push(new Enemy(preparedEnemy2));
+		Game.enemies.push(new Enemy(preparedEnemy2));
 		Game.enemies.push(new Enemy(preparedEnemy2));
 	},
 

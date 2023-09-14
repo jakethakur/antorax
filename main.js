@@ -4644,31 +4644,31 @@ class Hero extends Attacker {
 				let obj = Game.fishUp.fishable;
 
 				if (obj.giveItem) {
-					fish = obj.giveItem;
+					filteredFish = obj.giveItem;
 				}
 				else {
-					fish = obj;
-					fish.giveItem = false;
+					filteredFish = obj;
+					filteredFish.giveItem = false;
 				}
 
-				fish.clicksToCatch = obj.clicksToCatch;
-				fish.timeToCatch = obj.timeToCatch;
+				filteredFish.clicksToCatch = obj.clicksToCatch;
+				filteredFish.timeToCatch = obj.timeToCatch;
 
 				if (typeof obj.onCatchAdditional !== "undefined") {
-					fish.onCatchAdditional = obj.onCatchAdditional;
+					filteredFish.onCatchAdditional = obj.onCatchAdditional;
 				}
 
 				itemRarity = obj.challengeRarity; // for difficulty of bars
 
 				if (obj.removeOnCatch) {
-					fish.deleteEntityOnCatch = Game.fishUp;
+					filteredFish.deleteEntityOnCatch = Game.fishUp;
 				}
 
-				if (typeof fish.fishingType === "undefined") {
-					fish.fishingType = obj.fishingType;
+				if (typeof filteredFish.fishingType === "undefined") {
+					filteredFish.fishingType = obj.fishingType;
 				}
 
-				fish = {...fish};
+				filteredFish = {...filteredFish};
 			}
 			else if (Player.stats.fishingSkill === 0) {
 				// tutorial

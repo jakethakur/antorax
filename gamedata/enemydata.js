@@ -1318,15 +1318,21 @@ const EnemyTemplates = {
 			lootTableTemplate: [EnemyLootTables.coyoteWrangler],
 			inventorySpace: 16,
 			onDeath: function () {
-				// coyote wrangler killed achievement
-				User.progress.coyoteWranglers = Increment(User.progress.coyoteWranglers);
+                let petArray = Game.enemies.filter(enemy => enemy.name === "Pack Coyote" && enemy.association === "coyotePack");
+                for (let i = 0; i < petArray.length; i++) {
+                    let pet = petArray[i];
+                    pet.setAggro(Game.hero, "unAggro");
+                }
 
-				// coyote wrangler killed achievement
-				Player.quests.questProgress.coyoteWranglers = Increment(Player.quests.questProgress.coyoteWranglers);
+                // coyote wrangler killed achievement
+                User.progress.coyoteWranglers = Increment(User.progress.coyoteWranglers);
 
-				// resetable achievement for quest
-				Player.quests.questProgress.coyoteWranglersQuest = Increment(Player.quests.questProgress.coyoteWranglersQuest);
-			}
+                // coyote wrangler killed achievement
+                Player.quests.questProgress.coyoteWranglers = Increment(Player.quests.questProgress.coyoteWranglers);
+
+                // resetable achievement for quest
+                Player.quests.questProgress.coyoteWranglersQuest = Increment(Player.quests.questProgress.coyoteWranglersQuest);
+            }
 		},
 
 
@@ -1450,10 +1456,10 @@ const EnemyTemplates = {
 				bobTimeMax: 1400,
 				removeOnCatch: true,
 				giveItem: false,
+				fishingType: "watermisc",
 				challengeRarity: "lakeLurkerTail",
 				clicksToCatch: 18,
 				timeToCatch: 3000,
-				fishingType: "watermisc",
 				onCatchAdditional: function () {
 					let boss = Game.enemies.find(enemy => enemy.name === "Lake Lurker");
 					boss.takeDamage(7000, true, "Lake Lurker Tail");
@@ -1492,10 +1498,10 @@ const EnemyTemplates = {
 				bobTimeMax: 1100,
 				removeOnCatch: true,
 				giveItem: false,
+				fishingType: "watermisc",
 				challengeRarity: "lakeLurkerArch",
 				clicksToCatch: "16",
 				timeToCatch: "2500",
-				fishingType: "watermisc",
 				onCatchAdditional: function () {
 					let boss = Game.enemies.find(enemy => enemy.name === "Lake Lurker");
 					boss.takeDamage(12000, true, "Lake Lurker Arch");
@@ -1525,7 +1531,7 @@ const EnemyTemplates = {
 			corpseOnDeath: true,
 			respawnOnDeath: false,
 			lootTableTemplate: [BossLootTables.lakeLurker],
-			inventorySpace: 32,
+			inventorySpace: 48,
 			bossKilledVariable: "lakeLurker",
 			spells: [
 					{
@@ -1538,7 +1544,7 @@ const EnemyTemplates = {
 						},
 						interval: 25000,
 				 },
-      ],
+      		],
 			onDeath: function () {
 				// destroy all things related to the boss
 				let remove = Game.enemies.filter(enemy => enemy.name === "Sea Monster Tail" || enemy.name === "Sea Monster Arch" || enemy.name === "Water Coalesce");
@@ -1550,6 +1556,8 @@ const EnemyTemplates = {
 				if (this.killedByName !== "Lake Lurker Arch" && this.killedByName !== "Lake Lurker Tail") {
 					User.progress.legacyOfCaptainCalaca = true;
 				}
+
+				Game.clearInterval(Areas.eaglecrestWell.intervalToClear);
 			},
 		},
 
@@ -1561,9 +1569,9 @@ const EnemyTemplates = {
 			stats: {
 				damage: 10,
 				walkSpeed: 140,
-				swimSpeed: 180,
+				swimSpeed: 220,
 				iceSpeed: 0,
-				maxHealth: 10,
+				maxHealth: 8,
 				defence: 5,
 				range: 60,
 				reloadTime: 800,
@@ -1594,7 +1602,7 @@ const EnemyTemplates = {
 			crop: {
 				x: 0,
 				y: 0,
-				width: 151,
+				width: 50,
 				height: 98,
 			},
 

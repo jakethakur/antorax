@@ -2943,7 +2943,7 @@ var Quests = {
 			},],
 
 			objectives: [
-				"Lure a <b>Bee Swarm</b> from the Plains flower forest to the farm.",
+				"Lure a <b>Bee Swarm</b> from the Plains flower forest to Farmer Eloise's beehives.",
 				"Speak to <b>Farmer Eloise</b>.",
 			],
 
@@ -2953,16 +2953,19 @@ var Quests = {
 				// true or falses for each objective (apart from the turn-in objective)
 				let objCompleted = false;
 				if (!Player.quests.questProgress.beeCarefulFinished && typeof Game.enemies !== "undefined") {
-					let beeSwarms = Game.enemies.filter(enemy => enemy.name === "Bee Swarm" && enemy.hostility === "hostile");
-					let farmerEloise = Game.npcs.filter(npc => npc.name === "Farmer Eloise")[0];
-					let nearest = Game.closest(beeSwarms, farmerEloise);
-					objCompleted = (Game.distance(nearest, farmerEloise) < 300);
-					if (objCompleted) {
-						Player.quests.questProgress.beeCarefulFinished = true;
+					if(Game.areaName === "eaglecrestPlains")
+					{
+						let beeSwarms = Game.enemies.filter(enemy => enemy.name === "Bee Swarm" && enemy.hostility === "hostile");
+						let farmerEloise = Game.npcs.filter(npc => npc.name === "Farmer Eloise")[0];
+						let nearest = Game.closest(beeSwarms, farmerEloise);
+						objCompleted = (Game.distance(nearest, farmerEloise) < 300);
+						if (objCompleted) {
+							Player.quests.questProgress.beeCarefulFinished = true;
 
-						nearest.attackTargets[Game.hero.id].baseAggro = 0;
-						nearest.attackTargets[Game.hero.id].aggro = 0;
-						nearest.hostility = "neutral";
+							nearest.attackTargets[Game.hero.id].baseAggro = 0;
+							nearest.attackTargets[Game.hero.id].aggro = 0;
+							nearest.hostility = "neutral";
+						}
 					}
 				}
 				else {
@@ -3002,14 +3005,14 @@ var Quests = {
 			startChat: [{
 				text: `The fish numbers seems to bes dwindling agains.`,
 			},{
-				text: `I needs somes bait to gets the fish outs. Gets mes a fish longer thans a metre please ands wes cans ends this.`,
+				text: `I needs somes bait to gets the fish outs. Please gets mes a fish longer thans a metre please ands wes cans ends this.`,
 			},],
 
 			finishName: "Fisher Sharptooth",
 			finishChat: [{
-				text: `Ooohs, yous kills it. The fish shoulds be comings backs nows. Alls the fishers wills be pleased whens yous sees thems next.`,
+				text: `Ooohs, yous kills it. The fish shoulds be comings backs nows. Alls the fishers wills be pleased.`,
 			},{
-				text: `Here's somes <b>gold</b> ands <b>fishing seals</b> fors yours troubles. I'lls sees yous soons.`,
+				text: `Here's somes <b>gold</b> ands a <b>fishing seal</b> fors yours troubles. I'lls sees yous soons.`,
 			},],
 
 			objectives: [
@@ -3034,6 +3037,7 @@ var Quests = {
 			howToStart: "Speak to <strong>Fisher Sharptooth</strong>.",
 			levelRequirement: 5,
 			questRequirements: ["Troubled Waters IV (Big Fish in a Small Pond)"],
+			shareCooldownWith: [{questArea: "eaglecrest", id: 14}],
 
 			rewards: {
 				xp: 50,

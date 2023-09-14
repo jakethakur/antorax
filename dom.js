@@ -1205,6 +1205,8 @@ Dom.chat.timeoutTime = 20; // ms between each character being shown
 // optional properties of object inputs include "onFinish" (function) and "options" (see questdata for format)
 // skippable is whether the text can be skipped by pressing enter
 Dom.chat.npcBanner = function (npc, text, skippable) {
+	//skippable = true;
+
 	Dom.chat.npcBannerReadyToProgress = false;
 
 	// reinit
@@ -1365,7 +1367,7 @@ Dom.chat.chooseOption = function (choice) {
 Dom.chat.npcChatProgress = function (forceProgress, jumpToId) {
 	if (typeof Dom.chat.npcBannerParams !== "undefined" && Dom.chat.npcBannerParams.skippable && !Dom.chat.npcBannerReadyToProgress) {
 		clearTimeout(Dom.chat.npcBannerParams.timeout);
-		Dom.chat.npcBanneriterate(Dom.chat.npcBannerText.length);
+		Dom.chat.npcBannerIterate(Dom.chat.npcBannerText.length);
 	}
 
 	if (Dom.chat.npcBannerReadyToProgress || forceProgress === true) { // current chat has showed

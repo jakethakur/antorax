@@ -31,8 +31,8 @@ FishingGame.startTimingGame = function(difficulty)
 	}
 	else if(difficulty === "junk")
 	{
-		this.totalTimeToReachEnd = 2;
-		this.zoneSize = 20;
+		this.totalTimeToReachEnd = 2.5;
+		this.zoneSize = 22;
 		this.bars = 1; // sets amount of bars that show
 	}
 	else if(difficulty === "common")
@@ -56,7 +56,7 @@ FishingGame.startTimingGame = function(difficulty)
 	else if(difficulty === "lakeLurker")
 	{
 		this.totalTimeToReachEnd = 10;
-		this.zoneSize = 250;
+		this.zoneSize = 300;
 		this.bars = 1;
 	}
 	else if(difficulty === "kingOfHerrings")
@@ -82,8 +82,12 @@ FishingGame.startTimingGame = function(difficulty)
 	// set zone x
 	for(let i = 0; i < this.bars; i++)
 	{
+		if(difficulty === "lakeLurker")
+		{
+			this.x[i] = 150;
+		}
 		// highest value of random + the added number should equal 400, larger added means it appears later on
-		if(i === 0)
+		else if(i === 0)
 		{
 			this.x[i] = Random(0, 150) + 250 + (50 - this.zoneSize); // +250 adds 250 to the x of the random number
 		}
