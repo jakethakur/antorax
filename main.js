@@ -2233,12 +2233,15 @@ class Character extends Thing {
 			}
 
 			// remove existing channelling
-			if (this.channelling === "fishing") {
+			if (this.channelling === "fishing" || typeof this.channelling.fishingType !== "undefined") {
 				// remove fishing bobber
 				Game.removeObject(this.channellingProjectileId, "projectiles");
 				this.channellingProjectileId = null;
 
 				Game.clearTimeout(Game.fishTimeout);
+
+				// end fishing game
+				FishingGame.gameEnd();
 			}
 			else if (this.channelling === "projectile") {
 				if (reason !== "projectileAttackFinished") {
@@ -4700,17 +4703,23 @@ class Hero extends Attacker {
 			}
 			else {
 				// guaranteed to fish up fish if they have bait status effect
-				let usingBait;
+				let usingBait; // i.e. using a positive bait (helps them catch fish)
 				let baitStatusEffectIndex = this.statusEffects.findIndex(statusEffect => statusEffect.title === "Fish bait");
+				let fishingSkill = Player.stats.fishingSkill;
 				if (baitStatusEffectIndex !== -1) { // check if player has a bait status effect
 					if (typeof this.statusEffects[baitStatusEffectIndex].info.skillIncrease !== "undefined" && this.statusEffects[baitStatusEffectIndex].info.skillIncrease>=0) {
 						// helps them catch fish
 						usingBait = true;
 					}
+
+					if (typeof this.statusEffects[baitStatusEffectIndex].info.skillIncrease !== "undefined") {
+						fishingSkill += this.statusEffects[baitStatusEffectIndex].info.skillIncrease;
+					}
+
 					if (typeof this.statusEffects[baitStatusEffectIndex].info.fishPool !== "undefined") {
-						// helps them catch fish
 						fish = this.statusEffects[baitStatusEffectIndex].info.fishPool;
 					}
+
 					this.removeStatusEffect(baitStatusEffectIndex, "used");
 				}
 
@@ -4730,15 +4739,15 @@ class Hero extends Attacker {
 					// can fish up junk
 					raritiesAvailable.push("junk");
 				}
-				if (Player.stats.fishingSkill >= FishingLevels[Player.lootArea] ) {
+				if (fishingSkill >= FishingLevels[Player.lootArea] ) {
 					// can fish up commons
 					raritiesAvailable.push("common");
 				}
-				if (Player.stats.fishingSkill >= FishingLevels[Player.lootArea] + 15) {
+				if (fishingSkill >= FishingLevels[Player.lootArea] + 15) {
 					// can fish up uniques
 					raritiesAvailable.push("unique");
 				}
-				if (Player.stats.fishingSkill >= FishingLevels[Player.lootArea] + 30) {
+				if (fishingSkill >= FishingLevels[Player.lootArea] + 30) {
 					// can fish up mythics
 					raritiesAvailable.push("mythic");
 				}
@@ -5109,7 +5118,7 @@ class Projectile extends Thing {
 
 				if (this.moveTowards !== undefined) {
 					// move towards a position
-					direction = this.bearing(this, this.moveTowards);
+					direction = Game.bearing(this, this.moveTowards);
 				}
 				else if (this.moveDirection !== undefined && this.moveSpeed !== undefined) {
 					// move at a bearing
@@ -6223,7 +6232,12 @@ class NonPlayerAttacker extends Attacker {
 
 						// move normally
 						else {
-							this.move(delta, target);
+							if (typeof this.moveTowards !== "undefined") {
+								this.move(delta, false);
+							}
+							else {
+								this.move(delta, target);
+							}
 							moved = true;
 						}
 
@@ -6261,7 +6275,7 @@ class NonPlayerAttacker extends Attacker {
 	}
 
 	// move towards entity/location (towards parameter)
-	// towards can be set to false if no movement (other than wind) should occur
+	// towards can be set to false if no movement (other than wind) should occur (i.e. if they have a moveTowards (which is handled for entity))
 	move (delta, towards) {
 		// figure out speed
 		this.setSpeed();
@@ -11006,7 +11020,12 @@ Game.update = function (delta) {
 
 			// movement speed
 			let speed = entity.moveTowards.speed; // speed should be specified in the moveTowards if the entity has no speed of its own
-			if (typeof speed === "undefined") {
+			if (typeof speed === "undefined" && typeof entity.moveTowards.time !== "undefined") {
+				let dist = Math.sqrt((entity.x-entity.moveTowards.x)*(entity.x-entity.moveTowards.x) + (entity.y-entity.moveTowards.y)*(entity.y-entity.moveTowards.y));
+				entity.moveTowards.speed = dist / entity.moveTowards.time * 1000;
+				speed = entity.moveTowards.speed;
+			}
+			else if (typeof speed === "undefined") {
 				speed = entity.speed; // uses the entity's own speed by default
 			}
 			// speed scalar due to moveTowards (decimal value)

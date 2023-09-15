@@ -2871,20 +2871,22 @@ Dom.quests.possible = function () {
 					// note that if the quest has not been finished (hence questLastFinished is undefined) the condition will always return false
 					questCanBeStarted = false;
 				}
-				// might share its cooldown with another (usually one-time) quest
-				if (typeof quest.shareCooldownWith !== "undefined") { // array of objects
-					for (let i = 0; i < quest.shareCooldownWith.length; i++) {
-						let checkQuest = quest.shareCooldownWith[i]; // should have questArea and id properties
-						if (Player.quests.questLastFinished[checkQuest.questArea][checkQuest.id] >= GetFullDate()) {
-							questCanBeStarted = false;
-						}
-					}
-				}
 			// repeatables can always be started so no code needed
 			}
+
 			if (quest.reputationRequirements !== undefined) {
 				for (let y = 0; y < Object.keys(quest.reputationRequirements).length; y++) {
 					if (quest.reputationRequirements[Object.keys(quest.reputationRequirements)[y]] > Player.reputation[Object.keys(quest.reputationRequirements)[y]].level) {
+						questCanBeStarted = false;
+					}
+				}
+			}
+
+			// might share its cooldown with another (usually one-time) quest
+			if (typeof quest.shareCooldownWith !== "undefined") { // array of objects
+				for (let i = 0; i < quest.shareCooldownWith.length; i++) {
+					let checkQuest = quest.shareCooldownWith[i]; // should have questArea and id properties
+					if (Player.quests.questLastFinished[checkQuest.questArea][checkQuest.id] >= GetFullDate()) {
 						questCanBeStarted = false;
 					}
 				}

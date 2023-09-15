@@ -1025,14 +1025,16 @@ Spells = [
 					}
 
 					let preparedEnemy = Game.prepareNPC({
-						x: 90,
-						y: 560,
+						//x: 90,
+						//y: 560,
+						x: 15,
+						y: 520,
 						template: EnemyTemplates.nilbog[template],
-						moveTowards: { // walk up stairs
+						/*moveTowards: { // walk up stairs
 							x: 15,
 							y: 520,
 							speedScalar: 0.6,
-						},
+						},*/
 						attackBehaviour: {
 							baseAggro: 100, // always aggroed on player
 						},

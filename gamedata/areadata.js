@@ -4758,6 +4758,7 @@ onPlayerTouch: function () {
 		checkpoint: false,
 
 		lootArea: "eaglecrest",
+		lootTier: 1,
 
 		isIcy: function() {
 			return Event.event === "Christmas";
@@ -5011,6 +5012,7 @@ onPlayerTouch: function () {
 		checkpoint: false,
 
 		lootArea: "eaglecrest",
+		lootTier: 1,
 
 		isIcy: function() {
 			return Event.event === "Christmas";
@@ -5180,6 +5182,7 @@ onPlayerTouch: function () {
 		checkpoint: false,
 
 		lootArea: "eaglecrest",
+		lootTier: 1,
 
 		mapData: {
 			cols: 17,
@@ -5814,7 +5817,8 @@ onPlayerTouch: function () {
 
 		checkpoint: false, // maybs in the future taverns should be the ONLY checkpoints
 
-		lootArea: "eaglecrest", // for level up music
+		lootArea: "eaglecrest",
+		lootTier: 1, // for level up music
 
 		mapData: {
 			cols: 21,
@@ -6527,6 +6531,7 @@ onPlayerTouch: function () {
 		checkpoint: false,
 
 		lootArea: "eaglecrest",
+		lootTier: 1,
 
 		mapData: {
 			cols: 13,
@@ -6733,6 +6738,7 @@ onPlayerTouch: function () {
 		checkpoint: false,
 
 		lootArea: "eaglecrest",
+		lootTier: 1,
 
 		mapData: {
 			cols: 13,
@@ -6975,6 +6981,7 @@ onPlayerTouch: function () {
 		checkpoint: false,
 
 		lootArea: "eaglecrest",
+		lootTier: 1,
 
 		mapData: {
 			cols: 13,
@@ -7398,6 +7405,7 @@ Last I saw him, he was visiting the <b>Eaglecrest Plains</b> to the <b>south</b>
 		checkpoint: false,
 
 		lootArea: "eaglecrest",
+		lootTier: 1,
 
 		isIcy: function() {
 			return Event.event === "Christmas";
@@ -7791,6 +7799,7 @@ Last I saw him, he was visiting the <b>Eaglecrest Plains</b> to the <b>south</b>
 		checkpoint: false,
 
 		lootArea: "eaglecrest",
+		lootTier: 1,
 
 		mapData: {
 			cols: 37,
@@ -8219,6 +8228,7 @@ Last I saw him, he was visiting the <b>Eaglecrest Plains</b> to the <b>south</b>
 		checkpoint: false,
 
 		lootArea: "eaglecrest",
+		lootTier: 1,
 
 		isIcy: function() {
 			return Event.event === "Christmas";
@@ -10239,6 +10249,7 @@ image: 'steppingStone', name: 'Stepping Stone', z: -1, walkable: true,},
 		checkpoint: false,
 
 		lootArea: "eaglecrest",
+		lootTier: 1,
 
 		indoors: true,
 
@@ -10467,6 +10478,7 @@ image: 'steppingStone', name: 'Stepping Stone', z: -1, walkable: true,},
 		checkpoint: false,
 
 		lootArea: "eaglecrest",
+		lootTier: 1,
 
 		indoors: true,
 
@@ -10691,6 +10703,7 @@ image: 'steppingStone', name: 'Stepping Stone', z: -1, walkable: true,},
 		checkpoint: false,
 
 		lootArea: "eaglecrest",
+		lootTier: 1,
 
 		indoors: true,
 
@@ -11057,6 +11070,7 @@ image: 'steppingStone', name: 'Stepping Stone', z: -1, walkable: true,},
 		checkpoint: true,
 
 		lootArea: "eaglecrest",
+		lootTier: 1,
 
 		indoors: true,
 

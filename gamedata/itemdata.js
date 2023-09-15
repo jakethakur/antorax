@@ -1359,6 +1359,7 @@ unidentifiedArea: ["caves"],
 			obtainText: "Can be looted from the Lake Lurker.",
 			stats: {
 				defence: 3,
+				reflection: 20,
 				maxHealth: 10,
 				swimSpeed: 40,
 			},
@@ -5396,7 +5397,7 @@ unidentifiedArea: ["caves"],
 			sellPrice: 2,
 			image: "assets/items/consumable/10.png",
 			functionText: "Sends a bat out to seek out the nearest enemy, dealing 5 damage and stunning them for 1s",
-            cooldown: 15, // 15 seconds
+            cooldown: 5, // 5 seconds
 			maxCharges: 3,
 			onClickFunction: function (inventoryPosition, hotbar) {
 

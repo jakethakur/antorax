@@ -265,8 +265,8 @@ const EnemyTemplates = {
 				range: 300,
 				healthRegen: 0.4,
 				reloadTime: 2000,
-				lootTime: 10000,
-				respawnTime: 11000,
+				lootTime: 15000,
+				respawnTime: 21000,
 				variance: 35,
 				projectileSpeed: 200,
 				projectileStopMovingOnDamage: true,
@@ -307,8 +307,8 @@ const EnemyTemplates = {
 				range: 60,
 				healthRegen: 0.4,
 				reloadTime: 1500,
-				lootTime: 10000,
-				respawnTime: 11000,
+				lootTime: 15000,
+				respawnTime: 21000,
 			},
 			xpGiven: 10,
 			projectile: {
@@ -334,8 +334,8 @@ const EnemyTemplates = {
 				range: 60,
 				healthRegen: 0.4,
 				reloadTime: 2000,
-				lootTime: 10000,
-				respawnTime: 11000,
+				lootTime: 15000,
+				respawnTime: 21000,
 			},
 			xpGiven: 10,
 			projectile: {
@@ -362,8 +362,8 @@ const EnemyTemplates = {
 				reloadTime: 1550,
 				healthRegen: 0.4,
 				flaming: 1,
-				lootTime: 10000,
-				respawnTime: 20000,
+				lootTime: 15000,
+				respawnTime: 30000,
 				projectileSpeed: 200,
 				projectileRange: 400,
 			},
@@ -400,7 +400,7 @@ const EnemyTemplates = {
 				range: 90,
 				healthRegen: 0.4,
 				reloadTime: 1250,
-				lootTime: 10000,
+				lootTime: 15000,
 				respawnTime: 20000,
 			},
 			xpGiven: 35,
@@ -427,7 +427,7 @@ const EnemyTemplates = {
 				range: 60,
 				healthRegen: 0.4,
 				reloadTime: 2000,
-				lootTime: 10000,
+				lootTime: 15000,
 				respawnTime: 20000,
 				stun: 0.2,
 			},
@@ -457,7 +457,7 @@ const EnemyTemplates = {
 				range: 90,
 				healthRegen: 0.4,
 				reloadTime: 1500,
-				lootTime: 20000,
+				lootTime: 50000,
 			},
 			attackBehaviour: {
 				alwaysMove: true, // move even when in range//aaaaaaaaaaaaaaaaaaa
@@ -498,23 +498,29 @@ const EnemyTemplates = {
 				if (dist < 90) {
 					// sword
 					this.stats.range = 90;
-					this.stats.damage = 6;
+					this.stats.damage = 7;
 					this.stats.flaming = undefined;
 					this.projectile.image = "slash";
+					this.projectileType = "instant";
+					this.stats.projectileSpeed = 0;
 				}
-				else if (dist < 210) {
+				else if (Random(0, 1) === 0) {
 					// staff
-					this.stats.range = 210;
-					this.stats.damage = 4;
+					this.stats.range = 1000;
+					this.stats.damage = 6;
 					this.stats.flaming = 1;
+					this.stats.projectileSpeed = 150;
 					this.projectile.image = "fireball";
+					this.projectileType = "travelling";
 				}
 				else {
 					// bow
 					this.stats.range = 1000;
 					this.stats.damage = 4;
 					this.stats.flaming = undefined;
+					this.stats.projectileSpeed = 850;
 					this.projectile.image = "arrow";
+					this.projectileType = "travelling";
 				}
 			},
 			xpGiven: 250,
@@ -1276,7 +1282,7 @@ const EnemyTemplates = {
 				return petArray;
 			},
 			canBeShown: function () {
-				if (typeof Player.quests.questProgress.coyoteWranglers !== "undefined") {
+				if (typeof Player.quests.questProgress.coyoteWranglers === "undefined") {
 					Player.quests.questProgress.coyoteWranglers = 0;
 				}
 				this.stats.maxHealth += Player.quests.questProgress.coyoteWranglers * 10; // scales in health infinitely
@@ -1566,6 +1572,7 @@ const EnemyTemplates = {
 			name: "Water Coalesce",
 			hostility: "hostile",
 			level: 10,
+			critter: true, // not counted for combatant achivements
 			stats: {
 				damage: 10,
 				walkSpeed: 140,
