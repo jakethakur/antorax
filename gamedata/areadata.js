@@ -274,6 +274,7 @@ var Areas = {
 						sold: [
 							{item: Items.currency[2], cost: 1, costCurrency: 3}, // 1 gold
 							{item: Items.bag[4], cost: 10, costCurrency: 3}, // fishing pouch
+							{item: Items.rod[6], cost: 15, costCurrency: 3}, // rod of steel
 						],
 						role: "merchant",
 						chooseText: "I'd like to see what I can buy with fishing seals.",
