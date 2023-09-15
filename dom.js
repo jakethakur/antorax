@@ -2886,7 +2886,7 @@ Dom.quests.possible = function () {
 			if (typeof quest.shareCooldownWith !== "undefined") { // array of objects
 				for (let i = 0; i < quest.shareCooldownWith.length; i++) {
 					let checkQuest = quest.shareCooldownWith[i]; // should have questArea and id properties
-					if (Player.quests.questLastFinished[checkQuest.questArea][checkQuest.id] >= GetFullDate()) {
+					if (typeof Player.quests.questLastFinished[checkQuest.questArea] !== "undefined" && Player.quests.questLastFinished[checkQuest.questArea][checkQuest.id] >= GetFullDate()) {
 						questCanBeStarted = false;
 					}
 				}
