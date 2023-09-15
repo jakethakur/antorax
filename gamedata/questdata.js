@@ -2859,7 +2859,7 @@ var Quests = {
 			},],
 
 			objectives: [
-				"Fish up a fish longer than <b>100cm</b> and return to <b>Fisher Sharptooth</b> to make into bait.",
+				"Fish up a fish longer than <b>100cm</b> and return to <b>Fisher Sharptooth</b> to make it into bait.",
 				"Fish up the <b>King of Herrings</b> located in <b>Eaglecrest Well</b>.",
 				"Talk to <b>Fisher Sharptooth</b>.",
 				"Fish up the <b>Lake Lurker</b> located in <b>Eaglecrest Well</b>.",

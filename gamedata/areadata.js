@@ -12092,7 +12092,7 @@ eaglecrestWell: {
 		},{
 			// rope
 			tiles: [19, 29, 39],
-			animateTime: 200,
+			animateTime: 400,
 		}],
 		objectTiles: [36, 37, 47], // bones
 		layers: [
@@ -12343,7 +12343,7 @@ eaglecrestWell: {
 				if (typeof User.progress.gnomesFound === "undefined") {
 					User.progress.gnomesFound = [];
 				}
-				if (!User.progress.gnomesFound.includes("yellow")) {
+				if (!User.progress.gnomesFound.includes("green")) {
 					Dom.chat.insert("<i>You found a green gnome﹏")
 					User.progress.gnomesFound.push("green");
 				}

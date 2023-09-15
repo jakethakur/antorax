@@ -1666,7 +1666,7 @@ const EnemyTemplates = {
 			inventorySpace: 32,
 			bossKilledVariable: "foxglove",
 			spells: [
-					{
+					/*{
 						id: 25,
 						tier: 1,
 						parameters: function () {
@@ -1675,7 +1675,7 @@ const EnemyTemplates = {
 								};
 						},
 						interval: 25000,
-				 },
+				 },*/
       ],
 		},
 

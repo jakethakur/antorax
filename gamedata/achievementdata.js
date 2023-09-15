@@ -553,7 +553,7 @@ var Achievements = [
 				if (Player.inventory.items[i].rarity === "mythic" && validTypes.includes(Player.inventory.items[i].type)) {
 					let key = Player.inventory.items[i].type + "" + Player.inventory.items[i].id;
 					if (typeof mythics[key] === "undefined") {
-						mythics[key] = 0;
+						mythics[key] = 1;
 					}
 					else {
 						mythics[key]++;
@@ -562,6 +562,9 @@ var Achievements = [
 						}
 					}
 				}
+			}
+			if (typeof User.progress.luckOfSammeProgress === "undefined") {
+				User.progress.luckOfSammeProgress = 0;
 			}
 			if (val > User.progress.luckOfSammeProgress) {
 				User.progress.luckOfSammeProgress = val;

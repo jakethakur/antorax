@@ -11114,7 +11114,6 @@ Game.update = function (delta) {
 					let w = object.image.width / animate.imagesPerRow; // width of an image BEFORE cropping
 					let h = object.image.height / (Math.ceil(animate.totalImages / animate.imagesPerRow));
 					if (typeof animate.baseCrop === "undefined") {
-						// there are borders in the spritesheet that need to be cropped out
 						object.crop = {
 							x: (animate.state % animate.imagesPerRow) * w,
 							y: Math.floor(animate.state / animate.imagesPerRow) * h,
@@ -11123,11 +11122,14 @@ Game.update = function (delta) {
 						}
 					}
 					else {
+						// there are borders in the spritesheet that need to be cropped out
+						w = animate.baseCrop.width;
+						h = animate.baseCrop.height;
 						object.crop = {
 							x: (animate.state % animate.imagesPerRow) * w + animate.baseCrop.x,
 							y: Math.floor(animate.state / animate.imagesPerRow) * h + animate.baseCrop.y,
-							width: animate.baseCrop.width,
-							height: animate.baseCrop.height
+							width: w,
+							height: h
 						}
 					}
 				}
