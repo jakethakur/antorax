@@ -286,6 +286,9 @@ const EnemyLootTables = {
 				4,				// 0
 				0,				// 1
 			],
+			condition: function () {
+				return Player.quests.completedQuestArray.includes("Troubled Waters IV (Big Fish in a Small Pond)");
+			},
 			onLootGenerate: function (item) {
 				item.item = {...item.item};  // remove all references to itemdata in fish variable (otherwise length value changed in this will also affect itemData)!
 				item.item.length = Round(BiasedRandom(item.item.length.min, item.item.length.max, item.item.length.avg, 1));
@@ -301,6 +304,9 @@ const EnemyLootTables = {
 				3,				// 0
 				0,				// 1
 			],
+			condition: function () {
+				return Player.quests.completedQuestArray.includes("Troubled Waters IV (Big Fish in a Small Pond)");
+			},
 			onLootGenerate: function (item) {
 				item.item = {...item.item};  // remove all references to itemdata in fish variable (otherwise length value changed in this will also affect itemData)!
 				item.item.length = Round(BiasedRandom(item.item.length.min, item.item.length.max, item.item.length.avg, 1));
@@ -316,6 +322,9 @@ const EnemyLootTables = {
 				4,				// 0
 				0,				// 1
 			],
+			condition: function () {
+				return Player.quests.completedQuestArray.includes("Troubled Waters IV (Big Fish in a Small Pond)");
+			},
 			onLootGenerate: function (item) {
 				item.item = {...item.item};  // remove all references to itemdata in fish variable (otherwise length value changed in this will also affect itemData)!
 				item.item.length = Round(BiasedRandom(item.item.length.min, item.item.length.max, item.item.length.avg, 1));
@@ -331,6 +340,9 @@ const EnemyLootTables = {
 				4,				// 0
 				0,				// 1
 			],
+			condition: function () {
+				return Player.quests.completedQuestArray.includes("Troubled Waters IV (Big Fish in a Small Pond)");
+			},
 			onLootGenerate: function (item) {
 				item.item = {...item.item};  // remove all references to itemdata in fish variable (otherwise length value changed in this will also affect itemData)!
 				item.item.length = Round(BiasedRandom(item.item.length.min, item.item.length.max, item.item.length.avg, 1));
@@ -346,6 +358,9 @@ const EnemyLootTables = {
 				0.2,			// 0
 				0,				// 1
 			],
+			condition: function () {
+				return Player.quests.completedQuestArray.includes("Troubled Waters IV (Big Fish in a Small Pond)");
+			},
 			onLootGenerate: function (item) {
 				item.item = {...item.item};  // remove all references to itemdata in fish variable (otherwise length value changed in this will also affect itemData)!
 				item.item.length = Round(BiasedRandom(item.item.length.min, item.item.length.max, item.item.length.avg, 1));
@@ -361,6 +376,9 @@ const EnemyLootTables = {
 				0.2,			// 0
 				0,				// 1
 			],
+			condition: function () {
+				return Player.quests.completedQuestArray.includes("Troubled Waters IV (Big Fish in a Small Pond)");
+			},
 			onLootGenerate: function (item) {
 				item.item = {...item.item};  // remove all references to itemdata in fish variable (otherwise length value changed in this will also affect itemData)!
 				item.item.length = Round(BiasedRandom(item.item.length.min, item.item.length.max, item.item.length.avg, 1));
@@ -553,6 +571,17 @@ const EnemyLootTables = {
 			],
 			important: true, //  tbd make this get mailed to the player if they miss it
 		},
+		{ // tiger hide trousers
+			item: Items.greaves[13],
+			condition: function () {
+				// killed the pack 5 times, and the player hasn't obtained this before (note the quest variable is incremented by onDeath, i.e. before the loot is generated)
+				return Player.quests.questProgress.coyoteWranglers > 5;
+			},
+			chance: [
+				20,			// 0
+				0,				// 1
+			],
+		},
 		{ // coyote's devour
 			item: Items.sword[23],
 			condition: function () {
@@ -564,6 +593,17 @@ const EnemyLootTables = {
 				0,				// 1
 			],
 			important: true, //  tbd make this get mailed to the player if they miss it
+		},
+		{ // coyote's devour
+			item: Items.sword[23],
+			condition: function () {
+				// killed the pack 8 times, and the player hasn't obtained this before (note the quest variable is incremented by onDeath, i.e. before the loot is generated, which is why it's 8 not 7)
+				return Player.class === "k" && Player.quests.questProgress.coyoteWranglers > 8;
+			},
+			chance: [
+				20,			// 0
+				0,				// 1
+			],
 		},
 		{ // mud-splattered letter
 			item: Items.item[52],
@@ -815,6 +855,426 @@ const BossLootTables = {
 			item: Items.item[51],
 			chance: [
 				100,			// 0
+				0,				// 1
+			],
+		},
+	],
+	lakeLurker: [
+		{
+			item: Items.greaves[8],
+			chance: [
+				50,			// 0
+				0,				// 1
+			],
+		},
+		{
+			item: Items.boots[23],
+			chance: [
+				30,			// 0
+				0,				// 1
+			],
+		},
+		{
+			item: Items.bow[13],
+			condition: function () {
+				return Player.class === "a";
+			},
+			chance: [
+				25,			// 0
+				0,				// 1
+			],
+		},
+		{ // unidentified item
+			item: {
+				name: "unidentified",
+				tier: 1,
+				area: "eaglecrest",
+			},
+			chance: [
+				25,				// 0
+				0,				// 1
+			],
+		},
+		{ // rusted gold
+			item: Items.fish[14],
+			chance: [
+				100,				// 0
+				50,				// 1
+				2,	//2
+				0, // 3
+			],
+			repeatTimes: 2
+		},
+		{ // frogspawn
+			item: Items.fish[33],
+			chance: [
+				100, //0
+				70,				// 1
+				30,				// 2
+				0, //3
+			],
+			repeatTimes: 3
+		},
+		{ // tadpole
+			item: Items.fish[34],
+			chance: [
+				100,//0
+				60,				// 1
+				50,				// 2
+				45,				// 3
+				25,				// 4
+				15,				// 5
+				5,				// 6
+				0, //7
+			],
+			repeatTimes: 2
+		},
+		{ // water walking pot
+			item: Items.consumable[27],
+			chance: [
+				25,				// 0
+				0,				// 1
+			],
+		},
+		{ // frogfruit
+			item: Items.food[8],
+			chance: [
+				10,				// 0
+				1, //1
+				0,				// 2
+			],
+		},
+		{ // soggy letter
+			item: Items.item[54],
+			chance: [
+				3,			// 0
+				0,				// 1
+			],
+		},
+		{ // soggy tendrils
+			item: Items.fish[23],
+			chance: [
+				80,//0
+				70,				// 1
+				50,				// 2
+				20,				// 3
+				4,				// 4
+				0, //5
+			],
+			repeatTimes: 6
+		},
+		{ // fallfish
+			item: Items.fish[24],
+			chance: [
+				70,				// 0
+				0,				// 1
+			],
+			onLootGenerate: function (item) {
+				item.item = {...item.item};  // remove all references to itemdata in fish variable (otherwise length value changed in this will also affect itemData)!
+				item.item.length = Round(BiasedRandom(item.item.length.min, item.item.length.max, item.item.length.avg, 1));
+				if (item.item.length > User.fish[item.item.id] || typeof User.fish[item.item.id] === "undefined") {
+					User.fish[item.item.id] = item.item.length;
+				}
+				return item;
+			},
+			repeatTimes: 2
+		},
+		{ // grayling
+			item: Items.fish[25],
+			chance: [
+				65,				// 0
+				0,				// 1
+			],
+			onLootGenerate: function (item) {
+				item.item = {...item.item};  // remove all references to itemdata in fish variable (otherwise length value changed in this will also affect itemData)!
+				item.item.length = Round(BiasedRandom(item.item.length.min, item.item.length.max, item.item.length.avg, 1));
+				if (item.item.length > User.fish[item.item.id] || typeof User.fish[item.item.id] === "undefined") {
+					User.fish[item.item.id] = item.item.length;
+				}
+				return item;
+			},
+			repeatTimes: 2
+		},
+		{ // rudd
+			item: Items.fish[26],
+			chance: [
+				60,				// 0
+				0,				// 1
+			],
+			onLootGenerate: function (item) {
+				item.item = {...item.item};  // remove all references to itemdata in fish variable (otherwise length value changed in this will also affect itemData)!
+				item.item.length = Round(BiasedRandom(item.item.length.min, item.item.length.max, item.item.length.avg, 1));
+				if (item.item.length > User.fish[item.item.id] || typeof User.fish[item.item.id] === "undefined") {
+					User.fish[item.item.id] = item.item.length;
+				}
+				return item;
+			},
+			repeatTimes: 2
+		},
+		{ // weatherfish
+			item: Items.fish[27],
+			chance: [
+				65,				// 0
+				0,				// 1
+			],
+			onLootGenerate: function (item) {
+				item.item = {...item.item};  // remove all references to itemdata in fish variable (otherwise length value changed in this will also affect itemData)!
+				item.item.length = Round(BiasedRandom(item.item.length.min, item.item.length.max, item.item.length.avg, 1));
+				if (item.item.length > User.fish[item.item.id] || typeof User.fish[item.item.id] === "undefined") {
+					User.fish[item.item.id] = item.item.length;
+				}
+				return item;
+			},
+			repeatTimes: 2
+		},
+		{ // asp
+			item: Items.fish[28],
+			chance: [
+				30,			// 0
+				0,				// 1
+			],
+			onLootGenerate: function (item) {
+				item.item = {...item.item};  // remove all references to itemdata in fish variable (otherwise length value changed in this will also affect itemData)!
+				item.item.length = Round(BiasedRandom(item.item.length.min, item.item.length.max, item.item.length.avg, 1));
+				if (item.item.length > User.fish[item.item.id] || typeof User.fish[item.item.id] === "undefined") {
+					User.fish[item.item.id] = item.item.length;
+				}
+				return item;
+			},
+			repeatTimes: 2
+		},
+		{ // ide
+			item: Items.fish[29],
+			chance: [
+				30,			// 0
+				0,				// 1
+			],
+			onLootGenerate: function (item) {
+				item.item = {...item.item};  // remove all references to itemdata in fish variable (otherwise length value changed in this will also affect itemData)!
+				item.item.length = Round(BiasedRandom(item.item.length.min, item.item.length.max, item.item.length.avg, 1));
+				if (item.item.length > User.fish[item.item.id] || typeof User.fish[item.item.id] === "undefined") {
+					User.fish[item.item.id] = item.item.length;
+				}
+				return item;
+			},
+			repeatTimes: 2
+		},
+		{ // skeleton fish
+			item: Items.fish[38],
+			chance: [
+				65,			// 0
+				0,				// 1
+			],
+			onLootGenerate: function (item) {
+				item.item = {...item.item};  // remove all references to itemdata in fish variable (otherwise length value changed in this will also affect itemData)!
+				item.item.length = Round(BiasedRandom(item.item.length.min, item.item.length.max, item.item.length.avg, 1));
+				if (item.item.length > User.fish[item.item.id] || typeof User.fish[item.item.id] === "undefined") {
+					User.fish[item.item.id] = item.item.length;
+				}
+				return item;
+			},
+			repeatTimes: 4
+		},
+		{ // fish bones
+			item: Items.fish[39],
+			chance: [
+				85,			// 0
+				60, // 1
+				40, // 2
+				10, // 3
+				0,				// 4
+			],
+			repeatTimes: 5
+		},
+	],
+	foxglove: [
+		{ // unidentified item
+			item: {
+				name: "unidentified",
+				tier: 1,
+				area: "eaglecrest",
+			},
+			chance: [
+				100,				// 0
+				30,				// 1
+				5, 				//2
+				0,				// 3
+			],
+		},
+		{ // gold
+			item: Items.currency[2],
+			chance: [
+				100,				// 0
+				100, 			//1
+				80,			//2
+				70, 		//3
+				50, //4
+				20, //5
+				0,				// 6
+			],
+		},
+		{ // bee sting
+			item: Items.item[62],
+			chance: [
+				20,				// 0
+				0,				// 1
+			],
+		},
+		{ // honey
+			item: Items.consumable[36],
+			chance: [
+				4,				// 0
+				0,				// 1
+			],
+		},
+		{ // crumpled letter
+			item: Items.item[53],
+			chance: [
+				3,			// 0
+				0,				// 1
+			],
+		},
+		{ // flower
+			item: Items.item[30],
+			chance: [
+				60,			// 0
+				45,	//1
+				32,	//2
+				14,	//3
+				5,	//4
+				0,				// 5
+			],
+		},
+		{ // flower
+			item: Items.item[31],
+			chance: [
+				60,			// 0
+				45,	//1
+				32,	//2
+				14,	//3
+				5,	//4
+				0,				// 5
+			],
+		},
+		{ // flower
+			item: Items.item[32],
+			chance: [
+				60,			// 0
+				45,	//1
+				32,	//2
+				14,	//3
+				5,	//4
+				0,				// 5
+			],
+		},
+		{ // flower
+			item: Items.item[55],
+			chance: [
+				60,			// 0
+				45,	//1
+				32,	//2
+				14,	//3
+				5,	//4
+				0,				// 5
+			],
+		},
+		{ // flower
+			item: Items.item[63],
+			chance: [
+				60,			// 0
+				45,	//1
+				32,	//2
+				14,	//3
+				5,	//4
+				0,				// 5
+			],
+		},
+		{ // flower
+			item: Items.item[64],
+			chance: [
+				60,			// 0
+				45,	//1
+				32,	//2
+				14,	//3
+				5,	//4
+				0,				// 5
+			],
+		},
+		{ // flower
+			item: Items.item[65],
+			chance: [
+				60,			// 0
+				45,	//1
+				32,	//2
+				14,	//3
+				5,	//4
+				0,				// 5
+			],
+		},
+		{ // flower
+			item: Items.item[66],
+			chance: [
+				60,			// 0
+				45,	//1
+				32,	//2
+				14,	//3
+				5,	//4
+				0,				// 5
+			],
+		},
+		{ // flower
+			item: Items.item[67],
+			chance: [
+				60,			// 0
+				45,	//1
+				32,	//2
+				14,	//3
+				5,	//4
+				0,				// 5
+			],
+		},
+		{ // flower
+			item: Items.item[68],
+			chance: [
+				60,			// 0
+				45,	//1
+				32,	//2
+				14,	//3
+				5,	//4
+				0,				// 5
+			],
+		},
+		{ // flower crown
+			item: Items.helm[29],
+			chance: [
+				50,			// 0
+				0,				// 1
+			],
+		},
+		{ // ostara
+			item: Items.boots[16],
+			chance: [
+				25,			// 0
+				0,				// 1
+			],
+		},
+		{
+			item: Items.sword[20],
+			condition: function () {
+				return Player.class === "k";
+			},
+			chance: [
+				40,			// 0
+				0,				// 1
+			],
+		},
+		{
+			item: Items.bow[14],
+			condition: function () {
+				return Player.class === "a";
+			},
+			chance: [
+				20,			// 0
 				0,				// 1
 			],
 		},

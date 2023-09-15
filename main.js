@@ -1022,9 +1022,14 @@ Game.removeObject = function (id, type, index) {
 	// find the class of the object from its type
 	let className = this.typeClasses[type];
 
+	// find object
+	let i = this.searchFor(id, this.allEntities);
+	let obj = this.allEntities[i];
+	obj.removed = true; // used to stop further code in the object from being run after it is removed
+
 	// every object is an entity
 	// remove from allEntities
-	this.allEntities.splice(this.searchFor(id, this.allEntities), 1);
+	this.allEntities.splice(i, 1);
 
 	if (className.prototype instanceof Visible || className.name === "Visible") {
 		// extends off Thing or is Thing
@@ -1276,6 +1281,9 @@ class Entity {
 		this.width = properties.width;
 		this.height = properties.height;
 
+		// optional function for when space is pressed when touching
+		this.onInteract = properties.onInteract;
+
 		// for if it can be mounted.. mountee position relative to this
 		this.rideAdjustX = properties.rideAdjustX || 0;
 		this.baseRideAdjustX = this.rideAdjustX;
@@ -1374,7 +1382,10 @@ class Entity {
 		// onCatchAdditional is a function that's always called
 		// also needs a fishingType, which is set to waterMisc by default. this effects the fishing skill gained and other fishing behaviour
 		if (typeof this.fishable !== "undefined" && typeof this.fishable.fishingType === "undefined") {
-			this.fishable.fishingType = "waterMisc";
+			this.fishable.fishingType = "watermisc";
+		}
+		if (typeof this.fishable !== "undefined" && typeof this.fishable.name === "undefined") {
+			this.fishable.name = properties.name;
 		}
 
 
@@ -1660,9 +1671,6 @@ class Visible extends Entity {
 
 		this.transparency = properties.transparency; // global alpha that it should be drawn with (1 = opaque, 0 = transparent)
 
-		// optional function for when space is pressed when touching
-		this.onInteract = properties.onInteract;
-
 		if (properties.addToObjectArrays !== false) {
 			Game.allVisibles.push(this); // array for current area only
 		}
@@ -1705,6 +1713,14 @@ class Thing extends Visible {
 		// otherwise npc would be made hidden by the next block of code
 		if (properties.image === undefined && properties.rotationImages !== undefined) {
 			properties.image = properties.rotationImages.left || properties.rotationImages.forward;
+		}
+
+		if (properties.image === undefined && properties.images !== undefined) {
+			// multiple images included in an array, to be rendered on top of each other
+			this.additionalImages = properties.images;
+			properties.image = this.additionalImages.shift();
+			properties.image = properties.image.imageName;
+			this.setAdditionalImages(this.additionalImages);
 		}
 
 		if (properties.image !== undefined) {
@@ -1785,6 +1801,7 @@ class Thing extends Visible {
 
 		this.canBePickedUp = properties.canBePickedUp || false; // player can press space to channel and pick up
 		// if it can be picked up, it should be an object with properties "channelTime" (ms), "itemType" (i.e. "sword"), "itemId" (in itemdata), "channelText" (optional), "inventoryFullText" (optional), "onPickUp" (optional)
+		// optional property additionalFunction which is only called on pick up success
 		if (this.canBePickedUp !== false) {
 			if (typeof this.onInteract === "undefined") {
 				let channelText = this.canBePickedUp.channelText || "Picking item up";
@@ -1793,6 +1810,8 @@ class Thing extends Visible {
 				let pickUpProperties = this.canBePickedUp;
 				let removeId = this.id;
 				let removeType = this.type;
+
+				let additionalFunction = properties.canBePickedUp.additionalFunction; // only called on success
 
 				let channelFunction = function () {
 					if (Dom.inventory.give(Items[pickUpProperties.itemType][pickUpProperties.itemId]) === false) {
@@ -1804,6 +1823,10 @@ class Thing extends Visible {
 						}
 						// remove this object from the map
 						Game.removeObject(removeId, removeType);
+
+						if (typeof additionalFunction !== "undefined") {
+							additionalFunction();
+						}
 					}
 				}
 
@@ -1847,6 +1870,22 @@ class Thing extends Visible {
 			if (this.setRotationImageVariables !== undefined && rotationImages !== false) {
 				this.setRotationImageVariables(rotationImages);
 			}
+		}
+	}
+
+	// images to be rendered on top of the main image
+	// crop etc is inherited from main image
+	setAdditionalImages (additionalImageArray) {
+		this.additionalImages = [];
+
+		for (let i = 0; i < additionalImageArray.length; i++) {
+			let imageObject = Loader.getImageInfo(additionalImageArray[i].imageName);
+			this.additionalImages.push({
+				image: imageObject.img,
+				imageSrc: imageObject.src,
+				doNotAnimate: additionalImageArray[i].doNotAnimate, // optional
+				// more tbd ?
+			})
 		}
 	}
 
@@ -2156,6 +2195,17 @@ class Character extends Thing {
 
 		this.statusEffects = [];
 		this.numberOfHiddenStatusEffects = 0; // number of status effects that aren't shown (for displaying status effects)
+
+		if (typeof properties.stats.stunned !== "undefined") {
+			// stunned on spawn
+			Game.statusEffects.stun({
+				target: this,
+				time: properties.stats.stunned,
+				effectTitle: "Stunned",
+				effectDescription: "Stunned",
+			});
+		}
+
 
 		if (properties.addToObjectArrays !== false) {
 			Game.allCharacters.push(this); // array for current area only
@@ -2538,8 +2588,9 @@ class Character extends Thing {
 
 	// take damage
 	// damagedByHero is true or false depending on whether it was damaged by the hero
+	// damagedByName is the name of what damaged this (attacker.name) - optional, just for achievement use currently
 	// successiveExplosions is for thermal runaway achivement
-	takeDamage (damage, damagedByHero, successiveExplosions) {
+	takeDamage (damage, damagedByHero, damagedByName, successiveExplosions) {
 		this.healthBeforeDamage = this.health; // currently unused, updated after each damage
 		this.damageProportionTaken = damage / this.health;
 
@@ -2562,6 +2613,8 @@ class Character extends Thing {
 				// death ! !
 
 				let inMinigame = Game.minigameInProgress !== undefined && Game.minigameInProgress.playing; // no xp, achievement or quest progress, etc. whilst in minigame
+
+				this.killedByName = damagedByName;
 
 				// xp
 				if (!inMinigame && this.xpGiven !== undefined && this.damageTakenFromHero) {
@@ -3326,12 +3379,16 @@ class Attacker extends Character {
 		// information about projectile (how it looks)
 		// only supported for enemies - should be updated to work for player as well (TBD TBD!!!)
 		this.projectile = {};
-		this.projectile.image = properties.projectile.image;
-		// not necessary (can be left as undefined to just fit to projectile image size)
-		this.projectile.width = properties.projectile.width;
-		this.projectile.height = properties.projectile.height;
-		// not necessary (defaults to x: 0 and y: 0 later on if it is undefined)
-		this.projectile.adjust = properties.projectile.adjust || {};
+		if(typeof properties.projectile !== "undefined")
+		{
+			this.projectile.image = properties.projectile.image;
+			// not necessary (can be left as undefined to just fit to projectile image size)
+			this.projectile.width = properties.projectile.width;
+			this.projectile.height = properties.projectile.height;
+			// not necessary (defaults to x: 0 and y: 0 later on if it is undefined)
+			this.projectile.adjust = properties.projectile.adjust || {};
+		}
+
 
 		this.canAttack = true; // check attack is not reloading
 
@@ -3690,6 +3747,9 @@ class Hero extends Attacker {
 			this.x += dirx * this.speed * delta;
 			this.y += diry * this.speed * delta;
 
+			// for walking anim
+			this.totalDistanceWalked += Math.sqrt((dirx * this.speed * delta)*(dirx * this.speed * delta) + (diry * this.speed * delta)*(diry * this.speed * delta))
+
 			// tutorial (from beginning of game)
 			if (Player.tutorialProgress === 0 && typeof Game.tutorialTimeout === "undefined") {
 				Game.tutorialTimeout === Game.setTimeout(Dom.instructions.page, 2000, 1);
@@ -4000,7 +4060,7 @@ class Hero extends Attacker {
 						let fishableEntities = Game.allEntities.filter(entity => typeof entity.fishable !== "undefined");
 						let fishUp = undefined;
 						for (let i = 0; i < fishableEntities.length; i++) {
-							if (Game.isTouching({x: mouseX, y: mouseY}, fishableEntities[i])) {
+							if (fishableEntities[i].isTouching({x: mouseX, y: mouseY, width: 10, height: 10})) {
 								// currently just takes first fishable entity
 								fishUp = fishableEntities[i];
 								break;
@@ -4052,7 +4112,15 @@ class Hero extends Attacker {
 							bobber.bobberState = 0;
 
 							// timer until it starts bobbing
-							let bobTime = Random(2000, 15000);
+							let bobTimeMin = 2000;
+							let bobTimeMax = 15000;
+							if (typeof Game.fishUp !== "undefined" && typeof Game.fishUp.fishable !== "undefined" && typeof Game.fishUp.fishable.bobTimeMin !== "undefined") {
+								bobTimeMin = Game.fishUp.fishable.bobTimeMin;
+							}
+							if (typeof Game.fishUp !== "undefined" && typeof Game.fishUp.fishable !== "undefined" && typeof Game.fishUp.fishable.bobTimeMax !== "undefined"){
+								bobTimeMax = Game.fishUp.fishable.bobTimeMax;
+							}
+							let bobTime = Random(bobTimeMin, bobTimeMax);
 							if (Weather.weatherType === "rain" && !Areas[Game.areaName].indoors) {
 								// shorter bobTime if it is raining
 								bobTime = Math.round(bobTime / 1.5);
@@ -4130,8 +4198,17 @@ class Hero extends Attacker {
 											if (fishLength / 100 >= 2) {
 												clicks += 4;
 												//fishLength -= 400;
-												console.error("this.channelling length " + this.channelling.length + " is not accounted for being so large!");
+
+												if (fishLength / 200 >= 2) {
+													clicks += 4;
+													console.error("this.channelling length " + this.channelling.length + " is not accounted for being so large!");
+												}
+												else {
+													clicks += Math.floor(fishLength / 200);
+												}
+
 											}
+
 											else {
 												clicks += Math.floor(fishLength / 100);
 											}
@@ -4210,8 +4287,11 @@ class Hero extends Attacker {
 							Player.quests.questProgress.itemsFishedUp = Increment(Player.quests.questProgress.itemsFishedUp);
 
 							// for quest progress etc
-							if (typeof Areas[Game.areaName].onFishCaught !== "undefined") {
+							if (this.channelling.fishingType === "fish" && typeof Areas[Game.areaName].onFishCaught !== "undefined") {
 								Areas[Game.areaName].onFishCaught();
+							}
+							if (typeof Areas[Game.areaName].onItemCaught !== "undefined") {
+								Areas[Game.areaName].onItemCaught();
 							}
 
 							// chat message
@@ -4569,7 +4649,8 @@ class Hero extends Attacker {
 		if (FishingGame.status === 0)
 		{
 			// fish hasn't even been decided yet! let's do that now
-			let fish = [];
+			let fish = []; // array of fish to be picked from
+			let filteredFish = {}; // the fish that has been chosen from fish array
 			let itemRarity;
 
 			if (typeof Game.fishUp !== "undefined") {
@@ -4577,28 +4658,31 @@ class Hero extends Attacker {
 				let obj = Game.fishUp.fishable;
 
 				if (obj.giveItem) {
-					fish = obj.giveItem;
+					filteredFish = obj.giveItem;
 				}
 				else {
-					fish = {giveItem: false,};
+					filteredFish = obj;
+					filteredFish.giveItem = false;
 				}
 
-				fish.clicksToCatch = obj.clicksToCatch;
-				fish.timeToCatch = obj.timeToCatch;
+				filteredFish.clicksToCatch = obj.clicksToCatch;
+				filteredFish.timeToCatch = obj.timeToCatch;
 
 				if (typeof obj.onCatchAdditional !== "undefined") {
-					fish.onCatchAdditional = obj.onCatchAdditional;
+					filteredFish.onCatchAdditional = obj.onCatchAdditional;
 				}
 
 				itemRarity = obj.challengeRarity; // for difficulty of bars
 
 				if (obj.removeOnCatch) {
-					fish.deleteEntityOnCatch = Game.fishUp;
+					filteredFish.deleteEntityOnCatch = Game.fishUp;
 				}
 
-				if (typeof fish.fishingType === "undefined") {
-					fish.fishingType = obj.fishingType;
+				if (typeof filteredFish.fishingType === "undefined") {
+					filteredFish.fishingType = obj.fishingType;
 				}
+
+				filteredFish = {...filteredFish};
 			}
 			else if (Player.stats.fishingSkill === 0) {
 				// tutorial
@@ -4619,7 +4703,7 @@ class Hero extends Attacker {
 				let usingBait;
 				let baitStatusEffectIndex = this.statusEffects.findIndex(statusEffect => statusEffect.title === "Fish bait");
 				if (baitStatusEffectIndex !== -1) { // check if player has a bait status effect
-					if (this.statusEffects[baitStatusEffectIndex].info.skillIncrease>=0) {
+					if (typeof this.statusEffects[baitStatusEffectIndex].info.skillIncrease !== "undefined" && this.statusEffects[baitStatusEffectIndex].info.skillIncrease>=0) {
 						// helps them catch fish
 						usingBait = true;
 					}
@@ -4630,8 +4714,10 @@ class Hero extends Attacker {
 					this.removeStatusEffect(baitStatusEffectIndex, "used");
 				}
 
-				if (typeof fish !== "undefined") {
+				let usingBaitPool = false;
+				if (typeof fish !== "undefined" && (!Array.isArray(fish) || fish.length > 0)) {
 					// fish pool has already been specified by bait
+					usingBaitPool = true;
 				}
 				else {
 					fish = Items.fish;
@@ -4640,7 +4726,11 @@ class Hero extends Attacker {
 				// find what rarities the player can fish up
 				// junk is fished up in the proportion not unlocked by common/unique/mythic
 				let raritiesAvailable = [];
-					if (Player.stats.fishingSkill >= FishingLevels[Player.lootArea] ) {
+				if (!usingBait) {
+					// can fish up junk
+					raritiesAvailable.push("junk");
+				}
+				if (Player.stats.fishingSkill >= FishingLevels[Player.lootArea] ) {
 					// can fish up commons
 					raritiesAvailable.push("common");
 				}
@@ -4652,13 +4742,9 @@ class Hero extends Attacker {
 					// can fish up mythics
 					raritiesAvailable.push("mythic");
 				}
-				if (!usingBait) {
-					// can fish up junk
-					raritiesAvailable.push("junk");
-				}
 
 				// repeat the following until a valid fish is found ..
-				while (typeof fish.id === "undefined") {
+				while (typeof filteredFish.id === "undefined") {
 					// pick a random rarity from the raritiesAvailable array
 					let RandomNum = Random(1, 20);
 					itemRarity = "";
@@ -4679,43 +4765,44 @@ class Hero extends Attacker {
 					}
 					// check if the player has unlocked that rarity, otherwise give them a junk item
 					if (!raritiesAvailable.includes(itemRarity)) {
-						if (!usingBait) {
-							itemRarity = "junk";
-						}
-						else {
-							// guaranteed fish with bait
-							itemRarity = "common";
-						}
+						itemRarity = raritiesAvailable[0];
 					}
 
 					// find the fish that should be caught
-					fish = Items.fish;
-					fish = fish.filter(item => item.areas.includes(Player.lootArea) || item.areas.includes(Game.areaName) || item.areas.length === 0); // filter for area (either lootArea or areaName)
-					fish = fish.filter(item => item.rarity === itemRarity); // filter for rarity
-					fish = fish.filter(item => item.timeRequirement === undefined || Event.time === item.timeRequirement); // filter for time that it can be fished up
-					fish = fish.filter(item => item.catchRequirement === undefined || item.catchRequirement()); // filter for general fishing requirement
+					filteredFish = fish.filter(item => item.areas.includes(Player.lootArea) || item.areas.includes(Game.areaName) || item.areas.length === 0); // filter for area (either lootArea or areaName)
+					filteredFish = filteredFish.filter(item => item.rarity === itemRarity); // filter for rarity
+					filteredFish = filteredFish.filter(item => item.onlyFromBaitPool === undefined || usingBaitPool); // filter for rarity
+					filteredFish = filteredFish.filter(item => item.timeRequirement === undefined || Event.time === item.timeRequirement); // filter for time that it can be fished up
+					filteredFish = filteredFish.filter(item => item.catchRequirement === undefined || item.catchRequirement()); // filter for general fishing requirement
 					if (usingBait) {
 						// can't get watermisc
-						fish = fish.filter(item => item.fishingType === "fish");
+						filteredFish = filteredFish.filter(item => item.fishingType === "fish");
 					}
 
-					if (fish.constructor === Array) {
+					if (filteredFish.constructor === Array) {
 						// still more fish to pick from
-						fish = fish[Random(0, fish.length - 1)]; // Random fish that fulfils requirements above
+						filteredFish = filteredFish[Random(0, filteredFish.length - 1)]; // Random fish that fulfils requirements above
 					}
 
-					if (typeof fish === "undefined" || typeof fish.id === "undefined") {
+					if (typeof filteredFish === "undefined" || typeof filteredFish.id === "undefined") {
 						// no fish exists! Must have filtered it too much (maybe a certain rarity doesn't exist)
-						raritiesAvailable = ["junk", "common"];
+						let index = raritiesAvailable.findIndex(rarity => rarity === itemRarity);
+						raritiesAvailable.splice(index, 1);
+						filteredFish = {};
 					}
 				}
-				fish = { ...fish }; // remove all references to itemdata in fish variable (otherwise length value changed in this will also affect itemData)!
+				filteredFish = { ...filteredFish }; // remove all references to itemdata in fish variable (otherwise length value changed in this will also affect itemData)!
 			}
 
-			this.channelling = fish;
+			this.channelling = filteredFish;
+
+			let difficulty = itemRarity; // rarity of first minigame only
+			if (typeof filteredFish.barGameDifficulty !== "undefined") {
+				difficulty = filteredFish.barGameDifficulty;
+			}
 
 			// fishing minigame is not active, so start it
-			FishingGame.startTimingGame(itemRarity);
+			FishingGame.startTimingGame(difficulty);
 
 			this.fish(); // recursively update bobber!
 		}
@@ -4734,7 +4821,9 @@ class Hero extends Attacker {
 				});
 
 				// bob back down
-				let bobTime = Random(300, 1300);
+				let bobTimeMin = 300;
+				let bobTimeMax = 1300;
+				let bobTime = Random(bobTimeMin, bobTimeMax);
 				Game.fishTimeout = Game.setTimeout(this.fish.bind(this), bobTime);
 			}
 
@@ -4813,40 +4902,24 @@ class Hero extends Attacker {
 	// called after this.direction is updated
 	// +1 or +3 are because of padding in spritesheet (see comment at top of skindata.js)
 	updateRotation () {
-		if (this.direction === 1) {
-			this.crop = {
-				x: 1,
-				y: this.baseHeight+3,
-				width: this.baseWidth,
-				height: this.baseHeight
-			};
+		if (this.direction === 1) { // facing up
+			this.crop.y = this.baseHeight*2;
+			this.animation.baseCrop.y = this.baseHeight*2;
 		}
 
-		else if (this.direction === 2) {
-			this.crop = {
-				x: this.baseWidth+3,
-				y: this.baseHeight+3,
-				width: this.baseWidth,
-				height: this.baseHeight
-			};
+		else if (this.direction === 2) { // facing left
+			this.crop.y = this.baseHeight*3;
+			this.animation.baseCrop.y = this.baseHeight*3;
 		}
 
-		else if (this.direction === 3) {
-			this.crop = {
-				x: 1,
-				y: 1,
-				width: this.baseWidth,
-				height: this.baseHeight
-			};
+		else if (this.direction === 3) { // facing down
+			this.crop.y = 0;
+			this.animation.baseCrop.y = 0;
 		}
 
-		else if (this.direction === 4) {
-			this.crop = {
-				x: this.baseWidth+3,
-				y: 1,
-				width: this.baseWidth,
-				height: this.baseHeight
-			};
+		else if (this.direction === 4) { // facing right
+			this.crop.y = this.baseHeight;
+			this.animation.baseCrop.y = this.baseHeight;
 		}
 	}
 
@@ -5352,7 +5425,9 @@ class Projectile extends Thing {
 						}
 
 						// now apply overall attack damage modifier (a constant value, decided by devs and not affected by anything ingame)
-						dmgDealt *= AttackConstants[Game.getAttackType()].damageMultiplier;
+						if (attacker.constructor.name === "Hero") {
+							dmgDealt *= AttackConstants[Game.getAttackType()].damageMultiplier;
+						}
 
 
 						// stuff to be done before dealing damage ...
@@ -5363,7 +5438,7 @@ class Projectile extends Thing {
 						}
 
 						// deal the damage!
-						target.takeDamage(dmgDealt, attacker.createdByPlayer, this.successiveExplosions); // third param is just for an achivement to do with exploding
+						target.takeDamage(dmgDealt, attacker.createdByPlayer, attacker.name, this.successiveExplosions); // third param is just for an achivement to do with exploding
 						this.damageDealt.push({enemy: target, damage: dmgDealt, critical: critical});
 
 						// check they still exist
@@ -5503,7 +5578,7 @@ class Projectile extends Thing {
 
 						// ohHit function for projectile
 						if (typeof this.onHit !== "undefined") {
-							this.onHit(target, this.attacker);
+							this.onHit(target, this.attacker, this);
 						}
 
 						if (target.constructor.name === "Hero" || attacker.constructor.name === "Hero") {
@@ -6289,19 +6364,22 @@ class NonPlayerAttacker extends Attacker {
 
 		Game.projectiles.push(shotProjectile); // add projectile to array of projectiles
 
-		// onAttack function for enemy
-		if (this.stats.onAttack !== undefined) {
-			this.stats.onAttack();
+		// check it didn't die lolll
+		if (!this.removed) {
+			// onAttack function for enemy
+			if (this.stats.onAttack !== undefined) {
+				this.stats.onAttack();
+			}
+
+			// wait to shoot next projectile
+			Game.setTimeout(function () {
+				this.canAttack = true;
+			}.bind(this), this.stats.reloadTime);
+
+			// after a timeout (2s), remove the projectile that was just shot
+			// taken from Player
+			this.channellingProjectileId = null;
 		}
-
-		// wait to shoot next projectile
-		Game.setTimeout(function () {
-			this.canAttack = true;
-		}.bind(this), this.stats.reloadTime);
-
-		// after a timeout (2s), remove the projectile that was just shot
-		// taken from Player
-		this.channellingProjectileId = null;
 	}
 
 	// calculates target to move towards & attack from aggro and distances
@@ -6697,6 +6775,7 @@ class Camera extends Entity {
 						// speed should vary based on distance to location (fastest at midpoint)
 						let panDistance = Game.distance(this, this.panMidpoint);
 						let distanceFraction = panDistance / (this.panDistanceTotal/2);
+						distanceFraction = Math.min(distanceFraction,1);
 						speed *= 0.5 + (1-distanceFraction);
 					}
 
@@ -8174,8 +8253,33 @@ Game.minigameReset = function () {
 Game.loadDefaultImages = function () {
 	let toLoad = [];
 
+// temp:
+	let clothingName;
+	let clothingColours = [];
+	switch (Player.class) {
+		case "m":
+			clothingName = "mageCloak";
+			clothingColours = ["Amethyst", "Aquamarine", "Emerald", "Lapis", "Onyx", "Pearl", "Quartz", "Ruby"];
+			break;
+
+		case "a":
+			clothingName = "archerCoat";
+			clothingColours = ["Crow", "Falcon", "Flamingo", "Hibiscus", "Ivy", "Lavender", "Lily", "Rose"];
+			break;
+
+		case "k":
+			clothingName = "knightArmour";
+			clothingColours = ["Cobalt", "Copper", "Listerine", "Obsidian", "Pink", "Platinum", "Titanium", "Verdigris"];
+			break;
+	}
+	Player.skinTone = "humanLight1";
+	Player.clothing = clothingName + clothingColours[Random(0, clothingColours.length-1)];
+	Player.hair = "longSpikyBrown";
+
 	// load image based on class
-	toLoad.push(Loader.loadImage("player"+Player.class+Player.skin, "./assets/player/" + Player.class + Player.skin + ".png", false));
+	toLoad.push(Loader.loadImage("player_"+Player.skinTone, "./assets/playerCustom/skinTone/" + Player.skinTone + ".png", false));
+	toLoad.push(Loader.loadImage("player_"+Player.clothing, "./assets/playerCustom/clothing/" + Player.clothing + ".png", false));
+	toLoad.push(Loader.loadImage("player_"+Player.hair, "./assets/playerCustom/hair/" + Player.hair + ".png", false));
 
 	// load class' default projectile
 	toLoad.push(Loader.loadImage(this.heroProjectileName, "./assets/projectiles/" + this.heroProjectileName + ".png", false));
@@ -8408,6 +8512,9 @@ Game.loadArea = function (areaName, destination) {
 		this.walkableObjects = []; // moving platforms etc (things with .walkable as true)
 		this.allShapes = [];
 
+		// list of objects to be animated (with a .animation object - see Thing constructor for a breakdown of this object's properties)
+		this.animationList = [];
+
 		// init game (if it hasn't been done so already)
 		let init = false; // set to if this is the first areaTeleport of the game
 		if (this.hero === undefined) {
@@ -8416,6 +8523,9 @@ Game.loadArea = function (areaName, destination) {
 		}
 		else {
 			// code to be called when area is accessed due to area teleport (not game load)
+
+			// readd the hero's animation to animationList
+			this.animationList.push(this.hero);
 
 			// reset weather
 			if (document.getElementById("weatherOn").checked) {
@@ -8465,10 +8575,8 @@ Game.loadArea = function (areaName, destination) {
 			mounts: Mount,
 			shapes: Shape,
 			nonPlayerAttackers: NonPlayerAttacker,
+			entities: Entity,
 		};
-
-		// list of objects to be animated (with a .animation object - see Thing constructor for a breakdown of this object's properties)
-		this.animationList = [];
 
 		// remove all status effect timeouts for previous area's characters
 		if (!init) {
@@ -8623,6 +8731,9 @@ Game.loadArea = function (areaName, destination) {
 		            let tile = map.getTile(layer, c, r); // tile number
 
 		            if (tile !== 0 && (map.objectTiles.includes(tile) || map.objectTiles.includes(-tile))) { // 0 is empty tile
+						if (tile < 0) {
+							tile = -tile;
+						}
 
 						// draw position
 						let x = Math.round((c) * map.tsize) + 30 - map.origin.x;
@@ -8951,6 +9062,7 @@ Game.init = function () {
 	// music
 	this.playingMusic = null;
 
+
 	// create the player
 	// its x and y are not set until Game.loadArea resumes
 	this.hero = new Hero({
@@ -8958,14 +9070,14 @@ Game.init = function () {
 		map: map,
 		x: Areas[this.areaName].player !== undefined ? Areas[this.areaName].player.x : 0,
 		y: Areas[this.areaName].player !== undefined ? Areas[this.areaName].player.y : 0,
-		width: 57,
-		height: 120,
+		width: 52,
+		height: 127, // tbd separate hitbox
 
 		type: "hero",
 		hostility: "hero",
 
 		// properties inheritied from Thing
-		image: "player"+Player.class+Player.skin,
+		images: [{imageName: "player_"+Player.skinTone}, {imageName: "player_"+Player.clothing}, {imageName: "player_"+Player.hair, doNotAnimate: true}],
 
 		// properties inherited from Character
 		health: Player.health,
@@ -8978,9 +9090,17 @@ Game.init = function () {
 		crop: {
 			x: 0,
 			y: 0,
-			width: 57,
-			height: 120
+			width: 52,
+			height: 127
 		},
+		animation: {
+			type: "spritesheet",
+			frameTime: 15,
+			imagesPerRow: 4,
+			totalImages: 4,
+			animateBasis: "walk"
+		},
+
 
 		// properties inherited from Attacker
 
@@ -9080,6 +9200,18 @@ Game.init = function () {
 		this.intervalEffects[this.equipmentKeys[i]] = {}; // if there is an interval effect, .itemId is set to id in itemdata and .interval is set to interval number
 	} // populated in Game.inventoryUpdate
 	Game.equipmentUpdate();// tbd move where this is called
+
+	// onGameJoin property of inventory items
+	for (let i = 0; i < Player.inventory.items.length; i++) {
+		if (typeof Player.inventory.items[i].onGameJoin !== "undefined") {
+			Player.inventory.items[i].onGameJoin(i); // i is inventory position
+		}
+	}
+	for (let i = 0; i < this.equipmentKeys.length; i++) { // equipped items
+		if (typeof Player.inventory[this.equipmentKeys[i]].onGameJoin !== "undefined") {
+			Player.inventory[this.equipmentKeys[i]].onGameJoin(this.equipmentKeys[i]);
+		}
+	}
 
 	// game viewport camera
     this.camera = new Camera({map: map, width: Dom.canvas.width, height: Dom.canvas.height, addToObjectArrays: false, type: "camera"});
@@ -9804,7 +9936,7 @@ Game.update = function (delta) {
 	if (Player.playtime === undefined) {
 		Player.playtime = 0;
 	}
-	Player.playtime += delta / 1000;
+	Player.playtime += delta / 1000; // in 1/1000ths of a second oops
 
 	//
 	// Timeouts & Intervals
@@ -10763,9 +10895,9 @@ Game.update = function (delta) {
 		}
 	}
 
-	// check collision with any visibles (if they have an interact function to be called)
-	for (let i = 0; i < this.allVisibles.length; i++) {
-		let thing = this.allVisibles[i];
+	// check collision with any entities (if they have an interact function to be called)
+	for (let i = 0; i < this.allEntities.length; i++) {
+		let thing = this.allEntities[i];
 
 		let canInteract = true; // set to false if it cannot be interacted with
 
@@ -10876,6 +11008,8 @@ Game.update = function (delta) {
 			entity.x += dirx * speed * delta;
 			entity.y += diry * speed * delta;
 
+			entity.totalDistanceWalked += Math.sqrt((dirx * speed * delta)*(dirx * speed * delta) + (diry * speed * delta)*(diry * speed * delta))
+
 			let smallNudge = speed * 0.01;
 
 			// check if destination has been reached
@@ -10952,12 +11086,23 @@ Game.update = function (delta) {
 			if (nextFrame) {
 				// should be animated
 
-				// increment state
-				if (animate.state >= animate.totalImages-1) {
-					animate.state = 0;
+				if (animate.reverse) {
+					// decrement state
+					if (animate.state <= 0) {
+						animate.state = animate.totalImages-1;
+					}
+					else {
+						animate.state--;
+					}
 				}
 				else {
-					animate.state++;
+					// increment state
+					if (animate.state >= animate.totalImages-1) {
+						animate.state = 0;
+					}
+					else {
+						animate.state++;
+					}
 				}
 
 				if (animate.type === "carousel") {
@@ -11249,8 +11394,8 @@ Game.equipmentUpdate = function () {
     if (weaponType !== undefined) {
         // player has weapon equipped
 
-		if (Player.inventory.weapon.reloadTime !== undefined) {
-        	this.hero.stats.reloadTime = Player.inventory.weapon.reloadTime;
+		if (Player.inventory.weapon.stats.reloadTime !== undefined) {
+        	this.hero.stats.reloadTime = AttackConstants[weaponType].reloadTime + Player.inventory.weapon.stats.reloadTime;
 		}
 		else {
         	this.hero.stats.reloadTime = AttackConstants[weaponType].reloadTime;
@@ -11436,7 +11581,7 @@ Game.projectileImageUpdate = function () {
 	}
 
 	// if the player is NOT holding a weapon with a special projectile image, and the skin does have a special projectile image
-	else if (Player.inventory.weapon.projectile === undefined && this[nameAddress] !== Skins[Player.class][Player.skin].projectile) {
+	/*else if (Player.inventory.weapon.projectile === undefined && this[nameAddress] !== Skins[Player.class][Player.skin].projectile) {
 		// needs to reload default projectile image
 		if (nameAddress === "heroProjectileName") {
 			// weapon projectile - saved in skindata by default
@@ -11453,7 +11598,7 @@ Game.projectileImageUpdate = function () {
 
 		// load image and stop player attacking until it has loaded
 		this.loadImagesAndStopAttacking({[this[nameAddress]]: {normal: "./assets/projectiles/" + this[nameAddress] + ".png"}}, false);
-	}
+	}*/ // disabled for now, can be brought back whenevs :)
 }
 
 // called whenever the "hex" stat has been changed from 0 to something else
@@ -12004,8 +12149,8 @@ Game.drawHealthBar = function (ctx, character, x, y, width, height) {
 		}
 		else {
 			// default
-			ctx.fillStyle = "FFFF00";
-			console.warn("No dedicated health bar colour for bar size " + barValue);
+			ctx.fillStyle = "#DAA520"; // gold
+			//console.warn("No dedicated health bar colour for bar size " + barValue);
 		}
 
 		// health bar body
@@ -12715,6 +12860,25 @@ Game.renderObject = function (objectToRender) {
 				objectToRender.width,
 				objectToRender.height
 			);
+		}
+
+		if (typeof objectToRender.additionalImages !== "undefined") {
+			for (let i = 0; i < objectToRender.additionalImages.length; i++) {
+				let crop = objectToRender.crop;
+				if (typeof objectToRender.animation !== "undefined" && objectToRender.additionalImages[i].doNotAnimate) {
+					crop = objectToRender.animation.baseCrop;
+				}
+
+				this.ctx.drawImage(
+					objectToRender.additionalImages[i].image,
+					crop.x, crop.y,
+					crop.width, crop.height,
+					objectToRender.screenX - objectToRender.width / 2,
+					objectToRender.screenY - objectToRender.height / 2,
+					objectToRender.width,
+					objectToRender.height
+				);
+			}
 		}
 	}
 	else if (objectToRender.renderType === "shape") {

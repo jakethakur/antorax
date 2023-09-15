@@ -23,6 +23,16 @@ var Adventure = {
 		},
 	},
 
+	eaglecrestFish: {
+		html: `<div class="adventure">
+			Troubled Waters<br>
+			<span class="adventureContent">Something's not right with the fish in Eaglecrest Plains.</span>
+		</div>`,
+		condition: function () {
+			return !Player.quests.completedQuestArray.includes("Troubled Waters IV (Big Fish in a Small Pond)") && Player.quests.completedQuestArray.includes("Overdraft") && Player.quests.completedQuestArray.includes("Learning to Fish III");
+		},
+	},
+
 	/*eaglecrestCats: {
 		html: `<div class="adventure">
 			SPECIAL<br>

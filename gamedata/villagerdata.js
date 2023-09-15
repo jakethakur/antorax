@@ -327,10 +327,10 @@ var Villagers = [
 			animateBasis: "walk"
 		},
 		crop: {
-			x: 3,
-			y: 1,
-			width: 88,
-			height: 79,
+			x: 1,
+			y: 0,
+			width: 91,
+			height: 82,
 		},
         name: "Bruno",
         roles: [],
@@ -354,10 +354,10 @@ var Villagers = [
 			animateBasis: "walk"
 		},
 		crop: {
-			x: 3,
-			y: 1,
-			width: 88,
-			height: 79,
+			x: 1,
+			y: 0,
+			width: 91,
+			height: 82,
 		},
         name: "Tiger Cat",
         roles: [],
@@ -381,10 +381,10 @@ var Villagers = [
 			animateBasis: "walk"
 		},
 		crop: {
-			x: 3,
-			y: 1,
-			width: 88,
-			height: 79,
+			x: 1,
+			y: 0,
+			width: 91,
+			height: 82,
 		},
         name: "Cow Cat",
         roles: [],
@@ -1061,10 +1061,10 @@ var Villagers = [
 			animateBasis: "walk"
 		},
 		crop: {
-			x: 3,
-			y: 1,
-			width: 88,
-			height: 79,
+			x: 1,
+			y: 0,
+			width: 91,
+			height: 82,
 		},
         name: "Ozzy",
         roles: [],
@@ -1088,10 +1088,10 @@ var Villagers = [
 			animateBasis: "walk"
 		},
 		crop: {
-			x: 3,
-			y: 1,
-			width: 88,
-			height: 79,
+			x: 1,
+			y: 0,
+			width: 91,
+			height: 82,
 		},
         name: "Luna",
         roles: [],
@@ -1115,10 +1115,10 @@ var Villagers = [
 			animateBasis: "walk"
 		},
 		crop: {
-			x: 3,
-			y: 1,
-			width: 88,
-			height: 79,
+			x: 1,
+			y: 0,
+			width: 91,
+			height: 82,
 		},
         name: "Thor",
         roles: [],
@@ -1142,10 +1142,10 @@ var Villagers = [
 			animateBasis: "walk"
 		},
 		crop: {
-			x: 3,
-			y: 1,
-			width: 88,
-			height: 79,
+			x: 1,
+			y: 0,
+			width: 91,
+			height: 82,
 		},
         name: "Loki",
         roles: [],
@@ -1169,10 +1169,10 @@ var Villagers = [
 			animateBasis: "walk"
 		},
 		crop: {
-			x: 3,
-			y: 1,
-			width: 88,
-			height: 79,
+			x: 1,
+			y: 0,
+			width: 91,
+			height: 82,
 		},
         name: "Hebes",
         roles: [],
@@ -1196,10 +1196,10 @@ var Villagers = [
 			animateBasis: "walk"
 		},
 		crop: {
-			x: 3,
-			y: 1,
-			width: 88,
-			height: 79,
+			x: 1,
+			y: 0,
+			width: 91,
+			height: 82,
 		},
         name: "Snowy",
         roles: [],
@@ -1223,10 +1223,10 @@ var Villagers = [
 			animateBasis: "walk"
 		},
 		crop: {
-			x: 3,
-			y: 1,
-			width: 88,
-			height: 79,
+			x: 1,
+			y: 0,
+			width: 91,
+			height: 82,
 		},
         name: "Zig",
         roles: [],
@@ -1277,10 +1277,10 @@ var Villagers = [
 			animateBasis: "walk"
 		},
 		crop: {
-			x: 3,
-			y: 1,
-			width: 88,
-			height: 79,
+			x: 1,
+			y: 0,
+			width: 91,
+			height: 82,
 		},
         name: "Merlin",
         roles: [],

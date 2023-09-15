@@ -34,6 +34,23 @@ var Achievements = [
 		},
 	},
 	{
+		name: "Level 10",
+		description: "Reach level 10.",
+		points: 10,
+		category: ["general"],
+		area: ["global"],
+		image: "../assets/achievements/level10.png",
+		class: "single",
+		isCompleted: function () {
+			return Player.level >= 10;
+		},
+		expand: {
+			type: "progressBar",
+			value: function () { return Math.max(Archer.level, Mage.level, Knight.level); },
+			total: 10,
+		},
+	},
+	{
 		name: "Social Butterfly I",
 		description: "Meet 50 different characters with one class.",
 		points: 10,
@@ -109,7 +126,7 @@ var Achievements = [
 		description: "Complete all 18 non-event quests in Eaglecrest Logging Camp.",
 		points: 10,
 		category: ["quests"],
-		area: ["eaglecrestLoggingCamp"],
+		area: ["loggingCamp"],
 		image: "../assets/npcs/teper.png",
 		position: {x: 117,y: -10},
 		color: "#ddddff",
@@ -278,7 +295,7 @@ var Achievements = [
 		description: "Kill 100 Nilbog goblins.",
 		points: 10,
 		category: ["combat"],
-		area: ["eaglecrestLoggingCamp"],
+		area: ["loggingCamp"],
 		image: "../assets/enemies/goblinRockthrower.png",
 		position: {x: 45, y: -15},
 		color: "#cd7f32",
@@ -298,7 +315,7 @@ var Achievements = [
 		description: "Kill 250 Nilbog goblins.",
 		points: 10,
 		category: ["combat"],
-		area: ["eaglecrestLoggingCamp"],
+		area: ["loggingCamp"],
 		image: "../assets/enemies/goblinBruiser.png",
 		position: {x: 10, y: -15},
 		color: "lightgray",
@@ -318,7 +335,7 @@ var Achievements = [
 		description: "Kill 500 Nilbog goblins.",
 		points: 10,
 		category: ["combat"],
-		area: ["eaglecrestLoggingCamp"],
+		area: ["loggingCamp"],
 		image: "../assets/enemies/goblinCrusader.png",
 		position: {x: -200, y: -10},
 		color: "#fac540",
@@ -338,7 +355,7 @@ var Achievements = [
 		description: "Kill the Goblin King.",
 		points: 5,
 		category: ["combat"],
-		area: ["eaglecrestLoggingCamp"],
+		area: ["loggingCamp"],
 		image: "../assets/enemies/goblinKing.png",
 		position: {x: 57, y: 0},
 		color: "#ddddff",
@@ -352,7 +369,7 @@ var Achievements = [
 		description: "Kill 100 large toads.",
 		points: 10,
 		category: ["combat"],
-		area: ["eaglecrestLoggingCamp"],
+		area: ["loggingCamp"],
 		image: "../assets/items/fish/33.png",
 		color: "#cd7f32",
 		class: "cumulative",
@@ -370,7 +387,7 @@ var Achievements = [
 		description: "Kill 250 large toads.",
 		points: 10,
 		category: ["combat"],
-		area: ["eaglecrestLoggingCamp"],
+		area: ["loggingCamp"],
 		image: "../assets/items/fish/34.png",
 		color: "lightgray",
 		class: "cumulative",
@@ -388,7 +405,7 @@ var Achievements = [
 		description: "Kill 500 large toads.",
 		points: 10,
 		category: ["combat"],
-		area: ["eaglecrestLoggingCamp"],
+		area: ["loggingCamp"],
 		image: "../assets/enemies/toad.png",
 		position: {x: 108, y: 0},
 		color: "#fac540",
@@ -435,6 +452,22 @@ var Achievements = [
 		},
 	},
 
+
+	{
+		name: "Florist of the Dead",
+		description: "Kill Baron Foxglove.",
+		points: 5,
+		category: ["combat"],
+		area: ["eaglecrest"],
+		image: "../assets/enemies/foxglove.png",
+		position: {x: 90, y: 0},
+		color: "lightgray",
+		class: "single",
+		isCompleted: function () {
+			return Player.bossesKilled.foxglove !== 0 && Player.bossesKilled.foxglove !== undefined;
+		}
+	},
+
 	{
 		name: "Peace for Madeleine Wallace",
 		description: "Hand in 9 letters to an Eaglecrest mail carrier (on any class).",
@@ -460,7 +493,7 @@ var Achievements = [
         description: "Kill the Tattered Knight.",
         points: 5,
         category: ["combat"],
-        area: ["eaglecrestLoggingCamp"],
+        area: ["loggingCamp"],
         event: "Antorax",
         image: "../assets/enemies/tatteredKnight.png",
         position: {x: 90, y: -1},
@@ -476,7 +509,7 @@ var Achievements = [
 		hidden: true,
 		points: 10,
 		category: ["combat"],
-		area: ["global", "eaglecrestLoggingCamp"],
+		area: ["global", "loggingCamp"],
 		image: "../assets/enemies/dummy.png",
 		color: "#ddddff",
 		class: "single",
@@ -546,7 +579,7 @@ var Achievements = [
 		description: "Kill the two Blood Moon bosses in the Nilbog.",
 		points: 10,
 		category: ["combat"],
-		area: ["eaglecrestLoggingCamp"],
+		area: ["loggingCamp"],
 		event: "Samhain",
         image: "../assets/enemies/marshallSheridan.png",
         position: {x: 8, y: -1},
@@ -565,8 +598,8 @@ var Achievements = [
 
 	/*{
 		name: "Work-Life Balance",
-		description: "Complete 10 tavern jobs and kill 50 enemies in 10 minutes.",//tbd
-		points: 10,
+		description: "Work 10 tavern jobs and kill 50 enemies in 10 minutes, recorded by a timepiece.",//tbc
+		points: 5,
 		category: ["combat", "quests"],
 		area: ["global"],
 		image: "../assets/items/consumable/15.png",
@@ -584,7 +617,7 @@ var Achievements = [
 		description: "Reach venerated reputation with Eaglecrest Logging Camp.",
 		points: 20,
 		category: ["reputation"],
-		area: ["eaglecrestLoggingCamp"],
+		area: ["loggingCamp"],
 		image: "../assets/achievements/loggingCamp.png",
 		size: "contain",
 		class: "single",
@@ -600,7 +633,7 @@ var Achievements = [
 		description: "Uncover all unidentified items in Eaglecrest Logging Camp.",
 		points: 20,
 		category: ["archaeology"],
-		area: ["eaglecrestLoggingCamp"],
+		area: ["loggingCamp"],
 		image: "../assets/items/helm/5.png",
 		class: "cumulative",
 		isCompleted: function () {
@@ -683,7 +716,7 @@ var Achievements = [
 		description: "Uncover all unidentified items in the Eaglecrest Plains.",
 		points: 20,
 		category: ["archaeology"],
-		area: ["eaglecrestLoggingCamp"],
+		area: ["eaglecrest"],
 		image: "../assets/items/helm/30.png",
 		class: "cumulative",
 		isCompleted: function () {
@@ -709,6 +742,45 @@ var Achievements = [
 				for(let i = 0; i < 7; i++){
 					for(let x = 0; x < Items[Object.keys(Items)[i]].length; x++){
 						if(Items[Object.keys(Items)[i]][x].unidentifiedArea !== undefined && Items[Object.keys(Items)[i]][x].unidentifiedArea.includes("eaglecrest") && User.archaeology.includes(Items[Object.keys(Items)[i]][x].name)){
+							done++;
+						}
+					}
+				}
+				return done;
+			},
+		},
+	},
+	{
+		name: "Caves Archaeologist",
+		description: "Uncover all unidentified items in the Caves.",
+		points: 20,
+		category: ["archaeology"],
+		area: ["caves"],
+		image: "../assets/items/helm/41.png",
+		class: "cumulative",
+		isCompleted: function () {
+			let done = true;
+			for(let i = 0; i < 7; i++){
+				for(let x = 0; x < Items[Object.keys(Items)[i]].length; x++){
+					if(Items[Object.keys(Items)[i]][x].unidentifiedArea !== undefined && Items[Object.keys(Items)[i]][x].unidentifiedArea.includes("caves") && !User.archaeology.includes(Items[Object.keys(Items)[i]][x].name)){
+						done = false;
+					}
+				}
+			}
+			return done;
+		},
+		expand: {
+			type: "redirect",
+			text: "View in archaeology",
+			location: "../archaeology/index.html?obtained=unidentified&area=caves",
+			total: GetTotalItems(function(item) {
+				return item.obtain.includes("unidentified") && item.area.includes("caves");
+			}),
+			value: function () {
+				let done = 0;
+				for(let i = 0; i < 7; i++){
+					for(let x = 0; x < Items[Object.keys(Items)[i]].length; x++){
+						if(Items[Object.keys(Items)[i]][x].unidentifiedArea !== undefined && Items[Object.keys(Items)[i]][x].unidentifiedArea.includes("caves") && User.archaeology.includes(Items[Object.keys(Items)[i]][x].name)){
 							done++;
 						}
 					}
@@ -878,7 +950,7 @@ var Achievements = [
 		description: "Complete the introductory fishing quests.",
 		points: 10,
 		category: ["fishing", "quests"],
-		area: ["global", "eaglecrestLoggingCamp"],
+		area: ["global", "loggingCamp"],
 		image: "../assets/items/rod/2.png",
 		class: "single",
 		isCompleted: function () {
@@ -914,7 +986,7 @@ var Achievements = [
 		description: "Fish up every fish native to Eaglecrest Logging Camp.",
 		points: 10,
 		category: ["fishing"],
-		area: ["eaglecrestLoggingCamp"],
+		area: ["loggingCamp"],
 		image: "../assets/items/fish/6.png",
 		class: "cumulative",
 		isCompleted: function () {
@@ -1057,6 +1129,31 @@ var Achievements = [
 			return User.fish[7] >= 1;
 		},
 	},
+	{
+		name: "That's Not a Fish!!",
+		description: "Kill the Lake Lurker.",
+		points: 10,
+		category: ["fishing", "combat"],
+		area: ["eaglecrest"],
+		image: "../assets/enemies/seaMonster.png",
+		position: {x: 50, y: -1},
+		class: "single",
+		isCompleted: function () {
+			return Player.bossesKilled.lakeLurker !== 0 && Player.bossesKilled.lakeLurker !== undefined;
+		}
+	},
+	{
+		name: "Legacy of Captain Calaca",
+		description: "Last hit the Lake Lurker with your weapon.",
+		points: 5,
+		category: ["fishing", "combat"],
+		area: ["eaglecrest"],
+		image: "../assets/items/bow/13.png",
+		class: "single",
+		isCompleted: function () {
+			return User.progress.legacyOfCaptainCalaca;
+		}
+	},
 	//
 	// SEASONAL FISHING
 	//
@@ -1065,7 +1162,7 @@ var Achievements = [
 		description: "Complete the quest <em>Sunken Presents</em>.",
 		points: 5,
 		category: ["fishing", "quests"],
-		area: ["eaglecrestLoggingCamp"],
+		area: ["loggingCamp"],
 		event: "Christmas",
 		image: "../assets/items/fish/21.png",
 		color: "#cd7f32",
@@ -1151,7 +1248,7 @@ var Achievements = [
         description: "Assist in the rising of a blood moon.",
         points: 5,
         category: ["quests"],
-        area: ["eaglecrestCity"],
+        area: ["eaglecrest"],
         event: "Samhain",
         image: "../assets/items/consumable/10.png",
         color: "#540606",
@@ -1167,7 +1264,7 @@ var Achievements = [
 		hidden: true,
         points: 10,
         category: ["quests"],
-        area: ["eaglecrestCity"],
+        area: ["eaglecrest"],
         image: "../assets/items/consumable/10.png",
         class: "single",
         isCompleted: function () {

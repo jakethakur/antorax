@@ -1230,7 +1230,20 @@ const EnemyTemplates = {
 			onDeath: function () {
 				// coyotes killed achievement
 				User.progress.coyotes = Increment(User.progress.coyotes);
-			}
+			},
+			animation: {
+				type: "spritesheet",
+				frameTime: 30,
+				imagesPerRow: 3,
+				totalImages: 3,
+				animateBasis: "walk"
+			},
+			crop: {
+				x: 0,
+				y: 0,
+				width: 151,
+				height: 98,
+			},
 		},
 		coyoteWrangler: {
 			image: "coyoteWrangler",
@@ -1305,15 +1318,21 @@ const EnemyTemplates = {
 			lootTableTemplate: [EnemyLootTables.coyoteWrangler],
 			inventorySpace: 16,
 			onDeath: function () {
-				// coyote wrangler killed achievement
-				User.progress.coyoteWranglers = Increment(User.progress.coyoteWranglers);
+                let petArray = Game.enemies.filter(enemy => enemy.name === "Pack Coyote" && enemy.association === "coyotePack");
+                for (let i = 0; i < petArray.length; i++) {
+                    let pet = petArray[i];
+                    pet.setAggro(Game.hero, "unAggro");
+                }
 
-				// coyote wrangler killed achievement
-				Player.quests.questProgress.coyoteWranglers = Increment(Player.quests.questProgress.coyoteWranglers);
+                // coyote wrangler killed achievement
+                User.progress.coyoteWranglers = Increment(User.progress.coyoteWranglers);
 
-				// resetable achievement for quest
-				Player.quests.questProgress.coyoteWranglersQuest = Increment(Player.quests.questProgress.coyoteWranglersQuest);
-			}
+                // coyote wrangler killed achievement
+                Player.quests.questProgress.coyoteWranglers = Increment(Player.quests.questProgress.coyoteWranglers);
+
+                // resetable achievement for quest
+                Player.quests.questProgress.coyoteWranglersQuest = Increment(Player.quests.questProgress.coyoteWranglersQuest);
+            }
 		},
 
 
@@ -1415,7 +1434,7 @@ const EnemyTemplates = {
 		lakeLurkerTail: {
 			image: "seaMonsterTail",
 			name: "Lake Lurker Tail",
-			hostility: "boss",
+			hostility: "hostile",
 			level: 5,
 			canBeDamagedBy: [""],
 			stats: {
@@ -1433,14 +1452,17 @@ const EnemyTemplates = {
 			corpseOnDeath: false,
 			respawnOnDeath: false,
 			fishable: {
+				bobTimeMin: 200,
+				bobTimeMax: 1400,
 				removeOnCatch: true,
 				giveItem: false,
-				challengeRarity: "mythic",
-				clicksToCatch: "tbd",
-				timeToCatch: "tbd",
-				fishingType: "waterMisc",
+				fishingType: "watermisc",
+				challengeRarity: "lakeLurkerTail",
+				clicksToCatch: 18,
+				timeToCatch: 3000,
 				onCatchAdditional: function () {
-					// deal the damage to the head
+					let boss = Game.enemies.find(enemy => enemy.name === "Lake Lurker");
+					boss.takeDamage(7000, true, "Lake Lurker Tail");
 				}
 			},
 			spells: [
@@ -1451,8 +1473,9 @@ const EnemyTemplates = {
 		lakeLurkerArch: {
 			image: "seaMonsterArch",
 			name: "Lake Lurker Arch",
-			hostility: "boss",
+			hostility: "hostile",
 			level: 5,
+			canBeDamagedBy: [""],
 			stats: {
 				damage: 0,
 				walkSpeed: 0,
@@ -1469,31 +1492,220 @@ const EnemyTemplates = {
 			respawnOnDeath: false,
 			spells: [
 
-	        ],
+			],
+			fishable: {
+				bobTimeMin: 100,
+				bobTimeMax: 1100,
+				removeOnCatch: true,
+				giveItem: false,
+				fishingType: "watermisc",
+				challengeRarity: "lakeLurkerArch",
+				clicksToCatch: "16",
+				timeToCatch: "2500",
+				onCatchAdditional: function () {
+					let boss = Game.enemies.find(enemy => enemy.name === "Lake Lurker");
+					boss.takeDamage(12000, true, "Lake Lurker Arch");
+				}
+			}
 		},
 
 		lakeLurker: {
 			image: "seaMonster",
+			deathImage: "seaMonsterCorpse",
 			name: "Lake Lurker",
 			hostility: "boss",
-			level: 5,
+			level: 15,
 			stats: {
-				damage: 0,
+				damage: 10,
 				walkSpeed: 0,
 				swimSpeed: 0,
 				iceSpeed: 0,
-				maxHealth: 10000,
-				defence: 10000,
+				maxHealth: 100000,
+				defence: 0,
 				range: 1000,
 				healthRegen: 0,
 				doesNotAttack: true,
+				lootTime: 180000
+			},
+			xpGiven: 0,
+			corpseOnDeath: true,
+			respawnOnDeath: false,
+			lootTableTemplate: [BossLootTables.lakeLurker],
+			inventorySpace: 48,
+			bossKilledVariable: "lakeLurker",
+			spells: [
+					{
+						id: 25,
+						tier: 1,
+						parameters: function () {
+								return {
+									target: [Game.hero],
+								};
+						},
+						interval: 25000,
+				 },
+      		],
+			onDeath: function () {
+				// destroy all things related to the boss
+				let remove = Game.enemies.filter(enemy => enemy.name === "Lake Lurker Tail" || enemy.name === "Lake Lurker Arch" || enemy.name === "Water Coalesce");
+				for (let i = 0; i < remove.length; i++) {
+					Game.removeObject(remove[i].id, remove[i].type);
+				}
+
+				// boss last hit achievement
+				if (this.killedByName !== "Lake Lurker Arch" && this.killedByName !== "Lake Lurker Tail") {
+					User.progress.legacyOfCaptainCalaca = true;
+				}
+
+				Game.clearInterval(Areas.eaglecrestWell.intervalToClear);
+			},
+		},
+
+		waterCoalesce: {
+			image: "waterCoalesce",
+			name: "Water Coalesce",
+			hostility: "hostile",
+			level: 10,
+			stats: {
+				damage: 10,
+				walkSpeed: 140,
+				swimSpeed: 220,
+				iceSpeed: 0,
+				maxHealth: 8,
+				defence: 5,
+				range: 60,
+				reloadTime: 800,
+				healthRegen: 1,
+				stunned: 2,
+			},
+			attackBehaviour: {
+				baseAggro: 1000,
+			},
+			projectile: {
+				image: "melee",
 			},
 			xpGiven: 0,
 			corpseOnDeath: false,
 			respawnOnDeath: false,
-			spells: [
 
-	        ],
+			animation: {
+				type: "spritesheet",
+				frameTime: 100,
+				imagesPerRow: 18,
+				totalImages: 18,
+				startState: 17,
+				stopAnimationOnState: 0,
+				reverse: true,
+			},
+			crop: {
+				x: 1,
+				y: 0,
+				width: 48,
+				height: 124,
+			},
+
+			onDeath: function () {
+				Game.things.push(new Thing({
+					map: map,
+					type: "things",
+					x: this.x,
+					y: this.y,
+					image: "waterCoalesce",
+					name: "Water Coalesce",
+					hostility: "hostile",
+					level: 10,
+					animation: {
+						type: "spritesheet",
+						frameTime: 75,
+						imagesPerRow: 18,
+						totalImages: 18,
+						startState: 0,
+						stopAnimationOnState: 17,
+					},
+					crop: {
+						x: 1,
+						y: 0,
+						width: 48,
+						height: 124,
+					},
+				}));
+			},
 		},
+
+
+
+		baronFoxglove: {
+			image: "foxglove",
+			deathImage: "foxgloveCorpse",
+			name: "Baron Foxglove",
+			hostility: "boss",
+			level: 15,
+			stats: {
+				damage: 9,
+				walkSpeed: 100,
+				swimSpeed: 40,
+				iceSpeed: 200,
+				maxHealth: 1000,
+				defence: 9,
+				dodgeChance: 80,
+				healthRegen: 1,
+				lootTime: 180000,
+				variance: 15,
+				projectileSpeed: 850,
+				projectileRange: 1000,
+				reloadTime: 1500,
+				range: 400,
+			},
+			projectile: {
+				image: "arrow",
+			},
+			xpGiven: 500,
+			corpseOnDeath: true,
+			respawnOnDeath: false,
+			lootTableTemplate: [BossLootTables.foxglove],
+			inventorySpace: 32,
+			bossKilledVariable: "foxglove",
+			spells: [
+					{
+						id: 25,
+						tier: 1,
+						parameters: function () {
+								return {
+									target: [Game.hero],
+								};
+						},
+						interval: 25000,
+				 },
+      ],
+		},
+
+		foxgloveHands: {
+			image: "foxgloveHand",
+			name: "Foxglove Hand",
+			level: 15,
+			hostility: "hostile",
+			stats: {
+				damage: 9,
+				walkSpeed: 250,
+				swimSpeed: 100,
+				iceSpeed: 300,
+				maxHealth: 5,
+				defence: 0,
+				healthRegen: 1,
+				reloadTime: 1000,
+				range: 90,
+				rooting: 1,
+				respawnTime: 4000,
+			},
+			projectile: {
+				image: "melee",
+			},
+			xpGiven: 0,
+			corpseOnDeath: false,
+			respawnOnDeath: true,
+			spells: [
+      ],
+		},
+
 	},
-};
+}

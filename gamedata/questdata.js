@@ -2372,12 +2372,13 @@ var Quests = {
 
 			howToStart: "Speak to <strong>Fisherman Guimtal</strong>.",
 			levelRequirement: 5,
-			questRequirements: ["Learning to Fish III"],
+			questRequirements: ["Overdraft"],
 
 			rewards: {
 				xp: 30,
 				items: [
 					{item: Items.currency[2], quantity: 3,},
+					{item: Items.currency[3], quantity: 1,},
 				],
 			},
 
@@ -2729,11 +2730,13 @@ var Quests = {
 			howToStart: "Speak to <strong>Fisherman Guimtal</strong>.",
 			levelRequirement: 5,
 			questRequirements: ["Troubled Waters", "Learning to Fish III"],
+			shareCooldownWith: [{questArea: "eaglecrest", id: 7}],
 
 			rewards: {
 				xp: 50,
 				items: [
 					{item: Items.currency[2], quantity: 5,},
+					{item: Items.currency[3], quantity: 2,},
 				],
 				reputation: {
 					eaglecrestCity: 30,
@@ -2815,10 +2818,14 @@ var Quests = {
 
 			howToStart: "Speak to <strong>Fisher Sharptooth</strong>.",
 			levelRequirement: 5,
-			questRequirements: ["Troubled Waters II", "tbd"],
+			questRequirements: ["Troubled Waters II"],
 
 			rewards: {
-				xp: 75,
+				xp: 50,
+				items: [
+					{item: Items.currency[2], quantity: 3,},
+					{item: Items.currency[3], quantity: 2,},
+				],
 				reputation: {
 					eaglecrestCity: 30,
 				},
@@ -2846,14 +2853,18 @@ var Quests = {
 
 			finishName: "Fisher Sharptooth",
 			finishChat: [{
-				text: `I'lls examines this fish fors yous. Comes backs laters and I'lls tells you the lasts things to do.`,
+				text: `Ooohs, yous kills it. The fish shoulds be comings backs nows. Alls the fishers wills be pleased whens yous sees thems next.`,
+			},{
+				text: `Here's somes <b>gold</b> ands <b>fishing seals</b> fors yours troubles. I'lls sees yous soons.`,
 			},],
 
 			objectives: [
 				"Fish up a fish longer than <b>100cm</b> and return to <b>Fisher Sharptooth</b> to make into bait.",
 				"Fish up the <b>King of Herrings</b> located in <b>Eaglecrest Well</b>.",
+				"Talk to <b>Fisher Sharptooth</b>.",
+				"Fish up the <b>Lake Lurker</b> located in <b>Eaglecrest Well</b>.",
 				"Defeat the <b>Lake Lurker</b>.",
-				"Return to <b>Fisherman Guimtal</b>"
+				"Return to <b>Fisherman Sharptooth</b>"
 			],
 
 			isHidden: function() {
@@ -2868,6 +2879,8 @@ var Quests = {
 				hidden.push(false);
 				hidden.push(Player.quests.questProgress.troubledWaters4Progress < 2);
 				hidden.push(Player.quests.questProgress.troubledWaters4Progress < 3);
+				hidden.push(Player.quests.questProgress.troubledWaters4Progress < 4);
+				hidden.push(Player.quests.questProgress.troubledWaters4Progress < 5);
 
 				return hidden;
 			},
@@ -2877,6 +2890,9 @@ var Quests = {
 				// true or falses for each objective (apart from the turn-in objective)
 				completed.push(Player.quests.questProgress.troubledWaters4Progress > 1 && Dom.inventory.check(37, "consumable", 1) || Player.quests.questProgress.troubledWaters4Progress > 2);
 				completed.push(Player.quests.questProgress.troubledWaters4Progress > 2);
+				completed.push(Player.quests.questProgress.troubledWaters4Progress > 3);
+				completed.push(Player.quests.questProgress.troubledWaters4Progress > 4);
+				completed.push(Player.bossesKilled.lakeLurker > 0);
 
 				completed = checkFinished(completed);
 
@@ -2885,17 +2901,22 @@ var Quests = {
 
 			howToStart: "Speak to <strong>Fisher Sharptooth</strong>.",
 			levelRequirement: 5,
-			questRequirements: ["Troubled Waters III (Eaglecrest Plains Fishing Tourǃǃ)", "tba"],
+			questRequirements: ["Troubled Waters III (Eaglecrest Plains Fishing Tourǃǃ)"],
+			shareCooldownWith: [{questArea: "eaglecrest", id: 13}],
 
 			rewards: {
-				xp: 75,
+				xp: 100,
 				reputation: {
-					eaglecrestCity: 30,
+					eaglecrestCity: 100,
 				},
+				items: [
+					{item: Items.currency[2], quantity: 5,},
+					{item: Items.currency[3], quantity: 3,},
+				],
+
 			},
 
 			removeItems: [
-				{item: Items.fish[38]},
 			],
 
 			onQuestStart: function() {
@@ -2924,7 +2945,7 @@ var Quests = {
 			},],
 
 			objectives: [
-				"Lure a <b>Bee Swarm</b> from the Plains flower forest to the farm.",
+				"Lure a <b>Bee Swarm</b> from the Plains flower forest to Farmer Eloise's beehives.",
 				"Speak to <b>Farmer Eloise</b>.",
 			],
 
@@ -2934,16 +2955,19 @@ var Quests = {
 				// true or falses for each objective (apart from the turn-in objective)
 				let objCompleted = false;
 				if (!Player.quests.questProgress.beeCarefulFinished && typeof Game.enemies !== "undefined") {
-					let beeSwarms = Game.enemies.filter(enemy => enemy.name === "Bee Swarm" && enemy.hostility === "hostile");
-					let farmerEloise = Game.npcs.filter(npc => npc.name === "Farmer Eloise")[0];
-					let nearest = Game.closest(beeSwarms, farmerEloise);
-					objCompleted = (Game.distance(nearest, farmerEloise) < 300);
-					if (objCompleted) {
-						Player.quests.questProgress.beeCarefulFinished = true;
+					if(Game.areaName === "eaglecrestPlains")
+					{
+						let beeSwarms = Game.enemies.filter(enemy => enemy.name === "Bee Swarm" && enemy.hostility === "hostile");
+						let farmerEloise = Game.npcs.filter(npc => npc.name === "Farmer Eloise")[0];
+						let nearest = Game.closest(beeSwarms, farmerEloise);
+						objCompleted = (Game.distance(nearest, farmerEloise) < 300);
+						if (objCompleted) {
+							Player.quests.questProgress.beeCarefulFinished = true;
 
-						nearest.attackTargets[Game.hero.id].baseAggro = 0;
-						nearest.attackTargets[Game.hero.id].aggro = 0;
-						nearest.hostility = "neutral";
+							nearest.attackTargets[Game.hero.id].baseAggro = 0;
+							nearest.attackTargets[Game.hero.id].aggro = 0;
+							nearest.hostility = "neutral";
+						}
 					}
 				}
 				else {
@@ -2972,8 +2996,112 @@ var Quests = {
 			},
 		},
 
+		{
+			id: 16,
+			quest: "Troubled Waters (bis)",
+			questArea: "eaglecrest",
+
+			repeatTime: "daily",
+
+			startName: "Fisher Sharptooth",
+			startChat: [{
+				text: `The fish numbers seems to bes dwindling agains.`,
+			},{
+				text: `I needs somes bait to gets the fish outs. Please gets mes a fish longer thans a metre please ands wes cans ends this.`,
+			},],
+
+			finishName: "Fisher Sharptooth",
+			finishChat: [{
+				text: `Ooohs, yous kills it. The fish shoulds be comings backs nows. Alls the fishers wills be pleased.`,
+			},{
+				text: `Here's somes <b>gold</b> ands a <b>fishing seal</b> fors yours troubles. I'lls sees yous soons.`,
+			},],
+
+			objectives: [
+				"Fish up a fish longer than <b>100cm</b> and return to <b>Fisher Sharptooth</b> to make into bait.",
+				"Fish up the <b>King of Herrings</b> located in <b>Eaglecrest Well</b> and return to <b>Fisher Sharptooth</b> to make into bait.",
+				"Fish up and defeat the <b>Lake Lurker</b> located in <b>Eaglecrest Well</b>.",
+				"Return to <b>Fisherman Sharptooth</b>"
+			],
+
+			isCompleted: function() {
+				let completed = [];
+				// true or falses for each objective (apart from the turn-in objective)
+				completed.push(Dom.inventory.check(37, "consumable", 1) || Dom.inventory.check(38, "consumable", 1) || Player.bossesKilled.lakeLurker === GetFullDate());
+				completed.push(Dom.inventory.check(38, "consumable", 1) || Player.bossesKilled.lakeLurker === GetFullDate());
+				completed.push(Player.bossesKilled.lakeLurker === GetFullDate());
+
+				completed = checkFinished(completed);
+
+				return completed;
+			},
+
+			howToStart: "Speak to <strong>Fisher Sharptooth</strong>.",
+			levelRequirement: 5,
+			questRequirements: ["Troubled Waters IV (Big Fish in a Small Pond)"],
+			shareCooldownWith: [{questArea: "eaglecrest", id: 14}],
+
+			rewards: {
+				xp: 50,
+				reputation: {
+					eaglecrestCity: 50,
+				},
+				items: [
+					{item: Items.currency[2], quantity: 2,},
+					{item: Items.currency[3], quantity: 1,},
+				],
+
+			},
+		},
 		/*{
-			id: 14,
+			id: 17,
+			quest: "WANTED: Baron Foxglove!!",
+			questArea: "eaglecrest",
+
+			startName: "Recruiter Sylvie",
+			startChat: [{
+				text: `Greetings, ${Player.name}. Another Party has come to the City's attention - tbd.`,
+			},],
+
+			finishName: "Recruiter Sylvie",
+			finishChat: [{
+				text: `tbd`,
+			},],
+
+			objectives: [
+				"Challenge <b>Baron Foxglove</b> to combat and win, in the Plains' flower forest.",
+				"Speak to <strong>Recruiter Sylvie</strong>.",
+			],
+
+			isCompleted: function() {
+				let completed = [];
+
+				// true or falses for each objective (apart from the turn-in objective)
+				completed.push(Player.bossesKilled.baronFoxglove === GetFullDate());
+
+				completed = checkFinished(completed);
+
+				return completed;
+			},
+
+			howToStart: "Speak to <strong>Recruiter Sylvie</strong>.",
+			levelRequirement: 10,
+			questRequirements: [],
+
+			repeatTime: "daily",
+
+			rewards: {
+				xp: 50,
+				items: [
+					{item: Items.currency[2], quantity: 4,},
+				],
+				reputation: {
+					eaglecrestCity: 60,
+				},
+			},
+		},
+		{
+			id: 18,
 			quest: "The Pyromancer's Shopping List",
 			questArea: "eaglecrest",
 
@@ -3057,17 +3185,18 @@ var Quests = {
 			isHidden: function() {
 				let hidden = [];
 
-				if (Player.quests.npcProgress.eaglecrest[2] === undefined) {
-					Player.quests.npcProgress.eaglecrest[2] = 0;
+				if (Player.quests.npcProgress.eaglecrest[18] === undefined) {
+					Player.quests.npcProgress.eaglecrest[18] = 0;
 				}
 
 				// true or falses for each objective (apart from the turn-in objective)
 				hidden.push(false);
-				hidden.push(Player.quests.npcProgress.eaglecrest[2] < 1);
-				hidden.push(Player.quests.npcProgress.eaglecrest[2] < 2);
-				hidden.push(Player.quests.npcProgress.eaglecrest[2] < 3);
-				hidden.push(Player.quests.npcProgress.eaglecrest[2] < 1);
 				hidden.push(false);
+				hidden.push(Player.quests.npcProgress.eaglecrest[18] < 2);
+				hidden.push(Player.quests.npcProgress.eaglecrest[18] < 3);
+				hidden.push(Player.quests.npcProgress.eaglecrest[18] < 4);
+				hidden.push(Player.quests.npcProgress.eaglecrest[18] < 5);
+				hidden.push(Player.quests.npcProgress.eaglecrest[18] < 3);
 
 				return hidden;
 			},
@@ -3100,102 +3229,6 @@ var Quests = {
 				{item: Items.item[68], quantity: 6},
 				{item: Items.item[31], quantity: 6},
 			],
-		},
-
-		*/
-		/*{
-			id: 8,
-			quest: "Troubled Waters II",
-			questArea: "eaglecrest",
-
-			startName: "Fisherman Guimtal",
-			startChat: "So I've investigat'd the toads and it don't seem to have anything to do anything with them. Yah should talk to Fisherman Sharptooth, I think they know more.",
-
-			finishName: "Fisherman Guimtal",
-			finishChat: "",
-
-			objectives: [
-				"Speak to <strong>Fisherman Sharptooth</strong>.",
-				"Get back to <strong>Fisherman Guimtal</strong>.",
-				"Speak to <strong>Fisherman Guimtal</strong>.",
-			],
-
-			isHidden: function() {
-				let hidden = [];
-
-				if (Player.quests.questProgress.troubledWatersProgress === undefined)
-				{
-					Player.quests.questProgress.troubledWatersProgress = 0;
-				}
-
-				// true or falses for each objective (apart from the turn-in objective)
-				hidden.push(false);
-				hidden.push(Player.quests.questProgress.troubledWatersProgress < 1);
-				hidden.push(false);
-
-				return hidden;
-			},
-
-			isCompleted: function() {
-				let completed = []; // contains true or false for all of the objectives, with the last element being if the quest is ready to complete
-
-				// true or falses for each objective (apart from the turn-in objective)
-				completed.push(checkProgress(Player.quests.questProgress.troubledWatersProgress, 10));
-
-				completed = checkFinished(completed);
-
-				return completed;
-			},
-
-			howToStart: "Speak to <strong>Fisherman Guimtal</strong>.",
-			levelRequirement: 5,
-			questRequirements: ["Troubled Waters"],
-
-			rewards: {
-				xp: 50,
-				items: [
-					{item: Items.currency[2], quantity: 5,},
-				],
-			},
-		},*/
-		/*{
-			id: "tbd", // tbdddddddddddddddd
-			quest: "Cat Warrior",
-			questArea: "eaglecrest",
-
-			startName: "tbd",
-			startChat: "tbd.",
-
-			finishName: "tbd",
-			finishChat: "tbd.",
-
-			objectives: [
-				"Drink the <strong>cat potion</strong>.",
-				"Speak to <strong>tbd</strong> in the <strong>Eaglecrest Elixirs Storerooms.</strong>",
-				"Complete three laps of the obstacle course!", // hidden obj
-				"Speak to <strong>Alchemist Tamtam</strong>.",
-			],
-
-			isCompleted: function() {
-				let completed = [];
-
-				let lapsCompleted = 0; //tbd
-				completed.push(false);
-				completed.push(checkProgress(lapsCompleted, 3));
-
-				completed = checkFinished(completed);
-
-				return completed;
-			},
-
-			howToStart: "tbd.",
-			levelRequirement: 4,
-			questRequirements: ["Potion Making II"],
-
-			rewards: {
-				xp: 50,
-				items: [{}], // cat toy tbd
-			},
 		},*/
 	],
 

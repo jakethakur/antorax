@@ -323,7 +323,7 @@ var Items = {
 			obtainText: "Can be bought from a mask seller.",
 			sellPrice: 1,
 			stats: {
-				walkSpeed: 40,
+				walkSpeed: 35,
 				reloadTime: -100,
 			},
 		},
@@ -703,6 +703,7 @@ var Items = {
 			tier: 2,
 			obtain: ["unidentified"],
 			area: ["caves"],
+unidentifiedArea: ["caves"],
 			rarity: "common",
 			sellPrice: 1,
 			obtainText: "Can be uncovered as an unidentified item in areas around Eaglecrest Caves.",
@@ -718,6 +719,7 @@ var Items = {
 			tier: 2,
 			obtain: ["unidentified"],
 			area: ["caves"],
+unidentifiedArea: ["caves"],
 			rarity: "unique",
 			sellPrice: 4,
 			lore: "",
@@ -737,6 +739,7 @@ var Items = {
 			tier: 2,
 			obtain: ["unidentified"],
 			area: ["caves"],
+unidentifiedArea: ["caves"],
 			rarity: "unique",
 			sellPrice: 4,
 			lore: "",
@@ -754,6 +757,7 @@ var Items = {
 			tier: 2,
 			obtain: ["unidentified"],
 			area: ["caves"],
+unidentifiedArea: ["caves"],
 			rarity: "mythic",
 			sellPrice: 7,
 			lore: "",
@@ -1130,6 +1134,7 @@ var Items = {
 			tier: 2,
 			obtain: ["unidentified"],
 			area: ["caves"],
+unidentifiedArea: ["caves"],
 			rarity: "common",
 			sellPrice: 1,
 			obtainText: "Can be uncovered as an unidentified item in areas around Eaglecrest Caves.",
@@ -1145,6 +1150,7 @@ var Items = {
 			tier: 2,
 			obtain: ["unidentified"],
 			area: ["caves"],
+unidentifiedArea: ["caves"],
 			rarity: "unique",
 			sellPrice: 4,
 			lore: "",
@@ -1164,6 +1170,7 @@ var Items = {
 			tier: 2,
 			obtain: ["unidentified"],
 			area: ["caves"],
+unidentifiedArea: ["caves"],
 			rarity: "unique",
 			sellPrice: 4,
 			lore: "",
@@ -1181,6 +1188,7 @@ var Items = {
 			tier: 2,
 			obtain: ["unidentified"],
 			area: ["caves"],
+unidentifiedArea: ["caves"],
 			rarity: "mythic",
 			sellPrice: 7,
 			lore: "",
@@ -1339,18 +1347,20 @@ var Items = {
 		},
 		{
 			id: 8,
-			name: "tbd",
+			name: "Green Scaled Trousers",
 			type: "greaves",
 			image: "assets/items/greaves/8.png",
 			tier: 1,
-			lore: "Call me asparagus!",
+			lore: "Call me asparagus",
 			obtain: ["boss"],
 			area: ["eaglecrest"],
 			rarity: "unique",
 			sellPrice: 4,
-			obtainText: "Can be looted from TBD",
+			obtainText: "Can be looted from the Lake Lurker.",
 			stats: {
-				defence: 4,//tbd
+				defence: 3,
+				maxHealth: 10,
+				swimSpeed: 40,
 			},
 		},
 		{
@@ -1396,7 +1406,7 @@ var Items = {
 						return map.isSlowTileAtXY(Game.hero.x, Game.hero.y) === "water";
 					},
 					stats: {
-						defence: 5,
+						defence: 7,
 					},
 				},
 			],
@@ -1438,9 +1448,14 @@ var Items = {
 				defence: 4,
 				healingPower: 25,
 			},
+			functionStats: {
+				heal: 10,
+			},
 			intervalEffect: {
 				function: function () {
-					Dom.inventory.give(Items.consumable[32]);
+					let position = Dom.inventory.give(Items.consumable[32]);
+					Player.inventory.items[position].healAmount = Player.inventory.greaves.functionStats.heal;
+					Player.inventory.items[position].functionText = "Restores " + Player.inventory.greaves.functionStats.heal + " health";
 				},
 				time: 60, // seconds
 			},
@@ -1501,6 +1516,7 @@ var Items = {
 			tier: 2,
 			obtain: ["unidentified"],
 			area: ["caves"],
+unidentifiedArea: ["caves"],
 			rarity: "common",
 			sellPrice: 1,
 			lore: "Wearing rock as armour? That's a new rock bottom...",
@@ -1517,6 +1533,7 @@ var Items = {
 			tier: 2,
 			obtain: ["unidentified"],
 			area: ["caves"],
+unidentifiedArea: ["caves"],
 			rarity: "unique",
 			sellPrice: 4,
 			lore: "",
@@ -1536,6 +1553,7 @@ var Items = {
 			tier: 2,
 			obtain: ["unidentified"],
 			area: ["caves"],
+unidentifiedArea: ["caves"],
 			rarity: "unique",
 			sellPrice: 4,
 			lore: "",
@@ -1553,6 +1571,7 @@ var Items = {
 			tier: 2,
 			obtain: ["unidentified"],
 			area: ["caves"],
+unidentifiedArea: ["caves"],
 			rarity: "mythic",
 			sellPrice: 7,
 			lore: "",
@@ -1836,7 +1855,7 @@ var Items = {
 						return map.isSlowTileAtXY(Game.hero.x, Game.hero.y) === "water";
 					},
 					stats: {
-						dodgeChance: 20,
+						dodgeChance: 35,
 					},
 				},
 			],
@@ -1980,6 +1999,7 @@ var Items = {
 			tier: 2,
 			obtain: ["unidentified"],
 			area: ["caves"],
+unidentifiedArea: ["caves"],
 			rarity: "common",
 			sellPrice: 1,
 			obtainText: "Can be uncovered as an unidentified item in areas around Eaglecrest Caves.",
@@ -1995,6 +2015,7 @@ var Items = {
 			tier: 2,
 			obtain: ["unidentified"],
 			area: ["caves"],
+unidentifiedArea: ["caves"],
 			rarity: "unique",
 			sellPrice: 4,
 			lore: "",
@@ -2014,6 +2035,7 @@ var Items = {
 			tier: 2,
 			obtain: ["unidentified"],
 			area: ["caves"],
+unidentifiedArea: ["caves"],
 			rarity: "unique",
 			sellPrice: 4,
 			lore: "",
@@ -2031,6 +2053,7 @@ var Items = {
 			tier: 2,
 			obtain: ["unidentified"],
 			area: ["caves"],
+unidentifiedArea: ["caves"],
 			rarity: "mythic",
 			sellPrice: 7,
 			lore: "",
@@ -2050,9 +2073,12 @@ var Items = {
 			area: ["eaglecrest"],
 			rarity: "unique",
 			sellPrice: 4,
-			obtainText: "Can be looted from TBD",
+			obtainText: "Can be looted from the Lake Lurker.",
 			stats: {
-				defence: 3,//tbd
+				defence: 1,
+				healthRegen: 0.2,
+				swimSpeed: 90,
+				walkSpeed: -30,
 			},
 		},
 	],
@@ -2202,7 +2228,7 @@ var Items = {
 			event: "Christmas",
 			sellPrice: 4,
 			stats: {
-				damage: 8,
+				damage: 9,
 				reloadTime: 500,
 				defence: 5,
 			},
@@ -2577,8 +2603,9 @@ var Items = {
 			lore: "KAPOW",
 			obtainText: "Can be bought from Demolitionist Darrow in Eaglecrest.",
 			stats: {
-				damage: 4,
+				damage: 7,
 				defence: 4,
+				reloadTime: 500,
 				exploding: 1,
 			},
 			projectile: "slashFire",
@@ -2628,6 +2655,7 @@ var Items = {
 			tier: 2,
 			obtain: ["unidentified"],
 			area: ["caves"],
+unidentifiedArea: ["caves"],
 			rarity: "common",
 			sellPrice: 1,
 			obtainText: "Can be uncovered as an unidentified item in areas around Eaglecrest Caves.",
@@ -2644,6 +2672,7 @@ var Items = {
 			tier: 2,
 			obtain: ["unidentified"],
 			area: ["caves"],
+unidentifiedArea: ["caves"],
 			rarity: "unique",
 			sellPrice: 4,
 			lore: "",
@@ -2663,6 +2692,7 @@ var Items = {
 			tier: 2,
 			obtain: ["unidentified"],
 			area: ["caves"],
+unidentifiedArea: ["caves"],
 			rarity: "unique",
 			sellPrice: 4,
 			lore: "",
@@ -2683,6 +2713,7 @@ var Items = {
 			tier: 2,
 			obtain: ["unidentified"],
 			area: ["caves"],
+unidentifiedArea: ["caves"],
 			rarity: "mythic",
 			sellPrice: 7,
 			lore: "",
@@ -3051,9 +3082,12 @@ var Items = {
 				slowAmount: 25,
 				slowTime: 1,
 			},
+			functionStats: {
+				damageTaken: 5
+			},
 			functionText: "You take 5 damage every time you attack with this staff.",
 			onAttack: function () {
-				Game.hero.takeDamage(5);
+				Game.hero.takeDamage(Player.weapon.functionStats.damageTaken);
 			},
 			projectile: "pinkBall",
 			projectileAdjust: {x: 0, y: 0},
@@ -3074,6 +3108,7 @@ var Items = {
 			stats: {
 				damage: 3.5,
 				maxDamage: 10.5,
+				// tbd reloadTime: 250,
 				exploding: 1,
 			},
 		},
@@ -3102,6 +3137,7 @@ var Items = {
 			tier: 2,
 			obtain: ["unidentified"],
 			area: ["caves"],
+unidentifiedArea: ["caves"],
 			rarity: "common",
 			sellPrice: 1,
 			obtainText: "Can be uncovered as an unidentified item in areas around Eaglecrest Caves.",
@@ -3119,6 +3155,7 @@ var Items = {
 			tier: 2,
 			obtain: ["unidentified"],
 			area: ["caves"],
+unidentifiedArea: ["caves"],
 			rarity: "unique",
 			sellPrice: 4,
 			lore: "",
@@ -3137,6 +3174,7 @@ var Items = {
 			tier: 2,
 			obtain: ["unidentified"],
 			area: ["caves"],
+unidentifiedArea: ["caves"],
 			rarity: "unique",
 			sellPrice: 4,
 			lore: "",
@@ -3157,15 +3195,41 @@ var Items = {
 			tier: 2,
 			obtain: ["unidentified"],
 			area: ["caves"],
+unidentifiedArea: ["caves"],
 			rarity: "mythic",
 			sellPrice: 7,
 			lore: "",
 			obtainText: "Can be uncovered as an unidentified item in areas around Eaglecrest Caves.",
 			stats: {
-				damage: 5,
-				maxDamage: 15,
+				damage: 4,
+				maxDamage: 12,
 				criticalChance: 50,
 			},
+			conditionalStats: [
+				{
+					text: "Gives the following stats whilst fully charged:",
+					condition: function () {
+						if (Player.inventory.items.weapon.charge > 30) {
+							// reset the charge in a certain time period tbd
+							return true;
+						}
+						return false;
+					},
+					stats: {
+						reflection: 50,
+						xpBonus: 50,
+					},
+				},
+			],
+			functionText: "Hitting enemies charges up this staff.",
+			onHit: function () { // stacks for each enemy hit I think
+				//if (Player.inventory.weapon.name === "Kenda's Iron Staff") {
+					if (typeof Player.inventory.weapon.charge === "undefined") {
+						Player.inventory.weapon.charge = 0;
+					}
+					Player.inventory.weapon.charge++;
+				//}
+			}
 		},
 	],
 	bow: [
@@ -3427,13 +3491,14 @@ var Items = {
 			area: ["eaglecrest"],
 			rarity: "mythic",
 			lore: "A pirate heirloom, passed down from sea monster to sea monster for centuries.",
-			obtainText: "Currently unobtainable",
-			limitedEdition: true, // temp
+			obtainText: "Can be looted from the Lake Lurker.",
 			sellPrice: 5,
 			stats: {
-				damage: 5,
-				reloadTime: 750,
-				//splashDamage: true, // not a thing anymore ... needs changing
+				damage: 10,
+				reloadTime: 500,
+				slowAmount: 35,
+				slowTime: 1,
+				//splashDamage: true, // tbd turn into water explosion ?
 			},
 			projectile: "waterball",
 			projectileAdjust: {x: 10, y: 10},
@@ -3454,7 +3519,10 @@ var Items = {
 				damage: 5,
 				healthRegen: -0.5
 			},
-			functionText: "Fires flowers, which restore 10 health when collected in full bloom",
+			functionStats: {
+				heal: 10,
+			},
+			functionText: "Fires flowers, which restore 10 health when collected in full bloom", // tbd make a function that checks the value of the functionStat
 			projectile: "flowerBud",
 			projectileAdjust: {x: 0, y: 0},
 			extraProjectileInfo: {
@@ -3492,15 +3560,16 @@ var Items = {
 								let i = Game.things.findIndex(thing => thing.id === id);
 								if (i >= 0) {
 									// projectile still exists
-									Game.restoreHealth(Game.hero, 10);
+									Game.restoreHealth(Game.hero, Game.things[i].healAmountOnCollect);
 									Game.removeObject(id, "things", i);
 								}
 							}, [this.id], 200, "Flower power!");
 						}
 					},
 				}));
+				Game.things[Game.things.length - 1].healAmountOnCollect = this.functionStats.heal;
 
-				console.log(Game.things[Game.things.length - 1].animation.state);
+				//console.log(Game.things[Game.things.length - 1].animation.state);
 			},
 		},
 		{
@@ -3625,8 +3694,8 @@ var Items = {
 			lore: "KAPOW",
 			obtainText: "Can be bought from Demolitionist Darrow in Eaglecrest.",
 			stats: {
-				damage: 5,
-				reloadTime: 750,
+				damage: 7,
+				reloadTime: 500,
 				exploding: 1,
 			},
 			projectile: "redPellet",
@@ -3656,6 +3725,7 @@ var Items = {
 			tier: 2,
 			obtain: ["unidentified"],
 			area: ["caves"],
+unidentifiedArea: ["caves"],
 			rarity: "common",
 			sellPrice: 1,
 			obtainText: "Can be uncovered as an unidentified item in areas around Eaglecrest Caves.",
@@ -3671,6 +3741,7 @@ var Items = {
 			tier: 2,
 			obtain: ["unidentified"],
 			area: ["caves"],
+unidentifiedArea: ["caves"],
 			rarity: "unique",
 			sellPrice: 4,
 			lore: "",
@@ -3689,6 +3760,7 @@ var Items = {
 			tier: 2,
 			obtain: ["unidentified"],
 			area: ["caves"],
+unidentifiedArea: ["caves"],
 			rarity: "unique",
 			sellPrice: 4,
 			lore: "",
@@ -3707,6 +3779,7 @@ var Items = {
 			tier: 2,
 			obtain: ["unidentified"],
 			area: ["caves"],
+unidentifiedArea: ["caves"],
 			rarity: "mythic",
 			sellPrice: 7,
 			lore: "",
@@ -3714,6 +3787,21 @@ var Items = {
 			stats: {
 				damage: 6,
 			},
+			functionText: "Upon hitting 3 enemies with the same projectile, deal 4 damage to them all.",
+			onHit: function (target, attacker, projectile) {
+				if (typeof projectile.chordNumber === "undefined") {
+					projectile.chordNumber = 0;
+					projectile.chordEnemiesHit = [];
+				}
+				projectile.chordNumber++;
+				projectile.chordEnemiesHit.push(target);
+				// animation tbd
+				if (projectile.chordNumber === 3) {
+					for (let i = 0; i < projectile.chordEnemiesHit; i++) {
+						projectile.chordEnemiesHit[i].dealDamage(4, true);
+					}
+				}
+			}
 		},
 	],
 	rod: [ // fishing rod
@@ -3768,6 +3856,26 @@ var Items = {
 			lore: "Not for consumption.",
 			stats: {},
 			projectile: "bobberChristmas",
+		},
+		{
+			id: 5,
+			name: "Golden Fishing Rod",
+			type: "rod",
+			image: "assets/items/rod/5.png",
+			rarity: "mythic",
+			sellPrice: 5, // tbd...
+			stats: {},
+		},
+		{
+			id: 6,
+			name: "Rod of Iron",
+			type: "rod",
+			image: "assets/items/rod/6.png",
+			rarity: "unique",
+			sellPrice: 5,
+			lore: "",
+			stats: {defence: 15},
+			tier: 1, // tbd...
 		},
 	],
 	set: [
@@ -3930,8 +4038,8 @@ var Items = {
 			],
 			stats: {
 				swimSpeed: 30,
-				looting: 30, // tbd make this and stealing conditional stats?
-				stealing: 30,
+				looting: 40, // tbd make this and stealing conditional stats?
+				stealing: 40,
 			},
 		},
 	],
@@ -4040,7 +4148,7 @@ var Items = {
 			image: "assets/items/bag/6.png",
 			lore: "Free merch",
 			sellPrice: 1,
-			size: 6,
+			size: 12,
 		},
 		{
 			id: 7,
@@ -4982,6 +5090,33 @@ var Items = {
 			stack: 1,
 			quest: true,
 		},
+		{
+			id: 75,
+			name: "Tinkered Timepiece",
+			type: "item",
+			category: "item",
+			rarity: "common",
+			functionText: "Controls the game's timer",
+			status: "stopped",
+			lore: "Never be late again ! !",
+			image: "assets/items/item/75.png",
+			stack: 1,
+			sellPrice: 4,
+			onClickFunction: function (position) {
+				if (!Timer.inUse) {
+					if (Timer.status === "stopped") {
+
+
+					}
+					if (Timer.status === "started") {
+
+					}
+				}
+				else {
+					Dom.chat.insert("Timer is currently in use.")
+				}
+			}
+		},
 	],
 	consumable: [
 		{
@@ -5781,12 +5916,14 @@ var Items = {
 			type: "consumable",
 			image: "assets/items/consumable/32.png",
 			functionText: "Restores 10 health",
-            cooldown: 10, // 10 seconds
+      cooldown: 5, // 5 seconds
+			healAmount: 10,
 			onClickFunction: function (inventoryPosition) {
+				let healAmount = Player.inventory.items[inventoryPosition].healAmount;
 				// remove the item
 				Dom.inventory.remove(inventoryPosition);
 				// restore the health
-				Game.restoreHealth(Game.hero, 10);
+				Game.restoreHealth(Game.hero, healAmount);
 			}
 		},
 		{
@@ -5889,28 +6026,34 @@ var Items = {
 			name: "King of Herrings Bait",
 			type: "consumable",
 			image: "assets/items/consumable/37.png",
-			functionText: "Guarantees you to fish up a King of Herrings on your next fishing attempt (if you haven't caught one yet today)",
+			functionText: "Guarantees you to fish up a King of Herrings on your next fishing attempt (if you haven't caught one yet today!)",
 			lore: "Made from a big fish",
 			maxCharges: 3,
 			onClickFunction: function (inventoryPosition, hotbar) {
 				if (!Game.hero.hasStatusEffect("Fish bait")) { // player does not have an existing fishing status effect
-					// remove one charge from the item
-					Dom.inventory.removeItemCharge(inventoryPosition, hotbar);
+					if (Player.quests.questProgress.kingOfHerringsLastCaught !== GetFullDate()) {
+						// remove one charge from the item
+						Dom.inventory.removeItemCharge(inventoryPosition, hotbar);
 
-					// give fish bait status effect
-					Game.hero.statusEffects.push(new statusEffect({
-						title: "Fish bait",
-						effect: "Guaranteed to fish up a King of Herrings on your next fishing attempt",
-						info: {
-							fishPool: [Items.fish[40]]
-						},
-						image: "bait",
-					}));
+						// give fish bait status effect
+						Game.hero.statusEffects.push(new statusEffect({
+							title: "Fish bait",
+							effect: "Guaranteed to fish up a King of Herrings on your next fishing attempt",
+							info: {
+								fishPool: [Items.fish[40]]
+							},
+							image: "bait",
+						}));
 
-					// update status effect display
-					Game.hero.updateStatusEffects();
-
-					// tbd player quest questprogress
+						// update status effect display
+						Game.hero.updateStatusEffects();
+					}
+					else {
+							Dom.chat.insert("<i>You have already fished up a King of Herrings today!</i>", undefined, undefined, true);
+					}
+				}
+				else {
+					Dom.chat.insert("<i>You already have some bait active!</i>", undefined, undefined, true);
 				}
 			}
 		},
@@ -5919,30 +6062,36 @@ var Items = {
 			name: "Lake Lurker Bait",
 			type: "consumable",
 			image: "assets/items/consumable/38.png",
-			functionText: "Guarantees you to fish up a Lake Lurker on your next fishing attempt",
+			functionText: "Guarantees you to fish up a Lake Lurker on your next fishing attempt (if you haven't caught one yet today!)",
 			lore: "Made from an even bigger fish",
 			maxCharges: 1,
 			onClickFunction: function (inventoryPosition, hotbar) {
-				if (!Game.hero.hasStatusEffect("Fish bait")) { // player does not have an existing fishing status effect
+			if (!Game.hero.hasStatusEffect("Fish bait")) { // player does not have an existing fishing status effect
+				if (Player.quests.questProgress.lakeLurkerLastCaught !== GetFullDate()) {
 					// remove one charge from the item
 					Dom.inventory.removeItemCharge(inventoryPosition, hotbar);
 
 					// give fish bait status effect
 					Game.hero.statusEffects.push(new statusEffect({
 						title: "Fish bait",
-						effect: "Guaranteed to fish up a King of Herrings on your next fishing attempt",
+						effect: "Guaranteed to fish up a Lake Lurker on your next fishing attempt",
 						info: {
-							fishPool: [{}]
+							fishPool: [Items.fish[41]]
 						},
 						image: "bait",
 					}));
 
 					// update status effect display
 					Game.hero.updateStatusEffects();
-
-					// tbd player quest questprogress
+				}
+				else {
+						Dom.chat.insert("<i>You have already fished up a Lake Lurker today!</i>", undefined, undefined, true);
 				}
 			}
+			else {
+				Dom.chat.insert("<i>You already have some bait active!</i>", undefined, undefined, true);
+			}
+		}
 		},
 	],
 	food: [
@@ -6825,7 +6974,9 @@ var Items = {
 				|| (Player.inventory.weapon.type === "rod"
 				&& Player.inventory.weapon.id === 4));
 			},
-			onCatch: function (inventoryPosition) {
+			randomNPC:"",
+			randomArea:"",
+			onCatch: function (position) {
 				if (Player.quests.questProgress.christmasPresentsCaught === 2) {
 					// third part of christmas fishing quest
 					// quest variable increase
@@ -6838,22 +6989,22 @@ var Items = {
 				else
 				{
 					// list of areas with NPCs
-					let possibleAreas = ["eaglecrestLoggingCamp", "tutorial", "eaglecrest", "eaglecrestBank", "eaglecrestBazaar", "theForge", "eaglecrest", "eaglecrestWest", "eaglecrestEast", "eaglecrestMonastery", "eaglecrestTavern"];
-					let randomArea = Areas[possibleAreas[Random(0, possibleAreas.length - 1)]];
-					let randomNPC = randomArea.npcs[Random(0, randomArea.npcs.length - 1)];
-					randomNPC = Game.setInformationFromTemplate(randomNPC);
+					let possibleAreas = ["eaglecrestLoggingCamp", "tutorial", "eaglecrest", "eaglecrestBank", "eaglecrestBazaar", "theForge", "eaglecrest", "eaglecrestTavern", "eaglecrestPlains"];
+					Player.inventory.items[position].randomArea = Areas[possibleAreas[Random(0, possibleAreas.length - 1)]];
+					Player.inventory.items[position].randomNPC = Player.inventory.items[position].randomArea.npcs[Random(0, Player.inventory.items[position].randomArea.npcs.length - 1)];
+					Player.inventory.items[position].randomNPC = Game.setInformationFromTemplate(Player.inventory.items[position].randomNPC);
 
-					Player.inventory.items[inventoryPosition].functionText = "To be delivered to " + randomNPC.name;
+					Player.inventory.items[position].functionText = "To be delivered to " + Player.inventory.items[position].randomNPC.name;
 
-					if (randomArea === Player.areaName)
+					if (Player.inventory.items[position].randomArea === Player.areaName)
 					{
-						randomNPC = Game.npcs.find(npc => npc.name === randomNPC.name);
+						Player.inventory.items[position].randomNPC = Game.npcs.find(npc => npc.name === Player.inventory.items[position].randomNPC.name);
 					}
 					else
 				    {
-						randomNPC = randomArea.npcs.find(npc => npc.name === randomNPC.name);
+						Player.inventory.items[position].randomNPC = Player.inventory.items[position].randomArea.npcs.find(npc => npc.name === Player.inventory.items[position].randomNPC.name);
 					}
-					randomNPC.roles.push({
+					Player.inventory.items[position].randomNPC.roles.push({
 						role: "function",
 						chooseText: "Here is a present.",
 						forceChoose: true, // forces choose dom
@@ -6862,11 +7013,11 @@ var Items = {
 							Dom.inventory.removeById(22, "fish", 1);
 							// chat
 							if (Event.event === "Christmas") {
-								Dom.chat.insert(Dom.chat.say(randomNPC.name, "Thank you for this present, here's a Christmas Token for your troubles."));
+								Dom.chat.insert(Dom.chat.say(Player.inventory.items[position].randomNPC.name, "Thank you for this present, here's a Christmas Token for your troubles."));
 								Dom.inventory.give(Items.currency[5], 1);
 							}
 							else {
-								Dom.chat.insert(Dom.chat.say(randomNPC.name, "Thank you for this present, here's some Gold for your troubles."));
+								Dom.chat.insert(Dom.chat.say(Player.inventory.items[position].randomNPC.name, "Thank you for this present, here's some Gold for your troubles."));
 								Dom.inventory.give(Items.currency[5], 3);
 							}
 							// achievement progress
@@ -6880,6 +7031,35 @@ var Items = {
 						}
 					});
 				}
+			},
+			onGameJoin: function(position)
+			{
+				Player.inventory.items[position].randomNPC.roles.push({
+					role: "function",
+					chooseText: "Here is a present.",
+					forceChoose: true, // forces choose dom
+					onClick: function () {
+						// remove the item
+						Dom.inventory.removeById(22, "fish", 1);
+						// chat
+						if (Event.event === "Christmas") {
+							Dom.chat.insert(Dom.chat.say(Player.inventory.items[position].randomNPC.name, "Thank you for this present, here's a Christmas Token for your troubles."));
+							Dom.inventory.give(Items.currency[5], 1);
+						}
+						else {
+							Dom.chat.insert(Dom.chat.say(Player.inventory.items[position].randomNPC.name, "Thank you for this present, here's some Gold for your troubles."));
+							Dom.inventory.give(Items.currency[5], 3);
+						}
+						// achievement progress
+						User.progress.presentsDelivered = Increment(User.progress.presentsDelivered);
+						// because it thinks a dom page is open
+						Dom.currentlyDisplayed = "";
+						Dom.currentNPC = {};
+					},
+					roleRequirement: function () {
+						return Dom.inventory.check(22, "fish", 1); // tbd needs to check it's delivered to them
+					}
+				});
 			},
 			onClickFunction: function (inventoryPosition) { // if you don't have the christmas fishing rod, it gives it to you
 				if (!Player.quests.questProgress.christmasFishingRod) {
@@ -6926,6 +7106,9 @@ var Items = {
 				avg: 17,
 				max: 51,
 			},
+			catchRequirement: function () {
+				return Player.quests.completedQuestArray.includes("Troubled Waters IV (Big Fish in a Small Pond)");
+			}
 		},
 		{
 			id: 25,
@@ -6945,6 +7128,9 @@ var Items = {
 				avg: 30,
 				max: 60,
 			},
+			catchRequirement: function () {
+				return Player.quests.completedQuestArray.includes("Troubled Waters IV (Big Fish in a Small Pond)");
+			}
 		},
 		{
 			id: 26,
@@ -6964,6 +7150,9 @@ var Items = {
 				avg: 20,
 				max: 61.7,
 			},
+			catchRequirement: function () {
+				return Player.quests.completedQuestArray.includes("Troubled Waters IV (Big Fish in a Small Pond)");
+			}
 		},
 		{
 			id: 27,
@@ -6983,6 +7172,9 @@ var Items = {
 				avg: 25,
 				max: 30.7,
 			},
+			catchRequirement: function () {
+				return Player.quests.completedQuestArray.includes("Troubled Waters IV (Big Fish in a Small Pond)");
+			}
 		},
 		{
 			id: 28,
@@ -7129,7 +7321,7 @@ var Items = {
 				max: 107,
 			},
 			catchRequirement: function () {
-                return Event.season === "winter";
+                return Event.season === "winter" && (Player.lootArea !== "eaglecrest" || Player.quests.completedQuestArray.includes("Troubled Waters IV (Big Fish in a Small Pond)"));
             },
 		},
 		{
@@ -7220,6 +7412,7 @@ var Items = {
 			sellQuantity: 16,
 			areas: ["eaglecrestWell", "eaglecrest"],
 		},
+
 		{
 			id: 40,
 			name: "King of Herrings",
@@ -7230,7 +7423,7 @@ var Items = {
 			rarity: "mythic",
 			lore: "",
 			sellPrice: 8,
-			sellQuantity: 4,
+			sellQuantity: 1,
 			howToCatch: "Can be fished up in Eaglecrest Well with the help of a special bait.",
 			consumption: true,
 			areas: ["eaglecrestWell"], // empty = every area
@@ -7239,20 +7432,71 @@ var Items = {
 				avg: 300,
 				max: 860,
 			},
+			barGameDifficulty: "kingOfHerrings",
 			onCatch: function()
             {
-                if(Player.quests.questProgress.troubledWaters3Progress === 2)
+								Player.quests.questProgress.kingOfHerringsLastCaught = GetFullDate();
+                if(Player.quests.questProgress.troubledWaters4Progress === 2)
                 {
                     Player.quests.questProgress.troubledWaters4Progress = 3;
                     Dom.quests.active();
                 }
             },
+			onlyFromBaitPool: true,
+		},
+		{
+			id: 41,
+			name: "Lake Lurker",
+			fishingType: "watermisc",
+			type: "fish",
+			image: "assets/items/fish/40.png",
+			rarity: "mythic",
+			lore: "",
+			sellPrice: 8,
+			sellQuantity: 4,
+			howToCatch: "Can be fished up in Eaglecrest Well with the help of a special bait.",
+			consumption: true,
+			areas: ["eaglecrestWell"], // empty = every area
+			length: {
+				min: 1000,
+				avg: 1500,
+				max: 2500,
+			},
+			barGameDifficulty: "lakeLurker",
+			clicksToCatch: 2,
+			timeToCatch: 10000,
+			onCatch: function(position)
+            {
+						   	Player.quests.questProgress.lakeLurkerLastCaught = GetFullDate();
+							  Dom.inventory.remove(position);
+                if(Player.quests.questProgress.troubledWaters4Progress === 4)
+                {
+                    Player.quests.questProgress.troubledWaters4Progress = 5;
+                    Dom.quests.active();
+                }
+								Areas.eaglecrestWell.startBoss(); // includes screen shake and pan to boss
+							},
+			onlyFromBaitPool: true,
+		},
+		{
+			id: 42,
+			name: "Corrupted Fish",
+			fishingType: "fish",
+			type: "fish",
+			image: "assets/items/fish/20.png",
+			rarity: "common",
+			lore: "Something's wrong with this fish...",
+			howToCatch: "Can be fished up from areas around Eaglecrest Plains.",
+			consumption: false,
+			areas: ["eaglecrest"],
+			length: {
+				min: 20,
+				avg: 55,
+				max: 110,
+			},
 			catchRequirement: function () {
-				if (Player.quests.questProgress.kingOfHerringsBaitUsed) {
-					//Player.quests.questProgress.kingOfHerringsBaitUsed = false;
-					return true;
-				}
-			}
+                return !Player.quests.completedQuestArray.includes("Troubled Waters IV (Big Fish in a Small Pond)");
+            },
 		},
 	],
 	dev: [
@@ -7518,5 +7762,82 @@ function UnId (area, tier) {
 		default:
 			this.functionText = "From " + FromCamelCase(area);
 			break;
+	}
+}
+
+
+var TierUp = function (item) {
+	switch (item.tier) {
+		case 1:
+			return TierOneToTwo(item);
+		default:
+			console.error("Item's tier is not accounted for!", item);
+			break;
+	}
+}
+
+var TierOneToTwo = function (item) {
+	item.tier = 2;
+
+	let checkArray = [item.stats, item.functionStats];
+	if (typeof item.conditionalStats !== "undefined") {
+		for (let i = 0; i < item.conditionalStats.length; i++) {
+			checkArray.push(item.conditionalStats[i].stats);
+		}
+	}
+
+	for (let i = 0; i < checkArray.length; i++) {
+		check = checkArray[i];
+
+		if(typeof check.damage !== "undefined")
+		{
+			check.damage = check.damage * 2;
+		}
+
+		if(typeof check.maxDamage !== "undefined")
+		{
+			check.maxDamage = check.maxDamage * 2;
+		}
+
+		if(typeof check.defence !== "undefined")
+		{
+			check.defence = check.defence * 2;
+		}
+
+		if(typeof check.maxHealth !== "undefined")
+		{
+			check.maxHealth = check.maxHealth * 2;
+		}
+
+		if(typeof check.healthRegen !== "undefined")
+		{
+			check.healthRegen = check.healthRegen * 2;
+		}
+
+		if(typeof check.exploding !== "undefined")
+		{
+			check.exploding = 2;
+		}
+
+		if(typeof check.flaming !== "undefined")
+		{
+			check.flaming = 2;
+		}
+
+		if(typeof check.poisonX !== "undefined")
+		{
+			check.poisonX = 2;
+		}
+
+		// functionStats mostly:
+		if(typeof check.heal !== "undefined")
+		{
+			check.heal *= 2;
+		}
+
+		if(typeof check.damageTaken !== "undefined")
+		{
+			check.damageTaken *= 2;
+		}
 	}
 }
