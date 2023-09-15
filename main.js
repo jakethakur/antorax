@@ -4955,14 +4955,16 @@ class Projectile extends Thing {
 			statusEffects: [],
 		};
 		// deep copy projectile stats
-		this.projectileStats = Object.assign({}, this.projectileStats);
+		if (typeof this.projectileStats.stats !== "undefined") {
+			this.projectileStats.stats = Object.assign({}, this.projectileStats.stats);
+		}
 
 		this.targets = properties.targets; // array of arrays of objects to deal damage to
 		this.exceptTargets = properties.exceptTargets || []; // array of objects that would also be included in targets, but should not be damaged
 
 		this.attacker = properties.attacker; // the caster of the projectile if applicable (used only in some onHit functions)
 
-		if (this.attacker.constructor.name === "Hero") {
+		if (typeof attacker !== "undefined" && this.attacker.constructor.name === "Hero") {
 			this.damageMultiplier = AttackConstants[Game.getAttackType()].damageMultiplier;
 		}
 
