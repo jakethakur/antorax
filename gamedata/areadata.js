@@ -12250,6 +12250,7 @@ eaglecrestWell: {
 
 	// remove old apprendages
 	initNewPhase: function () {
+		Game.camera.initScreenShake(9,1500);
 		let removeList = Game.enemies.filter(enemy => enemy.name === "Lake Lurker Arch" || enemy.name === "Lake Lurker Tail");
 		for (let i = 0; i <removeList.length; i++) {
 			Game.removeObject(removeList[i].id, "enemies");

@@ -1161,7 +1161,7 @@ Spells = [
 					y: properties.caster.y,
 					stats: {
 						damage: Spells[25].damage[properties.tier],
-						slowAmount: 40,
+						slowAmount: 65,
 						slowTime: 10,
 					},
 					attacker: properties.caster,
@@ -1182,7 +1182,7 @@ Spells = [
 
 		damage: [
 			0,
-			15,	// tier 1
+			25,	// tier 1
 		],
 
 		numOfProjectiles: [
