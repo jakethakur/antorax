@@ -4963,7 +4963,7 @@ class Projectile extends Thing {
 		this.attacker = properties.attacker; // the caster of the projectile if applicable (used only in some onHit functions)
 
 		if (this.attacker.constructor.name === "Hero") {
-			this.damageMultiplier = AttackConstants[Game.getAttackType()];
+			this.damageMultiplier = AttackConstants[Game.getAttackType()].damageMultiplier;
 		}
 
 		this.doNotRotate = properties.doNotRotate; // set to true if projectile should not be automatically rotated
