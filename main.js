@@ -4954,10 +4954,17 @@ class Projectile extends Thing {
 			hostility: "projectile",
 			statusEffects: [],
 		};
+		// deep copy projectile stats
+		this.projectileStats = Object.assign({}, this.projectileStats);
+
 		this.targets = properties.targets; // array of arrays of objects to deal damage to
 		this.exceptTargets = properties.exceptTargets || []; // array of objects that would also be included in targets, but should not be damaged
 
 		this.attacker = properties.attacker; // the caster of the projectile if applicable (used only in some onHit functions)
+
+		if (attacker.constructor.name === "Hero") {
+			this.damageMultiplier = AttackConstants[Game.getAttackType()];
+		}
 
 		this.doNotRotate = properties.doNotRotate; // set to true if projectile should not be automatically rotated
 		this.stayOnScreen = properties.stayOnScreen; // set to a number if it is removed after that many ms rather than 1500, or set to true if never removed automatically
@@ -5425,8 +5432,8 @@ class Projectile extends Thing {
 						}
 
 						// now apply overall attack damage modifier (a constant value, decided by devs and not affected by anything ingame)
-						if (attacker.constructor.name === "Hero") {
-							dmgDealt *= AttackConstants[Game.getAttackType()].damageMultiplier;
+						if (typeof this.damageMultiplier !== "undefined") {
+							dmgDealt *= this.damageMultiplier;
 						}
 
 
@@ -11123,13 +11130,11 @@ Game.update = function (delta) {
 					}
 					else {
 						// there are borders in the spritesheet that need to be cropped out
-						w = animate.baseCrop.width;
-						h = animate.baseCrop.height;
 						object.crop = {
 							x: (animate.state % animate.imagesPerRow) * w + animate.baseCrop.x,
 							y: Math.floor(animate.state / animate.imagesPerRow) * h + animate.baseCrop.y,
-							width: w,
-							height: h
+							width: animate.baseCrop.width,
+							height: animate.baseCrop.height
 						}
 					}
 				}
