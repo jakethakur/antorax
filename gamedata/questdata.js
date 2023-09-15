@@ -2730,6 +2730,7 @@ var Quests = {
 			howToStart: "Speak to <strong>Fisherman Guimtal</strong>.",
 			levelRequirement: 5,
 			questRequirements: ["Troubled Waters", "Learning to Fish III"],
+			shareCooldownWith: [{questArea: "eaglecrest", id: 7}],
 
 			rewards: {
 				xp: 50,
@@ -2901,6 +2902,7 @@ var Quests = {
 			howToStart: "Speak to <strong>Fisher Sharptooth</strong>.",
 			levelRequirement: 5,
 			questRequirements: ["Troubled Waters III (Eaglecrest Plains Fishing Tourǃǃ)"],
+			shareCooldownWith: [{questArea: "eaglecrest", id: 13}],
 
 			rewards: {
 				xp: 100,

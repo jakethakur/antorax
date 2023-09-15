@@ -286,6 +286,9 @@ const EnemyLootTables = {
 				4,				// 0
 				0,				// 1
 			],
+			condition: function () {
+				return Player.quests.completedQuestArray.includes("Troubled Waters IV (Big Fish in a Small Pond)");
+			},
 			onLootGenerate: function (item) {
 				item.item = {...item.item};  // remove all references to itemdata in fish variable (otherwise length value changed in this will also affect itemData)!
 				item.item.length = Round(BiasedRandom(item.item.length.min, item.item.length.max, item.item.length.avg, 1));
@@ -301,6 +304,9 @@ const EnemyLootTables = {
 				3,				// 0
 				0,				// 1
 			],
+			condition: function () {
+				return Player.quests.completedQuestArray.includes("Troubled Waters IV (Big Fish in a Small Pond)");
+			},
 			onLootGenerate: function (item) {
 				item.item = {...item.item};  // remove all references to itemdata in fish variable (otherwise length value changed in this will also affect itemData)!
 				item.item.length = Round(BiasedRandom(item.item.length.min, item.item.length.max, item.item.length.avg, 1));
@@ -316,6 +322,9 @@ const EnemyLootTables = {
 				4,				// 0
 				0,				// 1
 			],
+			condition: function () {
+				return Player.quests.completedQuestArray.includes("Troubled Waters IV (Big Fish in a Small Pond)");
+			},
 			onLootGenerate: function (item) {
 				item.item = {...item.item};  // remove all references to itemdata in fish variable (otherwise length value changed in this will also affect itemData)!
 				item.item.length = Round(BiasedRandom(item.item.length.min, item.item.length.max, item.item.length.avg, 1));
@@ -331,6 +340,9 @@ const EnemyLootTables = {
 				4,				// 0
 				0,				// 1
 			],
+			condition: function () {
+				return Player.quests.completedQuestArray.includes("Troubled Waters IV (Big Fish in a Small Pond)");
+			},
 			onLootGenerate: function (item) {
 				item.item = {...item.item};  // remove all references to itemdata in fish variable (otherwise length value changed in this will also affect itemData)!
 				item.item.length = Round(BiasedRandom(item.item.length.min, item.item.length.max, item.item.length.avg, 1));
@@ -346,6 +358,9 @@ const EnemyLootTables = {
 				0.2,			// 0
 				0,				// 1
 			],
+			condition: function () {
+				return Player.quests.completedQuestArray.includes("Troubled Waters IV (Big Fish in a Small Pond)");
+			},
 			onLootGenerate: function (item) {
 				item.item = {...item.item};  // remove all references to itemdata in fish variable (otherwise length value changed in this will also affect itemData)!
 				item.item.length = Round(BiasedRandom(item.item.length.min, item.item.length.max, item.item.length.avg, 1));
@@ -361,6 +376,9 @@ const EnemyLootTables = {
 				0.2,			// 0
 				0,				// 1
 			],
+			condition: function () {
+				return Player.quests.completedQuestArray.includes("Troubled Waters IV (Big Fish in a Small Pond)");
+			},
 			onLootGenerate: function (item) {
 				item.item = {...item.item};  // remove all references to itemdata in fish variable (otherwise length value changed in this will also affect itemData)!
 				item.item.length = Round(BiasedRandom(item.item.length.min, item.item.length.max, item.item.length.avg, 1));
@@ -850,9 +868,15 @@ const BossLootTables = {
 			],
 		},
 		{
+			item: Items.boots[23],
+			chance: [
+				30,			// 0
+				0,				// 1
+			],
+		},
+		{
 			item: Items.bow[13],
 			condition: function () {
-				// killed the pack 8 times, and the player hasn't obtained this before (note the quest variable is incremented by onDeath, i.e. before the loot is generated, which is why it's 8 not 7)
 				return Player.class === "a";
 			},
 			chance: [
@@ -930,14 +954,14 @@ const BossLootTables = {
 		{ // soggy tendrils
 			item: Items.fish[23],
 			chance: [
-				100,//0
+				80,//0
 				70,				// 1
 				50,				// 2
 				20,				// 3
 				4,				// 4
 				0, //5
 			],
-			repeatTimes: 5
+			repeatTimes: 6
 		},
 		{ // fallfish
 			item: Items.fish[24],

@@ -1406,7 +1406,7 @@ unidentifiedArea: ["caves"],
 						return map.isSlowTileAtXY(Game.hero.x, Game.hero.y) === "water";
 					},
 					stats: {
-						defence: 5,
+						defence: 7,
 					},
 				},
 			],
@@ -1855,7 +1855,7 @@ unidentifiedArea: ["caves"],
 						return map.isSlowTileAtXY(Game.hero.x, Game.hero.y) === "water";
 					},
 					stats: {
-						dodgeChance: 20,
+						dodgeChance: 35,
 					},
 				},
 			],
@@ -2073,9 +2073,12 @@ unidentifiedArea: ["caves"],
 			area: ["eaglecrest"],
 			rarity: "unique",
 			sellPrice: 4,
-			obtainText: "Can be looted from TBD",
+			obtainText: "Can be looted from the Lake Lurker.",
 			stats: {
-				defence: 3,//tbd
+				defence: 1,
+				healthRegen: 0.2,
+				swimSpeed: 90,
+				walkSpeed: -30,
 			},
 		},
 	],
@@ -3854,6 +3857,26 @@ unidentifiedArea: ["caves"],
 			stats: {},
 			projectile: "bobberChristmas",
 		},
+		{
+			id: 5,
+			name: "Golden Fishing Rod",
+			type: "rod",
+			image: "assets/items/rod/5.png",
+			rarity: "mythic",
+			sellPrice: 5, // tbd...
+			stats: {},
+		},
+		{
+			id: 6,
+			name: "Rod of Iron",
+			type: "rod",
+			image: "assets/items/rod/6.png",
+			rarity: "unique",
+			sellPrice: 5,
+			lore: "",
+			stats: {defence: 15},
+			tier: 1, // tbd...
+		},
 	],
 	set: [
 		{
@@ -4015,8 +4038,8 @@ unidentifiedArea: ["caves"],
 			],
 			stats: {
 				swimSpeed: 30,
-				looting: 30, // tbd make this and stealing conditional stats?
-				stealing: 30,
+				looting: 40, // tbd make this and stealing conditional stats?
+				stealing: 40,
 			},
 		},
 	],
@@ -7083,6 +7106,9 @@ unidentifiedArea: ["caves"],
 				avg: 17,
 				max: 51,
 			},
+			catchRequirement: function () {
+				return Player.quests.completedQuestArray.includes("Troubled Waters IV (Big Fish in a Small Pond)");
+			}
 		},
 		{
 			id: 25,
@@ -7102,6 +7128,9 @@ unidentifiedArea: ["caves"],
 				avg: 30,
 				max: 60,
 			},
+			catchRequirement: function () {
+				return Player.quests.completedQuestArray.includes("Troubled Waters IV (Big Fish in a Small Pond)");
+			}
 		},
 		{
 			id: 26,
@@ -7121,6 +7150,9 @@ unidentifiedArea: ["caves"],
 				avg: 20,
 				max: 61.7,
 			},
+			catchRequirement: function () {
+				return Player.quests.completedQuestArray.includes("Troubled Waters IV (Big Fish in a Small Pond)");
+			}
 		},
 		{
 			id: 27,
@@ -7140,6 +7172,9 @@ unidentifiedArea: ["caves"],
 				avg: 25,
 				max: 30.7,
 			},
+			catchRequirement: function () {
+				return Player.quests.completedQuestArray.includes("Troubled Waters IV (Big Fish in a Small Pond)");
+			}
 		},
 		{
 			id: 28,
@@ -7286,7 +7321,7 @@ unidentifiedArea: ["caves"],
 				max: 107,
 			},
 			catchRequirement: function () {
-                return Event.season === "winter";
+                return Event.season === "winter" && (Player.lootArea !== "eaglecrest" || Player.quests.completedQuestArray.includes("Troubled Waters IV (Big Fish in a Small Pond)"));
             },
 		},
 		{
@@ -7377,6 +7412,7 @@ unidentifiedArea: ["caves"],
 			sellQuantity: 16,
 			areas: ["eaglecrestWell", "eaglecrest"],
 		},
+
 		{
 			id: 40,
 			name: "King of Herrings",
@@ -7441,6 +7477,27 @@ unidentifiedArea: ["caves"],
 								Areas.eaglecrestWell.startBoss(); // includes screen shake and pan to boss
 							},
 			onlyFromBaitPool: true,
+		},
+		{
+			id: 42,
+			name: "Corrupted Fish",
+			fishingType: "fish",
+			type: "fish",
+			image: "assets/items/fish/42.png",
+			rarity: "common",
+			sellPrice: 1,
+			lore: "Something's wrong with this fish...",
+			howToCatch: "Can be fished up from areas around Eaglecrest Plains.",
+			consumption: false,
+			areas: ["eaglecrest"],
+			length: {
+				min: 20,
+				avg: 55,
+				max: 110,
+			},
+			catchRequirement: function () {
+                !Player.quests.completedQuestArray.includes("Troubled Waters IV (Big Fish in a Small Pond)");
+            },
 		},
 	],
 	dev: [

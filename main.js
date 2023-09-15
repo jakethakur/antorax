@@ -2196,6 +2196,17 @@ class Character extends Thing {
 		this.statusEffects = [];
 		this.numberOfHiddenStatusEffects = 0; // number of status effects that aren't shown (for displaying status effects)
 
+		if (typeof properties.stats.stunned !== "undefined") {
+			// stunned on spawn
+			Game.statusEffects.stun({
+				target: this,
+				time: properties.stats.stunned,
+				effectTitle: "Stunned",
+				effectDescription: "Stunned",
+			});
+		}
+
+
 		if (properties.addToObjectArrays !== false) {
 			Game.allCharacters.push(this); // array for current area only
 		}
@@ -4276,8 +4287,11 @@ class Hero extends Attacker {
 							Player.quests.questProgress.itemsFishedUp = Increment(Player.quests.questProgress.itemsFishedUp);
 
 							// for quest progress etc
-							if (typeof Areas[Game.areaName].onFishCaught !== "undefined") {
+							if (this.channelling.fishingType === "fish" && typeof Areas[Game.areaName].onFishCaught !== "undefined") {
 								Areas[Game.areaName].onFishCaught();
+							}
+							if (typeof Areas[Game.areaName].onItemCaught !== "undefined") {
+								Areas[Game.areaName].onItemCaught();
 							}
 
 							// chat message
@@ -8699,6 +8713,9 @@ Game.loadArea = function (areaName, destination) {
 		            let tile = map.getTile(layer, c, r); // tile number
 
 		            if (tile !== 0 && (map.objectTiles.includes(tile) || map.objectTiles.includes(-tile))) { // 0 is empty tile
+						if (tile < 0) {
+							tile = -tile;
+						}
 
 						// draw position
 						let x = Math.round((c) * map.tsize) + 30 - map.origin.x;
@@ -11051,12 +11068,23 @@ Game.update = function (delta) {
 			if (nextFrame) {
 				// should be animated
 
-				// increment state
-				if (animate.state >= animate.totalImages-1) {
-					animate.state = 0;
+				if (animate.reverse) {
+					// decrement state
+					if (animate.state <= 0) {
+						animate.state = animate.totalImages-1;
+					}
+					else {
+						animate.state--;
+					}
 				}
 				else {
-					animate.state++;
+					// increment state
+					if (animate.state >= animate.totalImages-1) {
+						animate.state = 0;
+					}
+					else {
+						animate.state++;
+					}
 				}
 
 				if (animate.type === "carousel") {

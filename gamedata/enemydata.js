@@ -1547,7 +1547,7 @@ const EnemyTemplates = {
       		],
 			onDeath: function () {
 				// destroy all things related to the boss
-				let remove = Game.enemies.filter(enemy => enemy.name === "Sea Monster Tail" || enemy.name === "Sea Monster Arch" || enemy.name === "Water Coalesce");
+				let remove = Game.enemies.filter(enemy => enemy.name === "Lake Lurker Tail" || enemy.name === "Lake Lurker Arch" || enemy.name === "Water Coalesce");
 				for (let i = 0; i < remove.length; i++) {
 					Game.removeObject(remove[i].id, remove[i].type);
 				}
@@ -1576,6 +1576,7 @@ const EnemyTemplates = {
 				range: 60,
 				reloadTime: 800,
 				healthRegen: 1,
+				stunned: 2,
 			},
 			attackBehaviour: {
 				baseAggro: 1000,
@@ -1587,36 +1588,38 @@ const EnemyTemplates = {
 			corpseOnDeath: false,
 			respawnOnDeath: false,
 
-			spells: [
-
-	    	],
-
-			/*animation: {
+			animation: {
 				type: "spritesheet",
-				frameTime: 30,
+				frameTime: 100,
 				imagesPerRow: 18,
 				totalImages: 18,
-				startState: 17
-				stopAnimationOnState: 18,
-			},*/
+				startState: 17,
+				stopAnimationOnState: 0,
+				reverse: true,
+			},
 			crop: {
-				x: 0,
+				x: 1,
 				y: 0,
-				width: 50,
-				height: 98,
+				width: 48,
+				height: 124,
 			},
 
-			/*onDeath: function () {
-				Game.things.push({
+			onDeath: function () {
+				Game.things.push(new Thing({
+					map: map,
+					type: "things",
+					x: this.x,
+					y: this.y,
 					image: "waterCoalesce",
 					name: "Water Coalesce",
 					hostility: "hostile",
 					level: 10,
 					animation: {
 						type: "spritesheet",
-						frameTime: 30,
+						frameTime: 75,
 						imagesPerRow: 18,
 						totalImages: 18,
+						startState: 0,
 						stopAnimationOnState: 17,
 					},
 					crop: {
@@ -1625,8 +1628,8 @@ const EnemyTemplates = {
 						width: 48,
 						height: 124,
 					},
-				});
-			}*/
+				}));
+			},
 		},
 
 
