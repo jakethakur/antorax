@@ -8254,8 +8254,26 @@ Game.loadDefaultImages = function () {
 	let toLoad = [];
 
 // temp:
+	let clothingName;
+	let clothingColours = [];
+	switch (Player.class) {
+		case "m":
+			clothingName = "mageCloak";
+			clothingColours = ["Amethyst", "Aquamarine", "Emerald", "Lapis", "Onyx", "Pearl", "Quartz", "Ruby"];
+			break;
+
+		case "a":
+			clothingName = "archerCoat";
+			clothingColours = ["Crow", "Falcon", "Flamingo", "Hibiscus", "Ivy", "Lavender", "Lily", "Rose"];
+			break;
+
+		case "k":
+			clothingName = "knightArmour";
+			clothingColours = ["Cobalt", "Copper", "Listerine", "Obsidian", "Pink", "Platinum", "Titanium", "Verdigris"];
+			break;
+	}
 	Player.skinTone = "humanLight1";
-	Player.clothing = "mageCloakLapis";
+	Player.clothing = clothingName + clothingColours[Random(0, clothingColours.length-1)];
 	Player.hair = "longSpikyBrown";
 
 	// load image based on class
