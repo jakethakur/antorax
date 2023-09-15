@@ -4268,9 +4268,9 @@ class Hero extends Attacker {
 							FishingGame.gameEnd();
 
 							// remove fishing bobber
-							Game.removeObject(this.channellingProjectileId, "projectiles");
+							//Game.removeObject(this.channellingProjectileId, "projectiles"); // now done in removeChannelling
 							this.removeChannelling("fishingBobberRemoved");
-							Game.clearTimeout(Game.fishTimeout);
+							//Game.clearTimeout(Game.fishTimeout); // now done in removeChannelling
 
 							Dom.chat.insert("<i>The fish swam away!</i>");
 						}
@@ -4442,9 +4442,9 @@ class Hero extends Attacker {
 							}
 
 							// remove fishing bobber
-							Game.removeObject(this.channellingProjectileId, "projectiles");
+							//Game.removeObject(this.channellingProjectileId, "projectiles"); // now done in removeChannelling
 							this.removeChannelling("fishingBobberRemoved");
-							Game.clearTimeout(Game.fishTimeout);
+							//Game.clearTimeout(Game.fishTimeout);
 
 							// end fishing games
 							FishingGame.gameEnd();
