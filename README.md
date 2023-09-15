@@ -10,5 +10,8 @@ You can play the latest versions here: <a href="https://antorax.herokuapp.com/se
 Antorax is currently in early development, but we are working on it whenever we get a chance! All of the art and programming is done by us.
 
 Interested in the game's development or want to leave us a message? [We have a form here](https://goo.gl/forms/OawXMTZ7oqkbEGDt1) 🧡
+
+
+![Realms of Antorax logo](selection/assets/news/troubledWaters.png)
   
 </div>
