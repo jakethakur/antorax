@@ -1024,38 +1024,50 @@ Game.removeObject = function (id, type, index) {
 
 	// find object
 	let i = this.searchFor(id, this.allEntities);
-	let obj = this.allEntities[i];
-	obj.removed = true; // used to stop further code in the object from being run after it is removed
 
-	// every object is an entity
-	// remove from allEntities
-	this.allEntities.splice(i, 1);
+	if (i !== null) {
+		let obj = this.allEntities[i];
+		obj.removed = true; // used to stop further code in the object from being run after it is removed
 
-	if (className.prototype instanceof Visible || className.name === "Visible") {
-		// extends off Thing or is Thing
-		// remove from allVisibles
-		this.allVisibles.splice(this.searchFor(id, this.allVisibles), 1);
+		// every object is an entity
+		// remove from allEntities
+		this.allEntities.splice(i, 1);
 
-		if (className.prototype instanceof Thing || className.name === "Thing") {
+		if (className.prototype instanceof Visible || className.name === "Visible") {
 			// extends off Thing or is Thing
-			// remove from allThings
-			this.allThings.splice(this.searchFor(id, this.allThings), 1);
+			// remove from allVisibles
+			this.allVisibles.splice(this.searchFor(id, this.allVisibles), 1);
 
-			if (className.prototype instanceof Character || className.name === "Character") {
-				// extends off Character or is Character
-				// remove from allCharacters
-				this.allCharacters.splice(this.searchFor(id, this.allCharacters), 1);
+			if (className.prototype instanceof Thing || className.name === "Thing") {
+				// extends off Thing or is Thing
+				// remove from allThings
+				this.allThings.splice(this.searchFor(id, this.allThings), 1);
 
-				if (className.prototype instanceof Attacker || className.name === "Attacker") {
-					// extends off Attacker or is Attacker
-					// remove from allAttackers
-					this.allAttackers.splice(this.searchFor(id, this.allAttackers), 1);
+				if (className.prototype instanceof Character || className.name === "Character") {
+					// extends off Character or is Character
+					// remove from allCharacters
+					this.allCharacters.splice(this.searchFor(id, this.allCharacters), 1);
+
+					if (className.prototype instanceof Attacker || className.name === "Attacker") {
+						// extends off Attacker or is Attacker
+						// remove from allAttackers
+						this.allAttackers.splice(this.searchFor(id, this.allAttackers), 1);
+					}
 				}
 			}
+			else if (className.prototype instanceof Shape || className.name === "Shape") {
+				this.allShapes.splice(this.searchFor(id, this.allShapes), 1);
+			}
 		}
-		else if (className.prototype instanceof Shape || className.name === "Shape") {
-			this.allShapes.splice(this.searchFor(id, this.allShapes), 1);
+
+		// remove from specific array of its type
+		if (index === undefined) {
+			index = this.searchFor(id, this[type]);
 		}
+		this[type].splice(index, 1);
+	}
+	else {
+		console.error("Failed to remove object with id", id, "and type", type);
 	}
 
 	// remove from damageableByPlayer (if it is in there)
@@ -1071,11 +1083,10 @@ Game.removeObject = function (id, type, index) {
 		}
 	}
 
-	// remove from specific array of its type
-	if (index === undefined) {
-		index = this.searchFor(id, this[type]);
+	// if player is fishing this up, stop the player's fishing event
+	if (typeof this.fishUp !== "undefined" && this.fishUp.id === id) {
+		this.hero.removeChannelling("fishableRemoved");
 	}
-	this[type].splice(index, 1);
 }
 
 // checks if an NPC can be shown (from their canBeShown function)
@@ -2234,6 +2245,8 @@ class Character extends Thing {
 
 			// remove existing channelling
 			if (this.channelling === "fishing" || typeof this.channelling.fishingType !== "undefined") {
+				// tbd generalise the following into a stop fishing fn ?
+
 				// remove fishing bobber
 				Game.removeObject(this.channellingProjectileId, "projectiles");
 				this.channellingProjectileId = null;
@@ -2242,6 +2255,8 @@ class Character extends Thing {
 
 				// end fishing game
 				FishingGame.gameEnd();
+
+				Game.fishUp = undefined;
 			}
 			else if (this.channelling === "projectile") {
 				if (reason !== "projectileAttackFinished") {
